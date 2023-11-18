@@ -25,6 +25,7 @@ fi
 . ./common.check
 
 which pmrep >/dev/null 2>&1 || _notrun "no pmrep executable"
+[ "$PCP_PLATFORM" = freebsd ] && _notrun "Insufficient metrics on FreeBSD to exercise pmrepconf"
 
 do_valgrind=false
 if [ "$1" = "--valgrind" ]

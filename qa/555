@@ -28,7 +28,7 @@ in
 	ln $seq.$PCP_PLATFORM $seq.out || exit 1
 	hostname=`hostname -f | sed -e 's/\..*//'`
 	;;
-    darwin|solaris|openbsd)
+    darwin|solaris|openbsd|freebsd)
 	ln $seq.linux $seq.out || exit 1
 	hostname=`hostname | sed -e 's/\..*//'`
 	;;

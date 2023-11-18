@@ -106,10 +106,10 @@ p
 	    exit 1
 	fi
     fi
-elif [ $PCP_PLATFORM = darwin -o $PCP_PLATFORM = freebsd -o $PCP_PLATFORM = netbsd -o $PCP_PLATFORM = openbsd ]
+elif [ $PCP_PLATFORM = darwin -o $PCP_PLATFORM = netbsd -o $PCP_PLATFORM = openbsd ]
 then
     ln $seq.darwin $seq.out
-elif [ $PCP_PLATFORM = solaris ]
+elif [ $PCP_PLATFORM = solaris -o $PCP_PLATFORM = freebsd ]
 then
     ln $seq.solaris $seq.out
 fi

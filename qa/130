@@ -13,6 +13,8 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+_need_metric rpc.server.rpccnt
+
 rm -f $seq.out
 case $PCP_PLATFORM
 in

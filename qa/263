@@ -78,15 +78,19 @@ $1 == "aggr.seconds"		{ state = 1 }
 state == 1 && $1 == "value"	{ seconds = $2; $2 = "OK"; state = 0 }
 $1 == "aggr.avgu64"		{ state = 2 }
 state == 2 && $1 == "value"	{ if ($2 == 500 + seconds) $2 = "OK"
+				  else $2 = $2 " (expecting " $2 + 500 ")"
 				  state = 0 }
 $1 == "aggr.maxu64"		{ state = 3 }
 state == 3 && $1 == "value"	{ if ($2 == 900 + seconds) $2 = "OK"
+				  else $2 = $2 " (expecting " $2 + 900 ")"
 				  state = 0 }
 $1 == "aggr.minu64"		{ state = 4 }
 state == 4 && $1 == "value"	{ if ($2 == 100 + seconds) $2 = "OK"
+				  else $2 = $2 " (expecting " $2 + 100 ")"
 				  state = 0 }
 $1 == "aggr.sumu64"		{ state = 5 }
 state == 5 && $1 == "value"	{ if ($2 == 4500 + 9*seconds) $2 = "OK"
+				  else $2 = $2 " (expecting " $2 + 4500 ")"
 				  state = 0 }
 				{ print }
 '

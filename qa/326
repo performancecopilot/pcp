@@ -131,7 +131,7 @@ if [ -z "$pmda_pid" ]
 then
     echo "Arrgh ... lost pmdasample process?"
     echo "See $seq.full for details"
-    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '([P]ID)|(/[p]mcd)' >>$seq.full
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '([P]ID)|(/[p]mcd)|([p]mda)' >>$seq.full
     [ -n "$pmlogger_pid" ] && $signal -s TERM $pmlogger_pid
     [ -n "$pmval_pid" ] && $signal -s TERM $pmval_pid
     cat $tmp.pmcd.log >>$seq.full

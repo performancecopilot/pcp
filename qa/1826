@@ -59,6 +59,8 @@ need_restore=true
 _filter_pminfo()
 {
     sed \
+        -e 's/.agent.:.linux./"agent":"PLATFORM"/g' \
+        -e 's/.agent.:.freebsd./"agent":"PLATFORM"/g' \
         -e "s/.machineid_sha256.:.${sha256id}./\"machineid_sha256\":\"SHA256ID\"/g" \
         -e "s/.domainname.:.${domainname}./\"domainname\":\"DOMAIN\"/g" \
         -e "s/.machineid.:.${machineid}./\"machineid\":\"MACHINE\"/g" \

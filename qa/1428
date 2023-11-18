@@ -27,6 +27,8 @@ $python -c "from pcp import pmapi" >/dev/null 2>&1
 [ -x $PCP_BINADM_DIR/pmlogger_daily_report ] || \
 	_notrun pmlogger_daily_report not installed
 
+[ "$PCP_PLATFORM" = freebsd ] && _notrun "Insufficient metrics on FreeBSD to exercise pmlogger_daily_report"
+
 _cleanup()
 {
     cd $here
