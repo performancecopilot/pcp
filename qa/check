@@ -19,24 +19,6 @@ __aborted=true
 myname=`basename $0`
 __scriptname=$myname  #  a synonym
 
-# Suggested by Andreas Gerstmayr on 11 Mar 2022
-#
-if which timeout >/dev/null 2>&1
-then
-    use_timeout=true
-    # some VMs are _really_ slow ...
-    #
-    case `hostname`
-    in
-	bozo-vm)	max_timeout=6m
-			;;
-	*)		max_timeout=5m
-			;;
-    esac
-else
-    use_timeout=false
-fi
-
 # lock (and PID) file to prevent concurrent QA execution
 #
 CHECKLOCK=/tmp/PCP-QA-LOCK
@@ -369,6 +351,36 @@ trap "_wrapup; exit \$status" 0 1 2 3 15
 # generic initialization... this may take a while to run, because (unless
 # $__quick is true) make is run.
 . ./common
+
+# Suggested by Andreas Gerstmayr on 11 Mar 2022
+#
+if which timeout >/dev/null 2>&1
+then
+    use_timeout=true
+    # some VMs are _really_ slow ...
+    #
+    case `hostname`
+    in
+	bozo-vm)	max_timeout=6m
+			;;
+	*)		max_timeout=5m
+			;;
+    esac
+    # but timeout(1) does not work on some platforms because the QA
+    # tests may start daemons (like pmcd, and then the PMDAs) that
+    # are children of the test's shell script (no systemd in play)
+    # and then it looks like the script never ends while it has
+    # children that are still alive
+    #
+    case $PCP_PLATFORM
+    in
+	freebsd)
+	    use_timeout=false
+	    ;;
+    esac
+else
+    use_timeout=false
+fi
 
 [ -f check.time ] || touch check.time
 $__timings_file && $PCP_ECHO_PROG $PCP_ECHO_N > check.timings
