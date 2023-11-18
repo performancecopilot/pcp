@@ -1,6 +1,6 @@
 sts=0
-tmp=/var/tmp
-trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
+tmp=/var/tmp/pcp-postinstall
+trap "rm -rf $tmp $tmp.*; exit \$sts" 0 1 2 3 15
 
 if [ ! -f /etc/pcp.env ]
 then
@@ -29,6 +29,8 @@ do
 done
 export PATH
 
+here=`pwd`
+
 # -n (show-me) is the only command line option ...
 #
 if [ $# -eq 1 -a X"$1" = X"-n" ]
@@ -51,6 +53,12 @@ else
     SYSTEMCTL=systemctl
     RC_UPDATE=rc-update
 fi
+
+_cd()
+{
+    $show_me && echo "+ cd $1"
+    cd $1
+}
 
 # no need to touch $PCP_VAR_DIR/pmns/.NeedRebuild as this file
 # is included in the tarball
@@ -365,6 +373,44 @@ done
 #
 _do_dir "pcpqa:pcpqa" 775 "$PCP_VAR_DIR"/testsuite
 $CHOWN -R pcpqa:pcpqa "$PCP_VAR_DIR"/testsuite
+
+# unpack and install PCP Perl modules ...
+#
+if [ -f /tmp/pcp-perl-pack.tar.gz ]
+then
+    eval `sed -n '/^TAR[ 	]*=/s/[ 	]//gp' </usr/include/pcp/builddefs`
+    if [ -z "$TAR" ]
+    then
+	echo "postinstall: no TAR in /usr/include/pcp/builddefs ... skipping Perl bits"
+    else
+	rm -rf /tmp/pcp-postinstall
+	mkdir /tmp/pcp-postinstall
+	_cd /tmp/pcp-postinstall
+	$TAR xzf ../pcp-perl-pack.tar.gz
+	for dir in *
+	do
+	    if [ ! -f $dir/Makefile ]
+	    then
+		echo "postinstall: no $dir/Makefile ... cannot install $dir Perl module"
+	    else
+		_cd $dir
+		if $show_me
+		then
+		    echo "+ make pure_site_install"
+		else
+		    if make pure_site_install
+		    then
+			:
+		    else
+			echo "postinstall: install failed for $dir ..."
+		    fi
+		fi
+		_cd ..
+	    fi
+	done
+	_cd $here
+    fi
+fi
 
 # Note:
 #   Do not start daemons other than: pmcd, pmlogger, pmie,

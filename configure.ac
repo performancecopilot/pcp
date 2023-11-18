@@ -298,7 +298,7 @@ then
     then
 	pcp_ps_all_flags=-efw
     else
-	pcp_ps_all_flags=auxww
+	pcp_ps_all_flags="-axww -o user,pid,ppid,%cpu,start,tty,time,args"
     fi
     pcp_platform_paths='/usr/bin/X11'
     test -d /usr/local/bin && pcp_platform_paths="$pcp_platform_paths:/usr/local/bin"
@@ -871,7 +871,7 @@ AC_PATH_PROGS(PYTHON, [/usr/bin/python2 python2 python2.7 python])
 AC_SUBST(PYTHON)
 
 dnl check if python3 available for the build and runtime
-AC_PATH_PROGS(PYTHON3, [/usr/bin/python3 python3])
+AC_PATH_PROGS(PYTHON3, [/usr/bin/python3 python3 python3.9])
 AC_SUBST(PYTHON3)
 
 dnl check availability of Python header files
@@ -1814,6 +1814,9 @@ if test -d /proc
 then
     test -f /proc/stat || mount /proc >/dev/null 2>&1
 fi
+have_procfs=false
+test -d /proc/stat && have_procfs=true
+AC_SUBST(have_procfs)
 
 dnl set platform specific ps
 if test -n "$PROCPS"
@@ -1869,7 +1872,7 @@ AC_CHECK_HEADERS(iptypes.h, [], [], [#include <windows.h>])
 AC_CHECK_HEADERS(iphlpapi.h, [], [], [#include <winsock2.h>])
 AC_CHECK_HEADERS(netioapi.h, [], [], [#include <winsock2.h>])
 AC_CHECK_HEADERS(fts.h libzfs.h)
-AC_CHECK_HEADERS(sys/statvfs.h sys/statfs.h sys/mount.h)
+AC_CHECK_HEADERS(sys/stat.h sys/statvfs.h sys/statfs.h sys/mount.h)
 AC_CHECK_HEADERS(curses.h ncurses.h)
 AC_CHECK_HEADERS(ncurses/curses.h ncurses/ncurses.h)
 AC_CHECK_HEADERS(ncursesw/curses.h ncursesw/term.h)
@@ -1897,14 +1900,6 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
     #include <sys/endian.h>
 ]], [[
 ]])],[AC_DEFINE(HAVE_SYS_ENDIAN_H, 1, IRIX sys/endian.h) AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no)])
-
-dnl Checks for typedefs, structures, and compiler characteristics.
-AC_C_CONST
-AC_TYPE_OFF_T
-AC_TYPE_PID_T
-AC_TYPE_SIZE_T
-AC_STRUCT_TM
-AC_C_INLINE
 
 dnl check if regex functions come from libregex (mingw)
 AC_CHECK_LIB(regex, regcomp)
@@ -2255,6 +2250,7 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 dnl check if we have types for uid_t, gid_t (POSIX) or SID (Win32)
 AC_MSG_CHECKING([for uid_t ])
 AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+    #include <unistd.h>
     #include <sys/types.h>
     #ifdef HAVE_PWD_H
     #include <pwd.h>
@@ -2262,6 +2258,7 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 ]], [[ uid_t uid; ]])],[AC_DEFINE(HAVE_UID_T, 1, uid_t type) AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no)])
 AC_MSG_CHECKING([for gid_t ])
 AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+    #include <unistd.h>
     #include <sys/types.h>
     #ifdef HAVE_GRP_H
     #include <grp.h>
@@ -3730,6 +3727,18 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
     int test = AI_ADDRCONFIG;
 ]], [[
 ]])],[AC_DEFINE(HAVE_AI_ADDRCONFIG, 1, AI_ADDRCONFIG macro) AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no)])
+
+dnl Checks for typedefs, structures, and compiler characteristics.
+dnl ... has to come near the end because it messes up other tests
+dnl on FreeBSD by appending
+dnl #define off_t long int
+dnl to conftest.h which causes unrelated compilation failures
+AC_C_CONST
+AC_TYPE_OFF_T
+AC_TYPE_PID_T
+AC_TYPE_SIZE_T
+AC_STRUCT_TM
+AC_C_INLINE
 
 dnl Capture special options passed to configure
 pcp_prefix=`eval echo $prefix`

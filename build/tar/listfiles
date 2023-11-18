@@ -3,6 +3,11 @@
 # Produce a manifest of files to be included on the package tarball
 #
 
+TOPDIR=../..
+eval `sed -n '/^TAR[ 	]*=/s/ //g' <$TOPDIR/src/include/builddefs`
+
+DIST_ROOT="$1"
+
 if [ -z "$DIST_MANIFEST" ]
 then
     echo >&2 "listfiles: Error: \$DIST_MANIFEST is not set"
@@ -23,19 +28,16 @@ trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 #
 sed -n -e '/^[fl]/s/.* \/*//p' <$DIST_MANIFEST >$tmp.main
 
-for file in ../../perl-pcp-*.list
-do
-    case "$file"
-    in
-	'../../perl-pcp-*.list')
-	    echo >&2 "listfiles: Warning: no pcp-perl-*.list files"
-	    ;;
-	*)
-	    cat "$file"
-	    ;;
-    esac
-done \
-| sed -e 's/^\///' >$tmp.perl
+# Perl files ... they used to come out of the "make install" step
+# but this no longer populates $DIST_ROOT with any files, so we
+# need:
+# - ./pack-perl (called from the GNUmakefile before we are called)
+#   to deposit a tarball in $DIST_ROOT/tmp/pcp-perl-pack.tar.gz
+# - add that tarball into the package tarball (the line below)
+# - ./postinstall to unpack the tarball and run make (not gmake)
+#   to install the Perl files in each of the PCP Perl directories
+#
+echo "tmp/pcp-perl-pack.tar.gz" >$tmp.perl
 
 for file in ../../python*-pcp.list
 do
@@ -59,6 +61,6 @@ verbose=true
 if $verbose
 then
     echo >&2 "listfiles: `wc -l <$tmp.main` files from the main manifest"
-    echo >&2 "listfiles: `wc -l <$tmp.perl` Perl files"
+    echo >&2 "listfiles: `$TAR -tzf $DIST_ROOT/tmp/pcp-perl-pack.tar.gz | wc -l` Perl files"
     echo >&2 "listfiles: `wc -l <$tmp.python` Python files"
 fi

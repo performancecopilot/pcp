@@ -1,0 +1,66 @@
+#!/bin/sh
+#
+# Pack Perl bits into a tarball to be used after tar install with postinstall
+#
+
+TOPDIR=../..
+
+if [ $# -ne 1 ]
+then
+    echo "Usage: pack-perl DIST_ROOT"
+    echo "... skipping Perl bits"
+    exit 0
+fi
+DIST_ROOT="$1"
+
+if [ ! -d "$DIST_ROOT" ]
+then
+    echo "pack-perl: Arrgh, no DIST_ROOT ($DIST_ROOT) directory ... skipping Perl bits"
+    exit 0
+fi
+
+eval `sed -n '/^TAR[ 	]*=/s/[ 	]//gp' <$TOPDIR/src/include/builddefs`
+if [ -z "$TAR" ]
+then
+    echo "pack-perl: Arrgh, no TAR in $TOPDIR/src/include/builddefs ... skipping Perl bits"
+    exit 0
+fi
+
+if [ ! -d $TOPDIR/src/perl ]
+then
+    echo "pack-perl: Arrgh, no $TOPDIR/src/perl directory ... skipping Perl bits"
+    exit 0
+fi
+
+if [ ! -d "$DIST_ROOT/tmp" ]
+then
+    if mkdir -p "$DIST_ROOT/tmp"
+    then
+	:
+    else
+	echo "pack-perl: mkdir $DIST_ROOT/tmp failed ... skipping Perl bits"
+    fi
+fi
+
+here=`pwd`
+cd $TOPDIR/src/perl
+
+DIRS="LogImport LogSummary MMV PMDA"
+
+for dir in $DIRS
+do
+    if [ ! -f $dir/Makefile ]
+    then
+	echo "Arrgh, no $TOPDIR/src/perl/$dir/Makefile ... skipping Perl bits"
+	exit 0
+    fi
+done
+
+if $TAR -czf "$DIST_ROOT/tmp/pcp-perl-pack.tar.gz" $DIRS
+then
+    :
+else
+    echo "pack-perl: tar create of $DIST_ROOT/tmp/pcp-perl-pack.tar.gz failed ... skipping Perl bits"
+    rm -f "$DIST_ROOT/tmp/pcp-perl-pack.tar.gz"
+    exit 0
+fi

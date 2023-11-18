@@ -220,6 +220,7 @@ default:	build-me
 
 include $(BUILDRULES)
 
+ifeq "$(HAVE_PROCFS)" "true"
 ifeq "$(HAVE_NCURSESW)" "true"
 build-me: $(TOPXFILES) $(SUBXFILES) $(CFGXFILES) $(CMDTARGET) $(DISTLINKS) $(MAN_PAGES)
 
@@ -243,6 +244,10 @@ install: default
 	@for c in $(SCREENS); do \
 	    $(INSTALL) -m 644 pcp/screens/$$c $(PCP_SHARE_DIR)/htop/screens/$$c; \
 	done
+else
+build-me:
+install:
+endif
 else
 build-me:
 install:
