@@ -232,9 +232,10 @@ SUSE (SLES)
     $ sudo zypper migration
 
 FreeBSD
-    https://www.freebsd.org/security/security.html#sup
-    26 Sep 2018: 10, 10.4, 11 and 11.2
+    https://www.freebsd.org/releases/
+    15 Nov 2023: 12.4 and 13.2
     17 Oct 2019: 11.2, 11.3 and 12.0
+    26 Sep 2018: 10, 10.4, 11 and 11.2
     # which packages are installed
     $ pkg info -a | sed -e 's/-[0-9].*//'
     # package search recipe (name and info or description)
@@ -244,13 +245,16 @@ FreeBSD
     # which files are in an installed package
     $ pkg list pkgname
     # package install recipe
-    $ sudo pkg install <package>
+    $ sudo pkg install -y <package>
+    # package removal recipe
+    $ sudo pkg delete <package> or <glob pattern>
     # update all packages recipe
-    $ sudo pkg update; sudo pkg upgrade
+    $ sudo pkg update; sudo pkg upgrade -y
     # release upgrade recipe
     $ sudo freebsd-update fetch; sudo freebsd-update install
     # has to be a N.M-RELEASE version for -r
-    $ sudo freebsd-update upgrade -r 11.2-RELEASE; sudo freebsd-update install
+    $ export rel=13.2
+    $ sudo -E freebsd-update upgrade -r $rel-RELEASE; sudo freebsd-update install
     $ sudo reboot
     ...
     $ sudo freebsd-update install
