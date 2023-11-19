@@ -258,7 +258,7 @@ FreeBSD
     $ sudo reboot
     ...
     $ sudo freebsd-update install
-    $ sudo pkg update; sudo pkg upgrade
+    $ sudo pkg update; sudo pkg upgrade -y
 
     on vm32:
     Message from gcc6-6.4.0_7:
