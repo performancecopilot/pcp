@@ -585,3 +585,9 @@ process over the last refresh interval.
 @ acct.control.lifetime Period of holding acct information after process exits
 @ acct.control.refresh Interval to check if private acct file should be reopened
 @ acct.control.enable_acct Boolean for whether to open private acct file and to use acct(2) syscall
+@ acct.control.state PMDA's view of accounting state
+The PMDA maintains internal state describing the collection and exporting
+of accounting information:
+  0 inactive (no information available)
+  1 system (system level accounting from whatever file accton(8) is using)
+  2 private (accounting records from $PCP_VAR_DIR/pmcd/pacct)

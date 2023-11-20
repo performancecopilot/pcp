@@ -35,6 +35,14 @@ static uint32_t acct_open_retry_interval       = OPEN_RETRY_INTERVAL;
 static uint32_t acct_check_accounting_interval = CHECK_ACCOUNTING_INTERVAL;
 static uint64_t acct_file_size_threshold       = ACCT_FILE_SIZE_THRESHOLD;
 
+/*
+ * state of PMDA's accounting activity
+ */
+#define MYSTATE_INACTIVE	0
+#define MYSTATE_SYSTEM		1
+#define MYSTATE_PRIVATE		2
+static int32_t acct_state = MYSTATE_INACTIVE;
+
 struct timeval acct_update_interval = {
     .tv_sec = ACCT_TIMER_INTERVAL,
 };
@@ -190,9 +198,13 @@ static int
 set_record_size(int fd)
 {
     struct acct_header tmprec;
+    int sts;
 
-    if (read(fd, &tmprec, sizeof(tmprec)) < sizeof(tmprec))
+    if ((sts = read(fd, &tmprec, sizeof(tmprec))) < sizeof(tmprec)) {
+	if (pmDebugOptions.appl3)
+	    pmNotifyErr(LOG_WARNING, "acct: bad read fd=%d len=%d (not %d), so no process accounting available\n", fd, sts, (int)sizeof(tmprec));
 	return 0;
+    }
 
     if ((tmprec.ac_version & 0x0f) == 3) {
 	acct_file.version = 3;
@@ -205,6 +217,8 @@ set_record_size(int fd)
 	return 1;
     }
 
+    if (pmDebugOptions.appl3)
+	pmNotifyErr(LOG_WARNING, "acct: fd=%d version=%d (not 3), so no process accounting available\n", fd, tmprec.ac_version & 0x0f);
     return 0;
 }
 
@@ -212,18 +226,37 @@ static int
 check_accounting(int fd)
 {
     struct stat before, after;
+    char	errmsg[PM_MAXERRMSGLEN];
+    int		sts;
+    static int	onetrip = 1;
 
-    if (fstat(fd, &before) < 0)
+    if (fstat(fd, &before) < 0) {
+	if (pmDebugOptions.appl3)
+	    pmNotifyErr(LOG_WARNING, "acct: before fstat(%d) failed: %s\n", fd, pmErrStr_r(-oserror(), errmsg, sizeof(errmsg)));
 	return 0;
+    }
     if (fork() == 0) {
 	is_child = 1;
 	_exit(0);
     }
     wait(0);
-    if (fstat(fd, &after) < 0)
+    if (fstat(fd, &after) < 0) {
+	if (pmDebugOptions.appl3)
+	    pmNotifyErr(LOG_WARNING, "acct: after fstat(%d) failed: %s\n", fd, pmErrStr_r(-oserror(), errmsg, sizeof(errmsg)));
 	return 0;
+    }
+    sts = after.st_size > before.st_size;
+    if (sts <= 0) {
+	if (pmDebugOptions.appl3)
+	    pmNotifyErr(LOG_WARNING, "acct: test pacct fd=%d failed, so no process accounting available (file system freespace limits in play?)\n", fd);
+	if (onetrip) {
+	    pmNotifyErr(LOG_WARNING, "acct: pacct file did not grow as expected, file system full?");
+	    pmNotifyErr(LOG_INFO, "acct: enable -Dappl3 for more detailed logging");
+	    onetrip = 0;
+	}
+    }
 
-    return after.st_size > before.st_size;
+    return sts;
 }
 
 static void
@@ -237,7 +270,7 @@ static void
 close_pacct_file(void)
 {
     if (pmDebugOptions.appl3)
-	pmNotifyErr(LOG_DEBUG, "acct: close file=%s\n", acct_file.path);
+	pmNotifyErr(LOG_DEBUG, "acct: close file=%s fd=%d acct_enabled=%d\n", acct_file.path, acct_file.fd, acct_file.acct_enabled);
 
     if (acct_file.fd >= 0) {
 	close(acct_file.fd);
@@ -326,22 +359,30 @@ open_pacct_file(void)
 {
     int ret;
 
+    if (pmDebugOptions.appl3)
+	pmNotifyErr(LOG_DEBUG, "acct: open enable_private=%d timer_id=%d\n", acct_enable_private_acct, acct_timer_id);
+
     ret = open_and_acct(pacct_system_file, 0);
     if (ret) {
 	acct_file.acct_enabled = 0;
+	acct_state = MYSTATE_SYSTEM;
 	return 1;
     }
 
-    if (!acct_enable_private_acct || acct_timer_id == -1)
+    if (!acct_enable_private_acct || acct_timer_id == -1) {
+	acct_state = MYSTATE_INACTIVE;
 	return 0;
+    }
 
     ret = open_and_acct(pacct_private_file, 1);
     if (ret) {
 	acct_file.acct_enabled = 1;
+	acct_state = MYSTATE_PRIVATE;
 	return 1;
     }
 
     acct_file.last_fail_open = time(NULL);
+    acct_state = MYSTATE_INACTIVE;
     return 0;
 }
 
@@ -466,32 +507,67 @@ reset_acct_timer(void)
     reopen_pacct_file();
 }
 
+/*
+ * Probe for system process accounting file ... looking in:
+ * - $PCP_PACCT_SYSTEM_PATH, else
+ * - /var/log/account/pacct, else
+ * - /var/account/pacct, else
+ * - ...
+ */
+static char *pacct_path[] = {
+    "",				/* try $PCP_PACCT_SYSTEM_PATH */
+    "/var/log/account/pacct",
+    "/var/account/pacct",
+    NULL
+};
 static void
 init_pacct_system_file(void)
 {
+    char **path;
     char *tmppath;
-    if ((tmppath = pmGetOptionalConfig("PCP_PACCT_SYSTEM_PATH")) == NULL) {
-	pacct_system_file[0] = '\0';
-    } else {
-	strncpy(pacct_system_file, tmppath, sizeof(pacct_system_file)-1);
+
+    pacct_system_file[0] = '\0';
+    for (path = pacct_path; *path != NULL; path++) {
+	if ((*path)[0] == '\0') {
+	    tmppath = pmGetOptionalConfig("PCP_PACCT_SYSTEM_PATH");
+	    if (tmppath == NULL)
+		continue;
+	}
+	else
+	    tmppath = *path;
+	if (access(tmppath, F_OK) == 0) {
+	    /* file exists, pick me! */
+	    strncpy(pacct_system_file, tmppath, sizeof(pacct_system_file)-1);
+	    break;
+	}
     }
 
-    if (pmDebugOptions.appl3)
-	pmNotifyErr(LOG_DEBUG, "acct: initialize pacct_system_file path to %s\n", pacct_system_file);
+    if (pmDebugOptions.appl3) {
+	if (pacct_system_file[0] == '\0')
+	    pmNotifyErr(LOG_DEBUG, "acct: no valid pacct_system_file path found\n");
+	else
+	    pmNotifyErr(LOG_DEBUG, "acct: initialize pacct_system_file path to %s\n", pacct_system_file);
+    }
 }
 
 static void
 init_pacct_private_file(void)
 {
     char *pacctdir;
+
+    pacct_private_file[0] = '\0';
     if ((pacctdir = pmGetOptionalConfig("PCP_VAR_DIR")) == NULL) {
 	pacct_private_file[0] = '\0';
     } else {
 	pmsprintf(pacct_private_file, sizeof(pacct_private_file), "%s/pmcd/pacct", pacctdir);
     }
 
-    if (pmDebugOptions.appl3)
-	pmNotifyErr(LOG_DEBUG, "acct: initialize pacct_private_file path to %s\n", pacct_private_file);
+    if (pmDebugOptions.appl3) {
+	if (pacct_private_file[0] == '\0')
+	    pmNotifyErr(LOG_DEBUG, "acct: cannot initialize pacct_private_file path\n");
+	else
+	    pmNotifyErr(LOG_DEBUG, "acct: initialize pacct_private_file path to %s\n", pacct_private_file);
+    }
 }
 
 void
@@ -527,6 +603,8 @@ refresh_acct(proc_acct_t *proc_acct)
     if (acct_file.fd < 0) {
 	if ((proc_acct->now - acct_file.last_fail_open) > acct_open_retry_interval)
 	    open_pacct_file();
+	else if (pmDebugOptions.appl3)
+	    pmNotifyErr(LOG_DEBUG, "acct: open skipped: retry=%d < limit=%d\n", (int)(proc_acct->now - acct_file.last_fail_open), acct_open_retry_interval);
 	return;
     }
 
@@ -625,6 +703,9 @@ acct_fetchCallBack(int i_inst, int item, proc_acct_t *proc_acct, pmAtomValue *at
 	return 1;
     case CONTROL_ACCT_ENABLE:
 	atom->ul = acct_enable_private_acct;
+	return 1;
+    case CONTROL_ACCT_STATE:
+	atom->l = acct_state;
 	return 1;
     }
 

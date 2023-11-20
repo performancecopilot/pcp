@@ -1345,6 +1345,9 @@ static pmdaMetric metrictab[] = {
 /* acct.control.enabled */
   { NULL, { PMDA_PMID(CLUSTER_ACCT,CONTROL_ACCT_ENABLE), PM_TYPE_U32, PM_INDOM_NULL,
     PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+/* acct.control.state */
+  { NULL, { PMDA_PMID(CLUSTER_ACCT,CONTROL_ACCT_STATE), PM_TYPE_32, PM_INDOM_NULL,
+    PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 };
 
 pmInDom

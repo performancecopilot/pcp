@@ -572,6 +572,7 @@ acct.control {
     lifetime		PROC:70:26
     refresh		PROC:70:27
     enable_acct		PROC:70:28
+    state		PROC:70:29
 }
 
 #undef PROC

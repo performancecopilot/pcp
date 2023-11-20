@@ -98,6 +98,7 @@ enum {
     CONTROL_ACCT_LIFETIME       = 26,
     CONTROL_ACCT_TIMER_INTERVAL = 27,
     CONTROL_ACCT_ENABLE         = 28,
+    CONTROL_ACCT_STATE          = 29,
 };
 
 extern void acct_init(proc_acct_t *);
