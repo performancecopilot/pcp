@@ -1,6 +1,7 @@
 # PCP required package list for Ubuntu 20.04 x86_64
 # created by kenj on bozo.localdomain Sun 11 Oct 2020 15:00:31 AEDT
 #
+Text::CSV_XS cpan
 apache2
 apache2-bin
 auditd not4ci
@@ -16,8 +17,8 @@ bpftrace
 bsd-mailx
 build-essential
 chrpath
+clang
 coreutils
-Text::CSV_XS cpan
 cppcheck
 cron
 curl
@@ -26,6 +27,7 @@ dh-python
 docker.io not4ci
 dpkg-dev
 ed
+expect
 flex
 g++
 gawk
@@ -37,6 +39,8 @@ grep
 iproute2
 jq
 libavahi-common-dev
+libbpf-dev
+libbpf0
 libclass-dbi-perl
 libcmocka-dev
 libcoin-dev
@@ -80,6 +84,8 @@ libvirt-daemon-system
 libxml-libxml-perl
 libxml-tokeparser-perl
 libyaml-libyaml-perl
+linux-headers-`uname -r` not4ci
+llvm
 lm-sensors
 make
 man-db
@@ -96,7 +102,6 @@ pkg-config
 postgresql-client-common
 psmisc
 pylint
-python2-dev
 python3-all
 python3-all-dev
 python3-bpfcc
@@ -105,6 +110,7 @@ python3-elasticsearch
 python3-json-pointer
 python3-libvirt
 python3-lxml
+python3-minimal
 python3-openpyxl
 python3-pil
 python3-prometheus-client

@@ -83,6 +83,7 @@ libvirt-daemon-system
 libxml-libxml-perl
 libxml-tokeparser-perl
 libyaml-libyaml-perl
+linux-headers-`uname -r` not4ci
 lm-sensors
 make
 man-db
