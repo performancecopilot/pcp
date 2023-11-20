@@ -127,8 +127,9 @@ SYS_METRICS = ["kernel.uname.sysname",
 ALL_METRICS = METRICS + SYS_METRICS
 
 class MeminfoReport(pmcc.MetricGroupPrinter):
-    samples = 0
-    Machine_info_count = 0
+    def __init__(self, opts):
+        self.opts = opts
+        self.Machine_info_count = 0
 
     def __get_ncpu(self, group):
         return group['hinv.ncpu'].netValues[0][2]
@@ -148,9 +149,6 @@ class MeminfoReport(pmcc.MetricGroupPrinter):
         header_string += group['kernel.uname.machine'].netValues[0][2] + '  '
 
         print("%s  (%s CPU)" % (header_string, self.__get_ncpu(group)))
-
-    def __init__(self, samples):
-        self.samples = samples
 
     def getMetricName(self, idx):
         metric_name = ""
@@ -174,7 +172,7 @@ class MeminfoReport(pmcc.MetricGroupPrinter):
 
         group = manager["meminfo"]
 
-        opts.pmGetOptionSamples()
+        self.opts.pmGetOptionSamples()
 
         t_s = group.contextCache.pmLocaltime(int(group.timestamp))
         time_string = time.strftime(MeminfoOptions.timefmt, t_s.struct_time())
@@ -197,13 +195,12 @@ class MeminfoReport(pmcc.MetricGroupPrinter):
             idx += 1
         print("")
 
-        if MeminfoOptions.context is not PM_CONTEXT_ARCHIVE and opts.pmGetOptionSamples() is None:
+        if MeminfoOptions.context is not PM_CONTEXT_ARCHIVE and self.opts.pmGetOptionSamples() is None:
             sys.exit(0)
 
 class MeminfoOptions(pmapi.pmOptions):
     context = None
     timefmt = "%H:%M:%S"
-    samples = 0
 
     def __init__(self):
         pmapi.pmOptions.__init__(self, "a:s:S:T:z:A:t:")
@@ -224,7 +221,7 @@ if __name__ == '__main__':
 
         mngr["meminfo"] = METRICS
         mngr["sysinfo"] = SYS_METRICS
-        mngr.printer = MeminfoReport(opts.samples)
+        mngr.printer = MeminfoReport(opts)
         sts = mngr.run()
         sys.exit(sts)
 

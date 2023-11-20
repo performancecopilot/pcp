@@ -317,8 +317,10 @@ METRICS_DICT["IpExt_METRICS"] = [IP_EXT_METRICS, IP_EXT_METRICS_DESC]
 
 MISSING_METRICS = []
 
-class NestatReport(pmcc.MetricGroupPrinter):
-    Machine_info_count = 0
+class NetstatReport(pmcc.MetricGroupPrinter):
+    def __init__(self, opts):
+        self.opts = opts
+        self.Machine_info_count = 0
 
     def __get_ncpu(self, group):
         return group['hinv.ncpu'].netValues[0][2]
@@ -375,7 +377,7 @@ class NestatReport(pmcc.MetricGroupPrinter):
             return
 
         group = manager["netstat"]
-        opts.pmGetOptionSamples()
+        self.opts.pmGetOptionSamples()
 
         t_s = group.contextCache.pmLocaltime(int(group.timestamp))
         time_string = time.strftime(NetstatOptions.timefmt, t_s.struct_time())
@@ -431,13 +433,12 @@ class NestatReport(pmcc.MetricGroupPrinter):
 
             print(ifstats_str)
 
-        if NetstatOptions.context is not PM_CONTEXT_ARCHIVE and opts.pmGetOptionSamples() is None:
+        if NetstatOptions.context is not PM_CONTEXT_ARCHIVE and self.opts.pmGetOptionSamples() is None:
             sys.exit(0)
 
 class NetstatOptions(pmapi.pmOptions):
     context = None
     timefmt = "%H:%M:%S"
-    samples = 0
     all_stats_flag = False
     filter_protocol_flag = False
     filter_protocol = None
@@ -492,7 +493,7 @@ if __name__ == '__main__':
 
         mngr["netstat"] = METRICS + IFACE_METRICS
         mngr["sysinfo"] = SYS_METRICS
-        mngr.printer = NestatReport()
+        mngr.printer = NetstatReport(opts)
         sts = mngr.run()
         sys.exit(sts)
 

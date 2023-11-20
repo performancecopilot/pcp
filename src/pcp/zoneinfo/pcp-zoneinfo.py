@@ -147,8 +147,9 @@ class ReportingMetricRepository:
 
 
 class ZoneStatUtil:
-    def __init__(self, metrics_repository):
+    def __init__(self, metrics_repository, all_metrics_repository):
         self.__metric_repository = metrics_repository
+        self.__all_metrics_repository = all_metrics_repository
         self.report = ReportingMetricRepository(self.__metric_repository)
 
     def names(self):
@@ -156,7 +157,7 @@ class ZoneStatUtil:
         return sorted(data.keys())
 
     def metric_value(self, metric, node):
-        if metric in ALL_METRICS:
+        if metric in self.__all_metrics_repository:
             data = self.report.current_value(metric)
             data = data.get(node, "0")
             if data != "0":
@@ -179,10 +180,11 @@ class ZoneStatUtil:
 
 
 class ZoneinfoReport(pmcc.MetricGroupPrinter):
-    def __init__(self, samples, group, context):
-        self.samples = samples
+    def __init__(self, opts, group):
+        self.opts = opts
         self.group = group
-        self.context = context
+        self.samples = opts.samples
+        self.context = opts.context
 
     def __get_ncpu(self, group):
         return group['hinv.ncpu'].netValues[0][2]
@@ -269,9 +271,9 @@ class ZoneinfoReport(pmcc.MetricGroupPrinter):
         except IndexError:
             print("Got some error while printing values for zoneinfo")
 
-    def print_report(self, group, timestamp, manager_zoneinfo):
+    def print_report(self, group, timestamp, manager_zoneinfo, manager_all):
         def __print_zone_status():
-            zonestatus = ZoneStatUtil(manager_zoneinfo)
+            zonestatus = ZoneStatUtil(manager_zoneinfo, manager_all)
             if zonestatus.names():
                 try:
                     self.__print_machine_info(group)
@@ -299,10 +301,10 @@ class ZoneinfoReport(pmcc.MetricGroupPrinter):
 
     def report(self, manager):
         group = manager["sysinfo"]
-        self.samples = opts.pmGetOptionSamples()
+        self.samples = self.opts.pmGetOptionSamples()
         t_s = group.contextCache.pmLocaltime(int(group.timestamp))
         timestamp = time.strftime(ZoneinfoOptions.timefmt, t_s.struct_time())
-        self.print_report(group, timestamp, manager['zoneinfo'])
+        self.print_report(group, timestamp, manager['zoneinfo'], manager['allinfo'])
 
 
 class ZoneinfoOptions(pmapi.pmOptions):
@@ -347,7 +349,6 @@ def updateZoneinfoDataToBeFetched():
         del ZONEINFO_PER_NODE[key]
 
 
-
 if __name__ == '__main__':
     try:
         opts = ZoneinfoOptions()
@@ -360,7 +361,7 @@ if __name__ == '__main__':
         elif opts.context == PM_CONTEXT_ARCHIVE:
             context = pmapi.pmContext.fromOptions(opts,sys.argv)
         try:
-            metric_ids =context.pmLookupName(ZONESTAT_METRICS)
+            metric_ids = context.pmLookupName(ZONESTAT_METRICS)
             descs= context.pmLookupDescs(metric_ids)
         except pmapi.pmErr as error:
             newVersionFlag = False
@@ -371,7 +372,7 @@ if __name__ == '__main__':
         mngr["zoneinfo"] = ZONESTAT_METRICS
         mngr["sysinfo"] = SYS_METRICS
         mngr["allinfo"] = ALL_METRICS
-        mngr.printer = ZoneinfoReport(opts.samples, mngr, opts.context)
+        mngr.printer = ZoneinfoReport(opts, mngr)
         sts = mngr.run()
         sys.exit(sts)
     except pmapi.pmErr as error:
