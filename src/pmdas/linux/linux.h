@@ -56,7 +56,7 @@ enum {
 	PROC_PID_IO,		/* 32 /proc/<pid>/io -> proc PMDA */
 	CLUSTER_NET_ADDR,	/* 33 /proc/net/dev and ioctl(SIOCGIFCONF) */
 	CLUSTER_TMPFS,		/* 34 /proc/mounts + statfs (tmpfs only) */
-	CLUSTER_SYSFS_KERNEL,	/* 35 /sys/kernel metrics */
+	CLUSTER_SYSFS_KERNEL,	/* 35 /sys/kernel + /sys/module metrics */
 	CLUSTER_NUMA_MEMINFO,	/* 36 /sys/devices/system/node* NUMA memory */
 	PROC_CGROUP_SUBSYS,	/* 37 /proc/cgroups control group subsystems -> proc PMDA */
 	PROC_CGROUP_MOUNTS,	/* 38 /proc/mounts active control groups -> proc PMDA */
@@ -141,6 +141,7 @@ enum {
 
 	REFRESH_SYSFS_KERNEL_UEVENTSEQ,
 	REFRESH_SYSFS_KERNEL_EXTFRAG,
+	REFRESH_SYSFS_MODULE_ZSWAPPOOL,
 
 	NUM_REFRESHES		/* one more than highest refresh index */
 };

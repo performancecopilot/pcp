@@ -2155,6 +2155,7 @@ When kernel CONFIG_COMPACTION compile option is active in the running kernel
 this metric exports the fraction of Normal zone memory that is unusuable for
 all NUMA nodes. Note that it is extracted using the sysfs debug namespace so
 it may not persist in future kernel versions.
+@ sysfs.module.zswap.max_pool_percent percentage of memory compressed pool can use
 
 @ hinv.ntape number of Linux scsi tape devices
 @ tape.dev.in_flight number of I/Os currently outstanding to this tape device

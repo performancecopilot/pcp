@@ -6617,6 +6617,11 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_SYSFS_KERNEL,1), PM_TYPE_FLOAT, NODE_INDOM,
 	PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
+    /* sysfs.module.zswap.max_pool_percent */
+    { &sysfs_kernel.zswap_max_pool_percent,
+      { PMDA_PMID(CLUSTER_SYSFS_KERNEL,2), PM_TYPE_U32, PM_INDOM_NULL,
+	PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
 /*
  * /proc/interrupts clusters
  */
@@ -10001,6 +10006,9 @@ linux_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 		need_refresh[REFRESH_SYSFS_KERNEL_EXTFRAG]++;
 		need_refresh[CLUSTER_NUMA_MEMINFO]++;
 		need_refresh[CLUSTER_MEMINFO]++;
+		break;
+	    case 2:	/* sysfs.module.zswap.max_pool_size */
+		need_refresh[REFRESH_SYSFS_MODULE_ZSWAPPOOL]++;
 		break;
 	    }
 	    break;

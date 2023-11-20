@@ -1987,6 +1987,7 @@ x11
 1639 pmda.bpf local
 1644 pmda.perfevent local
 1653 pmda.denki local
+1658 pmda.linux local
 1660 libpcp labels local
 1661 pmproxy libpcp_web pmlogger local pmlc
 1662 pmproxy libpcp_web pmlogger valgrind local

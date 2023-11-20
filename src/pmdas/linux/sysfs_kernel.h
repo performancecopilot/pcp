@@ -17,8 +17,9 @@
 #define SYSFS_KERNEL_H
 
 typedef struct {
-	int		valid_uevent_seqnum;
 	uint64_t	uevent_seqnum; /* /sys/kernel/uevent_seqnum */
+	int		valid_uevent_seqnum;
+	uint32_t	zswap_max_pool_percent;
 } sysfs_kernel_t;
 
 /* refresh sysfs_kernel */
