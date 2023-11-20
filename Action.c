@@ -512,10 +512,14 @@ static Htop_Reaction actionKill(State* st) {
       Panel_setHeader((Panel*)st->mainPanel, "Sending...");
       Panel_draw((Panel*)st->mainPanel, false, true, true, State_hideFunctionBar(st));
       refresh();
-      MainPanel_foreachRow(st->mainPanel, Process_rowSendSignal, (Arg) { .i = sgn->key }, NULL);
+      bool ok = MainPanel_foreachRow(st->mainPanel, Process_rowSendSignal, (Arg) { .i = sgn->key }, NULL);
+      if (!ok) {
+         beep();
+      }
       napms(500);
    }
    Panel_delete((Object*)signalsPanel);
+
    return HTOP_REFRESH | HTOP_REDRAW_BAR | HTOP_UPDATE_PANELHDR;
 }
 
@@ -733,9 +737,9 @@ static Htop_Reaction actionHelp(State* st) {
    mvaddstr(line++, 0, "Memory bar:    ");
    addattrstr(CRT_colors[BAR_BORDER], "[");
    addbartext(CRT_colors[MEMORY_USED], "", "used");
+   addbartext(CRT_colors[MEMORY_SHARED], "/", "shared");
    addbartext(CRT_colors[MEMORY_COMPRESSED], "/", "compressed");
    addbartext(CRT_colors[MEMORY_BUFFERS_TEXT], "/", "buffers");
-   addbartext(CRT_colors[MEMORY_SHARED], "/", "shared");
    addbartext(CRT_colors[MEMORY_CACHE], "/", "cache");
    addbartext(CRT_colors[BAR_SHADOW], "          ", "used");
    addbartext(CRT_colors[BAR_SHADOW], "/", "total");
