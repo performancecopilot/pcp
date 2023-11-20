@@ -10,6 +10,7 @@ in the source distribution for its full text.
 #include "Meter.h"
 
 #include <assert.h>
+#include <limits.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -86,7 +87,7 @@ void Meter_delete(Object* cast) {
    if (Meter_doneFn(this)) {
       Meter_done(this);
    }
-   free(this->drawData);
+   free(this->drawData.values);
    free(this->caption);
    free(this->values);
    free(this);
@@ -121,8 +122,9 @@ void Meter_setMode(Meter* this, int modeIndex) {
       }
    } else {
       assert(modeIndex >= 1);
-      free(this->drawData);
-      this->drawData = NULL;
+      free(this->drawData.values);
+      this->drawData.values = NULL;
+      this->drawData.nValues = 0;
 
       const MeterMode* mode = Meter_modes[modeIndex];
       this->draw = mode->draw;
@@ -224,8 +226,7 @@ static void BarMeterMode_draw(Meter* this, int x, int y, int w) {
    int offset = 0;
    for (uint8_t i = 0; i < this->curItems; i++) {
       double value = this->values[i];
-      if (isPositive(value)) {
-         assert(this->total > 0.0);
+      if (isPositive(value) && this->total > 0.0) {
          value = MINIMUM(value, this->total);
          blockSizes[i] = ceil((value / this->total) * w);
       } else {
@@ -237,6 +238,7 @@ static void BarMeterMode_draw(Meter* this, int x, int y, int w) {
       for (int j = offset; j < nextOffset; j++)
          if (RichString_getCharVal(bar, startPos + j) == ' ') {
             if (CRT_colorScheme == COLORSCHEME_MONOCHROME) {
+               assert(i < strlen(BarMeterMode_characters));
                RichString_setChar(&bar, startPos + j, BarMeterMode_characters[i]);
             } else {
                RichString_setChar(&bar, startPos + j, '|');
@@ -288,13 +290,46 @@ static const char* const GraphMeterMode_dotsAscii[] = {
 };
 
 static void GraphMeterMode_draw(Meter* this, int x, int y, int w) {
-   const Machine* host = this->host;
+   const char* caption = Meter_getCaption(this);
+   attrset(CRT_colors[METER_TEXT]);
+   const int captionLen = 3;
+   mvaddnstr(y, x, caption, captionLen);
+   x += captionLen;
+   w -= captionLen;
 
-   if (!this->drawData) {
-      this->drawData = xCalloc(1, sizeof(GraphData));
+   GraphData* data = &this->drawData;
+   assert(data->nValues / 2 <= INT_MAX);
+   if (w > (int)(data->nValues / 2) && MAX_METER_GRAPHDATA_VALUES > data->nValues) {
+      size_t oldNValues = data->nValues;
+      data->nValues = MAXIMUM(oldNValues + oldNValues / 2, (size_t)w * 2);
+      data->nValues = MINIMUM(data->nValues, MAX_METER_GRAPHDATA_VALUES);
+      data->values = xReallocArray(data->values, data->nValues, sizeof(*data->values));
+      memmove(data->values + (data->nValues - oldNValues), data->values, oldNValues * sizeof(*data->values));
+      memset(data->values, 0, (data->nValues - oldNValues) * sizeof(*data->values));
    }
-   GraphData* data = this->drawData;
-   const int nValues = METER_GRAPHDATA_SIZE;
+
+   const size_t nValues = data->nValues;
+   if (nValues < 1)
+      return;
+
+   const Machine* host = this->host;
+   if (!timercmp(&host->realtime, &(data->time), <)) {
+      int globalDelay = host->settings->delay;
+      struct timeval delay = { .tv_sec = globalDelay / 10, .tv_usec = (globalDelay % 10) * 100000L };
+      timeradd(&host->realtime, &delay, &(data->time));
+
+      memmove(&data->values[0], &data->values[1], (nValues - 1) * sizeof(*data->values));
+
+      data->values[nValues - 1] = sumPositiveValues(this->values, this->curItems);
+   }
+
+   if (w <= 0)
+      return;
+
+   if ((size_t)w > nValues / 2) {
+      x += w - nValues / 2;
+      w = nValues / 2;
+   }
 
    const char* const* GraphMeterMode_dots;
    int GraphMeterMode_pixPerRow;
@@ -309,35 +344,12 @@ static void GraphMeterMode_draw(Meter* this, int x, int y, int w) {
       GraphMeterMode_pixPerRow = PIXPERROW_ASCII;
    }
 
-   const char* caption = Meter_getCaption(this);
-   attrset(CRT_colors[METER_TEXT]);
-   int captionLen = 3;
-   mvaddnstr(y, x, caption, captionLen);
-   x += captionLen;
-   w -= captionLen;
-
-   if (!timercmp(&host->realtime, &(data->time), <)) {
-      int globalDelay = this->host->settings->delay;
-      struct timeval delay = { .tv_sec = globalDelay / 10, .tv_usec = (globalDelay % 10) * 100000L };
-      timeradd(&host->realtime, &delay, &(data->time));
-
-      for (int i = 0; i < nValues - 1; i++)
-         data->values[i] = data->values[i + 1];
-
-      data->values[nValues - 1] = sumPositiveValues(this->values, this->curItems);
-   }
-
-   int i = nValues - (w * 2), k = 0;
-   if (i < 0) {
-      k = -i / 2;
-      i = 0;
-   }
-   for (; i < nValues - 1; i += 2, k++) {
+   size_t i = nValues - (size_t)w * 2;
+   for (int col = 0; i < nValues - 1; i += 2, col++) {
       int pix = GraphMeterMode_pixPerRow * GRAPH_HEIGHT;
-      if (this->total < 1)
-         this->total = 1;
-      int v1 = CLAMP((int) lround(data->values[i] / this->total * pix), 1, pix);
-      int v2 = CLAMP((int) lround(data->values[i + 1] / this->total * pix), 1, pix);
+      double total = MAXIMUM(this->total, 1);
+      int v1 = CLAMP((int) lround(data->values[i] / total * pix), 1, pix);
+      int v2 = CLAMP((int) lround(data->values[i + 1] / total * pix), 1, pix);
 
       int colorIdx = GRAPH_1;
       for (int line = 0; line < GRAPH_HEIGHT; line++) {
@@ -345,7 +357,7 @@ static void GraphMeterMode_draw(Meter* this, int x, int y, int w) {
          int line2 = CLAMP(v2 - (GraphMeterMode_pixPerRow * (GRAPH_HEIGHT - 1 - line)), 0, GraphMeterMode_pixPerRow);
 
          attrset(CRT_colors[colorIdx]);
-         mvaddstr(y + line, x + k, GraphMeterMode_dots[line1 * (GraphMeterMode_pixPerRow + 1) + line2]);
+         mvaddstr(y + line, x + col, GraphMeterMode_dots[line1 * (GraphMeterMode_pixPerRow + 1) + line2]);
          colorIdx = GRAPH_2;
       }
    }

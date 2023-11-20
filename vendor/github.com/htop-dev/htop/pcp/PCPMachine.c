@@ -18,8 +18,8 @@ in the source distribution for its full text.
 #include <string.h>
 #include <sys/time.h>
 
-#include "Macros.h"
 #include "Machine.h"
+#include "Macros.h"
 #include "Object.h"
 #include "Platform.h"
 #include "Settings.h"
@@ -178,6 +178,16 @@ static void PCPMachine_updatePerCPUReal(PCPMachine* this, Metric metric, CPUMetr
       this->percpu[i][cpumetric].d = this->values[i].d;
 }
 
+static inline void PCPMachine_scanZswapInfo(PCPMachine* this) {
+   pmAtomValue value;
+
+   memset(&this->zswap, 0, sizeof(ZswapStats));
+   if (Metric_values(PCP_MEM_ZSWAP, &value, 1, PM_TYPE_U64))
+      this->zswap.usedZswapComp = value.ull;
+   if (Metric_values(PCP_MEM_ZSWAPPED, &value, 1, PM_TYPE_U64))
+      this->zswap.usedZswapOrig = value.ull;
+}
+
 static inline void PCPMachine_scanZfsArcstats(PCPMachine* this) {
    unsigned long long int dbufSize = 0;
    unsigned long long int dnodeSize = 0;
@@ -251,6 +261,7 @@ static void PCPMachine_scan(PCPMachine* this) {
       PCPMachine_updatePerCPUReal(this, PCP_HINV_CPUCLOCK, CPU_FREQUENCY);
 
    PCPMachine_scanZfsArcstats(this);
+   PCPMachine_scanZswapInfo(this);
 }
 
 void Machine_scan(Machine* super) {
