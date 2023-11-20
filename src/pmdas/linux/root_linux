@@ -1925,6 +1925,7 @@ vfs.locks.lease {
 
 sysfs {
     kernel
+    module
 }
 
 sysfs.kernel {
@@ -1934,6 +1935,14 @@ sysfs.kernel {
 
 sysfs.kernel.debug {
     extfrag_unusable	60:35:1
+}
+
+sysfs.module {
+    zswap
+}
+
+sysfs.module.zswap {
+    max_pool_percent	60:35:2
 }
 
 tape {
