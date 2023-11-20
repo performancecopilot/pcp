@@ -105,8 +105,6 @@ jobs:
       CC: clang
     steps:
     - uses: actions/checkout@v4
-    - name: Install dependencies
-      run: brew install gnu-tar pkg-config python-setuptools
     - name: Build packages
       # python disabled for now until brew build without distutils
       run: ./Makepkgs --verbose --with-python=no --with-python3=no
