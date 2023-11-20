@@ -1,3 +1,6 @@
+pcp-6.1.2 (16 February 2024)
+    - Work-in-progress.
+
 pcp-6.1.1 (17 November 2023)
     - Client tools and utilities:
 	pmie: add -o/--format to control output format with archives

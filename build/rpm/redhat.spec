@@ -1,5 +1,5 @@
 Name:    pcp
-Version: 6.1.1
+Version: 6.1.2
 Release: 1%{?dist}
 Summary: System-level performance monitoring and performance management
 License: GPL-2.0-or-later AND LGPL-2.1-or-later AND CC-BY-3.0
@@ -760,10 +760,10 @@ License: GPL-2.0-or-later
 Summary: Performance Co-Pilot geographical location metric labels
 URL: https://pcp.io
 Requires: pcp-libs >= %{version}-%{release}
-%if "@enable_python3@" == "true"
-Requires: python3-pcp = @package_version@
+%if !%{disable_python3}
+Requires: python3-pcp = %{version}-%{release}
 %else
-Requires: %{__python2}-pcp = @package_version@
+Requires: %{__python2}-pcp = %{version}-%{release}
 %endif
 
 %description geolocate
@@ -3446,5 +3446,5 @@ fi
 %files zeroconf -f pcp-zeroconf-files.rpm
 
 %changelog
-* Fri Nov 17 2023 Nathan Scott <nathans@redhat.com> - 6.1.1-1
+* Fri Feb 16 2024 Nathan Scott <nathans@redhat.com> - 6.1.2-1
 - Latest release.
