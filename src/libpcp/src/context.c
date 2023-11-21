@@ -169,14 +169,14 @@ waitawhile(__pmPMCDCtl *ctl)
 	}
 	if (q != NULL)
 	    free(q);
+	PM_LOCK(contexts_lock);
     }
-    else
-	PM_UNLOCK(contexts_lock);
     if (ctl->pc_timeout == 0)
 	ctl->pc_timeout = 1;
     else if (ctl->pc_timeout < n_backoff)
 	ctl->pc_timeout++;
     ctl->pc_again = time(NULL) + backoff[ctl->pc_timeout-1];
+    PM_UNLOCK(contexts_lock);
 }
 
 /*
