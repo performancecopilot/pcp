@@ -1762,11 +1762,15 @@ __pmDumpContext(FILE *f, int context, pmInDom indom)
 {
     int			i, j;
     __pmContext		*con;
+    int			idx;
 
     PM_INIT_LOCKS();
 
+    PM_LOCK(contexts_lock);
+    idx = map_handle_nolock(PM_TPD(curr_handle));
+    PM_UNLOCK(contexts_lock);
     fprintf(f, "Dump Contexts: current -> contexts[%d] handle %d\n",
-	map_handle_nolock(PM_TPD(curr_handle)), PM_TPD(curr_handle));
+	idx, PM_TPD(curr_handle));
     if (PM_TPD(curr_handle) < 0)
 	return;
 
