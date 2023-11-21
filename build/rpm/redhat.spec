@@ -301,7 +301,9 @@ BuildRequires: qt5-qtsvg-devel
 %endif
 %endif
 
-Requires: bash xz gawk sed grep findutils which %{_hostname_executable}
+# Utilities used indirectly e.g. by scripts we install
+Requires: bash xz gawk sed grep coreutils diffutils findutils
+Requires: which %{_hostname_executable}
 Requires: pcp-libs = %{version}-%{release}
 
 %if !%{disable_selinux}
