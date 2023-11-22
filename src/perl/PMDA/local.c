@@ -313,7 +313,6 @@ local_reconnector(files_t *file)
 
 	if (fd < 0) {
 	    __pmSockAddrFree(myaddr);
-	    myaddr = NULL;
 	    continue; /* Try the next address */
 	}
 
