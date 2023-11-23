@@ -65,10 +65,11 @@ class BuddyStatUtil:
         return data.keys()
 
 class BuddyinfoReport(pmcc.MetricGroupPrinter):
-    def __init__(self,samples,group,context):
-        self.samples = samples
+    def __init__(self,opts,group):
+        self.opts=opts
         self.group=group
-        self.context=context
+        self.context=opts.context
+        self.samples=opts.samples
 
     def __get_ncpu(self, group):
         return group['hinv.ncpu'].netValues[0][2]
@@ -151,7 +152,7 @@ class BuddyinfoReport(pmcc.MetricGroupPrinter):
 
     def report(self, manager):
         group = manager["sysinfo"]
-        self.samples=opts.pmGetOptionSamples()
+        self.samples=self.opts.pmGetOptionSamples()
         t_s = group.contextCache.pmLocaltime(int(group.timestamp))
         timestamp = time.strftime(BuddyinfoOptions.timefmt, t_s.struct_time())
         header_indentation = "        " if len(timestamp) < 9 else (len(timestamp) - 7) * " "
@@ -183,7 +184,7 @@ if __name__ == '__main__':
         mngr["buddyinfo"] = BUDDYSTAT_METRICS
         mngr["sysinfo"] = SYS_MECTRICS
         mngr["allinfo"]=ALL_METRICS
-        mngr.printer = BuddyinfoReport(opts.samples,mngr,opts.context)
+        mngr.printer = BuddyinfoReport(opts,mngr)
         sts = mngr.run()
         sys.exit(sts)
     except pmapi.pmErr as error:

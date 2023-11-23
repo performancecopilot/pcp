@@ -82,5 +82,19 @@ refresh_sysfs_kernel(sysfs_kernel_t *sk, int *need_refresh)
 	}
     }
 
+    if (need_refresh[REFRESH_SYSFS_MODULE_ZSWAPPOOL]) {
+	int	fd;
+
+	pmsprintf(buf, sizeof(buf), "%s/%s/zswap/parameters/max_pool_percent",
+				    linux_statspath, "sys/module");
+	if ((fd = open(buf, O_RDONLY)) >= 0) {
+	    if ((n = read(fd, buf, sizeof(buf))) > 0) {
+		buf[n-1] = '\0';
+		sscanf(buf, "%u", (unsigned int *)&sk->zswap_max_pool_percent);
+	    }
+	    close(fd);
+	}
+    }
+
     return 0;
 }

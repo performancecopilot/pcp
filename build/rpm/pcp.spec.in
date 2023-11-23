@@ -136,7 +136,7 @@ BuildRequires: ncurses-devel
 BuildRequires: readline-devel
 
 # Utilities used indirectly e.g. by scripts we install
-Requires: bash xz gawk sed grep coreutils findutils
+Requires: bash xz gawk sed grep coreutils diffutils findutils
 %if "%{_vendor}" == "redhat"
 Requires: %{_hostname_executable}
 %endif

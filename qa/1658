@@ -1,0 +1,63 @@
+#!/bin/sh
+# PCP QA Test No. 1658
+# Exercise /sys/module/zswap metrics.
+#
+# Copyright (c) 2023 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+$sudo rm -rf $tmp $tmp.* $seq.full
+
+test -d /sys/module || _notrun No support for sysfs module metrics
+test -d /sys/module/zswap || _notrun No support for sysfs module zswap metric
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+    # end
+}
+
+_zswap_sysfs()
+{
+    echo /sys/module/zswap/parameters/max_pool_percent >> $seq.full
+    $sudo cat /sys/module/zswap/parameters/max_pool_percent | tee -a $seq.full \
+	     | awk '{ print $NF }'
+}
+
+_zswap_pmprobe()
+{
+    echo pmprobe -v sysfs.module.zswap.max_pool_percent >> $seq.full
+    pmprobe -v sysfs.module.zswap.max_pool_percent | tee -a $seq.full \
+	    | awk '{ print $NF }'
+}
+
+# real QA test starts here
+pcp_value=`_zswap_pmprobe`
+sys_value=`_zswap_sysfs`
+
+echo pcp_value=$pcp_value >> $seq.full
+
+echo sys_value=$sys_value >> $seq.full
+
+_within_tolerance "sysfs zswap value" $pcp_value $sys_value 0.05 -v
+status=$?
+
+# success, all done
+exit

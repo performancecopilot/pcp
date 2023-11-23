@@ -83,8 +83,8 @@ static HandlerResult ScreenTabsPanel_eventHandler(Panel* super, int ch) {
       case KEY_END: {
          int previous = selected;
          Panel_onKey(super, ch);
-	 selected = Panel_getSelectedIndex(super);
-	 if (previous != selected)
+         selected = Panel_getSelectedIndex(super);
+         if (previous != selected)
             result = HANDLED;
          break;
       }
@@ -99,7 +99,9 @@ static HandlerResult ScreenTabsPanel_eventHandler(Panel* super, int ch) {
    }
    if (result == HANDLED) {
       ScreenTabListItem* focus = (ScreenTabListItem*) Panel_getSelected(super);
-      ScreenNamesPanel_fill(this->names, focus->ds);
+      if (focus) {
+         ScreenNamesPanel_fill(this->names, focus->ds);
+      }
    }
    return result;
 }

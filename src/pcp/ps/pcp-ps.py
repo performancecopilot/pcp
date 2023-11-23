@@ -162,8 +162,9 @@ class ProcessFilter:
 
 
 class ProcessStatusUtil:
-    def __init__(self, instance, delta_time, metrics_repository):
+    def __init__(self, instance, manager, delta_time, metrics_repository):
         self.instance = instance
+        self.manager = manager
         self.__delta_time = delta_time
         self.__metric_repository = metrics_repository
 
@@ -294,7 +295,7 @@ class ProcessStatusUtil:
 
     def start(self):
         s_time = self.__metric_repository.current_value('proc.psinfo.start_time', self.instance)
-        group = manager['psstat']
+        group = self.manager['psstat']
         kernel_boottime = group['kernel.all.boottime'].netValues[0][2]
         ts = group.contextCache.pmLocaltime(int(kernel_boottime + (s_time / 1000)))
         if group.timestamp.tv_sec - (kernel_boottime + s_time / 1000) >= 24*60*60:
@@ -362,11 +363,13 @@ PIDINFO_PAIR = {"%cpu": ('%CPU', ProcessStatusUtil.system_percent),
 
 
 class ProcessStatus:
-    def __init__(self, metric_repository):
+    def __init__(self, manager, metric_repository):
+        self.__manager = manager
         self.__metric_repository = metric_repository
 
     def get_processes(self, delta_time):
-        return map((lambda pid: (ProcessStatusUtil(pid, delta_time, self.__metric_repository))), self.__pids())
+        return map(lambda pid:
+                   (ProcessStatusUtil(pid, self.__manager, delta_time, self.__metric_repository)), self.__pids())
 
     def __pids(self):
         pid_dict = self.__metric_repository.current_values('proc.psinfo.pid')
@@ -527,7 +530,7 @@ class ProcessStatusReporter:
                                                          process.total_time(), command))
 
 
-class ProcessstatReport(pmcc.MetricGroupPrinter):
+class ProcessStatReport(pmcc.MetricGroupPrinter):
     Machine_info_count = 0
 
     def timeStampDelta(self, group):
@@ -585,7 +588,7 @@ class ProcessstatReport(pmcc.MetricGroupPrinter):
 
             # ================================================================
             if ProcessStatOptions.show_all_process:
-                process_report = ProcessStatus(metric_repository)
+                process_report = ProcessStatus(manager, metric_repository)
                 process_filter = ProcessFilter(ProcessStatOptions)
                 stdout = StdoutPrinter()
                 printdecorator = NoneHandlingPrinterDecorator(stdout)
@@ -594,7 +597,7 @@ class ProcessstatReport(pmcc.MetricGroupPrinter):
                 report.print_report(timestamp, header_indentation, value_indentation)
 
             if ProcessStatOptions.empty_arg_flag:
-                process_report = ProcessStatus(metric_repository)
+                process_report = ProcessStatus(manager, metric_repository)
                 process_filter = ProcessFilter(ProcessStatOptions)
                 stdout = StdoutPrinter()
                 printdecorator = NoneHandlingPrinterDecorator(stdout)
@@ -603,7 +606,7 @@ class ProcessstatReport(pmcc.MetricGroupPrinter):
                 report.print_report(timestamp, header_indentation, value_indentation)
 
             if ProcessStatOptions.pid_filter_flag:
-                process_report = ProcessStatus(metric_repository)
+                process_report = ProcessStatus(manager, metric_repository)
                 process_filter = ProcessFilter(ProcessStatOptions)
                 stdout = StdoutPrinter()
                 printdecorator = NoneHandlingPrinterDecorator(stdout)
@@ -611,7 +614,7 @@ class ProcessstatReport(pmcc.MetricGroupPrinter):
                                                printdecorator.Print, ProcessStatOptions)
                 report.print_report(timestamp, header_indentation, value_indentation)
             if ProcessStatOptions.ppid_filter_flag:
-                process_report = ProcessStatus(metric_repository)
+                process_report = ProcessStatus(manager, metric_repository)
                 process_filter = ProcessFilter(ProcessStatOptions)
                 stdout = StdoutPrinter()
                 printdecorator = NoneHandlingPrinterDecorator(stdout)
@@ -620,7 +623,7 @@ class ProcessstatReport(pmcc.MetricGroupPrinter):
                 report.print_report(timestamp, header_indentation, value_indentation)
 
             if ProcessStatOptions.command_filter_flag:
-                process_report = ProcessStatus(metric_repository)
+                process_report = ProcessStatus(manager, metric_repository)
                 process_filter = ProcessFilter(ProcessStatOptions)
                 stdout = StdoutPrinter()
                 printdecorator = NoneHandlingPrinterDecorator(stdout)
@@ -629,7 +632,7 @@ class ProcessstatReport(pmcc.MetricGroupPrinter):
                 report.print_report(timestamp, header_indentation, value_indentation)
 
             if ProcessStatOptions.user_oriented_format:
-                process_report = ProcessStatus(metric_repository)
+                process_report = ProcessStatus(manager, metric_repository)
                 process_filter = ProcessFilter(ProcessStatOptions)
                 stdout = StdoutPrinter()
                 printdecorator = NoneHandlingPrinterDecorator(stdout)
@@ -638,7 +641,7 @@ class ProcessstatReport(pmcc.MetricGroupPrinter):
                 report.print_report(timestamp, header_indentation, value_indentation)
 
             if ProcessStatOptions.username_filter_flag:
-                process_report = ProcessStatus(metric_repository)
+                process_report = ProcessStatus(manager, metric_repository)
                 process_filter = ProcessFilter(ProcessStatOptions)
                 stdout = StdoutPrinter()
                 printdecorator = NoneHandlingPrinterDecorator(stdout)
@@ -648,7 +651,7 @@ class ProcessstatReport(pmcc.MetricGroupPrinter):
 
             # ================================================================
             if ProcessStatOptions.selective_colum_flag:
-                process_report = ProcessStatus(metric_repository)
+                process_report = ProcessStatus(manager, metric_repository)
                 process_filter = ProcessFilter(ProcessStatOptions)
                 stdout = StdoutPrinter()
                 printdecorator = NoneHandlingPrinterDecorator(stdout)
@@ -812,7 +815,7 @@ if __name__ == "__main__":
             sys.stderr.write('Error: not all required metrics are available\nMissing %s\n' % missing)
             sys.exit(1)
         manager['psstat'] = PSSTAT_METRICS
-        manager.printer = ProcessstatReport()
+        manager.printer = ProcessStatReport()
         sts = manager.run()
         sys.exit(sts)
     except pmapi.pmErr as pmerror:

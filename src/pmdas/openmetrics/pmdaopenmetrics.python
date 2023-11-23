@@ -1020,7 +1020,7 @@ class OpenMetricsPMDA(PMDA):
         # Add a IS_DYNAMIC_ROOT metric that serves as a reminder to
         # pmcd to delegate all pmns requests to us.  Do it early, before
         # other metrics may populate beneath the $(pmda_name).* prefix.
-        dynamic_pmid = (0 << 31) | (511 << 22) | (args.domain << 10) | 0
+        dynamic_pmid = (0 << 31) | (511 << 22) | (domain << 10) | 0
         dynamic_root = pmdaMetric(dynamic_pmid, 0, 0, 0, pmUnits())
         self.add_metric(self.pmda_name, dynamic_root, 'dynamic root for %s metrics' % self.pmda_name)
 
