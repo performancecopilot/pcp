@@ -50,7 +50,8 @@ static int		*contexts_map;
  * Special sentinals for contexts_map[] ...
  */
 #define MAP_FREE	-1		/* contexts[i] can be reused */
-#define MAP_TEARDOWN	-2		/* contexts[i] is being destroyed */
+#define MAP_INIT	-2		/* contexts[i] is being setup */
+#define MAP_TEARDOWN	-3		/* contexts[i] is being destroyed */
 
 #ifdef PM_MULTI_THREAD
 #ifdef HAVE___THREAD
@@ -161,15 +162,15 @@ waitawhile(__pmPMCDCtl *ctl)
 	    n_backoff = 5;
 	    backoff = def_backoff;
 	}
-	PM_UNLOCK(contexts_lock);
 	if (bad) {
+	    PM_UNLOCK(contexts_lock);
 	    pmNotifyErr(LOG_WARNING,
 			 "pmReconnectContext: ignored bad PMCD_RECONNECT_TIMEOUT = '%s'\n",
 			 q);
+	    PM_LOCK(contexts_lock);
 	}
 	if (q != NULL)
 	    free(q);
-	PM_LOCK(contexts_lock);
     }
     if (ctl->pc_timeout == 0)
 	ctl->pc_timeout = 1;
@@ -1121,7 +1122,7 @@ INIT_CONTEXT:
     PM_TPD(curr_handle) = new->c_handle = ++last_handle;
     new->c_slot = ctxnum;
     contexts[ctxnum] = &being_initialized;
-    contexts_map[ctxnum] = last_handle;
+    contexts_map[ctxnum] = MAP_INIT;
     PM_UNLOCK(contexts_lock);
     /* c_lock not re-initialized, created once from initcontextlock() above */
     new->c_type = (type & PM_CONTEXT_TYPEMASK);
@@ -1225,6 +1226,7 @@ INIT_CONTEXT:
        battle station ^W context. */
     PM_LOCK(contexts_lock);
     contexts[ctxnum] = new;
+    contexts_map[ctxnum] = new->c_handle;
     PM_UNLOCK(contexts_lock);
 
     /* return the handle to the new (current) context */
@@ -1589,7 +1591,7 @@ done:
     }
 
 pmapi_return:
-
+    /* no locks held */
     if (pmDebugOptions.pmapi) {
 	fprintf(stderr, ":> returns ");
 	if (sts >= 0)
