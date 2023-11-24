@@ -5,7 +5,7 @@ empty
 === std out ===
 
 hinv.ncpu
-    labels {"agent":"linux","domainname":"DOMAIN","groupid":GID,"hostname":"HOSTNAME","machineid":"MACHINE","userid":UID}
+    labels {"agent":"PLATFORM","domainname":"DOMAIN","groupid":GID,"hostname":"HOSTNAME","machineid":"MACHINE","userid":UID}
 === filtered valgrind report ===
 Memcheck, a memory error detector
 Command: pminfo -Ll hinv.ncpu
@@ -18,7 +18,7 @@ none
 === std out ===
 
 hinv.ncpu
-    labels {"agent":"linux","domainname":"DOMAIN","groupid":GID,"hostname":"HOSTNAME","machineid":"MACHINE","userid":UID}
+    labels {"agent":"PLATFORM","domainname":"DOMAIN","groupid":GID,"hostname":"HOSTNAME","machineid":"MACHINE","userid":UID}
 === filtered valgrind report ===
 Memcheck, a memory error detector
 Command: pminfo -Ll hinv.ncpu
@@ -31,7 +31,7 @@ sha256
 === std out ===
 
 hinv.ncpu
-    labels {"agent":"linux","domainname":"DOMAIN","groupid":GID,"hostname":"HOSTNAME","machineid_sha256":"SHA256ID","userid":UID}
+    labels {"agent":"PLATFORM","domainname":"DOMAIN","groupid":GID,"hostname":"HOSTNAME","machineid_sha256":"SHA256ID","userid":UID}
 === filtered valgrind report ===
 Memcheck, a memory error detector
 Command: pminfo -Ll hinv.ncpu
