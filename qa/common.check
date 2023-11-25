@@ -1724,13 +1724,42 @@ _check_valgrind()
 {
     which valgrind >/dev/null 2>&1
     [ $? -eq 0 ] || _notrun "No valgrind binary found"
-    case `hostname -s`
-    in
-	vm10)
-	    _notrun "valgrind broken on vm10"
-	    ;;
-    esac
+    if [ "$PCP_PLATFORM" = freebsd ]
+    then
+	_notrun "valgrind and PCP QA broken on FreeBSD"
+    fi
     __extra=''
+}
+
+# if both valgrind and non-valgrind tests are available, then prefer
+# to run only one of the variants ... should we run the valgrind one
+# only?
+#
+_prefer_valgrind()
+{
+    # QA hook to run _both_ valgrind and non-valgrind variants
+    #
+    [ "$PCPQA_PREFER_VALGRIND" = no ] && return 1
+
+    # no valgrind executable => don't prefer valgrind
+    #
+    if which valgrind >/dev/null 2>&1
+    then
+	:
+    else
+	return 1
+    fi
+
+    # and on some QA platforms, even when valgrind is present it
+    # is broken or produces radically different output/results,
+    # so don't use it in these cases
+    #
+    if [ "$PCP_PLATFORM" = freebsd ]
+    then
+	return 1
+    fi
+
+    return 0
 }
 
 # helgrind is just broken in some places ... assume we've already
