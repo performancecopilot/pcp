@@ -66,7 +66,7 @@ _filter_labels()
 	-e "s/\(\"hostname\"\):\"$hostname\"/\1:\"HOSTNAME\"/g" \
 	-e "s/\(\"machineid\"\):\"$machineid\"/\1:\"MACHINEID\"/g" \
 	-e "s/\(\"domainname\"\):\"$domainname\"/\1:\"DOMAINNAME\"/g" \
-    # end
+    | _filter_optional_labels
 }
 
 unset PCP_DERIVED_CONFIG
@@ -75,7 +75,7 @@ unset PCP_DERIVED_CONFIG
 echo "Expect this to fail as derived metrics not defined ..."
 rm -f $tmp.0 $tmp.meta $tmp.index $tmp.log
 pmlogger -c $tmp.config -l $tmp.log -s 2 $tmp
-cat $tmp.log >$seq.full
+cat $tmp.log >>$seq.full
 _filter_pmlogger_log <$tmp.log | _filter
 pmdumplog -mh $tmp | tee -a $seq.full | _filter_pmdumplog | _filter
 

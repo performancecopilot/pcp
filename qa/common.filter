@@ -1105,3 +1105,37 @@ skip == 1 && /^[^ ]/		{ skip = 0 }
 skip == 0			{ print }'
 }
 
+# some context labels in archives are optional ... our tests do not
+# expect them to be present but if they are in /etc/pcp/labels/optional
+# then we need to filter 'em out
+#
+_filter_optional_labels()
+{
+    if [ ! -f $tmp.filter.optional.labels ]
+    then
+	# one-trip set up for this QA test ...
+	#
+	touch $tmp.filter.optional.labels
+	find /etc/pcp/labels/optional -type f \
+	| while read f
+	do
+	    cat $f \
+	    | sed -e 's/^{//' -e 's/}$//' \
+	    | tr ',' '\012' \
+	    | while read label
+	    do
+		echo "s@${label},*@@g" >>$tmp.filter.optional.labels
+	    done
+	done
+	echo "=== optional context label filter ===" >>$here/$seq.full
+	cat $tmp.filter.optional.labels >>$here/$seq.full
+    fi
+
+    if [ -s $tmp.filter.optional.labels ]
+    then
+	sed -f $tmp.filter.optional.labels
+    else
+	cat
+    fi
+}
+

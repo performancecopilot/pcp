@@ -41,7 +41,7 @@ _filter_labels()
 	-e "s/\(\"hostname\"\):\"$hostname\"/\1:\"HOSTNAME\"/g" \
 	-e "s/\(\"machineid\"\):\"$machineid\"/\1:\"MACHINEID\"/g" \
 	-e "s/\(\"domainname\"\):\"$domainname\"/\1:\"DOMAINNAME\"/g" \
-    # end
+    | _filter_optional_labels
 }
 
 _filter_instnames()
