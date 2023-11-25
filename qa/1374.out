@@ -34,8 +34,8 @@ tmparch/sample-proc_v3.meta:
   metrics: 383 bytes [9%, 8 records]
   indoms: NNNN bytes [NN%, 14 records]
   labels: NNN bytes [N%, 4 records]
-  texts: 1086 bytes [26%, 8 records]
-  overhead: 1080 bytes [26%]
+texts: 1086 bytes [OK%, 8 records]
+overhead: 1080 bytes [OK%]
 === filtered valgrind report ===
 Memcheck, a memory error detector
 Command: pmlogsize tmparch/sample-proc_v3
