@@ -34,6 +34,10 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 # get confused and report summary stats for 2 threads ... take the
 # first one only (and punt)
 #
+# and may be some babble about process accounting ...
+# [Fri Nov 24 06:25:25] pminfo(562948) Warning: acct: pacct file did not grow as expected, file system full?
+# [Fri Nov 24 06:25:25] pminfo(562948) Info: acct: enable -Dappl3 for more detailed logging
+#
 _filter()
 {
     tee -a $here/$seq.full \
@@ -56,6 +60,8 @@ _filter()
 	-e '/^proc\.psinfo\.ngid: Metric not supported by this version/d' \
 	-e '/pmdaFetch: Fetch callback error from metric PMID 3\.11\.0\[.*]: No data available/d' \
 	-e '/proc\.psinfo\.tty_pgrp: No value(s) available/d' \
+	-e '/ acct: pacct file did not grow /d' \
+	-e '/ acct: enable -Dappl3 /d' \
 	-e '/^Command: /s/,proc_init .*/,proc_init ... metrics .../' \
 	-e '/ERROR SUMMARY/q' \
     # end
