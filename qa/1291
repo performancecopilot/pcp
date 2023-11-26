@@ -20,6 +20,8 @@ fi
 . ./common.filter
 . ./common.check
 
+[ -f $PCP_BINADM_DIR/pcp-atop ] || _notrun "system monitoring tools not installed"
+
 _cleanup()
 {
     cd $here
