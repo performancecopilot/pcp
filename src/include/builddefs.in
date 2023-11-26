@@ -933,10 +933,6 @@ endif
 endif
 endif
 
-# /proc filesystem
-#
-HAVE_PROCFS = @have_procfs@
-
 # (optional) hook for developer build definitions
 #
 -include $(TOPDIR)/src/include/builddefs_dev
