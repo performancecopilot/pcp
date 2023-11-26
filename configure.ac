@@ -1808,16 +1808,6 @@ if test $target_os = mingw; then
     as_ln_s=/bin/true
 fi
 
-dnl if /proc is not mounted, try and mount it
-dnl before trying to run the ps style test below
-if test -d /proc
-then
-    test -f /proc/stat || mount /proc >/dev/null 2>&1
-fi
-have_procfs=false
-test -d /proc/stat && have_procfs=true
-AC_SUBST(have_procfs)
-
 dnl set platform specific ps
 if test -n "$PROCPS"
 then
