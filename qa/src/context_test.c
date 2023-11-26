@@ -28,7 +28,7 @@ static const char *namelist[] = {
  *   1		no bins				0 bins	3 colours
  *   2		bin=500, no colour		1 bin	0 colour
  *   3		bin=100 .. 500, colour=0	5 bin	1 colour
- *   4          no bins, not 1			0 bins	2 colours
+ *   4          no bins, not colour=1		0 bins	2 colours
  */
 
 void
@@ -57,6 +57,7 @@ main(int argc, char **argv)
     int		i;
     int		iter = 2;
     int		fail;
+    int		failsetup = 0;
     int		failiter = 0;
     int		errflag = 0;
     int		type = 0;
@@ -143,11 +144,105 @@ main(int argc, char **argv)
 
     for (i = 0; i < 3*MAXC; i++) {
 	if (i & 1) {
+	    pmProfile		*old;
+	    pmProfile		*new;
 	    /* odd ones are dup of the previous context */
 	    if ((sts = pmDupContext()) < 0) {
 		fprintf(stderr, "handle[%d]: pmDupContext(): %s\n", i, pmErrStr(sts));
 		exit(1);
 	    }
+	    /*
+	     * integrity check ... instance profiles should be identical
+	     */
+	    ctxp = __pmHandleToPtr(i-1);
+	    old = ctxp->c_instprof;
+	    PM_UNLOCK(ctxp->c_lock);
+	    ctxp = __pmHandleToPtr(i);
+	    new = ctxp->c_instprof;
+	    PM_UNLOCK(ctxp->c_lock);
+	    /*
+	     * Threadsafe note: we are single threaded, so don't worry
+	     * about accessing __pmContext after c_lock released.
+	     */
+	    if (old == NULL && new == NULL)
+		;	/* OK */
+	    else if (old == NULL && new != NULL) {
+		fprintf(stderr, "botch profile @ setup, orig context=%d has NO profile, dup context=%d has profile\n", i, i-1);
+		fprintf(stderr, "  dup context: ");
+		__pmDumpProfile(stderr, PM_INDOM_NULL, new);
+		failsetup++;
+	    }
+	    else if (old != NULL && new == NULL) {
+		fprintf(stderr, "botch profile @ setup, orig context=%d has profile, dup context=%d  has NO profile\n", i, i-1);
+		fprintf(stderr, "  orig context: ");
+		__pmDumpProfile(stderr, PM_INDOM_NULL, old);
+		failsetup++;
+	    }
+	    else {
+		int	bad = 0;
+		if (old->state != new->state) {
+		    fprintf(stderr, "botch profile @ setup, orig context=%d state=%d, dup context=%d state=%d\n", i-1, old->state, i, new->state);
+		    bad = 1;
+		    failsetup++;
+		}
+		if (old->profile_len != new->profile_len) {
+		    fprintf(stderr, "botch profile @ setup, orig context=%d profile_len=%d, dup context=%d profile_len=%d\n", i-1, old->profile_len, i, new->profile_len);
+		    bad = 1;
+		    failsetup++;
+		}
+		else {
+		    int		j;
+
+		    for (j = 0; j < old->profile_len; j++) {
+			if (old->profile[j].indom != new->profile[j].indom) {
+			    fprintf(stderr, "botch profile @ setup, orig context=%d indom[%d=%s]", i-1, j, pmInDomStr(old->profile[j].indom));
+			    fprintf(stderr, ", dup context=%d indom[%d=%s]", i, j, pmInDomStr(new->profile[j].indom));
+			    bad = 1;
+			    failsetup++;
+			}
+			if (old->profile[j].state != new->profile[j].state) {
+			    fprintf(stderr, "botch profile @ setup, orig context=%d indom[%d=%s] state=%d", i-1, j, pmInDomStr(old->profile[j].indom), old->profile[j].state);
+			    fprintf(stderr, ", dup context=%d indom[%d=%s] state=%d", i, j, pmInDomStr(new->profile[j].indom), new->profile[j].state);
+			    bad = 1;
+			    failsetup++;
+			}
+			if (old->profile[j].instances_len != new->profile[j].instances_len) {
+			    fprintf(stderr, "botch profile @ setup, orig context=%d indom[%d=%s] instances_len=%d", i-1, j, pmInDomStr(old->profile[j].indom), old->profile[j].instances_len);
+			    fprintf(stderr, ", dup context=%d indom[%d=%s] instances_len=%d", i, j, pmInDomStr(new->profile[j].indom), new->profile[j].instances_len);
+			    bad = 1;
+			    failsetup++;
+			}
+			else {
+			    int		k;
+
+			    for (k = 0; k < old->profile[j].instances_len; k++) {
+				if (old->profile[j].instances[k] != new->profile[j].instances[k]) {
+				    fprintf(stderr, "botch profile @ setup, orig context=%d indom[%d=%s] inst[%d]=%d", i-1, j, pmInDomStr(old->profile[j].indom), k, old->profile[j].instances[k]);
+				    fprintf(stderr, ", dup context=%d indom[%d=%s] inst[%d]=%d", i, j, pmInDomStr(new->profile[j].indom), k, new->profile[j].instances[k]);
+				    bad = 1;
+				    failsetup++;
+				}
+			    }
+			}
+		    }
+		}
+		if (bad) {
+		    fprintf(stderr, "  orig context: ");
+		    __pmDumpProfile(stderr, PM_INDOM_NULL, old);
+		    fprintf(stderr, "  dup context: ");
+		    __pmDumpProfile(stderr, PM_INDOM_NULL, new);
+		}
+	    }
+	    /*
+	     * The logic below assumes the instance profile for
+	     * the dup'd contexts is the same as a context from
+	     * pmNewContext(), namely all instances of all indoms ...
+	     * but we've inherited the instance profile from the
+	     * previous context via the pmDupContext, so clear it
+	     * out
+	     */
+	    pmDelProfile(PM_INDOM_NULL, 0, (int *)0);
+	    pmAddProfile(PM_INDOM_NULL, 0, (int *)0);
 	}
 	else {
 	    if (type == PM_CONTEXT_HOST) {
@@ -209,6 +304,10 @@ main(int argc, char **argv)
 		    pmDelProfile(indom_colour, 1, &inst_colour[1]);
 		    break;
 	}
+	if (pmDebugOptions.context) {
+	    fprintf(stderr, "After profile setup ...\n");
+	    __pmDumpContext(stderr, handle[i], PM_INDOM_NULL);
+	}
     }
 
     for (i=0; i < iter; i++) {
@@ -216,6 +315,10 @@ main(int argc, char **argv)
 	for (c = 0; c < 3*MAXC; c++) {
 	    errflag = 0;
 	    pmUseContext(handle[c]);
+	    if (pmDebugOptions.context) {
+		fprintf(stderr, "Just before pmFetch ...\n");
+		__pmDumpContext(stderr, handle[c], PM_INDOM_NULL);
+	    }
 	    sts = pmFetch(2, metrics, &resp);
 	    if (sts < 0) {
 		fprintf(stderr, "botch @ iter=%d, context=%d: pmFetch: %s\n",
@@ -268,6 +371,9 @@ main(int argc, char **argv)
 	if ((sts = pmDestroyContext(handle[c])) < 0)
 	    fprintf(stderr, "pmDestroyContext %d: %s\n", handle[c], pmErrStr(sts));
     }
+
+    if (failsetup)
+    printf("\nFailed %d tests during setup\n", failsetup);
 
     printf("\nPassed %d of %d iterations\n", iter-failiter, iter);
 
