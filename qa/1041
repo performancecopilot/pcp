@@ -77,12 +77,26 @@ EOF
     | sed \
         -e '/^Waiting for pmcd/s/\.\.\.[. ]*$/DOTS/' \
 	-e "\\;Error: pmdaCacheOp: \$PCP_VAR_DIR/config/pmda/.*: empty file?;d" \
+    | tee $tmp.tmp \
     | $PCP_AWK_PROG '
 /warnings,/                            { print; next }
 /Check libvirt metrics have appeared/  { if ($7 >= 120) $7 = "X"
                                          if ($10 >= 4) $10 = "Y"
                                        }
                                        { print }'
+    # on bozo, the install sometimes reports all the metrics as warnings
+    # and no values ... dig a bit deeper when this happens
+    #
+    if grep 'warnings,' $tmp.tmp >/dev/null
+    then
+	echo "Arrgh: Install failed, see $seq.full"
+	pminfo -f pmcd.agent.status >>$here/$seq.full
+	pminfo -f libvirt >>$here/$seq.full
+	echo "--- pmcd.log ---" >>$here/$seq.full
+	cat $PCP_LOG_DIR/pmcd/pmcd.log >>$here/$seq.full
+	echo "--- libvirt.log ---" >>$here/$seq.full
+	cat $PCP_LOG_DIR/pmcd/libvirt.log >>$here/$seq.full
+    fi
 }
 
 pmdalibvirt_cleanup()
