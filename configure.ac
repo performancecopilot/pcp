@@ -1954,6 +1954,13 @@ if $have_ncursesw
 then
     AC_DEFINE(HAVE_GETMOUSE, [1], [ncursesw getmouse])
     AC_DEFINE(HAVE_SET_ESCDELAY, [1], [ncursesw set_escdelay])
+    if test $target_os = freebsd
+    then
+	dnl for FreeBSD (versions 12.x and 13.x at least) pkg-config reports
+	dnl the wrong library name (-lncurses instead of -lncursesw) ...
+	dnl fix it here
+	ncursesw_LIBS=`echo "$ncursesw_LIBS" | sed -e 's/ -lncurses / -lncursesw /'`
+    fi
 fi
 
 PKG_CHECK_MODULES([DEVMAPPER], [devmapper], [have_devmapper=true], [have_devmapper=false])
