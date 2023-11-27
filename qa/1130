@@ -69,6 +69,7 @@ _full_stash()
     cat $tmp.socat.err >>$seq.full
     echo "--- socket cat logfile --" >>$seq.full
     cat $tmp.socat.log >>$seq.full
+    rm -f $tmp.p2e.out $tmp.p2e.err $tmp.socat.out $tmp.socat.err $tmp.socat.log
 }
 
 ncpu=`pmprobe -v hinv.ncpu | awk '{print $3}'`
@@ -76,11 +77,14 @@ pcp2elasticsearch="$python `which pcp2elasticsearch`"
 
 echo | tee -a $seq.full
 echo "=== 1. pcp2elasticsearch one-shot one-metric ===" | tee -a $seq.full
+echo start socat `date '+%H:%M:%S.%N'` >>$seq.full
 socat -lf $tmp.socat.log -v -t 0.000001 tcp-listen:$port,reuseaddr,fork system:"echo HTTP/1.1 201 Created" >$tmp.socat.out 2>$tmp.socat.err &
 pid=$!
 sleep 2
+echo start pcp2elasticsearch `date '+%H:%M:%S.%N'` >>$seq.full
 $pcp2elasticsearch -t 1 -s 1 hinv.ncpu >$tmp.p2e.out 2>$tmp.p2e.err
 sleep 5
+echo kill pcp2elasticsearch `date '+%H:%M:%S.%N'` >>$seq.full
 $signal $pid 2>/dev/null
 wait
 grep -E -q '^PUT /+pcp HTTP/' $tmp.socat.err
