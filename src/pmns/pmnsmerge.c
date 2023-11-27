@@ -58,6 +58,8 @@ sortcmp(const void *a, const void *b)
     datestamp_t	*pa = (datestamp_t *)a;
     datestamp_t	*pb = (datestamp_t *)b;
 
+    if (pa == pb || pa->date == pb->date)
+	return 0; /* compare to self or both having NULL dates */
     if (pa->date == NULL) return -1;
     if (pb->date == NULL) return 1;
     return strcmp(pa->date, pb->date);
