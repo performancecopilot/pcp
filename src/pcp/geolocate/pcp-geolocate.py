@@ -62,7 +62,8 @@ def finish(url):
 
 def ipinfo(url):
     with httprequest.urlopen(url) as http:
-        data = json.load(http)
+        js = http.read().decode('utf-8')
+        data = json.loads(js)
         coords = data['loc'].split(',')
         print(output % (coords[0], coords[1]))
     finish(url)
@@ -73,7 +74,8 @@ threads.append(threading.Thread(target = ipinfo, args = (IPINFO, )))
 
 def mozilla(url):
     with httprequest.urlopen(url) as http:
-        data = json.load(http)
+        js = http.read().decode('utf-8')
+        data = json.loads(js)
         coords = data['location']
         print(output % (coords['lat'], coords['lng']))
     finish(url)
