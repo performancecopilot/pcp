@@ -140,6 +140,9 @@ then
     # VERSION = 12.1 (Asparagus)
     # or
     # NAME="Arch Linux"
+    # or
+    # NAME=FreeBSD
+    # VERSION="13.2-RELEASE-p5"
     #
     name=`sed </etc/os-release -n -e '/^NAME *= */{
 s///
@@ -147,8 +150,14 @@ s/"//g
 p
 }'`
     name=`echo "$name" | sed -e 's/"//g'`
-    ver=`sed </etc/os-release -n -e '/^VERSION *= */{
-s///
+    if [ "$name" = FreeBSD ]
+    then
+	sed </etc/os-release -e '/^VERSION *=/s/-RELEASE-p[0-9][0-9]*//'
+    else
+	cat /etc/os-release
+    fi >$tmp.out
+    ver=`sed <$tmp.out -n -e '/^VERSION *= */{
+s/^VERSION *= *//
 s/"//g
 p
 }'`
