@@ -30,6 +30,34 @@ status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
+# This test produces different output if process accounting is enabled
+# when the test is run
+#
+rm -f $seq.out
+if which lastcomm >/dev/null
+then
+    lastcomm 2>/dev/null >$tmp.1
+    if [ -s $tmp.1 ]
+    then
+	# some output from lastcomm ... does it change?
+	#
+	lastcomm 2>/dev/null >$tmp.2
+	if diff $tmp.1 $tmp.2 >>$seq.full
+	then
+	    echo "Accounting is OFF" >>$seq.full
+	    ln $seq.off.out $seq.out
+	else
+	    echo "Accounting is ON" >>$seq.full
+	    ln $seq.on.out $seq.out
+	fi
+    fi
+else
+    # no lastcomm => no user space process account tools
+    #
+    echo "Accounting tools are NOT installed" >>$seq.full
+    ln $seq.off.out $seq.out
+fi
+
 _filter()
 {
     # capture all in .full but just output first inst and value
