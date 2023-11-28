@@ -16,6 +16,13 @@ echo "QA output created by $seq"
 DSTAT="$PCP_BINADM_DIR/pcp-dstat"
 test -f "$DSTAT" || _notrun "$DSTAT is not installed, skipped"
 
+__version=`pmpython --version 2>&1 | sed -e 's/Python //'`
+case "$__version"
+in
+    2.*)	_notrun "Python $__version reports number of tcp sockets off-by-one"
+    		;;
+esac
+
 _cleanup()
 {
     cd $here
