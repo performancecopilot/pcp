@@ -1,0 +1,17 @@
+QA output created by 1921
+
+=== sockets agent installation ===
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check network.persocket metrics have appeared ... X metrics and Y values
+
+Passed LISTEN check
+
+=== remove sockets agent ===
+Culling the Performance Metrics Name Space ...
+network.persocket ... done
+Updating the PMCD control file, and notifying PMCD ...
+[...removing files...]
+Check network.persocket metrics have gone away ... OK
