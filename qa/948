@@ -95,14 +95,14 @@ fi
 
 echo "--- expect success from pmlc ---" | tee -a $seq.full
 rm -f $tmp.0 $tmp.meta $tmp.index $tmp.log
-$sudo_local_ctx pmlogger -c /dev/null -L -o -l $tmp.log $tmp &
+pmlogger -c /dev/null -L -o -l $tmp.log $tmp &
 pid=$!
 echo "pid=$pid" >>$seq.full
 sleep 1
-$sudo_local_ctx pmlc -e <$tmp.pmlc $pid 2>&1 | _filter_pmlc
+pmlc -e <$tmp.pmlc $pid 2>&1 | _filter_pmlc
 if ps -p $pid >/dev/null
 then
-    $sudo_local_ctx kill -TERM $pid
+    kill -TERM $pid
 else
     echo "Error: pmlogger has died!"
 fi
@@ -115,8 +115,8 @@ pagesz=`pmprobe -v hinv.pagesize | $PCP_AWK_PROG '{ print $3 }'`
 
 # ensure pmcd is unavailable while this test is running
 _service pcp stop | _filter_pcp_stop
-$sudo_local_ctx rm -f $tmp.0 $tmp.meta $tmp.index $tmp.log
-pmlogger -c $tmp.config -l $tmp.log -T 5 --local-PMDA -K add,30,$PCP_PMDAS_DIR/sample/pmda_sample.$DSO_SUFFIX,sample_init $tmp >$tmp.err 2>&1
+rm -f $tmp.0 $tmp.meta $tmp.index $tmp.log
+$sudo_local_ctx pmlogger -c $tmp.config -l $tmp.log -T 5 --local-PMDA -K add,30,$PCP_PMDAS_DIR/sample/pmda_sample.$DSO_SUFFIX,sample_init $tmp >$tmp.err 2>&1
 
 _filter_pmlogger_log <$tmp.log
 
