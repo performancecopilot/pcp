@@ -2091,6 +2091,7 @@ x11
 1912 pmie local
 1913 pmie local valgrind
 1914 atop local
+1921 pmda.sockets local
 1927 pmda.sockets local
 1931 pmda.bpf local
 1936 other local pmclient

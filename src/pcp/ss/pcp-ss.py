@@ -25,9 +25,6 @@ from pcp import pmapi
 from cpmapi import PM_CONTEXT_ARCHIVE, PM_CONTEXT_HOST
 from cpmapi import PM_ERR_EOL, PM_MODE_INTERP
 
-if sys.version >= '3':
-    long = int
-
 # pmns prefix for pmdasockets(1) metrics
 pmns = "network.persocket"
 
@@ -57,8 +54,8 @@ class SS(object):
         p.add_argument('-V', '--version', action='store_true', help='output version information')
         p.add_argument('-n', '--numeric', action='store_true', help='don\'t resolve service names or port names (currently always set)')
         p.add_argument('-r', '--resolve', action='store_true', help='resolve host names (currently never set)')
-        p.add_argument('-a', '--all', action='store_true', help='display sockets in any state, not just listening')
-        p.add_argument('-l', '--listening', action='store_true', help='display only listening sockets')
+        p.add_argument('-a', '--all', action='store_true', help='display both listening and non-listening states')
+        p.add_argument('-l', '--listening', action='store_true', default=False, help='display only listening sockets')
         p.add_argument('-o', '--options', action='store_true', help='show timer information')
         p.add_argument('-e', '--extended', action='store_true', help='show detailed socket information')
         p.add_argument('-m', '--memory', action='store_true', help='show socket memory usage')
@@ -91,9 +88,6 @@ class SS(object):
         if not (args.ipv4 or args.ipv6):
             # default to both ipv4 and ipv6, subject to the prevailing filter
             args.ipv4 = args.ipv6 = True
-
-        if args.all:
-            args.listening = True
 
         if args.events or args.context or args.contexts or args.net or args.summary or args.processes:
             print("Warning: --events, --context --net, --summary and --processes options are not implemented")
@@ -283,12 +277,15 @@ class SS(object):
         return ret
 
     def filter_listening(self, inst):
-        """ filter on tcp state, return True if socket is listening """
+        """ filter on tcp socket listening state """
         if self.args.all:
             return True
         state = self.valuesD["state"][inst]
         if self.args.listening:
             if state != "LISTEN":
+                return False
+        else:
+            if state == "LISTEN":
                 return False
         return True
 
