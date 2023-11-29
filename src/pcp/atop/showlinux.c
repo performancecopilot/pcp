@@ -2564,6 +2564,7 @@ compusr(const void *a, const void *b)
         register int     uida;
         register int     uidb;
 
+	if (ta == tb)     return 0;
 	if (ta == NULL)   return 1;
 	if (tb == NULL)   return -1;
 
@@ -2588,6 +2589,7 @@ compnam(const void *a, const void *b)
         register char *nama;
         register char *namb;
 
+	if (ta == tb)     return 0;
 	if (ta == NULL)   return 1;
 	if (tb == NULL)   return -1;
 
@@ -2606,6 +2608,7 @@ compcon(const void *a, const void *b)
         register char *containera;
         register char *containerb;
 
+	if (ta == tb)     return 0;
 	if (ta == NULL)   return 1;
 	if (tb == NULL)   return -1;
 
