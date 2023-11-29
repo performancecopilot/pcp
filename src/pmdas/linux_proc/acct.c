@@ -15,6 +15,8 @@
  */
 
 #include <sys/wait.h>
+#include <sys/sysmacros.h>
+#include <sys/vfs.h>
 #include "acct.h"
 #include "getinfo.h"
 
@@ -223,7 +225,7 @@ set_record_size(int fd)
 }
 
 static int
-check_accounting(int fd)
+check_accounting(int fd, const char *name)
 {
     struct stat before, after;
     char	errmsg[PM_MAXERRMSGLEN];
@@ -232,7 +234,7 @@ check_accounting(int fd)
 
     if (fstat(fd, &before) < 0) {
 	if (pmDebugOptions.appl3)
-	    pmNotifyErr(LOG_WARNING, "acct: before fstat(%d) failed: %s\n", fd, pmErrStr_r(-oserror(), errmsg, sizeof(errmsg)));
+	    pmNotifyErr(LOG_WARNING, "acct: before fstat(fd=%d, name=%s) failed: %s\n", fd, name, pmErrStr_r(-oserror(), errmsg, sizeof(errmsg)));
 	return 0;
     }
     if (fork() == 0) {
@@ -242,16 +244,32 @@ check_accounting(int fd)
     wait(0);
     if (fstat(fd, &after) < 0) {
 	if (pmDebugOptions.appl3)
-	    pmNotifyErr(LOG_WARNING, "acct: after fstat(%d) failed: %s\n", fd, pmErrStr_r(-oserror(), errmsg, sizeof(errmsg)));
+	    pmNotifyErr(LOG_WARNING, "acct: after fstat(fd=%d, name=%s) failed: %s\n", fd, name, pmErrStr_r(-oserror(), errmsg, sizeof(errmsg)));
 	return 0;
     }
     sts = after.st_size > before.st_size;
     if (sts <= 0) {
-	if (pmDebugOptions.appl3)
-	    pmNotifyErr(LOG_WARNING, "acct: test pacct fd=%d failed, so no process accounting available (file system freespace limits in play?)\n", fd);
 	if (onetrip) {
-	    pmNotifyErr(LOG_WARNING, "acct: pacct file did not grow as expected, file system full?");
-	    pmNotifyErr(LOG_INFO, "acct: enable -Dappl3 for more detailed logging");
+	    pmNotifyErr(LOG_WARNING, "acct: existing pacct file did not grow as expected: system level process accounting disabled or file system full?");
+	    if (pmDebugOptions.appl3) {
+		struct timeval	now;
+		struct statfs	fstat;
+		fprintf(stderr, "acct: pacct growth test failed\n");
+		fprintf(stderr, "    name: %s\n", name);
+		fprintf(stderr, "    size: %" FMT_UINT64 "\n", (uint64_t)after.st_size);
+		fprintf(stderr, "    mtime: %s", ctime(&after.st_mtime));
+		fprintf(stderr, "    ctime: %s", ctime(&after.st_ctime));
+		gettimeofday(&now, NULL);
+		fprintf(stderr, "    nowtime: %s", ctime(&now.tv_sec));
+		fprintf(stderr, "    dev: %d/%d\n", major(after.st_dev), minor(after.st_dev));
+		fstatfs(fd, &fstat);
+		fprintf(stderr, "    filesystem (1KB blocks): size=%" FMT_UINT64 " avail=%" FMT_UINT64 " used=%d%%\n",
+			fstat.f_bsize*(uint64_t)fstat.f_blocks/1024,
+			fstat.f_bsize*(uint64_t)fstat.f_bavail/1024,
+			(int)(100*(fstat.f_blocks-fstat.f_bavail)/fstat.f_blocks));
+	    }
+	    else
+		pmNotifyErr(LOG_INFO, "acct: enable -Dappl3 for more detailed logging");
 	    onetrip = 0;
 	}
     }
@@ -322,7 +340,7 @@ open_and_acct(const char *path, int do_acct)
 	goto err2;
     }
 
-    if (!check_accounting(acct_file.fd))
+    if (!check_accounting(acct_file.fd, path))
 	goto err3;
 
     if (!set_record_size(acct_file.fd))
@@ -614,7 +632,7 @@ refresh_acct(proc_acct_t *proc_acct)
     if ((proc_acct->now - acct_file.last_check_accounting) > acct_check_accounting_interval) {
 	if (pmDebugOptions.appl3)
 	    pmNotifyErr(LOG_DEBUG, "acct: check accounting\n");
-	if (!check_accounting(acct_file.fd)) {
+	if (!check_accounting(acct_file.fd, acct_file.path)) {
 	    reopen_pacct_file();
 	    return;
 	}

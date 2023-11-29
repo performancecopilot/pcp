@@ -217,16 +217,115 @@ definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
 == Running valgrind on blkio for multiple fetches - cgroups-root-001.tgz
+1099 report lines
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmval -L -K clear -K add,3,PCP_PMDAS_DIR/proc/pmda_proc.so,proc_init -s 1099 -t 0.00001 cgroup.blkio.dev.sectors
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 == Running valgrind on cpu for multiple fetches - cgroups-root-001.tgz
+1099 report lines
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmval -L -K clear -K add,3,PCP_PMDAS_DIR/proc/pmda_proc.so,proc_init -s 1099 -t 0.00001 cgroup.cpu.stat.user
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 == Running valgrind on cpuacct for multiple fetches - cgroups-root-001.tgz
+1099 report lines
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmval -L -K clear -K add,3,PCP_PMDAS_DIR/proc/pmda_proc.so,proc_init -s 1099 -t 0.00001 cgroup.cpuacct.usage
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 == Running valgrind on cpusched for multiple fetches - cgroups-root-001.tgz
+1099 report lines
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmval -L -K clear -K add,3,PCP_PMDAS_DIR/proc/pmda_proc.so,proc_init -s 1099 -t 0.00001 cgroup.cpusched.shares
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 == Running valgrind on cpuset for multiple fetches - cgroups-root-001.tgz
+1099 report lines
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmval -L -K clear -K add,3,PCP_PMDAS_DIR/proc/pmda_proc.so,proc_init -s 1099 -t 0.00001 cgroup.cpuset.cpus
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 == Running valgrind on io for multiple fetches - cgroups-root-001.tgz
+1099 report lines
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmval -L -K clear -K add,3,PCP_PMDAS_DIR/proc/pmda_proc.so,proc_init -s 1099 -t 0.00001 cgroup.io.stat.rbytes
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 == Running valgrind on memory for multiple fetches - cgroups-root-001.tgz
+1099 report lines
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmval -L -K clear -K add,3,PCP_PMDAS_DIR/proc/pmda_proc.so,proc_init -s 1099 -t 0.00001 cgroup.memory.usage
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 == Running valgrind on mounts for multiple fetches - cgroups-root-001.tgz
+1099 report lines
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmval -L -K clear -K add,3,PCP_PMDAS_DIR/proc/pmda_proc.so,proc_init -s 1099 -t 0.00001 cgroup.mounts.subsys
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 == Running valgrind on netclass for multiple fetches - cgroups-root-001.tgz
+1099 report lines
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmval -L -K clear -K add,3,PCP_PMDAS_DIR/proc/pmda_proc.so,proc_init -s 1099 -t 0.00001 cgroup.netclass.classid
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 == Running valgrind on pressure for multiple fetches - cgroups-root-001.tgz
+1099 report lines
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmval -L -K clear -K add,3,PCP_PMDAS_DIR/proc/pmda_proc.so,proc_init -s 1099 -t 0.00001 cgroup.pressure.cpu.some.avg10sec
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 == Running valgrind on subsys for multiple fetches - cgroups-root-001.tgz
+1099 report lines
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmval -L -K clear -K add,3,PCP_PMDAS_DIR/proc/pmda_proc.so,proc_init -s 1099 -t 0.00001 cgroup.subsys.hierarchy
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 
 == done
 
