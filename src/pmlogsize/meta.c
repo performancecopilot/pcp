@@ -41,7 +41,7 @@ typedef struct {
 static int
 indom_compar(const void *a, const void *b)
 {
-    return ((indom_t *)a)->bytes < ((indom_t *)b)->bytes;
+    return ((indom_t *)b)->bytes - ((indom_t *)a)->bytes;
 }
 
 void

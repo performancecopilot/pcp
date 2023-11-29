@@ -42,7 +42,7 @@ static metric_t		*metric_tab;	/* metric entries */
 static int
 metric_compar(const void *a, const void *b)
 {
-    return ((metric_t *)a)->bytes < ((metric_t *)b)->bytes;
+    return ((metric_t *)b)->bytes - ((metric_t *)a)->bytes;
 }
 
 static int
