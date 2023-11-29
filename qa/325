@@ -17,8 +17,8 @@ which pmconfirm >/dev/null 2>&1 || _notrun pmconfirm not installed
 
 case `uname -rs`
 in
-    OpenBSD\ 7.1)
-	_notrun "va_list juggling in pmprintf() does not work for OpenBSD 7.1"
+    OpenBSD\ 7.*)
+	_notrun "va_list juggling in pmprintf() does not work for OpenBSD 7.x"
 	;;
 esac
 
