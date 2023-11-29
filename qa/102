@@ -98,7 +98,7 @@ log advisory on $delta sample.bin [100]
 End-of-File
     $sudo rm -f $tmp.*
     _start_up_pmlogger -L -c /dev/null -l $tmp.log -T 6 $tmp
-    pmsleep 1
+    pmsleep 1.5
     cat <<End-of-File >$tmp.pmlc
 connect $pid
 log advisory on $delta sample.bin [100]
@@ -110,7 +110,7 @@ _filter_pmlc <$tmp.out
     _wait_pmlogger_end $pid
     _filter_pmlogger_log <$tmp.log
 done
-pmsleep 0.5
+pmsleep 1
 
 cat <<End-of-File >$tmp.pmlc
 connect primary
@@ -122,7 +122,7 @@ _filter_pmlc <$tmp.err
 _filter_pmlc <$tmp.out
 
 $sudo $signal -a pmdasample
-pmsleep 0.5				# time to cleanup
+pmsleep 1				# time to cleanup
 pminfo -f sample >/dev/null 2>&1	# and make sure pmcd notices
 
 cat <<End-of-File >$tmp.pmlc
@@ -135,7 +135,7 @@ _filter_pmlc <$tmp.err
 _filter_pmlc <$tmp.out
 
 $sudo $signal -a -s HUP pmcd
-pmsleep 0.5				# time to cleanup
+pmsleep 1				# time to cleanup
 cat <<End-of-File >$tmp.pmlc
 connect primary
 query sample.bin[100]
