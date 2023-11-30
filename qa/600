@@ -156,9 +156,12 @@ then
     fi
     #DEBUG# echo "glibc version $a.$b.$c"
     #DEBUG# ls -l $seq*
-elif [ $PCP_PLATFORM = darwin -o $PCP_PLATFORM = freebsd ]
+elif [ $PCP_PLATFORM = darwin ]
 then
     ln $seq.out.darwin $seq.out
+elif [ $PCP_PLATFORM = freebsd ]
+then
+    ln $seq.out.freebsd $seq.out
 elif [ $PCP_PLATFORM = openbsd ]
 then
     ln $seq.out.openbsd $seq.out
