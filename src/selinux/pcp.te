@@ -322,6 +322,7 @@ systemd_exec_systemctl(pcp_pmlogger_t)
 systemd_getattr_unit_files(pcp_pmlogger_t)
 
 userdom_manage_tmp_dirs(pcp_pmlogger_t)
+userdom_manage_tmp_files(pcp_pmlogger_t)
 
 optional_policy(`
     hostname_exec(pcp_pmlogger_t)
