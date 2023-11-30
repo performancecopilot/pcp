@@ -50,6 +50,9 @@ then
 	    echo "Accounting is ON" >>$seq.full
 	    ln $seq.on.out $seq.out
 	fi
+    else
+	echo "Accounting is OFF (nothing from lastcomm)" >>$seq.full
+	ln $seq.off.out $seq.out
     fi
 else
     # no lastcomm => no user space process account tools
