@@ -59,7 +59,11 @@ echo "=== success cases ==="
 echo "--- echo ---"
 src/exectest -Dexec -- /bin/echo 'blah;trickme' 2>&1 | _filter
 echo "--- /bin/sh -c ---"
-src/exectest -Dexec -- /bin/sh -c "echo >&2 'f o o'; sleep 1; kill -TERM \$\$; sleep 1; echo b\\ a\\ r" 2>&1 | _filter
+src/exectest -Dexec -- /bin/sh -c "( echo 'f o o'; sleep 1; kill -TERM \$\$; sleep 1; echo b\\ a\\ r )" >$tmp.out 2>$tmp.err
+echo "+++ stderr +++"
+_filter <$tmp.err
+echo "+++ stdout +++"
+cat $tmp.out
 echo "--- pipe in ---"
 src/exectest -Dexec -p -- echo hullo world 2>&1 | _filter
 echo "--- pipe out ---"
