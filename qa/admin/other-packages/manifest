@@ -1150,7 +1150,7 @@ pacman?		/usr/lib/qt4/bin/qmake		[N/A (build optional)]
 brew?		qmake				[qt (build optional)]
 # -- Qt4 libs
 dpkg?		/usr/lib/*/libQtCore.so|/usr/lib/qt4/lib/libQtCore.so	[libqt4-dev (build optional)]
-rpm?		/usr/lib*/libQtCore.so|/usr/lib/qt4/lib/libQtCore.so	[qt4-devel or libqt4-devel or qt-devel (build optional)]
+rpm?		/usr/lib*/libQtCore.so|/usr/lib/qt4/lib/libQtCore.so	[qt4-devel or libqt4-devel or qt5-qtbase-devel or qt-devel (build optional)]
 emerge?		/usr/lib*/qt4/libQtCore.so	[dev-qt/qtcore (build optional)]
 emerge?		/usr/lib*/qt4/libQtGui.so	[dev-qt/qtgui (build optional)]
 pkgin?		/usr/pkg/qt4/lib/libQtCore.so	[N/A (build optional)]
