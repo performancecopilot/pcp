@@ -446,7 +446,7 @@ then
 	    rpm -qa --qf '%{NAME}\n' >$tmp.installed
 	    if which zypper >/dev/null 2>&1
 	    then
-		zypper packages 2>&1 \
+		zypper --no-refresh packages 2>&1 \
 		| awk -F \| ' { print $3 }' \
 		| sed >$tmp.allpkgs \
 		    -e 's/  *//g' \
