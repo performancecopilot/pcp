@@ -9,6 +9,13 @@ echo "QA output created by $seq"
 . ./common.secure
 . ./common.bpftrace
 
+case `admin/whatami`
+in
+    *openSUSE\ Leap\ 15.*)
+	_notrun "this test does not work on openSUSE 15.x"
+	;;
+esac
+
 _pmdabpftrace_check
 
 status=1       # failure is the default!

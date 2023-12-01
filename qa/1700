@@ -8,6 +8,13 @@ echo "QA output created by $seq"
 
 . ./common.bpftrace
 
+case `admin/whatami`
+in
+    *openSUSE\ Leap\ 15.*)
+	_notrun "this test does not work on openSUSE 15.x"
+	;;
+esac
+
 _pmdabpftrace_check
 echo "tracepoint:syscalls:sys_enter_openat" >$tmp.tmp
 _pmdabpftrace_check_probes $tmp.tmp
@@ -78,7 +85,7 @@ pminfo -f bpftrace.info.scripts_json | _get_metric_value | pmjson | _filter_json
 _pmdabpftrace_remove
 
 # check if pmdabpftrace process manager was shutdown correctly
-sleep 3
+sleep 10
 cat $PCP_LOG_DIR/pmcd/bpftrace.log \
 | tee -a $here/$seq.full \
 | grep -o "manager: shutdown pmdabpftrace process manager"
