@@ -46,6 +46,17 @@ _filter_pmlc()
 	-e 's/^Reason: Unknown or illegal.*$/Reason: No PMCD agent for domain of request/'
 }
 
+# if we're below the PMAPI (as opposed to sleeping in the main pmlogger
+# loop) when SIGTERM is delivered, we risk seeing errors like
+#    pmGetInDom(29.2): IPC protocol failure
+# and pmlogger will then exit ... treat these like the expected Info:
+# ... Caught signal ... message
+#
+_my_logger_filter()
+{
+    sed -e '/^_*pm.*: IPC protocol failure/s/.*/[DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting/'
+}
+
 _disable_agent_restart()
 {
     echo PMCD_RESTART_AGENTS=0 > $tmp.defaults
@@ -103,12 +114,12 @@ End-of-File
 connect $pid
 log advisory on $delta sample.bin [100]
 End-of-File
-_try_pmlc
-_filter_pmlc <$tmp.err
-_filter_pmlc <$tmp.out
+    _try_pmlc
+    _filter_pmlc <$tmp.err
+    _filter_pmlc <$tmp.out
     $sudo $signal -s TERM $pid
     _wait_pmlogger_end $pid
-    _filter_pmlogger_log <$tmp.log
+    _filter_pmlogger_log <$tmp.log | _my_logger_filter
 done
 pmsleep 1
 
