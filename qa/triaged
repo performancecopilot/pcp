@@ -38,10 +38,10 @@
 878	.*	on some QA hosts this fails sometimes when we don't see
 		the first or second event record ... despite extensive
 		triage the problem is not understood
-1080	bozo	for pcp-atop built -O2 (not -O0) valgrind reports
-		Conditional jump or move depends on uninitialised value
-		at 0x11F1D2: deviattask (deviate.c:340)
-		but this seems bogus and is not seen elsewhere
+1080	Ubuntu 2[02]\.	for pcp-atop built -O2 (not -O0) valgrind reports
+			Conditional jump or move depends on uninitialised value
+			at 0x11F1D2: deviattask (deviate.c:340)
+			but this seems bogus and is not seen elsewhere
 1210	vm[0-9][0-9]	may collide with pmlogger_check and (correctly)
 			detects presence of /etc/pcp/pmlogger/lock
 1290	Debian 1[01]	valgrind-reported issues in libpcp_web redis i/o functions
