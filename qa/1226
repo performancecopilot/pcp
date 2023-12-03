@@ -26,6 +26,19 @@ _cleanup()
     cd $here
     $sudo pmiectl -f -c default destroy localhost >>$seq.full 2>&1
     $sudo pmiectl -a -f -c pmfind destroy localhost >>$seq.full 2>&1
+    pmiectl status localhost >$tmp.tmp 2>&1
+    cat $tmp.tmp >>$seq.full
+    if grep 'localhost not defined in any pmie control file' $tmp.tmp >/dev/null
+    then
+	# all good
+	:
+    else
+	# really make sure any errant pmie we started will be stopped
+	#
+	export PCPQA_KILL_SIGNAL=KILL
+	$sudo pmiectl -f -c default destroy localhost >>$seq.full 2>&1
+	$sudo pmiectl -a -f -c pmfind destroy localhost >>$seq.full 2>&1
+    fi
     $sudo rm -rf $tmp $tmp.*
     $sudo rm -rf $PCP_LOG_DIR/pmie/localhost
     $sudo rm -rf $PCP_LOG_DIR/pmie/pmfind-localhost
@@ -112,6 +125,7 @@ pmiectl status localhost 2>&1 | _filter_status
 echo | tee -a $seq.full
 echo '== stop' | tee -a $seq.full
 $sudo pmiectl stop localhost 2>&1 | _filter
+pmsleep 1sec
 echo '== status' | tee -a $seq.full
 pmiectl status 2>&1 | _filter_status
 echo '== status localhost' | tee -a $seq.full
