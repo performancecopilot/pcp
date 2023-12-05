@@ -660,7 +660,7 @@ _check_started()
 # check ${IAM} really stopped
 #
 # $1 = dir as it appears on the $PCP_TMP_DIR/${IAM} files (so a real path,
-#      not a possibly sybolic path from a control file)
+#      not a possibly symbolic path from a control file)
 #
 _check_stopped()
 {
