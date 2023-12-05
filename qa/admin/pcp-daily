@@ -1205,7 +1205,7 @@ End-of-File
 	doit=false
 	case $host
 	in
-	    vm01|vm03|vm05|vm15|vm35|vm36)
+	    vm01|vm03|vm16|vm35|vm36)
 		# try to keep these VMs running, unless -f
 		$fflag && doit=true
 		;;
