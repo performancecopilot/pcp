@@ -254,7 +254,8 @@ class SS(object):
         if self.args.tcp and netid == "tcp":
             ret = True
         elif self.args.udp and netid == "udp":
-            ret = True
+            state = self.valuesD["state"][inst]
+            ret = bool(state != "UNCONN" or self.args.listening)
         elif self.args.unix and netid == "unix":
             ret = True
         elif self.args.raw and netid == "raw":
@@ -282,6 +283,9 @@ class SS(object):
             return True
         state = self.valuesD["state"][inst]
         if self.args.listening:
+            netid = self.valuesD["netid"][inst]
+            if state == "UNCONN" and netid == 'udp':
+                return True
             if state != "LISTEN":
                 return False
         else:
