@@ -269,6 +269,9 @@ domain_read_all_domains_state(pcp_pmie_t)
 fs_search_cgroup_dirs(pcp_pmie_t)
 
 init_status(pcp_pmie_t)
+optional_policy(`
+    init_manage_script_tmp_files(pcp_pmie_t)
+')
 
 logging_send_syslog_msg(pcp_pmie_t)
 
@@ -315,6 +318,9 @@ fs_getattr_all_fs(pcp_pmlogger_t)
 
 init_read_utmp(pcp_pmlogger_t)
 init_status(pcp_pmlogger_t)
+optional_policy(`
+    init_manage_script_tmp_files(pcp_pmlogger_t)
+')
 
 logging_send_syslog_msg(pcp_pmlogger_t)
 
