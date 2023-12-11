@@ -666,7 +666,7 @@ x11
 205 pdu local
 206 archive pmval local kernel pmlogdump
 207 pmns local sanity
-208 pmns local sanity
+208 pmns local sanity pmda.sample
 209 pmval local kernel
 210 pmns local pmval pmie sanity pmlogdump pmda.sample
 211 pmns local pmval pmie pmlogdump pmda.sample
@@ -803,7 +803,7 @@ x11
 342 other remote dbpmda pmda.sample
 343 pmlogreduce local pmlogdump
 344 context_local local pmval pmprobe pmda.sample pminfo
-345 pmns derive local sanity pminfo
+345 pmns derive local sanity pminfo pmda.sample
 346 pmda.mailq local pmda.install
 347 pmda.news local pmda.install perl pmstore
 348 pmda.kvm local pmda.install
@@ -925,7 +925,7 @@ x11
 464 pmns local pmcpp
 465 pmlogdump local #625913
 466 pmlogger local #625913
-467 pmns pmdumptext local
+467 pmns pmdumptext local pmda.sample
 468 pmns pmdumptext local pmda.sample
 469 help local #626853 kernel
 470 threads local
@@ -933,7 +933,7 @@ x11
 472 threads local
 473 threads local
 474 threads local
-475 threads local
+475 threads local pmda.sample
 476 fault local
 477 event fault local pmstore
 478 fault local
@@ -1410,7 +1410,7 @@ x11
 949 python local timezone
 950 pmproxy avahi local
 951 pmie local pmval kernel
-952 threads valgrind local helgrind
+952 threads valgrind local helgrind pmda.sample
 953 libpcp threads local
 954 libpcp threads derive local pmconfig
 955:retired pmda.linux local kernel dbpmda

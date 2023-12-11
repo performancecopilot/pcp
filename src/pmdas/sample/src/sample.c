@@ -72,7 +72,7 @@ static pmDesc	desctab[] = {
     { PMDA_PMID(0,4), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* colour */
     { PMDA_PMID(0,5), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
-/* bin or dupnames.two.bin or dupnames.three.bin */
+/* bin or dupnames.two.bin or dupnames.three.bin or secret.bin */
     { PMDA_PMID(0,6), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* drift */
     { PMDA_PMID(0,7), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
@@ -406,7 +406,7 @@ static pmDesc	desctab[] = {
  * secret.bar
  */
     { PMDA_PMID(0,1000), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
-/*  secret.foo.one */
+/*  secret.*.one */
     { PMDA_PMID(0,1001), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
 /*  secret.foo.two */
     { PMDA_PMID(0,1002), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
@@ -712,6 +712,7 @@ static struct {
     int		mark;
 } dynamic_ones[] = {
     { "secret.foo.bar.max.redirect", PMDA_PMID(0,0) },
+    { "secret.bin", PMDA_PMID(0,6) },
     { "secret.bar", PMDA_PMID(0,1000) },
     { "secret.family", PMDA_PMID(0,1012) },
     { "secret.foo.one", PMDA_PMID(0,1001) },
@@ -721,7 +722,19 @@ static struct {
     { "secret.foo.bar.grunt.five", PMDA_PMID(0,1005) },
     { "secret.foo.bar.grunt.snort.six", PMDA_PMID(0,1006) },
     { "secret.foo.bar.grunt.snort.huff.puff.seven", PMDA_PMID(0,1007) },
-    { "ghosts.visible", PMDA_PMID(0,1008) },
+    { "secret.en.one", PMDA_PMID(0,1001) },	// English
+    { "secret.en.two", PMDA_PMID(0,1002) },
+    { "secret.en.three", PMDA_PMID(0,1003) },
+    { "secret.fr.un", PMDA_PMID(0,1001) },	// French
+    { "secret.fr.deux", PMDA_PMID(0,1002) },
+    { "secret.fr.trois", PMDA_PMID(0,1003) },
+    { "secret.dk.et", PMDA_PMID(0,1001) },	// Danish
+    { "secret.dk.to", PMDA_PMID(0,1002) },
+    { "secret.dk.tre", PMDA_PMID(0,1003) },
+    { "secret.es.unos", PMDA_PMID(0,1001) },	// Spanish
+    { "secret.es.dos", PMDA_PMID(0,1002) },
+    { "secret.es.tres", PMDA_PMID(0,1003) },
+    { "ghosts.visible", PMDA_PMID(0,1008) },	// the ghost ones
     { "ghosts.origin", PMDA_PMID(0,1009) },
     { "ghosts.karma", PMDA_PMID(0,1010) },
     { "ghosts.state", PMDA_PMID(0,1011) },
@@ -2684,13 +2697,13 @@ doit:
 		    case 1000:	/* secret.bar */
 			atom.cp = "foo";
 			break;
-		    case 1001:	/* secret.foo.one */
+		    case 1001:	/* secret.foo.one and aliases */
 			atom.l = 1;
 			break;
-		    case 1002:	/* secret.foo.two */
+		    case 1002:	/* secret.foo.two and aliases */
 			atom.l = 2;
 			break;
-		    case 1003:	/* secret.foo.bar.three */
+		    case 1003:	/* secret.foo.bar.three and aliases */
 			atom.l = 3;
 			break;
 		    case 1004:	/* secret.foo.bar.four */

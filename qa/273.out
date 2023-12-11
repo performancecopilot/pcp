@@ -43,10 +43,23 @@ sampledso.secret.foo.bar.four [dynamic *.secret.foo.bar.four metric]
 sampledso.secret.foo.bar.grunt.five [dynamic *.secret.foo.bar.grunt.five metric]
 sampledso.secret.foo.bar.grunt.snort.six [dynamic *.secret.foo.bar.grunt.snort.six metric]
 sampledso.secret.foo.bar.grunt.snort.huff.puff.seven [dynamic *.secret.foo.bar.grunt.snort.huff.puff.seven metric]
-sampledso.secret.foo.one [dynamic *.secret.foo.one metric]
-sampledso.secret.foo.two [dynamic *.secret.foo.two metric]
-sampledso.secret.bar [dynamic *.secret.bar metric]
+sampledso.secret.foo.one [dynamic sampledso.secret.foo.one metric]
+sampledso.secret.foo.two [dynamic sampledso.secret.foo.two metric]
+sampledso.secret.bin [Several constant instances]
+sampledso.secret.bar [dynamic sampledso.secret.bar metric]
 sampledso.secret.family [Family day of month for birthday]
+sampledso.secret.en.one [dynamic sampledso.secret.foo.one metric]
+sampledso.secret.en.two [dynamic sampledso.secret.foo.two metric]
+sampledso.secret.en.three [dynamic *.secret.foo.bar.three metric]
+sampledso.secret.fr.un [dynamic sampledso.secret.foo.one metric]
+sampledso.secret.fr.deux [dynamic sampledso.secret.foo.two metric]
+sampledso.secret.fr.trois [dynamic *.secret.foo.bar.three metric]
+sampledso.secret.dk.et [dynamic sampledso.secret.foo.one metric]
+sampledso.secret.dk.to [dynamic sampledso.secret.foo.two metric]
+sampledso.secret.dk.tre [dynamic *.secret.foo.bar.three metric]
+sampledso.secret.es.unos [dynamic sampledso.secret.foo.one metric]
+sampledso.secret.es.dos [dynamic sampledso.secret.foo.two metric]
+sampledso.secret.es.tres [dynamic *.secret.foo.bar.three metric]
 sampledso.ghosts.visible [Number of visible ghosts]
 sampledso.long.one [1 as a 32-bit integer]
 sampledso.long.ten [10 as a 32-bit integer]
@@ -497,6 +510,9 @@ sampledso.secret.foo.bar.three
 Help:
 Value 3.
 
+Aliases sampledso.secret.en.one, sample.secret.fr.trois, secret.dk.tre and
+sampledso.secret.es.tres.
+
 sampledso.secret.foo.bar.four
 Help:
 Value 4.
@@ -517,9 +533,30 @@ sampledso.secret.foo.one
 Help:
 Value 1.
 
+Aliases sampledso.secret.en.one, sample.secret.fr.un, secret.dk.et and
+sampledso.secret.es.unos.
+
 sampledso.secret.foo.two
 Help:
 Value 2.
+
+Aliases sampledso.secret.en.two, sample.secret.fr.deux, secret.dk.to and
+sampledso.secret.es.dos.
+
+sampledso.secret.bin
+Help:
+9 instances labelled "bin-100" thru "bin-900", each with an
+initial value of 100 thru 900.
+
+pmstore(1) may be used to change the values of some or all of
+the instances, but note this will also change the values of the
+metrics that share the same underlying values, i.e. sampledso.bucket,
+sampledso.part_bin, sample.bogus_bin, sample.scramble.bin
+sampledso.long.bin, sample.long.bin_ctr, sample.ulong.bin,
+sampledso.ulong.bin_ctr, sample.longlong.bin, sample.longlong.bin_ctr,
+sampledso.ulonglong.bin, sample.ulonglong.bin_ctr, sample.float.bin,
+sampledso.float.bin_ctr, sample.double.bin, sample.double.bin_ctr
+and sampledso.string.bin.
 
 sampledso.secret.bar
 Help:
@@ -529,6 +566,90 @@ sampledso.secret.family
 Help:
 Same metric as sampledso.needprofile but without the explicit profile
 requirement, so all of the "family" instance domain.
+
+sampledso.secret.en.one
+Help:
+Value 1.
+
+Aliases sampledso.secret.en.one, sample.secret.fr.un, secret.dk.et and
+sampledso.secret.es.unos.
+
+sampledso.secret.en.two
+Help:
+Value 2.
+
+Aliases sampledso.secret.en.two, sample.secret.fr.deux, secret.dk.to and
+sampledso.secret.es.dos.
+
+sampledso.secret.en.three
+Help:
+Value 3.
+
+Aliases sampledso.secret.en.one, sample.secret.fr.trois, secret.dk.tre and
+sampledso.secret.es.tres.
+
+sampledso.secret.fr.un
+Help:
+Value 1.
+
+Aliases sampledso.secret.en.one, sample.secret.fr.un, secret.dk.et and
+sampledso.secret.es.unos.
+
+sampledso.secret.fr.deux
+Help:
+Value 2.
+
+Aliases sampledso.secret.en.two, sample.secret.fr.deux, secret.dk.to and
+sampledso.secret.es.dos.
+
+sampledso.secret.fr.trois
+Help:
+Value 3.
+
+Aliases sampledso.secret.en.one, sample.secret.fr.trois, secret.dk.tre and
+sampledso.secret.es.tres.
+
+sampledso.secret.dk.et
+Help:
+Value 1.
+
+Aliases sampledso.secret.en.one, sample.secret.fr.un, secret.dk.et and
+sampledso.secret.es.unos.
+
+sampledso.secret.dk.to
+Help:
+Value 2.
+
+Aliases sampledso.secret.en.two, sample.secret.fr.deux, secret.dk.to and
+sampledso.secret.es.dos.
+
+sampledso.secret.dk.tre
+Help:
+Value 3.
+
+Aliases sampledso.secret.en.one, sample.secret.fr.trois, secret.dk.tre and
+sampledso.secret.es.tres.
+
+sampledso.secret.es.unos
+Help:
+Value 1.
+
+Aliases sampledso.secret.en.one, sample.secret.fr.un, secret.dk.et and
+sampledso.secret.es.unos.
+
+sampledso.secret.es.dos
+Help:
+Value 2.
+
+Aliases sampledso.secret.en.two, sample.secret.fr.deux, secret.dk.to and
+sampledso.secret.es.dos.
+
+sampledso.secret.es.tres
+Help:
+Value 3.
+
+Aliases sampledso.secret.en.one, sample.secret.fr.trois, secret.dk.tre and
+sampledso.secret.es.tres.
 
 sampledso.ghosts.visible
 Help:

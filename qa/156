@@ -19,7 +19,7 @@ _filter()
     _filter_pmda_install | \
     sed -e 's/ 1[34][0-9][0-9] values/ 1300+ values/' \
 	-e 's/ 1[0-9] warnings/ 10+ warnings/' \
-	-e 's/ 1[0-9][0-9] metrics/ 100+ metrics/' \
+	-e 's/ [12][0-9][0-9] metrics/ 100+ metrics/' \
 	-e "s;$tmp;TMP;" \
 	-e "s/$port1/PORT1/" \
 	-e "s/$port2/PORT2/"

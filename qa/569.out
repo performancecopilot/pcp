@@ -44,6 +44,7 @@ sample.rapid 1
 sample.error_code 1
 sample.error_check 1
 sample.secret.foo.bar.max.redirect NUMBER ...
+sample.secret.bin 9
 sample.secret.bar 1
 sample.secret.family 5
 sample.secret.foo.one 1
@@ -53,6 +54,18 @@ sample.secret.foo.bar.four 1
 sample.secret.foo.bar.grunt.five 1
 sample.secret.foo.bar.grunt.snort.six 1
 sample.secret.foo.bar.grunt.snort.huff.puff.seven 1
+sample.secret.en.one 1
+sample.secret.en.two 1
+sample.secret.en.three 1
+sample.secret.fr.un 1
+sample.secret.fr.deux 1
+sample.secret.fr.trois 1
+sample.secret.dk.et 1
+sample.secret.dk.to 1
+sample.secret.dk.tre 1
+sample.secret.es.unos 1
+sample.secret.es.dos 1
+sample.secret.es.tres 1
 sample.ghosts.visible 1
 sample.long.one 1
 sample.long.ten 1
@@ -226,6 +239,7 @@ sample.rapid 1 PM_IN_NULL
 sample.error_code 1 PM_IN_NULL
 sample.error_check 1 PM_IN_NULL
 sample.secret.foo.bar.max.redirect NUMBER ...
+sample.secret.bin 9 ?100 ?200 ?300 ?400 ?500 ?600 ?700 ?800 ?900
 sample.secret.bar 1 PM_IN_NULL
 sample.secret.family 5 ?0 ?1 ?2 ?3 ?4
 sample.secret.foo.one 1 PM_IN_NULL
@@ -235,6 +249,18 @@ sample.secret.foo.bar.four 1 PM_IN_NULL
 sample.secret.foo.bar.grunt.five 1 PM_IN_NULL
 sample.secret.foo.bar.grunt.snort.six 1 PM_IN_NULL
 sample.secret.foo.bar.grunt.snort.huff.puff.seven 1 PM_IN_NULL
+sample.secret.en.one 1 PM_IN_NULL
+sample.secret.en.two 1 PM_IN_NULL
+sample.secret.en.three 1 PM_IN_NULL
+sample.secret.fr.un 1 PM_IN_NULL
+sample.secret.fr.deux 1 PM_IN_NULL
+sample.secret.fr.trois 1 PM_IN_NULL
+sample.secret.dk.et 1 PM_IN_NULL
+sample.secret.dk.to 1 PM_IN_NULL
+sample.secret.dk.tre 1 PM_IN_NULL
+sample.secret.es.unos 1 PM_IN_NULL
+sample.secret.es.dos 1 PM_IN_NULL
+sample.secret.es.tres 1 PM_IN_NULL
 sample.ghosts.visible 1 PM_IN_NULL
 sample.long.one 1 PM_IN_NULL
 sample.long.ten 1 PM_IN_NULL
@@ -438,6 +464,7 @@ sample.rapid 1 PM_IN_NULL
 sample.error_code 1 PM_IN_NULL
 sample.error_check 1 PM_IN_NULL
 sample.secret.foo.bar.max.redirect NUMBER ...
+sample.secret.bin 9 "bin-100" "bin-200" "bin-300" "bin-400" "bin-500" "bin-600" "bin-700" "bin-800" "bin-900"
 sample.secret.bar 1 PM_IN_NULL
 sample.secret.family 5 "colleen" "terry" "emma" "cathy" "fat bald bastard"
 sample.secret.foo.one 1 PM_IN_NULL
@@ -447,6 +474,18 @@ sample.secret.foo.bar.four 1 PM_IN_NULL
 sample.secret.foo.bar.grunt.five 1 PM_IN_NULL
 sample.secret.foo.bar.grunt.snort.six 1 PM_IN_NULL
 sample.secret.foo.bar.grunt.snort.huff.puff.seven 1 PM_IN_NULL
+sample.secret.en.one 1 PM_IN_NULL
+sample.secret.en.two 1 PM_IN_NULL
+sample.secret.en.three 1 PM_IN_NULL
+sample.secret.fr.un 1 PM_IN_NULL
+sample.secret.fr.deux 1 PM_IN_NULL
+sample.secret.fr.trois 1 PM_IN_NULL
+sample.secret.dk.et 1 PM_IN_NULL
+sample.secret.dk.to 1 PM_IN_NULL
+sample.secret.dk.tre 1 PM_IN_NULL
+sample.secret.es.unos 1 PM_IN_NULL
+sample.secret.es.dos 1 PM_IN_NULL
+sample.secret.es.tres 1 PM_IN_NULL
 sample.ghosts.visible 1 PM_IN_NULL
 sample.long.one 1 PM_IN_NULL
 sample.long.ten 1 PM_IN_NULL
@@ -656,6 +695,7 @@ sample.rapid 1 NUMBER
 sample.error_code 1 0
 sample.error_check 1 0
 sample.secret.foo.bar.max.redirect NUMBER ...
+sample.secret.bin 9 100 200 300 400 500 600 700 800 900
 sample.secret.bar 1 "foo"
 sample.secret.family 5 "05" "05" "09" "09" "26"
 sample.secret.foo.one 1 1
@@ -665,6 +705,18 @@ sample.secret.foo.bar.four 1 4
 sample.secret.foo.bar.grunt.five 1 5
 sample.secret.foo.bar.grunt.snort.six 1 6
 sample.secret.foo.bar.grunt.snort.huff.puff.seven 1 7
+sample.secret.en.one 1 1
+sample.secret.en.two 1 2
+sample.secret.en.three 1 3
+sample.secret.fr.un 1 1
+sample.secret.fr.deux 1 2
+sample.secret.fr.trois 1 3
+sample.secret.dk.et 1 1
+sample.secret.dk.to 1 2
+sample.secret.dk.tre 1 3
+sample.secret.es.unos 1 1
+sample.secret.es.dos 1 2
+sample.secret.es.tres 1 3
 sample.ghosts.visible 1 -1
 sample.long.one 1 1
 sample.long.ten 1 10
@@ -860,6 +912,7 @@ sample.rapid 1 PM_IN_NULL PM_IN_NULL
 sample.error_code 1 PM_IN_NULL PM_IN_NULL
 sample.error_check 1 PM_IN_NULL PM_IN_NULL
 sample.secret.foo.bar.max.redirect NUMBER ...
+sample.secret.bin 9 ?100 "bin-100" ?200 "bin-200" ?300 "bin-300" ?400 "bin-400" ?500 "bin-500" ?600 "bin-600" ?700 "bin-700" ?800 "bin-800" ?900 "bin-900"
 sample.secret.bar 1 PM_IN_NULL PM_IN_NULL
 sample.secret.family 5 ?0 "colleen" ?1 "terry" ?2 "emma" ?3 "cathy" ?4 "fat bald bastard"
 sample.secret.foo.one 1 PM_IN_NULL PM_IN_NULL
@@ -869,6 +922,18 @@ sample.secret.foo.bar.four 1 PM_IN_NULL PM_IN_NULL
 sample.secret.foo.bar.grunt.five 1 PM_IN_NULL PM_IN_NULL
 sample.secret.foo.bar.grunt.snort.six 1 PM_IN_NULL PM_IN_NULL
 sample.secret.foo.bar.grunt.snort.huff.puff.seven 1 PM_IN_NULL PM_IN_NULL
+sample.secret.en.one 1 PM_IN_NULL PM_IN_NULL
+sample.secret.en.two 1 PM_IN_NULL PM_IN_NULL
+sample.secret.en.three 1 PM_IN_NULL PM_IN_NULL
+sample.secret.fr.un 1 PM_IN_NULL PM_IN_NULL
+sample.secret.fr.deux 1 PM_IN_NULL PM_IN_NULL
+sample.secret.fr.trois 1 PM_IN_NULL PM_IN_NULL
+sample.secret.dk.et 1 PM_IN_NULL PM_IN_NULL
+sample.secret.dk.to 1 PM_IN_NULL PM_IN_NULL
+sample.secret.dk.tre 1 PM_IN_NULL PM_IN_NULL
+sample.secret.es.unos 1 PM_IN_NULL PM_IN_NULL
+sample.secret.es.dos 1 PM_IN_NULL PM_IN_NULL
+sample.secret.es.tres 1 PM_IN_NULL PM_IN_NULL
 sample.ghosts.visible 1 PM_IN_NULL PM_IN_NULL
 sample.long.one 1 PM_IN_NULL PM_IN_NULL
 sample.long.ten 1 PM_IN_NULL PM_IN_NULL

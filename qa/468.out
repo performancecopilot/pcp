@@ -1,6 +1,16 @@
 QA output created by 468
 PMNS traversal tests ...
 sample.secret.bar
+sample.secret.bin
+sample.secret.dk.et
+sample.secret.dk.to
+sample.secret.dk.tre
+sample.secret.en.one
+sample.secret.en.three
+sample.secret.en.two
+sample.secret.es.dos
+sample.secret.es.tres
+sample.secret.es.unos
 sample.secret.family
 sample.secret.foo.bar.four
 sample.secret.foo.bar.grunt.five
@@ -10,14 +20,17 @@ sample.secret.foo.bar.max.redirect
 sample.secret.foo.bar.three
 sample.secret.foo.one
 sample.secret.foo.two
+sample.secret.fr.deux
+sample.secret.fr.trois
+sample.secret.fr.un
 
 == sample.secret ==
-Time HOST:sample.secret.bar HOST:sample.secret.family["colleen"] HOST:sample.secret.family["terry"] HOST:sample.secret.family["emma"] HOST:sample.secret.family["cathy"] HOST:sample.secret.family["fat HOST:sample.secret.foo.one HOST:sample.secret.foo.two HOST:sample.secret.foo.bar.three HOST:sample.secret.foo.bar.four HOST:sample.secret.foo.bar.grunt.five HOST:sample.secret.foo.bar.grunt.snort.six HOST:sample.secret.foo.bar.grunt.snort.huff.puff.seven 
-? 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 
-none none none none none none none count count count count count count count 
-DATE "foo" "05" "05" "09" "09" "26" 1.000 2.000 3.000 4.000 5.000 6.000 7.000 
-DATE "foo" "05" "05" "09" "09" "26" 1.000 2.000 3.000 4.000 5.000 6.000 7.000 
-DATE "foo" "05" "05" "09" "09" "26" 1.000 2.000 3.000 4.000 5.000 6.000 7.000 
+Time HOST:sample.secret.bin["bin-100"] HOST:sample.secret.bin["bin-200"] HOST:sample.secret.bin["bin-300"] HOST:sample.secret.bin["bin-400"] HOST:sample.secret.bin["bin-500"] HOST:sample.secret.bin["bin-600"] HOST:sample.secret.bin["bin-700"] HOST:sample.secret.bin["bin-800"] HOST:sample.secret.bin["bin-900"] HOST:sample.secret.bar HOST:sample.secret.family["colleen"] HOST:sample.secret.family["terry"] HOST:sample.secret.family["emma"] HOST:sample.secret.family["cathy"] HOST:sample.secret.family["fat HOST:sample.secret.foo.one HOST:sample.secret.foo.two HOST:sample.secret.foo.bar.three HOST:sample.secret.foo.bar.four HOST:sample.secret.foo.bar.grunt.five HOST:sample.secret.foo.bar.grunt.snort.six HOST:sample.secret.foo.bar.grunt.snort.huff.puff.seven HOST:sample.secret.en.one HOST:sample.secret.en.two HOST:sample.secret.en.three HOST:sample.secret.fr.un HOST:sample.secret.fr.deux HOST:sample.secret.fr.trois HOST:sample.secret.dk.et HOST:sample.secret.dk.to HOST:sample.secret.dk.tre HOST:sample.secret.es.unos HOST:sample.secret.es.dos HOST:sample.secret.es.tres 
+? 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 
+none none none none none none none none none none none none none none none none count count count count count count count count count count count count count count count count count count count 
+DATE 100.000 200.000 300.000 400.000 500.000 600.000 700.000 800.000 900.000 "foo" "05" "05" "09" "09" "26" 1.000 2.000 3.000 4.000 5.000 6.000 7.000 1.000 2.000 3.000 1.000 2.000 3.000 1.000 2.000 3.000 1.000 2.000 3.000 
+DATE 100.000 200.000 300.000 400.000 500.000 600.000 700.000 800.000 900.000 "foo" "05" "05" "09" "09" "26" 1.000 2.000 3.000 4.000 5.000 6.000 7.000 1.000 2.000 3.000 1.000 2.000 3.000 1.000 2.000 3.000 1.000 2.000 3.000 
+DATE 100.000 200.000 300.000 400.000 500.000 600.000 700.000 800.000 900.000 "foo" "05" "05" "09" "09" "26" 1.000 2.000 3.000 4.000 5.000 6.000 7.000 1.000 2.000 3.000 1.000 2.000 3.000 1.000 2.000 3.000 1.000 2.000 3.000 
 
 == sample.secret.bar sample.secret.foo ==
 Time HOST:sample.secret.bar HOST:sample.secret.foo.one HOST:sample.secret.foo.two HOST:sample.secret.foo.bar.three HOST:sample.secret.foo.bar.four HOST:sample.secret.foo.bar.grunt.five HOST:sample.secret.foo.bar.grunt.snort.six HOST:sample.secret.foo.bar.grunt.snort.huff.puff.seven 

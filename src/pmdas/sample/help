@@ -615,17 +615,26 @@ data segment of the PMDA.
 
 This is handy for tracing memory utilization (and leaks) in libpcp_pmda.
 
-@ SAMPLE.0.1000 dynamic *.secret.bar metric
+@ SAMPLE.0.1000 dynamic sample.secret.bar metric
 Value "foo".
 
-@ SAMPLE.0.1001 dynamic *.secret.foo.one metric
+@ SAMPLE.0.1001 dynamic sample.secret.foo.one metric
 Value 1.
 
-@ SAMPLE.0.1002 dynamic *.secret.foo.two metric
+Aliases sample.secret.en.one, sample.secret.fr.un, secret.dk.et and
+sample.secret.es.unos.
+
+@ SAMPLE.0.1002 dynamic sample.secret.foo.two metric
 Value 2.
+
+Aliases sample.secret.en.two, sample.secret.fr.deux, secret.dk.to and
+sample.secret.es.dos.
 
 @ SAMPLE.0.1003 dynamic *.secret.foo.bar.three metric
 Value 3.
+
+Aliases sample.secret.en.one, sample.secret.fr.trois, secret.dk.tre and
+sample.secret.es.tres.
 
 @ SAMPLE.0.1004 dynamic *.secret.foo.bar.four metric
 Value 4.

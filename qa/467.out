@@ -1,6 +1,16 @@
 QA output created by 467
 PMNS traversal tests ...
 sampledso.secret.bar
+sampledso.secret.bin
+sampledso.secret.dk.et
+sampledso.secret.dk.to
+sampledso.secret.dk.tre
+sampledso.secret.en.one
+sampledso.secret.en.three
+sampledso.secret.en.two
+sampledso.secret.es.dos
+sampledso.secret.es.tres
+sampledso.secret.es.unos
 sampledso.secret.family
 sampledso.secret.foo.bar.four
 sampledso.secret.foo.bar.grunt.five
@@ -10,14 +20,17 @@ sampledso.secret.foo.bar.max.redirect
 sampledso.secret.foo.bar.three
 sampledso.secret.foo.one
 sampledso.secret.foo.two
+sampledso.secret.fr.deux
+sampledso.secret.fr.trois
+sampledso.secret.fr.un
 
 == sampledso.secret ==
-Time HOST:sampledso.secret.bar HOST:sampledso.secret.family["colleen"] HOST:sampledso.secret.family["terry"] HOST:sampledso.secret.family["emma"] HOST:sampledso.secret.family["cathy"] HOST:sampledso.secret.family["fat HOST:sampledso.secret.foo.one HOST:sampledso.secret.foo.two HOST:sampledso.secret.foo.bar.three HOST:sampledso.secret.foo.bar.four HOST:sampledso.secret.foo.bar.grunt.five HOST:sampledso.secret.foo.bar.grunt.snort.six HOST:sampledso.secret.foo.bar.grunt.snort.huff.puff.seven 
-? 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 
-none none none none none none none count count count count count count count 
-DATE "foo" "05" "05" "09" "09" "26" 1.000 2.000 3.000 4.000 5.000 6.000 7.000 
-DATE "foo" "05" "05" "09" "09" "26" 1.000 2.000 3.000 4.000 5.000 6.000 7.000 
-DATE "foo" "05" "05" "09" "09" "26" 1.000 2.000 3.000 4.000 5.000 6.000 7.000 
+Time HOST:sampledso.secret.bin["bin-100"] HOST:sampledso.secret.bin["bin-200"] HOST:sampledso.secret.bin["bin-300"] HOST:sampledso.secret.bin["bin-400"] HOST:sampledso.secret.bin["bin-500"] HOST:sampledso.secret.bin["bin-600"] HOST:sampledso.secret.bin["bin-700"] HOST:sampledso.secret.bin["bin-800"] HOST:sampledso.secret.bin["bin-900"] HOST:sampledso.secret.bar HOST:sampledso.secret.family["colleen"] HOST:sampledso.secret.family["terry"] HOST:sampledso.secret.family["emma"] HOST:sampledso.secret.family["cathy"] HOST:sampledso.secret.family["fat HOST:sampledso.secret.foo.one HOST:sampledso.secret.foo.two HOST:sampledso.secret.foo.bar.three HOST:sampledso.secret.foo.bar.four HOST:sampledso.secret.foo.bar.grunt.five HOST:sampledso.secret.foo.bar.grunt.snort.six HOST:sampledso.secret.foo.bar.grunt.snort.huff.puff.seven HOST:sampledso.secret.en.one HOST:sampledso.secret.en.two HOST:sampledso.secret.en.three HOST:sampledso.secret.fr.un HOST:sampledso.secret.fr.deux HOST:sampledso.secret.fr.trois HOST:sampledso.secret.dk.et HOST:sampledso.secret.dk.to HOST:sampledso.secret.dk.tre HOST:sampledso.secret.es.unos HOST:sampledso.secret.es.dos HOST:sampledso.secret.es.tres 
+? 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 
+none none none none none none none none none none none none none none none none count count count count count count count count count count count count count count count count count count count 
+DATE 100.000 200.000 300.000 400.000 500.000 600.000 700.000 800.000 900.000 "foo" "05" "05" "09" "09" "26" 1.000 2.000 3.000 4.000 5.000 6.000 7.000 1.000 2.000 3.000 1.000 2.000 3.000 1.000 2.000 3.000 1.000 2.000 3.000 
+DATE 100.000 200.000 300.000 400.000 500.000 600.000 700.000 800.000 900.000 "foo" "05" "05" "09" "09" "26" 1.000 2.000 3.000 4.000 5.000 6.000 7.000 1.000 2.000 3.000 1.000 2.000 3.000 1.000 2.000 3.000 1.000 2.000 3.000 
+DATE 100.000 200.000 300.000 400.000 500.000 600.000 700.000 800.000 900.000 "foo" "05" "05" "09" "09" "26" 1.000 2.000 3.000 4.000 5.000 6.000 7.000 1.000 2.000 3.000 1.000 2.000 3.000 1.000 2.000 3.000 1.000 2.000 3.000 
 
 == sampledso.secret.bar sampledso.secret.foo ==
 Time HOST:sampledso.secret.bar HOST:sampledso.secret.foo.one HOST:sampledso.secret.foo.two HOST:sampledso.secret.foo.bar.three HOST:sampledso.secret.foo.bar.four HOST:sampledso.secret.foo.bar.grunt.five HOST:sampledso.secret.foo.bar.grunt.snort.six HOST:sampledso.secret.foo.bar.grunt.snort.huff.puff.seven 

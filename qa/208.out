@@ -33,12 +33,17 @@ pmLookupName() returns -12394 (Metric name is not a leaf in PMNS)
 sample.secret: id[0] = PM_ID_NULL
 
 === metric 0 === name: sample.secret pmid PM_ID_NULL
-pmGetChildren() returns 3
-pmGetChildrenStatus() returns 3
+pmGetChildren() returns 8
+pmGetChildrenStatus() returns 8
 children of "sample.secret" ...
     bar                 <s = 0>
+    bin                 <s = 0>
+    dk                  <s = 1>
+    en                  <s = 1>
+    es                  <s = 1>
     family              <s = 0>
     foo                 <s = 1>
+    fr                  <s = 1>
 
 Real-time result ...
 pmResult ... numpmid: 1
@@ -77,13 +82,21 @@ sample.secret.foo.one: id[0] = 29.0.1001
 === metric 0 === name: sample.secret.foo.one pmid 29.0.1001
 pmNameID() returns 0
 pmid: 29.0.1001  name: sample.secret.foo.one
-pmNameAll() returns 1
+pmNameAll() returns 5
 pmid: 29.0.1001  name: sample.secret.foo.one
+pmid: 29.0.1001  name: sample.secret.en.one
+pmNameAll info: expected "sample.secret.foo.one", got "sample.secret.en.one"
+pmid: 29.0.1001  name: sample.secret.fr.un
+pmNameAll info: expected "sample.secret.foo.one", got "sample.secret.fr.un"
+pmid: 29.0.1001  name: sample.secret.dk.et
+pmNameAll info: expected "sample.secret.foo.one", got "sample.secret.dk.et"
+pmid: 29.0.1001  name: sample.secret.es.unos
+pmNameAll info: expected "sample.secret.foo.one", got "sample.secret.es.unos"
 pmLookupDesc() returns 0
 
 Real-time result ...
 pmResult ... numpmid: 1
-  29.0.1001 (sample.secret.foo.one): numval: 1 valfmt: 0 vlist[]:
+  29.0.1001 (sample.secret.foo.one, sample.secret.en.one, sample.secret.fr.un, sample.secret.dk.et, sample.secret.es.unos): numval: 1 valfmt: 0 vlist[]:
    value 1
 pmLookupName() returns -12394 (Metric name is not a leaf in PMNS)
 sample.secret.foo.bar: id[0] = PM_ID_NULL
@@ -146,12 +159,17 @@ pmLookupName() returns -12394 (Metric name is not a leaf in PMNS)
 sampledso.secret: id[0] = PM_ID_NULL
 
 === metric 0 === name: sampledso.secret pmid PM_ID_NULL
-pmGetChildren() returns 3
-pmGetChildrenStatus() returns 3
+pmGetChildren() returns 8
+pmGetChildrenStatus() returns 8
 children of "sampledso.secret" ...
     bar                 <s = 0>
+    bin                 <s = 0>
+    dk                  <s = 1>
+    en                  <s = 1>
+    es                  <s = 1>
     family              <s = 0>
     foo                 <s = 1>
+    fr                  <s = 1>
 
 Real-time result ...
 pmResult ... numpmid: 1
@@ -190,13 +208,21 @@ sampledso.secret.foo.one: id[0] = 30.0.1001
 === metric 0 === name: sampledso.secret.foo.one pmid 30.0.1001
 pmNameID() returns 0
 pmid: 30.0.1001  name: sampledso.secret.foo.one
-pmNameAll() returns 1
+pmNameAll() returns 5
 pmid: 30.0.1001  name: sampledso.secret.foo.one
+pmid: 30.0.1001  name: sampledso.secret.en.one
+pmNameAll info: expected "sampledso.secret.foo.one", got "sampledso.secret.en.one"
+pmid: 30.0.1001  name: sampledso.secret.fr.un
+pmNameAll info: expected "sampledso.secret.foo.one", got "sampledso.secret.fr.un"
+pmid: 30.0.1001  name: sampledso.secret.dk.et
+pmNameAll info: expected "sampledso.secret.foo.one", got "sampledso.secret.dk.et"
+pmid: 30.0.1001  name: sampledso.secret.es.unos
+pmNameAll info: expected "sampledso.secret.foo.one", got "sampledso.secret.es.unos"
 pmLookupDesc() returns 0
 
 Real-time result ...
 pmResult ... numpmid: 1
-  30.0.1001 (sampledso.secret.foo.one): numval: 1 valfmt: 0 vlist[]:
+  30.0.1001 (sampledso.secret.foo.one, sampledso.secret.en.one, sampledso.secret.fr.un, sampledso.secret.dk.et, sampledso.secret.es.unos): numval: 1 valfmt: 0 vlist[]:
    value 1
 pmLookupName() returns -12394 (Metric name is not a leaf in PMNS)
 sampledso.secret.foo.bar: id[0] = PM_ID_NULL
