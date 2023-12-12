@@ -5,16 +5,17 @@
  * pmcd makes these calls to communicate with a PMDA ... all of
  * them are exposed to ready-not-ready protocol issues:
  *   [ ] __pmSendAttr
- *   [ ] __pmSendChildReq
+ *   [y] __pmSendChildReq - pmGetChildren() or pmGetChildrenStatus()
  *   [ ] __pmSendCreds
  *   [y] __pmSendDescReq - pmLookupDesc()
  *   [ ] __pmSendError
  *   [y] __pmSendFetch - pmFetch()
  *   [y] __pmSendHighResResult - pmFetchHighRes()
- *   [ ] __pmSendIDList
+ *   [ ] __pmSendIDList - pmNameID() or pmNameAll()
+ *   [ ]                - pmLookupDesc() [all derived metrics case]
  *   [ ] __pmSendInstanceReq
  *   [ ] __pmSendLabelReq
- *   [ ] __pmSendNameList
+ *   [ ] __pmSendNameList - pmLookupName
  *   [ ] __pmSendProfile
  *   [ ] __pmSendResult
  *   [ ] __pmSendTextReq
@@ -56,10 +57,15 @@ struct {
       PM_ID_NULL, PM_INDOM_NULL, PM_IN_NULL, NULL },
     { "sample.secret.foo.bar.grunt",	/* singular, dynamic, non-leaf */
       PM_ID_NULL, PM_INDOM_NULL, PM_IN_NULL, NULL },
-    { "sample.colour",			/* indom, static, leaf */
-      PM_ID_NULL, PM_INDOM_NULL, PM_IN_NULL, NULL },
     { "sample.secret.family",		/* indom, dynamic, leaf */
       PM_ID_NULL, PM_INDOM_NULL, PM_IN_NULL, NULL },
+};
+
+struct {
+    pmID	pmid;
+    char	*name;
+} ctl_pmns[] = {
+    { PM_ID_NULL, "sample.secret.foo.bar.three" },
 };
 
 static void
@@ -138,18 +144,19 @@ main(int argc, char **argv)
     }
 
     /*
-     * initialization ... lookup all the names we can */
+     * initialization ... lookup all the ctl[] names we can
+     */
     for (i = 0; i < sizeof(ctl) / sizeof(ctl[0]); i++) {
 	sts = pmLookupName(1, (const char **)&ctl[i].name, &pmid);
 	if (sts < 0) {
-	    printf("[%d] name  %s LookupName Error: %s\n", i, ctl[i].name, pmErrStr(sts));
+	    printf("ctl[%d] name  %s LookupName Error: %s\n", i, ctl[i].name, pmErrStr(sts));
 	    continue;
 	}
 	ctl[i].pmid = pmid;
 	/* get the pmDesc's now */
 	sts = pmLookupDesc(pmid, &desc);
 	if (sts < 0) {
-	    printf("[%d] name  %s LookupDesc Error: %s\n", i, ctl[i].name, pmErrStr(sts));
+	    printf("ctl[%d] name  %s LookupDesc Error: %s\n", i, ctl[i].name, pmErrStr(sts));
 	    continue;
 	}
 	ctl[i].indom = desc.indom;
@@ -158,7 +165,7 @@ main(int argc, char **argv)
 	    char	**namelist;
 	    sts = pmGetInDom(desc.indom, &instlist, &namelist);
 	    if (sts < 0)
-		printf("[%d] name  %s GetIndom(%s) Error: %s\n", i, ctl[i].name, pmInDomStr(desc.indom), pmErrStr(sts));
+		printf("ctl[%d] name  %s GetIndom(%s) Error: %s\n", i, ctl[i].name, pmInDomStr(desc.indom), pmErrStr(sts));
 	    if (sts >= 1) {
 		ctl[i].inst = instlist[sts/2];
 		ctl[i].iname = strdup(namelist[sts/2]);
@@ -167,13 +174,26 @@ main(int argc, char **argv)
 		free(namelist);
 	    }
 	}
-	printf("[%d] name  %s pmid %s", i, ctl[i].name, pmIDStr(pmid));
+	printf("ctl[%d] name  %s pmid %s", i, ctl[i].name, pmIDStr(pmid));
 	if (desc.indom != PM_INDOM_NULL) {
 	    printf(" indom %s", pmInDomStr(ctl[i].indom));
 	    if (ctl[i].iname != NULL)
 		printf(" {%d, \"%s\"}", ctl[i].inst, ctl[i].iname);
 	}
 	putchar('\n');
+    }
+
+    /*
+     * initialization ... lookup all the ctl_pmns[] names we can
+     */
+    for (i = 0; i < sizeof(ctl_pmns) / sizeof(ctl_pmns[0]); i++) {
+	sts = pmLookupName(1, (const char **)&ctl_pmns[i].name, &pmid);
+	if (sts < 0) {
+	    printf("ctl_pmns[%d] name  %s LookupName Error: %s\n", i, ctl_pmns[i].name, pmErrStr(sts));
+	    continue;
+	}
+	ctl_pmns[i].pmid = pmid;
+	printf("ctl_pmns[%d] name  %s pmid %s\n", i, ctl_pmns[i].name, pmIDStr(pmid));
     }
 
     for (limbo = 0; limbo < 2; limbo++) {
@@ -183,7 +203,7 @@ main(int argc, char **argv)
 		if (limbo)
 		    smack();
 		for (j = 0; j <= limbo; j++) {
-		    printf("[%d][%s] name %s pmFetch ...\n", i, (limbo && j == 0) ? "notready" : "ok", ctl[i].name);
+		    printf("ctl[%d][%s] name %s pmFetch ...\n", i, (limbo && j == 0) ? "notready" : "ok", ctl[i].name);
 		    sts = pmFetch(1, &ctl[i].pmid, &rp);
 		    if (sts < 0)
 			printf("Error: %s\n", pmErrStr(sts));
@@ -198,7 +218,7 @@ main(int argc, char **argv)
 		if (limbo)
 		    smack();
 		for (j = 0; j <= limbo; j++) {
-		    printf("[%d][%s] name %s pmFetchHighRes ...\n", i, (limbo && j == 0) ? "notready" : "ok", ctl[i].name);
+		    printf("ctl[%d][%s] name %s pmFetchHighRes ...\n", i, (limbo && j == 0) ? "notready" : "ok", ctl[i].name);
 		    sts = pmFetchHighRes(1, &ctl[i].pmid, &hrp);
 		    if (sts < 0)
 			printf("Error: %s\n", pmErrStr(sts));
@@ -213,7 +233,7 @@ main(int argc, char **argv)
 		if (limbo)
 		    smack();
 		for (j = 0; j <= limbo; j++) {
-		    printf("[%d][%s] pmid %s pmLookupDesc ...\n", i, (limbo && j == 0) ? "notready" : "ok", pmIDStr(ctl[i].pmid));
+		    printf("ctl[%d][%s] pmid %s pmLookupDesc ...\n", i, (limbo && j == 0) ? "notready" : "ok", pmIDStr(ctl[i].pmid));
 		    desc.pmid = PM_ID_NULL;
 		    sts = pmLookupDesc(ctl[i].pmid, &desc);
 		    if (sts < 0)
@@ -228,6 +248,69 @@ main(int argc, char **argv)
 			__pmtimevalSleep(delay);
 		}
 	    }
+	}
+    }
+
+    /*
+     * PMNS ops:
+     *	  pmGetChildren, pmGetChildrenStatus, pmNameID, pmNameAll
+     */
+    for (limbo = 0; limbo < 2; limbo++) {
+	if (limbo)
+	    smack();
+	for (j = 0; j <= limbo; j++) {
+	    char	**offspring;
+	    int		*status;
+	    char	*name;
+	    char	**nameset;
+
+	    printf("pmGetChildren(sample.secret) ...\n");
+	    sts = pmGetChildren("sample.secret", &offspring);
+	    if (sts < 0)
+		printf("Error: %s\n", pmErrStr(sts));
+	    else {
+		int	k;
+		for (k = 0; k < sts; k++)
+		    printf("pmns child[%d] %s\n", k, offspring[k]);
+		free(offspring);
+	    }
+
+	    printf("pmGetChildrenStatus(sample.secret) ...\n");
+	    sts = pmGetChildrenStatus("sample.secret", &offspring, &status);
+	    if (sts < 0)
+		printf("Error: %s\n", pmErrStr(sts));
+	    else {
+		int	k;
+		for (k = 0; k < sts; k++)
+		    printf("pmns child[%d] %d %s\n", k, status[k], offspring[k]);
+		free(offspring);
+		free(status);
+	    }
+
+	    for (i = 0; i < sizeof(ctl_pmns) / sizeof(ctl_pmns[0]); i++) {
+		printf("pmNameID(%s) ...\n", pmIDStr(ctl_pmns[i].pmid));
+		sts = pmNameID(ctl_pmns[i].pmid, &name);
+		if (sts < 0)
+		    printf("Error: PMID: %s: %s\n", pmIDStr(pmid), pmErrStr(sts));
+		else {
+		    printf("name %s\n", name);
+		    free(name);
+		}
+		printf("pmNameAll(%s) ...\n", pmIDStr(ctl_pmns[i].pmid));
+		sts = pmNameAll(ctl_pmns[i].pmid, &nameset);
+		if (sts < 0)
+		    printf("Error: PMID: %s: %s\n", pmIDStr(pmid), pmErrStr(sts));
+		else {
+		    int	k;
+		    for (k = 0; k < sts; k++) {
+			printf("name[%d] %s\n", k, nameset[k]);
+		    }
+		    free(nameset);
+		}
+	    }
+
+	    if (limbo && j == 0)
+		__pmtimevalSleep(delay);
 	}
     }
 
