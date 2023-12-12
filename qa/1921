@@ -76,6 +76,18 @@ else
     cat $tmp.out >> $here/$seq.full
 fi
 
+pcp ss -u > $tmp.out 2>&1
+if grep -q UNCONN $tmp.out  # do not show UNCONN state by default in UDP mode
+then
+    echo Failed UDP UNCONN check
+    cat $tmp.out
+    status=1
+    exit
+else
+    echo Passed UDP UNCONN check
+    cat $tmp.out >> $here/$seq.full
+fi
+
 pmdasockets_remove
 
 # success, all done

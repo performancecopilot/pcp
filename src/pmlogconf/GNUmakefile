@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2011-2018,2020 Red Hat.
+# Copyright (c) 2011-2018,2020,2023 Red Hat.
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -33,6 +33,7 @@ SUBDIRS = \
 	libvirt \
 	memory \
 	networking \
+	openmetrics \
 	platform \
 	statsd \
 	storage \

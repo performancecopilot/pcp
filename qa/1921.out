@@ -8,6 +8,7 @@ Updating the PMCD control file, and notifying PMCD ...
 Check network.persocket metrics have appeared ... X metrics and Y values
 
 Passed LISTEN check
+Passed UDP UNCONN check
 
 === remove sockets agent ===
 Culling the Performance Metrics Name Space ...
