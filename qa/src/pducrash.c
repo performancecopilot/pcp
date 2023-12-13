@@ -853,7 +853,7 @@ decode_pmns_names(const char *name)
     memset(namelist, 0, sizeof(*namelist));
     namelist->hdr.len = sizeof(*namelist);
     namelist->hdr.type = PDU_PMNS_NAMES;
-    namelist->numnames = htonl(-42);
+    namelist->numnames = htonl(PM_ERR_AGAIN);
     sts = __pmDecodeNameList((__pmPDU *)namelist, &numnames, &names, &status);
     fprintf(stderr, "  __pmDecodeNameList: sts = %d (%s)\n", sts, pmErrStr(sts));
     if (sts >= 0) { free(status); free(names); }
