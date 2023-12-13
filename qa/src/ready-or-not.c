@@ -11,15 +11,15 @@
  *   [ ] __pmSendError
  *   [y] __pmSendFetch - pmFetch()
  *   [y] __pmSendHighResResult - pmFetchHighRes()
- *   [ ] __pmSendIDList - pmNameID() or pmNameAll()
- *   [ ]                - pmLookupDesc() [all derived metrics case]
+ *   [y] __pmSendIDList - pmNameID() or pmNameAll()
+ *   [y]                - pmLookupDescs()
  *   [ ] __pmSendInstanceReq
  *   [ ] __pmSendLabelReq
- *   [ ] __pmSendNameList - pmLookupName
+ *   [y] __pmSendNameList - pmLookupName
  *   [ ] __pmSendProfile
- *   [ ] __pmSendResult
+ *   [ ] __pmSendResult - pmStore
  *   [ ] __pmSendTextReq
- *   [ ] __pmSendTraversePMNSReq
+ *   [y] __pmSendTraversePMNSReq - pmTraversePMNS, pmTraversePMNS_r
  *
  * ones marked [y] above are tested in the code below ...
  */
@@ -32,7 +32,6 @@ static pmLongOptions longopts[] = {
     PMAPI_OPTIONS_HEADER("Options"),
     PMOPT_DEBUG,	/* -D */
     PMOPT_HELP,		/* -? */
-    PMAPI_OPTIONS_HEADER("template options"),
     PMAPI_OPTIONS_END
 };
 
@@ -43,7 +42,7 @@ static pmOptions opts = {
 };
 
 struct {
-    char	*name;
+    const char	*name;
     pmID	pmid;
     pmInDom	indom;
     int		inst;
@@ -59,13 +58,20 @@ struct {
       PM_ID_NULL, PM_INDOM_NULL, PM_IN_NULL, NULL },
     { "sample.secret.family",		/* indom, dynamic, leaf */
       PM_ID_NULL, PM_INDOM_NULL, PM_IN_NULL, NULL },
+    { "pmcd.seqnum",			/* leaf, always present and available */
+      PM_ID_NULL, PM_INDOM_NULL, PM_IN_NULL, NULL },
 };
+
+pmID	pmidlist[10];
+
+int	magic;
 
 struct {
     pmID	pmid;
-    char	*name;
+    const char	*name;
 } ctl_pmns[] = {
-    { PM_ID_NULL, "sample.secret.foo.bar.three" },
+    { PM_ID_NULL, "sample.secret.foo.bar.three" },	/* lots of aliases */
+    { PM_ID_NULL, "pmcd.seqnum" },			/* no aliases, always preset */
 };
 
 static void
@@ -96,6 +102,22 @@ smack(void)
 	fprintf(stderr, "pmStore(%s): %s\n", pmIDStr(smack_rp->vset[0]->pmid), pmErrStr(sts));
 	exit(1);
     }
+}
+
+static
+void dometric(const char *name)
+{
+    printf("dometric(%s) called\n", name);
+}
+
+static
+void dometric_r(const char *name, void *closure)
+{
+    int		*ip;
+    printf("dometric_r(%s) called\n", name);
+    ip = (int *)closure;
+    if (*ip != magic)
+	printf("Botch: closure %d, not %d as expected\n", *ip, magic);
 }
 
 int
@@ -150,9 +172,10 @@ main(int argc, char **argv)
 	sts = pmLookupName(1, (const char **)&ctl[i].name, &pmid);
 	if (sts < 0) {
 	    printf("ctl[%d] name  %s LookupName Error: %s\n", i, ctl[i].name, pmErrStr(sts));
+	    pmidlist[i] = ctl[i].pmid = PM_ID_NULL;
 	    continue;
 	}
-	ctl[i].pmid = pmid;
+	pmidlist[i] = ctl[i].pmid = pmid;
 	/* get the pmDesc's now */
 	sts = pmLookupDesc(pmid, &desc);
 	if (sts < 0) {
@@ -196,28 +219,39 @@ main(int argc, char **argv)
 	printf("ctl_pmns[%d] name  %s pmid %s\n", i, ctl_pmns[i].name, pmIDStr(pmid));
     }
 
+    /*
+     * Outer loop is: default (ready), not ready
+     */
     for (limbo = 0; limbo < 2; limbo++) {
-	for (i = 0; i < sizeof(ctl) / sizeof(ctl[0]); i++) {
-	    if (ctl[i].pmid != PM_ID_NULL) {
-		/* pmFetch */
-		if (limbo)
-		    smack();
-		for (j = 0; j <= limbo; j++) {
-		    printf("ctl[%d][%s] name %s pmFetch ...\n", i, (limbo && j == 0) ? "notready" : "ok", ctl[i].name);
-		    sts = pmFetch(1, &ctl[i].pmid, &rp);
-		    if (sts < 0)
-			printf("Error: %s\n", pmErrStr(sts));
-		    else {
-			__pmDumpResult(stdout, rp);
-			pmFreeResult(rp);
-		    }
-		    if (limbo && j == 0)
-			__pmtimevalSleep(delay);
-		}
-		/* pmFetchHighRes */
-		if (limbo)
-		    smack();
-		for (j = 0; j <= limbo; j++) {
+	if (limbo)
+	    smack();
+	/*
+	 * Inner loop is: 1 try when ready, 2 tries when not ready (with
+	 * short sleep between tries, so expect 2nd try to succeed)
+	 */
+	for (j = 0; j <= limbo; j++) {
+	    char	**offspring;
+	    int		*status;
+	    char	*name;
+	    char	**nameset;
+	    pmDesc	desclist[10];
+
+	    /*
+	     * fetch ops:
+	     *   pmFetch, pmFetchHighRes
+	     */
+	    for (i = 0; i < sizeof(ctl) / sizeof(ctl[0]); i++) {
+		if (ctl[i].pmid != PM_ID_NULL) {
+		    /* pmFetch */
+			printf("ctl[%d][%s] name %s pmFetch ...\n", i, (limbo && j == 0) ? "notready" : "ok", ctl[i].name);
+			sts = pmFetch(1, &ctl[i].pmid, &rp);
+			if (sts < 0)
+			    printf("Error: %s\n", pmErrStr(sts));
+			else {
+			    __pmDumpResult(stdout, rp);
+			    pmFreeResult(rp);
+			}
+		    /* pmFetchHighRes */
 		    printf("ctl[%d][%s] name %s pmFetchHighRes ...\n", i, (limbo && j == 0) ? "notready" : "ok", ctl[i].name);
 		    sts = pmFetchHighRes(1, &ctl[i].pmid, &hrp);
 		    if (sts < 0)
@@ -226,43 +260,60 @@ main(int argc, char **argv)
 			__pmDumpHighResResult(stdout, hrp);
 			pmFreeHighResResult(hrp);
 		    }
-		    if (limbo && j == 0)
-			__pmtimevalSleep(delay);
-		}
-		/* pmLookupDesc */
-		if (limbo)
-		    smack();
-		for (j = 0; j <= limbo; j++) {
-		    printf("ctl[%d][%s] pmid %s pmLookupDesc ...\n", i, (limbo && j == 0) ? "notready" : "ok", pmIDStr(ctl[i].pmid));
-		    desc.pmid = PM_ID_NULL;
-		    sts = pmLookupDesc(ctl[i].pmid, &desc);
-		    if (sts < 0)
-			printf("Error: %s\n", pmErrStr(sts));
-		    else if (desc.pmid == ctl[i].pmid)
-			printf("OK\n");
-		    else {
-			printf("Botch: returned pmid (%s)", pmIDStr(desc.pmid));
-			printf(" != expected pmid (%s)\n", pmIDStr(ctl[i].pmid));
-		    }
-		    if (limbo && j == 0)
-			__pmtimevalSleep(delay);
 		}
 	    }
-	}
-    }
 
-    /*
-     * PMNS ops:
-     *	  pmGetChildren, pmGetChildrenStatus, pmNameID, pmNameAll
-     */
-    for (limbo = 0; limbo < 2; limbo++) {
-	if (limbo)
-	    smack();
-	for (j = 0; j <= limbo; j++) {
-	    char	**offspring;
-	    int		*status;
-	    char	*name;
-	    char	**nameset;
+	    /*
+	     * pmDesc ops:
+	     *    pmLookupDesc, pmLookupDescs
+	     */
+	    for (i = 0; i < sizeof(ctl) / sizeof(ctl[0]); i++) {
+		printf("ctl[%d][%s] pmid %s pmLookupDesc ...\n", i, (limbo && j == 0) ? "notready" : "ok", pmIDStr(ctl[i].pmid));
+		desc.pmid = PM_ID_NULL;
+		sts = pmLookupDesc(ctl[i].pmid, &desc);
+		if (sts < 0)
+		    printf("Error: %s\n", pmErrStr(sts));
+		else if (desc.pmid == ctl[i].pmid)
+		    printf("OK\n");
+		else {
+		    printf("Botch: returned pmid (%s)", pmIDStr(desc.pmid));
+		    printf(" != expected pmid (%s)\n", pmIDStr(ctl[i].pmid));
+		}
+		if (i > 0)
+		    continue;
+		
+		/*
+		 * this one will not return PM_ERR_AGAIN, just PM_ID_NULL
+		 * in the pmDesc for the ones that could not be looked up
+		 */
+		printf("[%s] pmLookupDescs ... ", (limbo && j == 0) ? "notready" : "ok");
+		sts = pmLookupDescs(sizeof(ctl) / sizeof(ctl[0]), pmidlist, desclist);
+		if (sts < 0)
+		    printf("Error: %s\n", pmErrStr(sts));
+		else {
+		    int		k, ok = 1;
+		    printf("%d descs\n", sts);
+		    for (k = 0; k < sizeof(ctl) / sizeof(ctl[0]); k++) {
+			if (desclist[k].pmid != PM_ID_NULL && desclist[k].pmid != pmidlist[k]) {
+			    printf("Botch: returned [%d] pmid (%s)", k, pmIDStr(desclist[k].pmid));
+			    printf(" != expected pmid (%s)\n", pmIDStr(pmidlist[k]));
+			    ok = 0;
+			}
+		    }
+		    if (ok)
+			printf("OK\n");
+		}
+	    }
+
+	    /*
+	     * PMNS ops:
+	     *	  pmGetChildren, pmGetChildrenStatus, pmNameID, pmNameAll,
+	     *	  pmLookupName, pmTraversePMNS, pmTraversePMNS_r
+	     *
+	     * Need mostly dynamic metrics so pmcd is forced to ship the
+	     * request to the PMDA instead of answering from the loaded
+	     * PMNS.
+	     */
 
 	    printf("pmGetChildren(sample.secret) ...\n");
 	    sts = pmGetChildren("sample.secret", &offspring);
@@ -291,15 +342,20 @@ main(int argc, char **argv)
 		printf("pmNameID(%s) ...\n", pmIDStr(ctl_pmns[i].pmid));
 		sts = pmNameID(ctl_pmns[i].pmid, &name);
 		if (sts < 0)
-		    printf("Error: PMID: %s: %s\n", pmIDStr(pmid), pmErrStr(sts));
+		    printf("Error: PMID: %s: %s\n", pmIDStr(ctl_pmns[i].pmid), pmErrStr(sts));
 		else {
-		    printf("name %s\n", name);
+		    if (strcmp(name, ctl_pmns[i].name) == 0)
+			printf("name %s\n", name);
+		    else {
+			printf("Botch: returned name (%s)", name);
+			printf(" != expected name (%s)\n", ctl_pmns[i].name);
+		    }
 		    free(name);
 		}
 		printf("pmNameAll(%s) ...\n", pmIDStr(ctl_pmns[i].pmid));
 		sts = pmNameAll(ctl_pmns[i].pmid, &nameset);
 		if (sts < 0)
-		    printf("Error: PMID: %s: %s\n", pmIDStr(pmid), pmErrStr(sts));
+		    printf("Error: PMID: %s: %s\n", pmIDStr(ctl_pmns[i].pmid), pmErrStr(sts));
 		else {
 		    int	k;
 		    for (k = 0; k < sts; k++) {
@@ -307,6 +363,37 @@ main(int argc, char **argv)
 		    }
 		    free(nameset);
 		}
+		printf("pmLookupName(%s) ...\n", ctl_pmns[i].name);
+		sts = pmLookupName(1, (const char **)&ctl_pmns[i].name, &pmid);
+		if (sts < 0)
+		    printf("Error: name: %s: %s\n", ctl_pmns[i].name, pmErrStr(sts));
+		else {
+		    if (pmid == ctl_pmns[i].pmid)
+			printf("pmid %s\n", pmIDStr(pmid));
+		    else {
+			printf("Botch: returned pmid (%s)", pmIDStr(pmid));
+			printf(" != expected pmid (%s)\n", pmIDStr(ctl_pmns[i].pmid));
+		    }
+		}
+	    }
+	    for (i = 0; i < sizeof(ctl) / sizeof(ctl[0]); i++) {
+		if (ctl[i].pmid != PM_ID_NULL) {
+		    /* leaf in PMNS, skip this one ... */
+		    continue;
+		}
+		printf("pmTraversePMNS(%s) ...\n", ctl[i].name);
+		sts = pmTraversePMNS(ctl[i].name, dometric);
+		if (sts < 0)
+		    printf("Error: %s\n", pmErrStr(sts));
+		else
+		    printf("=> %d\n", sts);
+		magic = 1230 + i;
+		printf("pmTraversePMNS_r(%s, %d) ...\n", ctl[i].name, magic);
+		sts = pmTraversePMNS_r(ctl[i].name, dometric_r, &magic);
+		if (sts < 0)
+		    printf("Error: %s\n", pmErrStr(sts));
+		else
+		    printf("=> %d\n", sts);
 	    }
 
 	    if (limbo && j == 0)
