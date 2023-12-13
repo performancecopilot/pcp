@@ -253,10 +253,10 @@ class SS(object):
         elif self.args.udp and netid == "udp":
             state = self.valuesD["state"][inst]
             ret = bool(state != "UNCONN" or self.args.listening)
-        elif self.args.unix and netid == "unix":
-            ret = True
-        elif self.args.raw and netid == "raw":
-            ret = True
+        #elif self.args.unix and netid == "unix":
+        #    ret = True
+        #elif self.args.raw and netid == "raw":
+        #    ret = True
         return ret
 
     def filter_ipv46(self, inst):
