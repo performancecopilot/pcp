@@ -743,6 +743,18 @@ mem.vmstat.pgalloc_normal
 mem.vmstat.pgdeactivate
     value 63
 
+mem.vmstat.pgdemote_direct
+    value 0
+
+mem.vmstat.pgdemote_khugepaged
+    value 0
+
+mem.vmstat.pgdemote_kswapd
+    value 0
+
+mem.vmstat.pgdemote_total
+    value 0
+
 mem.vmstat.pgfault
     value 414185127
 
@@ -769,6 +781,12 @@ mem.vmstat.pgpgin
 
 mem.vmstat.pgpgout
     value 20759330
+
+mem.vmstat.pgpromote_candidate
+    value 0
+
+mem.vmstat.pgpromote_success
+    value 0
 
 mem.vmstat.pgrefill_dma
     value 0
@@ -3522,6 +3540,18 @@ mem.vmstat.pgalloc_normal
 mem.vmstat.pgdeactivate
     value 0
 
+mem.vmstat.pgdemote_direct
+    value 0
+
+mem.vmstat.pgdemote_khugepaged
+    value 0
+
+mem.vmstat.pgdemote_kswapd
+    value 0
+
+mem.vmstat.pgdemote_total
+    value 0
+
 mem.vmstat.pgfault
     value 1891461678
 
@@ -3548,6 +3578,12 @@ mem.vmstat.pgpgin
 
 mem.vmstat.pgpgout
     value 39010237
+
+mem.vmstat.pgpromote_candidate
+    value 0
+
+mem.vmstat.pgpromote_success
+    value 0
 
 mem.vmstat.pgrefill_dma
     value 0
@@ -6279,6 +6315,18 @@ mem.vmstat.pgalloc_normal
 mem.vmstat.pgdeactivate
     value 0
 
+mem.vmstat.pgdemote_direct
+    value 0
+
+mem.vmstat.pgdemote_khugepaged
+    value 0
+
+mem.vmstat.pgdemote_kswapd
+    value 0
+
+mem.vmstat.pgdemote_total
+    value 0
+
 mem.vmstat.pgfault
     value 1891461678
 
@@ -6305,6 +6353,12 @@ mem.vmstat.pgpgin
 
 mem.vmstat.pgpgout
     value 39010237
+
+mem.vmstat.pgpromote_candidate
+    value 0
+
+mem.vmstat.pgpromote_success
+    value 0
 
 mem.vmstat.pgrefill_dma
     value 0
@@ -8999,6 +9053,18 @@ mem.vmstat.pgalloc_normal
 mem.vmstat.pgdeactivate
     value 0
 
+mem.vmstat.pgdemote_direct
+    value 0
+
+mem.vmstat.pgdemote_khugepaged
+    value 0
+
+mem.vmstat.pgdemote_kswapd
+    value 0
+
+mem.vmstat.pgdemote_total
+    value 0
+
 mem.vmstat.pgfault
     value 986124
 
@@ -9025,6 +9091,12 @@ mem.vmstat.pgpgin
 
 mem.vmstat.pgpgout
     value 27860
+
+mem.vmstat.pgpromote_candidate
+    value 0
+
+mem.vmstat.pgpromote_success
+    value 0
 
 mem.vmstat.pgrefill_dma
 No value(s) available!
@@ -11487,6 +11559,18 @@ mem.vmstat.pgalloc_normal
 mem.vmstat.pgdeactivate
     value 1337431
 
+mem.vmstat.pgdemote_direct
+    value 0
+
+mem.vmstat.pgdemote_khugepaged
+    value 0
+
+mem.vmstat.pgdemote_kswapd
+    value 0
+
+mem.vmstat.pgdemote_total
+    value 0
+
 mem.vmstat.pgfault
     value 4461699309
 
@@ -11513,6 +11597,12 @@ mem.vmstat.pgpgin
 
 mem.vmstat.pgpgout
     value 169046659
+
+mem.vmstat.pgpromote_candidate
+    value 0
+
+mem.vmstat.pgpromote_success
+    value 0
 
 mem.vmstat.pgrefill_dma
 No value(s) available!
@@ -14039,6 +14129,18 @@ mem.vmstat.pgalloc_normal
 mem.vmstat.pgdeactivate
     value 0
 
+mem.vmstat.pgdemote_direct
+    value 0
+
+mem.vmstat.pgdemote_khugepaged
+    value 0
+
+mem.vmstat.pgdemote_kswapd
+    value 0
+
+mem.vmstat.pgdemote_total
+    value 0
+
 mem.vmstat.pgfault
     value 456254498
 
@@ -14065,6 +14167,12 @@ mem.vmstat.pgpgin
 
 mem.vmstat.pgpgout
     value 73590026
+
+mem.vmstat.pgpromote_candidate
+    value 0
+
+mem.vmstat.pgpromote_success
+    value 0
 
 mem.vmstat.pgrefill_dma
 No value(s) available!
@@ -15900,6 +16008,18 @@ mem.vmstat.pgalloc_normal
 mem.vmstat.pgdeactivate
     value 0
 
+mem.vmstat.pgdemote_direct
+    value 0
+
+mem.vmstat.pgdemote_khugepaged
+    value 0
+
+mem.vmstat.pgdemote_kswapd
+    value 0
+
+mem.vmstat.pgdemote_total
+    value 0
+
 mem.vmstat.pgfault
     value 5527692
 
@@ -15926,6 +16046,12 @@ mem.vmstat.pgpgin
 
 mem.vmstat.pgpgout
     value 4394821
+
+mem.vmstat.pgpromote_candidate
+    value 0
+
+mem.vmstat.pgpromote_success
+    value 0
 
 mem.vmstat.pgrefill_dma
 No value(s) available!
