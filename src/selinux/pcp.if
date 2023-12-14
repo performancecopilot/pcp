@@ -435,3 +435,23 @@ ifndef(`corenet_udp_bind_statsd_port',`
         ')
     ')
 ')
+
+########################################
+## <summary>
+##      Dummy init_manage_script_tmp_files().
+##      Needed for pmie/pmlogger on some platforms, but if you
+##      don't have init_manage_script_tmp_files() definition
+##      nothing needs to be done.
+## <param name="domain">
+##      <summary>
+##      Domain allowed access.
+##      </summary>
+## </summary> 
+#
+ifndef(`init_manage_script_tmp_files',`
+    interface(`init_manage_script_tmp_files',`
+        gen_require(`
+            type $1;
+        ')
+    ')
+')
