@@ -2064,6 +2064,7 @@ x11
 1837 pmproxy local
 1838 pmda.linux kernel local
 1844 pmdumptext libpcp_qmc remote
+1849:reserved # __pmCleanMapDir test
 1850 pmseries libpcp_web local
 1853 pmda.bpf local
 1854 pmlogger pmimport pmconfig local
