@@ -209,8 +209,13 @@ __pmDecodeNameList(__pmPDU *pdubuf, int *numnamesp,
     if (statuslist != NULL)
 	*statuslist = NULL;
 
-    if (pdu_end - (char*)namelist_pdu < sizeof(namelist_t) - sizeof(__pmPDU))
+    if (pdu_end - (char*)namelist_pdu < sizeof(namelist_t) - sizeof(__pmPDU)) {
+	if (pmDebugOptions.pmns) {
+	    fprintf(stderr, "__pmDecodeNameList: Bad PDU: bytes %d < min %d\n",
+		(int)(pdu_end - (char*)namelist_pdu), (int)(sizeof(namelist_t) - sizeof(__pmPDU)));
+	}
 	return PM_ERR_IPC;
+    }
 
     numnames = ntohl(namelist_pdu->numnames);
     numstatus = ntohl(namelist_pdu->numstatus);
@@ -218,22 +223,54 @@ __pmDecodeNameList(__pmPDU *pdubuf, int *numnamesp,
 
     if (numnames == 0) {
 	*numnamesp = 0;
+	if (pmDebugOptions.pmns)
+	    fprintf(stderr, "__pmDecodeNameList: no names\n");
 	return 0;
     }
 
-    /* validity checks - none of these conditions should happen */
-    if (numnames < 0 || nstrbytes < 0)
-	return PM_ERR_IPC;
-    /* anti-DOS measure - limiting allowable memory allocations */
-    if (numnames > namelist_pdu->hdr.len || nstrbytes > namelist_pdu->hdr.len)
-	return PM_ERR_IPC;
-    /* numstatus must be one (and only one) of zero or numnames */
-    if (numstatus != 0 && numstatus != numnames)
-	return PM_ERR_IPC;
+    if (numnames < 0) {
+	if (pmDebugOptions.pmns) {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "__pmDecodeNameList: numnames %d < 0: %s\n",
+		numnames, pmErrStr_r(numnames, errmsg, sizeof(errmsg)));
+	}
+	/* error code in PDU, nothing more to do ... */
+	goto done;
+    }
 
-    /* need space for name ptrs and the name characters */
-    if (numnames >= (INT_MAX - nstrbytes) / (int)sizeof(char *))
+    /* validity checks - none of these conditions should happen */
+    if (nstrbytes < 0) {
+	if (pmDebugOptions.pmns) {
+	    fprintf(stderr, "__pmDecodeNameList: Bad PDU: numnames %d, and nstrbytes %d < 0\n",
+		numnames, nstrbytes);
+	}
 	return PM_ERR_IPC;
+    }
+    /* anti-DOS measure - limiting allowable memory allocations */
+    if (numnames > namelist_pdu->hdr.len || nstrbytes > namelist_pdu->hdr.len) {
+	if (pmDebugOptions.pmns) {
+	    fprintf(stderr, "__pmDecodeNameList: Bad PDU: numnames %d > len %d or nstrbytes %d > len %d\n",
+		numnames, namelist_pdu->hdr.len, nstrbytes, namelist_pdu->hdr.len);
+	}
+	return PM_ERR_IPC;
+    }
+    /* numstatus must be one (and only one) of zero or numnames */
+    if (numstatus != 0 && numstatus != numnames) {
+	if (pmDebugOptions.pmns) {
+	    fprintf(stderr, "__pmDecodeNameList: Bad PDU: numstatus %d != 0 and != numnames %d\n",
+		numstatus, numnames);
+	}
+	return PM_ERR_IPC;
+    }
+    /* need space for name ptrs and the name characters */
+    if (numnames >= (INT_MAX - nstrbytes) / (int)sizeof(char *)) {
+	if (pmDebugOptions.pmns) {
+	    fprintf(stderr, "__pmDecodeNameList: Bad PDU: numnames %d >= max %d\n",
+		numnames, (INT_MAX - nstrbytes) / (int)sizeof(char *));
+	}
+	return PM_ERR_IPC;
+    }
+
     namesize = numnames * ((int)sizeof(char*)) + nstrbytes;
     if ((names = (char**)malloc(namesize)) == NULL)
 	return -oserror();
@@ -316,6 +353,8 @@ __pmDecodeNameList(__pmPDU *pdubuf, int *numnamesp,
     if (statuslist != NULL)
 	*statuslist = status;
     *numnamesp = numnames;
+
+done:
     return numnames;
 
 corrupt:
@@ -324,7 +363,6 @@ corrupt:
     free(names);
     return PM_ERR_IPC;
 }
-
 
 /*********************************************************************/
 

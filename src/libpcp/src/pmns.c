@@ -2437,32 +2437,34 @@ check:
 	ctx_ctl.need_pmns_unlock = 0;
     }
 
-    /*
-     * see if there are derived metrics that qualify
-     */
-    dm_num = __dmchildren(ctxp, PM_NOT_LOCKED, name, &dm_offspring, &dm_statuslist);
+    if (num != PM_ERR_AGAIN) {
+	/*
+	 * pmcd/PMDA is alive, see if there are derived metrics that qualify
+	 */
+	dm_num = __dmchildren(ctxp, PM_NOT_LOCKED, name, &dm_offspring, &dm_statuslist);
 
-    if (pmDebugOptions.derive) {
-	char	errmsg[PM_MAXERRMSGLEN];
-	if (num < 0)
-	    fprintf(stderr, "pmGetChildren(name=\"%s\") no regular children (%s)", name, pmErrStr_r(num, errmsg, sizeof(errmsg)));
-	else
-	    fprintf(stderr, "pmGetChildren(name=\"%s\") %d regular children", name, num);
-	if (dm_num < 0)
-	    fprintf(stderr, ", no derived children (%s)\n", pmErrStr_r(dm_num, errmsg, sizeof(errmsg)));
-	else if (dm_num == 0)
-	    fprintf(stderr, ", derived leaf\n");
-	else
-	    fprintf(stderr, ", %d derived children\n", dm_num);
-    }
-    if (dm_num > 0) {
-	stitch_list(&num, offspring, statuslist, dm_num, dm_offspring, dm_statuslist);
-	free(dm_offspring);
-	free(dm_statuslist);
-    }
-    else if (dm_num == 0 && num < 0) {
-	/* leaf node and derived metric */
-	num = 0;
+	if (pmDebugOptions.derive) {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    if (num < 0)
+		fprintf(stderr, "pmGetChildren(name=\"%s\") no regular children (%s)", name, pmErrStr_r(num, errmsg, sizeof(errmsg)));
+	    else
+		fprintf(stderr, "pmGetChildren(name=\"%s\") %d regular children", name, num);
+	    if (dm_num < 0)
+		fprintf(stderr, ", no derived children (%s)\n", pmErrStr_r(dm_num, errmsg, sizeof(errmsg)));
+	    else if (dm_num == 0)
+		fprintf(stderr, ", derived leaf\n");
+	    else
+		fprintf(stderr, ", %d derived children\n", dm_num);
+	}
+	if (dm_num > 0) {
+	    stitch_list(&num, offspring, statuslist, dm_num, dm_offspring, dm_statuslist);
+	    free(dm_offspring);
+	    free(dm_statuslist);
+	}
+	else if (dm_num == 0 && num < 0) {
+	    /* leaf node and derived metric */
+	    num = 0;
+	}
     }
 
 report:
