@@ -26,7 +26,9 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _stop_auto_restart pmcd
 _service pmcd restart 2>&1 | _filter_pcp_start
-pminfo -v -b 1000 >/dev/null
+echo "initial pminfo ..." >>$seq.full
+pminfo -v -b 1000 >/dev/null 2>>$seq.full
+echo "done." >>$seq.full
 
 # real QA test starts here
 pmprobe -v pmcd.datasize | tee -a $here/$seq.full >$tmp.tmp
