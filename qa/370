@@ -290,11 +290,18 @@ echo "full dump ..."
 # note proc.nprocs -> proc.nproc mapping needed after sar2pcp changes in
 # commit 48e373f0609a0a0804bc052d5e9dec41a5a2928e so output matches 370's
 # "out" files
+# note also that when V3 archives become the norm, we have to "fake"
+# the pmdumplog output to look like V2, 'cause that's what is in the
+# historical *.out.* files
 #
 pmdumplog -lm -z $tmp 2>&1 \
 | sed \
 	-e 's/245\.0\.[0-9][0-9]*/245.0.NN/g' \
 	-e 's/(proc.nprocs)/(proc.nproc)/' \
+	-e '/Log Label/s/ 3)/ 2)/' \
+	-e '/commencing/s/\.000000000 /.000000 /' \
+	-e '/ending/s/\.000000000 /.000000 /' \
+	-e '/ metrics$/s/\.000000000 /.000000 /' \
 | _fuzzy
 
 # success, all done
