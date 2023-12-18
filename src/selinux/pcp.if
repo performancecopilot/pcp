@@ -455,3 +455,43 @@ ifndef(`init_manage_script_tmp_files',`
         ')
     ')
 ')
+
+########################################
+## <summary>
+##      Dummy userdom_manage_tmp_dirs().
+##      Needed for zimbra PMDA on some platforms, but if you
+##      don't have userdom_manage_tmp_dirs() definition
+##      nothing needs to be done.
+## <param name="domain">
+##      <summary>
+##      Domain allowed access.
+##      </summary>
+## </summary> 
+#
+ifndef(`userdom_manage_tmp_dirs',`
+    interface(`userdom_manage_tmp_dirs',`
+        gen_require(`
+            type $1;
+        ')
+    ')
+')
+
+########################################
+## <summary>
+##      Dummy userdom_manage_tmp_files().
+##      Needed for zimbra PMDA on some platforms, but if you
+##      don't have userdom_manage_tmp_files() definition
+##      nothing needs to be done.
+## <param name="domain">
+##      <summary>
+##      Domain allowed access.
+##      </summary>
+## </summary> 
+#
+ifndef(`userdom_manage_tmp_files',`
+    interface(`userdom_manage_tmp_files',`
+        gen_require(`
+            type $1;
+        ')
+    ')
+')

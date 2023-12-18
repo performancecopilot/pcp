@@ -707,6 +707,18 @@ optional_policy(`
     corenet_udp_bind_statsd_port(pcp_pmcd_t);
 ')
 
+optional_policy(`
+    # pmda.zimbra
+    # type=AVC msg=audit(N): avc:  denied  { write } for  pid=PID comm="java" name="hsperfdata_zimbra" dev="dm-0" ino=42488265 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=unconfined_u:object_r:user_tmp_t:s0 tclass=dir permissive=0
+    # type=AVC msg=audit(N): avc:  denied  { kill } for  pid=PID comm="zimbraprobe" capability=5  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=capability permissive=0
+    # type=AVC msg=audit(N): avc: denied { execute } for pid=PID comm="zimbraprobe" name="su" dev="dm-0" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:su_exec_t:s0 tclass=file permissive=0
+    allow pcp_pmcd_t self:capability kill;
+    allow pcp_pmcd_t user_tmp_t:dir write;
+    allow pcp_pmcd_t su_exec_t:file { execute execute_no_trans };
+    userdom_manage_tmp_dirs(pcp_pmcd_t)
+    userdom_manage_tmp_files(pcp_pmcd_t)
+')
+
 #============= init_t ==============
 # type=AVC msg=audit(N): avc: denied { read } for pid=PID comm="pmcd" name="pmcd" dev="dm-1" ino=INO scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:pcp_log_t:s0 tclass=dir permissive=0
 allow init_t pcp_log_t:dir read;
@@ -835,10 +847,6 @@ allow pcp_pmcd_t self:capability { fsetid };
 # type=AVC msg=audit(N): avc: denied { module_request } for pid=PID comm="pmdalinux" kmod="netdev-tun0" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:kernel_t:s0 tclass=system permissive=0
 allow pcp_pmcd_t kernel_t:system module_request;
 
-# type=AVC msg=audit(N): avc: denied { execute } for pid=PID comm="zimbraprobe" name="su" dev="dm-0" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:su_exec_t:s0 tclass=file permissive=0
-#pmdazimbra
-allow pcp_pmcd_t su_exec_t:file { execute execute_no_trans };
-
 # type=AVC msg=audit(N): avc: denied { write } for pid=PID comm="python3" name=".s.PGSQL.5432" dev="tmpfs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:postgresql_var_run_t:s0 tclass=sock_file permissive=0
 allow pcp_pmcd_t postgresql_var_run_t:sock_file { write };
 
@@ -870,8 +878,9 @@ allow pcp_pmlogger_t user_tmp_t:file { setattr unlink };
 allow pcp_pmlogger_t setfiles_exec_t:file execute;
 
 # type=AVC msg=audit(N): avc: denied { write } for pid=PID comm="pmlogger" name="12" dev="dm-0" ino=INO scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:object_r:initrc_tmp_t:s0 tclass=dir permissive=0
+# type=AVC msg=audit(N): avc:  denied  { unlink } for  pid=PID comm="rm" name="pmlogger_check.log" dev="dm-0" ino=58981759 scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:object_r:initrc_tmp_t:s0 tclass=file permissive=0
 allow pcp_pmlogger_t initrc_tmp_t:dir { add_name read write };
-allow pcp_pmlogger_t initrc_tmp_t:file create;
+allow pcp_pmlogger_t initrc_tmp_t:file { create unlink };
 
 #============= pcp_pmie_t ==============
 # type=AVC msg=audit(N): avc: denied { execute execute_no_trans getattr open read } for pid=PID comm="pmdaX" name="/" dev="tracefs" ino=INO scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:object_r:hostname_exec_t:s0 tclass=file permissive=0
@@ -897,8 +906,9 @@ allow pcp_pmie_t self:process setrlimit;
 allow pcp_pmie_t unconfined_t:process signal;
 
 # type=AVC msg=audit(N): avc: denied { write } for pid=PID comm="pmie" name="02" dev="dm-0" ino=INO scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:object_r:initrc_tmp_t:s0 tclass=dir permissive=0
+# type=AVC msg=audit(N): avc:  denied  { unlink } for  pid=PID comm="rm" name="pmie_check.log" dev="dm-0" ino=17724510 scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:object_r:initrc_tmp_t:s0 tclass=file permissive=0
 allow pcp_pmie_t initrc_tmp_t:dir { add_name read write };
-allow pcp_pmie_t initrc_tmp_t:file create;
+allow pcp_pmie_t initrc_tmp_t:file { create unlink };
 
 #============= pmda-lio ==============
 # type=AVC msg=audit(N): avc: denied { open read search write } for  pid=PID comm="pmdaX" name="/" dev="tracefs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:configfs_t:s0 tclass=dir permissive=0
