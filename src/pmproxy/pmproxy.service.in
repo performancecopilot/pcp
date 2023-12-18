@@ -8,6 +8,8 @@ Type=notify
 NotifyAccess=all
 Restart=always
 ExecStart=@PCP_RC_DIR@/pmproxy start-systemd
+Group=@PCP_GROUP@
+User=@PCP_USER@
 
 [Install]
 WantedBy=multi-user.target

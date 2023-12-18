@@ -75,19 +75,6 @@ else
     VERBOSE_CTL=off
 fi
 
-id=`id | sed -e "s/(.*//" -e "s/.*=//"`
-if [ "$id" != 0 -a "$1" != "status" ]
-then
-    if [ -n "$PCP_DIR" ]
-    then
-	: running in a non-default installation, do not need to be root
-    else
-	echo "$prog:"'
-Error: You must be root (uid 0) to start or stop pmie.'
-	exit
-    fi
-fi
-
 _usage()
 {
     echo "Usage: $pmprog [-v] {start|start-systemd|restart|condrestart|stop|stop-systemd|status|reload|force-reload}"

@@ -77,15 +77,7 @@ ifneq "$(findstring $(TARGET_OS),darwin mingw)" ""
 	$(INSTALL) -m 755 -d $(PCP_MAN_DIR)/man5
 endif
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_TMP_DIR)
-ifeq (, $(filter debian suse, $(PACKAGE_DISTRIBUTION)))
-	# PCP_RUN_DIR usually -> /var/run which may be a temporary filesystem
-	# and lint checks may complain about packages including /var/run/xxx
-	# artifacts ... PCP_RUN_DIR is also conditionally created on the
-	# fly in each before use case, so the inclusion in the package is
-	# sometimes desirable, but not mandatory
-	#
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_RUN_DIR)
-endif
 	$(INSTALL) -m 755 -d $(PCP_SYSCONFIG_DIR)
 	$(INSTALL) -m 755 -d $(PCP_SYSCONF_DIR)
 	$(INSTALL) -m 755 -d $(PCP_SYSCONF_DIR)/labels

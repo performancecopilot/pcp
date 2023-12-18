@@ -1,18 +1,18 @@
 #! /bin/sh
 #
-# Copyright (c) 2014-2016 Red Hat.
+# Copyright (c) 2014-2016,2023 Red Hat.
 # Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
-# 
+#
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 2 of the License, or (at your
 # option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
-# 
+#
 # Start or Stop the Performance Co-Pilot (PCP) proxy daemon for pmcd
 #
 # The following is for chkconfig on RedHat based systems
@@ -110,7 +110,7 @@ _shutdown()
     if [ ! -s $tmp/tmp ]
     then
 	[ "$1" = verbose ] && echo "$pmprog: pmproxy not running"
-	rm -f $PCP_RUN_DIR/pmproxy.pid
+	rm -f $PCP_RUN_DIR/pmproxy.pid $PCP_RUN_DIR/pmproxy.socket
 	return 0
     fi
 
@@ -199,18 +199,6 @@ else				# For a quiet startup and shutdown
     ECHO=:
 fi
 
-if [ "$IAM" != 0 -a "$1" != "status" ]
-then
-    if [ -n "$PCP_DIR" ]
-    then
-	: running in a non-default installation, do not need to be root
-    else
-	echo "$prog:"'
-Error: You must be root (uid 0) to start or stop the PCP pmproxy daemon.'
-	exit
-    fi
-fi
-
 # First reset status of this service
 $RC_RESET
  
@@ -250,31 +238,19 @@ case "$1" in
 Error: pmproxy options file "$PMPROXYOPTS" is missing, cannot start pmproxy.'
 		exit
 	    fi
-	    # create directory housing daemon pid file
 	    if [ ! -d "$PCP_RUN_DIR" ]
 	    then
-		mkdir -p -m 775 "$PCP_RUN_DIR"
-		chown $PCP_USER:$PCP_GROUP "$PCP_RUN_DIR"
-		if which restorecon >/dev/null 2>&1
-		then
-		    restorecon -r "$PCP_RUN_DIR"
-		fi
+		echo "$prog:"'
+Error: pmproxy runtime directory "$PCP_RUN_DIR" is missing, cannot start pmproxy.'
+		exit
 	    fi
-	    # create directory which will serve as cwd
 	    if [ ! -d "$RUNDIR" ]
 	    then
-		mkdir -p -m 775 "$RUNDIR"
-		chown $PCP_USER:$PCP_GROUP "$RUNDIR"
+		echo "$prog:"'
+Error: pmproxy working directory "$RUNDIR" is missing, cannot start pmproxy.'
+		exit
 	    fi
 	    cd "$RUNDIR"
-
-	    # salvage the previous versions of any pmproxy
-	    #
-	    if [ -f pmproxy.log ]
-	    then
-		rm -f pmproxylog.log.prev
-		mv pmproxy.log pmproxy.log.prev
-	    fi
 
 	    [ "$1" = "start-systemd" ] ||\
 	    $ECHO $PCP_ECHO_N "Starting pmproxy ..." "$PCP_ECHO_C"

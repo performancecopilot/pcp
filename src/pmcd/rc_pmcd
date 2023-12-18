@@ -1,18 +1,18 @@
 #!/bin/sh
 #
-# Copyright (c) 2013-2015,2019 Red Hat.
+# Copyright (c) 2013-2015,2019,2023 Red Hat.
 # Copyright (c) 2000-2008 Silicon Graphics, Inc.  All Rights Reserved.
-# 
+#
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 2 of the License, or (at your
 # option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
-# 
+#
 # Start or Stop the Performance Co-Pilot Collection Daemon (PMCD)
 #
 # The following is for chkconfig on RedHat based systems
@@ -105,56 +105,6 @@ END		{ print logf }'
 
 _reboot_setup()
 {
-    # base directories and house-keeping for daemon processes
-    #
-    # For most packages, $PCP_RUN_DIR is included in the package,
-    # but for Debian and cases where /var/run is a mounted filesystem
-    # it may not exist, so create it here before it is used to create
-    # any pid/lock files
-    #
-    # $PCP_RUN_DIR creation is also done in pmlogger_daily, but if pmcd
-    # is running, we'd expect do this one first
-    #
-    if [ ! -d "$PCP_RUN_DIR" ]
-    then
-	mkdir -p -m 775 "$PCP_RUN_DIR"
-	chown $PCP_USER:$PCP_GROUP "$PCP_RUN_DIR"
-	if which restorecon >/dev/null 2>&1
-	then
-	    restorecon -r "$PCP_RUN_DIR"
-	fi
-    fi
-
-    # setup and clean up base directories and house-keeping for tracking
-    # pmlogger instances ... needs to be done here because pmcd needs the
-    # information, even if no pmlogger instances are started (and even if
-    # $PCP_RC_DIR/pmlogger is not run)
-    #
-    if [ ! -d "$PCP_TMP_DIR/pmlogger" ]
-    then
-	mkdir -p -m 775 "$PCP_TMP_DIR/pmlogger"
-	chown $PCP_USER:$PCP_GROUP "$PCP_TMP_DIR/pmlogger"
-	if which restorecon >/dev/null 2>&1
-	then
-	    restorecon -r "$PCP_TMP_DIR"
-	fi
-    else
-	rm -rf $tmp/ent $tmp/pid
-	here=`pwd`
-	cd "$PCP_TMP_DIR/pmlogger"
-	_get_pids_by_name pmlogger | sort >$tmp/pid
-	ls [0-9]* 2>&1 | sed -e '/\[0-9]\*/d' \
-	| sed -e 's/[ 	][ 	]*//g' | sort >$tmp/ent
-	# remove entries without a pmlogger process
-	#
-	rm -f `comm -23 $tmp/ent $tmp/pid`
-	rm -f $tmp/ent $tmp/pid
-	# if primary is now a broken symlink, cleanup (-e follows symlinks)
-	#
-	[ ! -e primary ] && rm -f primary
-	cd "$here"
-    fi
-
     # Rebuild PMNS?
     #
     PMNSDIR=$PCP_VAR_DIR/pmns
@@ -193,7 +143,7 @@ _reboot_setup()
 _pmda_setup_cleanup()
 {
     echo "_pmda_setup: Interrupted!"
-    rm -rf $tmp $PCP_TMPFILE_DIR/pmda.auto.update
+    rm -rf $tmp $PCP_PMDAS_DIR/pmda.auto.update
     for file in $PCP_PMDAS_DIR/*/.Need*.pending
     do
 	[ "$file" = "$PCP_PMDAS_DIR/*/.Need*.pending" ] && continue
@@ -213,7 +163,7 @@ _pmda_setup()
 {
     # Auto-Install and/or Auto-Remove PMDAs?
     #
-    if $PCP_BINADM_DIR/pmlock $PCP_TMPFILE_DIR/pmda.auto.update
+    if $PCP_BINADM_DIR/pmlock $PCP_PMDAS_DIR/pmda.auto.update
     then
 	# we got the lock, proceed
 	$PCP_BINADM_DIR/pmpost "PMDA setup: pid=$$ acquire lock"
@@ -238,7 +188,7 @@ _pmda_setup()
 	cd "$here"
     fi
 
-    rm -f $PCP_TMPFILE_DIR/pmda.auto.update
+    rm -f $PCP_PMDAS_DIR/pmda.auto.update
     $PCP_BINADM_DIR/pmpost "PMDA setup: pid=$$ release lock"
 
     # re-instate mainline trap
@@ -613,25 +563,11 @@ Error: pmcd control file '"$PCP_PMCDCONF_PATH"' is missing, cannot start pmcd.'
 	    fi
 	    if [ ! -d "$RUNDIR" ]
 	    then
-		mkdir -p -m 775 "$RUNDIR"
-		chown $PCP_USER:$PCP_GROUP "$RUNDIR"
-		if which restorecon >/dev/null 2>&1
-		then
-		    restorecon -r "$RUNDIR"
-		fi
+		echo "$prog:"'
+Error: pmcd run directory '"$RUNDIR"' is missing, cannot start pmcd.'
+		exit
 	    fi
 	    cd "$RUNDIR"
-
-	    # salvage the previous versions of any PMCD and PMDA logfiles
-	    #
-	    for log in pmcd `sed -e '/^#/d' -e '/\[access\]/q' -e 's/[ 	].*//' <$PCP_PMCDCONF_PATH`
-	    do
-		if [ -f $log.log ]
-		then
-		    rm -f $log.log.prev
-		    mv $log.log $log.log.prev
-		fi
-	    done
 
 	    [ "$1" = "start-systemd" ] ||\
 	    $ECHO $PCP_ECHO_N "Starting pmcd ..." "$PCP_ECHO_C"

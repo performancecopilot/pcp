@@ -18,6 +18,8 @@ Restart=always
 ExecStart=@PCP_RC_DIR@/pmie start-systemd
 ExecStop=@PCP_RC_DIR@/pmie stop-systemd
 PIDFile=@PCP_RUN_DIR@/pmie.pid
+Group=@PCP_GROUP@
+User=@PCP_USER@
 
 [Install]
 WantedBy=multi-user.target

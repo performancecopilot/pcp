@@ -238,18 +238,6 @@ else				# For a quiet startup and shutdown
     VFLAG=
 fi
 
-if [ "$IAM" != 0 -a "$1" != "status" ]
-then
-    if [ -n "$PCP_DIR" ]
-    then
-	: running in a non-default installation, do not need to be root
-    else
-	echo "$prog:"'
-Error: You must be root (uid 0) to start or stop the Performance Co-Pilot loggers.'
-	exit
-    fi
-fi
-
 # First reset status of this service
 $RC_RESET
  
