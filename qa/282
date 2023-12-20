@@ -1,6 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 282
-# Error handling in $PCP_RC_DIR/pcp
+# Error handling in pmcd & pmlogger rc scripts
 #
 # Note: the core of this test needs to use the explicit init scripts,
 #	not the _service wrapper so there is no chance of systemd
@@ -240,10 +240,10 @@ End-of-File
 
     echo
     echo "=== expected failure: a mere mortal ==="
-    osudo="$sudo"
+    sudo_save="$sudo"
     sudo=''
     _poke_pmcd
-    sudo="$osudo"
+    sudo="$sudo_save"
     echo "=== start again ==="
     _poke_pmcd_n_logger
 
