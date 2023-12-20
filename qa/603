@@ -181,7 +181,9 @@ ssh -q pcpqa@$otherhost "sh -c 'PCP_TRACE_HOST=$qahost pmtrace -v 1 eek'" 2>&1 \
 | tee -a $here/$seq.full \
 | sed \
     -e "s/Interrupted function call/Cannot connect to PMDA - permission denied/" \
-    -e "s/Connection refused/Cannot connect to PMDA - permission denied/"
+    -e "s/Connection refused/Cannot connect to PMDA - permission denied/" \
+    -e "s/Connection reset by peer/Cannot connect to PMDA - permission denied/" \
+    # end
 if [ -f $PCP_LOG_DIR/pmcd/trace.log ]
 then
     cat $PCP_LOG_DIR/pmcd/trace.log >>$here/$seq.full
