@@ -15,30 +15,9 @@
 # 
 # Start or Stop the Performance Co-Pilot pmlogger processes.
 #
-# The following is for chkconfig on RedHat based systems
-# chkconfig: 2345 94 06
-# description: pmlogger is a performance metrics logger for the Performance Co-Pilot (PCP)
-#
-# The following is for insserv(1) based systems,
-# e.g. SuSE, where chkconfig is a perl script.
-### BEGIN INIT INFO
-# Provides:          pmlogger
-# Required-Start:    $local_fs
-# Should-Start:      $network $remote_fs $syslog $time $pmcd
-# Required-Stop:     $local_fs
-# Should-Stop:       $network $remote_fs $syslog $pmcd
-# Default-Start:     2 3 4 5
-# Default-Stop:      0 1 6
-# Short-Description: Control pmlogger (the performance metrics logger for PCP)
-# Description:       Configure and control pmlogger (the performance metrics logger for the Performance Co-Pilot)
-### END INIT INFO
-#
-# For FreeBSD
-# PROVIDE: pmlogger
-# REQUIRE: NETWORKING FILESYSTEMS pmcd
-# KEYWORD: shutdown
-# And add the following lines to /etc/rc.conf to run pmcd:
-# pmlogger_enable="YES"
+# This script expects to be run as pcp:pcp, either from systemd via the
+# pmlogger.service or from init (or similar) via the rc_wrapper script
+# installed in $PCP_RC_DIR/pmlogger
 #
 
 . $PCP_DIR/etc/pcp.env
@@ -52,8 +31,8 @@
 PMLOGCTRL=$PCP_PMLOGGERCONTROL_PATH
 PMLOGGER=$PCP_BINADM_DIR/pmlogger
 rcprog=$PCP_DIR/etc/init.d/pmlogger
-pmprog=$PCP_RC_DIR/pmlogger
-prog=$PCP_RC_DIR/`basename $0`
+pmprog=$PCP_SYSCONF_DIR/pmlogger/rc
+prog=$PCP_SYSCONF_DIR/pmlogger/`basename $0`
 
 tmp=`mktemp -d "$PCP_TMPFILE_DIR/pmlogger_rc.XXXXXXXXX"` || exit 1
 status=1

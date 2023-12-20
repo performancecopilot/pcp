@@ -1,0 +1,68 @@
+#!/bin/sh
+#
+# Copyright (c) 2023 Ken McDonell.  All Rights Reserved.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+# Wrapper script to start or Stop the Performance Co-Pilot pmlogger
+# processes.  The real work is done in $PCP_SYSCONF_DIR/pmlogger/rc.
+#
+# The following is for chkconfig on RedHat based systems
+# chkconfig: 2345 94 06
+# description: pmlogger is a performance metrics logger for the Performance Co-Pilot (PCP)
+#
+# The following is for insserv(1) based systems,
+# e.g. SuSE, where chkconfig is a perl script.
+### BEGIN INIT INFO
+# Provides:          pmlogger
+# Required-Start:    $local_fs
+# Should-Start:      $network $remote_fs $syslog $time $pmcd
+# Required-Stop:     $local_fs
+# Should-Stop:       $network $remote_fs $syslog $pmcd
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Control pmlogger (the performance metrics logger for PCP)
+# Description:       Configure and control pmlogger (the performance metrics logger for the Performance Co-Pilot)
+### END INIT INFO
+#
+# For FreeBSD
+# PROVIDE: pmlogger
+# REQUIRE: NETWORKING FILESYSTEMS pmcd
+# KEYWORD: shutdown
+# And add the following lines to /etc/rc.conf to run pmlogger:
+# pmlogger_enable="YES"
+#
+
+. $PCP_DIR/etc/pcp.env
+
+if [ `id -u` -ne 0 ]
+then
+    echo "$0: Error: You must be root (uid 0) to start or stop pmlogger via this script"
+    exit 1
+fi
+
+# paranoid defaults if something goes wrong ...
+[ -z "$PCP_USER" ] && PCP_USER=pcp
+[ -z "$PCP_GROUP" ] && PCP_USER=pcp
+
+if which setpriv >/dev/null 2>&1
+then
+    setpriv --clear-groups --reuid=$PCP_USER --regid=$PCP_GROUP --inh-caps=-all \
+    $PCP_SYSCONF_DIR/pmlogger/rc "$@"
+elif which runuser >/dev/null 2>&1
+then
+    runuser -g $PCP_GROUP $PCP_USER $PCP_SYSCONF_DIR/pmlogger/rc "$@"
+else
+    echo "$0: Error: neither setpriv(1) nor runuser(1) installed"
+    exit 1
+fi
+
+exit $?

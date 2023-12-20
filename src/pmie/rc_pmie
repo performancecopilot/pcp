@@ -13,30 +13,7 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
-# The following is for chkconfig on RedHat based systems
-# chkconfig: 2345 94 06
-# description: pmie is a performance inference engine for the Performance Co-Pilot (PCP)
-#
-# The following is for insserv(1) based systems,
-# e.g. SuSE, where chkconfig is a perl script.
-### BEGIN INIT INFO
-# Provides:       pmie
-# Required-Start: $remote_fs
-# Should-Start: $local_fs $network $syslog $time $pmcd
-# Required-Stop: $remote_fs
-# Should-Stop:  $local_fs $network $syslog $pmcd
-# Default-Start:  2 3 4 5
-# Default-Stop:   0 1 6
-# Short-Description: Control pmie (performance inference engine for PCP)
-# Description:       Configure and control pmie (the performance inference engine for the Performance Co-Pilot)
-### END INIT INFO
-#
-# For FreeBSD
-# PROVIDE: pmie
-# REQUIRE: NETWORKING FILESYSTEMS pmcd
-# KEYWORD: shutdown
-# And add the following lines to /etc/rc.conf to run pmcd:
-# pmie_enable="YES"
+# Start or Stop the Performance Co-Pilot pmie processes.
 #
 
 . $PCP_DIR/etc/pcp.env
