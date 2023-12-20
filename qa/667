@@ -103,6 +103,7 @@ wait
 grep -E 'foobar\.hinv\.ncpu|foobar\.sample\.datasize' $tmp.socat.out \
     | head -2 \
     | sed -e "s,\.ncpu $ncpu ,.ncpu NCPUS ," |    # confirm ncpus value
+    sed -e 's/datasize [0-9][0-9]*/datasize N/' |	# value is not deterministic
     sed -r -e 's, [0-9]+[02468]$, TIMESTAMP2,'  # confirm time alignment
 grep 'Excluding' $tmp.p2g.err
 _full_stash

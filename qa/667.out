@@ -4,7 +4,7 @@ QA output created by 667
 Found pcp.hinv.ncpu in pickled output
 === 2. pcp2graphite text, 2-second aligned  ===
 foobar.hinv.ncpu NCPUS TIMESTAMP2
-foobar.sample.datasize 0 TIMESTAMP2
+foobar.sample.datasize N TIMESTAMP2
 === 2a. pcp2graphite text, 2-second aligned, local  ===
 foobar.hinv.ncpu NCPUS TIMESTAMP2
 foobar.hinv.ncpu NCPUS TIMESTAMP2
