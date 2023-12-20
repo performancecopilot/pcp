@@ -144,7 +144,7 @@ s/$/|optional/
 	    mv $tmp.tmp $tmp.raw
 	    ;;
 
-	src/pmdas/mssql/GNUmakefile|src/pmdas/postgresql/GNUmakefile|src/pmdas/rabbitmq/GNUmakefile|src/pmdas/elasticsearch/GNUmakefile)
+	src/pmdas/mssql/GNUmakefile|src/pmdas/postgresql/GNUmakefile|src/pmdas/rabbitmq/GNUmakefile|src/pmdas/elasticsearch/GNUmakefile|src/pmdas/mongodb/GNUmakefile)
 	    # CONF            = $(IAM).conf
 	    # PMDACONFIG      = $(PCP_SYSCONF_DIR)/$(IAM)
 	    # PMDATMPDIR      = $(PCP_PMDAS_DIR)/$(IAM)
