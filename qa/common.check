@@ -1458,7 +1458,7 @@ _restore_primary_logger()
 #
 _restore_pmlogger_control()
 {
-    for __file in `find $PCP_ETC_DIR/pcp/pmlogger -type f`
+    for __file in `find $PCP_SYSCONF_DIR/pcp/pmlogger/control $PCP_SYSCONF_DIR/pcp/pmlogger/control.d -type f`
     do
 	$PCP_AWK_PROG '/^\$/ || /^#/ || (/PCP_ARCHIVE_DIR/ && $2 == "y") {print}' \
 		$__file >$tmp.new
