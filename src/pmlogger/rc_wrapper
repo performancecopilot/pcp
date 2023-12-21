@@ -59,7 +59,7 @@ then
     $PCP_SYSCONF_DIR/pmlogger/rc "$@"
 elif which runuser >/dev/null 2>&1
 then
-    runuser -g $PCP_GROUP $PCP_USER $PCP_SYSCONF_DIR/pmlogger/rc "$@"
+    runuser -s /bin/sh -g $PCP_GROUP $PCP_USER $PCP_SYSCONF_DIR/pmlogger/rc "$@"
 else
     echo "$0: Error: neither setpriv(1) nor runuser(1) installed"
     exit 1
