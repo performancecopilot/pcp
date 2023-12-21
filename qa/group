@@ -2064,7 +2064,11 @@ x11
 1837 pmproxy local
 1838 pmda.linux kernel local
 1844 pmdumptext libpcp_qmc remote
-1849:reserved # __pmCleanMapDir test
+1845:reserved # security branch testing
+1846:reserved # security branch testing
+1847:reserved # security branch testing
+1848:reserved # security branch testing
+1849:reserved # security branch testing
 1850 pmseries libpcp_web local
 1853 pmda.bpf local
 1854 pmlogger pmimport pmconfig local
