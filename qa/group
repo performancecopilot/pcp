@@ -2067,7 +2067,7 @@ x11
 1845:reserved # security branch testing
 1846:reserved # security branch testing
 1847:reserved # security branch testing
-1848:reserved # security branch testing
+1848 libpcp local valgrind
 1849 libpcp local
 1850 pmseries libpcp_web local
 1853 pmda.bpf local
