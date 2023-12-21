@@ -1,0 +1,197 @@
+#!/bin/sh
+# PCP QA Test No. 1849
+# check out __pmCleanMapDir()
+#
+# Copyright (c) 2023 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+$sudo rm -rf $tmp $tmp.* $seq.full
+
+do_valgrind=false
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+    do_valgrind=true
+fi
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+# need sort at end to dodge directory entry order non-determinism
+#
+_doit()
+{
+    if $do_valgrind
+    then
+	_run_valgrind src/cleanmapdir -Dappl9 $*
+    else
+	src/cleanmapdir $* -Dappl9 2>&1
+    fi \
+    | tee -a $here/$seq.full \
+    | _filter \
+    | LC_COLLATE=POSIX sort
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+	-e "s@TMP/$DEAD1@TMP/DEAD-PID-1@" \
+	-e "s@TMP/$DEAD2@TMP/DEAD-PID-2@" \
+	-e "s/\([^0-9]\)$DEAD1\([^0-9]\)/\1DEAD-PID-1\2/g" \
+	-e "s/\([^0-9]\)$DEAD2\([^0-9]\)/\1DEAD-PID-2\2/g" \
+	-e "s/\([^0-9]\)$$\([^0-9]\)/\1QA-TEST-PID\2/g" \
+	-e "s/^$$\([^0-9]\)/QA-TEST-PID\1/" \
+	-e "s/\([^0-9]\)$$\$/\1QA-TEST-PID/" \
+	-e "s/^$$\$/QA-TEST-PID/" \
+	-e 's/ uid [0-9][0-9]*\([^0-9]\)/ uid UU\1/g' \
+	-e 's/ gid [0-9][0-9]*\([^0-9]\)/ gid GG\1/g' \
+	-e '/^\[.* Warning/s//[DATE] Warning/' \
+    # end
+}
+
+date >/dev/null 2>&1 &
+DEAD1=$!
+echo "DEAD1=$DEAD1" >>$here/$seq.full
+date >/dev/null 2>&1 &
+DEAD2=$!
+echo "DEAD2=$DEAD2" >>$here/$seq.full
+
+# real QA test starts here
+
+echo
+echo "+++ dirname does not exist ..."
+_doit $tmp
+
+echo
+echo "+++ dirname is a symlink not a dir ..."
+ln -s /tmp $tmp
+_doit $tmp
+rm -f $tmp
+
+echo
+echo "+++ dirname is a regular file not a dir ..."
+touch $tmp
+_doit $tmp
+rm -rf $tmp
+
+echo
+echo "+++ no permission to read dirname ..."
+mkdir $tmp
+chmod 333 $tmp
+_doit $tmp
+chmod 755 $tmp
+
+echo
+echo "+++ wrong owner for dirname ..."
+$sudo chown pcp $tmp
+_doit $tmp
+$sudo chown `id -un` $tmp
+
+echo
+echo "+++ wrong owner for dirname ..."
+$sudo chgrp pcp $tmp
+_doit $tmp
+$sudo chgrp `id -gn` $tmp
+
+echo
+echo "+++ bad 'PID' file names and CANNOT unlink ..."
+touch $tmp/-1
+touch $tmp/0
+touch $tmp/foo-bar
+touch $tmp/12345678901234567890123456789
+touch $tmp/123456mumble
+touch $tmp/$$
+(cd $tmp; rm -f primary; ln -s $$ primary)
+chmod 555 $tmp
+_doit $tmp -C primary
+ls $tmp | _filter
+chmod 755 $tmp
+
+echo
+echo "+++ bad 'PID' file names and CAN unlink ..."
+_doit $tmp -C primary
+ls $tmp | _filter
+rm -f $tmp/*
+
+echo
+echo "+++ PIDs -> no process ..."
+touch $tmp/$DEAD1
+touch $tmp/$DEAD2
+touch $tmp/$$
+(cd $tmp; rm -f primary; ln -s $$ primary)
+_doit $tmp -C primary
+ls $tmp | _filter
+
+echo
+echo "+++ special not a symlink ..."
+rm -f $tmp/primary
+touch $tmp/primary
+_doit $tmp -C primary
+ls $tmp | _filter
+(cd $tmp; rm -f primary; ln -s $$ primary)
+
+echo
+echo "+++ special points to a bad 'PID' ..."
+rm -f $tmp/primary $tmp/$$
+(cd $tmp; rm -f bad; ln -s -- -1 bad)
+_doit $tmp -C bad
+(cd $tmp; rm -f bad; ln -s 0 bad)
+_doit $tmp -C bad
+(cd $tmp; rm -f bad; ln -s foo-bar bad)
+_doit $tmp -C bad
+(cd $tmp; rm -f bad; ln -s 12345678901234567890123456789  bad)
+_doit $tmp -C bad
+(cd $tmp; rm -f bad; ln -s 123! bad)
+_doit $tmp -C bad
+(cd $tmp; rm -f bad; ln -s $DEAD1 bad)
+_doit $tmp -C bad
+ls $tmp | _filter
+(cd $tmp; rm -f $$; touch $$)
+(cd $tmp; rm -f primary; ln -s $$ primary)
+touch $tmp/$$
+(cd $tmp; rm -f bad)
+
+echo
+echo "+++ special points somewhere else ..."
+rm -f $tmp/primary
+(cd $tmp; rm -f primary; ln -s /etc/passwd primary)
+_doit $tmp -C primary
+(cd $tmp; rm -f foo; ln -s ../foo foo)
+_doit $tmp -C foo
+(cd $tmp; rm -f bar; ln -s ../1234 bar)
+_doit $tmp -C bar
+ls $tmp | _filter
+(cd $tmp; rm -f primary; ln -s $$ primary)
+(cd $tmp; rm -f foo bar)
+
+echo
+echo "+++ special -> no process ..."
+(cd $tmp; rm -f primary; ln -s $DEAD1 primary)
+_doit $tmp -C primary
+ls $tmp | _filter
+(cd $tmp; rm -f primary; ln -s $$ primary)
+
+# success, all done
+exit

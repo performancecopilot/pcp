@@ -1546,6 +1546,9 @@ PCP_CALL extern void __pmLoadTimeval(const __int32_t *, __pmTimestamp *);
 PCP_CALL extern void __pmPutTimestamp(const __pmTimestamp *, __int32_t *);
 PCP_CALL extern void __pmPutTimeval(const __pmTimestamp *, __int32_t *);
 
+/* remove old files from a map directory */
+PCP_CALL extern int __pmCleanMapDir(const char *, const char *);
+
 #ifdef __cplusplus
 }
 #endif

@@ -46,6 +46,7 @@ chkopenlog
 chkoptfetch
 chktrim
 churnctx
+cleanmapdir
 clientid
 clienttimeout
 compare

@@ -1,0 +1,106 @@
+QA output created by 1849
+
++++ dirname does not exist ...
+__pmCleanMapDir(TMP, (null)) => -2
+__pmCleanMapDir: lstat(TMP) failed: No such file or directory
+
++++ dirname is a symlink not a dir ...
+__pmCleanMapDir(TMP, (null)) => -20
+__pmCleanMapDir: dirname TMP: is a symlink: Not a directory
+
++++ dirname is a regular file not a dir ...
+__pmCleanMapDir(TMP, (null)) => -20
+__pmCleanMapDir: dirname TMP: is a regular file: Not a directory
+
++++ no permission to read dirname ...
+__pmCleanMapDir(TMP, (null)) => -13
+__pmCleanMapDir: opendir(TMP) failed: Permission denied
+
++++ wrong owner for dirname ...
+__pmCleanMapDir(TMP, (null)) => -1
+__pmCleanMapDir: dirname TMP: uid UU different to caller uid UU: Operation not permitted
+
++++ wrong owner for dirname ...
+__pmCleanMapDir(TMP, (null)) => -1
+__pmCleanMapDir: dirname TMP: gid GG different to caller gid GG: Operation not permitted
+
++++ bad 'PID' file names and CANNOT unlink ...
+__pmCleanMapDir(TMP, primary) => 0
+__pmCleanMapDir: TMP/-1: remove: PID must be at least 1
+__pmCleanMapDir: TMP/0: remove: PID must be at least 1
+__pmCleanMapDir: TMP/12345678901234567890123456789: remove: pid_t overflow so cannot be a PID
+__pmCleanMapDir: TMP/123456mumble: remove: name not numeric so cannot be a PID
+__pmCleanMapDir: TMP/QA-TEST-PID: keep: OK
+__pmCleanMapDir: TMP/foo-bar: remove: name not numeric so cannot be a PID
+__pmCleanMapDir: TMP/primary [special]: keep: OK
+__pmCleanMapDir: unlink(TMP/-1) failed: Permission denied
+__pmCleanMapDir: unlink(TMP/0) failed: Permission denied
+__pmCleanMapDir: unlink(TMP/12345678901234567890123456789) failed: Permission denied
+__pmCleanMapDir: unlink(TMP/123456mumble) failed: Permission denied
+__pmCleanMapDir: unlink(TMP/foo-bar) failed: Permission denied
+-1
+0
+12345678901234567890123456789
+123456mumble
+QA-TEST-PID
+foo-bar
+primary
+
++++ bad 'PID' file names and CAN unlink ...
+__pmCleanMapDir(TMP, primary) => 5
+__pmCleanMapDir: TMP/-1: remove: PID must be at least 1
+__pmCleanMapDir: TMP/0: remove: PID must be at least 1
+__pmCleanMapDir: TMP/12345678901234567890123456789: remove: pid_t overflow so cannot be a PID
+__pmCleanMapDir: TMP/123456mumble: remove: name not numeric so cannot be a PID
+__pmCleanMapDir: TMP/QA-TEST-PID: keep: OK
+__pmCleanMapDir: TMP/foo-bar: remove: name not numeric so cannot be a PID
+__pmCleanMapDir: TMP/primary [special]: keep: OK
+QA-TEST-PID
+primary
+
++++ PIDs -> no process ...
+__pmCleanMapDir(TMP, primary) => 2
+__pmCleanMapDir: TMP/DEAD-PID-1: remove: process does not exist
+__pmCleanMapDir: TMP/DEAD-PID-2: remove: process does not exist
+__pmCleanMapDir: TMP/QA-TEST-PID: keep: OK
+__pmCleanMapDir: TMP/primary [special]: keep: OK
+QA-TEST-PID
+primary
+
++++ special not a symlink ...
+__pmCleanMapDir(TMP, primary) => 1
+__pmCleanMapDir: TMP/QA-TEST-PID: keep: OK
+__pmCleanMapDir: TMP/primary [special]: remove: is a regular file, expected a symlink
+QA-TEST-PID
+
++++ special points to a bad 'PID' ...
+__pmCleanMapDir(TMP, bad) => 1
+__pmCleanMapDir: TMP/bad -> -1: remove: PID must be at least 1
+__pmCleanMapDir(TMP, bad) => 1
+__pmCleanMapDir: TMP/bad -> 0: remove: PID must be at least 1
+__pmCleanMapDir(TMP, bad) => 1
+__pmCleanMapDir: TMP/bad -> foo-bar: remove: name not numeric so cannot be a PID
+__pmCleanMapDir(TMP, bad) => 1
+__pmCleanMapDir: TMP/bad -> 12345678901234567890123456789: remove: pid_t overflow so cannot be a PID
+__pmCleanMapDir(TMP, bad) => 1
+__pmCleanMapDir: TMP/bad -> 123!: remove: name not numeric so cannot be a PID
+__pmCleanMapDir(TMP, bad) => 1
+__pmCleanMapDir: TMP/bad -> DEAD-PID-1: remove: process does not exist
+
++++ special points somewhere else ...
+__pmCleanMapDir(TMP, primary) => 1
+__pmCleanMapDir: TMP/QA-TEST-PID: keep: OK
+__pmCleanMapDir: TMP/primary -> /etc/passwd: remove: name not numeric so cannot be a PID
+__pmCleanMapDir(TMP, foo) => 1
+__pmCleanMapDir: TMP/QA-TEST-PID: keep: OK
+__pmCleanMapDir: TMP/foo -> ../foo: remove: name not numeric so cannot be a PID
+__pmCleanMapDir(TMP, bar) => 1
+__pmCleanMapDir: TMP/QA-TEST-PID: keep: OK
+__pmCleanMapDir: TMP/bar -> ../1234: remove: name not numeric so cannot be a PID
+QA-TEST-PID
+
++++ special -> no process ...
+__pmCleanMapDir(TMP, primary) => 1
+__pmCleanMapDir: TMP/QA-TEST-PID: keep: OK
+__pmCleanMapDir: TMP/primary -> DEAD-PID-1: remove: process does not exist
+QA-TEST-PID
