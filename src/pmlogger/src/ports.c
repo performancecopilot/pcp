@@ -627,6 +627,12 @@ init_ports(void)
 	}
     }
 
+    /*
+     * clean the port file directory ... removes entries for pmlogger
+     * processes that have died and entries that cannot be valid PIDs
+     */
+    __pmCleanMapDir(ctlfile, "primary");
+
     /* remove any existing port file with my name (it's old) */
     pmsprintf(ctlfile + (baselen-1), n, "%c%" FMT_PID, sep, mypid);
     unlink(ctlfile);
