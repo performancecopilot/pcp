@@ -17,7 +17,7 @@ max_probes=200
 
 _usage()
 {
-    echo >&2 "Usage: new-grind [options] seq-no"
+    echo >&2 "Usage: new-grind [options] old-seqno [new-seqno]"
     echo >&2
     echo >&2 "Options:"
     echo >&2 "-n   show-me, change nothing"
@@ -42,18 +42,40 @@ do
 done
 shift `expr $OPTIND - 1`
 
-if [ $# -ne 1 ]
+if [ $# -ne 1 -a $# -ne 2 ]
 then
     _usage
     # NOTREACHED
 fi
 
-oldseq=$1
+if [ ! -f group ]
+then
+    echo "Error: no \"group\" file"
+    exit 1
+fi
 
+oldseq=$1
 if [ ! -f "$oldseq" ]
 then
     echo "Error: test \"$oldseq\" does not exist"
     exit 1
+fi
+
+if [ $# -eq 2 ]
+then
+    newseq=$2
+    if [ -f "$newseq" ]
+    then
+	echo "Error: test \"$newseq\" already exists"
+	exit 1
+    fi
+    if grep -E "^($newseq )|($newseq:retired )" group
+    then
+	echo "Error: test \"$newseq\" already defined in \"group\" file"
+	exit 1
+    fi
+else
+    newseq=''
 fi
 
 if grep "^do_valgrind=false" $oldseq >/dev/null
@@ -78,12 +100,6 @@ else
     exit 1
 fi
 
-if [ ! -f group ]
-then
-    echo "Error: no \"group\" file"
-    exit 1
-fi
-
 oldgroup=`grep "^$oldseq[ :]" <group`
 if [ -z "$oldgroup" ]
 then
@@ -101,38 +117,41 @@ tmp=/tmp/new-grind-$$
 sts=1
 trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 
-try=`expr $oldseq + 1`
-try=`printf "%03d\n" $try`
-# first $oldseq+1, then keep serially probing
-#
-$verbose && echo >&2 "Info: start probing at $try"
-probe=0
-while [ $probe -lt $max_probes ]
-do
-    if grep "^$try[ :]" <group >/dev/null
+if [ -z "$newseq" ]
+then
+    try=`expr $oldseq + 1`
+    try=`printf "%03d\n" $try`
+    # first $oldseq+1, then keep serially probing
+    #
+    $verbose && echo >&2 "Info: start probing at $try"
+    probe=0
+    while [ $probe -lt $max_probes ]
+    do
+	if grep "^$try[ :]" <group >/dev/null
+	then
+	    # already allocated ... try again
+	    #
+	    seed=$try
+	    try=`expr $try + 1`
+	    try=`printf "%03d\n" $try`
+	    $verbose && echo >&2 "Info: try $try"
+	else
+	    newseq=$try
+	    break
+	fi
+    done
+
+    if [ $probe -eq $max_probes ]
     then
-	# already allocated ... try again
-	#
-	seed=$try
-	try=`expr $try + 1`
-	try=`printf "%03d\n" $try`
-	$verbose && echo >&2 "Info: try $try"
-    else
-	newseq=$try
-	break
+	echo >&2 "Error: after $max_probes attempts, no unassigned tests in the range $oldseq ...  Time to increase \$max_probes"
+	exit 1
     fi
-done
 
-if [ $probe -eq $max_probes ]
-then
-    echo >&2 "Error: after $max_probes attempts, no unassigned tests in the range $oldseq ...  Time to increase \$max_probes"
-    exit 1
-fi
-
-if [ -f $newseq ]
-then
-    echo >&2 "Error: test $newseq already exists, but not in group file!"
-    exit
+    if [ -f $newseq ]
+    then
+	echo >&2 "Error: test $newseq already exists, but not in group file!"
+	exit
+    fi
 fi
 
 if $showme
@@ -141,7 +160,7 @@ then
     exit
 fi
 
-echo "Allocated test number $newseq"
+echo "New test number $newseq"
 newgroup=`echo $oldgroup | sed -e "s/^$oldseq\([: ]\)/$newseq\1/" -e 's/$/ valgrind/'`
 
 if grep 'non-valgrind' $oldseq >/dev/null
@@ -213,14 +232,16 @@ chmod 755 $newseq
 
 echo "Creating $newseq script"
 echo "Adding $newseq to group index"
-echo "$newgroup" >>group
 
 # sort the tests numerically
 #
-$PCP_AWK_PROG <group '
+sed <group \
+    -e "/^$newseq:reserved/d" \
+| $PCP_AWK_PROG '
 BEGIN				{ state = "head" }
 state == "head" && /^[0-9]/	{ state = "list" }
 				{ print >"'$tmp'." state }'
+echo "$newgroup" >>$tmp.list
 sort -n $tmp.list >>$tmp.head
 cp $tmp.head group
 
