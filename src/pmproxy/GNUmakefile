@@ -32,7 +32,7 @@ install: $(SUBDIRS)
 ifeq ($(ENABLE_SYSTEMD),true)
 	$(INSTALL) -m 644 pmproxy.service $(PCP_SYSTEMDUNIT_DIR)/pmproxy.service
 endif
-	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_USER) -d $(PCP_LOG_DIR)/pmproxy
+	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_LOG_DIR)/pmproxy
 
 include $(BUILDRULES)
 
