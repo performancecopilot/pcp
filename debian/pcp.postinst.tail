@@ -4,28 +4,36 @@ then
     _version_configs "$@"
 fi
 
-touch /var/lib/pcp/pmns/.NeedRebuild
-chmod 644 /var/lib/pcp/pmns/.NeedRebuild
-touch /var/log/pcp/pmlogger/.NeedRewrite
-chmod 644 /var/log/pcp/pmlogger/.NeedRewrite
-
 getent group pcp >/dev/null || groupadd -r pcp
 getent passwd pcp >/dev/null || \
 useradd -c "Performance Co-Pilot" -g pcp -d /var/lib/pcp -M -r -s /usr/sbin/nologin pcp
 
+# must match pmns/GNUmakefile, owned by root:root so $PCP_SYSCONF_DIR/pmcd/rc
+# can remove it once PMNS rebuild is done on first pmcd startup
+#
+touch /var/lib/pcp/pmns/.NeedRebuild
+chmod 644 /var/lib/pcp/pmns/.NeedRebuild
+
+# owned by pcp:pcp so pmlogger_daily can remove it once rewriting
+# is done
+#
+touch /var/log/pcp/pmlogger/.NeedRewrite
+chown pcp:pcp /var/log/pcp/pmlogger/.NeedRewrite
+chmod 644 /var/log/pcp/pmlogger/.NeedRewrite
+
 # must match GNUmakefile
+#
 chown pcp:pcp /var/lib/pcp/config/pmda
 chmod 775 /var/lib/pcp/config/pmda
 chown pcp:pcp /var/lib/pcp/tmp
 chmod 775 /var/lib/pcp/tmp
 chown pcp:pcp /var/log/pcp
 chmod 775 /var/log/pcp
-
-# must match src/pmcd/GNUmakefile
-chown pcp:pcp /var/log/pcp/pmcd
-chmod 775 /var/log/pcp/pmcd
+chown pcp:pcp /var/run/pcp
+chmod 775 /var/run/pcp
 
 # must match src/pmdas/{json,bash,mmv}/GNUmakefile
+#
 for PMDA in bash json mmv; do
     # directory may be in optionally build component, so test first
     #
@@ -37,13 +45,13 @@ for PMDA in bash json mmv; do
 done
 
 # must match src/pmdas/mmv/src/GNUmakefile
-chown pcp:pcp /var/lib/pcp/tmp/mmv
-chmod 775 /var/lib/pcp/tmp/mmv
 # (strange but true, the "pmproxy" pmda is built in the mmv dir)
+#
 chown pcp:pcp /var/lib/pcp/tmp/pmproxy
 chmod 775 /var/lib/pcp/tmp/pmproxy
 
 # must match src/pmie/GNUmakefile
+#
 chown pcp:pcp /var/lib/pcp/config/pmie
 chmod 775 /var/lib/pcp/config/pmie
 chown pcp:pcp /var/lib/pcp/tmp/pmie
@@ -52,6 +60,7 @@ chown pcp:pcp /var/log/pcp/pmie
 chmod 775 /var/log/pcp/pmie
 
 # must match src/pmlogger/GNUmakefile
+#
 chown pcp:pcp /var/lib/pcp/config/pmlogger
 chmod 775 /var/lib/pcp/config/pmlogger
 chown pcp:pcp /var/lib/pcp/tmp/pmlogger
@@ -62,10 +71,12 @@ chown pcp:pcp /var/log/pcp/sa
 chmod 775 /var/log/pcp/sa
 
 # must match src/pmproxy/GNUmakefile
+#
 chown pcp:pcp /var/log/pcp/pmproxy
 chmod 775 /var/log/pcp/pmproxy
 
 # must match src/pmfind/GNUmakefile
+#
 chown pcp:pcp /var/log/pcp/pmfind
 chmod 775 /var/log/pcp/pmfind
 
