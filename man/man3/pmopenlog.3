@@ -39,18 +39,29 @@ reassigns the standard I/O stream
 .BR stderr )
 to be associated with the file
 .IR logname .
+.PP
 If
 .I logname
-is not \fB"-"\fP
-and already exists,
-it will be removed and recreated if possible (to ensure correct ownership
+is not \fB"\-"\fP
+and the file already exists,
+it will be renamed to
+.IB logname .prev
+else removed.
+Due to permissions restrictions, the rename or removal may not
+succeed, but in the common use cases
+.IB logname .prev
+remains with the contents of the previous version of
+.IR logname .
+Then
+.I logname
+is recreated if possible (to ensure correct ownership
 and permissions from the caller to
 .BR pmOpenLog ).
 .PP
 As a special case, if
 .I logname
-is "\fB-\fR"
-then no removal or reopening is performed and
+is "\fB\-\fR"
+then no renaming, removal or reopening is performed and
 the function simply sets
 .I status
 to
@@ -62,9 +73,9 @@ This is useful when the caller wants diagnostics on
 stream (normally
 .BR stderr )
 rather than a file, e.g.
-.B "pmlogger -l-"
+.B "pmlogger \-l\-"
 or
-.BR "pmcd -f -l-" .
+.BR "pmcd \-f \-l\-" .
 Logging to
 .B stderr
 is also useful for PMDAs in a containerized environment where

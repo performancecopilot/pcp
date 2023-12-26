@@ -288,18 +288,22 @@ logreopen(const char *progname, const char *logname, FILE *oldstream,
 	 */
 	return NULL;
     }
-
     oldfd = fileno(oldstream);
     if ((dupoldfd = dup(oldfd)) >= 0) {
 	/*
-	 * try to remove the file first ... don't bother if this fails,
-	 * but if it succeeds, we at least get a chance to define the
-	 * owner and mode, rather than inheriting this from an existing
+	 * try to rename or remove the file first ... don't bother if this
+	 * fails, but if it succeeds, we at least get a chance to define
+	 * the owner and mode, rather than inheriting this from an existing
 	 * writeable file ... really only a problem when called as with
 	 * uid == 0, e.g. from pmcd(1).
 	 */
-	unlink(logname);
+	char		prev[MAXPATHLEN+1];
 
+	pmsprintf(prev, sizeof(prev)-1, "%s.prev", logname);
+	unlink(prev);
+	if (rename(logname, prev) < 0) {
+	    unlink(logname);
+	}
 	oldstream = outstream = freopen(logname, "w", oldstream);
 	if (oldstream == NULL) {
 	    int		save_error = oserror();	/* need for error message */
