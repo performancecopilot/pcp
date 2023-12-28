@@ -85,6 +85,7 @@ _filter_pmcd()
 	-e '/UNIX_DOMAIN_SOCKET/d' \
 	-e 's/ i:[0-9]/ i:?/' \
 	-e '/SIGTERM from unknown process/s//SIGTERM from pid=N uid=N/' \
+	-e "s@$tmp@TMP@g" \
     | $PCP_AWK_PROG '
 BEGIN				{ skip = 0 }
 /client connection from/	{ print; print "..."; skip=1; next }
@@ -126,6 +127,11 @@ _cleanup()
 	echo '=== pmcd log' >>$seq.full
 	cat $tmp.log >>$seq.full
     fi
+    for f in $tmp.*.log
+    do
+	echo '=== $f' >>$seq.full
+	cat $f>>$seq.full
+    done
     echo "=== Restoring crontab ==="
     _restore_job_scheduler $tmp.cron $tmp.systemd $sudo
     [ -f $PCP_PMDAS_DIR/simple/simple.conf.$seq ] && _restore_config $PCP_PMDAS_DIR/simple/simple.conf
@@ -156,6 +162,7 @@ else
 fi
 $sudo cp $tmp.pmns $PCP_VAR_DIR/pmns/root
 $sudo $signal -a -s HUP pmcd >/dev/null 2>&1
+_wait_for_pmcd
 echo "=== Broken PMNS ==="
 if pminfo broken
 then
@@ -233,7 +240,7 @@ _agent_install()
     then
 	cat << end-of-file >> $tmp.latest
 # Installed by PCP QA test $seq on `date`
-$agent	$domain	pipe	binary	$path/pmda$agent -d $domain
+$agent	$domain	pipe	binary	$path/pmda$agent -d $domain -l $tmp.$agent.log
 end-of-file
     else
     	cat << end-of-file >> $tmp.latest
@@ -243,12 +250,6 @@ end-of-file
     fi
 
     $sudo cp $tmp.latest $PCP_PMCDCONF_PATH
-    # after non-root pmcd changes, the log files may be owned by
-    # root.root or pcp.pcp depending on the pattern of installs and
-    # pmcd restarts ... to be sure we can write the log files, remove
-    # any old ones before signalling pmcd
-    #
-    $sudo rm -f $PCP_LOG_DIR/pmcd/simple.log* $PCP_LOG_DIR/pmcd/broken.log* 
     $sudo $signal -a -s HUP pmcd >/dev/null 2>&1
     sleep 4
     _wait_for_pmcd
@@ -291,7 +292,7 @@ _broken_install()
     cp $tmp.newconf $tmp.latest
     cat << end-of-file >> $tmp.latest
 # Installed by PCP QA test $seq on `date`
-broken	$broken_domain	pipe	binary	$here/pmdas/broken/$agent -d $broken_domain
+broken	$broken_domain	pipe	binary	$here/pmdas/broken/$agent -d $broken_domain -l $tmp.broken.log
 end-of-file
 
     $sudo cp $tmp.latest $PCP_PMCDCONF_PATH
