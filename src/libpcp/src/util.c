@@ -3192,7 +3192,7 @@ inodetype(mode_t st_mode)
  * is a symlink, then the value of the symlink)
  */
 static int
-check_map_name(const char *path, const char *name, const char *link)
+check_map_name(const char *path, const char *name, const char *link, const char *link_pid)
 {
     long	numb;
     int		sts;
@@ -3200,15 +3200,15 @@ check_map_name(const char *path, const char *name, const char *link)
     char	*p;
 
     setoserror(0);
-    if (link == NULL)
-	numb = strtol(name, &p, 10);
+    if (link_pid != NULL)
+	numb = strtol(link_pid, &p, 10);
     else
-	numb = strtol(link, &p, 10);
+	numb = strtol(name, &p, 10);
     sts = oserror();
     if (*p != '\0') {
 	if (pmDebugOptions.appl9) {
 	    fprintf(stderr, "__pmCleanMapDir: %s", path);
-	    if (link) fprintf(stderr, " -> %s", link);
+	    if (link) fprintf(stderr, " -> %s (%s)", link, link_pid);
 	    fprintf(stderr, ": remove: name not numeric so cannot be a PID\n");
 	}
 	return 0;
@@ -3216,7 +3216,7 @@ check_map_name(const char *path, const char *name, const char *link)
     if (numb < 1) {
 	if (pmDebugOptions.appl9) {
 	    fprintf(stderr, "__pmCleanMapDir: %s", path);
-	    if (link) fprintf(stderr, " -> %s", link);
+	    if (link) fprintf(stderr, " -> %s (%s)", link, link_pid);
 	    fprintf(stderr, ": remove: PID must be at least 1\n");
 	}
 	return 0;
@@ -3225,7 +3225,7 @@ check_map_name(const char *path, const char *name, const char *link)
     if (sts == ERANGE || pid != numb) {
 	if (pmDebugOptions.appl9) {
 	    fprintf(stderr, "__pmCleanMapDir: %s", path);
-	    if (link) fprintf(stderr, " -> %s", link);
+	    if (link) fprintf(stderr, " -> %s (%s)", link, link_pid);
 	    fprintf(stderr, ": remove: pid_t overflow so cannot be a PID\n");
 	}
 	return 0;
@@ -3234,7 +3234,7 @@ check_map_name(const char *path, const char *name, const char *link)
 	if (oserror() == ESRCH) {
 	    if (pmDebugOptions.appl9) {
 		fprintf(stderr, "__pmCleanMapDir: %s", path);
-		if (link) fprintf(stderr, " -> %s", link);
+		if (link) fprintf(stderr, " -> %s (%s)", link, link_pid);
 		fprintf(stderr, ": remove: process does not exist\n");
 	    }
 	    return 0;
@@ -3321,6 +3321,9 @@ __pmCleanMapDir(const char *dirname, const char * special)
 	if (special != NULL && strcmp(dp->d_name, special) == 0) {
 	    ssize_t	llen;
 	    char	link[MAXPATHLEN+1];
+	    char	*lp;
+	    char	*linkp;
+	    char	sep = pmPathSeparator();
 
 	    if ((sts = lstat(path, &sbuf)) < 0) {
 		sts = -oserror();
@@ -3342,8 +3345,22 @@ __pmCleanMapDir(const char *dirname, const char * special)
 			path, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 		goto unlink;
 	    }
+	    /*
+	     * for the "special" symlink, expect the value to be an
+	     * optional path prefix, followed by a number (PID),
+	     * e.g. 1234 or /foo/bar/someplace/1234
+	     */
 	    link[llen] = '\0';
-	    if (check_map_name(path, dp->d_name, link)) {
+	    linkp = link;
+	    for (lp = link; *lp; lp++) {
+		if (*lp == sep)
+		    /* start of next component in path */
+		    linkp = &lp[1];
+	    }
+	    if (*linkp == '\0')
+		/* path prefix, then nothing to folow ... */
+		linkp = link;
+	    if (check_map_name(path, dp->d_name, link, linkp)) {
 		if (pmDebugOptions.appl9) {
 		    fprintf(stderr, "__pmCleanMapDir: %s [special]: keep: OK\n",
 			path);
@@ -3353,7 +3370,7 @@ __pmCleanMapDir(const char *dirname, const char * special)
 		goto unlink;
 	}
 	else {
-	    if (check_map_name(path, dp->d_name, NULL)) {
+	    if (check_map_name(path, dp->d_name, NULL, NULL)) {
 		if (pmDebugOptions.appl9) {
 		    fprintf(stderr, "__pmCleanMapDir: %s: keep: OK\n",
 			path);

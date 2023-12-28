@@ -62,8 +62,9 @@ and the name should be the PID of a running process
 .IP + 2n
 for a match on
 .I special
-the directory entry should be a symbolic link and the link
-should point to a name that is the PID of a running process
+the directory entry should be a symbolic link and the last
+component of the link
+should be the ASCII encoding of the PID of a running process
 .PP
 Before any of these checks are done,
 .B __pmCleanMapDir
