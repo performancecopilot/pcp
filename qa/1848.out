@@ -173,7 +173,7 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 LEAK SUMMARY:
 Memcheck, a memory error detector
 __pmCleanMapDir(TMP, bad) => 1
-__pmCleanMapDir: TMP/bad -> -1: remove: PID must be at least 1
+__pmCleanMapDir: TMP/bad -> -1 (-1): remove: PID must be at least 1
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
 === filtered valgrind report ===
@@ -184,7 +184,7 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 LEAK SUMMARY:
 Memcheck, a memory error detector
 __pmCleanMapDir(TMP, bad) => 1
-__pmCleanMapDir: TMP/bad -> 0: remove: PID must be at least 1
+__pmCleanMapDir: TMP/bad -> 0 (0): remove: PID must be at least 1
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
 === filtered valgrind report ===
@@ -195,7 +195,7 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 LEAK SUMMARY:
 Memcheck, a memory error detector
 __pmCleanMapDir(TMP, bad) => 1
-__pmCleanMapDir: TMP/bad -> foo-bar: remove: name not numeric so cannot be a PID
+__pmCleanMapDir: TMP/bad -> foo-bar (foo-bar): remove: name not numeric so cannot be a PID
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
 === filtered valgrind report ===
@@ -206,7 +206,7 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 LEAK SUMMARY:
 Memcheck, a memory error detector
 __pmCleanMapDir(TMP, bad) => 1
-__pmCleanMapDir: TMP/bad -> 12345678901234567890123456789: remove: pid_t overflow so cannot be a PID
+__pmCleanMapDir: TMP/bad -> 12345678901234567890123456789 (12345678901234567890123456789): remove: pid_t overflow so cannot be a PID
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
 === filtered valgrind report ===
@@ -217,7 +217,7 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 LEAK SUMMARY:
 Memcheck, a memory error detector
 __pmCleanMapDir(TMP, bad) => 1
-__pmCleanMapDir: TMP/bad -> 123!: remove: name not numeric so cannot be a PID
+__pmCleanMapDir: TMP/bad -> 123! (123!): remove: name not numeric so cannot be a PID
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
 === filtered valgrind report ===
@@ -228,11 +228,12 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 LEAK SUMMARY:
 Memcheck, a memory error detector
 __pmCleanMapDir(TMP, bad) => 1
-__pmCleanMapDir: TMP/bad -> DEAD-PID-1: remove: process does not exist
+__pmCleanMapDir: TMP/bad -> DEAD-PID-1 (DEAD-PID-1): remove: process does not exist
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
 
 +++ special points somewhere else ...
+--- primary -> /etc/passwd
 === filtered valgrind report ===
 === std err ===
 === std out ===
@@ -242,9 +243,10 @@ LEAK SUMMARY:
 Memcheck, a memory error detector
 __pmCleanMapDir(TMP, primary) => 1
 __pmCleanMapDir: TMP/QA-TEST-PID: keep: OK
-__pmCleanMapDir: TMP/primary -> /etc/passwd: remove: name not numeric so cannot be a PID
+__pmCleanMapDir: TMP/primary -> /etc/passwd (passwd): remove: name not numeric so cannot be a PID
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
+--- foo -> ../foo
 === filtered valgrind report ===
 === std err ===
 === std out ===
@@ -254,9 +256,10 @@ LEAK SUMMARY:
 Memcheck, a memory error detector
 __pmCleanMapDir(TMP, foo) => 1
 __pmCleanMapDir: TMP/QA-TEST-PID: keep: OK
-__pmCleanMapDir: TMP/foo -> ../foo: remove: name not numeric so cannot be a PID
+__pmCleanMapDir: TMP/foo -> ../foo (foo): remove: name not numeric so cannot be a PID
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
+--- bar -> ../DEAD1
 === filtered valgrind report ===
 === std err ===
 === std out ===
@@ -266,10 +269,37 @@ LEAK SUMMARY:
 Memcheck, a memory error detector
 __pmCleanMapDir(TMP, bar) => 1
 __pmCleanMapDir: TMP/QA-TEST-PID: keep: OK
-__pmCleanMapDir: TMP/bar -> ../1234: remove: name not numeric so cannot be a PID
+__pmCleanMapDir: TMP/bar -> ../DEAD-PID-1 (DEAD-PID-1): remove: process does not exist
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+--- bar -> TMP/DEAD1
+=== filtered valgrind report ===
+=== std err ===
+=== std out ===
+Command: src/cleanmapdir -Dappl9 TMP -C bar
+ERROR SUMMARY: 0 errors from 0 contexts ...
+LEAK SUMMARY:
+Memcheck, a memory error detector
+__pmCleanMapDir(TMP, bar) => 1
+__pmCleanMapDir: TMP/QA-TEST-PID: keep: OK
+__pmCleanMapDir: TMP/bar -> TMP/DEAD-PID-1 (DEAD-PID-1): remove: process does not exist
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+--- bar -> TMP/QA-TEST-PID
+=== filtered valgrind report ===
+=== std err ===
+=== std out ===
+Command: src/cleanmapdir -Dappl9 TMP -C bar
+ERROR SUMMARY: 0 errors from 0 contexts ...
+LEAK SUMMARY:
+Memcheck, a memory error detector
+__pmCleanMapDir(TMP, bar) => 0
+__pmCleanMapDir: TMP/QA-TEST-PID: keep: OK
+__pmCleanMapDir: TMP/bar [special]: keep: OK
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
 QA-TEST-PID
+bar
 
 +++ special -> no process ...
 === filtered valgrind report ===
@@ -281,7 +311,7 @@ LEAK SUMMARY:
 Memcheck, a memory error detector
 __pmCleanMapDir(TMP, primary) => 1
 __pmCleanMapDir: TMP/QA-TEST-PID: keep: OK
-__pmCleanMapDir: TMP/primary -> DEAD-PID-1: remove: process does not exist
+__pmCleanMapDir: TMP/primary -> DEAD-PID-1 (DEAD-PID-1): remove: process does not exist
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
 QA-TEST-PID

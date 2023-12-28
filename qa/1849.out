@@ -75,32 +75,44 @@ QA-TEST-PID
 
 +++ special points to a bad 'PID' ...
 __pmCleanMapDir(TMP, bad) => 1
-__pmCleanMapDir: TMP/bad -> -1: remove: PID must be at least 1
+__pmCleanMapDir: TMP/bad -> -1 (-1): remove: PID must be at least 1
 __pmCleanMapDir(TMP, bad) => 1
-__pmCleanMapDir: TMP/bad -> 0: remove: PID must be at least 1
+__pmCleanMapDir: TMP/bad -> 0 (0): remove: PID must be at least 1
 __pmCleanMapDir(TMP, bad) => 1
-__pmCleanMapDir: TMP/bad -> foo-bar: remove: name not numeric so cannot be a PID
+__pmCleanMapDir: TMP/bad -> foo-bar (foo-bar): remove: name not numeric so cannot be a PID
 __pmCleanMapDir(TMP, bad) => 1
-__pmCleanMapDir: TMP/bad -> 12345678901234567890123456789: remove: pid_t overflow so cannot be a PID
+__pmCleanMapDir: TMP/bad -> 12345678901234567890123456789 (12345678901234567890123456789): remove: pid_t overflow so cannot be a PID
 __pmCleanMapDir(TMP, bad) => 1
-__pmCleanMapDir: TMP/bad -> 123!: remove: name not numeric so cannot be a PID
+__pmCleanMapDir: TMP/bad -> 123! (123!): remove: name not numeric so cannot be a PID
 __pmCleanMapDir(TMP, bad) => 1
-__pmCleanMapDir: TMP/bad -> DEAD-PID-1: remove: process does not exist
+__pmCleanMapDir: TMP/bad -> DEAD-PID-1 (DEAD-PID-1): remove: process does not exist
 
 +++ special points somewhere else ...
+--- primary -> /etc/passwd
 __pmCleanMapDir(TMP, primary) => 1
 __pmCleanMapDir: TMP/QA-TEST-PID: keep: OK
-__pmCleanMapDir: TMP/primary -> /etc/passwd: remove: name not numeric so cannot be a PID
+__pmCleanMapDir: TMP/primary -> /etc/passwd (passwd): remove: name not numeric so cannot be a PID
+--- foo -> ../foo
 __pmCleanMapDir(TMP, foo) => 1
 __pmCleanMapDir: TMP/QA-TEST-PID: keep: OK
-__pmCleanMapDir: TMP/foo -> ../foo: remove: name not numeric so cannot be a PID
+__pmCleanMapDir: TMP/foo -> ../foo (foo): remove: name not numeric so cannot be a PID
+--- bar -> ../DEAD1
 __pmCleanMapDir(TMP, bar) => 1
 __pmCleanMapDir: TMP/QA-TEST-PID: keep: OK
-__pmCleanMapDir: TMP/bar -> ../1234: remove: name not numeric so cannot be a PID
+__pmCleanMapDir: TMP/bar -> ../DEAD-PID-1 (DEAD-PID-1): remove: process does not exist
+--- bar -> TMP/DEAD1
+__pmCleanMapDir(TMP, bar) => 1
+__pmCleanMapDir: TMP/QA-TEST-PID: keep: OK
+__pmCleanMapDir: TMP/bar -> TMP/DEAD-PID-1 (DEAD-PID-1): remove: process does not exist
+--- bar -> TMP/QA-TEST-PID
+__pmCleanMapDir(TMP, bar) => 0
+__pmCleanMapDir: TMP/QA-TEST-PID: keep: OK
+__pmCleanMapDir: TMP/bar [special]: keep: OK
 QA-TEST-PID
+bar
 
 +++ special -> no process ...
 __pmCleanMapDir(TMP, primary) => 1
 __pmCleanMapDir: TMP/QA-TEST-PID: keep: OK
-__pmCleanMapDir: TMP/primary -> DEAD-PID-1: remove: process does not exist
+__pmCleanMapDir: TMP/primary -> DEAD-PID-1 (DEAD-PID-1): remove: process does not exist
 QA-TEST-PID

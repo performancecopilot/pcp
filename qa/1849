@@ -182,11 +182,20 @@ touch $tmp/$$
 echo
 echo "+++ special points somewhere else ..."
 rm -f $tmp/primary
+echo "--- primary -> /etc/passwd"
 (cd $tmp; rm -f primary; ln -s /etc/passwd primary)
 _doit $tmp -C primary
+echo "--- foo -> ../foo"
 (cd $tmp; rm -f foo; ln -s ../foo foo)
 _doit $tmp -C foo
-(cd $tmp; rm -f bar; ln -s ../1234 bar)
+echo "--- bar -> ../DEAD1"
+(cd $tmp; rm -f foo bar; ln -s ../$DEAD1 bar)
+_doit $tmp -C bar
+echo "--- bar -> TMP/DEAD1"
+(cd $tmp; rm -f bar; ln -s $tmp/$DEAD1 bar)
+_doit $tmp -C bar
+echo "--- bar -> TMP/QA-TEST-PID"
+(cd $tmp; rm -f bar; ln -s $tmp/$$ bar)
 _doit $tmp -C bar
 ls $tmp | _filter
 (cd $tmp; rm -f primary; ln -s $$ primary)
