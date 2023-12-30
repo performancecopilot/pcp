@@ -32,7 +32,8 @@ LDIRT = config.cache config.status config.log files.rpm \
 	autom4te.cache install.manifest install.tmpfiles \
 	debug*.list devel_files libs_files conf_files \
 	base_files.rpm libs_files.rpm devel_files.rpm \
-	perl-pcp*.list* python-pcp*.list* python3-pcp*.list*
+	perl-pcp*.list* python-pcp*.list* python3-pcp*.list* \
+	tmpfiles.run.setup
 LDIRDIRT = pcp-[0-9]*.[0-9]*.[0-9]*  pcp-*-[0-9]*.[0-9]*.[0-9]*
 
 SUBDIRS = vendor src
@@ -41,7 +42,7 @@ SUBDIRS += qa
 endif
 SUBDIRS += man images build debian
 
-default :: default_pcp
+default :: default_pcp tmpfiles.run.setup
 
 pcp : default_pcp
 
@@ -81,7 +82,7 @@ endif
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_RUN_DIR)
 	# this works if PCP_RUN_DIR is within a tmpfs that is mounted
 	# empty on re-boot
-	$(INSTALL) -m 644 tmpfiles.conf /etc/tmpfiles.d/pcp.conf
+	$(INSTALL) -m 644 tmpfiles.run.setup /etc/tmpfiles.d/pcp.conf
 	$(INSTALL) -m 755 -d $(PCP_SYSCONFIG_DIR)
 	$(INSTALL) -m 755 -d $(PCP_SYSCONF_DIR)
 	$(INSTALL) -m 755 -d $(PCP_SYSCONF_DIR)/labels
@@ -130,3 +131,6 @@ aclocal.m4:
 pcp.lsm src/include/builddefs src/include/pcp/platform_defs.h: configure pcp.lsm.in src/include/builddefs.in src/include/pcp/platform_defs.h.in
 	@echo Please run ./configure with the appropriate options to generate $@.
 	@false
+
+tmpfiles.run.setup:	tmpfiles.run.setup.in
+	sed -e "s@PCP_RUN_DIR@$(PCP_RUN_DIR)@" -e "s/PCP_USER/$(PCP_USER)/" -e "s/PCP_GROUP/$(PCP_GROUP)/" <tmpfiles.run.setup.in >tmpfiles.run.setup

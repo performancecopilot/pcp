@@ -1,0 +1,5 @@
+# tmpfiles.d(5) config for Performance Co-Pilot components
+#
+# Type	Path		Mode	User		Group		Age	Argument
+d	PCP_RUN_DIR	0775	PCP_USER	PCP_GROUP	-	-
+
