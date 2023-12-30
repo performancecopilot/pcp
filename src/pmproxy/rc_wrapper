@@ -60,8 +60,11 @@ then
 elif which runuser >/dev/null 2>&1
 then
     runuser -s /bin/sh -g $PCP_GROUP $PCP_USER $PCP_SYSCONF_DIR/pmproxy/rc "$@"
+elif which su >/dev/null 2>&1
+then
+    su -s /bin/sh $PCP_USER $PCP_SYSCONF_DIR/pmproxy/rc "$@"
 else
-    echo "$0: Error: neither setpriv(1) nor runuser(1) installed"
+    echo "$0: Error: neither setpriv(1) nor runuser(1) nor su(1) installed"
     exit 1
 fi
 
