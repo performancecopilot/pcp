@@ -130,6 +130,7 @@ OTHER_SUBDIRS += \
 	derived \
 	selinux \
 	find-filter \
+	runaspcp \
 	#
 
 SUBDIRS = \
