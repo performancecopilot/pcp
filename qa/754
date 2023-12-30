@@ -22,7 +22,7 @@ _cleanup()
     cd $here
     rm -rf $tmp.*
     $sudo rm -f /tmp/unbound-qa.txt	# from test.sh
-    $sudo rm -f unbound.log
+    $sudo rm -f unbound.log*
 }
 
 status=1	# failure is the default!
@@ -48,7 +48,7 @@ _filter_result()
 
 domain=132
 test="$here/unbound"
-$sudo rm -f unbound.log /tmp/unbound-qa.txt	 # the latter from test.sh
+$sudo rm -f unbound.log* /tmp/unbound-qa.txt	 # the latter from test.sh
 export UNBOUND_STATS="$here/unbound/test.sh"
 
 # real QA test starts here

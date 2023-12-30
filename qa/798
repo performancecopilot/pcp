@@ -36,7 +36,7 @@ _cleanup()
     cd $here
     [ -f $PCP_VAR_DIR/config/pmda/$domain.0.$seq ] && \
 	_restore_config $PCP_VAR_DIR/config/pmda/$domain.0
-    $sudo rm -f $PCP_PMDAS_DIR/nfsclient/nfsclient.log
+    $sudo rm -f $PCP_PMDAS_DIR/nfsclient/nfsclient.log*
     rm -f $tmp.*
 }
 
@@ -301,7 +301,7 @@ for file in $test/*.qa
 do
     export NFSCLIENT_MOUNTSTATS_PATH="$file"
     echo === Test case: `basename $file`
-    $sudo rm -f nfsclient.log $PCP_VAR_DIR/config/pmda/$domain.0
+    $sudo rm -f nfsclient.log* $PCP_VAR_DIR/config/pmda/$domain.0
     $sudo TERM=ansi \
 	sh -c ". /etc/pcp.env; dbpmda -n $tmp.root -ie" < $tmp.cmds 2>&1 \
 	| _filter | _filter_indom
@@ -314,7 +314,7 @@ for file in $test/*3.qa
 do
     export NFSCLIENT_MOUNTSTATS_PATH="$file"
     echo === Test case: `basename $file`
-    $sudo rm -f nfsclient.log $PCP_VAR_DIR/config/pmda/$domain.0
+    $sudo rm -f nfsclient.log* $PCP_VAR_DIR/config/pmda/$domain.0
     $sudo TERM=ansi \
 	sh -c ". /etc/pcp.env; dbpmda -n $tmp.root -ie" < $tmp.v3cmds 2>&1 \
 	| _filter | _filter_indom
@@ -327,7 +327,7 @@ for file in $test/*42.qa
 do
     export NFSCLIENT_MOUNTSTATS_PATH="$file"
     echo === Test case: `basename $file`
-    $sudo rm -f nfsclient.log $PCP_VAR_DIR/config/pmda/$domain.0
+    $sudo rm -f nfsclient.log* $PCP_VAR_DIR/config/pmda/$domain.0
     $sudo TERM=ansi \
 	sh -c ". /etc/pcp.env; dbpmda -n $tmp.root -ie" < $tmp.42cmds 2>&1 \
 	| _filter | _filter_indom
@@ -340,7 +340,7 @@ for file in $test/*rpc-v*.qa
 do
     export NFSCLIENT_MOUNTSTATS_PATH="$file"
     echo === Test case: `basename $file`
-    $sudo rm -f nfsclient.log $PCP_VAR_DIR/config/pmda/$domain.0
+    $sudo rm -f nfsclient.log* $PCP_VAR_DIR/config/pmda/$domain.0
     $sudo TERM=ansi \
 	sh -c ". /etc/pcp.env; dbpmda -n $tmp.root -ie" < $tmp.rpccmds 2>&1 \
 	| _filter | _filter_indom

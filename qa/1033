@@ -22,7 +22,7 @@ $sudo rm -rf $tmp $tmp.* $seq.full
 
 _cleanup()
 {
-    $sudo rm -f $here/named.log
+    $sudo rm -f $here/named.log*
     rm -f $tmp.*
 }
 trap "_cleanup; exit \$status" 0 1 2 3 15
@@ -81,7 +81,7 @@ do
     PCP_PERL_PMNS=root /usr/bin/env perl $script > $tmp.root
 
     echo === Test case: `basename $file`
-    $sudo rm -f named.log
+    $sudo rm -f named.log named.log.prev
     dbpmda -n $tmp.root -ie < $tmp.cmds 2>&1 | _filter
     # give PMDA a chance to notice dbpmda has closed the pipe
     # and write the "finished" message to the log

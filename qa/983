@@ -45,10 +45,12 @@ _cleanup()
     _restore_auto_restart pmcd
     _wait_for_pmcd
     _wait_for_pmlogger
-    $sudo rm -f $tmp.*
+    $sudo rm -rf $tmp $tmp.*
 }
 trap "_cleanup; exit \$status" 0 1 2 3 15
 _stop_auto_restart pmcd
+
+mkdir $tmp
 
 # ditch timestamps and exact hostnames 
 _filter_pmie()
@@ -76,6 +78,7 @@ rm -f $seq.full
 echo "=== starting pmcd on port $port1 ===" |tee -a $seq.full
 cat >$tmp.sh <<END
 #!/bin/sh
+cd $tmp
 PATH=$PATH
 $PCP_PMCD_PROG -f -l $tmp.log -p $port1 &
 echo \$!

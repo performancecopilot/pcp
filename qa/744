@@ -55,7 +55,7 @@ pminfo -L -K clear -K add,120,$pmda -dfmtT -n $pmns nvidia 2>&1 | _filter
 if [ -f nvidia.log ]
 then
     $sudo cat nvidia.log >>$here/$seq.full
-    $sudo rm -f nvidia.log
+    $sudo rm -f nvidia.log*
 fi
 
 echo
@@ -66,7 +66,7 @@ pminfo -L -K clear -K add,120,$pmda -dfmtT -n $pmns nvidia 2>&1 | _filter
 if [ -f nvidia.log ]
 then
     $sudo cat nvidia.log >>$here/$seq.full
-    $sudo rm -f nvidia.log
+    $sudo rm -f nvidia.log*
 fi
 
 # success, all done

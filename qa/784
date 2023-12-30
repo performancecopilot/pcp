@@ -23,7 +23,7 @@ export PMDAMIC_MPSS_PYTHON_DIR="$here/mic"
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
-trap "cd $here; rm -rf $tmp.*; $sudo rm -f mic.log; exit \$status" 0 1 2 3 15
+trap "cd $here; rm -rf $tmp.*; $sudo rm -f mic.log*; exit \$status" 0 1 2 3 15
 
 _filter()
 {

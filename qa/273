@@ -19,7 +19,7 @@ _cleanup()
 {
     _restore_primary_logger
     _restore_auto_restart pmlogger
-    $sudo rm -f $tmp.*
+    $sudo rm -f $tmp.* simple.log*
     exit $status
 }
 

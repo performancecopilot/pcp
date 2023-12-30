@@ -81,7 +81,7 @@ $sudo $PCP_BINADM_DIR/pmsignal -s TERM $pmlogger_pid >/dev/null 2>&1
 
 echo;echo === resulting archive contains the following openmetrics metrics ===
 pminfo -a $tmp.dynamic openmetrics | LC_COLLATE=POSIX sort
-# rm -rf /tmp/saved; mkdir -p /tmp/saved; cp $tmp.dynamic.* $PCP_LOG_DIR/pmcd/openmetrics.log $tmp.pmlogger.log /tmp/saved
+# rm -rf /tmp/saved; mkdir -p /tmp/saved; cp $tmp.dynamic.* $PCP_LOG_DIR/pmcd/openmetrics.log* $tmp.pmlogger.log /tmp/saved
 
 echo === openmetrics.log === >> $here/$seq.full
 cat $PCP_LOG_DIR/pmcd/openmetrics.log >> $here/$seq.full
