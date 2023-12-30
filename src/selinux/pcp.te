@@ -681,6 +681,17 @@ optional_policy(`
 
 optional_policy(`
     require {
+	type init_tmp_t;
+    }
+    # type=AVC msg=audit(N): avc:  denied  { write } for  pid=PID comm="pmie_check" path="/var/tmp/pmie_rc.FTTTXkNr6/pmie" dev="dm-0" ino=755982 scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:object_r:init_tmp_t:s0 tclass=file permissive=0
+    # type=AVC msg=audit(N): avc:  denied  { write } for  pid=PID comm="pmlogger_check" path="/var/tmp/pmlogger_rc_start.mbj4oP4Vg/pmcheck.out" dev="dm-0" ino=51322314 scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:object_r:init_tmp_t:s0 tclass=file permissive=0
+
+    allow pcp_pmie_t init_tmp_t:file write;
+    allow pcp_pmlogger_t init_tmp_t:file write; 
+')
+
+optional_policy(`
+    require {
         type unreserved_port_t;
     }
     # type=AVC msg=audit(N): avc: denied { name_bind } for pid=PID comm="pmdasimple" src=5650 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:unreserved_port_t:s0 tclass=tcp_socket permissive=0
