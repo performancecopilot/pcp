@@ -312,6 +312,7 @@ done
 #
 # from src/pmcd/GNUmakefile
 _do_dir "root:$grp" 700 "$PCP_TMP_DIR"/pmcd
+_do_dir "root:$grp" 755 "$PCP_LOG_DIR"/pmcd
 # from GNUmakefile
 _do_dir "root:$grp" 755 "$PCP_SYSCONF_DIR"/labels
 _do_dir "root:$grp" 755 "$PCP_SYSCONF_DIR"/labels/optional
@@ -348,7 +349,7 @@ done
 # pcp:pcp and mode 775 directories
 #
 for dir in "$PCP_LOG_DIR" \
-	   "$PCP_LOG_DIR"/pmcd "$PCP_LOG_DIR"/pmproxy \
+	   "$PCP_LOG_DIR"/pmproxy \
 	   "$PCP_LOG_DIR"/pmie "$PCP_LOG_DIR"/pmlogger \
 	   "$PCP_SA_DIR" \
 	   "$PCP_RUN_DIR" \
