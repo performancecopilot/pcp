@@ -42,11 +42,11 @@ SUBDIRS += qa
 endif
 SUBDIRS += man images build debian
 
-default :: default_pcp tmpfiles.run.setup
+default :: default_pcp
 
 pcp : default_pcp
 
-default_pcp : $(CONFIGURE_GENERATED)
+default_pcp : $(CONFIGURE_GENERATED) tmpfiles.run.setup
 	+for d in `echo $(SUBDIRS)`; do \
 	    if test -d "$$d" ; then \
 		echo === $$d ===; \
