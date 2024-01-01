@@ -951,31 +951,10 @@ fi
 # by pmlogger_check when it fails to obtain the lock should it be run
 # while pmlogger_daily is running
 #
-# For most packages, $PCP_RUN_DIR is included in the package,
-# but for Debian and cases where /var/run is a mounted filesystem
-# it may not exist, so create it here before it is used to create
-# any pid/lock files
-#
-# $PCP_RUN_DIR creation is also done in other daemons startup, but we
-# have no guarantee any other daemons are running on this system.
-#
-# Skip all of this if -N (showme)
-#
 if $SHOWME
 then
     :
 else
-    if [ ! -d "$PCP_RUN_DIR" ]
-    then
-	mkdir -p -m 775 "$PCP_RUN_DIR" 2>/dev/null
-	# might be running from cron as unprivileged user
-	[ $? -ne 0 -a "$PMLOGGER_CTL" = "off" ] && exit 0
-	chown $PCP_USER:$PCP_GROUP "$PCP_RUN_DIR" >/dev/null 2>&1
-	if which restorecon >/dev/null 2>&1
-	then
-	    restorecon -r "$PCP_RUN_DIR"
-	fi
-    fi
     echo $$ >"$PCP_RUN_DIR/pmlogger_daily.pid"
 fi
 
