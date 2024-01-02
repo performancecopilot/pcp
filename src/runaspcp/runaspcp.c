@@ -24,8 +24,10 @@
 #include <pcp/pmapi.h>
 
 static pmLongOptions longopts[] = {
+    PMAPI_OPTIONS_HEADER("Options"),
     PMOPT_DEBUG,
     { "shell", 1, 's', "SHELL", "shell to use, defaults to /bin/sh" },
+    PMOPT_HELP,
     PMAPI_OPTIONS_END
 };
 
