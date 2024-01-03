@@ -269,7 +269,7 @@ LOCALHOSTNAME	n   n	$tmp	-c ./config
 End-of-File
 
 $sudo rm -rf $tmp.ok
-for dir in $tmp.ok $tmp.ok/`pmdate -${day}d %Y`
+for dir in $tmp.ok $tmp.ok/`pmdate %Y` $tmp.ok/`pmdate -1d %Y` $tmp.ok/`pmdate -2d %Y`
 do
     if [ ! -d $dir ]
     then
@@ -280,8 +280,14 @@ do
 done
 # make YYYY dir unwriteable
 #
-$sudo chmod 555 $tmp.ok/`pmdate -${day}d %Y`
-
+for day in 0 1 2
+do
+    if [ -d $tmp.ok/`pmdate -${day}d %Y` ]
+    then
+	$sudo chmod 555 $tmp.ok/`pmdate -${day}d %Y`
+	ls -l $tmp.ok >>$here/$seq.full
+    fi
+done
 
 _setup
 
