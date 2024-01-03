@@ -100,6 +100,8 @@ pmie_farm_check.service : pmie_farm_check.service.in
 	    -e 's;@CRONTAB_PATH@;'$(CRONTAB_PATH)';' \
 	    -e 's;@PCP_BIN_DIR@;'$(PCP_BIN_DIR)';' \
 	    -e 's;@PCP_VAR_DIR@;'$(PCP_VAR_DIR)';' \
+	    -e 's;@PCP_GROUP@;'$(PCP_GROUP)';' \
+	    -e 's;@PCP_USER@;'$(PCP_USER)';' \
 	    -e 's;@SD_SERVICE_TYPE@;'$(SD_SERVICE_TYPE)';' \
 	# END
 
