@@ -19,6 +19,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <errno.h>
+#include <grp.h>
 #include <sys/types.h>
 #include <pwd.h>
 #include <pcp/pmapi.h>
@@ -87,6 +88,10 @@ int main(int argc, char **argv)
     /*
      * change group id and user id
      */
+    if (setgroups(0, NULL) < 0) {
+	fprintf(stderr, "%s: setgroups(0, NULL) failed: %s\n", myname, strerror(errno));
+	return 1;
+    }
     if (setgid(pw->pw_gid) < 0) {
 	fprintf(stderr, "%s: setgid(%d) failed: %s\n", myname, (int)pw->pw_gid, strerror(errno));
 	return 1;
