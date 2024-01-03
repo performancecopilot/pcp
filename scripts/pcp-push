@@ -286,6 +286,7 @@ then
     then
 	$GIT push $push
     fi
+    branch=main
 fi
 
 if [ "$branch" != "$orig_branch" ]
