@@ -53,7 +53,7 @@ PMCD=$PCP_BINADM_DIR/pmcd
 PMCDOPTS=$PCP_PMCDOPTIONS_PATH
 PCPLOCAL=$PCP_PMCDRCLOCAL_PATH
 PMCDENVS=$PCP_SYSCONFIG_DIR/pmcd
-RUNDIR=$PCP_LOG_DIR/pmcd
+LOGDIR=$PCP_LOG_DIR/pmcd
 prog=$PCP_RC_DIR/`basename $0`
 
 tmp=`mktemp -d "$PCP_TMPFILE_DIR/pmcd_rc.XXXXXXXXX"` || exit 1
@@ -96,7 +96,7 @@ esac
 
 _pmcd_logfile()
 {
-default=$RUNDIR/pmcd.log
+default=$LOGDIR/pmcd.log
 $PCP_AWK_PROG <$PMCDOPTS '
 BEGIN		{ logf = "'$default'" }
 $1 == "-l"	{ if (NF > 1) logf = $2 }
@@ -388,7 +388,7 @@ _shutdown()
     # a chroot build environment (and hence we do not want to signal pmcd).
     #
     logf=`_pmcd_logfile`
-    [ -f $logf ] || logf=$RUNDIR/pmcd.log
+    [ -f $logf ] || logf=$LOGDIR/pmcd.log
     if [ ! -f $PCP_RUN_DIR/pmcd.pid -a ! -f $logf ]
     then
 	echo "PMCD process$suffix ... $pidlist"
@@ -558,16 +558,16 @@ case "$1" in
 	    if [ ! -f $PCP_PMCDCONF_PATH ]
 	    then
 		echo "$prog:"'
-Error: pmcd control file '"$PCP_PMCDCONF_PATH"' is missing, cannot start pmcd.'
+Error: pmcd control file $PCP_PMCD_CONF_PATH ("'"$PCP_PMCDCONF_PATH"'") is missing, cannot start pmcd.'
 		exit
 	    fi
-	    if [ ! -d "$RUNDIR" ]
+	    if [ ! -d "$LOGDIR" ]
 	    then
 		echo "$prog:"'
-Error: pmcd run directory '"$RUNDIR"' is missing, cannot start pmcd.'
+Error: pmcd log directory $PCP_LOG_DIR/pmcd ("'"$LOGDIR"'") is missing, cannot start pmcd.'
 		exit
 	    fi
-	    cd "$RUNDIR"
+	    cd "$LOGDIR"
 
 	    [ "$1" = "start-systemd" ] ||\
 	    $ECHO $PCP_ECHO_N "Starting pmcd ..." "$PCP_ECHO_C"

@@ -24,7 +24,6 @@
 #debug# echo "$*: `date`" >>$PCP_LOG_DIR/rc_pmie.log
 #debug# env >>$PCP_LOG_DIR/rc_pmie.log
 
-PMIECTRL=$PCP_PMIECONTROL_PATH
 rcprog=$PCP_DIR/etc/init.d/pmie
 pmprog=$PCP_RC_DIR/pmie
 prog=$PCP_RC_DIR/`basename $0`
@@ -112,11 +111,11 @@ _start_pmie()
 {
     if which pmie_check >/dev/null 2>&1
     then
-	# pmie_check uses $PMIECTRL to start everything that is needed
-	if [ ! -f $PMIECTRL ]
+	# pmie_check uses $PCP_PMIECONTROL_PATH to start everything that is needed
+	if [ ! -f $PCP_PMIECONTROL_PATH ]
 	then
 	    echo "$prog:"'
-Error: PCP inference engine control file '$PMIECTRL'
+Error: PCP inference engine control file $PCP_PMIECONTROL_PATH ("'"$PCP_PMIECONTROL_PATH"'")
        is missing!  Cannot start any Performance Co-Pilot inference engine(s).'
 	    # failure
 	    estatus=false

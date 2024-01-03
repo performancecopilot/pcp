@@ -28,7 +28,6 @@
 #debug# echo "$*: `date`" >>$PCP_LOG_DIR/rc_pmlogger.log
 #debug# env >>$PCP_LOG_DIR/rc_pmlogger.log
 
-PMLOGCTRL=$PCP_PMLOGGERCONTROL_PATH
 PMLOGGER=$PCP_BINADM_DIR/pmlogger
 rcprog=$PCP_DIR/etc/init.d/pmlogger
 pmprog=$PCP_SYSCONF_DIR/pmlogger/rc
@@ -108,12 +107,12 @@ _start_pmlogger()
 {
     if which pmlogger_check >/dev/null 2>&1
     then
-	# pmlogger_check uses $PMLOGCTRL to start everything that is needed
+	# pmlogger_check uses $PCP_PMLOGGERCONTROL_PATH to start everything that is needed
 	#
-	if [ ! -f $PMLOGCTRL ]
+	if [ ! -f $PCP_PMLOGGERCONTROL_PATH ]
 	then
 	    echo "$prog:"'
-Error: PCP archive logger control file '$PMLOGCTRL'
+Error: PCP archive logger control file $PCP_PMLOGGERCONTROL_PATH ("'"$PCP_PMLOGGERCONTROL_PATH"'")
        is missing!  Cannot start any Performance Co-Pilot archive logger(s).'
 	    # failure
 	    estatus=false

@@ -29,9 +29,7 @@
 #debug# env >>$PCP_LOG_DIR/rc_pmproxy.log
 
 PMPROXY=$PCP_BINADM_DIR/pmproxy
-PMPROXYOPTS=$PCP_PMPROXYOPTIONS_PATH
 PMPROXYENVS=$PCP_SYSCONFIG_DIR/pmproxy
-RUNDIR=$PCP_LOG_DIR/pmproxy
 pmprog=$PCP_SYSCONF_DIR/pmproxy/rc
 prog=$PCP_SYSCONF_DIR/pmproxy/`basename $0`
 
@@ -211,25 +209,25 @@ case "$1" in
 
 	if [ -x $PMPROXY ]
 	then
-	    if [ ! -f "$PMPROXYOPTS" ]
+	    if [ ! -f "$PCP_PMPROXYOPTIONS_PATH" ]
 	    then
 		echo "$prog:"'
-Error: pmproxy options file "$PMPROXYOPTS" is missing, cannot start pmproxy.'
+Error: pmproxy options file $PCP_PMPROXYOPTIONS_PATH ("'"$PCP_PMPROXYOPTIONS_PATH"'") is missing, cannot start pmproxy.'
 		exit
 	    fi
 	    if [ ! -d "$PCP_RUN_DIR" ]
 	    then
 		echo "$prog:"'
-Error: pmproxy runtime directory "$PCP_RUN_DIR" is missing, cannot start pmproxy.'
+Error: pmproxy runtime directory $PCP_RUN_DIR ("'"$PCP_RUN_DIR"'") is missing, cannot start pmproxy.'
 		exit
 	    fi
-	    if [ ! -d "$RUNDIR" ]
+	    if [ ! -d "$PCP_LOG_DIR/pmproxy" ]
 	    then
 		echo "$prog:"'
-Error: pmproxy working directory "$RUNDIR" is missing, cannot start pmproxy.'
+Error: pmproxy log directory $PCP_LOG_DIR/pmproxy ("'"$PCP_LOG_DIR/pmproxy"'") is missing, cannot start pmproxy.'
 		exit
 	    fi
-	    cd "$RUNDIR"
+	    cd "$PCP_LOG_DIR/pmproxy"
 
 	    [ "$1" = "start-systemd" ] ||\
 	    $ECHO $PCP_ECHO_N "Starting pmproxy ..." "$PCP_ECHO_C"
@@ -240,7 +238,7 @@ Error: pmproxy working directory "$RUNDIR" is missing, cannot start pmproxy.'
 	    # only consider lines which start with a hyphen
 	    # get rid of the -f option
 	    # ensure multiple lines concat onto 1 line
-	    OPTS=`sed < "$PMPROXYOPTS" 2>/dev/null \
+	    OPTS=`sed < "$PCP_PMPROXYOPTIONS_PATH" 2>/dev/null \
 			    -e '/^[^-]/d' \
 			    -e 's/^/ /' \
 			    -e 's/$/ /' \
