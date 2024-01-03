@@ -53,6 +53,10 @@ fi
 [ -z "$PCP_USER" ] && PCP_USER=pcp
 [ -z "$PCP_GROUP" ] && PCP_USER=pcp
 
+# if we're called with -v (or any other command line option) this is
+# an arg for our "rc" script, not setpriv(1) or runuser(1)
+export POSIXLY_CORRECT=true
+
 if which setpriv >/dev/null 2>&1
 then
     uid=`id -u $PCP_USER`
