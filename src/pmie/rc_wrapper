@@ -49,6 +49,39 @@ then
     exit 1
 fi
 
+# Need $PCP_RUN_DIR ... see $PCP_RC_DIR/pmcd for a full explanation,
+# but we need to check and optionally create here as well for
+# non-systemd platforms because we cannot guarantee which PCP "init"
+# scripts are enabled nor the order they maybe run after reboot.
+#
+if [ ! -d "$PCP_RUN_DIR" ]
+then
+    # same ownership and mode as from the top level GNUmakefile
+    #
+    if mkdir "$PCP_RUN_DIR"
+    then
+	if chown $PCP_USER:$PCP_GROUP "$PCP_RUN_DIR"
+	then
+	    if chmod 775 "$PCP_RUN_DIR"
+	    then
+		: all good
+	    else
+		echo "$0:"'
+Warning: chmod for $PCP_RUN_DIR ("'"$PCP_RUN_DIR"'") failed'
+		ls -ld "$PCP_RUN_DIR"
+	    fi
+	else
+	    echo "$0:"'
+Warning: chown for $PCP_RUN_DIR ("'"$PCP_RUN_DIR"'") failed'
+	    ls -ld "$PCP_RUN_DIR"
+	fi
+    else
+	echo "$0:"'
+Warning: mkdir for $PCP_RUN_DIR ("'"$PCP_RUN_DIR"'") failed'
+	ls -ld "$PCP_RUN_DIR/.." "$PCP_RUN_DIR"
+    fi
+fi
+
 # paranoid defaults if something goes wrong ...
 [ -z "$PCP_USER" ] && PCP_USER=pcp
 [ -z "$PCP_GROUP" ] && PCP_USER=pcp
@@ -57,6 +90,8 @@ fi
 # an arg for our "rc" script, not setpriv(1) or runuser(1)
 export POSIXLY_CORRECT=true
 
+# do the real startup as user pcp:pcp
+#
 if which setpriv >/dev/null 2>&1
 then
     uid=`id -u $PCP_USER`

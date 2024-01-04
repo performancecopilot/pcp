@@ -133,6 +133,42 @@ _reboot_setup()
 	    cd "$here"
 	fi
     fi
+
+    # Need $PCP_RUN_DIR ... this is normally handled by some
+    # combination of package postinstall scripts and/or tmpfiles.d but
+    # for systems for which $PCP_RUN_DIR names a directory that is not
+    # in a tmpfs mounted file system, but is in a place that is cleaned
+    # out on reboot, we may need to recreate the directory here (while
+    # we are running as root:root) so we can set the ownership and
+    # mode
+    #
+    if [ ! -d "$PCP_RUN_DIR" ]
+    then
+	# same ownership and mode as from the top level GNUmakefile
+	#
+	if mkdir "$PCP_RUN_DIR"
+	then
+	    if chown $PCP_USER:$PCP_GROUP "$PCP_RUN_DIR"
+	    then
+		if chmod 775 "$PCP_RUN_DIR"
+		then
+		    : all good
+		else
+		    echo "$prog:"'
+Warning: chmod for $PCP_RUN_DIR ("'"$PCP_RUN_DIR"'") failed'
+		    ls -ld "$PCP_RUN_DIR"
+		fi
+	    else
+		echo "$prog:"'
+Warning: chown for $PCP_RUN_DIR ("'"$PCP_RUN_DIR"'") failed'
+		ls -ld "$PCP_RUN_DIR"
+	    fi
+	else
+	    echo "$prog:"'
+Warning: mkdir for $PCP_RUN_DIR ("'"$PCP_RUN_DIR"'") failed'
+	    ls -ld "$PCP_RUN_DIR/.." "$PCP_RUN_DIR"
+	fi
+    fi
 }
 
 # if _pmda_setup() is interrupted, we need to cleanup
