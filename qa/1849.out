@@ -16,11 +16,11 @@ __pmCleanMapDir: dirname TMP: is a regular file: Not a directory
 __pmCleanMapDir(TMP, (null)) => -13
 __pmCleanMapDir: opendir(TMP) failed: Permission denied
 
-+++ wrong owner for dirname ...
++++ wrong user for dirname ...
 __pmCleanMapDir(TMP, (null)) => -1
 __pmCleanMapDir: dirname TMP: uid UU different to caller uid UU: Operation not permitted
 
-+++ wrong owner for dirname ...
++++ wrong group for dirname ...
 __pmCleanMapDir(TMP, (null)) => -1
 __pmCleanMapDir: dirname TMP: gid GG different to caller gid GG: Operation not permitted
 

@@ -105,19 +105,22 @@ rm -rf $tmp
 echo
 echo "+++ no permission to read dirname ..."
 mkdir $tmp
+$sudo chgrp `id -gn` $tmp
 chmod 333 $tmp
 _doit $tmp
 chmod 755 $tmp
 
 echo
-echo "+++ wrong owner for dirname ..."
+echo "+++ wrong user for dirname ..."
 $sudo chown pcp $tmp
+ls -ld $tmp >>$seq.full
 _doit $tmp
 $sudo chown `id -un` $tmp
 
 echo
-echo "+++ wrong owner for dirname ..."
+echo "+++ wrong group for dirname ..."
 $sudo chgrp pcp $tmp
+ls -ld $tmp >>$seq.full
 _doit $tmp
 $sudo chgrp `id -gn` $tmp
 
