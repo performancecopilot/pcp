@@ -9357,7 +9357,8 @@ printf %s "checking if the postgresql PMDA should be included... " >&6; }
 pmda_postgresql=false
 if test "$have_python" = true
 then
-        if $pcp_python_prog -c "import psycopg2" >/dev/null 2>&1
+        if $pcp_python_prog -c "import psycopg2" >/dev/null 2>&1 || \
+           $pcp_python_prog -c "import psycopg" >/dev/null 2>&1
     then
 	pmda_postgresql=true
     fi

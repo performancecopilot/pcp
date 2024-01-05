@@ -25,7 +25,10 @@ import sys
 import time
 import traceback
 from ctypes import c_int
-import psycopg2
+try:
+    import psycopg
+except ImportError:
+    import psycopg2 as psycopg
 try:
     import configparser
 except ImportError:
@@ -806,7 +809,7 @@ class POSTGRESQLPMDA(PMDA):
             cur = self.pg_cursor()
             try:
                 cur.execute('SELECT * FROM %s' % (table))
-            except (psycopg2.DatabaseError) as error: # pylint: disable=broad-except
+            except (psycopg.DatabaseError) as error: # pylint: disable=broad-except
                 self.debug("pg_refresh: singular table %s not available: %s" % (table, error))
                 cur.close()
                 return # fail
@@ -838,7 +841,7 @@ class POSTGRESQLPMDA(PMDA):
             cur = self.pg_cursor()
             try:
                 cur.execute('SELECT * FROM %s ORDER BY %s' % (table, inst_column_name))
-            except (psycopg2.DatabaseError) as error: # pylint disable: broad-except
+            except (psycopg.DatabaseError) as error: # pylint disable: broad-except
                 # recover from aborted transaction block and skip this table
                 self.debug("pg_refresh: indom 0x%04x: warning, table %s not available: %s" % (indom, table, error))
                 cur.close()
@@ -975,7 +978,7 @@ class POSTGRESQLPMDA(PMDA):
         for table in self.tablelist:
             try:
                 cur.execute('SELECT * from %s;' % table)
-            except (psycopg2.DatabaseError) as error: # pylint disable: broad-except
+            except (psycopg.DatabaseError) as error: # pylint disable: broad-except
                 # recover from aborted transaction block and skip this table
                 self.log("table %s not available for this version of postgreSQL" % table)
                 self.debug("WARNING: table %s not available: %s" % (table, error))
@@ -1056,8 +1059,8 @@ class POSTGRESQLPMDA(PMDA):
         else:
             params = "host=%s port=%s dbname=%s user=%s password='%s'" % (self.host, self.port, self.dbname, self.user, self.password)
         try:
-            self.conn = psycopg2.connect(params)
-        except (psycopg2.DatabaseError) as error: # pylint: disable=broad-except
+            self.conn = psycopg.connect(params)
+        except (psycopg.DatabaseError) as error: # pylint: disable=broad-except
             self.log("Error connecting to db %s as user %s: %s" % (self.dbname, self.user, error))
             self.conn = None
             return False
@@ -1073,11 +1076,11 @@ class POSTGRESQLPMDA(PMDA):
         while not connected:
             try:
                 if self.conn is None:
-                    raise psycopg2.DatabaseError('Not connected')
+                    raise psycopg.DatabaseError('Not connected')
                 self.cur = self.conn.cursor()
                 self.cur.execute('SELECT version()')
                 connected = True
-            except (psycopg2.InterfaceError, psycopg2.DatabaseError):
+            except (psycopg.InterfaceError, psycopg.DatabaseError):
                 self.log("Connection lost to postgres server, reconnecting ...")
                 if not self.pg_connect():
                     time.sleep(2)
