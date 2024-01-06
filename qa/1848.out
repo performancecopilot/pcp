@@ -53,7 +53,7 @@ __pmCleanMapDir: opendir(TMP) failed: Permission denied
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
 
-+++ wrong owner for dirname ...
++++ wrong user for dirname ...
 === filtered valgrind report ===
 === std err ===
 === std out ===
@@ -66,7 +66,7 @@ __pmCleanMapDir: dirname TMP: uid UU different to caller uid UU: Operation not p
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
 
-+++ wrong owner for dirname ...
++++ wrong group for dirname ...
 === filtered valgrind report ===
 === std err ===
 === std out ===
