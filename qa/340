@@ -16,6 +16,8 @@ echo "QA output created by $seq"
 perl -e "use PCP::PMDA" >/dev/null 2>&1
 test $? -eq 0 || _notrun "PCP::PMDA perl module is not installed"
 
+[ "`hostname`" = vm28.localdomain ] && _notrun "ssh to pcpqa@vm16 does not work here"
+
 status=1	# failure is the default!
 
 [ -z "$PCP_PMLOGGERCONTROL_PATH" ] && \

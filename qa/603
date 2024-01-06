@@ -14,6 +14,7 @@ echo "QA output created by $seq"
 . ./common.check
 
 [ -d $PCP_PMDAS_DIR/trace ] || _notrun "trace PMDA directory is not installed"
+[ "`hostname`" = vm28.localdomain ] && _notrun "ssh to pcpqa@vm16 does not work here"
 
 signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
