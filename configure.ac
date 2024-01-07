@@ -1322,8 +1322,9 @@ AC_MSG_CHECKING([if the postgresql PMDA should be included])
 pmda_postgresql=false
 if test "$have_python" = true
 then
-    dnl rpm build for postgresql PMDA needs python psycopg2 module
-    if $pcp_python_prog -c "import psycopg2" >/dev/null 2>&1
+    dnl rpm build for postgresql PMDA needs python psycopg2 or psycopg module
+    if $pcp_python_prog -c "import psycopg2" >/dev/null 2>&1 || \
+       $pcp_python_prog -c "import psycopg" >/dev/null 2>&1
     then
 	pmda_postgresql=true
     fi
