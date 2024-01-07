@@ -2358,24 +2358,24 @@ AgentsDiffer(AgentInfo *a1, AgentInfo *a2)
     }
 
     else {
-	PipeInfo	*pipe1 = &a1->ipc.pipe;
-	PipeInfo	*pipe2 = &a2->ipc.pipe;
+	PipeInfo	*pipe_1 = &a1->ipc.pipe;
+	PipeInfo	*pipe_2 = &a2->ipc.pipe;
 
-	if (pipe1 == NULL || pipe2 == NULL)
+	if (pipe_1 == NULL || pipe_2 == NULL)
 		return 1;	/* should never happen */
-	if ((pipe1->commandLine == NULL && pipe2->commandLine != NULL) ||
-	    (pipe1->commandLine != NULL && pipe2->commandLine == NULL))
+	if ((pipe_1->commandLine == NULL && pipe_2->commandLine != NULL) ||
+	    (pipe_1->commandLine != NULL && pipe_2->commandLine == NULL))
 	    return 1;
-	if (pipe1->argv != NULL && pipe2->argv != NULL) {
+	if (pipe_1->argv != NULL && pipe_2->argv != NULL) {
 	    /* Don't just compare commandLines, changes may be cosmetic */
-	    for (i = 0; pipe1->argv[i] != NULL && pipe2->argv[i] != NULL; i++)
-		if (strcmp(pipe1->argv[i], pipe2->argv[i]))
+	    for (i = 0; pipe_1->argv[i] != NULL && pipe_2->argv[i] != NULL; i++)
+		if (strcmp(pipe_1->argv[i], pipe_2->argv[i]))
 		    return 1;
-	    if (pipe1->argv[i] != NULL || pipe2->argv[i] != NULL)
+	    if (pipe_1->argv[i] != NULL || pipe_2->argv[i] != NULL)
 		return 1;
 	}
-	else if ((pipe1->argv == NULL && pipe2->argv != NULL) ||
-		 (pipe1->argv != NULL && pipe2->argv == NULL))
+	else if ((pipe_1->argv == NULL && pipe_2->argv != NULL) ||
+		 (pipe_1->argv != NULL && pipe_2->argv == NULL))
 		    return 1;
     }
     return 0;
