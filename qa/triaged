@@ -35,6 +35,7 @@
 135	bozo-vm	sometimes this VM (VMware on Windows) goes to sleep and
 		the pmlogger fetches are long-delayed causing the test
 		to fail miserably
+749	CentOS Stream9	systemtap-devel is busted here, staprun is missing
 878	.*	on some QA hosts this fails sometimes when we don't see
 		the first or second event record ... despite extensive
 		triage the problem is not understood
