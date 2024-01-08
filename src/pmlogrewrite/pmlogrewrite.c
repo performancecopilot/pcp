@@ -213,7 +213,7 @@ writelabel(int do_rewind)
 	assert(old_offset >= 0);
 	__pmRewind(outarch.archctl.ac_mfp);
     }
-    outarch.logctl.label.vol = 0;
+    outarch.logctl.label.vol = outarch.archctl.ac_curvol;
     __pmLogWriteLabel(outarch.archctl.ac_mfp, &outarch.logctl.label);
     if (do_rewind)
 	__pmFseek(outarch.archctl.ac_mfp, (long)old_offset, SEEK_SET);
@@ -1636,9 +1636,11 @@ main(int argc, char **argv)
     int		ti_idx;			/* next slot for input temporal index */
     int		dir_fd = -1;		/* poinless initialization to humour gcc */
     int		doneti = 0;
+    int		in_vol_missing = 0;	/* == 1 if one or more input data volumes missing */
     __pmTimestamp	tstamp = { 0, 0 };	/* for last log record */
     off_t	old_log_offset = 0;	/* log offset before last log record */
     off_t	old_meta_offset;
+    int		old_in_vol;		/* previous input data volume */
     int		seen_event = 0;
     metricspec_t	*mp;
 
@@ -1813,9 +1815,13 @@ main(int argc, char **argv)
 	open_input(0);
     }
 
-    /* create output log - must be done before writing label */
+    /*
+     * create output log - must be done before writing label
+     * ... and start at the same initial volume (volume 0, 1, ...
+     * may be missing)
+     */
     outarch.archctl.ac_log = &outarch.logctl;
-    if ((sts = __pmLogCreate("", outarch.name, outarch.version, &outarch.archctl)) < 0) {
+    if ((sts = __pmLogCreate("", outarch.name, outarch.version, &outarch.archctl, inarch.ctxp->c_archctl->ac_curvol)) < 0) {
 	fprintf(stderr, "%s: Error: __pmLogCreate(%s,v%d): %s\n",
 		pmGetProgname(), outarch.name, outarch.version, pmErrStr(sts));
 	/*
@@ -1824,6 +1830,11 @@ main(int argc, char **argv)
 	 */
 	exit(1);
 	/*NOTREACHED*/
+    }
+    outarch.archctl.ac_curvol = inarch.ctxp->c_archctl->ac_curvol;
+    if (outarch.archctl.ac_curvol != 0) {
+	/* volume 0 is missing */
+	in_vol_missing =  1;
     }
 
     /* initialize and write label records */
@@ -1979,6 +1990,7 @@ main(int argc, char **argv)
 	__pmFflush(outarch.logctl.mdfp);
 	old_meta_offset = __pmFtell(outarch.logctl.mdfp);
 	assert(old_meta_offset >= 0);
+	old_in_vol = inarch.ctxp->c_archctl->ac_curvol;
 
 	in_offset = __pmFtell(inarch.ctxp->c_archctl->ac_mfp);
 	stslog = nextlog();
@@ -1989,6 +2001,8 @@ main(int argc, char **argv)
 	}
 	if (stslog == 1) {
 	    /* volume change */
+	    if (inarch.ctxp->c_archctl->ac_curvol != old_in_vol + 1)
+		in_vol_missing = 1;
 	    if (inarch.ctxp->c_archctl->ac_curvol >= outarch.archctl.ac_curvol+1)
 		/* track input volume numbering */
 		newvolume(inarch.ctxp->c_archctl->ac_curvol);
@@ -1998,6 +2012,7 @@ main(int argc, char **argv)
 		 * rewriting has forced an earlier volume change
 		 */
 		newvolume(outarch.archctl.ac_curvol+1);
+	    needti = 1;
 	}
 	if (pmDebugOptions.appl0) {
 	    fprintf(stderr, "Log: read ");
@@ -2092,9 +2107,15 @@ main(int argc, char **argv)
 		 * pmDesc metadata until it is exhausted, or we find
 		 * a pmInDom metadata record with a timestamp after the
 		 * current pmResult.
+		 *
+		 * The other bad news case is when an input volume is
+		 * missing, and then we may have pmDesc metadata but no
+		 * corresponding pmResult, so if this happens all we
+		 * can do is push on until the timestamp in an indom
+		 * record stops us.
 		 */
 
-		if (!seen_event) {
+		if (!seen_event && !in_vol_missing) {
 		    if (type == PM_TYPE_EVENT || type == PM_TYPE_HIGHRES_EVENT)
 			seen_event = 1;
 		    else {

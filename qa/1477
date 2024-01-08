@@ -1,0 +1,123 @@
+#!/bin/sh
+# PCP QA Test No. 1477
+# pmlogrewrite (and pmlogredact) failure when one data volume of
+# an archive is missing
+#
+# Copyright (c) 2024 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+$sudo rm -rf $tmp $tmp.* $seq.full
+
+do_valgrind=false
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+    do_valgrind=true
+fi
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+    # end
+}
+
+_doit()
+{
+    cmd=$1
+    shift
+    echo | tee -a $here/$seq.full
+    echo "=== cmd=$cmd $* ===" | tee -a $here/$seq.full
+    [ -d $tmp ] || mkdir $tmp
+    cd $tmp
+    rm -f out.*
+    cp $here/archives/ok-mv-bar.* .
+    for cull
+    do
+	rm ok-mv-bar.$cull
+    done
+    echo ok-mv-bar.*
+    ls -l ok-mv-bar.* >>$here/$seq.full
+    pmlogcheck -v ok-mv-bar
+    pmlogdump -dehiIlmMtz ok-mv-bar >$tmp.ok-mv-bar
+    pmdumplog -tz ok-mv-bar >>$here/$seq.full
+
+    if $do_valgrind
+    then
+	_run_valgrind $cmd ok-mv-bar out
+    else
+	$cmd ok-mv-bar out 2>&1
+    fi \
+    | _filter
+    echo out.*
+    ls -l out.* >>$here/$seq.full
+    pmdumplog -tz out >>$here/$seq.full
+
+    for in in ok-mv-bar.*
+    do
+	out=`echo $in | sed -e 's/ok-mv-bar/out/'`
+	if [ ! -f $out ]
+	then
+	    echo "Error: input file $in but no corresponding output file $out"
+	fi
+    done
+    for out in out.*
+    do
+	in=`echo $out | sed -e 's/out/ok-mv-bar/'`
+	if [ ! -f $in ]
+	then
+	    echo "Error: output file $out but no corresponding input file $in"
+	fi
+    done
+    if pmlogcheck -v out
+    then
+	# TODO
+	:
+	pmlogdump -dehiIlmMtz out >$tmp.out
+	echo "pmdumplog diffs .."
+	diff $tmp.ok-mv-bar $tmp.out
+    else
+	for f in out.*
+	do
+	    file $f
+	    ls -l $f
+	done
+    fi
+
+    cd $here
+}
+
+# real QA test starts here
+_doit pmlogrewrite
+_doit pmlogrewrite 0
+_doit pmlogrewrite 3
+_doit pmlogrewrite 0 2
+
+_doit pmlogredact 1 2
+
+# success, all done
+exit
