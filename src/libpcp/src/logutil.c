@@ -288,13 +288,13 @@ __pmLogNewFile(const char *base, int vol)
 
 int
 __pmLogCreate(const char *host, const char *base, int log_version,
-	      __pmArchCtl *acp)
+	      __pmArchCtl *acp, int first_vol)
 {
     __pmLogCtl	*lcp = acp->ac_log;
     int		save_error = 0;
     char	fname[MAXPATHLEN];
 
-    lcp->minvol = lcp->maxvol = acp->ac_curvol = 0;
+    lcp->minvol = lcp->maxvol = acp->ac_curvol = first_vol;
     lcp->hashpmid.nodes = lcp->hashpmid.hsize = 0;
     lcp->hashindom.nodes = lcp->hashindom.hsize = 0;
     lcp->trimindom.nodes = lcp->trimindom.hsize = 0;
@@ -304,7 +304,7 @@ __pmLogCreate(const char *host, const char *base, int log_version,
 
     if ((lcp->tifp = __pmLogNewFile(base, PM_LOG_VOL_TI)) != NULL) {
 	if ((lcp->mdfp = __pmLogNewFile(base, PM_LOG_VOL_META)) != NULL) {
-	    if ((acp->ac_mfp = __pmLogNewFile(base, 0)) != NULL) {
+	    if ((acp->ac_mfp = __pmLogNewFile(base, first_vol)) != NULL) {
 		char	*tz, tzbuf[MAXIMUM(PM_TZ_MAXLEN, PM_MAX_TIMEZONELEN)];
 		size_t	bytes;
 

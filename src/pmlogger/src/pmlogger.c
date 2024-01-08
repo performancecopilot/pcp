@@ -1474,7 +1474,7 @@ main(int argc, char **argv)
 	else
 	    snprintf(&archName[dirlen], MAXPATHLEN - dirlen, "%s-%02d", archBase, suff);
 
-	if ((sts = __pmLogCreate(pmcd_host, archName, archive_version, &archctl)) < 0) {
+	if ((sts = __pmLogCreate(pmcd_host, archName, archive_version, &archctl, 0)) < 0) {
 	    if (make_uniq)
 		continue;	/* try the next -NN */
 	    /* otherwise this is fatal */

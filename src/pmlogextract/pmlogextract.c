@@ -3021,7 +3021,7 @@ main(int argc, char **argv)
 
     /* create output log - must be done before writing label */
     archctl.ac_log = &logctl;
-    if ((sts = __pmLogCreate("", outarchname, outarchvers, &archctl)) < 0) {
+    if ((sts = __pmLogCreate("", outarchname, outarchvers, &archctl, 0)) < 0) {
 	fprintf(stderr, "%s: Error: __pmLogCreate: %s\n",
 		pmGetProgname(), pmErrStr(sts));
 	exit(1);

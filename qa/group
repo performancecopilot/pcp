@@ -1935,6 +1935,7 @@ x11
 1474 archive pmlogrewrite local
 1475 pmda.bpf local
 1476 pmlogrewrite local pmlogger valgrind
+1477 pmlogrewrite pmlogredact local
 1480 pmda.lmsensors local
 1486 logutil local
 1489 python pmrep pmimport local
