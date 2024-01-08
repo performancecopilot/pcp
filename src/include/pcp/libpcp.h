@@ -925,7 +925,7 @@ typedef struct {
 PCP_CALL extern int __pmLogVersion(const __pmLogCtl *);
 PCP_CALL extern size_t __pmLogLabelSize(const __pmLogCtl *);
 PCP_CALL extern int __pmLogChkLabel(__pmArchCtl *, __pmFILE *, __pmLogLabel *, int);
-PCP_CALL extern int __pmLogCreate(const char *, const char *, int, __pmArchCtl *);
+PCP_CALL extern int __pmLogCreate(const char *, const char *, int, __pmArchCtl *, int);
 PCP_CALL extern __pmFILE *__pmLogNewFile(const char *, int);
 PCP_CALL extern void __pmLogClose(__pmArchCtl *);
 PCP_CALL extern int __pmLogPutDesc(__pmArchCtl *, const pmDesc *, int, char **);
