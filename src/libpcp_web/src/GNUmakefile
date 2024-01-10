@@ -155,8 +155,14 @@ http_parser.o:	http_parser.c http_parser.h
 query.o:	query.h query.c query_parser.y
 http_client.o load.o query.o:	$(TOPDIR)/src/include/pcp/libpcp.h
 
+# last 3 suppressions added for (busted?) cppcheck in Fedora 38 and 39
+# circa Jan 2024 - Ken
+#
 check:: $(CFILES) $(HFILES) $(XFILES)
 	$(CLINT) \
 	  --suppress=unknownMacro:/usr/include/bits/stdlib.h \
 	  --suppress=internalAstError:deps/hiredis-cluster/command.c:351 \
+	  --suppress=va_list_usedBeforeStarted:deps/hiredis/hiredis.c:394 \
+	  --suppress=syntaxError:deps/hiredis/sds.c:1280 \
+	  --suppress=invalidLifetime:deps/hiredis/read.c:337 \
 	  $^

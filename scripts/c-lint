@@ -18,9 +18,39 @@ else
     args="$args --std=posix"
 fi
 
-if test `uname -s` = Linux
+# snippet borrowed from qa/admin/whatami ...
+#
+os=unknown
+if [ -f /etc/system-release ]
 then
-    args="$args -I/usr/include/bits"
+    # probably Fedora
+    #
+    os=`sed </etc/system-release -e 's/ release / /'`
+fi
+
+want_bits=true
+case "$os"
+in
+    Fedora*\ 3[89]\ *)
+	# Not sure why this was here in the first place, but
+	# including "bits" triggers failures for Fedora 38 and 39
+	#
+	want_bits=false
+	# and need to suppress babble from platform_defs.h
+	#
+	args="$args --suppress=syntaxError:*/platform_defs.h:167"
+	;;
+esac
+
+if $want_bits
+then
+    # Not really sure who or what this is needed for ... perhaps
+    # some errant version of cppcheck in the past?
+    #
+    if test `uname -s` = Linux
+    then
+	args="$args -I/usr/include/bits"
+    fi
 fi
 
 exec cppcheck $args "$@"
