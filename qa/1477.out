@@ -2,55 +2,55 @@ QA output created by 1477
 
 === cmd=pmlogrewrite  ===
 ok-mv-bar.0 ok-mv-bar.1 ok-mv-bar.2 ok-mv-bar.3 ok-mv-bar.index ok-mv-bar.meta
+Processed 71 pmResult records
 Scanning for components of archive "ok-mv-bar"
 ok-mv-bar.0: start pass0 ... found 22 records
+ok-mv-bar.1: start pass0 ... found 21 records
 ok-mv-bar.2: start pass0 ... found 21 records
 ok-mv-bar.3: start pass0 ... found 11 records
-ok-mv-bar.1: start pass0 ... found 21 records
-ok-mv-bar.meta: start pass0 ... found 8 records
 ok-mv-bar.index: start pass0 ... found 7 records
+ok-mv-bar.meta: start pass0 ... found 8 records
 ok-mv-bar: start pass1 (check temporal index)
 ok-mv-bar: start pass2
 ok-mv-bar: start pass3
-Processed 71 pmResult records
 out.0 out.1 out.2 out.3 out.index out.meta
+Processed 71 pmResult records
 Scanning for components of archive "out"
-out.1: start pass0 ... found 21 records
 out.0: start pass0 ... found 22 records
-out.3: start pass0 ... found 11 records
-out.meta: start pass0 ... found 8 records
+out.1: start pass0 ... found 21 records
 out.2: start pass0 ... found 21 records
+out.3: start pass0 ... found 11 records
 out.index: start pass0 ... found 7 records
+out.meta: start pass0 ... found 8 records
 out: start pass1 (check temporal index)
 out: start pass2
 out: start pass3
-Processed 71 pmResult records
 pmdumplog diffs ..
 
 === cmd=pmlogrewrite 0 ===
 ok-mv-bar.1 ok-mv-bar.2 ok-mv-bar.3 ok-mv-bar.index ok-mv-bar.meta
+Processed 50 pmResult records
 Scanning for components of archive "ok-mv-bar"
+ok-mv-bar.0: file missing for log volume 0
+ok-mv-bar.1: start pass0 ... found 21 records
 ok-mv-bar.2: start pass0 ... found 21 records
 ok-mv-bar.3: start pass0 ... found 11 records
-ok-mv-bar.1: start pass0 ... found 21 records
-ok-mv-bar.meta: start pass0 ... found 8 records
 ok-mv-bar.index: start pass0 ... found 7 records
+ok-mv-bar.meta: start pass0 ... found 8 records
 ok-mv-bar: start pass1 (check temporal index)
-ok-mv-bar.0: file missing for log volume 0
 ok-mv-bar: start pass2
 ok-mv-bar: start pass3
-Processed 50 pmResult records
 out.1 out.2 out.3 out.index out.meta
+Processed 50 pmResult records
 Scanning for components of archive "out"
 out.1: start pass0 ... found 21 records
-out.3: start pass0 ... found 11 records
-out.meta: start pass0 ... found 8 records
 out.2: start pass0 ... found 21 records
+out.3: start pass0 ... found 11 records
 out.index: start pass0 ... found 5 records
+out.meta: start pass0 ... found 8 records
 out: start pass1 (check temporal index)
 out: start pass2
 out: start pass3
-Processed 50 pmResult records
 pmdumplog diffs ..
 5c5
 <     commencing Tue Nov 10 10:53:39.523789 2015
@@ -66,28 +66,28 @@ pmdumplog diffs ..
 
 === cmd=pmlogrewrite 3 ===
 ok-mv-bar.0 ok-mv-bar.1 ok-mv-bar.2 ok-mv-bar.index ok-mv-bar.meta
+Processed 61 pmResult records
 Scanning for components of archive "ok-mv-bar"
 ok-mv-bar.0: start pass0 ... found 22 records
-ok-mv-bar.2: start pass0 ... found 21 records
 ok-mv-bar.1: start pass0 ... found 21 records
-ok-mv-bar.meta: start pass0 ... found 8 records
-ok-mv-bar.index: start pass0 ... found 7 records
-ok-mv-bar: start pass1 (check temporal index)
+ok-mv-bar.2: start pass0 ... found 21 records
 ok-mv-bar.3: file missing for log volume 3
+ok-mv-bar.index: start pass0 ... found 7 records
+ok-mv-bar.meta: start pass0 ... found 8 records
+ok-mv-bar: start pass1 (check temporal index)
 ok-mv-bar: start pass2
 ok-mv-bar: start pass3
-Processed 61 pmResult records
 out.0 out.1 out.2 out.index out.meta
+Processed 61 pmResult records
 Scanning for components of archive "out"
-out.1: start pass0 ... found 21 records
 out.0: start pass0 ... found 22 records
-out.meta: start pass0 ... found 8 records
+out.1: start pass0 ... found 21 records
 out.2: start pass0 ... found 21 records
 out.index: start pass0 ... found 6 records
+out.meta: start pass0 ... found 8 records
 out: start pass1 (check temporal index)
 out: start pass2
 out: start pass3
-Processed 61 pmResult records
 pmdumplog diffs ..
 65,67c65
 < 10:53:44.043712	      3          700          132
@@ -98,27 +98,27 @@ pmdumplog diffs ..
 
 === cmd=pmlogrewrite 0 2 ===
 ok-mv-bar.1 ok-mv-bar.3 ok-mv-bar.index ok-mv-bar.meta
+Processed 30 pmResult records
 Scanning for components of archive "ok-mv-bar"
-ok-mv-bar.3: start pass0 ... found 11 records
-ok-mv-bar.1: start pass0 ... found 21 records
-ok-mv-bar.meta: start pass0 ... found 8 records
-ok-mv-bar.index: start pass0 ... found 7 records
-ok-mv-bar: start pass1 (check temporal index)
 ok-mv-bar.0: file missing for log volume 0
+ok-mv-bar.1: start pass0 ... found 21 records
 ok-mv-bar.2: file missing for log volume 2
+ok-mv-bar.3: start pass0 ... found 11 records
+ok-mv-bar.index: start pass0 ... found 7 records
+ok-mv-bar.meta: start pass0 ... found 8 records
+ok-mv-bar: start pass1 (check temporal index)
 ok-mv-bar: start pass2
 ok-mv-bar: start pass3
-Processed 30 pmResult records
 out.1 out.3 out.index out.meta
+Processed 30 pmResult records
 Scanning for components of archive "out"
 out.1: start pass0 ... found 21 records
 out.3: start pass0 ... found 11 records
-out.meta: start pass0 ... found 8 records
 out.index: start pass0 ... found 4 records
+out.meta: start pass0 ... found 8 records
 out: start pass1 (check temporal index)
 out: start pass2
 out: start pass3
-Processed 30 pmResult records
 pmdumplog diffs ..
 5c5
 <     commencing Tue Nov 10 10:53:39.523789 2015
@@ -136,27 +136,27 @@ pmdumplog diffs ..
 
 === cmd=pmlogredact 1 2 ===
 ok-mv-bar.0 ok-mv-bar.3 ok-mv-bar.index ok-mv-bar.meta
+Processed 31 pmResult records
 Scanning for components of archive "ok-mv-bar"
 ok-mv-bar.0: start pass0 ... found 22 records
-ok-mv-bar.3: start pass0 ... found 11 records
-ok-mv-bar.meta: start pass0 ... found 8 records
-ok-mv-bar.index: start pass0 ... found 7 records
-ok-mv-bar: start pass1 (check temporal index)
 ok-mv-bar.1: file missing for log volume 1
 ok-mv-bar.2: file missing for log volume 2
+ok-mv-bar.3: start pass0 ... found 11 records
+ok-mv-bar.index: start pass0 ... found 7 records
+ok-mv-bar.meta: start pass0 ... found 8 records
+ok-mv-bar: start pass1 (check temporal index)
 ok-mv-bar: start pass2
 ok-mv-bar: start pass3
-Processed 31 pmResult records
 out.0 out.3 out.index out.meta
+Processed 31 pmResult records
 Scanning for components of archive "out"
 out.0: start pass0 ... found 22 records
 out.3: start pass0 ... found 11 records
-out.meta: start pass0 ... found 8 records
 out.index: start pass0 ... found 5 records
+out.meta: start pass0 ... found 8 records
 out: start pass1 (check temporal index)
 out: start pass2
 out: start pass3
-Processed 31 pmResult records
 pmdumplog diffs ..
 1c1
 < Note: timezone set to local timezone of host "bozo" from archive

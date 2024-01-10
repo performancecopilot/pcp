@@ -186,6 +186,9 @@ echo "    checking access for iplist (should fail)"
 ssh -q pcpqa@$other pminfo -h $me -f pmcd.numclients 2>&1 \
 | _filter_pminfo
 
+# make sure pmcd has seen and logged end of client
+pmsleep 1
+
 echo "pmcd.log:======="
 sed -n <$PCP_PMCDLOG_PATH -e '/endclient/{
 s/\[[0-9]*]/[M]/
