@@ -46,5 +46,10 @@ default_pcp : default
 
 install_pcp : install
 
+# suppressions added for (busted?) cppcheck in Fedora 38 and 39
+# circa Jan 2024 - Ken
+#
 check:: $(CFILES)
-	$(CLINT) $^
+	$(CLINT) \
+	    --suppress=unknownMacro:pmseries.c:147 \
+	    $^
