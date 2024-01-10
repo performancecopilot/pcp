@@ -62,7 +62,7 @@ _doit()
     done
     echo ok-mv-bar.*
     ls -l ok-mv-bar.* >>$here/$seq.full
-    pmlogcheck -v ok-mv-bar
+    pmlogcheck -v ok-mv-bar 2>&1 | LC_COLLATE=POSIX sort
     pmlogdump -dehiIlmMtz ok-mv-bar >$tmp.ok-mv-bar
     pmdumplog -tz ok-mv-bar >>$here/$seq.full
 
@@ -93,10 +93,10 @@ _doit()
 	    echo "Error: output file $out but no corresponding input file $in"
 	fi
     done
-    if pmlogcheck -v out
+    if pmlogcheck -v out 2>&1 | LC_COLLATE=POSIX sort
     then
-	# TODO
-	:
+	# output archive seems OK, check contents ...
+	#
 	pmlogdump -dehiIlmMtz out >$tmp.out
 	echo "pmdumplog diffs .."
 	diff $tmp.ok-mv-bar $tmp.out
