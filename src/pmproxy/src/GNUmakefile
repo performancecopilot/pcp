@@ -63,5 +63,10 @@ $(XFILES):
 
 $(OBJECTS):	$(HFILES) $(TOPDIR)/src/include/pcp/libpcp.h
 
+# suppressions added for (busted?) cppcheck in Fedora 38 and 39
+# circa Jan 2024 - Ken
+#
 check:: $(CFILES) $(HFILES)
-	$(CLINT) $^
+	$(CLINT) \
+	    --suppress=syntaxError:http.c \
+	    $^
