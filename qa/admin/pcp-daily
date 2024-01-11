@@ -28,12 +28,8 @@ _usage()
     echo >&2 "  -q          run qa"
     echo >&2 "  -r          rerun qa for failing cases"
     echo >&2 "  -s          shutdown VM"
-    echo >&2 "  -S          single-thread, not parallel"
     echo >&2 "  -t          tree for pcp [default $pcp_tree]"
     echo >&2 "default: -pmiqhs"
-    echo >&2 "vmlist1: $list_1"
-    echo >&2 "vmlist2: $list_2"
-    echo >&2 "[both vmlists run in parallel for the default case without -S]"
 }
 
 # $1 is "daily" (for build/install) else "daily.qa" (for qa)
@@ -620,9 +616,6 @@ tmp=/var/tmp/$$
 sts=0
 trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 
-list_1="vm03 vm01 vm04 vm07 vm12 vm14 vm16 vm18 vm20 vm22 vm24 vm26 vm28 vm30 vm32 vm34"
-list_2="bozo vm02 vm00 vm05 vm11 vm15 vm19 vm21 vm23 vm25 vm27 vm29 vm31 vm33 vm37 vm38"
-
 args="$*"
 pcp_branch=main
 pcp_tree=pcp
@@ -642,12 +635,11 @@ rflag=false
 what="-g sanity -g libpcp -g pdu -g pmda -g valgrind -g pmie"
 what=all
 sflag=false
-Sflag=false
 options=false
 work=false
 efile=''
 debug=false
-while getopts "ab:B:cde:fg:hilmpqrsSt:T:?" c
+while getopts "ab:B:cde:fg:hilmpqrst:T:?" c
 do
     case $c
     in
@@ -727,9 +719,6 @@ do
 	    options=true
 	    sflag=true
 	    ;;
-	S)
-	    Sflag=true
-	    ;;
 	t)
 	    pcp_tree="$OPTARG"
 	    build_dir=src/$pcp_tree
@@ -745,15 +734,9 @@ shift `expr $OPTIND - 1`
 
 if [ $# -eq 0 ]
 then
-    if $Sflag
-    then
-	# serial run
-	set -- $list_1 $list_2
-    else
-	# run in parallel
-	set -- $list_1
-	pcp-daily $args $list_2 &
-    fi
+    echo "Error: must specify at least one VM"
+    sts=1
+    exit
 fi
 
 if $options
