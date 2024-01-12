@@ -31,7 +31,7 @@ void sort_r(void *base, size_t nel, size_t width,
 #  define _SORT_R_INLINE
 #elif (defined __FreeBSD__)
 #  define _SORT_R_INLINE __inline
-#  if (__FreeBSD_ >= 14)
+#  if (__FreeBSD__ >= 14)
    /* modern BSD with libc implementation that matches modern glibc */
    /* prototype comes from <stdlib.h> */
 #  define _SORT_R_NEW_BSD
