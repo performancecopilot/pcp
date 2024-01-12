@@ -99,13 +99,14 @@ function abs(a,b)
     print "Failed closer test: data-to-pmlogrewrite",d1,"pmlogrewrite-to-metadata",d2
 }'
 
-# expect the data time to be _at least_ 40 times the rewrite time
+# expect the data time to be _at least_ 40 times the rewrite time,
+# but need to set bar at 20 times thanks to slow VMs
 #
 echo "$data $rewrite" | $PCP_AWK_PROG '
-{ if ($1 >= 40 * $2)
-    print "pmlogrewrite time more than 40 times faster than data decompress time"
+{ if ($1 >= 20 * $2)
+    print "pmlogrewrite time more than 20 times faster than data decompress time"
   else
-    print "Failed 40 times test: pmlogrewrite",$2,"data decompress",$1
+    print "Failed 20 times test: pmlogrewrite",$2,"data decompress",$1
 }'
 
 # success, all done
