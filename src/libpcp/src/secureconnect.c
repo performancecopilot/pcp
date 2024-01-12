@@ -23,8 +23,12 @@
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 #include <sys/stat.h>
+#ifdef HAVE_TERMIOS_H
+#include <termios.h>
+#else
 #ifdef HAVE_SYS_TERMIOS_H
 #include <sys/termios.h>
+#endif
 #endif
 
 #ifdef PM_MULTI_THREAD
