@@ -30,10 +30,15 @@ void sort_r(void *base, size_t nel, size_t width,
   /* we may be using __GNU__ but we don't have any qsort_r in libc */
 #  define _SORT_R_INLINE
 #elif (defined __FreeBSD__)
+#  define _SORT_R_INLINE __inline
+#  if (__FreeBSD_ >= 14)
    /* modern BSD with libc implementation that matches modern glibc */
    /* prototype comes from <stdlib.h> */
 #  define _SORT_R_NEW_BSD
-#  define _SORT_R_INLINE __inline
+#  else
+   /* old FreeBSD with arse-backwards argument order */
+#  define _SORT_R_OLD_BSD
+#  endif
 #elif (defined _WIN32 || defined _WIN64 || defined __WINDOWS__)
 #  define _SORT_R_WINDOWS
 #  define _SORT_R_INLINE __inline
