@@ -86,12 +86,14 @@ else
     range=''
 fi
 mail=true
+cmdline_branch=false
 while getopts "b:mnr:s?" c
 do
     case $c
     in
 	b)
 	    branch="$OPTARG"
+	    cmdline_branch=true
 	    ;;
 	m)	# don't launch mail client or generate pull request
 	    mail=false
@@ -215,11 +217,21 @@ fi
 # remember last commit that was pushed ...
 #
 sha=`git log | sed -e 's/commit //' -e 1q`
-if $dryrun
+if $cmdline_branch
 then
-    echo "+ echo $sha >pushed.sha"
+    if $dryrun
+    then
+	echo "+ echo $sha >$branch.sha"
+    else
+	echo "$sha" >$branch.sha
+    fi
 else
-    echo "$sha" >pushed.sha
+    if $dryrun
+    then
+	echo "+ echo $sha >pushed.sha"
+    else
+	echo "$sha" >pushed.sha
+    fi
 fi
 
 if $mail
