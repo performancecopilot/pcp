@@ -27,6 +27,8 @@ enabled = true
 EOF
 pmstore bpftrace.control.register "tracepoint:raw_syscalls:sys_enter { @c = count(); }"
 grep -o "permission denied" $PCP_LOG_DIR/pmcd/bpftrace.log
+grep bpftrace $PCP_LOG_DIR/pmcd/pmcd.log >>$seq.full
+cat $PCP_LOG_DIR/pmcd/bpftrace.log >>$seq.full
 echo
 
 echo "=== authentication enabled, user is not allowed ==="

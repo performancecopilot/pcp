@@ -1,3 +1,3 @@
 QA output created by 1474
 pmlogrewrite time closer to metadata decompress than data decompress
-pmlogrewrite time more than 40 times faster than data decompress time
+pmlogrewrite time more than 20 times faster than data decompress time
