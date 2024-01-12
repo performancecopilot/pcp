@@ -109,9 +109,31 @@ p
 elif [ $PCP_PLATFORM = darwin -o $PCP_PLATFORM = netbsd -o $PCP_PLATFORM = openbsd ]
 then
     ln $seq.darwin $seq.out
-elif [ $PCP_PLATFORM = solaris -o $PCP_PLATFORM = freebsd ]
+elif [ $PCP_PLATFORM = solaris ]
 then
     ln $seq.solaris $seq.out
+elif [ $PCP_PLATFORM = freebsd ]
+then
+    version=`uname -rs | sed -e 's/FreeBSD //'`
+    case "$version"
+    in
+	12.*)
+	    ln $seq.linux $seq.out
+	    ;;
+	13.*)
+	    ln $seq.solaris $seq.out
+	    ;;
+	14.*)
+	    ln $seq.freebsd $seq.out
+	    ;;
+	*)
+	    echo "bozo! ... need FreeBSD rule for version $version"
+	    exit
+	    ;;
+    esac
+else
+    echo "bozo! no rule for $PCP_PLATFORM"
+    exit
 fi
 
 sts=0

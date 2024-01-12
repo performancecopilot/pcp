@@ -161,7 +161,15 @@ then
     ln $seq.out.darwin $seq.out
 elif [ $PCP_PLATFORM = freebsd ]
 then
-    ln $seq.out.freebsd $seq.out
+    # depends on major release number
+    #
+    os_version=`uname -rs | sed -e 's/FreeBSD //' -e 's/\..*//'`
+    if [ -n "$os_version" -a "$os_version" -lt 14 ]
+    then
+	ln $seq.out.darwin $seq.out
+    else
+	ln $seq.out.freebsd.1 $seq.out
+    fi
 elif [ $PCP_PLATFORM = openbsd ]
 then
     ln $seq.out.openbsd $seq.out
