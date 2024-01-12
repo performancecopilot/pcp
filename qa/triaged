@@ -43,6 +43,7 @@
 			Conditional jump or move depends on uninitialised value
 			at 0x11F1D2: deviattask (deviate.c:340)
 			but this seems bogus and is not seen elsewhere
+1173	Fedora 38	pmdabcc cannot get the ucalls module to work here
 1210	vm[0-9][0-9]	may collide with pmlogger_check and (correctly)
 			detects presence of /etc/pcp/pmlogger/lock
 1290	Debian 1[01]	valgrind-reported issues in libpcp_web redis i/o functions
@@ -51,8 +52,11 @@
 			test passes sometimes and fails other times and hand
 			testing with dbpmda cannot reproduce a failure
 1574	.*	valgrind-reported issue in libpcp_web pmseries functions
+1701	Fedora 38	Python exception in json/decoder.py
 1662	.*	valgrind-reported issue in libpcp_web archive discovery
 		handling of sources
+1900	Fedora 38	valgrind uninitialised data failure deep inside libbpf
+1900	CentOS Stream9	ditto
 1973	Ubuntu 16\.04	Python here is 3.5.2 and there a bunch of what look like
 			dict ordering and/or cacheing sequence differences
 			and some arithmetic rounding differences ... not
