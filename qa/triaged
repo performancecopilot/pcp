@@ -75,3 +75,43 @@
 1991	Ubuntu 16\.04	Python here is 3.5.2 and there are a couple of
 			timestamps that are off by one second ... not worth
 			wasting more time on
+# tzset botch for Python time module on FreeBSD 14 ... which is really
+# a localtime() botch as per https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+#
+035	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+317	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+922	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+1038	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+1070	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+1071	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+1072	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+1132	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+1134	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+1135	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+1136	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+1139	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+1140	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+1169	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+1183	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+1185	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+1202	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+1240	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+1242	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+1489	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+1546	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+1547	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+1549	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+1671	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+1793	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+# and these ones are just localtime() botched, no Python involved
+#
+079	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+165	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+176	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+289	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+313	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+486	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+495	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+556	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+585	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+634	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281

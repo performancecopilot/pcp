@@ -39,80 +39,97 @@ reports live data for the local host.
 The statistics shown are as follows:
 
 .TS
-lfB  lfB 
-l    lx.
-HEADER                  DESCRIPTION
-_                       _
+cfB s
+lfB lfB
+l   lx.
+Per node stats (for each NUMA node)
+HEADER	DESCRIPTION
+nr_inactive_anon	zone inactive anonymous pages
+nr_active_anon	active anonymous memory pages
+nr_inactive_file	inactive file memory pages
+nr_active_file	active file memory memory pages
+nr_unevictable	unevictable pages
+nr_slab_reclaimable	reclaimable slab pages
+nr_slab_unreclaimable	unreclaimable slab pages
+nr_isolated_anon	isolated anonymous memory pages
+nr_isolated_file	isolated file memory pages
+nr_anon_pages	anonymous mapped pagecache pages
+nr_mapped	mapped pagecache pages
+nr_file_pages	file pagecache pages
+nr_dirty	pages dirty state
+nr_writeback	pages writeback state
+nr_writeback_temp	temporary writeback pages
+nr_shmem	shared memory pages
+nr_shmem_hugepages	shared memory huge pages
+nr_shmem_pmdmapped	shared memory PMD mappings
+nr_file_hugepages	file-backed huge pages
+nr_file_pmdmapped	file-backed PMD mappings
+nr_anon_transparent_hugepages	T{
+.ad l
+anonymous transparent huge pages
+T}
+nr_unstable	pages in unstable state in each zone
+nr_vmscan_write	T{
+.ad l
+pages written from the LRU by the VM scanner
+The VM is supposed to minimise the number of
+pages which get written from the LRU (for IO
+scheduling efficiency and reclaim success).
+T}
+nr_vmscan_immediate_reclaim	T{
+.ad l
+prioritise for reclaim when writeback ends
+T}
+nr_dirtied	pages entering dirty state
+nr_written	pages written out in each zone
+nr_kernel_misc_reclaimable	miscellaneous reclaimable kernel pages
+.TE
 
-.B Per node stats (for each zone for each NUMA node)
-
-nr_inactive_anon        zone inactive anonymous pages
-nr_active_anon          active anonymous memory pages
-nr_inactive_file        inactive file memory pages
-nr_active_file          active file memory memory pages
-nr_unevictable          unevictable pages
-nr_slab_reclaimable     reclaimable slab pages
-nr_slab_unreclaimable   unreclaimable slab pages
-nr_isolated_anon        isolated anonymous memory pages
-nr_isolated_file        isolated file memory pages
-nr_anon_pages           anonymous mapped pagecache pages
-nr_mapped               mapped pagecache pages
-nr_file_pages           file pagecache pages
-nr_dirty                pages dirty state
-nr_writeback            pages writeback state
-nr_writeback_temp       temporary writeback pages
-nr_shmem                shared memory pages
-nr_shmem_hugepages      shared memory huge pages
-nr_shmem_pmdmapped      shared memory PMD mappings
-nr_file_hugepages       file-backed huge pages
-nr_file_pmdmapped       file-backed PMD mappings
-nr_anon_transparent_hugepages
-                        anonymous transparent huge pages
-nr_unstable             pages in unstable state in each zone
-nr_vmscan_write         pages written from the LRU by the VM scanner
-                        The VM is supposed to minimise the number of
-                        pages which get written from the LRU (for IO
-                        scheduling efficiency and reclaim success).
-nr_vmscan_immediate_reclaim
-                        prioritise for reclaim when writeback ends
-nr_dirtied              pages entering dirty state
-nr_written              pages written out in each zone
-nr_kernel_misc_reclaimable
-                        miscellaneous reclaimable kernel pages
-
-.B Per zone stats (in each zone for each NUMA node)
-
-pages free              free space
-      min               min space
-      low               low space
-      high              high space
-      spanned           spanned space
-      present           present space
-      managed           managed space
-      protection        protection space
-nr_free_pages           number of free pages
-nr_zone_inactive_anon   zone inactive anonymous pages
-nr_zone_active_anon     zone active anonymous pages
-nr_zone_inactive_file   zone inactive file-backed pages
-nr_zone_active_file     zone active file-backed pages
-nr_zone_unevictable     zone unevictable pages
-nr_zone_write_pending   zone write-pending pages
-nr_mlock                pages under mlock
-nr_page_table_pages     page table pages
-nr_kernel_stack         pages of kernel stack
-nr_bounce               bounce buffer pages
-nr_zspages              zsmalloc memory allocator pages
-nr_free_cma             free Contiguous Memory Allocator pages
-numa_hit                successful allocations from preferred
-                        NUMA zone
-numa_miss               unsuccessful allocations from preferred
-                        NUMA zone
-numa_foreign            foreign NUMA zone allocations
-numa_interleave         interleaved NUMA allocations
-numa_local              successful allocations from local
-                        NUMA zone
-numa_other              unsuccessful allocations from local
-                        NUMA zone
+.TS
+cfB s
+lfB lfB 
+l   lx.
+Per zone stats (in each zone for each NUMA node)
+HEADER	DESCRIPTION
+pages free	free space
+pages min	min space
+pages low	low space
+pages high	high space
+pages spanned	spanned space
+pages present	present space
+pages managed	managed space
+pages protection	protection space
+nr_free_pages	number of free pages
+nr_zone_inactive_anon	zone inactive anonymous pages
+nr_zone_active_anon	zone active anonymous pages
+nr_zone_inactive_file	zone inactive file-backed pages
+nr_zone_active_file	zone active file-backed pages
+nr_zone_unevictable	zone unevictable pages
+nr_zone_write_pending	zone write-pending pages
+nr_mlock	pages under mlock
+nr_page_table_pages	page table pages
+nr_kernel_stack	pages of kernel stack
+nr_bounce	bounce buffer pages
+nr_zspages	zsmalloc memory allocator pages
+nr_free_cma	free Contiguous Memory Allocator pages
+numa_hit	T{
+.ad l
+successful allocations from preferred NUMA zone
+T}
+numa_miss	T{
+.ad l
+unsuccessful allocations from preferred NUMA zone
+T}
+numa_foreign	foreign NUMA zone allocations
+numa_interleave	interleaved NUMA allocations
+numa_local	T{
+.ad l
+successful allocations from local NUMA zone
+T}
+numa_other	T{
+.ad l
+unsuccessful allocations from local NUMA zone
+T}
 .TE
 
 .SH OPTIONS
