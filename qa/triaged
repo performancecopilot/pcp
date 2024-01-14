@@ -57,7 +57,7 @@
 1701	Fedora 38	Python exception in json/decoder.py
 1662	.*	valgrind-reported issue in libpcp_web archive discovery
 		handling of sources
-1900	Fedora 38	valgrind uninitialised data failure deep inside libbpf
+1900	Fedora 3[89]	valgrind uninitialised data failure deep inside libbpf
 1900	CentOS Stream9	ditto
 1973	Ubuntu 16\.04	Python here is 3.5.2 and there a bunch of what look like
 			dict ordering and/or cacheing sequence differences
