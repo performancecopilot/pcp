@@ -51,6 +51,8 @@
 			PMDA when using inet sockects to communicate ... the
 			test passes sometimes and fails other times and hand
 			testing with dbpmda cannot reproduce a failure
+1490	Fedora 39	mem leak appears to be from the pile of steaming stuff
+			know as Python, not the PCP labelsets code
 1574	.*	valgrind-reported issue in libpcp_web pmseries functions
 1701	Fedora 38	Python exception in json/decoder.py
 1662	.*	valgrind-reported issue in libpcp_web archive discovery
