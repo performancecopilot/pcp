@@ -338,7 +338,7 @@ log mandatory on %dk_freq {	log mandatory on 1minute {
     disk.dev	   disk.dev
 }	}
 
-# note no % for want_cpu here	# note no % for want_cpu here
+# note no %want_cpu here	# note no %want_cpu here
 %ifdef want_cpu
 %define cpu_pfx 'kernel.all.cpu.'
 log mandatory on %cpu_freq {
@@ -361,11 +361,11 @@ _
 # e.g. dk_freq macro	# e.g. dk_freq macro
 %include "frequencies"
 
-log mandatory on %dk_freq {	log mandatory on 1minute {
+log mandatory on %dk_freq {	log mandatory on 1min {
     disk.dev	   disk.dev
 }	}
 
-# note no % for want_cpu here	# note no % for want_cpu here
+# note no %want_cpu here	# note no %want_cpu here
 %ifdef want_cpu
 %define cpu_pfx 'kernel.all.cpu.'
 log mandatory on %cpu_freq {	log mandatory on 15 sec {

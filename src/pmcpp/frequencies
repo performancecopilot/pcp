@@ -1,2 +1,2 @@
-%define dk_freq 1minute
+%define dk_freq 1min
 %define cpu_freq '15 sec'
