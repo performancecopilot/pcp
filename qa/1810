@@ -39,13 +39,11 @@ _pmdabpf_install $tmp.conf
 _pmdabpf_wait_for_metric
 
 # Generate system activity for the CO-RE oomkill module
-$sudo systemd-run \
-    --wait \
-    --pipe \
-    --no-ask-password \
-    --uid=pcpqa --gid=pcpqa \
-    -p MemoryLimit=10M \
-    perl -e 'while (1) { $a .= "A" x 1024 }' >$tmp.oom.log 2>&1
+# ... 10240 (Kbyte) physical memory limit should be enough for this
+# infinite loop perl script
+#
+sh -c "ulimit -S -m 10240; perl -e 'while (1) { \$a .= "A" x 1024 }'" >$tmp.oom.log 2>&1 &
+wait 2>>$here/$seq.full
 
 echo "=== report metric values for fcomm ==="
 pminfo -dfmtT bpf.oomkill.fcomm 2>&1 | tee -a $here/$seq.full \
