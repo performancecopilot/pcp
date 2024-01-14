@@ -820,8 +820,9 @@ do
 	    # 739 segv's sometimes deep inside Python
 	    # and 749 recently (Dec 2023) has been locking the whole VM
 	    # up
+	    # fixed? [Jan 2024]
 	    #
-	    [ X"$what" = Xall ] && check_what='-X 739 -X 749'
+	    #[ X"$what" = Xall ] && check_what='-X 739 -X 749'
 	    ;;
 
 	vm05)
@@ -832,21 +833,21 @@ do
 	    ;;
 
 	vm06)
-	    # Only selected groups at this stage for FreeBSD 13
+	    # Only selected groups at this stage for FreeBSD
 	    #	sanity trace libpcp kernel pmrep threads
 	    #
 	    [ X"$what" = Xall ] && check_what='-g sanity -g trace -g libpcp -g kernel -g pmrep -g threads -g perl -x valgrind'
 	    ;;
 
 	vm09)
-	    # Only selected groups at this stage for NetBSD 6.1.5
+	    # Only selected groups at this stage for NetBSD
 	    #	sanity trace libpcp kernel pmrep threads
 	    #
 	    [ X"$what" = Xall ] && check_what='-g sanity -g trace -g libpcp -g kernel -g pmrep -g threads -x valgrind'
 	    ;;
 
 	vm10)
-	    # Only selected groups at this stage for FreeBSD 12
+	    # Only selected groups at this stage for FreeBSD
 	    #	sanity trace libpcp kernel pmrep threads
 	    #
 	    [ X"$what" = Xall ] && check_what='-g sanity -g trace -g libpcp -g kernel -g pmrep -g threads -g perl -x valgrind'
@@ -900,7 +901,7 @@ do
 	    ;;
 
 	vm32)
-	    # Only selected groups at this stage for FreeBSD 11.1
+	    # Only selected groups at this stage for FreeBSD
 	    #	sanity trace libpcp kernel pmrep threads
 	    # and some tests are not working yet
 	    #
@@ -908,7 +909,7 @@ do
 	    ;;
 
 	vm33)
-	    # Only selected groups at this stage for OpenBSD 7.1
+	    # Only selected groups at this stage for OpenBSD
 	    #
 	    [ X"$what" = Xall ] && check_what='-g sanity -g trace -g libpcp -g kernel -g pmcd -g pminfo -g pmlogger -g pmrep -g threads -g logutil -g dbpmda'
 	    ;;
@@ -943,13 +944,13 @@ do
 	    ;;
 
 	vm37)
-	    # Only selected groups this stage for OpenBSD 7.2
+	    # Only selected groups this stage for OpenBSD
 	    #
 	    [ X"$what" = Xall ] && check_what='-g sanity -g trace -g libpcp -g kernel -g pmcd -g pminfo -g pmlogger -g pmrep -g threads -g logutil -g dbpmda'
 	    ;;
 
 	vm38)
-	    # Only -g sanity at this stage for NetBSD 8.0
+	    # Only -g sanity at this stage for NetBSD
 	    #
 	    [ X"$what" = Xall ] && check_what='-g sanity'
 	    ;;
