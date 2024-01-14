@@ -1,4 +1,6 @@
-/* src/include/pcp/config.h.in.  Generated from configure.ac by autoheader.  */
+/*
+ * This file is used by configure to create src/include/pcp/config.h
+ */
 
 /* Define to 1 if `TIOCGWINSZ' requires <sys/ioctl.h>. */
 #undef GWINSZ_IN_SYS_IOCTL
