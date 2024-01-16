@@ -107,6 +107,7 @@ fi
 
 if $do_systemd_helper
 then
+    deb-systemd-helper enable pcp-reboot-init.service >/dev/null
     deb-systemd-helper enable pmcd.service >/dev/null
     deb-systemd-helper enable pmlogger.service >/dev/null
     deb-systemd-helper enable pmie.service >/dev/null
@@ -126,6 +127,7 @@ fi
 if $do_systemctl
 then
     systemctl daemon-reload >/dev/null
+    systemctl start pcp-reboot-init.service >/dev/null
     systemctl start pmcd.service >/dev/null
     systemctl start pmlogger.service >/dev/null
 elif which invoke-rc.d >/dev/null 2>&1

@@ -49,38 +49,10 @@ then
     exit 1
 fi
 
-# Need $PCP_RUN_DIR ... see $PCP_RC_DIR/pmcd for a full explanation,
-# but we need to check and optionally create here as well for
-# non-systemd platforms because we cannot guarantee which PCP "init"
-# scripts are enabled nor the order they maybe run after reboot.
+# Handle setup for transients that might be lost after reboot,
+# e.g. $PCP_RUN_DIR
 #
-if [ ! -d "$PCP_RUN_DIR" ]
-then
-    # same ownership and mode as from the top level GNUmakefile
-    #
-    if mkdir "$PCP_RUN_DIR"
-    then
-	if chown $PCP_USER:$PCP_GROUP "$PCP_RUN_DIR"
-	then
-	    if chmod 775 "$PCP_RUN_DIR"
-	    then
-		: all good
-	    else
-		echo "$0:"'
-Warning: chmod for $PCP_RUN_DIR ("'"$PCP_RUN_DIR"'") failed'
-		ls -ld "$PCP_RUN_DIR"
-	    fi
-	else
-	    echo "$0:"'
-Warning: chown for $PCP_RUN_DIR ("'"$PCP_RUN_DIR"'") failed'
-	    ls -ld "$PCP_RUN_DIR"
-	fi
-    else
-	echo "$0:"'
-Warning: mkdir for $PCP_RUN_DIR ("'"$PCP_RUN_DIR"'") failed'
-	ls -ld "$PCP_RUN_DIR/.." "$PCP_RUN_DIR"
-    fi
-fi
+$PCP_BINADM_DIR/pcp-reboot-init
 
 # paranoid defaults if something goes wrong ...
 [ -z "$PCP_USER" ] && PCP_USER=pcp

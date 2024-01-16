@@ -142,33 +142,7 @@ _reboot_setup()
     # we are running as root:root) so we can set the ownership and
     # mode
     #
-    if [ ! -d "$PCP_RUN_DIR" ]
-    then
-	# same ownership and mode as from the top level GNUmakefile
-	#
-	if mkdir "$PCP_RUN_DIR"
-	then
-	    if chown $PCP_USER:$PCP_GROUP "$PCP_RUN_DIR"
-	    then
-		if chmod 775 "$PCP_RUN_DIR"
-		then
-		    : all good
-		else
-		    echo "$prog:"'
-Warning: chmod for $PCP_RUN_DIR ("'"$PCP_RUN_DIR"'") failed'
-		    ls -ld "$PCP_RUN_DIR"
-		fi
-	    else
-		echo "$prog:"'
-Warning: chown for $PCP_RUN_DIR ("'"$PCP_RUN_DIR"'") failed'
-		ls -ld "$PCP_RUN_DIR"
-	    fi
-	else
-	    echo "$prog:"'
-Warning: mkdir for $PCP_RUN_DIR ("'"$PCP_RUN_DIR"'") failed'
-	    ls -ld "$PCP_RUN_DIR/.." "$PCP_RUN_DIR"
-	fi
-    fi
+    $PCP_BINADM_DIR/pcp-reboot-init
 }
 
 # if _pmda_setup() is interrupted, we need to cleanup

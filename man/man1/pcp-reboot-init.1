@@ -1,0 +1,47 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2024 Ken McDonell.  All Rights Reserved.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.TH PCP-REBOOT-INIT 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pcp-reboot-init\f1 \- Performance Co-Pilot helper script after system reboot
+.SH SYNOPSIS
+.B $PCP_BINADM_DIR/pcp-reboot-init
+.SH DESCRIPTION
+.B pcp-reboot-init
+performs ``one-trip'' initialization after system reboot for the
+various components of the
+Performance Co-Pilot (PCP).
+.PP
+The script is normally called from
+.BR init (1)
+or
+.BR systemd (1)
+scripts prior to starting other PCP components.
+It should not need to be run at other times, but is idempotent so
+repeated execution is harmless, but useless.
+.PP
+.B pcp-reboot-init
+is intended to be run as the ``root'' user, and will fail
+otherwise.
+.SH "PCP ENVIRONMENT"
+The file
+.B /etc/pcp.conf
+contains the local values for PCP_ variables used in this script.
+.SH SEE ALSO
+.BR init (1),
+.BR PCPIntro (1),
+.BR systemd (1),
+.BR pcp.conf (5)
+and
+.BR pcp.env (5).
