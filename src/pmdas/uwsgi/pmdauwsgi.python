@@ -1,0 +1,111 @@
+#!/usr/bin/env pmpython
+#
+# Copyright (C) 2024 Red Hat.
+# Copyright (C) 2024 Nikhil Jain <nikjain@redhat.com>
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+
+# pylint: disable=line-too-long, too-many-return-statements
+# pylint: disable=too-many-statements, too-many-branches, too-many-lines
+# pylint: disable=broad-except, too-many-instance-attributes
+
+""" Performance Metrics Domain Agent exporting uwsgi metrics. """
+
+from cpmapi import (
+    PM_TYPE_STRING,
+    PM_INDOM_NULL,
+    PM_SEM_INSTANT,
+    PM_TYPE_DOUBLE,
+    PM_TYPE_U64,
+    PM_SEM_COUNTER,
+    PM_ERR_PMID,
+    PM_ERR_AGAIN
+)
+
+from pcp.pmapi import pmUnits, pmContext
+from pcp.pmda import PMDA, pmdaMetric
+
+import os
+import requests
+
+
+def _is_pmda_setup():
+    """checks if PMDA is in setup state"""
+    return os.environ.get('PCP_PYTHON_DOMAIN') or os.environ.get('PCP_PYTHON_PMNS')
+
+
+class UwsgiPMDA(PMDA):
+
+    def __init__(self, name, domain):
+        ''' Initialisation - register metrics, callbacks, drop privileges '''
+
+        PMDA.__init__(self, name, domain)
+        self.connect_pmcd()
+
+        self.add_metric(name + '.workers', pmdaMetric(PMDA.pmid(0, 0), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, pmUnits()))
+        self.add_metric(name + '.avg_response_time_msec', pmdaMetric(PMDA.pmid(0, 1), PM_TYPE_DOUBLE, PM_INDOM_NULL, PM_SEM_COUNTER, pmUnits()))
+        self.add_metric(name + '.total_requests_served', pmdaMetric(PMDA.pmid(0, 2), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, pmUnits()))
+        self.add_metric(name + '.workers_accepting_requests', pmdaMetric(PMDA.pmid(0, 3), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, pmUnits()))
+        self.add_metric(name + '.total_exceptions', pmdaMetric(PMDA.pmid(0, 4), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, pmUnits()))
+        self.add_metric(name + '.total_harakiri_count', pmdaMetric(PMDA.pmid(0, 5), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, pmUnits()))
+        self.add_metric(name + '.busy_worker_count', pmdaMetric(PMDA.pmid(0, 6), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, pmUnits()))
+        self.add_metric(name + '.idle_worker_count', pmdaMetric(PMDA.pmid(0, 7), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, pmUnits()))
+        self.add_metric(name + '.pause_worker_count', pmdaMetric(PMDA.pmid(0, 8), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, pmUnits()))
+
+        self.set_fetch_callback(self.uwsgi_fetch_callback)
+        self.set_user(pmContext.pmGetConfig('PCP_USER'))
+
+    def uwsgi_fetch_callback(self, cluster, item, inst):
+        ''' Returns a list of value,status (single pair) for one metric '''
+
+        if not cluster == 0:
+            return [PM_ERR_PMID, 0]
+        elif not _is_pmda_setup():
+            try:
+                stats = requests.get('http://127.0.0.1:9051').json()
+                self.log(f"stats: {stats}")
+            except Exception:
+                return [PM_ERR_AGAIN, 0]
+
+        if item == 0:
+            return [len(stats['workers']), 1]
+        if item == 1:
+            response_time_msec_per_worker = [w['avg_rt'] for w in stats['workers']] # reports in milliseconds
+            avg_response_time_msec = sum(response_time_msec_per_worker)/len(response_time_msec_per_worker)
+            return [avg_response_time_msec, 1]
+        if item == 2:
+            total_requests_served = sum([w['requests'] for w in stats['workers']])
+            return [total_requests_served, 1]
+        if item == 3:
+            total_accepting_requests = sum([w['accepting'] for w in stats['workers']])
+            return [total_accepting_requests, 1]
+        if item == 4:
+            total_exceptions = sum([w['exceptions'] for w in stats['workers']])
+            return [total_exceptions, 1]
+        if item == 5:
+            total_harakiri_count = sum([w['harakiri_count'] for w in stats['workers']])
+            return [total_harakiri_count, 1]
+        if item == 6:
+            num_busy_workers = sum([w['status'] == 'busy' for w in stats['workers']])
+            return [num_busy_workers, 1]
+        if item == 7:
+            num_idle_workers = sum([w['status'] == 'idle' for w in stats['workers']])
+            return [num_idle_workers, 1]
+        if item == 8:
+            num_pause_workers = sum([w['status'] == 'pause' for w in stats['workers']])
+            return [num_pause_workers, 1]
+        return [PM_ERR_PMID, 0]
+
+
+if __name__ == '__main__':
+    UwsgiPMDA('uwsgi', 161).run()
+

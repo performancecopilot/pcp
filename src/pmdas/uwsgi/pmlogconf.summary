@@ -1,0 +1,4 @@
+#pmlogconf-setup 2.0
+ident	uwsgi server statistics
+probe	uwsgi.workers exists ? include : exclude
+	nginx
