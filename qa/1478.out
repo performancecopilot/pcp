@@ -10,3 +10,14 @@ pcp.env: Fatal Error: "TMP/etc/pcp.conf" not found
 
 === $PCP_RUN_DIR missing
 drwxrwxr-x pcpqa pcpqa TMP/run
+
+=== $PCP_RUN_DIR exists and OK, so do nothing
+drwxrwxr-x pcpqa pcpqa TMP/run
+
+=== $PCP_RUN_DIR exists but various problems ...
+--- wrong user
+drwxrwxr-x pcpqa pcpqa TMP/run
+--- wrong group
+drwxrwxr-x pcpqa pcpqa TMP/run
+--- wrong mode
+drwxrwxr-x pcpqa pcpqa TMP/run
