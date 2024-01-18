@@ -30,7 +30,7 @@ main(int argc, char **argv)
     int		errflag = 0;
     int		c;
     int		Vflag = 0;
-    int		version;
+    int		version = PM_LOG_VERS03;	/* default to V3 */
     static char	*usage = "[-D debugspec] [-V version]";
 
     pmSetProgname(argv[0]);
