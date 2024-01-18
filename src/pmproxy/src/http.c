@@ -497,7 +497,7 @@ http_reply(struct client *client, sds message,
 	    fprintf(stderr,
 		    "Final streaming HTTP %s response len=%lu (client=%p)\n",
 		    http_method_str(client->u.http.parser.method),
-		    client->buffer ? sdslen(client->buffer) : 0, client);
+		    client->buffer ? (long unsigned)sdslen(client->buffer) : 0, client);
 
 	buffer = sdsempty();
 	suffix = client->buffer;
@@ -550,7 +550,7 @@ http_reply(struct client *client, sds message,
 	    fprintf(stderr, "HTTP %s compressed response (client=%p) "
 			    "len(buffer)=%lu len(suffix)=%lu\n",
 			http_method_str(client->u.http.parser.method), client,
-			sdslen(buffer), suffix ? sdslen(suffix) : 0);
+			(long unsigned)sdslen(buffer), suffix ? (long unsigned)sdslen(suffix) : 0);
 	else
 	    fprintf(stderr, "HTTP %s response (client=%p)\nbuffer=%ssuffix=%s",
 			http_method_str(client->u.http.parser.method), client,
@@ -576,7 +576,7 @@ http_flush(struct client *client)
     if (pmDebugOptions.http)
 	fprintf(stderr, "HTTP %s compressed flush len=%lu (client=%p)\n",
 		http_method_str(client->u.http.parser.method),
-		buffer ? sdslen(buffer) : 0, client);
+		buffer ? (long unsigned)sdslen(buffer) : 0, client);
 
     /* flags will now reflect if this is the final buffer to transfer */
     flags = client->u.http.flags;
