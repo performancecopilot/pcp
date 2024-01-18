@@ -512,18 +512,6 @@ extract_time(seriesQueryBaton *baton, pmSID series,
     return -EPROTO;
 }
 
-static inline int
-pmTimespec_cmp(pmTimespec *a, pmTimespec *b)
-{
-    if (a->tv_sec != b->tv_sec)
-	return (a->tv_sec > b->tv_sec) ? 1 : -1;
-    if (a->tv_nsec > b->tv_nsec)
-	return 1;
-    if (a->tv_nsec < b->tv_nsec)
-	return -1;
-    return 0;
-}
-
 static inline void
 pmTimespec_add(pmTimespec *t1, pmTimespec *t2)
 {
