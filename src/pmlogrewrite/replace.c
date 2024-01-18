@@ -80,9 +80,9 @@ re_replace(char *buf, value_change_t *vcp, int nvc)
 		    if (pmatch[i].rm_so == -1)
 			break;
 		    if (i == 0)
-			fprintf(stderr, " & [%d,%d]", pmatch[i].rm_so, pmatch[i].rm_eo);
+			fprintf(stderr, " & [%lld,%lld]", (long long)pmatch[i].rm_so, (long long)pmatch[i].rm_eo);
 		    else
-			fprintf(stderr, " \\%d [%d,%d]", i, pmatch[i].rm_so, pmatch[i].rm_eo);
+			fprintf(stderr, " \\%d [%lld,%lld]", i, (long long)pmatch[i].rm_so, (long long)pmatch[i].rm_eo);
 		}
 		fputc('\n', stderr);
 	    }
