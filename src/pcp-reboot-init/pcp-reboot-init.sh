@@ -78,10 +78,12 @@ else
     ls -ld "$PCP_RUN_DIR/.." "$PCP_RUN_DIR"
 fi
 mode=`awk '{print $4}' <$tmp | sed -e 's/.*\(...\)$/\1/'`
-user=$(id -n -u `awk '{print $5}' <$tmp`)
-group=$(id -n -g `awk '{print $6}' <$tmp`)
+user=`awk '{print $5}' <$tmp`
+group=`awk '{print $6}' <$tmp`
+PCP_USER_N=`id -u $PCP_USER`
+PCP_GROUP_N=`id -g $PCP_USER`
 
-if [ "$user" != $PCP_USER -o "$group" != $PCP_GROUP ]
+if [ "$user" != $PCP_USER_N -o "$group" != $PCP_GROUP_N ]
 then
     if chown $PCP_USER:$PCP_GROUP "$PCP_RUN_DIR"
     then
