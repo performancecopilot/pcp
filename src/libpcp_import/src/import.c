@@ -1216,6 +1216,10 @@ pmiPutMark(void)
 	return PM_ERR_NOCONTEXT;
 
     acp = &current->archctl;
+
+    if (acp == NULL || acp->ac_mfp == NULL)
+	return -EBADF;
+
     last_stamp = &current->last_stamp;
 
     if (last_stamp->sec == 0 && last_stamp->nsec == 0)

@@ -207,7 +207,8 @@ main(int argc, char *argv[])
     __pmEndOptions(&opts);
 
     archpathname = argv[opts.optind];
-    archbasename = strdup(basename((tmp = strdup(archpathname))));
+    tmp = strdup(archpathname);
+    archbasename = strdup(basename(tmp));
     free(tmp);
     /*
      * treat foo.index, foo.meta, foo.NNN along with any supported

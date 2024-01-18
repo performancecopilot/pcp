@@ -138,8 +138,8 @@ main(int argc, char **argv)
     pmResult	*store_rp = NULL;
     pmHighResResult	*hrp;
     struct timeval	delay = { 0, 20000 };	/* 20msec pause */
-    int		colour_numinst;
-    int		*colour_instlist;
+    int		colour_numinst = 0;
+    int		*colour_instlist = NULL;
 
     pmSetProgname(argv[0]);
 
