@@ -453,7 +453,9 @@ on_protocol_read(uv_stream_t *stream, ssize_t nread, const uv_buf_t *buf)
 static void
 on_client_read(uv_stream_t *stream, ssize_t nread, const uv_buf_t *buf)
 {
+#ifdef HAVE_OPENSSL
     struct proxy	*proxy = (struct proxy *)stream->data;
+#endif
     struct client	*client = (struct client *)stream;
 
     if (nread > 0) {
