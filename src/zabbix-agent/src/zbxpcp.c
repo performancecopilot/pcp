@@ -141,9 +141,9 @@ ZBX_METRIC *zbx_module_item_list()
     zbx_module_pcp_add_params(ZBX_PCP_METRIC_PREFIX);
 
     /* Finalize the Zabbix set.  */
-    mptr = metrics;
-    metrics = (ZBX_METRIC *)realloc(mptr, (metric_count + 1) * sizeof(ZBX_METRIC));
-    if (metrics == NULL) { free(mptr); return empty; }
+    mptr = (ZBX_METRIC *)realloc(metrics, (metric_count + 1) * sizeof(ZBX_METRIC));
+    if (mptr == NULL) { free(metrics); return empty; }
+    metrics = mptr;
     metrics[metric_count].key = NULL;
 
     return metrics;
@@ -170,7 +170,7 @@ static int zbx_module3_pcp_fetch_metric(AGENT_REQUEST *, AGENT_RESULT_V3 *);
 static void zbx_module_pcp_add_metric(const char *name)
 {
     char *metric;
-    ZBX_METRIC *mptr = metrics;
+    ZBX_METRIC *mptr;
 
     /* Construct the Zabbix metric name.  */
     metric = (char *)malloc(strlen(ZBX_PCP_METRIC_PREFIX) + strlen(name) + 1);
@@ -179,8 +179,9 @@ static void zbx_module_pcp_add_metric(const char *name)
     strcat(metric, name);
 
     /* Ready for Zabbix.  */
-    metrics = (ZBX_METRIC *)realloc(mptr, (metric_count + 1) * sizeof(ZBX_METRIC));
-    if (metrics == NULL) { metrics = mptr; free(metric); return; }
+    mptr = (ZBX_METRIC *)realloc(metrics, (metric_count + 1) * sizeof(ZBX_METRIC));
+    if (mptr == NULL) { return; }
+    metrics = mptr;
     metrics[metric_count].key = metric;
     metrics[metric_count].flags = 0;
     if (zbx_version >= ZBX_VERSION3)
