@@ -465,14 +465,14 @@ main(int argc, char *argv[])
     }
 
     if (opts.guiflag != 0 || opts.guiport != 0) {
-	char *timezone = NULL;
+	char *tz = NULL;
 
-	pmWhichZone(&timezone);
+	pmWhichZone(&tz);
 	if (!opts.guiport)
 	    opts.guiport = -1;
 	pmtime = pmTimeStateSetup(&controls, opts.context,
 			opts.guiport, opts.interval, opts.origin,
-			opts.start, opts.finish, timezone, tzlabel);
+			opts.start, opts.finish, tz, tzlabel);
 
 	/* keep pointers to some default time control functions */
 	defaultcontrols = controls;
