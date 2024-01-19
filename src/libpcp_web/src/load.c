@@ -542,6 +542,7 @@ server_cache_series_finished(void *arg)
     doneSeriesLoadBaton(baton, "server_cache_series_finished");
 }
 
+#if defined(HAVE_LIBUV)
 static void
 server_cache_update_done(void *arg)
 {
@@ -558,7 +559,6 @@ server_cache_update_done(void *arg)
     server_cache_window(baton);
 }
 
-#if defined(HAVE_LIBUV)
 /* this function runs in a worker thread */
 static void
 fetch_archive(uv_work_t *req)
