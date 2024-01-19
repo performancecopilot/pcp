@@ -39,7 +39,7 @@ void
 dump_dt(char *str, struct tm *atm)
 {
     printf("\"%s\"", str);
-    printf("%*s", 33 - strlen(str) - 2, " ");
+    printf("%*s", (int)(33 - strlen(str) - 2), " ");
     printf("%d-%.2d-%.2d %.2d:%.2d:%.2d\n",
 	   atm->tm_year + 1900,
 	   atm->tm_mon + 1,
