@@ -260,80 +260,12 @@ do
     cat $log >>$HOME/daily.log
     echo "--- end $log ---" >>$HOME/daily.log
 done
-grep 'Permission denied' Logs/pcp >$tmp.err
-grep ' [Ee]rror: ' Logs/pcp \
-| sed >>$tmp.err \
-    -e '/^\/usr\/share\/selinux\/devel\/.* duplicate definition of /d' \
-    # end
-sed -e 's/^/ /' <Logs/pcp \
-| grep -i ' warning: ' \
-| sed >>$tmp.err \
-    -e 's/^ //' \
-    -e '/yyunput.* defined but not used/d' \
-    -e '/input.* defined but not used/d' \
-    -e '/jobserver unavailable: using -j1/d'\
-    -e '/^warning: File listed twice: .*python/d' \
-    -e '/Deprecated external dependency generator is used!/d' \
-    -e '/^dpkg-shlibdeps: warning: .*\/pmda_pmcd.so contains an unresolvable .* probably a plugin/d' \
-    -e '/^dpkg-shlibdeps: warning: package could avoid a useless dependency/d' \
-    -e '/^configure: WARNING: unrecognized options: --disable-dependency-tracking/d' \
-    -e '/QtCore\/qvector.h.* memcpy(/d' \
-    -e '/libpython.* warning: warning: tmpnam() possibly used unsafely/d' \
-    -e '/libpython.* warning: warning: tempnam() possibly used unsafely/d' \
-    -e '/WARNING: missing directory entry for <.*pcp/s/WARNING/Warning/' \
-    -e '/WARNING: missing directory entry for </d' \
-    -e '/^Project WARNING: CONFIG-=import_qpa_plugin is deprecated./d' \
-    -e '/^Project MESSAGE: Warning: unknown QT: widgets/d' \
-    -e '/^Project MESSAGE: Warning: unknown QT: printsupport/d' \
-    -e '/ldconfig: Warning: ignoring configuration file that cannot be opened: .*pcp.*BUILDROOT/d' \
-    -e '/<stdout>.* warning: comparison between signed and unsigned/d' \
-    -e '/qmc_config.h.* warning: .Qt::fixed. defined but not used/d' \
-    -e '/qmc_config.h.* warning: .Qt::endl. defined but not used/d' \
-    -e '/warning _FORTIFY_SOURCE requires compiling with optimization/d' \
-    -e '/ declaration of .* shadows a member of .this./d' \
-    -e '/ declaration of .* shadows a global declaration/d' \
-    -e '/\/usr\/include\/.* shadowed declaration is here/d' \
-    -e '/^libbpf.c.* comparison of integer expressions of different signedness/d' \
-    -e '/^libbpf.c.* operand of .?:. changes signedness from /d' \
-    -e '/^libbpf_internal.h.* comparison of integer expressions of different signedness/d' \
-    -e '/^bpf.c.* comparison of integer expressions of different signedness/d' \
-    -e '/^btf.c.* comparison of integer expressions of different signedness/d' \
-    -e '/^btf.c.* operand of .?:. changes signedness from /d' \
-    -e '/^btf_dump.c.* comparison of integer expressions of different signedness/d' \
-    -e '/^gen_loader.c.* comparison of integer expressions of different signedness/d' \
-    -e '/^hashmap.h.* comparison of integer expressions of different signedness/d' \
-    -e '/^linker.c.* comparison of integer expressions of different signedness/d' \
-    -e '/^netlink.c.* comparison of integer expressions of different signedness/d' \
-    -e '/^nlattr.c.* comparison of integer expressions of different signedness/d' \
-    -e '/^relo_core.c.* comparison of integer expressions of different signedness/d' \
-    -e '/^strset.c.* comparison of integer expressions of different signedness/d' \
-    -e '/^usdt.c.* comparison of integer expressions of different signedness/d' \
-    -e '/^deps\/hiredis\/sds.h.* declaration of .sh. shadows a previous local/d' \
-    -e '/^deps\/hiredis\/sds.c.* declaration of .sh. shadows a previous local/d' \
-    -e '/^deps\/hiredis\/sds.c.* declaration shadows a local variable/d' \
-    -e '/^deps\/hiredis\/sds.c.* shadowed declaration is here/d' \
-    -e '/^util.c.* declaration shadows a global variable/d' \
-    -e '/^util.c.* shadowed declaration is here/d' \
-    -e '/^query.c.*missing.braces/d' \
-    -e '/^query.c.*near initialization for/d' \
-    -e '/^timer.c.*missing.braces/d' \
-    -e '/^timer.c.*near initialization for/d' \
-    -e '/^acme.c.* rand() may return deterministic/d' \
-    -e '/^multithread13.c.* random() may return deterministic/d' \
-    -e '/^profilecrash.c.* random() may return deterministic/d' \
-    -e '/\/selinux\/.*\.if.* duplicate definition of /d' \
-    -e '/^lto-wrapper: warning: using serial compilation/d' \
-    -e '/^qwt_/d' \
-    -e '/^\.\/qwt_/d' \
-    -e '/^context.c.*missing.braces/d' \
-    -e '/^context.c.*near initialization for/d' \
-    -e '/^pcp\/Platform.c.*missing.braces/d' \
-    -e '/^pcp\/Platform.c.*near initialization for/d' \
-# end
+scripts/cull-build-warnings $host >$tmp.err
 if [ -s $tmp.err ]
 then
-    echo "Warning: `wc -l <$tmp.err | sed -e 's/ //g'` build errors/warnings" | tee -a $HOME/daily.log
+    echo "--- start build errors/warnings ---" >>$HOME/daily.log
     cat $tmp.err >>$HOME/daily.log
+    echo "Warning: `wc -l <$tmp.err | sed -e 's/ //g'` build errors/warnings" | tee -a $HOME/daily.log
     echo "--- end build errors/warnings ---" >>$HOME/daily.log
     ok=false
 fi
