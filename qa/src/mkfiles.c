@@ -46,7 +46,7 @@ main(int argc, char* argv[])
 	perror("error allocating filename buffer");
 	exit(1);
     }
-    strcpy(namebuf, argv[1]);
+    strncpy(namebuf, argv[1], len);
     namebuf[i++] = '.';
     extptr = &namebuf[i];
     len -= i;

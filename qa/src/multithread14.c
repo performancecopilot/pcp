@@ -90,7 +90,7 @@ func_A(void *arg)
 	    fprintf(stderr, "[tid %d] Error: func_A: __pmProcessAddArg() -> %s\n", iam, pmErrStr_r(sts, strbuf, sizeof(strbuf)));
 	    pthread_exit("botch A.2");
 	}
-	sprintf(strbuf, "%d", i0);
+	pmsprintf(strbuf, PM_MAXLABELJSONLEN, "%d", i0);
 	if ((sts = __pmProcessAddArg(&argp, strbuf)) < 0) {
 	    fprintf(stderr, "[tid %d] Error: func_A: __pmProcessAddArg() -> %s\n", iam, pmErrStr_r(sts, strbuf, sizeof(strbuf)));
 	    pthread_exit("botch A.3");
@@ -99,7 +99,7 @@ func_A(void *arg)
 	    fprintf(stderr, "[tid %d] Error: func_A: __pmProcessAddArg() -> %s\n", iam, pmErrStr_r(sts, strbuf, sizeof(strbuf)));
 	    pthread_exit("botch A.4");
 	}
-	sprintf(strbuf, "%d", i1);
+	pmsprintf(strbuf, PM_MAXLABELJSONLEN, "%d", i1);
 	if ((sts = __pmProcessAddArg(&argp, strbuf)) < 0) {
 	    fprintf(stderr, "[tid %d] Error: func_A: __pmProcessAddArg() -> %s\n", iam, pmErrStr_r(sts, strbuf, sizeof(strbuf)));
 	    pthread_exit("botch A.5");
