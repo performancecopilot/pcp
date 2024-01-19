@@ -194,22 +194,7 @@ setup_cmdline(pipe_client *pc, pipe_command *cmd, char *params)
 			paramlen++;
 		    }
 		    len = strlen(paramtab[j]);
-#ifdef __GNUC__
-#if __GNUC__ >= 8
-		    /*
-		     * gcc 8 on Fedora 30 emits warnings for this strncat()
-		     * calls ... but it is safe
-		     */
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wstringop-overflow"
-#endif
-#endif
-		    strncat(q, paramtab[j], len+1);
-#ifdef __GNUC__
-#if __GNUC__ >= 8
-#pragma GCC diagnostic pop
-#endif
-#endif
+		    strncat(q, paramtab[j], MAXPATHLEN - (q - buffer) -1);
 		    paramlen += len;
 		}
 		assert(paramlen == total);
