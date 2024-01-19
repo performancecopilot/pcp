@@ -229,22 +229,22 @@ dbpmdaGetc(char * inbuf)
     int inch;
 
 #ifdef HAVE_READLINE
-    char rl_prompt_storage[64];
-    char *rl_prompt = rl_prompt_storage;
+    char _prompt_storage[64];
+    char *_prompt = _prompt_storage;
     static char	*str = NULL;
     static int	strpos = 0;
 
     if (using_readline) {
 	if (iflag)
-	    pmsprintf(rl_prompt_storage, 64, "%s> ", prompt);
+	    pmsprintf(_prompt_storage, 64, "%s> ", prompt);
 	else
-	    rl_prompt = NULL; 
+	    _prompt = NULL; 
 
 	rl_instream = yyin;
 
 	if (!str) {
 	    do {
-		str = readline(rl_prompt);
+		str = readline(_prompt);
 		if (!str) {
 		    /* EOF */
 		    inbuf[0] = inch = '\0';

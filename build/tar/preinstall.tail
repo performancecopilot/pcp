@@ -57,6 +57,7 @@ for conf in \
     $PCP_PMIECONTROL_PATH $PCP_PMLOGGERCONTROL_PATH \
     $PCP_PMPROXYOPTIONS_PATH $PCP_PMWEBDOPTIONS_PATH \
     $PCP_ETC_DIR/pcp/indom.config \
+# end
 do
     if [ -f "$conf" ]
     then

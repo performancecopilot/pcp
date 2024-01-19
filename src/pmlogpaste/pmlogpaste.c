@@ -97,7 +97,7 @@ slurp(const char *filename)
  */
 void 
 pmlogpaste(const char *filename, const char *metric,
-	   const char *hostname, const char *timezone,
+	   const char *hostname, const char *tz,
 	   const char *value, char **labels, int nlabels,
 	   struct timespec *timestamp)
 {
@@ -115,7 +115,7 @@ pmlogpaste(const char *filename, const char *metric,
 	exit(EXIT_FAILURE);
     }
 
-    if ((sts = pmiSetTimezone(timezone)) < 0) {
+    if ((sts = pmiSetTimezone(tz)) < 0) {
 	fprintf(stderr, "%s: error setting log timezone: %s\n",
 			pmGetProgname(), pmiErrStr(sts));
 	exit(EXIT_FAILURE);
@@ -184,7 +184,7 @@ main(int argc, char *argv[])
     char	*metric = NULL;
     char	*outfile = NULL;
     char	*hostname = NULL;
-    char	*timezone = NULL;
+    char	*tz = NULL;
     char	**labels = NULL;
     int 	nlabels = 0;
     struct timespec timestamp = {0};
@@ -209,7 +209,7 @@ main(int argc, char *argv[])
 	    break;
 
 	case 't':
-	    timezone = opts.optarg;
+	    tz = opts.optarg;
 	    break;
 	
 	case 'l':
@@ -260,8 +260,8 @@ main(int argc, char *argv[])
     if (outfile == NULL)
 	outfile = "paste";		/* default archive name */
 
-    if (timezone == NULL)
-	timezone = __pmTimezone();
+    if (tz == NULL)
+	tz = __pmTimezone();
 
     if (__pmGetTimespec(&timestamp) < 0)	/* high resolution timestamp */
 	timestamp.tv_sec = time(NULL);
@@ -273,7 +273,7 @@ main(int argc, char *argv[])
 	    hostname = &hostname_buffer[0];
     }
 
-    pmlogpaste(outfile, metric, hostname, timezone, input, labels, nlabels, &timestamp);
+    pmlogpaste(outfile, metric, hostname, tz, input, labels, nlabels, &timestamp);
 
     if (labels)
 	free(labels);

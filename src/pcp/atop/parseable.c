@@ -737,7 +737,7 @@ print_PRG(char *hp, struct sstat *ss, struct tstat *ps, int nact)
 			ps->gen.tgid,
 			ps->gen.nthr,
 			exitcode,
-			ps->gen.btime,
+			(long)ps->gen.btime,
 			spaceformat(ps->gen.cmdline, cmdout),
 			ps->gen.ppid,
 			ps->gen.nthrrun,
@@ -749,7 +749,7 @@ print_PRG(char *hp, struct sstat *ss, struct tstat *ps, int nact)
 			ps->gen.sgid,
 			ps->gen.fsuid,
 			ps->gen.fsgid,
-			ps->gen.elaps,
+			(long)ps->gen.elaps,
 			ps->gen.isproc ? 'y':'n',
 			ps->gen.vpid,
 			ps->gen.ctid,
@@ -757,7 +757,7 @@ print_PRG(char *hp, struct sstat *ss, struct tstat *ps, int nact)
         		ps->gen.excode & ~(INT_MAX) ? 'N' : '-',
 			spaceformat(ps->gen.cgpath, pathout),
 			ps->gen.state == 'E' ?
-			    ps->gen.btime + ps->gen.elaps/hertz : 0);
+			    (long)(ps->gen.btime + ps->gen.elaps/hertz) : 0);
 	}
 }
 
