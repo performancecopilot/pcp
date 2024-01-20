@@ -65,25 +65,25 @@ then
     fi
 fi
 
-# stat(1) line looks like
-# /var/run/pcp 220 0 41fd 998 998 19 2373 2 0 0 1705345899 1705375503 1705375503 0 4096
-# last 3 digits mode  ^^^ ^^^ ^^^ group
-# (in hex)                user
+# ls(1) line looks like
+# drwxrwxr-x 2 pcp pcp 220 Jan 20 15:25 /var/run/pcp
+# or
+# drwxrwxr-x  2 pcp  pcp  512 Jan 20 15:02 /var/run/pcp
+#  ^^^^^^^^^    ^^^  ^^^
+#    mode      user group
 #
-if stat -t "$PCP_RUN_DIR" >$tmp
+if ls -ld "$PCP_RUN_DIR" >$tmp
 then
     :
 else
-    echo "$0: Error: stat \$PCP_RUN_DIR ($PCP_RUN_DIR) failed"
+    echo "$0: Error: ls \$PCP_RUN_DIR ($PCP_RUN_DIR) failed"
     ls -ld "$PCP_RUN_DIR/.." "$PCP_RUN_DIR"
 fi
-mode=`awk '{print $4}' <$tmp | sed -e 's/.*\(...\)$/\1/'`
-user=`awk '{print $5}' <$tmp`
-group=`awk '{print $6}' <$tmp`
-PCP_USER_N=`id -u $PCP_USER`
-PCP_GROUP_N=`id -g $PCP_USER`
+mode=`awk '{print $1}' <$tmp | sed -e 's/^.//' -e 's/\(.........\).*/\1/'`
+user=`awk '{print $3}' <$tmp`
+group=`awk '{print $4}' <$tmp`
 
-if [ "$user" != $PCP_USER_N -o "$group" != $PCP_GROUP_N ]
+if [ "$user" != $PCP_USER -o "$group" != $PCP_GROUP ]
 then
     if chown $PCP_USER:$PCP_GROUP "$PCP_RUN_DIR"
     then
@@ -95,9 +95,7 @@ then
     fi
 fi
 
-# mode 0x1fd == 0775 == rwxrwxr-x
-#
-if [ "$mode" != "1fd" ]
+if [ "$mode" != "rwxrwxr-x" ]
 then
     if chmod 775 "$PCP_RUN_DIR"
     then

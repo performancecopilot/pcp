@@ -89,11 +89,13 @@ ls -ld $tmp/run | _myls
 echo
 echo "=== \$PCP_RUN_DIR exists but various problems ..."
 echo "--- wrong user"
-$sudo chown root:pcpqa $tmp/run
+iam=`id -u`
+$sudo chown $iam:pcpqa $tmp/run
 $sudo $PCP_BINADM_DIR/pcp-reboot-init 2>&1 | _filter
 ls -ld $tmp/run | _myls
 echo "--- wrong group"
-$sudo chown pcpqa:root $tmp/run
+iam=`id -g`
+$sudo chown pcpqa:$iam $tmp/run
 $sudo $PCP_BINADM_DIR/pcp-reboot-init 2>&1 | _filter
 ls -ld $tmp/run | _myls
 echo "--- wrong mode"
