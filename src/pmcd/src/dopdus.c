@@ -1341,9 +1341,10 @@ check:
     else if (travNL_num > 0) {
 	/* send names to client */
 	pmcd_trace(TR_XMIT_PDU, cp->fd, PDU_PMNS_NAMES, travNL_num);
-	if ((sts = __pmSendNameList(cp->fd, FROM_ANON, travNL_num, (const char **)travNL, NULL)) < 0) {
-	    pmcd_trace(TR_XMIT_ERR, cp->fd, PDU_PMNS_NAMES, sts);
-	    CleanupClient(cp, sts);
+	if ((lsts = __pmSendNameList(cp->fd, FROM_ANON, travNL_num, (const char **)travNL, NULL)) < 0) {
+	    pmcd_trace(TR_XMIT_ERR, cp->fd, PDU_PMNS_NAMES, lsts);
+	    CleanupClient(cp, lsts);
+	    sts = lsts;
 	}
     }
 
