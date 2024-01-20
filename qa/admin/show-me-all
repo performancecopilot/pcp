@@ -134,7 +134,7 @@ do
 	fi
 	cd `dirname $bad`
 	$debug && echo >&2 "pwd=`/bin/pwd`"
-	rm -f $tmp.ok
+	rm -f $tmp.failed $tmp.triaged
 	for log in `ls -r ../????-??-?? test.log 2>/dev/null`
 	do
 	    if $CI
@@ -143,23 +143,34 @@ do
 	    else
 		[ "$log" = test.log ] && continue
 	    fi
-	    if grep '^Failures: ' $log >$tmp.fail
+	    if grep '^Failures: ' $log >$tmp.tmp
 	    then
 		# found a Failures: line ... is our test included in the
 		# last Failures: line?
 		#
-		if tail -1 $tmp.fail | grep " $seq" >/dev/null
+		if tail -1 $tmp.tmp | grep " $seq" >/dev/null
 		then
-		    touch $tmp.ok
+		    touch $tmp.failed
+		    break
 		fi
-		break
+	    fi
+	    if grep '^Triaged: ' $log >$tmp.tmp
+	    then
+		# found a Triaged: line ... is our test included in the
+		# last Triaged: line?
+		#
+		if tail -1 $tmp.tmp | grep " $seq" >/dev/null
+		then
+		    touch $tmp.triaged
+		    break
+		fi
 	    fi
 	done
-	if [ ! -f $tmp.ok ]
+	if [ ! -f $tmp.failed -a ! -f $tmp.triaged ]
 	then
 	    # cleanup because test was subsequently made to pass?
 	    #
-	    echo -n "$seq: not a failure in any $host daily log ... clean up? [n] "
+	echo -n "$seq: not a failure in any $host daily log ... clean up? [n] "
 	    read ans </dev/tty
 	    if [ -n "$ans" -a "$ans" = y ]
 	    then
@@ -187,6 +198,7 @@ do
 	    done
 	    [ ! -f $seq.out ] && ln -s $pcpdir/qa/$seq.out $seq.out
 	    echo -n "$host-"
+	    [ -f $tmp.triaged ] && echo -n "triaged-"
 	    [ -f qa/$seq.out.bad ] && cd qa
 	    show-me $show_me_opts $seq
 	    $full && [ -f $seq.full ] && less $seq.full </dev/tty
