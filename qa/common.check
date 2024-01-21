@@ -1194,9 +1194,10 @@ _wait_for_pmie()
     __i=0
     while true
     do
-	if [ ! -f $PCP_RUN_DIR/pmie.pid ]
+	if [ ! -s $PCP_RUN_DIR/pmie.pid ]
 	then
-	    # process not started yet ...
+	    # "run" file does not exist or is empty =>
+	    # pmie process not started yet ...
 	    __i=`expr $__i + 1`
 	    if [ "$__i" -ge 100 ]
 	    then
