@@ -260,7 +260,7 @@ do
     cat $log >>$HOME/daily.log
     echo "--- end $log ---" >>$HOME/daily.log
 done
-scripts/cull-build-warnings $host >$tmp.err
+scripts/cull-build-warnings $host <Logs/pcp >$tmp.err
 if [ -s $tmp.err ]
 then
     echo "--- start build errors/warnings ---" >>$HOME/daily.log
