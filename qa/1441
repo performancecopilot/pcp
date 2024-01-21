@@ -199,6 +199,16 @@ if [ -f $PCP_RUN_DIR/pmie.pid ]
 then
     oldpmie=`cat $PCP_RUN_DIR/pmie.pid`
     echo "old pmie pid: $oldpmie" >>$seq.full
+    if [ -z "$oldpmie" ]
+    then
+	echo "Botch: $PCP_RUN_DIR/pmie.pid empty?"
+	ls -l $PCP_RUN_DIR/pmie.pid
+	od $PCP_RUN_DIR/pmie.pid
+	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mie'
+	cat $PCP_VAR_LOG/pmie/`hostname`/pmie.log
+	_cleanup
+	exit 1
+    fi
 else
     echo "Botch: $PCP_RUN_DIR/pmie.pid not found for (restarted) old primary pmie"
     $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mie'
