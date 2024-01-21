@@ -18,14 +18,24 @@
 # This is a filter, so reads from stdin.
 #
 
-sed -n \
+tmp=/var/tmp/c-b-w-$$
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+# Gather all the lines of interest, add leading ' ' to make later
+# filtering easier
+#
+sed >$tmp.out -n \
     -e 's/^ / /' \
     -e '/Permission denied/p' \
     -e '/ [Ee]rror: /p' \
     -e '/ [Ww][Aa][Rr][Nn][Ii][Nn][Gg]: /p' \
-| sed  \
     -e 's/^ //' \
--e ': false_warnings' \
+# end
+mv $tmp.out $tmp.in
+
+# Cull false warnings
+#
+sed <$tmp.in >$tmp.out \
     -e '/yyunput.* defined but not used/d' \
     -e '/input.* defined but not used/d' \
     -e '/jobserver unavailable: using -j1/d'\
@@ -38,7 +48,12 @@ sed -n \
     -e '/^> .*Warning: /d' \
     -e '/^> .*Error: /d' \
     -e '/^pmdasample: cannot open log "sample.log" for writing : Permission denied/d' \
--e ': non_PCP_code' \
+# end
+mv $tmp.out $tmp.in
+
+# Cull warnings from non-PCP code
+#
+sed <$tmp.in >$tmp.out \
     -e '/^qwt_/d' \
     -e '/^\.\/qwt_/d' \
     -e '/^deps\/hiredis\/sds.h[ :].* declaration of .sh. shadows a previous local/d' \
@@ -71,7 +86,12 @@ sed -n \
     -e '/^perf.c[ :].*_GNU_SOURCE.* redefined/d' \
     -e '/^prog.c[ :].*_GNU_SOURCE.* redefined/d' \
     -e '/^xlated_dumper.c[ :].*_GNU_SOURCE.* redefined/d' \
--e ': triaged_and_ok' \
+# end
+mv $tmp.out $tmp.in
+
+# Cull warnings that we've triaged and can ignore
+#
+sed <$tmp.in >$tmp.out \
     -e '/^configure: WARNING: unrecognized options: --disable-dependency-tracking/d' \
     -e '/\/qmc_config.h[ :].* warning: .Qt::fixed. defined but not used/d' \
     -e '/^qmc_config.h[ :].* warning: .Qt::fixed. defined but not used/d' \
@@ -88,11 +108,22 @@ sed -n \
     -e '/^proc_pid.c[ :].* warning: ignoring return value of .strtoul/d' \
     -e '/^showgeneric.c[ :].* warning: ignoring return value of .strtol/d' \
     -e '/^util.c:2084.* strcat() is almost always misused/d' \
--e ': packaging' \
+# end
+mv $tmp.out $tmp.in
+
+# Cull warnings from packaging that have been triaged
+#
+sed <$tmp.in >$tmp.out \
     -e '/Deprecated external dependency generator is used!/d' \
     -e '/^dpkg-shlibdeps: warning: .*\/pmda_pmcd.so contains an unresolvable .* probably a plugin/d' \
     -e '/^dpkg-shlibdeps: warning: package could avoid a useless dependency/d' \
     -e '/^dpkg-source: warning: ignoring deletion of file src\/pmlogconf\/openmetrics\/GNUmakefile/d' \
+# end
+mv $tmp.out $tmp.in
+
+# Cull host-specific warnings that we don't care about
+#
+cat $tmp.in \
 | case "$1"
 in
     "")	# no hostname on command line, nothing extra
