@@ -168,6 +168,17 @@ in
 	# end
 	;;
 
+    vm33|vm37)
+	# strcpy(), strcat() and sprinf() uses in our code are all OK
+	# (brave assertion, but most follow a pattern of malloc() enough
+	# space, then str-away)
+	sed \
+	    -e '/ warning: strcpy() is almost always misused/d' \
+	    -e '/ warning: strcat() is almost always misused/d' \
+	    -e '/ warning: sprintf() is often misused/d' \
+	# end
+	;;
+
     *)	# no extra rules for this hostname
 	cat
 	;;
