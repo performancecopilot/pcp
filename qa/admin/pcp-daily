@@ -174,6 +174,7 @@ End-of-File
 
 _script_make()
 {
+    host="$1"
     cat <<'End-of-File'
 if [ -f qa/admin/list-packages ]
 then
@@ -263,7 +264,7 @@ done
 scripts/cull-build-warnings $host <Logs/pcp >$tmp.err
 if [ -s $tmp.err ]
 then
-    echo "--- start build errors/warnings ---" >>$HOME/daily.log
+    echo "--- start build errors/warnings (host=$host) ---" >>$HOME/daily.log
     cat $tmp.err >>$HOME/daily.log
     echo "Warning: `wc -l <$tmp.err | sed -e 's/ //g'` build errors/warnings" | tee -a $HOME/daily.log
     echo "--- end build errors/warnings ---" >>$HOME/daily.log
@@ -1016,7 +1017,7 @@ do
 
 	if $mflag
 	then
-	    _script_make >>$tmp.script
+	    _script_make "$host" >>$tmp.script
 	fi
 
 	$iflag && _script_install >>$tmp.script
