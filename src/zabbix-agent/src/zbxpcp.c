@@ -180,7 +180,7 @@ static void zbx_module_pcp_add_metric(const char *name)
 
     /* Ready for Zabbix.  */
     mptr = (ZBX_METRIC *)realloc(metrics, (metric_count + 1) * sizeof(ZBX_METRIC));
-    if (mptr == NULL) { return; }
+    if (mptr == NULL) { free(metric); return; }
     metrics = mptr;
     metrics[metric_count].key = metric;
     metrics[metric_count].flags = 0;
