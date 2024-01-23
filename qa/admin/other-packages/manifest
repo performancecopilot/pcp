@@ -1291,7 +1291,7 @@ slackpkg?	pluginviewer		[cyrus-sasl (QA optional)]
 pacman?		pluginviewer		[core/libsasl (QA optional)]
 brew?		pluginviewer		[N/A (QA optional)]
 # -- selinux policy
-rpm?		seinfo			[setools-console or setools (build optional)]
+rpm?		seinfo			[setools-console or setools or selinux-tools (build optional)]
 rpm?    /usr/share/selinux/devel/Makefile [selinux-policy-devel or selinux-policy (build optional)]
 rpm?    /etc/selinux/targeted/policy	[selinux-policy-targeted (build optional)]
 rpm?	/usr/lib*/libselinux.so		[libselinux-devel (build optional)]
@@ -1367,7 +1367,7 @@ rpm?		/usr/lib/jvm/java-*/lib/server/libjvm.so [java-latest-openjdk-headless or 
 # -- redis (pmproxy, pmseries QA)
 dpkg?		redis-server	[redis-server (QA optional)]
 dpkg?		redis-cli	[redis-cli or redis-tools (QA optional)]
-rpm?		redis-server	[redis (QA optional)]
+rpm?		redis-server	[redis or redis[0-9] (QA optional)]
 emerge?		redis-server	[? (QA optional)]
 pkgin?		redis-server	[N/A (QA optional)]
 pkg_add?	redis-server	[N/A (QA optional)]

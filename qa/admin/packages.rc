@@ -35,7 +35,10 @@ s/-RELEASE//
 s/-p[0-9][0-9]*//
 }' \
 	-e '/SLES\([0-9][0-9]*\) SP/s//\1-SP/' \
-	-e '/openSUSE/s/ Leap//' \
+	-e '/openSUSE/{
+s/ Leap//
+s/ Alpha//
+}' \
 	-e '/OpenIndiana/s/Hipster //' \
 	-e '/OpenMandriva/{
 s/ Lx//

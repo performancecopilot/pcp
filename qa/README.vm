@@ -190,6 +190,7 @@ CentOS
 
 openSUSE
     https://en.opensuse.org/Lifetime
+    23 Jan 2024: 15.5 and 15.6
     16 Oct 2019: 15.0 and 15.1
     15 Sep 2021: 15.2 and 15.3
     # which packages are installed
@@ -204,11 +205,17 @@ openSUSE
     $ sudo zypper install <package>
     # update all packages recipe
     $ sudo zypper refresh; sudo zypper update
-    # upgrade recipe ... e.g from 42.2 to 42.3
-    $ sudo sed -i 's/42\.2/42.3/g' /etc/zypp/repos.d/*
+    # upgrade recipe ... e.g from 15.4 to 15.5
+    # only upgrade from 15.N to 15.N+1 is supported
+    # 15.4 change in RSA algorithm
+    $ sudo rpm --import /usr/lib/rpm/gnupg/keys/gpg-pubkey-29b700a4-62b07e22.asc
+    $ sudo rpm --import /usr/lib/rpm/gnupg/keys/gpg-pubkey-25db7ae0-645bae34.asc
+    $ sudo zypper refresh; sudo zypper update
+    $ sudo sed -i 's/15\.4/15.5/g' /etc/zypp/repos.d/*
     $ sudo zypper --gpg-auto-import-keys ref
+    $ sudo zypper --releasever=15.5 refresh
     # and then in a console window
-    $ sudo zypper dup
+    $ sudo zypper --releasever=15.5 dup
 
 SUSE (SLES)
     https://www.suse.com/lifecycle/
@@ -512,3 +519,11 @@ Extending a root LVM with device-mapper by adding a partition
 
 Just remember that if you're using XFS, you need xfs_growfs instead of
 resize2fs.
+
+Extending a root btrfs filesystem by adding a partition
+
+    Assume partiton to add is partiton 1 of /dev/vdb
+    $ disk=/dev/vdb
+    $ sudo cfdisk $disk		<- make 1 partition, all of the disk
+    $ sudo btrfs -f device add ${disk}1 /
+
