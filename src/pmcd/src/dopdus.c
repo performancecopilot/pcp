@@ -1155,8 +1155,6 @@ traverse_dynamic(ClientInfo *cp, char *start, int *num_names, char ***names)
 		}
 		pmcd_trace(TR_XMIT_PDU, ap->inFd, PDU_PMNS_TRAVERSE, 1);
 		lsts = __pmSendTraversePMNSReq(ap->inFd, cp - client, namelist[0]);
-		if (lsts < 0 && sts == 0)
-		    sts = lsts;
 		if (lsts >= 0) {
 		    int		numnames;
 		    __pmPDU	*pb;
