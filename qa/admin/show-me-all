@@ -23,6 +23,7 @@ _usage()
     echo "  -g    path to base of PCP git tree [default: $HOME/src/pcp]"
     echo "  -l    run show-me -l"
     echo "  -m    gather unique .out.bad files and prepare email"
+    echo "  -t    report triaged tests (default is to skip 'em)"
     sts=1
     exit
 }
@@ -42,7 +43,8 @@ show_me_opts=''
 prepare_mail=false
 debug=false
 CI=false
-while getopts 'Cdfg:lm?' p
+triaged=false
+while getopts 'Cdfg:lmt?' p
 do
     case "$p"
     in
@@ -62,6 +64,9 @@ do
 		;;
 
 	m)	prepare_mail=true
+		;;
+
+	t)	triaged=true
 		;;
 
 	?)	_usage
@@ -170,7 +175,7 @@ do
 	then
 	    # cleanup because test was subsequently made to pass?
 	    #
-	echo -n "$seq: not a failure in any $host daily log ... clean up? [n] "
+	    echo -n "$seq: not a failure in any $host daily log ... clean up? [n] "
 	    read ans </dev/tty
 	    if [ -n "$ans" -a "$ans" = y ]
 	    then
@@ -178,6 +183,7 @@ do
 	    fi
 	    continue
 	fi
+	[ -f $tmp.triaged -a "$triaged" = false ] && continue
 	if grep " $sum" <$tmp.sum >/dev/null 2>&1
 	then
 	    match_host=`grep " $sum" <$tmp.sum | sed -e 's/ .*//' -e 1q`
