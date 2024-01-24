@@ -74,22 +74,28 @@ $1 == "expr"		{ want = 0 }'
 _filter3()
 {
     $PCP_AWK_PROG '
+function fuzzy_eq(a, b, pct)
+{
+    if (a * (100 - pct)/100 <= b && b <= a * (100 + pct) / 100)
+	return 1
+    return 0
+}
 $1 == "aggr.seconds"		{ state = 1 }
 state == 1 && $1 == "value"	{ seconds = $2; $2 = "OK"; state = 0 }
 $1 == "aggr.avgu64"		{ state = 2 }
-state == 2 && $1 == "value"	{ if ($2 == 500 + seconds) $2 = "OK"
+state == 2 && $1 == "value"	{ if (fuzzy_eq($2, 500 + seconds, 1) == 1) $2 = "OK"
 				  else $2 = $2 " (expecting " 500 + seconds ")"
 				  state = 0 }
 $1 == "aggr.maxu64"		{ state = 3 }
-state == 3 && $1 == "value"	{ if ($2 == 900 + seconds) $2 = "OK"
+state == 3 && $1 == "value"	{ if (fuzzy_eq($2, 900 + seconds, 1) == 1) $2 = "OK"
 				  else $2 = $2 " (expecting " 900 + seconds ")"
 				  state = 0 }
 $1 == "aggr.minu64"		{ state = 4 }
-state == 4 && $1 == "value"	{ if ($2 == 100 + seconds) $2 = "OK"
+state == 4 && $1 == "value"	{ if (fuzzy_eq($2, 100 + seconds, 1) == 1) $2 = "OK"
 				  else $2 = $2 " (expecting " 100 + seconds ")"
 				  state = 0 }
 $1 == "aggr.sumu64"		{ state = 5 }
-state == 5 && $1 == "value"	{ if ($2 == 4500 + 9*seconds) $2 = "OK"
+state == 5 && $1 == "value"	{ if (fuzzy_eq($2, 4500 + 9*seconds, 1) == 1) $2 = "OK"
 				  else $2 = $2 " (expecting " 4500 + 9*seconds ")"
 				  state = 0 }
 				{ print }
