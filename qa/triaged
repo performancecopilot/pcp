@@ -37,6 +37,10 @@
 135	bozo-vm	sometimes this VM (VMware on Windows) goes to sleep and
 		the pmlogger fetches are long-delayed causing the test
 		to fail miserably
+280	.*	there is a potential collision with the regular running
+		of pmlogger_check and this test finds the lock file in
+		place and goes down a rabbit hole ... it is just too hard
+		to engineer our way around this
 597	vm22	trips selinux AVC when shping PMDA runs nslookup ...
 		not worth fixing
 749	CentOS Stream9	systemtap-devel is busted here, staprun is missing

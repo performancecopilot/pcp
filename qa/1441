@@ -47,7 +47,11 @@ _cleanup()
     # may babble about "unable to resolve host ...."
     #
     cd $here
-    [ -n "$config" ] && _restore_config $config 2>>$seq.full
+    if [ -n "$config" ]
+    then
+	$sudo rm -f $config 2>>$seq.full
+	_restore_config $config 2>>$seq.full
+    fi
     if [ "`hostname`" != "$oldhostname" ]
     then
 	$sudo hostname "$oldhostname" 2>>$seq.full
