@@ -41,8 +41,6 @@
 		of pmlogger_check and this test finds the lock file in
 		place and goes down a rabbit hole ... it is just too hard
 		to engineer our way around this
-597	vm22	trips selinux AVC when shping PMDA runs nslookup ...
-		not worth fixing
 749	CentOS Stream9	systemtap-devel is busted here, staprun is missing
 878	.*	on some QA hosts this fails sometimes when we don't see
 		the first or second event record ... despite extensive
