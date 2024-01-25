@@ -571,11 +571,15 @@ do
     nbad=\`expr \$nbad + 1\`
     seq=\`echo \$bad | sed -e 's/\.out\.bad//'\`
     [ -f \$seq.out ] && echo \$seq.out >>\$HOME/daily.harvest
-    if [ -f \$seq.full ]
-    then
-	echo \$seq.full >>\$HOME/daily.harvest
-	nfull=\`expr \$nfull + 1\`
-    fi
+    for full in \$seq.full*
+    do
+	if [ "\$full" = "\$seq.full*" ] && continue
+	if [ -f "\$full" ]
+	then
+	    echo \$full >>\$HOME/daily.harvest
+	    nfull=\`expr \$nfull + 1\`
+	fi
+    done
 done
 [ -s \$HOME/daily.harvest ] && cat \$HOME/daily.harvest >>\$HOME/daily.qa.log
 echo "Info: harvest \$nbad *.bad files, \$nfull *.full files" | tee -a \$HOME/daily.qa.log
