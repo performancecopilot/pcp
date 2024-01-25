@@ -16,6 +16,7 @@ _usage()
     echo '  -C      include results from CI'
     echo '  -d      debug'
     echo '  -f      sort failure map on %fail [default sort on Test #]'
+    echo '  -l      check and setup links'
     echo '  -m N    minimum number of tests run to be reported [default 60]'
     echo '  -n      report skipped and not run tests (reported as "S" and "N")'
     echo '  -r      only most recent results date [default report all dates]'
@@ -55,6 +56,27 @@ _map_ci_hostname()
     # end
 }
 
+_ask()
+{
+    ans=''
+    while [ -z "$ans" ]
+    do
+	echo -n "$1, does this seem OK? [y|n] "
+	read ans </dev/tty
+	case "$ans"
+	in
+	    y|n)
+		break
+		;;
+	    *)
+		echo "Answer the question, bozo!"
+		ans=''
+		;;
+	esac
+    done
+    [ "$ans" = n ] && exit
+}
+
 # must have tried to run at least this number to qualify
 # 40 => -g sanity circa PCP 2.7.8 [minus a few not runs]
 # 25 => -g remote circa PCP 4.0.0 [minus a few not runs]
@@ -65,11 +87,12 @@ debug=false
 recent=false
 aflag=false
 cflag=false
+lflag=false
 nflag=false
 tflag=false
 failsort=false
 CI=false
-while getopts 'acCdfm:nrt?' p
+while getopts 'acCdflm:nrt?' p
 do
     case "$p"
     in
@@ -83,6 +106,8 @@ do
 	d)	debug=true
 		;;
 	f)	failsort=true
+		;;
+	l)	lflag=true
 		;;
 	m)	minrun=$OPTARG
 		;;
@@ -108,6 +133,79 @@ else
     trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 fi
 rm -f $tmp.*
+
+# check integrity of symlinks and active directories across
+# the two repos that are used ...
+#
+if $lflag
+then
+    # from CI aka $HOME/src/qa-reports ... check links
+    #
+    ls -l $HOME/src/qa-reports >$tmp.tmp
+    grep '^d.* test-' <$tmp.tmp \
+    | while read line
+    do
+	dir=`echo "$line" |  awk '{print $NF}'`
+	find $HOME/src/qa-reports/$dir -maxdepth 0 -a -mtime +7 \
+	| while read old
+	do
+	    # no updates in the last week, is this no longer in use?
+	    #
+	    ls -ld $old
+	    _ask "Cull old dir $old"
+	    rm -rf $old
+	done
+	if [ -d $HOME/src/qa-reports/$dir ]
+	then
+	    if grep " -> $dir\$" <$tmp.tmp >/dev/null
+	    then
+		:
+	    else
+		echo "No shortname symlink for $dir, you need to create it"
+	    fi
+	fi
+    done
+    grep '^l.* -> test-' <$tmp.tmp \
+    | while read line
+    do
+	dir=`echo "$line" |  awk '{print $NF}'`
+	symlink=`echo "$line" |  awk '{print $(NF-2)}'`
+	if [ ! -d $HOME/src/qa-reports/$dir ]
+	then
+	    _ask "Symlink $symlink -> missing dir ($dir), remove symlink"
+	    rm $HOME/src/qa-reports/$symlink
+	fi
+    done
+
+    # now make $HOME/Log/by-vm is compatibile with $HOME/src/qa-reports
+    #
+    here=`pwd`
+    cd $HOME/Logs/by-vm
+    grep '^l.* -> test-' <$tmp.tmp \
+    | while read line
+    do
+	dir=`echo "$line" |  awk '{print $NF}'`
+	symlink=`echo "$line" |  awk '{print $(NF-2)}'`
+	if [ ! -L $symlink ]
+	then
+	    _ask "Symlink for $symlink missing from Logs/by-vm, create it"
+	    ln -s ../../src/qa-reports/$dir $symlink
+	fi
+    done
+    ls -l >$tmp.tmp
+    grep '^l.* -> test-' <$tmp.tmp \
+    | while read line
+    do
+	dir=`echo "$line" |  awk '{print $NF}'`
+	symlink=`echo "$line" |  awk '{print $(NF-2)}'`
+	if [ ! -d $dir ]
+	then
+	    _ask "Symlink $symlink -> missing dir ($dir), remove symlink"
+	    # rm $symlink
+	fi
+    done
+    exit
+fi
 
 if [ $# -eq 0 ]
 then
