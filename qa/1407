@@ -30,6 +30,7 @@ _checkerr()
 	-e '/libGL error: No matching fbConfigs/d' \
 	-e '/libGL error: failed to load driver: swrast/d' \
 	-e '/^MESA: error: ZINK: vkCreateInstance failed /d' \
+	-e '/^MESA: error: ZINK: failed to choose pdev/d' \
 	-e '/^glx: failed to create drisw screen/d' \
 	-e '/^failed to load driver: zink/d' \
     | _filter > $tmp.tmp
