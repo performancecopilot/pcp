@@ -175,13 +175,13 @@ End-of-File
 _script_make()
 {
     host="$1"
-    cat <<'End-of-File'
+    cat <<End-of-File
 if [ -f qa/admin/list-packages ]
 then
-    qa/admin/list-packages -m >$tmp.tmp
-    if [ -s $tmp.tmp ]
+    qa/admin/list-packages -m >\$tmp.tmp
+    if [ -s \$tmp.tmp ]
     then
-	echo "Info: list-packages reports missing: `cat $tmp.tmp`" | tee -a $HOME/daily.log
+	echo "Info: list-packages reports missing: \`cat \$tmp.tmp\`" | tee -a \$HOME/daily.log
     fi
 fi
 ok=false
@@ -190,8 +190,8 @@ if [ ! -f VERSION.pcp.daily ]
 then
     cp VERSION.pcp VERSION.pcp.daily
 else
-    diff VERSION.pcp VERSION.pcp.daily >$tmp.tmp
-    if grep -E 'PACKAGE_MAJOR|PACKAGE_MINOR|PACKAGE_REVISION' <$tmp.tmp >/dev/null
+    diff VERSION.pcp VERSION.pcp.daily >\$tmp.tmp
+    if grep -E 'PACKAGE_MAJOR|PACKAGE_MINOR|PACKAGE_REVISION' <\$tmp.tmp >/dev/null
     then
 	# different PCP release, do an initial build
 	cp VERSION.pcp VERSION.pcp.daily
@@ -199,10 +199,10 @@ else
 	# same PCP release, bump away
 	awk -F= <VERSION.pcp.daily '
 BEGIN	{ OFS = "=" }
-$1 == "PACKAGE_BUILD"	{ print "PACKAGE_BUILD",$2+1; next }
-			{ print }' \
-| sed -e 's/=$//' >$tmp.version
-	cp $tmp.version VERSION.pcp.daily
+\$1 == "PACKAGE_BUILD"	{ print "PACKAGE_BUILD",\$2+1; next }
+			{ print }' \\
+| sed -e 's/=\$//' >\$tmp.version
+	cp \$tmp.version VERSION.pcp.daily
     fi
 fi
 cp VERSION.pcp.daily VERSION.pcp
@@ -213,10 +213,10 @@ cp VERSION.pcp.daily VERSION.pcp
 #
 if which systemctl >/dev/null 2>&1
 then
-    echo "Info: stopping PCP services" | tee -a $HOME/daily.log
+    echo "Info: stopping PCP services" | tee -a \$HOME/daily.log
     for svc in pmie pmlogger pmproxy pmcd
     do
-	sudo systemctl stop $svc
+	sudo systemctl stop \$svc
     done
 fi
 # simulate a first-time build
@@ -224,20 +224,18 @@ sudo rm -rf /usr/include/pcp
 sudo rm -f /usr/lib*/libpcp[_.]*
 # clean up any build turds
 rm -f qa/qa_outfiles
-End-of-File
-    echo "if MAKE=\$MAKE ./Makepkgs --clean >>\$HOME/daily.log 2>&1"
-    cat <<'End-of-File'
+if MAKE=\$MAKE ./Makepkgs --clean >>\$HOME/daily.log 2>&1
 then
     ok=true
 else
     # for Debian/Ubuntu, it may just be the signing of the packages that
     # failed
     #
-    if tail -20 $HOME/daily.log | grep 'dpkg-buildpackage: warning: Failed to sign' >/dev/null
+    if tail -20 \$HOME/daily.log | grep 'dpkg-buildpackage: warning: Failed to sign' >/dev/null
     then
-	echo "Warning: Makepkgs failed to sign dpkg's" | tee -a $HOME/daily.log
+	echo "Warning: Makepkgs failed to sign dpkg's" | tee -a \$HOME/daily.log
     else
-	echo "Error: Makepkgs failed!" | tee -a $HOME/daily.log
+	echo "Error: Makepkgs failed!" | tee -a \$HOME/daily.log
 	# restore build number
 	rm -f VERSION.pcp
 	git checkout -- VERSION.pcp
@@ -257,20 +255,20 @@ git checkout -- VERSION.pcp
 #
 for log in Logs/*
 do
-    echo "--- $log ---" >>$HOME/daily.log
-    cat $log >>$HOME/daily.log
-    echo "--- end $log ---" >>$HOME/daily.log
+    echo "--- \$log ---" >>\$HOME/daily.log
+    cat \$log >>\$HOME/daily.log
+    echo "--- end \$log ---" >>\$HOME/daily.log
 done
-scripts/cull-build-warnings $host <Logs/pcp >$tmp.err
-if [ -s $tmp.err ]
+scripts/cull-build-warnings $host <Logs/pcp >\$tmp.err
+if [ -s \$tmp.err ]
 then
-    echo "--- start build errors/warnings (host=$host) ---" >>$HOME/daily.log
-    cat $tmp.err >>$HOME/daily.log
-    echo "Warning: `wc -l <$tmp.err | sed -e 's/ //g'` build errors/warnings" | tee -a $HOME/daily.log
-    echo "--- end build errors/warnings ---" >>$HOME/daily.log
+    echo "--- start build errors/warnings (host=$host) ---" >>\$HOME/daily.log
+    cat \$tmp.err >>\$HOME/daily.log
+    echo "Warning: \`wc -l <\$tmp.err | sed -e 's/ //g'\` build errors/warnings" | tee -a \$HOME/daily.log
+    echo "--- end build errors/warnings ---" >>\$HOME/daily.log
     ok=false
 fi
-$ok && echo "Info: Makepkgs" | tee -a $HOME/daily.log
+\$ok && echo "Info: Makepkgs" | tee -a \$HOME/daily.log
 End-of-File
 }
 
