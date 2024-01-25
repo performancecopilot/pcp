@@ -201,7 +201,7 @@ then
 	if [ ! -d $dir ]
 	then
 	    _ask "Symlink $symlink -> missing dir ($dir), remove symlink"
-	    # rm $symlink
+	    rm $symlink
 	fi
     done
     exit
