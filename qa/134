@@ -54,14 +54,20 @@ $1 ~ /\.0$/	{ if (l0 == 0) {
 			  # V2 archives
 		          print $1,"initial OK"
 		      }
-		      else if ($2 > 808 && $2 < 1000) {
+		      else if ($2 > 808 && $2 <= 1100) {
 			  # V3 archives
+			  # Note on upper limit:
+			  # for hostname bozo.localdomain the .0 size is 1036
+			  # for hostname fv-az1023-380.cxk2etxb0jje1nvwrtfsy0dgjd.bx.internal.cloudapp.net
+			  # the expected .0 size is 1036 - 16 + 65 = 1085 ... add
+			  # some other slop for timezone, even longer hostname
+			  # and we get to 1100
 		          print $1,"initial OK"
 		      }
 		      else
 			  print $1,"initial BAD - ",$2
-		  }
-		  else if (l0 == $2)
+}
+else if (l0 == $2)
 		          print $1,"unchanged"
 		  else if ($2 - l0 == 40) {
 		  	  # V2 archives
@@ -235,5 +241,15 @@ done
 echo >>$seq.full
 echo "-- pmlogger.log --" >>$seq.full
 cat $tmp.log >>$seq.full
+
+echo >>$seq.full
+echo "-- .0 --" >>$seq.full
+src/scandata -o -v $tmp.0 >>$seq.full 2>&1
+echo "-- .1 --" >>$seq.full
+src/scandata -o -v $tmp.1 >>$seq.full 2>&1
+echo "-- .meta --" >>$seq.full
+src/scanmeta -o -a $tmp.meta >>$seq.full 2>&1
+echo "-- .index --" >>$seq.full
+pmdumplog -t $tmp >>$seq.full 2>&1
 
 exit 0
