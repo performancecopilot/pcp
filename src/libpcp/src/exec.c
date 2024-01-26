@@ -15,7 +15,7 @@
  *
  * Thread-safe notes
  *	- map and nmap protected by exec_lock
- *      - -Dexec diagnostics are rotected by exec_lock, but this does
+ *      - -Dexec diagnostics are protected by exec_lock, but this does
  *         not apply to any child process after a fork()
  */
 

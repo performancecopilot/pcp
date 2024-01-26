@@ -21,6 +21,9 @@ in
     *Fedora\ 32\ *)
 	_notrun "helgrind broken for this test on Fedora 32"
 	;;
+    *openSUSE\ Leap\ 15.5\ *)
+	_notrun "helgrind broken for this test on openSUSE Leap 15.?"
+	;;
 esac
 
 if sed -e 's/$/ /' /etc/hosts | grep '::1[ 	].*localhost ' >/dev/null
