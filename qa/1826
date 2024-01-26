@@ -25,6 +25,11 @@ if [ "$1" = "--valgrind" ]
 then
     _check_valgrind
     do_valgrind=true
+elif which valgrind >/dev/null 2>&1
+then
+    : note we want to run both variants for this test, as the
+    : valgrind variant filters away the functional checks and
+    : only reports memory issues
 fi
 
 which sha256sum >/dev/null 2>&1 || _notrun "sha256sum tool not found"

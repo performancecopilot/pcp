@@ -34,7 +34,8 @@ then
     :
 elif which valgrind >/dev/null 2>&1
 then
-    _notrun "valgrind variant qa/1459 will be run"
+    [ $PCPQA_VALGRIND = both ] || \
+	_notrun "valgrind variant qa/1459 will be run"
 fi
 
 _cleanup()

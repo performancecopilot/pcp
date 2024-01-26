@@ -105,7 +105,7 @@ Timestamp: 14:49:55.067305000 numpmid: 0 <mark>
 9 data records found
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: src/scandata -v TMP_v2.0
+Command: src/scandata -o -v TMP_v2.0
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -223,7 +223,7 @@ Timestamp: 14:49:55.067305985
 9 data records found
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: src/scandata -v TMP_v3.0
+Command: src/scandata -o -v TMP_v3.0
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks

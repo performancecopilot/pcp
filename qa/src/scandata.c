@@ -21,6 +21,7 @@
 #define __ntohpmID(a)           ntohl(a)
 #endif
 
+static int	oflag;
 static int	vflag;
 static int	xflag;
 static int	nrec;
@@ -36,6 +37,7 @@ usage(void)
     fprintf(stderr, "Usage: %s [options] in.0\n", pmGetProgname());
     fprintf(stderr, "Options:\n");
     fprintf(stderr, " -D debug         set debug options\n");
+    fprintf(stderr, " -o               report byte offset to start of record\n");
     fprintf(stderr, " -v               verbose, more detail\n");
     fprintf(stderr, " -x               dump record in hex\n");
 }
@@ -75,7 +77,7 @@ main(int argc, char *argv[])
      */
     putenv("TZ=UTC");
 
-    while ((c = getopt(argc, argv, "D:vx")) != EOF) {
+    while ((c = getopt(argc, argv, "D:ovx")) != EOF) {
 	switch (c) {
 
 	case 'D':	/* debug options */
@@ -85,6 +87,10 @@ main(int argc, char *argv[])
 		    pmGetProgname(), optarg);
 		errflag++;
 	    }
+	    break;
+
+	case 'o':	/* report byte offsets */
+	    oflag = 1;
 	    break;
 
 	case 'v':	/* more detail */
@@ -139,7 +145,7 @@ main(int argc, char *argv[])
 	    exit(1);
 	}
 	len = ntohl(len);
-	if (vflag) {
+	if (oflag) {
 	    if (nrec == 0)
 		printf("[%d] len=%d magic=0x%x (version=%d) @ offset=%lld\n", nrec, len, label.magic, version, (long long)offset);
 	    else
