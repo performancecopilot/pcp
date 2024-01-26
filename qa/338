@@ -140,6 +140,17 @@ umask 022
 rm -f $seq.full
 mkdir $tmp
 
+# try to track down QA failures in CI
+#
+echo "PCP_DIR=$PCP_DIR" >>$seq.full
+. $PCP_SHARE_DIR/lib/rc-proc.sh
+if VERBOSE_CONFIG=true is_chkconfig_on pmlogger >>$seq.full 2>&1
+then
+    echo "is_chkconfig_on pmlogger => true" >>$seq.full
+else
+    echo "is_chkconfig_on pmlogger => false" >>$seq.full
+fi
+
 # real QA test starts here
 unset verbose
 verbose_text=''

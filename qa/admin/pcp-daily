@@ -573,10 +573,9 @@ do
     [ -f \$seq.out ] && echo \$seq.out >>\$HOME/daily.harvest
     for full in \$seq.full*
     do
-	if [ "\$full" = "\$seq.full*" ] && continue
 	if [ -f "\$full" ]
 	then
-	    echo \$full >>\$HOME/daily.harvest
+	    echo "\$full" >>\$HOME/daily.harvest
 	    nfull=\`expr \$nfull + 1\`
 	fi
     done
