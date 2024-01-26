@@ -49,7 +49,7 @@ _doit()
     then
 	_run_valgrind src/cleanmapdir -Dappl9 $*
     else
-	src/cleanmapdir $* -Dappl9 2>&1
+	src/cleanmapdir -Dappl9 $* 2>&1
     fi \
     | tee -a $here/$seq.full \
     | _filter \
