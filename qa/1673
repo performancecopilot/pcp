@@ -44,6 +44,8 @@ _stop_auto_restart pmcd
 _pmdabpf_install $tmp.conf
 _pmdabpf_wait_for_metric
 
+sleep 5
+
 # Generate system activity for the CO-RE execsnoop module
 cat <<EOF | expect 1> /dev/null
 spawn bash
@@ -51,6 +53,8 @@ send "echo this is a test from bash\r"
 send "exit\r"
 expect eof
 EOF
+
+sleep 5
 
 echo "=== report metric values for comm ==="
 pminfo -dfmtT bpf.bashreadline.comm 2>&1 | tee -a $here/$seq.full \
