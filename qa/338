@@ -146,6 +146,11 @@ mkdir $tmp
 #
 rm -f $seq.out
 . $PCP_SHARE_DIR/lib/rc-proc.sh
+# is_chkconfig_on() is a shell procedure from rc-proc.sh, so
+#	if VERBOSE_CONFIG=true is_chkconfig_on ...
+# sets $VERBOSE_CONFIG for THIS shell ... aargh
+#
+VERBOSE_CONFIG=true
 if is_chkconfig_on pmlogger >>$seq.full 2>&1
 then
     echo "is_chkconfig_on pmlogger => true" >>$seq.full
@@ -154,6 +159,7 @@ else
     echo "is_chkconfig_on pmlogger => false" >>$seq.full
     ln $seq.out.disabled $seq.out
 fi
+VERBOSE_CONFIG=false
 if which systemctl >/dev/null 2>&1
 then
     systemctl is-enabled pmlogger.service >>$seq.full 2>&1
