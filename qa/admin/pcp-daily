@@ -789,9 +789,16 @@ do
     echo "::: $host :::"
 
     check_what="$what"
+    valgrind_opt=''
     [ X"$what" = Xall ] && check_what=''
     case "$host"
     in
+
+	bozo|vm03)
+	    # run both the valgrind and the non-valgrind variants of tests
+	    #
+	    valgrind_opt='export PCPQA_VALGRIND=both'
+	    ;;
 
 	vm01)
 	    # 739 segv's sometimes deep inside Python
@@ -1025,6 +1032,8 @@ do
 	$iflag && _script_install >>$tmp.script
 
 	_script_header daily.qa >$tmp.script.qa
+
+	[ -n "$valgrind_opt" ] && echo "$valgrind_opt" >>$tmp.script.qa
 
 	cat >>$tmp.script.qa <<End-of-File
 
