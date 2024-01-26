@@ -140,15 +140,19 @@ umask 022
 rm -f $seq.full
 mkdir $tmp
 
-# try to track down QA failures in CI
+# try to track down QA failures in CI ...
+# finally understood ... with systemctl if pmlogger is started
+# but NOT enabled, we get sightly different output
 #
-echo "PCP_DIR=$PCP_DIR" >>$seq.full
+rm -f $seq.out
 . $PCP_SHARE_DIR/lib/rc-proc.sh
 if VERBOSE_CONFIG=true is_chkconfig_on pmlogger >>$seq.full 2>&1
 then
     echo "is_chkconfig_on pmlogger => true" >>$seq.full
+    ln $seq.out.enabled $seq.out
 else
     echo "is_chkconfig_on pmlogger => false" >>$seq.full
+    ln $seq.out.disabled $seq.out
 fi
 if which systemctl >/dev/null 2>&1
 then
