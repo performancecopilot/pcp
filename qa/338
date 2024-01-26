@@ -146,7 +146,7 @@ mkdir $tmp
 #
 rm -f $seq.out
 . $PCP_SHARE_DIR/lib/rc-proc.sh
-if VERBOSE_CONFIG=true is_chkconfig_on pmlogger >>$seq.full 2>&1
+if is_chkconfig_on pmlogger >>$seq.full 2>&1
 then
     echo "is_chkconfig_on pmlogger => true" >>$seq.full
     ln $seq.out.enabled $seq.out
