@@ -1305,7 +1305,7 @@ _wait_for_pmproxy()
     __maxdelay=20
 
     __count=0
-    while ! $PCP_BINADM_DIR/telnet-probe -c localhost $__port
+    while ! $PCP_BINADM_DIR/telnet-probe -v -c localhost $__port >>$here/$seq.full 2>&1
     do
 	__count=`expr $__count + 1`
 	if [ $__count -ge $__maxdelay ]

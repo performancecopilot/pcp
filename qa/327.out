@@ -14,7 +14,7 @@ Archive timezone: EST-11EST-10,87/2:00,297/2:00
 PID for pmlogger: 5407
 *** bad magic/version length ***
 pmdumplog: Cannot open archive "<TMPPATH>/ok-mv-foo": Illegal label record at start of a PCP archive file
-__pmLogChkLabel: fd=N vol=0 label magic 0x34322600 not 0x50052600 as expected
+__pmLogChkLabel: fd=N vol=0 label magic 0x34322600 not 0x50052600 as expected version=-12372
 Bad data volume 0 label: Illegal label record at start of a PCP archive file
 Note: timezone set to local timezone of host "gonzo" from archive
 
@@ -40,7 +40,7 @@ Archive timezone: EST-11EST-10,87/2:00,297/2:00
 PID for pmlogger: 12345
 *** bad volume number ***
 pmdumplog: Cannot open archive "<TMPPATH>/ok-mv-foo": Illegal label record at start of a PCP archive file
-__pmLogChkLabel: fd=N vol=0 label volume 808779776 not 0 as expected
+__pmLogChkLabel: fd=N vol=0 label volume 808779776 not 0 as expected version=-12372
 Bad data volume 0 label: Illegal label record at start of a PCP archive file
 Note: timezone set to local timezone of host "gonzo" from archive
 
@@ -128,7 +128,7 @@ Performance metrics from host gonzo
     ending     Fri Aug  7 04:34:48.368813 1998
 Archive timezone: EST-11EST-10,87/2:00,297/2:00
 PID for pmlogger: 5407
-__pmLogChkLabel: fd=N vol=1 label magic 0x34322600 not 0x50052600 as expected
+__pmLogChkLabel: fd=N vol=1 label magic 0x34322600 not 0x50052600 as expected version=-12372
 Bad data volume 1 label: Illegal label record at start of a PCP archive file
 Note: timezone set to local timezone of host "gonzo" from archive
 
@@ -165,7 +165,7 @@ Performance metrics from host gonzo
     ending     Fri Aug  7 04:34:48.368813 1998
 Archive timezone: EST-11EST-10,87/2:00,297/2:00
 PID for pmlogger: 12345
-__pmLogChkLabel: fd=N vol=1 label volume 808779777 not 1 as expected
+__pmLogChkLabel: fd=N vol=1 label volume 808779777 not 1 as expected version=-12372
 Bad data volume 1 label: Illegal label record at start of a PCP archive file
 Note: timezone set to local timezone of host "gonzo" from archive
 
@@ -249,7 +249,7 @@ Archive timezone: EST-11EST-10,87/2:00,297/2:00
 PID for pmlogger: 5407
 *** bad magic/version length ***
 pmdumplog: Cannot open archive "<TMPPATH>/ok-mv-foo": Illegal label record at start of a PCP archive file
-__pmLogChkLabel: fd=N vol=-1 label magic 0x34322600 not 0x50052600 as expected
+__pmLogChkLabel: fd=N vol=-1 label magic 0x34322600 not 0x50052600 as expected version=-12372
 Bad metadata volume label: Illegal label record at start of a PCP archive file
 Note: timezone set to local timezone of host "gonzo" from archive
 
@@ -272,7 +272,7 @@ Archive timezone: EST-11EST-10,87/2:00,297/2:00
 PID for pmlogger: 12345
 *** bad volume number ***
 pmdumplog: Cannot open archive "<TMPPATH>/ok-mv-foo": Illegal label record at start of a PCP archive file
-__pmLogChkLabel: fd=N vol=-1 label volume 808845311 not -1 as expected
+__pmLogChkLabel: fd=N vol=-1 label volume 808845311 not -1 as expected version=-12372
 Bad metadata volume label: Illegal label record at start of a PCP archive file
 Note: timezone set to local timezone of host "gonzo" from archive
 
@@ -342,7 +342,7 @@ Archive timezone: EST-11EST-10,87/2:00,297/2:00
 PID for pmlogger: 5407
 *** bad magic/version length ***
 pmdumplog: Cannot open archive "<TMPPATH>/ok-mv-foo": Illegal label record at start of a PCP archive file
-__pmLogChkLabel: fd=N vol=-2 label magic 0x34322600 not 0x50052600 as expected
+__pmLogChkLabel: fd=N vol=-2 label magic 0x34322600 not 0x50052600 as expected version=-12372
 Bad temporal index label: Illegal label record at start of a PCP archive file
 Note: timezone set to local timezone of host "gonzo" from archive
 
@@ -365,7 +365,7 @@ Archive timezone: EST-11EST-10,87/2:00,297/2:00
 PID for pmlogger: 12345
 *** bad volume number ***
 pmdumplog: Cannot open archive "<TMPPATH>/ok-mv-foo": Illegal label record at start of a PCP archive file
-__pmLogChkLabel: fd=N vol=-2 label volume 808845310 not -2 as expected
+__pmLogChkLabel: fd=N vol=-2 label volume 808845310 not -2 as expected version=-12372
 Bad temporal index label: Illegal label record at start of a PCP archive file
 Note: timezone set to local timezone of host "gonzo" from archive
 

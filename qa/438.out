@@ -8,10 +8,10 @@ __pmStat("badarchives/badlen-1"): no decompress
 __pmFopen("badarchives/badlen-1.SUFFIX", "r"): no decompress
 __pmFopen("badarchives/badlen-1.SUFFIX", "r"): no decompress
 __pmFopen("badarchives/badlen-1.SUFFIX", "r"): no decompress
-__pmLogChkLabel: fd=N vol=0 [magic=0x50052602 version=2 vol=0 pid=PID start=TIME host=HOST tz=TZ]
+__pmLogChkLabel: fd=N vol=0 [magic=0x50052602 version=2 vol=0 pid=PID start=TIME host=HOST tz=TZ] version=2
 __pmLogChangeVol: change to volume 0
-__pmLogChkLabel: fd=N vol=-2 [magic=0x50052602 version=2 vol=-2 pid=PID start=TIME host=HOST tz=TZ]
-__pmLogChkLabel: fd=N vol=-1 [magic=0x50052602 version=2 vol=-1 pid=PID start=TIME host=HOST tz=TZ]
+__pmLogChkLabel: fd=N vol=-2 [magic=0x50052602 version=2 vol=-2 pid=PID start=TIME host=HOST tz=TZ] version=2
+__pmLogChkLabel: fd=N vol=-1 [magic=0x50052602 version=2 vol=-1 pid=PID start=TIME host=HOST tz=TZ] version=2
 __pmLogRead: fd=3 (peek) mode=back vol=0 posn=1928 @TIME len=header+200+trailer
 __pmLogSetTime(0) TIME delta=0.000000000 at ti[0]@TIME vol=0 posn=132 serial=1
 __pmLogRead: fd=3 mode=forw vol=0 posn=132 
@@ -37,10 +37,10 @@ __pmStat("badarchives/badlen-11"): no decompress
 __pmFopen("badarchives/badlen-11.SUFFIX", "r"): no decompress
 __pmFopen("badarchives/badlen-11.SUFFIX", "r"): no decompress
 __pmFopen("badarchives/badlen-11.SUFFIX", "r"): no decompress
-__pmLogChkLabel: fd=N vol=0 [magic=0x50052602 version=2 vol=0 pid=PID start=TIME host=HOST tz=TZ]
+__pmLogChkLabel: fd=N vol=0 [magic=0x50052602 version=2 vol=0 pid=PID start=TIME host=HOST tz=TZ] version=2
 __pmLogChangeVol: change to volume 0
-__pmLogChkLabel: fd=N vol=-2 [magic=0x50052602 version=2 vol=-2 pid=PID start=TIME host=HOST tz=TZ]
-__pmLogChkLabel: fd=N vol=-1 [magic=0x50052602 version=2 vol=-1 pid=PID start=TIME host=HOST tz=TZ]
+__pmLogChkLabel: fd=N vol=-2 [magic=0x50052602 version=2 vol=-2 pid=PID start=TIME host=HOST tz=TZ] version=2
+__pmLogChkLabel: fd=N vol=-1 [magic=0x50052602 version=2 vol=-1 pid=PID start=TIME host=HOST tz=TZ] version=2
 __pmLogRead: fd=3 (peek) mode=back vol=0 posn=133 
 Error: truncated log? rlen=33784 (offset 133)
 pmdumplog: Cannot locate end of archive badarchives/badlen-11: Corrupted record in a PCP archive
@@ -59,10 +59,10 @@ __pmStat("badarchives/badlen-2"): no decompress
 __pmFopen("badarchives/badlen-2.SUFFIX", "r"): no decompress
 __pmFopen("badarchives/badlen-2.SUFFIX", "r"): no decompress
 __pmFopen("badarchives/badlen-2.SUFFIX", "r"): no decompress
-__pmLogChkLabel: fd=N vol=0 [magic=0x50052602 version=2 vol=0 pid=PID start=TIME host=HOST tz=TZ]
+__pmLogChkLabel: fd=N vol=0 [magic=0x50052602 version=2 vol=0 pid=PID start=TIME host=HOST tz=TZ] version=2
 __pmLogChangeVol: change to volume 0
-__pmLogChkLabel: fd=N vol=-2 [magic=0x50052602 version=2 vol=-2 pid=PID start=TIME host=HOST tz=TZ]
-__pmLogChkLabel: fd=N vol=-1 [magic=0x50052602 version=2 vol=-1 pid=PID start=TIME host=HOST tz=TZ]
+__pmLogChkLabel: fd=N vol=-2 [magic=0x50052602 version=2 vol=-2 pid=PID start=TIME host=HOST tz=TZ] version=2
+__pmLogChkLabel: fd=N vol=-1 [magic=0x50052602 version=2 vol=-1 pid=PID start=TIME host=HOST tz=TZ] version=2
 __pmLogRead: fd=3 (peek) mode=back vol=0 posn=260 
 Error: truncated log? rlen=8289910 (offset 260)
 pmdumplog: Cannot locate end of archive badarchives/badlen-2: Corrupted record in a PCP archive
@@ -83,10 +83,10 @@ __pmStat("badarchives/badlen-3"): no decompress
 __pmFopen("badarchives/badlen-3.SUFFIX", "r"): no decompress
 __pmFopen("badarchives/badlen-3.SUFFIX", "r"): no decompress
 __pmFopen("badarchives/badlen-3.SUFFIX", "r"): no decompress
-__pmLogChkLabel: fd=N vol=0 [magic=0x50052602 version=2 vol=0 pid=PID start=TIME host=HOST tz=TZ]
+__pmLogChkLabel: fd=N vol=0 [magic=0x50052602 version=2 vol=0 pid=PID start=TIME host=HOST tz=TZ] version=2
 __pmLogChangeVol: change to volume 0
-__pmLogChkLabel: fd=N vol=-2 [magic=0x50052602 version=2 vol=-2 pid=PID start=TIME host=HOST tz=TZ]
-__pmLogChkLabel: fd=N vol=-1 [magic=0x50052602 version=2 vol=-1 pid=PID start=TIME host=HOST tz=TZ]
+__pmLogChkLabel: fd=N vol=-2 [magic=0x50052602 version=2 vol=-2 pid=PID start=TIME host=HOST tz=TZ] version=2
+__pmLogChkLabel: fd=N vol=-1 [magic=0x50052602 version=2 vol=-1 pid=PID start=TIME host=HOST tz=TZ] version=2
 __pmLogRead: fd=3 (peek) mode=back vol=0 posn=252 
 Error: truncated log? rlen=762278763 (offset 252)
 pmdumplog: Cannot locate end of archive badarchives/badlen-3: Corrupted record in a PCP archive
@@ -162,8 +162,8 @@ __pmStat("badarchives/badlen-9"): no decompress
 __pmFopen("badarchives/badlen-9.SUFFIX", "r"): no decompress
 __pmFopen("badarchives/badlen-9.SUFFIX", "r"): no decompress
 __pmFopen("badarchives/badlen-9.SUFFIX", "r"): no decompress
-__pmLogChkLabel: fd=N vol=0 [magic=0x50052602 version=2 vol=0 pid=PID start=TIME host=HOST-laptop tz=TZ]
+__pmLogChkLabel: fd=N vol=0 [magic=0x50052602 version=2 vol=0 pid=PID start=TIME host=HOST-laptop tz=TZ] version=2
 __pmLogChangeVol: change to volume 0
-__pmLogChkLabel: fd=N vol=-2 [magic=0x50052602 version=2 vol=-2 pid=PID start=TIME host=HOST-laptop tz=TZ]
-__pmLogChkLabel: fd=N vol=-1 [magic=0x50052602 version=2 vol=-1 pid=PID start=TIME host=HOST-laptop tz=TZ]
+__pmLogChkLabel: fd=N vol=-2 [magic=0x50052602 version=2 vol=-2 pid=PID start=TIME host=HOST-laptop tz=TZ] version=2
+__pmLogChkLabel: fd=N vol=-1 [magic=0x50052602 version=2 vol=-1 pid=PID start=TIME host=HOST-laptop tz=TZ] version=2
 pmdumplog: Cannot open archive "badarchives/badlen-9": Corrupted record in a PCP archive
