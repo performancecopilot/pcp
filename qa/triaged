@@ -63,7 +63,7 @@
 1574	.*	valgrind-reported issue in libpcp_web pmseries functions
 1662	.*	valgrind-reported issue in libpcp_web archive discovery
 		handling of sources
-1673	openSUSE Leap 15.5	bashreadline.so does not work here for the
+1673	openSUSE Leap 15.[56]	bashreadline.so does not work here for the
 				bpf PMDA
 1701	Fedora 38	Python exception in json/decoder.py
 1702	Fedora 38	bpftrace PMDA is broken here, check-flakey passes
@@ -76,7 +76,7 @@
 			(sometimes)
 1900	Fedora 3[89]	valgrind uninitialised data failure deep inside libbpf
 1900	CentOS Stream9	ditto
-1900	openSUSE Leap 15.5	ditto
+1900	openSUSE Leap 15.[56]	ditto
 1973	Ubuntu 16\.04	Python here is 3.5.2 and there a bunch of what look like
 			dict ordering and/or cacheing sequence differences
 			and some arithmetic rounding differences ... not
