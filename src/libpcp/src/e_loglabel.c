@@ -435,8 +435,10 @@ __pmLogChkLabel(__pmArchCtl *acp, __pmFILE *f, __pmLogLabel *lp, int vol)
 	lcp->seen[vol] = 1;
 
 func_return:
-    if (pmDebugOptions.log && diag_output)
+    if (pmDebugOptions.log && diag_output) {
+	fprintf(stderr, " version=%d", version);
 	fputc('\n', stderr);
+    }
 
     return version;
 }
