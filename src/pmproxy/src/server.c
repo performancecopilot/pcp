@@ -218,7 +218,7 @@ on_client_close(uv_handle_t *handle)
 {
     struct client	*client = (struct client *)handle;
 
-    if (pmDebugOptions.context | pmDebugOptions.desperate)
+    if (pmDebugOptions.context || pmDebugOptions.desperate)
 	fprintf(stderr, "%s: client %p connection closed\n",
 			"on_client_close", client);
 
@@ -501,7 +501,7 @@ on_client_connection(uv_stream_t *stream, int status)
 			"ENOMEM", strerror(ENOMEM));
 	return;
     }
-    if (pmDebugOptions.context | pmDebugOptions.af)
+    if (pmDebugOptions.context || pmDebugOptions.af)
 	fprintf(stderr, "%s: accept new client %p\n",
 			"on_client_connection", client);
 
