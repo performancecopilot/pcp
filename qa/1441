@@ -243,6 +243,22 @@ newpmie=0
 status=0	# success is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
+# to make sudo(1) happy, we really need DNS to work for boofa-$seq,
+# so force entry in /etc/hosts
+#
+if grep "[ 	]boofa-$seq$" /etc/hosts >/dev/null 2>&1
+then
+    :
+else
+    sed </etc/hosts >$tmp.tmp -e '/^127\.0\.0\.1.*[ 	]localhost/{
+a\
+# added by Performance Co-Pilot Quality Assurance test '$seq'\
+127.0.0.7	boofa-'$seq'
+}'
+    sudo cp $tmp.tmp /etc/hosts
+    echo "Added boofa-$seq entry in /etc/hosts" >>$seq.full
+fi
+
 _filter()
 {
     sed \
