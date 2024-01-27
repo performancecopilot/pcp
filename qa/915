@@ -21,6 +21,13 @@ else
     # NOTREACHED
 fi
 
+case `admin/whatami`
+in
+    *Ubuntu\ 16.04\ *)
+	_notrun "cannot make loop pmproxy access work for Ubuntu 16.04"
+	;;
+esac
+
 host=`hostname`
 [ -z "$host" ] && _notrun "Cannot discover local host name"
 interface=`_host_to_ipaddr $host`
@@ -108,6 +115,8 @@ $sudo cp $tmp.local $PCP_SYSCONFIG_DIR/pmlogger
 echo "# Installed by PCP QA test $seq on `date`" > $tmp.local
 # uncomment the next line to make the logfile names unique
 #echo "-Dappl1" >> $tmp.local
+# uncomment the next line to debug connections and pdus (desperate)
+echo "-Dcontext,pdu" >> $tmp.local
 $sudo cp $tmp.local $PCP_PMPROXYOPTIONS_PATH
 
 _service pmproxy start 2>&1 | _filter_pmproxy_start
