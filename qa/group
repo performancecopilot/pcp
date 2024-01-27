@@ -2066,9 +2066,6 @@ x11
 1837 pmproxy local
 1838 pmda.linux kernel local
 1844 pmdumptext libpcp_qmc remote
-1845:reserved # security branch testing
-1846:reserved # security branch testing
-1847:reserved # security branch testing
 1848 libpcp local valgrind
 1849 libpcp local
 1850 pmseries libpcp_web local
