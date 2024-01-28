@@ -1,4 +1,4 @@
-#compdef pcp pcp2elasticsearch pcp2graphite pcp2influxdb pcp2json pcp2spark pcp2xlsx pcp2xml pcp2zabbix pmafm pmchart pmclient pmclient_fg=pmclient pmdbg pmdiff pmdumplog pmdumptext pmerr pmevent=pmval pmfind pmie pmie2col pmiectl=pmlogctl pminfo pmiostat pmjson pmlc pmlogcheck pmlogctl pmlogextract pmlogger pmloglabel pmlogpaste pmlogreduce pmlogsize pmlogsummary pmprobe pmrep pmseries pmstat pmstore pmval
+#compdef pcp pcp2arrow pcp2elasticsearch pcp2graphite pcp2influxdb pcp2json pcp2spark pcp2xlsx pcp2xml pcp2zabbix pmafm pmchart pmclient pmclient_fg=pmclient pmdbg pmdiff pmdumplog pmdumptext pmerr pmevent=pmval pmfind pmie pmie2col pmiectl=pmlogctl pminfo pmiostat pmjson pmlc pmlogcheck pmlogctl pmlogextract pmlogger pmloglabel pmlogpaste pmlogreduce pmlogsize pmlogsummary pmprobe pmrep pmseries pmstat pmstore pmval
 #
 # PCP <https://pcp.io> completions for zsh <http://zsh.sf.net>.
 #
@@ -31,7 +31,7 @@ _pcp () {
   declare -A opt_args
 
   local -a py_tools
-  py_tools=(pcp2elasticsearch pcp2graphite pcp2influxdb pcp2json pcp2spark pcp2xlsx pcp2xml pcp2zabbix pmrep)
+  py_tools=(pcp2arrow pcp2elasticsearch pcp2graphite pcp2influxdb pcp2json pcp2spark pcp2xlsx pcp2xml pcp2zabbix pmrep)
 
   local exargs="-? --help -V --version"
   common_help=(
@@ -111,6 +111,20 @@ _pcp () {
       # We accept only PCP command options after the first non-option argument
       # (i.e., the PCP command itself), this makes it so with the -A "-*" above
       [[ -z $state ]] && state=pcp_cmdopts
+  ;;
+  pcp2arrow)
+    _arguments -C -S -s \
+      "$common_help[@]" \
+      "$common_pmda[@]" \
+      "$common_python[@]" \
+      "(-j --live-filter $exargs)"{-j,--live-filter}'[perform instance live filtering]' \
+      "(-J --rank $exargs)"{-J+,--rank=}'[set limit for results of valued instances]:limit:' \
+      "(-8 --limit-filter -9 --limit-filter-force $exargs)"{-8+,--limit-filter=}'[set default limit filter]:limit:' \
+      "(-9 --limit-filter-force -8 --limit-filter $exargs)"{-9+,--limit-filter-force=}'[set forced limit filter]:limit:' \
+      "(-n --invert-filter $exargs)"{-n,--invert-filter}'[perform ranking before live filtering]' \
+      "(-o --output-file $exargs)"{-o+,--output-file=}'[specify output file]:file:_files' \
+      '*:metric:->metrics' \
+      && return 0
   ;;
   pcp2elasticsearch)
     _arguments -C -S -s \

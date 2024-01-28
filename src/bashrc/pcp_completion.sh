@@ -12,6 +12,10 @@ _pcp_complete()
 
     # Register arguments
     case $cmd in
+    pcp2arrow)
+        all_args="ahLKcCDVASTOstrRijJ89nZzo"
+        arg_regex="-[ahKcCDSstiJ89o]"
+    ;;
     pcp2elasticsearch)
         all_args="ahLKcCeVHGASTmOstRrIijJ4589nNvP0qQbByYgXxp"
         arg_regex="-[ahKceASTOstZiJ489NP0qQbByYgXxp]"

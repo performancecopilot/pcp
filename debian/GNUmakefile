@@ -342,6 +342,9 @@ endif
 ifeq ($(HAVE_PYTHON_OPENPYXL), true)
 	cat control.pcp2xlsx >>control
 endif
+ifeq ($(HAVE_PYTHON_PYARROW), true)
+	cat control.pcp2arrow >>control
+endif
 ifeq ($(PMDA_INFINIBAND), true)
 	cat control.pmdaib >>control
 endif

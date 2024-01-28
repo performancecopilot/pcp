@@ -1,0 +1,53 @@
+#!/bin/sh
+# PCP QA Test No. 1794
+# Exercise pcp2arrow(1) parquet file generation.
+#
+# Copyright (c) 2024 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.python
+
+$sudo rm -rf $tmp $tmp.* $seq.full
+
+test -x $PCP_BIN_DIR/pcp2arrow || _notrun "pcp2arrow(1) is not installed"
+$python -c "import pandas" >/dev/null 2>&1 || _notrun "pandas is not installed"
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+    # end
+}
+
+# real QA test starts here
+for archive in viewqa1 viewqa2 viewqa3 moomba.client proc
+do
+    echo
+    echo === pcp2arrow $archive
+    pcp2arrow -o $tmp.$archive -a archives/$archive
+    find $tmp.$archive >> $here/$seq.full
+    $python -c "
+import pandas
+df = pandas.read_parquet('$tmp.$archive')
+if (len(df.columns) < 42):
+    print('Columns:', sorted(df.columns))
+else:
+    print('Columns:', len(df.columns))
+print('Shape:', df.shape)
+"
+done
+
+# success, all done
+exit

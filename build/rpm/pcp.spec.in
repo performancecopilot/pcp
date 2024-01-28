@@ -761,6 +761,28 @@ Performance Co-Pilot (PCP) front-end tools for exporting metric values
 in Excel spreadsheet format.
 %endif
 
+%if "@pcp2arrow@" == "true"
+#
+# pcp-export-pcp2arrow
+#
+%package export-pcp2arrow
+License: GPL-2.0-or-later
+Summary: Performance Co-Pilot tool for exporting PCP metrics to Apache Arrow
+URL: https://pcp.io
+Requires: pcp-libs >= %{version}-%{release}
+%if "@enable_python3@" == "true"
+Requires: python3-pcp = @package_version@
+Requires: python3-pyarrow
+%else
+Requires: %{__python2}-pcp = @package_version@
+Requires: %{__python2}-pyarrow
+%endif
+
+%description export-pcp2arrow
+Performance Co-Pilot (PCP) front-end tool for exporting metric values
+to Apache Arrow, which supports the columnar parquet data format.
+%endif
+
 %if "@enable_python2@" == "true"
 #
 # python2-pcp. This is the PCP library bindings for python.
@@ -2353,6 +2375,7 @@ basic_manifest | keep 'sheet2pcp' >pcp-import-sheet2pcp-files
 basic_manifest | keep 'mrtg2pcp' >pcp-import-mrtg2pcp-files
 basic_manifest | keep 'ganglia2pcp' >pcp-import-ganglia2pcp-files
 basic_manifest | keep 'collectl2pcp' >pcp-import-collectl2pcp-files
+basic_manifest | keep 'pcp2arrow' >pcp-export-pcp2arrow-files
 basic_manifest | keep 'pcp2elasticsearch' >pcp-export-pcp2elasticsearch-files
 basic_manifest | keep 'pcp2influxdb' >pcp-export-pcp2influxdb-files
 basic_manifest | keep 'pcp2xlsx' >pcp-export-pcp2xlsx-files
@@ -2474,7 +2497,7 @@ do \
 done
 
 for export_package in \
-    pcp2elasticsearch pcp2graphite pcp2influxdb pcp2json \
+    pcp2arrow pcp2elasticsearch pcp2graphite pcp2influxdb pcp2json \
     pcp2spark pcp2xlsx pcp2xml pcp2zabbix zabbix-agent ; \
 do \
     export_packages="$export_packages pcp-export-$export_package"; \
@@ -3193,6 +3216,10 @@ fi
 
 %files export-pcp2zabbix -f pcp-export-pcp2zabbix-files.rpm
 
+%endif
+
+%if "@pcp2arrow@" == "true"
+%files export-pcp2arrow -f pcp-export-pcp2arrow-files.rpm
 %endif
 
 %if "@pcp2elasticsearch@" == "true"

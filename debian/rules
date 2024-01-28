@@ -30,6 +30,7 @@ pcp_export_elasticsearch = pcp-export-pcp2elasticsearch
 pcp_export_graphite = pcp-export-pcp2graphite
 pcp_export_influxdb = pcp-export-pcp2influxdb
 pcp_export_json = pcp-export-pcp2json
+pcp_export_arrow = pcp-export-pcp2arrow
 pcp_export_spark = pcp-export-pcp2spark
 pcp_export_xlsx = pcp-export-pcp2xlsx
 pcp_export_xml = pcp-export-pcp2xml
@@ -72,6 +73,7 @@ dirpcp_export_elasticsearch = debian/$(pcp_export_elasticsearch)
 dirpcp_export_graphite = debian/$(pcp_export_graphite)
 dirpcp_export_influxdb = debian/$(pcp_export_influxdb)
 dirpcp_export_json = debian/$(pcp_export_json)
+dirpcp_export_arrow = debian/$(pcp_export_arrow)
 dirpcp_export_spark = debian/$(pcp_export_spark)
 dirpcp_export_xlsx = debian/$(pcp_export_xlsx)
 dirpcp_export_xml = debian/$(pcp_export_xml)
@@ -125,6 +127,7 @@ pkgpcp_export_elasticsearch = $(zip) DIST_ROOT="`pwd`"/$(dirpcp_export_elasticse
 pkgpcp_export_graphite = $(zip) DIST_ROOT="`pwd`"/$(dirpcp_export_graphite);
 pkgpcp_export_influxdb = $(zip) DIST_ROOT="`pwd`"/$(dirpcp_export_influxdb);
 pkgpcp_export_json = $(zip) DIST_ROOT="`pwd`"/$(dirpcp_export_json);
+pkgpcp_export_arrow = $(zip) DIST_ROOT="`pwd`"/$(dirpcp_export_arrow);
 pkgpcp_export_spark = $(zip) DIST_ROOT="`pwd`"/$(dirpcp_export_spark);
 pkgpcp_export_xlsx = $(zip) DIST_ROOT="`pwd`"/$(dirpcp_export_xlsx);
 pkgpcp_export_xml = $(zip) DIST_ROOT="`pwd`"/$(dirpcp_export_xml);
@@ -150,6 +153,7 @@ uninstallpydir = ls -d $(dirpcp)/usr/lib*/python* | xargs rm -fr
 uninstalltest = cat $(dirpcp_testsuite).dirs | sed -e "s,^,debian/$(pcp)/," | xargs rm -fr
 uninstalldirs = rmdir $(dirpcp)/usr/include/pcp $(dirpcp)/usr/include $(dirpcp)/usr/share/man/man3
 uninstallib = cat $(dirpcp_pmda_infiniband).dirs | sed -e "s,^,$(dirpcp)/," | xargs rm -fr
+uninstallarrow = cat $(dirdoc).dirs | sed -e "s,^,$(dirpcp_export_arrow)/," | xargs rm -fr
 uninstallspark = cat $(dirdoc).dirs | sed -e "s,^,$(dirpcp_export_spark)/," | xargs rm -fr
 uninstallgui = cat $(dirgui).dirs | sed -e "s,^,$(dirpcp)/," | xargs rm -fr
 unrpathperl = find $(allperldir) -name \*.so | xargs chrpath -d
@@ -230,6 +234,7 @@ binary-arch: checkroot build-stamp
 	$(pkgpcp_export_graphite) $(MAKE) -C src/pcp2graphite install
 	$(pkgpcp_export_influxdb) $(MAKE) -C src/pcp2influxdb install
 	$(pkgpcp_export_json) $(MAKE) -C src/pcp2json install
+	$(pkgpcp_export_arrow) $(MAKE) -C src/pcp2arrow install
 	$(pkgpcp_export_spark) $(MAKE) -C src/pcp2spark install
 	$(pkgpcp_export_xlsx) $(MAKE) -C src/pcp2xlsx install
 	$(pkgpcp_export_xml) $(MAKE) -C src/pcp2xml install
@@ -265,6 +270,7 @@ binary-arch: checkroot build-stamp
 	@$(uninstalldirs)
 	@$(uninstalltest)
 	@$(uninstallpydir)
+	@$(uninstallarrow)
 	@$(uninstallspark)
 	@$(uninstallpy)
 	@$(unrpathperl)

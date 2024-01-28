@@ -104,9 +104,11 @@ python3-libs
 python3-libvirt
 python3-lxml
 python3-openpyxl
+python3-pandas
 python3-pillow
 python3-prometheus_client
 python3-psycopg2
+python3-pyarrow
 python3-pylint
 python3-pymongo
 # broken dependencies, see https://bugzilla.redhat.com/show_bug.cgi?id=2155256

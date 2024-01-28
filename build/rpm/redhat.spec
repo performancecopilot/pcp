@@ -203,6 +203,11 @@ ExcludeArch: %{ix86}
 %global disable_noarch 1
 %endif
 
+%if 0%{?fedora} >= 36
+%global disable_arrow 0
+%else
+%global disable_arrow 1
+
 %if 0%{?fedora} >= 24
 %global disable_xlsx 0
 %else
@@ -871,6 +876,30 @@ in JSON format to Apache Spark. See https://spark.apache.org/ for
 further details on Apache Spark.
 
 #
+# pcp-export-pcp2arrow
+#
+%if !%{disable_arrow}
+%package export-pcp2arrow
+License: GPL-2.0-or-later
+Summary: Performance Co-Pilot tools for exporting PCP metrics to Apache Arrow
+URL: https://pcp.io
+Requires: pcp-libs >= %{version}-%{release}
+%if !%{disable_python3}
+Requires: python3-pcp = %{version}-%{release}
+Requires: python3-pyarrow
+BuildRequires: python3-pyarrow
+%else
+Requires: %{__python2}-pcp = %{version}-%{release}
+Requires: %{__python2}-pyarrow
+BuildRequires: %{__python2}-pyarrow
+%endif
+
+%description export-pcp2arrow
+Performance Co-Pilot (PCP) front-end tool for exporting metric values
+to Apache Arrow, which supports the columnar parquet data format.
+%endif
+
+#
 # pcp-export-pcp2xlsx
 #
 %if !%{disable_xlsx}
@@ -893,6 +922,7 @@ BuildRequires: %{__python2}-openpyxl
 Performance Co-Pilot (PCP) front-end tools for exporting metric values
 in Excel spreadsheet format.
 %endif
+
 #
 # pcp-export-pcp2xml
 #
@@ -2516,6 +2546,7 @@ basic_manifest | keep 'sheet2pcp' >pcp-import-sheet2pcp-files
 basic_manifest | keep 'mrtg2pcp' >pcp-import-mrtg2pcp-files
 basic_manifest | keep 'ganglia2pcp' >pcp-import-ganglia2pcp-files
 basic_manifest | keep 'collectl2pcp' >pcp-import-collectl2pcp-files
+basic_manifest | keep 'pcp2arrow' >pcp-export-pcp2arrow-files
 basic_manifest | keep 'pcp2elasticsearch' >pcp-export-pcp2elasticsearch-files
 basic_manifest | keep 'pcp2influxdb' >pcp-export-pcp2influxdb-files
 basic_manifest | keep 'pcp2xlsx' >pcp-export-pcp2xlsx-files
@@ -2638,7 +2669,7 @@ do \
 done
 
 for export_package in \
-    pcp2elasticsearch pcp2graphite pcp2influxdb pcp2json \
+    pcp2arrow pcp2elasticsearch pcp2graphite pcp2influxdb pcp2json \
     pcp2spark pcp2xlsx pcp2xml pcp2zabbix zabbix-agent ; \
 do \
     export_packages="$export_packages pcp-export-$export_package"; \
@@ -3344,6 +3375,10 @@ fi
 
 %if !%{disable_python2} || !%{disable_python3}
 %files export-pcp2influxdb -f pcp-export-pcp2influxdb-files.rpm
+%endif
+
+%if !%{disable_arrow}
+%files export-pcp2arrow -f pcp-export-pcp2arrow-files.rpm
 %endif
 
 %if !%{disable_xlsx}

@@ -1,0 +1,7 @@
+
+Package: pcp-export-pcp2arrow
+Depends: ${python:Depends}, ${misc:Depends}, ${shlibs:Depends}
+Architecture: any
+Description: Tool for exporting data from PCP to Apache Arrow
+ Performance Co-Pilot (PCP) front-end tool for exporting data from PCP
+ to Apache Arrow, which supports the columnar parquet data format.

@@ -873,6 +873,7 @@ have_python_libvirt
 have_python_requests
 have_python_setuptools
 have_python_pyodbc
+have_python_pyarrow
 have_python_openpyxl
 have_python_jsonpointer
 have_python_OrderedDict
@@ -5288,11 +5289,11 @@ if test x$ac_prog_cxx_stdcxx = xno
 then :
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $CXX option to enable C++11 features" >&5
 printf %s "checking for $CXX option to enable C++11 features... " >&6; }
-if test ${ac_cv_prog_cxx_11+y}
+if test ${ac_cv_prog_cxx_cxx11+y}
 then :
   printf %s "(cached) " >&6
 else $as_nop
-  ac_cv_prog_cxx_11=no
+  ac_cv_prog_cxx_cxx11=no
 ac_save_CXX=$CXX
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
@@ -5334,11 +5335,11 @@ if test x$ac_prog_cxx_stdcxx = xno
 then :
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $CXX option to enable C++98 features" >&5
 printf %s "checking for $CXX option to enable C++98 features... " >&6; }
-if test ${ac_cv_prog_cxx_98+y}
+if test ${ac_cv_prog_cxx_cxx98+y}
 then :
   printf %s "(cached) " >&6
 else $as_nop
-  ac_cv_prog_cxx_98=no
+  ac_cv_prog_cxx_cxx98=no
 ac_save_CXX=$CXX
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
@@ -8672,6 +8673,28 @@ printf "%s\n" "no" >&6; }
     fi
 
 
+ { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for Python module pyarrow" >&5
+printf %s "checking for Python module pyarrow... " >&6; }
+    if test -n ""
+    then
+	txt=""
+    else
+	txt="import pyarrow"
+    fi
+    $pcp_python_prog -c 'import sys;
+'"$txt" >>config.log 2>&1
+    if test "$?" = 0
+    then
+	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+	eval have_python_pyarrow=true
+    else
+	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+	eval have_python_pyarrow=false
+    fi
+
+
  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for Python module pyodbc" >&5
 printf %s "checking for Python module pyodbc... " >&6; }
     if test -n ""
@@ -9358,7 +9381,7 @@ pmda_postgresql=false
 if test "$have_python" = true
 then
         if $pcp_python_prog -c "import psycopg2" >/dev/null 2>&1 || \
-           $pcp_python_prog -c "import psycopg" >/dev/null 2>&1
+       $pcp_python_prog -c "import psycopg" >/dev/null 2>&1
     then
 	pmda_postgresql=true
     fi
