@@ -43,6 +43,7 @@ then
     CHOWN="echo + chown"
     SYSTEMCTL="echo + systemctl"
     RC_UPDATE="echo + rc-update"
+    MAKEWHATIS="echo + makewhatis"
 else
     show_me=false
     RM=rm
@@ -52,6 +53,7 @@ else
     CHOWN=chown
     SYSTEMCTL=systemctl
     RC_UPDATE=rc-update
+    MAKEWHATIS=makewhatis
 fi
 
 _cd()
@@ -471,7 +473,7 @@ fi
 if which makewhatis >/dev/null 2>&1
 then
     echo "Rebuilding whatis DB in the background"
-    makewhatis &
+    $MAKEWHATIS &
 fi
 
 # cull any old files or directories that used to be in the distribution
