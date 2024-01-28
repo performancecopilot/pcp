@@ -38,6 +38,7 @@ enum {
     _PM_SNMP_IP_FRAGOKS,
     _PM_SNMP_IP_FRAGFAILS,
     _PM_SNMP_IP_FRAGCREATES,
+    _PM_SNMP_IP_OUTTRANSMITS,
 
     _PM_SNMP_IP_NFIELDS /* must be last */
 };
