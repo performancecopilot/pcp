@@ -312,9 +312,6 @@ done
 
 # directories that may be empty and hence not in the tarball
 #
-# from src/pmcd/GNUmakefile
-_do_dir "root:$grp" 700 "$PCP_TMP_DIR"/pmcd
-_do_dir "root:$grp" 755 "$PCP_LOG_DIR"/pmcd
 # from GNUmakefile
 _do_dir "root:$grp" 755 "$PCP_SYSCONF_DIR"/labels
 _do_dir "root:$grp" 755 "$PCP_SYSCONF_DIR"/labels/optional
@@ -323,6 +320,9 @@ then
     # from src/pmdas/openmetrics
     _do_dir "root:$grp" 755 "$PCP_PMDAS_DIR"/openmetrics/config.d
 fi
+# from src/pmcd/GNUmakefile
+_do_dir "root:$grp" 700 "$PCP_VAR_DIR"/pmcd
+_do_dir "root:$grp" 755 "$PCP_LOG_DIR"/pmcd
 # from src/pmfind/GNUmakefile
 _do_dir "pcp:pcp" 775 "$PCP_LOG_DIR"/pmfind
 _do_dir "root:$grp" 755 "$PCP_SYSCONF_DIR"/pmfind

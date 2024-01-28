@@ -1937,7 +1937,9 @@ x11
 1476 pmlogrewrite local pmlogger valgrind
 1477 pmlogrewrite pmlogredact local
 1478 other local
+1479 pmda.linux kernel local
 1480 pmda.lmsensors local
+1481 other local
 1486 logutil local
 1489 python pmrep pmimport local
 1490 python local labels

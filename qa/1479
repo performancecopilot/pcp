@@ -1,0 +1,55 @@
+#!/bin/sh
+# PCP QA Test No. 1479
+# Exercise Linux /proc/net/snmp metrics
+#
+# Copyright (c) 2020 Red Hat.  All Rights Reserved.
+# Copyright (c) 2024 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+if [ $# -eq 0 ]
+then
+    echo "QA output created by $seq"
+else
+    echo "QA output created by $seq $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ $PCP_PLATFORM = linux ] || _notrun "Linux PMDA not relevant on platform $PCP_PLATFORM"
+
+_cleanup()
+{
+    cat linux.log >>$seq.full
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+root=$tmp.root
+export LINUX_STATSPATH=$root
+pmda=$PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init
+
+rm -fr $root
+mkdir -p $root/proc/net || _fail "root in use when processing $file"
+cp $here/linux/proc_net_snmp $root/proc/net/snmp
+
+echo "== Checking network metrics from /proc/net/snmp"
+pminfo -m network \
+| grep 'PMID: 60\.14\.' \
+| sed -e 's/\./ /' -e 's/\./ /' \
+| LC_COLLATE=POSIX sort -t ' ' -k2,2 -k5,5 \
+| sed -e 's/ /./' -e 's/ /./' \
+| cut -d ' ' -f 1 >$tmp.tmp
+pminfo -f -L -K clear -K add,60,$pmda `cat $tmp.tmp`
+
+# success, all done
+status=0
+exit
