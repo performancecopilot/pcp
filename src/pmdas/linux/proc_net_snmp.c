@@ -76,6 +76,9 @@ snmp_fields_t ip_fields[] = {
      .offset = &_pm_proc_net_snmp.ip[_PM_SNMP_IP_FRAGFAILS] },
     { .field = "FragCreates",
      .offset = &_pm_proc_net_snmp.ip[_PM_SNMP_IP_FRAGCREATES] },
+    { .field = "OutTransmits",
+      .offset = &_pm_proc_net_snmp.ip[_PM_SNMP_IP_OUTTRANSMITS] },
+
     { .field = NULL, .offset = NULL }
 };
 
@@ -138,6 +141,7 @@ snmp_fields_t icmp_fields[] = {
      .offset = &_pm_proc_net_snmp.icmp[_PM_SNMP_ICMP_OUTRATELIMITGLOBAL] },
     { .field = "OutRateLimitHost",
      .offset = &_pm_proc_net_snmp.icmp[_PM_SNMP_ICMP_OUTRATELIMITHOST] },
+
     { .field = NULL, .offset = NULL }
 };
 
@@ -146,6 +150,7 @@ snmp_fields_t icmpmsg_fields[] = {
      .offset = &_pm_proc_net_snmp.icmpmsg[_PM_SNMP_ICMPMSG_INTYPE] },
     { .field = "OutType%u",
      .offset = &_pm_proc_net_snmp.icmpmsg[_PM_SNMP_ICMPMSG_OUTTYPE] },
+
     { .field = NULL, .offset = NULL }
 };
 
@@ -180,6 +185,7 @@ snmp_fields_t tcp_fields[] = {
      .offset = &_pm_proc_net_snmp.tcp[_PM_SNMP_TCP_OUTRSTS] },
     { .field = "InCsumErrors",
      .offset = &_pm_proc_net_snmp.tcp[_PM_SNMP_TCP_INCSUMERRORS] },
+
     { .field = NULL, .offset = NULL }
 };
 
