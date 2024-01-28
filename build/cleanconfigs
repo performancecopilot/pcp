@@ -3,14 +3,25 @@
 _clean_configs()
 {
     #
-    # Usage: _clean_configs [-v] new_dir old_dir ...
+    # Usage: _clean_configs [-n|-v] new_dir old_dir ...
     #
     # Across all the files in the new_dir and old_dir args, match
     # names and pick the most recently modified version and leave
     # this (same mode and modification date) in new_dir
     #
-    # -v option is verbose mode for debugging
+    # -n option is show-me for benign debugging
+    # -v option is verbose mode for active debugging
     #
+
+    if [ $# -gt 0 -a X"$1" = "X-n" ]
+    then
+	MKDIR="echo + mkdir "
+	CP="echo + cp "
+	shift
+    else
+	MKDIR=mkdir
+	CP=cp
+    fi
 
     _verbose=false
     if [ $# -gt 0 -a X"$1" = "X-v" ]
@@ -21,7 +32,7 @@ _clean_configs()
 
     if [ $# -lt 2 ]
     then
-	echo >&2 "Usage: _clean_configs [-v] new_dir old_dir ..."
+	echo >&2 "Usage: _clean_configs [-n|-v] new_dir old_dir ..."
 	return
     fi
 
@@ -29,7 +40,7 @@ _clean_configs()
     if [ ! -d "$_new" ]
     then
 	$verbose && echo >&2 + mkdir -p "$_new"
-	mkdir -p "$_new"
+	$MKDIR -p "$_new"
     fi
 
     shift
@@ -59,10 +70,10 @@ _clean_configs()
 		    if [ ! -d "$_dest" ]
 		    then
 			$verbose && >&2 echo + mkdir "$_dest"
-			mkdir "$_dest"
+			$MKDIR "$_dest"
 		    fi
 		    $_verbose && echo >&2 + cp -p "$_dir/$_file" "$_new/$_file"
-		    cp -p "$_dir/$_file" "$_new/$_file"
+		    $CP -p "$_dir/$_file" "$_new/$_file"
 		fi
 	    done
 	fi

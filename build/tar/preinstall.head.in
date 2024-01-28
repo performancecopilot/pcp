@@ -22,6 +22,27 @@ else
     exit
 fi
 
+# -n (show-me) is the only command line option ...
+#
+if [ $# -eq 1 -a X"$1" = X"-n" ]
+then
+    show_me=true
+    RM="echo + rm"
+    MV="echo + mv"
+    MKDIR="echo + mkdir"
+    SYSTEMCTL="echo + systemctl"
+    RC_UPDATE="echo + rc-update"
+    KILL="echo + kill"
+else
+    show_me=false
+    RM=rm
+    MV=mv
+    MKDIR=mkdir
+    SYSTEMCTL=systemctl
+    RC_UPDATE=rc-update
+    KILL=kill
+fi
+
 # The new place ... this should match the setting in /etc/pcp.conf
 # _after_ the installation
 #
@@ -29,7 +50,7 @@ PCP_SYSCONF_DIR=@pcp_sysconf_dir@
 # and same here ...
 #
 PCP_LOG_DIR=@pcp_log_dir@
-[ -d "$PCP_LOG_DIR" ] || mkdir "$PCP_LOG_DIR"
+[ -d "$PCP_LOG_DIR" ] || $MKDIR "$PCP_LOG_DIR"
 
 # and some other things we need ...
 #

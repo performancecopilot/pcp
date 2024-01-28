@@ -1,4 +1,3 @@
-GNUmakefile|1777|root|root|$(PCP_TMPFILE_DIR)
 GNUmakefile|775|$(PCP_USER)|$(PCP_GROUP)|$(PCP_LOG_DIR)
 GNUmakefile|775|$(PCP_USER)|$(PCP_GROUP)|$(PCP_RUN_DIR)|optional
 GNUmakefile|775|$(PCP_USER)|$(PCP_GROUP)|$(PCP_TMP_DIR)
