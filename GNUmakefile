@@ -82,7 +82,7 @@ endif
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_RUN_DIR)
 	# this works if PCP_RUN_DIR is within a tmpfs that is mounted
 	# empty on re-boot
-	$(INSTALL) -m 644 tmpfiles.run.setup /etc/tmpfiles.d/pcp.conf
+	$(INSTALL) -m 644 tmpfiles.run.setup /usr/lib/tmpfiles.d/pcp-run-pcp.conf
 	$(INSTALL) -m 755 -d $(PCP_SYSCONFIG_DIR)
 	$(INSTALL) -m 755 -d $(PCP_SYSCONF_DIR)
 	$(INSTALL) -m 755 -d $(PCP_SYSCONF_DIR)/labels
