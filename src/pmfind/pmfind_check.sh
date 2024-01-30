@@ -116,19 +116,14 @@ then
     :
 else
     # Salt away previous log, if any ...
-    PROGLOGDIR=`dirname "$PROGLOG"`
-    [ -d "$PROGLOGDIR" ] || mkdir_and_chown "$PROGLOGDIR" 755 $PCP_USER:$PCP_GROUP 2>/dev/null
     _save_prev_file "$PROGLOG"
 
     # After argument checking, everything must be logged to ensure no mail is
     # accidentally sent from cron.  Close stdout and stderr, then open stdout
-    # as our logfile and redirect stderr there too.  Create the log file with
-    # correct ownership first.
+    # as our logfile and redirect stderr there too.
     #
     # Exception ($SHOWME, above) is for -N where we want to see the output.
     #
-    touch "$PROGLOG"
-    chown $PCP_USER:$PCP_GROUP "$PROGLOG" >/dev/null 2>&1
     exec 1>"$PROGLOG" 2>&1
 fi
 
