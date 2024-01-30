@@ -16,7 +16,7 @@
 # needs have been setup ...
 #
 
-tmp=/var/tmp/pcp-reboot-init-$$
+tmp=`mktemp -d "$PCP_TMPFILE_DIR/pcp-reboot-init.XXXXXXXXX"` || exit 1
 status=1	# fail is the default
 trap "rm -f $tmp; exit \$status" 0 1 2 3 15
 
