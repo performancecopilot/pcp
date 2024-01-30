@@ -23,7 +23,6 @@ fi
 
 _cleanup()
 {
-    cat linux.log >>$seq.full
     $sudo rm -rf $tmp $tmp.*
 }
 
