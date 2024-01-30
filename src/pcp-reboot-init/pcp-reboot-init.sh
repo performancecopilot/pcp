@@ -18,7 +18,7 @@
 
 tmp=`mktemp -d "$PCP_TMPFILE_DIR/pcp-reboot-init.XXXXXXXXX"` || exit 1
 status=1	# fail is the default
-trap "rm -f $tmp; exit \$status" 0 1 2 3 15
+trap "rm -rf $tmp; exit \$status" 0 1 2 3 15
 
 if [ ! -f "$PCP_DIR/etc/pcp.env" ]
 then
@@ -72,16 +72,16 @@ fi
 #  ^^^^^^^^^    ^^^  ^^^
 #    mode      user group
 #
-if ls -ld "$PCP_RUN_DIR" >$tmp
+if ls -ld "$PCP_RUN_DIR" >$tmp/tmp
 then
     :
 else
     echo "$0: Error: ls \$PCP_RUN_DIR ($PCP_RUN_DIR) failed"
     ls -ld "$PCP_RUN_DIR/.." "$PCP_RUN_DIR"
 fi
-mode=`awk '{print $1}' <$tmp | sed -e 's/^.//' -e 's/\(.........\).*/\1/'`
-user=`awk '{print $3}' <$tmp`
-group=`awk '{print $4}' <$tmp`
+mode=`awk '{print $1}' <$tmp/tmp | sed -e 's/^.//' -e 's/\(.........\).*/\1/'`
+user=`awk '{print $3}' <$tmp/tmp`
+group=`awk '{print $4}' <$tmp/tmp`
 
 if [ "$user" != $PCP_USER -o "$group" != $PCP_GROUP ]
 then
