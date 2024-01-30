@@ -290,7 +290,7 @@ get_fields(snmp_fields_t *fields, char *header, char *buffer)
 	    if (fields[i].field == NULL) {
 		/* not found, warn */
 		if (onetrip == 1)
-		    pmNotifyErr(LOG_WARNING, "proc_net_netstat: %s unknown field[#%d] \"%s\"\n", header, j, indices[j]);
+		    pmNotifyErr(LOG_WARNING, "proc_net_snmp: %s unknown field[#%d] \"%s\"\n", header, j, indices[j]);
 	    }
 	    else
 		i++;
