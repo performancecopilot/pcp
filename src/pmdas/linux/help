@@ -1319,7 +1319,8 @@ page table entry.
 @ mem.vmstat.thp_file_alloc count of times huge pages were allocated and put in page cache
 @ mem.vmstat.thp_file_mapped count of times huge pages were used for file mappings
 @ mem.vmstat.pgdemote_direct count of direct reclaims of memory pages
-Counts the direct reclaim and occurs when a page allocation is requested but there is no more space in DRAM.
+Counts the direct reclaim and occurs when a page allocation is requested but
+there is no more space in DRAM.
 @ mem.vmstat.pgdemote_kswapd count of periodic reclaims performed by the kernel
 @ mem.vmstat.pgdemote_khugepaged count of periodic reclaims of huge pages performed by the kernel
 @ mem.vmstat.pgdemote_total count of total reclaims performed by the kernel
