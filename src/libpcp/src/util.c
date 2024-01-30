@@ -3172,16 +3172,15 @@ static char *
 inodetype(mode_t st_mode)
 {
     switch (st_mode & S_IFMT) {
-	case S_IFBLK:	return "block device"; break;
-	case S_IFCHR:	return "character device"; break;
-	case S_IFDIR:	return "directory"; break;
-	case S_IFIFO:	return "FIFO/pipe"; break;
-	case S_IFLNK:	return "symlink"; break;
-	case S_IFREG:	return "regular file"; break;
-	case S_IFSOCK:	return "socket"; break;
-	default:	return "unknown?"; break;
+	case S_IFBLK:	return "block device";
+	case S_IFCHR:	return "character device";
+	case S_IFDIR:	return "directory";
+	case S_IFIFO:	return "FIFO/pipe";
+	case S_IFLNK:	return "symlink";
+	case S_IFREG:	return "regular file";
+	case S_IFSOCK:	return "socket";
+	default:	return "unknown?";
     }
-
 }
 
 /*
