@@ -90,13 +90,25 @@ bool TraceScreen_forkTracer(TraceScreen* this) {
 
       char buffer[32] = {0};
       xSnprintf(buffer, sizeof(buffer), "%d", Process_getPid(this->super.process));
-      // Use of NULL in variadic functions must have a pointer cast.
-      // The NULL constant is not required by standard to have a pointer type.
-      execlp("strace", "strace", "-T", "-tt", "-s", "512", "-p", buffer, (char*)NULL);
 
-      // Should never reach here, unless execlp fails ...
-      const char* message = "Could not execute 'strace'. Please make sure it is available in your $PATH.";
-      (void)! write(STDERR_FILENO, message, strlen(message));
+      #if defined(HTOP_FREEBSD) || defined(HTOP_OPENBSD) || defined(HTOP_NETBSD) || defined(HTOP_DRAGONFLYBSD) || defined(HTOP_SOLARIS)
+         // Use of NULL in variadic functions must have a pointer cast.
+         // The NULL constant is not required by standard to have a pointer type.
+         execlp("truss", "truss", "-s", "512", "-p", buffer, (void*)NULL);
+
+         // Should never reach here, unless execlp fails ...
+         const char* message = "Could not execute 'truss'. Please make sure it is available in your $PATH.";
+         (void)! write(STDERR_FILENO, message, strlen(message));
+      #elif defined(HTOP_LINUX)
+         execlp("strace", "strace", "-T", "-tt", "-s", "512", "-p", buffer, (void*)NULL);
+
+         // Should never reach here, unless execlp fails ...
+         const char* message = "Could not execute 'strace'. Please make sure it is available in your $PATH.";
+         (void)! write(STDERR_FILENO, message, strlen(message));
+      #else // HTOP_DARWIN, HTOP_PCP == HTOP_UNSUPPORTED
+         const char* message = "Tracing unavailable on not supported system.";
+         (void)! write(STDERR_FILENO, message, strlen(message));
+      #endif
 
       exit(127);
    }
@@ -164,6 +176,7 @@ static void TraceScreen_updateTrace(InfoScreen* super) {
 
 static bool TraceScreen_onKey(InfoScreen* super, int ch) {
    TraceScreen* this = (TraceScreen*) super;
+
    switch (ch) {
       case 'f':
       case KEY_F(8):
@@ -178,6 +191,7 @@ static bool TraceScreen_onKey(InfoScreen* super, int ch) {
          InfoScreen_draw(this);
          return true;
    }
+
    this->follow = false;
    return false;
 }

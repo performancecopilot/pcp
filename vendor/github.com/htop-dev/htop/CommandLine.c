@@ -29,15 +29,16 @@ in the source distribution for its full text.
 #include "Hashtable.h"
 #include "Header.h"
 #include "IncSet.h"
+#include "Machine.h"
 #include "MainPanel.h"
 #include "MetersPanel.h"
 #include "Panel.h"
 #include "Platform.h"
 #include "Process.h"
 #include "ProcessTable.h"
-#include "ProvideCurses.h"
 #include "ScreenManager.h"
 #include "Settings.h"
+#include "Table.h"
 #include "UsersTable.h"
 #include "XUtils.h"
 
@@ -138,6 +139,7 @@ static CommandLineStatus parseArguments(int argc, char** argv, CommandLineSettin
    while ((opt = getopt_long(argc, argv, "hVMCs:td:n:u::Up:F:H::", long_opts, &opti))) {
       if (opt == EOF)
          break;
+
       switch (opt) {
          case 'h':
             printHelpFlag(program);
@@ -192,8 +194,7 @@ static CommandLineStatus parseArguments(int argc, char** argv, CommandLineSettin
                return STATUS_ERROR_EXIT;
             }
             break;
-         case 'u':
-         {
+         case 'u': {
             const char* username = optarg;
             if (!username && optind < argc && argv[optind] != NULL &&
                 (argv[optind][0] != '\0' && argv[optind][0] != '-')) {
@@ -246,11 +247,10 @@ static CommandLineStatus parseArguments(int argc, char** argv, CommandLineSettin
 
             break;
          }
-         case 'F': {
+         case 'F':
             assert(optarg);
             free_and_xStrdup(&flags->commFilter, optarg);
             break;
-         }
          case 'H': {
             const char* delay = optarg;
             if (!delay && optind < argc && argv[optind] != NULL &&

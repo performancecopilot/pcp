@@ -5,19 +5,17 @@ Released under the GNU GPLv2+, see the COPYING file
 in the source distribution for its full text.
 */
 
+#include "config.h" // IWYU pragma: keep
+
 #include "ProcessTable.h"
 
 #include <assert.h>
 #include <stdlib.h>
-#include <string.h>
 
-#include "CRT.h"
-#include "DynamicColumn.h"
 #include "Hashtable.h"
-#include "Macros.h"
-#include "Platform.h"
+#include "Row.h"
+#include "Settings.h"
 #include "Vector.h"
-#include "XUtils.h"
 
 
 void ProcessTable_init(ProcessTable* this, const ObjectClass* klass, Machine* host, Hashtable* pidMatchList) {

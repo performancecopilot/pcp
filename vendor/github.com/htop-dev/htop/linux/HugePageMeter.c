@@ -5,6 +5,8 @@ Released under the GNU GPLv2+, see the COPYING file
 in the source distribution for its full text.
 */
 
+#include "config.h" // IWYU pragma: keep
+
 #include "linux/HugePageMeter.h"
 
 #include <assert.h>
@@ -12,9 +14,9 @@ in the source distribution for its full text.
 #include <stddef.h>
 
 #include "CRT.h"
+#include "Machine.h"
 #include "Macros.h"
 #include "Object.h"
-#include "ProcessTable.h"
 #include "RichString.h"
 #include "linux/LinuxMachine.h"
 

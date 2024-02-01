@@ -37,7 +37,7 @@ ProcessTable* ProcessTable_new(Machine* host, Hashtable* pidMatchList) {
 }
 
 void ProcessTable_delete(Object* cast) {
-   const DragonFlyBSDProcessTable* this = (DragonFlyBSDProcessTable*) cast;
+   DragonFlyBSDProcessTable* this = (DragonFlyBSDProcessTable*) cast;
    ProcessTable_done(&this->super);
    free(this);
 }
@@ -130,8 +130,8 @@ static void DragonFlyBSDProcessTable_updateProcessName(kvm_t* kd, const struct k
 }
 
 void ProcessTable_goThroughEntries(ProcessTable* super) {
-   const Machine* host = super->host;
-   const DragonFlyMachine* dhost = (const DragonFlyMachine*) host;
+   const Machine* host = super->super.host;
+   const DragonFlyBSDMachine* dhost = (const DragonFlyBSDMachine*) host;
    const Settings* settings = host->settings;
 
    bool hideKernelThreads = settings->hideKernelThreads;
@@ -216,7 +216,7 @@ void ProcessTable_goThroughEntries(ProcessTable* super) {
       proc->time = (kproc->kp_lwp.kl_uticks + kproc->kp_lwp.kl_sticks + kproc->kp_lwp.kl_iticks) / 10000;
 
       proc->percent_cpu = 100.0 * ((double)kproc->kp_lwp.kl_pctcpu / (double)dhost->kernelFScale);
-      proc->percent_mem = 100.0 * proc->m_resident / (double)(super->totalMem);
+      proc->percent_mem = 100.0 * proc->m_resident / (double)(super->super.host->totalMem);
       Process_updateCPUFieldWidths(proc->percent_cpu);
 
       if (proc->percent_cpu > 0.1) {
@@ -249,44 +249,56 @@ void ProcessTable_goThroughEntries(ProcessTable* super) {
       // would be nice if we could store multiple states in proc->state (as enum) and have writeField render them
       /* Taken from: https://github.com/DragonFlyBSD/DragonFlyBSD/blob/c163a4d7ee9c6857ee4e04a3a2cbb50c3de29da1/sys/sys/proc_common.h */
       switch (kproc->kp_stat) {
-      case SIDL:   proc->state = IDLE; isIdleProcess = true; break;
-      case SACTIVE:
-         switch (kproc->kp_lwp.kl_stat) {
-            case LSSLEEP:
-               if (kproc->kp_lwp.kl_flags & LWP_SINTR)					// interruptible wait short/long
-                  if (kproc->kp_lwp.kl_slptime >= MAXSLP) {
-                     proc->state = IDLE;
-                     isIdleProcess = true;
-                  } else {
+         case SIDL:
+            proc->state = IDLE;
+            isIdleProcess = true;
+            break;
+         case SACTIVE:
+            switch (kproc->kp_lwp.kl_stat) {
+               case LSSLEEP:
+                  if (kproc->kp_lwp.kl_flags & LWP_SINTR) {          // interruptible wait short/long
+                     if (kproc->kp_lwp.kl_slptime >= MAXSLP) {
+                        proc->state = IDLE;
+                        isIdleProcess = true;
+                     } else {
+                        proc->state = SLEEPING;
+                     }
+                  } else if (kproc->kp_lwp.kl_tdflags & TDF_SINTR) { // interruptible lwkt wait
                      proc->state = SLEEPING;
+                  } else if (kproc->kp_paddr) {                      // uninterruptible wait
+                     proc->state = UNINTERRUPTIBLE_WAIT;
+                  } else {                                           // uninterruptible lwkt wait
+                     proc->state = UNINTERRUPTIBLE_WAIT;
                   }
-               else if (kproc->kp_lwp.kl_tdflags & TDF_SINTR)				// interruptible lwkt wait
-                  proc->state = SLEEPING;
-               else if (kproc->kp_paddr)						// uninterruptible wait
-                  proc->state = UNINTERRUPTIBLE_WAIT;
-               else									// uninterruptible lwkt wait
-                  proc->state = UNINTERRUPTIBLE_WAIT;
-               break;
-            case LSRUN:
-               if (kproc->kp_lwp.kl_stat == LSRUN) {
-                  if (!(kproc->kp_lwp.kl_tdflags & (TDF_RUNNING | TDF_RUNQ)))
-                     proc->state = QUEUED;
-                  else
-                     proc->state = RUNNING;
-               }
-               break;
-            case LSSTOP:
-               proc->state = STOPPED;
-               break;
-            default:
-               proc->state = PAGING;
-               break;
-         }
-         break;
-      case SSTOP:  proc->state = STOPPED; break;
-      case SZOMB:  proc->state = ZOMBIE; break;
-      case SCORE:  proc->state = BLOCKED; break;
-      default:     proc->state = UNKNOWN;
+                  break;
+               case LSRUN:
+                  if (kproc->kp_lwp.kl_stat == LSRUN) {
+                     if (!(kproc->kp_lwp.kl_tdflags & (TDF_RUNNING | TDF_RUNQ))) {
+                        proc->state = QUEUED;
+                     } else {
+                        proc->state = RUNNING;
+                     }
+                  }
+                  break;
+               case LSSTOP:
+                  proc->state = STOPPED;
+                  break;
+               default:
+                  proc->state = PAGING;
+                  break;
+            }
+            break;
+         case SSTOP:
+            proc->state = STOPPED;
+            break;
+         case SZOMB:
+            proc->state = ZOMBIE;
+            break;
+         case SCORE:
+            proc->state = BLOCKED;
+            break;
+         default:
+            proc->state = UNKNOWN;
       }
 
       if (kproc->kp_flags & P_SWAPPEDOUT)

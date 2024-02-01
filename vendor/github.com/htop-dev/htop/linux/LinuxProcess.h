@@ -8,14 +8,13 @@ Released under the GNU GPLv2+, see the COPYING file
 in the source distribution for its full text.
 */
 
-#include "config.h" // IWYU pragma: keep
-
 #include <stdbool.h>
-#include <sys/types.h>
 
 #include "Machine.h"
 #include "Object.h"
 #include "Process.h"
+#include "Row.h"
+
 #include "linux/IOPriority.h"
 
 
@@ -41,6 +40,7 @@ typedef struct LinuxProcess_ {
    unsigned long long int cutime;
    unsigned long long int cstime;
    long m_share;
+   long m_priv;
    long m_pss;
    long m_swap;
    long m_psswp;
@@ -90,6 +90,7 @@ typedef struct LinuxProcess_ {
    #endif
    char* cgroup;
    char* cgroup_short;
+   char* container_short;
    unsigned int oom;
    #ifdef HAVE_DELAYACCT
    unsigned long long int delay_read_time;

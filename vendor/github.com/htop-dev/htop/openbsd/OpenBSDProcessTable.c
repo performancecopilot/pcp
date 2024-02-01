@@ -6,6 +6,8 @@ Released under the GNU GPLv2+, see the COPYING file
 in the source distribution for its full text.
 */
 
+#include "config.h" // IWYU pragma: keep
+
 #include "openbsd/OpenBSDProcessTable.h"
 
 #include <kvm.h>
@@ -43,7 +45,7 @@ ProcessTable* ProcessTable_new(Machine* host, Hashtable* pidMatchList) {
 }
 
 void ProcessTable_delete(Object* cast) {
-   OpenBSDProcessTable* this = (OpenBSDProcessTable*) super;
+   OpenBSDProcessTable* this = (OpenBSDProcessTable*) cast;
    ProcessTable_done(&this->super);
    free(this);
 }
@@ -128,7 +130,7 @@ static double getpcpu(const OpenBSDMachine* ohost, const struct kinfo_proc* kp) 
 }
 
 static void OpenBSDProcessTable_scanProcs(OpenBSDProcessTable* this) {
-   Machine* host = this->super.host;
+   Machine* host = this->super.super.host;
    OpenBSDMachine* ohost = (OpenBSDMachine*) host;
    const Settings* settings = host->settings;
    const bool hideKernelThreads = settings->hideKernelThreads;

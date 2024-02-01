@@ -3,13 +3,19 @@
 /*
 htop - StringUtils.h
 (C) 2004-2011 Hisham H. Muhammad
+(C) 2020-2023 htop dev team
 Released under the GNU GPLv2+, see the COPYING file
 in the source distribution for its full text.
 */
 
-#include "config.h" // IWYU pragma: keep
+// IWYU pragma: no_include "config.h"
+#ifndef PACKAGE
+// strchrnul() needs _GNU_SOURCE defined, see PR #1337 for details
+#error "Must have #include \"config.h\" line at the top of the file that includes these XUtils helper functions"
+#endif
 
 #include <stdbool.h>
+#include <stddef.h> // IWYU pragma: keep
 #include <stdio.h>
 #include <stdlib.h> // IWYU pragma: keep
 #include <string.h> // IWYU pragma: keep
@@ -110,5 +116,8 @@ int compareRealNumbers(double a, double b);
    NaN values in the array are skipped. The returned sum will always be
    nonnegative. */
 double sumPositiveValues(const double* array, size_t count);
+
+/* IEC unit prefixes */
+static const char unitPrefixes[] = { 'K', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y', 'R', 'Q' };
 
 #endif

@@ -5,6 +5,8 @@ Released under the GNU GPLv2+, see the COPYING file
 in the source distribution for its full text.
 */
 
+#include "config.h" // IWYU pragma: keep
+
 #include "AvailableMetersPanel.h"
 
 #include <assert.h>
@@ -23,6 +25,7 @@ in the source distribution for its full text.
 #include "Object.h"
 #include "Platform.h"
 #include "ProvideCurses.h"
+#include "Settings.h"
 #include "XUtils.h"
 
 
@@ -58,25 +61,22 @@ static HandlerResult AvailableMetersPanel_eventHandler(Panel* super, int ch) {
       case KEY_F(5):
       case 'l':
       case 'L':
-      {
          AvailableMetersPanel_addMeter(header, this->meterPanels[0], Platform_meterTypes[type], param, 0);
          result = HANDLED;
          update = true;
          break;
-      }
       case 0x0a:
       case 0x0d:
       case KEY_ENTER:
       case KEY_F(6):
       case 'r':
       case 'R':
-      {
          AvailableMetersPanel_addMeter(header, this->meterPanels[this->columns - 1], Platform_meterTypes[type], param, this->columns - 1);
          result = (KEY_LEFT << 16) | SYNTH_KEY;
          update = true;
          break;
-      }
    }
+
    if (update) {
       Settings* settings = this->host->settings;
       settings->changed = true;
@@ -86,6 +86,7 @@ static HandlerResult AvailableMetersPanel_eventHandler(Panel* super, int ch) {
       Header_draw(header);
       ScreenManager_resize(this->scr);
    }
+
    return result;
 }
 

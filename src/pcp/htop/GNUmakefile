@@ -286,8 +286,8 @@ $(MAN_PAGES): $(CMDTARGET).1.in $(CMDTARGET).5.in
 #
 check::	$(CFILES) $(HFILES)
 	$(CLINT) \
-	    --suppress=unknownMacro:Action.c:706 \
-	    --suppress=unknownMacro:CommandLine.c:46 \
+	    --suppress=unknownMacro:Action.c \
+	    --suppress=unknownMacro:CommandLine.c \
 	    --suppress=unknownMacro:CRT.c \
 	    --suppress=syntaxError:RowField.h \
 	    --suppress=syntaxError:Meter.c \

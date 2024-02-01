@@ -8,13 +8,7 @@ Released under the GNU GPLv2+, see the COPYING file
 in the source distribution for its full text.
 */
 
-#include "config.h" // IWYU pragma: keep
-
-#include <limits.h>
 #include <stdbool.h>
-#include <stdint.h>
-#include <sys/time.h>
-#include <sys/types.h>
 
 #include "Hashtable.h"
 #include "Object.h"
@@ -23,9 +17,9 @@ in the source distribution for its full text.
 #include "Vector.h"
 
 
-struct Machine_;
-struct Panel_;
-struct Row_;
+struct Machine_;  // IWYU pragma: keep
+struct Panel_;    // IWYU pragma: keep
+struct Row_;      // IWYU pragma: keep
 
 typedef struct Table_ {
    /* Super object for emulated OOP */

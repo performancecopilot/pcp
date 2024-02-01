@@ -5,13 +5,14 @@ Released under the GNU GPLv2+, see the COPYING file
 in the source distribution for its full text.
 */
 
+#include "config.h" // IWYU pragma: keep
+
 #include "CategoriesPanel.h"
 
 #include <ctype.h>
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "AvailableColumnsPanel.h"
 #include "AvailableMetersPanel.h"
 #include "ColorsPanel.h"
 #include "DisplayOptionsPanel.h"
@@ -26,6 +27,7 @@ in the source distribution for its full text.
 #include "ProvideCurses.h"
 #include "ScreensPanel.h"
 #include "ScreenTabsPanel.h"
+#include "Settings.h"
 #include "Vector.h"
 #include "XUtils.h"
 

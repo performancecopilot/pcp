@@ -26,9 +26,9 @@ extern uint8_t Row_fieldWidths[LAST_RESERVED_FIELD];
 extern int Row_pidDigits;
 extern int Row_uidDigits;
 
-struct Machine_;
-struct Settings_;
-struct Table_;
+struct Machine_;     // IWYU pragma: keep
+struct Settings_;    // IWYU pragma: keep
+struct Table_;       // IWYU pragma: keep
 
 /* Class representing entities (such as processes) that can be
  * represented in a tabular form in the lower half of the htop
@@ -142,11 +142,11 @@ void Row_setPidColumnWidth(pid_t maxPid);
 /* Sets the size of the UID column based on the passed UID */
 void Row_setUidColumnWidth(uid_t maxUid);
 
+/* Takes number in kibibytes (base 1024). Prints 6 columns. */
+void Row_printKBytes(RichString* str, unsigned long long number, bool coloring);
+
 /* Takes number in bytes (base 1024). Prints 6 columns. */
 void Row_printBytes(RichString* str, unsigned long long number, bool coloring);
-
-/* Takes number in kilo bytes (base 1024). Prints 6 columns. */
-void Row_printKBytes(RichString* str, unsigned long long number, bool coloring);
 
 /* Takes number as count (base 1000). Prints 12 columns. */
 void Row_printCount(RichString* str, unsigned long long number, bool coloring);
