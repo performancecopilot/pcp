@@ -14,15 +14,12 @@ _check_avahi_service
 
 # no pmcd servers found on vm14 (CentOS6.10) and no
 # good reason that is apparently related to PCP can
-# be found, so _notrun on anything related to RHEL 6.
+# be found.
 #
 case `admin/whatami`
 in
     *CentOS6.*)
 	_notrun "dodge avahi issue on CentOS 6"
-	;;
-    *RHEL*6.*)
-	_notrun "dodge avahi issue on RHEL 6"
 	;;
 esac
 
