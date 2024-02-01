@@ -202,13 +202,15 @@ p
 	then
 	    echo "check.callback: fail: PMDA $name not well, status=$status!"
 	    for log in $PCP_LOG_DIR/pmcd/pmcd.log $PCP_LOG_DIR/pmcd/$name.log* ]
-	    if [ -f "$log" ]
-	    then
-		echo "=== start $log ==="
-		ls -l $log
-		cat $log
-		echo "=== end $log ==="
-	    fi
+	    do
+		if [ -f "$log" ]
+		then
+		    echo "=== start $log ==="
+		    ls -l $log
+		    cat $log
+		    echo "=== end $log ==="
+		fi
+	    done
 	    $abort && status=1
 	fi
 	echo "$name" >>$tmp.pmdalist
