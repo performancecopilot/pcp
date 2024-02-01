@@ -3093,7 +3093,7 @@ for PMDA in dm nfsclient openmetrics ; do
 done
 # auto-enable these usually optional pmie rules
 %{run_pmieconf "$PCP_PMIECONFIG_DIR" dmthin}
-%if 0%{?rhel}
+%if 0%{?rhel} <= 9
 %if !%{disable_systemd}
     systemctl restart pcp-reboot-init pmcd pmlogger pmie >/dev/null 2>&1
     systemctl enable pcp-reboot-init pmcd pmlogger pmie >/dev/null 2>&1
