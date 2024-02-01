@@ -34,7 +34,7 @@ _stop_auto_restart pmcd
 rm -rf $tmp.* $seq.full
 echo "First, the standard logfile:" | tee -a $seq.full
 _service pcp stop >/dev/null
-$sudo rm -f $PCP_LOG_DIR/pmcd/pmcd.log
+$sudo rm -f $PCP_LOG_DIR/pmcd/pmcd.log*
 _service pcp start 2>&1 | tee -a $seq.full >$tmp.out
 _wait_for_pmcd
 _wait_for_pmlogger

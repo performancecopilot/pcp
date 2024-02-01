@@ -288,18 +288,22 @@ logreopen(const char *progname, const char *logname, FILE *oldstream,
 	 */
 	return NULL;
     }
-
     oldfd = fileno(oldstream);
     if ((dupoldfd = dup(oldfd)) >= 0) {
 	/*
-	 * try to remove the file first ... don't bother if this fails,
-	 * but if it succeeds, we at least get a chance to define the
-	 * owner and mode, rather than inheriting this from an existing
+	 * try to rename or remove the file first ... don't bother if this
+	 * fails, but if it succeeds, we at least get a chance to define
+	 * the owner and mode, rather than inheriting this from an existing
 	 * writeable file ... really only a problem when called as with
 	 * uid == 0, e.g. from pmcd(1).
 	 */
-	unlink(logname);
+	char		prev[MAXPATHLEN+1];
 
+	pmsprintf(prev, sizeof(prev)-1, "%s.prev", logname);
+	unlink(prev);
+	if (rename(logname, prev) < 0) {
+	    unlink(logname);
+	}
 	oldstream = outstream = freopen(logname, "w", oldstream);
 	if (oldstream == NULL) {
 	    int		save_error = oserror();	/* need for error message */
@@ -3161,4 +3165,235 @@ __pmLogFeaturesStr(__uint32_t features)
     }
 
     return(ans);
+}
+
+/* map inode type part of st_mode from lstat() -> string */
+static char *
+inodetype(mode_t st_mode)
+{
+    switch (st_mode & S_IFMT) {
+	case S_IFBLK:	return "block device";
+	case S_IFCHR:	return "character device";
+	case S_IFDIR:	return "directory";
+	case S_IFIFO:	return "FIFO/pipe";
+	case S_IFLNK:	return "symlink";
+	case S_IFREG:	return "regular file";
+	case S_IFSOCK:	return "socket";
+	default:	return "unknown?";
+    }
+}
+
+/*
+ * check the validity of an entry from a map file directory (path)
+ * ... should be numeric, with some restrictions and should be the
+ * PID of a running process
+ * the entry is either name (for a regular file) or link (if name
+ * is a symlink, then the value of the symlink)
+ */
+static int
+check_map_name(const char *path, const char *name, const char *link, const char *link_pid)
+{
+    long	numb;
+    int		sts;
+    pid_t	pid;
+    char	*p;
+
+    setoserror(0);
+    if (link_pid != NULL)
+	numb = strtol(link_pid, &p, 10);
+    else
+	numb = strtol(name, &p, 10);
+    sts = oserror();
+    if (*p != '\0') {
+	if (pmDebugOptions.appl9) {
+	    fprintf(stderr, "__pmCleanMapDir: %s", path);
+	    if (link) fprintf(stderr, " -> %s (%s)", link, link_pid);
+	    fprintf(stderr, ": remove: name not numeric so cannot be a PID\n");
+	}
+	return 0;
+    }
+    if (numb < 1) {
+	if (pmDebugOptions.appl9) {
+	    fprintf(stderr, "__pmCleanMapDir: %s", path);
+	    if (link) fprintf(stderr, " -> %s (%s)", link, link_pid);
+	    fprintf(stderr, ": remove: PID must be at least 1\n");
+	}
+	return 0;
+    }
+    pid = numb;
+    if (sts == ERANGE || pid != numb) {
+	if (pmDebugOptions.appl9) {
+	    fprintf(stderr, "__pmCleanMapDir: %s", path);
+	    if (link) fprintf(stderr, " -> %s (%s)", link, link_pid);
+	    fprintf(stderr, ": remove: pid_t overflow so cannot be a PID\n");
+	}
+	return 0;
+    }
+    if (kill(pid, 0) < 0) {
+	if (oserror() == ESRCH) {
+	    if (pmDebugOptions.appl9) {
+		fprintf(stderr, "__pmCleanMapDir: %s", path);
+		if (link) fprintf(stderr, " -> %s (%s)", link, link_pid);
+		fprintf(stderr, ": remove: process does not exist\n");
+	    }
+	    return 0;
+	}
+    }
+
+    return 1;
+}
+
+/*
+ * remove old files from a map directory
+ * - use -Dappl9 for verbose diagnostics
+ */
+int
+__pmCleanMapDir(const char *dirname, const char * special)
+{
+    int			n = 0;
+    int			sts;
+    struct stat		sbuf;
+    DIR			*dirp;
+    struct dirent	*dp;
+    char		errmsg[PM_MAXERRMSGLEN];
+    char		path[MAXPATHLEN+1];
+
+    PM_LOCK(__pmLock_extcall);		/* hold lock throughout */
+
+    if ((sts = lstat(dirname, &sbuf)) < 0) {
+	sts = -oserror();
+	PM_UNLOCK(__pmLock_extcall);
+	if (pmDebugOptions.appl9)
+	    fprintf(stderr, "__pmCleanMapDir: lstat(%s) failed: %s\n",
+		dirname, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	return sts;
+    }
+
+    if ((sbuf.st_mode & S_IFMT) != S_IFDIR) {
+	sts = -ENOTDIR;
+	PM_UNLOCK(__pmLock_extcall);
+	if (pmDebugOptions.appl9)
+	    fprintf(stderr, "__pmCleanMapDir: dirname %s: is a %s: %s\n",
+		dirname, inodetype(sbuf.st_mode), pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	return sts;
+    }
+
+    if (sbuf.st_uid != geteuid()) {
+	sts = -EPERM;
+	PM_UNLOCK(__pmLock_extcall);
+	if (pmDebugOptions.appl9)
+	    fprintf(stderr, "__pmCleanMapDir: dirname %s: uid %d different to caller uid %d: %s\n",
+		dirname, sbuf.st_uid, geteuid(), pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	return sts;
+    }
+
+    if (sbuf.st_gid != getegid()) {
+	sts = -EPERM;
+	PM_UNLOCK(__pmLock_extcall);
+	if (pmDebugOptions.appl9)
+	    fprintf(stderr, "__pmCleanMapDir: dirname %s: gid %d different to caller gid %d: %s\n",
+		dirname, sbuf.st_gid, getegid(), pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	return sts;
+    }
+
+    if ((dirp = opendir(dirname)) == NULL) {
+	sts = -oserror();
+	PM_UNLOCK(__pmLock_extcall);
+	if (pmDebugOptions.appl9)
+	    fprintf(stderr, "__pmCleanMapDir: opendir(%s) failed: %s\n",
+		dirname, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	return sts;
+    }
+
+    while ((dp = readdir(dirp)) != NULL) {
+	if (strcmp(dp->d_name, ".") == 0) continue;
+	if (strcmp(dp->d_name, "..") == 0) continue;
+	pmsprintf(path, sizeof(path)-1, "%s%c%s", dirname, pmPathSeparator(), dp->d_name);
+	if ((sts = lstat(path, &sbuf)) < 0) {
+	    sts = -oserror();
+	    if (pmDebugOptions.appl9) {
+		fprintf(stderr, "__pmCleanMapDir: lstat(%s) failed: %s\n",
+		    path, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	    }
+	    continue;
+	}
+	if (special != NULL && strcmp(dp->d_name, special) == 0) {
+	    ssize_t	llen;
+	    char	link[MAXPATHLEN+1];
+	    char	*lp;
+	    char	*linkp;
+	    char	sep = pmPathSeparator();
+
+	    if ((sts = lstat(path, &sbuf)) < 0) {
+		sts = -oserror();
+		if (pmDebugOptions.appl9)
+		    fprintf(stderr, "__pmCleanMapDir: lstat(%s) [special] failed: %s\n",
+			path, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+		goto unlink;
+	    }
+	    if ((sbuf.st_mode & S_IFMT) != S_IFLNK) {
+		if (pmDebugOptions.appl9)
+		    fprintf(stderr, "__pmCleanMapDir: %s [special]: remove: is a %s, expected a symlink\n",
+			path, inodetype(sbuf.st_mode));
+		goto unlink;
+	    }
+	    if ((llen = readlink(path, link, sizeof(link))) < 0) {
+		sts = -oserror();
+		if (pmDebugOptions.appl9)
+		    fprintf(stderr, "__pmCleanMapDir: readlink(%s) failed: %s\n",
+			path, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+		goto unlink;
+	    }
+	    /*
+	     * for the "special" symlink, expect the value to be an
+	     * optional path prefix, followed by a number (PID),
+	     * e.g. 1234 or /foo/bar/someplace/1234
+	     */
+	    link[llen] = '\0';
+	    linkp = link;
+	    for (lp = link; *lp; lp++) {
+		if (*lp == sep)
+		    /* start of next component in path */
+		    linkp = &lp[1];
+	    }
+	    if (*linkp == '\0')
+		/* path prefix, then nothing to folow ... */
+		linkp = link;
+	    if (check_map_name(path, dp->d_name, link, linkp)) {
+		if (pmDebugOptions.appl9) {
+		    fprintf(stderr, "__pmCleanMapDir: %s [special]: keep: OK\n",
+			path);
+		}
+	    }
+	    else
+		goto unlink;
+	}
+	else {
+	    if (check_map_name(path, dp->d_name, NULL, NULL)) {
+		if (pmDebugOptions.appl9) {
+		    fprintf(stderr, "__pmCleanMapDir: %s: keep: OK\n",
+			path);
+		}
+	    }
+	    else
+		goto unlink;
+	}
+	continue;
+
+unlink:
+	if (unlink(path) < 0) {
+	    sts = -oserror();
+	    if (pmDebugOptions.appl9) {
+		fprintf(stderr, "__pmCleanMapDir: unlink(%s) failed: %s\n",
+		    path, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	    }
+	}
+	else
+	    n++;
+    }
+
+    closedir(dirp);
+
+    PM_UNLOCK(__pmLock_extcall);
+    return n;
 }

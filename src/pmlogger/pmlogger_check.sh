@@ -1072,11 +1072,6 @@ END				{ print m }'`
             fi
 
 	    _get_logfile
-	    if [ -f $logfile ]
-	    then
-		$VERBOSE && $SHOWME && echo
-		eval $MV -f $logfile $logfile.prior
-	    fi
 
 	    # Notify service manager (if any) for the primary logger ONLY.
 	    [ "$primary" = y ] && args="-N $args"

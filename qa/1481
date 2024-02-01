@@ -1,0 +1,148 @@
+#!/bin/sh
+# PCP QA Test No. 1481
+# Check tar postinstall mkdir|chmod|chown actions
+#
+# Copyright (c) 2024 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -d ../build/tar ] || _notrun "not in build dir, no ../build/tar"
+
+$sudo rm -rf $tmp $tmp.* $seq.full
+
+( cd ../build/tar; $MAKE ) >>$seq.full 2>&1
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+    # end
+}
+
+export LC_COLLATE=POSIX
+
+# real QA test starts here
+echo "Silence is golden ..."
+
+# expand $(...) variables from permslist lines like:
+# GNUmakefile|775|$(PCP_USER)|$(PCP_GROUP)|$(PCP_VAR_DIR)/config/pmda
+# src/pmlogger/GNUmakefile|775|$(PCP_USER)|$(PCP_GROUP)|$(PCP_TMP_DIR)/pmlogger|optional
+#
+sed <src/permslist \
+    -e "s/\$(PCP_USER)/$PCP_USER/g" \
+    -e "s/\$(PCP_GROUP)/$PCP_GROUP/g" \
+    -e "s@\$(PCP_LOG_DIR)@$PCP_LOG_DIR@g" \
+    -e "s@\$(PCP_TMP_DIR)@$PCP_TMP_DIR@g" \
+    -e "s@\$(PCP_VAR_DIR)@$PCP_VAR_DIR@g" \
+    -e "s@\$(PCP_RUN_DIR)@$PCP_RUN_DIR@g" \
+    -e "s@\$(PCP_TMPFILE_DIR)@$PCP_TMPFILE_DIR@g" \
+    -e "s@\$(PCP_SA_DIR)@$PCP_SA_DIR@g" \
+| $PCP_AWK_PROG -F '|' '{ print $5,$2,$3,$4,$6 }' \
+| sort >$tmp.permslist
+
+echo "--- permslist ---" >>$seq.full
+cat $tmp.permslist >>$seq.full
+
+# build similar last from shell commands in tarball postinstall
+# script, where output looks like:
+# + mkdir -p /var/lib/pcp/config/pmda
+# + chown pcp:pcp /var/lib/pcp/config/pmda
+# + chmod 775 /var/lib/pcp/config/pmda
+#
+( cd ../build/tar; ./postinstall -n ) 2>&1 \
+| grep -E '^\+ (chown|chmod) ' \
+| $PCP_AWK_PROG '
+$2 == "chown"	{ if ($3 == "-R") {
+			who = $4; start = 5
+			Rflag = 1
+		  }
+		  else {
+		  	who = $3; start = 4
+			Rflag = 0
+		  }
+		  for (i = start; i <= NF; i++) {
+		      obj = $i
+		      if (Rflag) obj = obj "-R"
+		      ug[obj] = who
+		  }
+		}
+$2 == "chmod"	{ for (i = 4; i <= NF; i++) mode[$i] = $3 }
+END		{ for (path in ug) {
+		    if (mode[path] == "") mode[path] = "default-mode"
+		    printf "%s %s %s\n",path,mode[path],ug[path]
+		  }
+		}' \
+| sed -e 's/:/ /' \
+| sort >$tmp.postinstall
+
+echo "--- postinstall ---" >>$seq.full
+cat $tmp.postinstall >>$seq.full
+
+# join'd lines look like this
+# /var/lib/pcp/tmp/pmie 775 pcp pcp /var/lib/pcp/tmp/pmie 775 pcp pcp optional
+# expect these to be equal ...
+# /var/lib/pcp/tmp/pmie             /var/lib/pcp/tmp/pmie
+#                       775                               775
+#                           pcp                               pcp
+#                               pcp                               pcp
+#
+# and then ones line this
+# /etc/default/pmcd default-mode root root MISSING MISSING MISSING MISSING MISSING
+# /etc/pcp/pmie 755 root root MISSING MISSING MISSING MISSING MISSING
+# are OK (tarball possibly empty dir creation) provided the user
+# (and group) is root or wheel
+#
+# and ones like this are also OK (just being paranoid)
+# /etc/pcp/pmcd/pmcd.conf 644 root root MISSING MISSING MISSING MISSING MISSING
+# provided the user (and group) is root or wheel
+#
+# and testsuite ... pcpqa is OK
+#
+# and there is no config.default for pmie or pmlogger in the tarball
+# today, but the postinstall is guarded by [ -f ... ]so these are OK
+# /var/lib/pcp/config/pmie/config.default 644 pcp pcp MISSING MISSING MISSING MISSING MISSING
+# /var/lib/pcp/config/pmlogger/config.default 644 pcp pcp MISSING MISSING MISSING MISSING MISSING
+#
+join -t ' ' -j 1 -a 1 -a 2 -e MISSING \
+    -o 1.1,1.2,1.3,1.4,2.1,2.2,2.3,2.4,2.5 $tmp.postinstall $tmp.permslist \
+| $PCP_AWK_PROG '
+$1 == $5 && $2 == $6 && $3 == $7 && $4 == $8	{ next }
+$2 == "default-mode" || $2 == "755" || $2 == "644"	{
+			  ok = 1
+			  if ($3 != "root" && $3 != "wheel") ok = 0
+			  if ($4 != "root" && $4 != "wheel") ok = 0
+			  for (i = 5; i <= NF; i++)
+			    if ($i != "MISSING") ok = 0
+			  if (ok == 1) next
+			}
+			{ print }' \
+| sed \
+    -e '/\/testsuite.*pcpqa pcpqa/d' \
+    -e '/\/config\/pmie\/config.default/d' \
+    -e '/\/config\/pmlogger\/config.default/d' \
+# end
+# success, all done
+exit

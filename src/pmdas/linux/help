@@ -2568,6 +2568,7 @@ the Z field of the Tcp line from /proc/net/netstat
 @ network.tcp.tcpmigratereqsuccess the TCPMigrateReqSuccess field of the Tcp line from /proc/net/netstat
 @ network.tcp.tcpmigratereqfailure the TCPMigrateReqFailure field of the Tcp line from /proc/net/netstat
 @ network.ip.reasmoverlaps the ReasmOverlaps field of the Ip line from /proc/net/netstat
+@ network.ip.outtransmits the OutTransmits field of the Ip line from /proc/net/snmp
 @ network.mptcp.dssnomatchtcp the DSSNoMatchTCP field of the MPTcp line from /proc/net/netstat
 Multipath TCP DSS-mapping did not map with TCP's sequence numbers.
 @ network.mptcp.datacsumerr the DataCsumErr field of the MPTcp line from /proc/net/netstat

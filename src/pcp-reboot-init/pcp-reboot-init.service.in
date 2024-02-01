@@ -1,0 +1,11 @@
+[Unit]
+Description=PCP Reboot Initialization Helper Service
+Documentation=man:pcp-reboot-init(1)
+DefaultDependencies=no
+After=network-online.target systemd-tmpfiles-setup.service
+Before=pmlogger.service pmie.service pmproxy.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=@PCP_BINADM_DIR@/pcp-reboot-init

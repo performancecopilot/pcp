@@ -1,0 +1,245 @@
+#!/bin/sh
+#
+# Helper to export a new field from /proc/net/snmp
+#
+# Usage: add_snmp_field [-n] tag field
+#
+# where "tag" is Ip or Icmp or IcmpMsg or Tcp or Udp or UdpLite
+# and "field" is the new field name as it appears in /proc/net/snmp
+#
+# Typical /proc/net/snmp looks something like this ...
+# Ip: Forwarding DefaultTTL InReceives ...
+# Ip: 1 64 5182186 ...
+# Icmp: InMsgs InErrors InCsumErrors ...
+# Icmp: 3147 55 0 ...
+# IcmpMsg: InType0 InType3 InType8 ...
+# IcmpMsg: 1554 171 1420 ...
+# Tcp: RtoAlgorithm RtoMin RtoMax ...
+# Tcp: 1 200 120000 ...
+# Udp: InDatagrams NoPorts InErrors ...
+# Udp: 250573 51 0 ...
+# UdpLite: InDatagrams NoPorts InErrors ...
+# UdpLite: 0 0 0 ...
+#
+
+tmp=/var/tmp/add_snmp_field.$$
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+usage="Usage: add_snmp_field tag field"
+
+if [ "$1" = "-n" ]
+then
+    showme=true
+    shift
+else
+    showme=false
+fi
+
+if [ $# -ne 2 ]
+then
+    echo $usage
+    exit
+fi
+
+Tag="$1"
+TAG=`echo "$Tag" | tr '[a-z]' '[A-Z]'`
+tag=`echo "$Tag" | tr '[A-Z]' '[a-z]'`
+Field="$2"
+FIELD=`echo "$Field" | tr '[a-z]' '[A-Z]'`
+field=`echo "$Field" | tr '[A-Z]' '[a-z]'`
+
+case "$1"
+in
+    Ip|Icmp|IcmpMsg|Tcp|Udp|UdpLite)
+	group="$tag"
+	;;
+    *)
+    	echo "Error: tag must be Ip or Icmp or IcmpMsg or Tcp or Udp or UdpLite (not $1)"
+	exit
+	;;
+esac
+
+for file in proc_net_snmp.c proc_net_snmp.h pmda.c \
+	root_linux help ../../../qa/linux/proc_net_snmp
+do
+    [ -f "$file" ] && continue
+    echo "Error: file \"$file\" not found"
+    exit
+done
+
+if [ ! -f /proc/net/snmp ]
+then
+    echo "Warning: /proc/net/snmp not found ... I hope you know what you're doing"
+else
+    grep "^$Tag: [A-Z]" /proc/net/snmp >$tmp.tmp
+    if sed -e 's/$/ /' <$tmp.tmp | grep " $Field " >/dev/null 2>&1
+    then
+	:
+    else
+	echo "Warning: field \"$Field\" not in the active /proc/net/snmp where the \"$Tag\" fields are:"
+	sed -e "s/^$Tag: //" <$tmp.tmp | fmt
+    fi
+fi
+
+# need to add metric into PMNS via root_linux
+#
+if pminfo -n root_linux -m network.$group.$field >$tmp.tmp 2>$tmp.err
+then
+    echo "Warning: network.$group.$field already defined in root_linux"
+    item=`sed -e 's/.*\.\([^.][^.]*\)$/\1/' <$tmp.tmp`
+else
+    # CLUSTER_NET_SNMP from linux.h
+    #
+    cluster=14
+    pminfo -n root_linux -m network \
+    | sed -n -e "/\\.$cluster\\./"'{
+s/.* PMID: //
+p
+}' \
+    | awk -F . '{print $3}' \
+    | sort -nr \
+    | head -1 >$tmp.tmp
+    item=`cat $tmp.tmp`
+    item=`expr $item + 1`
+    awk <root_linux >$tmp.tmp '
+inblock == 1 && $1 == "}"	{ print "    '"$field"'\t\t60:'"$cluster:$item"'"
+				  inblock = 0
+				}
+				{ print }
+$1 == "'"network.$group"'"	{ inblock = 1; next }'
+    if $showme
+    then
+	diff -c root_linux $tmp.tmp 
+    else
+	mv $tmp.tmp root_linux
+    fi
+fi
+
+# need to add to the correct enum in proc_net_snmp.h
+#
+if grep " _PM_SNMP_${TAG}_${FIELD}," <proc_net_snmp.h >/dev/null
+then
+    echo "Warning: _PM_SNMP_${TAG}_${FIELD} already defined in proc_net_snmp.h"
+else
+    line=`sed -n <proc_net_snmp.h -e "/_PM_SNMP_${TAG}_NFIELDS .* must be last/="`
+    if [ -z "$line" ]
+    then
+	echo "Arrgh: failed to find _PM_SNMP_${TAG}_NFIELDS in proc_net_snmp.h"
+	exit
+    fi
+    line=`expr $line - 2`
+    awk <proc_net_snmp.h >$tmp.tmp '
+		{ print }
+NR == '$line'	{ print "    _PM_SNMP_'"${TAG}_${FIELD}"'," }'
+    if $showme
+    then
+	diff -c proc_net_snmp.h $tmp.tmp 
+    else
+	mv $tmp.tmp proc_net_snmp.h
+    fi
+fi
+
+# need to add field declaration into proc_net_snmp.c
+#
+if grep "\\[_PM_SNMP_${TAG}_${FIELD}]" proc_net_snmp.c >/dev/null
+then
+    echo "Warning: network.$group.$field already defined for snmp_${group}_fields[] in proc_net_snmp.c"
+else
+    awk <proc_net_snmp.c >$tmp.tmp '
+inblock == 1 && NF == 0	{ print "    { .field = \"'"$Field"'\","
+			  print "      .offset = &_pm_proc_net_snmp.'"$group"'[_PM_SNMP_'"${TAG}_${FIELD}"'] },"
+			  inblock = 0
+			}
+			{ print }
+$2 == "'"${group}_fields[]"'"	{ inblock = 1; next }'
+    if $showme
+    then
+	diff -c proc_net_snmp.c $tmp.tmp 
+    else
+	mv $tmp.tmp proc_net_snmp.c
+    fi
+fi
+
+# need to add metrictab[] initialization in pmda.c
+# Note: assume it is a 64-bit counter
+#
+if grep "\\[_PM_SNMP_${TAG}_${FIELD}]" pmda.c >/dev/null
+then
+    echo "Warning: network.$group.$field already defined for metrictab[] in pmda.c"
+else
+    # last use of &_pm_proc_net_snmp.$group[ is close to the
+    # point we need to insert the new code ...
+    #
+    line=`sed -n <pmda.c -e "/&_pm_proc_net_snmp\.$group\[/=" | tail -1`
+    if [ -z "$line" ]
+    then
+	echo "Error: failed to find last _pm_proc_net_snmp.$group entry in pmda.c"
+	exit
+    fi
+    line=`expr $line + 3`
+    awk <pmda.c >$tmp.tmp '
+NR == '"$line"'	{ print ""
+		  print "/* network.'"${group}.${field}"' */"
+		  print "  { &_pm_proc_net_snmp.'"$group"'[_PM_SNMP_'"${TAG}_${FIELD}"'],"
+		  print "    { PMDA_PMID(CLUSTER_NET_SNMP,'"$item"'), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,"
+		  print "    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },"
+		}
+		{ print }'
+    if $showme
+    then
+	diff -c pmda.c $tmp.tmp 
+    else
+	mv $tmp.tmp pmda.c
+    fi
+fi
+
+# add skeletal help text
+#
+if grep "^@ network.$group.$field " help >/dev/null
+then
+    echo "Warning: network.$group.$field already defined in help"
+else
+    # last use of network.$group. is where we need to insert
+    # the new text ...
+    #
+    line=`sed -n <help -e "/^@ network\.$group\./=" | tail -1`
+    if [ -z "$line" ]
+    then
+	echo "Error: failed to find last network.$group.* entry in help"
+	exit
+    fi
+    line=`expr $line + 1`
+    Tg=`echo "$Tag" | sed -e 's/Ext//'`
+    awk <help >$tmp.tmp '
+NR == '"$line"'	{ print "@ network.'"${group}.${field}"' the '"$Field"' field of the '"$Tg"' line from /proc/net/snmp" }
+		{ print }'
+    if $showme
+    then
+	diff -c help $tmp.tmp 
+    else
+	mv $tmp.tmp help
+    fi
+fi
+
+# add field for qa/1805 data file
+#
+if sed -e 's/$/ /' <../../../qa/linux/proc_net_snmp | grep "^$Tag:.* $Field " >/dev/null
+then
+    echo "Warning: field \"$Field\" already defined in the \"$Tag\" line in ../../../qa/linux/proc_net_snmp"
+else
+    # get last value
+    #
+    val=`sed -n <../../../qa/linux/proc_net_snmp -e "/^$Tag: 1 /s/.* //p"`
+    val=`expr $val + 1`
+    awk <../../../qa/linux/proc_net_snmp >$tmp.tmp '
+$0 ~ /^'"$Tag"': [A-Z]/	{ print $0 " '"$Field"'"; next }
+$0 ~ /^'"$Tag"': 1 /	{ print $0 " '"$val"'"; next }
+			{ print }'
+    if $showme
+    then
+	diff -c ../../../qa/linux/proc_net_snmp $tmp.tmp 
+    else
+	mv $tmp.tmp ../../../qa/linux/proc_net_snmp
+	echo "Warning: need to remake 1805 in ../../../qa"
+    fi
+fi

@@ -34,7 +34,7 @@ echo .
 
 # pipe PMDA variant of test
 echo "=== pipe PMDA ===" >>$here/$seq.full
-$sudo rm -f sample.log
+$sudo rm -f sample.log*
 $sudo TERM=ansi dbpmda -n root -ie <<End-of-File 2>&1 | _filter
 debug AUTH
 open pipe pmdasample -l $tmp.log -D AUTH

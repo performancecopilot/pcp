@@ -111,7 +111,9 @@ _filter()
 	-e '/\/pmie_check:.*cd:/d' \
 	-e 's/[ 	]*$//' \
 	-e 's/^[ 	]*//' \
-	-e '/\$PCP_RC_DIR\/pmie:/d' \
+	-e "s@$PCP_RC_DIR@PCP_RC_DIR@g" \
+	-e '/PCP_RC_DIR\/pmie:/d' \
+	-e '/PCP_RC_DIR\/rc:/d' \
 	-e '/^Error: PCP inference engine control file/d' \
 	-e '/^is missing! /d' \
 	-e '/^failed /d' \

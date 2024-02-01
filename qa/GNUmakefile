@@ -56,7 +56,7 @@ MANDIRT =
 LDIRT += 051.work 134.full.* \
 	 $(IAM).cil $(IAM).mod $(IAM).pp $(IAM).pp.bz2 \
 	 *.bak *.bad *.core *.full *.notrun *.raw *.o core a.out core.* \
-	 *.log eek* urk* so_locations tmp.* gmon.out oss.qa.tar.gz \
+	 *.log *.log.prev eek* urk* so_locations tmp.* gmon.out oss.qa.tar.gz \
 	 *.full.ok *.new rc_cron_check.clean \
 	 make.out qa_hosts qa_outfiles stap_*.ko localconfig check.time
 

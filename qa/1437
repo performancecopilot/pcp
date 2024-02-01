@@ -18,7 +18,7 @@ echo "QA output created by $seq"
 _cleanup()
 {
     cd $here
-    $sudo rm -rf $tmp $tmp.*
+    $sudo rm -rf $tmp $tmp.* kvm.log*
 }
 
 status=1	# failure is the default!

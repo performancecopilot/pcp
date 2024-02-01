@@ -38,6 +38,7 @@ usr/share/man/man3/__pmAFunblock.3.gz
 usr/share/man/man3/__pmAFunregister.3.gz
 usr/share/man/man3/__pmAddIPC.3.gz
 usr/share/man/man3/__pmConnectLogger.3.gz
+usr/share/man/man3/__pmCleanMapDir.3.gz
 usr/share/man/man3/__pmControlLog.3.gz
 usr/share/man/man3/__pmConvertHighResTime.3.gz
 usr/share/man/man3/__pmConvertTime.3.gz

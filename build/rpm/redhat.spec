@@ -2773,8 +2773,8 @@ semodule -r pcpqa >/dev/null 2>&1 || true
 chown -R pcpqa:pcpqa %{_testsdir} 2>/dev/null
 %if 0%{?rhel}
 %if !%{disable_systemd}
-    systemctl restart pmcd pmlogger >/dev/null 2>&1
-    systemctl enable pmcd pmlogger >/dev/null 2>&1
+    systemctl restart pcp-reboot-init pmcd pmlogger >/dev/null 2>&1
+    systemctl enable pcp-reboot-init pmcd pmlogger >/dev/null 2>&1
 %else
     /sbin/chkconfig --add pmcd >/dev/null 2>&1
     /sbin/chkconfig --add pmlogger >/dev/null 2>&1
@@ -3059,9 +3059,9 @@ if [ "$1" -eq 0 ]
 then
     # stop daemons before erasing the package
     %if !%{disable_systemd}
-       %systemd_preun pmlogger_check.timer pmlogger_daily.timer pmlogger_farm_check.timer pmlogger_farm_check.service pmlogger_farm.service pmlogger.service pmie_check.timer pmie_daily.timer pmie_farm_check.timer pmie_farm_check.service pmie_farm.service pmie.service pmproxy.service pmfind.service pmcd.service
+       %systemd_preun pmlogger_check.timer pmlogger_daily.timer pmlogger_farm_check.timer pmlogger_farm_check.service pmlogger_farm.service pmlogger.service pmie_check.timer pmie_daily.timer pmie_farm_check.timer pmie_farm_check.service pmie_farm.service pmie.service pmproxy.service pmfind.service pmcd.service pcp-reboot-init.service
 
-       systemctl stop pmlogger.service pmie.service pmproxy.service pmfind.service pmcd.service >/dev/null 2>&1
+       systemctl stop pmlogger.service pmie.service pmproxy.service pmfind.service pmcd.service pcp-reboot-init.service >/dev/null 2>&1
     %else
        /sbin/service pmlogger stop >/dev/null 2>&1
        /sbin/service pmie stop >/dev/null 2>&1
@@ -3095,8 +3095,8 @@ done
 %{run_pmieconf "$PCP_PMIECONFIG_DIR" dmthin}
 %if 0%{?rhel}
 %if !%{disable_systemd}
-    systemctl restart pmcd pmlogger pmie >/dev/null 2>&1
-    systemctl enable pmcd pmlogger pmie >/dev/null 2>&1
+    systemctl restart pcp-reboot-init pmcd pmlogger pmie >/dev/null 2>&1
+    systemctl enable pcp-reboot-init pmcd pmlogger pmie >/dev/null 2>&1
 %else
     /sbin/chkconfig --add pmcd >/dev/null 2>&1
     /sbin/chkconfig --add pmlogger >/dev/null 2>&1

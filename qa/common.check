@@ -200,9 +200,11 @@ _service()
     if [ -n "$1" -a "$1" = "-v" ]
     then
 	__verbose=true
+	__vflag='-v'
 	shift
     else
 	__verbose=false
+	__vflag=''
     fi
     __do_systemctl=false
     if [ "$PCPQA_SYSTEMD" = no ]
@@ -364,7 +366,7 @@ _service()
     elif [ -f $PCP_RC_DIR/$1 ]
     then
 	$__verbose && echo "_service: using $PCP_RC_DIR/$1 $2"
-	$sudo $PCP_RC_DIR/$1 $2
+	$sudo $PCP_RC_DIR/$1 $__vflag $2
     else
 	echo "_service: $1 is not a systemctl service nor a $PCP_RC_DIR script!"
 	status=0
@@ -1459,7 +1461,7 @@ _restore_primary_logger()
 #
 _restore_pmlogger_control()
 {
-    for __file in `find $PCP_ETC_DIR/pcp/pmlogger -type f`
+    for __file in `find $PCP_SYSCONF_DIR/pmlogger/control $PCP_SYSCONF_DIR/pmlogger/control.d -type f`
     do
 	$PCP_AWK_PROG '/^\$/ || /^#/ || (/PCP_ARCHIVE_DIR/ && $2 == "y") {print}' \
 		$__file >$tmp.new

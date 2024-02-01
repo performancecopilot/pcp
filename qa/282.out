@@ -5,7 +5,7 @@ $PCP_RC_DIR/pmcd:
 Warning: pmcd control file $PCP_PMCDCONF_PATH is missing, cannot identify PMDAs
          to be terminated.
 $PCP_RC_DIR/pmcd:
-Error: pmcd control file $PCP_PMCDCONF_PATH is missing, cannot start pmcd.
+Error: pmcd control file $PCP_PMCD_CONF_PATH ("$PCP_PMCDCONF_PATH") is missing, cannot start pmcd.
 === probe pmcd: pmprobe: Cannot connect to PMCD on host "HOST": Connection refused
 
 === simple case, no frills, no errors ===
@@ -15,8 +15,7 @@ Error: pmcd control file $PCP_PMCDCONF_PATH is missing, cannot start pmcd.
 === expected failure: a mere mortal ===
 $PCP_RC_DIR/pmcd:
 Error: You must be root (uid 0) to start or stop the Performance Co-Pilot pmcd.
-$PCP_RC_DIR/pmlogger:
-Error: You must be root (uid 0) to start or stop the Performance Co-Pilot loggers.
+$PCP_RC_DIR/pmlogger: Error: You must be root (uid 0) to start or stop pmlogger via this script
 === probe pmcd: OK
 === start again ===
 === probe pmcd: OK
@@ -35,7 +34,7 @@ $PCP_RC_DIR/pmcd: Warning: Forcing pmcd to terminate!
 === probe pmcd: OK
 
 === expect warning: PMLOGGER.CHECK moved, so no pmlogger ===
-$PCP_RC_DIR/pmlogger:
+$PCP_SYSCONF_DIR/pmlogger/rc:
 Warning: Performance Co-Pilot installation is incomplete (at least the
          script "PMLOGGER.CHECK" is missing) and the PCP archive logger(s)
 	 cannot be started.
@@ -43,8 +42,8 @@ Warning: Performance Co-Pilot installation is incomplete (at least the
 === probe pmlogger: Unable to connect to primary pmlogger at HOST: Connection refused
 
 === expect error: pmlogger/control moved, so no pmlogger ===
-$PCP_RC_DIR/pmlogger:
-Error: PCP archive logger control file $PCP_PMLOGGERCONTROL_PATH
+$PCP_SYSCONF_DIR/pmlogger/rc:
+Error: PCP archive logger control file $PCP_PMLOGGERCONTROL_PATH ("$PCP_PMLOGGERCONTROL_PATH")
        is missing!  Cannot start any Performance Co-Pilot archive logger(s).
 === probe pmcd: OK
 === probe pmlogger: Unable to connect to primary pmlogger at HOST: Connection refused

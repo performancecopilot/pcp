@@ -43,6 +43,7 @@ then
     CHOWN="echo + chown"
     SYSTEMCTL="echo + systemctl"
     RC_UPDATE="echo + rc-update"
+    MAKEWHATIS="echo + makewhatis"
 else
     show_me=false
     RM=rm
@@ -52,6 +53,7 @@ else
     CHOWN=chown
     SYSTEMCTL=systemctl
     RC_UPDATE=rc-update
+    MAKEWHATIS=makewhatis
 fi
 
 _cd()
@@ -310,8 +312,6 @@ done
 
 # directories that may be empty and hence not in the tarball
 #
-# from src/pmcd/GNUmakefile
-_do_dir "root:$grp" 700 "$PCP_TMP_DIR"/pmcd
 # from GNUmakefile
 _do_dir "root:$grp" 755 "$PCP_SYSCONF_DIR"/labels
 _do_dir "root:$grp" 755 "$PCP_SYSCONF_DIR"/labels/optional
@@ -320,6 +320,9 @@ then
     # from src/pmdas/openmetrics
     _do_dir "root:$grp" 755 "$PCP_PMDAS_DIR"/openmetrics/config.d
 fi
+# from src/pmcd/GNUmakefile
+_do_dir "root:$grp" 700 "$PCP_VAR_DIR"/pmcd
+_do_dir "root:$grp" 755 "$PCP_LOG_DIR"/pmcd
 # from src/pmfind/GNUmakefile
 _do_dir "pcp:pcp" 775 "$PCP_LOG_DIR"/pmfind
 _do_dir "root:$grp" 755 "$PCP_SYSCONF_DIR"/pmfind
@@ -348,7 +351,7 @@ done
 # pcp:pcp and mode 775 directories
 #
 for dir in "$PCP_LOG_DIR" \
-	   "$PCP_LOG_DIR"/pmcd "$PCP_LOG_DIR"/pmproxy \
+	   "$PCP_LOG_DIR"/pmproxy \
 	   "$PCP_LOG_DIR"/pmie "$PCP_LOG_DIR"/pmlogger \
 	   "$PCP_SA_DIR" \
 	   "$PCP_RUN_DIR" \
@@ -471,7 +474,7 @@ fi
 if which makewhatis >/dev/null 2>&1
 then
     echo "Rebuilding whatis DB in the background"
-    makewhatis &
+    $MAKEWHATIS &
 fi
 
 # cull any old files or directories that used to be in the distribution

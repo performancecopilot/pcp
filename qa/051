@@ -213,9 +213,9 @@ echo "Running the scanner/parser tests (die.\*)"
 export PMCD_SOCKET=$tmp.pmcd.socket
 for t in die.*
 do
-    rm -f pmcd.log
+    rm -f pmcd.log*
     $sudo cp $t $config
-    rm -f pmcd.log
+    rm -f pmcd.log*
     echo
     $PCP_ECHO_PROG $PCP_ECHO_N "$t================""$PCP_ECHO_C"
     $PCP_ECHO_PROG "$t================" >>$here/$seq.full
@@ -251,9 +251,9 @@ echo
 
 for t in kill.*
 do
-    rm -f pmcd.log
+    rm -f pmcd.log*
     $sudo cp $t $config
-    rm -f pmcd.log
+    rm -f pmcd.log*
     echo "$t================"
     echo "$t================" >>$here/$seq.full
     cat $t >>$here/$seq.full

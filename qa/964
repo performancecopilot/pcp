@@ -123,12 +123,12 @@ then
 	echo "Found same pmcd"
     else
 	echo "Error: pmcd restarted? PID changed from $pmcd_pid to $new_pmcd_pid"
-	if [ -f $PCP_LOG_DIR/pmcd/pmcd.log.prior ]
+	if [ -f $PCP_LOG_DIR/pmcd/pmcd.log.prev ]
 	then
-	    echo "--- $PCP_LOG_DIR/pmcd/pmcd.log.prior ---" >>$here/$seq.full
-	    cat $PCP_LOG_DIR/pmcd/pmcd.log.prior >>$here/$seq.full
+	    echo "--- $PCP_LOG_DIR/pmcd/pmcd.log.prev ---" >>$here/$seq.full
+	    cat $PCP_LOG_DIR/pmcd/pmcd.log.prev >>$here/$seq.full
 	else
-	    echo "Cannot find $PCP_LOG_DIR/pmcd/pmcd.log.prior" >>$here/$seq.full
+	    echo "Cannot find $PCP_LOG_DIR/pmcd/pmcd.log.prev" >>$here/$seq.full
 	fi
 	pmcd_pid=$new_pmcd_pid
     fi
@@ -149,12 +149,12 @@ then
     else
 	echo "Found new primary pmlogger"
 	echo "Error: PID changed from $pid to $newpid"
-	if [ -f $PCP_LOG_DIR/pmlogger/`hostname`/pmlogger.log.prior ]
+	if [ -f $PCP_LOG_DIR/pmlogger/`hostname`/pmlogger.log.prev ]
 	then
-	    echo "--- $PCP_LOG_DIR/pmlogger/`hostname`/pmlogger.log.prior ---" >>$here/$seq.full
-	    cat $PCP_LOG_DIR/pmlogger/`hostname`/pmlogger.log.prior >>$here/$seq.full
+	    echo "--- $PCP_LOG_DIR/pmlogger/`hostname`/pmlogger.log.prev ---" >>$here/$seq.full
+	    cat $PCP_LOG_DIR/pmlogger/`hostname`/pmlogger.log.prev >>$here/$seq.full
 	else
-	    echo "Cannot find $PCP_LOG_DIR/pmlogger/`hostname`/pmlogger.log.prior" >>$here/$seq.full
+	    echo "Cannot find $PCP_LOG_DIR/pmlogger/`hostname`/pmlogger.log.prev" >>$here/$seq.full
 	fi
 	pid=$newpid
     fi
@@ -206,12 +206,12 @@ then
     else
 	echo "Found new primary pmlogger"
 	echo "Error: PID changed from $pid to $newpid"
-	if [ -f $PCP_LOG_DIR/pmlogger/`hostname`/pmlogger.log.prior ]
+	if [ -f $PCP_LOG_DIR/pmlogger/`hostname`/pmlogger.log.prev ]
 	then
-	    echo "--- $PCP_LOG_DIR/pmlogger/`hostname`/pmlogger.log.prior ---" >>$here/$seq.full
-	    cat $PCP_LOG_DIR/pmlogger/`hostname`/pmlogger.log.prior >>$here/$seq.full
+	    echo "--- $PCP_LOG_DIR/pmlogger/`hostname`/pmlogger.log.prev ---" >>$here/$seq.full
+	    cat $PCP_LOG_DIR/pmlogger/`hostname`/pmlogger.log.prev >>$here/$seq.full
 	else
-	    echo "Cannot find $PCP_LOG_DIR/pmlogger/`hostname`/pmlogger.log.prior" >>$here/$seq.full
+	    echo "Cannot find $PCP_LOG_DIR/pmlogger/`hostname`/pmlogger.log.prev" >>$here/$seq.full
 	fi
 	pid=$newpid
     fi

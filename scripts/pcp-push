@@ -298,6 +298,14 @@ then
     then
 	$GIT push $push
     fi
+    branch=main
+fi
+
+if [ "$branch" != "$orig_branch" ]
+then
+    # put us back to the branch we started from ...
+    #
+    $GIT checkout $orig_branch
 fi
 
 # may have local git mirror that needs to be updated ...

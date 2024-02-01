@@ -42,6 +42,7 @@ OTHER_SUBDIRS = \
 	pmcpp \
 	newhelp \
 	pmieconf \
+	pcp-reboot-init \
 	#
 
 # and all the rest ...
@@ -130,6 +131,7 @@ OTHER_SUBDIRS += \
 	derived \
 	selinux \
 	find-filter \
+	runaspcp \
 	#
 
 SUBDIRS = \

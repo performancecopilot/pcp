@@ -7,7 +7,9 @@ After=network-online.target pmcd.service redis.service avahi-daemon.service
 Type=notify
 NotifyAccess=all
 Restart=always
-ExecStart=@PCP_RC_DIR@/pmproxy start-systemd
+ExecStart=@PCP_SYSCONF_DIR@/pmproxy/rc start-systemd
+Group=@PCP_GROUP@
+User=@PCP_USER@
 
 [Install]
 WantedBy=multi-user.target

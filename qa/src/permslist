@@ -1,10 +1,8 @@
-GNUmakefile|1777|root|root|$(PCP_TMPFILE_DIR)
 GNUmakefile|775|$(PCP_USER)|$(PCP_GROUP)|$(PCP_LOG_DIR)
 GNUmakefile|775|$(PCP_USER)|$(PCP_GROUP)|$(PCP_RUN_DIR)|optional
 GNUmakefile|775|$(PCP_USER)|$(PCP_GROUP)|$(PCP_TMP_DIR)
 GNUmakefile|775|$(PCP_USER)|$(PCP_GROUP)|$(PCP_VAR_DIR)/config/pmda
 src/pmcd/GNUmakefile|700|root|root|$(PCP_VAR_DIR)/pmcd
-src/pmcd/GNUmakefile|775|$(PCP_USER)|$(PCP_GROUP)|$(PCP_LOG_DIR)/pmcd
 src/pmdas/bash/GNUmakefile|775|$(PCP_USER)|$(PCP_GROUP)|$(PCP_TMP_DIR)/bash|optional
 src/pmdas/json/GNUmakefile|775|$(PCP_USER)|$(PCP_GROUP)|$(PCP_TMP_DIR)/json|optional
 src/pmdas/mmv/src/GNUmakefile|775|$(PCP_USER)|$(PCP_GROUP)|$(PCP_TMP_DIR)/mmv|optional
@@ -17,4 +15,4 @@ src/pmlogger/GNUmakefile|775|$(PCP_USER)|$(PCP_GROUP)|$(PCP_LOG_DIR)/pmlogger
 src/pmlogger/GNUmakefile|775|$(PCP_USER)|$(PCP_GROUP)|$(PCP_SA_DIR)|optional
 src/pmlogger/GNUmakefile|775|$(PCP_USER)|$(PCP_GROUP)|$(PCP_TMP_DIR)/pmlogger|optional
 src/pmlogger/GNUmakefile|775|$(PCP_USER)|$(PCP_GROUP)|$(PCP_VAR_DIR)/config/pmlogger
-src/pmproxy/GNUmakefile|775|$(PCP_USER)|$(PCP_USER)|$(PCP_LOG_DIR)/pmproxy
+src/pmproxy/GNUmakefile|775|$(PCP_USER)|$(PCP_GROUP)|$(PCP_LOG_DIR)/pmproxy

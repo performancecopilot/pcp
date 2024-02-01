@@ -1936,7 +1936,10 @@ x11
 1475 pmda.bpf local
 1476 pmlogrewrite local pmlogger valgrind
 1477 pmlogrewrite pmlogredact local
+1478 other local
+1479 pmda.linux kernel local
 1480 pmda.lmsensors local
+1481 other local
 1486 logutil local
 1489 python pmrep pmimport local
 1490 python local labels
@@ -2065,11 +2068,8 @@ x11
 1837 pmproxy local
 1838 pmda.linux kernel local
 1844 pmdumptext libpcp_qmc remote
-1845:reserved # security branch testing
-1846:reserved # security branch testing
-1847:reserved # security branch testing
-1848:reserved # security branch testing
-1849:reserved # security branch testing
+1848 libpcp local valgrind
+1849 libpcp local
 1850 pmseries libpcp_web local
 1853 pmda.bpf local
 1854 pmlogger pmimport pmconfig local

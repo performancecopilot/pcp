@@ -852,3 +852,7 @@ PCP_3.38 {
     pmAddDerivedText;
     __pmEquivInDom;
 } PCP_3.37;
+
+PCP_3.39 {
+    __pmCleanMapDir;
+} PCP_3.38;

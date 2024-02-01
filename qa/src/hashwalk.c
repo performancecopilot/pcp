@@ -6,6 +6,7 @@
 
 #include <pcp/pmapi.h>
 #include "libpcp.h"
+#include <stdint.h>
 
 void
 dumpnode(unsigned int key, __int64_t data)
@@ -16,7 +17,10 @@ dumpnode(unsigned int key, __int64_t data)
 __pmHashWalkState
 walker(const __pmHashNode *n, void *v)
 {
-    __pmHashWalkState state = (__pmHashWalkState)v;
+    uintptr_t	v_int;
+    __pmHashWalkState state;
+    v_int = (uintptr_t)v;
+    state = (__pmHashWalkState)(v_int & 0xf);
     dumpnode(n->key, (__int64_t)((__psint_t)n->data));
     return state;
 }

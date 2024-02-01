@@ -1293,14 +1293,6 @@ _install()
     echo "Terminate PMDA if already installed ..."
     __pmda_cull $iam $domain
 
-    # Rotate log files
-    #
-    if [ -f $PCP_LOG_DIR/pmcd/$iam.log ]
-    then
-	rm -f $PCP_LOG_DIR/pmcd/$iam.log.prev
-	mv -f $PCP_LOG_DIR/pmcd/$iam.log $PCP_LOG_DIR/pmcd/$iam.log.prev
-    fi
-
     # Add PMDA to pmcd's configuration file
     #
     echo "Updating the PMCD control file, and notifying PMCD ..."

@@ -26,7 +26,8 @@ _cleanup()
     then
 	need_restore=false
 	_restore_config $PCP_SYSCONF_DIR/labels
-	_restore_config $PCP_SYSCONF_DIR/pmproxy
+	_restore_config $PCP_SYSCONF_DIR/pmproxy/pmproxy.conf
+	_restore_config $PCP_SYSCONF_DIR/pmproxy/pmproxy.options
 	_sighup_pmcd
     fi
     if $pmproxy_was_running
@@ -109,13 +110,14 @@ _get_context()
 
 # real QA test starts here
 _save_config $PCP_SYSCONF_DIR/labels
-_save_config $PCP_SYSCONF_DIR/pmproxy
+_save_config $PCP_SYSCONF_DIR/pmproxy/pmproxy.conf
+_save_config $PCP_SYSCONF_DIR/pmproxy/pmproxy.options
 need_restore=true
 
 $sudo rm -rf $PCP_SYSCONF_DIR/labels/*
 _sighup_pmcd
 
-$sudo rm -f $PCP_SYSCONF_DIR/pmproxy/*
+$sudo rm -f $PCP_SYSCONF_DIR/pmproxy/pmproxy.conf $PCP_SYSCONF_DIR/pmproxy/pmproxy.options
 echo "--timeseries" >> $tmp.options
 $sudo cp $tmp.options $PCP_SYSCONF_DIR/pmproxy/pmproxy.options
 echo "[pmproxy]" >> $tmp.conf

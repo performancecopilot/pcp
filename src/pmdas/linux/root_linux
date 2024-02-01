@@ -1061,6 +1061,7 @@ network.ip {
     ect0pkts            60:53:15
     cepkts              60:53:16
     reasmoverlaps	60:53:168
+    outtransmits		60:14:96
 }
 
 network.icmp {

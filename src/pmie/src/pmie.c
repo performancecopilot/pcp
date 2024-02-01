@@ -339,15 +339,24 @@ startmonitor(void)
     char		zero = '\0';
     char		pmie_dir[MAXPATHLEN];
 
-    /* try to create the port file directory. OK if it already exists */
+    /* try to create the port file directory. OK if it already exists
+     * - mode is 775 to match GNUmakefile
+     */
     pmsprintf(pmie_dir, sizeof(pmie_dir), "%s%c%s",
 	     pmGetConfig("PCP_TMP_DIR"), pmPathSeparator(), PMIE_SUBDIR);
-    if (mkdir2(pmie_dir, S_IRWXU | S_IRWXG | S_IRWXO) < 0) {
+    if (mkdir2(pmie_dir, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) < 0) {
 	if (oserror() != EEXIST) {
 	    fprintf(stderr, "%s: warning cannot create stats file dir %s: %s\n",
 		    pmGetProgname(), pmie_dir, osstrerror());
 	}
     }
+
+    /*
+     * clean the port file directory ... removes entries for pmie
+     * processes that have died and entries that cannot be valid PIDs
+     */
+    __pmCleanMapDir(pmie_dir, NULL);
+
     atexit(stopmonitor);
 
     /* create and initialize memory mapped performance data file */

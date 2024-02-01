@@ -2811,6 +2811,11 @@ static pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_NET_SNMP,18), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
+/* network.ip.outtransmits */
+  { &_pm_proc_net_snmp.ip[_PM_SNMP_IP_OUTTRANSMITS],
+    { PMDA_PMID(CLUSTER_NET_SNMP,96), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
 
 /* network.icmp.inmsgs */
   { &_pm_proc_net_snmp.icmp[_PM_SNMP_ICMP_INMSGS], 
