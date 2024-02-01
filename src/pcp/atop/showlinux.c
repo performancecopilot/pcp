@@ -805,6 +805,8 @@ pricumproc(struct sstat *sstat, struct devtstat *devtstat,
         {
 		struct tstat *curstat = *(devtstat->procactive+i);
 
+		if (curstat == NULL)
+			continue;
                 extra.totut	+= curstat->cpu.utime;
                 extra.totst 	+= curstat->cpu.stime;
         }

@@ -370,6 +370,9 @@ photoproc(struct tstat **tasks, unsigned long *taskslen)
 	if (supportflags & NETATOP)
 		netproc_update_tasks(tasks, count);
 
+	if (supportflags & NETATOPBPF)
+		netbpfproc_update_tasks(tasks, count);
+
 	if (pmDebugOptions.appl0)
 		fprintf(stderr, "%s: done %lu processes\n", pmGetProgname(), count);
 
