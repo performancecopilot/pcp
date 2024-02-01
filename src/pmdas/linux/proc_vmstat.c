@@ -216,6 +216,12 @@ static struct {
      .offset = &_pm_proc_vmstat.pgalloc_normal },
     { .field = "pgdeactivate",
      .offset = &_pm_proc_vmstat.pgdeactivate },
+    { .field = "pgdemote_direct",
+     .offset = &_pm_proc_vmstat.pgdemote_direct },
+    { .field = "pgdemote_khugepaged",
+     .offset = &_pm_proc_vmstat.pgdemote_khugepaged },
+    { .field = "pgdemote_kswapd",
+     .offset = &_pm_proc_vmstat.pgdemote_kswapd },
     { .field = "pgfault",
      .offset = &_pm_proc_vmstat.pgfault },
     { .field = "pgfree",
@@ -234,6 +240,10 @@ static struct {
      .offset = &_pm_proc_vmstat.pgpgin },
     { .field = "pgpgout",
      .offset = &_pm_proc_vmstat.pgpgout },
+    { .field = "pgpromote_candidate",
+     .offset = &_pm_proc_vmstat.pgpromote_candidate },
+    { .field = "pgpromote_success",
+     .offset = &_pm_proc_vmstat.pgpromote_success },
     { .field = "pgrefill_dma",
      .offset = &_pm_proc_vmstat.pgrefill_dma },
     { .field = "pgrefill_dma32",
@@ -425,6 +435,7 @@ refresh_proc_vmstat(proc_vmstat_t *proc_vmstat)
     proc_vmstat->pgscan_direct_total = 0;
     proc_vmstat->pgscan_kswapd_total = 0;
     proc_vmstat->pgsteal_total = 0;
+    proc_vmstat->pgdemote_total = 0;
 
     if ((fp = linux_statsfile("/proc/vmstat", buf, sizeof(buf))) == NULL)
     	return -oserror();
@@ -453,6 +464,8 @@ refresh_proc_vmstat(proc_vmstat_t *proc_vmstat)
 		proc_vmstat->pgscan_kswapd_total += *p;
 	    else if (strncmp(buf, "pgscan_direct", 13) == 0)
 		proc_vmstat->pgscan_direct_total += *p;
+	    else if (strncmp(buf, "pgdemote_", 9) == 0)
+		proc_vmstat->pgdemote_total += *p;
 	}
     }
     fclose(fp);

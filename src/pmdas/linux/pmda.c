@@ -6609,6 +6609,36 @@ static pmdaMetric metrictab[] = {
     {PMDA_PMID(CLUSTER_VMSTAT,181), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
+    /* mem.vmstat.pgdemote_direct */
+    { &_pm_proc_vmstat.pgdemote_direct,
+    {PMDA_PMID(CLUSTER_VMSTAT,182), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.pgdemote_khugepaged */
+    { &_pm_proc_vmstat.pgdemote_khugepaged,
+    {PMDA_PMID(CLUSTER_VMSTAT,183), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.pgdemote_kswapd */
+    { &_pm_proc_vmstat.pgdemote_kswapd,
+    {PMDA_PMID(CLUSTER_VMSTAT,184), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.pgpromote_candidate */
+    { &_pm_proc_vmstat.pgpromote_candidate,
+    {PMDA_PMID(CLUSTER_VMSTAT,185), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.pgpromote_success */
+    { &_pm_proc_vmstat.pgpromote_success,
+    {PMDA_PMID(CLUSTER_VMSTAT,192), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.pgdemote_total */
+    { &_pm_proc_vmstat.pgdemote_total ,
+    {PMDA_PMID(CLUSTER_VMSTAT,193), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
 /*
  * sysfs_kernel cluster
  */
