@@ -27,6 +27,7 @@
 #define	PNAMLEN		15
 #define	CMDLEN		255
 #define	CGRLEN		64
+#define	UTSLEN		15
 
 /* 
 ** structure containing only relevant process-info extracted 
@@ -57,13 +58,14 @@ struct tstat {
 		int	nthrslpi;	/* # threads in state 'S'       */
 		int	nthrslpu;	/* # threads in state 'D'       */
 		int	nthrrun;	/* # threads in state 'R'       */
+		int	nthridle;	/* # threads in state 'I'       */
 
 		int	ctid;		/* OpenVZ container ID		*/
 		int	vpid;		/* OpenVZ virtual PID		*/
 
 		int	wasinactive;	/* boolean: task inactive	*/
 
-		char	container[16];	/* Docker container id (12 pos)	*/
+		char	utsname[UTSLEN+1];/* UTS name container or pod	*/
 		char	cgpath[CGRLEN];	/* cgroup v2 path name          */
 	} gen;
 
@@ -171,7 +173,7 @@ struct devtstat {
 	unsigned long	nprocall;
 	unsigned long	nprocactive;
 
-        unsigned long   totrun, totslpi, totslpu, totzombie;
+        unsigned long   totrun, totslpi, totslpu, totidle, totzombie;
 };
 
 /*

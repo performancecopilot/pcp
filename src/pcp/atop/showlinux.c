@@ -68,6 +68,7 @@ sys_printdef *prcsyspdefs[] = {
         &syspdef_PRCNRUNNING,
         &syspdef_PRCNSLEEPING,
         &syspdef_PRCNDSLEEPING,
+        &syspdef_PRCNIDLE,
 	&syspdef_PRCNZOMBIE,
 	&syspdef_PRCCLONES,
 	&syspdef_PRCNNEXIT,
@@ -132,6 +133,7 @@ sys_printdef *gpusyspdefs[] = {
 sys_printdef *memsyspdefs1[] = {
 	&syspdef_MEMTOT,
 	&syspdef_MEMFREE,
+	&syspdef_MEMAVAIL,
 	&syspdef_BLANKBOX,
 	&syspdef_MEMCACHE,
 	&syspdef_MEMDIRTY,
@@ -139,8 +141,6 @@ sys_printdef *memsyspdefs1[] = {
 	&syspdef_BLANKBOX,
 	&syspdef_MEMSLAB,
 	&syspdef_RECSLAB,
-	&syspdef_BLANKBOX,
-	&syspdef_PAGETABS,
 	&syspdef_BLANKBOX,
 	&syspdef_HUPTOT,
 	&syspdef_HUPUSE,
@@ -156,6 +156,9 @@ sys_printdef *memsyspdefs2[] = {
 	&syspdef_SHMRSS,
 	&syspdef_SHMSWP,
 	&syspdef_BLANKBOX,
+	&syspdef_PAGETABS,
+	&syspdef_BLANKBOX,
+	&syspdef_ANONTHP,
 	&syspdef_VMWBAL,
 	&syspdef_BLANKBOX,
 	&syspdef_ZFSARC,
@@ -166,7 +169,7 @@ sys_printdef *swpsyspdefs[] = {
 	&syspdef_SWPFREE,
 	&syspdef_SWPCACHE,
 	&syspdef_BLANKBOX,
-	&syspdef_ZSWTOTAL,
+	&syspdef_ZSWPOOL,
 	&syspdef_ZSWSTORED,
 	&syspdef_KSMSHARING,
 	&syspdef_KSMSHARED,
@@ -185,6 +188,8 @@ sys_printdef *pagsyspdefs[] = {
 	&syspdef_NUMAMIGRATE,
 	&syspdef_PAGSWIN,
 	&syspdef_PAGSWOUT,
+	&syspdef_PAGZSWIN,
+	&syspdef_PAGZSWOUT,
 	&syspdef_OOMKILLS,
 	&syspdef_PAGPGIN,
 	&syspdef_PAGPGOUT,
@@ -204,6 +209,7 @@ sys_printdef *memnumasyspdefs[] = {
 	&syspdef_NUMASHMEM,
 	&syspdef_NUMAFRAG,
 	&syspdef_NUMAHUPTOT,
+	&syspdef_NUMAHUPUSE,
         0
 };
 sys_printdef *cpunumasyspdefs[] = {
@@ -316,6 +322,7 @@ sys_printdef *nettranssyspdefs[] = {
 	&syspdef_NETTCPRETRANS,
 	&syspdef_NETTCPINERR,
 	&syspdef_NETTCPORESET,
+	&syspdef_NETTCPCSUMERR,
 	&syspdef_NETUDPNOPORT,
 	&syspdef_NETUDPINERR,
 	&syspdef_BLANKBOX,
@@ -409,6 +416,7 @@ proc_printdef *allprocpdefs[]=
 	&procprt_TRUN,
 	&procprt_TSLPI,
 	&procprt_TSLPU,
+	&procprt_TIDLE,
 	&procprt_POLI,
 	&procprt_NICE,
 	&procprt_PRI,
@@ -805,6 +813,7 @@ pricumproc(struct sstat *sstat, struct devtstat *devtstat,
 	extra.ntrun	= devtstat->totrun;
 	extra.ntslpi	= devtstat->totslpi;
 	extra.ntslpu	= devtstat->totslpu;
+	extra.ntidle	= devtstat->totidle;
         extra.nzomb	= devtstat->totzombie;
         extra.nexit	= nexit;
         extra.noverflow	= noverflow;
@@ -826,8 +835,9 @@ pricumproc(struct sstat *sstat, struct devtstat *devtstat,
                         "PRCNRUNNING:5 "
                         "PRCNSLEEPING:5 "
                         "PRCNDSLEEPING:5 "
-                        "PRCNZOMBIE:5 "
-                        "PRCCLONES:4 "
+                        "PRCNIDLE:5 "
+                        "PRCNZOMBIE:4 "
+                        "PRCCLONES:3 "
 	                "BLANKBOX:0 "
                         "PRCNNEXIT:6",
 			prcsyspdefs, "builtin sysprcline",
@@ -911,18 +921,17 @@ pricumproc(struct sstat *sstat, struct devtstat *devtstat,
                     make_sys_prints(memline1, MAXITEMS,
 	                "MEMTOT:8 "
 	                "MEMFREE:9 "
+	                "MEMAVAIL:7 "
 	                "BLANKBOX:0 "
-	                "MEMCACHE:8 "
-	                "MEMDIRTY:6 "
-	                "MEMBUFFER:7 "
+	                "MEMCACHE:7 "
+	                "MEMDIRTY:5 "
+	                "MEMBUFFER:6 "
 	                "BLANKBOX:0 "
-	                "MEMSLAB:7 "
-	                "RECSLAB:3 "
+	                "MEMSLAB:6 "
+	                "RECSLAB:2 "
 	                "BLANKBOX:0 "
-	                "PAGETABS:4 "
-	                "BLANKBOX:0 "
-	                "HUPTOT:5 "
-	                "HUPUSE:2 ",
+	                "HUPTOT:4 "
+	                "HUPUSE:1 ",
 			memsyspdefs1, "builtin memline1",
 			sstat, &extra);
                 }
@@ -930,15 +939,18 @@ pricumproc(struct sstat *sstat, struct devtstat *devtstat,
                 if (memline2[0].f == 0)
                 {
                     make_sys_prints(memline2, MAXITEMS,
-	                "NUMNUMA:6 "
+	                "NUMNUMA:8 "
 	                "BLANKBOX:1 "
-	                "SHMEM:3 "
-	                "SHMRSS:3 "
-	                "SHMSWP:2 "
+	                "SHMEM:6 "
+	                "SHMRSS:4 "
+	                "SHMSWP:4 "
 	                "BLANKBOX:0 "
-	                "TCPSOCK:5 "
+	                "TCPSOCK:3 "
 	                "UDPSOCK:2 "
 	                "BLANKBOX:0 "
+	                "PAGETABS:5 "
+	                "BLANKBOX:0 "
+                        "ANONTHP:4 "
 	                "VMWBAL:4 "
 	                "BLANKBOX:0 "
 	                "ZFSARC:5 ",
@@ -953,7 +965,7 @@ pricumproc(struct sstat *sstat, struct devtstat *devtstat,
 	                "SWPFREE:6 "
 	                "SWPCACHE:4 "
 	                "BLANKBOX:0 "
-	                "ZSWTOTAL:3 "
+	                "ZSWPOOL:3 "
 	                "ZSWSTORED:3 "
 	                "BLANKBOX:0 "
 	                "KSMSHARED:2 "
@@ -979,7 +991,8 @@ pricumproc(struct sstat *sstat, struct devtstat *devtstat,
 	                "NUMASLABRECLAIM:4 "
 	                "NUMASHMEM:4 "
 	                "NUMAFRAG:6 "
-	                "NUMAHUPTOT:3 ",
+	                "NUMAHUPTOT:4 "
+	                "NUMAHUPUSE:3 ",
 			memnumasyspdefs, "builtin memnumaline",
 			sstat, &extra);
                 }
@@ -1021,10 +1034,10 @@ pricumproc(struct sstat *sstat, struct devtstat *devtstat,
 	                "PAGCOMPACT:5 "
 			"NUMAMIGRATE:5"
 			"PGMIGRATE:6"
-	                "PAGPGIN:7 "
-	                "PAGPGOUT:7 "
-	                "PAGSWIN:5 "
-	                "PAGSWOUT:8 "
+	                "PAGPGIN:6 "
+	                "PAGPGOUT:6 "
+	                "PAGZSWIN:4 "
+	                "PAGZSWOUT:7 "
 			"OOMKILLS:9 ",
 			pagsyspdefs, "builtin pagline",
 			sstat, &extra);
@@ -1157,6 +1170,7 @@ pricumproc(struct sstat *sstat, struct devtstat *devtstat,
                         "NETTCPRETRANS:4 "
                         "NETTCPINERR:3 "
                         "NETTCPORESET:2 "
+                        "NETTCPCSUMERR:2 "
                         "NETUDPNOPORT:1 "
                         "NETUDPINERR:3",
 			nettranssyspdefs, "builtin nettransportline",
@@ -1256,7 +1270,7 @@ priphead(int curlist, int totlist, char *showtype, char *showorder,
 
                 make_proc_prints(schedprocs, MAXITEMS, 
                         "PID:10 TID:6 CID:4 VPID:3 CTID:3 TRUN:7 TSLPI:7 "
-			"TSLPU:7 POLI:8 NICE:9 PRI:5 RTPR:9 CPUNR:8 ST:8 "
+			"TSLPU:7 TIDLE:7 POLI:8 NICE:9 PRI:5 RTPR:9 CPUNR:8 "
 			"ST:8 EXC:8 S:8 RDELAY:8 BDELAY:7 WCHAN:5 "
 			"NVCSW:7 NIVCSW:7 SORTITEM:10 CMD:10",
                         "built-in schedprocs");
@@ -1310,7 +1324,7 @@ priphead(int curlist, int totlist, char *showtype, char *showorder,
                         "built-in totprocs");
 
                 make_proc_prints(totconts, MAXITEMS, 
-                        "NPROCS:10 SYSCPU:9 USRCPU:9 VSIZE:6 "
+                        "NPROCS:10 SYSCPU:9 USRCPU:9 RDELAY:8 BDELAY:7 VSIZE:6 "
                         "RSIZE:8 PSIZE:8 LOCKSZ:3 SWAPSZ:5 RDDSK:7 CWRDSK:7 "
 			"RNET:6 SNET:6 SORTITEM:10 CID:10", 
                         "built-in totconts");
@@ -1326,7 +1340,7 @@ priphead(int curlist, int totlist, char *showtype, char *showorder,
 		prev_supportflags = supportflags;
 		prev_threadview   = threadview;
 
-		if (*showtype == MPROCNET && !(supportflags&NETATOP) )
+		if (*showtype == MPROCNET && !(supportflags&NETATOP||supportflags&NETATOPBPF) )
 		{
 			*showtype  = MPROCGEN;
 			*showorder = MSORTCPU;
@@ -1423,7 +1437,7 @@ make_proc_dynamicgen()
 		p += sizeof FORMTID -1;
 	}
 
-	if (supportflags & DOCKSTAT)
+	if (supportflags & CONTAINERSTAT)
 	{
 		memcpy(p, FORMCID, sizeof FORMCID -1);
 		p += sizeof FORMCID -1;
@@ -1447,7 +1461,7 @@ make_proc_dynamicgen()
 		p += sizeof FORMDSK -1;
 	}
 
-	if (supportflags & NETATOP)
+	if (supportflags & NETATOP || supportflags & NETATOPBPF)
 	{
 		memcpy(p, FORMNET, sizeof FORMNET -1);
 		p += sizeof FORMNET -1;
@@ -2245,7 +2259,7 @@ prisyst(struct sstat *sstat, int curline, double nsecs, int avgval,
                         else
                                 badness = 0;
 
-                        if (highbadness < badness && (supportflags & NETATOP) )
+                        if (highbadness < badness && (supportflags & NETATOP || supportflags & NETATOPBPF) )
                         {
                                 highbadness = badness;
                                 *highorderp = MSORTNET;
@@ -2284,9 +2298,12 @@ prisyst(struct sstat *sstat, int curline, double nsecs, int avgval,
                         ival    = sstat->ifb.ifb[extra.index].rcvb/125/nsecs;
                         oval    = sstat->ifb.ifb[extra.index].sndb/125/nsecs;
 
-			busy = (ival > oval ? ival : oval) *
+			if (sstat->ifb.ifb[extra.index].rate)
+				busy = (ival > oval ? ival : oval) *
 			                 sstat->ifb.ifb[extra.index].lanes /
 					(sstat->ifb.ifb[extra.index].rate * 10);
+			else
+				busy = 0;
 
                         if (netbadness)
                                 badness = busy * 100 / netbadness;
@@ -2605,17 +2622,17 @@ compcon(const void *a, const void *b)
 	struct tstat	*ta = *(struct tstat **)a;
 	struct tstat	*tb = *(struct tstat **)b;
 
-        register char *containera;
-        register char *containerb;
+        register char *utsa;
+        register char *utsb;
 
 	if (ta == tb)     return 0;
 	if (ta == NULL)   return 1;
 	if (tb == NULL)   return -1;
 
-        containera = ta->gen.container;
-        containerb = tb->gen.container;
+        utsa = ta->gen.utsname;
+        utsb = tb->gen.utsname;
 
-       return strcmp(containera, containerb);
+       return strcmp(utsa, utsb);
 }
 
 /*

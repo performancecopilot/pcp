@@ -58,6 +58,9 @@ procmetrics {
 	# /proc/pid/smaps_rollup
 	hotproc.smaps.pss			TASK_MEM_PMEM
 
+	# /proc/pid/environ
+	hotproc.psinfo.environ			TASK_GEN_ENVIRON
+
 	# getpwuid
 	hotproc.id.uid_nm			TASK_GEN_RUIDNM
 	hotproc.id.euid_nm			TASK_GEN_EUIDNM

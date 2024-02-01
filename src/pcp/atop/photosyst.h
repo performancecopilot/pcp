@@ -57,17 +57,17 @@ struct	memstat {
 
 	count_t	slabreclaim;	// reclaimable slab (pages)
 
-	count_t	tothugepage;	// total huge pages (huge pages)
-	count_t	freehugepage;	// free  huge pages (huge pages)
-	count_t	hugepagesz;	// huge page size (bytes)
+	count_t	stothugepage;	// total huge pages (huge pages) - small
+	count_t	sfreehugepage;	// free  huge pages (huge pages) - small
+	count_t	shugepagesz;	// huge page size (bytes) - small
 
 	count_t	vmwballoon;	// vmware claimed balloon pages
 	count_t	zfsarcsize;	// zfsonlinux ARC size (pages)
 	count_t swapcached;	// swap cache (pages)
 	count_t	ksmsharing;	// saved i.e. deduped memory (pages)
 	count_t	ksmshared;	// current size shared pages (pages)
-	count_t	zswstored;	// zswap stored pages (pages)
-	count_t	zswtotpool;	// total pool size (pages)
+	count_t	zswapped;	// zswap stored pages decompressed (pages)
+	count_t	zswap;		// swap current pool size compressed (pages)
 	count_t	oomkills;	// number of oom killings
 	count_t	compactstall;	// counter for process stalls
 	count_t	pgmigrate;	// counter for migrated successfully (pages)
@@ -75,6 +75,19 @@ struct	memstat {
 	count_t	pgouts;		// total number of pages written to block device
 	count_t	pgins;		// total number of pages read from block device
 	count_t	pagetables;	// page tables of processes (pages)
+
+	count_t zswouts;	// number of pages swapped out to zswap
+	count_t zswins;		// number of pages swapped in from zswap
+	char zswstate[4];	// state of zswap kernel subsystem
+
+	count_t	ltothugepage;	// total huge pages (huge pages) - large
+	count_t	lfreehugepage;	// free  huge pages (huge pages) - large
+	count_t	lhugepagesz;	// huge page size (bytes) - large
+
+	count_t availablemem;	// available memory (pages)
+
+	count_t anonhugepage;   // anonymous transparent huge pages
+				// (in units of 'normal' pages)
 };
 
 /************************************************************************/
@@ -94,6 +107,7 @@ struct	mempernuma {
 
 	count_t	shmem;		// tot shmem incl. tmpfs (pages) for this numa
 	count_t	tothp;		// total huge pages (huge pages) for this numa
+	count_t	freehp;		// total free pages (huge pages) for this numa
 };
 
 struct	memnuma {

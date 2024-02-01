@@ -59,7 +59,7 @@ struct sstat;
 #define RRLAST  	0x0002
 #define RRMARK		0x0004
 #define RRIOSTAT	0x0020
-#define RRDOCKSTAT	0x0040
+#define RRCONTAINERSTAT	0x0040
 
 struct visualize {
 	char	(*show_samp)  (double, double,
@@ -147,9 +147,10 @@ extern long long	system_boottime;
 #define	IOSTAT		0x00000004
 #define	NETATOP		0x00000010
 #define	NETATOPD	0x00000020
-#define	DOCKSTAT	0x00000040
+#define	CONTAINERSTAT	0x00000040
 #define	GPUSTAT		0x00000080
 #define	CGROUPV2	0x00000100
+#define	NETATOPBPF	0x00001000
 
 /*
 ** structure containing the start-addresses of functions for visualization
@@ -161,7 +162,7 @@ void		generic_error(const char *, ...);
 void		generic_end  (void);
 void		generic_usage(void);
 void		generic_prep (void);
-int            generic_next (void);
+int     	generic_next (void);
 
 /*
 ** miscellaneous prototypes
@@ -218,6 +219,7 @@ unsigned short 	getnumvers(void);
 void		ptrverify(const void *, const char *, ...);
 void		mcleanstop(int, const char *, ...);
 void		cleanstop(int);
+int		rootprivs(void);
 int		getpidwidth(void);
 void		prusage(char *, struct pmOptions *);
 int		run_in_guest(void);
@@ -257,14 +259,18 @@ char *		extract_string_index(struct pmResult *, struct pmDesc *, int, char *, in
 int		present_metric_value(struct pmResult *, int);
 
 /*
-** Optional pmdabcc(1) netproc module interfaces
+** Optional pmdabpf(1) or pmdabcc(1) netproc eBPF module interfaces
  */
 void		netproc_probe(void);
 void		netproc_update_tasks(struct tstat **, unsigned long);
+void		netbpfproc_update_tasks(struct tstat **, unsigned long);
 #define	netatop_signoff() do { } while (0)
 #define netatop_exiterase() do { } while (0)
 #define netatop_exithash(hash) do { (void)(hash); } while (0)
 #define netatop_exitfind(find,a,b) do { (void)(find); } while (0)
+#define netatop_bpf_probe() do { } while (0)
+#define netatop_bpf_gettask() do { } while (0)
+#define netatop_bpf_exitfind(find,a,b) do { (void)(find); } while (0)
 
 /*
 ** Optional process accounting module interfaces

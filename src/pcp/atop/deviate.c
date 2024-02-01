@@ -115,6 +115,7 @@ deviattask(struct tstat    *curtpres, unsigned long ntaskpres,
 				devtstat->totrun   += curstat->gen.nthrrun;
 				devtstat->totslpi  += curstat->gen.nthrslpi;
 				devtstat->totslpu  += curstat->gen.nthrslpu;
+				devtstat->totidle  += curstat->gen.nthridle;
 			}
 		}
 
@@ -293,6 +294,7 @@ deviattask(struct tstat    *curtpres, unsigned long ntaskpres,
 			devstat->gen.excode |= ~(INT_MAX);
 
 		strcpy(devstat->gen.cmdline, prestat.gen.cmdline);
+		strcpy(devstat->gen.utsname, prestat.gen.utsname);
 
 		/*
 		** due to the strange exponent-type storage of values
@@ -325,7 +327,15 @@ deviattask(struct tstat    *curtpres, unsigned long ntaskpres,
 		/*
 		** try to match the network counters of netatop
 		*/
-		if (supportflags & NETATOPD)
+		if (supportflags & NETATOPBPF)
+		{
+			unsigned long	val = (hashtype == 'p' ?
+						curstat->gen.pid :
+						curstat->gen.btime);
+
+			netatop_bpf_exitfind(val, devstat, &prestat);
+		}
+		else if (supportflags & NETATOPD)
 		{
 			unsigned long	val = (hashtype == 'p' ?
 						curstat->gen.pid :
@@ -695,6 +705,7 @@ deviatsyst(struct sstat *cur, struct sstat *pre, struct sstat *dev, double delta
 
 	dev->mem.physmem	= cur->mem.physmem;
 	dev->mem.freemem	= cur->mem.freemem;
+	dev->mem.availablemem	= cur->mem.availablemem;
 	dev->mem.buffermem	= cur->mem.buffermem;
 	dev->mem.slabmem	= cur->mem.slabmem;
 	dev->mem.slabreclaim	= cur->mem.slabreclaim;
@@ -706,21 +717,27 @@ deviatsyst(struct sstat *cur, struct sstat *pre, struct sstat *dev, double delta
 	dev->mem.freeswap	= cur->mem.freeswap;
 	dev->mem.swapcached	= cur->mem.swapcached;
 	dev->mem.pagetables	= cur->mem.pagetables;
+	dev->mem.zswap		= cur->mem.zswap;
+	dev->mem.zswapped	= cur->mem.zswapped;
 
 	dev->mem.shmem		= cur->mem.shmem;
 	dev->mem.shmrss		= cur->mem.shmrss;
 	dev->mem.shmswp		= cur->mem.shmswp;
 
-	dev->mem.tothugepage	= cur->mem.tothugepage;
-	dev->mem.freehugepage	= cur->mem.freehugepage;
-	dev->mem.hugepagesz	= cur->mem.hugepagesz;
+	dev->mem.stothugepage	= cur->mem.stothugepage;
+	dev->mem.sfreehugepage	= cur->mem.sfreehugepage;
+	dev->mem.shugepagesz	= cur->mem.shugepagesz;
+
+	dev->mem.ltothugepage	= cur->mem.ltothugepage;
+	dev->mem.lfreehugepage	= cur->mem.lfreehugepage;
+	dev->mem.lhugepagesz	= cur->mem.lhugepagesz;
+
+	dev->mem.anonhugepage	= cur->mem.anonhugepage;
 
 	dev->mem.vmwballoon	= cur->mem.vmwballoon;
 	dev->mem.zfsarcsize	= cur->mem.zfsarcsize;
 	dev->mem.ksmsharing	= cur->mem.ksmsharing;
 	dev->mem.ksmshared 	= cur->mem.ksmshared;
-	dev->mem.zswstored	= cur->mem.zswstored;
-	dev->mem.zswtotpool	= cur->mem.zswtotpool;
 
 	dev->mem.tcpsock	= cur->mem.tcpsock;
 	dev->mem.udpsock	= cur->mem.udpsock;
@@ -729,6 +746,8 @@ deviatsyst(struct sstat *cur, struct sstat *pre, struct sstat *dev, double delta
 	dev->mem.pgins		= subcount(cur->mem.pgins,   pre->mem.pgins);
 	dev->mem.swouts		= subcount(cur->mem.swouts,  pre->mem.swouts);
 	dev->mem.swins		= subcount(cur->mem.swins,   pre->mem.swins);
+	dev->mem.zswouts	= subcount(cur->mem.zswouts, pre->mem.zswouts);
+	dev->mem.zswins		= subcount(cur->mem.zswins,  pre->mem.zswins);
 	dev->mem.pgscans	= subcount(cur->mem.pgscans, pre->mem.pgscans);
 	dev->mem.pgsteal	= subcount(cur->mem.pgsteal, pre->mem.pgsteal);
 	dev->mem.allocstall	= subcount(cur->mem.allocstall,
@@ -764,6 +783,7 @@ deviatsyst(struct sstat *cur, struct sstat *pre, struct sstat *dev, double delta
 		dev->memnuma.numa[i].slabmem     = cur->memnuma.numa[i].slabmem;
 		dev->memnuma.numa[i].slabreclaim = cur->memnuma.numa[i].slabreclaim;
 		dev->memnuma.numa[i].tothp       = cur->memnuma.numa[i].tothp;
+		dev->memnuma.numa[i].freehp      = cur->memnuma.numa[i].freehp;
 		dev->memnuma.numa[i].frag        = cur->memnuma.numa[i].frag;
 	}
 
@@ -1668,6 +1688,8 @@ totalsyst(char category, struct sstat *new, struct sstat *tot)
 		tot->mem.freeswap	 = new->mem.freeswap;
 		tot->mem.swapcached	 = new->mem.swapcached;
 		tot->mem.pagetables	 = new->mem.pagetables;
+		tot->mem.zswap	 	 = new->mem.zswap;
+		tot->mem.zswapped 	 = new->mem.zswapped;
 
 		tot->mem.shmem		 = new->mem.shmem;
 		tot->mem.shmrss		 = new->mem.shmrss;
@@ -1680,6 +1702,8 @@ totalsyst(char category, struct sstat *new, struct sstat *tot)
 		tot->mem.pgins		+= new->mem.pgins;
 		tot->mem.swouts		+= new->mem.swouts;
 		tot->mem.swins		+= new->mem.swins;
+		tot->mem.zswouts	+= new->mem.zswouts;
+		tot->mem.zswins		+= new->mem.zswins;
 		tot->mem.pgscans	+= new->mem.pgscans;
 		tot->mem.allocstall	+= new->mem.allocstall;
 		tot->mem.compactstall	+= new->mem.compactstall;
