@@ -346,6 +346,16 @@ sysprt_PRCNDSLEEPING(struct sstat *notused, extraparam *as, int badness, int *co
 sys_printdef syspdef_PRCNDSLEEPING = {"PRCNDSLEEPING", sysprt_PRCNDSLEEPING, NULL};
 /*******************************************************************/
 static char *
+sysprt_PRCNIDLE(struct sstat *notused, extraparam *as, int badness, int *color) 
+{
+        static char buf[15]="#tidle    ";
+        val2valstr(as->ntidle, buf+8, sizeof buf-8, 4, 0, 0);
+        return buf;
+}
+
+sys_printdef syspdef_PRCNIDLE = {"PRCNIDLE", sysprt_PRCNIDLE, NULL};
+/*******************************************************************/
+static char *
 sysprt_PRCNZOMBIE(struct sstat *notused, extraparam *as, int badness, int *color) 
 {
         static char buf[15]="#zombie   ";
@@ -1248,6 +1258,17 @@ sysprt_MEMFREE(struct sstat *sstat, extraparam *notused, int badness, int *color
 sys_printdef syspdef_MEMFREE = {"MEMFREE", sysprt_MEMFREE, NULL};
 /*******************************************************************/
 static char *
+sysprt_MEMAVAIL(struct sstat *sstat, extraparam *notused, int badness, int *color) 
+{
+        static char buf[16]="avail ";
+	*color = -1;
+        val2memstr(sstat->mem.availablemem * pagesize, buf+6, sizeof buf-6, MBFORMAT, 0, 0);
+        return buf;
+}
+
+sys_printdef syspdef_MEMAVAIL = {"MEMAVAIL", sysprt_MEMAVAIL, NULL};
+/*******************************************************************/
+static char *
 sysprt_MEMCACHE(struct sstat *sstat, extraparam *notused, int badness, int *color) 
 {
         static char buf[16]="cache ";
@@ -1356,12 +1377,29 @@ sysprt_SHMSWP(struct sstat *sstat, extraparam *notused, int badness, int *color)
 sys_printdef syspdef_SHMSWP = {"SHMSWP", sysprt_SHMSWP, NULL};
 /*******************************************************************/
 static char *
+sysprt_ANONTHP(struct sstat *sstat, extraparam *notused, int badness, int *color)
+{
+        static char buf[16]="anthp  ";
+	*color = -1;
+        val2memstr(sstat->mem.anonhugepage * 1024, buf+6, sizeof buf-6, MBFORMAT, 0, 0);
+        return buf;
+}
+
+static int
+sysval_ANONTHP(struct sstat *sstat)
+{
+	return sstat->mem.anonhugepage;
+}
+
+sys_printdef syspdef_ANONTHP = {"ANONTHP", sysprt_ANONTHP, sysval_ANONTHP};
+/*******************************************************************/
+static char *
 sysprt_HUPTOT(struct sstat *sstat, extraparam *notused, int badness, int *color) 
 {
         static char buf[16]="hptot  ";
 
 	*color = -1;
-        val2memstr(sstat->mem.tothugepage * sstat->mem.hugepagesz,
+        val2memstr(sstat->mem.stothugepage * 1024 + sstat->mem.ltothugepage * 1024,
 						buf+6, sizeof buf-6, MBFORMAT, 0, 0);
         return buf;
 }
@@ -1369,7 +1407,7 @@ sysprt_HUPTOT(struct sstat *sstat, extraparam *notused, int badness, int *color)
 static int
 sysval_HUPTOT(struct sstat *sstat)
 {
-	return sstat->mem.tothugepage;
+	return sstat->mem.stothugepage + sstat->mem.ltothugepage;
 }
 
 sys_printdef syspdef_HUPTOT = {"HUPTOT", sysprt_HUPTOT, sysval_HUPTOT};
@@ -1380,15 +1418,18 @@ sysprt_HUPUSE(struct sstat *sstat, extraparam *notused, int badness, int *color)
         static char buf[16]="hpuse  ";
 
 	*color = -1;
-        val2memstr( (sstat->mem.tothugepage - sstat->mem.freehugepage) *
-				sstat->mem.hugepagesz, buf+6, sizeof buf-6, MBFORMAT, 0, 0);
+        val2memstr( (sstat->mem.stothugepage - sstat->mem.sfreehugepage) *
+							1024 +
+                    (sstat->mem.ltothugepage - sstat->mem.lfreehugepage) *
+							1024,
+				buf+6, sizeof buf-6, MBFORMAT, 0, 0);
         return buf;
 }
 
 static int
 sysval_HUPUSE(struct sstat *sstat)
 {
-	return sstat->mem.tothugepage;
+	return sstat->mem.stothugepage + sstat->mem.ltothugepage;
 }
 
 sys_printdef syspdef_HUPUSE = {"HUPUSE", sysprt_HUPUSE, sysval_HUPUSE};
@@ -1472,46 +1513,28 @@ sysprt_SWPCACHE(struct sstat *sstat, extraparam *notused, int badness, int *colo
 sys_printdef syspdef_SWPCACHE = {"SWPCACHE", sysprt_SWPCACHE, NULL};
 /*******************************************************************/
 static char *
-sysprt_ZSWTOTAL(struct sstat *sstat, extraparam *notused, int badness, int *color) 
+sysprt_ZSWPOOL(struct sstat *sstat, extraparam *notused, int badness, int *color) 
 {
-        static char buf[16]="zpool ";
-        count_t value = sstat->mem.zswtotpool;
+        static char buf[16]="zswap ";
+        count_t value = sstat->mem.zswap * 1024;
         val2memstr(value, buf+6, sizeof buf-6, MBFORMAT, 0, 0);
 	*color = -1;
         return buf;
 }
 
-static int
-sysval_ZSWTOTAL(struct sstat *sstat)
-{
-	if (sstat->mem.zswtotpool == -1)
-		return 0;
-	else
-		return 1;
-}
-
-sys_printdef syspdef_ZSWTOTAL = {"ZSWTOTAL", sysprt_ZSWTOTAL, sysval_ZSWTOTAL};
+sys_printdef syspdef_ZSWPOOL = {"ZSWPOOL", sysprt_ZSWPOOL, NULL};
 /*******************************************************************/
 static char *
 sysprt_ZSWSTORED(struct sstat *sstat, extraparam *notused, int badness, int *color) 
 {
         static char buf[16]="zstor ";
-        count_t value = sstat->mem.zswstored;
+        count_t value = sstat->mem.zswapped * 1024;
         val2memstr(value, buf+6, sizeof buf-6, MBFORMAT, 0, 0);
 	*color = -1;
         return buf;
 }
 
-static int
-sysval_ZSWSTORED(struct sstat *sstat)
-{
-	if (sstat->mem.zswstored == -1)
-		return 0;
-	else
-		return 1;
-}
-
-sys_printdef syspdef_ZSWSTORED = {"ZSWSTORED", sysprt_ZSWSTORED, sysval_ZSWSTORED};
+sys_printdef syspdef_ZSWSTORED = {"ZSWSTORED", sysprt_ZSWSTORED, NULL};
 /*******************************************************************/
 static char *
 sysprt_TCPSOCK(struct sstat *sstat, extraparam *as, int badness, int *color)
@@ -1725,6 +1748,34 @@ sysprt_PAGSWOUT(struct sstat *sstat, extraparam *as, int badness, int *color)
 sys_printdef syspdef_PAGSWOUT = {"PAGSWOUT", sysprt_PAGSWOUT, NULL};
 /*******************************************************************/
 static char *
+sysprt_PAGZSWIN(struct sstat *sstat, extraparam *as, int badness, int *color)
+{
+        static char buf[16]="zswin   ";
+        val2valstr(sstat->mem.zswins, buf+6, sizeof buf-6, 6, as->avgval, as->nsecs);
+        return buf;
+}
+
+
+static int
+sysval_ZSWAP(struct sstat *sstat)
+{
+	return sstat->mem.zswstate[0] == 'Y';
+}
+
+sys_printdef syspdef_PAGZSWIN = {"PAGZSWIN", sysprt_PAGZSWIN, sysval_ZSWAP};
+/*******************************************************************/
+static char *
+sysprt_PAGZSWOUT(struct sstat *sstat, extraparam *as, int badness, int *color) 
+{
+        static char buf[16]="zswout  ";
+	*color = -1;
+        val2valstr(sstat->mem.zswouts, buf+7, sizeof buf-7, 5, as->avgval, as->nsecs);
+        return buf;
+}
+
+sys_printdef syspdef_PAGZSWOUT = {"PAGZSWOUT", sysprt_PAGZSWOUT, sysval_ZSWAP};
+/*******************************************************************/
+static char *
 sysprt_OOMKILLS(struct sstat *sstat, extraparam *as, int badness, int *color) 
 {
         static char buf[16]="oomkill  ";
@@ -1889,16 +1940,31 @@ sysprt_NUMAHUPTOT(struct sstat *sstat, extraparam *as, int badness, int *color)
 	static char buf[16]="hptot  ";
 	count_t value;
 
-	if (sstat->mem.tothugepage == 0)
+	if (sstat->mem.stothugepage == 0)
 		return NULL;
 
 	*color = -1;
-	value = sstat->memnuma.numa[as->index].tothp * sstat->mem.hugepagesz;
+	value = sstat->memnuma.numa[as->index].tothp * 1024;
 	val2memstr(value, buf+6, sizeof buf-6, MBFORMAT, 0, 0);
 	return buf;
 }
 
 sys_printdef syspdef_NUMAHUPTOT = {"NUMAHUPTOT", sysprt_NUMAHUPTOT, sysval_HUPTOT};
+/*******************************************************************/
+static char *
+sysprt_NUMAHUPUSE(struct sstat *sstat, extraparam *as, int badness, int *color)
+{
+	static char buf[16]="hpuse  ";
+	if (sstat->mem.stothugepage == 0)
+		return NULL;
+
+	*color = -1;
+	val2memstr( (sstat->memnuma.numa[as->index].tothp - sstat->memnuma.numa[as->index].freehp)
+			* 1024, buf+6, sizeof buf-6, MBFORMAT, 0, 0);
+	return buf;
+}
+
+sys_printdef syspdef_NUMAHUPUSE = {"NUMAHUPUSE", sysprt_NUMAHUPUSE, sysval_HUPUSE};
 /*******************************************************************/
 static char *
 sysprt_NUMANUMCPU(struct sstat *sstat, extraparam *as, int badness, int *color) 
@@ -2611,6 +2677,16 @@ sysprt_NETTCPORESET(struct sstat *sstat, extraparam *as, int badness, int *color
 }
 
 sys_printdef syspdef_NETTCPORESET = {"NETTCPORESET", sysprt_NETTCPORESET, NULL};
+/*******************************************************************/
+static char *
+sysprt_NETTCPCSUMERR(struct sstat *sstat, extraparam *as, int badness, int *color)
+{
+        static char buf[16]="csumie  ";
+        val2valstr(sstat->net.tcp.InCsumErrors,  buf+7, sizeof buf-7, 5, as->avgval, as->nsecs);
+        return buf;
+}
+
+sys_printdef syspdef_NETTCPCSUMERR = {"NETTCPCSUMERR", sysprt_NETTCPCSUMERR, NULL};
 /*******************************************************************/
 static char *
 sysprt_NETUDPNOPORT(struct sstat *sstat, extraparam *as, int badness, int *color) 

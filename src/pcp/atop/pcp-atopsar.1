@@ -19,7 +19,7 @@
 \f3pcp-atopsar\f1 \- Advanced System Activity Report (pcp-atop related)
 .SH SYNOPSIS
 \f3pcp\f1 [\f2pcp\ options\f1] \f3atopsar\f1 [\f2atop\ options\f1]
-[\-r \f2file|date\f1] [\-h \f2host\f1] [\-R \f2cnt\f1] [\-b \f2yy-mm-dd\f1] \f2hh:mm\f1] [\-e \f2yy-mm-dd\f1] \f2hh:mm\f1]
+[\-r \f2file|date\f1] [\-h \f2host\f1] [\-R \f2cnt\f1] [\-b [\f2YYYMMDD\f1]\f2hh:mm\f1[\f2ss\f1]] [\-e [\f2YYYMMDD\f1]\f2hh:mm\f1[\f2ss\f1]]
 .br
 \f3pcp\f1 [\f2pcp\ options\f1] \f3atopsar\f1 [\f2atop\ options\f1] \f2interval\f1 [\f2samples\f1]
 .SH DESCRIPTION
@@ -69,7 +69,7 @@ options
 .B \-b
 and
 .B \-e
-followed by a time argument of the form [yy-mm-dd] hh:mm.
+followed by a time argument of the form [YYYYMMDD]hh:mm[ss].
 .PP
 In the second synopsis line,
 .B pcp-atopsar
@@ -495,16 +495,21 @@ Total number of processes present in the system.
 .B curzomb
 Number of zombie processes present in the system.
 .TP 12
-.B thrrun
+.B trun
 Total number of threads present in the system in state 'running'.
 .TP 12
-.B thrslpi
+.B tslpi
 Total number of threads present in the system in
 state 'interruptible sleeping'.
 .TP 12
-.B thrslpu
+.B tslpu
 Total number of threads present in the system in
 state 'uninterruptible sleeping'.
+.TP 12
+.B tidle
+Total number of threads present in the system in
+state 'idle' (uninterruptible sleeping but not counted
+in the load average).
 .PP
 The output for the flag
 .B \-m

@@ -186,7 +186,7 @@ generic_samp(double sampletime, double nsecs,
 				break;
 
 			   case MPROCNET:	// switch to text mode: network
-				if (supportflags & NETATOP)
+				if (supportflags & NETATOP || supportflags & NETATOPBPF)
 				{
 					showtype  = MPROCNET;
 
@@ -256,8 +256,6 @@ text_samp(double sampletime, double nsecs,
            struct devtstat *devtstat, struct sstat *sstat, 
            int nexit, unsigned int noverflow, int flag)
 {
-	char		*p;
-
 	register int	i, curline, statline, nproc;
 	int		firstproc = 0, plistsz, alistsz, killpid, killsig;
 	int		lastchar;
@@ -296,7 +294,7 @@ text_samp(double sampletime, double nsecs,
 	int		nucum      = 0;
 	char		ulastorder = 0;
 
-	struct tstat	*tccumlist = 0;		// per container accumulation
+	struct tstat	*tccumlist = 0;		// per container/pod accumulation
 	struct tstat	**ccumlist = 0;
 	int		nccum      = 0;
 	char		clastorder = 0;
@@ -317,7 +315,7 @@ text_samp(double sampletime, double nsecs,
 	/*
 	** sellist contains the pointers to the structs in tstat
 	** that are currently selected on basis of a particular
-	** username (regexp), program name (regexp), container name
+	** username (regexp), program name (regexp), container/pod name
 	** or suppressed exited procs
 	**
 	** this list will be allocated 'lazy'
@@ -445,7 +443,7 @@ text_samp(double sampletime, double nsecs,
 			suppressexit 		      ? MSUPEXITS  : '-',
 			procsel.userid[0] != USERSTUB ? MSELUSER   : '-',
 			procsel.prognamesz	      ? MSELPROC   : '-',
-			procsel.container[0]	      ? MSELCONT   : '-',
+			procsel.utsname[0]	      ? MSELCONT   : '-',
 			procsel.pid[0] != 0	      ? MSELPID    : '-',
 			procsel.argnamesz	      ? MSELARG    : '-',
 			procsel.states[0]	      ? MSELSTATE  : '-',
@@ -573,15 +571,7 @@ text_samp(double sampletime, double nsecs,
 				}
 				else
 				{
-#ifdef HAVE_GETRESUID
- 					uid_t ruid, euid, suid;
-
-					getresuid(&ruid, &euid, &suid);
-#else
-					uid_t suid = getuid();
-#endif
-
-					if (suid == 0)
+					if (rootprivs())
 					{
 						viewmsg   = "Unrestricted view (privileged)";
 					}
@@ -794,7 +784,7 @@ text_samp(double sampletime, double nsecs,
 
 			if ( procsel.userid[0] == USERSTUB &&
 			    !procsel.prognamesz            &&
-			    !procsel.container[0]          &&
+			    !procsel.utsname[0]            &&
 			    !procsel.states[0]             &&
 			    !procsel.argnamesz             &&
 			    !procsel.pid[0]                &&
@@ -1132,7 +1122,7 @@ text_samp(double sampletime, double nsecs,
                                 move(statline, 0);
                                 clrtoeol();
                                 printw("Enter new time "
-				       "(format [YYYYMMDD]hh:mm:ss): ");
+				       "(format [YYYYMMDD]hhmm[ss]): ");
 
                                 branchtime[0] = '\0';
                                 scanw("%31s\n", branchtime);
@@ -1212,9 +1202,9 @@ text_samp(double sampletime, double nsecs,
 			   ** sort in network-activity order
 			   */
 			   case MSORTNET:
-				if ( !(supportflags & NETATOP) )
+				if ( !(supportflags & NETATOP || supportflags & NETATOPBPF))
 				{
-					statmsg = "BCC PMDA not active or "
+					statmsg = "BPF or BCC PMDA not active or "
 					          "'netproc' module not enabled; "
 					          "request ignored!";
 					break;
@@ -1284,9 +1274,9 @@ text_samp(double sampletime, double nsecs,
 			   ** network-specific figures per process
 			   */
 			   case MPROCNET:
-				if ( !(supportflags & NETATOP) )
+				if ( !(supportflags & NETATOP || supportflags & NETATOPBPF) )
 				{
-					statmsg = "BCC PMDA not active or "
+					statmsg = "BPF or BCC PMDA not active or "
 					          "'netproc' module not enabled; "
 					          "request ignored!";
 					break;
@@ -1403,10 +1393,10 @@ text_samp(double sampletime, double nsecs,
 				break;
 
 			   /*
-			   ** accumulated resource consumption per container
+			   ** accumulated resource consumption per container/pod
 			   */
 			   case MCUMCONT:
-				statmsg = "Consumption per container; use 'a' to "
+				statmsg = "Consumption per container/pod; use 'a' to "
 				          "toggle between all/active processes";
 
 				showtype  = MCUMCONT;
@@ -1646,7 +1636,7 @@ text_samp(double sampletime, double nsecs,
 				break;
 
 			   /*
-			   ** focus on specific container id
+			   ** focus on specific container/pod id
 			   */
 			   case MSELCONT:
 				setalarm2(0, 0);	/* stop the clock */
@@ -1654,49 +1644,25 @@ text_samp(double sampletime, double nsecs,
 
 				move(statline, 0);
 				clrtoeol();
-				printw("Containerid 12 postitions "
- 				       "(enter=all, "
+				printw("Container or pod name (enter=all, "
 				       "'host'=host processes): ");
 
-				procsel.container[0]  = '\0';
-				scanw("%15s", procsel.container);
-				procsel.container[12] = '\0';
+				procsel.utsname[0]  = '\0';
+				scanw("%15s", procsel.utsname);
+				procsel.utsname[UTSLEN] = '\0';
 
-				switch (strlen(procsel.container))
+				switch (strlen(procsel.utsname))
 				{
                                    case 0:
 					break;	// enter key pressed
 
 				   case 4:	// host?
-					if (strcmp(procsel.container, "host"))
+					if (strcmp(procsel.utsname, "host") == 0)
 					{
-						statmsg="Invalid containerid!";
-						beep();
-						procsel.container[0] = '\0';
-					}
-					else
-					{
-						procsel.container[0] = 'H';
-						procsel.container[1] = '\0';
+						procsel.utsname[0] = 'H';
+						procsel.utsname[1] = '\0';
 					}
 					break;
-
-				   case 12:	// container id
-					(void)strtol(procsel.container, &p, 16);
-
-					if (*p)
-					{
-						statmsg ="Containerid not hex!";
-						beep();
-						procsel.container[0] = '\0';
-					}
-					break;
-
-				   default:
-					statmsg = "Invalid containerid!";
-					beep();
-
-					procsel.container[0] = '\0';
 				}
 
 				noecho();
@@ -2122,7 +2088,12 @@ text_samp(double sampletime, double nsecs,
 				else
 				{
 					calcpss    = 1;
-					statmsg    = "PSIZE gathering enabled";
+
+					if (rootprivs())
+						statmsg    = "PSIZE gathering enabled";
+					else
+						statmsg    = "PSIZE gathering only "
+						             "for own processes";
 				}
 				break;
 
@@ -2480,7 +2451,7 @@ cumprogs(struct tstat **curprocs, struct tstat *curprogs, int numprocs)
 }
 
 /*
-** accumulate all processes per container in new list
+** accumulate all processes per container/pod in new list
 */
 static int
 cumconts(struct tstat **curprocs, struct tstat *curconts, int numprocs)
@@ -2488,12 +2459,12 @@ cumconts(struct tstat **curprocs, struct tstat *curconts, int numprocs)
 	register int	i, numconts;
 
 	/*
-	** sort list of active processes in order of container (increasing)
+	** sort list of active processes in order of container/pod (increasing)
 	*/
 	qsort(curprocs, numprocs, sizeof(struct tstat *), compcon);
 
 	/*
-	** accumulate all processes per container in the new list
+	** accumulate all processes per container/pod in the new list
 	*/
 	for (numconts=i=0; i < numprocs; i++, curprocs++)
 	{
@@ -2506,16 +2477,16 @@ cumconts(struct tstat **curprocs, struct tstat *curconts, int numprocs)
 		if ((*curprocs)->gen.state == 'E' && suppressexit)
 			continue;
  
-		if ( strcmp(curconts->gen.container,
-                         (*curprocs)->gen.container) != 0)
+		if ( strcmp(curconts->gen.utsname,
+                         (*curprocs)->gen.utsname) != 0)
 		{
 			if (curconts->gen.pid)
 			{
 				numconts++;
 				curconts++;
 			}
-			strcpy(curconts->gen.container,
-			    (*curprocs)->gen.container);
+			strcpy(curconts->gen.utsname,
+			    (*curprocs)->gen.utsname);
 		}
 
 		accumulate(*curprocs, curconts);
@@ -2545,6 +2516,8 @@ accumulate(struct tstat *curproc, struct tstat *curstat)
 	curstat->cpu.stime  += curproc->cpu.stime;
 	curstat->cpu.nvcsw  += curproc->cpu.nvcsw;
 	curstat->cpu.nivcsw += curproc->cpu.nivcsw;
+	curstat->cpu.rundelay += curproc->cpu.rundelay;
+	curstat->cpu.blkdelay += curproc->cpu.blkdelay;
 
 	if (curproc->dsk.wsz > curproc->dsk.cwsz)
                	nett_wsz = curproc->dsk.wsz -curproc->dsk.cwsz;
@@ -2569,13 +2542,8 @@ accumulate(struct tstat *curproc, struct tstat *curstat)
 
 	if (curproc->gen.state != 'E')
 	{
-		if (curstat->mem.pmem != -1)
-		{
-			if  (curproc->mem.pmem != -1)  // no errors?
-				curstat->mem.pmem += curproc->mem.pmem;
-			else
-				curstat->mem.pmem  = -1;
-		}
+		if  (curproc->mem.pmem != -1)  // no errors?
+			curstat->mem.pmem += curproc->mem.pmem;
 
 		curstat->mem.vmem   += curproc->mem.vmem;
 		curstat->mem.rmem   += curproc->mem.rmem;
@@ -2691,19 +2659,19 @@ procsuppress(struct tstat *curstat, struct pselection *sel)
 	}
 
 	/*
-	** check if only processes related to a particular container
-	** should be shown (container 'H' stands for native host processes)
+	** check if only processes related to a particular container/pod
+	** should be shown (container/pod 'H' stands for native host processes)
 	*/
-	if (sel->container[0])
+	if (sel->utsname[0])
 	{
-		if (sel->container[0] == 'H')	// only host processes
+		if (sel->utsname[0] == 'H')	// only host processes
 		{
-			if (curstat->gen.container[0])
+			if (curstat->gen.utsname[0])
 				return 1;
 		}
 		else
 		{
-			if (memcmp(sel->container, curstat->gen.container, 12))
+			if (memcmp(sel->utsname, curstat->gen.utsname, 12))
 				return 1;
 		}
 	}
@@ -2896,9 +2864,9 @@ generic_init(void)
 			break;
 
 		   case MPROCNET:
-			if ( !(supportflags & NETATOP) )
+			if ( !(supportflags & NETATOP || supportflags & NETATOPBPF) )
 			{
-				fprintf(stderr, "BCC PMDA not active or "
+				fprintf(stderr, "BPF or BCC PMDA not active or "
 					        "'netproc' module not enabled; "
 					        "request ignored!\n");
 				sleep(3);
@@ -2982,9 +2950,21 @@ generic_init(void)
 
 		   case MCALCPSS:
 			if (calcpss)
+			{
 				calcpss = 0;
+			}
 			else
+			{
 				calcpss = 1;
+
+				if (!rootprivs())
+				{
+					fprintf(stderr,
+				 	        "PSIZE gathering only for own "
+					        "processes\n");
+					sleep(3);
+				}
+			}
 			break;
 
 		   case MGETWCHAN:
@@ -3174,14 +3154,14 @@ static struct helptext {
 	{"\t'%c'  - total resource consumption per user\n", 	MCUMUSER},
 	{"\t'%c'  - total resource consumption per program (i.e. same "
 	 "process name)\n",					MCUMPROC},
-	{"\t'%c'  - total resource consumption per container\n",MCUMCONT},
+	{"\t'%c'  - total resource consumption per container/pod\n",MCUMCONT},
 	{"\n",							' '},
 	{"Process selections (keys shown in header line):\n",	' '},
 	{"\t'%c'  - focus on specific user name           "
 	                              "(regular expression)\n", MSELUSER},
 	{"\t'%c'  - focus on specific program name        "
 	                              "(regular expression)\n", MSELPROC},
-	{"\t'%c'  - focus on specific container id (CID)\n",    MSELCONT},
+	{"\t'%c'  - focus on specific container/pod name\n",    MSELCONT},
 	{"\t'%c'  - focus on specific command line string "
 	                              "(regular expression)\n", MSELARG},
 	{"\t'%c'  - focus on specific process id (PID)\n",      MSELPID},
@@ -3402,7 +3382,7 @@ generic_usage(void)
 	printf("\t  -%c  show cumulated process-info per program "
 	                "(i.e. same name)\n",
 			MCUMPROC);
-	printf("\t  -%c  show cumulated process-info per container\n\n",
+	printf("\t  -%c  show cumulated process-info per container/pod\n\n",
 			MCUMCONT);
 	printf("\t  -%c  sort processes in order of cpu consumption "
 	                "(default)\n",

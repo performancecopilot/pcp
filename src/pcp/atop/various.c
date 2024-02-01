@@ -124,11 +124,11 @@ convdate(double timed, char *chardat, size_t buflen)
 
 
 /*
-** Convert a string in format [YYYYMMDD]hh[:]mm into an epoch time value or
+** Convert a string in format [YYYYMMDD]hh:]mm[:][ss] into an epoch time value or
 ** when only the value hh[:]mm was given, take this time from midnight.
 **
-** Arguments:           String with date-time in format [YYYYMMDD]hh[:]mm
-**                      or hh[:]mm.
+** Arguments:           String with date-time in format [YYYYMMDD]hh[:]mm[:][ss]
+**                      or hh[:]mm[:][ss].
 **
 **                      Pointer to time_t containing 0 or current epoch time.
 **
@@ -148,13 +148,47 @@ getbranchtime(char *itim, struct timeval *newtime)
 	/*
 	** verify length of input string
 	*/
-	if (ilen != 4 && ilen != 5 && ilen != 6 && ilen != 8 &&
-	    ilen != 12 && ilen != 13 && ilen != 14 && ilen != 16)
-		return 0;		// wrong date-time format
+	if (ilen != 4 && ilen != 5 &&   // hhmm or hh:mm
+	    ilen != 6 && ilen != 8 &&   // hhmmss or hh:mm:ss
+	    ilen != 12 && ilen != 13 && // YYYYMMDDhhmm or YYYYMMDDhh:mm
+	    ilen != 14 && ilen != 16)   // YYYYMMDDhhmmss or YYYYMMDDhh:mm:ss
+	        return 0;               // wrong date-time format
 
 	/*
 	** check string syntax for absolute time specified as
-	** YYYYMMDDhh:mm or YYYYMMDDhhmm or YYYYMMDDhh:mm:ss or YYYYMMDDhhmmss
+	** YYYYMMDDhh:mm:ss or YYYYMMDDhhmmss
+	*/
+	if ( sscanf(itim, "%4d%2d%2d%2d:%2d:%2d", &tm.tm_year, &tm.tm_mon,
+	                        &tm.tm_mday,  &tm.tm_hour, &tm.tm_min, &tm.tm_sec) == 6 ||
+	     sscanf(itim, "%4d%2d%2d%2d%2d%2d",  &tm.tm_year, &tm.tm_mon,
+	                        &tm.tm_mday,  &tm.tm_hour, &tm.tm_min, &tm.tm_sec) == 6   )
+	{
+	        tm.tm_year -= 1900;
+	        tm.tm_mon  -= 1;
+
+	        if (tm.tm_year < 100 || tm.tm_mon  < 0  || tm.tm_mon > 11 ||
+	            tm.tm_mday < 1   || tm.tm_mday > 31 ||
+	            tm.tm_hour < 0   || tm.tm_hour > 23 ||
+	            tm.tm_min  < 0   || tm.tm_min  > 59 ||
+	            tm.tm_sec  < 0   || tm.tm_sec  > 59   )
+	        {
+	                return 0;       // wrong date-time format
+	        }
+
+	        tm.tm_isdst = -1;
+
+	        if ((epoch = mktime(&tm)) == -1)
+	                return 0;       // wrong date-time format
+
+	        // correct date-time format
+		newtime->tv_sec = epoch;
+		newtime->tv_usec = 0;
+	        return 1;
+	}
+
+	/*
+	** check string syntax for absolute time specified as
+	** YYYYMMDDhh:mm or YYYYMMDDhhmm
 	*/
 	if ( sscanf(itim, "%4d%2d%2d%2d:%2d", &tm.tm_year, &tm.tm_mon,
 				&tm.tm_mday,  &tm.tm_hour, &tm.tm_min) == 5 ||
@@ -165,7 +199,7 @@ getbranchtime(char *itim, struct timeval *newtime)
 		tm.tm_mon  -= 1;
 
 		if (tm.tm_year < 100 || tm.tm_mon  < 0  || tm.tm_mon > 11 ||
-		    tm.tm_mday < 1   || tm.tm_mday > 31 ||
+                    tm.tm_mday < 1   || tm.tm_mday > 31 || 
 		    tm.tm_hour < 0   || tm.tm_hour > 23 ||
 		    tm.tm_min  < 0   || tm.tm_min  > 59   )
 		{
@@ -181,6 +215,42 @@ getbranchtime(char *itim, struct timeval *newtime)
 		newtime->tv_sec = epoch;
 		newtime->tv_usec = 0;
 		return 1;
+	}
+
+	/*
+	** check string syntax for relative time specified as
+	** hh:mm:ss or hhmmss
+	*/
+	if ( sscanf(itim, "%2d:%2d:%2d", &hours, &minutes, &seconds) == 3 ||
+	     sscanf(itim, "%2d%2d%2d",  &hours, &minutes, &seconds) == 3 )
+	{
+	        if ( hours < 0 || hours > 23 ||
+	             minutes < 0 || minutes > 59 ||
+	             seconds < 0 || seconds > 59 )
+	                return 0;       // wrong date-time format
+
+	        /*
+	        ** when the new time is already filled with an epoch time,
+	        ** the relative time will be on the same day as indicated by
+	        ** that epoch time
+	        ** when the new time is the time within a day or 0, the new
+	        ** time will be stored again as the time within a day.
+	        */
+	        if (newtime->tv_sec <= SECONDSINDAY)   // time within the day?
+	        {
+	                newtime->tv_sec = (hours * 3600) + (minutes * 60) + seconds;
+
+	                if (newtime->tv_sec >= SECONDSINDAY)
+	                        newtime->tv_sec = SECONDSINDAY-1;
+
+	                return 1;
+	        }
+	        else
+	        {
+			newtime->tv_sec = normalize_epoch(newtime->tv_sec,
+	                                (hours*3600) + (minutes*60) + seconds);
+	                return 1;
+	        }
 	}
 
 	/*
@@ -715,6 +785,24 @@ cleanstop(int exitcode)
 	(vis.show_end)();
 
 	exit(exitcode);
+}
+
+/*
+** determine if we are running with root privileges
+** returns: boolean
+*/
+int
+rootprivs(void)
+{
+#ifdef HAVE_GETRESUID
+ 	uid_t ruid, euid, suid;
+
+	getresuid(&ruid, &euid, &suid);
+#else
+	uid_t suid = getuid();
+#endif
+
+	return !suid;
 }
 
 /*

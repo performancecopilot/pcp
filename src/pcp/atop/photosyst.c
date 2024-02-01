@@ -16,6 +16,7 @@
 #include <pcp/pmapi.h>
 
 #include "atop.h"
+#include "photoproc.h"
 #include "photosyst.h"
 #include "systmetrics.h"
 #include "showgeneric.h"
@@ -242,6 +243,7 @@ update_memnuma(struct mempernuma *nmp, int id, char *name, pmResult *rp, pmDesc 
 	nmp->inactive = extract_count_t_inst(rp, dp, PERNODE_MEM_INACTIVE, id, offset);
 	nmp->shmem = extract_count_t_inst(rp, dp, PERNODE_MEM_SHMEM, id, offset);
 	nmp->tothp = extract_count_t_inst(rp, dp, PERNODE_MEM_HUGEPAGES, id, offset);
+	nmp->freehp = extract_count_t_inst(rp, dp, PERNODE_MEM_HUGEPAGESFREE, id, offset);
 }
 
 static void
@@ -485,6 +487,7 @@ photosyst(struct sstat *si)
 	count += extract_count_t(result, descs, MEM_STEAL_MOVABLE);
 	count += extract_count_t(result, descs, MEM_STEAL_NORMAL);
 	si->mem.pgsteal = count;
+	si->mem.pgouts = extract_count_t(result, descs, MEM_PGPGOUT);
 	si->mem.oomkills = extract_count_t(result, descs, MEM_OOM_KILL);
 	si->mem.pgins = extract_count_t(result, descs, MEM_PGPGIN);
 	si->mem.pgouts = extract_count_t(result, descs, MEM_PGPGOUT);
@@ -492,6 +495,8 @@ photosyst(struct sstat *si)
 	si->mem.compactstall = extract_count_t(result, descs, MEM_COMPACTSTALL);
 	si->mem.pgmigrate = extract_count_t(result, descs, MEM_PGMIGRATE);
 	si->mem.numamigrate = extract_count_t(result, descs, MEM_NUMAMIGRATE);
+	si->mem.zswouts = extract_count_t(result, descs, MEM_ZSWPOUT);
+	si->mem.zswins = extract_count_t(result, descs, MEM_ZSWPIN);
 
 	/* /proc/meminfo */
 	si->mem.swapcached = extract_count_t(result, descs, MEM_SWAPCACHED);
@@ -508,9 +513,13 @@ photosyst(struct sstat *si)
 	si->mem.committed = extract_count_t(result, descs, MEM_COMMITTED);
 	si->mem.commitlim = extract_count_t(result, descs, MEM_COMMITLIM);
 	si->mem.pagetables = extract_count_t(result, descs, MEM_PAGETABLES);
-	si->mem.tothugepage = extract_count_t(result, descs, MEM_TOTHUGEPAGE);
-	si->mem.freehugepage = extract_count_t(result, descs, MEM_FREEHUGEPAGE);
-	si->mem.hugepagesz = extract_count_t(result, descs, HUGEPAGESZ);
+	si->mem.stothugepage = extract_count_t(result, descs, MEM_TOTHUGEPAGE);
+	si->mem.sfreehugepage = extract_count_t(result, descs, MEM_FREEHUGEPAGE);
+	si->mem.shugepagesz = extract_count_t(result, descs, HUGEPAGESZ);
+	si->mem.anonhugepage = extract_count_t(result, descs, MEM_ANONHUGEPAGE);
+	si->mem.availablemem = extract_count_t(result, descs, MEM_AVAILABLE);
+	si->mem.zswapped = extract_count_t(result, descs, MEM_ZSWAPPED);
+	si->mem.zswap = extract_count_t(result, descs, MEM_ZSWAP);
 
 	/* /sys/kernel/debug/vmmemctl or /proc/vmmemctl */
 	si->mem.vmwballoon = (count_t) -1; /* TODO */
@@ -831,8 +840,7 @@ photosyst(struct sstat *si)
 	si->mem.zfsarcsize = extract_count_t(result, descs, ZFS_ARCSIZE);
 
 	/* /sys/kernel/debug/zswap */
-	si->mem.zswtotpool = extract_count_t(result, descs, ZSWAP_TOTALSIZE);
-	si->mem.zswstored = extract_count_t(result, descs, ZSWAP_STOREDMEM);
+	extract_string(result, descs, ZSWAP_STATE, si->mem.zswstate, sizeof si->mem.zswstate);
 
 	/* NUMA memory metrics */
 	insts = NULL; /* silence coverity */

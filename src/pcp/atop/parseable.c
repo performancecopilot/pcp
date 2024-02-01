@@ -374,7 +374,8 @@ void
 print_MEM(char *hp, struct sstat *ss, struct tstat *ps, int nact)
 {
 	printf(	"%s %u %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld "
-   		"%lld %lld %lld %lld %lld %lld %lld %lld %lld\n",
+   		"%lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld "
+		"%lld %lld %lld\n",
 			hp,
 			pagesize,
 			ss->mem.physmem,
@@ -388,15 +389,20 @@ print_MEM(char *hp, struct sstat *ss, struct tstat *ps, int nact)
         		ss->mem.shmem,
         		ss->mem.shmrss,
         		ss->mem.shmswp,
-        		ss->mem.hugepagesz,
-        		ss->mem.tothugepage,
-        		ss->mem.freehugepage,
+        		ss->mem.shugepagesz,
+        		ss->mem.stothugepage,
+        		ss->mem.sfreehugepage,
         		ss->mem.zfsarcsize != -1 ? ss->mem.zfsarcsize : 0,
         		ss->mem.ksmsharing != -1 ? ss->mem.ksmsharing : 0,
         		ss->mem.ksmshared  != -1 ? ss->mem.ksmshared  : 0,
 			ss->mem.tcpsock,
 			ss->mem.udpsock,
-   			ss->mem.pagetables);
+   			ss->mem.pagetables,
+        		ss->mem.lhugepagesz,
+        		ss->mem.ltothugepage,
+        		ss->mem.lfreehugepage,
+			ss->mem.availablemem,
+			ss->mem.anonhugepage);
 }
 
 void
@@ -411,14 +417,15 @@ print_SWP(char *hp, struct sstat *ss, struct tstat *ps, int nact)
 			ss->mem.committed,
 			ss->mem.commitlim,
         		ss->mem.swapcached,
-        		ss->mem.zswstored != -1 ? ss->mem.zswstored : 0,
-        		ss->mem.zswtotpool != -1 ? ss->mem.zswtotpool : 0);
+        		ss->mem.zswapped,
+        		ss->mem.zswap);
 }
 
 void
 print_PAG(char *hp, struct sstat *ss, struct tstat *ps, int nact)
 {
-	printf("%s %u %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld\n",
+	printf("%s %u %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld "
+	       "%lld %lld\n",
 			hp,
 			pagesize,
 			ss->mem.pgscans,
@@ -431,7 +438,9 @@ print_PAG(char *hp, struct sstat *ss, struct tstat *ps, int nact)
 			ss->mem.pgmigrate,
 			ss->mem.numamigrate,
 			ss->mem.pgins,
-			ss->mem.pgouts);
+			ss->mem.pgouts,
+			ss->mem.zswins,
+			ss->mem.zswouts);
 }
 
 void
@@ -585,7 +594,7 @@ print_NET(char *hp, struct sstat *ss, struct tstat *ps, int nact)
 {
 	register int 	i;
 
-	printf(	"%s %s %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld\n",
+	printf(	"%s %s %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld\n",
 			hp,
 			"upper",
         		ss->net.tcp.InSegs,
@@ -611,7 +620,8 @@ print_NET(char *hp, struct sstat *ss, struct tstat *ps, int nact)
 			ss->net.tcp.CurrEstab,
 			ss->net.tcp.RetransSegs,
 			ss->net.tcp.InErrs,
-			ss->net.tcp.OutRsts);
+			ss->net.tcp.OutRsts,
+			ss->net.tcp.InCsumErrors);
 
 	for (i=0; ss->intf.intf[i].name[0]; i++)
 	{
@@ -654,7 +664,7 @@ print_NUM(char *hp, struct sstat *ss, struct tstat *ps, int nact)
 
 	for (i=0; i < ss->memnuma.nrnuma; i++)
 	{
-		printf(	"%s %d %u %.0f %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld\n",
+		printf(	"%s %d %u %.0f %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld\n",
 			hp, ss->memnuma.numa[i].numanr,
 			pagesize,
 			ss->memnuma.numa[i].frag * 100.0,
@@ -667,7 +677,8 @@ print_NUM(char *hp, struct sstat *ss, struct tstat *ps, int nact)
 			ss->memnuma.numa[i].slabmem,
 			ss->memnuma.numa[i].slabreclaim,
 			ss->memnuma.numa[i].shmem,
-			ss->memnuma.numa[i].tothp);
+			ss->memnuma.numa[i].tothp,
+			ss->memnuma.numa[i].freehp);
 	}
 }
 
@@ -727,7 +738,7 @@ print_PRG(char *hp, struct sstat *ss, struct tstat *ps, int nact)
 			exitcode = (ps->gen.excode >>   8) & 0xff;
 
 		printf("%s %d %s %c %d %d %d %d %d %ld %s %d %d %d %d "
- 		       "%d %d %d %d %d %d %ld %c %d %d %s %c %s %ld\n",
+ 		       "%d %d %d %d %d %d %ld %c %d %d %s %c %s %ld %d\n",
 			hp,
 			ps->gen.pid,
 			spaceformat(ps->gen.name, namout),
@@ -753,11 +764,12 @@ print_PRG(char *hp, struct sstat *ss, struct tstat *ps, int nact)
 			ps->gen.isproc ? 'y':'n',
 			ps->gen.vpid,
 			ps->gen.ctid,
-			ps->gen.container[0] ? ps->gen.container:"-",
+			ps->gen.utsname[0] ? ps->gen.utsname:"-",
         		ps->gen.excode & ~(INT_MAX) ? 'N' : '-',
 			spaceformat(ps->gen.cgpath, pathout),
 			ps->gen.state == 'E' ?
-			    (long)(ps->gen.btime + ps->gen.elaps/hertz) : 0);
+			    ps->gen.btime + ps->gen.elaps/hertz : 0,
+			ps->gen.nthridle);
 	}
 }
 
