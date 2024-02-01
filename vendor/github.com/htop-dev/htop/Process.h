@@ -15,6 +15,7 @@ in the source distribution for its full text.
 #include "Object.h"
 #include "RichString.h"
 #include "Row.h"
+#include "RowField.h"
 
 
 #define PROCESS_FLAG_IO              0x00000001
@@ -43,8 +44,8 @@ typedef enum ProcessState_ {
    SLEEPING
 } ProcessState;
 
-struct Machine_;
-struct Settings_;
+struct Machine_;  // IWYU pragma: keep
+struct Settings_; // IWYU pragma: keep
 
 /* Holds information about regions of the cmdline that should be
  * highlighted (e.g. program basename, delimiter, comm). */
@@ -253,11 +254,11 @@ static inline pid_t Process_getThreadGroup(const Process* this) {
 }
 
 static inline void Process_setParent(Process* this, pid_t pid) {
-    this->super.parent = pid;
+   this->super.parent = pid;
 }
 
 static inline pid_t Process_getParent(const Process* this) {
-    return (pid_t)this->super.parent;
+   return (pid_t)this->super.parent;
 }
 
 static inline pid_t Process_getGroupOrParent(const Process* this) {

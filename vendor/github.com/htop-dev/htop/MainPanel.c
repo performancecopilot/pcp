@@ -6,16 +6,21 @@ Released under the GNU GPLv2+, see the COPYING file
 in the source distribution for its full text.
 */
 
+#include "config.h" // IWYU pragma: keep
+
 #include "MainPanel.h"
 
 #include <ctype.h>
 #include <stdlib.h>
+#include <sys/types.h>
 
 #include "CRT.h"
 #include "FunctionBar.h"
+#include "Machine.h"
 #include "Platform.h"
 #include "ProvideCurses.h"
 #include "Row.h"
+#include "RowField.h"
 #include "Settings.h"
 #include "Table.h"
 #include "XUtils.h"
@@ -87,7 +92,7 @@ static HandlerResult MainPanel_eventHandler(Panel* super, int ch) {
       } else {
          reaction |= Action_setSortKey(settings, field);
       }
-      reaction |= HTOP_RECALCULATE | HTOP_REDRAW_BAR | HTOP_SAVE_SETTINGS;
+      reaction |= HTOP_RECALCULATE | HTOP_REDRAW_BAR | HTOP_UPDATE_PANELHDR | HTOP_SAVE_SETTINGS;
       result = HANDLED;
    } else if (EVENT_IS_SCREEN_TAB_CLICK(ch)) {
       int x = EVENT_SCREEN_TAB_GET_X(ch);

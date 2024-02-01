@@ -10,7 +10,6 @@ in the source distribution for its full text.
 #include "linux/Platform.h"
 
 #include <assert.h>
-#include <ctype.h>
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -60,6 +59,7 @@ in the source distribution for its full text.
 #include "linux/SystemdMeter.h"
 #include "linux/ZramMeter.h"
 #include "linux/ZramStats.h"
+#include "linux/ZswapStats.h"
 #include "zfs/ZfsArcMeter.h"
 #include "zfs/ZfsArcStats.h"
 #include "zfs/ZfsCompressedArcMeter.h"
@@ -261,7 +261,7 @@ int Platform_getUptime(void) {
    if (fd) {
       int n = fscanf(fd, "%64lf", &uptime);
       fclose(fd);
-      if (n <= 0) {
+      if (n != 1) {
          return 0;
       }
    }
@@ -303,7 +303,7 @@ pid_t Platform_getMaxPid(void) {
 }
 
 double Platform_setCPUValues(Meter* this, unsigned int cpu) {
-   const LinuxMachine* lhost = (const LinuxMachine *) this->host;
+   const LinuxMachine* lhost = (const LinuxMachine*) this->host;
    const Settings* settings = this->host->settings;
    const CPUData* cpuData = &(lhost->cpuData[cpu]);
    double total = (double) ( cpuData->totalPeriod == 0 ? 1 : cpuData->totalPeriod);
@@ -928,7 +928,7 @@ CommandLineStatus Platform_getLongOption(int opt, int argc, char** argv) {
       case 160: {
          const char* mode = optarg;
          if (!mode && optind < argc && argv[optind] != NULL &&
-            (argv[optind][0] != '\0' && argv[optind][0] != '-')) {
+             (argv[optind][0] != '\0' && argv[optind][0] != '-')) {
             mode = argv[optind++];
          }
 

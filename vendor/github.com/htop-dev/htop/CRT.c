@@ -803,8 +803,19 @@ int CRT_scrollWheelVAmount = 10;
 ColorScheme CRT_colorScheme = COLORSCHEME_DEFAULT;
 
 ATTR_NORETURN
-static void CRT_handleSIGTERM(ATTR_UNUSED int sgn) {
+static void CRT_handleSIGTERM(int sgn) {
    CRT_done();
+
+   if (!CRT_crashSettings->changed)
+      _exit(0);
+
+   const char* signal_str = strsignal(sgn);
+   if (!signal_str)
+      signal_str = "unknown reason";
+
+   fprintf(stderr,
+           "A signal %d (%s) was received, exiting without persisting settings to htoprc.\n",
+           sgn, signal_str);
    _exit(0);
 }
 
@@ -1112,9 +1123,7 @@ void CRT_setColors(int colorScheme) {
    for (short int i = 0; i < 8; i++) {
       for (short int j = 0; j < 8; j++) {
          if (ColorIndex(i, j) != ColorIndexGrayBlack && ColorIndex(i, j) != ColorIndexWhiteDefault) {
-            short int bg = (colorScheme != COLORSCHEME_BLACKNIGHT)
-                     ? (j == 0 ? -1 : j)
-                     : j;
+            short int bg = (colorScheme != COLORSCHEME_BLACKNIGHT) && (j == 0) ? -1 : j;
             init_pair(ColorIndex(i, j), i, bg);
          }
       }

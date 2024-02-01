@@ -7,14 +7,9 @@ Released under the GNU GPLv2+, see the COPYING file
 in the source distribution for its full text.
 */
 
-#include "config.h" // IWYU pragma: keep
-
 #include <stdbool.h>
-#include <sys/types.h>
 
-#include "Hashtable.h"
 #include "ProcessTable.h"
-#include "UsersTable.h"
 
 
 typedef struct TtyDriver_ {

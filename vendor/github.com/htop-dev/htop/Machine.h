@@ -8,20 +8,16 @@ Released under the GNU GPLv2+, see the COPYING file
 in the source distribution for its full text.
 */
 
-#include "config.h" // IWYU pragma: keep
-
 #include <limits.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <sys/time.h>
 #include <sys/types.h>
 
-#include "Hashtable.h"
 #include "Panel.h"
 #include "Settings.h"
 #include "Table.h"
 #include "UsersTable.h"
-#include "Vector.h"
 
 #ifdef HAVE_LIBHWLOC
 #include <hwloc.h>

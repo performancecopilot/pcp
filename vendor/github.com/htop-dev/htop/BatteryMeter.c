@@ -7,6 +7,8 @@ in the source distribution for its full text.
 This meter written by Ian P. Hands (iphands@gmail.com, ihands@redhat.com).
 */
 
+#include "config.h" // IWYU pragma: keep
+
 #include "BatteryMeter.h"
 
 #include <math.h>
@@ -38,16 +40,16 @@ static void BatteryMeter_updateValues(Meter* this) {
 
    const char* text;
    switch (isOnAC) {
-   case AC_PRESENT:
-      text = this->mode == TEXT_METERMODE ? " (Running on A/C)" : "(A/C)";
-      break;
-   case AC_ABSENT:
-      text = this->mode == TEXT_METERMODE ? " (Running on battery)" : "(bat)";
-      break;
-   case AC_ERROR:
-   default:
-      text = "";
-      break;
+      case AC_PRESENT:
+         text = this->mode == TEXT_METERMODE ? " (Running on A/C)" : "(A/C)";
+         break;
+      case AC_ABSENT:
+         text = this->mode == TEXT_METERMODE ? " (Running on battery)" : "(bat)";
+         break;
+      case AC_ERROR:
+      default:
+         text = "";
+         break;
    }
 
    xSnprintf(this->txtBuffer, sizeof(this->txtBuffer), "%.1f%%%s", percent, text);

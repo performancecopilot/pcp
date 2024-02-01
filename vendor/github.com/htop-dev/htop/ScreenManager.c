@@ -12,6 +12,7 @@ in the source distribution for its full text.
 #include <assert.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/time.h>
 
 #include "CRT.h"
@@ -20,8 +21,10 @@ in the source distribution for its full text.
 #include "Macros.h"
 #include "Object.h"
 #include "Platform.h"
-#include "ProcessTable.h"
+#include "Process.h"
 #include "ProvideCurses.h"
+#include "Settings.h"
+#include "Table.h"
 #include "XUtils.h"
 
 
@@ -318,12 +321,14 @@ void ScreenManager_run(ScreenManager* this, Panel** lastFocus, int* lastKey, con
          redraw = false;
          continue;
       }
+
       switch (ch) {
          case KEY_ALT('H'): ch = KEY_LEFT; break;
          case KEY_ALT('J'): ch = KEY_DOWN; break;
          case KEY_ALT('K'): ch = KEY_UP; break;
          case KEY_ALT('L'): ch = KEY_RIGHT; break;
       }
+
       redraw = true;
       if (Panel_eventHandlerFn(panelFocus)) {
          result = Panel_eventHandler(panelFocus, ch);

@@ -6,7 +6,9 @@ Released under the GNU GPLv2+, see the COPYING file
 in the source distribution for its full text.
 */
 
-#include "InDomTable.h"
+#include "config.h" // IWYU pragma: keep
+
+#include "pcp/InDomTable.h"
 
 #include <assert.h>
 #include <stdlib.h>

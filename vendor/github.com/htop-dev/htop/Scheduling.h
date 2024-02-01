@@ -7,13 +7,13 @@ Released under the GNU GPLv2+, see the COPYING file
 in the source distribution for its full text.
 */
 
-#include "config.h" // IWYU pragma: keep
-
 #include <sched.h>
 #include <stdbool.h>
 
+#include "Object.h"
 #include "Panel.h"
 #include "Process.h"
+#include "Row.h"
 
 
 #if defined(HAVE_SCHED_SETSCHEDULER) && defined(HAVE_SCHED_GETSCHEDULER)
