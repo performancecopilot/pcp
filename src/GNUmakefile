@@ -55,6 +55,7 @@ OTHER_SUBDIRS += \
 	dbpmda \
 	genpmda \
 	pcp \
+	pcp2arrow \
 	pcp2elasticsearch \
 	pcp2graphite \
 	pcp2influxdb \

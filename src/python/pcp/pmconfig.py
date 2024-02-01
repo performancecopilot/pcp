@@ -334,12 +334,14 @@ class pmConfig(object):
                     raise ValueError("Undeclared metric key %s" % key)
                 self.parse_verbose_metric_info(metrics, key, spec, value)
 
-    def prepare_metrics(self):
+    def prepare_metrics(self, pmns=False):
         """ Construct and prepare metricset """
         metrics = self.util.opts.pmGetOperands()
-        if not metrics:
+        if not metrics and not pmns:
             sys.stderr.write("No metrics specified.\n")
             raise pmapi.pmUsageErr()
+        if not metrics and pmns:  # all metrics in the namespace
+            metrics = self.util.context.pmGetChildren('')
 
         def read_cmd_line_items():
             """ Helper to read command line items """

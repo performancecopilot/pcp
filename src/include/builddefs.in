@@ -287,6 +287,7 @@ HAVE_PYTHON_JSONPOINTER = @have_python_jsonpointer@
 HAVE_PYTHON_ORDEREDDICT = @have_python_OrderedDict@
 HAVE_PYTHON_INFLUXDB = @have_python_influxdb@
 HAVE_PYTHON_OPENPYXL = @have_python_openpyxl@
+HAVE_PYTHON_PYARROW = @have_python_pyarrow@
 HAVE_PYTHON_BPF = @have_python_BPF@
 
 # for desktop icons in a variety of img sizes

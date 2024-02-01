@@ -64,9 +64,6 @@ from pcp import pmapi, pmconfig
 from cpmapi import PM_CONTEXT_ARCHIVE, PM_DEBUG_APPL0, PM_DEBUG_APPL1
 from cpmapi import PM_TIME_SEC
 
-if sys.version_info[0] >= 3:
-    long = int # pylint: disable=redefined-builtin
-
 # Default config
 DEFAULT_CONFIG = ["./pcp2zabbix.conf", "$HOME/.pcp2zabbix.conf", "$HOME/.pcp/pcp2zabbix.conf", "$PCP_SYSCONF_DIR/pcp2zabbix.conf"]
 

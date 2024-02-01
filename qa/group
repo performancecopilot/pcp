@@ -2049,6 +2049,7 @@ x11
 1775 pmdumptext archive local
 1784 pmlogconf local
 1793 pmrep pcp2xxx python local pmlogdump
+1794 pcp2arrow local
 1795 pmda.bpf local
 1801 dstat python pcp local
 1803 python geolocate labels local
