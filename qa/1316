@@ -26,14 +26,14 @@ do_valgrind=false
 do_helgrind=false
 if [ "$1" = "--valgrind" ]
 then
+    [ $PCPQA_VALGRIND = both ] || \
+	_notrun "valgrind variant qa/1317 will be run instead of non-valgrind variant"
     _check_valgrind
     do_valgrind=true
-elif _prefer_valgrind
-then
-    [ $PCPQA_VALGRIND = both ] || \
-	_notrun "valgrind variant qa/1317 will be run"
 elif [ "$1" = "--helgrind" ]
 then
+    _prefer_valgrind && \
+	_notrun "valgrind variant qa/1317 will be run instead of helgrind variant"
     _check_valgrind
     _check_helgrind
     do_helgrind=true
