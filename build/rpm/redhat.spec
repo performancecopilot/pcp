@@ -1091,7 +1091,7 @@ Summary: Performance Co-Pilot (PCP) metrics for NutCracker (TwemCache)
 URL: https://pcp.io
 Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
 Requires: perl-PCP-PMDA = %{version}-%{release}
-Requires: perl(YAML::XS::LibYAML)
+Requires: perl(YAML::XS)
 Requires: perl(JSON)
 
 %description pmda-nutcracker
