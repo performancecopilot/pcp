@@ -68,7 +68,7 @@ if which setpriv >/dev/null 2>&1
 then
     uid=`id -u $PCP_USER`
     gid=`id -g $PCP_GROUP`
-    setpriv --clear-groups --reuid=$uid --regid=$gid --inh-caps=-all \
+    setpriv --clear-groups --reuid=$uid --regid=$gid \
 	$PCP_SYSCONF_DIR/pmproxy/rc "$@"
 elif which runuser >/dev/null 2>&1
 then
