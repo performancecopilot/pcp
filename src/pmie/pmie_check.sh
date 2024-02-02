@@ -214,7 +214,7 @@ else
     # Salt away previous log, if any ...
     #
     PROGLOGDIR=`dirname "$PROGLOG"`
-    [ -d "$PROGLOGDIR" ] || mkdir_and_chown "$PROGLOGDIR" 755 $PCP_USER:$PCP_GROUP 2>/dev/null
+    [ -d "$PROGLOGDIR" ] || mkdir_and_chown "$PROGLOGDIR" 775 $PCP_USER:$PCP_GROUP 2>/dev/null
     _save_prev_file "$PROGLOG"
     # After argument checking, everything must be logged to ensure no mail is
     # accidentally sent from cron.  Close stdout and stderr, then open stdout
@@ -699,7 +699,7 @@ s/^\\$//
 	#
 	if [ ! -d "$dir" ]
 	then
-	    mkdir_and_chown "$dir" 755 $PCP_USER:$PCP_GROUP >$tmp/tmp 2>&1
+	    mkdir_and_chown "$dir" 775 $PCP_USER:$PCP_GROUP >$tmp/tmp 2>&1
 	    if [ ! -d "$dir" ]
 	    then
 		cat $tmp/tmp
