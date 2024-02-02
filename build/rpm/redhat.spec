@@ -207,6 +207,7 @@ ExcludeArch: %{ix86}
 %global disable_arrow 0
 %else
 %global disable_arrow 1
+%endif
 
 %if 0%{?fedora} >= 24
 %global disable_xlsx 0
