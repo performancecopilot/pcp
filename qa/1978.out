@@ -4,7 +4,7 @@ Defaults with core metric naming
 
 
 ATOP - shard                                 2021/04/20  15:30:37                                 -----------------                                   2s elapsed
-PRC | sys   56m45s |  user   4h29m | #proc    377 |  #trun      1 | #tslpi   290 |  #tslpu    85 | #zombie    0 |  clones 570e3 |              |  no  procacct |
+PRC | sys   56m45s |  user   4h29m | #proc    377 |  #trun      1 | #tslpi   290 |  #tslpu     0 | #tidle    85 |  #zombie    0 | clones 570e3 |  no  procacct |
 CPU | sys       5% |  user     15% | irq      25% |  idle    753% | wait      1% |  steal     0% | guest     0% |  ipc     0.45 | cycl 1.47THz |  curf 3.61GHz |
 cpu | sys       1% |  user      3% | irq       3% |  idle     93% | cpu002 w  0% |  steal     0% | guest     0% |  ipc     0.49 | cycl 1.70THz |   |
 cpu | sys       1% |  user      2% | irq       3% |  idle     93% | cpu004 w  0% |  steal     0% | guest     0% |  ipc     0.48 | cycl 1.68THz |   |
@@ -15,10 +15,10 @@ cpu | sys       0% |  user      1% | irq       3% |  idle     95% | cpu003 w  0%
 cpu | sys       0% |  user      1% | irq       3% |  idle     95% | cpu001 w  0% |  steal     0% | guest     0% |  ipc     0.44 | cycl 1.19THz |   |
 cpu | sys       0% |  user      1% | irq       3% |  idle     95% | cpu005 w  0% |  steal     0% | guest     0% |  ipc     0.42 | cycl 1.18THz |   |
 CPL | numcpu     8 |               | avg1    0.16 |               | avg5    0.15 |  avg15   0.21 |              |  csw 721109e3 |              |  intr 33227e5 |
-MEM | tot    15.3G |  free    2.3G | cache   4.6G |  dirty   2.1M | buff  947.6M |  slab  620.1M | slrec 426.7M |  pgtab   0.0M | hptot 512.0M |  hpuse   0.0M |
-MEM | numnode    0 |               | shmem   2.7G |  shrss   0.0M | shswp   0.0M |  tcpsk   0.0M | udpsk   0.0M |               |              |  zfarc   0.0M |
-SWP | tot    11.7G |  free   11.7G | swcac   2.1M |  zpool   0.0M | zstor   0.0M |  ksuse   0.0M | kssav   0.0M |               | vmcom  22.9G |  vmlim  19.1G |
-PAG | scan       0 |  steal      0 | compact    0 |  numamig    0 | migrate    0 |  pgin       0 | pgout      0 |  swin    1981 | swout  16278 |  oomkill    0 |
+MEM | tot    15.3G |  free    2.3G | avail   0.0M |  cache   4.6G | dirty   2.1M |  buff  947.6M | slab  620.1M |  slrec 426.7M | hptot   0.2M |  hpuse   0.0M |
+MEM | numnode    0 |               | shmem   2.7G |  shrss   0.0M | shswp   0.0M |  tcpsk   0.0M | udpsk   0.0M |  pgtab   0.0M |              |  zfarc   0.0M |
+SWP | tot    11.7G |  free   11.7G | swcac   2.1M |  zswap   0.0M | zstor   0.0M |  ksuse   0.0M | kssav   0.0M |               | vmcom  22.9G |  vmlim  19.1G |
+PAG | scan       0 |  steal      0 | stall      0 |  compact    0 | numamig    0 |               | migrate    0 |  pgin       0 | pgout      0 |  oomkill    0 |
 LVM | a_shard-root |  busy      0% | read  345684 |  write 498098 | discrd     0 |  KiB/r     19 | KiB/w     40 |  MBr/s 3337.9 | MBw/s 9761.0 |  avio  0.0 ns |
 LVM | a_shard-swap |  busy      0% | read      97 |  write      0 | discrd     0 |  KiB/r     22 | KiB/w      0 |  MBr/s    1.1 | MBw/s    0.0 |  avio  0.0 ns |
 LVM | a_shard-home |  busy      0% | read  693963 |  write 3813e3 | discrd     0 |  KiB/r      8 | KiB/w     14 |  MBr/s 2785.7 | MBw/s 26515.8 |  avio  0.0 ns |
@@ -411,7 +411,7 @@ WWW | reqs      60 | totKB    133 | byt/rq  2269 | iwork     74 | bwork      1 |
 
 
 ATOP - shard                                 2021/04/20  15:30:38                                 -----------------                                   1s elapsed
-PRC | sys    0.11s |  user   0.07s | #proc    377 |  #trun      1 | #tslpi   290 |  #tslpu    85 | #zombie    0 |  clones     4 |              |  no  procacct |
+PRC | sys    0.11s |  user   0.07s | #proc    377 |  #trun      1 | #tslpi   290 |  #tslpu     0 | #tidle    85 |  #zombie    0 | clones     4 |  no  procacct |
 CPU | sys      15% |  user     12% | irq      25% |  idle    748% | wait      0% |  steal     0% | guest     0% |  ipc     0.62 | cycl  186MHz |  curf 3.55GHz |
 cpu | sys      11% |  user      5% | irq       3% |  idle     81% | cpu002 w  0% |  steal     0% | guest     0% |  ipc     1.03 | cycl  550MHz |   |
 cpu | sys       0% |  user      2% | irq       4% |  idle     94% | cpu006 w  0% |  steal     0% | guest     0% |  ipc     0.47 | cycl  190MHz |   |
@@ -422,9 +422,9 @@ cpu | sys       0% |  user      0% | irq       5% |  idle     95% | cpu007 w  0%
 cpu | sys       1% |  user      1% | irq       2% |  idle     96% | cpu000 w  0% |  steal     0% | guest     0% |  ipc     0.15 | cycl  128MHz |   |
 cpu | sys       0% |  user      0% | irq       4% |  idle     96% | cpu001 w  0% |  steal     0% | guest     0% |  ipc     0.16 | cycl   85MHz |   |
 CPL | numcpu     8 |               | avg1    0.16 |               | avg5    0.15 |  avg15   0.21 |              |  csw     3214 |              |  intr   16594 |
-MEM | tot    15.3G |  free    2.3G | cache   4.6G |  dirty   3.5M | buff  947.6M |  slab  620.1M | slrec 426.7M |  pgtab   0.0M | hptot 512.0M |  hpuse   0.0M |
-MEM | numnode    0 |               | shmem   2.7G |  shrss   0.0M | shswp   0.0M |  tcpsk   0.0M | udpsk   0.0M |               |              |  zfarc   0.0M |
-SWP | tot    11.7G |  free   11.7G | swcac   2.1M |  zpool   0.0M | zstor   0.0M |  ksuse   0.0M | kssav   0.0M |               | vmcom  22.9G |  vmlim  19.1G |
+MEM | tot    15.3G |  free    2.3G | avail   0.0M |  cache   4.6G | dirty   3.5M |  buff  947.6M | slab  620.1M |  slrec 426.7M | hptot   0.2M |  hpuse   0.0M |
+MEM | numnode    0 |               | shmem   2.7G |  shrss   0.0M | shswp   0.0M |  tcpsk   0.0M | udpsk   0.0M |  pgtab   0.0M |              |  zfarc   0.0M |
+SWP | tot    11.7G |  free   11.7G | swcac   2.1M |  zswap   0.0M | zstor   0.0M |  ksuse   0.0M | kssav   0.0M |               | vmcom  22.9G |  vmlim  19.1G |
 NET | transport    |  tcpi      33 | tcpo      36 |  udpi       3 | udpo       3 |  tcpao      7 | tcppo      0 |  tcprs      0 | tcpie      0 |  udpie      0 |
 NET | network      |  ipi       23 | ipo       26 |  ipfrw      0 | deliv     23 |               |              |               | icmpi      0 |  icmpo      0 |
 NET | enp0s25 ---- |  pcki      86 | pcko      16 |  sp    0 Mbps | si   61 Kbps |  so   35 Kbps | erri       0 |  erro       0 | drpi       0 |  drpo       0 |
@@ -496,7 +496,7 @@ NET | lo      ---- |  pcki      26 | pcko      26 |  sp    0 Mbps | si   24 Kbps
 
 
 ATOP - shard                                 2021/04/20  15:30:39                                 -----------------                                   1s elapsed
-PRC | sys    0.13s |  user   0.13s | #proc    377 |  #trun      1 | #tslpi   291 |  #tslpu    85 | #zombie    0 |  clones     0 |              |  no  procacct |
+PRC | sys    0.13s |  user   0.13s | #proc    377 |  #trun      1 | #tslpi   291 |  #tslpu     0 | #tidle    85 |  #zombie    0 | clones     0 |  no  procacct |
 CPU | sys      13% |  user     16% | irq      26% |  idle    745% | wait      0% |  steal     0% | guest     0% |  ipc     0.62 | cycl  175MHz |  curf 3.56GHz |
 cpu | sys       9% |  user      6% | irq       3% |  idle     82% | cpu002 w  0% |  steal     0% | guest     0% |  ipc     1.09 | cycl  527MHz |   |
 cpu | sys       0% |  user      6% | irq       3% |  idle     91% | cpu003 w  0% |  steal     0% | guest     0% |  ipc     0.65 | cycl  231MHz |   |
@@ -507,9 +507,9 @@ cpu | sys       0% |  user      1% | irq       4% |  idle     95% | cpu000 w  0%
 cpu | sys       1% |  user      0% | irq       3% |  idle     95% | cpu004 w  1% |  steal     0% | guest     0% |  ipc     0.15 | cycl  109MHz |   |
 cpu | sys       1% |  user      0% | irq       3% |  idle     96% | cpu001 w  0% |  steal     0% | guest     0% |  ipc     0.12 | cycl   80MHz |   |
 CPL | numcpu     8 |               | avg1    0.16 |               | avg5    0.15 |  avg15   0.21 |              |  csw     2200 |              |  intr   16357 |
-MEM | tot    15.3G |  free    2.3G | cache   4.6G |  dirty   4.7M | buff  947.6M |  slab  620.1M | slrec 426.7M |  pgtab   0.0M | hptot 512.0M |  hpuse   0.0M |
-MEM | numnode    0 |               | shmem   2.7G |  shrss   0.0M | shswp   0.0M |  tcpsk   0.0M | udpsk   0.0M |               |              |  zfarc   0.0M |
-SWP | tot    11.7G |  free   11.7G | swcac   2.1M |  zpool   0.0M | zstor   0.0M |  ksuse   0.0M | kssav   0.0M |               | vmcom  22.9G |  vmlim  19.1G |
+MEM | tot    15.3G |  free    2.3G | avail   0.0M |  cache   4.6G | dirty   4.7M |  buff  947.6M | slab  620.1M |  slrec 426.7M | hptot   0.2M |  hpuse   0.0M |
+MEM | numnode    0 |               | shmem   2.7G |  shrss   0.0M | shswp   0.0M |  tcpsk   0.0M | udpsk   0.0M |  pgtab   0.0M |              |  zfarc   0.0M |
+SWP | tot    11.7G |  free   11.7G | swcac   2.1M |  zswap   0.0M | zstor   0.0M |  ksuse   0.0M | kssav   0.0M |               | vmcom  22.9G |  vmlim  19.1G |
 NET | transport    |  tcpi      44 | tcpo      44 |  udpi       0 | udpo       0 |  tcpao      6 | tcppo      2 |  tcprs      0 | tcpie      0 |  udpie      0 |
 NET | network      |  ipi       24 | ipo       24 |  ipfrw      0 | deliv     24 |               |              |               | icmpi      0 |  icmpo      0 |
 NET | lo      ---- |  pcki      43 | pcko      43 |  sp    0 Mbps | si   44 Kbps |  so   44 Kbps | erri       0 |  erro       0 | drpi       0 |  drpo       0 |
@@ -588,7 +588,7 @@ Defaults with ix86arch metric naming
 
 
 ATOP - shard                                 2021/04/20  15:30:37                                 -----------------                                   2s elapsed
-PRC | sys   56m45s |  user   4h29m | #proc    377 |  #trun      1 | #tslpi   290 |  #tslpu    85 | #zombie    0 |  clones 570e3 |              |  no  procacct |
+PRC | sys   56m45s |  user   4h29m | #proc    377 |  #trun      1 | #tslpi   290 |  #tslpu     0 | #tidle    85 |  #zombie    0 | clones 570e3 |  no  procacct |
 CPU | sys       5% |  user     15% | irq      25% |  idle    753% | wait      1% |  steal     0% | guest     0% |  ipc     0.45 | cycl 1.47THz |  curf 3.61GHz |
 cpu | sys       1% |  user      3% | irq       3% |  idle     93% | cpu002 w  0% |  steal     0% | guest     0% |  ipc     0.49 | cycl 1.70THz |   |
 cpu | sys       1% |  user      2% | irq       3% |  idle     93% | cpu004 w  0% |  steal     0% | guest     0% |  ipc     0.48 | cycl 1.68THz |   |
@@ -599,10 +599,10 @@ cpu | sys       0% |  user      1% | irq       3% |  idle     95% | cpu003 w  0%
 cpu | sys       0% |  user      1% | irq       3% |  idle     95% | cpu001 w  0% |  steal     0% | guest     0% |  ipc     0.44 | cycl 1.19THz |   |
 cpu | sys       0% |  user      1% | irq       3% |  idle     95% | cpu005 w  0% |  steal     0% | guest     0% |  ipc     0.42 | cycl 1.18THz |   |
 CPL | numcpu     8 |               | avg1    0.16 |               | avg5    0.15 |  avg15   0.21 |              |  csw 721109e3 |              |  intr 33227e5 |
-MEM | tot    15.3G |  free    2.3G | cache   4.6G |  dirty   2.1M | buff  947.6M |  slab  620.1M | slrec 426.7M |  pgtab   0.0M | hptot 512.0M |  hpuse   0.0M |
-MEM | numnode    0 |               | shmem   2.7G |  shrss   0.0M | shswp   0.0M |  tcpsk   0.0M | udpsk   0.0M |               |              |  zfarc   0.0M |
-SWP | tot    11.7G |  free   11.7G | swcac   2.1M |  zpool   0.0M | zstor   0.0M |  ksuse   0.0M | kssav   0.0M |               | vmcom  22.9G |  vmlim  19.1G |
-PAG | scan       0 |  steal      0 | compact    0 |  numamig    0 | migrate    0 |  pgin       0 | pgout      0 |  swin    1981 | swout  16278 |  oomkill    0 |
+MEM | tot    15.3G |  free    2.3G | avail   0.0M |  cache   4.6G | dirty   2.1M |  buff  947.6M | slab  620.1M |  slrec 426.7M | hptot   0.2M |  hpuse   0.0M |
+MEM | numnode    0 |               | shmem   2.7G |  shrss   0.0M | shswp   0.0M |  tcpsk   0.0M | udpsk   0.0M |  pgtab   0.0M |              |  zfarc   0.0M |
+SWP | tot    11.7G |  free   11.7G | swcac   2.1M |  zswap   0.0M | zstor   0.0M |  ksuse   0.0M | kssav   0.0M |               | vmcom  22.9G |  vmlim  19.1G |
+PAG | scan       0 |  steal      0 | stall      0 |  compact    0 | numamig    0 |               | migrate    0 |  pgin       0 | pgout      0 |  oomkill    0 |
 LVM | a_shard-root |  busy      0% | read  345684 |  write 498098 | discrd     0 |  KiB/r     19 | KiB/w     40 |  MBr/s 3337.9 | MBw/s 9761.0 |  avio  0.0 ns |
 LVM | a_shard-swap |  busy      0% | read      97 |  write      0 | discrd     0 |  KiB/r     22 | KiB/w      0 |  MBr/s    1.1 | MBw/s    0.0 |  avio  0.0 ns |
 LVM | a_shard-home |  busy      0% | read  693963 |  write 3813e3 | discrd     0 |  KiB/r      8 | KiB/w     14 |  MBr/s 2785.7 | MBw/s 26515.8 |  avio  0.0 ns |
@@ -995,7 +995,7 @@ WWW | reqs      60 | totKB    133 | byt/rq  2269 | iwork     74 | bwork      1 |
 
 
 ATOP - shard                                 2021/04/20  15:30:38                                 -----------------                                   1s elapsed
-PRC | sys    0.11s |  user   0.07s | #proc    377 |  #trun      1 | #tslpi   290 |  #tslpu    85 | #zombie    0 |  clones     4 |              |  no  procacct |
+PRC | sys    0.11s |  user   0.07s | #proc    377 |  #trun      1 | #tslpi   290 |  #tslpu     0 | #tidle    85 |  #zombie    0 | clones     4 |  no  procacct |
 CPU | sys      15% |  user     12% | irq      25% |  idle    748% | wait      0% |  steal     0% | guest     0% |  ipc     0.62 | cycl  186MHz |  curf 3.55GHz |
 cpu | sys      11% |  user      5% | irq       3% |  idle     81% | cpu002 w  0% |  steal     0% | guest     0% |  ipc     1.03 | cycl  550MHz |   |
 cpu | sys       0% |  user      2% | irq       4% |  idle     94% | cpu006 w  0% |  steal     0% | guest     0% |  ipc     0.47 | cycl  190MHz |   |
@@ -1006,9 +1006,9 @@ cpu | sys       0% |  user      0% | irq       5% |  idle     95% | cpu007 w  0%
 cpu | sys       1% |  user      1% | irq       2% |  idle     96% | cpu000 w  0% |  steal     0% | guest     0% |  ipc     0.15 | cycl  128MHz |   |
 cpu | sys       0% |  user      0% | irq       4% |  idle     96% | cpu001 w  0% |  steal     0% | guest     0% |  ipc     0.16 | cycl   85MHz |   |
 CPL | numcpu     8 |               | avg1    0.16 |               | avg5    0.15 |  avg15   0.21 |              |  csw     3214 |              |  intr   16594 |
-MEM | tot    15.3G |  free    2.3G | cache   4.6G |  dirty   3.5M | buff  947.6M |  slab  620.1M | slrec 426.7M |  pgtab   0.0M | hptot 512.0M |  hpuse   0.0M |
-MEM | numnode    0 |               | shmem   2.7G |  shrss   0.0M | shswp   0.0M |  tcpsk   0.0M | udpsk   0.0M |               |              |  zfarc   0.0M |
-SWP | tot    11.7G |  free   11.7G | swcac   2.1M |  zpool   0.0M | zstor   0.0M |  ksuse   0.0M | kssav   0.0M |               | vmcom  22.9G |  vmlim  19.1G |
+MEM | tot    15.3G |  free    2.3G | avail   0.0M |  cache   4.6G | dirty   3.5M |  buff  947.6M | slab  620.1M |  slrec 426.7M | hptot   0.2M |  hpuse   0.0M |
+MEM | numnode    0 |               | shmem   2.7G |  shrss   0.0M | shswp   0.0M |  tcpsk   0.0M | udpsk   0.0M |  pgtab   0.0M |              |  zfarc   0.0M |
+SWP | tot    11.7G |  free   11.7G | swcac   2.1M |  zswap   0.0M | zstor   0.0M |  ksuse   0.0M | kssav   0.0M |               | vmcom  22.9G |  vmlim  19.1G |
 NET | transport    |  tcpi      33 | tcpo      36 |  udpi       3 | udpo       3 |  tcpao      7 | tcppo      0 |  tcprs      0 | tcpie      0 |  udpie      0 |
 NET | network      |  ipi       23 | ipo       26 |  ipfrw      0 | deliv     23 |               |              |               | icmpi      0 |  icmpo      0 |
 NET | enp0s25 ---- |  pcki      86 | pcko      16 |  sp    0 Mbps | si   61 Kbps |  so   35 Kbps | erri       0 |  erro       0 | drpi       0 |  drpo       0 |
@@ -1080,7 +1080,7 @@ NET | lo      ---- |  pcki      26 | pcko      26 |  sp    0 Mbps | si   24 Kbps
 
 
 ATOP - shard                                 2021/04/20  15:30:39                                 -----------------                                   1s elapsed
-PRC | sys    0.13s |  user   0.13s | #proc    377 |  #trun      1 | #tslpi   291 |  #tslpu    85 | #zombie    0 |  clones     0 |              |  no  procacct |
+PRC | sys    0.13s |  user   0.13s | #proc    377 |  #trun      1 | #tslpi   291 |  #tslpu     0 | #tidle    85 |  #zombie    0 | clones     0 |  no  procacct |
 CPU | sys      13% |  user     16% | irq      26% |  idle    745% | wait      0% |  steal     0% | guest     0% |  ipc     0.62 | cycl  175MHz |  curf 3.56GHz |
 cpu | sys       9% |  user      6% | irq       3% |  idle     82% | cpu002 w  0% |  steal     0% | guest     0% |  ipc     1.09 | cycl  527MHz |   |
 cpu | sys       0% |  user      6% | irq       3% |  idle     91% | cpu003 w  0% |  steal     0% | guest     0% |  ipc     0.65 | cycl  231MHz |   |
@@ -1091,9 +1091,9 @@ cpu | sys       0% |  user      1% | irq       4% |  idle     95% | cpu000 w  0%
 cpu | sys       1% |  user      0% | irq       3% |  idle     95% | cpu004 w  1% |  steal     0% | guest     0% |  ipc     0.15 | cycl  109MHz |   |
 cpu | sys       1% |  user      0% | irq       3% |  idle     96% | cpu001 w  0% |  steal     0% | guest     0% |  ipc     0.12 | cycl   80MHz |   |
 CPL | numcpu     8 |               | avg1    0.16 |               | avg5    0.15 |  avg15   0.21 |              |  csw     2200 |              |  intr   16357 |
-MEM | tot    15.3G |  free    2.3G | cache   4.6G |  dirty   4.7M | buff  947.6M |  slab  620.1M | slrec 426.7M |  pgtab   0.0M | hptot 512.0M |  hpuse   0.0M |
-MEM | numnode    0 |               | shmem   2.7G |  shrss   0.0M | shswp   0.0M |  tcpsk   0.0M | udpsk   0.0M |               |              |  zfarc   0.0M |
-SWP | tot    11.7G |  free   11.7G | swcac   2.1M |  zpool   0.0M | zstor   0.0M |  ksuse   0.0M | kssav   0.0M |               | vmcom  22.9G |  vmlim  19.1G |
+MEM | tot    15.3G |  free    2.3G | avail   0.0M |  cache   4.6G | dirty   4.7M |  buff  947.6M | slab  620.1M |  slrec 426.7M | hptot   0.2M |  hpuse   0.0M |
+MEM | numnode    0 |               | shmem   2.7G |  shrss   0.0M | shswp   0.0M |  tcpsk   0.0M | udpsk   0.0M |  pgtab   0.0M |              |  zfarc   0.0M |
+SWP | tot    11.7G |  free   11.7G | swcac   2.1M |  zswap   0.0M | zstor   0.0M |  ksuse   0.0M | kssav   0.0M |               | vmcom  22.9G |  vmlim  19.1G |
 NET | transport    |  tcpi      44 | tcpo      44 |  udpi       0 | udpo       0 |  tcpao      6 | tcppo      2 |  tcprs      0 | tcpie      0 |  udpie      0 |
 NET | network      |  ipi       24 | ipo       24 |  ipfrw      0 | deliv     24 |               |              |               | icmpi      0 |  icmpo      0 |
 NET | lo      ---- |  pcki      43 | pcko      43 |  sp    0 Mbps | si   44 Kbps |  so   44 Kbps | erri       0 |  erro       0 | drpi       0 |  drpo       0 |
