@@ -21,12 +21,10 @@ netbpfprocmetrics {
 	bpf.proc.net.tcp.send.bytes	TASK_NETBPF_TCPSSZ
 	bpf.proc.net.tcp.recv.packs	TASK_NETBPF_TCPRCV
 	bpf.proc.net.tcp.recv.bytes	TASK_NETBPF_TCPRSZ
-
 	bpf.proc.net.udp.send.packs	TASK_NETBPF_UDPSND
 	bpf.proc.net.udp.send.bytes	TASK_NETBPF_UDPSSZ
 	bpf.proc.net.udp.recv.packs	TASK_NETBPF_UDPRCV
 	bpf.proc.net.udp.recv.bytes	TASK_NETBPF_UDPRSZ
-
 	# end marker - provides count
 	.					TASK_NETBPF_NMETRICS
 }

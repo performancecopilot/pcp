@@ -806,7 +806,7 @@ pricumproc(struct sstat *sstat, struct devtstat *devtstat,
 		struct tstat *curstat = *(devtstat->procactive+i);
 
 		if (curstat == NULL)
-			continue;
+		    continue;
                 extra.totut	+= curstat->cpu.utime;
                 extra.totst 	+= curstat->cpu.stime;
         }
@@ -1342,7 +1342,7 @@ priphead(int curlist, int totlist, char *showtype, char *showorder,
 		prev_supportflags = supportflags;
 		prev_threadview   = threadview;
 
-		if (*showtype == MPROCNET && !(supportflags&NETATOP||supportflags&NETATOPBPF) )
+		if (*showtype == MPROCNET && !(supportflags & NETATOP || supportflags & NETATOPBPF) )
 		{
 			*showtype  = MPROCGEN;
 			*showorder = MSORTCPU;

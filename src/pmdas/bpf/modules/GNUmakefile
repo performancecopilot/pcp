@@ -6,6 +6,7 @@ LDLIBS = $(PCP_WEBLIB) $(LIB_FOR_LIBBPF) $(LIB_FOR_LIBELF) -lz -lm -ldl
 LDIRT = $(HELPERS_H) $(HELPERS_C) $(APPS_H) $(APPS_BPF) vmlinux.h
 MODULETMP = $(PCP_PMDAS_DIR)/$(IAM)/modules
 MODULEDIR = $(PCP_PMDASADM_DIR)/$(IAM)/modules
+CFLAGS += -O0 -g
 
 COMMON_OBJ = \
 	compat.o \
@@ -49,6 +50,9 @@ APPS_H = \
 	tcpconnlat.h \
 	vfsstat.h \
 
+APPS_H_2 = \
+	netatop.h
+
 # ported *.bpf.c files.
 APPS_BPF = \
 	bashreadline.bpf.c \
@@ -64,6 +68,8 @@ APPS_BPF = \
 	tcpconnlat.bpf.c \
 	vfsstat.bpf.c \
 
+APPS_BPF_2 = \
+	netatop.bpf.c
 
 default_pcp default:	$(PMDABPF_MODULES)
 
@@ -93,13 +99,19 @@ $(HELPERS_C):
 $(APPS_H):
 	$(LN_S) -f $(TOPDIR)/vendor/github.com/iovisor/bcc/libbpf-tools/$@ $@
 
+$(APPS_H_2):
+	$(LN_S) -f $(TOPDIR)/vendor/github.com/bytedance/netatop-bpf/$@ $@
+
 $(APPS_BPF):
 	$(LN_S) -f $(TOPDIR)/vendor/github.com/iovisor/bcc/libbpf-tools/$@ $@
+
+$(APPS_BPF_2):
+	$(LN_S) -f $(TOPDIR)/vendor/github.com/bytedance/netatop-bpf/$@ $@
 
 vmlinux.h: $(PMDABPF_VMLINUXH)
 	$(LN_S) -f $< $@
 
-%.bpf.o: %.bpf.c vmlinux.h $(APPS_H) $(APPS_BPF)
+%.bpf.o: %.bpf.c vmlinux.h $(APPS_H) $(APPS_H_2) $(APPS_BPF) $(APPS_BPF_2)
 	$(CLANG) -Wall -g -O2 -target bpf -D__TARGET_ARCH_$(PMDABPF_ARCH) \
 		-I. -c $< -o $@
 	$(LLVM_STRIP) -g $@

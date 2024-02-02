@@ -1,0 +1,6 @@
+/build
+build
+.xmake
+netatop
+debian/
+.output

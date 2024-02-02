@@ -54,15 +54,15 @@ netproc_update_task(struct tstat *task, int pid, pmResult *rp, pmDesc *dp, int o
 static void
 netbpfproc_update_task(struct tstat *task, int pid, pmResult *rp, pmDesc *dp, int offset)
 {
-       task->net.tcpsnd = extract_count_t_inst(rp, dp, TASK_NETBPF_TCPSND, pid, offset);
-       task->net.tcprcv = extract_count_t_inst(rp, dp, TASK_NETBPF_TCPRCV, pid, offset);
-       task->net.tcpssz = extract_count_t_inst(rp, dp, TASK_NETBPF_TCPSSZ, pid, offset);
-       task->net.tcprsz = extract_count_t_inst(rp, dp, TASK_NETBPF_TCPRSZ, pid, offset);
+	task->net.tcpsnd = extract_count_t_inst(rp, dp, TASK_NETBPF_TCPSND, pid, offset);
+	task->net.tcprcv = extract_count_t_inst(rp, dp, TASK_NETBPF_TCPRCV, pid, offset);
+	task->net.tcpssz = extract_count_t_inst(rp, dp, TASK_NETBPF_TCPSSZ, pid, offset);
+	task->net.tcprsz = extract_count_t_inst(rp, dp, TASK_NETBPF_TCPRSZ, pid, offset);
 
-       task->net.udpsnd = extract_count_t_inst(rp, dp, TASK_NETBPF_UDPSND, pid, offset);
-       task->net.udprcv = extract_count_t_inst(rp, dp, TASK_NETBPF_UDPRCV, pid, offset);
-       task->net.udpssz = extract_count_t_inst(rp, dp, TASK_NETBPF_UDPSSZ, pid, offset);
-       task->net.udprsz = extract_count_t_inst(rp, dp, TASK_NETBPF_UDPRSZ, pid, offset);
+	task->net.udpsnd = extract_count_t_inst(rp, dp, TASK_NETBPF_UDPSND, pid, offset);
+	task->net.udprcv = extract_count_t_inst(rp, dp, TASK_NETBPF_UDPRCV, pid, offset);
+	task->net.udpssz = extract_count_t_inst(rp, dp, TASK_NETBPF_UDPSSZ, pid, offset);
+	task->net.udprsz = extract_count_t_inst(rp, dp, TASK_NETBPF_UDPRSZ, pid, offset);
 }
 
 static __pmHashWalkState

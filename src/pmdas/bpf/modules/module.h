@@ -114,6 +114,7 @@ char *all_modules[] = {
     "exitsnoop"
     "fsslower",
     "mountsnoop",
+    "netatop",
     "oomkill",
     "opensnoop",
     "runqlat",

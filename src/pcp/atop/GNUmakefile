@@ -19,6 +19,7 @@ CMDTARGET = pcp-atop
 DISTARGET = $(PCP_BINADM_DIR)/$(CMDTARGET)
 DISTLINKS = pcp-atopsar
 LLDFLAGS = -L$(TOPDIR)/src/libpcp_gui/src
+CFLAGS_OPT = -O0 -g
 LLDLIBS = $(PCP_GUILIB) $(LIB_FOR_NCURSESW) $(LIB_FOR_MATH)
 GENMAPS = $(shell echo *.map | sed -e 's/\.map/\.h/g')
 LDIRT = pmgenmap.sh $(DISTLINKS) $(GENMAPS)

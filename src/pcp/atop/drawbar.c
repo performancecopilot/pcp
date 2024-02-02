@@ -2467,7 +2467,7 @@ showhelp(void)
         	mvwprintw(helpwin, line++, 2,
         	" '%c'  - text mode: disk details",             MPROCDSK);
 
-	if (supportflags & NETATOP)
+	if (supportflags & NETATOP || supportflags & NETATOPBPF)
         	mvwprintw(helpwin, line++, 2,
         	" '%c'  - text mode: network details",          MPROCNET);
 
