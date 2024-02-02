@@ -237,7 +237,15 @@ EOF
 
 # Test out -v and -s
 _test_file_size 2000BYTE "4000bytes" 2 4000
-_test_file_size 1024b "4K" 4 4096
+# The limits below are a little fragile ... if the total file size is
+# 4K (as it was), then the first 3 volumes on bozo are 1484+1296+1296 =
+# 4076 bytes, so a 4th volume is needed, but in CI the long hostnames
+# in the label, prolog and epilogue records push the size of the first 3
+# volumes to 1532+1300+1532 = 4364 bytes so the 4th volume is NOT needed.
+# In ci this has been seem on some platforms and not others.
+# Hopefully 5K will work everywhere.
+#
+_test_file_size 1024b "5K" 4 5120
 _test_file_size 10Mbyte "4kilobytes" 1 4096
 _test_file_size 10Mebibytes "4kibibytes" 1 4096
 _test_file_size 3K 4194B 2 4194
