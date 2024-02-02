@@ -14,6 +14,7 @@ echo "QA output created by $seq"
 . ./common.check
 
 zimbra_home=/opt/zimbra
+shutdown=false
 
 [ -d $zimbra_home ] || _notrun "Zimbra not installed"
 
@@ -25,6 +26,12 @@ _cleanup()
 	( cd $PCP_PMDAS_DIR/zimbra; $sudo ./Install </dev/null >/dev/null 2>&1 )
     else
 	( cd $PCP_PMDAS_DIR/zimbra; $sudo ./Remove </dev/null >/dev/null 2>&1 )
+    fi
+
+    if $shutdown
+    then
+	echo "Stopping Zimbra: `date`" >>$here/$seq.full
+	$sudo systemctl stop zimbra.service
     fi
 
     $sudo rm -rf $tmp $tmp.*
@@ -110,6 +117,25 @@ pminfo zimbra >/dev/null 2>&1 && install_on_cleanup=true
 
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
+# Zimbra is such a CPU-hog, that we really would prefer to NOT have
+# it running for a PCP build and QA run ... so start it her if needs
+# be, but remember state so we can put it back
+#
+if which systemctl >/dev/null 2>&1
+then
+    eval `systemctl show --property=ActiveState zimbra.service 2>/dev/null`
+    echo "Initial ActiveState=$ActiveState" >>$here/$seq.full
+    if [ "$ActiveState" = active ]
+    then
+	shutdown=false
+    else
+	shutdown=true
+	echo "Starting Zimbra: `date`" >>$here/$seq.full
+	$sudo systemctl start zimbra.service
+	sleep 30
+    fi 
+fi
+
 # real QA test starts here
 home=$PCP_PMDAS_DIR
 iam=zimbra
@@ -140,7 +166,31 @@ _filter_pmda_install <$tmp.out \
 # apps on vm29 use >80% of the CPU when zimbra is idle (!), so 30 seconds
 # ain't long enough
 #
-sleep 60
+max_wait=100
+wait=0
+while [ $wait -le $max_wait ]
+do
+    ok=true
+    for metric in zimbra.fd_count zimbra.mailboxd_fd_count \
+		zimbra.mailboxd.lmtp.rcvd_msgs zimbra.mailboxd.heap.free
+    do
+	nval=`pmprobe $metric | $PCP_AWK_PROG '{print $2}'`
+	echo "wait=$wait metric=$metric nval=$nval" >>$here/$seq.full
+	if [ -z "$nval" ]
+	then
+	    ok=false
+	    break
+	fi
+	if [ $nval -eq 0 ]
+	then
+	    ok=false
+	    break
+	fi
+    done
+    [ $ok = true ] && break
+    sleep 10
+    wait=`expr $wait + 10`
+done
 
 echo
 echo "=== validate values ==="
