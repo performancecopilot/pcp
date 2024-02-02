@@ -18,6 +18,9 @@ echo "QA output created by $seq"
 _cleanup()
 {
     cd $here
+    $sudo rm -rf $PCP_SYSCONF_DIR/labels/*
+    _restore_config $PCP_SYSCONF_DIR/labels
+    _sighup_pmcd
     $sudo cp $tmp.install $PCP_PMDAS_DIR/denki/Install
     _cleanup_pmda denki
     $sudo rm -rf $tmp $tmp.*
@@ -60,6 +63,10 @@ _filter()
 }
 
 # real QA test starts here
+_save_config $PCP_SYSCONF_DIR/labels
+$sudo rm -rf $PCP_SYSCONF_DIR/labels/*
+$sudo mkdir $PCP_SYSCONF_DIR/labels/optional
+
 cd $here/denki
 datasets=`LC_COLLATE=POSIX ls -1 -r *.tgz | sed -e 's/\.tgz$//g'`
 
