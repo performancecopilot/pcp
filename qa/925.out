@@ -10,16 +10,16 @@ Error: no pmlogger instance running for host "local:"
 pmlogger_daily: [TMP.control:5]
 Warning: skipping log rotation because we don't know which pmlogger to signal
 Warning: no archives found to merge
-mode=drwxr-xr-x user=pcp group=pcp name=myhost
+mode=drwxrwxr-x user=pcp group=pcp name=myhost
 
 pmlogger/myhost:
-mode=drwxr-xr-x user=pcp group=pcp name=YYYY
+mode=drwxrwxr-x user=pcp group=pcp name=YYYY
 
 pmlogger/myhost/YYYY:
-mode=drwxr-xr-x user=pcp group=pcp name=NN
+mode=drwxrwxr-x user=pcp group=pcp name=NN
 
 pmlogger/myhost/YYYY/MM:
-mode=drwxr-xr-x user=pcp group=pcp name=NN
+mode=drwxrwxr-x user=pcp group=pcp name=NN
 
 pmlogger/myhost/YYYY/MM/DD:
 
