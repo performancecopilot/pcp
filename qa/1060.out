@@ -1,11 +1,11 @@
 QA output created by 1060
-mode=drwxr-xr-x user=pcp group=pcp name=myhost
+mode=drwxrwxr-x user=pcp group=pcp name=myhost
 
 pmie/myhost:
-mode=drwxr-xr-x user=pcp group=pcp name=YYYY
+mode=drwxrwxr-x user=pcp group=pcp name=YYYY
 
 pmie/myhost/YYYY:
-mode=drwxr-xr-x user=pcp group=pcp name=NN
+mode=drwxrwxr-x user=pcp group=pcp name=NN
 
 pmie/myhost/YYYY/MM:
 mode=-rw-r--r-- user=pcp group=pcp name=NN
