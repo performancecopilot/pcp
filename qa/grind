@@ -43,19 +43,22 @@ do
     if [ -f ./grind.stop ]
     then
 	echo "Stopped via ./grind.stop"
+	# rm ./grind.stop so it is a one-trip signal
+	#
+	rm -f ./grind.stop
 	break
     fi
-    touch grind.on
+    touch $tmp.grind.on
     for seq in $seqlist
     do
 	check -l $seq | grep -v '^PMDA probe: ' | grep -v '^Passed 1 test'
 	if [ -f $seq.out.bad ]
 	then
-	    rm -f grind.on
+	    rm -f $tmp.grind.on
 	    break
 	fi
     done
-    [ ! -f grind.on ] && break
+    [ ! -f $tmp.grind.on ] && break
     now=`date +%s`
     runtime=`expr $now - $start`
     if [ "$date_style" = linux ]
