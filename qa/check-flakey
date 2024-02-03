@@ -16,10 +16,11 @@ trap "[ -f $tmp.kenj ] && ( echo "" ; cat $tmp.kenj ); rm -f $tmp.*; exit 0" 0 1
 # flakey test failures:
 # <seq> <state> <failing QA hostname> <today's date>
 # where the <state> is a 2 character code constructed as follows:
-# - 1st char for 1st run: X (test failed) or C (callback failed)
+# - 1st char for 1st run: X (test failed) or C (callback failed) or
+#   T (triaged)
 # - 2nd char for 2nd run: X (test failed the same way as 1st run),
 #   C (callback failed), Y (test failed differently and not C) or
-#   P (passed)
+#   or T (triaged) P (passed)
 #
 rm -f $tmp.kenj
 _output_for_kenj()
@@ -44,10 +45,18 @@ xp=""
 xx=""
 xc=""
 xy=""
+xt=""
 cp=""
 cx=""
 cc=""
 cy=""
+ct=""
+tp=""
+tx=""	# not really possible 
+ty=""
+tc=""
+tp=""
+tt=""
 
 if [ $# -eq 0 ]
 then
@@ -72,7 +81,10 @@ do
 	echo "$seq: no .out.bad file, so nothing to compare!"
 	continue
     fi
-    if grep '^+++ check.callback output +++' $seq.out.bad >/dev/null
+    if grep '^\[triaged]$' $seq.out.bad >/dev/null
+    then
+	s1='T'
+    elif grep '^+++ check.callback output +++' $seq.out.bad >/dev/null
     then
 	s1='C'
     else
@@ -95,19 +107,26 @@ do
     then
 	# failed again
 	#
-	if cmp $seq.out.bad $tmp.ref >/dev/null
+	if grep '^\[triaged]$' $seq.out.bad >/dev/null
 	then
-	    s2='X'
-	    echo "$seq: same failure, really bad not flakey"
+	    s2='T'
+	    echo "$seq: triaged"
+	    [ "$s1" != 'T' ] && _output_for_kenj
 	else
-	    if grep '^+++ check.callback output +++' $seq.out.bad >/dev/null
+	    if cmp $seq.out.bad $tmp.ref >/dev/null
 	    then
-		s2='C'
+		s2='X'
+		echo "$seq: same failure, really bad not flakey"
 	    else
-		s2='Y'
+		if grep '^+++ check.callback output +++' $seq.out.bad >/dev/null
+		then
+		    s2='C'
+		else
+		    s2='Y'
+		fi
+		echo "$seq: different failure"
+		_output_for_kenj
 	    fi
-	    echo "$seq: different failure"
-	    _output_for_kenj
 	fi
     else
 	# passed, so flakey ...
@@ -151,6 +170,14 @@ do
 		xy="$xy $seq"
 	    fi
 	    ;;
+	XT)
+	    if [ -z "$xt" ]
+	    then
+		xt="$seq"
+	    else
+		xt="$xt $seq"
+	    fi
+	    ;;
 	CP)
 	    if [ -z "$cp" ]
 	    then
@@ -183,19 +210,72 @@ do
 		cy="$cy $seq"
 	    fi
 	    ;;
+	CT)
+	    if [ -z "$ct" ]
+	    then
+		ct="$seq"
+	    else
+		ct="$ct $seq"
+	    fi
+	    ;;
+	TP)
+	    if [ -z "$tp" ]
+	    then
+		tp="$seq"
+	    else
+		tp="$tp $seq"
+	    fi
+	    ;;
+	TX)		# not really possible
+	    if [ -z "$tx" ]
+	    then
+		tx="$seq"
+	    else
+		tx="$tx $seq"
+	    fi
+	    ;;
+	TC)
+	    if [ -z "$tc" ]
+	    then
+		tc="$seq"
+	    else
+		tc="$tc $seq"
+	    fi
+	    ;;
+	TY)
+	    if [ -z "$ty" ]
+	    then
+		ty="$seq"
+	    else
+		ty="$ty $seq"
+	    fi
+	    ;;
+	TT)
+	    if [ -z "$tt" ]
+	    then
+		tt="$seq"
+	    else
+		tt="$tt $seq"
+	    fi
+	    ;;
     esac
 
 done
 
 echo
 echo "Summary:"
-[ -n "$xp" ] && echo "Flakey (failed then passed): $xp"
+[ -n "$tt" ] && echo "Solid Triaged: $tt"
 [ -n "$xx" ] && echo "Solid Failures: $xx"
+[ -n "$cx" ] && echo "Solid Callback Failures: $cx"
+[ -n "$xp" ] && echo "Flakey (failed then passed): $xp"
 [ -n "$xc" ] && echo "Flakey (failed then callback check): $xc"
 [ -n "$xy" ] && echo "Flakey (different failures): $xy"
+[ -n "$xt" ] && echo "Flakey (failed then triaged): $xt"
 [ -n "$cp" ] && echo "Flakey (callback check then passed): $cp"
-[ -n "$cx" ] && echo "Solid Callback Failures: $cx"
 [ -n "$cc" ] && echo "Flakey (callback check then different callback check): $cc"
-[ -n "$cy" ] && echo "Flakey (callback check then failed): $cy"
+[ -n "$ct" ] && echo "Flakey (callback check then triaged): $ct"
+[ -n "$tp" ] && echo "Flakey (triaged then passed): $tp"
+[ -n "$ty" ] && echo "Flakey (triaged then failed): $ty"
+[ -n "$tc" ] && echo "Flakey (triaged then callback check): $tc"
 
 exit
