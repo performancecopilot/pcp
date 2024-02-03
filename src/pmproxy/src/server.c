@@ -569,8 +569,8 @@ open_request_port(struct proxy *proxy, struct server *server,
 
     sts = uv_listen((uv_stream_t *)&stream->u.tcp, maxpending, on_client_connection);
     if (sts != 0) {
-	pmNotifyErr(LOG_ERR, "%s: %s - uv_listen failed [%s]: %s\n",
-			pmGetProgname(), "open_request_port",
+	pmNotifyErr(LOG_ERR, "%s: %s - uv_listen failed port=%d [%s]: %s\n",
+			pmGetProgname(), "open_request_port", port,
 			uv_err_name(sts), uv_strerror(sts));
 	uv_close(handle, NULL);
 	return -ENOTCONN;
