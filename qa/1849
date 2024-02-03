@@ -87,23 +87,23 @@ echo "DEAD2=$DEAD2" >>$here/$seq.full
 # real QA test starts here
 
 echo
-echo "+++ dirname does not exist ..."
+echo "+++ dirname does not exist ..." | tee -a $here/$seq.full
 _doit $tmp
 
 echo
-echo "+++ dirname is a symlink not a dir ..."
+echo "+++ dirname is a symlink not a dir ..." | tee -a $here/$seq.full
 ln -s /tmp $tmp
 _doit $tmp
 rm -f $tmp
 
 echo
-echo "+++ dirname is a regular file not a dir ..."
+echo "+++ dirname is a regular file not a dir ..." | tee -a $here/$seq.full
 touch $tmp
 _doit $tmp
 rm -rf $tmp
 
 echo
-echo "+++ no permission to read dirname ..."
+echo "+++ no permission to read dirname ..." | tee -a $here/$seq.full
 mkdir $tmp
 $sudo chgrp `id -gn` $tmp
 chmod 333 $tmp
@@ -111,21 +111,21 @@ _doit $tmp
 chmod 755 $tmp
 
 echo
-echo "+++ wrong user for dirname ..."
+echo "+++ wrong user for dirname ..." | tee -a $here/$seq.full
 $sudo chown pcp $tmp
 ls -ld $tmp >>$seq.full
 _doit $tmp
 $sudo chown `id -un` $tmp
 
 echo
-echo "+++ wrong group for dirname ..."
+echo "+++ wrong group for dirname ..." | tee -a $here/$seq.full
 $sudo chgrp pcp $tmp
 ls -ld $tmp >>$seq.full
 _doit $tmp
 $sudo chgrp `id -gn` $tmp
 
 echo
-echo "+++ bad 'PID' file names and CANNOT unlink ..."
+echo "+++ bad 'PID' file names and CANNOT unlink ..." | tee -a $here/$seq.full
 touch $tmp/-1
 touch $tmp/0
 touch $tmp/foo-bar
@@ -135,34 +135,34 @@ touch $tmp/$$
 (cd $tmp; rm -f primary; ln -s $$ primary)
 chmod 555 $tmp
 _doit $tmp -C primary
-ls $tmp | _filter
+ls $tmp | _filter | LC_COLLATE=POSIX sort
 chmod 755 $tmp
 
 echo
-echo "+++ bad 'PID' file names and CAN unlink ..."
+echo "+++ bad 'PID' file names and CAN unlink ..." | tee -a $here/$seq.full
 _doit $tmp -C primary
-ls $tmp | _filter
+ls $tmp | _filter | LC_COLLATE=POSIX sort
 rm -f $tmp/*
 
 echo
-echo "+++ PIDs -> no process ..."
+echo "+++ PIDs -> no process ..." | tee -a $here/$seq.full
 touch $tmp/$DEAD1
 touch $tmp/$DEAD2
 touch $tmp/$$
 (cd $tmp; rm -f primary; ln -s $$ primary)
 _doit $tmp -C primary
-ls $tmp | _filter
+ls $tmp | _filter | LC_COLLATE=POSIX sort
 
 echo
-echo "+++ special not a symlink ..."
+echo "+++ special not a symlink ..." | tee -a $here/$seq.full
 rm -f $tmp/primary
 touch $tmp/primary
 _doit $tmp -C primary
-ls $tmp | _filter
+ls $tmp | _filter | LC_COLLATE=POSIX sort
 (cd $tmp; rm -f primary; ln -s $$ primary)
 
 echo
-echo "+++ special points to a bad 'PID' ..."
+echo "+++ special points to a bad 'PID' ..." | tee -a $here/$seq.full
 rm -f $tmp/primary $tmp/$$
 (cd $tmp; rm -f bad; ln -s -- -1 bad)
 _doit $tmp -C bad
@@ -176,14 +176,14 @@ _doit $tmp -C bad
 _doit $tmp -C bad
 (cd $tmp; rm -f bad; ln -s $DEAD1 bad)
 _doit $tmp -C bad
-ls $tmp | _filter
+ls $tmp | _filter | LC_COLLATE=POSIX sort
 (cd $tmp; rm -f $$; touch $$)
 (cd $tmp; rm -f primary; ln -s $$ primary)
 touch $tmp/$$
 (cd $tmp; rm -f bad)
 
 echo
-echo "+++ special points somewhere else ..."
+echo "+++ special points somewhere else ..." | tee -a $here/$seq.full
 rm -f $tmp/primary
 echo "--- primary -> /etc/passwd"
 (cd $tmp; rm -f primary; ln -s /etc/passwd primary)
@@ -200,15 +200,15 @@ _doit $tmp -C bar
 echo "--- bar -> TMP/QA-TEST-PID"
 (cd $tmp; rm -f bar; ln -s $tmp/$$ bar)
 _doit $tmp -C bar
-ls $tmp | _filter
+ls $tmp | _filter | LC_COLLATE=POSIX sort
 (cd $tmp; rm -f primary; ln -s $$ primary)
 (cd $tmp; rm -f foo bar)
 
 echo
-echo "+++ special -> no process ..."
+echo "+++ special -> no process ..." | tee -a $here/$seq.full
 (cd $tmp; rm -f primary; ln -s $DEAD1 primary)
 _doit $tmp -C primary
-ls $tmp | _filter
+ls $tmp | _filter | LC_COLLATE=POSIX sort
 (cd $tmp; rm -f primary; ln -s $$ primary)
 
 # success, all done
