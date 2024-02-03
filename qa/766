@@ -67,13 +67,24 @@ _error_tolerance_filter()
 # real QA test starts here
 _control_service_discovery
 
-# Obtain the inet address of the primary network interface
-addr=`host $(hostname) | sed -n -e '/has address/s/.* address //p'`
+# Obtain the inet address of the primary network interface ...
+# cull any loopback aliases
+addr=`host $(hostname) \
+      | sed -n \
+	  -e '/^127\.0\.1/d' \
+	  -e '/has address/s/.* address //p'`
 if [ -z "$addr" ]
 then
     host $(hostname) >>$seq.full 2>&1
     _notrun "no primary network interface?"
     #NOTREACHED
+fi
+numaddr=`echo "$addr" | wc -w | sed -e 's/  *//g'`
+if [ $numaddr -gt 1 ]
+then
+    echo "Warning: $(hostname) has multiple network interfaces!" >>$seq.full
+    echo "Culling: extras from addr=$addr" >>$seq.full
+    addr=`echo "$addr" | sed -e 's/ .*//' -e 1q`
 fi
 echo "addr=$addr" >>$seq.full
 
