@@ -172,20 +172,32 @@ do
     else
 	$PCP_ECHO_PROG $PCP_ECHO_N "$id: ""$PCP_ECHO_C"
     fi
+    ref=''
     if [ ! -f $id.out ]
     then
-	echo "pwd=`pwd`"
-	echo "Could not find $id.out in `pwd`"
-    elif [ ! -f $id.out.bad ]
+	# if not here, may be CI results, not QA Farm results,
+	# so try for reference version in well-known place
+	#
+	if [ -f $HOME/src/pcp/qa/$id.out ]
+	then
+	    ref=$HOME/src/pcp/qa/
+	    $PCP_ECHO_PROG $PCP_ECHO_N  "Warning: using $id.out from $ref ""$PCP_ECHO_C"
+	else
+	    echo  "Could not find $id.out in `pwd`"
+	    cd $here
+	    continue
+	fi
+    fi
+    if [ ! -f $id.out.bad ]
     then
-	echo "Could not find $id.out.bad in `pwd`"
+	echo  "Could not find $id.out.bad in `pwd`"
     else
 	echo
 	if [ "$DIFF" = xxdiff ]
 	then
-	    $DIFF $id.out $id.out.bad >/dev/null 2>&1
+	    $DIFF $ref$id.out $id.out.bad >/dev/null 2>&1
 	else
-	    $DIFF $id.out $id.out.bad
+	    $DIFF $ref$id.out $id.out.bad
 	fi
     fi
     if $keep
