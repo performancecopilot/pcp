@@ -23,6 +23,27 @@ _script_id_filter()
     sed -E -e 's/bpftrace.scripts.([a-z0-9]+).([a-z]+)/bpftrace.scripts.UUID.\2/g'
 }
 
+# probe to see if bpftrace works at all
+#
+if which bpftrace >/dev/null
+then
+    if $sudo bpftrace -e 'BEGIN { printf("foo\n"); exit() }' >$tmp.tmp
+    then
+	if grep '^foo$' $tmp.tmp >/dev/null
+	then
+	    echo "bpftrace: OK" >>$seq.full
+	else
+	    cat $tmp.tmp >>$seq.full
+	    echo "bpftrace: ran OK but no the expected output" >>$seq.full
+	fi
+    else
+	cat $tmp.tmp >>$seq.full
+	echo "bpftrace: failed" >>$seq.full
+    fi
+else
+    echo "bpftrace: not installed" >>$seq.full
+fi
+
 # real QA test starts here
 cat <<EOF | _pmdabpftrace_install
 # Installed by PCP QA test $seq on `date`
