@@ -85,6 +85,7 @@ names=`pminfo openmetrics | grep -F -v openmetrics.control | LC_COLLATE=POSIX so
 if [ -z "$names" ]; then
     echo "FAILED - no openmetrics metrics to show"
 else
+    pminfo -mdf openmetrics >>$here/$seq.full 2>&1
     if pminfo -mdtTf `pminfo openmetrics | grep -F -v openmetrics.control | LC_COLLATE=POSIX sort` > $tmp.info 2>$tmp.err
     then
 	:
