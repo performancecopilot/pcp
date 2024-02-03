@@ -3337,7 +3337,12 @@ __pmCleanMapDir(const char *dirname, const char * special)
 			path, inodetype(sbuf.st_mode));
 		goto unlink;
 	    }
-	    if ((llen = readlink(path, link, sizeof(link))) < 0) {
+	    /*
+	     * ignore the (silent) possible truncation by readlink(2) ...
+	     * if this happens the link is a priori bogus and the checks
+	     * below will remove it
+	     */
+	    if ((llen = readlink(path, link, sizeof(link)-1)) < 0) {
 		sts = -oserror();
 		if (pmDebugOptions.appl9)
 		    fprintf(stderr, "__pmCleanMapDir: readlink(%s) failed: %s\n",
