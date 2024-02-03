@@ -33,7 +33,7 @@ SOMECRAP: unrecognised
 
 === pminfo listing. Note openmetrics.simple_metric.metric2 should be filtered out
 
-openmetrics.simple_metric.metric1 [Simple gauge metric with three instances]
+openmetrics.simple_metric.metric1 PMID: 144.1.0 [Simple gauge metric with three instances]
     Data Type: double  InDom: 144.5120 0x24001400
     Semantics: instant  Units: none
 Help:
