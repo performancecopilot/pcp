@@ -45,6 +45,7 @@ unset PCPQA_SYSTEMD
 # get to a known starting point as far as systemd is concerned
 #
 _service pmcd restart >>$here/$seq.full 2>&1
+_wait_for_pmcd
 
 # real QA test starts here
 old_pid=`_get_pids_by_name pmcd`
