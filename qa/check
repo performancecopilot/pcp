@@ -533,6 +533,7 @@ do
 		    then
 			[ $__color = true ] && tput bold && tput setaf 2 # green
 			echo " - triaged"
+			echo "[triaged]" >>$tmp.out
 			state="Triaged"
 			[ $__color = true ] && tput sgr0 # reset
 		    else
