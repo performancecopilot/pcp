@@ -5,6 +5,7 @@
 *.swp
 *.swo
 *.log
+*.log.prev
 *.dSYM
 Logs
 .census
