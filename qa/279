@@ -64,6 +64,7 @@ skip == 0	{ print }
 	-e '/^See "systemctl  *status pmcd.service"/d' \
 	-e '/^pmcd.service: /d' \
 	-e '/^Job failed. See system journal/d' \
+	-e '/^Terminated$/d' \
     # end
 }
 
