@@ -118,7 +118,6 @@ static unsigned int netatop_indom_count(void)
 
 static void netatop_set_indom_serial(unsigned int local_indom_id, unsigned int global_id)
 {
-    pmNotifyErr(LOG_INFO, "%s", __FUNCTION__);
     indom_id_mapping[local_indom_id] = global_id;
 }
 
@@ -136,7 +135,6 @@ static int netatop_metric_text(int item, int type, char **buffer)
 
 static void netatop_register(unsigned int cluster_id, pmdaMetric *metrics, pmdaIndom *indoms)
 {
-    pmNotifyErr(LOG_INFO, "%s Adding netatop metrics", __FUNCTION__);
     /* bpf.netatop.tcpsndpacks */
     metrics[TCPSNDPACKS] = (struct pmdaMetric)
     {
@@ -241,7 +239,6 @@ static void netatop_register(unsigned int cluster_id, pmdaMetric *metrics, pmdaI
 /* Allocate instance id slots and give them an initial value */
 
 static void netatop_fill_instids(unsigned int slot_count, pmdaInstid **slots) {
-     pmNotifyErr(LOG_INFO, "%s Entering fill_instids %d", __FUNCTION__, slot_count);
      if (*slots == NULL 
 	   && ((*slots = malloc((slot_count + 1) * sizeof(pmdaInstid))) == NULL
 	     || (instid_strings = malloc((env.process_count + 1) * sizeof(void*))) == NULL)) {
@@ -264,7 +261,6 @@ static
 bool 
 netatop_add_instids(unsigned int slot_count, pid_t tid, pmdaInstid **slots)
 {
-    pmNotifyErr(LOG_INFO, "%s adding pid %d", __FUNCTION__,tid);
     for (int i = 0; i <= slot_count; i++) {
 	 char *string;
 
@@ -286,7 +282,6 @@ netatop_add_instids(unsigned int slot_count, pid_t tid, pmdaInstid **slots)
 
 int netatop_init(dict *cfg, char *module_name)
 {
-    pmNotifyErr(LOG_INFO, "%s", __FUNCTION__);
     LIBBPF_OPTS(bpf_object_open_opts, open_opts);
     int err = 0;
     char *val;
@@ -311,14 +306,12 @@ int netatop_init(dict *cfg, char *module_name)
 	pmNotifyErr(LOG_ERR, "Failed to open BPF object\n");
 	return 1;
     }
-    else pmNotifyErr(LOG_INFO, "Succeeded to open BPF object\n");
 
     err = netatop_bpf__attach(obj);
     if (err) {
         pmNotifyErr(LOG_ERR, "failed to attach BPF programs: %s", strerror(-err));
         return true;
     }
-    else pmNotifyErr(LOG_INFO, "Succeeded to attach BPF object\n");
     
     /* internal/external instance ids */
     netatop_fill_instids(env.process_count, &netatop_instances);
@@ -328,15 +321,12 @@ int netatop_init(dict *cfg, char *module_name)
         pmNotifyErr(LOG_ERR, "failed to get map fd: %s", strerror(errno));
         return true;
     }
-    pmNotifyErr(LOG_INFO, "%s Succeeded tgid_map_fd", __FUNCTION__);
     return err;
 }
 
 
 static void netatop_shutdown()
 {
-    pmNotifyErr(LOG_INFO, "%s", __FUNCTION__);
-
     free(netatop_instances);
 
     netatop_bpf__destroy(obj);
@@ -346,7 +336,6 @@ static void netatop_shutdown()
 
 static void netatop_refresh(unsigned int item)
 {
-     pmNotifyErr(LOG_INFO, "%s %d", __FUNCTION__, item);
      unsigned long cur_key = 1;
 
     if (item == 0) {
@@ -368,7 +357,6 @@ static void netatop_refresh(unsigned int item)
 
 static int netatop_fetch_to_atom(unsigned int item, unsigned int inst, pmAtomValue *atom)
 {
-    pmNotifyErr(LOG_INFO, "%s %d %d", __FUNCTION__, item, inst);
     nr_cpus = libbpf_num_possible_cpus();
     struct taskcount *value = (struct taskcount*)calloc(nr_cpus, sizeof(struct taskcount));
     unsigned long next_key = inst;
@@ -395,8 +383,6 @@ static int netatop_fetch_to_atom(unsigned int item, unsigned int inst, pmAtomVal
             data.udprcvpacks += value[i].udprcvpacks;
             data.udprcvbytes += value[i].udprcvbytes;
         } 
-	pmNotifyErr(LOG_INFO, "UDP %lld %lld %lld %lld", data.udpsndpacks, data.udpsndbytes, data.udprcvpacks, data.udprcvbytes);
-	pmNotifyErr(LOG_INFO, "TCP %lld %lld %lld %lld", data.tcpsndpacks, data.tcpsndbytes, data.tcprcvpacks, data.tcprcvbytes);
 	netatop_add_instids(env.process_count, next_key, &netatop_instances);
     }
 
@@ -407,28 +393,24 @@ static int netatop_fetch_to_atom(unsigned int item, unsigned int inst, pmAtomVal
             netvalue += value[i].tcpsndpacks;
         } 
         atom->ull = netvalue;
-	pmNotifyErr(LOG_INFO, "switch 0 %ld %ld", atom->ull, netvalue);
 	break;
     case TCPSNDBYTES:
 	for (int i = 0; i < nr_cpus; i++) {
 	    netvalue += value[i].tcpsndbytes;
 	}
 	atom->ull = netvalue;
-	pmNotifyErr(LOG_INFO, "switch 1 %ld %ld", atom->ull, netvalue);
 	break;
     case TCPRCVPACKS:
 	for (int i = 0; i < nr_cpus; i++) {
 	    netvalue += value[i].tcprcvpacks;
 	}
 	atom->ull = netvalue;
-	pmNotifyErr(LOG_INFO, "switch 2 %ld %ld", atom->ull, netvalue);
 	break;
     case TCPRCVBYTES:
 	for (int i = 0; i < nr_cpus; i++) {
 	    netvalue += value[i].tcprcvbytes;
 	}
 	atom->ull = netvalue;
-	pmNotifyErr(LOG_INFO, "switch 3 %ld %ld", atom->ull, netvalue);
 	break;
     case UDPSNDPACKS:
 	for (int i = 0; i < nr_cpus; i++) {

@@ -11,7 +11,7 @@
 #define TASK_MAX_ENTRIES 40960
 
 struct {
-    __uint(type, BPF_MAP_TYPE_PERCPU_HASH/*BPF_MAP_TYPE_PERF_EVENT_ARRAY*/); 
+    __uint(type, BPF_MAP_TYPE_PERCPU_HASH); 
        __uint(max_entries, TASK_MAX_ENTRIES);
        __type(key, u64);
        __type(value, struct taskcount);
@@ -117,7 +117,6 @@ int handle_tp_recv(struct sock_msg_length_args *ctx)
 				long ret = bpf_map_update_elem(&tgid_net_stat, &tgid, &data, BPF_ANY);
 
 			}
-			bpf_trace_printk(fmt_str, sizeof(fmt_str), "tcprcv", tgid, length);
 
 		} else if (protocol == IPPROTO_UDP) {
 			if (stat_tgid) {
@@ -130,7 +129,6 @@ int handle_tp_recv(struct sock_msg_length_args *ctx)
 				};
 				long ret = bpf_map_update_elem(&tgid_net_stat, &tgid, &data, BPF_ANY);
 			}
-			bpf_trace_printk(fmt_str, sizeof(fmt_str), "udprcv", tgid, length);
 		}
 	}
 	return 0;

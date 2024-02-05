@@ -83,7 +83,6 @@ for metric in bpf.proc.net.tcp.send.packs \
               bpf.proc.net.udp.recv.bytes
 do
     echo && echo && echo "=== report metric values for $metric ==="
-#    pminfo -dfmtT $metric 2>&1 | sed -e 's/[0-9]* or "[0-9]*"/PID/' -e 's/value [0-9]*/value 999/' | tee -a $seq.full \
     pminfo -dfmtT $metric 2>&1 | tee -a $seq.full \
     | _pid_filter ${server_pid} ${client_pid} \
     | sort # sort to fix the non deterministic instance order
