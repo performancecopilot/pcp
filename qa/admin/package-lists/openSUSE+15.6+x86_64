@@ -22,7 +22,6 @@ bc
 bcc-tools
 bind-utils
 bison
-bpftool
 bpftrace
 ccache
 clang

@@ -1547,7 +1547,7 @@ Requires: libbpf1
 %else
 Requires: libbpf
 %endif
-BuildRequires: libbpf-devel clang llvm bpftool
+BuildRequires: libbpf-devel clang llvm
 %description pmda-bpf
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 extracting performance metrics from eBPF ELF modules.

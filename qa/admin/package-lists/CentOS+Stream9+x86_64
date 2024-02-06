@@ -14,7 +14,6 @@ bc
 bcc-tools
 bind-utils
 bison
-bpftool
 bpftrace
 clang
 # in CI CentOS container already has coreutils-single installed and this
