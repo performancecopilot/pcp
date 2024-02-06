@@ -19,6 +19,7 @@
 
 import sys
 import time
+import signal
 from pcp import pmapi, pmcc
 from cpmapi import PM_CONTEXT_ARCHIVE
 
@@ -224,7 +225,8 @@ if __name__ == '__main__':
         mngr.printer = MeminfoReport(opts)
         sts = mngr.run()
         sys.exit(sts)
-
+    except IOError:
+        signal.signal(signal.SIGPIPE,signal.SIG_DFL)                    
     except pmapi.pmErr as error:
         sys.stderr.write("%s %s\n"%(error.progname(), error.message()))
     except pmapi.pmUsageErr as usage:
