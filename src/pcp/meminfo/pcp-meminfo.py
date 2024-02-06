@@ -226,7 +226,7 @@ if __name__ == '__main__':
         sts = mngr.run()
         sys.exit(sts)
     except IOError:
-        signal.signal(signal.SIGPIPE,signal.SIG_DFL)                    
+        signal.signal(signal.SIGPIPE,signal.SIG_DFL)
     except pmapi.pmErr as error:
         sys.stderr.write("%s %s\n"%(error.progname(), error.message()))
     except pmapi.pmUsageErr as usage:
