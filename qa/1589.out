@@ -2,11 +2,15 @@ QA output created by 1589
 pcp2json invocation
 pcp2json HTTP POST (sorted):
 
+
+
+
+
 		"value":NCPU
 	      "ncpu": {
 	      }
 	    "@interval": "0",
-	    "@timestamp":SECS,
+	    "@timestamp":DATE TIME
 	    "hinv": {
 	    }
 	  {
@@ -23,11 +27,16 @@ pcp2json HTTP POST (sorted):
   "@pcp": {
   }
 Accept: */*
+Body:
 Content-Length: SIZE
 Content-Type: application/json
+Headers:
 Host: localhost:PORT
-POST /receive HTTP/1.1
+INFO:root:POST request,
+INFO:root:Starting httpd...
+Path: /
 User-Agent: python-requests VERSION
+[IP ADDRESS][DATE] "POST / HTTP/1.1" 200 -
 {
 }
 
