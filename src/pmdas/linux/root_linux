@@ -636,6 +636,16 @@ mem {
     slabinfo
     zoneinfo
     ksm
+    hugepages
+}
+
+mem.hugepages {
+    pagesize		60:94:0
+    free		60:94:1
+    reserved		60:94:2
+    surplus		60:94:3
+    totalsize		60:94:4
+    overcommit		60:94:5
 }
 
 mem.ksm {
