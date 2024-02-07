@@ -42,7 +42,7 @@ CFILES		= pmda.c linux_table.c mem_bandwidth.c namespaces.c \
 		  proc_net_raw.c proc_net_udp.c proc_net_unix.c \
 		  proc_net_snmp6.c proc_buddyinfo.c proc_zoneinfo.c \
 		  proc_net_sockstat6.c proc_fs_nfsd.c proc_pressure.c \
-		  sysfs_fchost.c sysfs_tapestats.c
+		  sysfs_fchost.c sysfs_hugepages.c sysfs_tapestats.c
 
 HFILES		= linux.h linux_table.h convert.h namespaces.h \
 		  proc_stat.h proc_meminfo.h proc_loadavg.h \
@@ -57,7 +57,7 @@ HFILES		= linux.h linux_table.h convert.h namespaces.h \
 		  proc_net_raw.h proc_net_udp.h proc_net_unix.h \
 		  proc_net_snmp6.h proc_buddyinfo.h proc_zoneinfo.h \
 		  proc_net_sockstat6.h proc_fs_nfsd.h proc_pressure.h \
-		  sysfs_fchost.h sysfs_tapestats.h 
+		  sysfs_fchost.h sysfs_hugepages.c sysfs_tapestats.h 
 
 VERSION_SCRIPT	= exports
 HELPTARGETS	= help.dir help.pag

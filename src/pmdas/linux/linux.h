@@ -115,6 +115,7 @@ enum {
 	CLUSTER_FCHOST,		/* 91 /sys/class/fc_host metrics */
 	CLUSTER_WWID,		/* 92 multipath aggregated stats */
 	CLUSTER_PRESSURE_IRQ,	/* 93 /proc/pressure/irq metrics */
+	CLUSTER_HUGEPAGES,	/* 94 /sys/kernel/mm/hugepages metrics */
 
 	NUM_CLUSTERS		/* one more than highest numbered cluster */
 };
@@ -193,6 +194,7 @@ enum {
 	INTERRUPT_CPU_INDOM,	/* 40 - per-CPU interrupt lines */
 	SOFTIRQ_CPU_INDOM,	/* 41 - per-CPU soft IRQs */
 	WWID_INDOM,		/* 42 - per-WWID multipath device */
+	HUGEPAGES_INDOM,	/* 43 - hugepages (fixed sizes) */
 
 	NUM_INDOMS		/* one more than highest numbered cluster */
 };
