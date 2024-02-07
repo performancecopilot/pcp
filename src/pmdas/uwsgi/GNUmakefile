@@ -47,6 +47,7 @@ install_pcp install: default
 	$(INSTALL) -m 755 -d $(PMLOGCONFDIR)
 	$(INSTALL) -m 755 -d $(PMLOGCONFVARDIR)
 	$(INSTALL) -m 644 -t $(PMLOGCONFVARDIR)/summary pmlogconf.summary $(PMLOGCONFDIR)/summary
+	$(INSTALL) -m 644 -t $(PMDATMPDIR)/$(IAM).conf $(IAM).conf $(PMDACONFIG)/$(IAM).conf
 	@$(INSTALL_MAN)
 else
 build-me:

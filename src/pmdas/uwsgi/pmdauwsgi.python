@@ -20,6 +20,11 @@
 
 """ Performance Metrics Domain Agent exporting uwsgi metrics. """
 
+try:
+    import ConfigParser
+except ImportError:
+    import configparser as ConfigParser
+
 from cpmapi import (
     PM_TYPE_STRING,
     PM_INDOM_NULL,
@@ -31,81 +36,269 @@ from cpmapi import (
     PM_ERR_AGAIN
 )
 
-from pcp.pmapi import pmUnits, pmContext
-from pcp.pmda import PMDA, pmdaMetric
+from ctypes import c_uint, c_ulong, c_float, c_wchar_p, POINTER, cast, Structure
+import cpmapi as c_api
+from pcp.pmapi import pmUnits
+from pcp.pmapi import pmContext as PCP
+from pcp.pmda import PMDA, pmdaMetric, pmdaIndom
 
 import os
 import requests
+import sys
 
+DEFAULT_TIMEOUT = 2.5 # seconds
+DEFAULT_HOST = '127.0.0.1'
+DEFAULT_PORT = 9051
 
 def _is_pmda_setup():
     """checks if PMDA is in setup state"""
     return os.environ.get('PCP_PYTHON_DOMAIN') or os.environ.get('PCP_PYTHON_PMNS')
 
+class UWSGISUMMARY(Structure):
+    """
+    Define the structure for the attributes that make up the uwsgi workers
+    summary
+    """
+    _fields_ = [
+        ("total_workers", c_uint),
+        ("avg_response_time_msec", c_float),
+        ("total_requests_served", c_uint),
+        ("total_workers_accepting_requests", c_uint),
+        ("total_exceptions", c_uint),
+        ("total_harakiri_count", c_uint),
+        ("total_busy_worker_count", c_uint),
+        ("total_idle_worker_count", c_uint),
+        ("total_pause_worker_count", c_uint)
+    ]
+    def __init__(self, workers=0, avg_rt=0.0, req=0, acc_req=0, exception=0, harakiri=0, busy_workers=0, idle_workers=0, pause_workers=0):
+        Structure.__init__(self)
+        self.total_workers = workers
+        self.avg_response_time_msec = avg_rt
+        self.total_requests_served = req
+        self.total_workers_accepting_requests = acc_req
+        self.total_exceptions = exception
+        self.total_harakiri_count = harakiri
+        self.total_busy_worker_count = busy_workers
+        self.total_idle_worker_count = idle_workers
+        self.total_pause_worker_count = pause_workers
+
+class WORKER(Structure):
+    """
+    Define the structure for the attributes that make up a uwsgi worker object
+    """
+    _fields_ = [
+        ("avg_rt", c_float),
+        ("requests_served", c_uint),
+        ("accepting_requests", c_uint),
+        ("exceptions", c_uint),
+        ("harakiri_count", c_uint),
+        ("status", c_wchar_p)
+    ]
+
+    def __init__(self, avg_rt=0.0, requests=0, acc_req=0, exceptions=0, harakiri=0, status=''):
+        Structure.__init__(self)
+        self.avg_rt = avg_rt
+        self.requests_served = requests
+        self.accepting_requests = acc_req
+        self.exceptions = exceptions
+        self.harakiri_count = harakiri
+        self.status = status
+
 
 class UwsgiPMDA(PMDA):
+    """
+    PMDA class for uwsgi performance metrics
+    """
+
+    UWSGI_SUMMARY = 0
+    WORKER_STATS = 1
+
+    summary = {}
+    workers = {}
 
     def __init__(self, name, domain):
         ''' Initialisation - register metrics, callbacks, drop privileges '''
 
         PMDA.__init__(self, name, domain)
+        self.timeout = DEFAULT_TIMEOUT
+        self.host = DEFAULT_HOST
+        self.port = DEFAULT_PORT
+        self.read_config()
+        self.build_url()
         self.connect_pmcd()
 
-        self.add_metric(name + '.workers', pmdaMetric(PMDA.pmid(0, 0), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, pmUnits()))
-        self.add_metric(name + '.avg_response_time_msec', pmdaMetric(PMDA.pmid(0, 1), PM_TYPE_DOUBLE, PM_INDOM_NULL, PM_SEM_COUNTER, pmUnits()))
-        self.add_metric(name + '.total_requests_served', pmdaMetric(PMDA.pmid(0, 2), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, pmUnits()))
-        self.add_metric(name + '.workers_accepting_requests', pmdaMetric(PMDA.pmid(0, 3), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, pmUnits()))
-        self.add_metric(name + '.total_exceptions', pmdaMetric(PMDA.pmid(0, 4), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, pmUnits()))
-        self.add_metric(name + '.total_harakiri_count', pmdaMetric(PMDA.pmid(0, 5), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, pmUnits()))
-        self.add_metric(name + '.busy_worker_count', pmdaMetric(PMDA.pmid(0, 6), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, pmUnits()))
-        self.add_metric(name + '.idle_worker_count', pmdaMetric(PMDA.pmid(0, 7), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, pmUnits()))
-        self.add_metric(name + '.pause_worker_count', pmdaMetric(PMDA.pmid(0, 8), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, pmUnits()))
+        # Define the instance domains pointing to the dicts
+        #self.summary_indom = self.indom(0)
+        self.workers_indom = self.indom(0)
+        #self.add_indom(pmdaIndom(self.summary_indom, self.summary))
+        self.add_indom(pmdaIndom(self.workers_indom, self.workers))
 
+        # define the Summary (roll up, at-a-glance numbers)
+        # uwsgi.summary.
+        #           .total_workers
+        #           .avg_response_time_msec
+        #           .total_requests_served
+        #           .total_workers_accepting_requests
+        #           .total_exceptions
+        #           .total_harakiri_count
+        #           .total_busy_worker_count
+        #           .total_idle_worker_count
+        #           .total_pause_worker_count
+        
+        self.add_metric(name + '.summary.total_workers', pmdaMetric(PMDA.pmid(UwsgiPMDA.UWSGI_SUMMARY, 0), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, pmUnits()), "Total number of uwsgi workers")
+        self.add_metric(name + '.summary.avg_response_time_msec', pmdaMetric(PMDA.pmid(UwsgiPMDA.UWSGI_SUMMARY, 1), PM_TYPE_DOUBLE, PM_INDOM_NULL, PM_SEM_COUNTER, pmUnits()), "Average response time accross all workers")
+        self.add_metric(name + '.summary.total_requests_served', pmdaMetric(PMDA.pmid(UwsgiPMDA.UWSGI_SUMMARY, 2), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, pmUnits()), "Total requests served across all workers")
+        self.add_metric(name + '.summary.total_workers_accepting_requests', pmdaMetric(PMDA.pmid(UwsgiPMDA.UWSGI_SUMMARY, 3), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, pmUnits()), "Total number of workers accepting requests")
+        self.add_metric(name + '.summary.total_exceptions', pmdaMetric(PMDA.pmid(UwsgiPMDA.UWSGI_SUMMARY, 4), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, pmUnits()), "Total exceptions across all workers")
+        self.add_metric(name + '.summary.total_harakiri_count', pmdaMetric(PMDA.pmid(UwsgiPMDA.UWSGI_SUMMARY, 5), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, pmUnits()), "Total harakiri count across all workers")
+        self.add_metric(name + '.summary.total_busy_worker_count', pmdaMetric(PMDA.pmid(UwsgiPMDA.UWSGI_SUMMARY, 6), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, pmUnits()), "Total number of busy workers")
+        self.add_metric(name + '.summary.total_idle_worker_count', pmdaMetric(PMDA.pmid(UwsgiPMDA.UWSGI_SUMMARY, 7), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, pmUnits()), "Total number of idle workers")
+        self.add_metric(name + '.summary.total_pause_worker_count', pmdaMetric(PMDA.pmid(UwsgiPMDA.UWSGI_SUMMARY, 8), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, pmUnits()), "Total number of pause workers")
+
+        # Add the uwsgi worker metrics (metrics per worker)
+        # uwsgi.worker
+        #        .avg_rt
+        #        .requests_served
+        #        .accepting_requests
+        #        .exceptions
+        #        .harakiri_count
+        #        .status
+
+        self.add_metric(name + '.worker.avg_rt', pmdaMetric(PMDA.pmid(UwsgiPMDA.WORKER_STATS, 0), PM_TYPE_DOUBLE, self.workers_indom, PM_SEM_COUNTER, pmUnits()), "Average response time")
+        self.add_metric(name + '.worker.requests_served', pmdaMetric(PMDA.pmid(UwsgiPMDA.WORKER_STATS, 1), PM_TYPE_U64, self.workers_indom, PM_SEM_COUNTER, pmUnits()), "Requests served")
+        self.add_metric(name + '.worker.accepting_requests', pmdaMetric(PMDA.pmid(UwsgiPMDA.WORKER_STATS, 2), PM_TYPE_U64, self.workers_indom, PM_SEM_COUNTER, pmUnits()), "Accepting requests")
+        self.add_metric(name + '.worker.exceptions', pmdaMetric(PMDA.pmid(UwsgiPMDA.WORKER_STATS, 3), PM_TYPE_U64, self.workers_indom, PM_SEM_COUNTER, pmUnits()), "Exceptions count")
+        self.add_metric(name + '.worker.harakiri_count', pmdaMetric(PMDA.pmid(UwsgiPMDA.WORKER_STATS, 4), PM_TYPE_U64, self.workers_indom, PM_SEM_COUNTER, pmUnits()), "Harakiti count")
+        self.add_metric(name + '.worker.status', pmdaMetric(PMDA.pmid(UwsgiPMDA.WORKER_STATS, 5), PM_TYPE_STRING, self.workers_indom, PM_SEM_COUNTER, pmUnits()), "Worker status")
+
+        # declare the callbacks
+        self.set_fetch(self.uwsgi_fetch)
+        self.set_instance(self.uwsgi_instance)
         self.set_fetch_callback(self.uwsgi_fetch_callback)
-        self.set_user(pmContext.pmGetConfig('PCP_USER'))
+        self.set_user(PCP.pmGetConfig('PCP_USER'))
+
+    def refresh_all(self):
+        try:
+            stats = requests.get(self.url, timeout=self.timeout).json()
+            self.log(f"stats: {stats}")
+        except Exception:
+            return [PM_ERR_AGAIN, 0]
+        
+        avg_response_time_msec = 0
+        summary = UWSGISUMMARY()
+        for w in stats['workers']:
+            id = w['id']
+            worker = WORKER()
+            worker.avg_rt = w['avg_rt']
+            worker.requests_served = w['requests']
+            worker.accepting_requests = w['accepting']
+            worker.exceptions = w['exceptions']
+            worker.harakiri_count = w['harakiri_count']
+            worker.status = w['status']
+
+            # update the summary with the this worker data
+            summary.total_workers += 1
+            summary.total_requests_served += worker.requests_served
+            summary.total_workers_accepting_requests += worker.accepting_requests
+            summary.total_exceptions += worker.exceptions
+            summary.total_harakiri_count += worker.harakiri_count
+            if worker.status == 'busy':
+                summary.total_busy_worker_count += 1
+            elif worker.status =='idle':
+                summary.total_idle_worker_count += 1
+            elif worker.status == 'pause':
+                summary.total_pause_worker_count += 1
+            avg_response_time_msec += worker.avg_rt
+            self.workers[str(id)] = worker
+        summary.avg_response_time_msec = avg_response_time_msec/summary.total_workers
+        self.summary = summary
+
+    def read_config(self):
+        """ Read configuration """
+        conffile = PCP.pmGetConfig('PCP_PMDAS_DIR')
+        conffile += '/' + self.read_name() + '/' + self.read_name() + '.conf'
+
+        # Silently ignore missing file/section
+        # Python < 3.2 compat
+        if sys.version_info[0] >= 3 and sys.version_info[1] >= 2:
+            config = ConfigParser.ConfigParser()
+        else:
+            config = ConfigParser.SafeConfigParser()
+        config.read(conffile)
+        if config.has_section('pmda'):
+            for opt in config.options('pmda'):
+                if opt == 'host':
+                    self.host = config.get('pmda', opt)
+                elif opt == 'port':
+                    self.port = config.get('pmda', opt)
+                else:
+                    self.err("Invalid directive '%s' in %s." % (opt, conffile))
+                    sys.exit(1)
+    
+    def build_url(self):
+        """Build up url needed for HTTP GET request"""
+        self.url = 'http://'+str(self.host)+':'+str(self.port)
+
+    def refresh(self):
+        self.refresh_all()
+
+    def uwsgi_instance(self, serial):
+        self.refresh()
+
+    def uwsgi_fetch(self):
+        """ Called once per "fetch" PDU, before callbacks """
+        self.workers.clear()
+
+        # refresh the internal 'cache' describing summary and workers
+        self.refresh()
+
+        # replace the instance domain cache with these updated object(s)
+        self.replace_indom(self.workers_indom, self.workers)
+
+    def uwsgi_fetch_summary_callback(self, item, inst):
+        """
+        provide the summary information to the caller
+        :param item: item number
+        :param inst: instance of this object
+        :return: value of a given instance/attribute
+        """
+
+        item_lookup = [summary_attr[0] for summary_attr in UWSGISUMMARY._fields_]
+        if 0 <= item <= (len(UWSGISUMMARY._fields_) - 1):
+            return [getattr(self.summary, item_lookup[item]), 1]
+        else:
+            return [c_api.PM_ERR_INST, 0]
+
+    def uwsgi_fetch_worker_callback(self, item, inst):
+        """
+        provide the worker statistics to the caller
+        :param item: item number
+        :param inst: instance of this object
+        :return: value of a given instance/attribute
+        """
+        voidp = self.inst_lookup(self.workers_indom, inst)
+
+        if voidp is None:
+            return [c_api.PM_ERR_INST, 0]
+
+        cache = cast(voidp, POINTER(WORKER))
+        item_lookup = [worker_attr[0] for worker_attr in WORKER._fields_]
+        worker = cache.contents
+
+        if 0 <= item <= (len(WORKER._fields_) - 1):
+            return [getattr(worker, item_lookup[item]), 1]
+        return [c_api.PM_ERR_INST, 0]
 
     def uwsgi_fetch_callback(self, cluster, item, inst):
-        ''' Returns a list of value,status (single pair) for one metric '''
-
-        if not cluster == 0:
-            return [PM_ERR_PMID, 0]
-        elif not _is_pmda_setup():
-            try:
-                stats = requests.get('http://127.0.0.1:9051').json()
-                self.log(f"stats: {stats}")
-            except Exception:
-                return [PM_ERR_AGAIN, 0]
-
-        if item == 0:
-            return [len(stats['workers']), 1]
-        if item == 1:
-            response_time_msec_per_worker = [w['avg_rt'] for w in stats['workers']] # reports in milliseconds
-            avg_response_time_msec = sum(response_time_msec_per_worker)/len(response_time_msec_per_worker)
-            return [avg_response_time_msec, 1]
-        if item == 2:
-            total_requests_served = sum([w['requests'] for w in stats['workers']])
-            return [total_requests_served, 1]
-        if item == 3:
-            total_accepting_requests = sum([w['accepting'] for w in stats['workers']])
-            return [total_accepting_requests, 1]
-        if item == 4:
-            total_exceptions = sum([w['exceptions'] for w in stats['workers']])
-            return [total_exceptions, 1]
-        if item == 5:
-            total_harakiri_count = sum([w['harakiri_count'] for w in stats['workers']])
-            return [total_harakiri_count, 1]
-        if item == 6:
-            num_busy_workers = sum([w['status'] == 'busy' for w in stats['workers']])
-            return [num_busy_workers, 1]
-        if item == 7:
-            num_idle_workers = sum([w['status'] == 'idle' for w in stats['workers']])
-            return [num_idle_workers, 1]
-        if item == 8:
-            num_pause_workers = sum([w['status'] == 'pause' for w in stats['workers']])
-            return [num_pause_workers, 1]
-        return [PM_ERR_PMID, 0]
-
+        """
+        fetch helper - look at request and send to other helpers
+        based on cluster number
+        """
+        if cluster == UwsgiPMDA.UWSGI_SUMMARY:
+            return self.uwsgi_fetch_summary_callback(item, inst)
+        elif cluster == UwsgiPMDA.WORKER_STATS:
+            return self.uwsgi_fetch_worker_callback(item, inst)
+        return [c_api.PM_ERR_PMID, 0]
 
 if __name__ == '__main__':
     UwsgiPMDA('uwsgi', 161).run()
-

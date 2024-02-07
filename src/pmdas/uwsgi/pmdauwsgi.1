@@ -20,6 +20,28 @@
 .SH DESCRIPTION
 \f3pmdauwsgi\f1 is a Performance Metrics Domain Agent (\s-1PMDA\s0) which
 exports performance metrics from uwsgi.
+uWSGI is often used in conjunction with web servers such Nginx, which 
+offer direct support for uWSGI's native uwsgi protocol, to serve 
+Python web applications such as Django.
+.PP
+\fBpmdauwsgi\fP reads an optional ini-style configuration file:
+.IP
+.PD 0
+.IP
+.I \f(CR$PCP_PMDAS_DIR\fP/uwsgi/uwsgi.conf
+.PD
+.PP
+This file has a [pmda] section
+.PP
+.B [pmda]
+.TP 15
+.B host = \fR(\fP\fI127.0.0.1\fP\fR)\fP
+Connect uwsgi stats server on the given hostname.
+.TP
+.B port = \fR(\fP\fI9051\fP\fR)\fP
+Connect to the uwsgi stats server on the given port.
+.PP
+.PD
 .SH INSTALLATION
 This \s-1PMDA\s0 requires that uwsgi is running on the local host and
 has enabled the stats-http on on \s-1TCP\s0 port 9051.
