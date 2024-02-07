@@ -2,7 +2,7 @@
 # PCP QA Test No. 1658
 # Exercise /sys/module/zswap metrics.
 #
-# Copyright (c) 2023 Red Hat.  All Rights Reserved.
+# Copyright (c) 2023-2024 Red Hat.  All Rights Reserved.
 #
 
 seq=`basename $0`
@@ -36,28 +36,43 @@ _filter()
 
 _zswap_sysfs()
 {
-    echo /sys/module/zswap/parameters/max_pool_percent >> $seq.full
-    $sudo cat /sys/module/zswap/parameters/max_pool_percent | tee -a $seq.full \
+    parameter="$1"
+    echo /sys/module/zswap/parameters/$parameter >> $seq.full
+    $sudo cat /sys/module/zswap/parameters/$parameter | tee -a $seq.full \
 	     | awk '{ print $NF }'
 }
 
 _zswap_pmprobe()
 {
-    echo pmprobe -v sysfs.module.zswap.max_pool_percent >> $seq.full
-    pmprobe -v sysfs.module.zswap.max_pool_percent | tee -a $seq.full \
-	    | awk '{ print $NF }'
+    parameter="$1"
+    echo pmprobe -v sysfs.module.zswap.$parameter >> $seq.full
+    pmprobe -v sysfs.module.zswap.$parameter | tee -a $seq.full \
+	    | awk '{ print $NF }' | tr -d '"'
 }
 
 # real QA test starts here
-pcp_value=`_zswap_pmprobe`
-sys_value=`_zswap_sysfs`
+pcp_value=`_zswap_pmprobe max_pool_percent`
+sys_value=`_zswap_sysfs max_pool_percent`
 
+echo "max_pool_percent" >> $seq.full
 echo pcp_value=$pcp_value >> $seq.full
-
 echo sys_value=$sys_value >> $seq.full
 
-_within_tolerance "sysfs zswap value" $pcp_value $sys_value 0.05 -v
+_within_tolerance "sysfs zswap pool value" $pcp_value $sys_value 0.05 -v
 status=$?
+
+pcp_value=`_zswap_pmprobe enabled`
+sys_value=`_zswap_sysfs enabled`
+echo "enabled" >> $seq.full
+echo pcp_value=$pcp_value >> $seq.full
+echo sys_value=$sys_value >> $seq.full
+
+if [ "$pcp_value" = "$sys_value" ]; then
+    echo "sysfs zswap enabled value correct"
+else
+    echo "sysfs zswap enabled mismatch:" $pcp_value "vs" $sys_value
+    status=1  # fail o'clock
+fi
 
 # success, all done
 exit

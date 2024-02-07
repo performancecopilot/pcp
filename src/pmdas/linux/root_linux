@@ -2,7 +2,7 @@
  * Copyright (c) 2000,2004,2007-2008 SGI. All Rights Reserved.
  * Copyright (c) 2002 International Business Machines Corp.
  * Copyright (c) 2007-2009 Aconex.  All Rights Reserved.
- * Copyright (c) 2013-2021,2023 Red Hat.
+ * Copyright (c) 2013-2021,2023-2024 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -1950,6 +1950,7 @@ sysfs.module {
 
 sysfs.module.zswap {
     max_pool_percent	60:35:2
+    enabled		60:35:3
 }
 
 tape {

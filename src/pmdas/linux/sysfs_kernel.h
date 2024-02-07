@@ -1,7 +1,7 @@
 /*
  * Linux sysfs_kernel cluster
  *
- * Copyright (c) 2009,2023 Red Hat.
+ * Copyright (c) 2009,2023-2024 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,6 +20,7 @@ typedef struct {
 	uint64_t	uevent_seqnum; /* /sys/kernel/uevent_seqnum */
 	int		valid_uevent_seqnum;
 	uint32_t	zswap_max_pool_percent;
+	char		zswap_enabled[4];
 } sysfs_kernel_t;
 
 /* refresh sysfs_kernel */
