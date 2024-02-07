@@ -346,7 +346,9 @@ systmetrics {
 	# /sys/kernel/debug/zswap
 	zswap.pool_total_size			ZSWAP_TOTALSIZE
 	zswap.stored_pages			ZSWAP_STOREDMEM
-	zswap.state				ZSWAP_STATE
+
+	# /sys/module/zswap/parameters/enabled
+	sysfs.module.zswap.enabled		ZSWAP_STATE
 
 	# hardware events
 	perfevent.hwcounters.INSTRUCTION_RETIRED.value		PERCPU_PERF_INST1
