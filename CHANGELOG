@@ -1,5 +1,56 @@
-pcp-6.2.0 (16 February 2024)
-    - Work-in-progress.
+pcp-6.2.0 (12 February 2024)
+    - Client tools and utilities:
+	pmlogger: default to creating version 3 PCP archives
+	pmie, pmlogger, pmcd, pmproxy: init script hardening to
+	run less as root:root, more as pcp:pcp and more safely
+	pcp-reboot-init: new systemd service for $PCP_RC_DIR setup
+	pcp2arrow: new, export metrics to parquet format for pandas
+	pcp-atop: deterministic process sort when handling NULLs
+	pcp-atop: update to v2.10.0 upstream code
+	pcp-htop: update to latest upstream fixes
+	pcp-geolocate: function with older versions of python
+	pcp-meminfo: resolve possible 'broken pipe' diagnostics
+	pcp-ss: fix handling of listening state sockets to match ss
+	pcp-ss: fix the UDP UNCONN vs LISTEN state handling
+    - PMDA additions, enhancements and bug fixes:
+	pmdaproc: improvements for process accounting metrics
+	pmdalinux: add pgpromote* and pgdemote* memory metrics
+	pmdalinux: add metric sysfs.module.zswap.max_pool_percent
+	pmdalinux: add new SNMP metric network.ip.outtransmits
+	pmdasummary: send state change 0 (no change) back to pmcd
+	pmdapostgresql: support the psycopg3 python module as well
+	pmdaopenmetrics: kepler support - live metrics and logging
+    - Server-side utilities and log management scripts:
+	pmlogrewrite, pmlogredact: fix for missing data volumes
+	pmcd: cosmetic change to avoid pipe2 name clash
+	runaspcp: new helper utility for unprivileged rc scripts
+	pmnsmerge: be more defensive in qsort comparison routine
+	pmlogsize: fix qsort comparison function handling of equality
+    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings:
+	libpcp: pmOpenLog refactor for handling previous log files
+	libpcp: new __pmCleanMapDir routine to aid log culling
+	libpcp & pmcd: READY-NOT-READY hardening
+	libpcp: avoid possible thread issues (coverity)
+	libpcp: refactor pmDupContext for thread safety
+	libpcp_import: add guard in pmiPutMark to prevent SIGSEGV
+    - Build, infrastructure and packaging updates:
+	build: changes to re-enable builds for FreeBSD 12, 13, 14
+	build: add diffutils rpm dep as pmdaproc script uses diff
+	build: add main.yml for building and publishing container
+	build: resolve compiler warnings in various tools/libraries
+	packaging: use tmpfiles.d method to create PCP_RUN_DIR
+	build: packaging changes for openSUSE 15.5 and 15.6
+	debian: do not ship empty directory /usr/lib/pkgconfig
+	build: el10 systemd-presets for pmcd/pmie/pmlogger enabling
+	build: drop rpm dep on bpftool as local version used only
+	build: change perl YAML::XS::LibYAML module to YAML::XS
+    - Security Enhanced Linux:
+	selinux: policu improvements for CentOS/RHEL 7 and 8
+    - Documentation:
+	docs: Fedora 39 found some tbl(1)/troff(1) issues, fix
+	docs: add an explicit code-of-conduct for PCP
+	docs: pmns(5) note that metric names must only contain ASCII
+	docs: update the BPF README to describe bpftool reality
 
 pcp-6.1.1 (17 November 2023)
     - Client tools and utilities:

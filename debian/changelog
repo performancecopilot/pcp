@@ -3,7 +3,7 @@ pcp (6.2.0-1) unstable; urgency=low
   * New release (full details in CHANGELOG).
   * Do not ship empty directory /usr/lib/pkgconfig (closes: #1041754)
 
- -- Nathan Scott <nathans@debian.org>  Fri, 16 Feb 2024 09:18:37 +1100
+ -- Nathan Scott <nathans@debian.org>  Mon, 12 Feb 2024 09:18:37 +1100
 
 pcp (6.1.1-1) unstable; urgency=low
 
