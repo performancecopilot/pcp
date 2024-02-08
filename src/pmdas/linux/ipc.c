@@ -177,6 +177,12 @@ refresh_shm_stat(pmInDom shm_indom)
     char		buf[512];
     FILE		*fp;
     int			sts, needsave = 0;
+    static int		setup;
+
+    if (!setup) {
+	pmdaCacheOp(shm_indom, PMDA_CACHE_LOAD);
+	setup = 1;
+    }
 
     pmdaCacheOp(shm_indom, PMDA_CACHE_INACTIVE);
 
@@ -234,6 +240,12 @@ refresh_msg_queue(pmInDom msg_indom)
     char		buf[512];
     FILE		*fp;
     int			sts, needsave = 0;
+    static int		setup;
+
+    if (!setup) {
+	pmdaCacheOp(msg_indom, PMDA_CACHE_LOAD);
+	setup = 1;
+    }
 
     pmdaCacheOp(msg_indom, PMDA_CACHE_INACTIVE);
 
@@ -289,6 +301,12 @@ refresh_sem_array(pmInDom sem_indom)
     char		buf[512];
     FILE		*fp;
     int			sts, needsave = 0;
+    static int		setup;
+
+    if (!setup) {
+	pmdaCacheOp(sem_indom, PMDA_CACHE_LOAD);
+	setup = 1;
+    }
 
     pmdaCacheOp(sem_indom, PMDA_CACHE_INACTIVE);
 
