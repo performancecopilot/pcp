@@ -28,7 +28,7 @@ Python web applications such as Django.
 .IP
 .PD 0
 .IP
-.I \f(CR$PCP_PMDAS_DIR\fP/uwsgi/uwsgi.conf
+.I \f(CR$PCP_SYSCONF_DIR\fP/uwsgi/uwsgi.conf
 .PD
 .PP
 This file has a [pmda] section
@@ -68,6 +68,8 @@ installation script for the \fBpmdauwsgi\fR agent
 undo installation script for the \fBpmdauwsgi\fR agent
 .IP "\fB$PCP_LOG_DIR/pmcd/uwsgi.log\fR" 4
 default log file for error messages from \fBpmdauwsgi\fR
+.IP "\fB$PCP_SYSCONF_DIR/uwsgi/uwsgi.conf\fR" 4
+optional configuration file for \fBpmdauwsgi\fR agent
 .SH PCP ENVIRONMENT
 Environment variables with the prefix \fBPCP_\fR are used to parameterize
 the file and directory names used by \fBPCP\fR. On each installation, the

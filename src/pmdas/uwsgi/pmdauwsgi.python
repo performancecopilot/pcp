@@ -146,7 +146,7 @@ class UwsgiPMDA(PMDA):
         #           .total_pause_worker_count
         
         self.add_metric(name + '.summary.total_workers', pmdaMetric(PMDA.pmid(UwsgiPMDA.UWSGI_SUMMARY, 0), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, pmUnits()), "Total number of uwsgi workers")
-        self.add_metric(name + '.summary.avg_response_time_msec', pmdaMetric(PMDA.pmid(UwsgiPMDA.UWSGI_SUMMARY, 1), PM_TYPE_DOUBLE, PM_INDOM_NULL, PM_SEM_COUNTER, pmUnits()), "Average response time accross all workers")
+        self.add_metric(name + '.summary.avg_response_time_msec', pmdaMetric(PMDA.pmid(UwsgiPMDA.UWSGI_SUMMARY, 1), PM_TYPE_DOUBLE, PM_INDOM_NULL, PM_SEM_COUNTER, pmUnits()), "Average response time across all workers")
         self.add_metric(name + '.summary.total_requests_served', pmdaMetric(PMDA.pmid(UwsgiPMDA.UWSGI_SUMMARY, 2), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, pmUnits()), "Total requests served across all workers")
         self.add_metric(name + '.summary.total_workers_accepting_requests', pmdaMetric(PMDA.pmid(UwsgiPMDA.UWSGI_SUMMARY, 3), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, pmUnits()), "Total number of workers accepting requests")
         self.add_metric(name + '.summary.total_exceptions', pmdaMetric(PMDA.pmid(UwsgiPMDA.UWSGI_SUMMARY, 4), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, pmUnits()), "Total exceptions across all workers")
