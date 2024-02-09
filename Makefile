@@ -13,9 +13,11 @@ CFLAGS := -g -O2 -Wall
 BPFCFLAGS := -g -O2 -Wall
 INSTALL ?= install
 prefix ?= /usr/local
-ARCH := $(shell uname -m | sed 's/x86_64/x86/' | sed 's/aarch64/arm64/' \
+bindir := $(prefix)/bin
+ARCH ?= $(shell uname -m | sed 's/x86_64/x86/' | sed 's/aarch64/arm64/' \
 			 | sed 's/ppc64le/powerpc/' | sed 's/mips.*/mips/' \
-			 | sed 's/riscv64/riscv/' | sed 's/loongarch.*/loongarch/')
+			 | sed 's/riscv64/riscv/' | sed 's/loongarch.*/loongarch/' \
+			 | sed 's/s390x/s390/')
 BTFHUB_ARCHIVE ?= $(abspath btfhub-archive)
 ifeq ($(ARCH),x86)
 CARGO ?= $(shell which cargo)
@@ -31,6 +33,8 @@ $(error Architecture $(ARCH) is not supported yet. Please open an issue)
 endif
 
 BZ_APPS = \
+	futexctn \
+	memleak \
 	opensnoop \
 	#
 
@@ -44,6 +48,7 @@ APPS = \
 	biotop \
 	bitesize \
 	cachestat \
+	capable \
 	cpudist \
 	cpufreq \
 	drsnoop \
@@ -65,6 +70,7 @@ APPS = \
 	numamove \
 	offcputime \
 	oomkill \
+	profile \
 	readahead \
 	runqlat \
 	runqlen \
@@ -79,6 +85,7 @@ APPS = \
 	tcpconnect \
 	tcpconnlat \
 	tcplife \
+	tcppktlat \
 	tcprtt \
 	tcpstates \
 	tcpsynbl \
@@ -91,8 +98,8 @@ APPS = \
 # export variables that are used in Makefile.btfgen as well.
 export OUTPUT BPFTOOL ARCH BTFHUB_ARCHIVE APPS
 
-FSDIST_ALIASES = btrfsdist ext4dist nfsdist xfsdist
-FSSLOWER_ALIASES = btrfsslower ext4slower nfsslower xfsslower
+FSDIST_ALIASES = btrfsdist ext4dist nfsdist xfsdist f2fsdist
+FSSLOWER_ALIASES = btrfsslower ext4slower nfsslower xfsslower f2fsslower
 SIGSNOOP_ALIAS = killsnoop
 APP_ALIASES = $(FSDIST_ALIASES) $(FSSLOWER_ALIASES) ${SIGSNOOP_ALIAS}
 
@@ -217,21 +224,21 @@ $(LIBBPF_OBJ): $(wildcard $(LIBBPF_SRC)/*.[ch]) | $(OUTPUT)/libbpf
 
 $(FSSLOWER_ALIASES): fsslower
 	$(call msg,SYMLINK,$@)
-	$(Q)ln -f -s $^ $@
+	$(Q)ln -f -s $(APP_PREFIX)$^ $@
 
 $(FSDIST_ALIASES): fsdist
 	$(call msg,SYMLINK,$@)
-	$(Q)ln -f -s $^ $@
+	$(Q)ln -f -s $(APP_PREFIX)$^ $@
 
 $(SIGSNOOP_ALIAS): sigsnoop
 	$(call msg,SYMLINK,$@)
-	$(Q)ln -f -s $^ $@
+	$(Q)ln -f -s $(APP_PREFIX)$^ $@
 
 install: $(APPS) $(APP_ALIASES)
 	$(call msg, INSTALL libbpf-tools)
-	$(Q)$(INSTALL) -m 0755 -d $(DESTDIR)$(prefix)/bin
-	$(Q)$(INSTALL) $(APPS) $(DESTDIR)$(prefix)/bin
-	$(Q)cp -a $(APP_ALIASES) $(DESTDIR)$(prefix)/bin
+	$(Q)$(INSTALL) -m 0755 -d $(DESTDIR)$(bindir)
+	$(Q)$(foreach app,$(APPS),$(INSTALL) $(app) $(DESTDIR)$(bindir)/$(APP_PREFIX)$(app);)
+	$(Q)$(foreach alias,$(APP_ALIASES),cp -a $(alias) $(DESTDIR)$(bindir)/$(APP_PREFIX)$(alias);)
 
 .PHONY: force
 force:
