@@ -8,7 +8,8 @@ Type=@SD_SERVICE_TYPE@
 Restart=no
 TimeoutStartSec=4h
 TimeoutStopSec=120
+# needs to run as root:root not pcp:pcp, pmlogctl will handle the
+# switch to pcp:pcp if any pmlogger needs to be launched, so NO
+# User= nor Group= here
 ExecStart=@PCP_BIN_DIR@/pmiectl -m check
 WorkingDirectory=@PCP_VAR_DIR@
-Group=@PCP_GROUP@
-User=@PCP_USER@
