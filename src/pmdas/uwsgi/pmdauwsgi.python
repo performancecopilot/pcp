@@ -31,8 +31,7 @@ from cpmapi import (
     PM_TYPE_U64,
     PM_SEM_COUNTER,
     PM_ERR_INST,
-    PM_ERR_PMID,
-    PM_ERR_AGAIN
+    PM_ERR_PMID
 )
 
 from ctypes import c_uint, c_float, c_wchar_p, POINTER, cast, Structure
@@ -180,7 +179,7 @@ class UwsgiPMDA(PMDA):
             stats = requests.get(self.url, timeout=self.timeout).json()
             self.log(f"stats: {stats}")
         except Exception:
-            return [PM_ERR_AGAIN, 0]
+            return
 
         avg_response_time_msec = 0
         summary = UWSGISUMMARY()
