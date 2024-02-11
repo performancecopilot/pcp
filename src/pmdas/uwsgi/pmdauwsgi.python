@@ -28,16 +28,15 @@ except ImportError:
 from cpmapi import (
     PM_TYPE_STRING,
     PM_INDOM_NULL,
-    PM_SEM_INSTANT,
     PM_TYPE_DOUBLE,
     PM_TYPE_U64,
     PM_SEM_COUNTER,
+    PM_ERR_INST,
     PM_ERR_PMID,
     PM_ERR_AGAIN
 )
 
-from ctypes import c_uint, c_ulong, c_float, c_wchar_p, POINTER, cast, Structure
-import cpmapi as c_api
+from ctypes import c_uint, c_float, c_wchar_p, POINTER, cast, Structure
 from pcp.pmapi import pmUnits
 from pcp.pmapi import pmContext as PCP
 from pcp.pmda import PMDA, pmdaMetric, pmdaIndom
@@ -144,7 +143,7 @@ class UwsgiPMDA(PMDA):
         #           .total_busy_worker_count
         #           .total_idle_worker_count
         #           .total_pause_worker_count
-        
+
         self.add_metric(name + '.summary.total_workers', pmdaMetric(PMDA.pmid(UwsgiPMDA.UWSGI_SUMMARY, 0), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, pmUnits()), "Total number of uwsgi workers")
         self.add_metric(name + '.summary.avg_response_time_msec', pmdaMetric(PMDA.pmid(UwsgiPMDA.UWSGI_SUMMARY, 1), PM_TYPE_DOUBLE, PM_INDOM_NULL, PM_SEM_COUNTER, pmUnits()), "Average response time across all workers")
         self.add_metric(name + '.summary.total_requests_served', pmdaMetric(PMDA.pmid(UwsgiPMDA.UWSGI_SUMMARY, 2), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, pmUnits()), "Total requests served across all workers")
@@ -183,7 +182,7 @@ class UwsgiPMDA(PMDA):
             self.log(f"stats: {stats}")
         except Exception:
             return [PM_ERR_AGAIN, 0]
-        
+
         avg_response_time_msec = 0
         summary = UWSGISUMMARY()
         for w in stats['workers']:
@@ -234,7 +233,7 @@ class UwsgiPMDA(PMDA):
                 else:
                     self.err("Invalid directive '%s' in %s." % (opt, conffile))
                     sys.exit(1)
-    
+
     def build_url(self):
         """Build up url needed for HTTP GET request"""
         self.url = 'http://'+str(self.host)+':'+str(self.port)
@@ -267,7 +266,7 @@ class UwsgiPMDA(PMDA):
         if 0 <= item <= (len(UWSGISUMMARY._fields_) - 1):
             return [getattr(self.summary, item_lookup[item]), 1]
         else:
-            return [c_api.PM_ERR_INST, 0]
+            return [PM_ERR_INST, 0]
 
     def uwsgi_fetch_worker_callback(self, item, inst):
         """
@@ -279,7 +278,7 @@ class UwsgiPMDA(PMDA):
         voidp = self.inst_lookup(self.workers_indom, inst)
 
         if voidp is None:
-            return [c_api.PM_ERR_INST, 0]
+            return [PM_ERR_INST, 0]
 
         cache = cast(voidp, POINTER(WORKER))
         item_lookup = [worker_attr[0] for worker_attr in WORKER._fields_]
@@ -287,7 +286,7 @@ class UwsgiPMDA(PMDA):
 
         if 0 <= item <= (len(WORKER._fields_) - 1):
             return [getattr(worker, item_lookup[item]), 1]
-        return [c_api.PM_ERR_INST, 0]
+        return [PM_ERR_INST, 0]
 
     def uwsgi_fetch_callback(self, cluster, item, inst):
         """
@@ -298,7 +297,7 @@ class UwsgiPMDA(PMDA):
             return self.uwsgi_fetch_summary_callback(item, inst)
         elif cluster == UwsgiPMDA.WORKER_STATS:
             return self.uwsgi_fetch_worker_callback(item, inst)
-        return [c_api.PM_ERR_PMID, 0]
+        return [PM_ERR_PMID, 0]
 
 if __name__ == '__main__':
     UwsgiPMDA('uwsgi', 161).run()
