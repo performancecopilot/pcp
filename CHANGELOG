@@ -1,3 +1,6 @@
+pcp-6.2.0 (10 April 2024)
+    - Work-in-progress.
+
 pcp-6.2.0 (12 February 2024)
     - Client tools and utilities:
 	pmlogger: default to creating version 3 PCP archives
