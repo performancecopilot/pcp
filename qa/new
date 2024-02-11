@@ -14,7 +14,7 @@
 
 # use ./new-seqs to help refine min and max
 #
-min=1470
+min=1480
 max=1999
 max_probes=200
 
@@ -150,9 +150,9 @@ if [ -z "$try" ]
 then
     if $smallest
     then
-	# as of Aug 2021, we're all full up to 1330 and a bit
+	# see above ...
 	#
-	try=1330
+	try=$min
     else
 	# random in the range $min-$max based on user name convered from alpha
 	# to numeric, prefixed by current clock seconds
@@ -162,7 +162,8 @@ then
     fi
 fi
 
-# first $try, then keep randomly probing the min-max space
+# first $try, then keep randomly (no -s) or serially (with -s) probing
+# the min-max space
 #
 $verbose && echo >&2 "Info: start probing at $try"
 probe=0
