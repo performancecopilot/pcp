@@ -330,7 +330,7 @@ class tm(Structure):
             pywday = 6
         stlist = [self.tm_year + 1900, self.tm_mon + 1, self.tm_mday,
                   self.tm_hour, self.tm_min, self.tm_sec,
-                  pywday, self.tm_yday - 1, self.tm_isdst]
+                  pywday, self.tm_yday + 1, self.tm_isdst]
         return time.struct_time(stlist)
 
     def __str__(self):
