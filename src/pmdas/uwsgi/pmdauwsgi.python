@@ -92,10 +92,10 @@ class WORKER(Structure):
         ("status", c_wchar_p)
     ]
 
-    def __init__(self, avg_rt=0.0, requests=0, acc_req=0, exceptions=0, harakiri=0, status=''):
+    def __init__(self, avg_rt=0.0, req_served=0, acc_req=0, exceptions=0, harakiri=0, status=''):
         Structure.__init__(self)
         self.avg_rt = avg_rt
-        self.requests_served = requests
+        self.requests_served = req_served
         self.accepting_requests = acc_req
         self.exceptions = exceptions
         self.harakiri_count = harakiri
@@ -184,7 +184,7 @@ class UwsgiPMDA(PMDA):
         avg_response_time_msec = 0
         summary = UWSGISUMMARY()
         for w in stats['workers']:
-            id = w['id']
+            worker_id = w['id']
             worker = WORKER()
             worker.avg_rt = w['avg_rt']
             worker.requests_served = w['requests']
@@ -206,7 +206,7 @@ class UwsgiPMDA(PMDA):
             elif worker.status == 'pause':
                 summary.total_pause_worker_count += 1
             avg_response_time_msec += worker.avg_rt
-            self.workers[str(id)] = worker
+            self.workers[str(worker_id)] = worker
         summary.avg_response_time_msec = avg_response_time_msec/summary.total_workers
         self.summary = summary
 
