@@ -1139,3 +1139,27 @@ _filter_optional_labels()
     fi
 }
 
+# some versions of the C compiler are just plain wrong and emit warning
+# babble when re-compiling the sample PMDA
+#
+# For example in Fedora 40 (aka rawhide) circa Feb 2024 ...
+# sample.c: In function ‘sample_fetch’:
+# sample.c:1963:13: warning: array subscript ‘pmValueSet[0]’ is partly outside array bounds of ‘unsigned char[16]’ [-Warray-bounds=]
+#  1963 |         vset->pmid = pmidlist[i];
+#       |             ^~
+# sample.c:1954:49: note: object of size 16 allocated by ‘malloc’
+#  1954 |             res->vset[i] = vset = (pmValueSet *)malloc(sizeof(pmValueSet) -
+#       |                                                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+#  1955 |                                             sizeof(pmValue));
+#       |                                             ~~~~~~~~~~~~~~~~
+#
+_filter_compiler_babble()
+{
+    sed \
+	-e '/^sample.c: In function .sample_fetch.:/d' \
+	-e '/^sample.c:.* array subscript .pmValueSet.0.. is partly outside/d' \
+	-e '/^sample.c:.* note: object of size [0-9][0-9]* allocated by /d' \
+	-e '/^  *[0-9][0-9]*  *| /d' \
+	-e '/^  *| /d' \
+    # end
+}
