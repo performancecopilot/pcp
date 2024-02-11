@@ -1,0 +1,82 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2024 Red Hat.
+.\" Copyright (c) 2024 Nikhil Jain <nikjain@redhat.com>
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.\"
+.TH PMDAUWSGI 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmdauwsgi\f1 \- uwsgi performance metrics domain agent (PMDA)
+.SH DESCRIPTION
+\f3pmdauwsgi\f1 is a Performance Metrics Domain Agent (\s-1PMDA\s0) which
+exports performance metrics from uwsgi.
+uWSGI is often used in conjunction with web servers such Nginx, which
+offer direct support for uWSGI's native uwsgi protocol, to serve
+Python web applications such as Django.
+.PP
+\fBpmdauwsgi\fP reads an optional ini-style configuration file:
+.IP
+.PD 0
+.IP
+.I \f(CR$PCP_SYSCONF_DIR\fP/uwsgi/uwsgi.conf
+.PD
+.PP
+This file has a [pmda] section
+.PP
+.B [pmda]
+.TP 15
+.B host = \fR(\fP\fI127.0.0.1\fP\fR)\fP
+Connect uwsgi stats server on the given hostname.
+.TP
+.B port = \fR(\fP\fI9051\fP\fR)\fP
+Connect to the uwsgi stats server on the given port.
+.PP
+.PD
+.SH INSTALLATION
+This \s-1PMDA\s0 requires that uwsgi is running on the local host and
+has enabled the stats-http on on \s-1TCP\s0 port 9051.
+.PP
+Install the uwsgi \s-1PMDA\s0 by using the Install script as root:
+.PP
+\      # cd $PCP_PMDAS_DIR/uwsgi
+.br
+\      # ./Install
+.PP
+To uninstall, do the following as root:
+.PP
+\      # cd $PCP_PMDAS_DIR/uwsgi
+.br
+\      # ./Remove
+.PP
+\fBpmdauwsgi\fR is launched by \fIpmcd\fR(1) and should never be executed
+directly. The Install and Remove scripts notify \fIpmcd\fR(1) when the
+agent is installed or removed.
+.SH FILES
+.IP "\fB$PCP_PMDAS_DIR/uwsgi/Install\fR" 4
+installation script for the \fBpmdauwsgi\fR agent
+.IP "\fB$PCP_PMDAS_DIR/uwsgi/Remove\fR" 4
+undo installation script for the \fBpmdauwsgi\fR agent
+.IP "\fB$PCP_LOG_DIR/pmcd/uwsgi.log\fR" 4
+default log file for error messages from \fBpmdauwsgi\fR
+.IP "\fB$PCP_SYSCONF_DIR/uwsgi/uwsgi.conf\fR" 4
+optional configuration file for \fBpmdauwsgi\fR agent
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fR are used to parameterize
+the file and directory names used by \fBPCP\fR. On each installation, the
+file \fB/etc/pcp.conf\fR contains the local values for these variables.
+The \fB$PCP_CONF\fR variable may be used to specify an alternative
+configuration file, as described in \fIpcp.conf\fR(5).
+.SH SEE ALSO
+.BR PCPIntro (1)
+and
+.BR pmcd (1).
