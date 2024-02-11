@@ -1,7 +1,7 @@
 /*
  * Linux sysfs_kernel cluster
  *
- * Copyright (c) 2009,2014,2016,2023 Red Hat.
+ * Copyright (c) 2009,2014,2016,2023-2024 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -82,8 +82,17 @@ refresh_sysfs_kernel(sysfs_kernel_t *sk, int *need_refresh)
 	}
     }
 
-    if (need_refresh[REFRESH_SYSFS_MODULE_ZSWAPPOOL]) {
+    if (need_refresh[REFRESH_SYSFS_MODULE_ZSWAP]) {
 	int	fd;
+
+	memset(sk->zswap_enabled, 0, sizeof(sk->zswap_enabled));
+	pmsprintf(buf, sizeof(buf), "%s/%s/zswap/parameters/enabled",
+				    linux_statspath, "sys/module");
+	if ((fd = open(buf, O_RDONLY)) >= 0) {
+	    if ((read(fd, buf, sizeof(buf))) > 0)
+		sscanf(buf, "%c", &sk->zswap_enabled[0]);
+	    close(fd);
+	}
 
 	pmsprintf(buf, sizeof(buf), "%s/%s/zswap/parameters/max_pool_percent",
 				    linux_statspath, "sys/module");

@@ -1,7 +1,7 @@
 /*
  * Linux PMDA
  *
- * Copyright (c) 2012-2023 Red Hat.
+ * Copyright (c) 2012-2024 Red Hat.
  * Copyright (c) 2016-2017 Fujitsu.
  * Copyright (c) 2007-2011 Aconex.  All Rights Reserved.
  * Copyright (c) 2002 International Business Machines Corp.
@@ -6657,6 +6657,11 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_SYSFS_KERNEL,2), PM_TYPE_U32, PM_INDOM_NULL,
 	PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
+    /* sysfs.module.zswap.enabled */
+    { &sysfs_kernel.zswap_enabled,
+      { PMDA_PMID(CLUSTER_SYSFS_KERNEL,3), PM_TYPE_STRING, PM_INDOM_NULL,
+	PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
 /*
  * /proc/interrupts clusters
  */
@@ -10043,7 +10048,8 @@ linux_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 		need_refresh[CLUSTER_MEMINFO]++;
 		break;
 	    case 2:	/* sysfs.module.zswap.max_pool_size */
-		need_refresh[REFRESH_SYSFS_MODULE_ZSWAPPOOL]++;
+	    case 3:	/* sysfs.module.zswap.enabled */
+		need_refresh[REFRESH_SYSFS_MODULE_ZSWAP]++;
 		break;
 	    }
 	    break;
