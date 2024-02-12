@@ -1,4 +1,4 @@
-sts=0
+sts=1		# failure is the default
 tmp=/var/tmp/pcp-postinstall
 trap "rm -rf $tmp $tmp.*; exit \$sts" 0 1 2 3 15
 
@@ -7,7 +7,6 @@ then
     # PCP not installed ... seems odd
     #
     echo "Error: /etc/pcp.env not installed!"
-    sts=1
     exit
 fi
 
@@ -153,7 +152,6 @@ then
 		    : adduser does this for us ...
 		else
 		    echo "postinstall: Error: don't know how to add group \"pcp\""
-		    sts=1
 		    exit
 		fi
 	    fi
@@ -171,7 +169,6 @@ then
 		| adduser -f - -w no
 	    else
 		echo "postinstall: Error: don't know how to add user \"pcp\""
-		sts=1
 		exit
 	    fi
 	fi
@@ -196,7 +193,6 @@ then
 		    : adduser does this for us ...
 		else
 		    echo "postinstall: Error: don't know how to add group \"pcpqa\""
-		    sts=1
 		    exit
 		fi
 	    fi
@@ -216,7 +212,6 @@ then
 		| adduser -f - -w no
 	    else
 		echo "postinstall: Error: don't know how to add user \"pcpqa\""
-		sts=1
 		exit
 	    fi
 	fi
@@ -377,6 +372,7 @@ done
 _do_dir "pcpqa:pcpqa" 775 "$PCP_VAR_DIR"/testsuite
 $CHOWN -R pcpqa:pcpqa "$PCP_VAR_DIR"/testsuite
 
+rm -f $tmp.errors
 # unpack and install PCP Perl modules ...
 #
 if [ -f /tmp/pcp-perl-pack.tar.gz ]
@@ -395,17 +391,19 @@ then
 	    if [ ! -f $dir/Makefile ]
 	    then
 		echo "postinstall: no $dir/Makefile ... cannot install $dir Perl module"
+		touch $tmp.errors
 	    else
 		_cd $dir
 		if $show_me
 		then
-		    echo "+ make pure_site_install"
+		    echo "+ make -f Makefile pure_site_install"
 		else
-		    if make pure_site_install
+		    if make -f Makefile pure_site_install
 		    then
 			:
 		    else
 			echo "postinstall: install failed for $dir ..."
+			touch $tmp.errors
 		    fi
 		fi
 		_cd ..
@@ -499,4 +497,5 @@ do
     [ -d "$dir" ] && $RM -rf "$dir"
 done
 
+[ ! -f $tmp.errors ] && sts=0
 exit 0
