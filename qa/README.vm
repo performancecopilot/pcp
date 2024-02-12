@@ -367,9 +367,9 @@ Slackware
     # which packages are installed
     $ ls /var/log/packages | sed -e 's/-[0-9].*//'
     # package search recipe (name only)
-    $ sudo slackpkg search <info-pattern>
+    $ slackpkg search <info-pattern>
     # which package installs a file/directory
-    $ sudo slackpkg file-search <filename-pattern>
+    $ slackpkg file-search <filename-pattern>
     # which files are in an installed package
     $ sed -e '1,/^FILE LIST:/d' </var/log/packages/<package>
     # package install recipe
