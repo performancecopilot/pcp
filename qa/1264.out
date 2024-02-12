@@ -1,0 +1,102 @@
+QA output created by 1264
+=== bpf agent installation ===
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check bpf metrics have appeared ... X metrics and X values
+
+
+=== report metric values for bpf.proc.net.tcp.send.packets ===
+
+    Data Type: 64-bit unsigned int  InDom: 157.2 0x27400002
+    Semantics: counter  Units: none
+    inst [CLIENTPID or "CLIENTPID"] value 1
+    inst [SERVERPID or "SERVERPID"] value 1
+Help:
+bpf.proc.net.tcp.send.packets PMID: 157.0.0 [tcp packets sent]
+tcp packets sent (tracepoint/sock/sock_send_length)
+
+
+=== report metric values for bpf.proc.net.tcp.send.bytes ===
+
+    Data Type: 64-bit unsigned int  InDom: 157.2 0x27400002
+    Semantics: counter  Units: none
+    inst [CLIENTPID or "CLIENTPID"] value 11
+    inst [SERVERPID or "SERVERPID"] value 17
+Help:
+bpf.proc.net.tcp.send.bytes PMID: 157.0.1 [tcp bytes sent]
+tcp bytes sent (tracepoint/sock/sock_send_length)
+
+
+=== report metric values for bpf.proc.net.tcp.recv.packets ===
+
+    Data Type: 64-bit unsigned int  InDom: 157.2 0x27400002
+    Semantics: counter  Units: none
+    inst [CLIENTPID or "CLIENTPID"] value 1
+    inst [SERVERPID or "SERVERPID"] value 1
+Help:
+bpf.proc.net.tcp.recv.packets PMID: 157.0.2 [tcp packets received]
+tcp packets received (tracepoint/sock/sock_recv_length)
+
+
+=== report metric values for bpf.proc.net.tcp.recv.bytes ===
+
+    Data Type: 64-bit unsigned int  InDom: 157.2 0x27400002
+    Semantics: counter  Units: none
+    inst [CLIENTPID or "CLIENTPID"] value 17
+    inst [SERVERPID or "SERVERPID"] value 11
+Help:
+bpf.proc.net.tcp.recv.bytes PMID: 157.0.3 [tcp bytes received]
+tcp bytes received (tracepoint/sock/sock_recv_length)
+
+
+=== report metric values for bpf.proc.net.udp.send.packets ===
+
+    Data Type: 64-bit unsigned int  InDom: 157.2 0x27400002
+    Semantics: counter  Units: none
+    inst [CLIENTPID or "CLIENTPID"] value 1
+    inst [SERVERPID or "SERVERPID"] value 1
+Help:
+bpf.proc.net.udp.send.packets PMID: 157.0.4 [udp packets sent]
+udp packets sent (tracepoint/sock/sock_send_length)
+
+
+=== report metric values for bpf.proc.net.udp.send.bytes ===
+
+    Data Type: 64-bit unsigned int  InDom: 157.2 0x27400002
+    Semantics: counter  Units: none
+    inst [CLIENTPID or "CLIENTPID"] value 16
+    inst [SERVERPID or "SERVERPID"] value 22
+Help:
+bpf.proc.net.udp.send.bytes PMID: 157.0.5 [udp bytes sent]
+udp bytes sent (tracepoint/sock/sock_send_length)
+
+
+=== report metric values for bpf.proc.net.udp.recv.packets ===
+
+    Data Type: 64-bit unsigned int  InDom: 157.2 0x27400002
+    Semantics: counter  Units: none
+    inst [CLIENTPID or "CLIENTPID"] value 1
+    inst [SERVERPID or "SERVERPID"] value 1
+Help:
+bpf.proc.net.udp.recv.packets PMID: 157.0.6 [udp packets received]
+udp packets received (tracepoint/sock/sock_recv_length)
+
+
+=== report metric values for bpf.proc.net.udp.recv.bytes ===
+
+    Data Type: 64-bit unsigned int  InDom: 157.2 0x27400002
+    Semantics: counter  Units: none
+    inst [CLIENTPID or "CLIENTPID"] value 22
+    inst [SERVERPID or "SERVERPID"] value 16
+Help:
+bpf.proc.net.udp.recv.bytes PMID: 157.0.7 [udp bytes received]
+udp bytes received (tracepoint/sock/sock_recv_length)
+
+=== remove bpf agent ===
+Culling the Performance Metrics Name Space ...
+bpf ... done
+Updating the PMCD control file, and notifying PMCD ...
+[...removing files...]
+Check bpf metrics have gone away ... OK

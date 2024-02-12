@@ -1,0 +1,94 @@
+#!/bin/sh
+# PCP QA Test No. 1286
+# Exercise the BPF PMDA netproc hits module - install, remove and values.
+#
+# Copyright (c) 2024 Red Hat.
+#
+
+# 1286 is the bcc variant of this
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.bpf
+
+_pmdabpf_check
+_pmdabpf_require_kernel_version 5 0
+_pmdabpf_require_libbpf_version 0 7
+which curl >/dev/null 2>&1 || _notrun "No curl binary installed"
+
+# target_ip='http://localhost:44322/pmapi/fetch?names=hinv.ncpu,disk.dev.read'
+status=1       # failure is the default!
+signal=$PCP_BINADM_DIR/pmsignal
+$sudo rm -rf $tmp.* $seq.full
+
+cat <<EOF >$tmp.conf
+# Installed by PCP QA test $seq on `date`
+[netatop.so]
+enabled=true
+EOF
+_pmdabpf_tryload $tmp.conf
+
+_cleanup()
+{
+#    _pmdabpf_cleanup
+true
+}
+
+_pid_filter()
+{
+    sed \
+      -e "s/0*$1/SERVERPID/g" \
+      -e "s/0*$2/CLIENTPID/g" \
+      -e '/inst \[[0-9]/d' \
+    #end
+}
+
+_prepare_pmda bpf
+trap "_cleanup; exit \$status" 0 1 2 3 15
+_stop_auto_restart pmcd
+
+# real QA test starts here
+
+_pmdabpf_install $tmp.conf | _filter_pmda_install
+_pmdabpf_wait_for_metric
+
+# Generate system activity for the BCC netproc module
+$PCP_PYTHON_PROG $here/src/bcc_netproc.py server >> "$seq.full" &
+server_pid=$!
+
+# wait for server to listen on specified port
+for i in `seq 1 10`; do ss -lnt | grep -q :1234 && break; sleep 1; done
+if [ $i -ge 10 ]; then
+    echo "Server didn't open tcp/1234 in time, test failed"
+    exit 1
+fi
+
+$PCP_PYTHON_PROG $here/src/bcc_netproc.py client >> "$seq.full" &
+client_pid=$!
+
+wait ${client_pid}
+wait ${server_pid}
+echo "server PID: ${server_pid}" >> "$seq.full"
+echo "client PID: ${client_pid}" >> "$seq.full"
+
+for metric in bpf.proc.net.tcp.send.packets \
+              bpf.proc.net.tcp.send.bytes \
+              bpf.proc.net.tcp.recv.packets \
+              bpf.proc.net.tcp.recv.bytes \
+              bpf.proc.net.udp.send.packets \
+              bpf.proc.net.udp.send.bytes \
+              bpf.proc.net.udp.recv.packets \
+              bpf.proc.net.udp.recv.bytes
+do
+    echo && echo && echo "=== report metric values for $metric ==="
+#    pminfo -dfmtT $metric 2>&1 | sed -e 's/[0-9]* or "[0-9]*"/PID/' -e 's/value [0-9]*/value 999/' | tee -a $seq.full \
+    pminfo -dfmtT $metric 2>&1 | tee -a $seq.full \
+    | _pid_filter ${server_pid} ${client_pid} \
+    | sort # sort to fix the non deterministic instance order
+
+done
+
+_pmdabpf_remove
+
+status=0
+exit
