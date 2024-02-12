@@ -89,8 +89,10 @@ refresh_sysfs_kernel(sysfs_kernel_t *sk, int *need_refresh)
 	pmsprintf(buf, sizeof(buf), "%s/%s/zswap/parameters/enabled",
 				    linux_statspath, "sys/module");
 	if ((fd = open(buf, O_RDONLY)) >= 0) {
-	    if ((read(fd, buf, sizeof(buf))) > 0)
+	    if ((n = read(fd, buf, sizeof(buf))) > 0) {
+		buf[n-1] = '\0';
 		sscanf(buf, "%c", &sk->zswap_enabled[0]);
+	    }
 	    close(fd);
 	}
 
