@@ -223,32 +223,22 @@ fi
 #
 if $SHOWME
 then
+    # Exception is for -N where we want to see the output.
+    #
     :
 elif [ "$PROGLOG" = "/dev/tty" ]
 then
-    # special case for debugging ... no salt away previous, no chown, no exec
+    # special case for debugging ... no salt away previous
     #
     :
 else
     # Salt away previous log, if any ...
     #
-    PROGLOGDIR=`dirname "$PROGLOG"`
-    [ -d "$PROGLOGDIR" ] || mkdir_and_chown "$PROGLOGDIR" 775 $PCP_USER:$PCP_GROUP 2>/dev/null
     _save_prev_file "$PROGLOG"
     # After argument checking, everything must be logged to ensure no mail is
     # accidentally sent from cron.  Close stdout and stderr, then open stdout
-    # as our logfile and redirect stderr there too.  Create the log file with
-    # correct ownership first.
+    # as our logfile and redirect stderr there too.
     #
-    # Exception ($SHOWME, above) is for -N where we want to see the output.
-    #
-    if touch "$MYPROGLOG" 2>/dev/null
-    then
-	:
-    else
-	MYPROGLOG=/var/tmp/pmlogger_janitor.$$
-    fi
-    chown $PCP_USER:$PCP_GROUP "$MYPROGLOG" >/dev/null 2>&1
     exec 3>&2 1>"$MYPROGLOG" 2>&1
 fi
 
@@ -491,7 +481,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	#
 	if [ ! -d "$dir" ]
 	then
-	    mkdir_and_chown "$dir" 775 $PCP_USER:$PCP_GROUP >$tmp/tmp 2>&1
+	    mkdir -p -m 0775 "$dir" >$tmp/tmp 2>&1
 	    if [ ! -d "$dir" ]
 	    then
 		cat $tmp/tmp
@@ -501,10 +491,6 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 		_warning "creating directory ($dir) for PCP archive files"
 	    fi
 	fi
-
-	# and the logfile is writeable, if it exists
-	#
-	[ -f "$logfile" ] && chown $PCP_USER:$PCP_GROUP "$logfile" >/dev/null 2>&1
 
 	if cd "$dir"
 	then

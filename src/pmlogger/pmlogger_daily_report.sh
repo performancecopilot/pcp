@@ -318,18 +318,15 @@ fi
 
 if [ "$PROGLOG" = "/dev/tty" ]
 then
-    # special case for debugging ... no salt away previous, no chown, no exec
+    # special case for debugging ... no salt away previous
     #
     :
 else
     # After argument checking, everything must be logged to ensure no mail is
     # accidentally sent from cron.  Close stdout and stderr, then open stdout
-    # as our logfile and redirect stderr there too.  Create the log file with
-    # correct ownership first.
+    # as our logfile and redirect stderr there too.
     #
     [ -f "$PROGLOG" ] && mv "$PROGLOG" "$PROGLOG.prev"
-    touch "$PROGLOG"
-    chown $PCP_USER:$PCP_GROUP "$PROGLOG" >/dev/null 2>&1
     exec 1>"$PROGLOG" 2>&1
 fi
 
@@ -357,10 +354,10 @@ $VERBOSE && echo ARCHIVEPATH=$ARCHIVEPATH
 [ -z "$REPORTDIR" ] && REPORTDIR="$PCP_SA_DIR"
 $VERBOSE && echo REPORTDIR=$REPORTDIR
 
-# Create output directory - if this fails due to permissions we exit later
+# Create output directory - if this fails for any reason we exit later
 #
 [ -d "$REPORTDIR" ] \
-    || { mkdir -p "$REPORTDIR" 2>/dev/null; chmod 0775 "$REPORTDIR" 2>/dev/null; }
+    || mkdir -p -m 0775 "$REPORTDIR" 2>/dev/null
 
 # Default output file is the day of month for yesterday in REPORTDIR
 #

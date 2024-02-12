@@ -204,27 +204,22 @@ fi
 
 if $SHOWME
 then
+    # Exception is for -N where we want to see the output.
+    #
     :
 elif [ "$PROGLOG" = "/dev/tty" ]
 then
-    # special case for debugging ... no salt away previous, no chown, no exec
+    # special case for debugging ... no salt away previous
     #
     :
 else
     # Salt away previous log, if any ...
     #
-    PROGLOGDIR=`dirname "$PROGLOG"`
-    [ -d "$PROGLOGDIR" ] || mkdir_and_chown "$PROGLOGDIR" 775 $PCP_USER:$PCP_GROUP 2>/dev/null
     _save_prev_file "$PROGLOG"
     # After argument checking, everything must be logged to ensure no mail is
     # accidentally sent from cron.  Close stdout and stderr, then open stdout
-    # as our logfile and redirect stderr there too.  Create the log file with
-    # correct ownership first.
+    # as our logfile and redirect stderr there too.
     #
-    # Exception ($SHOWME, above) is for -N where we want to see the output.
-    #
-    touch "$MYPROGLOG"
-    chown $PCP_USER:$PCP_GROUP "$MYPROGLOG" >/dev/null 2>&1
     exec 1>"$MYPROGLOG" 2>&1
 fi
 
@@ -484,7 +479,6 @@ _configure_pmie()
 	    echo "=== end pmieconf file ==="
 	else
 	    [ $isprimary = y ] && $PMIECONF -f "$configfile" -c modify primary enabled yes
-            chown $PCP_USER:$PCP_GROUP "$configfile" >/dev/null 2>&1
 	fi
     fi
 }
@@ -699,22 +693,15 @@ s/^\\$//
 	#
 	if [ ! -d "$dir" ]
 	then
-	    mkdir_and_chown "$dir" 775 $PCP_USER:$PCP_GROUP >$tmp/tmp 2>&1
-	    if [ ! -d "$dir" ]
+	    if mkdir -p "$dir" >$tmp/tmp 2>&1
 	    then
+		:
+	    else
 		cat $tmp/tmp
 		_error "cannot create directory ($dir) for pmie log file"
 		continue
 	    fi
 	fi
-
-	# and the user pcp can write there
-	#
-	chown $PCP_USER:$PCP_GROUP "$dir" >/dev/null 2>&1
-
-	# and the logfile is writeable, if it exists
-	#
-	[ -f "$logfile" ] && chown $PCP_USER:$PCP_GROUP "$logfile" >/dev/null 2>&1
 
 	if cd "$dir" >/dev/null 2>&1
 	then
@@ -839,7 +826,6 @@ NR == 3	{ printf "p_pmcd_host=\"%s\"\n", $0; next }
 		else
 		    echo "---- from $prog @ `date` ---" >>$logfile.$SUMMARY_LOGNAME
 		    cat $logfile >>$logfile.$SUMMARY_LOGNAME
-		    chown $PCP_USER:$PCP_GROUP $logfile.$SUMMARY_LOGNAME >/dev/null 2>&1
 		fi
 	    fi
 

@@ -230,27 +230,22 @@ _compress_now()
 #
 if $SHOWME
 then
+    # Exception is for -N where we want to see the output.
+    #
     :
 elif [ "$PROGLOG" = "/dev/tty" ]
 then
-    # special case for debugging ... no salt away previous, no chown, no exec
+    # special case for debugging ... no salt away previous
     #
     :
 else
     # Salt away previous log, if any ...
     #
-    PROGLOGDIR=`dirname "$PROGLOG"`
-    [ -d "$PROGLOGDIR" ] || mkdir_and_chown "$PROGLOGDIR" 775 $PCP_USER:$PCP_GROUP 2>/dev/null
     _save_prev_file "$PROGLOG"
     # After argument checking, everything must be logged to ensure no mail is
     # accidentally sent from cron.  Close stdout and stderr, then open stdout
-    # as our logfile and redirect stderr there too.  Create the log file with
-    # correct ownership first.
+    # as our logfile and redirect stderr there too.
     #
-    # Exception ($SHOWME, above) is for -N where we want to see the output.
-    #
-    touch "$MYPROGLOG"
-    chown $PCP_USER:$PCP_GROUP "$MYPROGLOG" >/dev/null 2>&1
     exec 1>"$MYPROGLOG" 2>&1
 fi
 
@@ -415,7 +410,6 @@ _configure_pmlogger()
 		    elif [ -w "$configfile" ]
 		    then
 			$VERBOSE && echo "Reconfigured: \"$configfile\" (pmlogconf)"
-			chown $PCP_USER:$PCP_GROUP "$tmpconfig" >/dev/null 2>&1
 			eval $MV "$tmpconfig" "$configfile"
 			echo "=== pmlogconf changes @ `date` ==="
 			cat $tmp/diag
@@ -450,7 +444,6 @@ _configure_pmlogger()
 	    echo "=== end pmlogconf file ==="
 	else
 	    $VERBOSE && echo "Created: \"$configfile\" (pmlogconf)"
-	    chown $PCP_USER:$PCP_GROUP "$configfile" >/dev/null 2>&1
 	fi
     else
 	$VERBOSE && echo "Botched: \"$configfile\" (pmlogconf)"
@@ -814,7 +807,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	#
 	if [ ! -d "$dir" ]
 	then
-	    mkdir_and_chown "$dir" 775 $PCP_USER:$PCP_GROUP >$tmp/tmp 2>&1
+	    mkdir -p -m 0775 "$dir" >$tmp/tmp 2>&1
 	    if [ ! -d "$dir" ]
 	    then
 		cat $tmp/tmp
@@ -824,10 +817,6 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 		_warning "creating directory ($dir) for PCP archive files"
 	    fi
 	fi
-
-	# and the logfile is writeable, if it exists
-	#
-	[ -f "$logfile" ] && chown $PCP_USER:$PCP_GROUP "$logfile" >/dev/null 2>&1
 
 	if cd "$dir"
 	then
