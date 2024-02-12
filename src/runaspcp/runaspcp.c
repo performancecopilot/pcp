@@ -48,9 +48,12 @@ static pmOptions opts = {
 int main(int argc, char **argv)
 {
     struct passwd	*pw;
+    struct group	*gr;
     int			sts;
     char		*shell = "/bin/sh";
     char		*myname = argv[0];
+    char		*user;
+    char		*group;
     char		**nargv;
     int			i;
     int			c;
@@ -72,16 +75,40 @@ int main(int argc, char **argv)
 	fprintf(stderr, "%s called ...\n", myname);
 
     /*
-     * get the passwd file entry for the pcp "user" ... this gives us
-     * the user id and group id
+     * get $PCP_USER ... and $PCP_GROUP
      */
-    pw = getpwnam("pcp");
+    if ((user = pmGetConfig("PCP_USER")) == NULL) {
+	fprintf(stderr, "%s: pmGetConfig(PCP_USER) failed: ", myname);
+	return 1;
+    }
+    if ((group = pmGetConfig("PCP_GROUP")) == NULL) {
+	fprintf(stderr, "%s: pmGetConfig(PCP_GROUP) failed: ", myname);
+	return 1;
+    }
+
+    /*
+     * get the passwd file entry for the PCP_USER "user"
+     */
+    pw = getpwnam(user);
     if (pw == NULL) {
-	fprintf(stderr, "%s: getpwnam(pcp) failed: ", myname);
+	fprintf(stderr, "%s: getpwnam(%s) failed: ", myname, user);
 	if (errno != 0)
 	    fprintf(stderr, "%s\n", strerror(errno));
 	else
 	    fprintf(stderr, "entry not found in passwd file\n");
+	return 1;
+    }
+
+    /*
+     * get the group file entry for the PCP_GROUP "group"
+     */
+    gr = getgrnam(group);
+    if (gr == NULL) {
+	fprintf(stderr, "%s: getgrname(%s) failed: ", myname, group);
+	if (errno != 0)
+	    fprintf(stderr, "%s\n", strerror(errno));
+	else
+	    fprintf(stderr, "entry not found in group file\n");
 	return 1;
     }
 
@@ -92,8 +119,8 @@ int main(int argc, char **argv)
 	fprintf(stderr, "%s: setgroups(0, NULL) failed: %s\n", myname, strerror(errno));
 	return 1;
     }
-    if (setgid(pw->pw_gid) < 0) {
-	fprintf(stderr, "%s: setgid(%d) failed: %s\n", myname, (int)pw->pw_gid, strerror(errno));
+    if (setgid(gr->gr_gid) < 0) {
+	fprintf(stderr, "%s: setgid(%d) failed: %s\n", myname, (int)gr->gr_gid, strerror(errno));
 	return 1;
     }
     if (setuid(pw->pw_uid) < 0) {
