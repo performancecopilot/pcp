@@ -5,22 +5,12 @@
 
 #include "module.h"
 
-#include <assert.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <signal.h>
-#include <string.h>
 #include <errno.h>
-#include <dirent.h>
-#include <sys/resource.h>
 #include <bpf/libbpf.h>
 #include <bpf/bpf.h>
-#include <pcp/pmda.h>
-#include <sys/queue.h>
-#include <pcp/pmapi.h>
+#include <pcp/pmwebapi.h>
 
 #include "netatop.skel.h"
-#include "libpcp.h"
 #include "netatop.h"
 #include "btf_helpers.h"
 
