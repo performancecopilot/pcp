@@ -1,0 +1,71 @@
+# PCP required package list for Slackware 14.2 x86_64
+# created by kenj on vm15 Sun Feb 11 20:27:40 AEDT 2024
+#
+expect
+llvm
+?:1517
+?:1530
+?:1543
+?:1556
+?:1569
+?:201
+?:274
+Date::Format cpan
+Date::Parse cpan
+File::Slurp cpan
+JSON cpan
+LWP::UserAgent cpan
+List::MoreUtils cpan
+Net::SNMP cpan
+Spreadsheet::Read cpan
+Spreadsheet::ReadSXC cpan
+Spreadsheet::WriteExcel cpan
+Spreadsheet::XLSX cpan
+Text::CSV_XS cpan
+XML::LibXML cpan
+XML::TokeParser cpan
+YAML::LibYAML cpan
+autoconf
+bash
+bc
+bin
+bind
+bison
+coreutils
+curl
+cyrus-sasl
+dcron
+ed
+flex
+gawk
+gcc
+gcc-g++
+gdb
+git
+grep
+httpd
+icu4c
+lm_sensors
+mailx
+make
+mariadb
+ncurses
+net-tools
+nmap
+perl
+pkg-config
+procps-ng
+python
+python-pillow
+python-setuptools
+qt
+readline
+sed
+smartmontools
+sqlite
+sysstat
+time
+xfsprogs
+xkeyboard-config
+xz
+iproute2

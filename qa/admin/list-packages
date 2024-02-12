@@ -522,7 +522,7 @@ p
 	    do
 		[ -f "$f" ] || continue
 		zcat "$f" \
-		| $PCP_AWK_PROG '{ print $1 }' \
+		| awk '{ print $1 }' \
 		| sed \
 		    -e 's/\-[0-9].*//' \
 		    -e 's;.*/;;' \
