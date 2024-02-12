@@ -49,12 +49,10 @@ _stop_auto_restart pmcd
 
 # real QA test starts here
 
-_pmdabpf_install $tmp.conf
-sudo ln -s  /usr/local/bpf.log /usr/local//var/log/pcp//pmcd/
+_pmdabpf_install $tmp.conf | _filter_pmda_install
 _pmdabpf_wait_for_metric
 
 # Generate system activity for the BCC netproc module
-pwd
 $PCP_PYTHON_PROG $here/src/bcc_netproc.py server >> "$seq.full" &
 server_pid=$!
 
@@ -73,13 +71,13 @@ wait ${server_pid}
 echo "server PID: ${server_pid}" >> "$seq.full"
 echo "client PID: ${client_pid}" >> "$seq.full"
 
-for metric in bpf.proc.net.tcp.send.packs \
+for metric in bpf.proc.net.tcp.send.packets \
               bpf.proc.net.tcp.send.bytes \
-              bpf.proc.net.tcp.recv.packs \
+              bpf.proc.net.tcp.recv.packets \
               bpf.proc.net.tcp.recv.bytes \
-              bpf.proc.net.udp.send.packs \
+              bpf.proc.net.udp.send.packets \
               bpf.proc.net.udp.send.bytes \
-              bpf.proc.net.udp.recv.packs \
+              bpf.proc.net.udp.recv.packets \
               bpf.proc.net.udp.recv.bytes
 do
     echo && echo && echo "=== report metric values for $metric ==="

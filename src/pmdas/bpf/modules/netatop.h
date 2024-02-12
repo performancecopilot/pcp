@@ -41,9 +41,6 @@ extern int tgid_map_fd;
 extern int tid_map_fd;
 extern int nr_cpus;
 
-#define	NUMCLIENTS	(semctl(semid, 1, GETVAL, 0))
-#define SEMAKEY         1541962
-
 void bpf_attach(struct netatop_bpf *);
 void bpf_destroy(struct netatop_bpf *);
 void cleanup(struct netatop_bpf *);

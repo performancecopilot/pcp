@@ -1,5 +1,4 @@
 QA output created by 1264
-
 === bpf agent installation ===
 Updating the Performance Metrics Name Space (PMNS) ...
 Terminate PMDA if already installed ...
@@ -7,17 +6,15 @@ Terminate PMDA if already installed ...
 Updating the PMCD control file, and notifying PMCD ...
 Check bpf metrics have appeared ... X metrics and X values
 
-/usr/local/var/lib/pcp/pmdas/bpf
 
-
-=== report metric values for bpf.proc.net.tcp.send.packs ===
+=== report metric values for bpf.proc.net.tcp.send.packets ===
 
     Data Type: 64-bit unsigned int  InDom: 157.2 0x27400002
     Semantics: counter  Units: none
     inst [CLIENTPID or "CLIENTPID"] value 1
     inst [SERVERPID or "SERVERPID"] value 1
 Help:
-bpf.proc.net.tcp.send.packs PMID: 157.0.0 [tcp packets sent]
+bpf.proc.net.tcp.send.packets PMID: 157.0.0 [tcp packets sent]
 tcp packets sent (tracepoint/sock/sock_send_length)
 
 
@@ -32,14 +29,14 @@ bpf.proc.net.tcp.send.bytes PMID: 157.0.1 [tcp bytes sent]
 tcp bytes sent (tracepoint/sock/sock_send_length)
 
 
-=== report metric values for bpf.proc.net.tcp.recv.packs ===
+=== report metric values for bpf.proc.net.tcp.recv.packets ===
 
     Data Type: 64-bit unsigned int  InDom: 157.2 0x27400002
     Semantics: counter  Units: none
     inst [CLIENTPID or "CLIENTPID"] value 1
     inst [SERVERPID or "SERVERPID"] value 1
 Help:
-bpf.proc.net.tcp.recv.packs PMID: 157.0.2 [tcp packets received]
+bpf.proc.net.tcp.recv.packets PMID: 157.0.2 [tcp packets received]
 tcp packets received (tracepoint/sock/sock_recv_length)
 
 
@@ -54,14 +51,14 @@ bpf.proc.net.tcp.recv.bytes PMID: 157.0.3 [tcp bytes received]
 tcp bytes received (tracepoint/sock/sock_recv_length)
 
 
-=== report metric values for bpf.proc.net.udp.send.packs ===
+=== report metric values for bpf.proc.net.udp.send.packets ===
 
     Data Type: 64-bit unsigned int  InDom: 157.2 0x27400002
     Semantics: counter  Units: none
     inst [CLIENTPID or "CLIENTPID"] value 1
     inst [SERVERPID or "SERVERPID"] value 1
 Help:
-bpf.proc.net.udp.send.packs PMID: 157.0.4 [udp packets sent]
+bpf.proc.net.udp.send.packets PMID: 157.0.4 [udp packets sent]
 udp packets sent (tracepoint/sock/sock_send_length)
 
 
@@ -76,14 +73,14 @@ bpf.proc.net.udp.send.bytes PMID: 157.0.5 [udp bytes sent]
 udp bytes sent (tracepoint/sock/sock_send_length)
 
 
-=== report metric values for bpf.proc.net.udp.recv.packs ===
+=== report metric values for bpf.proc.net.udp.recv.packets ===
 
     Data Type: 64-bit unsigned int  InDom: 157.2 0x27400002
     Semantics: counter  Units: none
     inst [CLIENTPID or "CLIENTPID"] value 1
     inst [SERVERPID or "SERVERPID"] value 1
 Help:
-bpf.proc.net.udp.recv.packs PMID: 157.0.6 [udp packets received]
+bpf.proc.net.udp.recv.packets PMID: 157.0.6 [udp packets received]
 udp packets received (tracepoint/sock/sock_recv_length)
 
 
