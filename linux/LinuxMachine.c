@@ -10,26 +10,28 @@ in the source distribution for its full text.
 #include "linux/LinuxMachine.h"
 
 #include <assert.h>
-#include <ctype.h>
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <inttypes.h>
+#include <limits.h>
 #include <math.h>
 #include <stdbool.h>
-#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
 #include <unistd.h>
-#include <sys/types.h>
 #include <time.h>
 
 #include "Compat.h"
+#include "CRT.h"
 #include "Macros.h"
+#include "ProcessTable.h"
+#include "Row.h"
+#include "Settings.h"
+#include "UsersTable.h"
 #include "XUtils.h"
-#include "linux/LinuxMachine.h"
+
 #include "linux/Platform.h" // needed for GNU/hurd to get PATH_MAX  // IWYU pragma: keep
 
 #ifdef HAVE_SENSORS_SENSORS_H
@@ -157,36 +159,36 @@ static void LinuxMachine_scanMemoryInfo(LinuxMachine* this) {
          } else (void) 0 /* Require a ";" after the macro use. */
 
       switch (buffer[0]) {
-      case 'M':
-         tryRead("MemAvailable:", availableMem);
-         tryRead("MemFree:", freeMem);
-         tryRead("MemTotal:", totalMem);
-         break;
-      case 'B':
-         tryRead("Buffers:", buffersMem);
-         break;
-      case 'C':
-         tryRead("Cached:", cachedMem);
-         break;
-      case 'S':
-         switch (buffer[1]) {
-         case 'h':
-            tryRead("Shmem:", sharedMem);
+         case 'M':
+            tryRead("MemAvailable:", availableMem);
+            tryRead("MemFree:", freeMem);
+            tryRead("MemTotal:", totalMem);
             break;
-         case 'w':
-            tryRead("SwapTotal:", swapTotalMem);
-            tryRead("SwapCached:", swapCacheMem);
-            tryRead("SwapFree:", swapFreeMem);
+         case 'B':
+            tryRead("Buffers:", buffersMem);
             break;
-         case 'R':
-            tryRead("SReclaimable:", sreclaimableMem);
+         case 'C':
+            tryRead("Cached:", cachedMem);
             break;
-         }
-         break;
-      case 'Z':
-         tryRead("Zswap:", zswapCompMem);
-         tryRead("Zswapped:", zswapOrigMem);
-         break;
+         case 'S':
+            switch (buffer[1]) {
+               case 'h':
+                  tryRead("Shmem:", sharedMem);
+                  break;
+               case 'w':
+                  tryRead("SwapTotal:", swapTotalMem);
+                  tryRead("SwapCached:", swapCacheMem);
+                  tryRead("SwapFree:", swapFreeMem);
+                  break;
+               case 'R':
+                  tryRead("SReclaimable:", sreclaimableMem);
+                  break;
+            }
+            break;
+         case 'Z':
+            tryRead("Zswap:", zswapCompMem);
+            tryRead("Zswapped:", zswapOrigMem);
+            break;
       }
 
       #undef tryRead
@@ -300,8 +302,8 @@ static void LinuxMachine_scanZramInfo(LinuxMachine* this) {
       memory_t orig_data_size = 0;
       memory_t compr_data_size = 0;
 
-      if (!fscanf(disksize_file, "%llu\n", &size) ||
-          !fscanf(mm_stat_file, "    %llu       %llu", &orig_data_size, &compr_data_size)) {
+      if (1 != fscanf(disksize_file, "%llu\n", &size) ||
+          2 != fscanf(mm_stat_file, "    %llu       %llu", &orig_data_size, &compr_data_size)) {
          fclose(disksize_file);
          fclose(mm_stat_file);
          break;
@@ -340,42 +342,43 @@ static void LinuxMachine_scanZfsArcstats(LinuxMachine* this) {
             sscanf(buffer + strlen(label), " %*2u %32llu", variable);          \
             break;                                                             \
          } else (void) 0 /* Require a ";" after the macro use. */
-      #define tryReadFlag(label, variable, flag)                               \
-         if (String_startsWith(buffer, label)) {                               \
-            (flag) = sscanf(buffer + strlen(label), " %*2u %32llu", variable); \
-            break;                                                             \
+      #define tryReadFlag(label, variable, flag)                                      \
+         if (String_startsWith(buffer, label)) {                                      \
+            (flag) = (1 == sscanf(buffer + strlen(label), " %*2u %32llu", variable)); \
+            break;                                                                    \
          } else (void) 0 /* Require a ";" after the macro use. */
 
       switch (buffer[0]) {
-      case 'c':
-         tryRead("c_min", &this->zfs.min);
-         tryRead("c_max", &this->zfs.max);
-         tryReadFlag("compressed_size", &this->zfs.compressed, this->zfs.isCompressed);
-         break;
-      case 'u':
-         tryRead("uncompressed_size", &this->zfs.uncompressed);
-         break;
-      case 's':
-         tryRead("size", &this->zfs.size);
-         break;
-      case 'h':
-         tryRead("hdr_size", &this->zfs.header);
-         break;
-      case 'd':
-         tryRead("dbuf_size", &dbufSize);
-         tryRead("dnode_size", &dnodeSize);
-         break;
-      case 'b':
-         tryRead("bonus_size", &bonusSize);
-         break;
-      case 'a':
-         tryRead("anon_size", &this->zfs.anon);
-         break;
-      case 'm':
-         tryRead("mfu_size", &this->zfs.MFU);
-         tryRead("mru_size", &this->zfs.MRU);
-         break;
+         case 'c':
+            tryRead("c_min", &this->zfs.min);
+            tryRead("c_max", &this->zfs.max);
+            tryReadFlag("compressed_size", &this->zfs.compressed, this->zfs.isCompressed);
+            break;
+         case 'u':
+            tryRead("uncompressed_size", &this->zfs.uncompressed);
+            break;
+         case 's':
+            tryRead("size", &this->zfs.size);
+            break;
+         case 'h':
+            tryRead("hdr_size", &this->zfs.header);
+            break;
+         case 'd':
+            tryRead("dbuf_size", &dbufSize);
+            tryRead("dnode_size", &dnodeSize);
+            break;
+         case 'b':
+            tryRead("bonus_size", &bonusSize);
+            break;
+         case 'a':
+            tryRead("anon_size", &this->zfs.anon);
+            break;
+         case 'm':
+            tryRead("mfu_size", &this->zfs.MFU);
+            tryRead("mru_size", &this->zfs.MRU);
+            break;
       }
+
       #undef tryRead
       #undef tryReadFlag
    }
@@ -486,8 +489,7 @@ static void LinuxMachine_scanCPUTime(LinuxMachine* this) {
    char buffer[PROC_LINE_LENGTH + 1];
    while (fgets(buffer, sizeof(buffer), file)) {
       if (String_startsWith(buffer, "procs_running")) {
-         ProcessTable* pt = (ProcessTable*) super->processTable;
-         pt->runningTasks = strtoul(buffer + strlen("procs_running"), NULL, 10);
+         this->runningTasks = strtoul(buffer + strlen("procs_running"), NULL, 10);
          break;
       }
    }

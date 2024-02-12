@@ -6,20 +6,21 @@ Released under the GNU GPLv2+, see the COPYING file
 in the source distribution for its full text.
 */
 
+#include "config.h" // IWYU pragma: keep
+
 #include "Table.h"
 
 #include <assert.h>
+#include <stdint.h>
 #include <stdlib.h>
-#include <string.h>
 
 #include "CRT.h"
-#include "DynamicColumn.h"
 #include "Hashtable.h"
 #include "Machine.h"
 #include "Macros.h"
-#include "Platform.h"
+#include "Panel.h"
+#include "RowField.h"
 #include "Vector.h"
-#include "XUtils.h"
 
 
 Table* Table_init(Table* this, const ObjectClass* klass, Machine* host) {
@@ -137,7 +138,7 @@ static void Table_buildTreeBranch(Table* this, int rowid, unsigned int level, in
 }
 
 static int compareRowByKnownParentThenNatural(const void* v1, const void* v2) {
-    return Row_compareByParent((const Row*) v1, (const Row*) v2);
+   return Row_compareByParent((const Row*) v1, (const Row*) v2);
 }
 
 // Builds a sorted tree from scratch, without relying on previously gathered information
@@ -263,7 +264,7 @@ void Table_rebuildPanel(Table* this) {
          foundFollowed = true;
          Panel_setSelected(this->panel, idx);
          /* Keep scroll position relative to followed row */
-         this->panel->scrollV = idx - (currPos-currScrollV);
+         this->panel->scrollV = idx - (currPos - currScrollV);
       }
       idx++;
    }
@@ -307,10 +308,9 @@ void Table_printHeader(const Settings* settings, RichString* header) {
       if (key == fields[i] && RichString_getCharVal(*header, RichString_size(header) - 1) == ' ') {
          bool ascending = ScreenSettings_getActiveDirection(ss) == 1;
          RichString_rewind(header, 1);  // rewind to override space
-         RichString_appendnWide(header,
+         RichString_appendWide(header,
                                 CRT_colors[PANEL_SELECTION_FOCUS],
-                                CRT_treeStr[ascending ? TREE_STR_ASC : TREE_STR_DESC],
-                                1);
+                                CRT_treeStr[ascending ? TREE_STR_ASC : TREE_STR_DESC]);
       }
       if (COMM == fields[i] && settings->showMergedCommand) {
          RichString_appendAscii(header, color, "(merged)");

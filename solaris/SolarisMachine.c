@@ -6,6 +6,7 @@ Released under the GNU GPLv2+, see the COPYING file
 in the source distribution for its full text.
 */
 
+#include "config.h" // IWYU pragma: keep
 
 #include "solaris/SolarisMachine.h"
 
@@ -56,7 +57,7 @@ static void SolarisMachine_updateCPUcount(SolarisMachine* this) {
 
    if (s != super->activeCPUs) {
       change = true;
-      hsuper->activeCPUs = s;
+      super->activeCPUs = s;
    }
 
    if (change) {
@@ -300,7 +301,7 @@ void Machine_scan(Machine* super) {
 
 Machine* Machine_new(UsersTable* usersTable, uid_t userId) {
    SolarisMachine* this = xCalloc(1, sizeof(SolarisMachine));
-   Machine *super = &this->super;
+   Machine* super = &this->super;
 
    Machine_init(super, usersTable, userId);
 
@@ -308,6 +309,10 @@ Machine* Machine_new(UsersTable* usersTable, uid_t userId) {
    if (this->pageSize == -1)
       CRT_fatalError("Cannot get pagesize by sysconf(_SC_PAGESIZE)");
    this->pageSizeKB = this->pageSize / 1024;
+
+   this->kd = kstat_open();
+   if (!this->kd)
+      CRT_fatalError("Cannot open kstat handle");
 
    SolarisMachine_updateCPUcount(this);
 

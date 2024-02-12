@@ -5,15 +5,20 @@ Released under the GNU GPLv2+, see the COPYING file
 in the source distribution for its full text.
 */
 
+#include "config.h" // IWYU pragma: keep
+
 #include "ScreenTabsPanel.h"
 
+#include <assert.h>
 #include <ctype.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "CRT.h"
 #include "FunctionBar.h"
 #include "Hashtable.h"
+#include "Macros.h"
 #include "ProvideCurses.h"
 #include "Settings.h"
 #include "XUtils.h"
@@ -89,20 +94,20 @@ static HandlerResult ScreenTabsPanel_eventHandler(Panel* super, int ch) {
          break;
       }
       default:
-      {
          if (ch < 255 && isalpha(ch))
             result = Panel_selectByTyping(super, ch);
          if (result == BREAK_LOOP)
             result = IGNORED;
          break;
-      }
    }
+
    if (result == HANDLED) {
       ScreenTabListItem* focus = (ScreenTabListItem*) Panel_getSelected(super);
       if (focus) {
          ScreenNamesPanel_fill(this->names, focus->ds);
       }
    }
+
    return result;
 }
 
@@ -208,49 +213,48 @@ static HandlerResult ScreenNamesPanel_eventHandlerRenaming(Panel* super, int ch)
          super->selectedLen = strlen(this->buffer);
          Panel_setCursorToSelection(super);
       }
-   } else {
-      switch (ch) {
-         case 127:
-         case KEY_BACKSPACE:
-         {
-            if (this->cursor > 0) {
-               this->cursor--;
-               this->buffer[this->cursor] = '\0';
-               super->selectedLen = strlen(this->buffer);
-               Panel_setCursorToSelection(super);
-            }
-            break;
+
+      return HANDLED;
+   }
+
+   switch (ch) {
+      case 127:
+      case KEY_BACKSPACE:
+         if (this->cursor > 0) {
+            this->cursor--;
+            this->buffer[this->cursor] = '\0';
+            super->selectedLen = strlen(this->buffer);
+            Panel_setCursorToSelection(super);
          }
-         case '\n':
-         case '\r':
-         case KEY_ENTER:
-         {
-            ListItem* item = (ListItem*) Panel_getSelected(super);
-            if (!item)
-               break;
-            assert(item == this->renamingItem);
-            free(this->saved);
-            item->value = xStrdup(this->buffer);
-            this->renamingItem = NULL;
-            super->cursorOn = false;
-            Panel_setSelectionColor(super, PANEL_SELECTION_FOCUS);
-            renameScreenSettings(this, item);
+         break;
+      case '\n':
+      case '\r':
+      case KEY_ENTER: {
+         ListItem* item = (ListItem*) Panel_getSelected(super);
+         if (!item)
             break;
-         }
-         case 27: // Esc
-         {
-            ListItem* item = (ListItem*) Panel_getSelected(super);
-            if (!item)
-               break;
-            assert(item == this->renamingItem);
-            item->value = this->saved;
-            this->renamingItem = NULL;
-            super->cursorOn = false;
-            Panel_setSelectionColor(super, PANEL_SELECTION_FOCUS);
+         assert(item == this->renamingItem);
+         free(this->saved);
+         item->value = xStrdup(this->buffer);
+         this->renamingItem = NULL;
+         super->cursorOn = false;
+         Panel_setSelectionColor(super, PANEL_SELECTION_FOCUS);
+         renameScreenSettings(this, item);
+         break;
+      }
+      case 27: { // Esc
+         ListItem* item = (ListItem*) Panel_getSelected(super);
+         if (!item)
             break;
-         }
+         assert(item == this->renamingItem);
+         item->value = this->saved;
+         this->renamingItem = NULL;
+         super->cursorOn = false;
+         Panel_setSelectionColor(super, PANEL_SELECTION_FOCUS);
+         break;
       }
    }
+
    return HANDLED;
 }
 
@@ -260,6 +264,7 @@ static void startRenaming(Panel* super) {
    ListItem* item = (ListItem*) Panel_getSelected(super);
    if (item == NULL)
       return;
+
    this->renamingItem = item;
    super->cursorOn = true;
    char* name = item->value;
@@ -287,17 +292,16 @@ static HandlerResult ScreenNamesPanel_eventHandlerNormal(Panel* super, int ch) {
    ScreenNamesPanel* const this = (ScreenNamesPanel*) super;
    ScreenNameListItem* oldFocus = (ScreenNameListItem*) Panel_getSelected(super);
    HandlerResult result = IGNORED;
+
    switch (ch) {
       case '\n':
       case '\r':
       case KEY_ENTER:
       case KEY_MOUSE:
       case KEY_RECLICK:
-      {
          Panel_setSelectionColor(super, PANEL_SELECTION_FOCUS);
          result = HANDLED;
          break;
-      }
       case EVENT_SET_SELECTED:
          result = HANDLED;
          break;
@@ -305,30 +309,26 @@ static HandlerResult ScreenNamesPanel_eventHandlerNormal(Panel* super, int ch) {
       case KEY_PPAGE:
       case KEY_HOME:
       case KEY_END:
-      {
          Panel_onKey(super, ch);
          break;
-      }
       case KEY_F(5):
       case KEY_CTRL('N'):
-      {
          addNewScreen(super, this->ds);
          startRenaming(super);
          result = HANDLED;
          break;
-      }
       default:
-      {
          if (ch < 255 && isalpha(ch))
             result = Panel_selectByTyping(super, ch);
          if (result == BREAK_LOOP)
             result = IGNORED;
          break;
-      }
    }
+
    ScreenNameListItem* newFocus = (ScreenNameListItem*) Panel_getSelected(super);
    if (newFocus && oldFocus != newFocus)
       result = HANDLED;
+
    return result;
 }
 

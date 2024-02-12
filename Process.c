@@ -11,7 +11,6 @@ in the source distribution for its full text.
 #include "Process.h"
 
 #include <assert.h>
-#include <limits.h>
 #include <math.h>
 #include <signal.h>
 #include <stdbool.h>
@@ -19,17 +18,18 @@ in the source distribution for its full text.
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include <unistd.h>
 #include <sys/resource.h>
 
 #include "CRT.h"
+#include "Hashtable.h"
+#include "Machine.h"
 #include "Macros.h"
-#include "Platform.h"
 #include "ProcessTable.h"
 #include "DynamicColumn.h"
 #include "RichString.h"
 #include "Scheduling.h"
 #include "Settings.h"
+#include "Table.h"
 #include "XUtils.h"
 
 #if defined(MAJOR_IN_MKDEV)
@@ -47,7 +47,7 @@ void Process_fillStarttimeBuffer(Process* this) {
 
    strftime(this->starttime_show,
             sizeof(this->starttime_show) - 1,
-            (this->starttime_ctime > now - 86400) ? "%R " : (this->starttime_ctime > now - 364*86400) ? "%b%d " : " %Y ",
+            (this->starttime_ctime > now - 86400) ? "%R " : (this->starttime_ctime > now - 364 * 86400) ? "%b%d " : " %Y ",
             &date);
 }
 
@@ -542,13 +542,14 @@ static void Process_rowWriteField(const Row* super, RichString* str, RowField fi
 }
 
 void Process_writeField(const Process* this, RichString* str, RowField field) {
-   char buffer[256];
-   size_t n = sizeof(buffer);
-   int attr = CRT_colors[DEFAULT_COLOR];
    const Row* super = (const Row*) &this->super;
    const Machine* host = super->host;
    const Settings* settings = host->settings;
+
    bool coloring = settings->highlightMegabytes;
+   char buffer[256]; buffer[255] = '\0';
+   int attr = CRT_colors[DEFAULT_COLOR];
+   size_t n = sizeof(buffer) - 1;
 
    switch (field) {
    case COMM: {
@@ -650,8 +651,8 @@ void Process_writeField(const Process* this, RichString* str, RowField field) {
    case NICE:
       xSnprintf(buffer, n, "%3ld ", this->nice);
       attr = this->nice < 0 ? CRT_colors[PROCESS_HIGH_PRIORITY]
-           : this->nice > 0 ? CRT_colors[PROCESS_LOW_PRIORITY]
-           : CRT_colors[PROCESS_SHADOW];
+         : this->nice > 0 ? CRT_colors[PROCESS_LOW_PRIORITY]
+         : CRT_colors[PROCESS_SHADOW];
       break;
    case NLWP:
       if (this->nlwp == 1)
@@ -690,30 +691,30 @@ void Process_writeField(const Process* this, RichString* str, RowField field) {
    case STATE:
       xSnprintf(buffer, n, "%c ", processStateChar(this->state));
       switch (this->state) {
-         case RUNNABLE:
-         case RUNNING:
-         case TRACED:
-            attr = CRT_colors[PROCESS_RUN_STATE];
-            break;
+      case RUNNABLE:
+      case RUNNING:
+      case TRACED:
+         attr = CRT_colors[PROCESS_RUN_STATE];
+         break;
 
-         case BLOCKED:
-         case DEFUNCT:
-         case STOPPED:
-         case UNINTERRUPTIBLE_WAIT:
-         case ZOMBIE:
-            attr = CRT_colors[PROCESS_D_STATE];
-            break;
+      case BLOCKED:
+      case DEFUNCT:
+      case STOPPED:
+      case UNINTERRUPTIBLE_WAIT:
+      case ZOMBIE:
+         attr = CRT_colors[PROCESS_D_STATE];
+         break;
 
-         case QUEUED:
-         case WAITING:
-         case IDLE:
-         case SLEEPING:
-            attr = CRT_colors[PROCESS_SHADOW];
-            break;
+      case QUEUED:
+      case WAITING:
+      case IDLE:
+      case SLEEPING:
+         attr = CRT_colors[PROCESS_SHADOW];
+         break;
 
-         case UNKNOWN:
-         case PAGING:
-            break;
+      case UNKNOWN:
+      case PAGING:
+         break;
       }
       break;
    case ST_UID: xSnprintf(buffer, n, "%*d ", Process_uidDigits, this->st_uid); break;
@@ -754,6 +755,7 @@ void Process_writeField(const Process* this, RichString* str, RowField field) {
       xSnprintf(buffer, n, "- ");
       break;
    }
+
    RichString_appendAscii(str, attr, buffer);
 }
 
@@ -900,7 +902,10 @@ int Process_compare(const void* v1, const void* v2) {
 }
 
 int Process_compareByParent(const Row* r1, const Row* r2) {
-   int result = Row_compareByParent_Base(r1, r2);
+   int result = SPACESHIP_NUMBER(
+      r1->isRoot ? 0 : Row_getGroupOrParent(r1),
+      r2->isRoot ? 0 : Row_getGroupOrParent(r2)
+   );
 
    if (result != 0)
       return result;
@@ -1033,8 +1038,14 @@ void Process_updateCmdline(Process* this, const char* cmdline, int basenameStart
 
    free(this->cmdline);
    this->cmdline = cmdline ? xStrdup(cmdline) : NULL;
-   this->cmdlineBasenameStart = (basenameStart || !cmdline) ? basenameStart : skipPotentialPath(cmdline, basenameEnd);
-   this->cmdlineBasenameEnd = basenameEnd;
+   if (Process_isKernelThread(this)) {
+      /* kernel threads have no basename */
+      this->cmdlineBasenameStart = 0;
+      this->cmdlineBasenameEnd = 0;
+   } else {
+      this->cmdlineBasenameStart = (basenameStart || !cmdline) ? basenameStart : skipPotentialPath(cmdline, basenameEnd);
+      this->cmdlineBasenameEnd = basenameEnd;
+   }
 
    this->mergedCommand.lastUpdate = 0;
 }

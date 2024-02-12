@@ -26,6 +26,7 @@ in the source distribution for its full text.
 #include "Settings.h"
 #include "XUtils.h"
 
+#include "linux/CGroupUtils.h"
 #include "pcp/Metric.h"
 #include "pcp/PCPMachine.h"
 #include "pcp/PCPProcess.h"
@@ -201,6 +202,7 @@ static void PCPProcessTable_updateMemory(PCPProcess* pp, int pid, int offset) {
    pp->super.m_virt = Metric_instance_u32(PCP_PROC_MEM_SIZE, pid, offset, 0);
    pp->super.m_resident = Metric_instance_u32(PCP_PROC_MEM_RSS, pid, offset, 0);
    pp->m_share = Metric_instance_u32(PCP_PROC_MEM_SHARE, pid, offset, 0);
+   pp->m_priv = pp->super.m_resident - pp->m_share;
    pp->m_trs = Metric_instance_u32(PCP_PROC_MEM_TEXTRS, pid, offset, 0);
    pp->m_lrs = Metric_instance_u32(PCP_PROC_MEM_LIBRS, pid, offset, 0);
    pp->m_drs = Metric_instance_u32(PCP_PROC_MEM_DATRS, pid, offset, 0);
@@ -252,6 +254,37 @@ static void PCPProcessTable_updateTTY(Process* process, int pid, int offset) {
 
 static void PCPProcessTable_readCGroups(PCPProcess* pp, int pid, int offset) {
    pp->cgroup = setString(PCP_PROC_CGROUPS, pid, offset, pp->cgroup);
+
+   if (pp->cgroup) {
+      char* cgroup_short = CGroup_filterName(pp->cgroup);
+      if (cgroup_short) {
+         Row_updateFieldWidth(CCGROUP, strlen(cgroup_short));
+         free_and_xStrdup(&pp->cgroup_short, cgroup_short);
+         free(cgroup_short);
+      } else {
+         //CCGROUP is alias to normal CGROUP if shortening fails
+         Row_updateFieldWidth(CCGROUP, strlen(pp->cgroup));
+         free(pp->cgroup_short);
+         pp->cgroup_short = NULL;
+      }
+
+      char* container_short = CGroup_filterName(pp->cgroup);
+      if (container_short) {
+         Row_updateFieldWidth(CONTAINER, strlen(container_short));
+         free_and_xStrdup(&pp->container_short, container_short);
+         free(container_short);
+      } else {
+         Row_updateFieldWidth(CONTAINER, strlen("N/A"));
+         free(pp->container_short);
+         pp->container_short = NULL;
+      }
+   } else {
+      free(pp->cgroup_short);
+      pp->cgroup_short = NULL;
+
+      free(pp->container_short);
+      pp->container_short = NULL;
+   }
 }
 
 static void PCPProcessTable_readSecattrData(PCPProcess* pp, int pid, int offset) {
@@ -300,7 +333,7 @@ static void PCPProcessTable_updateCmdline(Process* process, int pid, int offset,
          tokenStart = i + 1;
       /* special-case arguments for problematic situations like "find /" */
       if (command[i] <= ' ')
-	 argSepSpace = true;
+         argSepSpace = true;
    }
    tokenEnd = length;
    if (argSepSpace)
@@ -370,10 +403,10 @@ static bool PCPProcessTable_updateProcesses(PCPProcessTable* this) {
 
       PCPProcessTable_updateMemory(pp, pid, offset);
 
-      if ((flags & PROCESS_FLAG_LINUX_SMAPS) &&
-          (Process_isKernelThread(proc) == false)) {
-         if (Metric_enabled(PCP_PROC_SMAPS_PSS))
+      if ((flags & PROCESS_FLAG_LINUX_SMAPS) && !Process_isKernelThread(proc)) {
+         if (Metric_enabled(PCP_PROC_SMAPS_PSS)) {
             PCPProcessTable_updateSmaps(pp, pid, offset);
+         }
       }
 
       char command[MAX_NAME + 1];

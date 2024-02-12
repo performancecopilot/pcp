@@ -5,6 +5,8 @@ Released under the GNU GPLv2+, see the COPYING file
 in the source distribution for its full text.
 */
 
+#include "config.h" // IWYU pragma: keep
+
 #include "linux/SystemdMeter.h"
 
 #include <dlfcn.h>
@@ -31,6 +33,7 @@ in the source distribution for its full text.
 #ifdef BUILD_STATIC
 
 #define sym_sd_bus_open_system sd_bus_open_system
+#define sym_sd_bus_open_user sd_bus_open_user
 #define sym_sd_bus_get_property_string sd_bus_get_property_string
 #define sym_sd_bus_get_property_trivial sd_bus_get_property_trivial
 #define sym_sd_bus_unref sd_bus_unref
@@ -305,12 +308,12 @@ static void SystemdMeter_updateValues(Meter* this) {
 
 static int zeroDigitColor(unsigned int value) {
    switch (value) {
-   case 0:
-      return CRT_colors[METER_VALUE];
-   case INVALID_VALUE:
-      return CRT_colors[METER_VALUE_ERROR];
-   default:
-      return CRT_colors[METER_VALUE_NOTICE];
+      case 0:
+         return CRT_colors[METER_VALUE];
+      case INVALID_VALUE:
+         return CRT_colors[METER_VALUE_ERROR];
+      default:
+         return CRT_colors[METER_VALUE_NOTICE];
    }
 }
 

@@ -7,22 +7,22 @@ Released under the GNU GPLv2+, see the COPYING file
 in the source distribution for its full text.
 */
 
-#include "config.h" // IWYU pragma: keep
-
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 
 #include "Hashtable.h"
 #include "HeaderLayout.h"
 #include "Row.h"
+#include "RowField.h"
 
 
 #define DEFAULT_DELAY 15
 
 #define CONFIG_READER_MIN_VERSION 3
 
-struct DynamicScreen_;
-struct Table_;
+struct DynamicScreen_;  // IWYU pragma: keep
+struct Table_;          // IWYU pragma: keep
 
 typedef struct {
    const char* name;

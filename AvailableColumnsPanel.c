@@ -5,6 +5,8 @@ Released under the GNU GPLv2+, see the COPYING file
 in the source distribution for its full text.
 */
 
+#include "config.h" // IWYU pragma: keep
+
 #include "AvailableColumnsPanel.h"
 
 #include <assert.h>
@@ -21,6 +23,7 @@ in the source distribution for its full text.
 #include "Platform.h"
 #include "Process.h"
 #include "ProvideCurses.h"
+#include "RowField.h"
 #include "XUtils.h"
 
 
@@ -49,8 +52,7 @@ static HandlerResult AvailableColumnsPanel_eventHandler(Panel* super, int ch) {
    switch (ch) {
       case 13:
       case KEY_ENTER:
-      case KEY_F(5):
-      {
+      case KEY_F(5): {
          const ListItem* selected = (ListItem*) Panel_getSelected(super);
          if (!selected)
             break;
@@ -63,11 +65,9 @@ static HandlerResult AvailableColumnsPanel_eventHandler(Panel* super, int ch) {
          break;
       }
       default:
-      {
          if (0 < ch && ch < 255 && isgraph((unsigned char)ch))
             result = Panel_selectByTyping(super, ch);
          break;
-      }
    }
    return result;
 }

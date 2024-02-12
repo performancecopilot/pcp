@@ -12,21 +12,16 @@ in the source distribution for its full text.
 #include <assert.h>
 #include <ctype.h>
 #include <dirent.h>
-#include <errno.h>
 #include <fcntl.h>
 #include <inttypes.h>
 #include <limits.h>
 #include <math.h>
 #include <stdbool.h>
-#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <strings.h>
-#include <time.h>
 #include <unistd.h>
 #include <sys/stat.h>
-#include <sys/types.h>
 
 #ifdef HAVE_DELAYACCT
 #include <linux/netlink.h>
@@ -41,12 +36,17 @@ in the source distribution for its full text.
 #endif
 
 #include "Compat.h"
-#include "CRT.h"
+#include "Hashtable.h"
+#include "Machine.h"
 #include "Macros.h"
 #include "Object.h"
 #include "Process.h"
+#include "Row.h"
+#include "RowField.h"
 #include "Scheduling.h"
 #include "Settings.h"
+#include "Table.h"
+#include "UsersTable.h"
 #include "XUtils.h"
 #include "linux/CGroupUtils.h"
 #include "linux/LinuxMachine.h"
@@ -426,14 +426,14 @@ static bool LinuxProcessTable_readStatusFile(Process* process, openat_arg_t proc
       } else if (String_startsWith(buffer, "voluntary_ctxt_switches:")) {
          unsigned long vctxt;
          int ok = sscanf(buffer, "voluntary_ctxt_switches:\t%lu", &vctxt);
-         if (ok >= 1) {
+         if (ok == 1) {
             ctxt += vctxt;
          }
 
       } else if (String_startsWith(buffer, "nonvoluntary_ctxt_switches:")) {
          unsigned long nvctxt;
          int ok = sscanf(buffer, "nonvoluntary_ctxt_switches:\t%lu", &nvctxt);
-         if (ok >= 1) {
+         if (ok == 1) {
             ctxt += nvctxt;
          }
 
@@ -441,14 +441,14 @@ static bool LinuxProcessTable_readStatusFile(Process* process, openat_arg_t proc
       } else if (String_startsWith(buffer, "VxID:")) {
          int vxid;
          int ok = sscanf(buffer, "VxID:\t%32d", &vxid);
-         if (ok >= 1) {
+         if (ok == 1) {
             lp->vxid = vxid;
          }
 #ifdef HAVE_ANCIENT_VSERVER
       } else if (String_startsWith(buffer, "s_context:")) {
          int vxid;
          int ok = sscanf(buffer, "s_context:\t%32d", &vxid);
-         if (ok >= 1) {
+         if (ok == 1) {
             lp->vxid = vxid;
          }
 #endif /* HAVE_ANCIENT_VSERVER */
@@ -516,33 +516,33 @@ static void LinuxProcessTable_readIoFile(LinuxProcess* lp, openat_arg_t procFd, 
    const char* line;
    while ((line = strsep(&buf, "\n")) != NULL) {
       switch (line[0]) {
-      case 'r':
-         if (line[1] == 'c' && String_startsWith(line + 2, "har: ")) {
-            lp->io_rchar = strtoull(line + 7, NULL, 10);
-         } else if (String_startsWith(line + 1, "ead_bytes: ")) {
-            lp->io_read_bytes = strtoull(line + 12, NULL, 10);
-            lp->io_rate_read_bps = time_delta ? saturatingSub(lp->io_read_bytes, last_read) * /*ms to s*/1000. / time_delta : NAN;
-         }
-         break;
-      case 'w':
-         if (line[1] == 'c' && String_startsWith(line + 2, "har: ")) {
-            lp->io_wchar = strtoull(line + 7, NULL, 10);
-         } else if (String_startsWith(line + 1, "rite_bytes: ")) {
-            lp->io_write_bytes = strtoull(line + 13, NULL, 10);
-            lp->io_rate_write_bps = time_delta ? saturatingSub(lp->io_write_bytes, last_write) * /*ms to s*/1000. / time_delta : NAN;
-         }
-         break;
-      case 's':
-         if (line[4] == 'r' && String_startsWith(line + 1, "yscr: ")) {
-            lp->io_syscr = strtoull(line + 7, NULL, 10);
-         } else if (String_startsWith(line + 1, "yscw: ")) {
-            lp->io_syscw = strtoull(line + 7, NULL, 10);
-         }
-         break;
-      case 'c':
-         if (String_startsWith(line + 1, "ancelled_write_bytes: ")) {
-            lp->io_cancelled_write_bytes = strtoull(line + 23, NULL, 10);
-         }
+         case 'r':
+            if (line[1] == 'c' && String_startsWith(line + 2, "har: ")) {
+               lp->io_rchar = strtoull(line + 7, NULL, 10);
+            } else if (String_startsWith(line + 1, "ead_bytes: ")) {
+               lp->io_read_bytes = strtoull(line + 12, NULL, 10);
+               lp->io_rate_read_bps = time_delta ? saturatingSub(lp->io_read_bytes, last_read) * /*ms to s*/1000. / time_delta : NAN;
+            }
+            break;
+         case 'w':
+            if (line[1] == 'c' && String_startsWith(line + 2, "har: ")) {
+               lp->io_wchar = strtoull(line + 7, NULL, 10);
+            } else if (String_startsWith(line + 1, "rite_bytes: ")) {
+               lp->io_write_bytes = strtoull(line + 13, NULL, 10);
+               lp->io_rate_write_bps = time_delta ? saturatingSub(lp->io_write_bytes, last_write) * /*ms to s*/1000. / time_delta : NAN;
+            }
+            break;
+         case 's':
+            if (line[4] == 'r' && String_startsWith(line + 1, "yscr: ")) {
+               lp->io_syscr = strtoull(line + 7, NULL, 10);
+            } else if (String_startsWith(line + 1, "yscw: ")) {
+               lp->io_syscw = strtoull(line + 7, NULL, 10);
+            }
+            break;
+         case 'c':
+            if (String_startsWith(line + 1, "ancelled_write_bytes: ")) {
+               lp->io_cancelled_write_bytes = strtoull(line + 23, NULL, 10);
+            }
       }
    }
 
@@ -701,6 +701,8 @@ static bool LinuxProcessTable_readStatmFile(LinuxProcess* process, openat_arg_t 
    if (r == 7) {
       process->super.m_virt *= host->pageSizeKB;
       process->super.m_resident *= host->pageSizeKB;
+
+      process->m_priv = process->super.m_resident - (process->m_share * host->pageSizeKB);
    }
 
    return r == 7;
@@ -805,18 +807,18 @@ static void LinuxProcessTable_readOpenVZData(LinuxProcess* process, openat_arg_t
       *value_end = '\0';
 
       switch (field) {
-      case 1:
-         foundEnvID = true;
-         if (!String_eq(name_value_sep, process->ctid ? process->ctid : ""))
-            free_and_xStrdup(&process->ctid, name_value_sep);
-         break;
-      case 2:
-         foundVPid = true;
-         process->vpid = strtoul(name_value_sep, NULL, 0);
-         break;
-      default:
-         //Sanity Check: Should never reach here, or the implementation is missing something!
-         assert(false && "OpenVZ handling: Unimplemented case for field handling reached.");
+         case 1:
+            foundEnvID = true;
+            if (!String_eq(name_value_sep, process->ctid ? process->ctid : ""))
+               free_and_xStrdup(&process->ctid, name_value_sep);
+            break;
+         case 2:
+            foundVPid = true;
+            process->vpid = strtoul(name_value_sep, NULL, 0);
+            break;
+         default:
+            //Sanity Check: Should never reach here, or the implementation is missing something!
+            assert(false && "OpenVZ handling: Unimplemented case for field handling reached.");
       }
    }
 
@@ -844,6 +846,10 @@ static void LinuxProcessTable_readCGroupFile(LinuxProcess* process, openat_arg_t
       if (process->cgroup_short) {
          free(process->cgroup_short);
          process->cgroup_short = NULL;
+      }
+      if (process->container_short) {
+         free(process->container_short);
+         process->container_short = NULL;
       }
       return;
    }
@@ -890,6 +896,11 @@ static void LinuxProcessTable_readCGroupFile(LinuxProcess* process, openat_arg_t
          //CCGROUP is alias to normal CGROUP if shortening fails
          Row_updateFieldWidth(CCGROUP, strlen(process->cgroup));
       }
+      if (process->container_short) {
+         Row_updateFieldWidth(CONTAINER, strlen(process->container_short));
+      } else {
+         Row_updateFieldWidth(CONTAINER, strlen("N/A"));
+      }
       return;
    }
 
@@ -904,6 +915,18 @@ static void LinuxProcessTable_readCGroupFile(LinuxProcess* process, openat_arg_t
       free(process->cgroup_short);
       process->cgroup_short = NULL;
    }
+
+   char* container_short = CGroup_filterContainer(process->cgroup);
+   if (container_short) {
+      Row_updateFieldWidth(CONTAINER, strlen(container_short));
+      free_and_xStrdup(&process->container_short, container_short);
+      free(container_short);
+   } else {
+      //CONTAINER is just "N/A" if shortening fails
+      Row_updateFieldWidth(CONTAINER, strlen("N/A"));
+      free(process->container_short);
+      process->container_short = NULL;
+   }
 }
 
 static void LinuxProcessTable_readOomData(LinuxProcess* process, openat_arg_t procFd) {
@@ -915,7 +938,7 @@ static void LinuxProcessTable_readOomData(LinuxProcess* process, openat_arg_t pr
    if (fgets(buffer, PROC_LINE_LENGTH, file)) {
       unsigned int oom;
       int ok = sscanf(buffer, "%u", &oom);
-      if (ok >= 1) {
+      if (ok == 1) {
          process->oom = oom;
       }
    }
@@ -962,9 +985,6 @@ static void LinuxProcessTable_readSecattrData(LinuxProcess* process, openat_arg_
 
    Row_updateFieldWidth(SECATTR, strlen(buffer));
 
-   if (process->secattr && String_eq(process->secattr, buffer)) {
-      return;
-   }
    free_and_xStrdup(&process->secattr, buffer);
 }
 
@@ -984,9 +1004,6 @@ static void LinuxProcessTable_readCwd(LinuxProcess* process, openat_arg_t procFd
    }
 
    pathBuffer[r] = '\0';
-
-   if (process->super.procCwd && String_eq(process->super.procCwd, pathBuffer))
-      return;
 
    free_and_xStrdup(&process->super.procCwd, pathBuffer);
 }
@@ -1073,139 +1090,8 @@ delayacct_failure:
 #endif
 
 static bool LinuxProcessTable_readCmdlineFile(Process* process, openat_arg_t procFd) {
-   char command[4096 + 1]; // max cmdline length on Linux
-   ssize_t amtRead = xReadfileat(procFd, "cmdline", command, sizeof(command));
-   if (amtRead <= 0)
-      return false;
-
-   int tokenEnd = 0;
-   int tokenStart = 0;
-   int lastChar = 0;
-   bool argSepNUL = false;
-   bool argSepSpace = false;
-
-   for (int i = 0; i < amtRead; i++) {
-      /* newline used as delimiter - when forming the mergedCommand, newline is
-       * converted to space by Process_makeCommandStr */
-      if (command[i] == '\0') {
-         command[i] = '\n';
-      } else {
-         /* Record some information for the argument parsing heuristic below. */
-         if (tokenEnd)
-            argSepNUL = true;
-         if (command[i] <= ' ')
-            argSepSpace = true;
-      }
-
-      if (command[i] == '\n') {
-         if (tokenEnd == 0) {
-            tokenEnd = i;
-         }
-      } else {
-         /* htop considers the next character after the last / that is before
-          * basenameOffset, as the start of the basename in cmdline - see
-          * Process_writeCommand */
-         if (!tokenEnd && command[i] == '/') {
-            tokenStart = i + 1;
-         }
-         lastChar = i;
-      }
-   }
-
-   command[lastChar + 1] = '\0';
-
-   if (!argSepNUL && argSepSpace) {
-      /* Argument parsing heuristic.
-       *
-       * This heuristic is used for processes that rewrite their command line.
-       * Normally the command line is split by using NUL bytes between each argument.
-       * But some programs like chrome flatten this using spaces.
-       *
-       * This heuristic tries its best to undo this loss of information.
-       * To achieve this, we treat every character <= 32 as argument separators
-       * (i.e. all of ASCII control sequences and space).
-       * We then search for the basename of the cmdline in the first argument we found that way.
-       * As path names may contain we try to cross-validate if the path we got that way exists.
-       */
-
-      tokenStart = tokenEnd = 0;
-
-      // From initial scan we know there's at least one space.
-      // Check if that's part of a filename for an existing file.
-      if (Compat_faccessat(AT_FDCWD, command, F_OK, AT_SYMLINK_NOFOLLOW) != 0) {
-         // If we reach here the path does not exist.
-         // Thus begin searching for the part of it that actually is.
-
-         int tokenArg0Start = 0;
-
-         for (int i = 0; i <= lastChar; i++) {
-            /* Any ASCII control or space used as delimiter */
-            char tmpCommandChar = command[i];
-
-            if (command[i] <= ' ') {
-               if (!tokenEnd) {
-                  command[i] = '\0';
-
-                  bool found = Compat_faccessat(AT_FDCWD, command, F_OK, AT_SYMLINK_NOFOLLOW) == 0;
-
-                  // Restore if this wasn't it
-                  command[i] = found ? '\n' : tmpCommandChar;
-
-                  if (found)
-                     tokenEnd = i;
-                  if (!tokenArg0Start)
-                     tokenArg0Start = tokenStart;
-               } else {
-                  // Split on every further separator, regardless of path correctness
-                  command[i] = '\n';
-               }
-            } else if (!tokenEnd) {
-               if (command[i] == '/' || (command[i] == '\\' && (!tokenStart || command[tokenStart - 1] == '\\'))) {
-                  tokenStart = i + 1;
-               } else if (command[i] == ':' && (command[i + 1] != '/' && command[i + 1] != '\\')) {
-                  tokenEnd = i;
-               }
-            }
-         }
-
-         if (!tokenEnd) {
-            tokenStart = tokenArg0Start;
-
-            // No token delimiter found, forcibly split
-            for (int i = 0; i <= lastChar; i++) {
-               if (command[i] <= ' ') {
-                  command[i] = '\n';
-                  if (!tokenEnd) {
-                     tokenEnd = i;
-                  }
-               }
-            }
-         }
-      }
-
-      /* Some command lines are hard to parse, like
-       *   file.so [kdeinit5] file local:/run/user/1000/klauncherdqbouY.1.slave-socket local:/run/user/1000/kded5TwsDAx.1.slave-socket
-       * Reset if start is behind end.
-       */
-      if (tokenStart >= tokenEnd)
-         tokenStart = tokenEnd = 0;
-   }
-
-   if (tokenEnd == 0) {
-      tokenEnd = lastChar + 1;
-   }
-
-   Process_updateCmdline(process, command, tokenStart, tokenEnd);
-
-   /* /proc/[pid]/comm could change, so should be updated */
-   if ((amtRead = xReadfileat(procFd, "comm", command, sizeof(command))) > 0) {
-      command[amtRead - 1] = '\0';
-      Process_updateComm(process, command);
-   } else {
-      Process_updateComm(process, NULL);
-   }
-
    char filename[MAX_NAME + 1];
+   ssize_t amtRead;
 
    /* execve could change /proc/[pid]/exe, so procExe should be updated */
 #if defined(HAVE_READLINKAT) && defined(HAVE_OPENAT)
@@ -1240,6 +1126,175 @@ static bool LinuxProcessTable_readCmdlineFile(Process* process, openat_arg_t pro
    } else if (process->procExe) {
       Process_updateExe(process, NULL);
       process->procExeDeleted = false;
+   }
+
+   char command[4096 + 1]; // max cmdline length on Linux
+   amtRead = xReadfileat(procFd, "cmdline", command, sizeof(command));
+   if (amtRead <= 0)
+      return false;
+
+   int tokenEnd = -1;
+   int tokenStart = -1;
+   int lastChar = 0;
+   bool argSepNUL = false;
+   bool argSepSpace = false;
+
+   for (int i = 0; i < amtRead; i++) {
+      // If this is true, there's a NUL byte in the middle of command
+      if (tokenEnd >= 0) {
+         argSepNUL = true;
+      }
+
+      const char argChar = command[i];
+
+      /* newline used as delimiter - when forming the mergedCommand, newline is
+       * converted to space by Process_makeCommandStr */
+      if (argChar == '\0') {
+         command[i] = '\n';
+
+         // Set tokenEnd to the NUL byte
+         if (tokenEnd < 0) {
+            tokenEnd = i;
+         }
+
+         continue;
+      }
+
+      /* Record some information for the argument parsing heuristic below. */
+      if (argChar <= ' ') {
+         argSepSpace = true;
+      }
+
+      /* Detect the last / before the end of the token as
+       * the start of the basename in cmdline, see Process_writeCommand */
+      if (argChar == '/' && tokenEnd < 0) {
+         tokenStart = i + 1;
+      }
+
+      lastChar = i;
+   }
+
+   command[lastChar + 1] = '\0';
+
+   if (!argSepNUL && argSepSpace) {
+      /* Argument parsing heuristic.
+       *
+       * This heuristic is used for processes that rewrite their command line.
+       * Normally the command line is split by using NUL bytes between each argument.
+       * But some programs like chrome flatten this using spaces.
+       *
+       * This heuristic tries its best to undo this loss of information.
+       * To achieve this, we treat every character <= 32 as argument separators
+       * (i.e. all of ASCII control sequences and space).
+       * We then search for the basename of the cmdline in the first argument we found that way.
+       * As path names may contain we try to cross-validate if the path we got that way exists.
+       */
+
+      tokenStart = -1;
+      tokenEnd = -1;
+
+      size_t exeLen = process->procExe ? strlen(process->procExe) : 0;
+
+      if (process->procExe && String_startsWith(command, process->procExe) &&
+         exeLen < (size_t)lastChar && command[exeLen] <= ' ') {
+         tokenStart = process->procExeBasenameOffset;
+         tokenEnd = exeLen;
+      }
+
+      // From initial scan we know there's at least one space.
+      // Check if that's part of a filename for an existing file.
+      else if (Compat_faccessat(AT_FDCWD, command, F_OK, AT_SYMLINK_NOFOLLOW) != 0) {
+         // If we reach here the path does not exist.
+         // Thus begin searching for the part of it that actually does.
+         int tokenArg0Start = -1;
+
+         for (int i = 0; i <= lastChar; i++) {
+            const char cmdChar = command[i];
+
+            /* Any ASCII control or space used as delimiter */
+            if (cmdChar <= ' ') {
+               if (tokenEnd >= 0) {
+                  // Split on every further separator, regardless of path correctness
+                  command[i] = '\n';
+                  continue;
+               }
+
+               // Found our first argument
+               command[i] = '\0';
+
+               bool found = Compat_faccessat(AT_FDCWD, command, F_OK, AT_SYMLINK_NOFOLLOW) == 0;
+
+               // Restore if this wasn't it
+               command[i] = found ? '\n' : cmdChar;
+
+               if (found)
+                  tokenEnd = i;
+               if (tokenArg0Start < 0)
+                  tokenArg0Start = tokenStart < 0 ? 0 : tokenStart;
+
+               continue;
+            }
+
+            if (tokenEnd >= 0) {
+               continue;
+            }
+
+            if (cmdChar == '/') {
+               // Normal path separator
+               tokenStart = i + 1;
+            } else if (cmdChar == '\\' && (tokenStart < 1 || command[tokenStart - 1] == '\\')) {
+               // Windows Path separator (WINE)
+               tokenStart = i + 1;
+            } else if (cmdChar == ':' && (command[i + 1] != '/' && command[i + 1] != '\\')) {
+               // Colon not part of a Windows Path
+               tokenEnd = i;
+            } else if (tokenStart < 0) {
+               // Relative path
+               tokenStart = i;
+            }
+         }
+
+         if (tokenEnd < 0) {
+            tokenStart = tokenArg0Start;
+
+            // No token delimiter found, forcibly split
+            for (int i = 0; i <= lastChar; i++) {
+               if (command[i] <= ' ') {
+                  command[i] = '\n';
+                  if (tokenEnd < 0) {
+                     tokenEnd = i;
+                  }
+               }
+            }
+         }
+      }
+
+      /* Some command lines are hard to parse, like
+       *   file.so [kdeinit5] file local:/run/user/1000/klauncherdqbouY.1.slave-socket local:/run/user/1000/kded5TwsDAx.1.slave-socket
+       * Reset if start is behind end.
+       */
+      if (tokenStart >= tokenEnd) {
+         tokenStart = -1;
+         tokenEnd = -1;
+      }
+   }
+
+   if (tokenStart < 0) {
+      tokenStart = 0;
+   }
+
+   if (tokenEnd < 0) {
+      tokenEnd = lastChar + 1;
+   }
+
+   Process_updateCmdline(process, command, tokenStart, tokenEnd);
+
+   /* /proc/[pid]/comm could change, so should be updated */
+   if ((amtRead = xReadfileat(procFd, "comm", command, sizeof(command))) > 0) {
+      command[amtRead - 1] = '\0';
+      Process_updateComm(process, command);
+   } else {
+      Process_updateComm(process, NULL);
    }
 
    return true;
@@ -1434,7 +1489,7 @@ static bool LinuxProcessTable_recurseProcTree(LinuxProcessTable* this, openat_ar
          bool prev = proc->usesDeletedLib;
 
          if (!proc->isKernelThread && !proc->isUserlandThread &&
-            ((ss->flags & PROCESS_FLAG_LINUX_LRS_FIX) || (settings->highlightDeletedExe && !proc->procExeDeleted && isOlderThan(proc, 10)))) {
+             ((ss->flags & PROCESS_FLAG_LINUX_LRS_FIX) || (settings->highlightDeletedExe && !proc->procExeDeleted && isOlderThan(proc, 10)))) {
 
             // Check if we really should recalculate the M_LRS value for this process
             uint64_t passedTimeInMs = host->realtimeMs - lp->last_mlrs_calctime;
@@ -1472,7 +1527,7 @@ static bool LinuxProcessTable_recurseProcTree(LinuxProcessTable* this, openat_ar
 
       char statCommand[MAX_NAME + 1];
       unsigned long long int lasttimes = (lp->utime + lp->stime);
-      unsigned long int tty_nr = proc->tty_nr;
+      unsigned long int last_tty_nr = proc->tty_nr;
       if (!LinuxProcessTable_readStatFile(lp, procFd, lhost, scanMainThread, statCommand, sizeof(statCommand)))
          goto errorReadingProcess;
 
@@ -1480,7 +1535,7 @@ static bool LinuxProcessTable_recurseProcTree(LinuxProcessTable* this, openat_ar
          proc->isKernelThread = true;
       }
 
-      if (tty_nr != proc->tty_nr && this->ttyDrivers) {
+      if (last_tty_nr != proc->tty_nr && this->ttyDrivers) {
          free(proc->tty_name);
          proc->tty_name = LinuxProcessTable_updateTtyDevice(this->ttyDrivers, proc->tty_nr);
       }
@@ -1498,7 +1553,7 @@ static bool LinuxProcessTable_recurseProcTree(LinuxProcessTable* this, openat_ar
       proc->percent_mem = proc->m_resident / (double)(host->totalMem) * 100.0;
       Process_updateCPUFieldWidths(proc->percent_cpu);
 
-      if (! LinuxProcessTable_updateUser(host, proc, procFd))
+      if (!LinuxProcessTable_updateUser(host, proc, procFd))
          goto errorReadingProcess;
 
       if (!LinuxProcessTable_readStatusFile(proc, procFd))

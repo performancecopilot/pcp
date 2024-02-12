@@ -5,12 +5,14 @@ Released under the GNU GPLv2+, see the COPYING file
 in the source distribution for its full text.
 */
 
+#include "config.h" // IWYU pragma: keep
+
 #include "LoadAverageMeter.h"
 
 #include "CRT.h"
+#include "Machine.h"
 #include "Object.h"
 #include "Platform.h"
-#include "ProcessTable.h"
 #include "RichString.h"
 #include "XUtils.h"
 
