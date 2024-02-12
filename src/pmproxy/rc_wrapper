@@ -54,27 +54,8 @@ fi
 #
 $PCP_BINADM_DIR/pcp-reboot-init
 
-# paranoid defaults if something goes wrong ...
-[ -z "$PCP_USER" ] && PCP_USER=pcp
-[ -z "$PCP_GROUP" ] && PCP_USER=pcp
-
-# if we're called with -v (or any other command line option) this is
-# an arg for our "rc" script, not setpriv(1) or runuser(1)
-export POSIXLY_CORRECT=true
-
-# do the real startup as user pcp:pcp
+# do the real startup as user $PCP_USER:$PCP_GROUP
 #
-if which setpriv >/dev/null 2>&1
-then
-    uid=`id -u $PCP_USER`
-    gid=`id -g $PCP_GROUP`
-    setpriv --clear-groups --reuid=$uid --regid=$gid \
-	$PCP_SYSCONF_DIR/pmproxy/rc "$@"
-elif which runuser >/dev/null 2>&1
-then
-    runuser -s /bin/sh -g $PCP_GROUP $PCP_USER $PCP_SYSCONF_DIR/pmproxy/rc "$@"
-else
-    $PCP_BINADM_DIR/runaspcp "$PCP_SYSCONF_DIR/pmproxy/rc $*"
-fi
+$PCP_BINADM_DIR/runaspcp "$PCP_SYSCONF_DIR/pmproxy/rc $*"
 
 exit $?
