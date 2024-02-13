@@ -48,7 +48,7 @@ pcp-6.2.0 (12 February 2024)
 	build: drop rpm dep on bpftool as local version used only
 	build: change perl YAML::XS::LibYAML module to YAML::XS
     - Security Enhanced Linux:
-	selinux: policu improvements for CentOS/RHEL 7 and 8
+	selinux: policy improvements for CentOS/RHEL 7 and 8
     - Documentation:
 	docs: Fedora 39 found some tbl(1)/troff(1) issues, fix
 	docs: add an explicit code-of-conduct for PCP
