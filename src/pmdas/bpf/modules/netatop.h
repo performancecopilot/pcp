@@ -3,9 +3,9 @@
  * Copyright (c) 2021 Bytedance
  * https://github.com/bytedance/netatop-bpf
  */
-
 #ifndef __NETATOP__
 #define __NETATOP__
+
 struct taskcount {
 	unsigned long long	tcpsndpacks;
 	unsigned long long	tcpsndbytes;
@@ -19,26 +19,9 @@ struct taskcount {
 
 	/* space for future extensions */
 };
-#define	COMLEN	16
-
-// struct netpertask {
-// 	char type; 	// tgid or tid or
-// 	pid_t			id;	// tgid or tid (depending on command)
-// 	struct taskcount	tc;
-// };
-
-struct netpertask {
-	pid_t			id;	// tgid or tid (depending on command)
-	unsigned long		btime;
-	char			command[COMLEN];
-
-	struct taskcount	tc;
-};
 
 extern struct netatop_bpf *skel;
-extern int semid;
 extern int tgid_map_fd;
-extern int tid_map_fd;
 extern int nr_cpus;
 
 void bpf_attach(struct netatop_bpf *);

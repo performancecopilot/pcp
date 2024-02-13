@@ -107,7 +107,7 @@ static int netatop_metric_text(int item, int type, char **buffer)
 
 static void netatop_register(unsigned int cluster_id, pmdaMetric *metrics, pmdaIndom *indoms)
 {
-    /* bpf.netatop.tcpsndpacks */
+    /* proc.net.tcp.send.packets */
     metrics[TCPSNDPACKS] = (struct pmdaMetric)
     {
         .m_desc = {
@@ -115,11 +115,11 @@ static void netatop_register(unsigned int cluster_id, pmdaMetric *metrics, pmdaI
             .type  = PM_TYPE_U64,
             .indom = indom_id_mapping[NETATOP_INDOM],
             .sem   = PM_SEM_COUNTER,
-            .units = PMDA_PMUNITS(0, 0, 0, 0, 0, 0),
+            .units = PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE),
         }
     };
 
-    /* bpf.netatop.tcpsndpacks */
+    /* proc.net.tcp.send.bytes */
     metrics[TCPSNDBYTES] = (struct pmdaMetric)
     {
         .m_desc = {
@@ -127,10 +127,10 @@ static void netatop_register(unsigned int cluster_id, pmdaMetric *metrics, pmdaI
             .type  = PM_TYPE_U64,
             .indom = indom_id_mapping[NETATOP_INDOM],
             .sem   = PM_SEM_COUNTER,
-            .units = PMDA_PMUNITS(0, 0, 0, 0, 0, 0),
+            .units = PMDA_PMUNITS(1, 0, PM_SPACE_BYTE, 0, 0, 0),
         }
     };
-    /* bpf.netatop.tcpsndpacks */
+    /* proc.net.tcp.recv.packets */
     metrics[TCPRCVPACKS] = (struct pmdaMetric)
     {
         .m_desc = {
@@ -138,10 +138,10 @@ static void netatop_register(unsigned int cluster_id, pmdaMetric *metrics, pmdaI
             .type  = PM_TYPE_U64,
             .indom = indom_id_mapping[NETATOP_INDOM],
             .sem   = PM_SEM_COUNTER,
-            .units = PMDA_PMUNITS(0, 0, 0, 0, 0, 0),
+            .units = PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE),
         }
     };
-    /* bpf.netatop.tcpsndpacks */
+    /* proc.net.tcp.recv.bytes */
     metrics[TCPRCVBYTES] = (struct pmdaMetric)
     {
         .m_desc = {
@@ -149,10 +149,10 @@ static void netatop_register(unsigned int cluster_id, pmdaMetric *metrics, pmdaI
             .type  = PM_TYPE_U64,
             .indom = indom_id_mapping[NETATOP_INDOM],
             .sem   = PM_SEM_COUNTER,
-            .units = PMDA_PMUNITS(0, 0, 0, 0, 0, 0),
+            .units = PMDA_PMUNITS(1, 0, PM_SPACE_BYTE, 0, 0, 0),
         }
     };
-    /* bpf.netatop.tcpsndpacks */
+    /* proc.net.udp.send.packets */
     metrics[UDPSNDPACKS] = (struct pmdaMetric)
     {
         .m_desc = {
@@ -160,10 +160,10 @@ static void netatop_register(unsigned int cluster_id, pmdaMetric *metrics, pmdaI
             .type  = PM_TYPE_U64,
             .indom = indom_id_mapping[NETATOP_INDOM],
             .sem   = PM_SEM_COUNTER,
-            .units = PMDA_PMUNITS(0, 0, 0, 0, 0, 0),
+            .units = PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE),
         }
     };
-    /* bpf.netatop.tcpsndpacks */
+    /* proc.net.udp.send.bytes */
     metrics[UDPSNDBYTES] = (struct pmdaMetric)
     {
         .m_desc = {
@@ -171,10 +171,10 @@ static void netatop_register(unsigned int cluster_id, pmdaMetric *metrics, pmdaI
             .type  = PM_TYPE_U64,
             .indom = indom_id_mapping[NETATOP_INDOM],
             .sem   = PM_SEM_COUNTER,
-            .units = PMDA_PMUNITS(0, 0, 0, 0, 0, 0),
+            .units = PMDA_PMUNITS(1, 0, PM_SPACE_BYTE, 0, 0, 0),
         }
     };
-    /* bpf.netatop.tcpsndpacks */
+    /* proc.net.udp.recv.packets */
     metrics[UDPRCVPACKS] = (struct pmdaMetric)
     {
         .m_desc = {
@@ -182,10 +182,10 @@ static void netatop_register(unsigned int cluster_id, pmdaMetric *metrics, pmdaI
             .type  = PM_TYPE_U64,
             .indom = indom_id_mapping[NETATOP_INDOM],
             .sem   = PM_SEM_COUNTER,
-            .units = PMDA_PMUNITS(0, 0, 0, 0, 0, 0),
+            .units = PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE),
         }
     };
-    /* bpf.netatop.tcpsndpacks */
+    /* proc.net.udp.recv.bytes */
     metrics[UDPRCVBYTES] = (struct pmdaMetric)
     {
         .m_desc = {
@@ -193,7 +193,7 @@ static void netatop_register(unsigned int cluster_id, pmdaMetric *metrics, pmdaI
             .type  = PM_TYPE_U64,
             .indom = indom_id_mapping[NETATOP_INDOM],
             .sem   = PM_SEM_COUNTER,
-            .units = PMDA_PMUNITS(0, 0, 0, 0, 0, 0),
+            .units = PMDA_PMUNITS(1, 0, PM_SPACE_BYTE, 0, 0, 0),
         }
     };
 
@@ -229,9 +229,7 @@ static void netatop_fill_instids(unsigned int slot_count, pmdaInstid **slots) {
 
 /*  Set the first unused instance id to tid */
 
-static 
-bool 
-netatop_add_instids(unsigned int slot_count, pid_t tid, pmdaInstid **slots)
+static bool netatop_add_instids(unsigned int slot_count, pid_t tid, pmdaInstid **slots)
 {
     for (int i = 0; i <= slot_count; i++) {
 	 char *string;
@@ -358,7 +356,7 @@ static int netatop_fetch_to_atom(unsigned int item, unsigned int inst, pmAtomVal
 	netatop_add_instids(env.process_count, next_key, &netatop_instances);
     }
 
-    long netvalue = 0;
+    unsigned long long netvalue = 0;
     switch (item) {
     case TCPSNDPACKS:
         for (int i = 0; i < nr_cpus; i++) {

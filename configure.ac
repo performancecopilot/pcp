@@ -1211,7 +1211,7 @@ if $pmda_bpf; then
        pmdabpf_modules="${pmdabpf_modules} mountsnoop.so oomkill.so"
        AC_MSG_RESULT(yes)
     fi
-    pmdabpf_modules="${pmdabpf_modules} bashreadline.so biolatency.so execsnoop.so exitsnoop.so fsslower.so opensnoop.so runqlat.so statsnoop.so tcpconnect.so tcpconnlat.so vfsstat.so biosnoop.so"
+    pmdabpf_modules="${pmdabpf_modules} bashreadline.so biolatency.so execsnoop.so exitsnoop.so fsslower.so opensnoop.so runqlat.so statsnoop.so tcpconnect.so tcpconnlat.so vfsstat.so biosnoop.so netatop.so"
     AC_SUBST(pmdabpf_modules)
     AC_MSG_CHECKING([which bpf PMDA modules should be included])
     AC_MSG_RESULT($pmdabpf_modules)

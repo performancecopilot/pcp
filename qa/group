@@ -1724,7 +1724,7 @@ x11
 1261 derive local
 1262 derive valgrind local
 1263 derive local
-1264 bcc per process network metrics
+1264 pmda.bpf local
 1265 pmda.linux local valgrind
 1266 atop pcp local
 1267 pmlogrewrite labels help pmlogdump local pmlogextract
