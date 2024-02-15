@@ -882,7 +882,7 @@ print_PRN(char *hp, struct sstat *ss, struct tstat *ps, int nact)
 			ps->gen.pid,
 			spaceformat(ps->gen.name, namout),
 			ps->gen.state,
-			supportflags & NETATOP ? 'y' : 'n',
+			supportflags & NETATOP || supportflags & NETATOP ? 'y' : 'n',
 			ps->net.tcpsnd, ps->net.tcpssz,
 			ps->net.tcprcv, ps->net.tcprsz,
 			ps->net.udpsnd, ps->net.udpssz,

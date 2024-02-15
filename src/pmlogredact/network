@@ -39,7 +39,7 @@ label context "hostname" { value -> "[redacted]" }
 label context "latitude" { value -> "[redacted]" }
 label context "longitude" { value -> "[redacted]" }
 
-# metrics who's values may include networking details and
+# metrics whose values may include networking details and
 # other sensitive information
 #
 metric proc.psinfo.environ { delete }

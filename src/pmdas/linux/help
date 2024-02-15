@@ -73,6 +73,7 @@ devices all share the same statistics in the kernel as the st devices.
 @ 60.40 per-processor IRQs
 @ 60.41 per-processor soft IRQs
 @ 60.42 scsi devices identified by unique WWID
+@ 60.43 set of hugepage sizes
 
 @ kernel.uname.release release level of the running kernel
 Release level of the running kernel as reported via the release[]
@@ -1419,6 +1420,12 @@ each NUMA node.
 @ mem.ksm.pages_volatile Number of pages that are candidate to be shared
 @ mem.ksm.run_state Whether the KSM daemon has run and/or is running
 @ mem.ksm.sleep_time Time ksmd should sleep between batches
+@ mem.hugepages.pagesize Available sizes for huge pages
+@ mem.hugepages.free Huge page space not yet allocated
+@ mem.hugepages.reserved Huge page space committed but not yet allocated
+@ mem.hugepages.surplus Huge page space in the pool above total size
+@ mem.hugepages.totalsize Amount of memory consumed by each huge page size
+@ mem.hugepages.overcommit Upper bound on huge page space available for allocation
 
 @ swap.length total swap available metric from /proc/meminfo
 @ swap.used swap used metric from /proc/meminfo

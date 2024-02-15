@@ -29,14 +29,14 @@
 #include <pwd.h>
 #include <grp.h>
 
-#include "ipc.h"
-#include "login.h"
 #include "filesys.h"
 #include "getinfo.h"
-#include "swapdev.h"
+#include "ipc.h"
+#include "ksm.h"
 #include "linux_table.h"
+#include "login.h"
 #include "namespaces.h"
-#include "sysfs_kernel.h"
+#include "numa_meminfo.h"
 #include "proc_cpuinfo.h"
 #include "proc_interrupts.h"
 #include "proc_stat.h"
@@ -65,12 +65,13 @@
 #include "proc_buddyinfo.h"
 #include "proc_zoneinfo.h"
 #include "proc_fs_nfsd.h"
-#include "numa_meminfo.h"
-#include "ksm.h"
-#include "sysfs_fchost.h"
-#include "sysfs_tapestats.h"
 #include "proc_tty.h"
 #include "proc_pressure.h"
+#include "swapdev.h"
+#include "sysfs_fchost.h"
+#include "sysfs_hugepages.h"
+#include "sysfs_kernel.h"
+#include "sysfs_tapestats.h"
 
 static proc_stat_t		proc_stat;
 static proc_meminfo_t		proc_meminfo;
@@ -371,6 +372,7 @@ static pmdaIndom indomtab[] = {
     { INTERRUPT_CPU_INDOM, 0, NULL },
     { SOFTIRQ_CPU_INDOM, 0, NULL },
     { WWID_INDOM, 0, NULL },
+    { HUGEPAGES_INDOM, 0, NULL },
 };
 
 
@@ -7164,7 +7166,6 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_WWID,40), KERNEL_ULONG, WWID_INDOM, PM_SEM_COUNTER, 
       PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 
-
 /* disk.wwid.avactive */
     { NULL, 
       { PMDA_PMID(CLUSTER_WWID,46), PM_TYPE_U32, WWID_INDOM, PM_SEM_COUNTER, 
@@ -7255,6 +7256,28 @@ static pmdaMetric metrictab[] = {
     { NULL, 
       { PMDA_PMID(CLUSTER_WWID,95), PM_TYPE_U64, WWID_INDOM, PM_SEM_INSTANT,
       PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+/*
+ * Hugepages (fixed sizes) metrics cluster
+ */
+    /* mem.hugepages.pagesize */
+    { NULL, { PMDA_PMID(CLUSTER_HUGEPAGES, PAGESIZE_HUGEPAGES), PM_TYPE_U64,
+	HUGEPAGES_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+    /* mem.hugepages.free */
+    { NULL, { PMDA_PMID(CLUSTER_HUGEPAGES, FREE_HUGEPAGES), PM_TYPE_U64,
+	HUGEPAGES_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+    /* mem.hugepages.reserved */
+    { NULL, { PMDA_PMID(CLUSTER_HUGEPAGES, RESV_HUGEPAGES), PM_TYPE_U64,
+	HUGEPAGES_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+    /* mem.hugepages.surplus */
+    { NULL, { PMDA_PMID(CLUSTER_HUGEPAGES, SURPLUS_HUGEPAGES), PM_TYPE_U64,
+	HUGEPAGES_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+    /* mem.hugepages.total */
+    { NULL, { PMDA_PMID(CLUSTER_HUGEPAGES, TOTALSIZE_HUGEPAGES), PM_TYPE_U64,
+	HUGEPAGES_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+    /* mem.hugepages.overcommit */
+    { NULL, { PMDA_PMID(CLUSTER_HUGEPAGES, OVERCOMMIT_HUGEPAGES), PM_TYPE_U64,
+	HUGEPAGES_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 };
 
 typedef struct {
@@ -7622,6 +7645,9 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
     if (need_refresh[CLUSTER_FCHOST])
 	refresh_sysfs_fchosts(INDOM(FCHOST_INDOM));
 
+    if (need_refresh[CLUSTER_HUGEPAGES])
+	refresh_sysfs_hugepages(INDOM(HUGEPAGES_INDOM));
+
 done:
     container_close(cp, ns_fds);
     return sts;
@@ -7750,6 +7776,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     net_addr_t		*addrp;
     net_interface_t	*netip;
     scsi_entry_t	*scsi_entry;
+    hugepages_t		*hugepages;
     char		*name;
 
     if (mdesc->m_user != NULL) {
@@ -9906,6 +9933,23 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		return PM_ERR_INST;
 	    atom->ull = fchost->counts[item];
 	}
+	break;
+
+    case CLUSTER_HUGEPAGES:
+	/*
+	 * mem.hugepages.* metrics are direct indexed by item, see sysfs_hugepages.h
+	 */
+	if (item >= HUGEPAGES_METRIC_COUNT)
+	    return PM_ERR_PMID;
+	hugepages = NULL;
+	sts = pmdaCacheLookup(INDOM(HUGEPAGES_INDOM), inst, NULL, (void **)&hugepages);
+	if (sts < 0)
+	    return sts;
+	if (sts != PMDA_CACHE_ACTIVE || hugepages == NULL)
+	    return PM_ERR_INST;
+	atom->ull = hugepages->values[item];
+	if (item != PAGESIZE_HUGEPAGES) /* convert to kB */
+	    atom->ull *= hugepages->values[PAGESIZE_HUGEPAGES];
 	break;
 
     default: /* unknown cluster */

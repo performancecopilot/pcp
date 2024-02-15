@@ -9181,7 +9181,7 @@ printf "%s\n" "no (libbpf version required: 1.0.0, installed: $libbpf_version)" 
        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }
     fi
-    pmdabpf_modules="${pmdabpf_modules} bashreadline.so biolatency.so execsnoop.so exitsnoop.so fsslower.so opensnoop.so runqlat.so statsnoop.so tcpconnect.so tcpconnlat.so vfsstat.so biosnoop.so"
+    pmdabpf_modules="${pmdabpf_modules} bashreadline.so biolatency.so execsnoop.so exitsnoop.so fsslower.so opensnoop.so runqlat.so statsnoop.so tcpconnect.so tcpconnlat.so vfsstat.so biosnoop.so netatop.so"
 
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking which bpf PMDA modules should be included" >&5
 printf %s "checking which bpf PMDA modules should be included... " >&6; }

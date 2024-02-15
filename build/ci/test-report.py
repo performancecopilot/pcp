@@ -80,13 +80,20 @@ def read_testlog(
                 test.path = testartifacts_dir
                 test.start, test.stop = test_durations.get(test_no, (0, 0))
                 test.description = ""
-                with open(os.path.join(qa_dir, test_no), encoding="utf-8") as f:
-                    next(f)  # skip shebang
-                    for test_line in f:
-                        if test_line == "\n":
-                            break
-                        test.description += test_line.strip(" #") + "\n"
-                tests.append(test)
+                try:
+                    with open(os.path.join(qa_dir, test_no), encoding="utf-8") as f:
+                        next(f)  # skip shebang
+                        for test_line in f:
+                            if test_line == "\n":
+                                break
+                            test.description += test_line.strip(" #") + "\n"
+                    tests.append(test)
+                except IOError:  # non-existant file
+                    # false match - it's probably output from the previous test
+                    if tests and tests[-1].status in FAILED_TEST_STATES:
+                        if len(tests[-1].message) < 10000:  # ignore output for huge diffs
+                            tests[-1].message += line
+                    continue
 
             if success_m:
                 test.status = Test.Status.Passed

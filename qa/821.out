@@ -74,6 +74,24 @@ mem.buddyinfo.total
 mem.freemem
     value 4650860
 
+mem.hugepages.free
+No value(s) available!
+
+mem.hugepages.overcommit
+No value(s) available!
+
+mem.hugepages.pagesize
+No value(s) available!
+
+mem.hugepages.reserved
+No value(s) available!
+
+mem.hugepages.surplus
+No value(s) available!
+
+mem.hugepages.totalsize
+No value(s) available!
+
 mem.ksm.full_scans
     value 0
 
@@ -2833,6 +2851,24 @@ No value(s) available!
 
 mem.freemem
     value 87287012
+
+mem.hugepages.free
+No value(s) available!
+
+mem.hugepages.overcommit
+No value(s) available!
+
+mem.hugepages.pagesize
+No value(s) available!
+
+mem.hugepages.reserved
+No value(s) available!
+
+mem.hugepages.surplus
+No value(s) available!
+
+mem.hugepages.totalsize
+No value(s) available!
 
 mem.ksm.full_scans
     value 0
@@ -5609,6 +5645,24 @@ No value(s) available!
 mem.freemem
     value 87287012
 
+mem.hugepages.free
+No value(s) available!
+
+mem.hugepages.overcommit
+No value(s) available!
+
+mem.hugepages.pagesize
+No value(s) available!
+
+mem.hugepages.reserved
+No value(s) available!
+
+mem.hugepages.surplus
+No value(s) available!
+
+mem.hugepages.totalsize
+No value(s) available!
+
 mem.ksm.full_scans
     value 0
 
@@ -8384,6 +8438,24 @@ No value(s) available!
 mem.freemem
     value 3264460
 
+mem.hugepages.free
+No value(s) available!
+
+mem.hugepages.overcommit
+No value(s) available!
+
+mem.hugepages.pagesize
+No value(s) available!
+
+mem.hugepages.reserved
+No value(s) available!
+
+mem.hugepages.surplus
+No value(s) available!
+
+mem.hugepages.totalsize
+No value(s) available!
+
 mem.ksm.full_scans
     value 0
 
@@ -10889,6 +10961,24 @@ No value(s) available!
 
 mem.freemem
     value 2496772
+
+mem.hugepages.free
+No value(s) available!
+
+mem.hugepages.overcommit
+No value(s) available!
+
+mem.hugepages.pagesize
+No value(s) available!
+
+mem.hugepages.reserved
+No value(s) available!
+
+mem.hugepages.surplus
+No value(s) available!
+
+mem.hugepages.totalsize
+No value(s) available!
 
 mem.ksm.full_scans
     value 0
@@ -13460,6 +13550,24 @@ No value(s) available!
 mem.freemem
     value 2524972
 
+mem.hugepages.free
+No value(s) available!
+
+mem.hugepages.overcommit
+No value(s) available!
+
+mem.hugepages.pagesize
+No value(s) available!
+
+mem.hugepages.reserved
+No value(s) available!
+
+mem.hugepages.surplus
+No value(s) available!
+
+mem.hugepages.totalsize
+No value(s) available!
+
 mem.ksm.full_scans
     value 0
 
@@ -15301,6 +15409,24 @@ No value(s) available!
 
 mem.freemem
     value 4211712
+
+mem.hugepages.free
+No value(s) available!
+
+mem.hugepages.overcommit
+No value(s) available!
+
+mem.hugepages.pagesize
+No value(s) available!
+
+mem.hugepages.reserved
+No value(s) available!
+
+mem.hugepages.surplus
+No value(s) available!
+
+mem.hugepages.totalsize
+No value(s) available!
 
 mem.ksm.full_scans
     value 0

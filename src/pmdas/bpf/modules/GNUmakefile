@@ -49,6 +49,9 @@ APPS_H = \
 	tcpconnlat.h \
 	vfsstat.h \
 
+APPS_H_2 = \
+	netatop.h
+
 # ported *.bpf.c files.
 APPS_BPF = \
 	bashreadline.bpf.c \
@@ -64,6 +67,8 @@ APPS_BPF = \
 	tcpconnlat.bpf.c \
 	vfsstat.bpf.c \
 
+APPS_BPF_2 = \
+	netatop.bpf.c
 
 default_pcp default:	$(PMDABPF_MODULES)
 
@@ -99,7 +104,7 @@ $(APPS_BPF):
 vmlinux.h: $(PMDABPF_VMLINUXH)
 	$(LN_S) -f $< $@
 
-%.bpf.o: %.bpf.c vmlinux.h $(APPS_H) $(APPS_BPF)
+%.bpf.o: %.bpf.c vmlinux.h $(APPS_H) $(APPS_H_2) $(APPS_BPF) $(APPS_BPF_2)
 	$(CLANG) -Wall -g -O2 -target bpf -D__TARGET_ARCH_$(PMDABPF_ARCH) \
 		-I. -c $< -o $@
 	$(LLVM_STRIP) -g $@
