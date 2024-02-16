@@ -199,7 +199,6 @@ Start: DATE
 # $version=1.1
 + export version; version=1.1
 Check pmie -h LOCALHOST -l TMP.nogo/subdir/bad.7 ...
-mkdir_and_chown: TMP.nogo/subdir: mkdir -m 775 failed
 pmie_check: [TMP.error.7:2]
 Error: cannot create directory (TMP.nogo/subdir) for pmie log file
 ... automated performance reasoning for host "LOCALHOST" unchanged
