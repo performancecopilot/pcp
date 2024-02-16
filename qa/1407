@@ -18,9 +18,15 @@ which pmchart >/dev/null 2>&1 || _notrun "pmchart not installed"
 
 $sudo rm -f $tmp.* $seq.full
 
+echo "DISPLAY=$DISPLAY" >>$seq.full
+echo "PCPQA_CLOSE_X_SERVER=$PCPQA_CLOSE_X_SERVER" >>$seq.full
+
 _filter()
 {
-    sed -e '/^QStandardPaths: XDG_RUNTIME_DIR not set.*/d'
+    sed \
+	-e '/^QStandardPaths: XDG_RUNTIME_DIR not set.*/d' \
+	-e '/Qt: Session management error: Authentication Rejected/d' \
+    # end
 }
 
 _checkerr()
