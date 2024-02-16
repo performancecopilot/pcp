@@ -1,0 +1,3 @@
+[submodule "blazesym"]
+	path = blazesym
+	url = https://github.com/libbpf/blazesym.git
