@@ -211,6 +211,7 @@ echo "pmproxy_was_running=$pmproxy_was_running" >>$here/$seq.full
 _setup
 
 mkdir $tmp
+$sudo chown $PCP_USER:$PCP_GROUP $tmp
 
 # this one is set via the environment
 #
@@ -218,7 +219,7 @@ export qatmp=$tmp
 
 # control file
 #
-cat >$tmp/control <<End-of-File
+cat >$tmp.control <<End-of-File
 \$version=1.1
 \$PMLOGGER_CHECK_SKIP_JANITOR=yes
 \$A=A
@@ -229,17 +230,18 @@ LOCALHOSTNAME	n   n	\$qatmp/\$A --pmlc-ipc-version=2 -c $tmp.config -l $tmp.A.lo
 LOCALHOSTNAME	n   n	'\$(echo $qatmp/B)' --pmlc-ipc-version=2 -c $tmp.config -l $tmp.B.log -Dservices,appl3,appl4
 LOCALHOSTNAME	n   n	"$qatmp/\`echo c | tr '[a-z]' '[A-Z]'\`" --pmlc-ipc-version=2 -c $tmp.config -l $tmp.C.log -Dservices,appl3,appl4
 End-of-File
+sudo -u $PCP_USER -g $PCP_GROUP cp $tmp.control $tmp/control
 
 cat $tmp/control >>$here/$seq.full
 echo "qatmp=$qatmp" >>$here/$seq.full
 echo "PCP_TMP_DIR=$PCP_TMP_DIR" >>$here/$seq.full
 
 echo "pmlogger_check #1" | tee -a $here/$seq.full
-$sudo sh -c "qatmp=$qatmp $PCP_BINADM_DIR/pmlogger_check -V -c $tmp/control -l $tmp/log"
+$sudo -u $PCP_USER -g $PCP_GROUP sh -c "qatmp=$qatmp $PCP_BINADM_DIR/pmlogger_check -V -c $tmp/control -l $tmp/log"
 if [ -s $tmp/log ]
 then
     echo "$tmp.log from pmlogger_check #1 ..." >>$here/$seq.full
-    $sudo cat $tmp/log | tee -a $here/$seq.full | _filter
+    cat $tmp/log | tee -a $here/$seq.full | _filter
 fi
 _check_loggers
 for x in A B C
@@ -254,11 +256,11 @@ sleep 1
 _stop_loggers
 
 echo "pmlogger_check #2" | tee -a $here/$seq.full
-$sudo sh -c "qatmp=$qatmp $PCP_BINADM_DIR/pmlogger_check -V -c $tmp/control -l $tmp/log"
+$sudo -u $PCP_USER -g $PCP_GROUP sh -c "qatmp=$qatmp $PCP_BINADM_DIR/pmlogger_check -V -c $tmp/control -l $tmp/log"
 if [ -s $tmp/log ]
 then
     echo "$tmp.log from pmlogger_check #2 ..." >>$here/$seq.full
-    $sudo cat $tmp/log | tee -a $here/$seq.full | _filter
+    cat $tmp/log | tee -a $here/$seq.full | _filter
 fi
 _check_loggers
 for x in A B C
@@ -288,7 +290,7 @@ fi
 
 echo
 echo "pmlogger_daily"
-$sudo sh -c "qatmp=$qatmp $PCP_BINADM_DIR/pmlogger_daily -D -Z -VV -x never -c $tmp/control -l $tmp/log"
+$sudo -u $PCP_USER -g $PCP_GROUP sh -c "qatmp=$qatmp $PCP_BINADM_DIR/pmlogger_daily -D -Z -VV -x never -c $tmp/control -l $tmp/log"
 if [ -s $tmp/log ]
 then
     echo "$tmp.log from pmlogger_daily ..." >>$here/$seq.full
