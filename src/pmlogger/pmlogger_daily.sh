@@ -24,6 +24,10 @@
 #
 unset PCP_STDERR
 
+# want mode for mkdir below to reliably be rwxrwxr-x (775)
+#
+umask 002
+
 # constant setup
 #
 tmp=`mktemp -d "$PCP_TMPFILE_DIR/pmlogger_daily.XXXXXXXXX"` || exit 1

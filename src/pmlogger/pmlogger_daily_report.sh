@@ -48,6 +48,10 @@ fi
 # error messages should go to stderr, not the GUI notifiers
 unset PCP_STDERR
 
+# want mode for mkdir below to reliably be rwxrwxr-x (775)
+#
+umask 002
+
 # default message log file
 PROGLOG=$PCP_LOG_DIR/pmlogger/$prog.log
 USE_SYSLOG=true

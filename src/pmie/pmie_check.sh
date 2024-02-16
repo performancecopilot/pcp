@@ -32,7 +32,7 @@ unset PCP_STDERR
 # ensure mere mortals cannot write any configuration files,
 # but that the unprivileged PCP_USER account has read access
 #
-umask 022
+umask 002
 
 # added to handle problem when /var/log/pcp is a symlink, as first
 # reported by Micah_Altman@harvard.edu in Nov 2001
@@ -693,7 +693,7 @@ s/^\\$//
 	#
 	if [ ! -d "$dir" ]
 	then
-	    if mkdir -p "$dir" >$tmp/tmp 2>&1
+	    if mkdir -p "$dir" -m 0775 >$tmp/tmp 2>&1
 	    then
 		:
 	    else

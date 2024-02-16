@@ -34,7 +34,7 @@ unset PCP_STDERR
 # ensure mere mortals cannot write any configuration files,
 # but that the unprivileged PCP_USER account has read access
 #
-umask 022
+umask 002
 
 # constant setup
 #
