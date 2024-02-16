@@ -97,9 +97,9 @@ END				{ if ( eatlines ) {
 	-e "s/local:/HOST/g" \
 	-e "s/`hostname | sed -e 's/\..*//'`/HOST/g" \
 	-e '/\/var\/adm\/pcplog\/NOTICES/d' \
-	-e 's/-rw-r--r--\./-rw-r--r--/' \
+	-e 's/-rw-rw-r--\./-rw-rw-r--/' \
     | $PCP_AWK_PROG '
-/-rw-r--r--/	{ print $1,"...",$5,"...",$9; next }
+/-rw-rw-r--/	{ print $1,"...",$5,"...",$9; next }
 		{ print }' \
     | _filter_cron_scripts
 }
