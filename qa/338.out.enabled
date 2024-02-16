@@ -95,9 +95,9 @@ Input archives to be merged:
 	YESTERDAY.00.02
 	YESTERDAY.00.04
 Output archive files:
--rw-rw-r-- ... 455 ... YESTERDAY.meta
--rw-rw-r-- ... 192 ... YESTERDAY.index
--rw-rw-r-- ... 864 ... YESTERDAY.0
+-rw-r--r-- ... 455 ... YESTERDAY.meta
+-rw-r--r-- ... 192 ... YESTERDAY.index
+-rw-r--r-- ... 864 ... YESTERDAY.0
 Removing input archive files ...... done
 NOW-2.00.02.0
 NOW-2.00.02.index
