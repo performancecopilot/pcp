@@ -8,5 +8,5 @@ pmie/myhost/2017:
 mode=drwxrwxr-x user=pcp group=pcp name=02
 
 pmie/myhost/2017/02:
-mode=-rw-rw-r-- user=pcp group=pcp name=12
+mode=-rw-r--r-- user=pcp group=pcp name=12
 

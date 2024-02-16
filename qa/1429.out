@@ -8,6 +8,7 @@ Error: no pmlogger instance running for host "HOST"
 PMLOGGER.DAILY: [TMP.control:3]
 Warning: skipping log rotation because we don't know which pmlogger to signal
 mkdir: /no: Permission denied
+mkdir_and_chown: /no: mkdir -m 775 failed
 PMLOGGER.DAILY: [TMP.control:3]
 Error: cannot create directory (/no/such/dir) for autosave
 ... logging for host "HOST" unchanged
@@ -65,12 +66,14 @@ Error: no pmlogger instance running for host "HOST"
 PMLOGGER.DAILY: [TMP.control:4]
 Warning: skipping log rotation because we don't know which pmlogger to signal
 mkdir: TMP.ok/YYYY/YYYY-MM-DAYBEFOREYESTERDAY: Permission denied
+mkdir_and_chown: TMP.ok/YYYY/YYYY-MM-DAYBEFOREYESTERDAY/: mkdir -m 775 failed
 PMLOGGER.DAILY: [TMP.control:4]
 Error: cannot create directory (TMP.ok/YYYY/YYYY-MM-DAYBEFOREYESTERDAY/) for autosave
 ... logging for host "HOST" unchanged
 PMLOGGER.DAILY: [TMP.control:4]
 Warning: DAYBEFOREYESTERDAY: AUTOSAVE skipped: directory TMP.ok/YYYY/YYYY-MM-DAYBEFOREYESTERDAY/ does not exist
 mkdir: TMP.ok/YYYY/YYYY-MM-YESTERDAY: Permission denied
+mkdir_and_chown: TMP.ok/YYYY/YYYY-MM-YESTERDAY/: mkdir -m 775 failed
 PMLOGGER.DAILY: [TMP.control:4]
 Error: cannot create directory (TMP.ok/YYYY/YYYY-MM-YESTERDAY/) for autosave
 ... logging for host "HOST" unchanged
