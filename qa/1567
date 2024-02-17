@@ -13,8 +13,14 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-which nc >/dev/null 2>&1 || _notrun "nc binary not installed"
 which curl >/dev/null 2>&1 || _notrun "curl binary not installed"
+which nc >/dev/null 2>&1 || _notrun "nc binary not installed"
+case `admin/whatami`
+in
+    *Slackware\ 15\.0*)
+	    _notrun "nc -l does not work for me on Slackware 15.0"
+	    ;;
+esac
 
 _cleanup()
 {
