@@ -211,7 +211,7 @@ cp VERSION.pcp.daily VERSION.pcp
 # once the libraries are removed and the packages are being
 # built (and installed)
 #
-if which systemctl >/dev/null 2>&1
+if [ "$PCPQA_SYSTEMD" = yes ]
 then
     echo "Info: stopping PCP services" | tee -a \$HOME/daily.log
     for svc in pmie pmlogger pmproxy pmcd
@@ -528,7 +528,7 @@ fi
 # if we're using systemctl, then need to start enabled PCP
 # services so we leave things in a good state
 #
-if which systemctl >/dev/null 2>&1
+if [ "$PCPQA_SYSTEMD" = yes ]
 then
     systemctl list-unit-files >\$tmp.systemctl
     for svc in pmcd pmproxy pmie pmlogger_daily_report pmlogger
@@ -836,12 +836,6 @@ do
 	    [ X"$what" = Xall ] && check_what='-g sanity -g trace -g libpcp -g kernel -g pmrep -g threads -g perl -x valgrind'
 	    ;;
 
-	vm13)
-	    # Only -g sanity at this stage for OpenIndiana
-	    #
-	    [ X"$what" = Xall ] && check_what='-g sanity'
-	    ;;
-
 	vm15)
 	    # 1123 loops forever lost in an X11 wasteland
 	    [ X"$what" = Xall ] && check_what='-X 1123'
@@ -1111,6 +1105,12 @@ End-of-File
 	then
 	    # run whatami on QA host
 	    ssh -t $qa_user@$host $qa_dir/admin/whatami >$HOME/Logs/by-vm/$host/whatami
+	    if $work
+	    then
+		echo "Info: `cat $HOME/Logs/by-vm/$host/whatami`"  | tee -a $HOME/daily.log
+	    else
+		echo "Info: `cat $HOME/Logs/by-vm/$host/whatami`"
+	    fi
 	fi
 
 	if $hflag
