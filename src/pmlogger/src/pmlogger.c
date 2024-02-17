@@ -526,7 +526,7 @@ do_dialog(char cmd)
 failed:
 	    fprintf(stderr, "Dialog:\n");
 	    fputs(p, stderr);
-	    strcpy(lbuf, "Yes");
+	    strncpy(lbuf, "Yes", 4);
 	}
 	else {
 	    /* strip at first newline */
@@ -543,7 +543,7 @@ failed:
     else {
 	fprintf(stderr, "Error: failed to create recording session dialog message!\n");
 	fprintf(stderr, "Reason? %s\n", osstrerror());
-	strcpy(lbuf, "Yes");
+	strncpy(lbuf, "Yes", 4);
     }
 
     free(p);
