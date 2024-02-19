@@ -97,7 +97,7 @@ echo "fork() fails after pipe()"
 cat >$tmp.control <<End-of-File
 libpcp/exec.c:6	> 0
 End-of-File
-src/exectest -Dexec -p -- echo hullo world 2>&1 | _filter
+src/exectest -Dexec -p -- echo hullo world 2>&1 | _filter | _cull_dup_lines
 
 echo
 echo "realloc() fails for pipe map"

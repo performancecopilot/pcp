@@ -1164,3 +1164,10 @@ _filter_compiler_babble()
 	-e '/^  *| /d' \
     # end
 }
+
+# remove repeated (duplicate) lines from input
+#
+_cull_dup_lines()
+{
+    $PCP_AWK_PROG 'NR == 1 || last != $0 { print; last = $0 }'
+}
