@@ -78,6 +78,7 @@ then
 else
     echo "$0: Error: ls \$PCP_RUN_DIR ($PCP_RUN_DIR) failed"
     ls -ld "$PCP_RUN_DIR/.." "$PCP_RUN_DIR"
+    exit
 fi
 mode=`awk '{print $1}' <$tmp/tmp | sed -e 's/^.//' -e 's/\(.........\).*/\1/'`
 user=`awk '{print $3}' <$tmp/tmp`
@@ -103,6 +104,56 @@ then
     else
 	echo "$0: Error: chmod for \$PCP_RUN_DIR ($PCP_RUN_DIR) failed"
 	ls -ld "$PCP_RUN_DIR"
+	exit
+    fi
+fi
+
+# Need NOTICES to exist and be owned by $PCP_USER:$PCP_GROUP
+#
+if [ ! -f "$PCP_LOG_DIR/NOTICES" ]
+then
+    if touch "$PCP_LOG_DIR/NOTICES"
+    then
+	:
+    else
+	echo "$0: Error: touch for \$PCP_LOG_DIR/NOTICES ($PCP_LOG_DIR/NOTICES) failed"
+	ls -ld "$PCP_LOG_DIR" "$PCP_LOG_DIR/NOTICES"
+	exit
+    fi
+fi
+
+if ls -l "$PCP_LOG_DIR/NOTICES" >$tmp/tmp
+then
+    :
+else
+    echo "$0: Error: ls \$PCP_LOG_DIR/NOTICES ($PCP_LOG_DIR/NOTICES) failed"
+    ls -l "$PCP_LOG_DIR/NOTICES"
+    exit
+fi
+mode=`awk '{print $1}' <$tmp/tmp | sed -e 's/^.//' -e 's/\(.........\).*/\1/'`
+user=`awk '{print $3}' <$tmp/tmp`
+group=`awk '{print $4}' <$tmp/tmp`
+
+if [ "$user" != $PCP_USER -o "$group" != $PCP_GROUP ]
+then
+    if chown $PCP_USER:$PCP_GROUP "$PCP_LOG_DIR/NOTICES"
+    then
+	:
+    else
+	echo "$0: Error: chown for \$PCP_LOG_DIR/NOTICES ($PCP_LOG_DIR/NOTICES) failed"
+	ls -l "$PCP_LOG_DIR/NOTICES"
+	exit
+    fi
+fi
+
+if [ "$mode" != "rw-r--r--" ]
+then
+    if chmod 644 "$PCP_LOG_DIR/NOTICES"
+    then
+	:
+    else
+	echo "$0: Error: chmod for \$PCP_LOG_DIR/NOTICES ($PCP_LOG_DIR/NOTICES) failed"
+	ls -l "$PCP_LOG_DIR/NOTICES"
 	exit
     fi
 fi
