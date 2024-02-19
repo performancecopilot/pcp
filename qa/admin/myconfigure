@@ -51,7 +51,19 @@ dodeb=unknown
 if [ $dorpm = unknown ]
 then
     dorpm=false
-    [ -x /usr/bin/rpmbuild ] && dorpm=true
+    if which slackpkg >/dev/null 2>&1
+    then
+	# Slackware has rpm(1) and rpmbuild(1), but don't build RPMs
+	#
+	:
+    elif which mx-boot-repair >/dev/null 2>&1
+    then
+	# MX Linux has rpm(1) and rpmbuild(1), but don't build RPMs
+	#
+	:
+    else
+	[ -x /usr/bin/rpmbuild ] && dorpm=true
+    fi
 fi
 if [ $dodeb = unknown ]
 then

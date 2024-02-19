@@ -50,7 +50,7 @@ _filter_pmproxy()
 {
     sed \
 	-e '/pmproxy: disabled time series, requires libuv support (missing)/d' \
-    # end
+    | _filter_pmproxy_start
 }
 
 _full_log()

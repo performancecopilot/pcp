@@ -1101,18 +1101,6 @@ End-of-File
 	    echo "=== END ===" >>$log
 	fi
 
-	if $iflag || $qflag || $rflag || $hflag
-	then
-	    # run whatami on QA host
-	    ssh -t $qa_user@$host $qa_dir/admin/whatami >$HOME/Logs/by-vm/$host/whatami
-	    if $work
-	    then
-		echo "Info: `cat $HOME/Logs/by-vm/$host/whatami`"  | tee -a $HOME/daily.log
-	    else
-		echo "Info: `cat $HOME/Logs/by-vm/$host/whatami`"
-	    fi
-	fi
-
 	if $hflag
 	then
 	    # harvest failures by pulling from QA host
@@ -1158,6 +1146,14 @@ End-of-File
 		echo "No failures."
 	    fi
 	fi
+
+	if $iflag || $qflag || $rflag || $hflag
+	then
+	    # run whatami on QA host
+	    ssh -t $qa_user@$host $qa_dir/admin/whatami >$HOME/Logs/by-vm/$host/whatami
+	    echo "Info: `cat $HOME/Logs/by-vm/$host/whatami`"  | tee -a $HOME/daily.log
+	fi
+
 	end=`date +%s`
 	echo "$start $end" | awk >>$log '
     { delta = $2 - $1
@@ -1166,9 +1162,9 @@ End-of-File
       sec = delta % 60
       printf "Elapsed time: %d:%02d:%02d (%d secs)\n", hr, min, sec, delta
     }'
+
     fi
     
-
     if $sflag
     then
 	doit=false

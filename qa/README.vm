@@ -15,6 +15,14 @@ These notes should be read in conjunction with the README notes.
     a password
 (g) make sure there is no firewall, or if there is one the ports mentioned
     in qa/README (pmcd, pmlogger control, pmproxy, etc) are open
+    In the simples case with ufw(1) in play, the following should suffice:
+      $ sudo ufw allow 44321/tcp comment pmcd
+      $ sudo ufw allow 44322/tcp comment pmproxy
+      $ sudo ufw allow 44323/tcp comment pmwebapi
+      $ sudo ufw allow 5353/udp comment mDNS
+      $ for port in `seq 4320 4350`
+          do sudo ufw allow $port/tcp comment PCPQA
+	done
 (h) git clone the PCP tree
 (i) cd qa/admin and run list-packages -p until you're tired ...
     - the files in qa/admin/package-lists are the inventories for each

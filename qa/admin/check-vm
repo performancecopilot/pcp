@@ -163,7 +163,7 @@ _build_allpkgs()
 {
     case "$distro"
     in
-    Ubuntu|Debian|LinuxMint)
+    Ubuntu|Debian|LinuxMint|MX)
 	apt-cache dumpavail | sed -n -e '/^Package: /s///p' >$tmp.allpkgs
 	;;
 
@@ -614,22 +614,22 @@ done
 
 if [ ! -f "$manifest" ]
 then
-    echo "Botch: cannot find manifest: $manifest"
+    echo 2>&1 "Botch: cannot find manifest: $manifest"
     exit 1
 fi
 if [ ! -f "$require" ]
 then
-    echo "Botch: cannot find require: $require"
+    echo 2>&1 "Botch: cannot find require: $require"
     exit 1
 fi
 if [ ! -f "$unavailable" ]
 then
-    echo "Botch: cannot find unavailable: $unavailable"
+    echo 2>&1 "Botch: cannot find unavailable: $unavailable"
     exit 1
 fi
 if [ ! -f "$skip" ]
 then
-    echo "Botch: cannot find skip: $skip"
+    echo 2>&1 "Botch: cannot find skip: $skip"
     exit 1
 fi
 
@@ -657,7 +657,7 @@ installcmd=''
 rm -f $tmp.installed
 case "$distro"
 in
-    Ubuntu|Debian|LinuxMint)
+    Ubuntu|Debian|LinuxMint|MX)
 	mytype=dpkg
 	installcmd="apt install"
 	# just ones like
@@ -735,17 +735,17 @@ in
 esac
 if [ -z "$mytype" ]
 then
-    echo "$0: Botch: don't recognize mytype for: $distro"
+    echo 2>&1 "$0: Botch: don't recognize mytype for: $distro"
     exit
 fi
 if [ -z "$installcmd" ]
 then
-    echo "$0: Botch: don't recognize installcmd for: $distro"
+    echo 2>&1 "$0: Botch: don't recognize installcmd for: $distro"
     exit
 fi
 if [ ! -f $tmp.installed ]
 then
-    echo "$0: Botch: can't generate tmp.installed for: $distro"
+    echo 2>&1 "$0: Botch: can't generate tmp.installed for: $distro"
     exit
 fi
 

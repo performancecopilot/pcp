@@ -13,7 +13,7 @@ echo "QA output created by $seq"
 . ./common.check
 
 # this tests systemd starting pmlogger
-which systemctl >/dev/null 2>&1 || _notrun "systemctl not installed"
+[ "$PCPQA_SYSTEMD" = yes ] || _notrun "systemctl not installed or not active"
 
 _cleanup()
 {

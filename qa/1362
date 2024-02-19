@@ -51,7 +51,7 @@ $sudo -u postgres psql -c "select VERSION();" | grep -s "PostgreSQL 8" > /dev/nu
 
 # need systemctl to reliably restart postgresql server
 #
-which systemctl >/dev/null 2>&1 || _notrun "systemctl not installed"
+[ "$PCPQA_SYSTEMD" = yes ] || _notrun "systemctl not installed or not active"
 
 CONF=$PCP_PMDAS_DIR/postgresql/pmdapostgresql.conf
 

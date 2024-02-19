@@ -12,6 +12,7 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+[ "$PCPQA_SYSTEMD" = no ] && _notrun "we're not using systemd here"
 [ -d $PCP_VAR_DIR/pmdas/systemd ] || _notrun "systemd PMDA not installed"
 which systemd-cat >/dev/null 2>&1 || _notrun no systemd-cat
 which journalctl >/dev/null 2>&1 || _notrun no journalctl

@@ -12,6 +12,7 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+[ "$PCPQA_SYSTEMD" = no ] && _notrun "we're not using systemd here"
 [ -n "$PCP_SYSTEMDUNIT_DIR" ] || _notrun "PCP_SYSTEMDUNIT_DIR not set, so no systemd here"
 [ -f $PCP_SYSTEMDUNIT_DIR/pmcd.service ] || _notrun "$PCP_SYSTEMDUNIT_DIR/pmcd.service not found"
 

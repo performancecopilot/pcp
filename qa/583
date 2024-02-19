@@ -83,16 +83,17 @@ export PMCD_CONNECT_TIMEOUT PMCD_REQUEST_TIMEOUT PMCD_RECONNECT_TIMEOUT
 
 # may be using journalctl, and so no syslog in the file system
 #
-if `which journalctl >/dev/null 2>&1`
+if [ "$PCPQA_SYSTEMD" = yes ] && `which journalctl >/dev/null 2>&1`
 then
     echo "Using journalctl ..." >>$seq.full
     have_journalctl=true
 else
     have_journalctl=false
     SYSLOG=''
-    for f in /var/adm/SYSLOG /var/log/daemon.log /var/log/messages /var/log/syslog /var/log/system.log
+    for f in /var/adm/SYSLOG /var/log/daemon.log /var/log/messages \
+	     /var/log/syslog /var/log/syslog.1 /var/log/system.log
     do
-	if [ -f $f ]
+	if [ -f $f -a -s $f ]
 	then
 	    SYSLOG=$f
 	    break

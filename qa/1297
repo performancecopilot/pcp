@@ -13,7 +13,8 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-which systemctl >/dev/null 2>&1 || _notrun "systemctl tool not installed"
+[ "$PCPQA_SYSTEMD" = no ] && _notrun "we're not using systemd here"
+[ "$PCPQA_SYSTEMD" = yes ] || _notrun "systemctl not installed or not active"
 [ -n "$PCP_SYSTEMDUNIT_DIR" ] || _notrun "systemd service files not installed"
 [ -f $PCP_SYSTEMDUNIT_DIR/pmie.service ] || _notrun "pmie service not installed"
 

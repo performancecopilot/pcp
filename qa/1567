@@ -20,6 +20,9 @@ in
     *Slackware\ 15\.0*)
 	    _notrun "nc -l does not work for me on Slackware 15.0"
 	    ;;
+    *MX\ 23\.2*)
+	    _notrun "nc -l does not work for me on MX 23.2"
+	    ;;
 esac
 
 _cleanup()
@@ -50,6 +53,7 @@ _filter_pmie_webhook()
 
 # real QA test starts here
 port=`_find_free_port`
+echo "port=$port" >>$seq.full
 nc -l localhost $port >$tmp.nc.out 2>$tmp.nc.err &
 pid1=$!
 sleep 2 # let nc start up

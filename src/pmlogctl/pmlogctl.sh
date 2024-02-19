@@ -717,22 +717,50 @@ _do_status()
 
     # see if system-level controls have stopped (all) ${IAM} processes
     #
-    systemctl_state=''
+    system_state=''
     if which systemctl >/dev/null 2>&1
     then
-	if [ -n "$PCP_SYSTEMDUNIT_DIR" -a -f "$PCP_SYSTEMDUNIT_DIR/${IAM}.service" ]
+	# we have a systemctl executable, but it might be disabled,
+	# e.g. on MX Linux
+	#
+	if systemctl -q is-active local-fs.target >/dev/null 2>&1
 	then
-	    # systemctl is handling this
-	    #
-	    if [ "`systemctl is-enabled ${IAM}.service`" = enabled ]
+	    if [ -n "$PCP_SYSTEMDUNIT_DIR" -a -f "$PCP_SYSTEMDUNIT_DIR/${IAM}.service" ]
 	    then
-		if [ "`systemctl is-active ${IAM}.service`" = inactive ]
+		# systemctl is handling this
+		#
+		if [ "`systemctl is-enabled ${IAM}.service`" = enabled ]
 		then
-		    systemctl_state='stopped by systemctl'
+		    if [ "`systemctl is-active ${IAM}.service`" = inactive ]
+		    then
+			system_state='stopped by systemctl'
+		    fi
+		else
+		    system_state='disabled by systemctl'
 		fi
-	    else
-		systemctl_state='disabled by systemctl'
 	    fi
+	fi
+    fi
+    if [ -z "$system_state" ]
+    then
+	if which invoke-rc.d >/dev/null 2>&1
+	then
+	    state=`invoke-rc.d ${IAM} status 2>/dev/null | sed -n -e '/^Checking for/{
+s/.*: //p
+}'`
+	    case "$state"
+	    in
+		running)
+			;;
+		stopped)
+			if [ -f /etc/rc5.d/S*${IAM} ]
+			then
+			    system_state='stopped by invoke-rc.d'
+			else
+			    system_state='disabled by update-rc.d'
+			fi
+			;;
+	    esac
 	fi
     fi
 
@@ -858,9 +886,9 @@ found == 0 && $3 == "'"$host"'" && $6 == "'"$dir"'"	{ print NR >>"'$tmp/match'";
 	    then
 		if [ "$state" = running ]
 		then
-		    if [ -n "$systemctl_state" ]
+		    if [ -n "$system_state" ]
 		    then
-			state="$systemctl_state"
+			state="$system_state"
 		    else
 			state="dead"
 		    fi
@@ -1327,7 +1355,7 @@ $1 == "'"$host"'"	{ print $4 }'`
 	$VERBOSE && echo "Installing control file: $CONTROLDIR/$ident"
 
 	$CP $tmp/control "$CONTROLDIR/$ident"
-	$CHECK $CHECKARGS -c "$CONTROLDIR/$ident"
+	$RUNASPCP "$CHECKCMD $CHECKARGS -c \"$CONTROLDIR/$ident\""
 	dir_args="`echo "$dir" | _expand_control`"
 	_check_started "$dir_args" || sts=1
     done
@@ -1444,7 +1472,7 @@ $1 == "'"$host"'"	{ print $4 }'`
 	    fi
 	    $VERBOSE && echo "Installing control file: $CONTROLDIR/$ident"
 	    $CP $tmp/control "$CONTROLDIR/$ident"
-	    $CHECK $CHECKARGS -c "$CONTROLDIR/$ident"
+	    $RUNASPCP "$CHECKCMD $CHECKARGS -c \"$CONTROLDIR/$ident\""
 	    dir_args="`echo "$dir" | _expand_control`"
 	    _check_started "$dir_args" || sts=1
 	fi
@@ -1572,7 +1600,7 @@ $1 == "'"#!#$host"'" && ($4 == "'"$dir"'" || $4 == "'"$alt_dir"'")	{ sub(/^#!#/,
 	    fi
 	    $CP $tmp/control "$control"
 	fi
-	$CHECK $CHECKARGS -c "$control"
+	$RUNASPCP "$CHECKCMD $CHECKARGS -c \"$control\""
 
 	_check_started "$args_dir" || sts=1
     done
@@ -1694,7 +1722,8 @@ IDENT=''
 SHOWME=false
 CP=cp
 RM=rm
-CHECK="sudo -u $PCP_USER -g $PCP_GROUP $PCP_BINADM_DIR/${IAM}_check"
+RUNASPCP="$PCP_BINADM_DIR/runaspcp"
+CHECKCMD="$PCP_BINADM_DIR/${IAM}_check"
 CHECKARGS=''
 KILL="$PCP_BINADM_DIR/pmsignal -s"
 MIGRATE=false
@@ -1728,7 +1757,7 @@ do
 	-N)	SHOWME=true
 		CP="echo + $CP"
 		RM="echo + $RM"
-		CHECK="echo + $CHECK"
+		RUNASPCP="echo + $RUNASPCP"
 		KILL="echo + $KILL"
 		;;
 	-p)	POLICY="$2"

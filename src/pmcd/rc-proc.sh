@@ -65,15 +65,28 @@ _cmds_exist()
     _have_flag=false
     [ -f $PCP_RC_DIR/$1 ] && _have_flag=true
 
-    # systemctl is special ... sometimes it is installed, but not with
-    # full systemd behind it, e.g Debian-based systems circa 2015
-    # ... see special case handling where systemctl might be used in
-    # the "do something" sections elsewhere in this file and it only
-    # makes sense to try systemctl if the corresponding
-    # $PCP_SYSTEMDUNIT_DIR/$_flag.service file exists.
-    #
     _have_systemctl=false
-    _which systemctl && _have_systemctl=true
+    if _which systemctl >/dev/null 2>&1
+    then
+	# systemctl is special ... sometimes it is installed, but not with
+	# full systemd behind it, e.g Debian-based systems circa 2015
+	# or Linux MX
+	# ... see special case handling where systemctl might be used in
+	# the "do something" sections elsewhere in this file and it only
+	# makes sense to try systemctl if the corresponding
+	# $PCP_SYSTEMDUNIT_DIR/$_flag.service file exists.
+	#
+	# we have a systemctl executable, but it might be disabled,
+	# e.g. on MX Linux
+	#
+	if systemctl -q is-active local-fs.target >/dev/null 2>&1
+	then
+	    # OK, good to go with systemd and systemctl
+	    #
+	    _have_systemctl=true
+	fi
+    fi
+
     _have_runlevel=false
     _which runlevel && _have_runlevel=true
     _have_chkconfig=false

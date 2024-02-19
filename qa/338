@@ -160,7 +160,7 @@ else
     ln $seq.out.disabled $seq.out
 fi
 VERBOSE_CONFIG=false
-if which systemctl >/dev/null 2>&1
+if [ "$PCPQA_SYSTEMD" = yes ]
 then
     systemctl is-enabled pmlogger.service >>$seq.full 2>&1
     if systemctl -q is-enabled pmlogger.service >>$seq.full 2>&1

@@ -72,14 +72,12 @@ then
 	# the SuSE way
 	upstart=false
 	init=/etc/init.d/syslog
+    elif [ "$PCPQA_SYSTEMD" = yes -a -n "$PCP_SYSTEMDUNIT_DIR" -a -f $PCP_SYSTEMDUNIT_DIR/rsyslog.service ]
+    then
+	systemctl=true
     else
-	if `which systemctl >/dev/null 2>&1` && [ -n "$PCP_SYSTEMDUNIT_DIR" -a -f $PCP_SYSTEMDUNIT_DIR/rsyslog.service ]
-	then
-	    systemctl=true
-	else
-	    echo "Botch: using rsyslog, but I don't know how to stop/start it"
-	    exit 1
-	fi
+	echo "Botch: using rsyslog, but I don't know how to stop/start it"
+	exit 1
     fi
 elif [ -f /etc/syslog.conf ]
 then

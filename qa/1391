@@ -168,7 +168,7 @@ echo "Start pmcd with this shiny new sasldb"
 _service pmcd restart 2>&1 | tee -a $seq.full >$tmp.out
 _wait_for_pmcd
 
-if which systemctl >/dev/null 2>&1
+if [ "$PCPQA_SYSTEMD" = yes ]
 then
     $sudo systemctl daemon-reload
 fi

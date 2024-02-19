@@ -691,6 +691,7 @@ _filter_pmie_start()
 	-e '/^Starting pmie/d' \
 	-e '/^Waiting for pmie/d' \
 	-e "s;$PCP_RC_DIR/pmie;\$PCP_RC_DIR/pmie;g" \
+	-e "s;$PCP_ETC_DIR/pcp/pmie;\$PCP_ETC_DIR/pcp/pmie;g" \
 	-e '/(pmie) is disabled/d' \
 	-e '/(pmie) not permanently enabled/d' \
 	-e '/To enable/d' \
