@@ -1,0 +1,110 @@
+#!/bin/sh
+# PCP QA Test No. 1483
+# look for bad syslog entries
+#
+# Copyright (c) 2024 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+$sudo rm -rf $tmp $tmp.* $seq.full
+
+which journalctl >/dev/null 2>&1 || _notrun "no journalctl executable installed"
+[ "$PCPQA_SYSTEMD" = no ] && _notrun "we're not using systemd here, so journalctl not useful"
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# cull expected lines from journalctl
+#
+_filter()
+{
+    # the first block are lines that are OK for any service,
+    # then the case ... esace deals with the per-service
+    # culling
+    #
+    sed \
+	-e '/^-- No entries --$/d' \
+	-e '/^-- Logs begin at /d' \
+	-e '/error while loading shared libraries: libpcp/d' \
+    | case "$1"
+    in
+
+	pmcd)
+	    sed \
+		-e '/ Installing .* PMDA /d' \
+		-e '/ Removing .* PMDA /d' \
+		-e '/ Rebuilding PMNS /d' \
+	    #end
+	    ;;
+
+	pmie*)
+	    # cull regular pmie rule firing ....
+	    # ... pcp-pmie[3330341]: Severe ...
+	    # and these lines from qa/115
+	    # ... rc[24566]: /etc/init.d/rc:
+	    # ... rc[24566]: Error: PCP inference engine control file $PCP_PMIECONTROL_PATH ("/etc/pcp/pmie/control")
+	    # ... rc[24566]:        is missing!  Cannot start any Performance Co-Pilot inference engine(s).
+	    # and pmie_check will fail during PCP builds
+	    #
+	    sed \
+		-e '/ pcp-pmie\[/d' \
+		-e '/rc\[[0-9]*]: .*\/rc:$/d' \
+		-e '/rc\[[0-9]*]: Error: .* PCP_PMIECONTROL_PATH/d' \
+		-e '/rc\[[0-9]*]: .*is missing!/d' \
+		-e '/pmie_check failed - see .*\/pmie_check.log/d' \
+		-e '/pmie_daily failed - see .*\/pmie_daily.log/d' \
+	    # end
+	    ;;
+
+	pmlogger*)
+	    # sudo babble
+	    # and pmlogger_check will fail during PCP builds
+	    # and pmlogger_daily will fail during PCP builds
+	    sed \
+		-e '/sudo\[[0-9]*]: /d' \
+		-e '/pmlogger_check failed - see .*\/pmlogger_check.log/d' \
+		-e '/pmlogger_daily failed - see .*\/pmlogger_daily-K.log/d' \
+	    # end
+	    ;;
+
+	*)
+	    cat
+	    ;;
+    esac
+}
+
+# real QA test starts here
+
+for svc in \
+    pmcd pmfind pmie pmie_check pmie_daily pmie_farm pmie_farm_check \
+    pmlogger pmlogger_check pmlogger_daily pmlogger_farm pmlogger_farm_check \
+    pmproxy
+do
+    echo
+    echo "=== $svc ==="
+    journalctl --no-pager --since=yesterday _SYSTEMD_UNIT=$svc.service 2>&1 \
+    | _filter $svc
+done
+
+# success, all done
+exit
