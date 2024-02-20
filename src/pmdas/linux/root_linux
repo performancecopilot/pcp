@@ -1555,6 +1555,7 @@ filesys {
     blocksize           60:5:9
     avail               60:5:10
     readonly            60:5:11
+    uuid		60:5:12
 }
 
 tmpfs {

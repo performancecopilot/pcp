@@ -37,7 +37,7 @@ then
     exit 1
 fi
 
-. VERSION.pcp
+. ./VERSION.pcp
 version=$PACKAGE_MAJOR.$PACKAGE_MINOR.$PACKAGE_REVISION
 
 target=`uname -s | sed -e 's/ .*//' | tr 'A-Z' 'a-z'`
@@ -216,7 +216,7 @@ then
     exit 1
 fi
 
-. src/include/pcp.conf
+. ./src/include/pcp.conf
 
 here=`pwd`
 

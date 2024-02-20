@@ -16,6 +16,7 @@
  */
 #include "linux.h"
 #include "filesys.h"
+#include <strings.h>
 
 char *
 scan_filesys_options(const char *options, const char *option)
@@ -33,6 +34,100 @@ scan_filesys_options(const char *options, const char *option)
         s = strtok(NULL, ",");
     }
     return NULL;
+}
+
+static void
+do_uuids(pmInDom filesys_indom)
+{
+    /*
+     * Sort of one-trip logic here ... we do it once, then it is a
+     * NOP until we see the mtime of the /dev/disk/by-uuid directory
+     * has changed
+     */
+
+    int			sts;
+    DIR			*dp;
+    struct dirent	*dep;
+    char		path[MAXPATHLEN];
+    char		link[MAXPATHLEN];
+    char		device[MAXPATHLEN];
+    ssize_t		len;
+    char		*devname;
+    filesys_t		*fs;
+    struct stat		sbuf;
+    static struct timespec		mtim = { 0 };
+    static int		seen_err = 0;
+
+    pmsprintf(path, sizeof(path), "%s/dev/disk/by-uuid", linux_statspath);
+
+    if (stat(path, &sbuf) < 0) {
+	if (!seen_err) {
+	    fprintf(stderr, "do_uuids: stat(%s) failed: %s\n", path, pmErrStr(-oserror()));
+	    seen_err = 1;
+	}
+	return;
+    }
+    if (mtim.tv_sec > 0 &&
+        mtim.tv_sec == sbuf.st_mtim.tv_sec &&
+        mtim.tv_nsec == sbuf.st_mtim.tv_nsec)
+	return;
+
+    mtim.tv_sec = sbuf.st_mtim.tv_sec;
+    mtim.tv_nsec = sbuf.st_mtim.tv_nsec;
+
+    if ((dp = opendir(path)) == NULL) {
+	if (!seen_err) {
+	    fprintf(stderr, "do_uuids: opendir(%s) failed: %s\n", path, pmErrStr(-oserror()));
+	    seen_err = 1;
+	}
+	return;
+    }
+
+    while ((dep = readdir(dp)) != NULL) {
+	if (strcmp(dep->d_name, ".") == 0) continue;
+	if (strcmp(dep->d_name, "..") == 0) continue;
+	pmsprintf(path, sizeof(path), "%s/dev/disk/by-uuid/%s", linux_statspath, dep->d_name);
+	len = readlink(path, link, sizeof(link));
+	link[len] = '\0';
+	devname = rindex(link, '/');
+	pmsprintf(device, sizeof(device), "/dev%s", devname);
+	sts = pmdaCacheLookupName(filesys_indom, device, NULL, (void **)&fs);
+	if (sts != PMDA_CACHE_ACTIVE) {
+	    /*
+	     * this is a block device that has a UUID, but is not a
+	     * mounted filesystem ... either swap device or an unmounted
+	     * filesystem, so ignore it
+	     */
+	    if (pmDebugOptions.libpmda)
+		fprintf(stderr, "do_uuids: Warning: disk %s not in InDom Cache\n", device);
+	    continue;
+	}
+	if (fs->uuid == NULL) {
+	    /*
+	     * first time for this device
+	     */
+	    fs->uuid = strdup(dep->d_name);
+	    if (pmDebugOptions.libpmda) {
+		fprintf(stderr, "do_uuids: add \"%s\" \"%s\"\n",
+		    device, fs->uuid);
+	    }
+	}
+	else if (strcmp(fs->uuid, dep->d_name) != 0) {
+	    /*
+	     * uuid changed ...
+	     */
+	    free(fs->uuid);
+	    fs->uuid = strdup(dep->d_name);
+	    if (pmDebugOptions.libpmda) {
+		fprintf(stderr, "do_uuids: change \"%s\" \"%s\"\n",
+		    device, fs->uuid);
+	    }
+	}
+    }
+
+    closedir(dp);
+
+    return;
 }
 
 int
@@ -77,6 +172,7 @@ refresh_filesys(pmInDom filesys_indom, pmInDom tmpfs_indom,
 	    strcmp(type, "configfs") == 0 ||
 	    strcmp(type, "cgroup") == 0 ||
 	    strcmp(type, "sysfs") == 0 ||
+	    strcmp(type, "tmpfs") == 0 ||
 	    strncmp(type, "auto", 4) == 0)
 	    continue;
 
@@ -114,6 +210,7 @@ refresh_filesys(pmInDom filesys_indom, pmInDom tmpfs_indom,
 	    fs->device = strdup(device);
 	    fs->path = strdup(path);
 	    fs->options = strdup(options);
+	    fs->uuid = NULL;
 	    if (pmDebugOptions.libpmda) {
 		fprintf(stderr, "refresh_filesys: add \"%s\" \"%s\"\n",
 		    fs->path, device);
@@ -129,5 +226,11 @@ refresh_filesys(pmInDom filesys_indom, pmInDom tmpfs_indom,
      * may be requested (rather, we do it in linux_fetch, see pmda.c).
      */
     fclose(fp);
+
+    /*
+     * update uuids
+     */
+    do_uuids(filesys_indom);
+
     return 0;
 }

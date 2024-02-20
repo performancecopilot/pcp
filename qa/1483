@@ -45,6 +45,7 @@ _filter()
     sed \
 	-e '/^-- No entries --$/d' \
 	-e '/^-- Logs begin at /d' \
+	-e '/: End: /d' \
 	-e '/error while loading shared libraries: libpcp/d' \
     | case "$1"
     in
