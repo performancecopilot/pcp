@@ -4,9 +4,9 @@ PCP_BINADM_DIR/pcp-reboot-init: Error: $PCP_DIR/etc/pcp.env missing ... arrgh
 pcp.env: Fatal Error: "TMP/etc/pcp.conf" not found
 
 === missing vars from pcp.conf
-PCP_BINADM_DIR/pcp-reboot-init: Botch: no PCP_RUN_DIR= in TMP/etc/pcp.conf
 PCP_BINADM_DIR/pcp-reboot-init: Botch: no PCP_USER= in TMP/etc/pcp.conf
 PCP_BINADM_DIR/pcp-reboot-init: Botch: no PCP_GROUP= in TMP/etc/pcp.conf
+PCP_BINADM_DIR/pcp-reboot-init: Botch: no PCP_RUN_DIR= in TMP/etc/pcp.conf
 
 === $PCP_RUN_DIR missing
 drwxrwxr-x pcpqa pcpqa TMP/run

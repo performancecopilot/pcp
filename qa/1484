@@ -1,0 +1,146 @@
+#!/bin/sh
+# PCP QA Test No. 1484
+# Workout for pcp-reboot-init - $PCP_LOG_DIR/NOTICES fixup part
+#
+# Copyright (c) 2024 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+$sudo rm -rf $tmp $tmp.* $seq.full
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+	-e "s@$PCP_BINADM_DIR@PCP_BINADM_DIR@g" \
+	-e 's@^drwx.*TMP$@... ls output for TMP@' \
+    # end
+}
+
+# strip ls -l output to the essentials ...
+# drwxrwxr-x 2 pcpqa pcpqa 4096 Jan 16 15:09 TMP/run
+# ^^^^^^^^^^   ^^^^^ ^^^^^                   ^^^^^^^
+#           . (maybe)
+_myls()
+{
+    $PCP_AWK_PROG '
+/^PCP_BINADM/	{ print; next }
+/^touch/	{ print; next }
+/cannot access/	{ print; next }
+		{ print $1,$3,$4,$9 }' \
+    | sed -e 's/r-x\. /r-x /' \
+    | _filter
+}
+
+mkdir $tmp
+export PCP_LOG_DIR=$tmp/log
+
+# real QA test starts here
+
+echo
+echo "=== \$PCP_LOG_DIR missing"
+$sudo $PCP_BINADM_DIR/pcp-reboot-init 2>&1 | _filter
+ls -ld $tmp/log 2>&1 | _myls
+
+echo
+echo "=== \$PCP_LOG_DIR/NOTICES exists and OK, so do nothing"
+mkdir "$PCP_LOG_DIR"
+touch "$PCP_LOG_DIR"/NOTICES
+$sudo chown pcp:pcp "$PCP_LOG_DIR"
+$sudo chown pcp:pcp "$PCP_LOG_DIR"/NOTICES
+$sudo $PCP_BINADM_DIR/pcp-reboot-init 2>&1 | _filter 
+ls -l $tmp/log/NOTICES* 2>&1 | _myls
+
+echo
+echo "=== \$PCP_LOG_DIR/NOTICES does not exist ..."
+$sudo rm -f "$PCP_LOG_DIR"/NOTICES
+$sudo $PCP_BINADM_DIR/pcp-reboot-init 2>&1 | _filter 
+ls -l $tmp/log/NOTICES* 2>&1 | _myls
+
+echo
+echo "=== \$PCP_LOG_DIR/NOTICES does not exist, but cannot create ..."
+$sudo rm -f "$PCP_LOG_DIR"/NOTICES
+$sudo chown pcpqa:pcpqa "$PCP_LOG_DIR"
+$sudo $PCP_BINADM_DIR/pcp-reboot-init 2>&1 \
+| _filter  \
+| _myls
+ls -l $tmp/log/NOTICES* 2>&1 | _myls
+$sudo chown pcp:pcp "$PCP_LOG_DIR"
+
+echo
+echo "=== \$PCP_LOG_DIR/NOTICES exists, but wrong ownership, no NOTICES.old ..."
+$sudo rm -f "$PCP_LOG_DIR"/NOTICES*
+$sudo touch "$PCP_LOG_DIR"/NOTICES
+$sudo chown root:root "$PCP_LOG_DIR"/NOTICES
+$sudo $PCP_BINADM_DIR/pcp-reboot-init 2>&1 | _filter 
+ls -l $tmp/log/NOTICES* 2>&1 | _myls
+
+echo
+echo "=== \$PCP_LOG_DIR/NOTICES exists, but wrong ownership, root owns NOTICES.old ..."
+$sudo rm -f "$PCP_LOG_DIR"/NOTICES*
+$sudo touch "$PCP_LOG_DIR"/NOTICES.old
+$sudo chown root:root "$PCP_LOG_DIR"/NOTICES.old
+$sudo touch "$PCP_LOG_DIR"/NOTICES
+$sudo chown pcpqa:pcpqa "$PCP_LOG_DIR"/NOTICES
+$sudo $PCP_BINADM_DIR/pcp-reboot-init 2>&1 | _filter 
+ls -l $tmp/log/NOTICES* 2>&1 | _myls
+
+echo
+echo "=== \$PCP_LOG_DIR/NOTICES exists, but wrong ownership, cannot create ..."
+$sudo rm -f "$PCP_LOG_DIR"/NOTICES*
+$sudo touch "$PCP_LOG_DIR"/NOTICES
+$sudo chown pcpqa:pcpqa "$PCP_LOG_DIR"/NOTICES
+$sudo chown pcpqa:pcpqa "$PCP_LOG_DIR"
+$sudo $PCP_BINADM_DIR/pcp-reboot-init 2>&1 \
+| _filter \
+| _myls
+ls -l $tmp/log/NOTICES* 2>&1 | _myls
+$sudo chown pcp:pcp "$PCP_LOG_DIR"
+
+echo
+echo "=== \$PCP_LOG_DIR/NOTICES exists, but wrong mode"
+$sudo rm -f "$PCP_LOG_DIR"/NOTICES*
+$sudo touch "$PCP_LOG_DIR"/NOTICES
+$sudo chmod 666 "$PCP_LOG_DIR"/NOTICES
+$sudo chown pcp:pcp "$PCP_LOG_DIR"/NOTICES
+$sudo $PCP_BINADM_DIR/pcp-reboot-init 2>&1 | _filter
+ls -l $tmp/log/NOTICES* 2>&1 | _myls
+
+echo
+echo "=== \$PCP_LOG_DIR/NOTICES exists, but is symlink"
+$sudo rm -f "$PCP_LOG_DIR"/NOTICES*
+$sudo rm -f /etc/$seq-foobar
+$sudo touch /etc/$seq-foobar
+echo "Created by PCP QA $seq on `date`" | $sudo dd of=/etc/$seq-foobar 2>/dev/null
+$sudo chmod 400 /etc/$seq-foobar
+$sudo ln -s /etc/$seq-foobar "$PCP_LOG_DIR"/NOTICES
+$sudo $PCP_BINADM_DIR/pcp-reboot-init 2>&1 | _filter
+ls -l $tmp/log/NOTICES* 2>&1 | _myls
+ls -l /etc/$seq-foobar | _myls
+$sudo rm -f /etc/$seq-foobar
+
+# success, all done
+exit

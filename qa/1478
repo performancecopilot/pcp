@@ -1,6 +1,6 @@
 #!/bin/sh
 # PCP QA Test No. 1478
-# Workout for pcp-reboot-init
+# Workout for pcp-reboot-init - $PCP_VAR_DIR fixup part
 #
 # Copyright (c) 2024 Ken McDonell.  All Rights Reserved.
 #
@@ -51,8 +51,18 @@ _myls()
 }
 
 mkdir $tmp
-export PCP_DIR=$tmp
 
+# setup a "correct" NOTICES to avoid babble from trying to
+# fix this ... note this test is using pcpqa for $PCP_USER and
+# $PCP_GROUP
+#
+mkdir $tmp/log
+$sudo chown pcpqa:pcpqa $tmp/log
+export PCP_LOG_DIR=$tmp/log
+$sudo touch "$PCP_LOG_DIR"/NOTICES
+$sudo chown pcpqa:pcpqa "$PCP_LOG_DIR"/NOTICES
+
+export PCP_DIR=$tmp
 unset PCP_ENV_DONE
 unset PCP_RUN_DIR
 unset PCP_USER
@@ -70,11 +80,12 @@ echo "=== missing vars from pcp.conf"
 touch $tmp/etc/pcp.conf
 echo "PCP_FOO=bar" >>$tmp/etc/pcp.conf
 $sudo $PCP_BINADM_DIR/pcp-reboot-init 2>&1 | _filter
-echo "PCP_RUN_DIR=$tmp/run" >>$tmp/etc/pcp.conf
-$sudo $PCP_BINADM_DIR/pcp-reboot-init 2>&1 | _filter
 echo "PCP_USER=pcpqa" >>$tmp/etc/pcp.conf
 $sudo $PCP_BINADM_DIR/pcp-reboot-init 2>&1 | _filter
 echo "PCP_GROUP=pcpqa" >>$tmp/etc/pcp.conf
+$sudo $PCP_BINADM_DIR/pcp-reboot-init 2>&1 | _filter
+echo "PCP_RUN_DIR=$tmp/run" >>$tmp/etc/pcp.conf
+$sudo $PCP_BINADM_DIR/pcp-reboot-init 2>&1 | _filter
 
 echo
 echo "=== \$PCP_RUN_DIR missing"
