@@ -1,10 +1,51 @@
 #!/bin/sh -e
 #DEBHELPER#
+
+# figure out what sort if init|systemctl|... we're using to
+# launch daemons and services
+do_systemctl=false
+do_systemd_helper=false
+do_update_rc=false
+do_invoke_rc=false
 if which systemctl >/dev/null 2>&1
+then
+    # we have a systemctl executable, but it might be disabled,
+    # e.g. on MX Linux
+    systemctl -q is-active local-fs.target >/dev/null 2>&1 && do_systemctl=true
+fi
+if $do_systemctl
+then
+    which deb-systemd-helper >/dev/null 2>&1 && do_systemd_helper=true
+else
+    # not using systemctl(1), maybe need to install System-V style
+    # init script links with update-rc.d(1) and start/stop with
+    # invoke-rc.d(1)
+    which update-rc.d >/dev/null 2>&1 && do_update_rc=true
+    which invoke-rc.d >/dev/null 2>&1 && do_invoke_rc=true
+fi
+# only need to check pmcd.service, if it is here they will all
+# be here
+if [ -f /lib/systemd/system/pmcd.service ]
+then
+    :
+else
+    do_systemctl=false
+    do_systemd_helper=false
+fi
+# ditto for the System-V variant for pmlogger
+if [ -f /etc/init.d/pmlogger ]
+then
+    :
+else
+    do_update_rc=false
+    do_invoke_rc=false
+fi
+
+if $do_systemctl
 then
     systemctl stop pmlogger.service >/dev/null
     systemctl stop pmcd.service >/dev/null
-elif which invoke-rc.d >/dev/null 2>&1
+elif $do_invoke_rc
 then
     invoke-rc.d pmproxy stop
     invoke-rc.d pmie stop
@@ -28,5 +69,6 @@ else
 	/etc/init.d/pcp stop
     fi
 fi
+
 rm -f /var/lib/pcp/pmns/.NeedRebuild
 rm -f /var/log/pcp/pmlogger/.NeedRewrite

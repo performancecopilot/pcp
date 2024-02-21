@@ -122,13 +122,13 @@ _haveagents()
 	__reinstall=false
 	while true
 	do
-	    [ $__diff = true ] || echo "PMDA probe: pminfo -h $QA_HOST -f $__probe"
 	    if pminfo -h $QA_HOST -f $__probe 2>&1 \
 	       | tail -1 \
 	       | grep -E "^[ 	]*((value)|(inst))[ 	]" >/dev/null
 	    then
 		break
 	    else
+		echo "PMDA probe: pminfo -h $QA_HOST -f $__probe"
 		echo "PMDA $__agent is not responding"
 		if $__restart
 		then

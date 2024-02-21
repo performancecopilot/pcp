@@ -29,7 +29,7 @@ _cleanup()
 }
 
 trap "rm -f $tmp.*" 0
-which systemctl >/dev/null 2>&1 || _notrun "systemctl not installed"
+[ "$PCPQA_SYSTEMD" = yes ] || _notrun "systemctl not installed or not active"
 [ -f $PCP_SYSTEMDUNIT_DIR/pmlogger_farm.service ] || \
     _notrun "$PCP_SYSTEMDUNIT_DIR/pmlogger_farm.service not found"
 

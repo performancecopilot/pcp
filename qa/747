@@ -17,9 +17,8 @@ echo "QA output created by $seq"
 
 status=1	# failure is the default!
 mkdir -p $tmp.root
-$sudo mount -t tmpfs none $tmp.root
 
-trap "cd $here; $sudo umount $tmp.root; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+trap "cd $here; $sudo rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 _sort_instname()
 {

@@ -66,7 +66,7 @@ _cleanup()
 	#    not take the steps required by its unit configuration.
 	# try to figure out why
 	#
-	if which systemctl >/dev/null 2>&1
+	if [ "$PCPQA_SYSTEMD" = yes ]
 	then
 	    eval `systemctl show pmlogger.service --property=ActiveState`
 	    if [ "$ActiveState" != active ]

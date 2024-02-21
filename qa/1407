@@ -39,6 +39,9 @@ _checkerr()
 	-e '/^MESA: error: ZINK: failed to choose pdev/d' \
 	-e '/^glx: failed to create drisw screen/d' \
 	-e '/^failed to load driver: zink/d' \
+	-e '/^qt.glx: qglx_findConfig: Failed to finding matching FBConfig for QSurfaceFormat/d' \
+	-e '/^No XVisualInfo for format QSurfaceFormat/d' \
+	-e '/^Falling back to using screens root_visual/d' \
     | _filter > $tmp.tmp
     if [ -s $tmp.tmp ]
     then

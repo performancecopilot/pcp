@@ -60,7 +60,7 @@ _do_check()
     # The packaging types (tags @ start of manifest lines) we know about.
     #
     cat <<End-of-File >$tmp.tags
-dpkg	Ubuntu Debian LinuxMint
+dpkg	Ubuntu Debian LinuxMint MX
 rpm	RHEL Fedora CentOS openSUSE SUSE SLES
 emerge	Gentoo
 pkgin	NetBSD
@@ -436,7 +436,7 @@ then
     rm -f $tmp.installed $tmp.allpkgs
     case "$distro"
     in
-	Ubuntu|Debian|LinuxMint)
+	Ubuntu|Debian|LinuxMint|MX)
 	    dpkg-query -W -f '${package} ${status}\n' \
 	    | sed -n -e '/ installed$/s/ .*//p' >$tmp.installed
 	    apt-cache dumpavail | sed -n -e '/^Package: /s///p' >$tmp.allpkgs

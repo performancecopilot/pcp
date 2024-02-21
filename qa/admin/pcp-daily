@@ -211,7 +211,7 @@ cp VERSION.pcp.daily VERSION.pcp
 # once the libraries are removed and the packages are being
 # built (and installed)
 #
-if which systemctl >/dev/null 2>&1
+if [ "$PCPQA_SYSTEMD" = yes ]
 then
     echo "Info: stopping PCP services" | tee -a \$HOME/daily.log
     for svc in pmie pmlogger pmproxy pmcd
@@ -528,7 +528,7 @@ fi
 # if we're using systemctl, then need to start enabled PCP
 # services so we leave things in a good state
 #
-if which systemctl >/dev/null 2>&1
+if [ "$PCPQA_SYSTEMD" = yes ]
 then
     systemctl list-unit-files >\$tmp.systemctl
     for svc in pmcd pmproxy pmie pmlogger_daily_report pmlogger
@@ -742,6 +742,7 @@ in
     bozo)
 	echo "bozo" >>$tmp.hosts
 	echo "bozo-vm" >>$tmp.hosts
+	echo "oracle" >>$tmp.hosts
 	# and open up the X server
 	#
 	# Ubuntu up to 15.04
@@ -799,6 +800,11 @@ do
 	    valgrind_opt='export PCPQA_VALGRIND=both'
 	    ;;
 
+	oracle)
+	    # just the sanity group ...
+	    [ X"$what" = Xall ] && check_what='-g sanity'
+	    ;;
+
 	vm01)
 	    # 739 segv's sometimes deep inside Python
 	    # and 749 recently (Dec 2023) has been locking the whole VM
@@ -834,12 +840,6 @@ do
 	    #	sanity trace libpcp kernel pmrep threads
 	    #
 	    [ X"$what" = Xall ] && check_what='-g sanity -g trace -g libpcp -g kernel -g pmrep -g threads -g perl -x valgrind'
-	    ;;
-
-	vm13)
-	    # Only -g sanity at this stage for OpenIndiana
-	    #
-	    [ X"$what" = Xall ] && check_what='-g sanity'
 	    ;;
 
 	vm15)
@@ -1107,12 +1107,6 @@ End-of-File
 	    echo "=== END ===" >>$log
 	fi
 
-	if $iflag || $qflag || $rflag || $hflag
-	then
-	    # run whatami on QA host
-	    ssh -t $qa_user@$host $qa_dir/admin/whatami >$HOME/Logs/by-vm/$host/whatami
-	fi
-
 	if $hflag
 	then
 	    # harvest failures by pulling from QA host
@@ -1158,6 +1152,14 @@ End-of-File
 		echo "No failures."
 	    fi
 	fi
+
+	if $iflag || $qflag || $rflag || $hflag
+	then
+	    # run whatami on QA host
+	    ssh -t $qa_user@$host $qa_dir/admin/whatami >$HOME/Logs/by-vm/$host/whatami
+	    echo "Info: `sed -e 's/[ 	][ 	]*/ /g' <$HOME/Logs/by-vm/$host/whatami`" | tee -a $HOME/daily.log
+	fi
+
 	end=`date +%s`
 	echo "$start $end" | awk >>$log '
     { delta = $2 - $1
@@ -1166,9 +1168,9 @@ End-of-File
       sec = delta % 60
       printf "Elapsed time: %d:%02d:%02d (%d secs)\n", hr, min, sec, delta
     }'
+
     fi
     
-
     if $sflag
     then
 	doit=false

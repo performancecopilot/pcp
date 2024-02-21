@@ -13,6 +13,8 @@ echo "QA output created by $seq"
 _pmdabcc_check
 _pmdabcc_require_kernel_version 4 18
 _python_probe_check
+$sudo [ -f /sys/kernel/tracing/uprobe_events ] || _notrun "/sys/kernel/tracing/uprobe_events not present"
+
 
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal

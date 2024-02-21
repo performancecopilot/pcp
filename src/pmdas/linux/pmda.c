@@ -1823,6 +1823,11 @@ static pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_FILESYS,11), PM_TYPE_U32, FILESYS_INDOM, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,0,0,0,0) } },
 
+/* filesys.uuid */
+  { NULL,
+     { PMDA_PMID(CLUSTER_FILESYS,12), PM_TYPE_STRING, FILESYS_INDOM, PM_SEM_DISCRETE,
+     PMDA_PMUNITS(0,0,0,0,0,0) } },
+
 /*
  * tmpfs filesystem cluster
  */
@@ -8744,6 +8749,12 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		break;
 	    case 11: /* filesys.readonly */
 	    	atom->ul = (scan_filesys_options(fs->options, "ro") != NULL);
+		break;
+	    case 12: /* filesys.uuid */
+		if (fs->uuid != NULL)
+		    atom->cp = fs->uuid;
+		else
+		    atom->cp = "";
 		break;
 	    default:
 		return PM_ERR_PMID;

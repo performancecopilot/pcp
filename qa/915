@@ -13,13 +13,7 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-if which systemctl >/dev/null 2>&1
-then
-    :
-else
-    _notrun "No systemctl executable"
-    # NOTREACHED
-fi
+[ "$PCPQA_SYSTEMD" = yes ] || _notrun "systemctl not installed or not active"
 
 case `admin/whatami`
 in

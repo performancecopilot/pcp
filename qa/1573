@@ -80,7 +80,7 @@ $sudo mkdir -p $PCP_LOG_DIR/pmlogger
 $sudo chmod 775 $PCP_LOG_DIR/pmlogger
 $sudo chown $PCP_USER:$PCP_USER $PCP_LOG_DIR/pmlogger
 
-_service pmproxy restart 2>&1 | _filter_pcp_stop | _filter_pcp_start
+_service pmproxy restart >>$here/$seq.full 2>&1
 _wait_for_pmproxy
 
 pmproxy_pid=`_get_pids_by_name -a pmproxy`

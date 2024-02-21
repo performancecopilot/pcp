@@ -97,9 +97,9 @@ END				{ if ( eatlines ) {
 	-e "s/local:/HOST/g" \
 	-e "s/`hostname | sed -e 's/\..*//'`/HOST/g" \
 	-e '/\/var\/adm\/pcplog\/NOTICES/d' \
-	-e 's/-rw-rw-r--\./-rw-rw-r--/' \
+	-e 's/-rw-r--r--\./-rw-r--r--/' \
     | $PCP_AWK_PROG '
-/-rw-rw-r--/	{ print $1,"...",$5,"...",$9; next }
+/-rw-r--r--/	{ print $1,"...",$5,"...",$9; next }
 		{ print }' \
     | _filter_cron_scripts
 }
@@ -160,7 +160,7 @@ else
     ln $seq.out.disabled $seq.out
 fi
 VERBOSE_CONFIG=false
-if which systemctl >/dev/null 2>&1
+if [ "$PCPQA_SYSTEMD" = yes ]
 then
     systemctl is-enabled pmlogger.service >>$seq.full 2>&1
     if systemctl -q is-enabled pmlogger.service >>$seq.full 2>&1

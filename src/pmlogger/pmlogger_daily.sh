@@ -26,7 +26,7 @@ unset PCP_STDERR
 
 # want mode for mkdir below to reliably be rwxrwxr-x (775)
 #
-umask 002
+umask 022
 
 # constant setup
 #
@@ -1348,7 +1348,11 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	#
 	if [ ! -d "$dir" ]
 	then
+	    # mode rwxrwxr-x is the default for pcp:pcp dirs
+	    umask 002
 	    mkdir -p -m 0775 "$dir" >$tmp/tmp 2>&1
+	    # reset the default mode to rw-rw-r- for files
+	    umask 022
 	    if [ ! -d "$dir" ]
 	    then
 		cat $tmp/tmp
@@ -2095,7 +2099,11 @@ p
 			       -e s/LOCALHOSTNAME/$dirhostname/`"
 		if [ ! -d "$auto_dir" -a "$auto_dir" != "$last_mkdir" ]
 		then
+		    # mode rwxrwxr-x is the default for pcp:pcp dirs
+		    umask 002
 		    mkdir -p -m 0775 "$auto_dir" >$tmp/tmp 2>&1
+		    # reset the default mode to rw-rw-r- for files
+		    umask 022
 		    if [ ! -d "$auto_dir" ]
 		    then
 			cat $tmp/tmp

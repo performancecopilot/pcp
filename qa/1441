@@ -39,7 +39,7 @@ fi
 # need systemd's autorestart to get pmlogger restarted quickly
 # ... cron-based restart takes too long for a QA test
 #
-which systemctl >/dev/null 2>&1 || _notrun "no systemd"
+[ "$PCPQA_SYSTEMD" = yes ] || _notrun "systemctl not installed or not active"
 
 _cleanup()
 {

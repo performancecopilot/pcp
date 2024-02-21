@@ -121,7 +121,7 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 # it running for a PCP build and QA run ... so start it her if needs
 # be, but remember state so we can put it back
 #
-if which systemctl >/dev/null 2>&1
+if [ "$PCPQA_SYSTEMD" = yes ]
 then
     eval `systemctl show --property=ActiveState zimbra.service 2>/dev/null`
     echo "Initial ActiveState=$ActiveState" >>$here/$seq.full

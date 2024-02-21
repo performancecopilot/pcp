@@ -92,10 +92,12 @@ then
     # DISTRIB_ID=LinuxMint
     # DISTRIB_RELEASE=12
     # DISTRIB_CODENAME=lisa
+    # or
+    # DISTRIB_CODENAME="Libretto"
     #
     id=`sed </etc/lsb-release -n -e '/^DISTRIB_ID *= */s///p'`
     release=`sed </etc/lsb-release -n -e '/^DISTRIB_RELEASE *= */s///p'`
-    codename=`sed </etc/lsb-release -n -e '/^DISTRIB_CODENAME *= */s///p'`
+    codename=`sed </etc/lsb-release -n -e 's/"//g' -e '/^DISTRIB_CODENAME *= */s///p'`
     os="$id $release ($codename)"
     $debug && from=' [/etc/lsb-release]'
 elif [ -f /etc/debian_version ]

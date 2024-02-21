@@ -150,7 +150,7 @@ echo >>$seq.full
 echo "pmlogger log ..." >>$seq.full
 cat $LOGGING_DIR/$LOCALHOST/pmlogger.log | tee -a $seq.full | \
 grep \
- -e 'Units of metric "sample.dynamic.meta.metric" has changed from (null) to (null)' \
+ -e 'Units of metric "sample.dynamic.meta.metric" has changed from ' \
  -e 'One or more configured metrics have changed after pmcd state change. Exiting'
 
 status=0

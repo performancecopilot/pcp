@@ -34,7 +34,7 @@ unset PCP_STDERR
 # ensure mere mortals cannot write any configuration files,
 # but that the unprivileged PCP_USER account has read access
 #
-umask 002
+umask 022
 
 # constant setup
 #
@@ -807,7 +807,11 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	#
 	if [ ! -d "$dir" ]
 	then
+	    # mode rwxrwxr-x is the default for pcp:pcp dirs
+	    umask 002
 	    mkdir -p -m 0775 "$dir" >$tmp/tmp 2>&1
+	    # reset the default mode to rw-rw-r- for files
+	    umask 022
 	    if [ ! -d "$dir" ]
 	    then
 		cat $tmp/tmp

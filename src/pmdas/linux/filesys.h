@@ -25,6 +25,7 @@ typedef struct filesys {
     char	  *device;
     char	  *path;
     char	  *options;
+    char	  *uuid;
     struct statfs stats;
 } filesys_t;
 

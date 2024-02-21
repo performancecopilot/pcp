@@ -19,37 +19,32 @@ _stop_auto_restart pmcd
 _stop_auto_restart pmlogger
 
 use_systemd=''
-if [ -f $PCP_INC_DIR/builddefs ]
+if [ "$PCPQA_SYSTEMD" = yes ]
 then
-    ENABLE_SYSTEMD=false
-    eval `sed -n <$PCP_INC_DIR/builddefs -e '/ENABLE_SYSTEMD/s/ //gp'`
-    if $ENABLE_SYSTEMD
-    then
-	use_systemd='-s'
-	# these other services really get in the way and prevent a
-	# clean pmlogger restart from src/pmcdgone
-	#
-	for svc in \
-	    pmlogger_check.timer pmlogger_check.service \
-	    pmlogger_daily.timer pmlogger_daily.service
-	do
-	    case "$svc" in
-		*.timer)
-			;;
-		*)
-			$sudo systemctl disable $svc >>$seq.full 2>&1
-			;;
-	    esac
-	    $sudo systemctl stop $svc >>$seq.full 2>&1
-	    echo "+ after stop $svc ..." >>$seq.full
-	    _get_pids_by_name pmlogger >>$seq.full 2>&1
-	    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '[p]mlogger' >>$seq.full
-	done
-	# and now get a clean pmlogger without the other hangers-on
-	#
-	$sudo systemctl restart pmlogger
-	_wait_for_pmlogger
-    fi
+    use_systemd='-s'
+    # these other services really get in the way and prevent a
+    # clean pmlogger restart from src/pmcdgone
+    #
+    for svc in \
+	pmlogger_check.timer pmlogger_check.service \
+	pmlogger_daily.timer pmlogger_daily.service
+    do
+	case "$svc" in
+	    *.timer)
+		    ;;
+	    *)
+		    $sudo systemctl disable $svc >>$seq.full 2>&1
+		    ;;
+	esac
+	$sudo systemctl stop $svc >>$seq.full 2>&1
+	echo "+ after stop $svc ..." >>$seq.full
+	_get_pids_by_name pmlogger >>$seq.full 2>&1
+	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '[p]mlogger' >>$seq.full
+    done
+    # and now get a clean pmlogger without the other hangers-on
+    #
+    $sudo systemctl restart pmlogger
+    _wait_for_pmlogger
 fi
 echo "Using system? \"$use_systemd\" (-s => yes)" >>$seq.full
 

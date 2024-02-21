@@ -25,8 +25,8 @@
 #debug# env >>$PCP_LOG_DIR/rc_pmie.log
 
 rcprog=$PCP_DIR/etc/init.d/pmie
-pmprog=$PCP_RC_DIR/pmie
-prog=$PCP_RC_DIR/`basename $0`
+pmprog=$PCP_SYSCONF_DIR/pmie/rc
+prog=$PCP_SYSCONF_DIR/pmie/`basename $0`
 
 tmp=`mktemp -d "$PCP_TMPFILE_DIR/pmie_rc.XXXXXXXXX"` || exit 1
 status=1

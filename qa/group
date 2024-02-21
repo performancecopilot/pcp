@@ -458,8 +458,6 @@ x11
 
 # ... use sort -n from here on down to tidy up this mess
 #
-#1482 pmcd pmlogger pmie pmfind pmproxy local
-#1483 other local
 000 other pmcd local ostest
 001 pdu local ostest sanity
 002 pdu pmcd local ostest sanity pmda.sample pminfo
@@ -1942,8 +1940,9 @@ x11
 1479 pmda.linux kernel local
 1480 pmda.lmsensors local
 1481 other local
-1482:reserved
-1483:reserved
+1482 pmcd pmlogger pmie pmfind pmproxy local
+1483 other local
+1484 other local
 1486 logutil local
 1489 python pmrep pmimport local
 1490 python local labels

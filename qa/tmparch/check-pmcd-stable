@@ -41,7 +41,7 @@ _check()
 #
 _restart_pmcd()
 {
-    if which systemctl >/dev/null 2>&1
+    if [ "$PCPQA_SYSTEMD" = yes ]
     then
 	sudo systemctl restart pmcd.service
     elif [ -f $PCP_RC_DIR/pmcd ]

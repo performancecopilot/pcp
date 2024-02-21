@@ -43,19 +43,25 @@
 
 . $PCP_DIR/etc/pcp.env
 
-if [ `id -u` -ne 0 ]
+if [ `id -u` -eq 0 ]
 then
-    echo "$0: Error: You must be root (uid 0) to start or stop pmlogger via this script"
-    exit 1
+    # Handle setup for transients that might be lost after reboot,
+    # e.g. $PCP_RUN_DIR
+    #
+    $PCP_BINADM_DIR/pcp-reboot-init
+
+    # do the real startup as user $PCP_USER:$PCP_GROUP
+    #
+    $PCP_BINADM_DIR/runaspcp "$PCP_SYSCONF_DIR/pmlogger/rc $*"
+    exit $?
+else
+    if [ "$1" = status ]
+    then
+	$PCP_SYSCONF_DIR/pmlogger/rc status
+    else
+	echo "$0: Error: You must be root (uid 0) to start or stop pmlogger via this script"
+	exit 1
+    fi
 fi
 
-# Handle setup for transients that might be lost after reboot,
-# e.g. $PCP_RUN_DIR
-#
-$PCP_BINADM_DIR/pcp-reboot-init
-
-# do the real startup as user $PCP_USER:$PCP_GROUP
-#
-$PCP_BINADM_DIR/runaspcp "$PCP_SYSCONF_DIR/pmlogger/rc $*"
-
-exit $?
+exit 0

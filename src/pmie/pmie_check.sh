@@ -32,7 +32,7 @@ unset PCP_STDERR
 # ensure mere mortals cannot write any configuration files,
 # but that the unprivileged PCP_USER account has read access
 #
-umask 002
+umask 022
 
 # added to handle problem when /var/log/pcp is a symlink, as first
 # reported by Micah_Altman@harvard.edu in Nov 2001
@@ -693,10 +693,13 @@ s/^\\$//
 	#
 	if [ ! -d "$dir" ]
 	then
-	    if mkdir -p "$dir" -m 0775 >$tmp/tmp 2>&1
+	    # mode rwxrwxr-x is the default for pcp:pcp dirs
+	    umask 002
+	    mkdir -p "$dir" -m 0775 >$tmp/tmp 2>&1
+	    # reset the default mode to rw-rw-r- for files
+	    umask 022
+	    if [ ! -d "$dir" ]
 	    then
-		:
-	    else
 		cat $tmp/tmp
 		_error "cannot create directory ($dir) for pmie log file"
 		continue

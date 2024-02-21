@@ -50,7 +50,7 @@ unset PCP_STDERR
 
 # want mode for mkdir below to reliably be rwxrwxr-x (775)
 #
-umask 002
+umask 022
 
 # default message log file
 PROGLOG=$PCP_LOG_DIR/pmlogger/$prog.log
@@ -360,8 +360,12 @@ $VERBOSE && echo REPORTDIR=$REPORTDIR
 
 # Create output directory - if this fails for any reason we exit later
 #
+# mode rwxrwxr-x is the default for pcp:pcp dirs
+umask 002
 [ -d "$REPORTDIR" ] \
     || mkdir -p -m 0775 "$REPORTDIR" 2>/dev/null
+# reset the default mode to rw-rw-r- for files
+umask 022
 
 # Default output file is the day of month for yesterday in REPORTDIR
 #

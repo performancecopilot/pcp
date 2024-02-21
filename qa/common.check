@@ -13,14 +13,23 @@ fi
 # need to know what version we're running
 . ./localconfig
 
-# if systemctl is present, then use this to start and stop services
+# if systemctl is present and functional, then use this to start
+# and stop services
 #
-if `which systemctl >/dev/null 2>&1`
+PCPQA_SYSTEMD=no
+if which systemctl >/dev/null 2>&1
 then
-    export PCPQA_SYSTEMD=yes
-else
-    export PCPQA_SYSTEMD=no
+    # we have a systemctl executable, but it might be disabled,
+    # e.g. on MX Linux
+    #
+    if systemctl -q is-active local-fs.target >/dev/null 2>&1
+    then
+	# OK, good to go with systemd and systemctl
+	#
+	PCPQA_SYSTEMD=yes
+    fi
 fi
+export PCPQA_SYSTEMD
 
 # set $__whatami (if possible) for later use
 #
@@ -809,7 +818,7 @@ __triage_systemd()
 {
     if [ "$PCPQA_SYSTEMD" = yes ]
     then
-	if which systemctl >/dev/null
+	if which systemctl >/dev/null 2>&1
 	then
 	    echo
 	    echo "++ systemctl status for $1.service ..."
@@ -2611,6 +2620,25 @@ _change_config()
 		$sudo rc-update $__act $__pat default >$tmp._tmp 2>&1
 		[ $? -eq 0 ] || cat $tmp._tmp
 	    fi
+	elif which update-rc.d >/dev/null 2>&1
+	then
+	    # Try the Linux MX way ...
+	    #
+	    if [ -n "$__pat" ]
+	    then
+		case $2
+		in
+		    on)		__act=enable ;;
+		    off)	__act=disable ;;
+		    *)
+			echo "_change_config: Error: \$2=$2 not \"on\" or \"off\" as expected"
+			status=0
+			exit $status
+			;;
+		esac
+		$sudo update-rc.d $__pat $__act >$tmp._tmp 2>&1
+		[ $? -eq 0 ] || cat $tmp._tmp
+	    fi
 	elif [ -f /etc/slackware-version ]
 	then
 	    # Slackware uses BSD-style init, so no control
@@ -2805,7 +2833,7 @@ _get_config()
 		#
 		echo on
 	    else
-		if $sudo /usr/sbin/sysv-rc-conf $__pat
+		if [ -f /etc/rc5.d/S*$__pat ]
 		then
 		    echo on
 		else
@@ -2829,12 +2857,31 @@ _get_config()
 		    echo off
 		fi
 	    fi
+	elif which update-rc.d >/dev/null 2>&1
+	then
+	    # Try the Linux MX way ...
+	    #
+	    if [ -n "$__pat" ]
+	    then
+		case $2
+		in
+		    on)		__act=enable ;;
+		    off)	__act=disable ;;
+		    *)
+			echo "_get_config: Error: \$2=$2 not \"on\" or \"off\" as expected"
+			status=0
+			exit $status
+			;;
+		esac
+		$sudo update-rc.d $__pat $__act >$tmp._tmp 2>&1
+		[ $? -eq 0 ] || cat $tmp._tmp
+	    fi
 	elif [ -f /etc/slackware-version ]
 	then
 	    # Slackware uses BSD-style init, so no control
 	    :
 	else
-	    echo "_change_config: Error: don't know how to change config for Linux"
+	    echo "_get_config: Error: don't know how to change config for Linux"
 	    status=0
 	    exit $status
 	fi
@@ -2864,14 +2911,14 @@ _get_config()
 			echo off
 			;;
 		    *)
-			echo "_change_config: Error: smf ($__state) from svcs not expected"
+			echo "_get_config: Error: smf ($__state) from svcs not expected"
 			status=0
 			exit $status
 			;;
 		esac
 	    fi
 	else
-	    echo "_change_config: Error: cannot find svcs for Solaris"
+	    echo "_get_config: Error: cannot find svcs for Solaris"
 	    status=0
 	    exit $status
 	fi
@@ -2894,7 +2941,7 @@ p
 }' /etc/hostconfig`
 	    if [ -z "$__state" ]
 	    then
-		echo "_change_config: Error: No $__pat control line in /etc/hostconfig" >&2
+		echo "_get_config: Error: No $__pat control line in /etc/hostconfig" >&2
 		echo "You need to add a $__pat=-YES- line to this file" >&2
 		status=0
 		exit $status
@@ -2906,7 +2953,7 @@ p
 	    then
 		echo off
 	    else
-		echo "_change_config: Error: bad state ($__state) should be YES or NO" >&2
+		echo "_get_config: Error: bad state ($__state) should be YES or NO" >&2
 		status=0
 		exit $status
 	    fi
@@ -2924,7 +2971,7 @@ p
 	# no control for OpenBSD
 	:
     else
-	echo "_change_config: Error: cannot \"$1 $2\" for $PCP_PLATFORM"
+	echo "_get_config: Error: cannot \"$1 $2\" for $PCP_PLATFORM"
     fi
 }
 

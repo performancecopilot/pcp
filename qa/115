@@ -113,7 +113,7 @@ _filter()
 	-e 's/^[ 	]*//' \
 	-e "s@$PCP_RC_DIR@PCP_RC_DIR@g" \
 	-e '/PCP_RC_DIR\/pmie:/d' \
-	-e '/PCP_RC_DIR\/rc:/d' \
+	-e '/PCP_ETC_DIR\/pcp\/pmie\/rc:/d' \
 	-e '/^Error: PCP inference engine control file/d' \
 	-e '/^is missing! /d' \
 	-e '/^failed /d' \
@@ -241,7 +241,7 @@ echo === check for missing control file === | tee -a $here/$seq.full
 _change_config pmie off
 $sudo rm -f $PCP_PMIECONTROL_PATH
 _change_config pmie on
-_service pmie restart 2>&1 | _filter_pmie_start | _filter
+_service pmie restart 2>&1 | tee -a $here/$seq.full | _filter_pmie_start | _filter
 _count_pmies
 echo "pmie count after attempt without control file: $?"
 echo

@@ -1731,6 +1731,9 @@ are SCSI tapes and scd[0-9] are SCSI CD-ROMS.
 @ filesys.blocksize Size of each block on mounted filesystem (Bytes)
 @ filesys.avail Total space free to non-superusers on mounted filesystem (Kbytes)
 @ filesys.readonly Indicates whether a filesystem is mounted readonly
+@ filesys.uuid UUID of a mounted filesystem
+The UUID of the block device behind each mounted filesystem.
+If the device does not have a UUID, the value "" is returned.
 @ tmpfs.capacity Total capacity of mounted tmpfs filesystem (Kbytes)
 @ tmpfs.used Total space used on mounted tmpfs filesystem (Kbytes)
 @ tmpfs.free Total space free on mounted tmpfs filesystem (Kbytes)

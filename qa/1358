@@ -11,7 +11,7 @@ echo "QA output created by $seq"
 . ./common.containers
 
 [ -f $PCP_PMDAS_DIR/podman/pmdapodman ] || _notrun "podman pmda not installed"
-which systemctl >/dev/null 2>&1 || _notrun "systemctl not installed"
+[ "$PCPQA_SYSTEMD" = yes ] || _notrun "systemctl not installed or not active"
 _check_containers
 _check_podman_binary
 _check_podman_images busybox

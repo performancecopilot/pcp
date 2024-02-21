@@ -22,12 +22,7 @@ then
 else
     # assume linux-like
     #
-    if pmprobe filesys.readonly >/dev/null
-    then
-	ln $seq.out.3 $seq.out
-    else
-	ln $seq.out.1 $seq.out
-    fi
+    ln $seq.out.3 $seq.out
 fi
 
 status=1	# failure is the default

@@ -17,6 +17,15 @@ $python -c "from collections import OrderedDict" >/dev/null 2>&1
 
 which pcp2json >/dev/null 2>&1 || _notrun "pcp2json not installed"
 which nc >/dev/null 2>&1 || _notrun "nc binary not installed"
+case `admin/whatami`
+in
+    *Slackware\ 15\.0*)
+	    _notrun "nc -l does not work for me on Slackware 15.0"
+	    ;;
+    *MX\ 23\.2*)
+	    _notrun "nc -l does not work for me on MX 23.2"
+	    ;;
+esac
 
 _cleanup()
 {
