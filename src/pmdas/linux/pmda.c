@@ -8751,7 +8751,10 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    	atom->ul = (scan_filesys_options(fs->options, "ro") != NULL);
 		break;
 	    case 12: /* filesys.uuid */
-	    	atom->cp = fs->uuid;
+		if (fs->uuid != NULL)
+		    atom->cp = fs->uuid;
+		else
+		    atom->cp = "";
 		break;
 	    default:
 		return PM_ERR_PMID;
