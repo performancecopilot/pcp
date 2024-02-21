@@ -61,9 +61,15 @@ do_uuids(pmInDom filesys_indom)
     pmsprintf(path, sizeof(path), "%s/dev/disk/by-uuid", linux_statspath);
 
     if (stat(path, &sbuf) < 0) {
-	if (!seen_err) {
-	    fprintf(stderr, "do_uuids: stat(%s) failed: %s\n", path, pmErrStr(-oserror()));
-	    seen_err = 1;
+	/*
+	 * containers, esp in GitHub CI don't even have this directory,
+	 * so silently move on ...
+	 */
+	if (pmDebugOptions.libpmda) {
+	    if (!seen_err) {
+		fprintf(stderr, "do_uuids: stat(%s) failed: %s\n", path, pmErrStr(-oserror()));
+		seen_err = 1;
+	    }
 	}
 	return;
     }
@@ -76,9 +82,12 @@ do_uuids(pmInDom filesys_indom)
     mtim.tv_nsec = sbuf.st_mtim.tv_nsec;
 
     if ((dp = opendir(path)) == NULL) {
-	if (!seen_err) {
-	    fprintf(stderr, "do_uuids: opendir(%s) failed: %s\n", path, pmErrStr(-oserror()));
-	    seen_err = 1;
+	/* don't expect to get here, but report if -Dlibpmda */
+	if (pmDebugOptions.libpmda) {
+	    if (!seen_err) {
+		fprintf(stderr, "do_uuids: opendir(%s) failed: %s\n", path, pmErrStr(-oserror()));
+		seen_err = 1;
+	    }
 	}
 	return;
     }
