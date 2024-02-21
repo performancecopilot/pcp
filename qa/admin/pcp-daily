@@ -742,6 +742,7 @@ in
     bozo)
 	echo "bozo" >>$tmp.hosts
 	echo "bozo-vm" >>$tmp.hosts
+	echo "oracle" >>$tmp.hosts
 	# and open up the X server
 	#
 	# Ubuntu up to 15.04
@@ -797,6 +798,11 @@ do
 	    # run both the valgrind and the non-valgrind variants of tests
 	    #
 	    valgrind_opt='export PCPQA_VALGRIND=both'
+	    ;;
+
+	oracle)
+	    # just the sanity group ...
+	    [ X"$what" = Xall ] && check_what='-g sanity'
 	    ;;
 
 	vm01)
@@ -1151,7 +1157,7 @@ End-of-File
 	then
 	    # run whatami on QA host
 	    ssh -t $qa_user@$host $qa_dir/admin/whatami >$HOME/Logs/by-vm/$host/whatami
-	    echo "Info: `cat $HOME/Logs/by-vm/$host/whatami`"  | tee -a $HOME/daily.log
+	    echo "Info: `sed -e 's/[ 	][ 	]*/ /g' <$HOME/Logs/by-vm/$host/whatami`" | tee -a $HOME/daily.log
 	fi
 
 	end=`date +%s`

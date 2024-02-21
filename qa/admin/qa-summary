@@ -248,6 +248,8 @@ BEGIN	{ OFS ="|" }
 	    $2 = "bl" "|" $2
 	  else if ($2 ~ /^bozo-vm$/)
 	    $2 = "bv" "|" $2
+	  else if ($2 ~ /^oracle$/)
+	    $2 = "ora" "|" $2
 	  else if ($2 ~ /^ci-centos[1-9]$/)
 	    $2 = "c" substr($2,10,1) "|" $2
 	  else if ($2 ~ /^ci-centos-stream[1-9]$/)
