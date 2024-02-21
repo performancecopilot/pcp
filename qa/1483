@@ -103,7 +103,7 @@ for svc in \
 do
     echo
     echo "=== $svc ==="
-    journalctl --no-pager --since=yesterday _SYSTEMD_UNIT=$svc.service 2>&1 \
+    $sudo journalctl --no-pager --since=yesterday _SYSTEMD_UNIT=$svc.service 2>&1 \
     | _filter $svc
 done
 
