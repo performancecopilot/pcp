@@ -8707,11 +8707,17 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    if (sts != PMDA_CACHE_ACTIVE)
 	    	return PM_ERR_INST;
 
-	    sbuf = &fs->stats;
-	    if (!(fs->flags & FSF_FETCHED)) {
-		if (statfs(fs->path, sbuf) < 0)
-		    return PM_ERR_INST;
-		fs->flags |= FSF_FETCHED;
+	    /*
+	     * most metrics need data from statfs() ... filesys.mountdir
+	     * and filesys.uuid are the exceptions.
+	     */
+	    if (item != 7 && item != 12) {
+		sbuf = &fs->stats;
+		if (!(fs->flags & FSF_FETCHED)) {
+		    if (statfs(fs->path, sbuf) < 0)
+			return PM_ERR_INST;
+		    fs->flags |= FSF_FETCHED;
+		}
 	    }
 
 	    switch (item) {

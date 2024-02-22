@@ -1,6 +1,7 @@
 QA output created by 1487
 QA output created by 1485 --valgrind
 situation normal ...
+=== std err ===
 === std out ===
 
 filesys.mountdir
@@ -36,7 +37,6 @@ filesys.uuid
     inst [12 or "/dev/sdb6"] value "778b5c5a-175d-48cb-beba-deb4ad9b5ca7"
     inst [13 or "/dev/sde7"] value "70180cb3-338f-41bb-8ff0-9cb70d2614cc"
     inst [14 or "/dev/sdb7"] value "83d0e798-de15-4e75-bba4-f57587159d1f"
-=== std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
 Command: pminfo -L -f filesys.mountdir filesys.uuid
@@ -46,6 +46,7 @@ indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
 
 cull some mounts ...
+=== std err ===
 === std out ===
 
 filesys.mountdir
@@ -69,7 +70,6 @@ filesys.uuid
     inst [6 or "/dev/sda7"] value "6bd6fd66-c9a2-418e-8790-7519beeb6fa6"
     inst [7 or "/dev/sde6"] value "f24a78ad-dbfa-4883-9ad5-dc7d8d418a00"
     inst [8 or "/dev/sde7"] value "70180cb3-338f-41bb-8ff0-9cb70d2614cc"
-=== std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
 Command: pminfo -L -f filesys.mountdir filesys.uuid
@@ -79,6 +79,33 @@ indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
 
 mismatches ...
+=== std err ===
+do_uuids: Warning: disk /dev/sda5 not in InDom Cache
+do_uuids: Warning: disk /dev/sdb1 not in InDom Cache
+do_uuids: Warning: disk /dev/sdb5 not in InDom Cache
+do_uuids: Warning: disk /dev/sdb6 not in InDom Cache
+do_uuids: Warning: disk /dev/sdb7 not in InDom Cache
+do_uuids: Warning: disk /dev/sdd6 not in InDom Cache
+do_uuids: Warning: disk /dev/sdd7 not in InDom Cache
+do_uuids: Warning: disk /dev/sde1 not in InDom Cache
+do_uuids: Warning: disk /dev/vda1 not in InDom Cache
+do_uuids: add "/dev/sda1" "4abf1947-f982-4c76-b776-75c996742e7f"
+do_uuids: add "/dev/sda6" "eb787c10-e3bf-4b63-9a20-9ca9063a81c2"
+do_uuids: add "/dev/sda7" "6bd6fd66-c9a2-418e-8790-7519beeb6fa6"
+do_uuids: add "/dev/sdc1" "ca00c9cd-d370-4387-9487-37c15ee82bf4"
+do_uuids: add "/dev/sdc5" "d7f9bdc1-40ad-471f-9eb1-846990359f06"
+do_uuids: add "/dev/sde5" "7514e1d0-a5ae-42db-9e9f-0015d1ad3035"
+do_uuids: add "/dev/sde7" "70180cb3-338f-41bb-8ff0-9cb70d2614cc"
+do_uuids: readlink(TMP/root/dev/disk/by-uuid/dead-beef-cafe-feed) failed: Invalid argument
+refresh_filesys: add "/" "/dev/sdc1"
+refresh_filesys: add "/archive-1" "/dev/sde6"
+refresh_filesys: add "/backup" "/dev/vda2"
+refresh_filesys: add "/bozo-1" "/dev/sde5"
+refresh_filesys: add "/data" "/dev/sda6"
+refresh_filesys: add "/ssd-cache" "/dev/sdc5"
+refresh_filesys: add "/tmp" "/dev/sda1"
+refresh_filesys: add "/vmstore0" "/dev/sda7"
+refresh_filesys: add "/vmstore3" "/dev/sde7"
 === std out ===
 
 filesys.mountdir
@@ -102,33 +129,6 @@ filesys.uuid
     inst [6 or "/dev/sda7"] value "6bd6fd66-c9a2-418e-8790-7519beeb6fa6"
     inst [7 or "/dev/sde6"] value ""
     inst [8 or "/dev/sde7"] value "70180cb3-338f-41bb-8ff0-9cb70d2614cc"
-=== std err ===
-refresh_filesys: add "/" "/dev/sdc1"
-refresh_filesys: add "/ssd-cache" "/dev/sdc5"
-refresh_filesys: add "/bozo-1" "/dev/sde5"
-refresh_filesys: add "/backup" "/dev/vda2"
-refresh_filesys: add "/tmp" "/dev/sda1"
-refresh_filesys: add "/data" "/dev/sda6"
-refresh_filesys: add "/vmstore0" "/dev/sda7"
-refresh_filesys: add "/archive-1" "/dev/sde6"
-refresh_filesys: add "/vmstore3" "/dev/sde7"
-do_uuids: Warning: disk /dev/sdb1 not in InDom Cache
-do_uuids: Warning: disk /dev/sdd7 not in InDom Cache
-do_uuids: Warning: disk /dev/sdb7 not in InDom Cache
-do_uuids: Warning: disk /dev/sde1 not in InDom Cache
-do_uuids: add "/dev/sde5" "7514e1d0-a5ae-42db-9e9f-0015d1ad3035"
-do_uuids: Warning: disk /dev/sdb5 not in InDom Cache
-do_uuids: add "/dev/sdc1" "ca00c9cd-d370-4387-9487-37c15ee82bf4"
-do_uuids: add "/dev/sde7" "70180cb3-338f-41bb-8ff0-9cb70d2614cc"
-do_uuids: Warning: disk /dev/sda5 not in InDom Cache
-do_uuids: Warning: disk /dev/sdd6 not in InDom Cache
-do_uuids: Warning: disk /dev/sdb6 not in InDom Cache
-do_uuids: Warning: disk /dev/vda1 not in InDom Cache
-do_uuids: add "/dev/sda1" "4abf1947-f982-4c76-b776-75c996742e7f"
-do_uuids: add "/dev/sdc5" "d7f9bdc1-40ad-471f-9eb1-846990359f06"
-do_uuids: add "/dev/sda7" "6bd6fd66-c9a2-418e-8790-7519beeb6fa6"
-do_uuids: readlink(TMP/root/dev/disk/by-uuid/dead-beef-cafe-feed) failed: Invalid argument
-do_uuids: add "/dev/sda6" "eb787c10-e3bf-4b63-9a20-9ca9063a81c2"
 === filtered valgrind report ===
 Memcheck, a memory error detector
 Command: pminfo -L -Dappl8 -f filesys.mountdir filesys.uuid
@@ -138,6 +138,16 @@ indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
 
 /dev/disk/by-uuid empty ...
+=== std err ===
+refresh_filesys: add "/" "/dev/sdc1"
+refresh_filesys: add "/archive-1" "/dev/sde6"
+refresh_filesys: add "/backup" "/dev/vda2"
+refresh_filesys: add "/bozo-1" "/dev/sde5"
+refresh_filesys: add "/data" "/dev/sda6"
+refresh_filesys: add "/ssd-cache" "/dev/sdc5"
+refresh_filesys: add "/tmp" "/dev/sda1"
+refresh_filesys: add "/vmstore0" "/dev/sda7"
+refresh_filesys: add "/vmstore3" "/dev/sde7"
 === std out ===
 
 filesys.mountdir
@@ -161,16 +171,6 @@ filesys.uuid
     inst [6 or "/dev/sda7"] value ""
     inst [7 or "/dev/sde6"] value ""
     inst [8 or "/dev/sde7"] value ""
-=== std err ===
-refresh_filesys: add "/" "/dev/sdc1"
-refresh_filesys: add "/ssd-cache" "/dev/sdc5"
-refresh_filesys: add "/bozo-1" "/dev/sde5"
-refresh_filesys: add "/backup" "/dev/vda2"
-refresh_filesys: add "/tmp" "/dev/sda1"
-refresh_filesys: add "/data" "/dev/sda6"
-refresh_filesys: add "/vmstore0" "/dev/sda7"
-refresh_filesys: add "/archive-1" "/dev/sde6"
-refresh_filesys: add "/vmstore3" "/dev/sde7"
 === filtered valgrind report ===
 Memcheck, a memory error detector
 Command: pminfo -L -Dappl8 -f filesys.mountdir filesys.uuid
@@ -180,6 +180,18 @@ indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
 
 /dev/disk/by-uuid missing ...
+=== std err ===
+do_uuids: stat(TMP/root/dev/disk/by-uuid) failed: No such file or directory
+do_uuids: stat(TMP/root/dev/disk/by-uuid) failed: No such file or directory
+refresh_filesys: add "/" "/dev/sdc1"
+refresh_filesys: add "/archive-1" "/dev/sde6"
+refresh_filesys: add "/backup" "/dev/vda2"
+refresh_filesys: add "/bozo-1" "/dev/sde5"
+refresh_filesys: add "/data" "/dev/sda6"
+refresh_filesys: add "/ssd-cache" "/dev/sdc5"
+refresh_filesys: add "/tmp" "/dev/sda1"
+refresh_filesys: add "/vmstore0" "/dev/sda7"
+refresh_filesys: add "/vmstore3" "/dev/sde7"
 === std out ===
 
 filesys.mountdir
@@ -203,18 +215,6 @@ filesys.uuid
     inst [6 or "/dev/sda7"] value ""
     inst [7 or "/dev/sde6"] value ""
     inst [8 or "/dev/sde7"] value ""
-=== std err ===
-refresh_filesys: add "/" "/dev/sdc1"
-refresh_filesys: add "/ssd-cache" "/dev/sdc5"
-refresh_filesys: add "/bozo-1" "/dev/sde5"
-refresh_filesys: add "/backup" "/dev/vda2"
-refresh_filesys: add "/tmp" "/dev/sda1"
-refresh_filesys: add "/data" "/dev/sda6"
-refresh_filesys: add "/vmstore0" "/dev/sda7"
-refresh_filesys: add "/archive-1" "/dev/sde6"
-refresh_filesys: add "/vmstore3" "/dev/sde7"
-do_uuids: stat(TMP/root/dev/disk/by-uuid) failed: No such file or directory
-do_uuids: stat(TMP/root/dev/disk/by-uuid) failed: No such file or directory
 === filtered valgrind report ===
 Memcheck, a memory error detector
 Command: pminfo -L -Dappl8 -f filesys.mountdir filesys.uuid
