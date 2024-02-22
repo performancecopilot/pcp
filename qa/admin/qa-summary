@@ -222,6 +222,7 @@ then
     # vm00|PCP 3.7.0 x86_64 Ubuntu 12.04
     #
     sed <$HOME/whatami.out \
+	-e 's/instance-20240107-1/oracle/' \
 	-e '1,2d' \
 	-e '/^[ 	]*$/d' \
 	-e 's/  */|PCP#/' \

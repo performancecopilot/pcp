@@ -1,0 +1,33 @@
+#!/bin/sh
+#
+# rebuild the uuid-root tarball
+
+here=`pwd`
+filelist="proc/self/mounts"
+dirlist="dev/disk/by-uuid"
+rm -rf tmp
+mkdir tmp || exit 1
+cd tmp || exit 1
+
+for dir in $dirlist
+do
+    [ -d "./$dir" ] || mkdir -p "./$dir" || exit 1
+    cp -r /$dir/* ./$dir || exit 1
+done
+
+for file in $filelist
+do
+    dir=`dirname $file`
+    [ -d "./$dir" ] || mkdir -p "./$dir" || exit 1
+    cp /$file ./$dir
+done
+
+cd ./dev/disk/by-uuid || exit 1
+devs="`ls -l | sed -n '/ -> /s@.*/@@p'`"
+( cd /dev; tar cf - $devs ) | ( cd ../..; sudo tar xpf - )
+
+cd $here/tmp
+tar czf ../uuid-root.tgz proc dev
+
+cd $here
+rm -rf tmp

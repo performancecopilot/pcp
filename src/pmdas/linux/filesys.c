@@ -56,7 +56,6 @@ do_uuids(pmInDom filesys_indom)
     filesys_t		*fs;
     struct stat		sbuf;
     static struct timespec		mtim = { 0 };
-    static int		seen_err = 0;
 
     pmsprintf(path, sizeof(path), "%s/dev/disk/by-uuid", linux_statspath);
 
@@ -65,11 +64,8 @@ do_uuids(pmInDom filesys_indom)
 	 * containers, esp in GitHub CI don't even have this directory,
 	 * so silently move on ...
 	 */
-	if (pmDebugOptions.libpmda) {
-	    if (!seen_err) {
-		fprintf(stderr, "do_uuids: stat(%s) failed: %s\n", path, pmErrStr(-oserror()));
-		seen_err = 1;
-	    }
+	if (pmDebugOptions.appl8) {
+	    fprintf(stderr, "do_uuids: stat(%s) failed: %s\n", path, pmErrStr(-oserror()));
 	}
 	return;
     }
@@ -82,12 +78,9 @@ do_uuids(pmInDom filesys_indom)
     mtim.tv_nsec = sbuf.st_mtim.tv_nsec;
 
     if ((dp = opendir(path)) == NULL) {
-	/* don't expect to get here, but report if -Dlibpmda */
-	if (pmDebugOptions.libpmda) {
-	    if (!seen_err) {
-		fprintf(stderr, "do_uuids: opendir(%s) failed: %s\n", path, pmErrStr(-oserror()));
-		seen_err = 1;
-	    }
+	/* don't expect to get here, but report if -Dappl8 */
+	if (pmDebugOptions.appl8) {
+	    fprintf(stderr, "do_uuids: opendir(%s) failed: %s\n", path, pmErrStr(-oserror()));
 	}
 	return;
     }
@@ -96,7 +89,16 @@ do_uuids(pmInDom filesys_indom)
 	if (strcmp(dep->d_name, ".") == 0) continue;
 	if (strcmp(dep->d_name, "..") == 0) continue;
 	pmsprintf(path, sizeof(path), "%s/dev/disk/by-uuid/%s", linux_statspath, dep->d_name);
-	len = readlink(path, link, sizeof(link));
+	len = readlink(path, link, sizeof(link)-1);
+	if (len < 0) {
+	    /*
+	     * should never happen, unless dir is polluted with a
+	     * non-symlink
+	     */
+	    if (pmDebugOptions.appl8)
+		fprintf(stderr, "do_uuids: readlink(%s) failed: %s\n", path, pmErrStr(-oserror()));
+	    continue;
+	}
 	link[len] = '\0';
 	devname = rindex(link, '/');
 	pmsprintf(device, sizeof(device), "/dev%s", devname);
@@ -107,7 +109,7 @@ do_uuids(pmInDom filesys_indom)
 	     * mounted filesystem ... either swap device or an unmounted
 	     * filesystem, so ignore it
 	     */
-	    if (pmDebugOptions.libpmda)
+	    if (pmDebugOptions.appl8)
 		fprintf(stderr, "do_uuids: Warning: disk %s not in InDom Cache\n", device);
 	    continue;
 	}
@@ -116,7 +118,7 @@ do_uuids(pmInDom filesys_indom)
 	     * first time for this device
 	     */
 	    fs->uuid = strdup(dep->d_name);
-	    if (pmDebugOptions.libpmda) {
+	    if (pmDebugOptions.appl8) {
 		fprintf(stderr, "do_uuids: add \"%s\" \"%s\"\n",
 		    device, fs->uuid);
 	    }
@@ -127,7 +129,7 @@ do_uuids(pmInDom filesys_indom)
 	     */
 	    free(fs->uuid);
 	    fs->uuid = strdup(dep->d_name);
-	    if (pmDebugOptions.libpmda) {
+	    if (pmDebugOptions.appl8) {
 		fprintf(stderr, "do_uuids: change \"%s\" \"%s\"\n",
 		    device, fs->uuid);
 	    }
@@ -220,7 +222,7 @@ refresh_filesys(pmInDom filesys_indom, pmInDom tmpfs_indom,
 	    fs->path = strdup(path);
 	    fs->options = strdup(options);
 	    fs->uuid = NULL;
-	    if (pmDebugOptions.libpmda) {
+	    if (pmDebugOptions.appl8) {
 		fprintf(stderr, "refresh_filesys: add \"%s\" \"%s\"\n",
 		    fs->path, device);
 	    }

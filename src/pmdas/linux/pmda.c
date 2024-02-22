@@ -16,6 +16,10 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
+ *
+ * pmDebugOption:
+ *   appl8	filesys metrics
+ *   libpmda	historic "everything else" diagnostics
  */
 #include "linux.h"
 #undef LINUX /* defined in NSS/NSPR headers as something different, which we do not need. */
@@ -8703,11 +8707,17 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    if (sts != PMDA_CACHE_ACTIVE)
 	    	return PM_ERR_INST;
 
-	    sbuf = &fs->stats;
-	    if (!(fs->flags & FSF_FETCHED)) {
-		if (statfs(fs->path, sbuf) < 0)
-		    return PM_ERR_INST;
-		fs->flags |= FSF_FETCHED;
+	    /*
+	     * most metrics need data from statfs() ... filesys.mountdir
+	     * and filesys.uuid are the exceptions.
+	     */
+	    if (item != 7 && item != 12) {
+		sbuf = &fs->stats;
+		if (!(fs->flags & FSF_FETCHED)) {
+		    if (statfs(fs->path, sbuf) < 0)
+			return PM_ERR_INST;
+		    fs->flags |= FSF_FETCHED;
+		}
 	    }
 
 	    switch (item) {

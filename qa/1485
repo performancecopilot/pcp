@@ -1,0 +1,112 @@
+#!/bin/sh
+# PCP QA Test No. 1485
+# UUID extraction in Linux PMDA
+#
+# non-valgrind variant, see qa/1487 for the valgrind variant
+#
+# Copyright (c) 2024 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+$sudo rm -rf $tmp $tmp.* $seq.full
+
+do_valgrind=false
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+    do_valgrind=true
+elif which valgrind >/dev/null 2>&1
+then
+    [ $PCPQA_VALGRIND = both ] || \
+        _notrun "valgrind variant qa/1487 will be run"
+fi
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+    # end
+}
+
+_doit()
+{
+    if $do_valgrind
+    then
+	_run_valgrind pminfo -L $DEBUG -f filesys.mountdir filesys.uuid \
+	| $PCP_AWK_PROG '
+/^=== std err ===/	{ inerr = 1; print >"'"$tmp.err"'"; next }
+inerr == 1 && /^=== /	{ inerr = 0 }
+inerr == 1		{ print >"'"$tmp.err"'" }
+inerr == 0		{ print >"'"$tmp.out"'" }'
+    else
+	pminfo -L $DEBUG -f filesys.mountdir filesys.uuid >$tmp.out 2>$tmp.err
+    fi
+    _filter <$tmp.err | LC_COLLATE=POSIX sort
+    _filter <$tmp.out
+}
+
+mkdir -p $tmp/root
+cd $tmp/root
+$sudo tar zxpf $here/linux/uuid-root.tgz
+cd $here
+export LINUX_STATSPATH=$tmp/root
+
+# real QA test starts here
+
+echo "situation normal ..."
+DEBUG=''
+_doit
+
+echo
+echo "cull some mounts ..."
+grep -v '/dev/sd[bd]' <$LINUX_STATSPATH/proc/self/mounts >$tmp.tmp
+$sudo cp $tmp.tmp $LINUX_STATSPATH/proc/self/mounts
+_doit
+
+echo
+echo "mismatches ..."
+sed -e 's@/dev/sde1@/dev/vda2@' <$LINUX_STATSPATH/proc/self/mounts >$tmp.tmp
+$sudo cp $tmp.tmp $LINUX_STATSPATH/proc/self/mounts
+cd $LINUX_STATSPATH/dev/disk/by-uuid
+$sudo rm f24a78ad-dbfa-4883-9ad5-dc7d8d418a00
+$sudo ln -s ../../vda1 f24a78ad-dbfa-4883-9ad5-dc7d8d418a00
+$sudo touch dead-beef-cafe-feed
+cd $here
+DEBUG='-Dappl8'
+_doit
+
+echo
+echo "/dev/disk/by-uuid empty ..."
+rm -f $LINUX_STATSPATH/dev/disk/by-uuid/*
+_doit
+
+echo
+echo "/dev/disk/by-uuid missing ..."
+rm -rf $LINUX_STATSPATH/dev/disk/by-uuid
+_doit
+
+# success, all done
+exit

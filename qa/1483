@@ -110,7 +110,10 @@ for svc in \
 do
     echo
     echo "=== $svc ==="
-    $sudo journalctl --no-pager --since=yesterday _SYSTEMD_UNIT=$svc.service 2>&1 \
+    # want entries for the past 24 hours, but note we need "backwards"
+    # MM-DD USA date format
+    #
+    $sudo journalctl --no-pager --since="`pmdate -1d '%Y-%m-%d %H:%M:%S'`" _SYSTEMD_UNIT=$svc.service 2>&1 \
     | _filter $svc
 done
 
