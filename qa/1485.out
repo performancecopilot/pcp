@@ -1,0 +1,178 @@
+QA output created by 1485
+situation normal ...
+
+filesys.mountdir
+    inst [0 or "/dev/sdc1"] value "/"
+    inst [1 or "/dev/sdc5"] value "/ssd-cache"
+    inst [2 or "/dev/sde5"] value "/bozo-1"
+    inst [3 or "/dev/sdd6"] value "/home"
+    inst [4 or "/dev/sdb5"] value "/bozo-0"
+    inst [5 or "/dev/sde1"] value "/backup"
+    inst [6 or "/dev/sdb1"] value "/var"
+    inst [7 or "/dev/sda1"] value "/tmp"
+    inst [8 or "/dev/sda6"] value "/data"
+    inst [9 or "/dev/sda7"] value "/vmstore0"
+    inst [10 or "/dev/sdd7"] value "/vmstore2"
+    inst [11 or "/dev/sde6"] value "/archive-1"
+    inst [12 or "/dev/sdb6"] value "/archive-0"
+    inst [13 or "/dev/sde7"] value "/vmstore3"
+    inst [14 or "/dev/sdb7"] value "/vmstore1"
+
+filesys.uuid
+    inst [0 or "/dev/sdc1"] value "ca00c9cd-d370-4387-9487-37c15ee82bf4"
+    inst [1 or "/dev/sdc5"] value "d7f9bdc1-40ad-471f-9eb1-846990359f06"
+    inst [2 or "/dev/sde5"] value "7514e1d0-a5ae-42db-9e9f-0015d1ad3035"
+    inst [3 or "/dev/sdd6"] value "a012d0ca-9bec-4c65-bc95-91b190a6ae25"
+    inst [4 or "/dev/sdb5"] value "7ccd8b27-4969-4e50-9b0d-8cbfb498c1a2"
+    inst [5 or "/dev/sde1"] value "9b76e3c9-2e2b-42d0-9c8b-58324a0bb6e8"
+    inst [6 or "/dev/sdb1"] value "e156932d-5e03-4db7-96ae-96280b9232dd"
+    inst [7 or "/dev/sda1"] value "4abf1947-f982-4c76-b776-75c996742e7f"
+    inst [8 or "/dev/sda6"] value "eb787c10-e3bf-4b63-9a20-9ca9063a81c2"
+    inst [9 or "/dev/sda7"] value "6bd6fd66-c9a2-418e-8790-7519beeb6fa6"
+    inst [10 or "/dev/sdd7"] value "671db429-689a-4dfa-81a8-050c3b651334"
+    inst [11 or "/dev/sde6"] value "f24a78ad-dbfa-4883-9ad5-dc7d8d418a00"
+    inst [12 or "/dev/sdb6"] value "778b5c5a-175d-48cb-beba-deb4ad9b5ca7"
+    inst [13 or "/dev/sde7"] value "70180cb3-338f-41bb-8ff0-9cb70d2614cc"
+    inst [14 or "/dev/sdb7"] value "83d0e798-de15-4e75-bba4-f57587159d1f"
+
+cull some mounts ...
+
+filesys.mountdir
+    inst [0 or "/dev/sdc1"] value "/"
+    inst [1 or "/dev/sdc5"] value "/ssd-cache"
+    inst [2 or "/dev/sde5"] value "/bozo-1"
+    inst [3 or "/dev/sde1"] value "/backup"
+    inst [4 or "/dev/sda1"] value "/tmp"
+    inst [5 or "/dev/sda6"] value "/data"
+    inst [6 or "/dev/sda7"] value "/vmstore0"
+    inst [7 or "/dev/sde6"] value "/archive-1"
+    inst [8 or "/dev/sde7"] value "/vmstore3"
+
+filesys.uuid
+    inst [0 or "/dev/sdc1"] value "ca00c9cd-d370-4387-9487-37c15ee82bf4"
+    inst [1 or "/dev/sdc5"] value "d7f9bdc1-40ad-471f-9eb1-846990359f06"
+    inst [2 or "/dev/sde5"] value "7514e1d0-a5ae-42db-9e9f-0015d1ad3035"
+    inst [3 or "/dev/sde1"] value "9b76e3c9-2e2b-42d0-9c8b-58324a0bb6e8"
+    inst [4 or "/dev/sda1"] value "4abf1947-f982-4c76-b776-75c996742e7f"
+    inst [5 or "/dev/sda6"] value "eb787c10-e3bf-4b63-9a20-9ca9063a81c2"
+    inst [6 or "/dev/sda7"] value "6bd6fd66-c9a2-418e-8790-7519beeb6fa6"
+    inst [7 or "/dev/sde6"] value "f24a78ad-dbfa-4883-9ad5-dc7d8d418a00"
+    inst [8 or "/dev/sde7"] value "70180cb3-338f-41bb-8ff0-9cb70d2614cc"
+
+mismatches ...
+refresh_filesys: add "/" "/dev/sdc1"
+refresh_filesys: add "/ssd-cache" "/dev/sdc5"
+refresh_filesys: add "/bozo-1" "/dev/sde5"
+refresh_filesys: add "/backup" "/dev/vda2"
+refresh_filesys: add "/tmp" "/dev/sda1"
+refresh_filesys: add "/data" "/dev/sda6"
+refresh_filesys: add "/vmstore0" "/dev/sda7"
+refresh_filesys: add "/archive-1" "/dev/sde6"
+refresh_filesys: add "/vmstore3" "/dev/sde7"
+do_uuids: Warning: disk /dev/sdb1 not in InDom Cache
+do_uuids: Warning: disk /dev/sdd7 not in InDom Cache
+do_uuids: Warning: disk /dev/sdb7 not in InDom Cache
+do_uuids: Warning: disk /dev/sde1 not in InDom Cache
+do_uuids: add "/dev/sde5" "7514e1d0-a5ae-42db-9e9f-0015d1ad3035"
+do_uuids: Warning: disk /dev/sdb5 not in InDom Cache
+do_uuids: add "/dev/sdc1" "ca00c9cd-d370-4387-9487-37c15ee82bf4"
+do_uuids: add "/dev/sde7" "70180cb3-338f-41bb-8ff0-9cb70d2614cc"
+do_uuids: Warning: disk /dev/sda5 not in InDom Cache
+do_uuids: Warning: disk /dev/sdd6 not in InDom Cache
+do_uuids: Warning: disk /dev/sdb6 not in InDom Cache
+do_uuids: Warning: disk /dev/vda1 not in InDom Cache
+do_uuids: add "/dev/sda1" "4abf1947-f982-4c76-b776-75c996742e7f"
+do_uuids: add "/dev/sdc5" "d7f9bdc1-40ad-471f-9eb1-846990359f06"
+do_uuids: add "/dev/sda7" "6bd6fd66-c9a2-418e-8790-7519beeb6fa6"
+do_uuids: readlink(TMP/root/dev/disk/by-uuid/dead-beef-cafe-feed) failed: Invalid argument
+do_uuids: add "/dev/sda6" "eb787c10-e3bf-4b63-9a20-9ca9063a81c2"
+
+filesys.mountdir
+    inst [0 or "/dev/sdc1"] value "/"
+    inst [1 or "/dev/sdc5"] value "/ssd-cache"
+    inst [2 or "/dev/sde5"] value "/bozo-1"
+    inst [3 or "/dev/vda2"] value "/backup"
+    inst [4 or "/dev/sda1"] value "/tmp"
+    inst [5 or "/dev/sda6"] value "/data"
+    inst [6 or "/dev/sda7"] value "/vmstore0"
+    inst [7 or "/dev/sde6"] value "/archive-1"
+    inst [8 or "/dev/sde7"] value "/vmstore3"
+
+filesys.uuid
+    inst [0 or "/dev/sdc1"] value "ca00c9cd-d370-4387-9487-37c15ee82bf4"
+    inst [1 or "/dev/sdc5"] value "d7f9bdc1-40ad-471f-9eb1-846990359f06"
+    inst [2 or "/dev/sde5"] value "7514e1d0-a5ae-42db-9e9f-0015d1ad3035"
+    inst [3 or "/dev/vda2"] value ""
+    inst [4 or "/dev/sda1"] value "4abf1947-f982-4c76-b776-75c996742e7f"
+    inst [5 or "/dev/sda6"] value "eb787c10-e3bf-4b63-9a20-9ca9063a81c2"
+    inst [6 or "/dev/sda7"] value "6bd6fd66-c9a2-418e-8790-7519beeb6fa6"
+    inst [7 or "/dev/sde6"] value ""
+    inst [8 or "/dev/sde7"] value "70180cb3-338f-41bb-8ff0-9cb70d2614cc"
+
+/dev/disk/by-uuid empty ...
+refresh_filesys: add "/" "/dev/sdc1"
+refresh_filesys: add "/ssd-cache" "/dev/sdc5"
+refresh_filesys: add "/bozo-1" "/dev/sde5"
+refresh_filesys: add "/backup" "/dev/vda2"
+refresh_filesys: add "/tmp" "/dev/sda1"
+refresh_filesys: add "/data" "/dev/sda6"
+refresh_filesys: add "/vmstore0" "/dev/sda7"
+refresh_filesys: add "/archive-1" "/dev/sde6"
+refresh_filesys: add "/vmstore3" "/dev/sde7"
+
+filesys.mountdir
+    inst [0 or "/dev/sdc1"] value "/"
+    inst [1 or "/dev/sdc5"] value "/ssd-cache"
+    inst [2 or "/dev/sde5"] value "/bozo-1"
+    inst [3 or "/dev/vda2"] value "/backup"
+    inst [4 or "/dev/sda1"] value "/tmp"
+    inst [5 or "/dev/sda6"] value "/data"
+    inst [6 or "/dev/sda7"] value "/vmstore0"
+    inst [7 or "/dev/sde6"] value "/archive-1"
+    inst [8 or "/dev/sde7"] value "/vmstore3"
+
+filesys.uuid
+    inst [0 or "/dev/sdc1"] value ""
+    inst [1 or "/dev/sdc5"] value ""
+    inst [2 or "/dev/sde5"] value ""
+    inst [3 or "/dev/vda2"] value ""
+    inst [4 or "/dev/sda1"] value ""
+    inst [5 or "/dev/sda6"] value ""
+    inst [6 or "/dev/sda7"] value ""
+    inst [7 or "/dev/sde6"] value ""
+    inst [8 or "/dev/sde7"] value ""
+
+/dev/disk/by-uuid missing ...
+refresh_filesys: add "/" "/dev/sdc1"
+refresh_filesys: add "/ssd-cache" "/dev/sdc5"
+refresh_filesys: add "/bozo-1" "/dev/sde5"
+refresh_filesys: add "/backup" "/dev/vda2"
+refresh_filesys: add "/tmp" "/dev/sda1"
+refresh_filesys: add "/data" "/dev/sda6"
+refresh_filesys: add "/vmstore0" "/dev/sda7"
+refresh_filesys: add "/archive-1" "/dev/sde6"
+refresh_filesys: add "/vmstore3" "/dev/sde7"
+do_uuids: stat(TMP/root/dev/disk/by-uuid) failed: No such file or directory
+do_uuids: stat(TMP/root/dev/disk/by-uuid) failed: No such file or directory
+
+filesys.mountdir
+    inst [0 or "/dev/sdc1"] value "/"
+    inst [1 or "/dev/sdc5"] value "/ssd-cache"
+    inst [2 or "/dev/sde5"] value "/bozo-1"
+    inst [3 or "/dev/vda2"] value "/backup"
+    inst [4 or "/dev/sda1"] value "/tmp"
+    inst [5 or "/dev/sda6"] value "/data"
+    inst [6 or "/dev/sda7"] value "/vmstore0"
+    inst [7 or "/dev/sde6"] value "/archive-1"
+    inst [8 or "/dev/sde7"] value "/vmstore3"
+
+filesys.uuid
+    inst [0 or "/dev/sdc1"] value ""
+    inst [1 or "/dev/sdc5"] value ""
+    inst [2 or "/dev/sde5"] value ""
+    inst [3 or "/dev/vda2"] value ""
+    inst [4 or "/dev/sda1"] value ""
+    inst [5 or "/dev/sda6"] value ""
+    inst [6 or "/dev/sda7"] value ""
+    inst [7 or "/dev/sde6"] value ""
+    inst [8 or "/dev/sde7"] value ""
