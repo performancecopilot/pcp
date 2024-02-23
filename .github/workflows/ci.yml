@@ -59,6 +59,12 @@ jobs:
           python3 -c 'import yaml' || pip3 install pyyaml
           mkdir -p artifacts/build artifacts/test
           touch artifacts/build/.keep
+	  # crun >= 1.9.1 is required on Ubuntu 20.04.6
+	  # this workaround came from ...
+	  # https://github.com/kubernetes-sigs/kind/pull/3527
+	  curl -sLo /tmp/crun https://github.com/containers/crun/releases/download/1.14.3/crun-1.14.3-linux-amd64
+	  chmod +x /tmp/crun
+	  cp /tmp/crun /usr/bin/crun
 
           build/ci/ci-run.py ${{ matrix.platform }} setup
 
