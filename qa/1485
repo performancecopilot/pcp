@@ -31,7 +31,7 @@ then
     do_valgrind=true
 elif which valgrind >/dev/null 2>&1
 then
-    [ $PCPQA_VALGRIND = both ] || \
+    [ "$PCPQA_VALGRIND" = both ] || \
         _notrun "valgrind variant qa/1487 will be run"
 fi
 
@@ -69,12 +69,14 @@ inerr == 0		{ print >"'"$tmp.out"'" }'
 }
 
 mkdir -p $tmp/root
-cd $tmp/root
-$sudo tar zxpf $here/linux/uuid-root.tgz
-cd $here
 export LINUX_STATSPATH=$tmp/root
 
 # real QA test starts here
+
+echo "+++ uuid-00 tarball +++"
+cd $tmp/root
+$sudo tar zxpf $here/linux/uuid-00-root.tgz
+cd $here
 
 echo "situation normal ..."
 DEBUG=''
@@ -84,6 +86,7 @@ echo
 echo "cull some mounts ..."
 grep -v '/dev/sd[bd]' <$LINUX_STATSPATH/proc/self/mounts >$tmp.tmp
 $sudo cp $tmp.tmp $LINUX_STATSPATH/proc/self/mounts
+DEBUG=''
 _doit
 
 echo
@@ -101,11 +104,44 @@ _doit
 echo
 echo "/dev/disk/by-uuid empty ..."
 rm -f $LINUX_STATSPATH/dev/disk/by-uuid/*
+DEBUG='-Dappl8'
 _doit
 
 echo
 echo "/dev/disk/by-uuid missing ..."
 rm -rf $LINUX_STATSPATH/dev/disk/by-uuid
+DEBUG='-Dappl8'
+_doit
+
+echo
+echo "+++ uuid-01 tarball +++"
+cd $tmp/root
+$sudo tar zxpf $here/linux/uuid-01-root.tgz
+cd $here
+
+echo "situation normal ..."
+DEBUG=''
+_doit
+
+echo
+echo "/dev/mapper empty ..."
+$sudo rm -f $LINUX_STATSPATH/dev/mapper/*
+DEBUG='-Dappl8'
+_doit
+
+echo
+echo "/dev/mapper is bogus ..."
+cd $LINUX_STATSPATH/dev/mapper
+$sudo ln -s ../dm-13 fedora_vm22-root
+$sudo touch fedora_vm22-swap
+cd $here
+DEBUG='-Dappl8'
+_doit
+
+echo
+echo "/dev/mapper missing ..."
+$sudo rm -rf $LINUX_STATSPATH/dev/mapper
+DEBUG='-Dappl8'
 _doit
 
 # success, all done
