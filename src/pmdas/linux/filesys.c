@@ -136,11 +136,8 @@ do_uuids(pmInDom filesys_indom)
 		    /* match dm_device for a different device */
 		    break;
 	    }
-	    if (fs == NULL) {
-		if (pmDebugOptions.appl8)
-		    fprintf(stderr, "do_uuids: Warning: dm_device %s not in InDom Cache\n", device);
+	    if (fs == NULL)
 		continue;
-	    }
 	}
 	if (fs->uuid == NULL) {
 	    /*
