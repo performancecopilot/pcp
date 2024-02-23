@@ -106,12 +106,41 @@ do_uuids(pmInDom filesys_indom)
 	if (sts != PMDA_CACHE_ACTIVE) {
 	    /*
 	     * this is a block device that has a UUID, but is not a
-	     * mounted filesystem ... either swap device or an unmounted
-	     * filesystem, so ignore it
+	     * mounted filesystem ... either swap device or an
+	     * unmounted filesystem or possibly a Device Mapper device
+	     * ... in the latter case we need to search the InDom
+	     * cache to see if the current "device" matches the name
+	     * of a dm_device.
+	     *
+	     * if this fails, just ignore this one (there will be no
+	     * UUID to report).
 	     */
+	    fs = NULL;
 	    if (pmDebugOptions.appl8)
-		fprintf(stderr, "do_uuids: Warning: disk %s not in InDom Cache\n", device);
-	    continue;
+		fprintf(stderr, "do_uuids: Warning: device %s not in InDom Cache\n", device);
+	    if ((sts = pmdaCacheOp(filesys_indom, PMDA_CACHE_WALK_REWIND)) < 0) {
+		if (pmDebugOptions.appl8)
+		    fprintf(stderr, "do_uuids: Botch: pmdaCacheOp(.., PMDA_CACHE_WALK_REWIND) failed: %s\n", pmErrStr(sts));
+		continue;
+	    }
+	    /* InDom cache walk ... */
+	    for ( ; ; ) {
+		if ((sts = pmdaCacheOp(filesys_indom, PMDA_CACHE_WALK_NEXT)) < 0) {
+		    fs = NULL;
+		    break;
+		}
+		if (pmdaCacheLookup(filesys_indom, sts, NULL, (void **)&fs) != PMDA_CACHE_ACTIVE)
+		    continue;
+		if (fs != NULL && fs->dm_device != NULL &&
+		    strcmp(device, fs->dm_device) == 0)
+		    /* match dm_device for a different device */
+		    break;
+	    }
+	    if (fs == NULL) {
+		if (pmDebugOptions.appl8)
+		    fprintf(stderr, "do_uuids: Warning: dm_device %s not in InDom Cache\n", device);
+		continue;
+	    }
 	}
 	if (fs->uuid == NULL) {
 	    /*
@@ -119,8 +148,10 @@ do_uuids(pmInDom filesys_indom)
 	     */
 	    fs->uuid = strdup(dep->d_name);
 	    if (pmDebugOptions.appl8) {
-		fprintf(stderr, "do_uuids: add \"%s\" \"%s\"\n",
-		    device, fs->uuid);
+		fprintf(stderr, "do_uuids: add device \"%s\"", fs->device);
+		if (fs->dm_device != NULL)
+		    fprintf(stderr, " dm_device \"%s\"", fs->dm_device);
+		fprintf(stderr, " uuid \"%s\"\n", fs->uuid);
 	    }
 	}
 	else if (strcmp(fs->uuid, dep->d_name) != 0) {
@@ -130,8 +161,10 @@ do_uuids(pmInDom filesys_indom)
 	    free(fs->uuid);
 	    fs->uuid = strdup(dep->d_name);
 	    if (pmDebugOptions.appl8) {
-		fprintf(stderr, "do_uuids: change \"%s\" \"%s\"\n",
-		    device, fs->uuid);
+		fprintf(stderr, "do_uuids: change device \"%s\"", fs->device);
+		if (fs->dm_device != NULL)
+		    fprintf(stderr, " dm_device \"%s\"", fs->dm_device);
+		fprintf(stderr, " uuid \"%s\"\n", fs->uuid);
 	    }
 	}
     }
@@ -145,13 +178,16 @@ int
 refresh_filesys(pmInDom filesys_indom, pmInDom tmpfs_indom,
 		struct linux_container *cp)
 {
-    char buf[MAXPATHLEN];
-    char src[MAXPATHLEN];
-    filesys_t *fs;
-    pmInDom indom;
-    FILE *fp;
-    char *path, *device, *type, *options;
-    int sts;
+    char		buf[MAXPATHLEN];
+    char		src[MAXPATHLEN];
+    filesys_t		*fs;
+    pmInDom		indom;
+    FILE		*fp;
+    char		*path, *device, *type, *options;
+    char		*devname;
+    char		link[MAXPATHLEN];
+    ssize_t		len;
+    int			sts;
 
     pmdaCacheOp(tmpfs_indom, PMDA_CACHE_INACTIVE);
     pmdaCacheOp(filesys_indom, PMDA_CACHE_INACTIVE);
@@ -196,7 +232,7 @@ refresh_filesys(pmInDom filesys_indom, pmInDom tmpfs_indom,
 	    continue;
 
 	/* keep dm and md persistent names, RHBZ#1349932 */
-	if (strncmp(device, "/dev/mapper", 11) != 0 && strncmp(device, "/dev/md", 7) != 0) {
+	if (strncmp(device, "/dev/mapper/", 12) != 0 && strncmp(device, "/dev/md/", 8) != 0) {
 	    if (realpath(device, src) != NULL)
 		device = src;
 	}
@@ -221,10 +257,32 @@ refresh_filesys(pmInDom filesys_indom, pmInDom tmpfs_indom,
 	    fs->device = strdup(device);
 	    fs->path = strdup(path);
 	    fs->options = strdup(options);
+	    fs->dm_device = NULL;
+	    if (strncmp(device, "/dev/mapper/", 12) == 0) {
+		char		tmp[MAXPATHLEN];
+		pmsprintf(tmp, sizeof(tmp), "%s/%s", linux_statspath, device);
+		len = readlink(tmp, link, sizeof(link)-1);
+		if (len < 0) {
+		    /*
+		     * should never happen, unless /dev/mapper is borked
+		     */
+		    if (pmDebugOptions.appl8)
+			fprintf(stderr, "do_uuids: readlink(%s) failed: %s\n", tmp, pmErrStr(-oserror()));
+		}
+		else {
+		    link[len] = '\0';
+		    devname = rindex(link, '/');
+		    pmsprintf(src, sizeof(src), "/dev%s", devname);
+		    fs->dm_device = strdup(src);
+		}
+	    }
 	    fs->uuid = NULL;
 	    if (pmDebugOptions.appl8) {
-		fprintf(stderr, "refresh_filesys: add \"%s\" \"%s\"\n",
-		    fs->path, device);
+		fprintf(stderr, "refresh_filesys: add mount \"%s\" device \"%s\"",
+		    fs->path, fs->device);
+		if (fs->dm_device != NULL)
+		    fprintf(stderr, " dm_device \"%s\"", fs->dm_device);
+		fputc('\n', stderr);
 	    }
 	    pmdaCacheStore(indom, PMDA_CACHE_ADD, device, fs);
 	}
