@@ -37,7 +37,7 @@ jobs:
           - {platform: centos-stream9-container,  os: ubuntu-20.04}
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Fix local hostname DNS lookup
         run: echo 127.0.1.1 $(hostname --fqdn) $(hostname) | sudo tee -a /etc/hosts
@@ -90,7 +90,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Download all artifacts
         uses: actions/download-artifact@v3

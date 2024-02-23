@@ -40,7 +40,7 @@ jobs:
           - {platform: centos-stream9-container,  os: ubuntu-20.04, experimental: false}
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Fix local hostname DNS lookup
         run: echo 127.0.1.1 $(hostname --fqdn) $(hostname) | sudo tee -a /etc/hosts
@@ -118,10 +118,10 @@ jobs:
       summary_url: ${{ steps.publish_test_summary.outputs.summary_url }}
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Checkout performancecopilot/qa-reports
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: performancecopilot/qa-reports
           path: qa-reports
@@ -218,10 +218,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Checkout ${{ github.repository_owner }}/qa-reports
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: ${{ github.repository_owner }}/qa-reports
           path: qa-reports
