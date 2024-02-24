@@ -39,12 +39,13 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 _filter()
 {
     # the first block are lines that are OK for any service,
-    # then the case ... esace deals with the per-service
+    # then the case ... esac deals with the per-service
     # culling
     #
     sed \
 	-e '/^-- Reboot --$/d' \
 	-e '/^-- No entries --$/d' \
+	-e '/^-- Journal begins at /d' \
 	-e '/^-- Logs begin at /d' \
 	-e '/: End: /d' \
 	-e '/error while loading shared libraries: libpcp/d' \
@@ -56,6 +57,12 @@ _filter()
 		-e '/ Installing .* PMDA /d' \
 		-e '/ Removing .* PMDA /d' \
 		-e '/ Rebuilding PMNS /d' \
+		-e '/pmcd\[[0-9]*]: .* pmdaopenmetrics([0-9]*) Info:/d' \
+		-e '/pmcd\[[0-9]*]: .*\.\.done$/d' \
+		-e '/pmcd\[[0-9]*]: Terminated$/d' \
+		-e '/root\[[0-9]*]: pmcd_wait failed in /d' \
+		-e '/pmcd\[[0-9]*]: _pmda_setup: Interrupted!/d' \
+		-e '/pmcd\[[0-9]*]: _pmda_setup_cleanup: reset \.NeedInstall/d' \
 	    #end
 	    ;;
 
@@ -88,10 +95,15 @@ _filter()
 	    # sudo babble
 	    # and pmlogger_check will fail during PCP builds
 	    # and pmlogger_daily will fail during PCP builds
+	    # and qa/1210 and qa/1213
 	    sed \
 		-e '/sudo\[[0-9]*]: /d' \
 		-e '/pmlogger_check failed - see .*\/pmlogger_check.log/d' \
 		-e '/pmlogger_daily failed - see .*\/pmlogger_daily-K.log/d' \
+		-e '/pmlogctl\[[0-9]*]: .* failed to start for host no\.such\.host\.pcp\.io/d' \
+		-e '/rc\[[0-9]*]: .*not permanently enabled\./d' \
+		-e '/rc\[[0-9]*]: .*run the following as root:/d' \
+		-e '/rc\[[0-9]*]: .*systemctl enable pmlogger\.service/d' \
 	    # end
 	    ;;
 
