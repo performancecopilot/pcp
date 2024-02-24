@@ -31,12 +31,23 @@ _cleanup()
 status=0	# success is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
+# last 2 expressions are to deal with "smart" (i.e. stupid)
+# quoting from some versions of some GNU utils ... yuk!
+#
 _filter()
 {
     sed \
 	-e "s@$tmp@TMP@g" \
 	-e "s@$PCP_BINADM_DIR@PCP_BINADM_DIR@g" \
 	-e 's@^drwx.*TMP$@... ls output for TMP@' \
+	-e '/^ls: /{
+s/cannot access .*TMP/cannot access TMP/
+s/[^A-Za-z/*]*: No such file or/: No such file or/
+}' \
+	-e '/^touch: /{
+s/cannot touch .*TMP/cannot touch TMP/
+s/[^A-Z*]: Permission/: Permission/
+}' \
     # end
 }
 

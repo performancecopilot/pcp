@@ -3,7 +3,7 @@ QA output created by 1484
 === $PCP_LOG_DIR missing
 PCP_BINADM_DIR/pcp-reboot-init: Error: $PCP_LOG_DIR (TMP/log) does not exist
 ... ls output for TMP
-ls: cannot access 'TMP/log': No such file or directory
+ls: cannot access TMP/log: No such file or directory
 
 === $PCP_LOG_DIR/NOTICES exists and OK, so do nothing
 -rw-r--r-- pcp pcp TMP/log/NOTICES
@@ -12,11 +12,11 @@ ls: cannot access 'TMP/log': No such file or directory
 -rw-r--r-- pcp pcp TMP/log/NOTICES
 
 === $PCP_LOG_DIR/NOTICES does not exist, but cannot create ...
-touch: cannot touch 'TMP/log/NOTICES': Permission denied
+touch: cannot touch TMP/log/NOTICES: Permission denied
 PCP_BINADM_DIR/pcp-reboot-init: Error: touch $PCP_LOG_DIR/NOTICES (TMP/log/NOTICES) failed
-ls: cannot access 'TMP/log/NOTICES': No such file or directory
+ls: cannot access TMP/log/NOTICES: No such file or directory
 drwxr-xr-x pcpqa pcpqa TMP/log
-ls: cannot access 'TMP/log/NOTICES*': No such file or directory
+ls: cannot access TMP/log/NOTICES*: No such file or directory
 
 === $PCP_LOG_DIR/NOTICES exists, but wrong ownership, no NOTICES.old ...
 -rw-r--r-- pcp pcp TMP/log/NOTICES
@@ -27,7 +27,7 @@ ls: cannot access 'TMP/log/NOTICES*': No such file or directory
 -rw-r--r-- pcpqa pcpqa TMP/log/NOTICES.old
 
 === $PCP_LOG_DIR/NOTICES exists, but wrong ownership, cannot create ...
-touch: cannot touch 'TMP/log/NOTICES': Permission denied
+touch: cannot touch TMP/log/NOTICES: Permission denied
 PCP_BINADM_DIR/pcp-reboot-init: Error: mv & touch $PCP_LOG_DIR/NOTICES (TMP/log/NOTICES) failed
 drwxr-xr-x pcpqa pcpqa TMP/log
 -rw-r--r-- pcpqa pcpqa TMP/log/NOTICES.old
