@@ -1556,6 +1556,7 @@ filesys {
     avail               60:5:10
     readonly            60:5:11
     uuid		60:5:12
+    type		60:5:13
 }
 
 tmpfs {

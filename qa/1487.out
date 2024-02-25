@@ -38,9 +38,26 @@ filesys.uuid
     inst [12 or "/dev/sdb6"] value "778b5c5a-175d-48cb-beba-deb4ad9b5ca7"
     inst [13 or "/dev/sde7"] value "70180cb3-338f-41bb-8ff0-9cb70d2614cc"
     inst [14 or "/dev/sdb7"] value "83d0e798-de15-4e75-bba4-f57587159d1f"
+
+filesys.type
+    inst [0 or "/dev/sdc1"] value "ext4"
+    inst [1 or "/dev/sdc5"] value "ext4"
+    inst [2 or "/dev/sde5"] value "ext4"
+    inst [3 or "/dev/sdd6"] value "ext4"
+    inst [4 or "/dev/sdb5"] value "ext4"
+    inst [5 or "/dev/sde1"] value "ext4"
+    inst [6 or "/dev/sdb1"] value "ext4"
+    inst [7 or "/dev/sda1"] value "ext4"
+    inst [8 or "/dev/sda6"] value "xfs"
+    inst [9 or "/dev/sda7"] value "xfs"
+    inst [10 or "/dev/sdd7"] value "xfs"
+    inst [11 or "/dev/sde6"] value "xfs"
+    inst [12 or "/dev/sdb6"] value "xfs"
+    inst [13 or "/dev/sde7"] value "xfs"
+    inst [14 or "/dev/sdb7"] value "xfs"
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: pminfo -L -f filesys.mountdir filesys.uuid
+Command: pminfo -L -f filesys.mountdir filesys.uuid filesys.type
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -71,9 +88,20 @@ filesys.uuid
     inst [6 or "/dev/sda7"] value "6bd6fd66-c9a2-418e-8790-7519beeb6fa6"
     inst [7 or "/dev/sde6"] value "f24a78ad-dbfa-4883-9ad5-dc7d8d418a00"
     inst [8 or "/dev/sde7"] value "70180cb3-338f-41bb-8ff0-9cb70d2614cc"
+
+filesys.type
+    inst [0 or "/dev/sdc1"] value "ext4"
+    inst [1 or "/dev/sdc5"] value "ext4"
+    inst [2 or "/dev/sde5"] value "ext4"
+    inst [3 or "/dev/sde1"] value "ext4"
+    inst [4 or "/dev/sda1"] value "ext4"
+    inst [5 or "/dev/sda6"] value "xfs"
+    inst [6 or "/dev/sda7"] value "xfs"
+    inst [7 or "/dev/sde6"] value "xfs"
+    inst [8 or "/dev/sde7"] value "xfs"
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: pminfo -L -f filesys.mountdir filesys.uuid
+Command: pminfo -L -f filesys.mountdir filesys.uuid filesys.type
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -130,9 +158,20 @@ filesys.uuid
     inst [6 or "/dev/sda7"] value "6bd6fd66-c9a2-418e-8790-7519beeb6fa6"
     inst [7 or "/dev/sde6"] value ""
     inst [8 or "/dev/sde7"] value "70180cb3-338f-41bb-8ff0-9cb70d2614cc"
+
+filesys.type
+    inst [0 or "/dev/sdc1"] value "ext4"
+    inst [1 or "/dev/sdc5"] value "ext4"
+    inst [2 or "/dev/sde5"] value "ext4"
+    inst [3 or "/dev/vda2"] value "ext4"
+    inst [4 or "/dev/sda1"] value "ext4"
+    inst [5 or "/dev/sda6"] value "xfs"
+    inst [6 or "/dev/sda7"] value "xfs"
+    inst [7 or "/dev/sde6"] value "xfs"
+    inst [8 or "/dev/sde7"] value "xfs"
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: pminfo -L -Dappl8 -f filesys.mountdir filesys.uuid
+Command: pminfo -L -Dappl8 -f filesys.mountdir filesys.uuid filesys.type
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -172,9 +211,20 @@ filesys.uuid
     inst [6 or "/dev/sda7"] value ""
     inst [7 or "/dev/sde6"] value ""
     inst [8 or "/dev/sde7"] value ""
+
+filesys.type
+    inst [0 or "/dev/sdc1"] value "ext4"
+    inst [1 or "/dev/sdc5"] value "ext4"
+    inst [2 or "/dev/sde5"] value "ext4"
+    inst [3 or "/dev/vda2"] value "ext4"
+    inst [4 or "/dev/sda1"] value "ext4"
+    inst [5 or "/dev/sda6"] value "xfs"
+    inst [6 or "/dev/sda7"] value "xfs"
+    inst [7 or "/dev/sde6"] value "xfs"
+    inst [8 or "/dev/sde7"] value "xfs"
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: pminfo -L -Dappl8 -f filesys.mountdir filesys.uuid
+Command: pminfo -L -Dappl8 -f filesys.mountdir filesys.uuid filesys.type
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -216,9 +266,20 @@ filesys.uuid
     inst [6 or "/dev/sda7"] value ""
     inst [7 or "/dev/sde6"] value ""
     inst [8 or "/dev/sde7"] value ""
+
+filesys.type
+    inst [0 or "/dev/sdc1"] value "ext4"
+    inst [1 or "/dev/sdc5"] value "ext4"
+    inst [2 or "/dev/sde5"] value "ext4"
+    inst [3 or "/dev/vda2"] value "ext4"
+    inst [4 or "/dev/sda1"] value "ext4"
+    inst [5 or "/dev/sda6"] value "xfs"
+    inst [6 or "/dev/sda7"] value "xfs"
+    inst [7 or "/dev/sde6"] value "xfs"
+    inst [8 or "/dev/sde7"] value "xfs"
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: pminfo -L -Dappl8 -f filesys.mountdir filesys.uuid
+Command: pminfo -L -Dappl8 -f filesys.mountdir filesys.uuid filesys.type
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -236,9 +297,13 @@ filesys.mountdir
 filesys.uuid
     inst [0 or "/dev/mapper/fedora_vm22-root"] value "d52039cc-5d37-4742-9bd5-0bc80146c9f0"
     inst [1 or "/dev/vda1"] value "ab1a4be4-3b08-45c2-8445-b6a577ee1c30"
+
+filesys.type
+    inst [0 or "/dev/mapper/fedora_vm22-root"] value "xfs"
+    inst [1 or "/dev/vda1"] value "ext4"
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: pminfo -L -f filesys.mountdir filesys.uuid
+Command: pminfo -L -f filesys.mountdir filesys.uuid filesys.type
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -262,9 +327,13 @@ filesys.mountdir
 filesys.uuid
     inst [0 or "/dev/mapper/fedora_vm22-root"] value ""
     inst [1 or "/dev/vda1"] value "ab1a4be4-3b08-45c2-8445-b6a577ee1c30"
+
+filesys.type
+    inst [0 or "/dev/mapper/fedora_vm22-root"] value "xfs"
+    inst [1 or "/dev/vda1"] value "ext4"
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: pminfo -L -Dappl8 -f filesys.mountdir filesys.uuid
+Command: pminfo -L -Dappl8 -f filesys.mountdir filesys.uuid filesys.type
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -287,9 +356,13 @@ filesys.mountdir
 filesys.uuid
     inst [0 or "/dev/mapper/fedora_vm22-root"] value ""
     inst [1 or "/dev/vda1"] value "ab1a4be4-3b08-45c2-8445-b6a577ee1c30"
+
+filesys.type
+    inst [0 or "/dev/mapper/fedora_vm22-root"] value "xfs"
+    inst [1 or "/dev/vda1"] value "ext4"
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: pminfo -L -Dappl8 -f filesys.mountdir filesys.uuid
+Command: pminfo -L -Dappl8 -f filesys.mountdir filesys.uuid filesys.type
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -313,9 +386,13 @@ filesys.mountdir
 filesys.uuid
     inst [0 or "/dev/mapper/fedora_vm22-root"] value ""
     inst [1 or "/dev/vda1"] value "ab1a4be4-3b08-45c2-8445-b6a577ee1c30"
+
+filesys.type
+    inst [0 or "/dev/mapper/fedora_vm22-root"] value "xfs"
+    inst [1 or "/dev/vda1"] value "ext4"
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: pminfo -L -Dappl8 -f filesys.mountdir filesys.uuid
+Command: pminfo -L -Dappl8 -f filesys.mountdir filesys.uuid filesys.type
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks

@@ -19,6 +19,9 @@ rm -f $seq.out
 if [ $PCP_PLATFORM = darwin ]
 then
     ln $seq.out.4 $seq.out
+elif [ $PCP_PLATFORM = freebsd -o $PCP_PLATFORM = netbsd -o $PCP_PLATFORM = openbsd ]
+then
+    ln $seq.out.5 $seq.out
 else
     # assume linux-like
     #
@@ -77,6 +80,7 @@ then
 else
     symroot="$root"
 fi
+echo "root=$root" >>$seq.full
 echo "symroot=$symroot" >>$seq.full
 echo "--- mount | filter ---" >>$seq.full
 mount | grep -E "$root|/dev/root|$symroot" >>$seq.full

@@ -55,14 +55,14 @@ _doit()
 {
     if $do_valgrind
     then
-	_run_valgrind pminfo -L $DEBUG -f filesys.mountdir filesys.uuid \
+	_run_valgrind pminfo -L $DEBUG -f filesys.mountdir filesys.uuid filesys.type \
 	| $PCP_AWK_PROG '
 /^=== std err ===/	{ inerr = 1; print >"'"$tmp.err"'"; next }
 inerr == 1 && /^=== /	{ inerr = 0 }
 inerr == 1		{ print >"'"$tmp.err"'" }
 inerr == 0		{ print >"'"$tmp.out"'" }'
     else
-	pminfo -L $DEBUG -f filesys.mountdir filesys.uuid >$tmp.out 2>$tmp.err
+	pminfo -L $DEBUG -f filesys.mountdir filesys.uuid filesys.type >$tmp.out 2>$tmp.err
     fi
     _filter <$tmp.err | LC_COLLATE=POSIX sort
     _filter <$tmp.out

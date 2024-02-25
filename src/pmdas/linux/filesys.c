@@ -253,6 +253,7 @@ refresh_filesys(pmInDom filesys_indom, pmInDom tmpfs_indom,
 		continue;
 	    fs->device = strdup(device);
 	    fs->path = strdup(path);
+	    fs->type = strdup(type);
 	    fs->options = strdup(options);
 	    fs->dm_device = NULL;
 	    if (strncmp(device, "/dev/mapper/", 12) == 0) {

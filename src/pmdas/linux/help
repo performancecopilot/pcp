@@ -1734,6 +1734,7 @@ are SCSI tapes and scd[0-9] are SCSI CD-ROMS.
 @ filesys.uuid UUID of a mounted filesystem
 The UUID of the block device behind each mounted filesystem.
 If the device does not have a UUID, the value "" is returned.
+@ filesys.type mounted filesystem type from /proc/*/mounts
 @ tmpfs.capacity Total capacity of mounted tmpfs filesystem (Kbytes)
 @ tmpfs.used Total space used on mounted tmpfs filesystem (Kbytes)
 @ tmpfs.free Total space free on mounted tmpfs filesystem (Kbytes)

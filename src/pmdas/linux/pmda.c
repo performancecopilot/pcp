@@ -1832,6 +1832,11 @@ static pmdaMetric metrictab[] = {
      { PMDA_PMID(CLUSTER_FILESYS,12), PM_TYPE_STRING, FILESYS_INDOM, PM_SEM_DISCRETE,
      PMDA_PMUNITS(0,0,0,0,0,0) } },
 
+/* filesys.type */
+  { NULL,
+     { PMDA_PMID(CLUSTER_FILESYS,13), PM_TYPE_STRING, FILESYS_INDOM, PM_SEM_DISCRETE,
+     PMDA_PMUNITS(0,0,0,0,0,0) } },
+
 /*
  * tmpfs filesystem cluster
  */
@@ -8708,10 +8713,10 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    	return PM_ERR_INST;
 
 	    /*
-	     * most metrics need data from statfs() ... filesys.mountdir
-	     * and filesys.uuid are the exceptions.
+	     * most metrics need data from statfs() ... filesys.mountdir,
+	     * filesys.uuid and filesys.type are the exceptions.
 	     */
-	    if (item != 7 && item != 12) {
+	    if (item != 7 && item != 12 && item != 13) {
 		sbuf = &fs->stats;
 		if (!(fs->flags & FSF_FETCHED)) {
 		    if (statfs(fs->path, sbuf) < 0)
@@ -8763,6 +8768,12 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    case 12: /* filesys.uuid */
 		if (fs->uuid != NULL)
 		    atom->cp = fs->uuid;
+		else
+		    atom->cp = "";
+		break;
+	    case 13: /* filesys.type */
+		if (fs->type != NULL)
+		    atom->cp = fs->type;
 		else
 		    atom->cp = "";
 		break;
