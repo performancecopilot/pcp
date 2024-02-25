@@ -5,5 +5,7 @@ delta	once
 	hinv
 	kernel.uname
 	filesys.mountdir
+	filesys.uuid
+	filesys.type
 	filesys.blocksize
 	filesys.capacity
