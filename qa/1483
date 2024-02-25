@@ -86,6 +86,7 @@ _filter()
 		-e '/rc\[[0-9]*]: .*not permanently enabled\./d' \
 		-e '/rc\[[0-9]*]: .*run the following as root:/d' \
 		-e '/rc\[[0-9]*]: .*systemctl enable pmie\.service/d' \
+		-e '/rc\[[0-9]*]: Terminated$/d' \
 		-e '/pmie_check failed - see .*\/pmie_check.log/d' \
 		-e '/pmie_daily failed - see .*\/pmie_daily.log/d' \
 	    # end
