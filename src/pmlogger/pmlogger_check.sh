@@ -414,8 +414,22 @@ _configure_pmlogger()
 			echo "=== pmlogconf changes @ `date` ==="
 			cat $tmp/diag
 		    else
-			_warning "no write access to pmlogconf file \"$configfile\", skip reconfiguration"
+			# transition problem we're trying to resolve ... configfile may have
+			# been owned by root but in a dir owned by $PCP_USER ... if so we'd
+			# like configfile to end up ownded by $PCP_USER
+			#
+			_warning "no write access to pmlogconf file \"$configfile\""
 			ls -l "$configfile"
+			echo "Trying to remove and replace \"$configfile\" ..."
+			$RM -f "$configfile"
+			if [ -e "$configfile" ]
+			then
+			    echo "Failed, parent directory is ..."
+			    ls -l `dirname "$configfile"`
+			    _warning "skip reconfiguration"
+			else
+			    eval $MV "$tmpconfig" "$configfile"
+			fi
 		    fi
 		else
 		    _warning "pmlogconf failed to reconfigure \"$configfile\""
