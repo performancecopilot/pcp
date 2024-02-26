@@ -103,7 +103,6 @@ refresh_sysfs_hugepages(pmInDom indom)
 	    for (i=0; i < HUGEPAGES_METRIC_COUNT; i++) {
 		if (strncmp(hugepage_fields[i], h, hlen) == 0) {
 		    hugepage->values[i] = strtoull(strvalue, NULL, 0);
-			hugepage->values[i] = 0;
 		    break;
 		}
 	    }
