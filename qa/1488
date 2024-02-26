@@ -1,0 +1,63 @@
+#!/bin/sh
+# PCP QA Test No. 1488
+# check migrate_pid_service() as used by pm{log,pmie}ctl -m
+#
+# Copyright (c) 2024 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ "$PCPQA_SYSTEMD" = no ] && _notrun "we're not using systemd here"
+[ -n "$PCP_SYSTEMDUNIT_DIR" ] || _notrun "PCP_SYSTEMDUNIT_DIR not set, so no systemd here"
+[ -f $PCP_SYSTEMDUNIT_DIR/pmlogger_farm.service ] || _notrun "$PCP_SYSTEMDUNIT_DIR/pmlogger_farm.service not found"
+
+$sudo rm -rf $tmp $tmp.* $seq.full
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$$@MYPID@g" \
+    # end
+}
+
+echo my pid $$ >>$tmp.full
+
+# real QA test starts here
+
+cat <<End-of-File >$tmp.sh
+#!/bin/sh
+
+. $PCP_SHARE_DIR/lib/rc-proc.sh
+migrate_pid_service -v $$ pmlogger_farm.service
+End-of-File
+
+chmod 755 $tmp.sh
+$sudo $tmp.sh | _filter
+systemctl -l --quiet --no-pager status pmlogger_farm.service >$tmp.out 2>&1
+cat $tmp.out >>$seq.full
+grep "$$" $tmp.out | _filter
+
+# success, all done
+exit
