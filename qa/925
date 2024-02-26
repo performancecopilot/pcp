@@ -57,7 +57,15 @@ _report()
     # Note: some versions of ls(1), e.g. OS X, don't report directory
     # names from the command line (so no pmlogger: line below)
     #
-    (cd $tmp; ls -lR pmlogger ) | $PCP_AWK_PROG '
+    # Also, if $tmp is in a dir with the setgid (NOT setuid) bit set and/or
+    # this is a *BSD system and/or it is a new moon, our pmlogger_daily
+    # script may have no default control over the group of created
+    # subdirectories, so groups "pcp", "wheel" and "root" are all deemed
+    # equivalent for this test.  Sigh.
+    #
+    (cd $tmp; ls -lR pmlogger ) \
+    | tee -a $here/$seq.full \
+    | $PCP_AWK_PROG '
 $1 == "pmlogger:"	{ next }
 NF < 4		{ print; next }
 		{ print "mode=" $1 " user=" $3 " group=" $4 " name=" $NF }' \
@@ -71,6 +79,9 @@ NF < 4		{ print; next }
 	-e 's/[2-9][0-9][0-9][0-9][01][0-9][0-3][0-9]/YYYYMMDD/' \
 	-e 's/[012][0-9]\.[0-5][0-9]\./HH.MM./' \
 	-e '/name=lock/d' \
+	-e '/group=pcp/s//group=OK/' \
+	-e '/group=root/s//group=OK/' \
+	-e '/group=wheel/s//group=OK/' \
     # end
 }
 
