@@ -239,6 +239,6 @@ $0 ~ /^'"$Tag"': 1 /	{ print $0 " '"$val"'"; next }
 	diff -c ../../../qa/linux/proc_net_netstat $tmp.tmp 
     else
 	mv $tmp.tmp ../../../qa/linux/proc_net_netstat
-	echo "Warning: need to remake 1805 in ../../../qa"
+	echo "Warning: need to check 957 and remake 1805 in ../../../qa"
     fi
 fi

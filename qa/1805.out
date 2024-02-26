@@ -171,3 +171,476 @@ network.mptcp.rmaddrtx
 
 network.mptcp.rmaddrtxdrop
     value 53
+
+== Checking network.tcp metrics
+
+network.tcp.rtoalgorithm
+    value 1
+
+network.tcp.rtomin
+    value 2
+
+network.tcp.rtomax
+    value 3
+
+network.tcp.maxconn
+    value 4
+
+network.tcp.activeopens
+    value 5
+
+network.tcp.passiveopens
+    value 6
+
+network.tcp.attemptfails
+    value 7
+
+network.tcp.estabresets
+    value 8
+
+network.tcp.currestab
+    value 9
+
+network.tcp.insegs
+    value 10
+
+network.tcp.outsegs
+    value 11
+
+network.tcp.retranssegs
+    value 12
+
+network.tcp.inerrs
+    value 13
+
+network.tcp.outrsts
+    value 14
+
+network.tcp.incsumerrors
+    value 15
+
+network.tcp.syncookiessent
+    value 1
+
+network.tcp.syncookiesrecv
+    value 2
+
+network.tcp.syncookiesfailed
+    value 3
+
+network.tcp.embryonicrsts
+    value 4
+
+network.tcp.prunecalled
+    value 5
+
+network.tcp.rcvpruned
+    value 6
+
+network.tcp.ofopruned
+    value 7
+
+network.tcp.outofwindowicmps
+    value 8
+
+network.tcp.lockdroppedicmps
+    value 9
+
+network.tcp.arpfilter
+    value 10
+
+network.tcp.timewaited
+    value 11
+
+network.tcp.timewaitrecycled
+    value 12
+
+network.tcp.timewaitkilled
+    value 13
+
+network.tcp.pawspassiverejected
+    value 128
+
+network.tcp.pawsactiverejected
+    value 14
+
+network.tcp.pawsestabrejected
+    value 15
+
+network.tcp.delayedacks
+    value 16
+
+network.tcp.delayedacklocked
+    value 17
+
+network.tcp.delayedacklost
+    value 18
+
+network.tcp.listenoverflows
+    value 19
+
+network.tcp.listendrops
+    value 20
+
+network.tcp.prequeued
+    value 129
+
+network.tcp.directcopyfrombacklog
+    value 130
+
+network.tcp.directcopyfromprequeue
+    value 131
+
+network.tcp.prequeueddropped
+    value 132
+
+network.tcp.hphits
+    value 21
+
+network.tcp.hphitstouser
+    value 133
+
+network.tcp.pureacks
+    value 22
+
+network.tcp.hpacks
+    value 23
+
+network.tcp.renorecovery
+    value 24
+
+network.tcp.sackrecovery
+    value 25
+
+network.tcp.sackreneging
+    value 26
+
+network.tcp.fackreorder
+    value 134
+
+network.tcp.sackreorder
+    value 27
+
+network.tcp.renoreorder
+    value 28
+
+network.tcp.tsreorder
+    value 29
+
+network.tcp.fullundo
+    value 30
+
+network.tcp.partialundo
+    value 31
+
+network.tcp.dsackundo
+    value 32
+
+network.tcp.lossundo
+    value 33
+
+network.tcp.lostretransmit
+    value 34
+
+network.tcp.renofailures
+    value 35
+
+network.tcp.sackfailures
+    value 36
+
+network.tcp.lossfailures
+    value 37
+
+network.tcp.fastretrans
+    value 38
+
+network.tcp.forwardretrans
+    value 135
+
+network.tcp.slowstartretrans
+    value 39
+
+network.tcp.timeouts
+    value 40
+
+network.tcp.lossprobes
+    value 41
+
+network.tcp.lossproberecovery
+    value 42
+
+network.tcp.renorecoveryfail
+    value 43
+
+network.tcp.sackrecoveryfail
+    value 44
+
+network.tcp.schedulerfail
+    value 136
+
+network.tcp.rcvcollapsed
+    value 45
+
+network.tcp.dsackoldsent
+    value 47
+
+network.tcp.dsackofosent
+    value 48
+
+network.tcp.dsackrecv
+    value 49
+
+network.tcp.dsackoforecv
+    value 50
+
+network.tcp.abortondata
+    value 51
+
+network.tcp.abortonclose
+    value 52
+
+network.tcp.abortonmemory
+    value 53
+
+network.tcp.abortontimeout
+    value 54
+
+network.tcp.abortonlinger
+    value 55
+
+network.tcp.abortfailed
+    value 56
+
+network.tcp.memorypressures
+    value 57
+
+network.tcp.sackdiscard
+    value 59
+
+network.tcp.dsackignoredold
+    value 60
+
+network.tcp.dsackignorednoundo
+    value 61
+
+network.tcp.spuriousrtos
+    value 62
+
+network.tcp.md5notfound
+    value 63
+
+network.tcp.md5unexpected
+    value 64
+
+network.tcp.sackshifted
+    value 66
+
+network.tcp.sackmerged
+    value 67
+
+network.tcp.sackshiftfallback
+    value 68
+
+network.tcp.backlogdrop
+    value 69
+
+network.tcp.minttldrop
+    value 71
+
+network.tcp.deferacceptdrop
+    value 72
+
+network.tcp.iprpfilter
+    value 73
+
+network.tcp.timewaitoverflow
+    value 74
+
+network.tcp.reqqfulldocookies
+    value 75
+
+network.tcp.reqqfulldrop
+    value 76
+
+network.tcp.retransfail
+    value 77
+
+network.tcp.rcvcoalesce
+    value 78
+
+network.tcp.ofoqueue
+    value 79
+
+network.tcp.ofodrop
+    value 80
+
+network.tcp.ofomerge
+    value 81
+
+network.tcp.challengeack
+    value 82
+
+network.tcp.synchallenge
+    value 83
+
+network.tcp.fastopenactive
+    value 84
+
+network.tcp.fastopenactivefail
+    value 85
+
+network.tcp.fastopenpassive
+    value 86
+
+network.tcp.fastopenpassivefail
+    value 87
+
+network.tcp.fastopenlistenoverflow
+    value 88
+
+network.tcp.fastopencookiereqd
+    value 89
+
+network.tcp.spuriousrtxhostqueues
+    value 91
+
+network.tcp.busypollrxpackets
+    value 92
+
+network.tcp.autocorking
+    value 93
+
+network.tcp.fromzerowindowadv
+    value 94
+
+network.tcp.tozerowindowadv
+    value 95
+
+network.tcp.wantzerowindowadv
+    value 96
+
+network.tcp.synretrans
+    value 97
+
+network.tcp.origdatasent
+    value 98
+
+network.tcp.tcpbacklogcoalesce
+    value 46
+
+network.tcp.tcpmemorypressureschrono
+    value 58
+
+network.tcp.tcpmd5failure
+    value 65
+
+network.tcp.pfmemallocdrop
+    value 70
+
+network.tcp.tcpfastopenactivefail
+    value 85
+
+network.tcp.tcpfastopenblackhole
+    value 90
+
+network.tcp.tcphystarttraindetect
+    value 99
+
+network.tcp.tcphystarttraincwnd
+    value 100
+
+network.tcp.tcphystartdelaydetect
+    value 101
+
+network.tcp.tcphystartdelaycwnd
+    value 102
+
+network.tcp.tcpackskippedsynrecv
+    value 103
+
+network.tcp.tcpackskippedpaws
+    value 104
+
+network.tcp.tcpackskippedseq
+    value 105
+
+network.tcp.tcpackskippedfinwait2
+    value 106
+
+network.tcp.tcpackskippedtimewait
+    value 107
+
+network.tcp.tcpackskippedchallenge
+    value 108
+
+network.tcp.tcpwinprobe
+    value 109
+
+network.tcp.tcpkeepalive
+    value 110
+
+network.tcp.tcpmtupfail
+    value 111
+
+network.tcp.tcpmtupsuccess
+    value 112
+
+network.tcp.tcpdelivered
+    value 113
+
+network.tcp.tcpdeliveredce
+    value 114
+
+network.tcp.tcpackcompressed
+    value 115
+
+network.tcp.tcpzerowindowdrop
+    value 116
+
+network.tcp.tcprcvqdrop
+    value 117
+
+network.tcp.tcpwqueuetoobig
+    value 118
+
+network.tcp.tcpfastopenpassivealtkey
+    value 119
+
+network.tcp.tcptimeoutrehash
+    value 120
+
+network.tcp.tcpduplicatedatarehash
+    value 121
+
+network.tcp.tcpdsackrecvsegs
+    value 137
+
+network.tcp.tcpdsackignoreddubious
+    value 138
+
+network.tcp.tcpmigratereqsuccess
+    value 139
+
+network.tcp.tcpmigratereqfailure
+    value 140
+
+network.tcp.tcploss
+    value 141
+
+network.tcp.tcpplbrehash
+    value 122
+
+network.tcp.tcpaorequired
+    value 123
+
+network.tcp.tcpaobad
+    value 124
+
+network.tcp.tcpaokeynotfound
+    value 125
+
+network.tcp.tcpaogood
+    value 126
+
+network.tcp.tcpaodroppedicmps
+    value 127

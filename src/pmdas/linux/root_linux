@@ -1259,6 +1259,11 @@ network.tcp {
     tcpmigratereqfailure	60:53:167
     tcploss			60:53:189
     tcpplbrehash		60:53:205
+    tcpaorequired		60:53:212
+    tcpaobad		60:53:213
+    tcpaokeynotfound		60:53:214
+    tcpaogood		60:53:215
+    tcpaodroppedicmps		60:53:216
 }
 
 network.mptcp {

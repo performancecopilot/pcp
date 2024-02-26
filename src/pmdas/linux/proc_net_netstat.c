@@ -346,6 +346,16 @@ netstat_fields_t netstat_tcp_fields[] = {
       .offset = &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPLOSS] },
     { .field = "TCPPLBRehash",
       .offset = &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPPLBREHASH] },
+    { .field = "TCPAORequired",
+      .offset = &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPAOREQUIRED] },
+    { .field = "TCPAOBad",
+      .offset = &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPAOBAD] },
+    { .field = "TCPAOKeyNotFound",
+      .offset = &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPAOKEYNOTFOUND] },
+    { .field = "TCPAOGood",
+      .offset = &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPAOGOOD] },
+    { .field = "TCPAODroppedIcmps",
+      .offset = &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPAODROPPEDICMPS] },
 
     { .field = NULL, .offset = NULL }
 };

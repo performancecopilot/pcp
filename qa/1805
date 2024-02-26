@@ -1,6 +1,6 @@
 #!/bin/sh
 # PCP QA Test No. 1805
-# Exercise Linux /proc/net/netstat MPTCP metrics
+# Exercise Linux /proc/net/netstat MPTCP and TCP metrics
 #
 # Copyright (c) 2020 Red Hat.  All Rights Reserved.
 #
@@ -39,9 +39,14 @@ pmda=$PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init
 rm -fr $root
 mkdir -p $root/proc/net || _fail "root in use when processing $file"
 cp $here/linux/proc_net_netstat $root/proc/net/netstat
+cp $here/linux/proc_net_snmp $root/proc/net/snmp
 
 echo "== Checking network.mptcp metrics"
 pminfo -f -L -K clear -K add,60,$pmda network.mptcp
+
+echo
+echo "== Checking network.tcp metrics"
+pminfo -f -L -K clear -K add,60,$pmda network.tcp
 
 # success, all done
 status=0
