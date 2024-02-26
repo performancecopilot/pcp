@@ -676,7 +676,7 @@ optional_policy(`
     # type=AVC msg=audit(N): avc: denied { signal } for pid=PID comm="pmsignal" scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:system_r:unconfined_service_t:s0 tclass=process permissive=0
     allow pcp_pmcd_t unconfined_service_t:process signull;
     allow pcp_pmlogger_t unconfined_service_t:process signal;
-    allow pcp_pmie_t unconfined_service_t:process signal;
+    allow pcp_pmie_t unconfined_service_t:process { signal signull };
 ')
 
 optional_policy(`
