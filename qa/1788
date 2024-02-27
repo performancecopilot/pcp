@@ -30,6 +30,11 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 # deterministic output - move aside any existing indom cache
 _save_config $PCP_VAR_DIR/config/pmda/60.43
 
+_filter_instances()
+{
+    $here/src/sortinst | sed -e 's/inst \[./inst [N/g'
+}
+
 # real QA test starts here
 root=$tmp.root
 export LINUX_STATSPATH=$root
@@ -46,7 +51,7 @@ do
     base=`basename $tgz`
 
     echo "== Checking hugepages metric values - $base"
-    pminfo $local -f $metrics
+    pminfo $local -f $metrics | _filter_instances
     echo && echo "== done" && echo
 
     cd $here
