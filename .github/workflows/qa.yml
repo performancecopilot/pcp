@@ -163,7 +163,7 @@ jobs:
       - name: Publish test summary
         id: publish_test_summary
         if: github.event_name != 'pull_request'
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         continue-on-error: true
         with:
           script: |
