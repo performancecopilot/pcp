@@ -1,2 +1,69 @@
 QA output created by 1788
-[skeleton from qa/new, replace me]
+== Checking hugepages metric values - sysfs-hugepages-001.tgz
+
+mem.hugepages.free
+    inst [0 or "2048kB"] value 0
+    inst [1 or "32768kB"] value 327680
+    inst [2 or "64kB"] value 0
+    inst [3 or "1048576kB"] value 0
+
+mem.hugepages.overcommit
+    inst [0 or "2048kB"] value 0
+    inst [1 or "32768kB"] value 0
+    inst [2 or "64kB"] value 0
+    inst [3 or "1048576kB"] value 0
+
+mem.hugepages.pagesize
+    inst [0 or "2048kB"] value 2048
+    inst [1 or "32768kB"] value 32768
+    inst [2 or "64kB"] value 64
+    inst [3 or "1048576kB"] value 1048576
+
+mem.hugepages.reserved
+    inst [0 or "2048kB"] value 0
+    inst [1 or "32768kB"] value 0
+    inst [2 or "64kB"] value 0
+    inst [3 or "1048576kB"] value 0
+
+mem.hugepages.surplus
+    inst [0 or "2048kB"] value 8192
+    inst [1 or "32768kB"] value 0
+    inst [2 or "64kB"] value 5760
+    inst [3 or "1048576kB"] value 0
+
+mem.hugepages.totalsize
+    inst [0 or "2048kB"] value 8192
+    inst [1 or "32768kB"] value 327680
+    inst [2 or "64kB"] value 6400
+    inst [3 or "1048576kB"] value 0
+
+== done
+
+== Checking hugepages metric values - sysfs-hugepages-002.tgz
+
+mem.hugepages.free
+    inst [0 or "2048kB"] value 4096000
+    inst [3 or "1048576kB"] value 104857600
+
+mem.hugepages.overcommit
+    inst [0 or "2048kB"] value 0
+    inst [3 or "1048576kB"] value 0
+
+mem.hugepages.pagesize
+    inst [0 or "2048kB"] value 2048
+    inst [3 or "1048576kB"] value 1048576
+
+mem.hugepages.reserved
+    inst [0 or "2048kB"] value 16384
+    inst [3 or "1048576kB"] value 0
+
+mem.hugepages.surplus
+    inst [0 or "2048kB"] value 8192
+    inst [3 or "1048576kB"] value 0
+
+mem.hugepages.totalsize
+    inst [0 or "2048kB"] value 4096000
+    inst [3 or "1048576kB"] value 104857600
+
+== done
+
