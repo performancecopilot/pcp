@@ -2,7 +2,7 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
 TESTDIR = $(PCP_VAR_DIR)/testsuite/linux
-ROOTFILES = $(shell echo *-root-*.tgz)
+ROOTFILES = $(shell echo *-root-*.tgz *-root.tgz)
 SYSFSFILES = $(shell echo sysfs-*-*.tgz)
 ZFSFILES = $(shell echo zfs-stats.*.tgz)
 CPUINFOFILES = $(shell echo cpuinfo-*)
