@@ -156,9 +156,10 @@ static void sig_int(int signo)
 static void print_map(struct ksyms *ksyms, struct wakeuptime_bpf *obj)
 {
 	struct key_t lookup_key = {}, next_key;
-	int err, i, counts_fd, stack_traces_fd, val;
+	int err, i, counts_fd, stack_traces_fd;
 	unsigned long *ip;
 	const struct ksym *ksym;
+	__u64 val;
 
 	ip = calloc(env.perf_max_stack_depth, sizeof(*ip));
 	if (!ip) {
@@ -190,7 +191,7 @@ static void print_map(struct ksyms *ksyms, struct wakeuptime_bpf *obj)
 		printf("	%16s %s\n","waker:", next_key.waker);
 		/*to convert val in microseconds*/
 		val /= 1000;
-		printf("	%d\n", val);
+		printf("	%lld\n", val);
 	}
 
 	free(ip);
@@ -220,7 +221,6 @@ int main(int argc, char **argv)
 		fprintf(stderr, "use either -u or -p");
 	}
 
-	libbpf_set_strict_mode(LIBBPF_STRICT_ALL);
 	libbpf_set_print(libbpf_print_fn);
 
 	obj = wakeuptime_bpf__open();
@@ -271,4 +271,3 @@ cleanup:
 	ksyms__free(ksyms);
 	return err != 0;
 }
-
