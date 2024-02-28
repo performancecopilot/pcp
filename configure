@@ -9128,9 +9128,7 @@ llvm_strip=$LLVM_STRIP
 
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking BPF CO-RE architecture identifier" >&5
 printf %s "checking BPF CO-RE architecture identifier... " >&6; }
-pmdabpf_arch=`uname -m | sed 's/x86_64/x86/' | sed 's/aarch64/arm64/' | sed 's/ppc64le/powerpc/' | sed 's/mips.*/mips/'`
-# Some tracepoints fail on s390
-# pmdabpf_arch=`uname -m | sed 's/x86_64/x86/' | sed 's/aarch64/arm64/' | sed 's/ppc64le/powerpc/' | sed 's/mips.*/mips/' | sed 's/s390x/s390/'`
+pmdabpf_arch=`uname -m | sed 's/x86_64/x86/' | sed 's/aarch64/arm64/' | sed 's/ppc64le/powerpc/' | sed 's/mips.*/mips/' | sed 's/s390x/s390/'`
 
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $pmdabpf_arch" >&5
 printf "%s\n" "$pmdabpf_arch" >&6; }
