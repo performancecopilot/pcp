@@ -11,6 +11,7 @@
 /btrfsdist
 /btrfsslower
 /cachestat
+/capable
 /cpudist
 /cpufreq
 /drsnoop
@@ -18,11 +19,14 @@
 /exitsnoop
 /ext4dist
 /ext4slower
+/f2fsdist
+/f2fsslower
 /filelife
 /filetop
 /fsdist
 /fsslower
 /funclatency
+/futexctn
 /gethostlatency
 /hardirqs
 /javagc
@@ -30,6 +34,7 @@
 /klockstat
 /ksnoop
 /llcstat
+/memleak
 /mdflush
 /mountsnoop
 /nfsdist
@@ -38,6 +43,7 @@
 /offcputime
 /oomkill
 /opensnoop
+/profile
 /readahead
 /runqlat
 /runqlen
@@ -51,6 +57,7 @@
 /tcpconnect
 /tcpconnlat
 /tcplife
+/tcppktlat
 /tcptracer
 /tcprtt
 /tcpstates
