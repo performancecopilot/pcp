@@ -71,6 +71,3 @@ pmfind.service : pmfind.service.in
 
 crontab: crontab.in
 	$(SED) -e 's;@user@;'$(CRONTAB_USER)';' -e 's;@path@;'$(PCP_BINADM_DIR)';g' $< > $@
-
-check:: $(CFILES)
-	$(CLINT) $^

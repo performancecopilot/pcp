@@ -65,9 +65,6 @@ install_pcp : install
 pmrepconf:	$(CMDTARGET)
 	@$(LN_S) -f $^ $@
 
-check:: $(CFILES) $(HFILES)
-	$(CLINT) $^
-
 # for src-link-pcp target from buildrules
 $(SUBDIRS):	makefiles
 

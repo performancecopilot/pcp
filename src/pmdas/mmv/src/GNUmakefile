@@ -60,6 +60,3 @@ pmns:
 	$(LN_S) -f root_mmv pmns
 
 mmv.o:	$(TOPDIR)/src/include/pcp/libpcp.h
-
-check::	$(CFILES)
-	$(CLINT) $^

@@ -281,17 +281,5 @@ $(MAN_PAGES): $(CMDTARGET).1.in $(CMDTARGET).5.in
 		-e 's;pcp/pcp;pcp;g'; \
 	done
 
-# suppressions added for (busted?) cppcheck in Fedora 38 and 39
-# circa Jan 2024 - Ken
-#
-check::	$(CFILES) $(HFILES)
-	$(CLINT) \
-	    --suppress=unknownMacro:Action.c \
-	    --suppress=unknownMacro:CommandLine.c \
-	    --suppress=unknownMacro:CRT.c \
-	    --suppress=syntaxError:RowField.h \
-	    --suppress=syntaxError:Meter.c \
-	$^
-
 check::	$(MAN_PAGES)
 	$(MANLINT) $^

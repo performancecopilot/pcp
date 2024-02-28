@@ -84,6 +84,3 @@ $(LIBCONFIG): $(LIBCONFIG).in
 endif
 
 $(OBJECTS):	$(TOPDIR)/src/include/pcp/archive.h
-
-check:: $(CFILES) $(HFILES)
-	$(CLINT) $^

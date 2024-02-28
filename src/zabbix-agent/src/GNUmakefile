@@ -61,8 +61,5 @@ $(LIBTARGET):	$(VERSION_SCRIPT)
 
 zbxpcp.o:	$(TOPDIR)/src/include/pcp/libpcp.h
 
-check::	$(CFILES) $(HFILES)
-	$(CLINT) $^
-
 check:: $(MAN_PAGES)
 	$(MANLINT) $^

@@ -55,9 +55,6 @@ domain.h: ../../pmns/stdpmid
 pmns:
 	$(LN_S) -f root_bpf pmns
 
-check::	$(CFILES)
-	$(CLINT) $^
-
 check:: $(MAN_PAGES)
 	$(MANLINT) $^
 

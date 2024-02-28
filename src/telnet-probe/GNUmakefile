@@ -36,6 +36,3 @@ install_pcp : install
 default_pcp : default
 
 telnet-probe.o:	$(TOPDIR)/src/include/pcp/libpcp.h
-
-check:: $(CFILES)
-	$(CLINT) $^

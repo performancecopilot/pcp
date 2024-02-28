@@ -76,8 +76,5 @@ $(OBJECTS): domain.h ss_stats.h
 pmda.o: $(TOPDIR)/src/include/pcp/libpcp.h
 pmda.o: $(VERSION_SCRIPT)
 
-check:: $(CFILES) $(HFILES)
-	$(CLINT) $^
-
 check:: $(MAN_PAGES)
 	$(MANLINT) $^

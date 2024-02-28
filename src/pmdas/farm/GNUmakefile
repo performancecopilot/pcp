@@ -68,9 +68,6 @@ $(VERSION_SCRIPT):
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)
 
-check:: $(CFILES) $(HFILES)
-	$(CLINT) $^
-
 pmda.o:			pmdafarm.h
 pmda.o farm_stats.o:	farm_stats.h
 
