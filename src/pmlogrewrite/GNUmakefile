@@ -51,6 +51,3 @@ default_pcp:	default
 install_pcp:	install
 
 gram.tab.o indom.o label.o text.o lex.o metric.o pmlogrewrite.o result.o:	$(TOPDIR)/src/include/pcp/libpcp.h
-
-check:: $(CFILES) $(HFILES) gram.tab.h gram.tab.c
-	$(CLINT) $^

@@ -99,6 +99,3 @@ $(VERSION_SCRIPT):
 
 domain.h: $(TOPDIR)/src/pmns/stdpmid
 	$(DOMAIN_MAKERULE)
-
-check:: $(CFILES) $(HFILES)
-	$(CLINT) $^

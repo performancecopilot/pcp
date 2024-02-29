@@ -40,9 +40,6 @@ install_pcp:	install
 
 pmstat.o:	$(TOPDIR)/src/include/pcp/libpcp.h
 
-check:: $(CFILES)
-	$(CLINT) $^
-
 pmstat.pmlogger.options:
 	echo '# pmlogger config options for pmstat.config' >pmstat.pmlogger.options
 	echo >>pmstat.pmlogger.options

@@ -197,6 +197,3 @@ $(LIBCONFIG): $(LIBCONFIG).in
 endif
 
 $(OBJECTS):	$(TOPDIR)/src/include/pcp/libpcp.h $(JSONSL_XFILES)
-
-check::	$(CFILES) $(HFILES)
-	$(CLINT) $^

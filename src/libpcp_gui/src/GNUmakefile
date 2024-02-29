@@ -74,6 +74,3 @@ $(LIBTARGET): $(VERSION_SCRIPT)
 endif
 
 $(OBJECTS):	$(TOPDIR)/src/include/pcp/libpcp.h
-
-check:: $(CFILES)
-	$(CLINT) $^

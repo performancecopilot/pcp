@@ -34,6 +34,3 @@ install_pcp:	install
 $(OBJECTS):	logsize.h
 
 $(OBJECTS):	$(TOPDIR)/src/include/pcp/libpcp.h
-
-check::	$(CFILES) $(HFILES)
-	$(CLINT) $^

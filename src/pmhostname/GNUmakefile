@@ -31,6 +31,3 @@ default_pcp:	default
 install_pcp:	install
 
 pmhostname.o:	$(TOPDIR)/src/include/pcp/libpcp.h
-
-check::	$(CFILES)
-	$(CLINT) $^

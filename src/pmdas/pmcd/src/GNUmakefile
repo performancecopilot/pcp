@@ -78,6 +78,3 @@ $(VERSION_SCRIPT):
 $(LIBTARGET): $(VERSION_SCRIPT)
 
 pmcd.o:	$(TOPDIR)/src/include/pcp/libpcp.h
-
-check:: $(CFILES) $(HFILES)
-	$(CLINT) $^

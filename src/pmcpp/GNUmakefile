@@ -44,6 +44,3 @@ install_pcp:	install
 
 pmcpp.static$(EXECSUFFIX):	$(CFILES) $(STATIC_LIBPCP)
 	$(CCF) -DPCP_STATIC -o $@ $(LDFLAGS) $(CFILES) $(STATIC_LIBPCP) $(STATIC_LDLIBS)
-
-check::	$(CFILES)
-	$(CLINT) $^
