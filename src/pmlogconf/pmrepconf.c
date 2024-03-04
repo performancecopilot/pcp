@@ -170,10 +170,22 @@ name_compare(const void *p, const void *q)
 }
 
 static void
+name_rewrite(char *in, char *out, size_t outsz)
+{
+    char *ip, *op;
+
+    /* Metrics ending in keywords (like 'filesys.type') are problematic */
+    for (ip = in, op = out; *ip != '\0' && op - out < outsz-2; ip++, op++)
+	*op = (*ip == '.') ? '_' : *ip;
+    out[ip - in] = '\0';
+}
+
+static void
 pmrep_metrics(FILE *f)
 {
     unsigned int	i;
     char		*s;
+    char		buffer[BUFSIZ];
 
     /* cleanup metric lines, removing comments, whitespace */
     for (i = 0; i < nmetrics; i++) {
@@ -194,7 +206,8 @@ pmrep_metrics(FILE *f)
 	    continue;
 	if (i > 0 && strcmp(metrics[i], metrics[i-1]) == 0)
 	    continue;	/* skip duplicates */
-	fprintf(f, "%s = %s\n", metrics[i], metrics[i]);
+	name_rewrite(metrics[i], buffer, sizeof(buffer));
+	fprintf(f, "%s = %s\n", buffer, metrics[i]);
     }
     fputs("\n", f);
 }
