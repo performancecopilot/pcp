@@ -1128,6 +1128,7 @@ __pmLogUndeltaInDom(pmInDom indom, __pmLogInDom *idp)
      * found the previous full indom, now march forward in time replacing
      * each delta indom with a reconstructed full indom
      */
+    tidp->isdelta = 0;
     for (didp = tidp->prior ; didp != NULL; ) {
 	int	numinst;
 	int	*instlist;
@@ -1670,10 +1671,9 @@ pmGetInDomArchive_ctx(__pmContext *ctxp, pmInDom indom, int **instlist, char ***
 	    /* Need to "un-delta" this delta indom record */
 	    __pmLogUndeltaInDom(indom, idp);
 	}
-	if (idp->numinst > HASH_THRESHOLD) {
+	if (idp->numinst > HASH_THRESHOLD && big_indom == 0) {
 	    big_indom = 1;
 	    reset_ihash();
-	    break;
 	}
     }
 
@@ -1736,7 +1736,23 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":9", PM_FAULT_ALLOC);
 int
 pmGetInDomArchive(pmInDom indom, int **instlist, char ***namelist)
 {
-    return pmGetInDomArchive_ctx(NULL, indom, instlist, namelist);
+    int		sts;
+
+    if (pmDebugOptions.pmapi) {
+	char    dbgbuf[20];
+	fprintf(stderr, "pmGetInDomArchive(%s,...) <:", pmInDomStr_r(indom, dbgbuf, sizeof(dbgbuf)));
+    }
+    sts = pmGetInDomArchive_ctx(NULL, indom, instlist, namelist);
+    if (pmDebugOptions.pmapi) {
+	fprintf(stderr, ":> returns ");
+	if (sts >= 0)
+	    fprintf(stderr, "%d\n", sts);
+	else {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "%s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
+    }
+    return sts;
 }
 
 void
