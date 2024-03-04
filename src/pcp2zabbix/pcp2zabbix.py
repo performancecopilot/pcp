@@ -368,8 +368,7 @@ class PCP2Zabbix(object):
         # Adjust interval
         if self.zabbix_interval:
             self.zabbix_interval = float(pmapi.timeval.fromInterval(self.zabbix_interval))
-            if self.zabbix_interval < float(self.interval):
-                self.zabbix_interval = float(self.interval)
+            self.zabbix_interval = max(float(self.interval), self.zabbix_interval)
         else:
             self.zabbix_interval = float(self.interval)
 
