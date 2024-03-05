@@ -1,0 +1,49 @@
+#!/bin/sh
+#
+# pmproxy "plugin" for pmcheck
+#
+
+. $PCP_DIR/etc/pcp.env || exit 1
+. $PCP_SHARE_DIR/lib/checkproc.sh
+
+_do_args "$@"
+
+if $sflag
+then
+    if [ -f "$PCP_RUN_DIR/pmproxy.pid" ]
+    then
+	pid=`cat "$PCP_RUN_DIR/pmproxy.pid"`
+	if [ -n "$pid" ]
+	then
+	    found=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | $PCP_AWK_PROG '$2 == '"$pid"' { print "found"; exit }'`
+	    if [ -n "$found" ]
+	    then
+		# pmproxy is alive and well
+		#
+		[ "$verbose" -gt 0 ] && echo "PID $pid"
+		exit
+	    fi
+	fi
+    fi
+    # not running, but provided there is a pmproxy executable, we could
+    # be activated
+    #
+    if which pmproxy >/dev/null
+    then
+	status=1
+    else
+	status=2
+	[ "$verbose" -gt 0 ] && echo "no pmproxy executable"
+    fi
+elif $aflag
+then
+    _ctl_svc activate pmproxy || status=1
+elif $dflag
+then
+    _ctl_svc deactivate pmproxy || status=1
+else
+    [ $verbose -gt 0 ] && echo "botch sflag=$sflag aflag=$aflag dflag=$dflag show_me=$show_me verbose=$verbose"
+    status=99
+fi
+
+exit

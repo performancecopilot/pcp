@@ -133,6 +133,7 @@ OTHER_SUBDIRS += \
 	selinux \
 	find-filter \
 	runaspcp \
+	pmcheck \
 	#
 
 SUBDIRS = \

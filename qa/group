@@ -419,6 +419,9 @@ pmiectl
 # pmconfig
 pmconfig
 
+# pmcheck
+pmcheck
+
 # pcp2... pcp2xxx is generic
 pcp2xxx
 pcp2elasticsearch
@@ -1949,6 +1952,7 @@ x11
 1488 other local
 1489 python pmrep pmimport local
 1490 python local labels
+1491 pmcheck local
 1495 pmlogrewrite labels pmlogdump local
 1503 pcp pidstat ps python local
 1511 pmcd local pmda.sample

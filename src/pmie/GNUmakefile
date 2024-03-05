@@ -19,7 +19,7 @@ include $(TOPDIR)/src/include/builddefs
 SUBDIRS	= src examples
 OTHERS  = control stomp rc_pmie pmie2col.sh pmie_check.sh pmie_daily.sh \
           pmie_farm.sh pmie_farm_check.service pmie_farm_check.timer \
-	  rc_wrapper
+	  rc_wrapper pmie.pmcheck
 LDIRT	= crontab pmie.service pmie_daily.service pmie_check.service \
           pmie_farm.service pmie_farm_check.service
           
@@ -69,6 +69,7 @@ else
 endif
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_LOG_DIR)/pmie
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_TMP_DIR)/pmie
+	$(INSTALL) -m 755 pmie.pmcheck $(PCP_SYSCONF_DIR)/pmcheck/pmie
 
 include $(BUILDRULES)
 

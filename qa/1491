@@ -1,0 +1,180 @@
+#!/bin/sh
+# PCP QA Test No. 1491
+# Basic pmcheck exercising
+#
+# Copyright (c) 2024 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+$sudo rm -rf $tmp $tmp.* $seq.full
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+    # make sure pmcd is really running ...
+    #
+    if [ ! -f $PCP_RUN_DIR/pmcd.pid ]
+    then
+	$sudo _service pmcd restart >>$seq.full
+	_wait_for_pmcd
+    fi
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+	-e "s@`basename $tmp`@TMP@g" \
+    # end
+}
+
+# real QA test starts here
+
+echo "basic stuff ..."
+# expect most things to be active, but some are optional ...
+#
+echo '-- -l --'
+pmcheck -l
+echo '-- -s --'
+pmcheck -s \
+| sed \
+    -e 's/  *$//' \
+    -e 's/ active$/ OK/' \
+    -e '/^pmproxy /s/inactive/OK/' \
+    -e '/^pmie /s/inactive/OK/' \
+#end
+
+touch $tmp.pmcheck
+echo
+echo "=== usage ==="
+echo '-- no args --'
+pmcheck
+echo '-- -l + -c --'
+pmcheck -l -c /bin/sh
+echo '-- -l + component arg --'
+pmcheck -l pmcd
+echo '-- -c does not exist --'
+pmcheck -c /no.such.file -s
+echo '-- -c not executable --'
+pmcheck -c $tmp.pmcheck -s 2>&1 | _filter
+echo '-- -c + component arg --'
+pmcheck -c /bin/sh -s pmcd
+echo '-- component arg + no action opt --'
+pmcheck pmcd
+echo '-- -n without -a or -d --'
+pmcheck -n -s pmcd
+echo '-- -c + no action opt --'
+pmcheck -c /bin/sh
+echo '-- multiple actions --'
+pmcheck -a -d pmcd
+pmcheck -l -s
+echo '-- bad option --'
+pmcheck -f -o -o
+pmcheck -foo
+
+echo
+echo "=== parsing and arg hand-off to component script ==="
+cat <<'End-of-File' >$tmp.pmcheck
+#!/bin/sh
+echo "component called, $# args: $*"
+exit 0
+End-of-File
+chmod 755 $tmp.pmcheck
+echo '-- -c ... -s --'
+pmcheck -c $tmp.pmcheck -s 2>&1 | _filter
+# no action/state output for this one
+echo '-- -c ... -nav --'
+pmcheck -c $tmp.pmcheck -nav 2>&1 | _filter
+cat <<'End-of-File' >$tmp.pmcheck
+#!/bin/sh
+. $PCP_DIR/etc/pcp.env || exit 1
+. $PCP_SHARE_DIR/lib/checkproc.sh
+_do_args "$@"
+if $sflag
+then
+    [ $verbose -gt 0 ] && echo some state explanation
+    status=$RC
+elif $aflag
+then
+    if $show_me
+    then
+	echo "# some-magic-activation-command $component"
+    else
+	: some-magic-activation-command
+    fi
+    [ $verbose -gt 0 ] && echo some activation explanation
+    status=$RC
+elif $dflag
+then
+    if $show_me
+    then
+	echo "# some-magic-deactivation-command $component"
+    else
+	: some-magic-deactivation-command
+    fi
+    [ $verbose -gt 0 ] && echo some deactivation explanation
+    status=$RC
+fi
+End-of-File
+for rc in 0 1 2 3
+do
+    echo "-- RC=$rc -c ... -s --"
+    RC=$rc pmcheck -c $tmp.pmcheck -s 2>&1 | _filter
+done
+for rc in 0 1
+do
+    for opt in '-a' '-av' '-an' '-anv' '-d' '-dv' '-dn' '-dnv'
+    do
+	echo "-- RC=$rc -c ... $opt --"
+	RC=$rc pmcheck -c $tmp.pmcheck $opt 2>&1 | _filter
+    done
+done
+
+echo
+echo "=== glob expansion ==="
+echo '-- -s pm[cl]* --'
+pmcheck -s 'pm[cl]*'
+
+echo
+echo "=== actions ==="
+echo '-- -d --'
+$sudo pmcheck -d pmcd
+_wait_for_pmcd_stop
+if [ -f $PCP_RUN_DIR/pmcd.pid ]
+then
+    echo "Botch: $PCP_RUN_DIR/pmcd.pid => `cat $PCP_RUN_DIR/pmcd.pid`"
+else
+    echo "pmcd stopped"
+fi
+pmcheck -s pmcd
+echo '-- -a --'
+$sudo pmcheck -a pmcd
+_wait_for_pmcd
+if [ -f $PCP_RUN_DIR/pmcd.pid ]
+then
+    echo "pmcd started"
+else
+    echo "Botch: $PCP_RUN_DIR/pmcd.pid missing"
+fi
+pmcheck -s pmcd
+
+# success, all done
+exit

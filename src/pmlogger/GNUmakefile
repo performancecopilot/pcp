@@ -22,7 +22,8 @@ OTHERS	= pmnewlog.sh control rc_pmlogger rc_wrapper \
 	  pmlogger_janitor.sh pmlogger_merge.sh \
 	  pmlogger_daily_report.sh pmlogger_rewrite.sh \
 	  pmlogger_farm.sh pmlogger_farm_check.service \
-	  pmlogger_farm_check.timer pmlogger_farm_check.service
+	  pmlogger_farm_check.timer pmlogger_farm_check.service \
+	  pmlogger.pmcheck
 LDIRT	= crontab crontab.daily_report pmlogger.service \
 	  pmlogger_daily.service \
 	  pmlogger_check.service pmlogger_farm.service pmlogger_farm_check.service
@@ -83,6 +84,7 @@ endif
 	$(INSTALL) -m 644 -t $(PCP_SHARE_DIR)/lib/utilproc.sh utilproc.sh $(PCP_LIBADM_DIR)/utilproc.sh
 	$(INSTALL) -m 755 pmlogger_daily_report.sh $(PCP_BINADM_DIR)/pmlogger_daily_report$(SHELLSUFFIX)
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_SA_DIR)
+	$(INSTALL) -m 755 pmlogger.pmcheck $(PCP_SYSCONF_DIR)/pmcheck/pmlogger
 
 include $(BUILDRULES)
 

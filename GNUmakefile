@@ -90,6 +90,7 @@ endif
 	$(INSTALL) -m 755 -d $(PCP_SYSCONF_DIR)/pmchart
 	$(INSTALL) -m 755 -d $(PCP_SYSCONF_DIR)/pmieconf
 	$(INSTALL) -m 755 -d $(PCP_SYSCONF_DIR)/pmlogconf
+	$(INSTALL) -m 755 -d $(PCP_SYSCONF_DIR)/pmcheck
 	$(INSTALL) -m 755 -d $(PCP_SHARE_DIR)/lib
 	$(INSTALL) -m 755 -d $(PCP_SHARE_DIR)/examples
 	$(INSTALL) -m 755 -d $(PCP_INC_DIR)

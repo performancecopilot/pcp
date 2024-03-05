@@ -1,0 +1,142 @@
+QA output created by 1491
+basic stuff ...
+-- -l --
+pmcd
+pmie
+pmlogger
+pmproxy
+-- -s --
+pmcd         OK
+pmie         OK
+pmlogger     OK
+pmproxy      OK
+
+=== usage ===
+-- no args --
+pmcheck: Error: one of -a, -d, -s or -l must be specified
+-- -l + -c --
+pmcheck: Error: options -c and -l are mutually exclusive
+-- -l + component arg --
+pmcheck: Error: option -l and component arguments are mutually exclusive
+-- -c does not exist --
+pmcheck: Error: "/no.such.file" does not exist
+-- -c not executable --
+pmcheck: Error: "TMP.pmcheck" must be an executable script
+-- -c + component arg --
+pmcheck: Error: option -c and component arguments are mutually exclusive
+-- component arg + no action opt --
+pmcheck: Error: one of -a, -d, -s or -l must be specified
+-- -n without -a or -d --
+pmcheck: Warning: neither -a nor -d specified, so -n ignored
+pmcd         active              
+-- -c + no action opt --
+pmcheck: Error: one of -a, -d, -s or -l must be specified
+-- multiple actions --
+pmcheck: Error: at most one of -a, -d, -l or -s may be specified
+pmcheck: Error: at most one of -a, -d, -l or -s may be specified
+-- bad option --
+pmcheck: invalid option -- 'f'
+pmcheck: invalid option -- 'o'
+pmcheck: invalid option -- 'o'
+Usage: pmcheck [options] [component ...]
+
+options:
+  -a, --activate    activate component(s)
+  -c SCRIPT, --file=SCRIPT
+                    use this executable SCRIPT file instead of a
+                    standard component
+  -d, --deactivate  deactivate component(s)
+  -l, --list        list components
+  -n, --show-me     dry run
+  -s, --state       report state of component(s)
+  -v, --verbose     increase verbosity
+  -x, --trace       run component script with sh -x
+  -?, --help        show this usage message
+
+component is one or more manageable components and may include shell
+glob metacharacters, e.g. pmda.* or pm[cl]*
+pmcheck: invalid option -- 'f'
+pmcheck: invalid option -- 'o'
+pmcheck: invalid option -- 'o'
+Usage: pmcheck [options] [component ...]
+
+options:
+  -a, --activate    activate component(s)
+  -c SCRIPT, --file=SCRIPT
+                    use this executable SCRIPT file instead of a
+                    standard component
+  -d, --deactivate  deactivate component(s)
+  -l, --list        list components
+  -n, --show-me     dry run
+  -s, --state       report state of component(s)
+  -v, --verbose     increase verbosity
+  -x, --trace       run component script with sh -x
+  -?, --help        show this usage message
+
+component is one or more manageable components and may include shell
+glob metacharacters, e.g. pmda.* or pm[cl]*
+
+=== parsing and arg hand-off to component script ===
+-- -c ... -s --
+TMP.pmcheck active               component called, 1 args: -s
+-- -c ... -nav --
+component called, 3 args: -n -a -v
+-- RC=0 -c ... -s --
+TMP.pmcheck active              
+-- RC=1 -c ... -s --
+TMP.pmcheck could be activated  
+-- RC=2 -c ... -s --
+TMP.pmcheck cannot be activated 
+-- RC=3 -c ... -s --
+TMP.pmcheck not sure            
+-- RC=0 -c ... -a --
+TMP.pmcheck success             
+-- RC=0 -c ... -av --
+TMP.pmcheck success              some activation explanation
+-- RC=0 -c ... -an --
+# some-magic-activation-command TMP.pmcheck
+-- RC=0 -c ... -anv --
+# some-magic-activation-command TMP.pmcheck
+some activation explanation
+-- RC=0 -c ... -d --
+TMP.pmcheck success             
+-- RC=0 -c ... -dv --
+TMP.pmcheck success              some deactivation explanation
+-- RC=0 -c ... -dn --
+# some-magic-deactivation-command TMP.pmcheck
+-- RC=0 -c ... -dnv --
+# some-magic-deactivation-command TMP.pmcheck
+some deactivation explanation
+-- RC=1 -c ... -a --
+TMP.pmcheck failure             
+-- RC=1 -c ... -av --
+TMP.pmcheck failure              some activation explanation
+-- RC=1 -c ... -an --
+# some-magic-activation-command TMP.pmcheck
+-- RC=1 -c ... -anv --
+# some-magic-activation-command TMP.pmcheck
+some activation explanation
+-- RC=1 -c ... -d --
+TMP.pmcheck failure             
+-- RC=1 -c ... -dv --
+TMP.pmcheck failure              some deactivation explanation
+-- RC=1 -c ... -dn --
+# some-magic-deactivation-command TMP.pmcheck
+-- RC=1 -c ... -dnv --
+# some-magic-deactivation-command TMP.pmcheck
+some deactivation explanation
+
+=== glob expansion ===
+-- -s pm[cl]* --
+pmcd         active              
+pmlogger     active              
+
+=== actions ===
+-- -d --
+pmcd         success             
+pmcd stopped
+pmcd         could be activated  
+-- -a --
+pmcd         success             
+pmcd started
+pmcd         active              
