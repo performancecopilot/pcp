@@ -820,7 +820,25 @@ if the previous execution of
 .B pmlogger_daily
 produced any output it is saved here.
 The normal case is no output in which case the file does not exist.
-.TP 5
+.TP 6
+.I $PCP_ARCHIVE_DIR/SaveLogs
+if this directory exists,
+then the log file from the
+.B \-l
+argument for
+.B pmlogger_daily
+will be saved in this directory with the name of the format
+<date>-\fBpmlogger_daily\fP.\fBlog\fP.<pid> or
+<date>-\fBpmlogger_daily-K\fP.\fBlog\fP.<pid>
+This allows the log file to be inspected at a later time, even if
+several
+.BR pmlogger_daily
+executions have been launched in the interim.
+Because the PCP archive management tools run under
+the $PCP_USER account ``pcp'',
+.I $PCP_ARCHIVE_DIR/SaveLogs
+typically needs to be owned by the user ``pcp''.
+.TP 7
 .I $PCP_ARCHIVE_DIR/<hostname>/SaveLogs
 if this directory exists,
 then the log file from the
@@ -830,7 +848,7 @@ of a newly launched
 .BR pmlogger (1)
 for
 .I hostname
-will be linked into this directory with the name
+will be saved in this directory with the name
 .IB archive .log
 where
 .I archive
@@ -847,7 +865,7 @@ Because the PCP archive management tools run under
 the uid of the user ``pcp'',
 .I $PCP_ARCHIVE_DIR/<hostname>/SaveLogs
 typically needs to be owned by the user ``pcp''.
-.TP 5
+.TP 8
 .I $PCP_LOG_DIR/pmlogger/.NeedRewrite
 if this file exists, then this is treated as equivalent to using
 .B \-R
