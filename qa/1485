@@ -103,13 +103,13 @@ _doit
 
 echo
 echo "/dev/disk/by-uuid empty ..."
-rm -f $LINUX_STATSPATH/dev/disk/by-uuid/*
+$sudo rm -f $LINUX_STATSPATH/dev/disk/by-uuid/*
 DEBUG='-Dappl8'
 _doit
 
 echo
 echo "/dev/disk/by-uuid missing ..."
-rm -rf $LINUX_STATSPATH/dev/disk/by-uuid
+$sudo rm -rf $LINUX_STATSPATH/dev/disk/by-uuid
 DEBUG='-Dappl8'
 _doit
 
