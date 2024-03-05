@@ -1128,7 +1128,6 @@ __pmLogUndeltaInDom(pmInDom indom, __pmLogInDom *idp)
      * found the previous full indom, now march forward in time replacing
      * each delta indom with a reconstructed full indom
      */
-    tidp->isdelta = 0;
     for (didp = tidp->prior ; didp != NULL; ) {
 	int	numinst;
 	int	*instlist;
