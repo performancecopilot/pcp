@@ -1074,8 +1074,11 @@ __pmFixPMNSHashTab(__pmnsTree *tree, int numpmid, int dupok)
     if (htabsize % 3 == 0) htabsize += 2;
     if (htabsize % 5 == 0) htabsize += 2;
     tree->htabsize = htabsize;
+    if (tree->htab != NULL)
+	free(tree->htab);
     tree->htab = (__pmnsNode **)calloc(htabsize, sizeof(__pmnsNode *));
     if (tree->htab == NULL) {
+	tree->htabsize = 0;
 	sts = -oserror();
 	goto pmapi_return;
     }
