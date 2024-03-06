@@ -1,3 +1,3 @@
 QA output created by 1488
 migrate_pid_service: added pid MYPID to service "pmlogger_farm.service" using namespace ""
-             ├─MYPID /bin/sh ./1488
+ ├─MYPID /bin/sh ./1488

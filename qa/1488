@@ -39,6 +39,7 @@ _filter()
 {
     sed \
 	-e "s@$$@MYPID@g" \
+	-e 's/  */ /g' \
     # end
 }
 
