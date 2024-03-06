@@ -469,5 +469,9 @@ main(int argc, char **argv)
 	    printf(" '%s'", shell_string(argv[i]));
     }
     printf("\n");
+
+    /* maybe error/warning messages buffered from pmgetopt_r() */
+    pmflush();
+
     return 0;
 }

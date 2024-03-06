@@ -60,6 +60,7 @@ Options:
 == verify handling of spaces and single quotes
 -- '/a/b/pcp log' '/c/d/foo'\''bar'
 == verify handling of an invalid option
+pcpqa: invalid option -- 'x'
 -? -- '/a/b/pcplog'
 == verify handling of archive folios and host/archive lists
 Usage: pcpqa [options]
