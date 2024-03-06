@@ -97,11 +97,16 @@ _filter()
 	    # and pmlogger_check will fail during PCP builds
 	    # and pmlogger_daily will fail during PCP builds
 	    # and qa/1210 and qa/1213
+	    # and this strange one but only on bozo!
+	    # ... bozo.localdomain pmlogctl[1013253]: mount: write error
+	    #
 	    sed \
 		-e '/sudo\[[0-9]*]: /d' \
 		-e '/pmlogger_check failed - see .*\/pmlogger_check.log/d' \
+		-e '/pmlogger_daily failed - see .*\/pmlogger_daily.log/d' \
 		-e '/pmlogger_daily failed - see .*\/pmlogger_daily-K.log/d' \
 		-e '/pmlogctl\[[0-9]*]: .* failed to start for host no\.such\.host\.pcp\.io/d' \
+		-e '/bozo\.localdomain pmlogctl\[[0-9]*]: mount: write error/d' \
 		-e '/rc\[[0-9]*]: .*not permanently enabled\./d' \
 		-e '/rc\[[0-9]*]: .*run the following as root:/d' \
 		-e '/rc\[[0-9]*]: .*systemctl enable pmlogger\.service/d' \
