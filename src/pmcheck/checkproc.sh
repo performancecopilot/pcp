@@ -164,7 +164,20 @@ _ctl_svc()
 	    fi
 	elif $__use_update_invoke
 	then
-	    echo "TODO _ctl_svc state $svc with update+invoke"
+	    invoke-rc.d $svc status 2>/dev/null >$tmp/_ctl_svc
+	    __state=`sed -n -e '/^Checking for/s/.*: //p' <$tmp/_ctl_svc`
+	    case "$__state"
+	    in
+		running)
+		    ;;
+		stopped)
+		    status=1
+		    ;;
+		*)
+		    status=3
+		    echo "state ($__state) unknown"
+		    ;;
+	    esac
 	else
 	    echo >&2 "$prog: _ctl_svc: Botch: cannot determine how to get state of $svc service"
 	    status=99
@@ -183,12 +196,13 @@ _ctl_svc()
 		then
 		    echo "# systemctl enable $svc.service"
 		else
-		    if systemctl enable $svc.service >$tmp/checkproc 2>&1
+		    if systemctl enable $svc.service >$tmp/_ctl_svc 2>&1
 		    then
 			:
 		    else
 			rc=1
-			[ "$verbose" -gt 0 ] && echo "systemctl enable failed: `cat $tmp/checkproc`"
+			[ "$verbose" -gt 0 ] && echo 'systemctl enable failed: 
+'"`cat $tmp/_ctl_svc`"
 		    fi
 		fi
 	    else
@@ -196,7 +210,25 @@ _ctl_svc()
 	    fi
 	elif $__use_update_invoke
 	then
-	    echo "TODO _ctl_svc active $svc with update+invoke"
+	    if [ ! -f /etc/rc5.d/S*$svc ]
+	    then
+		if $show_me
+		then
+		    echo "# update-rc.d $svc enable"
+		else
+		    # no exit status from update-rc.d ...
+		    #
+		    update-rc.d $svc enable >$tmp/_ctl_svc 2>&1
+		    if [ ! -f /etc/rc5.d/S*$svc ]
+		    then
+			rc=1
+			[ "$verbose" -gt 0 ] && echo 'update-rc.d enable failed:
+'"`cat $tmp/_ctl_svc`"
+		    fi
+		fi
+	    else
+		[ "$verbose" -gt 0 ] && echo "already enabled via update-rc.d"
+	    fi
 	else
 	    echo >&2 "$prog: _ctl_svc: Botch: cannot determine how to activate $svc service"
 	    status=99
@@ -214,12 +246,13 @@ _ctl_svc()
 		then
 		    echo "# systemctl start $svc.service"
 		else
-		    if systemctl start $svc.service >$tmp/checkproc 2>&1
+		    if systemctl start $svc.service >$tmp/_ctl_svc 2>&1
 		    then
 			:
 		    else
 			rc=1
-			[ "$verbose" -gt 0 ] && echo "systemctl start failed: `cat $tmp/checkproc`"
+			[ "$verbose" -gt 0 ] && echo 'systemctl start failed:
+'"`cat $tmp/_ctl_svc`"
 		    fi
 		fi
 	    else
@@ -227,7 +260,26 @@ _ctl_svc()
 	    fi
 	elif $__use_update_invoke
 	then
-	    echo "TODO _ctl_svc start $svc with update+invoke"
+	    invoke-rc.d $svc status 2>/dev/null >$tmp/_ctl_svc
+	    __state=`sed -n -e '/^Checking for/s/.*: //p' <$tmp/_ctl_svc`
+	    if [ "$__state" != running ]
+	    then
+		if $show_me
+		then
+		    echo "# invoke-rc.d $svc start"
+		else
+		    if invoke-rc.d $svc start >$tmp/_ctl_svc 2>&1
+		    then
+			:
+		    else
+			rc=1
+			[ "$verbose" -gt 0 ] && echo 'invoke-rc.d start failed:
+'"`cat $tmp/_ctl_svc`"
+		    fi
+		fi
+	    else
+		[ "$verbose" -gt 0 ] && echo "already started via invoke-rc.d"
+	    fi
 	else
 	    echo >&2 "$prog: _ctl_svc: Botch: cannot determine how to start $svc service"
 	    status=99
@@ -245,12 +297,13 @@ _ctl_svc()
 		then
 		    echo "# systemctl stop $svc.service"
 		else
-		    if systemctl stop $svc.service >$tmp/checkproc 2>&1
+		    if systemctl stop $svc.service >$tmp/_ctl_svc 2>&1
 		    then
 			:
 		    else
 			rc=1
-			[ "$verbose" -gt 0 ] && echo "systemctl stop failed: `cat $tmp/checkproc`"
+			[ "$verbose" -gt 0 ] && echo 'systemctl stop failed:
+'"`cat $tmp/_ctl_svc`"
 		    fi
 		fi
 	    else
@@ -258,7 +311,26 @@ _ctl_svc()
 	    fi
 	elif $__use_update_invoke
 	then
-	    echo "TODO _ctl_svc stop $svc with update+invoke"
+	    invoke-rc.d $svc status 2>/dev/null >$tmp/_ctl_svc
+	    __state=`sed -n -e '/^Checking for/s/.*: //p' <$tmp/_ctl_svc`
+	    if [ "$__state" = running ]
+	    then
+		if $show_me
+		then
+		    echo "# invoke-rc.d $svc stop"
+		else
+		    if invoke-rc.d $svc stop >$tmp/_ctl_svc 2>&1
+		    then
+			:
+		    else
+			rc=1
+			[ "$verbose" -gt 0 ] && echo 'invoke-rc.d stop failed:
+'"`cat $tmp/_ctl_svc`"
+		    fi
+		fi
+	    else
+		[ "$verbose" -gt 0 ] && echo "already stopped via invoke-rc.d"
+	    fi
 	else
 	    echo >&2 "$prog: _ctl_svc: Botch: cannot determine how to stop $svc service"
 	    status=99
@@ -276,12 +348,13 @@ _ctl_svc()
 		then
 		    echo "# systemctl disable $svc.service"
 		else
-		    if systemctl disable $svc.service >$tmp/checkproc 2>&1
+		    if systemctl disable $svc.service >$tmp/_ctl_svc 2>&1
 		    then
 			:
 		    else
 			rc=1
-			[ "$verbose" -gt 0 ] && echo "systemctl disable failed: `cat $tmp/checkproc`"
+			[ "$verbose" -gt 0 ] && echo 'systemctl disable failed:
+'"`cat $tmp/_ctl_svc`"
 		    fi
 		fi
 	    else
@@ -289,7 +362,25 @@ _ctl_svc()
 	    fi
 	elif $__use_update_invoke
 	then
-	    echo "TODO _ctl_svc deactivate $svc with update+invoke"
+	    if [ -f /etc/rc5.d/S*$svc ]
+	    then
+		if $show_me
+		then
+		    echo "# update-rc.d $svc disable"
+		else
+		    # no exit status from update-rc.d ...
+		    #
+		    update-rc.d $svc disable >$tmp/_ctl_svc 2>&1
+		    if [ -f /etc/rc5.d/S*$svc ]
+		    then
+			rc=1
+			[ "$verbose" -gt 0 ] && echo 'update-rc.d disable failed:
+'"`cat $tmp/_ctl_svc`"
+		    fi
+		fi
+	    else
+		[ "$verbose" -gt 0 ] && echo "already disabled via update-rc.d"
+	    fi
 	else
 	    echo >&2 "$prog: _ctl_svc: Botch: cannot determine how to deactivate $svc service"
 	    status=99
@@ -322,7 +413,7 @@ then
     then
 	if which invoke-rc.d >/dev/null 2>&1
 	then
-	    __use_update_invoke=false
+	    __use_update_invoke=true
 	fi
     fi
 fi

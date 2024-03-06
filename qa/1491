@@ -160,9 +160,9 @@ $sudo pmcheck -d pmcd
 _wait_for_pmcd_stop
 if [ -f $PCP_RUN_DIR/pmcd.pid ]
 then
-    echo "Botch: $PCP_RUN_DIR/pmcd.pid => `cat $PCP_RUN_DIR/pmcd.pid`"
+    echo "$seq: Botch: $PCP_RUN_DIR/pmcd.pid => `cat $PCP_RUN_DIR/pmcd.pid`"
 else
-    echo "pmcd stopped"
+    echo "$seq: pmcd stopped"
 fi
 pmcheck -s pmcd
 echo '-- -a --'
@@ -170,11 +170,14 @@ $sudo pmcheck -a pmcd
 _wait_for_pmcd
 if [ -f $PCP_RUN_DIR/pmcd.pid ]
 then
-    echo "pmcd started"
+    echo "$seq: pmcd started"
 else
-    echo "Botch: $PCP_RUN_DIR/pmcd.pid missing"
+    echo "$seq: Botch: $PCP_RUN_DIR/pmcd.pid missing"
 fi
 pmcheck -s pmcd
+echo '-- and -a again with -v --'
+pmcheck -v -a pmcd 2>&1 \
+| sed -e 's/ed via .*/ed via .../'
 
 # success, all done
 exit

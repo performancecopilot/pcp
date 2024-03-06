@@ -134,9 +134,12 @@ pmlogger     active
 === actions ===
 -- -d --
 pmcd         success             
-pmcd stopped
+1491: pmcd stopped
 pmcd         could be activated  
 -- -a --
 pmcd         success             
-pmcd started
+1491: pmcd started
 pmcd         active              
+-- and -a again with -v --
+pmcd         success              already enabled via ...
+                                  already started via ...
