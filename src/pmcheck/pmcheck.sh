@@ -17,8 +17,7 @@ then
 fi
 trap "rm -rf $tmp; exit \$status" 0 1 2 3 15
 
-# common command line processing ... use getopt(1) not pmgetopt(1) because
-# we don't want PCPIntro command line arg processing
+# common command line processing ... use pmgetopt(1) for portability
 #
 aflag=false
 cfile=''
@@ -30,49 +29,46 @@ verbose=0
 xflag=false
 action=''
 
-_usage()
-{
-    echo >&2 "Usage: $prog [options] [component ...]"
-    echo >&2
-    echo >&2 "options:"
-    echo >&2 "  -a, --activate    activate component(s)"
-    echo >&2 "  -c SCRIPT, --file=SCRIPT"
-    echo >&2 "                    use this executable SCRIPT file instead of a"
-    echo >&2 "                    standard component"
-    echo >&2 "  -d, --deactivate  deactivate component(s)"
-    echo >&2 "  -l, --list        list components"
-    echo >&2 "  -n, --show-me     dry run"
-    echo >&2 "  -s, --state       report state of component(s)"
-    echo >&2 "  -v, --verbose     increase verbosity"
-    echo >&2 "  -x, --trace       run component script with sh -x"
-    echo >&2 "  -?, --help        show this usage message"
-    echo >&2
-    echo >&2 "component is one or more manageable components and may include shell"
-    echo >&2 "glob metacharacters, e.g. pmda.* or pm[cl]*"
-}
+cat <<'End-of-File' >$tmp/_usage
+# getopts: ac:dlnsvx?
+# usage: [options] [component ...]
 
-ARGS=`getopt -n $prog -o "ac:dlnsvx?" -l "activate,file:,deactivate,list,show-me,state,verbose,trace,help" -- "$@"`
+options:
+  -a, --activate    activate component(s)
+  -c=SCRIPT, --file=SCRIPT use this executable SCRIPT file instead of a standard component
+  -d, --deactivate  deactivate component(s)
+  -l, --list        list components
+  -n, --show-me     dry run
+  -s, --state       report state of component(s)
+  -v, --verbose     increase verbosity
+  -x, --trace       run component script with sh -x
+  -?, --help        show this usage message
+# end
+
+component is one or more manageable components and may include shell
+glob metacharacters, e.g. pmda.* or pm[cl]*
+End-of-File
+
+__args=`pmgetopt --progname=$prog --config=$tmp/_usage -- "$@"`
 if [ $? -ne 0 ]
 then
-    _usage
+    pmgetopt --progname=$prog --config=$tmp/_usage --usage
     status=9
     exit
 fi
 
-eval set -- "$ARGS"
-unset ARGS
+eval set -- "$__args"
+unset __args
 
-while true
+while [ $# -gt 0 ]
 do
     case "$1"
     in
-	'-a'|'--activate')
+	-a)	# activate
 		aflag=true
 		action="$action -a"
-		shift
-		continue
 		;;
-	'-c'|'--file')
+	-c)	# alternate component script
 		if [ ! -f "$2" ]
 		then
 		    echo >&2 "$prog: Error: \"$2\" does not exist"
@@ -86,57 +82,44 @@ do
 		    exit
 		fi
 		cfile="$2"
-		shift; shift
-		continue
+		shift
 		;;
-	'-d'|'--deactivate')
+	-d)	# deactivate
 		dflag=true
 		action="$action -d"
-		shift
-		continue
 		;;
-	'-l'|'--list')
+	-l)	# list
 		lflag=true
-		shift
-		continue
 		;;
-	'-n'|'--dry-run')
+	-n)	# dry run
 		show_me=true
 		action="$action -n"
-		shift
-		continue
 		;;
-	'-s'|'--state')
+	-s)	# state
 		sflag=true
 		action="$action -s"
-		shift
-		continue
 		;;
-	'-v'|'--verbose')
+	-v)	# verbose
 		verbose=`expr $verbose + 1`
 		action="$action -v"
-		shift
-		continue
 		;;
-	'-x'|'--trace')
+	-x)	# sh -x tracing
 		xflag=true
-		shift
-		continue
 		;;
-	'-?'|'--help')
-		_usage
-		exit
-		;;
-	'--')
+	--)	# end of opts
 		shift
 		break
 		;;
-	*)
-		echo >&2 "getopt iterator botch \$1=\"$1\" ..."
-		status=99
+	-\?)	# help or error
+		pmgetopt --progname=$prog --config=$tmp/_usage --usage
 		exit
 		;;
+	-\*)	# botch
+		echo >&2 "$prog: Error: unrecognized option ($1)"
+		status=9
+		exit
     esac
+    shift
 done
 
 # semantic checks on command line arguments

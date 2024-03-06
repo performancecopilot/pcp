@@ -41,17 +41,16 @@ pmcheck: invalid option -- 'o'
 Usage: pmcheck [options] [component ...]
 
 options:
-  -a, --activate    activate component(s)
+  -a, --activate        activate component(s)
   -c SCRIPT, --file=SCRIPT
-                    use this executable SCRIPT file instead of a
-                    standard component
-  -d, --deactivate  deactivate component(s)
-  -l, --list        list components
-  -n, --show-me     dry run
-  -s, --state       report state of component(s)
-  -v, --verbose     increase verbosity
-  -x, --trace       run component script with sh -x
-  -?, --help        show this usage message
+                        use this executable SCRIPT file instead of a standard component
+  -d, --deactivate      deactivate component(s)
+  -l, --list            list components
+  -n, --show-me         dry run
+  -s, --state           report state of component(s)
+  -v, --verbose         increase verbosity
+  -x, --trace           run component script with sh -x
+  -?, --help            show this usage message
 
 component is one or more manageable components and may include shell
 glob metacharacters, e.g. pmda.* or pm[cl]*
@@ -61,17 +60,16 @@ pmcheck: invalid option -- 'o'
 Usage: pmcheck [options] [component ...]
 
 options:
-  -a, --activate    activate component(s)
+  -a, --activate        activate component(s)
   -c SCRIPT, --file=SCRIPT
-                    use this executable SCRIPT file instead of a
-                    standard component
-  -d, --deactivate  deactivate component(s)
-  -l, --list        list components
-  -n, --show-me     dry run
-  -s, --state       report state of component(s)
-  -v, --verbose     increase verbosity
-  -x, --trace       run component script with sh -x
-  -?, --help        show this usage message
+                        use this executable SCRIPT file instead of a standard component
+  -d, --deactivate      deactivate component(s)
+  -l, --list            list components
+  -n, --show-me         dry run
+  -s, --state           report state of component(s)
+  -v, --verbose         increase verbosity
+  -x, --trace           run component script with sh -x
+  -?, --help            show this usage message
 
 component is one or more manageable components and may include shell
 glob metacharacters, e.g. pmda.* or pm[cl]*

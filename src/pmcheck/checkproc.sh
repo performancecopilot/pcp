@@ -17,8 +17,7 @@ then
 fi
 trap "rm -rf $tmp; exit \$status" 0 1 2 3 15
 
-# common command line processing ... use getopt(1) not pmgetopt(1) because
-# we don't want PCPIntro command line arg processing
+# common command line processing ... use pmgetopt(1) for portability
 #
 aflag=false
 dflag=false
@@ -26,72 +25,63 @@ show_me=false
 sflag=false
 verbose=0
 
-_usage()
-{
-    echo >&2 "Usage: $prog [options] [component]"
-    echo >&2
-    echo >&2 "options:"
-    echo >&2 "  -a, --activate    activate component"
-    echo >&2 "  -d, --deactivate  deactivate component"
-    echo >&2 "  -n, --show-me     dry run"
-    echo >&2 "  -s, --state       report state of component"
-    echo >&2 "  -v, --verbose     increase verbosity"
-    echo >&2
-}
+cat <<'End-of-File' >$tmp/_usage
+# getopts: adnsv
+# usage: [options] component
+
+options:
+  -a, --activate    activate component(s)
+  -d, --deactivate  deactivate component(s)
+  -n, --show-me     dry run
+  -s, --state       report state of component(s)
+  -v, --verbose     increase verbosity
+End-of-File
 
 _do_args()
 {
-    ARGS=`getopt -n $prog -o "adnsv" -l "activate,deactivate,show-me,state,verbose" -- "$@"`
+    __args=`pmgetopt --progname=$prog --config=$tmp/_usage -- "$@"`
     if [ $? -ne 0 ]
     then
-	_usage
+	pmgetopt --progname=$prog --config=$tmp/_usage --usage
 	status=99
 	exit
     fi
 
-    eval set -- "$ARGS"
-    unset ARGS
+    eval set -- "$__args"
+    unset __args
 
-    while true
+    while [ $# -gt 0 ]
     do
 	case "$1"
 	in
-	    '-a'|'--activate')
-		    aflag=true
-		    shift
-		    continue
-		    ;;
-	    '-d'|'--deactivate')
-		    dflag=true
-		    shift
-		    continue
-		    ;;
-	    '-n'|'--show-me')
-		    show_me=true
-		    shift
-		    continue
-		    ;;
-	    '-s'|'--state')
-		    sflag=true
-		    shift
-		    continue
-		    ;;
-	    '-v'|'--verbose')
-		    verbose=`expr $verbose + 1`
-		    shift
-		    continue
-		    ;;
-	    '--')
-		    shift
-		    break
-		    ;;
+	    -a)	# activate
+		aflag=true
+		;;
+	    -d)	# deactivate
+		dflag=true
+		;;
+	    -n)	# dry run
+		show_me=true
+		;;
+	    -s)	# state
+		sflag=true
+		;;
+	    -v)	# verbose
+		verbose=`expr $verbose + 1`
+		;;
+	    --)	# end of opts
+		shift
+		break
+		;;
 	    *)
-		    echo >&2 "getopt iterator botch \$1=\"$1\" ..."
-		    status=99
-		    exit
-		    ;;
+		echo >&2 "getopt iterator botch \$1=\"$1\" ..."
+		status=99
+		exit
+		;;
 	esac
+	shift
     done
+
     if [ $# -eq 0 ]
     then
 	component="$prog"
@@ -99,7 +89,7 @@ _do_args()
     then
 	component="$1"
     else
-	_usage
+	pmgetopt --progname=$prog --config=$tmp/_usage --usage
 	status=99
 	exit
     fi
