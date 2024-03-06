@@ -99,23 +99,23 @@ static time_t	daylimit(time_t);
 static char *
 saroptions(void)
 {
-	char		*flags;
+	static char	*allflags;	/* static for valgrind */
 	int		i;
 
 	/* 
 	** gather all flags for the print-functions
 	*/
-	flags = calloc(1, pricnt+32);
+	allflags = calloc(1, pricnt+32);
 
-	ptrverify(flags, "Malloc failed for %d flags\n", pricnt+32);
+	ptrverify(allflags, "Malloc failed for %d flags\n", pricnt+32);
 
 	for (i=0; i < pricnt; i++)
-		flags[i] = pridef[i].flag;
+		allflags[i] = pridef[i].flag;
 
 	/*
 	** add generic flags
 	*/
-	return strncat(flags, sarflags, pricnt+32 - 1);
+	return strncat(allflags, sarflags, pricnt+32 - 1);
 }
 
 int
