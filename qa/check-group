@@ -113,8 +113,10 @@ do
 	    ;;
 
 	pcp-*)		# pcp-xxx is cmd, expected group is pcp AND xxx
+			# pcp ... xxx is also cmd
+	    subcmd=`echo "$1" | sed -e 's/pcp-//'`
 	    ( grep -v '^#' $seq \
-	      | grep -E "(^[ 	]*$1([ '\"]|$))|([ '\"\`]$1([ '\"\`]|$))" >$tmp.debug \
+	      | grep -E "(^[ 	]*$1([ '\"]|$))|([ '\"\`]$1([ '\"\`]|$))|(^[ 	]*pcp .*$subcmd([ '\"]|$))|([ '\"\`]$pcp .*$subcmd([ '\"\`]|$))" >$tmp.debug \
 	    ) && echo $seq >>$tmp.tmp
 	    group_list="`echo $1 | sed -e 's/-/ /'`"
 	    ;;
