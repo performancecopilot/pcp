@@ -111,7 +111,7 @@ pmpost
 pmdate
 # pmerr
 pmerr
-# pcp and sub-commands
+# pcp and pcp-* sub-commands
 pcp
 # pmclient demo apps
 pmclient
@@ -367,6 +367,7 @@ zbxpcp
 
 # pcp system commands
 atop
+atopsar
 dstat
 free
 pidstat
@@ -1246,7 +1247,7 @@ x11
 782:retired pmwebd local
 783:retired pmda.rpm local valgrind
 784 pmda.mic python local dbpmda
-785 pcp atop local
+785 pcp atop local atopsar
 786 context context_local libpcp local
 787 archive local pmie pmlogrewrite pmlogdump pmval flakey kernel
 788 pmda.nginx pmda.install local
@@ -1851,7 +1852,7 @@ x11
 1387 pmlogrewrite pmlogdump archive_v3 local
 1388 pmproxy local secure
 1389:retired pmwebd local
-1390 atop pcp local
+1390 atop pcp local atopsar
 1391 pmproxy local secure
 1392 pmlogrewrite pmlogdump archive_v3 local valgrind
 1393 pmda.linux local
@@ -1953,6 +1954,8 @@ x11
 1489 python pmrep pmimport local
 1490 python local labels
 1491 pmcheck local
+1492 pcp atopsar local
+1493 pcp atopsar local valgrind
 1495 pmlogrewrite labels pmlogdump local
 1503 pcp pidstat ps python local
 1511 pmcd local pmda.sample
@@ -2070,7 +2073,7 @@ x11
 1814 pmda.linux local
 1815 pmieconf pmie local
 1816 pmieconf pmie local valgrind
-1820 atop local
+1820 atop local atopsar
 1821 pmlogpaste local
 1824 pmproxy local
 1825 libpcp pmcd local valgrind

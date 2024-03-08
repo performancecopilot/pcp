@@ -1,0 +1,71 @@
+#!/bin/sh
+# PCP QA Test No. 1492
+# pcp-atopsar with multiple archives in a directory
+# - reproducer for https://github.com/performancecopilot/pcp/issues/1911
+#
+# non-valgrind variant, see qa/1493 for the valgrind variant
+#
+# Copyright (c) 2024 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+$sudo rm -rf $tmp $tmp.* $seq.full
+
+do_valgrind=false
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+    do_valgrind=true
+elif which valgrind >/dev/null 2>&1
+then
+    [ "$PCPQA_VALGRIND" = both ] || \
+        _notrun "valgrind variant qa/1493 will be run"
+fi
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+    # end
+}
+
+mkdir $tmp || exit 1
+cd $tmp
+tar xJf $here/archives/atop-sar.tar.xz
+sum atop-sar/* >>$seq.full
+
+# real QA test starts here
+
+if $do_valgrind
+then
+    _run_valgrind pcp-atopsar -r atop-sar 300
+else
+    pcp-atopsar -r atop-sar 300 2>&1
+fi \
+| _filter
+
+# success, all done
+exit

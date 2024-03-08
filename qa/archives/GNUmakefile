@@ -63,7 +63,7 @@ DEFLATE = small.0.xz small.meta small.index \
 	  pcp-ps.0.xz pcp-ps.meta.xz pcp-ps.index all-ubuntu.22.04.index \
 	  pcp-meminfo.0.xz pcp-meminfo.meta.xz pcp-meminfo.index \
 	  pcp-netstat.0.xz pcp-netstat.meta.xz pcp-netstat.index \
-	  all-ubuntu.22.04.0.xz all-ubuntu.22.04.meta.xz
+	  all-ubuntu.22.04.0.xz all-ubuntu.22.04.meta.xz 
 
 SCRIPTS = mk.diff mk.gap mk.mysql mk.schizo mk.foo+ \
 	  mk.dynmetric mk.instant mk.dyninsts \
@@ -73,7 +73,8 @@ SCRIPTS = mk.diff mk.gap mk.mysql mk.schizo mk.foo+ \
 	  mk.atop mk.hotatop mk.atop-boot mk.atop-nvidia mk.atop-threads \
 	  mk.log-derived mk.vmstat mk.rep mk.procsched mk.netstat \
 	  mk.ipcs mk.value-test mk.rank-pred mk.cputime mk.meminfo \
-	  mk.sample-labels mk.pmproxy mk.mmv.help mk.slabinfo mk.zoneinfo
+	  mk.sample-labels mk.pmproxy mk.mmv.help mk.slabinfo mk.zoneinfo \
+	  mk.atop-sar
 
 CONFIGS = config.verify config.shping YWhcCi.toium.config \
 	  kenj-pc-2.config reduce.config uwrap.config wrap.config \
@@ -81,7 +82,7 @@ CONFIGS = config.verify config.shping YWhcCi.toium.config \
 
 OTHERS = README ds390-access.gz collectl-qa bigace.pmns \
 	 crontab-sar-report.tar.xz cputime.mpstat cputime.sar \
-	 farm.tar.xz
+	 farm.tar.xz pcp-atop-sar.tar.xz
 
 LDIRT = pmlogger.log
 LDIRDIRT = tmp
