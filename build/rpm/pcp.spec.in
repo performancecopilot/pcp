@@ -2309,7 +2309,7 @@ sed -i '/.a$/d' pcp-devel-files
 sed -i '/\/man\//d' pcp-devel-files
 sed -i '/\/include\//d' pcp-devel-files
 
-%ifarch x86_64 ppc64 ppc64le aarch64 s390x
+%ifarch x86_64 ppc64 ppc64le aarch64 s390x riscv64
 sed -i -e 's/usr\/lib\//usr\/lib64\//' pcp-libs-files
 sed -i -e 's/usr\/lib\//usr\/lib64\//' pcp-devel-files
 sed -i -e 's/usr\/lib\//usr\/lib64\//' pcp-libs-devel-files
