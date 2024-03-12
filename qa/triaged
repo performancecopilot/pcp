@@ -45,6 +45,7 @@
 878	.*	on some QA hosts this fails sometimes when we don't see
 		the first or second event record ... despite extensive
 		triage the problem is not understood
+946	.*	Avahi confusion results in no discovery, disabled by default.
 1080	Ubuntu 2[02]\.	for pcp-atop built -O2 (not -O0) valgrind reports
 			Conditional jump or move depends on uninitialised value
 			at 0x11F1D2: deviattask (deviate.c:340)
@@ -74,8 +75,7 @@
 1709	Fedora 38	statsd PMDA is broken here, check-flakey passes
 1724	Fedora 38	bpftrace PMDA is broken here, check-flakey passes
 			(sometimes)
-1900	Fedora 3[89]	valgrind uninitialised data failure deep inside libbpf
-1900	Fedora 40	ditto
+1900	Fedora.*	valgrind uninitialised data failure deep inside libbpf
 1900	CentOS Stream9	ditto
 1900	Debian 12	ditto
 1900	openSUSE Leap 15.[56]	ditto

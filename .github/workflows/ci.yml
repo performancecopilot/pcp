@@ -25,8 +25,8 @@ jobs:
           - {platform: ubuntu1804-i386-container, os: ubuntu-20.04, experimental: false}
           - {platform: ubuntu2004-container,      os: ubuntu-20.04, experimental: false}
           - {platform: ubuntu2204-container,      os: ubuntu-20.04, experimental: false}
-          - {platform: fedora38-container,        os: ubuntu-20.04, experimental: false}
           - {platform: fedora39-container,        os: ubuntu-20.04, experimental: false}
+          - {platform: fedora40-container,        os: ubuntu-20.04, experimental: false}
           - {platform: centos-stream8-container,  os: ubuntu-20.04, experimental: false}
           - {platform: centos-stream9-container,  os: ubuntu-20.04, experimental: false}
 # other platforms that may be used for testing in developer repos
