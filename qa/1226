@@ -108,7 +108,7 @@ _service pmie start >>$here/$seq.full 2>&1
 # real QA test starts here
 
 echo "== usage"
-pmiectl --usage 2>&1 | _filter
+pmiectl --help 2>&1 | _filter
 
 echo
 echo '== -N -V create' | tee -a $seq.full

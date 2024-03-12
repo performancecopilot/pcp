@@ -84,7 +84,7 @@ _filter_status()
 # real QA test starts here
 
 echo "== usage"
-pmlogctl --usage 2>&1 | _filter \
+pmlogctl --help 2>&1 | _filter \
 | sed \
     -e 's/[ 	][ 	]*/ /g' \
 # end
