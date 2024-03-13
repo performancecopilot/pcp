@@ -4,7 +4,7 @@
 
 [top-io]
 label = most expensive
-top = rate(proc.io.rchar) + rate(proc.io.rchar)
+top = rate(proc.io.rchar) + rate(proc.io.wchar)
 top.label = I/O process
 width = 24
 grouptype = 4
