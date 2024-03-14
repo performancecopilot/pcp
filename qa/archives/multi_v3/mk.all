@@ -1,0 +1,10 @@
+#!/bin/sh
+# remake the V3 "milti" archives from the V2 versions
+#
+rm -f *.0 *meta *.index
+list=`cd ../multi; ls *.0 | sed -e 's/\.0$//'`
+
+for arch in $list
+do
+    pmlogextract -V3 ../multi/$arch $arch
+done
