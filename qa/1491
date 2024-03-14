@@ -59,7 +59,9 @@ pmcheck -s \
     -e 's/  *$//' \
     -e 's/ active$/ OK/' \
     -e '/^pmproxy /s/inactive/OK/' \
+    -e '/^pmproxy /s/could be activated/OK/' \
     -e '/^pmie /s/inactive/OK/' \
+    -e '/^pmie /s/could be activated/OK/' \
 #end
 
 touch $tmp.pmcheck
