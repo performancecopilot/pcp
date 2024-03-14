@@ -21,6 +21,20 @@ _cleanup()
     $sudo rm -rf $tmp $tmp.*
 }
 
+_filter()
+{
+    sed \
+	-e 's/\(reduces size below by about\) [0-9][0-9]/\1 PERCENT/g'
+}
+
+_values()
+{
+    awk \
+	-e '/reduces size below by about / { print $1, $8 }' |
+    sed \
+	-e 's/%]//g' -e 's/-/_/g' -e 's/\./_/g' -e 's/: /=/g'
+}
+
 status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
@@ -36,7 +50,13 @@ done
 # real QA test starts here
 cd $tmp
 
-pmlogsize -d ok-foo
+pmlogsize -d ok-foo >$tmp.out
+_filter < $tmp.out
+
+eval `_values < $tmp.out`
+_within_tolerance vol $ok_foo_0_xz 78 10% -v 		# allow +/-N%
+_within_tolerance meta $ok_foo_meta_xz 53 5% -v 	# allow +/-N%
+_within_tolerance index $ok_foo_index_xz 18 20% -v 	# allow +/-N%
 
 # success, all done
 status=0
