@@ -37,8 +37,8 @@ _filter()
 	-e '/^__pmFopen/s/\.[^"]*",/.SUFFIX",/' \
 	-e 's/ ]/]/g' \
     | $PCP_AWK_PROG '
-$1 == "__pmLogOpen:"	{ print >"'$tmp'.0"; next }
-			{ print >"'$tmp'.1" }'
+$1 == "__pmLogFindOpen:"	{ print >"'$tmp'.0"; next }
+				{ print >"'$tmp'.1" }'
     LC_COLLATE=POSIX sort $tmp.0
     cat $tmp.1
 }

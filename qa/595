@@ -26,7 +26,7 @@ _cleanup()
 
 _report()
 {
-    for tid in A B C D
+    for tid in A B C D E
     do
 	echo
 	echo "=== Thread $tid $1 ==="
@@ -46,11 +46,12 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 # real QA test starts here
 export PCP_DERIVED_CONFIG=
 
-for arch in archives/ok-foo archives/ok-mv-foo archives/multi archives/bozo-20170904
+for arch in archives/ok-foo archives/ok-mv-foo archives/multi \
+    archives/multi_v3 archives/bozo-20170904
 do
     case $arch
     in
-	archives/multi|archives/bozo-20170904)
+	archives/multi*|archives/bozo-20170904)
 	    metric_B=kernel.percpu.cpu.user
 	    metric_C=network.interface.out.packets
 	    ;;
@@ -61,7 +62,7 @@ do
     esac
 
     $sudo rm -f /tmp/thread_?.out
-    src/multithread12 -a 5 -b 5 -c 5 -d 5 -B $metric_B -C $metric_C $arch
+    src/multithread12 -a 5 -b 5 -c 5 -d 5 -e 5 -B $metric_B -C $metric_C $arch
     _report $arch
 
 done

@@ -21,10 +21,15 @@ trap "rm -rf $tmp; exit \$status" 0 1 2 3 15
 _filter()
 {
     sed \
+	-e '/^__pmLoadTimeval:/d' \
+	-e '/^inst\[/d' \
+	-e '/^auxconnect.c:/d' \
 	-e "s;$tmp;TMP;g" \
 	-e '/addindom( /s/alloc=0x[0-9a-f][0-9a-f]*)/alloc=0x0)/' \
 	-e '/addindom( /s/[0-2][0-9]:[0-5][0-9]:[0-5][0-9]\.[0-9][0-9]*[0-9]/TIMESTAMP/' \
-	-e '/__pmLogSearchInDom( /s/[0-2][0-9]:[0-5][0-9]:[0-5][0-9]\.[0-9][0-9]*[0-9]/TIMESTAMP/'
+	-e '/__pmLogSearchInDom( /s/[0-2][0-9]:[0-5][0-9]:[0-5][0-9]\.[0-9][0-9]*[0-9]/TIMESTAMP/' \
+	-e '/^__pmLogLoadMeta(/s/acp=0x[0-9a-f][0-9a-f]* /acp=ADDR) /' \
+    # end
 }
 
 _filter2()
@@ -44,7 +49,7 @@ do
     echo
     echo "=== bad #`echo $bad | sed -e 's/.*\.bad\.//'` ==="
     cp $bad $tmp/bozo.client_v2.meta
-    pmdumplog -z -dilmst -Dlogmeta $tmp/bozo.client_v2 2>&1 \
+    pmdumplog -z -dilmst -Dlogmeta,desperate $tmp/bozo.client_v2 2>&1 \
     | _filter
 done
 
@@ -53,7 +58,7 @@ do
     echo
     echo "=== size $size ==="
     dd if=$tmp/bozo.client_v2.save bs=1 count=$size of=$tmp/bozo.client_v2.meta >/dev/null 2>&1
-    pmdumplog -z -dilmst -Dlogmeta $tmp/bozo.client_v2 2>&1 \
+    pmdumplog -z -dilmst -Dlogmeta,desperate $tmp/bozo.client_v2 2>&1 \
     | _filter
 done
 
@@ -68,18 +73,18 @@ echo 'some_inst disk.dev.total > 0 -> print "active disks:" " %i"' \
 | _filter2
 echo
 echo 'some_inst disk.dev.total #dks1d1 #dks1d7 > 0 -> print "active disks: " "%i"' \
-| pmie -Dlogmeta -z -t 2sec -a archives/ace_v2 2>&1 \
+| pmie -Dlogmeta,desperate -z -t 2sec -a archives/ace_v2 2>&1 \
 | _filter2
 
 echo
 echo "pmval archive meta data exercises ..."
-pmval -z -t 5sec -Dlogmeta -a archives/ac15 kernel.all.load 2>&1 | _filter
+pmval -z -t 5sec -Dlogmeta,desperate -a archives/ac15 kernel.all.load 2>&1 | _filter
 echo
-pmval -z -t 5sec -Dlogmeta -a archives/ac15 -i '"15 minute","5","1 minute"' kernel.all.load 2>&1 | _filter
+pmval -z -t 5sec -Dlogmeta,desperate -a archives/ac15 -i '"15 minute","5","1 minute"' kernel.all.load 2>&1 | _filter
 
 echo
 echo "torture ..."
-src/torture_logmeta -Dlogmeta archives/ac15 60 2 123 2>&1 \
+src/torture_logmeta -Dlogmeta,desperate archives/ac15 60 2 123 2>&1 \
 | tee -a $seq.full \
 | _filter
 

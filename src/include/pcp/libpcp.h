@@ -854,8 +854,9 @@ typedef struct {
     int			ac_cache_idx;	/* used in interp.c */
     /*
      * These were added to the ABI in order to support multiple archives
-     * in a single context.
+     * in a single context (for archive reading, not writing)
      */
+    int			ac_meta_loaded;	/* metadata has been loaded */
     int			ac_mark_done;	/* mark record between archives */
 					/*   has been generated */
     int			ac_num_logs;	/* The number of archives */

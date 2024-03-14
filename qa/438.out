@@ -1,9 +1,9 @@
 QA output created by 438
 
 --- badarchives/badlen-1 ---
-__pmLogOpen: inspect file "badarchives/badlen-1.0"
-__pmLogOpen: inspect file "badarchives/badlen-1.index"
-__pmLogOpen: inspect file "badarchives/badlen-1.meta"
+__pmLogFindOpen: inspect file "badarchives/badlen-1.0"
+__pmLogFindOpen: inspect file "badarchives/badlen-1.index"
+__pmLogFindOpen: inspect file "badarchives/badlen-1.meta"
 __pmStat("badarchives/badlen-1"): no decompress
 __pmFopen("badarchives/badlen-1.SUFFIX", "r"): no decompress
 __pmFopen("badarchives/badlen-1.SUFFIX", "r"): no decompress
@@ -19,20 +19,21 @@ Error: record length mismatch: header (132) != trailer (128)
 pmdumplog: pmFetch: Corrupted record in a PCP archive
 
 --- badarchives/badlen-10 ---
-__pmLogOpen: inspect file "badarchives/badlen-10.0"
-__pmLogOpen: inspect file "badarchives/badlen-10.index"
-__pmLogOpen: inspect file "badarchives/badlen-10.meta"
+__pmLogFindOpen: inspect file "badarchives/badlen-10.0"
+__pmLogFindOpen: inspect file "badarchives/badlen-10.index"
+__pmLogFindOpen: inspect file "badarchives/badlen-10.meta"
 __pmStat("badarchives/badlen-10"): no decompress
 __pmFopen("badarchives/badlen-10.SUFFIX", "r"): no decompress
 __pmFopen("badarchives/badlen-10.SUFFIX", "r"): no decompress
 __pmFopen("badarchives/badlen-10.SUFFIX", "r"): no decompress
 __pmLogLoadLabel: trailer read -> 3 (expect 4) or bad trailer len=0 (expected 132)
+__pmLogOpen(..., badarchives/badlen-10, ...): __pmLogChangeVol: Illegal label record at start of a PCP archive file
 pmdumplog: Cannot open archive "badarchives/badlen-10": Illegal label record at start of a PCP archive file
 
 --- badarchives/badlen-11 ---
-__pmLogOpen: inspect file "badarchives/badlen-11.0"
-__pmLogOpen: inspect file "badarchives/badlen-11.index"
-__pmLogOpen: inspect file "badarchives/badlen-11.meta"
+__pmLogFindOpen: inspect file "badarchives/badlen-11.0"
+__pmLogFindOpen: inspect file "badarchives/badlen-11.index"
+__pmLogFindOpen: inspect file "badarchives/badlen-11.meta"
 __pmStat("badarchives/badlen-11"): no decompress
 __pmFopen("badarchives/badlen-11.SUFFIX", "r"): no decompress
 __pmFopen("badarchives/badlen-11.SUFFIX", "r"): no decompress
@@ -52,9 +53,9 @@ __pmLogSetTime(0) TIME delta=0.000000000 at ti[0]@TIME vol=0 posn=132 serial=1
 __pmLogRead: fd=3 mode=forw vol=0 posn=132 AFTER end
 
 --- badarchives/badlen-2 ---
-__pmLogOpen: inspect file "badarchives/badlen-2.0"
-__pmLogOpen: inspect file "badarchives/badlen-2.index"
-__pmLogOpen: inspect file "badarchives/badlen-2.meta"
+__pmLogFindOpen: inspect file "badarchives/badlen-2.0"
+__pmLogFindOpen: inspect file "badarchives/badlen-2.index"
+__pmLogFindOpen: inspect file "badarchives/badlen-2.meta"
 __pmStat("badarchives/badlen-2"): no decompress
 __pmFopen("badarchives/badlen-2.SUFFIX", "r"): no decompress
 __pmFopen("badarchives/badlen-2.SUFFIX", "r"): no decompress
@@ -76,9 +77,9 @@ Error: trailer fread got 0 expected 4
 pmdumplog: pmFetch: Corrupted record in a PCP archive
 
 --- badarchives/badlen-3 ---
-__pmLogOpen: inspect file "badarchives/badlen-3.0"
-__pmLogOpen: inspect file "badarchives/badlen-3.index"
-__pmLogOpen: inspect file "badarchives/badlen-3.meta"
+__pmLogFindOpen: inspect file "badarchives/badlen-3.0"
+__pmLogFindOpen: inspect file "badarchives/badlen-3.index"
+__pmLogFindOpen: inspect file "badarchives/badlen-3.meta"
 __pmStat("badarchives/badlen-3"): no decompress
 __pmFopen("badarchives/badlen-3.SUFFIX", "r"): no decompress
 __pmFopen("badarchives/badlen-3.SUFFIX", "r"): no decompress
@@ -100,64 +101,69 @@ Error: data fread got 116 expected 124
 pmdumplog: pmFetch: Corrupted record in a PCP archive
 
 --- badarchives/badlen-4 ---
-__pmLogOpen: inspect file "badarchives/badlen-4.0"
-__pmLogOpen: inspect file "badarchives/badlen-4.index"
-__pmLogOpen: inspect file "badarchives/badlen-4.meta"
+__pmLogFindOpen: inspect file "badarchives/badlen-4.0"
+__pmLogFindOpen: inspect file "badarchives/badlen-4.index"
+__pmLogFindOpen: inspect file "badarchives/badlen-4.meta"
 __pmStat("badarchives/badlen-4"): no decompress
 __pmFopen("badarchives/badlen-4.SUFFIX", "r"): no decompress
 __pmFopen("badarchives/badlen-4.SUFFIX", "r"): no decompress
 __pmFopen("badarchives/badlen-4.SUFFIX", "r"): no decompress
 __pmLogLoadLabel: file is empty
+__pmLogOpen(..., badarchives/badlen-4, ...): __pmLogChangeVol: Empty archive file
 pmdumplog: Cannot open archive "badarchives/badlen-4": Empty archive file
 
 --- badarchives/badlen-5 ---
-__pmLogOpen: inspect file "badarchives/badlen-5.0"
-__pmLogOpen: inspect file "badarchives/badlen-5.index"
-__pmLogOpen: inspect file "badarchives/badlen-5.meta"
+__pmLogFindOpen: inspect file "badarchives/badlen-5.0"
+__pmLogFindOpen: inspect file "badarchives/badlen-5.index"
+__pmLogFindOpen: inspect file "badarchives/badlen-5.meta"
 __pmStat("badarchives/badlen-5"): no decompress
 __pmFopen("badarchives/badlen-5.SUFFIX", "r"): no decompress
 __pmFopen("badarchives/badlen-5.SUFFIX", "r"): no decompress
 __pmFopen("badarchives/badlen-5.SUFFIX", "r"): no decompress
 __pmLogLoadLabel: bad label read len=34: expected 120
+__pmLogOpen(..., badarchives/badlen-5, ...): __pmLogChangeVol: Illegal label record at start of a PCP archive file
 pmdumplog: Cannot open archive "badarchives/badlen-5": Illegal label record at start of a PCP archive file
 
 --- badarchives/badlen-6 ---
-__pmLogOpen: inspect file "badarchives/badlen-6.0"
-__pmLogOpen: inspect file "badarchives/badlen-6.index"
-__pmLogOpen: inspect file "badarchives/badlen-6.meta"
+__pmLogFindOpen: inspect file "badarchives/badlen-6.0"
+__pmLogFindOpen: inspect file "badarchives/badlen-6.index"
+__pmLogFindOpen: inspect file "badarchives/badlen-6.meta"
 __pmStat("badarchives/badlen-6"): no decompress
 __pmFopen("badarchives/badlen-6.SUFFIX", "r"): no decompress
 __pmFopen("badarchives/badlen-6.SUFFIX", "r"): no decompress
 __pmFopen("badarchives/badlen-6.SUFFIX", "r"): no decompress
 __pmLogLoadLabel: bad header len=64 (expected 132)
+__pmLogOpen(..., badarchives/badlen-6, ...): __pmLogChangeVol: Illegal label record at start of a PCP archive file
 pmdumplog: Cannot open archive "badarchives/badlen-6": Illegal label record at start of a PCP archive file
 
 --- badarchives/badlen-7 ---
-__pmLogOpen: inspect file "badarchives/badlen-7.0"
-__pmLogOpen: inspect file "badarchives/badlen-7.index"
-__pmLogOpen: inspect file "badarchives/badlen-7.meta"
+__pmLogFindOpen: inspect file "badarchives/badlen-7.0"
+__pmLogFindOpen: inspect file "badarchives/badlen-7.index"
+__pmLogFindOpen: inspect file "badarchives/badlen-7.meta"
 __pmStat("badarchives/badlen-7"): no decompress
 __pmFopen("badarchives/badlen-7.SUFFIX", "r"): no decompress
 __pmFopen("badarchives/badlen-7.SUFFIX", "r"): no decompress
 __pmFopen("badarchives/badlen-7.SUFFIX", "r"): no decompress
 __pmLogLoadLabel: trailer read -> 4 (expect 4) or bad trailer len=64 (expected 132)
+__pmLogOpen(..., badarchives/badlen-7, ...): __pmLogChangeVol: Illegal label record at start of a PCP archive file
 pmdumplog: Cannot open archive "badarchives/badlen-7": Illegal label record at start of a PCP archive file
 
 --- badarchives/badlen-8 ---
-__pmLogOpen: inspect file "badarchives/badlen-8.0"
-__pmLogOpen: inspect file "badarchives/badlen-8.index"
-__pmLogOpen: inspect file "badarchives/badlen-8.meta"
+__pmLogFindOpen: inspect file "badarchives/badlen-8.0"
+__pmLogFindOpen: inspect file "badarchives/badlen-8.index"
+__pmLogFindOpen: inspect file "badarchives/badlen-8.meta"
 __pmStat("badarchives/badlen-8"): no decompress
 __pmFopen("badarchives/badlen-8.SUFFIX", "r"): no decompress
 __pmFopen("badarchives/badlen-8.SUFFIX", "r"): no decompress
 __pmFopen("badarchives/badlen-8.SUFFIX", "r"): no decompress
 __pmLogLoadLabel: label version 255 not supported
+__pmLogOpen(..., badarchives/badlen-8, ...): __pmLogChangeVol: Illegal label record at start of a PCP archive file
 pmdumplog: Cannot open archive "badarchives/badlen-8": Illegal label record at start of a PCP archive file
 
 --- badarchives/badlen-9 ---
-__pmLogOpen: inspect file "badarchives/badlen-9.0"
-__pmLogOpen: inspect file "badarchives/badlen-9.index"
-__pmLogOpen: inspect file "badarchives/badlen-9.meta"
+__pmLogFindOpen: inspect file "badarchives/badlen-9.0"
+__pmLogFindOpen: inspect file "badarchives/badlen-9.index"
+__pmLogFindOpen: inspect file "badarchives/badlen-9.meta"
 __pmStat("badarchives/badlen-9"): no decompress
 __pmFopen("badarchives/badlen-9.SUFFIX", "r"): no decompress
 __pmFopen("badarchives/badlen-9.SUFFIX", "r"): no decompress

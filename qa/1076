@@ -23,7 +23,7 @@ _filter()
 {
     tee -a $seq.full \
     | sed \
-	-e '/^__pmLogLoadMeta:/d' \
+	-e '/^__pmLogLoadMeta/d' \
 	-e '/^addindom(/d' \
 	-e '/^addlabel(/d' \
 	-e '/^addtext(/d' \

@@ -26,11 +26,13 @@ filter_debug()
 {
     tee -a $here/$seq.full \
     | sed \
+	-e '/^__pmLogFindOpen:/d' \
 	-e '/^__pmLogOpen:/d' \
 	-e '/^__pmLogChangeVol:/d' \
 	-e '/^__pmFopen(/d' \
 	-e '/^__pmLogChkLabel: .* \[magic=/d' \
 	-e '/fd=/s/fd=[0-9][0-9]*/fd=N/' \
+	-e "s,$tmp,<TMPPATH>,g" \
     # end
 }
 

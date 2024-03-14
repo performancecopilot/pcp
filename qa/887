@@ -2,6 +2,8 @@
 # PCP QA Test No. 887
 # Test libpcp multi-archive support using pmclient_fg
 #
+# V2 archive variant, see qa/1498 for the V3 archive variant
+#
 # Copyright (c) 2016 Red Hat.  All Rights Reserved.
 #
 

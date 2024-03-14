@@ -1,10 +1,10 @@
 #!/bin/sh
-# PCP QA Test No. 818
+# PCP QA Test No. 1494
 # Test libpcp multi-archive support using pmclient_fg
-#
-# V2 archive variant, see qa/1497 for the V3 archive variant
+# V3 archive version see 1036 for V2 version
 #
 # Copyright (c) 2016 Red Hat.  All Rights Reserved.
+# Copyright (c) 2024 [who are you?].  All Rights Reserved.
 #
 
 seq=`basename $0`
@@ -25,17 +25,18 @@ trap "cd $here; rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 _filter()
 {
     tmpx=`echo $tmp`
-    sed -e 's/^archive:.*/archive: ARCHIVE/' \
-	-e "s|$tmpx|TMP|g"
+    sed -e 's/^Archive:.* Host:/ARCHIVE: Host:/' \
+	-e "s|$tmpx|TMP|g" \
+	-e 's/-nan/ nan/g' \
+    # end
 }
 
 # real QA test starts here
-DIR=archives/multi
-TOOL=pmval
-METRIC=network.interface.in.bytes
+DIR=archives/multi_v3
+TOOL=pmclient_fg
 mkdir -p $tmp.archives
 
-# Check that running pmval on a set of archives performs identically
+# Check that running pmclient_fg on a set of archives performs identically
 # to running it on the archive created by combining those same archives
 # using pmlogextract.
 
@@ -47,17 +48,17 @@ echo "Running pmlogextract $IN $OUT" | _filter | tee $seq.full
 pmlogextract $IN $OUT 2>&1 >> $seq.full
 [ $? -eq 0 ] || echo "Error running pmlogextract $IN $OUT -- see $seq.full"
 
-# Now run pmval against the extracted archive.
+# Now run pmclient_fg against the extracted archive.
 IN=$OUT
 OUTBASE=$OUT.$TOOL.txt
 echo "Running $TOOL -z -a $IN" | _filter
-$TOOL -z -a $IN $METRIC 2>&1 | _filter | tee $OUTBASE
+$TOOL -z -a $IN 2>&1 | _filter | tee $OUTBASE
 
-# Now, run pmval against the set of archives.
+# Now, run pmclient_fg against the set of archives.
 IN=$DIR/20150508.11.44,$DIR/20150508.11.46,$DIR/20150508.11.50,$DIR/20150508.11.57
 OUT=$tmp.44+46+50+57.$TOOL.txt
 echo "Running $TOOL -z -a $IN" | _filter
-$TOOL -z -a $IN $METRIC 2>&1 | _filter | tee $OUT
+$TOOL -z -a $IN 2>&1 | _filter | tee $OUT
 
 # Make sure the output is the same
 echo "Running diff $OUTBASE $OUT" | _filter | tee -a $seq.full
@@ -68,7 +69,7 @@ diff $OUTBASE $OUT 2>&1 >> $seq.full
 IN=$DIR
 OUT=$tmp.$DIR.$TOOL.txt
 echo "Running $TOOL -z -a $IN" | _filter
-$TOOL -z -a $IN $METRIC 2>&1 | _filter | tee $OUT
+$TOOL -z -a $IN 2>&1 | _filter | tee $OUT
 
 # Make sure the output is the same
 echo "Running diff $OUTBASE $OUT" | _filter | tee -a $seq.full

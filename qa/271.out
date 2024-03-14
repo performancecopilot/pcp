@@ -1,9 +1,9 @@
 QA output created by 271
 === no dir ===
 [filtered and sorted stderr]
-__pmLogOpen: inspect file "TMP.0"
-__pmLogOpen: inspect file "TMP.index"
-__pmLogOpen: inspect file "TMP.meta"
+__pmLogFindOpen: inspect file "TMP.0"
+__pmLogFindOpen: inspect file "TMP.index"
+__pmLogFindOpen: inspect file "TMP.meta"
 __pmStat("TMP"): no decompress
 __pmFopen("TMP.???", "r"): no decompress
 __pmFopen("TMP.???", "r"): no decompress
@@ -21,9 +21,9 @@ Performance metrics from host HOST
 
 === empty dir ===
 [filtered and sorted stderr]
-__pmLogOpen: inspect file "TMP.0"
-__pmLogOpen: inspect file "TMP.index"
-__pmLogOpen: inspect file "TMP.meta"
+__pmLogFindOpen: inspect file "TMP.0"
+__pmLogFindOpen: inspect file "TMP.index"
+__pmLogFindOpen: inspect file "TMP.meta"
 __pmStat("TMP"): no decompress
 __pmFopen("TMP.???", "r"): no decompress
 __pmFopen("TMP.???", "r"): no decompress
@@ -41,9 +41,9 @@ Performance metrics from host HOST
 
 === non-empty dir ===
 [filtered and sorted stderr]
-__pmLogOpen: inspect file "TMP.0"
-__pmLogOpen: inspect file "TMP.index"
-__pmLogOpen: inspect file "TMP.meta"
+__pmLogFindOpen: inspect file "TMP.0"
+__pmLogFindOpen: inspect file "TMP.index"
+__pmLogFindOpen: inspect file "TMP.meta"
 __pmStat("TMP"): no decompress
 __pmFopen("TMP.???", "r"): no decompress
 __pmFopen("TMP.???", "r"): no decompress

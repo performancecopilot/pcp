@@ -46,8 +46,9 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 export PCP_DERIVED_CONFIG=
 
 $sudo rm -f /tmp/thread_?.out
-src/multithread12 -a 5 -b 5 -c 5 -d 5 -C network.interface.out.packets \
-    archives/ok-foo archives/ok-mv-foo archives/multi archives/bozo-20170904
+src/multithread12 -a 5 -b 5 -c 5 -d 5 -e 5 -C network.interface.out.packets \
+    archives/ok-foo archives/ok-mv-foo archives/multi archives/bozo-20170904 \
+    archives/multi_v3
 
 echo
 echo "=== Thread A archives/ok-foo ==="
@@ -83,6 +84,15 @@ then
     cat /tmp/thread_D.out
 else
     echo "Error: /tmp/thread_D.out not created."
+fi
+
+echo
+echo "=== Thread E archives/multi_v3 ==="
+if [ -f /tmp/thread_E.out ]
+then
+    cat /tmp/thread_E.out
+else
+    echo "Error: /tmp/thread_E.out not created."
 fi
 
 # success, all done

@@ -113,6 +113,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
     if ((idp = (__pmLogInDom *)malloc(sizeof(__pmLogInDom))) == NULL)
 	return -oserror();
     idp->next = idp->prior = NULL;
+    idp->indom = lidp->indom;
     idp->stamp = lidp->stamp;		/* struct assignment */
     idp->isdelta = (type == TYPE_INDOM_DELTA);
     idp->buf = indom_buf;
@@ -622,6 +623,11 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
     return __pmHashAdd((int)dp->pmid, (void *)dp, &lcp->hashpmid);
 }
 
+/*
+ * return 0 for added OK
+ * return 1 for duplicate entry ... see note below
+ * return <0 for error
+ */
 int
 __pmLogAddPMNSNode(__pmArchCtl *acp, pmID pmid, const char *name)
 {
@@ -638,7 +644,7 @@ __pmLogAddPMNSNode(__pmArchCtl *acp, pmID pmid, const char *name)
      */
     sts = __pmAddPMNSNode(lcp->pmns, pmid, name);
     if (sts == PM_ERR_PMID)
-	sts = 0;
+	sts = 1;
     return sts;
 }
 
@@ -682,7 +688,24 @@ __pmLogLoadMeta(__pmArchCtl *acp)
     int			i;
     int			len;
     char		name[MAXPATHLEN];
-    
+    int			nrec[TYPE_MAX+1] = { 0 };
+    char		*recname[TYPE_MAX+1] = { "bad", "desc", "indomv2", "labelv2", "text", "indom", "delta", "label" };
+
+    if (pmDebugOptions.logmeta)
+	fprintf(stderr, "__pmLogLoadMeta(acp=%p => name=%s)",
+	    acp, acp->ac_log->name);
+
+    if (acp->ac_meta_loaded == 1) {
+	/*
+	 * only load metadata once per archive
+	 */
+	if (pmDebugOptions.logmeta)
+	    fprintf(stderr, " already loaded, skipped\n");
+	return 0;
+    }
+    if (pmDebugOptions.logmeta)
+	fputc('\n', stderr);
+
     if (lcp->pmns == NULL) {
 	if ((sts = __pmNewPMNS(&(lcp->pmns))) < 0)
 	    goto end;
@@ -714,11 +737,17 @@ __pmLogLoadMeta(__pmArchCtl *acp)
 		sts = PM_ERR_LOGREC;
 	    goto end;
 	}
-	if (pmDebugOptions.logmeta) {
+	if (pmDebugOptions.logmeta && pmDebugOptions.desperate) {
 	    char    strbuf[15];
 	    fprintf(stderr, "__pmLogLoadMeta: record len=%d, type=%s (%d) @ offset=%d\n",
 		h.len, __pmLogMetaTypeStr_r(h.type, strbuf, sizeof(strbuf)),
 		h.type, (int)(__pmFtell(f) - sizeof(__pmLogHdr)));
+	}
+	if (pmDebugOptions.logmeta) {
+	    if (h.type < TYPE_DESC || h.type > TYPE_MAX)
+		nrec[0]++;
+	    else
+		nrec[h.type]++;
 	}
 	rlen = h.len - (int)sizeof(__pmLogHdr) - (int)sizeof(int);
 	if (h.type == TYPE_DESC) {
@@ -803,15 +832,21 @@ __pmLogLoadMeta(__pmArchCtl *acp)
 		    goto end;
 		}
 		name[len] = '\0';
-		if (pmDebugOptions.logmeta) {
-		    char	strbuf[20];
-		    fprintf(stderr, "%s: PMID: %s name: %s\n",
-			    "__pmLogLoadMeta",
-			    pmIDStr_r(desc.pmid, strbuf, sizeof(strbuf)), name);
-		}
 
 		/* Add the new PMNS node into this context */
-		if ((sts = __pmLogAddPMNSNode(acp, desc.pmid, name)) < 0)
+		sts = __pmLogAddPMNSNode(acp, desc.pmid, name);
+		if (pmDebugOptions.logmeta) {
+		    char	strbuf[20];
+		    fprintf(stderr, "%s: PMID: %s name: %s",
+			    "__pmLogLoadMeta",
+			    pmIDStr_r(desc.pmid, strbuf, sizeof(strbuf)), name);
+		    if (sts == 1)
+			fprintf(stderr, " (mismatch)");
+		    if (sts < 0)
+			fprintf(stderr, " (error=%d)", sts);
+		    fputc('\n', stderr);
+		}
+		if (sts < 0)
 		    goto end;
 	    }/*for*/
 	}
@@ -948,7 +983,8 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":16", PM_FAULT_ALLOC);
 				"__pmLogLoadMeta", h.type, (int)(__pmFtell(f) - sizeof(check)));
 
 	    }
-	    return PM_ERR_RECTYPE;
+	    sts = PM_ERR_RECTYPE;
+	    goto done;
 	}
 	n = (int)__pmFread(&check, 1, sizeof(check), f);
 	check = ntohl(check);
@@ -984,6 +1020,20 @@ end:
 	else
 	    __pmFixPMNSHashTab(lcp->pmns, numpmid, 1);
     }
+
+done:
+    if (pmDebugOptions.logmeta) {
+	int	tot = 0;
+	fprintf(stderr, "__pmLogLoadMeta => %d, records", sts);
+	for (i = 0; i <= TYPE_MAX; i++) {
+	    if (nrec[i] > 0) {
+		fprintf(stderr, " %s:%d", recname[i], nrec[i]);
+		tot += nrec[i];
+	    }
+	}
+	fprintf(stderr, " total:%d\n", tot);
+    }
+
     return sts;
 }
 
@@ -1135,6 +1185,7 @@ __pmLogUndeltaInDom(pmInDom indom, __pmLogInDom *idp)
 	int	i;		/* index over last full indom */
 	int	j;		/* index over delta indom */
 	int	k;		/* index over new full indom we're building */
+	assert (didp->isdelta == 1);
 	numinst = didp->next->numinst;
 	for (j = 0; j < didp->numinst; j++) {
 	    if (didp->namelist[j] != NULL)
@@ -1169,6 +1220,7 @@ __pmLogUndeltaInDom(pmInDom indom, __pmLogInDom *idp)
 		    /* add new instance in correct sorted position */
 		    if (pmDebugOptions.logmeta && pmDebugOptions.desperate)
 			fprintf(stderr, "[%d] add from [%d] inst %d \"%s\"\n", k, j, didp->instlist[j], didp->namelist[j]);
+		    assert (k < numinst);
 		    instlist[k] = didp->instlist[j];
 		    namelist[k] = didp->namelist[j];
 		    k++;
@@ -1180,6 +1232,7 @@ __pmLogUndeltaInDom(pmInDom indom, __pmLogInDom *idp)
 		/* copy instance from end of old indom */
 		if (pmDebugOptions.logmeta && pmDebugOptions.desperate)
 		    fprintf(stderr, "[%d] dup from [%d] inst %d \"%s\"\n", k, i, tidp->instlist[i], tidp->namelist[i]);
+		assert(k < numinst);
 		instlist[k] = tidp->instlist[i];
 		namelist[k] = tidp->namelist[i];
 		k++;
@@ -1189,6 +1242,7 @@ __pmLogUndeltaInDom(pmInDom indom, __pmLogInDom *idp)
 		/* add new instance at end of indom */
 		if (pmDebugOptions.logmeta && pmDebugOptions.desperate)
 		    fprintf(stderr, "[%d] append from [%d] inst %d \"%s\"\n", k, j, didp->instlist[j], didp->namelist[j]);
+		assert(k < numinst);
 		instlist[k] = didp->instlist[j];
 		namelist[k] = didp->namelist[j];
 		k++;

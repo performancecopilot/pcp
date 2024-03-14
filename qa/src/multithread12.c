@@ -21,6 +21,7 @@ static char	*archive_A;
 static char	*archive_B;
 static char	*archive_C;
 static char	*archive_D;
+static char	*archive_E;
 
 static const char *metric_B = "sample.bin";
 static const char *metric_C = "sample.colour";
@@ -29,6 +30,7 @@ static int	count_A;
 static int	count_B[2];
 static int	count_C[2];
 static int	count_D[3];
+static int	count_E[3];
 
 static pmInDom	*indom_D;
 static int	numindom_D;
@@ -60,6 +62,10 @@ dometric_A(const char *name, void *f)
     }
 }
 
+/*
+ * pmNewContext, pmTraversePMNS_r, for each metric pmLookupName,
+ * pmLookupDesc, ... and pmDestroyContext
+ */
 static void *
 thread_A(void *arg)
 {
@@ -103,6 +109,10 @@ thread_A(void *arg)
     return(NULL);	/* pthread done */
 }
 
+/*
+ * pmNewContext, pmDupContext, pmLookupName, forwards pmFetch for a
+ * single metric, pmDestroyContext
+ */
 static void *
 thread_B(void *arg)
 {
@@ -174,6 +184,10 @@ thread_B(void *arg)
     return(NULL);	/* pthread done */
 }
 
+/*
+ * pmNewContext, pmLookupName, backwards pmFetch for a single
+ * metric, pmDestroyContext
+ */
 static void *
 thread_C(void *arg)
 {
@@ -316,6 +330,10 @@ dometric_D(const char *name, void *f)
     }
 }
 
+/*
+ * pmNewContext, pmTraversePMNS_r, for each metric pmLookupName,
+ * pmGetDesc, pmGetInDomArchive (maybe), ... pmDestroyContext
+ */
 static void *
 thread_D(void *arg)
 {
@@ -365,6 +383,109 @@ thread_D(void *arg)
     return(NULL);	/* pthread done */
 }
 
+/*
+ * pmNewContext, pmFetchArchive 5 times and for each metric
+ * in each pmResult, pmLookupDesc and if there is an InDom
+ * pmLookupInDom and pmNameInDom, ... pmDestroyContext
+ * metric, pmDestroyContext
+ */
+static void *
+thread_E(void *arg)
+{
+    int		iter = *((int *)arg);
+    int		ctx;
+    pmDesc	desc;
+    char	*iname;
+    pmResult	*rp;
+    int		sts;
+    int		i;		/* outer iterations */
+    int		k;		/* pmFetch iterations */
+    int		m;		/* metrics in a pmResult */
+    int		v;		/* values for a metric */
+    FILE	*f;
+    char	strbuf[PM_MAXERRMSGLEN];
+
+    if ((f = fopen("/tmp/thread_E.out", "w")) == NULL) {
+	perror("thread_E fopen");
+	pthread_exit("botch E.1");
+    }
+    setlinebuf(f);
+
+    if (pick_me == 0)
+	pthread_barrier_wait(&barrier);
+
+    for (i = 0; i < iter; i++) {
+	ctx = pmNewContext(PM_CONTEXT_ARCHIVE, archive_E);
+	if (ctx < 0) {
+	    fprintf(f, "Error: thread_E: iter %d: pmNewContext(%s) -> %s\n", i, archive_E, pmErrStr(ctx));
+	    pthread_exit("botch E.2");
+	}
+
+	count_E[0] = count_E[1] = count_E[2] = 0;
+
+	for (k = 0; k < 5; k++) {
+	    sts = pmFetchArchive(&rp);
+	    if (sts < 0) {
+		fprintf(f, "Error: thread_E: iter %d: pmFetchArchive(%s) -> %s\n", i, archive_E, pmErrStr_r(sts, strbuf, sizeof(strbuf)));
+		pthread_exit("botch E.4");
+	    }
+	    for (m = 0; m < rp->numpmid; m++) {
+		count_E[0]++;
+		sts = pmLookupDesc(rp->vset[m]->pmid, &desc);
+		if (sts < 0) {
+		    fprintf(f, "Error: thread_E: iter %d: pmLookupDesc(%s pmid[%d] %s)",
+			i, archive_E, m, pmIDStr_r(rp->vset[m]->pmid, strbuf, sizeof(strbuf)));
+		    fprintf(f, " -> %s\n", pmErrStr_r(sts, strbuf, sizeof(strbuf)));
+		    pthread_exit("botch E.5");
+		}
+		if (desc.indom == PM_INDOM_NULL)
+		    continue;
+		count_E[1]++;
+		for (v = 0; v < rp->vset[m]->numval; v++) {
+		    sts = pmNameInDom(desc.indom, rp->vset[m]->vlist[v].inst, &iname);
+		    if (sts < 0) {
+			fprintf(f, "Error: thread_E: iter %d: pmNameInDom(%s pmid[%d] %s inst[%d] %d)",
+			    i, archive_E, m, pmIDStr_r(rp->vset[m]->pmid, strbuf, sizeof(strbuf)),
+			    v, rp->vset[m]->vlist[v].inst);
+			fprintf(f, " -> %s\n", pmErrStr_r(sts, strbuf, sizeof(strbuf)));
+			pthread_exit("botch E.6");
+		    }
+		    sts = pmLookupInDom(desc.indom, iname);
+		    if (sts < 0) {
+			fprintf(f, "Error: thread_E: iter %d: pmLookupInDom(%s pmid[%d] %s inst[%d] %d)",
+			    i, archive_E, m, pmIDStr_r(rp->vset[m]->pmid, strbuf, sizeof(strbuf)),
+			    v, rp->vset[m]->vlist[v].inst);
+			fprintf(f, " -> %s\n", pmErrStr_r(sts, strbuf, sizeof(strbuf)));
+			pthread_exit("botch E.7");
+		    }
+		    if (sts != rp->vset[m]->vlist[v].inst) {
+			fprintf(f, "Error: thread_E: iter %d: lookup botch(%s pmid[%d] %s inst[%d] %d)",
+			    i, archive_E, m, pmIDStr_r(rp->vset[m]->pmid, strbuf, sizeof(strbuf)),
+			    v, rp->vset[m]->vlist[v].inst);
+			fprintf(f, " != %d\n", sts);
+			pthread_exit("botch E.8");
+		    }
+		    count_E[2]++;
+		    free(iname);
+		}
+	    }
+	    pmFreeResult(rp);
+	}
+	fprintf(f, "%d metrics, %d non-singular metrics and %d values found\n",
+	    count_E[0], count_E[1], count_E[2]);
+
+	sts = pmDestroyContext(ctx);
+	if (sts < 0) {
+	    fprintf(f, "Error: thread_E: iter %d: pmDestroyContext(%d) -> %s\n", i, ctx, pmErrStr_r(sts, strbuf, sizeof(strbuf)));
+	    pthread_exit("botch E.6");
+	}
+
+    }
+
+    fclose(f);
+    return(NULL);	/* pthread done */
+}
+
 static void
 wait_for_thread(char *name, pthread_t tid)
 {
@@ -389,10 +510,12 @@ main(int argc, char **argv)
     pthread_t	tid_B;
     pthread_t	tid_C;
     pthread_t	tid_D;
+    pthread_t	tid_E;
     int		iter_A = 10;
     int		iter_B = 10;
     int		iter_C = 10;
     int		iter_D = 10;
+    int		iter_E = 10;
     int		sts;
     char	*endnum;
     int		errflag = 0;
@@ -400,7 +523,7 @@ main(int argc, char **argv)
 
     pmSetProgname(argv[0]);
 
-    while ((c = getopt(argc, argv, "a:b:B:c:C:d:D:")) != EOF) {
+    while ((c = getopt(argc, argv, "a:b:B:c:C:d:e:D:")) != EOF) {
 	switch (c) {
 
 	case 'a':
@@ -443,6 +566,14 @@ main(int argc, char **argv)
 	    }
 	    break;
 
+	case 'e':
+	    iter_E = (int)strtol(optarg, &endnum, 10);
+	    if (*endnum != '\0' || iter_E < 0) {
+		fprintf(stderr, "%s: -e requires numeric argument\n", pmGetProgname());
+		errflag++;
+	    }
+	    break;
+
 	case 'D':	/* debug options */
 	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
@@ -459,8 +590,8 @@ main(int argc, char **argv)
 	}
     }
 
-    if (errflag || optind == argc || argc-optind > 4) {
-	fprintf(stderr, "Usage: %s [options] archive1 [archive2 [archive3 [archive4]]]\n", pmGetProgname());
+    if (errflag || optind == argc || argc-optind > 5) {
+	fprintf(stderr, "Usage: %s [options] archive1 [archive2 [archive3 [archive4 [archive5]]]]\n", pmGetProgname());
 	fprintf(stderr, "options:\n");
 	fprintf(stderr, "  -a iter	iteration count for thread A [default 10]\n");
 	fprintf(stderr, "  -b iter	iteration count for thread B [default 10]\n");
@@ -468,9 +599,11 @@ main(int argc, char **argv)
 	fprintf(stderr, "  -c iter	iteration count for thread C [default 10]\n");
 	fprintf(stderr, "  -C metric	metric for thread C [sample.colour]\n");
 	fprintf(stderr, "  -d iter	iteration count for thread D [default 10]\n");
+	fprintf(stderr, "  -e iter	iteration count for thread E [default 10]\n");
 	fprintf(stderr, "  -D debug\n");
 	fprintf(stderr, "\n-D appl0 for thread A alone, -Dappl1 for thread B alone,\n");
 	fprintf(stderr, "-D appl0,appl1 for thread C alone, -Dappl2 for thread D alone,\n");
+	fprintf(stderr, "-D appl2,appl1 for thread E alone\n");
 	exit(1);
     }
 
@@ -508,8 +641,15 @@ main(int argc, char **argv)
     else
 	archive_D = archive_C;
 
+    if (optind < argc) {
+	archive_E = argv[optind];
+	optind++;
+    }
+    else
+	archive_E = archive_C;
+
     if (pick_me == 0) {
-	sts = pthread_barrier_init(&barrier, NULL, 4);
+	sts = pthread_barrier_init(&barrier, NULL, 5);
 	if (sts != 0) {
 	    printf("pthread_barrier_init: sts=%d\n", sts);
 	    exit(1);
@@ -544,6 +684,13 @@ main(int argc, char **argv)
 	    exit(1);
 	}
     }
+    if (pick_me == 0 || pick_me == 5) {
+	sts = pthread_create(&tid_E, NULL, thread_E, &iter_E);
+	if (sts != 0) {
+	    printf("thread_create: tid_E: sts=%d\n", sts);
+	    exit(1);
+	}
+    }
 
     if (pick_me == 0 || pick_me == 1)
 	wait_for_thread("tid_A", tid_A);
@@ -553,6 +700,8 @@ main(int argc, char **argv)
 	wait_for_thread("tid_C", tid_C);
     if (pick_me == 0 || pick_me == 4)
 	wait_for_thread("tid_D", tid_D);
+    if (pick_me == 0 || pick_me == 5)
+	wait_for_thread("tid_E", tid_E);
 
     exit(0);
 }

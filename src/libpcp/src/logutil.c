@@ -712,7 +712,7 @@ __pmLogFindOpen(__pmArchCtl *acp, const char *name)
 	    if (strcmp(base, direntp->d_name) != 0)
 		continue;
 	    if (pmDebugOptions.log) {
-		fprintf(stderr, "__pmLogOpen: inspect file \"%s\"\n", filename);
+		fprintf(stderr, "__pmLogFindOpen: inspect file \"%s\"\n", filename);
 	    }
 	    tp = &direntp->d_name[blen+1];
 	    if (strcmp(tp, "index") == 0) {
@@ -752,7 +752,7 @@ __pmLogFindOpen(__pmArchCtl *acp, const char *name)
 	sts = -oserror();
 	if (pmDebugOptions.log) {
 	    char	errmsg[PM_MAXERRMSGLEN];
-	    fprintf(stderr, "__pmLogOpen: cannot scan directory \"%s\": %s\n", dir, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	    fprintf(stderr, "__pmLogFindOpen: cannot scan directory \"%s\": %s\n", dir, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	}
 	goto cleanup;
 	
@@ -760,9 +760,9 @@ __pmLogFindOpen(__pmArchCtl *acp, const char *name)
 
     if (lcp->minvol == -1 && ! (acp->ac_flags & PM_CTXFLAG_METADATA_ONLY)) {
 	if (pmDebugOptions.log) {
-	    fprintf(stderr, "__pmLogOpen: Not found: data file \"%s.0\" (or similar)\n", base);
+	    fprintf(stderr, "__pmLogFindOpen: Not found: data file \"%s.0\" (or similar)\n", base);
 	    if (lcp->mdfp == NULL)
-		fprintf(stderr, "__pmLogOpen: Not found: metadata file \"%s.meta\"\n", base);
+		fprintf(stderr, "__pmLogFindOpen: Not found: metadata file \"%s.meta\"\n", base);
 	}
 	if (exists)
 	    sts = PM_ERR_LOGFILE;
@@ -773,7 +773,7 @@ __pmLogFindOpen(__pmArchCtl *acp, const char *name)
 
     if (lcp->mdfp == NULL) {
 	if (pmDebugOptions.log) {
-	    fprintf(stderr, "__pmLogOpen: Not found: metadata file \"%s.meta\"\n", base);
+	    fprintf(stderr, "__pmLogFindOpen: Not found: metadata file \"%s.meta\"\n", base);
 	}
 	if (exists)
 	    sts = PM_ERR_LOGFILE;
@@ -806,7 +806,7 @@ __pmLogOpen(const char *name, __pmContext *ctxp)
     int		sts;
 
     if ((sts = __pmLogFindOpen(ctxp->c_archctl, name)) < 0) {
-	if (pmDebugOptions.log && pmDebugOptions.desperate) {
+	if (pmDebugOptions.log) {
 	    char	errmsg[PM_MAXERRMSGLEN];
 	    fprintf(stderr, "__pmLogOpen(..., %s, ...): __pmLogFindOpen: %s\n",
 		name, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
@@ -817,7 +817,7 @@ __pmLogOpen(const char *name, __pmContext *ctxp)
     acp->ac_curvol = -1;
     if (! (acp->ac_flags & PM_CTXFLAG_METADATA_ONLY)) {
 	if ((sts = __pmLogChangeVol(acp, lcp->minvol)) < 0) {
-	    if (pmDebugOptions.log && pmDebugOptions.desperate) {
+	    if (pmDebugOptions.log) {
 		char	errmsg[PM_MAXERRMSGLEN];
 		fprintf(stderr, "__pmLogOpen(..., %s, ...): __pmLogChangeVol: %s\n",
 		    name, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
@@ -832,7 +832,7 @@ __pmLogOpen(const char *name, __pmContext *ctxp)
 	if (lcp->tifp) {
 	    sts = __pmLogChkLabel(acp, lcp->tifp, &label, PM_LOG_VOL_TI);
 	    if (sts < 0) {
-		if (pmDebugOptions.log && pmDebugOptions.desperate) {
+		if (pmDebugOptions.log) {
 		    char	errmsg[PM_MAXERRMSGLEN];
 		    fprintf(stderr, "__pmLogOpen(..., %s, ...): __pmLogChkLabel TI: %s\n",
 			name, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
@@ -855,7 +855,7 @@ __pmLogOpen(const char *name, __pmContext *ctxp)
 	}
 
 	if ((sts = __pmLogChkLabel(acp, lcp->mdfp, &label, PM_LOG_VOL_META)) < 0) {
-	    if (pmDebugOptions.log && pmDebugOptions.desperate) {
+	    if (pmDebugOptions.log) {
 		char	errmsg[PM_MAXERRMSGLEN];
 		fprintf(stderr, "__pmLogOpen(..., %s, ...): __pmLogChkLabel META: %s\n",
 		    name, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
@@ -872,7 +872,7 @@ __pmLogOpen(const char *name, __pmContext *ctxp)
 	 * archives possibly making up this context.
 	 */
 	if ((sts = checkLabelConsistency(ctxp, &lcp->label)) < 0) {
-	    if (pmDebugOptions.log && pmDebugOptions.desperate) {
+	    if (pmDebugOptions.log) {
 		char	errmsg[PM_MAXERRMSGLEN];
 		fprintf(stderr, "__pmLogOpen(..., %s, ...): checkLabelConsistency: %s\n",
 		    name, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
@@ -882,7 +882,7 @@ __pmLogOpen(const char *name, __pmContext *ctxp)
     }
     else {
 	if ((sts = __pmLogLoadLabel(lcp->mdfp, &label)) < 0) {
-	    if (pmDebugOptions.log && pmDebugOptions.desperate) {
+	    if (pmDebugOptions.log) {
 		char	errmsg[PM_MAXERRMSGLEN];
 		fprintf(stderr, "__pmLogOpen(..., %s, ...): [PM_CTXFLAG_METADATA_ONLY] __pmLogLoadLabel: %s\n",
 		    name, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
@@ -912,7 +912,7 @@ __pmLogOpen(const char *name, __pmContext *ctxp)
 
     if (! (acp->ac_flags & PM_CTXFLAG_METADATA_ONLY)) {
 	if ((sts = __pmLogLoadIndex(lcp)) < 0) {
-	    if (pmDebugOptions.log && pmDebugOptions.desperate) {
+	    if (pmDebugOptions.log) {
 		char	errmsg[PM_MAXERRMSGLEN];
 		fprintf(stderr, "__pmLogOpen(..., %s, ...): __pmLogLoadIndex: %s\n",
 		    name, pmErrStr_r(sts, errmsg, sizeof(errmsg)));

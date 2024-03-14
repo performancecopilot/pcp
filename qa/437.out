@@ -7,9 +7,10 @@ You can use the `bzip2recover' program to attempt to recover
 __pmFopen("./null.0", "r"): decompress: bzip2
 __pmFopen("./null.index", "r"): no decompress
 __pmFopen("./null.meta", "r"): no decompress
-__pmLogOpen: inspect file "./null.0.bz2"
-__pmLogOpen: inspect file "./null.index"
-__pmLogOpen: inspect file "./null.meta"
+__pmLogFindOpen: inspect file "./null.0.bz2"
+__pmLogFindOpen: inspect file "./null.index"
+__pmLogFindOpen: inspect file "./null.meta"
+__pmLogOpen(..., null, ...): __pmLogChangeVol: Corrupted record in a PCP archive
 __pmLogOpen: uncompress failed, exit status: 2
 __pmLogOpen: uncompress using: bzip2 -dc ./null.0.bz2
 bzip2: Compressed file ends unexpectedly;
@@ -24,9 +25,10 @@ You can use the `bzip2recover' program to attempt to recover
 __pmFopen("./null.0", "r"): decompress: bzip2
 __pmFopen("./null.index", "r"): no decompress
 __pmFopen("./null.meta", "r"): no decompress
-__pmLogOpen: inspect file "./null.0.bz2"
-__pmLogOpen: inspect file "./null.index"
-__pmLogOpen: inspect file "./null.meta"
+__pmLogFindOpen: inspect file "./null.0.bz2"
+__pmLogFindOpen: inspect file "./null.index"
+__pmLogFindOpen: inspect file "./null.meta"
+__pmLogOpen(..., null, ...): __pmLogChangeVol: Corrupted record in a PCP archive
 __pmLogOpen: uncompress failed, exit status: 2
 __pmLogOpen: uncompress using: bzip2 -dc ./null.0.bz2
 bzip2: Compressed file ends unexpectedly;

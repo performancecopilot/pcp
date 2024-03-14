@@ -12,21 +12,23 @@ __pmFopen("tmparch/foo.0", "r"): no decompress
 __pmFopen("tmparch/foo.index", "r"): no decompress
 __pmFopen("tmparch/foo.meta", "r"): no decompress
 __pmLogChangeVol: change to volume 0
-__pmLogOpen: inspect file "tmparch/foo.0"
-__pmLogOpen: inspect file "tmparch/foo.index"
-__pmLogOpen: inspect file "tmparch/foo.meta"
+__pmLogFindOpen: inspect file "tmparch/foo.0"
+__pmLogFindOpen: inspect file "tmparch/foo.index"
+__pmLogFindOpen: inspect file "tmparch/foo.meta"
 __pmStat("tmparch/foo.meta"): no decompress
 
 === /tmp/fungus: exists ===
 [filtered and sorted stderr]
-__pmLogOpen: Not found: data file "fungus.0" (or similar)
-__pmLogOpen: Not found: metadata file "fungus.meta"
+__pmLogFindOpen: Not found: data file "fungus.0" (or similar)
+__pmLogFindOpen: Not found: metadata file "fungus.meta"
+__pmLogOpen(..., /tmp/fungus, ...): __pmLogFindOpen: No such file or directory
 __pmStat("/tmp/fungus"): no decompress
 pmdumplog: Cannot open archive "/tmp/fungus": No such file or directory
 
 === /tmp/bogus: does not exist ===
 [filtered and sorted stderr]
-__pmLogOpen: Not found: data file "bogus.0" (or similar)
-__pmLogOpen: Not found: metadata file "bogus.meta"
+__pmLogFindOpen: Not found: data file "bogus.0" (or similar)
+__pmLogFindOpen: Not found: metadata file "bogus.meta"
+__pmLogOpen(..., /tmp/bogus, ...): __pmLogFindOpen: No such file or directory
 __pmStat("/tmp/bogus"): no decompress
 pmdumplog: Cannot open archive "/tmp/bogus": No such file or directory

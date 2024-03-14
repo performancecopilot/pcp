@@ -2,6 +2,8 @@
 # PCP QA Test No. 1038
 # Test libpcp multi-archive support using pmrep
 #
+# V2 archive variant, see qa/1500 for the V3 archive variant
+#
 # Copyright (c) 2016 Red Hat.  All Rights Reserved.
 #
 

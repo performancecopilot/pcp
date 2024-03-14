@@ -30,11 +30,12 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 # real QA test starts here
 export PCP_DERIVED_CONFIG=
 
-for arch in archives/ok-foo archives/ok-mv-foo archives/multi archives/bozo-20170904
+for arch in archives/ok-foo archives/ok-mv-foo \
+    archives/multi archives/multi_v3 archives/bozo-20170904
 do
     case $arch
     in
-	archives/multi|archives/bozo-20170904)
+	archives/multi*|archives/bozo-20170904)
 	    metric_B=kernel.percpu.cpu.user
 	    metric_C=network.interface.out.packets
 	    ;;
@@ -86,6 +87,17 @@ do
 	cat /tmp/thread_D.out
     else
 	echo "Error: /tmp/thread_D.out not created."
+    fi
+
+    echo
+    echo "=== Thread E $arch ==="
+    $sudo rm -f /tmp/thread_E.out
+    src/multithread12 -e 5 -Dappl2,appl0 $arch
+    if [ -f /tmp/thread_E.out ]
+    then
+	cat /tmp/thread_E.out
+    else
+	echo "Error: /tmp/thread_E.out not created."
     fi
 
 done

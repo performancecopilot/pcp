@@ -28,6 +28,13 @@ QA output created by 595
 5 non-singular metrics with 3 indoms and 13 instances found
 5 non-singular metrics with 3 indoms and 13 instances found
 
+=== Thread E archives/ok-foo ===
+23 metrics, 11 non-singular metrics and 51 values found
+23 metrics, 11 non-singular metrics and 51 values found
+23 metrics, 11 non-singular metrics and 51 values found
+23 metrics, 11 non-singular metrics and 51 values found
+23 metrics, 11 non-singular metrics and 51 values found
+
 === Thread A archives/ok-mv-foo ===
 10 pmDescs found
 10 pmDescs found
@@ -55,6 +62,13 @@ QA output created by 595
 5 non-singular metrics with 3 indoms and 13 instances found
 5 non-singular metrics with 3 indoms and 13 instances found
 5 non-singular metrics with 3 indoms and 13 instances found
+
+=== Thread E archives/ok-mv-foo ===
+23 metrics, 11 non-singular metrics and 51 values found
+23 metrics, 11 non-singular metrics and 51 values found
+23 metrics, 11 non-singular metrics and 51 values found
+23 metrics, 11 non-singular metrics and 51 values found
+23 metrics, 11 non-singular metrics and 51 values found
 
 === Thread A archives/multi ===
 276 pmDescs found
@@ -84,6 +98,48 @@ QA output created by 595
 130 non-singular metrics with 15 indoms and 160 instances found
 130 non-singular metrics with 15 indoms and 160 instances found
 
+=== Thread E archives/multi ===
+495 metrics, 225 non-singular metrics and 852 values found
+495 metrics, 225 non-singular metrics and 852 values found
+495 metrics, 225 non-singular metrics and 852 values found
+495 metrics, 225 non-singular metrics and 852 values found
+495 metrics, 225 non-singular metrics and 852 values found
+
+=== Thread A archives/multi_v3 ===
+276 pmDescs found
+276 pmDescs found
+276 pmDescs found
+276 pmDescs found
+276 pmDescs found
+
+=== Thread B archives/multi_v3 ===
+14 pmResults and 56 values found for kernel.percpu.cpu.user
+14 pmResults and 56 values found for kernel.percpu.cpu.user
+14 pmResults and 56 values found for kernel.percpu.cpu.user
+14 pmResults and 56 values found for kernel.percpu.cpu.user
+14 pmResults and 56 values found for kernel.percpu.cpu.user
+
+=== Thread C archives/multi_v3 ===
+14 pmResults and 70 values found for network.interface.out.packets
+14 pmResults and 70 values found for network.interface.out.packets
+14 pmResults and 70 values found for network.interface.out.packets
+14 pmResults and 70 values found for network.interface.out.packets
+14 pmResults and 70 values found for network.interface.out.packets
+
+=== Thread D archives/multi_v3 ===
+130 non-singular metrics with 15 indoms and 160 instances found
+130 non-singular metrics with 15 indoms and 160 instances found
+130 non-singular metrics with 15 indoms and 160 instances found
+130 non-singular metrics with 15 indoms and 160 instances found
+130 non-singular metrics with 15 indoms and 160 instances found
+
+=== Thread E archives/multi_v3 ===
+495 metrics, 225 non-singular metrics and 852 values found
+495 metrics, 225 non-singular metrics and 852 values found
+495 metrics, 225 non-singular metrics and 852 values found
+495 metrics, 225 non-singular metrics and 852 values found
+495 metrics, 225 non-singular metrics and 852 values found
+
 === Thread A archives/bozo-20170904 ===
 407 pmDescs found
 407 pmDescs found
@@ -111,3 +167,10 @@ QA output created by 595
 142 non-singular metrics with 25 indoms and 3985 instances found
 142 non-singular metrics with 25 indoms and 3985 instances found
 142 non-singular metrics with 25 indoms and 3985 instances found
+
+=== Thread E archives/bozo-20170904 ===
+748 metrics, 243 non-singular metrics and 3063 values found
+748 metrics, 243 non-singular metrics and 3063 values found
+748 metrics, 243 non-singular metrics and 3063 values found
+748 metrics, 243 non-singular metrics and 3063 values found
+748 metrics, 243 non-singular metrics and 3063 values found

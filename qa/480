@@ -37,7 +37,8 @@ _filter()
 s//[DATE]/
 s/([0-9][0-9]*)/(PID)/
 }' \
-	-e 's/Not enough space/Cannot allocate memory/'
+	-e 's/Not enough space/Cannot allocate memory/' \
+    # end
 }
 
 # real QA test starts here

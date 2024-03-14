@@ -654,7 +654,7 @@ addName(const char *dirname, char *list, size_t *listsize,
     /* Allocate more space */
     if (list == NULL) {
 	if ((list = malloc(dirsize + itemsize + 1)) == NULL) {
-	    pmNoMem("initarchive", itemsize + 1, PM_FATAL_ERR);
+	    pmNoMem("addName", itemsize + 1, PM_FATAL_ERR);
 	    /* NOTREACHED */
 	}
 	*listsize = 0;
@@ -662,7 +662,7 @@ addName(const char *dirname, char *list, size_t *listsize,
     else {
 	/* The comma goes where the previous nul was */
 	if ((list_new = realloc(list, dirsize + *listsize + itemsize + 1)) == NULL) {
-	    pmNoMem("initarchive", *listsize + itemsize + 1, PM_FATAL_ERR);
+	    pmNoMem("addName", *listsize + itemsize + 1, PM_FATAL_ERR);
 	    /* NOTREACHED */
 	}
 	list = list_new;
@@ -715,7 +715,7 @@ expandArchiveList(const char *names)
 	 * We need nul terminated copy of the name fpr opendir(3).
 	 */
 	if ((dirname = malloc(length + 1)) == NULL) {
-	    pmNoMem("initarchive", length + 1, PM_FATAL_ERR);
+	    pmNoMem("expandArchiveList", length + 1, PM_FATAL_ERR);
 	    /* NOTREACHED */
 	}
 	memcpy(dirname, current, length);
@@ -813,6 +813,7 @@ initarchive(__pmContext	*ctxp, const char *name)
     acp->ac_log = NULL;
     acp->ac_mark_done = 0;
     acp->ac_flags = ctxp->c_flags;
+    acp->ac_meta_loaded = 0;
 
     /*
      * The list of names may contain one or more directories. Examine the
@@ -947,6 +948,7 @@ initarchive(__pmContext	*ctxp, const char *name)
     }
     free(namelist);
     namelist = NULL;
+    acp->ac_meta_loaded = 1;
 
     if (acp->ac_num_logs > 1) {
 	/*
@@ -1470,6 +1472,12 @@ pmDupContext(void)
 	    goto setup_fail;
 	}
 	*tmpcon.c_archctl = *oldcon->c_archctl;	/* struct assignment */
+
+	/*
+	 * force new and independent reload of metadata in the new context
+	 * */
+	tmpcon.c_archctl->ac_meta_loaded = 0;
+
 	/*
 	 * Need to make hash list and read cache independent in case oldcon
 	 * is subsequently closed via pmDestroyContext() and don't want
