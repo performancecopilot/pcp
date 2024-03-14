@@ -1,5 +1,5 @@
 ## Build
-FROM registry.fedoraproject.org/fedora:38 AS build
+FROM quay.io/fedora/fedora:latest AS build
 COPY . /usr/src/pcp
 
 WORKDIR /usr/src/pcp
@@ -25,7 +25,7 @@ RUN mkdir /build && \
       /build
 
 ## Deploy
-FROM registry.fedoraproject.org/fedora:38
+FROM quay.io/fedora/fedora:latest
 COPY --from=build /build /build
 
 ENV SUMMARY="Performance Co-Pilot" \
