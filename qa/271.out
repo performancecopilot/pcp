@@ -4,7 +4,6 @@ QA output created by 271
 __pmLogFindOpen: inspect file "TMP.0"
 __pmLogFindOpen: inspect file "TMP.index"
 __pmLogFindOpen: inspect file "TMP.meta"
-__pmStat("TMP"): no decompress
 __pmFopen("TMP.???", "r"): no decompress
 __pmFopen("TMP.???", "r"): no decompress
 __pmFopen("TMP.???", "r"): no decompress
@@ -24,7 +23,6 @@ Performance metrics from host HOST
 __pmLogFindOpen: inspect file "TMP.0"
 __pmLogFindOpen: inspect file "TMP.index"
 __pmLogFindOpen: inspect file "TMP.meta"
-__pmStat("TMP"): no decompress
 __pmFopen("TMP.???", "r"): no decompress
 __pmFopen("TMP.???", "r"): no decompress
 __pmFopen("TMP.???", "r"): no decompress
@@ -44,7 +42,6 @@ Performance metrics from host HOST
 __pmLogFindOpen: inspect file "TMP.0"
 __pmLogFindOpen: inspect file "TMP.index"
 __pmLogFindOpen: inspect file "TMP.meta"
-__pmStat("TMP"): no decompress
 __pmFopen("TMP.???", "r"): no decompress
 __pmFopen("TMP.???", "r"): no decompress
 __pmFopen("TMP.???", "r"): no decompress

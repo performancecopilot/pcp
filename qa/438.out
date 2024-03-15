@@ -4,7 +4,6 @@ QA output created by 438
 __pmLogFindOpen: inspect file "badarchives/badlen-1.0"
 __pmLogFindOpen: inspect file "badarchives/badlen-1.index"
 __pmLogFindOpen: inspect file "badarchives/badlen-1.meta"
-__pmStat("badarchives/badlen-1"): no decompress
 __pmFopen("badarchives/badlen-1.SUFFIX", "r"): no decompress
 __pmFopen("badarchives/badlen-1.SUFFIX", "r"): no decompress
 __pmFopen("badarchives/badlen-1.SUFFIX", "r"): no decompress
@@ -22,7 +21,6 @@ pmdumplog: pmFetch: Corrupted record in a PCP archive
 __pmLogFindOpen: inspect file "badarchives/badlen-10.0"
 __pmLogFindOpen: inspect file "badarchives/badlen-10.index"
 __pmLogFindOpen: inspect file "badarchives/badlen-10.meta"
-__pmStat("badarchives/badlen-10"): no decompress
 __pmFopen("badarchives/badlen-10.SUFFIX", "r"): no decompress
 __pmFopen("badarchives/badlen-10.SUFFIX", "r"): no decompress
 __pmFopen("badarchives/badlen-10.SUFFIX", "r"): no decompress
@@ -34,7 +32,6 @@ pmdumplog: Cannot open archive "badarchives/badlen-10": Illegal label record at 
 __pmLogFindOpen: inspect file "badarchives/badlen-11.0"
 __pmLogFindOpen: inspect file "badarchives/badlen-11.index"
 __pmLogFindOpen: inspect file "badarchives/badlen-11.meta"
-__pmStat("badarchives/badlen-11"): no decompress
 __pmFopen("badarchives/badlen-11.SUFFIX", "r"): no decompress
 __pmFopen("badarchives/badlen-11.SUFFIX", "r"): no decompress
 __pmFopen("badarchives/badlen-11.SUFFIX", "r"): no decompress
@@ -56,7 +53,6 @@ __pmLogRead: fd=3 mode=forw vol=0 posn=132 AFTER end
 __pmLogFindOpen: inspect file "badarchives/badlen-2.0"
 __pmLogFindOpen: inspect file "badarchives/badlen-2.index"
 __pmLogFindOpen: inspect file "badarchives/badlen-2.meta"
-__pmStat("badarchives/badlen-2"): no decompress
 __pmFopen("badarchives/badlen-2.SUFFIX", "r"): no decompress
 __pmFopen("badarchives/badlen-2.SUFFIX", "r"): no decompress
 __pmFopen("badarchives/badlen-2.SUFFIX", "r"): no decompress
@@ -80,7 +76,6 @@ pmdumplog: pmFetch: Corrupted record in a PCP archive
 __pmLogFindOpen: inspect file "badarchives/badlen-3.0"
 __pmLogFindOpen: inspect file "badarchives/badlen-3.index"
 __pmLogFindOpen: inspect file "badarchives/badlen-3.meta"
-__pmStat("badarchives/badlen-3"): no decompress
 __pmFopen("badarchives/badlen-3.SUFFIX", "r"): no decompress
 __pmFopen("badarchives/badlen-3.SUFFIX", "r"): no decompress
 __pmFopen("badarchives/badlen-3.SUFFIX", "r"): no decompress
@@ -104,7 +99,6 @@ pmdumplog: pmFetch: Corrupted record in a PCP archive
 __pmLogFindOpen: inspect file "badarchives/badlen-4.0"
 __pmLogFindOpen: inspect file "badarchives/badlen-4.index"
 __pmLogFindOpen: inspect file "badarchives/badlen-4.meta"
-__pmStat("badarchives/badlen-4"): no decompress
 __pmFopen("badarchives/badlen-4.SUFFIX", "r"): no decompress
 __pmFopen("badarchives/badlen-4.SUFFIX", "r"): no decompress
 __pmFopen("badarchives/badlen-4.SUFFIX", "r"): no decompress
@@ -116,7 +110,6 @@ pmdumplog: Cannot open archive "badarchives/badlen-4": Empty archive file
 __pmLogFindOpen: inspect file "badarchives/badlen-5.0"
 __pmLogFindOpen: inspect file "badarchives/badlen-5.index"
 __pmLogFindOpen: inspect file "badarchives/badlen-5.meta"
-__pmStat("badarchives/badlen-5"): no decompress
 __pmFopen("badarchives/badlen-5.SUFFIX", "r"): no decompress
 __pmFopen("badarchives/badlen-5.SUFFIX", "r"): no decompress
 __pmFopen("badarchives/badlen-5.SUFFIX", "r"): no decompress
@@ -128,7 +121,6 @@ pmdumplog: Cannot open archive "badarchives/badlen-5": Illegal label record at s
 __pmLogFindOpen: inspect file "badarchives/badlen-6.0"
 __pmLogFindOpen: inspect file "badarchives/badlen-6.index"
 __pmLogFindOpen: inspect file "badarchives/badlen-6.meta"
-__pmStat("badarchives/badlen-6"): no decompress
 __pmFopen("badarchives/badlen-6.SUFFIX", "r"): no decompress
 __pmFopen("badarchives/badlen-6.SUFFIX", "r"): no decompress
 __pmFopen("badarchives/badlen-6.SUFFIX", "r"): no decompress
@@ -140,7 +132,6 @@ pmdumplog: Cannot open archive "badarchives/badlen-6": Illegal label record at s
 __pmLogFindOpen: inspect file "badarchives/badlen-7.0"
 __pmLogFindOpen: inspect file "badarchives/badlen-7.index"
 __pmLogFindOpen: inspect file "badarchives/badlen-7.meta"
-__pmStat("badarchives/badlen-7"): no decompress
 __pmFopen("badarchives/badlen-7.SUFFIX", "r"): no decompress
 __pmFopen("badarchives/badlen-7.SUFFIX", "r"): no decompress
 __pmFopen("badarchives/badlen-7.SUFFIX", "r"): no decompress
@@ -152,7 +143,6 @@ pmdumplog: Cannot open archive "badarchives/badlen-7": Illegal label record at s
 __pmLogFindOpen: inspect file "badarchives/badlen-8.0"
 __pmLogFindOpen: inspect file "badarchives/badlen-8.index"
 __pmLogFindOpen: inspect file "badarchives/badlen-8.meta"
-__pmStat("badarchives/badlen-8"): no decompress
 __pmFopen("badarchives/badlen-8.SUFFIX", "r"): no decompress
 __pmFopen("badarchives/badlen-8.SUFFIX", "r"): no decompress
 __pmFopen("badarchives/badlen-8.SUFFIX", "r"): no decompress
@@ -164,7 +154,6 @@ pmdumplog: Cannot open archive "badarchives/badlen-8": Illegal label record at s
 __pmLogFindOpen: inspect file "badarchives/badlen-9.0"
 __pmLogFindOpen: inspect file "badarchives/badlen-9.index"
 __pmLogFindOpen: inspect file "badarchives/badlen-9.meta"
-__pmStat("badarchives/badlen-9"): no decompress
 __pmFopen("badarchives/badlen-9.SUFFIX", "r"): no decompress
 __pmFopen("badarchives/badlen-9.SUFFIX", "r"): no decompress
 __pmFopen("badarchives/badlen-9.SUFFIX", "r"): no decompress
