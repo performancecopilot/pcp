@@ -10,7 +10,8 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
 TESTDIR = $(PCP_VAR_DIR)/testsuite/archives
-SUBDIRS = multi multi-xz multi-xz-1k multi-corrupted
+SUBDIRS = multi multi_v3 multi-xz multi-xz-1k multi-corrupted \
+	  multi_mixed
 
 # first the special and odd ones
 #

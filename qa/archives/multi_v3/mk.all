@@ -1,5 +1,5 @@
 #!/bin/sh
-# remake the V3 "milti" archives from the V2 versions
+# remake the V3 "multi" archives from the V2 versions
 #
 rm -f *.0 *meta *.index
 list=`cd ../multi; ls *.0 | sed -e 's/\.0$//'`
