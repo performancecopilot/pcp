@@ -4878,6 +4878,13 @@ then :
   PCFLAGS="$PCFLAGS -Wshadow"
 fi
 fi
+if ! echo "$CFLAGS" | grep -- -Wno-array-bound >/dev/null
+then
+    if test "x$cc_is_gcc" = xyes
+then :
+  PCFLAGS="$PCFLAGS -Wno-array-bound"
+fi
+fi
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking sizeof off_t" >&5
 printf %s "checking sizeof off_t... " >&6; }
 cat <<End-of-File >conftest.c
