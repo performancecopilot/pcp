@@ -405,7 +405,6 @@ extern __pmTimestamp *__pmLogStartTime(__pmArchCtl *) _PCP_HIDDEN;
 extern int __pmLogSetTime(__pmContext *) _PCP_HIDDEN;
 extern void __pmLogResetInterp(__pmContext *) _PCP_HIDDEN;
 extern void __pmArchCtlFree(__pmArchCtl *) _PCP_HIDDEN;
-extern int __pmLogChangeArchive(__pmContext *, int) _PCP_HIDDEN;
 extern int __pmLogChangeToNextArchive(__pmLogCtl **) _PCP_HIDDEN;
 extern int __pmLogChangeToPreviousArchive(__pmLogCtl **) _PCP_HIDDEN;
 

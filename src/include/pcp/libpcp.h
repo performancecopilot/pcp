@@ -1003,6 +1003,8 @@ PCP_CALL extern int __pmStuffValue(const pmAtomValue *, pmValue *, int);
 /* Archive context helper. */
 PCP_CALL extern int __pmFindOrOpenArchive(__pmContext *, const char *, int);
 PCP_CALL extern int __pmLogFindOpen(__pmArchCtl *, const char *);
+PCP_CALL extern int __pmLogChangeArchive(__pmContext *, int);
+
 
 /* Generic access control routines */
 PCP_CALL extern int __pmAccAddOp(unsigned int);

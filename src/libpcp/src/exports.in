@@ -856,3 +856,7 @@ PCP_3.38 {
 PCP_3.39 {
     __pmCleanMapDir;
 } PCP_3.38;
+
+PCP_3.40 {
+    __pmLogChangeArchive;
+} PCP_3.39;
