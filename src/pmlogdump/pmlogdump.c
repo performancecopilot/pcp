@@ -73,6 +73,7 @@ static pmOptions opts = {
 };
 
 static __pmContext	*ctxp;
+static int		multi_archive;
 
 static void
 dump_timeval(struct timeval *stamp)
@@ -519,7 +520,7 @@ dumpDesc(void)
 }
 
 static void
-dumpDiskInDom(void)
+dumpDiskInDom_current(void)
 {
     size_t	n;
     size_t	rlen;
@@ -528,7 +529,7 @@ dumpDiskInDom(void)
     __pmLogCtl	*lcp = ctxp->c_archctl->ac_log;
     __pmFILE	*f = lcp->mdfp;
 
-    printf("\nInstance Domains on-disk ...\n");
+    printf("Instance Domains on-disk ...\n");
 
     __pmFseek(f, (long)__pmLogLabelSize(lcp), SEEK_SET);
     for ( ; ; ) {
@@ -605,6 +606,30 @@ dumpDiskInDom(void)
 	    fprintf(stderr, "dumpDiskInDom: Botch: trailer len (%d) != hdr len (%d)\n", check, hdr.len);
 	    return;
 	}
+    }
+}
+
+static void
+dumpDiskInDom(void)
+{
+    if (multi_archive) {
+	int		a;
+	int		sts;
+
+	for (a = 0; a < ctxp->c_archctl->ac_num_logs; a++) {
+	    putchar('\n');
+	    printf("--- archive %s ---\n", ctxp->c_archctl->ac_log_list[a]->name);
+	    if ((sts = __pmLogChangeArchive(ctxp, a)) < 0) {
+		fprintf(stderr, "%s: __pmLogChangeArchive(...,%d (%s)): %s\n",
+			pmGetProgname(), a, ctxp->c_archctl->ac_log_list[a]->name, pmErrStr(sts));
+		exit(1);
+	    }
+	    dumpDiskInDom_current();
+	}
+    }
+    else {
+	putchar('\n');
+	dumpDiskInDom_current();
     }
 }
 
@@ -873,11 +898,11 @@ dumpLabelSets(void)
 }
 
 static void
-dumpTI(void)
+dumpTI_current(void)
 {
     __pmLogCtl	*lcp = ctxp->c_archctl->ac_log;
 
-    printf("\nTemporal Index\n");
+    printf("Temporal Index\n");
     if (xflag)
 	printf("\t\t");
     if (xflag >= 2)
@@ -964,25 +989,49 @@ dumpTI(void)
 }
 
 static void
-dumpLabel(int verbose)
+dumpTI(void)
+{
+    if (multi_archive) {
+	int		a;
+	int		sts;
+
+	for (a = 0; a < ctxp->c_archctl->ac_num_logs; a++) {
+	    putchar('\n');
+	    printf("--- archive %s ---\n", ctxp->c_archctl->ac_log_list[a]->name);
+	    if ((sts = __pmLogChangeArchive(ctxp, a)) < 0) {
+		fprintf(stderr, "%s: __pmLogChangeArchive(...,%d (%s)): %s\n",
+			pmGetProgname(), a, ctxp->c_archctl->ac_log_list[a]->name, pmErrStr(sts));
+		exit(1);
+	    }
+	    dumpTI_current();
+	}
+    }
+    else {
+	putchar('\n');
+	dumpTI_current();
+    }
+}
+
+static void
+dumpLabel_current(int verbose, __pmLogLabel *lp)
 {
     char		*ddmm;
     char		*yr;
     __pmTimestamp	end;
     time_t		time;
 
-    printf("Log Label (Log Format Version %d)\n", version);
-    printf("Performance metrics from host %s\n", label.hostname);
+    printf("Log Label (Log Format Version %d)\n", lp->magic & 0xff);
+    printf("Performance metrics from host %s\n", lp->hostname);
 
-    time = label.start.sec;
+    time = lp->start.sec;
     ddmm = pmCtime(&time, timebuf);
     ddmm[10] = '\0';
     yr = &ddmm[20];
     printf("    commencing %s ", ddmm);
-    myPrintTimestamp(stdout, &label.start);
+    myPrintTimestamp(stdout, &lp->start);
     printf(" %4.4s", yr);
     if (xflag >= 3)
-	printf(" %" FMT_UINT64, (uint64_t)label.start.sec);
+	printf(" %" FMT_UINT64, (uint64_t)lp->start.sec);
     putchar('\n');
 
     if (__pmGetArchiveEnd(ctxp->c_archctl, &end) < 0) {
@@ -1003,26 +1052,55 @@ dumpLabel(int verbose)
     }
 
     if (verbose) {
-	if (label.timezone != NULL && label.timezone[0] != '\0')
-	    printf("Archive timezone: %s\n", label.timezone);
-	if (label.zoneinfo != NULL && label.zoneinfo[0] != '\0')
-	    printf("Archive zoneinfo: %s\n", label.zoneinfo);
-	if (label.features != 0) {
+	if (lp->timezone != NULL && lp->timezone[0] != '\0')
+	    printf("Archive timezone: %s\n", lp->timezone);
+	if (lp->zoneinfo != NULL && lp->zoneinfo[0] != '\0')
+	    printf("Archive zoneinfo: %s\n", lp->zoneinfo);
+	if (lp->features != 0) {
 	    __uint32_t	mask = ~(PM_LOG_FEATURES);
-	    printf("Archive features: 0x%x", label.features);
-	    if (label.features & mask) {
-		char	*bits = __pmLogFeaturesStr(label.features & mask);
+	    printf("Archive features: 0x%x", lp->features);
+	    if (lp->features & mask) {
+		char	*bits = __pmLogFeaturesStr(lp->features & mask);
 		if (bits != NULL) {
 		    printf(" [unknown: %s]", bits);
 		    free(bits);
 		}
 		else
-		    printf(" [unknown: 0x%x]", label.features & mask);
+		    printf(" [unknown: 0x%x]", lp->features & mask);
 	    }
 	    putchar('\n');
 	}
-	printf("PID for pmlogger: %" FMT_PID "\n", label.pid);
+	printf("PID for pmlogger: %" FMT_PID "\n", lp->pid);
     }
+}
+
+static void
+dumpLabel(int verbose)
+{
+    if (multi_archive) {
+	int		a;
+	int		sts;
+	__pmLogLabel	multilabel;
+
+	for (a = 0; a < ctxp->c_archctl->ac_num_logs; a++) {
+	    printf("--- archive %s ---\n", ctxp->c_archctl->ac_log_list[a]->name);
+	    if ((sts = __pmLogChangeArchive(ctxp, a)) < 0) {
+		fprintf(stderr, "%s: __pmLogChangeArchive(...,%d (%s)): %s\n",
+			pmGetProgname(), a, ctxp->c_archctl->ac_log_list[a]->name, pmErrStr(sts));
+		exit(1);
+	    }
+	    memset((void *)&multilabel, 0, sizeof(multilabel));
+	    if ((sts = __pmLogLoadLabel(ctxp->c_archctl->ac_mfp, &multilabel)) < 0) {
+		fprintf(stderr, "%s: Cannot get archive %s label record: %s\n",
+			pmGetProgname(), ctxp->c_archctl->ac_log_list[a]->name, pmErrStr(sts));
+		exit(1);
+	    }
+	    dumpLabel_current(verbose, &multilabel);
+	    __pmLogFreeLabel(&multilabel);
+	}
+    }
+    else
+	dumpLabel_current(verbose, &label);
 }
 
 static void
@@ -1101,26 +1179,7 @@ overrides(int opt, pmOptions *options)
     return 0;
 }
 
-static int
-isSingleArchive(const char *name)
-{
-    struct stat	sbuf;
-
-    /* Do not allow a comma within the name. */
-    if (strchr(name, ',') != NULL)
-	return 0;
-
-    /* No not allow a directory */
-    if (__pmStat(name, &sbuf) != 0)
-	return 1; /* Let pmNewContext(1) issue the error */
-
-    if (S_ISDIR(sbuf.st_mode))
-	return 0; /* It's a directory */
-
-    return 1; /* ok */
-}
-
-int
+    int
 main(int argc, char *argv[])
 {
     int			c;
@@ -1244,13 +1303,6 @@ main(int argc, char *argv[])
     opts.flags &= ~PM_OPTFLAG_DONE;
     __pmEndOptions(&opts);
 
-    /* For now, ensure that we have only a single archive. */
-    if (!isSingleArchive(opts.archives[0])) {
-	fprintf(stderr, "%s: Multiple archives are not supported\n",
-		pmGetProgname());
-	exit(1);
-    }
-
     if ((sts = ctxid = pmNewContext(PM_CONTEXT_ARCHIVE, opts.archives[0])) < 0) {
 	if (sts == PM_ERR_FEATURE) {
 	    fprintf(stderr, "%s: Warning: unsupported feature bits, other errors may follow ...\n", pmGetProgname());
@@ -1310,6 +1362,11 @@ main(int argc, char *argv[])
      *	     within libpcp.
      */
     PM_UNLOCK(ctxp->c_lock);
+
+    if (ctxp->c_archctl->ac_log_list != NULL && ctxp->c_archctl->ac_num_logs > 1) {
+	multi_archive = 1;
+	printf("Note: multi-archive context with %d archives\n", ctxp->c_archctl->ac_num_logs);
+    }
 
     memset((void *)&label, 0, sizeof(label));
     if ((sts = __pmLogLoadLabel(ctxp->c_archctl->ac_mfp, &label)) < 0) {

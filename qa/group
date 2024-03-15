@@ -1963,6 +1963,8 @@ x11
 1498 pmlogsummary archive multi-archive local pmlogextract
 1499 pmclient archive multi-archive local sanity pmlogextract python
 1500 pmrep archive multi-archive local pmlogextract python
+1501 pmlogdump local
+1502 pmlogdump local valgrind
 1503 pcp pidstat ps python local
 1511 pmcd local pmda.sample
 1515 pmda.denki local valgrind
