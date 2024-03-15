@@ -77,6 +77,8 @@ _filter()
 	    # ... rc[96813]:     To enable pmie, run the following as root:
 	    # ... rc[96813]:     # /bin/systemctl enable pmie.service
 	    # and pmie_check will fail during PCP builds
+	    # and this strange one but only on vm03
+	    # ... vm03.localdomain pmiectl[1013253]: mount: write error
 	    #
 	    sed \
 		-e '/ pcp-pmie\[/d' \
@@ -89,6 +91,7 @@ _filter()
 		-e '/rc\[[0-9]*]: Terminated$/d' \
 		-e '/pmie_check failed - see .*\/pmie_check.log/d' \
 		-e '/pmie_daily failed - see .*\/pmie_daily.log/d' \
+		-e '/vm03\.localdomain pmiectl\[[0-9]*]: mount: write error/d' \
 	    # end
 	    ;;
 
@@ -97,7 +100,7 @@ _filter()
 	    # and pmlogger_check will fail during PCP builds
 	    # and pmlogger_daily will fail during PCP builds
 	    # and qa/1210 and qa/1213
-	    # and this strange one but only on bozo!
+	    # and this strange one but only on bozo and vm03
 	    # ... bozo.localdomain pmlogctl[1013253]: mount: write error
 	    #
 	    sed \
@@ -107,6 +110,7 @@ _filter()
 		-e '/pmlogger_daily failed - see .*\/pmlogger_daily-K.log/d' \
 		-e '/pmlogctl\[[0-9]*]: .* failed to start for host no\.such\.host\.pcp\.io/d' \
 		-e '/bozo\.localdomain pmlogctl\[[0-9]*]: mount: write error/d' \
+		-e '/vm03\.localdomain pmlogctl\[[0-9]*]: mount: write error/d' \
 		-e '/rc\[[0-9]*]: .*not permanently enabled\./d' \
 		-e '/rc\[[0-9]*]: .*run the following as root:/d' \
 		-e '/rc\[[0-9]*]: .*systemctl enable pmlogger\.service/d' \
