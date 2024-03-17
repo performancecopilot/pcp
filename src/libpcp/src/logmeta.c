@@ -625,7 +625,8 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
 
 /*
  * return 0 for added OK
- * return 1 for duplicate entry ... see note below
+ * return 1 for duplicate name and PMID
+ * return 2 for duplicate name but different PMID ... see note below
  * return <0 for error
  */
 int
@@ -841,11 +842,15 @@ __pmLogLoadMeta(__pmArchCtl *acp)
 			    "__pmLogLoadMeta",
 			    pmIDStr_r(desc.pmid, strbuf, sizeof(strbuf)), name);
 		    if (sts == 1)
-			fprintf(stderr, " (mismatch)");
-		    if (sts < 0)
+			fprintf(stderr, " (duplicate)");
+		    else if (sts == 2)
+			fprintf(stderr, " (PMID mismatch)");
+		    else if (sts < 0)
 			fprintf(stderr, " (error=%d)", sts);
 		    fputc('\n', stderr);
 		}
+		if (sts == 0)
+		    lcp->numpmid++;
 		if (sts < 0)
 		    goto end;
 	    }/*for*/
@@ -1017,8 +1022,6 @@ end:
 	    }
 	    sts = PM_ERR_LOGREC;
 	}
-	else
-	    __pmFixPMNSHashTab(lcp->pmns, numpmid, 1);
     }
 
 done:

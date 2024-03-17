@@ -1099,6 +1099,8 @@ pmapi_return:
  * Does NOT update the hash table;
  * need to call __pmFixPMNSHashTab() for that.
  * Recursive routine.
+ * Returns 0 if added OK, 1 if name and pmid are duplicates of
+ * existing entry, PM_ERR_PMID if names match but pmids are different.
  */
 
 static int
@@ -1170,7 +1172,7 @@ AddPMNSNode(__pmnsNode *root, int pmid, const char *name)
 	if (np->pmid != pmid)
 	    return PM_ERR_PMID;
 	else 
-	    return 0;
+	    return 1;
     }
     else {
 	return AddPMNSNode(np, pmid, tail+1); /* try matching with rest of pathname */

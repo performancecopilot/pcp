@@ -950,6 +950,11 @@ initarchive(__pmContext	*ctxp, const char *name)
     namelist = NULL;
     acp->ac_meta_loaded = 1;
 
+    /*
+     * All archives processed now, build PMNS hash
+     */
+    __pmFixPMNSHashTab(acp->ac_log->pmns, acp->ac_log->numpmid, 1);
+
     if (acp->ac_num_logs > 1) {
 	/*
 	 * In order to maintain API semantics with the old single archive

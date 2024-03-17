@@ -814,6 +814,7 @@ typedef struct {
     int		numti;		/* (when reading) no. temporal index entries */
     __pmLogTI	*ti;		/* (when reading) temporal index */
     struct __pmnsTree *pmns;	/* namespace from meta data */
+    int		numpmid;	/* no. names in namespace */
     int		multi;		/* part of a multi-archive context */
 } __pmLogCtl;
 
