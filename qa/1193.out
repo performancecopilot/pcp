@@ -3,14 +3,10 @@ Running pmlogrewrite -c TMP.config archives/20180127.08.40 TMP.pmlogrewrite
 Running pmdumplog -zhid archives/20180127.08.40
 Running pmdumplog -zhid TMP.pmlogrewrite
 Running diff TMP.original.txt TMP.extracted.txt
-595a596,598
-> PMID: 200.0.2 (mmv.control.files)
->     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
->     Semantics: instant  Units: none
-1025,1027d1027
+1493c1493
 < PMID: 70.0.2 (mmv.control.files)
-<     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
-<     Semantics: instant  Units: none
+---
+> PMID: 200.0.2 (mmv.control.files)
 2750,2751c2750,2751
 < PMID: 70.0.2 [Memory mapped file count]
 < PMID: 70.0.2
@@ -21,14 +17,10 @@ Running pmlogrewrite -c TMP.config archives/20180127.08.40 TMP.pmlogrewrite
 Running pmdumplog -zhid archives/20180127.08.40
 Running pmdumplog -zhid TMP.pmlogrewrite
 Running diff TMP.original.txt TMP.extracted.txt
-595a596,598
-> PMID: 70.100.2 (mmv.control.files)
->     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
->     Semantics: instant  Units: none
-1025,1027d1027
+1493c1493
 < PMID: 70.0.2 (mmv.control.files)
-<     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
-<     Semantics: instant  Units: none
+---
+> PMID: 70.100.2 (mmv.control.files)
 2750,2751c2750,2751
 < PMID: 70.0.2 [Memory mapped file count]
 < PMID: 70.0.2
@@ -39,14 +31,10 @@ Running pmlogrewrite -c TMP.config archives/20180127.08.40 TMP.pmlogrewrite
 Running pmdumplog -zhid archives/20180127.08.40
 Running pmdumplog -zhid TMP.pmlogrewrite
 Running diff TMP.original.txt TMP.extracted.txt
-565a566,568
-> PMID: 70.0.400 (mmv.control.files)
->     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
->     Semantics: instant  Units: none
-1025,1027d1027
+1493c1493
 < PMID: 70.0.2 (mmv.control.files)
-<     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
-<     Semantics: instant  Units: none
+---
+> PMID: 70.0.400 (mmv.control.files)
 2750,2751c2750,2751
 < PMID: 70.0.2 [Memory mapped file count]
 < PMID: 70.0.2

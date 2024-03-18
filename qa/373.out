@@ -12,6 +12,15 @@ Performance metrics from host bozo
     ending     Tue Jul 27 12:47:40.000000 2010
 
 Descriptions for Metrics in the Log ...
+PMID: 245.0.1 (kernel.all.cpu.user)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 245.0.2 (kernel.all.cpu.nice)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 245.0.3 (kernel.all.cpu.sys)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
 PMID: 245.0.4 (kernel.all.cpu.wait.total)
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -21,24 +30,15 @@ PMID: 245.0.5 (kernel.all.cpu.steal)
 PMID: 245.0.6 (kernel.all.cpu.idle)
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-PMID: 245.0.1 (kernel.all.cpu.user)
-    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
 PMID: 245.0.7 (disk.dev.total)
     Data Type: float  InDom: 245.0 0x3d400000
     Semantics: instant  Units: count / sec
 PMID: 245.0.8 (disk.dev.read_bytes)
     Data Type: float  InDom: 245.0 0x3d400000
     Semantics: instant  Units: Kbyte / sec
-PMID: 245.0.2 (kernel.all.cpu.nice)
-    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
 PMID: 245.0.9 (disk.dev.write_bytes)
     Data Type: float  InDom: 245.0 0x3d400000
     Semantics: instant  Units: Kbyte / sec
-PMID: 245.0.3 (kernel.all.cpu.sys)
-    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
 
 Instance Domains in the Log ...
 InDom: 245.0
@@ -106,6 +106,15 @@ Performance metrics from host bozo
     ending     Tue Jul 27 12:46:13.000000 2010
 
 Descriptions for Metrics in the Log ...
+PMID: 245.0.1 (kernel.all.cpu.user)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 245.0.2 (kernel.all.cpu.nice)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 245.0.3 (kernel.all.cpu.sys)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
 PMID: 245.0.4 (kernel.all.cpu.wait.total)
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -115,24 +124,15 @@ PMID: 245.0.5 (kernel.all.cpu.steal)
 PMID: 245.0.6 (kernel.all.cpu.idle)
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-PMID: 245.0.1 (kernel.all.cpu.user)
-    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
 PMID: 245.0.7 (disk.dev.total)
     Data Type: float  InDom: 245.0 0x3d400000
     Semantics: instant  Units: count / sec
 PMID: 245.0.8 (disk.dev.read_bytes)
     Data Type: float  InDom: 245.0 0x3d400000
     Semantics: instant  Units: Kbyte / sec
-PMID: 245.0.2 (kernel.all.cpu.nice)
-    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
 PMID: 245.0.9 (disk.dev.write_bytes)
     Data Type: float  InDom: 245.0 0x3d400000
     Semantics: instant  Units: Kbyte / sec
-PMID: 245.0.3 (kernel.all.cpu.sys)
-    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
 
 Instance Domains in the Log ...
 InDom: 245.0
@@ -202,22 +202,22 @@ Performance metrics from host bozo
     ending     Tue Jul 27 00:00:30.000000 2010
 
 Descriptions for Metrics in the Log ...
-PMID: 245.0.6 (kernel.all.cpu.idle)
-    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
-PMID: 245.0.5 (kernel.all.cpu.steal)
-    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
-PMID: 245.0.4 (kernel.all.cpu.wait.total)
-    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
-PMID: 245.0.3 (kernel.all.cpu.sys)
+PMID: 245.0.1 (kernel.all.cpu.user)
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 PMID: 245.0.2 (kernel.all.cpu.nice)
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-PMID: 245.0.1 (kernel.all.cpu.user)
+PMID: 245.0.3 (kernel.all.cpu.sys)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 245.0.4 (kernel.all.cpu.wait.total)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 245.0.5 (kernel.all.cpu.steal)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 245.0.6 (kernel.all.cpu.idle)
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 
@@ -259,15 +259,15 @@ Performance metrics from host bozo
     ending     Tue Jul 27 00:00:06.000000 2010
 
 Descriptions for Metrics in the Log ...
-PMID: 245.0.3 (disk.dev.write_bytes)
-    Data Type: float  InDom: 245.0 0x3d400000
-    Semantics: instant  Units: Kbyte / sec
-PMID: 245.0.2 (disk.dev.read_bytes)
-    Data Type: float  InDom: 245.0 0x3d400000
-    Semantics: instant  Units: Kbyte / sec
 PMID: 245.0.1 (disk.dev.total)
     Data Type: float  InDom: 245.0 0x3d400000
     Semantics: instant  Units: count / sec
+PMID: 245.0.2 (disk.dev.read_bytes)
+    Data Type: float  InDom: 245.0 0x3d400000
+    Semantics: instant  Units: Kbyte / sec
+PMID: 245.0.3 (disk.dev.write_bytes)
+    Data Type: float  InDom: 245.0 0x3d400000
+    Semantics: instant  Units: Kbyte / sec
 
 Instance Domains in the Log ...
 InDom: 245.0
@@ -324,6 +324,15 @@ Performance metrics from host bozo
     ending     Tue Jul 27 00:00:06.000000 2010
 
 Descriptions for Metrics in the Log ...
+PMID: 245.0.1 (kernel.all.cpu.user)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 245.0.2 (kernel.all.cpu.nice)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 245.0.3 (kernel.all.cpu.sys)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
 PMID: 245.0.4 (kernel.all.cpu.wait.total)
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -333,24 +342,15 @@ PMID: 245.0.5 (kernel.all.cpu.steal)
 PMID: 245.0.6 (kernel.all.cpu.idle)
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-PMID: 245.0.1 (kernel.all.cpu.user)
-    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
 PMID: 245.0.7 (disk.dev.total)
     Data Type: float  InDom: 245.0 0x3d400000
     Semantics: instant  Units: count / sec
 PMID: 245.0.8 (disk.dev.read_bytes)
     Data Type: float  InDom: 245.0 0x3d400000
     Semantics: instant  Units: Kbyte / sec
-PMID: 245.0.2 (kernel.all.cpu.nice)
-    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
 PMID: 245.0.9 (disk.dev.write_bytes)
     Data Type: float  InDom: 245.0 0x3d400000
     Semantics: instant  Units: Kbyte / sec
-PMID: 245.0.3 (kernel.all.cpu.sys)
-    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
 
 Instance Domains in the Log ...
 InDom: 245.0
@@ -419,6 +419,15 @@ Performance metrics from host bozo
     ending     Tue Jul 27 00:00:06.000000 2010
 
 Descriptions for Metrics in the Log ...
+PMID: 245.0.1 (kernel.all.cpu.user)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 245.0.2 (kernel.all.cpu.nice)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 245.0.3 (kernel.all.cpu.sys)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
 PMID: 245.0.4 (kernel.all.cpu.wait.total)
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -428,24 +437,15 @@ PMID: 245.0.5 (kernel.all.cpu.steal)
 PMID: 245.0.6 (kernel.all.cpu.idle)
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-PMID: 245.0.1 (kernel.all.cpu.user)
-    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
 PMID: 245.0.7 (disk.dev.total)
     Data Type: float  InDom: 245.0 0x3d400000
     Semantics: instant  Units: count / sec
 PMID: 245.0.8 (disk.dev.read_bytes)
     Data Type: float  InDom: 245.0 0x3d400000
     Semantics: instant  Units: Kbyte / sec
-PMID: 245.0.2 (kernel.all.cpu.nice)
-    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
 PMID: 245.0.9 (disk.dev.write_bytes)
     Data Type: float  InDom: 245.0 0x3d400000
     Semantics: instant  Units: Kbyte / sec
-PMID: 245.0.3 (kernel.all.cpu.sys)
-    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
 
 Instance Domains in the Log ...
 InDom: 245.0
@@ -507,15 +507,15 @@ Performance metrics from host bozo
     ending     Tue Jul 27 00:00:06.000000 2010
 
 Descriptions for Metrics in the Log ...
-PMID: 245.0.3 (disk.dev.write_bytes)
-    Data Type: float  InDom: 245.0 0x3d400000
-    Semantics: instant  Units: Kbyte / sec
-PMID: 245.0.2 (disk.dev.read_bytes)
-    Data Type: float  InDom: 245.0 0x3d400000
-    Semantics: instant  Units: Kbyte / sec
 PMID: 245.0.1 (disk.dev.total)
     Data Type: float  InDom: 245.0 0x3d400000
     Semantics: instant  Units: count / sec
+PMID: 245.0.2 (disk.dev.read_bytes)
+    Data Type: float  InDom: 245.0 0x3d400000
+    Semantics: instant  Units: Kbyte / sec
+PMID: 245.0.3 (disk.dev.write_bytes)
+    Data Type: float  InDom: 245.0 0x3d400000
+    Semantics: instant  Units: Kbyte / sec
 
 Instance Domains in the Log ...
 InDom: 245.0
@@ -572,15 +572,15 @@ Performance metrics from host bozo
     ending     Tue Jul 27 00:00:04.000000 2010
 
 Descriptions for Metrics in the Log ...
-PMID: 245.0.3 (disk.dev.write_bytes)
-    Data Type: float  InDom: 245.0 0x3d400000
-    Semantics: instant  Units: Kbyte / sec
-PMID: 245.0.2 (disk.dev.read_bytes)
-    Data Type: float  InDom: 245.0 0x3d400000
-    Semantics: instant  Units: Kbyte / sec
 PMID: 245.0.1 (disk.dev.total)
     Data Type: float  InDom: 245.0 0x3d400000
     Semantics: instant  Units: count / sec
+PMID: 245.0.2 (disk.dev.read_bytes)
+    Data Type: float  InDom: 245.0 0x3d400000
+    Semantics: instant  Units: Kbyte / sec
+PMID: 245.0.3 (disk.dev.write_bytes)
+    Data Type: float  InDom: 245.0 0x3d400000
+    Semantics: instant  Units: Kbyte / sec
 
 Instance Domains in the Log ...
 InDom: 245.0
@@ -638,28 +638,22 @@ Performance metrics from host bozo
     ending     Tue Jul 27 00:00:30.000000 2010
 
 Descriptions for Metrics in the Log ...
-PMID: 245.0.10 (disk.dev.write)
-    Data Type: float  InDom: 245.0 0x3d400000
-    Semantics: instant  Units: count / sec
+PMID: 245.0.1 (kernel.all.cpu.user)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 245.0.2 (kernel.all.cpu.nice)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 245.0.3 (kernel.all.cpu.sys)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
 PMID: 245.0.4 (kernel.all.cpu.wait.total)
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-PMID: 245.0.11 (disk.dev.read_bytes)
-    Data Type: float  InDom: 245.0 0x3d400000
-    Semantics: instant  Units: Kbyte / sec
 PMID: 245.0.5 (kernel.all.cpu.steal)
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-PMID: 245.0.12 (disk.dev.write_bytes)
-    Data Type: float  InDom: 245.0 0x3d400000
-    Semantics: instant  Units: Kbyte / sec
 PMID: 245.0.6 (kernel.all.cpu.idle)
-    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
-PMID: 245.0.13 (disk.dev.avactive)
-    Data Type: float  InDom: 245.0 0x3d400000
-    Semantics: instant  Units: none
-PMID: 245.0.1 (kernel.all.cpu.user)
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 PMID: 245.0.7 (disk.dev.read_merge)
@@ -668,14 +662,20 @@ PMID: 245.0.7 (disk.dev.read_merge)
 PMID: 245.0.8 (disk.dev.write_merge)
     Data Type: float  InDom: 245.0 0x3d400000
     Semantics: instant  Units: count / sec
-PMID: 245.0.2 (kernel.all.cpu.nice)
-    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
 PMID: 245.0.9 (disk.dev.read)
     Data Type: float  InDom: 245.0 0x3d400000
     Semantics: instant  Units: count / sec
-PMID: 245.0.3 (kernel.all.cpu.sys)
-    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+PMID: 245.0.10 (disk.dev.write)
+    Data Type: float  InDom: 245.0 0x3d400000
+    Semantics: instant  Units: count / sec
+PMID: 245.0.11 (disk.dev.read_bytes)
+    Data Type: float  InDom: 245.0 0x3d400000
+    Semantics: instant  Units: Kbyte / sec
+PMID: 245.0.12 (disk.dev.write_bytes)
+    Data Type: float  InDom: 245.0 0x3d400000
+    Semantics: instant  Units: Kbyte / sec
+PMID: 245.0.13 (disk.dev.avactive)
+    Data Type: float  InDom: 245.0 0x3d400000
     Semantics: instant  Units: none
 
 Instance Domains in the Log ...
@@ -777,6 +777,15 @@ Performance metrics from host bozo
     ending     Tue Jul 27 00:00:06.000000 2010
 
 Descriptions for Metrics in the Log ...
+PMID: 245.0.1 (kernel.all.cpu.user)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 245.0.2 (kernel.all.cpu.nice)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 245.0.3 (kernel.all.cpu.sys)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
 PMID: 245.0.4 (kernel.all.cpu.wait.total)
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -786,24 +795,15 @@ PMID: 245.0.5 (kernel.all.cpu.steal)
 PMID: 245.0.6 (kernel.all.cpu.idle)
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-PMID: 245.0.1 (kernel.all.cpu.user)
-    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
 PMID: 245.0.7 (disk.dev.total)
     Data Type: float  InDom: 245.0 0x3d400000
     Semantics: instant  Units: count / sec
 PMID: 245.0.8 (disk.dev.read_bytes)
     Data Type: float  InDom: 245.0 0x3d400000
     Semantics: instant  Units: Kbyte / sec
-PMID: 245.0.2 (kernel.all.cpu.nice)
-    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
 PMID: 245.0.9 (disk.dev.write_bytes)
     Data Type: float  InDom: 245.0 0x3d400000
     Semantics: instant  Units: Kbyte / sec
-PMID: 245.0.3 (kernel.all.cpu.sys)
-    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
 
 Instance Domains in the Log ...
 InDom: 245.0
@@ -1132,6 +1132,15 @@ Performance metrics from host bozo
     ending     Tue Jul 27 00:00:30.000000 2010
 
 Descriptions for Metrics in the Log ...
+PMID: 245.0.1 (kernel.all.cpu.user)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 245.0.2 (kernel.all.cpu.nice)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 245.0.3 (kernel.all.cpu.sys)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
 PMID: 245.0.4 (kernel.all.cpu.wait.total)
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -1141,24 +1150,15 @@ PMID: 245.0.5 (kernel.all.cpu.steal)
 PMID: 245.0.6 (kernel.all.cpu.idle)
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-PMID: 245.0.1 (kernel.all.cpu.user)
-    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
 PMID: 245.0.7 (disk.dev.total)
     Data Type: float  InDom: 245.0 0x3d400000
     Semantics: instant  Units: count / sec
 PMID: 245.0.8 (disk.dev.read_bytes)
     Data Type: float  InDom: 245.0 0x3d400000
     Semantics: instant  Units: Kbyte / sec
-PMID: 245.0.2 (kernel.all.cpu.nice)
-    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
 PMID: 245.0.9 (disk.dev.write_bytes)
     Data Type: float  InDom: 245.0 0x3d400000
     Semantics: instant  Units: Kbyte / sec
-PMID: 245.0.3 (kernel.all.cpu.sys)
-    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
 
 Instance Domains in the Log ...
 InDom: 245.0
@@ -1219,28 +1219,22 @@ Performance metrics from host somehost.redhat.com
     ending     Tue Oct  7 15:51:01.000000 2014
 
 Descriptions for Metrics in the Log ...
-PMID: 245.0.10 (disk.dev.write)
-    Data Type: float  InDom: 245.0 0x3d400000
-    Semantics: instant  Units: count / sec
+PMID: 245.0.1 (kernel.all.cpu.user)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 245.0.2 (kernel.all.cpu.nice)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 245.0.3 (kernel.all.cpu.sys)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
 PMID: 245.0.4 (kernel.all.cpu.wait.total)
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-PMID: 245.0.11 (disk.dev.read_bytes)
-    Data Type: float  InDom: 245.0 0x3d400000
-    Semantics: instant  Units: Kbyte / sec
 PMID: 245.0.5 (kernel.all.cpu.steal)
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-PMID: 245.0.12 (disk.dev.write_bytes)
-    Data Type: float  InDom: 245.0 0x3d400000
-    Semantics: instant  Units: Kbyte / sec
 PMID: 245.0.6 (kernel.all.cpu.idle)
-    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
-PMID: 245.0.13 (disk.dev.avactive)
-    Data Type: float  InDom: 245.0 0x3d400000
-    Semantics: instant  Units: none
-PMID: 245.0.1 (kernel.all.cpu.user)
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 PMID: 245.0.7 (disk.dev.read_merge)
@@ -1249,14 +1243,20 @@ PMID: 245.0.7 (disk.dev.read_merge)
 PMID: 245.0.8 (disk.dev.write_merge)
     Data Type: float  InDom: 245.0 0x3d400000
     Semantics: instant  Units: count / sec
-PMID: 245.0.2 (kernel.all.cpu.nice)
-    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
 PMID: 245.0.9 (disk.dev.read)
     Data Type: float  InDom: 245.0 0x3d400000
     Semantics: instant  Units: count / sec
-PMID: 245.0.3 (kernel.all.cpu.sys)
-    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+PMID: 245.0.10 (disk.dev.write)
+    Data Type: float  InDom: 245.0 0x3d400000
+    Semantics: instant  Units: count / sec
+PMID: 245.0.11 (disk.dev.read_bytes)
+    Data Type: float  InDom: 245.0 0x3d400000
+    Semantics: instant  Units: Kbyte / sec
+PMID: 245.0.12 (disk.dev.write_bytes)
+    Data Type: float  InDom: 245.0 0x3d400000
+    Semantics: instant  Units: Kbyte / sec
+PMID: 245.0.13 (disk.dev.avactive)
+    Data Type: float  InDom: 245.0 0x3d400000
     Semantics: instant  Units: none
 
 Instance Domains in the Log ...

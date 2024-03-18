@@ -4,15 +4,15 @@ QA output created by 505
 Output archive contains: 5 files
 --- TMP.ref
 +++ TMP.out
-@@ -22,7 +22,7 @@
-     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
-     Semantics: instant  Units: none
+@@ -16,7 +16,7 @@
+     Data Type: string  InDom: 2.1 0x800001
+     Semantics: discrete  Units: none
  PMID: 29.0.2 (sample.seconds)
 -    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
 +    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
      Semantics: counter  Units: sec
- PMID: 2.3.2 (pmcd.pmlogger.archive)
-     Data Type: string  InDom: 2.1 0x800001
+ PMID: 29.0.5 (sample.colour)
+     Data Type: 32-bit int  InDom: 29.1 0x7400001
 @@ -58,7 +58,7 @@
  04:34:41.358801	      0          350          288
  04:34:44.368357	      1          851          132
@@ -27,15 +27,15 @@ Output archive contains: 5 files
 Output archive contains: 5 files
 --- TMP.ref
 +++ TMP.out
-@@ -22,7 +22,7 @@
-     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
-     Semantics: instant  Units: none
+@@ -16,7 +16,7 @@
+     Data Type: string  InDom: 2.1 0x800001
+     Semantics: discrete  Units: none
  PMID: 29.0.2 (sample.seconds)
 -    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
 +    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
      Semantics: counter  Units: sec
- PMID: 2.3.2 (pmcd.pmlogger.archive)
-     Data Type: string  InDom: 2.1 0x800001
+ PMID: 29.0.5 (sample.colour)
+     Data Type: 32-bit int  InDom: 29.1 0x7400001
 @@ -58,7 +58,7 @@
  04:34:41.358801	      0          350          288
  04:34:44.368357	      1          851          132

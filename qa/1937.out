@@ -1,46 +1,40 @@
 QA output created by 1937
 old -> new changes
-@@ -8,9 +8,6 @@
- Descriptions for Metrics in the Log ...
--PMID: 11.18.142 (xfs.perdev.buffer.get_locked)
-+PMID: 11.18.190 (xfs.perdev.buffer.get_locked_waited)
-     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
-     Semantics: counter  Units: count
--PMID: 11.18.148 (xfs.perdev.buffer.get_read)
--    Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
--    Semantics: counter  Units: count
--PMID: 11.18.143 (xfs.perdev.buffer.get_locked_waited)
-+PMID: 11.18.191 (xfs.perdev.buffer.busy_locked)
-     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
-@@ -20,3 +17,3 @@
+@@ -23,27 +23,27 @@
      Semantics: discrete  Units: none
--PMID: 11.18.144 (xfs.perdev.buffer.busy_locked)
-+PMID: 11.18.192 (xfs.perdev.buffer.miss_locked)
-     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
-@@ -29,9 +26,9 @@
-     Semantics: discrete  Units: none
--PMID: 11.18.145 (xfs.perdev.buffer.miss_locked)
+-PMID: 11.18.140 (xfs.perdev.buffer.get)
 +PMID: 11.18.187 (xfs.perdev.buffer.get)
      Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
      Semantics: counter  Units: count
--PMID: 11.18.140 (xfs.perdev.buffer.get)
-+PMID: 11.18.193 (xfs.perdev.buffer.page_retries)
+-PMID: 11.18.141 (xfs.perdev.buffer.create)
++PMID: 11.18.188 (xfs.perdev.buffer.create)
+     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
+     Semantics: counter  Units: count
+-PMID: 11.18.142 (xfs.perdev.buffer.get_locked)
++PMID: 11.18.189 (xfs.perdev.buffer.get_locked)
+     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
+     Semantics: counter  Units: count
+-PMID: 11.18.143 (xfs.perdev.buffer.get_locked_waited)
++PMID: 11.18.190 (xfs.perdev.buffer.get_locked_waited)
+     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
+     Semantics: counter  Units: count
+-PMID: 11.18.144 (xfs.perdev.buffer.busy_locked)
++PMID: 11.18.191 (xfs.perdev.buffer.busy_locked)
+     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
+     Semantics: counter  Units: count
+-PMID: 11.18.145 (xfs.perdev.buffer.miss_locked)
++PMID: 11.18.192 (xfs.perdev.buffer.miss_locked)
      Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
      Semantics: counter  Units: count
 -PMID: 11.18.146 (xfs.perdev.buffer.page_retries)
-+PMID: 11.18.188 (xfs.perdev.buffer.create)
++PMID: 11.18.193 (xfs.perdev.buffer.page_retries)
      Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
-@@ -41,3 +38,6 @@
-     Semantics: discrete  Units: none
--PMID: 11.18.141 (xfs.perdev.buffer.create)
-+PMID: 11.18.194 (xfs.perdev.buffer.page_found)
-+    Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
-+    Semantics: counter  Units: count
-+PMID: 11.18.189 (xfs.perdev.buffer.get_locked)
-     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
-@@ -47,3 +47,3 @@
-     Semantics: discrete  Units: none
+     Semantics: counter  Units: count
 -PMID: 11.18.147 (xfs.perdev.buffer.page_found)
++PMID: 11.18.194 (xfs.perdev.buffer.page_found)
+     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
+     Semantics: counter  Units: count
+-PMID: 11.18.148 (xfs.perdev.buffer.get_read)
 +PMID: 11.18.195 (xfs.perdev.buffer.get_read)
      Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
 new -> ref changes ... expect none

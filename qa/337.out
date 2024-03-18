@@ -4,6 +4,15 @@ Note: timezone set to local timezone of host "ken.engr.acx" from archive
 
 
 Descriptions for Metrics in the Log ...
+PMID: 2.3.0 (pmcd.pmlogger.port)
+    Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+PMID: 2.3.2 (pmcd.pmlogger.archive)
+    Data Type: string  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+PMID: 2.3.3 (pmcd.pmlogger.host)
+    Data Type: string  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
 PMID: 29.0.6 (sample.bin)
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
@@ -13,19 +22,13 @@ PMID: 29.0.37 (sample.mirage)
 PMID: 29.0.80 (sample.many.int)
     Data Type: 32-bit int  InDom: 29.8 0x7400008
     Semantics: instant  Units: count
-PMID: 2.3.2 (pmcd.pmlogger.archive)
-    Data Type: string  InDom: 2.1 0x800001
-    Semantics: discrete  Units: none
-PMID: 2.3.0 (pmcd.pmlogger.port)
-    Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
-    Semantics: discrete  Units: none
-PMID: 2.3.3 (pmcd.pmlogger.host)
-    Data Type: string  InDom: 2.1 0x800001
-    Semantics: discrete  Units: none
 Note: timezone set to local timezone of host "ken.engr.acx" from archive
 
 
 Instance Domains in the Log ...
+InDom: 2.1
+13:33:44.278486 1 instances
+   32221 or "32221"
 InDom: 29.2
 13:33:47.240183 9 instances
    100 or "bin-100"
@@ -84,9 +87,6 @@ InDom: 29.8
    8 or "i-8"
    9 or "i-9"
    10 or "i-10"
-InDom: 2.1
-13:33:44.278486 1 instances
-   32221 or "32221"
 Note: timezone set to local timezone of host "ken.engr.acx" from archive
 
 
@@ -585,6 +585,15 @@ Note: timezone set to local timezone of host "ken.engr.acx" from archive
 
 
 Descriptions for Metrics in the Log ...
+PMID: 2.3.0 (pmcd.pmlogger.port)
+    Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+PMID: 2.3.2 (pmcd.pmlogger.archive)
+    Data Type: string  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+PMID: 2.3.3 (pmcd.pmlogger.host)
+    Data Type: string  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
 PMID: 29.0.6 (sample.bin)
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
@@ -594,19 +603,13 @@ PMID: 29.0.37 (sample.mirage)
 PMID: 29.0.80 (sample.many.int)
     Data Type: 32-bit int  InDom: 29.8 0x7400008
     Semantics: instant  Units: count
-PMID: 2.3.2 (pmcd.pmlogger.archive)
-    Data Type: string  InDom: 2.1 0x800001
-    Semantics: discrete  Units: none
-PMID: 2.3.0 (pmcd.pmlogger.port)
-    Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
-    Semantics: discrete  Units: none
-PMID: 2.3.3 (pmcd.pmlogger.host)
-    Data Type: string  InDom: 2.1 0x800001
-    Semantics: discrete  Units: none
 Note: timezone set to local timezone of host "ken.engr.acx" from archive
 
 
 Instance Domains in the Log ...
+InDom: 2.1
+13:33:49.623143 1 instances
+   32224 or "32224"
 InDom: 29.2
 13:33:50.622527 9 instances
    100 or "bin-100"
@@ -695,9 +698,6 @@ InDom: 29.8
    8 or "i-8"
    9 or "i-9"
    10 or "i-10"
-InDom: 2.1
-13:33:49.623143 1 instances
-   32224 or "32224"
 Note: timezone set to local timezone of host "ken.engr.acx" from archive
 
 
@@ -1034,6 +1034,15 @@ Note: timezone set to local timezone of host "ken.engr.acx" from archive
 
 
 Descriptions for Metrics in the Log ...
+PMID: 2.3.0 (pmcd.pmlogger.port)
+    Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+PMID: 2.3.2 (pmcd.pmlogger.archive)
+    Data Type: string  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+PMID: 2.3.3 (pmcd.pmlogger.host)
+    Data Type: string  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
 PMID: 29.0.6 (sample.bin)
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
@@ -1043,19 +1052,15 @@ PMID: 29.0.37 (sample.mirage)
 PMID: 29.0.80 (sample.many.int)
     Data Type: 32-bit int  InDom: 29.8 0x7400008
     Semantics: instant  Units: count
-PMID: 2.3.2 (pmcd.pmlogger.archive)
-    Data Type: string  InDom: 2.1 0x800001
-    Semantics: discrete  Units: none
-PMID: 2.3.0 (pmcd.pmlogger.port)
-    Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
-    Semantics: discrete  Units: none
-PMID: 2.3.3 (pmcd.pmlogger.host)
-    Data Type: string  InDom: 2.1 0x800001
-    Semantics: discrete  Units: none
 Note: timezone set to local timezone of host "ken.engr.acx" from archive
 
 
 Instance Domains in the Log ...
+InDom: 2.1
+13:33:44.278486 1 instances
+   32221 or "32221"
+13:33:49.623143 1 instances
+   32224 or "32224"
 InDom: 29.2
 13:33:47.240183 9 instances
    100 or "bin-100"
@@ -1199,11 +1204,6 @@ InDom: 29.8
    8 or "i-8"
    9 or "i-9"
    10 or "i-10"
-InDom: 2.1
-13:33:44.278486 1 instances
-   32221 or "32221"
-13:33:49.623143 1 instances
-   32224 or "32224"
 Note: timezone set to local timezone of host "ken.engr.acx" from archive
 
 

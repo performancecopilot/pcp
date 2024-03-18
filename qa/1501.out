@@ -45,20 +45,47 @@ Note: timezone set to local timezone of host "bozo.localdomain" from archive
 Note: multi-archive context with 3 archives
 
 Descriptions for Metrics in the Log ...
+PMID: 2.0.23 (pmcd.pid)
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
 PMID: 2.0.24 (pmcd.seqnum)
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
+PMID: 2.3.0 (pmcd.pmlogger.port)
+    Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+PMID: 2.3.2 (pmcd.pmlogger.archive)
+    Data Type: string  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+PMID: 2.3.3 (pmcd.pmlogger.host)
+    Data Type: string  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+PMID: 29.0.2 (sample.dupnames.two.seconds or sample.seconds)
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: sec
+PMID: 29.0.3 (sample.milliseconds)
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: millisec
 PMID: 29.0.12 (sample.long.hundred)
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-PMID: 30.0.95 (sampledso.ulong.hundred)
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+PMID: 29.0.17 (sample.float.hundred)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 29.0.22 (sample.longlong.hundred)
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 PMID: 29.0.27 (sample.double.hundred)
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-PMID: 30.0.12 (sampledso.long.hundred)
-    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+PMID: 29.0.37 (sample.mirage)
+    Data Type: 32-bit int  InDom: 29.3 0x7400003
+    Semantics: instant  Units: Kbyte / sec
+PMID: 29.0.95 (sample.ulong.hundred)
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 29.0.100 (sample.ulonglong.hundred)
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 PMID: 29.0.127 (sample.event.type)
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
@@ -66,96 +93,69 @@ PMID: 29.0.127 (sample.event.type)
 PMID: 29.0.128 (sample.event.param_32)
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-PMID: 29.0.100 (sample.ulonglong.hundred)
-    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
-PMID: 60.5.0 (hinv.nfilesys)
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: count
-PMID: 29.0.156 (sample.proc.ordinal)
-    Data Type: 32-bit unsigned int  InDom: 29.12 0x740000c
-    Semantics: instant  Units: none
-PMID: 29.0.2 (sample.dupnames.two.seconds or sample.seconds)
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: sec
 PMID: 29.0.129 (sample.event.param_u32)
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
-PMID: 29.0.17 (sample.float.hundred)
-    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
-PMID: 60.1.9 (hinv.physmem)
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: Mbyte
-PMID: 29.0.157 (sample.proc.exec)
-    Data Type: string  InDom: 29.12 0x740000c
-    Semantics: instant  Units: none
-PMID: 29.0.3 (sample.milliseconds)
-    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: millisec
-PMID: 30.0.100 (sampledso.ulonglong.hundred)
-    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 PMID: 29.0.130 (sample.event.param_64)
     Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-PMID: 29.0.158 (sample.proc.time)
-    Data Type: 64-bit unsigned int  InDom: 29.12 0x740000c
-    Semantics: counter  Units: millisec
 PMID: 29.0.131 (sample.event.param_u64)
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-PMID: 60.1.11 (hinv.pagesize)
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: byte
 PMID: 29.0.132 (sample.event.param_float)
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 PMID: 29.0.133 (sample.event.param_double)
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-PMID: 29.0.22 (sample.longlong.hundred)
-    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
-PMID: 2.3.0 (pmcd.pmlogger.port)
-    Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
-    Semantics: discrete  Units: none
 PMID: 29.0.134 (sample.event.param_string)
     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 PMID: 29.0.135 (sample.event.param_aggregate)
     Data Type: aggregate  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-PMID: 29.0.37 (sample.mirage)
-    Data Type: 32-bit int  InDom: 29.3 0x7400003
-    Semantics: instant  Units: Kbyte / sec
-PMID: 30.0.22 (sampledso.longlong.hundred)
-    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
 PMID: 29.0.136 (sample.event.records)
     Data Type: event record array  InDom: 29.10 0x740000a
     Semantics: instant  Units: none
-PMID: 60.0.32 (hinv.ncpu)
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
-PMID: 2.3.2 (pmcd.pmlogger.archive)
-    Data Type: string  InDom: 2.1 0x800001
-    Semantics: discrete  Units: none
-PMID: 2.0.23 (pmcd.pid)
-    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
-PMID: 29.0.95 (sample.ulong.hundred)
+PMID: 29.0.156 (sample.proc.ordinal)
+    Data Type: 32-bit unsigned int  InDom: 29.12 0x740000c
+    Semantics: instant  Units: none
+PMID: 29.0.157 (sample.proc.exec)
+    Data Type: string  InDom: 29.12 0x740000c
+    Semantics: instant  Units: none
+PMID: 29.0.158 (sample.proc.time)
+    Data Type: 64-bit unsigned int  InDom: 29.12 0x740000c
+    Semantics: counter  Units: millisec
+PMID: 30.0.12 (sampledso.long.hundred)
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 30.0.22 (sampledso.longlong.hundred)
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 30.0.95 (sampledso.ulong.hundred)
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-PMID: 60.3.27 (hinv.ninterface)
+PMID: 30.0.100 (sampledso.ulonglong.hundred)
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 60.0.32 (hinv.ncpu)
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
 PMID: 60.0.33 (hinv.ndisk)
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
-PMID: 2.3.3 (pmcd.pmlogger.host)
-    Data Type: string  InDom: 2.1 0x800001
+PMID: 60.1.9 (hinv.physmem)
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: Mbyte
+PMID: 60.1.11 (hinv.pagesize)
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: byte
+PMID: 60.3.27 (hinv.ninterface)
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
+PMID: 60.5.0 (hinv.nfilesys)
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: count
 
 == -h archives/multi_mixed ==
 Note: timezone set to local timezone of host "bozo.localdomain" from archive
@@ -468,10 +468,13 @@ Note: timezone set to local timezone of host "bozo.localdomain" from archive
 Note: multi-archive context with 3 archives
 
 Instance Domains in the Log ...
-InDom: 29.10
-Fri Mar 15 09:53:10.084432000 2024 2 instances
-   0 or "fungus"
-   1 or "bogus"
+InDom: 2.1
+Fri Mar 15 09:53:02.030787224 2024 1 instances
+   3692363 or "3692363"
+Fri Mar 15 09:53:10.064622000 2024 1 instances
+   3692375 or "3692375"
+Fri Mar 15 09:53:18.100471986 2024 1 instances
+   3692402 or "3692402"
 InDom: 29.3
 Fri Mar 15 09:53:02.050538091 2024 16 instances
    0 or "m-00"
@@ -518,6 +521,10 @@ Fri Mar 15 09:53:12.084628000 2024 10 instances
    40 or "m-40"
    41 or "m-41"
    44 or "m-44"
+InDom: 29.10
+Fri Mar 15 09:53:10.084432000 2024 2 instances
+   0 or "fungus"
+   1 or "bogus"
 InDom: 29.12
 Fri Mar 15 09:53:02.050538091 2024 4 instances
    1 or "0001 init"
@@ -716,13 +723,6 @@ Fri Mar 15 09:53:25.120516371 2024 11 instances
    20 or "0020 /usr/local/koko"
    21 or "0021 /usr/opt/bin/lala"
    22 or "0022 /etc/bozo"
-InDom: 2.1
-Fri Mar 15 09:53:02.030787224 2024 1 instances
-   3692363 or "3692363"
-Fri Mar 15 09:53:10.064622000 2024 1 instances
-   3692375 or "3692375"
-Fri Mar 15 09:53:18.100471986 2024 1 instances
-   3692402 or "3692402"
 
 == -e archives/multi_mixed ==
 Note: timezone set to local timezone of host "bozo.localdomain" from archive

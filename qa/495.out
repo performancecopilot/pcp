@@ -4,7 +4,7 @@ non-null -> non-null cases
 === metric sample.mirage { indom -> 29.8 } ===
 --- TMP.in
 +++ TMP.out
-@@ -10,7 +10,7 @@
+@@ -19,7 +19,7 @@
      Data Type: 32-bit int  InDom: 29.2 0x7400002
      Semantics: instant  Units: none
  PMID: 29.0.37 (sample.mirage)
@@ -13,7 +13,7 @@ non-null -> non-null cases
      Semantics: instant  Units: Kbyte / sec
  PMID: 29.0.80 (sample.many.int)
      Data Type: 32-bit int  InDom: 29.8 0x7400008
-@@ -37,13 +37,6 @@
+@@ -40,13 +40,6 @@
     700 or "bin-700"
     800 or "bin-800"
     900 or "bin-900"
@@ -73,7 +73,7 @@ non-null -> non-null cases
 === metric sample.mirage { indom -> 29.8 output inst 4 } ===
 --- TMP.in
 +++ TMP.out
-@@ -10,7 +10,7 @@
+@@ -19,7 +19,7 @@
      Data Type: 32-bit int  InDom: 29.2 0x7400002
      Semantics: instant  Units: none
  PMID: 29.0.37 (sample.mirage)
@@ -82,7 +82,7 @@ non-null -> non-null cases
      Semantics: instant  Units: Kbyte / sec
  PMID: 29.0.80 (sample.many.int)
      Data Type: 32-bit int  InDom: 29.8 0x7400008
-@@ -37,13 +37,6 @@
+@@ -40,13 +40,6 @@
     700 or "bin-700"
     800 or "bin-800"
     900 or "bin-900"
@@ -150,7 +150,7 @@ non-null -> non-null cases
 === metric sample.mirage { indom -> 29.8 output iname "m-04" } ===
 --- TMP.in
 +++ TMP.out
-@@ -10,7 +10,7 @@
+@@ -19,7 +19,7 @@
      Data Type: 32-bit int  InDom: 29.2 0x7400002
      Semantics: instant  Units: none
  PMID: 29.0.37 (sample.mirage)
@@ -159,7 +159,7 @@ non-null -> non-null cases
      Semantics: instant  Units: Kbyte / sec
  PMID: 29.0.80 (sample.many.int)
      Data Type: 32-bit int  InDom: 29.8 0x7400008
-@@ -37,13 +37,6 @@
+@@ -40,13 +40,6 @@
     700 or "bin-700"
     800 or "bin-800"
     900 or "bin-900"
@@ -227,7 +227,7 @@ non-null -> non-null cases
 === metric sample.mirage { indom -> 29.8 output first } ===
 --- TMP.in
 +++ TMP.out
-@@ -10,7 +10,7 @@
+@@ -19,7 +19,7 @@
      Data Type: 32-bit int  InDom: 29.2 0x7400002
      Semantics: instant  Units: none
  PMID: 29.0.37 (sample.mirage)
@@ -236,7 +236,7 @@ non-null -> non-null cases
      Semantics: instant  Units: Kbyte / sec
  PMID: 29.0.80 (sample.many.int)
      Data Type: 32-bit int  InDom: 29.8 0x7400008
-@@ -37,13 +37,6 @@
+@@ -40,13 +40,6 @@
     700 or "bin-700"
     800 or "bin-800"
     900 or "bin-900"
@@ -304,7 +304,7 @@ non-null -> non-null cases
 === metric sample.mirage { indom -> 29.8 output last } ===
 --- TMP.in
 +++ TMP.out
-@@ -10,7 +10,7 @@
+@@ -19,7 +19,7 @@
      Data Type: 32-bit int  InDom: 29.2 0x7400002
      Semantics: instant  Units: none
  PMID: 29.0.37 (sample.mirage)
@@ -313,7 +313,7 @@ non-null -> non-null cases
      Semantics: instant  Units: Kbyte / sec
  PMID: 29.0.80 (sample.many.int)
      Data Type: 32-bit int  InDom: 29.8 0x7400008
-@@ -37,13 +37,6 @@
+@@ -40,13 +40,6 @@
     700 or "bin-700"
     800 or "bin-800"
     900 or "bin-900"
@@ -381,7 +381,7 @@ non-null -> non-null cases
 === metric sample.mirage { indom -> 29.8 output min } ===
 --- TMP.in
 +++ TMP.out
-@@ -10,7 +10,7 @@
+@@ -19,7 +19,7 @@
      Data Type: 32-bit int  InDom: 29.2 0x7400002
      Semantics: instant  Units: none
  PMID: 29.0.37 (sample.mirage)
@@ -390,7 +390,7 @@ non-null -> non-null cases
      Semantics: instant  Units: Kbyte / sec
  PMID: 29.0.80 (sample.many.int)
      Data Type: 32-bit int  InDom: 29.8 0x7400008
-@@ -37,13 +37,6 @@
+@@ -40,13 +40,6 @@
     700 or "bin-700"
     800 or "bin-800"
     900 or "bin-900"
@@ -458,7 +458,7 @@ non-null -> non-null cases
 === metric sample.mirage { indom -> 29.8 output max } ===
 --- TMP.in
 +++ TMP.out
-@@ -10,7 +10,7 @@
+@@ -19,7 +19,7 @@
      Data Type: 32-bit int  InDom: 29.2 0x7400002
      Semantics: instant  Units: none
  PMID: 29.0.37 (sample.mirage)
@@ -467,7 +467,7 @@ non-null -> non-null cases
      Semantics: instant  Units: Kbyte / sec
  PMID: 29.0.80 (sample.many.int)
      Data Type: 32-bit int  InDom: 29.8 0x7400008
-@@ -37,13 +37,6 @@
+@@ -40,13 +40,6 @@
     700 or "bin-700"
     800 or "bin-800"
     900 or "bin-900"
@@ -535,7 +535,7 @@ non-null -> non-null cases
 === metric sample.mirage { indom -> 29.8 output sum } ===
 --- TMP.in
 +++ TMP.out
-@@ -10,7 +10,7 @@
+@@ -19,7 +19,7 @@
      Data Type: 32-bit int  InDom: 29.2 0x7400002
      Semantics: instant  Units: none
  PMID: 29.0.37 (sample.mirage)
@@ -544,7 +544,7 @@ non-null -> non-null cases
      Semantics: instant  Units: Kbyte / sec
  PMID: 29.0.80 (sample.many.int)
      Data Type: 32-bit int  InDom: 29.8 0x7400008
-@@ -37,13 +37,6 @@
+@@ -40,13 +40,6 @@
     700 or "bin-700"
     800 or "bin-800"
     900 or "bin-900"
@@ -612,7 +612,7 @@ non-null -> non-null cases
 === metric sample.mirage { indom -> 29.8 output avg } ===
 --- TMP.in
 +++ TMP.out
-@@ -10,7 +10,7 @@
+@@ -19,7 +19,7 @@
      Data Type: 32-bit int  InDom: 29.2 0x7400002
      Semantics: instant  Units: none
  PMID: 29.0.37 (sample.mirage)
@@ -621,7 +621,7 @@ non-null -> non-null cases
      Semantics: instant  Units: Kbyte / sec
  PMID: 29.0.80 (sample.many.int)
      Data Type: 32-bit int  InDom: 29.8 0x7400008
-@@ -37,13 +37,6 @@
+@@ -40,13 +40,6 @@
     700 or "bin-700"
     800 or "bin-800"
     900 or "bin-900"
@@ -693,7 +693,7 @@ Warning [TMP.config, line 2]
 Instance 12345 from OUTPUT clause not found in new indom 29.8
 --- TMP.in
 +++ TMP.out
-@@ -10,7 +10,7 @@
+@@ -19,7 +19,7 @@
      Data Type: 32-bit int  InDom: 29.2 0x7400002
      Semantics: instant  Units: none
  PMID: 29.0.37 (sample.mirage)
@@ -702,7 +702,7 @@ Instance 12345 from OUTPUT clause not found in new indom 29.8
      Semantics: instant  Units: Kbyte / sec
  PMID: 29.0.80 (sample.many.int)
      Data Type: 32-bit int  InDom: 29.8 0x7400008
-@@ -37,13 +37,6 @@
+@@ -40,13 +40,6 @@
     700 or "bin-700"
     800 or "bin-800"
     900 or "bin-900"
@@ -774,7 +774,7 @@ Warning [TMP.config, line 2]
 Instance "m-12345" from OUTPUT clause not found in new indom 29.8
 --- TMP.in
 +++ TMP.out
-@@ -10,7 +10,7 @@
+@@ -19,7 +19,7 @@
      Data Type: 32-bit int  InDom: 29.2 0x7400002
      Semantics: instant  Units: none
  PMID: 29.0.37 (sample.mirage)
@@ -783,7 +783,7 @@ Instance "m-12345" from OUTPUT clause not found in new indom 29.8
      Semantics: instant  Units: Kbyte / sec
  PMID: 29.0.80 (sample.many.int)
      Data Type: 32-bit int  InDom: 29.8 0x7400008
-@@ -37,13 +37,6 @@
+@@ -40,13 +40,6 @@
     700 or "bin-700"
     800 or "bin-800"
     900 or "bin-900"
@@ -853,7 +853,7 @@ Warning [TMP.config, line 2]
 Instance 11 from OUTPUT clause not found in new indom 29.8
 --- TMP.in
 +++ TMP.out
-@@ -10,7 +10,7 @@
+@@ -19,7 +19,7 @@
      Data Type: 32-bit int  InDom: 29.2 0x7400002
      Semantics: instant  Units: none
  PMID: 29.0.37 (sample.mirage)
@@ -862,7 +862,7 @@ Instance 11 from OUTPUT clause not found in new indom 29.8
      Semantics: instant  Units: Kbyte / sec
  PMID: 29.0.80 (sample.many.int)
      Data Type: 32-bit int  InDom: 29.8 0x7400008
-@@ -37,13 +37,6 @@
+@@ -40,13 +40,6 @@
     700 or "bin-700"
     800 or "bin-800"
     900 or "bin-900"
@@ -932,7 +932,7 @@ Warning [TMP.config, line 2]
 Instance 2 from OUTPUT clause not found in old indom 29.3
 --- TMP.in
 +++ TMP.out
-@@ -10,7 +10,7 @@
+@@ -19,7 +19,7 @@
      Data Type: 32-bit int  InDom: 29.2 0x7400002
      Semantics: instant  Units: none
  PMID: 29.0.37 (sample.mirage)
@@ -941,7 +941,7 @@ Instance 2 from OUTPUT clause not found in old indom 29.3
      Semantics: instant  Units: Kbyte / sec
  PMID: 29.0.80 (sample.many.int)
      Data Type: 32-bit int  InDom: 29.8 0x7400008
-@@ -37,13 +37,6 @@
+@@ -40,13 +40,6 @@
     700 or "bin-700"
     800 or "bin-800"
     900 or "bin-900"
@@ -1011,19 +1011,19 @@ non-null -> null cases
 === metric sample.colour { indom -> NULL } ===
 --- TMP.in
 +++ TMP.out
-@@ -10,7 +10,7 @@
-     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
-     Semantics: discrete  Units: none
+@@ -19,7 +19,7 @@
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: sec
  PMID: 29.0.5 (sample.colour)
 -    Data Type: 32-bit int  InDom: 29.1 0x7400001
 +    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
      Semantics: instant  Units: none
- PMID: 2.3.0 (pmcd.pmlogger.port)
-     Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
-@@ -32,11 +32,6 @@
-     Semantics: discrete  Units: none
- 
- Instance Domains in the Log ...
+ PMID: 29.0.6 (sample.bin)
+     Data Type: 32-bit int  InDom: 29.2 0x7400002
+@@ -35,11 +35,6 @@
+ InDom: 2.1
+ 04:34:32.257504 1 instances
+    5403 or "5403"
 -InDom: 29.1
 -04:34:33.248687 3 instances
 -   0 or "red"
@@ -1075,19 +1075,19 @@ non-null -> null cases
 === metric sample.colour { indom -> NULL output inst 1 } ===
 --- TMP.in
 +++ TMP.out
-@@ -10,7 +10,7 @@
-     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
-     Semantics: discrete  Units: none
+@@ -19,7 +19,7 @@
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: sec
  PMID: 29.0.5 (sample.colour)
 -    Data Type: 32-bit int  InDom: 29.1 0x7400001
 +    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
      Semantics: instant  Units: none
- PMID: 2.3.0 (pmcd.pmlogger.port)
-     Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
-@@ -32,11 +32,6 @@
-     Semantics: discrete  Units: none
- 
- Instance Domains in the Log ...
+ PMID: 29.0.6 (sample.bin)
+     Data Type: 32-bit int  InDom: 29.2 0x7400002
+@@ -35,11 +35,6 @@
+ InDom: 2.1
+ 04:34:32.257504 1 instances
+    5403 or "5403"
 -InDom: 29.1
 -04:34:33.248687 3 instances
 -   0 or "red"
@@ -1139,19 +1139,19 @@ non-null -> null cases
 === metric sample.colour { indom -> NULL output iname "green with extra text for no value" } ===
 --- TMP.in
 +++ TMP.out
-@@ -10,7 +10,7 @@
-     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
-     Semantics: discrete  Units: none
+@@ -19,7 +19,7 @@
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: sec
  PMID: 29.0.5 (sample.colour)
 -    Data Type: 32-bit int  InDom: 29.1 0x7400001
 +    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
      Semantics: instant  Units: none
- PMID: 2.3.0 (pmcd.pmlogger.port)
-     Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
-@@ -32,11 +32,6 @@
-     Semantics: discrete  Units: none
- 
- Instance Domains in the Log ...
+ PMID: 29.0.6 (sample.bin)
+     Data Type: 32-bit int  InDom: 29.2 0x7400002
+@@ -35,11 +35,6 @@
+ InDom: 2.1
+ 04:34:32.257504 1 instances
+    5403 or "5403"
 -InDom: 29.1
 -04:34:33.248687 3 instances
 -   0 or "red"
@@ -1203,19 +1203,19 @@ non-null -> null cases
 === metric sample.colour { indom -> NULL output first } ===
 --- TMP.in
 +++ TMP.out
-@@ -10,7 +10,7 @@
-     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
-     Semantics: discrete  Units: none
+@@ -19,7 +19,7 @@
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: sec
  PMID: 29.0.5 (sample.colour)
 -    Data Type: 32-bit int  InDom: 29.1 0x7400001
 +    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
      Semantics: instant  Units: none
- PMID: 2.3.0 (pmcd.pmlogger.port)
-     Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
-@@ -32,11 +32,6 @@
-     Semantics: discrete  Units: none
- 
- Instance Domains in the Log ...
+ PMID: 29.0.6 (sample.bin)
+     Data Type: 32-bit int  InDom: 29.2 0x7400002
+@@ -35,11 +35,6 @@
+ InDom: 2.1
+ 04:34:32.257504 1 instances
+    5403 or "5403"
 -InDom: 29.1
 -04:34:33.248687 3 instances
 -   0 or "red"
@@ -1267,19 +1267,19 @@ non-null -> null cases
 === metric sample.colour { indom -> NULL output last } ===
 --- TMP.in
 +++ TMP.out
-@@ -10,7 +10,7 @@
-     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
-     Semantics: discrete  Units: none
+@@ -19,7 +19,7 @@
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: sec
  PMID: 29.0.5 (sample.colour)
 -    Data Type: 32-bit int  InDom: 29.1 0x7400001
 +    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
      Semantics: instant  Units: none
- PMID: 2.3.0 (pmcd.pmlogger.port)
-     Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
-@@ -32,11 +32,6 @@
-     Semantics: discrete  Units: none
- 
- Instance Domains in the Log ...
+ PMID: 29.0.6 (sample.bin)
+     Data Type: 32-bit int  InDom: 29.2 0x7400002
+@@ -35,11 +35,6 @@
+ InDom: 2.1
+ 04:34:32.257504 1 instances
+    5403 or "5403"
 -InDom: 29.1
 -04:34:33.248687 3 instances
 -   0 or "red"
@@ -1331,19 +1331,19 @@ non-null -> null cases
 === metric sample.colour { indom -> NULL output min } ===
 --- TMP.in
 +++ TMP.out
-@@ -10,7 +10,7 @@
-     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
-     Semantics: discrete  Units: none
+@@ -19,7 +19,7 @@
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: sec
  PMID: 29.0.5 (sample.colour)
 -    Data Type: 32-bit int  InDom: 29.1 0x7400001
 +    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
      Semantics: instant  Units: none
- PMID: 2.3.0 (pmcd.pmlogger.port)
-     Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
-@@ -32,11 +32,6 @@
-     Semantics: discrete  Units: none
- 
- Instance Domains in the Log ...
+ PMID: 29.0.6 (sample.bin)
+     Data Type: 32-bit int  InDom: 29.2 0x7400002
+@@ -35,11 +35,6 @@
+ InDom: 2.1
+ 04:34:32.257504 1 instances
+    5403 or "5403"
 -InDom: 29.1
 -04:34:33.248687 3 instances
 -   0 or "red"
@@ -1395,19 +1395,19 @@ non-null -> null cases
 === metric sample.colour { indom -> NULL output max } ===
 --- TMP.in
 +++ TMP.out
-@@ -10,7 +10,7 @@
-     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
-     Semantics: discrete  Units: none
+@@ -19,7 +19,7 @@
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: sec
  PMID: 29.0.5 (sample.colour)
 -    Data Type: 32-bit int  InDom: 29.1 0x7400001
 +    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
      Semantics: instant  Units: none
- PMID: 2.3.0 (pmcd.pmlogger.port)
-     Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
-@@ -32,11 +32,6 @@
-     Semantics: discrete  Units: none
- 
- Instance Domains in the Log ...
+ PMID: 29.0.6 (sample.bin)
+     Data Type: 32-bit int  InDom: 29.2 0x7400002
+@@ -35,11 +35,6 @@
+ InDom: 2.1
+ 04:34:32.257504 1 instances
+    5403 or "5403"
 -InDom: 29.1
 -04:34:33.248687 3 instances
 -   0 or "red"
@@ -1459,19 +1459,19 @@ non-null -> null cases
 === metric sample.colour { indom -> NULL output sum } ===
 --- TMP.in
 +++ TMP.out
-@@ -10,7 +10,7 @@
-     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
-     Semantics: discrete  Units: none
+@@ -19,7 +19,7 @@
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: sec
  PMID: 29.0.5 (sample.colour)
 -    Data Type: 32-bit int  InDom: 29.1 0x7400001
 +    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
      Semantics: instant  Units: none
- PMID: 2.3.0 (pmcd.pmlogger.port)
-     Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
-@@ -32,11 +32,6 @@
-     Semantics: discrete  Units: none
- 
- Instance Domains in the Log ...
+ PMID: 29.0.6 (sample.bin)
+     Data Type: 32-bit int  InDom: 29.2 0x7400002
+@@ -35,11 +35,6 @@
+ InDom: 2.1
+ 04:34:32.257504 1 instances
+    5403 or "5403"
 -InDom: 29.1
 -04:34:33.248687 3 instances
 -   0 or "red"
@@ -1523,19 +1523,19 @@ non-null -> null cases
 === metric sample.colour { indom -> NULL output avg } ===
 --- TMP.in
 +++ TMP.out
-@@ -10,7 +10,7 @@
-     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
-     Semantics: discrete  Units: none
+@@ -19,7 +19,7 @@
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: sec
  PMID: 29.0.5 (sample.colour)
 -    Data Type: 32-bit int  InDom: 29.1 0x7400001
 +    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
      Semantics: instant  Units: none
- PMID: 2.3.0 (pmcd.pmlogger.port)
-     Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
-@@ -32,11 +32,6 @@
-     Semantics: discrete  Units: none
- 
- Instance Domains in the Log ...
+ PMID: 29.0.6 (sample.bin)
+     Data Type: 32-bit int  InDom: 29.2 0x7400002
+@@ -35,11 +35,6 @@
+ InDom: 2.1
+ 04:34:32.257504 1 instances
+    5403 or "5403"
 -InDom: 29.1
 -04:34:33.248687 3 instances
 -   0 or "red"
@@ -1589,19 +1589,19 @@ Warning [TMP.config, line 2]
 Instance 12345 from OUTPUT clause not found in old indom 29.1
 --- TMP.in
 +++ TMP.out
-@@ -10,7 +10,7 @@
-     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
-     Semantics: discrete  Units: none
+@@ -19,7 +19,7 @@
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: sec
  PMID: 29.0.5 (sample.colour)
 -    Data Type: 32-bit int  InDom: 29.1 0x7400001
 +    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
      Semantics: instant  Units: none
- PMID: 2.3.0 (pmcd.pmlogger.port)
-     Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
-@@ -32,11 +32,6 @@
-     Semantics: discrete  Units: none
- 
- Instance Domains in the Log ...
+ PMID: 29.0.6 (sample.bin)
+     Data Type: 32-bit int  InDom: 29.2 0x7400002
+@@ -35,11 +35,6 @@
+ InDom: 2.1
+ 04:34:32.257504 1 instances
+    5403 or "5403"
 -InDom: 29.1
 -04:34:33.248687 3 instances
 -   0 or "red"
@@ -1655,19 +1655,19 @@ Warning [TMP.config, line 2]
 Instance "purple" from OUTPUT clause not found in old indom 29.1
 --- TMP.in
 +++ TMP.out
-@@ -10,7 +10,7 @@
-     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
-     Semantics: discrete  Units: none
+@@ -19,7 +19,7 @@
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: sec
  PMID: 29.0.5 (sample.colour)
 -    Data Type: 32-bit int  InDom: 29.1 0x7400001
 +    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
      Semantics: instant  Units: none
- PMID: 2.3.0 (pmcd.pmlogger.port)
-     Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
-@@ -32,11 +32,6 @@
-     Semantics: discrete  Units: none
- 
- Instance Domains in the Log ...
+ PMID: 29.0.6 (sample.bin)
+     Data Type: 32-bit int  InDom: 29.2 0x7400002
+@@ -35,11 +35,6 @@
+ InDom: 2.1
+ 04:34:32.257504 1 instances
+    5403 or "5403"
 -InDom: 29.1
 -04:34:33.248687 3 instances
 -   0 or "red"
@@ -1723,15 +1723,15 @@ Warning [TMP.config, line 2]
 Instance 0 from OUTPUT clause not found in new indom 29.2
 --- TMP.in
 +++ TMP.out
-@@ -22,7 +22,7 @@
-     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
-     Semantics: instant  Units: none
+@@ -16,7 +16,7 @@
+     Data Type: string  InDom: 2.1 0x800001
+     Semantics: discrete  Units: none
  PMID: 29.0.2 (sample.seconds)
 -    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
 +    Data Type: 32-bit unsigned int  InDom: 29.2 0x7400002
      Semantics: counter  Units: sec
- PMID: 2.3.2 (pmcd.pmlogger.archive)
-     Data Type: string  InDom: 2.1 0x800001
+ PMID: 29.0.5 (sample.colour)
+     Data Type: 32-bit int  InDom: 29.1 0x7400001
 @@ -82,7 +82,7 @@
          inst [0 or "red"] value 119
          inst [1 or "green"] value 220
@@ -1750,15 +1750,15 @@ Instance 0 from OUTPUT clause not found in new indom 29.2
 === metric sample.seconds { indom -> 29.2 output inst 100 } ===
 --- TMP.in
 +++ TMP.out
-@@ -22,7 +22,7 @@
-     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
-     Semantics: instant  Units: none
+@@ -16,7 +16,7 @@
+     Data Type: string  InDom: 2.1 0x800001
+     Semantics: discrete  Units: none
  PMID: 29.0.2 (sample.seconds)
 -    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
 +    Data Type: 32-bit unsigned int  InDom: 29.2 0x7400002
      Semantics: counter  Units: sec
- PMID: 2.3.2 (pmcd.pmlogger.archive)
-     Data Type: string  InDom: 2.1 0x800001
+ PMID: 29.0.5 (sample.colour)
+     Data Type: 32-bit int  InDom: 29.1 0x7400001
 @@ -82,7 +82,7 @@
          inst [0 or "red"] value 119
          inst [1 or "green"] value 220
@@ -1777,15 +1777,15 @@ Instance 0 from OUTPUT clause not found in new indom 29.2
 === metric sample.seconds { indom -> 29.2 output iname "bin-300" } ===
 --- TMP.in
 +++ TMP.out
-@@ -22,7 +22,7 @@
-     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
-     Semantics: instant  Units: none
+@@ -16,7 +16,7 @@
+     Data Type: string  InDom: 2.1 0x800001
+     Semantics: discrete  Units: none
  PMID: 29.0.2 (sample.seconds)
 -    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
 +    Data Type: 32-bit unsigned int  InDom: 29.2 0x7400002
      Semantics: counter  Units: sec
- PMID: 2.3.2 (pmcd.pmlogger.archive)
-     Data Type: string  InDom: 2.1 0x800001
+ PMID: 29.0.5 (sample.colour)
+     Data Type: 32-bit int  InDom: 29.1 0x7400001
 @@ -82,7 +82,7 @@
          inst [0 or "red"] value 119
          inst [1 or "green"] value 220
@@ -1806,15 +1806,15 @@ Warning [TMP.config, line 2]
 Instance 0 from OUTPUT clause not found in new indom 29.2
 --- TMP.in
 +++ TMP.out
-@@ -22,7 +22,7 @@
-     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
-     Semantics: instant  Units: none
+@@ -16,7 +16,7 @@
+     Data Type: string  InDom: 2.1 0x800001
+     Semantics: discrete  Units: none
  PMID: 29.0.2 (sample.seconds)
 -    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
 +    Data Type: 32-bit unsigned int  InDom: 29.2 0x7400002
      Semantics: counter  Units: sec
- PMID: 2.3.2 (pmcd.pmlogger.archive)
-     Data Type: string  InDom: 2.1 0x800001
+ PMID: 29.0.5 (sample.colour)
+     Data Type: 32-bit int  InDom: 29.1 0x7400001
 @@ -82,7 +82,7 @@
          inst [0 or "red"] value 119
          inst [1 or "green"] value 220
@@ -1833,15 +1833,15 @@ Instance 0 from OUTPUT clause not found in new indom 29.2
 === metric sample.seconds { indom -> 29.2 output last } ===
 --- TMP.in
 +++ TMP.out
-@@ -22,7 +22,7 @@
-     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
-     Semantics: instant  Units: none
+@@ -16,7 +16,7 @@
+     Data Type: string  InDom: 2.1 0x800001
+     Semantics: discrete  Units: none
  PMID: 29.0.2 (sample.seconds)
 -    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
 +    Data Type: 32-bit unsigned int  InDom: 29.2 0x7400002
      Semantics: counter  Units: sec
- PMID: 2.3.2 (pmcd.pmlogger.archive)
-     Data Type: string  InDom: 2.1 0x800001
+ PMID: 29.0.5 (sample.colour)
+     Data Type: 32-bit int  InDom: 29.1 0x7400001
 @@ -82,7 +82,7 @@
          inst [0 or "red"] value 119
          inst [1 or "green"] value 220
@@ -1860,15 +1860,15 @@ Instance 0 from OUTPUT clause not found in new indom 29.2
 === metric sample.seconds { indom -> 29.2 output min } ===
 --- TMP.in
 +++ TMP.out
-@@ -22,7 +22,7 @@
-     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
-     Semantics: instant  Units: none
+@@ -16,7 +16,7 @@
+     Data Type: string  InDom: 2.1 0x800001
+     Semantics: discrete  Units: none
  PMID: 29.0.2 (sample.seconds)
 -    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
 +    Data Type: 32-bit unsigned int  InDom: 29.2 0x7400002
      Semantics: counter  Units: sec
- PMID: 2.3.2 (pmcd.pmlogger.archive)
-     Data Type: string  InDom: 2.1 0x800001
+ PMID: 29.0.5 (sample.colour)
+     Data Type: 32-bit int  InDom: 29.1 0x7400001
 @@ -82,7 +82,7 @@
          inst [0 or "red"] value 119
          inst [1 or "green"] value 220
@@ -1887,15 +1887,15 @@ Instance 0 from OUTPUT clause not found in new indom 29.2
 === metric sample.seconds { indom -> 29.2 output max } ===
 --- TMP.in
 +++ TMP.out
-@@ -22,7 +22,7 @@
-     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
-     Semantics: instant  Units: none
+@@ -16,7 +16,7 @@
+     Data Type: string  InDom: 2.1 0x800001
+     Semantics: discrete  Units: none
  PMID: 29.0.2 (sample.seconds)
 -    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
 +    Data Type: 32-bit unsigned int  InDom: 29.2 0x7400002
      Semantics: counter  Units: sec
- PMID: 2.3.2 (pmcd.pmlogger.archive)
-     Data Type: string  InDom: 2.1 0x800001
+ PMID: 29.0.5 (sample.colour)
+     Data Type: 32-bit int  InDom: 29.1 0x7400001
 @@ -82,7 +82,7 @@
          inst [0 or "red"] value 119
          inst [1 or "green"] value 220
@@ -1914,15 +1914,15 @@ Instance 0 from OUTPUT clause not found in new indom 29.2
 === metric sample.seconds { indom -> 29.2 output sum } ===
 --- TMP.in
 +++ TMP.out
-@@ -22,7 +22,7 @@
-     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
-     Semantics: instant  Units: none
+@@ -16,7 +16,7 @@
+     Data Type: string  InDom: 2.1 0x800001
+     Semantics: discrete  Units: none
  PMID: 29.0.2 (sample.seconds)
 -    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
 +    Data Type: 32-bit unsigned int  InDom: 29.2 0x7400002
      Semantics: counter  Units: sec
- PMID: 2.3.2 (pmcd.pmlogger.archive)
-     Data Type: string  InDom: 2.1 0x800001
+ PMID: 29.0.5 (sample.colour)
+     Data Type: 32-bit int  InDom: 29.1 0x7400001
 @@ -82,7 +82,7 @@
          inst [0 or "red"] value 119
          inst [1 or "green"] value 220
@@ -1941,15 +1941,15 @@ Instance 0 from OUTPUT clause not found in new indom 29.2
 === metric sample.seconds { indom -> 29.2 output avg } ===
 --- TMP.in
 +++ TMP.out
-@@ -22,7 +22,7 @@
-     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
-     Semantics: instant  Units: none
+@@ -16,7 +16,7 @@
+     Data Type: string  InDom: 2.1 0x800001
+     Semantics: discrete  Units: none
  PMID: 29.0.2 (sample.seconds)
 -    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
 +    Data Type: 32-bit unsigned int  InDom: 29.2 0x7400002
      Semantics: counter  Units: sec
- PMID: 2.3.2 (pmcd.pmlogger.archive)
-     Data Type: string  InDom: 2.1 0x800001
+ PMID: 29.0.5 (sample.colour)
+     Data Type: 32-bit int  InDom: 29.1 0x7400001
 @@ -82,7 +82,7 @@
          inst [0 or "red"] value 119
          inst [1 or "green"] value 220
@@ -1970,15 +1970,15 @@ Warning [TMP.config, line 2]
 Instance 12345 from OUTPUT clause not found in new indom 29.2
 --- TMP.in
 +++ TMP.out
-@@ -22,7 +22,7 @@
-     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
-     Semantics: instant  Units: none
+@@ -16,7 +16,7 @@
+     Data Type: string  InDom: 2.1 0x800001
+     Semantics: discrete  Units: none
  PMID: 29.0.2 (sample.seconds)
 -    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
 +    Data Type: 32-bit unsigned int  InDom: 29.2 0x7400002
      Semantics: counter  Units: sec
- PMID: 2.3.2 (pmcd.pmlogger.archive)
-     Data Type: string  InDom: 2.1 0x800001
+ PMID: 29.0.5 (sample.colour)
+     Data Type: 32-bit int  InDom: 29.1 0x7400001
 @@ -82,7 +82,7 @@
          inst [0 or "red"] value 119
          inst [1 or "green"] value 220
@@ -1999,15 +1999,15 @@ Warning [TMP.config, line 2]
 Instance "purple" from OUTPUT clause not found in new indom 29.2
 --- TMP.in
 +++ TMP.out
-@@ -22,7 +22,7 @@
-     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
-     Semantics: instant  Units: none
+@@ -16,7 +16,7 @@
+     Data Type: string  InDom: 2.1 0x800001
+     Semantics: discrete  Units: none
  PMID: 29.0.2 (sample.seconds)
 -    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
 +    Data Type: 32-bit unsigned int  InDom: 29.2 0x7400002
      Semantics: counter  Units: sec
- PMID: 2.3.2 (pmcd.pmlogger.archive)
-     Data Type: string  InDom: 2.1 0x800001
+ PMID: 29.0.5 (sample.colour)
+     Data Type: 32-bit int  InDom: 29.1 0x7400001
 @@ -82,7 +82,7 @@
          inst [0 or "red"] value 119
          inst [1 or "green"] value 220
@@ -2028,17 +2028,17 @@ spaces in inames cases
 === metric irix.kernel.all.load { indom -> NULL } ===
 --- TMP.in
 +++ TMP.out
-@@ -28,7 +28,7 @@
-     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-     Semantics: counter  Units: count
+@@ -52,7 +52,7 @@
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: instant  Units: Kbyte
  PMID: 1.18.3 (irix.kernel.all.load)
 -    Data Type: float  InDom: 1.5 0x400005
 +    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
      Semantics: instant  Units: none
- PMID: 1.10.12 (irix.kernel.all.cpu.wait.total)
-     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+ PMID: 1.82.10 (irix.disk.all.read)
+     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
 @@ -71,11 +71,6 @@
-     Semantics: instant  Units: Kbyte
+     Semantics: discrete  Units: none
  
  Instance Domains in the Log ...
 -InDom: 1.5
@@ -2091,17 +2091,17 @@ spaces in inames cases
 === metric irix.kernel.all.load { indom -> NULL output inst 5 } ===
 --- TMP.in
 +++ TMP.out
-@@ -28,7 +28,7 @@
-     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-     Semantics: counter  Units: count
+@@ -52,7 +52,7 @@
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: instant  Units: Kbyte
  PMID: 1.18.3 (irix.kernel.all.load)
 -    Data Type: float  InDom: 1.5 0x400005
 +    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
      Semantics: instant  Units: none
- PMID: 1.10.12 (irix.kernel.all.cpu.wait.total)
-     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+ PMID: 1.82.10 (irix.disk.all.read)
+     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
 @@ -71,11 +71,6 @@
-     Semantics: instant  Units: Kbyte
+     Semantics: discrete  Units: none
  
  Instance Domains in the Log ...
 -InDom: 1.5
@@ -2154,17 +2154,17 @@ spaces in inames cases
 === metric irix.kernel.all.load { indom -> NULL output iname "1" } ===
 --- TMP.in
 +++ TMP.out
-@@ -28,7 +28,7 @@
-     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-     Semantics: counter  Units: count
+@@ -52,7 +52,7 @@
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: instant  Units: Kbyte
  PMID: 1.18.3 (irix.kernel.all.load)
 -    Data Type: float  InDom: 1.5 0x400005
 +    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
      Semantics: instant  Units: none
- PMID: 1.10.12 (irix.kernel.all.cpu.wait.total)
-     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+ PMID: 1.82.10 (irix.disk.all.read)
+     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
 @@ -71,11 +71,6 @@
-     Semantics: instant  Units: Kbyte
+     Semantics: discrete  Units: none
  
  Instance Domains in the Log ...
 -InDom: 1.5
@@ -2217,17 +2217,17 @@ spaces in inames cases
 === metric irix.kernel.all.load { indom -> NULL output iname "1 minute" } ===
 --- TMP.in
 +++ TMP.out
-@@ -28,7 +28,7 @@
-     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-     Semantics: counter  Units: count
+@@ -52,7 +52,7 @@
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: instant  Units: Kbyte
  PMID: 1.18.3 (irix.kernel.all.load)
 -    Data Type: float  InDom: 1.5 0x400005
 +    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
      Semantics: instant  Units: none
- PMID: 1.10.12 (irix.kernel.all.cpu.wait.total)
-     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+ PMID: 1.82.10 (irix.disk.all.read)
+     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
 @@ -71,11 +71,6 @@
-     Semantics: instant  Units: Kbyte
+     Semantics: discrete  Units: none
  
  Instance Domains in the Log ...
 -InDom: 1.5
@@ -2280,17 +2280,17 @@ spaces in inames cases
 === metric irix.kernel.all.load { indom -> NULL output iname "1 xxx" } ===
 --- TMP.in
 +++ TMP.out
-@@ -28,7 +28,7 @@
-     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-     Semantics: counter  Units: count
+@@ -52,7 +52,7 @@
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: instant  Units: Kbyte
  PMID: 1.18.3 (irix.kernel.all.load)
 -    Data Type: float  InDom: 1.5 0x400005
 +    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
      Semantics: instant  Units: none
- PMID: 1.10.12 (irix.kernel.all.cpu.wait.total)
-     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+ PMID: 1.82.10 (irix.disk.all.read)
+     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
 @@ -71,11 +71,6 @@
-     Semantics: instant  Units: Kbyte
+     Semantics: discrete  Units: none
  
  Instance Domains in the Log ...
 -InDom: 1.5
@@ -2343,17 +2343,17 @@ spaces in inames cases
 === metric irix.kernel.all.load { indom -> NULL output iname "15" } ===
 --- TMP.in
 +++ TMP.out
-@@ -28,7 +28,7 @@
-     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-     Semantics: counter  Units: count
+@@ -52,7 +52,7 @@
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: instant  Units: Kbyte
  PMID: 1.18.3 (irix.kernel.all.load)
 -    Data Type: float  InDom: 1.5 0x400005
 +    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
      Semantics: instant  Units: none
- PMID: 1.10.12 (irix.kernel.all.cpu.wait.total)
-     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+ PMID: 1.82.10 (irix.disk.all.read)
+     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
 @@ -71,11 +71,6 @@
-     Semantics: instant  Units: Kbyte
+     Semantics: discrete  Units: none
  
  Instance Domains in the Log ...
 -InDom: 1.5
@@ -2406,17 +2406,17 @@ spaces in inames cases
 === metric irix.kernel.all.load { indom -> NULL output iname "15 " } ===
 --- TMP.in
 +++ TMP.out
-@@ -28,7 +28,7 @@
-     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-     Semantics: counter  Units: count
+@@ -52,7 +52,7 @@
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: instant  Units: Kbyte
  PMID: 1.18.3 (irix.kernel.all.load)
 -    Data Type: float  InDom: 1.5 0x400005
 +    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
      Semantics: instant  Units: none
- PMID: 1.10.12 (irix.kernel.all.cpu.wait.total)
-     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+ PMID: 1.82.10 (irix.disk.all.read)
+     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
 @@ -71,11 +71,6 @@
-     Semantics: instant  Units: Kbyte
+     Semantics: discrete  Units: none
  
  Instance Domains in the Log ...
 -InDom: 1.5
@@ -2469,17 +2469,17 @@ spaces in inames cases
 === metric irix.kernel.all.load { indom -> NULL output iname "15 min but no one looks at this" } ===
 --- TMP.in
 +++ TMP.out
-@@ -28,7 +28,7 @@
-     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-     Semantics: counter  Units: count
+@@ -52,7 +52,7 @@
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: instant  Units: Kbyte
  PMID: 1.18.3 (irix.kernel.all.load)
 -    Data Type: float  InDom: 1.5 0x400005
 +    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
      Semantics: instant  Units: none
- PMID: 1.10.12 (irix.kernel.all.cpu.wait.total)
-     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+ PMID: 1.82.10 (irix.disk.all.read)
+     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
 @@ -71,11 +71,6 @@
-     Semantics: instant  Units: Kbyte
+     Semantics: discrete  Units: none
  
  Instance Domains in the Log ...
 -InDom: 1.5
@@ -2534,17 +2534,17 @@ Warning [TMP.config, line 2]
 Instance "159" from OUTPUT clause not found in old indom 1.5
 --- TMP.in
 +++ TMP.out
-@@ -28,7 +28,7 @@
-     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-     Semantics: counter  Units: count
+@@ -52,7 +52,7 @@
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: instant  Units: Kbyte
  PMID: 1.18.3 (irix.kernel.all.load)
 -    Data Type: float  InDom: 1.5 0x400005
 +    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
      Semantics: instant  Units: none
- PMID: 1.10.12 (irix.kernel.all.cpu.wait.total)
-     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+ PMID: 1.82.10 (irix.disk.all.read)
+     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
 @@ -71,11 +71,6 @@
-     Semantics: instant  Units: Kbyte
+     Semantics: discrete  Units: none
  
  Instance Domains in the Log ...
 -InDom: 1.5
@@ -2599,15 +2599,15 @@ Warning [TMP.config, line 2]
 Instance 0 from OUTPUT clause not found in new indom 1.5
 --- TMP.in
 +++ TMP.out
-@@ -16,7 +16,7 @@
-     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-     Semantics: counter  Units: count
+@@ -55,7 +55,7 @@
+     Data Type: float  InDom: 1.5 0x400005
+     Semantics: instant  Units: none
  PMID: 1.82.10 (irix.disk.all.read)
 -    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
 +    Data Type: 64-bit unsigned int  InDom: 1.5 0x400005
      Semantics: counter  Units: count
- PMID: 1.10.11 (irix.kernel.all.cpu.user)
-     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+ PMID: 1.82.11 (irix.disk.all.write)
+     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
 @@ -95,7 +95,7 @@
  08:20:47.964018 18 metrics
      1.82.11 (irix.disk.all.write): value 2158394
@@ -2628,15 +2628,15 @@ Instance 0 from OUTPUT clause not found in new indom 1.5
 === metric irix.disk.all.read { indom -> 1.5 output inst 5 } ===
 --- TMP.in
 +++ TMP.out
-@@ -16,7 +16,7 @@
-     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-     Semantics: counter  Units: count
+@@ -55,7 +55,7 @@
+     Data Type: float  InDom: 1.5 0x400005
+     Semantics: instant  Units: none
  PMID: 1.82.10 (irix.disk.all.read)
 -    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
 +    Data Type: 64-bit unsigned int  InDom: 1.5 0x400005
      Semantics: counter  Units: count
- PMID: 1.10.11 (irix.kernel.all.cpu.user)
-     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+ PMID: 1.82.11 (irix.disk.all.write)
+     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
 @@ -95,7 +95,7 @@
  08:20:47.964018 18 metrics
      1.82.11 (irix.disk.all.write): value 2158394
@@ -2657,15 +2657,15 @@ Instance 0 from OUTPUT clause not found in new indom 1.5
 === metric irix.disk.all.read { indom -> 1.5 output iname "1" } ===
 --- TMP.in
 +++ TMP.out
-@@ -16,7 +16,7 @@
-     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-     Semantics: counter  Units: count
+@@ -55,7 +55,7 @@
+     Data Type: float  InDom: 1.5 0x400005
+     Semantics: instant  Units: none
  PMID: 1.82.10 (irix.disk.all.read)
 -    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
 +    Data Type: 64-bit unsigned int  InDom: 1.5 0x400005
      Semantics: counter  Units: count
- PMID: 1.10.11 (irix.kernel.all.cpu.user)
-     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+ PMID: 1.82.11 (irix.disk.all.write)
+     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
 @@ -95,7 +95,7 @@
  08:20:47.964018 18 metrics
      1.82.11 (irix.disk.all.write): value 2158394
@@ -2686,15 +2686,15 @@ Instance 0 from OUTPUT clause not found in new indom 1.5
 === metric irix.disk.all.read { indom -> 1.5 output iname "1 minute" } ===
 --- TMP.in
 +++ TMP.out
-@@ -16,7 +16,7 @@
-     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-     Semantics: counter  Units: count
+@@ -55,7 +55,7 @@
+     Data Type: float  InDom: 1.5 0x400005
+     Semantics: instant  Units: none
  PMID: 1.82.10 (irix.disk.all.read)
 -    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
 +    Data Type: 64-bit unsigned int  InDom: 1.5 0x400005
      Semantics: counter  Units: count
- PMID: 1.10.11 (irix.kernel.all.cpu.user)
-     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+ PMID: 1.82.11 (irix.disk.all.write)
+     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
 @@ -95,7 +95,7 @@
  08:20:47.964018 18 metrics
      1.82.11 (irix.disk.all.write): value 2158394
@@ -2715,15 +2715,15 @@ Instance 0 from OUTPUT clause not found in new indom 1.5
 === metric irix.disk.all.read { indom -> 1.5 output iname "1 xxx" } ===
 --- TMP.in
 +++ TMP.out
-@@ -16,7 +16,7 @@
-     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-     Semantics: counter  Units: count
+@@ -55,7 +55,7 @@
+     Data Type: float  InDom: 1.5 0x400005
+     Semantics: instant  Units: none
  PMID: 1.82.10 (irix.disk.all.read)
 -    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
 +    Data Type: 64-bit unsigned int  InDom: 1.5 0x400005
      Semantics: counter  Units: count
- PMID: 1.10.11 (irix.kernel.all.cpu.user)
-     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+ PMID: 1.82.11 (irix.disk.all.write)
+     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
 @@ -95,7 +95,7 @@
  08:20:47.964018 18 metrics
      1.82.11 (irix.disk.all.write): value 2158394
@@ -2744,15 +2744,15 @@ Instance 0 from OUTPUT clause not found in new indom 1.5
 === metric irix.disk.all.read { indom -> 1.5 output iname "15" } ===
 --- TMP.in
 +++ TMP.out
-@@ -16,7 +16,7 @@
-     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-     Semantics: counter  Units: count
+@@ -55,7 +55,7 @@
+     Data Type: float  InDom: 1.5 0x400005
+     Semantics: instant  Units: none
  PMID: 1.82.10 (irix.disk.all.read)
 -    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
 +    Data Type: 64-bit unsigned int  InDom: 1.5 0x400005
      Semantics: counter  Units: count
- PMID: 1.10.11 (irix.kernel.all.cpu.user)
-     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+ PMID: 1.82.11 (irix.disk.all.write)
+     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
 @@ -95,7 +95,7 @@
  08:20:47.964018 18 metrics
      1.82.11 (irix.disk.all.write): value 2158394
@@ -2773,15 +2773,15 @@ Instance 0 from OUTPUT clause not found in new indom 1.5
 === metric irix.disk.all.read { indom -> 1.5 output iname "15 " } ===
 --- TMP.in
 +++ TMP.out
-@@ -16,7 +16,7 @@
-     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-     Semantics: counter  Units: count
+@@ -55,7 +55,7 @@
+     Data Type: float  InDom: 1.5 0x400005
+     Semantics: instant  Units: none
  PMID: 1.82.10 (irix.disk.all.read)
 -    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
 +    Data Type: 64-bit unsigned int  InDom: 1.5 0x400005
      Semantics: counter  Units: count
- PMID: 1.10.11 (irix.kernel.all.cpu.user)
-     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+ PMID: 1.82.11 (irix.disk.all.write)
+     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
 @@ -95,7 +95,7 @@
  08:20:47.964018 18 metrics
      1.82.11 (irix.disk.all.write): value 2158394
@@ -2802,15 +2802,15 @@ Instance 0 from OUTPUT clause not found in new indom 1.5
 === metric irix.disk.all.read { indom -> 1.5 output iname "15 min but no one looks at this" } ===
 --- TMP.in
 +++ TMP.out
-@@ -16,7 +16,7 @@
-     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-     Semantics: counter  Units: count
+@@ -55,7 +55,7 @@
+     Data Type: float  InDom: 1.5 0x400005
+     Semantics: instant  Units: none
  PMID: 1.82.10 (irix.disk.all.read)
 -    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
 +    Data Type: 64-bit unsigned int  InDom: 1.5 0x400005
      Semantics: counter  Units: count
- PMID: 1.10.11 (irix.kernel.all.cpu.user)
-     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+ PMID: 1.82.11 (irix.disk.all.write)
+     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
 @@ -95,7 +95,7 @@
  08:20:47.964018 18 metrics
      1.82.11 (irix.disk.all.write): value 2158394
@@ -2833,15 +2833,15 @@ Warning [TMP.config, line 2]
 Instance "159" from OUTPUT clause not found in new indom 1.5
 --- TMP.in
 +++ TMP.out
-@@ -16,7 +16,7 @@
-     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-     Semantics: counter  Units: count
+@@ -55,7 +55,7 @@
+     Data Type: float  InDom: 1.5 0x400005
+     Semantics: instant  Units: none
  PMID: 1.82.10 (irix.disk.all.read)
 -    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
 +    Data Type: 64-bit unsigned int  InDom: 1.5 0x400005
      Semantics: counter  Units: count
- PMID: 1.10.11 (irix.kernel.all.cpu.user)
-     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+ PMID: 1.82.11 (irix.disk.all.write)
+     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
 @@ -95,7 +95,7 @@
  08:20:47.964018 18 metrics
      1.82.11 (irix.disk.all.write): value 2158394

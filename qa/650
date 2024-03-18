@@ -21,7 +21,8 @@ _filter()
 {
     logger_pid=$1
 
-    sed \
+    tee -a $seq.full \
+    | sed \
         -e '/Performance metrics from host /s/ host .*/ host .../' \
         -e '/commencing/d' \
         -e '/ending/d' \

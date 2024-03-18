@@ -502,7 +502,7 @@ x11
 037 archive local ostest
 038 pmlogger local pmlogdump kernel
 039 pmlogger archive local ostest pmlogdump
-040 pmlogger mem_leak local ostest
+040 pmlogger mem_leak local ostest pmlogdump
 041 pmcd local ostest pminfo
 042 pmcd local ostest containers pmda.linux pmda.proc pmda.root pminfo
 043 libpcp fetch local ostest
@@ -928,7 +928,7 @@ x11
 463 pmns local pmcpp
 464 pmns local pmcpp
 465 pmlogdump local #625913
-466 pmlogger local #625913
+466 pmlogger local #625913 pmlogdump
 467 pmns pmdumptext local pmda.sample
 468 pmns pmdumptext local pmda.sample
 469 help local #626853 kernel
@@ -969,7 +969,7 @@ x11
 504 libpcp fault local
 505 pmlogrewrite local pmlogdump
 506 pmlogrewrite local slow
-507 pcp local kernel
+507 pcp local kernel pmlogdump
 508 archive pmlogreduce local pmval kernel
 509 derive pmns local pmda.sample dbpmda pminfo
 510 pmlogger pmlc local
@@ -1036,7 +1036,7 @@ x11
 571 pmlogger local pmlogdump
 572 pmcd pmda local pmda.install pmda.sample pmda.simple pmda.trivial pmstore pminfo
 573 other remote pmlogdump
-574 libpcp pmns compat local sanity
+574 libpcp pmns compat local sanity pmlogdump
 575 pmie local
 576 pcp2xml python pcp2xxx derive local
 577 pmlogger local
@@ -1261,7 +1261,7 @@ x11
 796 pmda.elasticsearch local
 797 pmlogrewrite local pmlogdump
 798 pmda.nfsclient local python dbpmda
-799 pmlogrewrite local pmlogger
+799 pmlogrewrite local pmlogger pmlogdump
 800 pmda.proc pmda.hotproc local dbpmda
 801 pmda.netfilter local
 802 pmda valgrind dbpmda local
@@ -1625,7 +1625,7 @@ x11
 1160 pmda.netcheck local python
 1161 pmda.netcheck local python
 1162 find-filter local
-1163 pmlogrewrite local
+1163 pmlogrewrite local pmlogdump
 1164 pmda.linux local valgrind
 1165 pmda.bcc local python
 1166 libpcp local
@@ -1752,7 +1752,7 @@ x11
 1287 pmda.install pmda.openmetrics local python
 1288 archive pmval local
 1289 pmval archive multi-archive decompress-xz local pmlogextract
-1290 pmproxy local pmval pmie pmstat pmdumptext valgrind
+1290 pmproxy local pmval pmie pmstat pmdumptext valgrind pmlogdump
 1291 atop archive local
 1292 pmlc local
 1293 pmlc local valgrind
@@ -1875,15 +1875,15 @@ x11
 1410 sheet2pcp pmimport pmlogdump perl local archive_v3 libpcp_import
 1411 ganglia2pcp local pmlogdump archive_v3 libpcp_import
 1412 pmimport pmlogdump perl local archive_v3 libpcp_import
-1413 pmlogger archive_v3 local
+1413 pmlogger archive_v3 local pmlogdump
 1414 pmlc pmlogger pmlogdump archive_v3 local
 1415 pmda.mmv labels local
 1416 pmlogrewrite local
 1417 iostat2pcp pmimport perl pmlogdump archive_v3 local libpcp_import
 1418 pmimport sanity pmlogdump perl archive_v3 local
 1419 pmlogger pmlogdump pmloglabel pmlc v3_archive local
-1420 pmlogreduce pmval pmlogextract v3_archive local
-1421 pmlogreduce pmval pmlogextract v3_archive local valgrind
+1420 pmlogreduce pmval pmlogextract v3_archive local pmlogdump
+1421 pmlogreduce pmval pmlogextract v3_archive local valgrind pmlogdump
 1422 pmda.mmv local valgrind
 1423 pcp2spark python pcp2xxx local
 1424 logutil pmlogctl local
@@ -1938,8 +1938,8 @@ x11
 1473 logutil local
 1474 archive pmlogrewrite local
 1475 pmda.bpf local
-1476 pmlogrewrite local pmlogger valgrind
-1477 pmlogrewrite pmlogredact local
+1476 pmlogrewrite local pmlogger valgrind pmlogdump
+1477 pmlogrewrite pmlogredact local pmlogdump
 1478 other local
 1479 pmda.linux kernel local
 1480 pmda.lmsensors local
@@ -1966,6 +1966,7 @@ x11
 1501 pmlogdump local
 1502 pmlogdump local valgrind
 1503 pcp pidstat ps python local
+1504 pmval archive archive_v3 local multi-archive
 1511 pmcd local pmda.sample
 1515 pmda.denki local valgrind
 1530 pmda.zfs local valgrind
@@ -2002,7 +2003,7 @@ x11
 1612 pmda.bpf local
 1613 pmda.linux kernel local
 1622:retired local
-1623 libpcp_import collectl local
+1623 libpcp_import collectl local pmlogdump
 1626 pmproxy libpcp_web local
 1627 libpcp_import local
 1628 libpcp_import valgrind local
@@ -2059,7 +2060,7 @@ x11
 1725 pmda.bpftrace local python
 1727 pmproxy libpcp_web pmda.openmetrics local
 1740 pmda.proc local
-1745 pmlogger libpcp pmval local pmda.sample pmda.simple
+1745 pmlogger libpcp pmval local pmda.sample pmda.simple pmlogdump
 1748 atop local
 1753 fetch valgrind local
 1763 pmlogctl local

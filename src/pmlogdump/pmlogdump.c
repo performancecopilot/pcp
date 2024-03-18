@@ -491,11 +491,24 @@ next:
     }
 }
 
+static int
+comp_desc(const void *a, const void *b)
+{
+    if (((pmDesc *)a)->pmid == ((pmDesc *)b)->pmid)
+	return 0;
+    else if (((pmDesc *)a)->pmid < ((pmDesc *)b)->pmid)
+	return -1;
+    else
+	return 1;
+}
+
 static void
 dumpDesc(void)
 {
     int			i;
     int			sts;
+    int			numdesc = 0;
+    pmDesc		*desclist = NULL;
     char		**names;
     __pmHashNode	*hp;
     pmDesc		*dp;
@@ -504,19 +517,33 @@ dumpDesc(void)
     for (i = 0; i < ctxp->c_archctl->ac_log->hashpmid.hsize; i++) {
 	for (hp = ctxp->c_archctl->ac_log->hashpmid.hash[i]; hp != NULL; hp = hp->next) {
 	    dp = (pmDesc *)hp->data;
-	    names = NULL; /* silence coverity */
-	    sts = pmNameAll(dp->pmid, &names);
-	    if (sts < 0)
-		printf("PMID: %s (%s)\n", pmIDStr(dp->pmid), "<noname>");
-	    else {
-		printf("PMID: %s (", pmIDStr(dp->pmid));
-		__pmPrintMetricNames(stdout, sts, names, " or ");
-		printf(")\n");
-		free(names);
+	    numdesc++;
+	    if ((desclist = (pmDesc *)realloc(desclist, numdesc * sizeof(pmDesc))) == NULL) {
+		fprintf(stderr, "%s: malloc(desclist[%d]): %s\n", pmGetProgname(), numdesc, osstrerror());
+		exit(1);
 	    }
-	    pmPrintDesc(stdout, dp);
+	    desclist[numdesc-1] = *dp;	/* struct assignment */
 	}
     }
+    qsort((void *)desclist, numdesc, sizeof(desclist[0]), comp_desc);
+
+    for (i = 0; i < numdesc; i++) {
+	names = NULL; /* silence coverity */
+	dp = &desclist[i];
+	sts = pmNameAll(dp->pmid, &names);
+	if (sts < 0)
+	    printf("PMID: %s (%s)\n", pmIDStr(dp->pmid), "<noname>");
+	else {
+	    printf("PMID: %s (", pmIDStr(dp->pmid));
+	    __pmPrintMetricNames(stdout, sts, names, " or ");
+	    printf(")\n");
+	    free(names);
+	}
+	pmPrintDesc(stdout, dp);
+    }
+
+    if (desclist != NULL)
+	free(desclist);
 }
 
 static void
@@ -633,11 +660,29 @@ dumpDiskInDom(void)
     }
 }
 
+typedef struct {
+    pmInDom		indom;
+    __pmHashNode	*hp;
+} sort_indom;
+
+static int
+comp_indom(const void *a, const void *b)
+{
+    if (((sort_indom *)a)->indom == ((sort_indom *)b)->indom)
+	return 0;
+    else if (((sort_indom *)a)->indom < ((sort_indom *)b)->indom)
+	return -1;
+    else
+	return 1;
+}
+
 static void
 dumpInDom(void)
 {
     int		i;
     int		j;
+    int		numindom = 0;
+    sort_indom	*indomlist = NULL;
     __pmHashNode	*hp;
     __pmLogInDom	*idp;
     __pmLogInDom	*ldp;
@@ -645,29 +690,44 @@ dumpInDom(void)
     printf("\nInstance Domains in the Log ...\n");
     for (i = 0; i < ctxp->c_archctl->ac_log->hashindom.hsize; i++) {
 	for (hp = ctxp->c_archctl->ac_log->hashindom.hash[i]; hp != NULL; hp = hp->next) {
-	    printf("InDom: %s\n", pmInDomStr((pmInDom)hp->key));
-	    /*
-	     * in reverse chronological order, so iteration is a bit funny
-	     */
-	    ldp = NULL;
-	    for ( ; ; ) {
-		for (idp = (__pmLogInDom *)hp->data; idp->next != ldp; idp =idp->next)
-			;
-		if (idp->isdelta)
-		    __pmLogUndeltaInDom((pmInDom)hp->key, idp);
-		dump_pmTimestamp(&idp->stamp);
-		printf(" %d instances\n", idp->numinst);
-		for (j = 0; j < idp->numinst; j++) {
-		    printf("   %d or \"%s\"\n",
-			idp->instlist[j], idp->namelist[j]);
-		}
-		fflush(stdout);
-		if (idp == (__pmLogInDom *)hp->data)
-		    break;
-		ldp = idp;
+	    numindom++;
+	    if ((indomlist = (sort_indom *)realloc(indomlist, numindom * sizeof(pmDesc))) == NULL) {
+		fprintf(stderr, "%s: malloc(indomlist[%d]): %s\n", pmGetProgname(), numindom, osstrerror());
+		exit(1);
 	    }
+	    indomlist[numindom-1].indom = (pmInDom)hp->key;
+	    indomlist[numindom-1].hp = hp;
 	}
     }
+    qsort((void *)indomlist, numindom, sizeof(indomlist[0]), comp_indom);
+
+    for (i = 0; i < numindom; i++) {
+	hp = indomlist[i].hp;
+	printf("InDom: %s\n", pmInDomStr((pmInDom)hp->key));
+	/*
+	 * in reverse chronological order, so iteration is a bit funny
+	 */
+	ldp = NULL;
+	for ( ; ; ) {
+	    for (idp = (__pmLogInDom *)hp->data; idp->next != ldp; idp =idp->next)
+		    ;
+	    if (idp->isdelta)
+		__pmLogUndeltaInDom((pmInDom)hp->key, idp);
+	    dump_pmTimestamp(&idp->stamp);
+	    printf(" %d instances\n", idp->numinst);
+	    for (j = 0; j < idp->numinst; j++) {
+		printf("   %d or \"%s\"\n",
+		    idp->instlist[j], idp->namelist[j]);
+	    }
+	    fflush(stdout);
+	    if (idp == (__pmLogInDom *)hp->data)
+		break;
+	    ldp = idp;
+	}
+    }
+
+    if (indomlist != NULL)
+	free(indomlist);
 }
 
 static void

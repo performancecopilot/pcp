@@ -26,35 +26,35 @@ LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
-10c10
+13c13
 <    8 or "0008 /usr/local/yobo"
 ---
 >    8 or "0008 /usr/local/YOBO"
-16c16
+19c19
 <    18 or "0018 /etc/yobo"
 ---
 >    18 or "0018 /etc/YOBO"
-25c25
+28c28
 <    8 or "0008 /usr/local/yobo"
 ---
 >    8 or "0008 /usr/local/YOBO"
-30c30
+33c33
 <    18 or "0018 /etc/yobo"
 ---
 >    18 or "0018 /etc/YOBO"
-39c39
+42c42
 <    8 or "0008 /usr/local/yobo"
 ---
 >    8 or "0008 /usr/local/YOBO"
-51c51
+54c54
 <    8 or "0008 /usr/local/yobo"
 ---
 >    8 or "0008 /usr/local/YOBO"
-149c149
+152c152
 <    28 or "0028 /usr/local/yobo"
 ---
 >    28 or "0028 /usr/local/YOBO"
-162c162
+165c165
 <    28 or "0028 /usr/local/yobo"
 ---
 >    28 or "0028 /usr/local/YOBO"
@@ -120,7 +120,7 @@ LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
-6,18c6,18
+9,21c9,21
 <    2 or "0002 /etc/bozo"
 <    3 or "0003 /usr/bin/bobo"
 <    4 or "0004 /usr/local/jester"
@@ -148,7 +148,7 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 >    18 or "0018 yobo"
 >    19 or "0019 jojo"
 >    20 or "0020 koko"
-21,32c21,32
+24,35c24,35
 <    2 or "0002 /etc/bozo"
 <    3 or "0003 /usr/bin/bobo"
 <    4 or "0004 /usr/local/jester"
@@ -174,7 +174,7 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 >    18 or "0018 yobo"
 >    19 or "0019 jojo"
 >    20 or "0020 koko"
-35,44c35,44
+38,47c38,47
 <    2 or "0002 /etc/bozo"
 <    3 or "0003 /usr/bin/bobo"
 <    4 or "0004 /usr/local/jester"
@@ -196,7 +196,7 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 >    15 or "0015 loko"
 >    19 or "0019 jojo"
 >    20 or "0020 koko"
-47,56c47,56
+50,59c50,59
 <    2 or "0002 /etc/bozo"
 <    3 or "0003 /usr/bin/bobo"
 <    4 or "0004 /usr/local/jester"
@@ -218,7 +218,7 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 >    15 or "0015 loko"
 >    20 or "0020 koko"
 >    21 or "0021 lala"
-59,67c59,67
+62,70c62,70
 <    2 or "0002 /etc/bozo"
 <    3 or "0003 /usr/bin/bobo"
 <    4 or "0004 /usr/local/jester"
@@ -238,7 +238,7 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 >    15 or "0015 loko"
 >    20 or "0020 koko"
 >    21 or "0021 lala"
-70,79c70,79
+73,82c73,82
 <    2 or "0002 /etc/bozo"
 <    3 or "0003 /usr/bin/bobo"
 <    4 or "0004 /usr/local/jester"
@@ -260,7 +260,7 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 >    20 or "0020 koko"
 >    21 or "0021 lala"
 >    22 or "0022 bozo"
-82,90c82,90
+85,93c85,93
 <    2 or "0002 /etc/bozo"
 <    3 or "0003 /usr/bin/bobo"
 <    4 or "0004 /usr/local/jester"
@@ -280,7 +280,7 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 >    20 or "0020 koko"
 >    21 or "0021 lala"
 >    22 or "0022 bozo"
-93,100c93,100
+96,103c96,103
 <    2 or "0002 /etc/bozo"
 <    3 or "0003 /usr/bin/bobo"
 <    4 or "0004 /usr/local/jester"
@@ -298,7 +298,7 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 >    20 or "0020 koko"
 >    21 or "0021 lala"
 >    22 or "0022 bozo"
-103,110c103,110
+106,113c106,113
 <    2 or "0002 /etc/bozo"
 <    3 or "0003 /usr/bin/bobo"
 <    4 or "0004 /usr/local/jester"
@@ -316,7 +316,7 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 >    21 or "0021 lala"
 >    22 or "0022 bozo"
 >    23 or "0023 bobo"
-113,122c113,122
+116,125c116,125
 <    2 or "0002 /etc/bozo"
 <    3 or "0003 /usr/bin/bobo"
 <    4 or "0004 /usr/local/jester"
@@ -338,7 +338,7 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 >    23 or "0023 bobo"
 >    24 or "0024 jester"
 >    25 or "0025 loko"
-125,135c125,135
+128,138c128,138
 <    2 or "0002 /etc/bozo"
 <    3 or "0003 /usr/bin/bobo"
 <    4 or "0004 /usr/local/jester"
@@ -362,7 +362,7 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 >    24 or "0024 jester"
 >    25 or "0025 loko"
 >    26 or "0026 pierrot"
-138,149c138,149
+141,152c141,152
 <    2 or "0002 /etc/bozo"
 <    3 or "0003 /usr/bin/bobo"
 <    4 or "0004 /usr/local/jester"
@@ -388,7 +388,7 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 >    25 or "0025 loko"
 >    27 or "0027 waldo"
 >    28 or "0028 yobo"
-152,164c152,164
+155,167c155,167
 <    2 or "0002 /etc/bozo"
 <    3 or "0003 /usr/bin/bobo"
 <    4 or "0004 /usr/local/jester"

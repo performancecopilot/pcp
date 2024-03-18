@@ -14,26 +14,26 @@ Performance metrics from host HOST
     ending     DATE
 
 Descriptions for Metrics in the Log ...
+PMID: 2.0.23 (pmcd.pid)
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+PMID: 2.0.24 (pmcd.seqnum)
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+PMID: 2.3.0 (pmcd.pmlogger.port)
+    Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+PMID: 2.3.2 (pmcd.pmlogger.archive)
+    Data Type: string  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+PMID: 2.3.3 (pmcd.pmlogger.host)
+    Data Type: string  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
 PMID: 29.0.9 (sample.noinst)
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 PMID: 30.0.49 (sampledso.needprofile)
     Data Type: float  InDom: 30.4 0x7800004
-    Semantics: discrete  Units: none
-PMID: 2.0.24 (pmcd.seqnum)
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
-PMID: 2.0.23 (pmcd.pid)
-    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
-PMID: 2.3.2 (pmcd.pmlogger.archive)
-    Data Type: string  InDom: 2.1 0x800001
-    Semantics: discrete  Units: none
-PMID: 2.3.0 (pmcd.pmlogger.port)
-    Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
-    Semantics: discrete  Units: none
-PMID: 2.3.3 (pmcd.pmlogger.host)
-    Data Type: string  InDom: 2.1 0x800001
     Semantics: discrete  Units: none
 
 Instance Domains in the Log ...
@@ -86,26 +86,29 @@ Performance metrics from host HOST
     ending     DATE
 
 Descriptions for Metrics in the Log ...
-PMID: 30.0.49 (sampledso.needprofile)
-    Data Type: float  InDom: 30.4 0x7800004
+PMID: 2.0.23 (pmcd.pid)
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
 PMID: 2.0.24 (pmcd.seqnum)
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
-PMID: 2.0.23 (pmcd.pid)
-    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+PMID: 2.3.0 (pmcd.pmlogger.port)
+    Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
     Semantics: discrete  Units: none
 PMID: 2.3.2 (pmcd.pmlogger.archive)
     Data Type: string  InDom: 2.1 0x800001
     Semantics: discrete  Units: none
-PMID: 2.3.0 (pmcd.pmlogger.port)
-    Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
-    Semantics: discrete  Units: none
 PMID: 2.3.3 (pmcd.pmlogger.host)
     Data Type: string  InDom: 2.1 0x800001
     Semantics: discrete  Units: none
+PMID: 30.0.49 (sampledso.needprofile)
+    Data Type: float  InDom: 30.4 0x7800004
+    Semantics: discrete  Units: none
 
 Instance Domains in the Log ...
+InDom: 2.1
+TIMESTAMP 1 instances
+   LOGGER_PID or "LOGGER_PID"
 InDom: 30.4
 TIMESTAMP 5 instances
    0 or "colleen"
@@ -113,9 +116,6 @@ TIMESTAMP 5 instances
    2 or "emma"
    3 or "cathy"
    4 or "fat bald bastard"
-InDom: 2.1
-TIMESTAMP 1 instances
-   LOGGER_PID or "LOGGER_PID"
 
 Temporal Index
 		Log Vol    end(meta)     end(log)

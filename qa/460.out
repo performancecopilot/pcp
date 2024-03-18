@@ -13,14 +13,23 @@ Note: timezone set to local timezone of host "mazur" from archive
 
 
 Descriptions for Metrics in the Log ...
-PMID: 1.42.2 (hinv.map.xbow)
-    Data Type: string  InDom: 1.19 0x400013
+PMID: 1.10.7 (irix.kernel.all.cpu.idle)
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: millisec
+PMID: 1.26.9 (hinv.map.cpu)
+    Data Type: string  InDom: 1.1 0x400001
+    Semantics: discrete  Units: none
+PMID: 1.38.1 (hinv.map.router)
+    Data Type: string  InDom: 1.15 0x40000f
     Semantics: discrete  Units: none
 PMID: 1.38.12 (hinv.map.routerport)
     Data Type: string  InDom: 1.16 0x400010
     Semantics: discrete  Units: none
-PMID: 1.38.1 (hinv.map.router)
-    Data Type: string  InDom: 1.15 0x40000f
+PMID: 1.39.49 (hinv.map.node)
+    Data Type: string  InDom: 1.17 0x400011
+    Semantics: discrete  Units: none
+PMID: 1.42.2 (hinv.map.xbow)
+    Data Type: string  InDom: 1.19 0x400013
     Semantics: discrete  Units: none
 PMID: 1.80.13 (hinv.map.disk)
     Data Type: string  InDom: 1.2 0x400002
@@ -28,20 +37,11 @@ PMID: 1.80.13 (hinv.map.disk)
 PMID: 2.3.0 (pmcd.pmlogger.port)
     Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
     Semantics: discrete  Units: none
-PMID: 1.10.7 (irix.kernel.all.cpu.idle)
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: millisec
-PMID: 1.26.9 (hinv.map.cpu)
-    Data Type: string  InDom: 1.1 0x400001
-    Semantics: discrete  Units: none
 PMID: 2.3.2 (pmcd.pmlogger.archive)
     Data Type: string  InDom: 2.1 0x800001
     Semantics: discrete  Units: none
 PMID: 2.3.3 (pmcd.pmlogger.host)
     Data Type: string  InDom: 2.1 0x800001
-    Semantics: discrete  Units: none
-PMID: 1.39.49 (hinv.map.node)
-    Data Type: string  InDom: 1.17 0x400011
     Semantics: discrete  Units: none
 
 === INDOMS ===

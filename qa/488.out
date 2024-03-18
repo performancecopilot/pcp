@@ -13,15 +13,15 @@ QA output created by 488
 --- pmdumplog diffs ---
 --- TMP.in
 +++ TMP.out
-@@ -9,9 +9,6 @@
- PMID: 1.18.3 (irix.kernel.all.load)
-     Data Type: float  InDom: 1.5 0x400005
-     Semantics: instant  Units: none
+@@ -6,9 +6,6 @@
+     ending     Mon May 19 11:22:42.021829 1997
+ 
+ Descriptions for Metrics in the Log ...
 -PMID: 1.18.2 (hinv.ncpu)
 -    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
 -    Semantics: discrete  Units: none
- PMID: 1.26.7 (hinv.ndisk)
-     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+ PMID: 1.18.3 (irix.kernel.all.load)
+     Data Type: float  InDom: 1.5 0x400005
      Semantics: instant  Units: none
 @@ -39,8 +36,8 @@
  		Log Vol    end(meta)     end(log)
@@ -62,18 +62,21 @@ QA output created by 488
 --- pmdumplog diffs ---
 --- TMP.in
 +++ TMP.out
-@@ -9,12 +9,6 @@
- PMID: 1.18.3 (irix.kernel.all.load)
-     Data Type: float  InDom: 1.5 0x400005
-     Semantics: instant  Units: none
+@@ -6,15 +6,9 @@
+     ending     Mon May 19 11:22:42.021829 1997
+ 
+ Descriptions for Metrics in the Log ...
 -PMID: 1.18.2 (hinv.ncpu)
 -    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
 -    Semantics: discrete  Units: none
+ PMID: 1.18.3 (irix.kernel.all.load)
+     Data Type: float  InDom: 1.5 0x400005
+     Semantics: instant  Units: none
 -PMID: 1.26.7 (hinv.ndisk)
 -    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
 -    Semantics: instant  Units: none
- PMID: 2.3.2 (pmcd.pmlogger.archive)
-     Data Type: string  InDom: 2.1 0x800001
+ PMID: 2.3.0 (pmcd.pmlogger.port)
+     Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
      Semantics: instant  Units: none
 @@ -39,8 +33,8 @@
  		Log Vol    end(meta)     end(log)
@@ -121,17 +124,17 @@ QA output created by 488
 +    ending     Sat May 17 22:22:42.025955 1997
  
  Descriptions for Metrics in the Log ...
--PMID: 1.18.3 (irix.kernel.all.load)
--    Data Type: float  InDom: 1.5 0x400005
--    Semantics: instant  Units: none
 -PMID: 1.18.2 (hinv.ncpu)
 -    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
 -    Semantics: discrete  Units: none
+-PMID: 1.18.3 (irix.kernel.all.load)
+-    Data Type: float  InDom: 1.5 0x400005
+-    Semantics: instant  Units: none
 -PMID: 1.26.7 (hinv.ndisk)
 -    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
 -    Semantics: instant  Units: none
- PMID: 2.3.2 (pmcd.pmlogger.archive)
-     Data Type: string  InDom: 2.1 0x800001
+ PMID: 2.3.0 (pmcd.pmlogger.port)
+     Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
      Semantics: instant  Units: none
 @@ -26,11 +17,6 @@
      Semantics: instant  Units: none
@@ -339,124 +342,51 @@ QA output created by 488
 --- pmdumplog diffs ---
 --- TMP.in
 +++ TMP.out
-@@ -6,90 +6,60 @@
-     ending     Mon Oct 30 14:25:20.177207 1995
- 
- Descriptions for Metrics in the Log ...
--PMID: 40.0.4 (40.0.4)
+@@ -51,12 +51,6 @@
+ PMID: 1.18.3 (kernel.all.load)
+     Data Type: float  InDom: 1.5 0x400005
+     Semantics: instant  Units: none
+-PMID: 1.25.7 (network.interface.in.bytes)
+-    Data Type: 32-bit unsigned int  InDom: 1.6 0x400006
+-    Semantics: counter  Units: count
+-PMID: 1.25.12 (network.interface.out.bytes)
+-    Data Type: 32-bit unsigned int  InDom: 1.6 0x400006
+-    Semantics: counter  Units: count
+ PMID: 1.80.1 (disk.dev.read)
+     Data Type: 32-bit unsigned int  InDom: 1.2 0x400002
+     Semantics: counter  Units: count
+@@ -66,30 +60,6 @@
+ PMID: 1.80.7 (disk.dev.total)
+     Data Type: 32-bit unsigned int  InDom: 1.2 0x400002
+     Semantics: counter  Units: count
+-PMID: 40.0.0 (40.0.0)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+-    Semantics: counter  Units: millisec
+-PMID: 40.0.1 (40.0.1)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+-    Semantics: counter  Units: millisec
+-PMID: 40.0.2 (40.0.2)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+-    Semantics: counter  Units: millisec
+-PMID: 40.0.3 (40.0.3)
 -    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
 -    Semantics: counter  Units: count
--PMID: 1.80.7 (disk.dev.total)
--    Data Type: 32-bit unsigned int  InDom: 1.2 0x400002
+-PMID: 40.0.4 (40.0.4)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
 -    Semantics: counter  Units: count
 -PMID: 40.0.5 (40.0.5)
 -    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
 -    Semantics: counter  Units: count
--PMID: 1.10.7 (kernel.all.cpu.idle)
--    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
--    Semantics: counter  Units: millisec
--PMID: 1.10.8 (kernel.all.cpu.intr)
--    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
--    Semantics: counter  Units: millisec
--PMID: 1.25.7 (network.interface.in.bytes)
--    Data Type: 32-bit unsigned int  InDom: 1.6 0x400006
--    Semantics: counter  Units: count
 -PMID: 40.0.7 (40.0.7)
 -    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
 -    Semantics: counter  Units: count
--PMID: 1.10.9 (kernel.all.cpu.sys)
--    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
--    Semantics: counter  Units: millisec
 -PMID: 40.0.8 (40.0.8)
 -    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
 -    Semantics: counter  Units: count
- PMID: 1.10.10 (kernel.all.cpu.sxbrk)
-     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-     Semantics: counter  Units: millisec
--PMID: 1.10.53 (kernel.all.ipc.msg)
-+PMID: 1.10.16 (kernel.all.runque)
-     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
--    Semantics: counter  Units: count
-+    Semantics: counter  Units: none
- PMID: 1.10.11 (kernel.all.cpu.user)
-     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-     Semantics: counter  Units: millisec
--PMID: 1.10.54 (kernel.all.ipc.sema)
--    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
--    Semantics: counter  Units: count
--PMID: 1.10.12 (kernel.all.cpu.wait.total)
--    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
--    Semantics: counter  Units: millisec
--PMID: 1.25.12 (network.interface.out.bytes)
--    Data Type: 32-bit unsigned int  InDom: 1.6 0x400006
-+PMID: 1.80.7 (disk.dev.total)
-+    Data Type: 32-bit unsigned int  InDom: 1.2 0x400002
-     Semantics: counter  Units: count
--PMID: 1.10.14 (kernel.all.readch)
--    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
--    Semantics: counter  Units: byte
- PMID: 1.80.1 (disk.dev.read)
-     Data Type: 32-bit unsigned int  InDom: 1.2 0x400002
-     Semantics: counter  Units: count
-+PMID: 1.18.3 (kernel.all.load)
-+    Data Type: float  InDom: 1.5 0x400005
-+    Semantics: instant  Units: none
-+PMID: 1.10.53 (kernel.all.ipc.msg)
-+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-+    Semantics: counter  Units: count
- PMID: 1.10.29 (kernel.all.writech)
-     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-     Semantics: counter  Units: byte
--PMID: 1.10.15 (kernel.all.runocc)
--    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
--    Semantics: counter  Units: none
--PMID: 1.10.16 (kernel.all.runque)
-+PMID: 1.10.12 (kernel.all.cpu.wait.total)
-     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
--    Semantics: counter  Units: none
-+    Semantics: counter  Units: millisec
- PMID: 1.80.2 (disk.dev.write)
-     Data Type: 32-bit unsigned int  InDom: 1.2 0x400002
-     Semantics: counter  Units: count
--PMID: 40.0.0 (40.0.0)
-+PMID: 1.10.54 (kernel.all.ipc.sema)
-+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-+    Semantics: counter  Units: count
-+PMID: 1.10.7 (kernel.all.cpu.idle)
-     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-     Semantics: counter  Units: millisec
--PMID: 1.10.3 (kernel.all.pswitch)
-+PMID: 1.10.19 (kernel.all.syscall)
-     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-     Semantics: counter  Units: count
--PMID: 40.0.1 (40.0.1)
-+PMID: 1.10.8 (kernel.all.cpu.intr)
-     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-     Semantics: counter  Units: millisec
--PMID: 40.0.2 (40.0.2)
-+PMID: 1.10.14 (kernel.all.readch)
-     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
--    Semantics: counter  Units: millisec
--PMID: 40.0.3 (40.0.3)
-+    Semantics: counter  Units: byte
-+PMID: 1.10.3 (kernel.all.pswitch)
-     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-     Semantics: counter  Units: count
--PMID: 1.18.3 (kernel.all.load)
--    Data Type: float  InDom: 1.5 0x400005
--    Semantics: instant  Units: none
--PMID: 1.10.19 (kernel.all.syscall)
-+PMID: 1.10.9 (kernel.all.cpu.sys)
-     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
--    Semantics: counter  Units: count
-+    Semantics: counter  Units: millisec
-+PMID: 1.10.15 (kernel.all.runocc)
-+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-+    Semantics: counter  Units: none
  
  Instance Domains in the Log ...
- InDom: 1.5
-@@ -97,11 +67,6 @@
+ InDom: 1.2
+@@ -108,26 +78,14 @@
     1 or "1 minute"
     5 or "5 minute"
     15 or "15 minute"
@@ -465,10 +395,6 @@ QA output created by 488
 -   1 or "et0"
 -   2 or "lo0"
 -   3 or "sl0"
- InDom: 1.2
- 14:25:09.043538 9 instances
-    131329 or "dks1d1"
-@@ -116,18 +81,11 @@
  
  Temporal Index
  		Log Vol    end(meta)     end(log)
@@ -716,7 +642,7 @@ QA output created by 488
 --- pmdumplog diffs ---
 --- TMP.in
 +++ TMP.out
-@@ -38,28 +38,24 @@
+@@ -41,28 +41,24 @@
     800 or "bin-800"
     900 or "bin-900"
  InDom: 29.3
@@ -749,7 +675,7 @@ QA output created by 488
     12 or "m-12"
     13 or "m-13"
     15 or "m-15"
-@@ -67,8 +63,7 @@
+@@ -70,8 +66,7 @@
     18 or "m-18"
     19 or "m-19"
     20 or "m-20"
@@ -759,7 +685,7 @@ QA output created by 488
     12 or "m-12"
     15 or "m-15"
     17 or "m-17"
-@@ -76,23 +71,20 @@
+@@ -79,23 +74,20 @@
     19 or "m-19"
     20 or "m-20"
     21 or "m-21"
@@ -786,7 +712,7 @@ QA output created by 488
     15 or "m-15"
     17 or "m-17"
     18 or "m-18"
-@@ -100,80 +92,67 @@
+@@ -103,103 +95,90 @@
     21 or "m-21"
     22 or "m-22"
     23 or "m-23"
@@ -875,10 +801,8 @@ QA output created by 488
     27 or "m-27"
     30 or "m-30"
 -   33 or "m-33"
- InDom: 2.1
- 10:45:08.440968 1 instances
-    24763 or "24763"
-@@ -182,24 +161,24 @@
+ 
+ Temporal Index
  		Log Vol    end(meta)     end(log)
  10:45:08.440968	      0          132          132
  10:46:07.406806	      0          351          288

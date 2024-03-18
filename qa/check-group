@@ -36,10 +36,20 @@ do
     # special control lines
     # check-group-include: group ..
     # check-group-exclude: group ..
+    grp="$1"
+    case "$1"
+    in
+	pmlogdump|pmdumplog)
+	    grp="pmlogdump|pmdumplog"
+	    ;;
+	*)
+	    grp="$1"
+	    ;;
+    esac
     grep '# check-group-' $seq >$tmp.chk
     if [ -s $tmp.chk ]
     then
-	if grep -E "check-group-include:.* $1( |\$)" <$tmp.chk >/dev/null
+	if grep -E "check-group-include:.* ($grp)( |\$)" <$tmp.chk >/dev/null
 	then
 	    $debug && echo "$seq: explicit include"
 	    echo $seq >>$tmp.tmp
@@ -80,10 +90,12 @@ do
 	    report_group="pmclient et al"
 	    ;;
 
-	pmdumplog)	# executable might be hidden in _exercise_compression
+	pmdumplog|pmlogdump)
+			# these are aliases ...
+			# executable might be hidden in _exercise_compression
 			# wrapper from common.compress
 	    ( grep -v '^#' $seq \
-	      | grep -E -q "(^[ 	]*(pmdumplog|_exercise_compression)([ '\"]|$))|([ /'\"\`_=](pmdumplog|_exercise_compression)([ '\"\`_]|$))" \
+	      | grep -E -q "(^[ 	]*(pmlogdump|pmdumplog|_exercise_compression)([ '\"]|$))|([ /'\"\`_=](pmlogdump|pmdumplog|_exercise_compression)([ '\"\`_]|$))" \
 	    ) && echo $seq >>$tmp.tmp
 	    ;;
 

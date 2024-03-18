@@ -8,21 +8,21 @@ Performance metrics from host time.greenwich.com
     ending     Tue Jan 26 13:02:03.000000 2010
 
 Descriptions for Metrics in the Log ...
-PMID: 245.0.5 (metric.e)
-    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+PMID: 245.0.1 (metric.a)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: none
+PMID: 245.0.2 (metric.b)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: none
+PMID: 245.0.3 (metric.c)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 PMID: 245.0.4 (metric.d)
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-PMID: 245.0.3 (metric.c)
-    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+PMID: 245.0.5 (metric.e)
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-PMID: 245.0.2 (metric.b)
-    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: none
-PMID: 245.0.1 (metric.a)
-    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: none
 
 Instance Domains in the Log ...
 
@@ -72,21 +72,21 @@ Performance metrics from host time.greenwich.com
     ending     Tue Jan 26 13:02:00.000000 2010
 
 Descriptions for Metrics in the Log ...
-PMID: 245.0.5 (metric.e)
-    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+PMID: 245.0.1 (metric.a)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: none
+PMID: 245.0.2 (metric.b)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: none
+PMID: 245.0.3 (metric.c)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 PMID: 245.0.4 (metric.d)
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-PMID: 245.0.3 (metric.c)
-    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+PMID: 245.0.5 (metric.e)
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-PMID: 245.0.2 (metric.b)
-    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: none
-PMID: 245.0.1 (metric.a)
-    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: none
 
 Instance Domains in the Log ...
 
