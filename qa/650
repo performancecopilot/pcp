@@ -40,6 +40,7 @@ $1 == "TIMESTAMP" && NF == 4    { print "TIMESTAMP       0       OFFSET       OF
 /^InDom: 2.3/			{ print; skipi = 1; next }
 skipi == 1			{ print "TIMESTAMP <some> instances"; skipi = 2; next }
 skipi != 0 && $1 == "InDom:"	{ skipi = 0 }
+skipi != 0 && NF == 0		{ skipi = 0 }
 skipi == 2			{ print "                 ..."; skipi = 3; next }
 skipi == 3			{ next }
 $1 == "TIMESTAMP" && $2 == "2.4.1"	{ print; skipv = 1; next }

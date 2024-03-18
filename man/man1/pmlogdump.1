@@ -97,6 +97,8 @@ that appear at least once in the archive:
 see
 .BR pmLookupDesc (3)
 for more details on the metadata describing metrics.
+Metrics are reported in ascending
+Performance Metric Identifier (PMID) sequence.
 .TP
 \fB\-e\fR, \fB\-\-labelsets\fR
 Display the label metadata if it is present in the archive.
@@ -115,6 +117,9 @@ Display the instance domains, and any variations in their instance
 members over the duration of the archive: see
 .BR pmGetInDom (3)
 for more details on instance domains.
+Instance domains are reported in ascending
+Instance Domain Identifier sequence and then ascending time for
+each set of oserved instance members within an instance domain.
 .TP
 \fB\-I\fR, \fB\-\-on-disk-insts\fR
 Display the on-disk instance domains, which may use a different format
