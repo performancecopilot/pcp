@@ -22,7 +22,7 @@ PCPTESTSUITE_FILES = pcp-testsuite.dirs pcp-testsuite.postinst
 PCPTESTSUITE_DOC_DIR = $(PCP_DOC_DIR)/../pcp-testsuite
 
 PCPZEROCONF = pcp-zeroconf
-PCPZEROCONF_FILES = pcp-zeroconf.dirs pcp-zeroconf.install pcp-zeroconf.postinst
+PCPZEROCONF_FILES = pcp-zeroconf.dirs pcp-zeroconf.install pcp-zeroconf.postinst pcp-zeroconf.postrm
 PCPZEROCONF_DOC_DIR = $(PCP_DOC_DIR)/../pcp-zeroconf
 
 PCPIMPORTSAR = pcp-import-sar2pcp

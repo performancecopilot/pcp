@@ -1,0 +1,12 @@
+#!/bin/sh -e
+#DEBHELPER#
+
+# remove all the dirs and files dpkg is unlikely to remove ...
+#
+for dir in /etc/pcp/pmieconf/zeroconf /var/lib/pcp/config/pmieconf/zeroconf \
+	   /etc/pcp/pmlogconf/zeroconf /var/lib/pcp/config/pmlogconf/zeroconf \
+	   /usr/share/pcp/zeroconf
+do
+    [ -d "$dir" ] || continue
+    rm -rf "$dir"
+done
