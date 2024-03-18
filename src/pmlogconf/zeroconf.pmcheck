@@ -1,0 +1,31 @@
+#!/bin/sh
+#
+# zeroconf "plugin" for pmcheck
+#
+
+. $PCP_DIR/etc/pcp.env || exit 1
+. $PCP_SHARE_DIR/lib/checkproc.sh
+
+_do_args "$@"
+
+if $sflag
+then
+    [ -d "$PCP_VAR_DIR/config/pmlogconf/zeroconf" ] && exit
+    # zeroconf not installed ... provide hint
+    #
+    status=1
+    [ "$verbose" -gt 0 ] && echo "need to install pcp-zeroconf package"
+elif $aflag
+then
+    # nothing to do
+    exit
+elif $dflag
+then
+    # nothing to do
+    exit
+else
+    [ $verbose -gt 0 ] && echo "botch sflag=$sflag aflag=$aflag dflag=$dflag show_me=$show_me verbose=$verbose"
+    status=99
+fi
+
+exit

@@ -24,7 +24,7 @@ include $(BUILDRULES)
 install: default
 	$(INSTALL) -m 755 pmcheck.sh $(PCP_BIN_DIR)/pmcheck$(SHELLSUFFIX)
 	$(INSTALL) -m 644 -t $(PCP_SHARE_DIR)/lib/checkproc.sh checkproc.sh $(PCP_LIBADM_DIR)/checkproc.sh
-	$(INSTALL) -m 755 -d $(PCP_SYSCONF_DIR)/pmcheck
+	$(INSTALL) -m 755 -d $(PCP_SHARE_DIR)/lib/pmcheck
 
 default_pcp : default
 

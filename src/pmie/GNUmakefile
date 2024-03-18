@@ -69,7 +69,7 @@ else
 endif
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_LOG_DIR)/pmie
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_TMP_DIR)/pmie
-	$(INSTALL) -m 755 pmie.pmcheck $(PCP_SYSCONF_DIR)/pmcheck/pmie
+	$(INSTALL) -m 755 pmie.pmcheck $(PCP_SHARE_DIR)/lib/pmcheck/pmie
 
 include $(BUILDRULES)
 

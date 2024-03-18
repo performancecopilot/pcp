@@ -73,7 +73,7 @@ which is simply all the component scripts (see the
 .B "COMPONENT SCRIPTS"
 section below)
 stored in the
-.I $PCP_SYSCONF_DIR/pmcheck
+.I $PCP_SHARE_DIR/lib/pmcheck
 directory.
 .PP
 Additional components can be integrated into the
@@ -123,13 +123,13 @@ The
 .B pmcheck
 framework is extensible, as the set of known components is defined
 by the names of the component scripts in the
-.I $PCP_SYSCONF_DIR/pmcheck
+.I $PCP_SHARE_DIR/lib/pmcheck
 directory.
 .PP
 Each component script needs to abide by the following rules
 for correct integration with
 .BR pmcheck :
-.IP \(bu 4n
+.IP \(bu 2n
 .PD 0
 The script will be run with
 .BR sh (1),
@@ -144,7 +144,7 @@ is also passed from
 as the sole argument after the options.
 This allows generic component scripts to be implemented as hard
 links below
-.IR $PCP_SYSCONF_DIR/pmcheck .
+.IR $PCP_SHARE_DIR/lib/pmcheck .
 .IP \(bu
 When called with a
 \fB\-s\fR, \fB\-\-state\fR option, the script must exit with the an
@@ -196,12 +196,12 @@ may be sourced (after sourcing
 .IR $PCP_DIR/etc/pcp.env ).
 .I checkproc.sh
 provides the following services:
-.IP \(bu 4n
+.IP \(bu 2n
 .PD 0
 A temporary directory is created and the shell variable
 .BR $tmp
 is assigned to the full pathname of the directory.
-.IP \(bu 4n
+.IP \(bu
 The shell variable
 .B $status
 is used to return the exit status from the script [defaults to 0].

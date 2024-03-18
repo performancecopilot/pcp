@@ -172,13 +172,13 @@ then
     # to skip ones left behind by packaging
     #
     rm -f $tmp/tmp
-    set -- `find $PCP_SYSCONF_DIR/pmcheck -type f \
+    set -- `find $PCP_SHARE_DIR/lib/pmcheck -type f \
 	    | $PCP_AWK_PROG '
 /\.dpkg-old/	{ print >"'"$tmp/tmp"'"; next }
 /\.dpkg-new/	{ print >"'"$tmp/tmp"'"; next }
 		{ print }' \
 	    | sed \
-		-e "s@$PCP_SYSCONF_DIR/pmcheck/@@" \
+		-e "s@$PCP_SHARE_DIR/lib/pmcheck/@@" \
 	    | LC_COLLATE=POSIX sort`
     if [ -s $tmp/tmp ]
     then
@@ -265,7 +265,7 @@ then
 else
     for pattern in "$@"
     do
-	for script in "$PCP_SYSCONF_DIR"/pmcheck/$pattern
+	for script in "$PCP_SHARE_DIR/lib"/pmcheck/$pattern
 	do
 	    component=`basename "$script"`
 	    if [ ! -x "$script" ]

@@ -33,7 +33,7 @@ ifeq ($(ENABLE_SYSTEMD),true)
 	$(INSTALL) -m 644 pmproxy.service $(PCP_SYSTEMDUNIT_DIR)/pmproxy.service
 endif
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_LOG_DIR)/pmproxy
-	$(INSTALL) -m 755 pmproxy.pmcheck $(PCP_SYSCONF_DIR)/pmcheck/pmproxy
+	$(INSTALL) -m 755 pmproxy.pmcheck $(PCP_SHARE_DIR)/lib/pmcheck/pmproxy
 
 include $(BUILDRULES)
 
