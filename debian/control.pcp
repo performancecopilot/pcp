@@ -466,8 +466,8 @@ Description: Documentation and tutorial for the Performance Co-Pilot
 
 Package: pcp-zeroconf
 Depends: ${misc:Depends}, ${shlibs:Depends}, pcp (= ${binary:Version})
-Breaks: pcp (<< 5.3.0)
-Replaces: pcp (<< 5.3.0)
+Breaks: pcp (<< 6.2.1)
+Replaces: pcp (<< 6.2.1)
 Architecture: any
 Description: Performance Co-Pilot (PCP) Zeroconf Package
  Contains configuration tweaks and files that increase metrics gathering
