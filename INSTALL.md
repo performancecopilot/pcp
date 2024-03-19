@@ -50,38 +50,14 @@ root filesystem.
 
 *-- Ken*
 
-### 2. Mac OS X Installation
-
-Installing PCP on MacOSX is done via https://brew.sh/ commands.
-From a Terminal run:
-```
-$ brew install qt
-$ brew link qt --force
-$ brew install pcp
-$ brew link pcp
-$ pcp --version
-```
-
-The output for the last command will be something like
-```
-pcp version 4.1.1
-```
-
-Use the version number for creating symlinks (for version 4.1.1)
-```
-$ export version="4.1.1"
-$ sudo ln -s /usr/local/Cellar/pcp/$version/etc/pcp.conf /etc/pcp.conf
-$ sudo ln -s /usr/local/Cellar/pcp/$version/etc/pcp.env /etc/pcp.env
-```
-
-### 3. AIX Installation
+### 2. AIX Installation
 
 At this stage, noone is making available pre-built AIX packages.
 A port to AIX has been done, and merged, however - building from
 the source is currently the only option.  The packaging work is also
 begun on this platform (see the build/aix/ directory in the sources).
 
-### 4. Solaris Installation
+### 3. Solaris Installation
 
 Prebuild Solaris packages are available from the PCP download site.
 
@@ -123,7 +99,7 @@ Use 'svcs' command to check the state of the services, e.g.:
 	dependency   require_all/none svc:/system/filesystem/local:default (online) svc:/milestone/network:default (online)
 ```
 
-### 5. Windows Installation
+### 4. Windows Installation
 
 The only way to get PCP working on Windows is to build from source.
 
