@@ -1,6 +1,6 @@
 #!/bin/sh
 # PCP QA Test No. 1131
-# Exercise pcp2json.
+# Exercise pcp2json and pcp2openmetrics.
 #
 # Copyright (c) 2017 Red Hat.
 #
@@ -16,6 +16,7 @@ $python -c "from collections import OrderedDict" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python collections OrderedDict module not installed"
 
 which pcp2json >/dev/null 2>&1 || _notrun "pcp2json not installed"
+which pcp2openmetrics >/dev/null 2>&1 || _notrun "pcp2openmetrics not installed"
 
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
@@ -23,6 +24,9 @@ $sudo rm -rf $tmp $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 A="$here/archives/rep"
+hostname=`hostname`
+machineid=`_machine_id`
+domainid=`_domain_name`
 
 _archive_filter()
 {
@@ -34,6 +38,19 @@ _value_filter()
     sed 's/\(\.[0-9]\)[0-9]*/\1/g'
 }
 
+_filter_pcp2openmetrics()
+{
+    tee -a $here/$seq.full \
+    | col -b \
+    | sed \
+    -e '/domainname=/ s/'$domainid'/DOMAINID/' \
+    -e '/machineid=/ s/'$machineid'/MACHINEID/' \
+    -e '/groupid=/ s/'$UID'/GROUPID/' \
+    -e '/userid=/ s/'$UID'/USERID/' \
+    -e '/hostname=/ s/'$hostname'/HOST/' \
+    | LC_COLLATE=POSIX sort
+}
+
 # real QA test starts here
 echo "---"
 pcp2json -a $A -H -I -z "" | _archive_filter
@@ -43,6 +60,11 @@ echo "---"
 pcp2json -a $A -H -I -Z UTC+0 -x "" | _archive_filter
 echo "---"
 pcp2json -a $A -H -I -z -X -b GB -P 2 -F $tmp.outfile ""
+echo "---"
+pcp2openmetrics -s1 -H -z hinv.ncpu | _filter_pcp2openmetrics
+echo "---"
+
+
 cat $tmp.outfile | _archive_filter
 which json_verify > /dev/null 2>&1
 if [ $? -eq 0 ]; then

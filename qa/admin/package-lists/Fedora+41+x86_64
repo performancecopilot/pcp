@@ -138,6 +138,7 @@ smartmontools
 socat
 sqlite
 sqlite-libs
+sudo
 sysstat
 systemd-devel
 systemtap-devel
