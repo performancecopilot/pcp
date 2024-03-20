@@ -21,17 +21,19 @@ trap "rm -rf $tmp; exit \$status" 0 1 2 3 15
 #
 aflag=false
 dflag=false
+lflag=false
 show_me=false
 sflag=false
 verbose=0
 
 cat <<'End-of-File' >$tmp/_usage
-# getopts: adnsv
+# getopts: adlnsv
 # usage: [options] component
 
 options:
   -a, --activate    activate component(s)
   -d, --deactivate  deactivate component(s)
+  -l, --list        report descsription with -v
   -n, --show-me     dry run
   -s, --state       report state of component(s)
   -v, --verbose     increase verbosity
@@ -59,6 +61,9 @@ _do_args()
 		;;
 	    -d)	# deactivate
 		dflag=true
+		;;
+	    -l)	# list
+		lflag=true
 		;;
 	    -n)	# dry run
 		show_me=true
@@ -107,15 +112,15 @@ _do_args()
 #
 _ctl_svc()
 {
-    rc=0
+    local rc=0
     if [ -z "$1" -o -z "$2" ]
     then
 	echo >&2 "$prog: _ctl_svc: Error: missing arguments ($1=\"$1\", $2=\"$2\")"
 	status=99
 	exit
     fi
-    action="$1"
-    svc="$2"
+    local action="$1"
+    local svc="$2"
     case "$action"
     in
 	state|start|stop|activate|deactivate)
@@ -377,6 +382,225 @@ _ctl_svc()
 	    exit
 	fi
     fi
+
+    return $rc
+}
+
+# control pmdas
+# Usage: _ctl_pmda action name [arg ...]
+# where action is one of
+# - state name
+# - activate name pmdaname [Install-input-file]
+# - deactivate name
+#
+_ctl_pmda()
+{
+    if [ -z "$1" -o -z "$2" ]
+    then
+	echo >&2 "$prog: _ctl_pmda: Error: missing arguments ($1=\"$1\" $2=\"$2\")"
+	status=99
+	exit
+    fi
+    local action="$1"
+
+    local name="$2"
+    case "$name"
+    in
+	pmda-*)		# strip pmda- prefix from component name
+			name=`echo "$name" | sed -e s'/^pmda-//'`
+			;;
+    esac
+    local pre=0
+    # need a working pmcd
+    #
+    pminfo -f pmcd.agent.status >$tmp/tmp 2>/dev/null
+    if [ ! -s $tmp/tmp ]
+    then
+	[ "$verbose" -gt 0 ] && echo "need to activate pmcd"
+	pre=1
+    fi
+    # need the PMDA pieces to be installed
+    #
+    if [ ! -d "$PCP_VAR_DIR/pmdas/$name" ]
+    then
+	if [ "$verbose" -gt 0 ]
+	then
+	    echo "need to install the PCP package for the"
+	    echo "$name PMDA"
+	fi
+	pre=2
+    elif [ "$action" = activate -a -n "$3" -a ! -x "$PCP_VAR_DIR/pmdas/$name/$3" ]
+    then
+	[ "$verbose" -gt 0 ] && echo "need to install the package for the $name PMDA"
+	pre=2
+    fi
+    if [ $pre -eq 0 ]
+    then
+	# OK so far, check PMDA installed & running status
+	# but don't issue -v verbage yet
+	#
+	if ! grep "\"$name\"]" <$tmp/tmp >/dev/null
+	then
+	    if [ "$action" != activate ]
+	    then
+		[ "$verbose" -gt 0 ] && echo "need to run the $name PMDA's Install script"
+	    fi
+	    pre=3
+	elif ! grep "\"$name\"] value 0" <$tmp/tmp >/dev/null
+	then
+	    # pmcd.agent.status != 0
+	    #
+	    if [ "$verbose" -gt 0 ]
+	    then
+		local exit=`sed -n <$tmp/tmp -e "/.*\"$name\"] value /s///p"`
+		echo "$pmda PMDA has failed (exit status=$exit)"
+	    fi
+	    pre=4
+	fi
+	local domain=`sed -n <$tmp/tmp -e "/.* inst \[\([0-9][0-9]*\).*\"$name\"] value .*/s//\1/p"`
+    fi
+
+    # now $pre values map to these cases:
+    #  0  PMDA is installed and running (no output yet with -v)
+    # (-v output already generated for the cases below)
+    #  1  pmcd not running
+    #  2  package providing the PMDA is not installed
+    #  3  PMDA is not Installed
+    #  4  PMDA is Installed, but has exited or failed
+    #
+    local rc=0
+    case "$action"
+    in
+
+	state)
+	    case "$pre"
+	    in
+		0)	# PMDA installed and OK
+			if [ $verbose -gt 0 ]
+			then
+			    local pid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | $PCP_AWK_PROG '/\/pmda'"$name'"' / { print $2 }'`
+			    if [ -n "$pid" -a -n "$domain" ]
+			    then
+				echo "PID=$pid, `pminfo -m | grep "PMID: $domain\\." | wc -l | sed -e 's/  *//g'` metrics"
+			    elif [ -n "$pid" ]
+			    then
+				echo "PID=$pid"
+			    elif [ -n "$domain" ]
+			    then
+				echo "`pminfo -m | grep "PMID: $domain\\." | wc -l | sed -e 's/  *//g'` metrics"
+			    fi
+			fi
+			;;
+		1|2)	# pmcd not running or PMDA package not installed
+			rc=2
+			;;
+		3|4)	# PMDA not Installed or PMDA has failed
+			rc=1
+			;;
+	    esac
+	    ;;
+
+	activate)
+	    case "$pre"
+	    in
+		0)	# PMDA installed and OK
+			[ $verbose -gt 0 ] && echo "$name PMDA already installed and active"
+			;;
+		1|2)	# pmcd not running or PMDA package not installed
+			;;
+		3)	# PMDA not Installed
+			local here=`pwd`
+			rm -f $tmp/out
+			if $show_me
+			then
+			    echo "$ cd $PCP_VAR_DIR/pmdas/$name"
+			else
+			    if cd $PCP_VAR_DIR/pmdas/$name
+			    then
+				:
+			    else
+				status=99
+				exit
+			    fi
+			fi
+			if [ -n "$4" ]
+			then
+			    # Install need's input
+			    #
+			    echo TODO
+			else
+			    # Install works fine with </dev/null
+			    #
+			    if $show_me
+			    then
+				echo "# ./Install </dev/null"
+			    else
+				if ./Install </dev/null >$tmp/out 2>&1
+				then
+				    :
+				else
+				    cat $tmp/out
+				    rc=1
+				fi
+			    fi
+			fi
+			;;
+		4)	# PMDA has failed
+			rc=1
+			;;
+		*)	rc=1
+			;;
+	    esac
+	    ;;
+
+	deactivate)
+	    case "$pre"
+	    in
+		0|4)	# PMDA installed and OK or PMDA has failed
+			local here=`pwd`
+			rm -f $tmp/out
+			if $show_me
+			then
+			    echo "$ cd $PCP_VAR_DIR/pmdas/$name"
+			else
+			    if cd $PCP_VAR_DIR/pmdas/$name
+			    then
+				:
+			    else
+				status=99
+				exit
+			    fi
+			fi
+			# Remove always works fine with </dev/null
+			#
+			if $show_me
+			then
+			    echo "# ./Remove </dev/null"
+			else
+			    if ./Remove </dev/null >$tmp/out 2>&1
+			    then
+				:
+			    else
+				cat $tmp/out
+				rc=1
+			    fi
+			fi
+			;;
+		1|2)	# pmcd not running or PMDA package not installed
+			rc=1
+			;;
+		3)	# PMDA not Installed
+			[ $verbose -gt 0 ] && echo "$name PMDA already deactivated"
+			;;
+	    esac
+	    ;;
+
+	*)
+	    echo >&2 "$prog: _ctl_pmda: Error: bad action argument ($action)"
+	    status=99
+	    exit
+	    ;;
+    esac
 
     return $rc
 }

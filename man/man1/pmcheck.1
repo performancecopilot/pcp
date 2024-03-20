@@ -18,14 +18,12 @@
 \f3pmcheck\f1 \- manage the configuration of optional PCP components
 .SH SYNOPSIS
 .B pmcheck
-[\f3\-a\f1] [\f3\-d\f1] [\f3\-n\f1] [\f3\-s\f1]
-[\f3\-v\f1] [\f3\-x\f1] [\f3\-?\f1] [component ...]
+[\f3\-a\f1] [\f3\-d\f1] [\f3\-l\f1] [\f3\-n\f1] [\f3\-s\f1]
+[\f3\-v\f1] [\f3\-x\f1] [component ...]
 .br
 .B pmcheck
-[\f3\-a\f1] [\f3\-c\f1 script]] [\f3\-d\f1] [\f3\-n\f1] [\f3\-s\f1]
+[\f3\-a\f1] [\f3\-c\f1 script]] [\f3\-d\f1] [\f3\-l\f1] [\f3\-n\f1] [\f3\-s\f1]
 [\f3\-v\f1] [\f3\-x\f1]
-.br
-.B pmcheck \f3\-l\f1
 .SH DESCRIPTION
 The Performance Co-Pilot (PCP) includes a number of core components
 that are likely to be pre-configured and operational, but it also
@@ -52,7 +50,10 @@ or deactivated with the
 \fB\-d\fR, \fB\-\-deactivate\fR option.
 These three options are clearly mutually exclusive for any single
 execution of
-.BR pmcheck .
+.BR pmcheck ,
+and in the absence of any of them
+.B \-s
+is assumed to be the default.
 .PP
 The set of components to be interrogated or configured are specified
 by the
@@ -68,13 +69,26 @@ arguments are specified, these may optionally be
 (glob) patterns that are matched against the names of the known
 components.
 .PP
-The \fB\-l\fR, \fB\-\-list\fR option lists all known components,
+The \fB\-l\fR, \fB\-\-list\fR option
+reports on known components.
+With one or more
+.I components
+each is reported.
+Without any
+.I component
+arguments the
+.I \-l
+option lists all known components,
 which is simply all the component scripts (see the
 .B "COMPONENT SCRIPTS"
 section below)
 stored in the
 .I $PCP_SHARE_DIR/lib/pmcheck
 directory.
+If the
+.B \-v
+option is also used, a short description of each requested component is also
+displayed.
 .PP
 Additional components can be integrated into the
 .B pmcheck
@@ -147,16 +161,31 @@ links below
 .IR $PCP_SHARE_DIR/lib/pmcheck .
 .IP \(bu
 When called with a
+\fB\-l\fR, \fB\-\-list\fR option the script does nothing,
+unless it is also called with a
+.B \-v
+option in which case
+a short description of the component is displayed on standard output.
+.IP \(bu
+When called with a
 \fB\-s\fR, \fB\-\-state\fR option, the script must exit with the an
 exit code that indicates the component's state, namely 0
 (active), 1 (inactive, but
 .I could
-be activated), 2 (inactive and
+be activated by
+.BR pmcheck ),
+2 (inactive and
 .I cannot
-be activated)
-or 3 (inactive and
-.I "not sure"
-if it could be activated).
+be activated by
+.BR pmcheck ).
+The distinction between exit codes 1 and 2 is based on many factors,
+but 1 usually means all of the required software packages (PCP and
+other) are installed,
+required prerequisite services are running or could be safely started,
+and any component configuration can assume default settings or can
+be reliably deduced, e.g. a port number for communications.
+Conversely, 2 means automatic activation of the component is not
+possible and some end-user intervention is required.
 .IP \(bu
 When called with a \fB\-a\fR, \fB\-\-activate\fR option
 the script must activate the component.
@@ -228,7 +257,8 @@ shell procedure that handles all command argument parsing.
 .IP \(bu
 Shell variables
 .BR $aflag ,
-.B $dflag
+.BR $dflag ,
+.BR $lflag
 or
 .B $sflag
 have default values of
@@ -239,7 +269,8 @@ by
 .B _do_args
 when the
 .BR \-a ,
-.B \-d
+.BR \-d ,
+.BR \-l
 or
 .B \-s
 options are parsed.
@@ -282,6 +313,28 @@ takes 2 arguments, the first is an action (one of
 or
 .B deactivate
 (stop and disable).
+.IP \(bu
+A
+.B _ctl_pmda
+shell procedure that handles status requests
+and all reconfiguration operations for a PMDA
+that is connected to
+.BR pmcd (1).
+.B _ctl_pmda
+takes at least 2 arguments, the first is an action (one of
+.BR state ,
+.B activate
+or
+.BR deactivate ,
+and the second argument is the name of the PMDA.
+For the
+.B install
+action, there is a thrird argument for the name of the
+PMDA's executable or DSO and an optional fourth argument
+is the name of a file providing the input required for
+the PMDA's
+.I Install
+script (defaults to /dev/null).
 .PD
 .PP
 So the following is the simplest possible component script for
@@ -295,7 +348,10 @@ a system service.
 .sp 0.5v
 _do_args "$@"
 .sp 0.5v
-if $sflag
+if $lflag
+then
+    [ $verbose -gt 0 ] && echo "my description"
+elif $sflag
 then
     _ctl_svc state $component
     status=$?
@@ -308,11 +364,46 @@ then
 fi
 .fi
 .ft
+.PP
+And the following is the simplest possible component script for
+a PMDA.
+.PP
+.ft CR
+.nf
+#!/bin/sh
+\&. $PCP_DIR/etc/pcp.env || exit 1
+\&. $PCP_SHARE_DIR/lib/checkproc.sh
+.sp 0.5v
+_do_args "$@"
+.sp 0.5v
+if $lflag
+then
+    [ $verbose -gt 0 ] && echo "my description"
+elif $sflag
+then
+    _ctl_pmda state $component
+    status=$?
+elif $aflag
+then
+    _ctl_pmda activate $component || status=1
+elif $dflag
+then
+    _ctl_pmda deactivate $component || status=1
+fi
+.fi
+.ft
 .SH DIAGNOSTICS
 For
 .B pmcheck
 (not the component scripts) the exit status is typically 0, but values of 9 or 99 indicate serious
 internal botches.
+.PP
+When the
+.B \-a
+or
+.B \-d
+options are used, the success or failure of the reconfiguration is
+reported on standard output.
 .PD
 .SH PCP ENVIRONMENT
 Environment variables with the prefix \fBPCP_\fP are used to parameterize

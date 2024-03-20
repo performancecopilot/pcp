@@ -35,6 +35,12 @@ then
 	status=2
 	[ "$verbose" -gt 0 ] && echo "no pmproxy executable"
     fi
+elif $lflag
+then
+    if [ "$verbose" -gt 0 ]
+    then 
+	echo "PCP Proxy Agent - proxy, web and redis integration"
+    fi
 elif $aflag
 then
     _ctl_svc activate pmproxy || status=1

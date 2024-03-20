@@ -90,6 +90,7 @@ do
 		;;
 	-l)	# list
 		lflag=true
+		action="$action -l"
 		;;
 	-n)	# dry run
 		show_me=true
@@ -130,21 +131,9 @@ then
     status=9
     exit
 fi
-if [ "$lflag" = true -a $# -gt 0 ]
-then
-    echo >&2 "$prog: Error: option -l and component arguments are mutually exclusive"
-    status=9
-    exit
-fi
 if [ -n "$cfile" -a $# -gt 0 ]
 then
     echo >&2 "$prog: Error: option -c and component arguments are mutually exclusive"
-    status=9
-    exit
-fi
-if [ -z "$action" -a "$lflag" = false ]
-then
-    echo >&2 "$prog: Error: one of -a, -d, -s or -l must be specified"
     status=9
     exit
 fi
@@ -159,6 +148,13 @@ $aflag && nop=`expr $nop + 1`
 $dflag && nop=`expr $nop + 1`
 $lflag && nop=`expr $nop + 1`
 $sflag && nop=`expr $nop + 1`
+if [ "$nop" -eq 0 ]
+then
+    # default to -s
+    #
+    sflag=true
+    action="$action -s"
+fi
 if [ "$nop" -gt 1 ]
 then
     echo >&2 "$prog: Error: at most one of -a, -d, -l or -s may be specified"
@@ -168,15 +164,10 @@ fi
 
 if [ $# -eq 0 ]
 then
-    # no components on the command line, do 'em all, but need
-    # to skip ones left behind by packaging
+    # no components on the command line, do 'em all
     #
     rm -f $tmp/tmp
     set -- `find $PCP_SHARE_DIR/lib/pmcheck -type f \
-	    | $PCP_AWK_PROG '
-/\.dpkg-old/	{ print >"'"$tmp/tmp"'"; next }
-/\.dpkg-new/	{ print >"'"$tmp/tmp"'"; next }
-		{ print }' \
 	    | sed \
 		-e "s@$PCP_SHARE_DIR/lib/pmcheck/@@" \
 	    | LC_COLLATE=POSIX sort`
@@ -187,6 +178,8 @@ then
     fi
 fi
 
+# reporting for -a, -d and -s
+#
 _report()
 {
     if $show_me
@@ -205,8 +198,6 @@ _report()
 	    	;;
 	    2)	msg="cannot be activated"
 	    	;;
-	    3)	msg="not sure"
-		;;
 	    *)	msg="botch, rc=$2"
 	    	;;
 	esac
@@ -221,7 +212,7 @@ _report()
 	    	;;
 	esac
     fi
-    printf "%-12s %-20s" "$1" "$msg"
+    printf "%-15s %-20s" "$1" "$msg"
     if [ -s $tmp/out ]
     then
 	first=true
@@ -233,7 +224,31 @@ _report()
 		printf " %s\n" "$line"
 		first=false
 	    else
-		printf "%-12s %-20s %s\n" "" "" "$line"
+		printf "%-15s %-20s %s\n" "" "" "$line"
+	    fi
+	done
+    else
+	printf "\n"
+    fi
+}
+
+# reporting for -l
+#
+_report_list()
+{
+    printf "%-15s" "$1"
+    if [ -s $tmp/out ]
+    then
+	first=true
+	cat $tmp/out \
+	| while read line
+	do
+	    if $first
+	    then
+		printf " %s\n" "$line"
+		first=false
+	    else
+		printf "%-15s %s\n" "" "$line"
 	    fi
 	done
     else
@@ -243,11 +258,27 @@ _report()
 
 if $lflag
 then
-    # list all known components
+    # list components
     #
     for component
     do
-	echo "$component"
+	script="$PCP_SHARE_DIR/lib"/pmcheck/$component
+	if [ ! -x "$script" ]
+	then
+	    echo "$prog: Error: $script not found or not executable"
+	else
+	    rm -f $tmp/out
+	    if [ $verbose -gt 0 ]
+	    then
+		if $xflag
+		then
+		    sh -x "$script" $action $component >$tmp/out
+		else
+		    "$script" $action $component >$tmp/out
+		fi
+	    fi
+	    _report_list "$component"
+	fi
     done
     exit
 fi

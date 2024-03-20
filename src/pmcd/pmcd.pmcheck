@@ -35,6 +35,13 @@ then
 	status=2
 	[ "$verbose" -gt 0 ] && echo "no pmcd executable"
     fi
+elif $lflag
+then
+    if [ "$verbose" -gt 0 ]
+    then 
+	echo "Performance Metrics Collection Daemon - local source of"
+	echo "performance data"
+    fi
 elif $aflag
 then
     _ctl_svc activate pmcd || status=1

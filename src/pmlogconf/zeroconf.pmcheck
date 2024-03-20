@@ -13,16 +13,25 @@ then
     [ -d "$PCP_VAR_DIR/config/pmlogconf/zeroconf" ] && exit
     # zeroconf not installed ... provide hint
     #
-    status=1
-    [ "$verbose" -gt 0 ] && echo "need to install pcp-zeroconf package"
+    status=2
+    [ "$verbose" -gt 0 ] && echo "need to install the pcp-zeroconf package"
+elif $lflag
+then
+    [ "$verbose" -gt 0 ] && echo "PCP Zeroconf Package"
 elif $aflag
 then
-    # nothing to do
-    exit
+    if [ ! -d "$PCP_VAR_DIR/config/pmlogconf/zeroconf" ]
+    then
+	[ "$verbose" -gt 0 ] && echo "need to install the pcp-zeroconf package"
+	status=1
+    fi
 elif $dflag
 then
-    # nothing to do
-    exit
+    if [ -d "$PCP_VAR_DIR/config/pmlogconf/zeroconf" ]
+    then
+	[ "$verbose" -gt 0 ] && echo "need to remove the pcp-zeroconf package"
+	status=1
+    fi
 else
     [ $verbose -gt 0 ] && echo "botch sflag=$sflag aflag=$aflag dflag=$dflag show_me=$show_me verbose=$verbose"
     status=99
