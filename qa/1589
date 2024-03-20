@@ -2,8 +2,8 @@
 # PCP QA Test No. 1589
 # Exercise pcp2json HTTP POST functionality.
 #
-# Copyright (c) 2023 Red Hat.  All Rights Reserved.
-# 
+# Copyright (c) 2023-2024 Red Hat.  All Rights Reserved.
+#
 
 #set -x
 
@@ -49,8 +49,8 @@ _filter_pcp2json_http()
 	-e "s/\(\"@host\"\): \""$hostname"\"/\1:HOST/g" \
 	-e "s/\(\"value\"\): \""$cpus"\"/\1:NCPU/g" \
 	-e 's/\(\"@timestamp\"\): \(.*\)/\1:DATE TIME/' \
-    -e 's/- - \[[^]]*\]/- -[DATE]/g' \
-    -e 's/.*- -/[IP ADDRESS]/g' \
+	-e 's/- - \[[^]]*\]/- -[DATE]/g' \
+	-e 's/.*- -/[IP ADDRESS]/g' \
         -e "s/^\(Host: localhost\):$port/\1:PORT/g" \
         -e 's/^\(Content-Length:\) [1-9][0-9]*/\1 SIZE/g' \
         -e 's/^\(User-Agent: python-requests\).*/\1 VERSION/g' \
@@ -64,7 +64,7 @@ _filter_pcp2json_http()
 
 # real QA test starts here
 port=`_find_free_port`
-$PCP_PYTHON_PROG $here/src/pythonserver.py $port &> $tmp.python.out &
+$PCP_PYTHON_PROG $here/src/pythonserver.py $port >$tmp.python.out 2>&1 &
 pid=$!
 sleep 2 # let server start up
 
