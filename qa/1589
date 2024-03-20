@@ -3,7 +3,9 @@
 # Exercise pcp2json HTTP POST functionality.
 #
 # Copyright (c) 2023 Red Hat.  All Rights Reserved.
-#
+# 
+
+#set -x
 
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -46,7 +48,9 @@ _filter_pcp2json_http()
     | sed \
 	-e "s/\(\"@host\"\): \""$hostname"\"/\1:HOST/g" \
 	-e "s/\(\"value\"\): \""$cpus"\"/\1:NCPU/g" \
-	-e "s/\(\"@timestamp\"\): \"[1-9][0-9]*\"/\1:SECS/g" \
+	-e 's/\(\"@timestamp\"\): \(.*\)/\1:DATE TIME/' \
+    -e 's/- - \[[^]]*\]/- -[DATE]/g' \
+    -e 's/.*- -/[IP ADDRESS]/g' \
         -e "s/^\(Host: localhost\):$port/\1:PORT/g" \
         -e 's/^\(Content-Length:\) [1-9][0-9]*/\1 SIZE/g' \
         -e 's/^\(User-Agent: python-requests\).*/\1 VERSION/g' \
@@ -60,21 +64,20 @@ _filter_pcp2json_http()
 
 # real QA test starts here
 port=`_find_free_port`
-nc -l localhost $port >$tmp.nc.out 2>$tmp.nc.err &
-pid1=$!
-sleep 2 # let nc start up
-
-# in case nc(1) does not exit by itself, e.g. on Ubuntu
-( sleep 2; $signal $pid1 ) >>$seq.full 2>&1 &
+$PCP_PYTHON_PROG $here/src/pythonserver.py $port &> $tmp.python.out &
+pid=$!
+sleep 2 # let server start up
 
 echo "pcp2json invocation" | tee -a $here/$seq.full
-pcp2json -s1 -f%s -ZUTC --url http://localhost:$port/receive hinv.ncpu > $tmp.json.out 2> $tmp.json.err
+pcp2json -s1 -ZUTC -u http://localhost:$port hinv.ncpu >$tmp.json.out 2>$tmp.json.err
 
 echo "pcp2json HTTP POST (sorted):"
-_filter_pcp2json_http <$tmp.nc.out
+_filter_pcp2json_http <$tmp.python.out
+
+($signal $pid ) >>$seq.full 2>&1 &
 
 echo "All diagnostics" >> $here/$seq.full
-for i in $tmp.json.out $tmp.json.err $tmp.nc.out $tmp.nc.err
+for i in $tmp.json.out $tmp.json.err $tmp.python.out
 do
     echo "=== $i ===" >>$here/$seq.full
     cat $i >>$here/$seq.full

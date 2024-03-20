@@ -1,0 +1,23 @@
+QA output created by 1827
+pcp2openmetrics invocation
+pcp2openmetrics HTTP POST (sorted):
+
+
+
+
+
+
+# HELP hinv_ncpu number of CPUs in the system
+# TYPE hinv_ncpu gauge
+Accept: */*
+Body:
+Content-Length: SIZE
+Content-Type: application/openmetrics-text
+Headers:
+Host: localhost:PORT
+INFO:root:POST request,
+INFO:root:Starting httpd...
+Path: /
+User-Agent: python-requests VERSION
+[IP ADDRESS][DATE] "POST / HTTP/1.1" 200 -
+hinv_ncpu{domainname="DOMAINID",groupid="GROUPID",hostname="HOST",machineid="MACHINEID",userid="USERID",agent="linux"} 16

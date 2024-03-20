@@ -1,0 +1,71 @@
+#!/bin/sh
+# PCP QA Test No. 1589
+# Exercise pcp2openmetrics HTTP POST functionality.
+#
+# Copyright (c) 2024 Red Hat.  All Rights Reserved.
+# 
+
+#set -x
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.python
+
+which pcp2openmetrics >/dev/null 2>&1 || _notrun "pcp2openmetrics not installed"
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+cpus=`pmprobe -v hinv.ncpu | awk '{print $3}'`
+hostname=`hostname`
+machineid=`_machine_id`
+domainid=`_domain_name`
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+
+_filter_pcp2openmetrics_http()
+{
+    tee -a $here/$seq.full \
+    | col -b \
+    | sed \
+    -e '/domainname=/ s/'$domainid'/DOMAINID/' \
+    -e '/machineid=/ s/'$machineid'/MACHINEID/' \
+    -e '/groupid=/ s/'$UID'/GROUPID/' \
+    -e '/userid=/ s/'$UID'/USERID/' \
+    -e '/hostname=/ s/'$hostname'/HOST/' \
+    -e 's/- - \[[^]]*\]/- -[DATE]/g' \
+    -e 's/.*- -/[IP ADDRESS]/g' \
+        -e "s/^\(Host: localhost\):$port/\1:PORT/g" \
+        -e 's/^\(Content-Length:\) [1-9][0-9]*/\1 SIZE/g' \
+        -e 's/^\(User-Agent: python-requests\).*/\1 VERSION/g' \
+        -e 's/^\(Date:\).*/\1 DATE/g' \
+        -e 's/\(\"context\":\) [0-9][0-9]*/\1 CTXID/g' \
+        -e '/^Accept-Encoding: /d' \
+        -e 's/\(\hostname=\): \""$hostname"\"/\1:HOST/g' \
+        -e '/^Connection: keep-alive/d' \
+        -e '/ using stream socket$/d' \
+    | LC_COLLATE=POSIX sort
+}
+
+# real QA test starts here
+port=`_find_free_port`
+$PCP_PYTHON_PROG $here/src/pythonserver.py $port &> $tmp.python.out &
+pid=$!
+sleep 2 # let server start up
+
+echo "pcp2openmetrics invocation" | tee -a $here/$seq.full
+pcp2openmetrics -s1 -u http://localhost:$port hinv.ncpu >$tmp.openmetrics.out 2>$tmp.openmetrics.err
+
+echo "pcp2openmetrics HTTP POST (sorted):"
+_filter_pcp2openmetrics_http <$tmp.python.out
+
+($signal $pid ) >>$seq.full 2>&1 &
+
+# success, all done
+exit
