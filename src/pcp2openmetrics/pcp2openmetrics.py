@@ -11,8 +11,9 @@
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
-
-
+#
+# pylint: disable=line-too-long
+#
 """ PCP to OPENMETRICS Bridge """
 
 # Common imports
@@ -28,7 +29,7 @@ import cpmapi
 
 # PCP Python PMAPI
 from pcp import pmapi, pmconfig
-from cpmapi import PM_CONTEXT_ARCHIVE, PM_INDOM_NULL, PM_IN_NULL, PM_DEBUG_APPL1, PM_TIME_SEC
+from cpmapi import PM_CONTEXT_ARCHIVE, PM_INDOM_NULL, PM_DEBUG_APPL1, PM_TIME_SEC
 
 # Default config
 DEFAULT_CONFIG = ["./pcp2openmetrics.conf", "$HOME/.pcp2openmetrics.conf", "$HOME/.pcp/pcp2openmetrics.conf", "$PCP_SYSCONF_DIR/pcp2openmetrics.conf"]
@@ -390,7 +391,7 @@ class PCP2OPENMETRICS(object):
         """ Report metric values """
         if tstamp is not None:
             tstamp = tstamp.strftime(self.timefmt)
-       
+
         self.write_openmetrics(tstamp)
 
     def write_header(self):
@@ -449,30 +450,32 @@ class PCP2OPENMETRICS(object):
         def openmetrics_name(metric):
             """ pcp.io metric name to openmetrics.io name conventions """
             return metric.replace('.','_')
-        
+
         def openmetrics_type(desc):
             """ convert pcp.io metric metadata to openmetrics.io TYPE """
             if desc.sem == cpmapi.PM_SEM_COUNTER:
                 return 'counter'
             return 'gauge'
-        
+
         def openmetrics_labels(inst, name, desc, labels):
             """ filter pcp.io labels here; pick out the labels needed """
             result = ''
             if desc.indom != PM_INDOM_NULL:
                 labels[1].update(instname=name, instid=inst)
-            new_dict = {} 
+            new_dict = {}
             new_dict['semantics'] = self.context.pmSemStr(desc.contents.sem)
             new_dict['type'] = get_type_string(desc)
-            for key in labels: 
+            for key in labels:
                 new_dict.update(labels[key])
             if self.everything:
                 subset = list(new_dict.keys())
             else:
                 subset = ['domainname', 'test', 'groupid', 'hostname', 'machineid', 'userid', 'instname', 'instid', 'agent', 'device_type', 'indom_name']
             for i, key in enumerate(subset):
-                if key not in new_dict: continue
-                if i != 0: result += ','
+                if key not in new_dict:
+                    continue
+                if i != 0:
+                    result += ','
                 result += '%s="%s"' % (key, new_dict[key])
             return '{' + result + '}'
 
@@ -486,11 +489,11 @@ class PCP2OPENMETRICS(object):
             pmid = context.pmLookupName(metric)
             labels = context.pmLookupLabels(pmid[0])
             help_dict = {}
-            help_dict[metric] = context.pmLookupText(pmid[0]).decode()
+            help_dict[metric] = context.pmLookupText(pmid[0])
 
             body += '# HELP %s %s\n' % (openmetrics_name(metric), help_dict[metric])
             body += '# TYPE %s %s\n' % (openmetrics_name(metric), openmetrics_type(desc))
-            
+
             for inst, name, value in results[metric]:
                 if isinstance(value, float):
                     fmt = "." + str(self.metrics[metric][6]) + "f"
@@ -501,7 +504,7 @@ class PCP2OPENMETRICS(object):
                 else:
                     str(value)
                 body += '%s%s %s\n' % (openmetrics_name(metric), openmetrics_labels(inst, name, desc, labels), value)
-        
+
         if self.url:
             auth = None
             if self.http_user and self.http_pass:
