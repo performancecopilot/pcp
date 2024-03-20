@@ -151,7 +151,7 @@ PYTHONFILES = \
 	mergelabels.python mergelabelsets.python \
 	bcc_version_check.python sort_xml.python labelsets.python \
 	labelsets_memleak.python labels_changing.python \
-	bcc_netproc.python redis_proxy.python
+	bcc_netproc.python redis_proxy.python pythonserver.python
 # not installed:
 PYFILES = $(shell echo $(PYTHONFILES) | sed -e 's/\.python/.py/g')
 else
