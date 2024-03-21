@@ -27,12 +27,19 @@ _filter()
 	-e 's/\(reduces size below by about\) [0-9][0-9]/\1 PERCENT/g'
 }
 
+# from lines like
+# ok-foo.0.xz: [compression reduces size below by about 79%]
+# make a shell variable name from the file name and assign it to
+# the compressions percentage
+#
 _values()
 {
-    awk \
-	-e '/reduces size below by about / { print $1, $8 }' |
-    sed \
-	-e 's/%]//g' -e 's/-/_/g' -e 's/\./_/g' -e 's/: /=/g'
+    sed -n -e '/^[^ ]/{
+s/-/_/g
+s/\./_/g
+s/:[^0-9]*\([0-9][0-9]*\)%].*/=\1/
+p
+}'
 }
 
 status=1	# failure is the default!
