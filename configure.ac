@@ -1179,7 +1179,7 @@ AC_SUBST(llvm_strip)
 
 dnl Get BPF CO-RE arch identifier
 AC_MSG_CHECKING([BPF CO-RE architecture identifier])
-pmdabpf_arch=`uname -m | sed 's/x86_64/x86/' | sed 's/aarch64/arm64/' | sed 's/ppc64le/powerpc/' | sed 's/mips.*/mips/' | sed 's/s390x/s390/'`
+pmdabpf_arch=`uname -m | sed 's/x86_64/x86/' | sed 's/aarch64/arm64/' | sed 's/ppc64le/powerpc/' | sed 's/mips.*/mips/' | sed 's/s390x/s390/' | sed 's/riscv.*/riscv/'`
 AC_SUBST(pmdabpf_arch)
 AC_MSG_RESULT($pmdabpf_arch)
 
