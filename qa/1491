@@ -46,31 +46,43 @@ _filter()
     # end
 }
 
+_filter_states()
+{
+    sed \
+	-e 's/  *$//' \
+	-e 's/ active$/ OK/' \
+	-e '/^pmproxy /s/inactive/OK/' \
+	-e '/^pmproxy /s/could be activated/OK/' \
+	-e '/^pmie /s/inactive/OK/' \
+	-e '/^pmie /s/could be activated/OK/' \
+	-e '/^pmda-overhead /s/inactive/OK/' \
+	-e '/^pmda-overhead /s/could be activated/OK/' \
+	-e '/^zeroconf /s/inactive/OK/' \
+	-e '/^zeroconf /s/could be activated/OK/' \
+    #end
+}
+
 # real QA test starts here
 
 echo "basic stuff ..."
 # expect most things to be active, but some are optional ...
 #
+echo '-- no args --'
+pmcheck 2>&1 | _filter_states
 echo '-- -l --'
 pmcheck -l
+echo '-- -lv --'
+pmcheck -lv
 echo '-- -s --'
-pmcheck -s \
-| sed \
-    -e 's/  *$//' \
-    -e 's/ active$/ OK/' \
-    -e '/^pmproxy /s/inactive/OK/' \
-    -e '/^pmproxy /s/could be activated/OK/' \
-    -e '/^pmie /s/inactive/OK/' \
-    -e '/^pmie /s/could be activated/OK/' \
-#end
+pmcheck -s 2>&1 | _filter_states
 
 touch $tmp.pmcheck
 echo
 echo "=== usage ==="
-echo '-- no args --'
-pmcheck
+echo '-- --help --'
+pmcheck --help
 echo '-- -l + -c --'
-pmcheck -l -c /bin/sh
+pmcheck -l -c /bin/echo
 echo '-- -l + component arg --'
 pmcheck -l pmcd
 echo '-- -c does not exist --'
@@ -78,13 +90,13 @@ pmcheck -c /no.such.file -s
 echo '-- -c not executable --'
 pmcheck -c $tmp.pmcheck -s 2>&1 | _filter
 echo '-- -c + component arg --'
-pmcheck -c /bin/sh -s pmcd
+pmcheck -c /bin/echo -s pmcd
 echo '-- component arg + no action opt --'
 pmcheck pmcd
 echo '-- -n without -a or -d --'
 pmcheck -n -s pmcd
 echo '-- -c + no action opt --'
-pmcheck -c /bin/sh
+pmcheck -c /bin/echo
 echo '-- multiple actions --'
 pmcheck -a -d pmcd
 pmcheck -l -s
@@ -110,7 +122,10 @@ cat <<'End-of-File' >$tmp.pmcheck
 . $PCP_DIR/etc/pcp.env || exit 1
 . $PCP_SHARE_DIR/lib/checkproc.sh
 _do_args "$@"
-if $sflag
+if $lflag
+then
+    [ $verbose -gt 0 ] && echo I am here for QA 1491
+elif $sflag
 then
     [ $verbose -gt 0 ] && echo some state explanation
     status=$RC
@@ -136,7 +151,9 @@ then
     status=$RC
 fi
 End-of-File
-for rc in 0 1 2 3
+echo "-- -c ... -lv --"
+pmcheck -c $tmp.pmcheck -lv 2>&1 | _filter
+for rc in 0 1 2
 do
     echo "-- RC=$rc -c ... -s --"
     RC=$rc pmcheck -c $tmp.pmcheck -s 2>&1 | _filter

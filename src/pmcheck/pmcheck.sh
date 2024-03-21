@@ -125,12 +125,6 @@ done
 
 # semantic checks on command line arguments
 #
-if [ -n "$cfile" -a "$lflag" = true ]
-then
-    echo >&2 "$prog: Error: options -c and -l are mutually exclusive"
-    status=9
-    exit
-fi
 if [ -n "$cfile" -a $# -gt 0 ]
 then
     echo >&2 "$prog: Error: option -c and component arguments are mutually exclusive"
@@ -256,6 +250,19 @@ _report_list()
     fi
 }
 
+if [ "$cfile" != "" ]
+then
+    if $xflag
+    then
+	sh -x "$cfile" $action >$tmp/out
+    else
+	"$cfile" $action >$tmp/out
+    fi
+    rc=$?
+    _report "$cfile" $rc
+    exit
+fi
+
 if $lflag
 then
     # list components
@@ -283,35 +290,25 @@ then
     exit
 fi
 
-if [ "$cfile" != "" ]
-then
-    if $xflag
-    then
-	sh -x "$cfile" $action >$tmp/out
-    else
-	"$cfile" $action >$tmp/out
-    fi
-    rc=$?
-    _report "$cfile" $rc
-else
-    for pattern in "$@"
+# actions with installed components
+#
+for pattern in "$@"
+do
+    for script in "$PCP_SHARE_DIR/lib"/pmcheck/$pattern
     do
-	for script in "$PCP_SHARE_DIR/lib"/pmcheck/$pattern
-	do
-	    component=`basename "$script"`
-	    if [ ! -x "$script" ]
+	component=`basename "$script"`
+	if [ ! -x "$script" ]
+	then
+	    echo "$prog: Error: $script not found or not executable"
+	else
+	    if $xflag
 	    then
-		echo "$prog: Error: $script not found or not executable"
+		sh -x "$script" $action $component >$tmp/out
 	    else
-		if $xflag
-		then
-		    sh -x "$script" $action $component >$tmp/out
-		else
-		    "$script" $action $component >$tmp/out
-		fi
-		rc=$?
-		_report "$component" $rc
+		"$script" $action $component >$tmp/out
 	    fi
-	done
+	    rc=$?
+	    _report "$component" $rc
+	fi
     done
-fi
+done

@@ -37,11 +37,7 @@ then
     fi
 elif $lflag
 then
-    if [ "$verbose" -gt 0 ]
-    then 
-	echo "Performance Metrics Collection Daemon - local source of"
-	echo "performance data"
-    fi
+    [ "$verbose" -gt 0 ] && echo "Performance Metrics Collection Daemon - local source of performance data"
 elif $aflag
 then
     _ctl_svc activate pmcd || status=1

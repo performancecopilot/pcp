@@ -1,23 +1,56 @@
 QA output created by 1491
 basic stuff ...
+-- no args --
+pmcd            OK
+pmda-overhead   OK
+pmie            OK
+pmlogger        OK
+pmproxy         OK
+zeroconf        OK
 -- -l --
-pmcd
-pmie
-pmlogger
-pmproxy
+pmcd           
+pmda-overhead  
+pmie           
+pmlogger       
+pmproxy        
+zeroconf       
+-- -lv --
+pmcd            Performance Metrics Collection Daemon - local source of performance data
+pmda-overhead   PCP overhead PMDA - measure overhead of PCP components
+pmie            PCP Inference Engine - rule-based monitoring
+pmlogger        PCP Archive logger - record performance data for subsequent replay
+pmproxy         PCP Proxy Agent - proxy, web and redis integration
+zeroconf        PCP Zeroconf Package
 -- -s --
-pmcd         OK
-pmie         OK
-pmlogger     OK
-pmproxy      OK
+pmcd            OK
+pmda-overhead   OK
+pmie            OK
+pmlogger        OK
+pmproxy         OK
+zeroconf        OK
 
 === usage ===
--- no args --
-pmcheck: Error: one of -a, -d, -s or -l must be specified
+-- --help --
+Usage: pmcheck [options] [component ...]
+
+options:
+  -a, --activate        activate component(s)
+  -c SCRIPT, --file=SCRIPT
+                        use this executable SCRIPT file instead of a standard component
+  -d, --deactivate      deactivate component(s)
+  -l, --list            list components
+  -n, --show-me         dry run
+  -s, --state           report state of component(s)
+  -v, --verbose         increase verbosity
+  -x, --trace           run component script with sh -x
+  -?, --help            show this usage message
+
+component is one or more manageable components and may include shell
+glob metacharacters, e.g. pmda.* or pm[cl]*
 -- -l + -c --
-pmcheck: Error: options -c and -l are mutually exclusive
+/bin/echo       success              -l
 -- -l + component arg --
-pmcheck: Error: option -l and component arguments are mutually exclusive
+pmcd           
 -- -c does not exist --
 pmcheck: Error: "/no.such.file" does not exist
 -- -c not executable --
@@ -25,12 +58,12 @@ pmcheck: Error: "TMP.pmcheck" must be an executable script
 -- -c + component arg --
 pmcheck: Error: option -c and component arguments are mutually exclusive
 -- component arg + no action opt --
-pmcheck: Error: one of -a, -d, -s or -l must be specified
+pmcd            active              
 -- -n without -a or -d --
 pmcheck: Warning: neither -a nor -d specified, so -n ignored
-pmcd         active              
+pmcd            active              
 -- -c + no action opt --
-pmcheck: Error: one of -a, -d, -s or -l must be specified
+/bin/echo       active               -s
 -- multiple actions --
 pmcheck: Error: at most one of -a, -d, -l or -s may be specified
 pmcheck: Error: at most one of -a, -d, -l or -s may be specified
@@ -79,14 +112,14 @@ glob metacharacters, e.g. pmda.* or pm[cl]*
 TMP.pmcheck active               component called, 1 args: -s
 -- -c ... -nav --
 component called, 3 args: -n -a -v
+-- -c ... -lv --
+TMP.pmcheck success              I am here for QA 1491
 -- RC=0 -c ... -s --
 TMP.pmcheck active              
 -- RC=1 -c ... -s --
 TMP.pmcheck could be activated  
 -- RC=2 -c ... -s --
 TMP.pmcheck cannot be activated 
--- RC=3 -c ... -s --
-TMP.pmcheck not sure            
 -- RC=0 -c ... -a --
 TMP.pmcheck success             
 -- RC=0 -c ... -av --
@@ -126,18 +159,18 @@ some deactivation explanation
 
 === glob expansion ===
 -- -s pm[cl]* --
-pmcd         active              
-pmlogger     active              
+pmcd            active              
+pmlogger        active              
 
 === actions ===
 -- -d --
-pmcd         success             
+pmcd            success             
 1491: pmcd stopped
-pmcd         could be activated  
+pmcd            could be activated  
 -- -a --
-pmcd         success             
+pmcd            success             
 1491: pmcd started
-pmcd         active              
+pmcd            active              
 -- and -a again with -v --
-pmcd         success              already enabled via ...
-                                  already started via ...
+pmcd            success              already enabled via ...
+                                     already started via ...
