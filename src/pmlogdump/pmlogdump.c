@@ -78,19 +78,19 @@ static int		multi_archive;
 static void
 dump_timeval(struct timeval *stamp)
 {
-    time_t	time = stamp->tv_sec;
+    time_t	_time = stamp->tv_sec;
     int		usec = (int)stamp->tv_usec;
     char	*yr = NULL;
     char       	*ddmm;
     struct tm	tm;
 
     if (xflag) {
-	ddmm = pmCtime(&time, timebuf);
+	ddmm = pmCtime(&_time, timebuf);
 	ddmm[10] = '\0';
 	yr = &ddmm[20];
 	printf("%s ", ddmm);
     }
-    pmLocaltime(&time, &tm);
+    pmLocaltime(&_time, &tm);
     printf("%02d:%02d:%02d.%06d", tm.tm_hour, tm.tm_min, tm.tm_sec, usec);
     if (xflag && yr)
 	printf(" %4.4s", yr);
@@ -128,18 +128,18 @@ myPrintTimestamp(FILE *f, const __pmTimestamp *tsp)
 static void
 dump_pmTimestamp(const __pmTimestamp *tsp)
 {
-    time_t	time = tsp->sec;
+    time_t	_time = tsp->sec;
     char	*yr = NULL;
     char       	*ddmm;
     struct tm	tm;
 
     if (xflag) {
-	ddmm = pmCtime(&time, timebuf);
+	ddmm = pmCtime(&_time, timebuf);
 	ddmm[10] = '\0';
 	yr = &ddmm[20];
 	printf("%s ", ddmm);
     }
-    pmLocaltime(&time, &tm);
+    pmLocaltime(&_time, &tm);
     myPrintTimestamp(stdout, tsp);
     if (xflag && yr)
 	printf(" %4.4s", yr);
@@ -259,14 +259,14 @@ dump_nparams(int npmids)
 }
 
 static void
-dump_parameter(pmValueSet *xvsp, int index, int *flagsp)
+dump_parameter(pmValueSet *xvsp, int _index, int *flagsp)
 {
     int		sts, flags = *flagsp;
     pmDesc	desc;
     char	**names;
 
     if ((sts = pmNameAll(xvsp->pmid, &names)) >= 0) {
-	if (index == 0) {
+	if (_index == 0) {
 	    if (xvsp->pmid == pmid_flags) {
 		flags = *flagsp = xvsp->vlist[0].value.lval;
 		printf(" flags 0x%x", flags);
@@ -276,7 +276,7 @@ dump_parameter(pmValueSet *xvsp, int index, int *flagsp)
 	    }
 	    printf(" ---\n");
 	}
-	if ((flags & PM_EVENT_FLAG_MISSED) && index == 1 &&
+	if ((flags & PM_EVENT_FLAG_MISSED) && _index == 1 &&
 	    (xvsp->pmid == pmid_missed)) {
 	    printf("        ==> %d missed event records\n",
 		    xvsp->vlist[0].value.lval);
@@ -300,7 +300,7 @@ dump_parameter(pmValueSet *xvsp, int index, int *flagsp)
 }
 
 static void
-dump_event(int numnames, char **names, pmValueSet *vsp, int index, int indom, int type)
+dump_event(int numnames, char **names, pmValueSet *vsp, int _index, int indom, int type)
 {
     int		r;		/* event records */
     int		p;		/* event parameters */
@@ -309,7 +309,7 @@ dump_event(int numnames, char **names, pmValueSet *vsp, int index, int indom, in
     int		nmissed = 0;
     int		highres = (type == PM_TYPE_HIGHRES_EVENT);
     char	*iname;
-    pmValue	*vp = &vsp->vlist[index];
+    pmValue	*vp = &vsp->vlist[_index];
 
     printf("    %s (", pmIDStr(vsp->pmid));
     __pmPrintMetricNames(stdout, numnames, names, " or ");
@@ -330,7 +330,7 @@ dump_event(int numnames, char **names, pmValueSet *vsp, int index, int indom, in
     if (highres) {
 	pmHighResResult	**hr;
 
-	if ((nrecords = pmUnpackHighResEventRecords(vsp, index, &hr)) < 0)
+	if ((nrecords = pmUnpackHighResEventRecords(vsp, _index, &hr)) < 0)
 	    return;
 	if (nrecords == 0) {
 	    printf("No event records\n");
@@ -362,7 +362,7 @@ dump_event(int numnames, char **names, pmValueSet *vsp, int index, int indom, in
     else {
 	pmResult	**res;
 
-	if ((nrecords = pmUnpackEventRecords(vsp, index, &res)) < 0)
+	if ((nrecords = pmUnpackEventRecords(vsp, _index, &res)) < 0)
 	    return;
 	if (nrecords == 0) {
 	    printf("No event records\n");
@@ -394,12 +394,12 @@ dump_event(int numnames, char **names, pmValueSet *vsp, int index, int indom, in
 }
 
 static void
-dump_metric(int numnames, char **names, pmValueSet *vsp, int index, int indom, int type)
+dump_metric(int numnames, char **names, pmValueSet *vsp, int _index, int indom, int type)
 {
-    pmValue	*vp = &vsp->vlist[index];
+    pmValue	*vp = &vsp->vlist[_index];
     char	*iname;
 
-    if (index == 0) {
+    if (_index == 0) {
 	printf("    %s (", pmIDStr(vsp->pmid));
 	__pmPrintMetricNames(stdout, numnames, names, " or ");
 	printf("):");
@@ -1078,13 +1078,13 @@ dumpLabel_current(int verbose, __pmLogLabel *lp)
     char		*ddmm;
     char		*yr;
     __pmTimestamp	end;
-    time_t		time;
+    time_t		_time;
 
     printf("Log Label (Log Format Version %d)\n", lp->magic & 0xff);
     printf("Performance metrics from host %s\n", lp->hostname);
 
-    time = lp->start.sec;
-    ddmm = pmCtime(&time, timebuf);
+    _time = lp->start.sec;
+    ddmm = pmCtime(&_time, timebuf);
     ddmm[10] = '\0';
     yr = &ddmm[20];
     printf("    commencing %s ", ddmm);
@@ -1099,8 +1099,8 @@ dumpLabel_current(int verbose, __pmLogLabel *lp)
 	printf("    ending     UNKNOWN\n");
     }
     else {
-	time = end.sec;
-	ddmm = pmCtime(&time, timebuf);
+	_time = end.sec;
+	ddmm = pmCtime(&_time, timebuf);
 	ddmm[10] = '\0';
 	yr = &ddmm[20];
 	printf("    ending     %s ", ddmm);
