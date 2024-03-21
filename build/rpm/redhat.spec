@@ -850,6 +850,24 @@ Performance Co-Pilot (PCP) front-end tools for exporting metric values
 in JSON format.
 
 #
+# pcp-export-pcp2openmetrics
+#
+%package export-pcp2openmetrics
+License: GPL-2.0-or-later
+Summary: Performance Co-Pilot tools for exporting PCP metrics in OPENMETRIC format
+URL: https://pcp.io
+Requires: pcp-libs >= %{version}-%{release}
+%if !%{disable_python3}
+Requires: python3-pcp = %{version}-%{release}
+%else
+Requires: %{__python2}-pcp = %{version}-%{release}
+%endif
+
+%description export-pcp2openmetrics
+Performance Co-Pilot (PCP) front-end tools for exporting metric values
+in OPENMETRIC format.
+
+#
 # pcp-export-pcp2spark
 #
 %package export-pcp2spark
@@ -2519,6 +2537,7 @@ basic_manifest | keep 'pcp2influxdb' >pcp-export-pcp2influxdb-files
 basic_manifest | keep 'pcp2xlsx' >pcp-export-pcp2xlsx-files
 basic_manifest | keep 'pcp2graphite' >pcp-export-pcp2graphite-files
 basic_manifest | keep 'pcp2json' >pcp-export-pcp2json-files
+basic_manifest | keep 'pcp2openmetrics' >pcp-export-pcp2openmetrics-files
 basic_manifest | keep 'pcp2spark' >pcp-export-pcp2spark-files
 basic_manifest | keep 'pcp2xml' >pcp-export-pcp2xml-files
 basic_manifest | keep 'pcp2zabbix' >pcp-export-pcp2zabbix-files
@@ -2636,7 +2655,7 @@ do \
 done
 
 for export_package in \
-    pcp2elasticsearch pcp2graphite pcp2influxdb pcp2json \
+    pcp2elasticsearch pcp2graphite pcp2influxdb pcp2json pcp2openmetrics \
     pcp2spark pcp2xlsx pcp2xml pcp2zabbix zabbix-agent ; \
 do \
     export_packages="$export_packages pcp-export-$export_package"; \
@@ -3328,6 +3347,8 @@ fi
 %files export-pcp2graphite -f pcp-export-pcp2graphite-files.rpm
 
 %files export-pcp2json -f pcp-export-pcp2json-files.rpm
+
+%files export-pcp2openmetrics -f pcp-export-pcp2openmetrics-files.rpm
 
 %files export-pcp2spark -f pcp-export-pcp2spark-files.rpm
 
