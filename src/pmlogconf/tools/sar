@@ -1,7 +1,9 @@
 #pmlogconf-setup 2.0
-ident   metrics used by the sar(1) command
+ident   metrics used by the sysstat sar(1) command
 probe	kernel.uname.sysname ~ Linux ? include : exclude
 
+	disk.all.discard
+	disk.all.discard_bytes
 	disk.all.read
 	disk.all.read_bytes
 	disk.all.total
@@ -13,6 +15,8 @@ probe	kernel.uname.sysname ~ Linux ? include : exclude
 	disk.all.total_rawactive
 	disk.dev.avactive
 	disk.dev.aveq
+	disk.dev.discard
+	disk.dev.discard_bytes
 	disk.dev.read
 	disk.dev.read_bytes
 	disk.dev.read_rawactive
@@ -22,14 +26,10 @@ probe	kernel.uname.sysname ~ Linux ? include : exclude
 	disk.dev.total
 	disk.dev.total_bytes
 	disk.dev.total_rawactive
-	#disk.dev.avg_qlen	- derived metric (iostat.conf)
-	#disk.dev.avg_rqsz      - derived metric (iostat.conf)
-	#disk.dev.await		- derived metric (iostat.conf)
-	#disk.dev.r_await	- derived metric (iostat.conf)
-	#disk.dev.w_await	- derived metric (iostat.conf)
-	#disk.dev.util		- derived metric (iostat.conf)
 	disk.dm.avactive
 	disk.dm.aveq
+	disk.dm.discard
+	disk.dm.discard_bytes
 	disk.dm.read
 	disk.dm.read_bytes
 	disk.dm.read_rawactive
@@ -39,14 +39,10 @@ probe	kernel.uname.sysname ~ Linux ? include : exclude
 	disk.dm.total
 	disk.dm.total_bytes
 	disk.dm.total_rawactive
-	#disk.dm.avg_qlen	- derived metric (iostat.conf)
-	#disk.dm.avg_rqsz	- derived metric (iostat.conf)
-	#disk.dm.await		- derived metric (iostat.conf)
-	#disk.dm.r_await	- derived metric (iostat.conf)
-	#disk.dm.w_await	- derived metric (iostat.conf)
-	#disk.dm.util		- derived metric (iostat.conf)
 	disk.md.avactive
 	disk.md.aveq
+	disk.md.discard
+	disk.md.discard_bytes
 	disk.md.read_bytes
 	disk.md.read_merge
 	disk.md.read_rawactive
@@ -57,12 +53,16 @@ probe	kernel.uname.sysname ~ Linux ? include : exclude
 	disk.md.total_bytes
 	disk.md.total_rawactive
 	disk.md.status
-	#disk.md.avg_qlen	- derived metric (iostat.conf)
-	#disk.md.avg_rqsz	- derived metric (iostat.conf)
-	#disk.md.await		- derived metric (iostat.conf)
-	#disk.md.r_await	- derived metric (iostat.conf)
-	#disk.md.w_await	- derived metric (iostat.conf)
-	#disk.md.util		- derived metric (iostat.conf)
+	filesys.avail
+	filesys.capacity
+	filesys.full
+	filesys.free
+	filesys.freefiles
+	filesys.maxfiles
+	filesys.used
+	filesys.usedfiles
+	hinv.cpu.clock
+	kernel.all.blocked
 	kernel.all.cpu.guest
 	kernel.all.cpu.guest_nice
 	kernel.all.cpu.idle
@@ -77,8 +77,24 @@ probe	kernel.uname.sysname ~ Linux ? include : exclude
 	kernel.all.cpu.irq.soft
 	kernel.all.cpu.irq.hard
 	kernel.all.intr
+	kernel.all.interrupts.total
 	kernel.all.load
+	kernel.all.nptys
+	kernel.all.nprocs
+	kernel.all.pressure.cpu.some.avg
+	kernel.all.pressure.cpu.some.total
+	kernel.all.pressure.io.full.avg
+	kernel.all.pressure.io.full.total
+	kernel.all.pressure.io.some.avg
+	kernel.all.pressure.io.some.total
+	kernel.all.pressure.memory.some.avg
+	kernel.all.pressure.memory.some.total
+	kernel.all.pressure.memory.full.avg
+	kernel.all.pressure.memory.full.total
 	kernel.all.pswitch
+	kernel.all.runnable
+	kernel.all.sysfork
+	kernel.all.uptime
 	kernel.percpu.cpu.guest
 	kernel.percpu.cpu.guest_nice
 	kernel.percpu.cpu.idle
@@ -92,21 +108,104 @@ probe	kernel.uname.sysname ~ Linux ? include : exclude
 	kernel.percpu.cpu.vnice
 	kernel.percpu.cpu.irq.soft
 	kernel.percpu.cpu.irq.hard
+	mem.util.active
+	mem.util.anonpages
+	mem.util.available
+	mem.util.bufmem
+	mem.util.cached
+	mem.util.committed_AS
+	mem.util.dirty
+	mem.util.free
+	mem.util.hugepagesFreeBytes
+	mem.util.hugepagesRsvdBytes
+	mem.util.hugepagesSurpBytes
+	mem.util.hugepagesTotalBytes
+	mem.util.inactive
+	mem.util.kernelStack
+	mem.util.pageTables
+	mem.util.slab
+	mem.util.swapFree
+	mem.util.swapTotal
+	mem.util.swapCached
+	mem.util.used
+	mem.util.vmallocUsed
+	mem.vmstat.pgdemote_total
 	mem.vmstat.pgfault
 	mem.vmstat.pgfree
 	mem.vmstat.pgmajfault
 	mem.vmstat.pgpgin
 	mem.vmstat.pgpgout
-	mem.util
+	mem.vmstat.pgpromote_success
+	mem.vmstat.pgscan_direct_total
+	mem.vmstat.pgscan_kswapd_total
+	mem.vmstat.pgsteal_total
+	network.icmp.inaddrmaskreps
+	network.icmp.inaddrmasks
+	network.icmp.incsumerrors
+	network.icmp.indestunreachs
+	network.icmp.inechoreps
+	network.icmp.inechos
+	network.icmp.inerrors
+	network.icmp.inmsgs
+	network.icmp.inparmprobs
+	network.icmp.inredirects
+	network.icmp.insrcquenchs
+	network.icmp.intimeexcds
+	network.icmp.intimestampreps
+	network.icmp.intimestamps
+	network.icmp.outaddrmasks
+	network.icmp.outaddrmaskreps
+	network.icmp.outdestunreachs
+	network.icmp.outechoreps
+	network.icmp.outechos
+	network.icmp.outerrors
+	network.icmp.outmsgs
+	network.icmp.outparmprobs
+	network.icmp.outredirects
+	network.icmp.outsrcquenchs
+	network.icmp.outtimeexcds
+	network.icmp.outtimestampreps
+	network.icmp.outtimestamps
+	network.icmp6.indestunreachs
+	network.icmp6.inechos
+	network.icmp6.inechoreplies
+	network.icmp6.inerrors
+	network.icmp6.ingroupmembqueries
+	network.icmp6.ingroupmembresponses
+	network.icmp6.ingroupmembreductions
+	network.icmp6.inmsgs
+	network.icmp6.inneighborsolicits
+	network.icmp6.inneighboradvertisements
+	network.icmp6.inparmproblems
+	network.icmp6.inpkttoobigs
+	network.icmp6.inredirects
+	network.icmp6.inroutersolicits
+	network.icmp6.inrouteradvertisements
+	network.icmp6.intimeexcds
+	network.icmp6.outdestunreachs
+	network.icmp6.outechoreplies
+	network.icmp6.outgroupmembresponses
+	network.icmp6.outgroupmembreductions
+	network.icmp6.outmsgs
+	network.icmp6.outneighborsolicits
+	network.icmp6.outneighboradvertisements
+	network.icmp6.outparmproblems
+	network.icmp6.outpkttoobigs
+	network.icmp6.outredirects
+	network.icmp6.outroutersolicits
+	network.icmp6.outtimeexcds
 	network.interface.collisions
 	network.interface.in.bytes
+	network.interface.in.compressed
 	network.interface.in.drops
 	network.interface.in.errors
 	network.interface.in.fifo
 	network.interface.in.frame
+	network.interface.in.mcasts
 	network.interface.in.packets
 	network.interface.out.bytes
 	network.interface.out.carrier
+	network.interface.out.compressed
 	network.interface.out.drops
 	network.interface.out.errors
 	network.interface.out.fifo
@@ -120,14 +219,106 @@ probe	kernel.uname.sysname ~ Linux ? include : exclude
 	network.interface.total.errors
 	network.interface.total.packets
 	network.interface.up
-	network.icmp.incsumerrors
+	network.ip.forwdatagrams
+	network.ip.fragcreates
+	network.ip.fragfails
+	network.ip.fragoks
+	network.ip.inaddrerrors
+	network.ip.indelivers
+	network.ip.indiscards
+	network.ip.inhdrerrors
+	network.ip.inreceives
+	network.ip.inunknownprotos
+	network.ip.outdiscards
+	network.ip.outnoroutes
+	network.ip.outrequests
+	network.ip.reasmfails
+	network.ip.reasmoks
+	network.ip.reasmreqds
+	network.ip6.fragcreates
+	network.ip6.fragfails
+	network.ip6.fragoks
+	network.ip6.inaddrerrors
+	network.ip6.indelivers
+	network.ip6.indiscards
+	network.ip6.inhdrerrors
+	network.ip6.inmcastpkts
+	network.ip6.innoroutes
+	network.ip6.inreceives
+	network.ip6.intruncatedpkts
+	network.ip6.intoobigerrors
+	network.ip6.inunknownprotos
+	network.ip6.outdiscards
+	network.ip6.outforwdatagrams
+	network.ip6.outmcastpkts
+	network.ip6.outnoroutes
+	network.ip6.outrequests
+	network.ip6.reasmfails
+	network.ip6.reasmoks
+	network.ip6.reasmreqds
+	network.sockstat.total
+	network.sockstat.frag.inuse
+	network.sockstat.frag6.inuse
+	network.sockstat.raw.inuse
+	network.sockstat.raw6.inuse
+	network.sockstat.tcp.inuse
+	network.sockstat.tcp6.inuse
+	network.sockstat.tcp.tw
+	network.sockstat.udp.inuse
+	network.sockstat.udp6.inuse
+	network.softnet.processed
+	network.softnet.dropped
+	network.softnet.time_squeeze
+	network.softnet.received_rps
+	network.softnet.flow_limit_count
+	#network.softnet.backlog_length
+	network.softnet.percpu.processed
+	network.softnet.percpu.dropped
+	network.softnet.percpu.time_squeeze
+	network.softnet.percpu.received_rps
+	network.softnet.percpu.flow_limit_count
+	#network.softnet.percpu.backlog_length
+	network.tcp.activeopens
+	network.tcp.attemptfails
+	network.tcp.estabresets
+	network.tcp.passiveopens
+	network.tcp.inerrs
+	network.tcp.insegs
+	network.tcp.outrsts
+	network.tcp.outsegs
+	network.tcp.retranssegs
 	network.udp.incsumerrors
+	network.udp.indatagrams
+	network.udp.inerrors
+	network.udp.noports
+	network.udp.outdatagrams
 	network.udp.recvbuferrors
 	network.udp.sndbuferrors
+	network.udp6.indatagrams
+	network.udp6.inerrors
+	network.udp6.outdatagrams
+	network.udp6.noports
+	nfs.client.reqs
+	nfs.server.reqs
 	proc.nprocs
 	proc.runq.runnable
+	rpc.client.rpccnt
+	rpc.client.rpcretrans
+	rpc.server.netcnt
+	rpc.server.netudpcnt
+	rpc.server.nettcpcnt
+	rpc.server.rchits
+	rpc.server.rcmisses
+	rpc.server.rpcbadclnt
+	rpc.server.rpccnt
 	swap.pagesin
 	swap.pagesout
+	tty.serial.tx
+	tty.serial.rx
+	tty.serial.frame
+	tty.serial.parity
+	tty.serial.brk
+	tty.serial.overrun
 	vfs.dentry.count
 	vfs.files.count
 	vfs.inodes.count
