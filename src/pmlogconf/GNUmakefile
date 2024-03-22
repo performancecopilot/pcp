@@ -46,9 +46,12 @@ SUBDIRS = \
 #
 ifeq "$(TARGET_OS)" "linux"
 SUBDIRS += zeroconf
+PMCHECK=zeroconf.pmcheck
+else
+PMCHECK=no.zeroconf.pmcheck
 endif
 
-default: $(CMDTARGET) pmrepconf makefiles zeroconf.pmcheck
+default: $(CMDTARGET) pmrepconf makefiles $(PMCHECK)
 
 include $(BUILDRULES)
 
@@ -57,7 +60,7 @@ install: default $(SUBDIRS)
 	$(INSTALL) -m 755 $(CMDTARGET) $(DISTARGET)
 	$(INSTALL) -S $(DISTARGET) $(PCP_BIN_DIR)/pmrepconf
 	$(INSTALL) -S $(DISTARGET) $(PCP_BINADM_DIR)/$(CMDTARGET)
-	$(INSTALL) -m 755 zeroconf.pmcheck $(PCP_SHARE_DIR)/lib/pmcheck/zeroconf
+	$(INSTALL) -m 755 $(PMCHECK) $(PCP_SHARE_DIR)/lib/pmcheck/zeroconf
 
 default_pcp : default
 
