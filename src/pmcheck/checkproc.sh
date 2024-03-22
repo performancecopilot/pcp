@@ -255,7 +255,7 @@ _ctl_svc()
 	    else
 		[ "$verbose" -gt 0 ] && echo "already enabled via update-rc.d"
 	    fi
-	elif $_use_chkconfig
+	elif $__use_chkconfig
 	then
 	    __runlevel=`runlevel | cut -d ' ' -f 2`
 	    __state=`chkconfig --list $svc | sed -e "s/.*$__runlevel//" -e 's/ .*//'`
@@ -276,10 +276,6 @@ _ctl_svc()
 	    else
 		[ "$verbose" -gt 0 ] && echo "already enabled via chkconfig"
 	    fi
-	else
-	    echo >&2 "$prog: _ctl_svc: Botch: cannot determine how to activate $svc service"
-	    status=99
-	    exit
 	fi
     fi
 
@@ -472,7 +468,7 @@ _ctl_svc()
 	    else
 		[ "$verbose" -gt 0 ] && echo "already disabled via update-rc.d"
 	    fi
-	elif $_use_chkconfig
+	elif $__use_chkconfig
 	then
 	    __runlevel=`runlevel | cut -d ' ' -f 2`
 	    __state=`chkconfig --list $svc | sed -e "s/.*$__runlevel//" -e 's/ .*//'`
@@ -493,10 +489,6 @@ _ctl_svc()
 	    else
 		[ "$verbose" -gt 0 ] && echo "already disabled via chkconfig"
 	    fi
-	else
-	    echo >&2 "$prog: _ctl_svc: Botch: cannot determine how to deactivate $svc service"
-	    status=99
-	    exit
 	fi
     fi
 
@@ -547,8 +539,7 @@ _ctl_pmda()
     then
 	if [ "$verbose" -gt 0 ]
 	then
-	    echo "need to install the PCP package for the"
-	    echo "$name PMDA"
+	    echo "need to install the PCP package for the $name PMDA"
 	fi
 	pre=2
     elif [ "$action" = activate -a -n "$3" -a ! -x "$PCP_VAR_DIR/pmdas/$name/$3" ]
