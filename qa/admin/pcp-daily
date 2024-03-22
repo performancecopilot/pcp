@@ -836,10 +836,9 @@ do
 	    ;;
 
 	vm10)
-	    # Only selected groups at this stage for FreeBSD
-	    #	sanity trace libpcp kernel pmrep threads
+	    # Only selected groups at this stage for FreeBSD ...
 	    #
-	    [ X"$what" = Xall ] && check_what='-g sanity -g trace -g libpcp -g kernel -g pmrep -g threads -g perl -x valgrind'
+	    [ X"$what" = Xall ] && check_what='-g sanity -g trace -g libpcp -g kernel -g pmrep -g threads -g perl -g pmlogdump -x valgrind'
 	    ;;
 
 	vm15)
@@ -884,11 +883,9 @@ do
 	    ;;
 
 	vm32)
-	    # Only selected groups at this stage for FreeBSD
-	    #	sanity trace libpcp kernel pmrep threads
-	    # and some tests are not working yet
+	    # Only selected groups at this stage for FreeBSD ...
 	    #
-	    [ X"$what" = Xall ] && check_what='-g sanity -g trace -g libpcp -g kernel -g pmrep -g threads -x valgrind -X 603'
+	    [ X"$what" = Xall ] && check_what='-g sanity -g trace -g libpcp -g kernel -g pmrep -g threads -g pmlogdump -x valgrind -X 603'
 	    ;;
 
 	vm33)
