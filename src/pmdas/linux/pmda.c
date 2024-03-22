@@ -7011,6 +7011,30 @@ static pmdaMetric metrictab[] = {
     { NULL, { PMDA_PMID(CLUSTER_NET_SOFTNET,11), PM_TYPE_U64, CPU_INDOM,
       PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
+    /* network.softnet.total_backlog */
+    { NULL, { PMDA_PMID(CLUSTER_NET_SOFTNET,12), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* network.softnet.percpu.total_backlog */
+    { NULL, { PMDA_PMID(CLUSTER_NET_SOFTNET,13), PM_TYPE_U64, CPU_INDOM,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* network.softnet.input_qlen */
+    { NULL, { PMDA_PMID(CLUSTER_NET_SOFTNET,14), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* network.softnet.percpu.input_qlen */
+    { NULL, { PMDA_PMID(CLUSTER_NET_SOFTNET,15), PM_TYPE_U64, CPU_INDOM,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* network.softnet.process_qlen */
+    { NULL, { PMDA_PMID(CLUSTER_NET_SOFTNET,16), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* network.softnet.percpu.process_qlen */
+    { NULL, { PMDA_PMID(CLUSTER_NET_SOFTNET,17), PM_TYPE_U64, CPU_INDOM,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
 /*
  * tapedev cluster
  */
@@ -9790,6 +9814,42 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    if (pmdaCacheLookup(indom, inst, NULL, (void **)&cp) < 0)
 		return PM_ERR_INST;
 	    atom->ull = cp->softnet->flow_limit_count;
+	    break;
+	case 12: /* network.softnet.total_backlog */
+	    if (!(proc_net_softnet.flags & SN_BACKLOG))
+		return PM_ERR_APPVERSION;
+	    atom->ull = proc_net_softnet.total_backlog;
+	    break;
+	case 13: /* network.softnet.percpu.total_backlog */
+	    if (!(proc_net_softnet.flags & SN_BACKLOG))
+		return PM_ERR_APPVERSION;
+	    if (pmdaCacheLookup(indom, inst, NULL, (void **)&cp) < 0)
+		return PM_ERR_INST;
+	    atom->ull = cp->softnet->total_backlog;
+	    break;
+	case 14: /* network.softnet.input_qlen */
+	    if (!(proc_net_softnet.flags & SN_BACKLOG))
+		return PM_ERR_APPVERSION;
+	    atom->ull = proc_net_softnet.input_qlen;
+	    break;
+	case 15: /* network.softnet.percpu.input_qlen */
+	    if (!(proc_net_softnet.flags & SN_BACKLOG))
+		return PM_ERR_APPVERSION;
+	    if (pmdaCacheLookup(indom, inst, NULL, (void **)&cp) < 0)
+		return PM_ERR_INST;
+	    atom->ull = cp->softnet->input_qlen;
+	    break;
+	case 16: /* network.softnet.process_qlen */
+	    if (!(proc_net_softnet.flags & SN_BACKLOG))
+		return PM_ERR_APPVERSION;
+	    atom->ull = proc_net_softnet.process_qlen;
+	    break;
+	case 17: /* network.softnet.percpu.process_qlen */
+	    if (!(proc_net_softnet.flags & SN_BACKLOG))
+		return PM_ERR_APPVERSION;
+	    if (pmdaCacheLookup(indom, inst, NULL, (void **)&cp) < 0)
+		return PM_ERR_INST;
+	    atom->ull = cp->softnet->process_qlen;
 	    break;
 	default:
 	    return PM_ERR_PMID;

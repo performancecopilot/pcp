@@ -305,6 +305,9 @@ typedef struct {
     uint64_t		cpu_collision;
     uint64_t		received_rps;
     uint64_t		flow_limit_count;
+    uint64_t		total_backlog;
+    uint64_t		input_qlen;
+    uint64_t		process_qlen;
 } softnet_t;
 
 typedef struct {
