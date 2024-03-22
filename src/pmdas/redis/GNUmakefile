@@ -44,9 +44,11 @@ install: default
 	$(INSTALL) -m 755 -d $(PMDACONFIG)
 	$(INSTALL) -m 644 -t $(PMDATMPDIR)/redis.conf redis.conf $(PMDACONFIG)/redis.conf
 	@$(INSTALL_MAN)
+	$(INSTALL) -m 755 $(IAM).pmcheck $(PCP_SHARE_DIR)/lib/pmcheck/pmda-$(IAM)
 else
 build-me:
-install:
+install: $(TOPDIR)/src/pmcheck/pmda.na.template
+	$(INSTALL) -m 755 $< $(PCP_SHARE_DIR)/lib/pmcheck/pmda-$(IAM)
 endif
 
 default_pcp : default

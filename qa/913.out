@@ -1,5 +1,8 @@
 QA output created by 913
 
+=== redis check pre-install ===
+pmda-redis      could be activated  
+
 === redis agent installation ===
 Culling the Performance Metrics Name Space ...
 redis ... not found in Name Space, this is OK
@@ -10,6 +13,9 @@ Terminate PMDA if already installed ...
 [...install files, make output...]
 Updating the PMCD control file, and notifying PMCD ...
 Check redis metrics have appeared ... X metrics and Y values
+
+=== redis check post-install ===
+pmda-redis      active              
 
 === verify redis metrics ===
 

@@ -2,7 +2,7 @@
 # PCP QA Test No. 913
 # Exercise the Redis PMDA and metrics.
 #
-# Copyright (c) 2017 Red Hat.
+# Copyright (c) 2017,2024 Red Hat.
 #
 
 seq=`basename $0`
@@ -48,6 +48,10 @@ cd $PCP_PMDAS_DIR/redis
 $sudo ./Remove >>$here/$seq.full 2>&1
 
 echo
+echo "=== $iam check pre-install ==="
+pmcheck pmda-redis
+
+echo
 echo "=== $iam agent installation ==="
 $sudo ./Remove > $tmp.out 2>&1
 
@@ -65,6 +69,10 @@ _filter_pmda_install <$tmp.out \
                                        if ($10 >= 0 && $10 <= 5000) $10 = "Y"
                                      }
                                      { print }'
+
+echo
+echo "=== $iam check post-install ==="
+pmcheck pmda-redis
 
 echo
 echo "=== verify $iam metrics ==="

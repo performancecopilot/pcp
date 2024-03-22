@@ -3,6 +3,7 @@ basic stuff ...
 -- no args --
 pmcd            OK
 pmda-overhead   OK
+pmda-redis      could be activated
 pmda-sample     OK
 pmie            OK
 pmlogger        OK
@@ -11,6 +12,7 @@ zeroconf        OK
 -- -l --
 pmcd           
 pmda-overhead  
+pmda-redis     
 pmda-sample    
 pmie           
 pmlogger       
@@ -19,6 +21,7 @@ zeroconf
 -- -lv --
 pmcd            Performance Metrics Collection Daemon - local source of performance data
 pmda-overhead   overhead PMDA - ...
+pmda-redis      Redis PMDA - metrics from redis-server(1)
 pmda-sample     sample PMDA
 pmie            Inference Engine - rule-based monitoring
 pmlogger        Archive logger - record performance data for subsequent replay
@@ -27,6 +30,7 @@ zeroconf        Zeroconf Package ...
 -- -s --
 pmcd            OK
 pmda-overhead   OK
+pmda-redis      could be activated
 pmda-sample     OK
 pmie            OK
 pmlogger        OK
