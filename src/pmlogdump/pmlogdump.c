@@ -542,8 +542,7 @@ dumpDesc(void)
 	pmPrintDesc(stdout, dp);
     }
 
-    if (desclist != NULL)
-	free(desclist);
+    free(desclist);
 }
 
 static void
@@ -726,8 +725,7 @@ dumpInDom(void)
 	}
     }
 
-    if (indomlist != NULL)
-	free(indomlist);
+    free(indomlist);
 }
 
 static void
