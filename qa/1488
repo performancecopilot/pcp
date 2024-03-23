@@ -26,9 +26,6 @@ fi
 
 $sudo rm -rf $tmp $tmp.* $seq.full
 
-# check on initial state
-systemctl status pmlogger_farm.service >>$seq.full 2>&1
-
 _cleanup()
 {
     cd $here
@@ -41,9 +38,15 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 _filter()
 {
     sed \
+	-e '/couldn.t find cgroup.procs/d' \
+	-e '/added/{
+s@namespace ""@namespace <OK>@
+s@namespace "/unified"@namespace <OK>@
+}' \
 	-e "s@$$@MYPID@g" \
 	-e 's/  */ /g' \
 	-e 's/├─ /├─/' \
+	-e 's@/usr/bin/sh@/bin/sh@' \
     # end
 }
 
@@ -59,7 +62,7 @@ migrate_pid_service -v $$ pmlogger_farm.service
 End-of-File
 
 chmod 755 $tmp.sh
-$sudo $tmp.sh | _filter
+$sudo $tmp.sh 2>&1 | tee -a $seq.full | _filter
 systemctl -l --quiet --no-pager status pmlogger_farm.service >$tmp.out 2>&1
 cat $tmp.out >>$seq.full
 grep "$$" $tmp.out | _filter
