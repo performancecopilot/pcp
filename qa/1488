@@ -26,6 +26,9 @@ fi
 
 $sudo rm -rf $tmp $tmp.* $seq.full
 
+# check on initial state
+systemctl status pmlogger_farm.service >>$seq.full 2>&1
+
 _cleanup()
 {
     cd $here
@@ -40,6 +43,7 @@ _filter()
     sed \
 	-e "s@$$@MYPID@g" \
 	-e 's/  */ /g' \
+	-e 's/├─ /├─/' \
     # end
 }
 
