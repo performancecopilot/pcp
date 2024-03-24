@@ -23,6 +23,14 @@ fi
 . ./common.filter
 . ./common.check
 
+if which pcp-atopsar >/dev/null 2>&1
+then
+    :
+else
+    _notrun "no pcp-atopsar executable installed"
+    # NOTREACHED
+fi
+
 $sudo rm -rf $tmp $tmp.* $seq.full
 
 do_valgrind=false
