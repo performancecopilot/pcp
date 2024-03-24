@@ -1553,6 +1553,9 @@ PCP_CALL extern void __pmPutTimeval(const __pmTimestamp *, __int32_t *);
 /* remove old files from a map directory */
 PCP_CALL extern int __pmCleanMapDir(const char *, const char *);
 
+/* Check for duplicate label sets. */
+PCP_CALL extern void __pmCheckDupLabels(const __pmArchCtl *);
+
 #ifdef __cplusplus
 }
 #endif

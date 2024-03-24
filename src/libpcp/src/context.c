@@ -955,6 +955,9 @@ initarchive(__pmContext	*ctxp, const char *name)
      */
     __pmFixPMNSHashTab(acp->ac_log->pmns, acp->ac_log->numpmid, 1);
 
+    /* Check for duplicate label sets. */
+    __pmCheckDupLabels(acp);
+
     if (acp->ac_num_logs > 1) {
 	/*
 	 * In order to maintain API semantics with the old single archive
