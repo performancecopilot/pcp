@@ -196,7 +196,11 @@ fi
 pmcheck -s pmcd
 echo '-- and -a again with -v --'
 pmcheck -v -a pmcd 2>&1 \
-| sed -e 's/ed via .*/ed via .../'
+| sed \
+    -e '/^  *already /d' \
+    -e 's/ enabled via .*/ STARTED via .../' \
+    -e 's/ started via .*/ STARTED via .../' \
+# end
 
 # success, all done
 exit

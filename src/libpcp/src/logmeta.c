@@ -453,8 +453,8 @@ discard_dup_labelsets(__pmLogLabelSet *idp, const __pmLogLabelSet *idp_next)
  * has been read. At this point we know that the label sets are stored in reverse
  * chronological order.
  */
-static void
-check_dup_labels(const __pmArchCtl *acp)
+void
+__pmCheckDupLabels(const __pmArchCtl *acp)
 {
     __pmLogCtl		*lcp;
     __pmLogLabelSet	*idp, *idp_prior, *idp_next;
@@ -1009,11 +1009,6 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":16", PM_FAULT_ALLOC);
 	}
     }/*for*/
 end:
-
-    /* Check for duplicate label sets. */
-    check_dup_labels(acp);
-    
-    __pmFseek(f, (long)__pmLogLabelSize(lcp), SEEK_SET);
 
     if (sts == 0) {
 	if (numpmid == 0) {

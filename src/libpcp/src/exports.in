@@ -859,4 +859,5 @@ PCP_3.39 {
 
 PCP_3.40 {
     __pmLogChangeArchive;
+    __pmCheckDupLabels;
 } PCP_3.39;
