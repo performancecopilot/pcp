@@ -209,7 +209,7 @@ _ctl_svc()
 	    status=99
 	    exit
 	fi
-	exit
+	return $rc
     fi
 
     if [ "$action" = activate ]
@@ -507,7 +507,7 @@ _ctl_pmda()
     local action="$1"
     local name="$2"
     local pre=0
-    local exit=0
+    local __exit=0
     local domain=0
     local pid=0
     local here=`pwd`
@@ -565,8 +565,8 @@ _ctl_pmda()
 	    #
 	    if [ "$verbose" -gt 0 ]
 	    then
-		exit=`sed -n <$tmp/tmp -e "/.*\"$name\"] value /s///p"`
-		echo "$pmda PMDA has failed (exit status=$exit)"
+		__exit=`sed -n <$tmp/tmp -e "/.*\"$name\"] value /s///p"`
+		echo "$pmda PMDA has failed (exit status=$__exit)"
 	    fi
 	    pre=4
 	fi
