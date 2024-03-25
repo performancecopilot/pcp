@@ -42,6 +42,7 @@ _filter()
 	-e '/added/{
 s@namespace ""@namespace <OK>@
 s@namespace "/unified"@namespace <OK>@
+s@namespace "/systemd"@namespace <OK>@
 }' \
 	-e "s@$$@MYPID@g" \
 	-e 's/  */ /g' \
