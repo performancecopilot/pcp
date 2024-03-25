@@ -434,9 +434,9 @@ then
     AS_IF([test "x$cc_is_gcc" = xyes ],[PCFLAGS="$PCFLAGS -Wshadow"])
 fi
 dnl Disable array bounds as pmResult is often mischaracterised
-if ! echo "$CFLAGS" | grep -- -Wno-array-bound >/dev/null
+if ! echo "$CFLAGS" | grep -- -Wno-array-bounds >/dev/null
 then
-    AS_IF([test "x$cc_is_gcc" = xyes ],[PCFLAGS="$PCFLAGS -Wno-array-bound"])
+    AS_IF([test "x$cc_is_gcc" = xyes ],[PCFLAGS="$PCFLAGS -Wno-array-bounds"])
 fi
 dnl and we need to worry about off_t ... we need it to be 64-bits for V3 archives
 AC_MSG_CHECKING([sizeof off_t])
