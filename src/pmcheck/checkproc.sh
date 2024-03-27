@@ -41,7 +41,7 @@ End-of-File
 
 _do_args()
 {
-    __args=`pmgetopt --progname=$prog --config=$tmp/_usage -- "$@"`
+    local args=`pmgetopt --progname=$prog --config=$tmp/_usage -- "$@"`
     if [ $? -ne 0 ]
     then
 	pmgetopt --progname=$prog --config=$tmp/_usage --usage
@@ -49,8 +49,8 @@ _do_args()
 	exit
     fi
 
-    eval set -- "$__args"
-    unset __args
+    eval set -- "$args"
+    unset args
 
     while [ $# -gt 0 ]
     do
@@ -115,8 +115,8 @@ _ctl_svc()
     local rc=0
     local action="$1"
     local svc="$2"
-    local __state=''
-    local __runlevel=''
+    local state=''
+    local runlevel=''
 
     if [ -z "$1" -o -z "$2" ]
     then
@@ -150,37 +150,38 @@ _ctl_svc()
 		then
 		    if grep '^LoadError=.*\.service not found' <$tmp/_ctl_svc >/dev/null
 		    then
-			status=2
+			rc=2
 			echo "No systemd unit file installed"
 		    else
-			status=1
+			rc=1
 		    fi
 		else
 		    # no clue ...
-		    status=3
+		    echo "systemd unit $svc.service is not active, activating or inactive?"
+		    rc=2
 		fi
 	    fi
 	elif $__use_update_invoke
 	then
 	    invoke-rc.d $svc status 2>/dev/null >$tmp/_ctl_svc
-	    __state=`sed -n -e '/^Checking for/s/.*: //p' <$tmp/_ctl_svc`
-	    case "$__state"
+	    state=`sed -n -e '/^Checking for/s/.*: //p' <$tmp/_ctl_svc`
+	    case "$state"
 	    in
 		running)
 		    ;;
 		stopped)
-		    status=1
+		    rc=1
 		    ;;
 		*)
-		    status=3
-		    echo "state ($__state) unknown"
+		    rc=2
+		    echo "state ($state) unknown"
 		    ;;
 	    esac
-	elif $___use_rc_script
+	elif $__use_rc_script
 	then
 	    if [ ! -x "$PCP_RC_DIR/$svc" ]
 	    then
-		status=3
+		rc=2
 		echo "$PCP_RC_DIR/$svc script is missing"
 	    elif $__use_chkconfig
 	    then
@@ -189,18 +190,18 @@ _ctl_svc()
 		# chconfig emits ...
 		# pmcd           	0:off	1:off	2:on	3:on	4:on	5:on	6:off
 		# want                                            ^^
-		__runlevel=`runlevel | cut -d ' ' -f 2`
-		__state=`chkconfig --list $svc | sed -e "s/.*$__runlevel//" -e 's/ .*//'`
-		case "$__state"
+		runlevel=`runlevel | cut -d ' ' -f 2`
+		state=`chkconfig --list $svc | sed -e "s/.*$runlevel//" -e 's/ .*//'`
+		case "$state"
 		in
 		    on)
 			;;
 		    off)
-			status=1
+			rc=1
 			;;
 		    *)
-			status=3
-			echo "state ($__state) from chkcofig unknown"
+			rc=2
+			echo "state ($state) from chkcofig unknown"
 			;;
 		esac
 	    fi
@@ -209,7 +210,7 @@ _ctl_svc()
 	    status=99
 	    exit
 	fi
-	exit
+	return $rc
     fi
 
     if [ "$action" = activate ]
@@ -257,9 +258,9 @@ _ctl_svc()
 	    fi
 	elif $__use_chkconfig
 	then
-	    __runlevel=`runlevel | cut -d ' ' -f 2`
-	    __state=`chkconfig --list $svc | sed -e "s/.*$__runlevel//" -e 's/ .*//'`
-	    if [ "$__state" == off ]
+	    runlevel=`runlevel | cut -d ' ' -f 2`
+	    state=`chkconfig --list $svc | sed -e "s/.*$runlevel//" -e 's/ .*//'`
+	    if [ "$state" == off ]
 	    then
 		if $show_me
 		then
@@ -304,8 +305,8 @@ _ctl_svc()
 	elif $__use_update_invoke
 	then
 	    invoke-rc.d $svc status 2>/dev/null >$tmp/_ctl_svc
-	    __state=`sed -n -e '/^Checking for/s/.*: //p' <$tmp/_ctl_svc`
-	    if [ "$__state" != running ]
+	    state=`sed -n -e '/^Checking for/s/.*: //p' <$tmp/_ctl_svc`
+	    if [ "$state" != running ]
 	    then
 		if $show_me
 		then
@@ -326,8 +327,8 @@ _ctl_svc()
 	elif $__use_rc_script
 	then
 	    $PCP_RC_DIR/$svc status 2>/dev/null >$tmp/_ctl_svc
-	    __state=`sed -n -e '/^Checking for/s/.*: //p' <$tmp/_ctl_svc`
-	    if [ "$__state" = stopped ]
+	    state=`sed -n -e '/^Checking for/s/.*: //p' <$tmp/_ctl_svc`
+	    if [ "$state" = stopped ]
 		then
 		if $show_me
 		then
@@ -377,8 +378,8 @@ _ctl_svc()
 	elif $__use_update_invoke
 	then
 	    invoke-rc.d $svc status 2>/dev/null >$tmp/_ctl_svc
-	    __state=`sed -n -e '/^Checking for/s/.*: //p' <$tmp/_ctl_svc`
-	    if [ "$__state" = running ]
+	    state=`sed -n -e '/^Checking for/s/.*: //p' <$tmp/_ctl_svc`
+	    if [ "$state" = running ]
 	    then
 		if $show_me
 		then
@@ -399,8 +400,8 @@ _ctl_svc()
 	elif $__use_rc_script
 	then
 	    $PCP_RC_DIR/$svc status 2>/dev/null >$tmp/_ctl_svc
-	    __state=`sed -n -e '/^Checking for/s/.*: //p' <$tmp/_ctl_svc`
-	    if [ "$__state" = running ]
+	    state=`sed -n -e '/^Checking for/s/.*: //p' <$tmp/_ctl_svc`
+	    if [ "$state" = running ]
 	    then
 		if $show_me
 		then
@@ -470,9 +471,9 @@ _ctl_svc()
 	    fi
 	elif $__use_chkconfig
 	then
-	    __runlevel=`runlevel | cut -d ' ' -f 2`
-	    __state=`chkconfig --list $svc | sed -e "s/.*$__runlevel//" -e 's/ .*//'`
-	    if [ "$__state" == on ]
+	    runlevel=`runlevel | cut -d ' ' -f 2`
+	    state=`chkconfig --list $svc | sed -e "s/.*$runlevel//" -e 's/ .*//'`
+	    if [ "$state" == on ]
 	    then
 		if $show_me
 		then
@@ -507,11 +508,11 @@ _ctl_pmda()
     local action="$1"
     local name="$2"
     local pre=0
-    local exit=0
+    local rc=0
     local domain=0
     local pid=0
     local here=`pwd`
-    local __input=''
+    local input=''
 
     if [ -z "$1" -o -z "$2" ]
     then
@@ -565,8 +566,8 @@ _ctl_pmda()
 	    #
 	    if [ "$verbose" -gt 0 ]
 	    then
-		exit=`sed -n <$tmp/tmp -e "/.*\"$name\"] value /s///p"`
-		echo "$pmda PMDA has failed (exit status=$exit)"
+		rc=`sed -n <$tmp/tmp -e "/.*\"$name\"] value /s///p"`
+		echo "$pmda PMDA has failed (exit status=$rc)"
 	    fi
 	    pre=4
 	fi
@@ -594,10 +595,10 @@ _ctl_pmda()
 			    pid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | $PCP_AWK_PROG '/\/pmda'"$name'"' / { print $2 }'`
 			    if [ -n "$pid" -a -n "$domain" ]
 			    then
-				echo "PID=$pid, `pminfo -m | grep "PMID: $domain\\." | wc -l | sed -e 's/  *//g'` metrics"
+				echo "PID $pid, `pminfo -m | grep "PMID: $domain\\." | wc -l | sed -e 's/  *//g'` metrics"
 			    elif [ -n "$pid" ]
 			    then
-				echo "PID=$pid"
+				echo "PID $pid"
 			    elif [ -n "$domain" ]
 			    then
 				echo "`pminfo -m | grep "PMID: $domain\\." | wc -l | sed -e 's/  *//g'` metrics"
@@ -635,18 +636,18 @@ _ctl_pmda()
 				exit
 			    fi
 			fi
-			__input='/dev/null'
+			input='/dev/null'
 			if [ -n "$4" ]
 			then
 			    # Install need's input
 			    #
-			    __input="$4"
+			    input="$4"
 			fi
 			if $show_me
 			then
-			    echo "# ./Install <$__input"
+			    echo "# ./Install <$input"
 			else
-			    if ./Install <$__input >$tmp/out 2>&1
+			    if ./Install <$input >$tmp/out 2>&1
 			    then
 				:
 			    else
