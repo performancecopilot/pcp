@@ -1,0 +1,10 @@
+QA output created by 1505
+
+-- FAULT=0 --
+TMP.pmcheck active              
+
+-- FAULT=1 --
+TMP.pmcheck could be activated   pmcd not running
+
+-- FAULT=2 --
+TMP.pmcheck could be activated   sample pmda not running
