@@ -58,6 +58,7 @@ _filter()
     sed \
 	-e "s@$tmp@TMP@g" \
 	-e "s@`pmdate '%Y/%m/%d'`@TODAY@" \
+	-e '/Warning: invalid file descriptor -1 in syscall/d' \
     # end
 }
 
