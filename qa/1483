@@ -43,6 +43,7 @@ _filter()
     # culling
     #
     sed \
+	-e '/^-- Boot .* --$/d' \
 	-e '/^-- Reboot --$/d' \
 	-e '/^-- No entries --$/d' \
 	-e '/^-- Journal begins at /d' \
@@ -102,6 +103,8 @@ _filter()
 	    # and qa/1210 and qa/1213
 	    # and this strange one but only on bozo and vm03
 	    # ... bozo.localdomain pmlogctl[1013253]: mount: write error
+	    # and fallout from qa/1213 if pmlogger_farm_check goes off
+	    # concurrently
 	    #
 	    sed \
 		-e '/sudo\[[0-9]*]: /d' \
@@ -111,6 +114,7 @@ _filter()
 		-e '/pmlogctl\[[0-9]*]: .* failed to start for host no\.such\.host\.pcp\.io/d' \
 		-e '/bozo\.localdomain pmlogctl\[[0-9]*]: mount: write error/d' \
 		-e '/vm03\.localdomain pmlogctl\[[0-9]*]: mount: write error/d' \
+		-e '/pmlogctl\[[0-9]*]: .* (localhost) defined multiple times,/d' \
 		-e '/rc\[[0-9]*]: .*not permanently enabled\./d' \
 		-e '/rc\[[0-9]*]: .*run the following as root:/d' \
 		-e '/rc\[[0-9]*]: .*systemctl enable pmlogger\.service/d' \
