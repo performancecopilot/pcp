@@ -52,8 +52,8 @@ install: build-me
 	$(INSTALL) -m 755 overhead.pmcheck $(PCP_SHARE_DIR)/lib/pmcheck/pmda-overhead
 else
 build-me:
-install:
-	$(INSTALL) -m 755 no.overhead.pmcheck $(PCP_SHARE_DIR)/lib/pmcheck/pmda-overhead
+install: $(TOPDIR)/src/pmcheck/pmda.na.template
+	$(INSTALL) -m 755 $< $(PCP_SHARE_DIR)/lib/pmcheck/pmda-overhead
 endif
 
 $(CMDTARGET):	$(OBJECTS)
