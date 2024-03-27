@@ -475,6 +475,8 @@ netstat_fields_t netstat_mptcp_fields[] = {
       .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_RMADDRTX] },
     { .field = "RmAddrTxDrop",
       .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_RMADDRTXDROP] },
+    { .field = "MPCurrEstab",
+      .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPCURRESTAB] },
 
     { .field = NULL, .offset = NULL }
 };

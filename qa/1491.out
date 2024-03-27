@@ -3,6 +3,7 @@ basic stuff ...
 -- no args --
 pmcd            OK
 pmda-overhead   OK
+pmda-sample     OK
 pmie            OK
 pmlogger        OK
 pmproxy         OK
@@ -10,6 +11,7 @@ zeroconf        OK
 -- -l --
 pmcd           
 pmda-overhead  
+pmda-sample    
 pmie           
 pmlogger       
 pmproxy        
@@ -17,6 +19,7 @@ zeroconf
 -- -lv --
 pmcd            Performance Metrics Collection Daemon - local source of performance data
 pmda-overhead   PCP overhead PMDA - measure overhead of PCP components
+pmda-sample     PCP sample PMDA
 pmie            PCP Inference Engine - rule-based monitoring
 pmlogger        PCP Archive logger - record performance data for subsequent replay
 pmproxy         PCP Proxy Agent - proxy, web and redis integration
@@ -24,6 +27,7 @@ zeroconf        PCP Zeroconf Package
 -- -s --
 pmcd            OK
 pmda-overhead   OK
+pmda-sample     OK
 pmie            OK
 pmlogger        OK
 pmproxy         OK

@@ -58,6 +58,7 @@ _filter()
     sed \
 	-e "s@$tmp@TMP@g" \
 	-e "s@`pmdate '%Y/%m/%d'`@TODAY@" \
+	-e '/Warning: invalid file descriptor -1 in syscall/d' \
     # end
 }
 
@@ -70,9 +71,9 @@ sum atop-sar/* >>$seq.full
 
 if $do_valgrind
 then
-    _run_valgrind pcp-atopsar -r atop-sar 180
+    _run_valgrind pcp -z atopsar -r atop-sar 180
 else
-    pcp atopsar -r atop-sar 180 2>&1
+    pcp -z atopsar -r atop-sar 180 2>&1
 fi \
 | _filter
 

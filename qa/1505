@@ -1,0 +1,81 @@
+#!/bin/sh
+# PCP QA Test No. 1505
+# pmcheck ... repeated calls into checkproc.sh functions
+# - based on Nathan's Redis PMDA plugin experience
+#
+# Copyright (c) 2024 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+$sudo rm -rf $tmp $tmp.* $seq.full
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+    # end
+}
+
+cat <<'End-of-File' >$tmp.pmcheck
+#!/bin/sh
+. $PCP_DIR/etc/pcp.env || exit 1
+. $PCP_SHARE_DIR/lib/checkproc.sh
+_do_args "$@"
+myverbose=$verbose
+verbose=0
+if $sflag
+then
+    _ctl_svc state pmcd
+    x=$?
+    [ $FAULT = 1 ] && x=1
+    if [ "$x" -ne 0 ]
+    then
+	status=1
+	[ $myverbose -gt 0 ] && echo pmcd not running
+    fi
+    _ctl_pmda state pmda-sample
+    x=$?
+    [ $FAULT = 2 ] && x=1
+    if [ "$x" -ne 0 ]
+    then
+	status=1
+	[ $myverbose -gt 0 ] && echo sample pmda not running
+    fi
+fi
+End-of-File
+chmod 755 $tmp.pmcheck
+
+# real QA test starts here
+export FAULT
+for FAULT in 0 1 2
+do
+    echo
+    echo "-- FAULT=$FAULT --"
+    pmcheck -c $tmp.pmcheck -sv 2>&1 | _filter
+done
+
+# success, all done
+exit

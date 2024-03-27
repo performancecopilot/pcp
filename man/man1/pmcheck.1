@@ -304,7 +304,9 @@ or
 .BR init (1)
 or similar infrastructure layers.
 .B _ctl_svc
-takes 2 arguments, the first is an action (one of
+takes 2 arguments, the first is an
+.I action
+(one of
 .BR state ,
 .BR start ,
 .BR stop ,
@@ -312,7 +314,30 @@ takes 2 arguments, the first is an action (one of
 (enable and start),
 or
 .B deactivate
-(stop and disable).
+(stop and disable),
+and the second is the
+.I name
+of the component;
+for
+.BR systemctl (1)
+managed components,
+.I name
+should be the basename of the service, e.g.
+.B pmcd
+for the
+.B pmcd.service
+.BR systemd (1)
+unit, otherwise
+.I name
+is the name of the
+.BR init (1)
+or similar ``rc'' script.
+.IP \(bu
+.B _ctl_svc
+will return a value (via
+.B $?
+when called from a shell script) that matches the exit codes
+defined above for each action.
 .IP \(bu
 A
 .B _ctl_pmda
@@ -335,6 +360,12 @@ is the name of a file providing the input required for
 the PMDA's
 .I Install
 script (defaults to /dev/null).
+.IP \(bu
+.B _ctl_pmda
+will return a value (via
+.B $?
+when called from a shell script) that matches the exit codes
+defined above for each action.
 .PD
 .PP
 So the following is the simplest possible component script for

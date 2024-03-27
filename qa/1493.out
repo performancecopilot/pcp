@@ -986,7 +986,15 @@ QA output created by 1492 --valgrind
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: pcp-atopsar -r atop-sar 180
+Command: /usr/bin/pcp -z atopsar -r atop-sar 180
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks

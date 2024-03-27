@@ -1324,6 +1324,7 @@ network.mptcp {
     echoaddtxdrop		60:53:209
     rmaddrtx		60:53:210
     rmaddrtxdrop		60:53:211
+    mpcurrestab		60:53:217
 }
 
 network.udp {

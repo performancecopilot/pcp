@@ -1,8 +1,7 @@
 #!/bin/sh
 #
-# ohead PMDA "plugin" for pmcheck ...
-# this version is for distros/platforms/builds where the PMDA is not
-# available (currently anything other than Linux)
+# Generic PMDA "plugin" for pmcheck for distros/platforms/builds where a
+# PMDA is not available 
 #
 
 . $PCP_DIR/etc/pcp.env || exit 1
@@ -10,19 +9,23 @@
 
 _do_args "$@"
 
+# name of the PMDA comes from pmcheck
+#
+iam=`echo "$component" | sed -e 's/pmda-//'`
+
 na="not currently available for `uname -s`"
 
 if $lflag
 then
-    [ "$verbose" -gt 0 ] && echo "PCP overhead PMDA - $na" ]
+    [ "$verbose" -gt 0 ] && echo "PCP $iam PMDA - $na" ]
 elif $sflag
 then
     status=2
-    [ "$verbose" -gt 0 ] && echo "overhead PMDA $na"
+    [ "$verbose" -gt 0 ] && echo "$iam PMDA $na"
 elif $aflag || $dflag
 then
     status=1
-    [ "$verbose" -gt 0 ] && echo "overhead PMDA $na"
+    [ "$verbose" -gt 0 ] && echo "$iam PMDA $na"
 else
     [ $verbose -gt 0 ] && echo "botch sflag=$sflag aflag=$aflag dflag=$dflag show_me=$show_me verbose=$verbose"
     status=99
