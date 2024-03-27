@@ -172,6 +172,9 @@ network.mptcp.rmaddrtx
 network.mptcp.rmaddrtxdrop
     value 53
 
+network.mptcp.mpcurrestab
+    value 54
+
 == Checking network.tcp metrics
 
 network.tcp.rtoalgorithm
