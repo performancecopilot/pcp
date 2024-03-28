@@ -5,7 +5,6 @@
 # Copyright (c) 2023-2024 Red Hat.  All Rights Reserved.
 #
 
-#set -x
 
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -49,8 +48,7 @@ _filter_pcp2json_http()
 	-e "s/\(\"@host\"\): \""$hostname"\"/\1:HOST/g" \
 	-e "s/\(\"value\"\): \""$cpus"\"/\1:NCPU/g" \
 	-e 's/\(\"@timestamp\"\): \(.*\)/\1:DATE TIME/' \
-	-e 's/- - \[[^]]*\]/- -[DATE]/g' \
-	-e 's/.*- -/[IP ADDRESS]/g' \
+	-e '/HTTP/d' \
         -e "s/^\(Host: localhost\):$port/\1:PORT/g" \
         -e 's/^\(Content-Length:\) [1-9][0-9]*/\1 SIZE/g' \
         -e 's/^\(User-Agent: python-requests\).*/\1 VERSION/g' \

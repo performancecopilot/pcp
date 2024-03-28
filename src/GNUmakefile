@@ -60,6 +60,7 @@ OTHER_SUBDIRS += \
 	pcp2graphite \
 	pcp2influxdb \
 	pcp2json \
+	pcp2openmetrics \
 	pcp2spark \
 	pcp2xlsx \
 	pcp2xml \

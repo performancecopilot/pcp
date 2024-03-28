@@ -1363,6 +1363,9 @@ network.softnet {
     cpu_collision	60:57:3
     received_rps	60:57:4
     flow_limit_count	60:57:5
+    total_backlog	60:57:12
+    input_qlen		60:57:14
+    process_qlen	60:57:16
     percpu
 }
 
@@ -1373,6 +1376,9 @@ network.softnet.percpu {
     cpu_collision	60:57:9
     received_rps	60:57:10
     flow_limit_count	60:57:11
+    total_backlog	60:57:13
+    input_qlen		60:57:15
+    process_qlen	60:57:17
 }
 
 network.ip6 {

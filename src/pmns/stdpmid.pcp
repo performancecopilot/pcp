@@ -67,7 +67,7 @@ CPUSET		84
 FREEBSD		85
 RPCBIND		86
 ETW		87
-SYSTEMTAP	88
+### FREE SLOTS ###
 MEMCACHE	89
 VMWARE		90
 IB		91
@@ -139,9 +139,9 @@ DENKI		156
 BPF		157
 OVERHEAD	158
 RESCTRL		159
-FARM	160 	/* Seagate vendor specific Field Accessible Reliability Metrics log */
+FARM		160 	/* Seagate vendor specific Field Accessible Reliability Metrics log */
 UWSGI		161
-### FREE SLOTS 161...240 ###
+### FREE SLOTS ###
 SCHIZO		241
 SLOW_PYTHON	242
 SLOW		243
