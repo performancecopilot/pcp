@@ -23,28 +23,28 @@ refresh_proc_net_softnet(proc_net_softnet_t *all)
     pmInDom	cpus = INDOM(CPU_INDOM);
     percpu_t	*cp;
     softnet_t	*snp;
-    uint64_t	filler;
+    uint64_t	filler, id;
     FILE	*fp;
     static int	logonce;
 
-    /* size > (11*7)+1 bytes, where 7 == strlen("%08llx "), and +1 for '\0' */
+    /* size > (15*7)+1 bytes, where 7 == strlen("%08llx "), and +1 for '\0' */
     static char fmt[128] = { '\0' };
 
     if (fmt[0] == '\0') {
 	/*
 	 * one trip initialization to decide the correct sscanf format
-	 * for a uint64_t data type .. needs to be
-	 * "%08lx %08lx %08lx %08lx %08lx %08lx %08lx %08lx %08lx %08lx %08lx"
+	 * for a uint64_t data type .. needs to be either
+	 * "%08lx %08lx ... %08lx %08lx"
 	 * or
-	 * "%08llx %08llx %08llx %08llx %08llx %08llx %08llx %08llx %08llx %08llx %08llx"
+	 * "%08llx %08llx ... %08llx %08llx"
 	 */
 	fmt[0] = '\0';
 	if (strcmp(FMT_INT64, "lld") == 0) {
-	    for (i = 0; i < 11; i++)
+	    for (i = 0; i < 15; i++)
 		strcat(fmt, "%08llx ");
 	}
 	else {
-	    for (i = 0; i < 11; i++)
+	    for (i = 0; i < 15; i++)
 		strcat(fmt, "%08lx ");
 	}
 	/* chop off last ' ' */
@@ -74,15 +74,23 @@ refresh_proc_net_softnet(proc_net_softnet_t *all)
 	memset(snp, 0, sizeof(*snp));
 	i = sscanf(buf, fmt, &snp->processed, &snp->dropped, &snp->time_squeeze,
 		&filler, &filler, &filler, &filler, &filler,
-		&snp->cpu_collision, &snp->received_rps, &snp->flow_limit_count);
+		&snp->cpu_collision, &snp->received_rps, &snp->flow_limit_count,
+		&snp->total_backlog, &id, &snp->input_qlen, &snp->process_qlen);
+	if (i >= 13 && (int)id != cpu) {
+	    fprintf(stderr, "refresh_proc_net_softnet: warning: inconsistent cpu %d not %d\n", cpu, (int)id);
+	    logonce = 1;
+	}
 
 	/* update aggregate CPU stats as well */
 	all->processed += snp->processed;
 	all->dropped += snp->dropped;
 	all->time_squeeze += snp->time_squeeze;
-	all->cpu_collision += snp->cpu_collision;
+	all->cpu_collision += snp->cpu_collision; /* no longer used in kernel */
 	all->received_rps += snp->received_rps;
 	all->flow_limit_count += snp->flow_limit_count;
+	all->total_backlog += snp->total_backlog;
+	all->input_qlen += snp->input_qlen;
+	all->process_qlen += snp->process_qlen;
 
 	if (i >= 9)
 	    snp->flags |= SN_PROCESSED | SN_DROPPED | SN_TIME_SQUEEZE | SN_CPU_COLLISION;
@@ -90,6 +98,8 @@ refresh_proc_net_softnet(proc_net_softnet_t *all)
 	    snp->flags |= SN_RECEIVED_RPS;
 	if (i >= 11)
 	    snp->flags |= SN_FLOW_LIMIT_COUNT;
+	if (i >= 15)
+	    snp->flags |= SN_BACKLOG;
 
 	if (cpu > 0 && snp->flags != all->flags && logonce <= 1) {
 	    fprintf(stderr, "refresh_proc_net_softnet: warning: inconsistent flags, cpu %d\n", cpu);
