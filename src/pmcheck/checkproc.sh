@@ -191,7 +191,7 @@ _ctl_svc()
 		# pmcd           	0:off	1:off	2:on	3:on	4:on	5:on	6:off
 		# want                                            ^^
 		runlevel=`runlevel | cut -d ' ' -f 2`
-		state=`chkconfig --list $svc | sed -e "s/.*$runlevel//" -e 's/ .*//'`
+		state=`chkconfig --list $svc 2>/dev/null | sed -e "s/.*$runlevel://" -e 's/[ 	].*//'`
 		case "$state"
 		in
 		    on)
@@ -201,7 +201,7 @@ _ctl_svc()
 			;;
 		    *)
 			rc=2
-			echo "state ($state) from chkcofig unknown"
+			echo "state ($state) from chkconfig unknown"
 			;;
 		esac
 	    fi
@@ -259,8 +259,8 @@ _ctl_svc()
 	elif $__use_chkconfig
 	then
 	    runlevel=`runlevel | cut -d ' ' -f 2`
-	    state=`chkconfig --list $svc | sed -e "s/.*$runlevel//" -e 's/ .*//'`
-	    if [ "$state" == off ]
+	    state=`chkconfig --list $svc 2>/dev/null | sed -e "s/.*$runlevel://" -e 's/[	].*//'`
+	    if [ "$state" = off ]
 	    then
 		if $show_me
 		then
@@ -472,8 +472,8 @@ _ctl_svc()
 	elif $__use_chkconfig
 	then
 	    runlevel=`runlevel | cut -d ' ' -f 2`
-	    state=`chkconfig --list $svc | sed -e "s/.*$runlevel//" -e 's/ .*//'`
-	    if [ "$state" == on ]
+	    state=`chkconfig --list $svc 2>&1 | sed -e "s/.*$runlevel://" -e 's/[ 	].*//'`
+	    if [ "$state" = on ]
 	    then
 		if $show_me
 		then

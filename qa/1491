@@ -184,6 +184,14 @@ else
     echo "$seq: pmcd stopped"
 fi
 pmcheck -s pmcd
+echo '-- and -d again with -v --'
+$sudo pmcheck -v -d pmcd 2>&1 \
+| sed \
+    -e '/^  *already /d' \
+    -e 's/ stopped via .*/ STOPPED via .../' \
+    -e 's/ disabled via .*/ STOPPED via .../' \
+# end
+
 echo '-- -a --'
 $sudo pmcheck -a pmcd
 _wait_for_pmcd

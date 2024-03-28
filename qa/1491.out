@@ -171,6 +171,8 @@ pmlogger        active
 pmcd            success             
 1491: pmcd stopped
 pmcd            could be activated  
+-- and -d again with -v --
+pmcd            success              already STOPPED via ...
 -- -a --
 pmcd            success             
 1491: pmcd started
