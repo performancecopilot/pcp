@@ -357,12 +357,12 @@ _filter_optional_pmdas()
 	-e '/pmdastatsd/d' \
 	-e '/pmdasummary/d' \
 	-e '/pmdasystemd/d' \
-	-e '/pmdasystemtap/d' \
 	-e '/pmdasyb10/d' \
 	-e '/pmdasybping/d' \
 	-e '/pmdatrace/d' \
 	-e '/pmdatrivial/d' \
 	-e '/pmdatxmon/d' \
+	-e '/pmdauwsgi/d' \
 	-e '/pmdavmware/d' \
 	-e '/pmdawatch/d' \
 	-e '/pmdaweblog/d' \
@@ -424,6 +424,7 @@ _filter_optional_pmda_instances()
         -e '/inst \[152 or "netcheck"]/d' \
 	-e '/inst \[154 or "sockets"]/d' \
 	-e '/inst \[157 or "bpf"]/d' \
+	-e '/inst \[161 or "uwsgi"]/d' \
 	-e '/inst \[250 or "trivial"]/d' \
 
     # end
@@ -521,13 +522,12 @@ _filter_top_pmns()
 	-e '/^    summary /d' \
 	-e '/^    sybase /d' \
 	-e '/^    sybping /d' \
-	-e '/^    sysother /d' \
 	-e '/^    systemd /d' \
-	-e '/^    systemtap /d' \
 	-e '/^    trace /d' \
 	-e '/^    trivial /d' \
 	-e '/^    tty /d' \
 	-e '/^    txmon /d' \
+	-e '/^    uwsgi/d' \
 	-e '/^    vdo /d' \
 	-e '/^    vmware /d' \
 	-e '/^    web /d' \
