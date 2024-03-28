@@ -71,6 +71,29 @@ sum atop-sar/* >>$seq.full
 
 if $do_valgrind
 then
+    # plug leak in bash!
+    cat <<'End-of-File' >$tmp.suppress
+# vm14 CentOS6.10
+# vm28 RHEL Server 6.10
+{
+   bash botch
+   Memcheck:Leak
+   fun:malloc
+   fun:xmalloc
+   obj:/bin/bash
+}
+# vm29 RHEL Server 7.9
+# vm39 RHEL 8.9
+{
+   bash botch
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:xmalloc
+   obj:/usr/bin/bash
+}
+End-of-File
+    __extra="--suppressions=$tmp.suppress"
     _run_valgrind pcp -z atopsar -r atop-sar 180
 else
     pcp -z atopsar -r atop-sar 180 2>&1
