@@ -41,7 +41,7 @@ End-of-File
 
 _do_args()
 {
-    local args=`pmgetopt --progname=$prog --config=$tmp/_usage -- "$@"`
+    local args="`pmgetopt --progname=$prog --config=$tmp/_usage -- "$@"`"
     if [ $? -ne 0 ]
     then
 	pmgetopt --progname=$prog --config=$tmp/_usage --usage
