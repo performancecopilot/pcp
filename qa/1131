@@ -43,11 +43,11 @@ _filter_pcp2openmetrics()
     tee -a $here/$seq.full \
     | col -b \
     | sed \
-    -e '/domainname=/ s/'$domainid'/DOMAINID/' \
-    -e '/machineid=/ s/'$machineid'/MACHINEID/' \
-    -e '/groupid=/ s/'$UID'/GROUPID/' \
-    -e '/userid=/ s/'$UID'/USERID/' \
-    -e '/hostname=/ s/'$hostname'/HOST/' \
+    -e '/domainname=/s/'$domainid'/DOMAINID/' \
+    -e '/machineid=/s/'$machineid'/MACHINEID/' \
+    -e '/groupid=/s/groupid="*[0-9][0-9]*"*/groupid="GROUPID"/' \
+    -e '/userid=/s/userid="*[0-9][0-9]*"*/userid="USERID"/' \
+    -e '/hostname=/s/'$hostname'/HOST/' \
     -e 's/\(.*}\).*/\1 NCPU/' \
     | LC_COLLATE=POSIX sort
 }

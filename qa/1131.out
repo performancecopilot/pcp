@@ -2269,7 +2269,7 @@ QA output created by 1131
 ---
 
 
-# HELP hinv_ncpu number of CPUs in the system
+# HELP hinv_ncpu b'number of CPUs in the system'
 # TYPE hinv_ncpu gauge
 hinv_ncpu{domainname="DOMAINID",groupid="GROUPID",hostname="HOST",machineid="MACHINEID",userid="USERID",agent="linux"} NCPU
 ---
