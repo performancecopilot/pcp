@@ -25,7 +25,7 @@ fi
 . ./common.filter
 . ./common.check
 
-$sudo rm -rf $tmp $tmp.* $seq.full
+$sudo rm -rf $tmp $tmp.* $seq.full /tmp/pmie-hb
 
 oldhostname=`hostname`
 newhostname="boofa-$seq"
@@ -64,6 +64,7 @@ _cleanup()
 	$sudo rm -rf "$PCP_LOG_DIR/pmie/$dir"
     done
     $sudo rm -rf $tmp $tmp.*
+    [ -f /tmp/pmie-hb ] && ( echo "Final heartbeat ..."; cat /tmp/pmie-hb ) >>$seq.full
 }
 
 # wait until the primary pmlogger's pid is != $1
@@ -181,19 +182,19 @@ then
 fi
 echo "config=$config" >>$seq.full
 _save_config $config
+
+# need to "up" the pace for pmie so that rule firing is more
+# frequent than the default config permits, this enables pmie
+# to see the hostname changes with acceptable (to QA) delays
+#
 echo "// Installed by PCP QA test $seq on `date`" >$tmp.config
 cat <<'End-of-File' >>$tmp.config
 //
-// 1 cpu.load_average
-delta = 10 sec;
-cpu.load_average = 
-some_host (
-    // threshold scales with the number of CPUs (works better for
-    // large systems) and there is an absolute lower bound,
-    // especially for small systems
-    kernel.all.load  #'1 minute' > hinv.ncpu  * 3
-    && kernel.all.load  #'1 minute' > 4
-) -> print 10 min "High 1-minute load average" " %vload@%h";
+// 2-sec heartbeat
+delta = 2 sec;
+qa.heartbeat = hinv.ncpu > 0
+-> shell "[ -f /tmp/pmie-hb ] || echo 0 >/tmp/pmie-hb; exit 0" &
+   shell "echo \$(expr `cat /tmp/pmie-hb` + 1) >/tmp/pmie-hb";
 End-of-File
 $sudo cp $tmp.config $config
 _service pmie restart >>$seq.full 2>&1
