@@ -92,6 +92,7 @@ _filter()
 		-e '/rc\[[0-9]*]: Terminated$/d' \
 		-e '/pmie_check failed - see .*\/pmie_check.log/d' \
 		-e '/pmie_daily failed - see .*\/pmie_daily.log/d' \
+		-e '/pmiectl\[[0-9]*]: .* (localhost) defined multiple times,/d' \
 		-e '/vm03\.localdomain pmiectl\[[0-9]*]: mount: write error/d' \
 	    # end
 	    ;;
