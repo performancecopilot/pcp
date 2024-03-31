@@ -145,6 +145,9 @@ then
     # or
     # NAME=FreeBSD
     # VERSION="13.2-RELEASE-p5"
+    # or
+    # NAME="openSUSE Leap"
+    # VERSION="15.6 Beta"
     #
     name=`sed </etc/os-release -n -e '/^NAME *= */{
 s///
@@ -155,6 +158,9 @@ p
     if [ "$name" = FreeBSD ]
     then
 	sed </etc/os-release -e '/^VERSION *=/s/-RELEASE-p[0-9][0-9]*//'
+    elif [ "$name" = 'openSUSE Leap' ]
+    then
+	sed </etc/os-release -e '/^VERSION *=/s/ Beta//'
     else
 	cat /etc/os-release
     fi >$tmp.out
