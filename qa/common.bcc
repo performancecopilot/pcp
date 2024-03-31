@@ -319,6 +319,7 @@ _pmdabcc_try_compile()
 	# short-circuit ... this forces all the pmda.bcc tests to
 	# be run and skips any compilation checks
 	#
+	echo "PCPQA_RUN_PMADBCC=$PCPQA_RUN_PMDABCC, skip PMDA try compile+load" >>$here/$seq.full
 	return
     fi
 
@@ -334,20 +335,27 @@ _pmdabcc_try_compile()
 	    trap "rm -f $tmp.*" 0
 	    _notrun "Failed to compile bcc module, see $seq.full for details"
 	    # NOTREACHED
-	fi
-	if grep 'Failed to load BPF program' bcc.log >/dev/null
+	elif grep 'Failed to load BPF program' bcc.log >/dev/null
 	then
 	    cat bcc.log >>$here/$seq.full
 	    trap "rm -f $tmp.*" 0
 	    _notrun "Failed to load bcc program, see $seq.full for details"
 	    # NOTREACHED
-	fi
-	if grep 'Failed to attach BPF program' bcc.log >/dev/null
+	elif grep 'Failed to attach BPF program' bcc.log >/dev/null
 	then
 	    cat bcc.log >>$here/$seq.full
 	    trap "rm -f $tmp.*" 0
 	    _notrun "Failed to attach bcc program, see $seq.full for details"
 	    # NOTREACHED
+	elif grep '^LLVM ERROR:' bcc.log >/dev/null
+	then
+	    cat bcc.log >>$here/$seq.full
+	    trap "rm -f $tmp.*" 0
+	    _notrun "LLVM error, see $seq.full for details"
+	    # NOTREACHED
+	else
+	    echo "No compile+load errors detected, but that does not guarantee all is well ..." >>$here/$seq.full
+	    cat bcc.log >>$here/$seq.full
 	fi
 	$sudo rm -f bcc.log
     fi
