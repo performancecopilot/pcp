@@ -543,7 +543,7 @@ _ctl_pmda()
 	    echo "need to install the PCP package for the $name PMDA"
 	fi
 	pre=2
-    elif [ "$action" = activate -a -n "$3" -a ! -x "$PCP_VAR_DIR/pmdas/$name/$3" ]
+    elif [ "$action" = activate -a -n "$3" -a ! -f "$PCP_VAR_DIR/pmdas/$name/$3" ]
     then
 	[ "$verbose" -gt 0 ] && echo "need to install the package for the $name PMDA"
 	pre=2
