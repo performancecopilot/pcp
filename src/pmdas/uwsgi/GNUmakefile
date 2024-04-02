@@ -36,7 +36,7 @@ default_pcp default:	build-me
 
 include $(BUILDRULES)
 
-ifeq "$(PMDA_UWSGI)" "true"
+ifeq "$(HAVE_PYTHON)" "true"
 build-me:	check_domain
 install_pcp install: default
 	$(INSTALL) -m 755 -d $(PMDAADMDIR)
