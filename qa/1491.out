@@ -3,6 +3,7 @@ basic stuff ...
 -- no args --
 pmcd            OK
 pmda-overhead   OK
+pmda-postgresql OK
 pmda-redis      OK
 pmda-sample     OK
 pmie            OK
@@ -12,6 +13,7 @@ zeroconf        OK
 -- -l --
 pmcd           
 pmda-overhead  
+pmda-postgresql
 pmda-redis     
 pmda-sample    
 pmie           
@@ -21,6 +23,7 @@ zeroconf
 -- -lv --
 pmcd            Performance Metrics Collection Daemon - local source of performance data
 pmda-overhead   overhead PMDA - ...
+pmda-postgresql PostgreSQL PMDA - metrics from PostgreSQL
 pmda-redis      Redis PMDA - metrics from redis-server(1)
 pmda-sample     sample PMDA
 pmie            Inference Engine - rule-based monitoring
@@ -30,6 +33,7 @@ zeroconf        Zeroconf Package ...
 -- -s --
 pmcd            OK
 pmda-overhead   OK
+pmda-postgresql OK
 pmda-redis      OK
 pmda-sample     OK
 pmie            OK
