@@ -37,7 +37,7 @@ then
     fi
 elif $lflag
 then
-    [ "$verbose" -gt 0 ] && echo "PCP Archive logger - record performance data for subsequent replay"
+    [ "$verbose" -gt 0 ] && echo "Archive logger - record performance data for subsequent replay"
 elif $aflag
 then
     _ctl_svc activate pmlogger || status=1

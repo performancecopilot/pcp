@@ -18,12 +18,12 @@ pmproxy
 zeroconf       
 -- -lv --
 pmcd            Performance Metrics Collection Daemon - local source of performance data
-pmda-overhead   PCP overhead PMDA - ...
-pmda-sample     PCP sample PMDA
-pmie            PCP Inference Engine - rule-based monitoring
-pmlogger        PCP Archive logger - record performance data for subsequent replay
-pmproxy         PCP Proxy Agent - proxy, web and redis integration
-zeroconf        PCP Zeroconf Package ...
+pmda-overhead   overhead PMDA - ...
+pmda-sample     sample PMDA
+pmie            Inference Engine - rule-based monitoring
+pmlogger        Archive logger - record performance data for subsequent replay
+pmproxy         Proxy Daemon - proxy, web and redis integration
+zeroconf        Zeroconf Package ...
 -- -s --
 pmcd            OK
 pmda-overhead   OK

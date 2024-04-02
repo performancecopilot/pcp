@@ -37,7 +37,7 @@ then
     fi
 elif $lflag
 then
-    [ "$verbose" -gt 0 ] && echo "PCP Proxy Agent - proxy, web and redis integration"
+    [ "$verbose" -gt 0 ] && echo "Proxy Daemon - proxy, web and redis integration"
 elif $aflag
 then
     _ctl_svc activate pmproxy || status=1
