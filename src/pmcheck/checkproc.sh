@@ -260,7 +260,7 @@ _ctl_svc()
 	then
 	    runlevel=`runlevel | cut -d ' ' -f 2`
 	    state=`chkconfig --list $svc 2>/dev/null | sed -e "s/.*$runlevel://" -e 's/[	].*//'`
-	    if [ "$state" = off ]
+	    if [ "$state" = off -o -z "$state" ]
 	    then
 		if $show_me
 		then
