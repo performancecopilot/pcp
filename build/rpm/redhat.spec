@@ -570,7 +570,7 @@ Requires: pcp-pmda-bpftrace
 %if !%{disable_python2} || !%{disable_python3}
 Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-mic
 Requires: pcp-pmda-libvirt pcp-pmda-lio pcp-pmda-openmetrics pcp-pmda-haproxy
-Requires: pcp-pmda-lmsensors pcp-pmda-netcheck pcp-pmda-rabbitmq
+Requires: pcp-pmda-lmsensors pcp-pmda-netcheck pcp-pmda-rabbitmq pcp-pmda-uwsgi
 Requires: pcp-pmda-openvswitch
 %endif
 %if !%{disable_mongodb}
@@ -1792,6 +1792,24 @@ collecting metrics about RabbitMQ message queues.
 #end pcp-pmda-rabbitmq
 
 #
+# pcp-pmda-uwsgi
+#
+%package pmda-uwsgi
+License: GPL-2.0-or-later
+Summary: Performance Co-Pilot (PCP) metrics from uWSGI servers
+URL: https://pcp.io
+Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
+%if !%{disable_python3}
+Requires: python3-pcp
+%else
+Requires: %{__python2}-pcp
+%endif
+%description pmda-uwsgi
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting metrics from uWSGI servers.
+#end pcp-pmda-uwsgi
+
+#
 # pcp-pmda-lio
 #
 %package pmda-lio
@@ -2650,6 +2668,7 @@ basic_manifest | keep '(etc/pcp|pmdas)/summary(/|$)' >pcp-pmda-summary-files
 basic_manifest | keep '(etc/pcp|pmdas)/systemd(/|$)' >pcp-pmda-systemd-files
 basic_manifest | keep '(etc/pcp|pmdas)/trace(/|$)' >pcp-pmda-trace-files
 basic_manifest | keep '(etc/pcp|pmdas)/unbound(/|$)' >pcp-pmda-unbound-files
+basic_manifest | keep '(etc/pcp|pmdas)/uwsgi(/|$)' >pcp-pmda-uwsgi-files
 basic_manifest | keep '(etc/pcp|pmdas)/weblog(/|$)' >pcp-pmda-weblog-files
 basic_manifest | keep '(etc/pcp|pmdas)/zimbra(/|$)' >pcp-pmda-zimbra-files
 basic_manifest | keep '(etc/pcp|pmdas)/zswap(/|$)' >pcp-pmda-zswap-files
@@ -2675,7 +2694,7 @@ for pmda_package in \
     rabbitmq redis resctrl roomtemp rpm rsyslog \
     samba sendmail shping slurm smart snmp \
     sockets statsd summary systemd \
-    unbound \
+    unbound uwsgi \
     trace \
     weblog \
     zimbra zswap ; \
@@ -2903,6 +2922,9 @@ exit 0
 
 %preun pmda-rabbitmq
 %{pmda_remove "$1" "rabbitmq"}
+
+%preun pmda-uwsgi
+%{pmda_remove "$1" "uwsgi"}
 
 %if !%{disable_snmp}
 %preun pmda-snmp
@@ -3378,6 +3400,8 @@ fi
 %files pmda-openvswitch -f pcp-pmda-openvswitch-files.rpm
 
 %files pmda-rabbitmq -f pcp-pmda-rabbitmq-files.rpm
+
+%files pmda-uwsgi -f pcp-pmda-uwsgi-files.rpm
 
 %files export-pcp2graphite -f pcp-export-pcp2graphite-files.rpm
 
