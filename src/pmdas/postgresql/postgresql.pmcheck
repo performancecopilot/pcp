@@ -1,0 +1,41 @@
+#!/bin/sh
+#
+# Postgresql PMDA "plugin" for pmcheck
+#
+
+. $PCP_DIR/etc/pcp.env || exit 1
+. $PCP_SHARE_DIR/lib/checkproc.sh
+
+_do_args "$@"
+
+_check()
+{
+    test -n "$@" && echo "$@" >> $tmp/out
+    [ "$verbose" -gt 0 -a -s $tmp/out ] && cat $tmp/out
+    [ $status -eq 0 ] || exit
+}
+
+if $lflag
+then
+    [ "$verbose" -gt 0 ] && echo "Postgresql PMDA - metrics from postgresql-server(1)"
+elif $sflag
+then
+    status=0  # assume active until proven not to be
+    _ctl_svc state postgresql || status=$?
+    _check "postgresql service status: $status"
+    _ctl_pmda state postgresql || status=$?
+    PCP_PYTHON_PROBE=1 $PCP_PYTHON_PROG \
+    $PCP_PMDAS_DIR/postgresql/pmdapostgresql.python || status=$?
+    _check "postgresql PMDA status: $status"
+elif $aflag
+then
+    _ctl_pmda activate postgresql pmdapostgresql || status=1
+elif $dflag
+then
+    _ctl_pmda deactivate postgresql || status=1
+else
+    [ $verbose -gt 0 ] && echo "botch sflag=$sflag aflag=$aflag dflag=$dflag show_me=$show_me verbose=$verbose"
+    status=99
+fi
+
+exit

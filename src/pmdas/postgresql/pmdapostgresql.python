@@ -1087,6 +1087,10 @@ class POSTGRESQLPMDA(PMDA):
         # success
         return self.cur
 
+    def domain_probe(self):
+        """ return True if postgresql is available and monitorable """
+        return self.conn is not None
+
     def debug(self, msg):
         """ print diagnostic message if verbose logging is enabled """
         if self.verbose:
