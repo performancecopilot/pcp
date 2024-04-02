@@ -51,14 +51,28 @@ _filter_states()
     sed \
 	-e 's/  *$//' \
 	-e 's/ active$/ OK/' \
-	-e '/^pmproxy /s/inactive/OK/' \
-	-e '/^pmproxy /s/could be activated/OK/' \
-	-e '/^pmie /s/inactive/OK/' \
-	-e '/^pmie /s/could be activated/OK/' \
-	-e '/^pmda-overhead /s/inactive/OK/' \
-	-e '/^pmda-overhead /s/could be activated/OK/' \
-	-e '/^zeroconf /s/inactive/OK/' \
-	-e '/^zeroconf /s/could be activated/OK/' \
+	-e '/^pmproxy /{
+s/inactive/OK/
+s/could be activated/OK/
+}' \
+	-e '/^pmie /{
+s/inactive/OK/
+s/could be activated/OK/
+}' \
+	-e '/^pmda-overhead /{
+s/inactive/OK/
+s/could be activated/OK/
+s/cannot be activated/OK/
+s/measure overhead of PCP components/.../
+s/not currently available for .*/.../
+}' \
+	-e '/^zeroconf /{
+s/inactive/OK/
+s/could be activated/OK/
+s/cannot be activated/OK/
+s/Package$/& .../
+s/Package - not currently available for .*/Package .../
+}' \
     #end
 }
 
@@ -72,7 +86,7 @@ pmcheck 2>&1 | _filter_states
 echo '-- -l --'
 pmcheck -l
 echo '-- -lv --'
-pmcheck -lv
+pmcheck -lv | _filter_states
 echo '-- -s --'
 pmcheck -s 2>&1 | _filter_states
 

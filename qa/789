@@ -4,6 +4,21 @@
 #
 # Copyright (c) 2019 Ken McDonell.  All Rights Reserved.
 #
+# Note: this test stops working every 5 years when the self-signed
+# certificates that Zimbra uses expire.
+#
+# To fix this and renew Zimbra self-signed certs for 5 years
+# modified from ..
+# https://forums.zimbra.org/viewtopic.php?t=70594
+#
+# sudo -u zimbra /opt/zimbra/bin/zmcertmgr createca -new
+# sudo -u zimbra /opt/zimbra/bin/zmcertmgr deployca
+# sudo -u zimbra /opt/zimbra/bin/zmcertmgr createcrt -new -days 1825
+# sudo -u zimbra /opt/zimbra/bin/zmcertmgr deploycrt self
+# sudo -u zimbra /opt/zimbra/bin/zmcertmgr viewdeployedcrt
+# sudo -u zimbra /opt/zimbra/bin/zmcontrol restart
+# sudo systemctl restart zimbra
+#
 
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -118,7 +133,7 @@ pminfo zimbra >/dev/null 2>&1 && install_on_cleanup=true
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # Zimbra is such a CPU-hog, that we really would prefer to NOT have
-# it running for a PCP build and QA run ... so start it her if needs
+# it running for a PCP build and QA run ... so start it here if needs
 # be, but remember state so we can put it back
 #
 if [ "$PCPQA_SYSTEMD" = yes ]
