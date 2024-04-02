@@ -14,7 +14,7 @@ iam=`echo "$component" | sed -e 's/pmda-//'`
 
 if $lflag
 then
-    [ "$verbose" -gt 0 ] && echo "PCP $iam PMDA"
+    [ "$verbose" -gt 0 ] && echo "$iam PMDA"
 elif $sflag
 then
     _ctl_pmda state $iam

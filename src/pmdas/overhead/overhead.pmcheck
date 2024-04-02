@@ -10,7 +10,7 @@ _do_args "$@"
 
 if $lflag
 then
-    [ "$verbose" -gt 0 ] && echo "PCP overhead PMDA - measure overhead of PCP components"
+    [ "$verbose" -gt 0 ] && echo "overhead PMDA - measure overhead of PCP components"
 elif $sflag
 then
     _ctl_pmda state overhead

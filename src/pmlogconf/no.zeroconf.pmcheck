@@ -14,7 +14,7 @@ na="not currently available for `uname -s`"
 
 if $lflag
 then
-    [ "$verbose" -gt 0 ] && echo "PCP Zeroconf Package - $na"
+    [ "$verbose" -gt 0 ] && echo "Zeroconf Package - $na"
 elif $sflag
 then
     status=2

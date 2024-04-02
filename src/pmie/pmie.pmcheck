@@ -37,7 +37,7 @@ then
     fi
 elif $lflag
 then
-    [ "$verbose" -gt 0 ] && echo "PCP Inference Engine - rule-based monitoring"
+    [ "$verbose" -gt 0 ] && echo "Inference Engine - rule-based monitoring"
 elif $aflag
 then
     _ctl_svc activate pmie || status=1

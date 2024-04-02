@@ -17,7 +17,7 @@ then
     [ "$verbose" -gt 0 ] && echo "need to install the pcp-zeroconf package"
 elif $lflag
 then
-    [ "$verbose" -gt 0 ] && echo "PCP Zeroconf Package"
+    [ "$verbose" -gt 0 ] && echo "Zeroconf Package"
 elif $aflag
 then
     if [ ! -d "$PCP_VAR_DIR/config/pmlogconf/zeroconf" ]
