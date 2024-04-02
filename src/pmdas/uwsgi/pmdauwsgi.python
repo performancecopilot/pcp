@@ -30,6 +30,7 @@ from cpmapi import (
     PM_TYPE_DOUBLE,
     PM_TYPE_U64,
     PM_SEM_COUNTER,
+    PM_ERR_AGAIN,
     PM_ERR_INST,
     PM_ERR_PMID
 )
@@ -262,7 +263,10 @@ class UwsgiPMDA(PMDA):
 
         item_lookup = [summary_attr[0] for summary_attr in UWSGISUMMARY._fields_]
         if 0 <= item <= (len(UWSGISUMMARY._fields_) - 1):
-            return [getattr(self.summary, item_lookup[item]), 1]
+            try:
+                return [getattr(self.summary, item_lookup[item]), 1]
+            except AttributeError:  # most likely GET failed
+                return [PM_ERR_AGAIN, 0]
         else:
             return [PM_ERR_INST, 0]
 
