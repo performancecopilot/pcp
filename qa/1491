@@ -66,6 +66,11 @@ s/cannot be activated/OK/
 s/measure overhead of PCP components/.../
 s/not currently available for .*/.../
 }' \
+	-e '/^pmda-redis /{
+s/inactive/OK/
+s/could be activated/OK/
+s/cannot be activated/OK/
+}' \
 	-e '/^zeroconf /{
 s/inactive/OK/
 s/could be activated/OK/
