@@ -154,6 +154,77 @@ filter(const_dirent *dp)
     return 1;
 }
 
+/*
+ * sort order for archive components
+ * .index -2
+ * .meta  -1
+ * .N     N  (data volume)
+ * other  -3 (bad?)
+ */
+static int
+ordinal(const char *name)
+{
+    const char		*p = strrchr(name, '.');
+    const char		*q;
+    const char		*s;
+    static const char	*suff = NULL;
+
+    if (p == NULL)
+	return -3;
+
+    if (suff == NULL) {
+	suff = pmGetAPIConfig("compress_suffixes");
+	if (suff == NULL) {
+	    fprintf(stderr, "%s: pmGetAPIConfig() failed for \"compress_suffixes\"\n", pmGetProgname());
+	    exit(EXIT_FAILURE);
+	}
+    }
+
+    /* strip any compression suffixes */
+    for (q = p, s = suff; *s; ) {
+	if (*q == *s) {
+	    q++;
+	    s++;
+	    if (*s == '\0' || *s == ' ') {
+		/* compression suffix match, back up to previous '.' */
+		for (p--; p >= name && *p != '.'; )
+		    p--;
+		if (p < name)
+		    return -3;
+		break;
+	    }
+	    continue;
+	}
+	q = p;		/* reset at last part of name */
+	while (*s != '\0' && *s != ' ')
+	    s++;
+	if (*s == '\0')
+	    break;
+	s++;
+    }
+
+    /* now down to the PCP archive suffix p -> .{index,meta,N}[...] */
+    p++;
+    if (strncmp(p, "index", 5) == 0)
+	return -2;
+    if (strncmp(p, "meta", 4) == 0)
+	return -1;
+    return atoi(p);
+}
+
+/*
+ * sorts archive components into a deterministic and
+ * human-sensible order
+ */
+static int
+compar(const void *a, const void *b)
+{
+    struct dirent	*pa = *((struct dirent **)a);
+    struct dirent	*pb = *((struct dirent **)b);
+
+    return ordinal(pa->d_name) > ordinal(pb->d_name);
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -240,6 +311,7 @@ main(int argc, char *argv[])
 	fprintf(stderr, "%s: no PCP archive files match \"%s\"\n", pmGetProgname(), archpathname);
 	exit(EXIT_FAILURE);
     }
+    qsort(namelist, nfile, sizeof(namelist[0]), compar);
 
     /*
      * Pass 0 for data, metadata and index files ... check physical

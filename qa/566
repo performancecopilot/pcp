@@ -34,23 +34,8 @@ _filter()
     cat $tmp.out >>$here/$seq.full
     echo "stderr" >>$here/$seq.full
     cat $tmp.err >>$here/$seq.full
-    # need sort because order files are processed in not deterministic
-    #
-    sed -e "s;$tmp;TMP;g" $tmp.out | LC_COLLATE=POSIX sort
-    sed -e "s;$tmp;TMP;g" $tmp.err | LC_COLLATE=POSIX sort
-}
-
-# this sort of error is not deterministic unfortunately because it is
-# sensitive to the directory order of the files that make up the
-# archive
-#
-# badarchives/badlabel-2.index: mismatched label version: 0 not 2 as expected from badarchives/badlabel-2.meta
-#
-_filter_pass0()
-{
-    sed \
-	-e '/^badarchives\/badlabel-2.* mismatched label/d' \
-    # end
+    sed -e "s;$tmp;TMP;g" $tmp.out
+    sed -e "s;$tmp;TMP;g" $tmp.err
 }
 
 # real QA test starts here
@@ -121,7 +106,7 @@ do
 	*)
  		( echo; echo "$arch:" ) | tee -a $here/$seq.full
 		pmlogcheck -z -v $arch >$tmp.out 2>$tmp.err
-		_filter | _filter_pass0
+		_filter
 		;;
     esac
 done
