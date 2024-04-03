@@ -36,11 +36,18 @@ pmdauwsgi_install()
     echo
     echo "=== uwsgi agent installation ==="
     $sudo ./Install </dev/null >$tmp.out 2>&1
-    # Check metrics have appeared ... X metrics and Y values
+    # Check metrics have appeared ... X metrics and Y values (or)
+    # Check metrics have appeared ... N warnings, X metrics and 0 values
     _filter_pmda_install <$tmp.out \
     | $PCP_AWK_PROG '
-    /Check uwsgi metrics have appeared/  { if ($7 == 15) $7 = "X"
-                                           if ($10 >= 0 || $10 == 0) $10 = "Y"
+    /Check uwsgi metrics have appeared/  { if ($NF > 10) {
+                                             if ($8 == "warnings,") $7 = $8 = ""
+                                             if ($9 >= 9) $9 = "X"
+                                             if ($12 == 0) $12 = "Y"
+                                           } else {
+                                             if ($7 >= 15) $7 = "X"
+                                             if ($10 >= 0) $10 = "Y"
+                                           }
                                          }
                                          { print }'
 }
