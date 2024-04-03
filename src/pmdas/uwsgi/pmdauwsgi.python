@@ -178,7 +178,7 @@ class UwsgiPMDA(PMDA):
     def refresh_all(self):
         try:
             stats = requests.get(self.url, timeout=self.timeout).json()
-            self.log(f"stats: {stats}")
+            #self.log("refresh_all stats:", str(stats))
         except Exception:
             return
 
