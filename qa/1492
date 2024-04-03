@@ -53,11 +53,13 @@ _cleanup()
 status=0	# success is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
+# filter the <date> line as it seems to be timezone and/or DST
+# sensitive
 _filter()
 {
     sed \
 	-e "s@$tmp@TMP@g" \
-	-e "s@`pmdate '%Y/%m/%d'`@TODAY@" \
+	-e "s@^\(  *\)20[0-9][0-9]/[0-9][0-9]/[0-9][0-9]@\1<date>@" \
 	-e '/Warning: invalid file descriptor -1 in syscall/d' \
 	-e '/Command: /s@/usr/bin/@/bin/@' \
     # end
