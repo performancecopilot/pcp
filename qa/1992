@@ -49,7 +49,7 @@ pmdauwsgi_install()
                                              if ($10 >= 0) $10 = "Y"
                                            }
                                          }
-                                         { print }'
+                                         { print }' | tr -s ' '
 }
 
 _prepare_pmda uwsgi
