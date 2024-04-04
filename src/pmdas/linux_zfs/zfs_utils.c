@@ -28,7 +28,8 @@ zfs_stats_file_check(char *fname, size_t fnamelen, const char *sname)
     struct stat buffer;
     pmsprintf(fname, fnamelen, "%s%c%s", zfs_path, pmPathSeparator(), sname);
     if (stat(fname, &buffer) != 0) {
-        pmNotifyErr(LOG_WARNING, "File does not exist: %s", fname);
+        if (pmDebugOptions.appl0)
+            pmNotifyErr(LOG_WARNING, "File does not exist: %s", fname);
         return 1;
     }
     return 0;
