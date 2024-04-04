@@ -1,0 +1,46 @@
+#!/bin/sh
+# PCP QA Test No. 1506
+# derived metric issue with rate() and counters going
+# backwards ... see
+#	https://github.com/performancecopilot/pcp/issues/1921
+#
+# Copyright (c) 2024 Ken McDonell.  All Rights Reserved.
+#
+# This test uses the archives/buggy_archive that was attached
+# to the github issue, and this archive is:
+# Copyright (c) 2024 Oracle.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+$sudo rm -rf $tmp $tmp.* $seq.full
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+unset PCP_DERIVED_CONFIG
+
+pmval -z -t 5 -f 4 -a archives/buggy_archive disk.dev.util 2>&1
+
+# success, all done
+exit
