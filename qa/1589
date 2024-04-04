@@ -15,6 +15,8 @@ $python -c "from pcp import pmapi" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python pcp pmapi module not installed"
 $python -c "from collections import OrderedDict" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python collections OrderedDict module not installed"
+$python -c "from http.server import BaseHTTPRequestHandler, HTTPServer" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python import from http.server failed"
 
 which pcp2json >/dev/null 2>&1 || _notrun "pcp2json not installed"
 which nc >/dev/null 2>&1 || _notrun "nc binary not installed"
