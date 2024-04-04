@@ -148,6 +148,7 @@ typedef struct {
 	__uint64_t pgscan_direct_throttle;
 	__uint64_t pgscan_direct_total;
 	__uint64_t pgscan_file;
+	__uint64_t pgscan_khugepaged;
 	__uint64_t pgscan_kswapd;
 	__uint64_t pgscan_kswapd_dma;
 	__uint64_t pgscan_kswapd_dma32;
@@ -165,6 +166,7 @@ typedef struct {
 	__uint64_t pgsteal_dma32;
 	__uint64_t pgsteal_file;
 	__uint64_t pgsteal_high;
+	__uint64_t pgsteal_khugepaged;
 	__uint64_t pgsteal_kswapd;
 	__uint64_t pgsteal_kswapd_dma;
 	__uint64_t pgsteal_kswapd_dma32;

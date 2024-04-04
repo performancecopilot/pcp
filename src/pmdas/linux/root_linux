@@ -1838,6 +1838,7 @@ mem.vmstat {
 	pgscan_direct_throttle		60:28:147
 	pgscan_direct_total		60:28:176
 	pgscan_file			60:28:181
+	pgscan_khugepaged		60:28:188
 	pgscan_kswapd			60:28:148
 	pgscan_kswapd_dma		60:28:26
 	pgscan_kswapd_dma32		60:28:69
@@ -1852,6 +1853,7 @@ mem.vmstat {
 	pgsteal_high			60:28:21
 	pgsteal_movable			60:28:72
 	pgsteal_normal			60:28:22
+	pgsteal_khugepaged		60:28:189
 	pgsteal_kswapd			60:28:150
 	pgsteal_kswapd_dma		60:28:138
 	pgsteal_kswapd_dma32		60:28:139
