@@ -847,7 +847,13 @@ eval_expr(__pmContext *ctxp, node_t *np, struct timespec *stamp, int numpmid,
 		    }
 		}
 		else {
-		    /* rate() conversion, type will be DOUBLE */
+		    /*
+		     * rate() conversion, type will be DOUBLE
+		     *
+		     * For COUNTER metrics, return "no value" if the counter is
+		     * NOT monotonic increasing ... this matches what pmval(1)
+		     * and pmie(1) do in the same circumstances.
+		     */
 		    struct timespec	stampdiff;
 
 		    stampdiff = np->data.info->stamp;
@@ -857,18 +863,33 @@ eval_expr(__pmContext *ctxp, node_t *np, struct timespec *stamp, int numpmid,
 			    np->data.info->ivlist[k].value.d = (double)(np->left->data.info->ivlist[i].value.l - np->left->data.info->last_ivlist[j].value.l);
 			    break;
 			case PM_TYPE_U32:
+			    if (np->left->desc.sem == PM_SEM_COUNTER &&
+				np->left->data.info->ivlist[i].value.ul < np->left->data.info->last_ivlist[j].value.ul)
+				continue;
 			    np->data.info->ivlist[k].value.d = (double)(np->left->data.info->ivlist[i].value.ul - np->left->data.info->last_ivlist[j].value.ul);
 			    break;
 			case PM_TYPE_64:
+			    if (np->left->desc.sem == PM_SEM_COUNTER &&
+				np->left->data.info->ivlist[i].value.ll < np->left->data.info->last_ivlist[j].value.ll)
+				continue;
 			    np->data.info->ivlist[k].value.d = (double)(np->left->data.info->ivlist[i].value.ll - np->left->data.info->last_ivlist[j].value.ll);
 			    break;
 			case PM_TYPE_U64:
+			    if (np->left->desc.sem == PM_SEM_COUNTER &&
+				np->left->data.info->ivlist[i].value.ull < np->left->data.info->last_ivlist[j].value.ull)
+				continue;
 			    np->data.info->ivlist[k].value.d = (double)(np->left->data.info->ivlist[i].value.ull - np->left->data.info->last_ivlist[j].value.ull);
 			    break;
 			case PM_TYPE_FLOAT:
+			    if (np->left->desc.sem == PM_SEM_COUNTER &&
+				np->left->data.info->ivlist[i].value.f < np->left->data.info->last_ivlist[j].value.f)
+				continue;
 			    np->data.info->ivlist[k].value.d = (double)(np->left->data.info->ivlist[i].value.f - np->left->data.info->last_ivlist[j].value.f);
 			    break;
 			case PM_TYPE_DOUBLE:
+			    if (np->left->desc.sem == PM_SEM_COUNTER &&
+				np->left->data.info->ivlist[i].value.d < np->left->data.info->last_ivlist[j].value.d)
+				continue;
 			    np->data.info->ivlist[k].value.d = np->left->data.info->ivlist[i].value.d - np->left->data.info->last_ivlist[j].value.d;
 			    break;
 			default:

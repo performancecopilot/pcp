@@ -485,15 +485,20 @@ metric x with the dimension in the
 .B time
 domain decreased by one and scaling if required in the time utilization case
 where the operand is in units of time, and the derived metric is unitless.
-This mimics the rate conversion applied to counter metrics by tools
+There is one value in the result
+for each instance that appears in both the current and the previous
+sample, except in the case where the metric x has
+the semantics of a counter, i.e. PM_SEM_COUNTER, and
+current value of an instance is smaller than the previous value
+of the same instance then no value is
+returned for this instance (this corresponds to a ``counter wrap'' or a ``counter reset'').
+These rules
+mimic the rate conversion applied to counter metrics by tools
 such as
 .BR pmval (1),
 .BR pmie (1)
 and
 .BR pmchart (1).
-There is one value in the result
-for each instance that appears in both the current and the previous
-sample.
 T}
 _
 instant(x)	T{
