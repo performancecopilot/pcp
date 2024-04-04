@@ -48,6 +48,7 @@ _filter_pcp2openmetrics()
     -e '/groupid=/s/groupid="*[0-9][0-9]*"*/groupid="GROUPID"/' \
     -e '/userid=/s/userid="*[0-9][0-9]*"*/userid="USERID"/' \
     -e '/hostname=/s/'$hostname'/HOST/' \
+    -e "s/b'\([^'][^']*\)'/\1/" \
     -e 's/\(.*}\).*/\1 NCPU/' \
     | LC_COLLATE=POSIX sort
 }
