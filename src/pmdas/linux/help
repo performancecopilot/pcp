@@ -1119,6 +1119,8 @@ Count of mem pages reclaimed by kswapd since boot, from /proc/vmstat
 Count of file memory pages reclaimed since boot, from /proc/vmstat
 @ mem.vmstat.pgsteal_high high mem pages reclaimed
 Count of high mem pages reclaimed since boot, from /proc/vmstat
+@ mem.vmstat.pgsteal_khugepaged huge page memory pages reclaimed
+Count of huge page memory pages reclaimed since boot, from /proc/vmstat
 @ mem.vmstat.pgsteal_normal normal mem pages reclaimed
 Count of normal mem pages reclaimed since boot, from /proc/vmstat
 @ mem.vmstat.pgsteal_dma dma mem pages reclaimed
@@ -1153,6 +1155,8 @@ Count of throttled mem pages scanned directly since boot, from /proc/vmstat
 @ mem.vmstat.pgscan_direct_total cumulative total of directly scanned mem pages
 @ mem.vmstat.pgscan_file file backed pages scanned
 Count of file backed mem pages scanned since boot, from /proc/vmstat
+@ mem.vmstat.pgscan_khugepaged huge page memory pages scanned
+Count of huge page memory pages scanned since boot, from /proc/vmstat
 @ mem.vmstat.pgscan_kswapd mem pages scanned by kswapd
 Count of mem pages scanned by kswapd since boot, from /proc/vmstat
 @ mem.vmstat.pgscan_kswapd_high high mem pages scanned by kswapd

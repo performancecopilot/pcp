@@ -854,6 +854,9 @@ mem.vmstat.pgscan_direct_total
 mem.vmstat.pgscan_file
 No value(s) available!
 
+mem.vmstat.pgscan_khugepaged
+    value 0
+
 mem.vmstat.pgscan_kswapd
 No value(s) available!
 
@@ -904,6 +907,9 @@ No value(s) available!
 
 mem.vmstat.pgsteal_high
 No value(s) available!
+
+mem.vmstat.pgsteal_khugepaged
+    value 0
 
 mem.vmstat.pgsteal_kswapd
 No value(s) available!
@@ -3669,6 +3675,9 @@ mem.vmstat.pgscan_direct_total
 mem.vmstat.pgscan_file
 No value(s) available!
 
+mem.vmstat.pgscan_khugepaged
+    value 0
+
 mem.vmstat.pgscan_kswapd
 No value(s) available!
 
@@ -3719,6 +3728,9 @@ No value(s) available!
 
 mem.vmstat.pgsteal_high
 No value(s) available!
+
+mem.vmstat.pgsteal_khugepaged
+    value 0
 
 mem.vmstat.pgsteal_kswapd
 No value(s) available!
@@ -6462,6 +6474,9 @@ mem.vmstat.pgscan_direct_total
 mem.vmstat.pgscan_file
 No value(s) available!
 
+mem.vmstat.pgscan_khugepaged
+    value 0
+
 mem.vmstat.pgscan_kswapd
 No value(s) available!
 
@@ -6512,6 +6527,9 @@ No value(s) available!
 
 mem.vmstat.pgsteal_high
 No value(s) available!
+
+mem.vmstat.pgsteal_khugepaged
+    value 0
 
 mem.vmstat.pgsteal_kswapd
 No value(s) available!
@@ -9218,6 +9236,9 @@ mem.vmstat.pgscan_direct_total
 mem.vmstat.pgscan_file
 No value(s) available!
 
+mem.vmstat.pgscan_khugepaged
+    value 0
+
 mem.vmstat.pgscan_kswapd
     value 0
 
@@ -9268,6 +9289,9 @@ No value(s) available!
 
 mem.vmstat.pgsteal_high
 No value(s) available!
+
+mem.vmstat.pgsteal_khugepaged
+    value 0
 
 mem.vmstat.pgsteal_kswapd
     value 0
@@ -11742,6 +11766,9 @@ mem.vmstat.pgscan_direct_total
 mem.vmstat.pgscan_file
 No value(s) available!
 
+mem.vmstat.pgscan_khugepaged
+    value 0
+
 mem.vmstat.pgscan_kswapd
     value 6328636
 
@@ -11792,6 +11819,9 @@ No value(s) available!
 
 mem.vmstat.pgsteal_high
 No value(s) available!
+
+mem.vmstat.pgsteal_khugepaged
+    value 0
 
 mem.vmstat.pgsteal_kswapd
     value 5435316
@@ -14330,6 +14360,9 @@ mem.vmstat.pgscan_direct_total
 mem.vmstat.pgscan_file
 No value(s) available!
 
+mem.vmstat.pgscan_khugepaged
+    value 0
+
 mem.vmstat.pgscan_kswapd
     value 0
 
@@ -14380,6 +14413,9 @@ No value(s) available!
 
 mem.vmstat.pgsteal_high
 No value(s) available!
+
+mem.vmstat.pgsteal_khugepaged
+    value 0
 
 mem.vmstat.pgsteal_kswapd
     value 0
@@ -16227,6 +16263,9 @@ mem.vmstat.pgscan_direct_total
 mem.vmstat.pgscan_file
     value 0
 
+mem.vmstat.pgscan_khugepaged
+    value 0
+
 mem.vmstat.pgscan_kswapd
     value 0
 
@@ -16277,6 +16316,9 @@ mem.vmstat.pgsteal_file
 
 mem.vmstat.pgsteal_high
 No value(s) available!
+
+mem.vmstat.pgsteal_khugepaged
+    value 0
 
 mem.vmstat.pgsteal_kswapd
     value 0
