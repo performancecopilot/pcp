@@ -51,6 +51,7 @@ in the source distribution for its full text.
 #include "TasksMeter.h"
 #include "UptimeMeter.h"
 #include "XUtils.h"
+#include "linux/GPUMeter.h"
 #include "linux/IOPriority.h"
 #include "linux/IOPriorityPanel.h"
 #include "linux/LinuxMachine.h"
@@ -252,54 +253,68 @@ const MeterClass* const Platform_meterTypes[] = {
    &SystemdMeter_class,
    &SystemdUserMeter_class,
    &FileDescriptorMeter_class,
+   &GPUMeter_class,
    NULL
 };
 
 int Platform_getUptime(void) {
-   double uptime = 0;
-   FILE* fd = fopen(PROCDIR "/uptime", "r");
-   if (fd) {
-      int n = fscanf(fd, "%64lf", &uptime);
-      fclose(fd);
-      if (n != 1) {
-         return 0;
-      }
+   char uptimedata[64] = {0};
+
+   ssize_t uptimeread = xReadfile(PROCDIR "/uptime", uptimedata, sizeof(uptimedata));
+   if (uptimeread < 1) {
+      return 0;
    }
+
+   double uptime = 0;
+   double idle = 0;
+
+   int n = sscanf(uptimedata, "%lf %lf", &uptime, &idle);
+   if (n != 2) {
+      return 0;
+   }
+
    return floor(uptime);
 }
 
 void Platform_getLoadAverage(double* one, double* five, double* fifteen) {
-   FILE* fd = fopen(PROCDIR "/loadavg", "r");
-   if (!fd)
-      goto err;
+   char loaddata[128] = {0};
 
-   double scanOne, scanFive, scanFifteen;
-   int r = fscanf(fd, "%lf %lf %lf", &scanOne, &scanFive, &scanFifteen);
-   fclose(fd);
+   *one = NAN;
+   *five = NAN;
+   *fifteen = NAN;
+
+   ssize_t loadread = xReadfile(PROCDIR "/loadavg", loaddata, sizeof(loaddata));
+   if (loadread < 1)
+      return;
+
+   double scanOne = NAN;
+   double scanFive = NAN;
+   double scanFifteen = NAN;
+   int r = sscanf(loaddata, "%lf %lf %lf", &scanOne, &scanFive, &scanFifteen);
    if (r != 3)
-      goto err;
+      return;
 
    *one = scanOne;
    *five = scanFive;
    *fifteen = scanFifteen;
-   return;
-
-err:
-   *one = NAN;
-   *five = NAN;
-   *fifteen = NAN;
 }
 
 pid_t Platform_getMaxPid(void) {
-   pid_t maxPid = 4194303;
-   FILE* file = fopen(PROCDIR "/sys/kernel/pid_max", "r");
-   if (!file)
-      return maxPid;
+   char piddata[32] = {0};
 
-   int match = fscanf(file, "%32d", &maxPid);
-   (void) match;
-   fclose(file);
-   return maxPid;
+   ssize_t pidread = xReadfile(PROCDIR "/sys/kernel/pid_max", piddata, sizeof(piddata));
+   if (pidread < 1)
+      goto err;
+
+   int pidmax = 0;
+   int match = sscanf(piddata, "%32d", &pidmax);
+   if (match != 1)
+      goto err;
+
+   return pidmax;
+
+err:
+   return 0x3FFFFF; // 4194303
 }
 
 double Platform_setCPUValues(Meter* this, unsigned int cpu) {
@@ -574,21 +589,21 @@ void Platform_getPressureStall(const char* file, bool some, double* ten, double*
 }
 
 void Platform_getFileDescriptors(double* used, double* max) {
+   char buffer[128] = {0};
+
    *used = NAN;
    *max = 65536;
 
-   FILE* fd = fopen(PROCDIR "/sys/fs/file-nr", "r");
-   if (!fd)
+   ssize_t fdread = xReadfile(PROCDIR "/sys/fs/file-nr", buffer, sizeof(buffer));
+   if (fdread < 1)
       return;
 
    unsigned long long v1, v2, v3;
-   int total = fscanf(fd, "%llu %llu %llu", &v1, &v2, &v3);
+   int total = sscanf(buffer, "%llu %llu %llu", &v1, &v2, &v3);
    if (total == 3) {
       *used = v1;
       *max = v3;
    }
-
-   fclose(fd);
 }
 
 bool Platform_getDiskIO(DiskIOData* data) {
