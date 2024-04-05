@@ -49,6 +49,8 @@ in the source distribution for its full text.
 #include "UsersTable.h"
 #include "XUtils.h"
 #include "linux/CGroupUtils.h"
+#include "linux/GPU.h"
+#include "linux/GPUMeter.h"
 #include "linux/LinuxMachine.h"
 #include "linux/LinuxProcess.h"
 #include "linux/Platform.h" // needed for GNU/hurd to get PATH_MAX  // IWYU pragma: keep
@@ -682,13 +684,15 @@ static void LinuxProcessTable_readMaps(LinuxProcess* process, openat_arg_t procF
 }
 
 static bool LinuxProcessTable_readStatmFile(LinuxProcess* process, openat_arg_t procFd, const LinuxMachine* host) {
-   FILE* statmfile = fopenat(procFd, "statm", "r");
-   if (!statmfile)
+   char statmdata[128] = {0};
+
+   if (xReadfileat(procFd, "statm", statmdata, sizeof(statmdata)) < 1) {
       return false;
+   }
 
    long int dummy, dummy2;
 
-   int r = fscanf(statmfile, "%ld %ld %ld %ld %ld %ld %ld",
+   int r = sscanf(statmdata, "%ld %ld %ld %ld %ld %ld %ld",
                   &process->super.m_virt,
                   &process->super.m_resident,
                   &process->m_share,
@@ -696,7 +700,6 @@ static bool LinuxProcessTable_readStatmFile(LinuxProcess* process, openat_arg_t 
                   &dummy, /* unused since Linux 2.6; always 0 */
                   &process->m_drs,
                   &dummy2); /* unused since Linux 2.6; always 0 */
-   fclose(statmfile);
 
    if (r == 7) {
       process->super.m_virt *= host->pageSizeKB;
@@ -930,19 +933,24 @@ static void LinuxProcessTable_readCGroupFile(LinuxProcess* process, openat_arg_t
 }
 
 static void LinuxProcessTable_readOomData(LinuxProcess* process, openat_arg_t procFd) {
-   FILE* file = fopenat(procFd, "oom_score", "r");
-   if (!file)
-      return;
+   char buffer[PROC_LINE_LENGTH + 1] = {0};
 
-   char buffer[PROC_LINE_LENGTH + 1];
-   if (fgets(buffer, PROC_LINE_LENGTH, file)) {
-      unsigned int oom;
-      int ok = sscanf(buffer, "%u", &oom);
-      if (ok == 1) {
-         process->oom = oom;
-      }
+   ssize_t oomRead = xReadfileat(procFd, "oom_score", buffer, sizeof(buffer));
+   if (oomRead < 1) {
+      return;
    }
-   fclose(file);
+
+   char* oomPtr = buffer;
+   uint64_t oom = fast_strtoull_dec(&oomPtr, oomRead);
+   if (*oomPtr && *oomPtr != '\n' && *oomPtr != ' ') {
+      return;
+   }
+
+   if (oom > UINT_MAX) {
+      return;
+   }
+
+   process->oom = oom;
 }
 
 static void LinuxProcessTable_readAutogroup(LinuxProcess* process, openat_arg_t procFd) {
@@ -963,21 +971,15 @@ static void LinuxProcessTable_readAutogroup(LinuxProcess* process, openat_arg_t 
 }
 
 static void LinuxProcessTable_readSecattrData(LinuxProcess* process, openat_arg_t procFd) {
-   FILE* file = fopenat(procFd, "attr/current", "r");
-   if (!file) {
+   char buffer[PROC_LINE_LENGTH + 1] = {0};
+
+   ssize_t attrdata = xReadfileat(procFd, "attr/current", buffer, sizeof(buffer));
+   if (attrdata < 1) {
       free(process->secattr);
       process->secattr = NULL;
       return;
    }
 
-   char buffer[PROC_LINE_LENGTH + 1];
-   const char* res = fgets(buffer, sizeof(buffer), file);
-   fclose(file);
-   if (!res) {
-      free(process->secattr);
-      process->secattr = NULL;
-      return;
-   }
    char* newline = strchr(buffer, '\n');
    if (newline) {
       *newline = '\0';
@@ -1617,6 +1619,14 @@ static bool LinuxProcessTable_recurseProcTree(LinuxProcessTable* this, openat_ar
       }
       #endif
 
+      if (ss->flags & PROCESS_FLAG_LINUX_GPU || GPUMeter_active()) {
+         if (parent) {
+            lp->gpu_time = ((const LinuxProcess*)parent)->gpu_time;
+         } else {
+            GPU_readProcessData(this, lp, procFd);
+         }
+      }
+
       if (!proc->cmdline && statCommand[0] &&
           (proc->state == ZOMBIE || Process_isKernelThread(proc) || settings->showThreadNames)) {
          Process_updateCmdline(proc, statCommand, 0, strlen(statCommand));
@@ -1674,9 +1684,9 @@ errorReadingProcess:
 
 void ProcessTable_goThroughEntries(ProcessTable* super) {
    LinuxProcessTable* this = (LinuxProcessTable*) super;
-   const Machine* host = super->super.host;
+   Machine* host = super->super.host;
    const Settings* settings = host->settings;
-   const LinuxMachine* lhost = (const LinuxMachine*) host;
+   LinuxMachine* lhost = (LinuxMachine*) host;
 
    if (settings->ss->flags & PROCESS_FLAG_LINUX_AUTOGROUP) {
       // Refer to sched(7) 'autogroup feature' section
@@ -1686,6 +1696,17 @@ void ProcessTable_goThroughEntries(ProcessTable* super) {
       this->haveAutogroup = LinuxProcess_isAutogroupEnabled();
    } else {
       this->haveAutogroup = false;
+   }
+
+   /* Shift GPU values */
+   {
+      lhost->prevGpuTime = lhost->curGpuTime;
+      lhost->curGpuTime = 0;
+
+      for (GPUEngineData* engine = lhost->gpuEngineData; engine; engine = engine->next) {
+         engine->prevTime = engine->curTime;
+         engine->curTime = 0;
+      }
    }
 
    /* PROCDIR is an absolute path */
