@@ -48,10 +48,12 @@ install_pcp install: default
 	$(INSTALL) -m 755 -d $(PMLOGCONFVARDIR)
 	$(INSTALL) -m 644 -t $(PMLOGCONFVARDIR)/summary pmlogconf.summary $(PMLOGCONFDIR)/summary
 	$(INSTALL) -m 644 -t $(PMDATMPDIR)/$(IAM).conf $(IAM).conf $(PMDACONFIG)/$(IAM).conf
+	$(INSTALL) -m 755 $(IAM).pmcheck $(PCP_SHARE_DIR)/lib/pmcheck/pmda-$(IAM)
 	@$(INSTALL_MAN)
 else
 build-me:
-install_pcp install:
+install_pcp install: $(TOPDIR)/src/pmcheck/pmda.na.template
+	$(INSTALL) -m 755 $< $(PCP_SHARE_DIR)/lib/pmcheck/pmda-$(IAM)
 	@$(INSTALL_MAN)
 endif
 

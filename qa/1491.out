@@ -6,6 +6,7 @@ pmda-overhead   OK
 pmda-postgresql OK
 pmda-redis      OK
 pmda-sample     OK
+pmda-uwsgi      OK
 pmie            OK
 pmlogger        OK
 pmproxy         OK
@@ -16,6 +17,7 @@ pmda-overhead
 pmda-postgresql
 pmda-redis     
 pmda-sample    
+pmda-uwsgi     
 pmie           
 pmlogger       
 pmproxy        
@@ -26,6 +28,7 @@ pmda-overhead   overhead PMDA - ...
 pmda-postgresql PostgreSQL PMDA - metrics from PostgreSQL
 pmda-redis      Redis PMDA - metrics from redis-server(1)
 pmda-sample     sample PMDA
+pmda-uwsgi      uWSGI PMDA - metrics from uWSGI servers
 pmie            Inference Engine - rule-based monitoring
 pmlogger        Archive logger - record performance data for subsequent replay
 pmproxy         Proxy Daemon - proxy, web and redis integration
@@ -36,6 +39,7 @@ pmda-overhead   OK
 pmda-postgresql OK
 pmda-redis      OK
 pmda-sample     OK
+pmda-uwsgi      OK
 pmie            OK
 pmlogger        OK
 pmproxy         OK

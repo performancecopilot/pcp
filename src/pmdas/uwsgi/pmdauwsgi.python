@@ -121,6 +121,7 @@ class UwsgiPMDA(PMDA):
         self.timeout = DEFAULT_TIMEOUT
         self.host = DEFAULT_HOST
         self.port = DEFAULT_PORT
+        self.get_failed = False
         self.read_config()
         self.build_url()
         self.connect_pmcd()
@@ -178,8 +179,10 @@ class UwsgiPMDA(PMDA):
     def refresh_all(self):
         try:
             stats = requests.get(self.url, timeout=self.timeout).json()
+            self.get_failed = False
             #self.log("refresh_all stats:", str(stats))
         except Exception:
+            self.get_failed = True
             return
 
         avg_response_time_msec = 0
@@ -300,6 +303,13 @@ class UwsgiPMDA(PMDA):
         elif cluster == UwsgiPMDA.WORKER_STATS:
             return self.uwsgi_fetch_worker_callback(item, inst)
         return [PM_ERR_PMID, 0]
+
+    def domain_probe(self):
+        """
+        check: return True if server is available and monitorable
+        """
+        self.refresh_all()
+        return self.get_failed
 
 if __name__ == '__main__':
     UwsgiPMDA('uwsgi', 161).run()

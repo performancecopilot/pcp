@@ -76,6 +76,11 @@ s/inactive/OK/
 s/could be activated/OK/
 s/cannot be activated/OK/
 }' \
+	-e '/^pmda-uwsgi /{
+s/inactive/OK/
+s/could be activated/OK/
+s/cannot be activated/OK/
+}' \
 	-e '/^zeroconf /{
 s/inactive/OK/
 s/could be activated/OK/
