@@ -20,6 +20,7 @@
 # pylint: disable=too-many-arguments,consider-using-dict-items,no-member
 
 import os
+import sys
 
 import cpmapi
 import cpmda
@@ -455,6 +456,14 @@ class PMDA(MetricDispatch):
     ##
     # general PMDA class methods
 
+    def domain_probe(self):
+        """
+        Probe the domain to see if the PMDA could be activated
+        Used by pmcheck(1) - see man page for meaning of (int)
+        return codes - as part of PMDA specific scripts.
+        """
+        return 99  # unknown, subclasses override to use this.
+
     def domain_write(self):
         """
         Write out the domain.h file (used during installation)
@@ -492,13 +501,18 @@ class PMDA(MetricDispatch):
     def run(self):
         """
         All the real work happens herein; we can be called in one of three
-        situations, determined by environment variables.  First couple are
-        during the agent Install process, where the domain.h and namespace
-        files need to be created.  The third case is the real mccoy, where
-        an agent is actually being started by pmcd/dbpmda and makes use of
-        libpcp_pmda to talk PCP protocol.
+        situations, determined by environment variables.  First one is for
+        pmcheck(1), next two are part of the agent Install process (where
+        the domain.h and namespace files need to be created).  The fourth
+        case is the real mccoy, where an agent is actually being started
+        by pmcd/dbpmda and makes use of libpcp_pmda to talk PCP protocol.
         """
-        if 'PCP_PYTHON_DOMAIN' in os.environ:
+        if 'PCP_PYTHON_PROBE' in os.environ:
+            result = self.domain_probe()
+            if isinstance(result, int):
+                sys.exit(int(result))
+            sys.exit(2)
+        elif 'PCP_PYTHON_DOMAIN' in os.environ:
             self.domain_write()
         elif 'PCP_PYTHON_PMNS' in os.environ:
             self.pmns_write(os.environ['PCP_PYTHON_PMNS'])
@@ -568,6 +582,8 @@ class PMDA(MetricDispatch):
 
     @staticmethod
     def set_user(username):
+        if 'PCP_PYTHON_PROBE' in os.environ:
+            return cpmapi.PM_ERR_NOTCONN
         return cpmapi.pmSetProcessIdentity(username)
 
     @staticmethod

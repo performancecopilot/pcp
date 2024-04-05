@@ -941,6 +941,9 @@ static inline int
 pmda_generating_pmns(void) { return getenv("PCP_PYTHON_PMNS") != NULL; }
 
 static inline int
+pmda_probing_domain(void) { return getenv("PCP_PYTHON_PROBE") != NULL; }
+
+static inline int
 pmda_generating_domain(void) { return getenv("PCP_PYTHON_DOMAIN") != NULL; }
 
 static PyObject *
@@ -984,7 +987,7 @@ init_dispatch(PyObject *self, PyObject *args, PyObject *keywords)
     pmdaSetFetchCallBack(&dispatch, fetch_callback);
     pmdaSetEndContextCallBack(&dispatch, endContextCallBack);
 
-    if (!pmda_generating_pmns() && !pmda_generating_domain())
+    if (!pmda_generating_pmns() && !pmda_generating_domain() && !pmda_probing_domain())
 	pmdaOpenLog(&dispatch);
 
     Py_INCREF(Py_None);
@@ -1003,7 +1006,7 @@ connect_pmcd(void)
      * channel setup and complete the connection handshake with
      * pmcd.
      */
-    if (!pmda_generating_pmns() && !pmda_generating_domain()) {
+    if (!pmda_generating_pmns() && !pmda_generating_domain() && !pmda_probing_domain()) {
 	/*
 	 * On success pmdaConnect sets PMDA_EXT_CONNECTED in e_flags ...
 	 * this used in the guard below to stop pmda_dispatch() calling

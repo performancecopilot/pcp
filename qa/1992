@@ -15,13 +15,22 @@ echo "QA output created by $seq"
 
 [ -d $PCP_PMDAS_DIR/uwsgi ] || _notrun "uwsgi PMDA directory is not installed"
 
+_cleanup()
+{
+    _cleanup_pmda $iam
+    $sudo rm -f $tmp.*
+    exit $status
+}
+
+iam=uwsgi
 status=1        # failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup" 0 1 2 3 15
 
 pmdauwsgi_remove()
 {
     echo
-    echo "=== remove uwsgi agent ==="
+    echo "=== remove $iam agent ==="
     $sudo ./Remove >$tmp.out 2>&1
     _filter_pmda_remove <$tmp.out
 }
@@ -29,12 +38,16 @@ pmdauwsgi_remove()
 pmdauwsgi_install()
 {
     # start from known starting points
-    cd $PCP_PMDAS_DIR/uwsgi
+    cd $PCP_PMDAS_DIR/$iam
     $sudo ./Remove >/dev/null 2>&1
     _service pmcd stop | _filter_pcp_stop
 
     echo
-    echo "=== uwsgi agent installation ==="
+    echo "=== $iam check post-install ==="
+    pmcheck pmda-$iam
+
+    echo
+    echo "=== $iam agent installation ==="
     $sudo ./Install </dev/null >$tmp.out 2>&1
     # Check metrics have appeared ... X metrics and Y values (or)
     # Check metrics have appeared ... N warnings, X metrics and 0 values
@@ -50,14 +63,15 @@ pmdauwsgi_install()
                                            }
                                          }
                                          { print }' | tr -s ' '
+    echo
+    echo "=== $iam check post-install ==="
+    pmcheck pmda-$iam
 }
 
-_prepare_pmda uwsgi
-trap "_cleanup_pmda uwsgi; exit \$status" 0 1 2 3 15
-
+# real QA test starts here
+_prepare_pmda $iam
 _stop_auto_restart pmcd
 
-# real QA test starts here
 pmdauwsgi_install
 pmdauwsgi_remove
 
