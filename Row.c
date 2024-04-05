@@ -154,7 +154,7 @@ static const char* alignedTitleProcessField(ProcessField field, char* titleBuffe
    }
 
    if (Process_fields[field].autoWidth) {
-      if (field == PERCENT_CPU)
+      if (Process_fields[field].autoTitleRightAlign)
          xSnprintf(titleBuffer, titleBufferSize, "%*s ", Row_fieldWidths[field], title);
       else
          xSnprintf(titleBuffer, titleBufferSize, "%-*.*s ", Row_fieldWidths[field], Row_fieldWidths[field], title);
@@ -337,6 +337,13 @@ void Row_printTime(RichString* str, unsigned long long totalHundredths, bool col
    char buffer[10];
    int len;
 
+   if (totalHundredths == 0) {
+      int shadowColor = coloring ? CRT_colors[PROCESS_SHADOW] : CRT_colors[PROCESS];
+
+      RichString_appendAscii(str, shadowColor, " 0:00.00 ");
+      return;
+   }
+
    int yearColor = coloring ? CRT_colors[LARGE_NUMBER]      : CRT_colors[PROCESS];
    int dayColor  = coloring ? CRT_colors[PROCESS_GIGABYTES] : CRT_colors[PROCESS];
    int hourColor = coloring ? CRT_colors[PROCESS_MEGABYTES] : CRT_colors[PROCESS];
@@ -442,6 +449,11 @@ void Row_printLeftAlignedField(RichString* str, int attr, const char* content, u
 }
 
 int Row_printPercentage(float val, char* buffer, size_t n, uint8_t width, int* attr) {
+   assert(n >= 6 && width >= 4 && "Invalid width in Row_printPercentage()");
+   // truncate in favour of abort in xSnprintf()
+   width = (uint8_t)CLAMP(width, 4, n - 2);
+   assert(width < n - 1 && "Insufficient space to print column");
+
    if (isNonnegative(val)) {
       if (val < 0.05F)
          *attr = CRT_colors[PROCESS_SHADOW];
