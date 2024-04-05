@@ -24,7 +24,9 @@ then
     which redis-server >/dev/null 2>&1 || status=2
     which redis-cli >/dev/null 2>&1 || status=2
     _check "redis install status: $status"
-    _ctl_svc state redis || status=$?
+    svc=redis
+    test -f "$PCP_SYSTEMDUNIT_DIR/redis-server.service" && svc=redis-server
+    _ctl_svc state $svc || status=$?
     _check "redis service status: $status"
     pong=`redis-cli PING`
     test "$pong" = "PONG" || status=2
