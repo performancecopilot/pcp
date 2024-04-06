@@ -23,8 +23,8 @@ elif $sflag
 then
     status=0  # assume active until proven not to be
     _ctl_pmda state $iam || status=$?
-    PROBE="$PCP_PMDAS_DIR/$iam/pmda$iam.python --probe"
-    PCP_PYTHON_PROBE=1 $PCP_PYTHON_PROG $PROBE || status=2
+    PROBE="$PCP_PYTHON_PROG $PCP_PMDAS_DIR/$iam/pmda$iam.python"
+    PCP_PYTHON_PROBE=1 $PROBE || status=2
     _check "$iam PMDA status: $status"
 elif $aflag
 then
