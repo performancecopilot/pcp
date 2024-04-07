@@ -540,7 +540,7 @@ or was re-exec'd (see
 .BR execvp (3))
 due to a
 .B SIGUSR2
-signal being recieved as described above (\fB\-m reexec\fP).
+signal being received as described above (\fB\-m reexec\fP).
 .PP
 The
 .B \-H
@@ -789,13 +789,13 @@ Access control rules are of the form ``\c
 .B allow
 .I hostlist
 .B :
-.I operationlist
+.I operationslist
 .BR ; ''
 and ``\c
 .B disallow
 .I hostlist
 .B :
-.I operationlist
+.I operationslist
 .BR ; ''.
 .PP
 The
@@ -1238,6 +1238,17 @@ the
 environment variable would normally be set by the service manager
 prior to launching
 .BR pmlogger .
+.PP
+Two additional environment variables are used as part of the
+hand-off from one
+.B pmlogger
+instance to the next during a re-exec operation, namely
+.B __PMLOGGER_REEXEC
+and
+.BR __PMLOGGER_TZ .
+The details of how these are used is an internal implementation
+detail, but end-users should avoid using variables of these
+names in their shell's environment.
 .SH PCP ENVIRONMENT
 Environment variables with the prefix \fBPCP_\fP are used to parameterize
 the file and directory names used by PCP.
@@ -1248,7 +1259,7 @@ configuration file, as described in \fBpcp.conf\fP(5).
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pmcd (1),
-.BR pmdumplog (1),
+.BR pmlogdump (1),
 .BR pmlc (1),
 .BR pmlogger_check (1),
 .BR pmlogger_daily (1),
@@ -1266,3 +1277,8 @@ configuration file, as described in \fBpcp.conf\fP(5).
 .BR chkconfig (8)
 and
 .BR cron (8).
+
+.\" control lines for sripts/fixspell
+.\" spell-ok REEXEC hinv ndisk ncpu disk dev operationslist autonegotiate
+.\" spell-ok MAXPENDING EXT exec'd execvp reexec freq getattr
+.\" spell-ok hostlist labelhost reqs op honoured

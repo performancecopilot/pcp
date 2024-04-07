@@ -62,7 +62,8 @@ int		host_context = PM_CONTEXT_HOST;	 /* pmcd / local context mode */
 int		archive_version;	/* Type of archive to create by default */
 int		linger = 0;		/* linger with no tasks/events */
 int		notify_service_mgr = 0;	/* notify service manager when we're ready (daemon mode only) */
-int		pmlogger_reexec = 0;	/* set when PMLOGGER_REEXEC is set in the environment */
+int		pmlogger_reexec = 0;	/* set when __PMLOGGER_REEXEC is set in the environment */
+char		*last_timezone = NULL;	/* local timezone & offset ([+-]hhmm) */
 int		pmlc_ipc_version = LOG_PDU_VERSION;
 int		rflag;			/* report sizes */
 int		Cflag;			/* parse config and exit */
@@ -142,7 +143,14 @@ run_done(int sts, char *msg)
 	cleanup();
 
 	/* this tells the next pmlogger it has been re-exec'd */
-	putenv("PMLOGGER_REEXEC=1");
+	putenv("__PMLOGGER_REEXEC=1");
+	if (last_timezone != NULL) {
+	    /* and our previous local timezone offset */
+	    char	tz_env[100];
+	    pmsprintf(tz_env, sizeof(tz_env), "__PMLOGGER_TZ=%s", last_timezone);
+	    putenv(tz_env);
+	}
+
 
 	execvp(argv_saved[0], argv_saved);
 	perror("Error: execvp returned unexpectedly");
@@ -1217,7 +1225,7 @@ main(int argc, char **argv)
 	exit(1);
     }
 
-    if (getenv("PMLOGGER_REEXEC") != NULL) {
+    if (getenv("__PMLOGGER_REEXEC") != NULL) {
 	/*
 	 * We have been re-exec'd. See run_done(). This flag indicates
 	 * not to daemonize, do not notify the service manager, do
@@ -1226,6 +1234,16 @@ main(int argc, char **argv)
 	 * are cleaned up by the outgoing pmlogger prior to exec.
 	 */
 	pmlogger_reexec = 1;
+
+	/* and the last local timezone offset */
+	last_timezone = getenv("__PMLOGGER_TZ");
+	if (pmDebugOptions.services) {
+	    fprintf(stderr, "From env timezone offset (__PMLOGGER_TZ)");
+	    if (last_timezone == NULL)
+		fprintf(stderr, " not set\n");
+	    else
+		fprintf(stderr, " %s\n", last_timezone);
+	}
     }
 
     if (rsc_fd != -1 && note == NULL) {
@@ -1279,19 +1297,43 @@ main(int argc, char **argv)
 	     */
 	    time_t	now;
 	    struct tm	*arch_tm;
+	    char	this_timezone[100];
 
 	    if ((archBase = malloc(MAXPATHLEN+1)) == NULL) {
 		pmNoMem("main malloc archBase", MAXPATHLEN+1, PM_FATAL_ERR);
 		/* NOTREACHED */
 	    }
-	    time(&now);
+	    /*
+	     * need to force the libc implementation to reload the
+	     * timezone info, not use cached information ... pmlogger
+	     * is now long-running and the *same* process can easily
+	     * exist both before and after a DST change
+	     */
+	    unsetenv("TZ");
+	    tzset();
+	    now = time(NULL);
 	    arch_tm = localtime(&now);
+	    strftime(this_timezone, sizeof(this_timezone), "%Z%z", arch_tm);
+	    if (last_timezone != NULL) {
+		if (strcmp(this_timezone, last_timezone) != 0) {
+		    fprintf(stderr, "Warning: timezone offset changed from %s to %s\n",
+			last_timezone, this_timezone);
+		    last_timezone = strdup(this_timezone);
+		}
+		/* else nothing has changed */
+	    }
+	    else {
+		/* first time thru here and we've not been re-exec'd */
+		last_timezone = strdup(this_timezone);
+	    }
+
 	    if (strftime(archBase, MAXPATHLEN, argv[opts.optind], arch_tm) == 0) {
 		fprintf(stderr, "Error: strftime failed on \"%s\"\n", argv[opts.optind]);
 		exit(1);
 	    }
 	    if (pmDebugOptions.services)
-		fprintf(stderr, "archBase after strftime substitutions: \"%s\"\n", archBase);
+		fprintf(stderr, "archBase after strftime(): \"%s\" (timezone offset: %s)\n",
+		    archBase, this_timezone);
 	    make_uniq = 1;
 	}
     }
