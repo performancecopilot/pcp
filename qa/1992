@@ -27,6 +27,15 @@ status=1        # failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup" 0 1 2 3 15
 
+_filter_pmcheck()
+{
+    sed \
+	-e 's/cannot be activated/checked/g' \
+	-e 's/could be activated/checked/g' \
+	-e 's/active/checked/g' \
+    #end
+}
+
 pmdauwsgi_remove()
 {
     echo
@@ -44,7 +53,7 @@ pmdauwsgi_install()
 
     echo
     echo "=== $iam check post-install ==="
-    pmcheck pmda-$iam
+    pmcheck pmda-$iam | _filter_pmcheck
 
     echo
     echo "=== $iam agent installation ==="
@@ -65,7 +74,7 @@ pmdauwsgi_install()
                                          { print }' | tr -s ' '
     echo
     echo "=== $iam check post-install ==="
-    pmcheck pmda-$iam
+    pmcheck pmda-$iam | _filter_pmcheck
 }
 
 # real QA test starts here

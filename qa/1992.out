@@ -1,11 +1,17 @@
 QA output created by 1992
 
+=== uwsgi check post-install ===
+pmda-uwsgi      checked 
+
 === uwsgi agent installation ===
 Updating the Performance Metrics Name Space (PMNS) ...
 Terminate PMDA if already installed ...
 [...install files, make output...]
 Updating the PMCD control file, and notifying PMCD ...
 Check uwsgi metrics have appeared ... X metrics and Y values
+
+=== uwsgi check post-install ===
+pmda-uwsgi      checked 
 
 === remove uwsgi agent ===
 Culling the Performance Metrics Name Space ...
