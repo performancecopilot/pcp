@@ -176,7 +176,7 @@ do_dir(char *dname, char *result)
 	    if (*p == sep) {
 		*p = '\0';
 		if (chdir(result) < 0) {
-		    if (mkdir(result, 0777) < 0) {
+		    if (mkdir2(result, 0777) < 0) {
 			sts = -oserror();
 			fprintf(stderr, "do_dir(%s, ...): mkdir(%s, ...) failed: %s\n", dname, result, pmErrStr(sts));
 			*p = sep;
@@ -189,7 +189,7 @@ do_dir(char *dname, char *result)
 	}
 	/* try again ... */
 	if (chdir(result) < 0) {
-	    if (mkdir(result, 0777) < 0) {
+	    if (mkdir2(result, 0777) < 0) {
 		sts = -oserror();
 		fprintf(stderr, "do_dir(%s, ...): mkdir(%s, ...) failed: %s\n", dname, result, pmErrStr(sts));
 		goto restore;
