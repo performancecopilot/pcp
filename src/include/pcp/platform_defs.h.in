@@ -311,7 +311,7 @@ extern const char *wsastrerror(int);
 #define S_IRWXO		0
 #endif
 #define S_ISVTX		0
-#define S_ISLINK(mode)	0	/* no symlink support */
+#define S_ISLNK(mode)	0	/* no symlink support */
 
 #define fcntl(f, cmd, ...) 0
 #define mkdir2(path, mode) mkdir(path)

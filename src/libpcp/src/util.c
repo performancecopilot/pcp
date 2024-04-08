@@ -3337,7 +3337,7 @@ __pmCleanMapDir(const char *dirname, const char * special)
 			path, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 		goto unlink;
 	    }
-	    if (!S_ISLINK(sbuf.st_mode)) {
+	    if (!S_ISLNK(sbuf.st_mode)) {
 		if (pmDebugOptions.appl9)
 		    fprintf(stderr, "__pmCleanMapDir: %s [special]: remove: is a %s, expected a symlink\n",
 			path, inodetype(sbuf.st_mode));

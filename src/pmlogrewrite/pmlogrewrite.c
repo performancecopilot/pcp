@@ -273,8 +273,8 @@ nextlog(void)
     return old_vol == acp->ac_curvol ? 0 : 1;
 }
 
-#ifndef S_ISLINK
-#define S_ISLINK(mode) ((mode & S_IFMT) == S_IFLNK)
+#ifndef S_ISLNK
+#define S_ISLNK(mode) ((mode & S_IFMT) == S_IFLNK)
 #endif
 
 /*
@@ -299,7 +299,7 @@ parseargs(int argc, char *argv[])
 		opts.errors++;
 		break;
 	    }
-	    if (S_ISREG(sbuf.st_mode) || S_ISLINK(sbuf.st_mode)) {
+	    if (S_ISREG(sbuf.st_mode) || S_ISLNK(sbuf.st_mode)) {
 		if ((cp = (char **)realloc(conf, (nconf+1)*sizeof(conf[0]))) != NULL) {
 		    conf = cp;
 		    conf[nconf++] = opts.optarg;
@@ -322,7 +322,7 @@ parseargs(int argc, char *argv[])
 			pmprintf("%s: %s: %s\n", pmGetProgname(), path, osstrerror());
 			opts.errors++;
 		    }
-		    else if (S_ISREG(sbuf.st_mode) || S_ISLINK(sbuf.st_mode)) {
+		    else if (S_ISREG(sbuf.st_mode) || S_ISLNK(sbuf.st_mode)) {
 			if ((cp = (char **)realloc(conf, (nconf+1)*sizeof(conf[0]))) == NULL)
 			    break;
 			conf = cp;
