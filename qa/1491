@@ -70,6 +70,7 @@ s/not currently available for .*/.../
 s/inactive/OK/
 s/could be activated/OK/
 s/cannot be activated/OK/
+s/  No systemd unit file installed//
 }' \
 	-e '/^pmda-redis /{
 s/inactive/OK/
