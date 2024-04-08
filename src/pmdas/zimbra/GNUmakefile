@@ -46,7 +46,7 @@ install: default
 	$(INSTALL) -m 755 -d $(PMDATMPDIR)
 	$(INSTALL) -m 755 -t $(PMDATMPDIR) Install Remove $(PMDAADMDIR)
 ifneq "$(TARGET_OS)" "mingw"
-	$(INSTALL) -m 755 -t $(PMDATMPDIR) $(RUNASZIMBRA) $(PMDAADMDIR)
+	$(INSTALL) -m 755 -t $(PMDATMPDIR)/runaszimbra runaszimbra $(PMDAADMDIR)/runaszimbra
 	$(INSTALL) -m 755 -t $(PMDATMPDIR)/zimbraprobe zimbraprobe.sh $(PMDAADMDIR)/zimbraprobe
 endif
 	$(INSTALL) -m 644 -t $(PMDATMPDIR)/pmda$(IAM).pl pmda$(IAM).pl $(PMDAADMDIR)/pmda$(IAM).pl
