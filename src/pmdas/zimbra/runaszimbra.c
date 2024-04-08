@@ -19,12 +19,7 @@
  * the single argument is a sh(1) command to be run under the uid of the
  * zimbra "user".
  */
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
-#include <errno.h>
-#include <sys/types.h>
+#include <pmapi.h>
 #ifdef HAVE_PWD_H
 #include <pwd.h>
 #endif
