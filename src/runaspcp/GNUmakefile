@@ -19,12 +19,18 @@ CFILES	= runaspcp.c
 CMDTARGET = runaspcp$(EXECSUFFIX)
 LLDLIBS = $(PCPLIB)
 
-default:	$(CMDTARGET)
+default:	build-me
 
 include $(BUILDRULES)
 
+ifneq "$(TARGET_OS)" "mingw"
+build-me:	$(CMDTARGET)
 install:	default
 	$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BINADM_DIR)/$(CMDTARGET)
+else
+build-me:
+install:
+endif
 
 default_pcp:	default
 
