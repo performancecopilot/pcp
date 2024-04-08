@@ -273,12 +273,8 @@ nextlog(void)
     return old_vol == acp->ac_curvol ? 0 : 1;
 }
 
-#ifdef IS_MINGW
-#define S_ISLINK(mode) 0	/* no symlink support */
-#else
 #ifndef S_ISLINK
 #define S_ISLINK(mode) ((mode & S_IFMT) == S_IFLNK)
-#endif
 #endif
 
 /*
