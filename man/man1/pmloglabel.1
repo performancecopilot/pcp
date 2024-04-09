@@ -110,12 +110,12 @@ an archive named "20080125".
 .in +1i
 .ft CR
 .nf
-$ pmdumplog \-l 20080125
-pmdumplog: Cannot open archive "20080125": Illegal label record at start of a PCP archive file
+$ pmlogdump \-l 20080125
+pmlogdump: Cannot open archive "20080125": Illegal label record at start of a PCP archive file
 $ pmloglabel 20080125
 Mismatched PID (5264/5011) between temporal index and data volume 0
 $ pmloglabel \-p 5264 20080125
-$ pmdumplog \-l 20080125
+$ pmlogdump \-l 20080125
 Log Label (Log Format Version 2)
 Performance metrics from host fw1
   commencing Fri Jan 25 00:10:09.341 2008
@@ -145,6 +145,7 @@ configuration file, as described in \fBpcp.conf\fP(5).
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pmlogcheck (1),
+.BR pmlogdump (1),
 .BR pmlogextract (1),
 .BR pmlogger (1),
 .BR pmlogger_check (1),

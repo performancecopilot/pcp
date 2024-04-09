@@ -423,7 +423,7 @@ May also be used for the separate <b>pmcd</b> and <b>pmlogger</b>
 new PMDA.</li>
 <li><b>_filter_pmcd_log</b>() filters the log file from <b>pmcd</b>.</li>
 <li><b>_filter_pmlogger_log</b>() filters the log file from <b>pmlogger</b>.</li>
-<li><b>_filter_pmdumplog_log</b>() filters the log file from <b>pmdumplog</b>.</li>
+<li><b>_filter_pmdumplog_log</b>() filters the log file from <b>pmlogdump</b>.</li>
 <li><b>_filter_pmdumptext_log</b>() filters the log file from <b>pmdumptext</b>.</li>
 <li><b>_filter_optional_pmdas</b>() removes lines containing the names
 of executable PMDAs that may, or may not, be installed.</li>
@@ -444,7 +444,7 @@ not critical to the success of the test, so replacing the actual date and/or
 time by a constant is common filtering operation.  See for example DATE in
 _filter() in
 <a href="https://github.com/performancecopilot/pcp/blob/main/qa/866">qa/866</a>, or
-TIMESTAMP in <b>_filter__pmdumplog</b>() in
+TIMESTAMP in <b>_filter_pmdumplog</b>() in
 <a href="https://github.com/performancecopilot/pcp/blob/main/qa/common.filter">qa/common.filter</a>
 </li>
 <li>Another approach to ensuring deterministic output for tests that
