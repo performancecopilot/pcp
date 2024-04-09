@@ -7,13 +7,15 @@ pcp-6.2.1 (10 April 2024)
 	pmdalinux: new softnet metrics from newer kernel versions
 	pmdalinux: new /proc/vmstat khugepaged metrics
 	pmdabpf: updates to add eBPF networking metrics for pcp-atop
+	pmdaopenmetrics: fix script error diagnostic cascading exception
     - Client tools and utilities:
 	pcp2openmetrics: (new) push PCP metrics in OpenMetrics format
 	pmcheck: (new) interrogate and control PCP components
 	pmcheck: Redis server detection and agent recommendation
 	pmcheck: PostgreSQL server detection and agent recommendation
 	pmcheck: uwSGI server detection and agent recommendation
-	pcp-dstat: simple an I/O config typo - sum of read and write
+	pcp-atopsar: fix TZ mishandling relating to day-crossover
+	pcp-dstat: fix an I/O config typo, sum reads and writes
 	pcp-htop: sync latest htop-3.3.0 fixes
 	pmrep.conf: use bpf instead of bcc pmda for proc net metrics
 	pmrep.conf: proc-essential cosmetic improvements
