@@ -1,0 +1,613 @@
+#!/bin/sh
+#
+# Check spelling in man pages ...
+#
+# Typical usage is from vi(1), add a blank line at the
+# end of the file, then !!manspell %<RETURN>
+#
+# Common PCP words are enumerated at the start of this script then
+# augmented with arguments extracted from the .SH SYNOPSIS section
+# (the command line option argument names and flags), and finally any
+# '\" +ok+ lines in the file.
+#
+# Copyright (c) 2024 Ken McDonell, Inc.  All Rights Reserved.
+#
+
+usage="Usage: manspell [-de] filename"
+
+tmp=/tmp/manspell-$$
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+
+debug=false
+emit=false
+while getopts "de?" c
+do
+    case $c
+    in
+	d)	debug=true
+		;;
+	e)	emit=true
+		;;
+	?)	echo >&2 "$usage"
+		exit
+		;;
+    esac
+done
+shift `expr $OPTIND - 1`
+
+if [ $# -lt 1 ]
+then
+    echo >&2 "$usage"
+    exit 1
+fi
+
+# the $tmp.tmp is our acceptable exception words (uses -E POSIX
+# extended regular expressions)
+#
+# start with all the common words from PCPland
+#
+cat <<'End-of-File' | sed -e 's/[ 	]*#.*//' -e '/^$/d' >$tmp.tmp
+# env vars from /etc/pcp.conf and elsewhere
+#
+PCP_
+PCP_ARCHIVE_DIR
+PCP_ARCHIVE_VERSION
+PCP_AWK_PROG
+PCP_BINADM_DIR
+PCP_BIN_DIR
+PCP_CC_PROG
+PCP_CONF
+PCP_DEBUG
+PCP_DEMOS_DIR
+PCP_DERIVED_CONFIG
+PCP_DIR
+PCP_DOC_DIR
+PCP_ECHO_C
+PCP_ECHO_N
+PCP_ECHO_PROG
+PCP_ETC_DIR
+PCP_GROUP
+PCP_HTML_DIR
+PCP_INC_DIR
+PCP_LIB32_DIR
+PCP_LIBADM_DIR
+PCP_LIB_DIR
+PCP_LOG_DIR
+PCP_LOG_RC_SCRIPTS
+PCP_MAKE_PROG
+PCP_MAN_DIR
+PCP_PACCT_SYSTEM_PATH
+PCP_PERL_PROG
+PCP_PLATFORM
+PCP_PLATFORM_PATHS
+PCP_PMCDCONF_PATH
+PCP_PMCDOPTIONS_PATH
+PCP_PMCDRCLOCAL_PATH
+PCP_PMDASADM_DIR
+PCP_PMDAS_DIR
+PCP_PMIECONTROL_PATH
+PCP_PMLOGGERCONTROL_PATH
+PCP_PMPROXYOPTIONS_PATH
+PCP_PMSNAPCONTROL_PATH
+PCP_PS_ALL_FLAGS
+PCP_PS_PROG
+PCP_PYTHON_PROG
+PCP_RC_DIR
+PCP_RUN_DIR
+PCP_SASLCONF_DIR
+PCP_SA_DIR
+PCP_SHARE_DIR
+PCP_SORT_PROG
+PCP_SYSCONFIG_DIR
+PCP_SYSCONF_DIR
+PCP_SYSLOG_PROG
+PCP_SYSTEMDSYSUSERS_DIR
+PCP_SYSTEMDTMPFILES_DIR
+PCP_SYSTEMDUNIT_DIR
+PCP_TLSCONF_PATH
+PCP_TMPFILE_DIR
+PCP_TMP_DIR
+PCP_USER
+PCP_VAR_DIR
+PCP_VERSION
+PCP_WHICH_PROG
+PCP_XCONFIRM_PROG
+TZ
+
+# PCP common terms, ACRONYMS and abbreviations
+#
+Co	# from Co-Pilot
+DSOs?
+InDoms?
+PCP
+PCPIntro
+PDUs?
+PMAPI
+PMCD
+PMCD's
+PMCS
+PMDA's
+PMDAs?
+PMIDs?
+PMNS
+dsos?
+indoms?
+libpcp
+libpcp_import
+libpcp_pmda
+pcp
+pmcd's
+pmids?
+
+# PCP commands and PMDA executables
+#
+chkhelp
+collectl2pcp
+dbpmda
+dkvis
+eventlog	# from pcp-eventlog
+find-filter
+ganglia2pcp
+genpmda
+iostat2pcp
+mkaf
+mrtg2pcp
+newhelp
+pcp
+pcp-kube-pods
+pcp-python
+pcp-reboot-init
+pcp-shping
+pcpcompat
+pcpintro
+perfalloc
+pmafm
+pmcd
+pmcd_wait
+pmchart
+pmcheck
+pmclient
+pmconfig
+pmconfirm
+pmcpp
+pmdaapache
+pmdabash
+pmdacisco
+pmdakernel
+pmdalogger
+pmdamailq
+pmdammv
+pmdamounts
+pmdanvidia
+pmdaopenmetrics
+pmdaoverhead
+pmdaperfevent
+pmdapipe
+pmdaroot
+pmdasample
+pmdasendmail
+pmdashping
+pmdasimple
+pmdasummary
+pmdate
+pmdatrace
+pmdatrivial
+pmdatxmon
+pmdaweblog
+pmdbg
+pmdiff
+pmdumptext
+pmerr
+pmevent
+pmfind
+pmfind_check
+pmgenmap
+pmgetopt
+pmhostname
+pmie
+pmie2col
+pmie_check
+pmie_daily
+pmie_dump_stats
+pmieconf
+pmiectl
+pmiestatus
+pminfo
+pmjson
+pmlc
+pmlock
+pmlogcheck
+pmlogconf
+pmlogctl
+pmlogdump
+pmlogextract
+pmlogger
+pmlogger_check
+pmlogger_daily
+pmlogger_daily_report
+pmlogger_merge
+pmlogger_rewrite
+pmloglabel
+pmlogmv
+pmlogpaste
+pmlogredact
+pmlogreduce
+pmlogrewrite
+pmlogsize
+pmlogsummary
+pmns
+pmnsadd
+pmnsdel
+pmnsmerge
+pmpost
+pmprobe
+pmproxy
+pmpython
+pmquery
+pmrep
+pmrepconf
+pmsearch
+pmseries
+pmsignal
+pmsleep
+pmsnap
+pmsocks
+pmstat
+pmstore
+pmtime
+pmtrace
+pmval
+pmview
+runaspcp
+sar2pcp
+sheet2pcp
+telnet-probe
+
+# other commands
+#
+basename
+bzip
+chkconfig
+cpp
+egrep
+gzip
+init
+passwd		# passwd(1) also from /etc/passwd
+sar
+sed
+syslogd
+sysstat
+systemctl
+systemd
+xconfirm
+bz
+redis
+
+# libpcp* functions, typedefs and macros, etc.
+#
+PMDA_EXT_NAMES_CHANGE
+PMNS_DEFAULT
+PM_CONTEXT_ARCHIVE
+PM_CONTEXT_HOST
+PM_CONTEXT_LOCAL
+PM_COUNT_ONE
+PM_CTXFLAG_SECURE
+PM_ID_NULL
+PM_INDOM_NULL
+PM_IN_NULL
+PM_SEM_COUNTER
+PM_SEM_DISCRETE
+PM_SEM_INSTANT
+PM_SPACE_KBYTE
+PM_SPACE_MBYTE
+PM_TIME_MSEC
+PM_TIME_SEC
+PM_TIME_USEC
+PM_TYPE_AGGREGATE
+PM_TYPE_COUNTER
+PM_TYPE_DOUBLE
+PM_TYPE_EVENT
+PM_TYPE_FLOAT
+PM_TYPE_HIGHRES_EVENT
+PM_TYPE_KBYTE
+PM_TYPE_STRING
+pmClearDebug
+pmDerivedRegister
+pmDesc
+pmDiscoverServices
+pmErrStr
+pmFetch
+pmFetchGroup
+pmGetConfig
+pmGetInDom
+pmGetOptions
+pmID
+pmInDom
+pmLoadASCIINameSpace
+pmLoadDerivedConfig
+pmLoadNameSpace
+pmLookupDesc
+pmLookupInDom
+pmLookupInDomText
+pmLookupLabels
+pmLookupName
+pmLookupText
+pmNewContext
+pmNewContextZone
+pmNewZone
+pmParseInterval
+pmParseTimeWindow
+pmPrintValue
+pmRecordSetup
+pmRegisterDerived
+pmResult
+pmServerNotifyServiceManagerReady
+pmSetDebug
+pmSetMode
+pmSpecLocalPMDA
+pmStore
+pmUnits
+pmUnitsStr
+pmdaExtSetFlags
+
+# PCP error codes
+#
+PM_ERR_NAME
+PM_ERR_PERMISSION
+PM_ERR_PMDAREADY
+PM_ERR_PMID
+
+# system calls, libc functions and macros
+#
+AF_INET
+AF_UNIX
+SIGHUP
+SIGINT
+SIGTERM
+SIGUSR
+ctime
+dlclose
+dlopen
+execve
+fread
+fwrite
+getgrent
+getpwent
+localtime
+regcmp
+regcomp
+regex
+stderr
+stdin
+stdout
+strftime
+strtod
+strtol
+
+ifdef	# sh(1) and pmcpp(1) conditionals
+ifndef
+elif
+fi
+endif
+undef
+
+# misc common verbage from man pages
+#
+ABI
+ASCII
+CB	# from \\f(CB or .ft CB
+CR	# from \\f(CR or .ft CR
+Gbytes?
+GiB
+IPC
+IPv	# from IPv[46]
+Kbytes?
+KiB
+Mbytes?
+MiB
+OK
+PCP_VARIABLE
+PID
+PerformanceMetricsInferenceEngine	# from https://.../PerformanceMetricsInferenceEngine.html
+Tbyte
+UAG	# from https://pcp.readthedocs.io/en/latest/UAG/...
+ascii
+com	# from www.sgi.com
+conf	# from pcp.conf and other *.conf files
+config
+cpu	# from metrics like kernel.cpu.util.sys
+dev	# from metrics like disk.dev.write
+en	# from https://pcp.readthedocs.io/en/
+env	# from pcp.env
+foo
+html	# from a URL
+iana	# from www.iana.org
+io	# from https://pcp.readthedocs.io/en/
+ipc
+ipv	# from ipv[46]
+localhost
+loopback
+metacharacters?
+mins?
+msecs?
+mutex
+nfs
+notready
+nsecs?
+ok
+org	# from www.iana.org
+percpu	# from metrics like kernel.percpu.util.sys
+pid
+pm
+pmnsfile
+popup
+readthedocs	# from https://pcp.readthedocs.io/en/
+roundtrips?
+sbin	# from /usr/sbin
+secs?
+sgi	# from www.sgi.com
+timeunits
+tls	# from /etc/pcp/tls.conf
+unix
+usr	# from /usr/... unfortunately we'll miss "user" spelled "usr" here
+var
+www	# from www.sgi.com
+zoneinfo
+
+# British spelling ...
+#
+[Ss]tandalone
+behaviour
+colour
+customisable
+customisation
+customise
+daemonising
+favour
+honoured
+misbehaviour
+recognised
+virtualisation
+
+End-of-File
+if $debug
+then
+    echo >&2 "Common words ..."
+    fmt <$tmp.tmp >&2
+fi
+
+# turn the common words list into a sed cull script
+#
+sed <$tmp.tmp >>$tmp.common \
+    -e 's/.*/\/^&$\/d/' \
+# end
+
+for file
+do
+    if [ ! -f "$file" ]
+    then
+	echo "Error: input file $file not found"
+	exit 1
+    fi
+    [ $# -gt 1 ] && echo "$file:"
+
+    cp $tmp.common $tmp.sed
+
+    # get lines like this from the .SH SYNOPSIS section
+    # CLNoPruy from
+    # [\f3\-CLNoPruy?\f1]
+    # conffile from
+    # [\f3\-c\f1 \f2conffile\f1]
+    # metricpath from
+    # .I metricpath
+    #
+    awk <"$file" '
+$1 == ".SH" && $2 == "SYNOPSIS" { want = 1; next }
+want == 1 && $1 == ".SH"	{ exit }
+want == 1			{ print }' \
+    | sed -e 's/^\.I /\\fI/' \
+    | tr ' ' '\012' \
+    | sed -n \
+	-e 's/^\[//' \
+	-e '/^\\f[2I]/{
+s///
+s/\\f.*//
+p
+}' \
+	-e '/^\\f[3B]\\-[A-Za-z][A-Za-z]*/{
+s/^\\f[3B]\\-//
+s/[^A-Za-z].*//
+p
+}' \
+    | tr ' ' '\012' \
+    | uniq \
+    | sed -e '/^ *$/d' >$tmp.tmp
+    if $debug
+    then
+	echo >&2 "Args from .SH section ..."
+	fmt <$tmp.tmp >&2
+    fi
+    sed <$tmp.tmp >>$tmp.sed \
+	-e '/^$/d' \
+	-e ' s/.*/\/^&$\/d/' \
+    # end
+
+    # and long-form options where ever they are found
+    #
+    tr <"$file" ' ' '\012' \
+    | sed -n >$tmp.tmp \
+	-e '/\\-\\-/{
+s/.*\\-\\-//
+s/[^A-Za-z_-].*//
+p
+}' \
+    # end
+    if $debug
+    then
+	echo >&2 "Long --options ..."
+	fmt <$tmp.tmp >&2
+    fi
+    sed <$tmp.tmp >>$tmp.sed \
+	-e '/^$/d' \
+	-e ' s/.*/\/^&$\/d/' \
+    # end
+
+    # and for .\" +ok+ lines, all words remaining on the line are
+    # spelled correctly ...
+    #
+    sed -n <"$file" -e 's/^\.\\" +ok+ //p' \
+    | tr ' ' '\012' >$tmp.tmp
+    if $debug
+    then
+	echo >&2 "+ok+ lines from $file ..."
+	fmt <$tmp.tmp >&2
+    fi
+    sed <$tmp.tmp >>$tmp.sed \
+	-e '/^$/d' \
+	-e ' s/.*/\/^&$\/d/' \
+    # end
+
+    # strip ...
+    # - .TH lines
+    # - troff comments
+    # - tbl(1) format section (includes cw, cf, rf, lf, etc
+    # then ispell (so we can treat _ as part of a word), sort, remove
+    # duplicates, and then cull exceptions ...
+    #
+    sed <"$file" \
+	-e '/^\.TH/d' \
+	-e '/^.\\"/d' \
+	-e "/^'\\\\\"/d" \
+    | awk '
+$1 == ".TS"			{ skip = 1; next }
+skip == 1 && $NF ~ /\.$/	{ skip = 0; next }
+skip == 0			{ print }' \
+    | ispell -a -w '_' 2>&1 \
+    | sed -n \
+	-e '/^[#&] /{
+s/^. //
+s/ .*//
+p
+}' \
+	-e "/^Word '\\([^']*\\)' contains illegal characters/"'{
+s//\1/p
+}' \
+    | LC_COLLATE=POSIX sort \
+    | uniq \
+    | sed -E -f $tmp.sed >$tmp.out
+
+    if [ -s $tmp.out ]
+    then
+	# something to report
+	#
+	if $emit
+	then
+	    echo '.\" control lines for scripts/manspell'
+	    fmt -70 <$tmp.out \
+	    | sed -e 's/^/.\\" +ok+ /'
+	else
+	    cat $tmp.out
+	fi
+    fi
+
+done
