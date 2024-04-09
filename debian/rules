@@ -251,12 +251,7 @@ binary-arch: checkroot build-stamp
 	dh_installdocs -a
 	dh_installchangelogs -a
 	dh_link -a
-	# Note: --no-automatic-dbgsym not defined for all releases up to
-	# 	and including Debian 8 (jessie), but defined after that
-	# 	... expect a warning on older releases, but no other ill
-	# 	effects from the unknown option ... until dh_strip started
-	# 	aborting on Ubuntu 14.04 (vm00) on 23 Nov 2017
-	if dh_strip -a --no-automatic-dbgsym; then :; else dh_strip -a; fi
+	dh_strip -a
 	dh_compress -a
 	# pmcd.stp added to dh_fixperms because on Ubuntu 16.04
 	# $(PCP_SHARE_DIR)/../systemtap/tapset/pmcd.stp was getting an
