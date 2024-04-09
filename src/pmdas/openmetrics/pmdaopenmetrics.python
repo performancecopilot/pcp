@@ -897,7 +897,7 @@ class Source(object):
             if self.is_scripted:
                 # check file still exists and is executable
                 if not s[ST_MODE] & S_IXUSR:
-                    self.pmda.err("cannot execute '%s': %s" % self.path)
+                    self.pmda.err("cannot execute script '%s'" % self.path)
                     return
             elif self.parse_url_time < s[ST_CTIME]:
                 # (re)parse the URL from given file
