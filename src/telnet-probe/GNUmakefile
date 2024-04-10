@@ -21,7 +21,7 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
 CFILES	= telnet-probe.c
-CMDTARGET = telnet-probe
+CMDTARGET = telnet-probe$(EXECSUFFIX)
 LLDLIBS = -lpcp
 
 default: $(CMDTARGET)

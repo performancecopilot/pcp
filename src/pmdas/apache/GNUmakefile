@@ -43,7 +43,7 @@ build-me: $(TARGETS)
 install: build-me
 	$(INSTALL) -m 755 -d $(PMDAADMDIR)
 	$(INSTALL) -m 755 -d $(PMDAVARDIR)
-	$(INSTALL) -m 755 -t $(PMDAVARDIR)/pmda$(IAM) $(IAM) $(PMDAADMDIR)/pmda$(IAM)
+	$(INSTALL) -m 755 -t $(PMDAVARDIR)/pmda$(IAM) $(TARGETS) $(PMDAADMDIR)/pmda$(IAM)
 	$(INSTALL) -m 755 -t $(PMDAVARDIR) $(SCRIPTS) $(PMDAADMDIR)
 	$(INSTALL) -m 644 -t $(PMDAVARDIR) $(DFILES) pmns help root domain.h $(PMDAADMDIR)
 ifeq "$(ENABLE_QT)" "true"
@@ -55,7 +55,7 @@ endif
 	$(INSTALL) -m 644 -t $(PMLOGCONFVARDIR)/summary pmlogconf.summary $(PMLOGCONFETCDIR)/summary
 	$(INSTALL) -m 644 -t $(PMLOGCONFVARDIR)/uptime pmlogconf.uptime $(PMLOGCONFETCDIR)/uptime
 
-$(IAM)$(EXECSUFFIX):	$(OBJECTS)
+$(TARGETS):	$(OBJECTS)
 
 $(OBJECTS): domain.h
 

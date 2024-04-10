@@ -106,10 +106,11 @@ const ProcessFieldData Process_fields[LAST_PROCESSFIELD] = {
    [CWD] = { .name = "CWD", .title = "CWD                       ", .description = "The current working directory of the process", .flags = PROCESS_FLAG_CWD, },
    [AUTOGROUP_ID] = { .name = "AUTOGROUP_ID", .title = "AGRP", .description = "The autogroup identifier of the process", .flags = PROCESS_FLAG_LINUX_AUTOGROUP, },
    [AUTOGROUP_NICE] = { .name = "AUTOGROUP_NICE", .title = " ANI", .description = "Nice value (the higher the value, the more other processes take priority) associated with the process autogroup", .flags = PROCESS_FLAG_LINUX_AUTOGROUP, },
+   [ISCONTAINER] = { .name = "ISCONTAINER", .title = "CONT ", .description = "Whether the process is running inside a child container", .flags = PROCESS_FLAG_LINUX_CONTAINER, },
 #ifdef SCHEDULER_SUPPORT
    [SCHEDULERPOLICY] = { .name = "SCHEDULERPOLICY", .title = "SCHED ", .description = "Current scheduling policy of the process", .flags = PROCESS_FLAG_SCHEDPOL, },
 #endif
-   [GPU_TIME] = { .name = "GPU_TIME", .title = " GPU_TIME", .description = "Total GPU time in nano seconds", .flags = PROCESS_FLAG_LINUX_GPU, .defaultSortDesc = true, .autoWidth = true, .autoTitleRightAlign = true, },
+   [GPU_TIME] = { .name = "GPU_TIME", .title = " GPU_TIME", .description = "Total GPU time", .flags = PROCESS_FLAG_LINUX_GPU, .defaultSortDesc = true, .autoWidth = true, .autoTitleRightAlign = true, },
    [GPU_PERCENT] = { .name = "GPU_PERCENT", .title = "GPU% ", .description = "Percentage of the GPU time the process used in the last sampling", .flags = PROCESS_FLAG_LINUX_GPU, .defaultSortDesc = true, },
 };
 
@@ -154,6 +155,9 @@ static int LinuxProcess_effectiveIOPriority(const LinuxProcess* this) {
 #define SYS_ioprio_set __NR_ioprio_set
 #endif
 
+/*
+ * Gather I/O scheduling class and priority (thread-specific data)
+ */
 IOPriority LinuxProcess_updateIOPriority(Process* p) {
    IOPriority ioprio = 0;
 // Other OSes masquerading as Linux (NetBSD?) don't have this syscall
@@ -242,7 +246,7 @@ static void LinuxProcess_rowWriteField(const Row* super, RichString* str, Proces
    case CMINFLT: Row_printCount(str, lp->cminflt, coloring); return;
    case CMAJFLT: Row_printCount(str, lp->cmajflt, coloring); return;
    case GPU_PERCENT: Row_printPercentage(lp->gpu_percent, buffer, n, 5, &attr); break;
-   case GPU_TIME: Row_printTime(str, lp->gpu_time / 1000 / 1000 / 10 /* nano to centi seconds */, coloring); return;
+   case GPU_TIME: Row_printNanoseconds(str, lp->gpu_time, coloring); return;
    case M_DRS: Row_printBytes(str, lp->m_drs * lhost->pageSize, coloring); return;
    case M_LRS:
       if (lp->m_lrs) {
@@ -331,6 +335,19 @@ static void LinuxProcess_rowWriteField(const Row* super, RichString* str, Proces
       } else {
          attr = CRT_colors[PROCESS_SHADOW];
          xSnprintf(buffer, n, "N/A ");
+      }
+      break;
+   case ISCONTAINER:
+      switch (this->isRunningInContainer) {
+      case TRI_ON:
+         xSnprintf(buffer, n, "YES  ");
+         break;
+      case TRI_OFF:
+         xSnprintf(buffer, n, "NO   ");
+         break;
+      default:
+         attr = CRT_colors[PROCESS_SHADOW];
+         xSnprintf(buffer, n, "N/A  ");
       }
       break;
    default:
@@ -435,6 +452,8 @@ static int LinuxProcess_compareByKey(const Process* v1, const Process* v2, Proce
    }
    case GPU_TIME:
       return SPACESHIP_NUMBER(p1->gpu_time, p2->gpu_time);
+   case ISCONTAINER:
+      return SPACESHIP_NUMBER(v1->isRunningInContainer, v2->isRunningInContainer);
    default:
       return Process_compareByKey_Base(v1, v2, key);
    }

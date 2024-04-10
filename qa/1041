@@ -54,7 +54,6 @@ pmdalibvirt_install()
 
     cat <<EOF >$tmp.config
 [pmda]
-#oldapi = False
 user = root
 uri = qemu:///system
 EOF

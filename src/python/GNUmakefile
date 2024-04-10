@@ -30,7 +30,9 @@ ENV += CC="$(CC)"
 ENV += LD="$(LD)"
 ENV += LDSHARED="$(CC) -shared -fstack-protector"
 ENV += PYTHONCPREFIX="/usr/x86_64-w64-mingw32/sys-root/mingw/"
-EXTRA_PY_INCLUDES = :/usr/x86_64-w64-mingw32/sys-root/mingw/include:/usr/x86_64-w64-mingw32/sys-root/mingw/include/python2.7
+# investigate pkgconfig for this (version-specific currently & missing libs?)
+# /usr/x86_64-w64-mingw32/sys-root/mingw/lib/pkgconfig/python3-embed.pc
+EXTRA_PY_INCLUDES = :/usr/x86_64-w64-mingw32/sys-root/mingw/include:/usr/x86_64-w64-mingw32/sys-root/mingw/include/python3.11
 endif
 ifeq "$(HAVE_PYTHON_SETUPTOOLS)" "true"
 SETUP_PY = setup.py

@@ -14,15 +14,13 @@
  * This simple wrapper has to be run as root and the single argument is a
  * sh(1) command to be run under the uid and gid of the pcp "user".
  */
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
-#include <errno.h>
-#include <grp.h>
-#include <sys/types.h>
-#include <pwd.h>
 #include <pcp/pmapi.h>
+#ifdef HAVE_GRP_H
+#include <grp.h>
+#endif
+#ifdef HAVE_PWD_H
+#include <pwd.h>
+#endif
 
 static pmLongOptions longopts[] = {
     PMAPI_OPTIONS_HEADER("Options"),

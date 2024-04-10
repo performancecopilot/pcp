@@ -67,20 +67,26 @@ s/measure overhead of PCP components/.../
 s/not currently available for .*/.../
 }' \
 	-e '/^pmda-postgresql /{
+s/PostgreSQL/postgresql/g
 s/inactive/OK/
 s/could be activated/OK/
 s/cannot be activated/OK/
 s/  No systemd unit file installed//
+s/not currently available .*/metrics from postgresql/
 }' \
 	-e '/^pmda-redis /{
+s/Redis/redis/g
 s/inactive/OK/
 s/could be activated/OK/
 s/cannot be activated/OK/
+s/not currently available .*/metrics from redis-server(1)/
 }' \
 	-e '/^pmda-uwsgi /{
+s/uWSGI/uwsgi/g
 s/inactive/OK/
 s/could be activated/OK/
 s/cannot be activated/OK/
+s/not currently available .*/metrics from uwsgi servers/
 }' \
 	-e '/^zeroconf /{
 s/inactive/OK/

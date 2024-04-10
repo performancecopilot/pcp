@@ -183,8 +183,8 @@ main(int argc, char **argv)
 	switch (pred) {
 	    case PRED_CTIME:
 #if defined(HAVE_ST_MTIME_WITH_E) && defined(HAVE_STAT_TIME_T)
-		    check.tv_sec = sbuf.st_ctime.tv_sec;
-		    check.tv_usec = sbuf.st_ctime.tv_usec;
+		    check.tv_sec = sbuf.st_ctime;
+		    check.tv_usec = 0;
 #elif defined(HAVE_ST_MTIME_WITH_SPEC)
 		    check.tv_sec = sbuf.st_ctimespec.tv_sec;
 		    check.tv_usec = sbuf.st_ctimespec.tv_nsec / 1000;
@@ -198,8 +198,8 @@ main(int argc, char **argv)
 
 	    case PRED_MTIME:
 #if defined(HAVE_ST_MTIME_WITH_E) && defined(HAVE_STAT_TIME_T)
-		    check.tv_sec = sbuf.st_mtime.tv_sec;
-		    check.tv_usec = sbuf.st_mtime.tv_usec;
+		    check.tv_sec = sbuf.st_mtime;
+		    check.tv_usec = 0;
 #elif defined(HAVE_ST_MTIME_WITH_SPEC)
 		    check.tv_sec = sbuf.st_mtimespec.tv_sec;
 		    check.tv_usec = sbuf.st_mtimespec.tv_nsec / 1000;

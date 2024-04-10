@@ -1,11 +1,66 @@
+pcp-6.2.2 (29 May 2024)
+    - Work-in-progress, not yet released.
+
 pcp-6.2.1 (10 April 2024)
-    - Work-in-progress.
+    - PMDA additions, enhancements and bug fixes:
+	pmdauwsgi: (new) instrumentation from uWSGI servers
+	pmdalinux: new hugepage metrics from sysfs (fixed size hugepages)
+	pmdalinux: new filesys.uuid and filesys.type metrics
+	pmdalinux: new TcpExt metrics from /proc/net/netstat
+	pmdalinux: new softnet metrics from newer kernel versions
+	pmdalinux: new /proc/vmstat khugepaged metrics
+	pmdabpf: updates to add eBPF networking metrics for pcp-atop
+	pmdaopenmetrics: fix script error diagnostic cascading exception
+    - Client tools and utilities:
+	pcp2openmetrics: (new) push PCP metrics in OpenMetrics format
+	pmcheck: (new) interrogate and control PCP components
+	pmcheck: Redis server detection and agent recommendation
+	pmcheck: PostgreSQL server detection and agent recommendation
+	pmcheck: uwSGI server detection and agent recommendation
+	pcp-atopsar: fix TZ mishandling relating to day-crossover
+	pcp-dstat: fix an I/O config typo, sum reads and writes
+	pcp-htop: sync latest htop-3.3.0 fixes
+	pmrep.conf: use bpf instead of bcc pmda for proc net metrics
+	pmrep.conf: proc-essential cosmetic improvements
+	pmrep.conf: remove vmeff field from sar -B config
+	pmrepconf: use pmrep-internal representations for each metric
+    - Server-side utilities and log management scripts:
+	pmlogger: bizarre timezone fix (github #1936)
+	pmlogger: improve handling of a change in metadata semantics
+	pmlogdump: add support for multi-archive contexts
+	pmproxy: disable Redis protocol proxying by default
+	runaspcp: remove hard-coded "pcp" for user and group
+	init scripts: drop conditonal use of setpriv(1) or runuser(1)
+    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings:
+	libpcp: fix logmeta.c SEGV with V3 archives
+	libpcp: fix memleak on repeated __pmFixPMNSHashTab calls
+	libpcp: add pmgetopt pmflush() call for warnings
+	libpcp: fixes for V3 archives and multi-archive contexts
+	libpcp: export __pmLogChangeArchive() interface to tools
+	libpcp: fix for PMNS with multi-archive contexts
+	libpcp: small derived metrics bug fix (github #1921)
+    - Build, infrastructure and packaging updates:
+	Linux MX distro support (Debian without systemd)
+	riscv: configure pmdabpf_arch value correctly
+	tar packages: fix perl modules install in postinstall script
+	eBPF updates: add submodule for blazesym, sync to latest
+	debian build: add postrm for pcp-zeroconf
+	build: removed cppcheck from 'make check', too flakey
+	container: Fedora 40 container testing added
+	constainer: fixed Fedora base image location (quay.io)
+	build: add support for riscv64 to pcp rpm spec files
+    - Security Enhanced Linux:
+	selinux policy: small tweak for pmie signal handling
+    - Documentation:
+	man pages: document pmlogger_check and pmlogger_daily SaveLogs
+	man pages: man-spell and corrections
+	docs: updated donations page with new fiscal sponsor details
 
 pcp-6.2.0 (12 February 2024)
     - Client tools and utilities:
 	pmlogger: default to creating version 3 PCP archives
 	pmie, pmlogger, pmcd, pmproxy: init script hardening to
-	run less as root:root, more as pcp:pcp and more safely
+	    run less as root:root, more as pcp:pcp and more safely
 	pcp-reboot-init: new systemd service for $PCP_RC_DIR setup
 	pcp2arrow: new, export metrics to parquet format for pandas
 	pcp-atop: deterministic process sort when handling NULLs

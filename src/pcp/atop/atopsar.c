@@ -936,13 +936,15 @@ pratopsaruse(char *myname, pmOptions *opts)
 static time_t
 daylimit(time_t timval)
 {
-	struct tm  *tp = localtime(&timval);
+	struct tm  tt, *tp;
+
+	tp = pmLocaltime(&timval, &tt);
 
 	tp->tm_hour = 23;
 	tp->tm_min  = 59;
 	tp->tm_sec  = 59;
 
-	return mktime(tp);
+	return __pmMktime(tp);
 }
 
 /*
