@@ -50,7 +50,7 @@ This includes provision of an Open Metrics -
 .I https://openmetrics.io
 - text interface for PCP metrics at
 .IR /metrics ,
-realtime access to PCP metrics through the
+real-time access to PCP metrics through the
 .I /pmapi
 interfaces,
 and access to the fast, scalable PCP time series query
@@ -154,7 +154,7 @@ in the foreground, but also does some housekeeping (like create a
 .B pmproxy
 is launched from
 .BR systemd (1)
-and the daemonizing has already been done by
+and the daemonising has already been done by
 .BR systemd (1)
 and does not need to be done again by
 .BR pmproxy ,
@@ -253,7 +253,7 @@ This option implies \f3pmproxy\f1 is running in \f3timeseries\f1 mode.
 Operate in automatic archive timeseries discovery mode.
 This mode of operation will enable the
 .BR PMWEBAPI (3)
-REST APIs, dynamiclly and automatically detect active system
+REST APIs, dynamically and automatically detect active system
 archives being written by
 .BR pmlogger (1)
 and import them into a
@@ -541,3 +541,9 @@ For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
 .BR pcp.conf (5)
 and
 .BR pcp.env (5).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ Avahi OpenRequestSocket OpenSSL
+.\" +ok+ PMPROXY PMPROXY_VARIABLE
+.\" +ok+ SD [from DNS-SD] TIME_WAIT ini openmetrics
+.\" +ok+ openssl pki pmapi

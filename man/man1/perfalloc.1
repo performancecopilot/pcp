@@ -24,7 +24,7 @@ to disable hardware counter allocation.
 [\f3\-f\f1 \f2lockfile\f1]
 [\f3\-h\f1]
 [\f3\-v\f1]
-[\f3COMMAND\f1]
+[\f2commandline\f1]
 .SH DESCRIPTION
 .B perfalloc
 is a command that notifies the
@@ -65,7 +65,7 @@ display a help message and exit
 output version number and exit
 .PD
 .SH BUGS
-There may be a delay of up to 100 miliseconds between perfalloc requesting the
+There may be a delay of up to 100 milliseconds between perfalloc requesting the
 hardware counter disabling and the perfevent PMDA processing the request.
 .PP
 The perfalloc process does not check the status of the request and therefore is not able to
@@ -75,3 +75,7 @@ provide a positive confirmation that the request succeeded and the hardware coun
 .BR perfevent.conf (3)
 and
 .BR sysctl (8).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ EXIT_FAILURE perf_event_paranoid perfevent
+.\" +ok+ perflock [from PCP_PMDAS_DIR/perfevent/perflock]

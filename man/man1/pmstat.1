@@ -86,7 +86,7 @@ If the
 option is specified, then
 .BR pmcd (1)
 is bypassed, and metrics are fetched from PMDAs on the local host
-using the standalone
+using the stand-alone
 .B PM_CONTEXT_LOCAL
 variant of
 .BR pmNewContext (3).
@@ -122,7 +122,7 @@ the
 .B \-P
 flag may also be used to pause the output after each interval.
 .PP
-Standalone mode can only connect to the local host, using a set of archives implies
+Stand-alone mode can only connect to the local host, using a set of archives implies
 a host name, and nominating a host precludes using an archive, so the options
 .BR \-L ,
 .B \-a
@@ -450,4 +450,5 @@ and
 .BR PMNS (5).
 
 .\" control lines for scripts/man-spell
-.\" +ok+ bi bo hostlist loadavg po si swpd sy vmstat wa
+.\" +ok+ bi bo po si swpd sy wa loadavg [all are column headings]
+.\" +ok+ vmstat [from pcp-vmstat] hostlist

@@ -3,7 +3,7 @@
 # Check spelling in man pages ...
 #
 # Typical usage is from vi(1), add a blank line at the
-# end of the file, then !!manspell %<RETURN>
+# end of the file, then !!man-spell %<RETURN>
 #
 # Common PCP words are enumerated at the start of this script then
 # augmented with arguments extracted from the .SH SYNOPSIS section
@@ -13,18 +13,27 @@
 # Copyright (c) 2024 Ken McDonell, Inc.  All Rights Reserved.
 #
 
-usage="Usage: manspell [-de] filename"
+usage="Usage: man-spell [-de] filename"
 
-tmp=/tmp/manspell-$$
-trap "rm -f $tmp.*; exit" 0 1 2 3 15
+if which ispell >/dev/null 2>&1
+then
+    :
+else
+    echo "Arrgh: ispell not installed, no dice"
+    exit 1
+fi
 
-debug=false
+tmp=/tmp/man-spell-$$
+status=1	# failure is the default
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+debug=0
 emit=false
 while getopts "de?" c
 do
     case $c
     in
-	d)	debug=true
+	d)	debug=`expr $debug + 1`
 		;;
 	e)	emit=true
 		;;
@@ -52,11 +61,16 @@ cat <<'End-of-File' | sed -e 's/[ 	]*#.*//' -e '/^$/d' >$tmp.tmp
 PCP_
 PCP_ARCHIVE_DIR
 PCP_ARCHIVE_VERSION
+PCP_AUTOSAVE_DIR
 PCP_AWK_PROG
 PCP_BINADM_DIR
 PCP_BIN_DIR
 PCP_CC_PROG
+PCP_COMPRESS
+PCP_COMPRESSAFTER
+PCP_COMPRESSREGEX
 PCP_CONF
+PCP_CULLAFTER
 PCP_DEBUG
 PCP_DEMOS_DIR
 PCP_DERIVED_CONFIG
@@ -76,6 +90,7 @@ PCP_LOG_DIR
 PCP_LOG_RC_SCRIPTS
 PCP_MAKE_PROG
 PCP_MAN_DIR
+PCP_MERGE_CALLBACK
 PCP_PACCT_SYSTEM_PATH
 PCP_PERL_PROG
 PCP_PLATFORM
@@ -112,13 +127,28 @@ PCP_VAR_DIR
 PCP_VERSION
 PCP_WHICH_PROG
 PCP_XCONFIRM_PROG
+PMCD_CONNECT_TIMEOUT
+PMCD_RECONNECT_TIMEOUT
+PMCD_PORT
+PMCD_REQUEST_TIMEOUT
+PMPROXY_HOST
+PMPROXY_LOCAL
+PMPROXY_MAXPENDING
+PMPROXY_PORT
+PMPROXY_VARIABLE
+PMCD_WAIT_TIMEOUT
+PMIECONF_PATH
+PMLOGGER_CHECK_SKIP_LOGCONF
+PMLOGGER_REQUEST_TIMEOUT
 TZ
 
-# PCP common terms, ACRONYMS and abbreviations
+# PCP common terms, ACRONYMS, abbreviations and non-command man pages
 #
 Co	# from Co-Pilot
 DSOs?
 InDoms?
+LOGIMPORT
+LogImport
 PCP
 PCPIntro
 PDUs?
@@ -130,6 +160,7 @@ PMDA's
 PMDAs?
 PMIDs?
 PMNS
+PMWEBAPI
 dsos?
 indoms?
 libpcp
@@ -142,6 +173,7 @@ pmids?
 # PCP commands and PMDA executables
 #
 chkhelp
+collectl	# from pcp-collectl
 collectl2pcp
 dbpmda
 dkvis
@@ -167,6 +199,7 @@ pmcd_wait
 pmchart
 pmcheck
 pmclient
+pmclient_fg
 pmconfig
 pmconfirm
 pmcpp
@@ -209,6 +242,8 @@ pmie2col
 pmie_check
 pmie_daily
 pmie_dump_stats
+pmie_farm
+pmie_farm_check
 pmieconf
 pmiectl
 pmiestatus
@@ -225,6 +260,8 @@ pmlogger
 pmlogger_check
 pmlogger_daily
 pmlogger_daily_report
+pmlogger_farm
+pmlogger_farm_check
 pmlogger_merge
 pmlogger_rewrite
 pmloglabel
@@ -265,27 +302,42 @@ telnet-probe
 
 # other commands
 #
+QT
+Qt
+awk
 basename
+bz
 bzip
 chkconfig
 cpp
+crontab
 egrep
+eval
+expr
+gdb
 gzip
 init
+nslookup
 passwd		# passwd(1) also from /etc/passwd
+redis
+rsync
 sar
 sed
+sudo
 syslogd
 sysstat
 systemctl
 systemd
 xconfirm
-bz
-redis
+xz
 
 # libpcp* functions, typedefs and macros, etc.
 #
+AVAHI_DISCOVERY_TIMEOUT
 PMDA_EXT_NAMES_CHANGE
+PMDA_INTERFACE_
+PMDA_INTERFACE_LATEST
+PMDA_PMUNITS
 PMNS_DEFAULT
 PM_CONTEXT_ARCHIVE
 PM_CONTEXT_HOST
@@ -311,6 +363,8 @@ PM_TYPE_FLOAT
 PM_TYPE_HIGHRES_EVENT
 PM_TYPE_KBYTE
 PM_TYPE_STRING
+__pmLogNewFile
+fetchgroup
 pmClearDebug
 pmDerivedRegister
 pmDesc
@@ -349,6 +403,8 @@ pmStore
 pmUnits
 pmUnitsStr
 pmdaExtSetFlags
+pmdaInit
+pmgetopt_r
 
 # PCP error codes
 #
@@ -361,10 +417,15 @@ PM_ERR_PMID
 #
 AF_INET
 AF_UNIX
+ECONNREFUSED
+OPTARG
 SIGHUP
 SIGINT
+SIGPIPE
 SIGTERM
 SIGUSR
+SIGXCPU
+SIGXFSZ
 ctime
 dlclose
 dlopen
@@ -372,8 +433,13 @@ execve
 fread
 fwrite
 getgrent
+gethostbyname
+gethostname
+getopt
 getpwent
 localtime
+printf
+readline
 regcmp
 regcomp
 regex
@@ -383,6 +449,7 @@ stdout
 strftime
 strtod
 strtol
+sysctl
 
 ifdef	# sh(1) and pmcpp(1) conditionals
 ifndef
@@ -397,18 +464,22 @@ ABI
 ASCII
 CB	# from \\f(CB or .ft CB
 CR	# from \\f(CR or .ft CR
+GNUmakefile
 Gbytes?
 GiB
 IPC
 IPv	# from IPv[46]
 Kbytes?
 KiB
+Makefile
 Mbytes?
 MiB
 OK
 PCP_VARIABLE
 PID
+POSIX
 PerformanceMetricsInferenceEngine	# from https://.../PerformanceMetricsInferenceEngine.html
+Posix
 Tbyte
 UAG	# from https://pcp.readthedocs.io/en/latest/UAG/...
 ascii
@@ -439,6 +510,7 @@ org	# from www.iana.org
 percpu	# from metrics like kernel.percpu.util.sys
 pid
 pm
+pmdas	# from /var/lib/pcp/pmdas/...
 pmnsfile
 popup
 readthedocs	# from https://pcp.readthedocs.io/en/
@@ -454,23 +526,27 @@ var
 www	# from www.sgi.com
 zoneinfo
 
-# British spelling ...
+# most spelling is American, e.g. color, but some of these British
+# spelling words also appear ...
 #
-[Ss]tandalone
-behaviour
-colour
+behaviours?
+centred
+centres?
+colours?
 customisable
-customisation
+customisations?
 customise
+customised
 daemonising
-favour
+favours?
 honoured
-misbehaviour
+honours?
+misbehaviours?
 recognised
 virtualisation
 
 End-of-File
-if $debug
+if [ $debug -gt 0 ]
 then
     echo >&2 "Common words ..."
     fmt <$tmp.tmp >&2
@@ -509,12 +585,12 @@ want == 1			{ print }' \
     | tr ' ' '\012' \
     | sed -n \
 	-e 's/^\[//' \
-	-e '/^\\f[2I]/{
-s///
+	-e '/^\\f[2I]\([A-Za-z]\)/{
+s//\1/
 s/\\f.*//
 p
 }' \
-	-e '/^\\f[3B]\\-[A-Za-z][A-Za-z]*/{
+	-e '/^\\f[3B]\\-[A-Za-z][A-Za-z][A-Za-z?]*/{
 s/^\\f[3B]\\-//
 s/[^A-Za-z].*//
 p
@@ -522,9 +598,9 @@ p
     | tr ' ' '\012' \
     | uniq \
     | sed -e '/^ *$/d' >$tmp.tmp
-    if $debug
+    if [ $debug -gt 0 ]
     then
-	echo >&2 "Args from .SH section ..."
+	echo >&2 "Args from .SH SYNOPSIS section ..."
 	fmt <$tmp.tmp >&2
     fi
     sed <$tmp.tmp >>$tmp.sed \
@@ -532,7 +608,9 @@ p
 	-e ' s/.*/\/^&$\/d/' \
     # end
 
-    # and long-form options where ever they are found
+    # and long-form options where ever they are found ...
+    # for --foo-bar we need to add foo and bar, because ispell
+    # treats '-' as a word delimiter
     #
     tr <"$file" ' ' '\012' \
     | sed -n >$tmp.tmp \
@@ -542,7 +620,7 @@ s/[^A-Za-z_-].*//
 p
 }' \
     # end
-    if $debug
+    if [ $debug -gt 0 ]
     then
 	echo >&2 "Long --options ..."
 	fmt <$tmp.tmp >&2
@@ -553,11 +631,17 @@ p
     # end
 
     # and for .\" +ok+ lines, all words remaining on the line are
-    # spelled correctly ...
+    # spelled correctly ... comments are [comment]
     #
-    sed -n <"$file" -e 's/^\.\\" +ok+ //p' \
+    sed -n <"$file" \
+	-e '/^\.\\" +ok+ /{
+s///
+s/\[[^[]*]//g
+s/  */ /g
+p
+}' \
     | tr ' ' '\012' >$tmp.tmp
-    if $debug
+    if [ $debug -gt 0 ]
     then
 	echo >&2 "+ok+ lines from $file ..."
 	fmt <$tmp.tmp >&2
@@ -567,47 +651,108 @@ p
 	-e ' s/.*/\/^&$\/d/' \
     # end
 
+    if [ $debug -gt 1 ]
+    then
+	echo >&2 "sed script ..."
+	cat >&2 $tmp.sed
+    fi
+
+
     # strip ...
     # - .TH lines
     # - troff comments
     # - tbl(1) format section (includes cw, cf, rf, lf, etc
+    # - C-style hex constants
     # then ispell (so we can treat _ as part of a word), sort, remove
     # duplicates, and then cull exceptions ...
     #
-    sed <"$file" \
-	-e '/^\.TH/d' \
-	-e '/^.\\"/d' \
-	-e "/^'\\\\\"/d" \
-    | awk '
+    if sed <"$file" >$tmp.1 \
+	    -e '/^\.TH/d' \
+	    -e '/^.\\"/d' \
+	    -e "/^'\\\\\"/d" \
+	    -e 's/0x[0-9a-f][0-9a-f]*//' \
+	# end
+    then
+	:
+    else
+	echo "Error: $file: initial sed failed"
+	exit
+    fi
+    if awk <$tmp.1 >$tmp.2 2>$tmp.err '
 $1 == ".TS"			{ skip = 1; next }
 skip == 1 && $NF ~ /\.$/	{ skip = 0; next }
-skip == 0			{ print }' \
-    | ispell -a -w '_' 2>&1 \
-    | sed -n \
+skip == 0			{ print }'
+    then
+	:
+    else
+	cat $tmp.err
+	echo "Error: $file: tbl format sectionm culling failed"
+	exit
+    fi
+    if ispell $dict -a -w '_' <$tmp.2 >$tmp.3 2>$tmp.err
+    then
+	:
+    else
+	cat $tmp.err
+	echo "Error: $file: ispell failed"
+	exit
+    fi
+    cat $tmp.err >>$tmp.3
+    if sed -n <$tmp.3 >$tmp.4 2>$tmp.err \
 	-e '/^[#&] /{
 s/^. //
 s/ .*//
 p
 }' \
 	-e "/^Word '\\([^']*\\)' contains illegal characters/"'{
-s//\1/p
+s//\1/
+s/^  *//
+s/ .*//
+p
 }' \
-    | LC_COLLATE=POSIX sort \
-    | uniq \
-    | sed -E -f $tmp.sed >$tmp.out
+	# end
+    then
+	:
+    else
+	cat $tmp.err
+	echo "Error: $file: ispell sed failed"
+	exit
+    fi
 
+    # assume this one will work!
+    #
+    LC_COLLATE=POSIX sort <$tmp.4 \
+    | uniq >$tmp.5
+
+    if sed -E -f $tmp.sed <$tmp.5 >$tmp.out
+    then
+	:
+    else
+	cat $tmp.err
+	echo "Error: $file: final sed failed"
+	exit
+    fi
+    
     if [ -s $tmp.out ]
     then
 	# something to report
 	#
 	if $emit
 	then
-	    echo '.\" control lines for scripts/manspell'
+	    echo '.\" control lines for scripts/man-spell'
 	    fmt -70 <$tmp.out \
 	    | sed -e 's/^/.\\" +ok+ /'
 	else
 	    cat $tmp.out
 	fi
+    else
+	if $emit
+	then
+	    echo '.\" control lines not needed for scripts/man-spell'
+	fi
     fi
 
 done
+
+status=0
+exit
