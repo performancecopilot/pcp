@@ -1,3 +1,6 @@
+pcp-6.2.2 (29 May 2024)
+    - Work-in-progress, not yet released.
+
 pcp-6.2.1 (10 April 2024)
     - PMDA additions, enhancements and bug fixes:
 	pmdauwsgi: (new) instrumentation from uWSGI servers
@@ -22,7 +25,7 @@ pcp-6.2.1 (10 April 2024)
 	pmrep.conf: remove vmeff field from sar -B config
 	pmrepconf: use pmrep-internal representations for each metric
     - Server-side utilities and log management scripts:
-	pmlogger: pmlogger: bizarre timezone fix (github #1936)
+	pmlogger: bizarre timezone fix (github #1936)
 	pmlogger: improve handling of a change in metadata semantics
 	pmlogdump: add support for multi-archive contexts
 	pmproxy: disable Redis protocol proxying by default

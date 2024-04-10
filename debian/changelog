@@ -1,8 +1,15 @@
-pcp (6.2.1-1) unstable; urgency=low
+pcp (6.2.2-1) unstable; urgency=low
 
   * New release (full details in CHANGELOG).
 
- -- Nathan Scott <nathans@debian.org>  Wed, 10 Apr 2024 09:14:46 +1100
+ -- Nathan Scott <nathans@debian.org>  Wed, 29 May 2024 06:22:01 +1000
+
+pcp (6.2.1-1) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+  * Drop BCC metrics as python3-bpfcc is no more (closes: #1068389)
+
+ -- Nathan Scott <nathans@debian.org>  Wed, 10 Apr 2024 09:14:46 +1000
 
 pcp (6.2.0-1) unstable; urgency=low
 
