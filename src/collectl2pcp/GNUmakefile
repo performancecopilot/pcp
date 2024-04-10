@@ -18,7 +18,7 @@ HFILES = metrics.h
 CFILES  = collectl2pcp.c cpu.c disk.c net.c load.c timestamp.c util.c \
           metrics.c header.c generic.c proc.c
 
-CMDTARGET = collectl2pcp
+CMDTARGET = collectl2pcp$(EXECSUFFIX)
 LLDLIBS = -L$(TOPDIR)/src/libpcp_import/src -lpcp_import $(PCPLIB)
 # LCFLAGS += -pg
 

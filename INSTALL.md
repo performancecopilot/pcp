@@ -226,21 +226,18 @@ cross-compilation.  Currently packaging is no longer performed,
 although previously MSI builds were possible.  Work on tackling
 this short-coming would be most welcome.
 
-Base package list needed for Fedora (26+) cross-compilation:
+Base package list needed for Fedora (39+) cross-compilation:
     mingw64-gcc
     mingw64-binutils
-    mingw64-qt5-qttools-tools
-    mingw64-qt5-qtbase-devel
+    mingw64-qt6-qttools
+    mingw64-qt6-qtsvg
+    mingw64-qt6-qt3d
     mingw64-pkg-config
     mingw64-readline
     mingw64-xz-libs
-    mingw64-qt5-qtsvg
     mingw64-pdcurses
     mingw64-libgnurx
-
-Since Fedora 28, there are also Python packages available:
-
-    mingw64-python2
+    mingw64-python3
 
 ### 2. Account creation
 

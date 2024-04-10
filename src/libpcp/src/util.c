@@ -3176,9 +3176,11 @@ inodetype(mode_t st_mode)
 	case S_IFCHR:	return "character device";
 	case S_IFDIR:	return "directory";
 	case S_IFIFO:	return "FIFO/pipe";
-	case S_IFLNK:	return "symlink";
 	case S_IFREG:	return "regular file";
+#if !defined(IS_MINGW)
+	case S_IFLNK:	return "symlink";
 	case S_IFSOCK:	return "socket";
+#endif
 	default:	return "unknown?";
     }
 }
@@ -3229,19 +3231,21 @@ check_map_name(const char *path, const char *name, const char *link, const char 
 	}
 	return 0;
     }
-    if (kill(pid, 0) < 0) {
-	if (oserror() == ESRCH) {
-	    if (pmDebugOptions.appl9) {
-		fprintf(stderr, "__pmCleanMapDir: %s", path);
-		if (link) fprintf(stderr, " -> %s (%s)", link, link_pid);
-		fprintf(stderr, ": remove: process does not exist\n");
-	    }
-	    return 0;
+    if (!__pmProcessExists(pid)) {
+	if (pmDebugOptions.appl9) {
+	    fprintf(stderr, "__pmCleanMapDir: %s", path);
+	    if (link) fprintf(stderr, " -> %s (%s)", link, link_pid);
+	    fprintf(stderr, ": remove: process does not exist\n");
 	}
+	return 0;
     }
 
     return 1;
 }
+
+#if defined(IS_MINGW)
+#define lstat(p,s)	stat(p,s)
+#endif
 
 /*
  * remove old files from a map directory
@@ -3278,6 +3282,7 @@ __pmCleanMapDir(const char *dirname, const char * special)
 	return sts;
     }
 
+#if !defined(IS_MINGW)
     if (sbuf.st_uid != geteuid()) {
 	sts = -EPERM;
 	PM_UNLOCK(__pmLock_extcall);
@@ -3295,6 +3300,7 @@ __pmCleanMapDir(const char *dirname, const char * special)
 		dirname, sbuf.st_gid, getegid(), pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	return sts;
     }
+#endif
 
     if ((dirp = opendir(dirname)) == NULL) {
 	sts = -oserror();
@@ -3331,7 +3337,7 @@ __pmCleanMapDir(const char *dirname, const char * special)
 			path, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 		goto unlink;
 	    }
-	    if ((sbuf.st_mode & S_IFMT) != S_IFLNK) {
+	    if (!S_ISLNK(sbuf.st_mode)) {
 		if (pmDebugOptions.appl9)
 		    fprintf(stderr, "__pmCleanMapDir: %s [special]: remove: is a %s, expected a symlink\n",
 			path, inodetype(sbuf.st_mode));
