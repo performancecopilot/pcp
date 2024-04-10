@@ -112,7 +112,7 @@ non-default group (see
 .BR newgrp (1)
 and
 .BR setgid (2))
-a common alternative involves the use of a world-writeable
+a common alternative involves the use of a world-writable
 .I $PCP_TMP_DIR/mmv
 directory with the sticky-bit set (similar to
 .I /tmp
@@ -136,7 +136,7 @@ available without the usual PMDA ./Install process.
 If the
 .I $PCP_TMP_DIR/mmv
 directory does not exist, then the ./Install script can be used to
-create a world-writeable sticky-bit-set directory for communication.
+create a world-writable sticky-bit-set directory for communication.
 This is for backwards compatibility, as well as ease of use \- to use
 this mechanism, do the following as root:
 .PP
@@ -223,3 +223,6 @@ as described in
 .BR pcp.conf (5)
 and
 .BR pcp.env (5).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ GoLang MMV mmv mmv_stats_init newgrp setgid tmp

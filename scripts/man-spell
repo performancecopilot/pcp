@@ -3,7 +3,7 @@
 # Check spelling in man pages ...
 #
 # Typical usage is from vi(1), add a blank line at the
-# end of the file, then !!man-spell %<RETURN>
+# end of the file, then !!man-spell -e %<RETURN>
 #
 # Common PCP words are enumerated at the start of this script then
 # augmented with arguments extracted from the .SH SYNOPSIS section
@@ -69,6 +69,7 @@ PCP_CC_PROG
 PCP_COMPRESS
 PCP_COMPRESSAFTER
 PCP_COMPRESSREGEX
+PCP_COMPRESS_CALLBACK
 PCP_CONF
 PCP_CULLAFTER
 PCP_DEBUG
@@ -119,34 +120,36 @@ PCP_SYSLOG_PROG
 PCP_SYSTEMDSYSUSERS_DIR
 PCP_SYSTEMDTMPFILES_DIR
 PCP_SYSTEMDUNIT_DIR
+PCP_SYSTEMD_CGROUP
 PCP_TLSCONF_PATH
 PCP_TMPFILE_DIR
 PCP_TMP_DIR
+PCP_TRACE_PORT
 PCP_USER
 PCP_VAR_DIR
 PCP_VERSION
 PCP_WHICH_PROG
 PCP_XCONFIRM_PROG
 PMCD_CONNECT_TIMEOUT
-PMCD_RECONNECT_TIMEOUT
 PMCD_PORT
+PMCD_RECONNECT_TIMEOUT
 PMCD_REQUEST_TIMEOUT
-PMPROXY_HOST
-PMPROXY_LOCAL
-PMPROXY_MAXPENDING
-PMPROXY_PORT
-PMPROXY_VARIABLE
 PMCD_WAIT_TIMEOUT
 PMIECONF_PATH
 PMLOGGER_CHECK_SKIP_LOGCONF
 PMLOGGER_REQUEST_TIMEOUT
+PMPROXY_HOST
+PMPROXY_LOCAL
+PMPROXY_MAXPENDING
+PMPROXY_PORT
 TZ
 
 # PCP common terms, ACRONYMS, abbreviations and non-command man pages
 #
-Co	# from Co-Pilot
+Co		# from Co-Pilot
 DSOs?
 InDoms?
+LOGARCHIVE
 LOGIMPORT
 LogImport
 PCP
@@ -166,9 +169,11 @@ indoms?
 libpcp
 libpcp_import
 libpcp_pmda
+libpcp_trace
 pcp
 pmcd's
 pmids?
+stdpmid		# from PCP_VAR/pmns/stdpmid
 
 # PCP commands and PMDA executables
 #
@@ -272,10 +277,12 @@ pmlogreduce
 pmlogrewrite
 pmlogsize
 pmlogsummary
+pmmessage
 pmns
 pmnsadd
 pmnsdel
 pmnsmerge
+pmpause
 pmpost
 pmprobe
 pmproxy
@@ -309,20 +316,27 @@ basename
 bz
 bzip
 chkconfig
+cp
 cpp
 crontab
 egrep
 eval
 expr
 gdb
+gz
 gzip
+httpd
 init
+killall
+ln
 nslookup
 passwd		# passwd(1) also from /etc/passwd
+ps
 redis
 rsync
 sar
 sed
+ssh
 sudo
 syslogd
 sysstat
@@ -334,11 +348,15 @@ xz
 # libpcp* functions, typedefs and macros, etc.
 #
 AVAHI_DISCOVERY_TIMEOUT
+LOCALHOSTNAME
+PCP_TRACE_HOST
+PCP_TRACE_TIMEOUT
 PMDA_EXT_NAMES_CHANGE
 PMDA_INTERFACE_
 PMDA_INTERFACE_LATEST
 PMDA_PMUNITS
 PMNS_DEFAULT
+PMTIME_PORT
 PM_CONTEXT_ARCHIVE
 PM_CONTEXT_HOST
 PM_CONTEXT_LOCAL
@@ -404,7 +422,11 @@ pmUnits
 pmUnitsStr
 pmdaExtSetFlags
 pmdaInit
+pmdaRootConnect
 pmgetopt_r
+pmiAddMetric
+pmiUnits
+pmtracestate
 
 # PCP error codes
 #
@@ -421,7 +443,9 @@ ECONNREFUSED
 OPTARG
 SIGHUP
 SIGINT
+SIGKILL
 SIGPIPE
+SIGQUIT
 SIGTERM
 SIGUSR
 SIGXCPU
@@ -438,6 +462,7 @@ gethostname
 getopt
 getpwent
 localtime
+nanosleep
 printf
 readline
 regcmp
@@ -476,7 +501,7 @@ Mbytes?
 MiB
 OK
 PCP_VARIABLE
-PID
+PIDs?
 POSIX
 PerformanceMetricsInferenceEngine	# from https://.../PerformanceMetricsInferenceEngine.html
 Posix
@@ -490,6 +515,7 @@ cpu	# from metrics like kernel.cpu.util.sys
 dev	# from metrics like disk.dev.write
 en	# from https://pcp.readthedocs.io/en/
 env	# from pcp.env
+errno
 foo
 html	# from a URL
 iana	# from www.iana.org
@@ -542,7 +568,11 @@ favours?
 honoured
 honours?
 misbehaviours?
+recognise
 recognised
+tokenise
+tokenising
+virtualise
 virtualisation
 
 End-of-File
@@ -631,13 +661,16 @@ p
     # end
 
     # and for .\" +ok+ lines, all words remaining on the line are
-    # spelled correctly ... comments are [comment]
+    # spelled correctly ... comments are [comment] ... use \[
+    # to use [ in a pattern for a group of words, not a comment
     #
     sed -n <"$file" \
 	-e '/^\.\\" +ok+ /{
 s///
+s/\\\[/{/g
 s/\[[^[]*]//g
 s/  */ /g
+s/{/[/g
 p
 }' \
     | tr ' ' '\012' >$tmp.tmp
@@ -663,6 +696,7 @@ p
     # - troff comments
     # - tbl(1) format section (includes cw, cf, rf, lf, etc
     # - C-style hex constants
+    # - leading @ in a line
     # then ispell (so we can treat _ as part of a word), sort, remove
     # duplicates, and then cull exceptions ...
     #
@@ -671,6 +705,7 @@ p
 	    -e '/^.\\"/d' \
 	    -e "/^'\\\\\"/d" \
 	    -e 's/0x[0-9a-f][0-9a-f]*//' \
+	    -e 's/^@//' \
 	# end
     then
 	:

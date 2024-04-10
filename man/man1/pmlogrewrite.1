@@ -1274,7 +1274,7 @@ The selected text is completely removed from \fIoutlog\fP.
 \fInewdomain\fP\f(BI.\fP\fInewserial\fP
 .RS +4n
 .PP
-Reassociates the text with the specified instance domain.
+Re-associates the text with the specified instance domain.
 As a special case,
 .I newserial
 could be an asterisk ``*'' which means use
@@ -1290,7 +1290,7 @@ So for example:
 text indom 29.* all { indom -> 109.* }
 .ft P
 .RE
-will reassociate all text associated with instance domains from domain 29 to domain 109.
+will re-associate all text associated with instance domains from domain 29 to domain 109.
 .RE
 .PP
 .KW METRIC
@@ -1298,7 +1298,7 @@ will reassociate all text associated with instance domains from domain 29 to dom
 \fInewdomain\fP\f(BI.\fP\fInewcluster\fP\f(BI.\fP\fInewitem\fP
 .RS +4n
 .PP
-Reassociates the text with the specified metric.
+Re-associates the text with the specified metric.
 As special cases,
 .I newcluster
 could be an asterisk ``*'' which means use
@@ -1323,7 +1323,7 @@ So for example:
 text metric 30.*.* all { metric -> 123.*.* }
 .ft P
 .RE
-will reassociate all text associated with metrics from domain 30 to domain 123.
+will re-associate all text associated with metrics from domain 30 to domain 123.
 .RE
 .PP
 .KW TEXT
@@ -1461,14 +1461,14 @@ The value of the selected label(s) is changed to
 \fInewdomain\fP
 .RS +4n
 .PP
-Reassociates the selected label(s) with the specified metric domain.
+Re-associates the selected label(s) with the specified metric domain.
 For example:
 .RS +4n
 .ft CR
 label domain 30 { domain -> 123 }
 .ft P
 .RE
-will reassociate all labels associated with domains from domain 30 to domain 123.
+will re-associate all labels associated with domains from domain 30 to domain 123.
 .RE
 .PP
 .KW CLUSTER
@@ -1476,7 +1476,7 @@ will reassociate all labels associated with domains from domain 30 to domain 123
 \fInewdomain\fP\f(BI.\fP\fInewcluster\fP
 .RS +4n
 .PP
-Reassociates the selected label(s) with the specified metric cluster.
+Re-associates the selected label(s) with the specified metric cluster.
 As a special case,
 .I newcluster
 could be an asterisk ``*'' which means use
@@ -1493,7 +1493,7 @@ So for example:
 label cluster 30.* { cluster -> 123.* }
 .ft P
 .RE
-will reassociate all labels associated with clusters from domain 30 to domain 123.
+will re-associate all labels associated with clusters from domain 30 to domain 123.
 .RE
 .PP
 .KW ITEM
@@ -1501,7 +1501,7 @@ will reassociate all labels associated with clusters from domain 30 to domain 12
 \fInewdomain\fP\f(BI.\fP\fInewcluster\fP\f(BI.\fP\fInewitem\fP
 .RS +4n
 .PP
-Reassociates the selected label(s) with the specified metric item.
+Re-associates the selected label(s) with the specified metric item.
 As special cases,
 .I newcluster
 could be an asterisk ``*'' which means use
@@ -1526,7 +1526,7 @@ So for example:
 label item 30.*.* { item -> 123.*.* }
 .ft P
 .RE
-will reassociate all labels associated with metrics from domain 30 to domain 123.
+will re-associate all labels associated with metrics from domain 30 to domain 123.
 .RE
 .PP
 .KW INDOM
@@ -1534,7 +1534,7 @@ will reassociate all labels associated with metrics from domain 30 to domain 123
 \fInewdomain\fP\f(BI.\fP\fInewserial\fP
 .RS +4n
 .PP
-Reassociates the selected label(s) with the specified instance domain.
+Re-associates the selected label(s) with the specified instance domain.
 As a special case,
 .I newserial
 could be an asterisk ``*'' which means use
@@ -1550,7 +1550,7 @@ So for example:
 label indom 29.* { indom -> 109.* }
 .ft P
 .RE
-will reassociate all labels associated with instance domains from domain 29 to domain 109.
+will re-associate all labels associated with instance domains from domain 29 to domain 109.
 .RE
 .PP
 .KW INSTANCES
@@ -1560,7 +1560,7 @@ will reassociate all labels associated with instance domains from domain 29 to d
 .PP
 This is the same as
 .KW INDOM
-except that it reassociates the selected label(s) with the instances of the specified
+except that it re-associates the selected label(s) with the instances of the specified
 instance domain.
 .RE
 .SH EXAMPLES
@@ -1701,3 +1701,15 @@ For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
 .BR PMNS (5)
 and
 .BR regex (7).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ AEST AVG FOO INAME INDOM INST IOPS KBYTE MBYTE MIN MSEC ONELINE
+.\" +ok+ PM_COUNT_XXX PM_SEM_XXX PM_SPACE_XXX PM_TIME_XXX PM_TYPE_XXX RESCALE
+.\" +ok+ SEC SEM USEC XXX ZONEINFO bolditalic clusterid count_em
+.\" +ok+ domainid eek foobar globalspec iname indomspec
+.\" +ok+ ing [from ``or''ing] inst instid kenj
+.\" +ok+ labelid labelspec metricid metricspec newcluster newdomain newid
+.\" +ok+ newitem newname newsem newserial newtype newunits oldid oldname
+.\" +ok+ oldtype pmapi pmdaInstance
+.\" +ok+ pre [from pre-processing] proc [from proc metrics/PMDA]
+.\" +ok+ textcontent textid textspec texttype tzset urk
