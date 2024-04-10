@@ -280,7 +280,7 @@ STAMP             323        20        12         0         0         1
 
 #  DATE
 # TCP statistics
-             active/s passive/s    iseg/s    oseg/s  atmptf/s  estres/s retrans/s isegerr/s   orsts/s
+             active/s passive/s    iseg/s    oseg/s  atmptf/s  estres/s retrseg/s isegerr/s   orsts/s
 STAMP             N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
 STAMP             N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
 STAMP            0.00      0.00     42.00     41.50      0.00      0.00      0.00      0.00      0.00
@@ -701,7 +701,7 @@ STAMP             323        20        12         0         0         1
 
 #  DATE
 # TCP statistics
-             active/s passive/s    iseg/s    oseg/s  atmptf/s  estres/s retrans/s isegerr/s   orsts/s
+             active/s passive/s    iseg/s    oseg/s  atmptf/s  estres/s retrseg/s isegerr/s   orsts/s
 STAMP             N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
 STAMP             N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
 STAMP            0.00      0.00     42.00     41.50      0.00      0.00      0.00      0.00      0.00
@@ -1122,7 +1122,7 @@ STAMP             323        20        12         0         0         1
 
 #  DATE
 # TCP statistics
-             active/s passive/s    iseg/s    oseg/s  atmptf/s  estres/s retrans/s isegerr/s   orsts/s
+             active/s passive/s    iseg/s    oseg/s  atmptf/s  estres/s retrseg/s isegerr/s   orsts/s
 STAMP             N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
 STAMP             N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
 STAMP            0.00      0.00     42.00     41.50      0.00      0.00      0.00      0.00      0.00

@@ -296,7 +296,7 @@ Report created: ...
 
 #  Wed Mar 7 16:36:43.514833 2018
 # TCP statistics
-             active/s passive/s    iseg/s    oseg/s  atmptf/s  estres/s retrans/s isegerr/s   orsts/s
+             active/s passive/s    iseg/s    oseg/s  atmptf/s  estres/s retrseg/s isegerr/s   orsts/s
 16:36:43          N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
 17:06:43          N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
 17:36:43         0.00      0.00      0.57      0.40      0.00      0.00      0.00      0.00      0.00
