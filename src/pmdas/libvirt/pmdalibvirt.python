@@ -1,6 +1,6 @@
 #!/usr/bin/env pmpython
 #
-# Copyright (C) 2016-2018 Marko Myllynen <myllynen@redhat.com>
+# Copyright (C) 2016-2024 Marko Myllynen <myllynen@redhat.com>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -64,19 +64,12 @@ class LibvirtPMDA(PMDA):
         self.user = DEFAULT_USER
         self.uri = DEFAULT_URI
         self.backing = False
-        self.oldapi = False
         self.read_config()
         self.set_user(self.user)
 
         self.doms = []
         self.connect_pmcd()
         self.conn = self.connect_libvirt()
-        if 'domainListGetStats' not in dir(self.conn):
-            self.oldapi = True
-
-        if self.oldapi:
-            if not os.environ.get('PCP_PYTHON_DOMAIN') and not os.environ.get('PCP_PYTHON_PMNS'):
-                self.log("Using old libvirt API, some metrics are unavailable.")
 
         units_none  = pmUnits(0, 0, 0, 0, 0, 0)
         units_count = pmUnits(0, 0, 1, 0, 0, PM_COUNT_ONE)
@@ -399,9 +392,7 @@ class LibvirtPMDA(PMDA):
                        config.get('pmda', opt) == '1':
                         self.backing = True
                 elif opt == 'oldapi':
-                    if config.get('pmda', opt) == 'True' or \
-                       config.get('pmda', opt) == '1':
-                        self.oldapi = True
+                    self.log("Ignoring obsolete directive '%s' in %s." % (opt, conffile))
                 else:
                     self.err("Invalid directive '%s' in %s." % (opt, conffile))
                     sys.exit(1)
@@ -489,25 +480,13 @@ class LibvirtPMDA(PMDA):
         if not self.doms:
             return
 
-        flags = None
-        if not self.oldapi:
-            flags = libvirt.VIR_CONNECT_GET_ALL_DOMAINS_STATS_ACTIVE
+        flags = libvirt.VIR_CONNECT_GET_ALL_DOMAINS_STATS_ACTIVE
 
         if cluster == self.vm_cpustats_cluster:
             try:
                 self.vm_cpustats_res = []
-                if not self.oldapi:
-                    stats = libvirt.VIR_DOMAIN_STATS_CPU_TOTAL
-                    self.vm_cpustats_res = self.conn.domainListGetStats(self.doms, stats, flags)
-                else:
-                    for dom in self.doms:
-                        stats = dom.getCPUStats(True, 0)[0]
-                        res = {}
-                        for key in stats:
-                            k = key.replace("_time", "")
-                            k = k.replace("cpu", "time")
-                            res['cpu.' + k] = stats[key]
-                        self.vm_cpustats_res.append([dom, res])
+                stats = libvirt.VIR_DOMAIN_STATS_CPU_TOTAL
+                self.vm_cpustats_res = self.conn.domainListGetStats(self.doms, stats, flags)
             except libvirt.libvirtError as error:
                 self.log("Failed to get domain cpu stats: %s" % error)
             return
@@ -515,24 +494,8 @@ class LibvirtPMDA(PMDA):
         if cluster == self.vm_vcpustats_cluster:
             try:
                 self.vm_vcpustats_res = []
-                if not self.oldapi:
-                    stats = libvirt.VIR_DOMAIN_STATS_VCPU
-                    self.vm_vcpustats_res = self.conn.domainListGetStats(self.doms, stats, flags)
-                else:
-                    for dom in self.doms:
-                        stats = dom.vcpus()[0]
-                        res = {}
-                        count = len(stats)
-                        res['vcpu.current'] = count
-                        res['vcpu.maximum'] = int(etree.fromstring(dom.XMLDesc(0)).xpath("/domain/vcpu")[0].text)
-                        for nr in range(count):
-                            nrstr = str(nr)
-                            for i in range(len(stats[nr])):
-                                if i == 1:
-                                    res['vcpu.' + nrstr + '.state'] = stats[nr][i]
-                                elif i == 2:
-                                    res['vcpu.' + nrstr + '.time'] = stats[nr][i]
-                        self.vm_vcpustats_res.append([dom, res])
+                stats = libvirt.VIR_DOMAIN_STATS_VCPU
+                self.vm_vcpustats_res = self.conn.domainListGetStats(self.doms, stats, flags)
 
                 insts = {}
                 for dom in self.doms:
@@ -559,9 +522,8 @@ class LibvirtPMDA(PMDA):
         if cluster == self.vm_balloonstats_cluster:
             try:
                 self.vm_balloonstats_res = []
-                if not self.oldapi:
-                    stats = libvirt.VIR_DOMAIN_STATS_BALLOON
-                    self.vm_balloonstats_res = self.conn.domainListGetStats(self.doms, stats, flags)
+                stats = libvirt.VIR_DOMAIN_STATS_BALLOON
+                self.vm_balloonstats_res = self.conn.domainListGetStats(self.doms, stats, flags)
             except libvirt.libvirtError as error:
                 self.log("Failed to get domain balloon stats: %s" % error)
             return
@@ -569,43 +531,10 @@ class LibvirtPMDA(PMDA):
         if cluster == self.vm_blockstats_cluster:
             try:
                 self.vm_blockstats_res = []
-                if not self.oldapi:
-                    stats = libvirt.VIR_DOMAIN_STATS_BLOCK
-                    if self.backing:
-                        flags |= libvirt.VIR_CONNECT_GET_ALL_DOMAINS_STATS_BACKING
-                    self.vm_blockstats_res = self.conn.domainListGetStats(self.doms, stats, flags)
-                else:
-                    for dom in self.doms:
-                        doc = etree.fromstring(dom.XMLDesc(0))
-                        count = len(doc.xpath("/domain/devices/disk"))
-                        res = {}
-                        res['block.count'] = count
-                        for nr in range(count):
-                            src = doc.xpath("/domain/devices/disk")[nr].find('source')
-                            if src is None:
-                                continue
-                            path = None
-                            for path in 'file', 'block', 'dir', 'network', 'volume':
-                                try:
-                                    key = src.keys().index(path)
-                                    path = src.values()[key]
-                                    break
-                                except Exception:
-                                    pass
-                            if not path:
-                                continue
-                            nrstr = str(nr)
-                            stats = dom.blockStats(path)
-                            for i in range(len(stats)):
-                                if i == 0:
-                                    res['block.' + nrstr + '.rd.reqs'] = stats[i]
-                                elif i == 1:
-                                    res['block.' + nrstr + '.rd.bytes'] = stats[i]
-                                elif i == 2:
-                                    res['block.' + nrstr + '.wr.reqs'] = stats[i]
-                                elif i == 3:
-                                    res['block.' + nrstr + '.wr.bytes'] = stats[i]
-                        self.vm_blockstats_res.append([dom, res])
+                stats = libvirt.VIR_DOMAIN_STATS_BLOCK
+                if self.backing:
+                    flags |= libvirt.VIR_CONNECT_GET_ALL_DOMAINS_STATS_BACKING
+                self.vm_blockstats_res = self.conn.domainListGetStats(self.doms, stats, flags)
 
                 insts = {}
                 for dom in self.doms:
@@ -623,40 +552,9 @@ class LibvirtPMDA(PMDA):
         if cluster == self.vm_netstats_cluster:
             try:
                 self.vm_netstats_res = []
-                if not self.oldapi:
-                    stats = libvirt.VIR_DOMAIN_STATS_INTERFACE
-                    self.vm_netstats_res = self.conn.domainListGetStats(self.doms, stats, flags)
-                else:
-                    for dom in self.doms:
-                        doc = etree.fromstring(dom.XMLDesc(0))
-                        count = len(doc.xpath("/domain/devices/interface"))
-                        res = {}
-                        res['net.count'] = count
-                        for nr in range(count):
-                            name = doc.xpath("/domain/devices/interface")[nr].find('target')
-                            if name is None:
-                                continue
-                            name = name.values()[0]
-                            nrstr = str(nr)
-                            stats = dom.interfaceStats(name)
-                            for i in range(len(stats)):
-                                if i == 0:
-                                    res['net.' + nrstr + '.rx.bytes'] = stats[i]
-                                elif i == 1:
-                                    res['net.' + nrstr + '.rx.pkts'] = stats[i]
-                                elif i == 2:
-                                    res['net.' + nrstr + '.rx.errs'] = stats[i]
-                                elif i == 3:
-                                    res['net.' + nrstr + '.rx.drop'] = stats[i]
-                                elif i == 4:
-                                    res['net.' + nrstr + '.tx.bytes'] = stats[i]
-                                elif i == 5:
-                                    res['net.' + nrstr + '.tx.pkts'] = stats[i]
-                                elif i == 6:
-                                    res['net.' + nrstr + '.tx.errs'] = stats[i]
-                                elif i == 7:
-                                    res['net.' + nrstr + '.tx.drop'] = stats[i]
-                        self.vm_netstats_res.append([dom, res])
+                stats = libvirt.VIR_DOMAIN_STATS_INTERFACE
+                self.vm_netstats_res = self.conn.domainListGetStats(self.doms, stats, flags)
+
                 insts = {}
                 for dom in self.doms:
                     for res in self.vm_netstats_res:
@@ -673,9 +571,8 @@ class LibvirtPMDA(PMDA):
         if cluster == self.vm_perfstats_cluster:
             try:
                 self.vm_perfstats_res = []
-                if not self.oldapi:
-                    stats = libvirt.VIR_DOMAIN_STATS_PERF
-                    self.vm_perfstats_res = self.conn.domainListGetStats(self.doms, stats, flags)
+                stats = libvirt.VIR_DOMAIN_STATS_PERF
+                self.vm_perfstats_res = self.conn.domainListGetStats(self.doms, stats, flags)
             except libvirt.libvirtError as error:
                 self.log("Failed to get domain perf stats: %s" % error)
             return
