@@ -676,6 +676,9 @@ is two spaces (``  '') and comma (``,'') for
 When using a non-whitespace delimiter,
 all instances of the delimiter in string values will be replaced by
 the underscore (``_'') character.
+Note that many default metricsets specify a delimiter so it might be
+necessary to use this option with metricsets to set the delimiter as
+comma for CSV output.
 .TP
 \fB\-L\fR, \fB\-\-local\-PMDA\fR
 Use a local context to collect metrics from DSO PMDAs on the local host
