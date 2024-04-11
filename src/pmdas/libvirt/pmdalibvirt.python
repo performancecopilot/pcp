@@ -122,8 +122,8 @@ class LibvirtPMDA(PMDA):
             [ 'dominfo.memory.boot',                   '/domain/memory',           PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM memory, at boot'                     ],
             [ 'dominfo.memory.current',                '/domain/currentMemory',    PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM memory, current'                     ],
             [ 'dominfo.memory.max',                    '/domain/maxMemory',        PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM memory, maximum'                     ],
-            [ 'dominfo.os.arch',                       '/domain/os/type/@arch',    PM_TYPE_STRING, PM_SEM_DISCRETE, units_none,  'VM architecture'                        ],
-            [ 'dominfo.os.machine',                    '/domain/os/type/@machine', PM_TYPE_STRING, PM_SEM_DISCRETE, units_none,  'VM machine type'                        ],
+            [ 'dominfo.architecture',                  '/domain/os/type/@arch',    PM_TYPE_STRING, PM_SEM_DISCRETE, units_none,  'VM architecture'                        ],
+            [ 'dominfo.machine',                       '/domain/os/type/@machine', PM_TYPE_STRING, PM_SEM_DISCRETE, units_none,  'VM machine type'                        ],
         ]
 
         self.vm_cpustats_res = []
