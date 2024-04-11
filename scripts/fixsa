@@ -3,7 +3,7 @@
 # Sort entries in the .SH SEE ALSO section of a man page
 #
 # Typical usage is from vi(1), position cursor on .SH SEE ALSO line,
-# then !Gfixsa<RETURN>
+# then !}fixsa<RETURN>
 #
 # Copyright (c) 1977-2024 Ken McDonell, Inc.  All Rights Reserved.
 #
@@ -55,7 +55,7 @@ NR > '$end'		{ print >"'$tmp'.post"; next }
 	    -e 's/[.,]*$//' \
 	    -e 's/\([^ ]\)\(([0-9]\)/\1 \2/g' \
 		$tmp.tmp \
-	| sort -f -u +2 -3 +1 -2 >$tmp.list
+	| LC_COLLATE=POSIX sort -u -t ' ' -k3.2,3n -k2,2 >$tmp.list
 
 	if grep -v "^\.BR" $tmp.list >$tmp.tmp 2>&1
 	then
