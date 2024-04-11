@@ -13,7 +13,7 @@
 # GNU General Public License for more details.
 #
 
-# Last updated for: libvirt 4.0.0
+# Individual metrics last updated for: libvirt 10.3.0
 
 # pylint: disable=superfluous-parens, bad-whitespace
 # pylint: disable=invalid-name, line-too-long, no-self-use
@@ -121,6 +121,8 @@ class LibvirtPMDA(PMDA):
             [ 'dominfo.memory.boot',                   '/domain/memory',           PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM memory, at boot'                     ],
             [ 'dominfo.memory.current',                '/domain/currentMemory',    PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM memory, current'                     ],
             [ 'dominfo.memory.max',                    '/domain/maxMemory',        PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM memory, maximum'                     ],
+            [ 'dominfo.os.arch',                       '/domain/os/type/@arch',    PM_TYPE_STRING, PM_SEM_DISCRETE, units_none,  'VM architecture'                        ],
+            [ 'dominfo.os.machine',                    '/domain/os/type/@machine', PM_TYPE_STRING, PM_SEM_DISCRETE, units_none,  'VM machine type'                        ],
         ]
 
         self.vm_cpustats_res = []
@@ -152,6 +154,8 @@ class LibvirtPMDA(PMDA):
             [ 'domstats.vcpu.wait',                    None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_nsecs, 'VM vCPU, wait'                          ],
             [ 'domstats.vcpu.all.halted',              None,                       PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'VM vCPUs, total halted'                 ],
             [ 'domstats.vcpu.halted',                  None,                       PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'VM vCPU, halted'                        ],
+            [ 'domstats.vcpu.all.delay',               None,                       PM_TYPE_U32,    PM_SEM_COUNTER,  units_count, 'VM vCPUs, total delay'                  ],
+            [ 'domstats.vcpu.delay',                   None,                       PM_TYPE_U32,    PM_SEM_COUNTER,  units_count, 'VM vCPU, delay'                         ],
         ]
 
         self.vm_memstats_res = {}
@@ -185,6 +189,9 @@ class LibvirtPMDA(PMDA):
             [ 'domstats.balloon.rss',                  None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM balloon, proc RSS'                   ],
             [ 'domstats.balloon.usable',               None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM balloon, usable w/o swapping'        ],
             [ 'domstats.balloon.last_update',          None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_secs,  'VM balloon, update timestamp'           ],
+            [ 'domstats.balloon.disk_caches',          None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM balloon, disk cache size'            ],
+            [ 'domstats.balloon.hugetlb_pgalloc',      None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM balloon, huge page allocations'      ],
+            [ 'domstats.balloon.hugetlb_pgfail',       None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM balloon, huge page alloc fails'      ],
         ]
 
         self.vm_block_indom = self.indom(2)
