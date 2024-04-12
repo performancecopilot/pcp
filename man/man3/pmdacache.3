@@ -431,7 +431,7 @@ at the time of the next cache save operation
 .I after
 the entry has been added or marked
 .B active
-(refer to PMDA_CACHE_SAVE and PMDA_CACHE_SYNC below).
+(refer to PMDA_CACHE_SAVE, PMDA_CACHE_WRITE and PMDA_CACHE_SYNC below).
 On success
 .B pmdaCachePurge
 returns the number of culled entries, else in the case of an error
@@ -484,7 +484,7 @@ perform this operation once per execution.
 .TP
 PMDA_CACHE_SAVE
 If any instance has been added to, or deleted from, the instance
-domain since the last PMDA_CACHE_LOAD, PMDA_CACHE_SAVE or PMDA_CACHE_SYNC
+domain since the last PMDA_CACHE_LOAD, PMDA_CACHE_SAVE, PMDA_CACHE_WRITE or PMDA_CACHE_SYNC
 operation, the
 .I entire
 cache is written to the external file as a bulk operation.
@@ -502,6 +502,12 @@ Returns the number of instances saved to the external file, else 0
 if the external file was already up to date.
 .RE
 .TP
+PMDA_CACHE_WRITE
+A variant of PMDA_CACHE_SAVE where the
+.I entire
+cache is unconditionally written to the external file as a bulk operation,
+independent of any previous cache operations or the state of the cache.
+.TP
 PMDA_CACHE_STRINGS
 Annotates this cache as being a special-purpose cache used for string
 de-duplication in PMDAs exporting large numbers of string valued metrics.
@@ -516,7 +522,7 @@ PMDA_CACHE_SYNC
 Within an instance domain,
 if any instance has been added to, or deleted from, or marked
 .B active
-since the last PMDA_CACHE_LOAD, PMDA_CACHE_SAVE or PMDA_CACHE_SYNC
+since the last PMDA_CACHE_LOAD, PMDA_CACHE_SAVE, PMDA_CACHE_WRITE or PMDA_CACHE_SYNC
 operation, the
 .I entire
 cache is written to the external file as a bulk operation.
