@@ -76,6 +76,11 @@ Because the indom cache files are precious to the associated PMDA
 .I indomcachectl
 will not over-write an existing indom cache file.
 .PP
+The instance domain cache file is created with mode 0660 \- if this
+does not suit, callers should run
+.BR chmod (1)
+subsequently.
+.PP
 Operation is usually silent, except for errors (or warnings if the
 .I \-w
 option is used).
@@ -106,6 +111,7 @@ Following that is one line per instance with the instance identifier
 (do not change) and the external instance name in the third field.
 .SH SEE ALSO
 .BR PCPIntro (1),
+.BR chmod (1),
 .BR pminfo (1),
 .BR PMAPI (3),
 .BR PMDA (3),

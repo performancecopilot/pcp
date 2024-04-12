@@ -18,6 +18,7 @@
 #include "pmapi.h"
 #include "pmda.h"
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <pwd.h>
 
 static pmLongOptions longopts[] = {
@@ -124,19 +125,27 @@ main(int argc, char **argv)
     }
 
     /*
-     * initialize ...
+     * initialize ... enable group reading and writing as some PMDAs depend
+     * on this
      */
+    umask(S_IWOTH);
     if ((sts = pmdaCacheOp(indom, PMDA_CACHE_WRITE)) < 0) {
 	if (wflag)
 	    fprintf(stderr, "Warning: %s: PMDA_CACHE_WRITE: %s\n", pmInDomStr(indom), pmErrStr(sts));
     }
+    pmsprintf(pathname, sizeof(pathname), "%s%cconfig%cpmda%c%s",
+	pmGetOptionalConfig("PCP_VAR_DIR"), sep, sep, sep, pmInDomStr(indom));
     if (user) {
-	pmsprintf(pathname, sizeof(pathname), "%s%cconfig%cpmda%c%s",
-	    pmGetOptionalConfig("PCP_VAR_DIR"), sep, sep, sep, pmInDomStr(indom));
+	/* change owner and group */
 	if (chown(pathname, pw->pw_uid, pw->pw_gid) < 0) {
 	    fprintf(stderr, "%s: Error: created %s, but cannot change ownership: %s\n", pmGetProgname(), pathname, pmErrStr(-oserror()));
 	    exit(1);
 	}
+    }
+    /* explicitly make mode 660 */
+    if (chmod(pathname, 0660) < 0) {
+	fprintf(stderr, "%s: Error: created %s, but cannot change mode: %s\n", pmGetProgname(), pathname, pmErrStr(-oserror()));
+	exit(1);
     }
 
     exit(0);

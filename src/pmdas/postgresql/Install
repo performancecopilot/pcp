@@ -50,16 +50,15 @@ if [ -n "$osuser" ]; then
         failed=false
         c="$PCP_VAR_DIR/config/pmda/$domain.$indom"
         if [ ! -f "$c" ]; then
-            if touch $c >/dev/null 2>&1; then
-                # TODO need a pmda cache init function
-                echo "2 0 2147483647" >> $c # standard v2 header
-                chmod 664 "$c"
-                chgrp $gid "$c"
-            else
-                echo "Error: failed to create indom persistance file \"$c\""
-                status=1
-                exit
-            fi
+	    # First time Install, initialize PMDA's indom cache file
+	    #
+	    if "$PCP_BINADM_DIR/indomcachectl" $domain.$indom; then
+		chgrp $gid "$c"
+	    else
+		echo "Error: failed to create indom cache file \"$c\""
+		status=1
+		exit
+	    fi
         fi
     done
 fi
