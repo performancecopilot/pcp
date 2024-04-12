@@ -20,19 +20,31 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <pwd.h>
+#include <grp.h>
+
+static int
+allmyoptions(int opt, pmOptions *optsp)
+{
+    /* they all belong to me */
+    return 1;
+}
 
 static pmLongOptions longopts[] = {
+    PMAPI_OPTIONS_HEADER("Options"),
+    { "group", 1, 'g', "GROUP", "create cache file owned by group GROUP" },
     { "list", 0, 'l', NULL, "list indom cache contents" },
-    { "user", 1, 'u', "USER", "create cache file owned by this user" },
+    { "mode", 1, 'm', "MODE", "create cache file with mode MODE (octal)" },
+    { "user", 1, 'u', "USER", "create cache file owned user USER" },
     { "warning", 0, 'w', NULL, "issue warnings" },
     PMOPT_HELP,
     PMAPI_OPTIONS_END
 };
 
 static pmOptions opts = {
-    .short_options = "lu:w?",
+    .short_options = "g:lm:u:w?",
     .long_options = longopts,
     .short_usage = "[options] domain.serial",
+    .override = allmyoptions,
 };
 
 int
@@ -43,20 +55,62 @@ main(int argc, char **argv)
     int		c;
     int		domain, serial;
     int		sts;
+    int		badarg = 0;
     pmInDom	indom;
     char	*user = NULL;
-    struct passwd	*pw;
+    uid_t	uid = geteuid();
+    struct passwd	*pwp = NULL;
+    char	*group = NULL;
+    gid_t	gid = getegid();
+    struct group	*grp = NULL;
+    int		mflag = 0;
+    mode_t	mode = 0660;	/* default user:rw group:rw other:none */
+    char	*endp;
+    long	tmp_mode;
     int		sep = pmPathSeparator();
     char	pathname[MAXPATHLEN];
 
     while ((c = pmGetOptions(argc, argv, &opts)) != EOF) {
 	switch (c) {
+
+	    case 'g':		/* group */
+		grp = getgrnam(opts.optarg);
+		if (grp == NULL) {
+		    fprintf(stderr, "%s: Error: getgrnam(%s) failed\n", pmGetProgname(), opts.optarg);
+		    badarg++;
+		}
+		else {
+		    group = opts.optarg;
+		    gid = grp->gr_gid;
+		}
+		break;
+
 	    case 'l':		/* list/dump */
 		lflag++;
 		break;
 
+	    case 'm':		/* mode */
+		tmp_mode = strtol(opts.optarg, &endp, 8);
+		if (*endp != '\0' || tmp_mode > 0777) {
+		    fprintf(stderr, "%s: Error: mode (%s) is not a valid\n", pmGetProgname(), opts.optarg);
+		    badarg++;
+		}
+		else {
+		    mflag++;
+		    mode = (mode_t)tmp_mode;
+		}
+		break;
+
 	    case 'u':		/* user */
-		user = opts.optarg;
+		pwp = getpwnam(opts.optarg);
+		if (pwp == NULL) {
+		    fprintf(stderr, "%s: Error: getpwnam(%s) failed\n", pmGetProgname(), opts.optarg);
+		    badarg++;
+		}
+		else {
+		    user = opts.optarg;
+		    uid = pwp->pw_uid;
+		}
 		break;
 
 	    case 'w':		/* warnings */
@@ -65,6 +119,10 @@ main(int argc, char **argv)
 	}
 
     }
+
+    if (badarg)
+	exit(1);
+
     if (opts.errors || (opts.flags & PM_OPTFLAG_EXIT) || opts.optind != argc-1) {
 	int		exitsts;
 	exitsts = !(opts.flags & PM_OPTFLAG_EXIT);
@@ -72,17 +130,14 @@ main(int argc, char **argv)
 	exit(exitsts);
     }
 
-    if (user != NULL && lflag) {
-	fprintf(stderr, "%s: Error: -l and -u options are mutually exclusive\n", pmGetProgname());
+    if ((user != NULL || group != NULL || mflag != 0) && lflag) {
+	fprintf(stderr, "%s: Error: -l is mutually exclusive with -u, -g and -m\n", pmGetProgname());
 	exit(1);
     }
 
-    if (user != NULL) {
-	pw = getpwnam(user);
-	if (pw == NULL) {
-	    fprintf(stderr, "%s: Error: getpwnam(%s) failed\n", pmGetProgname(), user);
-	    exit(1);
-	}
+    if (user != NULL && group == NULL) {
+	/* -u and no -g, use user's default group */
+	gid = pwp->pw_gid;
     }
 
     if (sscanf(argv[opts.optind], "%u.%u", &domain, &serial) != 2) {
@@ -113,38 +168,59 @@ main(int argc, char **argv)
     }
 
     if (lflag) {
+	int	inst;
+	char	*iname;
+	int	numinst = 0;
 	if (sts < 0) {
 	    fprintf(stderr, "%s: Error: %s: failed to load indom cache file\n", pmGetProgname(), pmInDomStr(indom));
 	    exit(1);
 	}
-	if ((sts = pmdaCacheOp(indom, PMDA_CACHE_DUMP)) < 0) {
+	if ((sts = pmdaCacheOp(indom, PMDA_CACHE_ACTIVE)) < 0) {
 	    if (wflag)
-		fprintf(stderr, "Warning: %s: PMDA_CACHE_DUMP: %s\n", pmInDomStr(indom), pmErrStr(sts));
+		fprintf(stderr, "Warning: %s: PMDA_CACHE_ACTIVE: %s\n", pmInDomStr(indom), pmErrStr(sts));
 	}
+	if ((sts = pmdaCacheOp(indom, PMDA_CACHE_WALK_REWIND)) < 0) {
+	    if (wflag)
+		fprintf(stderr, "Warning: %s: PMDA_CACHE_WALK_REWIND: %s\n", pmInDomStr(indom), pmErrStr(sts));
+	}
+	printf("Instance domain %s cache contents ...\n", pmInDomStr(indom));
+	while ((inst = pmdaCacheOp(indom, PMDA_CACHE_WALK_NEXT)) != -1) {
+	    if ((sts = pmdaCacheLookup(indom, inst, &iname, NULL)) < 0) {
+		if (wflag) {
+		    fprintf(stderr, "Warning: %s: Lookup failed for inst=%d: %s\n", pmInDomStr(indom), inst, pmErrStr(sts));
+		}
+		continue;
+	    }
+	    if (numinst == 0)
+		printf("%8.8s %s\n", "inst_id", "inst_name");
+	    printf("%8d %s\n", inst, iname);
+	    numinst++;
+	}
+	if (numinst == 0)
+	    printf("No entries\n");
+
 	exit(0);
     }
 
     /*
-     * initialize ... enable group reading and writing as some PMDAs depend
-     * on this
+     * initialize ...
      */
-    umask(S_IWOTH);
-    if ((sts = pmdaCacheOp(indom, PMDA_CACHE_WRITE)) < 0) {
-	if (wflag)
-	    fprintf(stderr, "Warning: %s: PMDA_CACHE_WRITE: %s\n", pmInDomStr(indom), pmErrStr(sts));
-    }
     pmsprintf(pathname, sizeof(pathname), "%s%cconfig%cpmda%c%s",
 	pmGetOptionalConfig("PCP_VAR_DIR"), sep, sep, sep, pmInDomStr(indom));
-    if (user) {
+    if ((sts = pmdaCacheOp(indom, PMDA_CACHE_WRITE)) < 0) {
+	fprintf(stderr, "Error: %s: create %s failed: %s\n", pmGetProgname(), pathname, pmErrStr(sts));
+	exit(1);
+    }
+    if (user || group) {
 	/* change owner and group */
-	if (chown(pathname, pw->pw_uid, pw->pw_gid) < 0) {
-	    fprintf(stderr, "%s: Error: created %s, but cannot change ownership: %s\n", pmGetProgname(), pathname, pmErrStr(-oserror()));
+	if (chown(pathname, uid, gid) < 0) {
+	    fprintf(stderr, "%s: Error: created %s, but cannot change ownership to uid=%d gid=%d: %s\n", pmGetProgname(), pathname, uid, gid, pmErrStr(-oserror()));
 	    exit(1);
 	}
     }
-    /* explicitly make mode 660 */
-    if (chmod(pathname, 0660) < 0) {
-	fprintf(stderr, "%s: Error: created %s, but cannot change mode: %s\n", pmGetProgname(), pathname, pmErrStr(-oserror()));
+    /* explicitly set mode ... */
+    if (chmod(pathname, mode) < 0) {
+	fprintf(stderr, "%s: Error: created %s, but cannot change mode to 0%o: %s\n", pmGetProgname(), pathname, mode, pmErrStr(-oserror()));
 	exit(1);
     }
 

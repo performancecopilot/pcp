@@ -40,18 +40,36 @@ then
 fi
 
 $sudo rm -f "$PCP_VAR_DIR/config/pmda/$qadomain.42"
+mygroup=`id -gn`
+
+_filter()
+{
+    sed \
+	-e "s@$PCP_VAR_DIR@PCP_VAR_DIR@g" \
+	-e "s/-g $mygroup/-g MYGROUP/" \
+	-e "s/root\.$mygroup\$/root.MYGROUP/" \
+    # end
+}
 
 _doit()
 {
-    echo "+ indomcachectl $*"
-    $sudo "$PCP_BINADM_DIR/indomcachectl" $*
-    if [ -f "$PCP_VAR_DIR/config/pmda/$qadomain.42" ]
+    echo "+ indomcachectl $*" | _filter
+    $sudo "$PCP_BINADM_DIR/indomcachectl" $* >$tmp.out 2>&1
+    lsts=$?
+    _filter <$tmp.out
+    if [ "$lsts" = 0 ]
     then
-	ls -l "$PCP_VAR_DIR/config/pmda/$qadomain.42" \
-	| $PCP_AWK_PROG '{ print "indom cache file '$qadomain.42': owner:",$3 "." $4 }'
-	cat $PCP_VAR_DIR/config/pmda/$qadomain.42
+	if [ -f "$PCP_VAR_DIR/config/pmda/$qadomain.42" ]
+	then
+	    ls -l "$PCP_VAR_DIR/config/pmda/$qadomain.42" \
+	    | $PCP_AWK_PROG '{ print "indom cache file '$qadomain.42': mode=" $1 " owner=" $3 "." $4 }' \
+	    | _filter
+	    $sudo cat $PCP_VAR_DIR/config/pmda/$qadomain.42
+	else
+	    echo "indom cache file $qadomain.42: not found"
+	fi
     else
-	echo "indom cache file $qadomain.42: not found"
+	echo "indomcachectl failed: exit $lsts"
     fi
 }
 
@@ -68,8 +86,19 @@ _doit 512.42
 _doit $qadomain.4194304
 # -u and -l
 _doit -u pcpqa -l $qadomain.42
+# -g and -l
+_doit -g pcpqa -l $qadomain.42
+# -m and -l
+_doit -m 0600 -l $qadomain.42
+# -u and -g and -m and -l
+_doit -u pcpqa -g pcpqa -m 0600 -l $qadomain.42
 # bad -u
 _doit -u user-is-not-in-password-file $qadomain.42
+# bad -g
+_doit -g group-is-not-in-group-file $qadomain.42
+# bad -m
+_doit -m 069 $qadomain.42
+_doit -m 1777 $qadomain.42
 
 echo
 echo "listing ..."
@@ -80,6 +109,8 @@ cat <<End-of-File >$tmp.cache
 2 0 2147483647
 End-of-File
 $sudo cp $tmp.cache "$PCP_VAR_DIR/config/pmda/$qadomain.42"
+# force mode so ls is deterministic
+$sudo chmod 0600 "$PCP_VAR_DIR/config/pmda/$qadomain.42"
 _doit -lw $qadomain.42
 # rainbow ...
 cat <<End-of-File >$tmp.cache
@@ -93,15 +124,26 @@ cat <<End-of-File >$tmp.cache
 6 1665074605 violet
 End-of-File
 $sudo cp $tmp.cache "$PCP_VAR_DIR/config/pmda/$qadomain.42"
+$sudo chmod 0600 "$PCP_VAR_DIR/config/pmda/$qadomain.42"
 _doit -lw $qadomain.42
 
+echo
+echo "creation errors ..."
 # pre-existance error ...
 _doit $qadomain.42
+$sudo rm -f "$PCP_VAR_DIR/config/pmda/$qadomain.42"
+# permissions
+save_sudo="$sudo"
+sudo=''
+_doit $qadomain.42
+sudo="$save_sudo"
 
 echo
 echo "creation ..."
 $sudo rm -f "$PCP_VAR_DIR/config/pmda/$qadomain.42"
 _doit -w $qadomain.42
+$sudo rm -f "$PCP_VAR_DIR/config/pmda/$qadomain.42"
+_doit -m 0060 -g $mygroup $qadomain.42
 $sudo rm -f "$PCP_VAR_DIR/config/pmda/$qadomain.42"
 
 # this one sort of matches the use case in the PMDA Install scripts
