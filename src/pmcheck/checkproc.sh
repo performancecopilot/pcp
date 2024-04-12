@@ -151,13 +151,13 @@ _ctl_svc()
 		    if grep '^LoadError=.*\.service not found' <$tmp/_ctl_svc >/dev/null
 		    then
 			rc=2
-			echo "No systemd unit file installed"
+			echo "systemd's $svc.service unit is not installed"
 		    else
 			rc=1
 		    fi
 		else
 		    # no clue ...
-		    echo "systemd unit $svc.service is not active, activating or inactive?"
+		    echo "systemd $svc.service unit is not active, activating or inactive?"
 		    rc=2
 		fi
 	    fi
