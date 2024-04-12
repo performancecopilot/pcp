@@ -1969,6 +1969,7 @@ x11
 1504 pmval archive archive_v3 local multi-archive
 1505 pmcheck local
 1506 pmval derive local
+1507 other local
 1511 pmcd local pmda.sample
 1515 pmda.denki local valgrind
 1530 pmda.zfs local valgrind

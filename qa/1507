@@ -1,0 +1,113 @@
+#!/bin/sh
+# PCP QA Test No. 1507
+# check out indomcachectl
+#
+# Copyright (c) 2024 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+$sudo rm -rf $tmp $tmp.* $seq.full
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+qadomain=`sed -n <$PCP_VAR_DIR/pmns/stdpmid -e '/[ 	]FORQA[ 	]/s/.*FORQA[ 	]*//p'`
+if [ -z "$qadomain" ]
+then
+    echo "Arrgh! cannot get FORQA domain from $PCP_VAR_DIR/pmns/stdpmid"
+    status=1
+    exit
+fi
+
+$sudo rm -f "$PCP_VAR_DIR/config/pmda/$qadomain.42"
+
+_doit()
+{
+    echo "+ indomcachectl $*"
+    $sudo "$PCP_BINADM_DIR/indomcachectl" $*
+    if [ -f "$PCP_VAR_DIR/config/pmda/$qadomain.42" ]
+    then
+	ls -l "$PCP_VAR_DIR/config/pmda/$qadomain.42" \
+	| $PCP_AWK_PROG '{ print "indom cache file '$qadomain.42': owner:",$3 "." $4 }'
+	cat $PCP_VAR_DIR/config/pmda/$qadomain.42
+    else
+	echo "indom cache file $qadomain.42: not found"
+    fi
+}
+
+# real QA test starts here
+echo "error handling ..."
+_doit
+_doit -blah
+_doit foo.bar
+_doit x-123.456
+_doit $qadomain.-456
+# too many domain bits
+_doit 512.42
+# too many serial bits
+_doit $qadomain.4194304
+# -u and -l
+_doit -u pcpqa -l $qadomain.42
+# bad -u
+_doit -u user-is-not-in-password-file $qadomain.42
+
+echo
+echo "listing ..."
+_doit -l $qadomain.42
+_doit -lw $qadomain.42
+# empty
+cat <<End-of-File >$tmp.cache
+2 0 2147483647
+End-of-File
+$sudo cp $tmp.cache "$PCP_VAR_DIR/config/pmda/$qadomain.42"
+_doit -lw $qadomain.42
+# rainbow ...
+cat <<End-of-File >$tmp.cache
+2 0 2147483647
+0 1665074605 red
+1 1665074605 orange
+2 1665074605 yellow
+3 1665074605 green
+4 1665074605 blue
+5 1665074605 indigo
+6 1665074605 violet
+End-of-File
+$sudo cp $tmp.cache "$PCP_VAR_DIR/config/pmda/$qadomain.42"
+_doit -lw $qadomain.42
+
+# pre-existance error ...
+_doit $qadomain.42
+
+echo
+echo "creation ..."
+$sudo rm -f "$PCP_VAR_DIR/config/pmda/$qadomain.42"
+_doit -w $qadomain.42
+$sudo rm -f "$PCP_VAR_DIR/config/pmda/$qadomain.42"
+
+# this one sort of matches the use case in the PMDA Install scripts
+#
+_doit -upcpqa $qadomain.42
+
+
+# success, all done
+exit

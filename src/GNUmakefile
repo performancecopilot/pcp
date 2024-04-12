@@ -135,6 +135,7 @@ OTHER_SUBDIRS += \
 	find-filter \
 	runaspcp \
 	pmcheck \
+	indomcachectl \
 	#
 
 SUBDIRS = \
