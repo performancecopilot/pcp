@@ -186,6 +186,8 @@ eventlog	# from pcp-eventlog
 find-filter
 ganglia2pcp
 genpmda
+geolocate
+indomcachectl
 iostat2pcp
 mkaf
 mrtg2pcp
@@ -210,22 +212,29 @@ pmconfirm
 pmcpp
 pmdaapache
 pmdabash
+pmdabcc
+pmdabpf
 pmdacisco
+pmdadm
+pmdainfiniband
 pmdakernel
 pmdalogger
 pmdamailq
 pmdammv
 pmdamounts
+pmdanfsclient
 pmdanvidia
 pmdaopenmetrics
 pmdaoverhead
 pmdaperfevent
 pmdapipe
+pmdaproc
 pmdaroot
 pmdasample
 pmdasendmail
 pmdashping
 pmdasimple
+pmdasockets
 pmdasummary
 pmdate
 pmdatrace
@@ -431,6 +440,7 @@ pmTraversePMNS
 pmUnits
 pmUnitsStr
 pmValueSet
+pmdaCache
 pmdaExtSetFlags
 pmdaInit
 pmdaRootConnect
@@ -477,6 +487,7 @@ gethostname
 getopt
 getpwent
 localtime
+malloc
 nanosleep
 printf
 readline
@@ -570,6 +581,7 @@ roundtrips?
 sbin	# from /usr/sbin
 secs?
 sgi	# from www.sgi.com
+speclocal
 timeunits
 tls	# from /etc/pcp/tls.conf
 uninterpolated
@@ -655,9 +667,9 @@ s//\1/
 s/\\f.*//
 p
 }' \
-	-e '/^\\f[3B]\\-[A-Za-z][A-Za-z][A-Za-z?]*/{
+	-e '/^\\f[3B]\\-[A-Za-z0-9][A-Za-z0-9][A-Za-z0-9?]*/{
 s/^\\f[3B]\\-//
-s/[^A-Za-z].*//
+s/[^A-Za-z0-9].*//
 p
 }' \
     | tr ' ' '\012' \

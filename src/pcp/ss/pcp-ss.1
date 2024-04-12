@@ -101,12 +101,12 @@ Note the literal \fB@\fP prefix is required for an absolute time, see
 .BR PCPIntro (1)
 for details.
 The archive must of course contain data for the requested time. You can use
-\fBpmdumplog \-l\fP \fIsomearchive\fP to examine the time bounds of \fIsomearchive\fP.
+\fBpmlogdump \-l\fP \fIsomearchive\fP to examine the time bounds of \fIsomearchive\fP.
 .TP 5
 \fBpcp \-a \fIsomearchive\fP \fB\-O\-0\fP ss \-noemitauO\fP
 As above, but with an offset of zero seconds (\fB\-O\-0\fP) before the current end of
 \fIsomearchive\fP, i.e. the most recently logged data. Note that \fIsomearchive\fP
-may be curently growing (i.e. being logged with
+may be currently growing (i.e. being logged with
 .BR pmlogger (1)).
 .SH OPTIONS
 Due to the large number of options supported by
@@ -146,7 +146,7 @@ In archive mode, use the timezone of the archive rather than the
 timezone on the local machine running
 .BR pcp-ss .
 The timezone, start and finish times of the archive may be examined using
-.BR pmdumplog (1)
+.BR pmlogdump (1)
 with the \fB\-L\fP option.
 .PP
 The above
@@ -305,3 +305,8 @@ For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
 .BR pcp.conf (5)
 and
 .BR ss (8).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ somearchive commandline TIME_WAIT persocket
+.\" +ok+ noemitauO [from command line option] somehost ESTAB Netid Recv Jun
+.\" +ok+ ss [from pcp-ss]
