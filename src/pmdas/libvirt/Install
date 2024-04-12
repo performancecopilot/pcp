@@ -58,17 +58,19 @@ mkdir -p "$PCP_VAR_DIR/config/pmda" 2>/dev/null
 indoms="0"
 for indom in $indoms
 do
-    failed=false
-    touch "$PCP_VAR_DIR/config/pmda/$domain.$indom" >/dev/null 2>&1
-    [ $? -ne 0 ] && failed=true
-    chown $user "$PCP_VAR_DIR/config/pmda/$domain.$indom"
-    [ $? -ne 0 ] && failed=true
-
-    if $failed; then
-        echo "Cannot create indom persistance files for user $user"
-        echo "Failed on: $PCP_VAR_DIR/config/pmda/$domain.$indom"
-        status=1
-        exit
+    if [ ! -f "$PCP_VAR_DIR/config/pmda/$domain.$indom" ]
+    then
+	# First time Install, initialize PMDA's indom cache file
+	#
+	if "$PCP_BINADM_DIR/indomcachectl" -u $user $domain.$indom
+	then
+	    :
+	else
+	    echo "Cannot create indom persistance files for user $user"
+	    echo "Failed on: $PCP_VAR_DIR/config/pmda/$domain.$indom"
+	    status=1
+	    exit
+	fi
     fi
 done
 
