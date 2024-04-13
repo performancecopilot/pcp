@@ -114,6 +114,7 @@ PCP_SASLCONF_DIR
 PCP_SA_DIR
 PCP_SHARE_DIR
 PCP_SORT_PROG
+PCP_STDERR
 PCP_SYSCONFIG_DIR
 PCP_SYSCONF_DIR
 PCP_SYSLOG_PROG
@@ -131,6 +132,7 @@ PCP_VERSION
 PCP_WHICH_PROG
 PCP_XCONFIRM_PROG
 PMCD_CONNECT_TIMEOUT
+PMCD_NAMES_CHANGE
 PMCD_PORT
 PMCD_RECONNECT_TIMEOUT
 PMCD_REQUEST_TIMEOUT
@@ -182,6 +184,7 @@ collectl	# from pcp-collectl
 collectl2pcp
 dbpmda
 dkvis
+elasticsearch	# pcp2elasticsearch
 eventlog	# from pcp-eventlog
 find-filter
 ganglia2pcp
@@ -189,6 +192,7 @@ genpmda
 geolocate
 indomcachectl
 iostat2pcp
+json	# from pcp2json
 mkaf
 mrtg2pcp
 newhelp
@@ -214,6 +218,7 @@ pmdaapache
 pmdabash
 pmdabcc
 pmdabpf
+pmdabpftrace
 pmdacisco
 pmdadm
 pmdainfiniband
@@ -316,6 +321,9 @@ runaspcp
 sar2pcp
 sheet2pcp
 telnet-probe
+xlsx	# from pcp2xlsx
+xml	# from pcp2xml
+zabbix	# from pcp2zabbix
 
 # other commands
 #
@@ -377,6 +385,7 @@ PM_CTXFLAG_SECURE
 PM_ID_NULL
 PM_INDOM_NULL
 PM_IN_NULL
+PM_LABEL_OPTIONAL
 PM_SEM_COUNTER
 PM_SEM_DISCRETE
 PM_SEM_INSTANT
@@ -526,6 +535,7 @@ Makefile
 Mbytes?
 MiB
 OK
+OPENMETRICS
 PCP_VARIABLE
 PIDs?
 POSIX
@@ -545,8 +555,10 @@ env	# from pcp.env
 errno
 foo
 g?cc	# C compiler
+hr	# abbreviation for hour
 html	# from a URL
 iana	# from www.iana.org
+ini	# from ini-style
 int	# C type 
 io	# from https://pcp.readthedocs.io/en/
 ipc
@@ -556,6 +568,7 @@ loopback
 lpcp	# from -lpcp to nm
 lpcp_import	# from -lpcp_import to nm
 lpcp_mmv	# from -lpcp_mmv to nm
+mem	# from proc.memory.rss
 metacharacters?
 microsec	# microsecond abbreviation
 millisec	# millisecond abbreviation
@@ -565,9 +578,11 @@ mutex
 nanosec	# nanosecond abbreviation
 nfs
 notready
+ns	# abbreviation for nanosec
 nsecs?
 numval	# from pmResult
 ok
+openmetrics
 org	# from www.iana.org
 percpu	# from metrics like kernel.percpu.util.sys
 performancecopilot	# from https://github.com/performancecopilot/...
@@ -576,35 +591,42 @@ pm
 pmdas	# from /var/lib/pcp/pmdas/...
 pmnsfile
 popup
+proc	# from proc.memory.rss
 readthedocs	# from https://pcp.readthedocs.io/en/
 roundtrips?
+rss	# from proc.memory.rss
 sbin	# from /usr/sbin
 secs?
 sgi	# from www.sgi.com
 speclocal
+sysfork	# from kernel.all.sysfork
 timeunits
 tls	# from /etc/pcp/tls.conf
 uninterpolated
 unix
 usr	# from /usr/... unfortunately we'll miss "user" spelled "usr" here
+util	# from mem.util.used
 var
 www	# from www.sgi.com
 zoneinfo
+parsable
 
 # most spelling is American, e.g. color, but some of these British
 # spelling words also appear ...
 #
+[Cc]ustomise
+[Cc]ustomised
+[Dd]aemonise
+[Vv]irtualise
 behaviours?
 centred
 centres?
 colours?
 customisable
 customisations?
-customise
-customised
-[Dd]aemonise
 daemonising
 favours?
+flavours?
 honoured
 honours?
 misbehaviours?
@@ -612,8 +634,15 @@ recognise
 recognised
 tokenise
 tokenising
-virtualise
+utilised
 virtualisation
+
+# and some American ones that trip up ispell when the British
+# dictionary is available
+#
+[Dd]aemonize
+containerize
+containerized
 
 End-of-File
 if [ $debug -gt 0 ]
@@ -653,7 +682,7 @@ do
     awk <"$file" >$tmp.synopsis '
 $1 == ".SH" && $NF ~ /SYNOPSIS/ { want = 1; next }
 want == 1 && $1 == ".SH"	{ exit }
-want == 1			{ print }'
+want == 1			{ if ($0 ~ /^[\\.[]/) print }'
     # Section 1 sh Synopsis
     #
      sed <$tmp.synopsis \
@@ -667,9 +696,9 @@ s//\1/
 s/\\f.*//
 p
 }' \
-	-e '/^\\f[3B]\\-[A-Za-z0-9][A-Za-z0-9][A-Za-z0-9?]*/{
+	-e '/^\\f[3B]\\-[A-Za-z][A-Za-z][A-Za-z?]*/{
 s/^\\f[3B]\\-//
-s/[^A-Za-z0-9].*//
+s/[^A-Za-z].*//
 p
 }' \
     | tr ' ' '\012' \
@@ -756,10 +785,11 @@ p
     # - tbl(1) format section (includes cw, cf, rf, lf, etc
     # - C-style hex constants
     # - leading @ in a line
+    # - troff conditonals, macros. .ds, ... if it is Pod::Man generated
     # then ispell (so we can treat _ as part of a word), sort, remove
     # duplicates, and then cull exceptions ...
     #
-    if sed <"$file" >$tmp.1 \
+    if sed <"$file" >$tmp.in \
 	    -e '/^\.TH/d' \
 	    -e '/^.\\"/d' \
 	    -e "/^'\\\\\"/d" \
@@ -772,18 +802,35 @@ p
 	echo "Error: $file: initial sed failed"
 	exit
     fi
-    if awk <$tmp.1 >$tmp.2 2>$tmp.err '
+    if awk <$tmp.in >$tmp.tmp 2>$tmp.err '
 $1 == ".TS"			{ skip = 1; next }
 skip == 1 && $NF ~ /\.$/	{ skip = 0; next }
 skip == 0			{ print }'
     then
-	:
+	mv $tmp.tmp $tmp.in
     else
 	cat $tmp.err
-	echo "Error: $file: tbl format sectionm culling failed"
+	echo "Error: $file: tbl format section culling failed"
 	exit
     fi
-    if ispell $dict -a -w '_' <$tmp.2 >$tmp.3 2>$tmp.err
+    if head -1 $file | grep 'Pod::Man' >/dev/null
+    then
+	sed <$tmp.in >$tmp.tmp \
+	    -e "/^[.][ 	]*de/d" \
+	    -e "/^[.][ 	]*if/d" \
+	    -e "/^[.][ 	]*ie/d" \
+	    -e "/^[.][ 	]*el/d" \
+	    -e "/^[.][ 	]*ds/d" \
+	    -e "/^[.][ 	]*nr/d" \
+	    -e "/^[.][ 	]*rr/d" \
+	    -e "/^[.][ 	]*tm/d" \
+	    -e "/^[.'][ 	]*br/d" \
+	    -e '/corrections for vroff/d' \
+	# end
+	mv $tmp.tmp $tmp.in
+    fi
+
+    if ispell $dict -a -w '_' <$tmp.in >$tmp.out 2>$tmp.err
     then
 	:
     else
@@ -791,8 +838,8 @@ skip == 0			{ print }'
 	echo "Error: $file: ispell failed"
 	exit
     fi
-    cat $tmp.err >>$tmp.3
-    if sed -n <$tmp.3 >$tmp.4 2>$tmp.err \
+    cat $tmp.err >>$tmp.out
+    if sed -n <$tmp.out >$tmp.tmp 2>$tmp.err \
 	-e '/^[#&] /{
 s/^. //
 s/ .*//
@@ -806,7 +853,7 @@ p
 }' \
 	# end
     then
-	:
+	mv $tmp.tmp $tmp.out
     else
 	cat $tmp.err
 	echo "Error: $file: ispell sed failed"
@@ -815,12 +862,13 @@ p
 
     # assume this one will work!
     #
-    LC_COLLATE=POSIX sort <$tmp.4 \
-    | uniq >$tmp.5
+    LC_COLLATE=POSIX sort <$tmp.out \
+    | uniq >$tmp.tmp
+    mv $tmp.tmp $tmp.out
 
-    if sed -E -f $tmp.sed <$tmp.5 >$tmp.out
+    if sed -E -f $tmp.sed <$tmp.out >$tmp.tmp
     then
-	:
+	mv $tmp.tmp $tmp.out
     else
 	cat $tmp.err
 	echo "Error: $file: final sed failed"

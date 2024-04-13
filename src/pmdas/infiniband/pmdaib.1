@@ -15,7 +15,7 @@
 .TH PMDAIB 1 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pmdaib\f1 \- Infiniband performance metrics domain agent (PMDA)
-.SH SYNOPSYS
+.SH SYNOPSIS
 \f3$PCP_PMDAS_DIR/infiniband/pmdaib\f1
 [\f3\-c\f1 \f2configFile\f1]
 [\f3\-D\f1 \f2debug\f1]
@@ -57,7 +57,7 @@ is written to the standard error instead.
 .TP
 .B \-w
 Write out the default config file to
-.BR $PCP_PMDAS_DIRS/infiniband
+.BR $PCP_PMDAS_DIR/infiniband
 and exit immediately.  The written config file will contain the local HCA ports.
 It will not overwrite an existing file.  This argument should only be used to create
 the template config file and should never appear in
@@ -106,18 +106,14 @@ GUID.  E.g., to monitor port 13 of a remote switch which is connected to the fab
 on the first port of the second HCA:
 .PP
 switch13 0xfeeffeefabcdabcd 13 via mthca1:1
-.SH LOCAL CONTEXT
-The Infiniband pmda also supports accessing the metrics via
-.B PM_CONTEXT_LOCAL
-when using the PMAPI interface.  In order to use the Infiniband pmda in this way,
-set the environment variable
-.B PMDA_LOCAL_IB
-prior to calling
-.B pmNewContext(3).
 .SH SEE ALSO
 .BR PCPIntro (1),
-.BR pmcd(1),
-.BR PMAPI(3),
-.BR pmContextNew(3)
+.BR pmcd (1),
+.BR PMAPI (3)
 and
-.BR ibnetdiscover(8).
+.BR ibnetdiscover (8).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ ibnetdiscover localPortName 
+.\" +ok+ localPortNum infiniband configFile instName portGUID logfile
+.\" +ok+ portNum CONFIG pmdaib myPort GUIDs mthca HCAs GUID HCA ib
