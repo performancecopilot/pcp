@@ -206,7 +206,7 @@ The
 .I pmid
 and
 .I type
-parameters decribe the PMID of the parameter and the data type
+parameters describe the PMID of the parameter and the data type
 (one of the
 .B PM_TYPE_*
 values from
@@ -298,10 +298,10 @@ pmdaEventResetArray(myarray);
    // of the exported set, or at the end, or in the middle, or
    // a combination of multiple missed record episodes)
    ... {
-      int              nmiss;
+      int              nmissed;
       struct timeval   stamp;
 
-      if ((sts = pmdaEventAddMissedRecord(myarray, &stamp, nmiss)) < 0) {
+      if ((sts = pmdaEventAddMissedRecord(myarray, &stamp, nmissed)) < 0) {
 	 // report error and fail
       }
    }
@@ -320,3 +320,9 @@ eap = pmdaEventGetAddr(myarray);
 .BR PMDA (3)
 and
 .BR pmEventFlagsStr (3).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ clock_gettime eap vbp sts vp myarray
+.\" +ok+ ea_type ea_len [from ea_type and ea_len fields ... of the pmEventArray]
+.\" +ok+ pmdaEventArray [from generic name for man page]
+.\" +ok+ PM_EVENT_FLAG_ [from PM_EVENT_FLAG_*]

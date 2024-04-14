@@ -199,7 +199,7 @@ genpmda
 geolocate
 indomcachectl
 iostat2pcp
-json	# from pcp2json
+json		# from pcp2json
 mkaf
 mrtg2pcp
 newhelp
@@ -300,6 +300,7 @@ pmlogrewrite
 pmlogsize
 pmlogsummary
 pmmessage
+pmnewhelp
 pmns
 pmnsadd
 pmnsdel
@@ -328,9 +329,9 @@ runaspcp
 sar2pcp
 sheet2pcp
 telnet-probe
-xlsx	# from pcp2xlsx
-xml	# from pcp2xml
-zabbix	# from pcp2zabbix
+xlsx		# from pcp2xlsx
+xml		# from pcp2xml
+zabbix		# from pcp2zabbix
 
 # other commands
 #
@@ -402,6 +403,23 @@ OPT_STATE_XINDOM
 OPT_STATE_XPMID
 OPT_STATE_XPROFILE
 OPT_STATE_XREQ
+PCP_ATTR_AUTHNAME
+PCP_ATTR_COMPRESS
+PCP_ATTR_CONTAINER
+PCP_ATTR_EXCLUSIVE
+PCP_ATTR_GROUPID
+PCP_ATTR_LOCAL
+PCP_ATTR_METHOD
+PCP_ATTR_NONE
+PCP_ATTR_PASSWORD
+PCP_ATTR_PROCESSID
+PCP_ATTR_PROTOCOL
+PCP_ATTR_REALM
+PCP_ATTR_SECURE
+PCP_ATTR_UNIXSOCK
+PCP_ATTR_USERAUTH
+PCP_ATTR_USERID
+PCP_ATTR_USERNAME
 PCP_INDOM_CONFIG
 PCP_TRACE_HOST
 PCP_TRACE_TIMEOUT
@@ -453,10 +471,6 @@ PDU_TEXT_REQ
 PDU_VERSION
 PDU_VERSION2
 PMDAEVENTARRAY
-PMDA_EXT_NAMES_CHANGE
-PMDA_INTERFACE_
-PMDA_INTERFACE_LATEST
-PMDA_PMUNITS
 PMLC_GET_AVAIL
 PMLC_GET_DELTA
 PMLC_GET_INLOG
@@ -1164,8 +1178,11 @@ pmDiscoverSetup
 pmDupContext
 pmErrStr
 pmErrStr_r
+pmEventArray
 pmEventFlagsStr
 pmEventFlagsStr_r
+pmEventParameter
+pmEventRecord
 pmExtendFetchGroup_event
 pmExtendFetchGroup_indom
 pmExtendFetchGroup_item
@@ -1211,6 +1228,7 @@ pmGetPMNSLocation
 pmGetProgname
 pmGetUsername
 pmGetVersion
+pmHighResEventArray
 pmHighResFetch
 pmHighResResult
 pmID
@@ -1324,6 +1342,7 @@ pmSpecLocalPMDA
 pmStore
 pmStoreHighRes
 pmSyslog
+pmTime
 pmTimeConnect
 pmTimeRecv
 pmTimeSendAck
@@ -1348,6 +1367,7 @@ pmUsageMessage
 pmUseContext
 pmUseZone
 pmValue
+pmValueBlock
 pmValueSet
 pmWebGroupChildren
 pmWebGroupClose
@@ -1442,6 +1462,64 @@ pmaUndeltaInDom
 
 # libpcp_pmda
 #
+PMDAOPT_DEBUG
+PMDAOPT_DOMAIN
+PMDAOPT_HELPTEXT
+PMDAOPT_INET
+PMDAOPT_IPV		# from PMDA_OPT_IPV6
+PMDAOPT_LOGFILE
+PMDAOPT_PIPE
+PMDAOPT_UNIX
+PMDAOPT_USERNAME
+PMDA_ATTR_CONTAINER
+PMDA_ATTR_GROUPID
+PMDA_ATTR_PROCESSID
+PMDA_ATTR_USERID
+PMDA_ATTR_USERNAME
+PMDA_CACHE_ACTIVE
+PMDA_CACHE_ADD
+PMDA_CACHE_CHECK
+PMDA_CACHE_CULL
+PMDA_CACHE_DUMP
+PMDA_CACHE_DUMP_ALL
+PMDA_CACHE_EMPTY
+PMDA_CACHE_HIDE
+PMDA_CACHE_INACTIVE
+PMDA_CACHE_LOAD
+PMDA_CACHE_REORG
+PMDA_CACHE_REUSE
+PMDA_CACHE_SAVE
+PMDA_CACHE_SIZE
+PMDA_CACHE_SIZE_ACTIVE
+PMDA_CACHE_SIZE_INACTIVE
+PMDA_CACHE_STRINGS
+PMDA_CACHE_SYNC
+PMDA_CACHE_WALK_NEXT
+PMDA_CACHE_WALK_REWIND
+PMDA_CACHE_WRITE
+PMDA_CALL
+PMDA_EXT_CONNECTED
+PMDA_EXT_FLAG_DIRECT
+PMDA_EXT_FLAG_HASHED
+PMDA_EXT_LABEL_CHANGE
+PMDA_EXT_NAMES_CHANGE
+PMDA_EXT_NOTREADY
+PMDA_EXT_SETUPDONE
+PMDA_FETCH_DYNAMIC
+PMDA_FETCH_NOVALUES
+PMDA_FETCH_STATIC
+PMDA_FLAG_AUTHORIZE
+PMDA_FLAG_CONTAINER
+PMDA_INTERFACE		# from "the version of PMDA_INTERFACE being used"
+PMDA_INTERFACE_		# from PMDA_INTERFACE_2 etc
+PMDA_INTERFACE_LATEST
+PMDA_OPTIONS
+PMDA_OPTIONS_END
+PMDA_OPTIONS_HEADERS
+PMDA_OPTIONS_TEXT
+PMDA_PMID
+PMDA_PMUNITS
+PMDA_UNITS
 __pmdaCacheDump
 __pmdaCacheDumpAll
 __pmdaCntInst
@@ -1491,6 +1569,7 @@ pmdaDynamicMetricTable
 pmdaDynamicPMNS
 pmdaDynamicSetClusterMask
 pmdaEventAddHighResMissedRecord
+pmdaEventDecodeCallBack
 pmdaEventAddHighResParam
 pmdaEventAddHighResRecord
 pmdaEventAddMissedRecord
@@ -1521,25 +1600,35 @@ pmdaEventResetArray
 pmdaEventResetHighResArray
 pmdaEventSetAccess
 pmdaEventSetFilter
+pmdaExt
 pmdaExtDynamicPMNS
 pmdaExtGetData
 pmdaExtSetData
 pmdaExtSetFlags
 pmdaFetch
+pmdaFetchCallBack
 pmdaGetContext
 pmdaGetHelp
 pmdaGetInDomHelp
 pmdaGetOpt
 pmdaGetOptions
+pmdaIPv		# from pmdaIPv6
+pmdaIndom
+pmdaInet
 pmdaInit
 pmdaInstance
+pmdaInstid
+pmdaInterface
 pmdaInterfaceMoved
 pmdaLabel
 pmdaMain
+pmdaMetric
 pmdaName
 pmdaOpenHelp
 pmdaOpenLog
+pmdaOptions
 pmdaPMID
+pmdaPipe
 pmdaProfile
 pmdaRehash
 pmdaRootConnect
@@ -1570,7 +1659,16 @@ pmdaTreePMID
 pmdaTreeRebuildHash
 pmdaTreeRelease
 pmdaTreeSize
+pmdaUnix
+pmdaUnknown
 pmdaUsageMessage
+
+# pmdaproc.sh
+#
+pmdaChooseConfigFile
+pmdaInstall
+pmdaRemove
+pmdaSetup
 
 # libpcp_trace
 #
@@ -1611,6 +1709,7 @@ pmiWrite
 
 # PCP error codes
 #
+PM_ERR_NOAGENT
 PM_ERR_AGAIN
 PM_ERR_APPVERSION
 PM_ERR_ARG
@@ -1686,6 +1785,7 @@ AF_UNIX
 EADDRINUSE
 ECONNREFUSED
 EINVAL
+EPERM
 OPTARG
 SIGALRM
 SIGHUP
@@ -1697,10 +1797,12 @@ SIGTERM
 SIGUSR
 SIGXCPU
 SIGXFSZ
-__int	# prefix from __int32_t or __int64_5
-_t	# suffix from __int32_t or __int64_5
+__int		# prefix from __int32_t or __int64_t
+__uint		# prefix from __uint32_t or __uint64_t
+_t		# suffix from __int32_t or __int64_t
 alphasort
 basename
+calloc
 closelog
 ctime
 ctime_r
@@ -1721,11 +1823,13 @@ gethostname
 getmachineid
 getopt
 getpwent
+gettimeofday
 gmtime_r
 index
 localtime
 lrand48
 malloc
+memcpy
 mktime
 nanosleep
 pclose
@@ -1734,6 +1838,7 @@ printf
 random
 readline
 readlink
+realloc
 regcmp
 regcomp
 regex
@@ -1750,7 +1855,11 @@ stdin
 stdout
 strcasestr
 strchrnul
+strcmp
+strdup
+strerror
 strftime
+strncmp
 strndup
 strsep
 strtod
@@ -1761,12 +1870,13 @@ syslog
 timespec	# struct timespec
 timeval		# struct timeval
 unsetenv
+varargs
 waitpid
 win32_inet_ntop
 win32_inet_pton
 wsastrerror
 
-ifdef	# sh(1) and pmcpp(1) conditionals
+ifdef		# sh(1) and pmcpp(1) conditionals
 ifndef
 elif
 fi
@@ -1777,14 +1887,14 @@ undef
 #
 ABI
 ASCII
-CB	# from \\f(CB or .ft CB
-CR	# from \\f(CR or .ft CR
-Dappl	# from -DapplN
+CB		# from \\f(CB or .ft CB
+CR		# from \\f(CR or .ft CR
+Dappl		# from -DapplN
 GNUmakefile
 Gbytes?
 GiB
 IPC
-IPv	# from IPv[46]
+IPv		# from IPv[46]
 Kbytes?
 KiB
 Makefile
@@ -1798,93 +1908,101 @@ POSIX
 PerformanceMetricsInferenceEngine	# from https://.../PerformanceMetricsInferenceEngine.html
 Posix
 Tbyte
-UAG	# from https://pcp.readthedocs.io/en/latest/UAG/...
+UAG		# from https://pcp.readthedocs.io/en/latest/UAG/...
 ascii
-com	# from www.sgi.com
-conf	# from pcp.conf and other *.conf files
+com		# from www.sgi.com
+conf		# from pcp.conf and other *.conf files
 config
-const	# C keyword
-cpu	# from metrics like kernel.cpu.util.sys
-dev	# from metrics like disk.dev.write
-en	# from https://pcp.readthedocs.io/en/
-env	# from pcp.env
+const		# C keyword
+cpu		# from metrics like kernel.cpu.util.sys
+dev		# from metrics like disk.dev.write
+en		# from https://pcp.readthedocs.io/en/
+env		# from pcp.env
 errno
 foo
 free'd		# as in call free(3)
-g?cc	# C compiler
+g?cc		# C compiler
 gid
 gid_t
 hardcoded
-hr	# abbreviation for hour
-html	# from a URL
-iana	# from www.iana.org
-ini	# from ini-style
-inst	# pmResult dump examples
-int	# C type 
-io	# from https://pcp.readthedocs.io/en/
+hr		# abbreviation for hour
+html		# from a URL
+iana		# from www.iana.org
+indomtab
+ini		# from ini-style
+inst		# pmResult dump examples
+instlist
+int		# C type 
+io		# from https://pcp.readthedocs.io/en/
 ipc
-ipv	# from ipv[46]
+ipv		# from ipv[46]
 localhost
 loopback
-lpcp	# from -lpcp to nm
+lpcp		# from -lpcp to nm
 lpcp_archive	# from -lpcp_archive to nm
 lpcp_import	# from -lpcp_import to nm
 lpcp_mmv	# from -lpcp_mmv to nm
 lpcp_pmda	# from -lpcp_pmda to nm
-mem	# from proc.memory.rss
+malloc'd	# from verb, to malloc
+mem		# from proc.memory.rss
 metacharacters?
+metrictab
 microsec	# microsecond abbreviation
 millisec	# millisecond abbreviation
 mins?
 mmv		# from mmv PMDA
 msecs?
 mutex
-nanosec	# nanosecond abbreviation
+namelist
+nanosec		# nanosecond abbreviation
 nfs
 notready
-ns	# abbreviation for nanosec
+ns		# abbreviation for nanosec
 nsecs?
-numval	# from pmResult
+numval		# from pmResult
 ok
 openmetrics
-org	# from www.iana.org
+org		# from www.iana.org
 parsable
-percpu	# from metrics like kernel.percpu.util.sys
+percpu		# from metrics like kernel.percpu.util.sys
 performancecopilot	# from https://github.com/performancecopilot/...
 pid
 pid_t
 pm
 pmapi		# from #include <pcp/pmapi.h>
-pmdas	# from /var/lib/pcp/pmdas/...
+pmda		# from #include <pcp/pmda.h>
+pmdas		# from /var/lib/pcp/pmdas/...
 pmnsfile
 popup
-proc	# from proc.memory.rss
+proc		# from proc.memory.rss
+programmatically
 readthedocs	# from https://pcp.readthedocs.io/en/
 roundtrips?
-rss	# from proc.memory.rss
-sbin	# from /usr/sbin
+rss		# from proc.memory.rss
+sbin		# from /usr/sbin
 secs?
-sgi	# from www.sgi.com
+sgi		# from www.sgi.com
 size_t
 speclocal
-struct	# C keyword
-sysfork	# from kernel.all.sysfork
+struct		# C keyword
+sysfork		# from kernel.all.sysfork
 time_t
 timeunits
-tls	# from /etc/pcp/tls.conf
-tv_sec	# struct timeval et al
+tls		# from /etc/pcp/tls.conf
+tv_sec		# struct timeval et al
 uid
 uid_t
 uninterpolated
 unix
 usr	# from /usr/... unfortunately we'll miss "user" spelled "usr" here
-util	# from mem.util.used
+util		# from mem.util.used
 var
-www	# from www.sgi.com
+www		# from www.sgi.com
 zoneinfo
 
 # most spelling is American, e.g. color, but some of these British
-# spelling words also appear ...
+# spelling words also appear and ispell's dictionaries are not
+# complete ...
 #
 [Cc]ustomise
 [Cc]ustomised
@@ -1906,6 +2024,10 @@ honours?
 misbehaviours?
 recognise
 recognised
+rescale
+specialise
+specialised
+specialising
 tokenise
 tokenising
 utilised
@@ -1990,7 +2112,7 @@ want == 1			{ if ($0 ~ /^[\\.[]/) {
 	    echo >&2 "<empty file>"
 	fi
     fi
-    [ -s $tmp.synopsis ] || echo >&2 "$file: Warning: empty extracted SYNOPSIS section"
+    [ -s $tmp.synopsis ] || (echo; echo "$file: Warning: empty extracted SYNOPSIS section" ) >&2
     #
     # Section 1 sh-style Synopsis
      sed <$tmp.synopsis \
@@ -2017,6 +2139,7 @@ p
     sed -n <$tmp.synopsis \
 	-e '/(.*);/{
 s/[()*,;]/ /g 
+s/\[]//g
 p
 }' \
     | tr ' ' '\012' \
@@ -2226,16 +2349,6 @@ p
 	    | sed -e 's/^/.\\" +ok+ /'
 	else
 	    cat $tmp.out
-	fi
-    else
-	if $emit
-	then
-	    if grep 'control lines .* scripts/man-spell' $file >/dev/null
-	    then
-		:
-	    else
-		echo '.\" control lines not needed for scripts/man-spell'
-	    fi
 	fi
     fi
 
