@@ -58,7 +58,7 @@ on the host
 One special case is supported; for the reserved
 .I pid
 value of
-.B PM_LOG_CONTROL_PORT
+.B PM_LOG_PRIMARY_PORT
 the requested connection is to the
 control port for the ``primary'' logger, whatever its process
 id might be.
@@ -73,7 +73,7 @@ instance, e.g. for
 .PP
 As the control port to
 .BR pmlogger (1)
-is not mulitplexed, applications using
+is not multiplexed, applications using
 .B __pmConnectLogger
 should use
 .BR close (2)
@@ -101,7 +101,7 @@ instance
 the designated
 .BR pmlogger (1)
 instance does not exist
-.IP \f3\-EEADDRINUSE\f1
+.IP \f3\-EADDRINUSE\f1
 the requested control port is already in use
 .SH SEE ALSO
 .BR pmcd (1),
@@ -110,3 +110,6 @@ the requested control port is already in use
 .BR PMAPI (3)
 and
 .BR __pmControlLog (3).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ __pmConnectLogger __pmControlLog

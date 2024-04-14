@@ -28,13 +28,13 @@
 .hy 0
 .in +8n
 .ti -8n
-int __pmParseHostSpec(const char *\fIstring\fP, pmHostSpec **\fIhostsp\fP, int\ *\fIcount\fP, char\ **\fIerrmsg\fP);
+int __pmParseHostSpec(const char *\fIstring\fP, __pmHostSpec **\fIhostsp\fP, int\ *\fIcount\fP, char\ **\fIerrmsg\fP);
 .br
 .ti -8n
-int __pmUnparseHostSpec(pmHostSpec *\fIhosts\fP, int \fIcount\fP, char *\fIstring\fP, size_t \fIsize\fP);
+int __pmUnparseHostSpec(__pmHostSpec *\fIhosts\fP, int \fIcount\fP, char *\fIstring\fP, size_t \fIsize\fP);
 .br
 .ti -8n
-void __pmFreeHostSpec(pmHostSpec *\fIhosts\fP, int \fIcount\fP);
+void __pmFreeHostSpec(__pmHostSpec *\fIhosts\fP, int \fIcount\fP);
 .sp
 .in
 .hy
@@ -65,7 +65,7 @@ hostname to be optionally followed by a list of port numbers,
 which will be tried in order when connecting to
 .B pmcd
 on that host.
-The portlist is separated from the hostname using a colon, and
+The list of port numbers is separated from the hostname using a colon, and
 each port in the list is comma-separated.
 .PP
 In addition, one or more optional
@@ -82,13 +82,13 @@ same comma-separated syntax as before.
 takes a null-terminated host specification
 .B string
 and returns an array of
-.B pmHostSpec
+.B __pmHostSpec
 structures, where the array has
 .B count
 entries.
 .PP
 These
-.B pmHostSpec
+.B __pmHostSpec
 structures that are returned via
 .B hostsp
 represent each individual host in the specification
@@ -102,7 +102,7 @@ declaration:
         char    *name;       /* hostname (always valid) */
         int     *ports;      /* array of host port numbers */
         int     nports;      /* number of ports in host port array */
-    } pmHostSpec;
+    } __pmHostSpec;
 .fi
 .PP
 .B __pmUnparseHostSpec
@@ -173,3 +173,7 @@ is returned.
 .BR PMAPI (3)
 and
 .BR pmNewContext (3).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ __pmParseHostAttrsSpec __pmUnparseHostSpec __pmParseHostSpec
+.\" +ok+ __pmFreeHostSpec __pmHostSpec proxied nports
