@@ -10,9 +10,18 @@ _do_args "$@"
 
 _check()
 {
-    test -n "$@" && echo "$@" >> $tmp/out
-    [ "$verbose" -gt 0 -a -s $tmp/out ] && cat $tmp/out
-    [ $status -eq 0 ] || exit
+    [ $status -eq 0 ] && return
+    if [ "$verbose" -gt 0 ]
+    then
+        if [ -s $tmp/out ]
+	then
+	    cat $tmp/out
+	elif [ -n "$@" ]
+	then
+	    echo "$@"
+	fi
+    fi
+    exit
 }
 
 iam=postgresql
@@ -24,10 +33,12 @@ then
 elif $sflag
 then
     status=0  # assume active until proven not to be
-    _ctl_svc state $iam || status=$?
+    _ctl_svc state $iam >>$tmp/out || status=$?
     _check "$iam service status: $status"
-    _ctl_pmda state $iam || status=$?
+    [ $status -eq 0 ] || exit
+    _ctl_pmda state $iam >>$tmp/out || status=$?
     _check "$iam PMDA status: $status"
+    [ $status -eq 0 ] || exit
     # No longer use probe due to difficulties with the PMDA implementation;
     # in particular it switches user to postgres which we cannot easily do.
     # Heuristic instead is simply to test to see if a postgres user exists.
@@ -35,6 +46,7 @@ then
     #PCP_PYTHON_PROBE=1 $PROBE || status=2
     id $iname >/dev/null 2>&1 || status=2
     _check "$iname user status: $status"
+    [ $status -eq 0 ] || exit
 elif $aflag
 then
     _ctl_pmda activate $iam pmda$iam.python || status=1

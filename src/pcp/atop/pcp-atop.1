@@ -195,7 +195,7 @@ Usually the bar graphs will not be sorted on busy percentage when there
 is enough horizontal space. However, after switching from text mode to
 bar graph mode the bar graphs might have been sorted because this was
 needed for the presentation in text mode. The next interval in bar graph
-mode shows the bars unsorted again unless the window width is unsufficient
+mode shows the bars unsorted again unless the window width is insufficient
 for all bars.
 .PP
 The remaining part of this manual page mainly describes the information
@@ -587,7 +587,7 @@ per individual thread (in a different color).
 Depending on the option 'a' (all or active toggle), all threads are shown
 or only the threads that were active during the last interval.
 Depending on the option 'Y' (sort threads), the threads per
-process will be sorted on the chosen sort criterium or not.
+process will be sorted on the chosen sort criterion or not.
 .br
 Whether this key is active or not can be seen in the header line.
 .TP 5
@@ -653,7 +653,7 @@ When
 access metrics with root privileges,
 the accumulated read and write throughput on disk is shown.
 When the
-.BR pmdabbf (1)
+.BR pmdabpf (1)
 or
 .BR pmdabcc (1)
 module 'netproc' has been installed,
@@ -2417,7 +2417,7 @@ block I/O delay (clockticks),
 .\"cgroup v2 most restrictive 'cpu.max' in upper directories calculated as percentage
 .\"(-3 means no cgroup v2 support, -2 means undefined and -1 means maximum),
 number of voluntary context switches, and
-number of involunatary context switches.
+number of involuntary context switches.
 .TP 9
 .B PRE
 For every process one line is shown.
@@ -2565,7 +2565,7 @@ Some features of
 .BR pcp-atop
 (such as reporting on the Apache HTTP daemon, Infiniband, NFS
 client mounts, hardware event counts, GPU statistics and per-process
-TCP and UDP statistics) are only activated if the corresonding PCP metrics
+TCP and UDP statistics) are only activated if the corresponding PCP metrics
 are available. Refer to the documentation for
 .BR pmdaapache (1),
 .BR pmdainfiniband (1),
@@ -2621,3 +2621,39 @@ For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
 .BR pmlogger_daily (1)
 and
 .BR pcp-atoprc (5).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ overcommit_memory tcp_cleanup_rbuf skb_consume_udp
+.\" +ok+ overcommitting unvoluntarily containerized
+.\" +ok+ cpufreq_stats brendangregg
+.\" +ok+ SCHED_OTHER tcp_recvmsg tcp_sendmsg udp_recvmsg udp_sendmsg
+.\" +ok+ allocstalls cpucritperc dskcritperc ownprocline SCHED_FIFO ZFSonlinux
+.\" +ok+ pagetables scrollable whereafter clockticks InfiniBand is_process
+.\" +ok+ overcommit Langeveld langeveld unflushed PARSABLE SCHED_RR
+.\" +ok+ YYYYMMDD parsable mba_MBps Realtime realtime vmware's
+.\" +ok+ uncached modprobe VolGroup oomkills procacct atoptool Runqueue
+.\" +ok+ runqueue swapouts TCPRASZ TCPSASZ UDPRASZ UDPSASZ MEMBUSY NETATOP
+.\" +ok+ GPUBUSY GPUNUMS mallocs ncurses deduped membusy memfull memsome
+.\" +ok+ resctrl netatop netproc retxmit KiBytes MiBytes bitlist
+.\" +ok+ softirq logfile oomkill gpubusy cpusome rpwrite
+.\" +ok+ atopsar numamig numnode curscal avgscal swapins MAJFLT BANDWI
+.\" +ok+ BANDWO WCANCL TCPRCV TCPSND BDELAY RDELAY UDPRCV UDPSND MEMAVG
+.\" +ok+ MEMNOW CGROUP MINFLT NIVCSW ENDATE ENTIME LOCKSZ NPROCS VSLIBS
+.\" +ok+ USRCPU VSTACK VSTEXT STDATE STTIME AVGRSZ AVGWSZ SWAPSZ SYSCPU
+.\" +ok+ badaut badcln badfmt rchits rcmiss rcnoca memocc Gerlof
+.\" +ok+ gerlof nettcp netudp cgroup discrd Podman iofull noport iosome
+.\" +ok+ OpenVZ csumie zswout atoprc autref Nvidia WCHAN VDATA RDDSK RGROW
+.\" +ok+ VGROW TIDLE LLCXX ENVID CPUNR WRDSK FSGID PSIZE RSIZE VSIZE TSLPI
+.\" +ok+ TSLPU FSUID NVCSW icmpi icmpo tcpao tcpie tcpor tcppo tcprs activ
+.\" +ok+ udpie udpnp deliv zfarc pgout pgtab shmem shrss shswp niced tidle
+.\" +ok+ slrec vmbal vmcom vmlim tmpfs inact inflt anthp ipfrw hptot hpuse
+.\" +ok+ cread mread nread usavg tslpi tslpu kssav zstor ksuse zswap zswin
+.\" +ok+ lvtmp swcac swout cwrit dwrit mwrit nwrit eBPF MBcr MBcw ICMP ACPU
+.\" +ok+ PCPU ADSK EGID RGID SGID TGID AMEM ANET RNET SNET POLI RPCs PPID
+.\" +ok+ VPID TRUN CTID RTPR EUID RUID SUID NUMA NVMe SYSV YYYY Mbps pcki
+.\" +ok+ pcko tcpi tcpo tcps udpi udpo udps PgDn PgUp pgin hhmm fifo sirq
+.\" +ok+ mlti intr coll proc drpi drpo erri erro trun btch curf avgf avio
+.\" +ok+ swin cyan cycl yyyy PAG MBr MBw MDD MEM SEP IFB NFC NFM THR TID
+.\" +ok+ LLC PMC CMD OOM BPF CPL PRC PRD PRE PRG PRI PRM PRN DSK KSM NUC
+.\" +ok+ NUM LVM SWP EXC sda cdp mem gid uid tmp loc rpc ipi ipo irq srv csw
+.\" +ok+ Avg avg avq sys DD HH SS RX TX YY dd mf hh si nl vm sp rr fs ss Av yy

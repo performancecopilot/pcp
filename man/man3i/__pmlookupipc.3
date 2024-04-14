@@ -81,11 +81,11 @@ descriptor is not available (see the __pmDecodeError code for an example).
 The
 .B __pmOverrideLastFd
 is an escape mechanism for use in those situations where the last PDU
-fetch did not go through the usual channels (ie. __pmGetPDU), so as to ensure
+fetch did not go through the usual channels (i.e. __pmGetPDU), so as to ensure
 that the cached file descriptor is the correct file descriptor for the PDU
 which is currently being processed.  This will typically be used for archive
 PDU processing or where version information is not available for a given file
-descriptor (eg. immediately prior to a PDU version exchange).
+descriptor (e.g. immediately prior to a PDU version exchange).
 .PP
 .B __pmPrintIPC
 is a useful debugging routine for displaying a table mapping all currently
@@ -103,3 +103,7 @@ This typically indicates closure of an IPC channel, so PM_ERR_IPC is returned
 if this is the case.
 .SH SEE ALSO
 .BR PMAPI (3)
+
+.\" control lines for scripts/man-spell
+.\" +ok+ __pmOverrideLastFd __pmDecodeError __pmFdLookupIPC __pmLookupIPC
+.\" +ok+ __pmPrintIPC __pmResetIPC __pmAddIPC __pmGetPDU __pmIPC

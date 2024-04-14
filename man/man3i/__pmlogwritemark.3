@@ -22,7 +22,7 @@
 .br
 #include <pcp/libpcp.h>
 .sp
-int __pmLogWriteMark(__pmArchCtl *\fIacp\fP, const __pmTimestamp *\fIlast_stamp\fP, const __pmTimestamp *\fIinc\fP)
+int __pmLogWriteMark(__pmArchCtl *\fIacp\fP, const __pmTimestamp *\fIlast_stamp\fP, const __pmTimestamp *\fIinc\fP);
 .sp
 cc ... \-lpcp
 .ft 1
@@ -40,7 +40,7 @@ they may not work or may provide different semantics.
 ..
 .B __pmLogWriteMark
 appends a <mark> record to the current data file of a PCP archive.
-A <mark> record indicates a dicontinuity in the time series of
+A <mark> record indicates a discontinuity in the time series of
 logged data in the archive, see
 .BR PCPIntro (1)
 for more information.

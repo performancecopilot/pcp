@@ -37,7 +37,7 @@ then
     then
 	# First time Install, initialize PMDA's indom cache file
 	#
-	if "$PCP_BINADM_DIR/indomcachectl" -u $PCP_USER $domain.1
+	if "$PCP_BINADM_DIR/indomcachectl" -u $PCP_USER -g $PCP_GROUP $domain.1
 	then
 	    :
 	else
