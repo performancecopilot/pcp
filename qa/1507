@@ -49,7 +49,7 @@ _doit()
     then
 	ls -l "$PCP_VAR_DIR/config/pmda/$qadomain.42" \
 	| $PCP_AWK_PROG '{ print "indom cache file '$qadomain.42': owner:",$3 "." $4 }'
-	cat $PCP_VAR_DIR/config/pmda/$qadomain.42
+	$sudo cat $PCP_VAR_DIR/config/pmda/$qadomain.42
     else
 	echo "indom cache file $qadomain.42: not found"
     fi
