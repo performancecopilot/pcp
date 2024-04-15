@@ -13,31 +13,61 @@
 # man pages squirreled away in the src directories
 #
 
-find man* -type f \
-| while read f
+usage="Usage: naughty-boy [-do] [file ...]"
+
+tmp=/var/tmp/naughty-boy-$$
+status=0
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+debug=false
+oneshot=false
+while getopts "do?" c
 do
-    case `file $f`
+    case $c
     in
-	*troff*)
-		if head -10 <$f | grep "[.'][T\\][H\"]" >/dev/null
-		then
-		    # smells like troff ... not html, or an image, or ...
-		    # + \<space> at the end of the line is an escaped <space>
-		    #   and that's not a problem
-		    # + comments seem to be immune from this nonsense
-		    #
-		    cat -n $f \
-		    | sed \
-			-e '/\\ $/d' \
-			-e '/^ *[0-9][0-9]*[ 	][ ]*'"[.']"'\\"'/d \
-		    | if grep ' $'
-		    then
-			echo "... check failed for $f"
-			exit 1
-		    fi
-		fi
+	d)	# debug
+		debug=true
+		;;
+	o)	# quit at first failure
+		oneshot=true
+		;;
+	?)	echo >&2 "$usage"
+		exit
 		;;
     esac
 done
+shift `expr $OPTIND - 1`
 
-exit 0
+if [ $# -gt 0 ]
+then
+    for arg; do echo $arg; done
+else
+    find man* -type f
+fi \
+| while read f
+do
+    if grep '^\.SH' <$f >/dev/null
+    then
+	# smells like troff man source ... not html, or an image, or ...
+	# + \<space> at the end of the line is an escaped <space>
+	#   and that's not a problem
+	# + comments are NOT immune from this nonsense (I backed
+	#   out the previous tricky sed to strip troff comment
+	#   lines)
+	#
+	cat -n $f \
+	| sed \
+	    -e '/\\ $/d' \
+	| if grep ' $' >$tmp.tmp
+	then
+	    echo "$f:"
+	    cat $tmp.tmp
+	    status=1
+	    $oneshot && exit 1
+	fi
+    else
+	$debug && echo "$f: skipped (not troff)"
+    fi
+done
+
+exit

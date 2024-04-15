@@ -90,7 +90,7 @@ PCP_ETC_DIR
 PCP_GROUP
 PCP_HTML_DIR
 PCP_INC_DIR
-PCP_LIB32_DIR
+PCP_LIB			# from PCP_LIB32_DIR
 PCP_LIBADM_DIR
 PCP_LIB_DIR
 PCP_LOG_DIR
@@ -187,27 +187,25 @@ stdpmid		# from PCP_VAR/pmns/stdpmid
 # PCP commands and PMDA executables
 #
 chkhelp
-collectl	# from pcp-collectl
-collectl2pcp
+collectl	# from pcp-collectl or collectl2pcp
 dbpmda
 dkvis
 elasticsearch	# pcp2elasticsearch
 eventlog	# from pcp-eventlog
-find-filter
-ganglia2pcp
+ganglia		# from ganglia2pcp
 genpmda
 geolocate
 indomcachectl
-iostat2pcp
+iostat		# from iostat2pcp
 json		# from pcp2json
+kube		# from pcp-kube-pods
 mkaf
-mrtg2pcp
+mrtg		# from mrtg2pcp
 newhelp
 pcp
-pcp-kube-pods
-pcp-python
-pcp-reboot-init
-pcp-shping
+python		# from pcp-python
+init		# from pcp-reboot-init
+shping		# from pcp-shping
 pcpcompat
 pcpintro
 perfalloc
@@ -263,8 +261,7 @@ pmfind_check
 pmgenmap
 pmgetopt
 pmhostname
-pmie
-pmie2col
+pmie			# also from pmie2col
 pmie_check
 pmie_daily
 pmie_dump_stats
@@ -326,9 +323,9 @@ pmtrace
 pmval
 pmview
 runaspcp
-sar2pcp
-sheet2pcp
-telnet-probe
+sar		# from sar2pcp
+#ignore#sheet	# from sheet2pcp
+telnet		# from telnet-probe
 xlsx		# from pcp2xlsx
 xml		# from pcp2xml
 zabbix		# from pcp2zabbix
@@ -385,9 +382,7 @@ LIMIT_AUTH_PDU
 LIMIT_CLIENT_CALLBACKS
 LIMIT_SIZE
 LOCALHOSTNAME
-LOG_PDU_VERSION
-LOG_PDU_VERSION2
-LOG_PDU_VERSION3
+LOG_PDU_VERSION		# from LOG_PDU_VERSION2 or LOG_PDU_VERSION3
 LOG_REQUEST_NEWVOLUME
 LOG_REQUEST_STATUS
 LOG_REQUEST_SYNC
@@ -456,9 +451,9 @@ PDU_LABEL_REQ
 PDU_LOG_CONTROL
 PDU_LOG_REQUEST
 PDU_LOG_STATUS
-PDU_LOG_STATUS_V2
+PDU_LOG_STATUS_V	# from PDU_LOG_STATUS_V2
 PDU_MAX
-PDU_OVERRIDE2
+PDU_OVERRIDE		# from PDU_OVERRIDE2
 PDU_PMNS_CHILD
 PDU_PMNS_IDS
 PDU_PMNS_NAMES
@@ -468,8 +463,7 @@ PDU_RESULT
 PDU_START
 PDU_TEXT
 PDU_TEXT_REQ
-PDU_VERSION
-PDU_VERSION2
+PDU_VERSION		# from PDU_VERSION2
 PMDAEVENTARRAY
 PMLC_GET_AVAIL
 PMLC_GET_DELTA
@@ -659,8 +653,8 @@ PM_VAL_INSITU
 PM_VAL_SPTR
 PM_VAL_VLEN_MAX
 PM_XTB_FLAG
-PM_XTB_GET(m)
-PM_XTB_SET(m)
+PM_XTB_GET
+PM_XTB_SET
 PROXY_PORT
 PROXY_PROTOCOL
 PTHREAD_STACK_MIN
@@ -674,10 +668,8 @@ TYPE_DESC
 TYPE_INDOM
 TYPE_INDOM_DELTA
 TYPE_INDOM_V	# V2 or V3
-TYPE_INDOM_V2
 TYPE_LABEL
 TYPE_LABEL_V	# v2 or V3
-TYPE_LABEL_V2
 TYPE_MAX
 TYPE_TEXT
 UNKNOWN_VERSION
@@ -742,7 +734,7 @@ __pmControlLog
 __pmConvertHighResTime
 __pmConvertTime
 __pmCountPDUBuf
-__pmCreateIPv6Socket
+__pmCreateIPv		# from __pmCreateIPv6Socket
 __pmCreateSocket
 __pmCreateUnixSocket
 __pmDecodeAttr
@@ -751,15 +743,13 @@ __pmDecodeChildReq
 __pmDecodeCreds
 __pmDecodeDesc
 __pmDecodeDescReq
-__pmDecodeDescs
-__pmDecodeDescs2
+__pmDecodeDescs		# also from __pmDecodeDescs2
 __pmDecodeError
 __pmDecodeFetch
 __pmDecodeHighResFetch
 __pmDecodeHighResResult
 __pmDecodeHighResResult_ctx
-__pmDecodeIDList
-__pmDecodeIDList2
+__pmDecodeIDList	# also from __pmDecodeIDList2
 __pmDecodeInstance
 __pmDecodeInstanceReq
 __pmDecodeLabel
@@ -811,7 +801,7 @@ __pmFD_SET
 __pmFD_ZERO
 __pmFaultInject
 __pmFaultSummary
-__pmFault_arm;
+__pmFault_arm
 __pmFault_calloc
 __pmFault_malloc
 __pmFault_realloc
@@ -941,13 +931,11 @@ __pmLogPutDesc
 __pmLogPutInDom
 __pmLogPutIndex
 __pmLogPutLabels
-__pmLogPutResult
-__pmLogPutResult2
-__pmLogPutResult3
+__pmLogPutResult	# also from __pmLogPutResult2 and __pmLogPutResult3
 __pmLogPutText
 __pmLogRead
 __pmLogRead_ctx
-__pmLogReads;
+__pmLogReads
 __pmLogSearchInDom
 __pmLogUndeltaInDom
 __pmLogVersion
@@ -964,7 +952,7 @@ __pmMemoryMap
 __pmMemoryUnmap
 __pmMktime
 __pmMultiThreaded
-__pmNativeConfig;
+__pmNativeConfig
 __pmNativePath
 __pmNewPMNS
 __pmOptFetchAdd
@@ -974,8 +962,8 @@ __pmOptFetchGetParams
 __pmOptFetchPutParams
 __pmOptFetchRedo
 __pmOverrideLastFd
-__pmPDUCntIn;
-__pmPDUCntOut;
+__pmPDUCntIn
+__pmPDUCntOut
 __pmPDUTypeStr
 __pmPDUTypeStr_r
 __pmParseCtime
@@ -1094,7 +1082,7 @@ __pmSockAddrFree
 __pmSockAddrGetFamily
 __pmSockAddrGetPort
 __pmSockAddrInit
-__pmSockAddrIsIPv6
+__pmSockAddrIsIPv	# from __pmSockAddrIsIPv6
 __pmSockAddrIsInet
 __pmSockAddrIsLoopBack
 __pmSockAddrIsUnix
@@ -1425,7 +1413,7 @@ mmv_set
 mmv_set_atomvalue
 mmv_set_string
 mmv_set_value
-mmv_stats2_init
+mmv_stats		# from mmv_stats2_init
 mmv_stats_add
 mmv_stats_add_fallback
 mmv_stats_add_indom
@@ -1799,6 +1787,8 @@ SIGXCPU
 SIGXFSZ
 __int		# prefix from __int32_t or __int64_t
 __uint		# prefix from __uint32_t or __uint64_t
+_inet_ntop	# from win32_inet_ntop
+_inet_pton	# from win32_inet_pton
 _t		# suffix from __int32_t or __int64_t
 alphasort
 basename
@@ -1827,7 +1817,7 @@ gettimeofday
 gmtime_r
 index
 localtime
-lrand48
+lrand		# from lrand48
 malloc
 memcpy
 mktime
@@ -1848,7 +1838,7 @@ sd_notify
 setenv
 setlinebuf
 sleep
-srand48
+srand		# from srand48
 srandom
 stderr
 stdin
@@ -1872,8 +1862,6 @@ timeval		# struct timeval
 unsetenv
 varargs
 waitpid
-win32_inet_ntop
-win32_inet_pton
 wsastrerror
 
 ifdef		# sh(1) and pmcpp(1) conditionals
@@ -2232,7 +2220,7 @@ p
 	    echo >&2 "<empty file>"
 	fi
     fi
-    [ $debug -gt 0 ] && echo "--- end debug output, misspelled words follow ---"
+    [ $debug -gt 0 ] && echo >&2 "--- end debug output, misspelled words follow ---"
 
 
     # strip ...
