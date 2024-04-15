@@ -34,7 +34,7 @@ jobs:
       # This step uses [docker/metadata-action](https://github.com/docker/metadata-action#about) to extract tags and labels that will be applied to the specified image. The `id` "meta" allows the output of this step to be referenced in a subsequent step. The `images` value provides the base name for the tags and labels.
       - name: Extract metadata (tags, labels) for Docker
         id: meta
-        uses: docker/metadata-action@232fc64e3a4e54539e087c5976439ea54be0959d
+        uses: docker/metadata-action@1294d94f8ee362ab42b6da04c35f4cd03a0e6af7
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
       # This step uses the `docker/build-push-action` action to build the image, based on your repository's `Dockerfile`. If the build succeeds, it pushes the image to GitHub Packages.
