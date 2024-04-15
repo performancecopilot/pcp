@@ -60,7 +60,7 @@ and the associated
 header file.
 Once this has been done, new QA applications may be built with
 .B \-DPM_FAULT_INJECTION=1
-and/or existing applications can be exercised in presence of 
+and/or existing applications can be exercised in presence of
 fault injection by forcing
 .I libpcp_fault
 to be used in preference to
@@ -108,7 +108,7 @@ Will cause the
 .B next
 call to an instrumented routine
 to fail by returning an error code (possibly the new
-.B PM_ERR_FAULT 
+.B PM_ERR_FAULT
 code).
 The actual error code is defined in the
 .B PM_FAULT_RETURN
@@ -303,7 +303,7 @@ is called for a particular
 a trip count is incremented (the first
 trip is 1); if the C-style expression
 .I tripcount
-.I op 
+.I op
 .I number
 has the
 value 1 (so
