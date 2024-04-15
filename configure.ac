@@ -438,12 +438,13 @@ if ! echo "$CFLAGS" | grep -- -Wno-array-bounds >/dev/null
 then
     AS_IF([test "x$cc_is_gcc" = xyes ],[PCFLAGS="$PCFLAGS -Wno-array-bounds"])
 fi
-dnl and we need to worry about off_t ... we need it to be 64-bits for V3 archives
-AC_MSG_CHECKING([sizeof off_t])
+dnl we also need to worry about time_t ... we need it to be 64-bits for Y2038;
+dnl _FILE_OFFSET_BITS and _TIME_BITS must be set together for the 32-bit case.
+AC_MSG_CHECKING([sizeof time_t])
 cat <<End-of-File >conftest.c
 #include <stdio.h>
-#include <sys/types.h>
-int main() { printf("%d", (int)sizeof(off_t)); return 0; }
+#include <sys/time.h>
+int main() { printf("%d", (int)sizeof(time_t)); return 0; }
 End-of-File
 (eval $ac_compile) 2>&5
 (eval $ac_link) 2>&5
@@ -452,7 +453,25 @@ echo "./conftest -> \"$ans\"" >&5
 rm -rf conftest conftest.*
 AC_MSG_RESULT($ans)
 if test "$ans" = 4; then
-    PCFLAGS="$PCFLAGS -D_FILE_OFFSET_BITS=64"
+    PCFLAGS="$PCFLAGS -D_FILE_OFFSET_BITS=64 -D_TIME_BITS=64"
+else
+    dnl we may need to check off_t ... we need it to be 64-bits for V3 archives
+    dnl this check is optional only because it may be set already (just prior).
+    AC_MSG_CHECKING([sizeof off_t])
+    cat <<End-of-File >conftest.c
+#include <stdio.h>
+#include <sys/types.h>
+int main() { printf("%d", (int)sizeof(off_t)); return 0; }
+End-of-File
+    (eval $ac_compile) 2>&5
+    (eval $ac_link) 2>&5
+    ans=`./conftest`
+    echo "./conftest -> \"$ans\"" >&5
+    rm -rf conftest conftest.*
+    AC_MSG_RESULT($ans)
+    if test "$ans" = 4; then
+        PCFLAGS="$PCFLAGS -D_FILE_OFFSET_BITS=64"
+    fi
 fi
 AC_SUBST(PCFLAGS)
 AC_SUBST(PLDFLAGS)
