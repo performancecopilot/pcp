@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2024 Ken McDonell.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -12,25 +12,20 @@
 # for more details.
 # 
 
-TOPDIR = ..
+TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
-SUBDIRS = man1 man3 man3i man3d man5 html
-
 default :: default_pcp 
+	./mk.links
 
-default_pcp : $(SUBDIRS)
-	$(SUBDIRS_MAKERULE)
+default_pcp : 
 
 install :: default_pcp install_pcp
 
-install_pcp : $(SUBDIRS)
-	$(SUBDIRS_MAKERULE)
+install_pcp :
 
 include $(BUILDRULES)
 
-# see ./naught-boy to explain this
-#
-brian:
-	./naughty-boy
+clean ::
+	rm -f *.[1-9]*

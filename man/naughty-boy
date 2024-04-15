@@ -1,0 +1,43 @@
+#!/bin/sh
+#
+# "He's not the Messiah. He's a very naughty boy!” ...
+# Brian's mother in Monty Python's Life Of Brian.
+#
+# "make check" fails in the man dir on some platforms (Fedora 39
+# and 40 specifically) because the maintainers of the checking tool
+# we're forced to use are clueless ... whitespace at the end of a
+# troff input line always was, and always will be, OK.
+#
+# To be complete this really needs the make to descend into the
+# man_src directory to make all symlinks that point to the hidden
+# man pages squirreled away in the src directories
+#
+
+find man* -type f \
+| while read f
+do
+    case `file $f`
+    in
+	*troff*)
+		if head -10 <$f | grep "[.'][T\\][H\"]" >/dev/null
+		then
+		    # smells like troff ... not html, or an image, or ...
+		    # + \<space> at the end of the line is an escaped <space>
+		    #   and that's not a problem
+		    # + comments seem to be immune from this nonsense
+		    #
+		    cat -n $f \
+		    | sed \
+			-e '/\\ $/d' \
+			-e "/^ *[0-9][0-9]* *[.']"'\\"'/d \
+		    | if grep ' $'
+		    then
+			echo "... check failed for $f"
+			exit 1
+		    fi
+		fi
+		;;
+    esac
+done
+
+exit 0

@@ -1,0 +1,27 @@
+#!/bin/sh
+#
+# Make symlinks from man pages buried off in the source dirs
+#
+
+rm -f *.[1-9]*
+
+find ../../src -name *.[1-9]* -type f \
+| while read src
+do
+    case `file $src`
+    in
+	*troff*)
+		dst=`basename $src`
+		if [ -L ./$dst ]
+		then
+		    echo "Botch: duplicate name $dst"
+		    ls -l $dst
+		    echo "and $src"
+		else
+		    ln -s $src .
+		fi
+		;;
+    esac
+done
+
+exit 0
