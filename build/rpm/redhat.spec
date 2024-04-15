@@ -2570,7 +2570,7 @@ total_manifest | keep 'testsuite|pcpqa|etc/systemd/system|libpcp_fault|pcp/fault
 
 basic_manifest | keep "$PCP_GUI|pcp-gui|applications|pixmaps|hicolor" | cull 'pmtime.h' >pcp-gui-files
 basic_manifest | keep 'selinux' | cull 'tmp|testsuite' >pcp-selinux-files
-basic_manifest | keep 'zeroconf|daily[-_]report|/sa$' >pcp-zeroconf-files
+basic_manifest | keep 'zeroconf|daily[-_]report|/sa$' | cull 'pmcheck' >pcp-zeroconf-files
 basic_manifest | grep -E -e 'pmiostat|pmrep|dstat|htop|pcp2csv' \
    -e 'pcp-atop|pcp-dmcache|pcp-dstat|pcp-free' \
    -e 'pcp-htop|pcp-ipcs|pcp-iostat|pcp-lvmcache|pcp-mpstat' \
