@@ -6,7 +6,7 @@ QA output created by 1727
 # PCP5 openmetrics.duplicate_instname_label.somemetric NUMERIC_PMID double NUMERIC_INDOM instant none
 # HELP openmetrics_duplicate_instname_label_somemetric metric to test duplicate instname labels
 # TYPE openmetrics_duplicate_instname_label_somemetric gauge
-openmetrics_duplicate_instname_label_somemetric{hostname=HOSTNAME,instid="0",instname="0 hostname:HOSTNAME",domainname=DOMAINNAME,machineid=MACHINEID,source="duplicate_instname_label"} 1234
+openmetrics_duplicate_instname_label_somemetric{script="PCP_PMDAS_DIR/openmetrics/config.d/duplicate_instname_label.sh",agent="openmetrics",hostname=HOSTNAME,instid="0",instname="0 hostname:HOSTNAME",domainname=DOMAINNAME,machineid=MACHINEID,source="duplicate_instname_label"} 1234
 
 === verify metric name validity using pminfo
 
