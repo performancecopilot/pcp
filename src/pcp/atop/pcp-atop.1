@@ -1870,12 +1870,12 @@ in the column 'EXC'.
 .br
 The value
 .I S
-means that the process has been terminated unvoluntarily
+means that the process has been terminated involuntarily
 by a signal; the signal number is displayed in the in the column 'EXC'.
 .br
 The value
 .I C
-means that the process has been terminated unvoluntarily
+means that the process has been terminated involuntarily
 by a signal, producing a core dump in its current directory;
 the signal number is displayed in the column 'EXC'.
 .TP 9
@@ -2624,13 +2624,13 @@ and
 
 .\" control lines for scripts/man-spell
 .\" +ok+ overcommit_memory tcp_cleanup_rbuf skb_consume_udp
-.\" +ok+ overcommitting unvoluntarily containerized
+.\" +ok+ overcommitting
 .\" +ok+ cpufreq_stats brendangregg
 .\" +ok+ SCHED_OTHER tcp_recvmsg tcp_sendmsg udp_recvmsg udp_sendmsg
 .\" +ok+ allocstalls cpucritperc dskcritperc ownprocline SCHED_FIFO ZFSonlinux
 .\" +ok+ pagetables scrollable whereafter clockticks InfiniBand is_process
 .\" +ok+ overcommit Langeveld langeveld unflushed PARSABLE SCHED_RR
-.\" +ok+ YYYYMMDD parsable mba_MBps Realtime realtime vmware's
+.\" +ok+ YYYYMMDD mba_MBps Realtime realtime vmware's
 .\" +ok+ uncached modprobe VolGroup oomkills procacct atoptool Runqueue
 .\" +ok+ runqueue swapouts TCPRASZ TCPSASZ UDPRASZ UDPSASZ MEMBUSY NETATOP
 .\" +ok+ GPUBUSY GPUNUMS mallocs ncurses deduped membusy memfull memsome
@@ -2652,8 +2652,8 @@ and
 .\" +ok+ PCPU ADSK EGID RGID SGID TGID AMEM ANET RNET SNET POLI RPCs PPID
 .\" +ok+ VPID TRUN CTID RTPR EUID RUID SUID NUMA NVMe SYSV YYYY Mbps pcki
 .\" +ok+ pcko tcpi tcpo tcps udpi udpo udps PgDn PgUp pgin hhmm fifo sirq
-.\" +ok+ mlti intr coll proc drpi drpo erri erro trun btch curf avgf avio
+.\" +ok+ mlti intr coll drpi drpo erri erro trun btch curf avgf avio
 .\" +ok+ swin cyan cycl yyyy PAG MBr MBw MDD MEM SEP IFB NFC NFM THR TID
 .\" +ok+ LLC PMC CMD OOM BPF CPL PRC PRD PRE PRG PRI PRM PRN DSK KSM NUC
-.\" +ok+ NUM LVM SWP EXC sda cdp mem gid uid tmp loc rpc ipi ipo irq srv csw
+.\" +ok+ NUM LVM SWP EXC sda cdp tmp loc rpc ipi ipo irq srv csw
 .\" +ok+ Avg avg avq sys DD HH SS RX TX YY dd mf hh si nl vm sp rr fs ss Av yy
