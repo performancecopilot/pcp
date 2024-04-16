@@ -91,6 +91,9 @@ _check_completion_bash()
   cmds="$(grep '  pcp2.*)' $bash_comp | tr -d ')')"
   cmds="$cmds $(grep '  pm.*)' $bash_comp | tr -d ')')"
   for cmd in $cmds; do
+    # Handle aliases
+    str="  $cmd"
+    [ "$cmd" = "pmlogdump|pmdumplog" ] && cmd=pmdumplog && str="  pmlogdump|pmdumplog"
     which $cmd > /dev/null 2>&1 || continue
     $skip_pcp2elasticsearch && [ "$cmd" = pcp2elasticsearch ] && continue
     $skip_pcp2graphite && [ "$cmd" = pcp2graphite ] && continue
@@ -104,7 +107,7 @@ _check_completion_bash()
     $skip_pmdumptext && [ "$cmd" = pmdumptext ] && continue
     $skip_pmrep && [ "$cmd" = pmrep ] && continue
     $skip_pmseries && [ "$cmd" = pmseries ] && continue
-    comps=$(grep -A 1 "  $cmd)" $bash_comp | tail -n 1 | sed -e 's,all_args=",,' -e 's,",,')
+    comps=$(grep -A 1 "$str)" $bash_comp | tail -n 1 | sed -e 's,all_args=",,' -e 's,",,')
     # Need $tmp.err and PCP_STDERR for pmchart ...
     #
     rm -f $tmp.err

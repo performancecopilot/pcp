@@ -46,6 +46,7 @@ _cleanup()
 _filter_openmetrics_labels()
 {
     sed \
+    -e "s;$PCP_PMDAS_DIR;PCP_PMDAS_DIR;g" \
     -e 's;machineid="[a-z0-9]*";machineid=MACHINEID;g' \
     -e 's;hostname="[a-zA-Z0-9_\.\-]*";hostname=HOSTNAME;g' \
     -e 's;hostname:[a-zA-Z0-9_\.\-]*";hostname:HOSTNAME";g' \

@@ -1,4 +1,4 @@
-#compdef pcp pcp2arrow pcp2elasticsearch pcp2graphite pcp2influxdb pcp2json pcp2spark pcp2xlsx pcp2xml pcp2zabbix pmafm pmchart pmclient pmclient_fg=pmclient pmdbg pmdiff pmdumplog pmdumptext pmerr pmevent=pmval pmfind pmie pmie2col pmiectl=pmlogctl pminfo pmiostat pmjson pmlc pmlogcheck pmlogctl pmlogextract pmlogger pmloglabel pmlogpaste pmlogreduce pmlogsize pmlogsummary pmprobe pmrep pmseries pmstat pmstore pmval
+#compdef pcp pcp2arrow pcp2elasticsearch pcp2graphite pcp2influxdb pcp2json pcp2spark pcp2xlsx pcp2xml pcp2zabbix pmafm pmchart pmclient pmclient_fg=pmclient pmdbg pmdiff pmdumplog pmdumptext pmerr pmevent=pmval pmfind pmie pmie2col pmiectl=pmlogctl pminfo pmiostat pmjson pmlc pmlogcheck pmlogctl pmlogdump pmlogextract pmlogger pmloglabel pmlogpaste pmlogreduce pmlogsize pmlogsummary pmprobe pmrep pmseries pmstat pmstore pmval
 #
 # PCP <https://pcp.io> completions for zsh <http://zsh.sf.net>.
 #
@@ -353,7 +353,7 @@ _pcp () {
       '2:archive:->archives' \
       && return 0
   ;;
-  pmdumplog)
+  pmlogdump|pmdumplog)
     arch_req=1
     _arguments -C -S -s \
       "$common_help[@]" \

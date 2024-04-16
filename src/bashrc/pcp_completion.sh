@@ -52,7 +52,7 @@ _pcp_complete()
         all_args="AahnOPSsTtVZz"
         arg_regex="-[AahnOSsTtZz]"
     ;;
-    pmdumplog)
+    pmlogdump|pmdumplog)
         all_args="adehIiLlMmnrSsTtVvxZz"
         arg_regex="-[nSTvZ]"
     ;;
@@ -210,4 +210,4 @@ _pcp_complete()
         fi
     fi
 }
-complete -F _pcp_complete -o default pcp2elasticsearch pcp2graphite pcp2influxdb pcp2json pcp2spark pcp2xlsx pcp2xml pcp2zabbix pmclient pmdumplog pmdumptext pmevent pmfind pmie pmie2col pmiectl pminfo pmjson pmlc pmlogcheck pmlogctl pmlogextract pmlogger pmloglabel pmlogpaste pmlogreduce pmlogsize pmlogsummary pmprobe pmrep pmseries pmstat pmstore pmval
+complete -F _pcp_complete -o default pcp2elasticsearch pcp2graphite pcp2influxdb pcp2json pcp2spark pcp2xlsx pcp2xml pcp2zabbix pmclient pmdumplog pmdumptext pmevent pmfind pmie pmie2col pmiectl pminfo pmjson pmlc pmlogcheck pmlogctl pmlogdump pmlogextract pmlogger pmloglabel pmlogpaste pmlogreduce pmlogsize pmlogsummary pmprobe pmrep pmseries pmstat pmstore pmval

@@ -42,7 +42,7 @@ from ctypes import c_int
 from pcp.pmapi import pmUnits
 from pcp.pmapi import pmContext as PCP
 from pcp.pmda import PMDA, pmdaIndom, pmdaMetric
-from cpmapi import PM_INDOM_NULL, PM_LABEL_ITEM
+from cpmapi import PM_INDOM_NULL, PM_LABEL_CLUSTER
 from cpmapi import PM_TYPE_U32, PM_TYPE_U64, PM_TYPE_STRING
 from cpmapi import PM_SEM_COUNTER, PM_SEM_INSTANT, PM_SEM_DISCRETE
 from cpmapi import PM_COUNT_ONE, PM_SPACE_BYTE, PM_SPACE_KBYTE, PM_TIME_SEC, PM_TIME_NSEC
@@ -781,17 +781,29 @@ class LibvirtPMDA(PMDA):
 
     def libvirt_label(self, ident, label_type):
         """Cluster and instance domain labels"""
-        if label_type == PM_LABEL_ITEM:
-            cluster = self.pmid_cluster(ident)
-            if cluster == self.hv_cluster:
-                return '{"metric_source":"host"}'
-            return '{"metric_source":"guest"}'
+        if label_type == PM_LABEL_CLUSTER:
+            if ident == self.hv_cluster:
+                return '{"virt_layer":"host","metric_type":"host"}'
+            elif ident == self.vm_cluster:
+                return '{"virt_layer":"guest","metric_type":"info"}'
+            elif ident == self.vm_cpustats_cluster:
+                return '{"virt_layer":"host","metric_type":"cpu"}'
+            elif ident == self.vm_vcpustats_cluster:
+                return '{"virt_layer":"guest","metric_type":"vcpu"}'
+            elif ident == self.vm_balloonstats_cluster:
+                return '{"virt_layer":"guest","metric_type":"memory"}'
+            elif ident == self.vm_blockstats_cluster:
+                return '{"virt_layer":"guest","metric_type":"block"}'
+            elif ident == self.vm_netstats_cluster:
+                return '{"virt_layer":"guest","metric_type":"network"}'
+            elif ident == self.vm_perfstats_cluster:
+                return '{"virt_layer":"guest","metric_type":"perf"}'
         return '{}'
 
     def libvirt_label_callback(self, indom, inst):
         """Instance labels"""
-        name = self.vm_names[self.inst_name_lookup(indom, inst).split('::')[0]]
-        return '{"guest_name":"' + name + '"}'
+        vm_name = self.vm_names[self.inst_name_lookup(indom, inst).split('::')[0]]
+        return '{"guest_name":"' + vm_name + '"}'
 
 if __name__ == '__main__':
     LibvirtPMDA('libvirt', 140).run()
