@@ -72,6 +72,7 @@ s/inactive/OK/
 s/could be activated/OK/
 s/cannot be activated/OK/
 s/  No systemd unit file installed//
+s/  systemd.s postgresql.service unit is not installed//
 s/not currently available .*/metrics from postgresql/
 }' \
 	-e '/^pmda-redis /{
