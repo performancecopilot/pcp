@@ -115,7 +115,10 @@ _check_completion_zsh()
     pytool=$(awk "/common_python=/,/  \)/" $zsh_comp)
     pmda=$(awk "/common_pmda=/,/  \)/" $zsh_comp)
     version=V
-    comps=$(awk "/  $cmd\)/,/;;/" $zsh_comp | sed -e 's,equivalent to .*,,')
+    # Handle aliases
+    str="  $cmd"
+    [ "$cmd" = "pmlogdump" -o "$cmd" = "pmdumplog" ] && str="  pmlogdump|pmdumplog"
+    comps=$(awk "/$str\)/,/;;/" $zsh_comp | sed -e 's,equivalent to .*,,')
     # Need $tmp.err and PCP_STDERR for pmchart ...
     #
     rm -f $tmp.err
