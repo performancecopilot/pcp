@@ -1748,8 +1748,9 @@ webgroup_scrape(pmWebGroupSettings *settings, context_t *cp,
 
 	    if (metric->updated == 0)
 		continue;
-	    if (metric->labelset == NULL)
-		pmwebapi_add_item_labels(cp, metric);
+	    pmwebapi_add_domain_labels(cp, metric->cluster->domain);
+    	    pmwebapi_add_cluster_labels(cp, metric->cluster);
+	    pmwebapi_add_item_labels(cp, metric);
 	    pmwebapi_metric_help(cp, metric);
 
 	    type = metric->desc.type;
@@ -1757,6 +1758,8 @@ webgroup_scrape(pmWebGroupSettings *settings, context_t *cp,
 	    if (indom && indom->updated == 0 &&
 		pmwebapi_add_indom_instances(cp, indom) > 0)
 		pmwebapi_add_instances_labels(cp, indom);
+	    if (indom)
+		pmwebapi_add_indom_labels(indom);
 
 	    for (j = 0; j < metric->numnames; j++) {
 		series = pmwebapi_hash_sds(series, metric->names[j].hash);

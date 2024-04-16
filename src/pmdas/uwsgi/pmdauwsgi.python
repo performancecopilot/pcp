@@ -29,7 +29,9 @@ from cpmapi import (
     PM_INDOM_NULL,
     PM_TYPE_DOUBLE,
     PM_TYPE_U64,
+    PM_TYPE_U32,
     PM_SEM_COUNTER,
+    PM_SEM_INSTANT,
     PM_ERR_AGAIN,
     PM_ERR_INST,
     PM_ERR_PMID
@@ -144,15 +146,15 @@ class UwsgiPMDA(PMDA):
         #           .total_idle_worker_count
         #           .total_pause_worker_count
 
-        self.add_metric(name + '.summary.total_workers', pmdaMetric(PMDA.pmid(UwsgiPMDA.UWSGI_SUMMARY, 0), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, pmUnits()), "Total number of uwsgi workers")
+        self.add_metric(name + '.summary.total_workers', pmdaMetric(PMDA.pmid(UwsgiPMDA.UWSGI_SUMMARY, 0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, pmUnits()), "Total number of uwsgi workers")
         self.add_metric(name + '.summary.avg_response_time_msec', pmdaMetric(PMDA.pmid(UwsgiPMDA.UWSGI_SUMMARY, 1), PM_TYPE_DOUBLE, PM_INDOM_NULL, PM_SEM_COUNTER, pmUnits()), "Average response time across all workers")
         self.add_metric(name + '.summary.total_requests_served', pmdaMetric(PMDA.pmid(UwsgiPMDA.UWSGI_SUMMARY, 2), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, pmUnits()), "Total requests served across all workers")
-        self.add_metric(name + '.summary.total_workers_accepting_requests', pmdaMetric(PMDA.pmid(UwsgiPMDA.UWSGI_SUMMARY, 3), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, pmUnits()), "Total number of workers accepting requests")
+        self.add_metric(name + '.summary.total_workers_accepting_requests', pmdaMetric(PMDA.pmid(UwsgiPMDA.UWSGI_SUMMARY, 3), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, pmUnits()), "Total number of workers accepting requests")
         self.add_metric(name + '.summary.total_exceptions', pmdaMetric(PMDA.pmid(UwsgiPMDA.UWSGI_SUMMARY, 4), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, pmUnits()), "Total exceptions across all workers")
         self.add_metric(name + '.summary.total_harakiri_count', pmdaMetric(PMDA.pmid(UwsgiPMDA.UWSGI_SUMMARY, 5), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, pmUnits()), "Total harakiri count across all workers")
-        self.add_metric(name + '.summary.total_busy_worker_count', pmdaMetric(PMDA.pmid(UwsgiPMDA.UWSGI_SUMMARY, 6), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, pmUnits()), "Total number of busy workers")
-        self.add_metric(name + '.summary.total_idle_worker_count', pmdaMetric(PMDA.pmid(UwsgiPMDA.UWSGI_SUMMARY, 7), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, pmUnits()), "Total number of idle workers")
-        self.add_metric(name + '.summary.total_pause_worker_count', pmdaMetric(PMDA.pmid(UwsgiPMDA.UWSGI_SUMMARY, 8), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, pmUnits()), "Total number of pause workers")
+        self.add_metric(name + '.summary.total_busy_worker_count', pmdaMetric(PMDA.pmid(UwsgiPMDA.UWSGI_SUMMARY, 6), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, pmUnits()), "Total number of busy workers")
+        self.add_metric(name + '.summary.total_idle_worker_count', pmdaMetric(PMDA.pmid(UwsgiPMDA.UWSGI_SUMMARY, 7), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, pmUnits()), "Total number of idle workers")
+        self.add_metric(name + '.summary.total_pause_worker_count', pmdaMetric(PMDA.pmid(UwsgiPMDA.UWSGI_SUMMARY, 8), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, pmUnits()), "Total number of pause workers")
 
         # Add the uwsgi worker metrics (metrics per worker)
         # uwsgi.worker

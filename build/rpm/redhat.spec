@@ -568,6 +568,8 @@ Requires: pcp-pmda-bpf
 Requires: pcp-pmda-bpftrace
 %endif
 %if !%{disable_python2} || !%{disable_python3}
+Requires: pcp-geolocate pcp-export-pcp2openmetrics pcp-export-pcp2json
+Requires: pcp-export-pcp2spark pcp-export-pcp2xml pcp-export-pcp2zabbix
 Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-mic
 Requires: pcp-pmda-libvirt pcp-pmda-lio pcp-pmda-openmetrics pcp-pmda-haproxy
 Requires: pcp-pmda-lmsensors pcp-pmda-netcheck pcp-pmda-rabbitmq pcp-pmda-uwsgi
@@ -2570,7 +2572,7 @@ total_manifest | keep 'testsuite|pcpqa|etc/systemd/system|libpcp_fault|pcp/fault
 
 basic_manifest | keep "$PCP_GUI|pcp-gui|applications|pixmaps|hicolor" | cull 'pmtime.h' >pcp-gui-files
 basic_manifest | keep 'selinux' | cull 'tmp|testsuite' >pcp-selinux-files
-basic_manifest | keep 'zeroconf|daily[-_]report|/sa$' >pcp-zeroconf-files
+basic_manifest | keep 'zeroconf|daily[-_]report|/sa$' | cull 'pmcheck' >pcp-zeroconf-files
 basic_manifest | grep -E -e 'pmiostat|pmrep|dstat|htop|pcp2csv' \
    -e 'pcp-atop|pcp-dmcache|pcp-dstat|pcp-free' \
    -e 'pcp-htop|pcp-ipcs|pcp-iostat|pcp-lvmcache|pcp-mpstat' \
