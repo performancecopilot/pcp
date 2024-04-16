@@ -10,6 +10,14 @@
 # (the command line option argument names and flags), and finally any
 # '\" +ok+ lines in the file.
 #
+# Notes on +ok+ exceptions ...
+# + the "words" can be regular expressions, but there is NO SUPPORT
+#   for whitespace or '{' within a regular expression, and these are
+#   old-style grep regular expressions (none of the -E/egrep extensions)
+# + { ... } is used for annotation, and commonly {from ...}
+#   ... DO NOT nest { nor } within an annotation as this will break
+#   parsing of these lines
+#
 # Copyright (c) 2024 Ken McDonell, Inc.  All Rights Reserved.
 #
 
@@ -29,6 +37,16 @@ tmp=/tmp/man-spell-$$
 rm -f $tmp.*
 status=1	# failure is the default
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# file(1) does not work, so need some heuristics
+# ... assume existance of $1 already established
+#
+_istroff()
+{
+    head -1 "$1" | grep -q '^#!' && return 1
+    grep -q '^\.SH ' <"$1" && return 0
+    return 1
+}
 
 debug=0
 emit=false
@@ -339,6 +357,8 @@ basename
 bz
 bzip
 chkconfig
+chmod
+chown
 cp
 cpp
 crontab
@@ -695,6 +715,7 @@ __pmAccDumpGroups
 __pmAccDumpHosts
 __pmAccDumpLists
 __pmAccDumpUsers
+__pmAccFreeSavedHosts
 __pmAccFreeSavedLists
 __pmAccRestoreHosts
 __pmAccRestoreLists
@@ -713,6 +734,7 @@ __pmAddOptHostList
 __pmAddPMNSNode
 __pmAllocResult
 __pmArchCtl
+__pmAttrKey
 __pmAttrKeyStr_r
 __pmAttrStr_r
 __pmAuxConnectPMCDPort
@@ -730,6 +752,7 @@ __pmConnectLogger
 __pmConnectRestoreFlags
 __pmConnectTimeout
 __pmConnectTo
+__pmContext
 __pmControlLog
 __pmConvertHighResTime
 __pmConvertTime
@@ -737,6 +760,7 @@ __pmCountPDUBuf
 __pmCreateIPv		# from __pmCreateIPv6Socket
 __pmCreateSocket
 __pmCreateUnixSocket
+__pmCred
 __pmDecodeAttr
 __pmDecodeAuth
 __pmDecodeChildReq
@@ -792,6 +816,7 @@ __pmEncodeHighResResult
 __pmEncodeResult
 __pmEndOptions
 __pmEquivInDom
+__pmExecCtl_t
 __pmExportPMNS
 __pmFD
 __pmFD_CLR
@@ -799,6 +824,7 @@ __pmFD_COPY
 __pmFD_ISSET
 __pmFD_SET
 __pmFD_ZERO
+__pmFILE
 __pmFaultInject
 __pmFaultSummary
 __pmFault_arm
@@ -866,17 +892,24 @@ __pmHandleToPtr
 __pmHasPMNSFileChanged
 __pmHashAdd
 __pmHashClear
+__pmHashCtl
 __pmHashDel
 __pmHashFree
 __pmHashInit
+__pmHashNode
 __pmHashPreAlloc
 __pmHashSearch
 __pmHashWalk
 __pmHashWalkCB
+__pmHashWalkState
 __pmHostEntFree
 __pmHostEntGetName
 __pmHostEntGetSockAddr
+__pmHostSpec
+__pmID_int
+__pmIPC
 __pmIgnoreSignalPIPE
+__pmInDom_int
 __pmInProfile
 __pmInitLocks
 __pmIsLocalhost
@@ -906,11 +939,15 @@ __pmLogEncodeInDom
 __pmLogEncodeLabels
 __pmLogFeaturesStr
 __pmLogFetch
+__pmLogFindLocalPorts
 __pmLogFindOpen
 __pmLogFindPort
 __pmLogFreeLabel
 __pmLogGetInDom
+__pmLogHdr
 __pmLogInDom
+__pmLogLabel
+__pmLogLabelSet
 __pmLogLabelSize
 __pmLogLoadInDom
 __pmLogLoadIndex
@@ -927,6 +964,7 @@ __pmLogMetaTypeStr
 __pmLogMetaTypeStr_r
 __pmLogNameInDom
 __pmLogNewFile
+__pmLogPort
 __pmLogPutDesc
 __pmLogPutInDom
 __pmLogPutIndex
@@ -937,11 +975,16 @@ __pmLogRead
 __pmLogRead_ctx
 __pmLogReads
 __pmLogSearchInDom
+__pmLogTI
+__pmLogText
+__pmLogTrimInDom
+__pmLogTrimInst
 __pmLogUndeltaInDom
 __pmLogVersion
 __pmLogWrite
 __pmLogWriteLabel
 __pmLogWriteMark
+__pmLoggerStatus
 __pmLoggerTimeout
 __pmLookupAttrKey
 __pmLoopBackAddress
@@ -951,6 +994,7 @@ __pmMapErrno
 __pmMemoryMap
 __pmMemoryUnmap
 __pmMktime
+__pmMultiLogCtl
 __pmMultiThreaded
 __pmNativeConfig
 __pmNativePath
@@ -964,8 +1008,11 @@ __pmOptFetchRedo
 __pmOverrideLastFd
 __pmPDUCntIn
 __pmPDUCntOut
+__pmPDUHdr
+__pmPDUInfo
 __pmPDUTypeStr
 __pmPDUTypeStr_r
+__pmPMCDCtl
 __pmParseCtime
 __pmParseDebug
 __pmParseHighResTime
@@ -998,9 +1045,11 @@ __pmRecv
 __pmRegisterAnon
 __pmRequestTimeout
 __pmResetIPC
+__pmResult
 __pmRewind
 __pmRotateLog
 __pmSecureClientHandshake
+__pmSecureConfig
 __pmSecureConfigInit
 __pmSecureServerHandshake
 __pmSecureServerInit
@@ -1043,6 +1092,7 @@ __pmServerClearFeature
 __pmServerCloseRequestPorts
 __pmServerCreatePIDFile
 __pmServerDumpRequestPorts
+__pmServerFeature
 __pmServerGetRequestPort
 __pmServerHasFeature
 __pmServerNotifyServiceManagerReady
@@ -1115,10 +1165,16 @@ __pmUnpinPDUBuf
 __pmUrlDecode
 __pmUrlEncode
 __pmUsePMNS
+__pmValueSet_PDU
+__pmValue_PDU
+__pmVersionCred
 __pmVersionIPC
 __pmWrite
 __pmXmitPDU
 __pmZoneinfo
+__pm_fops
+__pmnsNode
+__pmnsTree
 __pmstate
 __pmtimespecPause
 __pmtimespecSleep
@@ -1136,7 +1192,11 @@ __pmtracesendack
 __pmtracesenddata
 __pmtraceunpinPDUbuf
 __pmtracexmitPDU
+fetchctl_t
 fetchgroup
+indomctl_t
+optcost_t
+optreq_t
 pmAddDerived
 pmAddDerivedMetric
 pmAddDerivedText
@@ -1382,6 +1442,7 @@ pmWhichContext
 pmWhichZone
 pmflush
 pmgetopt_r
+pmidctl_t
 pmprintf
 pmsprintf
 pmstrlen
@@ -1947,6 +2008,7 @@ nfs
 notready
 ns		# abbreviation for nanosec
 nsecs?
+numinst
 numval		# from pmResult
 ok
 openmetrics
@@ -2053,7 +2115,14 @@ do
 	echo "Error: input file $file not found"
 	exit 1
     fi
-    [ $# -gt 1 ] && echo "$file:"
+    if _istroff "$file"
+    then
+	:
+    else
+	[ $debug -gt 0 ] && echo >&2 "$file: skipped (not troff)"
+	continue
+    fi
+    [ $debug -gt 0 ] && echo "$file:"
 
     cp $tmp.common $tmp.sed
 
@@ -2100,7 +2169,7 @@ want == 1			{ if ($0 ~ /^[\\.[]/) {
 	    echo >&2 "<empty file>"
 	fi
     fi
-    [ -s $tmp.synopsis ] || (echo; echo "$file: Warning: empty extracted SYNOPSIS section" ) >&2
+    [ -s $tmp.synopsis ] || echo "$file: Warning: empty extracted SYNOPSIS section" >&2
     #
     # Section 1 sh-style Synopsis
      sed <$tmp.synopsis \
@@ -2112,6 +2181,7 @@ want == 1			{ if ($0 ~ /^[\\.[]/) {
 	-e '/^\\f[2I]\([A-Za-z]\)/{
 s//\1/
 s/\\f.*//
+s/\\$//g
 p
 }' \
 	-e '/^\\f[3B]\\-[A-Za-z][A-Za-z][A-Za-z?]*/{
@@ -2181,16 +2251,13 @@ p
     # end
 
     # and for .\" +ok+ lines, all words remaining on the line are
-    # spelled correctly ... comments are [comment] ... use \[
-    # to use [ in a pattern for a group of words, not a comment
+    # spelled correctly ... annotations are {comment}
     #
     sed -n <"$file" \
 	-e '/^\.\\" +ok+ /{
 s///
-s/\\\[/{/g
-s/\[[^[]*]//g
+s/{[^}]*}//g
 s/  */ /g
-s/{/[/g
 p
 }' \
     | tr ' ' '\012' \
@@ -2259,17 +2326,42 @@ skip == 0			{ print }'
     fi
     if head -1 $file | grep 'Pod::Man' >/dev/null
     then
+	# strip lots of troff cmds generated by Pod::Man
+	#
 	sed <$tmp.in >$tmp.tmp \
+	    -e "/^[.][ 	]*ds/d" \
+	    -e "/^[.][ 	]*nr/d" \
 	    -e "/^[.][ 	]*de/d" \
+	    -e "/^[.][ 	]*r[rnm]/d" \
 	    -e "/^[.][ 	]*if/d" \
 	    -e "/^[.][ 	]*ie/d" \
 	    -e "/^[.][ 	]*el/d" \
-	    -e "/^[.][ 	]*ds/d" \
-	    -e "/^[.][ 	]*nr/d" \
-	    -e "/^[.][ 	]*rr/d" \
 	    -e "/^[.][ 	]*tm/d" \
 	    -e "/^[.'][ 	]*br/d" \
 	    -e '/corrections for vroff/d' \
+	# end
+	mv $tmp.tmp $tmp.in
+    else
+	# strip names for definition of troff strings, registers
+	# and (non-mman) macros
+	# ... looks like ispell already deals with some uses of these,
+	# e.g. it does not trip up over \*(Bz but \n(Az and \n+(Az
+	# .ds Bz ... and .nr Az cause problems
+	# and groff extended string notation \[foo]
+	#
+	sed <$tmp.in >$tmp.tmp \
+	    -e "s/^[.'][ 	]*ds [A-Za-z][A-Za-z]//" \
+	    -e "s/^[.'][ 	]*nr [A-Za-z][A-Za-z]//" \
+	    -e "s/^[.'][ 	]*de [A-Z][a-z]]//" \
+	    -e "s/^[.'][ 	]*de [a-z][a-z]]//" \
+	    -e "s/^[.'][ 	]*de [a-z][A-Z]]//" \
+	    -e "s/^[.'][ 	]*r[rnm] [A-Z][a-z]]//" \
+	    -e "s/^[.'][ 	]*r[rnm] [a-z][a-z]]//" \
+	    -e "s/^[.'][ 	]*r[rnm] [a-z][A-Z]]//" \
+	    -e "s/\\n([A-Za-z][A-Za-z]//"g \
+	    -e "s/\\n+([A-Za-z][A-Za-z]//"g \
+	    -e "s/\\n-([A-Za-z][A-Za-z]//"g \
+	    -e 's/\\\[[A-Za-z][A-Za-z]*]//g' \
 	# end
 	mv $tmp.tmp $tmp.in
     fi
@@ -2336,6 +2428,7 @@ p
 	    | fmt -70 \
 	    | sed -e 's/^/.\\" +ok+ /'
 	else
+	    [ $debug -eq 0 -a $# -gt 1 ] && echo "$file:"
 	    cat $tmp.out
 	fi
     fi

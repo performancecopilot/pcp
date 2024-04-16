@@ -46,7 +46,7 @@ else
 fi \
 | while read f
 do
-    if grep '^\.SH' <$f >/dev/null
+    if grep -q '^\.SH ' <$f
     then
 	# smells like troff man source ... not html, or an image, or ...
 	# + \<space> at the end of the line is an escaped <space>
