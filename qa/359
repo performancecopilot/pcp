@@ -64,6 +64,7 @@ _filter()
 	-e '/^apache\..*: Try again./d' \
 	-e '/^oracle\..*: Try again./d' \
 	-e '/^nginx\..*: Try again./d' \
+	-e '/^uwsgi\..*: Try again./d' \
 	-e '/^zswap\..*: Try again./d' \
 	-e '/Container not found/d' \
 	-e '/^postgresql/d' \

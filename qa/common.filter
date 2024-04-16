@@ -410,6 +410,7 @@ _filter_optional_pmda_instances()
         -e '/inst \[120 or "nvidia"]/d' \
         -e '/inst \[122 or "jbd2"]/d' \
 	-e '/inst \[123 or "rpm"]/d' \
+	-e '/inst \[125 or "zswap"]/d' \
 	-e '/inst \[127 or "perfevent"]/d' \
 	-e '/inst \[129 or "dm"]/d' \
 	-e '/inst \[139 or "openbsd"]/d' \
