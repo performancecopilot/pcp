@@ -5,8 +5,10 @@
 #
 # "make check" fails in the man dir on some platforms (Fedora 39
 # and 40 specifically) because the maintainers of the checking tool
-# we're forced to use are clueless ... whitespace at the end of a
-# troff input line always was, and always will be, OK.
+# we're forced to use are clueless about troff and its history
+# + whitespace at the end of a troff input line always was, and
+#   always will be, OK.
+# + .SH followed by .PP is always benign
 #
 # To be complete this really needs the make to descend into the
 # man_src directory to make all symlinks that point to the hidden
@@ -55,13 +57,19 @@ do
 	#   out the previous tricky sed to strip troff comment
 	#   lines)
 	#
-	cat -n $f \
+	cat -n <$f \
 	| sed \
 	    -e '/\\ $/d' \
-	| if grep ' $' >$tmp.tmp
+	| grep ' $' \
+	| sed -e 's/$/[space at end of line]/' >$tmp.err
+	awk <$f >>$tmp.err '
+$1 == ".SH"			{ seenSH = 1; next }
+seenSH == 1 && $1 == ".PP"	{ printf "%6d\t[.PP after .SH]\n",NR }
+				{ seenSH = 0 }'
+	if [ -s $tmp.err ]
 	then
 	    echo "$f:"
-	    cat $tmp.tmp
+	    cat $tmp.err
 	    status=1
 	    $oneshot && exit 1
 	fi

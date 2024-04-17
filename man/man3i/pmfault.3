@@ -43,7 +43,6 @@ PM_FAULT_CLEAR;
 cc \-DPM_FAULT_INJECTION=1 ... \-lpcp_fault
 .ft 1
 .SH DESCRIPTION
-.PP
 As part of the coverage-driven changes to QA in PCP 3.6, it became
 apparent that we needed someway to exercise the ``uncommon''
 code paths associated with error detection and recovery.
@@ -247,7 +246,6 @@ The fault injection infrastructure is
 thread-safe and should only be used with applications that are
 known to be single-threaded.
 .SH RUN-TIME CONTROL
-.PP
 By default, no fault injection is enabled at run-time, even when
 .B __pmFaultInject
 is called.
@@ -423,7 +421,6 @@ $ check -n -g fault
 .fi
 .ft
 .SH DIAGNOSTICS
-.PP
 Some non-recoverable errors are reported on
 .IR stderr .
 .SH ENVIRONMENT
