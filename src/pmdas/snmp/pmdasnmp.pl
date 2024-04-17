@@ -411,3 +411,5 @@ default log file for error and warn() messages from B<pmdasnmp>
 =head1 SEE ALSO
 
 pmcd(1) and SNMP
+
+ +ok+ foo
