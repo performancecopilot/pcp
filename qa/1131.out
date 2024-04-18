@@ -2270,6 +2270,7 @@ QA output created by 1131
 
 
 # HELP hinv_ncpu number of CPUs in the system
+# PCP5 hinv_ncpu 60.0.32 u32 PM_INDOM_NULL discrete
 # TYPE hinv_ncpu gauge
 hinv_ncpu{domainname="DOMAINID",groupid="GROUPID",hostname="HOST",machineid="MACHINEID",userid="USERID",agent="linux"} NCPU
 ---
