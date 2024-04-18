@@ -39,15 +39,37 @@ then
     exit
 fi
 
+# need another user with uid != 0
+#
+otheruser=''
+othergroup=''
+for user in daemon bin sys games man lp main news uucp nobody
+do
+    uid=`id -u $user 2>/dev/null`
+    [ -z "$uid" -o "$uid" -eq 0 ] && continue
+    otheruser=$user
+    othergroup=`id -n -g $otheruser`
+    break
+done
+[ -n "$otheruser" ] || _notrun "cannot find another non-root user"
+[ -n "$othergroup" ] || _notrun "cannot find group of non-root user $otheruser"
+
 $sudo rm -f "$PCP_VAR_DIR/config/pmda/$qadomain.42"
 mygroup=`id -gn`
+
+echo "mygroup=$mygroup" >>$seq.full
+echo "otheruser=$otheruser" >>$seq.full
+echo "othergroup=$othergroup" >>$seq.full
 
 _filter()
 {
     sed \
 	-e "s@$PCP_VAR_DIR@PCP_VAR_DIR@g" \
-	-e "s/-g $mygroup/-g MYGROUP/" \
-	-e "s/root\.$mygroup\$/root.MYGROUP/" \
+	-e "s/-g $mygroup /-g MYGROUP /" \
+	-e "s/=root\.$mygroup\$/=root.MYGROUP/" \
+	-e "s/-u *$otheruser /-u OTHERUSER /" \
+	-e "s/-g $othergroup /-g OTHERGROUP /" \
+	-e "s/=$otheruser\.$othergroup\$/=OTHERUSER.OTHERGROUP/" \
     # end
 }
 
@@ -86,13 +108,13 @@ _doit 512.42
 # too many serial bits
 _doit $qadomain.4194304
 # -u and -l
-_doit -u pcpqa -l $qadomain.42
+_doit -u $otheruser -l $qadomain.42
 # -g and -l
-_doit -g pcpqa -l $qadomain.42
+_doit -g $othergroup -l $qadomain.42
 # -m and -l
 _doit -m 0600 -l $qadomain.42
 # -u and -g and -m and -l
-_doit -u pcpqa -g pcpqa -m 0600 -l $qadomain.42
+_doit -u $otheruser -g $othergroup -m 0600 -l $qadomain.42
 # bad -u
 _doit -u user-is-not-in-password-file $qadomain.42
 # bad -g
@@ -149,7 +171,7 @@ $sudo rm -f "$PCP_VAR_DIR/config/pmda/$qadomain.42"
 
 # this one sort of matches the use case in the PMDA Install scripts
 #
-_doit -upcpqa $qadomain.42
+_doit -u$otheruser $qadomain.42
 
 
 # success, all done
