@@ -63,6 +63,7 @@ _doit()
 	then
 	    ls -l "$PCP_VAR_DIR/config/pmda/$qadomain.42" \
 	    | $PCP_AWK_PROG '{ print "indom cache file '$qadomain.42': mode=" $1 " owner=" $3 "." $4 }' \
+	    | sed -e 's/\(mode=..........\)\./\1/' \
 	    | _filter
 	    $sudo cat $PCP_VAR_DIR/config/pmda/$qadomain.42
 	else

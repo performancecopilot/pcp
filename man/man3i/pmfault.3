@@ -1,26 +1,27 @@
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
+.\"
 .\"
 .TH PMFAULT 3 "" "Performance Co-Pilot"
+.ds xM pmfault
 .SH NAME
 \f3__pmFaultInject\f1,
+\f3__pmFaultSummary\f1,
 \f3PM_FAULT_POINT\f1,
 \f3PM_FAULT_RETURN\f1,
 \f3PM_FAULT_CHECK\f1,
-\f3PM_FAULT_CLEAR\f1,
-\f3__pmFaultSummary\f1 \- Fault Injection Infrastracture for QA
+\f3PM_FAULT_CLEAR\f1 \- Fault Injection Infrastructure for QA
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
@@ -42,7 +43,6 @@ PM_FAULT_CLEAR;
 cc \-DPM_FAULT_INJECTION=1 ... \-lpcp_fault
 .ft 1
 .SH DESCRIPTION
-.PP
 As part of the coverage-driven changes to QA in PCP 3.6, it became
 apparent that we needed someway to exercise the ``uncommon''
 code paths associated with error detection and recovery.
@@ -50,7 +50,7 @@ code paths associated with error detection and recovery.
 The facilities described below provide
 a basic fault injection infrastructure (for
 .I libpcp
-only at this stage, alhough the mechanism is far more general and could
+only at this stage, although the mechanism is far more general and could
 easily be extended).
 .PP
 A special build is required to create
@@ -246,7 +246,6 @@ The fault injection infrastructure is
 thread-safe and should only be used with applications that are
 known to be single-threaded.
 .SH RUN-TIME CONTROL
-.PP
 By default, no fault injection is enabled at run-time, even when
 .B __pmFaultInject
 is called.
@@ -422,7 +421,6 @@ $ check -n -g fault
 .fi
 .ft
 .SH DIAGNOSTICS
-.PP
 Some non-recoverable errors are reported on
 .IR stderr .
 .SH ENVIRONMENT
@@ -437,3 +435,14 @@ to be used in preference to
 .IR libpcp .
 .SH SEE ALSO
 .BR PMAPI (3)
+
+.\" control lines for scripts/man-spell
+.\" +ok+ DPM_FAULT_INJECTION {from -DPM_FAULT_INJECTION}
+.\" +ok+ PM_FAULT_INJECTION PM_FAULT_CONTROL
+.\" +ok+ PM_FAULT_RETURN PM_FAULT_ALLOC PM_FAULT_CHECK PM_FAULT_CLEAR
+.\" +ok+ PM_FAULT_POINT derive_parser PM_FAULT_CALL
+.\" +ok+ PM_FAULT_MISC param_string libpcp_fault LD_PRELOAD setoserror
+.\" +ok+ initiallly lpcp_fault {from -lpcp_fault}
+.\" +ok+ p_profile tripcount retvalue __FILE__ e_labels
+.\" +ok+ e_indom logmeta Dfault {from -Dfault} interp atexit ntrip
+.\" +ok+ desc pdu tmp src qa co {from co-exist} op {from op(erator)}
