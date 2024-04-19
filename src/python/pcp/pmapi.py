@@ -1846,7 +1846,7 @@ class pmContext(object):
             raise pmErr(status)
         text = buf.value
         LIBC.free(buf)
-        return text
+        return str(text.decode())
 
     ##
     # PMAPI Instance Domain Services

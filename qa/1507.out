@@ -42,16 +42,16 @@ indomcachectl failed: exit 1
 + indomcachectl 251.4194304
 indomcachectl: Error: out-of-range domain.serial: 251.4194304
 indomcachectl failed: exit 1
-+ indomcachectl -u pcpqa -l 251.42
++ indomcachectl -u OTHERUSER -l 251.42
 indomcachectl: Error: -l is mutually exclusive with -u, -g and -m
 indomcachectl failed: exit 1
-+ indomcachectl -g pcpqa -l 251.42
++ indomcachectl -g OTHERGROUP -l 251.42
 indomcachectl: Error: -l is mutually exclusive with -u, -g and -m
 indomcachectl failed: exit 1
 + indomcachectl -m 0600 -l 251.42
 indomcachectl: Error: -l is mutually exclusive with -u, -g and -m
 indomcachectl failed: exit 1
-+ indomcachectl -u pcpqa -g pcpqa -m 0600 -l 251.42
++ indomcachectl -u OTHERUSER -g OTHERGROUP -m 0600 -l 251.42
 indomcachectl: Error: -l is mutually exclusive with -u, -g and -m
 indomcachectl failed: exit 1
 + indomcachectl -u user-is-not-in-password-file 251.42
@@ -116,6 +116,6 @@ indom cache file 251.42: mode=-rw-rw---- owner=root.root
 + indomcachectl -m 0060 -g MYGROUP 251.42
 indom cache file 251.42: mode=----rw---- owner=root.MYGROUP
 2 0 2147483647
-+ indomcachectl -upcpqa 251.42
-indom cache file 251.42: mode=-rw-rw---- owner=pcpqa.pcpqa
++ indomcachectl -u OTHERUSER 251.42
+indom cache file 251.42: mode=-rw-rw---- owner=OTHERUSER.OTHERGROUP
 2 0 2147483647

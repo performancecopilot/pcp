@@ -1,5 +1,5 @@
 #!/bin/sh
-# PCP QA Test No. 1589
+# PCP QA Test No. 1827
 # Exercise pcp2openmetrics HTTP POST functionality.
 #
 # Copyright (c) 2024 Red Hat.  All Rights Reserved.
