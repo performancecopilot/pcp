@@ -27,13 +27,17 @@
 
 extern const int promote[6][6];
 
+/*
+ * recursive descent to harvest names of valid metrics from
+ * an expression tree
+ */
 static void
 get_pmids(node_t *np, int *cnt, pmID **list)
 {
     assert(np != NULL);
     if (np->left != NULL) get_pmids(np->left, cnt, list);
     if (np->right != NULL) get_pmids(np->right, cnt, list);
-    if (np->type == N_NAME) {
+    if (np->type == N_NAME && np->data.info->pmid != PM_ID_NULL) {
 	(*cnt)++;
 	if ((*list = (pmID *)realloc(*list, (*cnt)*sizeof(pmID))) == NULL) {
 	    pmNoMem("__dmprefetch: realloc xtralist", (*cnt)*sizeof(pmID), PM_FATAL_ERR);
@@ -720,7 +724,8 @@ eval_expr(__pmContext *ctxp, node_t *np, struct timespec *stamp, int numpmid,
     assert (np->type == N_INTEGER || np->type == N_DOUBLE ||
             np->type == N_NAME || np->type == N_SCALE ||
 	    np->type == N_FILTERINST || np->type == N_PATTERN ||
-	    np->type == N_DEFINED || np->left != NULL);
+	    np->type == N_DEFINED || np->type == N_NOVALUE ||
+	    np->left != NULL);
 
     switch (np->type) {
 
@@ -1023,19 +1028,20 @@ eval_expr(__pmContext *ctxp, node_t *np, struct timespec *stamp, int numpmid,
 		/*
 		 * the ternary expression is only going to have well-behaved
 		 * semantics if we have value(s) for the guard and both the
-		 * truth/false expressions
+		 * truth/false expressions (unless the these are a novalue()
+		 * node)
 		 */
 		if (np->left->data.info->numval <= 0) {
 		    /* no guard expression values */
 		    np->data.info->numval = np->left->data.info->numval;
 		    return np->data.info->numval;
 		}
-		if (np->right->left->data.info->numval <= 0) {
+		if (np->right->left->data.info->numval <= 0 && np->right->left->type != N_NOVALUE) {
 		    /* no true expression values */
 		    np->data.info->numval = np->right->left->data.info->numval;
 		    return np->data.info->numval;
 		}
-		if (np->right->right->data.info->numval <= 0) {
+		if (np->right->right->data.info->numval <= 0 && np->right->right->type != N_NOVALUE) {
 		    /* no false expression values */
 		    np->data.info->numval = np->right->right->data.info->numval;
 		    return np->data.info->numval;
@@ -1113,6 +1119,10 @@ eval_expr(__pmContext *ctxp, node_t *np, struct timespec *stamp, int numpmid,
 			__dmdumpexpr(np, 0);
 		    }
 		    assert(pick != NULL);
+		    if (pick->type == N_NOVALUE) {
+			np->data.info->numval--;
+			continue;
+		    }
 		    switch (np->desc.type) {
 			case PM_TYPE_32:
 			    if (i < pick->data.info->numval)
@@ -1164,6 +1174,10 @@ eval_expr(__pmContext *ctxp, node_t *np, struct timespec *stamp, int numpmid,
 		    }
 		    np->data.info->ivlist[i].inst = pick_inst->data.info->ivlist[i].inst;
 		}
+	    }
+	    if (np->data.info->numval == 0) {
+		free(np->data.info->ivlist);
+		np->data.info->ivlist = NULL;
 	    }
 	    return np->data.info->numval;
 
@@ -1414,9 +1428,13 @@ eval_expr(__pmContext *ctxp, node_t *np, struct timespec *stamp, int numpmid,
 	    return np->data.info->numval;
 
 	case N_NAME:
+	    /* fastpath for pmid == PM_ID_NULL case (from BIND_LAZY) */
+	    if (np->data.info->pmid == PM_ID_NULL) {
+		return 0;
+	    }
 	    /*
-	     * Extract instance-values from pmResult and store them in
-	     * ivlist[] as <int, pmAtomValue> pairs
+	     * otherwise extract instance-values from pmResult and store
+	     * them in ivlist[] as <int, pmAtomValue> pairs
 	     */
 	    for (j = 0; j < numpmid; j++) {
 		if (np->data.info->pmid == vset[j]->pmid) {
@@ -1649,6 +1667,10 @@ eval_expr(__pmContext *ctxp, node_t *np, struct timespec *stamp, int numpmid,
 	    return np->data.info->numval;
 
 	case N_PATTERN:
+	    /* do nothing */
+	    return 0;
+
+	case N_NOVALUE:
 	    /* do nothing */
 	    return 0;
 

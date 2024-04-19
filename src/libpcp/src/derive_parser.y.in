@@ -417,6 +417,9 @@ free_expr_ctx(node_t *np)
     free_expr(np);
 }
 
+#define BIND_NOW 0
+#define BIND_LAZY 1
+
 /*
  * Bind an expression tree in a specific context.
  * For registered metrics this involves copy the expression tree
@@ -426,9 +429,10 @@ free_expr_ctx(node_t *np)
  * Metadata and the data.info block need to be initialized.
  */
 static node_t *
-bind_expr(__pmContext *ctxp, int n, node_t *np, int lookup_err_ok, int is_global)
+bind_expr(__pmContext *ctxp, int n, node_t *np, int lookup_mode, int is_global)
 {
     node_t	*new;
+    int		next_lookup = lookup_mode;
 
     PM_ASSERT_IS_LOCKED(registered.mutex);
     assert(np != NULL);
@@ -438,14 +442,27 @@ bind_expr(__pmContext *ctxp, int n, node_t *np, int lookup_err_ok, int is_global
     else
 	new = np;
 
-    if (np->left != NULL) {
+    if (np->type == N_QUEST) {
 	/*
-	 * defined(name) is special ... 
+	 * <guard> ? <left> : <right> is special because any subtree
+	 * below N_QUEST could validly contain references to metrics that
+	 * do not exist, so set use BIND_LAZY when binding these ones
 	 */
-	if (np->type == N_DEFINED)
-	    new->left = bind_expr(ctxp, n, np->left, 1, is_global);
-	else
-	    new->left = bind_expr(ctxp, n, np->left, 0, is_global);
+	next_lookup = BIND_LAZY;
+    }
+    else if (np->type == N_DEFINED) {
+	/*
+	 * defined(x) ... failing to lookup x is sort of expected
+	 */
+	next_lookup = BIND_LAZY;
+    }
+    else {
+	/* else follow the NOW|LAZY binding we were called with */
+	next_lookup = lookup_mode;
+    }
+
+    if (np->left != NULL) {
+	new->left = bind_expr(ctxp, n, np->left, next_lookup, is_global);
 	if (new->left == NULL) {
 	    /* error, reported deeper in the recursion, clean up */
 	    if (is_global)
@@ -454,7 +471,7 @@ bind_expr(__pmContext *ctxp, int n, node_t *np, int lookup_err_ok, int is_global
 	}
     }
     if (np->right != NULL) {
-	if ((new->right = bind_expr(ctxp, n, np->right, 0, is_global)) == NULL) {
+	if ((new->right = bind_expr(ctxp, n, np->right, next_lookup, is_global)) == NULL) {
 	    /* error, reported deeper in the recursion, clean up */
 	    if (is_global)
 		free_expr(new);
@@ -509,8 +526,11 @@ bind_expr(__pmContext *ctxp, int n, node_t *np, int lookup_err_ok, int is_global
 	/* get pmID and pmDesc from context */
 	sts = pmLookupName_ctx(ctxp, PM_LOCKED, 1, (const char **)&new->value, &new->data.info->pmid);
 	if (sts < 0) {
-	    if (lookup_err_ok) {
-		/* derived(x) -> false case */
+	    if (lookup_mode == BIND_LAZY) {
+		/*
+		 * undefined metrics maybe OK here ...
+		 * set pmid for later testing
+		 */
 		new->data.info->pmid = PM_ID_NULL;
 		return new;
 	    }
@@ -537,6 +557,10 @@ bind_expr(__pmContext *ctxp, int n, node_t *np, int lookup_err_ok, int is_global
     else if (new->type == N_INTEGER || new->type == N_DOUBLE || new->type == N_SCALE) {
 	if (is_global)
 	    new->desc = np->desc;
+    }
+    else if (new->type == N_NOVALUE) {
+	new->desc = np->desc;
+	new->data.info->numval = 0;
     }
 
     return new;
@@ -886,7 +910,7 @@ map_desc(dm_t *dmp, node_t *np, int async)
 	    PM_TPD(derive_errmsg) = "Incompatible dimensions";
 	    goto bad;
 	}
-	np->desc.units = np->right->desc.units;		/* struct assignment */
+	np->desc.units = np->right->desc.units;		/* struct copy */
 	return 0;
     }
     else if (np->type == N_PATTERN) {
@@ -1096,7 +1120,7 @@ map_desc(dm_t *dmp, node_t *np, int async)
 	     np->type == N_GEQ || np->type == N_GT || np->type == N_NEQ ||
 	     np->type == N_AND || np->type == N_OR || np->type == N_NOT) {
 	/* no units for relational or boolean expressions */
-	np->desc.units = noUnits;	/* struct assignment */
+	np->desc.units = noUnits;	/* struct copy */
     }
 
     /*
@@ -1126,7 +1150,7 @@ bad:
  * see __dmbind() for semantics of async parameter
  */
 static int
-check_expr(dm_t *dmp, node_t *np, int async)
+check_expr(dm_t *dmp, node_t *np, node_t *parent, int async)
 {
     int		sts;
 
@@ -1169,27 +1193,64 @@ check_expr(dm_t *dmp, node_t *np, int async)
 	np->left = NULL;
 	return 0;
     }
+    else if (np->type == N_NOVALUE) {
+	return 0;
+    }
 
     /* otherwise, np->left is never NULL ... */
     assert(np->left != NULL);
 
-    if ((sts = check_expr(dmp, np->left, async)) < 0)
+    if ((sts = check_expr(dmp, np->left, np, async)) < 0)
 	return sts;
 
     if (np->right != NULL) {
-	if ((sts = check_expr(dmp, np->right, async)) < 0)
+	if ((sts = check_expr(dmp, np->right, np, async)) < 0)
 	    return sts;
 	switch (np->type) {
 
 	case N_COLON:
 	    /*
-	     * ensures pmDesc for left and right options are
-	     * the same, and choose left arbitrarily ... start
-	     * assuming the same, may need to adjust indom if
-	     * one operand has an indom and the other does not
-	     * (see below)
+	     * <guard> ? <left-expr> : <right-expr>
+	     *
+	     * the default strategy is to ensure pmDesc for the <left-expr>
+	     * and the <right-expr> are the same, and choose pmDesc from
+	     * <left-expr> ... then for the indom start assuming they are
+	     * the same, may need to adjust if one <expr> has an indom and
+	     * the other does not (see below)
+	     *
+	     * but first, some special case exceptions ...
 	     */
-	    np->desc = np->left->desc;
+
+	    if (parent->type == N_QUEST && parent->left->type == N_DEFINED) {
+		/*
+		 * special handling for defined(x) ? <left-expr> : <right-expr>
+		 * depending on result of defined(x) choose pmDesc from
+		 * <left-expr> (true) or <right-expr> (false)
+		 */
+		if (parent->left->data.info->ivlist[0].value.ul == 1) {
+		    np->desc = np->left->desc;		/* struct copy */
+		}
+		else {
+		    np->desc = np->right->desc;		/* struct copy */
+		}
+	    }
+	    else  {
+		np->desc = np->left->desc;
+		if (np->left->desc.indom == PM_INDOM_NULL)
+		    np->desc.indom = np->right->desc.indom;
+	    }
+
+	    /*
+	     * special case when left or right operand is novalue()
+	     * (grammer ensures it cannot be both), then skip semantic
+	     * checks as these will fail comparing novalue() to the other
+	     * <expr>, and even worse the other <expr> may contain undefined
+	     * metrics with no metadata available
+	     */
+	    if (np->left->type == N_NOVALUE || np->right->type == N_NOVALUE)
+		return 0;
+
+	    /* semantic checks for left-expr cf right-expr */
 	    if (np->left->desc.type != np->right->desc.type) {
 		if (pmDebugOptions.derive && pmDebugOptions.appl1) {
 		    char	strbuf[20];
@@ -1220,10 +1281,6 @@ check_expr(dm_t *dmp, node_t *np, int async)
 		    report_sem_error(dmp->name, np);
 		return -1;
 	    }
-	    if (np->left->desc.indom != PM_INDOM_NULL)
-		np->desc.indom = np->left->desc.indom;
-	    else
-		np->desc.indom = np->right->desc.indom;
 	    if (np->left->desc.sem != np->right->desc.sem) {
 		if (pmDebugOptions.derive && pmDebugOptions.appl1) {
 		    char	strbuf[20];
@@ -1325,8 +1382,8 @@ check_expr(dm_t *dmp, node_t *np, int async)
 	    return map_desc(dmp, np, async);
 	}
     }
-
     np->desc = np->left->desc;	/* struct copy */
+
     /*
      * special cases for functions ...
      * count()		u32 and instantaneous
@@ -3140,10 +3197,10 @@ __dmbind(int derive_locked, __pmContext *ctxp, int i, int async)
 	}
     }
     /* failures must be reported in bind_expr() or below */
-    cp->mlist[i].expr = bind_expr(ctxp, i, cp->mlist[i].expr, 0, cp->mlist[i].flags & DM_GLOBAL);
+    cp->mlist[i].expr = bind_expr(ctxp, i, cp->mlist[i].expr, BIND_NOW, cp->mlist[i].flags & DM_GLOBAL);
     if (cp->mlist[i].expr != NULL) {
 	/* failures must be reported in check_expr() or below */
-	sts = check_expr(&cp->mlist[i], cp->mlist[i].expr, async);
+	sts = check_expr(&cp->mlist[i], cp->mlist[i].expr, NULL, async);
 	if (sts < 0) {
 	    free_expr(cp->mlist[i].expr);
 	    cp->mlist[i].expr = NULL;
@@ -3438,6 +3495,7 @@ PUT-PREFIX-DECL-HERE ... see GNUmakefile and fix_derive_parser_y
 %token      L_AND
 %token      L_OR
 %token      L_MKCONST
+%token      L_NOVALUE
 %token      L_RESCALE
 %token      L_DEFINED
 %token      L_MATCHINST
@@ -3463,6 +3521,7 @@ PUT-PREFIX-DECL-HERE ... see GNUmakefile and fix_derive_parser_y
 %type  <n>  regexpr
 %type  <n>  num
 %type  <n>  func
+%type  <n>  novalue
 %type  <i>  opt_bang
 %type  <d>  spec
 %type  <d>  speclist
@@ -3623,6 +3682,26 @@ expr	: L_LPAREN expr L_RPAREN
 		  np->right->right = $5;
 		  $$ = np;
 		}
+	| expr L_QUEST novalue L_COLON expr
+		{ np = newnode(N_QUEST);
+		  np->left = $1;
+		  np->right = newnode(N_COLON);
+		  np->right->left = $3;
+		  np->right->right = $5;
+		  $$ = np;
+		}
+	| expr L_QUEST expr L_COLON novalue
+		{ np = newnode(N_QUEST);
+		  np->left = $1;
+		  np->right = newnode(N_COLON);
+		  np->right->left = $3;
+		  np->right->right = $5;
+		  $$ = np;
+		}
+	| expr L_QUEST novalue L_COLON novalue
+		{ PM_TPD(derive_errmsg) = "novalue() may appear at most once in a ternary expression";
+		  YYERROR;
+		}
 
 	/* boolean expressions */
 	| expr L_AND expr
@@ -3667,6 +3746,21 @@ expr	: L_LPAREN expr L_RPAREN
 		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_QUEST)); YYERROR; }
 	| expr L_QUEST expr L_COLON error
 		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_COLON)); YYERROR; }
+	;
+
+novalue : L_NOVALUE L_LPAREN L_RPAREN
+		{ np = newnode(N_NOVALUE);
+		  /*
+		   * defaults ... not needed, but makes __dmdumpexpr()
+		   * happy in case is is called
+		   */
+		  np->desc.pmid = PM_ID_NULL;
+		  np->desc.type = PM_TYPE_32;
+		  np->desc.indom = PM_INDOM_NULL;
+		  np->desc.sem = PM_SEM_DISCRETE;
+		  np->desc.units = noUnits;
+		  $$ = np;
+		}
 	;
 
 regexpr	: opt_bang L_PATTERN
@@ -3729,7 +3823,7 @@ num	: L_INTEGER
 		  specdesc.units = noUnits;
 		}
 	    speclist L_RPAREN
-		{ np->desc = specdesc;	/* struct assignment */
+		{ np->desc = specdesc;	/* struct copy */
 		  $$ = np;
 		}
 	| L_MKCONST L_LPAREN L_DOUBLE L_COMMA
@@ -3750,7 +3844,7 @@ num	: L_INTEGER
 		      derive_error(NULL);
 		      return -1;
 		  }
-		  np->desc = specdesc;	/* struct assignment */
+		  np->desc = specdesc;	/* struct copy */
 		  $$ = np;
 		}
 	;
@@ -3917,7 +4011,7 @@ func	: L_ANON L_LPAREN L_NAME L_RPAREN
 		      return -1;
 		  }
 		  np->right = newnode(N_SCALE);
-		  np->right->desc.units = units;	/* struct assign */
+		  np->right->desc.units = units;	/* struct copy */
 		  free($5);
 		  $$ = np;
 		}
@@ -3983,6 +4077,7 @@ static const struct {
     { L_RATE,	"rate" },
     { L_INSTANT,"instant" },
     { L_MKCONST,"mkconst" },
+    { L_NOVALUE,"novalue" },
     { L_RESCALE,"rescale" },
     { L_DEFINED,"defined" },
     { L_MATCHINST, "matchinst" },
@@ -4027,6 +4122,7 @@ static struct {
     { L_RATE,		N_RATE,		"RATE",		NULL },
     { L_INSTANT,	N_INSTANT,	"INSTANT",	NULL },
     { L_MKCONST,	0,		"MKCONST",	NULL },
+    { L_NOVALUE,	N_NOVALUE,	"NOVALUE",	NULL },
     { L_RESCALE,	N_RESCALE,	"RESCALE",	NULL },
     { 0,		N_SCALE,	"SCALE",	NULL },
     { L_DEFINED,	N_DEFINED,	"DEFINED",	NULL },
