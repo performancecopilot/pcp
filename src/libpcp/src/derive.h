@@ -143,6 +143,7 @@ typedef struct {
 #define N_FILTERINST	32
 #define N_PATTERN	33
 #define N_SCALAR	34
+#define N_NOVALUE	35
 
 /* instance filtering types */
 #define F_REGEX		0		/* matchinst([!]pattern, expr) */

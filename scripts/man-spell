@@ -359,6 +359,7 @@ bzip
 chkconfig
 chmod
 chown
+cd
 cp
 cpp
 crontab
@@ -839,6 +840,7 @@ __pmFeof
 __pmFerror
 __pmFetch
 __pmFetchArchive
+__pmFetchGroup
 __pmFetchHighResLocal
 __pmFetchLocal
 __pmFflush
@@ -1236,6 +1238,7 @@ pmExtendFetchGroup_indom
 pmExtendFetchGroup_item
 pmExtendFetchGroup_timestamp
 pmExtractValue
+pmFG
 pmFetch
 pmFetchArchive
 pmFetchGroup
@@ -1277,7 +1280,9 @@ pmGetProgname
 pmGetUsername
 pmGetVersion
 pmHighResEventArray
+pmHighResEventRecord
 pmHighResFetch
+pmHighResLogLabel
 pmHighResResult
 pmID
 pmIDStr
@@ -1287,22 +1292,28 @@ pmID_cluster
 pmID_domain
 pmID_item
 pmInDom
+pmInDomProfile
 pmInDomStr
 pmInDomStr_r
 pmInDom_build
 pmInDom_domain
 pmInDom_serial
+pmInResult
 pmIniFileFree
 pmIniFileLookup
 pmIniFileSetup
 pmIniFileUpdate
+pmLabel
+pmLabelSet
 pmLoadASCIINameSpace
 pmLoadDerivedConfig
 pmLoadNameSpace
 pmLocaltime
+pmLogLabel
 pmLogLevelIsTTY
 pmLogLevelPrint
 pmLogLevelStr
+pmLongOptions
 pmLookupDesc
 pmLookupDescs
 pmLookupInDom
@@ -1313,6 +1324,7 @@ pmLookupName
 pmLookupText
 pmMergeLabelSets
 pmMergeLabels
+pmMetricSpec
 pmNameAll
 pmNameID
 pmNameInDom
@@ -1325,6 +1337,8 @@ pmNotifyErr
 pmNumberStr
 pmNumberStr_r
 pmOpenLog
+pmOptionOverride
+pmOptions
 pmParseHighResInterval
 pmParseHighResTimeWindow
 pmParseInterval
@@ -1400,6 +1414,8 @@ pmTimeStateBounds
 pmTimeStateMode
 pmTimeStateSetup
 pmTimeStateVector
+pmTimespec
+pmTimeval
 pmTraversePMNS
 pmTraversePMNS_r
 pmTrimNameSpace
@@ -1569,6 +1585,7 @@ PMDA_OPTIONS_TEXT
 PMDA_PMID
 PMDA_PMUNITS
 PMDA_UNITS
+__pmDSO
 __pmdaCacheDump
 __pmdaCacheDumpAll
 __pmdaCntInst
@@ -1605,26 +1622,31 @@ pmdaCachePurgeCallback
 pmdaCacheResize
 pmdaCacheStore
 pmdaCacheStoreKey
+pmdaCheckCallBack
 pmdaChildren
 pmdaCloseHelp
 pmdaConnect
+pmdaCountMetrics
 pmdaDSO
 pmdaDaemon
 pmdaDesc
+pmdaDoneCallBack
 pmdaDynamicLookupName
 pmdaDynamicLookupPMID
 pmdaDynamicLookupText
 pmdaDynamicMetricTable
 pmdaDynamicPMNS
 pmdaDynamicSetClusterMask
+pmdaEndContextCallBack
 pmdaEventAddHighResMissedRecord
-pmdaEventDecodeCallBack
 pmdaEventAddHighResParam
 pmdaEventAddHighResRecord
 pmdaEventAddMissedRecord
 pmdaEventAddParam
 pmdaEventAddRecord
+pmdaEventApplyFilterCallBack
 pmdaEventClients
+pmdaEventDecodeCallBack
 pmdaEventEndClient
 pmdaEventGetAddr
 pmdaEventGetHighResAddr
@@ -1644,6 +1666,7 @@ pmdaEventQueueMemory
 pmdaEventQueueRecords
 pmdaEventQueueShutdown
 pmdaEventReleaseArray
+pmdaEventReleaseFilterCallBack
 pmdaEventReleaseHighResArray
 pmdaEventResetArray
 pmdaEventResetHighResArray
@@ -1661,6 +1684,7 @@ pmdaGetHelp
 pmdaGetInDomHelp
 pmdaGetOpt
 pmdaGetOptions
+pmdaHashTable
 pmdaIPv		# from pmdaIPv6
 pmdaIndom
 pmdaInet
@@ -1669,17 +1693,22 @@ pmdaInstance
 pmdaInstid
 pmdaInterface
 pmdaInterfaceMoved
+pmdaIoType
 pmdaLabel
+pmdaLabelCallBack
 pmdaMain
 pmdaMetric
 pmdaName
+pmdaNameSpace
 pmdaOpenHelp
 pmdaOpenLog
+pmdaOptionOverride
 pmdaOptions
 pmdaPMID
 pmdaPipe
 pmdaProfile
 pmdaRehash
+pmdaResultCallBack
 pmdaRootConnect
 pmdaRootContainerCGroupName
 pmdaRootContainerHostName
@@ -1710,6 +1739,9 @@ pmdaTreeRelease
 pmdaTreeSize
 pmdaUnix
 pmdaUnknown
+pmdaUpdateMetric
+pmdaUpdatePMNS
+pmdaUpdateText
 pmdaUsageMessage
 
 # pmdaproc.sh
@@ -1831,9 +1863,11 @@ PM_ERR_VALUE
 #
 AF_INET
 AF_UNIX
+EAGAIN
 EADDRINUSE
 ECONNREFUSED
 EINVAL
+ENOMEM
 EPERM
 OPTARG
 SIGALRM
@@ -2071,6 +2105,9 @@ favours?
 flavours?
 honoured
 honours?
+initialisation
+initialise
+initialised
 misbehaviours?
 recognise
 recognised
@@ -2159,6 +2196,12 @@ want == 1			{ if ($0 ~ /^[\\.[]/) {
 				    next
 				  }
 				}'
+    if [ -s $tmp.synopsis ]
+    then
+	:
+    else
+	[ $debug -gt 0 ] && echo "$file: Warning: empty extracted SYNOPSIS section" >&2
+    fi
     if [ $debug -gt 1 ]
     then
 	echo >&2 "synopsis section ..."
@@ -2166,12 +2209,12 @@ want == 1			{ if ($0 ~ /^[\\.[]/) {
 	then
 	    cat >&2 $tmp.synopsis
 	else
-	    echo >&2 "<empty file>"
+	    :
 	fi
     fi
-    [ -s $tmp.synopsis ] || echo "$file: Warning: empty extracted SYNOPSIS section" >&2
-    #
+
     # Section 1 sh-style Synopsis
+    #
      sed <$tmp.synopsis \
 	 -e '/(.*)/d' \
 	 -e 's/^\.I /\\fI/' \
@@ -2192,6 +2235,7 @@ p
     | tr ' ' '\012' \
     | uniq \
     | sed -e '/^ *$/d' >$tmp.tmp
+
     # Section 3 C-style Synopsis
     #
     sed -n <$tmp.synopsis \
@@ -2293,17 +2337,19 @@ p
     # strip ...
     # - .TH lines
     # - troff comments
-    # - tbl(1) format section (includes cw, cf, rf, lf, etc
     # - C-style hex constants
     # - leading @ in a line
+    #
+    # - tbl(1) format section (includes cw, cf, rf, lf, etc)
+    #
     # - troff conditonals, macros. .ds, ... if it is Pod::Man generated
     # then ispell (so we can treat _ as part of a word), sort, remove
     # duplicates, and then cull exceptions ...
     #
     if sed <"$file" >$tmp.in \
 	    -e '/^\.TH/d' \
-	    -e '/^.\\"/d' \
-	    -e "/^'\\\\\"/d" \
+	    -e '/^\.[ 	]*\\"/d' \
+	    -e "/^'[ 	]*\\\\\"/d" \
 	    -e 's/0x[0-9a-f][0-9a-f]*//' \
 	    -e 's/^@//' \
 	# end

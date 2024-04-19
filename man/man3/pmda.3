@@ -932,7 +932,7 @@ or later and link with
 and
 .IR libpcp.so.2 .
 Pre-existing Daemon PMDAs specifying
-.B PMDA_PROTOCOL_1
+.B PMDA_INTERFACE_1
 will continue to function using the backwards compatible
 .I libpcp_pmda.so.1
 and
@@ -1086,9 +1086,9 @@ library and the PMDA development process, refer to the Insight book
 .\" +ok+ default_configfile socket_inet_def signal_delay simple_fetch
 .\" +ok+ help_source check_delay simple_init pmns_source COLOR_INDOM
 .\" +ok+ python_name daemon_opt pmns_dupok socket_opt configfile dso_suffix
-.\" +ok+ it_numinst python_opt metrictab pmda_name pmns_name configdir
+.\" +ok+ it_numinst python_opt pmda_name pmns_name configdir
 .\" +ok+ NOW_INDOM dso_entry pathanme pcp_pmda perl_opt pipe_opt
-.\" +ok+ pmda_dir indomtab ipc_prot dso_name it_indom numfetch
+.\" +ok+ pmda_dir ipc_prot dso_name it_indom numfetch
 .\" +ok+ MYDOMAIN hotproc dso_opt Params _color m_desc cgroup i_inst
 .\" +ok+ _isDSO i_name compat it_set m_user _init pmda_ txmon myfoo dylib
 .\" +ok+ perl args iam dll tmp
@@ -1096,4 +1096,3 @@ library and the PMDA development process, refer to the Insight book
 .\" +ok+ _timenow {from variable name in example}
 .\" +ok+ Pre {from Pre-existing} pwd sys ds sw py
 .\" +ok+ comm {from comm.version}
-.\" +ok+ PMDA_PROTOCOL_ {from PMDA_PROTOCOL_1}

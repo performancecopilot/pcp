@@ -1,0 +1,292 @@
+QA output created by 1508
+pmRegisterDerived: global metric[0] event.flags = anon(PM_TYPE_U32)
+pmRegisterDerived: global metric[1] event.missed = anon(PM_TYPE_U32)
+Derived metric initialization from $PCP_DERIVED_CONFIG
+pmLoadDerivedConfig("TMP.config")
+pmRegisterDerived: global metric[2] qa.values.a = !defined(sample.bin) ? novalue() : sample.bin
+pmRegisterDerived: global metric[3] qa.values.b = defined(sample.bin) ? sample.bin : novalue()
+pmRegisterDerived: global metric[4] qa.values.c = defined(sample.bin) ? (defined(sample.colour) ? count(sample.bin) + count(sample.colour) : novalue()) : novalue()
+pmRegisterDerived: global metric[5] qa.values.d = defined(sample.bin) && defined(sample.colour) ? count(sample.bin) + count(sample.colour) : novalue()
+pmRegisterDerived: global metric[6] qa.novalues.a = !defined(sample.bin) ? sample.bin : novalue()
+pmRegisterDerived: global metric[7] qa.novalues.b = defined(sample.bin) ? novalue() : sample.bin
+pmRegisterDerived: global metric[8] tcprecv = defined(no.such.metric) ? no.such.metric : novalue()
+[TMP.config:16] Error: pmRegisterDerived(qa.bad.a, ...) syntax error
+ novalue()
+ ^        
+[TMP.config:17] Error: pmRegisterDerived(qa.bad.b, ...) syntax error
+ sample.colour + novalue()
+                 ^        
+Arithmetic expression expected to follow PLUS
+[TMP.config:18] Error: pmRegisterDerived(qa.bad.c, ...) syntax error
+ defined(sample.bin) ? novalue() : novalue()
+                                           ^
+novalue() may appear at most once in a ternary expression
+__dmopencontext(->ctx 0) called, 9 derived metrics
+__dmgetpmid: metric "qa.values.a" -> PMID 511.0.3
+__dmbind: bind metric[2] qa.values.a
+Derived metric expr dump from <addr-0>...
+expr node <addr-0> type=QUEST left=<addr-1> right=<addr-3> save_last=0
+    PMID: PM_ID_NULL (511.0.3 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: discrete  Units: none
+expr node <addr-1> type=NOT left=<addr-2> right=(nil) save_last=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+expr node <addr-2> type=DEFINED left=(nil) right=(nil) save_last=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 1
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+[0] inst=-1, val=1
+expr node <addr-3> type=COLON left=<addr-4> right=<addr-5> save_last=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: discrete  Units: none
+expr node <addr-4> type=NOVALUE left=(nil) right=(nil) save_last=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+expr node <addr-5> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=0
+    PMID: 29.0.6 (29.0.6 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+__dmtraverse: name="qa" added "qa.values.a"
+__dmgetpmid: metric "qa.values.b" -> PMID 511.0.4
+__dmbind: bind metric[3] qa.values.b
+Derived metric expr dump from <addr-6>...
+expr node <addr-6> type=QUEST left=<addr-7> right=<addr-8> save_last=0
+    PMID: PM_ID_NULL (511.0.4 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+expr node <addr-7> type=DEFINED left=(nil) right=(nil) save_last=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 1
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+[0] inst=-1, val=1
+expr node <addr-8> type=COLON left=<addr-9> right=<addr-10> save_last=0
+    PMID: PM_ID_NULL (29.0.6 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+expr node <addr-9> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=0
+    PMID: 29.0.6 (29.0.6 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+expr node <addr-10> type=NOVALUE left=(nil) right=(nil) save_last=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+__dmtraverse: name="qa" added "qa.values.b"
+__dmgetpmid: metric "qa.values.c" -> PMID 511.0.5
+__dmbind: bind metric[4] qa.values.c
+Derived metric expr dump from <addr-11>...
+expr node <addr-11> type=QUEST left=<addr-12> right=<addr-13> save_last=0
+    PMID: PM_ID_NULL (511.0.5 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+expr node <addr-12> type=DEFINED left=(nil) right=(nil) save_last=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 1
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+[0] inst=-1, val=1
+expr node <addr-13> type=COLON left=<addr-14> right=<addr-23> save_last=0
+    PMID: PM_ID_NULL (29.0.6 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+expr node <addr-14> type=QUEST left=<addr-15> right=<addr-16> save_last=0
+    PMID: PM_ID_NULL (29.0.6 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+expr node <addr-15> type=DEFINED left=(nil) right=(nil) save_last=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 1
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+[0] inst=-1, val=1
+expr node <addr-16> type=COLON left=<addr-17> right=<addr-22> save_last=0
+    PMID: PM_ID_NULL (29.0.6 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+expr node <addr-17> type=PLUS left=<addr-18> right=<addr-20> save_last=0
+    PMID: PM_ID_NULL (29.0.6 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+expr node <addr-18> type=COUNT left=<addr-19> right=(nil) save_last=0
+    PMID: PM_ID_NULL (29.0.6 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+expr node <addr-19> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=0
+    PMID: 29.0.6 (29.0.6 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+expr node <addr-20> type=COUNT left=<addr-21> right=(nil) save_last=0
+    PMID: PM_ID_NULL (29.0.5 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+expr node <addr-21> type=NAME left=(nil) right=(nil) save_last=0 [sample.colour] primary=0
+    PMID: 29.0.5 (29.0.5 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 29.1 0x7400001
+    Semantics: instant  Units: none
+expr node <addr-22> type=NOVALUE left=(nil) right=(nil) save_last=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+expr node <addr-23> type=NOVALUE left=(nil) right=(nil) save_last=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+__dmtraverse: name="qa" added "qa.values.c"
+__dmgetpmid: metric "qa.values.d" -> PMID 511.0.6
+__dmbind: bind metric[5] qa.values.d
+Derived metric expr dump from <addr-24>...
+expr node <addr-24> type=QUEST left=<addr-25> right=<addr-28> save_last=0
+    PMID: PM_ID_NULL (511.0.6 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+expr node <addr-25> type=AND left=<addr-26> right=<addr-27> save_last=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+expr node <addr-26> type=DEFINED left=(nil) right=(nil) save_last=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 1
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+[0] inst=-1, val=1
+expr node <addr-27> type=DEFINED left=(nil) right=(nil) save_last=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 1
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+[0] inst=-1, val=1
+expr node <addr-28> type=COLON left=<addr-29> right=<addr-34> save_last=0
+    PMID: PM_ID_NULL (29.0.6 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+expr node <addr-29> type=PLUS left=<addr-30> right=<addr-32> save_last=0
+    PMID: PM_ID_NULL (29.0.6 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+expr node <addr-30> type=COUNT left=<addr-31> right=(nil) save_last=0
+    PMID: PM_ID_NULL (29.0.6 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+expr node <addr-31> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=0
+    PMID: 29.0.6 (29.0.6 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+expr node <addr-32> type=COUNT left=<addr-33> right=(nil) save_last=0
+    PMID: PM_ID_NULL (29.0.5 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+expr node <addr-33> type=NAME left=(nil) right=(nil) save_last=0 [sample.colour] primary=0
+    PMID: 29.0.5 (29.0.5 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 29.1 0x7400001
+    Semantics: instant  Units: none
+expr node <addr-34> type=NOVALUE left=(nil) right=(nil) save_last=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+__dmtraverse: name="qa" added "qa.values.d"
+__dmgetpmid: metric "qa.novalues.a" -> PMID 511.0.7
+__dmbind: bind metric[6] qa.novalues.a
+Derived metric expr dump from <addr-35>...
+expr node <addr-35> type=QUEST left=<addr-36> right=<addr-38> save_last=0
+    PMID: PM_ID_NULL (511.0.7 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+expr node <addr-36> type=NOT left=<addr-37> right=(nil) save_last=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+expr node <addr-37> type=DEFINED left=(nil) right=(nil) save_last=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 1
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+[0] inst=-1, val=1
+expr node <addr-38> type=COLON left=<addr-39> right=<addr-40> save_last=0
+    PMID: PM_ID_NULL (29.0.6 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+expr node <addr-39> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=0
+    PMID: 29.0.6 (29.0.6 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+expr node <addr-40> type=NOVALUE left=(nil) right=(nil) save_last=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+__dmtraverse: name="qa" added "qa.novalues.a"
+__dmgetpmid: metric "qa.novalues.b" -> PMID 511.0.8
+__dmbind: bind metric[7] qa.novalues.b
+Derived metric expr dump from <addr-41>...
+expr node <addr-41> type=QUEST left=<addr-42> right=<addr-43> save_last=0
+    PMID: PM_ID_NULL (511.0.8 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+expr node <addr-42> type=DEFINED left=(nil) right=(nil) save_last=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 1
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+[0] inst=-1, val=1
+expr node <addr-43> type=COLON left=<addr-44> right=<addr-45> save_last=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+expr node <addr-44> type=NOVALUE left=(nil) right=(nil) save_last=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+expr node <addr-45> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=0
+    PMID: 29.0.6 (29.0.6 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+__dmtraverse: name="qa" added "qa.novalues.b"
+__dmgetpmid: metric "qa.values.a" -> PMID 511.0.3
+__dmgetpmid: metric "qa.values.b" -> PMID 511.0.4
+__dmgetpmid: metric "qa.values.c" -> PMID 511.0.5
+__dmgetpmid: metric "qa.values.d" -> PMID 511.0.6
+__dmgetpmid: metric "qa.novalues.a" -> PMID 511.0.7
+__dmgetpmid: metric "qa.novalues.b" -> PMID 511.0.8
+
+qa.values.a
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: discrete  Units: none
+    inst [100 or "bin-100"] value 100
+    inst [200 or "bin-200"] value 200
+    inst [300 or "bin-300"] value 300
+    inst [400 or "bin-400"] value 400
+    inst [500 or "bin-500"] value 500
+    inst [600 or "bin-600"] value 600
+    inst [700 or "bin-700"] value 700
+    inst [800 or "bin-800"] value 800
+    inst [900 or "bin-900"] value 900
+
+qa.values.b
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+    inst [100 or "bin-100"] value 100
+    inst [200 or "bin-200"] value 200
+    inst [300 or "bin-300"] value 300
+    inst [400 or "bin-400"] value 400
+    inst [500 or "bin-500"] value 500
+    inst [600 or "bin-600"] value 600
+    inst [700 or "bin-700"] value 700
+    inst [800 or "bin-800"] value 800
+    inst [900 or "bin-900"] value 900
+
+qa.values.c
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+    value 12
+
+qa.values.d
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+    value 12
+
+qa.novalues.a
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+No value(s) available!
+
+qa.novalues.b
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+No value(s) available!
