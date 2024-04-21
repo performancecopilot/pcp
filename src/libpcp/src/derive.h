@@ -22,6 +22,29 @@
  * Derived Metrics support
  */
 
+/*
+ * how to handle undefined metrics in bind_expr() and __dmbind() for
+ * N_QUEST (ternary operator) ...
+ * QUEST_BIND_NOW trips a error
+ * QUEST_BIND_LAZY may be ok, defer checking until check_expr()
+ */
+#define QUEST_BIND_NOW 	0	
+#define QUEST_BIND_LAZY 	1
+
+/*
+ * for <guard> ? <left-expr> : <right-expr> info.bind tells
+ * us if bind_expr() found a constant <guard> and based on that
+ * value, only explored the <left-expr> because <guard> was
+ * true (BIND_LEFT), or only explored the <right-expr> because
+ * <guard> was false (BIND_BOTH).
+ * When both <left-expr> and <right-expr> are in play, BIND_BOTH
+ * is used.
+ */
+#define QUEST_BIND_UNKNOWN	0
+#define QUEST_BIND_LEFT		1
+#define QUEST_BIND_RIGHT	2
+#define QUEST_BIND_BOTH		3
+
 typedef struct {		/* one value in the expression tree */
     int		inst;
     pmAtomValue	value;
@@ -39,6 +62,7 @@ typedef struct {		/* dynamic information for an expression node */
     int			last_numval;	/* length of last_ivlist[] */
     val_t		*last_ivlist;	/* values from previous fetch for delta() or rate() */
     struct timespec	last_stamp;	/* timestamp from previous fetch for rate() */
+    int			bind;		/* for N_COLON: BIND_LEFT, _RIGHT or _BOTH */
 } info_t;
 
 typedef struct {			/* for instance filtering */

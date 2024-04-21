@@ -40,6 +40,7 @@
 #ifdef HAVE_STRINGS_H
 #include <strings.h>
 #endif
+#include "derive.h"
 
 #define YYDEBUG 1
 
@@ -417,9 +418,6 @@ free_expr_ctx(node_t *np)
     free_expr(np);
 }
 
-#define BIND_NOW 0
-#define BIND_LAZY 1
-
 /*
  * Bind an expression tree in a specific context.
  * For registered metrics this involves copy the expression tree
@@ -446,15 +444,15 @@ bind_expr(__pmContext *ctxp, int n, node_t *np, int lookup_mode, int is_global)
 	/*
 	 * <guard> ? <left> : <right> is special because any subtree
 	 * below N_QUEST could validly contain references to metrics that
-	 * do not exist, so set use BIND_LAZY when binding these ones
+	 * do not exist, so set use QUEST_BIND_LAZY when binding these ones
 	 */
-	next_lookup = BIND_LAZY;
+	next_lookup = QUEST_BIND_LAZY;
     }
     else if (np->type == N_DEFINED) {
 	/*
 	 * defined(x) ... failing to lookup x is sort of expected
 	 */
-	next_lookup = BIND_LAZY;
+	next_lookup = QUEST_BIND_LAZY;
     }
     else {
 	/* else follow the NOW|LAZY binding we were called with */
@@ -526,12 +524,12 @@ bind_expr(__pmContext *ctxp, int n, node_t *np, int lookup_mode, int is_global)
 	/* get pmID and pmDesc from context */
 	sts = pmLookupName_ctx(ctxp, PM_LOCKED, 1, (const char **)&new->value, &new->data.info->pmid);
 	if (sts < 0) {
-	    if (lookup_mode == BIND_LAZY) {
+	    if (lookup_mode == QUEST_BIND_LAZY) {
 		/*
 		 * undefined metrics maybe OK here ...
 		 * set pmid for later testing
 		 */
-		new->data.info->pmid = PM_ID_NULL;
+		new->desc.pmid = new->data.info->pmid = PM_ID_NULL;
 		return new;
 	    }
 	    if (pmDebugOptions.derive) {
@@ -1147,12 +1145,36 @@ bad:
 }
 
 /*
+ * recursive descent to check if all metrics are defined
+ * (needed after QUEST_BIND_LAZY has been used) ... returns the
+ * number if undefined metrics
+ * hand is "left" or "right" for error messages
+ */
+static int
+check_metrics(node_t *np, char *hand)
+{
+    int		nbad = 0;
+    assert(np != NULL);
+    if (np->left != NULL) nbad += check_metrics(np->left, hand);
+    if (np->right != NULL) nbad += check_metrics(np->right, hand);
+    if (np->type == N_NAME && np->data.info->pmid == PM_ID_NULL) {
+	if (pmDebugOptions.derive && pmDebugOptions.appl1) {
+	    fprintf(stderr, "Semantic error: ternary op: metric \"%s\" not found for <%s-expr>\n", np->value, hand);
+	}
+	PM_TPD(derive_errmsg) = "Unknown metric for ternary expression";
+	nbad++;
+    }
+    return nbad;
+}
+
+/*
  * see __dmbind() for semantics of async parameter
  */
 static int
 check_expr(dm_t *dmp, node_t *np, node_t *parent, int async)
 {
     int		sts;
+    int		lsts;
 
     assert(np != NULL);
 
@@ -1221,6 +1243,10 @@ check_expr(dm_t *dmp, node_t *np, node_t *parent, int async)
 	     * but first, some special case exceptions ...
 	     */
 
+#if 0
+	    if (parent->type == N_QUEST)
+		__dmdumpexpr(parent, 0);
+#endif
 	    if (parent->type == N_QUEST && parent->left->type == N_DEFINED) {
 		/*
 		 * special handling for defined(x) ? <left-expr> : <right-expr>
@@ -1229,15 +1255,35 @@ check_expr(dm_t *dmp, node_t *np, node_t *parent, int async)
 		 */
 		if (parent->left->data.info->ivlist[0].value.ul == 1) {
 		    np->desc = np->left->desc;		/* struct copy */
+		    np->data.info->bind = QUEST_BIND_LEFT;
 		}
 		else {
 		    np->desc = np->right->desc;		/* struct copy */
+		    np->data.info->bind = QUEST_BIND_RIGHT;
 		}
 	    }
 	    else  {
 		np->desc = np->left->desc;
 		if (np->left->desc.indom == PM_INDOM_NULL)
 		    np->desc.indom = np->right->desc.indom;
+		np->data.info->bind = QUEST_BIND_BOTH;
+	    }
+
+	    /*
+	     * recursive descent looking for undefined metrics
+	     * in left and/or right expr ... use info->bind to guide
+	     * note all errors are reported in check_metrics()
+	     */
+	    lsts = 0;
+	    if (np->data.info->bind & QUEST_BIND_LEFT)
+		lsts += check_metrics(np->left,"left");
+	    if (np->data.info->bind & QUEST_BIND_RIGHT)
+		lsts += check_metrics(np->right, "right");
+	    /* if this fails, no point in trying other checks */
+	    if (lsts) {
+		if (async)
+		    report_sem_error(dmp->name, np);
+		return -1;
 	    }
 
 	    /*
@@ -1249,6 +1295,16 @@ check_expr(dm_t *dmp, node_t *np, node_t *parent, int async)
 	     */
 	    if (np->left->type == N_NOVALUE || np->right->type == N_NOVALUE)
 		return 0;
+
+	    /*
+	     * if QUEST_BIND_LEFT or QUEST_BIND_RIGHT (and not
+	     * QUEST_BIND_BOTH), then skip remaining checks, they are
+	     * doomed to fail but the *unselected* expression tree is
+	     * never evaluated, so it is OK
+	     */
+	    if (np->data.info->bind == QUEST_BIND_LEFT || np->data.info->bind == QUEST_BIND_RIGHT)
+		return 0;
+
 
 	    /* semantic checks for left-expr cf right-expr */
 	    if (np->left->desc.type != np->right->desc.type) {
@@ -1566,6 +1622,12 @@ __dmdumpexpr(node_t *np, int level)
     if (level == 0) fprintf(stderr, "Derived metric expr dump from " PRINTF_P_PFX "%p...\n", np);
     if (np == NULL) return;
     fprintf(stderr, "expr node " PRINTF_P_PFX "%p type=%s", np, __dmnode_type_str(np->type));
+    if (np->type == N_COLON && np->data.info != NULL) {
+	if (np->data.info->bind == QUEST_BIND_LEFT)
+	    fprintf(stderr, " [LEFT]");
+	else if (np->data.info->bind == QUEST_BIND_LEFT)
+	    fprintf(stderr, " [RIGHT]");
+    }
     if (np->type == N_PATTERN) {
 	__pmHashNode	*hnp;
 	instctl_t	*icp;
@@ -3197,7 +3259,7 @@ __dmbind(int derive_locked, __pmContext *ctxp, int i, int async)
 	}
     }
     /* failures must be reported in bind_expr() or below */
-    cp->mlist[i].expr = bind_expr(ctxp, i, cp->mlist[i].expr, BIND_NOW, cp->mlist[i].flags & DM_GLOBAL);
+    cp->mlist[i].expr = bind_expr(ctxp, i, cp->mlist[i].expr, QUEST_BIND_NOW, cp->mlist[i].flags & DM_GLOBAL);
     if (cp->mlist[i].expr != NULL) {
 	/* failures must be reported in check_expr() or below */
 	sts = check_expr(&cp->mlist[i], cp->mlist[i].expr, NULL, async);

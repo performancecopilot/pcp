@@ -38,22 +38,15 @@ _cleanup()
 status=0	# success is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
-# Derived metric expr dump from 0x8513a48...
-# expr node 0x867eb68 type=PLUS left=0x867eb98 right=0x867ed28
 _filter()
 {
     cat $tmp.out >>$seq.full
-    awk <$tmp.out >$tmp.sed '
-BEGIN				{ n = 0 }
-# expr node 0x9edc340 type=PLUS left=0x9edc2f8 right=0x9edc370
-$1 == "expr" && $2 == "node" && $3 ~ /^0x/	{ print "s/" $3 "/<addr-" n ">/"; n++ }
-				{ next }'
-    echo "=== sed ===" >>$seq.full
-    cat $tmp.sed >>$seq.full
-    sed -f $tmp.sed <$tmp.out \
-    | sed \
-	-e '/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/s/[^ ]*.*numpmid/TIMESTAMP ... numpmid/' \
+    sed <$tmp.out \
 	-e 's/=0x0 /=(nil) /g' \
+	-e 's/=0x[0-9a-f[0-9a-f]*/=<addr>/g' \
+	-e 's/node 0x[0-9a-f[0-9a-f]*/node <addr>/g' \
+	-e 's/from 0x[0-9a-f[0-9a-f]*/from <addr>/g' \
+	-e '/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/s/[^ ]*.*numpmid/TIMESTAMP ... numpmid/' \
 	-e "s;$tmp;TMP;"
 # -e 's/ val=[0-9][0-9]*/ val=<number>/g'
 }
@@ -62,11 +55,19 @@ $1 == "expr" && $2 == "node" && $3 ~ /^0x/	{ print "s/" $3 "/<addr-" n ">/"; n++
 
 cat <<'End-of-File' >$tmp.config
 # ok cases - value is sample.bin
-qa.values.a = !defined(sample.bin) ? novalue() : sample.bin
-qa.values.b = defined(sample.bin) ? sample.bin : novalue()
+qa.bin.a = !defined(sample.bin) ? novalue() : sample.bin
+qa.bin.b = defined(sample.bin) ? sample.bin : novalue()
+# defined(x) guard true, unselected <right-expr> contains bad metric
+qa.bin.c = defined(sample.bin) ? sample.bin : sample.long.bad
+
 # expect value == 12
-qa.values.c = defined(sample.bin) ? (defined(sample.colour) ? count(sample.bin) + count(sample.colour) : novalue()) : novalue()
-qa.values.d = defined(sample.bin) && defined(sample.colour) ? count(sample.bin) + count(sample.colour) : novalue()
+qa.twelve.a = defined(sample.bin) ? (defined(sample.colour) ? count(sample.bin) + count(sample.colour) : novalue()) : novalue()
+qa.twelve.b = defined(sample.bin) && defined(sample.colour) ? count(sample.bin) + count(sample.colour) : novalue()
+
+# expect value == 100
+qa.hundred.a = defined(sample.bin) ? sample.float.hundred : novalue() 
+# defined(x) guard false, unselected <left-expr> contains bad metric
+qa.hundred.b = defined(sample.bin.bad) ? simple.bin.bad : sample.long.hundred
 
 # ok cases - expect no values
 qa.novalues.a = !defined(sample.bin) ? sample.bin : novalue()
@@ -79,8 +80,19 @@ tcprecv = defined(no.such.metric) ? no.such.metric : novalue()
 qa.bad.a = novalue()
 qa.bad.b = sample.colour + novalue()
 qa.bad.c = defined(sample.bin) ? novalue() : novalue()
-
-#
+qa.bad.d = defined(no.such.metric) ? no.such.metric : some.other.no.such.metric
+# defined(x) guard true, selected <left-expr> contains bad metric
+qa.bad.e = defined(sample.bin) ? sample.long.ten.bad : sample.bin
+# defined(x) guard false, selected <right-expr> contains bad metric
+qa.bad.f = ! defined(sample.bin) ? sample.long.ten : sample.bin.bad
+# constant guard true, unselected <left-expr> contains bad metric
+qa.bad.g = 1 ? sample.long.hundred.bad : sample.bin
+# constant guard true, unselected <right-expr> contains bad metric
+qa.bad.h = 1 ? sample.long.hundred : sample.bin.bad
+# dynamic guard true, unselected <left-expr> contains bad metric
+qa.bad.i = sample.long.one > 0 ? sample.long.hundred.bad : sample.bin
+# dynamic guard true, unselected <right-expr> contains bad metric
+qa.bad.j = sample.long.one > 0 ? sample.long.hundred : sample.bin.bad
 End-of-File
 
 export PCP_DERIVED_CONFIG=$tmp.config

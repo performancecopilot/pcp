@@ -695,7 +695,7 @@ eval_expr(__pmContext *ctxp, node_t *np, struct timespec *stamp, int numpmid,
     char	strbuf[20];
 
     assert(np != NULL);
-    if (np->left != NULL) {
+    if (np->left != NULL && (np->type != N_COLON || (np->data.info->bind & QUEST_BIND_LEFT))) {
 	sts = eval_expr(ctxp, np->left, stamp, numpmid, vset, level+1);
 	if (sts < 0) {
 	    if (np->type == N_COUNT) {
@@ -715,7 +715,7 @@ eval_expr(__pmContext *ctxp, node_t *np, struct timespec *stamp, int numpmid,
 	    return sts;
 	}
     }
-    if (np->right != NULL) {
+    if (np->right != NULL && (np->type != N_COLON || (np->data.info->bind & QUEST_BIND_RIGHT))) {
 	sts = eval_expr(ctxp, np->right, stamp, numpmid, vset, level+1);
 	if (sts < 0) return sts;
     }
@@ -1029,26 +1029,56 @@ eval_expr(__pmContext *ctxp, node_t *np, struct timespec *stamp, int numpmid,
 		 * the ternary expression is only going to have well-behaved
 		 * semantics if we have value(s) for the guard and both the
 		 * truth/false expressions (unless the these are a novalue()
-		 * node)
+		 * node or QUEST_BIND_LEFT or QUEST_BIND_RIGHT are in play)
 		 */
+		if (pmDebugOptions.derive && pmDebugOptions.appl2 && pmDebugOptions.desperate) {
+		    fprintf(stderr, "eval_expr: ? bind %d values: guard %d left %s %d",
+			np->right->data.info->bind, np->left->data.info->numval,
+			__dmnode_type_str(np->right->left->type),
+			np->right->left->data.info->numval);
+		    fprintf(stderr, " right %s %d\n",
+			__dmnode_type_str(np->right->right->type),
+			np->right->right->data.info->numval);
+		}
 		if (np->left->data.info->numval <= 0) {
 		    /* no guard expression values */
 		    np->data.info->numval = np->left->data.info->numval;
 		    return np->data.info->numval;
 		}
-		if (np->right->left->data.info->numval <= 0 && np->right->left->type != N_NOVALUE) {
+		if (np->right->left->data.info->numval <= 0 && np->right->left->type != N_NOVALUE && (np->right->data.info->bind & QUEST_BIND_LEFT)) {
 		    /* no true expression values */
 		    np->data.info->numval = np->right->left->data.info->numval;
 		    return np->data.info->numval;
 		}
-		if (np->right->right->data.info->numval <= 0 && np->right->right->type != N_NOVALUE) {
+		if (np->right->right->data.info->numval <= 0 && np->right->right->type != N_NOVALUE && (np->right->data.info->bind & QUEST_BIND_RIGHT)) {
 		    /* no false expression values */
 		    np->data.info->numval = np->right->right->data.info->numval;
 		    return np->data.info->numval;
 		}
-		numval = np->right->left->data.info->numval;
-		if (np->right->right->data.info->numval > numval)
+		if (np->right->data.info->bind == QUEST_BIND_LEFT) {
+		    /* only looking at <left-expr> */
+		    numval = np->right->left->data.info->numval;
+		    pick = np->right->left;
+		    pick_inst = np->right->left;
+		}
+		else if (np->right->data.info->bind == QUEST_BIND_RIGHT) {
+		    /* only looking at <right-expr> */
 		    numval = np->right->right->data.info->numval;
+		    pick = np->right->right;
+		    pick_inst = np->right->right;
+		}
+		else {
+		    /* maybe looking at <left-expr> and <right-expr> */
+		    numval = np->right->left->data.info->numval;
+		    if (np->right->right->data.info->numval > numval)
+			numval = np->right->right->data.info->numval;
+		    pick = NULL;
+		    /* default indom choice, use true operand */
+		    pick_inst = np->right->left;
+		    if (np->right->left->desc.indom == PM_INDOM_NULL && np->right->right->desc.indom != PM_INDOM_NULL)
+			/* use false operand */
+			pick_inst = np->right->right;
+		}
 		np->data.info->numval = numval;
 		if ((np->data.info->ivlist = (val_t *)malloc(numval*sizeof(val_t))) == NULL) {
 		    pmNoMem("eval_expr: N_QUEST ivlist", numval*sizeof(val_t), PM_FATAL_ERR);
@@ -1060,60 +1090,63 @@ eval_expr(__pmContext *ctxp, node_t *np, struct timespec *stamp, int numpmid,
 		 * indom ones to provide instances for the result ... note
 		 * we've previously established (at bind time) that at most
 		 * one indom is mentioned across all three operands.
+		 *
+		 * guard is left operand and value is arithmetic
 		 */
-		/* default choice, use true operand */
-		pick_inst = np->right->left;
-		if (np->right->left->desc.indom == PM_INDOM_NULL && np->right->right->desc.indom != PM_INDOM_NULL)
-		    /* use false operand */
-		    pick_inst = np->right->right;
-		/* guard is left operand and value is arithmetic */
-		pick = NULL;
 		for (i = 0; i < numval; i++) {
-		    if (i < np->left->data.info->numval) {
-			switch (np->left->desc.type) {
-			    case PM_TYPE_32:
-				if (np->left->data.info->ivlist[i].value.l != 0)
-				    pick = np->right->left;
-				else
-				    pick = np->right->right;
-				break;
-			    case PM_TYPE_U32:
-				if (np->left->data.info->ivlist[i].value.ul != 0)
-				    pick = np->right->left;
-				else
-				    pick = np->right->right;
-				break;
-			    case PM_TYPE_64:
-				if (np->left->data.info->ivlist[i].value.ll != 0)
-				    pick = np->right->left;
-				else
-				    pick = np->right->right;
-				break;
-			    case PM_TYPE_U64:
-				if (np->left->data.info->ivlist[i].value.ull != 0)
-				    pick = np->right->left;
-				else
-				    pick = np->right->right;
-				break;
-			    case PM_TYPE_FLOAT:
-				if (np->left->data.info->ivlist[i].value.f != 0)
-				    pick = np->right->left;
-				else
-				    pick = np->right->right;
-				break;
-			    case PM_TYPE_DOUBLE:
-				if (np->left->data.info->ivlist[i].value.d != 0)
-				    pick = np->right->left;
-				else
-				    pick = np->right->right;
-				break;
-			    default:
-				if (pmDebugOptions.derive) {
-				    fprintf(stderr, "eval_expr: botch: drived metric %s: guard has odd type (%d)\n", pmIDStr_r(np->data.info->pmid, strbuf, sizeof(strbuf)), np->left->desc.type);
-				}
-				return PM_ERR_TYPE;
+		    if (np->right->data.info->bind == QUEST_BIND_BOTH) {
+			/*
+			 * first-time for singular guard, else if guard
+			 * has indom evaluate the guard for each instance
+			 * and set pick (<left-epxr> or <right-expr>)
+			 */
+			if (i < np->left->data.info->numval) {
+			    switch (np->left->desc.type) {
+				case PM_TYPE_32:
+				    if (np->left->data.info->ivlist[i].value.l != 0)
+					pick = np->right->left;
+				    else
+					pick = np->right->right;
+				    break;
+				case PM_TYPE_U32:
+				    if (np->left->data.info->ivlist[i].value.ul != 0)
+					pick = np->right->left;
+				    else
+					pick = np->right->right;
+				    break;
+				case PM_TYPE_64:
+				    if (np->left->data.info->ivlist[i].value.ll != 0)
+					pick = np->right->left;
+				    else
+					pick = np->right->right;
+				    break;
+				case PM_TYPE_U64:
+				    if (np->left->data.info->ivlist[i].value.ull != 0)
+					pick = np->right->left;
+				    else
+					pick = np->right->right;
+				    break;
+				case PM_TYPE_FLOAT:
+				    if (np->left->data.info->ivlist[i].value.f != 0)
+					pick = np->right->left;
+				    else
+					pick = np->right->right;
+				    break;
+				case PM_TYPE_DOUBLE:
+				    if (np->left->data.info->ivlist[i].value.d != 0)
+					pick = np->right->left;
+				    else
+					pick = np->right->right;
+				    break;
+				default:
+				    if (pmDebugOptions.derive) {
+					fprintf(stderr, "eval_expr: botch: drived metric %s: guard has odd type (%d)\n", pmIDStr_r(np->data.info->pmid, strbuf, sizeof(strbuf)), np->left->desc.type);
+				    }
+				    return PM_ERR_TYPE;
+			    }
 			}
 		    }
+		    /* fallthrough for singular guard and use same pick */
 		    if (pick == NULL) {
 			fprintf(stderr, "eval_expr: botch: picked nothing\n"); 
 			__dmdumpexpr(np, 0);
@@ -1122,6 +1155,10 @@ eval_expr(__pmContext *ctxp, node_t *np, struct timespec *stamp, int numpmid,
 		    if (pick->type == N_NOVALUE) {
 			np->data.info->numval--;
 			continue;
+		    }
+		    if (pmDebugOptions.derive && pmDebugOptions.appl2 && pmDebugOptions.desperate) {
+			fprintf(stderr, "pick inst[%d] %s numval=%d\n",
+			    i, __dmnode_type_str(pick->type), pick->data.info->numval);
 		    }
 		    switch (np->desc.type) {
 			case PM_TYPE_32:
@@ -1428,7 +1465,7 @@ eval_expr(__pmContext *ctxp, node_t *np, struct timespec *stamp, int numpmid,
 	    return np->data.info->numval;
 
 	case N_NAME:
-	    /* fastpath for pmid == PM_ID_NULL case (from BIND_LAZY) */
+	    /* fastpath for pmid == PM_ID_NULL case (from QUEST_BIND_LAZY) */
 	    if (np->data.info->pmid == PM_ID_NULL) {
 		return 0;
 	    }
