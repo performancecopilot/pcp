@@ -76,7 +76,7 @@ specifies the PCP service to be discovered.
 Currently supported services are
 .B PM_SERVER_SERVICE_SPEC
 and
-.B PM_PROXY_SERVICE_SPEC
+.B PM_SERVER_PROXY_SPEC
 which search for
 .BR pmcd (1),
 and
@@ -109,7 +109,7 @@ For example, 192.168.1.0/24 defines an 8 bit subnet consisting of the
 addresses 192.168.1.0 through 192.168.1.255.
 An optional suffix \fB",maxThreads=N"\fP may be added to limit the number of
 threads used while probing.
-The default is the value of FD_SETSIZE (which is typically 1024) or the
+The default is the value of __FD_SETSIZE (which is typically 1024) or the
 number of addresses in the subnet, whichever is less.
 An optional suffix \fB",timeout=N"\fP may be added to specify the timeout
 for each connection attempt in floating-point multiples of one second.
@@ -128,7 +128,7 @@ using the \fBcommand=CMD\fP option, but the default is to use all
 available commands from the \fBpath\fP.
 The \fB"maxThreads=N"\fP option limits the number of threads used while
 probing.
-The default is the value of FD_SETSIZE (which is typically 1024) or the
+The default is the value of __FD_SETSIZE (which is typically 1024) or the
 number of addresses returned by the scripts, whichever is less.
 The \fB"timeout=N"\fP option may be added to limit the amount of
 time spent waiting for each connection attempt.
@@ -249,5 +249,4 @@ and
 .BR avahi-daemon (8).
 
 .\" control lines for scripts/man-spell
-.\" +ok+ PM_PROXY_SERVICE_SPEC maxThreads FD_SETSIZE EOPNOTSUPP avahi mDNS
-.\" +ok+ inet DIR CMD
+.\" +ok+ maxThreads avahi mDNS inet DIR CMD __FD_SETSIZE

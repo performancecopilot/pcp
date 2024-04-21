@@ -87,7 +87,10 @@ cat <<'End-of-File' | sed -e 's/[ 	]*#.*//' -e '/^$/d' >$tmp.tmp
 # env vars from /etc/pcp.conf and elsewhere
 #
 PCP_
+PCP_ALIGN_TIME		# from __pmStartOptions
+PCP_ARCHIVE		# from __pmStartOptions
 PCP_ARCHIVE_DIR
+PCP_ARCHIVE_LIST	# from __pmStartOptions
 PCP_ARCHIVE_VERSION
 PCP_AUTOSAVE_DIR
 PCP_AWK_PROG
@@ -99,8 +102,9 @@ PCP_COMPRESSAFTER
 PCP_COMPRESSREGEX
 PCP_COMPRESS_CALLBACK
 PCP_CONF
+PCP_COUNTER_WRAP
 PCP_CULLAFTER
-PCP_DEBUG
+PCP_DEBUG		# from __pmStartOptions
 PCP_DEMOS_DIR
 PCP_DERIVED_CONFIG
 PCP_DIR
@@ -109,17 +113,30 @@ PCP_ECHO_C
 PCP_ECHO_N
 PCP_ECHO_PROG
 PCP_ETC_DIR
+PCP_FINISH_TIME		# from __pmStartOptions
+PCP_FOLIO		# from __pmStartOptions
 PCP_GROUP
+PCP_GUIMODE		# from __pmStartOptions
+PCP_GUIPORT		# from __pmStartOptions
+PCP_HOST		# from __pmStartOptions
+PCP_HOSTZONE		# from __pmStartOptions
+PCP_HOST_LIST		# from __pmStartOptions
 PCP_HTML_DIR
 PCP_INC_DIR
+PCP_INTERVAL		# from __pmStartOptions
 PCP_LIB			# from PCP_LIB32_DIR
 PCP_LIBADM_DIR
 PCP_LIB_DIR
+PCP_LOCALMODE		# from __pmStartOptions
+PCP_LOCALPMDA		# from __pmStartOptions
 PCP_LOG_DIR
 PCP_LOG_RC_SCRIPTS
 PCP_MAKE_PROG
 PCP_MAN_DIR
 PCP_MERGE_CALLBACK
+PCP_NAMESPACE		# from __pmStartOptions
+PCP_ORIGIN		# from __pmStartOptions
+PCP_ORIGIN_TIME		# from __pmStartOptions
 PCP_PACCT_SYSTEM_PATH
 PCP_PERL_PROG
 PCP_PLATFORM
@@ -138,10 +155,13 @@ PCP_PS_PROG
 PCP_PYTHON_PROG
 PCP_RC_DIR
 PCP_RUN_DIR
+PCP_SAMPLES		# from __pmStartOptions
 PCP_SASLCONF_DIR
 PCP_SA_DIR
 PCP_SHARE_DIR
 PCP_SORT_PROG
+PCP_SPECLOCAL		# from __pmStartOptions
+PCP_START_TIME		# from __pmStartOptions
 PCP_STDERR
 PCP_SYSCONFIG_DIR
 PCP_SYSCONF_DIR
@@ -150,20 +170,22 @@ PCP_SYSTEMDSYSUSERS_DIR
 PCP_SYSTEMDTMPFILES_DIR
 PCP_SYSTEMDUNIT_DIR
 PCP_SYSTEMD_CGROUP
+PCP_TIMEZONE		# from __pmStartOptions
 PCP_TLSCONF_PATH
 PCP_TMPFILE_DIR
 PCP_TMP_DIR
 PCP_TRACE_PORT
+PCP_UNIQNAMES		# from __pmStartOptions
 PCP_USER
 PCP_VAR_DIR
 PCP_VERSION
 PCP_WHICH_PROG
 PCP_XCONFIRM_PROG
 PMCD_CONNECT_TIMEOUT
-PMCD_NAMES_CHANGE
 PMCD_PORT
 PMCD_RECONNECT_TIMEOUT
 PMCD_REQUEST_TIMEOUT
+PMCD_RESTART_AGENT
 PMCD_WAIT_TIMEOUT
 PMIECONF_PATH
 PMLOGGER_CHECK_SKIP_LOGCONF
@@ -197,10 +219,13 @@ PMWEBAPI
 dsos?
 indoms?
 libpcp
+libpcp_archive
+libpcp_fault
 libpcp_import
 libpcp_mmv
 libpcp_pmda
 libpcp_trace
+libpcp_web
 pcp
 pmcd's
 pmids?
@@ -401,7 +426,12 @@ ANY_SIZE
 AVAHI_DISCOVERY_TIMEOUT
 CVERSION
 DEFAULT_SECURITY_STRENGTH
+DYNAMIC_PMID
+FMT_PID
+FMT_PTHREAD
 FROM_ANON
+IS_DERIVED
+IS_DYNAMIC_ROOT
 LIMIT_ATTR_PDU
 LIMIT_AUTH_PDU
 LIMIT_CLIENT_CALLBACKS
@@ -411,8 +441,14 @@ LOG_PDU_VERSION		# from LOG_PDU_VERSION2 or LOG_PDU_VERSION3
 LOG_REQUEST_NEWVOLUME
 LOG_REQUEST_STATUS
 LOG_REQUEST_SYNC
+LONGLONG_MAX
+MAXDOMAINNAMELEN
+MAXHOSTNAMELEN
 MAXLABELNAMELEN
 MAXLABELVALUELEN
+MAXMACHINEIDLEN
+MAXNAMELEN
+MAXPATHLEN
 OPT_COST_INFINITY
 OPT_STATE_NEW
 OPT_STATE_PMID
@@ -423,6 +459,7 @@ OPT_STATE_XINDOM
 OPT_STATE_XPMID
 OPT_STATE_XPROFILE
 OPT_STATE_XREQ
+PATH_MAX
 PCP_ATTR_AUTHNAME
 PCP_ATTR_COMPRESS
 PCP_ATTR_CONTAINER
@@ -440,6 +477,11 @@ PCP_ATTR_UNIXSOCK
 PCP_ATTR_USERAUTH
 PCP_ATTR_USERID
 PCP_ATTR_USERNAME
+PCP_DERIVED_CONTEXT_LIMIT
+PCP_DERIVED_DEBUG_EVAL
+PCP_DERIVED_DEBUG_SEMANTICS
+PCP_DERIVED_DEBUG_SYNTAX
+PCP_DERIVED_GLOBAL_LIMIT
 PCP_INDOM_CONFIG
 PCP_TRACE_HOST
 PCP_TRACE_TIMEOUT
@@ -489,6 +531,22 @@ PDU_START
 PDU_TEXT
 PDU_TEXT_REQ
 PDU_VERSION		# from PDU_VERSION2
+PMAPI_GENERAL_OPTIONS
+PMAPI_OPTIONS
+PMAPI_OPTIONS_END
+PMAPI_OPTIONS_HEADER
+PMAPI_OPTIONS_TEXT
+PMAPI_VERSION
+PMAPI_VERSION_2
+PMAPI_VERSION_3
+PMCD_ADD_AGENT
+PMCD_AGENT_CHANGE
+PMCD_DROP_AGENT
+PMCD_HOSTNAME_CHANGE
+PMCD_LABEL_CHANGE
+PMCD_NAMES_CHANGE
+PMCD_NO_CHANGE
+PMCD_RESTART_AGENT
 PMDAEVENTARRAY
 PMLC_GET_AVAIL
 PMLC_GET_DELTA
@@ -510,7 +568,62 @@ PMLID_SELF
 PMLOGPUTINDOM_DUP
 PMLOGREAD_NEXT
 PMLOGREAD_TO_EOF
+PMLONGOPT_ALIGN
+PMLONGOPT_ARCHIVE
+PMLONGOPT_ARCHIVE_FOLIO
+PMLONGOPT_ARCHIVE_LIST
+PMLONGOPT_CONTAINER
+PMLONGOPT_DEBUG
+PMLONGOPT_DERIVED
+PMLONGOPT_FINISH
+PMLONGOPT_GUIMODE
+PMLONGOPT_GUIPORT
+PMLONGOPT_HELP
+PMLONGOPT_HOST
+PMLONGOPT_HOSTSFILE
+PMLONGOPT_HOSTZONE
+PMLONGOPT_HOST_LIST
+PMLONGOPT_INTERVAL
+PMLONGOPT_LOCALPMDA
+PMLONGOPT_NAMESPACE
+PMLONGOPT_ORIGIN
+PMLONGOPT_SAMPLES
+PMLONGOPT_SPECLOCAL
+PMLONGOPT_START
+PMLONGOPT_TIMEZONE
+PMLONGOPT_UNIQNAMES
+PMLONGOPT_VERSION
+PMNS_ARCHIVE
 PMNS_DEFAULT
+PMNS_LEAF_STATUS
+PMNS_LOCAL
+PMNS_NONLEAF_STATUS
+PMNS_REMOTE
+PMOPT_ALIGN
+PMOPT_ARCHIVE
+PMOPT_ARCHIVE_FOLIO
+PMOPT_ARCHIVE_LIST
+PMOPT_CONTAINER
+PMOPT_DEBUG
+PMOPT_DERIVED
+PMOPT_FINISH
+PMOPT_GUIMODE
+PMOPT_GUIPORT
+PMOPT_HELP
+PMOPT_HOST
+PMOPT_HOSTSFILE
+PMOPT_HOSTZONE
+PMOPT_HOST_LIST
+PMOPT_INTERVAL
+PMOPT_LOCALPMDA
+PMOPT_NAMESPACE
+PMOPT_ORIGIN
+PMOPT_SAMPLES
+PMOPT_SPECLOCAL
+PMOPT_START
+PMOPT_TIMEZONE
+PMOPT_UNIQNAMES
+PMOPT_VERSION
 PMTIME_PORT
 PM_ASSERT_IS_LOCKED
 PM_ASSERT_IS_UNLOCKED
@@ -530,6 +643,74 @@ PM_CTXFLAG_NO_FEATURE_CHECK
 PM_CTXFLAG_RELAXED
 PM_CTXFLAG_SECURE
 PM_CTXFLAG_SHALLOW
+PM_ERR_AGAIN
+PM_ERR_APPVERSION
+PM_ERR_ARG
+PM_ERR_BADDERIVE
+PM_ERR_BADSTORE
+PM_ERR_BASE
+PM_ERR_BASE2
+PM_ERR_BOTCH
+PM_ERR_CONNLIMIT
+PM_ERR_CONV
+PM_ERR_DUPPMNS
+PM_ERR_EOF
+PM_ERR_EOL
+PM_ERR_FAULT
+PM_ERR_FEATURE
+PM_ERR_GENERIC
+PM_ERR_INDOM
+PM_ERR_INDOM_LOG
+PM_ERR_INST
+PM_ERR_INST_LOG
+PM_ERR_IPC
+PM_ERR_ISCONN
+PM_ERR_LABEL
+PM_ERR_LOGCHANGEINDOM
+PM_ERR_LOGCHANGESEM
+PM_ERR_LOGCHANGETYPE
+PM_ERR_LOGCHANGEUNITS
+PM_ERR_LOGFILE
+PM_ERR_LOGHOST
+PM_ERR_LOGOVERLAP
+PM_ERR_LOGREC
+PM_ERR_MODE
+PM_ERR_NAME
+PM_ERR_NEEDCLIENTCERT
+PM_ERR_NEEDPORT
+PM_ERR_NOCONTAINER
+PM_ERR_NOCONTEXT
+PM_ERR_NODATA
+PM_ERR_NOLABELS
+PM_ERR_NONLEAF
+PM_ERR_NOPMNS
+PM_ERR_NOPROFILE
+PM_ERR_NOTARCHIVE
+PM_ERR_NOTCONN
+PM_ERR_NOTHOST
+PM_ERR_NYI
+PM_ERR_PERMISSION
+PM_ERR_PMDAFENCED
+PM_ERR_PMDANOTREADY
+PM_ERR_PMDAREADY
+PM_ERR_PMID
+PM_ERR_PMID_LOG
+PM_ERR_PMNS
+PM_ERR_PROFILE
+PM_ERR_PROFILESPEC
+PM_ERR_RECTYPE
+PM_ERR_RESET
+PM_ERR_SIGN
+PM_ERR_TEXT
+PM_ERR_THREAD
+PM_ERR_TIMEOUT
+PM_ERR_TLS
+PM_ERR_TOOBIG
+PM_ERR_TOOSMALL
+PM_ERR_TRUNC
+PM_ERR_TYPE
+PM_ERR_UNIT
+PM_ERR_VALUE
 PM_EVENT_FLAG_END
 PM_EVENT_FLAG_ID
 PM_EVENT_FLAG_MISSED
@@ -584,6 +765,8 @@ PM_LOG_PRIMARY_PORT
 PM_LOG_STATE_INIT
 PM_LOG_STATE_NEW
 PM_LOG_VERS	# 02 or 03
+PM_LOG_VERS02
+PM_LOG_VERS03
 PM_LOG_VOL_META
 PM_LOG_VOL_TI
 PM_MAXERRMSGLEN
@@ -658,6 +841,8 @@ PM_TIME_SEC
 PM_TIME_USEC
 PM_TPD
 PM_TYPE_	# 32 or 64
+PM_TYPE_32
+PM_TYPE_64
 PM_TYPE_AGGREGATE
 PM_TYPE_AGGREGATE_STATIC
 PM_TYPE_COUNTER
@@ -669,6 +854,8 @@ PM_TYPE_KBYTE
 PM_TYPE_NOSUPPORT
 PM_TYPE_STRING
 PM_TYPE_U	# U32 or U64
+PM_TYPE_U32
+PM_TYPE_U64
 PM_TYPE_UNKNOWN
 PM_TZ_MAXLEN
 PM_UNLOCK
@@ -677,9 +864,12 @@ PM_VAL_HDR_SIZE
 PM_VAL_INSITU
 PM_VAL_SPTR
 PM_VAL_VLEN_MAX
+PM_VERSION
+PM_VERSION_CURRENT
 PM_XTB_FLAG
 PM_XTB_GET
 PM_XTB_SET
+PRINTF_P_PFX
 PROXY_PORT
 PROXY_PROTOCOL
 PTHREAD_STACK_MIN
@@ -697,9 +887,11 @@ TYPE_LABEL
 TYPE_LABEL_V	# v2 or V3
 TYPE_MAX
 TYPE_TEXT
+ULONGLONG_MAX
 UNKNOWN_VERSION
 WEBAPI_PORT
 WEBAPI_PROTOCOL
+WORD_BIT
 __PM_MODE_MASK
 __pmAFblock
 __pmAFisempty
@@ -1200,7 +1392,16 @@ __pmtraceunpinPDUbuf
 __pmtracexmitPDU
 fetchctl_t
 fetchgroup
+http_client			# from <pcp/pmhttp.h>
+http_protocol			# from <pcp/pmhttp.h>
 indomctl_t
+json_flags		# from <pcp/pmjson.h>
+json_metric_desc	# from <pcp/pmjson.h>
+ll_hostname		# from pmLogLabel
+ll_magic		# from pmLogLabel
+ll_pid			# from pmLogLabel
+ll_start		# from pmLogLabel
+ll_tz			# from pmLogLabel
 optcost_t
 optreq_t
 pmAddDerived
@@ -1222,6 +1423,9 @@ pmDerivedRegister
 pmDesc
 pmDestroyContext
 pmDestroyFetchGroup
+pmDiscover
+pmDiscoverCallBacks
+pmDiscoverChangeCallBack
 pmDiscoverClose
 pmDiscoverServices
 pmDiscoverSetConfiguration
@@ -1462,7 +1666,17 @@ pmWhichContext
 pmWhichZone
 pmflush
 pmgetopt_r
+pmhttpClientFetch		# from <pcp/pmhttp.h>
+pmhttpClientSetProtocol		# from <pcp/pmhttp.h>
+pmhttpClientSetTimeout		# from <pcp/pmhttp.h>
+pmhttpClientSetUserAgent	# from <pcp/pmhttp.h>
+pmhttpFreeClient		# from <pcp/pmhttp.h>
+pmhttpNewClient			# from <pcp/pmhttp.h>
 pmidctl_t
+pmjsonGet		# from <pcp/pmjson.h>
+pmjsonInit		# from <pcp/pmjson.h>
+pmjsonInitIndom		# from <pcp/pmjson.h>
+pmjsonPrint		# from <pcp/pmjson.h>
 pmprintf
 pmsprintf
 pmstrlen
@@ -1490,6 +1704,7 @@ mmv_inc
 mmv_inc_atomvalue
 mmv_inc_value
 mmv_lookup_value_desc
+mmv_registry
 mmv_set
 mmv_set_atomvalue
 mmv_set_string
@@ -1768,6 +1983,34 @@ pmtracestate
 
 # libpcp_import
 #
+PMI_DOMAIN
+PMI_ERR_ADDLABELERROR
+PMI_ERR_BADHANDLE
+PMI_ERR_BADLABELID
+PMI_ERR_BADLABELINSTANCE
+PMI_ERR_BADLABELTYPE
+PMI_ERR_BADMETRICNAME
+PMI_ERR_BADSEM
+PMI_ERR_BADTEXTCLASS
+PMI_ERR_BADTEXTID
+PMI_ERR_BADTEXTTYPE
+PMI_ERR_BADTIMESTAMP
+PMI_ERR_BADTYPE
+PMI_ERR_BADVERSION
+PMI_ERR_BASE
+PMI_ERR_DUPINSTID
+PMI_ERR_DUPINSTNAME
+PMI_ERR_DUPMETRICID
+PMI_ERR_DUPMETRICNAME
+PMI_ERR_DUPTEXT
+PMI_ERR_DUPVALUE
+PMI_ERR_EMPTYLABELNAME
+PMI_ERR_EMPTYLABELVALUE
+PMI_ERR_EMPTYTEXTCONTENT
+PMI_ERR_INSTNOTNULL
+PMI_ERR_INSTNULL
+PMI_ERR_NODATA
+PMI_MAXERRMSGLEN
 pmiAddInstance
 pmiAddMetric
 pmiCluster
@@ -1778,6 +2021,7 @@ pmiErrStr_r
 pmiGetHandle
 pmiID
 pmiInDom
+pmiLogImport		# python initializer method
 pmiPutLabel
 pmiPutMark
 pmiPutResult
@@ -1867,11 +2111,12 @@ PM_ERR_VALUE
 #
 AF_INET
 AF_UNIX
-EAGAIN
 EADDRINUSE
+EAGAIN
 ECONNREFUSED
 EINVAL
 ENOMEM
+EOPNOTSUPP
 EPERM
 OPTARG
 SIGALRM
@@ -1903,9 +2148,11 @@ dlsym
 execve
 execvp
 fread
+fscanf
 fsync
 fwrite
 getdomainname
+getenv
 getgrent
 gethostbyname
 gethostname
@@ -1937,8 +2184,10 @@ sd_notify
 setenv
 setlinebuf
 sleep
+sprintf
 srand		# from srand48
 srandom
+sscanf
 stderr
 stdin
 stdout
@@ -1948,6 +2197,7 @@ strcmp
 strdup
 strerror
 strftime
+strlen
 strncmp
 strndup
 strsep
@@ -2027,9 +2277,12 @@ localhost
 loopback
 lpcp		# from -lpcp to nm
 lpcp_archive	# from -lpcp_archive to nm
+lpcp_fault	# from -lpcp_fault to nm
 lpcp_import	# from -lpcp_import to nm
 lpcp_mmv	# from -lpcp_mmv to nm
 lpcp_pmda	# from -lpcp_pmda to nm
+lpcp_web	# from -lpcp_web to nm
+lval		# from pmValue
 malloc'd	# from verb, to malloc
 mem		# from proc.memory.rss
 metacharacters?
@@ -2046,8 +2299,9 @@ nfs
 notready
 ns		# abbreviation for nanosec
 nsecs?
-numinst
-numval		# from pmResult
+numinst		# from pmValue
+numpmid		# from pmResult
+numval		# from pmValueSet
 ok
 openmetrics
 org		# from www.iana.org
@@ -2064,6 +2318,7 @@ pmnsfile
 popup
 proc		# from proc.memory.rss
 programmatically
+pval		# from pmValue
 readthedocs	# from https://pcp.readthedocs.io/en/
 roundtrips?
 rss		# from proc.memory.rss
@@ -2084,7 +2339,13 @@ uninterpolated
 unix
 usr	# from /usr/... unfortunately we'll miss "user" spelled "usr" here
 util		# from mem.util.used
+valfmt		# from pmValueSet
 var
+vbuf		# from pmValueBlock
+vlen		# from pmValueBlock
+vlist		# from pmValueSet
+vset		# from pmResult
+vtype		# from pmValueBlock
 www		# from www.sgi.com
 zoneinfo
 
@@ -2107,6 +2368,8 @@ daemonised
 daemonising
 favours?
 flavours?
+generalise
+generalised
 honoured
 honours?
 initialisation
@@ -2121,6 +2384,8 @@ specialised
 specialising
 tokenise
 tokenising
+unrecognise
+unrecognised
 utilised
 virtualisation
 

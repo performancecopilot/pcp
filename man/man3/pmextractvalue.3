@@ -134,7 +134,9 @@ respectively).
 If
 .I valfmt
 specifies
-.BR PM_VAL_PTR ,
+.B PM_VAL_SPTR
+or
+.BR PM_VAL_DPTR ,
 then the value will be extracted from the associated
 .CR pmValueBlock
 structure, and the
@@ -256,3 +258,7 @@ Conversion of negative value to unsigned type attempted
 .BR pmUnitsStr (3)
 and
 .BR pmUnpackEventRecords (3).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ STRNG DBLE AGGR {from table headings}
+.\" +ok+ vbp ull ptr ll ul
