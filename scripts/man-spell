@@ -2232,6 +2232,7 @@ Gbytes?
 GiB
 IPC
 IPv		# from IPv[46]
+JSONB
 Kbytes?
 KiB
 Makefile
@@ -2376,6 +2377,7 @@ initialisation
 initialise
 initialised
 misbehaviours?
+preprocessed
 recognise
 recognised
 rescale
@@ -2661,11 +2663,12 @@ skip == 0			{ print }'
 	# and (non-mman) macros
 	# ... looks like ispell already deals with some uses of these,
 	# e.g. it does not trip up over \*(Bz but \n(Az and \n+(Az
-	# .ds Bz ... and .nr Az cause problems
+	# .ds Bz ... and .nr Az and .ds ] ...  cause problems
 	# and groff extended string notation \[foo]
 	#
 	sed <$tmp.in >$tmp.tmp \
 	    -e "s/^[.'][ 	]*ds [A-Za-z][A-Za-z]//" \
+	    -e "s/^[.'][ 	]*ds . //" \
 	    -e "s/^[.'][ 	]*nr [A-Za-z][A-Za-z]//" \
 	    -e "s/^[.'][ 	]*de [A-Z][a-z]]//" \
 	    -e "s/^[.'][ 	]*de [a-z][a-z]]//" \
@@ -2679,6 +2682,7 @@ skip == 0			{ print }'
 	    -e 's/\\\[[A-Za-z][A-Za-z]*]//g' \
 	# end
 	mv $tmp.tmp $tmp.in
+	grep ' ds ' <$tmp.in
     fi
 
     if ispell $dict -a -w '_' <$tmp.in >$tmp.out 2>$tmp.err

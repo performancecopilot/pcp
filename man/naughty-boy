@@ -44,7 +44,7 @@ if [ $# -gt 0 ]
 then
     for arg; do echo $arg; done
 else
-    find man* -type f
+    find man* -type f -o -type l
 fi \
 | while read f
 do

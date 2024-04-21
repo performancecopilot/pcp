@@ -77,7 +77,7 @@ and
 hence both lists contain exactly
 .I numpmid
 elements.
-For this reason, the caller is expected to have pre-allocated a suitably
+For this reason, the caller is expected to have preallocated a suitably
 sized array for
 .IR descs .
 .PP
@@ -302,3 +302,10 @@ probing for more error details in the case of a specific failure.
 .BR pcp.conf (5)
 and
 .BR pcp.env (5).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ syscalls
+.\" +ok+ scaleCount scaleSpace scaleTime dimCount dimSpace dimTime {all from pmUnits defn}
+.\" +ok+ sem {from pmDesc defn}
+.\" +ok+ PM_COUNT_ {from PM_COUNT_*} PM_SPACE_ {from PM_SPACE_*}
+.\" +ok+ PM_TIME_ {from PM_TIME_*}

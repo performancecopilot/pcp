@@ -104,14 +104,14 @@ consists of the union of labels from each of these sets of labels:
 .TP 8n
 .B pmGetContextLabels
 provides the
-.I labelset
+.I labelsets
 associated with all metric values from a given source (PMAPI context).
 .TP 4n
 2. Domain labels (apply to every metric within a PMDA)
 .TP 8n
 .B pmGetDomainLabels
 provides the
-.I labelset
+.I labelsets
 associated with the
 .I domain
 identifier.
@@ -120,7 +120,7 @@ identifier.
 .TP 8n
 .B pmGetInDomLabels
 provides the
-.I labelset
+.I labelsets
 associated with the instance domain identifier
 .IR indom .
 .TP 4n
@@ -128,7 +128,7 @@ associated with the instance domain identifier
 .TP 8n
 .B pmGetClusterLabels
 provides the
-.I labelset
+.I labelsets
 associated with the metric cluster (domain,cluster) identified by
 .IR pmid .
 .TP 4n
@@ -136,7 +136,7 @@ associated with the metric cluster (domain,cluster) identified by
 .TP 8n
 .B pmGetItemLabels
 provides the
-.I labelset
+.I labelsets
 associated with the metric item (domain,cluster,item) identified by
 .IR pmid .
 .TP 4n
@@ -148,7 +148,7 @@ provides the set of instance identifiers and labels in
 for each instance associated with the instance domain identifier
 .IR indom .
 The return value indicates the number of elements in the result \- one
-.I labelset
+.I labelsets
 for each instance.
 .PP
 These independent
@@ -236,7 +236,7 @@ The primary output from
 .B pmLookupLabels
 is returned in the
 argument
-.I labelset
+.I labelsets
 as an array, using the following component data structures;
 .PP
 .ft CR
@@ -435,7 +435,7 @@ when no longer needed.
 Only in the case of
 .B pmLookupLabels
 will the resulting
-.I labelset
+.I labelsets
 be a merged set of labels from all hierarchy levels
 (except at the instances level, as described above).
 .PP
@@ -465,7 +465,8 @@ e.g. due to IPC failure using the current PMAPI context then
 will return a negative error code which may be examined using
 .PP
 A successful return from the Python API always provides the
-labelset in the form of a list, for all labels functions.
+.I labelsets
+result in the form of a list, for all labels functions.
 On error a
 .B pmErr
 exception is raised containing the error code and diagnostic.
@@ -482,3 +483,12 @@ exception is raised containing the error code and diagnostic.
 .BR pmNewContext (3)
 and
 .BR labels.conf (5).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ labelSetList labelSet
+.\" +ok+ desc ctx {from Python variables}
+.\" +ok+ unitsystem metres sydney RGB hkg syd {from labels}
+.\" +ok+ pmContext pmErr {from Python class}
+.\" +ok+ valuelen namelen uint {from pmLabel}
+.\" +ok+ nlabels jsonlen {from pmLabelSet}
+.\" +ok+ __str__ cpmapi argv c_api sys {from Python example}
