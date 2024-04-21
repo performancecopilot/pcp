@@ -33,7 +33,7 @@ each associated with a source of performance metrics, e.g. \c
 .BR pmcd (1)
 on some host, or a set of archives of performance metrics as created by
 .BR pmlogger (1),
-or a standalone connection on the local host that does not involve
+or a stand-alone connection on the local host that does not involve
 .BR pmcd (1).
 .PP
 .BR pmNewContext
@@ -126,6 +126,7 @@ If more than one archive is specified for a
 of
 .BR PM_CONTEXT_ARCHIVE ,
 there are some restrictions on the archives within the set:
+.PD 0
 .IP \(bu 3n
 The archives must all have been generated on the same host.
 .IP \(bu 3n
@@ -144,18 +145,55 @@ The semantics of each metric must be the same in all of the archives.
 The units of each metric must be the same in all of the archives.
 .IP \(bu 3n
 The instance domain of each metric must be the same in all of the archives.
+.PD
 .PP
 In the case where
 .I type
 is
 .BR PM_CONTEXT_LOCAL ,
 .I name
-is ignored, and the context uses a standalone connection to the
+is ignored, and the context uses a stand-alone connection to the
 PMDA methods used by
 .BR pmcd (1).
+The mechanism in the library uses the same ``plugin'' architecture
+that operates between
+.BR pmcd (1)
+and DSO PMDAs, so operations involve function calls rather than
+IPC message passing \- for
+.B PM_CONTEXT_LOCAL
+contexts this may mean lower latency for operations like
+.BR pmFetch (3),
+but at the cost of
+longer initialization time and possible access control differences
+compared to
+.BR pmcd (1).
 When this type of context is used, the range of accessible performance
-metrics is constrained to those from the operating system, and optionally
-the ``proc'', ``sample'' and ``ib'' PMDAs.
+metrics is constrained to those from the DSO PMDAs defined in
+the
+.BR pmcd (1)
+configuration file
+.BR /etc/pcp/pmcd/pmcd.conf ,
+so those reported by the command
+.sp 0.5v
+.in +8n
+.ft CR
+$ awk '$3 == "dso" {print}' /etc/pcp/pmcd/pmcd.conf
+.ft P
+.in
+.br
+or alternatively reported by the command
+.sp 0.5v
+.in +8n
+.ft CR
+$ pminfo -f pmcd.agent.type | grep 'value 0'
+.ft P
+.in
+.br
+This usually means the PMDA exporting metrics from
+the operating system and
+the ``pmcd'', ``pmproxy'' and may includes some others like ``mmv''.
+Alternate DSO PMDAs can be used, refer to
+.BR pmSpecLocalPMDA (3).
 .PP
 In the case where \f2type\fP is \f3PM_CONTEXT_HOST\fP, additional flags can
 be added to the \f2type\fP to indicate if the connection to \f3pmcd\fP(1)
@@ -294,10 +332,6 @@ Archives overlap in time
 .IP
 Archives differ by host
 .P
-.B PM_ERR_LOGTIMEZONE
-.IP
-Archives differ by time zone.
-.P
 .B PM_ERR_LOGCHANGETYPE
 .IP
 The type of a metric differs among archives
@@ -328,31 +362,28 @@ historically was 4321 and more recently the officially registered port
 .B pmcd
 listens on both these ports as a transitional arrangement.  If used,
 should be set to a comma-separated list of numerical port numbers.
-.TP
-.B PMDA_PATH
-When searching for PMDAs to be loaded when
-.I type
-is
-.BR PM_CONTEXT_LOCAL ,
-the
-.B PMDA_PATH
-environment variable may be used to define a search path of
-directories to be used to locate the PMDA executables.
-The default search path is
-.BR $PCP_SHARE_DIR/lib:/usr/pcp/lib .
 .SH SEE ALSO
 .BR pmcd (1),
+.BR pminfo (1),
 .BR pmproxy (1),
-.BR pmAddProfile (3),
 .BR PMAPI (3),
+.BR pmAddProfile (3),
 .BR pmDelProfile (3),
 .BR pmDestroyContext (3),
 .BR pmDupContext (3),
+.BR pmFetch (3),
 .BR pmGetConfig (3),
 .BR pmReconnectContext (3),
 .BR pmSetMode (3),
+.BR pmSpecLocalPMDA (3),
 .BR pmUseContext (3),
 .BR pmWhichContext (3),
 .BR pcp.conf (5)
 and
 .BR pcp.env (5).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ myarchive
+.\" +ok+ hostent {from struct hostent}
+.\" +ok+ app {from app23:14321,4321@firewall.example.com:11111}
+.\" +ok+ ib {from ``ib'' PMDA}
