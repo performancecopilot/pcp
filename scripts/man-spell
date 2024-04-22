@@ -421,6 +421,9 @@ xconfirm
 xz
 
 # libpcp* functions, typedefs and macros, etc.
+# includes libpcp, libpcp_archive libpcp_fault libpcp_gui libpcp_import
+# libpcp_mmv libpcp_pmcd libpcp_pmda libpcp_qed libpcp_qmc libpcp_qwt
+# libpcp_static libpcp_trace libpcp_web
 #
 ANY_SIZE
 AVAHI_DISCOVERY_TIMEOUT
@@ -548,6 +551,92 @@ PMCD_NAMES_CHANGE
 PMCD_NO_CHANGE
 PMCD_RESTART_AGENT
 PMDAEVENTARRAY
+PMDAOPT_DEBUG
+PMDAOPT_DOMAIN
+PMDAOPT_HELPTEXT
+PMDAOPT_INET
+PMDAOPT_IPV		# from PMDA_OPT_IPV6
+PMDAOPT_LOGFILE
+PMDAOPT_PIPE
+PMDAOPT_UNIX
+PMDAOPT_USERNAME
+PMDA_ATTR_CONTAINER
+PMDA_ATTR_GROUPID
+PMDA_ATTR_PROCESSID
+PMDA_ATTR_USERID
+PMDA_ATTR_USERNAME
+PMDA_CACHE_ACTIVE
+PMDA_CACHE_ADD
+PMDA_CACHE_CHECK
+PMDA_CACHE_CULL
+PMDA_CACHE_DUMP
+PMDA_CACHE_DUMP_ALL
+PMDA_CACHE_EMPTY
+PMDA_CACHE_HIDE
+PMDA_CACHE_INACTIVE
+PMDA_CACHE_LOAD
+PMDA_CACHE_REORG
+PMDA_CACHE_REUSE
+PMDA_CACHE_SAVE
+PMDA_CACHE_SIZE
+PMDA_CACHE_SIZE_ACTIVE
+PMDA_CACHE_SIZE_INACTIVE
+PMDA_CACHE_STRINGS
+PMDA_CACHE_SYNC
+PMDA_CACHE_WALK_NEXT
+PMDA_CACHE_WALK_REWIND
+PMDA_CACHE_WRITE
+PMDA_CALL
+PMDA_EXT_CONNECTED
+PMDA_EXT_FLAG_DIRECT
+PMDA_EXT_FLAG_HASHED
+PMDA_EXT_LABEL_CHANGE
+PMDA_EXT_NAMES_CHANGE
+PMDA_EXT_NOTREADY
+PMDA_EXT_SETUPDONE
+PMDA_FETCH_DYNAMIC
+PMDA_FETCH_NOVALUES
+PMDA_FETCH_STATIC
+PMDA_FLAG_AUTHORIZE
+PMDA_FLAG_CONTAINER
+PMDA_INTERFACE		# from "the version of PMDA_INTERFACE being used"
+PMDA_INTERFACE_		# from PMDA_INTERFACE_2 etc
+PMDA_INTERFACE_LATEST
+PMDA_OPTIONS
+PMDA_OPTIONS_END
+PMDA_OPTIONS_HEADERS
+PMDA_OPTIONS_TEXT
+PMDA_PMID
+PMDA_PMUNITS
+PMDA_UNITS
+PMI_DOMAIN
+PMI_ERR_ADDLABELERROR
+PMI_ERR_BADHANDLE
+PMI_ERR_BADLABELID
+PMI_ERR_BADLABELINSTANCE
+PMI_ERR_BADLABELTYPE
+PMI_ERR_BADMETRICNAME
+PMI_ERR_BADSEM
+PMI_ERR_BADTEXTCLASS
+PMI_ERR_BADTEXTID
+PMI_ERR_BADTEXTTYPE
+PMI_ERR_BADTIMESTAMP
+PMI_ERR_BADTYPE
+PMI_ERR_BADVERSION
+PMI_ERR_BASE
+PMI_ERR_DUPINSTID
+PMI_ERR_DUPINSTNAME
+PMI_ERR_DUPMETRICID
+PMI_ERR_DUPMETRICNAME
+PMI_ERR_DUPTEXT
+PMI_ERR_DUPVALUE
+PMI_ERR_EMPTYLABELNAME
+PMI_ERR_EMPTYLABELVALUE
+PMI_ERR_EMPTYTEXTCONTENT
+PMI_ERR_INSTNOTNULL
+PMI_ERR_INSTNULL
+PMI_ERR_NODATA
+PMI_MAXERRMSGLEN
 PMLC_GET_AVAIL
 PMLC_GET_DELTA
 PMLC_GET_INLOG
@@ -624,6 +713,7 @@ PMOPT_START
 PMOPT_TIMEZONE
 PMOPT_UNIQNAMES
 PMOPT_VERSION
+PMTIME_MAGIC
 PMTIME_PORT
 PM_ASSERT_IS_LOCKED
 PM_ASSERT_IS_UNLOCKED
@@ -643,6 +733,7 @@ PM_CTXFLAG_NO_FEATURE_CHECK
 PM_CTXFLAG_RELAXED
 PM_CTXFLAG_SECURE
 PM_CTXFLAG_SHALLOW
+PM_ERR_			# from PM_ERR_*
 PM_ERR_AGAIN
 PM_ERR_APPVERSION
 PM_ERR_ARG
@@ -777,9 +868,12 @@ PM_MAX_TIMEZONELEN
 PM_MAX_TIME_T
 PM_MAX_ZONEINFOLEN
 PM_MODE_BACK
+PM_MODE_FAST
 PM_MODE_FORW
 PM_MODE_INTERP
 PM_MODE_LIVE
+PM_MODE_NORMAL
+PM_MODE_STEP
 PM_MULTIPLE_THREADS
 PM_MULTI_THREAD
 PM_NOT_LOCKED
@@ -803,6 +897,11 @@ PM_PDU_SIZE_BYTES
 PM_PROFILE_EXCLUDE
 PM_PROFILE_INCLUDE
 PM_RECOV_ERR
+PM_REC_DETACH
+PM_REC_OFF
+PM_REC_ON
+PM_REC_SETARG
+PM_REC_STATUS
 PM_SCOPE_ACL
 PM_SCOPE_AF
 PM_SCOPE_DSO_PMDA
@@ -816,6 +915,9 @@ PM_SERVER_SERVICE_SPEC
 PM_SERVER_WEBAPI_SPEC
 PM_SERVICE_DISCOVERY_INTERRUPTED
 PM_SERVICE_DISCOVERY_RESOLVE
+PM_SOURCE_ARCHIVE
+PM_SOURCE_HOST
+PM_SOURCE_NONE
 PM_SPACE_BYTE
 PM_SPACE_EBYTE
 PM_SPACE_GBYTE
@@ -826,8 +928,20 @@ PM_SPACE_TBYTE
 PM_SPACE_YBYTE
 PM_SPACE_ZBYTE
 PM_STATE_APPL
+PM_STATE_BACKWARD
+PM_STATE_FORWARD
 PM_STATE_PMCS
+PM_STATE_STOP
 PM_ST_SIZE_INVALID
+PM_TCTL_ACK
+PM_TCTL_BOUNDS
+PM_TCTL_GUIHIDE
+PM_TCTL_GUISHOW
+PM_TCTL_SET
+PM_TCTL_STEP
+PM_TCTL_TZ
+PM_TCTL_VCRMODE
+PM_TCTL_VCRMODE_DRAG
 PM_TEXT_DIRECT
 PM_TEXT_HELP
 PM_TEXT_INDOM
@@ -873,6 +987,13 @@ PRINTF_P_PFX
 PROXY_PORT
 PROXY_PROTOCOL
 PTHREAD_STACK_MIN
+QmcContext
+QmcDesc
+QmcGroup
+QmcIndom
+QmcMetric
+QmcMetricValue
+QmcSource
 SECURE_SERVER_SASL_SERVICE
 SERVER_PORT
 SERVER_PROTOCOL
@@ -958,6 +1079,7 @@ __pmCreateIPv		# from __pmCreateIPv6Socket
 __pmCreateSocket
 __pmCreateUnixSocket
 __pmCred
+__pmDSO
 __pmDecodeAttr
 __pmDecodeAuth
 __pmDecodeChildReq
@@ -1371,6 +1493,28 @@ __pmWrite
 __pmXmitPDU
 __pmZoneinfo
 __pm_fops
+__pmdaCacheDump
+__pmdaCacheDumpAll
+__pmdaCntInst
+__pmdaDecodeRootPDUContainer
+__pmdaDecodeRootPDUStart
+__pmdaDecodeRootPDUStop
+__pmdaEventPrint
+__pmdaInFd
+__pmdaMainPDU
+__pmdaNextInst
+__pmdaRecvRootPDUContainer
+__pmdaRecvRootPDUInfo
+__pmdaRecvRootPDUStart
+__pmdaRecvRootPDUStartReq
+__pmdaRecvRootPDUStop
+__pmdaSendRootPDUContainer
+__pmdaSendRootPDUInfo
+__pmdaSendRootPDUStart
+__pmdaSendRootPDUStartReq
+__pmdaSendRootPDUStop
+__pmdaSetContext
+__pmdaStartInst
 __pmnsNode
 __pmnsTree
 __pmstate
@@ -1402,6 +1546,38 @@ ll_magic		# from pmLogLabel
 ll_pid			# from pmLogLabel
 ll_start		# from pmLogLabel
 ll_tz			# from pmLogLabel
+mmv_add
+mmv_inc
+mmv_inc_atomvalue
+mmv_inc_value
+mmv_lookup_value_desc
+mmv_registry
+mmv_set
+mmv_set_atomvalue
+mmv_set_string
+mmv_set_value
+mmv_stats		# from mmv_stats2_init
+mmv_stats_add
+mmv_stats_add_fallback
+mmv_stats_add_indom
+mmv_stats_add_indom_label
+mmv_stats_add_instance
+mmv_stats_add_instance_label
+mmv_stats_add_metric
+mmv_stats_add_metric_label
+mmv_stats_add_registry_label
+mmv_stats_free
+mmv_stats_inc
+mmv_stats_inc_fallback
+mmv_stats_init
+mmv_stats_interval_end
+mmv_stats_interval_start
+mmv_stats_registry
+mmv_stats_set
+mmv_stats_set_string
+mmv_stats_set_strlen
+mmv_stats_start
+mmv_stats_stop
 optcost_t
 optreq_t
 pmAddDerived
@@ -1427,12 +1603,23 @@ pmDiscover
 pmDiscoverCallBacks
 pmDiscoverChangeCallBack
 pmDiscoverClose
+pmDiscoverClosedCallBack
+pmDiscoverContext
+pmDiscoverEvent
+pmDiscoverInDomCallBack
+pmDiscoverLabelsCallBack
+pmDiscoverMetricCallBack
+pmDiscoverModule
 pmDiscoverServices
 pmDiscoverSetConfiguration
 pmDiscoverSetEventLoop
 pmDiscoverSetMetricRegistry
 pmDiscoverSetSlots
+pmDiscoverSettings
 pmDiscoverSetup
+pmDiscoverSourceCallBack
+pmDiscoverTextCallBack
+pmDiscoverValuesCallBack
 pmDupContext
 pmErrStr
 pmErrStr_r
@@ -1517,7 +1704,9 @@ pmLoadASCIINameSpace
 pmLoadDerivedConfig
 pmLoadNameSpace
 pmLocaltime
+pmLogInfoCallBack
 pmLogLabel
+pmLogLevel
 pmLogLevelIsTTY
 pmLogLevelPrint
 pmLogLevelStr
@@ -1564,39 +1753,71 @@ pmProgname
 pmReconnectContext
 pmRecordAddHost
 pmRecordControl
+pmRecordHost
 pmRecordSetup
 pmRegisterDerived
 pmRegisterDerivedMetric
 pmResult
+pmSearchCallBacks
 pmSearchClose
+pmSearchDoneCallBack
 pmSearchEnabled
+pmSearchFlags
 pmSearchInfo
+pmSearchMetrics
+pmSearchMetricsCallBack
+pmSearchModule
 pmSearchSetConfiguration
 pmSearchSetEventLoop
 pmSearchSetMetricRegistry
 pmSearchSetSlots
+pmSearchSettings
 pmSearchSetup
+pmSearchSetupCallBack
 pmSearchTextInDom
 pmSearchTextQuery
+pmSearchTextRequest
+pmSearchTextResult
+pmSearchTextResultCallBack
 pmSearchTextSuggest
+pmSearchTextType
 pmSearchTextTypeStr
 pmSemStr
 pmSemStr_r
+pmSeriesCallBacks
 pmSeriesClose
+pmSeriesDesc
+pmSeriesDescCallBack
 pmSeriesDescs
+pmSeriesDoneCallBack
+pmSeriesExpr
+pmSeriesExprCallBack
 pmSeriesExprs
+pmSeriesFlags
+pmSeriesInst
+pmSeriesInstCallBack
 pmSeriesInstances
+pmSeriesLabel
+pmSeriesLabelCallBack
 pmSeriesLabelValues
 pmSeriesLabels
 pmSeriesLoad
+pmSeriesMatchCallBack
 pmSeriesMetrics
+pmSeriesModule
 pmSeriesQuery
 pmSeriesSetConfiguration
 pmSeriesSetEventLoop
 pmSeriesSetMetricRegistry
 pmSeriesSetSlots
+pmSeriesSettings
 pmSeriesSetup
+pmSeriesSetupCallBack
 pmSeriesSources
+pmSeriesStringCallBack
+pmSeriesTimeWindow
+pmSeriesValue
+pmSeriesValueCallBack
 pmSeriesValues
 pmSeriesWindow
 pmServerNotifyServiceManagerReady
@@ -1614,13 +1835,23 @@ pmStoreHighRes
 pmSyslog
 pmTime
 pmTimeConnect
+pmTimeControls
+pmTimeDisconnect
 pmTimeRecv
 pmTimeSendAck
 pmTimeShowDialog
 pmTimeStateAck
+pmTimeStateBoundary
 pmTimeStateBounds
+pmTimeStateExited
+pmTimeStateInterval
 pmTimeStateMode
+pmTimeStateNewZone
+pmTimeStatePosition
+pmTimeStateResume
+pmTimeStateRewind
 pmTimeStateSetup
+pmTimeStateStepped
 pmTimeStateVector
 pmTimespec
 pmTimeval
@@ -1641,6 +1872,15 @@ pmUseZone
 pmValue
 pmValueBlock
 pmValueSet
+pmWebAccess
+pmWebAccessCallBack
+pmWebChildren
+pmWebChildrenCallBack
+pmWebContextCallBack
+pmWebFetchCallBack
+pmWebFetchValueCallBack
+pmWebFetchValueSetCallBack
+pmWebGroupCallBacks
 pmWebGroupChildren
 pmWebGroupClose
 pmWebGroupContext
@@ -1649,91 +1889,43 @@ pmWebGroupDestroy
 pmWebGroupFetch
 pmWebGroupInDom
 pmWebGroupMetric
+pmWebGroupModule
 pmWebGroupProfile
 pmWebGroupScrape
 pmWebGroupSetConfiguration
 pmWebGroupSetEventLoop
 pmWebGroupSetMetricRegistry
+pmWebGroupSettings
 pmWebGroupSetup
 pmWebGroupStore
+pmWebInDom
+pmWebInDomCallBack
+pmWebInDomInstanceCallBack
+pmWebInstance
+pmWebLabelSet
+pmWebMetric
+pmWebMetricCallBack
+pmWebResult
+pmWebScrape
+pmWebScrapeCallBack
+pmWebScrapeLabelSetCallBack
+pmWebSource
+pmWebStatusCallBack
+pmWebTimerCallBack
 pmWebTimerClose
 pmWebTimerRegister
 pmWebTimerRelease
 pmWebTimerSetEventLoop
 pmWebTimerSetMetricRegistry
 pmWebTimerSetup
+pmWebValue
+pmWebValueSet
 pmWhichContext
 pmWhichZone
-pmflush
-pmgetopt_r
-pmhttpClientFetch		# from <pcp/pmhttp.h>
-pmhttpClientSetProtocol		# from <pcp/pmhttp.h>
-pmhttpClientSetTimeout		# from <pcp/pmhttp.h>
-pmhttpClientSetUserAgent	# from <pcp/pmhttp.h>
-pmhttpFreeClient		# from <pcp/pmhttp.h>
-pmhttpNewClient			# from <pcp/pmhttp.h>
-pmidctl_t
-pmjsonGet		# from <pcp/pmjson.h>
-pmjsonInit		# from <pcp/pmjson.h>
-pmjsonInitIndom		# from <pcp/pmjson.h>
-pmjsonPrint		# from <pcp/pmjson.h>
-pmprintf
-pmsprintf
-pmstrlen
-pmstrncat
-pmstrncpy
-pmtimespecAdd
-pmtimespecDec
-pmtimespecFromReal
-pmtimespecInc
-pmtimespecNow
-pmtimespecSub
-pmtimespecToReal
-pmtimevalAdd
-pmtimevalDec
-pmtimevalFromReal
-pmtimevalInc
-pmtimevalNow
-pmtimevalSub
-pmtimevalToReal
-
-# libpcp_mmv
-#
-mmv_add
-mmv_inc
-mmv_inc_atomvalue
-mmv_inc_value
-mmv_lookup_value_desc
-mmv_registry
-mmv_set
-mmv_set_atomvalue
-mmv_set_string
-mmv_set_value
-mmv_stats		# from mmv_stats2_init
-mmv_stats_add
-mmv_stats_add_fallback
-mmv_stats_add_indom
-mmv_stats_add_indom_label
-mmv_stats_add_instance
-mmv_stats_add_instance_label
-mmv_stats_add_metric
-mmv_stats_add_metric_label
-mmv_stats_add_registry_label
-mmv_stats_free
-mmv_stats_inc
-mmv_stats_inc_fallback
-mmv_stats_init
-mmv_stats_interval_end
-mmv_stats_interval_start
-mmv_stats_registry
-mmv_stats_set
-mmv_stats_set_string
-mmv_stats_set_strlen
-mmv_stats_start
-mmv_stats_stop
-
-# libpcp_archive
-#
+pm_tctl_command
+pm_tctl_mode
+pm_tctl_source
+pm_tctl_state
 pmaDeltaInDom
 pmaGetLog
 pmaPutLog
@@ -1743,90 +1935,6 @@ pmaSameInDom
 pmaSortInDom
 pmaTryDeltaInDom
 pmaUndeltaInDom
-
-# libpcp_pmda
-#
-PMDAOPT_DEBUG
-PMDAOPT_DOMAIN
-PMDAOPT_HELPTEXT
-PMDAOPT_INET
-PMDAOPT_IPV		# from PMDA_OPT_IPV6
-PMDAOPT_LOGFILE
-PMDAOPT_PIPE
-PMDAOPT_UNIX
-PMDAOPT_USERNAME
-PMDA_ATTR_CONTAINER
-PMDA_ATTR_GROUPID
-PMDA_ATTR_PROCESSID
-PMDA_ATTR_USERID
-PMDA_ATTR_USERNAME
-PMDA_CACHE_ACTIVE
-PMDA_CACHE_ADD
-PMDA_CACHE_CHECK
-PMDA_CACHE_CULL
-PMDA_CACHE_DUMP
-PMDA_CACHE_DUMP_ALL
-PMDA_CACHE_EMPTY
-PMDA_CACHE_HIDE
-PMDA_CACHE_INACTIVE
-PMDA_CACHE_LOAD
-PMDA_CACHE_REORG
-PMDA_CACHE_REUSE
-PMDA_CACHE_SAVE
-PMDA_CACHE_SIZE
-PMDA_CACHE_SIZE_ACTIVE
-PMDA_CACHE_SIZE_INACTIVE
-PMDA_CACHE_STRINGS
-PMDA_CACHE_SYNC
-PMDA_CACHE_WALK_NEXT
-PMDA_CACHE_WALK_REWIND
-PMDA_CACHE_WRITE
-PMDA_CALL
-PMDA_EXT_CONNECTED
-PMDA_EXT_FLAG_DIRECT
-PMDA_EXT_FLAG_HASHED
-PMDA_EXT_LABEL_CHANGE
-PMDA_EXT_NAMES_CHANGE
-PMDA_EXT_NOTREADY
-PMDA_EXT_SETUPDONE
-PMDA_FETCH_DYNAMIC
-PMDA_FETCH_NOVALUES
-PMDA_FETCH_STATIC
-PMDA_FLAG_AUTHORIZE
-PMDA_FLAG_CONTAINER
-PMDA_INTERFACE		# from "the version of PMDA_INTERFACE being used"
-PMDA_INTERFACE_		# from PMDA_INTERFACE_2 etc
-PMDA_INTERFACE_LATEST
-PMDA_OPTIONS
-PMDA_OPTIONS_END
-PMDA_OPTIONS_HEADERS
-PMDA_OPTIONS_TEXT
-PMDA_PMID
-PMDA_PMUNITS
-PMDA_UNITS
-__pmDSO
-__pmdaCacheDump
-__pmdaCacheDumpAll
-__pmdaCntInst
-__pmdaDecodeRootPDUContainer
-__pmdaDecodeRootPDUStart
-__pmdaDecodeRootPDUStop
-__pmdaEventPrint
-__pmdaInFd
-__pmdaMainPDU
-__pmdaNextInst
-__pmdaRecvRootPDUContainer
-__pmdaRecvRootPDUInfo
-__pmdaRecvRootPDUStart
-__pmdaRecvRootPDUStartReq
-__pmdaRecvRootPDUStop
-__pmdaSendRootPDUContainer
-__pmdaSendRootPDUInfo
-__pmdaSendRootPDUStart
-__pmdaSendRootPDUStartReq
-__pmdaSendRootPDUStop
-__pmdaSetContext
-__pmdaStartInst
 pmdaAddLabelFlags
 pmdaAddLabels
 pmdaAddNotes
@@ -1962,55 +2070,14 @@ pmdaUpdateMetric
 pmdaUpdatePMNS
 pmdaUpdateText
 pmdaUsageMessage
-
-# pmdaproc.sh
-#
-pmdaChooseConfigFile
-pmdaInstall
-pmdaRemove
-pmdaSetup
-
-# libpcp_trace
-#
-pmtraceabort
-pmtracebegin
-pmtracecounter
-pmtraceend
-pmtraceerrstr
-pmtraceobs
-pmtracepoint
-pmtracestate
-
-# libpcp_import
-#
-PMI_DOMAIN
-PMI_ERR_ADDLABELERROR
-PMI_ERR_BADHANDLE
-PMI_ERR_BADLABELID
-PMI_ERR_BADLABELINSTANCE
-PMI_ERR_BADLABELTYPE
-PMI_ERR_BADMETRICNAME
-PMI_ERR_BADSEM
-PMI_ERR_BADTEXTCLASS
-PMI_ERR_BADTEXTID
-PMI_ERR_BADTEXTTYPE
-PMI_ERR_BADTIMESTAMP
-PMI_ERR_BADTYPE
-PMI_ERR_BADVERSION
-PMI_ERR_BASE
-PMI_ERR_DUPINSTID
-PMI_ERR_DUPINSTNAME
-PMI_ERR_DUPMETRICID
-PMI_ERR_DUPMETRICNAME
-PMI_ERR_DUPTEXT
-PMI_ERR_DUPVALUE
-PMI_ERR_EMPTYLABELNAME
-PMI_ERR_EMPTYLABELVALUE
-PMI_ERR_EMPTYTEXTCONTENT
-PMI_ERR_INSTNOTNULL
-PMI_ERR_INSTNULL
-PMI_ERR_NODATA
-PMI_MAXERRMSGLEN
+pmflush
+pmgetopt_r
+pmhttpClientFetch		# from <pcp/pmhttp.h>
+pmhttpClientSetProtocol		# from <pcp/pmhttp.h>
+pmhttpClientSetTimeout		# from <pcp/pmhttp.h>
+pmhttpClientSetUserAgent	# from <pcp/pmhttp.h>
+pmhttpFreeClient		# from <pcp/pmhttp.h>
+pmhttpNewClient			# from <pcp/pmhttp.h>
 pmiAddInstance
 pmiAddMetric
 pmiCluster
@@ -2035,6 +2102,38 @@ pmiStart
 pmiUnits
 pmiUseContext
 pmiWrite
+pmidctl_t
+pmjsonGet		# from <pcp/pmjson.h>
+pmjsonInit		# from <pcp/pmjson.h>
+pmjsonInitIndom		# from <pcp/pmjson.h>
+pmjsonPrint		# from <pcp/pmjson.h>
+pmprintf
+pmsprintf
+pmstrlen
+pmstrncat
+pmstrncpy
+pmtimespecAdd
+pmtimespecDec
+pmtimespecFromReal
+pmtimespecInc
+pmtimespecNow
+pmtimespecSub
+pmtimespecToReal
+pmtimevalAdd
+pmtimevalDec
+pmtimevalFromReal
+pmtimevalInc
+pmtimevalNow
+pmtimevalSub
+pmtimevalToReal
+pmtraceabort
+pmtracebegin
+pmtracecounter
+pmtraceend
+pmtraceerrstr
+pmtraceobs
+pmtracepoint
+pmtracestate
 
 # PCP error codes
 #
@@ -2107,6 +2206,13 @@ PM_ERR_TYPE
 PM_ERR_UNIT
 PM_ERR_VALUE
 
+# pmdaproc.sh
+#
+pmdaChooseConfigFile
+pmdaInstall
+pmdaRemove
+pmdaSetup
+
 # system calls, libc functions, structs, typedefs and macros
 #
 AF_INET
@@ -2118,6 +2224,7 @@ EINVAL
 ENOMEM
 EOPNOTSUPP
 EPERM
+ETIMEDOUT
 OPTARG
 SIGALRM
 SIGHUP
@@ -2135,6 +2242,7 @@ _inet_ntop	# from win32_inet_ntop
 _inet_pton	# from win32_inet_pton
 _t		# suffix from __int32_t or __int64_t
 alphasort
+atexit
 basename
 calloc
 closelog
@@ -2147,7 +2255,9 @@ dlopen
 dlsym
 execve
 execvp
+fprintf
 fread
+freopen
 fscanf
 fsync
 fwrite
@@ -2158,7 +2268,10 @@ gethostbyname
 gethostname
 getmachineid
 getopt
+getpid
 getpwent
+getpwnam
+getrusage
 gettimeofday
 gmtime_r
 index
@@ -2166,6 +2279,8 @@ localtime
 lrand		# from lrand48
 malloc
 memcpy
+mkstemp
+mktemp
 mktime
 nanosleep
 pclose
@@ -2182,7 +2297,9 @@ rindex
 scandir
 sd_notify
 setenv
+setgid
 setlinebuf
+setuid
 sleep
 sprintf
 srand		# from srand48
@@ -2198,7 +2315,9 @@ strdup
 strerror
 strftime
 strlen
+strncat
 strncmp
+strncpy
 strndup
 strsep
 strtod
@@ -2208,8 +2327,12 @@ sysctl
 syslog
 timespec	# struct timespec
 timeval		# struct timeval
+tv_nsec		# struct timeval et al
+tv_usec		# struct timeval et al
+uint_t
 unsetenv
 varargs
+vsnprintf
 waitpid
 wsastrerror
 
@@ -2235,6 +2358,7 @@ IPv		# from IPv[46]
 JSONB
 Kbytes?
 KiB
+MMV
 Makefile
 Mbytes?
 MiB
@@ -2254,6 +2378,8 @@ config
 const		# C keyword
 cpu		# from metrics like kernel.cpu.util.sys
 dev		# from metrics like disk.dev.write
+dll
+dylib
 en		# from https://pcp.readthedocs.io/en/
 env		# from pcp.env
 errno
@@ -2279,9 +2405,11 @@ loopback
 lpcp		# from -lpcp to nm
 lpcp_archive	# from -lpcp_archive to nm
 lpcp_fault	# from -lpcp_fault to nm
+lpcp_gui	# from -lpcp_gui to nm
 lpcp_import	# from -lpcp_import to nm
 lpcp_mmv	# from -lpcp_mmv to nm
 lpcp_pmda	# from -lpcp_pmda to nm
+lpcp_qmc	# from -lpcp_qmc to nm
 lpcp_web	# from -lpcp_web to nm
 lval		# from pmValue
 malloc'd	# from verb, to malloc
@@ -2320,6 +2448,7 @@ popup
 proc		# from proc.memory.rss
 programmatically
 pval		# from pmValue
+qmc		# from #include <qmc.h>
 readthedocs	# from https://pcp.readthedocs.io/en/
 roundtrips?
 rss		# from proc.memory.rss
@@ -2358,6 +2487,7 @@ zoneinfo
 [Cc]ustomised
 [Dd]aemonise
 [Vv]irtualise
+analysing
 behaviours?
 centred
 centres?
@@ -2380,6 +2510,7 @@ misbehaviours?
 preprocessed
 recognise
 recognised
+requestable
 rescale
 specialise
 specialised
@@ -2461,7 +2592,7 @@ want == 1			{ if ($0 ~ /^[\\.[]/) {
 				    print
 				    next
 				  }
-				  if ($0 ~ /^[a-z_]/) {
+				  if ($0 ~ /^[A-Za-z_]/) {
 				    # C-style function prototype
 				    print
 				    next

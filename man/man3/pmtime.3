@@ -104,7 +104,7 @@ and
 .I finish
 fields indicate the chronological bounds interesting to the application.
 The
-.I showdialog
+.I showgui
 field indicates whether the time control server should initially show
 or hide the dialog.
 The
@@ -117,13 +117,15 @@ time zone string and time zone label string.
 .PP
 .B pmTimeRecv
 blocks until the time control server sends a command message.
-It then updates the state parameter and returns one of the PM_TCTL
+It then updates the state parameter and returns one of the PM_TCTL_*
 command identifiers.
 .PP
 The PM_TCTL_SET command indicates the application should seek to the
 archive position (see
 .BR pmSetMode (3))
-returned in the position field of the state parameter.
+returned in the
+.I position
+field of the state parameter.
 .PP
 The PM_TCTL_STEP command indicates the application should perform an
 update, i.e. advance (or rewind, if delta is negative) to the time
@@ -138,17 +140,17 @@ explicit acknowledgement.
 The PM_TCTL_VCRMODE command is used by the time control server to
 indicate the current VCR mode.
 .PP
-The value is returned in the vcrmode field of the state parameter passed
+The value is returned in the
+.I mode
+field of the state parameter passed
 to
 .BR pmTimeRecv ,
 and remains valid until the next PM_TCTL_VCRMODE command is received.
 .PP
 The PM_TCTL_TZ command indicates the application should use a new time-
 zone, as indicated in the
-.I tz
-and
-.I tzlabel
-fields of the state parameter.
+.I newzone
+field of the state parameter.
 .PP
 The PM_TCTL_BOUNDS command is sent to all applications when the time
 control server changes its chronological bounds.
@@ -156,7 +158,8 @@ This may occur when a new application connects to the time control
 server or the user changes the bounds manually.
 Most applications will ignore this command.
 .PP
-The PM_TCTL_SHOWDIALOG command will be sent to all applications when the
+The PM_TCTL_GUIHIDE or PM_TCTL_GUISHOW commands will be sent to all
+applications when the
 visibility of the time control server changes.
 This allows applications to alter the text in menus or buttons to
 reflect this change.
@@ -167,7 +170,9 @@ function.
 The initial visibility is determined when
 the time control dialog is first created by an application calling
 .B pmTimeConnect
-with the showdialog field in the state parameter set to the desired value.
+with the
+.I showgui
+field in the state parameter set to the desired value.
 .PP
 The
 .B pmTimeDisconnect
@@ -179,3 +184,7 @@ e.g. to divorce the current time control server and connect to a new one.
 .BR PMAPI (3)
 and
 .BR pmSetMode (3).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ showgui newzone {from field in struc pmTimeControls}
+.\" +ok+ PM_TCTL_ {from PM_TCTL_*}
