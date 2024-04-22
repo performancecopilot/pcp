@@ -944,14 +944,14 @@ class pmConfig(object):
             # Finalize text label and unit/scale
             try:
                 label = self.util.metrics[metric][2]
-                (unitstr, mult) = self.util.context.pmParseUnitsStr(self.util.metrics[metric][2])
+                (pmunit, mult) = self.util.context.pmParseUnitsStr(self.util.metrics[metric][2])
                 if self.util.metrics[metric][3] == 0 and \
                    self.descs[i].contents.type != pmapi.c_api.PM_TYPE_STRING and \
                    self.descs[i].sem == pmapi.c_api.PM_SEM_COUNTER and \
                    '/' not in label:
                     label += " / s"
                 label = self.format_metric_label(label)
-                self.util.metrics[metric][2] = (label, unitstr, mult)
+                self.util.metrics[metric][2] = (label, pmunit, mult)
             except pmapi.pmErr as error:
                 sys.stderr.write("%s: %s.\n" % (str(error), self.util.metrics[metric][2]))
                 sys.exit(1)
@@ -959,7 +959,7 @@ class pmConfig(object):
             # Set metric type - default to double for precision
             mtype = pmapi.c_api.PM_TYPE_DOUBLE
             # But use native type if nothing else was requested
-            if str(unitstr) == str(self.descs[i].contents.units):
+            if str(pmunit) == str(self.descs[i].contents.units):
                 mtype = self.descs[i].contents.type
             # However always use double for non-raw counters
             if self.util.metrics[metric][3] == 0 and \
