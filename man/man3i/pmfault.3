@@ -441,8 +441,9 @@ to be used in preference to
 .\" +ok+ PM_FAULT_INJECTION PM_FAULT_CONTROL
 .\" +ok+ PM_FAULT_RETURN PM_FAULT_ALLOC PM_FAULT_CHECK PM_FAULT_CLEAR
 .\" +ok+ PM_FAULT_POINT derive_parser PM_FAULT_CALL
-.\" +ok+ PM_FAULT_MISC param_string libpcp_fault LD_PRELOAD setoserror
-.\" +ok+ initiallly lpcp_fault {from -lpcp_fault}
-.\" +ok+ p_profile tripcount retvalue __FILE__ e_labels
-.\" +ok+ e_indom logmeta Dfault {from -Dfault} interp atexit ntrip
+.\" +ok+ PM_FAULT_MISC param_string LD_PRELOAD setoserror
+.\" +ok+ initiallly {from -lpcp_fault}
+.\" +ok+ p_profile tripcount __FILE__ e_labels
+.\" +ok+ e_indom logmeta Dfault {from -Dfault} interp ntrip
 .\" +ok+ desc pdu tmp src qa co {from co-exist} op {from op(erator)}
+.\" +ok+ pmfault {man page title}

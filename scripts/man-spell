@@ -83,7 +83,14 @@ fi
 #
 # start with all the common words from PCPland
 #
-cat <<'End-of-File' | sed -e 's/[ 	]*#.*//' -e '/^$/d' >$tmp.tmp
+# text after # is treated as comment
+#
+# lines beginning ! are culled ... these are words that exist in .h files
+# and elsewhere, but are apparently (according to audit-man-dict) not
+# referenced in any man page, their culling here is to reduce the size
+# of the dictionary and speed up man-spell
+#
+cat <<'End-of-File' | sed -e '/^!/d' -e 's/[ 	]*#.*//' -e '/^$/d' >$tmp.tmp
 # env vars from /etc/pcp.conf and elsewhere
 #
 PCP_
@@ -540,8 +547,7 @@ PMAPI_OPTIONS_END
 PMAPI_OPTIONS_HEADER
 PMAPI_OPTIONS_TEXT
 PMAPI_VERSION
-PMAPI_VERSION_2
-PMAPI_VERSION_3
+PMAPI_VERSION_		# from PMAPI_VERSION_2 or PMAPI_VERSION_3
 PMCD_ADD_AGENT
 PMCD_AGENT_CHANGE
 PMCD_DROP_AGENT
@@ -739,8 +745,7 @@ PM_ERR_APPVERSION
 PM_ERR_ARG
 PM_ERR_BADDERIVE
 PM_ERR_BADSTORE
-PM_ERR_BASE
-PM_ERR_BASE2
+PM_ERR_BASE		# from PM_ERR_BASE or PM_ERR_BASE2
 PM_ERR_BOTCH
 PM_ERR_CONNLIMIT
 PM_ERR_CONV
@@ -855,9 +860,7 @@ PM_LOG_PRIMARY_PID
 PM_LOG_PRIMARY_PORT
 PM_LOG_STATE_INIT
 PM_LOG_STATE_NEW
-PM_LOG_VERS	# 02 or 03
-PM_LOG_VERS02
-PM_LOG_VERS03
+PM_LOG_VERS		# from PM_LOG_VERS02 or PM_LOG_VERS03
 PM_LOG_VOL_META
 PM_LOG_VOL_TI
 PM_MAXERRMSGLEN
@@ -954,9 +957,7 @@ PM_TIME_NSEC
 PM_TIME_SEC
 PM_TIME_USEC
 PM_TPD
-PM_TYPE_	# 32 or 64
-PM_TYPE_32
-PM_TYPE_64
+PM_TYPE_	# from PM_TYPE_32 or PM_TYPE_64
 PM_TYPE_AGGREGATE
 PM_TYPE_AGGREGATE_STATIC
 PM_TYPE_COUNTER
@@ -967,9 +968,7 @@ PM_TYPE_HIGHRES_EVENT
 PM_TYPE_KBYTE
 PM_TYPE_NOSUPPORT
 PM_TYPE_STRING
-PM_TYPE_U	# U32 or U64
-PM_TYPE_U32
-PM_TYPE_U64
+PM_TYPE_U	# from PM_TYPE_U32 or PM_TYPE_U64
 PM_TYPE_UNKNOWN
 PM_TZ_MAXLEN
 PM_UNLOCK
@@ -2308,21 +2307,21 @@ sscanf
 stderr
 stdin
 stdout
-strcasestr
-strchrnul
-strcmp
+! strcasestr
+! strchrnul
+! strcmp
 strdup
 strerror
 strftime
 strlen
 strncat
-strncmp
+! strncmp
 strncpy
 strndup
-strsep
+! strsep
 strtod
 strtol
-symlink
+! symlink
 sysctl
 syslog
 timespec	# struct timespec
@@ -2330,11 +2329,11 @@ timeval		# struct timeval
 tv_nsec		# struct timeval et al
 tv_usec		# struct timeval et al
 uint_t
-unsetenv
+! unsetenv
 varargs
 vsnprintf
 waitpid
-wsastrerror
+! wsastrerror
 
 ifdef		# sh(1) and pmcpp(1) conditionals
 ifndef
@@ -2464,7 +2463,7 @@ timeunits
 tls		# from /etc/pcp/tls.conf
 tv_sec		# struct timeval et al
 uid
-uid_t
+! uid_t
 uninterpolated
 unix
 usr	# from /usr/... unfortunately we'll miss "user" spelled "usr" here
@@ -2515,9 +2514,9 @@ rescale
 specialise
 specialised
 specialising
-tokenise
+! tokenise
 tokenising
-unrecognise
+! unrecognise
 unrecognised
 utilised
 virtualisation
