@@ -1,0 +1,211 @@
+#!/bin/bash
+# 
+# Copyright (c) 2024 Red Hat.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+# Pretty-print sosreport information using Performance Co-Pilot metrics
+# from local host or an archive.
+#
+
+. $PCP_DIR/etc/pcp.env
+
+sts=2
+tmp=`mktemp -d "$PCP_TMPFILE_DIR/pcp-xsos.XXXXXXXXX"` || exit 1
+trap "rm -rf $tmp; exit \$sts" 0 1 2 3 15
+
+progname=`basename $0`
+
+# metrics from different subsystems
+memory_metrics=(
+    "mem.physmem" "mem.util.free"
+    "mem.util.swapFree" "mem.util.swapTotal"
+)
+memory_detail_metrics=(
+    "mem.util.shmem" "mem.util.bufmem" "mem.util.cached"
+    "mem.util.available" "mem.util.slabReclaimable"
+)
+
+# $metrics becomes an accumulation of all metrics to be fetched
+metrics=("pmcd.hostname" "pmcd.timezone")
+
+_usage()
+{
+    [ ! -z "$@" ] && echo $@ 1>&2
+    pmgetopt --progname=$progname --usage --config=$tmp/usage
+    exit 1
+}
+
+# usage spec for pmgetopt, note posix flag (commands mean no reordering)
+cat > $tmp/usage << EOF
+# getopts: a:h:O:?dm
+   --archive
+   --host
+   --origin
+   --help
+   -d,--detail     display additional subsystem details
+   -m,--memory     display memory summary
+# end
+EOF
+
+dflag=false
+mflag=false
+BATCH=''
+ARGS=`pmgetopt --progname=$progname --config=$tmp/usage -- "$@"`
+[ $? != 0 ] && exit 1
+
+eval set -- "$ARGS"
+while [ $# -gt 0 ]
+do
+    case "$1" in
+      # pcp options
+      -a)
+        export PCP_ARCHIVE="$2"
+        BATCH="-b 1"
+        shift
+        ;;
+      -h)
+        export PCP_HOST="$2"
+        shift
+        ;;
+      -O)
+        export PCP_ORIGIN="$2"
+        shift
+        ;;
+      # pcp-xsos options
+      -d)
+        dflag=true
+        $mflag && metrics+=( ${memory_detail_metrics[*]} )
+        ;;
+      -m)
+        mflag=true
+        metrics+=( ${memory_metrics[*]} )
+        ;;
+      -\?)
+        _usage ""
+        ;;
+      --)        # end of options, start of arguments
+        shift
+        break
+        ;;
+    esac
+    shift        # finished with this option, move to next
+done
+
+# Extract values for all metrics at once.  Fetch using pminfo then
+# cater for 3 cases: single-valued metrics, set-valued metrics and
+# errors fetching individual metrics (see pminfo example below).
+# It translates the pminfo output into a series of bash variables,
+# including arrays (for set-valued metrics inst names and values).
+#
+# Input:
+# pminfo -f kernel.all.pswitch kernel.all.load kernel.cpu.util.user
+#
+# kernel.all.pswitch
+#    value 730564942
+#
+# kernel.all.load
+#    inst [1 or "1 minute"] value 0.02
+#    inst [5 or "5 minute"] value 0.05
+#    inst [15 or "15 minute"] value 0
+#
+# kernel.cpu.util.user
+# No value(s) available!
+
+# Output:
+# kernel_all_pswitch_value=730564942
+# kernel_all_load_inst[1]="1 minute"
+# kernel_all_load_value[1]=0.19
+# kernel_all_load_inst[5]="5 minute"
+# kernel_all_load_value[5]=0.12
+# kernel_all_load_inst[15]="15 minute"
+# kernel_all_load_value[15]=0.06
+# kernel_cpu_util_user_error="No value(s) available!"
+
+if pminfo $BATCH --fetch ${metrics[*]} > $tmp/metrics 2>$tmp/error
+then
+    #cat $tmp/metrics
+    :
+else
+    if grep "^pminfo:" $tmp/error > /dev/null 2>&1
+    then
+        $PCP_ECHO_PROG $PCP_ECHO_N "$progname: ""$PCP_ECHO_C"
+        sed < $tmp/error -e 's/^pminfo: //g'
+        sts=1
+        exit
+    fi
+fi
+[ -s $tmp/error ] && sed -e '/Unknown metric name/d' <$tmp/error >&2
+
+$PCP_AWK_PROG < $tmp/metrics > $tmp/variables '
+BEGIN { error = 0; count = 0; value = 0; metric = "" }
+{
+    if (NF == 0) {   # end previous metric (if any)
+        metric = ""
+    } else if (metric == "") {   # new metric, name
+        gsub("\\.", "_", $1)
+        metric = $1
+        count++
+    } else if ($1 == "value") {   # singleton metric
+        printf("%s_value=%s\n", metric, substr($0,11))
+        value++
+    } else if ($1 == "inst") {   # set-valued metric
+        sub("\\[", "")
+        instid = $2
+        instoff = index($0, " or \"") + 4
+        instend = index($0, "\"]")
+        instname = substr($0, instoff, instend-instoff+1)
+        valuestr = substr($0, index($0, "] value ") + 8)
+        printf("%s_inst[%s]=%s\n", metric, instid, instname)
+        printf("%s_value[%s]=%s\n", metric, instid, valuestr)
+        value++
+    } else {    # set an error string for the metric
+        printf("%s=%c%s%c\n", metric, "\"", $0, "\"")
+        metric = ""
+        error++
+    }
+}
+END { printf "metrics=%d\nvalues=%d\nerrors=%d\n", count, value, error }'
+eval `cat $tmp/variables`
+#cat $tmp/variables
+
+[ -z "${pmcd_timezone_value}" ] && pmcd_timezone_value="unknown"
+[ -z "${pmcd_hostname_value}" ] && pmcd_hostname_value="localhost"
+echo Performance Co-Pilot xsos report for host ${pmcd_hostname_value} \
+        [${pmcd_timezone_value}]
+echo
+
+$mflag && echo \# Memory Summary
+[ -n "${mem_physmem_value}" ] && \
+        echo Total memory: ${mem_physmem_value} kB
+[ -n "${mem_util_free_value}" ] && \
+        echo Free memory: ${mem_util_free_value} kB
+[ -n "${mem_util_swapTotal_value}" ] && \
+        echo Total swap: ${mem_util_swapTotal_value} kB
+[ -n "${mem_util_swapFree_value}" ] && \
+        echo Free swap: ${mem_util_swapFree_value} kB
+$mflag && echo
+
+$mflag && $dflag && echo \# Memory Details
+[ -n "${mem_util_available_value}" ] && \
+        echo Available: ${mem_util_available_value} kB
+[ -n "${mem_util_shmem_value}" ] && \
+        echo Shared: ${mem_util_shmem_value} kB
+[ -n "${mem_util_bufmem_value}" ] && \
+        echo Buffers: ${mem_util_bufmem_value} kB
+[ -n "${mem_util_cached_value}" ] && \
+        echo Cached: ${mem_util_cached_value} kB
+[ -n "${mem_util_slabReclaimable_value}" ] && \
+        echo Reclaimable Slab: ${mem_util_slabReclaimable_value} kB
+$mflag && $dflag && echo
+
+sts=0
+exit
