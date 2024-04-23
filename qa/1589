@@ -74,7 +74,8 @@ pcp2json -s1 -ZUTC -u http://localhost:$port hinv.ncpu >$tmp.json.out 2>$tmp.jso
 echo "pcp2json HTTP POST (sorted):"
 _filter_pcp2json_http <$tmp.python.out
 
-($signal $pid ) >>$seq.full 2>&1 &
+# terminate pythonserver.py now
+pmsignal $pid >/dev/null 2>&1
 
 echo "All diagnostics" >> $here/$seq.full
 for i in $tmp.json.out $tmp.json.err $tmp.python.out
