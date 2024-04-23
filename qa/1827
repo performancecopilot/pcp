@@ -28,8 +28,8 @@ domainid=`_domain_name`
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
-UID=`id -u`
-GID=`id -g`
+MYUID=`id -u`
+MYGID=`id -g`
 
 _filter_pcp2openmetrics_http()
 {
@@ -38,8 +38,8 @@ _filter_pcp2openmetrics_http()
     | sed \
         -e '/domainname=/s/domainname="*'$domainid'"*/domainname="DOMAINID"/' \
         -e '/machineid=/s/machineid="*'$machineid'"*/machineid="MACHINEID"/' \
-        -e '/groupid=/s/groupid="*'$GID'"*/groupid="GROUPID"/' \
-        -e '/userid=/s/userid="*'$UID'"*/userid="USERID"/' \
+        -e '/groupid=/s/groupid="*'$MYGID'"*/groupid="GROUPID"/' \
+        -e '/userid=/s/userid="*'$MYUID'"*/userid="USERID"/' \
         -e '/hostname=/ s/hostname="*'$hostname'"*/hostname="HOST"/' \
 	-e 's/} [0-9][0-9]*$/} N (cpus)/' \
         -e 's/- - \[[^]]*\]/- -[DATE]/g' \
