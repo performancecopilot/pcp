@@ -2091,11 +2091,11 @@ x11
 1815 pmieconf pmie local
 1816 pmieconf pmie local valgrind
 1820 atop local atopsar
-1827 pcp2openmetrics local
 1821 pmlogpaste local
 1824 pmproxy local
 1825 libpcp pmcd local valgrind
 1826 libpcp pmcd local
+1827 pcp2openmetrics local
 1828 pmda.linux local
 1829 archive pmlogrewrite local archive_v3 pmlogdump local pmconfig
 1837 pmproxy local
