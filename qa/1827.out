@@ -20,4 +20,4 @@ INFO:root:Starting httpd...
 Path: /
 User-Agent: python-requests VERSION
 [IP ADDRESS][DATE] "POST / HTTP/1.1" 200 -
-hinv_ncpu{domainname="DOMAINID",groupid="GROUPID",hostname="HOST",machineid="MACHINEID",userid="USERID",agent="linux"} 16
+hinv_ncpu{domainname="DOMAINID",groupid="GROUPID",hostname="HOST",machineid="MACHINEID",userid="USERID",agent="linux"} N (cpus)

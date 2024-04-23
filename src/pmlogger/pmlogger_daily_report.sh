@@ -424,15 +424,15 @@ _report()
     else
 	if grep 'PM_ERR_NAME' $tmp/err >/dev/null 2>&1
 	then
-	    metric=`$PCP_AWK_PROG <$tmp/err '{ print $3 }'`
+	    metric=`$PCP_AWK_PROG <$tmp/err '/PM_ERR_NAME/ { print $3; exit }'`
 	    echo "-- no report for config \"$_conf\" because the metric \"$metric\" is not in the archive" >>$REPORTFILE
 	elif grep 'PM_ERR_INDOM_LOG' $tmp/err >/dev/null 2>&1
 	then
-	    metric=`$PCP_AWK_PROG <$tmp/err '{ print $3 }'`
+	    metric=`$PCP_AWK_PROG <$tmp/err '/PM_ERR_INDOM_LOG/ { print $3; exit }'`
 	    echo "-- no report for config \"$_conf\" because there are no values for any instance of the metric \"$metric\" in the archive" >>$REPORTFILE
 	elif grep 'PM_ERR_BADDERIVE' $tmp/err >/dev/null 2>&1
 	then
-	    metric=`$PCP_AWK_PROG <$tmp/err '{ print $3 }'`
+	    metric=`$PCP_AWK_PROG <$tmp/err '/PM_ERR_BADDERIVE/ { print $3; exit }'`
 	    echo "-- no report for config \"$_conf\" because one or more metrics for the derived metric \"$metric\" is not in the archive" >>$REPORTFILE
 	else
 	    cat $tmp/err >>$REPORTFILE
