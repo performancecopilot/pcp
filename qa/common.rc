@@ -142,6 +142,17 @@ fi
 #
 export LC_COLLATE=POSIX
 
+# take care of the umask ... we expect 022, and warn if this is
+# not the prevailing umask before forcing it to be so
+#
+case `umask`
+in
+    *022)	;;
+    *)		echo "Warning: changing umask from `umask` to 0022"
+    		umask 0022
+		;;
+esac
+
 # If we're using timeout(1) -s ABRT from check, it helps to trap the
 # SIGABRT (signal 6), explain why you're quitting, then kill yourself
 # with SIGTERM

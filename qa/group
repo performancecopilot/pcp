@@ -149,6 +149,9 @@ getopt
 # pmlogger_* scripts (but not pmlogger)
 logutil
 
+# pmlogger_daily_report
+pmlogger_daily_report
+
 # find-filter (used in pmlogger_daily)
 find-filter
 
@@ -433,6 +436,7 @@ pcp2spark
 pcp2xlsx
 pcp2xml
 pcp2zabbix
+pcp2openmetrics
 
 # ...2pcp
 sheet2pcp
@@ -1642,7 +1646,7 @@ x11
 1177 pmns derive libpcp pmlogger local kernel
 1178 pmda.bcc local python
 1179 pmda.bcc local python
-1180 logutil local pmrep python
+1180 logutil local pmrep python pmlogger_daily_report
 1181 pmda.bcc local python
 1182 libpcp local
 1183 pmrep python archive local
@@ -1890,9 +1894,9 @@ x11
 1425 logutil local
 1426 libpcp local
 1427 pmlogmv local
-1428 logutil pmrep python local
+1428 logutil pmrep python local pmlogger_daily_report
 1429 logutil pmlogextract pmlogdump pmlogrewrite local
-1430 logutil pmlogconf pmlogger pmrep local
+1430 logutil pmlogconf pmlogger pmrep local pmlogger_daily_report
 1431 pmda.ohead local
 1432 pmda.ohead local
 1433 pmproxy local pmconfig
@@ -2087,6 +2091,7 @@ x11
 1815 pmieconf pmie local
 1816 pmieconf pmie local valgrind
 1820 atop local atopsar
+1827 pcp2openmetrics local
 1821 pmlogpaste local
 1824 pmproxy local
 1825 libpcp pmcd local valgrind
