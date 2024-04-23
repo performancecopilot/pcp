@@ -297,7 +297,7 @@ previously registered using B<add_indom>(),
 changes in any way, this change must be reflected by replacing the
 existing mapping with a new one (I<insts>).
 
-The replacement mapping must be a hash if the instance domain 
+The replacement mapping must be a hash if the instance domain
 was registered initially with B<add_indom>() as a hash, otherwise it must be
 a list.
 
@@ -502,7 +502,7 @@ is an actual PMDA invocation via B<pmcd>(1).
 Most of the PM_* macros from the PCP C headers are available.
 
 For example the I<type> of a metric's value may be directly
-specified as one of 
+specified as one of
 B<PM_TYPE_32>, B<PM_TYPE_U32>, B<PM_TYPE_64>, B<PM_TYPE_U64>,
 B<PM_TYPE_FLOAT>, B<PM_TYPE_DOUBLE>, B<PM_TYPE_STRING> or
 B<PM_TYPE_NOSUPPORT>.

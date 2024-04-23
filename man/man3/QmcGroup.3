@@ -19,7 +19,7 @@ multiple sources
 .ft 3
 #include <QmcGroup.h>
 .sp
-CC ... \-lqmc \-lpcp
+c++ ... \-lpcp_qmc \-lpcp
 .ft 1
 .SH DESCRIPTION
 A
@@ -76,7 +76,7 @@ so it may not be the current
 .BR PMAPI (3)
 context.
 .TP
-.B "uint_t whichIndex() const"
+.B "uint_t contextIndex() const"
 The index to the current group context.
 .TP
 .B "int use(int type, char const* source);"
@@ -162,7 +162,7 @@ all counter metrics will be automatically converted to rates (see
 .B "int interval);"
 
 Set the mode and time to access all archive contexts in this group.  See
-.BR pmSetmode (3)
+.BR pmSetMode (3)
 for more details.
 .SH TIMEZONES
 These methods assist in the management of multiple timezones and help to
@@ -226,10 +226,6 @@ has been called.
 .B "void updateBounds();"
 Determine the earliest start and latest finish times of all archives in this
 group.
-.TP
-.B "int sendTimezones();"
-Send the current timezones to
-.B kmtime (3).
 .SH "DEBUGGING"
 .TP 4
 .B "void dump(ostream &os);"
@@ -255,3 +251,17 @@ to the global debugging specification, as described in
 .BR pmprintf (3)
 and
 .BR pmSetMode (3).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ QString enum bool
+.\" +ok+ timezones TIMEZONES {no clue why this confuses ispell!}
+.\" +ok+ theMetric theScale str tz {args in example code}
+.\" +ok+ ostream os {from ostream &os)}
+.\" +ok+ pmc {-D debug flag} QMC {man page}
+.\" +ok+ restrictArchives {public var in the QmcGroup class}
+.\" +ok+ TimeZoneFlag {public enum in the QmcGroup class}
+.\" +ok+ unknownTZ groupTZ localTZ userTZ useTZ {elements of TimeZoneFlag}
+.\" +ok+ {all of the following are public methods in the QmcGroup class}
+.\" +ok+ createLocalContext defaultDefined setArchiveMode updateBounds
+.\" +ok+ numContexts useDefault useLocalTZ addMetric defaultTZ
+.\" +ok+ contextIndex logStart logEnd useDefaultTZ
