@@ -130,18 +130,15 @@ done
 # kernel_all_load_value[15]=0.06
 # kernel_cpu_util_user_error="No value(s) available!"
 
-if pminfo $BATCH --fetch ${metrics[*]} > $tmp/metrics 2>$tmp/error
+if ! pminfo $BATCH --fetch ${metrics[*]} > $tmp/metrics 2>$tmp/error
 then
-    #cat $tmp/metrics
-    :
-else
     if grep "^pminfo:" $tmp/error > /dev/null 2>&1
     then
         $PCP_ECHO_PROG $PCP_ECHO_N "$progname: ""$PCP_ECHO_C"
         sed < $tmp/error -e 's/^pminfo: //g'
-        sts=1
-        exit
     fi
+    sts=1
+    exit
 fi
 [ -s $tmp/error ] && sed -e '/Unknown metric name/d' <$tmp/error >&2
 
