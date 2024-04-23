@@ -1,0 +1,61 @@
+#!/bin/sh
+# PCP QA Test No. 1684
+# Exercise python derived metrics interface.
+#
+# Copyright (c) 2024 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.python
+
+$sudo rm -rf $tmp $tmp.* $seq.full
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+    # end
+}
+
+mkdir $tmp
+echo "x = no-such-metric" >$tmp/a
+echo "y = sample.lights" >>$tmp/a
+echo "z = hinv.ncpu + hinv.ndisk" >>$tmp/a
+
+echo "a = sample.lights" >$tmp/b
+echo "b = bozo}" >>$tmp/b
+echo "c=sample.bin*hinv.ncpu" >>$tmp/b
+echo "d = +" >>$tmp/b
+
+# Don't load any global derived metric configs by default
+export PCP_DERIVED_CONFIG=""
+
+# real QA test starts here
+echo "## Missing file - outright failure"
+src/test_pcp_derived.py no-such-file >$tmp/out 2>&1
+[ $? -eq 1 ] || status=1  # expect a failure
+_filter < $tmp/out
+echo
+echo "## Valid metrics - outright success"
+src/test_pcp_derived.py $tmp/a >$tmp/out 2>&1
+[ $? -eq 0 ] || status=1  # expect success
+_filter < $tmp/out
+echo
+echo "## Mix of metrics - partial success"
+src/test_pcp_derived.py $tmp/b >$tmp/out 2>&1
+[ $? -eq 0 ] || status=1  # expect success
+_filter < $tmp/out
+
+# success, all done
+exit

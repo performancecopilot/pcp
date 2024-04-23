@@ -1744,12 +1744,13 @@ class pmContext(object):
         """
         if not isinstance(fname, bytes):
             fname = fname.encode('utf-8')
-        status = LIBPCP.pmLoadDerivedConfig(fname)
+        status = count = LIBPCP.pmLoadDerivedConfig(fname)
         if status < 0:
             raise pmErr(status)
         status = LIBPCP.pmReconnectContext(self.ctx)
         if status < 0:
             raise pmErr(status)
+        return count
 
     # Deprecated, no longer needed, py wrapper uses pmRegisterDerivedMetric(3)
     # and the exception encodes a more complete error message as a result.
