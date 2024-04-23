@@ -62,8 +62,12 @@ The required values can be reported for a particular metric using the
 option to
 .BR pminfo (1).
 .PP
+The list of available options can be retrieved using the
+.BR \-? / \-\-help
+option, which displays a usage message and exits.
+.PP
 If the
-.B \-l
+.BR \-l / \-\-list
 option is specified the contents of the instance domain cache file
 are dumped on
 .I stdout
@@ -78,7 +82,7 @@ of the caller, but may optionally assigned to the uid of
 from the
 .BR passwd (5)
 file if the
-.I \-u
+.BR \-u / \-\-user
 option is specified.
 The group ownership of the created file is assigned to the gid
 of the caller, else the default gid of the user
@@ -90,7 +94,7 @@ option is specified, else the gid of
 from the
 .BR group (5)
 file if the
-.I \-g
+.BR \-g / \-\-group
 option is specified.
 .PP
 The instance domain cache file is created with mode 0660 by
@@ -98,7 +102,7 @@ default (some PMDAs use group read-write permission to access
 and update the contents of the file)
 \- if this
 does not suit the
-.B \-m
+.BR \-m / \-\-mode
 option may be used to set the mode to the (octal) value
 .IR mode .
 .PP
@@ -107,7 +111,7 @@ Because the indom cache files are precious to the associated PMDA
 will not over-write an existing indom cache file.
 .PP
 Operation is usually silent, except for errors (or warnings if the
-.I \-w
+.BR \-w / \-\-warning
 option is used).
 The exit status is 0 for success, 1 for failure.
 .SH OTHER MANAGEMENT OPTIONS
