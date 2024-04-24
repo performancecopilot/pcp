@@ -50,6 +50,7 @@ kubernetes-client
 libbpf
 libbpf-devel
 libcmocka-devel
+libdrm-devel
 libicu-devel
 libpfm-devel
 libselinux-devel

@@ -770,6 +770,11 @@ ncurses_CFLAGS
 HAVE_LIBUV
 libuv_LIBS
 libuv_CFLAGS
+PMDA_AMDGPU
+libdrm_amdgpu_LIBS
+libdrm_amdgpu_CFLAGS
+libdrm_LIBS
+libdrm_CFLAGS
 enable_secure
 HAVE_SASL
 libsasl2_LIBS
@@ -1104,6 +1109,10 @@ openssl_CFLAGS
 openssl_LIBS
 libsasl2_CFLAGS
 libsasl2_LIBS
+libdrm_CFLAGS
+libdrm_LIBS
+libdrm_amdgpu_CFLAGS
+libdrm_amdgpu_LIBS
 libuv_CFLAGS
 libuv_LIBS
 ncurses_CFLAGS
@@ -1864,6 +1873,13 @@ Some influential environment variables:
               C compiler flags for libsasl2, overriding pkg-config
   libsasl2_LIBS
               linker flags for libsasl2, overriding pkg-config
+  libdrm_CFLAGS
+              C compiler flags for libdrm, overriding pkg-config
+  libdrm_LIBS linker flags for libdrm, overriding pkg-config
+  libdrm_amdgpu_CFLAGS
+              C compiler flags for libdrm_amdgpu, overriding pkg-config
+  libdrm_amdgpu_LIBS
+              linker flags for libdrm_amdgpu, overriding pkg-config
   libuv_CFLAGS
               C compiler flags for libuv, overriding pkg-config
   libuv_LIBS  linker flags for libuv, overriding pkg-config
@@ -5413,11 +5429,11 @@ if test x$ac_prog_cxx_stdcxx = xno
 then :
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $CXX option to enable C++11 features" >&5
 printf %s "checking for $CXX option to enable C++11 features... " >&6; }
-if test ${ac_cv_prog_cxx_11+y}
+if test ${ac_cv_prog_cxx_cxx11+y}
 then :
   printf %s "(cached) " >&6
 else $as_nop
-  ac_cv_prog_cxx_11=no
+  ac_cv_prog_cxx_cxx11=no
 ac_save_CXX=$CXX
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
@@ -5459,11 +5475,11 @@ if test x$ac_prog_cxx_stdcxx = xno
 then :
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $CXX option to enable C++98 features" >&5
 printf %s "checking for $CXX option to enable C++98 features... " >&6; }
-if test ${ac_cv_prog_cxx_98+y}
+if test ${ac_cv_prog_cxx_cxx98+y}
 then :
   printf %s "(cached) " >&6
 else $as_nop
-  ac_cv_prog_cxx_98=no
+  ac_cv_prog_cxx_cxx98=no
 ac_save_CXX=$CXX
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
@@ -6574,8 +6590,8 @@ then :
 
 
 pkg_failed=no
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for gperftools" >&5
-printf %s "checking for gperftools... " >&6; }
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libprofiler, libtcmalloc" >&5
+printf %s "checking for libprofiler, libtcmalloc... " >&6; }
 
 if test -n "$gperftools_CFLAGS"; then
     pkg_cv_gperftools_CFLAGS="$gperftools_CFLAGS"
@@ -6615,7 +6631,7 @@ fi
 
 
 if test $pkg_failed = yes; then
-   	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
 
 if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
@@ -6624,14 +6640,14 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        gperftools_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libprofiler, libtcmalloc" 2>&1`
+                gperftools_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libprofiler, libtcmalloc" 2>&1`
         else
-	        gperftools_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libprofiler, libtcmalloc" 2>&1`
+                gperftools_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libprofiler, libtcmalloc" 2>&1`
         fi
-	# Put the nasty error message in config.log where it belongs
-	echo "$gperftools_PKG_ERRORS" >&5
+        # Put the nasty error message in config.log where it belongs
+        echo "$gperftools_PKG_ERRORS" >&5
 
-	as_fn_error $? "Package requirements (libprofiler, libtcmalloc) were not met:
+        as_fn_error $? "Package requirements (libprofiler, libtcmalloc) were not met:
 
 $gperftools_PKG_ERRORS
 
@@ -6642,9 +6658,9 @@ Alternatively, you may set the environment variables gperftools_CFLAGS
 and gperftools_LIBS to avoid the need to call pkg-config.
 See the pkg-config man page for more details." "$LINENO" 5
 elif test $pkg_failed = untried; then
-     	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
-	{ { printf "%s\n" "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+        { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
 printf "%s\n" "$as_me: error: in \`$ac_pwd':" >&2;}
 as_fn_error $? "The pkg-config script could not be found or is too old.  Make sure it
 is in your PATH or set the PKG_CONFIG environment variable to the full
@@ -6657,8 +6673,8 @@ See the pkg-config man page for more details.
 To get pkg-config, see <http://pkg-config.freedesktop.org/>.
 See \`config.log' for more details" "$LINENO" 5; }
 else
-	gperftools_CFLAGS=$pkg_cv_gperftools_CFLAGS
-	gperftools_LIBS=$pkg_cv_gperftools_LIBS
+        gperftools_CFLAGS=$pkg_cv_gperftools_CFLAGS
+        gperftools_LIBS=$pkg_cv_gperftools_LIBS
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }
 
@@ -6681,8 +6697,8 @@ then :
     enable_avahi=true
 
 pkg_failed=no
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for avahi" >&5
-printf %s "checking for avahi... " >&6; }
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for avahi-client" >&5
+printf %s "checking for avahi-client... " >&6; }
 
 if test -n "$avahi_CFLAGS"; then
     pkg_cv_avahi_CFLAGS="$avahi_CFLAGS"
@@ -6722,7 +6738,7 @@ fi
 
 
 if test $pkg_failed = yes; then
-   	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
 
 if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
@@ -6731,24 +6747,24 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        avahi_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "avahi-client" 2>&1`
+                avahi_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "avahi-client" 2>&1`
         else
-	        avahi_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "avahi-client" 2>&1`
+                avahi_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "avahi-client" 2>&1`
         fi
-	# Put the nasty error message in config.log where it belongs
-	echo "$avahi_PKG_ERRORS" >&5
+        # Put the nasty error message in config.log where it belongs
+        echo "$avahi_PKG_ERRORS" >&5
 
-	enable_avahi=false
+        enable_avahi=false
 elif test $pkg_failed = untried; then
-     	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
-	enable_avahi=false
+        enable_avahi=false
 else
-	avahi_CFLAGS=$pkg_cv_avahi_CFLAGS
-	avahi_LIBS=$pkg_cv_avahi_LIBS
+        avahi_CFLAGS=$pkg_cv_avahi_CFLAGS
+        avahi_LIBS=$pkg_cv_avahi_LIBS
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }
-	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for avahi_client_new in -lavahi-client" >&5
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for avahi_client_new in -lavahi-client" >&5
 printf %s "checking for avahi_client_new in -lavahi-client... " >&6; }
 if test ${ac_cv_lib_avahi_client_avahi_client_new+y}
 then :
@@ -8984,8 +9000,8 @@ printf "%s\n" "no" >&6; }; fi
 
 
 pkg_failed=no
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libbpf" >&5
-printf %s "checking for libbpf... " >&6; }
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libbpf >= 0.8.0" >&5
+printf %s "checking for libbpf >= 0.8.0... " >&6; }
 
 if test -n "$libbpf_CFLAGS"; then
     pkg_cv_libbpf_CFLAGS="$libbpf_CFLAGS"
@@ -9025,7 +9041,7 @@ fi
 
 
 if test $pkg_failed = yes; then
-   	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
 
 if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
@@ -9034,24 +9050,24 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        libbpf_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libbpf >= 0.8.0" 2>&1`
+                libbpf_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libbpf >= 0.8.0" 2>&1`
         else
-	        libbpf_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libbpf >= 0.8.0" 2>&1`
+                libbpf_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libbpf >= 0.8.0" 2>&1`
         fi
-	# Put the nasty error message in config.log where it belongs
-	echo "$libbpf_PKG_ERRORS" >&5
+        # Put the nasty error message in config.log where it belongs
+        echo "$libbpf_PKG_ERRORS" >&5
 
-	have_libbpf=false
+        have_libbpf=false
 elif test $pkg_failed = untried; then
-     	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
-	have_libbpf=false
+        have_libbpf=false
 else
-	libbpf_CFLAGS=$pkg_cv_libbpf_CFLAGS
-	libbpf_LIBS=$pkg_cv_libbpf_LIBS
+        libbpf_CFLAGS=$pkg_cv_libbpf_CFLAGS
+        libbpf_LIBS=$pkg_cv_libbpf_LIBS
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }
-	have_libbpf=true
+        have_libbpf=true
 fi
 HAVE_LIBBPF=$have_libbpf
 
@@ -9110,7 +9126,7 @@ fi
 
 
 if test $pkg_failed = yes; then
-   	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
 
 if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
@@ -9119,24 +9135,24 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        libelf_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libelf" 2>&1`
+                libelf_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libelf" 2>&1`
         else
-	        libelf_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libelf" 2>&1`
+                libelf_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libelf" 2>&1`
         fi
-	# Put the nasty error message in config.log where it belongs
-	echo "$libelf_PKG_ERRORS" >&5
+        # Put the nasty error message in config.log where it belongs
+        echo "$libelf_PKG_ERRORS" >&5
 
-	have_libelf=false
+        have_libelf=false
 elif test $pkg_failed = untried; then
-     	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
-	have_libelf=false
+        have_libelf=false
 else
-	libelf_CFLAGS=$pkg_cv_libelf_CFLAGS
-	libelf_LIBS=$pkg_cv_libelf_LIBS
+        libelf_CFLAGS=$pkg_cv_libelf_CFLAGS
+        libelf_LIBS=$pkg_cv_libelf_LIBS
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }
-	have_libelf=true
+        have_libelf=true
 fi
 HAVE_LIBELF=$have_libelf
 
@@ -11920,8 +11936,8 @@ fi
 have_ssl_trace=false
 
 pkg_failed=no
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for openssl" >&5
-printf %s "checking for openssl... " >&6; }
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for openssl >= 1.1.1" >&5
+printf %s "checking for openssl >= 1.1.1... " >&6; }
 
 if test -n "$openssl_CFLAGS"; then
     pkg_cv_openssl_CFLAGS="$openssl_CFLAGS"
@@ -11961,7 +11977,7 @@ fi
 
 
 if test $pkg_failed = yes; then
-   	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
 
 if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
@@ -11970,24 +11986,24 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        openssl_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "openssl >= 1.1.1" 2>&1`
+                openssl_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "openssl >= 1.1.1" 2>&1`
         else
-	        openssl_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "openssl >= 1.1.1" 2>&1`
+                openssl_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "openssl >= 1.1.1" 2>&1`
         fi
-	# Put the nasty error message in config.log where it belongs
-	echo "$openssl_PKG_ERRORS" >&5
+        # Put the nasty error message in config.log where it belongs
+        echo "$openssl_PKG_ERRORS" >&5
 
-	have_openssl=false
+        have_openssl=false
 elif test $pkg_failed = untried; then
-     	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
-	have_openssl=false
+        have_openssl=false
 else
-	openssl_CFLAGS=$pkg_cv_openssl_CFLAGS
-	openssl_LIBS=$pkg_cv_openssl_LIBS
+        openssl_CFLAGS=$pkg_cv_openssl_CFLAGS
+        openssl_LIBS=$pkg_cv_openssl_LIBS
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }
-	have_openssl=true
+        have_openssl=true
 fi
 if test $have_openssl = true
 then
@@ -12088,8 +12104,8 @@ fi
 
 
 pkg_failed=no
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libsasl2" >&5
-printf %s "checking for libsasl2... " >&6; }
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libsasl2 >= 2" >&5
+printf %s "checking for libsasl2 >= 2... " >&6; }
 
 if test -n "$libsasl2_CFLAGS"; then
     pkg_cv_libsasl2_CFLAGS="$libsasl2_CFLAGS"
@@ -12129,7 +12145,7 @@ fi
 
 
 if test $pkg_failed = yes; then
-   	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
 
 if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
@@ -12138,24 +12154,24 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        libsasl2_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libsasl2 >= 2" 2>&1`
+                libsasl2_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libsasl2 >= 2" 2>&1`
         else
-	        libsasl2_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libsasl2 >= 2" 2>&1`
+                libsasl2_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libsasl2 >= 2" 2>&1`
         fi
-	# Put the nasty error message in config.log where it belongs
-	echo "$libsasl2_PKG_ERRORS" >&5
+        # Put the nasty error message in config.log where it belongs
+        echo "$libsasl2_PKG_ERRORS" >&5
 
-	have_sasl=false
+        have_sasl=false
 elif test $pkg_failed = untried; then
-     	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
-	have_sasl=false
+        have_sasl=false
 else
-	libsasl2_CFLAGS=$pkg_cv_libsasl2_CFLAGS
-	libsasl2_LIBS=$pkg_cv_libsasl2_LIBS
+        libsasl2_CFLAGS=$pkg_cv_libsasl2_CFLAGS
+        libsasl2_LIBS=$pkg_cv_libsasl2_LIBS
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }
-	have_sasl=true
+        have_sasl=true
 fi
 HAVE_SASL=$have_sasl
 
@@ -12184,8 +12200,158 @@ fi
 
 
 pkg_failed=no
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libuv" >&5
-printf %s "checking for libuv... " >&6; }
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libdrm >= 2.0" >&5
+printf %s "checking for libdrm >= 2.0... " >&6; }
+
+if test -n "$libdrm_CFLAGS"; then
+    pkg_cv_libdrm_CFLAGS="$libdrm_CFLAGS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libdrm >= 2.0\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libdrm >= 2.0") 2>&5
+  ac_status=$?
+  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_libdrm_CFLAGS=`$PKG_CONFIG --cflags "libdrm >= 2.0" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+if test -n "$libdrm_LIBS"; then
+    pkg_cv_libdrm_LIBS="$libdrm_LIBS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libdrm >= 2.0\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libdrm >= 2.0") 2>&5
+  ac_status=$?
+  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_libdrm_LIBS=`$PKG_CONFIG --libs "libdrm >= 2.0" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+
+
+
+if test $pkg_failed = yes; then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+                libdrm_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libdrm >= 2.0" 2>&1`
+        else
+                libdrm_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libdrm >= 2.0" 2>&1`
+        fi
+        # Put the nasty error message in config.log where it belongs
+        echo "$libdrm_PKG_ERRORS" >&5
+
+        have_drm=false
+elif test $pkg_failed = untried; then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+        have_drm=false
+else
+        libdrm_CFLAGS=$pkg_cv_libdrm_CFLAGS
+        libdrm_LIBS=$pkg_cv_libdrm_LIBS
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+        have_drm=true
+fi
+if $have_drm
+then
+
+pkg_failed=no
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libdrm_amdgpu >= 1" >&5
+printf %s "checking for libdrm_amdgpu >= 1... " >&6; }
+
+if test -n "$libdrm_amdgpu_CFLAGS"; then
+    pkg_cv_libdrm_amdgpu_CFLAGS="$libdrm_amdgpu_CFLAGS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libdrm_amdgpu >= 1\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libdrm_amdgpu >= 1") 2>&5
+  ac_status=$?
+  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_libdrm_amdgpu_CFLAGS=`$PKG_CONFIG --cflags "libdrm_amdgpu >= 1" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+if test -n "$libdrm_amdgpu_LIBS"; then
+    pkg_cv_libdrm_amdgpu_LIBS="$libdrm_amdgpu_LIBS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libdrm_amdgpu >= 1\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libdrm_amdgpu >= 1") 2>&5
+  ac_status=$?
+  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_libdrm_amdgpu_LIBS=`$PKG_CONFIG --libs "libdrm_amdgpu >= 1" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+
+
+
+if test $pkg_failed = yes; then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+                libdrm_amdgpu_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libdrm_amdgpu >= 1" 2>&1`
+        else
+                libdrm_amdgpu_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libdrm_amdgpu >= 1" 2>&1`
+        fi
+        # Put the nasty error message in config.log where it belongs
+        echo "$libdrm_amdgpu_PKG_ERRORS" >&5
+
+        have_amdgpu=false
+elif test $pkg_failed = untried; then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+        have_amdgpu=false
+else
+        libdrm_amdgpu_CFLAGS=$pkg_cv_libdrm_amdgpu_CFLAGS
+        libdrm_amdgpu_LIBS=$pkg_cv_libdrm_amdgpu_LIBS
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+        have_amdgpu=true
+fi
+else
+	have_amdgpu=false
+fi
+PMDA_AMDGPU=$have_amdgpu
+
+
+
+pkg_failed=no
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libuv >= 1.0" >&5
+printf %s "checking for libuv >= 1.0... " >&6; }
 
 if test -n "$libuv_CFLAGS"; then
     pkg_cv_libuv_CFLAGS="$libuv_CFLAGS"
@@ -12225,7 +12391,7 @@ fi
 
 
 if test $pkg_failed = yes; then
-   	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
 
 if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
@@ -12234,24 +12400,24 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        libuv_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libuv >= 1.0" 2>&1`
+                libuv_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libuv >= 1.0" 2>&1`
         else
-	        libuv_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libuv >= 1.0" 2>&1`
+                libuv_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libuv >= 1.0" 2>&1`
         fi
-	# Put the nasty error message in config.log where it belongs
-	echo "$libuv_PKG_ERRORS" >&5
+        # Put the nasty error message in config.log where it belongs
+        echo "$libuv_PKG_ERRORS" >&5
 
-	have_libuv=false
+        have_libuv=false
 elif test $pkg_failed = untried; then
-     	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
-	have_libuv=false
+        have_libuv=false
 else
-	libuv_CFLAGS=$pkg_cv_libuv_CFLAGS
-	libuv_LIBS=$pkg_cv_libuv_LIBS
+        libuv_CFLAGS=$pkg_cv_libuv_CFLAGS
+        libuv_LIBS=$pkg_cv_libuv_LIBS
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }
-	have_libuv=true
+        have_libuv=true
 fi
 HAVE_LIBUV=$have_libuv
 
@@ -12344,7 +12510,7 @@ fi
 
 
 if test $pkg_failed = yes; then
-   	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
 
 if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
@@ -12353,24 +12519,24 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        ncurses_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "ncurses" 2>&1`
+                ncurses_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "ncurses" 2>&1`
         else
-	        ncurses_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "ncurses" 2>&1`
+                ncurses_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "ncurses" 2>&1`
         fi
-	# Put the nasty error message in config.log where it belongs
-	echo "$ncurses_PKG_ERRORS" >&5
+        # Put the nasty error message in config.log where it belongs
+        echo "$ncurses_PKG_ERRORS" >&5
 
-	have_ncurses=false
+        have_ncurses=false
 elif test $pkg_failed = untried; then
-     	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
-	have_ncurses=false
+        have_ncurses=false
 else
-	ncurses_CFLAGS=$pkg_cv_ncurses_CFLAGS
-	ncurses_LIBS=$pkg_cv_ncurses_LIBS
+        ncurses_CFLAGS=$pkg_cv_ncurses_CFLAGS
+        ncurses_LIBS=$pkg_cv_ncurses_LIBS
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }
-	have_ncurses=true
+        have_ncurses=true
 fi
 HAVE_NCURSES=$have_ncurses
 
@@ -12418,7 +12584,7 @@ fi
 
 
 if test $pkg_failed = yes; then
-   	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
 
 if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
@@ -12427,24 +12593,24 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        ncursesw_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "ncursesw" 2>&1`
+                ncursesw_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "ncursesw" 2>&1`
         else
-	        ncursesw_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "ncursesw" 2>&1`
+                ncursesw_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "ncursesw" 2>&1`
         fi
-	# Put the nasty error message in config.log where it belongs
-	echo "$ncursesw_PKG_ERRORS" >&5
+        # Put the nasty error message in config.log where it belongs
+        echo "$ncursesw_PKG_ERRORS" >&5
 
-	have_ncursesw=false
+        have_ncursesw=false
 elif test $pkg_failed = untried; then
-     	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
-	have_ncursesw=false
+        have_ncursesw=false
 else
-	ncursesw_CFLAGS=$pkg_cv_ncursesw_CFLAGS
-	ncursesw_LIBS=$pkg_cv_ncursesw_LIBS
+        ncursesw_CFLAGS=$pkg_cv_ncursesw_CFLAGS
+        ncursesw_LIBS=$pkg_cv_ncursesw_LIBS
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }
-	have_ncursesw=true
+        have_ncursesw=true
 fi
 HAVE_NCURSESW=$have_ncursesw
 
@@ -12464,8 +12630,8 @@ fi
 
 
 pkg_failed=no
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for DEVMAPPER" >&5
-printf %s "checking for DEVMAPPER... " >&6; }
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for devmapper" >&5
+printf %s "checking for devmapper... " >&6; }
 
 if test -n "$DEVMAPPER_CFLAGS"; then
     pkg_cv_DEVMAPPER_CFLAGS="$DEVMAPPER_CFLAGS"
@@ -12505,7 +12671,7 @@ fi
 
 
 if test $pkg_failed = yes; then
-   	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
 
 if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
@@ -12514,24 +12680,24 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        DEVMAPPER_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "devmapper" 2>&1`
+                DEVMAPPER_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "devmapper" 2>&1`
         else
-	        DEVMAPPER_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "devmapper" 2>&1`
+                DEVMAPPER_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "devmapper" 2>&1`
         fi
-	# Put the nasty error message in config.log where it belongs
-	echo "$DEVMAPPER_PKG_ERRORS" >&5
+        # Put the nasty error message in config.log where it belongs
+        echo "$DEVMAPPER_PKG_ERRORS" >&5
 
-	have_devmapper=false
+        have_devmapper=false
 elif test $pkg_failed = untried; then
-     	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
-	have_devmapper=false
+        have_devmapper=false
 else
-	DEVMAPPER_CFLAGS=$pkg_cv_DEVMAPPER_CFLAGS
-	DEVMAPPER_LIBS=$pkg_cv_DEVMAPPER_LIBS
+        DEVMAPPER_CFLAGS=$pkg_cv_DEVMAPPER_CFLAGS
+        DEVMAPPER_LIBS=$pkg_cv_DEVMAPPER_LIBS
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }
-	have_devmapper=true
+        have_devmapper=true
 fi
 if $have_devmapper
 then
@@ -12567,8 +12733,8 @@ HAVE_DEVMAPPER=$have_devmapper
 
 
 pkg_failed=no
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for SYSTEMD" >&5
-printf %s "checking for SYSTEMD... " >&6; }
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libsystemd" >&5
+printf %s "checking for libsystemd... " >&6; }
 
 if test -n "$SYSTEMD_CFLAGS"; then
     pkg_cv_SYSTEMD_CFLAGS="$SYSTEMD_CFLAGS"
@@ -12608,7 +12774,7 @@ fi
 
 
 if test $pkg_failed = yes; then
-   	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
 
 if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
@@ -12617,24 +12783,24 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        SYSTEMD_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libsystemd" 2>&1`
+                SYSTEMD_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libsystemd" 2>&1`
         else
-	        SYSTEMD_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libsystemd" 2>&1`
+                SYSTEMD_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libsystemd" 2>&1`
         fi
-	# Put the nasty error message in config.log where it belongs
-	echo "$SYSTEMD_PKG_ERRORS" >&5
+        # Put the nasty error message in config.log where it belongs
+        echo "$SYSTEMD_PKG_ERRORS" >&5
 
-	pmda_systemd=false
+        pmda_systemd=false
 elif test $pkg_failed = untried; then
-     	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
-	pmda_systemd=false
+        pmda_systemd=false
 else
-	SYSTEMD_CFLAGS=$pkg_cv_SYSTEMD_CFLAGS
-	SYSTEMD_LIBS=$pkg_cv_SYSTEMD_LIBS
+        SYSTEMD_CFLAGS=$pkg_cv_SYSTEMD_CFLAGS
+        SYSTEMD_LIBS=$pkg_cv_SYSTEMD_LIBS
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }
-	pmda_systemd=true
+        pmda_systemd=true
 fi
 if $pmda_systemd
 then
@@ -12642,8 +12808,8 @@ then
 else
 
 pkg_failed=no
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for SYSTEMD" >&5
-printf %s "checking for SYSTEMD... " >&6; }
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libsystemd-journal" >&5
+printf %s "checking for libsystemd-journal... " >&6; }
 
 if test -n "$SYSTEMD_CFLAGS"; then
     pkg_cv_SYSTEMD_CFLAGS="$SYSTEMD_CFLAGS"
@@ -12683,7 +12849,7 @@ fi
 
 
 if test $pkg_failed = yes; then
-   	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
 
 if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
@@ -12692,24 +12858,24 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        SYSTEMD_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libsystemd-journal" 2>&1`
+                SYSTEMD_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libsystemd-journal" 2>&1`
         else
-	        SYSTEMD_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libsystemd-journal" 2>&1`
+                SYSTEMD_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libsystemd-journal" 2>&1`
         fi
-	# Put the nasty error message in config.log where it belongs
-	echo "$SYSTEMD_PKG_ERRORS" >&5
+        # Put the nasty error message in config.log where it belongs
+        echo "$SYSTEMD_PKG_ERRORS" >&5
 
-	pmda_systemd=false
+        pmda_systemd=false
 elif test $pkg_failed = untried; then
-     	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
-	pmda_systemd=false
+        pmda_systemd=false
 else
-	SYSTEMD_CFLAGS=$pkg_cv_SYSTEMD_CFLAGS
-	SYSTEMD_LIBS=$pkg_cv_SYSTEMD_LIBS
+        SYSTEMD_CFLAGS=$pkg_cv_SYSTEMD_CFLAGS
+        SYSTEMD_LIBS=$pkg_cv_SYSTEMD_LIBS
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }
-	pmda_systemd=true
+        pmda_systemd=true
 fi
 fi
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking if the systemd PMDA should be included" >&5
@@ -17279,8 +17445,8 @@ then :
     enable_lzma=true
 
 pkg_failed=no
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for lzma" >&5
-printf %s "checking for lzma... " >&6; }
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for liblzma" >&5
+printf %s "checking for liblzma... " >&6; }
 
 if test -n "$lzma_CFLAGS"; then
     pkg_cv_lzma_CFLAGS="$lzma_CFLAGS"
@@ -17320,7 +17486,7 @@ fi
 
 
 if test $pkg_failed = yes; then
-   	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
 
 if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
@@ -17329,24 +17495,24 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        lzma_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "liblzma" 2>&1`
+                lzma_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "liblzma" 2>&1`
         else
-	        lzma_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "liblzma" 2>&1`
+                lzma_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "liblzma" 2>&1`
         fi
-	# Put the nasty error message in config.log where it belongs
-	echo "$lzma_PKG_ERRORS" >&5
+        # Put the nasty error message in config.log where it belongs
+        echo "$lzma_PKG_ERRORS" >&5
 
-	enable_lzma=false
+        enable_lzma=false
 elif test $pkg_failed = untried; then
-     	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
-	enable_lzma=false
+        enable_lzma=false
 else
-	lzma_CFLAGS=$pkg_cv_lzma_CFLAGS
-	lzma_LIBS=$pkg_cv_lzma_LIBS
+        lzma_CFLAGS=$pkg_cv_lzma_CFLAGS
+        lzma_LIBS=$pkg_cv_lzma_LIBS
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }
-	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for lzma_index_stream_flags in -llzma" >&5
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for lzma_index_stream_flags in -llzma" >&5
 printf %s "checking for lzma_index_stream_flags in -llzma... " >&6; }
 if test ${ac_cv_lib_lzma_lzma_index_stream_flags+y}
 then :
@@ -17749,8 +17915,8 @@ LIBS=$savedLIBS
 
 
 pkg_failed=no
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for zlib" >&5
-printf %s "checking for zlib... " >&6; }
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for zlib >= 1.0.0" >&5
+printf %s "checking for zlib >= 1.0.0... " >&6; }
 
 if test -n "$zlib_CFLAGS"; then
     pkg_cv_zlib_CFLAGS="$zlib_CFLAGS"
@@ -17790,7 +17956,7 @@ fi
 
 
 if test $pkg_failed = yes; then
-   	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
 
 if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
@@ -17799,24 +17965,24 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        zlib_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "zlib >= 1.0.0" 2>&1`
+                zlib_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "zlib >= 1.0.0" 2>&1`
         else
-	        zlib_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "zlib >= 1.0.0" 2>&1`
+                zlib_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "zlib >= 1.0.0" 2>&1`
         fi
-	# Put the nasty error message in config.log where it belongs
-	echo "$zlib_PKG_ERRORS" >&5
+        # Put the nasty error message in config.log where it belongs
+        echo "$zlib_PKG_ERRORS" >&5
 
-	have_zlib=false
+        have_zlib=false
 elif test $pkg_failed = untried; then
-     	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
-	have_zlib=false
+        have_zlib=false
 else
-	zlib_CFLAGS=$pkg_cv_zlib_CFLAGS
-	zlib_LIBS=$pkg_cv_zlib_LIBS
+        zlib_CFLAGS=$pkg_cv_zlib_CFLAGS
+        zlib_LIBS=$pkg_cv_zlib_LIBS
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }
-	have_zlib=true
+        have_zlib=true
 fi
 HAVE_ZLIB=$have_zlib
 
@@ -17864,7 +18030,7 @@ fi
 
 
 if test $pkg_failed = yes; then
-   	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
 
 if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
@@ -17873,24 +18039,24 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        cmocka_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "cmocka" 2>&1`
+                cmocka_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "cmocka" 2>&1`
         else
-	        cmocka_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "cmocka" 2>&1`
+                cmocka_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "cmocka" 2>&1`
         fi
-	# Put the nasty error message in config.log where it belongs
-	echo "$cmocka_PKG_ERRORS" >&5
+        # Put the nasty error message in config.log where it belongs
+        echo "$cmocka_PKG_ERRORS" >&5
 
-	have_cmocka=false
+        have_cmocka=false
 elif test $pkg_failed = untried; then
-     	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
-	have_cmocka=false
+        have_cmocka=false
 else
-	cmocka_CFLAGS=$pkg_cv_cmocka_CFLAGS
-	cmocka_LIBS=$pkg_cv_cmocka_LIBS
+        cmocka_CFLAGS=$pkg_cv_cmocka_CFLAGS
+        cmocka_LIBS=$pkg_cv_cmocka_LIBS
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }
-	have_cmocka=true
+        have_cmocka=true
 fi
 HAVE_CMOCKA=$have_cmocka
 
