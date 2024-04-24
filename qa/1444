@@ -46,6 +46,7 @@ touch /tmp/test-file && stat /tmp/test-file 1> /dev/null
 echo "=== report metric values for comm ===" | tee -a $here/$seq.full
 pminfo -dfmtT bpf.statsnoop.comm 2>&1 | tee -a $here/$seq.full \
     | sed \
+	-e 's/"sed"/"stat"/g' \
 	-e 's/"tee"/"stat"/g' \
 	-e 's/"1444"/"stat"/g' \
 	-e 's/"pminfo"/"stat"/g' \
