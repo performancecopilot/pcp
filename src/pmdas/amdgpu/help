@@ -1,0 +1,66 @@
+#
+# Copyright (c) 2024 Red Hat.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+# AMD PMDA help file in the ASCII format
+#
+# lines beginning with a # are ignored
+# lines beginning @ introduce a new entry of the form
+#  @ metric_name oneline-text
+#  help text goes
+#  here over multiple lines
+#  ...
+#
+# the metric_name is decoded against the default PMNS -- as a special case,
+# a name of the form NNN.MM (for numeric NNN and MM) is interpreted as an
+# instance domain identification, and the text describes the instance domain
+#
+# blank lines before the @ line are ignored
+#
+
+@ AMDGPU.0 AMD graphics cards installed in this system
+
+@ amdgpu.numcards Number of Graphics Cards
+The number of AMD Graphics cards installed in this system
+
+@ amdgpu.cardname GPU Name
+The name of the graphics card
+
+@ amdgpu.cardid GPU card identifier
+The internal identifier of the graphics card
+
+@ amdgpu.memory.used Allocated frame buffer memory
+Amount of GPU FB memory that has currently been allocated, in bytes.
+Note that the driver/GPU always sets aside a small amount of memory
+for bookkeeping.
+
+@ amdgpu.memory.total Total frame buffer memory available
+The total amount of GPU FB memory available on the card, in bytes.
+
+@ amdgpu.memory.free Unallocated frame buffer memory
+Amount of GPU FB memory that is not currently allocated, in bytes.
+
+@ amdgpu.memory.usedaccum Cumulative counter of used memory for each GPU
+
+@ amdgpu.memory.clock The GDDRx memory clock speed in MHz
+@ amdgpu.memory.clock_max The maximum GDDRx memory clock speed in MHz
+
+@ amdgpu.gpu.clock The GPU clock speed in MHz
+@ amdgpu.gpu.clock_max The maximum GPU clock speed in MHz
+
+@ amdgpu.gpu.temperature The GPU temperature in millidegrees Celsius
+The temperature provided is returned in millidegrees celsius, but the
+GPU may not have this precision.
+
+@ amdgpu.gpu.load The GPU load, as a percentage
+
+@ amdgpu.gpu.average_power The GPU average power consumption
