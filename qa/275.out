@@ -189,7 +189,7 @@ expr node <addr-48> type=NAME left=(nil) right=(nil) save_last=0 [pmcd.pmlogger.
 expr node <addr-49> type=NAME left=(nil) right=(nil) save_last=0 [pmcd.pmlogger.port] primary=1
 __dmopencontext(->ctx 0) called, 16 derived metrics
 __dmgetpmid: metric "my.space_over_time1" -> PMID 511.0.3
-__dmbind: bind metric[2] my.space_over_time1
+__dmbind: bind_expr or check_expr failed for metric[2] my.space_over_time1
 Derived metric expr dump from <addr-50>...
 expr node <addr-50> type=PLUS left=<addr-51> right=<addr-52> save_last=0
     PMID: PM_ID_NULL (511.0.3 from pmDesc) numval: 0
@@ -205,7 +205,7 @@ expr node <addr-52> type=NAME left=(nil) right=(nil) save_last=0 [sample.mirage_
     Semantics: instant  Units: byte / millisec
 __dmtraverse: name="my" added "my.space_over_time1"
 __dmgetpmid: metric "my.space_over_time2" -> PMID 511.0.4
-__dmbind: bind metric[3] my.space_over_time2
+__dmbind: bind_expr or check_expr failed for metric[3] my.space_over_time2
 Derived metric expr dump from <addr-53>...
 expr node <addr-53> type=PLUS left=<addr-54> right=<addr-55> save_last=0
     PMID: PM_ID_NULL (511.0.4 from pmDesc) numval: 0
@@ -221,7 +221,7 @@ expr node <addr-55> type=NAME left=(nil) right=(nil) save_last=0 [sample.mirage]
     Semantics: instant  Units: Kbyte / sec
 __dmtraverse: name="my" added "my.space_over_time2"
 __dmgetpmid: metric "my.space_over_time3" -> PMID 511.0.5
-__dmbind: bind metric[4] my.space_over_time3
+__dmbind: bind_expr or check_expr failed for metric[4] my.space_over_time3
 Derived metric expr dump from <addr-56>...
 expr node <addr-56> type=MINUS left=<addr-57> right=<addr-60> save_last=0
     PMID: PM_ID_NULL (511.0.5 from pmDesc) numval: 0
@@ -245,7 +245,7 @@ expr node <addr-60> type=NAME left=(nil) right=(nil) save_last=0 [sample.byte_ra
     Semantics: instant  Units: byte / sec
 __dmtraverse: name="my" added "my.space_over_time3"
 __dmgetpmid: metric "my.space_over_time4" -> PMID 511.0.6
-__dmbind: bind metric[5] my.space_over_time4
+__dmbind: bind_expr or check_expr failed for metric[5] my.space_over_time4
 Derived metric expr dump from <addr-61>...
 expr node <addr-61> type=PLUS left=<addr-62> right=<addr-63> save_last=0
     PMID: PM_ID_NULL (511.0.6 from pmDesc) numval: 0
@@ -261,7 +261,7 @@ expr node <addr-63> type=NAME left=(nil) right=(nil) save_last=0 [sample.byte_ra
     Semantics: instant  Units: byte / hour
 __dmtraverse: name="my" added "my.space_over_time4"
 __dmgetpmid: metric "my.space" -> PMID 511.0.7
-__dmbind: bind metric[6] my.space
+__dmbind: bind_expr or check_expr failed for metric[6] my.space
 Derived metric expr dump from <addr-64>...
 expr node <addr-64> type=PLUS left=<addr-65> right=<addr-66> save_last=0
     PMID: PM_ID_NULL (511.0.7 from pmDesc) numval: 0
@@ -277,7 +277,7 @@ expr node <addr-66> type=NAME left=(nil) right=(nil) save_last=0 [sample.kbyte_c
     Semantics: counter  Units: Kbyte
 __dmtraverse: name="my" added "my.space"
 __dmgetpmid: metric "my.byte1" -> PMID 511.0.8
-__dmbind: bind metric[7] my.byte1
+__dmbind: bind_expr or check_expr failed for metric[7] my.byte1
 Derived metric expr dump from <addr-67>...
 expr node <addr-67> type=STAR left=<addr-68> right=<addr-69> save_last=0
     PMID: PM_ID_NULL (511.0.8 from pmDesc) numval: 0
@@ -293,7 +293,7 @@ expr node <addr-69> type=NAME left=(nil) right=(nil) save_last=0 [sample.scale_s
     Semantics: instant  Units: sec
 __dmtraverse: name="my" added "my.byte1"
 __dmgetpmid: metric "my.byte2" -> PMID 511.0.9
-__dmbind: bind metric[8] my.byte2
+__dmbind: bind_expr or check_expr failed for metric[8] my.byte2
 Derived metric expr dump from <addr-70>...
 expr node <addr-70> type=STAR left=<addr-71> right=<addr-72> save_last=0
     PMID: PM_ID_NULL (511.0.9 from pmDesc) numval: 0
@@ -309,7 +309,7 @@ expr node <addr-72> type=NAME left=(nil) right=(nil) save_last=0 [sample.scale_s
     Semantics: instant  Units: nanosec
 __dmtraverse: name="my" added "my.byte2"
 __dmgetpmid: metric "my.x1" -> PMID 511.0.10
-__dmbind: bind metric[9] my.x1
+__dmbind: bind_expr or check_expr failed for metric[9] my.x1
 Derived metric expr dump from <addr-73>...
 expr node <addr-73> type=SLASH left=<addr-74> right=<addr-75> save_last=0
     PMID: PM_ID_NULL (511.0.10 from pmDesc) numval: 0
@@ -325,7 +325,7 @@ expr node <addr-75> type=NAME left=(nil) right=(nil) save_last=0 [sample.scale_s
     Semantics: instant  Units: sec
 __dmtraverse: name="my" added "my.x1"
 __dmgetpmid: metric "my.x2" -> PMID 511.0.11
-__dmbind: bind metric[10] my.x2
+__dmbind: bind_expr or check_expr failed for metric[10] my.x2
 Derived metric expr dump from <addr-76>...
 expr node <addr-76> type=PLUS left=<addr-77> right=<addr-80> save_last=0
     PMID: PM_ID_NULL (511.0.11 from pmDesc) numval: 0
@@ -349,7 +349,7 @@ expr node <addr-80> type=NAME left=(nil) right=(nil) save_last=0 [sample.mirage]
     Semantics: instant  Units: Kbyte / sec
 __dmtraverse: name="my" added "my.x2"
 __dmgetpmid: metric "my.x3" -> PMID 511.0.12
-__dmbind: bind metric[11] my.x3
+__dmbind: bind_expr or check_expr failed for metric[11] my.x3
 Derived metric expr dump from <addr-81>...
 expr node <addr-81> type=STAR left=<addr-82> right=<addr-83> save_last=0
     PMID: PM_ID_NULL (511.0.12 from pmDesc) numval: 0
@@ -365,7 +365,7 @@ expr node <addr-83> type=NAME left=(nil) right=(nil) save_last=0 [sample.scale_s
     Semantics: instant  Units: count
 __dmtraverse: name="my" added "my.x3"
 __dmgetpmid: metric "my.x4" -> PMID 511.0.13
-__dmbind: bind metric[12] my.x4
+__dmbind: bind_expr or check_expr failed for metric[12] my.x4
 Derived metric expr dump from <addr-84>...
 expr node <addr-84> type=SLASH left=<addr-85> right=<addr-86> save_last=0
     PMID: PM_ID_NULL (511.0.13 from pmDesc) numval: 0
@@ -381,7 +381,7 @@ expr node <addr-86> type=NAME left=(nil) right=(nil) save_last=0 [sample.scale_s
     Semantics: instant  Units: count / sec
 __dmtraverse: name="my" added "my.x4"
 __dmgetpmid: metric "my.i1" -> PMID 511.0.14
-__dmbind: bind metric[13] my.i1
+__dmbind: bind_expr or check_expr failed for metric[13] my.i1
 Derived metric expr dump from <addr-87>...
 expr node <addr-87> type=PLUS left=<addr-88> right=<addr-89> save_last=0
     PMID: PM_ID_NULL (511.0.14 from pmDesc) numval: 0
@@ -397,7 +397,7 @@ expr node <addr-89> type=NAME left=(nil) right=(nil) save_last=0 [sample.scale_s
     Semantics: instant  Units: none
 __dmtraverse: name="my" added "my.i1"
 __dmgetpmid: metric "my.i2" -> PMID 511.0.15
-__dmbind: bind metric[14] my.i2
+__dmbind: bind_expr or check_expr failed for metric[14] my.i2
 Derived metric expr dump from <addr-90>...
 expr node <addr-90> type=PLUS left=<addr-91> right=<addr-92> save_last=0
     PMID: PM_ID_NULL (511.0.15 from pmDesc) numval: 0
@@ -413,7 +413,7 @@ expr node <addr-92> type=INTEGER left=(nil) right=(nil) save_last=0 [42] primary
     Semantics: discrete  Units: none
 __dmtraverse: name="my" added "my.i2"
 __dmgetpmid: metric "my.i3" -> PMID 511.0.16
-__dmbind: bind metric[15] my.i3
+__dmbind: bind_expr or check_expr failed for metric[15] my.i3
 Derived metric expr dump from <addr-93>...
 expr node <addr-93> type=MINUS left=<addr-94> right=<addr-95> save_last=0
     PMID: PM_ID_NULL (511.0.16 from pmDesc) numval: 0
@@ -665,7 +665,7 @@ pmRegisterDerived: global metric[7] gcov.f = 2*(1/sample.ulong.count.base) - (1/
 pmRegisterDerived: global metric[8] gcov.g = 2*(1/sample.ulong.count.mega) - (1/sample.ulong.count.kilo)
 __dmopencontext(->ctx 0) called, 9 derived metrics
 __dmgetpmid: metric "gcov.a" -> PMID 511.0.3
-__dmbind: bind metric[2] gcov.a
+__dmbind: bind_expr or check_expr failed for metric[2] gcov.a
 Derived metric expr dump from <addr-0>...
 expr node <addr-0> type=SLASH left=<addr-1> right=<addr-4> save_last=0
     PMID: PM_ID_NULL (511.0.3 from pmDesc) numval: 0
@@ -697,7 +697,7 @@ expr node <addr-6> type=NAME left=(nil) right=(nil) save_last=0 [sample.mirage] 
     Semantics: instant  Units: Kbyte / sec
 __dmtraverse: name="gcov" added "gcov.a"
 __dmgetpmid: metric "gcov.b" -> PMID 511.0.4
-__dmbind: bind metric[3] gcov.b
+__dmbind: bind_expr or check_expr failed for metric[3] gcov.b
 Derived metric expr dump from <addr-7>...
 expr node <addr-7> type=SLASH left=<addr-8> right=<addr-11> save_last=0
     PMID: PM_ID_NULL (511.0.4 from pmDesc) numval: 0
@@ -730,115 +730,129 @@ expr node <addr-13> type=NAME left=(nil) right=(nil) save_last=0 [sample.mirage_
 __dmtraverse: name="gcov" added "gcov.b"
 __dmgetpmid: metric "gcov.c" -> PMID 511.0.5
 Semantic error: derived metric gcov.c: sample.seconds + disk.all.total: Dimensions are not the same
+__dmbind: bind_expr or check_expr failed for metric[4] gcov.c
+Derived metric expr dump from <addr-14>...
+expr node <addr-14> type=PLUS left=<addr-15> right=<addr-16> save_last=0
+    PMID: PM_ID_NULL (29.0.2 from pmDesc) numval: 0
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: sec
+expr node <addr-15> type=NAME left=(nil) right=(nil) save_last=0 [sample.seconds] primary=0
+    PMID: 29.0.2 (29.0.2 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: sec
+expr node <addr-16> type=NAME left=(nil) right=(nil) save_last=0 [disk.all.total] primary=0
+    PMID: 60.0.29 (60.0.29 from pmDesc) numval: 0
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
 __dmtraverse: name="gcov", omitting invalid child "gcov.c"
 __dmgetpmid: metric "gcov.d" -> PMID 511.0.6
-__dmbind: bind metric[5] gcov.d
-Derived metric expr dump from <addr-14>...
-expr node <addr-14> type=MINUS left=<addr-15> right=<addr-16> save_last=0
+__dmbind: bind_expr or check_expr failed for metric[5] gcov.d
+Derived metric expr dump from <addr-17>...
+expr node <addr-17> type=MINUS left=<addr-18> right=<addr-19> save_last=0
     PMID: PM_ID_NULL (511.0.6 from pmDesc) numval: 0
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count x 10^3 / Mbyte
-expr node <addr-15> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.count.base] primary=0
+expr node <addr-18> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.count.base] primary=0
     PMID: 29.0.115 (29.0.115 from pmDesc) numval: 0 div_scale: 1000
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count / Mbyte
-expr node <addr-16> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.count.kilo] primary=0
+expr node <addr-19> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.count.kilo] primary=0
     PMID: 29.0.118 (29.0.118 from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count x 10^3 / Mbyte
 __dmtraverse: name="gcov" added "gcov.d"
 __dmgetpmid: metric "gcov.e" -> PMID 511.0.7
-__dmbind: bind metric[6] gcov.e
-Derived metric expr dump from <addr-17>...
-expr node <addr-17> type=MINUS left=<addr-18> right=<addr-19> save_last=0
+__dmbind: bind_expr or check_expr failed for metric[6] gcov.e
+Derived metric expr dump from <addr-20>...
+expr node <addr-20> type=MINUS left=<addr-21> right=<addr-22> save_last=0
     PMID: PM_ID_NULL (511.0.7 from pmDesc) numval: 0
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count x 10^6 / Mbyte
-expr node <addr-18> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.count.mega] primary=0
+expr node <addr-21> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.count.mega] primary=0
     PMID: 29.0.119 (29.0.119 from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count x 10^6 / Mbyte
-expr node <addr-19> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.count.kilo] primary=0
+expr node <addr-22> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.count.kilo] primary=0
     PMID: 29.0.118 (29.0.118 from pmDesc) numval: 0 div_scale: 1000
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count x 10^3 / Mbyte
 __dmtraverse: name="gcov" added "gcov.e"
 __dmgetpmid: metric "gcov.f" -> PMID 511.0.8
-__dmbind: bind metric[7] gcov.f
-Derived metric expr dump from <addr-20>...
-expr node <addr-20> type=MINUS left=<addr-21> right=<addr-26> save_last=0
+__dmbind: bind_expr or check_expr failed for metric[7] gcov.f
+Derived metric expr dump from <addr-23>...
+expr node <addr-23> type=MINUS left=<addr-24> right=<addr-29> save_last=0
     PMID: PM_ID_NULL (511.0.8 from pmDesc) numval: 0
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: Mbyte / count x 10^3
-expr node <addr-21> type=STAR left=<addr-22> right=<addr-23> save_last=0
+expr node <addr-24> type=STAR left=<addr-25> right=<addr-26> save_last=0
     PMID: PM_ID_NULL (29.0.115 from pmDesc) numval: 0 mul_scale: 1000
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: Mbyte / count
-expr node <addr-22> type=INTEGER left=(nil) right=(nil) save_last=0 [2] primary=0
+expr node <addr-25> type=INTEGER left=(nil) right=(nil) save_last=0 [2] primary=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
-expr node <addr-23> type=SLASH left=<addr-24> right=<addr-25> save_last=0
+expr node <addr-26> type=SLASH left=<addr-27> right=<addr-28> save_last=0
     PMID: PM_ID_NULL (29.0.115 from pmDesc) numval: 0
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: Mbyte / count
-expr node <addr-24> type=INTEGER left=(nil) right=(nil) save_last=0 [1] primary=0
-    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
-expr node <addr-25> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.count.base] primary=0
-    PMID: 29.0.115 (29.0.115 from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: count / Mbyte
-expr node <addr-26> type=SLASH left=<addr-27> right=<addr-28> save_last=0
-    PMID: PM_ID_NULL (29.0.118 from pmDesc) numval: 0
-    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: Mbyte / count x 10^3
 expr node <addr-27> type=INTEGER left=(nil) right=(nil) save_last=0 [1] primary=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
-expr node <addr-28> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.count.kilo] primary=0
+expr node <addr-28> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.count.base] primary=0
+    PMID: 29.0.115 (29.0.115 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count / Mbyte
+expr node <addr-29> type=SLASH left=<addr-30> right=<addr-31> save_last=0
+    PMID: PM_ID_NULL (29.0.118 from pmDesc) numval: 0
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Mbyte / count x 10^3
+expr node <addr-30> type=INTEGER left=(nil) right=(nil) save_last=0 [1] primary=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+expr node <addr-31> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.count.kilo] primary=0
     PMID: 29.0.118 (29.0.118 from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count x 10^3 / Mbyte
 __dmtraverse: name="gcov" added "gcov.f"
 __dmgetpmid: metric "gcov.g" -> PMID 511.0.9
-__dmbind: bind metric[8] gcov.g
-Derived metric expr dump from <addr-29>...
-expr node <addr-29> type=MINUS left=<addr-30> right=<addr-35> save_last=0
+__dmbind: bind_expr or check_expr failed for metric[8] gcov.g
+Derived metric expr dump from <addr-32>...
+expr node <addr-32> type=MINUS left=<addr-33> right=<addr-38> save_last=0
     PMID: PM_ID_NULL (511.0.9 from pmDesc) numval: 0
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: Mbyte / count x 10^6
-expr node <addr-30> type=STAR left=<addr-31> right=<addr-32> save_last=0
+expr node <addr-33> type=STAR left=<addr-34> right=<addr-35> save_last=0
     PMID: PM_ID_NULL (29.0.119 from pmDesc) numval: 0
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: Mbyte / count x 10^6
-expr node <addr-31> type=INTEGER left=(nil) right=(nil) save_last=0 [2] primary=0
+expr node <addr-34> type=INTEGER left=(nil) right=(nil) save_last=0 [2] primary=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
-expr node <addr-32> type=SLASH left=<addr-33> right=<addr-34> save_last=0
-    PMID: PM_ID_NULL (29.0.119 from pmDesc) numval: 0
-    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: Mbyte / count x 10^6
-expr node <addr-33> type=INTEGER left=(nil) right=(nil) save_last=0 [1] primary=0
-    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
-expr node <addr-34> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.count.mega] primary=0
-    PMID: 29.0.119 (29.0.119 from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: count x 10^6 / Mbyte
 expr node <addr-35> type=SLASH left=<addr-36> right=<addr-37> save_last=0
-    PMID: PM_ID_NULL (29.0.118 from pmDesc) numval: 0 mul_scale: 1000
+    PMID: PM_ID_NULL (29.0.119 from pmDesc) numval: 0
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: Mbyte / count x 10^3
+    Semantics: instant  Units: Mbyte / count x 10^6
 expr node <addr-36> type=INTEGER left=(nil) right=(nil) save_last=0 [1] primary=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
-expr node <addr-37> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.count.kilo] primary=0
+expr node <addr-37> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.count.mega] primary=0
+    PMID: 29.0.119 (29.0.119 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count x 10^6 / Mbyte
+expr node <addr-38> type=SLASH left=<addr-39> right=<addr-40> save_last=0
+    PMID: PM_ID_NULL (29.0.118 from pmDesc) numval: 0 mul_scale: 1000
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Mbyte / count x 10^3
+expr node <addr-39> type=INTEGER left=(nil) right=(nil) save_last=0 [1] primary=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+expr node <addr-40> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.count.kilo] primary=0
     PMID: 29.0.118 (29.0.118 from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count x 10^3 / Mbyte

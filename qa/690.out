@@ -10,7 +10,7 @@ pmRegisterDerived: global metric[4] qa.c = matchinst(!/bin-[1-5]00/, sample.bin)
 pmRegisterDerived: global metric[5] qa.d = sample.bin[bin-300] + sample.part_bin[bin-300]
 __dmopencontext(->ctx 0) called, 6 derived metrics
 __dmgetpmid: metric "qa.a" -> PMID 511.0.3
-__dmbind: bind metric[2] qa.a
+__dmbind: bind_expr or check_expr failed for metric[2] qa.a
 Derived metric expr dump from <addr-0>...
 expr node <addr-0> type=FILTERINST left=<addr-1> right=<addr-2> save_last=0
     PMID: PM_ID_NULL (511.0.3 from pmDesc) numval: 0
@@ -23,7 +23,7 @@ expr node <addr-2> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] pri
     Semantics: instant  Units: none
 __dmtraverse: name="qa" added "qa.a"
 __dmgetpmid: metric "qa.b" -> PMID 511.0.4
-__dmbind: bind metric[3] qa.b
+__dmbind: bind_expr or check_expr failed for metric[3] qa.b
 Derived metric expr dump from <addr-3>...
 expr node <addr-3> type=FILTERINST left=<addr-4> right=<addr-5> save_last=0
     PMID: PM_ID_NULL (511.0.4 from pmDesc) numval: 0
@@ -36,7 +36,7 @@ expr node <addr-5> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] pri
     Semantics: instant  Units: none
 __dmtraverse: name="qa" added "qa.b"
 __dmgetpmid: metric "qa.c" -> PMID 511.0.5
-__dmbind: bind metric[4] qa.c
+__dmbind: bind_expr or check_expr failed for metric[4] qa.c
 Derived metric expr dump from <addr-6>...
 expr node <addr-6> type=FILTERINST left=<addr-7> right=<addr-8> save_last=0
     PMID: PM_ID_NULL (511.0.5 from pmDesc) numval: 0
@@ -49,7 +49,7 @@ expr node <addr-8> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] pri
     Semantics: instant  Units: none
 __dmtraverse: name="qa" added "qa.c"
 __dmgetpmid: metric "qa.d" -> PMID 511.0.6
-__dmbind: bind metric[5] qa.d
+__dmbind: bind_expr or check_expr failed for metric[5] qa.d
 Derived metric expr dump from <addr-9>...
 expr node <addr-9> type=PLUS left=<addr-10> right=<addr-13> save_last=0
     PMID: PM_ID_NULL (511.0.6 from pmDesc) numval: 0
@@ -227,7 +227,7 @@ pmRegisterDerived: global metric[2] qa.a = matchinst(/123/, sampledso.bin)
 pmRegisterDerived: global metric[3] qa.d = sample.bin[bin-345] + sample.part_bin[bin-345]
 __dmopencontext(->ctx 0) called, 4 derived metrics
 __dmgetpmid: metric "qa.a" -> PMID 511.0.3
-__dmbind: bind metric[2] qa.a
+__dmbind: bind_expr or check_expr failed for metric[2] qa.a
 Derived metric expr dump from <addr-0>...
 expr node <addr-0> type=FILTERINST left=<addr-1> right=<addr-2> save_last=0
     PMID: PM_ID_NULL (511.0.3 from pmDesc) numval: 0
@@ -240,7 +240,7 @@ expr node <addr-2> type=NAME left=(nil) right=(nil) save_last=0 [sampledso.bin] 
     Semantics: instant  Units: none
 __dmtraverse: name="qa" added "qa.a"
 __dmgetpmid: metric "qa.d" -> PMID 511.0.4
-__dmbind: bind metric[3] qa.d
+__dmbind: bind_expr or check_expr failed for metric[3] qa.d
 Derived metric expr dump from <addr-3>...
 expr node <addr-3> type=PLUS left=<addr-4> right=<addr-7> save_last=0
     PMID: PM_ID_NULL (511.0.4 from pmDesc) numval: 0

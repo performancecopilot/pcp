@@ -95,19 +95,19 @@ expr node <addr-24> type=FILTERINST left=<addr-25> right=<addr-26> save_last=0
 expr node <addr-25> type=PATTERN pattern: \[1\]100/ type: regex used=0
 expr node <addr-26> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=1
 __dmgetpmid: metric "qa.a" -> PMID 511.0.3
-__dmbind: bind metric[2] qa.a
+__dmbind: bind_expr or check_expr failed for metric[2] qa.a
 __dmtraverse: name="qa" added "qa.a"
 __dmgetpmid: metric "qa.b" -> PMID 511.0.4
-__dmbind: bind metric[3] qa.b
+__dmbind: bind_expr or check_expr failed for metric[3] qa.b
 __dmtraverse: name="qa" added "qa.b"
 __dmgetpmid: metric "qa.c" -> PMID 511.0.5
-__dmbind: bind metric[4] qa.c
+__dmbind: bind_expr or check_expr failed for metric[4] qa.c
 __dmtraverse: name="qa" added "qa.c"
 __dmgetpmid: metric "qa.d" -> PMID 511.0.6
-__dmbind: bind metric[5] qa.d
+__dmbind: bind_expr or check_expr failed for metric[5] qa.d
 __dmtraverse: name="qa" added "qa.d"
 __dmgetpmid: metric "qa.e" -> PMID 511.0.7
-__dmbind: bind metric[6] qa.e
+__dmbind: bind_expr or check_expr failed for metric[6] qa.e
 __dmtraverse: name="qa" added "qa.e"
 __dmgetpmid: metric "qa.a" -> PMID 511.0.3
 __dmgetpmid: metric "qa.b" -> PMID 511.0.4

@@ -72,6 +72,7 @@ qa.hundred.b = defined(sample.bin.bad) ? simple.bin.bad : sample.long.hundred
 # ok cases - expect no values
 qa.novalues.a = !defined(sample.bin) ? sample.bin : novalue()
 qa.novalues.b = defined(sample.bin) ? novalue() : sample.bin
+qa.novalues.c = defined(no.metric) ? sample.bin / no.metric : novalue()
 
 # Marko's case
 tcprecv = defined(no.such.metric) ? no.such.metric : novalue()

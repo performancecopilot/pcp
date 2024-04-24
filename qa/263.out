@@ -692,7 +692,7 @@ expr node <addr-100> type=COUNT left=<addr-101> right=(nil) save_last=0
 expr node <addr-101> type=NAME left=(nil) right=(nil) save_last=0 [sample.noinst] primary=1
 __dmopencontext(->ctx 0) called, 44 derived metrics
 __dmgetpmid: metric "aggr.max32" -> PMID 511.0.3
-__dmbind: bind metric[2] aggr.max32
+__dmbind: bind_expr or check_expr failed for metric[2] aggr.max32
 Derived metric expr dump from <addr-102>...
 expr node <addr-102> type=MAX left=<addr-103> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.3 from pmDesc) numval: 0
@@ -704,7 +704,7 @@ expr node <addr-103> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] p
     Semantics: instant  Units: none
 __dmtraverse: name="aggr" added "aggr.max32"
 __dmgetpmid: metric "aggr.min32" -> PMID 511.0.4
-__dmbind: bind metric[3] aggr.min32
+__dmbind: bind_expr or check_expr failed for metric[3] aggr.min32
 Derived metric expr dump from <addr-104>...
 expr node <addr-104> type=MIN left=<addr-105> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.4 from pmDesc) numval: 0
@@ -716,7 +716,7 @@ expr node <addr-105> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.h
     Semantics: instant  Units: none
 __dmtraverse: name="aggr" added "aggr.min32"
 __dmgetpmid: metric "aggr.maxu32_minu32" -> PMID 511.0.5
-__dmbind: bind metric[4] aggr.maxu32_minu32
+__dmbind: bind_expr or check_expr failed for metric[4] aggr.maxu32_minu32
 Derived metric expr dump from <addr-106>...
 expr node <addr-106> type=MINUS left=<addr-107> right=<addr-109> save_last=0
     PMID: PM_ID_NULL (511.0.5 from pmDesc) numval: 0
@@ -740,7 +740,7 @@ expr node <addr-110> type=NAME left=(nil) right=(nil) save_last=0 [sample.const_
     Semantics: counter  Units: count
 __dmtraverse: name="aggr" added "aggr.maxu32_minu32"
 __dmgetpmid: metric "aggr.max64_min64" -> PMID 511.0.6
-__dmbind: bind metric[5] aggr.max64_min64
+__dmbind: bind_expr or check_expr failed for metric[5] aggr.max64_min64
 Derived metric expr dump from <addr-111>...
 expr node <addr-111> type=MINUS left=<addr-112> right=<addr-114> save_last=0
     PMID: PM_ID_NULL (511.0.6 from pmDesc) numval: 0
@@ -764,7 +764,7 @@ expr node <addr-115> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlo
     Semantics: instant  Units: none
 __dmtraverse: name="aggr" added "aggr.max64_min64"
 __dmgetpmid: metric "aggr.maxu64_minu64" -> PMID 511.0.7
-__dmbind: bind metric[6] aggr.maxu64_minu64
+__dmbind: bind_expr or check_expr failed for metric[6] aggr.maxu64_minu64
 Derived metric expr dump from <addr-116>...
 expr node <addr-116> type=MINUS left=<addr-117> right=<addr-119> save_last=0
     PMID: PM_ID_NULL (511.0.7 from pmDesc) numval: 0
@@ -788,7 +788,7 @@ expr node <addr-120> type=NAME left=(nil) right=(nil) save_last=0 [sample.pdu] p
     Semantics: counter  Units: count
 __dmtraverse: name="aggr" added "aggr.maxu64_minu64"
 __dmgetpmid: metric "aggr.maxuf_minuf" -> PMID 511.0.8
-__dmbind: bind metric[7] aggr.maxuf_minuf
+__dmbind: bind_expr or check_expr failed for metric[7] aggr.maxuf_minuf
 Derived metric expr dump from <addr-121>...
 expr node <addr-121> type=MINUS left=<addr-122> right=<addr-124> save_last=0
     PMID: PM_ID_NULL (511.0.8 from pmDesc) numval: 0
@@ -812,7 +812,7 @@ expr node <addr-125> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.
     Semantics: instant  Units: none
 __dmtraverse: name="aggr" added "aggr.maxuf_minuf"
 __dmgetpmid: metric "aggr.maxud_minud" -> PMID 511.0.9
-__dmbind: bind metric[8] aggr.maxud_minud
+__dmbind: bind_expr or check_expr failed for metric[8] aggr.maxud_minud
 Derived metric expr dump from <addr-126>...
 expr node <addr-126> type=MINUS left=<addr-127> right=<addr-129> save_last=0
     PMID: PM_ID_NULL (511.0.9 from pmDesc) numval: 0
@@ -836,7 +836,7 @@ expr node <addr-130> type=NAME left=(nil) right=(nil) save_last=0 [sample.double
     Semantics: instant  Units: none
 __dmtraverse: name="aggr" added "aggr.maxud_minud"
 __dmgetpmid: metric "aggr.count32" -> PMID 511.0.10
-__dmbind: bind metric[9] aggr.count32
+__dmbind: bind_expr or check_expr failed for metric[9] aggr.count32
 Derived metric expr dump from <addr-131>...
 expr node <addr-131> type=COUNT left=<addr-132> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.10 from pmDesc) numval: 0
@@ -848,7 +848,7 @@ expr node <addr-132> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] p
     Semantics: instant  Units: none
 __dmtraverse: name="aggr" added "aggr.count32"
 __dmgetpmid: metric "aggr.avg32" -> PMID 511.0.11
-__dmbind: bind metric[10] aggr.avg32
+__dmbind: bind_expr or check_expr failed for metric[10] aggr.avg32
 Derived metric expr dump from <addr-133>...
 expr node <addr-133> type=AVG left=<addr-134> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.11 from pmDesc) numval: 0
@@ -860,7 +860,7 @@ expr node <addr-134> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] p
     Semantics: instant  Units: none
 __dmtraverse: name="aggr" added "aggr.avg32"
 __dmgetpmid: metric "aggr.max32_x" -> PMID 511.0.12
-__dmbind: bind metric[11] aggr.max32_x
+__dmbind: bind_expr or check_expr failed for metric[11] aggr.max32_x
 Derived metric expr dump from <addr-135>...
 expr node <addr-135> type=MAX left=<addr-136> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.12 from pmDesc) numval: 0
@@ -872,7 +872,7 @@ expr node <addr-136> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] p
     Semantics: instant  Units: none
 __dmtraverse: name="aggr" added "aggr.max32_x"
 __dmgetpmid: metric "aggr.min32_x" -> PMID 511.0.13
-__dmbind: bind metric[12] aggr.min32_x
+__dmbind: bind_expr or check_expr failed for metric[12] aggr.min32_x
 Derived metric expr dump from <addr-137>...
 expr node <addr-137> type=MIN left=<addr-138> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.13 from pmDesc) numval: 0
@@ -884,7 +884,7 @@ expr node <addr-138> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] p
     Semantics: instant  Units: none
 __dmtraverse: name="aggr" added "aggr.min32_x"
 __dmgetpmid: metric "aggr.sum32" -> PMID 511.0.14
-__dmbind: bind metric[13] aggr.sum32
+__dmbind: bind_expr or check_expr failed for metric[13] aggr.sum32
 Derived metric expr dump from <addr-139>...
 expr node <addr-139> type=SUM left=<addr-140> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.14 from pmDesc) numval: 0
@@ -896,7 +896,7 @@ expr node <addr-140> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] p
     Semantics: instant  Units: none
 __dmtraverse: name="aggr" added "aggr.sum32"
 __dmgetpmid: metric "aggr.avgu32" -> PMID 511.0.15
-__dmbind: bind metric[14] aggr.avgu32
+__dmbind: bind_expr or check_expr failed for metric[14] aggr.avgu32
 Derived metric expr dump from <addr-141>...
 expr node <addr-141> type=AVG left=<addr-142> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.15 from pmDesc) numval: 0
@@ -908,7 +908,7 @@ expr node <addr-142> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.
     Semantics: counter  Units: Kbyte
 __dmtraverse: name="aggr" added "aggr.avgu32"
 __dmgetpmid: metric "aggr.countu32" -> PMID 511.0.16
-__dmbind: bind metric[15] aggr.countu32
+__dmbind: bind_expr or check_expr failed for metric[15] aggr.countu32
 Derived metric expr dump from <addr-143>...
 expr node <addr-143> type=COUNT left=<addr-144> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.16 from pmDesc) numval: 0
@@ -920,7 +920,7 @@ expr node <addr-144> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.
     Semantics: counter  Units: Kbyte
 __dmtraverse: name="aggr" added "aggr.countu32"
 __dmgetpmid: metric "aggr.maxu32" -> PMID 511.0.17
-__dmbind: bind metric[16] aggr.maxu32
+__dmbind: bind_expr or check_expr failed for metric[16] aggr.maxu32
 Derived metric expr dump from <addr-145>...
 expr node <addr-145> type=MAX left=<addr-146> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.17 from pmDesc) numval: 0
@@ -932,7 +932,7 @@ expr node <addr-146> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.
     Semantics: counter  Units: Kbyte
 __dmtraverse: name="aggr" added "aggr.maxu32"
 __dmgetpmid: metric "aggr.minu32" -> PMID 511.0.18
-__dmbind: bind metric[17] aggr.minu32
+__dmbind: bind_expr or check_expr failed for metric[17] aggr.minu32
 Derived metric expr dump from <addr-147>...
 expr node <addr-147> type=MIN left=<addr-148> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.18 from pmDesc) numval: 0
@@ -944,7 +944,7 @@ expr node <addr-148> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.
     Semantics: counter  Units: Kbyte
 __dmtraverse: name="aggr" added "aggr.minu32"
 __dmgetpmid: metric "aggr.sumu32" -> PMID 511.0.19
-__dmbind: bind metric[18] aggr.sumu32
+__dmbind: bind_expr or check_expr failed for metric[18] aggr.sumu32
 Derived metric expr dump from <addr-149>...
 expr node <addr-149> type=SUM left=<addr-150> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.19 from pmDesc) numval: 0
@@ -956,7 +956,7 @@ expr node <addr-150> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.
     Semantics: counter  Units: Kbyte
 __dmtraverse: name="aggr" added "aggr.sumu32"
 __dmgetpmid: metric "aggr.avgf" -> PMID 511.0.20
-__dmbind: bind metric[19] aggr.avgf
+__dmbind: bind_expr or check_expr failed for metric[19] aggr.avgf
 Derived metric expr dump from <addr-151>...
 expr node <addr-151> type=AVG left=<addr-152> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.20 from pmDesc) numval: 0
@@ -968,7 +968,7 @@ expr node <addr-152> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.
     Semantics: instant  Units: none
 __dmtraverse: name="aggr" added "aggr.avgf"
 __dmgetpmid: metric "aggr.countf" -> PMID 511.0.21
-__dmbind: bind metric[20] aggr.countf
+__dmbind: bind_expr or check_expr failed for metric[20] aggr.countf
 Derived metric expr dump from <addr-153>...
 expr node <addr-153> type=COUNT left=<addr-154> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.21 from pmDesc) numval: 0
@@ -980,7 +980,7 @@ expr node <addr-154> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.
     Semantics: instant  Units: none
 __dmtraverse: name="aggr" added "aggr.countf"
 __dmgetpmid: metric "aggr.maxf" -> PMID 511.0.22
-__dmbind: bind metric[21] aggr.maxf
+__dmbind: bind_expr or check_expr failed for metric[21] aggr.maxf
 Derived metric expr dump from <addr-155>...
 expr node <addr-155> type=MAX left=<addr-156> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.22 from pmDesc) numval: 0
@@ -992,7 +992,7 @@ expr node <addr-156> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.
     Semantics: instant  Units: none
 __dmtraverse: name="aggr" added "aggr.maxf"
 __dmgetpmid: metric "aggr.minf" -> PMID 511.0.23
-__dmbind: bind metric[22] aggr.minf
+__dmbind: bind_expr or check_expr failed for metric[22] aggr.minf
 Derived metric expr dump from <addr-157>...
 expr node <addr-157> type=MIN left=<addr-158> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.23 from pmDesc) numval: 0
@@ -1004,7 +1004,7 @@ expr node <addr-158> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.
     Semantics: instant  Units: none
 __dmtraverse: name="aggr" added "aggr.minf"
 __dmgetpmid: metric "aggr.sumf" -> PMID 511.0.24
-__dmbind: bind metric[23] aggr.sumf
+__dmbind: bind_expr or check_expr failed for metric[23] aggr.sumf
 Derived metric expr dump from <addr-159>...
 expr node <addr-159> type=SUM left=<addr-160> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.24 from pmDesc) numval: 0
@@ -1016,7 +1016,7 @@ expr node <addr-160> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.
     Semantics: instant  Units: none
 __dmtraverse: name="aggr" added "aggr.sumf"
 __dmgetpmid: metric "aggr.avg64" -> PMID 511.0.25
-__dmbind: bind metric[24] aggr.avg64
+__dmbind: bind_expr or check_expr failed for metric[24] aggr.avg64
 Derived metric expr dump from <addr-161>...
 expr node <addr-161> type=AVG left=<addr-162> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.25 from pmDesc) numval: 0
@@ -1028,7 +1028,7 @@ expr node <addr-162> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlo
     Semantics: counter  Units: Kbyte
 __dmtraverse: name="aggr" added "aggr.avg64"
 __dmgetpmid: metric "aggr.count64" -> PMID 511.0.26
-__dmbind: bind metric[25] aggr.count64
+__dmbind: bind_expr or check_expr failed for metric[25] aggr.count64
 Derived metric expr dump from <addr-163>...
 expr node <addr-163> type=COUNT left=<addr-164> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.26 from pmDesc) numval: 0
@@ -1040,7 +1040,7 @@ expr node <addr-164> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlo
     Semantics: counter  Units: Kbyte
 __dmtraverse: name="aggr" added "aggr.count64"
 __dmgetpmid: metric "aggr.max64" -> PMID 511.0.27
-__dmbind: bind metric[26] aggr.max64
+__dmbind: bind_expr or check_expr failed for metric[26] aggr.max64
 Derived metric expr dump from <addr-165>...
 expr node <addr-165> type=MAX left=<addr-166> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.27 from pmDesc) numval: 0
@@ -1052,7 +1052,7 @@ expr node <addr-166> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlo
     Semantics: counter  Units: Kbyte
 __dmtraverse: name="aggr" added "aggr.max64"
 __dmgetpmid: metric "aggr.min64" -> PMID 511.0.28
-__dmbind: bind metric[27] aggr.min64
+__dmbind: bind_expr or check_expr failed for metric[27] aggr.min64
 Derived metric expr dump from <addr-167>...
 expr node <addr-167> type=MIN left=<addr-168> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.28 from pmDesc) numval: 0
@@ -1064,7 +1064,7 @@ expr node <addr-168> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlo
     Semantics: counter  Units: Kbyte
 __dmtraverse: name="aggr" added "aggr.min64"
 __dmgetpmid: metric "aggr.sum64" -> PMID 511.0.29
-__dmbind: bind metric[28] aggr.sum64
+__dmbind: bind_expr or check_expr failed for metric[28] aggr.sum64
 Derived metric expr dump from <addr-169>...
 expr node <addr-169> type=SUM left=<addr-170> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.29 from pmDesc) numval: 0
@@ -1076,7 +1076,7 @@ expr node <addr-170> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlo
     Semantics: counter  Units: Kbyte
 __dmtraverse: name="aggr" added "aggr.sum64"
 __dmgetpmid: metric "aggr.seconds" -> PMID 511.0.30
-__dmbind: bind metric[29] aggr.seconds
+__dmbind: bind_expr or check_expr failed for metric[29] aggr.seconds
 Derived metric expr dump from <addr-171>...
 expr node <addr-171> type=NAME left=(nil) right=(nil) save_last=0 [sample.seconds] primary=0
     PMID: 29.0.2 (511.0.30 from pmDesc) numval: 0
@@ -1084,7 +1084,7 @@ expr node <addr-171> type=NAME left=(nil) right=(nil) save_last=0 [sample.second
     Semantics: counter  Units: sec
 __dmtraverse: name="aggr" added "aggr.seconds"
 __dmgetpmid: metric "aggr.avgu64" -> PMID 511.0.31
-__dmbind: bind metric[30] aggr.avgu64
+__dmbind: bind_expr or check_expr failed for metric[30] aggr.avgu64
 Derived metric expr dump from <addr-172>...
 expr node <addr-172> type=AVG left=<addr-173> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.31 from pmDesc) numval: 0
@@ -1096,7 +1096,7 @@ expr node <addr-173> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulongl
     Semantics: counter  Units: Kbyte
 __dmtraverse: name="aggr" added "aggr.avgu64"
 __dmgetpmid: metric "aggr.countu64" -> PMID 511.0.32
-__dmbind: bind metric[31] aggr.countu64
+__dmbind: bind_expr or check_expr failed for metric[31] aggr.countu64
 Derived metric expr dump from <addr-174>...
 expr node <addr-174> type=COUNT left=<addr-175> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.32 from pmDesc) numval: 0
@@ -1108,7 +1108,7 @@ expr node <addr-175> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulongl
     Semantics: counter  Units: Kbyte
 __dmtraverse: name="aggr" added "aggr.countu64"
 __dmgetpmid: metric "aggr.maxu64" -> PMID 511.0.33
-__dmbind: bind metric[32] aggr.maxu64
+__dmbind: bind_expr or check_expr failed for metric[32] aggr.maxu64
 Derived metric expr dump from <addr-176>...
 expr node <addr-176> type=MAX left=<addr-177> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.33 from pmDesc) numval: 0
@@ -1120,7 +1120,7 @@ expr node <addr-177> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulongl
     Semantics: counter  Units: Kbyte
 __dmtraverse: name="aggr" added "aggr.maxu64"
 __dmgetpmid: metric "aggr.minu64" -> PMID 511.0.34
-__dmbind: bind metric[33] aggr.minu64
+__dmbind: bind_expr or check_expr failed for metric[33] aggr.minu64
 Derived metric expr dump from <addr-178>...
 expr node <addr-178> type=MIN left=<addr-179> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.34 from pmDesc) numval: 0
@@ -1132,7 +1132,7 @@ expr node <addr-179> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulongl
     Semantics: counter  Units: Kbyte
 __dmtraverse: name="aggr" added "aggr.minu64"
 __dmgetpmid: metric "aggr.sumu64" -> PMID 511.0.35
-__dmbind: bind metric[34] aggr.sumu64
+__dmbind: bind_expr or check_expr failed for metric[34] aggr.sumu64
 Derived metric expr dump from <addr-180>...
 expr node <addr-180> type=SUM left=<addr-181> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.35 from pmDesc) numval: 0
@@ -1144,7 +1144,7 @@ expr node <addr-181> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulongl
     Semantics: counter  Units: Kbyte
 __dmtraverse: name="aggr" added "aggr.sumu64"
 __dmgetpmid: metric "aggr.avgd" -> PMID 511.0.36
-__dmbind: bind metric[35] aggr.avgd
+__dmbind: bind_expr or check_expr failed for metric[35] aggr.avgd
 Derived metric expr dump from <addr-182>...
 expr node <addr-182> type=AVG left=<addr-183> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.36 from pmDesc) numval: 0
@@ -1156,7 +1156,7 @@ expr node <addr-183> type=NAME left=(nil) right=(nil) save_last=0 [sample.double
     Semantics: instant  Units: none
 __dmtraverse: name="aggr" added "aggr.avgd"
 __dmgetpmid: metric "aggr.countd" -> PMID 511.0.37
-__dmbind: bind metric[36] aggr.countd
+__dmbind: bind_expr or check_expr failed for metric[36] aggr.countd
 Derived metric expr dump from <addr-184>...
 expr node <addr-184> type=COUNT left=<addr-185> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.37 from pmDesc) numval: 0
@@ -1168,7 +1168,7 @@ expr node <addr-185> type=NAME left=(nil) right=(nil) save_last=0 [sample.double
     Semantics: instant  Units: none
 __dmtraverse: name="aggr" added "aggr.countd"
 __dmgetpmid: metric "aggr.maxd" -> PMID 511.0.38
-__dmbind: bind metric[37] aggr.maxd
+__dmbind: bind_expr or check_expr failed for metric[37] aggr.maxd
 Derived metric expr dump from <addr-186>...
 expr node <addr-186> type=MAX left=<addr-187> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.38 from pmDesc) numval: 0
@@ -1180,7 +1180,7 @@ expr node <addr-187> type=NAME left=(nil) right=(nil) save_last=0 [sample.double
     Semantics: instant  Units: none
 __dmtraverse: name="aggr" added "aggr.maxd"
 __dmgetpmid: metric "aggr.mind" -> PMID 511.0.39
-__dmbind: bind metric[38] aggr.mind
+__dmbind: bind_expr or check_expr failed for metric[38] aggr.mind
 Derived metric expr dump from <addr-188>...
 expr node <addr-188> type=MIN left=<addr-189> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.39 from pmDesc) numval: 0
@@ -1192,7 +1192,7 @@ expr node <addr-189> type=NAME left=(nil) right=(nil) save_last=0 [sample.double
     Semantics: instant  Units: none
 __dmtraverse: name="aggr" added "aggr.mind"
 __dmgetpmid: metric "aggr.sumd" -> PMID 511.0.40
-__dmbind: bind metric[39] aggr.sumd
+__dmbind: bind_expr or check_expr failed for metric[39] aggr.sumd
 Derived metric expr dump from <addr-190>...
 expr node <addr-190> type=SUM left=<addr-191> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.40 from pmDesc) numval: 0
@@ -1204,7 +1204,7 @@ expr node <addr-191> type=NAME left=(nil) right=(nil) save_last=0 [sample.double
     Semantics: instant  Units: none
 __dmtraverse: name="aggr" added "aggr.sumd"
 __dmgetpmid: metric "aggr.count_err" -> PMID 511.0.41
-__dmbind: bind metric[40] aggr.count_err
+__dmbind: bind_expr or check_expr failed for metric[40] aggr.count_err
 Derived metric expr dump from <addr-192>...
 expr node <addr-192> type=COUNT left=<addr-193> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.41 from pmDesc) numval: 0
@@ -1216,7 +1216,7 @@ expr node <addr-193> type=NAME left=(nil) right=(nil) save_last=0 [sample.needpr
     Semantics: discrete  Units: none
 __dmtraverse: name="aggr" added "aggr.count_err"
 __dmgetpmid: metric "aggr.sum_err" -> PMID 511.0.42
-__dmbind: bind metric[41] aggr.sum_err
+__dmbind: bind_expr or check_expr failed for metric[41] aggr.sum_err
 Derived metric expr dump from <addr-194>...
 expr node <addr-194> type=SUM left=<addr-195> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.42 from pmDesc) numval: 0
@@ -1228,7 +1228,7 @@ expr node <addr-195> type=NAME left=(nil) right=(nil) save_last=0 [sample.needpr
     Semantics: discrete  Units: none
 __dmtraverse: name="aggr" added "aggr.sum_err"
 __dmgetpmid: metric "aggr.countblob" -> PMID 511.0.43
-__dmbind: bind metric[42] aggr.countblob
+__dmbind: bind_expr or check_expr failed for metric[42] aggr.countblob
 Derived metric expr dump from <addr-196>...
 expr node <addr-196> type=COUNT left=<addr-197> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.43 from pmDesc) numval: 0
@@ -1240,7 +1240,7 @@ expr node <addr-197> type=NAME left=(nil) right=(nil) save_last=0 [sample.sysinf
     Semantics: instant  Units: none
 __dmtraverse: name="aggr" added "aggr.countblob"
 __dmgetpmid: metric "aggr.count_noinst" -> PMID 511.0.44
-__dmbind: bind metric[43] aggr.count_noinst
+__dmbind: bind_expr or check_expr failed for metric[43] aggr.count_noinst
 Derived metric expr dump from <addr-198>...
 expr node <addr-198> type=COUNT left=<addr-199> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.44 from pmDesc) numval: 0
@@ -1462,5 +1462,15 @@ expr node <addr-5> type=NAME left=(nil) right=(nil) save_last=0 [sample.lights] 
 __dmopencontext(->ctx 0) called, 3 derived metrics
 __dmgetpmid: metric "aggr.non_arith" -> PMID 511.0.3
 Semantic error: derived metric aggr.non_arith: MAX(sample.lights): Non-arithmetic operand for function
+__dmbind: bind_expr or check_expr failed for metric[2] aggr.non_arith
+Derived metric expr dump from <addr-6>...
+expr node <addr-6> type=MAX left=<addr-7> right=(nil) save_last=0
+    PMID: PM_ID_NULL (29.0.46 from pmDesc) numval: 0
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+expr node <addr-7> type=NAME left=(nil) right=(nil) save_last=0 [sample.lights] primary=0
+    PMID: 29.0.46 (29.0.46 from pmDesc) numval: 0
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
 __dmtraverse: name="aggr", omitting invalid child "aggr.non_arith"
 Error: aggr: Unknown metric name

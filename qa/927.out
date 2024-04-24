@@ -248,7 +248,7 @@ expr node <addr-81> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.hu
 expr node <addr-82> type=INTEGER left=(nil) right=(nil) save_last=0 [100] primary=1
 __dmopencontext(->ctx 0) called, 14 derived metrics
 __dmgetpmid: metric "qa_927.bin_2_5" -> PMID 511.0.3
-__dmbind: bind metric[2] qa_927.bin_2_5
+__dmbind: bind_expr or check_expr failed for metric[2] qa_927.bin_2_5
 Derived metric expr dump from <addr-83>...
 expr node <addr-83> type=SLASH left=<addr-84> right=<addr-87> save_last=0
     PMID: PM_ID_NULL (511.0.3 from pmDesc) numval: 0
@@ -272,7 +272,7 @@ expr node <addr-87> type=INTEGER left=(nil) right=(nil) save_last=0 [5] primary=
     Semantics: discrete  Units: none
 __dmtraverse: name="qa_927" added "qa_927.bin_2_5"
 __dmgetpmid: metric "qa_927.bin_frac" -> PMID 511.0.4
-__dmbind: bind metric[3] qa_927.bin_frac
+__dmbind: bind_expr or check_expr failed for metric[3] qa_927.bin_frac
 Derived metric expr dump from <addr-88>...
 expr node <addr-88> type=STAR left=<addr-89> right=<addr-90> save_last=0
     PMID: PM_ID_NULL (511.0.4 from pmDesc) numval: 0
@@ -288,7 +288,7 @@ expr node <addr-90> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] pr
     Semantics: instant  Units: none
 __dmtraverse: name="qa_927" added "qa_927.bin_frac"
 __dmgetpmid: metric "qa_927.bin_frac2" -> PMID 511.0.5
-__dmbind: bind metric[4] qa_927.bin_frac2
+__dmbind: bind_expr or check_expr failed for metric[4] qa_927.bin_frac2
 Derived metric expr dump from <addr-91>...
 expr node <addr-91> type=STAR left=<addr-92> right=<addr-93> save_last=0
     PMID: PM_ID_NULL (511.0.5 from pmDesc) numval: 0
@@ -304,7 +304,7 @@ expr node <addr-93> type=DOUBLE left=(nil) right=(nil) save_last=0 [.4] primary=
     Semantics: discrete  Units: none
 __dmtraverse: name="qa_927" added "qa_927.bin_frac2"
 __dmgetpmid: metric "qa_927.rel_lt" -> PMID 511.0.6
-__dmbind: bind metric[5] qa_927.rel_lt
+__dmbind: bind_expr or check_expr failed for metric[5] qa_927.rel_lt
 Derived metric expr dump from <addr-94>...
 expr node <addr-94> type=LT left=<addr-95> right=<addr-96> save_last=0
     PMID: PM_ID_NULL (511.0.6 from pmDesc) numval: 0
@@ -320,7 +320,7 @@ expr node <addr-96> type=INTEGER left=(nil) right=(nil) save_last=0 [101] primar
     Semantics: discrete  Units: none
 __dmtraverse: name="qa_927" added "qa_927.rel_lt"
 __dmgetpmid: metric "qa_927.rel_leq" -> PMID 511.0.7
-__dmbind: bind metric[6] qa_927.rel_leq
+__dmbind: bind_expr or check_expr failed for metric[6] qa_927.rel_leq
 Derived metric expr dump from <addr-97>...
 expr node <addr-97> type=MINUS left=<addr-98> right=<addr-99> save_last=0
     PMID: PM_ID_NULL (511.0.7 from pmDesc) numval: 0
@@ -368,7 +368,7 @@ expr node <addr-107> type=INTEGER left=(nil) right=(nil) save_last=0 [1] primary
     Semantics: discrete  Units: none
 __dmtraverse: name="qa_927" added "qa_927.rel_leq"
 __dmgetpmid: metric "qa_927.rel_neq" -> PMID 511.0.8
-__dmbind: bind metric[7] qa_927.rel_neq
+__dmbind: bind_expr or check_expr failed for metric[7] qa_927.rel_neq
 Derived metric expr dump from <addr-108>...
 expr node <addr-108> type=NEQ left=<addr-109> right=<addr-111> save_last=0
     PMID: PM_ID_NULL (511.0.8 from pmDesc) numval: 0
@@ -388,7 +388,7 @@ expr node <addr-111> type=INTEGER left=(nil) right=(nil) save_last=0 [0] primary
     Semantics: discrete  Units: none
 __dmtraverse: name="qa_927" added "qa_927.rel_neq"
 __dmgetpmid: metric "qa_927.rel_true" -> PMID 511.0.9
-__dmbind: bind metric[8] qa_927.rel_true
+__dmbind: bind_expr or check_expr failed for metric[8] qa_927.rel_true
 Derived metric expr dump from <addr-112>...
 expr node <addr-112> type=MINUS left=<addr-113> right=<addr-120> save_last=0
     PMID: PM_ID_NULL (511.0.9 from pmDesc) numval: 0
@@ -436,7 +436,7 @@ expr node <addr-122> type=INTEGER left=(nil) right=(nil) save_last=0 [100] prima
     Semantics: discrete  Units: none
 __dmtraverse: name="qa_927" added "qa_927.rel_true"
 __dmgetpmid: metric "qa_927.rel_false" -> PMID 511.0.10
-__dmbind: bind metric[9] qa_927.rel_false
+__dmbind: bind_expr or check_expr failed for metric[9] qa_927.rel_false
 Derived metric expr dump from <addr-123>...
 expr node <addr-123> type=PLUS left=<addr-124> right=<addr-131> save_last=0
     PMID: PM_ID_NULL (511.0.10 from pmDesc) numval: 0
@@ -484,7 +484,7 @@ expr node <addr-133> type=INTEGER left=(nil) right=(nil) save_last=0 [100] prima
     Semantics: discrete  Units: none
 __dmtraverse: name="qa_927" added "qa_927.rel_false"
 __dmgetpmid: metric "qa_927.rel_eq" -> PMID 511.0.11
-__dmbind: bind metric[10] qa_927.rel_eq
+__dmbind: bind_expr or check_expr failed for metric[10] qa_927.rel_eq
 Derived metric expr dump from <addr-134>...
 expr node <addr-134> type=EQ left=<addr-135> right=<addr-138> save_last=0
     PMID: PM_ID_NULL (511.0.11 from pmDesc) numval: 0
@@ -516,7 +516,7 @@ expr node <addr-140> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulongl
     Semantics: instant  Units: none
 __dmtraverse: name="qa_927" added "qa_927.rel_eq"
 __dmgetpmid: metric "qa_927.bool.and_true" -> PMID 511.0.12
-__dmbind: bind metric[11] qa_927.bool.and_true
+__dmbind: bind_expr or check_expr failed for metric[11] qa_927.bool.and_true
 Derived metric expr dump from <addr-141>...
 expr node <addr-141> type=AND left=<addr-142> right=<addr-143> save_last=0
     PMID: PM_ID_NULL (511.0.12 from pmDesc) numval: 0
@@ -532,7 +532,7 @@ expr node <addr-143> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.o
     Semantics: instant  Units: none
 __dmtraverse: name="qa_927" added "qa_927.bool.and_true"
 __dmgetpmid: metric "qa_927.bool.and_false" -> PMID 511.0.13
-__dmbind: bind metric[12] qa_927.bool.and_false
+__dmbind: bind_expr or check_expr failed for metric[12] qa_927.bool.and_false
 Derived metric expr dump from <addr-144>...
 expr node <addr-144> type=AND left=<addr-145> right=<addr-146> save_last=0
     PMID: PM_ID_NULL (511.0.13 from pmDesc) numval: 0
@@ -548,7 +548,7 @@ expr node <addr-146> type=INTEGER left=(nil) right=(nil) save_last=0 [0] primary
     Semantics: discrete  Units: none
 __dmtraverse: name="qa_927" added "qa_927.bool.and_false"
 __dmgetpmid: metric "qa_927.bool.or_complex" -> PMID 511.0.14
-__dmbind: bind metric[13] qa_927.bool.or_complex
+__dmbind: bind_expr or check_expr failed for metric[13] qa_927.bool.or_complex
 Derived metric expr dump from <addr-147>...
 expr node <addr-147> type=OR left=<addr-148> right=<addr-159> save_last=0
     PMID: PM_ID_NULL (511.0.14 from pmDesc) numval: 0

@@ -72,47 +72,47 @@ pmRegisterDerived: global metric[11] qa1268.sub.sub.e = -10010
 pmRegisterDerived: global metric[12] qa1268.sub.sub.f = -10011
 pmAddDerived(ctx->0): per-context metric "qa1268.a" masks global derived metric of the same name
 __dmgetpmid: metric "qa1268.a" -> PMID 511.2047.1023
-__dmbind: bind metric[13] qa1268.a
+__dmbind: bind_expr or check_expr failed for metric[13] qa1268.a
 pmAddDerived(ctx->0): per-context metric[13] qa1268.a = 1
 pmAddDerived(ctx->0): per-context metric "qa1268.sub.a" masks global derived metric of the same name
 __dmgetpmid: metric "qa1268.sub.a" -> PMID 511.2047.1022
-__dmbind: bind metric[14] qa1268.sub.a
+__dmbind: bind_expr or check_expr failed for metric[14] qa1268.sub.a
 pmAddDerived(ctx->0): per-context metric[14] qa1268.sub.a = 2
 pmAddDerived(ctx->0): per-context metric "qa1268.sub.b" masks global derived metric of the same name
 __dmgetpmid: metric "qa1268.sub.b" -> PMID 511.2047.1021
-__dmbind: bind metric[15] qa1268.sub.b
+__dmbind: bind_expr or check_expr failed for metric[15] qa1268.sub.b
 pmAddDerived(ctx->0): per-context metric[15] qa1268.sub.b = 3
 pmAddDerived(ctx->0): per-context metric "qa1268.sub.c" masks global derived metric of the same name
 __dmgetpmid: metric "qa1268.sub.c" -> PMID 511.2047.1020
-__dmbind: bind metric[16] qa1268.sub.c
+__dmbind: bind_expr or check_expr failed for metric[16] qa1268.sub.c
 pmAddDerived(ctx->0): per-context metric[16] qa1268.sub.c = 4
 pmAddDerived(ctx->0): per-context metric "qa1268.sub.d" masks global derived metric of the same name
 __dmgetpmid: metric "qa1268.sub.d" -> PMID 511.2047.1019
-__dmbind: bind metric[17] qa1268.sub.d
+__dmbind: bind_expr or check_expr failed for metric[17] qa1268.sub.d
 pmAddDerived(ctx->0): per-context metric[17] qa1268.sub.d = 5
 pmAddDerived(ctx->0): per-context metric "qa1268.sub.sub.a" masks global derived metric of the same name
 __dmgetpmid: metric "qa1268.sub.sub.a" -> PMID 511.2047.1018
-__dmbind: bind metric[18] qa1268.sub.sub.a
+__dmbind: bind_expr or check_expr failed for metric[18] qa1268.sub.sub.a
 pmAddDerived(ctx->0): per-context metric[18] qa1268.sub.sub.a = 6
 pmAddDerived(ctx->0): per-context metric "qa1268.sub.sub.b" masks global derived metric of the same name
 __dmgetpmid: metric "qa1268.sub.sub.b" -> PMID 511.2047.1017
-__dmbind: bind metric[19] qa1268.sub.sub.b
+__dmbind: bind_expr or check_expr failed for metric[19] qa1268.sub.sub.b
 pmAddDerived(ctx->0): per-context metric[19] qa1268.sub.sub.b = 7
 pmAddDerived(ctx->0): per-context metric "qa1268.sub.sub.c" masks global derived metric of the same name
 __dmgetpmid: metric "qa1268.sub.sub.c" -> PMID 511.2047.1016
-__dmbind: bind metric[20] qa1268.sub.sub.c
+__dmbind: bind_expr or check_expr failed for metric[20] qa1268.sub.sub.c
 pmAddDerived(ctx->0): per-context metric[20] qa1268.sub.sub.c = 8
 pmAddDerived(ctx->0): per-context metric "qa1268.sub.sub.d" masks global derived metric of the same name
 __dmgetpmid: metric "qa1268.sub.sub.d" -> PMID 511.2047.1015
-__dmbind: bind metric[21] qa1268.sub.sub.d
+__dmbind: bind_expr or check_expr failed for metric[21] qa1268.sub.sub.d
 pmAddDerived(ctx->0): per-context metric[21] qa1268.sub.sub.d = 9
 pmAddDerived(ctx->0): per-context metric "qa1268.sub.sub.e" masks global derived metric of the same name
 __dmgetpmid: metric "qa1268.sub.sub.e" -> PMID 511.2047.1014
-__dmbind: bind metric[22] qa1268.sub.sub.e
+__dmbind: bind_expr or check_expr failed for metric[22] qa1268.sub.sub.e
 pmAddDerived(ctx->0): per-context metric[22] qa1268.sub.sub.e = 10
 pmAddDerived(ctx->0): per-context metric "qa1268.sub.sub.f" masks global derived metric of the same name
 __dmgetpmid: metric "qa1268.sub.sub.f" -> PMID 511.2047.1013
-__dmbind: bind metric[23] qa1268.sub.sub.f
+__dmbind: bind_expr or check_expr failed for metric[23] qa1268.sub.sub.f
 pmAddDerived(ctx->0): per-context metric[23] qa1268.sub.sub.f = 11
 __dmgetpmid: metric "qa1268.a" -> PMID 511.2047.1023
 __dmgetpmid: metric "qa1268.sub.a" -> PMID 511.2047.1022

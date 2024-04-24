@@ -1222,52 +1222,66 @@ check_expr(dm_t *dmp, node_t *np, node_t *parent, int async)
     /* otherwise, np->left is never NULL ... */
     assert(np->left != NULL);
 
-    if ((sts = check_expr(dmp, np->left, np, async)) < 0)
-	return sts;
+    if (np->type == N_COLON) {
+	/*
+	 * <guard> ? <left-expr> : <right-expr>
+	 *
+	 * the default strategy is to ensure pmDesc for the <left-expr>
+	 * and the <right-expr> are the same, and choose pmDesc from
+	 * <left-expr> ... then for the indom start assuming they are
+	 * the same, may need to adjust if one <expr> has an indom and
+	 * the other does not (see below)
+	 *
+	 * but first, some special case exceptions to limit the
+	 * binding and checking ...
+	 */
+	if (parent->type == N_QUEST && parent->left->type == N_DEFINED) {
+	    /*
+	     * special handling for defined(x) ? <left-expr> : <right-expr>
+	     * depending on result of defined(x) choose pmDesc from
+	     * <left-expr> (true) or <right-expr> (false)
+	     */
+	    if (parent->left->data.info->ivlist[0].value.ul == 1)
+		np->data.info->bind = QUEST_BIND_LEFT;
+	    else
+		np->data.info->bind = QUEST_BIND_RIGHT;
+	}
+	else
+	    np->data.info->bind = QUEST_BIND_BOTH;
+    }
+
+    if (np->type != N_COLON || np->data.info->bind & QUEST_BIND_LEFT) {
+	if ((sts = check_expr(dmp, np->left, np, async)) < 0)
+	    return sts;
+    }
 
     if (np->right != NULL) {
-	if ((sts = check_expr(dmp, np->right, np, async)) < 0)
-	    return sts;
+	if (np->type != N_COLON || np->data.info->bind & QUEST_BIND_RIGHT) {
+	    if ((sts = check_expr(dmp, np->right, np, async)) < 0)
+		return sts;
+	}
+
 	switch (np->type) {
 
 	case N_COLON:
-	    /*
-	     * <guard> ? <left-expr> : <right-expr>
-	     *
-	     * the default strategy is to ensure pmDesc for the <left-expr>
-	     * and the <right-expr> are the same, and choose pmDesc from
-	     * <left-expr> ... then for the indom start assuming they are
-	     * the same, may need to adjust if one <expr> has an indom and
-	     * the other does not (see below)
-	     *
-	     * but first, some special case exceptions ...
-	     */
-
-#if 0
-	    if (parent->type == N_QUEST)
-		__dmdumpexpr(parent, 0);
-#endif
-	    if (parent->type == N_QUEST && parent->left->type == N_DEFINED) {
-		/*
-		 * special handling for defined(x) ? <left-expr> : <right-expr>
-		 * depending on result of defined(x) choose pmDesc from
-		 * <left-expr> (true) or <right-expr> (false)
-		 */
-		if (parent->left->data.info->ivlist[0].value.ul == 1) {
-		    np->desc = np->left->desc;		/* struct copy */
-		    np->data.info->bind = QUEST_BIND_LEFT;
-		}
-		else {
+	    /* update metadata */
+	    if (np->data.info->bind == QUEST_BIND_BOTH) {
+		/* prefer other expr to novalue() */
+		if (np->left->type == N_NOVALUE)
 		    np->desc = np->right->desc;		/* struct copy */
-		    np->data.info->bind = QUEST_BIND_RIGHT;
-		}
-	    }
-	    else  {
-		np->desc = np->left->desc;
+		else
+		    np->desc = np->left->desc;		/* struct copy */
+		/* prefer indom to no indom */
 		if (np->left->desc.indom == PM_INDOM_NULL)
 		    np->desc.indom = np->right->desc.indom;
+		else
+		    np->desc.indom = np->left->desc.indom;
 		np->data.info->bind = QUEST_BIND_BOTH;
 	    }
+	    else if (np->data.info->bind & QUEST_BIND_LEFT)
+		np->desc = np->left->desc;		/* struct copy */
+	    else
+		np->desc = np->right->desc;		/* struct copy */
 
 	    /*
 	     * recursive descent looking for undefined metrics
@@ -1279,7 +1293,7 @@ check_expr(dm_t *dmp, node_t *np, node_t *parent, int async)
 		lsts += check_metrics(np->left,"left");
 	    if (np->data.info->bind & QUEST_BIND_RIGHT)
 		lsts += check_metrics(np->right, "right");
-	    /* if this fails, no point in trying other checks */
+	    /* if either of these fails, no point in trying other checks */
 	    if (lsts) {
 		if (async)
 		    report_sem_error(dmp->name, np);
@@ -3222,7 +3236,7 @@ __dmgetname(__pmContext *ctxp, pmID pmid, char ** name)
 void
 __dmbind(int derive_locked, __pmContext *ctxp, int i, int async)
 {
-    int		sts;
+    int		sts = 0;
     pmID	pmid;
     ctl_t	*cp;
 
@@ -3263,19 +3277,19 @@ __dmbind(int derive_locked, __pmContext *ctxp, int i, int async)
     if (cp->mlist[i].expr != NULL) {
 	/* failures must be reported in check_expr() or below */
 	sts = check_expr(&cp->mlist[i], cp->mlist[i].expr, NULL, async);
-	if (sts < 0) {
-	    free_expr(cp->mlist[i].expr);
-	    cp->mlist[i].expr = NULL;
-	}
-	else {
+	if (sts >= 0) {
 	    /* set correct PMID in pmDesc at the top level */
 	    cp->mlist[i].expr->desc.pmid = cp->mlist[i].pmid;
 	}
     }
-    if (pmDebugOptions.derive && cp->mlist[i].expr != NULL) {
-	fprintf(stderr, "__dmbind: bind metric[%d] %s\n", i, cp->mlist[i].name);
+    if (pmDebugOptions.derive && (cp->mlist[i].expr != NULL || sts < 0)) {
+	fprintf(stderr, "__dmbind: bind_expr or check_expr failed for metric[%d] %s\n", i, cp->mlist[i].name);
 	if (pmDebugOptions.appl1)
 	    __dmdumpexpr(cp->mlist[i].expr, 0);
+    }
+    if (sts < 0) {
+	free_expr(cp->mlist[i].expr);
+	cp->mlist[i].expr = NULL;
     }
 
 done:

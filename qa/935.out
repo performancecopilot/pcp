@@ -554,82 +554,82 @@ expr node <addr-199> type=GT left=<addr-200> right=<addr-201> save_last=0
 expr node <addr-200> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.hundred] primary=1
 expr node <addr-201> type=INTEGER left=(nil) right=(nil) save_last=0 [100] primary=1
 __dmgetpmid: metric "a.m1" -> PMID 511.0.3
-__dmbind: bind metric[2] a.m1
+__dmbind: bind_expr or check_expr failed for metric[2] a.m1
 __dmtraverse: name="a" added "a.m1"
 __dmgetpmid: metric "a.m2" -> PMID 511.0.4
-__dmbind: bind metric[3] a.m2
+__dmbind: bind_expr or check_expr failed for metric[3] a.m2
 __dmtraverse: name="a" added "a.m2"
 __dmgetpmid: metric "a.m3" -> PMID 511.0.5
-__dmbind: bind metric[4] a.m3
+__dmbind: bind_expr or check_expr failed for metric[4] a.m3
 __dmtraverse: name="a" added "a.m3"
 __dmgetpmid: metric "a.m4" -> PMID 511.0.6
-__dmbind: bind metric[5] a.m4
+__dmbind: bind_expr or check_expr failed for metric[5] a.m4
 __dmtraverse: name="a" added "a.m4"
 __dmgetpmid: metric "a.m5" -> PMID 511.0.7
-__dmbind: bind metric[6] a.m5
+__dmbind: bind_expr or check_expr failed for metric[6] a.m5
 __dmtraverse: name="a" added "a.m5"
 __dmgetpmid: metric "a.m6" -> PMID 511.0.8
-__dmbind: bind metric[7] a.m6
+__dmbind: bind_expr or check_expr failed for metric[7] a.m6
 __dmtraverse: name="a" added "a.m6"
 __dmgetpmid: metric "a.m7" -> PMID 511.0.9
-__dmbind: bind metric[8] a.m7
+__dmbind: bind_expr or check_expr failed for metric[8] a.m7
 __dmtraverse: name="a" added "a.m7"
 __dmgetpmid: metric "a.m8" -> PMID 511.0.10
-__dmbind: bind metric[9] a.m8
+__dmbind: bind_expr or check_expr failed for metric[9] a.m8
 __dmtraverse: name="a" added "a.m8"
 __dmgetpmid: metric "a.m9" -> PMID 511.0.11
-__dmbind: bind metric[10] a.m9
+__dmbind: bind_expr or check_expr failed for metric[10] a.m9
 __dmtraverse: name="a" added "a.m9"
 __dmgetpmid: metric "a.m10" -> PMID 511.0.12
-__dmbind: bind metric[11] a.m10
+__dmbind: bind_expr or check_expr failed for metric[11] a.m10
 __dmtraverse: name="a" added "a.m10"
 __dmgetpmid: metric "a.m11" -> PMID 511.0.13
-__dmbind: bind metric[12] a.m11
+__dmbind: bind_expr or check_expr failed for metric[12] a.m11
 __dmtraverse: name="a" added "a.m11"
 __dmgetpmid: metric "a.m12" -> PMID 511.0.14
-__dmbind: bind metric[13] a.m12
+__dmbind: bind_expr or check_expr failed for metric[13] a.m12
 __dmtraverse: name="a" added "a.m12"
 __dmgetpmid: metric "a.m13" -> PMID 511.0.15
-__dmbind: bind metric[14] a.m13
+__dmbind: bind_expr or check_expr failed for metric[14] a.m13
 __dmtraverse: name="a" added "a.m13"
 __dmgetpmid: metric "a.m14" -> PMID 511.0.16
-__dmbind: bind metric[15] a.m14
+__dmbind: bind_expr or check_expr failed for metric[15] a.m14
 __dmtraverse: name="a" added "a.m14"
 __dmgetpmid: metric "a.m15" -> PMID 511.0.17
-__dmbind: bind metric[16] a.m15
+__dmbind: bind_expr or check_expr failed for metric[16] a.m15
 __dmtraverse: name="a" added "a.m15"
 __dmgetpmid: metric "a.m16" -> PMID 511.0.18
-__dmbind: bind metric[17] a.m16
+__dmbind: bind_expr or check_expr failed for metric[17] a.m16
 __dmtraverse: name="a" added "a.m16"
 __dmgetpmid: metric "a.m17" -> PMID 511.0.19
-__dmbind: bind metric[18] a.m17
+__dmbind: bind_expr or check_expr failed for metric[18] a.m17
 __dmtraverse: name="a" added "a.m17"
 __dmgetpmid: metric "a.m18" -> PMID 511.0.20
-__dmbind: bind metric[19] a.m18
+__dmbind: bind_expr or check_expr failed for metric[19] a.m18
 __dmtraverse: name="a" added "a.m18"
 __dmgetpmid: metric "a.m19" -> PMID 511.0.21
-__dmbind: bind metric[20] a.m19
+__dmbind: bind_expr or check_expr failed for metric[20] a.m19
 __dmtraverse: name="a" added "a.m19"
 __dmgetpmid: metric "a.m20" -> PMID 511.0.22
-__dmbind: bind metric[21] a.m20
+__dmbind: bind_expr or check_expr failed for metric[21] a.m20
 __dmtraverse: name="a" added "a.m20"
 __dmgetpmid: metric "a.m21" -> PMID 511.0.23
-__dmbind: bind metric[22] a.m21
+__dmbind: bind_expr or check_expr failed for metric[22] a.m21
 __dmtraverse: name="a" added "a.m21"
 __dmgetpmid: metric "a.m22" -> PMID 511.0.24
-__dmbind: bind metric[23] a.m22
+__dmbind: bind_expr or check_expr failed for metric[23] a.m22
 __dmtraverse: name="a" added "a.m22"
 __dmgetpmid: metric "a.m23" -> PMID 511.0.25
-__dmbind: bind metric[24] a.m23
+__dmbind: bind_expr or check_expr failed for metric[24] a.m23
 __dmtraverse: name="a" added "a.m23"
 __dmgetpmid: metric "a.m24" -> PMID 511.0.26
-__dmbind: bind metric[25] a.m24
+__dmbind: bind_expr or check_expr failed for metric[25] a.m24
 __dmtraverse: name="a" added "a.m24"
 __dmgetpmid: metric "a.m25" -> PMID 511.0.27
-__dmbind: bind metric[26] a.m25
+__dmbind: bind_expr or check_expr failed for metric[26] a.m25
 __dmtraverse: name="a" added "a.m25"
 __dmgetpmid: metric "a.m26" -> PMID 511.0.28
-__dmbind: bind metric[27] a.m26
+__dmbind: bind_expr or check_expr failed for metric[27] a.m26
 __dmtraverse: name="a" added "a.m26"
 __dmgetpmid: metric "a.m1" -> PMID 511.0.3
 __dmgetpmid: metric "a.m2" -> PMID 511.0.4

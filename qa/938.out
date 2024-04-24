@@ -408,7 +408,7 @@ expr node <addr-146> type=INTEGER left=(nil) right=(nil) save_last=0 [1] primary
 expr node <addr-147> type=INTEGER left=(nil) right=(nil) save_last=0 [2] primary=1
 __dmopencontext(->ctx 0) called, 19 derived metrics
 __dmgetpmid: metric "a.m1" -> PMID 511.0.3
-__dmbind: bind metric[2] a.m1
+__dmbind: bind_expr or check_expr failed for metric[2] a.m1
 Derived metric expr dump from <addr-148>...
 expr node <addr-148> type=QUEST left=<addr-149> right=<addr-152> save_last=0
     PMID: PM_ID_NULL (511.0.3 from pmDesc) numval: 0
@@ -440,7 +440,7 @@ expr node <addr-154> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulongl
     Semantics: instant  Units: none
 __dmtraverse: name="a" added "a.m1"
 __dmgetpmid: metric "a.m2" -> PMID 511.0.4
-__dmbind: bind metric[3] a.m2
+__dmbind: bind_expr or check_expr failed for metric[3] a.m2
 Derived metric expr dump from <addr-155>...
 expr node <addr-155> type=QUEST left=<addr-156> right=<addr-159> save_last=0
     PMID: PM_ID_NULL (511.0.4 from pmDesc) numval: 0
@@ -472,7 +472,7 @@ expr node <addr-161> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulongl
     Semantics: instant  Units: none
 __dmtraverse: name="a" added "a.m2"
 __dmgetpmid: metric "a.m3" -> PMID 511.0.5
-__dmbind: bind metric[4] a.m3
+__dmbind: bind_expr or check_expr failed for metric[4] a.m3
 Derived metric expr dump from <addr-162>...
 expr node <addr-162> type=QUEST left=<addr-163> right=<addr-166> save_last=0
     PMID: PM_ID_NULL (511.0.5 from pmDesc) numval: 0
@@ -512,7 +512,7 @@ expr node <addr-170> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] p
     Semantics: instant  Units: none
 __dmtraverse: name="a" added "a.m3"
 __dmgetpmid: metric "a.m4" -> PMID 511.0.6
-__dmbind: bind metric[5] a.m4
+__dmbind: bind_expr or check_expr failed for metric[5] a.m4
 Derived metric expr dump from <addr-171>...
 expr node <addr-171> type=QUEST left=<addr-172> right=<addr-175> save_last=0
     PMID: PM_ID_NULL (511.0.6 from pmDesc) numval: 0
@@ -544,7 +544,7 @@ expr node <addr-177> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] p
     Semantics: instant  Units: none
 __dmtraverse: name="a" added "a.m4"
 __dmgetpmid: metric "a.m5" -> PMID 511.0.7
-__dmbind: bind metric[6] a.m5
+__dmbind: bind_expr or check_expr failed for metric[6] a.m5
 Derived metric expr dump from <addr-178>...
 expr node <addr-178> type=QUEST left=<addr-179> right=<addr-182> save_last=0
     PMID: PM_ID_NULL (511.0.7 from pmDesc) numval: 0
@@ -584,7 +584,7 @@ expr node <addr-186> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] p
     Semantics: instant  Units: none
 __dmtraverse: name="a" added "a.m5"
 __dmgetpmid: metric "a.m6" -> PMID 511.0.8
-__dmbind: bind metric[7] a.m6
+__dmbind: bind_expr or check_expr failed for metric[7] a.m6
 Derived metric expr dump from <addr-187>...
 expr node <addr-187> type=QUEST left=<addr-188> right=<addr-199> save_last=0
     PMID: PM_ID_NULL (511.0.8 from pmDesc) numval: 0
@@ -648,7 +648,7 @@ expr node <addr-201> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] p
     Semantics: instant  Units: none
 __dmtraverse: name="a" added "a.m6"
 __dmgetpmid: metric "a.m7" -> PMID 511.0.9
-__dmbind: bind metric[8] a.m7
+__dmbind: bind_expr or check_expr failed for metric[8] a.m7
 Derived metric expr dump from <addr-202>...
 expr node <addr-202> type=QUEST left=<addr-203> right=<addr-214> save_last=0
     PMID: PM_ID_NULL (511.0.9 from pmDesc) numval: 0
@@ -712,7 +712,7 @@ expr node <addr-216> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.t
     Semantics: instant  Units: none
 __dmtraverse: name="a" added "a.m7"
 __dmgetpmid: metric "a.m8" -> PMID 511.0.10
-__dmbind: bind metric[9] a.m8
+__dmbind: bind_expr or check_expr failed for metric[9] a.m8
 Derived metric expr dump from <addr-217>...
 expr node <addr-217> type=QUEST left=<addr-218> right=<addr-225> save_last=0
     PMID: PM_ID_NULL (511.0.10 from pmDesc) numval: 0
@@ -822,36 +822,250 @@ __dmtraverse: name="a" added "a.m8"
 __dmgetpmid: metric "a.err.m1" -> PMID 511.0.11
 Semantic error: ternary op type: left=64 right=32
 Semantic error: derived metric a.err.m1: sample.longlong.ten : sample.bin: Different types for ternary operands
+__dmbind: bind_expr or check_expr failed for metric[10] a.err.m1
+Derived metric expr dump from <addr-243>...
+expr node <addr-243> type=QUEST left=<addr-244> right=<addr-247> save_last=0
+    PMID: PM_ID_NULL (0.0.0 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 0.0 0x0
+    Semantics: ??? (0)  Units: none
+expr node <addr-244> type=GT left=<addr-245> right=<addr-246> save_last=0
+    PMID: PM_ID_NULL (29.0.6 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+expr node <addr-245> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=0
+    PMID: 29.0.6 (29.0.6 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+expr node <addr-246> type=INTEGER left=(nil) right=(nil) save_last=0 [400] primary=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+expr node <addr-247> type=COLON left=<addr-248> right=<addr-249> save_last=0
+    PMID: PM_ID_NULL (29.0.21 from pmDesc) numval: 0
+    Data Type: 64-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+expr node <addr-248> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.ten] primary=0
+    PMID: 29.0.21 (29.0.21 from pmDesc) numval: 0
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-249> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=0
+    PMID: 29.0.6 (29.0.6 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
 __dmtraverse: name="a", omitting invalid child "a.err.m1"
 __dmgetpmid: metric "a.err.m2" -> PMID 511.0.12
 Semantic error: ternary op units (space): left=byte (dim=1 scale=0) right=Kbyte (dim=1 scale=1)
 Semantic error: derived metric a.err.m2: sample.byte_ctr : sample.kbyte_ctr: Different units or scale (space) for ternary operands
+__dmbind: bind_expr or check_expr failed for metric[11] a.err.m2
+Derived metric expr dump from <addr-243>...
+expr node <addr-243> type=QUEST left=<addr-251> right=<addr-252> save_last=0
+    PMID: PM_ID_NULL (0.0.0 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 0.0 0x0
+    Semantics: ??? (0)  Units: none
+expr node <addr-251> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] primary=0
+    PMID: 29.0.10 (29.0.10 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-252> type=COLON left=<addr-253> right=<addr-254> save_last=0
+    PMID: PM_ID_NULL (29.0.81 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: byte
+expr node <addr-253> type=NAME left=(nil) right=(nil) save_last=0 [sample.byte_ctr] primary=0
+    PMID: 29.0.81 (29.0.81 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: byte
+expr node <addr-254> type=NAME left=(nil) right=(nil) save_last=0 [sample.kbyte_ctr] primary=0
+    PMID: 29.0.83 (29.0.83 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: Kbyte
 __dmtraverse: name="a", omitting invalid child "a.err.m2"
 __dmgetpmid: metric "a.err.m3" -> PMID 511.0.13
 Semantic error: ternary op type: left=32 right=STRING
 Semantic error: derived metric a.err.m3: sample.bin : sample.lights: Different types for ternary operands
+__dmbind: bind_expr or check_expr failed for metric[12] a.err.m3
+Derived metric expr dump from <addr-243>...
+expr node <addr-243> type=QUEST left=<addr-251> right=<addr-252> save_last=0
+    PMID: PM_ID_NULL (0.0.0 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 0.0 0x0
+    Semantics: ??? (0)  Units: none
+expr node <addr-251> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] primary=0
+    PMID: 29.0.10 (29.0.10 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-252> type=COLON left=<addr-253> right=<addr-254> save_last=0
+    PMID: PM_ID_NULL (29.0.6 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+expr node <addr-253> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=0
+    PMID: 29.0.6 (29.0.6 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+expr node <addr-254> type=NAME left=(nil) right=(nil) save_last=0 [sample.lights] primary=0
+    PMID: 29.0.46 (29.0.46 from pmDesc) numval: 0
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
 __dmtraverse: name="a", omitting invalid child "a.err.m3"
 __dmgetpmid: metric "a.err.m4" -> PMID 511.0.14
 Semantic error: ternary op indom: left=29.2 right=29.1
 Semantic error: derived metric a.err.m4: sample.bin : sample.colour: Different instance domains for ternary operands
+__dmbind: bind_expr or check_expr failed for metric[13] a.err.m4
+Derived metric expr dump from <addr-243>...
+expr node <addr-243> type=QUEST left=<addr-251> right=<addr-252> save_last=0
+    PMID: PM_ID_NULL (0.0.0 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 0.0 0x0
+    Semantics: ??? (0)  Units: none
+expr node <addr-251> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] primary=0
+    PMID: 29.0.10 (29.0.10 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-252> type=COLON left=<addr-253> right=<addr-254> save_last=0
+    PMID: PM_ID_NULL (29.0.6 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+expr node <addr-253> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=0
+    PMID: 29.0.6 (29.0.6 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+expr node <addr-254> type=NAME left=(nil) right=(nil) save_last=0 [sample.colour] primary=0
+    PMID: 29.0.5 (29.0.5 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 29.1 0x7400001
+    Semantics: instant  Units: none
 __dmtraverse: name="a", omitting invalid child "a.err.m4"
 __dmgetpmid: metric "a.err.m5" -> PMID 511.0.15
 Semantic error: ternary op semantics: left=counter right=instant
 Semantic error: derived metric a.err.m5: sample.seconds : sample.ulong.ten: Different semantics for ternary operands
+__dmbind: bind_expr or check_expr failed for metric[14] a.err.m5
+Derived metric expr dump from <addr-243>...
+expr node <addr-243> type=QUEST left=<addr-251> right=<addr-252> save_last=0
+    PMID: PM_ID_NULL (0.0.0 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 0.0 0x0
+    Semantics: ??? (0)  Units: none
+expr node <addr-251> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] primary=0
+    PMID: 29.0.10 (29.0.10 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-252> type=COLON left=<addr-253> right=<addr-254> save_last=0
+    PMID: PM_ID_NULL (29.0.2 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: sec
+expr node <addr-253> type=NAME left=(nil) right=(nil) save_last=0 [sample.seconds] primary=0
+    PMID: 29.0.2 (29.0.2 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: sec
+expr node <addr-254> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.ten] primary=0
+    PMID: 29.0.94 (29.0.94 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
 __dmtraverse: name="a", omitting invalid child "a.err.m5"
 __dmgetpmid: metric "a.err.m6" -> PMID 511.0.16
 Semantic error: ternary op units (time): left=byte / sec right=byte / hour
 Semantic error: derived metric a.err.m6: sample.byte_rate : sample.byte_rate_perhour: Different units or scale (time) for ternary operands
+__dmbind: bind_expr or check_expr failed for metric[15] a.err.m6
+Derived metric expr dump from <addr-243>...
+expr node <addr-243> type=QUEST left=<addr-251> right=<addr-252> save_last=0
+    PMID: PM_ID_NULL (0.0.0 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 0.0 0x0
+    Semantics: ??? (0)  Units: none
+expr node <addr-251> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] primary=0
+    PMID: 29.0.10 (29.0.10 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-252> type=COLON left=<addr-253> right=<addr-254> save_last=0
+    PMID: PM_ID_NULL (29.0.82 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: byte / sec
+expr node <addr-253> type=NAME left=(nil) right=(nil) save_last=0 [sample.byte_rate] primary=0
+    PMID: 29.0.82 (29.0.82 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: byte / sec
+expr node <addr-254> type=NAME left=(nil) right=(nil) save_last=0 [sample.byte_rate_perhour] primary=0
+    PMID: 29.0.85 (29.0.85 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: byte / hour
 __dmtraverse: name="a", omitting invalid child "a.err.m6"
 __dmgetpmid: metric "a.err.m7" -> PMID 511.0.17
 Semantic error: ternary op units (count): left= right=count
 Semantic error: derived metric a.err.m7: sample.long.hundred : sample.step: Different units or scale (count) for ternary operands
+__dmbind: bind_expr or check_expr failed for metric[16] a.err.m7
+Derived metric expr dump from <addr-243>...
+expr node <addr-243> type=QUEST left=<addr-251> right=<addr-252> save_last=0
+    PMID: PM_ID_NULL (0.0.0 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 0.0 0x0
+    Semantics: ??? (0)  Units: none
+expr node <addr-251> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] primary=0
+    PMID: 29.0.10 (29.0.10 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-252> type=COLON left=<addr-253> right=<addr-254> save_last=0
+    PMID: PM_ID_NULL (29.0.12 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-253> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.hundred] primary=0
+    PMID: 29.0.12 (29.0.12 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-254> type=NAME left=(nil) right=(nil) save_last=0 [sample.step] primary=0
+    PMID: 29.0.8 (29.0.8 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
 __dmtraverse: name="a", omitting invalid child "a.err.m7"
 __dmgetpmid: metric "a.err.m8" -> PMID 511.0.18
 Semantic error: derived metric a.err.m8: <expr> ? sample.ulong.hundred : sample.ulong.ten: Non-scalar ternary guard with scalar expressions
+__dmbind: bind_expr or check_expr failed for metric[17] a.err.m8
+Derived metric expr dump from <addr-243>...
+expr node <addr-243> type=QUEST left=<addr-251> right=<addr-284> save_last=0
+    PMID: PM_ID_NULL (0.0.0 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 0.0 0x0
+    Semantics: ??? (0)  Units: none
+expr node <addr-251> type=GT left=<addr-282> right=<addr-253> save_last=0
+    PMID: PM_ID_NULL (29.0.5 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: 29.1 0x7400001
+    Semantics: instant  Units: none
+expr node <addr-282> type=NAME left=(nil) right=(nil) save_last=0 [sample.colour] primary=0
+    PMID: 29.0.5 (29.0.5 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 29.1 0x7400001
+    Semantics: instant  Units: none
+expr node <addr-253> type=INTEGER left=(nil) right=(nil) save_last=0 [200] primary=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+expr node <addr-284> type=COLON left=<addr-285> right=<addr-286> save_last=0
+    PMID: PM_ID_NULL (29.0.95 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-285> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.hundred] primary=0
+    PMID: 29.0.95 (29.0.95 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-286> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.ten] primary=0
+    PMID: 29.0.94 (29.0.94 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
 __dmtraverse: name="a", omitting invalid child "a.err.m8"
 __dmgetpmid: metric "a.err.m9" -> PMID 511.0.19
 Semantic error: derived metric a.err.m9: sample.string.hullo ? 1 : 2: Non-arithmetic operand for ternary guard
+__dmbind: bind_expr or check_expr failed for metric[18] a.err.m9
+Derived metric expr dump from <addr-243>...
+expr node <addr-243> type=QUEST left=<addr-251> right=<addr-252> save_last=0
+    PMID: PM_ID_NULL (0.0.0 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 0.0 0x0
+    Semantics: ??? (0)  Units: none
+expr node <addr-251> type=NAME left=(nil) right=(nil) save_last=0 [sample.string.hullo] primary=0
+    PMID: 29.0.31 (29.0.31 from pmDesc) numval: 0
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-252> type=COLON left=<addr-253> right=<addr-254> save_last=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+expr node <addr-253> type=INTEGER left=(nil) right=(nil) save_last=0 [1] primary=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+expr node <addr-254> type=INTEGER left=(nil) right=(nil) save_last=0 [2] primary=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
 __dmtraverse: name="a", omitting invalid child "a.err.m9"
 __dmgetpmid: metric "a.m1" -> PMID 511.0.3
 __dmgetpmid: metric "a.m2" -> PMID 511.0.4

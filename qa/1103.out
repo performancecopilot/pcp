@@ -9,7 +9,7 @@ pmRegisterDerived: global metric[3] qa.b = (scalar(sample.bin[bin-100]) + scalar
 pmRegisterDerived: global metric[4] qa.c = (scalar(sample.bin[bin-100]) + scalar(matchinst(/^bin-200$/,sample.bin)) + scalar(sample.bin[bin-300])) / 3
 __dmopencontext(->ctx 0) called, 5 derived metrics
 __dmgetpmid: metric "qa.a" -> PMID 511.0.3
-__dmbind: bind metric[2] qa.a
+__dmbind: bind_expr or check_expr failed for metric[2] qa.a
 Derived metric expr dump from <addr-0>...
 expr node <addr-0> type=SCALAR left=<addr-1> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.3 from pmDesc) numval: 0
@@ -26,7 +26,7 @@ expr node <addr-3> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] pri
     Semantics: instant  Units: none
 __dmtraverse: name="qa" added "qa.a"
 __dmgetpmid: metric "qa.b" -> PMID 511.0.4
-__dmbind: bind metric[3] qa.b
+__dmbind: bind_expr or check_expr failed for metric[3] qa.b
 Derived metric expr dump from <addr-4>...
 expr node <addr-4> type=SLASH left=<addr-5> right=<addr-19> save_last=0
     PMID: PM_ID_NULL (511.0.4 from pmDesc) numval: 0
@@ -85,7 +85,7 @@ expr node <addr-19> type=INTEGER left=(nil) right=(nil) save_last=0 [3] primary=
     Semantics: discrete  Units: none
 __dmtraverse: name="qa" added "qa.b"
 __dmgetpmid: metric "qa.c" -> PMID 511.0.5
-__dmbind: bind metric[4] qa.c
+__dmbind: bind_expr or check_expr failed for metric[4] qa.c
 Derived metric expr dump from <addr-20>...
 expr node <addr-20> type=SLASH left=<addr-21> right=<addr-35> save_last=0
     PMID: PM_ID_NULL (511.0.5 from pmDesc) numval: 0
