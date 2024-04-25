@@ -236,232 +236,48 @@ expr node <addr-61> type=NAME left=(nil) right=(nil) save_last=0 [sample.string.
 expr node <addr-62> type=SCALE left=(nil) right=(nil) save_last=0 [millisec / count]
 __dmopencontext(->ctx 0) called, 11 derived metrics
 __dmgetpmid: metric "a.m1" -> PMID 511.0.3
-__dmbind: bind_expr or check_expr failed for metric[2] a.m1
-Derived metric expr dump from <addr-63>...
-expr node <addr-63> type=RESCALE left=<addr-64> right=<addr-65> save_last=0
-    PMID: PM_ID_NULL (511.0.3 from pmDesc) numval: 0
-    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: Kbyte / min
-expr node <addr-64> type=NAME left=(nil) right=(nil) save_last=0 [sample.byte_rate] primary=0
-    PMID: 29.0.82 (29.0.82 from pmDesc) numval: 0
-    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: byte / sec
-expr node <addr-65> type=SCALE left=(nil) right=(nil) save_last=0 [Kbyte / min]
 __dmtraverse: name="a" added "a.m1"
 __dmgetpmid: metric "a.m2" -> PMID 511.0.4
-__dmbind: bind_expr or check_expr failed for metric[3] a.m2
-Derived metric expr dump from <addr-66>...
-expr node <addr-66> type=RESCALE left=<addr-67> right=<addr-68> save_last=0
-    PMID: PM_ID_NULL (511.0.4 from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: count / sec
-expr node <addr-67> type=INTEGER left=(nil) right=(nil) save_last=0 [36000] primary=0
-    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: count / hour
-expr node <addr-68> type=SCALE left=(nil) right=(nil) save_last=0 [count / sec]
 __dmtraverse: name="a" added "a.m2"
 __dmgetpmid: metric "a.m3" -> PMID 511.0.5
-__dmbind: bind_expr or check_expr failed for metric[4] a.m3
-Derived metric expr dump from <addr-69>...
-expr node <addr-69> type=RESCALE left=<addr-70> right=<addr-75> save_last=0
-    PMID: PM_ID_NULL (511.0.5 from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: count / sec
-expr node <addr-70> type=PLUS left=<addr-71> right=<addr-72> save_last=0
-    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: count / hour
-expr node <addr-71> type=INTEGER left=(nil) right=(nil) save_last=0 [36000] primary=0
-    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: count / hour
-expr node <addr-72> type=RESCALE left=<addr-73> right=<addr-74> save_last=0
-    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: count / hour
-expr node <addr-73> type=INTEGER left=(nil) right=(nil) save_last=0 [600] primary=0
-    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: count / min
-expr node <addr-74> type=SCALE left=(nil) right=(nil) save_last=0 [count / hour]
-expr node <addr-75> type=SCALE left=(nil) right=(nil) save_last=0 [count / sec]
 __dmtraverse: name="a" added "a.m3"
 __dmgetpmid: metric "a.m4" -> PMID 511.0.6
-__dmbind: bind_expr or check_expr failed for metric[5] a.m4
-Derived metric expr dump from <addr-76>...
-expr node <addr-76> type=DEFINED left=(nil) right=(nil) save_last=0
-    PMID: PM_ID_NULL (511.0.6 from pmDesc) numval: 1
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
-[0] inst=-1, val=1
 __dmtraverse: name="a" added "a.m4"
 __dmgetpmid: metric "a.m5" -> PMID 511.0.7
 __dmgetpmid: metric "sample.long.not_million" -> Unknown metric name
-__dmbind: bind_expr or check_expr failed for metric[6] a.m5
-Derived metric expr dump from <addr-77>...
-expr node <addr-77> type=DEFINED left=(nil) right=(nil) save_last=0
-    PMID: PM_ID_NULL (511.0.7 from pmDesc) numval: 1
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
-[0] inst=-1, val=0
 __dmtraverse: name="a" added "a.m5"
 __dmgetpmid: metric "a.m6" -> PMID 511.0.8
-__dmbind: bind_expr or check_expr failed for metric[7] a.m6
-Derived metric expr dump from <addr-78>...
-expr node <addr-78> type=QUEST left=<addr-79> right=<addr-81> save_last=0
-    PMID: PM_ID_NULL (511.0.8 from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
-expr node <addr-79> type=NOT left=<addr-80> right=(nil) save_last=0
-    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
-expr node <addr-80> type=DEFINED left=(nil) right=(nil) save_last=0
-    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 1
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
-[0] inst=-1, val=1
-expr node <addr-81> type=COLON left=<addr-82> right=<addr-83> save_last=0
-    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
-expr node <addr-82> type=INTEGER left=(nil) right=(nil) save_last=0 [0] primary=0
-    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
-expr node <addr-83> type=PLUS left=<addr-84> right=<addr-89> save_last=0
-    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
-expr node <addr-84> type=PLUS left=<addr-85> right=<addr-86> save_last=0
-    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
-expr node <addr-85> type=DEFINED left=(nil) right=(nil) save_last=0
-    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 1
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
-[0] inst=-1, val=1
-expr node <addr-86> type=STAR left=<addr-87> right=<addr-88> save_last=0
-    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
-expr node <addr-87> type=INTEGER left=(nil) right=(nil) save_last=0 [2] primary=0
-    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
-expr node <addr-88> type=DEFINED left=(nil) right=(nil) save_last=0
-    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 1
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
-[0] inst=-1, val=1
-expr node <addr-89> type=STAR left=<addr-90> right=<addr-91> save_last=0
-    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
-expr node <addr-90> type=INTEGER left=(nil) right=(nil) save_last=0 [3] primary=0
-    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
-expr node <addr-91> type=DEFINED left=(nil) right=(nil) save_last=0
-    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 1
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
-[0] inst=-1, val=1
 __dmtraverse: name="a" added "a.m6"
 __dmgetpmid: metric "a.m7" -> PMID 511.0.9
 __dmgetpmid: metric "sample.long.bozo" -> Unknown metric name
-__dmbind: bind_expr or check_expr failed for metric[8] a.m7
-Derived metric expr dump from <addr-92>...
-expr node <addr-92> type=QUEST left=<addr-93> right=<addr-95> save_last=0
-    PMID: PM_ID_NULL (511.0.9 from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
-expr node <addr-93> type=NOT left=<addr-94> right=(nil) save_last=0
-    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
-expr node <addr-94> type=DEFINED left=(nil) right=(nil) save_last=0
-    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 1
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
-[0] inst=-1, val=0
-expr node <addr-95> type=COLON left=<addr-96> right=<addr-105> save_last=0
-    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
-expr node <addr-96> type=PLUS left=<addr-97> right=<addr-102> save_last=0
-    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
-expr node <addr-97> type=PLUS left=<addr-98> right=<addr-99> save_last=0
-    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
-expr node <addr-98> type=DEFINED left=(nil) right=(nil) save_last=0
-    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 1
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
-[0] inst=-1, val=1
-expr node <addr-99> type=STAR left=<addr-100> right=<addr-101> save_last=0
-    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
-expr node <addr-100> type=INTEGER left=(nil) right=(nil) save_last=0 [2] primary=0
-    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
-expr node <addr-101> type=DEFINED left=(nil) right=(nil) save_last=0
-    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 1
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
-[0] inst=-1, val=1
-expr node <addr-102> type=STAR left=<addr-103> right=<addr-104> save_last=0
-    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
-expr node <addr-103> type=INTEGER left=(nil) right=(nil) save_last=0 [3] primary=0
-    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
-expr node <addr-104> type=DEFINED left=(nil) right=(nil) save_last=0
-    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 1
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
-[0] inst=-1, val=1
-expr node <addr-105> type=INTEGER left=(nil) right=(nil) save_last=0 [0] primary=0
-    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
 __dmtraverse: name="a" added "a.m7"
 __dmgetpmid: metric "a.err.m1" -> PMID 511.0.10
 Semantic error: derived metric a.err.m1: sample.long.hundred RESCALE Kbyte / sec: Incompatible dimensions
-__dmbind: bind_expr or check_expr failed for metric[9] a.err.m1
-Derived metric expr dump from <addr-106>...
-expr node <addr-106> type=RESCALE left=<addr-107> right=<addr-108> save_last=0
+__dmbind: check_expr failed for metric[9] a.err.m1
+Derived metric expr dump from <addr-63>...
+expr node <addr-63> type=RESCALE left=<addr-64> right=<addr-65> save_last=0
     PMID: PM_ID_NULL (29.0.12 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-expr node <addr-107> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.hundred] primary=0
+expr node <addr-64> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.hundred] primary=0
     PMID: 29.0.12 (29.0.12 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-expr node <addr-108> type=SCALE left=(nil) right=(nil) save_last=0 [Kbyte / sec]
+expr node <addr-65> type=SCALE left=(nil) right=(nil) save_last=0 [Kbyte / sec]
 __dmtraverse: name="a", omitting invalid child "a.err.m1"
 __dmgetpmid: metric "a.err.m2" -> PMID 511.0.11
 Semantic error: derived metric a.err.m2: sample.string.hullo RESCALE millisec / count: Non-arithmetic operand for function
-__dmbind: bind_expr or check_expr failed for metric[10] a.err.m2
-Derived metric expr dump from <addr-109>...
-expr node <addr-109> type=RESCALE left=<addr-110> right=<addr-111> save_last=0
+__dmbind: check_expr failed for metric[10] a.err.m2
+Derived metric expr dump from <addr-66>...
+expr node <addr-66> type=RESCALE left=<addr-67> right=<addr-68> save_last=0
     PMID: PM_ID_NULL (29.0.31 from pmDesc) numval: 0
     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-expr node <addr-110> type=NAME left=(nil) right=(nil) save_last=0 [sample.string.hullo] primary=0
+expr node <addr-67> type=NAME left=(nil) right=(nil) save_last=0 [sample.string.hullo] primary=0
     PMID: 29.0.31 (29.0.31 from pmDesc) numval: 0
     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-expr node <addr-111> type=SCALE left=(nil) right=(nil) save_last=0 [millisec / count]
+expr node <addr-68> type=SCALE left=(nil) right=(nil) save_last=0 [millisec / count]
 __dmtraverse: name="a", omitting invalid child "a.err.m2"
 __dmgetpmid: metric "a.m1" -> PMID 511.0.3
 __dmgetpmid: metric "a.m2" -> PMID 511.0.4

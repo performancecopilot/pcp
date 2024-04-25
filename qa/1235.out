@@ -44,7 +44,6 @@ qa.seconds(foo) = bar;
 qa.notdefined.yet ( foo ) = bar;
 [TMP.config.1:38] Error: pmLoadDerivedConfig: missing termination (") for value
 __dmgetpmid: metric "qa.seconds" -> PMID 511.0.3
-__dmbind: bind_expr or check_expr failed for metric[2] qa.seconds
 __dmtraverse: name="qa" added "qa.seconds"
 __dmgetpmid: metric "qa.seconds" -> PMID 511.0.3
 === filtered valgrind report ===
@@ -75,7 +74,6 @@ pmRegisterDerived: global metric[2] qa.seconds = sample.milliseconds / 1000
 [TMP.config.2:2] Warning: pmLoadDerivedConfig: extra text (extra stuff oneline) after attribute value will be ignored
 [TMP.config.2:5] Warning: pmLoadDerivedConfig: extra text (xtra stuff helptext) after attribute value will be ignored
 __dmgetpmid: metric "qa.seconds" -> PMID 511.0.3
-__dmbind: bind_expr or check_expr failed for metric[2] qa.seconds
 __dmtraverse: name="qa" added "qa.seconds"
 __dmgetpmid: metric "qa.seconds" -> PMID 511.0.3
 === filtered valgrind report ===

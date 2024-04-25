@@ -118,32 +118,24 @@ Derived metric expr dump from <addr-30>...
 expr node <addr-30> type=NEG left=<addr-31> right=(nil) save_last=0
 expr node <addr-31> type=NAME left=(nil) right=(nil) save_last=0 [sampledso.string.hullo] primary=1
 __dmgetpmid: metric "a.m1" -> PMID 511.0.3
-__dmbind: bind_expr or check_expr failed for metric[2] a.m1
 __dmtraverse: name="a" added "a.m1"
 __dmgetpmid: metric "a.m2" -> PMID 511.0.4
-__dmbind: bind_expr or check_expr failed for metric[3] a.m2
 __dmtraverse: name="a" added "a.m2"
 __dmgetpmid: metric "a.m3" -> PMID 511.0.5
-__dmbind: bind_expr or check_expr failed for metric[4] a.m3
 __dmtraverse: name="a" added "a.m3"
 __dmgetpmid: metric "a.m4" -> PMID 511.0.6
-__dmbind: bind_expr or check_expr failed for metric[5] a.m4
 __dmtraverse: name="a" added "a.m4"
 __dmgetpmid: metric "a.m5" -> PMID 511.0.7
-__dmbind: bind_expr or check_expr failed for metric[6] a.m5
 __dmtraverse: name="a" added "a.m5"
 __dmgetpmid: metric "a.m6" -> PMID 511.0.8
-__dmbind: bind_expr or check_expr failed for metric[7] a.m6
 __dmtraverse: name="a" added "a.m6"
 __dmgetpmid: metric "a.m7" -> PMID 511.0.9
-__dmbind: bind_expr or check_expr failed for metric[8] a.m7
 __dmtraverse: name="a" added "a.m7"
 __dmgetpmid: metric "a.m8" -> PMID 511.0.10
-__dmbind: bind_expr or check_expr failed for metric[9] a.m8
 __dmtraverse: name="a" added "a.m8"
 __dmgetpmid: metric "a.m9" -> PMID 511.0.11
 Semantic error: derived metric a.m9: - sampledso.string.hullo: Non-arithmetic operand for unary negation
-__dmbind: bind_expr or check_expr failed for metric[10] a.m9
+__dmbind: check_expr failed for metric[10] a.m9
 __dmtraverse: name="a", omitting invalid child "a.m9"
 __dmgetpmid: metric "a.m1" -> PMID 511.0.3
 __dmgetpmid: metric "a.m2" -> PMID 511.0.4

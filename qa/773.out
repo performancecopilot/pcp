@@ -142,10 +142,6 @@ Derived metric initialization from $PCP_DERIVED_CONFIG
 Warning: derived metrics path component: ./E: No such file or directory
 Warning: derived metrics path component: ./dev/tty: unexpected st_mode=20644?
 Warning: derived metrics path directory component: ./blocked: Permission denied
-__dmbind: bind_expr or check_expr failed for metric[N] qa.A
-__dmbind: bind_expr or check_expr failed for metric[N] qa.B
-__dmbind: bind_expr or check_expr failed for metric[N] qa.C
-__dmbind: bind_expr or check_expr failed for metric[N] qa.D
 __dmgetpmid: metric "qa.A" -> PMID 511.0.N
 __dmgetpmid: metric "qa.A" -> PMID 511.0.N
 __dmgetpmid: metric "qa.B" -> PMID 511.0.N

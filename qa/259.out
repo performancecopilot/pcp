@@ -20,7 +20,6 @@ Note: timezone set to "TZ=UTC"
 
 __dmgetpmid: metric "derived.inst" -> PMID 511.0.3
 __dmgetpmid: metric "derived.inst" -> PMID 511.0.3
-__dmbind: bind_expr or check_expr failed for metric[2] derived.inst
 metric:    derived.inst
 host:      HOST
 semantics: instantaneous value
@@ -108,7 +107,6 @@ Note: timezone set to "TZ=UTC"
 
 __dmgetpmid: metric "derived.ctr" -> PMID 511.0.4
 __dmgetpmid: metric "derived.ctr" -> PMID 511.0.4
-__dmbind: bind_expr or check_expr failed for metric[3] derived.ctr
 metric:    derived.ctr
 host:      HOST
 semantics: instantaneous value

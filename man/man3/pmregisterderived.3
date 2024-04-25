@@ -38,7 +38,7 @@ Name Space (PMNS) with new metrics defined at the PCP client-side using
 expressions over the existing performance metrics.
 .PP
 Typical uses would be to aggregate a number of similar metrics to provide
-a higher-level summary metric or to support the ``delta V over delta V''
+a higher-level summary metric or to support the ``delta value-a over delta value-b''
 class of metrics that are not possible in the base data semantics of PCP.
 An example of the latter class would be the average I/O size, defined
 as
@@ -299,18 +299,39 @@ As a special case, either (but not both) of the
 expressions
 \f(CRfoo\fP or \f(CRbar\fP may be the special
 constructor \f(CRnovalue()\fP.
-The metadata for \f(CRnovalue()\fP is taken from the peer operand
-of the \f(CR:\fP operator, making conditions (b) and (c) above
-trivially true.
 If \f(CRnovalue()\fP needs to be evaluated, it will return no
 values.
 The most common use of \f(CRnovalue()\fP is in conjunction with
 \f(CRdefined()\fP as in the following example:
 .br
+.in +4n
 .ft CR
 mumble = defined(abc.def) ? count(abc.def) : novalue()
-.br
 .ft P
+.in
+.br
+.PP
+The metadata for \f(CRnovalue()\fP is taken from the peer operand
+of the \f(CR:\fP operator, making conditions (b) and (c) above
+trivially true; if the peer operand cannot be evaluated, then
+the default metadata for \f(CRnovalue()\fP is a singular discrete integer
+with no units, and conditions (b) and (c) are waived.
+.PP
+An extension of \f(CRnovalue()\fP is \f(CRnovalue(<metadata>)\fP 
+where the \f((CR<metadata>\fP can be specified using one or more parameters
+of the form
+.I tag=value
+or
+\fItag=\fP"\fIvalue\fP"
+as described for the
+\f(CRmkconst()\fP constructor below, for example:
+.br
+.in +4n
+.ft CR
+novalue(type=float, semantics=instant, units="Kbytes/sec")
+.ft P
+.in
+.br
 .IP (i) 4n
 As an additional further case, if \f(CRcheck\fP is of the
 form \f(CRdefined(somemetric)\fP then references to undefined
@@ -319,19 +340,31 @@ metrics are allowed in whichever of \f(CRfoo\fP or \f(CRbar\fP is
 required once the existence if \f(CRsomemetric\fP has been established.
 This allows uses of the form:
 .br
+.in +4n
+.br
 .ft CR
 fumble = defined(new.metric) ? new.metric : old.metric
-.br
 .ft P
+.in
+.br
 which is valid when \f(CRnew.metric\fP is defined
 .B and
 when \f(CRnew.metric\fP is
 .I not
 defined, although this does mean rules (b) and (c) are relaxed
 in this case, which further means \f(CRnovalue()\fP may have no
-peer operand to provide metadata; in this case \f(CRnovalue()\fP
-assumes the metadata of an unsigned discrete metric with no
-units.
+peer operand to provide metadata.
+.PP
+A generalization of this construct is supported for any
+\f(CRcheck\fP that can be evaluated statically, so a boolean expression
+involving \f(CRdefined()\fP predicates, for example:
+.br
+.in +4n
+.ft CR
+bar = !defined(a) || !defined(b) ? novalue() : a + b
+.ft P
+.in
+.br
 .PD
 .RE
 .IP * 2n
@@ -340,19 +373,23 @@ construct ``[\fIinstance_name\fR]'' which may be appended to
 a metric name or a parenthesized expression.
 For example:
 .br
+.in +4n
 .ft CR
 fw.bytes = network.interface.in.bytes[eth1] + \e
 .br
 \           network.interface.out.bytes[eth1]
 .ft R
+.in
 .br
 or (equivalently):
 .br
+.in +4n
 .ft CR
 fw.bytes = (network.interface.in.bytes + \e
 .br
 \            network.interface.out.bytes)[eth1]
 .ft R
+.in
 .RS 2n
 .PP
 All characters between the ``['' and ``]'' are considered to
@@ -371,7 +408,7 @@ constant (either integer or floating point), then follow one or more
 parameters of the form
 .I tag=value
 or
-.IR tag= \" value \"
+\fItag=\fP"\fIvalue\fP"
 where the allowed values of
 .I tag
 and
@@ -417,6 +454,7 @@ must be in lower case as shown in the table above.
 This is most useful when the expression semantics require matching
 type and/or semantics and/or units for operands, e.g.
 .br
+.in +4n
 .ft CR
 idle = mem.util.free > mkconst(10485760, units=Kbyte)
 .br
@@ -424,6 +462,7 @@ avg_io_size = delta(disk.dev.total) == 0 ? \e
     -mkconst(1.0, semantics=instant, units="kbyte / count") : \e
     delta(disk.dev.total_bytes) / delta(disk.dev.total)
 .ft R
+.in
 .RE
 .IP * 2n
 Expressions may be rescaled using the
@@ -438,7 +477,9 @@ is a string value in the syntax accepted by
 For example:
 .ft CR
 .br
+.in +4n
 rescale(network.interface.total.bytes, "Mbytes/hour")
+.in
 .RS 2n
 .PP
 The expression and the desired units must both have the same dimension,
@@ -591,9 +632,11 @@ interfaces
 .B except
 the loopback and virtual bridge devices:
 .br
+.in +4n
 .ft CR
 matchinst(!/^(lo)|(vbir)/, network.interface.in.bytes)
 .ft R
+.in
 .br
 .RE
 .IP * 2n
@@ -602,11 +645,13 @@ defined over an instance domain into a scalar value that can be used
 in other expressions.
 For example:
 .br
+.in +4n
 .ft CR
 net.in.bytes = scalar(network.interface.in.bytes[eth0]) + \e
 .br
 \           scalar(network.interface.in.bytes[eth1])
 .ft R
+.in
 .RS 2n
 .PP
 The instance domain is removed from the
@@ -747,6 +792,7 @@ to identify the operand metric <name2> with PMID <pmid2>
 used in the definition of the derived metric <name1>.
 .TP
 Semantic error: derived metric <name>: <operand> : <operand> Different <metadata> for ternary operands
+.ft R
 For a ternary expression, the ``true'' operand and the ``false'' operand
 must have exactly the same metadata, so type, semantics, instance domain,
 and units (dimension and scale).

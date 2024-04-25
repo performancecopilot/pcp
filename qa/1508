@@ -68,11 +68,14 @@ qa.twelve.b = defined(sample.bin) && defined(sample.colour) ? count(sample.bin) 
 qa.hundred.a = defined(sample.bin) ? sample.float.hundred : novalue() 
 # defined(x) guard false, unselected <left-expr> contains bad metric
 qa.hundred.b = defined(sample.bin.bad) ? simple.bin.bad : sample.long.hundred
+# constant guard true, unselected <right-expr> contains bad metric
+qa.hundred.c = 1 ? sample.long.hundred : sample.bin.bad
 
 # ok cases - expect no values
 qa.novalues.a = !defined(sample.bin) ? sample.bin : novalue()
 qa.novalues.b = defined(sample.bin) ? novalue() : sample.bin
 qa.novalues.c = defined(no.metric) ? sample.bin / no.metric : novalue()
+qa.novalues.d = defined(sample.bin) ? novalue(type=float,semantics=counter,units="Mbyte/hour") : sample.bin
 
 # Marko's case
 tcprecv = defined(no.such.metric) ? no.such.metric : novalue()
@@ -88,12 +91,16 @@ qa.bad.e = defined(sample.bin) ? sample.long.ten.bad : sample.bin
 qa.bad.f = ! defined(sample.bin) ? sample.long.ten : sample.bin.bad
 # constant guard true, unselected <left-expr> contains bad metric
 qa.bad.g = 1 ? sample.long.hundred.bad : sample.bin
-# constant guard true, unselected <right-expr> contains bad metric
-qa.bad.h = 1 ? sample.long.hundred : sample.bin.bad
 # dynamic guard true, unselected <left-expr> contains bad metric
-qa.bad.i = sample.long.one > 0 ? sample.long.hundred.bad : sample.bin
+qa.bad.h = sample.long.one > 0 ? sample.long.hundred.bad : sample.bin
 # dynamic guard true, unselected <right-expr> contains bad metric
-qa.bad.j = sample.long.one > 0 ? sample.long.hundred : sample.bin.bad
+qa.bad.i = sample.long.one > 0 ? sample.long.hundred : sample.bin.bad
+
+# static guard evaluation exercises
+qa.ten.a = 1 ? sample.long.ten : novalue()
+qa.ten.b = 0 ? novalue() : sample.long.ten
+qa.ten.c = defined(sample.long.ten) && !defined(foo) ? sample.long.ten : novalue()
+qa.ten.d = (defined(foo) || defined(bar) || defined(sample.long.ten)) && !defined(fumble) ? sample.long.ten : novalue()
 End-of-File
 
 export PCP_DERIVED_CONFIG=$tmp.config

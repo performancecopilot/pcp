@@ -1168,6 +1168,46 @@ check_metrics(node_t *np, char *hand)
 }
 
 /*
+ * evaluate a ? guard @ bind-time (not eval-time) ... if it
+ * is a constant expression we can return 1 (true) or 0 (false)
+ * else -1 (unknown)
+ */
+static int
+eval_guard(node_t *np)
+{
+    int		sts;
+
+    if (np->type == N_DEFINED) {
+	sts = np->data.info->ivlist[0].value.ul;
+    }
+    else if (np->type == N_INTEGER) {
+	if (atoi(np->value) == 0)
+	    sts = 0;
+	else
+	    sts = 1;
+    }
+    else if (np->type == N_NOT) {
+	sts = eval_guard(np->left);
+	if (sts != -1)
+	    sts = 1 - sts;
+    }
+    else if (np->type == N_OR) {
+	sts = eval_guard(np->left);
+	if (sts == 0)
+	    sts = eval_guard(np->right);
+    }
+    else if (np->type == N_AND) {
+	sts = eval_guard(np->left);
+	if (sts == 1)
+	    sts = eval_guard(np->right);
+    }
+    else
+	sts = -1;
+
+    return sts;
+}
+
+/*
  * see __dmbind() for semantics of async parameter
  */
 static int
@@ -1235,19 +1275,29 @@ check_expr(dm_t *dmp, node_t *np, node_t *parent, int async)
 	 * but first, some special case exceptions to limit the
 	 * binding and checking ...
 	 */
-	if (parent->type == N_QUEST && parent->left->type == N_DEFINED) {
+	np->data.info->bind = QUEST_BIND_BOTH;
+	if (parent->type == N_QUEST) {
 	    /*
-	     * special handling for defined(x) ? <left-expr> : <right-expr>
-	     * depending on result of defined(x) choose pmDesc from
-	     * <left-expr> (true) or <right-expr> (false)
+	     * special handling for <guard> ? <left> : <right>
+	     * depending on the result of <guard> choose do lazy
+	     * checking and binding of only <left> (true) or only
+	     * <right> (false) or both <left> and <right> (unknown)
+	     * Note: evaluation of <guard> is static, not dynamic, so
+	     * true or false is restricted to <guard>s involving ONLY
+	     * defined(x), integer constants and the boolean operators
+	     * (!, && and ||)
 	     */
-	    if (parent->left->data.info->ivlist[0].value.ul == 1)
+	    int	guard = eval_guard(parent->left);
+	    if (pmDebugOptions.derive && pmDebugOptions.appl1 && pmDebugOptions.desperate) {
+		fprintf(stderr, "check_expr: guard(%s) = %d [bind %s]\n",
+		    __dmnode_type_str(parent->left->type), guard,
+		    guard == 1 ? "left" : (guard == 0 ? "right" : "both"));
+	    }
+	    if (guard == 1)
 		np->data.info->bind = QUEST_BIND_LEFT;
-	    else
+	    else if (guard == 0)
 		np->data.info->bind = QUEST_BIND_RIGHT;
 	}
-	else
-	    np->data.info->bind = QUEST_BIND_BOTH;
     }
 
     if (np->type != N_COLON || np->data.info->bind & QUEST_BIND_LEFT) {
@@ -3282,12 +3332,16 @@ __dmbind(int derive_locked, __pmContext *ctxp, int i, int async)
 	    cp->mlist[i].expr->desc.pmid = cp->mlist[i].pmid;
 	}
     }
-    if (pmDebugOptions.derive && (cp->mlist[i].expr != NULL || sts < 0)) {
-	fprintf(stderr, "__dmbind: bind_expr or check_expr failed for metric[%d] %s\n", i, cp->mlist[i].name);
-	if (pmDebugOptions.appl1)
-	    __dmdumpexpr(cp->mlist[i].expr, 0);
+    if (pmDebugOptions.derive && (cp->mlist[i].expr == NULL || sts < 0)) {
+	if (cp->mlist[i].expr == NULL)
+	    fprintf(stderr, "__dmbind: bind_expr failed for metric[%d] %s\n", i, cp->mlist[i].name);
+	else {
+	    fprintf(stderr, "__dmbind: check_expr failed for metric[%d] %s\n", i, cp->mlist[i].name);
+	    if (pmDebugOptions.appl1)
+		__dmdumpexpr(cp->mlist[i].expr, 0);
+	}
     }
-    if (sts < 0) {
+    if (sts < 0 && cp->mlist[i].expr != NULL) {
 	free_expr(cp->mlist[i].expr);
 	cp->mlist[i].expr = NULL;
     }
@@ -3837,6 +3891,14 @@ novalue : L_NOVALUE L_LPAREN L_RPAREN
 		  np->desc.units = noUnits;
 		  $$ = np;
 		}
+	|  L_NOVALUE L_LPAREN speclist L_RPAREN
+		{ np = newnode(N_NOVALUE);
+		  np->desc = specdesc;	/* struct copy */
+		  np->desc.pmid = PM_ID_NULL;
+		  $$ = np;
+		}
+	| L_NOVALUE L_LPAREN error
+		{ gramerr("metadata keyword", follow, "novalue("); YYERROR; }
 	;
 
 regexpr	: opt_bang L_PATTERN
@@ -3923,6 +3985,8 @@ num	: L_INTEGER
 		  np->desc = specdesc;	/* struct copy */
 		  $$ = np;
 		}
+	| L_MKCONST L_LPAREN L_INTEGER error
+		{ gramerr("metadata keyword", follow, "mkconst(type"); YYERROR; }
 	;
 
 speclist :

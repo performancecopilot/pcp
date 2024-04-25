@@ -10,365 +10,71 @@ pmRegisterDerived: global metric[5] qa.twelve.a = defined(sample.bin) ? (defined
 pmRegisterDerived: global metric[6] qa.twelve.b = defined(sample.bin) && defined(sample.colour) ? count(sample.bin) + count(sample.colour) : novalue()
 pmRegisterDerived: global metric[7] qa.hundred.a = defined(sample.bin) ? sample.float.hundred : novalue() 
 pmRegisterDerived: global metric[8] qa.hundred.b = defined(sample.bin.bad) ? simple.bin.bad : sample.long.hundred
-pmRegisterDerived: global metric[9] qa.novalues.a = !defined(sample.bin) ? sample.bin : novalue()
-pmRegisterDerived: global metric[10] qa.novalues.b = defined(sample.bin) ? novalue() : sample.bin
-pmRegisterDerived: global metric[11] qa.novalues.c = defined(no.metric) ? sample.bin / no.metric : novalue()
-pmRegisterDerived: global metric[12] tcprecv = defined(no.such.metric) ? no.such.metric : novalue()
-[TMP.config:25] Error: pmRegisterDerived(qa.bad.a, ...) syntax error
+pmRegisterDerived: global metric[9] qa.hundred.c = 1 ? sample.long.hundred : sample.bin.bad
+pmRegisterDerived: global metric[10] qa.novalues.a = !defined(sample.bin) ? sample.bin : novalue()
+pmRegisterDerived: global metric[11] qa.novalues.b = defined(sample.bin) ? novalue() : sample.bin
+pmRegisterDerived: global metric[12] qa.novalues.c = defined(no.metric) ? sample.bin / no.metric : novalue()
+pmRegisterDerived: global metric[13] qa.novalues.d = defined(sample.bin) ? novalue(type=float,semantics=counter,units="Mbyte/hour") : sample.bin
+pmRegisterDerived: global metric[14] tcprecv = defined(no.such.metric) ? no.such.metric : novalue()
+[TMP.config:28] Error: pmRegisterDerived(qa.bad.a, ...) syntax error
  novalue()
  ^        
-[TMP.config:26] Error: pmRegisterDerived(qa.bad.b, ...) syntax error
+[TMP.config:29] Error: pmRegisterDerived(qa.bad.b, ...) syntax error
  sample.colour + novalue()
                  ^        
 Arithmetic expression expected to follow PLUS
-[TMP.config:27] Error: pmRegisterDerived(qa.bad.c, ...) syntax error
+[TMP.config:30] Error: pmRegisterDerived(qa.bad.c, ...) syntax error
  defined(sample.bin) ? novalue() : novalue()
                                            ^
 novalue() may appear at most once in a ternary expression
-pmRegisterDerived: global metric[13] qa.bad.d = defined(no.such.metric) ? no.such.metric : some.other.no.such.metric
-pmRegisterDerived: global metric[14] qa.bad.e = defined(sample.bin) ? sample.long.ten.bad : sample.bin
-pmRegisterDerived: global metric[15] qa.bad.f = ! defined(sample.bin) ? sample.long.ten : sample.bin.bad
-pmRegisterDerived: global metric[16] qa.bad.g = 1 ? sample.long.hundred.bad : sample.bin
-pmRegisterDerived: global metric[17] qa.bad.h = 1 ? sample.long.hundred : sample.bin.bad
-pmRegisterDerived: global metric[18] qa.bad.i = sample.long.one > 0 ? sample.long.hundred.bad : sample.bin
-pmRegisterDerived: global metric[19] qa.bad.j = sample.long.one > 0 ? sample.long.hundred : sample.bin.bad
-__dmopencontext(->ctx 0) called, 20 derived metrics
+pmRegisterDerived: global metric[15] qa.bad.d = defined(no.such.metric) ? no.such.metric : some.other.no.such.metric
+pmRegisterDerived: global metric[16] qa.bad.e = defined(sample.bin) ? sample.long.ten.bad : sample.bin
+pmRegisterDerived: global metric[17] qa.bad.f = ! defined(sample.bin) ? sample.long.ten : sample.bin.bad
+pmRegisterDerived: global metric[18] qa.bad.g = 1 ? sample.long.hundred.bad : sample.bin
+pmRegisterDerived: global metric[19] qa.bad.h = sample.long.one > 0 ? sample.long.hundred.bad : sample.bin
+pmRegisterDerived: global metric[20] qa.bad.i = sample.long.one > 0 ? sample.long.hundred : sample.bin.bad
+pmRegisterDerived: global metric[21] qa.ten.a = 1 ? sample.long.ten : novalue()
+pmRegisterDerived: global metric[22] qa.ten.b = 0 ? novalue() : sample.long.ten
+pmRegisterDerived: global metric[23] qa.ten.c = defined(sample.long.ten) && !defined(foo) ? sample.long.ten : novalue()
+pmRegisterDerived: global metric[24] qa.ten.d = (defined(foo) || defined(bar) || defined(sample.long.ten)) && !defined(fumble) ? sample.long.ten : novalue()
+__dmopencontext(->ctx 0) called, 25 derived metrics
 __dmgetpmid: metric "qa.bin.a" -> PMID 511.0.3
-__dmbind: bind_expr or check_expr failed for metric[2] qa.bin.a
-Derived metric expr dump from <addr>...
-expr node <addr> type=QUEST left=<addr> right=<addr> save_last=0
-    PMID: PM_ID_NULL (511.0.3 from pmDesc) numval: 0
-    Data Type: 32-bit int  InDom: 29.2 0x7400002
-    Semantics: instant  Units: none
-expr node <addr> type=NOT left=<addr> right=(nil) save_last=0
-    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
-expr node <addr> type=DEFINED left=(nil) right=(nil) save_last=0
-    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 1
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
-[0] inst=-1, val=1
-expr node <addr> type=COLON left=<addr> right=<addr> save_last=0
-    PMID: PM_ID_NULL (29.0.6 from pmDesc) numval: 0
-    Data Type: 32-bit int  InDom: 29.2 0x7400002
-    Semantics: instant  Units: none
-expr node <addr> type=NOVALUE left=(nil) right=(nil) save_last=0
-    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
-    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
-expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=0
-    PMID: 29.0.6 (29.0.6 from pmDesc) numval: 0
-    Data Type: 32-bit int  InDom: 29.2 0x7400002
-    Semantics: instant  Units: none
 __dmtraverse: name="qa" added "qa.bin.a"
 __dmgetpmid: metric "qa.bin.b" -> PMID 511.0.4
-__dmbind: bind_expr or check_expr failed for metric[3] qa.bin.b
-Derived metric expr dump from <addr>...
-expr node <addr> type=QUEST left=<addr> right=<addr> save_last=0
-    PMID: PM_ID_NULL (511.0.4 from pmDesc) numval: 0
-    Data Type: 32-bit int  InDom: 29.2 0x7400002
-    Semantics: instant  Units: none
-expr node <addr> type=DEFINED left=(nil) right=(nil) save_last=0
-    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 1
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
-[0] inst=-1, val=1
-expr node <addr> type=COLON [LEFT] left=<addr> right=<addr> save_last=0
-    PMID: PM_ID_NULL (29.0.6 from pmDesc) numval: 0
-    Data Type: 32-bit int  InDom: 29.2 0x7400002
-    Semantics: instant  Units: none
-expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=0
-    PMID: 29.0.6 (29.0.6 from pmDesc) numval: 0
-    Data Type: 32-bit int  InDom: 29.2 0x7400002
-    Semantics: instant  Units: none
-expr node <addr> type=NOVALUE left=(nil) right=(nil) save_last=0
-    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
-    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
 __dmtraverse: name="qa" added "qa.bin.b"
 __dmgetpmid: metric "qa.bin.c" -> PMID 511.0.5
 __dmgetpmid: metric "sample.long.bad" -> Unknown metric name
-__dmbind: bind_expr or check_expr failed for metric[4] qa.bin.c
-Derived metric expr dump from <addr>...
-expr node <addr> type=QUEST left=<addr> right=<addr> save_last=0
-    PMID: PM_ID_NULL (511.0.5 from pmDesc) numval: 0
-    Data Type: 32-bit int  InDom: 29.2 0x7400002
-    Semantics: instant  Units: none
-expr node <addr> type=DEFINED left=(nil) right=(nil) save_last=0
-    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 1
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
-[0] inst=-1, val=1
-expr node <addr> type=COLON [LEFT] left=<addr> right=<addr> save_last=0
-    PMID: PM_ID_NULL (29.0.6 from pmDesc) numval: 0
-    Data Type: 32-bit int  InDom: 29.2 0x7400002
-    Semantics: instant  Units: none
-expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=0
-    PMID: 29.0.6 (29.0.6 from pmDesc) numval: 0
-    Data Type: 32-bit int  InDom: 29.2 0x7400002
-    Semantics: instant  Units: none
-expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.bad] primary=0
-    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
-    Data Type: 32-bit int  InDom: 0.0 0x0
-    Semantics: ??? (0)  Units: none
 __dmtraverse: name="qa" added "qa.bin.c"
 __dmgetpmid: metric "qa.twelve.a" -> PMID 511.0.6
-__dmbind: bind_expr or check_expr failed for metric[5] qa.twelve.a
-Derived metric expr dump from <addr>...
-expr node <addr> type=QUEST left=<addr> right=<addr> save_last=0
-    PMID: PM_ID_NULL (511.0.6 from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: count
-expr node <addr> type=DEFINED left=(nil) right=(nil) save_last=0
-    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 1
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
-[0] inst=-1, val=1
-expr node <addr> type=COLON [LEFT] left=<addr> right=<addr> save_last=0
-    PMID: PM_ID_NULL (29.0.6 from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: count
-expr node <addr> type=QUEST left=<addr> right=<addr> save_last=0
-    PMID: PM_ID_NULL (29.0.6 from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: count
-expr node <addr> type=DEFINED left=(nil) right=(nil) save_last=0
-    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 1
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
-[0] inst=-1, val=1
-expr node <addr> type=COLON [LEFT] left=<addr> right=<addr> save_last=0
-    PMID: PM_ID_NULL (29.0.6 from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: count
-expr node <addr> type=PLUS left=<addr> right=<addr> save_last=0
-    PMID: PM_ID_NULL (29.0.6 from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: count
-expr node <addr> type=COUNT left=<addr> right=(nil) save_last=0
-    PMID: PM_ID_NULL (29.0.6 from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: count
-expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=0
-    PMID: 29.0.6 (29.0.6 from pmDesc) numval: 0
-    Data Type: 32-bit int  InDom: 29.2 0x7400002
-    Semantics: instant  Units: none
-expr node <addr> type=COUNT left=<addr> right=(nil) save_last=0
-    PMID: PM_ID_NULL (29.0.5 from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: count
-expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.colour] primary=0
-    PMID: 29.0.5 (29.0.5 from pmDesc) numval: 0
-    Data Type: 32-bit int  InDom: 29.1 0x7400001
-    Semantics: instant  Units: none
-expr node <addr> type=NOVALUE left=(nil) right=(nil) save_last=0
-    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
-    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
-expr node <addr> type=NOVALUE left=(nil) right=(nil) save_last=0
-    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
-    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
 __dmtraverse: name="qa" added "qa.twelve.a"
 __dmgetpmid: metric "qa.twelve.b" -> PMID 511.0.7
-__dmbind: bind_expr or check_expr failed for metric[6] qa.twelve.b
-Derived metric expr dump from <addr>...
-expr node <addr> type=QUEST left=<addr> right=<addr> save_last=0
-    PMID: PM_ID_NULL (511.0.7 from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: count
-expr node <addr> type=AND left=<addr> right=<addr> save_last=0
-    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
-expr node <addr> type=DEFINED left=(nil) right=(nil) save_last=0
-    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 1
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
-[0] inst=-1, val=1
-expr node <addr> type=DEFINED left=(nil) right=(nil) save_last=0
-    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 1
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
-[0] inst=-1, val=1
-expr node <addr> type=COLON left=<addr> right=<addr> save_last=0
-    PMID: PM_ID_NULL (29.0.6 from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: count
-expr node <addr> type=PLUS left=<addr> right=<addr> save_last=0
-    PMID: PM_ID_NULL (29.0.6 from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: count
-expr node <addr> type=COUNT left=<addr> right=(nil) save_last=0
-    PMID: PM_ID_NULL (29.0.6 from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: count
-expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=0
-    PMID: 29.0.6 (29.0.6 from pmDesc) numval: 0
-    Data Type: 32-bit int  InDom: 29.2 0x7400002
-    Semantics: instant  Units: none
-expr node <addr> type=COUNT left=<addr> right=(nil) save_last=0
-    PMID: PM_ID_NULL (29.0.5 from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: count
-expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.colour] primary=0
-    PMID: 29.0.5 (29.0.5 from pmDesc) numval: 0
-    Data Type: 32-bit int  InDom: 29.1 0x7400001
-    Semantics: instant  Units: none
-expr node <addr> type=NOVALUE left=(nil) right=(nil) save_last=0
-    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
-    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
 __dmtraverse: name="qa" added "qa.twelve.b"
 __dmgetpmid: metric "qa.hundred.a" -> PMID 511.0.8
-__dmbind: bind_expr or check_expr failed for metric[7] qa.hundred.a
-Derived metric expr dump from <addr>...
-expr node <addr> type=QUEST left=<addr> right=<addr> save_last=0
-    PMID: PM_ID_NULL (511.0.8 from pmDesc) numval: 0
-    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
-expr node <addr> type=DEFINED left=(nil) right=(nil) save_last=0
-    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 1
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
-[0] inst=-1, val=1
-expr node <addr> type=COLON [LEFT] left=<addr> right=<addr> save_last=0
-    PMID: PM_ID_NULL (29.0.17 from pmDesc) numval: 0
-    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
-expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.hundred] primary=0
-    PMID: 29.0.17 (29.0.17 from pmDesc) numval: 0
-    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
-expr node <addr> type=NOVALUE left=(nil) right=(nil) save_last=0
-    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
-    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
 __dmtraverse: name="qa" added "qa.hundred.a"
 __dmgetpmid: metric "qa.hundred.b" -> PMID 511.0.9
 __dmgetpmid: metric "sample.bin.bad" -> Unknown metric name
 __dmgetpmid: metric "simple.bin.bad" -> Unknown metric name
-__dmbind: bind_expr or check_expr failed for metric[8] qa.hundred.b
-Derived metric expr dump from <addr>...
-expr node <addr> type=QUEST left=<addr> right=<addr> save_last=0
-    PMID: PM_ID_NULL (511.0.9 from pmDesc) numval: 0
-    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
-expr node <addr> type=DEFINED left=(nil) right=(nil) save_last=0
-    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 1
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
-[0] inst=-1, val=0
-expr node <addr> type=COLON left=<addr> right=<addr> save_last=0
-    PMID: PM_ID_NULL (29.0.12 from pmDesc) numval: 0
-    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
-expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [simple.bin.bad] primary=0
-    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
-    Data Type: 32-bit int  InDom: 0.0 0x0
-    Semantics: ??? (0)  Units: none
-expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.hundred] primary=0
-    PMID: 29.0.12 (29.0.12 from pmDesc) numval: 0
-    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
 __dmtraverse: name="qa" added "qa.hundred.b"
-__dmgetpmid: metric "qa.novalues.a" -> PMID 511.0.10
-__dmbind: bind_expr or check_expr failed for metric[9] qa.novalues.a
-Derived metric expr dump from <addr>...
-expr node <addr> type=QUEST left=<addr> right=<addr> save_last=0
-    PMID: PM_ID_NULL (511.0.10 from pmDesc) numval: 0
-    Data Type: 32-bit int  InDom: 29.2 0x7400002
-    Semantics: instant  Units: none
-expr node <addr> type=NOT left=<addr> right=(nil) save_last=0
-    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
-expr node <addr> type=DEFINED left=(nil) right=(nil) save_last=0
-    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 1
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
-[0] inst=-1, val=1
-expr node <addr> type=COLON left=<addr> right=<addr> save_last=0
-    PMID: PM_ID_NULL (29.0.6 from pmDesc) numval: 0
-    Data Type: 32-bit int  InDom: 29.2 0x7400002
-    Semantics: instant  Units: none
-expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=0
-    PMID: 29.0.6 (29.0.6 from pmDesc) numval: 0
-    Data Type: 32-bit int  InDom: 29.2 0x7400002
-    Semantics: instant  Units: none
-expr node <addr> type=NOVALUE left=(nil) right=(nil) save_last=0
-    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
-    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
+__dmgetpmid: metric "qa.hundred.c" -> PMID 511.0.10
+__dmgetpmid: metric "sample.bin.bad" -> Unknown metric name
+__dmtraverse: name="qa" added "qa.hundred.c"
+__dmgetpmid: metric "qa.novalues.a" -> PMID 511.0.11
 __dmtraverse: name="qa" added "qa.novalues.a"
-__dmgetpmid: metric "qa.novalues.b" -> PMID 511.0.11
-__dmbind: bind_expr or check_expr failed for metric[10] qa.novalues.b
-Derived metric expr dump from <addr>...
-expr node <addr> type=QUEST left=<addr> right=<addr> save_last=0
-    PMID: PM_ID_NULL (511.0.11 from pmDesc) numval: 0
-    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
-expr node <addr> type=DEFINED left=(nil) right=(nil) save_last=0
-    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 1
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
-[0] inst=-1, val=1
-expr node <addr> type=COLON [LEFT] left=<addr> right=<addr> save_last=0
-    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
-    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
-expr node <addr> type=NOVALUE left=(nil) right=(nil) save_last=0
-    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
-    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
-expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=0
-    PMID: 29.0.6 (29.0.6 from pmDesc) numval: 0
-    Data Type: 32-bit int  InDom: 29.2 0x7400002
-    Semantics: instant  Units: none
+__dmgetpmid: metric "qa.novalues.b" -> PMID 511.0.12
 __dmtraverse: name="qa" added "qa.novalues.b"
-__dmgetpmid: metric "qa.novalues.c" -> PMID 511.0.12
+__dmgetpmid: metric "qa.novalues.c" -> PMID 511.0.13
 __dmgetpmid: metric "no.metric" -> Unknown metric name
 __dmgetpmid: metric "no.metric" -> Unknown metric name
-__dmbind: bind_expr or check_expr failed for metric[11] qa.novalues.c
-Derived metric expr dump from <addr>...
-expr node <addr> type=QUEST left=<addr> right=<addr> save_last=0
-    PMID: PM_ID_NULL (511.0.12 from pmDesc) numval: 0
-    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
-expr node <addr> type=DEFINED left=(nil) right=(nil) save_last=0
-    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 1
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
-[0] inst=-1, val=0
-expr node <addr> type=COLON left=<addr> right=<addr> save_last=0
-    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
-    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
-expr node <addr> type=SLASH left=<addr> right=<addr> save_last=0
-    PMID: PM_ID_NULL (0.0.0 from pmDesc) numval: 0
-    Data Type: 32-bit int  InDom: 0.0 0x0
-    Semantics: ??? (0)  Units: none
-expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=0
-    PMID: 29.0.6 (29.0.6 from pmDesc) numval: 0
-    Data Type: 32-bit int  InDom: 29.2 0x7400002
-    Semantics: instant  Units: none
-expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [no.metric] primary=0
-    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
-    Data Type: 32-bit int  InDom: 0.0 0x0
-    Semantics: ??? (0)  Units: none
-expr node <addr> type=NOVALUE left=(nil) right=(nil) save_last=0
-    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
-    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
 __dmtraverse: name="qa" added "qa.novalues.c"
-__dmgetpmid: metric "qa.bad.d" -> PMID 511.0.14
+__dmgetpmid: metric "qa.novalues.d" -> PMID 511.0.14
+__dmtraverse: name="qa" added "qa.novalues.d"
+__dmgetpmid: metric "qa.bad.d" -> PMID 511.0.16
 __dmgetpmid: metric "no.such.metric" -> Unknown metric name
 __dmgetpmid: metric "no.such.metric" -> Unknown metric name
 __dmgetpmid: metric "some.other.no.such.metric" -> Unknown metric name
 Semantic error: ternary op: metric "some.other.no.such.metric" not found for <right-expr>
 Semantic error: derived metric qa.bad.d: no.such.metric : some.other.no.such.metric: Unknown metric for ternary expression
-__dmbind: bind_expr or check_expr failed for metric[13] qa.bad.d
+__dmbind: check_expr failed for metric[15] qa.bad.d
 Derived metric expr dump from <addr>...
 expr node <addr> type=QUEST left=<addr> right=<addr> save_last=0
     PMID: PM_ID_NULL (0.0.0 from pmDesc) numval: 0
@@ -392,11 +98,11 @@ expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [some.other.no.suc
     Data Type: 32-bit int  InDom: 0.0 0x0
     Semantics: ??? (0)  Units: none
 __dmtraverse: name="qa", omitting invalid child "qa.bad.d"
-__dmgetpmid: metric "qa.bad.e" -> PMID 511.0.15
+__dmgetpmid: metric "qa.bad.e" -> PMID 511.0.17
 __dmgetpmid: metric "sample.long.ten.bad" -> Unknown metric name
 Semantic error: ternary op: metric "sample.long.ten.bad" not found for <left-expr>
 Semantic error: derived metric qa.bad.e: sample.long.ten.bad : sample.bin: Unknown metric for ternary expression
-__dmbind: bind_expr or check_expr failed for metric[14] qa.bad.e
+__dmbind: check_expr failed for metric[16] qa.bad.e
 Derived metric expr dump from <addr>...
 expr node <addr> type=QUEST left=<addr> right=<addr> save_last=0
     PMID: PM_ID_NULL (0.0.0 from pmDesc) numval: 0
@@ -420,11 +126,11 @@ expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] prima
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
 __dmtraverse: name="qa", omitting invalid child "qa.bad.e"
-__dmgetpmid: metric "qa.bad.f" -> PMID 511.0.16
+__dmgetpmid: metric "qa.bad.f" -> PMID 511.0.18
 __dmgetpmid: metric "sample.bin.bad" -> Unknown metric name
 Semantic error: ternary op: metric "sample.bin.bad" not found for <right-expr>
 Semantic error: derived metric qa.bad.f: sample.long.ten : sample.bin.bad: Unknown metric for ternary expression
-__dmbind: bind_expr or check_expr failed for metric[15] qa.bad.f
+__dmbind: check_expr failed for metric[17] qa.bad.f
 Derived metric expr dump from <addr>...
 expr node <addr> type=QUEST left=<addr> right=<addr> save_last=0
     PMID: PM_ID_NULL (0.0.0 from pmDesc) numval: 0
@@ -440,9 +146,9 @@ expr node <addr> type=DEFINED left=(nil) right=(nil) save_last=0
     Semantics: discrete  Units: none
 [0] inst=-1, val=1
 expr node <addr> type=COLON left=<addr> right=<addr> save_last=0
-    PMID: PM_ID_NULL (29.0.11 from pmDesc) numval: 0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: 0.0 0x0
-    Semantics: instant  Units: none
+    Semantics: ??? (0)  Units: none
 expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.ten] primary=0
     PMID: 29.0.11 (29.0.11 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
@@ -452,11 +158,11 @@ expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin.bad] p
     Data Type: 32-bit int  InDom: 0.0 0x0
     Semantics: ??? (0)  Units: none
 __dmtraverse: name="qa", omitting invalid child "qa.bad.f"
-__dmgetpmid: metric "qa.bad.g" -> PMID 511.0.17
+__dmgetpmid: metric "qa.bad.g" -> PMID 511.0.19
 __dmgetpmid: metric "sample.long.hundred.bad" -> Unknown metric name
 Semantic error: ternary op: metric "sample.long.hundred.bad" not found for <left-expr>
 Semantic error: derived metric qa.bad.g: sample.long.hundred.bad : sample.bin: Unknown metric for ternary expression
-__dmbind: bind_expr or check_expr failed for metric[16] qa.bad.g
+__dmbind: check_expr failed for metric[18] qa.bad.g
 Derived metric expr dump from <addr>...
 expr node <addr> type=QUEST left=<addr> right=<addr> save_last=0
     PMID: PM_ID_NULL (0.0.0 from pmDesc) numval: 0
@@ -466,7 +172,7 @@ expr node <addr> type=INTEGER left=(nil) right=(nil) save_last=0 [1] primary=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
-expr node <addr> type=COLON left=<addr> right=<addr> save_last=0
+expr node <addr> type=COLON [LEFT] left=<addr> right=<addr> save_last=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: 0.0 0x0
     Semantics: ??? (0)  Units: none
@@ -479,38 +185,11 @@ expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] prima
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
 __dmtraverse: name="qa", omitting invalid child "qa.bad.g"
-__dmgetpmid: metric "qa.bad.h" -> PMID 511.0.18
-__dmgetpmid: metric "sample.bin.bad" -> Unknown metric name
-Semantic error: ternary op: metric "sample.bin.bad" not found for <right-expr>
-Semantic error: derived metric qa.bad.h: sample.long.hundred : sample.bin.bad: Unknown metric for ternary expression
-__dmbind: bind_expr or check_expr failed for metric[17] qa.bad.h
-Derived metric expr dump from <addr>...
-expr node <addr> type=QUEST left=<addr> right=<addr> save_last=0
-    PMID: PM_ID_NULL (0.0.0 from pmDesc) numval: 0
-    Data Type: 32-bit int  InDom: 0.0 0x0
-    Semantics: ??? (0)  Units: none
-expr node <addr> type=INTEGER left=(nil) right=(nil) save_last=0 [1] primary=0
-    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
-expr node <addr> type=COLON left=<addr> right=<addr> save_last=0
-    PMID: PM_ID_NULL (29.0.12 from pmDesc) numval: 0
-    Data Type: 32-bit int  InDom: 0.0 0x0
-    Semantics: instant  Units: none
-expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.hundred] primary=0
-    PMID: 29.0.12 (29.0.12 from pmDesc) numval: 0
-    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
-expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin.bad] primary=0
-    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
-    Data Type: 32-bit int  InDom: 0.0 0x0
-    Semantics: ??? (0)  Units: none
-__dmtraverse: name="qa", omitting invalid child "qa.bad.h"
-__dmgetpmid: metric "qa.bad.i" -> PMID 511.0.19
+__dmgetpmid: metric "qa.bad.h" -> PMID 511.0.20
 __dmgetpmid: metric "sample.long.hundred.bad" -> Unknown metric name
 Semantic error: ternary op: metric "sample.long.hundred.bad" not found for <left-expr>
-Semantic error: derived metric qa.bad.i: sample.long.hundred.bad : sample.bin: Unknown metric for ternary expression
-__dmbind: bind_expr or check_expr failed for metric[18] qa.bad.i
+Semantic error: derived metric qa.bad.h: sample.long.hundred.bad : sample.bin: Unknown metric for ternary expression
+__dmbind: check_expr failed for metric[19] qa.bad.h
 Derived metric expr dump from <addr>...
 expr node <addr> type=QUEST left=<addr> right=<addr> save_last=0
     PMID: PM_ID_NULL (0.0.0 from pmDesc) numval: 0
@@ -540,12 +219,12 @@ expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] prima
     PMID: 29.0.6 (29.0.6 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
-__dmtraverse: name="qa", omitting invalid child "qa.bad.i"
-__dmgetpmid: metric "qa.bad.j" -> PMID 511.0.20
+__dmtraverse: name="qa", omitting invalid child "qa.bad.h"
+__dmgetpmid: metric "qa.bad.i" -> PMID 511.0.21
 __dmgetpmid: metric "sample.bin.bad" -> Unknown metric name
 Semantic error: ternary op: metric "sample.bin.bad" not found for <right-expr>
-Semantic error: derived metric qa.bad.j: sample.long.hundred : sample.bin.bad: Unknown metric for ternary expression
-__dmbind: bind_expr or check_expr failed for metric[19] qa.bad.j
+Semantic error: derived metric qa.bad.i: sample.long.hundred : sample.bin.bad: Unknown metric for ternary expression
+__dmbind: check_expr failed for metric[20] qa.bad.i
 Derived metric expr dump from <addr>...
 expr node <addr> type=QUEST left=<addr> right=<addr> save_last=0
     PMID: PM_ID_NULL (0.0.0 from pmDesc) numval: 0
@@ -575,7 +254,19 @@ expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin.bad] p
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: 0.0 0x0
     Semantics: ??? (0)  Units: none
-__dmtraverse: name="qa", omitting invalid child "qa.bad.j"
+__dmtraverse: name="qa", omitting invalid child "qa.bad.i"
+__dmgetpmid: metric "qa.ten.a" -> PMID 511.0.22
+__dmtraverse: name="qa" added "qa.ten.a"
+__dmgetpmid: metric "qa.ten.b" -> PMID 511.0.23
+__dmtraverse: name="qa" added "qa.ten.b"
+__dmgetpmid: metric "qa.ten.c" -> PMID 511.0.24
+__dmgetpmid: metric "foo" -> Unknown metric name
+__dmtraverse: name="qa" added "qa.ten.c"
+__dmgetpmid: metric "qa.ten.d" -> PMID 511.0.25
+__dmgetpmid: metric "foo" -> Unknown metric name
+__dmgetpmid: metric "bar" -> Unknown metric name
+__dmgetpmid: metric "fumble" -> Unknown metric name
+__dmtraverse: name="qa" added "qa.ten.d"
 __dmgetpmid: metric "qa.bin.a" -> PMID 511.0.3
 __dmgetpmid: metric "qa.bin.b" -> PMID 511.0.4
 __dmgetpmid: metric "qa.bin.c" -> PMID 511.0.5
@@ -583,9 +274,15 @@ __dmgetpmid: metric "qa.twelve.a" -> PMID 511.0.6
 __dmgetpmid: metric "qa.twelve.b" -> PMID 511.0.7
 __dmgetpmid: metric "qa.hundred.a" -> PMID 511.0.8
 __dmgetpmid: metric "qa.hundred.b" -> PMID 511.0.9
-__dmgetpmid: metric "qa.novalues.a" -> PMID 511.0.10
-__dmgetpmid: metric "qa.novalues.b" -> PMID 511.0.11
-__dmgetpmid: metric "qa.novalues.c" -> PMID 511.0.12
+__dmgetpmid: metric "qa.hundred.c" -> PMID 511.0.10
+__dmgetpmid: metric "qa.novalues.a" -> PMID 511.0.11
+__dmgetpmid: metric "qa.novalues.b" -> PMID 511.0.12
+__dmgetpmid: metric "qa.novalues.c" -> PMID 511.0.13
+__dmgetpmid: metric "qa.novalues.d" -> PMID 511.0.14
+__dmgetpmid: metric "qa.ten.a" -> PMID 511.0.22
+__dmgetpmid: metric "qa.ten.b" -> PMID 511.0.23
+__dmgetpmid: metric "qa.ten.c" -> PMID 511.0.24
+__dmgetpmid: metric "qa.ten.d" -> PMID 511.0.25
 
 qa.bin.a
     Data Type: 32-bit int  InDom: 29.2 0x7400002
@@ -646,9 +343,14 @@ qa.hundred.b
     Semantics: instant  Units: none
     value 100
 
-qa.novalues.a
-    Data Type: 32-bit int  InDom: 29.2 0x7400002
+qa.hundred.c
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
+    value 100
+
+qa.novalues.a
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
 No value(s) available!
 
 qa.novalues.b
@@ -660,3 +362,28 @@ qa.novalues.c
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
 No value(s) available!
+
+qa.novalues.d
+    Data Type: float  InDom: 0.0 0x0
+    Semantics: counter  Units: Mbyte / hour
+No value(s) available!
+
+qa.ten.a
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+    value 10
+
+qa.ten.b
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+    value 10
+
+qa.ten.c
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+    value 10
+
+qa.ten.d
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+    value 10
