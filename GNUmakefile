@@ -33,7 +33,7 @@ LDIRT = config.cache config.status config.log files.rpm \
 	debug*.list devel_files libs_files conf_files \
 	base_files.rpm libs_files.rpm devel_files.rpm \
 	perl-pcp*.list* python-pcp*.list* python3-pcp*.list* \
-	tmpfiles.run.setup
+	tmpfiles.init.setup
 LDIRDIRT = pcp-[0-9]*.[0-9]*.[0-9]*  pcp-*-[0-9]*.[0-9]*.[0-9]*
 
 SUBDIRS = vendor src
@@ -46,7 +46,7 @@ default :: default_pcp
 
 pcp : default_pcp
 
-default_pcp : $(CONFIGURE_GENERATED) tmpfiles.run.setup
+default_pcp : $(CONFIGURE_GENERATED) tmpfiles.init.setup
 	+for d in `echo $(SUBDIRS)`; do \
 	    if test -d "$$d" ; then \
 		echo === $$d ===; \
@@ -80,9 +80,9 @@ endif
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_TMP_DIR)
 	# this works if PCP_RUN_DIR is persistent
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_RUN_DIR)
-	# this works if PCP_RUN_DIR is within a tmpfs that is mounted
-	# empty on re-boot and managed by systemd-tmpfiles(8)
-	$(INSTALL) -m 644 tmpfiles.run.setup /usr/lib/tmpfiles.d/pcp-reboot-init.conf
+	# this works if PCP_RUN_DIR (and friends) are within a tmpfs that
+	# is mounted empty on re-boot and managed by systemd-tmpfiles(8)
+	$(INSTALL) -m 644 tmpfiles.init.setup /usr/lib/tmpfiles.d/pcp-reboot-init.conf
 	$(INSTALL) -m 755 -d $(PCP_SYSCONFIG_DIR)
 	$(INSTALL) -m 755 -d $(PCP_SYSCONF_DIR)
 	$(INSTALL) -m 755 -d $(PCP_SYSCONF_DIR)/labels
@@ -133,5 +133,9 @@ pcp.lsm src/include/builddefs src/include/pcp/platform_defs.h: configure pcp.lsm
 	@echo Please run ./configure with the appropriate options to generate $@.
 	@false
 
-tmpfiles.run.setup:	tmpfiles.run.setup.in
-	sed -e "s@PCP_RUN_DIR@$(PCP_RUN_DIR)@" -e "s/PCP_USER/$(PCP_USER)/" -e "s/PCP_GROUP/$(PCP_GROUP)/" <tmpfiles.run.setup.in >tmpfiles.run.setup
+tmpfiles.init.setup:	tmpfiles.init.setup.in
+	sed < $< > $@ \
+	    -e "s@PCP_RUN_DIR@$(PCP_RUN_DIR)@" \
+	    -e "s@PCP_LOG_DIR@$(PCP_LOG_DIR)@" \
+	    -e "s/PCP_GROUP/$(PCP_GROUP)/" \
+	    -e "s/PCP_USER/$(PCP_USER)/" \

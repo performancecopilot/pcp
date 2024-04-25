@@ -1,0 +1,10 @@
+# tmpfiles.d(5) config for Performance Co-Pilot startup components
+#
+# Type	Path			Mode	User	Group	Age	Argument
+D	PCP_RUN_DIR		0775	PCP_USER	PCP_GROUP	-	-
+d	PCP_LOG_DIR		0775	PCP_USER	PCP_GROUP	-	-
+d	PCP_LOG_DIR/pmcd	0775	root	root	-	-
+d	PCP_LOG_DIR/pmfind	0775	PCP_USER	PCP_GROUP	-	-
+d	PCP_LOG_DIR/pmie	0775	PCP_USER	PCP_GROUP	-	-
+d	PCP_LOG_DIR/pmlogger	0775	PCP_USER	PCP_GROUP	-	-
+d	PCP_LOG_DIR/pmproxy	0775	PCP_USER	PCP_GROUP	-	-

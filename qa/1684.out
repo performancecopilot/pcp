@@ -1,0 +1,20 @@
+QA output created by 1684
+## Missing file - outright failure
+Loading derived metrics from no-such-file
+Failed to load: No such file or directory
+
+## Valid metrics - outright success
+Loading derived metrics from TMP/a
+Successfully loaded 3 derived metrics
+
+## Mix of metrics - partial success
+[TMP/b:2] Error: pmRegisterDerived(b, ...) syntax error
+ bozo}
+     ^
+Illegal character
+[TMP/b:4] Error: pmRegisterDerived(d, ...) syntax error
+ +
+ ^
+Unexpected initial '+'
+Loading derived metrics from TMP/b
+Successfully loaded 2 derived metrics
