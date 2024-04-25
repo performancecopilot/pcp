@@ -309,7 +309,7 @@ The most common use of \f(CRnovalue()\fP is in conjunction with
 mumble = defined(abc.def) ? count(abc.def) : novalue()
 .ft P
 .in
-.br
+.RS +4n
 .PP
 The metadata for \f(CRnovalue()\fP is taken from the peer operand
 of the \f(CR:\fP operator, making conditions (b) and (c) above
@@ -331,7 +331,7 @@ as described for the
 novalue(type=float, semantics=instant, units="Kbytes/sec")
 .ft P
 .in
-.br
+.RS -4n
 .IP (i) 4n
 As an additional further case, if \f(CRcheck\fP is of the
 form \f(CRdefined(somemetric)\fP then references to undefined
@@ -354,6 +354,7 @@ when \f(CRnew.metric\fP is
 defined, although this does mean rules (b) and (c) are relaxed
 in this case, which further means \f(CRnovalue()\fP may have no
 peer operand to provide metadata.
+.RS +4n
 .PP
 A generalization of this construct is supported for any
 \f(CRcheck\fP that can be evaluated statically, so a boolean expression
@@ -365,8 +366,9 @@ bar = !defined(a) || !defined(b) ? novalue() : a + b
 .ft P
 .in
 .br
+.RS -4n
 .PD
-.RE
+.RS -2n
 .IP * 2n
 Selection of a single instance can be specified by the
 construct ``[\fIinstance_name\fR]'' which may be appended to
@@ -668,6 +670,10 @@ with a pattern that matches at most one instance.
 .IP * 2n
 Parenthesis may be used for explicit grouping.
 .IP * 2n
+A line ending with ``\e'' is treated as ``to be continued'' and the
+following line is appended after stripping the ``\e'' and the
+embedded newline.
+.IP * 2n
 Lines beginning with ``#'' are treated as comments and ignored.
 .IP * 2n
 White space is ignored.
@@ -857,7 +863,7 @@ The binary arithmetic operators are only allowed with operands with an
 arithmetic type (integer of various sizes and signedness, float or
 double).
 .TP
-Semantic error: derived metric <name>: <operand> <op> <operand>: Non-counter and not dimensionless <left-or-right> operand
+Semantic error: derived metric <name>: <operand> <op> <operand>: Non-counter and not dimensionless for <left-or-right> operand
 For multiplication or division or any of the relational operators, if
 one of the operands has the semantics of a counter and the other
 has the semantics of a non-counter (instantaneous or discrete) then
@@ -872,6 +878,19 @@ Semantic error: derived metric <name>: <expr> <op> <expr>: Operands should have 
 For all of the binary operators (arithmetic and relational), if both
 operands have non-scalar values, then they must be defined over the
 same instance domain.
+.TP
+Semantic error: derived metric <name>: operand <dname>: Illegal nested derived metric
+A derived metric (<dname>) cannot be nested (i.e. used) in the definition
+of another derived metric (<name>).
+.TP
+Semantic error: derived metric <name>: <expr> <op> <expr>: Illegal operator for non-counters
+Metrics with counter semantics may be added or subtracted, but <op>
+(division or multiplication) is not allowed.
+.TP
+Semantic error: derived metric <name>: operand <bname>: Unknown metric for ternary expression
+When a new context was established, the metric <bname> was not in the
+PMNS of the new context and <bname> is a required operand in the defintion of
+the derived metric <name>.
 .SH "EXPRESSION EVALUATION"
 For the binary arithmetic operators,
 if either operand must be scaled (e.g. convert bytes to Kbytes) then the

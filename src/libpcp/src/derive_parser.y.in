@@ -1165,24 +1165,29 @@ bad:
 /*
  * recursive descent to check if all metrics are defined
  * (needed after QUEST_BIND_LAZY has been used) ... returns the
- * number if undefined metrics
+ * node_t of the first metric that is not defined, else NULL
+ *
  * hand is "left" or "right" for error messages
  */
-static int
+static node_t *
 check_metrics(node_t *np, char *hand)
 {
-    int		nbad = 0;
+    node_t	*bad = NULL;
+
     assert(np != NULL);
-    if (np->left != NULL) nbad += check_metrics(np->left, hand);
-    if (np->right != NULL) nbad += check_metrics(np->right, hand);
+    if (np->left != NULL) bad = check_metrics(np->left, hand);
+    if (bad != NULL)
+	return bad;
     if (np->type == N_NAME && np->data.info->pmid == PM_ID_NULL) {
 	if (pmDebugOptions.derive && pmDebugOptions.appl1) {
 	    fprintf(stderr, "Semantic error: ternary op: metric \"%s\" not found for <%s-expr>\n", np->value, hand);
 	}
 	PM_TPD(derive_errmsg) = "Unknown metric for ternary expression";
-	nbad++;
+	return np;
     }
-    return nbad;
+    if (np->right != NULL) bad = check_metrics(np->right, hand);
+
+    return bad;
 }
 
 /*
@@ -1232,7 +1237,7 @@ static int
 check_expr(dm_t *dmp, node_t *np, node_t *parent, int async)
 {
     int		sts;
-    int		lsts;
+    node_t	*bad;
 
     assert(np != NULL);
 
@@ -1356,15 +1361,15 @@ check_expr(dm_t *dmp, node_t *np, node_t *parent, int async)
 	     * in left and/or right expr ... use info->bind to guide
 	     * note all errors are reported in check_metrics()
 	     */
-	    lsts = 0;
+	    bad = NULL;
 	    if (np->data.info->bind & QUEST_BIND_LEFT)
-		lsts += check_metrics(np->left,"left");
-	    if (np->data.info->bind & QUEST_BIND_RIGHT)
-		lsts += check_metrics(np->right, "right");
+		bad = check_metrics(np->left,"left");
+	    if (bad == NULL && np->data.info->bind & QUEST_BIND_RIGHT)
+		bad = check_metrics(np->right, "right");
 	    /* if either of these fails, no point in trying other checks */
-	    if (lsts) {
+	    if (bad != NULL) {
 		if (async)
-		    report_sem_error(dmp->name, np);
+		    report_sem_error(dmp->name, bad);
 		return -1;
 	    }
 
@@ -2125,6 +2130,7 @@ __dminit_configfile(const char *fname)
     char	*buf;
     char	*p;
     int		c;
+    int		lastc = '\0';
     int		sts = 0;
     int		eq = -1;	/* offset to =, start of <expr> or <value> */
     int		lp = -1;	/* offset to (, start of <attr> */
@@ -2179,7 +2185,14 @@ __dminit_configfile(const char *fname)
 		rp = p - buf;
 	    }
 	}
-	if (c == '\n') {
+	if (c == '\n' && lastc == '\\') {
+	    /* \\ continuation at the end of a line */
+	    lineno++;
+	    p--;
+	    lastc = c;
+	    continue;
+	}
+	if (c == '\n' && lastc != '\\') {
 	    if (p == buf || buf[0] == '#') {
 		/* comment or empty line, skip it ... */
 		goto next_line;
@@ -2456,8 +2469,10 @@ next_line:
 	    p = buf;
 	    eq = lp = rp = -1;
 	}
-	else
+	else {
+	    lastc = c;
 	    *p++ = c;
+	}
     }
     fclose(fp);
     free(buf);

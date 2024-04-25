@@ -1,8 +1,10 @@
 #!/bin/sh
 # PCP QA Test No. 1508
+# derived metrics additional features checkout
 # - novalue() for derived metrics
 # - lazy binding for derived metrics invovling guard ? left-expr : right-expr
 # - check to stop nested derived metric definitions
+# - \ continuation @ end of line
 #
 # Copyright (c) 2024 Ken McDonell.  All Rights Reserved.
 #
@@ -96,13 +98,16 @@ qa.bad.g = 1 ? sample.long.hundred.bad : sample.bin
 # dynamic guard true, unselected <left-expr> contains bad metric
 qa.bad.h = sample.long.one > 0 ? sample.long.hundred.bad : sample.bin
 # dynamic guard true, unselected <right-expr> contains bad metric
-qa.bad.i = sample.long.one > 0 ? sample.long.hundred : sample.bin.bad
+qa.bad.i = sample.long.one > 0 ? sample.long.hundred : sample.long.one + sample.bin.bad
 
 # static guard evaluation exercises
 qa.ten.a = 1 ? sample.long.ten : novalue()
 qa.ten.b = 0 ? novalue() : sample.long.ten
 qa.ten.c = defined(sample.long.ten) && !defined(foo) ? sample.long.ten : novalue()
-qa.ten.d = (defined(foo) || defined(bar) || defined(sample.long.ten)) && !defined(fumble) ? sample.long.ten : novalue()
+qa.ten.d = (defined(foo) || defined(bar) || defined(sample.long.ten)) \
+  && !defined(fumble) \
+  ? sample.long.ten \
+  : novalue()
 End-of-File
 
 export PCP_DERIVED_CONFIG=$tmp.config

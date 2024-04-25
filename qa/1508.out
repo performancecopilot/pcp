@@ -32,11 +32,11 @@ pmRegisterDerived: global metric[16] qa.bad.e = defined(sample.bin) ? sample.lon
 pmRegisterDerived: global metric[17] qa.bad.f = ! defined(sample.bin) ? sample.long.ten : sample.bin.bad
 pmRegisterDerived: global metric[18] qa.bad.g = 1 ? sample.long.hundred.bad : sample.bin
 pmRegisterDerived: global metric[19] qa.bad.h = sample.long.one > 0 ? sample.long.hundred.bad : sample.bin
-pmRegisterDerived: global metric[20] qa.bad.i = sample.long.one > 0 ? sample.long.hundred : sample.bin.bad
+pmRegisterDerived: global metric[20] qa.bad.i = sample.long.one > 0 ? sample.long.hundred : sample.long.one + sample.bin.bad
 pmRegisterDerived: global metric[21] qa.ten.a = 1 ? sample.long.ten : novalue()
 pmRegisterDerived: global metric[22] qa.ten.b = 0 ? novalue() : sample.long.ten
 pmRegisterDerived: global metric[23] qa.ten.c = defined(sample.long.ten) && !defined(foo) ? sample.long.ten : novalue()
-pmRegisterDerived: global metric[24] qa.ten.d = (defined(foo) || defined(bar) || defined(sample.long.ten)) && !defined(fumble) ? sample.long.ten : novalue()
+pmRegisterDerived: global metric[24] qa.ten.d = (defined(foo) || defined(bar) || defined(sample.long.ten))   && !defined(fumble)   ? sample.long.ten   : novalue()
 __dmopencontext(->ctx 0) called, 25 derived metrics
 __dmgetpmid: metric "qa.bin.a" -> PMID 511.0.3
 __dmtraverse: name="qa" added "qa.bin.a"
@@ -73,7 +73,7 @@ __dmgetpmid: metric "no.such.metric" -> Unknown metric name
 __dmgetpmid: metric "no.such.metric" -> Unknown metric name
 __dmgetpmid: metric "some.other.no.such.metric" -> Unknown metric name
 Semantic error: ternary op: metric "some.other.no.such.metric" not found for <right-expr>
-Semantic error: derived metric qa.bad.d: no.such.metric : some.other.no.such.metric: Unknown metric for ternary expression
+Semantic error: derived metric qa.bad.d: operand some.other.no.such.metric: Unknown metric for ternary expression
 __dmbind: check_expr failed for metric[15] qa.bad.d
 Derived metric expr dump from <addr>...
 expr node <addr> type=QUEST left=<addr> right=<addr> save_last=0
@@ -101,7 +101,7 @@ __dmtraverse: name="qa", omitting invalid child "qa.bad.d"
 __dmgetpmid: metric "qa.bad.e" -> PMID 511.0.17
 __dmgetpmid: metric "sample.long.ten.bad" -> Unknown metric name
 Semantic error: ternary op: metric "sample.long.ten.bad" not found for <left-expr>
-Semantic error: derived metric qa.bad.e: sample.long.ten.bad : sample.bin: Unknown metric for ternary expression
+Semantic error: derived metric qa.bad.e: operand sample.long.ten.bad: Unknown metric for ternary expression
 __dmbind: check_expr failed for metric[16] qa.bad.e
 Derived metric expr dump from <addr>...
 expr node <addr> type=QUEST left=<addr> right=<addr> save_last=0
@@ -129,7 +129,7 @@ __dmtraverse: name="qa", omitting invalid child "qa.bad.e"
 __dmgetpmid: metric "qa.bad.f" -> PMID 511.0.18
 __dmgetpmid: metric "sample.bin.bad" -> Unknown metric name
 Semantic error: ternary op: metric "sample.bin.bad" not found for <right-expr>
-Semantic error: derived metric qa.bad.f: sample.long.ten : sample.bin.bad: Unknown metric for ternary expression
+Semantic error: derived metric qa.bad.f: operand sample.bin.bad: Unknown metric for ternary expression
 __dmbind: check_expr failed for metric[17] qa.bad.f
 Derived metric expr dump from <addr>...
 expr node <addr> type=QUEST left=<addr> right=<addr> save_last=0
@@ -161,7 +161,7 @@ __dmtraverse: name="qa", omitting invalid child "qa.bad.f"
 __dmgetpmid: metric "qa.bad.g" -> PMID 511.0.19
 __dmgetpmid: metric "sample.long.hundred.bad" -> Unknown metric name
 Semantic error: ternary op: metric "sample.long.hundred.bad" not found for <left-expr>
-Semantic error: derived metric qa.bad.g: sample.long.hundred.bad : sample.bin: Unknown metric for ternary expression
+Semantic error: derived metric qa.bad.g: operand sample.long.hundred.bad: Unknown metric for ternary expression
 __dmbind: check_expr failed for metric[18] qa.bad.g
 Derived metric expr dump from <addr>...
 expr node <addr> type=QUEST left=<addr> right=<addr> save_last=0
@@ -188,7 +188,7 @@ __dmtraverse: name="qa", omitting invalid child "qa.bad.g"
 __dmgetpmid: metric "qa.bad.h" -> PMID 511.0.20
 __dmgetpmid: metric "sample.long.hundred.bad" -> Unknown metric name
 Semantic error: ternary op: metric "sample.long.hundred.bad" not found for <left-expr>
-Semantic error: derived metric qa.bad.h: sample.long.hundred.bad : sample.bin: Unknown metric for ternary expression
+Semantic error: derived metric qa.bad.h: operand sample.long.hundred.bad: Unknown metric for ternary expression
 __dmbind: check_expr failed for metric[19] qa.bad.h
 Derived metric expr dump from <addr>...
 expr node <addr> type=QUEST left=<addr> right=<addr> save_last=0
@@ -223,7 +223,7 @@ __dmtraverse: name="qa", omitting invalid child "qa.bad.h"
 __dmgetpmid: metric "qa.bad.i" -> PMID 511.0.21
 __dmgetpmid: metric "sample.bin.bad" -> Unknown metric name
 Semantic error: ternary op: metric "sample.bin.bad" not found for <right-expr>
-Semantic error: derived metric qa.bad.i: sample.long.hundred : sample.bin.bad: Unknown metric for ternary expression
+Semantic error: derived metric qa.bad.i: operand sample.bin.bad: Unknown metric for ternary expression
 __dmbind: check_expr failed for metric[20] qa.bad.i
 Derived metric expr dump from <addr>...
 expr node <addr> type=QUEST left=<addr> right=<addr> save_last=0
@@ -248,6 +248,14 @@ expr node <addr> type=COLON left=<addr> right=<addr> save_last=0
     Semantics: instant  Units: none
 expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.hundred] primary=0
     PMID: 29.0.12 (29.0.12 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr> type=PLUS left=<addr> right=<addr> save_last=0
+    PMID: PM_ID_NULL (29.0.10 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 0.0 0x0
+    Semantics: instant  Units: none
+expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] primary=0
+    PMID: 29.0.10 (29.0.10 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin.bad] primary=0
