@@ -387,3 +387,8 @@ qa.ten.d
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
     value 10
+
+=== Marko's nested defn case ===
+Semantic error: derived metric baz: operand foo: Illegal nested derived metric
+Semantic error: derived metric bah: operand bar: Illegal nested derived metric
+Invalid metric baz (PM_ERR_NAME Unknown metric name).

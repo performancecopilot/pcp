@@ -1,6 +1,8 @@
 #!/bin/sh
 # PCP QA Test No. 1508
-# novalue() for derived metrics
+# - novalue() for derived metrics
+# - lazy binding for derived metrics invovling guard ? left-expr : right-expr
+# - check to stop nested derived metric definitions
 #
 # Copyright (c) 2024 Ken McDonell.  All Rights Reserved.
 #
@@ -111,7 +113,23 @@ then
 else
     pminfo -Dderive -Dappl1 -df qa 2>&1
 fi >$tmp.out
+_filter <$tmp.out
 
+echo
+echo "=== Marko's nested defn case ==="
+cat <<'End-of-File' >$tmp.config
+foo = delta(disk.all.read_bytes)
+bar = instant(disk.all.read_bytes)
+baz = foo + bar
+bah = instant(bar)
+End-of-File
+
+if $do_valgrind
+then
+    _run_valgrind ...your test goes here...
+else
+    pmrep -s 2 baz bah 2>&1
+fi >$tmp.out
 _filter <$tmp.out
 
 # success, all done

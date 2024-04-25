@@ -418,152 +418,6 @@ free_expr_ctx(node_t *np)
     free_expr(np);
 }
 
-/*
- * Bind an expression tree in a specific context.
- * For registered metrics this involves copy the expression tree
- * (the intial ctxp->expr points into registered.mlist[n].expr),
- * but for per-context metrics ctxp->expr is already mostly set
- * up.
- * Metadata and the data.info block need to be initialized.
- */
-static node_t *
-bind_expr(__pmContext *ctxp, int n, node_t *np, int lookup_mode, int is_global)
-{
-    node_t	*new;
-    int		next_lookup = lookup_mode;
-
-    PM_ASSERT_IS_LOCKED(registered.mutex);
-    assert(np != NULL);
-
-    if (is_global)
-	new = newnode(np->type);
-    else
-	new = np;
-
-    if (np->type == N_QUEST) {
-	/*
-	 * <guard> ? <left> : <right> is special because any subtree
-	 * below N_QUEST could validly contain references to metrics that
-	 * do not exist, so set use QUEST_BIND_LAZY when binding these ones
-	 */
-	next_lookup = QUEST_BIND_LAZY;
-    }
-    else if (np->type == N_DEFINED) {
-	/*
-	 * defined(x) ... failing to lookup x is sort of expected
-	 */
-	next_lookup = QUEST_BIND_LAZY;
-    }
-    else {
-	/* else follow the NOW|LAZY binding we were called with */
-	next_lookup = lookup_mode;
-    }
-
-    if (np->left != NULL) {
-	new->left = bind_expr(ctxp, n, np->left, next_lookup, is_global);
-	if (new->left == NULL) {
-	    /* error, reported deeper in the recursion, clean up */
-	    if (is_global)
-		free_expr(new);
-	    return(NULL);
-	}
-    }
-    if (np->right != NULL) {
-	if ((new->right = bind_expr(ctxp, n, np->right, next_lookup, is_global)) == NULL) {
-	    /* error, reported deeper in the recursion, clean up */
-	    if (is_global)
-		free_expr(new);
-	    return(NULL);
-	}
-    }
-    if (is_global && np->type == N_SCALE) {
-	new->data.info = NULL;
-    }
-    if (np->type == N_PATTERN) {
-	if (is_global) {
-	    if ((new->data.pattern = (pattern_t *)malloc(sizeof(pattern_t))) == NULL) {
-		PM_UNLOCK(registered.mutex);
-		pmNoMem("bind_expr: pattern block", sizeof(pattern_t), PM_FATAL_ERR);
-		/*NOTREACHED*/
-	    }
-	    new->data.pattern->ftype = np->data.pattern->ftype;
-	    if (np->data.pattern->ftype == F_REGEX) {
-		new->data.pattern->regex = np->data.pattern->regex;
-		new->data.pattern->invert = np->data.pattern->invert;
-	      __pmHashInit(&new->data.pattern->hash);
-		new->data.pattern->used = 0;
-	    }
-	    else {
-		/* F_EXACT */
-		new->data.pattern->inst = np->data.pattern->inst;
-	    }
-	}
-    }
-    else {
-	/*
-	 * need to allocate the data.info block ... this is not done
-	 * in the parser for any of the nodes
-	 */
-	if ((new->data.info = (info_t *)calloc(1, sizeof(info_t))) == NULL) {
-	    PM_UNLOCK(registered.mutex);
-	    pmNoMem("bind_expr: info block", sizeof(info_t), PM_FATAL_ERR);
-	    /*NOTREACHED*/
-	}
-	new->data.info->pmid = PM_ID_NULL;
-	new->data.info->mul_scale = new->data.info->div_scale = 1;
-	new->data.info->time_scale = -1; /* one-trip initialization if needed */
-    }
-
-    if (is_global) {
-	new->value = np->value;		/* value[] does not change */
-	new->save_last = np->save_last;
-    }
-
-    if (new->type == N_NAME) {
-	int	sts;
-	/* get pmID and pmDesc from context */
-	sts = pmLookupName_ctx(ctxp, PM_LOCKED, 1, (const char **)&new->value, &new->data.info->pmid);
-	if (sts < 0) {
-	    if (lookup_mode == QUEST_BIND_LAZY) {
-		/*
-		 * undefined metrics maybe OK here ...
-		 * set pmid for later testing
-		 */
-		new->desc.pmid = new->data.info->pmid = PM_ID_NULL;
-		return new;
-	    }
-	    if (pmDebugOptions.derive) {
-		char	errmsg[PM_MAXERRMSGLEN];
-		fprintf(stderr, "bind_expr: error: derived metric %s: operand: %s: %s\n", registered.mlist[n].name, new->value, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
-	    }
-	    if (is_global)
-		free_expr(new);
-	    return NULL;
-	}
-	sts = pmLookupDesc_ctx(ctxp, PM_LOCKED, new->data.info->pmid, &new->desc);
-	if (sts < 0) {
-	    if (pmDebugOptions.derive) {
-		char	strbuf[20];
-		char	errmsg[PM_MAXERRMSGLEN];
-		fprintf(stderr, "bind_expr: error: derived metric %s: operand (%s [%s]): %s\n", registered.mlist[n].name, new->value, pmIDStr_r(new->data.info->pmid, strbuf, sizeof(strbuf)), pmErrStr_r(sts, errmsg, sizeof(errmsg)));
-	    }
-	    if (is_global)
-		free_expr(new);
-	    return NULL;
-	}
-    }
-    else if (new->type == N_INTEGER || new->type == N_DOUBLE || new->type == N_SCALE) {
-	if (is_global)
-	    new->desc = np->desc;
-    }
-    else if (new->type == N_NOVALUE) {
-	new->desc = np->desc;
-	new->data.info->numval = 0;
-    }
-
-    return new;
-}
-
 static void
 report_sem_error(char *name, node_t *np)
 {
@@ -654,6 +508,9 @@ report_sem_error(char *name, node_t *np)
 	case N_FILTERINST:
 	    pmprintf("%s ", __dmnode_type_str(np->type));
 	    break;
+	case N_NAME:
+	    pmprintf("operand %s", np->value);
+	    break;
 	default:
 	    /* should never get here ... */
 	    pmprintf("botch @ node type #%d?", np->type);
@@ -662,6 +519,167 @@ report_sem_error(char *name, node_t *np)
     pmprintf(": %s\n", PM_TPD(derive_errmsg));
     pmflush();
     PM_TPD(derive_errmsg) = NULL;
+}
+
+/*
+ * Bind an expression tree in a specific context.
+ * For registered metrics this involves copy the expression tree
+ * (the intial ctxp->expr points into registered.mlist[n].expr),
+ * but for per-context metrics ctxp->expr is already mostly set
+ * up.
+ * Metadata and the data.info block need to be initialized.
+ */
+static node_t *
+bind_expr(__pmContext *ctxp, int n, node_t *np, int lookup_mode, int is_global, int async)
+{
+    node_t	*new;
+    int		next_lookup = lookup_mode;
+
+    PM_ASSERT_IS_LOCKED(registered.mutex);
+    assert(np != NULL);
+
+    if (is_global)
+	new = newnode(np->type);
+    else
+	new = np;
+
+    if (np->type == N_QUEST) {
+	/*
+	 * <guard> ? <left> : <right> is special because any subtree
+	 * below N_QUEST could validly contain references to metrics that
+	 * do not exist, so set use QUEST_BIND_LAZY when binding these ones
+	 */
+	next_lookup = QUEST_BIND_LAZY;
+    }
+    else if (np->type == N_DEFINED) {
+	/*
+	 * defined(x) ... failing to lookup x is sort of expected
+	 */
+	next_lookup = QUEST_BIND_LAZY;
+    }
+    else {
+	/* else follow the NOW|LAZY binding we were called with */
+	next_lookup = lookup_mode;
+    }
+
+    if (np->left != NULL) {
+	new->left = bind_expr(ctxp, n, np->left, next_lookup, is_global, async);
+	if (new->left == NULL) {
+	    /* error, reported deeper in the recursion, clean up */
+	    if (is_global)
+		free_expr(new);
+	    return(NULL);
+	}
+    }
+    if (np->right != NULL) {
+	if ((new->right = bind_expr(ctxp, n, np->right, next_lookup, is_global, async)) == NULL) {
+	    /* error, reported deeper in the recursion, clean up */
+	    if (is_global)
+		free_expr(new);
+	    return(NULL);
+	}
+    }
+    if (is_global && np->type == N_SCALE) {
+	new->data.info = NULL;
+    }
+    if (np->type == N_PATTERN) {
+	if (is_global) {
+	    if ((new->data.pattern = (pattern_t *)malloc(sizeof(pattern_t))) == NULL) {
+		PM_UNLOCK(registered.mutex);
+		pmNoMem("bind_expr: pattern block", sizeof(pattern_t), PM_FATAL_ERR);
+		/*NOTREACHED*/
+	    }
+	    new->data.pattern->ftype = np->data.pattern->ftype;
+	    if (np->data.pattern->ftype == F_REGEX) {
+		new->data.pattern->regex = np->data.pattern->regex;
+		new->data.pattern->invert = np->data.pattern->invert;
+	      __pmHashInit(&new->data.pattern->hash);
+		new->data.pattern->used = 0;
+	    }
+	    else {
+		/* F_EXACT */
+		new->data.pattern->inst = np->data.pattern->inst;
+	    }
+	}
+    }
+    else {
+	/*
+	 * need to allocate the data.info block ... this is not done
+	 * in the parser for any of the nodes
+	 */
+	if ((new->data.info = (info_t *)calloc(1, sizeof(info_t))) == NULL) {
+	    PM_UNLOCK(registered.mutex);
+	    pmNoMem("bind_expr: info block", sizeof(info_t), PM_FATAL_ERR);
+	    /*NOTREACHED*/
+	}
+	new->data.info->pmid = PM_ID_NULL;
+	new->data.info->mul_scale = new->data.info->div_scale = 1;
+	new->data.info->time_scale = -1; /* one-trip initialization if needed */
+    }
+
+    if (is_global) {
+	new->value = np->value;		/* value[] does not change */
+	new->save_last = np->save_last;
+    }
+
+    if (new->type == N_NAME) {
+	int	sts;
+	/* get pmID and pmDesc from context */
+	sts = pmLookupName_ctx(ctxp, PM_LOCKED, 1, (const char **)&new->value, &new->data.info->pmid);
+	if (sts < 0) {
+	    if (lookup_mode == QUEST_BIND_LAZY) {
+		/*
+		 * undefined metrics maybe OK here ...
+		 * set pmid for later testing
+		 */
+		new->desc.pmid = new->data.info->pmid = PM_ID_NULL;
+		return new;
+	    }
+	    if (pmDebugOptions.derive) {
+		char	errmsg[PM_MAXERRMSGLEN];
+		fprintf(stderr, "bind_expr: error: derived metric %s: operand: %s: %s\n", registered.mlist[n].name, new->value, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	    }
+	    if (is_global)
+		free_expr(new);
+	    return NULL;
+	}
+
+	/*
+	 * nested definitions are not allowed ... if this N_NAME node
+	 * has a derived metric PMID, you lose.
+	 */
+	if (IS_DERIVED(new->data.info->pmid)) {
+	    PM_TPD(derive_errmsg) = "Illegal nested derived metric";
+		if (async)
+		    report_sem_error(registered.mlist[n].name, np);
+	    if (is_global)
+		free_expr(new);
+	    return NULL;
+	}
+
+
+	sts = pmLookupDesc_ctx(ctxp, PM_LOCKED, new->data.info->pmid, &new->desc);
+	if (sts < 0) {
+	    if (pmDebugOptions.derive) {
+		char	strbuf[20];
+		char	errmsg[PM_MAXERRMSGLEN];
+		fprintf(stderr, "bind_expr: error: derived metric %s: operand (%s [%s]): %s\n", registered.mlist[n].name, new->value, pmIDStr_r(new->data.info->pmid, strbuf, sizeof(strbuf)), pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	    }
+	    if (is_global)
+		free_expr(new);
+	    return NULL;
+	}
+    }
+    else if (new->type == N_INTEGER || new->type == N_DOUBLE || new->type == N_SCALE) {
+	if (is_global)
+	    new->desc = np->desc;
+    }
+    else if (new->type == N_NOVALUE) {
+	new->desc = np->desc;
+	new->data.info->numval = 0;
+    }
+
+    return new;
 }
 
 /* type promotion */
@@ -3322,9 +3340,17 @@ __dmbind(int derive_locked, __pmContext *ctxp, int i, int async)
 	    goto done;
 	}
     }
+    if (pmDebugOptions.derive && pmDebugOptions.appl1 && pmDebugOptions.desperate) {
+	fprintf(stderr, "__dmbind: metric[%d] %s: before bind_expr ...\n", i, cp->mlist[i].name);
+	__dmdumpexpr(cp->mlist[i].expr, 0);
+    }
     /* failures must be reported in bind_expr() or below */
-    cp->mlist[i].expr = bind_expr(ctxp, i, cp->mlist[i].expr, QUEST_BIND_NOW, cp->mlist[i].flags & DM_GLOBAL);
+    cp->mlist[i].expr = bind_expr(ctxp, i, cp->mlist[i].expr, QUEST_BIND_NOW, cp->mlist[i].flags & DM_GLOBAL, async);
     if (cp->mlist[i].expr != NULL) {
+	if (pmDebugOptions.derive && pmDebugOptions.appl1 && pmDebugOptions.desperate) {
+	    fprintf(stderr, "__dmbind: metric[%d] %s: after bind_expr and before check_expr ...\n", i, cp->mlist[i].name);
+	    __dmdumpexpr(cp->mlist[i].expr, 0);
+	}
 	/* failures must be reported in check_expr() or below */
 	sts = check_expr(&cp->mlist[i], cp->mlist[i].expr, NULL, async);
 	if (sts >= 0) {
@@ -3340,6 +3366,10 @@ __dmbind(int derive_locked, __pmContext *ctxp, int i, int async)
 	    if (pmDebugOptions.appl1)
 		__dmdumpexpr(cp->mlist[i].expr, 0);
 	}
+    }
+    else if (pmDebugOptions.derive && pmDebugOptions.appl1 && pmDebugOptions.desperate) {
+	fprintf(stderr, "__dmbind: metric[%d] %s: after check_expr ...\n", i, cp->mlist[i].name);
+	__dmdumpexpr(cp->mlist[i].expr, 0);
     }
     if (sts < 0 && cp->mlist[i].expr != NULL) {
 	free_expr(cp->mlist[i].expr);
