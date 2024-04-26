@@ -89,6 +89,7 @@ typedef struct node {		/* expression tree node */
     struct node	*left;
     struct node	*right;
     char	*value;
+    int		flags;
     union {
 	info_t		*info;
 	pattern_t	*pattern;
@@ -168,6 +169,7 @@ typedef struct {
 #define N_PATTERN	33
 #define N_SCALAR	34
 #define N_NOVALUE	35
+#define N_META		36
 
 /* instance filtering types */
 #define F_REGEX		0		/* matchinst([!]pattern, expr) */

@@ -283,6 +283,8 @@ derive_parser.tab.o
     ?registered			# guarded by registered.mutex
     pmid			# guarded by registered.mutex
     specdesc			# guarded by registered.mutex
+    specmeta			# guarded by registered.mutex
+    specflags			# guarded by registered.mutex
     errmsg			# sort of guarded by registered.mutex (on
     				# error path, and unlikely that two threads
 				# are trying to run pmRegisterDerived at the

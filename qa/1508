@@ -5,6 +5,7 @@
 # - lazy binding for derived metrics invovling guard ? left-expr : right-expr
 # - check to stop nested derived metric definitions
 # - \ continuation @ end of line
+# - meta= for novalue() and mkconst()
 #
 # Copyright (c) 2024 Ken McDonell.  All Rights Reserved.
 #
@@ -108,6 +109,12 @@ qa.ten.d = (defined(foo) || defined(bar) || defined(sample.long.ten)) \
   && !defined(fumble) \
   ? sample.long.ten \
   : novalue()
+
+# meta= cases
+qa.meta.a = mkconst(123, meta=sample.byte_rate_perhour)
+qa.meta.b = 1 ? novalue(meta=sample.byte_rate_perhour) : 0
+qa.meta.c = mkconst(123.456, meta=sample.byte_rate_perhour,type=float,semantics=discrete)
+qa.meta.d = 1 ? novalue(units="mbyte/sec",meta=sample.byte_rate_perhour) : 0
 End-of-File
 
 export PCP_DERIVED_CONFIG=$tmp.config

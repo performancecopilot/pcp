@@ -37,7 +37,11 @@ pmRegisterDerived: global metric[21] qa.ten.a = 1 ? sample.long.ten : novalue()
 pmRegisterDerived: global metric[22] qa.ten.b = 0 ? novalue() : sample.long.ten
 pmRegisterDerived: global metric[23] qa.ten.c = defined(sample.long.ten) && !defined(foo) ? sample.long.ten : novalue()
 pmRegisterDerived: global metric[24] qa.ten.d = (defined(foo) || defined(bar) || defined(sample.long.ten))   && !defined(fumble)   ? sample.long.ten   : novalue()
-__dmopencontext(->ctx 0) called, 25 derived metrics
+pmRegisterDerived: global metric[25] qa.meta.a = mkconst(123, meta=sample.byte_rate_perhour)
+pmRegisterDerived: global metric[26] qa.meta.b = 1 ? novalue(meta=sample.byte_rate_perhour) : 0
+pmRegisterDerived: global metric[27] qa.meta.c = mkconst(123.456, meta=sample.byte_rate_perhour,type=float,semantics=discrete)
+pmRegisterDerived: global metric[28] qa.meta.d = 1 ? novalue(units="mbyte/sec",meta=sample.byte_rate_perhour) : 0
+__dmopencontext(->ctx 0) called, 29 derived metrics
 __dmgetpmid: metric "qa.bin.a" -> PMID 511.0.3
 __dmtraverse: name="qa" added "qa.bin.a"
 __dmgetpmid: metric "qa.bin.b" -> PMID 511.0.4
@@ -275,6 +279,14 @@ __dmgetpmid: metric "foo" -> Unknown metric name
 __dmgetpmid: metric "bar" -> Unknown metric name
 __dmgetpmid: metric "fumble" -> Unknown metric name
 __dmtraverse: name="qa" added "qa.ten.d"
+__dmgetpmid: metric "qa.meta.a" -> PMID 511.0.26
+__dmtraverse: name="qa" added "qa.meta.a"
+__dmgetpmid: metric "qa.meta.b" -> PMID 511.0.27
+__dmtraverse: name="qa" added "qa.meta.b"
+__dmgetpmid: metric "qa.meta.c" -> PMID 511.0.28
+__dmtraverse: name="qa" added "qa.meta.c"
+__dmgetpmid: metric "qa.meta.d" -> PMID 511.0.29
+__dmtraverse: name="qa" added "qa.meta.d"
 __dmgetpmid: metric "qa.bin.a" -> PMID 511.0.3
 __dmgetpmid: metric "qa.bin.b" -> PMID 511.0.4
 __dmgetpmid: metric "qa.bin.c" -> PMID 511.0.5
@@ -291,6 +303,10 @@ __dmgetpmid: metric "qa.ten.a" -> PMID 511.0.22
 __dmgetpmid: metric "qa.ten.b" -> PMID 511.0.23
 __dmgetpmid: metric "qa.ten.c" -> PMID 511.0.24
 __dmgetpmid: metric "qa.ten.d" -> PMID 511.0.25
+__dmgetpmid: metric "qa.meta.a" -> PMID 511.0.26
+__dmgetpmid: metric "qa.meta.b" -> PMID 511.0.27
+__dmgetpmid: metric "qa.meta.c" -> PMID 511.0.28
+__dmgetpmid: metric "qa.meta.d" -> PMID 511.0.29
 
 qa.bin.a
     Data Type: 32-bit int  InDom: 29.2 0x7400002
@@ -395,6 +411,26 @@ qa.ten.d
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
     value 10
+
+qa.meta.a
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: byte / hour
+    value 123
+
+qa.meta.b
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: byte / hour
+No value(s) available!
+
+qa.meta.c
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: byte / hour
+    value 123.456
+
+qa.meta.d
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Mbyte / sec
+No value(s) available!
 
 === Marko's nested defn case ===
 Semantic error: derived metric baz: operand foo: Illegal nested derived metric

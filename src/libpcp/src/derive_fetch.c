@@ -35,6 +35,8 @@ static void
 get_pmids(node_t *np, int *cnt, pmID **list)
 {
     assert(np != NULL);
+    if (np->type == N_NOVALUE || np->type == N_INTEGER || np->type == N_DOUBLE)
+	return;
     if (np->left != NULL) get_pmids(np->left, cnt, list);
     if (np->right != NULL) get_pmids(np->right, cnt, list);
     if (np->type == N_NAME && np->data.info->pmid != PM_ID_NULL) {
@@ -695,7 +697,9 @@ eval_expr(__pmContext *ctxp, node_t *np, struct timespec *stamp, int numpmid,
     char	strbuf[20];
 
     assert(np != NULL);
-    if (np->left != NULL && (np->type != N_COLON || (np->data.info->bind & QUEST_BIND_LEFT))) {
+    if (np->left != NULL &&
+	np->type != N_NOVALUE && np->type != N_INTEGER && np->type != N_DOUBLE &&
+	(np->type != N_COLON || (np->data.info->bind & QUEST_BIND_LEFT))) {
 	sts = eval_expr(ctxp, np->left, stamp, numpmid, vset, level+1);
 	if (sts < 0) {
 	    if (np->type == N_COUNT) {
@@ -715,7 +719,8 @@ eval_expr(__pmContext *ctxp, node_t *np, struct timespec *stamp, int numpmid,
 	    return sts;
 	}
     }
-    if (np->right != NULL && (np->type != N_COLON || (np->data.info->bind & QUEST_BIND_RIGHT))) {
+    if (np->right != NULL &&
+        (np->type != N_COLON || (np->data.info->bind & QUEST_BIND_RIGHT))) {
 	sts = eval_expr(ctxp, np->right, stamp, numpmid, vset, level+1);
 	if (sts < 0) return sts;
     }

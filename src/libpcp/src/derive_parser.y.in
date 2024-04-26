@@ -109,8 +109,21 @@ static const char name_str[]	 = "Metric name";
 static const char unexpected_str[]	 = "Unexpected";
 static const char initial_str[]	 = "Unexpected initial";
 
+/*
+ * bit-field flags for speclist in mkconst() and novalue() to
+ * indicate which parameters have been explicitly set ... accumulated in
+ * specflags and then stored in flags in the associated expr node
+ */
+#define META_PMID	1	/* not used, here for completeness */
+#define META_TYPE	2
+#define META_INDOM	4	/* not used, here for completeness */
+#define META_SEM	8
+#define META_UNITS	16
+
 static const pmUnits noUnits;
-static pmDesc specdesc;
+static pmDesc specdesc;		/* used for speclist */
+static int specflags;		/* ditto */
+static node_t *specmeta;	/* metric name from meta=... */
 
 /*
  * Handle one component of the ':' separated derived config spec.
@@ -521,6 +534,56 @@ report_sem_error(char *name, node_t *np)
     PM_TPD(derive_errmsg) = NULL;
 }
 
+static pmDesc
+bind_desc(node_t *np, pmDesc param)
+{
+    pmDesc	temp;
+    char	strbuf[60];
+
+    if (np->left == NULL)
+	return param;
+    temp = np->left->desc;
+    if (pmDebugOptions.derive && pmDebugOptions.appl1 && pmDebugOptions.desperate) {
+	fprintf(stderr, "bind_desc: meta: type=%s", pmTypeStr_r(temp.type, strbuf, sizeof(strbuf)));
+	fprintf(stderr, ",indom=%s", pmInDomStr_r(temp.indom, strbuf, sizeof(strbuf)));
+	fprintf(stderr, ",sem=%s", pmSemStr_r(temp.sem, strbuf, sizeof(strbuf)));
+	fprintf(stderr, ",units=%s\n", pmUnitsStr_r(&temp.units, strbuf, sizeof(strbuf)));
+	if (np->flags != 0) {
+	    fprintf(stderr, "           params:");
+	    if (np->flags & META_TYPE)
+		fprintf(stderr, " type=%s", pmTypeStr_r(param.type, strbuf, sizeof(strbuf)));
+	    if (np->flags & META_INDOM)
+		fprintf(stderr, " indom=%s", pmInDomStr_r(param.indom, strbuf, sizeof(strbuf)));
+	    if (np->flags & META_SEM)
+		fprintf(stderr, " sem=%s", pmSemStr_r(param.sem, strbuf, sizeof(strbuf)));
+	    if (np->flags & META_UNITS)
+		fprintf(stderr, " units=%s", pmUnitsStr_r(&param.units, strbuf, sizeof(strbuf)));
+	    fprintf(stderr, " flags=%x", np->flags);
+	    fputc('\n', stderr);
+	}
+    }
+
+    if (np->flags & META_PMID)
+	temp.pmid = param.pmid;
+    if (np->flags & META_TYPE)
+	temp.type = param.type;
+    if (np->flags & META_INDOM)
+	temp.indom = param.indom;
+    if (np->flags & META_SEM)
+	temp.sem = param.sem;
+    if (np->flags & META_UNITS)
+	temp.units = param.units;
+
+    if (pmDebugOptions.derive && pmDebugOptions.appl1 && pmDebugOptions.desperate && np->flags != 0) {
+	fprintf(stderr, "           result: type=%s", pmTypeStr_r(temp.type, strbuf, sizeof(strbuf)));
+	fprintf(stderr, ",indom=%s", pmInDomStr_r(temp.indom, strbuf, sizeof(strbuf)));
+	fprintf(stderr, ",sem=%s", pmSemStr_r(temp.sem, strbuf, sizeof(strbuf)));
+	fprintf(stderr, ",units=%s\n", pmUnitsStr_r(&temp.units, strbuf, sizeof(strbuf)));
+    }
+
+    return temp;
+}
+
 /*
  * Bind an expression tree in a specific context.
  * For registered metrics this involves copy the expression tree
@@ -621,6 +684,7 @@ bind_expr(__pmContext *ctxp, int n, node_t *np, int lookup_mode, int is_global, 
 	new->value = np->value;		/* value[] does not change */
 	new->save_last = np->save_last;
     }
+    new->flags = np->flags;
 
     if (new->type == N_NAME) {
 	int	sts;
@@ -670,13 +734,19 @@ bind_expr(__pmContext *ctxp, int n, node_t *np, int lookup_mode, int is_global, 
 	    return NULL;
 	}
     }
-    else if (new->type == N_INTEGER || new->type == N_DOUBLE || new->type == N_SCALE) {
+    else if (new->type == N_SCALE) {
 	if (is_global)
 	    new->desc = np->desc;
     }
+    else if (new->type == N_INTEGER || new->type == N_DOUBLE) {
+	if (is_global)
+	    new->desc = bind_desc(new, np->desc);
+    }
     else if (new->type == N_NOVALUE) {
-	new->desc = np->desc;
-	new->data.info->numval = 0;
+	if (is_global) {
+	    new->desc = bind_desc(new, np->desc);
+	    new->data.info->numval = 0;
+	}
     }
 
     return new;
@@ -3670,6 +3740,7 @@ PUT-PREFIX-DECL-HERE ... see GNUmakefile and fix_derive_parser_y
 %token      L_AND
 %token      L_OR
 %token      L_MKCONST
+%token      L_META
 %token      L_NOVALUE
 %token      L_RESCALE
 %token      L_DEFINED
@@ -3936,10 +4007,16 @@ novalue : L_NOVALUE L_LPAREN L_RPAREN
 		  np->desc.units = noUnits;
 		  $$ = np;
 		}
-	|  L_NOVALUE L_LPAREN speclist L_RPAREN
+	| L_NOVALUE L_LPAREN speclist L_RPAREN
 		{ np = newnode(N_NOVALUE);
 		  np->desc = specdesc;	/* struct copy */
 		  np->desc.pmid = PM_ID_NULL;
+		  if (specmeta != NULL) {
+		      np->left = specmeta;
+		      specmeta = NULL;
+		  }
+		  np->flags = specflags;
+		  specflags = 0;
 		  $$ = np;
 		}
 	| L_NOVALUE L_LPAREN error
@@ -4007,6 +4084,12 @@ num	: L_INTEGER
 		}
 	    speclist L_RPAREN
 		{ np->desc = specdesc;	/* struct copy */
+		  if (specmeta != NULL) {
+		      np->left = specmeta;
+		      specmeta = NULL;
+		  }
+		  np->flags = specflags;
+		  specflags = 0;
 		  $$ = np;
 		}
 	| L_MKCONST L_LPAREN L_DOUBLE L_COMMA
@@ -4028,6 +4111,12 @@ num	: L_INTEGER
 		      return -1;
 		  }
 		  np->desc = specdesc;	/* struct copy */
+		  if (specmeta != NULL) {
+		      np->left = specmeta;
+		      specmeta = NULL;
+		  }
+		  np->flags = specflags;
+		  specflags = 0;
 		  $$ = np;
 		}
 	| L_MKCONST L_LPAREN L_INTEGER error
@@ -4058,6 +4147,7 @@ spec	: L_TYPE L_ASSIGN specval
 		      return -1;
 		  }
 		  free($3);
+		  specflags |= META_TYPE;
 		  $$ = specdesc;
 		}
 	| L_SEMANTICS L_ASSIGN specval
@@ -4073,6 +4163,7 @@ spec	: L_TYPE L_ASSIGN specval
 		      return -1;
 		  }
 		  free($3);
+		  specflags |= META_SEM;
 		  $$ = specdesc;
 		}
 	| L_UNITS L_ASSIGN specval
@@ -4089,7 +4180,13 @@ spec	: L_TYPE L_ASSIGN specval
 		      return -1;
 		  }
 		  free($3);
+		  specflags |= META_UNITS;
 		  $$ = specdesc;
+		}
+	| L_META L_ASSIGN L_NAME
+		{ specmeta = newnode(N_NAME);
+		  specmeta->value = $3;
+		  $$ = specdesc;	/* not used from this rule */
 		}
 	;
 
@@ -4262,6 +4359,7 @@ static const struct {
     { L_RATE,	"rate" },
     { L_INSTANT,"instant" },
     { L_MKCONST,"mkconst" },
+    { L_META,	"meta" },
     { L_NOVALUE,"novalue" },
     { L_RESCALE,"rescale" },
     { L_DEFINED,"defined" },
@@ -4307,6 +4405,7 @@ static struct {
     { L_RATE,		N_RATE,		"RATE",		NULL },
     { L_INSTANT,	N_INSTANT,	"INSTANT",	NULL },
     { L_MKCONST,	0,		"MKCONST",	NULL },
+    { L_META,		N_META,		"META",		NULL },
     { L_NOVALUE,	N_NOVALUE,	"NOVALUE",	NULL },
     { L_RESCALE,	N_RESCALE,	"RESCALE",	NULL },
     { 0,		N_SCALE,	"SCALE",	NULL },
@@ -4622,6 +4721,10 @@ derive_lex(void)
 		}
 		else if (strcmp(tokbuf, "units") == 0) {
 		    ret = L_UNITS;
+		    break;
+		}
+		else if (strcmp(tokbuf, "meta") == 0) {
+		    ret = L_META;
 		    break;
 		}
 		if ((derive_lval.s = strdup(tokbuf)) == NULL) {
