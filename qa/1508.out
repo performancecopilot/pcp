@@ -84,12 +84,12 @@ expr node <addr> type=QUEST left=<addr> right=<addr> save_last=0
     PMID: PM_ID_NULL (0.0.0 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: 0.0 0x0
     Semantics: ??? (0)  Units: none
-expr node <addr> type=DEFINED left=(nil) right=(nil) save_last=0
+expr node <addr> type=DEFINED(no.such.metric) left=(nil) right=(nil) save_last=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 1
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
 [0] inst=-1, val=0
-expr node <addr> type=COLON left=<addr> right=<addr> save_last=0
+expr node <addr> type=COLON [RIGHT] left=<addr> right=<addr> save_last=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: 0.0 0x0
     Semantics: ??? (0)  Units: none
@@ -112,7 +112,7 @@ expr node <addr> type=QUEST left=<addr> right=<addr> save_last=0
     PMID: PM_ID_NULL (0.0.0 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: 0.0 0x0
     Semantics: ??? (0)  Units: none
-expr node <addr> type=DEFINED left=(nil) right=(nil) save_last=0
+expr node <addr> type=DEFINED(sample.bin) left=(nil) right=(nil) save_last=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 1
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
@@ -144,12 +144,12 @@ expr node <addr> type=NOT left=<addr> right=(nil) save_last=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
-expr node <addr> type=DEFINED left=(nil) right=(nil) save_last=0
+expr node <addr> type=DEFINED(sample.bin) left=(nil) right=(nil) save_last=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 1
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
 [0] inst=-1, val=1
-expr node <addr> type=COLON left=<addr> right=<addr> save_last=0
+expr node <addr> type=COLON [RIGHT] left=<addr> right=<addr> save_last=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: 0.0 0x0
     Semantics: ??? (0)  Units: none

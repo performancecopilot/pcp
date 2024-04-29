@@ -593,7 +593,7 @@ bind_desc(node_t *np, pmDesc param)
  * Metadata and the data.info block need to be initialized.
  */
 static node_t *
-bind_expr(__pmContext *ctxp, int n, node_t *np, int lookup_mode, int is_global, int async)
+bind_expr(__pmContext *ctxp, int n, node_t *np, node_t *parent, int lookup_mode, int is_global, int async)
 {
     node_t	*new;
     int		next_lookup = lookup_mode;
@@ -626,7 +626,7 @@ bind_expr(__pmContext *ctxp, int n, node_t *np, int lookup_mode, int is_global, 
     }
 
     if (np->left != NULL) {
-	new->left = bind_expr(ctxp, n, np->left, next_lookup, is_global, async);
+	new->left = bind_expr(ctxp, n, np->left, np, next_lookup, is_global, async);
 	if (new->left == NULL) {
 	    /* error, reported deeper in the recursion, clean up */
 	    if (is_global)
@@ -635,7 +635,7 @@ bind_expr(__pmContext *ctxp, int n, node_t *np, int lookup_mode, int is_global, 
 	}
     }
     if (np->right != NULL) {
-	if ((new->right = bind_expr(ctxp, n, np->right, next_lookup, is_global, async)) == NULL) {
+	if ((new->right = bind_expr(ctxp, n, np->right, np, next_lookup, is_global, async)) == NULL) {
 	    /* error, reported deeper in the recursion, clean up */
 	    if (is_global)
 		free_expr(new);
@@ -710,9 +710,17 @@ bind_expr(__pmContext *ctxp, int n, node_t *np, int lookup_mode, int is_global, 
 
 	/*
 	 * nested definitions are not allowed ... if this N_NAME node
-	 * has a derived metric PMID, you lose.
+	 * has a derived metric PMID, you lose ... but there are
+	 * exceptions:
+	 * - N_NOVALUE - this comes from novalue(meta=metric)
+	 * - N_INTEGER or N_DOUBLE - this comes from mkconst(...,meta=metric)
+	 * ... in both cases the metadata is all we need, and this is
+	 * available provided metric is already defined, and we never
+	 * evaluate these nodes, so there is no nested evaluation
 	 */
-	if (IS_DERIVED(new->data.info->pmid)) {
+	if (IS_DERIVED(new->data.info->pmid) &&
+	    parent != NULL && parent->type != N_NOVALUE &&
+	    parent->type != N_INTEGER && parent->type != N_DOUBLE) {
 	    PM_TPD(derive_errmsg) = "Illegal nested derived metric";
 		if (async)
 		    report_sem_error(registered.mlist[n].name, np);
@@ -1233,11 +1241,17 @@ bad:
 }
 
 /*
- * recursive descent to check if all metrics are defined
- * (needed after QUEST_BIND_LAZY has been used) ... returns the
- * node_t of the first metric that is not defined, else NULL
+ * recursive descent from a COLON node to check if all operand metrics
+ * are defined (needed after QUEST_BIND_LAZY has been used) ... returns
+ * the node_t of the first metric that is not defined, else NULL
  *
- * hand is "left" or "right" for error messages
+ * be careful with nested COLON nodes, need to honour their lazy
+ * binding as well
+ *
+ * hand is "left" or "right" of the initial COLON node for error
+ * messages (for nested COLON expressions we may find the missing
+ * metric down the hand-><left-or-right>-><left-or-right> branches
+ * so there is some ambiguity here that cannot be avoided
  */
 static node_t *
 check_metrics(node_t *np, char *hand)
@@ -1245,17 +1259,23 @@ check_metrics(node_t *np, char *hand)
     node_t	*bad = NULL;
 
     assert(np != NULL);
-    if (np->left != NULL) bad = check_metrics(np->left, hand);
+    if (np->left != NULL) {
+	if (np->type != N_COLON || np->data.info->bind & QUEST_BIND_LEFT)
+	    bad = check_metrics(np->left, hand);
+    }
     if (bad != NULL)
 	return bad;
-    if (np->type == N_NAME && np->data.info->pmid == PM_ID_NULL) {
+    if (np->type == N_NAME && np->desc.pmid == PM_ID_NULL) {
 	if (pmDebugOptions.derive && pmDebugOptions.appl1) {
 	    fprintf(stderr, "Semantic error: ternary op: metric \"%s\" not found for <%s-expr>\n", np->value, hand);
 	}
 	PM_TPD(derive_errmsg) = "Unknown metric for ternary expression";
 	return np;
     }
-    if (np->right != NULL) bad = check_metrics(np->right, hand);
+    if (np->right != NULL) {
+	if (np->type != N_COLON || np->data.info->bind & QUEST_BIND_RIGHT)
+	    bad = check_metrics(np->right, hand);
+    }
 
     return bad;
 }
@@ -1382,9 +1402,10 @@ check_expr(dm_t *dmp, node_t *np, node_t *parent, int async)
 	     */
 	    int	guard = eval_guard(parent->left);
 	    if (pmDebugOptions.derive && pmDebugOptions.appl1 && pmDebugOptions.desperate) {
-		fprintf(stderr, "check_expr: guard(%s) = %d [bind %s]\n",
+		fprintf(stderr, "check_expr: guard(%s) = %d [bind %s @ %p(%s)]\n",
 		    __dmnode_type_str(parent->left->type), guard,
-		    guard == 1 ? "left" : (guard == 0 ? "right" : "both"));
+		    guard == 1 ? "left" : (guard == 0 ? "right" : "both"),
+		    np, __dmnode_type_str(np->type));
 	    }
 	    if (guard == 1)
 		np->data.info->bind = QUEST_BIND_LEFT;
@@ -1393,13 +1414,13 @@ check_expr(dm_t *dmp, node_t *np, node_t *parent, int async)
 	}
     }
 
-    if (np->type != N_COLON || np->data.info->bind & QUEST_BIND_LEFT) {
+    if (np->type != N_COLON || (np->data.info->bind & QUEST_BIND_LEFT)) {
 	if ((sts = check_expr(dmp, np->left, np, async)) < 0)
 	    return sts;
     }
 
     if (np->right != NULL) {
-	if (np->type != N_COLON || np->data.info->bind & QUEST_BIND_RIGHT) {
+	if (np->type != N_COLON || (np->data.info->bind & QUEST_BIND_RIGHT)) {
 	    if ((sts = check_expr(dmp, np->right, np, async)) < 0)
 		return sts;
 	}
@@ -1419,7 +1440,6 @@ check_expr(dm_t *dmp, node_t *np, node_t *parent, int async)
 		    np->desc.indom = np->right->desc.indom;
 		else
 		    np->desc.indom = np->left->desc.indom;
-		np->data.info->bind = QUEST_BIND_BOTH;
 	    }
 	    else if (np->data.info->bind & QUEST_BIND_LEFT)
 		np->desc = np->left->desc;		/* struct copy */
@@ -1434,7 +1454,7 @@ check_expr(dm_t *dmp, node_t *np, node_t *parent, int async)
 	    bad = NULL;
 	    if (np->data.info->bind & QUEST_BIND_LEFT)
 		bad = check_metrics(np->left,"left");
-	    if (bad == NULL && np->data.info->bind & QUEST_BIND_RIGHT)
+	    if (bad == NULL && (np->data.info->bind & QUEST_BIND_RIGHT))
 		bad = check_metrics(np->right, "right");
 	    /* if either of these fails, no point in trying other checks */
 	    if (bad != NULL) {
@@ -1782,8 +1802,18 @@ __dmdumpexpr(node_t *np, int level)
     if (np->type == N_COLON && np->data.info != NULL) {
 	if (np->data.info->bind == QUEST_BIND_LEFT)
 	    fprintf(stderr, " [LEFT]");
-	else if (np->data.info->bind == QUEST_BIND_LEFT)
+	else if (np->data.info->bind == QUEST_BIND_RIGHT)
 	    fprintf(stderr, " [RIGHT]");
+    }
+    if (np->type == N_DEFINED) {
+	if (np->left != NULL) {
+	    /* has not been evaluated, name in N_NAME node */
+	    fprintf(stderr, "(%s)", np->left->value);
+	}
+	else {
+	    /* np->left has been free'd */
+	    fprintf(stderr, "(%s)", np->value);
+	}
     }
     if (np->type == N_PATTERN) {
 	__pmHashNode	*hnp;
@@ -2206,6 +2236,7 @@ __dminit_configfile(const char *fname)
     int		lp = -1;	/* offset to (, start of <attr> */
     int		rp = -1;	/* offset to ), end of <attr> */
     int		lineno = 1;
+    int		clineno = 0;	/* continuation line count */
 
     if (pmDebugOptions.derive) {
 	fprintf(stderr, "pmLoadDerivedConfig(\"%s\")\n", fname);
@@ -2256,8 +2287,8 @@ __dminit_configfile(const char *fname)
 	    }
 	}
 	if (c == '\n' && lastc == '\\') {
-	    /* \\ continuation at the end of a line */
-	    lineno++;
+	    /* \ continuation at the end of a line */
+	    clineno++;
 	    p--;
 	    lastc = c;
 	    continue;
@@ -2354,8 +2385,8 @@ __dminit_configfile(const char *fname)
 		    char	*vp;		/* start of <value> */
 		    char	*value;		/* accumulated <value> */
 		    int		vlen = 0;	/* length of value */
-		    char	delim = '\0';	/* string delimiter, if any */
 		    int		lsts;
+		    char	delim;		/* string delimiter, if any */
 		    /* trim white space from tail of <attr> */
 		    q = &dupbuf[rp];
 		    *q-- = '\0';
@@ -2380,6 +2411,8 @@ __dminit_configfile(const char *fname)
 			delim = *vp;
 			vp++;
 		    }
+		    else
+			delim = '\0';
 		    if (*vp == '\0') {
 			pmprintf("[%s:%d] Error: pmLoadDerivedConfig: attribute value missing\n%s\n", fname, lineno, buf);
 			pmflush();
@@ -2392,7 +2425,7 @@ __dminit_configfile(const char *fname)
 			pmNoMem("pmLoadDerivedConfig: value", vlen, PM_FATAL_ERR);
 			/*NOTREACHED*/
 		    }
-		    if (delim == 0) {
+		    if (delim == '\0') {
 			/* no string delimiter, so <value> is complete */
 			;
 		    }
@@ -2459,8 +2492,6 @@ __dminit_configfile(const char *fname)
 			    }
 			    *v++ = c;
 			}
-			if (xtralines > 1)
-			    lineno += xtralines - 1;
 			if (c == EOF) {
 			    pmprintf("[%s:%d] Error: pmLoadDerivedConfig: missing termination (%c) for value\n", fname, lineno, delim);
 			    pmflush();
@@ -2498,9 +2529,13 @@ __dminit_configfile(const char *fname)
 				    pmprintf(") after attribute value will be ignored\n");
 				    pmflush();
 				}
+				if (c == '\n')
+				    xtralines++;
 			    }
 			    vp = value;
 			}
+			if (xtralines > 1)
+			    clineno += xtralines - 1;
 		    }
 
 		    if (vp != NULL) {
@@ -2536,6 +2571,10 @@ __dminit_configfile(const char *fname)
 	    }
 next_line:
 	    lineno++;
+	    if (clineno) {
+		lineno += clineno;
+		clineno = 0;
+	    }
 	    p = buf;
 	    eq = lp = rp = -1;
 	}
@@ -3430,7 +3469,7 @@ __dmbind(int derive_locked, __pmContext *ctxp, int i, int async)
 	__dmdumpexpr(cp->mlist[i].expr, 0);
     }
     /* failures must be reported in bind_expr() or below */
-    cp->mlist[i].expr = bind_expr(ctxp, i, cp->mlist[i].expr, QUEST_BIND_NOW, cp->mlist[i].flags & DM_GLOBAL, async);
+    cp->mlist[i].expr = bind_expr(ctxp, i, cp->mlist[i].expr, NULL, QUEST_BIND_NOW, cp->mlist[i].flags & DM_GLOBAL, async);
     if (cp->mlist[i].expr != NULL) {
 	if (pmDebugOptions.derive && pmDebugOptions.appl1 && pmDebugOptions.desperate) {
 	    fprintf(stderr, "__dmbind: metric[%d] %s: after bind_expr and before check_expr ...\n", i, cp->mlist[i].name);

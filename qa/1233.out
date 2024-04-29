@@ -31,7 +31,7 @@ qa.seconds(oneline)=
 qa.seconds(foo) = bar;
 [TMP.config.1:28] Error: pmLoadDerivedConfig: cannot set attribute, derived metric (qa.notdefined.yet) not defined
 qa.notdefined.yet ( foo ) = bar;
-[TMP.config.1:38] Error: pmLoadDerivedConfig: missing termination (") for value
+[TMP.config.1:37] Error: pmLoadDerivedConfig: missing termination (") for value
 __dmgetpmid: metric "qa.seconds" -> PMID 511.0.3
 __dmtraverse: name="qa" added "qa.seconds"
 __dmgetpmid: metric "qa.seconds" -> PMID 511.0.3
@@ -51,7 +51,7 @@ Derived metric initialization from $PCP_DERIVED_CONFIG
 pmLoadDerivedConfig("TMP.config.2")
 pmRegisterDerived: global metric[2] qa.seconds = sample.milliseconds / 1000
 [TMP.config.2:2] Warning: pmLoadDerivedConfig: extra text (extra stuff oneline) after attribute value will be ignored
-[TMP.config.2:5] Warning: pmLoadDerivedConfig: extra text (xtra stuff helptext) after attribute value will be ignored
+[TMP.config.2:3] Warning: pmLoadDerivedConfig: extra text (xtra stuff helptext) after attribute value will be ignored
 __dmgetpmid: metric "qa.seconds" -> PMID 511.0.3
 __dmtraverse: name="qa" added "qa.seconds"
 __dmgetpmid: metric "qa.seconds" -> PMID 511.0.3
