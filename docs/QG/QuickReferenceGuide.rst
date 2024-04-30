@@ -570,20 +570,20 @@ Fast, Scalable Time Series Querying
 
 Performance Metrics Series
 (`pmseries(1) <http://man7.org/linux/man-pages/man1/pmseries.1.html>`__)
-works with local pmlogger and `Redis <http://redis.io>`__ servers to
-allow fast, scalable performance queries spanning multiple hosts.
+works with pmlogger and key servers such as `Valkey <http://valkey.io>`__
+to allow fast, scalable performance queries spanning multiple hosts.
 
 +-----------------------------------------------------------------------+
 | To enable and start metrics series collection::                       |
 |                                                                       |
-| # systemctl enable --now pmlogger pmproxy redis                       |
+| # systemctl enable --now pmlogger pmproxy valkey                      |
 +-----------------------------------------------------------------------+
 
-Redis can be run standalone or in large, highly available setups. It is
-also provided as a scalable service by many cloud vendors.
+Key servers can be run standalone or in large, highly available setups.
+They are also provided as a scalable service by many cloud vendors.
 
 The metrics indexing process is designed to spread data across multiple
-Redis nodes for improved query performance, so adding more nodes can
+key servers for improved query performance, so adding more servers can
 significantly improve performance.
 
 Examples of the
@@ -622,7 +622,7 @@ accessing PCP performance metrics over HTTP.
 +-----------------------------------------------------------------------+
 | To install the PCP REST APIs service::                                |
 |                                                                       |
-| # systemctl enable --now pmproxy redis                                |
+| # systemctl enable --now pmproxy valkey                               |
 +-----------------------------------------------------------------------+
 
 After installing the PCP REST API services as described above, install

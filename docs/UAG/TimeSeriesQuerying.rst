@@ -23,19 +23,16 @@ Section 9.6, “`Timeseries Options`_”, explains the various timeseries option
 
 Section 9.7, “`PCP Environment`_”, describes environment variables used to parameterize the file and directory names used by PCP.
 
-Section 9.8, “`PCP Grafana Plugin`_”, explains the PCP Redis data source and lays out the path to the PCP Grafana Plugin.
+Section 9.8, “`PCP Grafana Plugin`_”, explains the PCP data source and lays out the path to using the PCP Grafana Plugin.
 
 Introduction to pmseries
 *************************
 
-**pmseries** displays various types of information about performance metrics available through the scalable timeseries facilities of the Performance 
-Co-Pilot (PCP) using the `Redis <https://redis.io/>`_ distributed data store.
+**pmseries** displays various types of information about performance metrics available through the scalable timeseries facilities of the Performance Co-Pilot (PCP) using a distributed key-value server such as `Valkey <https://valkey.io/>`_
 
-By default **pmseries** communicates with a local redis-server(1), however the **-h** and **-p** options can be used to specify an alternate Redis 
-instance. If this instance is a node of a Redis cluster, all other instances in the cluster will be discovered and used automatically.
+By default **pmseries** communicates with a local key-value server, however the **-h** and **-p** options can be used to specify an alternate server.  If this instance is a node of a cluster, all other instances in the cluster will be discovered and used automatically.
 
-**pmseries** runs in several different modes - either querying timeseries identifiers, metadata or values (already stored in Redis), or manually loading 
-timeseries into Redis. The latter mode is seldom used, however, since `pmproxy(1) <https://man7.org/linux/man-pages/man1/pmproxy.1.html>`_ will automatically 
+**pmseries** runs in several different modes - either querying timeseries identifiers, metadata or values (already stored), or manually loading timeseries into a key-value server. The latter mode is seldom used, however, since `pmproxy(1) <https://man7.org/linux/man-pages/man1/pmproxy.1.html>`_ will automatically 
 perform this function for local `pmlogger(1) <https://man7.org/linux/man-pages/man1/pmlogger.1.html>`_ instances, when running in its default time series mode.
 
 Without command line options specifying otherwise, **pmseries** will issue a timeseries query to find matching timeseries and values. All timeseries are 
@@ -427,9 +424,9 @@ The available command line options, in addition to timeseries metadata and sourc
 options                                         Description
 =============================================== =====================================================================================================================
 **-c** *config* , **--config** = *config*       | Specify the *config* file to use.
-**-h** *host* , **--host** = *host*             | Connect Redis server at *host*, rather than the one the localhost.
-**-L** , **--load**                             | Load timeseries metadata and data into the Redis cluster.
-**-p** *port* , **--port** = *port*             | Connect Redis server at *port*, rather than the default **6379** .
+**-h** *host* , **--host** = *host*             | Connect key server at *host*, rather than the one the localhost.
+**-L** , **--load**                             | Load timeseries metadata and data into the key server.
+**-p** *port* , **--port** = *port*             | Connect key server at *port*, rather than the default **6379** .
 **-q** , **--query**                            | Perform a timeseries query. This is the default action.
 **-t** , **--times**                            | Report time stamps numerically (in milliseconds) instead of the default human readable form.
 **-v** , **--values**                           | Report all of the known values for given *label* name(s).
@@ -490,10 +487,10 @@ For environment variables affecting PCP tools, see `pmGetOptions(3) <https://man
 PCP Grafana Plugin
 ********************
 
-The PCP Redis Grafana datasource from the PCP Grafana plugin queries the fast, scalable time series capabilities provided by the **pmseries** functionality. It is intended to query historical data 
+The PCP Key Server Grafana datasource from the PCP Grafana plugin queries the fast, scalable time series capabilities provided by the **pmseries** functionality. It is intended to query historical data 
 across multiple hosts and supports filtering based on labels. This data source also provides a native interface between `Grafana <https://grafana.com/>`_ and 
 `Performance Co-Pilot <https://pcp.io>`_ (PCP), allowing PCP metric data to be presented in Grafana panels, such as graphs, tables, heatmaps, etc. Under the hood, 
 the data source makes REST API query requests to the PCP `pmproxy(1) <https://man7.org/linux/man-pages/man1/pmproxy.1.html>`_ service, which can be running either 
-locally or on a remote host. The pmproxy daemon can be local or remote and uses the Redis time-series database (local or remote) for persistent storage. 
+locally or on a remote host. The pmproxy daemon can be local or remote and uses a key-value server (local or remote) for persistent storage. 
 
 For more information on PCP Grafana Plugin, visit `PCP Grafana Plugin Documentation <https://grafana-pcp.readthedocs.io/en/latest/index.html#>`_ .
