@@ -637,6 +637,11 @@ mem {
     zoneinfo
     ksm
     hugepages
+    vmmemctl
+}
+mem.vmmemctl {
+    current		60:35:4
+    target		60:35:5
 }
 
 mem.hugepages {

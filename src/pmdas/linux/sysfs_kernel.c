@@ -85,7 +85,6 @@ refresh_sysfs_kernel(sysfs_kernel_t *sk, int *need_refresh)
     if (need_refresh[REFRESH_SYSFS_MODULE_ZSWAP]) {
 	int	fd;
 
-	memset(sk->zswap_enabled, 0, sizeof(sk->zswap_enabled));
 	pmsprintf(buf, sizeof(buf), "%s/%s/zswap/parameters/enabled",
 				    linux_statspath, "sys/module");
 	if ((fd = open(buf, O_RDONLY)) >= 0) {
@@ -104,6 +103,37 @@ refresh_sysfs_kernel(sysfs_kernel_t *sk, int *need_refresh)
 		sscanf(buf, "%u", (unsigned int *)&sk->zswap_max_pool_percent);
 	    }
 	    close(fd);
+	}
+    }
+
+    if (need_refresh[REFRESH_SYSFS_KERNEL_VMMEMCTL]) {
+	unsigned long long value, failed;
+	char name[64];
+	FILE *fp;
+
+	pmsprintf(buf, sizeof(buf), "%s/%s/debug/vmmemctl",
+				    linux_statspath, "sys/kernel");
+	if ((fp = fopen(buf, "r")) != NULL) {
+
+	    while (fgets(buf, sizeof(buf), fp) != NULL) {
+		/*
+		 * Care is needed here: this sysfs file has conflicting
+		 * entries like the following (we want the first case):
+		 * target     :     1023777
+		 * target     :         768 (0 failed)
+		 *
+		 * To tackle this, provide matching on the failed part,
+		 * and discard any line that *does* match there.
+		 */
+		n = sscanf(buf, "%s : %llu (%llu failed)", name, &value, &failed);
+		if (n != 2)
+		    continue;
+		else if (strcmp(name, "current") == 0)
+		    sk->vmmemctl_current = value << _pm_pageshift;
+		else if (strcmp(name, "target") == 0)
+		    sk->vmmemctl_target = value << _pm_pageshift;
+	    }
+	    fclose(fp);
 	}
     }
 

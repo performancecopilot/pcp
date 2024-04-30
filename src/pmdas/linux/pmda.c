@@ -6718,6 +6718,16 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_SYSFS_KERNEL,3), PM_TYPE_STRING, PM_INDOM_NULL,
 	PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
+    /* mem.vmmemctl.current */
+    { &sysfs_kernel.vmmemctl_current,
+      { PMDA_PMID(CLUSTER_SYSFS_KERNEL,4), PM_TYPE_U64, PM_INDOM_NULL,
+	PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
+
+    /* mem.vmmemctl.target */
+    { &sysfs_kernel.vmmemctl_target,
+      { PMDA_PMID(CLUSTER_SYSFS_KERNEL,5), PM_TYPE_U64, PM_INDOM_NULL,
+	PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
+
 /*
  * /proc/interrupts clusters
  */
@@ -10226,6 +10236,10 @@ linux_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	    case 2:	/* sysfs.module.zswap.max_pool_size */
 	    case 3:	/* sysfs.module.zswap.enabled */
 		need_refresh[REFRESH_SYSFS_MODULE_ZSWAP]++;
+		break;
+	    case 4:	/* mem.vmmemctl.current */
+	    case 5:	/* mem.vmmemctl.target */
+		need_refresh[REFRESH_SYSFS_KERNEL_VMMEMCTL]++;
 		break;
 	    }
 	    break;

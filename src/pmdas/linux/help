@@ -1430,6 +1430,8 @@ each NUMA node.
 @ mem.hugepages.surplus Huge page space in the pool above total size
 @ mem.hugepages.totalsize Amount of memory consumed by each huge page size
 @ mem.hugepages.overcommit Upper bound on huge page space available for allocation
+@ mem.vmmemctl.current Virtual machine balloon memory actually allocated
+@ mem.vmmemctl.target Virtual machine balloon memory allocation target size
 
 @ swap.length total swap available metric from /proc/meminfo
 @ swap.used swap used metric from /proc/meminfo
