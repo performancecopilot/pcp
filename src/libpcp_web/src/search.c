@@ -1073,7 +1073,8 @@ pmSearchSetup(pmSearchModule *module, void *arg)
 	module->on_setup(arg);
 	data->shareslots = 1;
     } else {
-	option = pmIniFileLookup(data->config, "redis", "enabled");
+	if (!(option = pmIniFileLookup(data->config, "resp", "enabled")))
+	    option = pmIniFileLookup(data->config, "redis", "enabled");
 	if (option && strcmp(option, "false") == 0)
 	    return -ENOTSUP;
 
