@@ -1038,7 +1038,8 @@ connect_redis_source_service(seriesLoadBaton *baton)
 	baton->slots = data->slots;
 	series_load_end_phase(baton);
     } else {
-	option = pmIniFileLookup(data->config, "redis", "enabled");
+	if (!(option = pmIniFileLookup(data->config, "resp", "enabled")))
+	    option = pmIniFileLookup(data->config, "redis", "enabled");
 	if (option && strcmp(option, "false") == 0) {
 	    baton->error = -ENOTSUP;
 	} else {

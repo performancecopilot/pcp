@@ -5125,7 +5125,8 @@ series_query_services(void *arg)
 	baton->slots = data->slots;
 	series_query_end_phase(baton);
     } else {
-	option = pmIniFileLookup(data->config, "redis", "enabled");
+	if (!(option = pmIniFileLookup(data->config, "resp", "enabled")))
+	    option = pmIniFileLookup(data->config, "redis", "enabled");
 	if (option && strcmp(option, "false") == 0)
 	    baton->error = -ENOTSUP;
 	else
@@ -6140,7 +6141,8 @@ series_lookup_services(void *arg)
 	baton->slots = data->slots;
 	series_query_end_phase(baton);
     } else {
-	option = pmIniFileLookup(data->config, "redis", "enabled");
+	if (!(option = pmIniFileLookup(data->config, "resp", "enabled")))
+	    option = pmIniFileLookup(data->config, "redis", "enabled");
 	if (option && strcmp(option, "false") == 0)
 	    baton->error = -ENOTSUP;
 	else

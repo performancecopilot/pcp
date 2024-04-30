@@ -182,16 +182,22 @@ redisSlotsInit(dict *config, void *events)
 	return NULL;
     }
 
-    servers = pmIniFileLookup(config, "redis", "servers");
+    servers = pmIniFileLookup(config, "keys", "servers");
+    if (servers == NULL)
+	servers = pmIniFileLookup(config, "redis", "servers");
     if (servers == NULL)
 	servers = pmIniFileLookup(config, "pmseries", "servers");
     if (servers == NULL)
 	servers = def_servers = sdsnew(default_server);
 
-    username = pmIniFileLookup(config, "redis", "username");
+    username = pmIniFileLookup(config, "keys", "username");
+    if (username == NULL)
+	username = pmIniFileLookup(config, "redis", "username");
     if (username == NULL)
 	username = pmIniFileLookup(config, "pmseries", "auth.username");
-    password = pmIniFileLookup(config, "redis", "password");
+    password = pmIniFileLookup(config, "keys", "password");
+    if (password == NULL)
+	password = pmIniFileLookup(config, "redis", "password");
     if (password == NULL)
 	password = pmIniFileLookup(config, "pmseries", "auth.password");
 
@@ -372,13 +378,14 @@ redisSlotsConnect(dict *config, redisSlotsFlags flags,
     redisSlots			*slots;
     sds				enabled, msg;
 
-    enabled = pmIniFileLookup(config, "redis", "enabled");
+    if (!(enabled = pmIniFileLookup(config, "resp", "enabled")))
+	enabled = pmIniFileLookup(config, "redis", "enabled");
     if (enabled && strcmp(enabled, "false") == 0)
 	return NULL;
 
     slots = redisSlotsInit(config, events);
     if (slots == NULL) {
-	infofmt(msg, "Failed to allocate memory for Redis slots");
+	infofmt(msg, "Failed to allocate memory for key server slots");
 	info(PMLOG_ERROR, msg, arg);
 	sdsfree(msg);
 	return NULL;
