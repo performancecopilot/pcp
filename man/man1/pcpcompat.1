@@ -98,7 +98,7 @@ as well as the encrypted PCP protocol functionality between
 and
 .B PMAPI
 client tools.
-Additionally, the Redis service used by
+Additionally, the key-value server service used by
 .BR pmseries (1)
 and
 .B pmproxy
@@ -201,7 +201,7 @@ as well as data sources for
 .BR bpftrace (8)
 scripts) and
 .BR pmseries (1)
-(fast, scalable Redis-based time series analysis).
+(fast, scalable, distributed time series analysis).
 .SH PMWEBD
 The
 .B pmwebd
@@ -225,8 +225,8 @@ REST APIs (such as derived metrics, namespace lookups and instance
 domain profiles), support for the HTTPS protocol, and fast, scalable
 time series querying using the
 .BR pmseries (1)
-REST API and
-.BR redis-server (1).
+REST API with a distributed key-value server such as
+.BR https://valkey.io/ .
 .PP
 The partial Graphite API emulation provided by
 .B pmwebd
@@ -246,7 +246,6 @@ services could use the scalable time series REST APIs described on
 .BR pmseries (1),
 .BR pmdabpftrace (1),
 .BR python (1),
-.BR redis-server (1),
 .BR grafana-server (1),
 .BR mmv_stats_register (3),
 .BR LOGIMPORT (3),
