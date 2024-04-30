@@ -77,9 +77,7 @@ are created, written to, compressed and eventually deleted.
 The underlying archive life-cycle is normally managed by the PCP archive management infrastructure (see
 .BR pmlogger_daily (1)).
 Discovered archives that are active (currently being written) are "log-tailed" to extract near live/real-time
-performance data which is then passed off via registered callbacks for further processing, e.g. to add the data to a
-.BR redis-server (1)
-instance.
+performance data which is then passed off via registered callbacks for further processing, e.g. to add the data to a key-value server.
 Archives that are compressed or inactive are tracked/monitored but
 .B not
 log-tailed - this is because compressed archives never grow and so log-tailing
@@ -89,9 +87,7 @@ See the
 option in
 .BR pmseries (1)
 for a supported mechanism for ingesting previously collected (inctive)
-PCP archives, whether compressed or not, into a
-.BR redis-server (1)
-instance.
+PCP archives, whether compressed or not, into a key-value server.
 .P
 The
 .B pmDiscover
@@ -157,9 +153,7 @@ and as new data is written to active archive volume and metadata files.
 In the case of
 .BR pmproxy (1),
 callbacks are registered to capture performance data, which is then sent to
-.BR redis-server (1)
-as the database back-end for fast scalable time-series queries by clients
-of the
+a key-value server for fast scalable time-series queries by clients of the
 .BR PMWEBAPI (3)
 REST API services.
 Such clients include the
