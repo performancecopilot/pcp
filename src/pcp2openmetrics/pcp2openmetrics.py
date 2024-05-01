@@ -398,17 +398,17 @@ class PCP2OPENMETRICS(object):
         """ Write info header """
         output = self.outfile if self.outfile else "stdout"
         if self.context.type == PM_CONTEXT_ARCHIVE:
-            sys.stdout.write('{ "//": "Writing %d archived metrics to %s..." }\n{ "//": "(Ctrl-C to stop)" }\n' % (len(self.metrics), output))
+            sys.stdout.write('"# Writing %d archived metrics to %s..." }\n{ "//": "(Ctrl-C to stop)" }\n' % (len(self.metrics), output))
             return
 
-        sys.stdout.write('{ "//": "Waiting for %d metrics to be written to %s' % (len(self.metrics), output))
+        sys.stdout.write('# "Waiting for %d metrics to be written to %s' % (len(self.metrics), output))
         if self.runtime != -1:
-            sys.stdout.write(':" }\n{ "//": "%s samples(s) with %.1f sec interval ~ %d sec runtime." }\n' % (self.samples, float(self.interval), self.runtime))
+            sys.stdout.write('\n # "%s samples(s) with %.1f sec interval ~ %d sec runtime." }\n' % (self.samples, float(self.interval), self.runtime))
         elif self.samples:
             duration = (self.samples - 1) * float(self.interval)
-            sys.stdout.write(':" }\n{ "//": "%s samples(s) with %.1f sec interval ~ %d sec runtime." }\n' % (self.samples, float(self.interval), duration))
+            sys.stdout.write('\n # "%s samples(s) with %.1f sec interval ~ %d sec runtime." }\n' % (self.samples, float(self.interval), duration))
         else:
-            sys.stdout.write('..." }\n{ "//": "(Ctrl-C to stop)" }\n')
+            sys.stdout.write('...\n# "(Ctrl-C to stop)" }\n')
 
     def write_openmetrics(self, timestamp):
         """ Write results in openmetrics format """
@@ -416,6 +416,7 @@ class PCP2OPENMETRICS(object):
             # Silent goodbye, close in finalize()
             return
 
+        self.context.pmNewZone("UTC")
         ts = self.context.datetime_to_secs(self.pmfg_ts(), PM_TIME_SEC)
 
         if self.prev_ts is None:
@@ -430,17 +431,17 @@ class PCP2OPENMETRICS(object):
         def get_type_string(desc):
             """ Get metric type as string """
             if desc.contents.type == pmapi.c_api.PM_TYPE_32:
-                mtype = "32-bit signed"
+                mtype = "32"
             elif desc.contents.type == pmapi.c_api.PM_TYPE_U32:
-                mtype = "32-bit unsigned"
+                mtype = "u32"
             elif desc.contents.type == pmapi.c_api.PM_TYPE_64:
-                mtype = "64-bit signed"
+                mtype = "64"
             elif desc.contents.type == pmapi.c_api.PM_TYPE_U64:
-                mtype = "64-bit unsigned"
+                mtype = "u64"
             elif desc.contents.type == pmapi.c_api.PM_TYPE_FLOAT:
-                mtype = "32-bit float"
+                mtype = "float"
             elif desc.contents.type == pmapi.c_api.PM_TYPE_DOUBLE:
-                mtype = "64-bit float"
+                mtype = "float"
             elif desc.contents.type == pmapi.c_api.PM_TYPE_STRING:
                 mtype = "string"
             else:
@@ -465,6 +466,9 @@ class PCP2OPENMETRICS(object):
             new_dict = {}
             new_dict['semantics'] = self.context.pmSemStr(desc.contents.sem)
             new_dict['type'] = get_type_string(desc)
+            if desc.indom != PM_INDOM_NULL:
+                new_dict['instname'] = name
+                new_dict['instid'] = inst
             for key in labels:
                 new_dict.update(labels[key])
             if self.everything:
@@ -483,14 +487,22 @@ class PCP2OPENMETRICS(object):
 
         body = ''
         for metric in results:
+            #variable declaration
             i = list(self.metrics.keys()).index(metric)
             desc = self.pmconfig.descs[i]
             context = self.pmfg.get_context()
             pmid = context.pmLookupName(metric)
             labels = context.pmLookupLabels(pmid[0])
+            semantics = self.context.pmSemStr(desc.contents.sem)
+            units = desc.contents.units
+            pmIDStr = context.pmIDStr(pmid[0])
+            pmIndomStr = context.pmInDomStr(desc)
             help_dict = {}
             help_dict[metric] = context.pmLookupText(pmid[0])
 
+            if self.context.type == PM_CONTEXT_ARCHIVE:
+                body += "\nMetric %s details (last fetch: %d)\n:" % (metric, ts)
+            body += '# PCP5 %s %s %s %s %s %s\n' % (openmetrics_name(metric), pmIDStr, get_type_string(desc), pmIndomStr, semantics, units)
             body += '# HELP %s %s\n' % (openmetrics_name(metric), help_dict[metric])
             body += '# TYPE %s %s\n' % (openmetrics_name(metric), openmetrics_type(desc))
 
@@ -503,7 +515,10 @@ class PCP2OPENMETRICS(object):
                     value = format(value, fmt)
                 else:
                     str(value)
-                body += '%s%s %s\n' % (openmetrics_name(metric), openmetrics_labels(inst, name, desc, labels), value)
+                if self.context.type == PM_CONTEXT_ARCHIVE:
+                    body += '%s%s %s %s\n' % (openmetrics_name(metric), openmetrics_labels(inst, name, desc, labels), value, ts)
+                else:
+                    body += '%s%s %s\n' % (openmetrics_name(metric), openmetrics_labels(inst, name, desc, labels), value)
 
         if self.url:
             auth = None
@@ -519,6 +534,8 @@ class PCP2OPENMETRICS(object):
             except requests.exceptions.ConnectionError as post_error:
                 msg = "Cannot connect to server at %s: %s\n" % (self.url, str(post_error))
                 sys.stderr.write(msg)
+        elif self.outfile:
+            self.writer.write(body)
         else:
             print(body)
 
