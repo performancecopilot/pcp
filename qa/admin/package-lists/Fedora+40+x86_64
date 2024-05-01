@@ -58,7 +58,7 @@ libvirt-daemon-driver-qemu
 llvm
 llvm-devel
 lm_sensors
-mailx
+s-nail
 make
 man-db
 mandoc

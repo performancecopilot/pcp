@@ -7,6 +7,7 @@
 #
 # Copyright (c) 2018 Red Hat.  All Rights Reserved.
 #
+# check-group-include: pmrep
 
 seq=`basename $0`
 echo "QA output created by $seq"

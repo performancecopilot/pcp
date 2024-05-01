@@ -3,6 +3,8 @@
 # non-valgrind version of 4751
 #
 # Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
+#
+# check-group-exclude: iostat
 
 seq=`basename $0`
 echo "QA output created by $seq"

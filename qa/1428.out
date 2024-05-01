@@ -134,7 +134,27 @@ STAMP             vdb      0.00      0.00      0.00      0.00      0.00      0.0
 
 #  DATE
 # device-mapper device statistics
--- no report for config ":sar-d-dm" because one or more metrics for the derived metric "disk.dm.await" is not in the archive
+                  DEV       tps     rkB/s     wkB/s     dkB/s   areq-sz    aqu-sz     await     %util
+STAMP     fedora-root       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP     fedora-swap       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP     fedora-root       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP     fedora-swap       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP     fedora-root    295.50  13595.00      8.00      0.00     46.03      0.04       N/A       N/A
+STAMP     fedora-swap      0.00      0.00      0.00      0.00      0.00      0.00       N/A       N/A
+STAMP     fedora-root     46.00   1348.50     43.50      0.00     30.26      0.01       N/A       N/A
+STAMP     fedora-swap      0.00      0.00      0.00      0.00      0.00      0.00       N/A       N/A
+STAMP     fedora-root     88.00    925.50   1173.00      0.00     23.85      0.02       N/A       N/A
+STAMP     fedora-swap      0.00      0.00      0.00      0.00      0.00      0.00       N/A       N/A
+STAMP     fedora-root     48.00    603.50     13.50      0.00     12.85      0.01       N/A       N/A
+STAMP     fedora-swap      0.00      0.00      0.00      0.00      0.00      0.00       N/A       N/A
+STAMP     fedora-root     88.50   2876.00   1925.50      0.00     54.25      0.01       N/A       N/A
+STAMP     fedora-swap      0.00      0.00      0.00      0.00      0.00      0.00       N/A       N/A
+STAMP     fedora-root     13.50     33.00    219.50      0.00     18.70      0.23       N/A       N/A
+STAMP     fedora-swap      0.00      0.00      0.00      0.00      0.00      0.00       N/A       N/A
+STAMP     fedora-root      0.50      6.00      2.50      0.00     17.00      0.00       N/A       N/A
+STAMP     fedora-swap      0.00      0.00      0.00      0.00      0.00      0.00       N/A       N/A
+STAMP     fedora-root      2.00      0.00     27.50      0.00     13.75      0.00       N/A       N/A
+STAMP     fedora-swap      0.00      0.00      0.00      0.00      0.00      0.00       N/A       N/A
 
 
 #  DATE
@@ -555,7 +575,27 @@ STAMP             vdb      0.00      0.00      0.00      0.00      0.00      0.0
 
 #  DATE
 # device-mapper device statistics
--- no report for config ":sar-d-dm" because one or more metrics for the derived metric "disk.dm.await" is not in the archive
+                  DEV       tps     rkB/s     wkB/s     dkB/s   areq-sz    aqu-sz     await     %util
+STAMP     fedora-root       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP     fedora-swap       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP     fedora-root       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP     fedora-swap       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP     fedora-root    295.50  13595.00      8.00      0.00     46.03      0.04       N/A       N/A
+STAMP     fedora-swap      0.00      0.00      0.00      0.00      0.00      0.00       N/A       N/A
+STAMP     fedora-root     46.00   1348.50     43.50      0.00     30.26      0.01       N/A       N/A
+STAMP     fedora-swap      0.00      0.00      0.00      0.00      0.00      0.00       N/A       N/A
+STAMP     fedora-root     88.00    925.50   1173.00      0.00     23.85      0.02       N/A       N/A
+STAMP     fedora-swap      0.00      0.00      0.00      0.00      0.00      0.00       N/A       N/A
+STAMP     fedora-root     48.00    603.50     13.50      0.00     12.85      0.01       N/A       N/A
+STAMP     fedora-swap      0.00      0.00      0.00      0.00      0.00      0.00       N/A       N/A
+STAMP     fedora-root     88.50   2876.00   1925.50      0.00     54.25      0.01       N/A       N/A
+STAMP     fedora-swap      0.00      0.00      0.00      0.00      0.00      0.00       N/A       N/A
+STAMP     fedora-root     13.50     33.00    219.50      0.00     18.70      0.23       N/A       N/A
+STAMP     fedora-swap      0.00      0.00      0.00      0.00      0.00      0.00       N/A       N/A
+STAMP     fedora-root      0.50      6.00      2.50      0.00     17.00      0.00       N/A       N/A
+STAMP     fedora-swap      0.00      0.00      0.00      0.00      0.00      0.00       N/A       N/A
+STAMP     fedora-root      2.00      0.00     27.50      0.00     13.75      0.00       N/A       N/A
+STAMP     fedora-swap      0.00      0.00      0.00      0.00      0.00      0.00       N/A       N/A
 
 
 #  DATE
@@ -976,7 +1016,27 @@ STAMP             vdb      0.00      0.00      0.00      0.00      0.00      0.0
 
 #  DATE
 # device-mapper device statistics
--- no report for config ":sar-d-dm" because one or more metrics for the derived metric "disk.dm.await" is not in the archive
+                  DEV       tps     rkB/s     wkB/s     dkB/s   areq-sz    aqu-sz     await     %util
+STAMP     fedora-root       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP     fedora-swap       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP     fedora-root       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP     fedora-swap       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP     fedora-root    295.50  13595.00      8.00      0.00     46.03      0.04       N/A       N/A
+STAMP     fedora-swap      0.00      0.00      0.00      0.00      0.00      0.00       N/A       N/A
+STAMP     fedora-root     46.00   1348.50     43.50      0.00     30.26      0.01       N/A       N/A
+STAMP     fedora-swap      0.00      0.00      0.00      0.00      0.00      0.00       N/A       N/A
+STAMP     fedora-root     88.00    925.50   1173.00      0.00     23.85      0.02       N/A       N/A
+STAMP     fedora-swap      0.00      0.00      0.00      0.00      0.00      0.00       N/A       N/A
+STAMP     fedora-root     48.00    603.50     13.50      0.00     12.85      0.01       N/A       N/A
+STAMP     fedora-swap      0.00      0.00      0.00      0.00      0.00      0.00       N/A       N/A
+STAMP     fedora-root     88.50   2876.00   1925.50      0.00     54.25      0.01       N/A       N/A
+STAMP     fedora-swap      0.00      0.00      0.00      0.00      0.00      0.00       N/A       N/A
+STAMP     fedora-root     13.50     33.00    219.50      0.00     18.70      0.23       N/A       N/A
+STAMP     fedora-swap      0.00      0.00      0.00      0.00      0.00      0.00       N/A       N/A
+STAMP     fedora-root      0.50      6.00      2.50      0.00     17.00      0.00       N/A       N/A
+STAMP     fedora-swap      0.00      0.00      0.00      0.00      0.00      0.00       N/A       N/A
+STAMP     fedora-root      2.00      0.00     27.50      0.00     13.75      0.00       N/A       N/A
+STAMP     fedora-swap      0.00      0.00      0.00      0.00      0.00      0.00       N/A       N/A
 
 
 #  DATE

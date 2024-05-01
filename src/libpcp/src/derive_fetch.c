@@ -42,7 +42,7 @@ get_pmids(node_t *np, int *cnt, pmID **list)
     if (np->type == N_NAME && np->data.info->pmid != PM_ID_NULL) {
 	(*cnt)++;
 	if ((*list = (pmID *)realloc(*list, (*cnt)*sizeof(pmID))) == NULL) {
-	    pmNoMem("__dmprefetch: realloc xtralist", (*cnt)*sizeof(pmID), PM_FATAL_ERR);
+	    pmNoMem("get_pmids: realloc xtralist", (*cnt)*sizeof(pmID), PM_FATAL_ERR);
 	    /*NOTREACHED*/
 	}
 	(*list)[*cnt-1] = np->data.info->pmid;
@@ -681,6 +681,114 @@ regex_inst_gc(pattern_t *pp)
 }
 
 /*
+ * insert constant value into an element of ivlist[]
+ */
+static void
+stuff_constant(node_t *np, int i)
+{
+    /*
+     * don't need error checking, done in the lexical scanner
+     * but with the advent of mkconst() the type may not be as
+     * simple as PM_TYPE_U32 or PM_TYPE_DOUBLE
+     */
+    switch (np->desc.type) {
+	case PM_TYPE_32:
+	    np->data.info->ivlist[i].value.l = atoi(np->value);
+	    break;
+	case PM_TYPE_U32:
+	    np->data.info->ivlist[i].value.ul = atoi(np->value);
+	    break;
+	case PM_TYPE_64:
+	    np->data.info->ivlist[i].value.ll = strtoll(np->value, NULL, 10);
+	    break;
+	case PM_TYPE_U64:
+	    np->data.info->ivlist[i].value.ll = strtoull(np->value, NULL, 10);
+	    break;
+	case PM_TYPE_FLOAT:
+	    np->data.info->ivlist[i].value.f = atof(np->value);
+	    break;
+	case PM_TYPE_DOUBLE:
+	    np->data.info->ivlist[i].value.d = atof(np->value);
+	    break;
+    }
+}
+
+/*
+ * setup ivlist[] values for a constant value
+ */
+static void
+adjust_constant(__pmContext *ctxp, node_t *np)
+{
+    if (np->desc.indom == PM_INDOM_NULL) {
+	if (np->data.info->numval == 0) {
+	    /* initialize ivlist[] for singular instance first time through */
+	    np->data.info->numval = 1;
+	    if ((np->data.info->ivlist = (val_t *)malloc(sizeof(val_t))) == NULL) {
+		pmNoMem("adjust_constant: number ivlist singular", sizeof(val_t), PM_FATAL_ERR);
+		/*NOTREACHED*/
+	    }
+	    stuff_constant(np, 0);
+	    np->data.info->ivlist[0].inst = PM_INDOM_NULL;
+	    /* and ivlist[i].inst set by caller */
+	}
+    }
+    else {
+	/* refresh indom ... */
+	int	sts;
+	int	i;
+	int	*instlist;
+	char	**namelist;
+
+	sts = pmGetInDom_ctx(ctxp, np->desc.indom, &instlist, &namelist);
+	if (np->data.info->ivlist != NULL && sts > 0 && sts == np->data.info->numval) {
+	    /*
+	     * not the first time and same number of instances as last
+	     * time ... if instances (order and id) are identical, we're
+	     * done
+	     */
+	    for (i = 0; i < sts; i++) {
+		if (instlist[i] != np->data.info->ivlist[i].inst)
+		    break;
+	    }
+	    if (i == sts) {
+		free(instlist);
+		free(namelist);
+		return;
+	    }
+	}
+
+	/* rebuild ... */
+	if (np->data.info->ivlist != NULL) {
+	    free(np->data.info->ivlist);
+	    np->data.info->ivlist = NULL;
+	}
+
+	if (sts < 0) {
+	    /* pmGetInDom failed, we're doomed ... */
+	    np->data.info->numval = sts;
+	    return;
+	}
+	if ((np->data.info->ivlist = (val_t *)malloc(sts * sizeof(val_t))) == NULL) {
+	    pmNoMem("adjust_constant: number indom ivlist", sts * sizeof(val_t), PM_FATAL_ERR);
+	    /*NOTREACHED*/
+	}
+	np->data.info->numval = 0;
+	for (i = 0; i < sts; i++) {
+	    /* may need instance profile filtering ... */
+	    if (ctxp->c_instprof != NULL) {
+		if (!__pmInProfile(np->desc.indom, ctxp->c_instprof, instlist[i]))
+		    continue;
+	    }
+	    stuff_constant(np, np->data.info->numval);
+	    np->data.info->ivlist[np->data.info->numval].inst = instlist[i];
+	    np->data.info->numval++;
+	}
+	free(instlist);
+	free(namelist);
+    }
+}
+
+/*
  * Walk an expression tree, filling in operand values from the
  * pmResult at the leaf nodes and propagating the computed values
  * towards the root node of the tree.
@@ -736,41 +844,8 @@ eval_expr(__pmContext *ctxp, node_t *np, struct timespec *stamp, int numpmid,
 
 	case N_INTEGER:
 	case N_DOUBLE:
-	    if (np->data.info->numval == 0) {
-		/* initialize ivlist[] for singular instance first time through */
-		np->data.info->numval = 1;
-		if ((np->data.info->ivlist = (val_t *)malloc(sizeof(val_t))) == NULL) {
-		    pmNoMem("eval_expr: number ivlist", sizeof(val_t), PM_FATAL_ERR);
-		    /*NOTREACHED*/
-		}
-		np->data.info->ivlist[0].inst = PM_INDOM_NULL;
-		/*
-		 * don't need error checking, done in the lexical scanner
-		 * but with the advent of mktemp() the type may not be as
-		 * simple as PM_TYPE_U32 or PM_TYPE_DOUBLE
-		 */
-		switch (np->desc.type) {
-		    case PM_TYPE_32:
-			np->data.info->ivlist[0].value.l = atoi(np->value);
-			break;
-		    case PM_TYPE_U32:
-			np->data.info->ivlist[0].value.ul = atoi(np->value);
-			break;
-		    case PM_TYPE_64:
-			np->data.info->ivlist[0].value.ll = strtoll(np->value, NULL, 10);
-			break;
-		    case PM_TYPE_U64:
-			np->data.info->ivlist[0].value.ll = strtoull(np->value, NULL, 10);
-			break;
-		    case PM_TYPE_FLOAT:
-			np->data.info->ivlist[0].value.f = atof(np->value);
-			break;
-		    case PM_TYPE_DOUBLE:
-			np->data.info->ivlist[0].value.d = atof(np->value);
-			break;
-		}
-	    }
-	    return 1;
+	    adjust_constant(ctxp, np);
+	    return np->data.info->numval;
 
 	case N_DELTA:
 	case N_RATE:

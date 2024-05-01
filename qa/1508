@@ -25,6 +25,8 @@ fi
 . ./common.filter
 . ./common.check
 
+which pmrep > /dev/null 2>&1 || _notrun "pmrep not installed"
+
 $sudo rm -rf $tmp $tmp.* $seq.full
 
 do_valgrind=false

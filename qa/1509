@@ -1,0 +1,138 @@
+#!/bin/sh
+# PCP QA Test No. 1509
+# derived metrics - iostat.conf workout
+#
+# Copyright (c) 2024 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+$sudo rm -rf $tmp $tmp.* $seq.full
+
+do_valgrind=false
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+    do_valgrind=true
+fi
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+	-e '/pmie: timezone set to/d' \
+    # end
+}
+
+unset PCP_DERIVED_CONFIG
+
+# Usage: _doit archive metric-to-cull ...
+#
+_doit()
+{
+    archive="$1"
+    shift
+    base=`echo "$2" | sed -e 's/\.[^.][^.]*$//'`
+
+    echo
+    echo "=== $base.* ===" | tee -a $seq.full
+    # get all real metrics, including derived ones, and build pmie script
+    #
+    pminfo -a "$archive" $base \
+    | sed >$tmp.pmie \
+	-e '/^pmcd\./d' \
+	-e '/^event\./d' \
+	-e 's/.*\.\([^.][^.]*\)$/\1 = &;/' \
+    # end
+    # baseline
+    #
+    pmie -t 3 -v -z -a "$archive" -c $tmp.pmie 2>>$seq.full \
+    | _filter >$tmp.baseline
+    pmlogdump -a "$archive" >$tmp.dump.baseline
+    # all the real metrics in the archive
+    #
+    PCP_DERIVED_CONFIG= pminfo -a "$archive" \
+    | sed -e '/^event\./d' >$tmp.all
+    _filter <$tmp.baseline
+    for m
+    do
+	echo
+	echo "--- cull $m from archive" | tee -a $seq.full
+	sed -e "/^$m\$/d" <$tmp.all >$tmp.xtract
+	if diff $tmp.all $tmp.xtract >/dev/null
+	then
+	    echo "Botch: metric $m not in list from archive $archive"
+	    status=1
+	    exit
+	fi
+	rm -f $tmp.index $tmp.meta $tmp.0
+	pmlogextract -c $tmp.xtract "$archive" $tmp
+	# audit extracted archive diffs
+	#
+	pmlogdump -a $tmp >$tmp.tmp
+	diff $tmp.dump.baseline $tmp.tmp >>$seq.full
+	# rerun pmie
+	#
+	if $do_valgrind
+	then
+	    _run_valgrind ...your test goes here...
+	else
+	    pmie -t 3 -v -z -a $tmp -c $tmp.pmie 2>>$seq.full \
+	    | _filter >$tmp.tmp
+	fi
+	# show only diffs
+	#
+	diff $tmp.baseline $tmp.tmp | _filter
+    done
+}
+
+# real QA test starts here
+
+_doit archives/disk-a \
+    disk.dev.total_rawactive disk.dev.read_rawactive disk.dev.write_rawactive \
+    disk.dev.discard_rawactive disk.dev.discard \
+    disk.dev.flush_rawactive disk.dev.flush \
+    disk.dev.discard_bytes disk.dev.avactive
+
+_doit archives/disk-a \
+    disk.dm.total_rawactive disk.dm.read_rawactive disk.dm.write_rawactive \
+    disk.dm.discard_rawactive disk.dm.discard \
+    disk.dm.flush_rawactive disk.dm.flush \
+    disk.dm.discard_bytes disk.dm.avactive
+
+_doit archives/disk-a \
+    disk.md.total_rawactive disk.md.read_rawactive disk.md.write_rawactive \
+    disk.md.discard_rawactive disk.md.discard \
+    disk.md.flush_rawactive disk.md.flush \
+    disk.md.discard_bytes disk.md.avactive
+
+_doit archives/disk-b \
+    disk.wwid.total_rawactive disk.wwid.read_rawactive disk.wwid.write_rawactive \
+    disk.wwid.discard_rawactive disk.wwid.discard \
+    disk.wwid.flush_rawactive disk.wwid.flush \
+    disk.wwid.discard_bytes disk.wwid.avactive
+
+# success, all done
+exit

@@ -4,6 +4,7 @@
 #
 # Copyright (c) 2014 Red Hat.
 #
+# check-group-exclude: iostat
 
 seq=`basename $0`
 echo "QA output created by $seq"

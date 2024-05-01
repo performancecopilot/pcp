@@ -4,6 +4,7 @@
 #
 # Copyright (c) 2021 Red Hat.
 #
+# check-group-exclude: pmrep
 
 seq=`basename $0`
 echo "QA output created by $seq"

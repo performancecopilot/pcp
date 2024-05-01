@@ -10,6 +10,7 @@
 #
 # Copyright (c) 2013,2023 Ken McDonell.  All Rights Reserved.
 #
+# check-group-exclude: iostat
 
 if [ $# -eq 0 ]
 then

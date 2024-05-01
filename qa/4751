@@ -4,6 +4,7 @@
 #
 # See also QA 953 for the non-helgrind version of the same test.
 #
+# check-group-exclude: iostat
 
 seq=`basename $0`
 echo "QA output created by $seq"
