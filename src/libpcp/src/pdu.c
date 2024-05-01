@@ -244,10 +244,7 @@ pduread(int fd, char *buf, int len, int part, int timeout)
 		 * Need all parts of the PDU to be received by dead_hand
 		 * This enforces a low overall timeout for the whole PDU
 		 * (as opposed to just a timeout for individual calls to
-		 * recv).  A more invasive alternative (better) approach
-		 * would see all I/O performed in the main event loop,
-		 * and I/O routines transformed to continuation-passing
-		 * style.
+		 * recv).
 		 */
 		gettimeofday(&dead_hand, NULL);
 		dead_hand.tv_sec += wait.tv_sec;
@@ -558,9 +555,10 @@ PM_FAULT_RETURN(PM_ERR_TIMEOUT);
 	if (len == -1) {
 	    if (! __pmSocketClosed()) {
 		char	errmsg[PM_MAXERRMSGLEN];
-		pmNotifyErr(LOG_ERR, "%s: fd=%d hdr read: len=%d: %s",
-			    "__pmGetPDU", fd, len,
-			    pmErrStr_r(-oserror(), errmsg, sizeof(errmsg)));
+		if (pmDebugOptions.pdu)
+		    pmNotifyErr(LOG_ERR, "%s: fd=%d hdr read: len=%d: %s",
+			        "__pmGetPDU", fd, len,
+			        pmErrStr_r(-oserror(), errmsg, sizeof(errmsg)));
 	    }
 	}
 	else if (len >= (int)sizeof(php->len)) {
@@ -579,15 +577,17 @@ PM_FAULT_RETURN(PM_ERR_TIMEOUT);
 	}
 	else if (len < 0) {
 	    char	errmsg[PM_MAXERRMSGLEN];
-	    pmNotifyErr(LOG_ERR, "%s: fd=%d hdr read: len=%d: %s",
-			"__pmGetPDU", fd, len,
-			pmErrStr_r(len, errmsg, sizeof(errmsg)));
+	    if (pmDebugOptions.pdu)
+		pmNotifyErr(LOG_ERR, "%s: fd=%d hdr read: len=%d: %s",
+			    "__pmGetPDU", fd, len,
+			    pmErrStr_r(len, errmsg, sizeof(errmsg)));
 	    __pmUnpinPDUBuf(pdubuf);
 	    return PM_ERR_IPC;
 	}
 	else if (len > 0) {
-	    pmNotifyErr(LOG_ERR, "%s: fd=%d hdr read: bad len=%d",
-			"__pmGetPDU", fd, len);
+	    if (pmDebugOptions.pdu)
+		pmNotifyErr(LOG_ERR, "%s: fd=%d hdr read: bad len=%d",
+			    "__pmGetPDU", fd, len);
 	    __pmUnpinPDUBuf(pdubuf);
 	    return PM_ERR_IPC;
 	}
@@ -606,8 +606,9 @@ check_read_len:
 	 * PDU length indicates insufficient bytes for a PDU header
 	 * ... looks like DOS attack like PV 935490
 	 */
-	pmNotifyErr(LOG_ERR, "%s: fd=%d illegal PDU len=%d in hdr",
-		    "__pmGetPDU", fd, php->len);
+	if (pmDebugOptions.pdu)
+	    pmNotifyErr(LOG_ERR, "%s: fd=%d illegal PDU len=%d in hdr",
+			"__pmGetPDU", fd, php->len);
 	__pmUnpinPDUBuf(pdubuf);
 	return PM_ERR_IPC;
     }
@@ -618,16 +619,18 @@ check_read_len:
 	 * (note, pmcd and pmdas have to be able to _send_ large PDUs,
 	 * e.g. for a pmResult or instance domain enquiry)
 	 */
-	if (len < (int)(sizeof(php->len) + sizeof(php->type)))
-	    /* PDU too short to provide a valid type */
-	    pmNotifyErr(LOG_ERR, "%s: fd=%d bad PDU len=%d in hdr "
-			"exceeds maximum client PDU size (%d)",
-			"__pmGetPDU", fd, php->len, ceiling);
-	else
-	    pmNotifyErr(LOG_ERR, "%s: fd=%d type=0x%x bad PDU len=%d in hdr "
-			"exceeds maximum client PDU size (%d)",
-			"__pmGetPDU", fd, (unsigned)ntohl(php->type),
-			php->len, ceiling);
+	if (pmDebugOptions.pdu) {
+	    if (len < (int)(sizeof(php->len) + sizeof(php->type)))
+		/* PDU too short to provide a valid type */
+		pmNotifyErr(LOG_ERR, "%s: fd=%d bad PDU len=%d in hdr"
+			    " exceeds maximum client PDU size (%d)",
+			    "__pmGetPDU", fd, php->len, ceiling);
+	    else
+		pmNotifyErr(LOG_ERR, "%s: fd=%d type=0x%x bad PDU len=%d in hdr"
+			    " exceeds maximum client PDU size (%d)",
+			    "__pmGetPDU", fd, (unsigned)ntohl(php->type),
+			    php->len, ceiling);
+	}
 	__pmUnpinPDUBuf(pdubuf);
 	return PM_ERR_TOOBIG;
     }
@@ -667,6 +670,10 @@ check_read_len:
 		__pmUnpinPDUBuf(pdubuf);
 		return PM_ERR_TIMEOUT;
 	    }
+	    else if (!pmDebugOptions.pdu) {
+		__pmUnpinPDUBuf(pdubuf);
+	        return PM_ERR_IPC;
+	    }
 	    else if (len < 0) {
 		char	errmsg[PM_MAXERRMSGLEN];
 		pmNotifyErr(LOG_ERR, "%s: fd=%d data read: len=%d: %s",
@@ -700,7 +707,8 @@ check_read_len:
 	 * PDU type is bad ... could be a possible mem leak attack like
 	 * https://bugzilla.redhat.com/show_bug.cgi?id=841319
 	 */
-	pmNotifyErr(LOG_ERR, "%s: fd=%d illegal PDU type=%d in hdr",
+	if (pmDebugOptions.pdu)
+	    pmNotifyErr(LOG_ERR, "%s: fd=%d illegal PDU type=%d in hdr",
 			"__pmGetPDU", fd, php->type);
 	__pmUnpinPDUBuf(pdubuf);
 	return PM_ERR_IPC;

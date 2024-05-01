@@ -74,7 +74,8 @@ NotifyEndContext(int ctx)
 ClientInfo *
 AcceptNewClient(int reqfd)
 {
-    static unsigned int	seq = 0;
+    static unsigned int	seq, saved, count;
+    static struct timeval then;
     int			i, fd;
     __pmSockLen		addrlen;
     struct timeval	now;
@@ -83,21 +84,30 @@ AcceptNewClient(int reqfd)
     addrlen = __pmSockAddrSize();
     fd = __pmAccept(reqfd, client[i].addr, &addrlen);
     if (fd == -1) {
-    	if (neterror() == EPERM) {
-	    pmNotifyErr(LOG_NOTICE, "AcceptNewClient(%d): "
-	 	          "Permission Denied\n", reqfd);
-	}
-    	else if (neterror() == ECONNABORTED) {
+	if (neterror() == ECONNABORTED) {
 	    /* quietly ignore this one ... */
 	    ;
 	}
 	else {
-	    /*
-	     * unexpected ... ignore the client (we used to kill off pmcd
-	     * but that seems way too extreme)
+	    /* Permission denied or an unexpected error (e.g. EMFILE)
+	     * - rate limit the logging and make this client go away.
 	     */
-	    pmNotifyErr(LOG_ERR, "AcceptNewClient(%d): Unexpected error from __pmAccept: %d: %s\n",
-			    reqfd, neterror(), netstrerror());
+	    pmtimevalNow(&now);
+	    if (neterror() != saved || now.tv_sec > then.tv_sec + 60) {
+		if (neterror() == EPERM)
+		    pmNotifyErr(LOG_NOTICE, "AcceptNewClient(%d): "
+				"Permission Denied (%d suppressed)\n",
+				reqfd, count);
+		else
+		    pmNotifyErr(LOG_ERR, "AcceptNewClient(%d): "
+				"Accept error (%d suppressed): %d: %s\n",
+				reqfd, count, neterror(), netstrerror());
+		saved = neterror();
+		count = 0;
+	    } else {
+		count++;
+	    }
+	    then = now;
 	}
 	client[i].fd = -1;
 	DeleteClient(&client[i]);
