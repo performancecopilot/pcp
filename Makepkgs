@@ -646,7 +646,11 @@ configure_pcp()
     else
 	($configure $configopts 2>&1 || touch $tmp/failed) >>"$LOGDIR/pcp" 2>&1
     fi
-    [ -f $tmp/failed ] && build_failure Configure
+    if [ -f $tmp/failed ]
+    then
+	test -f config.log && cat config.log | tee -a "$LOGDIR/pcp"
+	build_failure Configure
+    fi
     $cfgonly && exit 0
 }
 
