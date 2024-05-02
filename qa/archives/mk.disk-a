@@ -1,0 +1,28 @@
+#!/bin/sh
+#
+# Recreate disk-a archive for iostat.conf (most disk.dev,
+# disk.dm and disk.md here, see disk-b for disk.wwid).
+#
+
+tmp=/var/tmp/$$
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+cat <<End-of-File >$tmp.config
+log mandatory on 2 sec {
+    disk.dev
+    disk.dm
+    disk.md
+}
+End-of-File
+
+# generate some activity ...
+#
+find $(mount | awk '$5 == "xfs" || $5 ~ /ext/ { print $3}') -maxdepth 2 -type f 2>/dev/null \
+| xargs sum >/dev/null 2>&1 &
+kill_pid=$!
+
+export PCP_DERIVED_CONFIG=
+rm -f disk-a.index disk-a.meta disk-a.0
+pmlogger -c $tmp.config -s 5 disk-a
+
+kill -KILL $kill_pid
