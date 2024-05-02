@@ -22,6 +22,7 @@ _stop_auto_restart pmcd
 
 _cleanup()
 {
+    pmstore pmcd.control.debug 0 >>$seq.full 2>&1 # pdu==1
     _restore_auto_restart pmcd
 }
 
@@ -32,6 +33,7 @@ _wait_for_pmcd
 _wait_for_pmlogger
 
 # real QA test starts here
+pmstore pmcd.control.debug 1 >>$seq.full 2>&1 # pdu==1
 src/crashpmcd
 
 # give pmcd a chance to deal with PDUs from crashpmcd
@@ -43,6 +45,9 @@ _filter_pmcd_log <$PCP_PMCDLOG_PATH \
 | sed \
     -e '1,/ok FD /d' \
     -e '/ok FD /d' \
+    -e '/pmXmitPDU: ERROR/d' \
+    -e '/pmGetPDU: TYPE/d' \
+    -e '/^000:/d' \
     -e 's/fd=[0-9][0-9]*/fd=N/' \
     -e '/HandleClientInput/s/client\[[0-9][0-9]*]/client[N]/' \
     -e 's/len=-1: Connection reset by peer.*/END-OF-FILE/' \
