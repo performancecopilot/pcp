@@ -3207,7 +3207,7 @@ check_map_name(const char *path, const char *name, const char *link, const char 
 	numb = strtol(name, &p, 10);
     sts = oserror();
     if (*p != '\0') {
-	if (pmDebugOptions.appl9) {
+	if (pmDebugOptions.misc) {
 	    fprintf(stderr, "__pmCleanMapDir: %s", path);
 	    if (link) fprintf(stderr, " -> %s (%s)", link, link_pid);
 	    fprintf(stderr, ": remove: name not numeric so cannot be a PID\n");
@@ -3215,7 +3215,7 @@ check_map_name(const char *path, const char *name, const char *link, const char 
 	return 0;
     }
     if (numb < 1) {
-	if (pmDebugOptions.appl9) {
+	if (pmDebugOptions.misc) {
 	    fprintf(stderr, "__pmCleanMapDir: %s", path);
 	    if (link) fprintf(stderr, " -> %s (%s)", link, link_pid);
 	    fprintf(stderr, ": remove: PID must be at least 1\n");
@@ -3224,7 +3224,7 @@ check_map_name(const char *path, const char *name, const char *link, const char 
     }
     pid = numb;
     if (sts == ERANGE || pid != numb) {
-	if (pmDebugOptions.appl9) {
+	if (pmDebugOptions.misc) {
 	    fprintf(stderr, "__pmCleanMapDir: %s", path);
 	    if (link) fprintf(stderr, " -> %s (%s)", link, link_pid);
 	    fprintf(stderr, ": remove: pid_t overflow so cannot be a PID\n");
@@ -3232,7 +3232,7 @@ check_map_name(const char *path, const char *name, const char *link, const char 
 	return 0;
     }
     if (!__pmProcessExists(pid)) {
-	if (pmDebugOptions.appl9) {
+	if (pmDebugOptions.misc) {
 	    fprintf(stderr, "__pmCleanMapDir: %s", path);
 	    if (link) fprintf(stderr, " -> %s (%s)", link, link_pid);
 	    fprintf(stderr, ": remove: process does not exist\n");
@@ -3249,7 +3249,7 @@ check_map_name(const char *path, const char *name, const char *link, const char 
 
 /*
  * remove old files from a map directory
- * - use -Dappl9 for verbose diagnostics
+ * - use -Dmisc for verbose diagnostics
  */
 int
 __pmCleanMapDir(const char *dirname, const char * special)
@@ -3267,7 +3267,7 @@ __pmCleanMapDir(const char *dirname, const char * special)
     if ((sts = lstat(dirname, &sbuf)) < 0) {
 	sts = -oserror();
 	PM_UNLOCK(__pmLock_extcall);
-	if (pmDebugOptions.appl9)
+	if (pmDebugOptions.misc)
 	    fprintf(stderr, "__pmCleanMapDir: lstat(%s) failed: %s\n",
 		dirname, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	return sts;
@@ -3276,7 +3276,7 @@ __pmCleanMapDir(const char *dirname, const char * special)
     if ((sbuf.st_mode & S_IFMT) != S_IFDIR) {
 	sts = -ENOTDIR;
 	PM_UNLOCK(__pmLock_extcall);
-	if (pmDebugOptions.appl9)
+	if (pmDebugOptions.misc)
 	    fprintf(stderr, "__pmCleanMapDir: dirname %s: is a %s: %s\n",
 		dirname, inodetype(sbuf.st_mode), pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	return sts;
@@ -3286,7 +3286,7 @@ __pmCleanMapDir(const char *dirname, const char * special)
     if (sbuf.st_uid != geteuid()) {
 	sts = -EPERM;
 	PM_UNLOCK(__pmLock_extcall);
-	if (pmDebugOptions.appl9)
+	if (pmDebugOptions.misc)
 	    fprintf(stderr, "__pmCleanMapDir: dirname %s: uid %d different to caller uid %d: %s\n",
 		dirname, sbuf.st_uid, geteuid(), pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	return sts;
@@ -3295,7 +3295,7 @@ __pmCleanMapDir(const char *dirname, const char * special)
     if (sbuf.st_gid != getegid()) {
 	sts = -EPERM;
 	PM_UNLOCK(__pmLock_extcall);
-	if (pmDebugOptions.appl9)
+	if (pmDebugOptions.misc)
 	    fprintf(stderr, "__pmCleanMapDir: dirname %s: gid %d different to caller gid %d: %s\n",
 		dirname, sbuf.st_gid, getegid(), pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	return sts;
@@ -3305,7 +3305,7 @@ __pmCleanMapDir(const char *dirname, const char * special)
     if ((dirp = opendir(dirname)) == NULL) {
 	sts = -oserror();
 	PM_UNLOCK(__pmLock_extcall);
-	if (pmDebugOptions.appl9)
+	if (pmDebugOptions.misc)
 	    fprintf(stderr, "__pmCleanMapDir: opendir(%s) failed: %s\n",
 		dirname, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	return sts;
@@ -3317,7 +3317,7 @@ __pmCleanMapDir(const char *dirname, const char * special)
 	pmsprintf(path, sizeof(path)-1, "%s%c%s", dirname, pmPathSeparator(), dp->d_name);
 	if ((sts = lstat(path, &sbuf)) < 0) {
 	    sts = -oserror();
-	    if (pmDebugOptions.appl9) {
+	    if (pmDebugOptions.misc) {
 		fprintf(stderr, "__pmCleanMapDir: lstat(%s) failed: %s\n",
 		    path, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	    }
@@ -3332,13 +3332,13 @@ __pmCleanMapDir(const char *dirname, const char * special)
 
 	    if ((sts = lstat(path, &sbuf)) < 0) {
 		sts = -oserror();
-		if (pmDebugOptions.appl9)
+		if (pmDebugOptions.misc)
 		    fprintf(stderr, "__pmCleanMapDir: lstat(%s) [special] failed: %s\n",
 			path, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 		goto unlink;
 	    }
 	    if (!S_ISLNK(sbuf.st_mode)) {
-		if (pmDebugOptions.appl9)
+		if (pmDebugOptions.misc)
 		    fprintf(stderr, "__pmCleanMapDir: %s [special]: remove: is a %s, expected a symlink\n",
 			path, inodetype(sbuf.st_mode));
 		goto unlink;
@@ -3350,7 +3350,7 @@ __pmCleanMapDir(const char *dirname, const char * special)
 	     */
 	    if ((llen = readlink(path, link, sizeof(link)-1)) < 0) {
 		sts = -oserror();
-		if (pmDebugOptions.appl9)
+		if (pmDebugOptions.misc)
 		    fprintf(stderr, "__pmCleanMapDir: readlink(%s) failed: %s\n",
 			path, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 		goto unlink;
@@ -3371,7 +3371,7 @@ __pmCleanMapDir(const char *dirname, const char * special)
 		/* path prefix, then nothing to folow ... */
 		linkp = link;
 	    if (check_map_name(path, dp->d_name, link, linkp)) {
-		if (pmDebugOptions.appl9) {
+		if (pmDebugOptions.misc) {
 		    fprintf(stderr, "__pmCleanMapDir: %s [special]: keep: OK\n",
 			path);
 		}
@@ -3381,7 +3381,7 @@ __pmCleanMapDir(const char *dirname, const char * special)
 	}
 	else {
 	    if (check_map_name(path, dp->d_name, NULL, NULL)) {
-		if (pmDebugOptions.appl9) {
+		if (pmDebugOptions.misc) {
 		    fprintf(stderr, "__pmCleanMapDir: %s: keep: OK\n",
 			path);
 		}
@@ -3394,7 +3394,7 @@ __pmCleanMapDir(const char *dirname, const char * special)
 unlink:
 	if (unlink(path) < 0) {
 	    sts = -oserror();
-	    if (pmDebugOptions.appl9) {
+	    if (pmDebugOptions.misc) {
 		fprintf(stderr, "__pmCleanMapDir: unlink(%s) failed: %s\n",
 		    path, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	    }

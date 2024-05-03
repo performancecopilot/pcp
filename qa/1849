@@ -47,9 +47,9 @@ _doit()
 {
     if $do_valgrind
     then
-	_run_valgrind src/cleanmapdir -Dappl9 $*
+	_run_valgrind src/cleanmapdir -Dmisc $*
     else
-	src/cleanmapdir -Dappl9 $* 2>&1
+	src/cleanmapdir -Dmisc $* 2>&1
     fi \
     | tee -a $here/$seq.full \
     | _filter \

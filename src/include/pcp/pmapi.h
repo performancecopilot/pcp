@@ -1264,7 +1264,8 @@ typedef struct {
     int	appl7;		/* Application-specific flag 7 */
     int	appl8;		/* Application-specific flag 8 */
     int	appl9;		/* Application-specific flag 9 */
-    int tls;		/* Transport Layer Security operations */
+    int	tls;		/* Transport Layer Security operations */
+    int	misc;		/* Miscellaneous odds and sods */
 } pmdebugoptions_t;
 
 PCP_DATA extern pmdebugoptions_t	pmDebugOptions;
