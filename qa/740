@@ -45,7 +45,7 @@ _filter()
 }
 
 # real QA test starts here
-_service pmcd start >/dev/null 2>&1
+_service pmcd restart >/dev/null 2>&1
 _wait_for_pmcd
 
 # store to enable verbose attribute diagnostics
