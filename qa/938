@@ -29,17 +29,10 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 # also need to deal with different PMIDs for kernel metrics on different
 # platforms, and different sizes for same
 #
-# the awk + sed at the end is to deal with delta(x) where the type
-# depends on the type of x which is platform-dependent, and then any
-# ancestor nodes in the epxression tree that the type of delta(x)
-# is propagated to
-#
 _filter()
 {
     $PCP_AWK_PROG <$tmp.out >$tmp.sed '
-BEGIN				{ n = 0 }
-$1 == "expr" && $2 == "node" && $3 ~ /^0x/	{ print "s/" $3 "/<addr-" n ">/"; n++ }
-				{ next }'
+$1 == "expr" && $2 == "node" && $3 ~ /^0x/	{ print "s/" $3 "/<addr>/g" }'
     sed -f $tmp.sed <$tmp.out \
     | sed \
 	-e '/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/s/[^ ]*.*numpmid/TIMESTAMP ... numpmid/' \
@@ -58,23 +51,12 @@ s/139\.[0-9][0-9]*\.[0-9][0-9]*/KERNEL_PMDA_PMID/g
 	-e '/KERNEL_PMDA_PMID/{
 N
 s/[1-9][0-9]-bit/N-bit/
-}' \
-    | $PCP_AWK_PROG '
-/expr node <addr-219>/	{ arm = 1 }
-/expr node <addr-220>/	{ arm = 1 }
-/expr node <addr-222>/	{ arm = 1 }
-/expr node <addr-238>/	{ arm = 1 }
-/expr node <addr-239>/	{ arm = 1 }
-/expr node <addr-241>/	{ arm = 1 }
-/Data Type/ 		{ if (arm) $0 = "X" $0
-			  arm = 0
-			}
-			{ print }' \
-    | sed -e '/^X/{
-s/X//
-s/: double /: <signed number> /
-s/: N-bit int /: <signed number> /
 }'
+
+    # save all output and addr filtering
+    #
+    cat $tmp.out >>$seq.full
+    cat $tmp.sed >>$seq.full
 }
 
 # real QA test starts here
