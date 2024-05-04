@@ -163,8 +163,14 @@ _ctl_svc()
 	    fi
 	elif $__use_update_invoke
 	then
-	    invoke-rc.d $svc status 2>/dev/null >$tmp/_ctl_svc
+	    invoke-rc.d $svc status >$tmp/_ctl_svc 2>&1
 	    state=`sed -n -e '/^Checking for/s/.*: //p' <$tmp/_ctl_svc`
+	    if [ -z "$state" ]
+	    then
+		# some, like redis-server just say ... is running.
+		#
+		state=`sed -n -e "/^$svc is \([^ ][^ .]*\).*/s//\1/p" <$tmp/_ctl_svc`
+	    fi
 	    case "$state"
 	    in
 		running)
@@ -174,7 +180,15 @@ _ctl_svc()
 		    ;;
 		*)
 		    rc=2
-		    echo "state ($state) unknown"
+		    if [ ! -f /etc/init.d/$svc ]
+		    then
+			echo "/etc/init.d/$svc is not installed"
+		    elif [ -n "$state" ]
+		    then
+			echo "state ($state) unknown"
+		    else
+			cat $tmp/_ctl_svc
+		    fi
 		    ;;
 	    esac
 	elif $__use_rc_script
