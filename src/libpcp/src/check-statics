@@ -592,6 +592,10 @@ util.o
     ?highwater			# sbrk(0) hack for Mac OS X, safe
     ?pick			# sbrk(0) hack for Mac OS X, safe
     text_start			# no unsage side-effects, see notes in util.c
+throttle.o
+    throttle_lock		# local mutex
+    hashtab			# guarded by throttle_lock mutex
+    g_limit			# guarded by throttle_lock mutex
 deprecated.o
 strings.o
 ?win32.o

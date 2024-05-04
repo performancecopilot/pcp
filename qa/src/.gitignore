@@ -241,6 +241,8 @@ test_encodings
 test_hostspec
 test_service_notify
 t_fetch
+throttle
+throttle_timeout
 timeshift
 time_stamp
 torture_api

@@ -1978,6 +1978,7 @@ x11
 1509 derive local
 1510 derive local
 1511 pmcd local pmda.sample
+1512 libpcp local
 1515 pmda.denki local valgrind
 1530 pmda.zfs local valgrind
 1531 pmda.zfs local valgrind

@@ -58,6 +58,7 @@ usr/share/man/man3/__pmLogMetaTypeStr.3.gz
 usr/share/man/man3/__pmLogMetaTypeStr_r.3.gz
 usr/share/man/man3/__pmLogWriteMark.3.gz
 usr/share/man/man3/__pmMktime.3.gz
+usr/share/man/man3/__pmNotifyThrottle.3.gz
 usr/share/man/man3/__pmOverrideLastFd.3.gz
 usr/share/man/man3/__pmParseCtime.3.gz
 usr/share/man/man3/__pmParseDebug.3.gz
@@ -72,6 +73,7 @@ usr/share/man/man3/__pmProcessPipe.3.gz
 usr/share/man/man3/__pmProcessPipeClose.3.gz
 usr/share/man/man3/__pmProcessUnpickArgs.3.gz
 usr/share/man/man3/__pmResetIPC.3.gz
+usr/share/man/man3/__pmResetNotifyThrottle.3.gz
 usr/share/man/man3/__pmServerNotifyServiceManagerReady.3.gz
 usr/share/man/man3/__pmServerNotifyServiceManagerStopping.3.gz
 usr/share/man/man3/__pmSetDebugBits.3.gz

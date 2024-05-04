@@ -273,7 +273,7 @@ main(int argc, char **argv)
 }
 
 /*
- * lifted directly from libpcp_pmda/src/cache.c
+ * lifted directly from libpcp_pmda/src/lookup2.c
  */
 
 /*

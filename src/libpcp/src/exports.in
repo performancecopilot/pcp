@@ -864,4 +864,6 @@ PCP_3.40 {
 
 PCP_3.41 {
     pmGetInDom_ctx;
+    __pmNotifyThrottle;
+    __pmResetNotifyThrottle;
 } PCP_3.40;

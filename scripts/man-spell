@@ -142,6 +142,7 @@ PCP_LOG_DIR
 ! PCP_MAN_DIR
 PCP_MERGE_CALLBACK
 PCP_NAMESPACE		# from __pmStartOptions
+PCP_NOTIFY_THROTTLE
 PCP_ORIGIN		# from __pmStartOptions
 PCP_ORIGIN_TIME		# from __pmStartOptions
 ! PCP_PACCT_SYSTEM_PATH
@@ -1319,6 +1320,7 @@ __pmMktime
 ! __pmNativeConfig
 ! __pmNativePath
 ! __pmNewPMNS
+__pmNotifyThrottle
 ! __pmOptFetchAdd
 ! __pmOptFetchDel
 ! __pmOptFetchDump
@@ -1365,6 +1367,7 @@ __pmProcessUnpickArgs
 __pmRegisterAnon
 ! __pmRequestTimeout
 __pmResetIPC
+__pmResetNotifyThrottle
 ! __pmResult
 ! __pmRewind
 ! __pmRotateLog
@@ -2151,6 +2154,7 @@ EAGAIN
 ECONNREFUSED
 EINVAL
 ENOMEM
+ENOENT
 EOPNOTSUPP
 EPERM
 ETIMEDOUT

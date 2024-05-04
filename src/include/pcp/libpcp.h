@@ -1556,6 +1556,10 @@ PCP_CALL extern int __pmCleanMapDir(const char *, const char *);
 /* Check for duplicate label sets. */
 PCP_CALL extern void __pmCheckDupLabels(const __pmArchCtl *);
 
+/* diagnostic output throttling */
+PCP_CALL extern int __pmNotifyThrottle(const char *, int);
+PCP_CALL extern int __pmResetNotifyThrottle(const char *, int, int);
+
 #ifdef __cplusplus
 }
 #endif
