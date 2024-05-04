@@ -29,13 +29,17 @@ _filter()
 {
     awk <$tmp.out >$tmp.sed '
 BEGIN				{ n = 0 }
-$1 == "expr" && $2 == "node" && $3 ~ /^0x/	{ print "s/" $3 "/<addr-" n ">/"; n++ }
-				{ next }'
+$1 == "expr" && $2 == "node" && $3 ~ /^0x/	{ print "s/" $3 "/<addr>/g" }'
     sed -f $tmp.sed <$tmp.out \
     | sed \
 	-e '/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/s/[^ ]*.*numpmid/TIMESTAMP ... numpmid/' \
 	-e 's/=0x0 /=(nil) /g' \
 	-e "s;$tmp;TMP;"
+
+    # save all output and addr filtering
+    #
+    cat $tmp.out >>$seq.full
+    cat $tmp.sed >>$seq.full
 }
 
 _filter_values()

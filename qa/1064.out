@@ -6,9 +6,9 @@ derive_lex() -> type=L_NAME "PM_TYPE_U32"
 derive_lex() -> type=L_RPAREN ")"
 derive_lex() -> type=L_EOS ""
 pmRegisterDerived: global metric[0] event.flags = anon(PM_TYPE_U32)
-Derived metric expr dump from <addr-0>...
-expr node <addr-0> type=ANON left=<addr-1> right=(nil) save_last=0
-expr node <addr-1> type=INTEGER left=(nil) right=(nil) save_last=0 [PM_TYPE_U32] primary=1
+Derived metric expr dump from <addr>...
+expr node <addr> type=ANON left=<addr> right=(nil) save_last=0
+expr node <addr> type=INTEGER left=(nil) right=(nil) save_last=0 [PM_TYPE_U32] primary=1
 pmRegisterDerived: name="event.missed" expr="anon(PM_TYPE_U32)"
 derive_lex() -> type=L_ANON "anon"
 derive_lex() -> type=L_LPAREN "("
@@ -16,9 +16,9 @@ derive_lex() -> type=L_NAME "PM_TYPE_U32"
 derive_lex() -> type=L_RPAREN ")"
 derive_lex() -> type=L_EOS ""
 pmRegisterDerived: global metric[1] event.missed = anon(PM_TYPE_U32)
-Derived metric expr dump from <addr-2>...
-expr node <addr-2> type=ANON left=<addr-3> right=(nil) save_last=0
-expr node <addr-3> type=INTEGER left=(nil) right=(nil) save_last=0 [PM_TYPE_U32] primary=1
+Derived metric expr dump from <addr>...
+expr node <addr> type=ANON left=<addr> right=(nil) save_last=0
+expr node <addr> type=INTEGER left=(nil) right=(nil) save_last=0 [PM_TYPE_U32] primary=1
 Derived metric initialization from $PCP_DERIVED_CONFIG
 pmLoadDerivedConfig("TMP.config")
 pmRegisterDerived: name="a.m1" expr="rescale(sample.byte_rate, "Kbyte/min")"
@@ -30,10 +30,10 @@ derive_lex() -> type=L_STRING "Kbyte/min"
 derive_lex() -> type=L_RPAREN ")"
 derive_lex() -> type=L_EOS ""
 pmRegisterDerived: global metric[2] a.m1 = rescale(sample.byte_rate, "Kbyte/min")
-Derived metric expr dump from <addr-4>...
-expr node <addr-4> type=RESCALE left=<addr-5> right=<addr-6> save_last=0
-expr node <addr-5> type=NAME left=(nil) right=(nil) save_last=0 [sample.byte_rate] primary=1
-expr node <addr-6> type=SCALE left=(nil) right=(nil) save_last=0 [Kbyte / min]
+Derived metric expr dump from <addr>...
+expr node <addr> type=RESCALE left=<addr> right=<addr> save_last=0
+expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.byte_rate] primary=1
+expr node <addr> type=SCALE left=(nil) right=(nil) save_last=0 [Kbyte / min]
 pmRegisterDerived: name="a.m2" expr="rescale(mkconst(36000, units="count/hour"),"count/sec")"
 derive_lex() -> type=L_RESCALE "rescale"
 derive_lex() -> type=L_LPAREN "("
@@ -50,10 +50,10 @@ derive_lex() -> type=L_STRING "count/sec"
 derive_lex() -> type=L_RPAREN ")"
 derive_lex() -> type=L_EOS ""
 pmRegisterDerived: global metric[3] a.m2 = rescale(mkconst(36000, units="count/hour"),"count/sec")
-Derived metric expr dump from <addr-7>...
-expr node <addr-7> type=RESCALE left=<addr-8> right=<addr-9> save_last=0
-expr node <addr-8> type=INTEGER left=(nil) right=(nil) save_last=0 [36000] primary=1
-expr node <addr-9> type=SCALE left=(nil) right=(nil) save_last=0 [count / sec]
+Derived metric expr dump from <addr>...
+expr node <addr> type=RESCALE left=<addr> right=<addr> save_last=0
+expr node <addr> type=INTEGER left=(nil) right=(nil) save_last=0 [36000] primary=1
+expr node <addr> type=SCALE left=(nil) right=(nil) save_last=0 [count / sec]
 pmRegisterDerived: name="a.m3" expr="rescale(mkconst(36000, units="count/hour")+rescale(mkconst(600, units="count/min"),"count/hour"), "count/sec")"
 derive_lex() -> type=L_RESCALE "rescale"
 derive_lex() -> type=L_LPAREN "("
@@ -84,14 +84,14 @@ derive_lex() -> type=L_STRING "count/sec"
 derive_lex() -> type=L_RPAREN ")"
 derive_lex() -> type=L_EOS ""
 pmRegisterDerived: global metric[4] a.m3 = rescale(mkconst(36000, units="count/hour")+rescale(mkconst(600, units="count/min"),"count/hour"), "count/sec")
-Derived metric expr dump from <addr-10>...
-expr node <addr-10> type=RESCALE left=<addr-11> right=<addr-16> save_last=0
-expr node <addr-11> type=PLUS left=<addr-12> right=<addr-13> save_last=0
-expr node <addr-12> type=INTEGER left=(nil) right=(nil) save_last=0 [36000] primary=1
-expr node <addr-13> type=RESCALE left=<addr-14> right=<addr-15> save_last=0
-expr node <addr-14> type=INTEGER left=(nil) right=(nil) save_last=0 [600] primary=1
-expr node <addr-15> type=SCALE left=(nil) right=(nil) save_last=0 [count / hour]
-expr node <addr-16> type=SCALE left=(nil) right=(nil) save_last=0 [count / sec]
+Derived metric expr dump from <addr>...
+expr node <addr> type=RESCALE left=<addr> right=<addr> save_last=0
+expr node <addr> type=PLUS left=<addr> right=<addr> save_last=0
+expr node <addr> type=INTEGER left=(nil) right=(nil) save_last=0 [36000] primary=1
+expr node <addr> type=RESCALE left=<addr> right=<addr> save_last=0
+expr node <addr> type=INTEGER left=(nil) right=(nil) save_last=0 [600] primary=1
+expr node <addr> type=SCALE left=(nil) right=(nil) save_last=0 [count / hour]
+expr node <addr> type=SCALE left=(nil) right=(nil) save_last=0 [count / sec]
 pmRegisterDerived: name="a.m4" expr="defined(sample.long.million)"
 derive_lex() -> type=L_DEFINED "defined"
 derive_lex() -> type=L_LPAREN "("
@@ -99,9 +99,9 @@ derive_lex() -> type=L_NAME "sample.long.million"
 derive_lex() -> type=L_RPAREN ")"
 derive_lex() -> type=L_EOS ""
 pmRegisterDerived: global metric[5] a.m4 = defined(sample.long.million)
-Derived metric expr dump from <addr-17>...
-expr node <addr-17> type=DEFINED(sample.long.million) left=<addr-18> right=(nil) save_last=0
-expr node <addr-18> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.million] primary=1
+Derived metric expr dump from <addr>...
+expr node <addr> type=DEFINED(sample.long.million) left=<addr> right=(nil) save_last=0
+expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.million] primary=1
 pmRegisterDerived: name="a.m5" expr="defined(sample.long.not_million)"
 derive_lex() -> type=L_DEFINED "defined"
 derive_lex() -> type=L_LPAREN "("
@@ -109,9 +109,9 @@ derive_lex() -> type=L_NAME "sample.long.not_million"
 derive_lex() -> type=L_RPAREN ")"
 derive_lex() -> type=L_EOS ""
 pmRegisterDerived: global metric[6] a.m5 = defined(sample.long.not_million)
-Derived metric expr dump from <addr-19>...
-expr node <addr-19> type=DEFINED(sample.long.not_million) left=<addr-20> right=(nil) save_last=0
-expr node <addr-20> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.not_million] primary=1
+Derived metric expr dump from <addr>...
+expr node <addr> type=DEFINED(sample.long.not_million) left=<addr> right=(nil) save_last=0
+expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.not_million] primary=1
 pmRegisterDerived: name="a.m6" expr="! defined(sample.long.ten) ? 0 : defined(sample.ulong.ten) + 2*defined(sample.ulong.hundred) + 3*defined(sample.ulong.million)"
 derive_lex() -> type=L_NOT "!"
 derive_lex() -> type=L_DEFINED "defined"
@@ -141,25 +141,25 @@ derive_lex() -> type=L_NAME "sample.ulong.million"
 derive_lex() -> type=L_RPAREN ")"
 derive_lex() -> type=L_EOS ""
 pmRegisterDerived: global metric[7] a.m6 = ! defined(sample.long.ten) ? 0 : defined(sample.ulong.ten) + 2*defined(sample.ulong.hundred) + 3*defined(sample.ulong.million)
-Derived metric expr dump from <addr-21>...
-expr node <addr-21> type=QUEST left=<addr-22> right=<addr-25> save_last=0
-expr node <addr-22> type=NOT left=<addr-23> right=(nil) save_last=0
-expr node <addr-23> type=DEFINED(sample.long.ten) left=<addr-24> right=(nil) save_last=0
-expr node <addr-24> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.ten] primary=1
-expr node <addr-25> type=COLON left=<addr-26> right=<addr-27> save_last=0
-expr node <addr-26> type=INTEGER left=(nil) right=(nil) save_last=0 [0] primary=1
-expr node <addr-27> type=PLUS left=<addr-28> right=<addr-35> save_last=0
-expr node <addr-28> type=PLUS left=<addr-29> right=<addr-31> save_last=0
-expr node <addr-29> type=DEFINED(sample.ulong.ten) left=<addr-30> right=(nil) save_last=0
-expr node <addr-30> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.ten] primary=1
-expr node <addr-31> type=STAR left=<addr-32> right=<addr-33> save_last=0
-expr node <addr-32> type=INTEGER left=(nil) right=(nil) save_last=0 [2] primary=1
-expr node <addr-33> type=DEFINED(sample.ulong.hundred) left=<addr-34> right=(nil) save_last=0
-expr node <addr-34> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.hundred] primary=1
-expr node <addr-35> type=STAR left=<addr-36> right=<addr-37> save_last=0
-expr node <addr-36> type=INTEGER left=(nil) right=(nil) save_last=0 [3] primary=1
-expr node <addr-37> type=DEFINED(sample.ulong.million) left=<addr-38> right=(nil) save_last=0
-expr node <addr-38> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.million] primary=1
+Derived metric expr dump from <addr>...
+expr node <addr> type=QUEST left=<addr> right=<addr> save_last=0
+expr node <addr> type=NOT left=<addr> right=(nil) save_last=0
+expr node <addr> type=DEFINED(sample.long.ten) left=<addr> right=(nil) save_last=0
+expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.ten] primary=1
+expr node <addr> type=COLON left=<addr> right=<addr> save_last=0
+expr node <addr> type=INTEGER left=(nil) right=(nil) save_last=0 [0] primary=1
+expr node <addr> type=PLUS left=<addr> right=<addr> save_last=0
+expr node <addr> type=PLUS left=<addr> right=<addr> save_last=0
+expr node <addr> type=DEFINED(sample.ulong.ten) left=<addr> right=(nil) save_last=0
+expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.ten] primary=1
+expr node <addr> type=STAR left=<addr> right=<addr> save_last=0
+expr node <addr> type=INTEGER left=(nil) right=(nil) save_last=0 [2] primary=1
+expr node <addr> type=DEFINED(sample.ulong.hundred) left=<addr> right=(nil) save_last=0
+expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.hundred] primary=1
+expr node <addr> type=STAR left=<addr> right=<addr> save_last=0
+expr node <addr> type=INTEGER left=(nil) right=(nil) save_last=0 [3] primary=1
+expr node <addr> type=DEFINED(sample.ulong.million) left=<addr> right=(nil) save_last=0
+expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.million] primary=1
 pmRegisterDerived: name="a.m7" expr="! defined(sample.long.bozo) ? defined(sample.ulong.ten) + 2*defined(sample.ulong.hundred) + 3*defined(sample.ulong.million) : 0"
 derive_lex() -> type=L_NOT "!"
 derive_lex() -> type=L_DEFINED "defined"
@@ -189,25 +189,25 @@ derive_lex() -> type=L_COLON ":"
 derive_lex() -> type=L_INTEGER "0"
 derive_lex() -> type=L_EOS ""
 pmRegisterDerived: global metric[8] a.m7 = ! defined(sample.long.bozo) ? defined(sample.ulong.ten) + 2*defined(sample.ulong.hundred) + 3*defined(sample.ulong.million) : 0
-Derived metric expr dump from <addr-39>...
-expr node <addr-39> type=QUEST left=<addr-40> right=<addr-43> save_last=0
-expr node <addr-40> type=NOT left=<addr-41> right=(nil) save_last=0
-expr node <addr-41> type=DEFINED(sample.long.bozo) left=<addr-42> right=(nil) save_last=0
-expr node <addr-42> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.bozo] primary=1
-expr node <addr-43> type=COLON left=<addr-44> right=<addr-56> save_last=0
-expr node <addr-44> type=PLUS left=<addr-45> right=<addr-52> save_last=0
-expr node <addr-45> type=PLUS left=<addr-46> right=<addr-48> save_last=0
-expr node <addr-46> type=DEFINED(sample.ulong.ten) left=<addr-47> right=(nil) save_last=0
-expr node <addr-47> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.ten] primary=1
-expr node <addr-48> type=STAR left=<addr-49> right=<addr-50> save_last=0
-expr node <addr-49> type=INTEGER left=(nil) right=(nil) save_last=0 [2] primary=1
-expr node <addr-50> type=DEFINED(sample.ulong.hundred) left=<addr-51> right=(nil) save_last=0
-expr node <addr-51> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.hundred] primary=1
-expr node <addr-52> type=STAR left=<addr-53> right=<addr-54> save_last=0
-expr node <addr-53> type=INTEGER left=(nil) right=(nil) save_last=0 [3] primary=1
-expr node <addr-54> type=DEFINED(sample.ulong.million) left=<addr-55> right=(nil) save_last=0
-expr node <addr-55> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.million] primary=1
-expr node <addr-56> type=INTEGER left=(nil) right=(nil) save_last=0 [0] primary=1
+Derived metric expr dump from <addr>...
+expr node <addr> type=QUEST left=<addr> right=<addr> save_last=0
+expr node <addr> type=NOT left=<addr> right=(nil) save_last=0
+expr node <addr> type=DEFINED(sample.long.bozo) left=<addr> right=(nil) save_last=0
+expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.bozo] primary=1
+expr node <addr> type=COLON left=<addr> right=<addr> save_last=0
+expr node <addr> type=PLUS left=<addr> right=<addr> save_last=0
+expr node <addr> type=PLUS left=<addr> right=<addr> save_last=0
+expr node <addr> type=DEFINED(sample.ulong.ten) left=<addr> right=(nil) save_last=0
+expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.ten] primary=1
+expr node <addr> type=STAR left=<addr> right=<addr> save_last=0
+expr node <addr> type=INTEGER left=(nil) right=(nil) save_last=0 [2] primary=1
+expr node <addr> type=DEFINED(sample.ulong.hundred) left=<addr> right=(nil) save_last=0
+expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.hundred] primary=1
+expr node <addr> type=STAR left=<addr> right=<addr> save_last=0
+expr node <addr> type=INTEGER left=(nil) right=(nil) save_last=0 [3] primary=1
+expr node <addr> type=DEFINED(sample.ulong.million) left=<addr> right=(nil) save_last=0
+expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.million] primary=1
+expr node <addr> type=INTEGER left=(nil) right=(nil) save_last=0 [0] primary=1
 pmRegisterDerived: name="a.err.m1" expr="rescale(sample.long.hundred, "Kbyte/sec")"
 derive_lex() -> type=L_RESCALE "rescale"
 derive_lex() -> type=L_LPAREN "("
@@ -217,10 +217,10 @@ derive_lex() -> type=L_STRING "Kbyte/sec"
 derive_lex() -> type=L_RPAREN ")"
 derive_lex() -> type=L_EOS ""
 pmRegisterDerived: global metric[9] a.err.m1 = rescale(sample.long.hundred, "Kbyte/sec")
-Derived metric expr dump from <addr-57>...
-expr node <addr-57> type=RESCALE left=<addr-58> right=<addr-59> save_last=0
-expr node <addr-58> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.hundred] primary=1
-expr node <addr-59> type=SCALE left=(nil) right=(nil) save_last=0 [Kbyte / sec]
+Derived metric expr dump from <addr>...
+expr node <addr> type=RESCALE left=<addr> right=<addr> save_last=0
+expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.hundred] primary=1
+expr node <addr> type=SCALE left=(nil) right=(nil) save_last=0 [Kbyte / sec]
 pmRegisterDerived: name="a.err.m2" expr="rescale(sample.string.hullo, "millisec/count")"
 derive_lex() -> type=L_RESCALE "rescale"
 derive_lex() -> type=L_LPAREN "("
@@ -230,10 +230,10 @@ derive_lex() -> type=L_STRING "millisec/count"
 derive_lex() -> type=L_RPAREN ")"
 derive_lex() -> type=L_EOS ""
 pmRegisterDerived: global metric[10] a.err.m2 = rescale(sample.string.hullo, "millisec/count")
-Derived metric expr dump from <addr-60>...
-expr node <addr-60> type=RESCALE left=<addr-61> right=<addr-62> save_last=0
-expr node <addr-61> type=NAME left=(nil) right=(nil) save_last=0 [sample.string.hullo] primary=1
-expr node <addr-62> type=SCALE left=(nil) right=(nil) save_last=0 [millisec / count]
+Derived metric expr dump from <addr>...
+expr node <addr> type=RESCALE left=<addr> right=<addr> save_last=0
+expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.string.hullo] primary=1
+expr node <addr> type=SCALE left=(nil) right=(nil) save_last=0 [millisec / count]
 __dmopencontext(->ctx 0) called, 11 derived metrics
 __dmgetpmid: metric "a.m1" -> PMID 511.0.3
 __dmtraverse: name="a" added "a.m1"
@@ -254,30 +254,30 @@ __dmtraverse: name="a" added "a.m7"
 __dmgetpmid: metric "a.err.m1" -> PMID 511.0.10
 Semantic error: derived metric a.err.m1: sample.long.hundred RESCALE Kbyte / sec: Incompatible dimensions
 __dmbind: check_expr failed for metric[9] a.err.m1
-Derived metric expr dump from <addr-63>...
-expr node <addr-63> type=RESCALE left=<addr-64> right=<addr-65> save_last=0
+Derived metric expr dump from <addr>...
+expr node <addr> type=RESCALE left=<addr> right=<addr> save_last=0
     PMID: PM_ID_NULL (29.0.12 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-expr node <addr-64> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.hundred] primary=0
+expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.hundred] primary=0
     PMID: 29.0.12 (29.0.12 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-expr node <addr-65> type=SCALE left=(nil) right=(nil) save_last=0 [Kbyte / sec]
+expr node <addr> type=SCALE left=(nil) right=(nil) save_last=0 [Kbyte / sec]
 __dmtraverse: name="a", omitting invalid child "a.err.m1"
 __dmgetpmid: metric "a.err.m2" -> PMID 511.0.11
 Semantic error: derived metric a.err.m2: sample.string.hullo RESCALE millisec / count: Non-arithmetic operand for function
 __dmbind: check_expr failed for metric[10] a.err.m2
-Derived metric expr dump from <addr-66>...
-expr node <addr-66> type=RESCALE left=<addr-67> right=<addr-68> save_last=0
+Derived metric expr dump from <addr>...
+expr node <addr> type=RESCALE left=<addr> right=<addr> save_last=0
     PMID: PM_ID_NULL (29.0.31 from pmDesc) numval: 0
     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-expr node <addr-67> type=NAME left=(nil) right=(nil) save_last=0 [sample.string.hullo] primary=0
+expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.string.hullo] primary=0
     PMID: 29.0.31 (29.0.31 from pmDesc) numval: 0
     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-expr node <addr-68> type=SCALE left=(nil) right=(nil) save_last=0 [millisec / count]
+expr node <addr> type=SCALE left=(nil) right=(nil) save_last=0 [millisec / count]
 __dmtraverse: name="a", omitting invalid child "a.err.m2"
 __dmgetpmid: metric "a.m1" -> PMID 511.0.3
 __dmgetpmid: metric "a.m2" -> PMID 511.0.4

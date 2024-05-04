@@ -5,7 +5,7 @@ QA output created by 1849 --valgrind
 === filtered valgrind report ===
 === std err ===
 === std out ===
-Command: src/cleanmapdir -Dappl9 TMP
+Command: src/cleanmapdir -Dmisc TMP
 ERROR SUMMARY: 0 errors from 0 contexts ...
 LEAK SUMMARY:
 Memcheck, a memory error detector
@@ -18,7 +18,7 @@ indirectly lost: 0 bytes in 0 blocks
 === filtered valgrind report ===
 === std err ===
 === std out ===
-Command: src/cleanmapdir -Dappl9 TMP
+Command: src/cleanmapdir -Dmisc TMP
 ERROR SUMMARY: 0 errors from 0 contexts ...
 LEAK SUMMARY:
 Memcheck, a memory error detector
@@ -31,7 +31,7 @@ indirectly lost: 0 bytes in 0 blocks
 === filtered valgrind report ===
 === std err ===
 === std out ===
-Command: src/cleanmapdir -Dappl9 TMP
+Command: src/cleanmapdir -Dmisc TMP
 ERROR SUMMARY: 0 errors from 0 contexts ...
 LEAK SUMMARY:
 Memcheck, a memory error detector
@@ -44,7 +44,7 @@ indirectly lost: 0 bytes in 0 blocks
 === filtered valgrind report ===
 === std err ===
 === std out ===
-Command: src/cleanmapdir -Dappl9 TMP
+Command: src/cleanmapdir -Dmisc TMP
 ERROR SUMMARY: 0 errors from 0 contexts ...
 LEAK SUMMARY:
 Memcheck, a memory error detector
@@ -57,7 +57,7 @@ indirectly lost: 0 bytes in 0 blocks
 === filtered valgrind report ===
 === std err ===
 === std out ===
-Command: src/cleanmapdir -Dappl9 TMP
+Command: src/cleanmapdir -Dmisc TMP
 ERROR SUMMARY: 0 errors from 0 contexts ...
 LEAK SUMMARY:
 Memcheck, a memory error detector
@@ -70,7 +70,7 @@ indirectly lost: 0 bytes in 0 blocks
 === filtered valgrind report ===
 === std err ===
 === std out ===
-Command: src/cleanmapdir -Dappl9 TMP
+Command: src/cleanmapdir -Dmisc TMP
 ERROR SUMMARY: 0 errors from 0 contexts ...
 LEAK SUMMARY:
 Memcheck, a memory error detector
@@ -83,7 +83,7 @@ indirectly lost: 0 bytes in 0 blocks
 === filtered valgrind report ===
 === std err ===
 === std out ===
-Command: src/cleanmapdir -Dappl9 TMP -C primary
+Command: src/cleanmapdir -Dmisc TMP -C primary
 ERROR SUMMARY: 0 errors from 0 contexts ...
 LEAK SUMMARY:
 Memcheck, a memory error detector
@@ -114,7 +114,7 @@ primary
 === filtered valgrind report ===
 === std err ===
 === std out ===
-Command: src/cleanmapdir -Dappl9 TMP -C primary
+Command: src/cleanmapdir -Dmisc TMP -C primary
 ERROR SUMMARY: 0 errors from 0 contexts ...
 LEAK SUMMARY:
 Memcheck, a memory error detector
@@ -135,7 +135,7 @@ primary
 === filtered valgrind report ===
 === std err ===
 === std out ===
-Command: src/cleanmapdir -Dappl9 TMP -C primary
+Command: src/cleanmapdir -Dmisc TMP -C primary
 ERROR SUMMARY: 0 errors from 0 contexts ...
 LEAK SUMMARY:
 Memcheck, a memory error detector
@@ -153,7 +153,7 @@ primary
 === filtered valgrind report ===
 === std err ===
 === std out ===
-Command: src/cleanmapdir -Dappl9 TMP -C primary
+Command: src/cleanmapdir -Dmisc TMP -C primary
 ERROR SUMMARY: 0 errors from 0 contexts ...
 LEAK SUMMARY:
 Memcheck, a memory error detector
@@ -168,7 +168,7 @@ QA-TEST-PID
 === filtered valgrind report ===
 === std err ===
 === std out ===
-Command: src/cleanmapdir -Dappl9 TMP -C bad
+Command: src/cleanmapdir -Dmisc TMP -C bad
 ERROR SUMMARY: 0 errors from 0 contexts ...
 LEAK SUMMARY:
 Memcheck, a memory error detector
@@ -179,7 +179,7 @@ indirectly lost: 0 bytes in 0 blocks
 === filtered valgrind report ===
 === std err ===
 === std out ===
-Command: src/cleanmapdir -Dappl9 TMP -C bad
+Command: src/cleanmapdir -Dmisc TMP -C bad
 ERROR SUMMARY: 0 errors from 0 contexts ...
 LEAK SUMMARY:
 Memcheck, a memory error detector
@@ -190,7 +190,7 @@ indirectly lost: 0 bytes in 0 blocks
 === filtered valgrind report ===
 === std err ===
 === std out ===
-Command: src/cleanmapdir -Dappl9 TMP -C bad
+Command: src/cleanmapdir -Dmisc TMP -C bad
 ERROR SUMMARY: 0 errors from 0 contexts ...
 LEAK SUMMARY:
 Memcheck, a memory error detector
@@ -201,7 +201,7 @@ indirectly lost: 0 bytes in 0 blocks
 === filtered valgrind report ===
 === std err ===
 === std out ===
-Command: src/cleanmapdir -Dappl9 TMP -C bad
+Command: src/cleanmapdir -Dmisc TMP -C bad
 ERROR SUMMARY: 0 errors from 0 contexts ...
 LEAK SUMMARY:
 Memcheck, a memory error detector
@@ -212,7 +212,7 @@ indirectly lost: 0 bytes in 0 blocks
 === filtered valgrind report ===
 === std err ===
 === std out ===
-Command: src/cleanmapdir -Dappl9 TMP -C bad
+Command: src/cleanmapdir -Dmisc TMP -C bad
 ERROR SUMMARY: 0 errors from 0 contexts ...
 LEAK SUMMARY:
 Memcheck, a memory error detector
@@ -223,7 +223,7 @@ indirectly lost: 0 bytes in 0 blocks
 === filtered valgrind report ===
 === std err ===
 === std out ===
-Command: src/cleanmapdir -Dappl9 TMP -C bad
+Command: src/cleanmapdir -Dmisc TMP -C bad
 ERROR SUMMARY: 0 errors from 0 contexts ...
 LEAK SUMMARY:
 Memcheck, a memory error detector
@@ -237,7 +237,7 @@ indirectly lost: 0 bytes in 0 blocks
 === filtered valgrind report ===
 === std err ===
 === std out ===
-Command: src/cleanmapdir -Dappl9 TMP -C primary
+Command: src/cleanmapdir -Dmisc TMP -C primary
 ERROR SUMMARY: 0 errors from 0 contexts ...
 LEAK SUMMARY:
 Memcheck, a memory error detector
@@ -250,7 +250,7 @@ indirectly lost: 0 bytes in 0 blocks
 === filtered valgrind report ===
 === std err ===
 === std out ===
-Command: src/cleanmapdir -Dappl9 TMP -C foo
+Command: src/cleanmapdir -Dmisc TMP -C foo
 ERROR SUMMARY: 0 errors from 0 contexts ...
 LEAK SUMMARY:
 Memcheck, a memory error detector
@@ -263,7 +263,7 @@ indirectly lost: 0 bytes in 0 blocks
 === filtered valgrind report ===
 === std err ===
 === std out ===
-Command: src/cleanmapdir -Dappl9 TMP -C bar
+Command: src/cleanmapdir -Dmisc TMP -C bar
 ERROR SUMMARY: 0 errors from 0 contexts ...
 LEAK SUMMARY:
 Memcheck, a memory error detector
@@ -276,7 +276,7 @@ indirectly lost: 0 bytes in 0 blocks
 === filtered valgrind report ===
 === std err ===
 === std out ===
-Command: src/cleanmapdir -Dappl9 TMP -C bar
+Command: src/cleanmapdir -Dmisc TMP -C bar
 ERROR SUMMARY: 0 errors from 0 contexts ...
 LEAK SUMMARY:
 Memcheck, a memory error detector
@@ -289,7 +289,7 @@ indirectly lost: 0 bytes in 0 blocks
 === filtered valgrind report ===
 === std err ===
 === std out ===
-Command: src/cleanmapdir -Dappl9 TMP -C bar
+Command: src/cleanmapdir -Dmisc TMP -C bar
 ERROR SUMMARY: 0 errors from 0 contexts ...
 LEAK SUMMARY:
 Memcheck, a memory error detector
@@ -305,7 +305,7 @@ bar
 === filtered valgrind report ===
 === std err ===
 === std out ===
-Command: src/cleanmapdir -Dappl9 TMP -C primary
+Command: src/cleanmapdir -Dmisc TMP -C primary
 ERROR SUMMARY: 0 errors from 0 contexts ...
 LEAK SUMMARY:
 Memcheck, a memory error detector
