@@ -747,6 +747,11 @@ _filter_pmproxy_stop()
     sed \
 	-e "s;$PCP_RC_DIR/pmproxy;\$PCP_RC_DIR/pmproxy;g" \
 	-e '/^Waiting for pmproxy/d' \
+	-e '/Warning: Forcing pmproxy to terminate!/d' \
+	-e '/^\.\.*$/d' \
+	-e '/^Process \.\.\./d' \
+	-e '/^UID/d' \
+	-e '/^pcp .*\/pmproxy/d' \
     | _filter_init_distro
 }
 
