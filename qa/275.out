@@ -469,7 +469,7 @@ expr node <addr-1> type=NAME left=(nil) right=(nil) save_last=0 [sample.seconds]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: sec
 expr node <addr-2> type=NAME left=(nil) right=(nil) save_last=0 [disk.all.total] primary=0
-    PMID: 60.0.29 (60.0.29 from pmDesc) numval: 0
+    PMID: DISK.ALL.TOTAL (DISK.ALL.TOTAL from pmDesc) numval: 0
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 __dmtraverse: name="gcov", omitting invalid child "gcov.c"
