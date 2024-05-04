@@ -73,6 +73,7 @@ s/could be activated/OK/
 s/cannot be activated/OK/
 s/  No systemd unit file installed//
 s/  systemd.s postgresql.service unit is not installed//
+s@  /etc/init.d/postgresql is not installed@@
 s/not currently available .*/metrics from postgresql/
 }' \
 	-e '/^pmda-redis /{
@@ -80,6 +81,8 @@ s/Redis/redis/g
 s/inactive/OK/
 s/could be activated/OK/
 s/cannot be activated/OK/
+s/  systemd.s redis.service unit is not installed//
+s@  /etc/init.d/redis-server is not installed@@
 s/not currently available .*/metrics from redis-server(1)/
 }' \
 	-e '/^pmda-uwsgi /{
@@ -104,14 +107,17 @@ s/Package - not currently available for .*/Package .../
 echo "basic stuff ..."
 # expect most things to be active, but some are optional ...
 #
+# some services need to run as root, even for "status"
+# requests, e.g. redis-server without systemd
+#
 echo '-- no args --'
-pmcheck 2>&1 | _filter_states
+$sudo pmcheck 2>&1 | _filter_states
 echo '-- -l --'
 pmcheck -l
 echo '-- -lv --'
 pmcheck -lv | _filter_states
 echo '-- -s --'
-pmcheck -s 2>&1 | _filter_states
+$sudo pmcheck -s 2>&1 | _filter_states
 
 touch $tmp.pmcheck
 echo
