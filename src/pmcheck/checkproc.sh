@@ -140,13 +140,19 @@ _ctl_svc()
 	if $__use_systemctl
 	then
 	    systemctl show $svc.service >$tmp/_ctl_svc 2>&1
-	    if grep -E '^ActiveState=(active|activating)$' <$tmp/_ctl_svc >/dev/null
+	    if grep -q '^ActiveState=' <$tmp/_ctl_svc
+	    then
+		eval `grep '^ActiveState=' <$tmp/_ctl_svc`
+	    else
+		ActiveState=unknown
+	    fi
+	    if [ "$ActiveState" = active -o "$ActiveState" = activating ]
 	    then
 		# active, all good
 		:
 	    else
 		# not active, need to dig a bit ...
-		if grep '^ActiveState=inactive' <$tmp/_ctl_svc >/dev/null
+		if [ "$ActiveState" = inactive ]
 		then
 		    if grep '^LoadError=.*\.service not found' <$tmp/_ctl_svc >/dev/null
 		    then
@@ -155,10 +161,14 @@ _ctl_svc()
 		    else
 			rc=1
 		    fi
+		elif [ "$ActiveState" = failed ]
+		then
+		    rc=2
+		    echo "systemd's $svc.service unit has failed"
 		else
 		    # no clue ...
-		    echo "systemd $svc.service unit is not active, activating or inactive?"
 		    rc=2
+		    echo "systemd $svc.service unit is status ($ActiveState) unexpected"
 		fi
 	    fi
 	elif $__use_update_invoke

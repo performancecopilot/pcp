@@ -82,6 +82,9 @@ s/inactive/OK/
 s/could be activated/OK/
 s/cannot be activated/OK/
 s/  systemd.s redis.service unit is not installed//
+s/  systemd.s redis.service unit has failed//
+s/  systemd.s redis-server.service unit is not installed//
+s/  systemd.s redis-server.service unit has failed//
 s@  /etc/init.d/redis-server is not installed@@
 s/not currently available .*/metrics from redis-server(1)/
 }' \
