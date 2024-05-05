@@ -395,6 +395,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_CALL);
 		}
 		if ((nlist = (char **)malloc(need)) == NULL) {
 		    free(ilist);
+		    ilist = NULL;
 		    if (need_unlock)
 			PM_UNLOCK(ctxp->c_lock);
 		    sts = -oserror();
