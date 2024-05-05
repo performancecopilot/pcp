@@ -48,7 +48,7 @@ _filter()
 	-e "s@$tmp@TMP@g" \
 	-e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]/DATE/' \
 	-e 's/throttle_timeout([0-9]*)/throttle_timeout(PID)/' \
-	-e 's/\[1[59] messages were/[N messages were/' \
+	-e 's/\[1[5-9] messages were/[N messages were/' \
 	-e 's/\[2[0] messages were/[N messages were/' \
     # end
 }

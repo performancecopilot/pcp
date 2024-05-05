@@ -316,6 +316,11 @@ open_and_acct(const char *path, int do_acct)
     if (acct_file.fd != -1)
 	return 0;
 
+    if (path == NULL || path[0] == '\0') {
+	/* no path, no play */
+	return 0;
+    }
+
     if (do_acct)
 	acct_file.fd = open(path, O_TRUNC|O_CREAT, S_IRUSR);
     else

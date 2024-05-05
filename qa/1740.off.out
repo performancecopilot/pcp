@@ -3,6 +3,12 @@ QA output created by 1740
 === initially disabled ===
 
 
+acct.control.state
+    value 0
+
+acct.control.enable_acct
+    value 0
+
 acct.psinfo.btime
 No value(s) available!
 
@@ -80,6 +86,12 @@ acct.control.enable_acct: new value="1" pmStore: No permission to perform reques
 
 acct.control.enable_acct old value=0 new value=1
 
+acct.control.state
+    value 2
+
+acct.control.enable_acct
+    value 1
+
 acct.psinfo.btime
     inst [N or INSTNAME] value VALUE
 
@@ -152,6 +164,12 @@ acct.id.uid_nm
 === disable accounting ===
 
 acct.control.enable_acct old value=1 new value=0
+
+acct.control.state
+    value 0
+
+acct.control.enable_acct
+    value 0
 
 acct.psinfo.btime
 No value(s) available!

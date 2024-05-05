@@ -86,6 +86,7 @@ id=`pminfo acct.id | LC_COLLATE=POSIX sort`
 
 _pminfo()
 {
+    $sudo pminfo -f acct.control.state acct.control.enable_acct
     for metric in $psinfo $flag $id
     do
 	$sudo pminfo -f $metric | _filter
@@ -102,6 +103,7 @@ _header "enable accounting as non-root"
 pmstore acct.control.enable_acct 1
 _header "enable accounting as root"
 $sudo pmstore acct.control.enable_acct 1
+date >/dev/null
 _pminfo
 
 _header "disable accounting"
