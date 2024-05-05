@@ -23,6 +23,9 @@ fi
 # _notrun if there's no python
 . ./common.python
 
+# labels_changing.py uses this ...
+_need_metric hinv.cpu.clock
+
 _cleanup()
 {
     cd $here
