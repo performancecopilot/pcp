@@ -30,7 +30,7 @@ main(int argc, char **argv)
     int		sts;
     int		i;
     int		lineno;
-    time_t	first_throttle;
+    time_t	first_throttle = 0;
     struct timespec	delay = {0, 250000000};
 
     pmSetProgname(argv[0]);
