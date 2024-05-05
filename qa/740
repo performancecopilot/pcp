@@ -37,8 +37,17 @@ _filter()
     grep -i attribute | \
     sed \
 	-e "s/processid=$pid/processid=PID/" \
+	-e '/processid=/{
+/processid=PID/!d
+}' \
 	-e "s/groupid=$gid/groupid=GID/" \
+	-e '/groupid=/{
+/groupid=GID/!d
+}' \
 	-e "s/userid=$uid/userid=UID/" \
+	-e '/userid=/{
+/userid=UID/!d
+}' \
 	-e '/ctx=[0-9][0-9]*/s//ctx=N/' \
 	-e '/pmdasample([0-9][0-9]*)/s//pmdasample(PID)/' \
 	-e 's/^\[[A-Z].. [A-Z]..  *[0-9][0-9]* ..:..:..]/[DATETIME]/'
@@ -52,19 +61,20 @@ _wait_for_pmcd
 authdbg=`pmdbg -o -l | grep DBG_TRACE_AUTH | awk '{ print $2 }'`
 pmstore sample.control $authdbg
 
-# unix domain fetch (with attribute transfer)
-pminfo -h unix: sample.long.one &
-pid=$!
-uid=`id -u`
-gid=`id -g`
-wait $!
-
 # let pmdasample complete setup
 for i in 1 2 3 4 5 6 7 8 9 10
 do
     [ -f $PCP_LOG_DIR/pmcd/sample.log ] && break
     pmsleep 0.5
 done
+pmsleep 0.5
+
+# unix domain fetch (with attribute transfer)
+pminfo -h unix: sample.long.one &
+pid=$!
+uid=`id -u`
+gid=`id -g`
+wait $!
 
 cat $PCP_LOG_DIR/pmcd/sample.log \
 | tee -a $here/$seq.full \
