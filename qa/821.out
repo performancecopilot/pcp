@@ -473,6 +473,12 @@ No value(s) available!
 mem.util.zswapped
 No value(s) available!
 
+mem.vmmemctl.current
+    value 0
+
+mem.vmmemctl.target
+    value 0
+
 mem.vmstat.allocstall
     value 0
 
