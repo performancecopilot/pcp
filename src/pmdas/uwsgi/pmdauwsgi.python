@@ -121,6 +121,7 @@ class UwsgiPMDA(PMDA):
 
         PMDA.__init__(self, name, domain)
         self.timeout = DEFAULT_TIMEOUT
+        self.summary = UWSGISUMMARY()
         self.host = DEFAULT_HOST
         self.port = DEFAULT_PORT
         self.get_failed = False
@@ -129,9 +130,7 @@ class UwsgiPMDA(PMDA):
         self.connect_pmcd()
 
         # Define the instance domains pointing to the dicts
-        #self.summary_indom = self.indom(0)
         self.workers_indom = self.indom(0)
-        #self.add_indom(pmdaIndom(self.summary_indom, self.summary))
         self.add_indom(pmdaIndom(self.workers_indom, self.workers))
 
         # define the Summary (roll up, at-a-glance numbers)
@@ -147,14 +146,14 @@ class UwsgiPMDA(PMDA):
         #           .total_pause_worker_count
 
         self.add_metric(name + '.summary.total_workers', pmdaMetric(PMDA.pmid(UwsgiPMDA.UWSGI_SUMMARY, 0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, pmUnits()), "Total number of uwsgi workers")
-        self.add_metric(name + '.summary.avg_response_time_msec', pmdaMetric(PMDA.pmid(UwsgiPMDA.UWSGI_SUMMARY, 1), PM_TYPE_DOUBLE, PM_INDOM_NULL, PM_SEM_COUNTER, pmUnits()), "Average response time across all workers")
-        self.add_metric(name + '.summary.total_requests_served', pmdaMetric(PMDA.pmid(UwsgiPMDA.UWSGI_SUMMARY, 2), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, pmUnits()), "Total requests served across all workers")
-        self.add_metric(name + '.summary.total_workers_accepting_requests', pmdaMetric(PMDA.pmid(UwsgiPMDA.UWSGI_SUMMARY, 3), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, pmUnits()), "Total number of workers accepting requests")
-        self.add_metric(name + '.summary.total_exceptions', pmdaMetric(PMDA.pmid(UwsgiPMDA.UWSGI_SUMMARY, 4), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, pmUnits()), "Total exceptions across all workers")
-        self.add_metric(name + '.summary.total_harakiri_count', pmdaMetric(PMDA.pmid(UwsgiPMDA.UWSGI_SUMMARY, 5), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, pmUnits()), "Total harakiri count across all workers")
-        self.add_metric(name + '.summary.total_busy_worker_count', pmdaMetric(PMDA.pmid(UwsgiPMDA.UWSGI_SUMMARY, 6), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, pmUnits()), "Total number of busy workers")
-        self.add_metric(name + '.summary.total_idle_worker_count', pmdaMetric(PMDA.pmid(UwsgiPMDA.UWSGI_SUMMARY, 7), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, pmUnits()), "Total number of idle workers")
-        self.add_metric(name + '.summary.total_pause_worker_count', pmdaMetric(PMDA.pmid(UwsgiPMDA.UWSGI_SUMMARY, 8), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, pmUnits()), "Total number of pause workers")
+        self.add_metric(name + '.summary.avg_response_time_msec', pmdaMetric(PMDA.pmid(UwsgiPMDA.UWSGI_SUMMARY, 1), PM_TYPE_DOUBLE, PM_INDOM_NULL, PM_SEM_INSTANT, pmUnits()), "Average response time across all current workers")
+        self.add_metric(name + '.summary.total_requests_served', pmdaMetric(PMDA.pmid(UwsgiPMDA.UWSGI_SUMMARY, 2), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, pmUnits()), "Total requests served by all workers since starting")
+        self.add_metric(name + '.summary.total_workers_accepting_requests', pmdaMetric(PMDA.pmid(UwsgiPMDA.UWSGI_SUMMARY, 3), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, pmUnits()), "Number of current workers accepting requests")
+        self.add_metric(name + '.summary.total_exceptions', pmdaMetric(PMDA.pmid(UwsgiPMDA.UWSGI_SUMMARY, 4), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, pmUnits()), "Total exceptions across all workers since starting")
+        self.add_metric(name + '.summary.total_harakiri_count', pmdaMetric(PMDA.pmid(UwsgiPMDA.UWSGI_SUMMARY, 5), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, pmUnits()), "Total harakiri count across all workers since starting")
+        self.add_metric(name + '.summary.total_busy_worker_count', pmdaMetric(PMDA.pmid(UwsgiPMDA.UWSGI_SUMMARY, 6), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, pmUnits()), "Number of busy workers currently")
+        self.add_metric(name + '.summary.total_idle_worker_count', pmdaMetric(PMDA.pmid(UwsgiPMDA.UWSGI_SUMMARY, 7), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, pmUnits()), "Number of idle workers currently")
+        self.add_metric(name + '.summary.total_pause_worker_count', pmdaMetric(PMDA.pmid(UwsgiPMDA.UWSGI_SUMMARY, 8), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, pmUnits()), "Number of pause workers currently")
 
         # Add the uwsgi worker metrics (metrics per worker)
         # uwsgi.worker
@@ -179,16 +178,21 @@ class UwsgiPMDA(PMDA):
         self.set_user(PCP.pmGetConfig('PCP_USER'))
 
     def refresh_all(self):
+        stats = {}
+        stats['workers'] = []
+
         try:
             stats = requests.get(self.url, timeout=self.timeout).json()
-            self.get_failed = False
             #self.log("refresh_all stats:", str(stats))
+            self.get_failed = False
         except Exception:
             self.get_failed = True
-            return
 
         avg_response_time_msec = 0
-        summary = UWSGISUMMARY()
+        # pass any persistent long-running counters into the constructor
+        summary = UWSGISUMMARY(req=self.summary.total_requests_served,
+                               harakiri=self.summary.total_harakiri_count,
+                               exception=self.summary.total_exceptions)
         for w in stats['workers']:
             worker_id = w['id']
             worker = WORKER()
@@ -212,8 +216,11 @@ class UwsgiPMDA(PMDA):
             elif worker.status == 'pause':
                 summary.total_pause_worker_count += 1
             avg_response_time_msec += worker.avg_rt
-            self.workers[str(worker_id)] = worker
-        summary.avg_response_time_msec = avg_response_time_msec/summary.total_workers
+            self.workers['worker-'+str(worker_id)] = worker
+
+        summary.avg_response_time_msec = avg_response_time_msec
+        if summary.total_workers > 1:  # divide-by-zero guard
+            summary.avg_response_time_msec /= summary.total_workers
         self.summary = summary
 
     def read_config(self):
