@@ -21,6 +21,8 @@ typedef struct {
 	int		valid_uevent_seqnum;
 	uint32_t	zswap_max_pool_percent;
 	char		zswap_enabled[4];
+	uint64_t	vmmemctl_current; /* /sys/kernel/debug/vmmemctl */
+	uint64_t	vmmemctl_target;
 } sysfs_kernel_t;
 
 /* refresh sysfs_kernel */

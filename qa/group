@@ -2003,6 +2003,7 @@ x11
 1589 pcp2json pcp2xxx python local
 1591 archive archive_v3 local
 1592 archive archive_v3 local valgrind
+1595 pmda.linux local
 1598 pmda.statsd local
 1599 pmda.statsd local
 1600 pmseries pmcd pmproxy pmlogger local

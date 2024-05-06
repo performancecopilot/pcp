@@ -745,7 +745,7 @@ HandleReadyAgents(__pmFdSet *readyFds)
 }
 
 static void
-CheckNewClient(__pmFdSet * fdset, int rfd, int family)
+CheckNewClient(__pmFdSet *fdset, int rfd, int family)
 {
     int		s, sts, accepted = 1;
     __uint32_t	challenge;

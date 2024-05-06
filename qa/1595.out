@@ -1,0 +1,42 @@
+QA output created by 1595
+== Valgrind checking vmmemctl metric metadata - sysfs-vmmemctl-001
+=== std out ===
+
+mem.vmmemctl.current PMID: 60.35.4 [Virtual machine balloon memory actually allocated]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: byte
+Help:
+Virtual machine balloon memory actually allocated
+
+mem.vmmemctl.target PMID: 60.35.5 [Virtual machine balloon memory allocation target size]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: byte
+Help:
+Virtual machine balloon memory allocation target size
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -K clear -K add,60,PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init -dmtT mem.vmmemctl.current mem.vmmemctl.target
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+== Valgrind checking vmmemctl metric values - sysfs-vmmemctl-001
+=== std out ===
+
+mem.vmmemctl.current PMID: 60.35.4
+    value 4194304000
+
+mem.vmmemctl.target PMID: 60.35.5
+    value 4193390592
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -K clear -K add,60,PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init -fm mem.vmmemctl.current mem.vmmemctl.target
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+== done
+
