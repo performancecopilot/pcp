@@ -126,6 +126,7 @@
 1546	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
 1547	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
 1549	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+1623	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
 1671	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
 1793	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
 # and these ones are just localtime() botched, no Python involved
