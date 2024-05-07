@@ -112,7 +112,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Install Dependencies
-      run: brew install automake pkg-config
+      run: brew install automake pkg-config openssl libuv
     - name: Build packages
       # python disabled for now until brew build without distutils
       run: ./Makepkgs --verbose --with-python=no --with-python3=no
