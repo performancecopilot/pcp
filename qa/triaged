@@ -50,7 +50,9 @@
 			Conditional jump or move depends on uninitialised value
 			at 0x11F1D2: deviattask (deviate.c:340)
 			but this seems bogus and is not seen elsewhere
+1171	openSUSE Leap 15.6	bcc module profile => LLVM ERROR: and no details
 1173	Fedora 38	pmdabcc cannot get the ucalls module to work here
+1179	openSUSE Leap 15.6	bcc module ustat => bpf: Argument list too long
 1210	vm[0-9][0-9]	may collide with pmlogger_check and (correctly)
 			detects presence of /etc/pcp/pmlogger/lock
 1290	Debian 1[01]	valgrind-reported issues in libpcp_web redis i/o functions
@@ -126,6 +128,7 @@
 1546	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
 1547	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
 1549	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+1623	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
 1671	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
 1793	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
 # and these ones are just localtime() botched, no Python involved

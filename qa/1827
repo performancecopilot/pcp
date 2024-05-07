@@ -13,6 +13,8 @@ echo "QA output created by $seq"
 . ./common.python
 
 which pcp2openmetrics >/dev/null 2>&1 || _notrun "pcp2openmetrics not installed"
+$python -c "from http.server import BaseHTTPRequestHandler, HTTPServer" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python import from http.server failed"
 
 _cleanup()
 {

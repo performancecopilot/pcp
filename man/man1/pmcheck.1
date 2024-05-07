@@ -436,6 +436,19 @@ or
 options are used, the success or failure of the reconfiguration is
 reported on standard output.
 .PD
+.SH CAVEAT
+Some components have prerequisites that demand additional non-PCP services be
+installed, configured and operational, e.g. a database server or a key-value
+server.
+In these cases, probing the status of the non-PCP service may be subject to
+some access controls and if
+.B pmcheck
+is run as a non-root user, then the output from
+.B \-s
+(the default)
+may be incomplete or misleading; in these circumstances, running
+.B pmcheck
+as root should provide a more accurate report.
 .SH PCP ENVIRONMENT
 Environment variables with the prefix \fBPCP_\fP are used to parameterize
 the file and directory names used by PCP.
