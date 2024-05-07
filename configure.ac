@@ -267,7 +267,7 @@ elif test $target_os = darwin
 then
     AC_DEFINE(IS_DARWIN, [1], [Platform is Darwin (Mac OS X)])
     target_distro=macosx
-    export CFLAGS="-fPIC -no-cpp-precomp -fno-strict-aliasing -arch $target_cpu"
+    export CFLAGS="-fPIC -no-cpp-precomp -fno-strict-aliasing"
     pcp_platform_paths='/usr/local/bin:/opt/homebrew/bin'
     pcp_ps_all_flags="-axw -o user,pid,ppid,cpu,stime,tty,time,command"
 elif test $target_os = mingw
@@ -2432,14 +2432,7 @@ _do_type()
     #   typedef long __pid_t;
     #   typedef __pid_t pid_t;
     #
-    if test $target_os = darwin
-    then
-	# Need to strip -arch foo args for gcc -E
-	_myflags=`echo "$CPPFLAGS" "$CFLAGS" | sed -e 's/-arch [[^ ]]*//g'`
-    else
-	_myflags="$CPPFLAGS $CFLAGS"
-    fi
-    _raw=`$CPP $_myflags conftest.c \
+    _raw=`$CPP $CPPFLAGS $CFLAGS conftest.c \
     | $SED \
 	-e 's/[[ 	]]__attribute__ ((.*));/;/' \
 	-e 's/__extension__[[ 	]][[ 	]]*//' \
