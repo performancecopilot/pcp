@@ -278,6 +278,7 @@ logging_send_syslog_msg(pcp_pmie_t)
 systemd_exec_systemctl(pcp_pmie_t)
 systemd_read_unit_files(pcp_pmie_t)
 systemd_search_unit_dirs(pcp_pmie_t)
+systemd_status_systemd_services(pcp_pmie_t)
 
 userdom_read_user_tmp_files(pcp_pmie_t)
 
@@ -326,6 +327,7 @@ logging_send_syslog_msg(pcp_pmlogger_t)
 
 systemd_exec_systemctl(pcp_pmlogger_t)
 systemd_getattr_unit_files(pcp_pmlogger_t)
+systemd_status_systemd_services(pcp_pmlogger_t)
 
 userdom_manage_tmp_dirs(pcp_pmlogger_t)
 userdom_manage_tmp_files(pcp_pmlogger_t)

@@ -458,6 +458,26 @@ ifndef(`init_manage_script_tmp_files',`
 
 ########################################
 ## <summary>
+##      Dummy systemd_status_systemd_services().
+##      Needed for pmie/pmlogger on some platforms, but if you
+##      don't have systemd_status_systemd_services() definition
+##      nothing needs to be done.
+## <param name="domain">
+##      <summary>
+##      Domain allowed access.
+##      </summary>
+## </summary> 
+#
+ifndef(`systemd_status_systemd_services',`
+    interface(`systemd_status_systemd_services',`
+        gen_require(`
+            type $1;
+        ')
+    ')
+')
+
+########################################
+## <summary>
 ##      Dummy userdom_manage_tmp_dirs().
 ##      Needed for zimbra PMDA on some platforms, but if you
 ##      don't have userdom_manage_tmp_dirs() definition
