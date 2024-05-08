@@ -37,7 +37,7 @@ WriteMakefile(
     OPTIMIZE		=> '-g',
     XSPROTOARG		=> '-noprototypes',
     OBJECT		=> 'MMV.o',
-    DEFINE		=> '-DPERLIO_NOT_STDIO=0 -DPCP_VERSION',
+    DEFINE		=> '-DPERLIO_NOT_STDIO=0 -DPCP_VERSION -D_TIME_BITS=64 -D_FILE_OFFSET_BITS=64',
     LDFROM		=> $ldfrom,
     LDDLFLAGS		=> $lddlflags,
     CCCDLFLAGS		=> $cccdlflags,

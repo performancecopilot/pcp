@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2015,2017-2021 Red Hat.
+ * Copyright (C) 2013-2015,2017-2021,2024 Red Hat.
  *
  * This file is part of the "pcp" module, the python interfaces for the
  * Performance Co-Pilot toolkit.
@@ -21,6 +21,8 @@
  * python PMDAs via the pmda.py module, using ctypes.
  */
 #define PY_SSIZE_T_CLEAN
+#define _FILE_OFFSET_BITS 64
+#define _TIME_BITS 64
 #include <Python.h>
 #include <pcp/pmapi.h>
 #include <pcp/pmda.h>
