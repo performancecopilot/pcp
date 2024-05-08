@@ -478,6 +478,26 @@ ifndef(`systemd_status_systemd_services',`
 
 ########################################
 ## <summary>
+##      Dummy fs_dontaudit_getattr_nsfs_files().
+##      Needed for pmie/pmlogger on some platforms, but if you
+##      don't have fs_dontaudit_getattr_nsfs_files() definition
+##      nothing needs to be done.
+## <param name="domain">
+##      <summary>
+##      Domain allowed access.
+##      </summary>
+## </summary> 
+#
+ifndef(`fs_dontaudit_getattr_nsfs_files',`
+    interface(`fs_dontaudit_getattr_nsfs_files',`
+        gen_require(`
+            type $1;
+        ')
+    ')
+')
+
+########################################
+## <summary>
 ##      Dummy userdom_manage_tmp_dirs().
 ##      Needed for zimbra PMDA on some platforms, but if you
 ##      don't have userdom_manage_tmp_dirs() definition

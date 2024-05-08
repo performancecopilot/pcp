@@ -266,6 +266,7 @@ corecmd_getattr_all_executables(pcp_pmie_t)
 
 domain_read_all_domains_state(pcp_pmie_t)
 
+fs_dontaudit_getattr_nsfs_files(pcp_pmie_t)
 fs_search_cgroup_dirs(pcp_pmie_t)
 
 init_status(pcp_pmie_t)
@@ -314,6 +315,7 @@ corenet_tcp_bind_generic_node(pcp_pmlogger_t)
 
 domain_read_all_domains_state(pcp_pmlogger_t)
 
+fs_dontaudit_getattr_nsfs_files(pcp_pmlogger_t)
 fs_mount_tracefs(pcp_pmlogger_t)
 fs_getattr_all_fs(pcp_pmlogger_t)
 
