@@ -2020,6 +2020,20 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_CALL);
     }
 
     /*
+     * There are multiple levels of name masking that may be in play
+     * with derived metrics in an archive (PMID mapped), derived metrics,
+     * and real metrics from the current context.
+     *
+     * If -Dderive, then go check and report.
+     */
+    if (pmDebugOptions.derive) {
+	for (i = 0; i < numpmid; i++) {
+	    if (pmidlist[i] != PM_ID_NULL)
+		__dmcheckname(ctxp, derive_locked, namelist[i], pmidlist[i]);
+	}
+    }
+
+    /*
      * special case for a single metric, PM_ERR_NAME is more helpful than
      * returning 0 and having one PM_ID_NULL pmid
      */

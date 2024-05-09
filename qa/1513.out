@@ -1,0 +1,100 @@
+QA output created by 1513
+=== No derived metrics ===
+Note: timezone set to local timezone of host "bozo.localdomain" from archive
+
+metric:    disk.dev.await
+archive:   archives/derive
+host:      bozo.localdomain
+start:     Thu May  9 10:19:39 2024
+end:       Thu May  9 10:19:47 2024
+semantics: instantaneous value
+units:     millisec / count
+samples:   5
+interval:  2.00 sec
+10:19:39.873  No values available
+10:19:41.873  No values available
+
+                              sdb                   sda                   sdd                   sdc                   sde 
+10:19:43.873               1.830                 6.250                11.40                  0.0                   0.0    
+10:19:45.873               5.327                 0.0                   0.5000                1.265                 0.0    
+10:19:47.873               2.791                 0.0                   1.725                 0.0                   3.600  
+
+=== disk.dev.await is a per-context derived metric ===
+
+disk.dev.await
+    Data Type: double  InDom: 60.1 0xf000001
+    Semantics: instant  Units: millisec / count
+No value(s) available!
+Warning: disk.dev.await [511.2048.5 archive context, remapped] masks per-context derived metric [511.2047.1023] with the same name
+Warning: disk.dev.await [511.2048.5 archive context, remapped] masks per-context derived metric [511.2047.1023] with the same name
+
+=== disk.dev.await is a global derived metric ===
+Note: timezone set to local timezone of host "bozo.localdomain" from archive
+
+metric:    disk.dev.await
+archive:   archives/derive
+host:      bozo.localdomain
+start:     Thu May  9 10:19:39 2024
+end:       Thu May  9 10:19:47 2024
+semantics: instantaneous value
+units:     millisec / count
+samples:   5
+interval:  2.00 sec
+10:19:39.873  No values available
+10:19:41.873  No values available
+
+                              sdb                   sda                   sdd                   sdc                   sde 
+10:19:43.873               1.830                 6.250                11.40                  0.0                   0.0    
+10:19:45.873               5.327                 0.0                   0.5000                1.265                 0.0    
+10:19:47.873               2.791                 0.0                   1.725                 0.0                   3.600  
+Warning: disk.dev.await [511.2048.5 archive context, remapped] masks global derived metric [511.0.3] with the same name
+
+=== disk.dev.await is both a global and a per-context derived metric ===
+
+disk.dev.await
+    Data Type: double  InDom: 60.1 0xf000001
+    Semantics: instant  Units: millisec / count
+No value(s) available!
+Warning: disk.dev.await [511.2048.5 archive context, remapped] masks global derived metric [511.0.3] with the same name
+Warning: disk.dev.await [511.2048.5 archive context, remapped] masks per-context derived metric [511.2047.1023] with the same name
+Warning: disk.dev.await [511.2048.5 archive context, remapped] masks global derived metric [511.0.3] with the same name
+Warning: disk.dev.await [511.2048.5 archive context, remapped] masks per-context derived metric [511.2047.1023] with the same name
+
+=== and again for a host context ===
+
+disk.dev.await
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+    inst [100 or "bin-100"] value 100
+    inst [200 or "bin-200"] value 200
+    inst [300 or "bin-300"] value 300
+    inst [400 or "bin-400"] value 400
+    inst [500 or "bin-500"] value 500
+    inst [600 or "bin-600"] value 600
+    inst [700 or "bin-700"] value 700
+    inst [800 or "bin-800"] value 800
+    inst [900 or "bin-900"] value 900
+Warning: disk.dev.await [511.2047.1023 derived] masks global derived metric [511.0.3] with the same name
+Warning: disk.dev.await [511.2047.1023 derived] masks global derived metric [511.0.3] with the same name
+
+=== sample.colour is global derived metric and real host metric ===
+
+sample.colour
+    Data Type: 32-bit int  InDom: 29.1 0x7400001
+    Semantics: instant  Units: none
+    inst [0 or "red"] value 137
+    inst [1 or "green"] value 238
+    inst [2 or "blue"] value 339
+Warning: sample.colour [29.0.5 host context] masks global derived metric [511.0.4] with the same name
+Warning: sample.colour [29.0.5 host context] masks global derived metric [511.0.4] with the same name
+
+=== sample.colour is per-context derived metric and real host metric ===
+
+sample.colour
+    Data Type: 32-bit int  InDom: 29.1 0x7400001
+    Semantics: instant  Units: none
+    inst [0 or "red"] value 140
+    inst [1 or "green"] value 241
+    inst [2 or "blue"] value 342
+Warning: sample.colour [29.0.5 host context] masks per-context derived metric [511.2047.1023] with the same name
+Warning: sample.colour [29.0.5 host context] masks per-context derived metric [511.2047.1023] with the same name

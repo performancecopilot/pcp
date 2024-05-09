@@ -1291,7 +1291,8 @@ PCP_CALL extern char *pmGetProgname(void);
  */
 #define DYNAMIC_PMID	511
 #define IS_DYNAMIC_ROOT(x) (pmID_domain(x) == DYNAMIC_PMID && pmID_item(x) == 0)
-#define IS_DERIVED(x) (pmID_domain(x) == DYNAMIC_PMID && (pmID_cluster(x) & 2048) == 0 && pmID_item(x) != 0)
+#define IS_DERIVED(x) (pmID_domain(x) == DYNAMIC_PMID && (pmID_cluster(x) & 2048) != 2048 && pmID_item(x) != 0)
+#define IS_DERIVED_LOGGED(x) (pmID_domain(x) == DYNAMIC_PMID && (pmID_cluster(x) & 2048) == 2048 && pmID_item(x) != 0)
 
 /*
  * pmID helper functions

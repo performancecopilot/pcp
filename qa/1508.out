@@ -101,7 +101,7 @@ expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [some.other.no.suc
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: 0.0 0x0
     Semantics: ??? (0)  Units: none
-__dmtraverse: name="qa", omitting invalid child "qa.bad.d"
+__dmtraverse: name="qa", omitting invalid child qa.bad.d [511.0.16]
 __dmgetpmid: metric "qa.bad.e" -> PMID 511.0.17
 __dmgetpmid: metric "sample.long.ten.bad" -> Unknown metric name
 Semantic error: ternary op: metric "sample.long.ten.bad" not found for <left-expr>
@@ -129,7 +129,7 @@ expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] prima
     PMID: 29.0.6 (29.0.6 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
-__dmtraverse: name="qa", omitting invalid child "qa.bad.e"
+__dmtraverse: name="qa", omitting invalid child qa.bad.e [511.0.17]
 __dmgetpmid: metric "qa.bad.f" -> PMID 511.0.18
 __dmgetpmid: metric "sample.bin.bad" -> Unknown metric name
 Semantic error: ternary op: metric "sample.bin.bad" not found for <right-expr>
@@ -161,7 +161,7 @@ expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin.bad] p
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: 0.0 0x0
     Semantics: ??? (0)  Units: none
-__dmtraverse: name="qa", omitting invalid child "qa.bad.f"
+__dmtraverse: name="qa", omitting invalid child qa.bad.f [511.0.18]
 __dmgetpmid: metric "qa.bad.g" -> PMID 511.0.19
 __dmgetpmid: metric "sample.long.hundred.bad" -> Unknown metric name
 Semantic error: ternary op: metric "sample.long.hundred.bad" not found for <left-expr>
@@ -188,7 +188,7 @@ expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] prima
     PMID: 29.0.6 (29.0.6 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
-__dmtraverse: name="qa", omitting invalid child "qa.bad.g"
+__dmtraverse: name="qa", omitting invalid child qa.bad.g [511.0.19]
 __dmgetpmid: metric "qa.bad.h" -> PMID 511.0.20
 __dmgetpmid: metric "sample.long.hundred.bad" -> Unknown metric name
 Semantic error: ternary op: metric "sample.long.hundred.bad" not found for <left-expr>
@@ -223,7 +223,7 @@ expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] prima
     PMID: 29.0.6 (29.0.6 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
-__dmtraverse: name="qa", omitting invalid child "qa.bad.h"
+__dmtraverse: name="qa", omitting invalid child qa.bad.h [511.0.20]
 __dmgetpmid: metric "qa.bad.i" -> PMID 511.0.21
 __dmgetpmid: metric "sample.bin.bad" -> Unknown metric name
 Semantic error: ternary op: metric "sample.bin.bad" not found for <right-expr>
@@ -266,7 +266,7 @@ expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin.bad] p
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: 0.0 0x0
     Semantics: ??? (0)  Units: none
-__dmtraverse: name="qa", omitting invalid child "qa.bad.i"
+__dmtraverse: name="qa", omitting invalid child qa.bad.i [511.0.21]
 __dmgetpmid: metric "qa.ten.a" -> PMID 511.0.22
 __dmtraverse: name="qa" added "qa.ten.a"
 __dmgetpmid: metric "qa.ten.b" -> PMID 511.0.23

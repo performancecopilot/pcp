@@ -597,14 +597,17 @@ bind_expr(__pmContext *ctxp, int n, node_t *np, node_t *parent, int lookup_mode,
 {
     node_t	*new;
     int		next_lookup = lookup_mode;
+    ctl_t		*cp;
 
     PM_ASSERT_IS_LOCKED(registered.mutex);
     assert(np != NULL);
 
     if (is_global)
 	new = newnode(np->type);
-    else
+    else {
 	new = np;
+	cp = (ctl_t *)ctxp->c_dm;
+    }
 
     if (np->type == N_QUEST) {
 	/*
@@ -701,7 +704,10 @@ bind_expr(__pmContext *ctxp, int n, node_t *np, node_t *parent, int lookup_mode,
 	    }
 	    if (pmDebugOptions.derive) {
 		char	errmsg[PM_MAXERRMSGLEN];
-		fprintf(stderr, "bind_expr: error: derived metric %s: operand: %s: %s\n", registered.mlist[n].name, new->value, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+		if (is_global)
+		    fprintf(stderr, "bind_expr: error: global derived metric %s: operand: %s: %s\n", registered.mlist[n].name, new->value, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+		else
+		    fprintf(stderr, "bind_expr: error: per-context derived metric %s: operand: %s: %s\n", cp->mlist[n].name, new->value, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	    }
 	    if (is_global)
 		free_expr(new);
@@ -722,8 +728,12 @@ bind_expr(__pmContext *ctxp, int n, node_t *np, node_t *parent, int lookup_mode,
 	    parent != NULL && parent->type != N_NOVALUE &&
 	    parent->type != N_INTEGER && parent->type != N_DOUBLE) {
 	    PM_TPD(derive_errmsg) = "Illegal nested derived metric";
-		if (async)
-		    report_sem_error(registered.mlist[n].name, np);
+		if (async) {
+		    if (is_global)
+			report_sem_error(registered.mlist[n].name, np);
+		    else
+			report_sem_error(cp->mlist[n].name, np);
+		}
 	    if (is_global)
 		free_expr(new);
 	    return NULL;
@@ -735,7 +745,10 @@ bind_expr(__pmContext *ctxp, int n, node_t *np, node_t *parent, int lookup_mode,
 	    if (pmDebugOptions.derive) {
 		char	strbuf[20];
 		char	errmsg[PM_MAXERRMSGLEN];
-		fprintf(stderr, "bind_expr: error: derived metric %s: operand (%s [%s]): %s\n", registered.mlist[n].name, new->value, pmIDStr_r(new->data.info->pmid, strbuf, sizeof(strbuf)), pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+		if (is_global)
+		    fprintf(stderr, "bind_expr: error: global derived metric %s: operand (%s [%s]): %s\n", registered.mlist[n].name, new->value, pmIDStr_r(new->data.info->pmid, strbuf, sizeof(strbuf)), pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+		else
+		    fprintf(stderr, "bind_expr: error: per-context derived metric %s: operand (%s [%s]): %s\n", cp->mlist[n].name, new->value, pmIDStr_r(new->data.info->pmid, strbuf, sizeof(strbuf)), pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	    }
 	    if (is_global)
 		free_expr(new);
@@ -2643,17 +2656,9 @@ addderived(const char *name, const char *expr, char **p)
 		PM_UNLOCK(ctxp->c_lock);
 		return PM_ERR_BADDERIVE;
 	    }
-	    else {
-		/*
-		 * global name same as per-context name, the latter wins
-		 * and the former is "masked"
-		 */
-		cp->mlist[i].flags |= DM_MASKED;
-		if (pmDebugOptions.derive)
-		    fprintf(stderr, "pmAddDerived(ctx->%d): per-context metric \"%s\" masks global derived metric of the same name\n", ctxp->c_handle, name);
-	    }
 	}
     }
+
     if (pmDebugOptions.derive && pmDebugOptions.appl0 &&
         pmDebugOptions.desperate) {
 	/* turn on bison diagnostics */
@@ -2702,6 +2707,27 @@ PM_FAULT_POINT("libpcp/derive.c:2", PM_FAULT_MISC);
 	    PM_TPD(derive_errmsg) = "per-context PMID space exhausted";
 	    PM_UNLOCK(ctxp->c_lock);
 	    return PM_ERR_BADDERIVE;
+	}
+    }
+
+    /*
+     * check for masking ...
+     */
+    for (i = 0; i < cp->nmetric; i++) {
+	if (strcmp(name, cp->mlist[i].name) == 0) {
+	    /*
+	     * global name same as per-context name, the latter wins
+	     * and the former is "masked"
+	     */
+	    cp->mlist[i].flags |= DM_MASKED;
+	    if (pmDebugOptions.derive && pmDebugOptions.appl0) {
+		char	strbuf[20];
+		fprintf(stderr, "pmAddDerived(ctx->%d): per-context metric \"%s\" [%s]",
+		    ctxp->c_handle, name,
+		    pmIDStr_r(*((pmID *)&pmid), strbuf, sizeof(strbuf)));
+		fprintf(stderr, " masks global derived metric of the same name [%s]\n",
+		    pmIDStr_r(cp->mlist[i].pmid, strbuf, sizeof(strbuf)));
+	    }
 	}
     }
 
@@ -3139,8 +3165,12 @@ __dmtraverse(__pmContext *ctxp, const char *name, char ***namelist)
 	    if (!cp->mlist[i].anon) {
 		if ((cp->mlist[i].flags & DM_BIND) && cp->mlist[i].expr == NULL) {
 		    if (pmDebugOptions.derive) {
-			fprintf(stderr, "__dmtraverse: name=\"%s\", omitting invalid child \"%s\"\n",
-			    name, cp->mlist[i].name);
+			char	strbuf[20];
+			fprintf(stderr, "__dmtraverse: name=\"%s\", omitting %s child %s [%s]\n",
+			    name,
+			    cp->mlist[i].flags & DM_MASKED ? "masked" : "invalid",
+			    cp->mlist[i].name,
+			    pmIDStr_r(cp->mlist[i].pmid, strbuf, sizeof(strbuf)));
 		    }
 		    continue;
 		}
@@ -3387,7 +3417,7 @@ __dmgetname(__pmContext *ctxp, pmID pmid, char ** name)
     if (cp == &registered) {
 	if (pmDebugOptions.derive && pmDebugOptions.appl2) {
 	    char	strbuf[20];
-	    fprintf(stderr, "__dmgetname: using registered for pmID %s\n", pmIDStr_r(pmid, strbuf, sizeof(strbuf)));
+	    fprintf(stderr, "__dmgetname: using registered for PMID %s\n", pmIDStr_r(pmid, strbuf, sizeof(strbuf)));
 	}
     }
     else if (cp->glob_last < registered.nmetric)
@@ -3414,6 +3444,75 @@ __dmgetname(__pmContext *ctxp, pmID pmid, char ** name)
     }
     PM_UNLOCK(registered.mutex);
     return PM_ERR_PMID;
+}
+
+/*
+ * Look for name masking ... this looks a lot like __dmgetpmid() only
+ * we keep iterating and don't skip masked global drived metrics.
+ *
+ * Only called if -Dderive, so can skip that guard
+ */
+void
+__dmcheckname(__pmContext *ctxp, int derive_locked, const char *name, pmID pmid)
+{
+    int		i;
+    ctl_t	*cp;
+    char	strbuf[20];
+
+    if (derive_locked == PM_NOT_LOCKED) {
+	PM_LOCK(registered.mutex);
+	__dminit();
+    }
+    else {
+	PM_ASSERT_IS_LOCKED(registered.mutex);
+    }
+
+    if ((cp = getctl(ctxp)) == NULL)
+	/* PMNS operations are safe, even below PMCS */
+    	cp = &registered;
+
+    if (cp == &registered) {
+	if (pmDebugOptions.derive && pmDebugOptions.appl2)
+	    fprintf(stderr, "__dmcheckname: using registered for metric \"%s\"\n", name);
+    }
+    else if (cp->glob_last < registered.nmetric)
+	refresh(ctxp);
+
+    for (i = 0; i < cp->nmetric; i++) {
+	if (strcmp(name, cp->mlist[i].name) == 0) {
+	    if (cp->mlist[i].pmid == pmid)
+		continue;
+	    fprintf(stderr, "Warning: %s [%s",
+		name, pmIDStr_r(pmid, strbuf, sizeof(strbuf)));
+	    if (IS_DERIVED(pmid)) {
+		fprintf(stderr, " derived");
+	    }
+	    else {
+		switch (ctxp->c_type) {
+		    case PM_CONTEXT_HOST:
+			fprintf(stderr, " host");
+			break;
+		    case PM_CONTEXT_ARCHIVE:
+			fprintf(stderr, " archive");
+			break;
+		    case PM_CONTEXT_LOCAL:
+			fprintf(stderr, " local");
+			break;
+		    default:
+			fprintf(stderr, " unknown");
+			break;
+		}
+		fprintf(stderr, " context");
+	    }
+	    if (IS_DERIVED_LOGGED(pmid))
+		fprintf(stderr, ", remapped");
+	    fprintf(stderr, "] masks %s derived metric [%s] with the same name\n",
+		    cp->mlist[i].flags & DM_GLOBAL ? "global" : "per-context",
+		    pmIDStr_r(cp->mlist[i].pmid, strbuf, sizeof(strbuf)));
+	}
+    }
+    if (derive_locked == PM_NOT_LOCKED)
+	PM_UNLOCK(registered.mutex);
 }
 
 /*
@@ -3455,11 +3554,7 @@ __dmbind(int derive_locked, __pmContext *ctxp, int i, int async)
 	 */
 	sts = pmLookupName_ctx(ctxp, PM_LOCKED, 1, (const char **)&cp->mlist[i].name, &pmid);
 	if (sts >= 0 && !IS_DERIVED(pmid)) {
-	    if (pmDebugOptions.derive) {
-		char	strbuf[20];
-		fprintf(stderr, "Warning: %s: derived name matches metric %s: derived ignored\n",
-		    cp->mlist[i].name, pmIDStr_r(pmid, strbuf, sizeof(strbuf)));
-	    }
+	    /* use metric of same name from context, not the derived one */
 	    cp->mlist[i].expr = NULL;
 	    goto done;
 	}

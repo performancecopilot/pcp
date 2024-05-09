@@ -1,0 +1,115 @@
+#!/bin/sh
+# PCP QA Test No. 1513
+# derived metric masking tests
+#
+# Copyright (c) 2024 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+$sudo rm -rf $tmp $tmp.* $seq.full
+
+do_valgrind=false
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+    do_valgrind=true
+fi
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+_do_val()
+{
+    if $do_valgrind
+    then
+	_run_valgrind ...your test goes here...
+    else
+	pmval -Dderive -z $* 2>$tmp.err >$tmp.out
+    fi
+    _filter <$tmp.out
+    cat $tmp.err >>$seq.full
+    grep Warning $tmp.err
+}
+
+_do_info()
+{
+    if $do_valgrind
+    then
+	_run_valgrind ...your test goes here...
+    else
+	pminfo -Dderive $* 2>$tmp.err >$tmp.out
+    fi
+    _filter <$tmp.out
+    cat $tmp.err >>$seq.full
+    grep Warning $tmp.err
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+    # end
+}
+
+# real QA test starts here
+export PCP_DERIVED_CONFIG=$tmp.config
+
+echo "=== No derived metrics ==="
+echo >$tmp.config
+_do_val -t 2 -a archives/derive disk.dev.await
+
+echo
+echo "=== disk.dev.await is a per-context derived metric ==="
+_do_info -df -a archives/derive -r disk.dev.await=sample.bin disk.dev.await
+
+echo
+echo "=== disk.dev.await is a global derived metric ==="
+cat <<'End-of-File' >$tmp.config
+disk.dev.await = defined(disk.dev.total_rawactive) ? \
+    (delta(disk.dev.total) == 0 ? \
+	mkconst(0, meta=disk.dev.read, type=double, semantics=instant, units="millisec/count") \
+	: delta(disk.dev.total_rawactive) / delta(disk.dev.total)) \
+    : novalue(meta=disk.dev.read, type=double, semantics=instant, units="millisec/count")
+sample.colour = sum(sample.bin)
+End-of-File
+_do_val -t 2 -a archives/derive disk.dev.await
+
+echo
+echo "=== disk.dev.await is both a global and a per-context derived metric ==="
+_do_info -df -a archives/derive -r disk.dev.await=sample.bin disk.dev.await
+
+echo
+echo "=== and again for a host context ==="
+_do_info -df -r disk.dev.await=sample.bin disk.dev.await
+
+echo
+echo "=== sample.colour is global derived metric and real host metric ==="
+_do_info -df sample.colour
+
+echo
+echo "=== sample.colour is per-context derived metric and real host metric ==="
+echo >$tmp.config
+_do_info -df -r 'sample.colour=avg(sample.bin)' sample.colour
+
+# success, all done
+exit

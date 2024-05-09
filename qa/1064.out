@@ -264,7 +264,7 @@ expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.hundr
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 expr node <addr> type=SCALE left=(nil) right=(nil) save_last=0 [Kbyte / sec]
-__dmtraverse: name="a", omitting invalid child "a.err.m1"
+__dmtraverse: name="a", omitting invalid child a.err.m1 [511.0.10]
 __dmgetpmid: metric "a.err.m2" -> PMID 511.0.11
 Semantic error: derived metric a.err.m2: sample.string.hullo RESCALE millisec / count: Non-arithmetic operand for function
 __dmbind: check_expr failed for metric[10] a.err.m2
@@ -278,7 +278,7 @@ expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.string.hul
     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 expr node <addr> type=SCALE left=(nil) right=(nil) save_last=0 [millisec / count]
-__dmtraverse: name="a", omitting invalid child "a.err.m2"
+__dmtraverse: name="a", omitting invalid child a.err.m2 [511.0.11]
 __dmgetpmid: metric "a.m1" -> PMID 511.0.3
 __dmgetpmid: metric "a.m2" -> PMID 511.0.4
 __dmgetpmid: metric "a.m3" -> PMID 511.0.5
