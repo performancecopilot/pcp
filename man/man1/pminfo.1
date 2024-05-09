@@ -27,6 +27,7 @@
 [\fB\-K\fR \fIspec\fR]
 [\fB\-\fR[\fBn\fR|\fBN\fR] \fIpmnsfile\fR]
 [\fB\-O\fR \fItime\fR]
+[\fB\-r\fR \fIdmname\fR=\fIexpr\fR]
 [\fB\-Z\fR \fItimezone\fR]
 [\fImetricname\fR | \fIpmid\fR | \fIindom\fR]...
 .SH DESCRIPTION
@@ -109,7 +110,7 @@ The
 argument specifies a file that contains derived metric definitions
 in the format described for
 .BR pmLoadDerivedConfig (3).
-The \fB\-c\fR\fR option provides a way to load derived metric
+The \fB\-c\fR\fR option provides a way to load global derived metric
 definitions that is an alternative to the more generic use of the
 .B PCP_DERIVED_CONFIG
 environment variable as described in
@@ -119,6 +120,9 @@ Using the \fB\-c\fR option and the
 environment variable to specify the
 .B same
 configuration is a bad idea, so choose one or the other method.
+See also the
+.B \-r
+option below.
 .TP
 \fB\-\-container\fR=\fIcontainer\fR
 Specify an individual
@@ -207,6 +211,22 @@ Refer to
 for a complete description of this option, and the syntax for the
 .I time
 argument.
+.TP
+\fB\-r\fR \fIdmname\fR=\fIexpr\fR, \fB\-\-register\fR=\fIdmname\fR=\fIexpr\fR
+Register a per-context derived metric using
+.BR pmAddDerivedMetric (3).
+.I dmname
+is the name of the new derived metric, and
+.I expr
+is the expression for the derived metric, following the syntax described
+in
+.BR pmRegisterDerived (3).
+Multiple
+.B \-r
+options are allowed.
+See also the
+.B \-c
+option above.
 .TP
 \fB\-s\fR, \fB\-\-series\fR
 Print time series identifiers associated with metrics, instances and
@@ -297,11 +317,13 @@ For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
 .BR pmrep (1),
 .BR pmval (1),
 .BR PMAPI (3),
+.BR pmAddDerivedMetric (3),
 .BR pmGetOptions (3),
 .BR pmLoadDerivedConfig (3),
 .BR pmLookupLabels (3),
+.BR pmRegisterDerived (3),
 .BR pmSpecLocalPMDA (3),
-.BR pcp.conf (5),
-.BR pcp.env (5)
+.BR PMNS (5),
+.BR pcp.conf (5)
 and
-.BR PMNS (5).
+.BR pcp.env (5).

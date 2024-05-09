@@ -81,8 +81,8 @@ _pcp_complete()
         arg_regex="-[Ccip]"
     ;;
     pminfo)
-        all_args="abcdFfhIKLlMmNnOsTtVvxZz"
-        arg_regex="-[abchKNnOZ]"
+        all_args="abcdFfhIKLlMmNnOrsTtVvxZz"
+        arg_regex="-[abchKNnOrZ]"
     ;;
     pmjson)
         all_args="imopqyV"

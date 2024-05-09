@@ -54,7 +54,8 @@ static pmLongOptions longopts[] = {
     { "oneline",  0, 't', 0, "get and display (terse) oneline text" },
     { "helptext", 0, 'T', 0, "get and display (verbose) help text" },
     PMAPI_OPTIONS_HEADER("Metrics options"),
-    { "derived",  1, 'c', "FILE", "load derived metric definitions from FILE(s)" },
+    { "derived",  1, 'c', "FILE", "load global derived metric definitions from FILE(s)" },
+    { "register", 1, 'r', "name=expr", "register a per-context derived metric" },
     { "events",   0, 'x', 0, "unpack and report on any fetched event records" },
     { "verify",   0, 'v', 0, "verify mode, be quiet and only report errors" },
     PMAPI_OPTIONS_END
@@ -62,7 +63,7 @@ static pmLongOptions longopts[] = {
 
 static pmOptions opts = {
     .flags = PM_OPTFLAG_STDOUT_TZ,
-    .short_options = "a:b:c:CdD:Ffh:IK:lLMmN:n:O:stTvVxzZ:?",
+    .short_options = "a:b:c:CdD:Ffh:IK:lLMmN:n:O:r:stTvVxzZ:?",
     .long_options = longopts,
     .short_usage = "[options] [metricname | pmid | indom]...",
     .override = myoverrides,
@@ -93,6 +94,8 @@ static int	verify;		/* Only print error messages */
 static int	events;		/* Decode event metrics */
 static pmID	pmid_flags;
 static pmID	pmid_missed;
+static int	num_reg;	/* count of the number of -r arguments */
+static char	**reg;		/* the -r arguments */
 
 /*
  * InDom cache (icache) state - multiple accessors, so no longer using
@@ -1096,7 +1099,7 @@ main(int argc, char **argv)
 		}
 		break;
 
-	    case 'c':		/* derived metrics config file */
+	    case 'c':		/* global derived metrics config file */
 		sts = pmLoadDerivedConfig(opts.optarg);
 		if (sts < 0) {
 		    fprintf(stderr, "%s: derived configuration(s) error: %s\n",
@@ -1146,6 +1149,16 @@ main(int argc, char **argv)
 	    case 'm':
 		p_mid = 1;
 		need_pmid = 1;
+		break;
+
+	    case 'r':		/* per-context derived metric */
+		num_reg++;
+		if ((reg = (char **)realloc(reg, num_reg * sizeof(reg[0]))) == NULL) {
+		    fprintf(stderr, "%s: reg[] realloc: %s\n", pmGetProgname(), osstrerror());
+		    exit(1);
+		}
+		reg[num_reg-1] = opts.optarg;
+		need_context = 1;
 		break;
 
 	    case 's':
@@ -1267,6 +1280,51 @@ main(int argc, char **argv)
 		pmflush();
 		exit(1);
 	    }
+	}
+
+	/*
+	 * do any -r args now we have a PMAPI context
+	 */
+	if (num_reg > 0) {
+	    int		i;
+	    char	*errmsg;
+	    char	*name;
+	    char	*expr;
+	    int		bad = 0;
+	    int		seen_eq = 0;
+
+	    for (i = 0; i < num_reg; i++) {
+		expr = name = reg[i];
+		while (*expr && *expr != '=' && *expr != ' ' && *expr != '\t')
+		    expr++;
+		if (*expr == '=')
+		    seen_eq = 1;
+		*expr++ = '\0';
+		if (seen_eq == 0) {
+		    while (*expr && (*expr == ' ' || *expr == '\t'))
+			expr++;
+		    if (*expr != '=') {
+			fprintf(stderr, "%s: bad register string, no =\n", pmGetProgname());
+			bad++;
+			continue;
+		    }
+		}
+		while (*expr && (*expr == ' ' || *expr == '\t'))
+		    expr++;
+		if (*expr == '\0') {
+		    fprintf(stderr, "%s: bad register string, no expr after =\n", pmGetProgname());
+		    bad++;
+		    continue;
+		}
+		if ((sts = pmAddDerivedMetric(name, expr, &errmsg)) < 0) {
+		    fprintf(stderr, "%s: per-context derived metric registration error:\n%s",
+			    pmGetProgname(), errmsg);
+		    bad++;
+		    free(errmsg);
+		}
+	    }
+	    if (bad)
+		exit(1);
 	}
     }
 
