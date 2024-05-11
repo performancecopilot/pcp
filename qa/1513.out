@@ -82,9 +82,9 @@ Warning: disk.dev.await [511.2047.1023 derived] masks global derived metric [511
 sample.colour
     Data Type: 32-bit int  InDom: 29.1 0x7400001
     Semantics: instant  Units: none
-    inst [0 or "red"] value 137
-    inst [1 or "green"] value 238
-    inst [2 or "blue"] value 339
+    inst [0 or "red"] value NNN
+    inst [1 or "green"] value NNN
+    inst [2 or "blue"] value NNN
 Warning: sample.colour [29.0.5 host context] masks global derived metric [511.0.4] with the same name
 Warning: sample.colour [29.0.5 host context] masks global derived metric [511.0.4] with the same name
 
@@ -93,8 +93,19 @@ Warning: sample.colour [29.0.5 host context] masks global derived metric [511.0.
 sample.colour
     Data Type: 32-bit int  InDom: 29.1 0x7400001
     Semantics: instant  Units: none
-    inst [0 or "red"] value 140
-    inst [1 or "green"] value 241
-    inst [2 or "blue"] value 342
+    inst [0 or "red"] value NNN
+    inst [1 or "green"] value NNN
+    inst [2 or "blue"] value NNN
 Warning: sample.colour [29.0.5 host context] masks per-context derived metric [511.2047.1023] with the same name
+Warning: sample.colour [29.0.5 host context] masks per-context derived metric [511.2047.1023] with the same name
+
+sample.colour
+    Data Type: 32-bit int  InDom: 29.1 0x7400001
+    Semantics: instant  Units: none
+    inst [0 or "red"] value NNN
+    inst [1 or "green"] value NNN
+    inst [2 or "blue"] value NNN
+Warning: sample.colour [29.0.5 host context] masks global derived metric [511.0.3] with the same name
+Warning: sample.colour [29.0.5 host context] masks per-context derived metric [511.2047.1023] with the same name
+Warning: sample.colour [29.0.5 host context] masks global derived metric [511.0.3] with the same name
 Warning: sample.colour [29.0.5 host context] masks per-context derived metric [511.2047.1023] with the same name
