@@ -44,13 +44,13 @@ export LC_COLLATE=POSIX
 
 # don't bother for some commands, either they don't support --help
 # (e.g. no options to describe) and/or are not intended for general
-# use by a human end user
+# use by a human end user and/or are aliases for other commands
 #
 for cmd in pcp-htop pcp-python pcp2csv pcp2xlsx pmafm pmgenmap \
              pmie_dump_stats pmiestatus pmlock pmpause pmpython \
              pmsleep pmwtf telnet-probe pmpost pcp-kube-pods \
 	     pmie_farm pmlogger_farm pmlogger_janitor \
-	     pcp-geolocate pcp-reboot-init
+	     pcp-geolocate pcp-reboot-init pcp-check
 do
   sed -i "/$cmd/d" $tmp.cmds.txt
 done
