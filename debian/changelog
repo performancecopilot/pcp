@@ -1,6 +1,7 @@
 pcp (6.2.2-1) unstable; urgency=low
 
   * New release (full details in CHANGELOG).
+  * Relocate pmcheck to resolve a Perl conflict (closes: #1071010)
 
  -- Nathan Scott <nathans@debian.org>  Wed, 15 May 2024 06:22:01 +1000
 
