@@ -74,7 +74,7 @@ for FAULT in 0 1 2
 do
     echo
     echo "-- FAULT=$FAULT --"
-    pmcheck -c $tmp.pmcheck -sv 2>&1 | _filter
+    $PCP_BINADM_DIR/pmcheck -c $tmp.pmcheck -sv 2>&1 | _filter
 done
 
 # success, all done

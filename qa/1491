@@ -114,41 +114,41 @@ echo "basic stuff ..."
 # requests, e.g. redis-server without systemd
 #
 echo '-- no args --'
-$sudo pmcheck 2>&1 | _filter_states
+$sudo $PCP_BINADM_DIR/pmcheck 2>&1 | _filter_states
 echo '-- -l --'
-pmcheck -l
+$PCP_BINADM_DIR/pmcheck -l
 echo '-- -lv --'
-pmcheck -lv | _filter_states
+$PCP_BINADM_DIR/pmcheck -lv | _filter_states
 echo '-- -s --'
-$sudo pmcheck -s 2>&1 | _filter_states
+$sudo $PCP_BINADM_DIR/pmcheck -s 2>&1 | _filter_states
 
 touch $tmp.pmcheck
 echo
 echo "=== usage ==="
 echo '-- --help --'
-pmcheck --help
+$PCP_BINADM_DIR/pmcheck --help
 echo '-- -l + -c --'
-pmcheck -l -c /bin/echo
+$PCP_BINADM_DIR/pmcheck -l -c /bin/echo
 echo '-- -l + component arg --'
-pmcheck -l pmcd
+$PCP_BINADM_DIR/pmcheck -l pmcd
 echo '-- -c does not exist --'
-pmcheck -c /no.such.file -s
+$PCP_BINADM_DIR/pmcheck -c /no.such.file -s
 echo '-- -c not executable --'
-pmcheck -c $tmp.pmcheck -s 2>&1 | _filter
+$PCP_BINADM_DIR/pmcheck -c $tmp.pmcheck -s 2>&1 | _filter
 echo '-- -c + component arg --'
-pmcheck -c /bin/echo -s pmcd
+$PCP_BINADM_DIR/pmcheck -c /bin/echo -s pmcd
 echo '-- component arg + no action opt --'
-pmcheck pmcd
+$PCP_BINADM_DIR/pmcheck pmcd
 echo '-- -n without -a or -d --'
-pmcheck -n -s pmcd
+$PCP_BINADM_DIR/pmcheck -n -s pmcd
 echo '-- -c + no action opt --'
-pmcheck -c /bin/echo
+$PCP_BINADM_DIR/pmcheck -c /bin/echo
 echo '-- multiple actions --'
-pmcheck -a -d pmcd
-pmcheck -l -s
+$PCP_BINADM_DIR/pmcheck -a -d pmcd
+$PCP_BINADM_DIR/pmcheck -l -s
 echo '-- bad option --'
-pmcheck -f -o -o
-pmcheck -foo
+$PCP_BINADM_DIR/pmcheck -f -o -o
+$PCP_BINADM_DIR/pmcheck -foo
 
 echo
 echo "=== parsing and arg hand-off to component script ==="
@@ -159,10 +159,10 @@ exit 0
 End-of-File
 chmod 755 $tmp.pmcheck
 echo '-- -c ... -s --'
-pmcheck -c $tmp.pmcheck -s 2>&1 | _filter
+$PCP_BINADM_DIR/pmcheck -c $tmp.pmcheck -s 2>&1 | _filter
 # no action/state output for this one
 echo '-- -c ... -nav --'
-pmcheck -c $tmp.pmcheck -nav 2>&1 | _filter
+$PCP_BINADM_DIR/pmcheck -c $tmp.pmcheck -nav 2>&1 | _filter
 cat <<'End-of-File' >$tmp.pmcheck
 #!/bin/sh
 . $PCP_DIR/etc/pcp.env || exit 1
@@ -198,30 +198,30 @@ then
 fi
 End-of-File
 echo "-- -c ... -lv --"
-pmcheck -c $tmp.pmcheck -lv 2>&1 | _filter
+$PCP_BINADM_DIR/pmcheck -c $tmp.pmcheck -lv 2>&1 | _filter
 for rc in 0 1 2
 do
     echo "-- RC=$rc -c ... -s --"
-    RC=$rc pmcheck -c $tmp.pmcheck -s 2>&1 | _filter
+    RC=$rc $PCP_BINADM_DIR/pmcheck -c $tmp.pmcheck -s 2>&1 | _filter
 done
 for rc in 0 1
 do
     for opt in '-a' '-av' '-an' '-anv' '-d' '-dv' '-dn' '-dnv'
     do
 	echo "-- RC=$rc -c ... $opt --"
-	RC=$rc pmcheck -c $tmp.pmcheck $opt 2>&1 | _filter
+	RC=$rc $PCP_BINADM_DIR/pmcheck -c $tmp.pmcheck $opt 2>&1 | _filter
     done
 done
 
 echo
 echo "=== glob expansion ==="
 echo '-- -s pm[cl]* --'
-pmcheck -s 'pm[cl]*'
+$PCP_BINADM_DIR/pmcheck -s 'pm[cl]*'
 
 echo
 echo "=== actions ==="
 echo '-- -d --'
-$sudo pmcheck -d pmcd
+$sudo $PCP_BINADM_DIR/pmcheck -d pmcd
 _wait_for_pmcd_stop
 if [ -f $PCP_RUN_DIR/pmcd.pid ]
 then
@@ -229,9 +229,9 @@ then
 else
     echo "$seq: pmcd stopped"
 fi
-pmcheck -s pmcd
+$PCP_BINADM_DIR/pmcheck -s pmcd
 echo '-- and -d again with -v --'
-$sudo pmcheck -v -d pmcd 2>&1 \
+$sudo $PCP_BINADM_DIR/pmcheck -v -d pmcd 2>&1 \
 | sed \
     -e '/^  *already /d' \
     -e 's/ stopped via .*/ STOPPED via .../' \
@@ -239,7 +239,7 @@ $sudo pmcheck -v -d pmcd 2>&1 \
 # end
 
 echo '-- -a --'
-$sudo pmcheck -a pmcd
+$sudo $PCP_BINADM_DIR/pmcheck -a pmcd
 _wait_for_pmcd
 if [ -f $PCP_RUN_DIR/pmcd.pid ]
 then
@@ -247,9 +247,9 @@ then
 else
     echo "$seq: Botch: $PCP_RUN_DIR/pmcd.pid missing"
 fi
-pmcheck -s pmcd
+$PCP_BINADM_DIR/pmcheck -s pmcd
 echo '-- and -a again with -v --'
-pmcheck -v -a pmcd 2>&1 \
+$PCP_BINADM_DIR/pmcheck -v -a pmcd 2>&1 \
 | sed \
     -e '/^  *already /d' \
     -e 's/ enabled via .*/ STARTED via .../' \
