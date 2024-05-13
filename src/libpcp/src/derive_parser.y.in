@@ -3925,32 +3925,32 @@ defn	: expr L_EOS
 
 	/* error reporting for trailing operators */
 	| expr L_PLUS error
-		{ gramerr(unexpected_str, NULL, "+"); YYERROR; }
+		{ gramerr(unexpected_str, NULL, "+"); free_expr($1); YYERROR; }
 	/* not L_MINUS */
 	| expr L_STAR error
-		{ gramerr(unexpected_str, NULL, "*"); YYERROR; }
+		{ gramerr(unexpected_str, NULL, "*"); free_expr($1); YYERROR; }
 	| expr L_SLASH error
-		{ gramerr(unexpected_str, NULL, "/"); YYERROR; }
+		{ gramerr(unexpected_str, NULL, "/"); free_expr($1); YYERROR; }
 	| expr L_LPAREN error
-		{ gramerr(unexpected_str, NULL, "("); YYERROR; }
+		{ gramerr(unexpected_str, NULL, "("); free_expr($1); YYERROR; }
 	| expr L_RPAREN error
-		{ gramerr(unexpected_str, NULL, ")"); YYERROR; }
+		{ gramerr(unexpected_str, NULL, ")"); free_expr($1); YYERROR; }
 	| expr L_LT error
-		{ gramerr(unexpected_str, NULL, "<"); YYERROR; }
+		{ gramerr(unexpected_str, NULL, "<"); free_expr($1); YYERROR; }
 	| expr L_LEQ error
-		{ gramerr(unexpected_str, NULL, "<="); YYERROR; }
+		{ gramerr(unexpected_str, NULL, "<="); free_expr($1); YYERROR; }
 	| expr L_EQ error
-		{ gramerr(unexpected_str, NULL, "=="); YYERROR; }
+		{ gramerr(unexpected_str, NULL, "=="); free_expr($1); YYERROR; }
 	| expr L_GEQ error
-		{ gramerr(unexpected_str, NULL, ">="); YYERROR; }
+		{ gramerr(unexpected_str, NULL, ">="); free_expr($1); YYERROR; }
 	| expr L_GT error
-		{ gramerr(unexpected_str, NULL, ">"); YYERROR; }
+		{ gramerr(unexpected_str, NULL, ">"); free_expr($1); YYERROR; }
 	| expr L_NEQ error
-		{ gramerr(unexpected_str, NULL, "!="); YYERROR; }
+		{ gramerr(unexpected_str, NULL, "!="); free_expr($1); YYERROR; }
 	| expr L_AND error
-		{ gramerr(unexpected_str, NULL, "&&"); YYERROR; }
+		{ gramerr(unexpected_str, NULL, "&&"); free_expr($1); YYERROR; }
 	| expr L_OR error
-		{ gramerr(unexpected_str, NULL, "||"); YYERROR; }
+		{ gramerr(unexpected_str, NULL, "||"); free_expr($1); YYERROR; }
 	/* not L_NOT */
 
 	/* error reporting for initial operators */
@@ -4080,6 +4080,9 @@ expr	: L_LPAREN expr L_RPAREN
 		}
 	| expr L_QUEST novalue L_COLON novalue
 		{ PM_TPD(derive_errmsg) = "novalue() may appear at most once in a ternary expression";
+		  free_expr($1);
+		  free_expr($3);
+		  free_expr($5);
 		  YYERROR;
 		}
 
@@ -4095,37 +4098,41 @@ expr	: L_LPAREN expr L_RPAREN
 	| L_NAME error
 		{ gramerr(op_str, follow, __dmnode_type_str(N_NAME)); YYERROR; }
 	| expr L_PLUS error
-		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_PLUS)); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_PLUS)); free_expr($1); YYERROR; }
 	| expr L_MINUS error
-		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_MINUS)); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_MINUS)); free_expr($1); YYERROR; }
 	| expr L_STAR error
-		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_STAR)); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_STAR)); free_expr($1); YYERROR; }
 	| expr L_SLASH error
-		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_SLASH)); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_SLASH)); free_expr($1); YYERROR; }
 	| L_MINUS error
 		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_NEG)); YYERROR; }
 	| expr L_LT error
-		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_LT)); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_LT)); free_expr($1); YYERROR; }
 	| expr L_LEQ error
-		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_LEQ)); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_LEQ)); free_expr($1); YYERROR; }
 	| expr L_EQ error
-		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_EQ)); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_EQ)); free_expr($1); YYERROR; }
 	| expr L_GEQ error
-		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_GEQ)); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_GEQ)); free_expr($1); YYERROR; }
 	| expr L_GT error
-		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_GT)); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_GT)); free_expr($1); YYERROR; }
 	| expr L_NEQ error
-		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_NEQ)); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_NEQ)); free_expr($1); YYERROR; }
 	| expr L_AND error
-		{ gramerr(bexpr_str, follow, __dmnode_type_str(N_AND)); YYERROR; }
+		{ gramerr(bexpr_str, follow, __dmnode_type_str(N_AND)); free_expr($1); YYERROR; }
 	| expr L_OR error
-		{ gramerr(bexpr_str, follow, __dmnode_type_str(N_OR)); YYERROR; }
+		{ gramerr(bexpr_str, follow, __dmnode_type_str(N_OR)); free_expr($1); YYERROR; }
 	| L_NOT error
 		{ gramerr(bexpr_str, follow, __dmnode_type_str(N_NOT)); YYERROR; }
 	| expr L_QUEST error
-		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_QUEST)); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_QUEST)); free_expr($1); YYERROR; }
 	| expr L_QUEST expr L_COLON error
-		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_COLON)); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_COLON));
+		  free_expr($1);
+		  free_expr($3);
+		  YYERROR;
+		}
 	;
 
 novalue : L_NOVALUE L_LPAREN L_RPAREN
