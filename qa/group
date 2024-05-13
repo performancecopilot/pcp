@@ -1980,10 +1980,10 @@ x11
 1511 pmcd local pmda.sample
 1512 libpcp local
 1513 derive local
-1514:reserved kenj
+1514 derive local pmrep valgrind
 1515 pmda.denki local valgrind
-1516:reserved kenj
-1517:reserved kenj
+1516 derive local valgrind
+1517 derive local valgrind
 1518:reserved kenj
 1519:reserved kenj
 1530 pmda.zfs local valgrind
