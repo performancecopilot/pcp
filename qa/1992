@@ -53,7 +53,7 @@ pmdauwsgi_install()
 
     echo
     echo "=== $iam check post-install ==="
-    pmcheck pmda-$iam | _filter_pmcheck
+    pcp check pmda-$iam | _filter_pmcheck
 
     echo
     echo "=== $iam agent installation ==="
@@ -75,7 +75,7 @@ pmdauwsgi_install()
                                          { print }' | tr -s ' '
     echo
     echo "=== $iam check post-install ==="
-    pmcheck pmda-$iam | _filter_pmcheck
+    pcp check pmda-$iam | _filter_pmcheck
 }
 
 # real QA test starts here

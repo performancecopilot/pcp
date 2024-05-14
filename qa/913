@@ -47,13 +47,13 @@ cd $PCP_PMDAS_DIR/redis
 # get to a known starting place
 $sudo ./Remove >>$here/$seq.full 2>&1
 
-# Note: need to run pmcheck as root, even for "status" requests without
+# Note: need to run pcp-check as root, even for "status" requests without
 # systemd (/etc/init.d/redis-server exits immediately for non-root usage)
 #
 
 echo
 echo "=== $iam check pre-install ==="
-$sudo pmcheck pmda-redis
+$sudo pcp check pmda-redis
 
 echo
 echo "=== $iam agent installation ==="
@@ -76,7 +76,7 @@ _filter_pmda_install <$tmp.out \
 
 echo
 echo "=== $iam check post-install ==="
-$sudo pmcheck pmda-redis
+$sudo pcp check pmda-redis
 
 echo
 echo "=== verify $iam metrics ==="
