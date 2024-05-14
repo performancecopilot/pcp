@@ -28,9 +28,11 @@ BEGIN {
     dist["debian11"] = "debian/bullseye";
     dist["debian12"] = "debian/bookworm";
     dist["debian13"] = "debian/trixie";
+    dist["debian14"] = "debian/forky";
     dist["ubuntu1804"] = "ubuntu/bionic";
     dist["ubuntu2004"] = "ubuntu/focal";
     dist["ubuntu2204"] = "ubuntu/jammy";
+    dist["ubuntu2404"] = "ubuntu/noble";
 }
 $1 ~ /^debian/ || /^ubuntu/ { print dist[$1] }
 $1 ~ /^fedora/ { match($1, /fedora([1-9][0-9]*$)/, m); printf "fedora/%s\n", m[1] }
