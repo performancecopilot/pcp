@@ -118,7 +118,7 @@ fi
 
 # PMDA_SYSTEMD is only true if we have libsystemd, but HAVE_SYSTEMD
 # may be true when we're using systemd even if libsystemd is not
-# installed ... so use the former to enable the libsystemd-dev in
+# installed ... so use the former to enable the [lib]systemd-dev in
 # the Build-Depends: clause
 # Note: that the HAVE_SYSTEMD_SD_DAEMON_H macro that is used to
 # guard the use of libsystemd from libpcp is not available here, but
@@ -127,7 +127,7 @@ fi
 #
 if $PMDA_SYSTEMD
 then
-    echo "s/?{libsystemd-dev}, /systemd, libsystemd-dev, /" >>$tmp.sed
+    echo "s/?{libsystemd-dev}, /systemd, systemd-dev | libsystemd-dev, /" >>$tmp.sed
 else
     echo "s/?{libsystemd-dev}, //" >>$tmp.sed
 fi
