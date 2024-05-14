@@ -1,5 +1,35 @@
 pcp-6.2.2 (15 May 2024)
-    - Work-in-progress, not yet released.
+    - pmdalibvirt: add support for metric labels
+    - pmdalibvirt: new balloon, vCPU and domain info metrics
+    - pmdalibvirt: remove support for the ancient RHEL 5 era "oldapi"
+    - pmdalinux: implement mem.vmmemctl VM balloon metrics
+    - pmdauwsgi: improve handling of transient uWSGI servers
+    - pmdauwsgi: short-circuit handling of pmcheck failure
+    - pmdauwsgi: fix semantics of several metrics
+    - pmcd: rate-limit connection failure logging in case of bursts
+    - pmcheck: rework checkproc.sh when used in non-systemd environment
+    - pmrep conf: minor tweaks to sync with sysstat 12.7.5
+    - pmrep conf: fix few pidstat metric formulas
+    - pmlogdump: fix -V/--version option handling
+    - pmlogger_daily_report.sh: fix pmrep error filtering
+    - pcp2openmetrics: minor bug fixes, added archive timestamps
+    - indomcachectl: new tool to initialize/dump indom cache files
+    - libpcp_pmda: add PMDA_CACHE_WRITE indom cache operation
+    - libpcp_web: ensure openmetrics scrape sees all labels
+    - libpcp: derived metrics: add novalue() and defined(x) rework
+    - libpcp: derived metrics lazy binding for defined(x) ternary
+    - libpcp: add __pmNotifyThrottle and __pmResetNotifyThrottle
+    - python API: pass help text result as string not bytes
+    - python API: fix return value from pmLoadDerivedConfig
+    - tmpfiles.d: extend the tmpfiles.d directory set to logdirs
+    - bash,zsh: ensure completion for both pmlogdump and pmdumplog
+    - build: add missing python rpms to pcp-testsuite deps
+    - build: use Y2038-safe time_t interfaces on 32-bit platforms
+    - selinux: allow pmie/pmlogger services to use systemd status
+    - selinux: ignore pmie/pmlogger getattr on nsfs files
+    - docs: add pmrep(1) hint about CSV delimiter with metricsets
+    - man pages: pmnewcontext.3: reword PM_CONTEXT_LOCAL description
+    - man pages: man-spell updates
 
 pcp-6.2.1 (10 April 2024)
     - PMDA additions, enhancements and bug fixes:
