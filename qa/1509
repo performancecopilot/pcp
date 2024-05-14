@@ -2,6 +2,8 @@
 # PCP QA Test No. 1509
 # derived metrics - iostat.conf workout
 #
+# non-valgrind variant, see qa/1516 for the valgrind variant
+#
 # Copyright (c) 2024 Ken McDonell.  All Rights Reserved.
 #
 
@@ -27,6 +29,10 @@ if [ "$1" = "--valgrind" ]
 then
     _check_valgrind
     do_valgrind=true
+elif which valgrind >/dev/null 2>&1
+then
+    [ "$PCPQA_VALGRIND" = both ] || \
+        _notrun "valgrind variant qa/1516 will be run"
 fi
 
 _cleanup()
@@ -97,7 +103,9 @@ _doit()
 	#
 	if $do_valgrind
 	then
-	    _run_valgrind ...your test goes here...
+	    _run_valgrind --save-output pmie -t 3 -v -z -a $tmp -c $tmp.pmie
+	    cat $tmp.err 2>>$seq.full
+	    _filter <$4mp.out >$tmp.tmp
 	else
 	    pmie -t 3 -v -z -a $tmp -c $tmp.pmie 2>>$seq.full \
 	    | _filter >$tmp.tmp

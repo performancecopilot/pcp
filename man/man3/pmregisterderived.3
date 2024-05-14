@@ -418,8 +418,8 @@ and
 are as follows:
 .TS
 box,center;
-cf(I) | cf(I)w(4.5i)
-lf(CR) | lf(R).
+cf(I) | cf(I)
+lf(CR) | lf(R)x.
 tag	value
 _
 type	T{
@@ -512,8 +512,8 @@ instant()\c
 double).
 .TS
 box,center;
-cf(R) | cf(R)w(4.5i)
-lf(CR) | lf(R).
+cf(R) | cf(R)
+lf(CR) | lf(R)x.
 Function	Value
 _
 avg(x)	T{
@@ -925,6 +925,121 @@ T{
 otherwise (both are PM_TYPE_32)
 T}	any	PM_TYPE_32
 .TE
+.SH PMIDS AND MASKING
+Within PCP each metric is assigned a
+unique Performance Metric Identifier (PMID) and
+internally a PMID is constructed from 3 fields: the domain number
+(of the associated Performance Metrics Domain Agent, or PMDA),
+the cluster number and the item number.
+Derived metrics use the reserved domain number 511 and
+special PMIDs as decribed in the following table, where
+the PMID is shown as domain.cluster.item:
+.TS
+box,center;
+cf(R) | cf(R) | cf(R)
+lf(R) | lf(R) | lf(R)x.
+Derived Metric	Starting PMID	Description
+_
+global	511.0.1	T{
+.ad l
+.hy 0
+Metrics are assigned
+.I ascending
+PMIDs as they are registered via
+.BR pmRegisterDerived ,
+.BR pmRegisterDerivedMetric
+or
+.BR pmLoadDerivedConfig (3).
+T}
+_
+per-context	511.2047.1023	T{
+.ad l
+.hy 0
+Metrics are assigned
+.I descending
+PMIDs as they are registered via
+.BR pmAddDerived (3)
+or
+.BR pmAddDerivedMetric (3).
+T}
+_
+remapped	511.c.i	T{
+.ad l
+.hy 0
+When a derived metric is recorded in a PCP archive by
+.BR pmlogger (1)
+or one of the related archive creation tools, the PMID of the
+derived metric is remapped in the archive so that \fIc\fP is the cluster of
+derived metric plus 2048, and i is the item of the derived metric.
+For example, a derived metric with PMID 511.0.13 will have the
+remapped PMID 511.2048.13 in an archive.
+See
+.BR pmlogger (1)
+for a discussion about adding derived metrics to a PCP archive.
+T}
+.TE
+.PP
+For base metrics from a host or archive context, there is a
+requirement that each metric name is unique.
+But derived metrics require this restriction to be relaxed, so that
+the same metric name could associated with a base metric, and/or
+a per-context derived metric, and/or a global metric.
+This means that one or more of the metrics with the same name may be
+masked by other metrics of the same name.
+The following table describes which metric will be used when one
+of these multiply-defined names is presented to the PMAPI.
+.TS
+box,center;
+cf(R) | cf(R)   s       s     | cf(R)
+^     | cf(R) | cf(R) | cf(R) | ^
+lf(R) | lf(R) | lf(R) | lf(R) | lf(R)x.
+base metric	derived metric	chosen metric
+_
+	remapped	per-context	global	
+_
+no	no	no	no	T{
+.ad l
+.hy 0
+none; the metric is undefined
+T}
+_
+no	no	no	yes	global derived
+_
+no	no	yes	no	per-context derived
+_
+no	no	yes	yes	per-context derived
+_
+no	yes	no	no	remapped
+_
+no	yes	no	yes	remapped
+_
+no	yes	yes	no	remapped
+_
+no	yes	yes	yes	remapped
+_
+yes	no	no	no	base metric
+_
+yes	no	no	yes	base metric
+_
+yes	no	yes	no	base metric
+_
+yes	no	yes	yes	base metric
+_
+yes	yes	-	-	T{
+.ad l
+.hy 0
+cannot happen; for any name there can be at most one of a base metric or
+a remapped metric
+T}
+.TE
+.PP
+When masking happens, it is done silently.
+Most PCP applications support
+.B \-Dderive
+on the command line and this
+.BR pmdbg (1)
+debug option will report derived metric operations (including masking)
+on stderr.
 .SH CAVEATS
 Derived metrics are not available when using
 .BR pmFetchArchive (3)
@@ -991,16 +1106,17 @@ to release the space allocated for
 .IR errmsg .
 .SH SEE ALSO
 .BR PCPIntro (1),
+.BR pmlogger (1),
+.BR PMAPI (3),
 .BR free (3),
 .BR pmAddDerived (3),
 .BR pmAddDerivedMetric (3),
-.BR PMAPI (3),
 .BR pmDerivedErrStr (3),
 .BR pmFetch (3),
 .BR pmLoadDerivedConfig (3),
 .BR pmNewContext (3),
-.BR pmprintf (3),
-.BR pmReconnectContext (3)
+.BR pmReconnectContext (3),
+.BR pmprintf (3)
 and
 .BR PMNS (5).
 

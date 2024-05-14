@@ -188,8 +188,11 @@ else
     status=1
 fi
 
+# "Failed" PMDAs are ones where agent.status is neither 0 (OK)
+# nor 1 (not ready)
+#
 pminfo -f pmcd.agent.status | sed -e '/^ *$/d' >$tmp.out
-n=`grep '^ *inst .* value [1-9]' <$tmp.out | wc -l | sed -e 's/ //g'`
+n=`grep '^ *inst .* value ' <$tmp.out | grep -v 'value [01]$' | wc -l | sed -e 's/ //g'`
 if [ "$n" -eq 0 ]
 then
     $check || echo "Failed PMDAs ... OK"

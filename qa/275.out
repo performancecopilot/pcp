@@ -472,7 +472,7 @@ expr node <addr-2> type=NAME left=(nil) right=(nil) save_last=0 [disk.all.total]
     PMID: DISK.ALL.TOTAL (DISK.ALL.TOTAL from pmDesc) numval: 0
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
-__dmtraverse: name="gcov", omitting invalid child "gcov.c"
+__dmtraverse: name="gcov", omitting invalid child gcov.c [511.0.5]
 __dmgetpmid: metric "gcov.d" -> PMID 511.0.6
 __dmtraverse: name="gcov" added "gcov.d"
 __dmgetpmid: metric "gcov.e" -> PMID 511.0.7

@@ -508,7 +508,8 @@ _pcp () {
       "(-s --series $exargs)"{-s,--series}'[print source, metric and instance series identifiers]' \
       "(-t --oneline $exargs)"{-t,--oneline}'[print terse help text]' \
       "(-T --helptext $exargs)"{-T,--helptext}'[print verbose help text]' \
-      "(-c --derived $exargs)"{-c+,--derived=}'[specify derived metrics config]:file:_files' \
+      "(-c --derived $exargs)"{-c+,--derived=}'[specify global derived metrics config]:file:_files' \
+      "(-r --register $exargs)"{-r+,--register=}'[register a per-context derived metric]:name=expr' \
       "(-x --events $exargs)"{-x,--events}'[unpack and report events]' \
       "(-v --verify $exargs)"{-v,--verify}'[verify mode, report errors only]' \
       '*:metric:->metrics' \

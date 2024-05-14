@@ -138,69 +138,69 @@ __dmgetpmid: metric "myname.a" -> PMID 511.0.3
 __dmgetpmid: metric "no.such.metric" -> Unknown metric name
 bind_expr: error: derived metric myname.a: operand: no.such.metric: Unknown metric name
 __dmbind: bind_expr failed for metric[2] myname.a
-__dmtraverse: name="myname", omitting invalid child "myname.a"
+__dmtraverse: name="myname", omitting invalid child myname.a [511.0.3]
 __dmgetpmid: metric "myname.b" -> PMID 511.0.4
 bind_expr: error: derived metric myname.b: operand (sample.bad.unknown [29.0.54]): Unknown or illegal metric identifier
 __dmbind: bind_expr failed for metric[3] myname.b
-__dmtraverse: name="myname", omitting invalid child "myname.b"
+__dmtraverse: name="myname", omitting invalid child myname.b [511.0.4]
 __dmgetpmid: metric "myname.c" -> PMID 511.0.5
 Semantic error: derived metric myname.c: disk.dev.read * disk.dev.write: Illegal operator for counters
 __dmbind: check_expr failed for metric[4] myname.c
-__dmtraverse: name="myname", omitting invalid child "myname.c"
+__dmtraverse: name="myname", omitting invalid child myname.c [511.0.5]
 __dmgetpmid: metric "myname.d" -> PMID 511.0.6
 Semantic error: derived metric myname.d: sample.byte_ctr + sample.long.hundred: Illegal operator for counter and non-counter
 __dmbind: check_expr failed for metric[5] myname.d
-__dmtraverse: name="myname", omitting invalid child "myname.d"
+__dmtraverse: name="myname", omitting invalid child myname.d [511.0.6]
 __dmgetpmid: metric "myname.e" -> PMID 511.0.7
 Semantic error: derived metric myname.e: 100 / sample.byte_ctr: Illegal operator for non-counter and counter
 __dmbind: check_expr failed for metric[6] myname.e
-__dmtraverse: name="myname", omitting invalid child "myname.e"
+__dmtraverse: name="myname", omitting invalid child myname.e [511.0.7]
 __dmgetpmid: metric "myname.f" -> PMID 511.0.8
 Semantic error: derived metric myname.f: 3 + sample.lights: Non-arithmetic type for right operand
 __dmbind: check_expr failed for metric[7] myname.f
-__dmtraverse: name="myname", omitting invalid child "myname.f"
+__dmtraverse: name="myname", omitting invalid child myname.f [511.0.8]
 __dmgetpmid: metric "myname.g" -> PMID 511.0.9
 Semantic error: derived metric myname.g: sample.sysinfo - 42: Non-arithmetic type for left operand
 __dmbind: check_expr failed for metric[8] myname.g
-__dmtraverse: name="myname", omitting invalid child "myname.g"
+__dmtraverse: name="myname", omitting invalid child myname.g [511.0.9]
 __dmgetpmid: metric "myname.h" -> PMID 511.0.10
 Semantic error: derived metric myname.h: disk.dev.total + sample.long.hundred: Illegal operator for counter and non-counter
 __dmbind: check_expr failed for metric[9] myname.h
-__dmtraverse: name="myname", omitting invalid child "myname.h"
+__dmtraverse: name="myname", omitting invalid child myname.h [511.0.10]
 __dmgetpmid: metric "myname.i" -> PMID 511.0.11
 Semantic error: derived metric myname.i: sample.long.hundred - disk.dev.total: Illegal operator for non-counter and counter
 __dmbind: check_expr failed for metric[10] myname.i
-__dmtraverse: name="myname", omitting invalid child "myname.i"
+__dmtraverse: name="myname", omitting invalid child myname.i [511.0.11]
 __dmgetpmid: metric "myname.j" -> PMID 511.0.12
 Semantic error: derived metric myname.j: sample.mirage * sample.step_counter: Non-counter and not dimensionless for left operand
 __dmbind: check_expr failed for metric[11] myname.j
-__dmtraverse: name="myname", omitting invalid child "myname.j"
+__dmtraverse: name="myname", omitting invalid child myname.j [511.0.12]
 __dmgetpmid: metric "myname.k" -> PMID 511.0.13
 Semantic error: derived metric myname.k: sample.step_counter / sample.mirage_longlong: Non-counter and not dimensionless for right operand
 __dmbind: check_expr failed for metric[12] myname.k
-__dmtraverse: name="myname", omitting invalid child "myname.k"
+__dmtraverse: name="myname", omitting invalid child myname.k [511.0.13]
 __dmgetpmid: metric "myname.k2" -> PMID 511.0.14
 Semantic error: derived metric myname.k2: sample.mirage_longlong * sample.step_counter: Non-counter and not dimensionless for left operand
 __dmbind: check_expr failed for metric[13] myname.k2
-__dmtraverse: name="myname", omitting invalid child "myname.k2"
+__dmtraverse: name="myname", omitting invalid child myname.k2 [511.0.14]
 __dmgetpmid: metric "myname.l" -> PMID 511.0.15
 Semantic error: derived metric myname.l: sample.bin + sample.darkness: Operands should have the same instance domain
 __dmbind: check_expr failed for metric[14] myname.l
-__dmtraverse: name="myname", omitting invalid child "myname.l"
+__dmtraverse: name="myname", omitting invalid child myname.l [511.0.15]
 __dmgetpmid: metric "myname.gcov.a" -> PMID 511.0.16
 bind_expr: error: derived metric myname.gcov.a: operand (sample.bad.unknown [29.0.54]): Unknown or illegal metric identifier
 __dmbind: bind_expr failed for metric[15] myname.gcov.a
-__dmtraverse: name="myname", omitting invalid child "myname.gcov.a"
+__dmtraverse: name="myname", omitting invalid child myname.gcov.a [511.0.16]
 __dmgetpmid: metric "myname.gcov.b" -> PMID 511.0.17
 Semantic error: derived metric myname.gcov.b: <expr> + 42: Illegal operator for counter and non-counter
 __dmbind: check_expr failed for metric[16] myname.gcov.b
-__dmtraverse: name="myname", omitting invalid child "myname.gcov.b"
+__dmtraverse: name="myname", omitting invalid child myname.gcov.b [511.0.17]
 __dmgetpmid: metric "myname.gcov.c" -> PMID 511.0.18
 Semantic error: derived metric myname.gcov.c: 42 - <expr>: Illegal operator for non-counter and counter
 __dmbind: check_expr failed for metric[17] myname.gcov.c
-__dmtraverse: name="myname", omitting invalid child "myname.gcov.c"
+__dmtraverse: name="myname", omitting invalid child myname.gcov.c [511.0.18]
 __dmgetpmid: metric "myname.gcov.d" -> PMID 511.0.19
 Semantic error: derived metric myname.gcov.d: sample.bin + sample.darkness: Operands should have the same instance domain
 __dmbind: check_expr failed for metric[18] myname.gcov.d
-__dmtraverse: name="myname", omitting invalid child "myname.gcov.d"
+__dmtraverse: name="myname", omitting invalid child myname.gcov.d [511.0.19]
 Error: myname: Unknown metric name

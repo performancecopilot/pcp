@@ -69,7 +69,9 @@ Protocol options:
 
 Metrics options:
   -c FILE, --derived=FILE
-                        load derived metric definitions from FILE(s)
+                        load global derived metric definitions from FILE(s)
+  -r name=expr, --register=name=expr
+                        register a per-context derived metric
   -x, --events          unpack and report on any fetched event records
   -v, --verify          verify mode, be quiet and only report errors
 +++ -K clear,400 +++
@@ -110,7 +112,9 @@ Protocol options:
 
 Metrics options:
   -c FILE, --derived=FILE
-                        load derived metric definitions from FILE(s)
+                        load global derived metric definitions from FILE(s)
+  -r name=expr, --register=name=expr
+                        register a per-context derived metric
   -x, --events          unpack and report on any fetched event records
   -v, --verify          verify mode, be quiet and only report errors
 +++ -K clear,400, +++
@@ -151,7 +155,9 @@ Protocol options:
 
 Metrics options:
   -c FILE, --derived=FILE
-                        load derived metric definitions from FILE(s)
+                        load global derived metric definitions from FILE(s)
+  -r name=expr, --register=name=expr
+                        register a per-context derived metric
   -x, --events          unpack and report on any fetched event records
   -v, --verify          verify mode, be quiet and only report errors
 +++ -K clear,400,TMP.$DSO_SUFFIX +++
@@ -192,7 +198,9 @@ Protocol options:
 
 Metrics options:
   -c FILE, --derived=FILE
-                        load derived metric definitions from FILE(s)
+                        load global derived metric definitions from FILE(s)
+  -r name=expr, --register=name=expr
+                        register a per-context derived metric
   -x, --events          unpack and report on any fetched event records
   -v, --verify          verify mode, be quiet and only report errors
 +++ -K clear,400,TMP.$DSO_SUFFIX, +++
@@ -233,7 +241,9 @@ Protocol options:
 
 Metrics options:
   -c FILE, --derived=FILE
-                        load derived metric definitions from FILE(s)
+                        load global derived metric definitions from FILE(s)
+  -r name=expr, --register=name=expr
+                        register a per-context derived metric
   -x, --events          unpack and report on any fetched event records
   -v, --verify          verify mode, be quiet and only report errors
 +++ -K clear,400,TMP.$DSO_SUFFIX,sample_init +++
@@ -274,7 +284,9 @@ Protocol options:
 
 Metrics options:
   -c FILE, --derived=FILE
-                        load derived metric definitions from FILE(s)
+                        load global derived metric definitions from FILE(s)
+  -r name=expr, --register=name=expr
+                        register a per-context derived metric
   -x, --events          unpack and report on any fetched event records
   -v, --verify          verify mode, be quiet and only report errors
 +++ -K clear,,TMP.$DSO_SUFFIX,sample_init +++
@@ -315,7 +327,9 @@ Protocol options:
 
 Metrics options:
   -c FILE, --derived=FILE
-                        load derived metric definitions from FILE(s)
+                        load global derived metric definitions from FILE(s)
+  -r name=expr, --register=name=expr
+                        register a per-context derived metric
   -x, --events          unpack and report on any fetched event records
   -v, --verify          verify mode, be quiet and only report errors
 +++ -K clear,,,sample_init +++
@@ -356,7 +370,9 @@ Protocol options:
 
 Metrics options:
   -c FILE, --derived=FILE
-                        load derived metric definitions from FILE(s)
+                        load global derived metric definitions from FILE(s)
+  -r name=expr, --register=name=expr
+                        register a per-context derived metric
   -x, --events          unpack and report on any fetched event records
   -v, --verify          verify mode, be quiet and only report errors
 +++ -K clear,,TMP.$DSO_SUFFIX,sample_init +++
@@ -397,7 +413,9 @@ Protocol options:
 
 Metrics options:
   -c FILE, --derived=FILE
-                        load derived metric definitions from FILE(s)
+                        load global derived metric definitions from FILE(s)
+  -r name=expr, --register=name=expr
+                        register a per-context derived metric
   -x, --events          unpack and report on any fetched event records
   -v, --verify          verify mode, be quiet and only report errors
 +++ -K clear,400,,sample_init +++
@@ -438,7 +456,9 @@ Protocol options:
 
 Metrics options:
   -c FILE, --derived=FILE
-                        load derived metric definitions from FILE(s)
+                        load global derived metric definitions from FILE(s)
+  -r name=expr, --register=name=expr
+                        register a per-context derived metric
   -x, --events          unpack and report on any fetched event records
   -v, --verify          verify mode, be quiet and only report errors
 +++ -K add +++
@@ -479,7 +499,9 @@ Protocol options:
 
 Metrics options:
   -c FILE, --derived=FILE
-                        load derived metric definitions from FILE(s)
+                        load global derived metric definitions from FILE(s)
+  -r name=expr, --register=name=expr
+                        register a per-context derived metric
   -x, --events          unpack and report on any fetched event records
   -v, --verify          verify mode, be quiet and only report errors
 +++ -K add, +++
@@ -520,7 +542,9 @@ Protocol options:
 
 Metrics options:
   -c FILE, --derived=FILE
-                        load derived metric definitions from FILE(s)
+                        load global derived metric definitions from FILE(s)
+  -r name=expr, --register=name=expr
+                        register a per-context derived metric
   -x, --events          unpack and report on any fetched event records
   -v, --verify          verify mode, be quiet and only report errors
 +++ -K add,400 +++
@@ -561,7 +585,9 @@ Protocol options:
 
 Metrics options:
   -c FILE, --derived=FILE
-                        load derived metric definitions from FILE(s)
+                        load global derived metric definitions from FILE(s)
+  -r name=expr, --register=name=expr
+                        register a per-context derived metric
   -x, --events          unpack and report on any fetched event records
   -v, --verify          verify mode, be quiet and only report errors
 +++ -K add,400, +++
@@ -602,7 +628,9 @@ Protocol options:
 
 Metrics options:
   -c FILE, --derived=FILE
-                        load derived metric definitions from FILE(s)
+                        load global derived metric definitions from FILE(s)
+  -r name=expr, --register=name=expr
+                        register a per-context derived metric
   -x, --events          unpack and report on any fetched event records
   -v, --verify          verify mode, be quiet and only report errors
 +++ -K add,400,TMP.$DSO_SUFFIX +++
@@ -643,7 +671,9 @@ Protocol options:
 
 Metrics options:
   -c FILE, --derived=FILE
-                        load derived metric definitions from FILE(s)
+                        load global derived metric definitions from FILE(s)
+  -r name=expr, --register=name=expr
+                        register a per-context derived metric
   -x, --events          unpack and report on any fetched event records
   -v, --verify          verify mode, be quiet and only report errors
 +++ -K add,400,TMP.$DSO_SUFFIX, +++
@@ -684,7 +714,9 @@ Protocol options:
 
 Metrics options:
   -c FILE, --derived=FILE
-                        load derived metric definitions from FILE(s)
+                        load global derived metric definitions from FILE(s)
+  -r name=expr, --register=name=expr
+                        register a per-context derived metric
   -x, --events          unpack and report on any fetched event records
   -v, --verify          verify mode, be quiet and only report errors
 +++ -K add,400,TMP.$DSO_SUFFIX,sample_init +++
@@ -735,7 +767,9 @@ Protocol options:
 
 Metrics options:
   -c FILE, --derived=FILE
-                        load derived metric definitions from FILE(s)
+                        load global derived metric definitions from FILE(s)
+  -r name=expr, --register=name=expr
+                        register a per-context derived metric
   -x, --events          unpack and report on any fetched event records
   -v, --verify          verify mode, be quiet and only report errors
 +++ -K del, +++
@@ -776,7 +810,9 @@ Protocol options:
 
 Metrics options:
   -c FILE, --derived=FILE
-                        load derived metric definitions from FILE(s)
+                        load global derived metric definitions from FILE(s)
+  -r name=expr, --register=name=expr
+                        register a per-context derived metric
   -x, --events          unpack and report on any fetched event records
   -v, --verify          verify mode, be quiet and only report errors
 +++ -K del,30 +++
@@ -827,7 +863,9 @@ Protocol options:
 
 Metrics options:
   -c FILE, --derived=FILE
-                        load derived metric definitions from FILE(s)
+                        load global derived metric definitions from FILE(s)
+  -r name=expr, --register=name=expr
+                        register a per-context derived metric
   -x, --events          unpack and report on any fetched event records
   -v, --verify          verify mode, be quiet and only report errors
 +++ -K del,30,sample/pmda_sample.$DSO_SUFFIX, +++
@@ -876,7 +914,9 @@ Protocol options:
 
 Metrics options:
   -c FILE, --derived=FILE
-                        load derived metric definitions from FILE(s)
+                        load global derived metric definitions from FILE(s)
+  -r name=expr, --register=name=expr
+                        register a per-context derived metric
   -x, --events          unpack and report on any fetched event records
   -v, --verify          verify mode, be quiet and only report errors
 +++ -K del,,, +++
@@ -917,7 +957,9 @@ Protocol options:
 
 Metrics options:
   -c FILE, --derived=FILE
-                        load derived metric definitions from FILE(s)
+                        load global derived metric definitions from FILE(s)
+  -r name=expr, --register=name=expr
+                        register a per-context derived metric
   -x, --events          unpack and report on any fetched event records
   -v, --verify          verify mode, be quiet and only report errors
 +++ -K del,,,sample_init +++
@@ -958,7 +1000,9 @@ Protocol options:
 
 Metrics options:
   -c FILE, --derived=FILE
-                        load derived metric definitions from FILE(s)
+                        load global derived metric definitions from FILE(s)
+  -r name=expr, --register=name=expr
+                        register a per-context derived metric
   -x, --events          unpack and report on any fetched event records
   -v, --verify          verify mode, be quiet and only report errors
 

@@ -1727,7 +1727,7 @@ _clean_display()
 #   _check_valgrind
 #
 # Main code...
-#   _run_valgrind [--sudo] app [arg1 [arg2] ... ]
+#   _run_valgrind [--sudo] [--save-output] app [arg1 [arg2] ... ]
 # or
 #   _run_helgrind [--sudo] app [arg1 [arg2] ... ]
 #
@@ -1868,6 +1868,12 @@ _filter_helgrind()
     # end
 }
 
+# options:
+# --sudo
+# 	run $sudo valgrind ...
+# --save-output
+# 	don't cat output files, save 'em to $tmp.out and $tmp.err
+#
 _run_valgrind()
 {
     if [ x"$1" = "x--sudo" ]
@@ -1877,18 +1883,22 @@ _run_valgrind()
     else
 	__valgrind_prefix=''
     fi
+    if [ x"$1" = "x--save-output" ]
+    then
+	__valgrind_save_output=true
+	shift
+    else
+	__valgrind_save_output=false
+    fi
+
     # extract version number I.J.K ... ignore anything after that,
     # e.g. .SVN or .SVN-Debian for Debian-based distros
     #
     __version=`valgrind --version | sed -e 's/valgrind-//' -e 's/\([0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\).*/\1/'`
+    __extra=''
     if [ -f $here/valgrind-suppress-$__version ]
     then
-	if [ -z "$__extra" ]
-	then
-	    __extra="--suppressions=$here/valgrind-suppress-$__version"
-	else
-	    __extra="$__extra --suppressions=$here/valgrind-suppress-$__version"
-	fi
+	__extra="--suppressions=$here/valgrind-suppress-$__version"
     else
 	echo "Warning: no extra suppressions found for valgrind version $__version" >>$here/$seq.full
     fi
@@ -1925,10 +1935,18 @@ _run_valgrind()
 	$__extra \
 	--log-file=$tmp._valgrind \
 	    "$@" 2>$tmp._valgrind.err >$tmp._valgrind.out
-    echo "=== std out ==="
-    $sudo cat $tmp._valgrind.out
-    echo "=== std err ==="
-    $sudo cat $tmp._valgrind.err
+    if $__valgrind_save_output
+    then
+	touch $tmp.out
+	$sudo cp $tmp._valgrind.out $tmp.out
+	touch $tmp.err
+	$sudo cp $tmp._valgrind.err $tmp.err
+    else
+	echo "=== std out ==="
+	$sudo cat $tmp._valgrind.out
+	echo "=== std err ==="
+	$sudo cat $tmp._valgrind.err
+    fi
     echo "=== valgrind report ===" >>$here/$seq.full
     $sudo cat $tmp._valgrind >>$here/$seq.full
     echo "=== filtered valgrind report ==="

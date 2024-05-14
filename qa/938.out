@@ -456,7 +456,7 @@ expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] prima
     PMID: 29.0.6 (29.0.6 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
-__dmtraverse: name="a", omitting invalid child "a.err.m1"
+__dmtraverse: name="a", omitting invalid child a.err.m1 [511.0.11]
 __dmgetpmid: metric "a.err.m2" -> PMID 511.0.12
 Semantic error: ternary op units (space): left=byte (dim=1 scale=0) right=Kbyte (dim=1 scale=1)
 Semantic error: derived metric a.err.m2: sample.byte_ctr : sample.kbyte_ctr: Different units or scale (space) for ternary operands
@@ -482,7 +482,7 @@ expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.kbyte_ctr]
     PMID: 29.0.83 (29.0.83 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: Kbyte
-__dmtraverse: name="a", omitting invalid child "a.err.m2"
+__dmtraverse: name="a", omitting invalid child a.err.m2 [511.0.12]
 __dmgetpmid: metric "a.err.m3" -> PMID 511.0.13
 Semantic error: ternary op type: left=32 right=STRING
 Semantic error: derived metric a.err.m3: sample.bin : sample.lights: Different types for ternary operands
@@ -508,7 +508,7 @@ expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.lights] pr
     PMID: 29.0.46 (29.0.46 from pmDesc) numval: 0
     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
-__dmtraverse: name="a", omitting invalid child "a.err.m3"
+__dmtraverse: name="a", omitting invalid child a.err.m3 [511.0.13]
 __dmgetpmid: metric "a.err.m4" -> PMID 511.0.14
 Semantic error: ternary op indom: left=29.2 right=29.1
 Semantic error: derived metric a.err.m4: sample.bin : sample.colour: Different instance domains for ternary operands
@@ -534,7 +534,7 @@ expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.colour] pr
     PMID: 29.0.5 (29.0.5 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: 29.1 0x7400001
     Semantics: instant  Units: none
-__dmtraverse: name="a", omitting invalid child "a.err.m4"
+__dmtraverse: name="a", omitting invalid child a.err.m4 [511.0.14]
 __dmgetpmid: metric "a.err.m5" -> PMID 511.0.15
 Semantic error: ternary op semantics: left=counter right=instant
 Semantic error: derived metric a.err.m5: sample.seconds : sample.ulong.ten: Different semantics for ternary operands
@@ -560,7 +560,7 @@ expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.ten]
     PMID: 29.0.94 (29.0.94 from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-__dmtraverse: name="a", omitting invalid child "a.err.m5"
+__dmtraverse: name="a", omitting invalid child a.err.m5 [511.0.15]
 __dmgetpmid: metric "a.err.m6" -> PMID 511.0.16
 Semantic error: ternary op units (time): left=byte / sec right=byte / hour
 Semantic error: derived metric a.err.m6: sample.byte_rate : sample.byte_rate_perhour: Different units or scale (time) for ternary operands
@@ -586,7 +586,7 @@ expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.byte_rate_
     PMID: 29.0.85 (29.0.85 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: byte / hour
-__dmtraverse: name="a", omitting invalid child "a.err.m6"
+__dmtraverse: name="a", omitting invalid child a.err.m6 [511.0.16]
 __dmgetpmid: metric "a.err.m7" -> PMID 511.0.17
 Semantic error: ternary op units (count): left= right=count
 Semantic error: derived metric a.err.m7: sample.long.hundred : sample.step: Different units or scale (count) for ternary operands
@@ -612,7 +612,7 @@ expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.step] prim
     PMID: 29.0.8 (29.0.8 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count
-__dmtraverse: name="a", omitting invalid child "a.err.m7"
+__dmtraverse: name="a", omitting invalid child a.err.m7 [511.0.17]
 __dmgetpmid: metric "a.err.m8" -> PMID 511.0.18
 Semantic error: derived metric a.err.m8: <expr> ? sample.ulong.hundred : sample.ulong.ten: Non-scalar ternary guard with scalar expressions
 __dmbind: check_expr failed for metric[17] a.err.m8
@@ -645,7 +645,7 @@ expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.ten]
     PMID: 29.0.94 (29.0.94 from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-__dmtraverse: name="a", omitting invalid child "a.err.m8"
+__dmtraverse: name="a", omitting invalid child a.err.m8 [511.0.18]
 __dmgetpmid: metric "a.err.m9" -> PMID 511.0.19
 Semantic error: derived metric a.err.m9: sample.string.hullo ? 1 : 2: Non-arithmetic operand for ternary guard
 __dmbind: check_expr failed for metric[18] a.err.m9
@@ -670,7 +670,7 @@ expr node <addr> type=INTEGER left=(nil) right=(nil) save_last=0 [2] primary=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
-__dmtraverse: name="a", omitting invalid child "a.err.m9"
+__dmtraverse: name="a", omitting invalid child a.err.m9 [511.0.19]
 __dmgetpmid: metric "a.m1" -> PMID 511.0.3
 __dmgetpmid: metric "a.m2" -> PMID 511.0.4
 __dmgetpmid: metric "a.m3" -> PMID 511.0.5

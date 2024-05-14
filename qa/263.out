@@ -996,5 +996,5 @@ expr node <addr-7> type=NAME left=(nil) right=(nil) save_last=0 [sample.lights] 
     PMID: 29.0.46 (29.0.46 from pmDesc) numval: 0
     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
-__dmtraverse: name="aggr", omitting invalid child "aggr.non_arith"
+__dmtraverse: name="aggr", omitting invalid child aggr.non_arith [511.0.3]
 Error: aggr: Unknown metric name

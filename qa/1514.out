@@ -1,4 +1,12 @@
-QA output created by 1508
+QA output created by 1514
+QA output created by 1508 --valgrind
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -Dderive -Dappl1 -df qa
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 pmRegisterDerived: global metric[0] event.flags = anon(PM_TYPE_U32)
 pmRegisterDerived: global metric[1] event.missed = anon(PM_TYPE_U32)
 Derived metric initialization from $PCP_DERIVED_CONFIG
@@ -433,6 +441,9 @@ qa.meta.d
 No value(s) available!
 
 === Marko's nested defn case ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: /usr/bin/pmrep -s 2 baz bah
 Semantic error: derived metric baz: operand foo: Illegal nested derived metric
 Semantic error: derived metric bah: operand bar: Illegal nested derived metric
 Invalid metric baz (PM_ERR_NAME Unknown metric name).

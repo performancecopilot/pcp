@@ -1,0 +1,51 @@
+#!/bin/sh
+#
+# Recreate derive archive
+#
+
+tmp=/var/tmp/$$
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+. /etc/pcp.conf
+
+unset PCP_DERIVED_CONFIG
+# disk.dev.await PMID: 511.0.22
+pmid=`pminfo -m disk.dev.await | sed -e 's/.* //'`
+case "$pmid"
+in
+    511.0.*)
+	    ;;
+    *)
+	    pminfo -m disk.dev.await
+	    echo "Arrgh ... disk.dev.await does not smell like a derived metric"
+	    exit 1
+	    ;;
+esac
+
+cat <<End-of-File >$tmp.derive
+sample.derived.a = sample.bin + 42
+sample.derived.b = sample.colour - sample.colour
+End-of-File
+
+cat <<End-of-File >$tmp.config
+log mandatory on 2 sec {
+    disk.dev.total
+    disk.dev.read
+    disk.dev.total_rawactive
+    disk.dev.await
+    sample.derived
+    sample.bin
+    sample.colour
+}
+End-of-File
+
+rm -f derive.index derive.meta derive.0
+# need sample.derived *plus* disk.dev.await from iostat.conf
+#
+export PCP_DERIVED_CONFIG=$tmp.derive:$PCP_VAR_DIR/config/derived/iostat.conf
+if pmlogger -c $tmp.config -s 5 derive
+then
+    :
+else
+    cat pmlogger.log
+fi
