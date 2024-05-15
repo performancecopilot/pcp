@@ -559,7 +559,7 @@ rpm?    /usr/lib*/python3.*/*-packages/pymongo*		[python3-pymongo]
 dpkg?	/usr/lib/python3/dist-packages/pymongo		[python3-pymongo]
 # perl modules
 # -- Time::HiRes
-dpkg?	Time::HiRes		[libperl[0-9][0-9.]*]
+dpkg?	Time::HiRes		[libperl[0-9][0-9.]* or libperl[0-9][0-9.]*t64]
 rpm?	Time::HiRes		[perl or perl-Time-HiRes]
 emerge?	Time::HiRes		[dev-lang/perl]
 pkgin?	Time::HiRes		[perl]

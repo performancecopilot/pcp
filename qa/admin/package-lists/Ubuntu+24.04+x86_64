@@ -57,7 +57,7 @@ liblist-moreutils-perl
 liblzma-dev
 libncurses-dev
 libnet-snmp-perl
-libperl5.38
+libperl5.38t64
 libpfm4-dev
 libpython3-dev
 libpython3-stdlib
@@ -87,7 +87,7 @@ lm-sensors
 make
 man-db
 mandoc
-mariadb-client
+mariadb-client-core
 memcached
 net-tools
 nmap
