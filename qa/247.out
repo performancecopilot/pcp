@@ -136,11 +136,11 @@ pmRegisterDerived: global metric[17] myname.gcov.c = 42 - (disk.all.total + disk
 pmRegisterDerived: global metric[18] myname.gcov.d = (sample.bin + sample.darkness)+42
 __dmgetpmid: metric "myname.a" -> PMID 511.0.3
 __dmgetpmid: metric "no.such.metric" -> Unknown metric name
-bind_expr: error: derived metric myname.a: operand: no.such.metric: Unknown metric name
+bind_expr: error: global derived metric myname.a: operand: no.such.metric: Unknown metric name
 __dmbind: bind_expr failed for metric[2] myname.a
 __dmtraverse: name="myname", omitting invalid child myname.a [511.0.3]
 __dmgetpmid: metric "myname.b" -> PMID 511.0.4
-bind_expr: error: derived metric myname.b: operand (sample.bad.unknown [29.0.54]): Unknown or illegal metric identifier
+bind_expr: error: global derived metric myname.b: operand (sample.bad.unknown [29.0.54]): Unknown or illegal metric identifier
 __dmbind: bind_expr failed for metric[3] myname.b
 __dmtraverse: name="myname", omitting invalid child myname.b [511.0.4]
 __dmgetpmid: metric "myname.c" -> PMID 511.0.5
@@ -188,7 +188,7 @@ Semantic error: derived metric myname.l: sample.bin + sample.darkness: Operands 
 __dmbind: check_expr failed for metric[14] myname.l
 __dmtraverse: name="myname", omitting invalid child myname.l [511.0.15]
 __dmgetpmid: metric "myname.gcov.a" -> PMID 511.0.16
-bind_expr: error: derived metric myname.gcov.a: operand (sample.bad.unknown [29.0.54]): Unknown or illegal metric identifier
+bind_expr: error: global derived metric myname.gcov.a: operand (sample.bad.unknown [29.0.54]): Unknown or illegal metric identifier
 __dmbind: bind_expr failed for metric[15] myname.gcov.a
 __dmtraverse: name="myname", omitting invalid child myname.gcov.a [511.0.16]
 __dmgetpmid: metric "myname.gcov.b" -> PMID 511.0.17

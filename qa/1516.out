@@ -118,6 +118,13 @@ util (Wed May  1 11:55:34 2024): 5.6 0 0
 
 
 --- cull disk.dev.total_rawactive from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 17d16
 < total_rawactive (Wed May  1 11:55:28 2024): ?
 55d53
@@ -130,6 +137,13 @@ util (Wed May  1 11:55:34 2024): 5.6 0 0
 > await (Wed May  1 11:55:34 2024): ?
 
 --- cull disk.dev.read_rawactive from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 15d14
 < read_rawactive (Wed May  1 11:55:28 2024): ?
 53d51
@@ -146,6 +160,13 @@ util (Wed May  1 11:55:34 2024): 5.6 0 0
 > avg_qlen (Wed May  1 11:55:34 2024): ?
 
 --- cull disk.dev.write_rawactive from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 16d15
 < write_rawactive (Wed May  1 11:55:28 2024): ?
 54d52
@@ -162,6 +183,13 @@ util (Wed May  1 11:55:34 2024): 5.6 0 0
 > avg_qlen (Wed May  1 11:55:34 2024): ?
 
 --- cull disk.dev.discard_rawactive from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 23d22
 < discard_rawactive (Wed May  1 11:55:28 2024): ?
 61d59
@@ -174,6 +202,13 @@ util (Wed May  1 11:55:34 2024): 5.6 0 0
 > d_await (Wed May  1 11:55:34 2024): ?
 
 --- cull disk.dev.discard from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 19d18
 < discard (Wed May  1 11:55:28 2024): ?
 57d55
@@ -190,6 +225,13 @@ util (Wed May  1 11:55:34 2024): 5.6 0 0
 > d_avg_rqsz (Wed May  1 11:55:34 2024): ?
 
 --- cull disk.dev.flush_rawactive from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 25d24
 < flush_rawactive (Wed May  1 11:55:28 2024): ?
 63d61
@@ -202,6 +244,13 @@ util (Wed May  1 11:55:34 2024): 5.6 0 0
 > f_await (Wed May  1 11:55:34 2024): ?
 
 --- cull disk.dev.flush from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 24d23
 < flush (Wed May  1 11:55:28 2024): ?
 62d60
@@ -214,6 +263,13 @@ util (Wed May  1 11:55:34 2024): 5.6 0 0
 > f_await (Wed May  1 11:55:34 2024): ?
 
 --- cull disk.dev.discard_bytes from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 21d20
 < discard_bytes (Wed May  1 11:55:28 2024): ?
 59d57
@@ -226,6 +282,13 @@ util (Wed May  1 11:55:34 2024): 5.6 0 0
 > d_avg_rqsz (Wed May  1 11:55:34 2024): ?
 
 --- cull disk.dev.avactive from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 10d9
 < avactive (Wed May  1 11:55:28 2024): ?
 48d46
@@ -351,6 +414,13 @@ util (Wed May  1 11:55:34 2024): 5.6
 
 
 --- cull disk.dm.total_rawactive from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 16d15
 < total_rawactive (Wed May  1 11:55:28 2024): ?
 53d51
@@ -363,6 +433,13 @@ util (Wed May  1 11:55:34 2024): 5.6
 > await (Wed May  1 11:55:34 2024): ?
 
 --- cull disk.dm.read_rawactive from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 14d13
 < read_rawactive (Wed May  1 11:55:28 2024): ?
 51d49
@@ -379,6 +456,13 @@ util (Wed May  1 11:55:34 2024): 5.6
 > avg_qlen (Wed May  1 11:55:34 2024): ?
 
 --- cull disk.dm.write_rawactive from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 15d14
 < write_rawactive (Wed May  1 11:55:28 2024): ?
 52d50
@@ -395,6 +479,13 @@ util (Wed May  1 11:55:34 2024): 5.6
 > avg_qlen (Wed May  1 11:55:34 2024): ?
 
 --- cull disk.dm.discard_rawactive from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 22d21
 < discard_rawactive (Wed May  1 11:55:28 2024): ?
 59d57
@@ -407,6 +498,13 @@ util (Wed May  1 11:55:34 2024): 5.6
 > d_await (Wed May  1 11:55:34 2024): ?
 
 --- cull disk.dm.discard from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 18d17
 < discard (Wed May  1 11:55:28 2024): ?
 55d53
@@ -423,6 +521,13 @@ util (Wed May  1 11:55:34 2024): 5.6
 > d_avg_rqsz (Wed May  1 11:55:34 2024): ?
 
 --- cull disk.dm.flush_rawactive from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 24d23
 < flush_rawactive (Wed May  1 11:55:28 2024): ?
 61d59
@@ -435,6 +540,13 @@ util (Wed May  1 11:55:34 2024): 5.6
 > f_await (Wed May  1 11:55:34 2024): ?
 
 --- cull disk.dm.flush from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 23d22
 < flush (Wed May  1 11:55:28 2024): ?
 60d58
@@ -447,6 +559,13 @@ util (Wed May  1 11:55:34 2024): 5.6
 > f_await (Wed May  1 11:55:34 2024): ?
 
 --- cull disk.dm.discard_bytes from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 20d19
 < discard_bytes (Wed May  1 11:55:28 2024): ?
 57d55
@@ -459,6 +578,13 @@ util (Wed May  1 11:55:34 2024): 5.6
 > d_avg_rqsz (Wed May  1 11:55:34 2024): ?
 
 --- cull disk.dm.avactive from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 12d11
 < avactive (Wed May  1 11:55:28 2024): ?
 49d47
@@ -587,6 +713,13 @@ util (Wed May  1 11:55:34 2024): 0
 
 
 --- cull disk.md.total_rawactive from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 16d15
 < total_rawactive (Wed May  1 11:55:28 2024): ?
 54d52
@@ -599,6 +732,13 @@ util (Wed May  1 11:55:34 2024): 0
 > await (Wed May  1 11:55:34 2024): ?
 
 --- cull disk.md.read_rawactive from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 14d13
 < read_rawactive (Wed May  1 11:55:28 2024): ?
 32d30
@@ -617,6 +757,13 @@ util (Wed May  1 11:55:34 2024): 0
 < avg_qlen (Wed May  1 11:55:34 2024): 0
 
 --- cull disk.md.write_rawactive from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 15d14
 < write_rawactive (Wed May  1 11:55:28 2024): ?
 32c31
@@ -637,6 +784,13 @@ util (Wed May  1 11:55:34 2024): 0
 > w_await (Wed May  1 11:55:34 2024): ?
 
 --- cull disk.md.discard_rawactive from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 22d21
 < discard_rawactive (Wed May  1 11:55:28 2024): ?
 60d58
@@ -649,6 +803,13 @@ util (Wed May  1 11:55:34 2024): 0
 > d_await (Wed May  1 11:55:34 2024): ?
 
 --- cull disk.md.discard from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 18d17
 < discard (Wed May  1 11:55:28 2024): ?
 56d54
@@ -665,6 +826,13 @@ util (Wed May  1 11:55:34 2024): 0
 > d_avg_rqsz (Wed May  1 11:55:34 2024): ?
 
 --- cull disk.md.flush_rawactive from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 24d23
 < flush_rawactive (Wed May  1 11:55:28 2024): ?
 62d60
@@ -677,6 +845,13 @@ util (Wed May  1 11:55:34 2024): 0
 > f_await (Wed May  1 11:55:34 2024): ?
 
 --- cull disk.md.flush from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 23d22
 < flush (Wed May  1 11:55:28 2024): ?
 61d59
@@ -689,6 +864,13 @@ util (Wed May  1 11:55:34 2024): 0
 > f_await (Wed May  1 11:55:34 2024): ?
 
 --- cull disk.md.discard_bytes from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 20d19
 < discard_bytes (Wed May  1 11:55:28 2024): ?
 58d56
@@ -701,6 +883,13 @@ util (Wed May  1 11:55:34 2024): 0
 > d_avg_rqsz (Wed May  1 11:55:34 2024): ?
 
 --- cull disk.md.avactive from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 12d11
 < avactive (Wed May  1 11:55:28 2024): ?
 50d48
@@ -832,6 +1021,13 @@ util (Wed May  1 11:13:07 2024): 1.80 100 1.33 1.20 1.20
 
 
 --- cull disk.wwid.total_rawactive from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 18d17
 < total_rawactive (Wed May  1 11:13:01 2024): ?
 57d55
@@ -844,6 +1040,13 @@ util (Wed May  1 11:13:07 2024): 1.80 100 1.33 1.20 1.20
 > await (Wed May  1 11:13:07 2024): ?
 
 --- cull disk.wwid.read_rawactive from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 16d15
 < read_rawactive (Wed May  1 11:13:01 2024): ?
 33c32
@@ -868,6 +1071,13 @@ util (Wed May  1 11:13:07 2024): 1.80 100 1.33 1.20 1.20
 > avg_qlen (Wed May  1 11:13:07 2024): 0 0 0 0 0
 
 --- cull disk.wwid.write_rawactive from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 17d16
 < write_rawactive (Wed May  1 11:13:01 2024): ?
 33c32
@@ -892,6 +1102,13 @@ util (Wed May  1 11:13:07 2024): 1.80 100 1.33 1.20 1.20
 > avg_qlen (Wed May  1 11:13:07 2024): 0 0 0 0 0
 
 --- cull disk.wwid.discard_rawactive from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 24d23
 < discard_rawactive (Wed May  1 11:13:01 2024): ?
 63d61
@@ -904,6 +1121,13 @@ util (Wed May  1 11:13:07 2024): 1.80 100 1.33 1.20 1.20
 > d_await (Wed May  1 11:13:07 2024): ?
 
 --- cull disk.wwid.discard from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 20d19
 < discard (Wed May  1 11:13:01 2024): ?
 59d57
@@ -920,6 +1144,13 @@ util (Wed May  1 11:13:07 2024): 1.80 100 1.33 1.20 1.20
 > d_avg_rqsz (Wed May  1 11:13:07 2024): ?
 
 --- cull disk.wwid.flush_rawactive from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 26d25
 < flush_rawactive (Wed May  1 11:13:01 2024): ?
 65d63
@@ -932,6 +1163,13 @@ util (Wed May  1 11:13:07 2024): 1.80 100 1.33 1.20 1.20
 > f_await (Wed May  1 11:13:07 2024): ?
 
 --- cull disk.wwid.flush from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 25d24
 < flush (Wed May  1 11:13:01 2024): ?
 64d62
@@ -944,6 +1182,13 @@ util (Wed May  1 11:13:07 2024): 1.80 100 1.33 1.20 1.20
 > f_await (Wed May  1 11:13:07 2024): ?
 
 --- cull disk.wwid.discard_bytes from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 22d21
 < discard_bytes (Wed May  1 11:13:01 2024): ?
 61d59
@@ -956,6 +1201,13 @@ util (Wed May  1 11:13:07 2024): 1.80 100 1.33 1.20 1.20
 > d_avg_rqsz (Wed May  1 11:13:07 2024): ?
 
 --- cull disk.wwid.avactive from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 11d10
 < avactive (Wed May  1 11:13:01 2024): ?
 50d48

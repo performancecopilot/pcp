@@ -103,9 +103,10 @@ _doit()
 	#
 	if $do_valgrind
 	then
-	    _run_valgrind --save-output pmie -t 3 -v -z -a $tmp -c $tmp.pmie
-	    cat $tmp.err 2>>$seq.full
-	    _filter <$4mp.out >$tmp.tmp
+	    _run_valgrind --save-output pmie -t 3 -v -z -a $tmp -c $tmp.pmie 2>&1 \
+	    | _filter
+	    cat $tmp.err >>$seq.full
+	    _filter <$tmp.out >$tmp.tmp
 	else
 	    pmie -t 3 -v -z -a $tmp -c $tmp.pmie 2>>$seq.full \
 	    | _filter >$tmp.tmp

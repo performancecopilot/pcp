@@ -520,9 +520,12 @@ Extending a root LVM with device-mapper by adding a partition
     $ vg=<name>			<- from above will be "fedora-server" or
     				   "centos" or similar
     $ sudo vgextend /dev/$vg ${disk}1	<- extend the volume group
-    $ sudo lvextend -l +100%FREE /dev/$vg/root	<- extend LVM
+    # get pathname for base volume
+    $ ls /dev/$vg
+    $ root=...
+    $ sudo lvextend -l +100%FREE /dev/$vg/$root	<- extend LVM
     # for ext2
-    $ sudo resize2fs /dev/$vg/root		<- extend filesystem
+    $ sudo resize2fs /dev/$vg/$root		<- extend filesystem
     # for xfs
     $ sudo xfs_growfs /				<- extend filesytem
 
