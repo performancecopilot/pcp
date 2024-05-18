@@ -50,6 +50,7 @@ _pmdabpf_tryload()
 	echo "=== end module load test (passed) ===" >>$here/$seq.full
     else
 	echo "=== end module load test (failed) ===" >>$here/$seq.full
+	$sudo rm -rf $tmp $tmp.*
 	_notrun "cannot load BPF module(s) for this test, see $seq.full for details"
     fi
 }
