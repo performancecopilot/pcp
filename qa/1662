@@ -95,7 +95,7 @@ enabled = true
 path = $dir
 EOF
 src/time_stamp $tmp.stamp 'pmproxy start' >>$seq.full
-#__extra="--track-origins=yes --read-var-info=yes --read-inline-info=yes"
+#grind_extra="--track-origins=yes --read-var-info=yes --read-inline-info=yes"
 _run_valgrind $PCP_BINADM_DIR/pmproxy \
 	-f -t -A -c $tmp.conf -U $username -T 10sec -l $tmp.pmproxy \
 	-r $REDISPORT -p $PROXYPORT -s $PROXYSOCK \

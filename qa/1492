@@ -95,7 +95,7 @@ then
    obj:/usr/bin/bash
 }
 End-of-File
-    __extra="--suppressions=$tmp.suppress"
+    grind_extra="--suppressions=$tmp.suppress"
     _run_valgrind pcp -z atopsar -r atop-sar 180
 else
     pcp -z atopsar -r atop-sar 180 2>&1

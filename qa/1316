@@ -193,7 +193,7 @@ then
    fun:clone
 }
 End-of-File
-    __extra="--suppressions=$tmp.suppress"
+    grind_extra="--suppressions=$tmp.suppress"
     _run_valgrind src/multithread14 -i 12 -n 9 $tmp \
     | _filter
     if [ -s $tmp._valgrind.err ]
@@ -229,7 +229,7 @@ then
    fun:clone
 }
 End-of-File
-    __extra="--suppressions=$tmp.suppress"
+    grind_extra="--suppressions=$tmp.suppress"
     _run_helgrind src/multithread14 -i 12 -n 9 $tmp
 else
     src/multithread14 -i 12 -n 9 $tmp

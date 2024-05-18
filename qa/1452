@@ -33,6 +33,7 @@ _pmdabpf_tryload $tmp.conf
 _cleanup()
 {
     _pmdabpf_cleanup
+    $sudo rm -rf $tmp $tmp.*
 }
 
 _prepare_pmda bpf
