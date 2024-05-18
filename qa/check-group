@@ -118,10 +118,23 @@ do
 	    ;;
 
 	valgrind)	# executable maybe hidden in wrappers, so look for
-			# cmd and guard and wrapper
-	    ( grep -v '^#' $seq \
+			# cmd and guard and wrapper, but NOT if the script
+			# contains the "dual" guard ...
+			# if [ "$1" = "--valgrind" ]
+			#
+	    if ( grep -v '^#' $seq \
 	      | grep -E -q "(^[ 	]*(valgrind|_check_valgrind)([ '\"]|$))|([ /'\"\`_=](valgrind|_run_valgrind)([ '\"\`_]|$))" \
-	    ) && echo $seq >>$tmp.tmp
+	    )
+	    then
+		if grep -q 'if \[ "$1" = "--valgrind" ]' <$seq
+		then
+		    # valgrind is _really_ run from the dual of this one
+		    #
+		    :
+		else
+		    echo $seq >>$tmp.tmp
+		fi
+	    fi
 	    ;;
 
 	pcp-*)		# pcp-xxx is cmd, expected group is pcp AND xxx
