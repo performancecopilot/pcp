@@ -39,5 +39,5 @@ _cleanup_qt()
     unset XDG_RUNTIME_DIR
     _clean_display
     cd $here
-    $sudo rm -rf $tmp $tmp.*
+    rm -rf $tmp $tmp.*
 }
