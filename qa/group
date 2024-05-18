@@ -1923,8 +1923,8 @@ x11
 1454 pmlogrewrite local pmlogdump
 1455 pmlogrewrite labels pmlogdump local
 1456 pmlogrewrite local pmlogdump
-1457 pmproxy libpcp_web threads secure local
-1458 pmproxy libpcp_web threads local
+1457 pmproxy libpcp_web threads secure local valgrind
+1458 pmproxy libpcp_web threads local valgrind
 1459 pmlogrewrite local valgrind pmlogdump
 1460 pmlogrewrite local pmlogdump valgrind
 1461 pmlogrewrite pmlogdump local
@@ -1937,7 +1937,7 @@ x11
 1468 pmval fault interp local valgrind
 1469 pmlogsummary local valgrind
 1470 pmval local valgrind
-1471 pmda.linux local
+1471 pmda.linux local valgrind
 1472 pmcd pmda.sample local
 1473 logutil local
 1474 archive pmlogrewrite local
@@ -1956,7 +1956,7 @@ x11
 1487 pmda.linux local valgrind
 1488 other local
 1489 python pmrep pmimport local
-1490 python local labels
+1490 python local labels valgrind
 1491 pmcheck local
 1492 pcp atopsar local multi-archive
 1493 pcp atopsar local valgrind multi-archive
@@ -2009,7 +2009,7 @@ x11
 1589 pcp2json pcp2xxx python local
 1591 archive archive_v3 local
 1592 archive archive_v3 local valgrind
-1595 pmda.linux local
+1595 pmda.linux local valgrind
 1598 pmda.statsd local
 1599 pmda.statsd local
 1600 pmseries pmcd pmproxy pmlogger local
