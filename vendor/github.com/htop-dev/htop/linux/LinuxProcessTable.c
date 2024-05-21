@@ -71,11 +71,11 @@ static FILE* fopenat(openat_arg_t openatArg, const char* pathname, const char* m
    if (fd < 0)
       return NULL;
 
-   FILE* stream = fdopen(fd, mode);
-   if (!stream)
+   FILE* fp = fdopen(fd, mode);
+   if (!fp)
       close(fd);
 
-   return stream;
+   return fp;
 }
 
 static inline uint64_t fast_strtoull_dec(char** str, int maxlen) {
@@ -139,23 +139,39 @@ static void LinuxProcessTable_initTtyDrivers(LinuxProcessTable* this) {
    if (r < 0)
       return;
 
-   int numDrivers = 0;
-   int allocd = 10;
+   size_t numDrivers = 0;
+   size_t allocd = 10;
    ttyDrivers = xMallocArray(allocd, sizeof(TtyDriver));
    char* at = buf;
-   while (*at != '\0') {
+   char* path = NULL;
+   while (at && *at != '\0') {
+      /*
+       * Format:
+       * [name]  [node path]  [major]  [minor range]  [type]
+       * serial  /dev/ttyS    4        64-95          serial
+       */
+
       at = strchr(at, ' ');    // skip first token
+      if (!at)
+         goto finish;          // bail out on truncation
       while (*at == ' ') at++; // skip spaces
+
       const char* token = at;  // mark beginning of path
       at = strchr(at, ' ');    // find end of path
+      if (!at)
+         goto finish;          // bail out on truncation
       *at = '\0'; at++;        // clear and skip
-      ttyDrivers[numDrivers].path = xStrdup(token); // save
+      path = xStrdup(token);   // save
       while (*at == ' ') at++; // skip spaces
+
       token = at;              // mark beginning of major
       at = strchr(at, ' ');    // find end of major
+      if (!at)
+         goto finish;          // bail out on truncation
       *at = '\0'; at++;        // clear and skip
       ttyDrivers[numDrivers].major = atoi(token); // save
       while (*at == ' ') at++; // skip spaces
+
       token = at;              // mark beginning of minorFrom
       while (*at >= '0' && *at <= '9') at++; //find end of minorFrom
       if (*at == '-') {        // if has range
@@ -163,6 +179,8 @@ static void LinuxProcessTable_initTtyDrivers(LinuxProcessTable* this) {
          ttyDrivers[numDrivers].minorFrom = atoi(token); // save
          token = at;              // mark beginning of minorTo
          at = strchr(at, ' ');    // find end of minorTo
+         if (!at)
+            goto finish;          // bail out on truncation
          *at = '\0'; at++;        // clear and skip
          ttyDrivers[numDrivers].minorTo = atoi(token); // save
       } else {                 // no range
@@ -170,18 +188,24 @@ static void LinuxProcessTable_initTtyDrivers(LinuxProcessTable* this) {
          ttyDrivers[numDrivers].minorFrom = atoi(token); // save
          ttyDrivers[numDrivers].minorTo = atoi(token); // save
       }
+
       at = strchr(at, '\n');   // go to end of line
-      at++;                    // skip
+      if (at)
+         at++;                 // skip
+      ttyDrivers[numDrivers].path = path;
+      path = NULL;
       numDrivers++;
       if (numDrivers == allocd) {
          allocd += 10;
          ttyDrivers = xReallocArray(ttyDrivers, allocd, sizeof(TtyDriver));
       }
    }
-   numDrivers++;
-   ttyDrivers = xRealloc(ttyDrivers, sizeof(TtyDriver) * numDrivers);
-   ttyDrivers[numDrivers - 1].path = NULL;
-   qsort(ttyDrivers, numDrivers - 1, sizeof(TtyDriver), sortTtyDrivers);
+finish:
+   free(path);
+
+   ttyDrivers = xRealloc(ttyDrivers, sizeof(TtyDriver) * (numDrivers + 1));
+   ttyDrivers[numDrivers].path = NULL;
+   qsort(ttyDrivers, numDrivers, sizeof(TtyDriver), sortTtyDrivers);
    this->ttyDrivers = ttyDrivers;
 }
 
@@ -393,7 +417,7 @@ static bool LinuxProcessTable_readStatusFile(Process* process, openat_arg_t proc
    if (!statusfile)
       return false;
 
-   char buffer[PROC_LINE_LENGTH + 1];
+   char buffer[PROC_LINE_LENGTH + 1] = {0};
 
    while (fgets(buffer, sizeof(buffer), statusfile)) {
 
@@ -466,18 +490,18 @@ static bool LinuxProcessTable_updateUser(const Machine* host, Process* process, 
       return true;
    }
 
-   struct stat sstat;
+   struct stat sb;
 #ifdef HAVE_OPENAT
-   int statok = fstat(procFd, &sstat);
+   int statok = fstat(procFd, &sb);
 #else
-   int statok = stat(procFd, &sstat);
+   int statok = stat(procFd, &sb);
 #endif
    if (statok == -1)
       return false;
 
-   if (process->st_uid != sstat.st_uid) {
-      process->st_uid = sstat.st_uid;
-      process->user = UsersTable_getRef(host->usersTable, sstat.st_uid);
+   if (process->st_uid != sb.st_uid) {
+      process->st_uid = sb.st_uid;
+      process->user = UsersTable_getRef(host->usersTable, sb.st_uid);
    }
 
    return true;
@@ -731,8 +755,8 @@ static bool LinuxProcessTable_readStatmFile(LinuxProcess* process, openat_arg_t 
 static bool LinuxProcessTable_readSmapsFile(LinuxProcess* process, openat_arg_t procFd, bool haveSmapsRollup) {
    //http://elixir.free-electrons.com/linux/v4.10/source/fs/proc/task_mmu.c#L719
    //kernel will return data in chunks of size PAGE_SIZE or less.
-   FILE* f = fopenat(procFd, haveSmapsRollup ? "smaps_rollup" : "smaps", "r");
-   if (!f)
+   FILE* fp = fopenat(procFd, haveSmapsRollup ? "smaps_rollup" : "smaps", "r");
+   if (!fp)
       return false;
 
    process->m_pss   = 0;
@@ -740,10 +764,10 @@ static bool LinuxProcessTable_readSmapsFile(LinuxProcess* process, openat_arg_t 
    process->m_psswp = 0;
 
    char buffer[256];
-   while (fgets(buffer, sizeof(buffer), f)) {
+   while (fgets(buffer, sizeof(buffer), fp)) {
       if (!strchr(buffer, '\n')) {
          // Partial line, skip to end of this line
-         while (fgets(buffer, sizeof(buffer), f)) {
+         while (fgets(buffer, sizeof(buffer), fp)) {
             if (strchr(buffer, '\n')) {
                break;
             }
@@ -760,7 +784,7 @@ static bool LinuxProcessTable_readSmapsFile(LinuxProcess* process, openat_arg_t 
       }
    }
 
-   fclose(f);
+   fclose(fp);
    return true;
 }
 
@@ -1148,6 +1172,12 @@ static bool LinuxProcessTable_readCmdlineFile(Process* process, openat_arg_t pro
 
       /* newline used as delimiter - when forming the mergedCommand, newline is
        * converted to space by Process_makeCommandStr */
+      if (argChar == '\n') {
+         /* Set to some other non-printable character */
+         command[i] = '\r';
+         continue;
+      }
+
       if (argChar == '\0') {
          command[i] = '\n';
 
@@ -1325,19 +1355,19 @@ static char* LinuxProcessTable_updateTtyDevice(TtyDriver* ttyDrivers, unsigned l
          continue;
       }
       unsigned int idx = min - ttyDrivers[i].minorFrom;
-      struct stat sstat;
+      struct stat sb;
       char* fullPath;
       for (;;) {
          xAsprintf(&fullPath, "%s/%d", ttyDrivers[i].path, idx);
-         int err = stat(fullPath, &sstat);
-         if (err == 0 && major(sstat.st_rdev) == maj && minor(sstat.st_rdev) == min) {
+         int err = stat(fullPath, &sb);
+         if (err == 0 && major(sb.st_rdev) == maj && minor(sb.st_rdev) == min) {
             return fullPath;
          }
          free(fullPath);
 
          xAsprintf(&fullPath, "%s%d", ttyDrivers[i].path, idx);
-         err = stat(fullPath, &sstat);
-         if (err == 0 && major(sstat.st_rdev) == maj && minor(sstat.st_rdev) == min) {
+         err = stat(fullPath, &sb);
+         if (err == 0 && major(sb.st_rdev) == maj && minor(sb.st_rdev) == min) {
             return fullPath;
          }
          free(fullPath);
@@ -1348,8 +1378,8 @@ static char* LinuxProcessTable_updateTtyDevice(TtyDriver* ttyDrivers, unsigned l
 
          idx = min;
       }
-      int err = stat(ttyDrivers[i].path, &sstat);
-      if (err == 0 && tty_nr == sstat.st_rdev) {
+      int err = stat(ttyDrivers[i].path, &sb);
+      if (err == 0 && tty_nr == sb.st_rdev) {
          return xStrdup(ttyDrivers[i].path);
       }
    }
@@ -1541,6 +1571,32 @@ static bool LinuxProcessTable_recurseProcTree(LinuxProcessTable* this, openat_ar
       if (!LinuxProcessTable_updateUser(host, proc, procFd, mainTask))
          goto errorReadingProcess;
 
+      /* Check if the process is inside a different PID namespace. */
+      if (proc->isRunningInContainer == TRI_INITIAL && rootPidNs != (ino_t)-1) {
+         struct stat sb;
+#if defined(HAVE_OPENAT) && defined(HAVE_FSTATAT)
+         int res = fstatat(procFd, "ns/pid", &sb, 0);
+#else
+         char path[PATH_MAX];
+         xSnprintf(path, sizeof(path), "%s/ns/pid", procFd);
+         int res = stat(path, &sb);
+#endif
+         if (res == 0) {
+            proc->isRunningInContainer = (sb.st_ino != rootPidNs) ? TRI_ON : TRI_OFF;
+         }
+      }
+
+      if (ss->flags & PROCESS_FLAG_LINUX_CTXT
+         || ((hideRunningInContainer || ss->flags & PROCESS_FLAG_LINUX_CONTAINER) && proc->isRunningInContainer == TRI_INITIAL)
+#ifdef HAVE_VSERVER
+         || ss->flags & PROCESS_FLAG_LINUX_VSERVER
+#endif
+      ) {
+         proc->isRunningInContainer = TRI_OFF;
+         if (!LinuxProcessTable_readStatusFile(proc, procFd))
+            goto errorReadingProcess;
+      }
+
       if (!preExisting) {
 
          #ifdef HAVE_OPENVZ
@@ -1572,32 +1628,6 @@ static bool LinuxProcessTable_recurseProcTree(LinuxProcessTable* this, openat_ar
                LinuxProcessList_readComm(proc, procFd);
             }
          }
-      }
-
-      /* Check if the process in inside a different PID namespace. */
-      if (proc->isRunningInContainer == TRI_INITIAL && rootPidNs != (ino_t)-1) {
-         struct stat sb;
-#if defined(HAVE_OPENAT) && defined(HAVE_FSTATAT)
-         int res = fstatat(procFd, "ns/pid", &sb, 0);
-#else
-         char path[4096];
-         xSnprintf(path, sizeof(path), "%s/ns/pid", procFd);
-         int res = stat(path, &sb);
-#endif
-         if (res == 0) {
-            proc->isRunningInContainer = (sb.st_ino != rootPidNs) ? TRI_ON : TRI_OFF;
-         }
-      }
-
-      if (ss->flags & PROCESS_FLAG_LINUX_CTXT
-         || ((hideRunningInContainer || ss->flags & PROCESS_FLAG_LINUX_CONTAINER) && proc->isRunningInContainer == TRI_INITIAL)
-#ifdef HAVE_VSERVER
-         || ss->flags & PROCESS_FLAG_LINUX_VSERVER
-#endif
-      ) {
-         proc->isRunningInContainer = TRI_OFF;
-         if (!LinuxProcessTable_readStatusFile(proc, procFd))
-            goto errorReadingProcess;
       }
 
       /*
@@ -1632,9 +1662,9 @@ static bool LinuxProcessTable_recurseProcTree(LinuxProcessTable* this, openat_ar
                smaps_flag = !smaps_flag;
             }
          } else {
-            lp->m_pss   = ((const LinuxProcess*)mainTask)->m_pss;
-            lp->m_swap  = ((const LinuxProcess*)mainTask)->m_swap;
-            lp->m_psswp = ((const LinuxProcess*)mainTask)->m_psswp;
+            lp->m_pss   = mainTask->m_pss;
+            lp->m_swap  = mainTask->m_swap;
+            lp->m_psswp = mainTask->m_psswp;
          }
       }
 
@@ -1676,7 +1706,7 @@ static bool LinuxProcessTable_recurseProcTree(LinuxProcessTable* this, openat_ar
 
       if (ss->flags & PROCESS_FLAG_LINUX_GPU || GPUMeter_active()) {
          if (mainTask) {
-            lp->gpu_time = ((const LinuxProcess*)mainTask)->gpu_time;
+            lp->gpu_time = mainTask->gpu_time;
          } else {
             GPU_readProcessData(this, lp, procFd);
          }
@@ -1729,6 +1759,7 @@ errorReadingProcess:
              */
          } else {
             /* A really short-lived process that we don't have full info about */
+            assert(ProcessTable_findProcess(pt, Process_getPid(proc)) == NULL);
             Process_delete((Object*)proc);
          }
       }
