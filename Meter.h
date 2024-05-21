@@ -14,6 +14,7 @@ in the source distribution for its full text.
 
 #include "ListItem.h"
 #include "Machine.h"
+#include "MeterMode.h"
 #include "Object.h"
 
 
@@ -48,7 +49,7 @@ typedef struct Meter_ Meter;
 
 typedef void(*Meter_Init)(Meter*);
 typedef void(*Meter_Done)(Meter*);
-typedef void(*Meter_UpdateMode)(Meter*, int);
+typedef void(*Meter_UpdateMode)(Meter*, MeterModeId);
 typedef void(*Meter_UpdateValues)(Meter*);
 typedef void(*Meter_Draw)(Meter*, int, int, int);
 typedef const char* (*Meter_GetCaption)(const Meter*);
@@ -63,7 +64,7 @@ typedef struct MeterClass_ {
    const Meter_Draw draw;
    const Meter_GetCaption getCaption;
    const Meter_GetUiName getUiName;
-   const int defaultMode;
+   const MeterModeId defaultMode;
    const double total;
    const int* const attributes;
    const char* const name;                 /* internal name of the meter, must not contain any space */
@@ -87,7 +88,6 @@ typedef struct MeterClass_ {
 #define Meter_getUiName(this_,n_,l_)   As_Meter(this_)->getUiName((const Meter*)(this_),n_,l_)
 #define Meter_getCaptionFn(this_)      As_Meter(this_)->getCaption
 #define Meter_getCaption(this_)        (Meter_getCaptionFn(this_) ? As_Meter(this_)->getCaption((const Meter*)(this_)) : (this_)->caption)
-#define Meter_defaultMode(this_)       As_Meter(this_)->defaultMode
 #define Meter_attributes(this_)        As_Meter(this_)->attributes
 #define Meter_name(this_)              As_Meter(this_)->name
 #define Meter_uiName(this_)            As_Meter(this_)->uiName
@@ -105,7 +105,7 @@ struct Meter_ {
    const Machine* host;
 
    char* caption;
-   int mode;
+   MeterModeId mode;
    unsigned int param;
    GraphData drawData;
    int h;
@@ -117,21 +117,6 @@ struct Meter_ {
    double total;
    void* meterData;
 };
-
-typedef struct MeterMode_ {
-   Meter_Draw draw;
-   const char* uiName;
-   int h;
-} MeterMode;
-
-typedef enum {
-   CUSTOM_METERMODE = 0,
-   BAR_METERMODE,
-   TEXT_METERMODE,
-   GRAPH_METERMODE,
-   LED_METERMODE,
-   LAST_METERMODE
-} MeterModeId;
 
 typedef enum {
    RATESTATUS_DATA,
@@ -152,11 +137,9 @@ void Meter_delete(Object* cast);
 
 void Meter_setCaption(Meter* this, const char* caption);
 
-void Meter_setMode(Meter* this, int modeIndex);
+void Meter_setMode(Meter* this, MeterModeId modeIndex);
 
 ListItem* Meter_toListItem(const Meter* this, bool moving);
-
-extern const MeterMode* const Meter_modes[];
 
 extern const MeterClass BlankMeter_class;
 

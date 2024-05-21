@@ -138,13 +138,13 @@ static OpenFiles_ProcessData* OpenFilesScreen_getProcessData(pid_t pid) {
    OpenFiles_FileData* fdata = NULL;
    bool lsofIncludesFileSize = false;
 
-   FILE* fd = fdopen(fdpair[0], "r");
-   if (!fd) {
+   FILE* fp = fdopen(fdpair[0], "r");
+   if (!fp) {
       pdata->error = 1;
       return pdata;
    }
    for (;;) {
-      char* line = String_readLine(fd);
+      char* line = String_readLine(fp);
       if (!line) {
          break;
       }
@@ -212,7 +212,7 @@ static OpenFiles_ProcessData* OpenFilesScreen_getProcessData(pid_t pid) {
 
       free(line);
    }
-   fclose(fd);
+   fclose(fp);
 
    int wstatus;
    while (waitpid(child, &wstatus, 0) == -1)
@@ -238,10 +238,10 @@ static OpenFiles_ProcessData* OpenFilesScreen_getProcessData(pid_t pid) {
       item = &fdata->data;
       const char* filename = getDataForType(item, 'n');
 
-      struct stat st;
-      if (stat(filename, &st) == 0) {
+      struct stat sb;
+      if (stat(filename, &sb) == 0) {
          char fileSizeBuf[21]; /* 20 (long long) + 1 (NULL) */
-         xSnprintf(fileSizeBuf, sizeof(fileSizeBuf), "%"PRIu64, (uint64_t)st.st_size); /* st.st_size is long long on macOS, long on linux */
+         xSnprintf(fileSizeBuf, sizeof(fileSizeBuf), "%"PRIu64, (uint64_t)sb.st_size); /* sb.st_size is long long on macOS, long on linux */
          free_and_xStrdup(&item->data[fileSizeIndex], fileSizeBuf);
       }
    }
