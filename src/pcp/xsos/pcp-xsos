@@ -19,23 +19,35 @@
 . $PCP_DIR/etc/pcp.env
 
 sts=2
+awk="$PCP_AWK_PROG"
 tmp=`mktemp -d "$PCP_TMPFILE_DIR/pcp-xsos.XXXXXXXXX"` || exit 1
 trap "rm -rf $tmp; exit \$sts" 0 1 2 3 15
 
 progname=`basename $0`
 
-# metrics from different subsystems
-memory_metrics=(
-    "mem.physmem" "mem.util.free"
-    "mem.util.swapFree" "mem.util.swapTotal"
-)
-memory_detail_metrics=(
-    "mem.util.shmem" "mem.util.bufmem" "mem.util.cached"
-    "mem.util.available" "mem.util.slabReclaimable"
+mem_metrics=(
+    mem.physmem mem.util.used mem.util.dirty
+    mem.util.shmem mem.util.bufmem mem.util.cached
+    mem.util.swapFree mem.util.swapTotal
+    mem.util.slab mem.util.pageTables
+    mem.util.hugepagesTotalBytes
 )
 
-# $metrics becomes an accumulation of all metrics to be fetched
-metrics=("pmcd.hostname" "pmcd.timezone")
+os_metrics=(
+    hinv.ncpu hinv.pagesize
+    pmcd.hostname pmcd.timezone pmcd.zoneinfo
+    kernel.uname.release kernel.uname.version
+    kernel.uname.sysname kernel.uname.machine
+    kernel.uname.nodename kernel.uname.distro
+    kernel.all.boottime kernel.all.uptime
+    kernel.all.nusers kernel.all.load kernel.all.hz
+    kernel.all.runnable kernel.all.running
+    kernel.all.blocked kernel.all.nprocs
+    kernel.all.cpu.user kernel.all.cpu.nice
+    kernel.all.cpu.sys kernel.all.cpu.idle
+    kernel.all.cpu.wait.total kernel.all.cpu.steal
+    kernel.all.cpu.irq.soft kernel.all.cpu.irq.hard
+)
 
 _usage()
 {
@@ -46,30 +58,33 @@ _usage()
 
 # usage spec for pmgetopt, note posix flag (commands mean no reordering)
 cat > $tmp/usage << EOF
-# getopts: a:h:O:?dm
+# getopts: a:h:O:?omx
    --archive
    --host
    --origin
    --help
-   -d,--detail     display additional subsystem details
-   -m,--memory     display memory summary
+   --all           show everything
+   -o,--os         show hostname, distro, kernel info, uptime, etc
+   -m,--mem        display memory summary
+   -x,--nocolor    disable output colorization
 # end
 EOF
 
-dflag=false
-mflag=false
-BATCH=''
-ARGS=`pmgetopt --progname=$progname --config=$tmp/usage -- "$@"`
+color=true
+osflag=false
+memflag=false
+batch=''
+args=`pmgetopt --progname=$progname --config=$tmp/usage -- "$@"`
 [ $? != 0 ] && exit 1
 
-eval set -- "$ARGS"
+eval set -- "$args"
 while [ $# -gt 0 ]
 do
     case "$1" in
       # pcp options
       -a)
         export PCP_ARCHIVE="$2"
-        BATCH="-b 1"
+        batch="-b 1"
         shift
         ;;
       -h)
@@ -81,13 +96,18 @@ do
         shift
         ;;
       # pcp-xsos options
-      -d)
-        dflag=true
-        $mflag && metrics+=( ${memory_detail_metrics[*]} )
+      --all)
+        osflag=true
+        memflag=true
         ;;
       -m)
-        mflag=true
-        metrics+=( ${memory_metrics[*]} )
+        memflag=true
+        ;;
+      -o)
+        osflag=true
+        ;;
+      -x)
+        color=false
         ;;
       -\?)
         _usage ""
@@ -99,6 +119,17 @@ do
     esac
     shift        # finished with this option, move to next
 done
+
+# accumulate an array of all metrics to be fetched
+metrics=()
+$osflag && metrics+=( ${os_metrics[*]} )
+$memflag && metrics+=( ${mem_metrics[*]} )
+
+# default to OS metrics if nothing specified
+if test ${#metrics[@]} -eq 0; then
+    metrics=( ${os_metrics[*]} )
+    osflag=true
+fi
 
 # Extract values for all metrics at once.  Fetch using pminfo then
 # cater for 3 cases: single-valued metrics, set-valued metrics and
@@ -130,7 +161,7 @@ done
 # kernel_all_load_value[15]=0.06
 # kernel_cpu_util_user_error="No value(s) available!"
 
-if ! pminfo $BATCH --fetch ${metrics[*]} > $tmp/metrics 2>$tmp/error
+if ! pminfo $batch --fetch ${metrics[*]} > $tmp/metrics 2>$tmp/error
 then
     if grep "^pminfo:" $tmp/error > /dev/null 2>&1
     then
@@ -142,7 +173,7 @@ then
 fi
 [ -s $tmp/error ] && sed -e '/Unknown metric name/d' <$tmp/error >&2
 
-$PCP_AWK_PROG < $tmp/metrics > $tmp/variables '
+$awk < $tmp/metrics > $tmp/variables '
 BEGIN { error = 0; count = 0; value = 0; metric = "" }
 {
     if (NF == 0) {   # end previous metric (if any)
@@ -174,35 +205,245 @@ END { printf "metrics=%d\nvalues=%d\nerrors=%d\n", count, value, error }'
 eval `cat $tmp/variables`
 #cat $tmp/variables
 
-[ -z "${pmcd_timezone_value}" ] && pmcd_timezone_value="unknown"
-[ -z "${pmcd_hostname_value}" ] && pmcd_hostname_value="localhost"
-echo Performance Co-Pilot xsos report for host ${pmcd_hostname_value} \
-        [${pmcd_timezone_value}]
-echo
+if $color; then
+    RESET='\033[0m' # use defaults
+    BLACK='\033[0;30m'
+    RED='\033[0;31m'
+    GREEN='\033[0;32m'
+    ORANGE='\033[0;33m'
+    BLUE='\033[0;34m'
+    PURPLE='\033[0;35m'
+    CYAN='\033[0;36m'
+    WHITE='\033[0;37m'
+    BACKBLUE='\033[44m' # background in blue
+    BOLDWHITE='\033[1;37m'
+    BOLDPURPLE='\033[1;35m'
+    BOLDBLUE='\033[1;34m'
+    BOLDRED='\033[1;31m'
+fi
 
-$mflag && echo \# Memory Summary
-[ -n "${mem_physmem_value}" ] && \
-        echo Total memory: ${mem_physmem_value} kB
-[ -n "${mem_util_free_value}" ] && \
-        echo Free memory: ${mem_util_free_value} kB
-[ -n "${mem_util_swapTotal_value}" ] && \
-        echo Total swap: ${mem_util_swapTotal_value} kB
-[ -n "${mem_util_swapFree_value}" ] && \
-        echo Free swap: ${mem_util_swapFree_value} kB
-$mflag && echo
+H0="${BOLDRED}"  # heading color
+H1="  ${BOLDPURPLE}"  # next level down
+H2="    ${BOLDBLUE}"  # second level heading
 
-$mflag && $dflag && echo \# Memory Details
-[ -n "${mem_util_available_value}" ] && \
-        echo Available: ${mem_util_available_value} kB
-[ -n "${mem_util_shmem_value}" ] && \
-        echo Shared: ${mem_util_shmem_value} kB
-[ -n "${mem_util_bufmem_value}" ] && \
-        echo Buffers: ${mem_util_bufmem_value} kB
-[ -n "${mem_util_cached_value}" ] && \
-        echo Cached: ${mem_util_cached_value} kB
-[ -n "${mem_util_slabReclaimable_value}" ] && \
-        echo Reclaimable Slab: ${mem_util_slabReclaimable_value} kB
-$mflag && $dflag && echo
+get_value()
+{
+    # $1 - mandatory metric name, e.g. kernel.all.pswitch
+    # $2 - optional fallback value, used to override error string
+    eval __value=`echo ${1} | sed -e 's/^/$/' -e 's/\./_/g' -e 's/$/_value/'`
+    eval __error=`echo ${1} | sed -e 's/^/$/' -e 's/\./_/g' -e 's/$/_error/'`
+
+    test -n "${__value}" && printf "${__value}" && return 0
+    test -n "${__error}" -a -z "${2}" && printf "${RED}(missing)" && return 3
+    test -n "${2}" && printf "${ORANGE}${2}" && echo 2
+    printf f"${ORANGE}unknown"
+    return 1
+}
+
+raw_value()
+{
+    # $1 - mandatory metric name, e.g. kernel.all.pswitch
+    # $2 - optional fallback value, used to override an empty value
+    eval __value=`echo ${1} | sed -e 's/^/$/' -e 's/\./_/g' -e 's/$/_value/'`
+    test -n "${__value}" && echo "${__value}" && return 0
+    test -n "${2}" && echo "${2}" && echo 2
+    echo "unknown"
+    return 1
+}
+
+raw_inst()
+{
+    # $1 - mandatory metric name, e.g. kernel.all.pswitch
+    # $2 - mandatory numeric instance identifier, e.g. 1
+    eval __value=`echo ${1} | sed -e 's/^/${/' -e 's/\./_/g' -e 's/$/_value['$2']}/'`
+    test -n "${__value}" && echo "${__value}" && return 0
+    echo "unknown"
+    return 1
+}
+
+print_uptime()
+{
+    # Report on system up-time in days, hours and minutes
+    # and number of users (given booted seconds + nusers)
+    seconds=`echo "$1" | sed -e 's/\..*$//g'`
+    users="$2"
+
+    days=$((seconds / (60 * 60 * 24)))
+    minutes=$((seconds / 60))
+    hours=$((minutes / 60))
+    hours=$((hours % 24))
+    minutes=$((minutes % 60))
+    if test $days -gt 1; then
+        printf "$days days,"
+    elif test $days -ne 0; then
+        printf "1 day,"
+    fi
+    if test $hours -ne 0; then
+        printf ' %2d:%02d,' $hours $minutes
+    else
+        printf ' %d min,' $minutes
+    fi
+    if test $users -eq 1; then
+        printf '   1 user\n'
+    else
+        printf ' %2d users\n' $users
+    fi
+}
+
+pcp_xsos_os()
+{
+    printf "${H0}OS\n"
+
+    printf "${H1}Hostname:${RESET} "
+    get_value pmcd.hostname; echo
+    printf "${H1}Distro:${RESET}   "
+    banner=`get_value kernel.uname.distro`
+    printf "${BACKBLUE}${banner}${RESET}\n"
+    printf "${H1}Arch:${RESET}     "
+    platform=`get_value kernel.uname.machine`
+    printf "platform=$platform\n"
+    printf "${H1}Kernel:${RESET}\n"
+    printf "${H2}Hertz:${RESET}         "
+    get_value kernel.all.hz; echo
+    printf "${H2}Pagesize:${RESET}      "
+    get_value hinv.pagesize; echo
+    printf "${H2}Build version:${RESET}\n"
+    release=`get_value kernel.uname.release`
+    release="version $release"
+    sysname=`get_value kernel.uname.sysname`
+    sysname="$sysname $release"
+    version=`get_value kernel.uname.version "unknown build version"`
+    printf "      ${ORANGE}${sysname}${RESET}\n"
+    printf "      ${ORANGE}${version}${RESET}\n"
+    printf "    - - - - - - - - - - - - - - - - - - -\n"
+
+    printf "${H1}Boot time: ${RESET}"
+    boottime=`raw_value kernel.all.boottime 0`
+    date --date="@$boottime" +"%a %b %d %I:%M:%S %P %Z %Y"
+    printf "${H1}Time Zone: ${RESET}"
+    timezone=`raw_value pmcd.timezone unknown`
+    zoneinfo=`raw_value pmcd.zoneinfo | sed -e 's/^://'`
+    printf "${zoneinfo} [${timezone}]\n"
+    printf "${H1}Uptime: ${RESET}  "
+    uptime=`raw_value kernel.all.uptime 0`
+    nusers=`raw_value kernel.all.nusers 0`
+    print_uptime $uptime $nusers
+    printf "${H1}LoadAvg:${RESET}  "
+    ncpus=`raw_value hinv.ncpu`
+    printf "${BOLDWHITE}[$ncpus CPU]${RESET}"
+    test "$ncpus" = "unknown" && ncpus=1  # for division later
+    for inst in 1 5 15; do
+        load=`raw_inst kernel.all.load $inst`
+        percent=`$awk "BEGIN {print int(${load}*${ncpus}+.5)}"`
+        test $inst -eq 1 || printf ","
+        printf " %.2f (${GREEN}%d%%${RESET})" $load $percent
+        test $inst -eq 15 && printf "\n"
+    done
+
+    printf "${H1}Processes: ${RESET}\n"
+    printf "${H2}running: ${RESET}"
+    get_value kernel.all.running
+    printf "${H2}runnable: ${RESET}"
+    get_value kernel.all.runnable
+    printf "${H2}blocked: ${RESET}"
+    get_value kernel.all.blocked
+    printf "${H2}count: ${RESET}"
+    get_value kernel.all.nprocs; echo
+
+    printf "${H1}Processors: ${RESET}\n"
+    printf "${H2}cpu [Utilization since boot]: ${RESET}\n      "
+    us=`raw_value kernel.all.cpu.user 0`
+    ni=`raw_value kernel.all.cpu.nice 0`
+    sy=`raw_value kernel.all.cpu.sys 0`
+    id=`raw_value kernel.all.cpu.idle 0`
+    wt=`raw_value kernel.all.cpu.wait.total 0`
+    ih=`raw_value kernel.all.cpu.irq.hard 0`
+    is=`raw_value kernel.all.cpu.irq.soft 0`
+    st=`raw_value kernel.all.cpu.steal 0`
+    tot=`$awk "BEGIN {print $us+$ni+$sy+$id+$wt+$ih+$is+$st}"`
+    printf "us %d%%, " `$awk "BEGIN {print int($us/$tot*100+.5)}"`
+    printf "ni %d%%, " `$awk "BEGIN {print int($ni/$tot*100+.5)}"`
+    printf "sys %d%%, " `$awk "BEGIN {print int($sy/$tot*100+.5)}"`
+    printf "idle %d%%, " `$awk "BEGIN {print int($id/$tot*100+.5)}"`
+    printf "iowait %d%%, " `$awk "BEGIN {print int($wt/$tot*100+.5)}"`
+    printf "irq %d%%, " `$awk "BEGIN {print int($ih/$tot*100+.5)}"`
+    printf "sftirq %d%%, " `$awk "BEGIN {print int($is/$tot*100+.5)}"`
+    printf "steal %d%%\n\n" `$awk "BEGIN {print int($st/$tot*100+.5)}"`
+}
+
+print_hbar()
+{
+    # inputs: title color value total
+    width=50
+    ratio=`$awk "BEGIN {print $3/$4}"`
+    hbars=`$awk "BEGIN {print int($ratio*$width+.5)}"`
+    printf "    ${2}%-10s " $1
+    for i in $(seq 1 $hbars); do printf "▊"; done
+    printf "${RESET}"
+    for i in $(seq $hbars $width); do printf "."; done
+    printf " ${2}%5.1f%%${RESET}\n" `$awk "BEGIN {print $ratio*100+.005}"`
+}
+
+pcp_xsos_mem()
+{
+    printf "${H0}MEMORY\n"
+
+    total=`raw_value mem.physmem 1`
+    used=`raw_value mem.util.used 0`
+    buffer=`raw_value mem.util.bufmem 0`
+    cached=`raw_value mem.util.cached 0`
+    huge=`raw_value mem.util.hugepagesTotalBytes 0`
+    dirty=`raw_value mem.util.dirty 0`
+    printf "${H1}Stats graphed as percent of MemTotal:${RESET}\n"
+    print_hbar MemUsed "${GREEN}" $used $total
+    print_hbar Buffers "${PURPLE}" $buffer $total
+    print_hbar Cached "${BLUE}" $cached $total
+    print_hbar HugePages "${CYAN}" $huge $total
+    print_hbar Dirty "${RED}" $dirty $total
+
+    printf "${H1}RAM:${RESET}\n"
+    printf "    ${BOLDWHITE}%.1f GiB total ram${CLEAR}\n" \
+           `$awk "BEGIN {print $total/1024/1024}"`
+    printf "    ${WHITE}%.1f GiB (%d%%) used\n" \
+           `$awk "BEGIN {print $used/1024/1024;
+                         print int(($used/$total)*100+.5)}"`
+    printf "    ${BOLDWHITE}%.1f GiB (%d%%) used excluding Buffers/Cached\n" \
+	   `$awk "BEGIN {print ($used-$buffer-$cached)/1024/1024;
+                         print int(($used-$buffer-$cached)/$total*100+.5)}"`
+    printf "    ${WHITE}%.1f GiB (%d%%) dirty\n" \
+           `$awk "BEGIN {print $dirty/1024/1024;
+                         print int($dirty/$total*100+.5)}"`
+
+    printf "${H1}HugePages:${RESET}\n"
+    printf "    No ram pre-allocated to HugePages\n"
+    printf "${H1}TransparentHugePages:${RESET}\n"
+    printf "    No ram allocated to THP\n"
+
+    slab=`raw_value mem.util.slab 0`
+    ptes=`raw_value mem.util.pageTables 0`
+    shmem=`raw_value mem.util.shmem 0`
+    printf "${H1}LowMem/Slab/PageTables/Shmem:${RESET}\n"
+    printf "    %.2f GiB (%d%%) of total ram used for Slab\n" \
+           `$awk "BEGIN {print $slab/1024/1024;
+                         print int(($slab/$total)*100+.5)}"`
+    printf "    %.2f GiB (%d%%) of total ram used for PageTables\n" \
+           `$awk "BEGIN {print $ptes/1024/1024;
+                         print int(($ptes/$total)*100+.5)}"`
+    printf "    %.2f GiB (%d%%) of total ram used for Shmem\n" \
+           `$awk "BEGIN {print $shmem/1024/1024;
+                         print int(($shmem/$total)*100+.5)}"`
+
+    swaptotal=`raw_value mem.util.swapTotal 1`
+    swapfree=`raw_value mem.util.swapFree 1`
+    printf "${H1}Swap:${RESET}\n"
+    printf "    %.1f GiB (%d%%) used of %.1f GiB total\n" \
+           `$awk "BEGIN {print ($swaptotal-$swapfree)/1024/1024}"` \
+	   `$awk "BEGIN {print int(($swapfree-$swaptotal)*100+.5)}"` \
+           `$awk "BEGIN {print $swaptotal/1024/1024}"`
+}
+
+$osflag && pcp_xsos_os
+$memflag && pcp_xsos_mem
 
 sts=0
 exit
