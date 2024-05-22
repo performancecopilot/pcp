@@ -167,9 +167,9 @@ then
     then
         $PCP_ECHO_PROG $PCP_ECHO_N "$progname: ""$PCP_ECHO_C"
         sed < $tmp/error -e 's/^pminfo: //g'
+        sts=1
+        exit
     fi
-    sts=1
-    exit
 fi
 [ -s $tmp/error ] && sed -e '/Unknown metric name/d' <$tmp/error >&2
 
