@@ -131,6 +131,16 @@ if test ${#metrics[@]} -eq 0; then
     osflag=true
 fi
 
+if [ ! -z "$PCP_ARCHIVE" ]
+then
+    # extract pmcd values from log label in case metrics missing
+    eval `pmdumplog -Ll 2>/dev/null | $awk '
+/^Performance metrics from host/ { printf "pmcd_hostname_value=\"%s\"\n", $5 }
+/^Archive timezone: /            { printf "pmcd_timezone_value=\"%s\"\n", $3 }
+/^Archive zoneinfo: /            { printf "pmcd_zoneinfo_value=\"%s\"\n", $3 }
+'`
+fi
+
 # Extract values for all metrics at once.  Fetch using pminfo then
 # cater for 3 cases: single-valued metrics, set-valued metrics and
 # errors fetching individual metrics (see pminfo example below).
@@ -408,7 +418,7 @@ pcp_xsos_mem()
            `$awk "BEGIN {print $used/1024/1024;
                          print int(($used/$total)*100+.5)}"`
     printf "    ${BOLDWHITE}%.1f GiB (%d%%) used excluding Buffers/Cached\n" \
-	   `$awk "BEGIN {print ($used-$buffer-$cached)/1024/1024;
+           `$awk "BEGIN {print ($used-$buffer-$cached)/1024/1024;
                          print int(($used-$buffer-$cached)/$total*100+.5)}"`
     printf "    ${WHITE}%.1f GiB (%d%%) dirty\n" \
            `$awk "BEGIN {print $dirty/1024/1024;
@@ -438,7 +448,7 @@ pcp_xsos_mem()
     printf "${H1}Swap:${RESET}\n"
     printf "    %.1f GiB (%d%%) used of %.1f GiB total\n" \
            `$awk "BEGIN {print ($swaptotal-$swapfree)/1024/1024}"` \
-	   `$awk "BEGIN {print int(($swapfree-$swaptotal)*100+.5)}"` \
+           `$awk "BEGIN {print int(($swapfree-$swaptotal)*100+.5)}"` \
            `$awk "BEGIN {print $swaptotal/1024/1024}"`
 }
 
