@@ -380,7 +380,7 @@ pcp_xsos_os()
     printf "steal %d%%\n\n" `$awk "BEGIN {print int($st/$tot*100+.5)}"`
 }
 
-print_hbar()
+put_hbar()
 {
     # inputs: title color value total
     width=50
@@ -404,11 +404,11 @@ pcp_xsos_mem()
     huge=`get_value mem.util.hugepagesTotalBytes 0`
     dirty=`get_value mem.util.dirty 0`
     printf "${H1}Stats graphed as percent of MemTotal:${RESET}\n"
-    print_hbar MemUsed "${GREEN}" $used $total
-    print_hbar Buffers "${PURPLE}" $buffer $total
-    print_hbar Cached "${BLUE}" $cached $total
-    print_hbar HugePages "${CYAN}" $huge $total
-    print_hbar Dirty "${RED}" $dirty $total
+    put_hbar MemUsed "${GREEN}" $used $total
+    put_hbar Buffers "${PURPLE}" $buffer $total
+    put_hbar Cached "${BLUE}" $cached $total
+    put_hbar HugePages "${CYAN}" $huge $total
+    put_hbar Dirty "${RED}" $dirty $total
 
     printf "${H1}RAM:${RESET}\n"
     printf "    ${BOLDWHITE}%.1f GiB total ram${CLEAR}\n" \
