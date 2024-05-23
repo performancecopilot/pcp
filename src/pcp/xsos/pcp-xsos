@@ -30,7 +30,9 @@ mem_metrics=(
     mem.util.shmem mem.util.bufmem mem.util.cached
     mem.util.swapFree mem.util.swapTotal
     mem.util.slab mem.util.pageTables
-    mem.util.hugepagesTotalBytes
+    mem.util.lowFree mem.util.lowTotal
+    mem.util.anonhugepages
+    mem.util.hugepagesFreeBytes mem.util.hugepagesTotalBytes
 )
 
 os_metrics=(
@@ -377,7 +379,9 @@ pcp_xsos_os()
     printf "iowait %d%%, " `$awk "BEGIN {print int($wt/$tot*100+.5)}"`
     printf "irq %d%%, " `$awk "BEGIN {print int($ih/$tot*100+.5)}"`
     printf "sftirq %d%%, " `$awk "BEGIN {print int($is/$tot*100+.5)}"`
-    printf "steal %d%%\n\n" `$awk "BEGIN {print int($st/$tot*100+.5)}"`
+    printf "steal %d%%\n" `$awk "BEGIN {print int($st/$tot*100+.5)}"`
+
+    echo # additional space for next session (with --all)
 }
 
 put_hbar()
@@ -402,7 +406,17 @@ pcp_xsos_mem()
     buffer=`get_value mem.util.bufmem 0`
     cached=`get_value mem.util.cached 0`
     huge=`get_value mem.util.hugepagesTotalBytes 0`
+    hugefree=`get_value mem.util.hugepagesFreeBytes 0`
+    hugeanon=`get_value mem.util.anonhugepages 0`
     dirty=`get_value mem.util.dirty 0`
+    slab=`get_value mem.util.slab 0`
+    ptes=`get_value mem.util.pageTables 0`
+    shmem=`get_value mem.util.shmem 0`
+    lowfree=`get_value mem.util.lowFree 0`
+    lowtotal=`get_value mem.util.lowTotal 0`
+    swaptotal=`get_value mem.util.swapTotal 0`
+    swapfree=`get_value mem.util.swapFree 0`
+
     printf "${H1}Stats graphed as percent of MemTotal:${RESET}\n"
     put_hbar MemUsed "${GREEN}" $used $total
     put_hbar Buffers "${PURPLE}" $buffer $total
@@ -411,27 +425,42 @@ pcp_xsos_mem()
     put_hbar Dirty "${RED}" $dirty $total
 
     printf "${H1}RAM:${RESET}\n"
-    printf "    ${BOLDWHITE}%.1f GiB total ram${CLEAR}\n" \
+    printf "    ${BOLDWHITE}%.1f GiB total ram${CLEAR}\n"\
            `$awk "BEGIN {print $total/1024/1024}"`
-    printf "    ${WHITE}%.1f GiB (%d%%) used\n" \
+    printf "    ${WHITE}%.1f GiB (%d%%) used\n"\
            `$awk "BEGIN {print $used/1024/1024;
                          print int(($used/$total)*100+.5)}"`
-    printf "    ${BOLDWHITE}%.1f GiB (%d%%) used excluding Buffers/Cached\n" \
+    printf "    ${BOLDWHITE}%.1f GiB (%d%%) used excluding Buffers/Cached\n"\
            `$awk "BEGIN {print ($used-$buffer-$cached)/1024/1024;
                          print int(($used-$buffer-$cached)/$total*100+.5)}"`
-    printf "    ${WHITE}%.1f GiB (%d%%) dirty\n" \
+    printf "    ${WHITE}%.1f GiB (%d%%) dirty\n"\
            `$awk "BEGIN {print $dirty/1024/1024;
                          print int($dirty/$total*100+.5)}"`
 
     printf "${H1}HugePages:${RESET}\n"
-    printf "    No ram pre-allocated to HugePages\n"
+    if test $huge -eq 0; then
+        printf "    No ram pre-allocated to HugePages\n"
+    else
+        printf "    %.1f GiB pre-allocated to HugePages (%s%% of total ram)\n"\
+           `$awk "BEGIN {print $huge/1024/1024;
+                         print int(($huge/$total)*100+.5)}"`
+        printf "    %.1f GiB of HugePages (%s%%) in-use by applications\n"\
+           `$awk "BEGIN {print $huge/1024/1024;
+                         print int(($huge-$hugefree/$total)*100+.5)}"`
+    fi
     printf "${H1}TransparentHugePages:${RESET}\n"
-    printf "    No ram allocated to THP\n"
+    if test $hugeanon -eq 0; then
+        printf "    No ram allocated to THP\n"
+    else
+        printf "    %.2f GiB allocated to THP\n", $hugeanon
+    fi
 
-    slab=`get_value mem.util.slab 0`
-    ptes=`get_value mem.util.pageTables 0`
-    shmem=`get_value mem.util.shmem 0`
     printf "${H1}LowMem/Slab/PageTables/Shmem:${RESET}\n"
+    if test $lowtotal -ne 0; then
+        printf "    %.2f GiB (%d%%) of LowMem in-use\n" \
+           `$awk "BEGIN {print ($lowtotal-$lowfree)/1024/1024;
+                         print int(($lowtotal-$lowfree)*100+.5)}"`
+    fi
     printf "    %.2f GiB (%d%%) of total ram used for Slab\n" \
            `$awk "BEGIN {print $slab/1024/1024;
                          print int(($slab/$total)*100+.5)}"`
@@ -442,13 +471,17 @@ pcp_xsos_mem()
            `$awk "BEGIN {print $shmem/1024/1024;
                          print int(($shmem/$total)*100+.5)}"`
 
-    swaptotal=`get_value mem.util.swapTotal 1`
-    swapfree=`get_value mem.util.swapFree 1`
     printf "${H1}Swap:${RESET}\n"
-    printf "    %.1f GiB (%d%%) used of %.1f GiB total\n" \
+    if test $swaptotal -eq 0; then
+        printf "    ${ORANGE}No system swap space configured${RESET}\n"
+    else
+        printf "    %.1f GiB (%d%%) used of %.1f GiB total\n" \
            `$awk "BEGIN {print ($swaptotal-$swapfree)/1024/1024}"` \
            `$awk "BEGIN {print int(($swapfree-$swaptotal)*100+.5)}"` \
            `$awk "BEGIN {print $swaptotal/1024/1024}"`
+    fi
+
+    echo # additional space for next session (with --all)
 }
 
 $osflag && pcp_xsos_os
