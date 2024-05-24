@@ -234,9 +234,10 @@ genInventor(void)
 	if (fd < 0) goto fail;
 	if (!(theAltConfig = fdopen(fd, "a")))
 fail:
-            pmprintf("%s: Warning: Unable to save configuration for"
+	    pmprintf("%s: Warning: Unable to save configuration for"
 	             "recording to \"%s\": %s\n",
-		    pmGetProgname(), configfile, strerror(errno));
+		    pmGetProgname(), configfile == NULL ? "???" : configfile,
+		    strerror(errno));
 	else if (pmDebugOptions.appl0)
 	    cerr << "genInventor: Copy of configuration saved to "
 		 << configfile << Qt::endl;
