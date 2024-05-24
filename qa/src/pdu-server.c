@@ -586,13 +586,13 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		break;
 	    }
 	    if (pmDebugOptions.appl0) {
-		fprintf(stderr, "+ PDU_LOG_STATUS: start=%" FMT_INT64 ".%09d ",
+		fprintf(stderr, "+ PDU_LOG_STATUS: start=%" FMT_INT64 ".%09" FMT_INT64 " ",
 		    lsp->start.sec, lsp->start.nsec);
 		__pmPrintTimestamp(stderr, &lsp->start);
-		fprintf(stderr, "\nlast=% "FMT_INT64 ".%09d ",
+		fprintf(stderr, "\nlast=% "FMT_INT64 ".%09" FMT_INT64 " ",
 		    lsp->last.sec, lsp->last.nsec);
 		__pmPrintTimestamp(stderr, &lsp->last);
-		fprintf(stderr, " now=% "FMT_INT64 ".%09d ",
+		fprintf(stderr, " now=% "FMT_INT64 ".%09" FMT_INT64 " ",
 		    lsp->now.sec, lsp->now.nsec);
 		__pmPrintTimestamp(stderr, &lsp->now);
 		fprintf(stderr, "\nstate=%d vol=%d size=%" FMT_INT64 " pmcd.host=%s pmcd.timezone=\"%s\" pmlogger.timezone=\"%s\"\n",

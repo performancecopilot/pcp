@@ -159,19 +159,19 @@ do_log_status(int version)
 		    fprintf(stderr, "Botch: LogStatus(V%d): start.sec: got: %" FMT_INT64 " expect: %" FMT_INT64 "\n",
 			version, lsp->start.sec, logstat.start.sec);
 		if (lsp->start.nsec != logstat.start.nsec)
-		    fprintf(stderr, "Botch: LogStatus(V%d): start.nsec: got: %d expect: %d\n",
+		    fprintf(stderr, "Botch: LogStatus(V%d): start.nsec: got: %" FMT_INT64 " expect: %" FMT_INT64 "\n",
 			version, lsp->start.nsec, logstat.start.nsec);
 		if (lsp->last.sec != logstat.last.sec)
 		    fprintf(stderr, "Botch: LogStatus(V%d): last.sec: got: %" FMT_INT64 " expect: %" FMT_INT64 "\n",
 			version, lsp->last.sec, logstat.last.sec);
 		if (lsp->last.nsec != logstat.last.nsec)
-		    fprintf(stderr, "Botch: LogStatus(V%d): last.nsec: got: %d expect: %d\n",
+		    fprintf(stderr, "Botch: LogStatus(V%d): last.nsec: got: %" FMT_INT64 " expect: %" FMT_INT64 "\n",
 			version, lsp->last.nsec, logstat.last.nsec);
 		if (lsp->now.sec != logstat.now.sec)
 		    fprintf(stderr, "Botch: LogStatus(V%d): now.sec: got: %" FMT_INT64 " expect: %" FMT_INT64 "\n",
 			version, lsp->now.sec, logstat.now.sec);
 		if (lsp->now.nsec != logstat.now.nsec)
-		    fprintf(stderr, "Botch: LogStatus(V%d): now.nsec: got: %d expect: %d\n",
+		    fprintf(stderr, "Botch: LogStatus(V%d): now.nsec: got: %" FMT_INT64 " expect: %" FMT_INT64 "\n",
 			version, lsp->now.nsec, logstat.now.nsec);
 		if (lsp->state != logstat.state)
 		    fprintf(stderr, "Botch: LogStatus(V%d): state: got: 0x%x expect: 0x%x\n",
@@ -497,8 +497,8 @@ _z(void)
 	fprintf(stderr, "Botch: Result: sec: got: %ld expect: %ld\n",
 	    (long)resp->timestamp.sec, (long)rp->timestamp.sec);
     if (resp->timestamp.nsec != rp->timestamp.nsec)
-	fprintf(stderr, "Botch: Result: nsec: got: %d expect: %d\n",
-	    (int)resp->timestamp.nsec, (int)rp->timestamp.nsec);
+	fprintf(stderr, "Botch: Result: nsec: got: %" FMT_INT64 " expect: %" FMT_INT64 "\n",
+	    resp->timestamp.nsec, rp->timestamp.nsec);
     if (resp->numpmid != rp->numpmid)
 	fprintf(stderr, "Botch: Result: numpmid: got: %d expect: %d\n",
 	    resp->numpmid, rp->numpmid);
@@ -703,8 +703,8 @@ _z(void)
 	fprintf(stderr, "Botch: HighResResult: sec: got: %ld expect: %ld\n",
 	    (long)resp->timestamp.sec, (long)rp->timestamp.sec);
     if (resp->timestamp.nsec != rp->timestamp.nsec)
-	fprintf(stderr, "Botch: HighResResult: nsec: got: %d expect: %d\n",
-	    (int)resp->timestamp.nsec, (int)rp->timestamp.nsec);
+	fprintf(stderr, "Botch: HighResResult: nsec: got: %" FMT_INT64 " expect: %" FMT_INT64 "\n",
+	    resp->timestamp.nsec, rp->timestamp.nsec);
     if (resp->numpmid != rp->numpmid)
 	fprintf(stderr, "Botch: HighResResult: numpmid: got: %d expect: %d\n",
 	    resp->numpmid, rp->numpmid);

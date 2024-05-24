@@ -118,7 +118,7 @@ myPrintTimestamp(FILE *f, const __pmTimestamp *tsp)
 	time_t		now;
 	now = (time_t)tsp->sec;
 	pmLocaltime(&now, &tmp);
-	fprintf(f, "%02d:%02d:%02d.%06d", tmp.tm_hour, tmp.tm_min, tmp.tm_sec, tsp->nsec / 1000);
+	fprintf(f, "%02d:%02d:%02d.%06" FMT_INT64, tmp.tm_hour, tmp.tm_min, tmp.tm_sec, tsp->nsec / 1000);
     }
 }
 
@@ -1017,7 +1017,7 @@ dumpTI_current(void)
 	 */
 	if (tip->stamp.sec < 0 ||
 	    tip->stamp.nsec < 0 || tip->stamp.nsec > 999999999)
-	    printf("\t\tError: illegal timestamp value (%" FMT_INT64 " sec, %d nsec)\n",
+	    printf("\t\tError: illegal timestamp value (%" FMT_INT64 " sec, %" FMT_INT64 " nsec)\n",
 		tip->stamp.sec, tip->stamp.nsec);
 	if (meta_size != -1 && tip->off_meta > meta_size)
 	    printf("\t\tError: offset to meta file past end of file (%lld)\n",

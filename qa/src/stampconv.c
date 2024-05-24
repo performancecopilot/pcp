@@ -53,7 +53,7 @@ main(int argc, char **argv)
     }
 
     stamp = input;
-    printf("__pmTimestamp input: %" FMT_INT64 ".%09d (%016llx %08x)\n", stamp.sec, stamp.nsec, (unsigned long long)stamp.sec, stamp.nsec);
+    printf("__pmTimestamp input: %" FMT_INT64 ".%09" FMT_INT64 " (%016llx %08llx)\n", stamp.sec, stamp.nsec, (long long)stamp.sec, (long long)stamp.nsec);
     buf[0] = 0xaaaaaaaa;
     buf[1] = 0xbbbbbbbb;
     buf[2] = 0xcccccccc;
@@ -62,11 +62,11 @@ main(int argc, char **argv)
 	printf("buf: %08x %08x %08x\n", buf[0], buf[1] ,buf[2]);
     stamp.sec = stamp.nsec = 0;
     __pmLoadTimestamp(buf, &stamp);
-    printf("output: %" FMT_INT64 ".%09d (%016llx %08x)\n", stamp.sec, stamp.nsec, (unsigned long long)stamp.sec, stamp.nsec);
+    printf("output: %" FMT_INT64 ".%09" FMT_INT64 " (%016llx %08llx)\n", stamp.sec, stamp.nsec, (long long)stamp.sec, (long long)stamp.nsec);
 
     printf("\n");
     stamp = input;
-    printf("pmTimeval input: % " FMT_INT64 ".%06d (%016llx %08x)\n", stamp.sec, stamp.nsec / 1000, (unsigned long long)stamp.sec, stamp.nsec / 1000);
+    printf("pmTimeval input: % " FMT_INT64 ".%06" FMT_INT64 " (%016llx %08llx)\n", stamp.sec, stamp.nsec / 1000, (long long)stamp.sec, (long long)stamp.nsec / 1000);
     buf[0] = 0xaaaaaaaa;
     buf[1] = 0xbbbbbbbb;
     buf[2] = 0xcccccccc;
@@ -75,7 +75,7 @@ main(int argc, char **argv)
 	printf("buf: %08x %08x %08x\n", buf[0], buf[1] ,buf[2]);
     stamp.sec = stamp.nsec = 0;
     __pmLoadTimeval(buf, &stamp);
-    printf("output: % " FMT_INT64 ".%06d (%016llx %08x)\n", stamp.sec, stamp.nsec / 1000, (unsigned long long)stamp.sec, stamp.nsec / 1000);
+    printf("output: % " FMT_INT64 ".%06" FMT_INT64 " (%016llx %08llx)\n", stamp.sec, stamp.nsec / 1000, (long long)stamp.sec, (long long)stamp.nsec / 1000);
 
     return 0;
 }

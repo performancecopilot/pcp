@@ -88,7 +88,7 @@ __pmLogPutIndex_v3(const __pmArchCtl *acp, const __pmTimestamp * const tsp)
 
     if (pmDebugOptions.log) {
 	fprintf(stderr, "%s: "
-		"timestamp=%" FMT_INT64 ".09%d vol=%d meta posn=%" FMT_INT64 " log posn=%" FMT_INT64 "\n",
+		"timestamp=%" FMT_INT64 ".09%" FMT_INT64 " vol=%d meta posn=%" FMT_INT64 " log posn=%" FMT_INT64 "\n",
 	    "__pmLogPutIndex",
 	    tsp->sec, tsp->nsec, ti.vol, off_meta, off_data);
     }
@@ -157,7 +157,7 @@ __pmLogPutIndex_v2(const __pmArchCtl *acp, const __pmTimestamp *tsp)
 	__pmLogIndexZeroTILogDiagnostic(acp);
 
     if (pmDebugOptions.log) {
-	fprintf(stderr, "%s: timestamp=%" FMT_INT64 ".06%d vol=%d meta posn=%" FMT_INT64 " log posn=%" FMT_INT64 "\n",
+	fprintf(stderr, "%s: timestamp=%" FMT_INT64 ".06%" FMT_INT64 " vol=%d meta posn=%" FMT_INT64 " log posn=%" FMT_INT64 "\n",
 	    "__pmLogPutIndex",
 	    tsp->sec, tsp->nsec / 1000, ti.vol, off_meta, off_data);
     }

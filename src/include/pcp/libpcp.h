@@ -304,7 +304,7 @@ typedef struct {
  */
 typedef struct {
     __int64_t	sec;
-    __int32_t	nsec;
+    __int64_t	nsec;
 } __pmTimestamp;
 
 /* Internal version of a pmResult */

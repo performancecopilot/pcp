@@ -1630,7 +1630,7 @@ write_metareclist(inarch_t *iap, __pmResult *result, int *needti)
 	    fprintf(stderr, "%s: Warning: [log %s] metadata for PMID %s has not been found, culling this metric ...\n",
 		    pmGetProgname(), iap->name, pmIDStr(pmid));
 	    /* borrowed from __pmPrintResult() ... */
-	    fprintf(stderr, "__pmResult dump from " PRINTF_P_PFX "%p timestamp: %" FMT_INT64 ".%09d ",
+	    fprintf(stderr, "__pmResult dump from " PRINTF_P_PFX "%p timestamp: %" FMT_INT64 ".%09" FMT_INT64 " ",
 		    result, result->timestamp.sec, result->timestamp.nsec);
 	    __pmPrintTimestamp(stderr, &result->timestamp);
 	    fprintf(stderr, " numpmid: %d\n", result->numpmid);
@@ -2604,7 +2604,7 @@ writerlist(inarch_t *iap, rlist_t **rlready, __pmTimestamp *mintime)
 	restime = (*rlready)->res->timestamp;
         if (__pmTimestampCmp(&restime, mintime) > 0) {
 	    if (pmDebugOptions.appl1) {
-		fprintf(stderr, "writerlist: restime %" FMT_INT64 ".%09d mintime %" FMT_INT64 ".%09d ", restime.sec, restime.nsec, mintime->sec, mintime->nsec);
+		fprintf(stderr, "writerlist: restime %" FMT_INT64 ".%09" FMT_INT64 " mintime %" FMT_INT64 ".%09" FMT_INT64 " ", restime.sec, restime.nsec, mintime->sec, mintime->nsec);
 		fprintf(stderr, " break!\n");
 	    }
 	    break;
@@ -3295,9 +3295,9 @@ main(int argc, char **argv)
 
 		fprintf(stderr, "rlready");
 		for (i = 0, rp = rlready; rp != NULL; i++, rp = rp->next) {
-		    fprintf(stderr, " [%d] t=%ld.%09d numpmid=%d", i, (long)rp->res->timestamp.sec, (int)rp->res->timestamp.nsec, rp->res->numpmid);
+		    fprintf(stderr, " [%d] t=%" FMT_INT64 ".%09" FMT_INT64 " numpmid=%d", i, rp->res->timestamp.sec, rp->res->timestamp.nsec, rp->res->numpmid);
 		}
-		fprintf(stderr, " now=%" FMT_INT64 ".%09d\n", now.sec, now.nsec);
+		fprintf(stderr, " now=%" FMT_INT64 ".%09" FMT_INT64 "\n", now.sec, now.nsec);
 	    }
 
 	    writerlist(iap, &rlready, &curlog);
@@ -3353,7 +3353,7 @@ cleanup:
 	assert(new_meta_offset >= 0);
 
 	if (pmDebugOptions.appl2) {
-	    fprintf(stderr, "*** last tstamp: \n\tmintime=%" FMT_INT64 ".%09d \n\ttmptime=%" FMT_INT64 ".%09d \n\tlogend=%" FMT_INT64 ".%09d \n\twinend=%" FMT_INT64 ".%09d \n\tcurrent=%" FMT_INT64 ".%09d\n",
+	    fprintf(stderr, "*** last tstamp: \n\tmintime=%" FMT_INT64 ".%09" FMT_INT64 " \n\ttmptime=%" FMT_INT64 ".%09" FMT_INT64 " \n\tlogend=%" FMT_INT64 ".%09" FMT_INT64 " \n\twinend=%" FMT_INT64 ".%09" FMT_INT64 " \n\tcurrent=%" FMT_INT64 ".%09" FMT_INT64 "\n",
 		mintime.sec, mintime.nsec, tmptime.sec, tmptime.nsec, logend.sec, logend.nsec, winend.sec, winend.nsec, current.sec, current.nsec);
 	}
 
