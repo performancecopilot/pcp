@@ -421,7 +421,7 @@ pcp_xsos_mem()
     put_hbar MemUsed "${GREEN}" $used $total
     put_hbar Buffers "${PURPLE}" $buffer $total
     put_hbar Cached "${BLUE}" $cached $total
-    put_hbar HugePages "${CYAN}" $huge $total
+    put_hbar HugePages "${CYAN}" $huge/1024 $total
     put_hbar Dirty "${RED}" $dirty $total
 
     printf "${H1}RAM:${RESET}\n"
@@ -442,17 +442,19 @@ pcp_xsos_mem()
         printf "    No ram pre-allocated to HugePages\n"
     else
         printf "    %.1f GiB pre-allocated to HugePages (%s%% of total ram)\n"\
-           `$awk "BEGIN {print $huge/1024/1024;
-                         print int(($huge/$total)*100+.5)}"`
+           `$awk "BEGIN {print $huge/1024/1024/1024;
+		print int(($huge/($total*1024))*100+.5)}"`
         printf "    %.1f GiB of HugePages (%s%%) in-use by applications\n"\
-           `$awk "BEGIN {print $huge/1024/1024;
-                         print int(($huge-$hugefree/$total)*100+.5)}"`
+	        `$awk "BEGIN {print ($huge-$hugefree)/1024/1024/1024;
+	            print int((($huge-$hugefree)/($total*1024))*100+.5)}"`
     fi
     printf "${H1}TransparentHugePages:${RESET}\n"
     if test $hugeanon -eq 0; then
         printf "    No ram allocated to THP\n"
     else
-        printf "    %.2f GiB allocated to THP\n", $hugeanon
+        printf "    %.2f GiB allocated to THP\n"\
+           `$awk "BEGIN {print $hugeanon/1024/1024}"`
+
     fi
 
     printf "${H1}LowMem/Slab/PageTables/Shmem:${RESET}\n"
