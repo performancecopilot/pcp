@@ -788,3 +788,13 @@
 #undef HAVE___ETEXT
 #undef HAVE__ETEXT
 #undef HAVE_ETEXT
+
+/* sizeof suseconds_t ... only ever going to exist on linux-like systems */
+#undef PM_SIZEOF_SUSECONDS_T
+
+/* sizeof time_t */
+#undef PM_SIZEOF_TIME_T
+
+#ifndef PM_SIZEOF_TIME_T
+#error Unknown time_t size
+#endif

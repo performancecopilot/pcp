@@ -20,7 +20,4 @@
 /* #undef HAVE_32BIT_PTR */
 #define HAVE_64BIT_PTR 1
 
-#define PM_SIZEOF_SUSECONDS_T 8
-#define PM_SIZEOF_TIME_T 8
-
 #endif /* PCP_CONFIG64_H */
