@@ -267,7 +267,7 @@ class timeval(Structure):
         time.sleep(float(self))
 
 class timespec(Structure):
-    _fields_ = [("tv_sec", c_time_t),
+    _fields_ = [("tv_sec", c_int64),
                 ("tv_nsec", c_long)]
 
     def __init__(self, sec=0, nsec=0):
@@ -553,6 +553,7 @@ class pmHighResResult(Structure):
     """Structure returned by pmFetchHighRes, uses struct timespec for time
     """
     _fields_ = [("timestamp", timespec),
+                ("pad", c_int),
                 ("numpmid", c_int),
                 # array N of pointer to pmValueSet
                 ("vset", (POINTER(pmValueSet)) * 1)]
@@ -564,6 +565,18 @@ class pmHighResResult(Structure):
         vals = range(self.numpmid)
         vstr = str([" %s" % str(self.vset[i].contents) for i in vals])
         return "pmHighResResult@%#lx id#=%d " % (addressof(self), self.numpmid) + vstr
+
+    def get_sec(self):
+        """ Return the sec part of the timestamp """
+        return self.timestamp.tv_sec
+
+    def get_nsec(self):
+        """ Return the nsec part of the timestamp """
+        return self.timestamp.tv_nsec
+
+    def get_numpmid(self):
+        """ Return the number of pmids """
+        return self.numpmid
 
     def get_pmid(self, vset_idx):
         """ Return the pmid of vset[vset_idx] """

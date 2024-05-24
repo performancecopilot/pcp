@@ -121,6 +121,9 @@ def test_pcp(self):
         self.assertTrue(False)
 
     # pmExtractValue
+    print("tv_sec", results.contents.get_sec())
+    print("tv_nsec", results.contents.get_nsec())
+    print("numpmid", results.contents.get_numpmid())
     atom = ctx.pmExtractValue(results.contents.get_valfmt(0),
                               results.contents.get_vlist(0, 0),
                               descs[0].contents.type,
