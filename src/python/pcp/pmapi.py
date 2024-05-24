@@ -267,7 +267,7 @@ class timeval(Structure):
         time.sleep(float(self))
 
 class timespec(Structure):
-    _fields_ = [("tv_sec", c_int64),
+    _fields_ = [("tv_sec", c_time_t),
                 ("tv_nsec", c_long)]
 
     def __init__(self, sec=0, nsec=0):
