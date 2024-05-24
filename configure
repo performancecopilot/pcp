@@ -4906,6 +4906,7 @@ else
 printf %s "checking sizeof off_t... " >&6; }
     cat <<End-of-File >conftest.c
 #include <stdio.h>
+#include <unistd.h>
 #include <sys/types.h>
 int main() { printf("%d", (int)sizeof(off_t)); return 0; }
 End-of-File
@@ -5314,11 +5315,11 @@ if test x$ac_prog_cxx_stdcxx = xno
 then :
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $CXX option to enable C++11 features" >&5
 printf %s "checking for $CXX option to enable C++11 features... " >&6; }
-if test ${ac_cv_prog_cxx_cxx11+y}
+if test ${ac_cv_prog_cxx_11+y}
 then :
   printf %s "(cached) " >&6
 else $as_nop
-  ac_cv_prog_cxx_cxx11=no
+  ac_cv_prog_cxx_11=no
 ac_save_CXX=$CXX
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
@@ -5360,11 +5361,11 @@ if test x$ac_prog_cxx_stdcxx = xno
 then :
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $CXX option to enable C++98 features" >&5
 printf %s "checking for $CXX option to enable C++98 features... " >&6; }
-if test ${ac_cv_prog_cxx_cxx98+y}
+if test ${ac_cv_prog_cxx_98+y}
 then :
   printf %s "(cached) " >&6
 else $as_nop
-  ac_cv_prog_cxx_cxx98=no
+  ac_cv_prog_cxx_98=no
 ac_save_CXX=$CXX
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
@@ -14787,13 +14788,16 @@ else
     cat <<End-of-File >conftest.c
 #include <stdio.h>
 #include <sys/time.h>
-int main() { printf("%d", (int)sizeof(suseconds_t)); return 0; }
+int main() { struct timeval tv; printf("%d", (int)sizeof(tv.tv_usec)); return 0; }
 End-of-File
+    save_CFLAGS="$CFLAGS"
+    CFLAGS="$PCFLAGS"
     (eval $ac_compile) 2>&5
     (eval $ac_link) 2>&5
     ans=`./conftest`
     echo "./conftest -> \"$ans\"" >&5
     rm -rf conftest conftest.*
+    CFLAGS="$save_CFLAGS"
 fi
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ans" >&5
 printf "%s\n" "$ans" >&6; }
@@ -14814,11 +14818,14 @@ else
 #include <sys/time.h>
 int main() { printf("%d", (int)sizeof(time_t)); return 0; }
 End-of-File
+    save_CFLAGS="$CFLAGS"
+    CFLAGS="$PCFLAGS"
     (eval $ac_compile) 2>&5
     (eval $ac_link) 2>&5
     ans=`./conftest`
     echo "./conftest -> \"$ans\"" >&5
     rm -rf conftest conftest.*
+    CFLAGS="$save_CFLAGS"
 fi
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ans" >&5
 printf "%s\n" "$ans" >&6; }
@@ -17876,63 +17883,6 @@ printf "%s\n" "#define const /**/" >>confdefs.h
 
 fi
 
-ac_fn_c_check_type "$LINENO" "off_t" "ac_cv_type_off_t" "$ac_includes_default"
-if test "x$ac_cv_type_off_t" = xyes
-then :
-
-else $as_nop
-
-printf "%s\n" "#define off_t long int" >>confdefs.h
-
-fi
-
-
-  ac_fn_c_check_type "$LINENO" "pid_t" "ac_cv_type_pid_t" "$ac_includes_default
-"
-if test "x$ac_cv_type_pid_t" = xyes
-then :
-
-else $as_nop
-                                          cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-          #if defined _WIN64 && !defined __CYGWIN__
-          LLP64
-          #endif
-
-int
-main (void)
-{
-
-  ;
-  return 0;
-}
-
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"
-then :
-  ac_pid_type='int'
-else $as_nop
-  ac_pid_type='__int64'
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
-
-printf "%s\n" "#define pid_t $ac_pid_type" >>confdefs.h
-
-
-fi
-
-
-ac_fn_c_check_type "$LINENO" "size_t" "ac_cv_type_size_t" "$ac_includes_default"
-if test "x$ac_cv_type_size_t" = xyes
-then :
-
-else $as_nop
-
-printf "%s\n" "#define size_t unsigned int" >>confdefs.h
-
-fi
-
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether struct tm is in sys/time.h or time.h" >&5
 printf %s "checking whether struct tm is in sys/time.h or time.h... " >&6; }
 if test ${ac_cv_struct_tm+y}
@@ -18014,6 +17964,68 @@ _ACEOF
     ;;
 esac
 
+if test $target_os = linux
+then
+            :
+else
+    ac_fn_c_check_type "$LINENO" "off_t" "ac_cv_type_off_t" "$ac_includes_default"
+if test "x$ac_cv_type_off_t" = xyes
+then :
+
+else $as_nop
+
+printf "%s\n" "#define off_t long int" >>confdefs.h
+
+fi
+
+
+  ac_fn_c_check_type "$LINENO" "pid_t" "ac_cv_type_pid_t" "$ac_includes_default
+"
+if test "x$ac_cv_type_pid_t" = xyes
+then :
+
+else $as_nop
+                                          cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+          #if defined _WIN64 && !defined __CYGWIN__
+          LLP64
+          #endif
+
+int
+main (void)
+{
+
+  ;
+  return 0;
+}
+
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"
+then :
+  ac_pid_type='int'
+else $as_nop
+  ac_pid_type='__int64'
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
+
+printf "%s\n" "#define pid_t $ac_pid_type" >>confdefs.h
+
+
+fi
+
+
+    ac_fn_c_check_type "$LINENO" "size_t" "ac_cv_type_size_t" "$ac_includes_default"
+if test "x$ac_cv_type_size_t" = xyes
+then :
+
+else $as_nop
+
+printf "%s\n" "#define size_t unsigned int" >>confdefs.h
+
+fi
+
+fi
 
 pcp_prefix=`eval echo $prefix`
 

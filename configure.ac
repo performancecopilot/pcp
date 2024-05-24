@@ -460,6 +460,7 @@ else
     AC_MSG_CHECKING([sizeof off_t])
     cat <<End-of-File >conftest.c
 #include <stdio.h>
+#include <unistd.h>
 #include <sys/types.h>
 int main() { printf("%d", (int)sizeof(off_t)); return 0; }
 End-of-File
@@ -2808,13 +2809,16 @@ else
     cat <<End-of-File >conftest.c
 #include <stdio.h>
 #include <sys/time.h>
-int main() { printf("%d", (int)sizeof(suseconds_t)); return 0; }
+int main() { struct timeval tv; printf("%d", (int)sizeof(tv.tv_usec)); return 0; }
 End-of-File
+    save_CFLAGS="$CFLAGS"
+    CFLAGS="$PCFLAGS"
     (eval $ac_compile) 2>&5
     (eval $ac_link) 2>&5
     ans=`./conftest`
     echo "./conftest -> \"$ans\"" >&5
     rm -rf conftest conftest.*
+    CFLAGS="$save_CFLAGS"
 fi
 AC_MSG_RESULT($ans)
 if test -n "$ans"; then
@@ -2831,11 +2835,14 @@ else
 #include <sys/time.h>
 int main() { printf("%d", (int)sizeof(time_t)); return 0; }
 End-of-File
+    save_CFLAGS="$CFLAGS"
+    CFLAGS="$PCFLAGS"
     (eval $ac_compile) 2>&5
     (eval $ac_link) 2>&5
     ans=`./conftest`
     echo "./conftest -> \"$ans\"" >&5
     rm -rf conftest conftest.*
+    CFLAGS="$save_CFLAGS"
 fi
 AC_MSG_RESULT($ans)
 if test -n "$ans"; then
@@ -3751,11 +3758,18 @@ dnl on FreeBSD by appending
 dnl #define off_t long int
 dnl to conftest.h which causes unrelated compilation failures
 AC_C_CONST
-AC_TYPE_OFF_T
-AC_TYPE_PID_T
-AC_TYPE_SIZE_T
 AC_STRUCT_TM
 AC_C_INLINE
+if test $target_os = linux
+then
+    dnl the tests below fail miserably on some Linux hosts,
+    dnl e.g. Debian 12.5, Ubuntu 22.04, ...
+    :
+else
+    AC_TYPE_OFF_T
+    AC_TYPE_PID_T
+    AC_TYPE_SIZE_T
+fi
 
 dnl Capture special options passed to configure
 pcp_prefix=`eval echo $prefix`
