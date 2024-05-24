@@ -1,0 +1,8 @@
+QA output created by 1520
+Date: Sun Jan  1 12:00:00 2040
+sizeof(time_t): 8
+sizeof(struct timeval): 16
+sizeof(struct pmTimeval): 8
+sizeof(struct timespec): 16
+sizeof(struct pmTimespec): 16
+sizeof(__pmTimestamp): 16
