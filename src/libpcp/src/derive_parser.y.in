@@ -597,7 +597,7 @@ bind_expr(__pmContext *ctxp, int n, node_t *np, node_t *parent, int lookup_mode,
 {
     node_t	*new;
     int		next_lookup = lookup_mode;
-    ctl_t		*cp;
+    ctl_t		*cp = NULL;	/* pander to gcc */
 
     PM_ASSERT_IS_LOCKED(registered.mutex);
     assert(np != NULL);
