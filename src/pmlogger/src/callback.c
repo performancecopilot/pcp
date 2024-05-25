@@ -842,7 +842,7 @@ do_work(task_t *tp)
 		     */
 		    needindom = 0;
 		    if (pmDebugOptions.logmeta && pmDebugOptions.desperate) {
-			fprintf(stderr, "time warp: pmResult: % " FMT_INT64 ".%09" FMT_INT64 " last %s indom: %" FMT_INT64 ".%09" FMT_INT64 "\n",
+			fprintf(stderr, "time warp: pmResult: % " FMT_INT64 ".%09d last %s indom: %" FMT_INT64 ".%09d\n",
 			    resp->timestamp.sec, resp->timestamp.nsec,
 			    pmInDomStr(old.indom),
 			    old.stamp.sec, old.stamp.nsec);

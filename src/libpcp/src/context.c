@@ -1909,9 +1909,9 @@ __pmDumpContext(FILE *f, int context, pmInDom indom)
 		}
 	    }
 	    if (con->c_type == PM_CONTEXT_HOST || con->c_type == PM_CONTEXT_ARCHIVE) {
-		fprintf(f, " origin=%" FMT_INT64 ".%09" FMT_INT64,
+		fprintf(f, " origin=%" FMT_INT64 ".%09d",
 		    con->c_origin.sec, con->c_origin.nsec);
-		fprintf(f, " delta=%s%" FMT_INT64 ".%09" FMT_INT64 "\n",
+		fprintf(f, " delta=%s%" FMT_INT64 ".%09d\n",
 		    con->c_direction < 0 ? "-" : "",
 		    con->c_delta.sec, con->c_delta.nsec);
 	    }

@@ -1819,7 +1819,7 @@ __pmLoadTimestamp(const __int32_t *buf, __pmTimestamp *tsp)
     tsp->nsec = ntohl(tsp->nsec);
     if (pmDebugOptions.logmeta && pmDebugOptions.desperate) {
 	fprintf(stderr, "__pmLoadTimestamp: network(%08x%08x %08x nsec)", buf[0], buf[1], buf[2]);
-	fprintf(stderr, " -> %" FMT_INT64 ".%09" FMT_INT64 " (%llx %llx nsec)\n", tsp->sec, tsp->nsec, (long long)tsp->sec, (long long)tsp->nsec);
+	fprintf(stderr, " -> %" FMT_INT64 ".%09d (%llx %x nsec)\n", tsp->sec, tsp->nsec, (long long)tsp->sec, tsp->nsec);
     }
 }
 
@@ -1830,7 +1830,7 @@ __pmLoadTimeval(const __int32_t *buf, __pmTimestamp *tsp)
     tsp->nsec = ntohl(buf[1]) * 1000;
     if (pmDebugOptions.logmeta && pmDebugOptions.desperate) {
 	fprintf(stderr, "__pmLoadTimeval: network(%08x %08x usec)", buf[0], buf[1]);
-	fprintf(stderr, " -> %" FMT_INT64 ".%09" FMT_INT64 " (%llx %llx nsec)\n", tsp->sec, tsp->nsec, (long long)tsp->sec, (long long)tsp->nsec);
+	fprintf(stderr, " -> %" FMT_INT64 ".%09d (%llx %x nsec)\n", tsp->sec, tsp->nsec, (long long)tsp->sec, tsp->nsec);
     }
 }
 
@@ -1849,7 +1849,7 @@ __pmPutTimestamp(const __pmTimestamp *tsp, __int32_t *buf)
     buf[1] = stamp.sec & 0xffffffff;
     buf[2] = stamp.nsec;
     if (pmDebugOptions.logmeta && pmDebugOptions.desperate) {
-	fprintf(stderr, "__pmPutTimestamp: %" FMT_INT64 ".%09" FMT_INT64 " (%llx %llx nsec)", tsp->sec, tsp->nsec, (long long)tsp->sec, (long long)tsp->nsec);
+	fprintf(stderr, "__pmPutTimestamp: %" FMT_INT64 ".%09d (%llx %x nsec)", tsp->sec, tsp->nsec, (long long)tsp->sec, tsp->nsec);
 	fprintf(stderr, " -> network(%08x%08x %08x nsec)\n", buf[0], buf[1], buf[2]);
     }
 }
@@ -1860,7 +1860,7 @@ __pmPutTimeval(const __pmTimestamp *tsp, __int32_t *buf)
     buf[0] = htonl((__int32_t)tsp->sec);
     buf[1] = htonl(tsp->nsec / 1000);
     if (pmDebugOptions.logmeta && pmDebugOptions.desperate) {
-	fprintf(stderr, "__pmPutTimeval: %" FMT_INT64 ".%09" FMT_INT64 " (%llx %llx nsec %llx usec)", tsp->sec, tsp->nsec, (long long)tsp->sec, (long long)tsp->nsec, (long long)tsp->nsec / 1000);
+	fprintf(stderr, "__pmPutTimeval: %" FMT_INT64 ".%09d (%llx %x nsec %x usec)", tsp->sec, tsp->nsec, (long long)tsp->sec, tsp->nsec, tsp->nsec / 1000);
 	fprintf(stderr, " -> network(%08x %08x usec)\n", buf[0], buf[1]);
     }
 }

@@ -97,7 +97,7 @@ timespec_str(struct timespec *tvp, char *buffer, int buflen)
 const char *
 timestamp_stream_str(__pmTimestamp *tsp, char *buffer, int buflen)
 {
-    pmsprintf(buffer, buflen, "%" FMT_UINT64 "-%" FMT_UINT64, tsp->sec, tsp->nsec);
+    pmsprintf(buffer, buflen, "%" FMT_UINT64 "-%d", tsp->sec, tsp->nsec);
     return buffer;
 }
 
@@ -109,7 +109,7 @@ timestamp_str(__pmTimestamp *tsp, char *buffer, int buflen)
     time_t	now = (time_t)tsp->sec;
 
     pmLocaltime(&now, &tmp);
-    pmsprintf(buffer, buflen, "%02u:%02u:%02u.%09" FMT_UINT64,
+    pmsprintf(buffer, buflen, "%02u:%02u:%02u.%09u",
 	      tmp.tm_hour, tmp.tm_min, tmp.tm_sec, tsp->nsec);
     return buffer;
 }

@@ -842,7 +842,7 @@ __pmPrintResult_ctx(__pmContext *ctxp, FILE *f, const __pmResult *resp)
 	PM_ASSERT_IS_LOCKED(ctxp->c_lock);
 
     save_debug();
-    fprintf(f, "__pmResult dump from " PRINTF_P_PFX "%p timestamp: %" FMT_INT64 ".%09" FMT_INT64 " ",
+    fprintf(f, "__pmResult dump from " PRINTF_P_PFX "%p timestamp: %" FMT_INT64 ".%09d ",
 	resp, resp->timestamp.sec, resp->timestamp.nsec);
     __pmPrintTimestamp(f, &resp->timestamp);
     fprintf(f, " numpmid: %d\n", resp->numpmid);
@@ -1365,7 +1365,7 @@ pmPrintHighResStamp(FILE *f, const struct timespec *tp)
 
     now = (time_t)tp->tv_sec;
     pmLocaltime(&now, &tmp);
-    fprintf(f, "%02d:%02d:%02d.%09ld", tmp.tm_hour, tmp.tm_min, tmp.tm_sec, (long)tp->tv_nsec);
+    fprintf(f, "%02d:%02d:%02d.%09d", tmp.tm_hour, tmp.tm_min, tmp.tm_sec, (int)(tp->tv_nsec));
 }
 
 /*
@@ -1395,7 +1395,7 @@ __pmPrintTimespec(FILE *f, const pmTimespec *tp)
 
     now = (time_t)tp->tv_sec;
     pmLocaltime(&now, &tmp);
-    fprintf(f, "%02d:%02d:%02d.%09" FMT_INT64, tmp.tm_hour, tmp.tm_min, tmp.tm_sec, tp->tv_nsec);
+    fprintf(f, "%02d:%02d:%02d.%09d", tmp.tm_hour, tmp.tm_min, tmp.tm_sec, (int)tp->tv_nsec);
 }
 
 /*
@@ -1409,7 +1409,7 @@ __pmPrintTimestamp(FILE *f, const __pmTimestamp *tsp)
 
     now = (time_t)tsp->sec;
     pmLocaltime(&now, &tmp);
-    fprintf(f, "%02d:%02d:%02d.%09" FMT_INT64, tmp.tm_hour, tmp.tm_min, tmp.tm_sec, tsp->nsec);
+    fprintf(f, "%02d:%02d:%02d.%09d", tmp.tm_hour, tmp.tm_min, tmp.tm_sec, (int)tsp->nsec);
 }
 
 /*

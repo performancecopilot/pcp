@@ -105,12 +105,12 @@ pass1(__pmContext *ctxp, char *archname)
 	    }
 	}
 	if (tip->stamp.sec < 0 || tip->stamp.nsec < 0) {
-	    fprintf(stderr, "%s.index[entry %d]: illegal negative timestamp value (%" FMT_INT64 " sec, %" FMT_INT64 " nsec)\n",
+	    fprintf(stderr, "%s.index[entry %d]: illegal negative timestamp value (%" FMT_INT64 " sec, %d nsec)\n",
 		archname, i, tip->stamp.sec, tip->stamp.nsec);
 	    index_state = STATE_BAD;
 	}
 	if (tip->stamp.nsec > 999999999) {
-	    fprintf(stderr, "%s.index[entry %d]: illegal timestamp nsec value (%" FMT_INT64 " sec, %" FMT_INT64 " nsec)\n",
+	    fprintf(stderr, "%s.index[entry %d]: illegal timestamp nsec value (%" FMT_INT64 " sec, %d nsec)\n",
 		archname, i, tip->stamp.sec, tip->stamp.nsec);
 	    index_state = STATE_BAD;
 	}
@@ -136,7 +136,7 @@ pass1(__pmContext *ctxp, char *archname)
 	}
 	if (goldenstart.sec != 0) {
 	    if (__pmTimestampSub(&tip->stamp, &goldenstart) < 0) {
-		fprintf(stderr, "%s.index[entry %d]: timestamp (%" FMT_INT64 ".%09" FMT_INT64 ") less than log label timestamp (%" FMT_INT64 ".%09" FMT_INT64 ")\n",
+		fprintf(stderr, "%s.index[entry %d]: timestamp (%" FMT_INT64 ".%09d) less than log label timestamp (%" FMT_INT64 ".%09d)\n",
 			archname, i,
 			tip->stamp.sec, tip->stamp.nsec,
 			goldenstart.sec, goldenstart.nsec);
@@ -145,7 +145,7 @@ pass1(__pmContext *ctxp, char *archname)
 	}
 	if (lastp != NULL) {
 	    if (__pmTimestampSub(&tip->stamp, &lastp->stamp) < 0) {
-		fprintf(stderr, "%s.index[entry %d]: timestamp (%" FMT_INT64 ".%09" FMT_INT64 ") went backwards in time (from %" FMT_INT64 ".%09" FMT_INT64 " at [entry %d])\n",
+		fprintf(stderr, "%s.index[entry %d]: timestamp (%" FMT_INT64 ".%09d) went backwards in time (from %" FMT_INT64 ".%09d at [entry %d])\n",
 			archname, i,
 			tip->stamp.sec, tip->stamp.nsec,
 			lastp->stamp.sec, lastp->stamp.nsec, i-1);
