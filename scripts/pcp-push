@@ -206,6 +206,9 @@ then
 	$GIT push -u origin $branch
 	touch $tmp.needpush
     else
+	# commits _and_ tags ...
+	#
+	$GIT push $push
 	$GIT push --tags $push
 	# need to get last commit aligned locally and remotely, so that
 	# HEAD -> main, origin/main, origin/HEAD
