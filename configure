@@ -9317,8 +9317,27 @@ printf %s "checking if ExtUtils::MakeMaker is installed... " >&6; }
         $pcp_perl_prog -e "use ExtUtils::MakeMaker" 2>/dev/null
         if test $? -eq 0
         then
-	    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result:  yes" >&5
+	    	    $pcp_perl_prog -MConfig -e 'print "$Config{sGMTIME_max}\n";' >conftest.out
+	    case `cat conftest.out`
+	    in
+		2147483647)
+			# definitely 32-bit time_t for Perl build, we
+			# can't play in this sandpit
+			#
+			{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result:  no" >&5
+printf "%s\n" " no" >&6; }
+			have_perl=false
+			;;
+		67768036191676799)
+			{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result:  yes" >&5
 printf "%s\n" " yes" >&6; }
+			;;
+		*)
+			echo >&2 "Warning: Perl config sGMTIME_max=`cat conftest.out` unexpected"
+			{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result:  yes" >&5
+printf "%s\n" " yes" >&6; }
+			;;
+	    esac
         else
 	    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result:  no" >&5
 printf "%s\n" " no" >&6; }

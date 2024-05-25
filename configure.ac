@@ -1287,7 +1287,25 @@ AS_IF([test "x$do_perl" != "xno"], [
         $pcp_perl_prog -e "use ExtUtils::MakeMaker" 2>/dev/null
         if test $? -eq 0
         then
-	    AC_MSG_RESULT([ yes])
+	    dnl check that installed Perl is built for _TIME_BITS=64
+	    $pcp_perl_prog -MConfig -e 'print "$Config{sGMTIME_max}\n";' >conftest.out
+	    case `cat conftest.out`
+	    in
+		2147483647)
+			# definitely 32-bit time_t for Perl build, we
+			# can't play in this sandpit
+			#
+			AC_MSG_RESULT([ no])
+			have_perl=false
+			;;
+		67768036191676799)
+			AC_MSG_RESULT([ yes])
+			;;
+		*)
+			echo >&2 "Warning: Perl config sGMTIME_max=`cat conftest.out` unexpected"
+			AC_MSG_RESULT([ yes])
+			;;
+	    esac
         else
 	    AC_MSG_RESULT([ no])
 	    have_perl=false
