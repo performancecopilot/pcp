@@ -11,5 +11,6 @@ FILES = \
 	rpc \
 	tapestat \
 	tty \
+	vmmemctl \
 	xfs-perdev \
 # END
