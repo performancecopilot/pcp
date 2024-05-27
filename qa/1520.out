@@ -5,4 +5,4 @@ sizeof(struct timeval): 16
 sizeof(struct pmTimeval): 8
 sizeof(struct timespec): 16
 sizeof(struct pmTimespec): 16
-sizeof(__pmTimestamp): 16
+sizeof(__pmTimestamp): 12 or 16

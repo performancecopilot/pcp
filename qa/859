@@ -1,5 +1,5 @@
 #!/bin/sh
-# PCP QA Test No. 801
+# PCP QA Test No. 859
 # Exercise python PMAPI fetchgroup bindings
 #
 # Copyright (c) 2015 Red Hat.

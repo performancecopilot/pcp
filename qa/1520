@@ -34,7 +34,8 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 _filter()
 {
     sed \
-	-e "s@$tmp@TMP@g" \
+	-e '/sizeof(__pmTimestamp):/s/: 12/: 12 or 16/' \
+	-e '/sizeof(__pmTimestamp):/s/: 16/: 12 or 16/' \
     # end
 }
 

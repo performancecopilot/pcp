@@ -14,6 +14,7 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+which iostat2pcp >/dev/null || _notrun "No iostat2pcp binary found"
 which iostat >/dev/null || _notrun "No local iostat binary found"
 # check iostat looks like right version
 #
