@@ -310,6 +310,11 @@ typedef struct {
 /* Internal version of a pmResult */
 typedef struct __pmResult {
     __pmTimestamp	timestamp;	/* time stamped by collector */
+#ifdef PM_PAD_RESULT
+    __int32_t		pad;		/* move numpmid down a bit so numpmid */
+    					/* offset is >= offset for pmResult */
+					/* and pmHighResResult */
+#endif
     int                 numpmid;	/* number of PMIDs */
     pmValueSet		*vset[1];	/* set of value sets, one per PMID */
 } __pmResult;

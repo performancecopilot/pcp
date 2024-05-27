@@ -4885,8 +4885,10 @@ then :
   PCFLAGS="$PCFLAGS -Wno-array-bounds"
 fi
 fi
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking sizeof time_t" >&5
-printf %s "checking sizeof time_t... " >&6; }
+
+force_time_t=false
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking default sizeof time_t" >&5
+printf %s "checking default sizeof time_t... " >&6; }
 cat <<End-of-File >conftest.c
 #include <stdio.h>
 #include <sys/time.h>
@@ -4896,14 +4898,33 @@ End-of-File
 (eval $ac_link) 2>&5
 ans=`./conftest`
 echo "./conftest -> \"$ans\"" >&5
-rm -rf conftest conftest.*
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ans" >&5
 printf "%s\n" "$ans" >&6; }
+rm -f conftest.done
 if test "$ans" = 4; then
-    PCFLAGS="$PCFLAGS -D_FILE_OFFSET_BITS=64 -D_TIME_BITS=64"
-else
-            { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking sizeof off_t" >&5
-printf %s "checking sizeof off_t... " >&6; }
+            { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking sizeof time_t with -D_TIME_BITS=64" >&5
+printf %s "checking sizeof time_t with -D_TIME_BITS=64... " >&6; }
+    save_CFLAGS="$CFLAGS"
+    CFLAGS="$CFLAGS -D_FILE_OFFSET_BITS=64 -D_TIME_BITS=64"
+    (eval $ac_compile) 2>&5
+    (eval $ac_link) 2>&5
+    CFLAGS="$save_CFLAGS"
+    ans=`./conftest`
+    echo "./conftest -D_TIME_BITS=64 -> \"$ans\"" >&5
+    if test "$ans" = 8; then
+	PCFLAGS="$PCFLAGS -D_FILE_OFFSET_BITS=64 -D_TIME_BITS=64"
+	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ans => -D_TIME_BITS=64" >&5
+printf "%s\n" "$ans => -D_TIME_BITS=64" >&6; }
+	touch conftest.done
+	force_time_t=true
+    else
+	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ans => no way to make this Y2038 safe" >&5
+printf "%s\n" "$ans => no way to make this Y2038 safe" >&6; }
+    fi
+fi
+if test ! -f conftest.done; then
+            { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking default sizeof off_t" >&5
+printf %s "checking default sizeof off_t... " >&6; }
     cat <<End-of-File >conftest.c
 #include <stdio.h>
 #include <unistd.h>
@@ -4915,14 +4936,91 @@ End-of-File
     ans=`./conftest`
     echo "./conftest -> \"$ans\"" >&5
     rm -rf conftest conftest.*
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ans" >&5
-printf "%s\n" "$ans" >&6; }
     if test "$ans" = 4; then
         PCFLAGS="$PCFLAGS -D_FILE_OFFSET_BITS=64"
+	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ans => -D_FILE_OFFSET_BITS=64" >&5
+printf "%s\n" "$ans => -D_FILE_OFFSET_BITS=64" >&6; }
+    else
+	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ans" >&5
+printf "%s\n" "$ans" >&6; }
     fi
 fi
+rm -rf conftest conftest.*
 
 
+
+cat <<End-of-File >conftest.c
+#include <stdint.h>
+#include <stddef.h>
+#include <stdio.h>
+#include <sys/time.h>
+typedef struct {
+    int64_t sec;
+    int32_t nsec;
+} __pmTimestamp;
+typedef struct {
+    __pmTimestamp stamp;
+    int numpmid;
+} __pmResult;
+typedef struct {
+    struct timeval stamp;
+    int numpmid;
+} pmResult;
+typedef struct {
+    struct timespec stamp;
+    int numpmid;
+} pmHighResResult;
+void
+main(void)
+{
+    __pmResult __rp;
+    pmResult rp;
+    pmHighResResult hrp;
+    int nb;
+
+    nb = (int)offsetof(pmResult,numpmid);
+    if (nb < (int)offsetof(pmHighResResult,numpmid))
+	nb = (int)offsetof(pmHighResResult,numpmid);
+    if (nb > (int)offsetof(__pmResult,numpmid))
+	printf("__pmResult pad %d\n", nb - (int)offsetof(__pmResult,numpmid));
+
+    nb = (int)(sizeof(hrp.stamp) - sizeof(hrp.stamp.tv_sec) - sizeof(hrp.stamp.tv_nsec));
+    if (nb > 0)
+	printf("timespec pad %d\n", nb);
+}
+End-of-File
+save_CFLAGS="$CFLAGS"
+CFLAGS="$PCFLAGS"
+(eval $ac_compile) 2>&5
+(eval $ac_link) 2>&5
+./conftest >conftest.out
+CFLAGS="$save_CFLAGS"
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking __pmResult padding" >&5
+printf %s "checking __pmResult padding... " >&6; }
+ans=`sed <conftest.out -n -e '/__pmResult pad/s/.* //p'`
+if test -n "$ans"
+then
+    printf "%s\n" "#define PM_PAD_RESULT $ans" >>confdefs.h
+
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ans" >&5
+printf "%s\n" "$ans" >&6; }
+else
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking timespec padding" >&5
+printf %s "checking timespec padding... " >&6; }
+ans=`sed <conftest.out -n -e '/timespec pad/s/.* //p'`
+if test -n "$ans"
+then
+    printf "%s\n" "#define PM_PAD_TIMESPEC $ans" >>confdefs.h
+
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ans" >&5
+printf "%s\n" "$ans" >&6; }
+else
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+fi
 
 # Check whether --enable-pie was given.
 if test ${enable_pie+y}
@@ -9315,32 +9413,39 @@ printf "%s\n" "$pcp_perl_prog" >&6; }
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking if ExtUtils::MakeMaker is installed" >&5
 printf %s "checking if ExtUtils::MakeMaker is installed... " >&6; }
         $pcp_perl_prog -e "use ExtUtils::MakeMaker" 2>/dev/null
-        if test $? -eq 0
-        then
-	    	    $pcp_perl_prog -MConfig -e 'print "$Config{sGMTIME_max}\n";' >conftest.out
-	    case `cat conftest.out`
-	    in
-		2147483647)
-			# definitely 32-bit time_t for Perl build, we
-			# can't play in this sandpit
-			#
-			{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result:  no" >&5
-printf "%s\n" " no" >&6; }
-			have_perl=false
-			;;
-		67768036191676799)
-			{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result:  yes" >&5
-printf "%s\n" " yes" >&6; }
-			;;
-		*)
-			echo >&2 "Warning: Perl config sGMTIME_max=`cat conftest.out` unexpected"
-			{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result:  yes" >&5
-printf "%s\n" " yes" >&6; }
-			;;
-	    esac
+        if test $? -eq 0; then
+	    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+	    if $force_time_t; then
+								{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking if Perl is Y2038-safe" >&5
+printf %s "checking if Perl is Y2038-safe... " >&6; }
+		$pcp_perl_prog -MConfig -e 'print "$Config{sGMTIME_max}\n";' >conftest.out
+		case `cat conftest.out`
+		in
+		    2147483647)
+			    # definitely 32-bit time_t for Perl build, we
+			    # can't play in this sandpit
+			    #
+			    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+			    have_perl=false
+			    ;;
+		    67768036191676799)
+			    # all good
+			    #
+			    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+			    ;;
+		    *)
+			    echo >&2 "Warning: Perl config sGMTIME_max=`cat conftest.out` unexpected"
+			    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+			    ;;
+		esac
+	    fi
         else
-	    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result:  no" >&5
-printf "%s\n" " no" >&6; }
+	    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
 	    have_perl=false
         fi
     fi

@@ -438,9 +438,11 @@ if ! echo "$CFLAGS" | grep -- -Wno-array-bounds >/dev/null
 then
     AS_IF([test "x$cc_is_gcc" = xyes ],[PCFLAGS="$PCFLAGS -Wno-array-bounds"])
 fi
+
+force_time_t=false
 dnl we also need to worry about time_t ... we need it to be 64-bits for Y2038;
 dnl _FILE_OFFSET_BITS and _TIME_BITS must be set together for the 32-bit case.
-AC_MSG_CHECKING([sizeof time_t])
+AC_MSG_CHECKING([default sizeof time_t])
 cat <<End-of-File >conftest.c
 #include <stdio.h>
 #include <sys/time.h>
@@ -450,14 +452,32 @@ End-of-File
 (eval $ac_link) 2>&5
 ans=`./conftest`
 echo "./conftest -> \"$ans\"" >&5
-rm -rf conftest conftest.*
-AC_MSG_RESULT($ans)
+AC_MSG_RESULT([$ans])
+rm -f conftest.done
 if test "$ans" = 4; then
-    PCFLAGS="$PCFLAGS -D_FILE_OFFSET_BITS=64 -D_TIME_BITS=64"
-else
+    dnl well that's disappointing the default time_t won't survive
+    dnl Y2038 ... let's see if -D_TIME_BIT64 makes any difference
+    AC_MSG_CHECKING([sizeof time_t with -D_TIME_BITS=64])
+    save_CFLAGS="$CFLAGS"
+    CFLAGS="$CFLAGS -D_FILE_OFFSET_BITS=64 -D_TIME_BITS=64"
+    (eval $ac_compile) 2>&5
+    (eval $ac_link) 2>&5
+    CFLAGS="$save_CFLAGS"
+    ans=`./conftest`
+    echo "./conftest -D_TIME_BITS=64 -> \"$ans\"" >&5
+    if test "$ans" = 8; then
+	PCFLAGS="$PCFLAGS -D_FILE_OFFSET_BITS=64 -D_TIME_BITS=64"
+	AC_MSG_RESULT([$ans => -D_TIME_BITS=64])
+	touch conftest.done
+	force_time_t=true
+    else
+	AC_MSG_RESULT([$ans => no way to make this Y2038 safe])
+    fi
+fi
+if test ! -f conftest.done; then
     dnl we may need to check off_t ... we need it to be 64-bits for V3 archives
     dnl this check is optional only because it may be set already (just prior).
-    AC_MSG_CHECKING([sizeof off_t])
+    AC_MSG_CHECKING([default sizeof off_t])
     cat <<End-of-File >conftest.c
 #include <stdio.h>
 #include <unistd.h>
@@ -469,13 +489,89 @@ End-of-File
     ans=`./conftest`
     echo "./conftest -> \"$ans\"" >&5
     rm -rf conftest conftest.*
-    AC_MSG_RESULT($ans)
     if test "$ans" = 4; then
         PCFLAGS="$PCFLAGS -D_FILE_OFFSET_BITS=64"
+	AC_MSG_RESULT([$ans => -D_FILE_OFFSET_BITS=64])
+    else
+	AC_MSG_RESULT($ans)
     fi
 fi
+rm -rf conftest conftest.*
 AC_SUBST(PCFLAGS)
 AC_SUBST(PLDFLAGS)
+
+dnl we have some constraints around the packing of pmResults of various
+dnl flavours and Python modules handling of pmHighResResult
+dnl 1) we need the offset of the numpmid field in __pmResult to be at least as
+dnl    big as the offset of the numpmid field in pmResult _and_ pmHighResResult
+dnl    (for the tricky games in libpcp to minimize copying)
+dnl 2) we need to know if the compiler is adding padding between the timestamp
+dnl    and the numpmid fields of pmHighResResult (for Python packing and
+dnl    unpacking)
+cat <<End-of-File >conftest.c
+#include <stdint.h>
+#include <stddef.h>
+#include <stdio.h>
+#include <sys/time.h>
+typedef struct {
+    int64_t sec;
+    int32_t nsec;
+} __pmTimestamp;
+typedef struct {
+    __pmTimestamp stamp;
+    int numpmid;
+} __pmResult;
+typedef struct {
+    struct timeval stamp;
+    int numpmid;
+} pmResult;
+typedef struct {
+    struct timespec stamp;
+    int numpmid;
+} pmHighResResult;
+void
+main(void)
+{
+    __pmResult __rp;
+    pmResult rp;
+    pmHighResResult hrp;
+    int nb;
+
+    nb = (int)offsetof(pmResult,numpmid);
+    if (nb < (int)offsetof(pmHighResResult,numpmid))
+	nb = (int)offsetof(pmHighResResult,numpmid);
+    if (nb > (int)offsetof(__pmResult,numpmid))
+	printf("__pmResult pad %d\n", nb - (int)offsetof(__pmResult,numpmid));
+
+    nb = (int)(sizeof(hrp.stamp) - sizeof(hrp.stamp.tv_sec) - sizeof(hrp.stamp.tv_nsec));
+    if (nb > 0)
+	printf("timespec pad %d\n", nb);
+}
+End-of-File
+save_CFLAGS="$CFLAGS"
+CFLAGS="$PCFLAGS"
+(eval $ac_compile) 2>&5
+(eval $ac_link) 2>&5
+./conftest >conftest.out
+CFLAGS="$save_CFLAGS"
+AC_MSG_CHECKING([__pmResult padding])
+ans=`sed <conftest.out -n -e '/__pmResult pad/s/.* //p'`
+if test -n "$ans"
+then
+    AC_DEFINE_UNQUOTED(PM_PAD_RESULT, $ans, [])
+    AC_MSG_RESULT($ans)
+else
+    AC_MSG_RESULT([no])
+fi
+AC_MSG_CHECKING([timespec padding])
+ans=`sed <conftest.out -n -e '/timespec pad/s/.* //p'`
+if test -n "$ans"
+then
+    AC_DEFINE_UNQUOTED(PM_PAD_TIMESPEC, $ans, [])
+    AC_MSG_RESULT($ans)
+else
+    AC_MSG_RESULT([no])
+fi
 
 dnl Check for even more security-related gcc/linker flags, useful for daemons
 AC_ARG_ENABLE([pie],
@@ -1285,29 +1381,36 @@ AS_IF([test "x$do_perl" != "xno"], [
     then
         AC_MSG_CHECKING([if ExtUtils::MakeMaker is installed])
         $pcp_perl_prog -e "use ExtUtils::MakeMaker" 2>/dev/null
-        if test $? -eq 0
-        then
-	    dnl check that installed Perl is built for _TIME_BITS=64
-	    $pcp_perl_prog -MConfig -e 'print "$Config{sGMTIME_max}\n";' >conftest.out
-	    case `cat conftest.out`
-	    in
-		2147483647)
-			# definitely 32-bit time_t for Perl build, we
-			# can't play in this sandpit
-			#
-			AC_MSG_RESULT([ no])
-			have_perl=false
-			;;
-		67768036191676799)
-			AC_MSG_RESULT([ yes])
-			;;
-		*)
-			echo >&2 "Warning: Perl config sGMTIME_max=`cat conftest.out` unexpected"
-			AC_MSG_RESULT([ yes])
-			;;
-	    esac
+        if test $? -eq 0; then
+	    AC_MSG_RESULT([yes])
+	    if $force_time_t; then
+		dnl forcing -D_TIME_BITS=64 for PCP libs, but need to check
+		dnl that installed Perl is built for _TIME_BITS=64, else
+		dnl we cannot build compatibile PCP Perl components
+		AC_MSG_CHECKING([if Perl is Y2038-safe])
+		$pcp_perl_prog -MConfig -e 'print "$Config{sGMTIME_max}\n";' >conftest.out
+		case `cat conftest.out`
+		in
+		    2147483647)
+			    # definitely 32-bit time_t for Perl build, we
+			    # can't play in this sandpit
+			    #
+			    AC_MSG_RESULT([no])
+			    have_perl=false
+			    ;;
+		    67768036191676799)
+			    # all good
+			    #
+			    AC_MSG_RESULT([yes])
+			    ;;
+		    *)
+			    echo >&2 "Warning: Perl config sGMTIME_max=`cat conftest.out` unexpected"
+			    AC_MSG_RESULT([yes])
+			    ;;
+		esac
+	    fi
         else
-	    AC_MSG_RESULT([ no])
+	    AC_MSG_RESULT([no])
 	    have_perl=false
         fi
     fi
