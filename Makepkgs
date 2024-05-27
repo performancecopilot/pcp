@@ -227,7 +227,7 @@ fi
 configenv=''
 if $dodeb
 then
-    # On Debian-based platforms, the debian/rules file already captures 
+    # On Debian-based platforms, the debian/rules.pcp file already captures 
     # most of the required configure settings in $(configure_paths) and
     # $(configure_tools)
     #
@@ -561,11 +561,11 @@ prepare_debian_control()
     source="$parent/pcp_$VERSION.orig.tar.gz"
     mv "$SRCTAR" "$source"
     echo "Wrote: $source"
-    rm -f $tmp/failed debian/control
+    rm -f $tmp/failed debian/control debian/rules
     if $verbose ; then
-	($MAKE -C debian control 2>&1 || touch $tmp/failed) 2>&1 | tee -a "$LOGDIR/pcp"
+	($MAKE -C debian control rules 2>&1 || touch $tmp/failed) 2>&1 | tee -a "$LOGDIR/pcp"
     else
-	($MAKE -C debian control 2>&1 || touch $tmp/failed) >>"$LOGDIR/pcp" 2>&1
+	($MAKE -C debian control rules 2>&1 || touch $tmp/failed) >>"$LOGDIR/pcp" 2>&1
     fi
     [ -f $tmp/failed ] && build_failure debian control
 }
@@ -582,19 +582,19 @@ debian_build()
     #       configure options are used in both places
     #
     export configure_opts="$configopts"
-    if [ ! -f debian/rules ]
+    if [ ! -f debian/rules.pcp ]
     then
-	echo "Botch: cannot find debian/rules"
+	echo "Botch: cannot find debian/rules.pcp"
 	exit 1
     fi
-    debian_paths=`sed -n <debian/rules -e '/^configure_paths/s/^[^=]*= *//p'`
+    debian_paths=`sed -n <debian/rules.pcp -e '/^configure_paths/s/^[^=]*= *//p'`
     if [ -z "$debian_paths" ]
     then
-	echo "Botch: cannot get config options from configure_paths in debian/rules"
+	echo "Botch: cannot get config options from configure_paths in debian/rules.pcp"
 	exit 1
     fi
     configopts="$debian_paths $configopts"
-    debian_env=`sed -n <debian/rules -e '/^configure_tools/{
+    debian_env=`sed -n <debian/rules.pcp -e '/^configure_tools/{
 s/^[^=]*= *//
 s/export *//
 s/;//
@@ -602,7 +602,7 @@ p
 }'`
     if [ -z "$debian_env" ]
     then
-	echo "Botch: cannot get env settings from configure_tools in debian/rules"
+	echo "Botch: cannot get env settings from configure_tools in debian/rules.pcp"
 	exit 1
     fi
     configenv="$debian_env"

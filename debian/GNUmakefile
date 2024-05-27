@@ -111,7 +111,7 @@ LDIRT = *.debhelper *.substvars *.log pcp files pcp.postrm \
 	$(PCPIMPORTSAR) $(PCPIMPORTMRTG) $(PCPIMPORTSHEET) $(PCPIMPORTIOSTAT) \
 	$(PCPIMPORTCOLLECTL) $(PCPIMPORTGANGLIA)
 
-default: pcp.preinst pcp.postinst pcp.postrm control pcp-gui.install
+default: pcp.preinst pcp.postinst pcp.postrm control rules pcp-gui.install
 
 include $(BUILDRULES)
 
@@ -328,7 +328,9 @@ ifeq ($(HAVE_HICOLOR_ICONS), true)
 	cat pcp-gui.install.hicolor >>pcp-gui.install
 endif
 
-control:	control.pcp control.pcpgui fixcontrol
+control:	fixcontrol control.pcp control.python2 control.python3 \
+		control.pcpgui control.pcp2xlsx control.pcp2arrow \
+		control.pmdaib control.perl
 	./fixcontrol >control
 ifeq ($(ENABLE_PYTHON2), true)
 	cat control.python2 >>control
@@ -348,3 +350,10 @@ endif
 ifeq ($(PMDA_INFINIBAND), true)
 	cat control.pmdaib >>control
 endif
+ifeq ($(HAVE_PERL), true)
+	cat control.perl >>control
+endif
+
+rules:	fixrules rules.pcp
+	./fixrules >rules
+	chmod 755 rules
