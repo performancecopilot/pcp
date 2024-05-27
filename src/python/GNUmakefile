@@ -40,7 +40,7 @@ else
 SETUP_PY = distutils-setup.py
 endif
 
-default default_pcp: build_python2 build_python3
+default default_pcp: pre_build build_python2 build_python3
 
 ifeq "$(ENABLE_PYTHON2)" "true"
 PY_BUILD_OPTS = $(SETUP_PY_BUILD_OPTIONS)
@@ -82,6 +82,11 @@ test:
 	pmpython -m unittest discover -s test -p '*_test.py'
 
 build_python2 build_python3:	$(TOPDIR)/src/include/pcp/libpcp.h
+
+# deal with any configurable Python source, e.g. pmapi.py.in
+#
+pre_build:
+	cd pcp; make default
 
 foo:
 	echo $(CFLAGS)

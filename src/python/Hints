@@ -1,0 +1,4 @@
++ developer install (new/updated bits over the top of an existing PCP
+  Python installation)
+  $ sudo ./install-dev
+
