@@ -595,7 +595,7 @@ static struct {
 	{ "compress_suffixes",	compress_suffix_list },		/* from pcp-4.0.1 */
 	{ "v3_archives",	enabled },			/* from pcp-6.0.0 */
 	{ "archive_features",	myfeatures },			/* from pcp-6.0.0 */
-	{ "y2038_safe",		Y2038_SAFE },			/* from pcp-6.2.2 */
+	{ "y2038_safe",		Y2038_SAFE },			/* from pcp-6.3.0 */
 };
 
 void
