@@ -1986,7 +1986,7 @@ x11
 1517 derive local valgrind
 1518:reserved kenj
 1519:reserved kenj
-1520 other libpcp local
+1520 other libpcp local pmconfig
 1530 pmda.zfs local valgrind
 1531 pmda.zfs local valgrind
 1532 pmda.zfs local
@@ -2117,7 +2117,7 @@ x11
 1849 libpcp local
 1850 pmseries libpcp_web local
 1853 pmda.bpf local
-1854 pmlogger pmimport pmconfig local
+1854 pmlogger pmimport local
 1855 pmda.rabbitmq local
 1856 dstat python local derive
 1871 pmsearch local

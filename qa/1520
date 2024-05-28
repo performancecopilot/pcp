@@ -20,6 +20,9 @@ fi
 . ./common.filter
 . ./common.check
 
+eval `pmconfig -L y2038_safe`
+$y2038_safe || _notrun "PCP build is not Y2039-safe"
+
 $sudo rm -rf $tmp $tmp.* $seq.full
 
 _cleanup()

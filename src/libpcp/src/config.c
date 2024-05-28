@@ -562,6 +562,11 @@ extern const char *compress_suffix_list(void);
 #else
 #define TRANSPARENT_DECOMPRESS	disabled
 #endif
+#if PM_SIZEOF_TIME_T == 8
+#define Y2038_SAFE	enabled
+#else
+#define Y2038_SAFE	disabled
+#endif
 
 typedef const char *(*feature_detector)(void);
 static struct {
@@ -590,6 +595,7 @@ static struct {
 	{ "compress_suffixes",	compress_suffix_list },		/* from pcp-4.0.1 */
 	{ "v3_archives",	enabled },			/* from pcp-6.0.0 */
 	{ "archive_features",	myfeatures },			/* from pcp-6.0.0 */
+	{ "y2038_safe",		Y2038_SAFE },			/* from pcp-6.2.2 */
 };
 
 void
