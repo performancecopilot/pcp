@@ -113,6 +113,10 @@ _filter()
 		-e '/pmlogger_daily failed - see .*\/pmlogger_daily.log/d' \
 		-e '/pmlogger_daily failed - see .*\/pmlogger_daily-K.log/d' \
 		-e '/pmlogctl\[[0-9]*]: .* failed to start for host no\.such\.host\.pcp\.io/d' \
+		-e '/pmlogctl\[[0-9]*]: .* is another pmlogctl job running concurrently?/d' \
+		-e '/pmlogctl\[[0-9]*]: .*\/pmlogger\/lock$/d' \
+		-e '/pmlogctl\[[0-9]*]: .* failed to acquire exclusive lock/d' \
+		-e '/pmlogctl\[[0-9]*]: Terminated$/d' \
 		-e '/bozo\.localdomain pmlogctl\[[0-9]*]: mount: write error/d' \
 		-e '/vm03\.localdomain pmlogctl\[[0-9]*]: mount: write error/d' \
 		-e '/pmlogctl\[[0-9]*]: .* (localhost) defined multiple times,/d' \
