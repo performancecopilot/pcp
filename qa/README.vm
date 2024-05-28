@@ -384,9 +384,10 @@ Slackware
     # package install recipe
     $ sudo slackpkg install <package>
     # update all packages recipe
-    $ sudo slackpkg update; sudo slackpkg install-new
-    # release upgrade recipe
-    $ sudo slackpkg upgrade-all; sudo slackpkg clean-system
+    $ sudo slackpkg -batch=on update; sudo slackpkg -batch=on -default_answer=y install-new
+    # release upgrade recipe: update all packages as above, then ...
+    $ sudo slackpkg -batch=on -default_answer=y upgrade-all; sudo slackpkg clean-system
+    # then reconcile any .new files in /etc
 
 Arch Linux
     https://www.archlinux.org/releng/releases/
