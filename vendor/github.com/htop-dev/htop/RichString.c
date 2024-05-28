@@ -9,7 +9,9 @@ in the source distribution for its full text.
 
 #include "RichString.h"
 
+#include <assert.h>
 #include <ctype.h>
+#include <limits.h> // IWYU pragma: keep
 #include <stdlib.h>
 #include <string.h>
 
@@ -62,7 +64,7 @@ void RichString_rewind(RichString* this, int count) {
 
 #ifdef HAVE_LIBNCURSESW
 
-static size_t mbstowcs_nonfatal(wchar_t* dest, const char* src, size_t n) {
+static size_t mbstowcs_nonfatal(wchar_t* restrict dest, const char* restrict src, size_t n) {
    size_t written = 0;
    mbstate_t ps = { 0 };
    bool broken = false;
@@ -144,7 +146,8 @@ static inline int RichString_writeFromAscii(RichString* this, int attrs, const c
    int newLen = from + len;
    RichString_setLen(this, newLen);
    for (int i = from, j = 0; i < newLen; i++, j++) {
-      this->chptr[i] = (CharType) { .attr = attrs & 0xffffff, .chars = { (isprint(data[j]) ? data[j] : L'\xFFFD') } };
+      assert((unsigned char)data[j] <= SCHAR_MAX);
+      this->chptr[i] = (CharType) { .attr = attrs & 0xffffff, .chars = { (isprint((unsigned char)data[j]) ? data[j] : L'\xFFFD') } };
    }
 
    return len;

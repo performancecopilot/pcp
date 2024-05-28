@@ -1,3 +1,6 @@
+pcp-6.3.0 (31 July 2024)
+    - Work-in-progress.
+
 pcp-6.2.2 (15 May 2024)
     - pmdalibvirt: add support for metric labels
     - pmdalibvirt: new balloon, vCPU and domain info metrics

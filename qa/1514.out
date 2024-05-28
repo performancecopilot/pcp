@@ -443,7 +443,7 @@ No value(s) available!
 === Marko's nested defn case ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: /usr/bin/pmrep -s 2 baz bah
+Command: PCP_BIN_DIR/pmrep -s 2 baz bah
 Semantic error: derived metric baz: operand foo: Illegal nested derived metric
 Semantic error: derived metric bah: operand bar: Illegal nested derived metric
 Invalid metric baz (PM_ERR_NAME Unknown metric name).
