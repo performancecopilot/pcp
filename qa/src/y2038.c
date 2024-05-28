@@ -14,7 +14,7 @@
 #include <time.h>
 #include <sys/time.h>
 #include <pcp/pmapi.h>
-#include <pcp/libpcp.h>
+#include "libpcp.h"
 
 static pmLongOptions longopts[] = {
     PMAPI_OPTIONS_HEADER("Options"),
