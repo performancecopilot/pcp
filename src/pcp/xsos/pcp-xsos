@@ -33,6 +33,7 @@ mem_metrics=(
     mem.util.lowFree mem.util.lowTotal
     mem.util.anonhugepages
     mem.util.hugepagesFreeBytes mem.util.hugepagesTotalBytes
+    mem.vmmemctl.current mem.vmmemctl.target
 )
 
 os_metrics=(
@@ -60,7 +61,7 @@ _usage()
 
 # usage spec for pmgetopt, note posix flag (commands mean no reordering)
 cat > $tmp/usage << EOF
-# getopts: a:h:O:?omx
+# getopts: a:h:O:?omu:x
    --archive
    --host
    --origin
@@ -68,6 +69,7 @@ cat > $tmp/usage << EOF
    --all           show everything
    -o,--os         show hostname, distro, kernel info, uptime, etc
    -m,--mem        display memory summary
+   -u=P, --units=P change byte display where P is "b" for byte, "k", "m", "g", or "t"
    -x,--nocolor    disable output colorization
 # end
 EOF
@@ -75,6 +77,7 @@ EOF
 color=true
 osflag=false
 memflag=false
+units='G' # options: B (byte), K, M, G or T
 batch=''
 args=`pmgetopt --progname=$progname --config=$tmp/usage -- "$@"`
 [ $? != 0 ] && exit 1
@@ -108,6 +111,9 @@ do
       -o)
         osflag=true
         ;;
+      -u)
+        units=`echo "$2" | tr '[:lower:]' '[:upper:]' | cut -c 1`
+        ;;
       -x)
         color=false
         ;;
@@ -121,6 +127,25 @@ do
     esac
     shift        # finished with this option, move to next
 done
+
+# set bytes precision (percent, bytes-low, bytes-high) based on units;
+# also stash the display string for each unit and divisor (from KiB).
+if test "$units" = "T"; then
+    precision=(0 2 3)
+    units=(TiB 1073741824)
+elif test "$units" = "G"; then
+    precision=(0 1 2)
+    units=(GiB 1048576)
+elif test "$units" = "M"; then
+    precision=(1 0 0)
+    units=(MiB 1024)
+elif test "$units" = "K"; then
+    precision=(1 0 0)
+    units=(KiB 1)
+else # bytes
+    precision=(1 0 0)
+    units=(B 1/1024)
+fi
 
 # accumulate an array of all metrics to be fetched
 metrics=()
@@ -371,36 +396,23 @@ pcp_xsos_os()
     ih=`get_value kernel.all.cpu.irq.hard 0`
     is=`get_value kernel.all.cpu.irq.soft 0`
     st=`get_value kernel.all.cpu.steal 0`
-    tot=`$awk "BEGIN {print $us+$ni+$sy+$id+$wt+$ih+$is+$st}"`
-    printf "us %d%%, " `$awk "BEGIN {print int($us/$tot*100+.5)}"`
-    printf "ni %d%%, " `$awk "BEGIN {print int($ni/$tot*100+.5)}"`
-    printf "sys %d%%, " `$awk "BEGIN {print int($sy/$tot*100+.5)}"`
-    printf "idle %d%%, " `$awk "BEGIN {print int($id/$tot*100+.5)}"`
-    printf "iowait %d%%, " `$awk "BEGIN {print int($wt/$tot*100+.5)}"`
-    printf "irq %d%%, " `$awk "BEGIN {print int($ih/$tot*100+.5)}"`
-    printf "sftirq %d%%, " `$awk "BEGIN {print int($is/$tot*100+.5)}"`
-    printf "steal %d%%\n" `$awk "BEGIN {print int($st/$tot*100+.5)}"`
+    $awk "BEGIN {
+        tot=$us+$ni+$sy+$id+$wt+$ih+$is+$st;
+        printf \"us %d%%, \", int($us/tot*100+.5)
+        printf \"ni %d%%, \", int($ni/tot*100+.5)
+        printf \"sys %d%%, \", int($sy/tot*100+.5)
+        printf \"idle %d%%, \", int($id/tot*100+.5)
+        printf \"iowait %d%%, \", int($wt/tot*100+.5)
+        printf \"irq %d%%, \", int($ih/tot*100+.5)
+        printf \"sftirq %d%%, \", int($is/tot*100+.5)
+        printf \"steal %d%%\n\", int($st/tot*100+.5)
+    }"
 
     echo # additional space for next session (with --all)
 }
 
-put_hbar()
-{
-    # inputs: title color value total
-    width=50
-    ratio=`$awk "BEGIN {print $3/$4}"`
-    hbars=`$awk "BEGIN {print int($ratio*$width+.5)}"`
-    printf "    ${2}%-10s " $1
-    for i in $(seq 1 $hbars); do printf "▊"; done
-    printf "${RESET}"
-    for i in $(seq $hbars $width); do printf "."; done
-    printf " ${2}%5.1f%%${RESET}\n" `$awk "BEGIN {print $ratio*100+.005}"`
-}
-
 pcp_xsos_mem()
 {
-    printf "${H0}MEMORY\n"
-
     total=`get_value mem.physmem 1`
     used=`get_value mem.util.used 0`
     buffer=`get_value mem.util.bufmem 0`
@@ -416,72 +428,99 @@ pcp_xsos_mem()
     lowtotal=`get_value mem.util.lowTotal 0`
     swaptotal=`get_value mem.util.swapTotal 0`
     swapfree=`get_value mem.util.swapFree 0`
+    vmtarget=`get_value mem.vmmemctl.target 0`
+    vmcurrent=`get_value mem.vmmemctl.current 0`
 
-    printf "${H1}Stats graphed as percent of MemTotal:${RESET}\n"
-    put_hbar MemUsed "${GREEN}" $used $total
-    put_hbar Buffers "${PURPLE}" $buffer $total
-    put_hbar Cached "${BLUE}" $cached $total
-    put_hbar HugePages "${CYAN}" $huge/1024 $total
-    put_hbar Dirty "${RED}" $dirty $total
+    $awk "
+function round(num, places) {
+    places = 10 ^ places
+    return int(num * places + .5) / places
+}
+function put_hbar(title, color, value, total) {
+    width = 50
+    ratio = value/total
+    hbars = int(ratio * width + .5)
+    printf \"    %s%-10s \", color, title
+    for (i=1; i < hbars+1; i++)
+        printf \"▊\"
+    printf \"${RESET}\"
+    for (i=hbars; i < width; i++)
+        printf \".\"
+    printf \" %s%5.1f%%${RESET}\n\", color, ratio * 100 + .005
+}
+BEGIN {
+    printf \"${H0}MEMORY\n\"
 
-    printf "${H1}RAM:${RESET}\n"
-    printf "    ${BOLDWHITE}%.1f GiB total ram${CLEAR}\n"\
-           `$awk "BEGIN {print $total/1024/1024}"`
-    printf "    ${WHITE}%.1f GiB (%d%%) used\n"\
-           `$awk "BEGIN {print $used/1024/1024;
-                         print int(($used/$total)*100+.5)}"`
-    printf "    ${BOLDWHITE}%.1f GiB (%d%%) used excluding Buffers/Cached\n"\
-           `$awk "BEGIN {print ($used-$buffer-$cached)/1024/1024;
-                         print int(($used-$buffer-$cached)/$total*100+.5)}"`
-    printf "    ${WHITE}%.1f GiB (%d%%) dirty\n"\
-           `$awk "BEGIN {print $dirty/1024/1024;
-                         print int($dirty/$total*100+.5)}"`
+    printf \"${H1}Stats graphed as percent of MemTotal:${RESET}\n\"
+    put_hbar(\"MemUsed\", \"${GREEN}\", $used, $total)
+    put_hbar(\"Buffers\", \"${PURPLE}\", $buffer, $total)
+    put_hbar(\"Cached\", \"${BLUE}\", $cached, $total)
+    put_hbar(\"HugePages\", \"${CYAN}\", $huge/1024, $total)
+    put_hbar(\"Dirty\", \"${RED}\", $dirty, $total)
 
-    printf "${H1}HugePages:${RESET}\n"
-    if test $huge -eq 0; then
-        printf "    No ram pre-allocated to HugePages\n"
+    printf \"${H1}RAM:${RESET}\n\"
+    printf \"    ${BOLDWHITE}%s ${units[0]} total ram${CLEAR}\n\",
+            round($total/(${units[1]}), ${precision[1]})
+    printf \"    ${WHITE}%s ${units[0]} (%s%%) used\n\",
+            round($used/(${units[1]}), ${precision[1]}),
+            round(($used/$total)*100, ${precision[0]})
+    printf \"    ${BOLDWHITE}%s ${units[0]} (%s%%) used excluding Buffers/Cached\n\",
+            round(($used-$buffer-$cached)/(${units[1]}), ${precision[1]}),
+	    round((($used-$buffer-$cached)/$total)*100, ${precision[0]})
+    printf \"    ${WHITE}%s ${units[0]} (%s%%) dirty\n\",
+            round($dirty/(${units[1]}), ${precision[2]}),
+            round(($dirty/$total)*100, ${precision[0]})
+    printf \"${H1}HugePages:${RESET}\n\"
+    if ($huge == 0)
+        printf \"    No ram pre-allocated to HugePages\n\"
+    else {
+        printf \"    %s ${units[0]} pre-allocated to HugePages (%s%% of total ram)\n\",
+                round(($huge/1024)/(${units[1]}), ${precision[1]}),
+                round((($huge/1024)/($total))*100, ${precision[0]})
+        printf \"    %s ${units[0]} of HugePages (%s%%) in-use by applications\n\",
+                round(($huge-$hugefree)/1024/(${units[1]}), ${precision[1]}),
+                round((($huge-$hugefree)/($huge))*100, ${precision[0]})
+    }
+
+    printf \"${H1}TransparentHugePages:${RESET}\n\"
+    if ($hugeanon == 0)
+        printf \"    No ram allocated to THP\n\"
     else
-        printf "    %.1f GiB pre-allocated to HugePages (%s%% of total ram)\n"\
-           `$awk "BEGIN {print $huge/1024/1024/1024;
-		print int(($huge/($total*1024))*100+.5)}"`
-        printf "    %.1f GiB of HugePages (%s%%) in-use by applications\n"\
-	        `$awk "BEGIN {print ($huge-$hugefree)/1024/1024/1024;
-	            print int((($huge-$hugefree)/($total*1024))*100+.5)}"`
-    fi
-    printf "${H1}TransparentHugePages:${RESET}\n"
-    if test $hugeanon -eq 0; then
-        printf "    No ram allocated to THP\n"
+        printf \"    %s ${units[0]} allocated to THP\n\",
+                round($hugeanon/(${units[1]}), ${precision[2]})
+
+    if ($lowtotal != 0)
+        printf \"    %s ${units[0]} (%s%%) of LowMem in-use\n\",
+                round(($lowtotal-$lowfree)/(${units[1]}), ${precision[1]}),
+		round((($lowtotal-$lowfree)/($lowtotal))*100, ${precision[0]})
+    printf \"    %s ${units[0]} (%s%%) of total ram used for Slab\n\",
+           round($slab/(${units[1]}), ${precision[2]}),
+           round(($slab/$total)*100, ${precision[0]})
+    printf \"    %s ${units[0]} (%s%%) of total ram used for PageTables\n\",
+           round($ptes/(${units[1]}), ${precision[2]}),
+           round(($ptes/$total)*100, ${precision[0]})
+    printf \"    %s ${units[0]} (%s%%) of total ram used for Shmem\n\",
+           round($shmem/(${units[1]}), ${precision[2]}),
+           round(($shmem/$total)*100, ${precision[0]})
+
+    printf \"${H1}Virtual Machine Balloon:${RESET}\n\"
+    if ($vmtarget == 0)
+        printf \"    No VM balloon memory target\n\"
     else
-        printf "    %.2f GiB allocated to THP\n"\
-           `$awk "BEGIN {print $hugeanon/1024/1024}"`
+        printf \"    %s ${units[0]} (%s%%) of %s ${units[0]} balloon in-use\n\",
+                round(($vmcurrent/1024)/(${units[1]}), ${precision[1]}),
+		round(($vmcurrent/($vmtarget))*100, ${precision[0]}),
+                round(($vmtarget/1024)/(${units[1]}), ${precision[1]})
 
-    fi
-
-    printf "${H1}LowMem/Slab/PageTables/Shmem:${RESET}\n"
-    if test $lowtotal -ne 0; then
-        printf "    %.2f GiB (%d%%) of LowMem in-use\n" \
-           `$awk "BEGIN {print ($lowtotal-$lowfree)/1024/1024;
-                         print int(($lowtotal-$lowfree)*100+.5)}"`
-    fi
-    printf "    %.2f GiB (%d%%) of total ram used for Slab\n" \
-           `$awk "BEGIN {print $slab/1024/1024;
-                         print int(($slab/$total)*100+.5)}"`
-    printf "    %.2f GiB (%d%%) of total ram used for PageTables\n" \
-           `$awk "BEGIN {print $ptes/1024/1024;
-                         print int(($ptes/$total)*100+.5)}"`
-    printf "    %.2f GiB (%d%%) of total ram used for Shmem\n" \
-           `$awk "BEGIN {print $shmem/1024/1024;
-                         print int(($shmem/$total)*100+.5)}"`
-
-    printf "${H1}Swap:${RESET}\n"
-    if test $swaptotal -eq 0; then
-        printf "    ${ORANGE}No system swap space configured${RESET}\n"
+    printf \"${H1}Swap:${RESET}\n\"
+    if ($swaptotal == 0)
+        printf \"    ${ORANGE}No system swap space configured${RESET}\n\"
     else
-        printf "    %.1f GiB (%d%%) used of %.1f GiB total\n" \
-           `$awk "BEGIN {print ($swaptotal-$swapfree)/1024/1024}"` \
-           `$awk "BEGIN {print int(($swapfree-$swaptotal)*100+.5)}"` \
-           `$awk "BEGIN {print $swaptotal/1024/1024}"`
-    fi
+        printf \"    %s ${units[0]} (%s%%) used of %s ${units[0]} total\n\",
+               round(($swaptotal-$swapfree)/(${units[1]}), ${precision[1]}),
+	       round((($swapfree-$swaptotal)/$swaptotal)*100, ${precision[0]}),
+               round($swaptotal/(${units[1]}), ${precision[1]})
+}"
 
     echo # additional space for next session (with --all)
 }
