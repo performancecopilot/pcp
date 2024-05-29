@@ -25,6 +25,11 @@ trap "rm -rf $tmp; exit \$sts" 0 1 2 3 15
 
 progname=`basename $0`
 
+disk_metrics=(
+    disk.dev.capacity filesys.capacity
+    filesys.used filesys.avail filesys.full filesys.mountdir
+)
+
 mem_metrics=(
     mem.physmem mem.util.used mem.util.dirty
     mem.util.shmem mem.util.bufmem mem.util.cached
@@ -93,13 +98,14 @@ _usage()
 
 # usage spec for pmgetopt, note posix flag (commands mean no reordering)
 cat > $tmp/usage << EOF
-# getopts: a:h:O:?omnNu:x
+# getopts: a:h:O:?domnNu:x
    --archive
    --host
    --origin
    --help
    --all           show everything
    -o,--os         show hostname, distro, kernel info, uptime, etc
+   -d,--disks      show info from /proc/partitions, df
    -m,--mem        display memory summary
    -n,--netdev     display network interface summary
    -N,--netstat    display network statistics
@@ -111,6 +117,7 @@ EOF
 color=true
 osflag=false
 memflag=false
+diskflag=false
 netdevflag=false
 netstatflag=false
 netunits='M' # options: B (byte), K, M, G or T
@@ -141,8 +148,12 @@ do
       --all)
         osflag=true
         memflag=true
+        diskflag=true
         netdevflag=true
         netstatflag=true
+        ;;
+      -d)
+        diskflag=true
         ;;
       -m)
         memflag=true
@@ -212,6 +223,7 @@ fi
 metrics=()
 $osflag && metrics+=( ${os_metrics[*]} )
 $memflag && metrics+=( ${mem_metrics[*]} )
+$diskflag && metrics+=( ${disk_metrics[*]} )
 $netdevflag && metrics+=( ${netdev_metrics[*]} )
 $netstatflag && metrics+=( ${netstat_metrics[*]} )
 
@@ -483,6 +495,64 @@ pcp_xsos_os()
     echo # additional space for next session (with --all)
 }
 
+pcp_xsos_disk()
+{
+    # prepare a map of block device names for awk import (-i)
+    echo 'BEGIN {' > $tmp/bdevs
+    for i in "${!disk_dev_capacity_inst[@]}"; do
+        cat >> $tmp/bdevs << EOF
+disks[$i] = "${disk_dev_capacity_inst[$i]}"
+disk_capacity[$i] = ${disk_dev_capacity_value[$i]}
+EOF
+    done
+    for i in "${!filesys_capacity_inst[@]}"; do
+        cat >> $tmp/bdevs << EOF
+files[$i] = "${filesys_capacity_inst[$i]}"
+file_capacity[$i] = ${filesys_capacity_value[$i]}
+file_used[$i] = ${filesys_used_value[$i]}
+file_full[$i] = ${filesys_full_value[$i]}
+file_avail[$i] = ${filesys_avail_value[$i]}
+file_mountdir[$i] = "${filesys_mountdir_value[$i]}"
+EOF
+    done
+    echo '}' >> $tmp/bdevs
+
+    $awk -i $tmp/bdevs -i $tmp/round "
+BEGIN {
+    for (i in disks) {
+        nKiB += disk_capacity[i]
+	ndisks++
+    }
+    nGiB = nKiB / 1024 / 1024
+    nTiB = round(nGiB / 1024, 2)
+
+    printf \"${H0}STORAGE${RESET}\n\"
+    printf \"${H1}Whole Disks from /proc/partitions:${RESET}\n\"
+    printf \"    ${BOLDWHITE}\"
+    printf \"%s disks, totalling %s GiB (%s TiB)\n\", ndisks, nGiB, nTiB
+    printf \"    - - - - - - - - - - - - - - - - - - - - -\n\"
+    printf \"${H2}Disk \tSize in GiB${RESET}\n\"
+    printf \"${H2}---- \t-----------${RESET}\n\"
+    for (i in disks) {
+        capacity = round(disk_capacity[i] / 1024 / 1024, 2)
+        printf \"    %s \t%-s\n\", disks[i], capacity
+    }
+
+    printf \"\n\"
+    printf \"${H1}Filesystem usage from df:${RESET}\n\"
+    printf \"    ${BOLDWHITE}\"
+    printf \"Filesystem     1K-blocks     Used Available Use%% Mounted on\"
+    printf \"${RESET}\n\"
+    for (i in files) {
+        printf \"    %s %14s %8s %9s %3s%% %s\n\", 
+                files[i], file_capacity[i], file_used[i], file_avail[i],
+		round(file_full[i], 0), file_mountdir[i]
+    }
+}"
+
+    echo # additional space for next session (with --all)
+}
+
 pcp_xsos_mem()
 {
     total=`get_value mem.physmem 1`
@@ -534,7 +604,7 @@ BEGIN {
             round(($used/$total)*100, ${precision[0]})
     printf \"    ${BOLDWHITE}%s ${memunits[0]} (%s%%) used excluding Buffers/Cached\n\",
             round(($used-$buffer-$cached)/(${memunits[1]}), ${precision[1]}),
-	    round((($used-$buffer-$cached)/$total)*100, ${precision[0]})
+            round((($used-$buffer-$cached)/$total)*100, ${precision[0]})
     printf \"    ${WHITE}%s ${memunits[0]} (%s%%) dirty\n\",
             round($dirty/(${memunits[1]}), ${precision[2]}),
             round(($dirty/$total)*100, ${precision[0]})
@@ -560,7 +630,7 @@ BEGIN {
     if ($lowtotal != 0)
         printf \"    %s ${memunits[0]} (%s%%) of LowMem in-use\n\",
                 round(($lowtotal-$lowfree)/(${memunits[1]}), ${precision[1]}),
-		round((($lowtotal-$lowfree)/($lowtotal))*100, ${precision[0]})
+                round((($lowtotal-$lowfree)/($lowtotal))*100, ${precision[0]})
     printf \"    %s ${memunits[0]} (%s%%) of total ram used for Slab\n\",
            round($slab/(${memunits[1]}), ${precision[2]}),
            round(($slab/$total)*100, ${precision[0]})
@@ -577,7 +647,7 @@ BEGIN {
     else
         printf \"    %s ${memunits[0]} (%s%%) of %s ${memunits[0]} balloon in-use\n\",
                 round(($vmcurrent/1024)/(${memunits[1]}), ${precision[1]}),
-		round(($vmcurrent/($vmtarget))*100, ${precision[0]}),
+                round(($vmcurrent/($vmtarget))*100, ${precision[0]}),
                 round(($vmtarget/1024)/(${memunits[1]}), ${precision[1]})
 
     printf \"${H1}Swap:${RESET}\n\"
@@ -586,7 +656,7 @@ BEGIN {
     else
         printf \"    %s ${memunits[0]} (%s%%) used of %s ${memunits[0]} total\n\",
                round(($swaptotal-$swapfree)/(${memunits[1]}), ${precision[1]}),
-	       round((($swapfree-$swaptotal)/$swaptotal)*100, ${precision[0]}),
+               round((($swapfree-$swaptotal)/$swaptotal)*100, ${precision[0]}),
                round($swaptotal/(${memunits[1]}), ${precision[1]})
 }"
 
@@ -600,9 +670,27 @@ pcp_xsos_netdev()
     for i in "${!network_interface_in_bytes_inst[@]}"; do
         case "${network_interface_in_bytes_inst[$i]}" in
         lo*) ;;  # cull loopback interfaces
-        *)
-            echo "  ifaces[$i] =" \"${network_interface_in_bytes_inst[$i]}\" \
-                    >> $tmp/ifaces
+        *) cat >> $tmp/ifaces << EOF
+ifaces[$i] = "${network_interface_in_bytes_inst[$i]}"
+rxbytes[$i] = ${network_interface_in_bytes_value[$i]}
+rxpckts[$i] = ${network_interface_in_packets_value[$i]}
+rxerror[$i] = ${network_interface_in_errors_value[$i]}
+rxdrops[$i] = ${network_interface_in_drops_value[$i]}
+rxfifos[$i] = ${network_interface_in_fifo_value[$i]}
+rxframe[$i] = ${network_interface_in_frame_value[$i]}
+rxmcast[$i] = ${network_interface_in_mcasts_value[$i]}
+rxcomps[$i] = ${network_interface_in_compressed_value[$i]}
+rxtotal[$i] = rxpckts[$i]+rxerror[$i]+rxdrops[$i]+rxfifos[$i]+rxframe[$i]+rxmcast[$i]+rxcomps[$i]
+txbytes[$i] = ${network_interface_out_bytes_value[$i]}
+txpckts[$i] = ${network_interface_out_packets_value[$i]}
+txerror[$i] = ${network_interface_out_errors_value[$i]}
+txdrops[$i] = ${network_interface_out_drops_value[$i]}
+txfifos[$i] = ${network_interface_out_fifo_value[$i]}
+txcolls[$i] = ${network_interface_collisions_value[$i]}
+txcarrs[$i] = ${network_interface_out_carrier_value[$i]}
+txcomps[$i] = ${network_interface_out_compressed_value[$i]}
+txtotal[$i] = txpckts[$i]+txerror[$i]+txdrops[$i]+txfifos[$i]+txcolls[$i]+txcarrs[$i]+txcomps[$i]
+EOF
             ;;
         esac
     done
@@ -645,48 +733,38 @@ BEGIN {
     printf \"  =========  =========  =========  ======  ======  ======  ======  =======  ==========${RESET}\n\"
 
     for (i in ifaces) {
-        rxbytes = ${network_interface_in_bytes_value["i"]}
-        rxpckts = ${network_interface_in_packets_value["i"]}
-        rxerror = ${network_interface_in_errors_value["i"]}
-        rxdrops = ${network_interface_in_drops_value["i"]}
-        rxfifos = ${network_interface_in_fifo_value["i"]}
-        rxframe = ${network_interface_in_frame_value["i"]}
-        rxmcast = ${network_interface_in_mcasts_value["i"]}
-        rxcomps = ${network_interface_in_compressed_value["i"]}
-        rxtotal = rxpckts+rxerror+rxdrops+rxfifos+rxframe+rxmcast+rxcomps
-
-        if (rxtotal > 0) {
-            if (rxerror > 0)
-                rxerrorpct = \"(\" round(rxerror * 100 / rxtotal, 0) \"%)\"
-            if (rxdrops > 0)
-                rxdropspct = \"(\" round(rxdrops * 100 / rxtotal, 0) \"%)\"
-            if (rxfifos > 0)
-                rxfifospct = \"(\" round(rxfifos * 100 / rxtotal, 0) \"%)\"
-            if (rxframe > 0)
-                rxframepct = \"(\" round(rxframe * 100 / rxtotal, 0) \"%)\"
-            if (rxmcast > 0)
-                rxmcastpct = \"(\" round(rxmcast * 100 / rxtotal, 0) \"%)\"
-            if (rxcomps > 0)
-                rxcompspct = \"(\" round(rxcomps * 100 / rxtotal, 0) \"%)\"
+        if (rxtotal[i] > 0) {
+            if (rxerror[i] > 0)
+                rxerrorpct = \"(\" round(rxerror[i] * 100 / rxtotal[i], 0) \"%)\"
+            if (rxdrops[i] > 0)
+                rxdropspct = \"(\" round(rxdrops[i] * 100 / rxtotal[i], 0) \"%)\"
+            if (rxfifos[i] > 0)
+                rxfifospct = \"(\" round(rxfifos[i] * 100 / rxtotal[i], 0) \"%)\"
+            if (rxframe[i] > 0)
+                rxframepct = \"(\" round(rxframe[i] * 100 / rxtotal[i], 0) \"%)\"
+            if (rxmcast[i] > 0)
+                rxmcastpct = \"(\" round(rxmcast[i] * 100 / rxtotal[i], 0) \"%)\"
+            if (rxcomps[i] > 0)
+                rxcompspct = \"(\" round(rxcomps[i] * 100 / rxtotal[i], 0) \"%)\"
         }
 
         # If unit is anything but bytes, perform the necessary division
         if (u == \"KiB\" || u == \"MiB\" || u == \"GiB\" || u == \"TiB\")
-            rxbytes /= bytes_divisor
+            rxbytes[i] /= bytes_divisor
 
         # If unit is MiB, GiB, or TiB, perform division on packets as well
         if (u == \"MiB\" || u == \"GiB\" || u == \"TiB\")
-            rxpckts /= packets_divisor
+            rxpckts[i] /= packets_divisor
 
-        rxbytes = round(rxbytes, precision_bytes)
-        rxpckts = round(rxpckts, precision_pckts)\"\" packets_unit
+        rxbytes[i] = round(rxbytes[i], precision_bytes)
+        rxpckts[i] = round(rxpckts[i], precision_pckts)\"\" packets_unit
 
         printf \"  ${BLUE}\"
         printf \"%-9s${RESET}  %-9s  %-9s  %-6s  %-6s  %-6s  %-6s  %-7s  %-10s\n\",
-                ifaces[i], rxbytes, rxpckts,
-                rxerror\"\" rxerrorpct, rxdrops\"\" rxdropspct,
-	        rxfifos\"\" rxfifospct, rxcomps\"\" rxcompspct,
-	        rxframe\"\" rxframepct, rxmcast\"\" rxmcastpct
+                ifaces[i], rxbytes[i], rxpckts[i],
+                rxerror[i]\"\" rxerrorpct, rxdrops[i]\"\" rxdropspct,
+                rxfifos[i]\"\" rxfifospct, rxcomps[i]\"\" rxcompspct,
+                rxframe[i]\"\" rxframepct, rxmcast[i]\"\" rxmcastpct
     }
 
     printf \"  - - - - - - - - - - - - - - - - -\n\"
@@ -694,48 +772,38 @@ BEGIN {
     printf \"  =========  =========  =========  ======  ======  ======  ======  =======  ==========${RESET}\n\"
 
     for (i in ifaces) {
-        txbytes = ${network_interface_out_bytes_value["i"]}
-        txpckts = ${network_interface_out_packets_value["i"]}
-        txerror = ${network_interface_out_errors_value["i"]}
-        txdrops = ${network_interface_out_drops_value["i"]}
-        txfifos = ${network_interface_out_fifo_value["i"]}
-        txcolls = ${network_interface_collisions_value["i"]}
-        txcarrs = ${network_interface_out_carrier_value["i"]}
-        txcomps = ${network_interface_out_compressed_value["i"]}
-        txtotal = txpckts+txerror+txdrops+txfifos+txcolls+txcarrs+txcomps
-
-        if (txtotal > 0) {
-            if (txerror > 0)
-                txerrorpct = \"(\" round(txerror * 100 / txtotal, 0) \"%)\"
-            if (txdrops > 0)
-                txdropspct = \"(\" round(txdrops * 100 / txtotal, 0) \"%)\"
-            if (txfifos > 0)
-                txfifospct = \"(\" round(txfifos * 100 / txtotal, 0) \"%)\"
-            if (txcolls > 0)
-                txcollspct = \"(\" round(txcolls * 100 / txtotal, 0) \"%)\"
-            if (txcarrs > 0)
-                txcarrspct = \"(\" round(txcarrs * 100 / txtotal, 0) \"%)\"
-            if (txcomps > 0)
-                txcompspct = \"(\" round(txcomps * 100 / txtotal, 0) \"%)\"
+        if (txtotal[i] > 0) {
+            if (txerror[i] > 0)
+                txerrorpct = \"(\" round(txerror[i] * 100 / txtotal[i], 0) \"%)\"
+            if (txdrops[i] > 0)
+                txdropspct = \"(\" round(txdrops[i] * 100 / txtotal[i], 0) \"%)\"
+            if (txfifos[i] > 0)
+                txfifospct = \"(\" round(txfifos[i] * 100 / txtotal[i], 0) \"%)\"
+            if (txcolls[i] > 0)
+                txcollspct = \"(\" round(txcolls[i] * 100 / txtotal[i], 0) \"%)\"
+            if (txcarrs[i] > 0)
+                txcarrspct = \"(\" round(txcarrs[i] * 100 / txtotal[i], 0) \"%)\"
+            if (txcomps[i] > 0)
+                txcompspct = \"(\" round(txcomps[i] * 100 / txtotal[i], 0) \"%)\"
         }
 
         # If unit is anything but bytes, perform the necessary division
         if (u == \"KiB\" || u == \"MiB\" || u == \"GiB\" || u == \"TiB\")
-            txbytes /= bytes_divisor
+            txbytes[i] /= bytes_divisor
 
         # If unit is MiB, GiB, or TiB, perform division on packets as well
         if (u == \"MiB\" || u == \"GiB\" || u == \"TiB\")
-            txpckts /= packets_divisor
+            txpckts[i] /= packets_divisor
 
-        txbytes = round(txbytes, precision_bytes)
-        txpckts = round(txpckts, precision_pckts)\"\" packets_unit
+        txbytes[i] = round(txbytes[i], precision_bytes)
+        txpckts[i] = round(txpckts[i], precision_pckts)\"\" packets_unit
 
         printf \"  ${BLUE}\"
         printf \"%-9s${RESET}  %-9s  %-9s  %-6s  %-6s  %-6s  %-6s  %-7s  %-10s\n\",
-                ifaces[i], txbytes, txpckts,
-                txerror\"\" txerrorpct, txdrops\"\" rxdropspct,
-	        txfifos\"\" txfifospct, txcomps\"\" txcompspct,
-	        txcolls\"\" txcollspct, txcarrs\"\" txcarrspct
+                ifaces[i], txbytes[i], txpckts[i],
+                txerror[i]\"\" txerrorpct, txdrops[i]\"\" rxdropspct,
+                txfifos[i]\"\" txfifospct, txcomps[i]\"\" txcompspct,
+                txcolls[i]\"\" txcollspct, txcarrs[i]\"\" txcarrspct
     }
 }"
 
@@ -820,6 +888,7 @@ pcp_xsos_netstat()
 
 $osflag && pcp_xsos_os
 $memflag && pcp_xsos_mem
+$diskflag && pcp_xsos_disk
 $netdevflag && pcp_xsos_netdev
 $netstatflag && pcp_xsos_netstat
 
