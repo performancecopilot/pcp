@@ -25,6 +25,26 @@ trap "rm -rf $tmp; exit \$sts" 0 1 2 3 15
 
 progname=`basename $0`
 
+net_metrics=(
+    network.interface.in.bytes network.interface.in.packets
+    network.interface.in.errors network.interface.in.drops
+    network.interface.in.fifo network.interface.in.frame
+    network.interface.in.compressed network.interface.in.mcasts
+    network.interface.out.bytes network.interface.out.packets
+    network.interface.out.errors network.interface.out.drops
+    network.interface.out.fifo network.interface.collisions
+    network.interface.out.compressed network.interface.out.carrier
+    network.sockstat.total network.sockstat.tcp.mem
+    network.sockstat.tcp.inuse network.sockstat.tcp.orphan
+    network.sockstat.tcp.tw network.sockstat.tcp.alloc
+    network.sockstat.udp.inuse network.sockstat.frag.inuse
+    network.sockstat.udp.mem network.sockstat.udplite.inuse
+    network.sockstat.raw.inuse network.sockstat.raw6.inuse
+    network.sockstat.frag.memory network.sockstat.tcp6.inuse
+    network.sockstat.udp6.inuse network.sockstat.udplite6.inuse
+    network.sockstat.frag6.inuse network.sockstat.frag6.memory
+)
+
 mem_metrics=(
     mem.physmem mem.util.used mem.util.dirty
     mem.util.shmem mem.util.bufmem mem.util.cached
@@ -61,7 +81,7 @@ _usage()
 
 # usage spec for pmgetopt, note posix flag (commands mean no reordering)
 cat > $tmp/usage << EOF
-# getopts: a:h:O:?omu:x
+# getopts: a:h:O:?omnu:x
    --archive
    --host
    --origin
@@ -69,6 +89,7 @@ cat > $tmp/usage << EOF
    --all           show everything
    -o,--os         show hostname, distro, kernel info, uptime, etc
    -m,--mem        display memory summary
+   -n,--netdev     display network interface summary
    -u=P, --units=P change byte display where P is "b" for byte, "k", "m", "g", or "t"
    -x,--nocolor    disable output colorization
 # end
@@ -77,7 +98,9 @@ EOF
 color=true
 osflag=false
 memflag=false
-units='G' # options: B (byte), K, M, G or T
+netflag=false
+netunits='M' # options: B (byte), K, M, G or T
+memunits='G' # options: B (byte), K, M, G or T
 batch=''
 args=`pmgetopt --progname=$progname --config=$tmp/usage -- "$@"`
 [ $? != 0 ] && exit 1
@@ -104,15 +127,20 @@ do
       --all)
         osflag=true
         memflag=true
+        netflag=true
         ;;
       -m)
         memflag=true
+        ;;
+      -n)
+        netflag=true
         ;;
       -o)
         osflag=true
         ;;
       -u)
-        units=`echo "$2" | tr '[:lower:]' '[:upper:]' | cut -c 1`
+        memunits=`echo "$2" | tr '[:lower:]' '[:upper:]' | cut -c 1`
+        netunits=${memunits}
         ;;
       -x)
         color=false
@@ -130,27 +158,43 @@ done
 
 # set bytes precision (percent, bytes-low, bytes-high) based on units;
 # also stash the display string for each unit and divisor (from KiB).
-if test "$units" = "T"; then
+
+# memory
+if test "$memunits" = "T"; then
     precision=(0 2 3)
-    units=(TiB 1073741824)
-elif test "$units" = "G"; then
+    memunits=(TiB 1073741824)
+elif test "$memunits" = "G"; then
     precision=(0 1 2)
-    units=(GiB 1048576)
-elif test "$units" = "M"; then
+    memunits=(GiB 1048576)
+elif test "$memunits" = "M"; then
     precision=(1 0 0)
-    units=(MiB 1024)
-elif test "$units" = "K"; then
+    memunits=(MiB 1024)
+elif test "$memunits" = "K"; then
     precision=(1 0 0)
-    units=(KiB 1)
+    memunits=(KiB 1)
 else # bytes
     precision=(1 0 0)
-    units=(B 1/1024)
+    memunits=(B 1/1024)
+fi
+
+# network
+if test "$netunits" = "T"; then
+    netunits=TiB
+elif test "$netunits" = "G"; then
+    netunits=GiB
+elif test "$netunits" = "M"; then
+    netunits=MiB
+elif test "$netunits" = "K"; then
+    netunits=KiB
+else # bytes
+    netunits=B
 fi
 
 # accumulate an array of all metrics to be fetched
 metrics=()
 $osflag && metrics+=( ${os_metrics[*]} )
 $memflag && metrics+=( ${mem_metrics[*]} )
+$netflag && metrics+=( ${net_metrics[*]} )
 
 # default to OS metrics if nothing specified
 if test ${#metrics[@]} -eq 0; then
@@ -262,6 +306,14 @@ fi
 H0="${BOLDRED}"  # heading color
 H1="  ${BOLDPURPLE}"  # next level down
 H2="    ${BOLDBLUE}"  # second level heading
+
+# optional awk helper function for importing
+cat > $tmp/round << EOF
+function round(number, places) {
+    places = 10 ^ places
+    return int(number * places + .5) / places
+}
+EOF
 
 put_value()
 {
@@ -431,11 +483,7 @@ pcp_xsos_mem()
     vmtarget=`get_value mem.vmmemctl.target 0`
     vmcurrent=`get_value mem.vmmemctl.current 0`
 
-    $awk "
-function round(num, places) {
-    places = 10 ^ places
-    return int(num * places + .5) / places
-}
+    $awk -i $tmp/round "
 function put_hbar(title, color, value, total) {
     width = 50
     ratio = value/total
@@ -459,26 +507,26 @@ BEGIN {
     put_hbar(\"Dirty\", \"${RED}\", $dirty, $total)
 
     printf \"${H1}RAM:${RESET}\n\"
-    printf \"    ${BOLDWHITE}%s ${units[0]} total ram${CLEAR}\n\",
-            round($total/(${units[1]}), ${precision[1]})
-    printf \"    ${WHITE}%s ${units[0]} (%s%%) used\n\",
-            round($used/(${units[1]}), ${precision[1]}),
+    printf \"    ${BOLDWHITE}%s ${memunits[0]} total ram${CLEAR}\n\",
+            round($total/(${memunits[1]}), ${precision[1]})
+    printf \"    ${WHITE}%s ${memunits[0]} (%s%%) used\n\",
+            round($used/(${memunits[1]}), ${precision[1]}),
             round(($used/$total)*100, ${precision[0]})
-    printf \"    ${BOLDWHITE}%s ${units[0]} (%s%%) used excluding Buffers/Cached\n\",
-            round(($used-$buffer-$cached)/(${units[1]}), ${precision[1]}),
+    printf \"    ${BOLDWHITE}%s ${memunits[0]} (%s%%) used excluding Buffers/Cached\n\",
+            round(($used-$buffer-$cached)/(${memunits[1]}), ${precision[1]}),
 	    round((($used-$buffer-$cached)/$total)*100, ${precision[0]})
-    printf \"    ${WHITE}%s ${units[0]} (%s%%) dirty\n\",
-            round($dirty/(${units[1]}), ${precision[2]}),
+    printf \"    ${WHITE}%s ${memunits[0]} (%s%%) dirty\n\",
+            round($dirty/(${memunits[1]}), ${precision[2]}),
             round(($dirty/$total)*100, ${precision[0]})
     printf \"${H1}HugePages:${RESET}\n\"
     if ($huge == 0)
         printf \"    No ram pre-allocated to HugePages\n\"
     else {
-        printf \"    %s ${units[0]} pre-allocated to HugePages (%s%% of total ram)\n\",
-                round(($huge/1024)/(${units[1]}), ${precision[1]}),
+        printf \"    %s ${memunits[0]} pre-allocated to HugePages (%s%% of total ram)\n\",
+                round(($huge/1024)/(${memunits[1]}), ${precision[1]}),
                 round((($huge/1024)/($total))*100, ${precision[0]})
-        printf \"    %s ${units[0]} of HugePages (%s%%) in-use by applications\n\",
-                round(($huge-$hugefree)/1024/(${units[1]}), ${precision[1]}),
+        printf \"    %s ${memunits[0]} of HugePages (%s%%) in-use by applications\n\",
+                round(($huge-$hugefree)/1024/(${memunits[1]}), ${precision[1]}),
                 round((($huge-$hugefree)/($huge))*100, ${precision[0]})
     }
 
@@ -486,47 +534,246 @@ BEGIN {
     if ($hugeanon == 0)
         printf \"    No ram allocated to THP\n\"
     else
-        printf \"    %s ${units[0]} allocated to THP\n\",
-                round($hugeanon/(${units[1]}), ${precision[2]})
+        printf \"    %s ${memunits[0]} allocated to THP\n\",
+                round($hugeanon/(${memunits[1]}), ${precision[2]})
 
     if ($lowtotal != 0)
-        printf \"    %s ${units[0]} (%s%%) of LowMem in-use\n\",
-                round(($lowtotal-$lowfree)/(${units[1]}), ${precision[1]}),
+        printf \"    %s ${memunits[0]} (%s%%) of LowMem in-use\n\",
+                round(($lowtotal-$lowfree)/(${memunits[1]}), ${precision[1]}),
 		round((($lowtotal-$lowfree)/($lowtotal))*100, ${precision[0]})
-    printf \"    %s ${units[0]} (%s%%) of total ram used for Slab\n\",
-           round($slab/(${units[1]}), ${precision[2]}),
+    printf \"    %s ${memunits[0]} (%s%%) of total ram used for Slab\n\",
+           round($slab/(${memunits[1]}), ${precision[2]}),
            round(($slab/$total)*100, ${precision[0]})
-    printf \"    %s ${units[0]} (%s%%) of total ram used for PageTables\n\",
-           round($ptes/(${units[1]}), ${precision[2]}),
+    printf \"    %s ${memunits[0]} (%s%%) of total ram used for PageTables\n\",
+           round($ptes/(${memunits[1]}), ${precision[2]}),
            round(($ptes/$total)*100, ${precision[0]})
-    printf \"    %s ${units[0]} (%s%%) of total ram used for Shmem\n\",
-           round($shmem/(${units[1]}), ${precision[2]}),
+    printf \"    %s ${memunits[0]} (%s%%) of total ram used for Shmem\n\",
+           round($shmem/(${memunits[1]}), ${precision[2]}),
            round(($shmem/$total)*100, ${precision[0]})
 
     printf \"${H1}Virtual Machine Balloon:${RESET}\n\"
     if ($vmtarget == 0)
         printf \"    No VM balloon memory target\n\"
     else
-        printf \"    %s ${units[0]} (%s%%) of %s ${units[0]} balloon in-use\n\",
-                round(($vmcurrent/1024)/(${units[1]}), ${precision[1]}),
+        printf \"    %s ${memunits[0]} (%s%%) of %s ${memunits[0]} balloon in-use\n\",
+                round(($vmcurrent/1024)/(${memunits[1]}), ${precision[1]}),
 		round(($vmcurrent/($vmtarget))*100, ${precision[0]}),
-                round(($vmtarget/1024)/(${units[1]}), ${precision[1]})
+                round(($vmtarget/1024)/(${memunits[1]}), ${precision[1]})
 
     printf \"${H1}Swap:${RESET}\n\"
     if ($swaptotal == 0)
         printf \"    ${ORANGE}No system swap space configured${RESET}\n\"
     else
-        printf \"    %s ${units[0]} (%s%%) used of %s ${units[0]} total\n\",
-               round(($swaptotal-$swapfree)/(${units[1]}), ${precision[1]}),
+        printf \"    %s ${memunits[0]} (%s%%) used of %s ${memunits[0]} total\n\",
+               round(($swaptotal-$swapfree)/(${memunits[1]}), ${precision[1]}),
 	       round((($swapfree-$swaptotal)/$swaptotal)*100, ${precision[0]}),
-               round($swaptotal/(${units[1]}), ${precision[1]})
+               round($swaptotal/(${memunits[1]}), ${precision[1]})
 }"
+
+    echo # additional space for next session (with --all)
+}
+
+pcp_xsos_net()
+{
+    # prepare a filtered map of interface names for awk import (-i)
+    echo 'BEGIN {' > $tmp/ifaces
+    for i in "${!network_interface_in_bytes_inst[@]}"; do
+        case "${network_interface_in_bytes_inst[$i]}" in
+        lo*) ;;  # cull loopback interfaces
+        *)
+            echo "  ifaces[$i] =" \"${network_interface_in_bytes_inst[$i]}\" \
+                    >> $tmp/ifaces
+            ;;
+        esac
+    done
+    echo '}' >> $tmp/ifaces
+
+    $awk -i $tmp/ifaces -i $tmp/round -vu=${netunits} "
+BEGIN {
+    printf \"${H0}NETDEV\n\"
+
+    # Figure out what to divide by to end up with KiB, MiB, GiB, or TiB.
+    # Also figure out decimal precision (conditional below) :-
+    # - For T, round Bytes field to nearest hundredth (.nn)
+    # - For G, round Bytes field to nearest tenth (.n)
+    # - For KiB/MiB, keep Bytes as whole numbers
+    # Finally, never show decimal for Packets
+
+    precision_bytes = 0
+    precision_pckts = 0
+    packets_divisor = 1
+    bytes_divisor = 1
+    if (u == \"KiB\") {
+        bytes_divisor = 1024
+    } else if (u == \"MiB\") {
+        bytes_divisor = 1024 ^ 2
+        packets_divisor = 1000
+        packets_unit = \" k\"
+    } else if (u == \"GiB\") {
+        bytes_divisor = 1024 ^ 3
+        packets_divisor = 1000 ^ 2
+        packets_unit = \" M\"
+        precision_bytes = 1
+    } else if (u == \"TiB\") {
+        bytes_divisor = 1024 ^ 4
+        packets_divisor = 1000 ^ 2
+        packets_unit = \" M\"
+        precision_bytes = 2
+    }
+
+    printf \"  ${BOLDPURPLE}Interface  Rx%sytes  RxPackets  RxErrs  RxDrop  RxFifo  RxComp  RxFrame  RxMultCast\n\", u
+    printf \"  =========  =========  =========  ======  ======  ======  ======  =======  ==========${RESET}\n\"
+
+    for (i in ifaces) {
+        rxbytes = ${network_interface_in_bytes_value["i"]}
+        rxpckts = ${network_interface_in_packets_value["i"]}
+        rxerror = ${network_interface_in_errors_value["i"]}
+        rxdrops = ${network_interface_in_drops_value["i"]}
+        rxfifos = ${network_interface_in_fifo_value["i"]}
+        rxframe = ${network_interface_in_frame_value["i"]}
+        rxmcast = ${network_interface_in_mcasts_value["i"]}
+        rxcomps = ${network_interface_in_compressed_value["i"]}
+        rxtotal = rxpckts+rxerror+rxdrops+rxfifos+rxframe+rxmcast+rxcomps
+
+        if (rxtotal > 0) {
+            if (rxerror > 0)
+                rxerrorpct = \"(\" round(rxerror * 100 / rxtotal, 0) \"%)\"
+            if (rxdrops > 0)
+                rxdropspct = \"(\" round(rxdrops * 100 / rxtotal, 0) \"%)\"
+            if (rxfifos > 0)
+                rxfifospct = \"(\" round(rxfifos * 100 / rxtotal, 0) \"%)\"
+            if (rxframe > 0)
+                rxframepct = \"(\" round(rxframe * 100 / rxtotal, 0) \"%)\"
+            if (rxmcast > 0)
+                rxmcastpct = \"(\" round(rxmcast * 100 / rxtotal, 0) \"%)\"
+            if (rxcomps > 0)
+                rxcompspct = \"(\" round(rxcomps * 100 / rxtotal, 0) \"%)\"
+        }
+
+        # If unit is anything but bytes, perform the necessary division
+        if (u == \"KiB\" || u == \"MiB\" || u == \"GiB\" || u == \"TiB\")
+            rxbytes /= bytes_divisor
+
+        # If unit is MiB, GiB, or TiB, perform division on packets as well
+        if (u == \"MiB\" || u == \"GiB\" || u == \"TiB\")
+            rxpckts /= packets_divisor
+
+        rxbytes = round(rxbytes, precision_bytes)
+        rxpckts = round(rxpckts, precision_pckts)\"\" packets_unit
+
+        printf \"  ${BLUE}\"
+        printf \"%-9s${RESET}  %-9s  %-9s  %-6s  %-6s  %-6s  %-6s  %-7s  %-10s\n\",
+                ifaces[i], rxbytes, rxpckts,
+                rxerror\"\" rxerrorpct, rxdrops\"\" rxdropspct,
+	        rxfifos\"\" rxfifospct, rxcomps\"\" rxcompspct,
+	        rxframe\"\" rxframepct, rxmcast\"\" rxmcastpct
+    }
+
+    printf \"  - - - - - - - - - - - - - - - - -\n\"
+    printf \"  ${BOLDPURPLE}Interface  Tx%sytes  TxPackets  TxErrs  TxDrop  TxFifo  TxComp  TxColls  TxCarrier\n\", u
+    printf \"  =========  =========  =========  ======  ======  ======  ======  =======  ==========${RESET}\n\"
+
+    for (i in ifaces) {
+        txbytes = ${network_interface_out_bytes_value["i"]}
+        txpckts = ${network_interface_out_packets_value["i"]}
+        txerror = ${network_interface_out_errors_value["i"]}
+        txdrops = ${network_interface_out_drops_value["i"]}
+        txfifos = ${network_interface_out_fifo_value["i"]}
+        txcolls = ${network_interface_collisions_value["i"]}
+        txcarrs = ${network_interface_out_carrier_value["i"]}
+        txcomps = ${network_interface_out_compressed_value["i"]}
+        txtotal = txpckts+txerror+txdrops+txfifos+txcolls+txcarrs+txcomps
+
+        if (txtotal > 0) {
+            if (txerror > 0)
+                txerrorpct = \"(\" round(txerror * 100 / txtotal, 0) \"%)\"
+            if (txdrops > 0)
+                txdropspct = \"(\" round(txdrops * 100 / txtotal, 0) \"%)\"
+            if (txfifos > 0)
+                txfifospct = \"(\" round(txfifos * 100 / txtotal, 0) \"%)\"
+            if (txcolls > 0)
+                txcollspct = \"(\" round(txcolls * 100 / txtotal, 0) \"%)\"
+            if (txcarrs > 0)
+                txcarrspct = \"(\" round(txcarrs * 100 / txtotal, 0) \"%)\"
+            if (txcomps > 0)
+                txcompspct = \"(\" round(txcomps * 100 / txtotal, 0) \"%)\"
+        }
+
+        # If unit is anything but bytes, perform the necessary division
+        if (u == \"KiB\" || u == \"MiB\" || u == \"GiB\" || u == \"TiB\")
+            txbytes /= bytes_divisor
+
+        # If unit is MiB, GiB, or TiB, perform division on packets as well
+        if (u == \"MiB\" || u == \"GiB\" || u == \"TiB\")
+            txpckts /= packets_divisor
+
+        txbytes = round(txbytes, precision_bytes)
+        txpckts = round(txpckts, precision_pckts)\"\" packets_unit
+
+        printf \"  ${BLUE}\"
+        printf \"%-9s${RESET}  %-9s  %-9s  %-6s  %-6s  %-6s  %-6s  %-7s  %-10s\n\",
+                ifaces[i], txbytes, txpckts,
+                txerror\"\" txerrorpct, txdrops\"\" rxdropspct,
+	        txfifos\"\" txfifospct, txcomps\"\" txcompspct,
+	        txcolls\"\" txcollspct, txcarrs\"\" txcarrspct
+    }
+}"
+
+    echo
+    printf "${H0}SOCKSTAT${RESET}\n"
+    printf "  ${H2}sockets:${RESET} used "
+    put_value network.sockstat.total; echo
+
+    printf "  ${H2}TCP:${RESET} inuse "
+    put_value network.sockstat.tcp.inuse
+    printf " orphan "
+    put_value network.sockstat.tcp.orphan
+    printf " tw "
+    put_value network.sockstat.tcp.tw
+    printf " alloc "
+    put_value network.sockstat.tcp.alloc
+    printf " mem "
+    put_value network.sockstat.tcp.mem; echo
+
+    printf "  ${H2}UDP:${RESET} inuse "
+    put_value network.sockstat.udp.inuse
+    printf " mem "
+    put_value network.sockstat.udp.mem; echo
+
+    printf "  ${H2}UDPLITE:${RESET} inuse "
+    put_value network.sockstat.udplite.inuse; echo
+
+    printf "  ${H2}RAW:${RESET} inuse "
+    put_value network.sockstat.raw.inuse; echo
+
+    printf "  ${H2}FRAG:${RESET} inuse "
+    put_value network.sockstat.frag.inuse
+    printf " memory "
+    put_value network.sockstat.frag.memory; echo
+
+    printf "  ${H2}TCP6:${RESET} inuse "
+    put_value network.sockstat.tcp6.inuse; echo
+
+    printf "  ${H2}UDP6:${RESET} inuse "
+    put_value network.sockstat.udp6.inuse; echo
+
+    printf "  ${H2}UDPLITE6:${RESET} inuse "
+    put_value network.sockstat.udplite6.inuse; echo
+
+    printf "  ${H2}RAW6:${RESET} inuse "
+    put_value network.sockstat.raw6.inuse; echo
+
+    printf "  ${H2}FRAG6:${RESET} inuse "
+    put_value network.sockstat.frag6.inuse
+    printf " memory "
+    put_value network.sockstat.frag6.memory; echo
 
     echo # additional space for next session (with --all)
 }
 
 $osflag && pcp_xsos_os
 $memflag && pcp_xsos_mem
+$netflag && pcp_xsos_net
 
 sts=0
 exit
