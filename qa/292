@@ -28,7 +28,7 @@ _cleanup()
     if [ ! -f $tmp.cleanup ]
     then
 	$signal -a -s TERM pmlogger >/dev/null 2>&1
-	$sudo $PCP_BINADM_DIR/pmlogger_check
+	_service pmlogger restart >$here/$seq.full 2>&1
 	_wait_for_pmlogger
 	touch $tmp.cleanup
     fi
