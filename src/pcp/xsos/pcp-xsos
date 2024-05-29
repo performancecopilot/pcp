@@ -25,7 +25,18 @@ trap "rm -rf $tmp; exit \$sts" 0 1 2 3 15
 
 progname=`basename $0`
 
-net_metrics=(
+mem_metrics=(
+    mem.physmem mem.util.used mem.util.dirty
+    mem.util.shmem mem.util.bufmem mem.util.cached
+    mem.util.swapFree mem.util.swapTotal
+    mem.util.slab mem.util.pageTables
+    mem.util.lowFree mem.util.lowTotal
+    mem.util.anonhugepages
+    mem.util.hugepagesFreeBytes mem.util.hugepagesTotalBytes
+    mem.vmmemctl.current mem.vmmemctl.target
+)
+
+netdev_metrics=(
     network.interface.in.bytes network.interface.in.packets
     network.interface.in.errors network.interface.in.drops
     network.interface.in.fifo network.interface.in.frame
@@ -45,15 +56,16 @@ net_metrics=(
     network.sockstat.frag6.inuse network.sockstat.frag6.memory
 )
 
-mem_metrics=(
-    mem.physmem mem.util.used mem.util.dirty
-    mem.util.shmem mem.util.bufmem mem.util.cached
-    mem.util.swapFree mem.util.swapTotal
-    mem.util.slab mem.util.pageTables
-    mem.util.lowFree mem.util.lowTotal
-    mem.util.anonhugepages
-    mem.util.hugepagesFreeBytes mem.util.hugepagesTotalBytes
-    mem.vmmemctl.current mem.vmmemctl.target
+netstat_metrics=(
+    network.icmp.inerrors network.icmp6.inerrors
+    network.tcp.attemptfails network.tcp.estabresets
+    network.tcp.inerrs network.tcp.outrsts
+    network.tcp.delayedacklocked network.tcp.delayedacklost
+    network.tcp.delayedacks network.tcp.pawsestabrejected
+    network.tcp.abortontimeout
+    network.tcp.lossproberecovery network.tcp.lossprobes
+    network.tcp.timeouts network.tcp.tcptimeoutrehash
+    network.ip.inaddrerrors network.ip6.inaddrerrors
 )
 
 os_metrics=(
@@ -81,7 +93,7 @@ _usage()
 
 # usage spec for pmgetopt, note posix flag (commands mean no reordering)
 cat > $tmp/usage << EOF
-# getopts: a:h:O:?omnu:x
+# getopts: a:h:O:?omnNu:x
    --archive
    --host
    --origin
@@ -90,6 +102,7 @@ cat > $tmp/usage << EOF
    -o,--os         show hostname, distro, kernel info, uptime, etc
    -m,--mem        display memory summary
    -n,--netdev     display network interface summary
+   -N,--netstat    display network statistics
    -u=P, --units=P change byte display where P is "b" for byte, "k", "m", "g", or "t"
    -x,--nocolor    disable output colorization
 # end
@@ -98,7 +111,8 @@ EOF
 color=true
 osflag=false
 memflag=false
-netflag=false
+netdevflag=false
+netstatflag=false
 netunits='M' # options: B (byte), K, M, G or T
 memunits='G' # options: B (byte), K, M, G or T
 batch=''
@@ -127,13 +141,17 @@ do
       --all)
         osflag=true
         memflag=true
-        netflag=true
+        netdevflag=true
+        netstatflag=true
         ;;
       -m)
         memflag=true
         ;;
       -n)
-        netflag=true
+        netdevflag=true
+        ;;
+      -N)
+        netstatflag=true
         ;;
       -o)
         osflag=true
@@ -194,7 +212,8 @@ fi
 metrics=()
 $osflag && metrics+=( ${os_metrics[*]} )
 $memflag && metrics+=( ${mem_metrics[*]} )
-$netflag && metrics+=( ${net_metrics[*]} )
+$netdevflag && metrics+=( ${netdev_metrics[*]} )
+$netstatflag && metrics+=( ${netstat_metrics[*]} )
 
 # default to OS metrics if nothing specified
 if test ${#metrics[@]} -eq 0; then
@@ -319,13 +338,18 @@ put_value()
 {
     # $1 - mandatory metric name, e.g. kernel.all.pswitch
     # $2 - optional fallback value, used to override error string
+    # $3 - optional formatting string for printf (allows alignment, etc)
     eval __value=`echo ${1} | sed -e 's/^/$/' -e 's/\./_/g' -e 's/$/_value/'`
     eval __error=`echo ${1} | sed -e 's/^/$/' -e 's/\./_/g' -e 's/$/_error/'`
 
-    test -n "${__value}" && printf "${__value}" && return 0
-    test -n "${__error}" -a -z "${2}" && printf "${RED}(missing)" && return 3
-    test -n "${2}" && printf "${ORANGE}${2}" && echo 2
-    printf "${ORANGE}unknown"
+    __format="%s"
+    __fallback="${2}"
+    test -n "${3}" && __format=${3}
+    test -n "${__value}" && printf "${__format}" "${__value}" && return 0
+    test -n "${__error}" -a -z "${__fallback}" && \
+            printf "${__format}" "${RED}(missing)" && return 3
+    test -n "${__fallback}" && printf "${__format}" "${ORANGE}${__fallback}" && echo 2
+    printf "${__format}" "${ORANGE}unknown"
     return 1
 }
 
@@ -429,14 +453,10 @@ pcp_xsos_os()
     done
 
     printf "${H1}Processes: ${RESET}\n"
-    printf "${H2}running: ${RESET}"
-    put_value kernel.all.running
-    printf "${H2}runnable: ${RESET}"
-    put_value kernel.all.runnable
-    printf "${H2}blocked: ${RESET}"
-    put_value kernel.all.blocked
-    printf "${H2}count: ${RESET}"
-    put_value kernel.all.nprocs; echo
+    put_value kernel.all.running "" "${H2}running:${RESET} %s"
+    put_value kernel.all.runnable "" "${H2}runnable:${RESET} %s"
+    put_value kernel.all.blocked "" "${H2}blocked:${RESET} %s"
+    put_value kernel.all.nprocs "" "${H2}count:${RESET} %s\n"
 
     printf "${H1}Processors: ${RESET}\n"
     printf "${H2}cpu [Utilization since boot]: ${RESET}\n      "
@@ -573,7 +593,7 @@ BEGIN {
     echo # additional space for next session (with --all)
 }
 
-pcp_xsos_net()
+pcp_xsos_netdev()
 {
     # prepare a filtered map of interface names for awk import (-i)
     echo 'BEGIN {' > $tmp/ifaces
@@ -771,9 +791,37 @@ BEGIN {
     echo # additional space for next session (with --all)
 }
 
+pcp_xsos_netstat()
+{
+    printf "${H0}NET STATS${RESET}\n"
+    put_value network.icmp.inerrors ""  "  Icmp.InErrors: %30s\n"
+    put_value network.icmp6.inerrors "" "  Icmp6.InErrors: %29s\n"
+
+    put_value network.tcp.attemptfails "" "  Tcp.AttemptFails: %27s\n"
+    put_value network.tcp.estabresets ""  "  Tcp.EstabResets: %28s\n"
+    put_value network.tcp.inerrs ""       "  Tcp.InErrs: %33s\n"
+    put_value network.tcp.outrsts ""      "  Tcp.OutRsts: %32s\n"
+
+    put_value network.tcp.delayedacklocked ""  "  TcpExt.DelayedACKLocked: %20s\n"
+    put_value network.tcp.delayedacklost ""    "  TcpExt.DelayedACKLost: %22s\n"
+    put_value network.tcp.delayedacks ""       "  TcpExt.DelayedACKs: %25s\n"
+    put_value network.tcp.pawsestabrejected "" "  TcpExt.PAWSEstab: %27s\n"
+    put_value network.tcp.abortontimeout ""    "  TcpExt.TCPAbortOnTimeout: %19s\n"
+    put_value network.tcp.lossproberecovery "" "  TcpExt.TCPLossProbeRecovery: %16s\n"
+    put_value network.tcp.lossprobes ""        "  TcpExt.TCPLossProbes: %23s\n"
+    put_value network.tcp.timeouts ""          "  TcpExt.TCPTimeouts: %25s\n"
+    put_value network.tcp.tcptimeoutrehash ""  "  TcpExt.TcpTimeoutRehash: %20s\n"
+
+    put_value network.ip.inaddrerrors ""  "  Ip.InAddrErrors: %28s\n"
+    put_value network.ip6.inaddrerrors "" "  Ip6.InAddrErrors: %27s\n"
+
+    echo # additional space for next session (with --all)
+}
+
 $osflag && pcp_xsos_os
 $memflag && pcp_xsos_mem
-$netflag && pcp_xsos_net
+$netdevflag && pcp_xsos_netdev
+$netstatflag && pcp_xsos_netstat
 
 sts=0
 exit
