@@ -211,10 +211,14 @@ _ctl_svc()
 	    then
 		# runlevel emits
 		# <previous> 3
+		# or (in CI containers especially)
+		# unknown
+		# in which case we punt on 3
 		# chconfig emits ...
 		# pmcd           	0:off	1:off	2:on	3:on	4:on	5:on	6:off
 		# want                                            ^^
 		runlevel=`runlevel | cut -d ' ' -f 2`
+		[ "$runlevel" = unknown ] && runlevel=3
 		state=`chkconfig --list $svc 2>/dev/null | sed -e "s/.*$runlevel://" -e 's/[ 	].*//'`
 		case "$state"
 		in
@@ -283,6 +287,7 @@ _ctl_svc()
 	elif $__use_chkconfig
 	then
 	    runlevel=`runlevel | cut -d ' ' -f 2`
+	    [ "$runlevel" = unknown ] && runlevel=3
 	    state=`chkconfig --list $svc 2>/dev/null | sed -e "s/.*$runlevel://" -e 's/[	].*//'`
 	    if [ "$state" = off -o -z "$state" ]
 	    then
@@ -496,6 +501,7 @@ _ctl_svc()
 	elif $__use_chkconfig
 	then
 	    runlevel=`runlevel | cut -d ' ' -f 2`
+	    [ "$runlevel" = unknown ] && runlevel=3
 	    state=`chkconfig --list $svc 2>&1 | sed -e "s/.*$runlevel://" -e 's/[ 	].*//'`
 	    if [ "$state" = on ]
 	    then
