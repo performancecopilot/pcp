@@ -32,12 +32,18 @@ status=1
 rm -f $seq.full
 trap "_cleanup" 0 1 2 3 15
 
+# need to make sure the primary pmlogger allows all pmlc access
+# from the localhost (by ip addr)
+#
+admin/allow-pmlc-access >>$seq.full 2>&1
+
 # real QA test starts here
 _change_config pmcd on
 _change_config pmlogger on
 _writable_primary_logger
-_service -v pcp restart >>$here/$seq.full 2>&1
+_service -v pmcd restart >>$here/$seq.full 2>&1
 _wait_for_pmcd
+_service -v pmlogger restart >>$here/$seq.full 2>&1
 _wait_for_pmlogger
 
 src/chknumval | _filter
