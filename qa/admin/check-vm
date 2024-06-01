@@ -1,0 +1,232 @@
+#!/bin/sh
+#
+# Check what's installed on a PCP/PCPQA VM looking for missing apps
+# and packages
+#
+
+# Need directory where this script is located so we can find packages.rc
+#
+home=`echo $0 | sed -e 's/\/*check-vm$//'`
+if [ ! -f $home/whatami ]
+then
+    echo >&2 "Botch: \$0=$0 -> bad \$home=$home ?"
+    exit 1
+fi
+
+if [ ! -f $home/packages.rc ]
+then
+    echo >&2 "Botch: cannot find $home/packages.rc"
+    exit
+fi
+
+. $home/packages.rc
+
+_usage()
+{
+    echo "Usage: $0 [options]"
+    echo "  -v           verbose (debugging)"
+    exit 1
+}
+
+# Networking goo
+#
+_check_host()
+{
+    ipaddr=`sed -n </etc/hosts -e '/^#/d' -e '/::/d' -e 's/$/ /' -e "/[ 	]$1[ 	]/"'{
+s/[ 	].*//
+p
+}'`
+    if [ -z "$ipaddr" ]
+    then
+	echo "No /etc/hosts entry for $1"
+	return
+    fi
+
+    if [ `echo "$ipaddr" | wc -l | sed -e 's/  *//g'` -gt 1 ]
+    then
+	echo "Multiple /etc/hosts entries for $1"
+	return
+    fi
+
+    rm -f $tmp.tmp
+    if `which ifconfig >/dev/null 2>&1`
+    then
+	# ifconfig lines of interest look like
+	# br0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        #	inet 192.168.1.100  netmask 255.255.255.0  broadcast 192.168.1.255
+        # ...
+	# lo: flags=73<UP,LOOPBACK,RUNNING>  mtu 65536
+	#	inet 127.0.0.1  netmask 255.0.0.0
+	#
+	ifconfig >$tmp.tmp
+    elif `which ip >/dev/null 2>&1`
+    then
+	ip -f inet address >$tmp.tmp
+	# ip lines of interest look like
+	# 1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc ...
+	#     inet 127.0.0.1/8 scope host lo
+	#     ...
+	# 4: br0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc ...
+	#     inet 192.168.1.100/24 brd 192.168.1.255 scope global br0
+	#     ...
+    else
+	echo >&2 "Neither ifconfig(1) nor ip(1)? Not sure how to get primary ip addr"
+	return
+    fi
+    sed <$tmp.tmp \
+	-e 's/^[0-9][0-9]*: //' \
+	-e 's/: / /g' \
+	-e '/ inet /s/\/.*/ /' \
+    | awk >&2 '
+/^[^ 	]/	{ iface = $1; next }
+/inet addr:'$ipaddr' / || /inet '$ipaddr'[ \/]/ {
+			  if (iface == "lo")
+			    print "Warning: '$1' associated with loopback network interface"
+			  found = 1
+			  exit
+			}
+END		{ if (found != 1)
+		    print "Warning: '$1' ('$ipaddr') not associated with a network interface"
+		}'
+}
+
+# Need directory where this script is located so we can find some other
+# scripts we need
+#
+home=`echo $0 | sed -e 's/\/*check-vm$//'`
+if [ ! -f $home/whatami ]
+then
+    echo >&2 "Botch: \$0=$0 -> bad \$home=$home ?"
+    exit 1
+fi
+
+if [ -f /etc/pcp.conf ]
+then
+    . /etc/pcp.conf
+else
+    echo >&2 "Error: /etc/pcp.conf not found"
+    exit 1
+fi
+
+verbose=false
+very_verbose=false
+while getopts 'v?' p
+do
+    case "$p"
+    in
+	v)	if $verbose
+		then
+		    very_verbose=true
+		else
+		    verbose=true
+		fi
+		;;
+
+	?)	_usage
+		# NOTREACHED
+    esac
+done
+shift `expr $OPTIND - 1`
+[ $# -eq 0 ] || _usage
+
+if $very_verbose
+then
+    tmp=tmp
+else
+    tmp=/var/tmp/$$
+    trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+fi
+rm -f $tmp.*
+
+# any required packages not installed?
+#
+$home/list-packages -m >$tmp.tmp
+if [ -s $tmp.tmp ]
+then
+    echo "Missing packages ..."
+    fmt -78 <$tmp.tmp
+else
+    $verbose && echo "No missing packages."
+fi
+
+# pmhostname sanity check
+#
+host=`hostname`
+_check_host $host
+if which pmhostname >/dev/null 2>&1
+then
+    pmhost=`pmhostname`
+    if [ -z "$pmhost" ]
+    then
+	echo >&2 "Warning: pmhostname returns nothing!"
+    else
+	case $pmhost
+	in
+	    $host|$host.*)
+		    ;;
+	    *)
+		    echo >&2 "Warning: hostname ($host) is not a prefix of pmhostname ($pmhost)"
+		    ;;
+	esac
+	_check_host $pmhost
+    fi
+fi
+
+if [ -n "$PCP_VAR_DIR" ]
+then
+    # need QA access to pmlogger via pmlc from local subnet
+    #
+    network=`_getnetworkaddr 2>$tmp.err`
+    $verbose && cat $tmp.err
+    if [ -n "$network" ]
+    then
+	if [ -f $PCP_VAR_DIR/config/pmlogger/config.default ]
+	then
+	    if grep -q "^allow $network" $PCP_VAR_DIR/config/pmlogger/config.default
+	    then
+		:
+	    else
+		echo "Missing: \"allow $network : all;\" [access] in $PCP_VAR_DIR/config/pmlogger/config.default"
+		echo "Use \"$ sudo -E .../qa/admin/allow-pmlc-access\" to fix this."
+	    fi
+	else
+	    echo >&2 "Warning: \"$PCP_VAR_DIR/config/pcp/pmlogger/config.default\" is missing"
+	fi
+    else
+	echo >&2 "Please ignore Warnings from _getnetworkaddr unless you wish to run the"
+	echo >&2 "full PCP QA suite."
+    fi
+else
+    echo >&2 'Error: $PCP_VAR_DIR not defined in /etc/pcp.conf'
+fi
+
+if sudo -u pcp id >/dev/null
+then
+    # pcp user appears to exist ...
+    #
+    sudo -u pcp [ -x $HOME ] || echo "Error: $HOME is not searchable by user \"pcp\""
+fi
+
+# now some platform-specific tests
+#
+case "$distro"
+in
+    OpenBSD)
+	if false
+	then
+	    # redundant now the openbsd PMDA no longer reads /dev/mem
+	    # directly
+	    #
+	    allowkmem=`sysctl kern.allowkmem | sed -e 's/.*=//'`
+	    if [ "$allowkmem" != 1 ]
+	    then
+		echo >&2 "Warning: kern.allowkmem is \"$allowkmem\" not 1 and so openbsd PMDA will not be able"
+		echo "         to access /dev/kmem"
+		echo "         Suggest adding kern.allowkmem=1 to etc/sysctl.conf and rebooting."
+	    fi
+	fi
+	;;
+
+esac
+
+$very_verbose && echo >&2 "temp files:" $tmp.*
