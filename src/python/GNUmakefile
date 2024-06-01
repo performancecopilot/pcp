@@ -86,7 +86,7 @@ build_python2 build_python3:	$(TOPDIR)/src/include/pcp/libpcp.h
 # deal with any configurable Python source, e.g. pmapi.py.in
 #
 pre_build:
-	cd pcp; make default
+	cd pcp; $(MAKE) default
 
 foo:
 	echo $(CFLAGS)
