@@ -2,7 +2,7 @@
 #
 # Validation script for packages-other/manifest
 #
-# DO NOT RUN DIRECTLY ... this script is exec'd from check-vm -c
+# DO NOT RUN DIRECTLY ... this script is exec'd from old-list-packages -c
 #
 
 if [ -f /etc/pcp.conf ]

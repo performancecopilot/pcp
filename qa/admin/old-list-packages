@@ -3,6 +3,10 @@
 # Check what's installed on a PCP/PCPQA VM looking for missing apps
 # and packages
 #
+# Note:
+# 	This is the OLD version using the other-packages dir ...
+# 	list-packages is the NEW version that should be used.
+#
 
 # same function is in allow-pmlc-access ... need to track changes
 #
@@ -496,7 +500,7 @@ fi
 # Need directory where this script is located so we can find the other
 # scripts and control files
 #
-home=`echo $0 | sed -e 's/\/*check-vm$//'`
+home=`echo $0 | sed -e 's/\/*old-list-packages$//'`
 if [ ! -f $home/whatami ]
 then
     echo >&2 "Botch: \$0=$0 -> bad \$home=$home ?"
@@ -1585,82 +1589,5 @@ End-of-File
 	fi
     done
 fi
-
-host=`hostname`
-_check_host $host
-if which pmhostname >/dev/null 2>&1
-then
-    pmhost=`pmhostname`
-    if [ -z "$pmhost" ]
-    then
-	echo >&2 "Warning: pmhostname returns nothing!"
-    else
-	case $pmhost
-	in
-	    $host|$host.*)
-		    ;;
-	    *)
-		    echo >&2 "Warning: hostname ($host) is not a prefix of pmhostname ($pmhost)"
-		    ;;
-	esac
-	_check_host $pmhost
-    fi
-fi
-
-if [ -n "$PCP_VAR_DIR" ]
-then
-    # need QA access to pmlogger via pmlc from local subnet
-    #
-    network=`_getnetworkaddr`
-    if [ -n "$network" ]
-    then
-	if [ -f $PCP_VAR_DIR/config/pmlogger/config.default ]
-	then
-	    if grep -q "^allow $network" $PCP_VAR_DIR/config/pmlogger/config.default
-	    then
-		:
-	    else
-		echo "Missing: \"allow $network : all;\" [access] in $PCP_VAR_DIR/config/pmlogger/config.default"
-		echo "Use \"$ sudo -E .../qa/admin/allow-pmlc-access\" to fix this."
-	    fi
-	else
-	    echo >&2 "Warning: \"$PCP_VAR_DIR/config/pcp/pmlogger/config.default\" is missing"
-	fi
-    else
-	echo >&2 "Please ignore Warnings from _getnetworkaddr unless you wish to run the"
-	echo >&2 "full PCP QA suite."
-    fi
-else
-    echo >&2 "Warning: \"/etc/pcp.conf\" is missing"
-fi
-
-if sudo -u pcp id >/dev/null
-then
-    # pcp user appears to exist ...
-    #
-    sudo -u pcp [ -x $HOME ] || echo "Error: $HOME is not searchable by user \"pcp\""
-fi
-
-# Now some platform-specific tests
-#
-case "$distro"
-in
-    OpenBSD)
-	if false
-	then
-	    # redundant now the openbsd PMDA no longer reads /dev/mem
-	    # directly
-	    #
-	    allowkmem=`sysctl kern.allowkmem | sed -e 's/.*=//'`
-	    if [ "$allowkmem" != 1 ]
-	    then
-		echo >&2 "Warning: kern.allowkmem is \"$allowkmem\" not 1 and so openbsd PMDA will not be able"
-		echo "         to access /dev/kmem"
-		echo "         Suggest adding kern.allowkmem=1 to etc/sysctl.conf and rebooting."
-	    fi
-	fi
-	;;
-
-esac
 
 $very_verbose && echo >&2 "temp files:" $tmp.*
