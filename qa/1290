@@ -286,6 +286,11 @@ $PCP_BINADM_DIR/pmcd_wait -t 5sec -h localhost@localhost
 $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|[p]mproxy' >>$here/$seq.full
 cat $tmp.log >> $here/$seq.full
 
+# on a slow VM, valgrind can be painful, so a little more patience may
+# be required
+#
+export PMCD_REQUEST_TIMEOUT=20
+
 # real QA test starts here
 _do pminfo -h $PMPROXY_HOST -d pmcd.agent
 _do pminfo -h $PMPROXY_HOST -f sample.hordes
