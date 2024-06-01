@@ -54,10 +54,11 @@ _cleanup()
 		break
 	    fi
 	done
-	_service pcp start 2>&1 | _filter_pcp_start
+	_service pmcd restart 2>&1 | _filter_pcp_start
 	_restore_auto_restart pmcd
-	_restore_auto_restart pmlogger
 	_wait_for_pmcd
+	_service pmlogger restart 2>&1 | _filter_pcp_start
+	_restore_auto_restart pmlogger
 	_wait_for_pmlogger
 	clean=true
 
