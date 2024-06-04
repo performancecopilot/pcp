@@ -2993,6 +2993,7 @@ sample_store(pmResult *result, pmdaExt *ep)
 	    case 149:	/* negative.discrete.m_32 */
 	    case 155:	/* controller.mirage */
 	    case 159:	/* proc.reset */
+	    case 164:	/* updown.obs */
 	    case 165:	/* updown.control.repeat */
 	    case 166:	/* updown.control.min */
 	    case 167:	/* updown.control.max */
