@@ -1308,6 +1308,7 @@ main(int argc, char **argv)
 			bad++;
 			continue;
 		    }
+		    expr++;
 		}
 		while (*expr && (*expr == ' ' || *expr == '\t'))
 		    expr++;
