@@ -83,6 +83,7 @@
 1900	Debian 12	ditto
 1900	openSUSE Leap 15.[56]	ditto
 1900	MX 23.2		ditto
+1900	Ubuntu 24\.04	ditto
 1973	Ubuntu 16\.04	Python here is 3.5.2 and there a bunch of what look like
 			dict ordering and/or cacheing sequence differences
 			and some arithmetic rounding differences ... not
