@@ -211,6 +211,8 @@ sampledso.updown.control.repeat [repetition count for values of sample.updown.ob
 sampledso.updown.control.min [minumum value for sample.updown.obs]
 sampledso.updown.control.max [maximum value for sample.updown.obs]
 sampledso.updown.control.step [increment or decrement value for sample.updown.obs]
+sampledso.updown.control.mode [up-down mode for sample.updown.obs]
+sampledso.updown.control.reset [reset all controls for sample.updown.obs]
 --- help.c case 2 ---
 
 sampledso.control
@@ -1562,6 +1564,19 @@ When sampledso.updown.obs is being incremented or decremented, this is
 the amount that is added or subtracted.
 
 Defaults to 10, but maybe changed with pmstore(1).
+
+sampledso.updown.control.mode
+Help:
+1 if sampledso.obs.updown in incrementing, -1 if sample.obs.updown is
+decrementing.
+
+Defaults to 1, but maybe changed with pmstore(1).
+
+sampledso.updown.control.reset
+Help:
+Used with pmstore(1) and any value will trigger a reset of the control
+state to: obs=0, min=0, max=200, step=10, repeat=5 and mode=1.
+up.
 --- help.c case 3 ---
 
 sample.seconds

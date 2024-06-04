@@ -184,7 +184,9 @@ PMID: 30.0.3 (sampledso.milliseconds)
 2 sampledso.ulonglong.write_me
 2 sampledso.updown.control.max
 2 sampledso.updown.control.min
+2 sampledso.updown.control.mode
 2 sampledso.updown.control.repeat
+2 sampledso.updown.control.reset
 2 sampledso.updown.control.step
 2 sampledso.updown.obs
 2 sampledso.wrap.long
@@ -371,7 +373,9 @@ Error: pmTrimeNameSpace: PMNS not accessible
 2 sampledso.ulonglong.write_me
 2 sampledso.updown.control.max
 2 sampledso.updown.control.min
+2 sampledso.updown.control.mode
 2 sampledso.updown.control.repeat
+2 sampledso.updown.control.reset
 2 sampledso.updown.control.step
 2 sampledso.updown.obs
 2 sampledso.wrap.long
@@ -544,7 +548,9 @@ Error: pmTrimeNameSpace: PMNS not accessible
 0 sampledso.ulonglong.write_me
 0 sampledso.updown.control.max
 0 sampledso.updown.control.min
+0 sampledso.updown.control.mode
 0 sampledso.updown.control.repeat
+0 sampledso.updown.control.reset
 0 sampledso.updown.control.step
 0 sampledso.updown.obs
 0 sampledso.wrap.long
@@ -716,7 +722,9 @@ Error: pmTrimeNameSpace: PMNS not accessible
 1 sampledso.ulonglong.write_me
 1 sampledso.updown.control.max
 1 sampledso.updown.control.min
+1 sampledso.updown.control.mode
 1 sampledso.updown.control.repeat
+1 sampledso.updown.control.reset
 1 sampledso.updown.control.step
 1 sampledso.updown.obs
 1 sampledso.wrap.long
@@ -888,7 +896,9 @@ Error: pmTrimeNameSpace: PMNS not accessible
 2 sampledso.ulonglong.write_me
 2 sampledso.updown.control.max
 2 sampledso.updown.control.min
+2 sampledso.updown.control.mode
 2 sampledso.updown.control.repeat
+2 sampledso.updown.control.reset
 2 sampledso.updown.control.step
 2 sampledso.updown.obs
 2 sampledso.wrap.long
@@ -1061,7 +1071,9 @@ Error: pmTrimeNameSpace: PMNS not accessible
 0 sampledso.ulonglong.write_me
 0 sampledso.updown.control.max
 0 sampledso.updown.control.min
+0 sampledso.updown.control.mode
 0 sampledso.updown.control.repeat
+0 sampledso.updown.control.reset
 0 sampledso.updown.control.step
 0 sampledso.updown.obs
 0 sampledso.wrap.long
@@ -1233,7 +1245,9 @@ Error: pmTrimeNameSpace: PMNS not accessible
 1 sampledso.ulonglong.write_me
 1 sampledso.updown.control.max
 1 sampledso.updown.control.min
+1 sampledso.updown.control.mode
 1 sampledso.updown.control.repeat
+1 sampledso.updown.control.reset
 1 sampledso.updown.control.step
 1 sampledso.updown.obs
 1 sampledso.wrap.long
@@ -1405,7 +1419,9 @@ Error: pmTrimeNameSpace: PMNS not accessible
 2 sampledso.ulonglong.write_me
 2 sampledso.updown.control.max
 2 sampledso.updown.control.min
+2 sampledso.updown.control.mode
 2 sampledso.updown.control.repeat
+2 sampledso.updown.control.reset
 2 sampledso.updown.control.step
 2 sampledso.updown.obs
 2 sampledso.wrap.long
@@ -1629,7 +1645,9 @@ Error: pmTrimeNameSpace: Attempt to use an illegal context
 0 sampledso.ulonglong.write_me
 0 sampledso.updown.control.max
 0 sampledso.updown.control.min
+0 sampledso.updown.control.mode
 0 sampledso.updown.control.repeat
+0 sampledso.updown.control.reset
 0 sampledso.updown.control.step
 0 sampledso.updown.obs
 0 sampledso.wrap.long
@@ -1801,7 +1819,9 @@ Error: pmTrimeNameSpace: Attempt to use an illegal context
 1 sampledso.ulonglong.write_me
 1 sampledso.updown.control.max
 1 sampledso.updown.control.min
+1 sampledso.updown.control.mode
 1 sampledso.updown.control.repeat
+1 sampledso.updown.control.reset
 1 sampledso.updown.control.step
 1 sampledso.updown.obs
 1 sampledso.wrap.long
@@ -1973,7 +1993,9 @@ Error: pmTrimeNameSpace: Attempt to use an illegal context
 2 sampledso.ulonglong.write_me
 2 sampledso.updown.control.max
 2 sampledso.updown.control.min
+2 sampledso.updown.control.mode
 2 sampledso.updown.control.repeat
+2 sampledso.updown.control.reset
 2 sampledso.updown.control.step
 2 sampledso.updown.obs
 2 sampledso.wrap.long
@@ -2146,7 +2168,9 @@ Error: pmTrimeNameSpace: Attempt to use an illegal context
 0 sampledso.ulonglong.write_me
 0 sampledso.updown.control.max
 0 sampledso.updown.control.min
+0 sampledso.updown.control.mode
 0 sampledso.updown.control.repeat
+0 sampledso.updown.control.reset
 0 sampledso.updown.control.step
 0 sampledso.updown.obs
 0 sampledso.wrap.long
@@ -2318,7 +2342,9 @@ Error: pmTrimeNameSpace: Attempt to use an illegal context
 1 sampledso.ulonglong.write_me
 1 sampledso.updown.control.max
 1 sampledso.updown.control.min
+1 sampledso.updown.control.mode
 1 sampledso.updown.control.repeat
+1 sampledso.updown.control.reset
 1 sampledso.updown.control.step
 1 sampledso.updown.obs
 1 sampledso.wrap.long
@@ -2490,7 +2516,9 @@ Error: pmTrimeNameSpace: Attempt to use an illegal context
 2 sampledso.ulonglong.write_me
 2 sampledso.updown.control.max
 2 sampledso.updown.control.min
+2 sampledso.updown.control.mode
 2 sampledso.updown.control.repeat
+2 sampledso.updown.control.reset
 2 sampledso.updown.control.step
 2 sampledso.updown.obs
 2 sampledso.wrap.long

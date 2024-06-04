@@ -46,11 +46,14 @@ cat <<End-of-File >$tmp.config
 derived.inst = delta(sample.longlong.million)
 # counter
 derived.ctr = delta(sampledso.recv_pdu)
+# expressions
+derived.expr = delta(sample.long.one + sample.long.hundred)
+derived.const = delta(12345)
 End-of-File
 echo
 cat $tmp.config
 
-for args in derived.inst derived.ctr
+for args in derived.inst derived.ctr derived.expr derived.const
 do
     echo
     pmval -t 0.25 -s 4 -ZUTC -Dfetch,derive,appl2 $args 2>&1 \
@@ -63,8 +66,6 @@ echo "Errors and empty results here ..."
 cat <<End-of-File >$tmp.config
 myname.a = delta(
 myname.b = delta + 3
-myname.c = delta(sample.long.one + sample.long.hundred)
-myname.d = delta(12345)
 End-of-File
 echo
 cat $tmp.config

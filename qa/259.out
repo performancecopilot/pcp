@@ -5,6 +5,9 @@ No errors here ...
 derived.inst = delta(sample.longlong.million)
 # counter
 derived.ctr = delta(sampledso.recv_pdu)
+# expressions
+derived.expr = delta(sample.long.one + sample.long.hundred)
+derived.const = delta(12345)
 
 pmRegisterDerived: global metric[0] event.flags = anon(PM_TYPE_U32)
 pmRegisterDerived: global metric[1] event.missed = anon(PM_TYPE_U32)
@@ -12,6 +15,8 @@ Derived metric initialization from $PCP_DERIVED_CONFIG
 pmLoadDerivedConfig("TMP.config")
 pmRegisterDerived: global metric[2] derived.inst = delta(sample.longlong.million)
 pmRegisterDerived: global metric[3] derived.ctr = delta(sampledso.recv_pdu)
+pmRegisterDerived: global metric[4] derived.expr = delta(sample.long.one + sample.long.hundred)
+pmRegisterDerived: global metric[5] derived.const = delta(12345)
 pmFetch returns ...
 TIMESTAMP ... numpmid: 1
   2.0.21 (pmcd.hostname): numval: 1 valfmt: 1 vlist[]:
@@ -99,6 +104,8 @@ Derived metric initialization from $PCP_DERIVED_CONFIG
 pmLoadDerivedConfig("TMP.config")
 pmRegisterDerived: global metric[2] derived.inst = delta(sample.longlong.million)
 pmRegisterDerived: global metric[3] derived.ctr = delta(sampledso.recv_pdu)
+pmRegisterDerived: global metric[4] derived.expr = delta(sample.long.one + sample.long.hundred)
+pmRegisterDerived: global metric[5] derived.const = delta(12345)
 pmFetch returns ...
 TIMESTAMP ... numpmid: 1
   2.0.21 (pmcd.hostname): numval: 1 valfmt: 1 vlist[]:
@@ -180,12 +187,224 @@ TIMESTAMP ... numpmid: 1
    value 1
                     1
 
+pmRegisterDerived: global metric[0] event.flags = anon(PM_TYPE_U32)
+pmRegisterDerived: global metric[1] event.missed = anon(PM_TYPE_U32)
+Derived metric initialization from $PCP_DERIVED_CONFIG
+pmLoadDerivedConfig("TMP.config")
+pmRegisterDerived: global metric[2] derived.inst = delta(sample.longlong.million)
+pmRegisterDerived: global metric[3] derived.ctr = delta(sampledso.recv_pdu)
+pmRegisterDerived: global metric[4] derived.expr = delta(sample.long.one + sample.long.hundred)
+pmRegisterDerived: global metric[5] derived.const = delta(12345)
+pmFetch returns ...
+TIMESTAMP ... numpmid: 1
+  2.0.21 (pmcd.hostname): numval: 1 valfmt: 1 vlist[]:
+   value "HOST"
+Note: timezone set to "TZ=UTC"
+
+__dmgetpmid: metric "derived.expr" -> PMID 511.0.5
+__dmgetpmid: metric "derived.expr" -> PMID 511.0.5
+metric:    derived.expr
+host:      HOST
+semantics: instantaneous value
+units:     none
+samples:   4
+interval:  0.25 sec
+derived metrics prefetch added 2 metrics: 29.0.10 29.0.12
+__dmpostvalueset: [0] root node 511.0.5: numval=0
+expr node <addr> type=DELTA left=<addr> right=(nil) save_last=0
+    PMID: PM_ID_NULL (511.0.5 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr> type=PLUS left=<addr> right=<addr> save_last=1
+    PMID: PM_ID_NULL (29.0.10 from pmDesc) numval: 1
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+[0] inst=-1, val=<number>
+expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] primary=0
+    PMID: 29.0.10 (29.0.10 from pmDesc) numval: 1
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+[0] inst=-1, val=<number>
+expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.hundred] primary=0
+    PMID: 29.0.12 (29.0.12 from pmDesc) numval: 1
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+[0] inst=-1, val=<number>
+pmFetch returns ...
+TIMESTAMP ... numpmid: 1
+  511.0.5 (derived.expr): No values returned!
+No values available
+derived metrics prefetch added 2 metrics: 29.0.10 29.0.12
+__dmpostvalueset: [0] root node 511.0.5: numval=1 vset[0]: inst=-1 l=0
+expr node <addr> type=DELTA left=<addr> right=(nil) save_last=0
+    PMID: PM_ID_NULL (511.0.5 from pmDesc) numval: 1
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+[0] inst=-1, val=<number>
+expr node <addr> type=PLUS left=<addr> right=<addr> save_last=1
+    PMID: PM_ID_NULL (29.0.10 from pmDesc) numval: 1
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+[0] inst=-1, val=<number> (last inst=-1, val=<number>)
+expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] primary=0
+    PMID: 29.0.10 (29.0.10 from pmDesc) numval: 1
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+[0] inst=-1, val=<number>
+expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.hundred] primary=0
+    PMID: 29.0.12 (29.0.12 from pmDesc) numval: 1
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+[0] inst=-1, val=<number>
+pmFetch returns ...
+TIMESTAMP ... numpmid: 1
+  511.0.5 (derived.expr): numval: 1 valfmt: 0 vlist[]:
+   value 0
+          0
+derived metrics prefetch added 2 metrics: 29.0.10 29.0.12
+__dmpostvalueset: [0] root node 511.0.5: numval=1 vset[0]: inst=-1 l=0
+expr node <addr> type=DELTA left=<addr> right=(nil) save_last=0
+    PMID: PM_ID_NULL (511.0.5 from pmDesc) numval: 1
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+[0] inst=-1, val=<number>
+expr node <addr> type=PLUS left=<addr> right=<addr> save_last=1
+    PMID: PM_ID_NULL (29.0.10 from pmDesc) numval: 1
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+[0] inst=-1, val=<number> (last inst=-1, val=<number>)
+expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] primary=0
+    PMID: 29.0.10 (29.0.10 from pmDesc) numval: 1
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+[0] inst=-1, val=<number>
+expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.hundred] primary=0
+    PMID: 29.0.12 (29.0.12 from pmDesc) numval: 1
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+[0] inst=-1, val=<number>
+pmFetch returns ...
+TIMESTAMP ... numpmid: 1
+  511.0.5 (derived.expr): numval: 1 valfmt: 0 vlist[]:
+   value 0
+          0
+derived metrics prefetch added 2 metrics: 29.0.10 29.0.12
+__dmpostvalueset: [0] root node 511.0.5: numval=1 vset[0]: inst=-1 l=0
+expr node <addr> type=DELTA left=<addr> right=(nil) save_last=0
+    PMID: PM_ID_NULL (511.0.5 from pmDesc) numval: 1
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+[0] inst=-1, val=<number>
+expr node <addr> type=PLUS left=<addr> right=<addr> save_last=1
+    PMID: PM_ID_NULL (29.0.10 from pmDesc) numval: 1
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+[0] inst=-1, val=<number> (last inst=-1, val=<number>)
+expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] primary=0
+    PMID: 29.0.10 (29.0.10 from pmDesc) numval: 1
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+[0] inst=-1, val=<number>
+expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.hundred] primary=0
+    PMID: 29.0.12 (29.0.12 from pmDesc) numval: 1
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+[0] inst=-1, val=<number>
+pmFetch returns ...
+TIMESTAMP ... numpmid: 1
+  511.0.5 (derived.expr): numval: 1 valfmt: 0 vlist[]:
+   value 0
+          0
+
+pmRegisterDerived: global metric[0] event.flags = anon(PM_TYPE_U32)
+pmRegisterDerived: global metric[1] event.missed = anon(PM_TYPE_U32)
+Derived metric initialization from $PCP_DERIVED_CONFIG
+pmLoadDerivedConfig("TMP.config")
+pmRegisterDerived: global metric[2] derived.inst = delta(sample.longlong.million)
+pmRegisterDerived: global metric[3] derived.ctr = delta(sampledso.recv_pdu)
+pmRegisterDerived: global metric[4] derived.expr = delta(sample.long.one + sample.long.hundred)
+pmRegisterDerived: global metric[5] derived.const = delta(12345)
+pmFetch returns ...
+TIMESTAMP ... numpmid: 1
+  2.0.21 (pmcd.hostname): numval: 1 valfmt: 1 vlist[]:
+   value "HOST"
+Note: timezone set to "TZ=UTC"
+
+__dmgetpmid: metric "derived.const" -> PMID 511.0.6
+__dmgetpmid: metric "derived.const" -> PMID 511.0.6
+metric:    derived.const
+host:      HOST
+semantics: instantaneous value
+units:     none
+samples:   4
+interval:  0.25 sec
+__dmpostvalueset: [0] root node 511.0.6: numval=0
+expr node <addr> type=DELTA left=<addr> right=(nil) save_last=0
+    PMID: PM_ID_NULL (511.0.6 from pmDesc) numval: 0
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr> type=INTEGER left=(nil) right=(nil) save_last=1 [12345] primary=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 1
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+[0] inst=-1, val=<number>
+pmFetch returns ...
+TIMESTAMP ... numpmid: 1
+  511.0.6 (derived.const): No values returned!
+No values available
+__dmpostvalueset: [0] root node 511.0.6: numval=1 vset[0]: inst=-1 ll=0
+expr node <addr> type=DELTA left=<addr> right=(nil) save_last=0
+    PMID: PM_ID_NULL (511.0.6 from pmDesc) numval: 1
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+[0] inst=-1, val=<number>
+expr node <addr> type=INTEGER left=(nil) right=(nil) save_last=1 [12345] primary=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 1
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+[0] inst=-1, val=<number> (last inst=-1, val=<number>)
+pmFetch returns ...
+TIMESTAMP ... numpmid: 1
+  511.0.6 (derived.const): numval: 1 valfmt: 1 vlist[]:
+   value 0
+                    0
+__dmpostvalueset: [0] root node 511.0.6: numval=1 vset[0]: inst=-1 ll=0
+expr node <addr> type=DELTA left=<addr> right=(nil) save_last=0
+    PMID: PM_ID_NULL (511.0.6 from pmDesc) numval: 1
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+[0] inst=-1, val=<number>
+expr node <addr> type=INTEGER left=(nil) right=(nil) save_last=1 [12345] primary=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 1
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+[0] inst=-1, val=<number> (last inst=-1, val=<number>)
+pmFetch returns ...
+TIMESTAMP ... numpmid: 1
+  511.0.6 (derived.const): numval: 1 valfmt: 1 vlist[]:
+   value 0
+                    0
+__dmpostvalueset: [0] root node 511.0.6: numval=1 vset[0]: inst=-1 ll=0
+expr node <addr> type=DELTA left=<addr> right=(nil) save_last=0
+    PMID: PM_ID_NULL (511.0.6 from pmDesc) numval: 1
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+[0] inst=-1, val=<number>
+expr node <addr> type=INTEGER left=(nil) right=(nil) save_last=1 [12345] primary=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 1
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+[0] inst=-1, val=<number> (last inst=-1, val=<number>)
+pmFetch returns ...
+TIMESTAMP ... numpmid: 1
+  511.0.6 (derived.const): numval: 1 valfmt: 1 vlist[]:
+   value 0
+                    0
+
 Errors and empty results here ...
 
 myname.a = delta(
 myname.b = delta + 3
-myname.c = delta(sample.long.one + sample.long.hundred)
-myname.d = delta(12345)
 
 pmRegisterDerived: global metric[0] event.flags = anon(PM_TYPE_U32)
 pmRegisterDerived: global metric[1] event.missed = anon(PM_TYPE_U32)
@@ -194,16 +413,8 @@ pmLoadDerivedConfig("TMP.config")
 [TMP.config:1] Error: pmRegisterDerived(myname.a, ...) syntax error
  delta(
       ^
-Metric name expected to follow delta(
+<expr> expected to follow delta(
 pmRegisterDerived: global metric[2] myname.b = delta + 3
-[TMP.config:3] Error: pmRegisterDerived(myname.c, ...) syntax error
- delta(sample.long.one + sample.long.hundred)
-                       ^                     
-Metric name expected to follow delta(
-[TMP.config:4] Error: pmRegisterDerived(myname.d, ...) syntax error
- delta(12345)
-       ^     
-Metric name expected to follow delta(
 pmFetch returns ...
 TIMESTAMP ... numpmid: 1
   2.0.21 (pmcd.hostname): numval: 1 valfmt: 1 vlist[]:

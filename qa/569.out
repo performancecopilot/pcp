@@ -208,6 +208,8 @@ sample.updown.control.repeat 1
 sample.updown.control.min 1
 sample.updown.control.max 1
 sample.updown.control.step 1
+sample.updown.control.mode 1
+sample.updown.control.reset 1
 
 === -i ===
 sample.control 1 PM_IN_NULL
@@ -433,6 +435,8 @@ sample.updown.control.repeat 1 PM_IN_NULL
 sample.updown.control.min 1 PM_IN_NULL
 sample.updown.control.max 1 PM_IN_NULL
 sample.updown.control.step 1 PM_IN_NULL
+sample.updown.control.mode 1 PM_IN_NULL
+sample.updown.control.reset 1 PM_IN_NULL
 
 === -I ===
 sample.control 1 PM_IN_NULL
@@ -664,6 +668,8 @@ sample.updown.control.repeat 1 PM_IN_NULL
 sample.updown.control.min 1 PM_IN_NULL
 sample.updown.control.max 1 PM_IN_NULL
 sample.updown.control.step 1 PM_IN_NULL
+sample.updown.control.mode 1 PM_IN_NULL
+sample.updown.control.reset 1 PM_IN_NULL
 
 === -v ===
 sample.control 1 0
@@ -881,6 +887,8 @@ sample.updown.control.repeat 1 NUMBER
 sample.updown.control.min 1 NUMBER
 sample.updown.control.max 1 NUMBER
 sample.updown.control.step 1 NUMBER
+sample.updown.control.mode 1 NUMBER
+sample.updown.control.reset 1 NUMBER
 
 === -iI ===
 sample.control 1 PM_IN_NULL PM_IN_NULL
@@ -1151,6 +1159,8 @@ sample.updown.control.repeat 1 PM_IN_NULL PM_IN_NULL
 sample.updown.control.min 1 PM_IN_NULL PM_IN_NULL
 sample.updown.control.max 1 PM_IN_NULL PM_IN_NULL
 sample.updown.control.step 1 PM_IN_NULL PM_IN_NULL
+sample.updown.control.mode 1 PM_IN_NULL PM_IN_NULL
+sample.updown.control.reset 1 PM_IN_NULL PM_IN_NULL
 
 === -iv ===
 pmprobe: at most one of -v and (-i or -I) allowed

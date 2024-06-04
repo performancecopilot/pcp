@@ -400,6 +400,10 @@ static pmDesc	desctab[] = {
     { PMDA_PMID(0,168), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* not_ready_msec */
     { PMDA_PMID(0,169), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_TIME_MSEC,0,0) },
+/* updown.control.mode */
+    { PMDA_PMID(0,170), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* updown.control.reset */
+    { PMDA_PMID(0,171), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 
 /*
  * dynamic PMNS ones
@@ -2694,6 +2698,14 @@ doit:
 			atom.l = not_ready;
 			break;
 
+		    case 170:	/* updown.control.mode */
+			atom.l = updown_dir;
+			break;
+
+		    case 171:	/* updown.control.reset */
+			atom.ul = 0;
+			break;
+
 		    case 1000:	/* secret.bar */
 			atom.cp = "foo";
 			break;
@@ -2986,6 +2998,8 @@ sample_store(pmResult *result, pmdaExt *ep)
 	    case 167:	/* updown.control.max */
 	    case 168:	/* updown.control.step */
 	    case 169:	/* not_ready_msec */
+	    case 170:	/* updown.control.mode */
+	    case 171:	/* updown.control.reset */
 	    case 1008:	/* ghosts.visible */
 		if (vsp->numval != 1 || vsp->valfmt != PM_VAL_INSITU)
 		    sts = PM_ERR_BADSTORE;
@@ -3228,11 +3242,15 @@ sample_store(pmResult *result, pmdaExt *ep)
 	    case 159:	/* proc.reset */
 		proc_reset(&indomtab[PROC_INDOM]);
 		break;
+	    case 164:	/* updown.obs */
+		updown = av.l;
+		break;
 	    case 165:	/* updown.control.repeat */
 		if (av.l < 0)
 		    sts = PM_ERR_SIGN;
-		else
-		    updown_repeat = av.ul;
+		else {
+		    updown_click = updown_repeat = av.ul;
+		}
 		break;
 	    case 166:	/* updown.control.min */
 		updown_min = av.l;
@@ -3248,6 +3266,21 @@ sample_store(pmResult *result, pmdaExt *ep)
 		break;
 	    case 169:	/* not_ready_msec */
 		not_ready = av.l;
+		break;
+	    case 170:	/* updown.control.mode */
+		if (av.l == -1 || av.l == 1)
+		    updown_dir = av.l;
+		else
+		    sts = PM_ERR_BADSTORE;
+		break;
+	    case 171:	/* updown.control.reset */
+		updown = 0;
+		updown_dir = 1;
+		updown_click = 5;
+		updown_repeat = 5;
+		updown_min = 0;
+		updown_max = 200;
+		updown_step = 10;
 		break;
 	    case 1008:	/* ghosts.visible */
 		visible_ghosts = av.l;

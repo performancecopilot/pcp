@@ -928,3 +928,14 @@ When sample.updown.obs is being incremented or decremented, this is
 the amount that is added or subtracted.
 
 Defaults to 10, but maybe changed with pmstore(1).
+
+@ sample.updown.control.mode up-down mode for sample.updown.obs
+1 if sample.obs.updown in incrementing, -1 if sample.obs.updown is
+decrementing.
+
+Defaults to 1, but maybe changed with pmstore(1).
+
+@ sample.updown.control.reset reset all controls for sample.updown.obs
+Used with pmstore(1) and any value will trigger a reset of the control
+state to: obs=0, min=0, max=200, step=10, repeat=5 and mode=1.
+up.

@@ -502,6 +502,8 @@ sampledso.updown.control.repeat
 sampledso.updown.control.min
 sampledso.updown.control.max
 sampledso.updown.control.step
+sampledso.updown.control.mode
+sampledso.updown.control.reset
 sampledso.one
 sampledso.suba.two
 sampledso.suba.three
@@ -739,6 +741,8 @@ sampledso.updown.control.repeat
 sampledso.updown.control.min
 sampledso.updown.control.max
 sampledso.updown.control.step
+sampledso.updown.control.mode
+sampledso.updown.control.reset
 sampledso.one
 sampledso.suba.two
 sampledso.suba.three

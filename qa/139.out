@@ -195,4 +195,6 @@ sample.updown.control.repeat
 sample.updown.control.min
 sample.updown.control.max
 sample.updown.control.step
+sample.updown.control.mode
+sample.updown.control.reset
 pmlc> 
