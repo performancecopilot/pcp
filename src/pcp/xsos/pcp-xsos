@@ -36,7 +36,7 @@ mem_metrics=(
     mem.util.swapFree mem.util.swapTotal
     mem.util.slab mem.util.pageTables
     mem.util.lowFree mem.util.lowTotal
-    mem.util.anonhugepages
+    mem.util.anonhugepages mem.util.available
     mem.util.hugepagesFreeBytes mem.util.hugepagesTotalBytes
     mem.vmmemctl.current mem.vmmemctl.target
 )
@@ -548,6 +548,7 @@ BEGIN {
     put_hbar(\"Cached\", \"${BLUE}\", mem_util_cached_value, total)
     put_hbar(\"HugePages\", \"${CYAN}\", huge, total)
     put_hbar(\"Dirty\", \"${RED}\", mem_util_dirty_value, total)
+    put_hbar(\"Available\", \"${WHITE}\", mem_util_available_value, total)
 
     precision_pct = 1
     precision_low = 0
@@ -582,6 +583,9 @@ BEGIN {
     printf \"    ${WHITE}%s %s (%s%%) dirty\n\",
             round(mem_util_dirty_value/kbytes_divisor, precision_low), u,
             round((mem_util_dirty_value/total)*100, precision_pct)
+    printf \"    ${BOLDWHITE}%s %s (%s%%) available\n\",
+            round(mem_util_available_value/kbytes_divisor, precision_low), u,
+            round((mem_util_available_value/total)*100, precision_pct)
     printf \"${H1}HugePages:${RESET}\n\"
     if (huge == 0)
         printf \"    No ram pre-allocated to HugePages\n\"
