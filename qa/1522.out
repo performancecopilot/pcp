@@ -116,7 +116,7 @@ expr node <addr> type=INTEGER left=(nil) right=(nil) save_last=1 [42] primary=0
 __dmclosecontext(->ctx 0) called dm-><addr> 3 metrics
 
 metric:    qa.g01
-host:      bozo.localdomain
+host:      HOST
 semantics: instantaneous value
 units:     none
 samples:   3
@@ -134,7 +134,7 @@ indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
 
 metric:    qa.g02
-host:      bozo.localdomain
+host:      HOST
 semantics: instantaneous value
 units:     / sec
 samples:   3
@@ -152,7 +152,7 @@ indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
 
 metric:    qa.g03
-host:      bozo.localdomain
+host:      HOST
 semantics: instantaneous value
 units:     none
 samples:   3
@@ -170,7 +170,7 @@ indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
 
 metric:    qa.g04
-host:      bozo.localdomain
+host:      HOST
 semantics: instantaneous value
 units:     none
 samples:   3
@@ -188,7 +188,7 @@ indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
 
 metric:    qa.g05
-host:      bozo.localdomain
+host:      HOST
 semantics: instantaneous value
 units:     none
 samples:   3
@@ -206,7 +206,7 @@ indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
 
 metric:    qa.g06
-host:      bozo.localdomain
+host:      HOST
 semantics: instantaneous value
 units:     none
 samples:   3
@@ -224,7 +224,7 @@ indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
 
 metric:    qa.g07
-host:      bozo.localdomain
+host:      HOST
 semantics: instantaneous value
 units:     / sec
 samples:   3
@@ -242,7 +242,7 @@ indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
 
 metric:    qa.g08
-host:      bozo.localdomain
+host:      HOST
 semantics: discrete instantaneous value
 units:     none
 samples:   3
@@ -260,7 +260,7 @@ indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
 
 metric:    qa.g09
-host:      bozo.localdomain
+host:      HOST
 semantics: instantaneous value
 units:     sec
 samples:   3

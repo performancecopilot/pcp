@@ -66,7 +66,7 @@ expr node <addr> type=INTEGER left=(nil) right=(nil) save_last=1 [42] primary=0
 __dmclosecontext(->ctx 0) called dm-><addr> 3 metrics
 
 metric:    qa.g01
-host:      bozo.localdomain
+host:      HOST
 semantics: instantaneous value
 units:     none
 samples:   3
@@ -77,7 +77,7 @@ No values available
 --- qa.g02 = rate(1 * 100 + 2*10 + 3 + 4/10 + 5/100 + 6/1000)
 
 metric:    qa.g02
-host:      bozo.localdomain
+host:      HOST
 semantics: instantaneous value
 units:     / sec
 samples:   3
@@ -88,7 +88,7 @@ No values available
 --- qa.g03 = delta(sample.updown.obs)
 
 metric:    qa.g03
-host:      bozo.localdomain
+host:      HOST
 semantics: instantaneous value
 units:     none
 samples:   3
@@ -99,7 +99,7 @@ No values available
 --- qa.g04 = delta(sample.long.hundred * sample.updown.obs)
 
 metric:    qa.g04
-host:      bozo.localdomain
+host:      HOST
 semantics: instantaneous value
 units:     none
 samples:   3
@@ -110,7 +110,7 @@ No values available
 --- qa.g05 = rate(max(sample.proc.time))
 
 metric:    qa.g05
-host:      bozo.localdomain
+host:      HOST
 semantics: instantaneous value
 units:     none
 samples:   3
@@ -121,7 +121,7 @@ No values available
 --- qa.g06 = delta(defined(sample.updown.obs) ? sample.updown.obs : 13)
 
 metric:    qa.g06
-host:      bozo.localdomain
+host:      HOST
 semantics: instantaneous value
 units:     none
 samples:   3
@@ -132,7 +132,7 @@ No values available
 --- qa.g07 = rate(defined(sample.updown.no.metric) ? 13 : sample.updown.obs)
 
 metric:    qa.g07
-host:      bozo.localdomain
+host:      HOST
 semantics: instantaneous value
 units:     / sec
 samples:   3
@@ -143,7 +143,7 @@ No values available
 --- qa.g08 = instant(1950 + 5/12 + 26/365)
 
 metric:    qa.g08
-host:      bozo.localdomain
+host:      HOST
 semantics: discrete instantaneous value
 units:     none
 samples:   3
@@ -154,7 +154,7 @@ interval:  0.10 sec
 --- qa.g09 = instant(2 * sample.seconds - sample.seconds)
 
 metric:    qa.g09
-host:      bozo.localdomain
+host:      HOST
 semantics: instantaneous value
 units:     sec
 samples:   3
