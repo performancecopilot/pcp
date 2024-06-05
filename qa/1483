@@ -59,6 +59,7 @@ _filter()
 		-e '/ Removing .* PMDA /d' \
 		-e '/ Rebuilding PMNS /d' \
 		-e '/pmcd\[[0-9]*]: .* pmdaopenmetrics([0-9]*) Info:/d' \
+		-e '/pmcd\[[0-9]*]: \.*$/d' \
 		-e '/pmcd\[[0-9]*]: .*\.\.done$/d' \
 		-e '/pmcd\[[0-9]*]: Terminated$/d' \
 		-e '/root\[[0-9]*]: pmcd_wait failed in /d' \
