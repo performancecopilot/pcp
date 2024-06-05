@@ -39,6 +39,10 @@ _filter()
     sed \
 	-e '/sizeof(__pmTimestamp):/s/: 12/: 12 or 16/' \
 	-e '/sizeof(__pmTimestamp):/s/: 16/: 12 or 16/' \
+	-e '/sizeof(struct timeval):/s/: 12/: 12 or 16/' \
+	-e '/sizeof(struct timeval):/s/: 16/: 12 or 16/' \
+	-e '/sizeof(struct timespec):/s/: 12/: 12 or 16/' \
+	-e '/sizeof(struct timespec):/s/: 16/: 12 or 16/' \
     # end
 }
 
