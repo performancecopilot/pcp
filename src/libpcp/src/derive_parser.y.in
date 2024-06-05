@@ -390,7 +390,8 @@ free_expr(node_t *np)
 	    }
 	    free(np->data.info->ivlist);
 	}
-	if (np->data.info->last_ivlist != NULL) {
+	if (np->data.info->last_ivlist != NULL &&
+	    np->type != N_INTEGER && np->type != N_DOUBLE) {
 	    if (np->desc.type == PM_TYPE_STRING) {
 		int	j;
 		for (j = 0; j < np->data.info->last_numval; j++) {
@@ -702,13 +703,16 @@ bind_expr(__pmContext *ctxp, int n, node_t *np, node_t *parent, int lookup_mode,
 		new->desc.pmid = new->data.info->pmid = PM_ID_NULL;
 		return new;
 	    }
-	    if (pmDebugOptions.derive) {
+	    if (async) {
 		char	errmsg[PM_MAXERRMSGLEN];
 		if (is_global)
-		    fprintf(stderr, "bind_expr: error: global derived metric %s: operand: %s: %s\n", registered.mlist[n].name, new->value, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+		    pmprintf("bind_expr: error: global derived metric %s: operand: %s: %s\n", registered.mlist[n].name, new->value, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 		else
-		    fprintf(stderr, "bind_expr: error: per-context derived metric %s: operand: %s: %s\n", cp->mlist[n].name, new->value, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+		    pmprintf("bind_expr: error: per-context derived metric %s: operand: %s: %s\n", cp->mlist[n].name, new->value, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+		pmflush();
 	    }
+	    else
+		PM_TPD(derive_errmsg) = "Unknown operand metric";
 	    if (is_global)
 		free_expr(new);
 	    return NULL;
@@ -742,14 +746,17 @@ bind_expr(__pmContext *ctxp, int n, node_t *np, node_t *parent, int lookup_mode,
 
 	sts = pmLookupDesc_ctx(ctxp, PM_LOCKED, new->data.info->pmid, &new->desc);
 	if (sts < 0) {
-	    if (pmDebugOptions.derive) {
+	    if (async) {
 		char	strbuf[20];
 		char	errmsg[PM_MAXERRMSGLEN];
 		if (is_global)
-		    fprintf(stderr, "bind_expr: error: global derived metric %s: operand (%s [%s]): %s\n", registered.mlist[n].name, new->value, pmIDStr_r(new->data.info->pmid, strbuf, sizeof(strbuf)), pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+		    pmprintf("bind_expr: error: global derived metric %s: operand (%s [%s]): %s\n", registered.mlist[n].name, new->value, pmIDStr_r(new->data.info->pmid, strbuf, sizeof(strbuf)), pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 		else
-		    fprintf(stderr, "bind_expr: error: per-context derived metric %s: operand (%s [%s]): %s\n", cp->mlist[n].name, new->value, pmIDStr_r(new->data.info->pmid, strbuf, sizeof(strbuf)), pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+		    pmprintf("bind_expr: error: per-context derived metric %s: operand (%s [%s]): %s\n", cp->mlist[n].name, new->value, pmIDStr_r(new->data.info->pmid, strbuf, sizeof(strbuf)), pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+		pmflush();
 	    }
+	    else
+		PM_TPD(derive_errmsg) = "Metadata for operand metric not available";
 	    if (is_global)
 		free_expr(new);
 	    return NULL;
@@ -4377,10 +4384,9 @@ func	: L_ANON L_LPAREN L_NAME L_RPAREN
 		  np->left->value = $3;
 		  $$ = np;
 		}
-	| L_DELTA L_LPAREN L_NAME L_RPAREN
+	| L_DELTA L_LPAREN expr L_RPAREN
 		{ np = newnode(N_DELTA);
-		  np->left = newnode(N_NAME);
-		  np->left->value = $3;
+		  np->left = $3;
 		  np->left->save_last = 1;
 		  $$ = np;
 		}
@@ -4402,17 +4408,15 @@ func	: L_ANON L_LPAREN L_NAME L_RPAREN
 		  np->left->value = $3;
 		  $$ = np;
 		}
-	| L_RATE L_LPAREN L_NAME L_RPAREN
+	| L_RATE L_LPAREN expr L_RPAREN
 		{ np = newnode(N_RATE);
-		  np->left = newnode(N_NAME);
-		  np->left->value = $3;
+		  np->left = $3;
 		  np->left->save_last = 1;
 		  $$ = np;
 		}
-	| L_INSTANT L_LPAREN L_NAME L_RPAREN
+	| L_INSTANT L_LPAREN expr L_RPAREN
 		{ np = newnode(N_INSTANT);
-		  np->left = newnode(N_NAME);
-		  np->left->value = $3;
+		  np->left = $3;
 		  $$ = np;
 		}
 	| L_DEFINED L_LPAREN L_NAME L_RPAREN
@@ -4458,7 +4462,7 @@ func	: L_ANON L_LPAREN L_NAME L_RPAREN
 	| L_COUNT L_LPAREN error
 		{ gramerr(name_str, follow, "count("); YYERROR; }
 	| L_DELTA L_LPAREN error
-		{ gramerr(name_str, follow, "delta("); YYERROR; }
+		{ gramerr("<expr>", follow, "delta("); YYERROR; }
 	| L_MAX L_LPAREN error
 		{ gramerr(name_str, follow, "max("); YYERROR; }
 	| L_MIN L_LPAREN error
@@ -4466,7 +4470,7 @@ func	: L_ANON L_LPAREN L_NAME L_RPAREN
 	| L_SUM L_LPAREN error
 		{ gramerr(name_str, follow, "sum("); YYERROR; }
 	| L_RATE L_LPAREN error
-		{ gramerr(name_str, follow, "rate("); YYERROR; }
+		{ gramerr("<expr>", follow, "rate("); YYERROR; }
 	| L_INSTANT L_LPAREN error
 		{ gramerr(name_str, follow, "instant("); YYERROR; }
 	| L_RESCALE L_LPAREN error

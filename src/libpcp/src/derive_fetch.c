@@ -159,10 +159,44 @@ __dmprefetch(__pmContext *ctxp, int numpmid, const pmID *pmidlist, pmID **newlis
 }
 
 /*
- * Free the old ivlist[] (if any) ... may need to walk the list because
- * the pmAtomValues may have buffers attached in the type STRING,
- * type AGGREGATE* and type EVENT cases.
- * Includes logic to save one history sample (for delta() and rate()).
+* saving history for delta() or rate() ... release previous sample
+* last_ivlist[] and save this sample last_ivlist[] <- ivlist[]
+*/
+static void
+save_ivlist(node_t *np)
+{
+    if (np->save_last) {
+	if (np->type == N_INTEGER || np->type == N_DOUBLE) {
+	    /*
+	     * these will never change, so fake out the "last"
+	     * ones the first time through
+	     */
+	    if (np->data.info->ivlist != NULL &&
+	        np->data.info->last_ivlist == NULL) {
+		np->data.info->last_numval = np->data.info->numval;
+		np->data.info->last_ivlist = np->data.info->ivlist;
+	    }
+	}
+	else {
+	    if (np->data.info->last_ivlist != NULL) {
+		/*
+		 * no STRING, AGGREGATE or EVENT types for delta() or rate()
+		 * so simple free()
+		 */
+		free(np->data.info->last_ivlist);
+	    }
+	    np->data.info->last_numval = np->data.info->numval;
+	    np->data.info->last_ivlist = np->data.info->ivlist;
+	    np->data.info->ivlist = NULL;
+	}
+    }
+}
+
+/*
+ * Either call save_ivlist() to free last_ivlist[] and save one history
+ * sample (for delta() and rate()), or free ivlist[] (if any) ... may
+ * need to walk the list because the pmAtomValues may have buffers attached
+ * in the type STRING, type AGGREGATE* and type EVENT cases.
  */
 static void
 free_ivlist(node_t *np)
@@ -171,22 +205,8 @@ free_ivlist(node_t *np)
 
     assert(np->data.info != NULL);
 
-    if (np->save_last) {
-	/*
-	 * saving history for delta() or rate() ... release previous
-	 * sample, and save this sample
-	 */
-	if (np->data.info->last_ivlist != NULL) {
-	    /*
-	     * no STRING, AGGREGATE or EVENT types for delta() or rate()
-	     * so simple free()
-	     */
-	    free(np->data.info->last_ivlist);
-	}
-	np->data.info->last_numval = np->data.info->numval;
-	np->data.info->last_ivlist = np->data.info->ivlist;
-	np->data.info->ivlist = NULL;
-    }
+    if (np->save_last)
+	save_ivlist(np);
     else {
 	/* no history */
 	if (np->data.info->ivlist != NULL) {
@@ -844,6 +864,7 @@ eval_expr(__pmContext *ctxp, node_t *np, struct timespec *stamp, int numpmid,
 
 	case N_INTEGER:
 	case N_DOUBLE:
+	    save_ivlist(np);
 	    adjust_constant(ctxp, np);
 	    return np->data.info->numval;
 
@@ -1327,6 +1348,7 @@ eval_expr(__pmContext *ctxp, node_t *np, struct timespec *stamp, int numpmid,
 	     * values are in the left expr
 	     */
 	    assert(np->left != NULL);
+	    save_ivlist(np);
 	    np->data.info->last_stamp = np->data.info->stamp;
 	    np->data.info->stamp = *stamp;
 	    np->data.info->numval = np->left->data.info->numval;
@@ -1340,6 +1362,7 @@ eval_expr(__pmContext *ctxp, node_t *np, struct timespec *stamp, int numpmid,
 	case N_MAX:
 	case N_MIN:
 	case N_SCALAR:
+	    save_ivlist(np);
 	    if (np->data.info->ivlist == NULL) {
 		/* initialize ivlist[] for singular instance first time through */
 		if ((np->data.info->ivlist = (val_t *)malloc(sizeof(val_t))) == NULL) {
@@ -1549,13 +1572,13 @@ eval_expr(__pmContext *ctxp, node_t *np, struct timespec *stamp, int numpmid,
 	    if (np->data.info->pmid == PM_ID_NULL) {
 		return 0;
 	    }
+	    free_ivlist(np);
 	    /*
 	     * otherwise extract instance-values from pmResult and store
 	     * them in ivlist[] as <int, pmAtomValue> pairs
 	     */
 	    for (j = 0; j < numpmid; j++) {
 		if (np->data.info->pmid == vset[j]->pmid) {
-		    free_ivlist(np);
 		    np->data.info->numval = vset[j]->numval;
 		    if (np->data.info->numval <= 0)
 			return np->data.info->numval;
@@ -2219,6 +2242,11 @@ __dmpostfetch(__pmContext *ctxp, __pmResult **result)
     /* if needed, __dminit() called in __dmopencontext beforehand */
     if (cp == NULL || cp->fetch_has_dm == 0)
 	return;
+
+    if (pmDebugOptions.derive && pmDebugOptions.desperate) {
+	fprintf(stderr, "__dmpostfetch: from context before rewrite ...\n");
+	__pmPrintResult_ctx(ctxp, stderr, rp);
+    }
 
     if ((newrp = __pmAllocResult(cp->numpmid)) == NULL) {
 	pmNoMem("__dmpostfetch: newrp", sizeof(__pmResult) + (cp->numpmid - 1) * sizeof(pmValueSet *), PM_FATAL_ERR);

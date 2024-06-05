@@ -183,7 +183,10 @@ for args in "" derived derived_tree sample
 do
     echo | tee -a $seq.full
     echo "=== $args ===" | tee -a $seq.full
-    pminfo -c $tmp.config $args 2>&1 | _filter_derived
+    pminfo -c $tmp.config $args 2>&1 \
+    | _filter_derived \
+    | sed -e '/bind_expr: error: .*.: Unknown metric name/d' \
+    # end
 done
 
 echo | tee -a $seq.full

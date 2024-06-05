@@ -1,6 +1,7 @@
 QA output created by 923
 === std out ===
 === std err ===
+bind_expr: error: global derived metric foo.bar: operand: non.existent: Unknown metric name
 Error: foo.bar: Unknown metric name
 === filtered valgrind report ===
 Memcheck, a memory error detector

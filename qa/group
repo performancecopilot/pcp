@@ -1987,6 +1987,8 @@ x11
 1518:reserved kenj
 1519:reserved kenj
 1520 other libpcp local pmconfig
+1521 derive local
+1522 derive local valgrind
 1530 pmda.zfs local valgrind
 1531 pmda.zfs local valgrind
 1532 pmda.zfs local
