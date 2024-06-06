@@ -538,6 +538,7 @@ BEGIN {
     total = (mem_physmem_value > 0) ? mem_physmem_value : 1
     other = mem_util_used_value - mem_util_cached_value - mem_util_bufmem_value
     huge = mem_util_hugepagesTotalBytes_value / 1024
+    hugefree = mem_util_hugepagesFreeBytes_value / 1024
     hugeused = huge - (mem_util_hugepagesFreeBytes_value / 1024)
 
     printf \"${H0}MEMORY\n\"
