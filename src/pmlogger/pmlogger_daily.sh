@@ -1463,7 +1463,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 		then
 		    echo >&2 "primary pmlogger process PID not found"
 		    ls >&2 -l "$PCP_TMP_DIR/pmlogger"
-		    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E >&2 '[P]ID|[p]mlogger'
+		    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E >&2 '[P]ID|/[p]mlogger'
 		fi
 	    elif _get_pids_by_name pmlogger | grep "^$pid\$" >/dev/null
 	    then

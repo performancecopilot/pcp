@@ -39,7 +39,7 @@ then
 	$sudo systemctl stop $svc >>$seq.full 2>&1
 	echo "+ after stop $svc ..." >>$seq.full
 	_get_pids_by_name pmlogger >>$seq.full 2>&1
-	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '[p]mlogger' >>$seq.full
+	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '/[p]mlogger' >>$seq.full
     done
     # and now get a clean pmlogger without the other hangers-on
     #

@@ -50,7 +50,7 @@ sleep 1		# get into sync
 pmlogger -c $tmp.config -l $tmp.log -s 4 $tmp &
 logger_pid=$!
 echo "logger_pid=$logger_pid" >>$seq.full
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]ID|[p]mlogger' >>$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger' >>$seq.full
 sleep 2
 
 echo "Partial, expect meta data"

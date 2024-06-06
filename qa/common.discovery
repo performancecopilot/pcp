@@ -70,7 +70,7 @@ _filter_discovery_unresolvable()
 _control_service_discovery()
 {
     echo "*** Initial service status ***" >> $here/$seq.full
-    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]ID|[p]mproxy|[p]mcd' \
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|[p]mproxy|[p]mcd' \
 	>> $here/$seq.full
     cat $PCP_LOG_DIR/pmproxy/pmproxy.log >> $here/$seq.full
     cat $PCP_LOG_DIR/pmcd/pmcd.log >> $here/$seq.full
@@ -96,11 +96,11 @@ _cleanup_avahi_service()
     cd $here
     echo "avahi_cleanup: before pmsignal" >>$seq.full
     __grep_service=`echo "$service" | sed -e 's/./[&]/'`
-    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]ID|$__grep_service |$__grep_service$' >>$seq.full
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|$__grep_service |$__grep_service$' >>$seq.full
     $sudo $PCP_BINADM_DIR/pmsignal -a "$service" >>$here/$seq.full 2>&1
     pmsleep 0.5
     echo "avahi_cleanup: after pmsignal" >>$seq.full
-    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]ID|$__grep_service |$__grep_service$' >>$seq.full
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|$__grep_service |$__grep_service$' >>$seq.full
     _restore_config $PCP_PMCDOPTIONS_PATH
     _restore_config $PCP_PMPROXYOPTIONS_PATH
     if $__service_was_running

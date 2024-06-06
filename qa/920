@@ -50,7 +50,7 @@ _report()
     if [ ! -d $PCP_ARCHIVE_DIR/$seq ]
     then
 	echo "Arrgh: directory $PCP_ARCHIVE_DIR/$seq not created"
-	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]ID|[p]mlogger'
+	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger'
 	return
     fi
 
@@ -123,7 +123,7 @@ _service pmlogger restart | _filter_pcp_start
 i=0
 while [ $i -lt 20 ]
 do
-    if $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '[p]mlogger.* -c /dev/null -L' >/dev/null
+    if $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '/[p]mlogger.* -c /dev/null -L' >/dev/null
     then
 	break
     fi

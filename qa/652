@@ -88,7 +88,7 @@ if [ "$numval" -lt 0 ]
 then
     echo "Arrgh ... PMDA is not well!"
     pminfo -f systemd
-    ps "$PCP_PS_ALL_FLAGS" | grep -E "[p]m[cd]|[P]ID"
+    ps "$PCP_PS_ALL_FLAGS" | grep -E "[p]m[cd]|[P]PID"
     echo "=== PMDA's log ==="
     cat $PCP_LOG_DIR/pmcd/systemd.log
     echo "=== ==="

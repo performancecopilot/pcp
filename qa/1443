@@ -137,7 +137,7 @@ do
     $sudo rm -f /etc/pcp/pmlogger/control.d/orphan-$host
 done
 
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]ID|[p]mlogger ' >>$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger ' >>$seq.full
 
 # now run the janitor ...
 #

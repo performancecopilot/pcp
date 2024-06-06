@@ -143,7 +143,7 @@ redis-cli -p $redis_node3_port keys pcpqa:*
 echo
 
 cat $tmp.conf >> $seq.full
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep pmproxy >> $seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -e '[P]PID|/[p]mproxy' >> $seq.full
 cat $tmp.pmproxy.log >> $seq.full
 
 echo "== all done" | tee -a $seq.full

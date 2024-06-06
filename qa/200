@@ -66,12 +66,12 @@ _wait_for_pmcd_exit()
 		cat $PCP_LOG_DIR/pmcd/pmcd.log
 
 		echo "likely looking processes ..."
-		ps "$PCP_PS_ALL_FLAGS" | grep -E "[p]m|[P]ID"
+		ps "$PCP_PS_ALL_FLAGS" | grep -E "[p]m|[P]PID"
 		;;
 	    *)
 		# assume a remote PMCD
 		#
-		ssh pcpqa@$_host "sh -c '. \$PCP_DIR/etc/pcp.env; echo; echo "=== pmcd.log ==="; [ -f \$PCP_LOG_DIR/pmcd/pmcd.log ] && cat \$PCP_LOG_DIR/pmcd/pmcd.log; [ -f \$PCP_LOG_DIR/pmcd.log ] && cat \$PCP_LOG_DIR/pmcd.log; echo; echo likely looking processes ...; ( ps \$PCP_PS_ALL_FLAGS | grep -E \"[p]m|[P]ID\" )'" </dev/null
+		ssh pcpqa@$_host "sh -c '. \$PCP_DIR/etc/pcp.env; echo; echo "=== pmcd.log ==="; [ -f \$PCP_LOG_DIR/pmcd/pmcd.log ] && cat \$PCP_LOG_DIR/pmcd/pmcd.log; [ -f \$PCP_LOG_DIR/pmcd.log ] && cat \$PCP_LOG_DIR/pmcd.log; echo; echo likely looking processes ...; ( ps \$PCP_PS_ALL_FLAGS | grep -E \"[p]m|[P]PID\" )'" </dev/null
 		;;
 	esac
 	status=2

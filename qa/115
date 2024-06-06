@@ -130,7 +130,7 @@ skip == 0		{ print }
 
 _count_pmies()
 {
-    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '([P]ID)|([p]mie)' >>$here/$seq.full
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mie' >>$here/$seq.full
     count=0
     if [ -d $PCP_TMP_DIR/pmie ] 
     then
@@ -286,9 +286,9 @@ LOCALHOSTNAME   n n $tmp.locker/ok.$case -c $tmp.conf
 EOF
 rm -f $tmp.locker/ok.$case.lock
 touch $tmp.locker/ok.$case.lock
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '([P]ID)|([p]mie)' >>$here/$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mie' >>$here/$seq.full
 pmie_check -V -V -N -c $tmp.warning.$case >$tmp.warning.$case.log
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '([P]ID)|([p]mie)' >>$here/$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mie' >>$here/$seq.full
 cat $tmp.warning.$case.log | _filter
 rm -f $tmp.warning.$case.log
 echo

@@ -196,7 +196,7 @@ pmproxy_pid=$!
 pmcd_wait -h localhost@localhost:$proxyport -v -t 5sec
 pmsleep 0.5	# time for pmproxy to start discovering
 
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E 'pmlogger|pmproxy|redis' >> $seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '/pmlogger|/pmproxy|/redis' >> $seq.full
 redis-cli $options keys pcp:* >> $seq.full
 ls -lR $PCP_ARCHIVE_DIR >> $seq.full
 cat $tmp.pmproxy.log >> $seq.full

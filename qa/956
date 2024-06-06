@@ -114,7 +114,7 @@ pmsleep 0.2
 
 echo "Terminate a PMDA needing attributes" | tee -a $here/$seq.full
 date >>$here/$seq.full
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep pmdadynamic >> $here/$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mdadynamic' >> $here/$seq.full
 $signal -s KILL -an pmdadynamic >> $here/$seq.full 2>&1
 $sudo $signal -s KILL -a pmdadynamic >> $here/$seq.full 2>&1
 
@@ -124,7 +124,7 @@ while [ $i -lt 10 ]
 do
     $PCP_PS_PROG $PCP_PS_ALL_FLAGS >$tmp.tmp
     echo "ps probe #$i" >>$here/$seq.full
-    grep -E '[P]ID|[p]mdadynamic' $tmp.tmp >>$here/$seq.full
+    grep -E '[P]PID|/[p]mdadynamic' $tmp.tmp >>$here/$seq.full
     # looking for a defunct PMDA process
     #
     if grep -E '(pmdadynamic.*defunct)|( Z .*pmdadynamic)|\(pmdadynamic\)' $tmp.tmp >/dev/null
@@ -146,7 +146,7 @@ done
 if [ -f $tmp.tmp ]
 then
     echo "Arrgh ... dynamic PMDA won't die"
-    grep -E '[P]ID|[p]mdadynamic' $tmp.tmp
+    grep -E '[P]PID|[p]mdadynamic' $tmp.tmp
     exit
 fi
 date >>$here/$seq.full

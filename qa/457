@@ -164,7 +164,7 @@ i=0
 while [ $i -lt 20 ]
 do
     echo "wait #$i" >>$here/$seq.full
-    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E "[P]PID|$seq.pip[e]" >>$here/$seq.full
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E "[P]PID|/$seq.pip[e]" >>$here/$seq.full
     [ -s $here/$seq.pipe.pid ] && break
     sleep 1
     i=`expr $i + 1`
@@ -172,7 +172,7 @@ done
 if [ ! -s $here/$seq.pipe.pid ]
 then
     echo "Arrgh ..."
-    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E "[P]PID|$seq.pip[e]"
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E "[P]PID|/$seq.pip[e]"
     _fail "PID file from command pipe not found"
 fi
 

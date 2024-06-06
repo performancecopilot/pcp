@@ -108,7 +108,7 @@ then
     _filter_info < pmcd.log > pmcd.log1.$$
 else
     echo "No pmcd.log, pmcd failed to start?"
-    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]ID|[p]mcd'
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mcd'
     exit
 fi
 

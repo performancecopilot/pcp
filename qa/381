@@ -89,12 +89,12 @@ _ping()
     echo "Remote host: $rem_host [pid: $rem_pid port: $rem_port]" >>$here/$seq.full
     pminfo -f -h $rem_host pmcd.pmlogger.port >>$here/$seq.full 2>&1
     ssh $rem_host '. /etc/pcp.env; $PCP_PS_PROG $PCP_PS_ALL_FLAGS' 2>&1 \
-    | grep -E "PID|pmlogger" >>$here/$seq.full
+    | grep -E '[P]PID|/[p]mlogger' >>$here/$seq.full
     echo >>$here/$seq.full
     echo "Local host: $myhost [pid: $pid port: $port]" >>$here/$seq.full
     pminfo -f -h $myhost pmcd.pmlogger.port >>$here/$seq.full 2>&1
     $PCP_PS_PROG $PCP_PS_ALL_FLAGS \
-    | grep -E "PID|pmlogger" \
+    | grep -E '[P]PID|/[p]mlogger' \
     | grep -v grep >>$here/$seq.full
 }
 
@@ -184,7 +184,7 @@ _speak_to_me @$rem_host $rem_pid $rem_port
 
 # make sure the primary logger is terminated and stop pmcd
 #
-prim_pid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep pmlogger | grep ' -P' | $PCP_AWK_PROG '{ print $2 }'`
+prim_pid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '/[p]mlogger' | grep ' -P' | $PCP_AWK_PROG '{ print $2 }'`
 if [ ! -z "$prim_pid" ]
 then
     $sudo $signal -s TERM $prim_pid

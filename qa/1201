@@ -113,13 +113,13 @@ $sudo cp $tmp.control ${PCP_PMLOGGERCONTROL_PATH}.d/$remote
 
 # real QA test starts here
 echo "[`date`] initially" >>$seq.full
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[pP](mcd|mlogger|PID)' >>$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p](mcd|mlogger)' >>$seq.full
 
 # stop pmcd, and all pmloggers
 #
 echo "[`date`] pcp stop" >>$seq.full
 _service pcp stop 2>&1 | _filter_pcp_stop
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[pP](mcd|mlogger|PID)' >>$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p](mcd|mlogger)' >>$seq.full
 
 # from here on, don't use any "_service" wrapper ... we need to dodge
 # any linking of the services and starting stuff under the covers
@@ -132,7 +132,7 @@ echo "pmcd not running, expect this to timeout" | tee -a $seq.full
 $sudo $PCP_RC_DIR/pmlogger start 2>&1 | _filter_pcp_start
 _my_wait_for_pmlogger | _filter
 echo "[`date`]" >>$seq.full
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[pP](mcd|mlogger|PID)' >>$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p](mcd|mlogger)' >>$seq.full
 
 $sudo $PCP_RC_DIR/pmcd start 2>&1 | _filter_pcp_start
 _wait_for_pmcd
@@ -149,7 +149,7 @@ echo "pmcd running, expect this to work" | tee -a $seq.full
 $sudo $PCP_RC_DIR/pmlogger start 2>&1 | _filter_pcp_start
 _wait_for_pmlogger
 echo "[`date`]" >>$seq.full
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[pP](mcd|mlogger|PID)' >>$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p](mcd|mlogger)' >>$seq.full
 pminfo -f pmcd.pmlogger.pmcd_host | tee -a $seq.full >$tmp.tmp
 if grep '"primary"' $tmp.tmp >/dev/null
 then

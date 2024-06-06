@@ -31,12 +31,12 @@ pid=`_get_pids_by_name "$PCP_PMDAS_DIR/sample/pmdasample"`
 [ -z "$pid" ] && _fail "No running pmdasample process found"
 
 echo "Forcing pmdasample to exit unexpectedly"
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '[p]mdas' > $tmp.before
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '/[p]mdas' > $tmp.before
 $sudo $PCP_BINADM_DIR/pmsignal -a pmdasample
 pmsleep 0.25
 pminfo -f containers > /dev/null 2>&1	# touch pmdaroot asap
 pmsleep 0.25
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '[p]mdas' > $tmp.after
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '/[p]mdas' > $tmp.after
 
 # diagnostics
 (echo; echo == Before:) >> $here/$seq.full

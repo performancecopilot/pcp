@@ -607,10 +607,10 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 		elif _get_pids_by_name pmlogger | grep "^$pid\$" >/dev/null
 		then
 		    $VERY_VERBOSE && echo "primary pmlogger process $pid identified, OK"
-		    $VERY_VERY_VERBOSE && $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]ID|[p]mlogger '
+		    $VERY_VERY_VERBOSE && $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]ID|/[p]mlogger '
 		else
 		    $VERY_VERBOSE && echo "primary pmlogger process $pid not running"
-		    $VERY_VERY_VERBOSE && $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]ID|[p]mlogger '
+		    $VERY_VERY_VERBOSE && $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]ID|/[p]mlogger '
 		    pid=''
 		fi
 	    else
@@ -645,11 +645,11 @@ END				{ print m }'`
 		    if _get_pids_by_name pmlogger | grep "^$pid\$" >/dev/null
 		    then
 			$VERY_VERBOSE && echo "pmlogger process $pid identified, OK"
-			$VERY_VERY_VERBOSE && $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]ID|[p]mlogger '
+			$VERY_VERY_VERBOSE && $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]ID|/[p]mlogger '
 			break
 		    fi
 		    $VERY_VERBOSE && echo "pmlogger process $pid not running, skip"
-		    $VERY_VERY_VERBOSE && $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]ID|[p]mlogger '
+		    $VERY_VERY_VERBOSE && $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]ID|/[p]mlogger '
 		    pid=''
 		else
 		    $VERY_VERBOSE && echo "different directory, skip"
@@ -754,7 +754,7 @@ do
     #
     if [ ! -f $tmp/one-trip ]
     then
-	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]ID|[p]mlogger '
+	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]ID|/[p]mlogger '
 	touch $tmp/one-trip
     fi
     echo "Killing (TERM) pmlogger with PID $pid"

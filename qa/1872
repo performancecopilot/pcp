@@ -142,7 +142,7 @@ pmcd_wait -h localhost@localhost:$proxyport -v -t 5sec
 # have to wait until everything is properly indexed in Redis
 pmsleep 10s
 
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep pmproxy >> $seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy' >> $seq.full
 redis-cli $port keys pcp:text >> $seq.full
 cat $tmp.pmproxy.log >> $seq.full
 

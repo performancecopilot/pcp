@@ -60,7 +60,7 @@ End-of-File
 rm -f $tmp.ok
 for i in 1 2 3 4 5
 do
-    if $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '[p]mdasimple .* -l-' >>$here/$seq.full
+    if $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '/[p]mdasimple .* -l-' >>$here/$seq.full
     then
 	sleep 1
     else

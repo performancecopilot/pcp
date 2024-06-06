@@ -60,7 +60,7 @@ _hunt_pmcd_socket()
     netstat -a | grep ':44321' >>$here/$seq.full
     if which fstat >/dev/null 2>&1
     then
-	fstat | grep -E '([P]ID)|(:[4]4321)' >$tmp.out 2>>$here/$seq.full
+	fstat | grep -E '[P]PID|:[4]4321' >$tmp.out 2>>$here/$seq.full
 	# fstat output ...
 	# pcp      pmcd       81043    0* internet stream tcp 0x0 *:44321
 	$PCP_AWK_PROG <$tmp.out '{ print $3 }' \

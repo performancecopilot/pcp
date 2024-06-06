@@ -197,7 +197,7 @@ else
 fi
 
 $PCP_PS_PROG $PCP_PS_ALL_FLAGS | sed -e 's/$/ /' >$tmp.ps
-grep -E '[P]ID|[p]m|[d]umb' $tmp.ps >>$seq.full
+grep -E '[P]PID|[p]m|[d]umb' $tmp.ps >>$seq.full
 old_dumb_pid=`$PCP_AWK_PROG <$tmp.ps '/\/src\/dumb_pmda /{print $2}'`
 echo "old_dumb_pid=$old_dumb_pid" >>$seq.full
 old_pmcd_pid=`$PCP_AWK_PROG <$tmp.ps '/\/bin\/pmcd /{print $2}'`
@@ -239,7 +239,7 @@ sleep 2
 pminfo -n $pmns -d dummyproc >/dev/null 2>&1
 
 $PCP_PS_PROG $PCP_PS_ALL_FLAGS | sed -e 's/$/ /' >$tmp.ps
-grep -E '[P]ID|[p]m|[d]umb' $tmp.ps >>$seq.full
+grep -E '[P]PID|[p]m|[d]umb' $tmp.ps >>$seq.full
 new_dumb_pid=`$PCP_AWK_PROG <$tmp.ps '/\/src\/dumb_pmda /{print $2}'`
 echo "new_dumb_pid=$new_dumb_pid" >>$seq.full
 new_pmcd_pid=`$PCP_AWK_PROG <$tmp.ps '/\/bin\/pmcd /{print $2}'`
@@ -286,7 +286,7 @@ else
 fi
 
 $PCP_PS_PROG $PCP_PS_ALL_FLAGS | sed -e 's/$/ /' >$tmp.ps
-grep -E '[P]ID|[p]m|[d]umb' $tmp.ps >>$seq.full
+grep -E '[P]PID|[p]m|[d]umb' $tmp.ps >>$seq.full
 new_dumb_pid=`$PCP_AWK_PROG <$tmp.ps '/\/src\/dumb_pmda /{print $2}'`
 echo "new_dumb_pid=$new_dumb_pid" >>$seq.full
 new_pmcd_pid=`$PCP_AWK_PROG <$tmp.ps '/\/bin\/pmcd /{print $2}'`
@@ -338,7 +338,7 @@ echo "After pminfo: `date`" >>$seq.full
 _echo ""
 
 $PCP_PS_PROG $PCP_PS_ALL_FLAGS | sed -e 's/$/ /' >$tmp.ps
-grep -E '[P]ID|[p]m|[d]umb' $tmp.ps >>$seq.full
+grep -E '[P]PID|[p]m|[d]umb' $tmp.ps >>$seq.full
 new_dumb_pid=`$PCP_AWK_PROG <$tmp.ps '/\/src\/dumb_pmda /{print $2}'`
 echo "new_dumb_pid=$new_dumb_pid" >>$seq.full
 new_pmcd_pid=`$PCP_AWK_PROG <$tmp.ps '/\/bin\/pmcd /{print $2}'`
@@ -377,7 +377,7 @@ _echo ""
 sleep 8
 
 $PCP_PS_PROG $PCP_PS_ALL_FLAGS | sed -e 's/$/ /' >$tmp.ps
-grep -E '[P]ID|[p]mcd|[p]mda' $tmp.ps >>$seq.full
+grep -E '[P]PID|[p]mcd|[p]mda' $tmp.ps >>$seq.full
 new_dumb_pid=`$PCP_AWK_PROG <$tmp.ps '/\/src\/dumb_pmda /{print $2}'`
 echo "new_dumb_pid=$new_dumb_pid" >>$seq.full
 new_pmcd_pid=`$PCP_AWK_PROG <$tmp.ps '/\/bin\/pmcd /{print $2}'`

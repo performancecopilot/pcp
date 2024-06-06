@@ -57,7 +57,7 @@ _filter()
 	-e 's/TERM [0-9][0-9]*/TERM <somepid>/' \
 	-e '/^------.*\/lock/s/.* /------ ... ls output ... /' \
     # end
-    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]ID|[p]mlogger' >>$seq.full
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger' >>$seq.full
 }
 
 # Build filter for any existing non-qa and non-primary pmlogger instances.

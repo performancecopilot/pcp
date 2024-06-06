@@ -70,7 +70,7 @@ _filter()
 }
 
 echo "pmlogger processes at the beginning ..." >>$seq.full
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep pmlogger >>$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '/[p]mlogger' >>$seq.full
 
 # Avoid conflict with normal management of the summary logs ...
 # this is lifted from pmlogger_daily

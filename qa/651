@@ -127,7 +127,7 @@ _wait_for_stop()
     else
 	echo "Failed to stop pmproxy"
 	$PCP_PS_PROG $PCP_PS_ALL_FLAGS \
-	| grep -E '[P]ID|[p]mproxy|[p]mcd'
+	| grep -E '[P]PID|[p]mproxy|[p]mcd'
     fi
 }
 

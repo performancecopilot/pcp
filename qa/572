@@ -100,11 +100,11 @@ cp $rootconf $tmp.root.bak
 
 needclean=true
 $sudo cp $tmp.pmcd.conf $pmcdconf 
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '([p]mcd)|([P]ID)' >>$here/$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '/[p]mcd|[P]PID' >>$here/$seq.full
 _service pcp restart 2>&1 | _filter_pcp_start
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '([p]mcd)|([P]ID)' >>$here/$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '/[p]mcd|[P]PID' >>$here/$seq.full
 _wait_for_pmcd
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '([p]mcd)|([P]ID)' >>$here/$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '/[p]mcd|[P]PID' >>$here/$seq.full
 _wait_for_pmlogger
 
 for pmda in '' sample trivial simple

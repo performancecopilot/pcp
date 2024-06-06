@@ -152,7 +152,7 @@ do
     then
 	# we killed pmcd, that's not good!
 	#
-	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]ID|[p]mcd' >>$seq.full
+	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mcd' >>$seq.full
 	for log in pmcd sample linux darwin solaris openbsd freebsd netbsd
 	do
 	    for suff in "" ".prev"

@@ -51,7 +51,7 @@ echo "pmproxy_was_running=$pmproxy_was_running" >>$here/$seq.full
 
 # real QA test starts here
 
-pid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep 'pmlogger.*-P' | \
+pid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '/[p]mlogger.*-P' | \
 grep -v grep | awk '{print $2}'`
 
 if [ ! -S "$PCP_RUN_DIR/pmlogger.$pid.socket" ]; then
@@ -73,7 +73,7 @@ else
     _service pmlogger start | _filter_pcp_start
     _wait_for_pmlogger
 
-    newpid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep 'pmlogger.*-P' | \
+    newpid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '/[p]mlogger.*-P' | \
 	grep -v grep | awk '{print $2}'`
 
     if [ -z "$newpid" ]; then
@@ -94,7 +94,7 @@ else
 # Next test: check primary logger restarts with legacy hardlinks present
 # This is a corner case, but can happen.
 #
-    pid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep 'pmlogger.*-P' | \
+    pid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '/[p]mlogger.*-P' | \
     grep -v grep | awk '{print $2}'`
 
     echo === checking with stale legacy hard links
@@ -118,7 +118,7 @@ else
     _service pmlogger start | _filter_pcp_start
     _wait_for_pmlogger
 
-    newpid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep 'pmlogger.*-P' | \
+    newpid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '/[p]mlogger.*-P' | \
 	grep -v grep | awk '{print $2}'`
 
     if [ -z "$newpid" ]; then

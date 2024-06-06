@@ -53,7 +53,7 @@ End-of-File
 echo "Using stap config:" >> $seq.full
 cat $tmp.stap >> $seq.full
 echo "Running pmcd process:" >> $seq.full
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep pmcd >> $seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mcd' >> $seq.full
 
 # check for stap user probing support
 stap -p4 $tmp.stap >$tmp.out 2>&1

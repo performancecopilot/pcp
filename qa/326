@@ -125,13 +125,13 @@ sleep 3
 # need PPID in the 3rd field of the ps(1) output
 #
 pmda_pid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS \
-	  | grep '[p]mdasample' \
+	  | grep '/[p]mdasample' \
 	  | $PCP_AWK_PROG '$3 == "'$pmcd_pid'"	{ print $2 }'`
 if [ -z "$pmda_pid" ]
 then
     echo "Arrgh ... lost pmdasample process?"
     echo "See $seq.full for details"
-    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '([P]ID)|(/[p]mcd)|([p]mda)' >>$seq.full
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '([P]PID)|(/[p]mcd)|(/[p]mda)' >>$seq.full
     [ -n "$pmlogger_pid" ] && $signal -s TERM $pmlogger_pid
     [ -n "$pmval_pid" ] && $signal -s TERM $pmval_pid
     cat $tmp.pmcd.log >>$seq.full
@@ -144,13 +144,13 @@ $signal -s TERM $pmda_pid
 sleep 3 # enough time for pmcd to restart it - once only
 
 pmda_pid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS \
-	  | grep '[p]mdasample' \
+	  | grep '/[p]mdasample' \
 	  | $PCP_AWK_PROG '$3 == "'$pmcd_pid'"	{ print $2 }'`
 if [ -z "$pmda_pid" ]
 then
     echo "Arrgh ... lost pmdasample process?"
     echo "See $seq.full for details"
-    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '([P]ID)|(/[p]m[cd])' >>$seq.full
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]m[cd]' >>$seq.full
     [ -n "$pmlogger_pid" ] && $signal -s TERM $pmlogger_pid
     [ -n "$pmval_pid" ] && $signal -s TERM $pmval_pid
     cat $tmp.pmcd.log >>$seq.full

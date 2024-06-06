@@ -37,7 +37,7 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 # real QA test starts here
 _stop_auto_restart pmlogger
 
-pid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep 'pmlogger.*-P' | \
+pid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '/[p]mlogger.*-P' | \
 grep -v grep | awk '{print $2}'`
 
 if [ ! -S "$PCP_RUN_DIR/pmlogger.$pid.socket" ]; then
@@ -54,7 +54,7 @@ echo === start primary logger whilst disabled ===
 _service pmlogger start | _filter_pcp_start
 _wait_for_pmlogger
 
-newpid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep 'pmlogger.*-P' | \
+newpid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '/[p]mlogger.*-P' | \
     grep -v grep | awk '{print $2}'`
 
 if [ -z "$newpid" ]; then

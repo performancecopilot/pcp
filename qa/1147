@@ -40,7 +40,7 @@ if [ -z "$pid" ]
 then
     echo "Arrgh ... no primary pmlogger?"
     echo "Likely looking processes ..."
-    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '([p]m)|([P]ID)'
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '/[p]m|[P]PID'
     exit
 fi
 _stop_auto_restart pmlogger
