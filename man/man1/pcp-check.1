@@ -13,19 +13,19 @@
 .\" for more details.
 .\"
 .\"
-.TH PMCHECK 1 "PCP" "Performance Co-Pilot"
+.TH PCP-CHECK 1 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmcheck\f1 \- manage the configuration of optional PCP components
+\f3pcp-check\f1 \- manage the configuration of optional PCP components
 .SH SYNOPSIS
-\f3$PCP_BINADM_DIR/pmcheck\f1
+\f3$pcp-check\f1
 [\f3\-a\f1] [\f3\-d\f1] [\f3\-l\f1] [\f3\-n\f1] [\f3\-s\f1]
 [\f3\-v\f1] [\f3\-x\f1] [component ...]
 .br
-\f3$PCP_BINADM_DIR/pmcheck\f1
+\f3$pcp-check\f1
 [\f3\-a\f1] [\f3\-c\f1 script]] [\f3\-d\f1] [\f3\-l\f1] [\f3\-n\f1] [\f3\-s\f1]
 [\f3\-v\f1] [\f3\-x\f1]
 .br
-\f3pcp-check\f1 ...
+\f3$PCP_BINADM_DIR/pmcheck\f1 ...
 .SH DESCRIPTION
 The Performance Co-Pilot (PCP) includes a number of core components
 that are likely to be pre-configured and operational, but it also
@@ -136,9 +136,9 @@ The \fB\-?\fR, \fB\-\-help\fR
 option displays a usage message.
 .PP
 As a convience,
-.B pcp-check
-is an alias for
 .B pmcheck .
+is an alias for
+.BR pcp-check .
 .SH COMPONENT SCRIPTS
 The
 .B pmcheck
