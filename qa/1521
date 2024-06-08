@@ -55,7 +55,6 @@ echo "now=$now" >>$seq.full
 
 _filter()
 {
-    now=`PCP_DERIVED_CONFIG=/dev/null pmprobe -v sample.seconds | cut -d' ' -f3`
     sed \
 	-e "s@$tmp@TMP@g" \
 	-e "/^host:/s/$host/HOST/" \
@@ -67,6 +66,14 @@ NF == 1 && $1 >= 8 && $1 <= 12		{ print "   close to 10.000"; next }
 NF == 1 && $1 >= '$now'-20 && $1 <= '$now'	{ print "   close to <now>"; next }
 					{ print }'
     # end
+}
+
+_filter_now()
+{
+    now=`PCP_DERIVED_CONFIG=/dev/null pmprobe -v sample.seconds | cut -d' ' -f3`
+    $PCP_AWK_PROG '
+NF == 1 && $1 >= '$now'-20 && $1 <= '$now'	{ print "   close to <now>"; next }
+					{ print }'
 }
 
 export PCP_DERIVED_CONFIG=$tmp.config
@@ -95,11 +102,17 @@ do
     echo "$defn" >$tmp.config
     if $do_valgrind
     then
-	_run_valgrind --save-output pminfo -f qa.bad
+	_run_valgrind --save-output pminfo -Dderive -f qa.bad
     else
-	pminfo -f qa.bad >$tmp.out 2>$tmp.err
+	pminfo -Dderive -f qa.bad >$tmp.out 2>$tmp.err
     fi
-    _filter <$tmp.err
+    _filter <$tmp.err \
+    | grep -v '^pmRegisterDerived' \
+    | grep -v '^Derived metric initialization ' \
+    | grep -v '^pmLoadDerivedConfig' \
+    | grep -v '^__dmgetpmid:' \
+    | grep -v '^__dmtraverse:' \
+    # end
     _filter <$tmp.out
 done
 
@@ -135,7 +148,12 @@ do
 	pmval $debug -f4 -w9 -s 3 -t 0.1sec $metric >$tmp.out 2>$tmp.err
     fi
     _filter <$tmp.err
-    _filter <$tmp.out
+    if [ $metric = qa.g09 ]
+    then
+	_filter <$tmp.out | _filter_now
+    else
+	_filter <$tmp.out
+    fi
     debug=''	# one-trip for debugging
 done
 

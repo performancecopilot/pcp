@@ -8,18 +8,23 @@ Syntax/semantic errors ...
 Error: qa.bad: Unknown metric name
 --- qa.bad.b02 = rate(samples.string.hullo)
 bind_expr: error: global derived metric qa.bad.b02: operand: samples.string.hullo: Unknown metric name
+__dmbind: bind_expr failed for metric[2] qa.bad.b02
 Error: qa.bad: Unknown metric name
 --- qa.bad.b03 = delta(sample.bad.unknown)
 bind_expr: error: global derived metric qa.bad.b03: operand (sample.bad.unknown [29.0.54]): Unknown or illegal metric identifier
+__dmbind: bind_expr failed for metric[2] qa.bad.b03
 Error: qa.bad: Unknown metric name
 --- qa.bad.b04 = rate(sample.string.hullo)
 Semantic error: derived metric qa.bad.b04: RATE(sample.string.hullo): Non-arithmetic operand for function
+__dmbind: check_expr failed for metric[2] qa.bad.b04
 Error: qa.bad: Unknown metric name
 --- qa.bad.b05 = delta(sample.event.records)
 Semantic error: derived metric qa.bad.b05: DELTA(sample.event.records): Non-arithmetic operand for function
+__dmbind: check_expr failed for metric[2] qa.bad.b05
 Error: qa.bad: Unknown metric name
 --- qa.bad.b06 = rate(sampledso.sysinfo)
 Semantic error: derived metric qa.bad.b06: RATE(sampledso.sysinfo): Non-arithmetic operand for function
+__dmbind: check_expr failed for metric[2] qa.bad.b06
 Error: qa.bad: Unknown metric name
 
 Evaluations ...
