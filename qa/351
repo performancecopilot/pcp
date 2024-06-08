@@ -33,7 +33,10 @@ pminfo -f sample.long
 
 echo
 echo "Now with the derived metrics ..."
-pminfo -c $tmp.config -f sample.long
+pminfo -Dderive -c $tmp.config -f sample.long 2>$tmp.err >$tmp.out
+cat $tmp.err >>$seq.full
+grep '^bind_expr:' $tmp.err
+cat $tmp.out
 
 # success, all done
 exit

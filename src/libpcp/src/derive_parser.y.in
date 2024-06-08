@@ -704,15 +704,24 @@ bind_expr(__pmContext *ctxp, int n, node_t *np, node_t *parent, int lookup_mode,
 		return new;
 	    }
 	    if (async) {
-		char	errmsg[PM_MAXERRMSGLEN];
-		if (is_global)
-		    pmprintf("bind_expr: error: global derived metric %s: operand: %s: %s\n", registered.mlist[n].name, new->value, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
-		else
-		    pmprintf("bind_expr: error: per-context derived metric %s: operand: %s: %s\n", cp->mlist[n].name, new->value, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
-		pmflush();
+		/*
+		 * We used to unconditionally report the error here,
+		 * but it is better to be silent because the offending
+		 * metric may never be accessed.
+		 * Using -Dderive will expose the error message if needed.
+		 */
+		if (pmDebugOptions.derive) {
+		    char	errmsg[PM_MAXERRMSGLEN];
+		    if (is_global)
+			pmprintf("bind_expr: error: global derived metric %s: operand: %s: %s\n", registered.mlist[n].name, new->value, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+		    else
+			pmprintf("bind_expr: error: per-context derived metric %s: operand: %s: %s\n", cp->mlist[n].name, new->value, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+		    pmflush();
+		}
 	    }
-	    else
+	    else {
 		PM_TPD(derive_errmsg) = "Unknown operand metric";
+	    }
 	    if (is_global)
 		free_expr(new);
 	    return NULL;
@@ -731,7 +740,7 @@ bind_expr(__pmContext *ctxp, int n, node_t *np, node_t *parent, int lookup_mode,
 	if (IS_DERIVED(new->data.info->pmid) &&
 	    parent != NULL && parent->type != N_NOVALUE &&
 	    parent->type != N_INTEGER && parent->type != N_DOUBLE) {
-	    PM_TPD(derive_errmsg) = "Illegal nested derived metric";
+		PM_TPD(derive_errmsg) = "Illegal nested derived metric";
 		if (async) {
 		    if (is_global)
 			report_sem_error(registered.mlist[n].name, np);
@@ -747,16 +756,25 @@ bind_expr(__pmContext *ctxp, int n, node_t *np, node_t *parent, int lookup_mode,
 	sts = pmLookupDesc_ctx(ctxp, PM_LOCKED, new->data.info->pmid, &new->desc);
 	if (sts < 0) {
 	    if (async) {
-		char	strbuf[20];
-		char	errmsg[PM_MAXERRMSGLEN];
-		if (is_global)
-		    pmprintf("bind_expr: error: global derived metric %s: operand (%s [%s]): %s\n", registered.mlist[n].name, new->value, pmIDStr_r(new->data.info->pmid, strbuf, sizeof(strbuf)), pmErrStr_r(sts, errmsg, sizeof(errmsg)));
-		else
-		    pmprintf("bind_expr: error: per-context derived metric %s: operand (%s [%s]): %s\n", cp->mlist[n].name, new->value, pmIDStr_r(new->data.info->pmid, strbuf, sizeof(strbuf)), pmErrStr_r(sts, errmsg, sizeof(errmsg)));
-		pmflush();
+		/*
+		 * We used to unconditionally report the error here,
+		 * but it is better to be silent because the offending
+		 * metric may never be accessed.
+		 * Using -Dderive will expose the error message if needed.
+		 */
+		if (pmDebugOptions.derive) {
+		    char	strbuf[20];
+		    char	errmsg[PM_MAXERRMSGLEN];
+		    if (is_global)
+			pmprintf("bind_expr: error: global derived metric %s: operand (%s [%s]): %s\n", registered.mlist[n].name, new->value, pmIDStr_r(new->data.info->pmid, strbuf, sizeof(strbuf)), pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+		    else
+			pmprintf("bind_expr: error: per-context derived metric %s: operand (%s [%s]): %s\n", cp->mlist[n].name, new->value, pmIDStr_r(new->data.info->pmid, strbuf, sizeof(strbuf)), pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+		    pmflush();
+		}
 	    }
-	    else
-		PM_TPD(derive_errmsg) = "Metadata for operand metric not available";
+	    else {
+		 PM_TPD(derive_errmsg) = "Metadata for operand metric not available";
+	    }
 	    if (is_global)
 		free_expr(new);
 	    return NULL;
