@@ -229,10 +229,10 @@ log advisory on default {
 End-of-File
 }
 
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy' >>$here/$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy( |$)' >>$here/$seq.full
 _service pmproxy stop >/dev/null 2>&1
 $sudo $signal -s KILL -a pmproxy >/dev/null 2>&1
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy' >>$here/$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy( |$)' >>$here/$seq.full
 
 mkdir -p $tmp.rundir
 export PCP_RUN_DIR=$tmp.rundir
@@ -283,7 +283,7 @@ touch $tmp.started
 
 export PMPROXY_HOST=localhost
 $PCP_BINADM_DIR/pmcd_wait -t 5sec -h localhost@localhost
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy' >>$here/$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy( |$)' >>$here/$seq.full
 cat $tmp.log >> $here/$seq.full
 
 # on a slow VM, valgrind can be painful, so a little more patience may

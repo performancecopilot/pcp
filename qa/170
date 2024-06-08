@@ -46,7 +46,7 @@ else
     echo 'Error: $PCP_LOG_DIR/pmcd/pmcd.log not created' | tee -a $here/$seq.full
     date >>$here/$seq.full
     ls -l $PCP_LOG_DIR/pmcd >>$here/$seq.full
-    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mcd' >>$here/$seq.full
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mcd( |$)' >>$here/$seq.full
     
     status=1
 fi

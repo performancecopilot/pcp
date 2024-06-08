@@ -50,7 +50,7 @@ _report()
     if [ ! -d $PCP_ARCHIVE_DIR/$seq ]
     then
 	echo "Arrgh: directory $PCP_ARCHIVE_DIR/$seq not created"
-	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger'
+	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger( |$)'
 	return
     fi
 

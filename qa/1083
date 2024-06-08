@@ -47,19 +47,19 @@ _service pmcd restart >>$here/$seq.full 2>&1
 date >>$here/$seq.full 2>&1
 _wait_for_pmcd
 date >>$here/$seq.full 2>&1
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '/[p]mcd|[P]PID' >>$here/$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '/[p]mcd|[P]PID( |$)' >>$here/$seq.full
 
 # real QA test starts here
 _service pmcd stop >>$here/$seq.full 2>&1
 _wait_for_pmcd_stop
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '/[p]mcd|[P]PID' >>$here/$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '/[p]mcd|[P]PID( |$)' >>$here/$seq.full
 
 echo "expect failure ..."
 pmprobe hinv.ncpu
 
 _service pmcd start >>$here/$seq.full 2>&1
 _wait_for_pmcd
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '/[p]mcd|[P]PID' >>$here/$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '/[p]mcd|[P]PID( |$)' >>$here/$seq.full
 
 echo "expect success ..."
 pmprobe hinv.ncpu

@@ -33,7 +33,7 @@ _restore_auto_restart pmlogger
 #
 st=0; cnt=0; while [ $st -ne 1 ] ; do 
     sleep 10
-    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '/[p]mlogger_check' > $tmp.ps
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '/[p]mlogger_check( |$)' > $tmp.ps
     test -s $tmp.ps
     st=$?
     cnt=`expr $cnt + 1`; 

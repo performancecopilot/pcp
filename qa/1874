@@ -101,7 +101,7 @@ then
     cat $tmp.err
 fi
 
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy' >> $seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy( |$)' >> $seq.full
 redis-cli $options keys pcp:* >> $seq.full
 cat $tmp.pmproxy.log >> $seq.full
 

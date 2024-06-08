@@ -92,7 +92,7 @@ pmproxy_pid=$!
 # check pmproxy has started and is available for requests
 pmcd_wait -h localhost@localhost:$proxyport -v -t 5sec
 
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy' >> $seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy( |$)' >> $seq.full
 redis-cli $options keys pcp:* >> $seq.full
 cat $tmp.pmproxy.log >> $seq.full
 

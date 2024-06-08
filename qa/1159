@@ -55,13 +55,13 @@ pid=$!
 
 echo "pmlogger PID=$pid" >>$here/$seq.full
 
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger' >>$here/$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger( |$)' >>$here/$seq.full
 
 sleep 4
 kill -INT $pid
 wait
 
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger' >>$here/$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger( |$)' >>$here/$seq.full
 
 # Counting is real tricky here ... pmlogger may split the one group in
 # the config file into multiple pmFetch's, so just count the number of

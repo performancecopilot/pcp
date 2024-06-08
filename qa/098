@@ -127,7 +127,7 @@ logger_pid=$pid
 _wait_for_pmlogger $pid $tmp.log
 
 echo "logger_pid=$pid" >>$here/$seq.full
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '/[p]mlogger' >>$here/$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '/[p]mlogger( |$)' >>$here/$seq.full
 pmlc $logger_pid </dev/null >>$here/$seq.full
 
 sleep 2

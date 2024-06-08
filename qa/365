@@ -206,7 +206,7 @@ then
     :
 else
     echo "pmcd check FAILED"
-    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mcd'
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mcd( |$)'
     status=1
 fi
 echo "check primary pmlogger is running" >>$seq.full
@@ -217,6 +217,7 @@ then
     :
 else
     echo "primary pmlogger check FAILED"
+    # Note: no ( |$) for egrep, want to find pmlogger_* as well
     $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger'
     status=1
 fi

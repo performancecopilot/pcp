@@ -40,7 +40,8 @@ if [ -z "$pid" ]
 then
     echo "Arrgh ... no primary pmlogger?"
     echo "Likely looking processes ..."
-    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '/[p]m|[P]PID'
+    # Note: no ( |$) for egrep, want to find pmlogger_* as well
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger'
     exit
 fi
 _stop_auto_restart pmlogger

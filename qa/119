@@ -101,14 +101,14 @@ $sudo mkdir -p $LOGGING_DIR/${myhost}-two >/dev/null 2>&1
 $sudo mkdir -p $LOGGING_DIR/no.such.host.pcp.io >/dev/null 2>&1
 id pcp >/dev/null 2>&1 && $sudo chown -R pcp:pcp $LOGGING_DIR
 echo "+++ before pcp start ..." >>$seq.full
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '/[p]mlogger' >>$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '/[p]mlogger( |$)' >>$seq.full
 echo "+++" >>$seq.full
 _service pcp start >$tmp.out 2>&1
 cat $tmp.out >>$seq.full
 _wait_for_pmcd
 _wait_for_pmlogger
 echo "+++ after pcp start ..." >>$seq.full
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '/[p]mlogger' >>$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '/[p]mlogger( |$)' >>$seq.full
 echo "+++" >>$seq.full
 
 # avoid race with pmloggers not being started before pmlogger_check
@@ -134,7 +134,7 @@ then
 	    cat $log
 	fi
     done
-    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '/[p]mlogger'
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '/[p]mlogger( |$)'
     exit
 fi
 
@@ -154,7 +154,7 @@ then
 	    cat $log
 	fi
     done
-    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '/[p]mlogger'
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '/[p]mlogger( |$)'
     exit
 fi
 
@@ -162,13 +162,13 @@ fi
 echo
 echo "=== pmlogger_check ==="
 echo "+++ before pmlogger_check ..." >>$seq.full
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '/[p]mlogger' >>$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '/[p]mlogger( |$)' >>$seq.full
 echo "+++" >>$seq.full
 echo >>$seq.full
 echo "=== pmlogger_check ===" >>$seq.full
 $sudo -u $PCP_USER -g $PCP_GROUP $PCP_BINADM_DIR/pmlogger_check -l $PMCHECK_LOG
 echo "+++ after pmlogger_check ..." >>$seq.full
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '/[p]mlogger' >>$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '/[p]mlogger( |$)' >>$seq.full
 echo "+++" >>$seq.full
 _filter < $PMCHECK_LOG
 cat $PMCHECK_LOG >>$seq.full

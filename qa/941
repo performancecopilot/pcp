@@ -50,7 +50,7 @@ then
     cat $tmp.pids
     $PCP_PS_PROG $PCP_PS_ALL_FLAGS >$tmp.ps.out
     echo "$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep pmcd ..."
-    grep -E '[P]PID|/[p]mcd' <$tmp.ps.out
+    grep -E '[P]PID|/[p]mcd( |$)' <$tmp.ps.out
     echo "num_pmcds=$num_pmcds (should be 1)"
 fi
 case "$num_pmcds"

@@ -18,7 +18,7 @@ _check_series
 _cleanup()
 {
     echo "Entering _cleanup ..." >>$here/$seq.full
-    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy' >>$here/$seq.full
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy( |$)' >>$here/$seq.full
     cat $PCP_LOG_DIR/pmproxy/pmproxy.log >>$here/$seq.full
     cd $here
     _restore_auto_restart pmproxy
@@ -40,7 +40,7 @@ _cleanup()
 	_service pmproxy stop >>$here/$seq.full 2>&1
     fi
     echo "Exiting _cleanup ..." >>$here/$seq.full
-    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy' >>$here/$seq.full
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy( |$)' >>$here/$seq.full
     $sudo rm -rf $tmp $tmp.*
 }
 
@@ -189,7 +189,7 @@ _service pmproxy start >>$here/$seq.full 2>&1
 _wait_for_pmproxy
 
 echo "After initial _service start ..." >>$here/$seq.full
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy' >>$here/$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy( |$)' >>$here/$seq.full
 
 port=44322
 

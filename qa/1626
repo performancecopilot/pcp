@@ -104,7 +104,7 @@ while true; do
     then
 	echo FAILED sz=\"$sz\" after $count iterations
 	pminfo -f pmproxy >>$seq.full
-	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy' >>$seq.full
+	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy( |$)' >>$seq.full
 	pminfo -f pmcd.agent.status >>$seq.full
 	exit
     fi
@@ -138,7 +138,7 @@ while true; do
     then
 	echo FAILED partial=\"$partial\" after $count iterations
 	pminfo -f pmproxy >>$seq.full
-	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy' >>$seq.full
+	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy( |$)' >>$seq.full
 	pminfo -f pmcd.agent.status >>$seq.full
 	exit
     fi
@@ -153,7 +153,7 @@ if [ "$partial" != 0 ]
 then
     echo FAIL \"$partial\" partial reads, should be zero
     pminfo -f pmproxy >>$seq.full
-    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy' >>$seq.full
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy( |$)' >>$seq.full
     pminfo -f pmcd.agent.status >>$seq.full
     exit
 fi

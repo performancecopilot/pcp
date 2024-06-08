@@ -83,7 +83,8 @@ _await_logger()
 	    # ...but meant to die
 	    echo
 	    echo "primary pmlogger won't die, can't do QA test, ...giving up!"
-	    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '/[p]m|[P]PID'
+	    # Note: no ( |$) for egrep, want to find pmlogger_* as well
+	    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger'
 	    exit 1
 	fi
     else
@@ -97,7 +98,8 @@ _await_logger()
 	    cat $log
 	    echo "pmlogger sh log:"
 	    cat $tmp/sh.log
-	    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '/[p]m|[P]PID'
+	    # Note: no ( |$) for egrep, want to find pmlogger_* as well
+	    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger'
 	    exit 1
 	else
 	    echo "primary pmlogger terminated"

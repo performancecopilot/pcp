@@ -36,7 +36,7 @@ else
     if [ "`wc -l <$tmp.pid | sed -e 's/ //g'`" -gt 1 ]
     then
 	echo "Error: multiple pmcd processes running"
-	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mcd'
+	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mcd( |$)'
 	error=true
     fi
     if [ -d $PCP_RUN_DIR ]

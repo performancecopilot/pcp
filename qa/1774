@@ -76,7 +76,7 @@ remotestate=`pmlogctl status | tee -a $seq.full | $PCP_AWK_PROG '$1 == "'"$remot
 echo "remotestate=$remotestate" >>$seq.full
 if [ "$remotestate" != dead ]; then
     echo "FAILED to kill pmlogger (pid=$remotepid) for host $remote"
-    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID)|/[p]mlogger' >>$seq.full
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID)|/[p]mlogger( |$)' >>$seq.full
     exit
 fi
 
@@ -90,7 +90,7 @@ remotestate=`pmlogctl status | tee -a $seq.full | $PCP_AWK_PROG '$1 == "'"$remot
 echo "remotestate=$remotestate" >>$seq.full
 if [ "$remotestate" != running ]; then
     echo FAILED to restart dead pmlogger for host $remote
-    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger' >>$seq.full
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger( |$)' >>$seq.full
     exit
 fi
 

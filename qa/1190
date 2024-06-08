@@ -158,7 +158,7 @@ else
     echo "Count of pmcd's ... BAD ($n not 1)"
     echo "From _get_pids_by_name"
     sed -e 's/^/ /' <$tmp.pids
-    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mcd |[p]mcd$' \
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mcd( |$)' \
     | sed -e 's/^/  /'
     _systemctl_status pmcd
     status=1

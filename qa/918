@@ -50,7 +50,7 @@ _wait_for_pmcd
 
 # real QA test starts here
 old_pid=`_get_pids_by_name pmcd`
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mcd' >>$here/$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mcd( |$)' >>$here/$seq.full
 echo "old_pid=$old_pid" >>$here/$seq.full
 
 echo "expect success ..."
@@ -60,7 +60,7 @@ $sudo $PCP_BINADM_DIR/pmsignal -a -s TERM pmcd
 _wait_for_pmcd
 
 new_pid=`_get_pids_by_name pmcd`
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mcd' >>$here/$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mcd( |$)' >>$here/$seq.full
 echo "new_pid=$new_pid" >>$here/$seq.full
 
 if [ "$new_pid" != "$old_pid" ]

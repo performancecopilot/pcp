@@ -748,12 +748,12 @@ _wait_for_pmcd()
 		cat $PCP_LOG_DIR/pmcd/pmcd.log
 
 		echo "likely looking processes ..."
-		$PCP_PS_PROG "$PCP_PS_ALL_FLAGS" | grep -E "/[p]m|[P]PID"
+		$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID]|/[p]mcd( |$)'
 		;;
 	    *)
 		# assume a remote PMCD
 		#
-		ssh pcpqa@$__host "sh -c '. \$PCP_DIR/etc/pcp.env; echo; echo "=== pmcd.log ==="; [ -f \$PCP_LOG_DIR/pmcd/pmcd.log ] && cat \$PCP_LOG_DIR/pmcd/pmcd.log; [ -f \$PCP_LOG_DIR/pmcd.log ] && cat \$PCP_LOG_DIR/pmcd.log; echo; echo likely looking processes ...; ( $PCP_PS_PROG \$PCP_PS_ALL_FLAGS | grep -E \"/[p]m|[P]PID\" )'" </dev/null
+		ssh pcpqa@$__host "sh -c '. \$PCP_DIR/etc/pcp.env; echo; echo "=== pmcd.log ==="; [ -f \$PCP_LOG_DIR/pmcd/pmcd.log ] && cat \$PCP_LOG_DIR/pmcd/pmcd.log; [ -f \$PCP_LOG_DIR/pmcd.log ] && cat \$PCP_LOG_DIR/pmcd.log; echo; echo likely looking processes ...; ( \$PCP_PS_PROG \$PCP_PS_ALL_FLAGS | grep -E \"[P]PID|/[p]mcd( |\\\$)\" )'" </dev/null
 		;;
 	esac
 	_systemctl_status pmcd
@@ -797,7 +797,7 @@ _wait_for_pmcd_stop()
     else
 	date
 	echo "Arrgh ... pmcd failed to stop after $__can_wait seconds"
-	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '/[p]mcd|[P]PID'
+	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mcd( |$)'
 	echo "=== successful pmprobes stdout ==="
 	cat $tmp._wait_for_pmcd_stop.out.all
 	echo "=== successful pmprobes stderr ==="
@@ -899,7 +899,7 @@ _wait_for_pmlogger()
     rm -f $tmp._wait_for_pmlogger.pmlc
     while [ $__i -lt $__maxdelay ]
     do
-	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E "(/[p]mlogger|[P]PID)" >>$tmp._wait_for_pmlogger.pmlc
+	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger( |$)' >>$tmp._wait_for_pmlogger.pmlc
 	echo "pmlc $__pid" >>$tmp._wait_for_pmlogger.pmlc
 	# May need sudo -u pcp here in case we're doing credentials checks
 	# in pmlogger and this is the primary pmlogger (started by user
@@ -1018,7 +1018,8 @@ _wait_for_pmlogger()
 	done
 	echo
 	echo "++ Likely looking processes ..."
-	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '/[p]m|[P]PID'
+	# Note: no ( |$) for egrep, want to find pmlogger_* as well
+	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger'
 	status=0
 	rm -f $tmp._wait_for_pmlogger.*
 	exit $status
@@ -1069,7 +1070,7 @@ _wait_pmlogger_end()
 	# pmlogger process exists, so wait for PID file to go away
 	#
 	echo "pmlogger process $__pid present ..." >>$here/$seq.full
-	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E "[P]PID|/[p]mlogger|$__pid" >>$here/$seq.full
+	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E "[P]PID|/[p]mlogger( |$)|$__pid" >>$here/$seq.full
     else
 	# pmlogger process is not here, warn if PID file is here,
 	# and we're done
@@ -1093,7 +1094,7 @@ _wait_pmlogger_end()
 	    then
 		echo "_wait_pmlogger_end: failed to see $PCP_TMP_DIR/pmlogger/$__pid removed after 100 iterations"
 		cat "$PCP_TMP_DIR/pmlogger/$__pid"
-		$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E "[P]PID|/[p]mlogger|$__pid"
+		$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E "[P]PID|/[p]mlogger( |$)|$__pid"
 		_systemctl_status pmlogger
 		#debug# set +x
 		return
@@ -1160,7 +1161,8 @@ _wait_pmcd_end()
 	# no $PCP_RUN_DIR/pmcd.pid file, try ps(1) the hard way
 	#
 	__pid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS \
-	| sed -n -e '/\[p]mcd /{
+	| sed -n -e 's/$/ /' -e '/\[p]mcd /{
+s/ $//
 s/^[^ 	]*//
 s/^[ 	]*//
 s/[ 	].*//
@@ -1239,7 +1241,8 @@ _wait_pmie_end()
 	# Note, this will wait for ALL pmie's running on the local machine.
 	#
 	__pidlist=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS \
-	| sed -n -e '/\[p]mie /{
+	| sed -n -e 's/$/ /' -e '/\[p]mie /{
+s/ $//
 s/^[^ 	]*//
 s/^[ 	]*//
 s/[ 	].*//
@@ -1270,7 +1273,7 @@ p
 	    if [ "$__i" -ge 100 ]
 	    then
 		echo "_wait_pmie_end: failed to see pid(s) $__pidlist exit after 100 iterations"
-		$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mie'
+		$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mie( |$)'
 		_systemctl_status pmie
 		#debug# set +x
 		break
@@ -1321,7 +1324,7 @@ _wait_for_pmproxy()
 	then
 	    echo "pmproxy failed to start on port $__port after $__maxdelay seconds"
 	    echo "likely looking processes ..."
-	    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy'
+	    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy( |$)'
 	    if [ -f "$__logfile" ]
 	    then
 		echo "pmproxy logfile ($__logfile) ..."
@@ -1382,7 +1385,8 @@ _wait_pmproxy_end()
 	# no $PCP_RUN_DIR/proxy.pid file, try ps(1) the hard way
 	#
 	__pid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS \
-	| sed -n -e '/\[p]mproxy /{
+	| sed -n -e 's/$/ /' -e '/\[p]mproxy /{
+s/ $//
 s/^[^ 	]*//
 s/^[ 	]*//
 s/[ 	].*//

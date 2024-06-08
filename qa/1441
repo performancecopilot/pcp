@@ -78,7 +78,7 @@ _cleanup()
 _wait_for_new_pmlogger()
 {
     echo "_wait_for_new_pmlogger previous PID $1 ..." >>$seq.full
-    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger' >>$seq.full
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger( |$)' >>$seq.full
     max_delay=15
     i=0
     while [ $i -lt $max_delay ]
@@ -91,14 +91,14 @@ _wait_for_new_pmlogger()
     if [ -n "$pid" -a "$pid" != "$1" ]
     then
 	echo "found PID $pid (after ${i}s) ..." >>$seq.full
-	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger' >>$seq.full
+	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger( |$)' >>$seq.full
     else
 	echo "Failed!" >>$seq.full
 	echo "Arrgh: failed to see new pmlogger after $max_delay seconds"
 	date
 	ls -l $PCP_RUN_DIR/pmlogger.pid
 	ls -l $PCP_TMP_DIR/pmlogger
-	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger'
+	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger( |$)'
 	status=1
     fi
 }
@@ -115,7 +115,7 @@ _wait_for_new_pmlogger()
 _wait_for_new_pmie()
 {
     echo "_wait_for_new_pmie previous PID $1" >>$seq.full
-    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mie' >>$seq.full
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mie( |$)' >>$seq.full
     max_delay=130
     i=0
     while [ $i -lt $max_delay ]
@@ -128,14 +128,14 @@ _wait_for_new_pmie()
     if [ -n "$pid" -a "$pid" != "$1" ]
     then
 	echo "found PID $pid (after ${i}s) ..." >>$seq.full
-	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mie' >>$seq.full
+	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mie( |$)' >>$seq.full
     else
 	echo "Failed!" >>$seq.full
 	echo "Arrgh: failed to see new pmie after $max_delay seconds"
 	date
 	ls -l $PCP_RUN_DIR/pmie.pid
 	ls -l $PCP_TMP_DIR/pmie
-	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mie'
+	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mie( |$)'
 	$sudo -u pcp kill -USR1 "$1"
 	sleep 1
 	echo "=== $oldhostname log ===" >>$seq.full
@@ -209,14 +209,14 @@ then
 	echo "Botch: $PCP_RUN_DIR/pmie.pid empty?"
 	ls -l $PCP_RUN_DIR/pmie.pid
 	od $PCP_RUN_DIR/pmie.pid
-	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mie'
+	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mie( |$)'
 	cat $PCP_VAR_LOG/pmie/`hostname`/pmie.log
 	_cleanup
 	exit 1
     fi
 else
     echo "Botch: $PCP_RUN_DIR/pmie.pid not found for (restarted) old primary pmie"
-    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mie'
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mie( |$)'
     cat $PCP_VAR_LOG/pmie/`hostname`/pmie.log
     _cleanup
     exit 1

@@ -41,13 +41,13 @@ $tmp.pmcd/pmcd 60 &
 pid=$!
 echo "Fake pmcd pid=$pid" >>$here/$seq.full
 echo "Before restart ..." >>$here/$seq.full
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mcd' >>$here/$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mcd( |$)' >>$here/$seq.full
 echo "_get_pids_by_name pmcd -> `_get_pids_by_name pmcd`" >>$here/$seq.full
 _service pmcd restart 2>&1 | _filter_pcp_start
 _wait_for_pmcd
 _wait_for_pmlogger
 echo "After restart ..." >>$here/$seq.full
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mcd' >>$here/$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mcd( |$)' >>$here/$seq.full
 $PCP_ECHO_PROG $PCP_ECHO_N "Local pmcd count: ""$PCP_ECHO_C"
 $PCP_PS_PROG $PCP_PS_ALL_FLAGS \
 | grep "$tmp.pmcd/[p]mcd" \

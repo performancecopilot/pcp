@@ -114,7 +114,7 @@ _wait_for_pmproxy
 pmproxy_pid=`_get_pids_by_name -a pmproxy`
 [ -z "$pmproxy_pid" ] && echo === pmproxy not running && exit
 date >>$seq.full
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy' >>$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy( |$)' >>$seq.full
 echo "pmproxy_pid=$pmproxy_pid" >>$seq.full
 
 #debug# echo "sudo gdb -p $pmproxy_pid"
@@ -134,7 +134,7 @@ then
     $sudo ls -l /proc/$pmproxy_pid/fd | grep 'testarchive.*(deleted)'
 else
     echo "Arrgh: pmproxy pid=$pmproxy_pid has vanished" | tee -a $seq.full
-    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy' >>$seq.full
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy( |$)' >>$seq.full
     for log in $PCP_LOG_DIR/pmproxy/pmproxy.log*
     do
 	if [ -f "$log" ]
@@ -214,7 +214,7 @@ while true; do
 	    echo "Arrgh ... curlogvol not found from ..."
 	    $sudo ls -l /proc/$pmproxy_pid/fd/
 	    echo "pmproxy_pid=$pmproxy_pid"
-	    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy'
+	    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy( |$)'
 	    exit
 	else
 	    retry=`expr $retry + 1`
@@ -245,7 +245,7 @@ then
     echo "Arrgh ... newlogvol not found from ..."
     $sudo ls -l /proc/$pmproxy_pid/fd/
     echo "pmproxy_pid=$pmproxy_pid"
-    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy'
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy( |$)'
     exit
 fi
 if [ `expr $curlogvol + 1` -ne $newlogvol ]
