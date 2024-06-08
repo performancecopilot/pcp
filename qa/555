@@ -176,10 +176,10 @@ setup()
 
 # real QA test starts here
 echo "ps before setup ..." >>/tmp/syslog.full
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID)|/[s]yslog' >>/tmp/syslog.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[s]yslog( |$)' >>/tmp/syslog.full
 setup
 echo "ps after setup ..." >>/tmp/syslog.full
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID)|/[s]yslog' >>/tmp/syslog.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[s]yslog( |$)' >>/tmp/syslog.full
 
 # syslog	logger -p
 # 5D		daemon.notice		<--- default
