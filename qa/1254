@@ -41,6 +41,18 @@ s/  *"green"/ <COLOR>/
     # end
 }
 
+_filter_err()
+{
+    sed \
+	-e '/^pmLoadDerivedConfig/d' \
+	-e '/^pmRegisterDerived/d' \
+	-e '/^pmAddDerived/d' \
+	-e '/^pmGetChildren/d' \
+	-e '/^Derived metric initialization from /d' \
+	-e '/^__dm/d' \
+    # end
+}
+
 status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
@@ -58,11 +70,11 @@ export PCP_DERIVED_CONFIG=$tmp.conf
 
 if [ "$1" = "--valgrind" ]
 then
-    _run_valgrind --save-output src/ctx_derive -P testme.big testme.lights testme.bad
+    _run_valgrind --save-output src/ctx_derive -Dderive -P testme.big testme.lights testme.bad
 else
-    src/ctx_derive -P testme.big testme.lights testme.bad >$tmp.out 2>$tmp.err
+    src/ctx_derive -Dderive -P testme.big testme.lights testme.bad >$tmp.out 2>$tmp.err
 fi
-_filter <$tmp.err
+_filter_err <$tmp.err
 _filter <$tmp.out
 
 # success, all done

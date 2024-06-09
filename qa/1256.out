@@ -2,7 +2,7 @@ QA output created by 1256
 QA output created by 1254 --valgrind
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: src/ctx_derive -P testme.big testme.lights testme.bad
+Command: src/ctx_derive -Dderive -P testme.big testme.lights testme.bad
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
