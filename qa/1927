@@ -83,7 +83,7 @@ cat $tmp.out $tmp.err | _filter_sockets
 
 echo "Check the values for v6only metric are 0 or 1 ..."
 pminfo -f network.persocket.v6only > $tmp.out 2> $tmp.err
-cat $tmp.out $tmp.err | _filter_sockets | grep -E -v 'value [01]$' | sed -e '/^$/d'
+cat $tmp.out $tmp.err | tee -a $here/$seq.full | _filter_sockets | grep -E -v 'value [01]$' | sed -e '/^$/d'
 
 pmdasockets_remove
 status=0
