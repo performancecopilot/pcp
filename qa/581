@@ -280,6 +280,7 @@ _filter_pmie_log <$tmp.out \
     -e '/^NETWORK vde[0-9][0-9]*$/d' \
     -e '/^NETWORK veth[a-f0-9][a-f0-9]*$/d' \
     -e '/^NETWORK vnet[0-9][0-9]*$/d' \
+    -e '/^NETWORK vio[0-9][0-9]*$/d' \
     -e '/^NETWORK virbr[0-9][0-9]*$/d' \
     -e '/^NETWORK virbr[0-9][0-9]*-nic$/d' \
     -e '/^NETWORK wlan[0-9][0-9]*$/d' \
