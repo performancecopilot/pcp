@@ -124,7 +124,11 @@ End-of-File
 		pmsleep 0.5sec
 		$sudo $signal -s TERM $logger_pid
 		_wait_pmlogger_end $logger_pid
+		echo "--- tmp.out ---" >>$seq.full
 		cat $tmp.out >>$seq.full
+		echo "--- tmp.err ---" >>$seq.full
+		cat $tmp.err >>$seq.full
+		echo "--- end" >>$seq.full
 		cat $tmp.err $tmp.out | _filter_pmlogger
 		if [ -s $tmp.0 ]
 		then
