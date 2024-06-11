@@ -125,6 +125,7 @@ _filter()
 		-e '/rc\[[0-9]*]: .*not permanently enabled\./d' \
 		-e '/rc\[[0-9]*]: .*run the following as root:/d' \
 		-e '/rc\[[0-9]*]: .*systemctl enable pmlogger\.service/d' \
+		-e '/rc\[[0-9]*]: .*\/pmsignal: .* No such process/d' \
 	    # end
 	    ;;
 
