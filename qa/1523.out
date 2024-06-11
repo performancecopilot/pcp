@@ -1,0 +1,44 @@
+QA output created by 1523
+Note: timezone set to local timezone of host "brolley-t530" from archive
+
+Note: multi-archive context with 4 archives
+--- archive archives/multi/20150508.11.44 ---
+Log Label (Log Format Version 2)
+Performance metrics from host brolley-t530
+    commencing Fri May  8 11:44:04.631443 2015
+    ending     Fri May  8 11:46:04.637523 2015
+Archive timezone: EDT+4
+PID for pmlogger: 374
+--- archive archives/multi/20150508.11.46 ---
+Log Label (Log Format Version 2)
+Performance metrics from host brolley-t530
+    commencing Fri May  8 11:46:58.580333 2015
+    ending     Fri May  8 11:49:58.585469 2015
+Archive timezone: EDT+4
+PID for pmlogger: 2555
+--- archive archives/multi/20150508.11.50 ---
+Log Label (Log Format Version 2)
+Performance metrics from host brolley-t530
+    commencing Fri May  8 11:50:27.770262 2015
+    ending     Fri May  8 11:57:27.763104 2015
+Archive timezone: EDT+4
+PID for pmlogger: 4516
+--- archive archives/multi/20150508.11.57 ---
+Log Label (Log Format Version 2)
+Performance metrics from host brolley-t530
+    commencing Fri May  8 11:57:54.522484 2015
+    ending     Fri May  8 11:59:54.528286 2015
+Archive timezone: EDT+4
+PID for pmlogger: 6819
+
+=== -S @11:47:00 -T @11:55:00 ===
+11:47:58.589336 215 metrics
+11:48:58.587003 215 metrics
+11:49:58.585469 215 metrics
+11:49:58.586469  <mark>
+11:50:27.770262 3 metrics
+11:50:27.774799 62 metrics
+11:51:27.766628 215 metrics
+11:52:27.767423 215 metrics
+11:53:27.765362 215 metrics
+11:54:27.773457 215 metrics
