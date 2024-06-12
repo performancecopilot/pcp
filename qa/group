@@ -1989,6 +1989,7 @@ x11
 1520 other libpcp local pmconfig
 1521 derive local
 1522 derive local valgrind
+1523 pmlogdump local multi-archive
 1530 pmda.zfs local valgrind
 1531 pmda.zfs local valgrind
 1532 pmda.zfs local
