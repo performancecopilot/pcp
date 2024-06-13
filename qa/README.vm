@@ -23,6 +23,18 @@ These notes should be read in conjunction with the README notes.
       $ for port in `seq 4320 4350`
           do sudo ufw allow $port/tcp comment PCPQA
 	done
+    If firewalld(1) is in charge, this should work:
+      $ sudo firewall-cmd --zone=public --add-service=pmcd --permanent
+      $ sudo firewall-cmd --zone=public --add-service=pmproxy --permanent
+      $ sudo firewall-cmd --zone=public --add-service=pmwebapi --permanent
+      # and for https://...
+      $ sudo firewall-cmd --zone=public --add-service=pmwebapis --permanent
+      $ sudo firewall-cmd --zone=public --add-service=mdns --permanent
+      $ sudo firewall-cmd --zone=public --add-port=4320-4350/tcp --permanent
+      $ sudo systemctl restart firewalld
+      # check
+      $ sudo firewall-cmd --zone=public --list-services
+      $ sudo firewall-cmd --zone=public --list-ports
 (h) git clone the PCP tree
 (i) cd qa/admin and run list-packages -p until you're tired ...
     - the files in qa/admin/package-lists are the inventories for each
