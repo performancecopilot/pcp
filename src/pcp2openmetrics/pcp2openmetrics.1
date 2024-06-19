@@ -181,6 +181,13 @@ Maximum time (in seconds) when sending a HTTP POST.
 Corresponding command line option is \fB\-o\fP.
 Defaults to \fB2.5\fP seconds.
 .RE
+.PP
+no-comment (boolean)
+.RS 4
+Omit # PCP5 comment line. Omits header for some metric
+data such as type, instance domain, and semantics.
+Corresponding command line option is \fB\-x\fP.
+Defaults to \fBno\fP.
 .SH OPTIONS
 The available command line options are:
 .TP 5
@@ -342,9 +349,6 @@ Fetch performance metrics from
 on
 .IR host ,
 rather than from the default localhost.
-.TP
-\fB\-H\fR, \fB\-\-no\-header\fR
-Do not print any headers.
 .TP
 \fB\-i\fR \fIinstances\fR, \fB\-\-instances\fR=\fIinstances\fR
 Retrieve and report only the specified metric
@@ -605,8 +609,8 @@ and
 \fB\-V\fR, \fB\-\-version\fR
 Display version number and exit.
 .TP
-\fB\-x\fR, \fB\-\-with\-extended\fR
-Write extended information.
+\fB\-x\fR, \fB\-no\-comment\fR
+Omit # PCP5 comment line
 .TP
 \fB\-X\fR, \fB\-\-with\-everything\fR
 Write everything known about metrics, including PCP internal IDs.
