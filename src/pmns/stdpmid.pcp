@@ -141,6 +141,7 @@ OVERHEAD	158
 RESCTRL		159
 FARM		160 	/* Seagate vendor specific Field Accessible Reliability Metrics log */
 UWSGI		161
+AMDGPU		162
 ### FREE SLOTS ###
 SCHIZO		241
 SLOW_PYTHON	242

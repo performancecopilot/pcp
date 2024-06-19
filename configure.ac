@@ -2087,6 +2087,15 @@ then
 fi
 AC_SUBST(enable_secure)
 
+PKG_CHECK_MODULES([libdrm], [libdrm >= 2.0], [have_drm=true], [have_drm=false])
+if $have_drm
+then
+	PKG_CHECK_MODULES([libdrm_amdgpu], [libdrm_amdgpu >= 1], [have_amdgpu=true], [have_amdgpu=false])
+else
+	have_amdgpu=false
+fi
+AC_SUBST(PMDA_AMDGPU, [$have_amdgpu])
+
 PKG_CHECK_MODULES([libuv], [libuv >= 1.0], [have_libuv=true], [have_libuv=false])
 AC_SUBST(HAVE_LIBUV, [$have_libuv])
 AC_CHECK_LIB(uv, uv_pipe_chmod,
