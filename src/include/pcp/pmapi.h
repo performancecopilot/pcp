@@ -1266,6 +1266,7 @@ typedef struct {
     int	appl9;		/* Application-specific flag 9 */
     int	tls;		/* Transport Layer Security operations */
     int	misc;		/* Miscellaneous odds and sods */
+    int	qed;		/* Methods in libpcp_qed */
 } pmdebugoptions_t;
 
 PCP_DATA extern pmdebugoptions_t	pmDebugOptions;

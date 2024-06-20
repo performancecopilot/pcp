@@ -15,7 +15,7 @@
 #
 # Create pmdbg.h from ../../include/pcp/.h
 #
-# Recipe for adding a new debug flag:
+# Recipe for adding a new debug flag (newie):
 # 1. edit ../../include/pcp/pmapi.h
 #    - Add the new entry into pmdebugoptions_t ... the name must obviously
 #      be unique, and the comment on the same line becomes the explanation
@@ -32,19 +32,25 @@
 #    $ make clean
 #    $ make
 #    $ ./pmdbg -l
-#    - Check new flag appears
+#    - Check "newie" flag appears and description is OK
 #    $ sudo make install
 # 5. $ cd ../dbpmda/src
 #    $ make clean
+#    $ make
 #    - run these commands to make sure the new flags are listed:
 #    $ ./dbpmda
-#    dbpmda> debug all
-#    dbpmda> debug -pdu
+#    dbpmda> debug appl0 newie
 #    dbpmda> status
+#    - newie should be listed on the Debug options: line
+#    dbpmda> debug -newie
+#    dbpmda> status
+#    - newie should NOT be listed on the Debug options: line
 #    $ sudo make install
 # 6. $ cd ../../../qa
+#    $ export PCPQA_VALGRIND=both
+#    $ ./remake 1277 1278 1359
 #    $ ./check -g pmdbg
-#    - Expect that at least 1277, 1278 and 1359 will need to be remade
+#    - and remake/fix any other QA failures
 #
 
 INCDIR=../../include
