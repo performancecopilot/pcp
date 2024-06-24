@@ -239,6 +239,6 @@ End-of-File
 
 $verbose && cat $tmp.conf
 
-eval $PMVIEW <$tmp.conf $args -title "'$titleArg'" -xrm "'*iconName:nfsvis'"
+eval $PMVIEW <$tmp.conf $args -title "'$titleArg'"
 
 exit

@@ -48,7 +48,7 @@ PCPColor::PCPColor()
    SbString *s = new SbString("kernel.all.cpu.user");
 
    double scale = (double)maxValue.getValue();
-   theMetric = new QmcMetric(activeGroup, s->getString(), scale);
+   theMetric = activeGroup->addMetric(s->getString(), scale);
    elementalNodeList.append(this);
 }
 // Destructor

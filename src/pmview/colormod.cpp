@@ -66,7 +66,7 @@ ColorMod::refresh(bool fetchFlag)
     if (fetchFlag)
 	metric.update();
 
-    if (metric.error(0) <= 0) {
+    if (metric.error(0) < 0) {
 	if (_state != Modulate::error) {
 	    _color->rgb.setValue(_errorColor.getValue());
 	    _state = Modulate::error;

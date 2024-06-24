@@ -59,10 +59,17 @@ ModList::ModList(SoQtViewer *viewer,
     QString sval = modSettings.value("saturation", QString("")).toString();
     modSettings.endGroup();
 
-    bool ok;
-    double err = sval.toFloat(&ok);
-    if (!ok || err > 0.0)
-	theNormError = err;
+    if (!sval.isNull() && !sval.isEmpty()) {
+
+	bool ok;
+	double err = sval.toFloat(&ok);
+
+	if (ok && err > 0.0)
+	    theNormError = err;
+
+	if (pmDebugOptions.appl0)
+	    cerr << "ModList::ModList: saturation=" << sval << " err=" << err << " ok=" << ok << " theNormError=" << theNormError << Qt::endl;
+    }
 
     _root = new SoSeparator;
     _root->ref();

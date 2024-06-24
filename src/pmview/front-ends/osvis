@@ -377,11 +377,11 @@ then
 fi
 
 cpucolors="("
-$have_user && cpucolors="$cpucolors blue2"
-$have_sys  && cpucolors="$cpucolors red2"
-$have_nice && cpucolors="$cpucolors rgbi:0.6/1.0/0.7"
-$have_intr && cpucolors="$cpucolors yellow2"
-$have_wait && cpucolors="$cpucolors cyan2"
+$have_user && cpucolors="$cpucolors \"#0000ee\""	# blue2
+$have_sys  && cpucolors="$cpucolors \"#ee0000\""	# red2
+$have_nice && cpucolors="$cpucolors \"#99ffb2\""	# rgbi:0.6/1.0/0.7
+$have_intr && cpucolors="$cpucolors \"#eeee00\""	# yellow2
+$have_wait && cpucolors="$cpucolors \"#00eeee\""	# cyan2
 cpucolors="$cpucolors )"
 
 if [ -z "$titleArg" ]
@@ -392,17 +392,17 @@ fi
 cat << end-of-file >> $tmp.conf
 
 _colorlist cpu_colors $cpucolors
-_colorlist disk_colors ( violet yellow )
-_colorlist ctrl_colors ( green2 )
-_colorlist network_colors ( green2 blue2 red2 )
+_colorlist disk_colors ( "#ee82ee" yellow )		# violet
+_colorlist ctrl_colors ( "#00ee00" )			# green2
+_colorlist network_colors ( "#00ee00" "#0000ee" "#ee0000" )	# green2 blue2 red2
 
 _colorlist memory_colors (
-    rgbi:1.0/1.0/0.0
-    rgbi:0.0/1.0/1.0
-    rgbi:1.0/0.0/0.0
-    rgbi:1.0/0.0/1.0
-    rgbi:0.0/0.0/1.0
-    rgbi:0.0/1.0/0.0
+    yellow
+    cyan
+    red
+    magenta
+    blue
+    green
 )
 
 _grid hide (
@@ -494,7 +494,7 @@ cat << end-of-file >> $tmp.conf
 	    kernel.all.load[1]	$maxload
 	)
 	_metriclabels _away ( "15" "5" "1" )
-	_colorlist ( blue2 blue2 blue2 )
+	_colorlist ( "#0000ee" "#0000ee" "#0000ee" )	# blue2 blue2 blue2
 	_baseLabel "Average System Load over the last 1, 5, and 15 minutes\nNormalized to $maxload"
     )
 
@@ -540,7 +540,7 @@ end-of-file
 	_metrics (
 	    mem.freemem		$realmem
 	)
-	_colorlist ( blue2 )
+	_colorlist ( "#0000ee" )		# blue2
 	_baseLabel "Unallocated Physical Memory"
 	_stackLabel "Used Physical Memory\nNormalized to $realmem Kbytes"
     )
@@ -646,6 +646,6 @@ echo ")" >> $tmp.conf
 
 $verbose && cat $tmp.conf
 
-eval $PMVIEW <$tmp.conf $args -title "'$titleArg'" -xrm "'*iconName:osvis'" -R $PCP_VAR_DIR/config/pmlogger/config.osvis
+eval $PMVIEW <$tmp.conf $args -title "'$titleArg'" # -R $PCP_VAR_DIR/config/pmlogger/config.osvis
 
 exit

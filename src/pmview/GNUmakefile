@@ -66,9 +66,11 @@ $(WRAPPER): $(WRAPPER).IN
 $(XMLFILE): $(XMLFILE).in
 	$(SED) -e 's;PACKAGE_VERSION;$(PACKAGE_VERSION);g' < $< > $@
 
-# empty install target until porting is complete
 install: default
+	$(SUBDIRS_MAKERULE)
+	$(INSTALL) -m 755 $(BINARY) $(PCP_BIN_DIR)/$(COMMAND)
 
+# skip this stuff for the moment
 futures: default
 	$(SUBDIRS_MAKERULE)
 ifeq ($(WINDOW),win)

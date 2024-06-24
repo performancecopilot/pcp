@@ -55,11 +55,12 @@ The syntax for specifying values in the configuration file is consistent for
 all commands, namely:
 .TP 4n
 .I color
-A color must be either a
-.BR X (1)
-color name, a
-.BR X (1)
-numerical color, or three normalized
+A color must be either one of the 20-or so
+.BR Qt
+color names (refer to the QColor class at
+https://doc.qt.io/qt-5/qcolor.html#predefined-colors), or an
+.BR HTML
+hexadecimal color value (enclosed in quotes, e.g. "#ff6347"), or three normalized
 .I real
 values representing the saturation of red, green and blue.  For example,
 the following colors are identical:
@@ -68,7 +69,7 @@ the following colors are identical:
 .ft CR
 .nf
 red
-rgbi:1.0/0.0/0.0
+"#ff0000"
 1.0 0.0 0.0
 .fi
 .ft R
@@ -220,7 +221,7 @@ The color of
 .B _grid
 and
 .B _stack
-base planes.  Default is rgbi:0.15/0.15/0.15.
+base planes.  Default is "#262626" (i.e. gray15).
 .TP 4n
 \f3_baseHeight\f1 \f2int\f1
 The height of
@@ -320,7 +321,7 @@ has the same color three times:
 .RS 4
 .ft CR
 .nf
-_colorList foo ( red rgbi:1.0/0.0/0.0 1.0 0.0 0.0 )
+_colorList foo ( red "#ff0000" 1.0 0.0 0.0 )
 .fi
 .ft R
 .RE
@@ -349,9 +350,9 @@ to red:
 .RS 4
 .ft CR
 .nf
-_colorScale coldToHot blue ( rgbi:0.5/0.0/1.0 0.3
+_colorScale coldToHot blue ( "#7f00ff" 0.3
                              purple 0.6
-                             rgbi:1.0/0.0/0.5 0.8
+                             "#ff007f" 0.8
                              red 0.95)
 .fi
 .ft R
@@ -949,7 +950,7 @@ types:
 .nf
 pmview Version 2.1
 # Use a lighter grey for the base planes
-_baseColor rgbi:0.5/0.5/0.5
+_baseColor "#7f7f7f"
 
 # Define colors for CPU object
 _colorList cpu ( blue2 red2 yellow2 cyan2 green2 )
@@ -972,7 +973,7 @@ _grid _hide (
     _label 0 1 "Load"
 
 # Change the color of the base plane for later objects
-    _baseColor pink
+    _baseColor "#fba2f5" # pink
 
 # Show the CPU usage over all CPUs in a utilization stack
     _stack 2 0 _south _utilmod (
@@ -1043,4 +1044,4 @@ _grid _hide (
 .\" +ok+ _towards _utilmod _medium _metric psusage _label _large _north
 .\" +ok+ _right _scale _shown _small _south _stack myhost _away _cube _down
 .\" +ok+ _grid _hide _left _link _pipe _show stime utime _xing _ymod _bar
-.\" +ok+ _col rgbi xing {from "Add xing"} intr _row cyan dir col pos _up sys
+.\" +ok+ _col xing {from "Add xing"} intr _row cyan dir col pos _up sys

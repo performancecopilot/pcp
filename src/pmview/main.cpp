@@ -171,7 +171,7 @@ void readSettings(void)
 
     globalSettings.gridBackgroundModified = false;
     globalSettings.gridBackgroundName = userSettings.value(
-		"gridBackgroundColor", "rgbi:0.15/0.15/0.15").toString();
+		"gridBackgroundColor", "#262626").toString(); // rgbi:0.15/0.15/0.15
     globalSettings.gridBackground = QColor(globalSettings.gridBackgroundName);
 
     //
@@ -254,6 +254,9 @@ fail:
 	cerr << pmGetProgname() << ": " << errorCount << " errors detected in "
 	     << theConfigName << Qt::endl;
     }
+
+    if (warnCount > 0)
+	pmflush();
 
     sts = -errorCount;
 
@@ -342,6 +345,7 @@ main(int argc, char **argv)
     }
 
     a.startconsole();
+    console->setWindowTitle(QCoreApplication::translate("Console", "pmview Console", nullptr));
 
     if (a.my.archives.size() > 0)
 	while (optind < argc)

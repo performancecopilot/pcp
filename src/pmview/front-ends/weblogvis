@@ -312,7 +312,7 @@ then
 			web.perserver.$met.total[$servers]	$max
 		)
 		_metriclabels ( Total )
-		_colorList ( rgbi:0.0/0.88/0.88 )
+		_colorList ( "#00e0e0" )	# rgbi:0.0/0.88/0.88
 		_baseLabel "$basestr_total"
 	)
 
@@ -367,17 +367,16 @@ end-of-file
 
     cat << end-of-file >>$tmp.pmview
 		_colorList (
-			rgbi:1.0/0.35/0.0
-			rgbi:0.6/0.0/0.9
-			rgbi:0.0/1.0/0.0
-			rgbi:1.0/0.5/0.0
-			rgbi:0.65/0.3/1.0
-			rgbi:0.3/1.0/0.3
-			rgbi:1.0/0.65/0.3
-			rgbi:0.8/0.6/1.0
-			rgbi:0.6/1.0/0.6
-			rgbi:1.0/0.8/0.6
-
+			"#ff5900"	# rgbi:1.0/0.35/0.0
+			"#9900e5"	# rgbi:0.6/0.0/0.9
+			green
+			"#ff7f00"	# rgbi:1.0/0.5/0.0
+			"#a64cff"	# rgbi:0.65/0.3/1.0
+			"#4cff4c"	# rgbi:0.3/1.0/0.3
+			"#ffa64c"	# rgbi:1.0/0.65/0.3
+			"#cc99ff"	# rgbi:0.8/0.6/1.0
+			"#99ff99"	# rgbi:0.6/1.0/0.6
+			"#ffcc99"	# rgbi:1.0/0.8/0.6
 		)
 		_baseLabel "$basestr_req"
 	)
@@ -392,7 +391,7 @@ else
 			web.perserver.$met.total[$servers]	$max
 		)
 		_metriclabels ( Total )
-		_colorList ( rgbi:1.0/0.5/0.0 )
+		_colorList ( "#ff7f77" )	# rgbi:1.0/0.5/0.0
 		_baseLabel "$basestr_total"
 	)
 
@@ -425,11 +424,11 @@ end-of-file
 
 	cat << end-of-file >>$tmp.pmview
 		_colorList (
-			rgbi:1.0/1.0/0.0
-			rgbi:0.0/1.0/1.0
-			rgbi:1.0/0.0/1.0
-			rgbi:1.0/1.0/0.6
-			rgbi:0.8/0.0/0.0
+			yellow
+			cyan
+			magenta
+			"#ffff99"	# rgbi:1.0/1.0/0.6
+			"#cc0000"	# rgbi:0.8/0.0/0.0
 		)
 		_baseLabel "$basestr_type"
 	)
@@ -445,7 +444,7 @@ titleArg="$titleArg for Host $host"
 
 $verbose && cat $tmp.pmview
 
-eval $PMVIEW <$tmp.pmview $args -title "'$titleArg'" -xrm "'*iconName: $prog'"
+eval $PMVIEW <$tmp.pmview $args -title "'$titleArg'"
 
 exit
 

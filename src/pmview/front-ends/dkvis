@@ -567,6 +567,6 @@ END	{ if (cnt > 0) {
 
 $verbose && cat $tmp.conf
 
-eval $PMVIEW <$tmp.conf $args -title "'$titleArg'" # -xrm "'*iconName:dkvis'"
+eval $PMVIEW <$tmp.conf $args -title "'$titleArg'"
 
 exit

@@ -24,7 +24,7 @@
 #include "launch.h"
 
 //
-// Use debug flag LIBPMDA to trace stack refreshes
+// Use debug flag -Dappl3 to trace stack refreshes
 //
 
 const float StackMod::theDefFillColor[] = { 0.35, 0.35, 0.35 };
@@ -157,7 +157,7 @@ StackMod::refresh(bool fetchFlag)
 
     static QVector<double> values;
 
-    if (pmDebugOptions.libpmda)
+    if (pmDebugOptions.appl3)
 	cerr << Qt::endl << "StackMod::refresh" << Qt::endl;
 
     if (status() < 0)
@@ -175,10 +175,10 @@ StackMod::refresh(bool fetchFlag)
 	    StackBlock &block = _blocks[v];
 	    double &value = values[v];
 
-	    if (pmDebugOptions.libpmda)
+	    if (pmDebugOptions.appl3)
 		cerr << '[' << v << "] ";
 
-	    if (metric.error(i) <= 0) {
+	    if (metric.error(i) < 0) {
 		if (block._state != Modulate::error) {
 		    block._color->rgb.setValue(_errorColor.getValue());
 		    block._state = Modulate::error;
@@ -186,7 +186,7 @@ StackMod::refresh(bool fetchFlag)
 		value = Modulate::theMinScale;
 		sum += value;
 
-		if (pmDebugOptions.libpmda)
+		if (pmDebugOptions.appl3)
 		    cerr << "Error, value set to " << value << Qt::endl;
 	    }
 	    else if (block._state == Modulate::error ||
@@ -200,7 +200,7 @@ StackMod::refresh(bool fetchFlag)
 		if (value < theMinScale)
 		    value = theMinScale;
 		sum += value;
-		if (pmDebugOptions.libpmda)
+		if (pmDebugOptions.appl3)
 		    cerr << "Error->Normal, value = " << value << Qt::endl;
 	    }
 	    else {
@@ -208,13 +208,13 @@ StackMod::refresh(bool fetchFlag)
 		if (value < theMinScale)
 		    value = theMinScale;
 		sum += value;
-		if (pmDebugOptions.libpmda)
+		if (pmDebugOptions.appl3)
 		    cerr << "Normal, value = " << value << Qt::endl;
 	    }
 	}
     }
     
-    if (pmDebugOptions.libpmda)
+    if (pmDebugOptions.appl3)
 	cerr << "sum = " << sum << Qt::endl;
     
     if (sum > theNormError && _height != util) {
@@ -271,7 +271,7 @@ StackMod::refresh(bool fetchFlag)
 	StackBlock &block = _blocks[v];
 	double &value = values[v];
  
-	if (pmDebugOptions.libpmda)
+	if (pmDebugOptions.appl3)
 	    cerr << '[' << v << "] scale = " << value << Qt::endl;
 
 	block._scale->scaleFactor.setValue(1.0, value, 1.0);

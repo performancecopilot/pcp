@@ -75,7 +75,7 @@ typedef struct {
 // ! Height of Grid, Bar and Stack bases
 // PmView+*baseHeight: 2
 // ! Color of base plane
-// PmView+*baseColor: rgbi:0.15/0.15/0.15
+// PmView+*baseColor: #262626
 // ! Spacing between Bar blocks
 // PmView+*barSpaceWidth: 8
 // PmView+*barSpaceDepth: 8
@@ -87,7 +87,7 @@ typedef struct {
 // ! Margin around a Label
 // PmView+*labelMargin: 5
 // ! Color of labels
-// PmView+*labelColor: rgbi:1.0/1.0/1.0
+// PmView+*labelColor: white
 // ! Width and depth of Grid columns and rows
 // PmView+*gridMinWidth: 20
 // PmView+*gridMinDepth: 20
@@ -128,6 +128,7 @@ extern int locateError();
 
 extern ViewObj *rootObj;
 extern int errorCount;
+extern int warnCount;
 extern int yyparse(void);
 extern FILE *yyin;
 
