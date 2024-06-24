@@ -453,6 +453,11 @@ QmcGroup::useContext()
 QmcMetric *
 QmcGroup::addMetric(char const *string, double theScale, bool active)
 {
+    if (pmDebugOptions.pmc) {
+	QTextStream cerr(stderr);
+	cerr << "QmcGroup::addMetric: string=" << string << Qt::endl;
+    }
+
     QmcMetric *metric = new QmcMetric(this, string, theScale, active);
     if (metric->status() >= 0)
 	metric->context()->addMetric(metric);
@@ -462,6 +467,10 @@ QmcGroup::addMetric(char const *string, double theScale, bool active)
 QmcMetric *
 QmcGroup::addMetric(pmMetricSpec *theMetric, double theScale, bool active)
 {
+    if (pmDebugOptions.pmc) {
+	QTextStream cerr(stderr);
+	cerr << "QmcGroup::addMetric: theMetric: isarch=" << theMetric->isarch << " source=" << theMetric->source << " metric=" << theMetric->metric  << Qt::endl;
+    }
     QmcMetric *metric = new QmcMetric(this, theMetric, theScale, active);
     if (metric->status() >= 0)
 	metric->context()->addMetric(metric);
