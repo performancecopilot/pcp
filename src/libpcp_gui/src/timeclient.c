@@ -30,6 +30,8 @@ pmServerExec(int fd, int livemode)
 
     if (__pmProcessCreate(argv, &in, &out) < (pid_t)0) {
 	__pmCloseSocket(fd);
+	if (pmDebugOptions.timecontrol)
+	    fprintf(stderr, "pmServerExec: __pmProcessCreate(pmtime, ...): failed\n");
 	return -1;
     }
 
@@ -41,8 +43,13 @@ pmServerExec(int fd, int livemode)
     }
     close(in);
     close(out);
-    if (port == -1)
+    if (port == -1) {
 	__pmCloseSocket(fd);
+	if (pmDebugOptions.timecontrol)
+	    fprintf(stderr, "pmServerExec: read portname on fd=%d failed\n", in);
+    }
+    if (pmDebugOptions.timecontrol)
+	fprintf(stderr, "pmServerExec: port=%d\n", port);
     return port;
 }
 
@@ -53,6 +60,7 @@ pmConnectHandshake(int fd, int port, pmTime *pkt)
     char buffer[4096];
     pmTime *ack;
     int sts;
+    char *reason = NULL;
 
     /*
      * Connect to pmtime - pmtime guaranteed started by now, due to the
@@ -60,12 +68,14 @@ pmConnectHandshake(int fd, int port, pmTime *pkt)
      */
     if ((myaddr = __pmSockAddrAlloc()) == NULL) {
 	setoserror(ENOMEM);
+	reason = "__pmSockAddrAlloc";
 	goto error;
     }
 
     __pmSockAddrInit(myaddr, AF_INET, INADDR_LOOPBACK, port);
     if ((sts = __pmConnect(fd, (void *)myaddr, __pmSockAddrSize())) < 0) {
 	setoserror(neterror());
+	reason = "__pmConnect";
 	goto error;
     }
     __pmSockAddrFree(myaddr);
@@ -77,6 +87,7 @@ pmConnectHandshake(int fd, int port, pmTime *pkt)
     sts = __pmSend(fd, (const void *)pkt, pkt->length, 0);
     if (sts < 0) {
 	setoserror(neterror());
+	reason = "__pmSend";
 	goto error;
     } else if (sts != pkt->length) {
 	setoserror(EMSGSIZE);
@@ -86,23 +97,31 @@ pmConnectHandshake(int fd, int port, pmTime *pkt)
     sts = __pmRecv(fd, buffer, sizeof(buffer), 0);
     if (sts < 0) {
 	setoserror(neterror());
+	reason = "__pmRecv";
 	goto error;
     } else if (sts != ack->length) {
 	setoserror(EMSGSIZE);
+	reason = "__pmRecv length";
 	goto error;
     } else if (ack->command != PM_TCTL_ACK) {
 	setoserror(EPROTO);
+	reason = "__pmRecv command";
 	goto error;
     } else if (ack->source != pkt->source) {
 	setoserror(ENOSYS);
+	reason = "__pmRecv source";
 	goto error;
     }
+    if (pmDebugOptions.timecontrol)
+	fprintf(stderr, "pmConnectHandshake: success\n");
     return 0;
 
 error:
     if (myaddr)
 	__pmSockAddrFree(myaddr);
     __pmCloseSocket(fd);
+    if (pmDebugOptions.timecontrol)
+	fprintf(stderr, "pmConnectHandshake: %s: failure\n", reason);
     return -1;
 }
 
@@ -111,8 +130,11 @@ pmTimeConnect(int port, pmTime *pkt)
 {
     int	fd;
 
-    if ((fd = __pmCreateSocket()) < 0)
+    if ((fd = __pmCreateSocket()) < 0) {
+	if (pmDebugOptions.timecontrol)
+	    fprintf(stderr, "pmTimeConnect: __pmCreateSocket failure\n");
 	return -1;
+    }
     if (port < 0) {
 	if ((port = pmServerExec(fd, pkt->source != PM_SOURCE_ARCHIVE)) < 0)
 	    return -2;
@@ -122,12 +144,16 @@ pmTimeConnect(int port, pmTime *pkt)
 	if (pmConnectHandshake(fd, port, pkt) < 0)
 	    return -4;
     }
+    if (pmDebugOptions.timecontrol)
+	fprintf(stderr, "pmTimeConnect: success fd=%d\n", fd);
     return fd;
 }
 
 int
 pmTimeDisconnect(int fd)
 {
+    if (pmDebugOptions.timecontrol)
+	fprintf(stderr, "pmTimeDisonnect: fd=%d\n", fd);
     if (fd < 0) {
 	setoserror(EINVAL);
 	return -1;
@@ -142,6 +168,8 @@ pmTimeSendAck(int fd, struct timeval *tv)
     pmTime data;
     int sts;
 
+    if (pmDebugOptions.timecontrol)
+	fprintf(stderr, "pmTimeSendAck: fd=%d\n", fd);
     memset(&data, 0, sizeof(data));
     data.magic = PMTIME_MAGIC;
     data.length = sizeof(data);
@@ -159,6 +187,8 @@ pmTimeShowDialog(int fd, int show)
     pmTime data;
     int sts;
 
+    if (pmDebugOptions.timecontrol)
+	fprintf(stderr, "pmTimeShowDialog: fd=%d show=%d\n", fd, show);
     memset(&data, 0, sizeof(data));
     data.magic = PMTIME_MAGIC;
     data.length = sizeof(data);
@@ -183,6 +213,8 @@ pmTimeRecv(int fd, pmTime **datap)
     pmTime *k_tmp;
     int sts, remains;
 
+    if (pmDebugOptions.timecontrol)
+	fprintf(stderr, "pmTimeRecv: fd=%d\n", fd);
     memset(k, 0, sizeof(pmTime));
     sts = __pmRecv(fd, (void *)k, sizeof(pmTime), 0);
     if (sts >= 0 && sts != sizeof(pmTime)) {
