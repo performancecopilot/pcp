@@ -21,15 +21,17 @@ QedConsole *console;
 QedConsole::QedConsole(struct timeval origin) : QDialog()
 {
     my.level = 0;
-    if (pmDebugOptions.appl0) {
+    if (pmDebugOptions.qed) {
 	my.level |= QedApp::DebugApp;		// general and UI tracing
 	my.level |= QedApp::DebugUi;
-    }
-    if (pmDebugOptions.appl1)
-	my.level |= QedApp::DebugProtocol;	// trace time protocol
-    if (pmDebugOptions.appl2) {
 	my.level |= QedApp::DebugView;		// config files, for QA
 	my.level |= QedApp::DebugTimeless;
+    }
+    if (pmDebugOptions.timecontrol) {
+	my.level |= QedApp::DebugProtocol;	// trace time protocol
+    }
+    if (pmDebugOptions.desperate) {
+	my.level |= QedApp::DebugForce;		// and the kitchen sink
     }
     setupUi(this);
 
