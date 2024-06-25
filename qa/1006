@@ -25,7 +25,7 @@ do
     echo "=== $config ==="
     cat $config
     rm -f $tmp.post
-    pmchart -CC -D appl0 -c $config >$tmp.out 2>$tmp.err
+    pmchart -CC -D qed -c $config >$tmp.out 2>$tmp.err
     echo "exit=$?"
     echo "--- out ---"
     cat $tmp.out
