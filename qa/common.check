@@ -1727,17 +1727,20 @@ _clean_display()
     # kenj      6612     1  0 08:10 ?        00:00:00 /usr/lib/gvfs/gvfsd-fuse /var/tmp/1003-6479/xdg-runtime/gvfs -f
     # ... need to kill 'em before the xdg-runtime dir can be culled
     #
-    $PCP_PS_PROG $PCP_PS_ALL_FLAGS \
-    | grep " $tmp/[x]dg-runtime" \
-    | $PCP_AWK_PROG '{print $2}' \
-    | while read pid
-    do
-	kill -HUP $pid >/dev/null 2>&1
-	sleep 1
-	kill -TERM $pid >/dev/null 2>&1
-	sleep 1
-    done
-    test -d "$tmp/xdg-runtime" && rm -fr "$tmp/xdg-runtime"
+    if [ "$PCPQA_DESKTOP_HACK" = true ]
+    then
+	$PCP_PS_PROG $PCP_PS_ALL_FLAGS \
+	| grep " $tmp/[x]dg-runtime" \
+	| $PCP_AWK_PROG '{print $2}' \
+	| while read pid
+	do
+	    kill -HUP $pid >/dev/null 2>&1
+	    sleep 1
+	    kill -TERM $pid >/dev/null 2>&1
+	    sleep 1
+	done
+	test -d "$tmp/xdg-runtime" && rm -fr "$tmp/xdg-runtime"
+    fi
 }
 
 # valgrind support
