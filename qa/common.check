@@ -1711,11 +1711,14 @@ _check_display()
     fi
     export DISPLAY=$PCPQA_CLOSE_X_SERVER
 
-    # hackery for warning:
-    # QStandardPaths: XDG_RUNTIME_DIR not set, defaulting to '/tmp/...'
-    mkdir -p "$tmp/xdg-runtime"
-    chmod 0700 "$tmp/xdg-runtime"
-    export XDG_RUNTIME_DIR="$tmp/xdg-runtime"
+    if [ "$PCPQA_DESKTOP_HACK" = true ]
+    then
+	# hackery for warning:
+	# QStandardPaths: XDG_RUNTIME_DIR not set, defaulting to '/tmp/...'
+	mkdir -p "$tmp/xdg-runtime"
+	chmod 0700 "$tmp/xdg-runtime"
+	export XDG_RUNTIME_DIR="$tmp/xdg-runtime"
+    fi
 }
 
 _clean_display()
