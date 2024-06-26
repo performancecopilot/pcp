@@ -1,0 +1,74 @@
+#!/bin/sh
+# PCP QA Test No. 1524 (SGI test 1009 and formerly 295)
+# Test pmview handling of proc instances
+# Bug #490351
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2024 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard Qt environment, filters and checks
+. ./common.qt
+
+$sudo rm -rf $tmp $tmp.* $seq.full
+echo "DISPLAY=$DISPLAY" >>$seq.full
+
+do_valgrind=false
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+    do_valgrind=true
+fi
+
+which pmview >/dev/null 2>&1 || _notrun "No pmview binary installed"
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup_qt; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+    # end
+}
+
+# real QA test starts here
+inst=`pminfo -F proc.psinfo.pid \
+      | sed -n -e '/inst \[1 /{
+s/^[^"]*"//
+s/ .*//
+p
+}'`
+
+cat << End-of-File > $tmp.conf
+pmview Version 2.0
+_grid ( _bar ( _metrics ( proc.psinfo.pid[$inst] 0 ) ) )
+End-of-File
+
+echo "Silence is golden ..."
+if $do_valgrind
+then
+    _run_valgrind pmview -C -c $tmp.conf
+else
+    pmview -C -c $tmp.conf 2>&1
+fi \
+| _filter
+
+# success, all done
+exit
