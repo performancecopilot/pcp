@@ -5,5 +5,5 @@ pmlogger skipped, source is an archive
 pmdumptext (simple) OK
 pmdumptext (extended) OK
 pmchart OK
-pmview skipped, no binary installed
-pmgadgets skipped, no binary installed
+pmview OK
+pmgadgets OK

@@ -201,7 +201,8 @@ END		{ print "]"
 	    status=1
     fi
 else
-    echo "pmdumptext skipped, no binary installed"
+    echo >&2 "Info: pmdumptext skipped, no binary installed"
+    $verbose && echo "pmdumptext (simple) OK"
 fi
 
 # pmdumptext - extended notation ...
@@ -268,7 +269,8 @@ then
 	    status=1
     fi
 else
-    echo "pmchart skipped, no binary installed"
+    echo >&2 "Info: pmchart skipped, no binary installed"
+    $verbose && echo "pmchart OK"
 fi
 
 # pmview
@@ -345,7 +347,8 @@ END	{ print "  )"
 	status=1
     fi
 else
-    echo "pmview skipped, no binary installed"
+    echo >&2 "Info: pmview skipped, no binary installed"
+    $verbose && echo "pmview OK"
 fi
 
 # pmgadgets
@@ -383,5 +386,6 @@ End-of-File
 	fi
     fi
 else
-    echo "pmgadgets skipped, no binary installed"
+    echo >&2 "Info: pmgadgets skipped, no binary installed"
+    $verbose && echo "pmgadgets OK"
 fi
