@@ -1,10 +1,26 @@
 QA output created by 1001
 === bad first line ===
+Console available
+Global settings setup complete
+Metric group setup complete (0 hosts, 0 archives)
+Timezones and time window setup complete
+QedTimeButton::QedTimeButton: Time button resources loaded
+Phase1 user interface constructors complete
+PmChart::setActiveTab index=0 r=1
+Phase2 user interface setup complete
 Load View: PCP_VAR_DIR/config/pmchart/Schemes
 Load View: stdin
 Error: stdin[1] Syntax error: expecting "#pmchart" or "#kmchart", found "#bad"
 
 === lexicon too long ===
+Console available
+Global settings setup complete
+Metric group setup complete (0 hosts, 0 archives)
+Timezones and time window setup complete
+QedTimeButton::QedTimeButton: Time button resources loaded
+Phase1 user interface constructors complete
+PmChart::setActiveTab index=0 r=1
+Phase2 user interface setup complete
 Load View: PCP_VAR_DIR/config/pmchart/Schemes
 Load View: stdin
 Error: stdin[2] Word truncated after 255 characters!

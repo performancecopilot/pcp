@@ -31,6 +31,7 @@ QedConsole::QedConsole(struct timeval origin) : QDialog()
     if (pmDebugOptions.appl2) {
 	my.level |= QedApp::DebugView;		// config files, for QA
 	my.level |= QedApp::DebugTimeless;
+	my.level |= QedApp::DebugApp;		// force post() output
     }
     if (pmDebugOptions.desperate) {
 	my.level |= QedApp::DebugForce;		// and the kitchen sink

@@ -1,4 +1,12 @@
 QA output created by 1003
+Console available
+Global settings setup complete
+Metric group setup complete (0 hosts, 0 archives)
+Timezones and time window setup complete
+QedTimeButton::QedTimeButton: Time button resources loaded
+Phase1 user interface constructors complete
+PmChart::setActiveTab index=0 r=1
+Phase2 user interface setup complete
 Load View: PCP_VAR_DIR/config/pmchart/Schemes
 Load View: stdin
 openView: new chart: style=Stack title="Memory Usage" autoscale=yes legend=yes
@@ -18,3 +26,4 @@ openView: new chart: style=Stack title="Dirty Buffers" autoscale=yes legend=yes
 openView: new optional-plot color=#fe3732 metric=mem.util.dirty
 openView: new optional-plot color=#ff8900 metric=mem.util.writeback
 openView: new optional-plot color=#008900 metric=mem.util.cache_clean
+GroupControl::setVisibleHistory (60 -> 30)
