@@ -6,6 +6,8 @@
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 # Copyright (c) 2024 Ken McDonell.  All Rights Reserved.
 #
+# check-group-exclude: pminfo
+#
 
 if [ $# -eq 0 ]
 then
@@ -31,12 +33,6 @@ then
 fi
 
 which pmview >/dev/null 2>&1 || _notrun "No pmview binary installed"
-
-_cleanup()
-{
-    cd $here
-    $sudo rm -rf $tmp $tmp.*
-}
 
 status=0	# success is the default!
 trap "_cleanup_qt; exit \$status" 0 1 2 3 15
