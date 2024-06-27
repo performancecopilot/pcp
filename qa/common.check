@@ -674,6 +674,28 @@ _need_metric()
     esac
 }
 
+# Check for metric availability from local pmcd.
+# Like _need_metric() above, but return status is 0 for
+# available and 1 for not available (rather than _notrun).
+#
+_avail_metric()
+{
+    __numval=`pmprobe $1 | cut -f 2 -d ' '`
+    case "$__numval"
+    in
+	-*)
+	    return 1
+	    ;;
+	[0-9]*)
+	    return 0
+	    ;;
+	*)
+	    echo "_avail_metric: unexpected output: `pmprobe $1`"
+	    return 1
+	    ;;
+    esac
+}
+
 # if systemctl is in play, see if there is any additional info
 # from systemctl for the $1 service
 #
@@ -1703,13 +1725,12 @@ _check_display()
 	_notrun "\$PCPQA_CLOSE_X_SERVER not set in ./common.config"
 	# NOTREACHED
     fi
-    which xdpyinfo >/dev/null 2>&1
-    if [ $? -eq 0 ]
+    export DISPLAY=$PCPQA_CLOSE_X_SERVER
+    if which xdpyinfo >/dev/null 2>&1
     then
-	DISPLAY=$PCPQA_CLOSE_X_SERVER xdpyinfo >/dev/null 2>&1 || \
+	xdpyinfo >/dev/null 2>&1 || \
 	    _notrun "Failed sanity check on DISPLAY $PCPQA_CLOSE_X_SERVER"
     fi
-    export DISPLAY=$PCPQA_CLOSE_X_SERVER
 
     if [ "$PCPQA_DESKTOP_HACK" = true ]
     then
