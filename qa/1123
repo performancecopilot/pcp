@@ -10,7 +10,15 @@ echo "QA output created by $seq"
 status=0	# success is the default!
 
 . ./common.qt
-trap "_cleanup_qt; exit \$status" 0 1 2 3 15
+
+_cleanup()
+{
+    # reset pmcd's timeout
+    #
+    pmstore pmcd.control.timeout 5 >>$seq.full
+}
+
+trap "_cleanup_qt; _cleanup; exit \$status" 0 1 2 3 15
 
 which pmchart >/dev/null 2>&1 || _notrun "pmchart not installed"
 [ -f $PCP_VAR_DIR/config/pmchart/BusyCPU ] || _notrun "BusyCPU view not installed"
@@ -44,8 +52,14 @@ $sudo rm -rf $tmp.* $seq.full
 
 echo "BusyCPU ..."
 # some CPU load
-src/hanoi 100 &
+src/hanoi 200 &
 pid=$!
+
+# things may be busy now ... 8^)
+#
+export PMCD_CONNECT_TIMEOUT=30
+export PMCD_REQUEST_TIMEOUT=30
+pmstore pmcd.control.timeout 30 >>$seq.full
 
 PCP_STDERR= $PCP_VAR_DIR/config/pmchart/BusyCPU \
 | tee -a $here/$seq.full \
@@ -55,8 +69,16 @@ PCP_STDERR= $PCP_VAR_DIR/config/pmchart/BusyCPU \
 1 <= $1 && $1 <= 10	{ print "Found between 1 and 10 busy processes"; next }
 			{ print "Oops, found " $1 " busy processes" }'
 
-PCP_STDERR= pmchart -c BusyCPU -C -C
+PCP_STDERR= pmchart -c BusyCPU -C -C >$tmp.out 2>&1
 ( kill $pid >/dev/null 2>&1 ) &
+
+# some of the processes may have exited, so make that noise
+# go away
+#
+cat $tmp.out >>$seq.full
+sed <$tmp.out \
+    -e '/^pmchart: Error: local::proc\..*\.utime: IPC protocol failure/d' \
+# end
 
 echo
 echo "QA test ..."
