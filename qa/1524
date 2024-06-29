@@ -41,6 +41,9 @@ _filter()
 {
     sed \
 	-e "s@$tmp@TMP@g" \
+	-e '/QStandardPaths: XDG_RUNTIME_DIR not set, defaulting/d' \
+	-e '/QObject::connect: No such slot SoQtGLWidgetP::gl_changed()/d' \
+	-e "/QObject::connect:  (sender name:   'QtGLAreaWindow')/d" \
     # end
 }
 

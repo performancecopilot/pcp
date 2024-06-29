@@ -18,6 +18,13 @@ _cleanup()
     pmstore pmcd.control.timeout 5 >>$seq.full
 }
 
+_filter()
+{
+    sed \
+	-e '/QStandardPaths: XDG_RUNTIME_DIR not set, defaulting/d' \
+    # end
+}
+
 trap "_cleanup_qt; _cleanup; exit \$status" 0 1 2 3 15
 
 which pmchart >/dev/null 2>&1 || _notrun "pmchart not installed"
@@ -99,7 +106,8 @@ chmod 755 $tmp.sh
 # note -c argument cannot start with a /
 #
 cd `dirname $tmp`
-pmchart -c `basename $tmp.sh` -C -C
+pmchart -c `basename $tmp.sh` -C -C 2>&1 \
+| _filter
 
 # all done
 exit
