@@ -30,8 +30,19 @@ __pmRecvDesc(int fd, __pmContext *ctxp, int timeout, pmDesc *desc)
 	sts = __pmDecodeDesc(pb, desc);
     else if (sts == PDU_ERROR)
 	__pmDecodeError(pb, &sts);
-    else if (sts != PM_ERR_TIMEOUT)
+    else if (sts != PM_ERR_TIMEOUT) {
+	if (pmDebugOptions.pdu) {
+	    char	strbuf[20];
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    if (sts < 0)
+		fprintf(stderr, "__pmRecvDesc: PM_ERR_IPC: expecting PDU_DESC but__pmGetPDU returns %d (%s)\n",
+		    sts, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	    else
+		fprintf(stderr, "__pmRecvDesc: PM_ERR_IPC: expecting PDU_DESC but__pmGetPDU returns %d (type=%s)\n",
+		    sts, __pmPDUTypeStr_r(sts, strbuf, sizeof(strbuf)));
+	}
 	sts = PM_ERR_IPC;
+    }
 
     if (pinpdu > 0)
 	__pmUnpinPDUBuf(pb);
@@ -148,8 +159,19 @@ __pmRecvDescs(int fd, __pmContext *ctxp, int timeout, int numdescs, pmDesc *desc
 	sts = __pmDecodeDescs(pb, numdescs, desclist);
     else if (sts == PDU_ERROR)
 	__pmDecodeError(pb, &sts);
-    else if (sts != PM_ERR_TIMEOUT)
+    else if (sts != PM_ERR_TIMEOUT) {
+	if (pmDebugOptions.pdu) {
+	    char	strbuf[20];
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    if (sts < 0)
+		fprintf(stderr, "__pmRecvDescs: PM_ERR_IPC: expecting PDU_DESCS but__pmGetPDU returns %d (%s)\n",
+		    sts, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	    else
+		fprintf(stderr, "__pmRecvDescs: PM_ERR_IPC: expecting PDU_DESCS but__pmGetPDU returns %d (type=%s)\n",
+		    sts, __pmPDUTypeStr_r(sts, strbuf, sizeof(strbuf)));
+	}
 	sts = PM_ERR_IPC;
+    }
 
     if (pinpdu > 0)
 	__pmUnpinPDUBuf(pb);

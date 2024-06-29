@@ -79,17 +79,32 @@ __pmDecodeInstanceReq(__pmPDU *pdubuf, pmInDom *indom, int *inst, char **name)
     pp = (instance_req_t *)pdubuf;
     pdu_end = (char *)pdubuf + pp->hdr.len;
 
-    if (pdu_end - (char *)pp < sizeof(instance_req_t) - sizeof(pp->name))
+    if (pdu_end - (char *)pp < sizeof(instance_req_t) - sizeof(pp->name)) {
+	if (pmDebugOptions.pdu) {
+	    fprintf(stderr, "__pmDecodeInstanceReq: PM_ERR_IPC: remainder %d < sizeof(name) %d\n",
+		(int)(pdu_end - (char*)pp), (int)sizeof(pp->name));
+	}
 	return PM_ERR_IPC;
+    }
 
     *indom = __ntohpmInDom(pp->indom);
     *inst = ntohl(pp->inst);
     namelen = ntohl(pp->namelen);
     if (namelen > 0) {
-	if (namelen >= INT_MAX - 1 || namelen > pp->hdr.len)
+	if (namelen >= INT_MAX - 1 || namelen > pp->hdr.len) {
+	    if (pmDebugOptions.pdu) {
+		fprintf(stderr, "__pmDecodeInstanceReq: PM_ERR_IPC: namelen %d >= INT_MAX-1 %d or > hdr.len %d\n",
+		    namelen, INT_MAX-1, pp->hdr.len);
+	    }
 	    return PM_ERR_IPC;
-	if (pdu_end - (char *)pp < sizeof(instance_req_t) - sizeof(pp->name) + namelen)
+	}
+	if (pdu_end - (char *)pp < sizeof(instance_req_t) - sizeof(pp->name) + namelen) {
+	    if (pmDebugOptions.pdu) {
+		fprintf(stderr, "__pmDecodeInstanceReq: PM_ERR_IPC: remainder %d < sizeof(instance_req_t) %d - sizeof(name) %d\n",
+		    (int)(pdu_end - (char*)pp), (int)sizeof(instance_req_t), (int)sizeof(pp->name));
+	    }
 	    return PM_ERR_IPC;
+	}
 	if ((np = (char *)malloc(namelen+1)) == NULL)
 	    return -oserror();
 	strncpy(np, pp->name, namelen);
@@ -97,6 +112,10 @@ __pmDecodeInstanceReq(__pmPDU *pdubuf, pmInDom *indom, int *inst, char **name)
 	*name = np;
     }
     else if (namelen < 0) {
+	if (pmDebugOptions.pdu) {
+	    fprintf(stderr, "__pmDecodeInstanceReq: PM_ERR_IPC: namelen %d < 0\n",
+		namelen);
+	}
 	return PM_ERR_IPC;
     } else {
 	*name = NULL;
@@ -197,8 +216,13 @@ __pmDecodeInstance(__pmPDU *pdubuf, pmInResult **result)
     rp = (instance_t *)pdubuf;
     pdu_end = (char *)pdubuf + rp->hdr.len;
 
-    if (pdu_end - (char *)pdubuf < sizeof(instance_t) - sizeof(__pmPDU))
+    if (pdu_end - (char *)pdubuf < sizeof(instance_t) - sizeof(__pmPDU)) {
+	if (pmDebugOptions.pdu) {
+	    fprintf(stderr, "__pmDecodeInstance: PM_ERR_IPC: remainder %d < sizeof(__pmPDU) %d\n",
+		(int)(pdu_end - (char*)pdubuf), (int)sizeof(__pmPDU));
+	}
 	return PM_ERR_IPC;
+    }
 
     if ((res = (pmInResult *)malloc(sizeof(*res))) == NULL)
 	return -oserror();
@@ -210,6 +234,10 @@ __pmDecodeInstance(__pmPDU *pdubuf, pmInResult **result)
     if (res->numinst >= (INT_MAX / sizeof(res->instlist[0])) ||
 	res->numinst >= (INT_MAX / sizeof(res->namelist[0])) ||
 	res->numinst >= rp->hdr.len) {
+	if (pmDebugOptions.pdu) {
+	    fprintf(stderr, "__pmDecodeInstance: PM_ERR_IPC: numinst %d >= ...instlist %d or >= ...namelist %d or >= hdr.len %d\n",
+		res->numinst, (int)(INT_MAX / sizeof(res->instlist[0])), (int)(INT_MAX / sizeof(res->namelist[0])), rp->hdr.len);
+	}
 	sts = PM_ERR_IPC;
 	goto badsts;
     }
@@ -232,6 +260,10 @@ __pmDecodeInstance(__pmPDU *pdubuf, pmInResult **result)
     for (i = j = 0; i < res->numinst; i++) {
 	ip = (instlist_t *)&rp->rest[j/sizeof(__pmPDU)];
 	if (sizeof(instlist_t) - sizeof(ip->name) > (size_t)(pdu_end - (char *)ip)) {
+	    if (pmDebugOptions.pdu) {
+		fprintf(stderr, "__pmDecodeInstance: PM_ERR_IPC: sizeof(instlist_t) %d - sizeof(name) %d > remainder %d\n",
+		    (int)sizeof(instlist_t), (int)sizeof(ip->name), (int)(pdu_end - (char*)ip));
+	    }
 	    sts = PM_ERR_IPC;
 	    goto badsts;
 	}
@@ -243,10 +275,18 @@ __pmDecodeInstance(__pmPDU *pdubuf, pmInResult **result)
 	if (ip->namelen > 0)
 	    keep_namelist = 1;
 	if (ip->namelen < 0) {
+	    if (pmDebugOptions.pdu) {
+		fprintf(stderr, "__pmDecodeInstance: PM_ERR_IPC: namelen %d < 0\n",
+		    ip->namelen);
+	    }
 	    sts = PM_ERR_IPC;
 	    goto badsts;
 	}
 	if (sizeof(instlist_t) - sizeof(int) + ip->namelen > (size_t)(pdu_end - (char *)ip)) {
+	    if (pmDebugOptions.pdu) {
+		fprintf(stderr, "__pmDecodeInstance: PM_ERR_IPC: sizeof(instlist_t) %d - sizeof(int) %d + namelen %d > remainder %d\n",
+		    (int)sizeof(instlist_t), (int)sizeof(int), ip->namelen, (int)(pdu_end - (char*)ip));
+	    }
 	    sts = PM_ERR_IPC;
 	    goto badsts;
 	}

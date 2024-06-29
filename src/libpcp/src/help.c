@@ -30,8 +30,19 @@ __pmRecvText(int fd, __pmContext *ctxp, int timeout, char **buffer)
 	sts = __pmDecodeText(pb, &ident, buffer);
     else if (sts == PDU_ERROR)
 	__pmDecodeError(pb, &sts);
-    else if (sts != PM_ERR_TIMEOUT)
+    else if (sts != PM_ERR_TIMEOUT) {
+	if (pmDebugOptions.pdu) {
+	    char	strbuf[20];
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    if (sts < 0)
+		fprintf(stderr, "__pmRecvText: PM_ERR_IPC: expecting PDU_TEXT but__pmGetPDU returns %d (%s)\n",
+		    sts, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	    else
+		fprintf(stderr, "__pmRecvText: PM_ERR_IPC: expecting PDU_TEXT but__pmGetPDU returns %d (type=%s)\n",
+		    sts, __pmPDUTypeStr_r(sts, strbuf, sizeof(strbuf)));
+	}
 	sts = PM_ERR_IPC;
+    }
 
     if (pinpdu > 0)
 	__pmUnpinPDUBuf(pb);

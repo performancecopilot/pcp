@@ -83,8 +83,19 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_CALL);
 				      ctxp->c_pmcd->pc_tout_sec, &pb);
 	    if (sts == PDU_ERROR)
 		__pmDecodeError(pb, &sts);
-	    else if (sts != PM_ERR_TIMEOUT)
+	    else if (sts != PM_ERR_TIMEOUT) {
+		if (pmDebugOptions.pdu) {
+		    char	strbuf[20];
+		    char	errmsg[PM_MAXERRMSGLEN];
+		    if (sts < 0)
+			fprintf(stderr, "pmStore_ctx: PM_ERR_IPC: expecting PDU_ERROR but__pmGetPDU returns %d (%s)\n",
+			    sts, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+		    else
+			fprintf(stderr, "pmStore_ctx: PM_ERR_IPC: expecting PDU_ERROR but__pmGetPDU returns %d (type=%s)\n",
+			    sts, __pmPDUTypeStr_r(sts, strbuf, sizeof(strbuf)));
+		}
 		sts = PM_ERR_IPC;
+	    }
 
 	    if (pinpdu > 0)
 		__pmUnpinPDUBuf(pb);

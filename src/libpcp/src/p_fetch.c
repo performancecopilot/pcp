@@ -80,15 +80,35 @@ __pmDecodeFetchPDU(__pmPDU *pdubuf, int *ctxidp, int *numpmidp, pmID **pmidlist)
     pp = (fetch_t *)pdubuf;
     pduend = (char *)pdubuf + pp->hdr.len;
 
-    if (pduend - (char*)pp < sizeof(fetch_t))
+    if (pduend - (char*)pp < sizeof(fetch_t)) {
+	if (pmDebugOptions.pdu) {
+	    fprintf(stderr, "__pmDecodeDescReq: PM_ERR_IPC: remainder %d < sizeof(fetch_t) %d\n",
+		(int)(pduend - (char*)pp), (int)sizeof(fetch_t));
+	}
 	return PM_ERR_IPC;
+    }
     numpmid = ntohl(pp->numpmid);
-    if (numpmid <= 0 || numpmid > pp->hdr.len)
+    if (numpmid <= 0 || numpmid > pp->hdr.len) {
+	if (pmDebugOptions.pdu) {
+	    fprintf(stderr, "__pmDecodeDescReq: PM_ERR_IPC: numpmid %d <= 0 or > hdr.len %d\n",
+		numpmid, pp->hdr.len);
+	}
 	return PM_ERR_IPC;
-    if (numpmid >= (INT_MAX - sizeof(fetch_t)) / sizeof(pmID))
+    }
+    if (numpmid >= (INT_MAX - sizeof(fetch_t)) / sizeof(pmID)) {
+	if (pmDebugOptions.pdu) {
+	    fprintf(stderr, "__pmDecodeDescReq: PM_ERR_IPC: numpmid %d <= 0 or > hdr.len %d\n",
+		numpmid, pp->hdr.len);
+	}
 	return PM_ERR_IPC;
-    if ((pduend - (char *)pp) != sizeof(fetch_t) + ((sizeof(pmID)) * (numpmid-1)))
+    }
+    if ((pduend - (char *)pp) != sizeof(fetch_t) + ((sizeof(pmID)) * (numpmid-1))) {
+	if (pmDebugOptions.pdu) {
+	    fprintf(stderr, "__pmDecodeDescReq: PM_ERR_IPC: remainder %d != sizeof(fetch_t) %d + sizeof(pmID) %d * (numpmid-1) %d\n",
+		(int)(pduend - (char*)pp), (int)sizeof(fetch_t), (int)sizeof(pmID), numpmid-1);
+	}
 	return PM_ERR_IPC;
+    }
 
     for (j = 0; j < numpmid; j++)
 	pp->pmidlist[j] = __ntohpmID(pp->pmidlist[j]);

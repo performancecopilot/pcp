@@ -59,8 +59,13 @@ __pmDecodeDescReq(__pmPDU *pdubuf, pmID *pmid)
     pp = (desc_req_t *)pdubuf;
     pduend = (char *)pdubuf + pp->hdr.len;
 
-    if (pduend - (char*)pp != sizeof(desc_req_t))
+    if (pduend - (char*)pp != sizeof(desc_req_t)) {
+	if (pmDebugOptions.pdu) {
+	    fprintf(stderr, "__pmDecodeDescReq: PM_ERR_IPC: remainder %d != sizeof(desc_req_t) %d\n",
+		(int)(pduend - (char*)pp), (int)sizeof(desc_req_t));
+	}
 	return PM_ERR_IPC;
+    }
 
     *pmid = __ntohpmID(pp->pmid);
     return 0;
@@ -106,8 +111,13 @@ __pmDecodeDesc(__pmPDU *pdubuf, pmDesc *desc)
     pp = (desc_t *)pdubuf;
     pduend = (char *)pdubuf + pp->hdr.len;
 
-    if (pduend - (char*)pp != sizeof(desc_t))
+    if (pduend - (char*)pp != sizeof(desc_t)) {
+	if (pmDebugOptions.pdu) {
+	    fprintf(stderr, "__pmDecodeDesc: PM_ERR_IPC: remainder %d != sizeof(desc_t) %d\n",
+		(int)(pduend - (char*)pp), (int)sizeof(desc_t));
+	}
 	return PM_ERR_IPC;
+    }
 
     desc->type = ntohl(pp->desc.type);
     desc->sem = ntohl(pp->desc.sem);
@@ -172,13 +182,28 @@ __pmDecodeDescs(__pmPDU *pdubuf, int numdescs, pmDesc *desclist)
     pp = (descs_t *)pdubuf;
     pduend = (char *)pdubuf + pp->hdr.len;
 
-    if (pduend - (char*)pp < sizeof(descs_t))
+    if (pduend - (char*)pp < sizeof(descs_t)) {
+	if (pmDebugOptions.pdu) {
+	    fprintf(stderr, "__pmDecodeDescs: PM_ERR_IPC: remainder %d != sizeof(descs_t) %d\n",
+		(int)(pduend - (char*)pp), (int)sizeof(descs_t));
+	}
 	return PM_ERR_IPC;
+    }
     total = ntohl(pp->numdescs);
-    if (total <= 0 || total != numdescs || total > (INT_MAX / sizeof(pmDesc)))
+    if (total <= 0 || total != numdescs || total > (INT_MAX / sizeof(pmDesc))) {
+	if (pmDebugOptions.pdu) {
+	    fprintf(stderr, "__pmDecodeDescs: PM_ERR_IPC: total %d <= 0 or != numdescs %d or > (INT_MAX ...) %d\n",
+		total, numdescs, (int)(INT_MAX / sizeof(pmDesc)));
+	}
 	return PM_ERR_IPC;
-    if (pduend - (char*)pp != sizeof(descs_t) + (total - 1) * sizeof(pmDesc))
+    }
+    if (pduend - (char*)pp != sizeof(descs_t) + (total - 1) * sizeof(pmDesc)) {
+	if (pmDebugOptions.pdu) {
+	    fprintf(stderr, "__pmDecodeDescs: PM_ERR_IPC: remainder %d != sizeof(descs_t) %d + (total-1) %d * sizeof(pmDesc) %d\n",
+		(int)(pduend - (char*)pp), (int)sizeof(descs_t), total-1, (int)sizeof(pmDesc));
+	}
 	return PM_ERR_IPC;
+    }
 
     for (i = count = 0; i < total; i++) {
 	desclist[i].type = ntohl(pp->desc[i].type);
@@ -205,13 +230,28 @@ __pmDecodeDescs2(__pmPDU *pdubuf, int *numdescs, pmDesc **descs)
     pp = (descs_t *)pdubuf;
     pduend = (char *)pdubuf + pp->hdr.len;
 
-    if (pduend - (char*)pp < sizeof(descs_t))
+    if (pduend - (char*)pp < sizeof(descs_t)) {
+	if (pmDebugOptions.pdu) {
+	    fprintf(stderr, "__pmDecodeDescs2: PM_ERR_IPC: remainder %d < sizeof(descs_t) %d\n",
+		(int)(pduend - (char*)pp), (int)sizeof(descs_t));
+	}
 	return PM_ERR_IPC;
+    }
     total = ntohl(pp->numdescs);
-    if (total <= 0 || total > (INT_MAX / sizeof(pmDesc)))
+    if (total <= 0 || total > (INT_MAX / sizeof(pmDesc))) {
+	if (pmDebugOptions.pdu) {
+	    fprintf(stderr, "__pmDecodeDescs2: PM_ERR_IPC: total %d <= 0 or > (INT_MAX ...) %d\n",
+		total, (int)(INT_MAX / sizeof(pmDesc)));
+	}
 	return PM_ERR_IPC;
-    if (pduend - (char*)pp != sizeof(descs_t) + (total - 1) * sizeof(pmDesc))
+    }
+    if (pduend - (char*)pp != sizeof(descs_t) + (total - 1) * sizeof(pmDesc)) {
+	if (pmDebugOptions.pdu) {
+	    fprintf(stderr, "__pmDecodeDescs2: PM_ERR_IPC: remainder %d != sizeof(descs_t) %d + (total-1) %d * sizeof(pmDesc) %d\n",
+		(int)(pduend - (char*)pp), (int)sizeof(descs_t), total-1, (int)sizeof(pmDesc));
+	}
 	return PM_ERR_IPC;
+    }
 
     if ((desclist = malloc(total * sizeof(pmDesc))) == NULL)
 	return -oserror();

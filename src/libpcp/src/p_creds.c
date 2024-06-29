@@ -36,8 +36,13 @@ __pmSendCreds(int fd, int from, int credcount, const __pmCred *credlist)
     int		i;
     int		sts;
 
-    if (credcount <= 0 || credcount > LIMIT_CREDS || credlist == NULL)
+    if (credcount <= 0 || credcount > LIMIT_CREDS || credlist == NULL) {
+	if (pmDebugOptions.pdu) {
+	    fprintf(stderr, "__pmSendCreds: PM_ERR_IPC: credcount %d <= 0 or > LIMIT_CREDS %d or credlist NULL %p\n",
+		credcount, LIMIT_CREDS, credlist);
+	}
 	return PM_ERR_IPC;
+    }
 
     need = sizeof(creds_t) + ((credcount-1) * sizeof(__pmCred));
     if ((pp = (creds_t *)__pmFindPDUBuf((int)need)) == NULL)
@@ -71,11 +76,21 @@ __pmDecodeCreds(__pmPDU *pdubuf, int *sender, int *credcount, __pmCred **credlis
     pp = (creds_t *)pdubuf;
     len = pp->hdr.len;		/* ntohl() converted already in __pmGetPDU() */
     numcred = ntohl(pp->numcreds);
-    if (numcred < 0 || numcred > LIMIT_CREDS)
+    if (numcred < 0 || numcred > LIMIT_CREDS) {
+	if (pmDebugOptions.pdu) {
+	    fprintf(stderr, "__pmDecodeCreds: PM_ERR_IPC: numcred %d < 0 or > LIMIT_CREDS %d\n",
+		numcred, LIMIT_CREDS);
+	}
 	return PM_ERR_IPC;
+    }
     need = sizeof(creds_t) + ((numcred-1) * sizeof(__pmCred));
-    if (need != len)
+    if (need != len) {
+	if (pmDebugOptions.pdu) {
+	    fprintf(stderr, "__pmDecodeCreds: PM_ERR_IPC: need %d != len %d\n",
+		need, len);
+	}
 	return PM_ERR_IPC;
+    }
 
     *sender = pp->hdr.from;	/* ntohl() converted already in __pmGetPDU() */
     if ((list = (__pmCred *)malloc(sizeof(__pmCred) * numcred)) == NULL)

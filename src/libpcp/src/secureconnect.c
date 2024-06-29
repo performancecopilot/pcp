@@ -1062,8 +1062,19 @@ __pmAuthClientNegotiation(int fd, int ssf, const char *hostname, __pmHashCtl *at
     }
     else if (sts == PDU_ERROR)
 	__pmDecodeError(pb, &sts);
-    else if (sts != PM_ERR_TIMEOUT)
+    else if (sts != PM_ERR_TIMEOUT) {
+	if (pmDebugOptions.pdu) {
+	    char	strbuf[20];
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    if (sts < 0)
+		fprintf(stderr, "__pmAuthClientNegotiation: PM_ERR_IPC: expecting PDU_AUTH but__pmGetPDU returns %d (%s)\n",
+		    sts, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	    else
+		fprintf(stderr, "__pmAuthClientNegotiation: PM_ERR_IPC: expecting PDU_AUTH but__pmGetPDU returns %d (type=%s)\n",
+		    sts, __pmPDUTypeStr_r(sts, strbuf, sizeof(strbuf)));
+	}
 	sts = PM_ERR_IPC;
+    }
 
     if (pinned > 0)
 	__pmUnpinPDUBuf(pb);
@@ -1122,8 +1133,19 @@ __pmAuthClientNegotiation(int fd, int ssf, const char *hostname, __pmHashCtl *at
 	}
 	else if (sts == PDU_ERROR)
 	    __pmDecodeError(pb, &sts);
-	else if (sts != PM_ERR_TIMEOUT)
+	else if (sts != PM_ERR_TIMEOUT) {
+	    if (pmDebugOptions.pdu) {
+		char	strbuf[20];
+		char	errmsg[PM_MAXERRMSGLEN];
+		if (sts < 0)
+		    fprintf(stderr, "__pmAuthClientNegotiation: PM_ERR_IPC: expecting PDU_AUTH but__pmGetPDU returns %d (%s)\n",
+			sts, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+		else
+		    fprintf(stderr, "__pmAuthClientNegotiation: PM_ERR_IPC: expecting PDU_AUTH but__pmGetPDU returns %d (type=%s)\n",
+			sts, __pmPDUTypeStr_r(sts, strbuf, sizeof(strbuf)));
+	    }
 	    sts = PM_ERR_IPC;
+	}
 
 	if (pinned > 0)
 	    __pmUnpinPDUBuf(pb);
@@ -1175,6 +1197,16 @@ __pmSecureClientHandshake(int fd, int flags, const char *hostname, __pmHashCtl *
 	if (sts != PDU_ERROR) {
 	    if (pinpdu > 0)
 		__pmUnpinPDUBuf(&rpdu);
+	    if (pmDebugOptions.pdu) {
+		char	strbuf[20];
+		char	errmsg[PM_MAXERRMSGLEN];
+		if (sts < 0)
+		    fprintf(stderr, "__pmSecureClientHandshake: PM_ERR_IPC: expecting PDU_ERROR but__pmGetPDU returns %d (%s)\n",
+			sts, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+		else
+		    fprintf(stderr, "__pmSecureClientHandshake: PM_ERR_IPC: expecting PDU_ERROR but__pmGetPDU returns %d (type=%s)\n",
+			sts, __pmPDUTypeStr_r(sts, strbuf, sizeof(strbuf)));
+	    }
 	    return PM_ERR_IPC;
 	}
 	sts = __pmDecodeError(rpdu, &serverSts);

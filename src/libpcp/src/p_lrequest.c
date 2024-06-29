@@ -69,8 +69,13 @@ __pmDecodeLogRequest(const __pmPDU *pdubuf, int *type)
     pp = (const notify_t *)pdubuf;
     pduend = (const char *)pdubuf + pp->hdr.len;
 
-    if (pduend - (char*)pp < sizeof(notify_t))
+    if (pduend - (char*)pp < sizeof(notify_t)) {
+	if (pmDebugOptions.pdu) {
+	    fprintf(stderr, "__pmDecodeLogRequest: PM_ERR_IPC: remainder %d < sizeof(notify_t) %d\n",
+		(int)(pduend - (char*)pp), (int)sizeof(notify_t));
+	}
 	return PM_ERR_IPC;
+    }
 
     *type = ntohl(pp->type);
     if (pmDebugOptions.pmlc) {

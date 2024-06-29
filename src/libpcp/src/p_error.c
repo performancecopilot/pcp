@@ -118,6 +118,10 @@ __pmDecodeError(__pmPDU *pdubuf, int *code)
 
     pp = (p_error_t *)pdubuf;
     if (pp->hdr.len != sizeof(p_error_t) && pp->hdr.len != sizeof(x_error_t)) {
+	if (pmDebugOptions.pdu) {
+	    fprintf(stderr, "__pmDecodeError: PM_ERR_IPC: hdr.len %d != sizeof(p_error_t) %d and != sizeof(x_error_t) %d\n",
+		pp->hdr.len, (int)sizeof(p_error_t), (int)sizeof(x_error_t));
+	}
 	sts = *code = PM_ERR_IPC;
     } else {
 	*code = ntohl(pp->code);
@@ -137,6 +141,10 @@ __pmDecodeXtendError(__pmPDU *pdubuf, int *code, int *datum)
     int		sts;
 
     if (pp->hdr.len != sizeof(p_error_t) && pp->hdr.len != sizeof(x_error_t)) {
+	if (pmDebugOptions.pdu) {
+	    fprintf(stderr, "__pmDecodeXtendError: PM_ERR_IPC: hdr.len %d != sizeof(p_error_t) %d and != sizeof(x_error_t) %d\n",
+		pp->hdr.len, (int)sizeof(p_error_t), (int)sizeof(x_error_t));
+	}
 	*code = PM_ERR_IPC;
     } else {
 	/*
@@ -151,6 +159,10 @@ __pmDecodeXtendError(__pmPDU *pdubuf, int *code, int *datum)
 	*datum = pp->datum; /* NOTE: caller must swab this */
     }
     else {
+	if (pmDebugOptions.pdu) {
+	    fprintf(stderr, "__pmDecodeXtendError: PM_ERR_IPC: hdr.len %d != sizeof(x_error_t) %d\n",
+		pp->hdr.len, (int)sizeof(x_error_t));
+	}
 	sts = PM_ERR_IPC;
     }
     if (pmDebugOptions.context)

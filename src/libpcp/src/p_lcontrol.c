@@ -117,8 +117,13 @@ __pmDecodeLogControl(const __pmPDU *pdubuf, __pmResult **request, int *control, 
 
     pp = (const control_req_t *)pdubuf;
     pduend = (char *)pdubuf + pp->c_hdr.len;
-    if (pduend - (char *)pdubuf < sizeof(control_req_t))
+    if (pduend - (char *)pdubuf < sizeof(control_req_t)) {
+	if (pmDebugOptions.pdu) {
+	    fprintf(stderr, "__pmDecodeLogControl: PM_ERR_IPC: remainder %d < sizeof(control_req_t) %d\n",
+		(int)(pduend - (char*)pdubuf), (int)sizeof(control_req_t));
+	}
 	return PM_ERR_IPC;
+    }
 
     *control = ntohl(pp->c_control);
     *state = ntohl(pp->c_state);
@@ -126,10 +131,20 @@ __pmDecodeLogControl(const __pmPDU *pdubuf, __pmResult **request, int *control, 
     numpmid = ntohl(pp->c_numpmid);
     vp = (vlist_t *)pp->c_data;
 
-    if (numpmid < 0 || numpmid > pp->c_hdr.len)
+    if (numpmid < 0 || numpmid > pp->c_hdr.len) {
+	if (pmDebugOptions.pdu) {
+	    fprintf(stderr, "__pmDecodeLogControl: PM_ERR_IPC: numpmid %d < 0 or > c_hdr.len %d\n",
+		numpmid, pp->c_hdr.len);
+	}
 	return PM_ERR_IPC;
-    if (numpmid >= (INT_MAX - sizeof(pmResult)) / sizeof(pmValueSet *))
+    }
+    if (numpmid >= (INT_MAX - sizeof(pmResult)) / sizeof(pmValueSet *)) {
+	if (pmDebugOptions.pdu) {
+	    fprintf(stderr, "__pmDecodeLogControl: PM_ERR_IPC: numpmid %d >= (INT_MAX ...) %d\n",
+		numpmid, (int)((INT_MAX - sizeof(pmResult)) / sizeof(pmValueSet *)));
+	}
 	return PM_ERR_IPC;
+    }
     if ((req = __pmAllocResult(numpmid)) == NULL) {
 	pmNoMem("__pmDecodeLogControl.req", sizeof(__pmResult) + (numpmid - 1) * sizeof(pmValueSet *), PM_RECOV_ERR);
 	return -oserror();
@@ -139,26 +154,48 @@ __pmDecodeLogControl(const __pmPDU *pdubuf, __pmResult **request, int *control, 
     sts = PM_ERR_IPC;
     for (i = 0; i < numpmid; i++) {
 	/* check that numval field is within the input buffer */
-	if (pduend - (char *)vp < sizeof(vlist_t) - sizeof(__pmValue_PDU))
+	if (pduend - (char *)vp < sizeof(vlist_t) - sizeof(__pmValue_PDU)) {
 	    goto corrupt;
+	}
 	nv = (int)ntohl(vp->v_numval);
-	if (nv > pp->c_hdr.len)
+	if (nv > pp->c_hdr.len) {
 	    goto corrupt;
+	}
 	if (nv <= 0) {
 	    need = sizeof(pmValueSet) - sizeof(pmValue);
 	    /* check that pointer cannot move beyond input buffer end */
-	    if (pduend - (char *)vp < sizeof(vlist_t) - sizeof(__pmValue_PDU))
+	    if (pduend - (char *)vp < sizeof(vlist_t) - sizeof(__pmValue_PDU)) {
+		if (pmDebugOptions.pdu) {
+		    fprintf(stderr, "__pmDecodeLogControl: PM_ERR_IPC: remainder %d < sizeof(vlist_t) %d - sizeof(__pmValue_PDU) %d\n",
+			(int)(pduend - (char *)vp), (int)sizeof(vlist_t), (int)sizeof(__pmValue_PDU));
+		}
 		goto corrupt;
+	    }
 	} else {
 	    /* check that dynamic allocation argument will not wrap */
-	    if (nv >= (INT_MAX - sizeof(pmValueSet)) / sizeof(pmValue))
+	    if (nv >= (INT_MAX - sizeof(pmValueSet)) / sizeof(pmValue)) {
+		if (pmDebugOptions.pdu) {
+		    fprintf(stderr, "__pmDecodeLogControl: PM_ERR_IPC: dst nv %d < (INT_MAX ...) %d\n",
+			nv, (int)((INT_MAX - sizeof(pmValueSet)) / sizeof(pmValue)));
+		}
 		goto corrupt;
+	    }
 	    need = sizeof(pmValueSet) + ((nv - 1) * sizeof(pmValue));
 	    /* check that pointer cannot move beyond input buffer end */
-	    if (nv >= (INT_MAX - sizeof(vlist_t)) / sizeof(__pmValue_PDU))
+	    if (nv >= (INT_MAX - sizeof(vlist_t)) / sizeof(__pmValue_PDU)) {
+		if (pmDebugOptions.pdu) {
+		    fprintf(stderr, "__pmDecodeLogControl: PM_ERR_IPC: src nv %d < (INT_MAX ...) %d\n",
+			nv, (int)((INT_MAX - sizeof(vlist_t)) / sizeof(__pmValue_PDU)));
+		}
 		goto corrupt;
-	    if (pduend - (char *)vp < sizeof(vlist_t) + ((nv - 1) * sizeof(__pmValue_PDU)))
+	    }
+	    if (pduend - (char *)vp < sizeof(vlist_t) + ((nv - 1) * sizeof(__pmValue_PDU))) {
+		if (pmDebugOptions.pdu) {
+		    fprintf(stderr, "__pmDecodeLogControl: PM_ERR_IPC: remainder %d < sizeof(vlist_t) %d + (nv-1) %d * sizeof(__pmValue_PDU) %d\n",
+			(int)(pduend - (char *)vp), (int)sizeof(vlist_t), nv-1, (int)sizeof(__pmValue_PDU));
+		}
 		goto corrupt;
+	    }
 	}
 	if ((vsp = (pmValueSet *)malloc(need)) == NULL) {
 	    pmNoMem("__pmDecodeLogControl.vsp", need, PM_RECOV_ERR);

@@ -60,8 +60,13 @@ __pmDecodeTextReq(__pmPDU *pdubuf, int *ident, int *type)
     pp = (text_req_t *)pdubuf;
     pduend = (char *)pdubuf + pp->hdr.len;
 
-    if (pduend - (char*)pp < sizeof(text_req_t))
+    if (pduend - (char*)pp < sizeof(text_req_t)) {
+	if (pmDebugOptions.pdu) {
+	    fprintf(stderr, "__pmDecodeTextReq: PM_ERR_IPC: remainder %d < sizeof(text_req_t) %d\n",
+		(int)(pduend - (char*)pp), (int)sizeof(text_req_t));
+	}
 	return PM_ERR_IPC;
+    }
 
     *type = ntohl(pp->type);
     if ((*type) & PM_TEXT_PMID)
@@ -131,8 +136,13 @@ __pmDecodeText(__pmPDU *pdubuf, int *ident, char **buffer)
     pp = (text_t *)pdubuf;
     pduend = (char *)pdubuf + pp->hdr.len;
 
-    if (pduend - (char*)pp < sizeof(text_t) - sizeof(int))
+    if (pduend - (char*)pp < sizeof(text_t) - sizeof(int)) {
+	if (pmDebugOptions.pdu) {
+	    fprintf(stderr, "__pmDecodeTextReq: PM_ERR_IPC: remainder %d < sizeof(text_t) %d - sizeof(int) %d\n",
+		(int)(pduend - (char*)pp), (int)sizeof(text_t), (int)sizeof(int));
+	}
 	return PM_ERR_IPC;
+    }
 
     /*
      * Note: ident argument is returned in network byte order.
@@ -143,10 +153,20 @@ __pmDecodeText(__pmPDU *pdubuf, int *ident, char **buffer)
      */
     *ident = pp->ident;
     buflen = ntohl(pp->buflen);
-    if (buflen < 0 || buflen >= INT_MAX - 1 || buflen > pp->hdr.len)
+    if (buflen < 0 || buflen >= INT_MAX - 1 || buflen > pp->hdr.len) {
+	if (pmDebugOptions.pdu) {
+	    fprintf(stderr, "__pmDecodeTextReq: PM_ERR_IPC: buflen %d < 0 or >= INT_MAX-1 %d or > hdr.len %d\n",
+		buflen, INT_MAX-1, pp->hdr.len);
+	}
 	return PM_ERR_IPC;
-    if (pduend - (char *)pp < sizeof(text_t) - sizeof(pp->buffer) + buflen)
+    }
+    if (pduend - (char *)pp < sizeof(text_t) - sizeof(pp->buffer) + buflen) {
+	if (pmDebugOptions.pdu) {
+	    fprintf(stderr, "__pmDecodeTextReq: PM_ERR_IPC: remainder %d < sizeof(text_t) %d - sizeof(buffer) %d + buflen %d\n",
+		(int)(pduend - (char*)pp), (int)sizeof(text_t), (int)sizeof(pp->buffer), buflen);
+	}
 	return PM_ERR_IPC;
+    }
     if ((bp = (char *)malloc(buflen+1)) == NULL)
 	return -oserror();
     strncpy(bp, pp->buffer, buflen);

@@ -46,8 +46,19 @@ __pmControlLog(int fd, const __pmResult *request, int control, int state, int de
 	}
 	else if (n == PDU_ERROR)
 	    __pmDecodeError(pb, &n);
-	else if (n != PM_ERR_TIMEOUT)
+	else if (n != PM_ERR_TIMEOUT) {
+	    if (pmDebugOptions.pdu) {
+		char	strbuf[20];
+		char	errmsg[PM_MAXERRMSGLEN];
+		if (n < 0)
+		    fprintf(stderr, "__pmControlLog: PM_ERR_IPC: expecting PDU_RESULT but__pmGetPDU returns %d (%s)\n",
+			n, pmErrStr_r(n, errmsg, sizeof(errmsg)));
+		else
+		    fprintf(stderr, "__pmControlLog: PM_ERR_IPC: expecting PDU_RESULT but__pmGetPDU returns %d (type=%s)\n",
+			n, __pmPDUTypeStr_r(n, strbuf, sizeof(strbuf)));
+	    }
 	    n = PM_ERR_IPC; /* unknown reply type */
+	}
 	if (pinpdu > 0)
 	    __pmUnpinPDUBuf(pb);
     }
