@@ -1097,7 +1097,12 @@ End-of-File
 
 	if $qflag || $rflag || $hflag
 	then
-	    ssh -t $qa_user@$host sh -c ./daily.qa.script
+	    # -o LogLevel=FATAL to get rid of
+	    #     connect /tmp/.X11-unix/X0: No such file or directory
+	    # from local ssh client, as per suggestion at
+	    # https://stackoverflow.com/questions/56825547
+	    #
+	    ssh -o LogLevel=FATAL -t $qa_user@$host sh -c ./daily.qa.script
 	    scp -q $qa_user@$host:daily.qa.log $tmp.out
 	    echo "=== qa: `date` ===" >>$log
 	    cat $tmp.out >>$log
