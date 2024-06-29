@@ -148,7 +148,7 @@ export LC_COLLATE=POSIX
 case `umask`
 in
     *022)	;;
-    *)		echo "Warning: changing umask from `umask` to 0022"
+    *)		echo >&2 "Warning: changing umask from `umask` to 0022"
     		umask 0022
 		;;
 esac
