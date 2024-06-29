@@ -77,7 +77,7 @@ typedef struct {
 static trace_t		tracebuf[NUMTRACE];
 static unsigned int	tracenext;
 
-static int		mypid = -1;
+static pid_t		mypid = -1;
 static int              ceiling = PDU_CHUNK * 64;
 
 static struct timeval	req_wait = { 10, 0 };
@@ -256,6 +256,7 @@ pduread(int fd, char *buf, int len, int part, int timeout)
 		onetrip = 0;
 	    }
 
+again:
 	    status = __pmSocketReady(fd, &wait);
 	    if (status > 0) {
 		gettimeofday(&now, NULL);
@@ -292,12 +293,17 @@ pduread(int fd, char *buf, int len, int part, int timeout)
 		return PM_ERR_TIMEOUT;
 	    }
 	    else if (status < 0) {
+		char	errmsg[PM_MAXERRMSGLEN];
 		status = -neterror();
-		if (status != -EINTR) {
-		    char	errmsg[PM_MAXERRMSGLEN];
-		    pmNotifyErr(LOG_ERR, "pduread: select() on fd=%d status=%d: %s",
-			fd, status, netstrerror_r(errmsg, sizeof(errmsg)));
+		if (status == -EINTR) {
+		    /* interrupted __pmSocketReady() and no data ... keep trying */
+		    if (pmDebugOptions.pdu && pmDebugOptions.desperate) {
+			fprintf(stderr, "pduread(%d, ...): __pmSocketReady() interrupt!\n", fd);
+		    }
+		    goto again;
 		}
+		pmNotifyErr(LOG_ERR, "pduread: select() on fd=%d status=%d: %s",
+		    fd, status, netstrerror_r(errmsg, sizeof(errmsg)));
 		setoserror(neterror());
 		return status;
 	    }
@@ -310,6 +316,13 @@ pduread(int fd, char *buf, int len, int part, int timeout)
 	}
 	__pmOverrideLastFd(fd);
 	if (status <= 0) {
+	    if (oserror() == EINTR) {
+		/* interrupted read() and no data ... keep trying */
+		if (pmDebugOptions.pdu && pmDebugOptions.desperate) {
+		    fprintf(stderr, "pduread(%d, ...): read() interrupt!\n", fd);
+		}
+		continue;
+	    }
 	    /* end of file or error */
 	    if (pmDebugOptions.pdu && pmDebugOptions.desperate) {
 		char	errmsg[PM_MAXERRMSGLEN];
@@ -446,8 +459,8 @@ __pmXmitPDU(int fd, __pmPDU *pdubuf)
 	    *p++ = '~';	/* buffer end */
 
 	if (mypid == -1)
-	    mypid = (int)getpid();
-	fprintf(stderr, "[%d]%s: %s fd=%d len=%d", mypid, "pmXmitPDU",
+	    mypid = getpid();
+	fprintf(stderr, "[%" FMT_PID "]%s: %s fd=%d len=%d", mypid, "pmXmitPDU",
 		__pmPDUTypeStr_r(php->type, strbuf, sizeof(strbuf)), fd, php->len);
 	for (j = 0; j < jend; j++) {
 	    if ((j % 8) == 0)
@@ -726,11 +739,9 @@ check_read_len:
 	    *p++ = '~';	/* buffer end */
 
 	if (mypid == -1)
-	    mypid = (int)getpid();
-	fprintf(stderr, "[%d]%s: %s fd=%d len=%d from=%d",
-			mypid, "pmGetPDU",
-			__pmPDUTypeStr_r(php->type, strbuf, sizeof(strbuf)),
-			fd, php->len, php->from);
+	    mypid = getpid();
+	fprintf(stderr, "[%" FMT_PID "]%s: %s fd=%d len=%d from=%d", mypid, "pmGetPDU",
+		__pmPDUTypeStr_r(php->type, strbuf, sizeof(strbuf)), fd, php->len, php->from);
 	for (j = 0; j < jend; j++) {
 	    if ((j % 8) == 0)
 		fprintf(stderr, "\n%03d: ", j);
