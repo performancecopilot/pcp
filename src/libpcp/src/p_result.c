@@ -394,7 +394,7 @@ __pmDecodeValueSet(__pmPDU *pdubuf, int pdulen, __pmPDU *data, char *pduend,
 	    vsize += sizeof(vlp->valfmt) + numval * sizeof(__pmValue_PDU);
 	    nvsize += (numval - 1) * sizeof(pmValue);
 
-	    if (pmDebugOptions.pdu)
+	    if (pmDebugOptions.pdu && pmDebugOptions.desperate)
 		fprintf(stderr, " valfmt: %s",
 			valfmt == PM_VAL_INSITU ? "insitu" : "ptr");
 
