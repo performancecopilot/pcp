@@ -33,6 +33,17 @@ _cleanup()
     done
 }
 
+_filter()
+{
+    # diagnostics first ...
+    #
+    grep '^+++' <$tmp.out >>$here/$seq.full
+    # and the other lines
+    #
+    grep -v '^+++' <$tmp.out
+}
+
+
 status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 $sudo rm -f $here/statsd/output/*
@@ -45,7 +56,8 @@ _stop_auto_restart pmcd
 
 cd $here/statsd/src
 test -d $here/statsd/output || mkdir $here/statsd/output
-$sudo $python cases/15.py $here/statsd/output
+$sudo $python cases/15.py $here/statsd/output >$tmp.out 2>&1
+_filter
 
 cd $here
 status=0
