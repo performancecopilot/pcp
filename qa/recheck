@@ -3,13 +3,52 @@
 # Rerun check for all the tests that failed last time ... the
 # ones with a *.out.bad file
 #
+# Default is to SKIP triaged ones, use -t to include triaged
+# ones.
+#
 
-list=`echo *.out.bad | sed -e 's/.out.bad//g'`
+tmp=/var/tmp/recheck-$$
+status=0
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
-if [ "$list" = "*" ]
+# all args except -t pass thru to check
+#
+args=''
+list=''
+while [ $# -gt 0 ]
+do
+    if [ "X$1" = "X-t" ]
+    then
+	list=`echo *.out.bad | sed -e 's/.out.bad//g'`
+    else
+	args="$args $1"
+    fi
+    shift
+done
+
+if [ -z "$list" ]
 then
-    echo "Nothing failed, bozo!"
+    # no -t, skip triaged test faulures
+    #
+    list=`
+	ls *.out.bad \
+	| while read f
+	do
+	    if grep -q "^\[triaged]$" "$f"
+	    then
+		seq=$(echo "$f" | sed -e 's/.out.bad//')
+		echo >&2 "$seq: not rechecked [triaged]"
+	    else
+		echo "$f"
+	    fi
+	done \
+	| sed -e 's/.out.bad//'`
+fi
+
+if [ -z "$list" -o "$list" = "*" ]
+then
+    echo "Nothing to recheck, bozo!"
     exit 1
 fi
 
-./check $list $*
+./check $args $list
