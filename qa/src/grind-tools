@@ -245,6 +245,9 @@ END		{ print "]" }' >$tmp.config
 	    cat $tmp.out
 	    status=1
     fi
+else
+    echo >&2 "Info: pmdumptext skipped, no binary installed"
+    $verbose && echo "pmdumptext (extended) OK"
 fi
 
 # pmchart
