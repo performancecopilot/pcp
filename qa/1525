@@ -1,0 +1,63 @@
+#!/bin/sh
+# PCP QA Test No. 1525 (SGI test 1013 and formerly 213)
+# Check generation of pmview config files of pmview front-ends.
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved..
+# Copyright (c) 2024 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard Qt environment, filters and checks
+. ./common.qt
+
+$sudo rm -rf $tmp $tmp.* $seq.full
+
+
+status=0	# success is the default!
+trap "_cleanup_qt; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    _filter_qt \
+    | sed \
+	-e "s@$tmp@TMP@g" \
+	-e '/cannot open/s@/tmp/[0-9][0-9]*.ctrls@TMP.ctrls@' \
+    # end
+}
+
+# real QA test starts here
+PCP_STDERR=$tmp.err
+
+archive=archives/babylon.pmview_v2
+for tool in dkvis mpvis nfsvis
+do
+    rm -f $tmp.err
+    echo "--- $tool -a $archive ... --"
+    $tool -a $archive -C -C -V
+    [ -s $tmp.err ] && cat $tmp.err
+done
+
+archive=archives/20180415.09.16
+for tool in osvis
+do
+    rm -f $tmp.err
+    echo "--- $tool -a $archive ... --"
+    $tool -a $archive -C -C -V 2>&1 | _filter
+    if [ -s $tmp.err ]
+    then
+	echo "+++ stderr"
+	cat $tmp.err
+    fi
+done
+
+# all done
+exit
