@@ -24,6 +24,7 @@ _usage()
     echo >&2
     echo >&2 "Options:"
     echo >&2 "-n   show-me, change nothing"
+    echo >&2 "-q   quiet|quick (no editing of skeletal test)"
     echo >&2 "-r   reserve (and skeletal test added)"
     echo >&2 "-s   pick smallest unallocated test number"
     echo >&2 "     [default and preferred is to choose at random]"
@@ -36,15 +37,18 @@ _usage()
 }
 
 showme=false
+quick=false
 reserve=false
 verbose=false
 smallest=false
 random=true
-while getopts 'nrsv?' p
+while getopts 'nqrsv?' p
 do
     case "$p"
     in
 	n)	showme=true
+		;;
+	q)	quick=true
 		;;
 	r)	reserve=true
 		;;
@@ -137,15 +141,21 @@ then
 fi
 
 try=""
-if [ $# -gt 0 ]
+if $smallest
 then
-    if [ x"$1" != x- ]
+    :
+else
+    if [ $# -gt 0 ]
     then
-	try=`printf "%03d\n" $1`
-	random=false
+	if [ x"$1" != x- ]
+	then
+	    try=`printf "%03d\n" $1`
+	    random=false
+	fi
+	shift
     fi
-    shift
 fi
+
 if [ -z "$try" ]
 then
     if $smallest
@@ -289,16 +299,19 @@ exit
 End-of-File
 chmod 755 $id
 
+tag=""
 if $reserve
 then
     echo "Creating skeletal $id script"
     tag=":reserved"
+elif $quick
+then
+    echo "Skeletal $id script created"
 else
     $PCP_ECHO_PROG $PCP_ECHO_N "Creating skeletal $id script for you to edit ...""$PCP_ECHO_C"
     sleep 2		# latency to read messages to this point, before vi(1)
     echo ""
     ${EDITOR-vi} $id
-    tag=""
 fi
 
 if [ $# -eq 0 ]
