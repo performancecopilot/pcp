@@ -47,3 +47,14 @@ _cleanup_qt()
     cd $here
     $sudo rm -rf $tmp $tmp.*
 }
+
+# Qt related warnings that sometimes appear ...
+#
+_filter_qt()
+{
+    sed \
+	-e '/QStandardPaths: XDG_RUNTIME_DIR not set, defaulting/d' \
+	-e '/QObject::connect: No such slot SoQtGLWidgetP::gl_changed()/d' \
+	-e "/QObject::connect:  (sender name:   'QtGLAreaWindow')/d" \
+    # end
+}
