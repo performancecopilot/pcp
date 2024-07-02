@@ -182,7 +182,8 @@ ECHO	= @echo@
 LN_S	= @LN_S@
 GREP    = @grep@
 GIT	= @GIT@
-MANLINT	= $(TOPDIR)/scripts/man-lint
+# man-lint should not break the build (-f)
+MANLINT	= $(TOPDIR)/scripts/man-lint -f
 PYLINT	= @PYLINT@ --rcfile=$(TOPDIR)/.pylintrc --output-format=colorized
 PYTHON	= @PYTHON@
 PYTHON3	= @PYTHON3@
