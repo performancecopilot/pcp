@@ -1,0 +1,206 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.TH OSVIS 1 "" "Performance Co-Pilot"
+.SH NAME
+\f3osvis\f1 \- visualize high-level system activity
+.SH SYNOPSIS
+\f3osvis\f1
+[\f3\-V\f1]
+[\f3\-b\f1 \f2bytes\f1]
+[\f3\-d\f1 \f2activity\f1]
+[\f3\-i\f1 \f2ops\f1]
+[\f3\-m\f1 \f2packets\f1]
+[\f2pmview options\f1]
+[\f2interface\f1 ...]
+.SH DESCRIPTION
+.B osvis
+displays an high-level overview of performance statistics collected from 
+the Performance Co-Pilot
+.RB ( PCP (1))
+infrastructure.  The display is modulated by the values of the
+performance metrics retrieved from the target
+.I host
+(which is running
+.BR pmcd (1))
+or from the PCP archive log identified by
+.IR archive .
+The display is updated
+every
+.I interval
+seconds (default 2 seconds).
+.PP
+As in all
+.BR pmview (1)
+scenes, when the mouse is moved over one of the bars,
+the current value and metric information for that bar
+will be shown in the text box near the top of the display.
+The height and/or color of the bars is proportional to the
+performance metric values relative to the maximum
+expected activity,
+as controlled by the
+.BR \-d ,
+.B \-i
+and
+.B \-m
+options (see below).
+.PP
+The bars in the
+.B osvis
+scene represent the following information:
+.TP 4
+.B "CPU"
+This column shows CPU utilization, aggregated over all CPUs.
+.TP 4
+.B Disk
+The first stack is the rate of disk read and write operations aggregated over
+all disk spindles.  The second bar is the average time the disks are busy,
+which approximates average time utilization of all disks.
+.TP 4
+.B Disk Controllers
+The average time the disks were busy on each controller, which approximates
+the average time utilization of all disks on each controller.
+.TP 4
+.B Load
+The three bars represent the average load for the past 1, 5 and 15 minutes.
+This is normalized by twice the number of CPUs on the machine.
+.TP 4
+.B Mem
+The stack shows memory utilization by breaking down real memory into
+kernel, file system and user usage.  The memory utilization metrics
+.RI ( mem.util )
+may not be available on all hosts, so 
+.B Mem
+may only show the amount of free memory as a single bar on some hosts.
+.TP 4
+.B "Network Input"
+The two rows of bars show the input byte rate and the input packet rate
+for each network interface, except loopback and slip interfaces.
+.TP 4
+.B "Network Output"
+The two rows of bars show the output byte rate and the output packet rate
+for each network interface, except for loopback and slip interfaces.
+.SH COMMAND LINE OPTIONS
+If any optional
+.I interface
+arguments are specified in the command line, then just the
+network interfaces matching the
+.I interface
+arguments will appear in the
+.B "Network Input"
+and
+.B "Network Output"
+sections.  By default, all interfaces will be used.
+The
+.I interface
+arguments are used as patterns for
+.BR egrep (1)
+matching against the interface names, so
+.B ec
+would select all external Ethernet interfaces for a Challenge S.
+.PP
+.B osvis
+uses
+.BR pmview (1),
+and so the user interface follows
+that described for
+.BR pmview (1),
+which in turn displays the scene
+within an
+Inventor examiner viewer.
+.PP
+.B osvis
+passes most command line options to
+.BR pmview (1).
+Therefore, the command line options
+.BR \-A ,
+.BR \-a ,
+.BR \-C ,
+.BR \-h ,
+.BR \-n ,
+.BR \-O ,
+.BR \-p ,
+.BR \-S ,
+.BR \-t ,
+.BR \-T ,
+.BR \-x ,
+.BR \-Z
+and
+.BR \-z ,
+and the user interface are described in the
+.BR pmview (1)
+man page.
+.PP
+Options specific to
+.B osvis
+are:
+.IP \f3\-b\f1
+Controls the maximum expected network throughput, in bytes.
+The default value is 65536 bytes.
+.IP \f3\-d\f1
+Controls the maximum expected disk utilization, as a percentage.
+The default value is 30%.
+.IP \f3\-i\f1
+Controls the maximum (normalization) value for the disk read and write rates.
+The default value is 100 operations/second.
+.IP \f3\-m\f1
+Controls the maximum (normalization) value for 
+the packet input and packet output rates.
+The default value is 750 packets/second.
+.IP \f3\-V\f1
+The derived configuration file for
+.BR pmview (1)
+is written on standard output.
+This may be saved and used directly with
+.B pmview
+if the user wishes to customize the display, or modify some of
+the normalization parameters.
+.SH FILES
+.PD 0
+.TP 10
+.BI $PCP_VAR_DIR/pmns/ *
+default PMNS specification files
+.TP
+.B $PCP_VAR_DIR/config/pmlogger/config.osvis
+.BR pmlogger (1)
+configuration file that can be used to create a PCP archive
+suitable for display with
+.B osvis
+.PD
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (4).
+.SH SEE ALSO
+.BR pmcd (1),
+.BR pmlogger (1),
+.BR pmview (1),
+.BR pcp.conf (4),
+.BR pcp.env (4)
+and
+.BR pmlaunch (5).
+.SH DIAGNOSTICS
+.B osvis
+will silently remove those blocks from the scene whose metrics are not
+available from the live host or the archive.

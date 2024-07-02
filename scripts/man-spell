@@ -21,7 +21,11 @@
 # Copyright (c) 2024 Ken McDonell, Inc.  All Rights Reserved.
 #
 
-usage="Usage: man-spell [-dex] filename"
+usage='Usage: man-spell [-de] filename ...
+
+Options:
+ -d	debug
+ -e	emit .\" +ok+  control lines'
 
 export LC_COLATE=POSIX
 
@@ -54,7 +58,6 @@ _istroff()
 
 debug=0
 emit=false
-check=false
 while getopts "de?" c
 do
     case $c
@@ -62,8 +65,6 @@ do
 	d)	debug=`expr $debug + 1`
 		;;
 	e)	emit=true
-		;;
-	x)	check=true
 		;;
 	?)	echo >&2 "$usage"
 		exit

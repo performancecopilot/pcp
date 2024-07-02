@@ -1,0 +1,231 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2002 Silicon Graphics, Inc.  All Rights Reserved.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.TH DKVIS 1 ""Performance Co-Pilot"
+.SH NAME
+\f3dkvis\f1 \- visualize disk I/O activity and performance
+.\" literals use .B or \f3
+.\" arguments use .I or \f2
+.SH SYNOPSIS
+\f3dkvis\f1
+[\f3\-brVw\f1]
+[\f3\-m\f1 \f2maxrate\f1]
+[\f3\-X\f1 \f2ndisk\f1]
+[\f3\-Y\f1 \f2nctl\f1]
+[\f2pmview options\f1]
+[\f2diskid ...\f1]
+.SH DESCRIPTION
+.B dkvis
+displays a three dimensional bar chart of disk activity.  Each row of bars
+on the base plane represents a disk controller (or host adapter, or bus),
+and the bars within a row correspond to the disks attached to the controller.
+.PP
+The label to the left of each row identifies the common part of
+disk name for all disks in that row, e.g. \c
+.B dks3
+for all IRIX SCSI disks attached to controller number 3.
+.PP
+The height of the bars is proportional to the activity.
+.PP
+The user can specify a list of disks as \f2diskid\f1 arguments
+using the disk naming scheme reported by
+.sp 0.5v
+.ft CW
+.ti 1i
+$ pminfo -f disk.dev.total
+.sp 0.5v
+.ft R
+.br
+e.g. \c
+.B hda
+or
+.B dks0d4
+or
+.B sda
+or
+.B scsi/host1/bus0/target4/lun0/disc
+or
+.B 20000080e5114459/lun3/c2p1
+depending on the type of disks.
+Alternatively, if the
+.I diskid
+argument contains one of the characters
+.B ^
+or
+.B .
+or
+.B [
+then
+.I diskid
+will be treated as a regular expression in the style of
+.BR egrep (1)
+and the matching set of disk names will be used instead of
+.IR diskid .
+.PP
+If one or more
+.I diskid
+arguments is specified, only the disks in this list are
+displayed in the view.  The disks are grouped in the scene
+by controller as in the default scene when all disks are present.
+.PP
+.B dkvis
+generates a
+.BR pmview (1)
+configuration file, and passes most command line options to
+.BR pmview (1).
+Therefore, the command line options 
+.BR \-A ,
+.BR \-a ,
+.BR \-C ,
+.BR \-h ,
+.BR \-n ,
+.BR \-O ,
+.BR \-p ,
+.BR \-S ,
+.BR \-t ,
+.BR \-T ,
+.BR \-Z
+and
+.BR \-z ,
+and the user interface are described in the
+.BR pmview (1)
+man page.
+.SH COMMAND LINE OPTIONS
+The
+.B dkvis
+specific options are:
+.IP \f3\-b\f1
+Report the activity as data throughput in
+Kbytes per second rather than the
+default I/O operations per second (IOPS).
+.IP \f3\-m\f1
+Use
+.I maxrate
+as the maximum activity from which utilization percentages are computed.
+This effectively specifies the height at which bars will be clipped.
+If
+.B \-b
+is specified the default maximum value is 2048 Kbytes per second,
+otherwise the default maximum value is 150 IOPS.
+.IP \f3\-r\f1
+Display the read activity.
+The default is to display the total (read and write) activity.
+.IP \f3\-V\f1
+Verbose mode \- output the generated
+.BR pmview (1)
+configuration file.
+.IP \f3\-w\f1
+Display the write activity.
+The default is to display the total (read and write) activity.
+.IP \f3\-X\f1
+The default arrangement attempts to display up to 12 disks on
+the same controller in a single row.
+When more than 12 disks are associated with a controller,
+additional rows are created in an attempt to achieve
+a baseplane footprint for the scene that is as close to square as we
+can manage.
+.RS
+.PP
+The
+.B \-X
+option may be used to over-ride the default layout algorithm and force
+a scene in which each row contains no more than
+.I ndisk
+disks.
+.RE
+.IP \f3\-Y\f1
+The default arrangement attempts to display disks for
+up to 16 controller rows in a single block.
+When more than 16 controller rows
+are present, additional blocks are created in an attempt to achieve
+a baseplane footprint for the scene that is as close to square as we
+can manage.
+.RS
+.PP
+The
+.B \-Y
+option may be used to over-ride the default layout algorithm and force
+a scene in which blocks are assigned such that each contains no more than
+.I nctl
+controller rows.
+.PP
+For backwards compatibility
+.B \-R
+is a deprecated synonym for
+.B \-Y .
+.RE
+.PP
+Only one type of activity can be displayed per invocation of
+.BR dkvis ,
+hence
+.B \-r
+and
+.B \-w
+are mutually exclusive.
+.SH LAUNCH
+The behavior of 
+.BR pmchart (1)
+when launched from
+.B dkvis
+is dependent on the number of disks in each row.  If there are more than 6
+controllers then a separate chart will be generated for each column of disks.
+In other words, the first disk from each controller in one chart, the second
+disk in the next chart and so on.  Otherwise a separate chart will be generated
+for each disk controller.
+.SH FILES
+.PD 0
+.TP 10
+.B $PCP_VAR_DIR/config/pmlogger/config.dkvis
+A
+.BR pmlogger (1)
+configuration file for 
+.B dkvis
+metrics.
+.TP
+.B $PCP_SHARE_DIR/lib/pmview-args
+Shell procedures for parsing
+.BR pmview (1)
+command line options.
+.PD
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (4).
+.SH SEE ALSO
+.BR dkstat (1),
+.BR mpvis (1),
+.BR nfsvis (1),
+.BR pmchart (1),
+.BR pmlogger (1),
+.BR pmview (1),
+.BR pcp.conf (4)
+and
+.BR pcp.env (4).
+.PP
+The
+.B Disk
+and
+.B DiskCntrls
+views for
+.BR pmchart (1).

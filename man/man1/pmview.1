@@ -64,6 +64,9 @@ values.  Metric values which exceed the associated maximum value are
 displayed as solid white objects.  If a metric is unavailable, the
 object will have minimum height and will be colored grey.
 .PP
+The full syntax of the scene description language is provided in
+.BR pmview (5).
+.PP
 Normally, the tool operates in ``live'' mode where performance metrics
 are fetched in real-time.  The user can view metrics from any host
 running
@@ -214,17 +217,11 @@ option.
 \f3\-name\f1 \f2name\f1
 .br
 \f3\-title\f1 \f2title\f1
-.IP
-Most standard
-.BR X (1)
-command line arguments may be used.
 .SH WINDOW
 The
 .B pmview
 window is comprised of a menu bar, time and scale controls, metric and time
-values, and an ``examiner'' viewer (see
-.BR ivview (1)),
-which displays the 3D scene.
+values, and an ``examiner'' viewer.
 .SH EXAMINER VIEWER
 The left, right and bottom edges of the examiner viewer contain a variety of
 thumb wheels and buttons that can be used to adjust the visualization of the
@@ -547,11 +544,9 @@ configuration file, as described in \fBpcp.conf\fP(5).
 .BR dkvis (1),
 .BR insight (1),
 .BR inventor (1),
-.BR ivview (1),
 .BR mpvis (1),
 .BR nfsvis (1),
 .BR osvis (1),
-.BR oview (1),
 .BR pcp (1),
 .BR PCPIntro (1),
 .BR pmafm (1),
@@ -561,9 +556,7 @@ configuration file, as described in \fBpcp.conf\fP(5).
 .BR pmlogger (1),
 .BR pmtime (1),
 .BR pmview (1),
-.BR X (1),
 .BR xconfirm (1),
-.BR xlv_vis (1),
 .BR pcp.conf (5),
 .BR pmview (5),
 .BR environ (7)

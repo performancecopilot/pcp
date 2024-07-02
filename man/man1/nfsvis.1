@@ -1,0 +1,131 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 1997 Silicon Graphics, Inc.  All Rights Reserved.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.TH NFSVIS 1 "" "Performance Co-Pilot"
+.SH NAME
+\f3nfsvis\f1 \- visualize performance of NFS statistics
+.\" literals use .B or \f3
+.\" arguments use .I or \f2
+.SH SYNOPSIS
+\f3nfsvis\f1
+[\f3\-V\f1]
+[\f3\-c\f1 \f2version\f1]
+[\f3\-m\f1 \f2maxrate\f1]
+[\f3\-s\f1 \f2version\f1]
+[\f2pmview options\f1]
+.SH DESCRIPTION
+.B nfsvis
+displays a three dimensional bar chart of NFS request statistics.
+The display is
+updated with new values retrieved from the target
+.I host
+or
+.I archive
+every
+.I interval
+seconds (default is 2 seconds).
+.PP
+Two blocks of statistics are displayed \- one for the NFS server and
+one for the NFS client
+requests.
+The height of the bars is proportional to the rate at which the
+various request types are processed.
+.PP
+.B nfsvis
+generates a
+.BR pmview (1)
+configuration file, and passes most command line options to
+.BR pmview (1).
+Therefore, the command line options
+.BR \-A ,
+.BR \-a ,
+.BR \-C ,
+.BR \-h ,
+.BR \-n ,
+.BR \-O ,
+.BR \-p ,
+.BR \-S ,
+.BR \-t ,
+.BR \-T ,
+.BR \-Z
+and
+.BR \-z ,
+and the user interface are described in the
+.BR pmview (1)
+man page.
+.SH COMMAND LINE OPTIONS
+The
+.B nfsvis
+specific options are:
+.TP
+.IP \f3-c\f1
+Monitor NFS 
+.I version
+2 or 3 client metrics.  The default is version 2.
+.IP \f3\-m\f1
+Use
+.I maxrate
+as the maximum NFS request rate over all classes of request,
+from which the height of the bars is
+computed.  This
+effectively specifies the height at which bars will be clipped.
+.IP \f3-s\f1
+Monitor NFS 
+.I version
+2 or 3 server metrics.  The default is version 2.
+.IP \f3\-V\f1
+Verbose mode \- output the generated
+.BR pmview (1)
+configuration file.
+.SH FILES
+.PD 0
+.TP 10
+.BI $PCP_VAR_DIR/config/pmlogger/config.nfsvis
+A 
+.BR pmlogger (1)
+configuration file for
+.B nfsvis
+metrics.
+.TP
+.B $PCP_SHARE_DIR/lib/pmview-args
+Shell procedures for parsing
+.BR pmview (1)
+command line options.
+.PD
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (4).
+.SH SEE ALSO
+.BR dkvis (1),
+.BR mpvis (1),
+.BR pmchart (1),
+.BR pmlogger (1)
+and
+.BR pmview (1).
+.P
+The
+.B NFS
+view for
+.BR pmchart (1).

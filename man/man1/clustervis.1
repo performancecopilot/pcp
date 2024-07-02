@@ -1,0 +1,181 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2002 Silicon Graphics, Inc.  All Rights Reserved.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.TH CLUSTERVIS 1 "" "Performance Co-Pilot"
+.SH NAME
+\f3clustervis\f1 \- visualize cpu and network performance on a cluster
+.\" literals use .B or \f3
+.\" arguments use .I or \f2
+.SH SYNOPSIS
+\f3clustervis\f1
+[\f3\-H\f1 \f2nodesfile\f1]
+[\f3\-h\f1 \f2host\f1[\f2,host\f1...]]
+[\f3\-a\f1 \f2archive\f1[,\f2archive\f1...]]
+[\f3\-m\f1 \f2max\f1]
+[\f2pmview options\f1]
+.SH DESCRIPTION
+.B clustervis
+displays three dimensional bar charts of CPU utilization
+and network traffic for one or most hosts in a cluster.
+An alternative two dimensional cluster performance monitoring 
+tool is
+.BR pmgcluster (1).
+.B clustervis
+is designed to provide a scalable overview of the
+performance of large clusters.
+Other tools such as
+.BR pmchart (1)
+and
+.BR pmgsys (1)
+provide drill-down details on a per-host basis.
+These tools may be launched by clicking
+on the purple base plane for a particular host
+and then selecting a tool from the
+.I launch
+menu in
+.BR clustervis .
+.PP
+The
+.BR \-H ,
+.B \-h
+and
+.B \-a
+arguments are all mutually exclusive
+and have the following semantics; if none of
+.BR \-H ,
+.B \-h
+or 
+.B \-a
+is given, and either the file
+.I /etc/nodes
+or
+.I /etc/ace/nodes
+exists, or the 
+.B $PCP_CLUSTER_CONFIG
+environment variable is set,
+then use the named file as the set of hosts for live monitoring.
+If the default nodes file does not exist, the environment variable
+is not set and none of the three flags were given, an error is reported.
+Otherwise, if
+.B \-H
+is given, then the set of hosts is given in
+.IR nodesfile .
+.P
+The 
+.B \-h
+flag specifies one or more (comma separated with no spaces) hosts for live monitoring
+and the
+.B \-a
+flag specifies one or more archives
+for archive replay (comma separated).
+.PP
+The height of the CPU stack is proportional to the CPU utilization
+in each of the modes
+.B sys
+(red, executing in the kernel) and
+.B user
+(blue, executing user code).
+The network traffic stack is shown for each network interface
+as the packet rate
+.BR in
+(light blue),
+.BR out
+(orange) and
+.BR errors
+(red).
+The hight of the network stack is modulated by the
+.BR \-m
+argument,
+with a default of
+.I 750
+packets/second representing saturated network traffic.
+.PP
+.B clustervis
+generates a
+.BR pmview (1)
+configuration file, and passes most command line options to
+.BR pmview (1).
+Therefore, the command line options 
+.BR \-A ,
+.BR \-a ,
+.BR \-C ,
+.BR \-h ,
+.BR \-n ,
+.BR \-O ,
+.BR \-p ,
+.BR \-S ,
+.BR \-t ,
+.BR \-T ,
+.BR \-Z
+and
+.BR \-z ,
+and the user interface are described in the
+.BR pmview (1)
+man page.
+.SH FILES
+.PD 0
+.TP 10
+.BI $PCP_VAR_DIR/config/pmlogger/config.clustervis
+A
+.BR pmlogger (1)
+configuration file for
+.B clustervis
+metrics.
+.TP
+.B /usr/pcp/lib/pmview-args
+Shell procedures for parsing
+.BR pmview (1)
+command line options.
+.TP 10
+.B /etc/nodes
+Default set of hosts in the cluster.
+.PD
+.SH "PCP ENVIRONMENT"
+The
+.B PCP_CLUSTER_CONFIG
+environment variable may be used to specify the
+default nodes file instead of using the
+.B \-H
+flag. Each line in the file is a host name
+(or a comment starting with
+.BR # ).
+Other environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (4).
+.SH SEE ALSO
+.BR dkvis (1),
+.BR mpvis (1),
+.BR nfsvis (1),
+.BR pmcd (1),
+.BR pmchart (1),
+.BR pmlogger (1),
+.BR pmview (1),
+.BR pcp.conf (4)
+and
+.BR pcp.env (4).
+.P
+The
+.B CPU
+view for
+.BR pmchart (1).

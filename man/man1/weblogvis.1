@@ -1,0 +1,181 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 1997 Silicon Graphics, Inc.  All Rights Reserved.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.TH WEBLOGVIS 1 "" "Performance Co-Pilot"
+.SH NAME
+\f3weblogvis\f1 \- visualize activity and performance from Web server logs
+.\" literals use .B or \f3
+.\" arguments use .I or \f2
+.SH SYNOPSIS
+\f3weblogvis\f1
+[\f3\-bCfiVz\f1]
+[\f3\-A\f1 \f2align\f1]
+[\f3\-a\f1 \f2archive\f1]
+[\f3\-h\f1 \f2host\f1]
+[\f3\-I\f1 \f2time\f1]
+[\f3\-m\f1 \f2max\f1]
+[\f3\-n\f1 \f2pmnsfile\f1]
+[\f3\-O\f1 \f2time\f1]
+[\f3\-p\f1 \f2port\f1]
+[\f3\-S\f1 \f2time\f1]
+[\f3\-t\f1 \f2interval\f1]
+[\f3\-T\f1 \f2time\f1]
+[\f3\-x\f1 \f2version\f1]
+[\f3\-Z\f1 \f2timezone\f1]
+[\f2server\f1 ...]
+.SH DESCRIPTION
+.B weblogvis
+displays Web server activity as extracted from the Web server
+access logs by the Performance Co-Pilot (PCP) agent
+.BR pmdaweblog (1).
+The display is modulated by the values of the
+performance metrics retrieved from the target
+.I host
+which is running
+.BR pmcd (1)
+and the 
+.BR pmdaweblog (1)
+Performance Metrics Domain Agent
+.RB ( PMDA (3)),
+or from the PCP archive log identified by
+.IR archive .
+The display is updated
+every
+.I interval
+seconds (default 2 seconds).
+.PP
+The default display mode shows the request rate classified by
+request response size, for all Web server logs being monitored
+by
+.BR pmdaweblog (1).
+The top of the display includes the idle time 
+and the total request rate of each Web server.
+The list of servers can be restricted by specifying
+.I server
+names.  The possible 
+.I servers
+are listed in the
+.BR pmdaweblog (1)
+configuration file.
+.PP
+.B weblogvis
+uses
+.BR pmview (1),
+and so the user interface follows
+that described for
+.BR pmview (1),
+which in turn displays the scene
+within an
+Inventor examiner viewer.
+.PP
+.B weblogvis
+passes most command line options to
+.BR pmview (1).
+Therefore, the command line options
+.BR \-A ,
+.BR \-a ,
+.BR \-C ,
+.BR \-h ,
+.BR \-n ,
+.BR \-O ,
+.BR \-p ,
+.BR \-S ,
+.BR \-t ,
+.BR \-T ,
+.BR \-x ,
+.BR \-Z
+and
+.BR \-z ,
+and the user interface are described in the
+.BR pmview (1)
+man page.
+.SH COMMAND LINE OPTIONS
+The
+.B weblogvis
+specific options are:
+.IP \f3\-b\f1
+Change the display mode to report bytes per second, rather than
+requests per second.
+.IP \f3\-f\f1
+Change the classification of activity to use HTTP functions (Get, Post, Head
+and Other), rather than the default classification by request result size.
+With this classification, the error rates from the logs for each
+Web server are also displayed.
+.IP \f3\-i\f1
+Label each column with the name of the Web server.
+.TP
+.BI \-I " time"
+Change the dafult expected idle time for the Web servers from
+3600 seconds (1 hour) to 
+.IR time .
+.TP
+.BI \-m " max"
+Change the default normalization maximum to
+.I max
+bytes/second or requests/second, depending on the display mode.
+The defaults are 500000 bytes per second or 100 requests per second.
+.IP \f3\-V\f1
+Verbose mode \- output the generated
+.BR pmview (1)
+configuration file.
+.SH FILES
+.PD 0
+.TP 10
+.I $PCP_VAR_DIR/config/pmlogger/config.web
+.BR pmlogger (1)
+configuration file that can be used to create a PCP archive
+suitable for display with
+.B weblogvis
+.TP
+.I $PCP_VAR_DIR/config/pmchart/Web.Alarms
+.BR pmchart (1)
+configuration file for monitoring Web server alarm conditions
+.TP
+.I $PCP_VAR_DIR/config/pmchart/Web.Requests
+.BR pmchart (1)
+configuration file for monitoring Web server requests
+.TP
+.I $PCP_VAR_DIR/config/pmchart/Web.Volume
+.BR pmchart (1)
+configuration file for monitoring the volume of Web server transactions
+.TP
+.I $PCP_PMDAS_DIR/weblog
+installation directory of 
+.BR pmdaweblog (1)
+.PD
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (4).
+.SH SEE ALSO
+.BR pmcd (1),
+.BR pmchart (1),
+.BR pmdaweblog (1),
+.BR pmlogger (1),
+.BR pmview (1),
+.BR webpingvis (1),
+.BR webvis (1),
+.BR pcp.conf (4)
+and
+.BR pcp.env (4).

@@ -208,12 +208,13 @@ binary-indep: checkroot build-stamp
 	dh_link -i
 	dh_compress -i
 	dh_installdirs -i
-	dh_install -i --sourcedir=debian/$(pcp)
+	dh_install -v -i --sourcedir=debian/$(pcp)
 	dh_perl -i -p $(pcp_import_sar)
 	dh_perl -i -p $(pcp_import_ganglia)
 	dh_perl -i -p $(pcp_import_mrtg)
 	dh_perl -i -p $(pcp_import_sheet)
 	dh_perl -i -p $(pcp_import_iostat)
+	dh_missing --list-files
 	dh_installdeb -i
 	dh_gencontrol -i $(SUBSTVARS)
 	dh_md5sums -i

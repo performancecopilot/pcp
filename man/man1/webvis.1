@@ -1,0 +1,303 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 1997 Silicon Graphics, Inc.  All Rights Reserved.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.TH WEBVIS 1 "" "Performance Co-Pilot"
+.SH NAME
+\f3webvis\f1 \- visualize system-level Web server activity
+.\" literals use .B or \f3
+.\" arguments use .I or \f2
+.SH SYNOPSIS
+\f3webvis\f1
+[\f3\-CVz\f1]
+[\f3\-A\f1 \f2align\f1]
+[\f3\-a\f1 \f2archive\f1]
+[\f3\-b\f1 \f2maxbusy\f1]
+[\f3\-h\f1 \f2host\f1]
+[\f3\-i\f1 \f2maxio\f1]
+[\f3\-m\f1 \f2max\f1]
+[\f3\-n\f1 \f2pmnsfile\f1]
+[\f3\-O\f1 \f2time\f1]
+[\f3\-p\f1 \f2port\f1]
+[\f3\-r\f1 \f2maxreq\f1]
+[\f3\-S\f1 \f2time\f1]
+[\f3\-T\f1 \f2time\f1]
+[\f3\-t\f1 \f2interval\f1]
+[\f3\-x\f1 \f2version\f1]
+[\f3\-Z\f1 \f2timezone\f1]
+[\f2interface\f1 ...]
+.SH DESCRIPTION
+.B webvis
+displays an overview of system level Web server performance statistics
+collected from the Performance Co-Pilot (PCP) infrastructure.
+The display is modulated by the values of the performance metrics
+retrieved from the target
+.I host
+(which is running
+.BR pmcd (1)
+and the 
+.BR pmdaweblog (1)
+Performance Metrics Domain Agent) or from the PCP archive log identified by
+.IR archive .
+The display is updated
+every
+.I interval
+seconds (default 2 seconds).
+.PP
+As in all
+.BR pmview (1)
+scenes, when the mouse is moved over one of the bars,
+the current value and metric information for that bar
+will be shown in the text box near the top of the display.
+.PP
+The height of the web request and network activity bars is proportional to the
+performance metric values relative to the maximum
+expected activity,
+as controlled by the
+.B \-m
+and
+.B \-r
+options (see below).
+Similarly the
+.B \-b
+and
+.B \-i
+options control the scaling for disk activity bars.
+.PP
+The bars in the
+.B webvis
+scene represent the following information;
+.TP 4
+.B "Requests by Size"
+At the front of the scene, the "Requests by Size" row of bars shows
+the rate of requests for different size requests (the histograms are
+defined by the following byte counts: 0, 3 Kbytes, 10 Kbytes, 30 Kbytes,
+100 Kbytes, 300 Kbytes, 1 Mbyte, 3 Mbytes and larger than 3 Mbytes).
+Notice that the size divisions are not evenly distributed.  The "size"
+is the data portion of the response to each Web server request.  These
+rates are aggregated across all monitored Web servers.
+.TP 4
+.B "Requests by Type"
+This row of bars shows the request rate for each type of HTTP request
+(get, post, head and other), aggregated across all monitored Web servers.
+For a detailed display showing the break down of requests
+.IR "per Web server",
+see
+.BR weblogvis (1).
+.TP 4
+.B "Network"
+For every network interface there are two stacked bars.
+One of the bars shows the input traffic while the other
+bar shows the output traffic.  The stacks are composed of
+the number of errors (red), the number of drops (orange)
+and the number of packets (green).  In general, if there
+are any "dropped input packets" then the corresponding
+network interface is saturated, or there are insufficient
+network resources available in the kernel to adequately
+service the input request load.  If this is the case then the
+.B "Alarm Conditions"
+rows (see below) may provide more detail into the source of the problem.
+.TP 4
+.B "Alarm Conditions"
+The red row of bars shows an assortment of TCP error conditions
+(aggregated for all network interfaces), the orange bars show
+critical kernel buffer allocation problems, and the yellow bar
+shows severe paging conditions.  If any of these bars have a
+non-zero height then the system being monitored may require kernel
+parameter tuning, software reconfiguration or more hardware resources.
+The performance metrics behind the bars are:
+.RS +4n
+.TP 15
+.B network.tcp.drops
+\- rate of dropped connections
+.TP 15
+.B network.tcp.conndrops
+\- rate of embryonic connections dropped
+.TP 15
+.B network.tcp.timeoutdrop
+\- rate of connections dropped by rexmit timeout
+.TP 15
+.B network.tcp.rcvbadsum
+\- rate of packets discarded for bad checksums
+.TP 15
+.B network.tcp.rexmttimeo
+\- rate of retransmit timeouts
+.TP 15
+.B network.tcp.sndrexmitpack
+\- rate of data packets retransmitted
+.TP 15
+.B swap.pagesout
+\- page swap out rate (indicating insufficient memory)
+.TP 15 
+.B network.mbuf.failed
+\- rate of incidents where the kernel failed to find mbuf space
+.TP 15 
+.B network.mbuf.waited
+\- rate of incidents where the kernel waited to find mbuf space
+.RE
+.TP 4
+.B CPU
+This column shows CPU utilization, aggregated over all CPUs.
+(CPU idle time is not included in the column).
+.TP 4
+.B Disk
+.RS
+There are two cylinders showing disk metrics.  The first cylinder
+shows the rate of read (yellow) and write (violet) operations,
+aggregated over all disk spindles.  The second cylinder shows the
+average (over all disks) percentage of time for which a disk is busy
+or active.
+This
+metric is not available in PCP1.x versions, therefore if
+.B webvis
+is being used to monitor a host running PCP1.x this cylinder will
+not be displayed.
+.P
+To adjust the scaling of these objects, refer to the
+.B \-b
+and
+.B \-i
+options described below.
+.RE
+.TP 4
+.B Mem
+There are two bars showing memory metrics.  The first bar shows
+utilized memory, with different colors representing different
+types of utilization (kernel, user, etc), while the second bar
+shows the amount of free memory.  If
+.B webvis
+is being used to monitor a host running PCP1.x then only the
+bar showing free memory will be displayed.
+.PP
+If any optional
+.I interface
+arguments are specified in the command line, then just the
+network interfaces matching the
+.I interface
+arguments will appear in the
+.B Network
+section.  By default,
+.B all
+interfaces will be used.
+The
+.I interface
+arguments are used as patterns for
+.BR egrep (1)
+matching against the interface names, so
+.B ec
+would select all external Ethernet interfaces for a Challenge S.
+.PP
+.B webvis
+uses
+.BR pmview (1),
+and so the user interface follows
+that described for
+.BR pmview (1),
+which in turn displays the scene
+within an
+Inventor examiner viewer.
+.PP
+.B webvis
+passes most command line options to
+.BR pmview (1).
+Therefore, the command line options
+.BR \-A ,
+.BR \-a ,
+.BR \-C ,
+.BR \-h ,
+.BR \-n ,
+.BR \-O ,
+.BR \-p ,
+.BR \-S ,
+.BR \-t ,
+.BR \-T ,
+.BR \-x ,
+.BR \-Z
+and
+.BR \-z ,
+and the user interface are described in the
+.BR pmview (1)
+man page.
+.PP
+Options specific to
+.B webvis
+are:
+.TP
+.BI \-b " maxbusy"
+Controls the maximum (normalization) value for 
+the average percentage of the time active over all disks.
+The default value is 30% active.
+.TP
+.BI \-i " maxio"
+Controls the maximum (normalization) value for 
+the sume of the aggregate disk read and disk write rates.
+The default value is 100 I/Os per second.
+.TP
+.BI \-m " max"
+Controls the maximum (normalization) value for 
+the packet input and packet output rates.
+The default value is 750 packets/second.
+.TP
+.BI \-r " maxreq"
+Controls the maximum Web request rate.  The default is 5% of the
+maximum packet rate (i.e. 38 requests/second by default).  The
+maximum Web error rate is fixed at 20% of the maximum Web request
+rate (i.e. 7 errors/second by default).
+.IP \f3\-V\f1
+The derived configuration file for
+.BR pmview (1)
+is written on standard output.  This may be saved and used directly with
+.B pmview
+if the user wishes to customize the display, or modify some of
+the normalization parameters.
+.SH FILES
+.PD 0
+.TP 10
+.IR $PCP_VAR_DIR/pmns/ *
+default PMNS specification files
+.TP
+.I $PCP_VAR_DIR/config/pmlogger/config.web
+.BR pmlogger (1)
+configuration file that can be used to create a PCP archive
+suitable for display with
+.B webvis
+.PD
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (4).
+.SH SEE ALSO
+.BR pmcd (1),
+.BR pmchart (1),
+.BR pmdaweblog (1),
+.BR pmdawebping (1),
+.BR pmdumplog (1),
+.BR pminfo (1),
+.BR pmlogger (1),
+.BR pmval (1),
+.BR pmview (1),
+.BR weblogvis (1),
+.BR webpingvis (1),
+.BR pcp.conf (4)
+and
+.BR pcp.env (4).
