@@ -45,7 +45,7 @@ retrieved from the target
 .I host
 (which is running
 .BR pmcd (1)
-and the 
+and the
 .BR pmdaweblog (1)
 Performance Metrics Domain Agent) or from the PCP archive log identified by
 .IR archive .
@@ -138,10 +138,10 @@ The performance metrics behind the bars are:
 .TP 15
 .B swap.pagesout
 \- page swap out rate (indicating insufficient memory)
-.TP 15 
+.TP 15
 .B network.mbuf.failed
 \- rate of incidents where the kernel failed to find mbuf space
-.TP 15 
+.TP 15
 .B network.mbuf.waited
 \- rate of incidents where the kernel waited to find mbuf space
 .RE
@@ -234,17 +234,17 @@ Options specific to
 are:
 .TP
 .BI \-b " maxbusy"
-Controls the maximum (normalization) value for 
+Controls the maximum (normalization) value for
 the average percentage of the time active over all disks.
 The default value is 30% active.
 .TP
 .BI \-i " maxio"
-Controls the maximum (normalization) value for 
+Controls the maximum (normalization) value for
 the sume of the aggregate disk read and disk write rates.
 The default value is 100 I/Os per second.
 .TP
 .BI \-m " max"
-Controls the maximum (normalization) value for 
+Controls the maximum (normalization) value for
 the packet input and packet output rates.
 The default value is 750 packets/second.
 .TP

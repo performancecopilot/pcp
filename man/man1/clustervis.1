@@ -28,7 +28,7 @@
 .B clustervis
 displays three dimensional bar charts of CPU utilization
 and network traffic for one or most hosts in a cluster.
-An alternative two dimensional cluster performance monitoring 
+An alternative two dimensional cluster performance monitoring
 tool is
 .BR pmgcluster (1).
 .B clustervis
@@ -55,13 +55,13 @@ arguments are all mutually exclusive
 and have the following semantics; if none of
 .BR \-H ,
 .B \-h
-or 
+or
 .B \-a
 is given, and either the file
 .I /etc/nodes
 or
 .I /etc/ace/nodes
-exists, or the 
+exists, or the
 .B $PCP_CLUSTER_CONFIG
 environment variable is set,
 then use the named file as the set of hosts for live monitoring.
@@ -72,7 +72,7 @@ Otherwise, if
 is given, then the set of hosts is given in
 .IR nodesfile .
 .P
-The 
+The
 .B \-h
 flag specifies one or more (comma separated with no spaces) hosts for live monitoring
 and the
@@ -106,7 +106,7 @@ generates a
 .BR pmview (1)
 configuration file, and passes most command line options to
 .BR pmview (1).
-Therefore, the command line options 
+Therefore, the command line options
 .BR \-A ,
 .BR \-a ,
 .BR \-C ,
