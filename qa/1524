@@ -25,13 +25,6 @@ fi
 $sudo rm -rf $tmp $tmp.* $seq.full
 echo "DISPLAY=$DISPLAY" >>$seq.full
 
-do_valgrind=false
-if [ "$1" = "--valgrind" ]
-then
-    _check_valgrind
-    do_valgrind=true
-fi
-
 which pmview >/dev/null 2>&1 || _notrun "No pmview binary installed"
 
 status=0	# success is the default!
@@ -59,12 +52,7 @@ _grid ( _bar ( _metrics ( proc.psinfo.pid[$inst] 0 ) ) )
 End-of-File
 
 echo "Silence is golden ..."
-if $do_valgrind
-then
-    _run_valgrind pmview -C -c $tmp.conf
-else
-    pmview -C -c $tmp.conf 2>&1
-fi \
+pmview -C -c $tmp.conf 2>&1 \
 | _filter
 
 # success, all done

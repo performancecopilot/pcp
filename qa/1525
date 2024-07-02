@@ -21,6 +21,10 @@ fi
 
 $sudo rm -rf $tmp $tmp.* $seq.full
 
+which dkvis >/dev/null 2>&1 || _notrun "No dkvis binary installed"
+which mpvis >/dev/null 2>&1 || _notrun "No mpvis binary installed"
+which nfsvis >/dev/null 2>&1 || _notrun "No nfsvis binary installed"
+which osvis >/dev/null 2>&1 || _notrun "No osvis binary installed"
 
 status=0	# success is the default!
 trap "_cleanup_qt; exit \$status" 0 1 2 3 15
