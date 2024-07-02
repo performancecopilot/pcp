@@ -62,9 +62,10 @@ pcp2json -a $A -H -I -Z UTC+0 -x "" | _archive_filter
 echo "---"
 pcp2json -a $A -H -I -z -X -b GB -P 2 -F $tmp.outfile ""
 echo "---"
-pcp2openmetrics -s1 -H -z hinv.ncpu | _filter_pcp2openmetrics
+pcp2openmetrics -s1 -z hinv.ncpu | _filter_pcp2openmetrics
 echo "---"
-
+pcp2openmetrics -s2 -x hinv.ncpu | _filter_pcp2openmetrics
+echo "---"
 
 cat $tmp.outfile | _archive_filter
 which json_verify > /dev/null 2>&1
