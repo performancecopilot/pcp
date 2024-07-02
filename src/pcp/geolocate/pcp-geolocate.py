@@ -87,5 +87,6 @@ threads.append(threading.Thread(target = mozilla, args = (MOZILLA,)))
 try:
     for thread in threads:
         thread.start()
+        thread.join()
 except KeyboardInterrupt:
     finish('(none)')
