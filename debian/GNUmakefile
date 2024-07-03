@@ -321,11 +321,14 @@ pcp.postrm:	pcp.postrm.head configversions pcp.postrm.tail cull_old_conffiles
 	rm -f $@
 	cat pcp.postrm.head configversions cull_old_conffiles pcp.postrm.tail > $@
 
-pcp-gui.install:	pcp-gui.install.base pcp-gui.install.hicolor
+pcp-gui.install:	pcp-gui.install.base pcp-gui.install.hicolor pcp-gui.install.pmview
 	rm -f pcp-gui.install
 	cat pcp-gui.install.base >pcp-gui.install
 ifeq ($(HAVE_HICOLOR_ICONS), true)
 	cat pcp-gui.install.hicolor >>pcp-gui.install
+endif
+ifeq "$(ENABLE_QT3D)" "true"
+	cat pcp-gui.install.pmview >>pcp-gui.pmview
 endif
 
 control:	fixcontrol control.pcp control.python2 control.python3 \

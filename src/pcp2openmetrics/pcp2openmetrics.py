@@ -50,24 +50,24 @@ class PCP2OPENMETRICS(object):
         self.opts = self.options()
 
         # Configuration directives
-        self.keys = ('source', 'output', 'derived', 'header', 'globals',
-                     'samples', 'interval', 'type', 'precision', 'daemonize',
+        self.keys = ('source', 'output', 'derived', 'globals',
+                     'samples', 'interval', 'precision', 'daemonize',
                      'timefmt', 'everything',
                      'count_scale', 'space_scale', 'time_scale', 'version',
                      'count_scale_force', 'space_scale_force', 'time_scale_force',
-                     'type_prefer', 'precision_force', 'limit_filter', 'limit_filter_force',
+                     'precision_force', 'limit_filter', 'limit_filter_force',
                      'live_filter', 'rank', 'invert_filter', 'predicate', 'names_change',
                      'speclocal', 'instances', 'ignore_incompat', 'ignore_unknown',
                      'omit_flat', 'include_labels', 'url', 'http_user', 'http_pass',
-                     'http_timeout')
+                     'http_timeout', 'no_comment')
 
         # Ignored for pmrep(1) compatibility
         self.keys_ignore = (
-                     'timestamp', 'unitinfo', 'colxrow', 'separate_header', 'fixed_header',
+                     'timestamp','header', 'unitinfo', 'colxrow', 'separate_header', 'fixed_header',
                      'delay', 'width', 'delimiter', 'extcsv', 'width_force',
                      'extheader', 'repeat_header', 'interpol',
                      'dynamic_header', 'overall_rank', 'overall_rank_alt', 'sort_metric',
-                     'instinfo', 'include_texts')
+                     'instinfo', 'include_texts', 'type', 'type_prefer')
 
         # The order of preference for options (as present):
         # 1 - command line options
@@ -79,13 +79,12 @@ class PCP2OPENMETRICS(object):
         self.output = None # For pmrep conf file compat only
         self.speclocal = None
         self.derived = None
-        self.header = 1
         self.globals = 1
         self.samples = None # forever
         self.interval = pmapi.timeval(10)      # 10 sec
         self.opts.pmSetOptionInterval(str(10)) # 10 sec
         self.delay = 0
-        self.type = 0
+        self.type = 1
         self.type_prefer = self.type
         self.ignore_incompat = 0
         self.ignore_unknown = 0
@@ -118,6 +117,8 @@ class PCP2OPENMETRICS(object):
         self.http_user = None
         self.http_pass = None
         self.http_timeout = TIMEOUT
+        self.no_comment = False
+        self.header_flag = True
 
         # Internal
         self.runtime = -1
@@ -146,7 +147,7 @@ class PCP2OPENMETRICS(object):
         opts = pmapi.pmOptions()
         opts.pmSetOptionCallback(self.option)
         opts.pmSetOverrideCallback(self.option_override)
-        opts.pmSetShortOptions("a:h:LK:c:Ce:D:V?HGA:S:T:O:s:t:rRIi:jJ:4:58:9:nN:vmP:0:q:b:y:Q:B:Y:F:f:Z:zXo:p:U:u:")
+        opts.pmSetShortOptions("a:h:LK:c:Ce:D:V?GA:S:T:O:s:t:Ii:jJ:4:58:9:nN:vmP:0:q:b:y:Q:B:Y:F:f:Z:zXo:p:U:u:x")
         opts.pmSetShortUsage("[option...] metricspec [...]")
 
         opts.pmSetLongOptionHeader("General options")
@@ -166,7 +167,6 @@ class PCP2OPENMETRICS(object):
         opts.pmSetLongOptionHelp()         # -?/--help
 
         opts.pmSetLongOptionHeader("Reporting options")
-        opts.pmSetLongOption("no-header", 0, "H", "", "omit headers")
         opts.pmSetLongOption("no-globals", 0, "G", "", "omit global metrics")
         opts.pmSetLongOptionAlign()        # -A/--align
         opts.pmSetLongOptionStart()        # -S/--start
@@ -176,8 +176,6 @@ class PCP2OPENMETRICS(object):
         opts.pmSetLongOptionInterval()     # -t/--interval
         opts.pmSetLongOptionTimeZone()     # -Z/--timezone
         opts.pmSetLongOptionHostZone()     # -z/--hostzone
-        opts.pmSetLongOption("raw", 0, "r", "", "output raw counter values (no rate conversion)")
-        opts.pmSetLongOption("raw-prefer", 0, "R", "", "prefer output raw counter values (no rate conversion)")
         opts.pmSetLongOption("ignore-incompat", 0, "I", "", "ignore incompatible instances (default: abort)")
         opts.pmSetLongOption("ignore-unknown", 0, "5", "", "ignore unknown metrics (default: abort)")
         opts.pmSetLongOption("names-change", 1, "4", "ACTION", "update/ignore/abort on PMNS change (default: ignore)")
@@ -201,6 +199,7 @@ class PCP2OPENMETRICS(object):
         opts.pmSetLongOption("time-scale-force", 1, "Y", "SCALE", "forced time unit")
 
         opts.pmSetLongOption("with-everything", 0, "X", "", "write everything, incl. internal IDs")
+        opts.pmSetLongOption("no-comment", 0, "x", "", "omit comment lines")
 
         opts.pmSetLongOption("url", 1, "u", "URL", "URL of endpoint to receive HTTP POST")
         opts.pmSetLongOption("http-timeout", 1, "o", "SECONDS", "timeout when sending HTTP POST")
@@ -238,14 +237,8 @@ class PCP2OPENMETRICS(object):
                 self.derived = ";" + optarg
             else:
                 self.derived = self.derived + ";" + optarg
-        elif opt == 'H':
-            self.header = 0
         elif opt == 'G':
             self.globals = 0
-        elif opt == 'r':
-            self.type = 1
-        elif opt == 'R':
-            self.type_prefer = 1
         elif opt == 'I':
             self.ignore_incompat = 1
         elif opt == '5':
@@ -298,6 +291,8 @@ class PCP2OPENMETRICS(object):
             self.time_scale_force = optarg
         elif opt == 'X':
             self.everything = 1
+        elif opt == 'x':
+            self.no_comment = True
         elif opt == 'u':
             self.url = optarg
         elif opt == 'o':
@@ -347,11 +342,6 @@ class PCP2OPENMETRICS(object):
         # Common preparations
         self.context.prepare_execute(self.opts, False, self.interpol, self.interval)
 
-        # Headers
-        if self.header == 1:
-            self.header = 0
-            self.write_header()
-
         # Just checking
         if self.check == 1:
             return
@@ -394,22 +384,6 @@ class PCP2OPENMETRICS(object):
             tstamp = tstamp.strftime(self.timefmt)
 
         self.write_openmetrics(tstamp)
-
-    def write_header(self):
-        """ Write info header """
-        output = self.outfile if self.outfile else "stdout"
-        if self.context.type == PM_CONTEXT_ARCHIVE:
-            sys.stdout.write('"# Writing %d archived metrics to %s..." }\n{ "//": "(Ctrl-C to stop)" }\n' % (len(self.metrics), output))
-            return
-
-        sys.stdout.write('# "Waiting for %d metrics to be written to %s' % (len(self.metrics), output))
-        if self.runtime != -1:
-            sys.stdout.write('\n # "%s samples(s) with %.1f sec interval ~ %d sec runtime." }\n' % (self.samples, float(self.interval), self.runtime))
-        elif self.samples:
-            duration = (self.samples - 1) * float(self.interval)
-            sys.stdout.write('\n # "%s samples(s) with %.1f sec interval ~ %d sec runtime." }\n' % (self.samples, float(self.interval), duration))
-        else:
-            sys.stdout.write('...\n# "(Ctrl-C to stop)" }\n')
 
     def write_openmetrics(self, timestamp):
         """ Write results in openmetrics format """
@@ -500,11 +474,12 @@ class PCP2OPENMETRICS(object):
             help_dict = {}
             help_dict[metric] = context.pmLookupText(pmid[0])
 
-            if self.context.type == PM_CONTEXT_ARCHIVE:
-                body += "\nMetric %s details (last fetch: %d)\n:" % (metric, ts)
-            body += '# PCP5 %s %s %s %s %s %s\n' % (openmetrics_name(metric), pmIDStr, get_type_string(desc), pmIndomStr, semantics, units)
-            body += '# HELP %s %s\n' % (openmetrics_name(metric), help_dict[metric])
-            body += '# TYPE %s %s\n' % (openmetrics_name(metric), openmetrics_type(desc))
+            if self.header_flag is True:
+                if self.no_comment is False:
+                    body += '# PCP5 %s %s %s %s %s %s\n' % (openmetrics_name(metric), pmIDStr, get_type_string(desc), pmIndomStr, semantics, units)
+                body += '# TYPE %s %s\n' % (openmetrics_name(metric), openmetrics_type(desc))
+                body += '# HELP %s %s\n' % (openmetrics_name(metric), help_dict[metric])
+                self.header_flag = False
 
             for inst, name, value in results[metric]:
                 if isinstance(value, float):
@@ -515,10 +490,16 @@ class PCP2OPENMETRICS(object):
                     value = format(value, fmt)
                 else:
                     str(value)
-                if self.context.type == PM_CONTEXT_ARCHIVE:
-                    body += '%s%s %s %s\n' % (openmetrics_name(metric), openmetrics_labels(inst, name, desc, labels), value, ts)
+
+                if openmetrics_type(desc) == "counter":
+                    openmetrics_name_end = openmetrics_name(metric) + "_total"
                 else:
-                    body += '%s%s %s\n' % (openmetrics_name(metric), openmetrics_labels(inst, name, desc, labels), value)
+                    openmetrics_name_end = openmetrics_name(metric)
+
+                if self.context.type == PM_CONTEXT_ARCHIVE:
+                    body += '%s%s %s %s\n' % (openmetrics_name_end, openmetrics_labels(inst, name, desc, labels), value, ts)
+                else:
+                    body += '%s%s %s\n' % (openmetrics_name_end, openmetrics_labels(inst, name, desc, labels), value)
 
         if self.url:
             auth = None
@@ -537,13 +518,13 @@ class PCP2OPENMETRICS(object):
         elif self.outfile:
             self.writer.write(body)
         else:
-            print(body)
+            sys.stdout.write(body)
 
     def finalize(self):
         """ Finalize and clean up """
         if self.writer:
             try:
-                self.writer.write("\n")
+                self.writer.write("# EOF\n")
                 self.writer.flush()
             except IOError as write_error:
                 if write_error.errno != errno.EPIPE:
