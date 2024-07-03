@@ -168,10 +168,10 @@ class pmConfig(object):
         if name == 'speclocal':
             self.util.speclocal = value
         elif name == 'derived':
-            if value.find(';') != -1:
-                self.util.derived = value
+            if str(value).find(';') != -1:
+                self.util.derived = str(value)
             else:
-                self.util.derived = value.replace(",", ";")
+                self.util.derived = str(value).replace(",", ";")
         elif name == 'samples':
             self.util.opts.pmSetOptionSamples(value)
             self.util.samples = self.util.opts.pmGetOptionSamples()
@@ -189,7 +189,7 @@ class pmConfig(object):
             else:
                 self.util.type_prefer = 0
         elif name == 'instances':
-            self.util.instances = value.split(",")
+            self.util.instances = str(value).split(",")
         else:
             try:
                 setattr(self.util, name, int(value))
