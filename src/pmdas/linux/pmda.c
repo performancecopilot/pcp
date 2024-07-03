@@ -6728,6 +6728,36 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_SYSFS_KERNEL,5), PM_TYPE_U64, PM_INDOM_NULL,
 	PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
 
+    /* hyperv.balloon.state */
+    { &sysfs_kernel.hv_balloon_state,
+      { PMDA_PMID(CLUSTER_SYSFS_KERNEL,6), PM_TYPE_U32, PM_INDOM_NULL,
+	PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+    /* hyperv.balloon.pagesize */
+    { &sysfs_kernel.hv_balloon_pagesize,
+      { PMDA_PMID(CLUSTER_SYSFS_KERNEL,7), PM_TYPE_U32, PM_INDOM_NULL,
+	PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
+
+    /* hyperv.balloon.added */
+    { &sysfs_kernel.hv_balloon_added,
+      { PMDA_PMID(CLUSTER_SYSFS_KERNEL,8), PM_TYPE_U64, PM_INDOM_NULL,
+	PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
+
+    /* hyperv.balloon.onlined */
+    { &sysfs_kernel.hv_balloon_onlined,
+      { PMDA_PMID(CLUSTER_SYSFS_KERNEL,9), PM_TYPE_U64, PM_INDOM_NULL,
+	PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
+
+    /* hyperv.balloon.ballooned */
+    { &sysfs_kernel.hv_balloon_ballooned,
+      { PMDA_PMID(CLUSTER_SYSFS_KERNEL,10), PM_TYPE_U64, PM_INDOM_NULL,
+	PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
+
+    /* hyperv.balloon.total_committed */
+    { &sysfs_kernel.hv_balloon_total_committed,
+      { PMDA_PMID(CLUSTER_SYSFS_KERNEL,11), PM_TYPE_U64, PM_INDOM_NULL,
+	PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
+
 /*
  * /proc/interrupts clusters
  */
@@ -10240,6 +10270,14 @@ linux_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	    case 4:	/* mem.vmmemctl.current */
 	    case 5:	/* mem.vmmemctl.target */
 		need_refresh[REFRESH_SYSFS_KERNEL_VMMEMCTL]++;
+		break;
+	    case 6:	/* hyperv.balloon.state */
+	    case 7:	/* hyperv.balloon.pagesize */
+	    case 8:	/* hyperv.balloon.added */
+	    case 9:	/* hyperv.balloon.onlined */
+	    case 10:	/* hyperv.balloon.ballooned */
+	    case 11:	/* hyperv.balloon.total_committed */
+		need_refresh[REFRESH_SYSFS_KERNEL_HVBALLOON]++;
 		break;
 	    }
 	    break;

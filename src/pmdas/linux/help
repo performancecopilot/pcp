@@ -2189,6 +2189,13 @@ it may not persist in future kernel versions.
 @ sysfs.module.zswap.max_pool_percent percentage of memory compressed pool can use
 @ sysfs.module.zswap.enabled kernel string indicating zswap module state
 
+@ hyperv.balloon.state State of Hyper-V memory ballooning
+@ hyperv.balloon.pagesize Hyper-V balloon memory page size in bytes
+@ hyperv.balloon.added Hyper-V balloon memory pages added in bytes
+@ hyperv.balloon.onlined Hyper-V balloon memory onlined after hot adding
+@ hyperv.balloon.ballooned Hyper-V balloon memory given back to host
+@ hyperv.balloon.total_committed Total committed Hyper-V balloon memory
+
 @ hinv.ntape number of Linux scsi tape devices
 @ tape.dev.in_flight number of I/Os currently outstanding to this tape device
 @ tape.dev.io_ns cumulative amount of time spent waiting for all I/O to complete to tape device
