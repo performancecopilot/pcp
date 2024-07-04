@@ -66,6 +66,7 @@ pcp.spec: pcp.spec.in
 	    -e's|@package_release@|$(PACKAGE_BUILD)|g' \
 	    -e's|@package_configure@|$(PACKAGE_CONFIGURE)|g' \
 	    -e's|@package_distribution@|$(PACKAGE_DISTRIBUTION)|g' \
+	    -e's|@pmda_amdgpu@|$(PMDA_AMDGPU)|g' \
 	    -e's|@pmda_bcc@|$(PMDA_BCC)|g' \
 	    -e's|@pmda_bpf@|$(PMDA_BPF)|g' \
 	    -e's|@pmda_bpftrace@|$(PMDA_BPFTRACE)|g' \
