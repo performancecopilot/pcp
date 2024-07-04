@@ -1,3 +1,4 @@
+etc/pcp/pmlogger/config.clustervis
 etc/pcp/pmlogger/config.dkvis
 etc/pcp/pmlogger/config.mpvis
 etc/pcp/pmlogger/config.nfsvis
@@ -25,7 +26,9 @@ usr/share/man/man1/weblogvis.1.gz
 usr/share/man/man1/webpingvis.1.gz
 usr/share/man/man1/webvis.1.gz
 usr/share/man/man5/pmview.5.gz
+usr/share/pcp-gui/pixmaps/pmview.png
 usr/share/pcp/lib/pmview-args
+var/lib/pcp/config/pmlogger/config.clustervis
 var/lib/pcp/config/pmlogger/config.dkvis
 var/lib/pcp/config/pmlogger/config.mpvis
 var/lib/pcp/config/pmlogger/config.nfsvis

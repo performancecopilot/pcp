@@ -2,7 +2,7 @@ TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
 VIEWS	= clustervis dkvis mpvis nfsvis osvis weblogvis webpingvis webvis
-LOGGERS	= config.dkvis config.mpvis config.nfsvis config.osvis \
+LOGGERS	= config.clustervis config.dkvis config.mpvis config.nfsvis config.osvis \
 	  config.weblogvis config.webpingvis config.webvis
 
 default build-me: $(VIEWS) $(LOGGERS)

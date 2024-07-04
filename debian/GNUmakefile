@@ -328,7 +328,7 @@ ifeq ($(HAVE_HICOLOR_ICONS), true)
 	cat pcp-gui.install.hicolor >>pcp-gui.install
 endif
 ifeq "$(ENABLE_QT3D)" "true"
-	cat pcp-gui.install.pmview >>pcp-gui.pmview
+	cat pcp-gui.install.pmview >>pcp-gui.install
 endif
 
 control:	fixcontrol control.pcp control.python2 control.python3 \
