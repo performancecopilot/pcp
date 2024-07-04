@@ -7,6 +7,9 @@ artifactory:
 container:
   containerfile: |
     FROM quay.io/centos/centos:centos7
+    RUN sed -i -e '/mirrorlist=/d' /etc/yum.repos.d/CentOS-Base.repo
+    RUN sed -i -e 's/#baseurl=/baseurl=/g' /etc/yum.repos.d/CentOS-Base.repo
+    RUN sed -i -e 's,http://mirror.centos.org/centos/$releasever,https://vault.centos.org/7.9.2009,g' /etc/yum.repos.d/CentOS-Base.repo
     RUN yum install -y sudo
     RUN yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm # libuv-devel
     RUN useradd --create-home pcpbuild
