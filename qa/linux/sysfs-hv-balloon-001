@@ -1,0 +1,9 @@
+host_version          : 2.0
+capabilities          : enabled hot_add
+state                 : 1 (Initialized)
+page_size             : 4096
+pages_added           : 0
+pages_onlined         : 0
+pages_ballooned       : 3276800
+total_pages_committed : 4026223
+max_dynamic_page_count: 4706304

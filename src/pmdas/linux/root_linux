@@ -37,6 +37,7 @@ root {
     tty
     zram
     fchost
+    hyperv
 }
 
 hinv {
@@ -639,6 +640,7 @@ mem {
     hugepages
     vmmemctl
 }
+
 mem.vmmemctl {
     current		60:35:4
     target		60:35:5
@@ -1558,6 +1560,19 @@ fchost.in {
 fchost.out {
     frames		60:91:1
     bytes		60:91:3
+}
+
+hyperv {
+    balloon 
+}
+
+hyperv.balloon {
+    state		60:35:6
+    pagesize		60:35:7
+    added		60:35:9
+    onlined		60:35:8
+    ballooned		60:35:10
+    total_committed	60:35:11
 }
 
 filesys {
