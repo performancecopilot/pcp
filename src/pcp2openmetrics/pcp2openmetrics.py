@@ -314,7 +314,6 @@ class PCP2OPENMETRICS(object):
 
         if pmapi.c_api.pmSetContextOptions(self.context.ctx, self.opts.mode, self.opts.delta):
             raise pmapi.pmUsageErr()
-        self.context.pmNewZone("UTC")
 
     def validate_config(self):
         """ Validate configuration options """
@@ -391,6 +390,7 @@ class PCP2OPENMETRICS(object):
             # Silent goodbye, close in finalize()
             return
 
+        self.context.pmNewZone("UTC")
         ts = self.context.datetime_to_secs(self.pmfg_ts(), PM_TIME_SEC)
 
         if self.prev_ts is None:

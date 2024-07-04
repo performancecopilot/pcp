@@ -631,7 +631,7 @@ on_pmwebapi_done(sds context, int status, sds message, void *arg)
 		    msg = sdscatfmt(msg, "\"context\":%S,", context);
 		msg = sdscat(msg, "\"success\":true}\r\n");
 	    } else {
-		msg = sdsnewlen("# EOF", 5);
+		msg = sdsempty();
 	    }
 	}
 	baton->suffix = NULL;
