@@ -1,0 +1,40 @@
+/*
+ * Metrics for amd GPU PMDA
+ *
+ * Copyright (c) 2024 Red Hat.
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * for more details.
+ */
+
+amdgpu {
+    numcards			AMDGPU:0:0
+    cardname			AMDGPU:0:1
+    cardid			AMDGPU:0:2
+    memory
+    gpu
+}
+
+amdgpu.memory {
+    used			AMDGPU:1:0
+    total			AMDGPU:1:1
+    free			AMDGPU:1:2
+    usedaccum			AMDGPU:1:3
+    clock			AMDGPU:1:4
+    clock_max			AMDGPU:1:5
+}
+
+amdgpu.gpu {
+    clock			AMDGPU:2:0
+    clock_max			AMDGPU:2:1
+    load			AMDGPU:2:2
+    temperature			AMDGPU:2:3
+    average_power		AMDGPU:2:4
+}
