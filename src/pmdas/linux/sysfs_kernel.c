@@ -163,8 +163,9 @@ refresh_sysfs_kernel(sysfs_kernel_t *sk, int *need_refresh)
 		else if (strcmp(name, "total_pages_committed") == 0)
 		    sk->hv_balloon_total_committed = value;
 	    }
-	    value = sk->hv_balloon_pagesize ? /* fallback to kernel pagesize */
-		    sk->hv_balloon_pagesize : (1 << _pm_pageshift);
+	    value = sk->hv_balloon_pagesize ? /* local kernel fallback */
+		    sk->hv_balloon_pagesize : /* avoids divide-by-zero */
+		    (unsigned long long) (1 << _pm_pageshift);
 	    sk->hv_balloon_added *= value;
 	    sk->hv_balloon_onlined *= value;
 	    sk->hv_balloon_ballooned *= value;
