@@ -10,11 +10,14 @@ tmp=/var/tmp/$$
 sts=0
 trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 
+export PCP_DERIVED_CONFIG=
+
 _usage()
 {
     echo >&2 "Usage: `basename $0` [options] pat ..."
     echo >&2 "   -a         search archives [default]"
     echo >&2 "   -h         search localhost live metrics"
+    echo >&2 "pat ...       are treated as conjuncted, so pat && ..."
 }
 
 arch=true
@@ -57,20 +60,17 @@ done
 
 if $arch
 then
-    srclist="`find * -name '*.meta*'`"
+    srclist="`find archives tmparch -name '*.meta*' | sed -e 's/\.meta//'`"
 else
     srclist='ignoreme'
 fi
 
-for src in $srclist
-do
-    if $arch
-    then
-	pminfo -d -a $src 2>&1
-    else
-	pminfo -d 2>&1
-    fi \
-    | sed -e '/^[a-z]/{
+_do_info()
+{
+    pminfo "$@" 2>&1 \
+    | sed \
+	-e '/^[ 	]*$/d' \
+	-e '/^[a-z]/{
 s/$/|/
 N
 s/$/|/
@@ -81,10 +81,45 @@ s/| Data Type: /|/
 s/ InDom: /|/
 s/ Semantics: /|/
 s/ Units: /|/
-}' \
+}'
+}
+
+for src in $srclist
+do
+    src_esc=`echo "$src" | sed -e 's;/;\\\\/;g'`
+    if $arch
+    then
+	cached=false
+	[ -f ".findmetric/$src" ] && cached=true
+	if [ "$cached" = false ]
+	then
+	    echo >&2 "build cache for $src ..."
+	    dir=".findmetric/`dirname "$src"`"
+	    [ -d "$dir" ] || mkdir -p "$dir"
+	    _do_info -d -a $src >".findmetric/$src"
+	fi
+	cat ".findmetric/$src"
+    else
+	_do_info -d
+    fi \
     | grep -E "$pat" >$tmp.out
 
-    if [ -s $tmp.out ]
+    # so we have matched at least one pat from the command line ...
+    # now see if app pat's are matched
+    #
+    match=true
+    for arg
+    do
+	if grep -q "$arg" $tmp.out
+	then
+	    :
+	else
+	    match=false
+	    break
+	fi
+    done
+
+    if $match
     then
 	if $arch
 	then
