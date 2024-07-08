@@ -4,28 +4,29 @@
 %include "options.pmstat"
 
 log mandatory on default {
-    kernel.all.load   
-    swap.used            
-    mem.util.free        
-    mem.util.bufmem      
-    mem.util.cached      
-    swap.pagesin              
-    swap.pagesout             
+    kernel.all.load
+    swap.used
+    mem.util.free
+    mem.util.bufmem
+    mem.util.cached
+    swap.pagesin
+    swap.pagesout
 %ifdef have_disk_block_stats
-    disk.all.blkread     
-    disk.all.blkwrite    
+    disk.all.blkread
+    disk.all.blkwrite
 %else
-    disk.all.read     
-    disk.all.write    
+    disk.all.read
+    disk.all.write
 %endif
-    kernel.all.intr      
-    kernel.all.pswitch   
-    kernel.all.cpu.nice  
-    kernel.all.cpu.user  
+    kernel.all.intr
+    kernel.all.pswitch
+    kernel.all.cpu.nice
+    kernel.all.cpu.user
     kernel.all.cpu.intr
     kernel.all.cpu.sys
     kernel.all.cpu.idle
     kernel.all.cpu.wait.total
     kernel.all.cpu.steal
+    kernel.all.cpu.guest
+    kernel.all.cpu.guest_nice
 }
-
