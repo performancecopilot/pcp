@@ -81,8 +81,8 @@ Note: timezone set to local timezone of host "shack" from archive
 === testing pmrep with :collectl-sc config on pcp-zeroconf archive
            cpu   sys  intr/s  cswch/s
 08:59:48   N/A   N/A     N/A      N/A
-08:59:49 15.24  4.55 8495.00 11695.00
-08:59:50 13.34  3.44 8022.00  9930.00
+08:59:49 22.04  6.80 8495.00 11695.00
+08:59:50 18.99  5.65 8022.00  9930.00
 
 === testing pmrep with :collectl-sm config on pcp-zeroconf archive
    Free   Buff   Cach   Inac   Slab    Map
