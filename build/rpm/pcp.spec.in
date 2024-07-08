@@ -2304,8 +2304,6 @@ This package contains configuration tweaks and files to increase metrics
 gathering frequency, several extended pmlogger configurations, as well as
 automated pmie diagnosis, alerting and self-healing for the localhost.
 
-%global __strip %{_builddir}/%{?buildsubdir}/build/rpm/custom-strip
-
 %prep
 %setup -q
 
@@ -2314,6 +2312,9 @@ automated pmie diagnosis, alerting and self-healing for the localhost.
 rm -Rf $RPM_BUILD_ROOT
 
 %build
+# the buildsubdir macro gets defined in %%setup and is apparently only available in the next step (i.e. the %%build step)
+%global __strip %{_builddir}/%{?buildsubdir}/build/rpm/custom-strip
+
 # fix up build version
 _build=`echo %{release} | sed -e 's/\..*$//'`
 sed -i "/PACKAGE_BUILD/s/=[0-9]*/=$_build/" VERSION.pcp
