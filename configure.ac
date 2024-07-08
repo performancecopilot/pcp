@@ -2087,7 +2087,7 @@ then
 fi
 AC_SUBST(enable_secure)
 
-PKG_CHECK_MODULES([libdrm], [libdrm >= 2.0], [have_drm=true], [have_drm=false])
+PKG_CHECK_MODULES([libdrm], [libdrm >= 2.4.77], [have_drm=true], [have_drm=false])
 if $have_drm
 then
 	PKG_CHECK_MODULES([libdrm_amdgpu], [libdrm_amdgpu >= 1], [have_amdgpu=true], [have_amdgpu=false])
