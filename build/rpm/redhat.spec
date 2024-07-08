@@ -2286,7 +2286,7 @@ collecting metrics about web server logs.
 License: GPL-2.0-or-later
 Summary: Performance Co-Pilot (PCP) metrics from AMD GPU devices
 URL: https://pcp.io
-Requires: pcp = @package_version@ pcp-libs = @package_version@
+Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
 Requires: libdrm
 BuildRequires: libdrm-devel
 %description pmda-amdgpu
