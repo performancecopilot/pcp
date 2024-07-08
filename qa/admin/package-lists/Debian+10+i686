@@ -39,6 +39,7 @@ iproute2
 jq
 libavahi-common-dev
 libbpf-dev 
+libcoin-dev
 libclass-dbi-perl
 libcmocka-dev
 libdbd-mysql-perl
@@ -80,6 +81,7 @@ libvirt-daemon-system
 libxml-libxml-perl
 libxml-tokeparser-perl
 libyaml-libyaml-perl
+linux-headers-`uname -r` not4ci
 llvm 
 lm-sensors
 make
@@ -115,7 +117,6 @@ python3-pyodbc
 python3-requests
 python3-setuptools
 python3-six
-qt4-qmake
 qtbase5-dev
 qtbase5-dev-tools
 qtchooser
