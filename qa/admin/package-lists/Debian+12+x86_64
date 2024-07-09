@@ -46,6 +46,7 @@ libbpf-dev
 libclass-dbi-perl
 libcmocka-dev
 libcoin-dev
+libdrm-dev
 libdbd-mysql-perl
 libdbd-pg-perl
 libdevmapper-dev

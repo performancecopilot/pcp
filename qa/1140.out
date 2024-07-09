@@ -72,17 +72,17 @@ Swap       16773116    10526772     6246344
 Note: timezone set to local timezone of host "shack" from archive
 
 @ Mon Jul  1 08:59:48 2019
- loadavg                      memory      swap        io    system                 cpu
-   1 min   swpd   free   buff  cache   pi   po   bi   bo   in   cs  us  sy  id  wa  st
-    3.42  9762m 956272    120  1929m  188    0 1895  184 8116  10K  14   6  80   0   0
-    3.42  9762m 956272    120  1929m  175    0 1476  183 8021 9930  13   6  81   0   0
-    3.20  9756m 947080    120  1934m   47    0 2049 5386 8646 9006  15   5  80   0   0
+ loadavg                      memory      swap        io    system                     cpu
+   1 min   swpd   free   buff  cache   pi   po   bi   bo   in   cs  us  sy  id  wa  st  gu
+    3.42  9762m 956272    120  1929m  188    0 1895  184 8116  10K  14   6  80   0   0   0
+    3.42  9762m 956272    120  1929m  175    0 1476  183 8021 9930  13   6  81   0   0   0
+    3.20  9756m 947080    120  1934m   47    0 2049 5386 8646 9006  15   5  80   0   0   0
 
 === testing pmrep with :collectl-sc config on pcp-zeroconf archive
            cpu   sys  intr/s  cswch/s
 08:59:48   N/A   N/A     N/A      N/A
-08:59:49 15.24  4.55 8495.00 11695.00
-08:59:50 13.34  3.44 8022.00  9930.00
+08:59:49 22.04  6.80 8495.00 11695.00
+08:59:50 18.99  5.65 8022.00  9930.00
 
 === testing pmrep with :collectl-sm config on pcp-zeroconf archive
    Free   Buff   Cach   Inac   Slab    Map

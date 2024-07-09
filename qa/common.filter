@@ -467,6 +467,7 @@ _filter_top_pmns()
 	-e '/^    gluster /d' \
 	-e '/^    hippi /d' \
 	-e '/^    hotproc /d' \
+	-e '/^    hyperv /d' \
 	-e '/^    hw /d' \
 	-e '/^    infmxping /d' \
 	-e '/^    informix /d' \

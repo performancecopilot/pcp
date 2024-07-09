@@ -63,10 +63,18 @@ $PCP_PYTHON_PROG $here/src/pythonserver.py $port >$tmp.python.out 2>&1 &
 pid=$!
 sleep 2 # let server start up
 
+echo "---" 
 echo "pcp2openmetrics invocation" | tee -a $here/$seq.full
 pcp2openmetrics -s1 -u http://localhost:$port hinv.ncpu >$tmp.openmetrics.out 2>$tmp.openmetrics.err
 
 echo "pcp2openmetrics HTTP POST (sorted):"
+_filter_pcp2openmetrics_http <$tmp.python.out
+
+cat /dev/null > $tmp.python.out
+
+echo "---"
+echo "testing -x option" | tee -a $here/$seq.full
+pcp2openmetrics -s1 -x -u http://localhost:$port hinv.ncpu >$tmp.openmetrics2.out 2>$tmp.openmetrics2.err
 _filter_pcp2openmetrics_http <$tmp.python.out
 
 # terminate pythonserver.py now

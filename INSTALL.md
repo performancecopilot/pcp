@@ -208,7 +208,7 @@ $ dpkg -i *.deb
 **rpm install** (RedHat, SuSE and their derivative distributions)
 ```
 $ cd pcp-<version>/build/rpm
-$ sudo rpm -U `echo *.rpm | sed -e '/\.src\.rpm$/d'`
+$ sudo rpm -U `ls -1 *.rpm | sed -e '/\.src\.rpm$/d'`
 ```
 **tarball install** (where we don't have native packaging working yet)
 ```

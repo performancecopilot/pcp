@@ -216,6 +216,12 @@ ExcludeArch: %{ix86}
 %global disable_xlsx 1
 %endif
 
+%if 0%{?fedora} >= 40 || 0%{?rhel} >= 10
+%global disable_amdgpu 0
+%else
+%global disable_amdgpu 1
+%endif
+
 # prevent conflicting binary and man page install for pcp(1)
 Conflicts: librapi < 0.16
 
@@ -591,6 +597,9 @@ Requires: pcp-pmda-json
 Requires: pcp-pmda-resctrl
 %endif
 Requires: pcp-pmda-summary pcp-pmda-trace pcp-pmda-weblog
+%if !%{disable_amdgpu}
+Requires: pcp-pmda-amdgpu
+%endif
 Requires: pcp-system-tools
 %if !%{disable_qt}
 Requires: pcp-gui
@@ -2269,6 +2278,23 @@ collecting metrics about web server logs.
 # end pcp-pmda-weblog
 # end C pmdas
 
+%if !%{disable_amdgpu}
+#
+# pcp-pmda-amdgpu
+#
+%package pmda-amdgpu
+License: GPL-2.0-or-later
+Summary: Performance Co-Pilot (PCP) metrics from AMD GPU devices
+URL: https://pcp.io
+Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
+Requires: libdrm
+BuildRequires: libdrm-devel
+%description pmda-amdgpu
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+extracting performance metrics from AMDGPU devices.
+# end pcp-pmda-amdgpu
+%endif
+
 %package zeroconf
 License: GPL-2.0-or-later
 Summary: Performance Co-Pilot (PCP) Zeroconf Package
@@ -2598,6 +2624,7 @@ basic_manifest | keep 'pcp2xml' >pcp-export-pcp2xml-files
 basic_manifest | keep 'pcp2zabbix' >pcp-export-pcp2zabbix-files
 basic_manifest | keep 'zabbix|zbxpcp' | cull pcp2zabbix >pcp-export-zabbix-agent-files
 basic_manifest | keep '(etc/pcp|pmdas)/activemq(/|$)' >pcp-pmda-activemq-files
+basic_manifest | keep '(etc/pcp|pmdas)/amdgpu(/|$)' >pcp-pmda-amdgpu-files
 basic_manifest | keep '(etc/pcp|pmdas)/apache(/|$)' >pcp-pmda-apache-files
 basic_manifest | keep '(etc/pcp|pmdas)/bash(/|$)' >pcp-pmda-bash-files
 basic_manifest | keep '(etc/pcp|pmdas)/bcc(/|$)' >pcp-pmda-bcc-files
@@ -2677,7 +2704,7 @@ basic_manifest | keep '(etc/pcp|pmdas)/zswap(/|$)' >pcp-pmda-zswap-files
 
 rm -f packages.list
 for pmda_package in \
-    activemq apache \
+    activemq amdgpu apache \
     bash bcc bind2 bonding bpf bpftrace \
     cifs cisco \
     dbping denki docker dm ds389 ds389log \
@@ -3130,6 +3157,11 @@ exit 0
 %preun pmda-weblog
 %{pmda_remove "$1" "weblog"}
 
+%if !%{disable_amdgpu}
+%preun pmda-amdgpu
+%{pmda_remove "$1" "amdgpu"}
+%endif
+
 %preun
 if [ "$1" -eq 0 ]
 then
@@ -3446,6 +3478,10 @@ fi
 %files pmda-lio -f pcp-pmda-lio-files.rpm
 
 %files pmda-openmetrics -f pcp-pmda-openmetrics-files.rpm
+%endif
+
+%if !%{disable_amdgpu}
+%files pmda-amdgpu -f pcp-pmda-amdgpu-files.rpm
 %endif
 
 %files pmda-apache -f pcp-pmda-apache-files.rpm

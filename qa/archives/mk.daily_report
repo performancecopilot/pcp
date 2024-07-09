@@ -37,40 +37,40 @@ log mandatory on default {
 
     # [sar-d-dev] (unless already included)
     # disk.dev.avg_qlen - derived metric =>
-	disk.dev.read_rawactive
-	disk.dev.write_rawactive
+    disk.dev.read_rawactive
+    disk.dev.write_rawactive
     # disk.dev.avg_rqsz - derived metric =>
-	disk.dev.read
-	disk.dev.write
-	disk.dev.read_bytes
-	disk.dev.write_bytes
+    disk.dev.read
+    disk.dev.write
+    disk.dev.read_bytes
+    disk.dev.write_bytes
     # disk.dev.await - derived metric =>
-	disk.dev.total
-	disk.dev.total_rawactive
+    disk.dev.total
+    disk.dev.total_rawactive
     disk.dev.discard_bytes
     disk.dev.read_bytes
     disk.dev.total
     # disk.dev.util - derived metric =>
-	disk.dev.avactive
+    disk.dev.avactive
     disk.dev.write_bytes
 
     # [sar-d-dm] (unless already included)
     # disk.dm.avg_qlen - derived metric =>
-	disk.dm.read_rawactive
-	disk.dm.write_rawactive
+    disk.dm.read_rawactive
+    disk.dm.write_rawactive
     # disk.dm.avg_rqsz - derived metric =>
-	disk.dm.read
-	disk.dm.write
-	disk.dm.read_bytes
-	disk.dm.write_bytes
+    disk.dm.read
+    disk.dm.write
+	  disk.dm.read_bytes
+    disk.dm.write_bytes
     # disk.dm.await - derived metric =>
-	disk.md.total
-	disk.md.total_rawactive
+    disk.md.total
+    disk.md.total_rawactive
     disk.dm.discard_bytes
     disk.dm.read_bytes
     disk.dm.total
     # disk.dm.util - derived metric =>
-	disk.md.avactive
+    disk.md.avactive
     disk.dm.write_bytes
 
     # [sar-F] (unless already included)
@@ -187,6 +187,7 @@ log mandatory on default {
     kernel.all.cpu.nice
     kernel.all.cpu.steal
     kernel.all.cpu.sys
+    kernel.all.cpu.vnice
     kernel.all.cpu.vuser
     kernel.all.cpu.wait.total
 
@@ -199,6 +200,7 @@ log mandatory on default {
     kernel.percpu.cpu.nice
     kernel.percpu.cpu.steal
     kernel.percpu.cpu.sys
+    kernel.percpu.cpu.vnice
     kernel.percpu.cpu.vuser
     kernel.percpu.cpu.wait.total
 
@@ -226,6 +228,7 @@ log mandatory on default {
     tty.serial.tx
 
     # [vmstat] (unless already included)
+    kernel.all.cpu.intr
     kernel.all.cpu.user
     kernel.all.running
     swap.pagesin
@@ -253,6 +256,7 @@ log mandatory on default {
     kernel.pernode.cpu.nice
     kernel.pernode.cpu.steal
     kernel.pernode.cpu.sys
+    kernel.pernode.cpu.vnice
     kernel.pernode.cpu.vuser
     kernel.pernode.cpu.wait.total
 

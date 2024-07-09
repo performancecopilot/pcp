@@ -137,5 +137,42 @@ refresh_sysfs_kernel(sysfs_kernel_t *sk, int *need_refresh)
 	}
     }
 
+    if (need_refresh[REFRESH_SYSFS_KERNEL_HVBALLOON]) {
+	unsigned long long value;
+	char name[64];
+	FILE *fp;
+
+	pmsprintf(buf, sizeof(buf), "%s/%s/debug/hv-balloon",
+				    linux_statspath, "sys/kernel");
+	if ((fp = fopen(buf, "r")) != NULL) {
+
+	    while (fgets(buf, sizeof(buf), fp) != NULL) {
+		n = sscanf(buf, "%s : %llu", name, &value);
+		if (n != 2)
+		    continue;
+		else if (strcmp(name, "state") == 0)
+		    sk->hv_balloon_state = value;
+		else if (strcmp(name, "page_size") == 0)
+		    sk->hv_balloon_pagesize = value;
+		else if (strcmp(name, "pages_added") == 0)
+		    sk->hv_balloon_added = value;
+		else if (strcmp(name, "pages_onlined") == 0)
+		    sk->hv_balloon_onlined = value;
+		else if (strcmp(name, "pages_ballooned") == 0)
+		    sk->hv_balloon_ballooned = value;
+		else if (strcmp(name, "total_pages_committed") == 0)
+		    sk->hv_balloon_total_committed = value;
+	    }
+	    value = sk->hv_balloon_pagesize ? /* local kernel fallback */
+		    sk->hv_balloon_pagesize : /* avoids divide-by-zero */
+		    (unsigned long long) (1 << _pm_pageshift);
+	    sk->hv_balloon_added *= value;
+	    sk->hv_balloon_onlined *= value;
+	    sk->hv_balloon_ballooned *= value;
+	    sk->hv_balloon_total_committed *= value;
+	    fclose(fp);
+	}
+    }
+
     return 0;
 }
