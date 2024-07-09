@@ -26,6 +26,8 @@ if [ -z "$DISPLAY" ]
 then
     export DISPLAY=$PCPQA_CLOSE_X_SERVER
 fi
+export QT_QPA_PLATFORM=offscreen
+
 src/grind-tools -v -a archives/fcsw_indom fcsw.port.bytes_out 2>>$seq.full \
 | _filter_views
 status=$?
