@@ -46,7 +46,7 @@ mem_metrics=(
     mem.util.used mem.util.dirty
     mem.util.shmem mem.util.bufmem mem.util.cached
     mem.util.swapFree mem.util.swapTotal
-    mem.util.slab mem.util.pageTables
+    mem.util.slab mem.util.pageTables mem.util.percpu
     mem.util.lowFree mem.util.lowTotal
     mem.util.anonhugepages mem.util.available
     mem.util.hugepagesFreeBytes mem.util.hugepagesTotalBytes
@@ -668,6 +668,9 @@ BEGIN {
     printf \"    %s %s (%s%%) of total ram used for Shmem\n\",
            round(mem_util_shmem_value/kbytes_divisor, precision_high), u,
            round((mem_util_shmem_value/total)*100, precision_pct)
+    printf \"    %s %s (%s%%) of total ram used for Percpu\n\",
+           round(mem_util_percpu_value/kbytes_divisor, precision_high), u,
+           round((mem_util_percpu_value/total)*100, precision_pct)
 
     printf \"${H1}Virtual Machine Balloon:${RESET}\n\"
     if (mem_vmmemctl_target_value == 0)
