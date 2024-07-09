@@ -38,6 +38,10 @@ then
     exit 1
 fi
 
+# set SOURCE_DATE_EPOCH for tools like rpmbuild
+export STRING_DATE_EPOCH=`date +%s`
+export SOURCE_DATE_EPOCH="${SOURCE_DATE_EPOCH:-$STRING_DATE_EPOCH}"
+
 tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
 trap "rm -rf $tmp" 0 1 2 3 15
 target=`uname -s | tr 'A-Z' 'a-z'`
