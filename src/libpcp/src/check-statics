@@ -185,6 +185,7 @@ AF.o
     afid			# single-threaded PM_SCOPE_AF
     block			# single-threaded PM_SCOPE_AF
     root			# single-threaded PM_SCOPE_AF
+    gc				# single-threaded PM_SCOPE_AF
     ?afblock			# guarded by AF_lock mutex
     ?afsetup			# guarded by AF_lock mutex
     ?aftimer			# guarded by AF_lock mutex

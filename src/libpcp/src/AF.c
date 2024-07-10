@@ -33,6 +33,7 @@ typedef struct _qelt {
 } qelt;
 
 static qelt		*root;
+static qelt		*gc;		/* garbage collection from onalarm() */
 static int		afid = 0x8000;
 static int		block;
 static void		onalarm(int);
@@ -157,7 +158,12 @@ AFrelse(void)
 static void
 AFrearm(void)
 {
-    signal(SIGALRM, onalarm);
+    struct sigaction action;
+
+    action.sa_handler = onalarm;
+    sigemptyset (&action.sa_mask);
+    action.sa_flags = SA_RESTART;
+    sigaction(SIGALRM, &action, NULL);
 }
 #endif	/* POSIX */
 
@@ -237,24 +243,28 @@ enqueue(qelt *qp)
 }
 
 /*
- * must be async-signal-safe
+ * must be async-signal-safe, see man signal-safety(7) on Linux
  *
  * called routines (for POSIX variant of libpcp code)
  *
- * AFhold
- *   sighold		- problem, should use sigaction()
- * pmtimevalNow
- *  gettimeofday	- problem
- *  qp->q_func		- potential problem if application func() does
- *  			  not restrict itself to async-signal-safe routines
- *  free		- problem
- * pmtimevalInc	- ok
- * pmtimevalDec	- ok
+ * AFhold		- ok
+ * AFsetitimer		- ?
+ * AFrearm		- ok
+ * AFrelse		- ok
+ * pmtimevalNow calls clock_gettime()
+ *			- ok
+ * pmtimevalInc		- ok
+ * pmtimevalDec		- ok
+ * tsub			- ok
+ * enqueue		- ok
+ * qp->q_func		- potential problem if application func() does
+ *                        not restrict itself to async-signal-safe
+ *                        routines
  *
  * in debug code
- *   fprintf	- problem, but we are not going to rewrite all of debug code,
- *		  so accept that if PCP debugging is enabled this
- *		  code is no longer thread-safe
+ *   fprintf    - problem, but we are not going to rewrite all of debug
+ *                code, so accept that if PCP -Daf debugging is enabled
+ *		  this code is no longer async-signal-safe
  */
 static void
 onalarm(int dummy)
@@ -296,10 +306,13 @@ onalarm(int dummy)
              
 		if (qp->q_delta.tv_sec == 0 && qp->q_delta.tv_usec == 0) {
 		    /*
-		     * if delta is zero, this is a single-shot event,
-		     * so do not reschedule it
+                     * if delta is zero, this is a single-shot event, so
+                     * do not reschedule it ... garbage collection is
+                     * delayed until __pmAFblock() or __pmAFunblock() when
+                     * we are no longer in an signal handler
 		     */
-		    free(qp);
+		    qp->q_next = gc;
+		    gc = qp;
 		}
 		else {
 		    /*
@@ -496,6 +509,12 @@ __pmAFblock(void)
 	return;
     block = 1;
     AFhold();
+    /* garbage collection from onalarm() */
+    while (gc != NULL) {
+	qelt	*qp = gc;
+	gc = qp->q_next;
+	free(qp);
+    }
 }
 
 void
@@ -505,6 +524,12 @@ __pmAFunblock(void)
 
     if (PM_MULTIPLE_THREADS(PM_SCOPE_AF))
 	return;
+    /* garbage collection from onalarm() */
+    while (gc != NULL) {
+	qelt	*qp = gc;
+	gc = qp->q_next;
+	free(qp);
+    }
     block = 0;
     AFrearm();
     AFrelse();
