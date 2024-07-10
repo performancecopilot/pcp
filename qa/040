@@ -64,6 +64,15 @@ _fail()
     cat $tmp.log
 }
 
+# and NO malloc() hardening ...
+#
+case $PCP_PLATFORM
+in
+    openbsd)
+    	unset MALLOC_OPTIONS
+	;;
+esac
+
 # real QA test starts here
 
 rm -f $tmp.*

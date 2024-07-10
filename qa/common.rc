@@ -158,3 +158,16 @@ esac
 # with SIGTERM
 #
 trap 'echo "!!!"; echo "!!! Killed from check by timeout ..."; echo "!!!"; pmsignal -s TERM '$$ 6
+
+# Hardened malloc() if available ...
+#
+case $PCP_PLATFORM
+in
+    openbsd)
+	# C => canaries added after allocated area
+	# F => more extensive double free and write after free checks
+	# G => guard pages after page size or larger allocations
+	#
+    	export MALLOC_OPTIONS="CFG"
+	;;
+esac
