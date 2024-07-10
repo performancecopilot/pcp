@@ -1777,9 +1777,16 @@ main(int argc, char **argv)
 	    /*NOTREACHED*/
 	}
 
+	if (sig_code) {
+	    static char sig_msg[100];
+	    pmsprintf(sig_msg, sizeof(sig_msg), "Caught signal %d", sig_code);
+	    exit_msg = sig_msg;
+	    break;
+	}
+
 	/*
 	 * if log_alarm was not set, we need to wait for control port
-	 * work to be done, or next SIGALARM ...
+	 * work to be done, or next SIGALRM ...
 	 */
 	__pmFD_COPY(&readyfds, &fds);
 	nready = __pmSelectRead(numfds, &readyfds, NULL);	/* block */
@@ -1811,13 +1818,6 @@ main(int argc, char **argv)
 
 	if (target_pid && !__pmProcessExists(target_pid)) {
 	    exit_msg = "process from -p has vanished";
-	    break;
-	}
-
-	if (sig_code) {
-	    static char sig_msg[100];
-	    pmsprintf(sig_msg, sizeof(sig_msg), "Caught signal %d", sig_code);
-	    exit_msg = sig_msg;
 	    break;
 	}
     }
