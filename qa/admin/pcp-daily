@@ -891,7 +891,7 @@ do
 	vm33)
 	    # Only selected groups at this stage for OpenBSD
 	    #
-	    [ X"$what" = Xall ] && check_what='-g sanity -g trace -g libpcp -g kernel -g pmcd -g pminfo -g pmlogger -g pmrep -g threads -g logutil -g dbpmda -g pmcheck'
+	    [ X"$what" = Xall ] && check_what='-g sanity -g trace -g libpcp -g kernel -g pmcd -g pminfo -g pmlogger -g pmrep -g threads -g logutil -g dbpmda -g pmcheck -g pmlc'
 	    ;;
 
 	vm35)
@@ -926,7 +926,7 @@ do
 	vm37)
 	    # Only selected groups this stage for OpenBSD
 	    #
-	    [ X"$what" = Xall ] && check_what='-g sanity -g trace -g libpcp -g kernel -g pmcd -g pminfo -g pmlogger -g pmrep -g threads -g logutil -g dbpmda -g pmcheck'
+	    [ X"$what" = Xall ] && check_what='-g sanity -g trace -g libpcp -g kernel -g pmcd -g pminfo -g pmlogger -g pmrep -g threads -g logutil -g dbpmda -g pmcheck -g pmlc'
 	    ;;
 
 	vm38)
