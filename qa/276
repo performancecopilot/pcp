@@ -25,8 +25,15 @@ trap "rm -rf $tmp $tmp.*; _clean_display; exit \$status" 0 1 2 3 15
 if [ -z "$DISPLAY" ]
 then
     export DISPLAY=$PCPQA_CLOSE_X_SERVER
+    PCP_STDERR=$tmp.stderr QT_QPA_PLATFORM=offscreen pmchart --help >/dev/null 2>&1
+    if [ -s $tmp.stderr ]
+    then
+        if grep 'Usage: pmchart' $tmp.stderr >/dev/null
+	then
+            export QT_QPA_PLATFORM=offscreen
+	fi
+    fi
 fi
-export QT_QPA_PLATFORM=offscreen
 
 src/grind-tools -v -a archives/fcsw_indom fcsw.port.bytes_out 2>>$seq.full \
 | _filter_views
