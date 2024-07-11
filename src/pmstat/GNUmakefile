@@ -49,3 +49,9 @@ ifeq ($(PCP_PLATFORM),openbsd)
 else
 	echo '%define have_disk_block_stats' >>pmstat.pmlogger.options
 endif
+ifeq ($(PCP_PLATFORM),linux)
+	echo '%define have_cpu_virt_stats' >>pmstat.pmlogger.options
+else
+	echo '# no CPU virtualization metrics' >>pmstat.pmlogger.options
+	echo '%undef have_cpu_virt_stats' >>pmstat.pmlogger.options
+endif

@@ -26,7 +26,11 @@ log mandatory on default {
     kernel.all.cpu.sys
     kernel.all.cpu.idle
     kernel.all.cpu.wait.total
-    kernel.all.cpu.steal
+%ifdef have_cpu_virt_stats
     kernel.all.cpu.guest
     kernel.all.cpu.guest_nice
+    kernel.all.cpu.steal
+    kernel.all.cpu.vnice
+    kernel.all.cpu.vuser
+%endif
 }
