@@ -1,12 +1,12 @@
 /*
  * Copyright (c) 2013-2016 Red Hat.
  * Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -51,6 +51,8 @@ enum {
     cpu_idle,
     cpu_wait,
     cpu_steal,
+    cpu_guest,
+    cpu_guest_nice,
 
     num_items
 };
@@ -192,6 +194,12 @@ getNewContext(int type, char *host, int quiet)
     s->sts[cpu_steal] = pmExtendFetchGroup_item(s->pmfg,
 			"kernel.all.cpu.steal", NULL, NULL,
 			&s->val[cpu_steal], PM_TYPE_U64, &s->sts[cpu_steal]);
+    s->sts[cpu_guest] = pmExtendFetchGroup_item(s->pmfg,
+			"kernel.all.cpu.guest", NULL, NULL,
+			&s->val[cpu_guest], PM_TYPE_U64, &s->sts[cpu_guest]);
+    s->sts[cpu_guest_nice] = pmExtendFetchGroup_item(s->pmfg,
+			"kernel.all.cpu.guest_nice", NULL, NULL,
+			&s->val[cpu_guest_nice], PM_TYPE_U64, &s->sts[cpu_guest_nice]);
 
     /* Let's mandate at least one metric having been resolved. */
     for (i = 0; i < num_items; i++)
@@ -427,7 +435,7 @@ main(int argc, char *argv[])
 	}
     } else {
 	/*
-	 * Read metrics from the local host.  Note that context can be 
+	 * Read metrics from the local host.  Note that context can be
 	 * either LOCAL or HOST, but not ARCHIVE here.  If we fail to
 	 * talk to pmcd we fallback to local context mode automagically.
 	 */
@@ -457,7 +465,7 @@ main(int argc, char *argv[])
     period = (opts.interval.tv_sec * 1.0e6 + opts.interval.tv_usec) / 1e6;
     now = (time_t)(opts.start.tv_sec + 0.5 + opts.start.tv_usec / 1.0e6);
     if (opts.finish_optarg) {
-	double win = opts.finish.tv_sec - opts.origin.tv_sec + 
+	double win = opts.finish.tv_sec - opts.origin.tv_sec +
 		    (opts.finish.tv_usec - opts.origin.tv_usec) / 1e6;
 	win /= period;
 	if (win > opts.samples)
@@ -511,11 +519,11 @@ main(int argc, char *argv[])
 	    if (ctxCount > 1) {
 		printf("%-7s%8s%21s%10s%10s%10s%*s\n",
 			"node", "loadavg","memory","swap","io","system",
-			extraCpuStats ? 20 : 12, "cpu");
+			extraCpuStats ? 24 : 12, "cpu");
 		if (extraCpuStats)
-		    printf("%8s%7s %6s %6s %6s   %c%1s   %c%1s %4s %4s %4s %4s %3s %3s %3s %3s %3s\n",
+		    printf("%8s%7s %6s %6s %6s   %c%1s   %c%1s %4s %4s %4s %4s %3s %3s %3s %3s %3s %3s\n",
 			"", "1 min","swpd","buff","cache", swapOp,"i",swapOp,"o","bi","bo",
-			"in","cs","us","sy","id","wa","st");
+			"in","cs","us","sy","id","wa","st","gu");
 		else
 		    printf("%8s%7s %6s %6s %6s   %c%1s   %c%1s %4s %4s %4s %4s %3s %3s %3s\n",
 			"", "1 min","swpd","buff","cache", swapOp,"i",swapOp,"o","bi","bo",
@@ -524,11 +532,11 @@ main(int argc, char *argv[])
 	    } else {
 		printf("%8s%28s%10s%10s%10s%*s\n",
 		       "loadavg","memory","swap","io","system",
-			extraCpuStats ? 20 : 12, "cpu");
+			extraCpuStats ? 24 : 12, "cpu");
 		if (extraCpuStats)
-		    printf(" %7s %6s %6s %6s %6s   %c%1s   %c%1s %4s %4s %4s %4s %3s %3s %3s %3s %3s\n",
+		    printf(" %7s %6s %6s %6s %6s   %c%1s   %c%1s %4s %4s %4s %4s %3s %3s %3s %3s %3s %3s\n",
 			"1 min","swpd","free","buff","cache", swapOp,"i",swapOp,"o","bi","bo",
-			"in","cs","us","sy","id","wa","st");
+			"in","cs","us","sy","id","wa","st","gu");
 		else
 		    printf(" %7s %6s %6s %6s %6s   %c%1s   %c%1s %4s %4s %4s %4s %3s %3s %3s\n",
 			"1 min","swpd","free","buff","cache", swapOp,"i",swapOp,"o","bi","bo",
@@ -653,30 +661,36 @@ check:
 		    s->val[cpu_wait].ull = 0;
 		if (s->sts[cpu_steal])	/* optional */
 		    s->val[cpu_steal].ull = 0;
+		if (s->sts[cpu_guest])	/* optional */
+		    s->val[cpu_guest].ull = 0;
+		if (s->sts[cpu_guest_nice])	/* optional */
+		    s->val[cpu_guest_nice].ull = 0;
 
 		if (!failed)
-		    for (i = cpu_nice; i <= cpu_steal; i++)
+		    for (i = cpu_nice; i <= cpu_guest_nice; i++)
 			dtot += s->val[i].ull;
 
 		if (extraCpuStats) {
-		    if (failed) { 
-			printf(" %3.3s %3.3s %3.3s %3.3s %3.3s",
-			       "?", "?", "?", "?", "?");
+		    if (failed) {
+			printf(" %3.3s %3.3s %3.3s %3.3s %3.3s %3.3s",
+			       "?", "?", "?", "?", "?", "?");
 		    } else {
 			unsigned long long fill = dtot / 2;
-			unsigned long long user, kernel, idle, iowait, steal;
+			unsigned long long user, kernel, idle, iowait, steal, guest;
 
 			user = s->val[cpu_nice].ull + s->val[cpu_user].ull;
 			kernel = s->val[cpu_intr].ull + s->val[cpu_sys].ull;
 			idle = s->val[cpu_idle].ull;
 			iowait = s->val[cpu_wait].ull;
 			steal = s->val[cpu_steal].ull;
-			printf(" %3u %3u %3u %3u %3u",
+			guest = s->val[cpu_guest_nice].ull + s->val[cpu_guest].ull;
+			printf(" %3u %3u %3u %3u %3u %3u",
 			       (unsigned int)((100 * user + fill) / dtot),
 			       (unsigned int)((100 * kernel + fill) / dtot),
 			       (unsigned int)((100 * idle + fill) / dtot),
 			       (unsigned int)((100 * iowait + fill) / dtot),
-			       (unsigned int)((100 * steal + fill) / dtot));
+			       (unsigned int)((100 * steal + fill) / dtot),
+			       (unsigned int)((100 * guest + fill) / dtot));
 		    }
 		} else if (failed) {
 		    printf(" %3.3s %3.3s %3.3s", "?", "?", "?");
