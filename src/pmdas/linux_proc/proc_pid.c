@@ -2378,22 +2378,22 @@ parse_proc_fdinfo(proc_pid_fdinfo_t *fdinfo, size_t buflen, char *buf)
 }
 
 static void
-accumulate_proc_fdinfo(proc_pid_entry_t *ep, proc_pid_fdinfo_t fdinfo)
+accumulate_proc_fdinfo(proc_pid_entry_t *ep, proc_pid_fdinfo_t const *fdinfo)
 {
     /* Generic DRM data */
-    ep->fdinfo.drm_memory_cpu += fdinfo.drm_memory_cpu;
-    ep->fdinfo.drm_memory_gtt += fdinfo.drm_memory_gtt;
-    ep->fdinfo.drm_memory_vram += fdinfo.drm_memory_vram;
-    ep->fdinfo.drm_shared_cpu += fdinfo.drm_shared_cpu;
-    ep->fdinfo.drm_shared_gtt += fdinfo.drm_shared_gtt;
-    ep->fdinfo.drm_shared_vram += fdinfo.drm_shared_vram;
+    ep->fdinfo.drm_memory_cpu += fdinfo->drm_memory_cpu;
+    ep->fdinfo.drm_memory_gtt += fdinfo->drm_memory_gtt;
+    ep->fdinfo.drm_memory_vram += fdinfo->drm_memory_vram;
+    ep->fdinfo.drm_shared_cpu += fdinfo->drm_shared_cpu;
+    ep->fdinfo.drm_shared_gtt += fdinfo->drm_shared_gtt;
+    ep->fdinfo.drm_shared_vram += fdinfo->drm_shared_vram;
     /* AMD GPU specific data */
-    ep->fdinfo.amd_evicted_visible_vram += fdinfo.amd_evicted_visible_vram;
-    ep->fdinfo.amd_evicted_vram += fdinfo.amd_evicted_vram;
-    ep->fdinfo.amd_memory_visible_vram += fdinfo.amd_memory_visible_vram;
-    ep->fdinfo.amd_requested_gtt += fdinfo.amd_requested_gtt;
-    ep->fdinfo.amd_requested_visible_vram += fdinfo.amd_requested_visible_vram;
-    ep->fdinfo.amd_requested_vram += fdinfo.amd_requested_vram;
+    ep->fdinfo.amd_evicted_visible_vram += fdinfo->amd_evicted_visible_vram;
+    ep->fdinfo.amd_evicted_vram += fdinfo->amd_evicted_vram;
+    ep->fdinfo.amd_memory_visible_vram += fdinfo->amd_memory_visible_vram;
+    ep->fdinfo.amd_requested_gtt += fdinfo->amd_requested_gtt;
+    ep->fdinfo.amd_requested_visible_vram += fdinfo->amd_requested_visible_vram;
+    ep->fdinfo.amd_requested_vram += fdinfo->amd_requested_vram;
 }
 
 static int
@@ -2415,12 +2415,16 @@ refresh_proc_pid_fdinfo(proc_pid_entry_t *ep)
     while ((dp = readdir(dirp)) != NULL)
 	fd_count++;
 
-    if (!fd_count)
+    if (!fd_count) {
+	closedir(dirp);
 	return 0;
+    }
 
     fdinfos = calloc(fd_count, sizeof(*fdinfos));
-    if (!fdinfos)
+    if (!fdinfos) {
+	closedir(dirp);
 	return maperr();
+    }
 
     rewinddir(dirp);
 
@@ -2437,6 +2441,7 @@ refresh_proc_pid_fdinfo(proc_pid_entry_t *ep)
 
 	if ((fd = proc_open(fname, ep)) < 0) {
 	    free(fdinfos);
+	    closedir(dirp);
 	    return maperr();
 	}
 
@@ -2470,10 +2475,11 @@ refresh_proc_pid_fdinfo(proc_pid_entry_t *ep)
     memset(&ep->fdinfo, 0, sizeof(ep->fdinfo));
 
     for (int i = 0; i < fd_it; i++)
-	accumulate_proc_fdinfo(ep, fdinfos[i]);
+	accumulate_proc_fdinfo(ep, &fdinfos[i]);
 
     ep->success |= PROC_PID_FLAG_FDINFO;
     free(fdinfos);
+    closedir(dirp);
 
     return sts;
 }
