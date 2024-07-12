@@ -282,7 +282,7 @@ __pmProcessExec(__pmExecCtl_t **handle, int toss, int wait)
 	namelen = strlen(name)+1;
 	if ((name = strdup(name)) == NULL) {
 	    pmNoMem("__pmProcessExec: name strdup", namelen, PM_RECOV_ERR);
-	    exit(126);
+	    _exit(126);
 	}
 	/* still hold ref to argv[0] via path */
 	ep->argv[0] = name;
@@ -302,10 +302,8 @@ __pmProcessExec(__pmExecCtl_t **handle, int toss, int wait)
 
 	execvp(path, (char * const *)ep->argv);
 	/* oops, not supposed to get here */
-	if (pmDebugOptions.exec) {
-	    fprintf(stderr, "__pmProcessExec: child pid=%" FMT_PID " execvp(%s, ...) failed\n", getpid(), path);
-	}
-	exit(127);
+	fprintf(stderr, "__pmProcessExec: child pid=%" FMT_PID " execvp(%s, ...) failed\n", getpid(), path);
+	_exit(127);
     }
 
     if (pmDebugOptions.exec) {
@@ -576,7 +574,7 @@ __pmProcessPipe(__pmExecCtl_t **handle, const char *type, int toss, FILE **fp)
 	namelen = strlen(name)+1;
 	if ((name = strdup(name)) == NULL) {
 	    pmNoMem("__pmProcessPipe: name strdup", namelen, PM_RECOV_ERR);
-	    exit(126);
+	    _exit(126);
 	}
 	/* still hold ref to argv[0] via path */
 	ep->argv[0] = name;
@@ -588,7 +586,8 @@ __pmProcessPipe(__pmExecCtl_t **handle, const char *type, int toss, FILE **fp)
 
 	execvp(path, (char * const *)ep->argv);
 	/* oops, not supposed to get here */
-	exit(127);
+	fprintf(stderr, "__pmProcessPipe: child pid=%" FMT_PID " execvp(%s, ...) failed\n", getpid(), path);
+	_exit(127);
     }
 
     /* cleanup on the parent (caller) side */
