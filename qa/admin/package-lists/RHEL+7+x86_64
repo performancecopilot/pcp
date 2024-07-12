@@ -2,9 +2,7 @@
 # created by kenj on vm29.localdomain Wed Oct 14 07:38:04 AEDT 2020
 #
 389-ds-base
-Coin3-devel
 Net::SNMP cpan
-SoQt-devel
 Spreadsheet::Read cpan
 Spreadsheet::WriteExcel cpan
 Spreadsheet::XLSX cpan
@@ -98,7 +96,6 @@ python-rtslib
 python-setuptools
 python-six
 python2-pylint
-qt-devel
 qt5-qtbase-devel
 qt5-qtsvg-devel
 ragel
