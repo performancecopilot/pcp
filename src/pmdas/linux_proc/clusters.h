@@ -70,8 +70,10 @@
 #define CLUSTER_PID_AUTOGROUP		74 /* /proc/<pid>/autogroup */
 #define CLUSTER_HOTPROC_PID_AUTOGROUP	75 /* /proc/<pid>/autogroup */
 #define CLUSTER_CGROUP2_IRQ_PRESSURE	76
+#define CLUSTER_PID_FDINFO		77 /* /proc/<pid>/fdinfo */
+#define CLUSTER_HOTPROC_PID_FDINFO	78 /* /proc/<pid>/fdinfo */
 
 #define MIN_CLUSTER  8		/* first cluster number we use here */
-#define MAX_CLUSTER 77		/* one more than highest cluster number used */
+#define MAX_CLUSTER 79		/* one more than highest cluster number used */
 
 #endif /* _CLUSTERS_H */

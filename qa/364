@@ -288,6 +288,7 @@ _filter_linux()
 {
     # pcp-atop uses metrics not supported on some kernels
     # proc.smaps.* metrics are not present for older kernels
+    # proc.fdinfo.* metrics neither
     #
     if [ $PCP_PLATFORM != linux ]
     then
@@ -310,6 +311,7 @@ _filter_linux()
 	    -e '/^proc\.psinfo\.cgroups -12351 Missing metric value(s)/d' \
 	    -e '/^proc\.namespaces\.envid -12350 Metric not supported/d' \
 	    -e '/^hotproc\.namespaces\.envid -12350 Metric not supported/d' \
+	    -e '/^proc\.fdinfo\..* Metric not supported/d' \
 	# linux
     fi
 }

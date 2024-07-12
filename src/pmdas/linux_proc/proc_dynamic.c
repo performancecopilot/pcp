@@ -40,6 +40,7 @@ enum {
     DYNPROC_GROUP_NAMESPACE,
     DYNPROC_GROUP_SMAPS,
     DYNPROC_GROUP_AUTOGROUP,
+    DYNPROC_GROUP_FDINFO,
 
     NUM_DYNPROC_GROUPS
 };
@@ -69,6 +70,7 @@ static int proc_hotproc_cluster_list[][2] = {
 	{ CLUSTER_PID_EXE,	    CLUSTER_HOTPROC_PID_EXE },
 	{ CLUSTER_PID_CWD,	    CLUSTER_HOTPROC_PID_CWD },
 	{ CLUSTER_PID_AUTOGROUP,    CLUSTER_HOTPROC_PID_AUTOGROUP },
+	{ CLUSTER_PID_FDINFO,	    CLUSTER_HOTPROC_PID_FDINFO },
 };
 
 
@@ -257,6 +259,21 @@ static dynproc_metric_t smaps_metrics[] = {
 	{ .name = "pss_dirty",       .cluster = CLUSTER_PID_SMAPS,  .item=20 },
 };
 
+static dynproc_metric_t fdinfo_metrics[] = {
+	{ .name = "drm_memory_cpu",             .cluster = CLUSTER_PID_FDINFO, .item=0 },
+	{ .name = "drm_memory_gtt",             .cluster = CLUSTER_PID_FDINFO, .item=1 },
+	{ .name = "drm_memory_vram",            .cluster = CLUSTER_PID_FDINFO, .item=2 },
+	{ .name = "drm_shared_cpu",             .cluster = CLUSTER_PID_FDINFO, .item=3 },
+	{ .name = "drm_shared_gtt",             .cluster = CLUSTER_PID_FDINFO, .item=4 },
+	{ .name = "drm_shared_vram",            .cluster = CLUSTER_PID_FDINFO, .item=5 },
+	{ .name = "amd_evicted_visible_vram",   .cluster = CLUSTER_PID_FDINFO, .item=6 },
+	{ .name = "amd_evicted_vram",           .cluster = CLUSTER_PID_FDINFO, .item=7 },
+	{ .name = "amd_memory_visible_vram",    .cluster = CLUSTER_PID_FDINFO, .item=8 },
+	{ .name = "amd_requested_gtt",          .cluster = CLUSTER_PID_FDINFO, .item=9 },
+	{ .name = "amd_requested_visible_vram", .cluster = CLUSTER_PID_FDINFO, .item=10 },
+	{ .name = "amd_requested_vram",         .cluster = CLUSTER_PID_FDINFO, .item=11 },
+};
+
 static dynproc_group_t dynproc_groups[] = {
 	[DYNPROC_GROUP_PSINFO]    = { .name = "psinfo",	    .metrics = psinfo_metrics,	    .nmetrics = sizeof(psinfo_metrics)/sizeof(dynproc_metric_t)},
 	[DYNPROC_GROUP_ID]	  = { .name = "id",	    .metrics = id_metrics,	    .nmetrics = sizeof(id_metrics)/sizeof(dynproc_metric_t)},
@@ -267,6 +284,7 @@ static dynproc_group_t dynproc_groups[] = {
 	[DYNPROC_GROUP_NAMESPACE] = { .name = "namespaces", .metrics = namespace_metrics,   .nmetrics = sizeof(namespace_metrics)/sizeof(dynproc_metric_t) },
 	[DYNPROC_GROUP_SMAPS]     = { .name = "smaps",	    .metrics = smaps_metrics,	    .nmetrics = sizeof(smaps_metrics)/sizeof(dynproc_metric_t)},
 	[DYNPROC_GROUP_AUTOGROUP] = { .name = "autogroup", .metrics = autogroup_metrics,   .nmetrics = sizeof(autogroup_metrics)/sizeof(dynproc_metric_t) },
+	[DYNPROC_GROUP_FDINFO]    = { .name = "fdinfo",	    .metrics = fdinfo_metrics,	    .nmetrics = sizeof(fdinfo_metrics)/sizeof(dynproc_metric_t) },
 };
 
 /*

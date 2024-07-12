@@ -591,3 +591,4 @@ of accounting information:
   0 inactive (no information available)
   1 system (system level accounting from whatever file accton(8) is using)
   2 private (accounting records from $PCP_VAR_DIR/pmcd/pacct)
+
