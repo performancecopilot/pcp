@@ -47,8 +47,13 @@ for tool in dkvis mpvis nfsvis
 do
     rm -f $tmp.err
     echo "--- $tool -a $archive ... --"
-    $tool -a $archive -C -C -V
-    [ -s $tmp.err ] && cat $tmp.err
+    $tool -a $archive -C -C -V 2>&1 \
+    | _filter
+    if [ -s $tmp.err ]
+    then
+	echo "+++ stderr"
+	_filter <$tmp.err
+    fi
 done
 
 archive=archives/20180415.09.16
@@ -56,11 +61,12 @@ for tool in osvis
 do
     rm -f $tmp.err
     echo "--- $tool -a $archive ... --"
-    $tool -a $archive -C -C -V 2>&1 | _filter
+    $tool -a $archive -C -C -V 2>&1 \
+    | _filter
     if [ -s $tmp.err ]
     then
 	echo "+++ stderr"
-	cat $tmp.err
+	_filter <$tmp.err
     fi
 done
 
