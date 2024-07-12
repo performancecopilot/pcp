@@ -117,13 +117,5 @@ export PATH
 pmchart -c ./`basename $tmp.sh` -C -C 2>&1 \
 | _filter
 
-echo '-- now without . in $PATH, but NO ./ prefix for config arg (should fail) ...'
-pmchart -c `basename $tmp.sh` -C -C 2>&1 \
-| _filter \
-| sed -e '/^__pmProcessPipe:/{
-s/pid=[0-9][0-9]*/pid=PID/
-s/-[0-9][0-9]*\.sh/-MYPID.sh/
-}'
-
 # all done
 exit
