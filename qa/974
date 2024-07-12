@@ -58,7 +58,7 @@ do
     echo "== Checking metric descriptors and a fetch - $base"
     for tree in $trees
     do
-	metric=`grep $tree $tmp.names | head -1`
+	metric=`grep ^proc.$tree $tmp.names | head -1`
 	[ $tree = "id" ] && metric="proc.id.egid"
 	echo T: $tree >> $here/$seq.full
 	echo M: $metric >> $here/$seq.full

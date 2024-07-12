@@ -449,6 +449,7 @@ proc {
     io			PROC:*:*
     schedstat		PROC:*:*
     fd			PROC:*:*
+    fdinfo		PROC:*:*
     namespaces		PROC:*:*
     smaps		PROC:*:*
     autogroup		PROC:*:*
@@ -463,6 +464,7 @@ hotproc {
     io			PROC:*:*
     schedstat		PROC:*:*
     fd			PROC:*:*
+    fdinfo		PROC:*:*
     namespaces		PROC:*:*
     smaps		PROC:*:*
     autogroup		PROC:*:*

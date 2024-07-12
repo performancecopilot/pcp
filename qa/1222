@@ -58,6 +58,8 @@ _filter()
 	-e '/^proc\.id\.container: Missing metric value(s)/d' \
 	-e '/^proc\.psinfo\.labels: No value(s) available/d' \
 	-e '/^proc\.psinfo\.ngid: Metric not supported by this version/d' \
+	-e '/^proc\.fdinfo\..*: Metric not supported/d' \
+	-e '/^proc\.fdinfo\..*: No value(s) available/d' \
 	-e '/pmdaFetch: Fetch callback error from metric PMID 3\.11\.0\[.*]: No data available/d' \
 	-e '/proc\.psinfo\.tty_pgrp: No value(s) available/d' \
 	-e '/ acct: existing pacct file did not grow /d' \
@@ -105,6 +107,7 @@ NF == 0 && seen == 1		{ if (numval == 1) print metric ": 1 value"
 	-e '/^proc\.psinfo\.ngid:/d' \
 	-e '/^proc\.psinfo\.tty_pgrp:/d' \
 	-e '/^proc\.smaps\./d' \
+	-e '/^proc\.fdinfo\./d' \
 	-e '/^Command: /s/,proc_init .*/,proc_init ... metrics .../' \
 	-e '/ERROR SUMMARY/q' \
     # end

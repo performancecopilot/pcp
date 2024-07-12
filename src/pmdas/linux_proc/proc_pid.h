@@ -202,6 +202,29 @@ typedef struct {
     uint64_t	locked;
 } proc_pid_smaps_t;
 
+/*
+ * metrics in /proc/<pid>/fdinfo/
+ */
+typedef struct {
+    /* Generic DRM data */
+    char	drm_driver[32];
+    uint64_t	drm_client_id;
+    char	drm_pdev[32];
+    uint64_t	drm_memory_vram;
+    uint64_t	drm_memory_gtt;
+    uint64_t	drm_memory_cpu;
+    uint64_t	drm_shared_vram;
+    uint64_t	drm_shared_gtt;
+    uint64_t	drm_shared_cpu;
+    /* AMD GPU specific data */
+    uint64_t	amd_memory_visible_vram;
+    uint64_t	amd_evicted_vram;
+    uint64_t	amd_evicted_visible_vram;
+    uint64_t	amd_requested_vram;
+    uint64_t	amd_requested_visible_vram;
+    uint64_t	amd_requested_gtt;
+} proc_pid_fdinfo_t;
+
 enum {
     PROC_PID_FLAG_VALID		= 1<<0,
 
@@ -221,6 +244,7 @@ enum {
     PROC_PID_FLAG_CWD		= 1<<14,
     PROC_PID_FLAG_EXE		= 1<<15,
     PROC_PID_FLAG_AUTOGROUP	= 1<<16,
+    PROC_PID_FLAG_FDINFO	= 1<<17,
 };
 
 typedef struct {
@@ -286,6 +310,9 @@ typedef struct {
     /* /proc/<pid>/autogroup cluster */
     uint32_t		autogroup_id;
     int32_t		autogroup_nice;
+
+    /* /proc/<pid>/fdinfo cluster */
+    proc_pid_fdinfo_t	fdinfo;
 } proc_pid_entry_t;
 
 typedef struct {
@@ -371,5 +398,8 @@ extern proc_pid_entry_t *fetch_proc_pid_exe(int, proc_pid_t *, int *);
 
 /* fetch a proc/<pid>/autogroup entry for pid */
 extern proc_pid_entry_t *fetch_proc_pid_autogroup(int, proc_pid_t *, int *);
+
+/* fetch data from proc/<pid>/fdinfo/ entry for pid */
+extern proc_pid_entry_t *fetch_proc_pid_fdinfo(int, proc_pid_t *, int *);
 
 #endif /* _PROC_PID_H */
