@@ -88,6 +88,14 @@ pmproxy_pid=`_get_pids_by_name -a pmproxy`
 echo === extract initial rss
 pmproxy_rss1=`pminfo -f proc.memory.rss |
 	$PCP_AWK_PROG '{ if ($2 == "['$pmproxy_pid'") { print $NF} }'`
+if [ -z "$pmproxy_rss1" ]
+then
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy( |$)'
+    pminfo -f proc.memory.rss | grep '[p]mproxy'
+    echo "Arrgh: cannot find first rss for pid $pmproxy_pid"
+    status=1
+    exit
+fi
 
 echo === restarting pmlogger # primary only
 _service pmlogger restart 2>&1 | _filter_pcp_start
@@ -99,6 +107,14 @@ pmsleep 4.2
 echo === extract updated rss
 pmproxy_rss2=`pminfo -f proc.memory.rss |
 	$PCP_AWK_PROG '{ if ($2 == "['$pmproxy_pid'") { print $NF} }'`
+if [ -z "$pmproxy_rss2" ]
+then
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy( |$)'
+    pminfo -f proc.memory.rss | grep '[p]mproxy'
+    echo "Arrgh: cannot find second rss for pid $pmproxy_pid"
+    status=1
+    exit
+fi
 
 echo === checking rss within tolerance
 _within_tolerance "rss" $pmproxy_rss1 $pmproxy_rss2 10%
