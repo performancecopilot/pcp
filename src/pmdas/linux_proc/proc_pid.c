@@ -2415,12 +2415,16 @@ refresh_proc_pid_fdinfo(proc_pid_entry_t *ep)
     while ((dp = readdir(dirp)) != NULL)
 	fd_count++;
 
-    if (!fd_count)
+    if (!fd_count) {
+	closedir(dirp);
 	return 0;
+    }
 
     fdinfos = calloc(fd_count, sizeof(*fdinfos));
-    if (!fdinfos)
+    if (!fdinfos) {
+	closedir(dirp);
 	return maperr();
+    }
 
     rewinddir(dirp);
 
@@ -2437,6 +2441,7 @@ refresh_proc_pid_fdinfo(proc_pid_entry_t *ep)
 
 	if ((fd = proc_open(fname, ep)) < 0) {
 	    free(fdinfos);
+	    closedir(dirp);
 	    return maperr();
 	}
 
@@ -2462,6 +2467,7 @@ refresh_proc_pid_fdinfo(proc_pid_entry_t *ep)
 	if (!duplicate)
 	    fdinfos[fd_it++] = fdinfo;
     }
+    closedir(dirp);
 
     /* Reset any previous data, before accumulation.
      * If we wanted to keep all infos separated, we could simply
