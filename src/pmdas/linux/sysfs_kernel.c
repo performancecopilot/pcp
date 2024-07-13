@@ -165,7 +165,7 @@ refresh_sysfs_kernel(sysfs_kernel_t *sk, int *need_refresh)
 	    }
 	    value = sk->hv_balloon_pagesize ? /* local kernel fallback */
 		    sk->hv_balloon_pagesize : /* avoids divide-by-zero */
-		    (unsigned long long) (1 << _pm_pageshift);
+		    ((unsigned long long)1 << _pm_pageshift);
 	    sk->hv_balloon_added *= value;
 	    sk->hv_balloon_onlined *= value;
 	    sk->hv_balloon_ballooned *= value;
