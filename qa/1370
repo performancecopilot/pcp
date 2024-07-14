@@ -70,10 +70,10 @@ if [ -z "$PCPQA_CLOSE_X_SERVER" ]
 then
     X11=false
 fi
-which xdpyinfo >/dev/null 2>&1
-if [ $? -eq 0 ]
+export DISPLAY=$PCPQA_CLOSE_X_SERVER
+if which xdpyinfo >/dev/null 2>&1
 then
-    DISPLAY=$PCPQA_CLOSE_X_SERVER xdpyinfo >/dev/null 2>&1 || \
+    xdpyinfo >/dev/null 2>&1 || \
 	X11=false
 fi
 
