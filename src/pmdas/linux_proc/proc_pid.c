@@ -1122,7 +1122,7 @@ proc_readlink(const char *base, proc_pid_entry_t *ep, size_t *lenp, char **bufp)
 
 /*
  * error mapping for fetch routines ...
- * EACCESS, EINVAL => no values (don't disclose anything else)
+ * EACCES, EINVAL => no values (don't disclose anything else)
  * ENOENT => PM_ERR_APPVERSION
  */
 static int
@@ -2401,7 +2401,8 @@ refresh_proc_pid_fdinfo(proc_pid_entry_t *ep)
 {
     DIR			*dirp;
     struct dirent const	*dp;
-    int			sts = -1;
+    int			sts = 0;
+    int			lsts;
     proc_pid_fdinfo_t	*fdinfos;
     int			fd_count = 0;
     int			fd_it = 0;
@@ -2409,19 +2410,31 @@ refresh_proc_pid_fdinfo(proc_pid_entry_t *ep)
     if (ep->success & PROC_PID_FLAG_FDINFO)
 	return 0;
 
-    if ((dirp = proc_opendir("fdinfo", ep)) == NULL)
+    if ((dirp = proc_opendir("fdinfo", ep)) == NULL) {
+	/*
+	 * for kernel threads this fails with EACCES
+	 * that maperr() turns into 0
+	 */
 	return maperr();
+    }
 
-    while ((dp = readdir(dirp)) != NULL)
+    while ((dp = readdir(dirp)) != NULL) {
+	if (!isdigit((int)dp->d_name[0]))
+	    continue;
 	fd_count++;
+    }
 
     if (!fd_count) {
+	if (pmDebugOptions.appl1)
+	    fprintf(stderr, "refresh_proc_pid_fdinfo(pid=%d): /proc/.../fdinfo empty\n", ep->id);
 	closedir(dirp);
 	return 0;
     }
 
     fdinfos = calloc(fd_count, sizeof(*fdinfos));
     if (!fdinfos) {
+	if (pmDebugOptions.appl1)
+	    pmNoMem("refresh_proc_pid_fdinfo", fd_count*sizeof(*fdinfos), PM_RECOV_ERR);
 	closedir(dirp);
 	return maperr();
     }
@@ -2440,13 +2453,25 @@ refresh_proc_pid_fdinfo(proc_pid_entry_t *ep)
 	pmsprintf(fname, sizeof(fname), "fdinfo/%s", dp->d_name);
 
 	if ((fd = proc_open(fname, ep)) < 0) {
+	    if (pmDebugOptions.appl1)
+		fprintf(stderr, "refresh_proc_pid_fdinfo(pid=%d): proc_open(.../fdinfo/%s,...) -> %d\n", ep->id, fname, fd);
 	    free(fdinfos);
 	    closedir(dirp);
 	    return maperr();
 	}
 
-	if ((sts = read_proc_entry(fd, &procbuflen, &procbuf)) >= 0)
+	if ((lsts = read_proc_entry(fd, &procbuflen, &procbuf)) >= 0)
 	    parse_proc_fdinfo(&fdinfo, procbuflen, procbuf);
+	else {
+	    if (sts == 0) {
+		/*
+		 * return first found error from read_proc_entry()
+		 */
+		sts = lsts;
+	    }
+	    if (pmDebugOptions.appl1)
+		fprintf(stderr, "refresh_proc_pid_fdinfo(pid=%d): read_proc_entry(.../fdinfo/%s) -> %d\n", ep->id, fname, sts);
+	}
 
 	close(fd);
 
@@ -2481,6 +2506,8 @@ refresh_proc_pid_fdinfo(proc_pid_entry_t *ep)
     ep->success |= PROC_PID_FLAG_FDINFO;
     free(fdinfos);
 
+    if (sts < 0 && pmDebugOptions.appl1)
+	fprintf(stderr, "refresh_proc_pid_fdinfo(pid=%d) -> %d\n", ep->id, sts);
     return sts;
 }
 
