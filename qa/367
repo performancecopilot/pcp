@@ -33,6 +33,15 @@ then
     exit 1
 fi
 
+# and NO malloc() hardening ... it is only catching qa/src/pdu-server
+#
+case $PCP_PLATFORM
+in
+    openbsd)
+    	unset MALLOC_OPTIONS
+	;;
+esac
+
 # make sure the shell babble after pdu-server is terminated goes elsewhere
 #
 exec 2>$tmp.err
