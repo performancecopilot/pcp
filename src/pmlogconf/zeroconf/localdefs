@@ -2,6 +2,8 @@ FILES = \
 	atop-proc \
 	disk \
 	filesystem \
+	hv-balloon \
+	hv-balloon-summary \
 	interrupts \
 	nfsclient \
 	numa \
