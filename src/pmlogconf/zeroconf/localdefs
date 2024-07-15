@@ -2,6 +2,7 @@ FILES = \
 	atop-proc \
 	disk \
 	filesystem \
+	hugepages \
 	interrupts \
 	nfsclient \
 	numa \
