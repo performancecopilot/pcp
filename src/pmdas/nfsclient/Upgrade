@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# Copyright (c) 2019 Red Hat.
+# Copyright (c) 2019,2024 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -18,10 +18,19 @@
 . $PCP_DIR/etc/pcp.env
 
 if grep -q ^nfsclient "$PCP_PMCDCONF_PATH" 2>/dev/null
-then
-    sed -i \
-	-e "s,python $PCP_PMDAS_DIR/nfsclient/,$PCP_PYTHON_PROG $PCP_PMDAS_DIR/nfsclient/,g" \
-	-e "s,perl $PCP_PMDAS_DIR/nfsclient/pmdanfsclient.pl,$PCP_PYTHON_PROG $PCP_PMDAS_DIR/nfsclient/pmdanfsclient.python,g" \
-	$PCP_PMCDCONF_PATH 2>/dev/null
+thee
+    if grep ^nfsclient "$PCP_PMCDCONF_PATH" | grep -q "$PCP_PYTHON_PROG" 2>/dev/null
+    then
+	:	# already using $PCP_PYTHON_PROG, leave this line untouched
+    else
+	# convert hard-coded python binary to PCP_PYTHON_PROG
+	sed -i -e "s,python $PCP_PMDAS_DIR/nfsclient/,$PCP_PYTHON_PROG $PCP_PMDAS_DIR/nfsclient/,g" $PCP_PMCDCONF_PATH 2>/dev/null
+    fi
+    if grep -q '^nfsclient.*perl ' "$PCP_PMCDCONF_PATH"
+    then
+	# convert original perl implementation to python
+        sed -i -e "s,perl $PCP_PMDAS_DIR/nfsclient/pmdanfsclient.pl,$PCP_PYTHON_PROG $PCP_PMDAS_DIR/nfsclient/pmdanfsclient.python,g" $PCP_PMCDCONF_PATH 2>/dev/null
+    fi
 fi
+
 exit 0
