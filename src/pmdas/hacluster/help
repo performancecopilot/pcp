@@ -281,8 +281,8 @@ The volume number of the resource for each resource:volume.
 The current reported disk state of for the resource:volume.
 
 @ ha_cluster.drbd.resources.all DRBD resource information
-Value is 1 if a drbd resource exists. The details of the corresponding drbd resource
-is given as label metadata values for this metric.
+Value is 1 if a DRBD resource exists. Details of the corresponding DRBD
+resource are given as label metadata values for this metric.
 
 @ ha_cluster.drbd.connections.resource Resource that the connection is for
 The given resource that the DRBD connection is for each resource:volume.
@@ -300,5 +300,5 @@ The reported volume for the connection.
 The reported peer disk state for the connection.
 
 @ ha_cluster.drbd.connections.all DRBD Peer disk information
-Value is 1 if a drbd peer connection exists. The details of the corresponding DRBD peer
-connection is given as label metadata values for this metric.
+Value is 1 if a DRBD peer connection exists. Details of the corresponding
+DRBD peer connection are given as label metadata values for this metric.
