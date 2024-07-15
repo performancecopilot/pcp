@@ -80,7 +80,7 @@ pcp-6.2.1 (10 April 2024)
 	debian build: add postrm for pcp-zeroconf
 	build: removed cppcheck from 'make check', too flakey
 	container: Fedora 40 container testing added
-	constainer: fixed Fedora base image location (quay.io)
+	container: fixed Fedora base image location (quay.io)
 	build: add support for riscv64 to pcp rpm spec files
     - Security Enhanced Linux:
 	selinux policy: small tweak for pmie signal handling
