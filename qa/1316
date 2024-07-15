@@ -56,6 +56,7 @@ _filter()
 	-e '/^indirectly lost:/d' \
 	-e '/^LEAK SUMMARY:/d' \
 	-e '/^ERROR SUMMARY: 0 errors from 0 contexts \.\.\./d' \
+	-e '/__pmProcessPipe: child pid=[0-9]* execvp(\/no\/such\/executable, ...) failed/d' \
     # end
 }
 
@@ -198,8 +199,12 @@ End-of-File
     | _filter
     if [ -s $tmp._valgrind.err ]
     then
-	echo "Errors from valgrind ..."
-	cat $tmp._valgrind.err
+	_filter <$tmp._valgrind.err >$tmp.err
+	if [ -s $tmp.err ]
+	then
+	    echo "Errors from valgrind ..."
+	    cat $tmp._valgrind.err
+	fi
     fi
 elif $do_helgrind
 then
@@ -230,16 +235,21 @@ then
 }
 End-of-File
     grind_extra="--suppressions=$tmp.suppress"
-    _run_helgrind src/multithread14 -i 12 -n 9 $tmp
+    _run_helgrind src/multithread14 -i 12 -n 9 $tmp 2>$tmp.err
 else
-    src/multithread14 -i 12 -n 9 $tmp
+    src/multithread14 -i 12 -n 9 $tmp 2>$tmp.err
+fi
+
+if [ -s $tmp.err ]
+then
+    _filter <$tmp.err
 fi
 
 for tid in 0 1 2 3 4 5 6 7 8
 do
     echo
     echo "--- output for thread $tid ---"
-    cat $tmp.$tid
+    _filter <$tmp.$tid
 done
 
 # success, all done

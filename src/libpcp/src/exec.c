@@ -282,6 +282,7 @@ __pmProcessExec(__pmExecCtl_t **handle, int toss, int wait)
 	namelen = strlen(name)+1;
 	if ((name = strdup(name)) == NULL) {
 	    pmNoMem("__pmProcessExec: name strdup", namelen, PM_RECOV_ERR);
+	    cleanup(ep);
 	    _exit(126);
 	}
 	/* still hold ref to argv[0] via path */
@@ -303,6 +304,7 @@ __pmProcessExec(__pmExecCtl_t **handle, int toss, int wait)
 	execvp(path, (char * const *)ep->argv);
 	/* oops, not supposed to get here */
 	fprintf(stderr, "__pmProcessExec: child pid=%" FMT_PID " execvp(%s, ...) failed\n", getpid(), path);
+	cleanup(ep);
 	_exit(127);
     }
 
@@ -574,6 +576,7 @@ __pmProcessPipe(__pmExecCtl_t **handle, const char *type, int toss, FILE **fp)
 	namelen = strlen(name)+1;
 	if ((name = strdup(name)) == NULL) {
 	    pmNoMem("__pmProcessPipe: name strdup", namelen, PM_RECOV_ERR);
+	    cleanup(ep);
 	    _exit(126);
 	}
 	/* still hold ref to argv[0] via path */
@@ -587,6 +590,7 @@ __pmProcessPipe(__pmExecCtl_t **handle, const char *type, int toss, FILE **fp)
 	execvp(path, (char * const *)ep->argv);
 	/* oops, not supposed to get here */
 	fprintf(stderr, "__pmProcessPipe: child pid=%" FMT_PID " execvp(%s, ...) failed\n", getpid(), path);
+	cleanup(ep);
 	_exit(127);
     }
 

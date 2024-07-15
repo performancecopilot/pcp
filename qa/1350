@@ -35,8 +35,10 @@ nvctxw=`pminfo -f proc.psinfo.vctxsw | tee -a $seq.full | awk '$2 == "['$$'" {pr
 echo "=> $nvctxw" >> $seq.full
 if [ -z "$nvctxw" ]
 then
-    echo "Botch: awk failed on ..."
+    echo "Botch: awk failed on proc.psinfo.vctxsw for PID $$ ..."
     pminfo -f proc.psinfo.vctxsw | grep "$$ "
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E "[P]PID| $$ "
+    exit
 fi
 [ "$nvctxw" -eq 0 ] || status=0
 if [ $status -eq 1 ]
