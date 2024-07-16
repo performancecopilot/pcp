@@ -2026,6 +2026,7 @@ x11
 1608 pmproxy local
 1612 pmda.bpf local
 1613 pmda.linux kernel local
+1619 pmcd local
 1622:retired local
 1623 libpcp_import local pmlogdump collectl2pcp pmrep
 1626 pmproxy libpcp_web local

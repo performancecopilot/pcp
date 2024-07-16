@@ -1,0 +1,55 @@
+#!/bin/sh
+# PCP QA Test No. 1619
+# Ensure pmcd.conf is not rewritten during every restart.
+#
+# Copyright (c) 2024 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+$sudo rm -rf $tmp $tmp.* $seq.full
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+    # end
+}
+
+# real QA test starts here
+inode0=`ls -i $PCP_PMCDCONF_PATH | awk '{ print $1 }'`
+echo Inode0: $inode0 >> $here/$seq.full
+
+_service pmcd restart 2>&1 | _filter_pcp_stop | _filter_pcp_start
+_wait_for_pmcd
+_wait_for_pmlogger
+
+inode1=`ls -i $PCP_PMCDCONF_PATH | awk '{ print $1 }'`
+echo Inode1: $inode1 >> $here/$seq.full
+
+echo "Comparing pmcd.conf inode numbers"
+if test $inode0 -eq $inode1 
+then
+    echo OK
+else
+    echo $inode0 differs to $inode1
+    status=1
+fi
+
+# all done
+exit
