@@ -166,7 +166,6 @@
 {
    processaddarg_bogus
    Memcheck:Leak
-   match-leak-kinds: possible
    fun:malloc
    fun:strdup
    fun:__pmProcessAddArg
