@@ -20,8 +20,8 @@ in
     *Slackware\ 15\.0*)
 	    _notrun "nc -l does not work for me on Slackware 15.0"
 	    ;;
-    *MX\ 23\.2*)
-	    _notrun "nc -l does not work for me on MX 23.2"
+    *MX\ 23\.*)
+	    _notrun "nc -l does not work for me on MX 23.*"
 	    ;;
 esac
 

@@ -63,6 +63,7 @@
 1475	Fedora 39	pmdabpf cannot get the mountsnoop module to work here
 1490	Fedora 39	mem leak appears to be from the pile of steaming stuff
 			know as Python, not the PCP labelsets code
+1490	Fedora 40	ditto
 1574	.*	valgrind-reported issue in libpcp_web pmseries functions
 1662	.*	valgrind-reported issue in libpcp_web archive discovery
 		handling of sources

@@ -181,7 +181,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_ALLOC);
  * If toss&PM_EXEC_TOSS_STDOUT, reassign stdout to /dev/null.
  * If toss&PM_EXEC_TOSS_STDERR, reassign stderr to /dev/null.
  *
- * If wait == PM_EXEC_WAIT, wait for the child process to exit and
+ * If mywait == PM_EXEC_WAIT, mywait for the child process to exit and
  * return 0 if exit status is 0, else return -1 and the status
  * from waitpid() is returned via status.
  * Otherwise, don't wait and return 0.
@@ -196,7 +196,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_ALLOC);
  * so we do the same.
  */
 int
-__pmProcessExec(__pmExecCtl_t **handle, int toss, int wait)
+__pmProcessExec(__pmExecCtl_t **handle, int toss, int mywait)
 {
     __pmExecCtl_t	*ep = *handle;
     int			i;
@@ -321,7 +321,7 @@ __pmProcessExec(__pmExecCtl_t **handle, int toss, int wait)
     if (pid > (pid_t)0) {
 	/* parent */
 
-	if (wait == PM_EXEC_WAIT) {
+	if (mywait == PM_EXEC_WAIT) {
 	    pid_t	wait_pid;
 	    while ((wait_pid = waitpid(pid, &status, 0)) < 0) {
 		if (oserror() != EINTR)
@@ -371,7 +371,7 @@ __pmProcessExec(__pmExecCtl_t **handle, int toss, int wait)
  * MinGW version
  */
 int
-__pmProcessExec(__pmExecCtl_t **handle, int toss, int wait)
+__pmProcessExec(__pmExecCtl_t **handle, int toss, int mywait)
 {
     __pmExecCtl_t	*ep = *handle;
     int			i;
@@ -408,7 +408,7 @@ __pmProcessExec(__pmExecCtl_t **handle, int toss, int wait)
 	    ;
 	if (toss & PM_EXEC_TOSS_STDOUT)
 	    ;
-	if (wait == PM_EXEC_WAIT) {
+	if (mywait == PM_EXEC_WAIT) {
 	    wait_pid = __pmProcessWait(pid, 0, &status, &sig);
 	    if (pmDebugOptions.exec) {
 		PM_LOCK(exec_lock);

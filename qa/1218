@@ -19,6 +19,7 @@ _cleanup()
 {
     cd $here
     _service pmcd restart >>$here/$seq.full 2>&1
+    _wait_for_pmcd
     $sudo rm -rf $tmp $tmp.*
 }
 

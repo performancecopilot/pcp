@@ -2278,7 +2278,11 @@ License: GPL-2.0-or-later
 Summary: Performance Co-Pilot (PCP) metrics from AMD GPU devices
 URL: https://pcp.io
 Requires: pcp = @package_version@ pcp-libs = @package_version@
+%if "%{_vendor}" == "suse"
+Requires: libdrm2
+%else
 Requires: libdrm
+%endif
 BuildRequires: libdrm-devel
 %description pmda-amdgpu
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for

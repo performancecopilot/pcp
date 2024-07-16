@@ -28,7 +28,7 @@ done
 
 if [ -z "$list" ]
 then
-    # no -t, skip triaged test faulures
+    # no -t, skip triaged test failures
     #
     list=`
 	ls *.out.bad \

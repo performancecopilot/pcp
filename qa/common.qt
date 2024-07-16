@@ -48,13 +48,23 @@ _cleanup_qt()
     $sudo rm -rf $tmp $tmp.*
 }
 
-# Qt related warnings that sometimes appear ...
+# Qt related (include libGL, MESA, X11) warnings that sometimes appear ...
 #
 _filter_qt()
 {
     sed \
-	-e '/QStandardPaths: XDG_RUNTIME_DIR not set, defaulting/d' \
+	-e '/^QStandardPaths: XDG_RUNTIME_DIR not set.*/d' \
+	-e '/Qt: Session management error: Authentication Rejected/d' \
 	-e '/QObject::connect: No such slot SoQtGLWidgetP::gl_changed()/d' \
 	-e "/QObject::connect:  (sender name:   'QtGLAreaWindow')/d" \
+	-e '/libGL error: No matching fbConfigs/d' \
+	-e '/libGL error: failed to load driver: swrast/d' \
+	-e '/^MESA: error: ZINK: vkCreateInstance failed /d' \
+	-e '/^MESA: error: ZINK: failed to choose pdev/d' \
+	-e '/^glx: failed to create drisw screen/d' \
+	-e '/^failed to load driver: zink/d' \
+	-e '/^qt.glx: qglx_findConfig: Failed to finding matching FBConfig for QSurfaceFormat/d' \
+	-e '/^No XVisualInfo for format QSurfaceFormat/d' \
+	-e '/^Falling back to using screens root_visual/d' \
     # end
 }

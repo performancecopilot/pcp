@@ -1357,41 +1357,41 @@ static pmdaMetric metrictab[] = {
 /* proc.fdinfo.drm_memory */
   { NULL, { PMDA_PMID(CLUSTER_PID_FDINFO,0), PM_TYPE_U64, PROC_INDOM,
     PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
-/* proc.fdinfo.drm.memory_cpu */
+/* proc.fdinfo.drm_memory_cpu */
   { NULL, { PMDA_PMID(CLUSTER_PID_FDINFO,1), PM_TYPE_U64, PROC_INDOM,
     PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
-/* proc.fdinfo.drm.memory_gtt */
+/* proc.fdinfo.drm_memory_gtt */
   { NULL, { PMDA_PMID(CLUSTER_PID_FDINFO,2), PM_TYPE_U64, PROC_INDOM,
     PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
-/* proc.fdinfo.drm.memory_vram */
+/* proc.fdinfo.drm_memory_vram */
   { NULL, { PMDA_PMID(CLUSTER_PID_FDINFO,3), PM_TYPE_U64, PROC_INDOM,
     PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
-/* proc.fdinfo.drm.shared_cpu */
+/* proc.fdinfo.drm_shared_cpu */
   { NULL, { PMDA_PMID(CLUSTER_PID_FDINFO,4), PM_TYPE_U64, PROC_INDOM,
     PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
-/* proc.fdinfo.drm.shared_gtt */
+/* proc.fdinfo.drm_shared_gtt */
   { NULL, { PMDA_PMID(CLUSTER_PID_FDINFO,5), PM_TYPE_U64, PROC_INDOM,
     PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
-/* proc.fdinfo.drm.shared_vram */
+/* proc.fdinfo.drm_shared_vram */
   { NULL, { PMDA_PMID(CLUSTER_PID_FDINFO,6), PM_TYPE_U64, PROC_INDOM,
     PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
 
-/* proc.fdinfo.amd.evicted_visible_vram */
+/* proc.fdinfo.amd_evicted_visible_vram */
   { NULL, { PMDA_PMID(CLUSTER_PID_FDINFO,7), PM_TYPE_U64, PROC_INDOM,
     PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
-/* proc.fdinfo.amd.evicted_vram */
+/* proc.fdinfo.amd_evicted_vram */
   { NULL, { PMDA_PMID(CLUSTER_PID_FDINFO,8), PM_TYPE_U64, PROC_INDOM,
     PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
-/* proc.fdinfo.amd.memory_visible_vram */
+/* proc.fdinfo.amd_memory_visible_vram */
   { NULL, { PMDA_PMID(CLUSTER_PID_FDINFO,9), PM_TYPE_U64, PROC_INDOM,
     PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
-/* proc.fdinfo.amd.requested_gtt */
+/* proc.fdinfo.amd_requested_gtt */
   { NULL, { PMDA_PMID(CLUSTER_PID_FDINFO,10), PM_TYPE_U64, PROC_INDOM,
     PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
-/* proc.fdinfo.amd.requested_visible_vram */
+/* proc.fdinfo.amd_requested_visible_vram */
   { NULL, { PMDA_PMID(CLUSTER_PID_FDINFO,11), PM_TYPE_U64, PROC_INDOM,
     PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
-/* proc.fdinfo.amd.requested_vram */
+/* proc.fdinfo.amd_requested_vram */
   { NULL, { PMDA_PMID(CLUSTER_PID_FDINFO,12), PM_TYPE_U64, PROC_INDOM,
     PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
 
@@ -3493,41 +3493,41 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	  return 0;
 
 	switch (item) {
-	  case 0: /* proc.fdinfo.drm.memory_cpu */
+	  case 0: /* proc.fdinfo.drm_memory_cpu */
 	    atom->ull = entry->fdinfo.drm_memory_cpu;
 	    break;
-	  case 1: /* proc.fdinfo.drm.memory_gtt */
+	  case 1: /* proc.fdinfo.drm_memory_gtt */
 	    atom->ull = entry->fdinfo.drm_memory_gtt;
 	    break;
-	  case 2: /* proc.fdinfo.drm.memory_vram */
+	  case 2: /* proc.fdinfo.drm_memory_vram */
 	    atom->ull = entry->fdinfo.drm_memory_vram;
 	    break;
-	  case 3: /* proc.fdinfo.drm.shared_cpu */
+	  case 3: /* proc.fdinfo.drm_shared_cpu */
 	    atom->ull = entry->fdinfo.drm_shared_cpu;
 	    break;
-	  case 4: /* proc.fdinfo.drm.shared_gtt */
+	  case 4: /* proc.fdinfo.drm_shared_gtt */
 	    atom->ull = entry->fdinfo.drm_shared_gtt;
 	    break;
-	  case 5: /* proc.fdinfo.drm.shared_vram */
+	  case 5: /* proc.fdinfo.drm_shared_vram */
 	    atom->ull = entry->fdinfo.drm_shared_vram;
 	    break;
 
-	  case 6: /* proc.fdinfo.amd.evicted_visible_vram */
+	  case 6: /* proc.fdinfo.amd_evicted_visible_vram */
 	    atom->ull = entry->fdinfo.amd_evicted_visible_vram;
 	    break;
-	  case 7: /* proc.fdinfo.amd.evicted_vram */
+	  case 7: /* proc.fdinfo.amd_evicted_vram */
 	    atom->ull = entry->fdinfo.amd_evicted_vram;
 	    break;
-	  case 8: /* proc.fdinfo.amd.memory_visible_vram */
+	  case 8: /* proc.fdinfo.amd_memory_visible_vram */
 	    atom->ull = entry->fdinfo.amd_memory_visible_vram;
 	    break;
-	  case 9: /* proc.fdinfo.amd.requested_gtt */
+	  case 9: /* proc.fdinfo.amd_requested_gtt */
 	    atom->ull = entry->fdinfo.amd_requested_gtt;
 	    break;
-	  case 10: /* proc.fdinfo.amd.requested_visible_vram */
+	  case 10: /* proc.fdinfo.amd_requested_visible_vram */
 	    atom->ull = entry->fdinfo.amd_requested_visible_vram;
 	    break;
-	  case 11: /* proc.fdinfo.amd.requested_vram */
+	  case 11: /* proc.fdinfo.amd_requested_vram */
 	    atom->ull = entry->fdinfo.amd_requested_vram;
 	    break;
 	  default: /* unknown cluster */
