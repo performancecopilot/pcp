@@ -1552,6 +1552,18 @@ slackpkg?	?				[N/A (QA optional)]
 pacman?		?				[? (QA optional)]
 brew?		?				[? (QA optional)]
 
+# -- libdrm (for amdgpu PMDA)
+dpkg?		/usr/lib/*/libdrm.so		[libdrm-dev (QA optional)]
+rpm?		/usr/lib*/libdrm.so.*		[libdrm-devel or libdrm2-devel (QA optional)]
+emerge?		?				[? (QA optional)]
+pkgin?		?				[? (QA optional)]
+pkg_add?	?				[? (QA optional)]
+F_pkg?		?				[? (QA optional)]
+S_pkg?		?				[? (QA optional)]
+slackpkg?	?				[N/A (QA optional)]
+pacman?		?				[? (QA optional)]
+brew?		?				[? (QA optional)]
+
 # -- jq (for pmproxy/pmseries QA)
 #
 dpkg?		jq			[jq (QA optional)]

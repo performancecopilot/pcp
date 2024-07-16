@@ -54,6 +54,7 @@ kubernetes-kubelet
 libavahi-devel
 libbpf-devel
 libcmocka-devel
+libdrm-devel
 libicu-devel
 libopenssl-devel
 libpfm-devel
@@ -106,6 +107,7 @@ python3-jsonpointer
 python3-libvirt-python
 python3-lxml
 python3-openpyxl
+python3-pandas
 python3-prometheus_client
 python3-psycopg2
 python3-pylint
