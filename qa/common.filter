@@ -955,6 +955,8 @@ _filter_torture_api()
 	-e '/^    engr /d' \
 	-e '/^    fchost /d' \
 	-e '/^    feature /d' \
+	-e '/^    ha_cluster /d' \
+	-e '/^    haproxy /d' \
 	-e '/^    idiot /d' \
 	-e '/^    idl /d' \
 	-e '/^    infiniband /d' \
