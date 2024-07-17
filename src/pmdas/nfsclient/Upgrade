@@ -18,7 +18,7 @@
 . $PCP_DIR/etc/pcp.env
 
 if grep -q ^nfsclient "$PCP_PMCDCONF_PATH" 2>/dev/null
-thee
+then
     if grep ^nfsclient "$PCP_PMCDCONF_PATH" | grep -q "$PCP_PYTHON_PROG" 2>/dev/null
     then
 	:	# already using $PCP_PYTHON_PROG, leave this line untouched
