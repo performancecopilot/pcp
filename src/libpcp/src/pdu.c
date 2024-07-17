@@ -316,10 +316,11 @@ again:
 	}
 	__pmOverrideLastFd(fd);
 	if (status <= 0) {
-	    if (oserror() == EINTR) {
+	    if (status < 0 && oserror() == EINTR) {
 		/* interrupted read() and no data ... keep trying */
 		if (pmDebugOptions.pdu && pmDebugOptions.desperate) {
-		    fprintf(stderr, "pduread(%d, ...): read() interrupt!\n", fd);
+		    fprintf(stderr, "pduread(%d, ...): %s() interrupt!\n",
+			fd, socketipc == 0 ? "read" : "recv");
 		}
 		continue;
 	    }
