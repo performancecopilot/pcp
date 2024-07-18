@@ -61,6 +61,8 @@ _filter_qt()
 	-e '/libGL error: failed to load driver: swrast/d' \
 	-e '/^MESA: error: ZINK: vkCreateInstance failed /d' \
 	-e '/^MESA: error: ZINK: failed to choose pdev/d' \
+	-e '/^MESA-LOADER: failed to open zink: Cannot open /d' \
+	-e '/^MESA-LOADER: failed to open swrast: Cannot open /d' \
 	-e '/^glx: failed to create drisw screen/d' \
 	-e '/^failed to load driver: zink/d' \
 	-e '/^qt.glx: qglx_findConfig: Failed to finding matching FBConfig for QSurfaceFormat/d' \

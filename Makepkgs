@@ -272,8 +272,9 @@ then
     # Python build does not work on FreeBSD 9.3, so skip it
     # For FreeBSD 10.4 and 11.3 it seems to fail when trying to build
     # Python and Python3 at the same time ... so skip Python(2)
-    # For FreeBSD 13 and 14 I don't have Qt working and cppcheck => Qt installed,
-    # and dtrace/static probes is not working
+    # For FreeBSD 13 I don't have Qt working
+    # For FreeBSD 14 cppcheck => Qt installed and dtrace/static probes
+    # is not working
     #
     case `uname -r`
     in
@@ -292,10 +293,15 @@ then
 		#
 		configopts="--sysconfdir=/etc --localstatedir=/var --with-python=no --with-static-probes=no --prefix=/usr"
 		;;
-	13.*|14.*)
+	13.*)
 		# Bog-standard, just without python2 and qt and static probes
 		#
 		configopts="--sysconfdir=/etc --localstatedir=/var --with-python=no --with-qt=no --with-static-probes=no --prefix=/usr"
+		;;
+	14.*)
+		# Bog-standard, just without python2 and static probes
+		#
+		configopts="--sysconfdir=/etc --localstatedir=/var --with-python=no --with-static-probes=no --prefix=/usr"
 		;;
 	*)
 		# Bog-standard, as below ...
