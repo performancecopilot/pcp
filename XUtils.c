@@ -63,7 +63,7 @@ void* xCalloc(size_t nmemb, size_t size) {
 
 void* xRealloc(void* ptr, size_t size) {
    assert(size > 0);
-   void* data = size ? realloc(ptr, size) : NULL; // deepcode ignore MemoryLeakOnRealloc: this goes to fail()
+   void* data = realloc(ptr, size);
    if (!data) {
       /* free'ing ptr here causes an indirect memory leak if pointers
        * are held as part of an potential array referenced in ptr.
@@ -371,3 +371,17 @@ double sumPositiveValues(const double* array, size_t count) {
    }
    return sum;
 }
+
+#if !defined(HAVE_BUILTIN_CTZ)
+// map a bit value mod 37 to its position
+static const uint8_t mod37BitPosition[] = {
+  32, 0, 1, 26, 2, 23, 27, 0, 3, 16, 24, 30, 28, 11, 0, 13, 4,
+  7, 17, 0, 25, 22, 31, 15, 29, 10, 12, 6, 0, 21, 14, 9, 5,
+  20, 8, 19, 18
+};
+
+/* Returns the number of trailing zero bits */
+unsigned int countTrailingZeros(unsigned int x) {
+   return mod37BitPosition[(-x & x) % 37];
+}
+#endif
