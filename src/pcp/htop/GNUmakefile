@@ -200,8 +200,8 @@ SUBHFILES = \
 	pcp/ProcessField.h \
 
 DOCFILES = AUTHORS pcp-htop.5.in
-COLUMNS = container delayacct fdcount guest memory sched swap tcp udp wchan
-METERS = entropy freespace ipc locks memcache mysql postfix redis tcp
+COLUMNS = container delayacct fdcount gpu_memory guest memory sched swap tcp udp wchan
+METERS = entropy freespace gpu ipc locks memcache mysql postfix redis tcp
 SCREENS = cgroups cgroupsio cgroupsmem devices filesystems \
 	  biosnoop execsnoop exitsnoop opensnoop
 CFGMETERS = $(patsubst %,pcp/meters/%,$(METERS))
