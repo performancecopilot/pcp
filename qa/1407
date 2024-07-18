@@ -23,13 +23,16 @@ echo "PCPQA_CLOSE_X_SERVER=$PCPQA_CLOSE_X_SERVER" >>$seq.full
 
 _checkerr()
 {
-    tee <$tmp.err -a $seq.full \
-    _filter_qt <$tmp.err >$tmp.tmp
-    if [ -s $tmp.tmp ]
+    if [ -s $tmp.err ]
     then
-	echo "Arrgh ... stderr from pmchart ..."
-	cat $tmp.tmp
-	exit
+	tee <$tmp.err -a $seq.full
+	_filter_qt <$tmp.err >$tmp.tmp
+	if [ -s $tmp.tmp ]
+	then
+	    echo "Arrgh ... stderr from pmchart ..."
+	    cat $tmp.tmp
+	    exit
+	fi
     fi
 }
 
@@ -37,11 +40,14 @@ _checkerr()
 #
 echo "=== parse Iostat view" | tee -a $seq.full
 export PCP_STDERR=$tmp.err
-pmchart -C -c Iostat 2>&1 | _filter_qt
-[ -s $tmp.err ] && _checkerr
+pmchart -C -c Iostat >$tmp.out 2>&1
+_filter_qt <$tmp.out
+_checkerr
+rm -f $tmp.err
 
 echo "=== expect no output, especially no qt/scaling or divide by zero exceptions" | tee -a $seq.full
-pmchart -z -a $here/archives/zero_disk_activity -c Iostat -t 0.1 -O'@fri jul 13 00:11:40' -o $tmp.out.png 2>>$tmp.err
+pmchart -z -a $here/archives/zero_disk_activity -c Iostat -t 0.1 -O'@fri jul 13 00:11:40' -o $tmp.out.png >$tmp.out 2>&1
+_filter_qt <$tmp.out
 _checkerr
 
 # success, all done
