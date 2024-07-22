@@ -211,13 +211,6 @@ of traffic over different paths. See also multipathd(1), where the
 same ID strings (WWID) are used to identify different paths to each
 physical device.
 
-@ hinv.disk.ctlr physical disk device controller
-The disk controller is extracted from /sys/devices/pci0000:00/0000:<ctlr>.
-Multiple disks may share the same controller.
-
-@ hinv.disk.model physical disk device model
-The disk model is extracted from /sys/devices/.../model.
-
 @ disk.dev.avactive per-disk count of active time
 Counts the number of milliseconds for which at least one I/O is in
 progress for each device.

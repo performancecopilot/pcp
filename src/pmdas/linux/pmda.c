@@ -18,7 +18,6 @@
  * for more details.
  *
  * pmDebugOption:
- *   appl1	disk-related metrics
  *   appl8	filesys metrics
  *   libpmda	historic "everything else" diagnostics
  */
@@ -2596,16 +2595,6 @@ static pmdaMetric metrictab[] = {
 /* disk.all.inflight */
     { NULL, 
       { PMDA_PMID(CLUSTER_STAT,104), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT, 
-      PMDA_PMUNITS(0,0,0,0,0,0) }, },
-
-/* hinv.disk.ctlr */
-    { NULL, 
-      { PMDA_PMID(CLUSTER_STAT,105), PM_TYPE_STRING, DISK_INDOM, PM_SEM_DISCRETE, 
-      PMDA_PMUNITS(0,0,0,0,0,0) }, },
-
-/* hinv.disk.model */
-    { NULL, 
-      { PMDA_PMID(CLUSTER_STAT,106), PM_TYPE_STRING, DISK_INDOM, PM_SEM_DISCRETE, 
       PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
 /*
