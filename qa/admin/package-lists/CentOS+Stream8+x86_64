@@ -36,7 +36,8 @@ grep
 iproute
 httpd
 initscripts
-java-latest-openjdk-headless
+# -latest- (aka 22) and -21- don't have USDT support, so go with -17-
+java-17-openjdk-headless
 libbpf
 libicu-devel
 libpfm-devel

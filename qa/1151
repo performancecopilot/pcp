@@ -10,13 +10,14 @@ echo "QA output created by $seq"
 
 . ./common.bcc
 
+$sudo rm -rf $tmp.* $seq.full
+
 _pmdabcc_check
 _pmdabcc_require_kernel_version 4 7
 _java_check
 
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
-$sudo rm -rf $tmp.* $seq.full
 
 # Launch a Java test program
 cd java
