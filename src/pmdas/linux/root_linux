@@ -55,7 +55,6 @@ hinv {
     hugepagesize	60:1:59
     ntape		60:71:16
     nfchost		60:91:16
-    disk
 }
 
 hinv.map {
@@ -106,11 +105,6 @@ hinv.cpu.frequency_scaling {
     time		60:55:7
     max			60:55:8
     min			60:55:9
-}
-
-hinv.disk {
-    ctlr		60:0:105
-    model		60:0:106
 }
 
 kernel {

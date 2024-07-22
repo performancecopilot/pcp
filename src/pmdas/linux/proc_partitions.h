@@ -60,8 +60,6 @@ typedef struct {
     char		*dmname;      /* symlink from /dev/mapper, else NULL */
     char		*mdname;      /* symlink from /dev/md, else NULL */
     char		*wwidname;    /* wwid of sd path, else NULL */
-    char		*ctlr;        /* from /sys/block symlink, else NULL */
-    char		*model;       /* from /sys/devices/..., else NULL */
     zram_stat_t		*zram;
     unsigned long long	rd_ios;
     unsigned long long	rd_merges;
