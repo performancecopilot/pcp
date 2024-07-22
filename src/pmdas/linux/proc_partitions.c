@@ -828,6 +828,8 @@ static pmID disk_metric_table[] = {
     /* disk.all.flush_rawactive */   PMDA_PMID(CLUSTER_STAT,102),
     /* hinv.map.scsi_id */	     PMDA_PMID(CLUSTER_STAT,103),
     /* disk.all.inflight */	     PMDA_PMID(CLUSTER_STAT,104),
+    /* hinv.disk.ctlr */	     PMDA_PMID(CLUSTER_STAT,105),
+    /* hinv.disk.model */	     PMDA_PMID(CLUSTER_STAT,106),
 
     /* disk.partitions.read */	     PMDA_PMID(CLUSTER_PARTITIONS,0),
     /* disk.partitions.write */	     PMDA_PMID(CLUSTER_PARTITIONS,1),
@@ -1066,6 +1068,138 @@ unknown:
     return "unknown";
 }
 
+/*
+ * Get controller (name) for a specific disk
+ */
+char *
+get_disk_ctlr(char *name)
+{
+    ssize_t		size;
+    int			want;
+    char		*part;
+    char		path[MAXPATHLEN];
+    char		link[MAXPATHLEN];
+    char		*ctlr;
+
+    pmsprintf(path, sizeof(path), "%s/sys/block/%s", linux_statspath, name);
+    if ((size = readlink(path, link, sizeof(link)-1)) < 0) {
+	if (pmDebugOptions.appl1) {
+	    fprintf(stderr, "get_disk_ctlr(%s,...): readlink(%s,...) failed: %" FMT_INT64, name, path, (int64_t)size);
+	    if (size < 0)
+		fprintf(stderr, ": %s", pmErrStr(-oserror()));
+	    fputc('\n', stderr);
+	}
+	return NULL;
+    }
+    link[size] = '\0';
+    /*
+     * .../pci0000:00/0000:00:10.0/.../sdd
+     *                     ^^^^^^^ controlller id as per lspci
+     *                                 ^^^ disk name as per indom
+     */
+    part = strtok(link, "/");
+    want = 0;
+    while (part != NULL) {
+	if (strcmp(part, "pci0000:00") == 0) {
+	    /*
+	     * this is the only PCI prefix we are sure about
+	     * TODO - other possibilities here?
+	     */
+	    want = 1;
+	}
+	else if (want == 1) {
+	    if (strncmp(part, "0000:", 5) == 0) {
+		ctlr = strdup(&part[5]);
+		if (ctlr == NULL)
+		    pmNoMem("get_disk_ctlr: ctlr", strlen(&part[5])+1, PM_RECOV_ERR);
+		return ctlr;
+	    }
+	    else {
+		/* TODO - prefixes other than 0000: here? */
+		if (pmDebugOptions.appl1) {
+		    fprintf(stderr, "get_disk_ctlr(%s,...): expected 0000: got %5.5s from link %s\n", name, part, link);
+		}
+		return NULL;
+	    }
+	}
+	part = strtok(NULL, "/");
+    }
+
+    if (pmDebugOptions.appl1)
+	fprintf(stderr, "get_disk_ctlr(%s,...): link=%s not expected\n", name, link);
+    return NULL;
+}
+
+/*
+ * Get model for a specific disk
+ */
+char *
+get_disk_model(char *name)
+{
+    ssize_t		size;
+    int			fd;
+    char		*part;
+    char		path[MAXPATHLEN];
+    char		link[MAXPATHLEN];
+    char		duplink[MAXPATHLEN];
+    char		*model;
+
+    pmsprintf(path, sizeof(path), "%s/sys/block/%s", linux_statspath, name);
+    if ((size = readlink(path, link, sizeof(link)-1)) < 0) {
+	if (pmDebugOptions.appl1) {
+	    fprintf(stderr, "get_disk_model(%s,...): readlink(%s,...) failed: %" FMT_INT64, name, path, (int64_t)size);
+	    if (size < 0)
+		fprintf(stderr, ": %s", pmErrStr(-oserror()));
+	    fputc('\n', stderr);
+	}
+	return NULL;
+    }
+    link[size] = '\0';
+    strcpy(duplink, link);
+    model = NULL;
+    part = strtok(link, "/");
+    while (part != NULL) {
+	if (strcmp(part, "block") == 0) {
+	    /*
+	     * .../pci0000:00/.../a:b:c:d/block/sdd
+	     * becomes
+	     * .../pci0000:00/.../a:b:c:d/model
+	     */
+	    int		offset;
+	    offset = part - link - 1;
+	    duplink[offset] = '\0';
+	    pmsprintf(path, sizeof(path), "%s/sys/block/%s/model", linux_statspath, duplink);
+	    if ((fd = open(path, O_RDONLY)) >= 0) {
+		char	buf[1024];
+		size = read(fd, buf, sizeof(buf)-1);
+		if (size > 0) {
+		    buf[size-1] = '\0';
+		    model = strdup(buf);
+		    // TODO pmMem
+		    return model;
+		}
+		else {
+		    if (pmDebugOptions.appl1) {
+			fprintf(stderr, "get_disk_model(%s,...): read(%s): %" FMT_INT64 "\n", name, path, (int64_t)size);
+		    }
+		    return NULL;
+		}
+	    }
+	    else {
+		if (pmDebugOptions.appl1) {
+		    fprintf(stderr, "get_disk_model(%s,...): open(%s,...) failed: %s\n", name, path, pmErrStr(-oserror()));
+		}
+		return NULL;
+	    }
+	}
+	part = strtok(NULL, "/");
+    }
+
+    if (pmDebugOptions.appl1)
+	fprintf(stderr, "get_disk_model(%s,...): link=%s not expected\n", name, link);
+    return NULL;
+}
+
 int
 proc_partitions_fetch(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
@@ -1224,6 +1358,20 @@ proc_partitions_fetch(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    if (p == NULL)
 		return PM_ERR_INST;
 	    atom->cp = _pm_scsi_id(p->namebuf);
+	    break;
+	case 105: /* hinv.disk.ctlr */
+	    if (p == NULL)
+		return PM_ERR_INST;
+	    if (p->ctlr == NULL)
+		p->ctlr = get_disk_ctlr(p->namebuf);
+	    atom->cp = p->ctlr;
+	    break;
+	case 106: /* hinv.disk.model */
+	    if (p == NULL)
+		return PM_ERR_INST;
+	    if (p->model == NULL)
+		p->model = get_disk_model(p->namebuf);
+	    atom->cp = p->model;
 	    break;
 	default:
 	    /* disk.all.* is a singular instance domain */
