@@ -211,20 +211,31 @@ _java_check()
 	/etc/alternatives/jre/lib/$__java_machine/server \
 	/usr/lib/jvm/java-${__java_major}-openjdk-$__java_machine/lib/server \
 	/usr/lib/jvm/java-${__java_version}-openjdk/jre/lib/$__java_machine/server \
-	/usr/lib/jvm/java-${__java_major}-openjdk-$__java_machine/jre/lib/$__java_machine/server
+	/usr/lib/jvm/java-${__java_major}-openjdk-$__java_machine/jre/lib/$__java_machine/server \
+	/usr/lib/jvm/jre/lib/server \
+	/usr/lib/jvm/jre-openjdk/lib/server \
+	/usr/lib/jvm/jre-${__java_major}/lib/server \
+	/usr/lib/jvm/jre-${__java_major}-openjdk/lib/server
     do
-        [ -f "$__path/libjvm.$DSO_SUFFIX" ] && __jvm_path="$__path/libjvm.$DSO_SUFFIX"
+        [ -f "$__path/libjvm.$DSO_SUFFIX" ] || continue
+	__jvm_path="$__path/libjvm.$DSO_SUFFIX"
+	echo "trying \$__jvm_path=$__jvm_path for USDT probes" >>$here/$seq.full
+	for __tplistcmd in /usr/share/bcc/tools/tplist tplist-bpfcc tplist
+	do
+	    which $__tplistcmd >/dev/null 2>&1 && \
+		__probes=$($__tplistcmd -l $__jvm_path 2>/dev/null \
+		           | grep thread \
+			   | tee -a $here/$seq.full \
+			   | grep thread__start)
+	    if [ -n "$__probes" ]
+	    then
+		echo "success with \$__jvm_path=$__jvm_path" >>$here/$seq.full
+		return 0
+	    fi
+	done
     done
-
-    [ -z "$__jvm_path" ] && _notrun "libjvm.$DSO_SUFFIX not found"
-
-    for __tplistcmd in /usr/share/bcc/tools/tplist tplist-bpfcc tplist
-    do
-        which $__tplistcmd >/dev/null 2>&1 && \
-            __probes=$($__tplistcmd -l $__jvm_path 2>/dev/null | grep thread__start)
-        [ -n "$__probes" ] && return 0
-    done
-    _notrun "No Java USDT probes available"
+    [ -z "$__jvm_path" ] && _notrun "no libjvm.$DSO_SUFFIX not found"
+    _notrun "No Java USDT probes available in any libjvm.$DSO_SUFFIX"
 }
 
 _python_probe_check()

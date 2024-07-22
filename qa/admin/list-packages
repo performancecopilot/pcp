@@ -13,6 +13,7 @@ _usage()
     echo >&2 "  -c           check packing list"
     echo >&2 "  -i tag       include only lines with a tag"
     echo >&2 "  -m           list only missing packages"
+    echo >&2 "  -n           report my packing-list file and quit"
     echo >&2 "  -v           verbose (debugging)"
     echo >&2 "  -V version   override platform version"
     echo >&2 "  -x tag       exclude lines with a tag"
@@ -264,7 +265,8 @@ include=''
 exclude=''
 missing=false
 check=false
-while getopts 'A:cD:i:mvV:x:?' p
+nflag=false
+while getopts 'A:cD:i:mnvV:x:?' p
 do
     case "$p"
     in
@@ -286,6 +288,9 @@ do
 		;;
 
 	m)	missing=true
+		;;
+
+	n)	nflag=true
 		;;
 
 	v)	if $verbose
@@ -403,6 +408,13 @@ then
     fi
 else
     echo >&2 "Botch: $home/package-lists/${distro}+${version}+${arch}: no match found"
+    exit
+fi
+
+if $nflag
+then
+    echo "$home/package-lists/${distro}+${version}+${arch}"
+    status=0
     exit
 fi
 

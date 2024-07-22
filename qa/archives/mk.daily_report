@@ -5,6 +5,13 @@
 # a bit of a work out for the pmrep .conf files: sar.conf, vmstat.conf
 # and numa.conf
 #
+# Best to run this on a recent Fedora (e.g. 40 as of Jul 2024) so all
+# of the metrics here are available, and with some concurrent activity
+# for abouth 20 seconds, e.g. I rebuild all the QA applications:
+#   $ cd src/pcp/qa/src
+#   $ make clean
+#   $ make
+#
 
 tmp=/var/tmp/mk-daily-$$
 trap "rm -f $tmp.*; exit 0" 0 1 2 3 15

@@ -34,6 +34,8 @@ _filter()
 # real QA test starts here
 inode0=`ls -i $PCP_PMCDCONF_PATH | awk '{ print $1 }'`
 echo Inode0: $inode0 >> $here/$seq.full
+cp $PCP_PMCDCONF_PATH $tmp.save
+cat $PCP_PMCDCONF_PATH >> $here/$seq.full
 
 _service pmcd restart 2>&1 | _filter_pcp_stop | _filter_pcp_start
 _wait_for_pmcd
@@ -41,6 +43,7 @@ _wait_for_pmlogger
 
 inode1=`ls -i $PCP_PMCDCONF_PATH | awk '{ print $1 }'`
 echo Inode1: $inode1 >> $here/$seq.full
+cat $PCP_PMCDCONF_PATH >> $here/$seq.full
 
 echo "Comparing pmcd.conf inode numbers"
 if test $inode0 -eq $inode1 
@@ -48,6 +51,14 @@ then
     echo OK
 else
     echo $inode0 differs to $inode1
+    status=1
+fi
+
+if diff $tmp.save $PCP_PMCDCONF_PATH
+then
+    :
+else
+    echo "Arrgh ... $PCP_PMCDONF_PATH changed"
     status=1
 fi
 
