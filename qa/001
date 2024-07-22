@@ -15,3 +15,20 @@ echo "QA output created by $seq"
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
 src/pducheck
+
+# If you add stuff here, it will make the test fail but this
+# is a good place to mine the github CI environment for stuff
+# we need to know about ...
+#
+echo "github CI mining ... this is NOT a qa/001 failure"
+env
+for dir in /sys /sys/block
+do
+    echo "=== $dir ==="
+    if [ -d "$dir" ]
+    then
+	ls -l "$dir"
+    else
+	echo "Not a directory!"
+    fi
+done
