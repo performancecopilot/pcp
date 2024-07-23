@@ -33,8 +33,6 @@ _cleanup()
     done
     cd $here
 
-    test -f $PCP_LOG_DIR/NOTICES.orig && \
-	$sudo mv $PCP_LOG_DIR/NOTICES.orig $PCP_LOG_DIR/NOTICES
     $sudo rm -f $tmp.*
     [ -f $NEEDREWRITE.$seq ] && $sudo mv $NEEDREWRITE.$seq $NEEDREWRITE
 }
@@ -133,8 +131,6 @@ done
 echo "done, now=$now" >>$seq.full
 
 # real QA test starts here
-test -f $PCP_LOG_DIR/NOTICES && \
-	$sudo mv $PCP_LOG_DIR/NOTICES $PCP_LOG_DIR/NOTICES.orig
-$sudo $PCP_BINADM_DIR/pmlogger_daily -o -k 550 -N -c $tmp.control 2>&1 \
+$sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -o -k 550 -N -c $tmp.control" 2>&1 \
 | tee -a $seq.full \
 | _filter
