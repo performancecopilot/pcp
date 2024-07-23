@@ -1362,15 +1362,21 @@ proc_partitions_fetch(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	case 105: /* hinv.disk.ctlr */
 	    if (p == NULL)
 		return PM_ERR_INST;
-	    if (p->ctlr == NULL)
+	    if (p->ctlr == NULL) {
 		p->ctlr = get_disk_ctlr(p->namebuf);
+		if (p->ctlr == NULL)
+		    return 0;
+	    }
 	    atom->cp = p->ctlr;
 	    break;
 	case 106: /* hinv.disk.model */
 	    if (p == NULL)
 		return PM_ERR_INST;
-	    if (p->model == NULL)
+	    if (p->model == NULL) {
 		p->model = get_disk_model(p->namebuf);
+		if (p->model == NULL)
+		    return 0;
+	    }
 	    atom->cp = p->model;
 	    break;
 	default:

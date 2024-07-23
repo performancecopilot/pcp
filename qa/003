@@ -184,6 +184,7 @@ do
 	    -e "/disk\.xvm\..*: $unavailable/d" \
 	    -e "/filesys\.readonly: $unknown/d" \
 	    -e "/hinv\.cpu\..*: $unavailable/d" \
+	    -e "/hinv\.disk\..*: $unavailable/d" \
 	    -e "/hinv\.hugepagesize: $unavailable/d" \
 	    -e "/hinv\.interconnect: $unavailable/d" \
 	    -e "/hinv\.map\.cpu: $unavailable/d" \
