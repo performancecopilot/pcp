@@ -653,12 +653,14 @@ BEGIN {
                 round(anonhugepages, precision_high), u
     }
 
-    if (mem_util_lowTotal_value > 0)
+    printf \"${H1}LowMem/Slab/PageTables/Shmem:${RESET}\n\"
+    if (mem_util_lowTotal_value == 0) { } else {
         lowused = mem_util_lowTotal_value - mem_util_lowFree_value
         lowtotal = mem_util_lowTotal_value > 0 ? mem_util_lowTotal_value : 1
         printf \"    %s %s (%s%%) of LowMem in-use\n\",
                 round(lowused/kbytes_divisor, precision_low), u,
                 round((lowused/lowtotal)*100, precision_pct)
+   }
    printf \"    %s %s (%s%%) of total ram used for Slab\n\",
           round(mem_util_slab_value/kbytes_divisor, precision_high), u,
           round((mem_util_slab_value/total)*100, precision_low)
