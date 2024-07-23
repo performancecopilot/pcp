@@ -1992,6 +1992,7 @@ x11
 1523 pmlogdump local multi-archive
 1524 pmview local
 1525 pmview dkvis mpvis
+1526 other local
 1530 pmda.zfs local valgrind
 1531 pmda.zfs local valgrind
 1532 pmda.zfs local

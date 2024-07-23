@@ -103,6 +103,10 @@
 1991	Ubuntu 16\.04	Python here is 3.5.2 and there are a couple of
 			timestamps that are off by one second ... not worth
 			wasting more time on
+# special QA environment probing test
+#
+1526	.*		failure indicates the environment probe is active,
+			not a QA failure
 # tzset botch for Python time module on FreeBSD 14 ... which is really
 # a localtime() botch as per https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
 #
