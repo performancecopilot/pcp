@@ -1,6 +1,6 @@
 # Performance Co-Pilot xsos
 
-[![Code of Conduct](https://img.shields.io/badge/Contributor%20Covenant-2.1-4b.svg)](CODE_OF_CONDUCT.md) 
+[![Code of Conduct](https://img.shields.io/badge/Contributor%20Covenant-2.1-4b.svg)](CODE_OF_CONDUCT.md)
 [![Mailing List](https://img.shields.io/badge/Mailing%20List-pcp-blue.svg)](https://groups.io/g/pcp)
 [![Slack Team](https://img.shields.io/badge/Slack-pcp-blue.svg)](https://h7zo83mvt1.execute-api.us-west-2.amazonaws.com/Express/)
 
