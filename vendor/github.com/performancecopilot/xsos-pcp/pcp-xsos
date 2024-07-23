@@ -1,0 +1,1111 @@
+#!/bin/bash
+# 
+# Copyright (c) 2024 Red Hat.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+# Pretty-print sosreport information using Performance Co-Pilot metrics
+# from local host or an archive.
+#
+
+. $PCP_DIR/etc/pcp.env
+
+sts=2
+awk=/usr/bin/gawk
+tmp=`mktemp -d "$PCP_TMPFILE_DIR/pcp-xsos.XXXXXXXXX"` || exit 1
+trap "rm -rf $tmp; exit \$sts" 0 1 2 3 15
+
+progname=`basename $0`
+
+base_metrics=(
+    kernel.all.boottime mem.physmem
+)
+
+ps_metrics=(
+    proc.psinfo.utime proc.psinfo.stime
+    proc.psinfo.sname proc.psinfo.psargs
+    proc.psinfo.start_time proc.psinfo.threads
+    proc.psinfo.rss proc.psinfo.vsize
+    proc.id.uid_nm
+)
+
+disk_metrics=(
+    disk.dev.capacity filesys.capacity
+    filesys.used filesys.avail filesys.full filesys.mountdir
+)
+
+mem_metrics=(
+    mem.util.used mem.util.dirty
+    mem.util.shmem mem.util.bufmem mem.util.cached
+    mem.util.swapFree mem.util.swapTotal
+    mem.util.slab mem.util.pageTables mem.util.percpu
+    mem.util.lowFree mem.util.lowTotal
+    mem.util.anonhugepages mem.util.available
+    mem.util.hugepagesFreeBytes mem.util.hugepagesTotalBytes
+    mem.vmmemctl.current mem.vmmemctl.target
+)
+
+netdev_metrics=(
+    network.interface.in.bytes network.interface.in.packets
+    network.interface.in.errors network.interface.in.drops
+    network.interface.in.fifo network.interface.in.frame
+    network.interface.in.compressed network.interface.in.mcasts
+    network.interface.out.bytes network.interface.out.packets
+    network.interface.out.errors network.interface.out.drops
+    network.interface.out.fifo network.interface.collisions
+    network.interface.out.compressed network.interface.out.carrier
+    network.sockstat.total network.sockstat.tcp.mem
+    network.sockstat.tcp.inuse network.sockstat.tcp.orphan
+    network.sockstat.tcp.tw network.sockstat.tcp.alloc
+    network.sockstat.udp.inuse network.sockstat.frag.inuse
+    network.sockstat.udp.mem network.sockstat.udplite.inuse
+    network.sockstat.raw.inuse network.sockstat.raw6.inuse
+    network.sockstat.frag.memory network.sockstat.tcp6.inuse
+    network.sockstat.udp6.inuse network.sockstat.udplite6.inuse
+    network.sockstat.frag6.inuse network.sockstat.frag6.memory
+)
+
+netstat_metrics=(
+    network.icmp.inerrors network.icmp6.inerrors
+    network.tcp.attemptfails network.tcp.estabresets
+    network.tcp.inerrs network.tcp.outrsts
+    network.tcp.delayedacklocked network.tcp.delayedacklost
+    network.tcp.delayedacks network.tcp.pawsestabrejected
+    network.tcp.abortontimeout
+    network.tcp.lossproberecovery network.tcp.lossprobes
+    network.tcp.timeouts network.tcp.tcptimeoutrehash
+    network.ip.inaddrerrors network.ip6.inaddrerrors
+)
+
+os_metrics=(
+    hinv.ncpu hinv.pagesize
+    pmcd.hostname pmcd.timezone pmcd.zoneinfo
+    kernel.uname.release kernel.uname.version
+    kernel.uname.sysname kernel.uname.machine
+    kernel.uname.nodename kernel.uname.distro
+    kernel.all.boottime kernel.all.uptime
+    kernel.all.nusers kernel.all.load kernel.all.hz
+    kernel.all.runnable kernel.all.running
+    kernel.all.blocked kernel.all.nprocs
+    kernel.all.cpu.user kernel.all.cpu.nice
+    kernel.all.cpu.sys kernel.all.cpu.idle
+    kernel.all.cpu.wait.total kernel.all.cpu.steal
+    kernel.all.cpu.irq.soft kernel.all.cpu.irq.hard
+)
+
+_usage()
+{
+    [ ! -z "$@" ] && echo $@ 1>&2
+    pmgetopt --progname=$progname --usage --config=$tmp/usage
+    exit 1
+}
+
+# usage spec for pmgetopt, note posix flag (commands mean no reordering)
+cat > $tmp/usage << EOF
+# getopts: a:h:O:S:?domnNpu:x
+   --archive
+   --host
+   --origin
+   --start
+   --help
+   --all           show everything
+   -o,--os         show hostname, distro, kernel info, uptime, etc
+   -d,--disks      show info from /proc/partitions, df
+   -m,--mem        display memory summary
+   -n,--netdev     display network interface summary
+   -N,--netstat    display network statistics
+   -p,--ps         inspect running processes, ps
+   -u=P, --units=P change byte display where P is "b" for byte, "k", "m", "g", or "t"
+   -x,--nocolor    disable output colorization
+# end
+EOF
+
+color=true
+osflag=false
+memflag=false
+diskflag=false
+netdevflag=false
+netstatflag=false
+psflag=false
+netunits='M' # options: B (byte), K, M, G or T
+memunits='G' # options: B (byte), K, M, G or T
+batch=''
+args=`pmgetopt --progname=$progname --config=$tmp/usage -- "$@"`
+[ $? != 0 ] && exit 1
+
+eval set -- "$args"
+while [ $# -gt 0 ]
+do
+    case "$1" in
+      # pcp options
+      -a)
+        export PCP_ARCHIVE="$2"
+        batch="-b 1"
+        shift
+        ;;
+      -h)
+        export PCP_HOST="$2"
+        shift
+        ;;
+      -O)
+        export PCP_ORIGIN="$2"
+        shift
+        ;;
+      -S)
+        export PCP_START="$2"
+        shift
+        ;;
+      # pcp-xsos options
+      --all)
+        osflag=true
+        memflag=true
+        diskflag=true
+        netdevflag=true
+        netstatflag=true
+        psflag=true
+        ;;
+      -d)
+        diskflag=true
+        ;;
+      -m)
+        memflag=true
+        ;;
+      -n)
+        netdevflag=true
+        ;;
+      -N)
+        netstatflag=true
+        ;;
+      -o)
+        osflag=true
+        ;;
+      -p)
+        psflag=true
+        ;;
+      -u)
+        memunits=`echo "$2" | tr '[:lower:]' '[:upper:]' | cut -c 1`
+        netunits=${memunits}
+        ;;
+      -x)
+        color=false
+        ;;
+      -\?)
+        _usage ""
+        ;;
+      --)        # end of options, start of arguments
+        shift
+        break
+        ;;
+    esac
+    shift        # finished with this option, move to next
+done
+
+# accumulate an array of all metrics to be fetched
+metrics=( ${base_metrics[*]} )
+$osflag && metrics+=( ${os_metrics[*]} )
+$memflag && metrics+=( ${mem_metrics[*]} )
+$diskflag && metrics+=( ${disk_metrics[*]} )
+$netdevflag && metrics+=( ${netdev_metrics[*]} )
+$netstatflag && metrics+=( ${netstat_metrics[*]} )
+$psflag && metrics+=( ${ps_metrics[*]} )
+
+# default to OS metrics if nothing specified
+if test ${#metrics[@]} -eq ${#base_metrics[@]}; then
+    metrics+=( ${os_metrics[*]} )
+    osflag=true
+fi
+
+# convert to printable form of unit string
+unitstr()
+{
+    case "$1" in
+      T) echo "TiB";;
+      G) echo "GiB";;
+      M) echo "MiB";;
+      K) echo "KiB";;
+      *) echo "B";;
+    esac
+}
+memunits=`unitstr $memunits`
+netunits=`unitstr $netunits`
+
+if [ ! -z "$PCP_ARCHIVE" ]
+then
+    # extract pmcd values from log label in case metrics missing
+    eval `pmdumplog -Ll 2>/dev/null | $awk '
+/^Performance metrics from host/ { printf "pmcd_hostname_value=\"%s\"\n", $5 }
+/^    commencing /               { $1 = ""; printf "sampletime=\"%s\"\n", $0 }
+/^Archive timezone: /            { printf "pmcd_timezone_value=\"%s\"\n", $3 }
+/^Archive zoneinfo: /            { printf "pmcd_zoneinfo_value=\"%s\"\n", $3 }
+'`
+else
+    sampletime=$( date )
+fi
+if [ ! -z "$PCP_START" ]
+then
+    sampletime=${PCP_START}
+elif [ ! -z "$PCP_ORIGIN" ]
+then
+    sampletime=${PCP_ORIGIN}
+fi
+# Timestamp for sample in seconds since the epoch
+timestamp=$( date --date "${sampletime}" +%s.%N )
+
+# Extract values for all metrics at once.  Fetch using pminfo then
+# cater for 3 cases: single-valued metrics, set-valued metrics and
+# errors fetching individual metrics (see pminfo example below).
+# It translates the pminfo output into a series of bash variables,
+# including arrays (for set-valued metrics inst names and values).
+# Note that this is both bash and awk syntax being generated here.
+#
+# Input:
+# pminfo -f kernel.all.pswitch kernel.all.load kernel.cpu.util.user
+#
+# kernel.all.pswitch
+#    value 730564942
+#
+# kernel.all.load
+#    inst [1 or "1 minute"] value 0.02
+#    inst [5 or "5 minute"] value 0.05
+#    inst [15 or "15 minute"] value 0
+#
+# kernel.cpu.util.user
+# No value(s) available!
+
+# Output:
+# kernel_all_pswitch_value=730564942
+# kernel_all_load_inst[1]="1 minute"
+# kernel_all_load_value[1]=0.19
+# kernel_all_load_inst[5]="5 minute"
+# kernel_all_load_value[5]=0.12
+# kernel_all_load_inst[15]="15 minute"
+# kernel_all_load_value[15]=0.06
+# kernel_cpu_util_user_error="No value(s) available!"
+
+if ! pminfo $batch --fetch ${metrics[*]} > $tmp/metrics 2>$tmp/error
+then
+    if grep "^pminfo:" $tmp/error > /dev/null 2>&1
+    then
+        $PCP_ECHO_PROG $PCP_ECHO_N "$progname: ""$PCP_ECHO_C"
+        sed < $tmp/error -e 's/^pminfo: //g'
+        sts=1
+        exit
+    fi
+fi
+[ -s $tmp/error ] && sed -e '/Unknown metric name/d' <$tmp/error >&2
+
+$awk < $tmp/metrics > $tmp/variables '
+function filter(string) {
+    gsub(/"/, "\\\"", string) # escape double quotes
+    gsub(/\\u/, "\\\\u", string) # escape backslash-u
+    gsub(/%/, "%%", string) # percent sign in printf
+    gsub(/^\\"|\\"$/, "\"", string) # except on ends
+    return string
+}
+BEGIN { error = 0; count = 0; value = 0; metric = "" }
+{
+    if (NF == 0) {   # end previous metric (if any)
+        metric = ""
+    } else if (metric == "") {   # new metric, name
+        gsub("\\.", "_", $1)
+        metric = $1
+        count++
+    } else if ($1 == "value") {   # singleton metric
+        printf("%s_value=%s\n", metric, substr($0,11))
+        value++
+    } else if ($1 == "inst") {   # set-valued metric
+        sub("\\[", "")
+        instid = $2
+        instoff = index($0, " or \"") + 4
+        instend = index($0, "\"]")
+        instname = substr($0, instoff, instend-instoff+1)
+        instname = filter(instname) # escape special chars
+        valuestr = substr($0, index($0, "] value ") + 8)
+        valuestr = filter(valuestr) # escape special chars
+        printf("%s_inst[%s]=%s\n", metric, instid, instname)
+        printf("%s_value[%s]=%s\n", metric, instid, valuestr)
+        value++
+    } else {    # set an error string for the metric
+        printf("%s=%c%s%c\n", metric, "\"", $0, "\"")
+        metric = ""
+        error++
+    }
+}
+END { printf "metrics=%d\nvalues=%d\nerrors=%d\n", count, value, error }'
+eval `cat $tmp/variables`
+#cat $tmp/variables
+
+# prepare an awk import with metric values and helper function(s)
+cat > $tmp/metrics << EOF
+function round(number, places) {
+    places = 10 ^ places
+    return int(number * places + .5) / places
+}
+BEGIN {
+EOF
+cat $tmp/variables >> $tmp/metrics
+echo "}" >> $tmp/metrics
+#cat $tmp/metrics
+
+if $color; then
+    RESET='\033[0m' # use defaults
+    BLACK='\033[0;30m'
+    RED='\033[0;31m'
+    GREEN='\033[0;32m'
+    ORANGE='\033[0;33m'
+    BLUE='\033[0;34m'
+    PURPLE='\033[0;35m'
+    CYAN='\033[0;36m'
+    WHITE='\033[0;37m'
+    BACKBLUE='\033[44m' # background in blue
+    BOLDWHITE='\033[1;37m'
+    BOLDPURPLE='\033[1;35m'
+    BOLDBLUE='\033[1;34m'
+    BOLDRED='\033[1;31m'
+fi
+
+H0="${BOLDRED}"  # heading color
+H1="  ${BOLDPURPLE}"  # next level down
+H2="    ${BOLDBLUE}"  # second level heading
+
+put_value()
+{
+    # $1 - mandatory metric name, e.g. kernel.all.pswitch
+    # $2 - optional fallback value, used to override error string
+    # $3 - optional formatting string for printf (allows alignment, etc)
+    eval __value=`echo ${1} | sed -e 's/^/$/' -e 's/\./_/g' -e 's/$/_value/'`
+    eval __error=`echo ${1} | sed -e 's/^/$/' -e 's/\./_/g' -e 's/$/_error/'`
+
+    __format="%s"
+    __fallback="${2}"
+    test -n "${3}" && __format=${3}
+    test -n "${__value}" && printf "${__format}" "${__value}" && return 0
+    test -n "${__error}" -a -z "${__fallback}" && \
+            printf "${__format}" "${RED}(missing)" && return 3
+    test -n "${__fallback}" && printf "${__format}" "${ORANGE}${__fallback}" && echo 2
+    printf "${__format}" "${ORANGE}unknown"
+    return 1
+}
+
+get_value()
+{
+    # $1 - mandatory metric name, e.g. kernel.all.pswitch
+    # $2 - mandatory fallback value, used when missing metric value
+    eval __value=`echo ${1} | sed -e 's/^/$/' -e 's/\./_/g' -e 's/$/_value/'`
+    test -n "${__value}" && echo "${__value}" && return 0
+    echo "${2}"
+    return 1
+}
+
+get_inst_value()
+{
+    # $1 - mandatory metric name, e.g. kernel.all.pswitch
+    # $2 - mandatory numeric instance identifier, e.g. 1
+    eval __value=`echo ${1} | sed -e 's/^/${/' -e 's/\./_/g' -e 's/$/_value['$2']}/'`
+    test -n "${__value}" && echo "${__value}" && return 0
+    echo "unknown"
+    return 1
+}
+
+print_uptime()
+{
+    # Report on system up-time in days, hours and minutes
+    # and number of users (given booted seconds + nusers)
+    seconds=`echo "$1" | sed -e 's/\..*$//g'`
+    users="$2"
+
+    days=$((seconds / (60 * 60 * 24)))
+    minutes=$((seconds / 60))
+    hours=$((minutes / 60))
+    hours=$((hours % 24))
+    minutes=$((minutes % 60))
+    if test $days -gt 1; then
+        printf "$days days,"
+    elif test $days -ne 0; then
+        printf "1 day,"
+    fi
+    if test $hours -ne 0; then
+        printf ' %2d:%02d,' $hours $minutes
+    else
+        printf ' %d min,' $minutes
+    fi
+    if test $users -eq 1; then
+        printf '   1 user\n'
+    else
+        printf ' %2d users\n' $users
+    fi
+}
+
+pcp_xsos_os()
+{
+    printf "${H0}OS\n"
+
+    printf "${H1}Hostname:${RESET} "
+    put_value pmcd.hostname; echo
+    printf "${H1}Distro:${RESET}   "
+    banner=`put_value kernel.uname.distro`
+    printf "${BACKBLUE}${banner}${RESET}\n"
+    printf "${H1}Arch:${RESET}     "
+    platform=`put_value kernel.uname.machine`
+    printf "platform=$platform\n"
+    printf "${H1}Kernel:${RESET}\n"
+    printf "${H2}Hertz:${RESET}         "
+    put_value kernel.all.hz; echo
+    printf "${H2}Pagesize:${RESET}      "
+    put_value hinv.pagesize; echo
+    printf "${H2}Build version:${RESET}\n"
+    release=`put_value kernel.uname.release`
+    release="version $release"
+    sysname=`put_value kernel.uname.sysname`
+    sysname="$sysname $release"
+    version=`put_value kernel.uname.version "unknown build version"`
+    printf "      ${ORANGE}${sysname}${RESET}\n"
+    printf "      ${ORANGE}${version}${RESET}\n"
+    printf "    - - - - - - - - - - - - - - - - - - -\n"
+
+    printf "${H1}Boot time: ${RESET}"
+    boottime=`get_value kernel.all.boottime 0`
+    date --date="@$boottime" +"%a %b %d %I:%M:%S %P %Z %Y"
+    printf "${H1}Time Zone: ${RESET}"
+    timezone=`get_value pmcd.timezone unknown`
+    zoneinfo=`get_value pmcd.zoneinfo unknown | sed -e 's/^://'`
+    printf "${zoneinfo} [${timezone}]\n"
+    printf "${H1}Uptime: ${RESET}  "
+    uptime=`get_value kernel.all.uptime 0`
+    nusers=`get_value kernel.all.nusers 0`
+    print_uptime $uptime $nusers
+    printf "${H1}LoadAvg:${RESET}  "
+    ncpus=`get_value hinv.ncpu 0`
+    printf "${BOLDWHITE}[$ncpus CPU]${RESET}"
+    test $ncpus -lt 1 && ncpus=1  # safe division later
+    for inst in 1 5 15; do
+        load=`get_inst_value kernel.all.load $inst`
+        percent=`$awk "BEGIN {print int(${load}*${ncpus}+.5)}"`
+        test $inst -eq 1 || printf ","
+        printf " %.2f (${GREEN}%d%%${RESET})" $load $percent
+        test $inst -eq 15 && printf "\n"
+    done
+
+    printf "${H1}Processes: ${RESET}\n"
+    put_value kernel.all.running "" "${H2}running:${RESET} %s"
+    put_value kernel.all.runnable "" "${H2}runnable:${RESET} %s"
+    put_value kernel.all.blocked "" "${H2}blocked:${RESET} %s"
+    put_value kernel.all.nprocs "" "${H2}count:${RESET} %s\n"
+
+    printf "${H1}Processors: ${RESET}\n"
+    printf "${H2}cpu [Utilization since boot]: ${RESET}\n      "
+    us=`get_value kernel.all.cpu.user 0`
+    ni=`get_value kernel.all.cpu.nice 0`
+    sy=`get_value kernel.all.cpu.sys 0`
+    id=`get_value kernel.all.cpu.idle 0`
+    wt=`get_value kernel.all.cpu.wait.total 0`
+    ih=`get_value kernel.all.cpu.irq.hard 0`
+    is=`get_value kernel.all.cpu.irq.soft 0`
+    st=`get_value kernel.all.cpu.steal 0`
+    $awk "BEGIN {
+        tot=$us+$ni+$sy+$id+$wt+$ih+$is+$st;
+        printf \"us %d%%, \", int($us/tot*100+.5)
+        printf \"ni %d%%, \", int($ni/tot*100+.5)
+        printf \"sys %d%%, \", int($sy/tot*100+.5)
+        printf \"idle %d%%, \", int($id/tot*100+.5)
+        printf \"iowait %d%%, \", int($wt/tot*100+.5)
+        printf \"irq %d%%, \", int($ih/tot*100+.5)
+        printf \"sftirq %d%%, \", int($is/tot*100+.5)
+        printf \"steal %d%%\n\", int($st/tot*100+.5)
+    }"
+
+    echo # additional space for next session (with --all)
+}
+
+pcp_xsos_disk()
+{
+    $awk -i $tmp/metrics "
+BEGIN {
+    for (i in disk_dev_capacity_value) {
+        nKiB += disk_dev_capacity_value[i]
+        ndisks++
+    }
+    nGiB = nKiB / 1024 / 1024
+    nTiB = round(nGiB / 1024, 2)
+
+    printf \"${H0}STORAGE${RESET}\n\"
+    printf \"${H1}Whole Disks from /proc/partitions:${RESET}\n\"
+    printf \"    ${BOLDWHITE}\"
+    printf \"%s disks, totalling %s GiB (%s TiB)\n\", ndisks, nGiB, nTiB
+    printf \"    - - - - - - - - - - - - - - - - - - - - -\n\"
+    printf \"${H2}Disk \tSize in GiB${RESET}\n\"
+    printf \"${H2}---- \t-----------${RESET}\n\"
+    for (i in disk_dev_capacity_value) {
+        capacity = round(disk_dev_capacity_value[i] / 1024 / 1024, 2)
+        printf \"    %s \t%-s\n\", disk_dev_capacity_inst[i], capacity
+    }
+
+    printf \"\n\"
+    printf \"${H1}Filesystem usage from df:${RESET}\n\"
+    printf \"    ${BOLDWHITE}\"
+    printf \"Filesystem     1K-blocks     Used Available Use%% Mounted on\"
+    printf \"${RESET}\n\"
+    for (i in filesys_capacity_value) {
+        printf \"    %s %14s %8s %9s %3s%% %s\n\", 
+                filesys_capacity_inst[i], filesys_capacity_value[i],
+                filesys_used_value[i], filesys_avail_value[i],
+                round(filesys_full_value[i], 0), filesys_mountdir_value[i]
+    }
+}"
+
+    echo # additional space for next session (with --all)
+}
+
+pcp_xsos_mem()
+{
+    $awk -i $tmp/metrics -v u=${memunits} "
+function put_hbar(title, color, value, total) {
+    width = 50
+    ratio = value/total
+    hbars = int(ratio * width + .5)
+    printf \"    %s%-10s \", color, title
+    for (i=1; i < hbars+1; i++)
+        printf \"▊\"
+    printf \"${RESET}\"
+    for (i=hbars; i < width; i++)
+        printf \".\"
+    printf \" %s%5.1f%%${RESET}\n\", color, ratio * 100 + .005
+}
+BEGIN {
+    total = (mem_physmem_value > 0) ? mem_physmem_value : 1
+    other = mem_util_used_value - mem_util_cached_value - mem_util_bufmem_value
+    huge = mem_util_hugepagesTotalBytes_value / 1024
+    hugefree = mem_util_hugepagesFreeBytes_value / 1024
+    hugeused = huge - (mem_util_hugepagesFreeBytes_value / 1024)
+
+    printf \"${H0}MEMORY\n\"
+
+    printf \"${H1}Stats graphed as percent of MemTotal:${RESET}\n\"
+    put_hbar(\"MemUsed\", \"${GREEN}\", mem_util_used_value, total)
+    put_hbar(\"Buffers\", \"${PURPLE}\", mem_util_bufmem_value, total)
+    put_hbar(\"Cached\", \"${BLUE}\", mem_util_cached_value, total)
+    put_hbar(\"HugePages\", \"${CYAN}\", huge, total)
+    put_hbar(\"Dirty\", \"${RED}\", mem_util_dirty_value, total)
+    put_hbar(\"Available\", \"${WHITE}\", mem_util_available_value, total)
+
+    precision_pct = 1
+    precision_low = 0
+    precision_high = 0
+    if (u == \"TiB\") {
+        kbytes_divisor = 1024 ^ 3
+        precision_pct = 0
+        precision_low = 2
+        precision_high = 3
+    } else if (u == \"GiB\") {
+        kbytes_divisor = 1024 ^ 2
+        precision_pct = 0
+        precision_low = 1
+        precision_high = 2
+    } else if (u == \"MiB\") {
+        kbytes_divisor = 1024
+    } else if (u == \"KiB\") {
+        kbytes_divisor = 1
+    } else {
+        kbytes_divisor = 1 / 1024
+    }
+
+    printf \"${H1}RAM:${RESET}\n\"
+    printf \"    ${BOLDWHITE}%s %s total ram${CLEAR}\n\",
+            round(total/kbytes_divisor, precision_low), u
+    printf \"    ${WHITE}%s %s (%s%%) used\n\",
+            round(mem_util_used_value/kbytes_divisor, precision_low), u,
+            round((mem_util_used_value/total)*100, precision_pct)
+    printf \"    ${BOLDWHITE}%s %s (%s%%) used excluding Buffers/Cached\n\",
+            round(other/kbytes_divisor, precision_low), u,
+            round((other/total)*100, precision_pct)
+    printf \"    ${WHITE}%s %s (%s%%) dirty\n\",
+            round(mem_util_dirty_value/kbytes_divisor, precision_low), u,
+            round((mem_util_dirty_value/total)*100, precision_pct)
+    printf \"    ${BOLDWHITE}%s %s (%s%%) available\n\",
+            round(mem_util_available_value/kbytes_divisor, precision_low), u,
+            round((mem_util_available_value/total)*100, precision_pct)
+    printf \"${H1}HugePages:${RESET}\n\"
+    if (huge == 0)
+        printf \"    No ram pre-allocated to HugePages\n\"
+    else {
+        printf \"    %s %s pre-allocated to HugePages (%s%% of total ram)\n\",
+                round(huge/kbytes_divisor, precision_low), u,
+                round((huge/total)*100, precision_pct)
+        printf \"    %s %s of HugePages (%s%%) in-use by applications\n\",
+                round(hugeused/kbytes_divisor, precision_low), u,
+                round((hugeused/hugefree)*100, precision_pct)
+    }
+
+    printf \"${H1}TransparentHugePages:${RESET}\n\"
+    if (mem_util_anonhugepages_value == 0)
+        printf \"    No ram allocated to THP\n\"
+    else {
+        anonhugepages = mem_util_anonhugepages_value / kbytes_divisor
+        printf \"    %s %s allocated to THP\n\",
+                round(anonhugepages, precision_high), u
+    }
+
+    if (mem_util_lowTotal_value > 0)
+        lowused = mem_util_lowTotal_value - mem_util_lowFree_value
+        lowtotal = mem_util_lowTotal_value > 0 ? mem_util_lowTotal_value : 1
+        printf \"    %s %s (%s%%) of LowMem in-use\n\",
+                round(lowused/kbytes_divisor, precision_low), u,
+                round((lowused/lowtotal)*100, precision_pct)
+   printf \"    %s %s (%s%%) of total ram used for Slab\n\",
+          round(mem_util_slab_value/kbytes_divisor, precision_high), u,
+          round((mem_util_slab_value/total)*100, precision_low)
+    printf \"    %s %s (%s%%) of total ram used for PageTables\n\",
+           round(mem_util_pageTables_value/kbytes_divisor, precision_high), u,
+           round((mem_util_pageTables_value/total)*100, precision_pct)
+    printf \"    %s %s (%s%%) of total ram used for Shmem\n\",
+           round(mem_util_shmem_value/kbytes_divisor, precision_high), u,
+           round((mem_util_shmem_value/total)*100, precision_pct)
+    printf \"    %s %s (%s%%) of total ram used for Percpu\n\",
+           round(mem_util_percpu_value/kbytes_divisor, precision_high), u,
+           round((mem_util_percpu_value/total)*100, precision_pct)
+
+    printf \"${H1}Virtual Machine Balloon:${RESET}\n\"
+    if (mem_vmmemctl_target_value == 0)
+        printf \"    No VM balloon memory target\n\"
+    else {
+        vmcurrent = mem_vmmemctl_current_value / 1024
+        vmtarget = mem_vmmemctl_target_value / 1024
+        printf \"    %s %s (%s%%) of %s %s balloon in-use\n\",
+                round(vmcurrent/kbytes_divisor, precision_low), u,
+                round((vmcurrent/vmtarget)*100, precision_pct), u,
+                round(vmtarget/kbytes_divisor, precision_low)
+    }
+
+    printf \"${H1}Swap:${RESET}\n\"
+    if (mem_util_swapTotal_value == 0)
+        printf \"    ${ORANGE}No system swap space configured${RESET}\n\"
+    else {
+        swaptotal = mem_util_swapTotal_value
+        swapused = swaptotal - mem_util_swapFree_value
+        printf \"    %s %s (%s%%) used of %s %s total\n\",
+               round(swapused/kbytes_divisor, precision_low), u,
+               round((swapused/swaptotal)*100, precision_pct),
+               round(swaptotal/kbytes_divisor, precision_high), u
+    }
+}"
+
+    echo # additional space for next session (with --all)
+}
+
+pcp_xsos_netdev()
+{
+    $awk -i $tmp/metrics -v u=${netunits} "
+BEGIN {
+    printf \"${H0}NETDEV\n\"
+
+    # Figure out what to divide by to end up with KiB, MiB, GiB, or TiB.
+    # Also figure out decimal precision (conditional below) :-
+    # - For T, round Bytes field to nearest hundredth (.nn)
+    # - For G, round Bytes field to nearest tenth (.n)
+    # - For KiB/MiB, keep Bytes as whole numbers
+    # Finally, never show decimal for Packets
+
+    precision_bytes = 0
+    precision_pckts = 0
+    packets_divisor = 1
+    bytes_divisor = 1
+    if (u == \"KiB\") {
+        bytes_divisor = 1024
+    } else if (u == \"MiB\") {
+        bytes_divisor = 1024 ^ 2
+        packets_divisor = 1000
+        packets_unit = \" k\"
+    } else if (u == \"GiB\") {
+        bytes_divisor = 1024 ^ 3
+        packets_divisor = 1000 ^ 2
+        packets_unit = \" M\"
+        precision_bytes = 1
+    } else if (u == \"TiB\") {
+        bytes_divisor = 1024 ^ 4
+        packets_divisor = 1000 ^ 2
+        packets_unit = \" M\"
+        precision_bytes = 2
+    }
+
+    printf \"  ${BOLDPURPLE}Interface  Rx%sytes  RxPackets  RxErrs  RxDrop  RxFifo  RxComp  RxFrame  RxMultCast\n\", u
+    printf \"  =========  =========  =========  ======  ======  ======  ======  =======  ==========${RESET}\n\"
+
+    ignored = \"^lo\"
+    for (i in network_interface_in_bytes_inst) {
+        if (match(network_interface_in_bytes_inst[i], ignored) != 0)
+            continue
+
+        rxbytes = network_interface_in_bytes_value[i]
+        rxpckts = network_interface_in_packets_value[i]
+        rxerror = network_interface_in_errors_value[i]
+        rxdrops = network_interface_in_drops_value[i]
+        rxfifos = network_interface_in_fifo_value[i]
+        rxframe = network_interface_in_frame_value[i]
+        rxmcast = network_interface_in_mcasts_value[i]
+        rxcomps = network_interface_in_compressed_value[i]
+        rxtotal = rxpckts+rxerror+rxdrops+rxfifos+rxframe+rxmcast+rxcomps
+
+        if (rxtotal > 0) {
+            if (rxerror > 0)
+                rxerrorpct = \"(\" round(rxerror * 100 / rxtotal, 0) \"%)\"
+            if (rxdrops > 0)
+                rxdropspct = \"(\" round(rxdrops * 100 / rxtotal, 0) \"%)\"
+            if (rxfifos > 0)
+                rxfifospct = \"(\" round(rxfifos * 100 / rxtotal, 0) \"%)\"
+            if (rxframe > 0)
+                rxframepct = \"(\" round(rxframe * 100 / rxtotal, 0) \"%)\"
+            if (rxmcast > 0)
+                rxmcastpct = \"(\" round(rxmcast * 100 / rxtotal, 0) \"%)\"
+            if (rxcomps > 0)
+                rxcompspct = \"(\" round(rxcomps * 100 / rxtotal, 0) \"%)\"
+        }
+
+        # If unit is anything but bytes, perform the necessary division
+        if (u == \"KiB\" || u == \"MiB\" || u == \"GiB\" || u == \"TiB\")
+            rxbytes /= bytes_divisor
+
+        # If unit is MiB, GiB, or TiB, perform division on packets as well
+        if (u == \"MiB\" || u == \"GiB\" || u == \"TiB\")
+            rxpckts /= packets_divisor
+
+        rxbytes = round(rxbytes, precision_bytes)
+        rxpckts = round(rxpckts, precision_pckts)\"\" packets_unit
+
+        printf \"  ${BLUE}\"
+        printf \"%-9s${RESET}  %-9s  %-9s  %-6s  %-6s  %-6s  %-6s  %-7s  %-10s\n\",
+                network_interface_in_bytes_inst[i], rxbytes, rxpckts,
+                rxerror\"\" rxerrorpct, rxdrops\"\" rxdropspct,
+                rxfifos\"\" rxfifospct, rxcomps\"\" rxcompspct,
+                rxframe\"\" rxframepct, rxmcast\"\" rxmcastpct
+    }
+
+    printf \"  - - - - - - - - - - - - - - - - -\n\"
+    printf \"  ${BOLDPURPLE}Interface  Tx%sytes  TxPackets  TxErrs  TxDrop  TxFifo  TxComp  TxColls  TxCarrier\n\", u
+    printf \"  =========  =========  =========  ======  ======  ======  ======  =======  ==========${RESET}\n\"
+
+    for (i in network_interface_out_bytes_inst) {
+        if (match(network_interface_out_bytes_inst[i], ignored) != 0)
+            continue
+
+        txbytes = network_interface_out_bytes_value[i]
+        txpckts = network_interface_out_packets_value[i]
+        txerror = network_interface_out_errors_value[i]
+        txdrops = network_interface_out_drops_value[i]
+        txfifos = network_interface_out_fifo_value[i]
+        txcolls = network_interface_collisions_value[i]
+        txcarrs = network_interface_out_carrier_value[i]
+        txcomps = network_interface_out_compressed_value[i]
+        txtotal = txpckts+txerror+txdrops+txfifos+txcolls+txcarrs+txcomps
+
+        if (txtotal > 0) {
+            if (txerror > 0)
+                txerrorpct = \"(\" round(txerror * 100 / txtotal, 0) \"%)\"
+            if (txdrops > 0)
+                txdropspct = \"(\" round(txdrops * 100 / txtotal, 0) \"%)\"
+            if (txfifos > 0)
+                txfifospct = \"(\" round(txfifos * 100 / txtotal, 0) \"%)\"
+            if (txcolls > 0)
+                txcollspct = \"(\" round(txcolls * 100 / txtotal, 0) \"%)\"
+            if (txcarrs > 0)
+                txcarrspct = \"(\" round(txcarrs * 100 / txtotal, 0) \"%)\"
+            if (txcomps > 0)
+                txcompspct = \"(\" round(txcomps * 100 / txtotal, 0) \"%)\"
+        }
+
+        # If unit is anything but bytes, perform the necessary division
+        if (u == \"KiB\" || u == \"MiB\" || u == \"GiB\" || u == \"TiB\")
+            txbytes /= bytes_divisor
+
+        # If unit is MiB, GiB, or TiB, perform division on packets as well
+        if (u == \"MiB\" || u == \"GiB\" || u == \"TiB\")
+            txpckts /= packets_divisor
+
+        txbytes = round(txbytes, precision_bytes)
+        txpckts = round(txpckts, precision_pckts)\"\" packets_unit
+
+        printf \"  ${BLUE}\"
+        printf \"%-9s${RESET}  %-9s  %-9s  %-6s  %-6s  %-6s  %-6s  %-7s  %-10s\n\",
+                network_interface_out_bytes_inst[i], txbytes, txpckts,
+                txerror\"\" txerrorpct, txdrops\"\" rxdropspct,
+                txfifos\"\" txfifospct, txcomps\"\" txcompspct,
+                txcolls\"\" txcollspct, txcarrs\"\" txcarrspct
+    }
+}"
+
+    echo
+    printf "${H0}SOCKSTAT${RESET}\n"
+    printf "  ${H2}sockets:${RESET} used "
+    put_value network.sockstat.total; echo
+
+    printf "  ${H2}TCP:${RESET} inuse "
+    put_value network.sockstat.tcp.inuse
+    printf " orphan "
+    put_value network.sockstat.tcp.orphan
+    printf " tw "
+    put_value network.sockstat.tcp.tw
+    printf " alloc "
+    put_value network.sockstat.tcp.alloc
+    printf " mem "
+    put_value network.sockstat.tcp.mem; echo
+
+    printf "  ${H2}UDP:${RESET} inuse "
+    put_value network.sockstat.udp.inuse
+    printf " mem "
+    put_value network.sockstat.udp.mem; echo
+
+    printf "  ${H2}UDPLITE:${RESET} inuse "
+    put_value network.sockstat.udplite.inuse; echo
+
+    printf "  ${H2}RAW:${RESET} inuse "
+    put_value network.sockstat.raw.inuse; echo
+
+    printf "  ${H2}FRAG:${RESET} inuse "
+    put_value network.sockstat.frag.inuse
+    printf " memory "
+    put_value network.sockstat.frag.memory; echo
+
+    printf "  ${H2}TCP6:${RESET} inuse "
+    put_value network.sockstat.tcp6.inuse; echo
+
+    printf "  ${H2}UDP6:${RESET} inuse "
+    put_value network.sockstat.udp6.inuse; echo
+
+    printf "  ${H2}UDPLITE6:${RESET} inuse "
+    put_value network.sockstat.udplite6.inuse; echo
+
+    printf "  ${H2}RAW6:${RESET} inuse "
+    put_value network.sockstat.raw6.inuse; echo
+
+    printf "  ${H2}FRAG6:${RESET} inuse "
+    put_value network.sockstat.frag6.inuse
+    printf " memory "
+    put_value network.sockstat.frag6.memory; echo
+
+    echo # additional space for next session (with --all)
+}
+
+pcp_xsos_netstat()
+{
+    printf "${H0}NET STATS${RESET}\n"
+    put_value network.icmp.inerrors ""  "  Icmp.InErrors: %30s\n"
+    put_value network.icmp6.inerrors "" "  Icmp6.InErrors: %29s\n"
+
+    put_value network.tcp.attemptfails "" "  Tcp.AttemptFails: %27s\n"
+    put_value network.tcp.estabresets ""  "  Tcp.EstabResets: %28s\n"
+    put_value network.tcp.inerrs ""       "  Tcp.InErrs: %33s\n"
+    put_value network.tcp.outrsts ""      "  Tcp.OutRsts: %32s\n"
+
+    put_value network.tcp.delayedacklocked ""  "  TcpExt.DelayedACKLocked: %20s\n"
+    put_value network.tcp.delayedacklost ""    "  TcpExt.DelayedACKLost: %22s\n"
+    put_value network.tcp.delayedacks ""       "  TcpExt.DelayedACKs: %25s\n"
+    put_value network.tcp.pawsestabrejected "" "  TcpExt.PAWSEstab: %27s\n"
+    put_value network.tcp.abortontimeout ""    "  TcpExt.TCPAbortOnTimeout: %19s\n"
+    put_value network.tcp.lossproberecovery "" "  TcpExt.TCPLossProbeRecovery: %16s\n"
+    put_value network.tcp.lossprobes ""        "  TcpExt.TCPLossProbes: %23s\n"
+    put_value network.tcp.timeouts ""          "  TcpExt.TCPTimeouts: %25s\n"
+    put_value network.tcp.tcptimeoutrehash ""  "  TcpExt.TcpTimeoutRehash: %20s\n"
+
+    put_value network.ip.inaddrerrors ""  "  Ip.InAddrErrors: %28s\n"
+    put_value network.ip6.inaddrerrors "" "  Ip6.InAddrErrors: %27s\n"
+
+    echo # additional space for next session (with --all)
+}
+
+pcp_xsos_ps()
+{
+    $awk -i $tmp/metrics -v u=${memunits} "
+function max(a, b) {
+    return a > b ? a : b
+}
+function min(a, b) {
+    return a < b ? a : b
+}
+function get_username(pid) {
+    username = proc_id_uid_nm_value[pid]
+    if (length(username) > 7)
+        username = substr(username, 0, 7) \"+\"
+    return username
+}
+function put_headers() {
+    printf \"%-9s %-8s %-6s %-6s %-8s %-8s %-s${RESET}\n\",
+	   \"USER\", \"PID\", \"%CPU\", \"%MEM\",
+	   \"VSZ-MiB\", \"RSS-MiB\", \"COMMAND\"
+}
+function get_cputime(pid) {
+    cpu = (proc_psinfo_utime_value[pid] + proc_psinfo_stime_value[pid]) / 1000
+    time = ${timestamp}
+    time -= proc_psinfo_start_time_value[pid] / 1000
+    time -= kernel_all_boottime_value
+    return cpu / time
+}
+function put_process(pid, prefix) {
+    user = get_username(pid)
+    cpu = get_cputime(pid)
+    mem = (proc_psinfo_rss_value[pid] / mem_physmem_value)
+    printf \"%s%-9s %-8s %-6s %-6s %-8s %-8s %-s\n\",
+           prefix, user, pid,
+           round(cpu * 100, 1) \"%\", round(mem * 100, 1) \"%\",
+	   round(proc_psinfo_vsize_value[pid] / 1024, 0),
+	   round(proc_psinfo_rss_value[pid] / 1024, 0),
+           proc_psinfo_psargs_value[pid]
+}
+BEGIN {
+    printf \"${H0}PROCESSES\n\"
+
+    num_top_procs = 10
+    num_top_users = 10
+    kbytes_divisor = 1
+    if (u == \"MiB\") {
+        kbytes_divisor = 1024
+    } else if (u == \"GiB\") {
+        kbytes_divisor = 1024 ^ 2
+    } else if (u == \"TiB\") {
+        kbytes_divisor = 1024 ^ 3
+    } else if (u == \"B\") {
+        kbytes_divisor = 1 / 1024
+    }
+    printf \"${H1}Total number of threads/processes:\n\"
+    for (i in proc_psinfo_threads_value) {
+        threads += proc_psinfo_threads_value[i] + 1
+        processes += 1
+    }
+    printf \"    ${BOLDWHITE}%s/%s\n\", threads, processes
+
+    printf \"${H1}Top users of CPU & MEM:\n\"
+
+    for (i in proc_psinfo_utime_value) {
+        proc_cpu = proc_psinfo_cutime_value[i] + proc_psinfo_cstime_value[i]
+        proc_cpu += proc_psinfo_utime_value[i] + proc_psinfo_stime_value[i]
+        proc_cpu /= 1000  # milliseconds to seconds
+        proc_mem = proc_psinfo_rss_value[i]
+        if (proc_cpu == 0 && proc_mem == 0)
+            continue
+
+        proctime = proc_psinfo_start_time_value[i] / 1000
+        username = get_username(i)
+        if (length(username) > 0) {
+	    if (starttime[username] == 0)
+	        starttime[username] = proctime
+            else
+                starttime[username] = min(proctime, starttime[username])
+            users_cpu[username] += proc_cpu
+            users_mem[username] += proc_mem
+        }
+    }
+
+    # start_time (msec) is relative to the boottime
+    # boottime (sec) is relative to the epoch
+    # sample timestamp (sec) is relative to the epoch
+    for (username in starttime) {
+        time_span = max(1, $timestamp - \
+                            kernel_all_boottime_value - starttime[username])
+        users_cpu[username] /= time_span
+    }
+
+    printf \"${H2}%-9s %7s %6s %5s${RESET}\n\",
+               \"USER\", \"%CPU\", \"%MEM\", \"RSS\"
+    asorti(users_cpu, top_cpu, \"@val_num_desc\")
+    topmost = num_top_users
+    for (i in top_cpu) {
+        user = top_cpu[i]
+	pct_cpu = round(users_cpu[user] * 100, 1)
+	pct_mem = round(users_mem[user] / mem_physmem_value * 100, 1)
+	if (pct_cpu < 0.1 && pct_mem < 0.1)
+            break
+        printf \"    %-9s  %5s%% %5s%% %6s %s\n\",
+                user, pct_cpu, pct_mem,
+                round(users_mem[user] / kbytes_divisor, 2), u
+        if ((topmost -= 1) == 0)
+            break
+    }
+
+    # process state accounting
+    for (i in proc_psinfo_sname_value) {
+        state = proc_psinfo_sname_value[i]
+        if (state == \"Z\") {
+            zombies[i] = proc_psinfo_threads_value[i] + 1
+	    nzombies++
+        } else if (state == \"D\") {
+            sleepers[i] = proc_psinfo_threads_value[i] + 1
+	    nsleepers++
+        }
+    }
+    printf \"${H1}Uninterruptible sleep threads/processes \"
+    printf \"(%d/%d)\n\", sleepers[i], length(sleeper)
+    if (nsleepers == 0)
+        printf \"    ${RESET}[None]\n\"
+    else {
+        printf \"${H2}\"
+	put_headers()
+        for (i in sleepers)
+	    put_process(sleepers[i], \"    \")
+    }
+    printf \"${H1}Defunct zombie threads/processes \"
+    printf \"(%d/%d)\n\", zombies[i], length(zombies)
+    if (nzombies == 0)
+        printf \"    ${RESET}[None]\n\"
+    else {
+        printf \"${H2}\"
+	put_headers()
+        for (i in zombies)
+            put_process(zombies[i], \"    \")
+    }
+
+    printf \"${H1}Top CPU-using processes:\n${H2}\"
+    put_headers()
+    for (pid in proc_psinfo_utime_value)
+        cputimes[pid] = get_cputime(pid)
+    asorti(cputimes, topcpu, \"@val_num_desc\")
+    topmost = num_top_procs
+    for (i in topcpu) {
+	put_process(topcpu[i], \"    \")
+        if ((topmost -= 1) == 0)
+            break
+    }
+
+    printf \"${H1}Top MEM-using processes:\n${H2}\"
+    put_headers()
+    asorti(proc_psinfo_rss_value, topmem, \"@val_num_desc\")
+    topmost = num_top_procs
+    for (i in topmem) {
+	put_process(topmem[i], \"    \")
+        if ((topmost -= 1) == 0)
+            break
+    }
+
+    printf \"${H1}Top thread-spawning processes:\n\"
+    printf \"${H2}%-3s \", \"#\"
+    put_headers()
+    asorti(proc_psinfo_threads_value, topthr, \"@val_num_desc\")
+    topmost = num_top_procs
+    for (i in topthr) {
+	pid = topthr[i]
+	if (proc_psinfo_threads_value[pid] < 2)
+            break
+        prefix = sprintf(\"    %-3s \", proc_psinfo_threads_value[pid])
+	put_process(pid, prefix)
+        if ((topmost -= 1) == 0)
+            break
+    }
+}"
+
+    echo # additional space for next session (with --all)
+}
+
+$osflag && pcp_xsos_os
+$memflag && pcp_xsos_mem
+$diskflag && pcp_xsos_disk
+$netdevflag && pcp_xsos_netdev
+$netstatflag && pcp_xsos_netstat
+$psflag && pcp_xsos_ps
+
+sts=0
+exit

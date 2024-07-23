@@ -2606,7 +2606,7 @@ basic_manifest | grep -E -e 'pmiostat|pmrep|dstat|htop|pcp2csv' \
    -e 'pcp-atop|pcp-dmcache|pcp-dstat|pcp-free' \
    -e 'pcp-htop|pcp-ipcs|pcp-iostat|pcp-lvmcache|pcp-mpstat' \
    -e 'pcp-numastat|pcp-pidstat|pcp-shping|pcp-ss' \
-   -e 'pcp-tapestat|pcp-uptime|pcp-verify' | \
+   -e 'pcp-tapestat|pcp-uptime|pcp-verify|pcp-xsos' | \
    cull 'selinux|pmlogconf|pmieconf|pmrepconf' >pcp-system-tools-files
 basic_manifest | keep 'geolocate' >pcp-geolocate-files
 basic_manifest | keep 'sar2pcp' >pcp-import-sar2pcp-files

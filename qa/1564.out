@@ -1,0 +1,113 @@
+QA output created by 1564
+=== Live pcp xsos -o
+OS
+  Hostname: XXX
+  Distro: XXX
+  Arch: XXX
+  Kernel:
+    Hertz: XXX
+    Pagesize: XXX
+    Build version:
+    - - - - - - - - - - - - - - - - - - -
+  Boot time: XXX
+  Time Zone: XXX
+  Uptime: XXX
+  LoadAvg: XXX
+  Processes: 
+  Processors: 
+=== Live pcp xsos -d
+STORAGE
+  Whole Disks from /proc/partitions:
+  Filesystem usage from df:
+=== Live pcp xsos -m
+MEMORY
+  Stats graphed as percent of MemTotal:
+  RAM:
+  HugePages:
+  TransparentHugePages:
+  Swap:
+=== Live pcp xsos -n
+NETDEV
+SOCKSTAT
+      sockets: XXX
+      TCP: XXX
+      UDP: XXX
+      UDPLITE: XXX
+      RAW: XXX
+      FRAG: XXX
+=== Live pcp xsos -N
+NET STATS
+  Icmp.InErrors: XXX
+  Icmp6.InErrors: XXX
+  Tcp.AttemptFails: XXX
+  Tcp.EstabResets: XXX
+  Tcp.InErrs: XXX
+  Tcp.OutRsts: XXX
+  TcpExt.DelayedACKLocked: XXX
+  TcpExt.DelayedACKLost: XXX
+  TcpExt.DelayedACKs: XXX
+  TcpExt.PAWSEstab: XXX
+  TcpExt.TCPAbortOnTimeout: XXX
+  TcpExt.TCPLossProbeRecovery: XXX
+  TcpExt.TCPLossProbes: XXX
+  TcpExt.TCPTimeouts: XXX
+  TcpExt.TcpTimeoutRehash: XXX
+  Ip.InAddrErrors: XXX
+  Ip6.InAddrErrors: XXX
+
+=== Archive pcp xsos -o
+OS
+  Hostname: XXX
+  Distro: XXX
+  Arch: XXX
+  Kernel:
+    Hertz: XXX
+    Pagesize: XXX
+    Build version:
+    - - - - - - - - - - - - - - - - - - -
+  Boot time: XXX
+  Time Zone: XXX
+  Uptime: XXX
+  LoadAvg: XXX
+  Processes: 
+  Processors: 
+=== Archive pcp xsos -d
+STORAGE
+  Whole Disks from /proc/partitions:
+  Filesystem usage from df:
+=== Archive pcp xsos -m
+MEMORY
+  Stats graphed as percent of MemTotal:
+  RAM:
+  HugePages:
+  TransparentHugePages:
+  Swap:
+=== Archive pcp xsos -n
+NETDEV
+SOCKSTAT
+      sockets: XXX
+      TCP: XXX
+      UDP: XXX
+      UDPLITE: XXX
+      RAW: XXX
+      FRAG: XXX
+=== Archive pcp xsos -N
+NET STATS
+  Icmp.InErrors: XXX
+  Icmp6.InErrors: XXX
+  Tcp.AttemptFails: XXX
+  Tcp.EstabResets: XXX
+  Tcp.InErrs: XXX
+  Tcp.OutRsts: XXX
+  TcpExt.DelayedACKLocked: XXX
+  TcpExt.DelayedACKLost: XXX
+  TcpExt.DelayedACKs: XXX
+  TcpExt.PAWSEstab: XXX
+  TcpExt.TCPAbortOnTimeout: XXX
+  TcpExt.TCPLossProbeRecovery: XXX
+  TcpExt.TCPLossProbes: XXX
+  TcpExt.TCPTimeouts: XXX
+  TcpExt.TcpTimeoutRehash: XXX
+  Ip.InAddrErrors: XXX
+  Ip6.InAddrErrors: XXX
+
