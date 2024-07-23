@@ -30,9 +30,13 @@ then
     then
         if grep '^bcc.*python ' "$PCP_PMCDCONF_PATH" | grep -q "$PCP_PYTHON_PROG" 2>/dev/null
         then
-            :	 # already using $PCP_PYTHON_PROG, leave this line untouched
+            :	# already using $PCP_PYTHON_PROG, leave this line untouched
         else
-	    sed -i -e "s,python $PCP_PMDAS_DIR/bcc/,$PCP_PYTHON_PROG $PCP_PMDAS_DIR/bcc/,g" $PCP_PMCDCONF_PATH 2>/dev/null
+	    # convert hard-coded python or python3 binary to PCP_PYTHON_PROG
+	    sed -i $PCP_PMCDCONF_PATH 2>/dev/null \
+		-e "s,python3 $PCP_PMDAS_DIR/bcc/,$PCP_PYTHON_PROG $PCP_PMDAS_DIR/bcc/,g" \
+		-e "s,python $PCP_PMDAS_DIR/bcc/,$PCP_PYTHON_PROG $PCP_PMDAS_DIR/bcc/,g" \
+	    # end
         fi
     fi
 fi
