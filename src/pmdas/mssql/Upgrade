@@ -24,9 +24,9 @@ then
 	-e "s,perl $PCP_PMDAS_DIR/mssql/pmdamssql.pl,$PCP_PYTHON_PROG $PCP_PMDAS_DIR/mssql/pmdamssql.python,g"
 fi
 
-if grep -q '^mssql.*python ' "$PCP_PMCDCONF_PATH" 2>/dev/null
+if grep -q ^mssql "$PCP_PMCDCONF_PATH" 2>/dev/null
 then
-    if grep '^mssql.*python ' "$PCP_PMCDCONF_PATH" | grep -q "$PCP_PYTHON_PROG" 2>/dev/null
+    if grep ^mssql "$PCP_PMCDCONF_PATH" | grep -q "$PCP_PYTHON_PROG" 2>/dev/null
     then
 	:	# already using $PCP_PYTHON_PROG, leave this line untouched
     else

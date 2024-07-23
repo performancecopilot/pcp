@@ -25,9 +25,9 @@ then
 	sed -i $PCP_PMCDCONF_PATH 2>/dev/null \
 	    -e "s,perl $PCP_PMDAS_DIR/postgresql/pmdapostgresql.pl,$PCP_PYTHON_PROG $PCP_PMDAS_DIR/postgresql/pmdapostgresql.python,g"
     fi
-    if grep -q '^postgresql.*python ' "$PCP_PMCDCONF_PATH" 2>/dev/null
+    if grep -q ^postgresql "$PCP_PMCDCONF_PATH" 2>/dev/null
     then
-	if grep '^postgresql.*python ' "$PCP_PMCDCONF_PATH" | grep -q "$PCP_PYTHON_PROG" 2>/dev/null
+	if grep ^postgresql "$PCP_PMCDCONF_PATH" | grep -q "$PCP_PYTHON_PROG" 2>/dev/null
 	then
 	    :	# already using $PCP_PYTHON_PROG, leave this line untouched
 	else

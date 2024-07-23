@@ -36,9 +36,9 @@ then
     rm -f "$PCP_VAR_DIR/pmns/prometheus" 2>/dev/null
 fi
 
-if grep -q '^openmetrics.*python ' "$PCP_PMCDCONF_PATH" 2>/dev/null
+if grep -q ^openmetrics "$PCP_PMCDCONF_PATH" 2>/dev/null
 then
-    if grep '^openmetrics.*python ' "$PCP_PMCDCONF_PATH" | grep -q "$PCP_PYTHON_PROG" 2>/dev/null
+    if grep ^openmetrics "$PCP_PMCDCONF_PATH" | grep -q "$PCP_PYTHON_PROG" 2>/dev/null
     then
 	:	# already using $PCP_PYTHON_PROG, leave this line untouched
     else
