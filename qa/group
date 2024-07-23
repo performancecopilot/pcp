@@ -2005,6 +2005,7 @@ x11
 1547 pmrep python local
 1548 pmrep python local
 1549 pmrep python local
+1564 pmda.linux pcp local
 1566 logutil libpcp local
 1567 pmie_util local
 1573 pmproxy libpcp_web pmlogger local

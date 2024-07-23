@@ -1,0 +1,116 @@
+#!/bin/sh
+# PCP QA Test No. 1564
+# Exercise the pcp-xsos(1) shell utility.
+#
+# Copyright (c) 2024 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+$sudo rm -rf $tmp $tmp.* $seq.full
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter_os()
+{
+    sed \
+	-e 's/^\( *Hostname:\).*$/\1 XXX/' \
+	-e 's/^\( *Distro:\).*$/\1 XXX/' \
+	-e 's/^\( *Arch:\).*$/\1 XXX/' \
+	-e 's/^\( *Hertz:\).*$/\1 XXX/' \
+	-e 's/^\( *Pagesize:\).*$/\1 XXX/' \
+	-e '/^ *Build version:/{n;N;d}' \
+	-e 's/^\( *Boot time:\).*$/\1 XXX/' \
+	-e 's/^\( *Time Zone:\).*$/\1 XXX/' \
+	-e 's/^\( *Uptime:\).*$/\1 XXX/' \
+	-e 's/^\( *LoadAvg:\).*$/\1 XXX/' \
+	-e '/^ *Processes:/{n;d}' \
+	-e '/^ *Processors:/{n;N;N;d}' \
+    # end
+}
+
+_filter_mem()
+{
+    grep -E 'MEMORY|Stats graphed|RAM:|HugePages:|TransparentHugePages:|Swap:'
+}
+
+_filter_disks()
+{
+    grep -E 'STORAGE|Whole Disks|Filesystem usage'
+}
+
+_filter_net()
+{
+    grep -E 'NETDEV|SOCKSTAT|sockets:|TCP:|UDP:|UDPLITE:|RAW:|FRAG:' | \
+    sed \
+	-e 's/^\( *sockets:\).*$/\1 XXX/' \
+	-e 's/^\( *TCP:\).*$/\1 XXX/' \
+	-e 's/^\( *UDP:\).*$/\1 XXX/' \
+	-e 's/^\( *UDPLITE:\).*$/\1 XXX/' \
+	-e 's/^\( *RAW:\).*$/\1 XXX/' \
+	-e 's/^\( *FRAG:\).*$/\1 XXX/' \
+    # end
+}
+
+_filter_netstat()
+{
+    sed \
+	-e 's/^\( *Icmp.InErrors:\).*$/\1 XXX/' \
+	-e 's/^\( *Icmp6.InErrors:\).*$/\1 XXX/' \
+	-e 's/^\( *Tcp.AttemptFails:\).*$/\1 XXX/' \
+	-e 's/^\( *Tcp.EstabResets:\).*$/\1 XXX/' \
+	-e 's/^\( *Tcp.InErrs:\).*$/\1 XXX/' \
+	-e 's/^\( *Tcp.OutRsts:\).*$/\1 XXX/' \
+	-e 's/^\( *TcpExt.DelayedACKLocked:\).*$/\1 XXX/' \
+	-e 's/^\( *TcpExt.DelayedACKLost:\).*$/\1 XXX/' \
+	-e 's/^\( *TcpExt.DelayedACKs:\).*$/\1 XXX/' \
+	-e 's/^\( *TcpExt.PAWSEstab:\).*$/\1 XXX/' \
+	-e 's/^\( *TcpExt.TCPAbortOnTimeout:\).*$/\1 XXX/' \
+	-e 's/^\( *TcpExt.TCPLossProbeRecovery:\).*$/\1 XXX/' \
+	-e 's/^\( *TcpExt.TCPLossProbes:\).*$/\1 XXX/' \
+	-e 's/^\( *TcpExt.TCPTimeouts:\).*$/\1 XXX/' \
+	-e 's/^\( *TcpExt.TcpTimeoutRehash:\).*$/\1 XXX/' \
+	-e 's/^\( *Ip.InAddrErrors:\).*$/\1 XXX/' \
+	-e 's/^\( *Ip6.InAddrErrors:\).*$/\1 XXX/' \
+    # end
+}
+
+# real QA test starts here
+echo === Live pcp xsos -o
+pcp xsos -x -o | _filter_os
+echo === Live pcp xsos -d
+pcp xsos -x -d | _filter_disks
+echo === Live pcp xsos -m
+pcp xsos -x -m | _filter_mem
+echo === Live pcp xsos -n
+pcp xsos -x -n | _filter_net
+echo === Live pcp xsos -N
+pcp xsos -x -N | _filter_netstat
+
+archive=$here/archives/pcp-zeroconf
+echo === Archive pcp xsos -o
+pcp -a $archive xsos -x -o | _filter_os
+echo === Archive pcp xsos -d
+pcp -a $archive xsos -x -d | _filter_disks
+echo === Archive pcp xsos -m
+pcp -a $archive xsos -x -m | _filter_mem
+echo === Archive pcp xsos -n
+pcp -a $archive xsos -x -n | _filter_net
+echo === Archive pcp xsos -N
+pcp -a $archive xsos -x -N | _filter_netstat
+
+# success, all done
+exit
