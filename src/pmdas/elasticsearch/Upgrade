@@ -24,12 +24,16 @@ then
 	:	# already using $PCP_PYTHON_PROG, leave this line untouched
     else
 	# convert hard-coded python binary to PCP_PYTHON_PROG
-        sed -i -e "s,python $PCP_PMDAS_DIR/elasticsearch/,$PCP_PYTHON_PROG $PCP_PMDAS_DIR/elasticsearch/,g" $PCP_PMCDCONF_PATH 2>/dev/null
+        sed -i $PCP_PMCDCONF_PATH 2>/dev/null \
+	    -e "s,python3 $PCP_PMDAS_DIR/elasticsearch/,$PCP_PYTHON_PROG $PCP_PMDAS_DIR/elasticsearch/,g" \
+	    -e "s,python $PCP_PMDAS_DIR/elasticsearch/,$PCP_PYTHON_PROG $PCP_PMDAS_DIR/elasticsearch/,g" \
+	# end
     fi
     if grep -q '^elasticsearch.*perl ' "$PCP_PMCDCONF_PATH"
     then
 	# convert original perl implementation to python
-        sed -i -e "s,perl $PCP_PMDAS_DIR/elasticsearch/pmdaelasticsearch.pl,$PCP_PYTHON_PROG $PCP_PMDAS_DIR/elasticsearch/pmdaelasticsearch.python,g" $PCP_PMCDCONF_PATH 2>/dev/null
+        sed -i $PCP_PMCDCONF_PATH 2>/dev/null \
+	    -e "s,perl $PCP_PMDAS_DIR/elasticsearch/pmdaelasticsearch.pl,$PCP_PYTHON_PROG $PCP_PMDAS_DIR/elasticsearch/pmdaelasticsearch.python,g"
     fi
 fi
 exit 0

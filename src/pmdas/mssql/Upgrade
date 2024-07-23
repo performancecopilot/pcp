@@ -19,7 +19,9 @@
 
 if grep -q '^mssql.*perl ' "$PCP_PMCDCONF_PATH" 2>/dev/null
 then
-    sed -i -e "s,perl $PCP_PMDAS_DIR/mssql/pmdamssql.pl,$PCP_PYTHON_PROG $PCP_PMDAS_DIR/mssql/pmdamssql.python,g" $PCP_PMCDCONF_PATH 2>/dev/null
+    # convert original perl implementation to python
+    sed -i $PCP_PMCDCONF_PATH 2>/dev/null \
+	-e "s,perl $PCP_PMDAS_DIR/mssql/pmdamssql.pl,$PCP_PYTHON_PROG $PCP_PMDAS_DIR/mssql/pmdamssql.python,g"
 fi
 
 if grep -q '^mssql.*python ' "$PCP_PMCDCONF_PATH" 2>/dev/null
@@ -28,7 +30,11 @@ then
     then
 	:	# already using $PCP_PYTHON_PROG, leave this line untouched
     else
-	sed -i -e "s,python $PCP_PMDAS_DIR/mssql/,$PCP_PYTHON_PROG $PCP_PMDAS_DIR/mssql/,g" $PCP_PMCDCONF_PATH 2>/dev/null
+	# convert hard-coded python or python3 binary to PCP_PYTHON_PROG
+	sed -i $PCP_PMCDCONF_PATH 2>/dev/null \
+	    -e "s,python3 $PCP_PMDAS_DIR/mssql/,$PCP_PYTHON_PROG $PCP_PMDAS_DIR/mssql/,g" \
+	    -e "s,python $PCP_PMDAS_DIR/mssql/,$PCP_PYTHON_PROG $PCP_PMDAS_DIR/mssql/,g" \
+	# end
     fi
 fi
 
