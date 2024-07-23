@@ -1956,7 +1956,7 @@ x11
 1487 pmda.linux local valgrind
 1488 other local
 1489 python pmrep pmimport local
-1490 python local labels valgrind
+1490:retired python local labels valgrind
 1491 pmcheck local
 1492 pcp atopsar local multi-archive
 1493 pcp atopsar local valgrind multi-archive
