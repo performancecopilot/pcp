@@ -134,6 +134,9 @@ for cmd in $(cat $tmp.cmds.txt); do
 	pcp-atop)
 	    [ X"$opt" = X--pcp-flags ] && continue
 	    ;;
+	pcp-xsos)
+	    [ X"$opt" = X--start ] && continue
+	    ;;
 	pcp)
 	    # all these long options are documented in PCPIntro(1)
 	    # and pcp(1) points there, rather than repeating them
