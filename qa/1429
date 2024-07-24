@@ -28,7 +28,6 @@ _cleanup()
 {
     cd $here
     $sudo rm -rf $tmp $tmp.*
-    $sudo mv $PCP_LOG_DIR/NOTICES.$seq $PCP_LOG_DIR/NOTICES
     _service pcp restart >>$seq.full 2>&1
     _wait_for_pmlogger
 }
@@ -79,8 +78,6 @@ _filter()
 # take explicit control of the umask
 #
 umask 022
-
-$sudo mv $PCP_LOG_DIR/NOTICES $PCP_LOG_DIR/NOTICES.$seq
 
 # create files for pmlogger_daily to munch on ...
 #

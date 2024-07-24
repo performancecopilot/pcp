@@ -55,6 +55,7 @@ mkdir $tmp
 # setup a "correct" NOTICES to avoid babble from trying to
 # fix this ... note this test is using pcpqa for $PCP_USER and
 # $PCP_GROUP
+# Note: this is $tmp/log/NOTICES, not the real NOTICES file.
 #
 mkdir $tmp/log
 $sudo chown pcpqa:pcpqa $tmp/log

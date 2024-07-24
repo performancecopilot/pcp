@@ -60,7 +60,7 @@ _setup_localhost()
 	# on our path
 	#
 	ping --help >$tmp/hlp 2>&1
-	if grep '.-c <*count>*' $tmp/hlp >/dev/null 2>&1 || grep '.-c <count>' $tmp/hlp >/dev/null 2>&1
+	if grep '.-c <*count>*' $tmp/hlp >/dev/null 2>&1
 	then
 	    __opt='-c 1 localhost'
 	elif grep '.-n <*count>*' $tmp/hlp >/dev/null 2>&1

@@ -25,6 +25,8 @@ $sudo rm -rf $tmp $tmp.* $seq.full
 _cleanup()
 {
     cd $here
+    $sudo chown $PCP_USER:$PCP_GROUP "$PCP_LOG_DIR"
+    $sudo chown $PCP_USER:$PCP_GROUP "$PCP_LOG_DIR"/NOTICES
     $sudo rm -rf $tmp $tmp.*
 }
 
@@ -81,8 +83,8 @@ echo
 echo "=== \$PCP_LOG_DIR/NOTICES exists and OK, so do nothing"
 mkdir "$PCP_LOG_DIR"
 touch "$PCP_LOG_DIR"/NOTICES
-$sudo chown pcp:pcp "$PCP_LOG_DIR"
-$sudo chown pcp:pcp "$PCP_LOG_DIR"/NOTICES
+$sudo chown $PCP_USER:$PCP_GROUP "$PCP_LOG_DIR"
+$sudo chown $PCP_USER:$PCP_GROUP "$PCP_LOG_DIR"/NOTICES
 $sudo $PCP_BINADM_DIR/pcp-reboot-init 2>&1 | _filter 
 ls -l $tmp/log/NOTICES* 2>&1 | _myls
 
@@ -100,7 +102,7 @@ $sudo $PCP_BINADM_DIR/pcp-reboot-init 2>&1 \
 | _filter  \
 | _myls
 ls -l $tmp/log/NOTICES* 2>&1 | _myls
-$sudo chown pcp:pcp "$PCP_LOG_DIR"
+$sudo chown $PCP_USER:$PCP_GROUP "$PCP_LOG_DIR"
 
 echo
 echo "=== \$PCP_LOG_DIR/NOTICES exists, but wrong ownership, no NOTICES.old ..."
@@ -130,14 +132,14 @@ $sudo $PCP_BINADM_DIR/pcp-reboot-init 2>&1 \
 | _filter \
 | _myls
 ls -l $tmp/log/NOTICES* 2>&1 | _myls
-$sudo chown pcp:pcp "$PCP_LOG_DIR"
+$sudo chown $PCP_USER:$PCP_GROUP "$PCP_LOG_DIR"
 
 echo
 echo "=== \$PCP_LOG_DIR/NOTICES exists, but wrong mode"
 $sudo rm -f "$PCP_LOG_DIR"/NOTICES*
 $sudo touch "$PCP_LOG_DIR"/NOTICES
 $sudo chmod 666 "$PCP_LOG_DIR"/NOTICES
-$sudo chown pcp:pcp "$PCP_LOG_DIR"/NOTICES
+$sudo chown $PCP_USER:$PCP_GROUP "$PCP_LOG_DIR"/NOTICES
 $sudo $PCP_BINADM_DIR/pcp-reboot-init 2>&1 | _filter
 ls -l $tmp/log/NOTICES* 2>&1 | _myls
 

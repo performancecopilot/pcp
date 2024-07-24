@@ -1172,10 +1172,12 @@ get_disk_model(char *name)
 	    if ((fd = open(path, O_RDONLY)) >= 0) {
 		char	buf[1024];
 		size = read(fd, buf, sizeof(buf)-1);
+		close(fd);
 		if (size > 0) {
 		    buf[size-1] = '\0';
 		    model = strdup(buf);
-		    // TODO pmMem
+		    if (model == NULL)
+			pmNoMem("get_disk_model: model", strlen(buf)+1, PM_RECOV_ERR);
 		    return model;
 		}
 		else {

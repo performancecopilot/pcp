@@ -58,8 +58,6 @@ NEEDREWRITE=$PCP_LOG_DIR/pmlogger/.NeedRewrite
 _cleanup()
 {
     $sudo rm -rf $tmp $tmp.*
-    [ -f $PCP_LOG_DIR/NOTICES.$seq ] \
-	&& $sudo mv $PCP_LOG_DIR/NOTICES.$seq $PCP_LOG_DIR/NOTICES
     [ -f $NEEDREWRITE.$seq ] && $sudo mv $NEEDREWRITE.$seq $NEEDREWRITE
 }
 
@@ -70,7 +68,6 @@ trap "cd $here; _cleanup; exit \$status" 0 1 2 3 15
 #
 umask 022
 
-$sudo mv $PCP_LOG_DIR/NOTICES $PCP_LOG_DIR/NOTICES.$seq
 rm -f $seq.full
 rm -rf $tmp $tmp.*
 mkdir $tmp
