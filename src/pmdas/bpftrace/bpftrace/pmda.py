@@ -45,6 +45,8 @@ class BPFtracePMDA(PMDA):
         super(BPFtracePMDA, self).__init__(name, domain)
 
         self.logger = Logger(self.log, self.err)
+        if not self.is_pmda_setup():
+            self.logger.info("Initializing, currently in 'notready' state.")
         self.config = self.parse_config()
         self.bpftrace_service = BPFtraceService(self.config, self.logger)
 
@@ -58,8 +60,8 @@ class BPFtracePMDA(PMDA):
             # read tracepoints after checking bpftrace version (in start_daemon)
             self.tracepoints_csv = get_tracepoints_csv(self.config.bpftrace_path)
 
-        self.set_comm_flags(cpmda.PMDA_FLAG_AUTHORIZE)
-        self.connect_pmcd()
+            self.set_comm_flags(cpmda.PMDA_FLAG_AUTHORIZE)
+            self.connect_pmcd()
 
         self.ctxtab: Dict[int, Dict[str, Any]] = {}
         self.clusters: Dict[int, BPFtraceCluster] = {}
@@ -76,6 +78,9 @@ class BPFtracePMDA(PMDA):
 
         if not self.is_pmda_setup():
             self.register_autostart_scripts()
+
+            self.pmda_ready()
+            self.logger.info("Ready to process requests.")
 
         @atexit.register
         def cleanup():  # pylint: disable=unused-variable
@@ -267,7 +272,7 @@ class BPFtracePMDA(PMDA):
     def register_autostart_scripts_from_directory(self, autostart_dir: str):
         try:
             if not self.exclusive_writable_by_root(autostart_dir):
-                self.logger.error(f"Austostart directory {autostart_dir} "
+                self.logger.error(f"Autostart directory {autostart_dir} "
                                   f"must be exclusively writable by root")
                 return
         except OSError as e:
