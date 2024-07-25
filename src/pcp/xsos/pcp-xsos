@@ -256,7 +256,7 @@ then
 /^Archive zoneinfo: /            { printf "pmcd_zoneinfo_value=\"%s\"\n", $3 }
 '`
 else
-    sampletime=$( date )
+    sampletime=$( date --iso-8601=ns )
 fi
 if [ ! -z "$PCP_START" ]
 then
