@@ -19,11 +19,20 @@
 . $PCP_DIR/etc/pcp.env
 
 sts=2
-awk=/usr/bin/gawk
 tmp=`mktemp -d "$PCP_TMPFILE_DIR/pcp-xsos.XXXXXXXXX"` || exit 1
 trap "rm -rf $tmp; exit \$sts" 0 1 2 3 15
 
 progname=`basename $0`
+
+if which gawk >/dev/null 2>&1
+then
+    :
+else
+    # gawk is needed for (at least) the @include construct
+    #
+    echo >&2 "$progname: this script needs gawk, but not installed"
+    exit
+fi
 
 base_metrics=(
     kernel.all.boottime mem.physmem
@@ -240,7 +249,7 @@ netunits=`unitstr $netunits`
 if [ ! -z "$PCP_ARCHIVE" ]
 then
     # extract pmcd values from log label in case metrics missing
-    eval `pmdumplog -Ll 2>/dev/null | $awk '
+    eval `pmdumplog -Ll 2>/dev/null | gawk '
 /^Performance metrics from host/ { printf "pmcd_hostname_value=\"%s\"\n", $5 }
 /^    commencing /               { $1 = ""; printf "sampletime=\"%s\"\n", $0 }
 /^Archive timezone: /            { printf "pmcd_timezone_value=\"%s\"\n", $3 }
@@ -302,7 +311,7 @@ then
 fi
 [ -s $tmp/error ] && sed -e '/Unknown metric name/d' <$tmp/error >&2
 
-$awk < $tmp/metrics > $tmp/variables '
+gawk < $tmp/metrics > $tmp/variables '
 function filter(string) {
     gsub(/"/, "\\\"", string) # escape double quotes
     gsub(/\\u/, "\\\\u", string) # escape backslash-u
@@ -488,7 +497,7 @@ pcp_xsos_os()
     test $ncpus -lt 1 && ncpus=1  # safe division later
     for inst in 1 5 15; do
         load=`get_inst_value kernel.all.load $inst`
-        percent=`$awk "BEGIN {print int(${load}*${ncpus}+.5)}"`
+        percent=`gawk "BEGIN {print int(${load}*${ncpus}+.5)}"`
         test $inst -eq 1 || printf ","
         printf " %.2f (${GREEN}%d%%${RESET})" $load $percent
         test $inst -eq 15 && printf "\n"
@@ -510,7 +519,7 @@ pcp_xsos_os()
     ih=`get_value kernel.all.cpu.irq.hard 0`
     is=`get_value kernel.all.cpu.irq.soft 0`
     st=`get_value kernel.all.cpu.steal 0`
-    $awk "BEGIN {
+    gawk "BEGIN {
         tot=$us+$ni+$sy+$id+$wt+$ih+$is+$st;
         printf \"us %d%%, \", int($us/tot*100+.5)
         printf \"ni %d%%, \", int($ni/tot*100+.5)
@@ -527,7 +536,8 @@ pcp_xsos_os()
 
 pcp_xsos_disk()
 {
-    $awk -i $tmp/metrics "
+    gawk "
+@include \"$tmp/metrics\"
 BEGIN {
     for (i in disk_dev_capacity_value) {
         nKiB += disk_dev_capacity_value[i]
@@ -566,7 +576,8 @@ BEGIN {
 
 pcp_xsos_mem()
 {
-    $awk -i $tmp/metrics -v u=${memunits} "
+    gawk -v u=${memunits} "
+@include \"$tmp/metrics\"
 function put_hbar(title, color, value, total) {
     width = 50
     ratio = value/total
@@ -704,7 +715,8 @@ BEGIN {
 
 pcp_xsos_netdev()
 {
-    $awk -i $tmp/metrics -v u=${netunits} "
+    gawk -v u=${netunits} "
+@include \"$tmp/metrics\"
 BEGIN {
     printf \"${H0}NETDEV\n\"
 
@@ -923,7 +935,8 @@ pcp_xsos_netstat()
 
 pcp_xsos_ps()
 {
-    $awk -i $tmp/metrics -v u=${memunits} "
+    gawk -v u=${memunits} "
+@include \"$tmp/metrics\"
 function max(a, b) {
     return a > b ? a : b
 }
