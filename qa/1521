@@ -50,7 +50,16 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 
 host=`hostname`
 echo "host=$host" >>$seq.full
-now=`PCP_DERIVED_CONFIG=/dev/null pmprobe -v sample.seconds | cut -d' ' -f3`
+
+# need "now" to be > 20 to avoid ambiguous filtering
+# ... only an issue of the sample PMDA was recently restarted
+#
+for i in 1 2 3 4 5 6 7 8 9 10
+do
+    now=`PCP_DERIVED_CONFIG=/dev/null pmprobe -v sample.seconds | cut -d' ' -f3`
+    [ -n "$now" -a "$now" -gt 20 ] && break
+    sleep 2
+done
 echo "now=$now" >>$seq.full
 
 _filter()
