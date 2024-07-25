@@ -63,13 +63,13 @@ localhost <archivename> <seq> <pid> running
 
 === stale mutex
 ------ ... ls output ... PCP_ETC_DIR/pcp/pmlogger/lock
-Disable pmlogger for host LOCALHOSTNAME and directory PCP_ARCHIVE_DIR/1210-LOCALHOSTNAME in control file PCP_ETC_DIR/pcp/pmlogger/control.d/1210-LOCALHOSTNAME
-Disable pmlogger for host localhost and directory PCP_ARCHIVE_DIR/1210-localhost in control file PCP_ETC_DIR/pcp/pmlogger/control.d/1210-localhost
-Found PID <somepid> to stop using signal TERM
-Found PID <somepid> to stop using signal TERM
-Looking for pmlogger using directory PCP_ARCHIVE_DIR/1210-LOCALHOSTNAME ...
-Looking for pmlogger using directory PCP_ARCHIVE_DIR/1210-localhost ...
 Warning: removing lock file older than 30 minutes (PID <mypid>)
+Looking for pmlogger using directory PCP_ARCHIVE_DIR/1210-localhost ...
+Found PID <somepid> to stop using signal TERM
+Disable pmlogger for host localhost and directory PCP_ARCHIVE_DIR/1210-localhost in control file PCP_ETC_DIR/pcp/pmlogger/control.d/1210-localhost
+Looking for pmlogger using directory PCP_ARCHIVE_DIR/1210-LOCALHOSTNAME ...
+Found PID <somepid> to stop using signal TERM
+Disable pmlogger for host LOCALHOSTNAME and directory PCP_ARCHIVE_DIR/1210-LOCALHOSTNAME in control file PCP_ETC_DIR/pcp/pmlogger/control.d/1210-LOCALHOSTNAME
 pmcd Host Archive Class PID State 
 LOCALHOSTNAME ? <seq> ? stopped by pmlogctl
 localhost ? <seq> ? stopped by pmlogctl

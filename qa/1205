@@ -99,7 +99,7 @@ End-of-File
 
 # real QA test starts here
 echo '== -N -V -p -c create' | tee -a $seq.full
-pmlogctl -N -V -p $tmp.policy -c $seq create localhost | _filter
+pmlogctl -N -V -p $tmp.policy -c $seq create localhost 2>&1 | _filter
 
 echo | tee -a $seq.full
 echo '== -p -c create' | tee -a $seq.full

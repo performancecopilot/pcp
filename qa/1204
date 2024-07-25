@@ -91,7 +91,7 @@ pmlogctl --help 2>&1 | _filter \
 
 echo
 echo '== -N -V create' | tee -a $seq.full
-pmlogctl -N -V create localhost | _filter
+pmlogctl -N -V create localhost 2>&1 | _filter
 
 echo | tee -a $seq.full
 echo '== create' | tee -a $seq.full
@@ -144,7 +144,7 @@ echo | tee -a $seq.full
 echo "== cond-create -i $seq-foo" | tee -a $seq.full
 $sudo pmlogctl -i $seq-foo cond-create localhost | _filter
 echo '== status' | tee -a $seq.full
-pmlogctl -V status | _filter_status
+pmlogctl -V status 2>&1 | _filter_status
 
 # success, all done
 status=0

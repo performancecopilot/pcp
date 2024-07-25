@@ -124,7 +124,7 @@ pmiectl status localhost 2>&1 | _filter_status
 
 echo | tee -a $seq.full
 echo '== stop' | tee -a $seq.full
-$sudo pmiectl stop localhost 2>&1 | _filter
+$sudo pmiectl -V -V stop localhost 2>>$seq.full | _filter
 pmsleep 1sec
 echo '== status' | tee -a $seq.full
 pmiectl status 2>&1 | _filter_status
@@ -149,7 +149,7 @@ pmiectl status localhost 2>&1 | _filter_status
 
 echo | tee -a $seq.full
 echo '== destroy' | tee -a $seq.full
-$sudo pmiectl destroy localhost 2>&1 | _filter
+$sudo pmiectl -V -V destroy localhost 2>>$seq.full | _filter
 echo '== status' | tee -a $seq.full
 pmiectl status 2>&1 | _filter_status
 echo '== status localhost' | tee -a $seq.full

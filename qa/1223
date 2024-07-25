@@ -160,7 +160,7 @@ do
     echo "== stop $host" | _filter
     $sudo pmlogctl -c $seq stop "$host" 2>&1 | _filter
     diff $tmp.control $PCP_ETC_DIR/pcp/pmlogger/control.d/$seq | _filter
-    pmlogctl -V status | _filter_status
+    pmlogctl -V status 2>&1 | _filter_status
 done
 
 echo
@@ -169,7 +169,7 @@ do
     echo "== start $host" | _filter
     $sudo pmlogctl -c $seq start "$host" 2>&1 | _filter
     diff $tmp.control $PCP_ETC_DIR/pcp/pmlogger/control.d/$seq | _filter
-    pmlogctl -V status | _filter_status
+    pmlogctl -V status 2>&1 | _filter_status
 done
 
 echo
@@ -183,7 +183,7 @@ do
     else
 	echo "PCP_ETC_DIR/pcp/pmlogger/control.d/$seq has gone away"
     fi
-    pmlogctl -V status | _filter_status
+    pmlogctl -V status 2>&1 | _filter_status
 done
 
 # success, all done
