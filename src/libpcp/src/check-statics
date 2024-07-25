@@ -488,6 +488,7 @@ pdu.o
     tracenext			# guarded by pdu_lock mutex
 pmns.o
     pmns_lock			# local mutex
+    pmns_fix_lock		# local mutex
     lineno			# guarded by pmns_lock mutex
     export			# guarded by pmns_lock mutex
     fin				# guarded by pmns_lock mutex

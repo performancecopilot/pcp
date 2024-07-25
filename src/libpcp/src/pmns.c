@@ -113,6 +113,7 @@ static __pmnsNode *locate(const char *, __pmnsNode *);
 
 #ifdef PM_MULTI_THREAD
 static pthread_mutex_t	pmns_lock;
+static pthread_mutex_t	pmns_fix_lock;
 #else
 void			*pmns_lock;
 #endif
@@ -126,6 +127,14 @@ __pmIsPmnsLock(void *lock)
 {
     return lock == (void *)&pmns_lock;
 }
+/*
+ * return true if lock == pmns_fix_lock
+ */
+int
+__pmIsPmnsFixLock(void *lock)
+{
+    return lock == (void *)&pmns_fix_lock;
+}
 #endif
 
 void
@@ -133,6 +142,7 @@ init_pmns_lock(void)
 {
 #ifdef PM_MULTI_THREAD
     __pmInitMutex(&pmns_lock);
+    __pmInitMutex(&pmns_fix_lock);
 #endif
 }
 
@@ -1058,7 +1068,8 @@ __pmNewPMNS(__pmnsTree **pmns)
  * we are also called from __pmLogLoadMeta with the current context
  * locked ... and in the later case we don't need the pmns_lock.
  *
- * So no lock/unlock operations here.
+ * But, we're also called from initarchive() and this one can
+ * race ... so we have a local lock _just_ for this method.
  */
 int
 __pmFixPMNSHashTab(__pmnsTree *tree, int numpmid, int dupok)
@@ -1066,6 +1077,7 @@ __pmFixPMNSHashTab(__pmnsTree *tree, int numpmid, int dupok)
     int		sts;
     int		htabsize = numpmid/5;
 
+    PM_LOCK(pmns_fix_lock);
     /*
      * make the average hash list no longer than 5, and the number
      * of hash table entries not a multiple of 2, 3 or 5
@@ -1090,6 +1102,7 @@ __pmFixPMNSHashTab(__pmnsTree *tree, int numpmid, int dupok)
     sts = 0;
 
 pmapi_return:
+    PM_UNLOCK(pmns_fix_lock);
 
     return sts;
 }
