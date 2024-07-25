@@ -1,5 +1,5 @@
 /*
-** Copyright (C) 2015-2022 Red Hat.
+** Copyright (C) 2015-2024 Red Hat.
 ** Copyright (C) 2000-2012 Gerlof Langeveld.
 **
 ** This program is free software; you can redistribute it and/or modify it
@@ -528,9 +528,9 @@ photosyst(struct sstat *si)
 	si->mem.ksmshared = extract_count_t(result, descs, MEM_KSMSHARED);
 	si->mem.ksmsharing = extract_count_t(result, descs, MEM_KSMSHARING);
 
-	/* shmctl(2) */
-	si->mem.shmrss = extract_count_t(result, descs, MEM_SHMRSS) * 1024;
-	si->mem.shmswp = extract_count_t(result, descs, MEM_SHMSWP) * 1024;
+	/* shmctl(2) values in bytes */
+	si->mem.shmrss = extract_count_t(result, descs, MEM_SHMRSS);
+	si->mem.shmswp = extract_count_t(result, descs, MEM_SHMSWP);
 
 	/* /proc/net/dev */
 	insts = NULL; /* silence coverity */
