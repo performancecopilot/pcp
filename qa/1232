@@ -96,7 +96,7 @@ t loop
 
 # get our pmlogger running
 #
-$sudo pmlogctl -V create localhost | _filter
+$sudo pmlogctl -V create localhost 2>&1 | _filter
 
 # real QA test starts here
 control=$PCP_ETC_DIR/pcp/pmlogger/control.d/localhost

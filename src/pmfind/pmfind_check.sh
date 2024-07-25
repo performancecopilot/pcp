@@ -152,8 +152,8 @@ $PMFIND $PMFIND_ARGS > "$tmp/out" 2> "$tmp/err"
 [ -s "$tmp/out" ] || exit
 [ $? -eq 0 ] && rm -f "$tmp/err"
 
-pmiectl -V status >$tmp/pmie.status
-pmlogctl -V status >$tmp/pmlogger.status
+pmiectl -V status >$tmp/pmie.status 2>&1
+pmlogctl -V status >$tmp/pmlogger.status 2>&1
 
 cat "$tmp/out" | while read SHA1 host
 do

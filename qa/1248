@@ -229,7 +229,7 @@ $sudo cp $tmp.policy $PCP_ETC_DIR/pcp/pmlogger/class.d/$seq.2
 echo | tee -a $seq.full
 echo '== -i, 2 explicit configs, expect concat config file for one pmfind instance' | tee -a $seq.full
 $sudo pmlogctl -i $seq cond-create localhost 2>&1 | _filter
-pmlogctl -V status | _filter_status
+pmlogctl -V status 2>&1 | _filter_status
 grep sample.lights $PCP_ARCHIVE_DIR/$seq/$seq.config
 PCP_DERIVED_CONFIG= pmafm $PCP_ARCHIVE_DIR/$seq/Latest pminfo | _filter
 echo "--- start pmlogger config file ---" >>$seq.full
@@ -254,7 +254,7 @@ $sudo cp $tmp.policy $PCP_ETC_DIR/pcp/pmlogger/class.d/$seq.3
 echo | tee -a $seq.full
 echo '== -i, + logconf config, expect concat config file for one pmfind instance' | tee -a $seq.full
 $sudo pmlogctl -i $seq-a cond-create localhost 2>&1 | _filter
-pmlogctl -V status | _filter_status
+pmlogctl -V status 2>&1 | _filter_status
 for metric in sample.lights network.interface.total.bytes disk.dev.total
 do
     echo "check $metric ..."
@@ -271,7 +271,7 @@ $sudo cp $tmp.policy $PCP_ETC_DIR/pcp/pmlogger/class.d/$seq.2
 echo | tee -a $seq.full
 echo '== -i, 2x logconf config, expect concat config file for one pmfind instance' | tee -a $seq.full
 $sudo pmlogctl -i $seq-b cond-create localhost 2>&1 | _filter
-pmlogctl -V status | _filter_status
+pmlogctl -V status 2>&1 | _filter_status
 for metric in sample.lights network.interface.total.bytes disk.dev.total
 do
     echo "check $metric ..."
@@ -288,7 +288,7 @@ $sudo cp $tmp.policy $PCP_ETC_DIR/pcp/pmlogger/class.d/$seq.1
 echo | tee -a $seq.full
 echo '== -i, 3x logconf config, expect concat config file for one pmfind instance' | tee -a $seq.full
 $sudo pmlogctl -i $seq-c cond-create localhost 2>&1 | _filter
-pmlogctl -V status | _filter_status
+pmlogctl -V status 2>&1 | _filter_status
 for metric in sample.lights network.interface.total.bytes disk.dev.total
 do
     echo "check $metric ..."

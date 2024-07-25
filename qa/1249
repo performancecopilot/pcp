@@ -255,7 +255,7 @@ $sudo cp $tmp.policy $PCP_ETC_DIR/pcp/pmie/class.d/$seq.2
 echo | tee -a $seq.full
 echo '== -i, 2 explicit configs, expect concat config file for one pmfind instance' | tee -a $seq.full
 $sudo pmiectl -i $seq cond-create localhost 2>&1 | _filter
-pmiectl -V status | _filter_status
+pmiectl -V status 2>&1 | _filter_status
 grep sample.lights $PCP_LOG_DIR/pmie/$seq/$seq.config
 pmsleep 0.5		# give pmie a chance to warm up
 _filter_pmie <$PCP_LOG_DIR/pmie/$seq/pmie.log | sort | uniq
@@ -281,7 +281,7 @@ $sudo cp $tmp.policy $PCP_ETC_DIR/pcp/pmie/class.d/$seq.3
 echo | tee -a $seq.full
 echo '== -i, + logconf config, expect concat config file for one pmfind instance' | tee -a $seq.full
 $sudo pmiectl -i $seq-a cond-create localhost 2>&1 | _filter
-pmiectl -V status | _filter_status
+pmiectl -V status 2>&1 | _filter_status
 for metric in sample.lights network.interface.total.bytes
 do
     echo "check $metric ..."
@@ -298,7 +298,7 @@ $sudo cp $tmp.policy $PCP_ETC_DIR/pcp/pmie/class.d/$seq.2
 echo | tee -a $seq.full
 echo '== -i, 2x logconf config, expect concat config file for one pmfind instance' | tee -a $seq.full
 $sudo pmiectl -i $seq-b cond-create localhost 2>&1 | _filter
-pmiectl -V status | _filter_status
+pmiectl -V status 2>&1 | _filter_status
 for metric in sample.lights network.interface.total.bytes
 do
     echo "check $metric ..."
@@ -315,7 +315,7 @@ $sudo cp $tmp.policy $PCP_ETC_DIR/pcp/pmie/class.d/$seq.1
 echo | tee -a $seq.full
 echo '== -i, 3x logconf config, expect concat config file for one pmfind instance' | tee -a $seq.full
 $sudo pmiectl -i $seq-c cond-create localhost 2>&1 | _filter
-pmiectl -V status | _filter_status
+pmiectl -V status 2>&1 | _filter_status
 for metric in sample.lights network.interface.total.bytes
 do
     echo "check $metric ..."
