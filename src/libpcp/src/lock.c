@@ -126,6 +126,8 @@ static char
 	return "logutil";
     else if (__pmIsPmnsLock(lock))
 	return "pmns";
+    else if (__pmIsPmnsFixLock(lock))
+	return "pmns_fix";
     else if (__pmIsAFLock(lock))
 	return "AF";
     else if (__pmIsSecureclientLock(lock))
