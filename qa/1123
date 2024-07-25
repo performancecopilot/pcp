@@ -85,6 +85,11 @@ PCP_STDERR= pmchart -c BusyCPU -C -C >$tmp.out 2>&1
 cat $tmp.out >>$seq.full
 sed <$tmp.out \
     -e '/^pmchart: Error: local::proc\..*\.utime: IPC protocol failure/d' \
+    -e '/^pmchart: Error: local::proc\..*\.utime: Unknown or illegal instance/d' \
+    -e '/^Error: .*\/config\/pmchart\/Busy\CPU/d' \
+    -e '/^Failed to plot metric "proc.psinfo.utime/d' \
+    -e '/^host local::/d' \
+    -e '/^Unknown or illegal instance identifier/d' \
 | _filter
 
 echo
