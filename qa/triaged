@@ -42,6 +42,8 @@
 		place and goes down a rabbit hole ... it is just too hard
 		to engineer our way around this
 749	CentOS Stream9	systemtap-devel is busted here, staprun is missing
+749	vm22	test stap -p4 $tmp.stap may hang forever, so we don't
+		even get to the _notrun here
 878	.*	on some QA hosts this fails sometimes when we don't see
 		the first or second event record ... despite extensive
 		triage the problem is not understood
