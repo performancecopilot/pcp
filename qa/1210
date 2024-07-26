@@ -189,7 +189,7 @@ echo $mypid >$tmp.tmp
 $sudo cp $tmp.tmp $PCP_ETC_DIR/pcp/pmlogger/lock
 $sudo touch -t `pmdate -35M %Y%m%d%H%M` $PCP_ETC_DIR/pcp/pmlogger/lock
 $sudo pmlogctl -V -a -c $seq stop 2>$tmp.err | _filter | LC_COLLATE=POSIX sort
-_filter <$tmp.err
+_filter <$tmp.err | LC_COLLATE=POSIX sort
 pmlogctl status | _filter_status
 $sudo rm -f $PCP_ETC_DIR/pcp/pmlogger/lock
 $sudo pmlogctl -V -a -c $seq start 2>&1 | _filter | LC_COLLATE=POSIX sort
