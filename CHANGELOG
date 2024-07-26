@@ -1,5 +1,55 @@
-pcp-6.3.0 (31 July 2024)
-    - Work-in-progress.
+pcp-6.3.0 (30 July 2024)
+    - Client tools and utilities:
+	pcp-htop: add AMD GPU metrics support
+	pcp-htop: fix Available Meter column list in Setup/F2
+	pcp-htop: fix nested derived metric definitions for devices
+	pcp-htop: fix label/color botch in the MySQL keys Meter config
+	pcp-xsos: fast system overview for Red Hat customer support
+	pcp-atop: fix units conversion for ipc.shm metric values
+	pcp2openmetrics: stricter adherence to the specification
+	pmview: developer preview only, incl. mpvis, dkvis, osvis
+	pmstat: include guest time in extra CPU stats
+	pmrep conf: add support for pmstat -x alike metricset
+	pmrep conf: fix collectl cpu metrics to match current versions
+	pmrep conf: add guest cpu time to vmstat output where missing
+	pmrep conf: add metricset to mimic pmstat(1)
+	pmrep conf: fix cpu metrics in sar/vmstat metricset formulas
+	pmconfig: add -L y2038_safe to know if 8-byte time_t used
+    - PMDA additions, enhancements and bug fixes:
+	pmdaamdgpu: metrics from libdrm and libdrm-amdgpu libraries
+	pmdabpftrace: use notready startup protocol with pmcd
+	pmdaproc: add AMD GPU support through fdinfo interface
+	pmdalinux: add support for Hyper-V balloon metrics
+	pmdalinux: add hinv.disk metrics for controller and disk model
+	pmdasockets: fix and defend against ss buffer overruns
+    - Server-side utilities and log management scripts:
+	pmcd scripts: ensure pmcd.conf not rewritten on every restart
+	pmcd scripts: tweak cross-platform ping(1) version sniffing
+	pmlogger_check: tighten ps|grep process search logic
+	pmlogconf: add configuration file for vmmemctl metrics
+	pmlogconf: add configuration file for hugepage metrics
+	pmlogconf: add configuration file for hyper-v metrics
+	pmlogctl, pmiectl: send -V output to stderr
+    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings:
+	python api: harden pmconfig parsing of bad config settings
+	python api: _TIME_BITS=64 changes for 32-bit platforms
+	libpcp: additional PMNS locking
+	libpcp: fixup for child hang in __pmProcessPipe function
+	libpcp: _TIME_BITS=64 changes for 32-bit platforms
+	libpcp: rework for some AF routines and signal handling
+	libpcp: extend derived metrics unary functions
+	libpcp: fix PDU error handling botch with EINTR
+	libpcp_gui, libpcp_qed: changes to help pmview
+    - Build, infrastructure and packaging updates:
+	build: configure.ac rework for 32-bit time_t Y2038 changes
+	build: skip broken Perl modules for some 32-bit platforms
+	build: add deb Replaces for Ubuntu 24.04 package renaming
+	build: add rpm dependency on /bin/ps from procps[-ng] packages
+	qa: update java classes for more modern Java bytecode version
+	qa: rework sample pmda sample.updown.* metrics
+    - Documentation:
+	docs: rename pmcheck.1 to pcp-check.1 for perl pmcheck
+	docs: fix pmdahacluster long metric help text formatting
 
 pcp-6.2.2 (15 May 2024)
     - pmdalibvirt: add support for metric labels
