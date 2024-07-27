@@ -51,6 +51,8 @@ _filter()
 {
     sed \
 	-e "s;$PCP_BINADM_DIR/pmlogger;pmlogger;g" \
+	-e '/mv .*\/NOTICES .*\/NOTICES.old/d' \
+	-e '/touch .*\/NOTICES/d' \
 	-e '/^+ date-and-timestamp /s/stamp .*/stamp .../' \
 	-e '/^+ cd /s/cd .*/cd .../' \
 	-e '/^+ mv /s/mv .*/mv .../' \
