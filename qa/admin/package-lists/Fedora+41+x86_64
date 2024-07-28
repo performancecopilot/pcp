@@ -4,7 +4,7 @@
 389-ds-base
 Coin4-devel
 HdrHistogram_c-devel
-RediSearch
+#RediSearch - switch to ValkeySearch when available
 SoQt-devel
 Spreadsheet::Read cpan
 audit
