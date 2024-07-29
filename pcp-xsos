@@ -169,7 +169,7 @@ do
         shift
         ;;
       -S)
-        export PCP_START="$2"
+        export PCP_START_TIME="$2"
         shift
         ;;
       # pcp-xsos options
@@ -258,15 +258,22 @@ then
 else
     sampletime=$( date --iso-8601=ns )
 fi
-if [ ! -z "$PCP_START" ]
+if [ ! -z "$PCP_START_TIME" ]
 then
-    sampletime=${PCP_START}
+    sampletime=`echo ${PCP_START_TIME} | sed -e 's/^@//g'`
 elif [ ! -z "$PCP_ORIGIN" ]
 then
-    sampletime=${PCP_ORIGIN}
+    sampletime=`echo ${PCP_ORIGIN} | sed -e 's/^@//g'`
 fi
 # Timestamp for sample in seconds since the epoch
-timestamp=$( date --date "${sampletime}" +%s.%N )
+timestamp=$( date --date "${sampletime}" +%s.%N 2>$tmp/error)
+if test -s $tmp/error
+then
+    $PCP_ECHO_PROG $PCP_ECHO_N "$progname: ""$PCP_ECHO_C"
+    sed < $tmp/error -e 's/^date: //g'
+    sts=1
+    exit
+fi
 
 # Extract values for all metrics at once.  Fetch using pminfo then
 # cater for 3 cases: single-valued metrics, set-valued metrics and
@@ -323,9 +330,17 @@ BEGIN { error = 0; count = 0; value = 0; metric = "" }
 {
     if (NF == 0) {   # end previous metric (if any)
         metric = ""
+    } else if ($1 == "Note:") {  # timezone message
+        metric = ""
     } else if (metric == "") {   # new metric, name
         gsub("\\.", "_", $1)
-        metric = $1
+        if (gsub(":$", "", $1) > 0) {
+            printf("%s=%c%s%c\n", $1, "\"", $0, "\"")
+            metric = ""
+            error++
+        } else {
+            metric = $1
+        }
         count++
     } else if ($1 == "value") {   # singleton metric
         printf("%s_value=%s\n", metric, substr($0,11))
@@ -351,6 +366,15 @@ BEGIN { error = 0; count = 0; value = 0; metric = "" }
 END { printf "metrics=%d\nvalues=%d\nerrors=%d\n", count, value, error }'
 eval `cat $tmp/variables`
 #cat $tmp/variables
+
+# check for a catastrophic failure (an error for every metric)
+if test $errors -eq $metrics
+then
+    $PCP_ECHO_PROG $PCP_ECHO_N "$progname: ""$PCP_ECHO_C"
+    $PCP_ECHO_PROG "failed to retrieve all $metrics metric values"
+    sts=1
+    exit
+fi
 
 # prepare an awk import with metric values and helper function(s)
 cat > $tmp/metrics << EOF
