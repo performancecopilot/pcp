@@ -17,14 +17,24 @@
 .\"
 .TH PCP-SLABINFO 1 "PCP" "Performance Co-Pilot"
 .SH NAME
-\fBpcp-slabinfo\fP \- Report statistics for kernel slab allocator statistics
+\f3pcp-slabinfo\f1 \- Report statistics for kernel slab allocator
 .SH SYNOPSIS
-\fBpcp\fP [\fBpcp options\fP] \fBslabinfo\fP [\fB-s\fP \fBsamples\fP] [\fB-a\fP \fBarchive\fP] [\fB-Z\fP \fB--timezone\fP] [\fB-z\fP \fB--hostzone\fP] [\fB-V\fP \fBVersion\fP]
+\f3pcp\f1
+[\f2pcp\ options\f1]
+\f3slabinfo\f1
+[\f3\-a\f1 \f2archive\f1]
+[\f3\-s\f1 \f2samples\f1]
+[\f3\-Z\f1 \f2timezone\f1]
 .SH DESCRIPTION
-The \fBpcp-slabinfo\fP command is used for viewing different stats related to slab.
+The
+.B pcp-slabinfo
+command is used for viewing different stats related to slab.
 It helps users analyze useful information related to the slab allocator.
-The information includes the total number of objects that are currently active, allocated objects, pages per slab, etc.
-By default, \fBpcp-slabinfo\fP reports live data for the local host.
+The information includes the total number of objects that are currently
+active, allocated objects, pages per slab, etc.
+By default,
+.B pcp-slabinfo
+reports live data for the local host.
 .PP
 The statistics shown are as follows:
 .TS
@@ -48,25 +58,40 @@ num_slabs	The total number of slabs.
 .TE
 .SH OPTIONS
 .TP
-\fB-a\fP, \fB\-\-archive\fP
-Fetch /proc/slabinfo for a specified archive file
+\fB\-a\fR \fIfile\fR, \fB\-\-archive\fR=\fIfile\fR
+Fetch /proc/slabinfo for a specified archive \fIfile\fR
 .TP
-\fB-s\fP, \fB\-\-samples\fP
-Get the slabinfo for the specified number of samples count
+\fB\-s\fR \fIcount\fR, \fB\-\-samples\fR=\fIcount\fR
+Get the slabinfo statistics for specified number of samples \fIcount\fR
 .TP
-\fB-z\fP, \fB\-\-hostzone\fP
-Set the reporting timezone to the local time of metrics source
+\fB\-V\fR, \fB\-\-version\fR
+Display version number and exit.
 .TP
-\fB-Z\fP, \fB\-\-timezone\fP
-Set the reporting timezone
+\fB\-z\fR, \fB\-\-hostzone\fR
+Use the local timezone of the host that is the source of the
+performance metrics, as identified by either the
+.B \-h
+or the
+.B \-a
+options.
+The default is to use the timezone of the local host.
 .TP
-\fB-V\fP, \fB\-\-version\fP
-Display the version number and exit.
+\fB\-Z\fR \fItimezone\fR, \fB\-\-timezone\fR=\fItimezone\fR
+Use
+.I timezone
+for the date and time.
+.I Timezone
+is in the format of the environment variable
+.B TZ
+as described in
+.BR environ (7).
 .TP
-\fB-?\fP, \fB\-\-help\fP
-Display the usage message and exit.
+\fB\-?\fR, \fB\-\-help\fR
+Display usage message and exit.
 .SH NOTES
-\fBpcp-slabinfo\fP collects information from \fI/proc/slabinfo\fP and aims to be command-line and output compatible with it.
+.B pcp-slabinfo
+collects information from
+.IR /proc/slabinfo .
 .SH PCP ENVIRONMENT
 Environment variables with the prefix \fBPCP_\fP are used to parameterize the file and directory names used by PCP. On each installation, the file \fI/etc/pcp.conf\fP contains the local values for these variables. The \fB$PCP_CONF\fP variable may be used to specify an alternative configuration file, as described in \fBpcp.conf\fP(5).
 .PP

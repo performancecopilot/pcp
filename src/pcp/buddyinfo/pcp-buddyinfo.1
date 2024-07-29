@@ -15,17 +15,27 @@
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
 .\"
-
 .TH PCP-BUDDYINFO 1 "PCP" "Performance Co-Pilot"
-
 .SH NAME
-\fBpcp-buddyinfo\fP \- Report statistics for buddy algorithm shown in cat /proc/buddyinfo
-
+\f3pcp-buddyinfo\f3 \- Report statistics for buddy algorithm shown in /proc/buddyinfo
 .SH SYNOPSIS
-\fBpcp\fP [\fBpcp options\fP] \fBbuddyinfo\fP [\fB-s\fP \fBsamples\fP] [\fB-a\fP \fBarchive\fP] [\fB-Z\fP \fB--timezone\fP] [\fB-z\fP \fB--hostzone\fP] [\fB-V\fP \fBVersion\fP]
-
+\f3pcp\f1
+[\f2pcp\ options\f1]
+\f3buddyinfo\f1
+[\f3\-Vz?\f1]
+[\f3\-s\f1 \f2samples\f1]
+[\f3\-a\f1 \f2archive\f1]
+[\f3\-Z\f1 \f2timezone\f1]
 .SH DESCRIPTION
-The \fBpcp-buddyinfo\fP command is used for viewing different stats related to buddyinfo. It helps users analyze useful information related to the buddy algorithm. The information includes the total number of zones that are currently active, order pages etc. By default, \fBpcp-buddyinfo\fP reports live data for the local host.
+The
+.B pcp-buddyinfo
+command is used for viewing different stats related to buddyinfo.
+It helps users analyze useful information related to the buddy algorithm.
+The information includes the total number of zones that are currently active,
+order pages etc.
+By default,
+.B pcp-buddyinfo
+reports live data for the local host.
 
 The statistics shown are as follows:
 
@@ -51,42 +61,47 @@ Order10         available pages of order 10
 
 
 Each column represents the number of pages of a certain order (a certain size) that are available at any given time. For example, for zone DMA (direct memory access), there are 90 of 2^(0*PAGE_SIZE) chunks of memory. Similarly, there are 6 of 2^(1*PAGE_SIZE) chunks, and 2 of 2^(2*PAGE_SIZE) chunks of memory available.
-
+.PP
 The DMA row references the first 16 MB on a system, the HighMem row references all memory greater than 4 GB on a system, and the Normal row references all memory in between.
-
 .SH OPTIONS
 .TP
-\fB-a\fP, \fB\-\-archive\fP
-Fetch /proc/buddyinfo for a specified archive file
-
+\fB\-a\fR \fIfile\fR, \fB\-\-archive\fR=\fIfile\fR
+Fetch /proc/buddyinfo metrics for the specified archive file
 .TP
-\fB-s\fP, \fB\-\-samples\fP
-Get the buddyinfo for the specified number of samples count
-
+\fB\-s\fR \fIcount\fR, \fB\-\-samples\fR=\fIcount\fR
+Get the buddyinfo statistics for specified number of samples \fIcount\fR
 .TP
-\fB-z\fP, \fB\-\-hostzone\fP
-Set the reporting timezone to the local time of metrics source
-
+\fB\-z\fR, \fB\-\-hostzone\fR
+Use the local timezone of the host that is the source of the
+performance metrics, as identified by either the
+.B \-h
+or the
+.B \-a
+options.
+The default is to use the timezone of the local host.
 .TP
-\fB-Z\fP, \fB\-\-timezone\fP
-Set the reporting timezone
-
+\fB\-Z\fR \fItimezone\fR, \fB\-\-timezone\fR=\fItimezone\fR
+Use
+.I timezone
+for the date and time.
+.I Timezone
+is in the format of the environment variable
+.B TZ
+as described in
+.BR environ (7).
 .TP
-\fB-V\fP, \fB\-\-version\fP
-Display the version number and exit.
-
+\fB\-V\fR, \fB\-\-version\fR
+Display version number and exit.
 .TP
-\fB-?\fP, \fB\-\-help\fP
-Display the usage message and exit.
-
+\fB\-?\fR, \fB\-\-help\fR
+Display usage message and exit.
 .SH NOTES
-\fBpcp-buddyinfo\fP collects information from \fI/proc/buddyinfo\fP and aims to be command-line and output compatible with it.
-
+.B pcp-buddyinfo
+collects information from \fI/proc/buddyinfo\fP Linux kernel file.
 .SH PCP ENVIRONMENT
 Environment variables with the prefix \fBPCP_\fP are used to parameterize the file and directory names used by PCP. On each installation, the file \fI/etc/pcp.conf\fP contains the local values for these variables. The \fB$PCP_CONF\fP variable may be used to specify an alternative configuration file, as described in \fBpcp.conf\fP(5).
-
+.PP
 For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
-
 .SH SEE ALSO
 .BR PCPIntro(1),
 .BR pcp(1),
