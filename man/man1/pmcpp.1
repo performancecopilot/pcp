@@ -213,18 +213,25 @@ Changes the expected input style from C-like to shell-like
 This forces the following changes in
 .B pmcpp
 behaviour:
+.RS 5
 .PD 0
 .IP \(bu 3n
 The control prefix character changes from
 .B #
 to
 .BR % ,
-so
+so for example
 .B %include
-for example.
+instead of
+.BR #include ,
+and
+.B %ifdef
+instead of
+.BR #ifdef .
 .IP \(bu 3n
-No comment stripping is performed.
+No C-style comment stripping is performed.
 .PD
+.RE
 .TP
 \fB\-r\fR, \fB\-\-restrict\fR
 Provide finer control of macro expansion \- this
@@ -247,6 +254,9 @@ the macro
 .I name
 should appear alone with out the prefix character or the
 curly braces (refer to the EXAMPLES below).
+.TP
+\fB\-?\fR, \fB\-\-help\fR
+Display usage message and exit.
 .PP
 Important
 .BR cpp (1)
@@ -286,9 +296,6 @@ command line options like
 and
 .BR \-x .
 .PD
-.TP
-\fB\-?\fR, \fB\-\-help\fR
-Display usage message and exit.
 .SH EXAMPLES
 .\" man.1.in from src dir
 .TS
