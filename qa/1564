@@ -13,6 +13,11 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+which gawk >/dev/null 2>&1 || \
+	_notrun "pcp-xsos requires gawk(1) to be installed"
+gawk '@include "/dev/null"' {} 2>/dev/null || \
+	_notrun "pcp-xsos requires gawk with @include support"
+
 $sudo rm -rf $tmp $tmp.* $seq.full
 
 _cleanup()
