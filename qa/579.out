@@ -1,10 +1,13 @@
 QA output created by 579
+=== no such .gz file ===
 __pmProcessPipe: argc=4 type="r" toss=0 "gzip" "-c" "-d" "/no/such/file.gz"
 __pmProcessPipe: map[0 of 1] child pid=PID fp=ADDR
-gzip: /no/such/file.gz: No such file or directory
 __pmProcessPipeClose: child pid=PID wait_pid=PID exit=1
+gzip: /no/such/file.gz: No such file or directory
+
+=== empty .gz file ===
+
 __pmProcessPipe: argc=4 type="r" toss=0 "gzip" "-c" "-d" "TMP.gz"
 __pmProcessPipe: map[0 of 1] child pid=PID fp=ADDR
-
-gzip: TMP.gz: unexpected end of file
 __pmProcessPipeClose: child pid=PID wait_pid=PID exit=1
+gzip: TMP.gz: unexpected end of file
