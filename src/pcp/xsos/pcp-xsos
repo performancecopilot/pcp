@@ -24,15 +24,13 @@ trap "rm -rf $tmp; exit \$sts" 0 1 2 3 15
 
 progname=`basename $0`
 
-if which gawk >/dev/null 2>&1
-then
-    :
-else
-    # gawk is needed for (at least) the @include construct
-    #
-    echo >&2 "$progname: this script needs gawk, but not installed"
+check_gawk()
+{
+    echo >&2 "$progname: this script needs gawk $@"
     exit
-fi
+}
+which gawk >/dev/null 2>&1 || check_gawk "but it is not installed"
+gawk '@include "/dev/null"' {} 2>/dev/null || check_gawk "with @include syntax"
 
 base_metrics=(
     kernel.all.boottime mem.physmem
