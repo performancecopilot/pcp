@@ -1,3 +1,6 @@
+pcp-6.3.1 (17 September 2024)
+    - Work-in-progress.
+
 pcp-6.3.0 (30 July 2024)
     - Client tools and utilities:
 	pcp-htop: add AMD GPU metrics support
