@@ -64,7 +64,7 @@ jobs:
         run: build/ci/ci-run.py ${{ matrix.platform }} artifacts build --path artifacts/build
 
       - name: Publish build artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: build-${{ matrix.platform }}
           path: artifacts/build
@@ -86,7 +86,7 @@ jobs:
 
       - name: Publish test results
         if: always() && steps.init_qa.outcome == 'success'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: test-${{ matrix.platform }}
           path: artifacts/test
@@ -101,7 +101,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Download all artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           path: artifacts
 
