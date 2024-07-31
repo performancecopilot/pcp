@@ -721,6 +721,7 @@ Metrics options:
   -v, --verify          verify mode, be quiet and only report errors
 +++ -K add,400,TMP.$DSO_SUFFIX,sample_init +++
 build_dsotab: parsing $PCP_PMCDCONF_PATH
+NotifyEndLocalContext: DSO PMDA $PCP_VAR_DIR/pmdas/proc/pmda_proc.$DSO_SUFFIX (3) notified of context 0 close
 NotifyEndLocalContext: DSO PMDA $PCP_VAR_DIR/pmdas/sample/pmda_sample.$DSO_SUFFIX (30) notified of context 0 close
 NotifyEndLocalContext: DSO PMDA TMP.$DSO_SUFFIX (400) notified of context 0 close
 
@@ -817,10 +818,12 @@ Metrics options:
   -v, --verify          verify mode, be quiet and only report errors
 +++ -K del,30 +++
 build_dsotab: parsing $PCP_PMCDCONF_PATH
+NotifyEndLocalContext: DSO PMDA $PCP_VAR_DIR/pmdas/proc/pmda_proc.$DSO_SUFFIX (3) notified of context 0 close
 sample.string.write_me: pmLookupDesc: No PMCD agent for domain of request
 qa.string.write_me: pmLookupDesc: No PMCD agent for domain of request
 +++ -K del,30, +++
 build_dsotab: parsing $PCP_PMCDCONF_PATH
+NotifyEndLocalContext: DSO PMDA $PCP_VAR_DIR/pmdas/proc/pmda_proc.$DSO_SUFFIX (3) notified of context 0 close
 sample.string.write_me: pmLookupDesc: No PMCD agent for domain of request
 qa.string.write_me: pmLookupDesc: No PMCD agent for domain of request
 +++ -K del,,sample/pmda_sample.$DSO_SUFFIX +++
@@ -870,10 +873,12 @@ Metrics options:
   -v, --verify          verify mode, be quiet and only report errors
 +++ -K del,30,sample/pmda_sample.$DSO_SUFFIX, +++
 build_dsotab: parsing $PCP_PMCDCONF_PATH
+NotifyEndLocalContext: DSO PMDA $PCP_VAR_DIR/pmdas/proc/pmda_proc.$DSO_SUFFIX (3) notified of context 0 close
 sample.string.write_me: pmLookupDesc: No PMCD agent for domain of request
 qa.string.write_me: pmLookupDesc: No PMCD agent for domain of request
 +++ -K del,30,sample/pmda_sample.$DSO_SUFFIX,sample_init +++
 build_dsotab: parsing $PCP_PMCDCONF_PATH
+NotifyEndLocalContext: DSO PMDA $PCP_VAR_DIR/pmdas/proc/pmda_proc.$DSO_SUFFIX (3) notified of context 0 close
 sample.string.write_me: pmLookupDesc: No PMCD agent for domain of request
 qa.string.write_me: pmLookupDesc: No PMCD agent for domain of request
 +++ -K del,, +++
