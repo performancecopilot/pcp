@@ -61,6 +61,7 @@ enum {          /* Bits that may be set in ac_flag field */
 
 
 typedef struct {
+    int		init_done;	/* one-trip guard for acct_init() */
     __pmHashCtl	accthash;	/* hash table for acct */
     pmdaIndom	*indom;		/* instance domain table */
     time_t	now;		/* timestamp of this sample */
@@ -101,7 +102,6 @@ enum {
     CONTROL_ACCT_STATE          = 29,
 };
 
-extern void acct_init(proc_acct_t *);
 extern void refresh_acct(proc_acct_t *);
-extern int acct_fetchCallBack(int i_inst, int item, proc_acct_t *proc_acct, pmAtomValue *atom);
-extern int acct_store(pmResult *result, pmdaExt *pmda, pmValueSet *vsp);
+extern int acct_fetchCallBack(int, int, proc_acct_t *, pmAtomValue *);
+extern int acct_store(pmResult *, pmdaExt *, pmValueSet *, proc_acct_t *);

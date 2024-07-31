@@ -3683,7 +3683,7 @@ proc_store(pmResult *result, pmdaExt *pmda)
 	    if (!isroot)
 		sts = PM_ERR_PERMISSION;
 	    else
-		sts = acct_store(result, pmda, vsp);
+		sts = acct_store(result, pmda, vsp, &proc_acct);
 	    break;
 
 	default:
@@ -3984,7 +3984,6 @@ proc_init(pmdaInterface *dp)
 
     indomtab[ACCT_INDOM].it_indom = ACCT_INDOM;
     proc_acct.indom = &indomtab[ACCT_INDOM];
-    acct_init(&proc_acct);
 
     tty_driver_init();
 
