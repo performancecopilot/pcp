@@ -236,3 +236,6 @@ PCP_SYSTEMDTMPFILES_DIR=@pcp_systemdtmpfiles_dir@
 # ... logging goes to $PCP_LOG_DIR/NOTICES
 # expect this to be changed manually (to true) if required
 PCP_LOG_RC_SCRIPTS=false
+
+# expose pmpost(1) issues with NOTICES file
+PCP_DEBUG=dev2

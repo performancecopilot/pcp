@@ -32,6 +32,7 @@ $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
+unset PCP_DEBUG
 $PCP_BINADM_DIR/pmpost foo bar 2>&1 | _filter
 
 # success, all done
