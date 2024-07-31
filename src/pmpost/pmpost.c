@@ -146,8 +146,17 @@ main(int argc, char **argv)
 
     if ((fd = open(notices, O_WRONLY|O_APPEND, 0)) < 0) {
 	if ((fd = open(notices, O_WRONLY|O_CREAT|O_APPEND, 0664)) < 0) {
+	    char	shellcmd[2*MAXPATHLEN];
 	    fprintf(stderr, "pmpost: cannot open or create file \"%s\": %s\n",
 		notices, osstrerror());
+	    /*
+	     * we need some more info to triage this ...
+	     */
+	    fprintf(stderr, "pmpost: PCP id %d:%d, my id %d:%d\n", uid, gid, geteuid(), getegid());
+	    pmsprintf(shellcmd, sizeof(shellcmd), "[ -x /bin/ls ] && /bin/ls -ld %s >&2", dir);
+	    system(shellcmd);
+	    pmsprintf(shellcmd, sizeof(shellcmd), "[ -x /bin/ls ] && /bin/ls -l %s >&2", notices);
+	    system(shellcmd);
 	    goto oops;
 	}
 #ifndef IS_MINGW
