@@ -86,6 +86,30 @@ to
 on the host
 .IR firewall.example.com .
 .PP
+Alternatively, for a
+.I type
+of
+.BR PM_CONTEXT_HOST ,
+.I name
+may be
+.B unix:
+for an authenticated Unix domain socket connection to
+.BR pmcd (1)
+on the localhost
+or
+.B local:
+for an authenticated connection to
+.BR pmcd (1)
+on the localhost via a Unix domain socket if available, else
+via an internet socket connection to
+.BR localhost .
+.B local:
+is the default choice for most applications when calling
+.B pmNewContext
+to establish a context for
+.BR pmcd (1)
+on the local host.
+.PP
 For a
 .I type
 of
