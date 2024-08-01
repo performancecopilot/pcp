@@ -197,7 +197,7 @@ main()
     }
 
     /* only need this to initialize library mutexes */
-    if ((sts = pmNewContext(PM_CONTEXT_LOCAL, NULL)) < 0) {
+    if ((sts = pmNewContext(PM_CONTEXT_HOST, "local:")) < 0) {
 	printf("pmNewContext: %s\n", pmErrStr(sts));
 	exit(1);
     }
