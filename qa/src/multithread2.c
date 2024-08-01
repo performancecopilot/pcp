@@ -52,6 +52,7 @@ func1(void *arg)
 	printf("%s: __pmAFunregister -> %s\n", fn, pmErrStr(sts));
 
     pthread_barrier_wait(&barrier);
+    pthread_barrier_wait(&barrier);
 
     sts = __pmAccAddOp(1);
     if (sts == 0)
@@ -118,6 +119,7 @@ func2(void *arg)
     else
 	printf("%s: __pmAFunregister -> %s\n", fn, pmErrStr(sts));
 
+    pthread_barrier_wait(&barrier);
     pthread_barrier_wait(&barrier);
 
     sts = __pmAccAddOp(1);
