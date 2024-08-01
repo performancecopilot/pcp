@@ -47,8 +47,8 @@ pmUseContext(0) -> 0
 Helgrind, a thread error detector
 ERROR SUMMARY: 0 errors from 0 contexts ...
 === stdout ===
-func1: __pmAFregister -> OK
-func1: __pmAFunregister -> OK
+func1: __pmAFregister -> Operation not supported for multi-threaded applications
+func1: __pmAFunregister -> Operation not supported for multi-threaded applications
 func2: __pmAFregister -> Operation not supported for multi-threaded applications
 func2: __pmAFunregister -> Operation not supported for multi-threaded applications
 func1: __pmAccAddOp(1) -> OK

@@ -35,12 +35,12 @@ pmUseContext(0) -> 0
 pmUseContext(0) -> 0
 
 === PM_SCOPE_AF and PM_SCOPE_ACL ===
-func1: __pmAFregister -> OK
-func1: __pmAFunregister -> OK
-func2: __pmAFregister -> Operation not supported for multi-threaded applications
-func2: __pmAFunregister -> Operation not supported for multi-threaded applications
+func1: __pmAFregister -> Operation not supported for multi-threaded applications
+func1: __pmAFunregister -> Operation not supported for multi-threaded applications
 func1: __pmAccAddOp(1) -> OK
 func1: __pmAccAddOp(2) -> OK
+func2: __pmAFregister -> Operation not supported for multi-threaded applications
+func2: __pmAFunregister -> Operation not supported for multi-threaded applications
 func1: __pmAccAddHost -> OK
 
 Host access list:
