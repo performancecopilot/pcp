@@ -87,8 +87,14 @@ sleep 5
 echo kill pcp2elasticsearch `date '+%H:%M:%S.%N'` >>$seq.full
 $signal $pid 2>/dev/null
 wait
-grep -q 'Remote end closed connection without response' $tmp.socat.err && \
-	_notrun "socat on this platform is not behaving as expected"
+# some fatal errors in socat.err, some in socat.log ...
+#
+grep -q 'socat.* Remote end closed connection without response' $tmp.socat.err && \
+	_notrun "socat on this platform is not behaving as expected [closed conn]"
+grep -q 'socat.* Connection reset by peer' $tmp.socat.log && \
+	_notrun "socat on this platform is not behaving as expected [reset conn]"
+grep -q 'socat.* Broken pipe' $tmp.socat.log && \
+	_notrun "socat on this platform is not behaving as expected [broken pipe]"
 grep -E -q '^PUT /+pcp HTTP/' $tmp.socat.err
 [ $? -eq 0 ] && echo "Found correct index in output"
 grep -E -q '"hinv": {"ncpu": '$ncpu'}' $tmp.socat.err
