@@ -33,6 +33,9 @@ _cleanup()
 	$sudo _service pmcd restart >>$seq.full
 	_wait_for_pmcd
     fi
+    # and primary pmlogger is back in the land of the living
+    #
+    _wait_for_pmlogger
 }
 
 status=0	# success is the default!
