@@ -25,10 +25,19 @@ signal=$PCP_BINADM_DIR/pmsignal
 # Note3 - check_local_creds lines are timing sensitive and have
 # nothing much to do with logging state changes, so nuke 'em
 #
+# Note3 - lines like ...
+# logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
+# __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
+# from the pmlogger preamble writes are in a potential race with the
+# pmlc connection, and the ordering of these lines may become
+# non-deterministic ... since they are not key to the success of the
+# test, cull 'em
 _filter_pmlogger()
 {
     _filter_pmlogger_log \
     | sed >$tmp.tmp \
+	-e '/^logputresult: /d' \
+	-e '/^__pmLogPutIndex: /d' \
 	-e "s;$tmp;TMP;g" \
 	-e '/[Ss]ignalled (signal=.*), exiting/d' \
 	-e '/Warning: AF event queue is empty, nothing /d' \
