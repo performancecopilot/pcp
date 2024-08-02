@@ -14,6 +14,18 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+rm -f $seq.out
+if [ $PCP_PLATFORM = linux ]
+then
+    # have Linux proc PMDA in PM_CONTEXT_LOCAL
+    #
+    ln $seq.out.linux $seq.out || exit 1
+else
+    # no proc PMDA in PM_CONTEXT_LOCAL
+    #
+    ln $seq.out.other $seq.out || exit 1
+fi
+
 status=0	# success is the default!
 host=`hostname`
 $sudo rm -rf $tmp.* $seq.full
