@@ -64,6 +64,13 @@ ExcludeArch: %{ix86}
 %global disable_statsd 1
 %endif
 
+# GFS2 filesystem no longer supported here
+%if 0%{?rhel} >= 10
+%global disable_gfs2 1
+%else
+%global disable_gfs2 0
+%endif
+
 %if 0%{?fedora} >= 30 || 0%{?rhel} > 7
 %global _with_python2 --with-python=no
 %global disable_python2 1
@@ -557,10 +564,13 @@ Requires: pcp-pmda-memcache pcp-pmda-mysql pcp-pmda-named pcp-pmda-netfilter pcp
 Requires: pcp-pmda-nginx pcp-pmda-nfsclient pcp-pmda-pdns pcp-pmda-postfix pcp-pmda-postgresql pcp-pmda-oracle
 Requires: pcp-pmda-samba pcp-pmda-slurm pcp-pmda-zimbra
 Requires: pcp-pmda-dm pcp-pmda-apache
-Requires: pcp-pmda-bash pcp-pmda-cisco pcp-pmda-gfs2 pcp-pmda-mailq pcp-pmda-mounts
+Requires: pcp-pmda-bash pcp-pmda-cisco pcp-pmda-mailq pcp-pmda-mounts
 Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping pcp-pmda-smart pcp-pmda-farm
 Requires: pcp-pmda-hacluster pcp-pmda-lustrecomm pcp-pmda-logger pcp-pmda-denki pcp-pmda-docker pcp-pmda-bind2
 Requires: pcp-pmda-sockets pcp-pmda-podman
+%if !%{disable_gfs2}
+Requires: pcp-pmda-gfs2
+%endif
 %if !%{disable_statsd}
 Requires: pcp-pmda-statsd
 %endif
@@ -2063,6 +2073,7 @@ Reliability Metrics (FARM) Log making use of data from the smartmontools
 package.
 #end pcp-pmda-farm
 
+%if !%{disable_gfs2}
 #
 # pcp-pmda-gfs2
 #
@@ -2075,6 +2086,7 @@ Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about the Global Filesystem v2.
 # end pcp-pmda-gfs2
+%endif
 
 #
 # pcp-pmda-hacluster
@@ -3113,8 +3125,10 @@ exit 0
 %preun pmda-farm
 %{pmda_remove "$1" "farm"}
 
+%if !%{disable_gfs2}
 %preun pmda-gfs2
 %{pmda_remove "$1" "gfs2"}
+%endif
 
 %preun pmda-hacluster
 %{pmda_remove "$1" "hacluster"}
@@ -3497,7 +3511,9 @@ fi
 
 %files pmda-farm -f pcp-pmda-farm-files.rpm
 
+%if !%{disable_gfs2}
 %files pmda-gfs2 -f pcp-pmda-gfs2-files.rpm
+%endif
 
 %files pmda-hacluster -f pcp-pmda-hacluster-files.rpm
 
