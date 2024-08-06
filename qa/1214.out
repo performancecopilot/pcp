@@ -1,18 +1,18 @@
 QA output created by 1214
-=== Start test redis-server ...
+=== Start test key server ...
 PING
 PONG
 
 === Start test pmproxy ...
 == load test data for verification
 
-== pmseries query for kernel.all.load to redis directly
+== pmseries query for kernel.all.load to key server directly
 
-== pmseries query for kernel.all.load to redis via pmproxy
+== pmseries query for kernel.all.load to key server via pmproxy
 
-== pmseries query for disk.dev.read to redis directly
+== pmseries query for disk.dev.read to key server directly
 
-== pmseries query for disk.dev.read to redis via pmproxy
+== pmseries query for disk.dev.read to key server via pmproxy
 
-== Shutdown local redis and pmproxy ...
+== Shutdown local key server and pmproxy ...
 finished

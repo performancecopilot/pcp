@@ -52,7 +52,7 @@ redis_disconnect_callback(const redisAsyncContext *redis, int status)
 {
     if (status == REDIS_OK) {
 	if (pmDebugOptions.series)
-	    fprintf(stderr, "Disconnected from redis on %s:%d\n",
+	    fprintf(stderr, "Disconnected from key server on %s:%d\n",
 			redis->c.tcp.host, redis->c.tcp.port);
     } else if (pmDebugOptions.series) {
 	if (redis->c.connection_type == REDIS_CONN_UNIX)
@@ -498,20 +498,22 @@ redisSlotsReplyCallback(redisClusterAsyncContext *c, void *r, void *arg)
      * hiredis, update the disconnect callback to return the cluster context and
      * use this new disconnect callback instead of the conditional below.
      *
-     * Register a Redis disconnect if:
-     * * Redis returns an I/O error. In this case errno is also set, but
+     * Register a server disconnect if:
+     * * The server returns an I/O error.  In this case errno is also set, but
      *   there are lots of different error codes for connection failures (for example
      *   ECONNRESET, ENETUNREACH, ENETDOWN, ...) - defensively assume all require a
      *   reconnect
-     * * Redis returns the "LOADING Redis is loading the dataset in memory" error
-     * * ignore any errors for Redis requests pre-dating the latest (current) Redis
-     *   connection (to handle the case where a Redis callback returns after a new
+     * * Server returns the "LOADING ... is loading the dataset in memory" error
+     * * Ignore any errors for server requests pre-dating the latest (current)
+     *   connection (to handle the case where a callback returns after a new
      *   connection was already established)
-     * * ignore any errors if the state is already set to SLOTS_DISCONNECTED
-     * * ignore errors if cluster mode is enabled (for now, will change in a later release)
+     * * Ignore any errors if the state is already set to SLOTS_DISCONNECTED
+     * * Ignore errors if cluster mode is enabled.
      */
     if (((reply == NULL && c->err == REDIS_ERR_IO) ||
-         (reply != NULL && reply->type == REDIS_REPLY_ERROR && strcmp(reply->str, REDIS_ELOADING) == 0)) &&
+         (reply != NULL && reply->type == REDIS_REPLY_ERROR &&
+	  (strncmp(reply->str, KEYS_ELOADING, strlen(KEYS_ELOADING)) == 0 &&
+	   strstr(reply->str, KEYS_ELOADDATA) != NULL))) &&
 	srd->conn_seq == srd->slots->conn_seq &&
 	srd->slots->state != SLOTS_DISCONNECTED &&
 	srd->slots->cluster == 0) {
@@ -524,9 +526,9 @@ redisSlotsReplyCallback(redisClusterAsyncContext *c, void *r, void *arg)
 }
 
 /*
- * Submit an arbitrary request to a (set of) Redis instance(s).
+ * Submit an arbitrary request to a (set of) key server instance(s).
  * The given key is used to determine the slot used, as per the
- * cluster specification - https://redis.io/topics/cluster-spec
+ * cluster specification - https://valkey.io/topics/cluster-spec
  * 
  * Serves mainly as a wrapper to redisClusterAsyncFormattedCommand
  * including debug output and error handling

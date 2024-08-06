@@ -63,10 +63,12 @@ docker		# $PCP_DOCKER_PROG unless $docker set earlier
 podman		# $PCP_PODMAN_PROG unless $podman set earlier
 # -- common.python
 python		# alias for $PCP_PYTHOON_PROG (this week's Python interpreter)
-# -- common.redis
-redis_node1_port	# returned from _redis_cluster_3nodes_start()
-redis_node2_port	# returned from _redis_cluster_3nodes_start()
-redis_node3_port	# returned from _redis_cluster_3nodes_start()
+# -- common.keys
+keys_cli	# command line client interface for accessing keys
+key_server	# command line server binary serving RESP protocol
+key_server_node1_port	# returned from _key_server_cluster_3nodes_start()
+key_server_node2_port	# returned from _key_server_cluster_3nodes_start()
+key_server_node3_port	# returned from _key_server_cluster_3nodes_start()
 End-of-File
 
 # these ones are exempted for various reasons

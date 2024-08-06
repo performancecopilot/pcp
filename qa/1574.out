@@ -1,9 +1,9 @@
 QA output created by 1574
-Start test Redis server ...
+Start test key server ...
 PING
 PONG
 
-== Load metric data into this redis instance
+== Load metric data into this key server instance
 pmseries: [Info] processed 5 archive records from PATH/archives/proc
 
 == Running valgrind on stdev_sample() and stdev_inst()
@@ -15,7 +15,7 @@ ef9785c6b5cae109a5ed4fd8a0cbe868a1c576e1
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: pmseries -p REDISPORT -Z UTC stdev_sample(kernel.all.load[count:2])
+Command: pmseries -p KEYSERVERPORT -Z UTC stdev_sample(kernel.all.load[count:2])
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -29,7 +29,7 @@ bdb503f3d93a8af54adf9e33131152ab61358d5e
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: pmseries -p REDISPORT -Z UTC stdev_inst(kernel.all.load[count:2])
+Command: pmseries -p KEYSERVERPORT -Z UTC stdev_inst(kernel.all.load[count:2])
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -44,7 +44,7 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: pmseries -p REDISPORT -Z UTC max_sample(kernel.all.load[count:2])
+Command: pmseries -p KEYSERVERPORT -Z UTC max_sample(kernel.all.load[count:2])
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -58,7 +58,7 @@ a9d70abdd37180508d8f2f56450fa9cbf531847c
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: pmseries -p REDISPORT -Z UTC max_inst(kernel.all.load[count:2])
+Command: pmseries -p KEYSERVERPORT -Z UTC max_inst(kernel.all.load[count:2])
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -73,7 +73,7 @@ dc4d3bd8c07fb952e89e9765392447b26eea6f8f
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: pmseries -p REDISPORT -Z UTC min_sample(kernel.all.load[count:2])
+Command: pmseries -p KEYSERVERPORT -Z UTC min_sample(kernel.all.load[count:2])
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -87,7 +87,7 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: pmseries -p REDISPORT -Z UTC min_inst(kernel.all.load[count:2])
+Command: pmseries -p KEYSERVERPORT -Z UTC min_inst(kernel.all.load[count:2])
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -102,7 +102,7 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: pmseries -p REDISPORT -Z UTC sum_sample(kernel.all.load[count:2])
+Command: pmseries -p KEYSERVERPORT -Z UTC sum_sample(kernel.all.load[count:2])
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -116,7 +116,7 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: pmseries -p REDISPORT -Z UTC sum_inst(kernel.all.load[count:2])
+Command: pmseries -p KEYSERVERPORT -Z UTC sum_inst(kernel.all.load[count:2])
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -131,7 +131,7 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: pmseries -p REDISPORT -Z UTC avg_sample(kernel.all.load[count:2])
+Command: pmseries -p KEYSERVERPORT -Z UTC avg_sample(kernel.all.load[count:2])
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -145,7 +145,7 @@ d5f1f053bb6b11dcc8245a7a792d0537c9f7de6a
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: pmseries -p REDISPORT -Z UTC avg_inst(kernel.all.load[count:2])
+Command: pmseries -p KEYSERVERPORT -Z UTC avg_inst(kernel.all.load[count:2])
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -160,7 +160,7 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: pmseries -p REDISPORT -Z UTC avg_sample(kernel.all.load[count:2])
+Command: pmseries -p KEYSERVERPORT -Z UTC avg_sample(kernel.all.load[count:2])
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -174,7 +174,7 @@ d5f1f053bb6b11dcc8245a7a792d0537c9f7de6a
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: pmseries -p REDISPORT -Z UTC avg_inst(kernel.all.load[count:2])
+Command: pmseries -p KEYSERVERPORT -Z UTC avg_inst(kernel.all.load[count:2])
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -188,7 +188,7 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: pmseries -p REDISPORT -Z UTC kernel.all.uptime[count:2]\ *\ 2
+Command: pmseries -p KEYSERVERPORT -Z UTC kernel.all.uptime[count:2]\ *\ 2
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -201,7 +201,7 @@ feb9ff0f4ca9c6fff384a5ef545afc0781840ff3
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: pmseries -p REDISPORT -Z UTC max(kernel.all.uptime[count:2])\ *\ max(kernel.all.uptime[count:2])
+Command: pmseries -p KEYSERVERPORT -Z UTC max(kernel.all.uptime[count:2])\ *\ max(kernel.all.uptime[count:2])
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks

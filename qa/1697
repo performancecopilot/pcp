@@ -18,12 +18,12 @@ echo "QA output created by $seq"
 
 _check_valgrind
 _check_series
-_check_redis_server_version_offline
+_check_key_server_version_offline
 
 _cleanup()
 {
     cd $here
-    [ -n "$options" ] && redis-cli $options shutdown
+    [ -n "$options" ] && $keys_cli $options shutdown
     $sudo rm -rf $tmp $tmp.*
 }
 
@@ -58,17 +58,17 @@ _filter_proxyport()
 }
 
 # real QA test starts here
-echo "Start test Redis server ..."
-redisport=`_find_free_port`
-options="-p $redisport"
-redis-server --port $redisport --save "" > $tmp.redis 2>&1 &
-_check_redis_ping $redisport
-_check_redis_server $redisport
+echo "Start test key server ..."
+key_server_port=`_find_free_port`
+options="-p $key_server_port"
+$key_server --port $key_server_port --save "" > $tmp.keys 2>&1 &
+_check_key_server_ping $key_server_port
+_check_key_server $key_server_port
 echo
 
-_check_redis_server_version $redisport
+_check_key_server_version $key_server_port
 
-# import some well-known test data into Redis
+# import some well-known test data into the key server
 pmseries $options --load "$here/archives/proc" | _filter_source
 
 # start pmproxy
@@ -76,7 +76,7 @@ mkdir -p $tmp.pmproxy/pmproxy
 export PCP_RUN_DIR=$tmp.pmproxy
 export PCP_TMP_DIR=$tmp.pmproxy
 proxyport=`_find_free_port`
-$_valgrind_clean_assert pmproxy -f -p $proxyport -r $redisport -U $username -l- -c $tmp.conf >$tmp.valout 2>$tmp.valerr &
+$_valgrind_clean_assert pmproxy -f -p $proxyport -r $key_server_port -U $username -l- -c $tmp.conf >$tmp.valout 2>$tmp.valerr &
 pid=$!
 
 # valgrind takes awhile to fire up
@@ -127,7 +127,7 @@ echo "=== valgrind stdout ===" | tee -a $seq.full
 cat $tmp.valout | _filter_valgrind
 
 echo "=== valgrind stderr ===" | tee -a $seq.full
-cat $tmp.valerr | _filter_pmproxy_log | grep -v "Cannot connect to Redis" | _filter_proxyport
+cat $tmp.valerr | _filter_pmproxy_log | grep -v "Cannot connect to key server" | _filter_proxyport
 
 # success, all done
 status=0

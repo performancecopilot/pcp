@@ -1,6 +1,6 @@
 #!/bin/sh
 # PCP QA Test No. 1355
-# Exercise pmproxy Redis reconnect.
+# Exercise pmproxy key server reconnect.
 #
 # Copyright (c) 2021 Red Hat.  All Rights Reserved.
 #
@@ -12,16 +12,17 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 . ./common.check
+. ./common.keys
 
-_check_redis_server_version_offline
+_check_key_server_version_offline
 
 _cleanup()
 {
     cd $here
     [ -n "$tail_pid" ] && $signal -s TERM $tail_pid
     [ -n "$pmproxy_pid" ] && $signal -s TERM $pmproxy_pid
-    [ -n "$redisproxy_pid" ] && $signal -s TERM $redisproxy_pid
-    [ -n "$redis_pid" ] && $signal -s TERM $redis_pid
+    [ -n "$keysproxy_pid" ] && $signal -s TERM $keysproxy_pid
+    [ -n "$keys_pid" ] && $signal -s TERM $keys_pid
     $sudo rm -rf $tmp $tmp.*
 }
 
@@ -41,20 +42,20 @@ _filter_pmproxy_log()
 
 # real QA test starts here
 echo "Start Redis server"
-redisport=`_find_free_port`
-redis-server --port $redisport --save "" > $tmp.redis.log 2>&1 &
-redis_pid=$!
-_wait_for_port $redisport
+key_server_port=`_find_free_port`
+$key_server --port $key_server_port --save "" > $tmp.keys.log 2>&1 &
+key_server_pid=$!
+_wait_for_port $key_server_port
 
-echo "Start Redis proxy to fake loading error for first 3 seconds"
-redisproxyport=`_find_free_port`
-$python src/redis_proxy.py --loading_delay 3 127.0.0.1:$redisproxyport 127.0.0.1:$redisport > $tmp.redisproxy.log &
-redisproxy_pid=$!
-_wait_for_port $redisproxyport
+echo "Start key server proxy to fake loading error for first 3 seconds"
+keysproxyport=`_find_free_port`
+$python src/key_server_proxy.py --loading_delay 3 127.0.0.1:$keysproxyport 127.0.0.1:$key_server_port > $tmp.keysproxy.log &
+keysproxy_pid=$!
+_wait_for_port $keysproxyport
 
 echo "Start pmproxy"
 pmproxyport=`_find_free_port`
-pmproxy -f -U $username -x $tmp.err -l $tmp.pmproxy.log -p $pmproxyport -r $redisproxyport -t &
+pmproxy -f -U $username -x $tmp.err -l $tmp.pmproxy.log -p $pmproxyport -r $keysproxyport -t &
 pmproxy_pid=$!
 _wait_for_port $pmproxyport
 
@@ -67,8 +68,8 @@ tail -n +$lineno $tmp.pmproxy.log | _filter_pmproxy_log
 lineno=$((`wc -l < $tmp.pmproxy.log` + 1))
 
 echo
-echo "Stop redis proxy"
-$signal -s TERM $redisproxy_pid
+echo "Stop key server proxy"
+$signal -s TERM $keysproxy_pid
 
 echo
 echo "== Observe a connection lost error and failed reconnect"
@@ -79,9 +80,9 @@ lineno=$((`wc -l < $tmp.pmproxy.log` + 1))
 
 echo
 echo "Start Redis proxy again (loading error for first 3 seconds)"
-$python src/redis_proxy.py --loading_delay 3 127.0.0.1:$redisproxyport 127.0.0.1:$redisport > $tmp.redisproxy.log &
-redisproxy_pid=$!
-_wait_for_port $redisproxyport
+$python src/key_server_proxy.py --loading_delay 3 127.0.0.1:$keysproxyport 127.0.0.1:$key_server_port > $tmp.keysproxy.log &
+keysproxy_pid=$!
+_wait_for_port $keysproxyport
 
 echo
 echo "== Observe a reconnect"

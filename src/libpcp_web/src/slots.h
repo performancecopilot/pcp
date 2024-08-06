@@ -24,9 +24,14 @@
 #define SLOTMASK	(MAXSLOTS-1)
 #define SLOTS_PHASES	5
 
-/* Unfortunately there is no error code for these errors to match */
-#define REDIS_ELOADING		"LOADING Redis is loading the dataset in memory"
-#define REDIS_ENOCLUSTER	"ERR This instance has cluster support disabled"
+/*
+ * Unfortunately there is no error code for these errors to match
+ * In LOADING case, the full error contains the key server name -
+ * so here we split the check into the two guaranteed substrings.
+ */
+#define KEYS_ELOADING	"LOADING"
+#define KEYS_ELOADDATA	"loading the dataset in memory"
+#define KEYS_ENOCLUSTER	"ERR This instance has cluster support disabled"
 
 typedef enum redisSlotsFlags {
     SLOTS_NONE		= 0,

@@ -123,7 +123,7 @@ $sudo cp $tmp.options $PCP_SYSCONF_DIR/pmproxy/pmproxy.options
 echo "[pmproxy]" >> $tmp.conf
 echo "pcp.enabled = true" >> $tmp.conf
 echo "http.enabled = true" >> $tmp.conf
-echo "redis.enabled = true" >> $tmp.conf
+echo "resp.enabled = true" >> $tmp.conf
 echo "secure.enabled = true" >> $tmp.conf
 $sudo cp $tmp.conf $PCP_SYSCONF_DIR/pmproxy/pmproxy.conf
 cat $tmp.conf >> $here/$seq.full

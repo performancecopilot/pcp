@@ -12,6 +12,7 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 . ./common.check
+. ./common.keys
 
 _check_series
 which jq >/dev/null 2>&1 || _notrun "jq not installed"
@@ -20,7 +21,7 @@ _cleanup()
 {
     cd $here
     [ -n "$pmproxy_pid" ] && $signal -s TERM $pmproxy_pid
-    [ -n "$options" ] && redis-cli $options shutdown
+    [ -n "$options" ] && $keys_cli $options shutdown
     if $need_restore
     then
 	need_restore=false
@@ -60,22 +61,22 @@ _save_config $PCP_SYSCONF_DIR/pmproxy
 $sudo rm -f $PCP_SYSCONF_DIR/pmproxy/*
 need_restore=true
 
-echo "Start test Redis server ..."
-redisport=`_find_free_port`
-options="-p $redisport"
-redis-server --port $redisport --save "" > $tmp.redis 2>&1 &
-_check_redis_ping $redisport
-_check_redis_server $redisport
+echo "Start test key server ..."
+key_server_port=`_find_free_port`
+options="-p $key_server_port"
+$key_server --port $key_server_port --save "" > $tmp.keys 2>&1 &
+_check_key_server_ping $key_server_port
+_check_key_server $key_server_port
 echo
 
-_check_redis_server_version $redisport
+_check_key_server_version $key_server_port
 
-# import some well-known test data into Redis
+# import some well-known test data into the key server
 pmseries $options --load "$here/archives/bozo-disk" | _filter_source
 
 # start pmproxy
 proxyport=`_find_free_port`
-proxyopts="-p $proxyport -r $redisport -t"  # -Dseries,http,af
+proxyopts="-p $proxyport -r $key_server_port -t"  # -Dseries,http,af
 pmproxy -f -U $username -x $seq.full -l $tmp.pmproxy.log $proxyopts &
 pmproxy_pid=$!
 

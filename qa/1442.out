@@ -16,67 +16,67 @@ pmproxy.control.files
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 
-pmproxy.redis.discover.monitored
+pmproxy.keys.discover.monitored
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
 
-pmproxy.redis.discover.purged
+pmproxy.keys.discover.purged
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
 
-pmproxy.redis.discover.metadata.callbacks
+pmproxy.keys.discover.metadata.callbacks
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: none
 
-pmproxy.redis.discover.metadata.loops
+pmproxy.keys.discover.metadata.loops
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: none
 
-pmproxy.redis.discover.metadata.decode.desc
+pmproxy.keys.discover.metadata.decode.desc
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: none
 
-pmproxy.redis.discover.metadata.decode.indom
+pmproxy.keys.discover.metadata.decode.indom
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: none
 
-pmproxy.redis.discover.metadata.decode.label
+pmproxy.keys.discover.metadata.decode.label
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: none
 
-pmproxy.redis.discover.metadata.decode.helptext
+pmproxy.keys.discover.metadata.decode.helptext
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: none
 
-pmproxy.redis.discover.logvol.callbacks
+pmproxy.keys.discover.logvol.callbacks
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: none
 
-pmproxy.redis.discover.logvol.loops
+pmproxy.keys.discover.logvol.loops
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: none
 
-pmproxy.redis.discover.logvol.change_vol
+pmproxy.keys.discover.logvol.change_vol
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: none
 
-pmproxy.redis.discover.logvol.decode.result
+pmproxy.keys.discover.logvol.decode.result
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: none
 
-pmproxy.redis.discover.logvol.decode.result_pmids
+pmproxy.keys.discover.logvol.decode.result_pmids
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: none
 
-pmproxy.redis.discover.logvol.decode.mark_record
+pmproxy.keys.discover.logvol.decode.mark_record
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: none
 
-pmproxy.redis.discover.logvol.new_contexts
+pmproxy.keys.discover.logvol.new_contexts
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: none
 
-pmproxy.redis.discover.logvol.get_archive_end_failed
+pmproxy.keys.discover.logvol.get_archive_end_failed
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: none
 

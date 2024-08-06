@@ -18,7 +18,7 @@ fi
 . ./common.filter
 . ./common.check
 
-_check_redis_server
+_check_key_server
 
 _cleanup()
 {
