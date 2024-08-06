@@ -707,6 +707,7 @@ hacluster_refresh_pacemaker_resources(const char *instance_name, struct resource
 			/* Collect our metrics */
 			if (strstr(buffer, "resource id=") && strstr(buffer, resource_id)) {
 
+                                /* Pacemaker v2.14 and prior crm_mon format */
 				if (strstr(buffer, "target_role")) { 
 					sscanf(buffer, "%*s %*s resource_agent=\"%[^\"]\" role=\"%[^\"]\" %*s active=\"%7[^\"]\" orphaned=\"%7[^\"]\" blocked=\"%7[^\"]\" managed=\"%7[^\"]\" failed=\"%7[^\"]\" failure_ignored=\"%7[^\"]\"",
 						resources->agent,
@@ -718,6 +719,21 @@ hacluster_refresh_pacemaker_resources(const char *instance_name, struct resource
 						failed,
 						failure_ignored
 					);
+
+                                /* Pacemaker v2.16+ crm_mon format */
+                                } else if (strstr(buffer, "maintenance")) {
+					sscanf(buffer, "%*s %*s resource_agent=\"%[^\"]\" role=\"%[^\"]\" active=\"%7[^\"]\" orphaned=\"%7[^\"]\" blocked=\"%7[^\"]\" %*s managed=\"%7[^\"]\" failed=\"%7[^\"]\" failure_ignored=\"%7[^\"]\"",
+						resources->agent,
+						resources->role,
+						active,
+						orphaned,
+						blocked,
+						managed,
+						failed,
+						failure_ignored
+					);
+
+				/* Pacemaker v2.15 crm_mon format */
 				} else {
 					sscanf(buffer, "%*s %*s resource_agent=\"%[^\"]\" role=\"%[^\"]\" active=\"%7[^\"]\" orphaned=\"%7[^\"]\" blocked=\"%7[^\"]\" managed=\"%7[^\"]\" failed=\"%7[^\"]\" failure_ignored=\"%7[^\"]\"",
 						resources->agent,
