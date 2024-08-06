@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2022 Red Hat.
+ * Copyright (c) 2017-2022,2024 Red Hat.
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -976,7 +976,7 @@ pmwebapi_free_instance(instance_t *instance)
 	sdsfree(list->name);
 	sdsfree(list->value);
 	if (list->valuemap)
-	    redisMapRelease(list->valuemap);
+	    keyMapRelease(list->valuemap);
 	list = list->next;
     }
 
@@ -1109,7 +1109,7 @@ pmwebapi_free_metric(metric_t *metric)
 	sdsfree(list->name);
 	sdsfree(list->value);
 	if (list->valuemap)
-	    redisMapRelease(list->valuemap);
+	    keyMapRelease(list->valuemap);
 	list = list->next;
     }
 

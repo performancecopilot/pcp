@@ -922,7 +922,7 @@ pmseries_request_done(struct client *client)
     pmSeriesBaton	*baton = (pmSeriesBaton *)client->u.http.data;
     int			sts;
 
-    /* reference to prevent freeing while waiting for a Redis reply callback */
+    /* reference to prevent freeing while waiting for a reply callback */
     client_get(client);
 
     if (client->u.http.parser.status_code) {

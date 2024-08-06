@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2022 Red Hat.
+ * Copyright (c) 2018-2022,2024 Red Hat.
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -1727,7 +1727,7 @@ changed_callback(pmDiscover *p)
     time(&now);
     if ((p->flags & PM_DISCOVER_FLAGS_NEW) == 0) {
 	if (now - p->lastcb < throttle ||
-	    redisSlotsInflightRequests(data->slots) > 1000000) {
+	    keySlotsInflightRequests(data->slots) > 1000000) {
 	    mmv_inc(data->map, data->metrics[DISCOVER_THROTTLE_CALLBACKS]);
 	    return; /* throttled */
 	}

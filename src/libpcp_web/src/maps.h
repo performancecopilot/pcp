@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2017-2018,2022 Red Hat.
- * 
+ * Copyright (c) 2017-2018,2022,2024 Red Hat.
+ *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
  * by the Free Software Foundation; either version 2.1 of the License, or
@@ -18,50 +18,50 @@
 #include "dict.h"
 #include "batons.h"
 
-struct redisSlots;
-typedef dict redisMap;
-typedef dictEntry redisMapEntry;
+struct keySlots;
+typedef dict keyMap;
+typedef dictEntry keyMapEntry;
 
 /*
  * Mapping SHA1 hashes (identifiers) to sds strings.
  */
-extern redisMap *instmap;
-extern redisMap *namesmap;
-extern redisMap *labelsmap;
-extern redisMap *contextmap;
+extern keyMap *instmap;
+extern keyMap *namesmap;
+extern keyMap *labelsmap;
+extern keyMap *contextmap;
 
-extern redisMap *redisMapCreate(sds);
-extern redisMapEntry *redisMapLookup(redisMap *, sds);
-extern sds redisMapValue(redisMapEntry *);
-extern void redisMapInsert(redisMap *, sds, sds);
+extern keyMap *keyMapCreate(sds);
+extern keyMapEntry *keyMapLookup(keyMap *, sds);
+extern sds keyMapValue(keyMapEntry *);
+extern void keyMapInsert(keyMap *, sds, sds);
 
 /*
  * Helper utilities and data structures
  */
-extern void redisMapsInit(void);
-extern void redisMapsClose(void);
-extern sds redisMapName(redisMap *);
-extern void redisMapRelease(redisMap *);
+extern void keyMapsInit(void);
+extern void keyMapsClose(void);
+extern sds keyMapName(keyMap *);
+extern void keyMapRelease(keyMap *);
 
 /*
  * Asynchronous mapping response helpers
  */
-typedef void (*redisInfoCallBack)(pmLogLevel, sds, void *);
-typedef void (*redisDoneCallBack)(void *);
+typedef void (*keysInfoCallBack)(pmLogLevel, sds, void *);
+typedef void (*keysDoneCallBack)(void *);
 
-typedef struct redisMapBaton {
+typedef struct keyMapBaton {
     seriesBatonMagic	magic;		/* MAGIC_MAPPING */
-    redisMap		*mapping;
+    keyMap		*mapping;
     sds			mapKey;		/* 20-byte SHA1 */
     sds			mapStr;		/* string value */
-    struct redisSlots	*slots;
-    redisDoneCallBack	mapped;
-    redisInfoCallBack	info;
+    struct keySlots	*slots;
+    keysDoneCallBack	mapped;
+    keysInfoCallBack	info;
     void		*userdata;
     void		*arg;
-} redisMapBaton;
+} keyMapBaton;
 
-extern void redisGetMap(struct redisSlots *, redisMap *, unsigned char *,
-		sds, redisDoneCallBack, redisInfoCallBack, void *, void *);
+extern void keyGetMap(struct keySlots *, keyMap *, unsigned char *,
+		sds, keysDoneCallBack, keysInfoCallBack, void *, void *);
 
 #endif	/* SERIES_MAPS_H */
