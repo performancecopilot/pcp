@@ -13,7 +13,7 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-_check_redis_server
+_check_key_server
 which curl >/dev/null 2>&1 || _notrun needs curl
 
 _cleanup()

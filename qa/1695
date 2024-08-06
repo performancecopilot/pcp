@@ -12,13 +12,14 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 . ./common.check
+. ./common.keys
 
 _check_valgrind
 
 _cleanup()
 {
     cd $here
-    [ -n "$redisport" ] && redis-cli -p $redisport shutdown
+    [ -n "$key_server_port" ] && $keys_cli -p $key_server_port shutdown
     $sudo rm -rf $tmp $tmp.*
 }
 
@@ -32,7 +33,7 @@ cat <<EOF > $tmp.conf
 [pmproxy]
 pcp.enabled = true
 http.enabled = true
-redis.enabled = false
+resp.enabled = false
 [discover]
 enabled = false
 [pmsearch]
@@ -51,11 +52,11 @@ _filter_port()
 
 # real QA test starts here
 
-redisport=`_find_free_port`
-echo "Start test Redis server ..."
-redis-server --port $redisport --save "" > $tmp.redis 2>&1 &
-_check_redis_ping $redisport
-_check_redis_server_version $redisport
+key_server_port=`_find_free_port`
+echo "Start test key server ..."
+$key_server --port $key_server_port --save "" > $tmp.keys 2>&1 &
+_check_key_server_ping $key_server_port
+_check_key_server_version $key_server_port
 
 # start pmproxy
 port=`_find_free_port`
@@ -63,7 +64,7 @@ mkdir -p $tmp.pmproxy/pmproxy
 export PCP_RUN_DIR=$tmp.pmproxy
 export PCP_TMP_DIR=$tmp.pmproxy
 
-$_valgrind_clean_assert pmproxy -f -r $redisport -p $port -U $username -l- -c $tmp.conf >$tmp.valout 2>$tmp.valerr &
+$_valgrind_clean_assert pmproxy -f -r $key_server_port -p $port -U $username -l- -c $tmp.conf >$tmp.valout 2>$tmp.valerr &
 pid=$!
 
 echo "valgrind pid: $pid" >>$seq.full

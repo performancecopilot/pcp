@@ -14,10 +14,11 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 . ./common.check
+. ./common.keys
 
 _check_valgrind
 _check_series
-_check_redis_server_version_offline
+_check_key_server_version_offline
 
 _cleanup()
 {
@@ -25,7 +26,7 @@ _cleanup()
 	&& $signal -TERM $pmlogger_pid
     test -n "$pmlogger2_pid" -a -d "/proc/$pmlogger2_pid" \
 	&& $signal -TERM $pmlogger2_pid
-    test -n "$REDISPORT" && redis-cli -p $REDISPORT shutdown
+    test -n "$key_server_port" && $keys_cli -p $key_server_port shutdown
     cd $here
     $sudo rm -rf $tmp $tmp.*
 }
@@ -39,7 +40,7 @@ _filter()
 	-e "s,-c $tmp.conf ,-c CONFFILE ,g" \
 	-e "s,-U $username ,-U USERNAME ,g" \
 	-e "s,-l $tmp.pmproxy,-l LOGFILE,g" \
-	-e "s,-r $REDISPORT,-r REDISPORT,g" \
+	-e "s,-r $key_server_port,-r KEYSPORT,g" \
 	-e "s,-p $PROXYPORT,-p PROXYPORT,g" \
 	-e "s,-s $PROXYSOCK,-s PROXYSOCK,g" \
     | _filter_valgrind_possibly
@@ -58,18 +59,18 @@ mkdir $dir
 
 #
 # Test plan is as follows:
-# - create a local Redis setup to catch discovered data
+# - create a local key server to catch discovered data
 # - create a directory to house freshly created archives
 # - run pmlogger in frequent-writes+volume-switching mode,
 #   background-writing archives below new local directory
 # - run valgrind+pmproxy for a while, see what it uncovers
 # 
 
-REDISPORT=`_find_free_port`
-src/time_stamp $tmp.stamp 'redis start' >>$seq.full
-redis-server --port $REDISPORT --save "" > $tmp.redis 2>&1 &
-_check_redis_ping $REDISPORT
-src/time_stamp $tmp.stamp 'redis active' >>$seq.full
+key_server_port=`_find_free_port`
+src/time_stamp $tmp.stamp 'key server start' >>$seq.full
+$key_server --port $key_server_port --save "" > $tmp.keys 2>&1 &
+_check_key_server_ping $key_server_port
+src/time_stamp $tmp.stamp 'key server active' >>$seq.full
 
 cat > $tmp.sample << EOF2
 log advisory on default { sample }
@@ -84,7 +85,7 @@ src/time_stamp $tmp.stamp 'pmlogger active' >>$seq.full
 PROXYPORT=`_find_free_port`
 PROXYSOCK=$tmp.pmproxy.sock
 cat > $tmp.conf << EOF
-[redis]
+[keys]
 enabled = true
 [pmseries]
 enabled = true
@@ -98,12 +99,12 @@ src/time_stamp $tmp.stamp 'pmproxy start' >>$seq.full
 #grind_extra="--track-origins=yes --read-var-info=yes --read-inline-info=yes"
 _run_valgrind $PCP_BINADM_DIR/pmproxy \
 	-f -t -A -c $tmp.conf -U $username -T 10sec -l $tmp.pmproxy \
-	-r $REDISPORT -p $PROXYPORT -s $PROXYSOCK \
+	-r $key_server_port -p $PROXYPORT -s $PROXYSOCK \
 	| _filter
 src/time_stamp $tmp.stamp 'pmproxy exited' >>$seq.full
 
-echo "=== redis log ===" >> $seq.full
-cat $tmp.redis >> $seq.full
+echo "=== key server log ===" >> $seq.full
+cat $tmp.keys >> $seq.full
 echo "=== pmlogger log ===" >> $seq.full
 cat $tmp.pmlogger >> $seq.full
 echo "=== pmlogger2 log ===" >> $seq.full

@@ -18,7 +18,7 @@ echo "QA output created by $seq"
 _check_python36 # needed by ./src/pmproxy_load_test.python
 _check_valgrind
 _check_series
-_check_redis_server_version_offline
+_check_key_server_version_offline
 
 _cleanup()
 {
@@ -95,7 +95,7 @@ echo "=== valgrind stdout ===" | tee -a $seq.full
 cat $tmp.valout | _filter_valgrind
 
 echo "=== valgrind stderr ===" | tee -a $seq.full
-cat $tmp.valerr | _filter_pmproxy_log | grep -v "Cannot connect to Redis" | _filter_port
+cat $tmp.valerr | _filter_pmproxy_log | grep -v "Cannot connect to key server" | _filter_port
 
 # success, all done
 status=0

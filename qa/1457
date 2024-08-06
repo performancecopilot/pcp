@@ -10,7 +10,7 @@ echo "QA output created by $seq"
 
 . ./common.secure
 
-_check_redis_server
+_check_key_server
 _check_valgrind
 _check_tls
 
@@ -80,7 +80,7 @@ _setup_tls
 echo "[pmproxy]" >> $tmp.conf
 echo "pcp.enabled = true" >> $tmp.conf
 echo "http.enabled = true" >> $tmp.conf
-echo "redis.enabled = true" >> $tmp.conf
+echo "resp.enabled = true" >> $tmp.conf
 echo "secure.enabled = true" >> $tmp.conf
 echo "private_key = $here/tls.conf/pcp.key" >> $tmp.conf
 echo "certificates = $here/tls.conf/pcp.crt" >> $tmp.conf

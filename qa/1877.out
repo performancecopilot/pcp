@@ -1,6 +1,6 @@
 QA output created by 1877
 
-=== empty configuration file, Redis not required
+=== empty configuration file, key server not required
 
-=== configuration file with pmseries REST API enabled, Redis is required
-Redis slots, schema version setup
+=== configuration file with pmseries REST API enabled, key server is required
+Key server slots, schema version setup

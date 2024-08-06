@@ -15,7 +15,7 @@ echo "QA output created by $seq"
 
 [ $PCP_PLATFORM = linux ] || _notrun "Test only runs on Linux"
 which pmproxy >/dev/null 2>&1 || _notrun "No pmproxy binary installed"
-_check_redis_server
+_check_key_server
 
 _cleanup()
 {

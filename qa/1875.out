@@ -1,5 +1,5 @@
 QA output created by 1875
-Start Redis server with password auth ...
+Start key server with password auth ...
 
 === password auth enabled, no password provided
 Cannot connect
@@ -11,10 +11,10 @@ Cannot connect
 OK
 
 === password auth enabled, correct password provided (pmproxy)
-Redis slots, schema version setup
+Key server slots, schema version setup
 
-Stop redis server with password auth ...
-Start Redis server with ACL auth ...
+Stop key server with password auth ...
+Start key server with ACL auth ...
 
 === ACL auth enabled, no username/password provided
 Cannot connect
@@ -29,4 +29,4 @@ Cannot connect
 OK
 
 === ACL auth enabled, correct username and password provided (pmproxy)
-Redis slots, schema version setup
+Key server slots, schema version setup

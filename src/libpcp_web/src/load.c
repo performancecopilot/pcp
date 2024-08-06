@@ -498,7 +498,7 @@ series_cache_update(seriesLoadBaton *baton, struct dict *exclude)
 	if (write_meta)
 	    get_instance_metadata(baton, metric->desc.indom, write_inst);
 
-	/* initiate writes to backend caching servers (Redis) */
+	/* initiate writes to backend caching key servers */
 	server_cache_metric(baton, metric, timestamp, write_meta, write_data);
     }
 
