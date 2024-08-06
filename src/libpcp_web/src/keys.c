@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020 Red Hat.
+ * Copyright (c) 2017-2020,2024, Red Hat.
  *
  * All rights reserved.
  *
@@ -27,17 +27,46 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef SERIES_REDIS_H
-#define SERIES_REDIS_H
+#include <hiredis/net.h>
+#include "keys.h"
 
-#include <hiredis/hiredis.h>
-#include <hiredis/async.h>
+const char *
+resp_reply_type(respReply *reply)
+{
+    if (reply == NULL)
+        return "none";
+    switch (reply->type) {
+    case RESP_REPLY_STRING:
+        return "string";
+    case RESP_REPLY_ARRAY:
+        return "array";
+    case RESP_REPLY_BOOL:
+        return "bool";
+    case RESP_REPLY_DOUBLE:
+        return "double";
+    case RESP_REPLY_INTEGER:
+        return "integer";
+    case RESP_REPLY_MAP:
+        return "map";
+    case RESP_REPLY_NIL:
+        return "nil";
+    case RESP_REPLY_SET:
+        return "set";
+    case RESP_REPLY_STATUS:
+        return "status";
+    case RESP_REPLY_ERROR:
+        return "error";
+    default:
+        break;
+    }
+    return "unknown";
+}
 
-extern const char *redis_reply_type(redisReply *);
-extern int redisAsyncEnableKeepAlive(redisAsyncContext *);
-
-#define REDIS_ENOCLUSTER	"ERR This instance has cluster support disabled"
-#define REDIS_ESTREAMXADD	"ERR The ID specified in XADD is equal or smaller than the target stream top item"
-#define REDIS_EDROPINDEX	"Index already exists. Drop it first!"	/* RediSearch */
-
-#endif /* SERIES_REDIS_H */
+/* Enable connection KeepAlive. */
+int
+keysAsyncEnableKeepAlive(keysAsyncContext *ac)
+{
+    if (keysKeepAlive(&ac->c, RESP_KEEPALIVE_INTERVAL) != RESP_OK)
+        return RESP_ERR;
+    return RESP_OK;
+}

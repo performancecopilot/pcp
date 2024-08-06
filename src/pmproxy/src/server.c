@@ -23,7 +23,7 @@ static struct {
 } server_metrics[] = {
 	{ .group = NULL },		/* METRICS_NOTUSED */
 	{ .group = "server" },		/* METRICS_SERVER */
-	{ .group = "redis" },		/* METRICS_REDIS */
+	{ .group = "keys" },		/* METRICS_KEYS */
 	{ .group = "http" },		/* METRICS_HTTP */
 	{ .group = "pcp" },		/* METRICS_PCP */
 	{ .group = "discover" },	/* METRICS_DISCOVER */
@@ -247,10 +247,10 @@ client_put(struct client *client)
     if (refcount == 0) {
 	if (client->protocol & STREAM_PCP)
 	    on_pcp_client_close(client);
+	if (client->protocol & STREAM_KEYS)
+	    on_key_client_close(client);
 	if (client->protocol & STREAM_HTTP)
 	    on_http_client_close(client);
-	if (client->protocol & STREAM_REDIS)
-	    on_redis_client_close(client);
 	if ((client->protocol & STREAM_SECURE) && client->stream.secure)
 	    on_secure_client_close(client);
 	if (client->buffer)
@@ -290,10 +290,10 @@ on_client_write(uv_write_t *writer, int status)
 	    on_secure_client_write(client);
 	if (client->protocol & STREAM_PCP)
 	    on_pcp_client_write(client);
+	else if (client->protocol & STREAM_KEYS)
+	    on_key_client_write(client);
 	else if (client->protocol & STREAM_HTTP)
 	    on_http_client_write(client);
-	else if (client->protocol & STREAM_REDIS)
-	    on_redis_client_write(client);
     }
 
     sdsfree(request->buffer[0].base);
@@ -410,7 +410,7 @@ client_protocol(int key)
     case '#':	/* RESP bool */
     case '%':	/* RESP map */
     case '~':	/* RESP set */
-	return STREAM_REDIS;
+	return STREAM_KEYS;
     case 0x14:	/* TLS ChangeCipherSpec */
     case 0x15:	/* TLS Alert */
     case 0x16:	/* TLS Handshake */
@@ -432,15 +432,15 @@ on_protocol_read(uv_stream_t *stream, ssize_t nread, const uv_buf_t *buf)
     if (nread < 0)
 	return;
 
-    if ((client->protocol & (STREAM_PCP|STREAM_HTTP|STREAM_REDIS)) == 0)
+    if ((client->protocol & (STREAM_PCP|STREAM_HTTP|STREAM_KEYS)) == 0)
 	client->protocol |= client_protocol(*buf->base);
 
     if (client->protocol & STREAM_PCP)
 	on_pcp_client_read(proxy, client, nread, buf);
+    else if (client->protocol & STREAM_KEYS)
+	on_key_client_read(proxy, client, nread, buf);
     else if (client->protocol & STREAM_HTTP)
 	on_http_client_read(proxy, client, nread, buf);
-    else if (client->protocol & STREAM_REDIS)
-	on_redis_client_read(proxy, client, nread, buf);
     else {
 	if (pmDebugOptions.af)
 	    fprintf(stderr, "%s: unknown protocol key '%c' (0x%x)"
@@ -776,7 +776,7 @@ close_proxy(struct proxy *proxy)
 {
     close_pcp_module(proxy);
     close_http_module(proxy);
-    close_redis_module(proxy);
+    close_keys_module(proxy);
     close_secure_module(proxy);
 }
 
@@ -840,7 +840,7 @@ setup_proxy(uv_timer_t *arg)
     struct proxy	*proxy = (struct proxy *)handle->data;
 
     setup_secure_module(proxy);
-    setup_redis_module(proxy);
+    setup_keys_module(proxy);
     setup_http_module(proxy);
     setup_pcp_module(proxy);
 }
