@@ -1,6 +1,6 @@
 #!/bin/sh
 # PCP QA Test No. 1573
-# Exercise libpcp_web memory leak without a redis-server.
+# Exercise libpcp_web memory leak without a key server.
 #
 # Copyright (c) 2020 Red Hat.
 #
@@ -63,7 +63,7 @@ _restore_pmlogger_control
 echo "[pmproxy]" > $tmp.conf
 echo "pcp.enabled = true" >> $tmp.conf
 echo "http.enabled = true" >> $tmp.conf
-echo "redis.enabled = true" >> $tmp.conf
+echo "resp.enabled = true" >> $tmp.conf
 echo "secure.enabled = false" >> $tmp.conf
 echo "[discover]" >> $tmp.conf
 echo "enabled = true" >> $tmp.conf

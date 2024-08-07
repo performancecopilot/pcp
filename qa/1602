@@ -1,8 +1,8 @@
 #!/bin/sh
 # PCP QA Test No. 1602
-# Exercise Redis protocol proxying using redis-cli(1).
+# Exercise RESP proxying using key server command line tools.
 #
-# Copyright (c) 2019 Red Hat.
+# Copyright (c) 2019,2024 Red Hat.
 #
 
 seq=`basename $0`
@@ -12,10 +12,10 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 . ./common.check
-. ./common.redis
+. ./common.keys
 
 _check_series
-_check_redis_server_version_offline
+_check_key_server_version_offline
 
 # only restart pmproxy if it was running before the QA test starts
 restart_pmproxy=false
@@ -25,7 +25,7 @@ _cleanup()
 {
     cd $here
     [ -n "$pmproxy_pid" ] && $signal -s TERM $pmproxy_pid
-    _redis_cluster_3nodes_stop
+    _key_server_cluster_3nodes_stop
     if $need_restore
     then
 	need_restore=false
@@ -49,14 +49,14 @@ need_restore=false
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
-_filter_redis()
+_filter_key_server()
 {
     sed \
         -e "s,:$port1>,:PORT1>,g" \
     #end
 }
 
-_filter_redis_err()
+_filter_key_server_err()
 {
     sed \
     -e 's;ERR syntax error;expected error;' \
@@ -71,11 +71,11 @@ _save_config $PCP_SYSCONF_DIR/pmproxy
 $sudo rm -f $PCP_SYSCONF_DIR/pmproxy/*
 need_restore=true
 
-# start Redis cluster
-_redis_cluster_3nodes_start
-echo "redis_node1_port=$redis_node1_port" >>$seq.full
-echo "redis_node2_port=$redis_node2_port" >>$seq.full
-echo "redis_node3_port=$redis_node3_port" >>$seq.full
+# start cluster
+_key_server_cluster_3nodes_start
+echo "key_server_node1_port=$key_server_node1_port" >>$seq.full
+echo "key_server_node2_port=$key_server_node2_port" >>$seq.full
+echo "key_server_node3_port=$key_server_node3_port" >>$seq.full
 echo
 
 echo "== start pmproxy"
@@ -83,9 +83,9 @@ echo "== start pmproxy"
 cat >$tmp.conf <<EOF
 [pmproxy]
 pcp.enabled = true
-redis.enabled = true
+resp.enabled = true
 [pmseries]
-servers = localhost:$redis_node1_port,localhost:$redis_node2_port,localhost:$redis_node3_port
+servers = localhost:$key_server_node1_port,localhost:$key_server_node2_port,localhost:$key_server_node3_port
 EOF
 proxyport=`_find_free_port`
 proxyopts="-p $proxyport -c $tmp.conf"
@@ -94,17 +94,17 @@ pmproxy_pid=$!
 echo "proxyport=$proxyport" >>$seq.full
 echo "pmproxy_pid=$pmproxy_pid" >>$seq.full
 _wait_for_pmproxy $proxyport $tmp.pmproxy.log
-which netstat >/dev/null && netstat -l | grep -E "$redis_node1_port|$redis_node2_port|$redis_node3_port|$proxyport" >>$seq.full
-_check_redis_ping $proxyport
+which netstat >/dev/null && netstat -l | grep -E "$key_server_node1_port|$key_server_node2_port|$key_server_node3_port|$proxyport" >>$seq.full
+_check_key_server_ping $proxyport
 echo
 
 # check pmproxy has started and is available for requests
 pmcd_wait -h localhost@localhost:$proxyport -v -t 5sec
 
-# check redis protocol proxying
-echo "== redis-cli set two keys"
-redis-cli -p $proxyport set pcpqa:$seq:one 1
-redis-cli -p $proxyport set pcpqa:$seq:ten 10
+# check key_server protocol proxying
+echo "== key server cli set two keys"
+$keys_cli -p $proxyport set pcpqa:$seq:one 1
+$keys_cli -p $proxyport set pcpqa:$seq:ten 10
 echo
 
 # check pcp protocol proxying
@@ -112,34 +112,34 @@ echo "== pminfo get two metrics"
 pminfo -f -h localhost@localhost:$proxyport sample.long.one sample.long.ten
 echo
 
-# check redis protocol proxying
-echo "== redis-cli get two keys"
-redis-cli -p $proxyport get pcpqa:$seq:one
-redis-cli -p $proxyport get pcpqa:$seq:ten
+# check resp protocol proxying
+echo "== key server cli get two keys"
+$keys_cli -p $proxyport get pcpqa:$seq:one
+$keys_cli -p $proxyport get pcpqa:$seq:ten
 echo
 
-# check redis protocol error handling
-echo "== redis-cli empty key set"
-redis-cli -p $proxyport keys no-such-key | _filter_redis_err
+# check resp protocol error handling
+echo "== keys_cli empty key set"
+$keys_cli -p $proxyport keys no-such-key | _filter_key_server_err
 echo
-echo "== redis-cli handle errors 1"
-redis-cli -p $proxyport get foo bar baz | _filter_redis_err
+echo "== keys_cli handle errors 1"
+$keys_cli -p $proxyport get foo bar baz | _filter_key_server_err
 echo
-echo "== redis-cli handle errors 2"
-redis-cli -p $proxyport set foo bar baz | _filter_redis_err
+echo "== keys_cli handle errors 2"
+$keys_cli -p $proxyport set foo bar baz | _filter_key_server_err
 echo
-echo "== redis-cli nonexistant key"
-redis-cli -p $proxyport get abc
+echo "== keys_cli nonexistant key"
+$keys_cli -p $proxyport get abc
 echo
 
 # check key distribution
-echo "== redis cluster key distribution"
+echo "== key server cluster key distribution"
 echo "== node1"
-redis-cli -p $redis_node1_port keys pcpqa:*
+$keys_cli -p $key_server_node1_port keys pcpqa:*
 echo "== node2"
-redis-cli -p $redis_node2_port keys pcpqa:*
+$keys_cli -p $key_server_node2_port keys pcpqa:*
 echo "== node3"
-redis-cli -p $redis_node3_port keys pcpqa:*
+$keys_cli -p $key_server_node3_port keys pcpqa:*
 echo
 
 cat $tmp.conf >> $seq.full

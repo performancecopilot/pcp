@@ -26,8 +26,8 @@ async def pipe(reader, writer, args, local_writer):
                 and args.loading_delay
                 and time.time() < args.loading_delay
             ):
-                # https://github.com/redis/redis/blob/6.2.6/src/server.c#L2508-L2509
-                data = b"-LOADING Redis is loading the dataset in memory\r\n"
+                # https://github.com/valkey-io/valkey/blob/unstable/src/server.c#L1789
+                data = b"-LOADING Valkey is loading the dataset in memory\r\n"
                 print("<", data)
                 local_writer.write(data)
             else:

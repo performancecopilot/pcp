@@ -1,9 +1,9 @@
 QA output created by 1906
-Start test Redis server ...
+Start test key server ...
 PING
 PONG
 
-== Load metric data into this redis instance
+== Load metric data into this key server instance
 pmseries: [Info] processed 5 archive records from PATH/archives/proc
 
 == Verify multiplication operator for a non-singular metric

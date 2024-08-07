@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020, Red Hat.
+ * Copyright (c) 2017-2020,2024, Red Hat.
  *
  * All rights reserved.
  *
@@ -28,14 +28,14 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 #include <hiredis/net.h>
-#include "redis.h"
+#include "keys.h"
 
 const char *
-redis_reply_type(redisReply *reply)
+resp_reply_type(respReply *reply)
 {
     if (reply == NULL)
         return "none";
-    switch (reply->type) {
+    switch (resp->type) {
     case REDIS_REPLY_STRING:
         return "string";
     case REDIS_REPLY_ARRAY:

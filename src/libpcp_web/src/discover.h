@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2022 Red Hat.
+ * Copyright (c) 2018-2022,2024 Red Hat.
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -149,7 +149,7 @@ typedef struct discoverModuleData {
 
     struct dict			*config;	/* configuration dict */
     uv_loop_t			*events;	/* event library loop */
-    redisSlots			*slots;		/* server slots data */
+    keySlots			*slots;		/* key server slots data */
 
     unsigned int		exclude_names;	/* exclude metric names */
     sds				*patterns;	/* metric name patterns */

@@ -15,11 +15,11 @@ echo "QA output created by $seq"
 
 _check_series
 _check_search
-_check_redis_server_version_offline
+_check_key_server_version_offline
 
 _cleanup()
 {
-    [ -n "$port" ] && redis-cli $port shutdown
+    [ -n "$port" ] && $keys_cli $port shutdown
     cd $here
     $sudo rm -rf $tmp $tmp.*
 }
@@ -29,16 +29,18 @@ $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-echo "=== Start test Redis server ==="
-redisport=`_find_free_port`
-redispath=`_find_redis_modules`
-redisearch="$redispath/redisearch.$DSO_SUFFIX"
+echo "=== Start test key server ==="
+key_server_port=`_find_free_port`
+key_server_name=`_find_key_server_name`
+key_server_path=`_find_key_server_modules`
+key_server_search=`_find_key_server_search`
+keysearch="$key_server_path/$key_server_search.$DSO_SUFFIX"
 # workaround until https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=989385 is fixed
-sudo chmod +x $redisearch
-# RediSearch module is only accessible by the redis user
-sudo -u redis redis-server --port $redisport --save "" --loadmodule $redisearch > $tmp.redis 2>&1 &
-port="-p $redisport"
-_check_redis_ping $redisport
+sudo chmod +x $keysearch
+# module is only accessible by the associated key server user account
+sudo -u $key_server_name $key_server --port $key_server_port --save "" --loadmodule $keysearch > $tmp.keys 2>&1 &
+port="-p $key_server_port"
+_check_key_server_ping $key_server_port
 echo
 
 echo "=== Load an empty index ==="
@@ -73,8 +75,10 @@ pmsearch $port -i -C | _filter_info
 echo "=== Extra reporting - timing, score, hits, doc IDs ==="
 _filter_extras()
 {
-    # need to filter out score, since it seems that Redisearch indexes records asynchronously and therefore they may be 
-    # delay before "score" "stabilizes" until all records are process - this may take longer then adding of records itself
+    # need to filter out score, since it seems the search module indexes
+    # records asynchronously and therefore there may be a delay before
+    # "score" "stabilizes" until all records are processed - this may
+    # take longer then the adding of the records themselves
     sed \
 	-e 's/\(Score:\) 0\.[0-9][0-9]*/\1 0.XX/g' \
 	-e 's/\([0-9][0-9]* hit in\) 0\.[0-9][0-9]* seconds/\1 0.X seconds/g' \
@@ -93,7 +97,7 @@ echo "=== Indom search ==="
 pmsearch $port -n 29.3 | _filter_extras
 
 
-cat $tmp.redis >> $seq.full
+cat $tmp.keys >> $seq.full
 
 # success, all done
 status=0

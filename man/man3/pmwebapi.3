@@ -74,8 +74,7 @@ provided by default.
 The examples in the scalable time series section use
 historical data recorded by the
 .BR pmlogger (1)
-service, in conjunction with a local
-.BR redis-server (1).
+service, in conjunction with a local key-value server/
 .SH OPEN METRICS
 Exporting of live performance metrics in an Open Metrics
 compatible format (as described at
@@ -530,9 +529,7 @@ client	string	Request identifier sent back with response
 .TE
 .PP
 Load time series performance data from the specified source
-into the
-.BR redis-server
-cache.
+into the key-value server cache.
 This request is equivalent to the \fBpmseries\fR \-\fBl\fR/\-\-\fBload\fR
 option.
 .SAMPLE
@@ -552,10 +549,8 @@ suitable for a metric search engine, and in a fashion suited
 to efficient querying by any number of web applications.
 .PP
 In order to use this functionality, the optional
-.I RediSearch
-module must be loaded in the
-.B redis-server
-at the time
+.I ValkeySearch
+module must be loaded in the key-value server at the time
 .B pmproxy
 is started, such that metrics, instances and help text it
 discovers can be automatically indexed.
@@ -1238,7 +1233,6 @@ header is added to all REST API responses.
 .BR pmlogger (1),
 .BR pmproxy (1),
 .BR pmseries (1),
-.BR redis-server (1),
 .BR PCPIntro (3)
 and
 .BR PMAPI (3)
@@ -1248,7 +1242,7 @@ and
 .\" +ok+ offsets_per_term_avg bytes_per_record_avg score_index_size_mb
 .\" +ok+ records_per_doc_avg skip_index_size_mb filesys_blocksize
 .\" +ok+ inverted_cap_ovh inverted_cap_mb inverted_sz_mb halt_wakeup
-.\" +ok+ polltimeout proc_nprocs halt_exits read_bytes read_merge RediSearch
+.\" +ok+ polltimeout proc_nprocs halt_exits read_bytes read_merge ValkeySearch
 .\" +ok+ domainname appversion prometheus machineid blocksize
 .\" +ok+ buddyinfo cebcbadc helptext slabinfo blktotal instname
 .\" +ok+ hostspec avactive wakeups pernode physmem filesys blkread oneline

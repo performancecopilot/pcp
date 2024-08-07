@@ -2,7 +2,7 @@
 # PCP QA Test No. 1360
 # based on qa/1696 pmproxy REST API load testing ...
 # pmproxy should start w/out valgrind issues when it refuses to
-# connect to older versions of Redis
+# connect to older versions of a key server.
 #
 # Copyright (c) 2019 Red Hat.
 # Copyright (c) 2021 Ken McDonell.  All Rights Reserved.
@@ -12,19 +12,17 @@ seq=`basename $0`
 echo "QA output created by $seq"
 
 # get standard environment, filters and checks
-. ./common.product
-. ./common.filter
-. ./common.check
 . ./common.python
+. ./common.keys
 
 _check_python36 # needed by ./src/pmproxy_load_test.python
 _check_valgrind
 _check_series
 
-# need older redis version for this test ...
-version=`redis-server --version | sed -E 's/.*v=([0-9]).*/\1/g'`
+# need older key server version for this test ...
+version=`$key_server --version | sed -E 's/.*v=([0-9]).*/\1/g'`
 [ $version -ge 5 ] && \
-    _notrun "Redis version $version needs no backward compatibility testing"
+    _notrun "Key server version $version needs no backward compatibility testing"
 
 _cleanup()
 {
@@ -102,7 +100,7 @@ echo "=== valgrind stdout ===" | tee -a $seq.full
 cat $tmp.valout | _filter_valgrind
 
 echo "=== valgrind stderr ===" | tee -a $seq.full
-cat $tmp.valerr | _filter_pmproxy_log | grep -v "Cannot connect to Redis" | _filter_port
+cat $tmp.valerr | _filter_pmproxy_log | grep -v "Cannot connect to key server" | _filter_port
 
 # success, all done
 status=0

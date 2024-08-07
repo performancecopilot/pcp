@@ -1,6 +1,6 @@
 #!/bin/sh
 # PCP QA Test No. 1877
-# Verify that pmproxy does not connect to Redis if it's not required
+# Verify that pmproxy does not connect to key server if not required
 #
 # Copyright (c) 2021 Red Hat.  All Rights Reserved.
 #
@@ -13,7 +13,7 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-_check_redis_server
+_check_key_server
 
 _cleanup()
 {
@@ -33,20 +33,20 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 echo
-echo "=== empty configuration file, Redis not required"
+echo "=== empty configuration file, key server not required"
 echo > $tmp.pmproxy.conf
 pmproxyport=`_find_free_port`
 pmproxy -f -U $username -x $tmp.err -l $tmp.pmproxy.log -p $pmproxyport -s $tmp.pmproxy.socket -c $tmp.pmproxy.conf &
 pmproxy_pid=$!
 # check pmproxy has started and is available for requests
 pmcd_wait -h localhost@localhost:$pmproxyport -v -t 5sec
-grep -o "Redis.*" $tmp.pmproxy.log
+grep -o "Key.*" $tmp.pmproxy.log
 cat $tmp.pmproxy.log >>$seq.full
 $signal -s TERM $pmproxy_pid
 pmproxy_pid=""
 
 echo
-echo "=== configuration file with pmseries REST API enabled, Redis is required"
+echo "=== configuration file with pmseries REST API enabled, key server is required"
 cat <<EOF > $tmp.pmproxy.conf
 [pmseries]
 enabled = true
@@ -56,7 +56,7 @@ pmproxy -f -U $username -x $tmp.err -l $tmp.pmproxy.log -p $pmproxyport -s $tmp.
 pmproxy_pid=$!
 # check pmproxy has started and is available for requests
 pmcd_wait -h localhost@localhost:$pmproxyport -v -t 5sec
-grep -o "Redis.*" $tmp.pmproxy.log
+grep -o "Key.*" $tmp.pmproxy.log
 cat $tmp.pmproxy.log >>$seq.full
 $signal -s TERM $pmproxy_pid
 pmproxy_pid=""

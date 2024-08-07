@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020 Red Hat.
+ * Copyright (c) 2017-2020,2024 Red Hat.
  *
  * All rights reserved.
  *
@@ -27,17 +27,30 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef SERIES_REDIS_H
-#define SERIES_REDIS_H
+#ifndef RESP_KEYS_H
+#define RESP_KEYS_H
 
 #include <hiredis/hiredis.h>
 #include <hiredis/async.h>
 
-extern const char *redis_reply_type(redisReply *);
-extern int redisAsyncEnableKeepAlive(redisAsyncContext *);
+#define RESP_OK			REDIS_OK
+#define RESP_CONN_UNIX		REDIS_CONN_UNIX
 
-#define REDIS_ENOCLUSTER	"ERR This instance has cluster support disabled"
-#define REDIS_ESTREAMXADD	"ERR The ID specified in XADD is equal or smaller than the target stream top item"
-#define REDIS_EDROPINDEX	"Index already exists. Drop it first!"	/* RediSearch */
+#define RESP_REPLY_STRING	REDIS_REPLY_STRING
+#define RESP_REPLY_ARRAY 	REDIS_REPLY_ARRAY
+#define RESP_REPLY_INTEGER	REDIS_REPLY_INTEGER
+#define RESP_REPLY_NIL		REDIS_REPLY_NIL
+#define RESP_REPLY_STATUS	REDIS_REPLY_STATUS
+#define RESP_REPLY_ERROR	REDIS_REPLY_ERROR
 
-#endif /* SERIES_REDIS_H */
+#define respReply redisReply
+#define keysAsyncContext redisAsyncContext
+
+extern const char *resp_reply_type(respReply *);
+extern int keysAsyncEnableKeepAlive(keysAsyncContext *);
+
+#define KEYS_ENOCLUSTER	"ERR This instance has cluster support disabled"
+#define KEYS_ESTREAMXADD "ERR The ID specified in XADD is equal or smaller than the target stream top item"
+#define KEYS_EDROPINDEX	"Index already exists. Drop it first!"	/* search module */
+
+#endif /* RESP_KEYS_H */

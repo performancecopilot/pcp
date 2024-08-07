@@ -334,8 +334,8 @@ main(int argc, char *argv[])
     unsigned int	search_count = 0;
     unsigned int	search_offset = 0;
     const char		*inifile = NULL;
-    const char		*redis_host = NULL;
-    unsigned int	redis_port = 6379;	/* default Redis port */
+    const char		*keys_host = NULL;
+    unsigned int	keys_port = 6379;	/* default key server port */
     search_flags	flags = 0;
     search_data		*dp;
     struct dict		*config;
@@ -355,8 +355,8 @@ main(int argc, char *argv[])
 	    flags |= PMSEARCH_DOCIDS;
 	    break;
 
-	case 'h':	/* Redis host to connect to */
-	    redis_host = opts.optarg;
+	case 'h':	/* key server host to connect to */
+	    keys_host = opts.optarg;
 	    break;
 
 	case 'i':	/* report search engine info (metrics) */
@@ -375,8 +375,8 @@ main(int argc, char *argv[])
 	    search_offset = strtoul(opts.optarg, NULL, 10);
 	    break;
 
-	case 'p':	/* Redis port to connect to */
-	    redis_port = (unsigned int)strtol(opts.optarg, NULL, 10);
+	case 'p':	/* keys server port to connect to */
+	    keys_port = (unsigned int)strtol(opts.optarg, NULL, 10);
 	    break;
 
 	case 'q':	/* command line contains query string */
@@ -428,12 +428,13 @@ main(int argc, char *argv[])
 	    pmIniFileUpdate(config, "pmsearch", "count", option);
 	}
 
-	if ((option = pmIniFileLookup(config, "redis", "servers")) == NULL)
-	    option = pmIniFileLookup(config, "pmseries", "servers");
-	if (option == NULL || redis_host != NULL || redis_port != 6379) {
+	if ((option = pmIniFileLookup(config, "keys", "servers")) == NULL)
+	    if ((option = pmIniFileLookup(config, "redis", "servers")) == NULL)
+	        option = pmIniFileLookup(config, "pmseries", "servers");
+	if (option == NULL || keys_host != NULL || keys_port != 6379) {
 	    option = sdscatfmt(sdsempty(), "%s:%u",
-			redis_host? redis_host : "localhost", redis_port);
-	    pmIniFileUpdate(config, "redis", "servers", option);
+			keys_host? keys_host : "localhost", keys_port);
+	    pmIniFileUpdate(config, "keys", "servers", option);
 	}
     }
 

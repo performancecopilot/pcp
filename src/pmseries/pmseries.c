@@ -871,8 +871,8 @@ on_series_done(int sts, void *arg)
 	arg = entry->arg;
 	func(dp, arg);
     } else {
-	/* we're in the middle of an Redis async callback,
-	   schedule freeing the Redis context for later */
+	/* we're in the middle of an async callback,
+	   schedule freeing the context for later */
 	if (!(dp->flags & PMSERIES_NEED_CLOSE)) {
 	    dp->flags |= PMSERIES_NEED_CLOSE;
 	    pmseries_schedule_close(dp);
@@ -1227,8 +1227,8 @@ issid(const char *string)
 static pmLongOptions longopts[] = {
     PMAPI_OPTIONS_HEADER("Connection Options"),
     { "config", 1, 'c', "FILE", "configuration file path"},
-    { "host", 1, 'h', "HOST", "connect to Redis using given host name" },
-    { "port", 1, 'p', "PORT", "connect to Redis using given TCP/IP port" },
+    { "host", 1, 'h', "HOST", "connect to key server using given host name" },
+    { "port", 1, 'p', "PORT", "connect to key server using given TCP/IP port" },
     PMAPI_OPTIONS_HEADER("General Options"),
     { "load", 0, 'L', 0, "load time series values and metadata" },
     { "query", 0, 'q', 0, "perform a time series query (default)" },
@@ -1271,9 +1271,9 @@ main(int argc, char *argv[])
     const char		*split = ",";
     const char		*space = " ";
     const char		*inifile = NULL;
-    const char		*redis_host = NULL;
+    const char		*keys_host = NULL;
     static char		tzbuffer[128];
-    unsigned int	redis_port = 6379;	/* default Redis port */
+    unsigned int	keys_port = 6379;	/* default RESP port */
     struct dict		*config;
     series_flags	flags = 0;
     series_data		*dp;
@@ -1310,8 +1310,8 @@ main(int argc, char *argv[])
 	    match = sdsnew(opts.optarg);
 	    break;
 
-	case 'h':	/* Redis host to connect to */
-	    redis_host = opts.optarg;
+	case 'h':	/* key server to connect to */
+	    keys_host = opts.optarg;
 	    break;
 
 	case 'i':	/* command line contains series identifiers */
@@ -1343,8 +1343,8 @@ main(int argc, char *argv[])
 	    flags |= (PMSERIES_OPT_LABELS|PMSERIES_ONLY_NAMES);
 	    break;
 
-	case 'p':	/* Redis port to connect to */
-	    redis_port = (unsigned int)strtol(opts.optarg, NULL, 10);
+	case 'p':	/* key server port to connect to */
+	    keys_port = (unsigned int)strtol(opts.optarg, NULL, 10);
 	    break;
 
 	case 'q':	/* command line contains query string */
@@ -1399,14 +1399,15 @@ main(int argc, char *argv[])
     } else {
 	/*
 	 * Push command line options into the configuration, and ensure
-	 * we have some default for attemping Redis server connections.
+	 * we have some default for attemping key server connections.
 	 */
-	if ((option = pmIniFileLookup(config, "redis", "servers")) == NULL)
-	    option = pmIniFileLookup(config, "pmseries", "servers");
-	if (option == NULL || redis_host != NULL || redis_port != 6379) {
+	if ((option = pmIniFileLookup(config, "keys", "servers")) == NULL)
+	    if ((option = pmIniFileLookup(config, "redis", "servers")) == NULL)
+	        option = pmIniFileLookup(config, "pmseries", "servers");
+	if (option == NULL || keys_host != NULL || keys_port != 6379) {
 	    option = sdscatfmt(sdsempty(), "%s:%u",
-			redis_host? redis_host : "localhost", redis_port);
-	    pmIniFileUpdate(config, "redis", "servers", option);
+			keys_host? keys_host : "localhost", keys_port);
+	    pmIniFileUpdate(config, "keys", "servers", option);
 	}
     }
 
