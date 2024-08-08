@@ -8,69 +8,12 @@
 # Copyright (c) 2024 Matthias Gerstner.  All Rights Reserved.
 #
 
-if [ $# -eq 0 ]
-then
-    seq=`basename $0`
-    echo "QA output created by $seq"
-else
-    # use $seq from caller, unless not set
-    [ -n "$seq" ] || seq=`basename $0`
-    echo "QA output created by `basename $0` $*"
-fi
+seq=`basename $0`
+echo "QA output created by $seq"
 
-# get standard environment, filters and checks
-. ./common.product
-. ./common.filter
-. ./common.check
+pdu_data=binary/numcreds-undefined-data
+grep_pattern=__pmDecodeCreds
 
-$sudo rm -rf $tmp $tmp.* $seq.full
-
-which nc >/dev/null 2>&1 || _notrun "no nc executable installed"
-_check_valgrind
-
-_cleanup()
-{
-    cat pmcd.log >>$here/$seq.full
-    cd $here
-    $sudo rm -rf $tmp $tmp.*
-}
-
-status=0	# success is the default!
-trap "_cleanup; exit \$status" 0 1 2 3 15
-
-_filter()
-{
-    sed \
-	-e '/^Command: /d' \
-    # end
-}
-
-mkdir $tmp || exit 1
-cd $tmp
-grep sampledso $PCP_PMCDCONF_PATH >pmcd.conf
-cat pmcd.conf >>$here/$seq.full
-port=`_find_free_port`
-echo "port=$port" >>$here/$seq.full
-
-# real QA test starts here
-valgrind $PCP_BINADM_DIR/pmcd -f -Dpdu -c ./pmcd.conf -s ./pmcd.socket -p $port  >out 2>err &
-valgrind_pid=$!
-sleep 2
-pmcd_pid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '[p]mcd -f -Dpdu' | $PCP_AWK_PROG '{ print $2 }'`
-echo "pmcd_pid=$pmcd_pid" >>$here/$seq.full
-nc -N -U ./pmcd.socket <$here/binary/numcreds-undefined-data 2>&1 \
-| od -c >>$here/$seq.full
-sleep 2
-kill -TERM $pmcd_pid
-wait
-
-echo "expect error to be logged ..."
-grep __pmDecodeCreds pmcd.log
-
-echo
-echo "and no valgrind badness ..."
-cat out err | _filter_valgrind | _filter
-
-# success, all done
-exit
-
+# this is one of the generic pmcd PDU exerciser tests ...
+#
+. ./common.pmcd.pdu

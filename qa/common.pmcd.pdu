@@ -1,0 +1,71 @@
+# This is really a full QA test for stress testing pmcd's protocol
+# handling ... set the shell variables
+# $pdu_data
+#	binary protocol data stream that typically contains malformed
+#	PDUs (see the qa/binary directory for examples) ... this needs
+#	to be a relative path
+# $grep_pattern
+#	a grep -E pattern for scanning pmcd.log once the test has been
+#	run
+# and then source this file
+
+[ -z "$pdu_data" ] && echo "Botch! \$pdu_data not set" && exit 1
+[ -z "$grep_pattern" ] && echo "Botch! \$grep_pattern not set" && exit 1
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ ! -f "$here/$pdu_data" ] && echo "Botch! PDU data file $here/$pdu_data not found" && exit 1
+
+$sudo rm -rf $tmp $tmp.* $seq.full
+
+which nc >/dev/null 2>&1 || _notrun "no nc executable installed"
+_check_valgrind
+
+_cleanup()
+{
+    cat pmcd.log >>$here/$seq.full
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e '/^Command: /d' \
+    # end
+}
+
+mkdir $tmp || exit 1
+cd $tmp
+grep sampledso $PCP_PMCDCONF_PATH >pmcd.conf
+cat pmcd.conf >>$here/$seq.full
+port=`_find_free_port`
+echo "port=$port" >>$here/$seq.full
+
+# real QA test starts here
+valgrind $PCP_BINADM_DIR/pmcd -f -Dpdu -c ./pmcd.conf -s ./pmcd.socket -p $port  >out 2>err &
+valgrind_pid=$!
+sleep 2
+pmcd_pid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '[p]mcd -f -Dpdu' | $PCP_AWK_PROG '{ print $2 }'`
+echo "pmcd_pid=$pmcd_pid" >>$here/$seq.full
+nc -N -U ./pmcd.socket <$here/$pdu_data 2>&1 \
+| od -c >>$here/$seq.full
+sleep 2
+kill -TERM $pmcd_pid
+wait
+
+echo "expect error to be logged ..."
+grep -E "$grep_pattern" pmcd.log
+
+echo
+echo "and no valgrind badness ..."
+cat out err | _filter_valgrind | _filter
+
+# success, all done
+exit

@@ -1984,8 +1984,8 @@ x11
 1515 pmda.denki local valgrind
 1516 derive local valgrind
 1517 derive local valgrind
-1518 pmcd libpcp local
-1519 pmcd libpcp local
+1518 pmcd libpcp local suse
+1519 pmcd libpcp local suse
 1520 other libpcp local pmconfig
 1521 derive local
 1522 derive local valgrind
@@ -1993,7 +1993,7 @@ x11
 1524 pmview local
 1525 pmview dkvis mpvis
 1526 other local
-1527:reserved suse kenj
+1527 pmcd libpcp local suse
 1528:reserved suse kenj
 1529:reserved suse kenj
 1530 pmda.zfs local valgrind
