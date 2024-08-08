@@ -85,7 +85,7 @@ __pmDecodeCreds(__pmPDU *pdubuf, int *sender, int *credcount, __pmCred **credlis
     numcred = ntohl(pp->numcreds);
     if (numcred <= 0 || numcred > LIMIT_CREDS) {
 	if (pmDebugOptions.pdu) {
-	    fprintf(stderr, "__pmDecodeCreds: PM_ERR_IPC: numcred %d < 0 or > LIMIT_CREDS %d\n",
+	    fprintf(stderr, "__pmDecodeCreds: PM_ERR_IPC: numcred %d <= 0 or > LIMIT_CREDS %d\n",
 		numcred, LIMIT_CREDS);
 	}
 	return PM_ERR_IPC;
