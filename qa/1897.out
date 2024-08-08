@@ -132,8 +132,8 @@ ha_cluster.drbd.connections.all PMID: 155.18.0 [DRBD Peer disk information]
     Data Type: 32-bit unsigned int  InDom: 155.16 0x26c00010
     Semantics: instant  Units: count
 Help:
-Value is 1 if a drbd peer connection exists. The details of the corresponding DRBD peer
-connection is given as label metadata values for this metric.
+Value is 1 if a DRBD peer connection exists. Details of the corresponding
+DRBD peer connection are given as label metadata values for this metric.
     inst [0 or "drbd1:1"] value 1
 
 ha_cluster.drbd.connections.peer_disk_state PMID: 155.11.4 [Peer disk state]
@@ -238,8 +238,8 @@ ha_cluster.drbd.resources.all PMID: 155.17.0 [DRBD resource information]
     Data Type: 32-bit unsigned int  InDom: 155.15 0x26c0000f
     Semantics: instant  Units: count
 Help:
-Value is 1 if a drbd resource exists. The details of the corresponding drbd resource
-is given as label metadata values for this metric.
+Value is 1 if a DRBD resource exists. Details of the corresponding DRBD
+resource are given as label metadata values for this metric.
     inst [0 or "drbd1:0"] value 1
 
 ha_cluster.drbd.resources.disk_state PMID: 155.10.3 [Disk state]
@@ -819,8 +819,8 @@ ha_cluster.drbd.connections.all PMID: 155.18.0 [DRBD Peer disk information]
     Data Type: 32-bit unsigned int  InDom: 155.16 0x26c00010
     Semantics: instant  Units: count
 Help:
-Value is 1 if a drbd peer connection exists. The details of the corresponding DRBD peer
-connection is given as label metadata values for this metric.
+Value is 1 if a DRBD peer connection exists. Details of the corresponding
+DRBD peer connection are given as label metadata values for this metric.
 No value(s) available!
 
 ha_cluster.drbd.connections.peer_disk_state PMID: 155.11.4 [Peer disk state]
@@ -925,8 +925,8 @@ ha_cluster.drbd.resources.all PMID: 155.17.0 [DRBD resource information]
     Data Type: 32-bit unsigned int  InDom: 155.15 0x26c0000f
     Semantics: instant  Units: count
 Help:
-Value is 1 if a drbd resource exists. The details of the corresponding drbd resource
-is given as label metadata values for this metric.
+Value is 1 if a DRBD resource exists. Details of the corresponding DRBD
+resource are given as label metadata values for this metric.
 No value(s) available!
 
 ha_cluster.drbd.resources.disk_state PMID: 155.10.3 [Disk state]
@@ -1445,8 +1445,8 @@ ha_cluster.drbd.connections.all PMID: 155.18.0 [DRBD Peer disk information]
     Data Type: 32-bit unsigned int  InDom: 155.16 0x26c00010
     Semantics: instant  Units: count
 Help:
-Value is 1 if a drbd peer connection exists. The details of the corresponding DRBD peer
-connection is given as label metadata values for this metric.
+Value is 1 if a DRBD peer connection exists. Details of the corresponding
+DRBD peer connection are given as label metadata values for this metric.
 No value(s) available!
 
 ha_cluster.drbd.connections.peer_disk_state PMID: 155.11.4 [Peer disk state]
@@ -1551,8 +1551,8 @@ ha_cluster.drbd.resources.all PMID: 155.17.0 [DRBD resource information]
     Data Type: 32-bit unsigned int  InDom: 155.15 0x26c0000f
     Semantics: instant  Units: count
 Help:
-Value is 1 if a drbd resource exists. The details of the corresponding drbd resource
-is given as label metadata values for this metric.
+Value is 1 if a DRBD resource exists. Details of the corresponding DRBD
+resource are given as label metadata values for this metric.
 No value(s) available!
 
 ha_cluster.drbd.resources.disk_state PMID: 155.10.3 [Disk state]
