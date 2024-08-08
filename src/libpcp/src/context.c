@@ -35,6 +35,7 @@
 #include "internal.h"
 #include <string.h>
 #include <assert.h>
+#include <ctype.h>
 
 static __pmContext	**contexts;		/* array of context ptrs */
 static int		contexts_len;		/* number of contexts */
@@ -398,6 +399,24 @@ initcontextlock(pthread_mutex_t *lock)
 #define initcontextlock(x)	do { } while (0)
 #endif
 
+/*
+ * Container names are parsed later as part of JSONB labelsets,
+ * ensure the name is drawn from a limited character set that
+ * is not going to result in conflicts with any other uses.
+ */
+static int
+valid_container(const char *name)
+{
+    const char *p;
+
+    for (p = name; *p; p++) {
+        if (isalnum(*p) || *p == ' ' || *p == '_')
+	    continue;
+	return PM_ERR_NOCONTAINER;
+    }
+    return 0;
+}
+
 static int
 ctxlocal(__pmHashCtl *attrs)
 {
@@ -407,6 +426,10 @@ ctxlocal(__pmHashCtl *attrs)
 
     PM_LOCK(__pmLock_extcall);
     if ((container = getenv("PCP_CONTAINER")) != NULL) {	/* THREADSAFE */
+	if ((sts = valid_container(container)) < 0) {
+	    PM_UNLOCK(__pmLock_extcall);
+	    return sts;
+	}
 	if ((name = strdup(container)) == NULL) {
 	    PM_UNLOCK(__pmLock_extcall);
 	    return -ENOMEM;
@@ -471,6 +494,10 @@ ctxflags(__pmHashCtl *attrs, int *flags)
 	PM_LOCK(__pmLock_extcall);
 	container = getenv("PCP_CONTAINER");		/* THREADSAFE */
 	if (container != NULL) {
+	    if ((sts = valid_container(container)) < 0) {
+		PM_UNLOCK(__pmLock_extcall);
+		return sts;
+	    }
 	    if ((name = strdup(container)) == NULL) {
 		PM_UNLOCK(__pmLock_extcall);
 		return -ENOMEM;

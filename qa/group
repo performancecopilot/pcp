@@ -542,7 +542,7 @@ x11
 073 pmclient local pmprobe python kernel
 074 pmda pmda.pmcd local ostest sanity kernel pmda.sample
 075 pmval pmstore ostest remote pmda.sample
-076 pmda.pmcd local ostest
+076 pmda.pmcd local ostest suse
 077 libpcp ostest remote timezone
 078 pmlogdump local ostest
 079 libpcp archive local ostest pmclient
@@ -1443,7 +1443,7 @@ x11
 974 pmda.proc local
 975 pmimport local iostat2pcp
 976 dbpmda perl pmda.lustre local
-977 libpcp valgrind local containers
+977 libpcp valgrind local containers suse
 978 libpcp getopt sanity local timezone
 979 python local
 980 python local
