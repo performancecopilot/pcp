@@ -1984,7 +1984,7 @@ x11
 1515 pmda.denki local valgrind
 1516 derive local valgrind
 1517 derive local valgrind
-1518:reserved suse kenj
+1518 pmcd libpcp local
 1519:reserved suse kenj
 1520 other libpcp local pmconfig
 1521 derive local

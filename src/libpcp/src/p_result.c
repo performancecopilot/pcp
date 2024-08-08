@@ -412,10 +412,10 @@ __pmDecodeValueSet(__pmPDU *pdubuf, int pdulen, __pmPDU *data, char *pduend,
 			return PM_ERR_IPC;
 		    }
 		    vindex = ntohl(pduvp->value.lval);
-		    if (vindex < 0 || vindex > pdulen) {
+		    if (vindex < 0 || (char *)&pdubuf[vindex] >= pduend) {
 			if (pmDebugOptions.pdu)
-			    fprintf(stderr, "__pmDecodeValueSet: PM_ERR_IPC: pmid[%d] value[%d] vindex=%d\n",
-				i, j, vindex);
+			    fprintf(stderr, "__pmDecodeValueSet: PM_ERR_IPC: pmid[%d] value[%d] vindex=%d (max=%ld)\n",
+				i, j, vindex, (long)((pduend-(char *)pdubuf) / sizeof(pdubuf[0])-1));
 			return PM_ERR_IPC;
 		    }
 		    pduvbp = (pmValueBlock *)&pdubuf[vindex];
