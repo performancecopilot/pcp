@@ -75,8 +75,15 @@ __pmDecodeCreds(__pmPDU *pdubuf, int *sender, int *credcount, __pmCred **credlis
 
     pp = (creds_t *)pdubuf;
     len = pp->hdr.len;		/* ntohl() converted already in __pmGetPDU() */
+    if (len < sizeof(creds_t)) {
+	if (pmDebugOptions.pdu) {
+	    fprintf(stderr, "__pmDecodeCreds: PM_ERR_IPC: len %d < sizeof(cred_t) %d\n",
+		len, (int) sizeof(creds_t));
+	}
+	return PM_ERR_IPC;
+    }
     numcred = ntohl(pp->numcreds);
-    if (numcred < 0 || numcred > LIMIT_CREDS) {
+    if (numcred <= 0 || numcred > LIMIT_CREDS) {
 	if (pmDebugOptions.pdu) {
 	    fprintf(stderr, "__pmDecodeCreds: PM_ERR_IPC: numcred %d < 0 or > LIMIT_CREDS %d\n",
 		numcred, LIMIT_CREDS);
