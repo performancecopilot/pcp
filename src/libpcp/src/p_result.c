@@ -742,6 +742,7 @@ __pmDecodeResult_ctx(__pmContext *ctxp, __pmPDU *pdubuf, __pmResult **result)
     int			sts;
     int			numpmid;	/* number of metrics */
     int			len = pdubuf[0];
+    int			v3archive;
     __pmPDU		*vset;
     char		*pduend;	/* end pointer for incoming buffer */
     size_t		bytes, nopad;
@@ -752,29 +753,15 @@ __pmDecodeResult_ctx(__pmContext *ctxp, __pmPDU *pdubuf, __pmResult **result)
     if (ctxp != NULL)
 	PM_ASSERT_IS_LOCKED(ctxp->c_lock);
 
-    if (ctxp != NULL && ctxp->c_type == PM_CONTEXT_ARCHIVE && __pmLogVersion(ctxp->c_archctl->ac_log) == PM_LOG_VERS03) {
-	/*
-	 * V3 archive
-	 */
-	log_result_v3_t	*lrp = (log_result_v3_t *)pdubuf;
+    v3archive = (ctxp && ctxp->c_type == PM_CONTEXT_ARCHIVE &&
+		__pmLogVersion(ctxp->c_archctl->ac_log) == PM_LOG_VERS03);
+    if (v3archive) {
 	pduend = (char *)pdubuf + len;
 	bytes = sizeof(log_result_v3_t) - sizeof(__int32_t);
-	nopad = bytes;
-	numpmid = ntohl(lrp->numpmid);
-	__pmLoadTimestamp((__int32_t *)&lrp->sec[0], &stamp);
-	vset = (__pmPDU *)lrp->data;
     }
-    else {
-	/*
-	 * over the wire PDU or V2 archive
-	 */
-	result_t	*pp = (result_t *)pdubuf;
+    else {  /* over the wire PDU or V2 archive */
 	pduend = (char *)pdubuf + len;
 	bytes = sizeof(result_t) - sizeof(__pmPDU);
-	nopad = sizeof(pp->hdr) + sizeof(pp->timestamp) + sizeof(pp->numpmid);
-	numpmid = ntohl(pp->numpmid);
-	__pmLoadTimeval((__int32_t *)&pp->timestamp, &stamp);
-	vset = pp->data;
     }
 
     if (pduend - (char *)pdubuf < bytes) {
@@ -782,6 +769,24 @@ __pmDecodeResult_ctx(__pmContext *ctxp, __pmPDU *pdubuf, __pmResult **result)
 	    fprintf(stderr, "__pmDecodeResult: PM_ERR_IPC: len=%d smaller than min %d\n",
 		len, (int)bytes);
 	return PM_ERR_IPC;
+    }
+
+    /* delayed until after buffer size check has been completed */
+    if (v3archive) {
+	log_result_v3_t	*lrp = (log_result_v3_t *)pdubuf;
+
+	nopad = bytes;
+	numpmid = ntohl(lrp->numpmid);
+	__pmLoadTimestamp((__int32_t *)&lrp->sec[0], &stamp);
+	vset = (__pmPDU *)lrp->data;
+    }
+    else {
+	result_t	*pp = (result_t *)pdubuf;
+
+	nopad = sizeof(pp->hdr) + sizeof(pp->timestamp) + sizeof(pp->numpmid);
+	numpmid = ntohl(pp->numpmid);
+	__pmLoadTimeval((__int32_t *)&pp->timestamp, &stamp);
+	vset = pp->data;
     }
 
     if (numpmid < 0 || numpmid > len) {
