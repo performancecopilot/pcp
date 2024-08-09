@@ -55,7 +55,7 @@ sleep 2
 pmcd_pid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '[p]mcd -f -Dpdu' | $PCP_AWK_PROG '{ print $2 }'`
 echo "pmcd_pid=$pmcd_pid" >>$here/$seq.full
 nc -N -U ./pmcd.socket <$here/$pdu_data 2>&1 \
-| od -c >>$here/$seq.full
+| od -X >>$here/$seq.full
 sleep 2
 kill -TERM $pmcd_pid
 wait

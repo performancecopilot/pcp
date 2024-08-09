@@ -1994,7 +1994,7 @@ x11
 1525 pmview dkvis mpvis
 1526 other local
 1527 pmcd libpcp local suse
-1528:reserved suse kenj
+1528 pmcd libpcp suse local
 1529:reserved suse kenj
 1530 pmda.zfs local valgrind
 1531 pmda.zfs local valgrind
