@@ -375,8 +375,6 @@ extern int __pmIsLocked(void *) _PCP_HIDDEN;
 extern void __pmCheckIsUnlocked(void *, char *, int) _PCP_HIDDEN;
 #endif /* BUILD_WITH_LOCK_ASSERTS */
 
-extern int __pmGetPDUCeiling(void) _PCP_HIDDEN;
-
 extern int __pmSetFeaturesIPC(int, int, int) _PCP_HIDDEN;
 extern int __pmSetDataIPC(int, void *) _PCP_HIDDEN;
 extern int __pmDataIPCSize(void) _PCP_HIDDEN;
