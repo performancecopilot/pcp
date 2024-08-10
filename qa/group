@@ -1995,7 +1995,7 @@ x11
 1526 other local
 1527 pmcd libpcp local suse
 1528 pmcd libpcp suse local
-1529:reserved suse kenj
+1529 pmcd local
 1530 pmda.zfs local valgrind
 1531 pmda.zfs local valgrind
 1532 pmda.zfs local

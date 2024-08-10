@@ -3520,3 +3520,37 @@ _try_pmlc()
 	fi
     fi
 }
+
+# Start a new private non-daemon pmcd with only the sampledso PMDA
+# and pmcd PMDA running in the $tmp directory (all pmcd's files in
+# and out end up here).
+# on entry ...
+# $pmcd_args	extra command line args to pmcd
+#
+# on return ...
+# $pmcd_pid		PID of the new pmcd
+# $pmcd_port		port the new pmcd is listening on
+#			also set in the environment as $PMCD_PORT
+# $tmp/pmcd.socket	Unix domain socket for pmcd requests
+# $tmp/pmcd.conf	pmcd's config file
+# $tmp/pmcd.out		pmcd's stdout
+# $tmp/pmcd.err		pmcd's stderr
+# $tmp/pmcd.log		pmcd's log file
+#
+# to cleanup ...
+# kill -TERM $pmcd_pid
+#
+_private_pmcd()
+{
+    [ -d $tmp ] || mkdir $tmp || exit 1
+    cd $tmp
+    grep -E '^(sampledso|pmcd)[ 	]' $PCP_PMCDCONF_PATH >pmcd.conf
+    echo "=== private pmcd ..." >>$here/$seq.full
+    cat pmcd.conf >>$here/$seq.full
+    pmcd_port=`_find_free_port`
+    echo "pmcd_port=$port" >>$here/$seq.full
+    $PCP_BINADM_DIR/pmcd $pmcd_args -f -c ./pmcd.conf -s ./pmcd.socket -p $pmcd_port  >pmcd.out 2>pmcd.err &
+    pmcd_pid=$!
+    export PMCD_PORT=$pmcd_port
+    _wait_for_pmcd
+}

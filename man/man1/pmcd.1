@@ -25,6 +25,7 @@
 [\f3\-i\f1 \f2ipaddress\f1]
 [\f3\-l\f1 \f2logfile\f1]
 [\f3\-L\f1 \f2bytes\f1]
+[\f3\-M\f1 \f2nmetric\f1]
 [\f3\-\f1[\f3n\f1|\f3N\f1] \f2pmnsfile\f1]
 [\f3\-p\f1 \f2port\f1[,\f2port\f1 ...]]
 [\f3\-q\f1 \f2timeout\f1]
@@ -187,6 +188,20 @@ The
 option may be used to change the maximum incoming
 .I PDU
 size.
+.TP
+\f3\-M\f1 \f2nmetric\f1
+Each
+.B fetch
+received by
+.B pmcd
+from monitoring clients is restricted to a
+maximum of 32768 metrics by default to defend against Denial of
+Service attacks through memory depletion.
+The
+.B \-M
+option may be used to change the maximum to
+.I nmetric
+metrics.
 .TP
 \f3\-n\f1 \f2pmnsfile\f1, \f3\-\-namespace\f1=\f2pmnsfile\f1
 Normally
@@ -1389,5 +1404,5 @@ and
 .\" +ok+ OpenSSL \.melbourne melbourne TIME_WAIT creds_required dumptrace
 .\" +ok+ fe feaf ff {all from IPv6 addr like fe80::223:14ff:feaf:*}
 .\" +ok+ grouplist hostlist inet ipc_prot
-.\" +ok+ userlist postgresql simabi
+.\" +ok+ userlist postgresql simabi nmetric
 .\" +ok+ tracebufs traceconn tracenobuf tracepdu

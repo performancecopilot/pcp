@@ -161,6 +161,9 @@ extern int	_creds_timeout;
 /* flag for context label changes */
 extern int	labelChanged;
 
+/* client limits */
+extern int	maxmetrics;	/* max PMIDs per pmFetch */
+
 /* global PMCD PMDA variables */
 
 /*

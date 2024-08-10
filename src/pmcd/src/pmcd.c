@@ -112,6 +112,7 @@ static pmLongOptions longopts[] = {
     PMAPI_OPTIONS_HEADER("Configuration options"),
     { "config", 1, 'c', "PATH", "path to configuration file" },
     { "", 1, 'L', "BYTES", "maximum size for PDUs from clients [default 65536]" },
+    { "", 1, 'M', "NMETRIC", "maximum number of metrics per pmFetch from clients [default 32768]" },
     { "", 1, 'q', "TIME", "PMDA initial negotiation timeout (seconds) [default 3]" },
     { "", 1, 't', "TIME", "PMDA response timeout (seconds) [default 5]" },
     { "verify", 0, 'v', 0, "check validity of pmcd configuration, then exit" },
@@ -130,7 +131,7 @@ static pmLongOptions longopts[] = {
 
 static pmOptions opts = {
     .flags = PM_OPTFLAG_POSIX,
-    .short_options = "Ac:D:fH:i:l:L:N:n:p:q:Qs:St:T:U:vx:?",
+    .short_options = "Ac:D:fH:i:l:L:M:N:n:p:q:Qs:St:T:U:vx:?",
     .long_options = longopts,
 };
 
@@ -193,7 +194,18 @@ ParseOptions(int argc, char *argv[], int *nports)
 		    pmprintf("%s: -L requires a positive value\n", pmGetProgname());
 		    opts.errors++;
 		} else {
-		    __pmSetPDUCeiling(val);
+		    pmprintf("%s: -L: max incoming PDU size changed from %d to %d\n", pmGetProgname(), __pmSetPDUCeiling(val), val);
+		}
+		break;
+
+	    case 'M': /* Maximum number of metrics per pmFetch from clients */
+		val = (int)strtol(opts.optarg, NULL, 0);
+		if (val <= 0) {
+		    pmprintf("%s: -M requires a positive value\n", pmGetProgname());
+		    opts.errors++;
+		} else {
+		    pmprintf("%s: -M: max metrics per pmFetch changed from %d to %d\n", pmGetProgname(), maxmetrics, val);
+		    maxmetrics = val;
 		}
 		break;
 
@@ -281,6 +293,7 @@ ParseOptions(int argc, char *argv[], int *nports)
 		break;
 	}
     }
+    pmflush();
 
     if (usage || opts.errors || opts.optind < argc) {
 	pmUsageMessage(&opts);

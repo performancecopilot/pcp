@@ -17,7 +17,7 @@
 #include "libpcp.h"
 #include "pmcd.h"
 
-#define LIMIT_FETCH	(32 * 1024) /* upper PMID count boundary for fetch */
+int maxmetrics = 32 * 1024;	 /* max PMID count for one fetch */
 
 /* Freq. histogram: pmids for each agent in current fetch request */
 
@@ -455,7 +455,7 @@ HandleFetch(ClientInfo *cip, __pmPDU* pb, int pdutype)
 	return PM_ERR_NOPROFILE;
     }
 
-    if (nPmids > LIMIT_FETCH) {
+    if (nPmids > maxmetrics) {
 	__pmUnpinPDUBuf(pb);
 	return PM_ERR_TOOBIG;
     }
