@@ -3553,4 +3553,5 @@ _private_pmcd()
     pmcd_pid=$!
     export PMCD_PORT=$pmcd_port
     _wait_for_pmcd
+    cd $here
 }

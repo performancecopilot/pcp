@@ -1,0 +1,9 @@
+QA output created by 1535
+
+with 10 contexts ...
+
+with 11 contexts ...
+botch @ context=10 host=localhost: pmFetch: Resource temporarily unavailable
+
+interesting diagnostic lines ...
+pmcd: -C: max conytexts per client from 64 to 10

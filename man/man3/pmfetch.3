@@ -422,6 +422,12 @@ defined by the records in the archive, and then commence to
 .B pmFetch
 will eventually see valid results once the time origin moves inside
 the temporal span of the archive.
+.IP \f3-EAGAIN\f1
+If the current context involves fetching metrics from
+.BR pmcd , 
+then a return value of
+.B -EAGAIN
+indicates the caller has created too many contexts.
 .SH ENVIRONMENT
 Many of the performance metrics exported from PCP agents have the
 semantics of

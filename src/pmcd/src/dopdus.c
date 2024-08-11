@@ -15,6 +15,8 @@
 
 #include "pmcd.h"
 
+int maxctx = 64;	 /* max number of contexts per client */
+
 /* Check returned error from a PMDA.
  * If PMDA returns ready/not_ready status change, check then update agent
  * status.
@@ -138,6 +140,9 @@ DoProfile(ClientInfo *cp, __pmPDU *pb)
     sts = __pmDecodeProfile(pb, &ctxnum, &newProf);
     if (sts >= 0) {
 	__pmHashNode	*hp;
+	if (ctxnum > maxctx - 1) {
+	    return -EAGAIN;
+	}
 	hcp = &cp->profile;
 	if ((hp = __pmHashSearch(ctxnum, hcp)) != NULL) {
 	    /* seen this context slot before for this client */

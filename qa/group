@@ -2001,7 +2001,7 @@ x11
 1532 pmda.zfs local
 1533 pmda.zfs local valgrind
 1534 pmda.zfs local valgrind
-1535:reserved suse kenj
+1535 pmcd local
 1536:reserved suse kenj
 1537:reserved suse kenj
 1538:reserved suse kenj

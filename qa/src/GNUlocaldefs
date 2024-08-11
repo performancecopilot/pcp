@@ -779,6 +779,7 @@ chkacc2.o:	libpcp.h
 chkacc3.o:	libpcp.h
 chkacc4.o:	libpcp.h
 chkhelp.o:	libpcp.h
+chkctx2.o:	libpcp.h
 chk_memleak.o:	libpcp.h
 chknumval.o:	libpcp.h
 chkoptfetch.o:	libpcp.h

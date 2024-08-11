@@ -21,6 +21,7 @@
 \f3pmcd\f1
 [\f3\-AfQSv?\f1]
 [\f3\-c\f1 \f2config\f1]
+[\f3\-C\f1 \f2nctx\f1]
 [\f3\-H\f1 \f2hostname\f1]
 [\f3\-i\f1 \f2ipaddress\f1]
 [\f3\-l\f1 \f2logfile\f1]
@@ -112,6 +113,19 @@ However, these values may be overridden with
 using this option.
 The format of this configuration file is described below.
 .TP
+\f3\-C\f1 \f2nctx\f1, \f3\-\-maxctx\f1=\f2nctx\f1
+Each client of
+.B pmcd
+may create one or more contexts.
+The number of contexts per client is restricted to a
+maximum of 64 by default to defend against Denial of
+Service attacks through memory and file descriptor depletion.
+The
+.B \-C
+option may be used to change the maximum to
+.I nctx
+contexts.
+.TP
 \f3\-f\f1, \f3\-\-foreground\f1
 By default
 .B pmcd
@@ -176,7 +190,7 @@ instead of the default.
 If the log file cannot be created or is not writable, output is
 written to the standard error instead.
 .TP
-\f3\-L\f1 \f2bytes\f1
+\f3\-L\f1 \f2bytes\f1, \f3\-\-maxbytes\f1=\f2bytes\f1
 .IR PDU s
 received by
 .B pmcd
@@ -189,7 +203,7 @@ option may be used to change the maximum incoming
 .I PDU
 size.
 .TP
-\f3\-M\f1 \f2nmetric\f1
+\f3\-M\f1 \f2nmetric\f1, \f3\-\-maxmetric\f1=\f2nmetric\f1
 Each
 .B fetch
 received by

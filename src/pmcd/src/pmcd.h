@@ -163,6 +163,7 @@ extern int	labelChanged;
 
 /* client limits */
 extern int	maxmetrics;	/* max PMIDs per pmFetch */
+extern int	maxctx;		/* max number of contexts per client */
 
 /* global PMCD PMDA variables */
 
