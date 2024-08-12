@@ -339,6 +339,9 @@
 /* Define to 1 if you have the `pipe2' function. */
 #undef HAVE_PIPE2
 
+/* Define to 1 if you have the `closefrom' function. */
+#undef HAVE_CLOSEFROM
+
 /* pma_query_via API */
 #undef HAVE_PMA_QUERY_VIA
 

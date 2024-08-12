@@ -1,0 +1,6 @@
+QA output created by 1537
+__pmProcessPipe(..., "r", ...) -> 0
+--- start pipe output ---
+sh: 1: 3: Bad file descriptor
+--- end ---
+__pmProcessPipeClose() -> 2 exit=2
