@@ -320,8 +320,8 @@ ParseOptions(int argc, char *argv[], int *nports)
     }
 }
 
-static int
-hostname_changed(void)
+static void
+CheckHostnameChange(void)
 {
     static char	host[MAXHOSTNAMELEN];
     static char	*oldhost = NULL;
@@ -339,13 +339,13 @@ hostname_changed(void)
 	 * to add undue load in cases where pmcd is being queried
 	 * very frequently
 	 */
-	return(0);
+	return;
     }
     
     if ((sts = gethostname(host, MAXHOSTNAMELEN)) < 0) {
-	pmNotifyErr(LOG_WARNING, "hostname_changed: gethostname() -> %d (%s)",
-	    sts, pmErrStr(-oserror()));
-	return 0;
+	pmNotifyErr(LOG_WARNING, "CheckHostnameChange: gethostname() -> %d (%s)",
+		    sts, pmErrStr(-oserror()));
+	return;
     }
 
     if (oldhost == NULL) {
@@ -353,9 +353,9 @@ hostname_changed(void)
 	oldhost = strdup(host);
 	if (oldhost == NULL) {
 	    host[MAXHOSTNAMELEN-1] = '\0';
-	    pmNoMem("hostname_changed", strlen(host), PM_RECOV_ERR);
+	    pmNoMem("CheckHostnameChange", strlen(host), PM_RECOV_ERR);
 	}
-	return 0;
+	return;
     }
 
     if (oldhost != NULL && strcmp(oldhost, host) != 0) {
@@ -370,8 +370,6 @@ hostname_changed(void)
 	/* Inform clients there's been a change in pmcd's hostname */
 	MarkStateChanges(PMCD_HOSTNAME_CHANGE);
     }
-
-    return 0;
 }
 
 /*
@@ -418,24 +416,19 @@ HandleClientInput(__pmFdSet *fdsPtr)
 
 	switch (php->type) {
 	    case PDU_PROFILE:
-		if (hostname_changed()) {
-		    sts = 0;
-		    break;
-		}
+		CheckHostnameChange();
 		sts = (cp->denyOps & PMCD_OP_FETCH) ?
 		      PM_ERR_PERMISSION : DoProfile(cp, pb);
 		break;
 
 	    case PDU_FETCH:
-		if (hostname_changed()) {
-		    sts = 0;
-		    break;
-		}
+		CheckHostnameChange();
 		sts = (cp->denyOps & PMCD_OP_FETCH) ?
 		      PM_ERR_PERMISSION : DoFetch(cp, pb);
 		break;
 
 	    case PDU_HIGHRES_FETCH:
+		CheckHostnameChange();
 		sts = (cp->denyOps & PMCD_OP_FETCH) ?
 		      PM_ERR_PERMISSION : DoHighResFetch(cp, pb);
 		break;
