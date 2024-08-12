@@ -323,6 +323,124 @@ __pmSendHighResResult(int fd, int from, const __pmResult *result)
     return __pmSendHighResResult_ctx(NULL, fd, from, result);
 }
 
+/* Check that a network encoded event array is within a given buffer size */
+int
+__pmEventArrayCheck(pmValueBlock * const vb, int highres, int pmid, int value, size_t check)
+{
+    char		*base;
+    int			r;	/* records */
+    int			p;	/* parameters in a record ... */
+    int			nrecords;
+    int			nparams;
+
+    if (highres) {
+	pmHighResEventArray *hreap = (pmHighResEventArray *)vb;
+	base = (char *)&hreap->ea_record[0];
+	if (base > (char *)vb + check) {
+	    if (pmDebugOptions.pdu)
+		fprintf(stderr, "__pmEventArrayCheck: PM_ERR_IPC: pmid[%d] value[%d] highres event records past end of PDU buffer\n",
+			pmid, value);
+	    return PM_ERR_IPC;
+	}
+	nrecords = ntohl(hreap->ea_nrecords);
+    }
+    else {
+	pmEventArray *eap = (pmEventArray *)vb;
+	base = (char *)&eap->ea_record[0];
+	if (base > (char *)vb + check) {
+	    if (pmDebugOptions.pdu)
+		fprintf(stderr, "__pmEventArrayCheck: PM_ERR_IPC: pmid[%d] value[%d] event records past end of PDU buffer\n",
+			pmid, value);
+	    return PM_ERR_IPC;
+	}
+	nrecords = ntohl(eap->ea_nrecords);
+    }
+
+    /* walk packed event record array */
+    for (r = 0; r < nrecords; r++) {
+	unsigned int flags, type;
+	size_t size, remaining;
+
+	remaining = check - (base - (char *)vb);
+	if (highres) {
+	    pmHighResEventRecord *hrerp = (pmHighResEventRecord *)base;
+	    size = sizeof(hrerp->er_timestamp) + sizeof(hrerp->er_flags) +
+		    sizeof(hrerp->er_nparams);
+	    if (size > remaining) {
+		if (pmDebugOptions.pdu)
+		    fprintf(stderr, "__pmEventArrayCheck: PM_ERR_IPC: pmid[%d] value[%d] record[%d] highres event record past end of PDU buffer\n",
+			    pmid, value, r);
+		return PM_ERR_IPC;
+	    }
+	    nparams = ntohl(hrerp->er_nparams);
+	    flags = ntohl(hrerp->er_flags);
+	}
+	else {
+	    pmEventRecord *erp = (pmEventRecord *)base;
+	    size = sizeof(erp->er_timestamp) + sizeof(erp->er_flags) +
+		    sizeof(erp->er_nparams);
+	    if (size > remaining) {
+		if (pmDebugOptions.pdu)
+		    fprintf(stderr, "__pmEventArrayCheck: PM_ERR_IPC: pmid[%d] value[%d] record[%d] event record past end of PDU buffer\n",
+			    pmid, value, r);
+		return PM_ERR_IPC;
+	    }
+	    nparams = ntohl(erp->er_nparams);
+	    flags = ntohl(erp->er_flags);
+	}
+
+	if (flags & PM_EVENT_FLAG_MISSED)
+	    nparams = 0;
+
+	base += size;
+	remaining = check - (base - (char *)vb);
+
+	for (p = 0; p < nparams; p++) {
+	    __uint32_t		*tp;	/* points to int holding vtype/vlen */
+	    pmEventParameter	*epp = (pmEventParameter *)base;
+
+	    if (sizeof(pmEventParameter) > remaining) {
+		if (pmDebugOptions.pdu)
+		    fprintf(stderr, "__pmEventArrayCheck: PM_ERR_IPC: pmid[%d] value[%d] record[%d] param[%d] event record past end of PDU buffer\n",
+			    pmid, value, r, p);
+		return PM_ERR_IPC;
+	    }
+
+	    tp = (__uint32_t *)&epp->ep_pmid;
+	    tp++;		/* now points to ep_type/ep_len */
+	    *tp = ntohl(*tp);
+	    type = epp->ep_type;
+	    size = epp->ep_len;
+	    *tp = htonl(*tp);	/* leave the buffer how we found it */
+
+	    if (sizeof(pmID) + size > remaining) {
+		if (pmDebugOptions.pdu)
+		    fprintf(stderr, "__pmEventArrayCheck: PM_ERR_IPC: pmid[%d] value[%d] record[%d] param[%d] event record past end of PDU buffer\n",
+			    pmid, value, r, p);
+		return PM_ERR_IPC;
+	    }
+
+	    base += sizeof(pmID) + PM_PDU_SIZE_BYTES(size);
+
+	    size = 8;	/* 64-bit types */
+	    switch (type) {
+		case PM_TYPE_32:
+		case PM_TYPE_U32:
+		case PM_TYPE_FLOAT:
+		    size = 4;	/* 32-bit types */
+		    break;
+	    }
+	    if (sizeof(pmID) + size > remaining) {
+		if (pmDebugOptions.pdu)
+		    fprintf(stderr, "__pmEventArrayCheck: PM_ERR_IPC: pmid[%d] value[%d] record[%d] param[%d] event record past end of PDU buffer\n",
+			    pmid, value, r, p);
+		return PM_ERR_IPC;
+	    }
+	}
+    }
+    return 0;
+}
+
 #if defined(HAVE_64BIT_PTR)
 int
 __pmDecodeValueSet(__pmPDU *pdubuf, int pdulen, __pmPDU *data, char *pduend,
@@ -336,7 +454,7 @@ __pmDecodeValueSet(__pmPDU *pdubuf, int pdulen, __pmPDU *data, char *pduend,
     int		i, j;
 /*
  * Note: all sizes are in units of bytes ... beware that 'data' is in
- *	 units of __pmPDU
+ *	 units of __pmPDU (four bytes)
  */
     int		vsize;		/* size of vlist_t's in PDU buffer */
     int		nvsize;		/* size of pmValue's after decode */
@@ -429,7 +547,7 @@ __pmDecodeValueSet(__pmPDU *pdubuf, int pdulen, __pmPDU *data, char *pduend,
 			return PM_ERR_IPC;
 		    }
 
-		    __ntohpmValueBlock(pduvbp);
+		    __ntohpmValueBlock_hdr(pduvbp);
 		    if (pduvbp->vlen < PM_VAL_HDR_SIZE ||
 			pduvbp->vlen > pdulen) {
 			if (pmDebugOptions.pdu)
@@ -437,12 +555,19 @@ __pmDecodeValueSet(__pmPDU *pdubuf, int pdulen, __pmPDU *data, char *pduend,
 				i, j, pduvbp->vlen);
 			return PM_ERR_IPC;
 		    }
-		    if (pduvbp->vlen > (size_t)(pduend - (char *)pduvbp)) {
+		    if (pduvbp->vlen > check) {
 			if (pmDebugOptions.pdu)
 			    fprintf(stderr, "__pmDecodeValueSet: PM_ERR_IPC: pmid[%d] value[%d] pduvp past end of PDU buffer\n",
 				i, j);
 			return PM_ERR_IPC;
 		    }
+		    if (pduvbp->vtype == PM_TYPE_HIGHRES_EVENT ||
+		        pduvbp->vtype == PM_TYPE_EVENT) {
+			vindex = (pduvbp->vtype == PM_TYPE_HIGHRES_EVENT);
+			if (__pmEventArrayCheck(pduvbp, vindex, i, j, check) < 0)
+			    return PM_ERR_IPC;
+		    }
+		    __ntohpmValueBlock_buf(pduvbp);
 		    vbsize += PM_PDU_SIZE_BYTES(pduvbp->vlen);
 		    if (pmDebugOptions.pdu && pmDebugOptions.desperate) {
 			fprintf(stderr, " len: %d type: %d",
@@ -682,7 +807,8 @@ __pmDecodeValueSet(__pmPDU *pdubuf, int pdulen, __pmPDU *data, char *pduend,
 				i, j);
 			return PM_ERR_IPC;
 		    }
-		    __ntohpmValueBlock(pduvbp);
+
+		    __ntohpmValueBlock_hdr(pduvbp);
 		    if (pduvbp->vlen < PM_VAL_HDR_SIZE ||
 			pduvbp->vlen > pdulen) {
 			if (pmDebugOptions.pdu)
@@ -690,12 +816,19 @@ __pmDecodeValueSet(__pmPDU *pdubuf, int pdulen, __pmPDU *data, char *pduend,
 				i, j, pduvbp->vlen);
 			return PM_ERR_IPC;
 		    }
-		    if (pduvbp->vlen > (size_t)(pduend - (char *)pduvbp)) {
+		    if (pduvbp->vlen > check) {
 			if (pmDebugOptions.pdu)
 			    fprintf(stderr, "__pmDecodeValueSet: PM_ERR_IPC: pmid[%d] value[%d] pduvp past end of PDU buffer\n",
 				i, j);
 			return PM_ERR_IPC;
 		    }
+		    if (pduvbp->vtype == PM_TYPE_HIGHRES_EVENT ||
+		        pduvbp->vtype == PM_TYPE_EVENT) {
+			vindex = (pduvbp->vtype == PM_TYPE_HIGHRES_EVENT);
+			if (__pmEventArrayCheck(pduvbp, vindex, i, j, check) < 0)
+			    return PM_ERR_IPC;
+		    }
+		    __ntohpmValueBlock_buf(pduvbp);
 		    pduvp->value.pval = pduvbp;
 		}
 	    }
