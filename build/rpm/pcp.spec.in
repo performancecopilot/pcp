@@ -328,7 +328,7 @@ Requires: pcp-pmda-gpfs pcp-pmda-gpsd pcp-pmda-lustre pcp-pmda-pdns
 Requires: pcp-pmda-memcache pcp-pmda-named pcp-pmda-netfilter pcp-pmda-news
 Requires: pcp-pmda-redis pcp-pmda-samba pcp-pmda-slurm pcp-pmda-zimbra
 %endif
-Requires: pcp-pmda-apache pcp-pmda-bash pcp-pmda-cisco pcp-pmda-dm pcp-pmda-gfs2
+Requires: pcp-pmda-apache pcp-pmda-bash pcp-pmda-cisco pcp-pmda-dm
 Requires: pcp-pmda-logger pcp-pmda-mailq pcp-pmda-mounts
 Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping
 Requires: pcp-pmda-lustrecomm pcp-pmda-docker pcp-pmda-smart pcp-pmda-farm
@@ -340,6 +340,9 @@ Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-mic
 Requires: pcp-pmda-haproxy pcp-pmda-nfsclient pcp-pmda-lmsensors
 Requires: pcp-pmda-netcheck pcp-pmda-rabbitmq pcp-pmda-uwsgi
 Requires: pcp-pmda-openvswitch
+%endif
+%if "@pmda_gfs2@" == "true"
+Requires: pcp-pmda-gfs2
 %endif
 %if "@pmda_statsd@" == "true"
 Requires: pcp-pmda-statsd
@@ -2050,8 +2053,9 @@ This package contains the PCP Performance Metric Domain Agent (PMDA) for
 collecting metrics from Seagate Hard Drive vendor specific Field Accessible
 Reliability Metrics (FARM) Log making use of data from the smartmontools 
 package.
-#end pcp-pmda-farm
+# end pcp-pmda-farm
 
+%if "@pmda_gfs2@" == "true"
 #
 # pcp-pmda-gfs2
 #
@@ -2064,6 +2068,7 @@ Requires: pcp = @package_version@ pcp-libs = @package_version@
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about the Global Filesystem v2.
 # end pcp-pmda-gfs2
+%endif
 
 #
 # pcp-pmda-logger
@@ -2987,8 +2992,10 @@ done
 %preun pmda-farm
 %{pmda_remove "$1" "farm"}
 
+%if "@pmda_gfs2@" == "true"
 %preun pmda-gfs2
 %{pmda_remove "$1" "gfs2"}
+%endif
 
 %preun pmda-hacluster
 %{pmda_remove "$1" "hacluster"}
@@ -3347,7 +3354,9 @@ fi
 
 %files pmda-farm -f pcp-pmda-farm-files.rpm
 
+%if "@pmda_gfs2@" == "true"
 %files pmda-gfs2 -f pcp-pmda-gfs2-files.rpm
+%endif
 
 %files pmda-logger -f pcp-pmda-logger-files.rpm
 

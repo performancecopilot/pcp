@@ -42,7 +42,7 @@ default:	build-me
 
 include $(BUILDRULES)
 
-ifeq "$(TARGET_OS)" "linux"
+ifeq "$(PMDA_GFS2)" "true"
 build-me: $(CMDTARGET) $(LIBTARGET)
 
 install: default
