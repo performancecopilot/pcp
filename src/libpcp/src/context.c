@@ -410,7 +410,7 @@ valid_container(const char *name)
     const char *p;
 
     for (p = name; *p; p++) {
-        if (isalnum(*p) || *p == ' ' || *p == '_')
+        if (isalnum(*p) || *p == '.' || *p == '-' || *p == '_')
 	    continue;
 	return PM_ERR_NOCONTAINER;
     }
