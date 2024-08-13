@@ -749,6 +749,7 @@ enable_selinux
 PMDA_POSTFIX
 QSHAPE
 PMDA_STATSD
+PMDA_GFS2
 lib_for_chan
 lib_for_hdr_histogram
 PMDA_PERFEVENT
@@ -1049,6 +1050,7 @@ with_python
 with_python3
 with_dstat_symlink
 with_perfevent
+with_pmdagfs2
 with_pmdastatsd
 with_pmdabcc
 with_pmdabpf
@@ -1794,6 +1796,7 @@ Optional Packages:
   --with-dstat-symlink    enable support for /usr/bin/dstat symlink (default
                           is on)
   --with-perfevent        enable perfevent pmda (default is on)
+  --with-pmdagfs2         enable GFS2 pmda (default is on)
   --with-pmdastatsd       enable statds pmda (default is on)
   --with-pmdabcc          enable BCC pmda (default is on)
   --with-pmdabpf          enable BPF pmda (default is on)
@@ -3542,6 +3545,16 @@ then :
   withval=$with_perfevent; do_perfevent=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-perfevent=$withval"
 else $as_nop
   do_perfevent=check
+fi
+
+
+
+# Check whether --with-pmdagfs2 was given.
+if test ${with_pmdagfs2+y}
+then :
+  withval=$with_pmdagfs2; do_pmdagfs2=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdagfs2=$withval"
+else $as_nop
+  do_pmdagfs2=check
 fi
 
 
@@ -13260,6 +13273,26 @@ then :
 fi
 
 
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking if the GFS2 PMDA should be included" >&5
+printf %s "checking if the GFS2 PMDA should be included... " >&6; }
+pmda_gfs2=false
+if test "x$do_pmdagfs2" = "xyes"
+then :
+  pmda_gfs2=true
+fi
+if test "x$do_pmdagfs2" = "xcheck"
+then :
+
+       if test $target_os = linux; then
+	pmda_gfs2=true
+       fi
+fi
+PMDA_GFS2=$pmda_gfs2
+
+if $pmda_gfs2; then { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }; else { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }; fi
 
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking if the statsd PMDA should be included" >&5
 printf %s "checking if the statsd PMDA should be included... " >&6; }

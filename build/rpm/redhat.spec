@@ -391,6 +391,12 @@ Requires: pcp-selinux = %{version}-%{release}
 %global _with_perfevent --with-perfevent=yes
 %endif
 
+%if %{disable_gfs2}
+%global _with_gfs2 --with-pmdagfs2=no
+%else
+%global _with_gfs2 --with-pmdagfs2=yes
+%endif
+
 %if %{disable_statsd}
 %global _with_statsd --with-pmdastatsd=no
 %else
@@ -2477,7 +2483,7 @@ sed -i "/PACKAGE_BUILD/s/=[0-9]*/=$_build/" VERSION.pcp
 %if !%{disable_python2} && 0%{?default_python} != 3
 export PYTHON=python%{?default_python}
 %endif
-%configure %{?_with_initd} %{?_with_doc} %{?_with_dstat} %{?_with_ib} %{?_with_statsd} %{?_with_perfevent} %{?_with_bcc} %{?_with_bpf} %{?_with_bpftrace} %{?_with_json} %{?_with_mongodb} %{?_with_snmp} %{?_with_nutcracker} %{?_with_python2}
+%configure %{?_with_initd} %{?_with_doc} %{?_with_dstat} %{?_with_ib} %{?_with_gfs2} %{?_with_statsd} %{?_with_perfevent} %{?_with_bcc} %{?_with_bpf} %{?_with_bpftrace} %{?_with_json} %{?_with_mongodb} %{?_with_snmp} %{?_with_nutcracker} %{?_with_python2}
 make %{?_smp_mflags} default_pcp
 
 %install
