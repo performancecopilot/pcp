@@ -86,6 +86,8 @@ MOD_INIT(cmmv)
     dict_add(dict, "MMV_SEM_INSTANT", MMV_SEM_INSTANT);
     dict_add(dict, "MMV_SEM_DISCRETE", MMV_SEM_DISCRETE);
 
+    dict_add(dict, "MMV_INDOM_NULL", MMV_INDOM_NULL);
+
     dict_add(dict, "MMV_FLAG_NOPREFIX", MMV_FLAG_NOPREFIX);
     dict_add(dict, "MMV_FLAG_PROCESS", MMV_FLAG_PROCESS);
     dict_add(dict, "MMV_FLAG_SENTINEL", MMV_FLAG_SENTINEL);

@@ -128,6 +128,11 @@ AC_ARG_WITH([perfevent],
     [do_perfevent=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-perfevent=$withval"],
     [do_perfevent=check])
 
+AC_ARG_WITH([pmdagfs2],
+    [AS_HELP_STRING([--with-pmdagfs2],[enable GFS2 pmda (default is on)])],
+    [do_pmdagfs2=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdagfs2=$withval"],
+    [do_pmdagfs2=check])
+
 AC_ARG_WITH([pmdastatsd],
     [AS_HELP_STRING([--with-pmdastatsd],[enable statds pmda (default is on)])],
     [do_pmdastatsd=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdastatsd=$withval"],
@@ -2221,6 +2226,17 @@ AC_SUBST(lib_for_hdr_histogram)
 
 AC_CHECK_LIB(chan, chan_init, [lib_for_chan="-lchan"])
 AC_SUBST(lib_for_chan)
+
+dnl Do you want GFS2 metrics (no longer supported in some Linux distros)
+AC_MSG_CHECKING([if the GFS2 PMDA should be included])
+pmda_gfs2=false
+AS_IF([test "x$do_pmdagfs2" = "xyes"], [pmda_gfs2=true])
+AS_IF([test "x$do_pmdagfs2" = "xcheck"], [
+       if test $target_os = linux; then
+	pmda_gfs2=true
+       fi])
+AC_SUBST(PMDA_GFS2, $pmda_gfs2)
+if $pmda_gfs2; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
 dnl Do you have ragel, hdr_histogram and chan libraries for pmdastatsd?
 AC_MSG_CHECKING([if the statsd PMDA should be included])
