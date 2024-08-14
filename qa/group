@@ -2007,6 +2007,8 @@ x11
 1538:reserved suse kenj
 1539:reserved suse kenj
 1540 pmda.farm local valgrind
+1541:reserved suse kenj
+1542:reserved suse kenj
 1543 pmproxy local help
 1544 pmproxy python local
 1545 pcp2xml python pcp2xxx local
@@ -2014,6 +2016,16 @@ x11
 1547 pmrep python local
 1548 pmrep python local
 1549 pmrep python local
+1550:reserved suse kenj
+1551:reserved suse kenj
+1552:reserved suse kenj
+1553:reserved suse kenj
+1554:reserved suse kenj
+1555:reserved suse kenj
+1556:reserved suse kenj
+1557:reserved suse kenj
+1558:reserved suse kenj
+1559:reserved suse kenj
 1564 pmda.linux pcp local
 1566 logutil libpcp local
 1567 pmie_util local
