@@ -1384,6 +1384,20 @@ brew?		mkfs.xfs	[N/A (QA optional)]
 # -- java (bcc PMDA QA)
 dpkg?		/usr/lib/jvm/java-*/lib/server/libjvm.so [openjdk-[0-9][0-9]*-jre-headless or openjdk-[0-9][0-9]*-jre (QA optional)]
 rpm?		/usr/lib/jvm/java-*/lib/server/libjvm.so [java-latest-openjdk-headless or java-[0-9][0-9]*-openjdk-headless (QA optional)]
+# -- valkey (pmproxy, pmseries QA)
+dpkg?		valkey-server	[valkey-server (QA optional)]
+dpkg?		valkey-cli	[valkey-cli or valkey-tools (QA optional)]
+rpm?		valkey-server	[valkey (QA optional)]
+emerge?		valkey-server	[? (QA optional)]
+pkgin?		valkey-server	[N/A (QA optional)]
+pkg_add?	valkey-server	[N/A (QA optional)]
+F_pkg?		valkey-server	[N/A (QA optional)]
+S_pkg?		valkey-server	[N/A (QA optional)]
+slackpkg?	valkey-server	[N/A (QA optional)]
+pacman?		valkey-server	[community/valkey (QA optional)]
+brew?		valkey-server	[valkey (QA optional)]
+# -- valkeysearch (pmproxy, pmsearch QA)
+rpm?		/usr/lib*/valkey/modules/valkeysearch.so	[ValkeySearch (QA optional)]
 # -- redis (pmproxy, pmseries QA)
 dpkg?		redis-server	[redis-server (QA optional)]
 dpkg?		redis-cli	[redis-cli or redis-tools (QA optional)]

@@ -125,7 +125,6 @@ qtchooser
 ragel
 rdma-core-devel
 readline-devel
-redis
 rpm-build
 rrdtool
 rrdtool-perl
@@ -146,6 +145,7 @@ systemtap-devel
 systemtap-sdt-devel
 time
 valgrind
+valkey
 xfsprogs
 xkeyboard-config
 xz-devel

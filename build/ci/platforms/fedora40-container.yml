@@ -25,7 +25,7 @@ tasks:
     sudo rpm -Uv pcp-*/build/rpm/*.rpm
     echo 'pcpqa ALL=(ALL) NOPASSWD: ALL' | sudo tee /etc/sudoers.d/pcpqa
   init_qa: |
-    sudo systemctl start redis
+    sudo systemctl start valkey
     sudo -i -u pcpqa ./check 002
   qa_sanity: |
     set -o pipefail
