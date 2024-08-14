@@ -44,12 +44,15 @@ _filter()
 mkdir $tmp || exit 1
 cd $tmp
 grep sampledso $PCP_PMCDCONF_PATH >pmcd.conf
+$PCP_AWK_PROG <$PCP_PMCDCONF_PATH >>pmcd.conf '
+$1 == "[access]"	{ print ""; want = 1 }
+want == 1		{ print }'
 cat pmcd.conf >>$here/$seq.full
 port=`_find_free_port`
 echo "port=$port" >>$here/$seq.full
 
 # real QA test starts here
-valgrind $PCP_BINADM_DIR/pmcd -f -Dpdu -c ./pmcd.conf -s ./pmcd.socket -p $port  >out 2>err &
+valgrind --leak-check=full $PCP_BINADM_DIR/pmcd -f -Dpdu -c ./pmcd.conf -s ./pmcd.socket -p $port  >out 2>err &
 valgrind_pid=$!
 sleep 2
 pmcd_pid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '[p]mcd -f -Dpdu' | $PCP_AWK_PROG '{ print $2 }'`
@@ -60,7 +63,7 @@ sleep 2
 kill -TERM $pmcd_pid
 wait
 
-echo "expect error to be logged ..."
+echo "expect error(s) to be logged ..."
 grep -E "$grep_pattern" pmcd.log
 
 echo
