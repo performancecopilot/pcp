@@ -57,11 +57,14 @@ valgrind_pid=$!
 sleep 2
 pmcd_pid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '[p]mcd -f -Dpdu' | $PCP_AWK_PROG '{ print $2 }'`
 echo "pmcd_pid=$pmcd_pid" >>$here/$seq.full
-nc -N -U ./pmcd.socket <$here/$pdu_data 2>&1 \
+$here/src/pdu-gadget <$here/$pdu_data 2>$tmp.err \
+| nc -N -U ./pmcd.socket 2>&1 \
 | od -X >>$here/$seq.full
 sleep 2
 kill -TERM $pmcd_pid
 wait
+
+[ -s $tmp.err ] && cat $tmp.err
 
 echo "expect error(s) to be logged ..."
 grep -E "$grep_pattern" pmcd.log

@@ -2008,8 +2008,8 @@ pmcd.pdu
 1535 pmcd local
 1536 pmcd libpcp suse local pmcd.pdu
 1537 libpcp local
-1538 libpcp local pmcd.pdu
-1539:reserved suse kenj
+1538 libpcp pmcd local pmcd.pdu
+1539 pmcd libpcp pmcd.pdu local
 1540 pmda.farm local valgrind
 1541:reserved suse kenj
 1542:reserved suse kenj

@@ -1,0 +1,7 @@
+PDU specification files for various issue reproducers ...
+
+Typically used with as
+    ../src/pdu-gadget | netcat
+(to produce binary PDU data) for pmcd testing (see ../common/pmcd-pdu), or
+    ../src/pdu-gadget -x
+for direct testing against the __pmDecode<foo>() routines in libpcp.

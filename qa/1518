@@ -11,7 +11,7 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
-pdu_data=binary/decode-value-set-out-of-bound-write
+pdu_data=pdudata/decode-value-set-out-of-bound-write
 grep_pattern=__pmDecodeValueSet
 
 # this is one of the generic pmcd PDU exerciser tests ...

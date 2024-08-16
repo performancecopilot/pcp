@@ -6,11 +6,11 @@
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-TESTDIR = $(PCP_VAR_DIR)/testsuite/binary
+TESTDIR = $(PCP_VAR_DIR)/testsuite/pdudata
 
-FILES = $(shell echo [a-z]*)
+FILES =  $(shell echo [a-z]*)
 
-default default_pcp setup:
+default default_pcp setup: $(FILES)
 
 install install_pcp:
 	$(INSTALL) -m 755 -d $(TESTDIR)

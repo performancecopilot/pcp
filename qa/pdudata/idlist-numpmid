@@ -1,0 +1,36 @@
+# PDU specifications, used by ../src/pdu-gadget to produce a
+# binary PDU stream for QA
+#
+# PDU_PMNS_IDS test cases
+
+# credentials: len type from ncred cred[0]
+20 PDU_CREDS 42 1 0x01020000
+
+# idlist: len type from sts (not used) numids idlist[]
+# OK
+24 PDU_PMNS_IDS 42 0 1 pmid(sampledso.long.one)
+
+# idlist: len type from sts (not used) numids idlist[]
+# BAD too short
+12 PDU_PMNS_IDS 42
+
+# idlist: len type from
+# BAD too short
+16 PDU_PMNS_IDS 42 0
+
+# idlist: len type from sts (not used)
+# BAD too short
+20 PDU_PMNS_IDS 42 0 1
+
+# idlist: len type from sts (not used) numids idlist[]
+# BAD numids < 0
+24 PDU_PMNS_IDS 42 0 -1 pmid(sampledso.long.one)
+
+# idlist: len type from sts (not used) numids idlist[]
+# BAD numids == 2 not expected
+28 PDU_PMNS_IDS 42 0 2 pmid(sampledso.long.one) pmid(sampledso.long.ten)
+
+# idlist: len type from sts (not used) numids idlist[]
+# BAD too long
+28 PDU_PMNS_IDS 42 0 1 pmid(sampledso.long.one) 0xdeadbeef
+

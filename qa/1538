@@ -8,8 +8,8 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
-pdu_data=binary/fetch-numpmid
-grep_pattern=__pmDecode
+pdu_data=pdudata/fetch-numpmid
+grep_pattern=__pmDecodeFetchPDU
 
 # this is one of the generic pmcd PDU exerciser tests ...
 #

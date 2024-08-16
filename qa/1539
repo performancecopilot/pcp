@@ -1,7 +1,6 @@
 #!/bin/sh
-# PCP QA Test No. 1528
-# SUSE Issue B)
-#	"similar issue" part relating to __pmDecodeResult_ctx()
+# PCP QA Test No. 1539
+# PDU hardening - __pmDecodeIDList
 #
 # Copyright (c) 2024 Ken McDonell.  All Rights Reserved.
 #
@@ -9,8 +8,8 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
-pdu_data=pdudata/decode-pmresult-short
-grep_pattern=__pmDecodeResult
+pdu_data=pdudata/idlist-numpmid
+grep_pattern=__pmDecodeIDList
 
 # this is one of the generic pmcd PDU exerciser tests ...
 #

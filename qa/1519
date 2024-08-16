@@ -11,7 +11,7 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
-pdu_data=binary/numcreds-undefined-data
+pdu_data=pdudata/numcreds-undefined-data
 grep_pattern=__pmDecodeCreds
 
 # this is one of the generic pmcd PDU exerciser tests ...

@@ -186,6 +186,7 @@ pcp_lite_crash
 pdubufbounds
 pducheck
 pducrash
+pdu-gadget
 pdu-server
 permfetch
 pmcdgone

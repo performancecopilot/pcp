@@ -9,7 +9,7 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
-pdu_data=binary/ntohevent-array-out-of-bound-write
+pdu_data=pdudata/ntohevent-array-out-of-bound-write
 grep_pattern=__pmEventArrayCheck
 
 # this is one of the generic pmcd PDU exerciser tests ...

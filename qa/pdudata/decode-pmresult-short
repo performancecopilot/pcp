@@ -1,0 +1,11 @@
+# PDU specifications, used by ../src/pdu-gadget to produce a
+# binary PDU stream for QA
+#
+# PDU_RESULT test cases
+
+# credentials: len type from ncred cred[0]
+20 PDU_CREDS 42 1 0x01020000
+
+# result: len type from secs[2] numpmid vlist[...]
+# BAD PDU short
+20 PDU_RESULT 42 0x00010203 0x04050607
