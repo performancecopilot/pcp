@@ -21,6 +21,8 @@
  *   + indom(domain.serial) {no whitespace allowed}
  *   + PDU_... which is mapped to the associated PDU code from
  *     <libpcp.h>
+ * - for the first word in the PDU, the special value ? may be used
+ *   to have pdu-gadget fill in the PDU length (in bytes) in word[0]
  *
  * Output (without -x) binary PDU is in network byte order.
  */
@@ -79,6 +81,8 @@ struct {
 
 int	npdu_types = sizeof(pdu_types)/sizeof(pdu_types[0]);
 
+#define PDUBUF_SIZE 1024
+
 int
 main(int argc, char **argv)
 {
@@ -86,13 +90,17 @@ main(int argc, char **argv)
     int		execute = 0;
     int		c;
     int		sts;
+    int		lsts;
     long	value;
+    int		calc_len;
+    int		len;
     int		type;
     int		out;
     int		w;
     int		nwr;
+    int		j;
     char	buf[1024];
-    __pmPDU	pdu[512];
+    __pmPDU	*pdubuf;
     char	*bp;
     char	*wp;
     char	*end;
@@ -125,6 +133,8 @@ main(int argc, char **argv)
 	exit(EXIT_FAILURE);
     }
 
+    pdubuf = __pmFindPDUBuf(PDUBUF_SIZE);
+
     if ((sts = pmNewContext(PM_CONTEXT_HOST, "local:")) < 0) {
 	fprintf(stderr, "%s: Cannot connect to pmcd on local: %s\n",
 		pmGetProgname(), pmErrStr(sts));
@@ -137,6 +147,7 @@ main(int argc, char **argv)
 	    lineno++;
 	    continue;
 	}
+	calc_len = 0;
 	w = 0;
 	newline = 0;
 	type = PDU_MAX + 1;
@@ -220,7 +231,6 @@ main(int argc, char **argv)
 		}
 		else {
 		    char		*q = &p[1];
-		    int			lsts;
 		    pmID		pmid;
 		    while (*q && *q != ')')
 			q++;
@@ -279,21 +289,29 @@ main(int argc, char **argv)
 		    sts = 1;
 		}
 	    }
+	    else if (w == 0 && strcmp(bp, "?") == 0) {
+		calc_len = 1;
+		out = -1;
+	    }
 	    else {
 		fprintf(stderr, "%d: unrecognized word @ %s\n", lineno, bp);
 		sts = 1;
 	    }
 	    if (sts == 0) {
-		if (w >= (int)(sizeof(pdu)/sizeof(pdu[0]))) {
+		if (w >= (int)(PDUBUF_SIZE/sizeof(pdubuf[0]))) {
 		    fprintf(stderr, "%d: output buffer overrun\n", lineno);
 		    sts = 1;
 		}
 		else {
-		    if (w == 1) {
+		    if (w == 0) {
+			/* save PDU len before htonl() conversion */
+			len = out;
+		    }
+		    else if (w == 1) {
 			/* save PDU type before htonl() conversion */
 			type = out;
 		    }
-		    pdu[w++] = htonl(out);
+		    pdubuf[w++] = htonl(out);
 		}
 	    }
 	    *wp = c;
@@ -303,16 +321,25 @@ main(int argc, char **argv)
 	    fprintf(stderr, "%d: input line too long (limit=%d chars including \\n)\n", lineno, (int)sizeof(buf)-1);
 	    sts = 1;
 	}
+	/* fill-in len field or integrity check on len field */
+	if (sts == 0 && w > 0) {
+	    if (calc_len) {
+		pdubuf[0] = htonl((int)(w * sizeof(pdubuf[0])));
+	    }
+	    else if (len != w * sizeof(pdubuf[0])) {
+		fprintf(stderr, "%d: PDU length %d != byte count %d\n", lineno, len, (int)(w * sizeof(pdubuf[0])));
+		sts = 1;
+	    }
+	}
 	if (sts == 0 && w > 0) {
 	    if (verbose > 0) {
-		int		j;
 		for (j = 0; j < w; j++) {
 		    if ((j % 8) == 0) {
 			if (j > 0)
 			    fputc('\n', stderr);
 			fprintf(stderr, "%03d: ", j);
 		    }
-		    fprintf(stderr, "%08x ", pdu[j]);
+		    fprintf(stderr, "%08x ", pdubuf[j]);
 		}
 		fputc('\n', stderr);
 	    }
@@ -321,33 +348,102 @@ main(int argc, char **argv)
 		 * swab header, a la __pmGetPDU() rest of PDU
 		 * remains in network byte order
 		 */
-		__pmPDUHdr  *php = (__pmPDUHdr *)pdu;
+		__pmPDUHdr  *php = (__pmPDUHdr *)pdubuf;
 		php->len = ntohl(php->len);
 		php->type = ntohl((unsigned int)php->type);
 		php->from = ntohl((unsigned int)php->from);
 
 		switch (type) {
+
+		    case PDU_CREDS:
+			{
+			    int		sender;
+			    int		credcount;
+			    __pmCred	*credlist;
+			    lsts = __pmDecodeCreds(pdubuf, &sender, &credcount, &credlist);
+			    if (lsts < 0)
+				fprintf(stderr, "%d: __pmDecodeCreds failed: %s\n", lineno, pmErrStr(lsts));
+			    else {
+				fprintf(stderr, "%d: __pmDecodeCreds: sts=%d sender=%d credcount=%d ...\n", lineno, lsts, sender, credcount);
+				for (j = 0; j < credcount; j++) {
+				    fprintf(stderr, "    #%d = { type=0x%x a=0x%x b=0x%x c=0x%x }\n",
+					j, credlist[j].c_type, credlist[j].c_vala,
+					credlist[j].c_valb, credlist[j].c_valc);
+				}
+				free(credlist);
+			    }
+			}
+			break;
+
+		    case PDU_PROFILE:
+			{
+			    int		ctxnum;
+			    pmProfile	*result;
+			    lsts = __pmDecodeProfile(pdubuf, &ctxnum, &result);
+			    if (lsts < 0)
+				fprintf(stderr, "%d: __pmDecodeProfile failed: %s\n", lineno, pmErrStr(lsts));
+			    else {
+				fprintf(stderr, "%d: __pmDecodeProfile: sts=%d ctxnum=%d ...\n", lineno, lsts, ctxnum);
+				__pmDumpProfile(stderr, PM_INDOM_NULL, result);
+				__pmFreeProfile(result);
+			    }
+			}
+			break;
+
+		    case PDU_HIGHRES_FETCH:
+			{
+			    int		ctxnum;
+			    int		numpmid;
+			    pmID	*pmidlist;
+			    lsts = __pmDecodeHighResFetch(pdubuf, &ctxnum, &numpmid, &pmidlist);
+			    if (lsts < 0)
+				fprintf(stderr, "%d: __pmDecodeHighResFetch failed: %s\n", lineno, pmErrStr(lsts));
+			    else {
+				fprintf(stderr, "%d: __pmDecodeHighResFetch: sts=%d ctxnum=%d numpmid=%d pmids:", lineno, lsts, ctxnum, numpmid);
+				for (j = 0; j < numpmid; j++) {
+				    fprintf(stderr, " %s", pmIDStr(pmidlist[j]));
+				}
+				fputc('\n', stderr);
+				/* pmidlist[] is in pdubuf[]! */
+				__pmUnpinPDUBuf(pmidlist);
+			    }
+			}
+			break;
+
+		    case PDU_RESULT:
+			{
+			    __pmResult	*result;
+			    lsts = __pmDecodeResult(pdubuf, &result);
+			    if (lsts < 0)
+				fprintf(stderr, "%d: __pmDecodeResult failed: %s\n", lineno, pmErrStr(lsts));
+			    else {
+				fprintf(stderr, "%d: __pmDecodeResult: sts=%d ...\n", lineno, lsts);
+				__pmPrintResult(stderr, result);
+				__pmFreeResult(result);
+			    }
+			}
+			break;
+
 		    case PDU_PMNS_IDS:
 			{
-			    int	lsts;
 			    int	asts;
 			    pmID	pmid;
-			    lsts = __pmDecodeIDList(pdu, 1, &pmid, &asts);
+			    lsts = __pmDecodeIDList(pdubuf, 1, &pmid, &asts);
 			    if (lsts < 0)
 				fprintf(stderr, "%d: __pmDecodeIDList failed: %s\n", lineno, pmErrStr(lsts));
 			    else
-				fprintf(stderr, "%d: __pmDecodeIDList: pmid=%s sts=%d\n", lineno, pmIDStr(pmid), asts);
+				fprintf(stderr, "%d: __pmDecodeIDList: sts=%d pmid=%s sts=%d\n", lineno, lsts, pmIDStr(pmid), asts);
 			}
 			break;
 
 		    default:
-			fprintf(stderr, "%d: execute unavailable (yet) for a %s PDU\n", lineno, __pmPDUTypeStr(type));
+			fprintf(stderr, "%d: execute unavailable (yet) for PDU_%s\n", lineno, __pmPDUTypeStr(type));
 			break;
 		}
 	    }
 	    else {
-		nwr = write(fileno(stdout), pdu, w * sizeof(pdu[0]));
-		if (nwr != w * sizeof(pdu[0])) {
+		nwr = write(fileno(stdout), pdubuf, w * sizeof(pdubuf[0]));
+		if (nwr != w * sizeof(pdubuf[0])) {
 		    fprintf(stderr, "%d: write failed: returned %d: %s\n", lineno, nwr, strerror(errno));
 		    sts = 1;
 		}
