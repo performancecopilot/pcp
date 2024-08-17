@@ -138,7 +138,18 @@ __pmHashDel(unsigned int key, void *data, __pmHashCtl *hcp)
 void
 __pmHashClear(__pmHashCtl *hcp)
 {
+    int			i;
+    __pmHashNode	*hp;
+    __pmHashNode	*hp_next;
+
     if (hcp->hsize != 0) {
+	for (i = 0; i < hcp->hsize; i++) {
+	    for (hp = hcp->hash[i]; hp != NULL; ) {
+		hp_next = hp->next;
+		free(hp);
+		hp = hp_next;
+	    }
+	}
 	free(hcp->hash);
 	hcp->hash = NULL;
 	hcp->hsize = 0;
