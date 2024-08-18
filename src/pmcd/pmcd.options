@@ -22,8 +22,14 @@
 # disable service advertising (comment out to enable)
 -A
 
-# maximum incoming PDU size (default 64KB)
+# maximum incoming PDU size (bytes, default 64K)
 # -L 16384 
+
+# maximum number of contexts per PMAPI client (default 64)
+# -C 128
+
+# maximum number of metrics per pmFetch (default 32K)
+# -M 40000
 
 # assume identity of some user other than "pcp"
 # -U root
