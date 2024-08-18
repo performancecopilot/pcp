@@ -2030,6 +2030,8 @@ pmcd.pdu
 1557:reserved suse kenj
 1558:reserved suse kenj
 1559:reserved suse kenj
+1560 libpcp pdu local
+1561 pmcd libpcp pmcd.pdu suse local
 1564 pmda.linux pcp local
 1566 logutil libpcp local
 1567 pmie_util local
