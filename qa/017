@@ -16,8 +16,4 @@ echo "QA output created by $seq"
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
 # real QA test starts here
-
-# need -i 32 because we're now limited to 64 contexts per client
-# and each iteration of chconnect chews up 2 contexts
-#
-src/chkconnect -i 32
+src/chkconnect
