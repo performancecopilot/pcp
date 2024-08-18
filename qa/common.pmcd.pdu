@@ -52,12 +52,24 @@ port=`_find_free_port`
 echo "port=$port" >>$here/$seq.full
 
 # real QA test starts here
-valgrind --leak-check=full $PCP_BINADM_DIR/pmcd -f -Dpdu -c ./pmcd.conf -s ./pmcd.socket -p $port  >out 2>err &
+valgrind --leak-check=full $PCP_BINADM_DIR/pmcd -f -Dpdu,appl3 -c ./pmcd.conf -s ./pmcd.socket -p $port  >out 2>err &
 valgrind_pid=$!
 sleep 2
 pmcd_pid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '[p]mcd -f -Dpdu' | $PCP_AWK_PROG '{ print $2 }'`
 echo "pmcd_pid=$pmcd_pid" >>$here/$seq.full
-$here/src/pdu-gadget <$here/$pdu_data 2>$tmp.err \
+case "`file $here/$pdu_data`"
+in
+    *:\ data)
+	# binary data, e.g. SUSE reproducers
+	rm -f $tmp.err
+	cat $here/$pdu_data
+	;;
+    *)
+	# assume ascii PDU specification as input to pdu-gadget
+	#
+	$here/src/pdu-gadget <$here/$pdu_data 2>$tmp.err
+	;;
+esac \
 | nc -N -U ./pmcd.socket 2>&1 \
 | od -X >>$here/$seq.full
 sleep 2
