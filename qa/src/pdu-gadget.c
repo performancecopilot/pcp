@@ -21,6 +21,8 @@
  *   + indom(domain.serial) {no whitespace allowed}
  *   + PDU_... which is mapped to the associated PDU code from
  *     <libpcp.h>
+ *   + str(somestring) {\x to escape x, e.g \), if no ) continue to
+ *     next word(s), output is null padded to word boundary}
  * - for the first word in the PDU, the special value ? may be used
  *   to have pdu-gadget fill in the PDU length (in bytes) in word[0]
  *
@@ -93,7 +95,8 @@ main(int argc, char **argv)
     int		lsts;
     long	value;
     int		calc_len;
-    int		len;
+    int		save_len;
+    int		len = 0;
     int		type;
     int		out;
     int		w;
@@ -289,6 +292,40 @@ main(int argc, char **argv)
 		    sts = 1;
 		}
 	    }
+	    else if (strncmp(bp, "str(", 4) == 0) {
+		char	*op = (char *)&pdubuf[w];
+		int	esc = 0;
+		int	nch = 0;
+		*wp = c;	/* reinstate end of word */
+		bp += 4;
+		while (*bp && *bp != '\n') {
+		    if (esc == 0) {
+			/* process this char, no preceding \ */
+			if (*bp == '\\') {
+			    esc++;
+			    bp++;
+			    continue;
+			}
+			if (*bp == ')') {
+			    break;
+			}
+		    }
+		    if ((nch % sizeof(pdubuf[0])) == 0) {
+			/* zero fill next element of pdubuf[] */
+			pdubuf[w++] = 0;
+		    }
+		    *op++ = *bp++;
+		    len++;
+		    nch++;
+		    esc = 0;
+		}
+		if (*bp == ')') {
+		    /* pdubuf[] stuffing already done, onto next input word */
+		    continue;
+		}
+		fprintf(stderr, "%d: no closing ) for str(...\n", lineno);
+		sts = 1;
+	    }
 	    else if (w == 0 && strcmp(bp, "?") == 0) {
 		calc_len = 1;
 		out = -1;
@@ -305,13 +342,14 @@ main(int argc, char **argv)
 		else {
 		    if (w == 0) {
 			/* save PDU len before htonl() conversion */
-			len = out;
+			save_len = out;
 		    }
 		    else if (w == 1) {
 			/* save PDU type before htonl() conversion */
 			type = out;
 		    }
 		    pdubuf[w++] = htonl(out);
+		    len += sizeof(pdubuf[0]);
 		}
 	    }
 	    *wp = c;
@@ -324,10 +362,10 @@ main(int argc, char **argv)
 	/* fill-in len field or integrity check on len field */
 	if (sts == 0 && w > 0) {
 	    if (calc_len) {
-		pdubuf[0] = htonl((int)(w * sizeof(pdubuf[0])));
+		pdubuf[0] = htonl(len);
 	    }
-	    else if (len != w * sizeof(pdubuf[0])) {
-		fprintf(stderr, "%d: PDU length %d != byte count %d\n", lineno, len, (int)(w * sizeof(pdubuf[0])));
+	    else if (save_len != len) {
+		fprintf(stderr, "%d: PDU length %d != byte count %d\n", lineno, save_len, len);
 		sts = 1;
 	    }
 	}
@@ -426,13 +464,38 @@ main(int argc, char **argv)
 
 		    case PDU_PMNS_IDS:
 			{
-			    int	asts;
+			    int		asts;
 			    pmID	pmid;
 			    lsts = __pmDecodeIDList(pdubuf, 1, &pmid, &asts);
 			    if (lsts < 0)
 				fprintf(stderr, "%d: __pmDecodeIDList failed: %s\n", lineno, pmErrStr(lsts));
 			    else
-				fprintf(stderr, "%d: __pmDecodeIDList: sts=%d pmid=%s sts=%d\n", lineno, lsts, pmIDStr(pmid), asts);
+				fprintf(stderr, "%d: __pmDecodeIDList: sts=%d pmid=%s asts=%d\n", lineno, lsts, pmIDStr(pmid), asts);
+			}
+			break;
+
+		    case PDU_ATTR:
+			{
+			    int		attr;
+			    char	*val;
+			    int		vlen;
+			    lsts = __pmDecodeAttr(pdubuf, &attr, &val, &vlen);
+			    if (lsts < 0)
+				fprintf(stderr, "%d: __pmDecodeAttr failed: %s\n", lineno, pmErrStr(lsts));
+			    else
+				fprintf(stderr, "%d: __pmDecodeAttr: sts=%d attr=%d vlen=%d value=\"%s\"\n", lineno, lsts, attr, vlen, val);
+			}
+			break;
+
+		    case PDU_LABEL_REQ:
+			{
+			    int		ident;
+			    int		otype;
+			    lsts = __pmDecodeLabelReq(pdubuf, &ident, &otype);
+			    if (lsts < 0)
+				fprintf(stderr, "%d: __pmDecodeLabelReq failed: %s\n", lineno, pmErrStr(lsts));
+			    else
+				fprintf(stderr, "%d: __pmDecodeLabelReq: sts=%d ident=%d otype=%d\n", lineno, sts, ident, otype);
 			}
 			break;
 
