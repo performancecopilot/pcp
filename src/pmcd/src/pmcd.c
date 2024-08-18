@@ -1042,6 +1042,7 @@ main(int argc, char *argv[])
 #endif
 
     pmcd_pid = getpid();
+    maxinpdusize = __pmSetPDUCeiling(0);	/* starting value */
 
     umask(022);
     __pmProcessDataSize(NULL);

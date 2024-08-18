@@ -162,8 +162,11 @@ extern int	_creds_timeout;
 extern int	labelChanged;
 
 /* client limits */
-extern int	maxmetrics;	/* max PMIDs per pmFetch */
-extern int	maxctx;		/* max number of contexts per client */
+PMCD_DATA extern unsigned	maxmetrics;	/* max PMIDs per pmFetch */
+PMCD_DATA extern unsigned	maxctx;		/* max number of contexts per client */
+
+/* input PDU size (bytes) */
+PMCD_DATA extern unsigned	maxinpdusize;
 
 /* global PMCD PMDA variables */
 

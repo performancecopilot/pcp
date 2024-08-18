@@ -15,8 +15,6 @@
 
 #include "pmcd.h"
 
-int maxctx = 64;	 /* max number of contexts per client */
-
 /* Check returned error from a PMDA.
  * If PMDA returns ready/not_ready status change, check then update agent
  * status.

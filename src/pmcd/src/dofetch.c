@@ -17,8 +17,6 @@
 #include "libpcp.h"
 #include "pmcd.h"
 
-int maxmetrics = 32 * 1024;	 /* max PMID count for one fetch */
-
 /* Freq. histogram: pmids for each agent in current fetch request */
 
 static int	*aFreq;
