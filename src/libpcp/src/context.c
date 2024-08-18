@@ -404,8 +404,8 @@ initcontextlock(pthread_mutex_t *lock)
  * ensure the name is drawn from a limited character set that
  * is not going to result in conflicts with any other uses.
  */
-static int
-valid_container(const char *name)
+int
+__pmValidContainerName(const char *name)
 {
     const char *p;
 
@@ -426,7 +426,7 @@ ctxlocal(__pmHashCtl *attrs)
 
     PM_LOCK(__pmLock_extcall);
     if ((container = getenv("PCP_CONTAINER")) != NULL) {	/* THREADSAFE */
-	if ((sts = valid_container(container)) < 0) {
+	if ((sts = __pmValidContainerName(container)) < 0) {
 	    PM_UNLOCK(__pmLock_extcall);
 	    return sts;
 	}
@@ -494,7 +494,7 @@ ctxflags(__pmHashCtl *attrs, int *flags)
 	PM_LOCK(__pmLock_extcall);
 	container = getenv("PCP_CONTAINER");		/* THREADSAFE */
 	if (container != NULL) {
-	    if ((sts = valid_container(container)) < 0) {
+	    if ((sts = __pmValidContainerName(container)) < 0) {
 		PM_UNLOCK(__pmLock_extcall);
 		return sts;
 	    }

@@ -1565,6 +1565,10 @@ PCP_CALL extern void __pmCheckDupLabels(const __pmArchCtl *);
 PCP_CALL extern int __pmNotifyThrottle(const char *, int);
 PCP_CALL extern int __pmResetNotifyThrottle(const char *, int, int);
 
+/* valid container name checker */
+PCP_CALL extern int __pmValidContainerName(const char *name);
+
+
 #ifdef __cplusplus
 }
 #endif

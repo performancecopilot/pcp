@@ -1,7 +1,15 @@
 PDU specification files for various issue reproducers ...
 
-Typically used with as
-    ../src/pdu-gadget | netcat
-(to produce binary PDU data) for pmcd testing (see ../common/pmcd-pdu), or
-    ../src/pdu-gadget -x
-for direct testing against the __pmDecode<foo>() routines in libpcp.
+Two classes of files:
+
+1. ascii data
+   Typically used with as
+	../src/pdu-gadget <file | netcat
+   (to produce binary PDU data) for pmcd testing (see ../common/pmcd-pdu), or
+	../src/pdu-gadget -x <file
+   for direct testing against the __pmDecode<foo>() routines in libpcp.
+
+2. binary data (from SUSE reproducers)
+   Typically used with as
+	netcat <file
+   for pmcd testing (see ../common/pmcd-pdu)
