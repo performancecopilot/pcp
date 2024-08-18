@@ -96,7 +96,7 @@ main(int argc, char **argv)
     long	value;
     int		calc_len;
     int		save_len;
-    int		len = 0;
+    int		len;
     int		type;
     int		out;
     int		w;
@@ -151,6 +151,7 @@ main(int argc, char **argv)
 	    continue;
 	}
 	calc_len = 0;
+	len = 0;
 	w = 0;
 	newline = 0;
 	type = PDU_MAX + 1;
