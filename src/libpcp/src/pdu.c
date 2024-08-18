@@ -768,11 +768,8 @@ __pmSetPDUCeiling(int newceiling)
     int		oldceiling = ceiling;
     if (newceiling > 0) {
 	ceiling = newceiling;
-	return oldceiling;
     }
-    else
-	return -1;
-
+    return oldceiling;
 }
 
 void
