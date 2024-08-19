@@ -91,10 +91,10 @@ __pmDecodeIDList(__pmPDU *pdubuf, int numids, pmID idlist[], int *sts)
     idlist_pdu = (idlist_t *)pdubuf;
     pdu_end = (char *)pdubuf + idlist_pdu->hdr.len;
 
-    if (pdu_end - (char *)pdubuf < sizeof(idlist_t) - sizeof(pmID)) {
+    if (idlist_pdu->hdr.len < sizeof(idlist_t) - sizeof(pmID)) {
 	if (pmDebugOptions.pdu) {
-	    fprintf(stderr, "__pmDecodeIDList: PM_ERR_IPC: PDU too short %d < sizeof(idlist_t) %d - sizeof(pmID) %d\n",
-		(int)(pdu_end - (char*)pdubuf), (int)sizeof(idlist_t), (int)sizeof(pmID));
+	    fprintf(stderr, "__pmDecodeIDList: PM_ERR_IPC: PDU too short %d < min size %d\n",
+		idlist_pdu->hdr.len, (int)(sizeof(idlist_t) - sizeof(pmID)));
 	}
 	return PM_ERR_IPC;
     }
@@ -123,9 +123,9 @@ __pmDecodeIDList(__pmPDU *pdubuf, int numids, pmID idlist[], int *sts)
 		what = "short";
 		op = '<';
 	    }
-	    fprintf(stderr, "__pmDecodeIDList: PM_ERR_IPC: PDU too %s %d %c sizeof(idlist_t) %d + sizeof(pmID) %d * (nids-1) %d\n",
+	    fprintf(stderr, "__pmDecodeIDList: PM_ERR_IPC: PDU too %s %d %c required size %d\n",
 		    what, (int)(pdu_end - (char*)pdubuf), 
-		    op, (int)sizeof(idlist_t), (int)sizeof(pmID), nids-1);
+		    op, (int)(sizeof(idlist_t) + sizeof(pmID)*(nids-1)));
 	}
 	return PM_ERR_IPC;
     }

@@ -429,6 +429,27 @@ main(int argc, char **argv)
 			}
 			break;
 
+		    case PDU_FETCH:
+			{
+			    int		ctxnum;
+			    int		numpmid;
+			    pmTimeval	unused;
+			    pmID	*pmidlist;
+			    lsts = __pmDecodeFetch(pdubuf, &ctxnum, &unused, &numpmid, &pmidlist);
+			    if (lsts < 0)
+				fprintf(stderr, "%d: __pmDecodeesFetch failed: %s\n", lineno, pmErrStr(lsts));
+			    else {
+				fprintf(stderr, "%d: __pmDecodeesFetch: sts=%d ctxnum=%d unused=%d.%d numpmid=%d pmids:", lineno, lsts, ctxnum, (int)unused.tv_sec, (int)unused.tv_usec, numpmid);
+				for (j = 0; j < numpmid; j++) {
+				    fprintf(stderr, " %s", pmIDStr(pmidlist[j]));
+				}
+				fputc('\n', stderr);
+				/* pmidlist[] is in pdubuf[]! */
+				__pmUnpinPDUBuf(pmidlist);
+			    }
+			}
+			break;
+
 		    case PDU_HIGHRES_FETCH:
 			{
 			    int		ctxnum;

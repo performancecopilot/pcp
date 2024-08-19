@@ -80,10 +80,10 @@ __pmDecodeFetchPDU(__pmPDU *pdubuf, int *ctxidp, int *numpmidp, pmID **pmidlist)
     pp = (fetch_t *)pdubuf;
     pduend = (char *)pdubuf + pp->hdr.len;
 
-    if (pduend - (char*)pp < sizeof(fetch_t)) {
+    if (pp->hdr.len < sizeof(fetch_t)) {
 	if (pmDebugOptions.pdu) {
 	    fprintf(stderr, "__pmDecodeFetchPDU: PM_ERR_IPC: short PDU %d < min size %d\n",
-		(int)(pduend - (char*)pp), (int)sizeof(fetch_t));
+		pp->hdr.len, (int)sizeof(fetch_t));
 	}
 	return PM_ERR_IPC;
     }
@@ -97,12 +97,18 @@ __pmDecodeFetchPDU(__pmPDU *pdubuf, int *ctxidp, int *numpmidp, pmID **pmidlist)
     }
     if ((pduend - (char *)pp) != sizeof(fetch_t) + ((sizeof(pmID)) * (numpmid-1))) {
 	if (pmDebugOptions.pdu) {
-	    if ((pduend - (char *)pp) > sizeof(fetch_t) + ((sizeof(pmID)) * (numpmid-1))) 
-		fprintf(stderr, "__pmDecodeFetchPDU: PM_ERR_IPC: long PDU %d > sizeof(fetch_t) %d + sizeof(pmID) %d * (numpmid-1) %d\n",
-		    (int)(pduend - (char*)pp), (int)sizeof(fetch_t), (int)sizeof(pmID), numpmid-1);
-	    else
-		fprintf(stderr, "__pmDecodeFetchPDU: PM_ERR_IPC: short PDU %d < sizeof(fetch_t) %d + sizeof(pmID) %d * (numpmid-1) %d\n",
-		    (int)(pduend - (char*)pp), (int)sizeof(fetch_t), (int)sizeof(pmID), numpmid-1);
+	    char	*what;
+	    char	op;
+	    if ((pduend - (char *)pp) > sizeof(fetch_t) + sizeof(pmID) * (numpmid-1)) { 
+		what = "long";
+		op = '>';
+	    }
+	    else {
+		what = "short";
+		op = '<';
+	    }
+	    fprintf(stderr, "__pmDecodeFetchPDU: PM_ERR_IPC: PDU too %s %d %c required size %d\n",
+		    what, (int)(pduend - (char*)pp), op, (int)(sizeof(fetch_t) + sizeof(pmID) * (numpmid-1)));
 	}
 	return PM_ERR_IPC;
     }

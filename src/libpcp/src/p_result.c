@@ -897,9 +897,9 @@ __pmDecodeResult_ctx(__pmContext *ctxp, __pmPDU *pdubuf, __pmResult **result)
 	bytes = sizeof(result_t) - sizeof(__pmPDU);
     }
 
-    if (pduend - (char *)pdubuf < bytes) {
+    if (len < bytes) {
 	if (pmDebugOptions.pdu)
-	    fprintf(stderr, "__pmDecodeResult: PM_ERR_IPC: len=%d smaller than min %d\n",
+	    fprintf(stderr, "__pmDecodeResult: PM_ERR_IPC: short PDU %d < min size %d\n",
 		len, (int)bytes);
 	return PM_ERR_IPC;
     }

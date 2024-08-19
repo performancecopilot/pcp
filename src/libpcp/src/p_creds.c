@@ -77,8 +77,8 @@ __pmDecodeCreds(__pmPDU *pdubuf, int *sender, int *credcount, __pmCred **credlis
     len = pp->hdr.len;		/* ntohl() converted already in __pmGetPDU() */
     if (len < sizeof(creds_t)) {
 	if (pmDebugOptions.pdu) {
-	    fprintf(stderr, "__pmDecodeCreds: PM_ERR_IPC: len %d < sizeof(cred_t) %d\n",
-		len, (int) sizeof(creds_t));
+	    fprintf(stderr, "__pmDecodeCreds: PM_ERR_IPC: short PDU %d < min size %d\n",
+		len, (int)sizeof(creds_t));
 	}
 	return PM_ERR_IPC;
     }
@@ -93,8 +93,18 @@ __pmDecodeCreds(__pmPDU *pdubuf, int *sender, int *credcount, __pmCred **credlis
     need = sizeof(creds_t) + ((numcred-1) * sizeof(__pmCred));
     if (need != len) {
 	if (pmDebugOptions.pdu) {
-	    fprintf(stderr, "__pmDecodeCreds: PM_ERR_IPC: need %d != len %d\n",
-		need, len);
+	    char	*what;
+	    char	op;
+	    if (need > len) {
+		what = "long";
+		op = '>';
+	    }
+	    else {
+		what = "short";
+		op = '<';
+	    }
+	    fprintf(stderr, "__pmDecodeCreds: PM_ERR_IPC: PDU too %s %d %c required size %d\n",
+		    what, len, op, need);
 	}
 	return PM_ERR_IPC;
     }
