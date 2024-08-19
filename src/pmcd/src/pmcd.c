@@ -136,6 +136,9 @@ static pmOptions opts = {
     .long_options = longopts,
 };
 
+/* #define paranoid to include warnings from command arg changes */
+#undef paranoid
+
 static void
 ParseOptions(int argc, char *argv[], int *nports)
 {
@@ -161,10 +164,13 @@ ParseOptions(int argc, char *argv[], int *nports)
 		if (val <= 0) {
 		    pmprintf("%s: -C requires a positive value\n", pmGetProgname());
 		    opts.errors++;
-		} else {
-		    pmprintf("%s: -C: max contexts per client changed from %d to %d\n", pmGetProgname(), maxctx, val);
+		}
+#ifdef paranoid
+		else {
+		    //debug pmprintf("%s: -C: max contexts per client changed from %d to %d\n", pmGetProgname(), maxctx, val);
 		    maxctx = val;
 		}
+#endif
 		break;
 
 	    case 'c':	/* configuration file */
@@ -205,9 +211,12 @@ ParseOptions(int argc, char *argv[], int *nports)
 		if (val <= 0) {
 		    pmprintf("%s: -L requires a positive value\n", pmGetProgname());
 		    opts.errors++;
-		} else {
+		}
+#ifdef paranoid
+		else {
 		    pmprintf("%s: -L: max incoming PDU size changed from %d to %d\n", pmGetProgname(), __pmSetPDUCeiling(val), val);
 		}
+#endif
 		break;
 
 	    case 'M': /* Maximum number of metrics per pmFetch from clients */
@@ -215,10 +224,13 @@ ParseOptions(int argc, char *argv[], int *nports)
 		if (val <= 0) {
 		    pmprintf("%s: -M requires a positive value\n", pmGetProgname());
 		    opts.errors++;
-		} else {
+		}
+#ifdef paranoid
+		else {
 		    pmprintf("%s: -M: max metrics per pmFetch changed from %d to %d\n", pmGetProgname(), maxmetrics, val);
 		    maxmetrics = val;
 		}
+#endif
 		break;
 
 	    case 'N':
