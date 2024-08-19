@@ -162,7 +162,7 @@ ParseOptions(int argc, char *argv[], int *nports)
 		    pmprintf("%s: -C requires a positive value\n", pmGetProgname());
 		    opts.errors++;
 		} else {
-		    pmprintf("%s: -C: max conytexts per client from %d to %d\n", pmGetProgname(), maxctx, val);
+		    pmprintf("%s: -C: max contexts per client changed from %d to %d\n", pmGetProgname(), maxctx, val);
 		    maxctx = val;
 		}
 		break;
