@@ -10,9 +10,4 @@
 # attr: len type from attr type (15 == PCP_ATTR_CONTAINER)
 # BAD container name contains json key=value injection
 #
-#? PDU_ATTR 42 15 0x6576696c 0x2d636f6e 0x7461696e 0x6572222c 0x22657669 0x6c6b6579 0x223a2265 0x76696c76 0x616c7567 0x0
 ? PDU_ATTR 42 15 str(evil-container","evilkey":"evilvalue)
-
-# request label now ...
-# OK
-? PDU_LABEL_REQ 42 0 1

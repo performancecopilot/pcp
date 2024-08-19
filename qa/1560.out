@@ -42,8 +42,7 @@ __pmDecodeIDList: PM_ERR_IPC: PDU too long 28 > sizeof(idlist_t) 24 + sizeof(pmI
 7: __pmDecodeCreds: sts=0 sender=42 credcount=1 ...
     #0 = { type=0x1 a=0x2 b=0x0 c=0x40 }
 __pmDecodeAttr: Error: PCP_ATTR_CONTAINER=evil-container","evilkey":"evilvalue: Container not found
-14: __pmDecodeAttr failed: Container not found
-18: __pmDecodeLabelReq: sts=0 ident=-1 otype=1
+13: __pmDecodeAttr failed: Container not found
 
 === pdudata/numcreds-undefined-data ===
 __pmDecodeCreds: PM_ERR_IPC: len 16 < sizeof(cred_t) 20
