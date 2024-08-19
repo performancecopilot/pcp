@@ -110,7 +110,7 @@ static pmLongOptions longopts[] = {
     { "hostname", 1, 'H', "HOST", "set the hostname to be used for pmcd.hostname metric" },
     { "username", 1, 'U', "USER", "in daemon mode, run as named user [default pcp]" },
     PMAPI_OPTIONS_HEADER("Configuration options"),
-    { "--maxctx", 1, 'C', "NCTX", "maximum number of contexts per client [default 64]" },
+    { "maxctx", 1, 'C', "NCTX", "maximum number of contexts per client [default 64]" },
     { "config", 1, 'c', "PATH", "path to configuration file" },
     { "maxbytes", 1, 'L', "BYTES", "maximum size for PDUs from clients [default 65536]" },
     { "maxmetric", 1, 'M', "NMETRIC", "maximum number of metrics per pmFetch from clients [default 32768]" },
