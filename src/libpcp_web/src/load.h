@@ -42,8 +42,9 @@ typedef struct context {
     unsigned int	setup	: 1;	/* context established */
     unsigned int	cached	: 1;	/* context/source in cache */
     unsigned int	garbage	: 1;	/* context pending removal */
+    unsigned int	inactive: 1;	/* context removal deferred */
     unsigned int	updated : 1;	/* context labels are updated */
-    unsigned int	padding : 4;	/* zero-filled struct padding */
+    unsigned int	padding : 3;	/* zero-filled struct padding */
     unsigned int	refcount : 16;	/* currently-referenced counter */
     unsigned int	timeout;	/* context timeout in milliseconds */
     uv_timer_t		timer;
