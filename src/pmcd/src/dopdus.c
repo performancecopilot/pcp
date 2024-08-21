@@ -1383,6 +1383,9 @@ GetAttribute(ClientInfo *cp, int code)
 		 * we've done the strndup() but __pmCheckAttribute()
 		 * failed
 		 */
+		if (pmDebugOptions.attr)
+		    fprintf(stderr, "GetAttribute: client fd=%d __pmCheckAttribute(%d,\"%s\") failed: %s\n",
+			    cp->fd, attr, value, pmErrStr(sts));
 		free(value);
 	    }
 	}

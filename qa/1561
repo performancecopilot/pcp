@@ -16,7 +16,7 @@ echo "QA output created by $seq"
 echo 'Note: Fix for original issue means no errors expected here.'
 
 pdu_data=pdudata/label-req-container-json-injection
-grep_pattern=__pmDecodeAttr
+grep_pattern='DoCreds|DecodeAttr'
 
 # this is one of the generic pmcd PDU exerciser tests ...
 #
