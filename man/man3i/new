@@ -112,7 +112,7 @@ cat <<End-of-File >$fnbase.3
 .\\"
 .TH $TH 3 "PCP" "Performance Co-Pilot"
 .SH NAME
-\\f3$1\\f1 \\- TODO
+\\fB$1\\fP \\- TODO
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
@@ -154,8 +154,8 @@ remain fixed across releases, and at some point in the future
 they may not work or may provide different semantics.
 .SH DESCRIPTION
 .de CW
-.ie t \\f(CR\\\\\\$1\\fR\\\\\\$2
-.el \\fI\\\\\\$1\\fR\\\\\\$2
+.ie t \\f(CR\\\\\$1\\fR\\\\\$2
+.el \\fI\\\\\$1\\fR\\\\\$2
 ..
 .B $1
 TODO
