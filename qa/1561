@@ -7,9 +7,13 @@
 # Copyright (c) 2024 Ken McDonell.  All Rights Reserved.
 # Copyright (c) 2024 Matthias Gerstner.  All Rights Reserved.
 #
+# Note: the fix for this issue means that we no longer see the error
+#       from __pmDecodeAttr(), hence the "echo" below
+#
 
 seq=`basename $0`
 echo "QA output created by $seq"
+echo 'Note: Fix for original issue means no errors expected here.'
 
 pdu_data=pdudata/label-req-container-json-injection
 grep_pattern=__pmDecodeAttr

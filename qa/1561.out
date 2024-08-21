@@ -1,6 +1,6 @@
 QA output created by 1561
+Note: Fix for original issue means no errors expected here.
 expect error(s) to be logged ...
-__pmDecodeAttr: Error: PCP_ATTR_CONTAINER=evil-container","evilkey":"evilvalue: Container not found
 
 and no valgrind badness ...
 Memcheck, a memory error detector

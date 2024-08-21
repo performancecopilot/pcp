@@ -20,13 +20,13 @@ usr/lib/pcp/bin/install-sh
 usr/lib/pkgconfig/libpcp.pc
 usr/share/man/man3/LOGIMPORT.3.gz
 usr/share/man/man3/PCPIntro.3.gz
+usr/share/man/man3/PMAPI.3.gz
+usr/share/man/man3/PMAPI_INTERNAL.3.gz
+usr/share/man/man3/PMWEBAPI.3.gz
 usr/share/man/man3/PM_FAULT_CHECK.3.gz
 usr/share/man/man3/PM_FAULT_CLEAR.3.gz
 usr/share/man/man3/PM_FAULT_POINT.3.gz
 usr/share/man/man3/PM_FAULT_RETURN.3.gz
-usr/share/man/man3/PMAPI.3.gz
-usr/share/man/man3/PMAPI_INTERNAL.3.gz
-usr/share/man/man3/PMWEBAPI.3.gz
 usr/share/man/man3/QMC.3.gz
 usr/share/man/man3/QmcContext.3.gz
 usr/share/man/man3/QmcDesc.3.gz
@@ -40,8 +40,9 @@ usr/share/man/man3/__pmAFregister.3.gz
 usr/share/man/man3/__pmAFsetup.3.gz
 usr/share/man/man3/__pmAFunblock.3.gz
 usr/share/man/man3/__pmAFunregister.3.gz
-usr/share/man/man3/__pmConnectLogger.3.gz
+usr/share/man/man3/__pmCheckAttribute.3.gz
 usr/share/man/man3/__pmCleanMapDir.3.gz
+usr/share/man/man3/__pmConnectLogger.3.gz
 usr/share/man/man3/__pmControlLog.3.gz
 usr/share/man/man3/__pmConvertHighResTime.3.gz
 usr/share/man/man3/__pmConvertTime.3.gz

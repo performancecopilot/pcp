@@ -1374,8 +1374,16 @@ GetAttribute(ClientInfo *cp, int code)
 		sts = PM_ERR_IPC;
 	    } else if ((value = strndup(value, vlen)) == NULL) {
 		sts = -ENOMEM;
-	    } else {	/* stash the attribute for this client */
+	    } else if ((sts = __pmCheckAttribute(attr, value)) == 0) {
+		/* stash the attribute for this client once vetted */
 		sts = __pmHashAdd(attr, (void *)value, &cp->attrs);
+	    }
+	    else {
+		/*
+		 * we've done the strndup() but __pmCheckAttribute()
+		 * failed
+		 */
+		free(value);
 	    }
 	}
     } else if (sts > 0) {	/* unexpected PDU type */

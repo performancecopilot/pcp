@@ -23,6 +23,7 @@ batch_import.pl
 bcc_profile
 bigpmcdpmids
 chain
+check_attribute
 check_fault_injection
 check_import
 check_import_name

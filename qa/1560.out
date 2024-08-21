@@ -62,8 +62,7 @@ __pmDecodeIDList: PM_ERR_IPC: PDU too long 28 > required size 24
 === pdudata/label-req-container-json-injection ===
 7: __pmDecodeCreds: sts=0 sender=42 credcount=1 ...
     #0 = { type=0x1 a=0x2 b=0x0 c=0x40 }
-__pmDecodeAttr: Error: PCP_ATTR_CONTAINER=evil-container","evilkey":"evilvalue: Container not found
-13: __pmDecodeAttr failed: Container not found
+13: __pmDecodeAttr: sts=0 attr=15 vlen=36 value="evil-container","evilkey":"evilvalue"
 
 === pdudata/numcreds-undefined-data ===
 __pmDecodeCreds: PM_ERR_IPC: short PDU 16 < min size 20

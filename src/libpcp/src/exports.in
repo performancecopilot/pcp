@@ -867,3 +867,7 @@ PCP_3.41 {
     __pmNotifyThrottle;
     __pmResetNotifyThrottle;
 } PCP_3.40;
+
+PCP_3.42 {
+    __pmCheckAttribute;
+} PCP_3.41;

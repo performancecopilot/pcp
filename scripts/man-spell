@@ -1054,11 +1054,12 @@ __pmAccSaveHosts
 ! __pmAddPMNSNode
 __pmAllocResult
 __pmArchCtl
-! __pmAttrKey
+__pmAttrKey
 ! __pmAttrKeyStr_r
 ! __pmAttrStr_r
 ! __pmAuxConnectPMCDPort
 ! __pmBind
+__pmCheckAttribute
 ! __pmCheckDupLabels
 ! __pmCheckEventRecords
 __pmCleanMapDir

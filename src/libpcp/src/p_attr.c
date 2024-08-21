@@ -100,35 +100,6 @@ __pmDecodeAttr(__pmPDU *pdubuf, int *attr, char **value, int *vlen)
     *value = length ? pp->value : NULL;
     *vlen = length;
 
-    /*
-     * guard against json injection
-     */
-    switch (*attr) {
-	case PCP_ATTR_CONTAINER:
-	    if (length > 0) {
-		/* ugly 'cause pp->value[] is not \0 terminated */
-		char	*p;
-		int	sts;
-		if ((p = malloc(length + 1)) != NULL) {
-		    memcpy(p, pp->value, length);
-		    p[length] = '\0';
-		    sts = __pmValidContainerName(p);
-		    if (sts < 0) {
-			if (pmDebugOptions.pdu) {
-			    char	errmsg[PM_MAXERRMSGLEN];
-			    fprintf(stderr, "__pmDecodeAttr: Error: PCP_ATTR_CONTAINER=%s: %s\n",
-				p, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
-			}
-			free(p);
-			return sts;
-		    }
-		    free(p);
-		}
-		/* silently skip test if malloc() failed */
-	    }
-	    break;
-    }
-
     if (pmDebugOptions.attr) {
 	char buffer[LIMIT_ATTR_PDU];
 	for (i = 0; i < length; i++)

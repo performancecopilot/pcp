@@ -399,20 +399,44 @@ initcontextlock(pthread_mutex_t *lock)
 #define initcontextlock(x)	do { } while (0)
 #endif
 
-/*
- * Container names are parsed later as part of JSONB labelsets,
- * ensure the name is drawn from a limited character set that
- * is not going to result in conflicts with any other uses.
- */
 int
-__pmValidContainerName(const char *name)
+__pmCheckAttribute(__pmAttrKey attr, const char *name)
 {
     const char *p;
 
-    for (p = name; *p; p++) {
-        if (isalnum(*p) || *p == '.' || *p == '-' || *p == '_')
-	    continue;
-	return PM_ERR_NOCONTAINER;
+    switch (attr) {
+    case PCP_ATTR_CONTAINER:
+	/*
+	 * Container names are parsed later as part of JSONB labelsets,
+	 * ensure the name is drawn from a limited character set that
+	 * is not going to result in conflicts with any other uses.
+	 */
+	for (p = name; *p; p++) {
+	    if (isalnum(*p) || *p == '.' || *p == '-' || *p == '_')
+		continue;
+	    return -EINVAL;
+	}
+	break;
+
+    case PCP_ATTR_PROTOCOL:
+    case PCP_ATTR_SECURE:
+    case PCP_ATTR_COMPRESS:
+    case PCP_ATTR_USERAUTH:
+    case PCP_ATTR_USERNAME:
+    case PCP_ATTR_AUTHNAME:
+    case PCP_ATTR_PASSWORD:
+    case PCP_ATTR_METHOD:
+    case PCP_ATTR_REALM:
+    case PCP_ATTR_UNIXSOCK:
+    case PCP_ATTR_USERID:
+    case PCP_ATTR_GROUPID:
+    case PCP_ATTR_LOCAL:
+    case PCP_ATTR_PROCESSID:
+    case PCP_ATTR_EXCLUSIVE:
+	break;
+
+    default:
+	return -EINVAL;
     }
     return 0;
 }
@@ -426,7 +450,7 @@ ctxlocal(__pmHashCtl *attrs)
 
     PM_LOCK(__pmLock_extcall);
     if ((container = getenv("PCP_CONTAINER")) != NULL) {	/* THREADSAFE */
-	if ((sts = __pmValidContainerName(container)) < 0) {
+	if ((sts = __pmCheckAttribute(PCP_ATTR_CONTAINER, container)) < 0) {
 	    PM_UNLOCK(__pmLock_extcall);
 	    return sts;
 	}
@@ -494,7 +518,7 @@ ctxflags(__pmHashCtl *attrs, int *flags)
 	PM_LOCK(__pmLock_extcall);
 	container = getenv("PCP_CONTAINER");		/* THREADSAFE */
 	if (container != NULL) {
-	    if ((sts = __pmValidContainerName(container)) < 0) {
+	    if ((sts = __pmCheckAttribute(PCP_ATTR_CONTAINER, container)) < 0) {
 		PM_UNLOCK(__pmLock_extcall);
 		return sts;
 	    }
