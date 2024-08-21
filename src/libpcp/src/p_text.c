@@ -55,15 +55,23 @@ int
 __pmDecodeTextReq(__pmPDU *pdubuf, int *ident, int *type)
 {
     text_req_t	*pp;
-    char	*pduend;
 
     pp = (text_req_t *)pdubuf;
-    pduend = (char *)pdubuf + pp->hdr.len;
 
-    if (pduend - (char*)pp < sizeof(text_req_t)) {
+    if (pp->hdr.len != sizeof(text_req_t)) {
 	if (pmDebugOptions.pdu) {
-	    fprintf(stderr, "__pmDecodeTextReq: PM_ERR_IPC: remainder %d < sizeof(text_req_t) %d\n",
-		(int)(pduend - (char*)pp), (int)sizeof(text_req_t));
+	    char	*what;
+	    char	op;
+	    if (pp->hdr.len > sizeof(text_req_t)) {
+		what = "long";
+		op = '>';
+	    }
+	    else {
+		what = "short";
+		op = '<';
+	    }
+	    fprintf(stderr, "__pmDecodeTextReq: PM_ERR_IPC: PDU too %s %d %c required size %d\n",
+			    what, pp->hdr.len, op, (int)sizeof(text_req_t));
 	}
 	return PM_ERR_IPC;
     }

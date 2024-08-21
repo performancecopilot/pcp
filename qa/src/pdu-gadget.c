@@ -517,7 +517,25 @@ main(int argc, char **argv)
 			    if (lsts < 0)
 				fprintf(stderr, "%d: __pmDecodeLabelReq failed: %s\n", lineno, pmErrStr(lsts));
 			    else
-				fprintf(stderr, "%d: __pmDecodeLabelReq: sts=%d ident=%d otype=%d\n", lineno, sts, ident, otype);
+				fprintf(stderr, "%d: __pmDecodeLabelReq: sts=%d ident=%d type=%d\n", lineno, sts, ident, otype);
+			}
+			break;
+
+		    case PDU_TEXT_REQ:
+			{
+			    int		ident;
+			    int		otype;
+			    lsts = __pmDecodeTextReq(pdubuf, &ident, &otype);
+			    if (lsts < 0)
+				fprintf(stderr, "%d: __pmDecodeTextReq failed: %s\n", lineno, pmErrStr(lsts));
+			    else {
+				fprintf(stderr, "%d: __pmDecodeTextReq: sts=%d", lineno, sts);
+				if (otype & PM_TEXT_PMID)
+				    fprintf(stderr, " pmID=%s", pmIDStr((pmID)ident));
+				else
+				    fprintf(stderr, " pmInDom=%s", pmInDomStr((pmInDom)ident));
+				fprintf(stderr, " type=0x%x\n", otype);
+			    }
 			}
 			break;
 
