@@ -54,6 +54,15 @@ usr/share/man/man3/__pmFreeAttrsSpec.3.gz
 usr/share/man/man3/__pmFreeHostAttrsSpec.3.gz
 usr/share/man/man3/__pmFreeHostSpec.3.gz
 usr/share/man/man3/__pmFreeProfile.3.gz
+usr/share/man/man3/__pmHashAdd.3.gz
+usr/share/man/man3/__pmHashClear.3.gz
+usr/share/man/man3/__pmHashDel.3.gz
+usr/share/man/man3/__pmHashFree.3.gz
+usr/share/man/man3/__pmHashInit.3.gz
+usr/share/man/man3/__pmHashPreAlloc.3.gz
+usr/share/man/man3/__pmHashSearch.3.gz
+usr/share/man/man3/__pmHashWalk.3.gz
+usr/share/man/man3/__pmHashWalkCB.3.gz
 usr/share/man/man3/__pmLocalPMDA.3.gz
 usr/share/man/man3/__pmLogMetaTypeStr.3.gz
 usr/share/man/man3/__pmLogMetaTypeStr_r.3.gz
@@ -286,6 +295,7 @@ usr/share/man/man3/pmfault.3.gz
 usr/share/man/man3/pmflush.3.gz
 usr/share/man/man3/pmfstring.3.gz
 usr/share/man/man3/pmgetopt_r.3.gz
+usr/share/man/man3/pmhash.3.gz
 usr/share/man/man3/pmiAddInstance.3.gz
 usr/share/man/man3/pmiAddMetric.3.gz
 usr/share/man/man3/pmiEnd.3.gz

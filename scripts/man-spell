@@ -825,6 +825,11 @@ PM_EXEC_TOSS_STDOUT
 PM_EXEC_WAIT
 PM_FATAL_ERR
 ! PM_FDSET_SIZE
+PM_HASH_DELETE_NEXT
+PM_HASH_DELETE_STOP
+PM_HASH_WALK_NEXT
+PM_HASH_WALK_START
+PM_HASH_WALK_STOP
 ! PM_HOST_SPEC_NPORTS_LOCAL
 ! PM_HOST_SPEC_NPORTS_UNIX
 PM_ID_NULL
@@ -1213,18 +1218,19 @@ __pmGetPDU
 ! __pmGetTimestamp
 ! __pmHandleToPtr
 ! __pmHasPMNSFileChanged
-! __pmHashAdd
-! __pmHashClear
+__pmHashAdd
+__pmHashClear
 __pmHashCtl
-! __pmHashDel
-! __pmHashFree
-! __pmHashInit
+__pmHashDel
+__pmHashFree
+__pmHashInit
 __pmHashNode
-! __pmHashPreAlloc
-! __pmHashSearch
+__pmHashPreAlloc
+__pmHashSearch
 __pmHashWalk
+__pmHashWalkCallback
 __pmHashWalkCB
-! __pmHashWalkState
+__pmHashWalkState
 ! __pmHostEntFree
 ! __pmHostEntGetName
 ! __pmHostEntGetSockAddr
