@@ -1746,7 +1746,7 @@ class DstatTool(object):
             showcsvheader = True
 
         if sys.stdout.isatty():
-            oldcols = cols
+            oldcols = cols  # pylint: disable=used-before-assignment
             rows, cols = self.term.get_size()
 
             # Trim object list to what is visible on screen
