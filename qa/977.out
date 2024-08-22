@@ -45,7 +45,7 @@ Container error cases
 === std out ===
 Iteration 4
 === std err ===
-pmNewContext(local): Container not found
+pmNewContext(local): Invalid argument
 === filtered valgrind report ===
 Memcheck, a memory error detector
 Command: src/grind_ctx -L
@@ -56,7 +56,7 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 === std out ===
 Iteration 4
 === std err ===
-pmNewContext(local): Container not found
+pmNewContext(local): Invalid argument
 === filtered valgrind report ===
 Memcheck, a memory error detector
 Command: src/grind_ctx -L

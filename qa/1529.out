@@ -6,4 +6,3 @@ fetch batch size 11
 ... more than 200 "Result size exceeded" errors
 
 interesting diagnostic lines ...
-pmcd: -M: max metrics per pmFetch changed from 32768 to 10

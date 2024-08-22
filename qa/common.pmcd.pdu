@@ -1,8 +1,9 @@
 # This is really a full QA test for stress testing pmcd's protocol
 # handling ... set the shell variables
 # $pdu_data
-#	binary protocol data stream that typically contains malformed
-#	PDUs (see the qa/binary directory for examples) ... this needs
+#	ascii pdu specifications suitable for src/pdu-gadget or binary
+#	protocol data stream, these typically contain malformed PDUs
+#	(see the qa/pdudata directory for examples) ... this needs
 #	to be a relative path
 # $grep_pattern
 #	a grep -E pattern for scanning pmcd.log once the test has been
@@ -59,18 +60,17 @@ pmcd_pid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '[p]mcd -f -Dpdu' | $PCP_AWK_PRO
 echo "pmcd_pid=$pmcd_pid" >>$here/$seq.full
 case "`file $here/$pdu_data`"
 in
-    *:\ data)
-	# binary data, e.g. SUSE reproducers
+    *'ASCII text')
+	# assume ascii PDU specification as input to pdu-gadget
+	$here/src/pdu-gadget <$here/$pdu_data 2>$tmp.err
+	;;
+    *)
+	# assume binary data, e.g. SUSE reproducers
 	rm -f $tmp.err
 	cat $here/$pdu_data
 	;;
-    *)
-	# assume ascii PDU specification as input to pdu-gadget
-	#
-	$here/src/pdu-gadget <$here/$pdu_data 2>$tmp.err
-	;;
 esac \
-| nc -N -U ./pmcd.socket 2>&1 \
+| nc localhost $port 2>&1 \
 | od -X >>$here/$seq.full
 sleep 2
 kill -TERM $pmcd_pid
