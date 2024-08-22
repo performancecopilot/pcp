@@ -1996,7 +1996,9 @@ pmcd.pdu
 1523 pmlogdump local multi-archive
 1524 pmview local
 1525 pmview dkvis mpvis
-1526 other local
+# the problem 1526 was aimed at has gone away for the moment, but
+# may reappear, so keep this one around to be reactivated if needed
+1526:retired other local
 1527 pmcd libpcp local suse pmcd.pdu
 1528 pmcd libpcp suse local pmcd.pdu
 1529 pmcd local
