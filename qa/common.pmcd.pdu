@@ -23,6 +23,19 @@
 $sudo rm -rf $tmp $tmp.* $seq.full
 
 which nc >/dev/null 2>&1 || _notrun "no nc executable installed"
+# Need nc option to terminate when EOF encountered on stdin,
+# but unfortunately there are multiple versions of nc(1) ...
+nc --help >$tmp.out 2>&1
+if grep -q '.-[^ ]*N' $tmp.out
+then
+    nc_opt=-N
+elif grep -q '.--send-only' $tmp.out
+then
+    nc_opt="--send-only"
+else
+    cat $tmp.out >>$seq.full
+    _notrun 'nc --help is not helping ... see $seq.full'
+fi
 _check_valgrind
 
 _cleanup()
@@ -70,7 +83,7 @@ in
 	cat $here/$pdu_data
 	;;
 esac \
-| nc localhost $port 2>&1 \
+| nc $nc_opt localhost $port 2>&1 \
 | od -X >>$here/$seq.full
 sleep 2
 kill -TERM $pmcd_pid
