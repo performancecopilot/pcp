@@ -134,9 +134,18 @@ webgroup_timeout_context(uv_timer_t *arg)
      * is returned to zero by the caller, or background cleanup
      * finds this context and cleans it.
      */
-    if (cp->refcount == 0 && cp->garbage == 0) {
-	cp->garbage = 1;
-	uv_timer_stop(&cp->timer);
+    if (cp->refcount == 0) {
+	if (cp->garbage == 0) {
+	    cp->garbage = 1;
+	    uv_timer_stop(&cp->timer);
+	}
+    } else {
+	/*
+	 * Context timed out but still referenced, must wait
+	 * until the caller releases its reference (shortly)
+	 * before beginning garbage collection process.
+	 */
+	cp->inactive = 1;
     }
 }
 
@@ -298,20 +307,28 @@ webgroup_garbage_collect(struct webgroups *groups)
     dictIterator        *iterator;
     dictEntry           *entry;
     context_t		*cp;
-    unsigned int	count = 0, drops = 0;
+    unsigned int	count = 0, drops = 0, garbageset = 0, inactiveset = 0;
 
     if (pmDebugOptions.http || pmDebugOptions.libweb)
-	fprintf(stderr, "%s: started\n", "webgroup_garbage_collect");
+	fprintf(stderr, "%s: started for groups %p\n",
+			"webgroup_garbage_collect", groups);
 
     /* do context GC if we get the lock (else don't block here) */
     if (uv_mutex_trylock(&groups->mutex) == 0) {
 	iterator = dictGetSafeIterator(groups->contexts);
 	for (entry = dictNext(iterator); entry;) {
 	    cp = (context_t *)dictGetVal(entry);
+	    if (cp->privdata != groups)
+		continue;
 	    entry = dictNext(iterator);
-	    if (cp->garbage && cp->privdata == groups) {
+	    if (cp->garbage)
+		garbageset++;
+	    if (cp->inactive && cp->refcount == 0)
+		inactiveset++;
+	    if (cp->garbage || (cp->inactive && cp->refcount == 0)) {
 		if (pmDebugOptions.http || pmDebugOptions.libweb)
-		    fprintf(stderr, "GC context %u (%p)\n", cp->randomid, cp);
+		    fprintf(stderr, "GC dropping context %u (%p)\n",
+				    cp->randomid, cp);
 		uv_mutex_unlock(&groups->mutex);
 		webgroup_drop_context(cp, groups);
 		uv_mutex_lock(&groups->mutex);
@@ -324,7 +341,8 @@ webgroup_garbage_collect(struct webgroups *groups)
 	/* if dropping the last remaining context, do cleanup */
 	if (groups->active && drops == count) {
 	    if (pmDebugOptions.http || pmDebugOptions.libweb)
-		fprintf(stderr, "%s: freezing\n", "webgroup_garbage_collect");
+		fprintf(stderr, "%s: freezing groups %p\n",
+				"webgroup_garbage_collect", groups);
 	    webgroup_timers_stop(groups);
 	}
 	uv_mutex_unlock(&groups->mutex);
@@ -334,8 +352,10 @@ webgroup_garbage_collect(struct webgroups *groups)
     mmv_set(groups->map, groups->metrics[WEBGROUP_GC_COUNT], &count);
 
     if (pmDebugOptions.http || pmDebugOptions.libweb)
-	fprintf(stderr, "%s: finished [%u drops from %u entries]\n",
-			"webgroup_garbage_collect", drops, count);
+	fprintf(stderr, "%s: finished [%u drops from %u entries,"
+			" %u garbageset, %u inactiveset]\n",
+			"webgroup_garbage_collect", drops, count,
+			garbageset, inactiveset);
 }
 
 static void
@@ -354,7 +374,7 @@ webgroup_use_context(struct context *cp, int *status, sds *message, void *arg)
     int			sts;
     struct webgroups    *gp = (struct webgroups *)cp->privdata;
 
-    if (cp->garbage == 0) {
+    if (cp->garbage == 0 && cp->inactive == 0) {
 	if (cp->setup == 0) {
 	    if ((sts = pmReconnectContext(cp->context)) < 0) {
 		infofmt(*message, "cannot reconnect context: %s",
@@ -424,7 +444,7 @@ webgroup_lookup_context(pmWebGroupSettings *sp, sds *id, dict *params,
 	    *status = -ENOTCONN;
 	    return NULL;
 	}
-	if (cp->garbage == 0) {
+	if (cp->garbage == 0 && cp->inactive == 0) {
 	    access.username = cp->username;
 	    access.password = cp->password;
 	    access.realm = cp->realm;

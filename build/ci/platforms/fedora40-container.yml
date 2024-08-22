@@ -2,11 +2,11 @@ type: container
 
 artifactory:
   package_type: rpm
-  deploy_path: /fedora/39/x86_64/pcp
+  deploy_path: /fedora/40/x86_64/pcp
 
 container:
   containerfile: |
-    FROM registry.fedoraproject.org/fedora:39
+    FROM registry.fedoraproject.org/fedora:40
     RUN dnf install -y systemd
     RUN useradd --create-home pcpbuild
     RUN echo 'pcpbuild ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/pcpbuild

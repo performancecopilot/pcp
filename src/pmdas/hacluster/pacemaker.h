@@ -83,7 +83,7 @@ struct fail_count {
 struct location_constraints {
 	char node[128];
 	char resource[128];
-	char role[10];
+	char role[18];
 	char score[10];
 };
 
@@ -109,7 +109,7 @@ struct resources {
 	char clone[128];
 	char group[128];
 	uint8_t managed;
-	char role[10];
+	char role[18];
 	uint8_t active;
 	uint8_t orphaned;
 	uint8_t blocked;
