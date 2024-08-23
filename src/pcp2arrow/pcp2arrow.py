@@ -349,7 +349,6 @@ class PCP2ARROW(object):
             values = {}
             if metric in results:
                 for instid, _, value in results[metric]:
-                    value = results[metric][0][2]
                     values[instid] = value
 
             # Iterate all instances for the metric, use values

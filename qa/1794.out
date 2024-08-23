@@ -2,19 +2,26 @@ QA output created by 1794
 
 === pcp2arrow viewqa1
 Columns: ['disk.all.read', 'disk.all.write', 'event.flags', 'event.missed', 'kernel.all.cpu.idle', 'kernel.all.cpu.intr', 'kernel.all.cpu.nice', 'kernel.all.cpu.sys', 'kernel.all.cpu.user', 'kernel.all.cpu.wait.total', 'pmcd.pmlogger.archive[12851]', 'pmcd.pmlogger.host[12851]', 'pmcd.pmlogger.port[12851]', 'timestamp']
-Shape: (3, 14)
+Shape: (16, 14)
 
 === pcp2arrow viewqa2
 Columns: ['disk.all.read', 'disk.all.write', 'event.flags', 'event.missed', 'kernel.all.cpu.idle', 'kernel.all.cpu.intr', 'kernel.all.cpu.nice', 'kernel.all.cpu.sys', 'kernel.all.cpu.user', 'kernel.all.cpu.wait.total', 'pmcd.pmlogger.archive[12933]', 'pmcd.pmlogger.host[12933]', 'pmcd.pmlogger.port[12933]', 'timestamp']
-Shape: (3, 14)
+Shape: (13, 14)
 
 === pcp2arrow viewqa3
 Columns: ['disk.all.read', 'disk.all.write', 'event.flags', 'event.missed', 'kernel.all.cpu.idle', 'kernel.all.cpu.intr', 'kernel.all.cpu.nice', 'kernel.all.cpu.sys', 'kernel.all.cpu.user', 'kernel.all.cpu.wait.total', 'pmcd.pmlogger.archive[13066]', 'pmcd.pmlogger.host[13066]', 'pmcd.pmlogger.port[13066]', 'timestamp']
-Shape: (1, 14)
+Shape: (4, 14)
 
 === pcp2arrow moomba.client
 Columns: ['disk.all.total', 'event.flags', 'event.missed', 'hinv.ncpu', 'kernel.all.load[1 minute]', 'kernel.all.load[15 minute]', 'kernel.all.load[5 minute]', 'kernel.percpu.cpu.sys[cpu0]', 'kernel.percpu.cpu.sys[cpu1]', 'kernel.percpu.cpu.sys[cpu2]', 'kernel.percpu.cpu.sys[cpu3]', 'kernel.percpu.cpu.user[cpu0]', 'kernel.percpu.cpu.user[cpu1]', 'kernel.percpu.cpu.user[cpu2]', 'kernel.percpu.cpu.user[cpu3]', 'mem.freemem', 'pmcd.pmlogger.archive[23932]', 'pmcd.pmlogger.host[23932]', 'pmcd.pmlogger.port[23932]', 'timestamp']
-Shape: (1, 20)
+1 and 15 minute load averages
+   kernel.all.load[1 minute]  kernel.all.load[15 minute]
+0                        NaN                         NaN
+1                   0.024414                         0.0
+2                   0.020508                         0.0
+3                   0.013672                         0.0
+4                   0.012695                         0.0
+Shape: (5, 20)
 
 === pcp2arrow proc
 Columns: 26674
