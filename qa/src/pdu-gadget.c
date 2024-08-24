@@ -23,6 +23,10 @@
  *     <libpcp.h>
  *   + str(somestring) {\x to escape x, e.g \), if no ) continue to
  *     next word(s), output is null padded to word boundary}
+ *   + typelen(<type>.<len>) {no whitespace allowed, set .vtype and
+ *     .vlen fields in the first word of a pmValueBlock, <type> is an
+ *     integer or FOO for PM_TYPE_FOO and <len> is an integer, use S32 for
+ *     PM_TYPE_32 and S64 for PM_TYPE_64 to avoid 32 and 64 ambiguity}
  * - for the first word in the PDU, the special value ? may be used
  *   to have pdu-gadget fill in the PDU length (in bytes) in word[0]
  *
@@ -55,33 +59,53 @@ struct {
     char	*name;
     int		code;
 } pdu_types[] = {
-    { "ERROR",		0x7000 },
-    { "RESULT",		0x7001 },
-    { "PROFILE",	0x7002 },
-    { "FETCH",		0x7003 },
-    { "DESC_REQ",	0x7004 },
-    { "DESC",		0x7005 },
-    { "INSTANCE_REQ",	0x7006 },
-    { "INSTANCE",	0x7007 },
-    { "TEXT_REQ",	0x7008 },
-    { "TEXT",		0x7009 },
-    { "CONTROL_REQ",	0x700a },
-    { "CREDS",		0x700c },
-    { "PMNS_IDS",	0x700d },
-    { "PMNS_NAMES",	0x700e },
-    { "PMNS_CHILD",	0x700f },
-    { "PMNS_TRAVERSE",	0x7010 },
-    { "ATTR",		0x7011 },
-    { "AUTH",		0x7011 },
-    { "LABEL_REQ",	0x7012 },
-    { "LABEL",		0x7013 },
-    { "HIGHRES_FETCH",	0x7014 },
-    { "HIGHRES_RESULT",	0x7015 },
-    { "DESC_IDS",	0x7016 },
-    { "DESCS",		0x7017 },
+    { "ERROR",		PDU_ERROR },
+    { "RESULT",		PDU_RESULT },
+    { "PROFILE",	PDU_PROFILE },
+    { "FETCH",		PDU_FETCH },
+    { "DESC_REQ",	PDU_DESC_REQ },
+    { "DESC",		PDU_DESC },
+    { "INSTANCE_REQ",	PDU_INSTANCE_REQ },
+    { "INSTANCE",	PDU_INSTANCE },
+    { "TEXT_REQ",	PDU_TEXT_REQ },
+    { "TEXT",		PDU_TEXT },
+    { "CONTROL_REQ",	PDU_CONTROL_REQ },
+    { "CREDS",		PDU_CREDS },
+    { "PMNS_IDS",	PDU_PMNS_IDS },
+    { "PMNS_NAMES",	PDU_PMNS_NAMES },
+    { "PMNS_CHILD",	PDU_PMNS_CHILD },
+    { "PMNS_TRAVERSE",	PDU_PMNS_TRAVERSE },
+    { "ATTR",		PDU_ATTR },
+    { "AUTH",		PDU_AUTH },
+    { "LABEL_REQ",	PDU_LABEL_REQ },
+    { "LABEL",		PDU_LABEL },
+    { "HIGHRES_FETCH",	PDU_HIGHRES_FETCH },
+    { "HIGHRES_RESULT",	PDU_HIGHRES_RESULT },
+    { "DESC_IDS",	PDU_DESC_IDS },
+    { "DESCS",		PDU_DESCS },
 };
-
 int	npdu_types = sizeof(pdu_types)/sizeof(pdu_types[0]);
+
+/*
+ * data  type table: name (stripped of PM_TYPE_  prefix) -> code
+ */
+struct {
+    char	*name;
+    int		code;
+} data_types[] = {
+    { "S32",		PM_TYPE_32 },
+    { "U32",		PM_TYPE_U32 },
+    { "S64",		PM_TYPE_64 },
+    { "U64",		PM_TYPE_U64 },
+    { "FLOAT",		PM_TYPE_FLOAT },
+    { "DOUBLE",		PM_TYPE_DOUBLE },
+    { "STRING",		PM_TYPE_STRING },
+    { "AGGREGATE",	PM_TYPE_AGGREGATE },
+    { "AGGREGATE_STATIC",	PM_TYPE_AGGREGATE_STATIC },
+    { "EVENT",		PM_TYPE_EVENT },
+    { "HIGHRES_EVENT",	PM_TYPE_HIGHRES_EVENT },
+};
+int	ndata_types = sizeof(data_types)/sizeof(data_types[0]);
 
 #define PDUBUF_SIZE 1024
 
@@ -209,9 +233,9 @@ main(int argc, char **argv)
 	    }
 	    else if (strncmp(bp, "pmid(", 5) == 0) {
 		char		*p = &bp[5];
-		unsigned int	domain;
-		unsigned int	cluster;
-		unsigned int	item;
+		int		domain = -1;
+		int		cluster = -1;
+		int		item = -1;
 		out = PM_ID_NULL;
 		if (isdigit(*p)) {
 		    /*
@@ -221,17 +245,35 @@ main(int argc, char **argv)
 		     * item is 10 bits (1023 max)
 		     */
 		    domain = strtol(p, &end, 10);
-		    if (*end == '.' && domain <= 510) {
-			p = &end[1];
-			cluster = strtol(p, &end, 10);
-			if (*end == '.' && cluster <= 4095) {
+		    if (*end == '.') {
+			if (domain <= 510) {
 			    p = &end[1];
-			    item = strtol(p, &end, 10);
-			    if (*end == ')' && end[1] == '\0' && item <= 1023) {
-				out = (int)pmID_build(domain, cluster, item);
+			    cluster = strtol(p, &end, 10);
+			    if (*end == '.' ) {
+				if (cluster <= 4095) {
+				    p = &end[1];
+				    item = strtol(p, &end, 10);
+				    if (*end == ')' && end[1] == '\0') {
+					if (item <= 1023) {
+					    out = (int)pmID_build(domain, cluster, item);
+					}
+					else
+					    fprintf(stderr, "%d: item %d too large\n", lineno, item);
+				    }
+				    else
+					fprintf(stderr, "%d: expected ) and \\0 found %c and %c after item", lineno, *end, end[1]);
+				}
+				else
+				    fprintf(stderr, "%d: cluster %d too big\n", lineno, cluster);
 			    }
+			    else
+				fprintf(stderr, "%d: expected , found %c after cluster", lineno, *end);
 			}
+			else
+			    fprintf(stderr, "%d: domain %d too big\n", lineno, domain);
 		    }
+		    else
+			fprintf(stderr, "%d: expected , found %c after domain\n", lineno, *end);
 		}
 		else {
 		    char		*q = &p[1];
@@ -249,7 +291,7 @@ main(int argc, char **argv)
 		    }
 		}
 		if (out == PM_INDOM_NULL) {
-		    fprintf(stderr, "%d: illegal pmid() @ %s\n", lineno, bp);
+		    fprintf(stderr, "%d: illegal pmid(%d,%d,%d) @ %s\n", lineno, domain, cluster, item, bp);
 		    sts = 1;
 		}
 	    }
@@ -263,16 +305,27 @@ main(int argc, char **argv)
 		     * indom(domain.serial)
 		     * domain is 9 bits, but 511 is special
 		     * serial is 22 bits (4194303 max)
-		     * item is 10 bits (1023 max)
 		     */
 		    domain = strtol(q, &end, 10);
-		    if (*end == '.' && domain <= 510) {
-			q = &end[1];
-			serial = strtol(q, &end, 10);
-			if (*end == ')' && end[1] == '\0' && serial <= 4194303) {
-			    out = (int)pmInDom_build(domain, serial);
+		    if (*end == '.') {
+			if (domain <= 510) {
+			    q = &end[1];
+			    serial = strtol(q, &end, 10);
+			    if (*end == ')' && end[1] == '\0') {
+				if (serial <= 4194303) {
+				    out = (int)pmInDom_build(domain, serial);
+				}
+				else
+				    fprintf(stderr, "%d: serial %d too big\n", lineno, serial);
+			    }
+			    else
+				fprintf(stderr, "%d: expected ) and \\0 found %c and %c after serial", lineno, *end, end[1]);
 			}
+			else
+			    fprintf(stderr, "%d: domain %d too big\n", lineno, domain);
 		    }
+		    else
+			fprintf(stderr, "%d: expected , found %c after domain\n", lineno, *end);
 		}
 		if (out == PM_INDOM_NULL) {
 		    fprintf(stderr, "%d: illegal indom() @ %s\n", lineno, bp);
@@ -326,6 +379,66 @@ main(int argc, char **argv)
 		}
 		fprintf(stderr, "%d: no closing ) for str(...\n", lineno);
 		sts = 1;
+	    }
+	    else if (strncmp(bp, "typelen(", 8) == 0) {
+		char		*p = &bp[8];
+		int		ok = 0;
+		pmValueBlock	*vbp = (pmValueBlock *)&out;
+		out = PM_ID_NULL;
+		if ('A' <= *p && *p <= 'Z') {
+		    int		i;
+		    char	*q;
+		    char	c1;
+		    for (q = bp; *q && *q != '.'; q++)
+			;
+		    if (*q == '.') {
+			c1 = *q;
+			*q = '\0';
+			/* type is FOO => PM_TYPE_FOO */
+			for (i = 0; i < npdu_types; i++) {
+			    if (strcmp(p, data_types[i].name) == 0) {
+				vbp->vtype = data_types[i].code;
+				ok++;
+				break;
+			    }
+			}
+			if (i == npdu_types)
+			    fprintf(stderr, "%d: unknown data type %s\n", lineno, p);
+			*q = c1;
+			p = &q[1];
+		    }
+		    else
+			fprintf(stderr, "%d: expected . found %c after type %s\n", lineno, *q, p);
+		}
+		else if (isdigit(*p)) {
+		    /*
+		     * type as integer
+		     */
+		    vbp->vtype = strtol(p, &end, 10);
+		    if (*end == '.') {
+			ok++;
+			p = &end[1];
+		    }
+		    else
+			fprintf(stderr, "%d: expected . found %c after type %d\n", lineno, *end, vbp->vtype);
+		}
+		if (ok == 1) {
+		    if (isdigit(*p)) {
+			vbp->vlen = strtol(p, &end, 10);
+			if (*end == ')') {
+			    ok++;
+			    p = &end[1];
+			}
+			else
+			    fprintf(stderr, "%d: expected ) found %c after len %d\n", lineno, *end, vbp->vlen);
+		    }
+		    else
+			fprintf(stderr, "%d: expected number found %s after type\n", lineno, p);
+		}
+		if (ok != 2) {
+		    fprintf(stderr, "%d: illegal typelen() @ %s\n", lineno, bp);
+		    sts = 1;
+		}
 	    }
 	    else if (w == 0 && strcmp(bp, "?") == 0) {
 		calc_len = 1;
