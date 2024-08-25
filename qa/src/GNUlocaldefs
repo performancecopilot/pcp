@@ -174,8 +174,8 @@ MYFILES += \
 	permslist \
 	qa_shmctl.c qa_sem_msg_ctl.c \
 	qa_shmctl_stat.c qa_msgctl_stat.c qa_semctl_stat.c \
-	qa_libpcp_compat.c addctxdm.c
-LDIRT += addctxdm.o
+	qa_libpcp_compat.c addctxdm.c myprintresult.c
+LDIRT += addctxdm.o myprintresult.o
 
 MYSCRIPTS = grind-tools show-args fixhosts mkpermslist \
 	memcachestats.pl indomdelta pmjson_array_sort
@@ -430,9 +430,9 @@ y2038:	y2038.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
 
-pdu-gadget:	pdu-gadget.c
+pdu-gadget:	pdu-gadget.c myprintresult.o
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ $< myprintresult.o $(LDLIBS)
 
 # --- need libpcp but also PM_CONTEXT_LOCAL
 #

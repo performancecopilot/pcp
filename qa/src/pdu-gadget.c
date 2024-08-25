@@ -27,6 +27,9 @@
  *     .vlen fields in the first word of a pmValueBlock, <type> is an
  *     integer or FOO for PM_TYPE_FOO and <len> is an integer, use S32 for
  *     PM_TYPE_32 and S64 for PM_TYPE_64 to avoid 32 and 64 ambiguity}
+ *   + the unary prefix operator (~) means the following word is NOT
+ *     converted into network byte order (needed for packed event
+ *     records)
  * - for the first word in the PDU, the special value ? may be used
  *   to have pdu-gadget fill in the PDU length (in bytes) in word[0]
  *
@@ -39,17 +42,21 @@
 
 static pmLongOptions longopts[] = {
     PMOPT_DEBUG,	/* -D */
+    { "port", 0, 'p', NULL, "pmcd port" },
     { "verbose", 0, 'v', NULL, "output PDU in pmGetPDU-style on stderr" },
     { "execute", 0, 'x', NULL, "call libpcp [default: don't call emit binary PDUs]" },
     PMOPT_HELP,		/* -? */
     PMAPI_OPTIONS_END
 };
 
+static int overrides(int, pmOptions *);
+
 static pmOptions opts = {
     .flags = PM_OPTFLAG_BOUNDARIES | PM_OPTFLAG_STDOUT_TZ,
-    .short_options = "D:vx?",
+    .short_options = "D:p:vx?",
     .long_options = longopts,
     .short_usage = "[options] ...",
+    .override = overrides,
 };
 
 /*
@@ -107,7 +114,17 @@ struct {
 };
 int	ndata_types = sizeof(data_types)/sizeof(data_types[0]);
 
+extern void myprintresult(FILE *, __pmResult *);
+
 #define PDUBUF_SIZE 1024
+
+static int
+overrides(int opt, pmOptions *optsp)
+{
+    if (opt == 'p')
+	return 1;
+    return 0;
+}
 
 int
 main(int argc, char **argv)
@@ -115,6 +132,7 @@ main(int argc, char **argv)
     int		verbose = 0;
     int		execute = 0;
     int		c;
+    char	pmcdspec[1024];
     int		sts;
     int		lsts;
     long	value;
@@ -124,7 +142,6 @@ main(int argc, char **argv)
     int		type;
     int		out;
     int		w;
-    int		nwr;
     int		j;
     char	buf[1024];
     __pmPDU	*pdubuf;
@@ -133,11 +150,19 @@ main(int argc, char **argv)
     char	*end;
     int		lineno = 1;
     int		newline;
+    int		convert;
+    __pmContext		*ctxp;
+
+    sprintf(pmcdspec, "localhost");
 
     pmSetProgname(argv[0]);
 
     while ((c = pmGetOptions(argc, argv, &opts)) != EOF) {
 	switch (c) {
+
+	case 'p':	/* pmcd port */
+	    sprintf(pmcdspec, "localhost:%s", opts.optarg);
+	    break;	
 
 	case 'v':	/* verbose output */
 	    verbose++;
@@ -162,11 +187,29 @@ main(int argc, char **argv)
 
     pdubuf = __pmFindPDUBuf(PDUBUF_SIZE);
 
-    if ((sts = pmNewContext(PM_CONTEXT_HOST, "local:")) < 0) {
-	fprintf(stderr, "%s: Cannot connect to pmcd on local: %s\n",
-		pmGetProgname(), pmErrStr(sts));
+    /*
+     * this is the context for sending PDU data to pmcd
+     */
+    if ((sts = pmNewContext(PM_CONTEXT_HOST, pmcdspec)) < 0) {
+	fprintf(stderr, "%s: Cannot make 1st connect to pmcd on %s: %s\n",
+		pmGetProgname(), pmcdspec, pmErrStr(sts));
 	exit(EXIT_FAILURE);
     }
+    if ((ctxp = __pmHandleToPtr(sts)) == NULL) {
+	fprintf(stderr, "__pmHandleToPtr failed: eh?\n");
+	exit(EXIT_FAILURE);
+    }
+    PM_UNLOCK(ctxp->c_lock);
+
+    /*
+     * this is the current context for pmns lookups for pmid()
+     */
+    if ((sts = pmNewContext(PM_CONTEXT_HOST, pmcdspec)) < 0) {
+	fprintf(stderr, "%s: Cannot make 2nd connect to pmcd on %s: %s\n",
+		pmGetProgname(), pmcdspec, pmErrStr(sts));
+	exit(EXIT_FAILURE);
+    }
+
     sts = 0;
 
     while (fgets(buf, sizeof(buf), stdin) != NULL) {
@@ -187,6 +230,17 @@ main(int argc, char **argv)
 	    if (*bp == ' ' || *bp == '\t')
 		continue;
 	    /* at the start of a word */
+	    convert = 1;
+	    if (*bp == '~') {
+		if (bp[1] == '\0' || bp[1] == ' ' || bp[1] == '\t' || bp[1] == '\n') {
+		    fprintf(stderr, "%d: value after ~: %s\n", lineno, bp);
+		    sts = 1;
+		}
+		else {
+		    convert = 0;
+		    bp++;
+		}
+	    }
 	    wp = bp;
 	    for (wp = bp; *wp != '\0' && *wp != ' ' && *wp != '\t' && *wp != '\n'; wp++)
 		;
@@ -395,16 +449,16 @@ main(int argc, char **argv)
 			c1 = *q;
 			*q = '\0';
 			/* type is FOO => PM_TYPE_FOO */
-			for (i = 0; i < npdu_types; i++) {
+			for (i = 0; i < ndata_types; i++) {
 			    if (strcmp(p, data_types[i].name) == 0) {
 				vbp->vtype = data_types[i].code;
 				ok++;
 				break;
 			    }
 			}
+			*q = c1;
 			if (i == npdu_types)
 			    fprintf(stderr, "%d: unknown data type %s\n", lineno, p);
-			*q = c1;
 			p = &q[1];
 		    }
 		    else
@@ -455,14 +509,17 @@ main(int argc, char **argv)
 		}
 		else {
 		    if (w == 0) {
-			/* save PDU len before htonl() conversion */
+		/* save PDU len before htonl() conversion */
 			save_len = out;
 		    }
 		    else if (w == 1) {
 			/* save PDU type before htonl() conversion */
 			type = out;
 		    }
-		    pdubuf[w++] = htonl(out);
+		    if (convert)
+			pdubuf[w++] = htonl(out);
+		    else
+			pdubuf[w++] = out;
 		    len += sizeof(pdubuf[0]);
 		}
 	    }
@@ -591,7 +648,7 @@ main(int argc, char **argv)
 				fprintf(stderr, "%d: __pmDecodeResult failed: %s\n", lineno, pmErrStr(lsts));
 			    else {
 				fprintf(stderr, "%d: __pmDecodeResult: sts=%d ...\n", lineno, lsts);
-				__pmPrintResult(stderr, result);
+				myprintresult(stderr, result);
 				__pmFreeResult(result);
 			    }
 			}
@@ -658,14 +715,62 @@ main(int argc, char **argv)
 		}
 	    }
 	    else {
-		nwr = write(fileno(stdout), pdubuf, w * sizeof(pdubuf[0]));
-		if (nwr != w * sizeof(pdubuf[0])) {
-		    fprintf(stderr, "%d: write failed: returned %d: %s\n", lineno, nwr, strerror(errno));
+		/*
+		 * write directly to pmcd
+		 */
+		int	nch;
+
+		nch = write(ctxp->c_pmcd->pc_fd, pdubuf, w * sizeof(pdubuf[0]));
+		if (nch != w * sizeof(pdubuf[0])) {
+		    fprintf(stderr, "%d: write failed: returned %d: %s\n", lineno, nch, strerror(errno));
 		    sts = 1;
 		}
 	    }
 	}
 	lineno++;
+    }
+
+    if (!execute) {
+	/*
+	 * drain responses from pmcd and write 'em to stdout ...
+	 * sort of expects | od -X to turn this into something human
+	 * readable
+	 *
+	 * wait up to 10msec for each select()
+	 */
+	struct timeval	wait = { 1, 10000 };
+	fd_set		onefd;
+	int		nch;
+
+	FD_ZERO(&onefd);
+	for ( ; ; ) {
+	    FD_SET(ctxp->c_pmcd->pc_fd, &onefd);
+	    sts = select(ctxp->c_pmcd->pc_fd+1, &onefd, NULL, NULL, &wait);
+	    if (sts == 0)
+		break;
+	    if (sts < 0) {
+		fprintf(stderr, "%d: drain responses: select() failed: %s\n", lineno, strerror(errno));
+		break;
+	    }
+	    nch = read(ctxp->c_pmcd->pc_fd, pdubuf, w * sizeof(pdubuf[0]));
+	    if (nch == 0) {
+		if (verbose)
+		    fprintf(stderr, "%d: drain responses: read() EOF\n", lineno);
+		break;
+	    }
+	    else if (nch < 0) {
+		fprintf(stderr, "%d: drain responses: read() failed: %s\n", lineno, strerror(errno));
+		break;
+	    }
+	    else {
+		nch = write(1, pdubuf, nch);
+		if (nch < 0) {
+		    fprintf(stderr, "%d: drain responses: write() failed: %s\n", lineno, strerror(errno));
+		    break;
+		}
+	    }
+	}
+	close(ctxp->c_pmcd->pc_fd);
     }
 
     return sts;
