@@ -1,0 +1,9 @@
+# PDU specifications, used by ../src/pdu-gadget to produce a
+# binary PDU stream for QA
+#
+# PDU_RESULT with event records test cases
+
+# result: len type from timestamp[2] numpmid pmid (pipe.firehose) numval
+#    valfmt (SPTR) inst <ptr> <type+len> nevrec timestamp[2] flags
+#    nparam pmid <type+len>
+? PDU_RESULT 42 45296 789000 1 pmid(sampledso.event.records) 1 2 0 11 typelen(EVENT.32) 1 45296 0 6 1 pmid(sampledso.event.param_string) typelen(STRING.4)

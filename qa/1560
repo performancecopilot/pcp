@@ -55,6 +55,8 @@ _filter()
 }
 
 # real QA test starts here
+export TZ=UTC
+
 for data in pdudata/*
 do
     head -1 $data | grep -q '^# PDU specifications' || continue
