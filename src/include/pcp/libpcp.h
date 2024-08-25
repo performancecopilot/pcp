@@ -1474,6 +1474,9 @@ PCP_CALL extern void __pmFreeResult(__pmResult *);
 /* diagnostics for formatting or printing miscellaneous data structures */
 PCP_CALL extern void __pmDumpContext(FILE *, int, pmInDom);
 PCP_CALL extern void __pmDumpDebug(FILE *);
+#define PM_CTL_DEBUG_SAVE 1
+#define PM_CTL_DEBUG_RESTORE 2
+PCP_CALL extern void __pmCtlDebug(int);
 PCP_CALL extern void __pmDumpErrTab(FILE *);
 PCP_CALL extern void __pmDumpEventRecords(FILE *, pmValueSet *, int);
 PCP_CALL extern void __pmDumpHighResEventRecords(FILE *, pmValueSet *, int);

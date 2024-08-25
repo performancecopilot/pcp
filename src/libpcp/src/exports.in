@@ -870,4 +870,5 @@ PCP_3.41 {
 
 PCP_3.42 {
     __pmCheckAttribute;
+    __pmCtlDebug;
 } PCP_3.41;
