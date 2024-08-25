@@ -1,9 +1,11 @@
 QA output created by 1561
 Note: Fix for original issue means no errors expected here.
 expect error(s) to be logged ...
+DoCreds: version cred (2) flags=0 ()
 DoCreds: version cred (2) flags=40 (CONTAINER)
 __pmDecodeAttr [len=36]: attr=0xf value="evil-container","evilkey":"evilvalue"
 DoCreds: failed GetAttribute container -22: Invalid argument
+DoCreds: version cred (2) flags=0 ()
 
 and no valgrind badness ...
 Memcheck, a memory error detector
