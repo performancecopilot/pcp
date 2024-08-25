@@ -338,7 +338,7 @@ __pmEventArrayCheck(pmValueBlock * const vb, int highres, int pmid, int value, s
 	base = (char *)&hreap->ea_record[0];
 	if (base > (char *)vb + check) {
 	    if (pmDebugOptions.pdu)
-		fprintf(stderr, "__pmEventArrayCheck: PM_ERR_IPC: pmid[%d] value[%d] highres event records past end of PDU buffer\n",
+		fprintf(stderr, "__pmEventArrayCheck #1: PM_ERR_IPC: pmid[%d] value[%d] highres event records past end of PDU buffer\n",
 			pmid, value);
 	    return PM_ERR_IPC;
 	}
@@ -349,7 +349,7 @@ __pmEventArrayCheck(pmValueBlock * const vb, int highres, int pmid, int value, s
 	base = (char *)&eap->ea_record[0];
 	if (base > (char *)vb + check) {
 	    if (pmDebugOptions.pdu)
-		fprintf(stderr, "__pmEventArrayCheck: PM_ERR_IPC: pmid[%d] value[%d] event records past end of PDU buffer\n",
+		fprintf(stderr, "__pmEventArrayCheck #2: PM_ERR_IPC: pmid[%d] value[%d] event records past end of PDU buffer\n",
 			pmid, value);
 	    return PM_ERR_IPC;
 	}
@@ -368,7 +368,7 @@ __pmEventArrayCheck(pmValueBlock * const vb, int highres, int pmid, int value, s
 		    sizeof(hrerp->er_nparams);
 	    if (size > remaining) {
 		if (pmDebugOptions.pdu)
-		    fprintf(stderr, "__pmEventArrayCheck: PM_ERR_IPC: pmid[%d] value[%d] record[%d] highres event record past end of PDU buffer\n",
+		    fprintf(stderr, "__pmEventArrayCheck #3: PM_ERR_IPC: pmid[%d] value[%d] record[%d] highres event record past end of PDU buffer\n",
 			    pmid, value, r);
 		return PM_ERR_IPC;
 	    }
@@ -381,7 +381,7 @@ __pmEventArrayCheck(pmValueBlock * const vb, int highres, int pmid, int value, s
 		    sizeof(erp->er_nparams);
 	    if (size > remaining) {
 		if (pmDebugOptions.pdu)
-		    fprintf(stderr, "__pmEventArrayCheck: PM_ERR_IPC: pmid[%d] value[%d] record[%d] event record past end of PDU buffer\n",
+		    fprintf(stderr, "__pmEventArrayCheck #4: PM_ERR_IPC: pmid[%d] value[%d] record[%d] event record past end of PDU buffer\n",
 			    pmid, value, r);
 		return PM_ERR_IPC;
 	    }
@@ -401,7 +401,7 @@ __pmEventArrayCheck(pmValueBlock * const vb, int highres, int pmid, int value, s
 
 	    if (sizeof(pmEventParameter) > remaining) {
 		if (pmDebugOptions.pdu)
-		    fprintf(stderr, "__pmEventArrayCheck: PM_ERR_IPC: pmid[%d] value[%d] record[%d] param[%d] event record past end of PDU buffer\n",
+		    fprintf(stderr, "__pmEventArrayCheck #5: PM_ERR_IPC: pmid[%d] value[%d] record[%d] param[%d] event record past end of PDU buffer\n",
 			    pmid, value, r, p);
 		return PM_ERR_IPC;
 	    }
@@ -415,24 +415,35 @@ __pmEventArrayCheck(pmValueBlock * const vb, int highres, int pmid, int value, s
 
 	    if (sizeof(pmID) + size > remaining) {
 		if (pmDebugOptions.pdu)
-		    fprintf(stderr, "__pmEventArrayCheck: PM_ERR_IPC: pmid[%d] value[%d] record[%d] param[%d] event record past end of PDU buffer\n",
+		    fprintf(stderr, "__pmEventArrayCheck #6: PM_ERR_IPC: pmid[%d] value[%d] record[%d] param[%d] event record past end of PDU buffer\n",
 			    pmid, value, r, p);
 		return PM_ERR_IPC;
 	    }
 
 	    base += sizeof(pmID) + PM_PDU_SIZE_BYTES(size);
 
-	    size = 8;	/* 64-bit types */
+	    /*
+	     * final check for the types below, ep_len should be 4 or
+	     * 8, but a malformed PDU could have smaller ep_len values
+	     * and then unpacking these types risk going past the end
+	     * of the  PDU buffer
+	     */
+	    size = 0;
 	    switch (type) {
 		case PM_TYPE_32:
 		case PM_TYPE_U32:
 		case PM_TYPE_FLOAT:
 		    size = 4;	/* 32-bit types */
 		    break;
+		case PM_TYPE_64:
+		case PM_TYPE_U64:
+		case PM_TYPE_DOUBLE:
+		    size = 8;	/* 64-bit types */
+		    break;
 	    }
-	    if (sizeof(pmID) + size > remaining) {
+	    if (size > 0 && sizeof(pmID) + size > remaining) {
 		if (pmDebugOptions.pdu)
-		    fprintf(stderr, "__pmEventArrayCheck: PM_ERR_IPC: pmid[%d] value[%d] record[%d] param[%d] event record past end of PDU buffer\n",
+		    fprintf(stderr, "__pmEventArrayCheck #7: PM_ERR_IPC: pmid[%d] value[%d] record[%d] param[%d] event record past end of PDU buffer\n",
 			    pmid, value, r, p);
 		return PM_ERR_IPC;
 	    }
@@ -948,7 +959,7 @@ __pmDecodeResult_ctx(__pmContext *ctxp, __pmPDU *pdubuf, __pmResult **result)
 	return sts;
     }
 
-    if (pmDebugOptions.pdu)
+    if (pmDebugOptions.pdu && pmDebugOptions.desperate)
 	__pmPrintResult_ctx(ctxp, stderr, pr);
 
     /*
@@ -1029,7 +1040,7 @@ __pmDecodeHighResResult_ctx(__pmContext *ctxp, __pmPDU *pdubuf, __pmResult **res
 	return sts;
     }
 
-    if (pmDebugOptions.pdu)
+    if (pmDebugOptions.pdu && pmDebugOptions.desperate)
 	__pmPrintResult_ctx(ctxp, stderr, pr);
 
     /*
