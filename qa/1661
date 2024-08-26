@@ -261,7 +261,7 @@ _service pmlogger restart 2>&1 | _filter_pcp_start
 _wait_for_pmlogger
 $sudo [ ! -d /proc/$pmproxy_pid/fd/ ] && echo FAIL && exit
 echo passed
-src/time_stamp $tmp.stamp 'check pmproxxy survives' >>$seq.full
+src/time_stamp $tmp.stamp 'check pmproxy survives' >>$seq.full
 
 # success, all done
 status=0
