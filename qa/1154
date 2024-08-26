@@ -11,9 +11,10 @@ echo "QA output created by $seq"
 . ./common.bcc
 
 _pmdabcc_check
-which zpool >/dev/null 2>&1 || _notrun "zpool tool not installed"
-modinfo zfs >/dev/null 2>&1 || _notrun "zfs kernel module not present"
-$sudo modprobe zfs >/dev/null 2>&1 || _notrun "failed to load zfs kernel module"
+which zpool >/dev/null 2>&1 || _notrun "zpool utility not installed"
+$sudo modprobe zfs >/dev/null 2>&1
+cat /proc/filesystems | awk '{ print $1 }' | grep '^zfs$' >/dev/null
+test $? -eq 0 || _notrun "ZFS kernel support unavailable"
 
 write_size=`expr 20 \* 1024 \* 1024` # number of bytes to write into testfile
 zfs_pool=pcp-qa-tank-$seq
