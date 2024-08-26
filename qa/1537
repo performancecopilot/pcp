@@ -54,10 +54,14 @@ s/bad/Bad/
 }
 
 # real QA test starts here
+
+# Note: need sort because parent-child output order is not deterministic
+#
 echo "Hullo world" >$tmp.in
 src/exectest -f $tmp.in -p -- sh -c 'cat <&3' 2>&1 \
 | tee -a $seq.full \
-| _filter
+| _filter \
+| LC_COLLATE=POSIX sort
 
 # success, all done
 exit
