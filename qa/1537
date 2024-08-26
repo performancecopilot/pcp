@@ -33,7 +33,7 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 # cf
 # sh: 3: Bad file descriptor
 # cf
-# sh: <&3: bad file descriptor
+# sh: <&3 : bad file descriptor
 #
 # __pmProcessPipeClose() -> 2 exit=2
 # cf
@@ -46,6 +46,7 @@ _filter()
 s/ line 1://
 s/ 1://
 s/<&//
+s/ :/:/
 s/bad/Bad/
 }' \
 	-e '/ProcessPipeClose/s/1 exit=1/2 exit=2/' \
@@ -55,6 +56,7 @@ s/bad/Bad/
 # real QA test starts here
 echo "Hullo world" >$tmp.in
 src/exectest -f $tmp.in -p -- sh -c 'cat <&3' 2>&1 \
+| tee -a $seq.full \
 | _filter
 
 # success, all done
