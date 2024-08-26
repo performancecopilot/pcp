@@ -119,16 +119,16 @@ $keys_cli -p $proxyport get pcpqa:$seq:ten
 echo
 
 # check resp protocol error handling
-echo "== keys_cli empty key set"
+echo "== key server cli empty key set"
 $keys_cli -p $proxyport keys no-such-key | _filter_key_server_err
 echo
-echo "== keys_cli handle errors 1"
+echo "== key server cli handle errors 1"
 $keys_cli -p $proxyport get foo bar baz | _filter_key_server_err
 echo
-echo "== keys_cli handle errors 2"
+echo "== key server cli handle errors 2"
 $keys_cli -p $proxyport set foo bar baz | _filter_key_server_err
 echo
-echo "== keys_cli nonexistant key"
+echo "== key server cli nonexistant key"
 $keys_cli -p $proxyport get abc
 echo
 

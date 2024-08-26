@@ -37,11 +37,13 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 _filter_pmproxy_log()
 {
     sed -e 's/, command keys//g' | \
-    grep -oE "Lost connection.+|Trying to connect to Redis.+|Cannot connect to Redis.+|Redis .+ setup"
+    sed -e 's/^.*Info: Key /key /g' | \
+    sed -e 's/LOADING .* is loading/loading/g' | \
+    grep -oE "Lost connection.+|Trying to connect to .+|Cannot connect to .+|.+ setup"
 }
 
 # real QA test starts here
-echo "Start Redis server"
+echo "Start key server"
 key_server_port=`_find_free_port`
 $key_server --port $key_server_port --save "" > $tmp.keys.log 2>&1 &
 key_server_pid=$!
@@ -79,7 +81,7 @@ tail -n +$lineno $tmp.pmproxy.log | _filter_pmproxy_log
 lineno=$((`wc -l < $tmp.pmproxy.log` + 1))
 
 echo
-echo "Start Redis proxy again (loading error for first 3 seconds)"
+echo "Start key server proxy again (loading error for first 3 seconds)"
 $python src/key_server_proxy.py --loading_delay 3 127.0.0.1:$keysproxyport 127.0.0.1:$key_server_port > $tmp.keysproxy.log &
 keysproxy_pid=$!
 _wait_for_port $keysproxyport

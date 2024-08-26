@@ -1,11 +1,11 @@
 QA output created by 1355
-Start Redis server
-Start Redis proxy to fake loading error for first 3 seconds
+Start key server
+Start key server proxy to fake loading error for first 3 seconds
 Start pmproxy
 
 == Observe a loading error and reconnect
-Cannot connect to Redis: LOADING Redis is loading the dataset in memory
-Redis slots, schema version setup
+Cannot connect to key server: loading the dataset in memory
+key server slots, schema version setup
 
 Stop key server proxy
 

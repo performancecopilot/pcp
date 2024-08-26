@@ -1660,9 +1660,8 @@ _check_key_server_version()
     else
 	_notrun "No key server command line interface found"
     fi
-    eval __`$keys_cli -p "$1" info server |
-	grep "$keys_ver:" |
-	sed -e 's/:/=/g' -e 's/\..*//g'`
+    eval __key_server_version=`$keys_cli -p "$1" info server |
+	grep "$keys_ver:" | sed -e 's/^.*://g' -e 's/\..*//g'`
     [ $__key_server_version -ge 5 ] || _notrun "Key server @ port $1: version $__key_server_version too old"
 }
 
