@@ -1040,7 +1040,7 @@ __pmDecodeHighResResult_ctx(__pmContext *ctxp, __pmPDU *pdubuf, __pmResult **res
 	return sts;
     }
 
-    if (pmDebugOptions.pdu && pmDebugOptions.desperate)
+    if (pmDebugOptions.pdu)
 	__pmPrintResult_ctx(ctxp, stderr, pr);
 
     /*
