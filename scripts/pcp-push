@@ -287,7 +287,7 @@ else
     fi
 fi
 
-if [ "$branch" != main ]
+if [ "$branch" != main ] && $mail
 then
     # Back to the main branch, but leave the temporary branch to
     # allow further commits to be added onto the same Pull Request
