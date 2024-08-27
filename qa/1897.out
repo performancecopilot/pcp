@@ -2452,7 +2452,7 @@ ha_cluster.pacemaker.resources.role PMID: 155.5.4 [The given role state]
     Semantics: instant  Units: count
 Help:
 The value of the given role state for the resource instance in the cluster.
-    inst [2 or "SAPHana_HDB_00:rh9dhdb00l08b"] value "Unpromoted"
+    inst [2 or "SAPHana_HDB_00:rh9dhdb00l08b"] value "Unpromoted"
     inst [1 or "SAPHana_HDB_00:rh9dhdb00l18b"] value "Promoted"
     inst [0 or "VirtualIP:rhel9-node1"] value "Started"
 

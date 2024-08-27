@@ -674,8 +674,10 @@ main(int argc, char **argv)
 			    lsts = __pmDecodeAttr(pdubuf, &attr, &val, &vlen);
 			    if (lsts < 0)
 				fprintf(stderr, "%d: __pmDecodeAttr failed: %s\n", lineno, pmErrStr(lsts));
-			    else
-				fprintf(stderr, "%d: __pmDecodeAttr: sts=%d attr=%d vlen=%d value=\"%s\"\n", lineno, lsts, attr, vlen, val);
+			    else {
+				/* not necessarily null-byte terminated ... */
+				fprintf(stderr, "%d: __pmDecodeAttr: sts=%d attr=%d vlen=%d value=\"%*.*s\"\n", lineno, lsts, attr, vlen, vlen, vlen, val);
+			    }
 			}
 			break;
 
@@ -752,7 +754,7 @@ main(int argc, char **argv)
 		fprintf(stderr, "%d: drain responses: select() failed: %s\n", lineno, strerror(errno));
 		break;
 	    }
-	    nch = read(ctxp->c_pmcd->pc_fd, pdubuf, w * sizeof(pdubuf[0]));
+	    nch = read(ctxp->c_pmcd->pc_fd, pdubuf, PDUBUF_SIZE);
 	    if (nch == 0) {
 		if (verbose)
 		    fprintf(stderr, "%d: drain responses: read() EOF\n", lineno);

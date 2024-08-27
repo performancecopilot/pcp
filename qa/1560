@@ -51,7 +51,23 @@ _filter()
 	-e '/pmGetPDU:/d' \
 	-e '/^[0-9][0-9][0-9]:/d' \
 	-e "s@$tmp@TMP@g" \
-    # end
+    | case "$1"
+    in
+	pdudata/result-event)
+	    # need to skip __pmResult dump from -Dpdu but keep the
+	    # dump from myprintresult()
+	    #
+	    $PCP_AWK_PROG '
+/__pmResult dump from 0x/	{ skip = 1; next }
+skip == 1 && /^ /		{ next }
+skip == 1			{ skip = 0 }
+				{ print }'
+	    ;;
+
+	*)
+	    cat
+	    ;;
+    esac
 }
 
 # real QA test starts here
@@ -68,7 +84,7 @@ do
     else
 	src/pdu-gadget -Dpdu -x <$data 2>&1
     fi \
-    | _filter
+    | _filter $data
 done
 
 # success, all done
