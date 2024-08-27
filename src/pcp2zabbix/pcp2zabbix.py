@@ -533,11 +533,10 @@ class PCP2Zabbix(object):
         for metric in results:
             fmt = "." + str(self.metrics[metric][6]) + "f"
 
+            send_lld = False
             if self.zabbix_lld:
-                send_lld = False
                 if metric in self.lld_history:
                     metric_lld = self.lld_history[metric]
-                    send_lld = False
                 else:
                     metric_lld = self.lld_history[metric] = set()
                     send_lld = True

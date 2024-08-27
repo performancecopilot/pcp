@@ -16,69 +16,225 @@ pmproxy.control.files
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 
-pmproxy.redis.discover.monitored
-    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+pmproxy.pid
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
 
-pmproxy.redis.discover.purged
+pmproxy.cpu.user
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
+    Semantics: counter  Units: millisec
 
-pmproxy.redis.discover.metadata.callbacks
+pmproxy.cpu.sys
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: none
+    Semantics: counter  Units: millisec
 
-pmproxy.redis.discover.metadata.loops
+pmproxy.cpu.total
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: none
+    Semantics: counter  Units: millisec
 
-pmproxy.redis.discover.metadata.decode.desc
+pmproxy.mem.maxrss
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: none
+    Semantics: instant  Units: Kbyte
 
-pmproxy.redis.discover.metadata.decode.indom
+pmproxy.mem.datasz
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: none
+    Semantics: instant  Units: Kbyte
 
-pmproxy.redis.discover.metadata.decode.label
-    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: none
+pmproxy.map.context.size
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
 
-pmproxy.redis.discover.metadata.decode.helptext
-    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: none
+pmproxy.map.metric.size
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
 
-pmproxy.redis.discover.logvol.callbacks
-    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: none
+pmproxy.map.label.size
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
 
-pmproxy.redis.discover.logvol.loops
-    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: none
+pmproxy.map.instance.size
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
 
-pmproxy.redis.discover.logvol.change_vol
+pmproxy.keys.requests.total
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: none
+    Semantics: counter  Units: count
 
-pmproxy.redis.discover.logvol.decode.result
+pmproxy.keys.requests.error
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: none
+    Semantics: counter  Units: count
 
-pmproxy.redis.discover.logvol.decode.result_pmids
+pmproxy.keys.requests.inflight.total
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: none
+    Semantics: instant  Units: count
 
-pmproxy.redis.discover.logvol.decode.mark_record
+pmproxy.keys.requests.inflight.bytes
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: none
+    Semantics: instant  Units: byte
 
-pmproxy.redis.discover.logvol.new_contexts
+pmproxy.keys.requests.total_bytes
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: none
+    Semantics: counter  Units: byte
 
-pmproxy.redis.discover.logvol.get_archive_end_failed
+pmproxy.keys.responses.total
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: none
+    Semantics: counter  Units: count
+
+pmproxy.keys.responses.error
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+
+pmproxy.keys.responses.time
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: microsec
+
+pmproxy.keys.responses.total_bytes
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: byte
+
+pmproxy.http.uncompressed.count
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+
+pmproxy.http.uncompressed.bytes
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: byte
+
+pmproxy.http.compressed.count
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+
+pmproxy.http.compressed.bytes
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: byte
+
+pmproxy.discover.monitored
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+pmproxy.discover.purged
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+pmproxy.discover.changed_callbacks
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+
+pmproxy.discover.throttled_changed_callbacks
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+
+pmproxy.discover.throttle
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: sec
+
+pmproxy.discover.metadata.callbacks
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+
+pmproxy.discover.metadata.loops
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+
+pmproxy.discover.metadata.decode.desc
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+
+pmproxy.discover.metadata.decode.indom
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+
+pmproxy.discover.metadata.decode.label
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+
+pmproxy.discover.metadata.decode.helptext
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+
+pmproxy.discover.metadata.partial_reads
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+
+pmproxy.discover.logvol.callbacks
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+
+pmproxy.discover.logvol.loops
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+
+pmproxy.discover.logvol.change_vol
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+
+pmproxy.discover.logvol.new_contexts
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+
+pmproxy.discover.logvol.get_archive_end_failed
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+
+pmproxy.discover.logvol.decode.result
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+
+pmproxy.discover.logvol.decode.result_pmids
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+
+pmproxy.discover.logvol.decode.mark_record
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+
+pmproxy.discover.logvol.decode.result_errors
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+
+pmproxy.series.query.calls
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+
+pmproxy.series.descs.calls
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+
+pmproxy.series.instances.calls
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+
+pmproxy.series.sources.calls
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+
+pmproxy.series.metrics.calls
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+
+pmproxy.series.values.calls
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+
+pmproxy.series.labels.calls
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+
+pmproxy.series.labelvalues.calls
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+
+pmproxy.series.load.calls
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+
+pmproxy.webgroup.gc.context.scans
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+pmproxy.webgroup.gc.context.drops
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
 
 == Metadata after
 
@@ -94,6 +250,98 @@ pmproxy.control.files
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 
+pmproxy.pid
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+
+pmproxy.cpu.user
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: millisec
+
+pmproxy.cpu.sys
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: millisec
+
+pmproxy.cpu.total
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: millisec
+
+pmproxy.mem.maxrss
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+
+pmproxy.mem.datasz
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+
+pmproxy.map.context.size
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+pmproxy.map.metric.size
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+pmproxy.map.label.size
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+pmproxy.map.instance.size
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+pmproxy.keys.requests.total
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+
+pmproxy.keys.requests.error
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+
+pmproxy.keys.requests.inflight.total
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+
+pmproxy.keys.requests.inflight.bytes
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: byte
+
+pmproxy.keys.requests.total_bytes
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: byte
+
+pmproxy.keys.responses.total
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+
+pmproxy.keys.responses.error
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+
+pmproxy.keys.responses.time
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: microsec
+
+pmproxy.keys.responses.total_bytes
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: byte
+
+pmproxy.http.uncompressed.count
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+
+pmproxy.http.uncompressed.bytes
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: byte
+
+pmproxy.http.compressed.count
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+
+pmproxy.http.compressed.bytes
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: byte
+
 pmproxy.discover.monitored
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -102,58 +350,122 @@ pmproxy.discover.purged
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 
+pmproxy.discover.changed_callbacks
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+
+pmproxy.discover.throttled_changed_callbacks
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+
+pmproxy.discover.throttle
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: sec
+
 pmproxy.discover.metadata.callbacks
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: none
+    Semantics: counter  Units: count
 
 pmproxy.discover.metadata.loops
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: none
+    Semantics: counter  Units: count
 
 pmproxy.discover.metadata.decode.desc
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: none
+    Semantics: counter  Units: count
 
 pmproxy.discover.metadata.decode.indom
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: none
+    Semantics: counter  Units: count
 
 pmproxy.discover.metadata.decode.label
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: none
+    Semantics: counter  Units: count
 
 pmproxy.discover.metadata.decode.helptext
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: none
+    Semantics: counter  Units: count
+
+pmproxy.discover.metadata.partial_reads
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
 
 pmproxy.discover.logvol.callbacks
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: none
+    Semantics: counter  Units: count
 
 pmproxy.discover.logvol.loops
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: none
+    Semantics: counter  Units: count
 
 pmproxy.discover.logvol.change_vol
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: none
-
-pmproxy.discover.logvol.decode.result
-    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: none
-
-pmproxy.discover.logvol.decode.result_pmids
-    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: none
-
-pmproxy.discover.logvol.decode.mark_record
-    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: none
+    Semantics: counter  Units: count
 
 pmproxy.discover.logvol.new_contexts
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: none
+    Semantics: counter  Units: count
 
 pmproxy.discover.logvol.get_archive_end_failed
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: none
+    Semantics: counter  Units: count
+
+pmproxy.discover.logvol.decode.result
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+
+pmproxy.discover.logvol.decode.result_pmids
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+
+pmproxy.discover.logvol.decode.mark_record
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+
+pmproxy.discover.logvol.decode.result_errors
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+
+pmproxy.series.query.calls
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+
+pmproxy.series.descs.calls
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+
+pmproxy.series.instances.calls
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+
+pmproxy.series.sources.calls
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+
+pmproxy.series.metrics.calls
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+
+pmproxy.series.values.calls
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+
+pmproxy.series.labels.calls
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+
+pmproxy.series.labelvalues.calls
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+
+pmproxy.series.load.calls
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+
+pmproxy.webgroup.gc.context.scans
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+pmproxy.webgroup.gc.context.drops
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none

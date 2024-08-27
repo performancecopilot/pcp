@@ -81,7 +81,7 @@ COMMON = common.check common.config common.filter \
 	 common.qt common.containers \
 	 common.discovery common.compress \
 	 common.python common.openmetrics \
-	 common.bcc common.bpf common.bpftrace common.redis
+	 common.bcc common.bpf common.bpftrace common.keys
 
 OTHERS = group triaged qa_hosts.primary README sanity.coverage \
 	 $(shell echo valgrind-suppress* helgrind-suppress*)

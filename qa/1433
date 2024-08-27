@@ -13,7 +13,7 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-_check_redis_server
+_check_key_server
 eval `pmconfig -L ipv6 unix_domain_sockets`
 [ "$ipv6" = "true" ] || _notrun "No IPv6 support"
 [ "$unix_domain_sockets" = "true" ] || _notrun "No Unix socket support"

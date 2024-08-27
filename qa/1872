@@ -12,16 +12,17 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 . ./common.check
+. ./common.keys
 
 _check_series
 _check_search
-_check_redis_server_version_offline
+_check_key_server_version_offline
 
 _cleanup()
 {
     cd $here
     [ -n "$pmproxy_pid" ] && $signal -s TERM $pmproxy_pid
-    [ -n "$port" ] && redis-cli $port shutdown
+    [ -n "$port" ] && $keys_cli $port shutdown
     if $need_restore
     then
         need_restore=false
@@ -67,31 +68,33 @@ $sudo rm -f $PCP_SYSCONF_DIR/pmseries/*
 $sudo rm -f $PCP_SYSCONF_DIR/pmproxy/*
 need_restore=true
 
-echo "=== Start test Redis server ==="
-redisport=`_find_free_port`
-redispath=`_find_redis_modules`
-redisearch="$redispath/redisearch.$DSO_SUFFIX"
+echo "=== Start test key server ==="
+key_server_port=`_find_free_port`
+key_server_name=`_find_key_server_name`
+key_server_path=`_find_key_server_modules`
+key_server_search=`_find_key_server_search`
+keysearch="$key_server_path/$key_server_search.$DSO_SUFFIX"
 # workaround until https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=989385 is fixed
-sudo chmod +x $redisearch
-# RediSearch module is only accessible by the redis user
-sudo -u redis redis-server --port $redisport --save "" --loadmodule $redisearch > $tmp.redis 2>&1 &
-_check_redis_ping $redisport
-port="-p $redisport"
+sudo chmod +x $keysearch
+# search module is only accessible by the key server user account
+sudo -u $key_server_name $key_server --port $key_server_port --save "" --loadmodule $keysearch > $tmp.keys 2>&1 &
+_check_key_server_ping $key_server_port
+port="-p $key_server_port"
 echo
 
 cat > $tmp.conf <<EOF
 [pmproxy]
 pcp.enabled = true
 http.enabled = true
-redis.enabled = true
+resp.enabled = true
 [pmseries]
 enabled = true
-servers = localhost:$redisport
+servers = localhost:$key_server_port
 [pmsearch]
 enabled = true
 EOF
 
-# import some well-known test data into Redis
+# import some well-known test data into the key server
 _filter_load()
 {
     sed \
@@ -117,7 +120,7 @@ _filter_info()
 {
     # These change slightly accross runs.
     # I assume that they are affected by different order of indexing of each
-    # record which may build underlying Redis data structures differently
+    # record which may build underlying key server data structures differently
     sed \
 	-e 's/\(\"records\":\).*/\1 XXX,/g' \
 	-e 's/\(\"bytes_per_record_avg\":\).*/\1 XXX,/g' \
@@ -132,18 +135,18 @@ pmseries -c $tmp.conf $port --load $here/archives/sample-labels | _filter_load
 # start pmproxy
 proxyport=`_find_free_port`
 echo "proxyport=$proxyport" >>$seq.full
-proxyopts="-p $proxyport -r $redisport -c $tmp.conf" # -Dseries,http,af
+proxyopts="-p $proxyport -r $key_server_port -c $tmp.conf" # -Dseries,http,af
 pmproxy -f -U $username -x $seq.full -l $tmp.pmproxy.log $proxyopts &
 pmproxy_pid=$!
 
 # check pmproxy has started and is available for requests
 pmcd_wait -h localhost@localhost:$proxyport -v -t 5sec
 
-# have to wait until everything is properly indexed in Redis
+# have to wait until everything is properly indexed in the key server
 pmsleep 10s
 
 $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy( |$)' >> $seq.full
-redis-cli $port keys pcp:text >> $seq.full
+$keys_cli $port keys pcp:text >> $seq.full
 cat $tmp.pmproxy.log >> $seq.full
 
 echo "=== /search/text - query for '99' 'random' 'interesting' 'result' ==="
@@ -350,7 +353,7 @@ echo "$url" >> $seq.full
 curl --get --silent "$url" | tee -a $seq.full | pmjson | _filter_info
 
 
-cat $tmp.redis >> $seq.full
+cat $tmp.keys >> $seq.full
 cat $tmp.pmproxy.log >> $seq.full
 
 # success, all done

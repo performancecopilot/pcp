@@ -494,7 +494,7 @@
             <xhtml:div
                style="box-sizing: border-box; font-size: 0; text-align: center; ">
               <xhtml:div
-                 style="display: inline-block; font-size: 10px; font-family: sans-serif; color: #000000; line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">Redis Instance</xhtml:div>
+                 style="display: inline-block; font-size: 10px; font-family: sans-serif; color: #000000; line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">Key Server</xhtml:div>
             </xhtml:div>
           </xhtml:div>
         </foreignObject>
@@ -510,11 +510,11 @@
              sodipodi:role="line"
              id="tspan1328"
              x="769"
-             y="205">Redis</tspan><tspan
+             y="205">Key</tspan><tspan
              sodipodi:role="line"
              x="769"
              y="217.5"
-             id="tspan667">Instance</tspan></text>
+             id="tspan667">Server</tspan></text>
       </switch>
     </g>
     <path

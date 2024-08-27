@@ -1623,97 +1623,174 @@ _check_64bit_platform()
     esac
 }
 
-# check we have pmseries, redis-cli and redis-server installed.
-# Note: use _check_redis_server to test if redis is running locally.
+# check we have pmseries and a key server -cli and -server binary installed.
+# Note: use _check_key_server to test if a key server is running locally.
 #
 _check_series()
 {
     which pmseries >/dev/null 2>&1 || \
 	_notrun "pmseries command line utility not installed"
-    which redis-cli >/dev/null 2>&1 || \
-	_notrun "Redis command line utility not installed"
-    which redis-server >/dev/null 2>&1 || \
-	_notrun "Redis server utility not installed"
+
+    if which valkey-cli >/dev/null 2>&1
+    then
+	key_server=valkey-server
+    elif which redis-cli >/dev/null 2>&1
+    then
+	key_server=redis-server
+    else
+	_notrun "No key server command line interface found"
+    fi
+
+    which $key_server >/dev/null 2>&1 || _notrun "No $key_server binary found"
 }
 
-# check redis-server version
-# ... assumes _check_series already done and redis-server is running
+# check key server version
+# ... assumes _check_series already done and a key server is running
 #
-_check_redis_server_version()
+_check_key_server_version()
 {
-    eval __`redis-cli -p "$1" info server |
-	grep redis_version: |
-	sed -e 's/:/=/g' -e 's/\..*//g'`
-    [ $__redis_version -ge 5 ] || _notrun "Redis server @ port $1: version $__redis_version too old"
+    if which valkey-cli >/dev/null 2>&1
+    then
+	keys_cli=valkey-cli
+	keys_ver=valkey_version
+    elif which redis-cli >/dev/null 2>&1
+    then
+	keys_cli=redis-cli
+	keys_ver=redis_version
+    else
+	_notrun "No key server command line interface found"
+    fi
+    eval __key_server_version=`$keys_cli -p "$1" info server |
+	grep "$keys_ver:" | sed -e 's/^.*://g' -e 's/\..*//g'`
+    [ $__key_server_version -ge 5 ] || _notrun "Key server @ port $1: version $__key_server_version too old"
 }
 
-# check redis-server version without running Redis server
-_check_redis_server_version_offline()
+# check key server version without a running key server
+_check_key_server_version_offline()
 {
-    __redis_version=`redis-server --version | sed -E 's/.*v=([0-9]).*/\1/g'`
-    [ $__redis_version -ge 5 ] || _notrun "Redis version $__redis_version too old"
+    if which valkey-server >/dev/null 2>&1
+    then
+	key_server=valkey-server
+    elif which redis-server >/dev/null 2>&1
+    then
+	key_server=redis-server
+    else
+	_notrun "No key server binary found"
+    fi
+    __key_server_version=`$key_server --version | sed -E 's/.*v=([0-9]).*/\1/g'`
+    [ $__key_server_version -ge 5 ] || _notrun "Key server version $__key_server_version too old"
 }
 
-# Check redis server is installed and running locally and the version
+# Check a key server is installed and running locally and the version
 # is not too old. Optional port parameter defaults to 6379
 #
-_check_redis_server()
+_check_key_server()
 {
     _check_series
-    __redisport=6379
-    [ -n "$1" ] && __redisport="$1"
-    redis-cli -p $__redisport ping >/dev/null
-    [ $? -eq 0 ] || _notrun "Redis server not running locally"
-    _check_redis_server_version $__redisport
+
+    if which valkey-cli >/dev/null 2>&1
+    then
+	keys_cli=valkey-cli
+    elif which redis-cli >/dev/null 2>&1
+    then
+	keys_cli=redis-cli
+    else
+	_notrun "No key server command line interface found"
+    fi
+
+    __key_server_port=6379
+    [ -n "$1" ] && __key_server_port="$1"
+    $keys_cli -p $__key_server_port ping >/dev/null
+    [ $? -eq 0 ] || _notrun "Key server not running locally"
+    _check_key_server_version $__key_server_port
 }
 
-# be prepared to "ping" the Redis server a few times until we see
+# be prepared to "ping" the key server a few times until we see
 # the expected response
 #
-_check_redis_ping()
+_check_key_server_ping()
 {
     if [ $# -ne 1 ]
     then
-	echo "_check_redis_ping: botch: needs port# as only argument"
+	echo "_check_key_server_ping: botch: needs port# as only argument"
 	return
     fi
+
+    if which valkey-cli >/dev/null 2>&1
+    then
+	keys_cli=valkey-cli
+    elif which redis-cli >/dev/null 2>&1
+    then
+	keys_cli=redis-cli
+    else
+	_notrun "No key server command line interface found"
+    fi
+
     echo "PING"
     __i=0
     while [ $__i -lt 10 ]
     do
-	redis-cli -p $1 ping >$tmp.redis.tmp 2>&1
-	if grep PONG $tmp.redis.tmp
+	$keys_cli -p $1 ping >$tmp.keys.tmp 2>&1
+	if grep PONG $tmp.keys.tmp
 	then
-	    rm -f $tmp.redis.tmp
+	    rm -f $tmp.keys.tmp
 	    break
 	fi
 	pmsleep 0.125
 	__i=`expr $__i + 1`
     done
-    [ -f $tmp.redis.tmp ] && cat $tmp.redis.tmp
+    [ -f $tmp.keys.tmp ] && cat $tmp.keys.tmp
 }
 
-# Check if the RediSearch module is installed
+# Check if the key server search module is installed
 _check_search()
 {
     which pmsearch >/dev/null 2>&1 || \
 	_notrun "pmsearch command line utility not installed"
 
-    __redispath=`_find_redis_modules`
-    __redisearch="$__redispath/redisearch.$DSO_SUFFIX"
-    # Redis modules path is not accessibly by the pcpqa user on Fedora/RHEL
-    sudo test -f $__redisearch || \
-	_notrun "RediSearch module is not installed"
+    __key_search=`_find_key_server_search`
+    __key_server_path=`_find_key_server_modules`
+    __key_server_search="$__key_server_path/$__key_search.$DSO_SUFFIX"
+    # module path is not accessibly by the pcpqa user on Fedora/RHEL
+    sudo test -f $__key_server_search || \
+	_notrun "$__key_search module is not installed"
 }
 
-_find_redis_modules()
+_find_key_server_search()
 {
-    # scan through a list of known locations for Redis modules
-    if sudo test -d "$PCP_LIB_DIR/redis/modules"
+    if which valkey-server >/dev/null 2>&1
     then
-	echo "$PCP_LIB_DIR/redis/modules"
+	echo valkeysearch
+    elif which redis-server >/dev/null 2>&1
+    then
+	echo redisearch
     else
-	echo "$PCP_LIB32_DIR/redis/modules"
+	echo
+    fi
+}
+
+_find_key_server_name()
+{
+    if which valkey-server >/dev/null 2>&1
+    then
+	echo valkey
+    elif which redis-server >/dev/null 2>&1
+    then
+	echo redis
+    else
+	echo
+    fi
+}
+
+_find_key_server_modules()
+{
+    __key_server_name=`_find_key_server_name`
+    # scan through a list of known locations for modules
+    if sudo test -d "$PCP_LIB_DIR/$__key_server_name/modules"
+    then
+	echo "$PCP_LIB_DIR/$__key_server_name/modules"
+    else
+	echo "$PCP_LIB32_DIR/$__key_server_name/modules"
     fi
 }
 

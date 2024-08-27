@@ -12,13 +12,14 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 . ./common.check
+. ./common.keys
 
 _check_series
 
 _cleanup()
 {
     [ -n "$pmproxy_pid" ] && $signal -s TERM $pmproxy_pid
-    [ -n "$options" ] && redis-cli $options shutdown
+    [ -n "$options" ] && $keys_cli $options shutdown
     cd $here
     if $need_restore
     then
@@ -143,15 +144,15 @@ echo '{"latitude": -25.28496, "longitude": 152.87886}' > $tmp.labels
 $sudo cp $tmp.labels $PCP_SYSCONF_DIR/labels/pcpqa.location
 _sighup_pmcd
 
-echo "Start test Redis server ..."
-redisport=`_find_free_port`
-options="-p $redisport"
-redis-server --port $redisport --save "" > $tmp.redis 2>&1 &
-_check_redis_ping $redisport
-_check_redis_server $redisport
+echo "Start test key server ..."
+key_server_port=`_find_free_port`
+options="-p $key_server_port"
+$key_server --port $key_server_port --save "" > $tmp.keys 2>&1 &
+_check_key_server_ping $key_server_port
+_check_key_server $key_server_port
 echo
 
-_check_redis_server_version $redisport
+_check_key_server_version $key_server_port
 
 # prepare logging location and config
 export PCP_ARCHIVE_DIR=$tmp.log/pmlogger
@@ -186,7 +187,7 @@ pmsleep 0.5	# time for pmlogger to start logging
 
 # start pmproxy 
 proxyport=`_find_free_port`
-proxyopts="-f -A -p $proxyport -r $redisport -U $username"
+proxyopts="-f -A -p $proxyport -r $key_server_port -U $username"
 #proxyopts="$pmproxyopts -Dseries,discovery"
 pmproxy -c $tmp.pmproxy.conf -x $seq.full -l $tmp.pmproxy.log $proxyopts &
 pmproxy_pid=$!
@@ -196,8 +197,8 @@ pmproxy_pid=$!
 pmcd_wait -h localhost@localhost:$proxyport -v -t 5sec
 pmsleep 0.5	# time for pmproxy to start discovering
 
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '/pmlogger|/pmproxy|/redis' >> $seq.full
-redis-cli $options keys pcp:* >> $seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '/pmlogger|/pmproxy|/valkey|/redis' >> $seq.full
+$keys_cli $options keys pcp:* >> $seq.full
 ls -lR $PCP_ARCHIVE_DIR >> $seq.full
 cat $tmp.pmproxy.log >> $seq.full
 
@@ -254,8 +255,8 @@ pmcd_wait -h localhost@localhost:$proxyport -v -t 1sec	# pmproxy still up?
 echo "== log " >> $seq.full
 cat $tmp.pmproxy.log >> $seq.full
 
-echo "== redis-server log " >> $seq.full
-cat $tmp.redis >> $seq.full
+echo "== key server log " >> $seq.full
+cat $tmp.keys >> $seq.full
 
 echo "== all done" | tee -a $seq.full
 

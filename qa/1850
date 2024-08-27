@@ -12,13 +12,14 @@ path=""
 . ./common.product
 . ./common.filter
 . ./common.check
+. ./common.keys
 
-# This test is not run if we dont have pmseries and redis installed.
+# This test is not run if we dont have pmseries and key server installed.
 _check_series
 
 _cleanup()
 {
-    [ -n "$redisport" ] && redis-cli -p $redisport shutdown
+    [ -n "$key_server_port" ] && $keys_cli -p $key_server_port shutdown
     _restore_config $PCP_SYSCONF_DIR/pmseries
     cd $here
     $sudo rm -rf $tmp $tmp.*
@@ -50,27 +51,27 @@ _sort_context()
 mkdir -p $tmp.farm
 tar -C $tmp.farm -xf archives/farm.tar.xz
 
-redisport=`_find_free_port`
+key_server_port=`_find_free_port`
 _save_config $PCP_SYSCONF_DIR/pmseries
 $sudo rm -f $PCP_SYSCONF_DIR/pmseries/*
 
-echo "Start test Redis server ..."
-redis-server --port $redisport --save "" > $tmp.redis 2>&1 &
-_check_redis_ping $redisport
-_check_redis_server $redisport
+echo "Start test key server ..."
+$key_server --port $key_server_port --save "" > $tmp.keys 2>&1 &
+_check_key_server_ping $key_server_port
+_check_key_server $key_server_port
 echo
 
-_check_redis_server_version $redisport
+_check_key_server_version $key_server_port
 
-args="-p $redisport -Z UTC"
+args="-p $key_server_port -Z UTC"
 
-echo "== Load metric data into this redis instance"
+echo "== Load metric data into this key server instance"
 for node in node80 node81; do
     pmseries $args --load "{source.path: \"$tmp.farm/farm/$node/20201124\"}" | _filter_source
 done
 
 pmsleep 0.2
-# redis-cli -p $redisport --scan | LC_COLLATE=POSIX sort
+# $keys_cli -p $key_server_port --scan | LC_COLLATE=POSIX sort
 
 echo
 echo "== extract descriptor for kernel.all.pswitch for each host"

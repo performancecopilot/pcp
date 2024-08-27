@@ -151,6 +151,10 @@ for cmd in $(cat $tmp.cmds.txt); do
 	    [ X"$opt" = X--start ] && continue
 	    [ X"$opt" = X--timezone ] && continue
 	    ;;
+	pmproxy)
+	    [ X"$opt" = X--redishost ] && continue
+	    [ X"$opt" = X--redisport ] && continue
+	    ;;
     esac
     grep -q -- "$opt" <$tmp.man || echo "$bn.1 missing $opt"
   done

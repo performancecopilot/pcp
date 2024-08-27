@@ -1,6 +1,6 @@
 #!/bin/sh
 # PCP QA Test No. 1603
-# Exercise Redis cluster mode support in libpcp_web with pmseries.
+# Exercise key server cluster mode support in libpcp_web with pmseries.
 #
 # Copyright (c) 2021 Red Hat.
 #
@@ -12,16 +12,16 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 . ./common.check
-. ./common.redis
+. ./common.keys
 
 _check_series
-_check_redis_server_version_offline
+_check_key_server_version_offline
 
 _cleanup()
 {
     cd $here
     [ -n "$pmproxy_pid" ] && $signal -s TERM $pmproxy_pid
-    _redis_cluster_3nodes_stop
+    _key_server_cluster_3nodes_stop
 
     if $need_restore
     then
@@ -52,14 +52,14 @@ _save_config $PCP_SYSCONF_DIR/pmproxy
 $sudo rm -f $PCP_SYSCONF_DIR/pmproxy/*
 need_restore=true
 
-_redis_cluster_3nodes_start
+_key_server_cluster_3nodes_start
 
 cat >$tmp.conf <<EOF
 [pmproxy]
 pcp.enabled = true
-redis.enabled = true
+resp.enabled = true
 [pmseries]
-servers = localhost:$redis_node2_port,localhost:$redis_node1_port
+servers = localhost:$key_server_node2_port,localhost:$key_server_node1_port
 [pmsearch]
 enabled = false
 EOF
@@ -72,9 +72,9 @@ pmseries $pmseriesopts --load "{source.path: \"$here/archives/proc\"}" | _filter
 echo
 echo "== Check number of keys on each node"
 # context hash will be different depending where the archive is stored on the QA host
-redis-cli -p $redis_node1_port keys '*' | grep -v context.name | wc -l
-redis-cli -p $redis_node2_port keys '*' | grep -v context.name | wc -l
-redis-cli -p $redis_node3_port keys '*' | grep -v context.name | wc -l
+$keys_cli -p $key_server_node1_port keys '*' | grep -v context.name | wc -l
+$keys_cli -p $key_server_node2_port keys '*' | grep -v context.name | wc -l
+$keys_cli -p $key_server_node3_port keys '*' | grep -v context.name | wc -l
 
 echo
 echo "== List all metric names ..."

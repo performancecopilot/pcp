@@ -38,12 +38,12 @@ HIREDIS_CLUSTER_XFILES = $(HIREDIS_CLUSTER_HFILES) $(HIREDIS_CLUSTER_CFILES)
 
 CFILES = jsmn.c http_client.c http_parser.c siphash.c \
 	 query.c schema.c load.c sha1.c util.c slots.c \
-	 redis.c dict.c maps.c batons.c encoding.c \
+	 keys.c dict.c maps.c batons.c encoding.c \
 	 search.c json_helpers.c config.c \
 	 $(HIREDIS_CFILES) $(HIREDIS_CLUSTER_CFILES) $(INIH_CFILES)
 HFILES = jsmn.h http_client.h http_parser.h zmalloc.h \
 	 query.h schema.h load.h sha1.h util.h slots.h \
-	 redis.h dict.h maps.h batons.h encoding.h \
+	 keys.h dict.h maps.h batons.h encoding.h \
 	 search.h discover.h private.h \
 	 $(HIREDIS_HFILES) $(HIREDIS_CLUSTER_HFILES) $(INIH_HFILES)
 YFILES = query_parser.y

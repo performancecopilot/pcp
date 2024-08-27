@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019,2022 Red Hat.
+ * Copyright (c) 2017-2019,2022,2024 Red Hat.
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -19,10 +19,10 @@
 #include "maps.h"
 
 /* reverse hash mapping of all SHA1 hashes to strings */
-redisMap *instmap;
-redisMap *namesmap;
-redisMap *labelsmap;
-redisMap *contextmap;
+keyMap *instmap;
+keyMap *namesmap;
+keyMap *labelsmap;
+keyMap *contextmap;
 
 static uint64_t
 intHashCallBack(const void *key)
@@ -122,7 +122,7 @@ dictType sdsDictCallBacks = {
 };
 
 void
-redisMapsInit(void)
+keyMapsInit(void)
 {
     if (instmap == NULL)
 	instmap = dictCreate(&sdsDictCallBacks,
@@ -139,44 +139,44 @@ redisMapsInit(void)
 }
 
 void
-redisMapsClose(void)
+keyMapsClose(void)
 {
     if (instmap) {
-	sdsfree(redisMapName(instmap));
+	sdsfree(keyMapName(instmap));
 	dictRelease(instmap);
 	instmap = NULL;
     }
     if (namesmap) {
-	sdsfree(redisMapName(namesmap));
+	sdsfree(keyMapName(namesmap));
 	dictRelease(namesmap);
 	namesmap = NULL;
     }
     if (labelsmap) {
-	sdsfree(redisMapName(labelsmap));
+	sdsfree(keyMapName(labelsmap));
 	dictRelease(labelsmap);
 	labelsmap = NULL;
     }
     if (contextmap) {
-	sdsfree(redisMapName(contextmap));
+	sdsfree(keyMapName(contextmap));
 	dictRelease(contextmap);
 	contextmap = NULL;
     }
 }
 
 sds
-redisMapName(redisMap *map)
+keyMapName(keyMap *map)
 {
     return (sds)map->privdata;
 }
 
-redisMap *
-redisMapCreate(sds name)
+keyMap *
+keyMapCreate(sds name)
 {
     return dictCreate(&sdsDictCallBacks, (void *)name);
 }
 
-redisMapEntry *
-redisMapLookup(redisMap *map, sds key)
+keyMapEntry *
+keyMapLookup(keyMap *map, sds key)
 {
     if (map)
 	return dictFind(map, key);
@@ -184,9 +184,9 @@ redisMapLookup(redisMap *map, sds key)
 }
 
 void
-redisMapInsert(redisMap *map, sds key, sds value)
+keyMapInsert(keyMap *map, sds key, sds value)
 {
-    redisMapEntry *entry = redisMapLookup(map, key);
+    keyMapEntry *entry = keyMapLookup(map, key);
 
     if (entry) {
 	/* fix for Coverity CID323605 Resource Leak */
@@ -196,14 +196,14 @@ redisMapInsert(redisMap *map, sds key, sds value)
 }
 
 sds
-redisMapValue(redisMapEntry *entry)
+keyMapValue(keyMapEntry *entry)
 {
     return (sds)dictGetVal(entry);
 }
 
 void
-redisMapRelease(redisMap *map)
+keyMapRelease(keyMap *map)
 {
-    sdsfree(redisMapName(map));
+    sdsfree(keyMapName(map));
     dictRelease(map);
 }

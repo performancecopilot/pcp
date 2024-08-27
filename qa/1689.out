@@ -189,6 +189,60 @@ pmproxy.http.uncompressed.count PMID: 4.3.2 [Count of uncompresed transfers]
 Help:
 Number of uncompressed HTTP transfers
 
+pmproxy.keys.requests.error PMID: 4.2.2 [number of request errors]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Total number of key server request errors
+
+pmproxy.keys.requests.inflight.bytes PMID: 4.2.7 [bytes allocated for inflight requests]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: byte
+Help:
+Memory currently allocated for inflight key server requests
+
+pmproxy.keys.requests.inflight.total PMID: 4.2.6 [inflight requests]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+Total number of inflight key server requests
+
+pmproxy.keys.requests.total PMID: 4.2.1 [number of requests]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Total number of key server requests sent
+
+pmproxy.keys.requests.total_bytes PMID: 4.2.8 [total bytes sent for requests]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: byte
+Help:
+Cumulative count of bytes sent for all key server requests
+
+pmproxy.keys.responses.error PMID: 4.2.4 [number of error responses]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Total number of key server error responses received
+
+pmproxy.keys.responses.time PMID: 4.2.5 [total time for responses]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: microsec
+Help:
+Cumulative time taken to receive all key server responses
+
+pmproxy.keys.responses.total PMID: 4.2.3 [number of responses]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Total number of key server responses received
+
+pmproxy.keys.responses.total_bytes PMID: 4.2.9 [total bytes received in responses]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: byte
+Help:
+Cumulative count of bytes received in key server responses
+
 pmproxy.map.context.size PMID: 4.1.6 [context map dictionary size]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
@@ -230,60 +284,6 @@ pmproxy.pid PMID: 4.1.0 [PID for the current process]
     Semantics: discrete  Units: none
 Help:
 Process identifier for the current process
-
-pmproxy.redis.requests.error PMID: 4.2.2 [number of request errors]
-    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: count
-Help:
-Total number of Redis request errors
-
-pmproxy.redis.requests.inflight.bytes PMID: 4.2.7 [bytes allocated for inflight requests]
-    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: byte
-Help:
-Memory currently allocated for inflight Redis requests
-
-pmproxy.redis.requests.inflight.total PMID: 4.2.6 [inflight requests]
-    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: count
-Help:
-Total number of inflight Redis requests
-
-pmproxy.redis.requests.total PMID: 4.2.1 [number of requests]
-    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: count
-Help:
-Total number of Redis requests sent
-
-pmproxy.redis.requests.total_bytes PMID: 4.2.8 [total bytes sent for requests]
-    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: byte
-Help:
-Cumulative count of bytes sent for all Redis requests
-
-pmproxy.redis.responses.error PMID: 4.2.4 [number of error responses]
-    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: count
-Help:
-Total number of Redis error responses received
-
-pmproxy.redis.responses.time PMID: 4.2.5 [total time for responses]
-    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: microsec
-Help:
-Cumulative time taken to receive all Redis responses
-
-pmproxy.redis.responses.total PMID: 4.2.3 [number of responses]
-    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: count
-Help:
-Total number of Redis responses received
-
-pmproxy.redis.responses.total_bytes PMID: 4.2.9 [total bytes received in responses]
-    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: byte
-Help:
-Cumulative count of bytes received in Redis responses
 
 pmproxy.series.descs.calls PMID: 4.6.2 [calls to /series/descs]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff

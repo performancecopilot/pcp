@@ -284,9 +284,6 @@ class ZoneinfoReport(pmcc.MetricGroupPrinter):
                         self.__print_old_version_values(zonestatus)
                 except IndexError:
                     print("Incorrect machine info due to some missing metrics")
-                return
-            else:
-                return
 
         if self.context != PM_CONTEXT_ARCHIVE and self.samples is None:
             __print_zone_status()
@@ -296,8 +293,6 @@ class ZoneinfoReport(pmcc.MetricGroupPrinter):
         elif self.samples >= 1:
             __print_zone_status()
             self.samples -= 1
-        else:
-            return
 
     def report(self, manager):
         group = manager["sysinfo"]

@@ -13,6 +13,7 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 . ./common.check
+. ./common.keys
 
 _check_series
 
@@ -20,7 +21,7 @@ _cleanup()
 {
     cd $here
     [ -n "$pmproxy_pid" ] && $signal -s TERM $pmproxy_pid
-    [ -n "$options" ] && redis-cli $options shutdown
+    [ -n "$options" ] && $keys_cli $options shutdown
     if $need_restore
     then
 	need_restore=false
@@ -71,24 +72,24 @@ $sudo rm -f $PCP_SYSCONF_DIR/pmseries/*
 $sudo rm -f $PCP_SYSCONF_DIR/pmproxy/*
 need_restore=true
 
-echo "Start test Redis server ..."
-redisport=`_find_free_port`
-options="-p $redisport"
-echo "redisport=$redisport" >>$seq.full
-redis-server --port $redisport --save "" > $tmp.redis 2>&1 &
-_check_redis_ping $redisport
-_check_redis_server $redisport
+echo "Start test key server ..."
+key_server_port=`_find_free_port`
+options="-p $key_server_port"
+echo "key_server_port=$key_server_port" >>$seq.full
+$key_server --port $key_server_port --save "" > $tmp.keys 2>&1 &
+_check_key_server_ping $key_server_port
+_check_key_server $key_server_port
 echo
 
-_check_redis_server_version $redisport
+_check_key_server_version $key_server_port
 
-# import some well-known test data into Redis
+# import some well-known test data into the key server
 pmseries $options --load "$here/archives/proc" | _filter_source
 
 # start pmproxy 
 proxyport=`_find_free_port`
 echo "proxyport=$proxyport" >>$seq.full
-proxyopts="-p $proxyport -r $redisport -t"  # -Dseries,http,af
+proxyopts="-p $proxyport -r $key_server_port -t"  # -Dseries,http,af
 pmproxy -f -U $username -x $tmp.err -Dseries,query -l $tmp.pmproxy.log $proxyopts &
 pmproxy_pid=$!
 
@@ -97,12 +98,12 @@ pmcd_wait -h localhost@localhost:$proxyport -v -t 5sec
 
 if [ -f $tmp.err ]
 then
-    echo "Arrgh: errors from Redis server startup ..."
+    echo "Arrgh: errors from key server startup ..."
     cat $tmp.err
 fi
 
 $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy( |$)' >> $seq.full
-redis-cli $options keys pcp:* >> $seq.full
+$keys_cli $options keys pcp:* >> $seq.full
 cat $tmp.pmproxy.log >> $seq.full
 
 # Sanity check

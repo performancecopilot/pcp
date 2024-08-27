@@ -1,5 +1,5 @@
 QA output created by 1602
-== Start a Redis cluster
+== Start a key server cluster
 == Start node 1
 PONG
 OK
@@ -10,7 +10,7 @@ OK
 PONG
 OK
 
-== Create Redis cluster
+== Create key server cluster
 [OK] All nodes agree about slots configuration.
 [OK] All 16384 slots covered.
 
@@ -26,7 +26,7 @@ cluster_size:3
 PING
 PONG
 
-== redis-cli set two keys
+== key server cli set two keys
 OK
 OK
 
@@ -38,25 +38,25 @@ sample.long.one
 sample.long.ten
     value 10
 
-== redis-cli get two keys
+== key server cli get two keys
 1
 10
 
-== redis-cli empty key set
+== key server cli empty key set
 
 
-== redis-cli handle errors 1
+== key server cli handle errors 1
 expected error
 
 
-== redis-cli handle errors 2
+== key server cli handle errors 2
 expected error
 
 
-== redis-cli nonexistant key
+== key server cli nonexistant key
 
 
-== redis cluster key distribution
+== key server cluster key distribution
 == node1
 
 == node2
