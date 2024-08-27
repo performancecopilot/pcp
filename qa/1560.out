@@ -73,13 +73,21 @@ __pmDecodeCreds: PM_ERR_IPC: numcred 0 <= 0 or > LIMIT_CREDS 1024
 7: __pmDecodeCreds failed: IPC protocol failure
 
 === pdudata/result-event ===
-9: __pmDecodeResult: sts=0 ...
+10: __pmDecodeResult: sts=0 ...
 __pmResult timestamp: 45296.789000000 12:34:56.789000000 numpmid: 1
   30.0.136 (sampledso.event.records): numval: 1 valfmt: 2 vlist[]:
     inst [0 or "fungus"] value [1 event record timestamp 12:34:56.000]
     --- event record [0] timestamp 12:34:56.000 flags 0x6 (start,end) ---
     30.0.134 (sampledso.event.param_string): numval: 1 valfmt: 1 vlist[]:
        value ""
+__pmDecodeValueSet: PM_ERR_IPC: pmid[0] value[0] pduvp past end of PDU buffer
+16: __pmDecodeResult failed: IPC protocol failure
+__pmDecodeValueSet: PM_ERR_IPC: pmid[0] value[0] vindex=19 (max=18)
+22: __pmDecodeResult failed: IPC protocol failure
+__pmEventArrayCheck #4: PM_ERR_IPC: pmid[0] value[0] record[1] event record past end of PDU buffer
+28: __pmDecodeResult failed: IPC protocol failure
+__pmDecodeValueSet: PM_ERR_IPC: pmid[0] value[0] vlen=1
+34: __pmDecodeResult failed: IPC protocol failure
 
 === pdudata/text_req ===
 14: __pmDecodeCreds: sts=0 sender=42 credcount=1 ...
