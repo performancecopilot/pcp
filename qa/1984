@@ -16,6 +16,9 @@ echo "QA output created by $seq"
 
 [ -d $PCP_PMDAS_DIR/redis ] || _notrun "Redis PMDA is not installed"
 which redis-server >/dev/null 2>&1 || _notrun "No redis-server binary found"
+redis_port=6379
+$PCP_BINADM_DIR/telnet-probe -c localhost $redis_port \
+        || _notrun "Noone home on default Redis port $redis_port"
 
 _cleanup()
 {
