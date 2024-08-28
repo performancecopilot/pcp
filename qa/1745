@@ -50,7 +50,7 @@ log advisory on default {
 	kernel.all.pswitch
 }
 End-of-File
-pmlogger -t 1 -T6 -c $tmp.conf -l $tmp.log $tmp.archive
+pmlogger -t 0.25sec -s 7 -c $tmp.conf -l $tmp.log $tmp.archive
 cat $tmp.log >> $here/$seq.full
 pmdumplog -a $tmp.archive >> $here/$seq.full
 
@@ -73,6 +73,7 @@ pmval -U $tmp.archive kernel.all.pswitch \
 	| tee -a $here/$seq.full \
 	| _filter_pmval > $tmp.values
 lines=`wc -l < $tmp.values`
+echo "lines=$lines, expect 6" >>$here/$seq.full
 if [ $lines -ge 4 -a $lines -le 7 ]
 then
     echo "Raw sample count in expected range"
