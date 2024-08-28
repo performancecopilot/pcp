@@ -170,15 +170,46 @@ It is strongly recommended that you run the script:
 ```
 $ qa/admin/check-vm
 ```
-and review the output before commencing a build.  It is is generally
+and review the output before commencing a build.
+
+To identify any missing packages, check-vm uses another
+PCP script list-packages, as in:
+```
+$ qa/admin/list-packages -m
+```
+
+If list-packages complains that no matching file is found in
+```
+.../qa/admin/package-lists/<distro>+<version>+<arch>
+```
+then PCP has never been built for your combination of distribution,
+version and architecture.  You'll need to explore the
+```
+qa/admin/package-lists
+```
+directory and find the closest match, then copy that file to an
+appropriate name in the same directory, or try to autogenerate
+one as in:
+```
+$ cd qa/admin/package-lists
+$ ./new
+```
+
+Once you have a list of missing packages, the simplest approach is
+to install all of them with your platform's package installation
+tool
+(excluding the ones marked **cpan** or **pip3** which need to
+be installed with cpan(1) or pip3(1) respectively).
+
+If you want to be more targeted, then for each missing package
+find the entry for your packaging system (dpkg, rpm, pkgin, etc)
+in the file
+```
+qa/admin/other-packages/manifest
+```
+and it is is generally
 safe to ignore packages marked as "N/A" (not available), "build
-optional" or "QA optional".  Alternatively use:
-```
-$ qa/admin/check-vm -bfp
-```
-(-b for basic packages, -f to **not** try to guess Python, Perl, ...
-version and -p to output just package names) to produce a minimal
-list of packages that should be installed.
+optional" or "QA optional".
 
 ### 1. Configure, build and install the package
 
@@ -200,7 +231,7 @@ Once "Makepkgs" completes you will have package binaries that will
 need to be installed.  The recipe depends on the packaging flavour,
 but the following should provide guidance:
 
-**dkg install** (Debian and derivative distributions)
+**dpkg install** (Debian and derivative distributions)
 ```
 $ cd build/deb
 $ dpkg -i *.deb
