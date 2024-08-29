@@ -40,6 +40,17 @@
 #include "libpcp.h"
 #include <ctype.h>
 
+/* from internal.h ... */
+#ifdef HAVE_NETWORK_BYTEORDER
+#define __ntohpmInDom(a)        (a)
+#define __ntohpmID(a)           (a)
+#define __ntohpmUnits(a)        (a)
+#define __ntohll(a)             /* noop */
+#else
+#define __ntohpmInDom(a)        ntohl(a)
+#define __ntohpmID(a)           ntohl(a)
+#endif
+
 static pmLongOptions longopts[] = {
     PMOPT_DEBUG,	/* -D */
     { "port", 0, 'p', NULL, "pmcd port" },
@@ -707,6 +718,25 @@ main(int argc, char **argv)
 				else
 				    fprintf(stderr, " pmInDom=%s", pmInDomStr((pmInDom)ident));
 				fprintf(stderr, " type=0x%x\n", otype);
+			    }
+			}
+			break;
+
+		    case PDU_TEXT:
+			{
+			    int		ident;
+			    char	*text;
+			    /*
+			     * in our test cases, ident is a pmID, not a pmInDom
+			     */
+			    lsts = __pmDecodeText(pdubuf, &ident, &text);
+			    if (lsts < 0)
+				fprintf(stderr, "%d: __pmDecodeText failed: %s\n", lineno, pmErrStr(lsts));
+			    else {
+				/* ident is still in network byte order */
+				ident = __ntohpmID(ident);
+				fprintf(stderr, "%d: __pmDecodeText: sts=%d ident=%s text=\"%s\"\n", lineno, sts, pmIDStr((pmID)ident), text);
+				free(text);
 			    }
 			}
 			break;

@@ -138,16 +138,15 @@ int
 __pmDecodeText(__pmPDU *pdubuf, int *ident, char **buffer)
 {
     text_t	*pp;
-    char	*pduend, *bp;
+    char	*bp;
     int		buflen;
 
     pp = (text_t *)pdubuf;
-    pduend = (char *)pdubuf + pp->hdr.len;
 
-    if (pduend - (char*)pp < sizeof(text_t) - sizeof(int)) {
+    if (pp->hdr.len < sizeof(text_t) - sizeof(pp->buffer)) {
 	if (pmDebugOptions.pdu) {
-	    fprintf(stderr, "__pmDecodeTextReq: PM_ERR_IPC: remainder %d < sizeof(text_t) %d - sizeof(int) %d\n",
-		(int)(pduend - (char*)pp), (int)sizeof(text_t), (int)sizeof(int));
+	    fprintf(stderr, "__pmDecodeText: PM_ERR_IPC: short PDU %d < min size %d\n",
+		pp->hdr.len, (int)(sizeof(text_t) - sizeof(pp->buffer)));
 	}
 	return PM_ERR_IPC;
     }
@@ -161,17 +160,17 @@ __pmDecodeText(__pmPDU *pdubuf, int *ident, char **buffer)
      */
     *ident = pp->ident;
     buflen = ntohl(pp->buflen);
-    if (buflen < 0 || buflen >= INT_MAX - 1 || buflen > pp->hdr.len) {
+    if (buflen < 0 || buflen > pp->hdr.len) {
 	if (pmDebugOptions.pdu) {
-	    fprintf(stderr, "__pmDecodeTextReq: PM_ERR_IPC: buflen %d < 0 or >= INT_MAX-1 %d or > hdr.len %d\n",
-		buflen, INT_MAX-1, pp->hdr.len);
+	    fprintf(stderr, "__pmDecodeText: PM_ERR_IPC: buflen %d < 0 or > hdr.len %d\n",
+		buflen, pp->hdr.len);
 	}
 	return PM_ERR_IPC;
     }
-    if (pduend - (char *)pp < sizeof(text_t) - sizeof(pp->buffer) + buflen) {
+    if (pp->hdr.len < sizeof(text_t) - sizeof(pp->buffer) + buflen) {
 	if (pmDebugOptions.pdu) {
-	    fprintf(stderr, "__pmDecodeTextReq: PM_ERR_IPC: remainder %d < sizeof(text_t) %d - sizeof(buffer) %d + buflen %d\n",
-		(int)(pduend - (char*)pp), (int)sizeof(text_t), (int)sizeof(pp->buffer), buflen);
+	    fprintf(stderr, "__pmDecodeText: PM_ERR_IPC: PDU too short %d < required size %d\n",
+		pp->hdr.len, (int)(sizeof(text_t) - sizeof(pp->buffer) + buflen));
 	}
 	return PM_ERR_IPC;
     }

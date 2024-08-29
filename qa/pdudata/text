@@ -1,0 +1,24 @@
+# PDU specifications, used by ../src/pdu-gadget to produce a
+# binary PDU stream for QA
+#
+# PDU_TEXT test cases
+#
+
+# credentials: len type from ncred cred[0]
+? PDU_CREDS 42 1 0x01020000
+
+# text: len type from ident buflen text
+# OK (pmid case)
+? PDU_TEXT 42 pmid(sampledso.longlong.million) 7 str(million)
+
+# text: len type from ident buflen text
+# BAD, short PDU < min
+? PDU_TEXT 42 pmid(sampledso.longlong.million)
+
+# text: len type from ident buflen text
+# BAD, textlen > pdulen
+? PDU_TEXT 42 pmid(sampledso.longlong.million) 8 str(million)
+
+# text: len type from ident buflen text
+# BAD, textlen < 0
+? PDU_TEXT 42 pmid(sampledso.longlong.million) -1
