@@ -13,18 +13,18 @@
 # credentials: len type from ncred cred[0]
 ? PDU_CREDS 42 1 0x01020000
 
-# testreq: len type from ident type
+# text_req: len type from ident type
 # OK (pmid-oneline case)
 ? PDU_TEXT_REQ 42 pmid(sampledso.longlong.million) 5
 
-# testreq: len type from ident type
+# text_req: len type from ident type
 # OK (indom-help case)
 ? PDU_TEXT_REQ 42 indom(30.2) 10
 
-# testreq: len type from ident type
+# text_req: len type from ident type
 # BAD short PDU
 ? PDU_TEXT_REQ 42 pmid(sampledso.longlong.million)
 
-# testreq: len type from ident type
+# text_req: len type from ident type
 # BAD long PDU
 ? PDU_TEXT_REQ 42 pmid(sampledso.longlong.million) 5 42
