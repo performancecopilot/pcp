@@ -46,6 +46,39 @@ _filter_logs()
     # end
 }
 
+cat >$tmp.suppress <<End-of-File
+# The libbpf probes to test for whether the kernel supports certain features
+# do not fully initialize the attr struct passed in the syscall.
+# This is outside the control of PCP.  There is an upstream libbpf issue filed:
+#
+#   https://github.com/libbpf/libbpf/issues/845
+#
+# The following suppressions are for qa/1900
+{
+   libbpf missing attr missing expected_attach_type field initialization
+   Memcheck:Param
+   bpf(attr->expected_attach_type)
+   fun:syscall
+   fun:sys_bpf
+   fun:sys_bpf_fd
+   fun:sys_bpf_prog_load
+   fun:probe_kern_prog_name
+   fun:kernel_supports
+   ...
+}
+{
+   libbpf missing attr missing prog_ifindex field initialization
+   Memcheck:Param
+   bpf(attr->prog_ifindex)
+   fun:syscall
+   fun:sys_bpf
+   fun:sys_bpf_fd
+   fun:sys_bpf_prog_load
+   fun:probe_kern_prog_name
+   fun:kernel_supports
+   ...
+}
+End-of-File
 
 # preliminaries ...
 # - install bpf PMDA so we get bpf in the default PMNS
@@ -57,6 +90,7 @@ _pmdabpf_wait_for_metric
 
 pmda=$PCP_PMDAS_DIR/bpf/pmda_bpf,bpf_init
 
+grind_extra="--suppressions=$tmp.suppress"
 echo && echo "== Running pmdabpf with valgrind"
 _run_valgrind --sudo pminfo -L -K clear -K add,157,$pmda -dmtT bpf.disk bpf.runq 2>&1 \
 | _filter_logs
