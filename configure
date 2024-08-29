@@ -16923,8 +16923,8 @@ pcp_x11_extra=$X_EXTRA_LIBS
 pcp_x11_pre=$X_PRE_LIBS
 
 
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking if man pages should packaged" >&5
-printf %s "checking if man pages should packaged... " >&6; }
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking if man pages should be packaged" >&5
+printf %s "checking if man pages should be packaged... " >&6; }
 have_manpages=false
 have_gzipped_manpages=false
 have_bzip2ed_manpages=false

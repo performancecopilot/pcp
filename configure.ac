@@ -3465,7 +3465,7 @@ pcp_x11_pre=$X_PRE_LIBS
 AC_SUBST(pcp_x11_pre)
 
 dnl man pages (source)
-AC_MSG_CHECKING([if man pages should packaged])
+AC_MSG_CHECKING([if man pages should be packaged])
 have_manpages=false
 have_gzipped_manpages=false
 have_bzip2ed_manpages=false
