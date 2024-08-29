@@ -741,6 +741,35 @@ main(int argc, char **argv)
 			}
 			break;
 
+		    case PDU_ERROR:
+			{
+			    int		code;
+			    int		datum;
+			    /*
+			     * caller is supposed to know what sort of PDU
+			     * this really is which is encoded in the
+			     * length (!) ... 16 for an error PDU, and 20
+			     * for an extended error PDU (with datum) ...
+			     * so we'll try both!
+			     */
+			    lsts = __pmDecodeError(pdubuf, &code);
+			    if (lsts < 0)
+				fprintf(stderr, "%d: __pmDecodeError failed: %s\n", lineno, pmErrStr(lsts));
+			    else {
+				fprintf(stderr, "%d: __pmDecodeError: sts=%d code=%d\n", lineno, sts, code);
+			    }
+			    datum = -1;
+			    lsts = __pmDecodeXtendError(pdubuf, &code, &datum);
+			    if (lsts < 0)
+				fprintf(stderr, "%d: __pmDecodeXtendError failed: %s\n", lineno, pmErrStr(lsts));
+			    else {
+				/* datum is still in network byte order */
+				datum = ntohl(datum);
+				fprintf(stderr, "%d: __pmDecodeXtendError: sts=%d code=%d datum=0x%x\n", lineno, sts, code, datum);
+			    }
+			}
+			break;
+
 		    default:
 			fprintf(stderr, "%d: execute unavailable (yet) for PDU_%s\n", lineno, __pmPDUTypeStr(type));
 			break;
