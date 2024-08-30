@@ -127,7 +127,8 @@ int	ndata_types = sizeof(data_types)/sizeof(data_types[0]);
 
 extern void myprintresult(FILE *, __pmResult *);
 
-#define PDUBUF_SIZE 1024
+#define PDUBUF_SIZE 10*1024
+#define INPUT_SIZE 8*1024
 
 static int
 overrides(int opt, pmOptions *optsp)
@@ -147,6 +148,7 @@ main(int argc, char **argv)
     int		sts;
     int		lsts;
     long	value;
+    int		seen_pdu_auth;
     int		calc_len;
     int		save_len;
     int		len;
@@ -154,7 +156,7 @@ main(int argc, char **argv)
     int		out;
     int		w;
     int		j;
-    char	buf[1024];
+    char	buf[INPUT_SIZE];
     __pmPDU	*pdubuf;
     char	*bp;
     char	*wp;
@@ -228,6 +230,7 @@ main(int argc, char **argv)
 	    lineno++;
 	    continue;
 	}
+	seen_pdu_auth = 0;
 	calc_len = 0;
 	len = 0;
 	w = 0;
@@ -403,6 +406,8 @@ main(int argc, char **argv)
 		for (i = 0; i < npdu_types; i++) {
 		    if (strcmp(&bp[4], pdu_types[i].name) == 0) {
 			out = pdu_types[i].code;
+			if (strcmp(&bp[4], "AUTH") == 0)
+			    seen_pdu_auth = 1;
 			break;
 		    }
 		}
@@ -553,6 +558,7 @@ main(int argc, char **argv)
 	}
 	if (sts == 0 && w > 0) {
 	    if (verbose > 0) {
+		fprintf(stderr, "%d: PDU length=%d\n", lineno, ntohl(pdubuf[0]));
 		for (j = 0; j < w; j++) {
 		    if ((j % 8) == 0) {
 			if (j > 0)
@@ -679,15 +685,31 @@ main(int argc, char **argv)
 
 		    case PDU_ATTR:
 			{
+			    /*
+			     * Oddness below ... PDU_AUTH and PDU_ATTR are the
+			     * SAME PDU code, but have different decode
+			     * routines!
+			     */
 			    int		attr;
 			    char	*val;
 			    int		vlen;
-			    lsts = __pmDecodeAttr(pdubuf, &attr, &val, &vlen);
-			    if (lsts < 0)
-				fprintf(stderr, "%d: __pmDecodeAttr failed: %s\n", lineno, pmErrStr(lsts));
+			    if (seen_pdu_auth) {
+				lsts = __pmDecodeAuth(pdubuf, &attr, &val, &vlen);
+				if (lsts < 0)
+				    fprintf(stderr, "%d: __pmDecodeAuth failed: %s\n", lineno, pmErrStr(lsts));
+				else {
+				    /* not necessarily null-byte terminated ... */
+				    fprintf(stderr, "%d: __pmDecodeAuth: sts=%d attr=%d vlen=%d value=\"%*.*s\"\n", lineno, lsts, attr, vlen, vlen, vlen, val);
+				}
+			    }
 			    else {
-				/* not necessarily null-byte terminated ... */
-				fprintf(stderr, "%d: __pmDecodeAttr: sts=%d attr=%d vlen=%d value=\"%*.*s\"\n", lineno, lsts, attr, vlen, vlen, vlen, val);
+				lsts = __pmDecodeAttr(pdubuf, &attr, &val, &vlen);
+				if (lsts < 0)
+				    fprintf(stderr, "%d: __pmDecodeAttr failed: %s\n", lineno, pmErrStr(lsts));
+				else {
+				    /* not necessarily null-byte terminated ... */
+				    fprintf(stderr, "%d: __pmDecodeAttr: sts=%d attr=%d vlen=%d value=\"%*.*s\"\n", lineno, lsts, attr, vlen, vlen, vlen, val);
+				}
 			    }
 			}
 			break;

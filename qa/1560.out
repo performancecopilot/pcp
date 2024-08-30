@@ -1,5 +1,25 @@
 QA output created by 1560
 
+=== pdudata/attr ===
+8: __pmDecodeCreds: sts=0 sender=42 credcount=1 ...
+    #0 = { type=0x1 a=0x2 b=0x0 c=0x0 }
+12: __pmDecodeAttr: sts=0 attr=5 vlen=12 value="someusername"
+16: __pmDecodeAttr: sts=0 attr=0 vlen=0 value=""
+__pmDecodeAttr: PM_ERR_IPC: short PDU 12 < min size 16
+20: __pmDecodeAttr failed: IPC protocol failure
+__pmDecodeAttr: PM_ERR_IPC: long PDU 4377 > max size 4111
+24: __pmDecodeAttr failed: IPC protocol failure
+
+=== pdudata/auth ===
+8: __pmDecodeCreds: sts=0 sender=42 credcount=1 ...
+    #0 = { type=0x1 a=0x2 b=0x0 c=0x0 }
+12: __pmDecodeAuth: sts=0 attr=6 vlen=12 value="someusername"
+16: __pmDecodeAuth: sts=0 attr=0 vlen=0 value=""
+__pmDecodeAttr: PM_ERR_IPC: short PDU 12 < min size 16
+20: __pmDecodeAuth failed: IPC protocol failure
+__pmDecodeAuth: PM_ERR_IPC: *vlen 2056 >= LIMIT_AUTH_PDU 2048
+24: __pmDecodeAuth failed: IPC protocol failure
+
 === pdudata/creds ===
 __pmDecodeCreds: PM_ERR_IPC: PDU too long 20 > required size 24
 8: __pmDecodeCreds failed: IPC protocol failure
@@ -11,6 +31,20 @@ __pmDecodeCreds: PM_ERR_IPC: PDU too short 28 < required size 24
     #0 = { type=0x1 a=0x2 b=0x0 c=0x0 }
 __pmDecodeResult: PM_ERR_IPC: short PDU 20 < min size 24
 11: __pmDecodeResult failed: IPC protocol failure
+
+=== pdudata/error ===
+8: __pmDecodeCreds: sts=0 sender=42 credcount=1 ...
+    #0 = { type=0x1 a=0x2 b=0x0 c=0x0 }
+12: __pmDecodeError: sts=0 code=-21344
+__pmDecodeXtendError: PM_ERR_IPC: hdr.len 16 != sizeof(x_error_t) 20
+12: __pmDecodeXtendError failed: IPC protocol failure
+16: __pmDecodeError: sts=0 code=-21344
+16: __pmDecodeXtendError: sts=0 code=-32689 datum=0xdeadbeef
+__pmDecodeError: PM_ERR_IPC: hdr.len 12 != sizeof(p_error_t) 16 and != sizeof(x_error_t) 20
+20: __pmDecodeError failed: IPC protocol failure
+__pmDecodeXtendError: PM_ERR_IPC: hdr.len 12 != sizeof(p_error_t) 16 and != sizeof(x_error_t) 20
+__pmDecodeXtendError: PM_ERR_IPC: hdr.len 12 != sizeof(x_error_t) 20
+20: __pmDecodeXtendError failed: IPC protocol failure
 
 === pdudata/fetch ===
 7: __pmDecodeCreds: sts=0 sender=42 credcount=1 ...
