@@ -27,6 +27,8 @@
  *     .vlen fields in the first word of a pmValueBlock, <type> is an
  *     integer or FOO for PM_TYPE_FOO and <len> is an integer, use S32 for
  *     PM_TYPE_32 and S64 for PM_TYPE_64 to avoid 32 and 64 ambiguity}
+ *   + units(ds.dt.dc.ss.st.sc) {no whitespace allowed, build a pmUnits
+ *     struct ds == dimSpace (decimal) etc for 6 fields}
  *   + the unary prefix operator (~) means the following word is NOT
  *     converted into network byte order (needed for packed event
  *     records)
@@ -49,6 +51,32 @@
 #else
 #define __ntohpmInDom(a)        ntohl(a)
 #define __ntohpmID(a)           ntohl(a)
+#endif
+
+/* from libpcp/src/endian.c ... */
+#ifndef __htonpmUnits
+pmUnits
+__htonpmUnits(pmUnits units)
+{
+    unsigned int	x;
+
+    x = htonl(*(unsigned int *)&units);
+    units = *(pmUnits *)&x;
+
+    return units;
+}
+#endif
+#ifndef __ntohpmUnits
+pmUnits
+__ntohpmUnits(pmUnits units)
+{
+    unsigned int	x;
+
+    x = ntohl(*(unsigned int *)&units);
+    units = *(pmUnits *)&x;
+
+    return units;
+}
 #endif
 
 static pmLongOptions longopts[] = {
@@ -136,6 +164,61 @@ overrides(int opt, pmOptions *optsp)
     if (opt == 'p')
 	return 1;
     return 0;
+}
+
+static const char *
+mytypestr(int type)
+{
+    switch (type) {
+    case PM_TYPE_32:
+	return "32-bit int";
+    case PM_TYPE_U32:
+	return "32-bit unsigned int";
+    case PM_TYPE_64:
+	return "64-bit int";
+    case PM_TYPE_U64:
+	return "64-bit unsigned int";
+    case PM_TYPE_FLOAT:
+	return "float";
+    case PM_TYPE_DOUBLE:
+	return "double";
+    case PM_TYPE_STRING:
+	return "string";
+    case PM_TYPE_AGGREGATE:
+	return "aggregate";
+    case PM_TYPE_AGGREGATE_STATIC:
+	return "static aggregate";
+    case PM_TYPE_EVENT:
+	return "event record array";
+    case PM_TYPE_HIGHRES_EVENT:
+	return "highres event record array";
+    case PM_TYPE_NOSUPPORT:
+	return "Not Supported";
+    default:
+	break;
+    }
+    return "???";
+
+}
+
+
+static void
+mydesc(FILE *f, pmDesc *dp)
+{
+    const char          *type;
+    const char          *sem;
+    const char          *units;
+
+    fprintf(f, " pmid==%s", pmIDStr(dp->pmid));
+    fprintf(f, " type=%s", (type = mytypestr(dp->type)));
+    if (strcmp(type, "???") == 0)
+	fprintf(f, " (%d)", dp->type);
+    fprintf(f, " indom=%s", pmInDomStr(dp->indom));
+    fprintf(f, " semantics=%s", (sem = pmSemStr(dp->sem)));
+    if (strcmp(sem, "???") == 0)
+        fprintf(f, " (0x%x)", (int)dp->sem);
+    units = pmUnitsStr(&dp->units);
+    fprintf(f, " units=%s\n", units[0] == '\0' ? "none" : units);
 }
 
 int
@@ -510,6 +593,96 @@ main(int argc, char **argv)
 		    sts = 1;
 		}
 	    }
+	    else if (strncmp(bp, "units(", 6) == 0) {
+		char		*p = &bp[6];
+		int		ok = 0;
+		int		f;
+		unsigned int	uf;
+		pmUnits		units = { 0 };
+		f = strtol(p, &end, 10);
+		if (*end == '.') {
+		    p = &end[1];
+		    units.dimSpace = f;
+		    if (units.dimSpace != f)
+			fprintf(stderr, "%d: units(): dimSpace overflow %d -> %d(\n", lineno, f, units.dimSpace);
+		    else
+			ok++;
+		}
+		else
+		    fprintf(stderr, "%d: units(): expected . found %c after dimSpace\n", lineno, *end);
+		if (ok == 1) {
+		    f = strtol(p, &end, 10);
+		    if (*end == '.') {
+			p = &end[1];
+			units.dimTime = f;
+			if (units.dimTime != f)
+			    fprintf(stderr, "%d: units(): dimTime overflow %d -> %d(\n", lineno, f, units.dimTime);
+			else
+			    ok++;
+		    }
+		    else
+			fprintf(stderr, "%d: units(): expected . found %c after dimTime\n", lineno, *end);
+		}
+		if (ok == 2) {
+		    f = strtol(p, &end, 10);
+		    if (*end == '.') {
+			p = &end[1];
+			units.dimCount = f;
+			if (units.dimCount != f)
+			    fprintf(stderr, "%d: units(): dimCount overflow %d -> %d(\n", lineno, f, units.dimCount);
+			else
+			    ok++;
+		    }
+		    else
+			fprintf(stderr, "%d: units(): expected . found %c after dimCount\n", lineno, *end);
+		}
+		if (ok == 3) {
+		    uf = strtoul(p, &end, 10);
+		    if (*end == '.') {
+			p = &end[1];
+			units.scaleSpace = uf;
+			if (units.scaleSpace != uf)
+			    fprintf(stderr, "%d: units(): scaleSpace overflow %u -> %u(\n", lineno, uf, units.scaleSpace);
+			else
+			    ok++;
+		    }
+		    else
+			fprintf(stderr, "%d: units(): expected . found %c after scaleSpace\n", lineno, *end);
+		}
+		if (ok == 4) {
+		    uf = strtoul(p, &end, 10);
+		    if (*end == '.') {
+			p = &end[1];
+			units.scaleTime = uf;
+			if (units.scaleTime != uf)
+			    fprintf(stderr, "%d: units(): scaleTime overflow %u -> %u(\n", lineno, uf, units.scaleTime);
+			else
+			    ok++;
+		    }
+		    else
+			fprintf(stderr, "%d: units(): expected . found %c after scaleTime\n", lineno, *end);
+		}
+		if (ok == 5) {
+		    f = strtol(p, &end, 10);
+		    if (*end == ')') {
+			p = &end[1];
+			units.scaleCount = f;
+			if (units.scaleCount != f)
+			    fprintf(stderr, "%d: units(): scaleCount overflow %d -> %d(\n", lineno, f, units.scaleCount);
+			else
+			    ok++;
+		    }
+		    else
+			fprintf(stderr, "%d: units(): expected ) found %c after scaleCount\n", lineno, *end);
+		}
+		if (ok == 6) {
+		    out = *((int *)&units);
+		}
+		else {
+		    fprintf(stderr, "%d: illegal units() @ %s\n", lineno, bp);
+		    sts = 1;
+		}
+	    }
 	    else if (w == 0 && strcmp(bp, "?") == 0) {
 		calc_len = 1;
 		out = -1;
@@ -788,6 +961,71 @@ main(int argc, char **argv)
 				/* datum is still in network byte order */
 				datum = ntohl(datum);
 				fprintf(stderr, "%d: __pmDecodeXtendError: sts=%d code=%d datum=0x%x\n", lineno, sts, code, datum);
+			    }
+			}
+			break;
+
+		    case PDU_DESC_REQ:
+			{
+			    pmID	pmid;
+			    lsts = __pmDecodeDescReq(pdubuf, &pmid);
+			    if (lsts < 0)
+				fprintf(stderr, "%d: __pmDecodeDescReq failed: %s\n", lineno, pmErrStr(lsts));
+			    else {
+				fprintf(stderr, "%d: __pmDecodeDescReq: sts=%d pmid=%s\n", lineno, sts, pmIDStr(pmid));
+			    }
+			}
+			break;
+
+		    case PDU_DESC:
+			{
+			    pmDesc	desc;
+			    lsts = __pmDecodeDesc(pdubuf, &desc);
+			    if (lsts < 0)
+				fprintf(stderr, "%d: __pmDecodeDesc failed: %s\n", lineno, pmErrStr(lsts));
+			    else {
+				fprintf(stderr, "%d: __pmDecodeDesc: sts=%d desc:", lineno, lsts);
+				mydesc(stderr, &desc);
+			    }
+			}
+			break;
+
+		    case PDU_DESCS:
+			{
+			    pmDesc	*desclist;
+			    int		numdesc;
+			    /*
+			     * make informed guess about number of pmDesc's
+			     * in PDU
+			     */
+			    numdesc = (w + 1 - 4) / 5;
+			    desclist = (pmDesc *)malloc(numdesc * sizeof(pmDesc));
+			    if (desclist == NULL) {
+				fprintf(stderr, "declist malloc for %d entries failed, aborting\n", numdesc);
+				exit(1);
+			    }
+			    lsts = __pmDecodeDescs(pdubuf, numdesc, desclist);
+			    if (lsts < 0)
+				fprintf(stderr, "%d: __pmDecodeDescs failed: %s\n", lineno, pmErrStr(lsts));
+			    else {
+				fprintf(stderr, "%d: __pmDecodeDescs: sts=%d numdesc=%d\n", lineno, lsts, numdesc);
+				for (j = 0; j < numdesc; j++) {
+				    mydesc(stderr, &desclist[j]);
+				}
+			    }
+			    free(desclist);
+			    /*
+			     * and now the "no guessing" alternative API
+			     */
+			    lsts = __pmDecodeDescs2(pdubuf, &numdesc, &desclist);
+			    if (lsts < 0)
+				fprintf(stderr, "%d: __pmDecodeDescs2 failed: %s\n", lineno, pmErrStr(lsts));
+			    else {
+				fprintf(stderr, "%d: __pmDecodeDescs2: sts=%d numdesc=%d\n", lineno, lsts, numdesc);
+				for (j = 0; j < numdesc; j++) {
+				    mydesc(stderr, &desclist[j]);
+				}
+				free(desclist);
 			    }
 			}
 			break;

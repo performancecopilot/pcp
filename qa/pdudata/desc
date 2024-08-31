@@ -1,0 +1,27 @@
+# PDU specifications, used by ../src/pdu-gadget to produce a
+# binary PDU stream for QA
+#
+# PDU_DESC test cases
+#
+# PM_TYPE_DOUBLE == 5
+# PM_SEM_INSTANT == 3
+# PM_TIME_SEC == 3
+# PM_SPACE_MBYTE = 2
+# Note: units are faked here, not real units for sampledso.double.bin
+#
+
+# credentials: len type from ncred cred[0]
+? PDU_CREDS 42 1 0x01020000
+
+# desc: len type from pmid type indom sem units
+# OK
+? PDU_DESC 42 pmid(sampledso.double.bin) 5 indom(30.2) 3 units(1.-1.0.2.3.0)
+
+# desc: len type from pmid type indom sem
+# BAD short PDU
+? PDU_DESC 42 pmid(sampledso.double.bin) 5 indom(30.2) 3
+
+# desc: len type from pmid type indom sem units extra
+# BAD long PDU
+? PDU_DESC 42 pmid(sampledso.double.bin) 5 indom(30.2) 3 units(1.-1.0.2.3.0) 0xdeadbeef
+

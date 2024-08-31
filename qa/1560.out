@@ -32,6 +32,54 @@ __pmDecodeCreds: PM_ERR_IPC: PDU too short 28 < required size 24
 __pmDecodeResult: PM_ERR_IPC: short PDU 20 < min size 24
 11: __pmDecodeResult failed: IPC protocol failure
 
+=== pdudata/desc ===
+14: __pmDecodeCreds: sts=0 sender=42 credcount=1 ...
+    #0 = { type=0x1 a=0x2 b=0x0 c=0x0 }
+18: __pmDecodeDesc: sts=0 desc: pmid==30.0.113 type=double indom=30.2 semantics=instant units=Mbyte / sec
+__pmDecodeDesc: PM_ERR_IPC: PDU too short 28 < required size 32
+22: __pmDecodeDesc failed: IPC protocol failure
+__pmDecodeDesc: PM_ERR_IPC: PDU too long 36 > required size 32
+26: __pmDecodeDesc failed: IPC protocol failure
+
+=== pdudata/desc_req ===
+8: __pmDecodeCreds: sts=0 sender=42 credcount=1 ...
+    #0 = { type=0x1 a=0x2 b=0x0 c=0x0 }
+12: __pmDecodeDescReq: sts=0 pmid=30.0.23
+__pmDecodeDescReq: PM_ERR_IPC: PDU too short 12 < required size 16
+16: __pmDecodeDescReq failed: IPC protocol failure
+__pmDecodeDescReq: PM_ERR_IPC: PDU too long 20 > required size 16
+20: __pmDecodeDescReq failed: IPC protocol failure
+
+=== pdudata/descs ===
+14: __pmDecodeCreds: sts=0 sender=42 credcount=1 ...
+    #0 = { type=0x1 a=0x2 b=0x0 c=0x0 }
+18: __pmDecodeDescs: sts=2 numdesc=2
+ pmid==30.0.113 type=double indom=30.2 semantics=instant units=Mbyte / sec
+ pmid==30.0.25 type=double indom=PM_INDOM_NULL semantics=instant units=none
+18: __pmDecodeDescs2: sts=2 numdesc=2
+ pmid==30.0.113 type=double indom=30.2 semantics=instant units=Mbyte / sec
+ pmid==30.0.25 type=double indom=PM_INDOM_NULL semantics=instant units=none
+__pmDecodeDescs: PM_ERR_IPC: short PDU 16 < min size 36
+22: __pmDecodeDescs failed: IPC protocol failure
+__pmDecodeDescs2: PM_ERR_IPC: short PDU 16 < min size 36
+22: __pmDecodeDescs2 failed: IPC protocol failure
+__pmDecodeDescs: PM_ERR_IPC: PDU too long 60 > required size 56
+26: __pmDecodeDescs failed: IPC protocol failure
+__pmDecodeDescs2: PM_ERR_IPC: PDU too long 60 > required size 56
+26: __pmDecodeDescs2 failed: IPC protocol failure
+__pmDecodeDescs: PM_ERR_IPC: PDU too short 52 < required size 56
+30: __pmDecodeDescs failed: IPC protocol failure
+__pmDecodeDescs2: PM_ERR_IPC: PDU too short 52 < required size 56
+30: __pmDecodeDescs2 failed: IPC protocol failure
+__pmDecodeDescs: PM_ERR_IPC: total -1 <= 0 or != numdescs 2
+34: __pmDecodeDescs failed: IPC protocol failure
+__pmDecodeDescs2: PM_ERR_IPC: total -1 <= 0 or > (INT_MAX ...) 107374182
+34: __pmDecodeDescs2 failed: IPC protocol failure
+__pmDecodeDescs: PM_ERR_IPC: total 3 <= 0 or != numdescs 2
+38: __pmDecodeDescs failed: IPC protocol failure
+__pmDecodeDescs2: PM_ERR_IPC: PDU too short 52 < required size 76
+38: __pmDecodeDescs2 failed: IPC protocol failure
+
 === pdudata/error ===
 8: __pmDecodeCreds: sts=0 sender=42 credcount=1 ...
     #0 = { type=0x1 a=0x2 b=0x0 c=0x0 }
