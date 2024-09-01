@@ -44,39 +44,9 @@
 
 /* from internal.h ... */
 #ifdef HAVE_NETWORK_BYTEORDER
-#define __ntohpmInDom(a)        (a)
 #define __ntohpmID(a)           (a)
-#define __ntohpmUnits(a)        (a)
-#define __ntohll(a)             /* noop */
 #else
-#define __ntohpmInDom(a)        ntohl(a)
 #define __ntohpmID(a)           ntohl(a)
-#endif
-
-/* from libpcp/src/endian.c ... */
-#ifndef __htonpmUnits
-pmUnits
-__htonpmUnits(pmUnits units)
-{
-    unsigned int	x;
-
-    x = htonl(*(unsigned int *)&units);
-    units = *(pmUnits *)&x;
-
-    return units;
-}
-#endif
-#ifndef __ntohpmUnits
-pmUnits
-__ntohpmUnits(pmUnits units)
-{
-    unsigned int	x;
-
-    x = ntohl(*(unsigned int *)&units);
-    units = *(pmUnits *)&x;
-
-    return units;
-}
 #endif
 
 static pmLongOptions longopts[] = {
@@ -731,7 +701,7 @@ main(int argc, char **argv)
 	}
 	if (sts == 0 && w > 0) {
 	    if (verbose > 0) {
-		fprintf(stderr, "%d: PDU length=%d\n", lineno, ntohl(pdubuf[0]));
+		fprintf(stderr, "%d: PDU length=%d w=%d\n", lineno, ntohl(pdubuf[0]), w);
 		for (j = 0; j < w; j++) {
 		    if ((j % 8) == 0) {
 			if (j > 0)
@@ -1001,7 +971,7 @@ main(int argc, char **argv)
 			    numdesc = (w + 1 - 4) / 5;
 			    desclist = (pmDesc *)malloc(numdesc * sizeof(pmDesc));
 			    if (desclist == NULL) {
-				fprintf(stderr, "declist malloc for %d entries failed, aborting\n", numdesc);
+				fprintf(stderr, "desclist malloc for %d entries failed, aborting\n", numdesc);
 				exit(1);
 			    }
 			    lsts = __pmDecodeDescs(pdubuf, numdesc, desclist);
@@ -1026,6 +996,53 @@ main(int argc, char **argv)
 				    mydesc(stderr, &desclist[j]);
 				}
 				free(desclist);
+			    }
+			}
+			break;
+
+		    case PDU_DESC_IDS:
+			{
+			    pmID	*pmidlist;
+			    int		numpmid;
+			    int		unused;
+			    /*
+			     * make informed guess about number of pmID's
+			     * in PDU, provided we're calculating the PDU
+			     * length, else use numpmid from the PDU
+			     */
+			    if (calc_len)
+				numpmid = (w - 5);
+			    else
+				numpmid = ntohl(pdubuf[4]);
+			    pmidlist = (pmID *)malloc(numpmid * sizeof(pmID));
+			    if (pmidlist == NULL) {
+				fprintf(stderr, "pmidlist malloc for %d entries failed, aborting\n", numpmid);
+				exit(1);
+			    }
+			    lsts = __pmDecodeIDList(pdubuf, numpmid, pmidlist, &unused);
+			    if (lsts < 0)
+				fprintf(stderr, "%d: __pmDecodeIDList failed: %s\n", lineno, pmErrStr(lsts));
+			    else {
+				fprintf(stderr, "%d: __pmDecodeIDList: sts=%d unused=0x%x numpmid=%d pmids:", lineno, lsts, unused, numpmid);
+				for (j = 0; j < numpmid; j++) {
+				    fprintf(stderr, " %s",  pmIDStr(pmidlist[j]));
+				}
+				fputc('\n', stderr);
+			    }
+			    free(pmidlist);
+			    /*
+			     * and now the "no guessing" alternative API
+			     */
+			    lsts = __pmDecodeIDList2(pdubuf, &numpmid, &pmidlist);
+			    if (lsts < 0)
+				fprintf(stderr, "%d: __pmDecodeIDList2 failed: %s\n", lineno, pmErrStr(lsts));
+			    else {
+				fprintf(stderr, "%d: __pmDecodeIDList2: sts=%d numpmid=%d pmids:", lineno, lsts, numpmid);
+				for (j = 0; j < numpmid; j++) {
+				    fprintf(stderr, " %s",  pmIDStr(pmidlist[j]));
+				}
+				fputc('\n', stderr);
+				free(pmidlist);
 			    }
 			}
 			break;

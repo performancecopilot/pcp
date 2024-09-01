@@ -41,6 +41,35 @@ __pmDecodeDesc: PM_ERR_IPC: PDU too short 28 < required size 32
 __pmDecodeDesc: PM_ERR_IPC: PDU too long 36 > required size 32
 26: __pmDecodeDesc failed: IPC protocol failure
 
+=== pdudata/desc_ids ===
+8: __pmDecodeCreds: sts=0 sender=42 credcount=1 ...
+    #0 = { type=0x1 a=0x2 b=0x0 c=0x0 }
+12: __pmDecodeIDList: sts=0 unused=0xffffffff numpmid=3 pmids: 30.0.11 30.0.12 30.0.13
+12: __pmDecodeIDList2: sts=0 numpmid=3 pmids: 30.0.11 30.0.12 30.0.13
+__pmDecodeIDList: PM_ERR_IPC: short PDU 20 < min size 24
+16: __pmDecodeIDList failed: IPC protocol failure
+__pmDecodeIDList2: PM_ERR_IPC: short PDU 20 < min size 24
+16: __pmDecodeIDList2 failed: IPC protocol failure
+__pmDecodeIDList: PM_ERR_IPC: numids from PDU 0 <= 0
+20: __pmDecodeIDList failed: IPC protocol failure
+__pmDecodeIDList2: PM_ERR_IPC: numids 0 <= 0
+20: __pmDecodeIDList2 failed: IPC protocol failure
+24: __pmDecodeIDList: sts=0 unused=0xd numpmid=3 pmids: 30.0.11 30.0.12 30.0.13
+__pmDecodeIDList2: PM_ERR_IPC: sts 13 != -1
+24: __pmDecodeIDList2 failed: IPC protocol failure
+__pmDecodeIDList: PM_ERR_IPC: PDU too long 32 > required size 28
+28: __pmDecodeIDList failed: IPC protocol failure
+__pmDecodeIDList2: PM_ERR_IPC: PDU too long 32 > required size 28
+28: __pmDecodeIDList2 failed: IPC protocol failure
+__pmDecodeIDList: PM_ERR_IPC: PDU too short 32 < required size 36
+32: __pmDecodeIDList failed: IPC protocol failure
+__pmDecodeIDList2: PM_ERR_IPC: PDU too short 32 < required size 36
+32: __pmDecodeIDList2 failed: IPC protocol failure
+__pmDecodeIDList: PM_ERR_IPC: numids from PDU 16384 != numids from caller 3
+36: __pmDecodeIDList failed: IPC protocol failure
+__pmDecodeIDList2: PM_ERR_IPC: numids 16384 >= max (16384)
+36: __pmDecodeIDList2 failed: IPC protocol failure
+
 === pdudata/desc_req ===
 8: __pmDecodeCreds: sts=0 sender=42 credcount=1 ...
     #0 = { type=0x1 a=0x2 b=0x0 c=0x0 }
@@ -128,15 +157,15 @@ __pmDecodeFetchPDU: PM_ERR_IPC: PDU too short 40 < required size 44
 7: __pmDecodeCreds: sts=0 sender=42 credcount=1 ...
     #0 = { type=0x1 a=0x2 b=0x0 c=0x0 }
 11: __pmDecodeIDList: sts=0 pmid=30.0.10 asts=0
-__pmDecodeIDList: PM_ERR_IPC: PDU too short 12 < min size 20
+__pmDecodeIDList: PM_ERR_IPC: short PDU 12 < min size 24
 15: __pmDecodeIDList failed: IPC protocol failure
-__pmDecodeIDList: PM_ERR_IPC: PDU too short 16 < min size 20
+__pmDecodeIDList: PM_ERR_IPC: short PDU 16 < min size 24
 19: __pmDecodeIDList failed: IPC protocol failure
-__pmDecodeIDList: PM_ERR_IPC: PDU too short 20 < required size 24
+__pmDecodeIDList: PM_ERR_IPC: short PDU 20 < min size 24
 23: __pmDecodeIDList failed: IPC protocol failure
-__pmDecodeIDList: PM_ERR_IPC: nids from PDU -1 <= 0
+__pmDecodeIDList: PM_ERR_IPC: numids from PDU -1 <= 0
 27: __pmDecodeIDList failed: IPC protocol failure
-__pmDecodeIDList: PM_ERR_IPC: nids from PDU 2 != numids from caller 1
+__pmDecodeIDList: PM_ERR_IPC: numids from PDU 2 != numids from caller 1
 31: __pmDecodeIDList failed: IPC protocol failure
 __pmDecodeIDList: PM_ERR_IPC: PDU too long 28 > required size 24
 35: __pmDecodeIDList failed: IPC protocol failure
