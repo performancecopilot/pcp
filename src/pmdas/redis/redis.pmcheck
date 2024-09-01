@@ -24,6 +24,9 @@ then
     which redis-server >/dev/null 2>&1 || status=2
     which redis-cli >/dev/null 2>&1 || status=2
     _check "redis install status: $status"
+    info=`redis-cli INFO server 2>/dev/null | grep ^executable:`
+    test "$info" = "executable:/usr/bin/redis-server" || status=2
+    _check "redis cli INFO: $info"
     svc=redis
     test -f "$PCP_SYSTEMDUNIT_DIR/redis-server.service" && svc=redis-server
     _ctl_svc state $svc || status=$?
