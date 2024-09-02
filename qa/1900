@@ -59,11 +59,6 @@ cat >$tmp.suppress <<End-of-File
    Memcheck:Param
    bpf(attr->expected_attach_type)
    fun:syscall
-   fun:sys_bpf
-   fun:sys_bpf_fd
-   fun:sys_bpf_prog_load
-   fun:probe_kern_prog_name
-   fun:kernel_supports
    ...
 }
 {
@@ -71,11 +66,6 @@ cat >$tmp.suppress <<End-of-File
    Memcheck:Param
    bpf(attr->prog_ifindex)
    fun:syscall
-   fun:sys_bpf
-   fun:sys_bpf_fd
-   fun:sys_bpf_prog_load
-   fun:probe_kern_prog_name
-   fun:kernel_supports
    ...
 }
 End-of-File
