@@ -200,8 +200,7 @@ do
         _usage ""
         ;;
       --)        # end of options, start of arguments
-        shift
-        break
+        _usage "Unknown argument: $2"
         ;;
     esac
     shift        # finished with this option, move to next
