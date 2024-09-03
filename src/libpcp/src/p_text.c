@@ -167,10 +167,11 @@ __pmDecodeText(__pmPDU *pdubuf, int *ident, char **buffer)
 	}
 	return PM_ERR_IPC;
     }
-    if (pp->hdr.len < sizeof(text_t) - sizeof(pp->buffer) + buflen) {
+    /* buffer[] is rounded to a PDU boundary */
+    if (pp->hdr.len < sizeof(text_t) - sizeof(pp->buffer) + PM_PDU_SIZE_BYTES(buflen)) {
 	if (pmDebugOptions.pdu) {
 	    fprintf(stderr, "__pmDecodeText: PM_ERR_IPC: PDU too short %d < required size %d\n",
-		pp->hdr.len, (int)(sizeof(text_t) - sizeof(pp->buffer) + buflen));
+		pp->hdr.len, (int)(sizeof(text_t) - sizeof(pp->buffer) + PM_PDU_SIZE_BYTES(buflen)));
 	}
 	return PM_ERR_IPC;
     }

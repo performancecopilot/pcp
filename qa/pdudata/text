@@ -17,7 +17,7 @@
 
 # text: len type from ident buflen text
 # BAD, textlen > pdulen
-? PDU_TEXT 42 pmid(sampledso.longlong.million) 8 str(million)
+? PDU_TEXT 42 pmid(sampledso.longlong.million) 10 str(million)
 
 # text: len type from ident buflen text
 # BAD, textlen < 0

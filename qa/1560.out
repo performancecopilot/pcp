@@ -7,7 +7,7 @@ QA output created by 1560
 16: __pmDecodeAttr: sts=0 attr=0 vlen=0 value=""
 __pmDecodeAttr: PM_ERR_IPC: short PDU 12 < min size 16
 20: __pmDecodeAttr failed: IPC protocol failure
-__pmDecodeAttr: PM_ERR_IPC: long PDU 4377 > max size 4111
+__pmDecodeAttr: PM_ERR_IPC: long PDU 4380 > max size 4111
 24: __pmDecodeAttr failed: IPC protocol failure
 
 === pdudata/auth ===
@@ -170,6 +170,66 @@ __pmDecodeIDList: PM_ERR_IPC: numids from PDU 2 != numids from caller 1
 __pmDecodeIDList: PM_ERR_IPC: PDU too long 28 > required size 24
 35: __pmDecodeIDList failed: IPC protocol failure
 
+=== pdudata/instance ===
+8: __pmDecodeCreds: sts=0 sender=42 credcount=1 ...
+    #0 = { type=0x1 a=0x2 b=0x0 c=0x0 }
+12: __pmDecodeInstance: sts=0 indom=30.2 numinst=0 ...
+13: __pmDecodeInstance: sts=0 indom=30.2 numinst=1 ...
+  [0] inst=900 name="bin-900"
+14: __pmDecodeInstance: sts=0 indom=30.2 numinst=2 ...
+  [0] inst=100 name="bin-100"
+  [1] inst=900 name="bin-900"
+15: __pmDecodeInstance: sts=0 indom=30.2 numinst=3 ...
+  [0] inst=100 name="bin-100"
+  [1] inst=500 name="bin-500x"
+  [2] inst=900 name="bin-900"
+16: __pmDecodeInstance: sts=0 indom=30.2 numinst=3 ...
+  [0] inst=100 name="bin-100"
+  [1] inst=500 name="bin-500xy"
+  [2] inst=900 name="bin-900"
+17: __pmDecodeInstance: sts=0 indom=30.2 numinst=3 ...
+  [0] inst=100 name="bin-100"
+  [1] inst=500 name="bin-500xyz"
+  [2] inst=900 name="bin-900"
+18: __pmDecodeInstance: sts=0 indom=30.2 numinst=3 ...
+  [0] inst=100 name="bin-100"
+  [1] inst=500 name="bin-500xyza"
+  [2] inst=900 name="bin-900"
+19: __pmDecodeInstance: sts=0 indom=30.2 numinst=4 ...
+  [0] inst=100 name="bin-100"
+  [1] inst=101 name=""
+  [2] inst=500 name="bin-500xyza"
+  [3] inst=900 name="bin-900"
+__pmDecodeInstance: PM_ERR_IPC: short PDU 16 < min size 20
+23: __pmDecodeInstance failed: IPC protocol failure
+__pmDecodeInstance: PM_ERR_IPC: numinst 8190 > max (8189)
+27: __pmDecodeInstance failed: IPC protocol failure
+__pmDecodeInstance: PM_ERR_IPC: inst[0] namelen -1 < 0
+31: __pmDecodeInstance failed: IPC protocol failure
+__pmDecodeInstance: PM_ERR_IPC: PDU too short inst[2] 19 > remainder 16
+35: __pmDecodeInstance failed: IPC protocol failure
+__pmDecodeInstance: PM_ERR_IPC: PDU too short inst[2] 15 > remainder 8
+37: __pmDecodeInstance failed: IPC protocol failure
+__pmDecodeInstance: PM_ERR_IPC: PDU too long, remainder 4
+41: __pmDecodeInstance failed: IPC protocol failure
+
+=== pdudata/instance_req ===
+8: __pmDecodeCreds: sts=0 sender=42 credcount=1 ...
+    #0 = { type=0x1 a=0x2 b=0x0 c=0x0 }
+12: __pmDecodeInstanceReq: sts=0 indom=30.2 inst=-1 name=NULL
+13: __pmDecodeInstanceReq: sts=0 indom=30.2 inst=-1 name=bin-500
+14: __pmDecodeInstanceReq: sts=0 indom=30.2 inst=-1 name=bin-500x
+15: __pmDecodeInstanceReq: sts=0 indom=30.2 inst=-1 name=bin-500xy
+16: __pmDecodeInstanceReq: sts=0 indom=30.2 inst=-1 name=bin-500xyz
+__pmDecodeInstanceReq: PM_ERR_IPC: short PDU 28 < min size 32
+20: __pmDecodeInstanceReq failed: IPC protocol failure
+__pmDecodeInstanceReq: PM_ERR_IPC: PDU too short 40 < required size 44
+24: __pmDecodeInstanceReq failed: IPC protocol failure
+__pmDecodeInstanceReq: PM_ERR_IPC: PDU too long 44 > required size 40
+28: __pmDecodeInstanceReq failed: IPC protocol failure
+__pmDecodeInstanceReq: PM_ERR_IPC: namelen 65505 > max (65503)
+32: __pmDecodeInstanceReq failed: IPC protocol failure
+
 === pdudata/label-req-container-json-injection ===
 7: __pmDecodeCreds: sts=0 sender=42 credcount=1 ...
     #0 = { type=0x1 a=0x2 b=0x0 c=0x40 }
@@ -206,7 +266,7 @@ __pmDecodeValueSet: PM_ERR_IPC: pmid[0] value[0] vlen=1
 12: __pmDecodeText: sts=0 ident=30.0.23 text="million"
 __pmDecodeText: PM_ERR_IPC: short PDU 16 < min size 20
 16: __pmDecodeText failed: IPC protocol failure
-__pmDecodeText: PM_ERR_IPC: PDU too short 27 < required size 28
+__pmDecodeText: PM_ERR_IPC: PDU too short 28 < required size 32
 20: __pmDecodeText failed: IPC protocol failure
 __pmDecodeText: PM_ERR_IPC: buflen -1 < 0 or > hdr.len 20
 24: __pmDecodeText failed: IPC protocol failure

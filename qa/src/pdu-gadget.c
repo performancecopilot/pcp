@@ -490,9 +490,9 @@ main(int argc, char **argv)
 		    if ((nch % sizeof(pdubuf[0])) == 0) {
 			/* zero fill next element of pdubuf[] */
 			pdubuf[w++] = 0;
+			len += sizeof(pdubuf[0]);
 		    }
 		    *op++ = *bp++;
-		    len++;
 		    nch++;
 		    esc = 0;
 		}
@@ -1043,6 +1043,41 @@ main(int argc, char **argv)
 				}
 				fputc('\n', stderr);
 				free(pmidlist);
+			    }
+			}
+			break;
+
+		    case PDU_INSTANCE_REQ:
+			{
+			    pmInDom	indom;
+			    int		inst;
+			    char	*name;
+			    lsts = __pmDecodeInstanceReq(pdubuf, &indom, &inst, &name);
+			    if (lsts < 0)
+				fprintf(stderr, "%d: __pmDecodeInstanceReq failed: %s\n", lineno, pmErrStr(lsts));
+			    else {
+				fprintf(stderr, "%d: __pmDecodeInstanceReq: sts=%d indom=%s inst=%d name=%s\n", lineno, sts, pmInDomStr(indom), inst, name == NULL ? "NULL" : name);
+			    }
+			}
+			break;
+
+		    case PDU_INSTANCE:
+			{
+			    pmInResult	*irp;
+			    lsts = __pmDecodeInstance(pdubuf, &irp);
+			    if (lsts < 0)
+				fprintf(stderr, "%d: __pmDecodeInstance failed: %s\n", lineno, pmErrStr(lsts));
+			    else {
+				fprintf(stderr, "%d: __pmDecodeInstance: sts=%d indom=%s numinst=%d ...\n", lineno, sts, pmInDomStr(irp->indom), irp->numinst);
+				/* borrowed from __pmDumpInResult */
+				for (j = 0; j < irp->numinst; j++) {
+				    fprintf(stderr, "  [%d]", j);
+				    if (irp->instlist != NULL)
+					fprintf(stderr, " inst=%d", irp->instlist[j]);
+				    if (irp->namelist != NULL)
+					fprintf(stderr, " name=\"%s\"", irp->namelist[j]);
+				    fputc('\n', stderr);
+				}
 			    }
 			}
 			break;
