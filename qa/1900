@@ -52,8 +52,6 @@ cat >$tmp.suppress <<End-of-File
 # This is outside the control of PCP.  There is an upstream libbpf issue filed:
 #
 #   https://github.com/libbpf/libbpf/issues/845
-#
-# The following suppressions are for qa/1900
 {
    libbpf missing attr missing expected_attach_type field initialization
    Memcheck:Param
