@@ -1260,8 +1260,14 @@ static void print_backtrace(void) {
 #elif defined(HAVE_EXECINFO_H)
    void* backtraceArray[256];
 
-   size_t size = backtrace(backtraceArray, ARRAYSIZE(backtraceArray));
-   backtrace_symbols_fd(backtraceArray, size, STDERR_FILENO);
+   int nptrs = backtrace(backtraceArray, ARRAYSIZE(backtraceArray));
+   if (nptrs > 0) {
+      backtrace_symbols_fd(backtraceArray, nptrs, STDERR_FILENO);
+   } else {
+      full_write_str(STDERR_FILENO,
+         "[No backtrace information available from libc]\n"
+      );
+   }
 #else
 #error No implementation for print_backtrace()!
 #endif
