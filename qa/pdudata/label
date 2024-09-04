@@ -1,0 +1,82 @@
+# PDU specifications, used by ../src/pdu-gadget to produce a
+# binary PDU stream for QA
+#
+# PDU_LABEL test cases
+# type is bit-field for one these flags
+#		      and correspondent ident
+# PM_LABEL_CONTEXT	0x01		-1
+# PM_LABEL_DOMAIN	0x02		int (domain #)
+# PM_LABEL_INDOM	0x04		pmInDom
+# PM_LABEL_CLUSTER	0x08		pmID
+# PM_LABEL_ITEM		0x10		pmID
+# PM_LABEL_INSTANCES	0x20		pmInDom
+# PM_LABEL_COMPOUND	0x40
+# PM_LABEL_OPTIONAL	0x80
+#
+
+# credentials: len type from ncred cred[0]
+? PDU_CREDS 42 1 0x01020000
+
+# label: len type from ident type padding (unused) nsets <set> ...
+# <set>: inst nlabels json (offset) jsonlen pmlabel[]
+# OK (context case)
+? PDU_LABEL 42 -1 0x01 0xdeadbeef 1 -1 7 100 175 label(2.10.1.14.13) label(29.7.129.38.4) label(44.8.1.54.18) label(74.8.193.84.8) label(94.9.193.105.8) label(115.9.1.126.34) label(162.6.129.170.4) str({"domainname":"localdomain","groupid":1000,"hostname":"bozo.localdomain","latitude":000.0000,"longitude":000.0000,"machineid":"deadbeefdeadbeefdeadbeefdeadbeef","userid":1000})
+# OK (domain case)
+? PDU_LABEL 42 30 0x02 0xdeadbeef 1 -1 2 60 35 label(2.5.2.9.8) label(19.4.2.25.9) str({"agent":"sample","role":"testing"})
+# OK (indom case)
+? PDU_LABEL 42 indom(30.2) 0x04 0 0
+# OK (cluster case)
+? PDU_LABEL 42 30 0x08 0xdeadbeef 1 -1 1 52 18 label(2.7.8.11.6) str({"cluster":"zero"})
+
+# label: len type from ident type padding (unused)
+# BAD short PDU
+? PDU_LABEL 42 30 0x08 0xdeadbeef
+
+# label: len type from ident type padding (unused) nsets <set> ...
+# <set>: inst nlabels json (offset) jsonlen pmlabel[]
+# BAD nsets < 0
+? PDU_LABEL 42 30 0x02 0xdeadbeef -13 -1 2 60 35 label(2.5.2.9.8) label(19.4.2.25.9) str({"agent":"sample","role":"testing"})
+
+# label: len type from ident type padding (unused) nsets <set> ...
+# <set>: inst nlabels json (offset) jsonlen pmlabel[]
+# BAD nsets > max
+? PDU_LABEL 42 30 0x08 0xdeadbeef 4095 -1 1 52 18 label(2.7.8.11.6) str({"cluster":"zero"})
+
+# label: len type from ident type padding (unused) nsets <set> ...
+# <set>: inst nlabels json (offset) jsonlen pmlabel[]
+# BAD nlabels > max
+? PDU_LABEL 42 30 0x08 0xdeadbeef 1 -1 255 52 9 label(2.1.8.4.1) str({"a":"b"})
+
+# label: len type from ident type padding (unused) nsets <set> ...
+# <set>: inst nlabels json (offset) jsonlen pmlabel[]
+# BAD jsonlen > max
+? PDU_LABEL 42 30 0x08 0xdeadbeef 1 -1 1 52 65535 label(2.1.8.4.1) str({"a":"b"})
+
+# label: len type from ident type padding (unused) nsets <set> ...
+# <set>: inst nlabels json (offset) jsonlen pmlabel[]
+# BAD short PDU, json longer than PDU length ...
+# 13 not 10 because we need to get across the next word boundary
+? PDU_LABEL 42 30 0x08 0xdeadbeef 1 -1 1 52 13 label(2.1.8.4.1) str({"a":"b"})
+
+# label: len type from ident type padding (unused) nsets <set> ...
+# <set>: inst nlabels json (offset) jsonlen pmlabel[]
+# BAD short PDU (no 2nd labelset)
+? PDU_LABEL 42 30 0x08 0xdeadbeef 2 -1 1 52 9 label(2.1.8.4.1) str({"a":"b"})
+
+# this one is really bad ... label[0] in labelset[0] is truncated!
+? PDU_LABEL 42 30 0x08 0xdeadbeef 1 -1 1 24 4 0xdeadbeef
+
+# label: len type from ident type padding (unused) nsets <set> ...
+# <set>: inst nlabels json (offset) jsonlen pmlabel[]
+# BAD short name+namelen > jsonlen
+? PDU_LABEL 42 30 0x08 0xdeadbeef 1 -1 1 52 9 label(2.8.8.4.1) str({"a":"b"})
+
+# label: len type from ident type padding (unused) nsets <set> ...
+# <set>: inst nlabels json (offset) jsonlen pmlabel[]
+# BAD short value+valuelen > jsonlen
+? PDU_LABEL 42 30 0x08 0xdeadbeef 1 -1 1 52 9 label(2.1.8.9.1) str({"a":"b"})
+
+# label: len type from ident type padding (unused) nsets <set> ...
+# <set>: inst nlabels json (offset) jsonlen pmlabel[]
+# BAD long PDU
+? PDU_LABEL 42 30 0x08 0xdeadbeef 1 -1 1 52 18 label(2.7.8.11.6) str({"cluster":"zero"}) 0xdeadbeef

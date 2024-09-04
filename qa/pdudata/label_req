@@ -1,0 +1,36 @@
+# PDU specifications, used by ../src/pdu-gadget to produce a
+# binary PDU stream for QA
+#
+# PDU_LABEL_REQ test cases
+# type is bit-field for one these flags
+#		      and correspondent ident
+# PM_LABEL_CONTEXT	0x01		-1
+# PM_LABEL_DOMAIN	0x02		int (domain #)
+# PM_LABEL_INDOM	0x04		pmInDom
+# PM_LABEL_CLUSTER	0x08		pmID
+# PM_LABEL_ITEM		0x10		pmID
+# PM_LABEL_INSTANCES	0x20		pmInDom
+#
+
+# credentials: len type from ncred cred[0]
+? PDU_CREDS 42 1 0x01020000
+
+# label_req: len type from ident type
+# OK (context case)
+? PDU_LABEL_REQ 42 0xdeadbeef 0x01
+# OK (domain case)
+? PDU_LABEL_REQ 42 30 0x02
+# OK (pmid case)
+? PDU_LABEL_REQ 42 pmid(sampledso.longlong.million) 0x10
+# OK (indom case)
+? PDU_LABEL_REQ 42 indom(30.2) 0x20
+# OK (bozo case)
+? PDU_LABEL_REQ 42 0xdeadbeef 0x100
+
+# label_req: len type from ident type
+# BAD short PDU
+? PDU_LABEL_REQ 42 pmid(sampledso.longlong.million)
+
+# label_req: len type from ident type
+# BAD long PDU
+? PDU_LABEL_REQ 42 pmid(sampledso.longlong.million) 0x10 0xdeadbeef
