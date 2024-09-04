@@ -29,6 +29,8 @@
  *     PM_TYPE_32 and S64 for PM_TYPE_64 to avoid 32 and 64 ambiguity}
  *   + units(ds.dt.dc.ss.st.sc) {no whitespace allowed, build a pmUnits
  *     struct ds == dimSpace (decimal) etc for 6 fields}
+ *   + label(n.nl.f.v.vl) {no whitespace allowed, build a pmLabel
+ *     struct n == name (offset) etc for 5 fields}
  *   + the unary prefix operator (~) means the following word is NOT
  *     converted into network byte order (needed for packed event
  *     records)
@@ -653,6 +655,100 @@ main(int argc, char **argv)
 		    sts = 1;
 		}
 	    }
+	    else if (strncmp(bp, "label(", 6) == 0) {
+		char		*p = &bp[6];
+		int		ok = 0;
+		unsigned int	uf;
+		pmLabel		label = { 0 };
+		uf = strtoul(p, &end, 10);
+		if (*end == '.') {
+		    p = &end[1];
+		    label.name = uf;
+		    if (label.name != uf)
+			fprintf(stderr, "%d: label(): name overflow %d -> %d(\n", lineno, uf, label.name);
+		    else
+			ok++;
+		}
+		else
+		    fprintf(stderr, "%d: label(): expected . found %c after name\n", lineno, *end);
+		if (ok == 1) {
+		    uf = strtoul(p, &end, 10);
+		    if (*end == '.') {
+			p = &end[1];
+			label.namelen = uf;
+			if (label.namelen != uf)
+			    fprintf(stderr, "%d: label(): namelen overflow %d -> %d(\n", lineno, uf, label.namelen);
+			else
+			    ok++;
+		    }
+		    else
+			fprintf(stderr, "%d: label(): expected . found %c after namelen\n", lineno, *end);
+		}
+		if (ok == 2) {
+		    uf = strtoul(p, &end, 10);
+		    if (*end == '.') {
+			p = &end[1];
+			label.flags = uf;
+			if (label.flags != uf)
+			    fprintf(stderr, "%d: label(): flags overflow %d -> %d(\n", lineno, uf, label.flags);
+			else
+			    ok++;
+		    }
+		    else
+			fprintf(stderr, "%d: label(): expected . found %c after flags\n", lineno, *end);
+		}
+		if (ok == 3) {
+		    uf = strtoul(p, &end, 10);
+		    if (*end == '.') {
+			p = &end[1];
+			label.value = uf;
+			if (label.value != uf)
+			    fprintf(stderr, "%d: label(): value overflow %u -> %u(\n", lineno, uf, label.value);
+			else
+			    ok++;
+		    }
+		    else
+			fprintf(stderr, "%d: label(): expected . found %c after value\n", lineno, *end);
+		}
+		if (ok == 4) {
+		    uf = strtoul(p, &end, 10);
+		    if (*end == ')') {
+			p = &end[1];
+			label.valuelen = uf;
+			if (label.valuelen != uf)
+			    fprintf(stderr, "%d: label(): valuelen overflow %u -> %u(\n", lineno, uf, label.valuelen);
+			else
+			    ok++;
+		    }
+		    else
+			fprintf(stderr, "%d: label(): expected ) found %c after valuelen\n", lineno, *end);
+		}
+		if (ok == 5) {
+		    /* host -> network copied from __pmSendLabel() */
+		    label.name = htons(label.name);
+		    /* nothing for label.namelen (8-bits) */
+		    /* nothing for label.flags (8-bits) */
+		    label.value = htons(label.value);
+		    label.valuelen = htons(label.valuelen);
+		    /*
+		     * and this needs special pdubuf[] stuffing
+		     */
+		    if (w >= (int)(PDUBUF_SIZE/sizeof(pdubuf[0])) - 1) {
+			fprintf(stderr, "%d: output buffer overrun\n", lineno);
+			sts = 1;
+		    }
+		    else {
+			memcpy(&pdubuf[w], &label, sizeof(label));
+			w += 2;
+			len += 2 * sizeof(pdubuf[0]);
+		    }
+		    goto next;
+		}
+		else {
+		    fprintf(stderr, "%d: illegal label() @ %s\n", lineno, bp);
+		    sts = 1;
+		}
+	    }
 	    else if (w == 0 && strcmp(bp, "?") == 0) {
 		calc_len = 1;
 		out = -1;
@@ -682,6 +778,7 @@ main(int argc, char **argv)
 		    len += sizeof(pdubuf[0]);
 		}
 	    }
+next:
 	    *wp = c;
 	    bp = wp - 1;
 	}
@@ -864,8 +961,112 @@ main(int argc, char **argv)
 			    lsts = __pmDecodeLabelReq(pdubuf, &ident, &otype);
 			    if (lsts < 0)
 				fprintf(stderr, "%d: __pmDecodeLabelReq failed: %s\n", lineno, pmErrStr(lsts));
-			    else
-				fprintf(stderr, "%d: __pmDecodeLabelReq: sts=%d ident=%d type=%d\n", lineno, sts, ident, otype);
+			    else {
+				fprintf(stderr, "%d: __pmDecodeLabelReq: sts=%d type=0x%x ident=", lineno, sts, otype);
+				switch (otype) {
+				    case PM_LABEL_CONTEXT:
+				    case PM_LABEL_DOMAIN:
+					fprintf(stderr, "%d (int)", ident);
+					break;
+				    case PM_LABEL_INDOM:
+				    case PM_LABEL_INSTANCES:
+					fprintf(stderr, "%s (pmInDom)", pmInDomStr((pmInDom)ident));
+					break;
+				    case PM_LABEL_CLUSTER:
+				    case PM_LABEL_ITEM:
+					fprintf(stderr, "%s (pmID)", pmIDStr((pmID)ident));
+					break;
+				    default:
+					fprintf(stderr, "%d (???)", ident);
+					break;
+				}
+				fputc('\n', stderr);
+			    }
+			}
+			break;
+
+		    case PDU_LABEL:
+			{
+			    int		ident;
+			    int		otype;
+			    int		nls;
+			    pmLabelSet	*lsp;
+			    lsts = __pmDecodeLabel(pdubuf, &ident, &otype, &lsp, &nls);
+			    if (lsts < 0)
+				fprintf(stderr, "%d: __pmDecodeLabel failed: %s\n", lineno, pmErrStr(lsts));
+			    else {
+				fprintf(stderr, "%d: __pmDecodeLabel: sts=%d ident=", lineno, sts);
+				switch (otype) {
+				    case PM_LABEL_CONTEXT:
+				    case PM_LABEL_DOMAIN:
+					fprintf(stderr, "%d (int)", ident);
+					break;
+				    case PM_LABEL_INDOM:
+				    case PM_LABEL_INSTANCES:
+					fprintf(stderr, "%s (pmInDom)", pmInDomStr((pmInDom)ident));
+					break;
+				    case PM_LABEL_CLUSTER:
+				    case PM_LABEL_ITEM:
+					fprintf(stderr, "%s (pmID)", pmIDStr((pmID)ident));
+					break;
+				    default:
+					fprintf(stderr, "%d (???)", ident);
+					break;
+				}
+				fprintf(stderr, " nls=%d ...\n", nls);
+				for (j = 0; j < nls; j++) {
+				    int		k;
+				    pmLabel	*lp;
+				    fprintf(stderr, "  labelset[%d] json=%*.*s\n", j, lsp[j].jsonlen, lsp[j].jsonlen, lsp[j].json);
+				    for (k = 0; k < lsp[j].nlabels; k++) {
+					lp = &lsp[j].labels[k];
+					fprintf(stderr, "    label[%d]", k);
+					fprintf(stderr, " name(%d,%d) value(%d,%d) %*.*s=%*.*s",
+					    lp->name, lp->namelen,
+					    lp->value, lp->valuelen,
+					    lp->namelen, lp->namelen, &lsp[j].json[lp->name],
+					    lp->valuelen, lp->valuelen, &lsp[j].json[lp->value]);
+					if (lp->flags != 0) {
+					    char	sep = '[';
+					    fputc(' ', stderr);
+					    if (lp->flags & PM_LABEL_CONTEXT) {
+						fprintf(stderr, "%ccontext", sep);
+						sep = ',';
+					    }
+					    if (lp->flags & PM_LABEL_DOMAIN) {
+						fprintf(stderr, "%cdomain", sep);
+						sep = ',';
+					    }
+					    if (lp->flags & PM_LABEL_INDOM) {
+						fprintf(stderr, "%cindom", sep);
+						sep = ',';
+					    }
+					    if (lp->flags & PM_LABEL_CLUSTER) {
+						fprintf(stderr, "%ccluster", sep);
+						sep = ',';
+					    }
+					    if (lp->flags & PM_LABEL_ITEM) {
+						fprintf(stderr, "%citem", sep);
+						sep = ',';
+					    }
+					    if (lp->flags & PM_LABEL_INSTANCES) {
+						fprintf(stderr, "%cinstances", sep);
+						sep = ',';
+					    }
+					    if (lp->flags & PM_LABEL_COMPOUND) {
+						fprintf(stderr, "%ccompound", sep);
+						sep = ',';
+					    }
+					    if (lp->flags & PM_LABEL_OPTIONAL) {
+						fprintf(stderr, "%coptional", sep);
+						sep = ',';
+					    }
+					    fputc(']', stderr);
+					}
+					fputc('\n', stderr);
+				    }
+				}
+			    }
 			}
 			break;
 

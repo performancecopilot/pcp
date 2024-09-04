@@ -230,10 +230,66 @@ __pmDecodeInstanceReq: PM_ERR_IPC: PDU too long 44 > required size 40
 __pmDecodeInstanceReq: PM_ERR_IPC: namelen 65505 > max (65503)
 32: __pmDecodeInstanceReq failed: IPC protocol failure
 
+=== pdudata/label ===
+18: __pmDecodeCreds: sts=0 sender=42 credcount=1 ...
+    #0 = { type=0x1 a=0x2 b=0x0 c=0x0 }
+23: __pmDecodeLabel: sts=0 ident=-1 (int) nls=1 ...
+  labelset[0] json={"domainname":"localdomain","groupid":1000,"hostname":"bozo.localdomain","latitude":000.0000,"longitude":000.0000,"machineid":"deadbeefdeadbeefdeadbeefdeadbeef","userid":1000}
+    label[0] name(2,10) value(14,13) domainname="localdomain" [context]
+    label[1] name(29,7) value(38,4) groupid=1000 [context,optional]
+    label[2] name(44,8) value(54,18) hostname="bozo.localdomain" [context]
+    label[3] name(74,8) value(84,8) latitude=000.0000 [context,compound,optional]
+    label[4] name(94,9) value(105,8) longitude=000.0000 [context,compound,optional]
+    label[5] name(115,9) value(126,34) machineid="deadbeefdeadbeefdeadbeefdeadbeef" [context]
+    label[6] name(162,6) value(170,4) userid=1000 [context,optional]
+25: __pmDecodeLabel: sts=0 ident=30 (int) nls=1 ...
+  labelset[0] json={"agent":"sample","role":"testing"}
+    label[0] name(2,5) value(9,8) agent="sample" [domain]
+    label[1] name(19,4) value(25,9) role="testing" [domain]
+27: __pmDecodeLabel: sts=0 ident=30.2 (pmInDom) nls=0 ...
+29: __pmDecodeLabel: sts=0 ident=0.0.30 (pmID) nls=1 ...
+  labelset[0] json={"cluster":"zero"}
+    label[0] name(2,7) value(11,6) cluster="zero" [cluster]
+__pmDecodeLabel: PM_ERR_IPC: short PDU 24 < min size 28
+33: __pmDecodeLabel failed: IPC protocol failure
+__pmDecodeLabel: PM_ERR_IPC: nsets -13 < 0
+38: __pmDecodeLabel failed: IPC protocol failure
+__pmDecodeLabel: PM_ERR_IPC: nsets 4095 > max (4093)
+43: __pmDecodeLabel failed: IPC protocol failure
+__pmDecodeLabel: PM_ERR_IPC: labelset[0] nlabels 255 >= PM_MAXLABELS 255
+48: __pmDecodeLabel failed: IPC protocol failure
+__pmDecodeLabel: PM_ERR_IPC: labelset[0] jsonlen 65535 >= PM_MAXLABELJSONLEN 65535
+53: __pmDecodeLabel failed: IPC protocol failure
+__pmDecodeLabel: PM_ERR_IPC: labelset[0] pdu_length 64 <= jsonoff 52 + jsonlen 13
+59: __pmDecodeLabel failed: IPC protocol failure
+__pmDecodeLabel: PM_ERR_IPC: labelset[1] PDU too small remainder 12 < required 16
+64: __pmDecodeLabel failed: IPC protocol failure
+__pmDecodeLabel: PM_ERR_IPC: labelset[0] pdu_length 48 < labeloff 28 + labellen 24
+67: __pmDecodeLabel failed: IPC protocol failure
+__pmDecodeLabel: PM_ERR_IPC: labelset[0] label[0] PDU too short jsonlen 9 < name 2 + namelen 8
+72: __pmDecodeLabel failed: IPC protocol failure
+__pmDecodeLabel: PM_ERR_IPC: labelset[0] label[0] PDU too short jsonlen 9 < value 9 + valuelen 1
+77: __pmDecodeLabel failed: IPC protocol failure
+__pmDecodeLabel: PM_ERR_IPC: PDU too long 4 extra
+82: __pmDecodeLabel failed: IPC protocol failure
+
 === pdudata/label-req-container-json-injection ===
 7: __pmDecodeCreds: sts=0 sender=42 credcount=1 ...
     #0 = { type=0x1 a=0x2 b=0x0 c=0x40 }
 13: __pmDecodeAttr: sts=0 attr=15 vlen=36 value="evil-container","evilkey":"evilvalue"
+
+=== pdudata/label_req ===
+16: __pmDecodeCreds: sts=0 sender=42 credcount=1 ...
+    #0 = { type=0x1 a=0x2 b=0x0 c=0x0 }
+20: __pmDecodeLabelReq: sts=0 type=0x1 ident=-1 (int)
+22: __pmDecodeLabelReq: sts=0 type=0x2 ident=30 (int)
+24: __pmDecodeLabelReq: sts=0 type=0x10 ident=30.0.23 (pmID)
+26: __pmDecodeLabelReq: sts=0 type=0x20 ident=30.2 (pmInDom)
+28: __pmDecodeLabelReq: sts=0 type=0x100 ident=-1 (???)
+__pmDecodeLabelReq: PM_ERR_IPC: short PDU 16 < min size 20
+32: __pmDecodeLabelReq failed: IPC protocol failure
+__pmDecodeLabelReq: PM_ERR_IPC: PDU too long 24 > required size 20
+36: __pmDecodeLabelReq failed: IPC protocol failure
 
 === pdudata/numcreds-undefined-data ===
 __pmDecodeCreds: PM_ERR_IPC: short PDU 16 < min size 20
