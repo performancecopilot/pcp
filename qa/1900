@@ -43,6 +43,7 @@ _filter_logs()
 	-e '/ Debug: /d' \
 	-e '/ Info: /d' \
 	-e '/WARNING: unhandled eBPF command 28/d' \
+	-e '/WARNING: unhandled eBPF command 36/d' \
     # end
 }
 
