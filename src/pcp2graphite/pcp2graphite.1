@@ -297,6 +297,15 @@ and
 Alternatively, using
 .BR pmrep.conf (5)
 configuration syntax allows defining derived metrics as part of metricsets.
+.RS
+.PP
+In case of issues with derived metrics, review the aforementioned manual
+pages in detail and ensure all the required metrics are available,
+especially when using archives.
+Use
+.B -Dderive
+to see additional debug information about parsing derived metrics.
+.RE
 .TP
 \fB\-E\fR \fIport\fR, \fB\-\-text\-port\fR=\fIport\fR
 Graphite server plaintext

@@ -81,12 +81,6 @@
 1740	vm21		acct(2) just seems broken here
 1724	Fedora 38	bpftrace PMDA is broken here, check-flakey passes
 			(sometimes)
-1900	Fedora.*	valgrind uninitialised data failure deep inside libbpf
-1900	CentOS Stream9	ditto
-1900	Debian 12	ditto
-1900	openSUSE Leap 15.[56]	ditto
-1900	MX 23.[23]	ditto
-1900	Ubuntu 24\.04	ditto
 1973	Ubuntu 16\.04	Python here is 3.5.2 and there a bunch of what look like
 			dict ordering and/or cacheing sequence differences
 			and some arithmetic rounding differences ... not

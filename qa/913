@@ -17,6 +17,9 @@ echo "QA output created by $seq"
 redis_port=6379
 $PCP_BINADM_DIR/telnet-probe -c localhost $redis_port \
         || _notrun "Noone home on default Redis port $redis_port"
+redis_exec=`redis-cli INFO server 2>/dev/null | grep ^executable:`
+test "$redis_exec" = "executable:/usr/bin/redis-server" \
+	|| _notrun "Server on Redis port $redis_port is not Redis"
 
 _cleanup()
 {
