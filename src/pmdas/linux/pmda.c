@@ -9147,8 +9147,17 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    return PM_ERR_INST;
 	switch (item) {
 	case 0: /* hinv.cpu.clock */
-	    if (cp->info.clock == 0.0)
-		return 0;
+	    if (cp->info.clock == 0.0) {
+		/* fallback from procfs cpuinfo to sysfs cpufreq */
+		sts = pmdaCacheLookup(INDOM(CPU_INDOM), inst, &name, (void **)&cp);
+		if (sts < 0)
+		    return 0;
+		if (refresh_sysfs_frequency_scaling_cur_freq(name, item, cp) < 0 ||
+		    (!(cp->freq.flags & CPUFREQ_SCALE)) || cp->freq.scale == 0.0)
+		    return 0;
+		atom->f = cp->freq.scale;
+		break;
+	    }
 	    atom->f = cp->info.clock;
 	    break;
 	case 1: /* hinv.cpu.vendor */
@@ -10205,6 +10214,8 @@ linux_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	case CLUSTER_SOFTIRQS:
 	case CLUSTER_SYSFS_DEVICES:
 	case CLUSTER_NET_SOFTNET:
+	    if (item == 0 && cluster == CLUSTER_CPUINFO) /* clock */
+		need_refresh[CLUSTER_SYSFS_DEVICES]++;
 	    need_refresh[cluster]++;
 	    need_refresh[CLUSTER_STAT]++;
 	    break;

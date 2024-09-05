@@ -297,6 +297,7 @@ typedef struct {
     uint64_t		time;
     uint32_t		max;
     uint32_t		min;
+    float		scale;
 } cpufreq_t;
 
 typedef struct {
