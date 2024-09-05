@@ -65,9 +65,9 @@ __pmDecodeIDList: PM_ERR_IPC: PDU too short 32 < required size 36
 32: __pmDecodeIDList failed: IPC protocol failure
 __pmDecodeIDList2: PM_ERR_IPC: PDU too short 32 < required size 36
 32: __pmDecodeIDList2 failed: IPC protocol failure
-__pmDecodeIDList: PM_ERR_IPC: numids from PDU 16384 != numids from caller 3
+__pmDecodeIDList: PM_ERR_IPC: numids from PDU 536870912 != numids from caller 3
 36: __pmDecodeIDList failed: IPC protocol failure
-__pmDecodeIDList2: PM_ERR_IPC: numids 16384 >= max (16384)
+__pmDecodeIDList2: PM_ERR_IPC: numids 536870912 >= max (536870911)
 36: __pmDecodeIDList2 failed: IPC protocol failure
 
 === pdudata/desc_req ===
@@ -202,7 +202,7 @@ __pmDecodeIDList: PM_ERR_IPC: PDU too long 28 > required size 24
   [3] inst=900 name="bin-900"
 __pmDecodeInstance: PM_ERR_IPC: short PDU 16 < min size 20
 23: __pmDecodeInstance failed: IPC protocol failure
-__pmDecodeInstance: PM_ERR_IPC: numinst 8190 > max (8189)
+__pmDecodeInstance: PM_ERR_IPC: numinst 268435456 > max (268435453)
 27: __pmDecodeInstance failed: IPC protocol failure
 __pmDecodeInstance: PM_ERR_IPC: inst[0] namelen -1 < 0
 31: __pmDecodeInstance failed: IPC protocol failure
@@ -227,7 +227,7 @@ __pmDecodeInstanceReq: PM_ERR_IPC: PDU too short 40 < required size 44
 24: __pmDecodeInstanceReq failed: IPC protocol failure
 __pmDecodeInstanceReq: PM_ERR_IPC: PDU too long 44 > required size 40
 28: __pmDecodeInstanceReq failed: IPC protocol failure
-__pmDecodeInstanceReq: PM_ERR_IPC: namelen 65505 > max (65503)
+__pmDecodeInstanceReq: PM_ERR_IPC: namelen 2147483647 > max (2147483614)
 32: __pmDecodeInstanceReq failed: IPC protocol failure
 
 === pdudata/label ===
@@ -254,13 +254,13 @@ __pmDecodeLabel: PM_ERR_IPC: short PDU 24 < min size 28
 33: __pmDecodeLabel failed: IPC protocol failure
 __pmDecodeLabel: PM_ERR_IPC: nsets -13 < 0
 38: __pmDecodeLabel failed: IPC protocol failure
-__pmDecodeLabel: PM_ERR_IPC: nsets 4095 > max (4093)
+__pmDecodeLabel: PM_ERR_IPC: nsets 134217727 > max (134217725)
 43: __pmDecodeLabel failed: IPC protocol failure
 __pmDecodeLabel: PM_ERR_IPC: labelset[0] nlabels 255 >= PM_MAXLABELS 255
 48: __pmDecodeLabel failed: IPC protocol failure
 __pmDecodeLabel: PM_ERR_IPC: labelset[0] jsonlen 65535 >= PM_MAXLABELJSONLEN 65535
 53: __pmDecodeLabel failed: IPC protocol failure
-__pmDecodeLabel: PM_ERR_IPC: labelset[0] pdu_length 64 <= jsonoff 52 + jsonlen 13
+__pmDecodeLabel: PM_ERR_IPC: labelset[0] pdu_length 64 < jsonoff 52 + jsonlen 13
 59: __pmDecodeLabel failed: IPC protocol failure
 __pmDecodeLabel: PM_ERR_IPC: labelset[1] PDU too small remainder 12 < required 16
 64: __pmDecodeLabel failed: IPC protocol failure

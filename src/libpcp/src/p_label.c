@@ -393,10 +393,10 @@ __pmDecodeLabel(__pmPDU *pdubuf, int *ident, int *type, pmLabelSet **setsp, int 
 	}
 	return PM_ERR_IPC;
     }
-    else if (nsets > (__pmSetPDUCeiling(0) - sizeof(labels_t)) / sizeof(labelset_t)) {
+    else if (nsets > (INT_MAX - sizeof(labels_t)) / sizeof(labelset_t)) {
 	if (pmDebugOptions.pdu) {
 	    fprintf(stderr, "__pmDecodeLabel: PM_ERR_IPC: nsets %d > max (%d)\n",
-		nsets, (int)((__pmSetPDUCeiling(0) - sizeof(labels_t)) / sizeof(labelset_t)));
+		nsets, (int)((INT_MAX - sizeof(labels_t)) / sizeof(labelset_t)));
 	}
 	return PM_ERR_IPC;
     }
@@ -446,9 +446,9 @@ __pmDecodeLabel(__pmPDU *pdubuf, int *ident, int *type, pmLabelSet **setsp, int 
 	}
 
 	/* check JSON content fits within the PDU bounds */
-	if (pdu_length <= jsonoff + jsonlen) {
+	if (pdu_length < jsonoff + jsonlen) {
 	    if (pmDebugOptions.pdu) {
-		fprintf(stderr, "__pmDecodeLabel: PM_ERR_IPC: labelset[%d] pdu_length %d <= jsonoff %d + jsonlen %d\n",
+		fprintf(stderr, "__pmDecodeLabel: PM_ERR_IPC: labelset[%d] pdu_length %d < jsonoff %d + jsonlen %d\n",
 		    i, (int)pdu_length, jsonoff, jsonlen);
 	    }
 	    goto corrupt;

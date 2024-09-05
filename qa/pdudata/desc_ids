@@ -32,5 +32,5 @@
 32 PDU_DESC_IDS 42 -1 4 pmid(sampledso.long.ten) pmid(sampledso.long.hundred) pmid(sampledso.long.million)
 
 # idlist: len type from -1 (unused) numpmid pmid ...
-# BAD, numpmid => PDU > max length
-? PDU_DESC_IDS 42 -1 16384 pmid(sampledso.long.ten) pmid(sampledso.long.hundred) pmid(sampledso.long.million)
+# BAD, numpmid > max
+? PDU_DESC_IDS 42 -1 536870912 pmid(sampledso.long.ten) pmid(sampledso.long.hundred) pmid(sampledso.long.million)

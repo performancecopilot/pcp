@@ -179,10 +179,10 @@ __pmDecodeIDList2(__pmPDU *pdubuf, int *numids, pmID **idlist)
 	return PM_ERR_IPC;
     }
     /* max PDU size places upper limit on number of pmIDs allowed */
-    if (nids >= __pmSetPDUCeiling(0) / sizeof(pp->idlist[0])) {
+    if (nids >= INT_MAX / sizeof(pp->idlist[0])) {
 	if (pmDebugOptions.pdu) {
 	    fprintf(stderr, "__pmDecodeIDList2: PM_ERR_IPC: numids %d >= max (%d)\n",
-		nids, (int)(__pmSetPDUCeiling(0) / sizeof(pp->idlist[0])));
+		nids, (int)(INT_MAX / sizeof(pp->idlist[0])));
 	}
 	return PM_ERR_IPC;
     }
