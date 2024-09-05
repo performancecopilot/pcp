@@ -193,6 +193,28 @@ mydesc(FILE *f, pmDesc *dp)
     fprintf(f, " units=%s\n", units[0] == '\0' ? "none" : units);
 }
 
+static void
+myident(FILE *f, int type, int ident)
+{
+    switch (type) {
+	case PM_LABEL_CONTEXT:
+	case PM_LABEL_DOMAIN:
+	    fprintf(f, "%d (int)", ident);
+	    break;
+	case PM_LABEL_INDOM:
+	case PM_LABEL_INSTANCES:
+	    fprintf(f, "%s (pmInDom)", pmInDomStr((pmInDom)ident));
+	    break;
+	case PM_LABEL_CLUSTER:
+	case PM_LABEL_ITEM:
+	    fprintf(f, "%s (pmID)", pmIDStr((pmID)ident));
+	    break;
+	default:
+	    fprintf(f, "%d (unknown type?)", ident);
+	    break;
+    }
+}
+
 int
 main(int argc, char **argv)
 {
@@ -203,6 +225,7 @@ main(int argc, char **argv)
     int		sts;
     int		lsts;
     long	value;
+    unsigned long	uvalue;
     int		seen_pdu_auth;
     int		calc_len;
     int		save_len;
@@ -316,8 +339,13 @@ main(int argc, char **argv)
 	    c = *wp;
 	    *wp = '\0';
 	    if (bp[0] == '0' && bp <= &buf[sizeof(buf)-3] && bp[1] == 'x') {
-		out = value = strtol(&bp[2], &end, 16);
-		if (*end != ' ' && *end != '\t' && *end != '\n' && *end != '\0') {
+		errno = 0;
+		out = uvalue = strtoul(&bp[2], &end, 16);
+		if (errno == ERANGE) {
+		    fprintf(stderr, "%d: truncated hex value 0x%x @ %s\n", lineno, out, bp);
+		    sts = 1;
+		}
+		else if (*end != ' ' && *end != '\t' && *end != '\n' && *end != '\0') {
 		    fprintf(stderr, "%d: bad hex word @ %s\n", lineno, bp);
 		    sts = 1;
 		}
@@ -325,32 +353,30 @@ main(int argc, char **argv)
 		    fprintf(stderr, "%d: missing hex value @ %s\n", lineno, bp);
 		    sts = 1;
 		}
-		else if (value & 0xffffffff00000000L) {
-		    fprintf(stderr, "%d: truncated hex value 0x%x @ %s\n", lineno, out, bp);
-		    sts = 1;
-		}
 	    }
 	    else if (isdigit(*bp)) {
+		errno = 0;
 		out = value = strtol(bp, &end, 10);
-		if (*end != ' ' && *end != '\t' && *end != '\n' && *end != '\0') {
-		    fprintf(stderr, "%d: bad decimal word @ %s\n", lineno, bp);
+		if (errno == ERANGE) {
+		    fprintf(stderr, "%d: truncated decimal value %d @ %s\n", lineno, out, bp);
 		    sts = 1;
 		}
-		else if (out != value) {
-		    fprintf(stderr, "%d: truncated decimal value %d @ %s\n", lineno, out, bp);
+		else if (*end != ' ' && *end != '\t' && *end != '\n' && *end != '\0') {
+		    fprintf(stderr, "%d: bad decimal word @ %s\n", lineno, bp);
 		    sts = 1;
 		}
 	    }
 	    else if (*bp == '-' && bp <= &buf[sizeof(buf)-1] && isdigit(bp[1])) {
+		errno = 0;
 		value = strtol(&bp[1], &end, 10);
 		value = -value;
 		out = value;
-		if (*end != ' ' && *end != '\t' && *end != '\n' && *end != '\0') {
-		    fprintf(stderr, "%d: bad (negative) decimal word @ %s\n", lineno, bp);
+		if (errno == ERANGE) {
+		    fprintf(stderr, "%d: truncated (negative) decimal value %d @ %s\n", lineno, out, bp);
 		    sts = 1;
 		}
-		else if (out != value) {
-		    fprintf(stderr, "%d: truncated (negative) decimal value %d @ %s\n", lineno, out, bp);
+		else if (*end != ' ' && *end != '\t' && *end != '\n' && *end != '\0') {
+		    fprintf(stderr, "%d: bad (negative) decimal word @ %s\n", lineno, bp);
 		    sts = 1;
 		}
 	    }
@@ -963,23 +989,7 @@ next:
 				fprintf(stderr, "%d: __pmDecodeLabelReq failed: %s\n", lineno, pmErrStr(lsts));
 			    else {
 				fprintf(stderr, "%d: __pmDecodeLabelReq: sts=%d type=0x%x ident=", lineno, sts, otype);
-				switch (otype) {
-				    case PM_LABEL_CONTEXT:
-				    case PM_LABEL_DOMAIN:
-					fprintf(stderr, "%d (int)", ident);
-					break;
-				    case PM_LABEL_INDOM:
-				    case PM_LABEL_INSTANCES:
-					fprintf(stderr, "%s (pmInDom)", pmInDomStr((pmInDom)ident));
-					break;
-				    case PM_LABEL_CLUSTER:
-				    case PM_LABEL_ITEM:
-					fprintf(stderr, "%s (pmID)", pmIDStr((pmID)ident));
-					break;
-				    default:
-					fprintf(stderr, "%d (???)", ident);
-					break;
-				}
+				myident(stderr, otype, ident);
 				fputc('\n', stderr);
 			    }
 			}
@@ -995,24 +1005,8 @@ next:
 			    if (lsts < 0)
 				fprintf(stderr, "%d: __pmDecodeLabel failed: %s\n", lineno, pmErrStr(lsts));
 			    else {
-				fprintf(stderr, "%d: __pmDecodeLabel: sts=%d ident=", lineno, sts);
-				switch (otype) {
-				    case PM_LABEL_CONTEXT:
-				    case PM_LABEL_DOMAIN:
-					fprintf(stderr, "%d (int)", ident);
-					break;
-				    case PM_LABEL_INDOM:
-				    case PM_LABEL_INSTANCES:
-					fprintf(stderr, "%s (pmInDom)", pmInDomStr((pmInDom)ident));
-					break;
-				    case PM_LABEL_CLUSTER:
-				    case PM_LABEL_ITEM:
-					fprintf(stderr, "%s (pmID)", pmIDStr((pmID)ident));
-					break;
-				    default:
-					fprintf(stderr, "%d (???)", ident);
-					break;
-				}
+				fprintf(stderr, "%d: __pmDecodeLabel: sts=%d type=0x%x ident=", lineno, sts, otype);
+				myident(stderr, otype, ident);
 				fprintf(stderr, " nls=%d ...\n", nls);
 				for (j = 0; j < nls; j++) {
 				    int		k;
