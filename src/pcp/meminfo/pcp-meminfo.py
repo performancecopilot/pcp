@@ -177,7 +177,7 @@ class MeminfoReport(pmcc.MetricGroupPrinter):
 
         t_s = group.contextCache.pmLocaltime(int(group.timestamp))
         time_string = time.strftime(MeminfoOptions.timefmt, t_s.struct_time())
-        print(time_string)
+        print("Timestamp".ljust(18) + ": " + time_string)
 
         idx = 0
         for metric in METRICS:
@@ -201,7 +201,7 @@ class MeminfoReport(pmcc.MetricGroupPrinter):
 
 class MeminfoOptions(pmapi.pmOptions):
     context = None
-    timefmt = "%H:%M:%S"
+    timefmt = "%m/%d/%Y %H:%M:%S"
 
     def __init__(self):
         pmapi.pmOptions.__init__(self, "a:s:S:T:z:A:t:")
