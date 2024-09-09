@@ -73,7 +73,7 @@ pmcd_pid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '[p]mcd -f -Dpdu' | $PCP_AWK_PRO
 echo "pmcd_pid=$pmcd_pid" >>$here/$seq.full
 case "`file $here/$pdu_data`"
 in
-    *'ASCII text')
+    *'ASCII text'*)
 	# assume ascii PDU specification as input to pdu-gadget
 	$here/src/pdu-gadget -p $port <$here/$pdu_data 2>$tmp.err
 	;;
