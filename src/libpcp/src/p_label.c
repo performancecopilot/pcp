@@ -393,10 +393,10 @@ __pmDecodeLabel(__pmPDU *pdubuf, int *ident, int *type, pmLabelSet **setsp, int 
 	}
 	return PM_ERR_IPC;
     }
-    else if (nsets > (INT_MAX - sizeof(labels_t)) / sizeof(labelset_t)) {
+    else if (nsets > (label_pdu->hdr.len - sizeof(labelset_t)) / sizeof(labelset_t)) {
 	if (pmDebugOptions.pdu) {
-	    fprintf(stderr, "__pmDecodeLabel: PM_ERR_IPC: nsets %d > max (%d)\n",
-		nsets, (int)((INT_MAX - sizeof(labels_t)) / sizeof(labelset_t)));
+	    fprintf(stderr, "__pmDecodeLabel: PM_ERR_IPC: nsets %d > max %d for PDU len %d\n",
+		nsets, (int)((label_pdu->hdr.len - sizeof(labels_t)) / sizeof(labelset_t)), label_pdu->hdr.len);
 	}
 	return PM_ERR_IPC;
     }

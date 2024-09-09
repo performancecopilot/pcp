@@ -24,7 +24,7 @@
 
 # instance: len type from indom numinst ...
 # BAD, numinst > max
-? PDU_INSTANCE 42 indom(30.2) 268435456
+? PDU_INSTANCE 42 indom(30.2) 10 900 7 str(bin-900)
 
 # instance: len type from indom numinst ...
 # BAD, short PDU inst[0] namelen < 0

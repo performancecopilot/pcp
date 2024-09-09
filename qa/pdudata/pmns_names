@@ -1,0 +1,60 @@
+# PDU specifications, used by ../src/pdu-gadget to produce a
+# binary PDU stream for QA
+#
+# PDU_PMNS_NAMES test cases
+#
+
+# credentials: len type from ncred cred[0]
+? PDU_CREDS 42 1 0x01020000
+
+# pmns_names: len type from nstr numstatus numnames <data>[]
+# <data> is namelen name (offset)
+#        or status namelen name (offset)
+# OK, one name no status
+? PDU_PMNS_NAMES 42 19 0 1 lenstr(sampledso.long.one)
+# OK no status but more names
+? PDU_PMNS_NAMES 42 108 0 5 lenstr(sampledso.long.one) lenstr(sampledso.long.ten) lenstr(sampledso.long.hundred) lenstr(sampledso.long.million) lenstr(sampledso.long.write_me)
+# OK with status + one more name
+? PDU_PMNS_NAMES 42 127 6 6 1 lenstr(sampledso.long.one) 0 lenstr(sampledso.long.ten) 1 lenstr(sampledso.long.hundred) 0 lenstr(sampledso.long.million) 1 lenstr(sampledso.long.write_me) 0 lenstr(sampledso.long.bin)
+# OK but with error code in numnames, so Decode returns error
+? PDU_PMNS_NAMES 42 0 0 -21344
+# OK sort of, no names
+? PDU_PMNS_NAMES 42 0 0 0
+
+# pmns_names: len type from nstr numstatus
+# BAD, short PDU < min
+? PDU_PMNS_NAMES 42 0 0
+
+# pmns_names: len type from nstr numstatus numnames
+# BAD, numstatus < 0
+? PDU_PMNS_NAMES 42 -1 0 1 lenstr(sampledso.long.one)
+
+# pmns_names: len type from nstr numstatus numnames
+# BAD, numnames too big (no status)
+? PDU_PMNS_NAMES 42 19 0 4 lenstr(sampledso.long.one)
+# BAD, numnames too big (with status)
+? PDU_PMNS_NAMES 42 19 3 3 lenstr(sampledso.long.one)
+
+# pmns_names: len type from nstr numstatus numnames
+# BAD, numstatus != numnames
+? PDU_PMNS_NAMES 42 19 2 1 lenstr(sampledso.long.one)
+
+# pmns_names: len type from nstr numstatus numnames
+# BAD, nstr > PDU size
+? PDU_PMNS_NAMES 42 49 2 1 lenstr(sampledso.long.one)
+
+# pmns_names: len type from nstr numstatus numnames
+# BAD, too short last namelen missing
+? PDU_PMNS_NAMES 42 108 0 5 lenstr(sampledso.long.one) lenstr(sampledso.long.ten) lenstr(sampledso.long.hundred) lenstr(sampledso.long.million) 
+? PDU_PMNS_NAMES 42 127 6 6 1 lenstr(sampledso.long.one) 0 lenstr(sampledso.long.ten) 1 lenstr(sampledso.long.hundred) 0 lenstr(sampledso.long.million) 1 lenstr(sampledso.long.write_me) 0
+
+# pmns_names: len type from nstr numstatus numnames
+# BAD, too short last name truncated
+? PDU_PMNS_NAMES 42 108 0 5 lenstr(sampledso.long.one) lenstr(sampledso.long.ten) lenstr(sampledso.long.hundred) lenstr(sampledso.long.million) 30 str(sampledso.long.write_me)
+? PDU_PMNS_NAMES 42 127 6 6 1 lenstr(sampledso.long.one) 0 lenstr(sampledso.long.ten) 1 lenstr(sampledso.long.hundred) 0 lenstr(sampledso.long.million) 1 lenstr(sampledso.long.write_me) 0 30 str(sampledso.long.bin)
+
+# pmns_names: len type from nstr numstatus numnames
+# BAD, nstr too small for all of names + nulls
+? PDU_PMNS_NAMES 42 107 0 5 lenstr(sampledso.long.one) lenstr(sampledso.long.ten) lenstr(sampledso.long.hundred) lenstr(sampledso.long.million) lenstr(sampledso.long.write_me)
+? PDU_PMNS_NAMES 42 126 6 6 1 lenstr(sampledso.long.one) 0 lenstr(sampledso.long.ten) 1 lenstr(sampledso.long.hundred) 0 lenstr(sampledso.long.million) 1 lenstr(sampledso.long.write_me) 0 lenstr(sampledso.long.bin)
+

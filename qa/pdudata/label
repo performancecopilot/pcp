@@ -40,7 +40,7 @@
 # label: len type from ident type padding (unused) nsets <set> ...
 # <set>: inst nlabels json (offset) jsonlen pmlabel[]
 # BAD nsets > max
-? PDU_LABEL 42 30 0x08 0xdeadbeef 134217727 -1 1 52 18 label(2.7.8.11.6) str({"cluster":"zero"})
+? PDU_LABEL 42 30 0x08 0xdeadbeef 10 -1 1 52 18 label(2.7.8.11.6) str({"cluster":"zero-foo-bar-to-make-the-value-long"})
 
 # label: len type from ident type padding (unused) nsets <set> ...
 # <set>: inst nlabels json (offset) jsonlen pmlabel[]

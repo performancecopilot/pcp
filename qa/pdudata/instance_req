@@ -20,13 +20,9 @@
 ? PDU_INSTANCE_REQ 42 indom(30.2) 45296 789000 -1
 
 # instance_req: len type from indom time[2] (unused) inst
-# BAD, short PDU
+# BAD, namelen > max (needs to go over word boundary)
 ? PDU_INSTANCE_REQ 42 indom(30.2) 45296 789000 -1 10 str(bin-500)
 
 # instance_req: len type from indom time[2] (unused) inst
 # BAD, long PDU
 ? PDU_INSTANCE_REQ 42 indom(30.2) 45296 789000 -1 7 str(bin-500) 0xdeadbeef
-
-# instance_req: len type from indom time[2] (unused) inst namelen [name]
-# BAD, namelen > max
-? PDU_INSTANCE_REQ 42 indom(30.2) 45296 789000 -1 2147483647 str(bin-500)

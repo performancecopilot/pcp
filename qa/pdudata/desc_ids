@@ -28,9 +28,9 @@
 32 PDU_DESC_IDS 42 -1 2 pmid(sampledso.long.ten) pmid(sampledso.long.hundred) 0xdeadbeef
 
 # idlist: len type from -1 (unused) numpmid pmid ...
-# BAD, PDU too short
+# BAD, PDU too short (IDList) or too many pmids (IDList2)
 32 PDU_DESC_IDS 42 -1 4 pmid(sampledso.long.ten) pmid(sampledso.long.hundred) pmid(sampledso.long.million)
 
 # idlist: len type from -1 (unused) numpmid pmid ...
-# BAD, numpmid > max
+# BAD, numpmid != caller (IDList) or > max (IDList2)
 ? PDU_DESC_IDS 42 -1 536870912 pmid(sampledso.long.ten) pmid(sampledso.long.hundred) pmid(sampledso.long.million)

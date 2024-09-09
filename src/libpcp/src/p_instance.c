@@ -92,10 +92,10 @@ __pmDecodeInstanceReq(__pmPDU *pdubuf, pmInDom *indom, int *inst, char **name)
     *inst = ntohl(pp->inst);
     namelen = ntohl(pp->namelen);
     if (namelen > 0) {
-	if (namelen > INT_MAX - sizeof(instance_req_t) + sizeof(pp->name)) {
+	if (namelen > pp->hdr.len - sizeof(instance_req_t) + sizeof(pp->name)) {
 	    if (pmDebugOptions.pdu) {
-		fprintf(stderr, "__pmDecodeInstanceReq: PM_ERR_IPC: namelen %d > max (%d)\n",
-		    namelen, (int)(INT_MAX - sizeof(instance_req_t) + sizeof(pp->name) - 1));
+		fprintf(stderr, "__pmDecodeInstanceReq: PM_ERR_IPC: namelen %d > max %d for PDU len %d\n",
+		    namelen, (int)(pp->hdr.len - sizeof(instance_req_t) + sizeof(pp->name) - 1), pp->hdr.len);
 	    }
 	    return PM_ERR_IPC;
 	}
@@ -110,6 +110,7 @@ __pmDecodeInstanceReq(__pmPDU *pdubuf, pmInDom *indom, int *inst, char **name)
 		    op = '>';
 		}
 		else {
+		    /* cannot happen because of namelen check above */
 		    what = "short";
 		    op = '<';
 		}
@@ -261,11 +262,11 @@ __pmDecodeInstance(__pmPDU *pdubuf, pmInResult **result)
      * need at least inst + namelen for each instance in the PDU,
      * so this placs an absolute cap on numinst
      */
-    need = (int)((INT_MAX - sizeof(instance_t) + sizeof(pp->rest)) / (2 * sizeof(__pmPDU)));
+    need = (int)((pp->hdr.len - sizeof(instance_t) + sizeof(pp->rest)) / (2 * sizeof(__pmPDU)));
     if (res->numinst > need) {
 	if (pmDebugOptions.pdu) {
-	    fprintf(stderr, "__pmDecodeInstance: PM_ERR_IPC: numinst %d > max (%d)\n",
-		res->numinst, need);
+	    fprintf(stderr, "__pmDecodeInstance: PM_ERR_IPC: numinst %d > max %d for PDU len %d\n",
+		res->numinst, need, pp->hdr.len);
 	}
 	sts = PM_ERR_IPC;
 	goto badsts;

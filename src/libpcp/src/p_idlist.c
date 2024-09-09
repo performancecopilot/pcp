@@ -151,6 +151,7 @@ __pmDecodeIDList2(__pmPDU *pdubuf, int *numids, pmID **idlist)
     idlist_t	*pp;
     pmID	*pmidlist;
     int		nids;
+    int		maxnids;
     int		j;
     int		need;
 
@@ -178,11 +179,12 @@ __pmDecodeIDList2(__pmPDU *pdubuf, int *numids, pmID **idlist)
 	}
 	return PM_ERR_IPC;
     }
-    /* max PDU size places upper limit on number of pmIDs allowed */
-    if (nids >= INT_MAX / sizeof(pp->idlist[0])) {
+    /* PDU size defines number of pmIDs allowed */
+    maxnids = (int)((pp->hdr.len - sizeof(idlist_t) + sizeof(pmID)) / sizeof(pmID));
+    if (nids > maxnids) {
 	if (pmDebugOptions.pdu) {
-	    fprintf(stderr, "__pmDecodeIDList2: PM_ERR_IPC: numids %d >= max (%d)\n",
-		nids, (int)(INT_MAX / sizeof(pp->idlist[0])));
+	    fprintf(stderr, "__pmDecodeIDList2: PM_ERR_IPC: numids %d > max %d for PDU len %d\n",
+		nids, maxnids, pp->hdr.len);
 	}
 	return PM_ERR_IPC;
     }
@@ -196,6 +198,7 @@ __pmDecodeIDList2(__pmPDU *pdubuf, int *numids, pmID **idlist)
 		op = '>';
 	    }
 	    else {
+		/* cannot happen because of maxnids check above */
 		what = "short";
 		op = '<';
 	    }

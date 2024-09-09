@@ -63,11 +63,11 @@ __pmDecodeIDList2: PM_ERR_IPC: PDU too long 32 > required size 28
 28: __pmDecodeIDList2 failed: IPC protocol failure
 __pmDecodeIDList: PM_ERR_IPC: PDU too short 32 < required size 36
 32: __pmDecodeIDList failed: IPC protocol failure
-__pmDecodeIDList2: PM_ERR_IPC: PDU too short 32 < required size 36
+__pmDecodeIDList2: PM_ERR_IPC: numids 4 > max 3 for PDU len 32
 32: __pmDecodeIDList2 failed: IPC protocol failure
 __pmDecodeIDList: PM_ERR_IPC: numids from PDU 536870912 != numids from caller 3
 36: __pmDecodeIDList failed: IPC protocol failure
-__pmDecodeIDList2: PM_ERR_IPC: numids 536870912 >= max (536870911)
+__pmDecodeIDList2: PM_ERR_IPC: numids 536870912 > max 3 for PDU len 32
 36: __pmDecodeIDList2 failed: IPC protocol failure
 
 === pdudata/desc_req ===
@@ -98,15 +98,15 @@ __pmDecodeDescs2: PM_ERR_IPC: PDU too long 60 > required size 56
 26: __pmDecodeDescs2 failed: IPC protocol failure
 __pmDecodeDescs: PM_ERR_IPC: PDU too short 52 < required size 56
 30: __pmDecodeDescs failed: IPC protocol failure
-__pmDecodeDescs2: PM_ERR_IPC: PDU too short 52 < required size 56
+__pmDecodeDescs2: PM_ERR_IPC: numdescs 2 <= 0 or > max 1 for PDU len 52
 30: __pmDecodeDescs2 failed: IPC protocol failure
 __pmDecodeDescs: PM_ERR_IPC: total -1 <= 0 or != numdescs 2
 34: __pmDecodeDescs failed: IPC protocol failure
-__pmDecodeDescs2: PM_ERR_IPC: total -1 <= 0 or > (INT_MAX ...) 107374182
+__pmDecodeDescs2: PM_ERR_IPC: numdescs -1 <= 0 or > max 1 for PDU len 52
 34: __pmDecodeDescs2 failed: IPC protocol failure
 __pmDecodeDescs: PM_ERR_IPC: total 3 <= 0 or != numdescs 2
 38: __pmDecodeDescs failed: IPC protocol failure
-__pmDecodeDescs2: PM_ERR_IPC: PDU too short 52 < required size 76
+__pmDecodeDescs2: PM_ERR_IPC: numdescs 3 <= 0 or > max 1 for PDU len 52
 38: __pmDecodeDescs2 failed: IPC protocol failure
 
 === pdudata/error ===
@@ -202,7 +202,7 @@ __pmDecodeIDList: PM_ERR_IPC: PDU too long 28 > required size 24
   [3] inst=900 name="bin-900"
 __pmDecodeInstance: PM_ERR_IPC: short PDU 16 < min size 20
 23: __pmDecodeInstance failed: IPC protocol failure
-__pmDecodeInstance: PM_ERR_IPC: numinst 268435456 > max (268435453)
+__pmDecodeInstance: PM_ERR_IPC: numinst 10 > max 2 for PDU len 36
 27: __pmDecodeInstance failed: IPC protocol failure
 __pmDecodeInstance: PM_ERR_IPC: inst[0] namelen -1 < 0
 31: __pmDecodeInstance failed: IPC protocol failure
@@ -223,12 +223,10 @@ __pmDecodeInstance: PM_ERR_IPC: PDU too long, remainder 4
 16: __pmDecodeInstanceReq: sts=0 indom=30.2 inst=-1 name=bin-500xyz
 __pmDecodeInstanceReq: PM_ERR_IPC: short PDU 28 < min size 32
 20: __pmDecodeInstanceReq failed: IPC protocol failure
-__pmDecodeInstanceReq: PM_ERR_IPC: PDU too short 40 < required size 44
+__pmDecodeInstanceReq: PM_ERR_IPC: namelen 10 > max 7 for PDU len 40
 24: __pmDecodeInstanceReq failed: IPC protocol failure
 __pmDecodeInstanceReq: PM_ERR_IPC: PDU too long 44 > required size 40
 28: __pmDecodeInstanceReq failed: IPC protocol failure
-__pmDecodeInstanceReq: PM_ERR_IPC: namelen 2147483647 > max (2147483614)
-32: __pmDecodeInstanceReq failed: IPC protocol failure
 
 === pdudata/label ===
 18: __pmDecodeCreds: sts=0 sender=42 credcount=1 ...
@@ -254,7 +252,7 @@ __pmDecodeLabel: PM_ERR_IPC: short PDU 24 < min size 28
 33: __pmDecodeLabel failed: IPC protocol failure
 __pmDecodeLabel: PM_ERR_IPC: nsets -13 < 0
 38: __pmDecodeLabel failed: IPC protocol failure
-__pmDecodeLabel: PM_ERR_IPC: nsets 134217727 > max (134217725)
+__pmDecodeLabel: PM_ERR_IPC: nsets 10 > max 3 for PDU len 104
 43: __pmDecodeLabel failed: IPC protocol failure
 __pmDecodeLabel: PM_ERR_IPC: labelset[0] nlabels 255 >= PM_MAXLABELS 255
 48: __pmDecodeLabel failed: IPC protocol failure
@@ -298,6 +296,85 @@ __pmDecodeCreds: PM_ERR_IPC: short PDU 16 < min size 20
 === pdudata/numcreds-zero ===
 __pmDecodeCreds: PM_ERR_IPC: numcred 0 <= 0 or > LIMIT_CREDS 1024
 7: __pmDecodeCreds failed: IPC protocol failure
+
+=== pdudata/pmns_names ===
+8: __pmDecodeCreds: sts=0 sender=42 credcount=1 ...
+    #0 = { type=0x1 a=0x2 b=0x0 c=0x0 }
+14: __pmDecodeNameList: sts=0 numnamesp=1 ...
+  [0] sampledso.long.one
+16: __pmDecodeNameList: sts=0 numnamesp=5 ...
+  [0] sampledso.long.one
+  [1] sampledso.long.ten
+  [2] sampledso.long.hundred
+  [3] sampledso.long.million
+  [4] sampledso.long.write_me
+18: __pmDecodeNameList: sts=0 numnamesp=6 ...
+  [0] sampledso.long.one (1)
+  [1] sampledso.long.ten (0)
+  [2] sampledso.long.hundred (1)
+  [3] sampledso.long.million (0)
+  [4] sampledso.long.write_me (1)
+  [5] sampledso.long.bin (0)
+20: __pmDecodeNameList failed: Functionality not yet implemented
+22: __pmDecodeNameList: sts=0 numnamesp=0 ...
+__pmDecodeNameList: PM_ERR_IPC: bytes 20 < min 24
+26: __pmDecodeNameList failed: IPC protocol failure
+__pmDecodeNameList: PM_ERR_IPC: numnames 1 and nstrbytes -1 < 0
+30: __pmDecodeNameList failed: IPC protocol failure
+__pmDecodeNameList: PM_ERR_IPC: numname 4 > max 3 for PDU len 48
+34: __pmDecodeNameList failed: IPC protocol failure
+__pmDecodeNameList: PM_ERR_IPC: numname 3 and numstatus 3 > max 2 for PDU len 48
+36: __pmDecodeNameList failed: IPC protocol failure
+__pmDecodeNameList: PM_ERR_IPC: numstatus 2 != 0 and != numnames 1
+40: __pmDecodeNameList failed: IPC protocol failure
+__pmDecodeNameList: PM_ERR_IPC: nstrbytes 49 > PDU len 48
+44: __pmDecodeNameList failed: IPC protocol failure
+__pmDecodeNameList: PM_ERR_IPC: name[4] PDU too short remaining 0 < required size 4 for namelen
+48: __pmDecodeNameList failed: IPC protocol failure
+__pmDecodeNameList: PM_ERR_IPC: name[5] PDU too short remaining 4 < required size 8 for status+namelen
+49: __pmDecodeNameList failed: IPC protocol failure
+__pmDecodeNameList: PM_ERR_IPC: name[4] PDU too short remaining 28 < 34 for namelen+name
+53: __pmDecodeNameList failed: IPC protocol failure
+__pmDecodeNameList: PM_ERR_IPC: name[5] PDU too short remaining 28 < 38 for namelen+status+name
+54: __pmDecodeNameList failed: IPC protocol failure
+__pmDecodeNameList: PM_ERR_IPC: name[4] namelen 23 + 1 > dst remainder 23
+58: __pmDecodeNameList failed: IPC protocol failure
+__pmDecodeNameList: PM_ERR_IPC: name[5] namelen 18 + 1 > dst remainder 18
+59: __pmDecodeNameList failed: IPC protocol failure
+
+=== pdudata/profile ===
+8: __pmDecodeCreds: sts=0 sender=42 credcount=1 ...
+    #0 = { type=0x1 a=0x2 b=0x0 c=0x0 }
+14: __pmDecodeProfile: sts=0 ctxnum=0 ...
+Dump Instance Profile state=INCLUDE, 0 profiles
+16: __pmDecodeProfile: sts=0 ctxnum=0 ...
+Dump Instance Profile state=INCLUDE, 0 profiles
+18: __pmDecodeProfile: sts=0 ctxnum=0 ...
+Dump Instance Profile state=INCLUDE, 1 profiles
+	Profile [0] indom=125829122 [30.2] state=INCLUDE 3 instances
+		Instances: [100] [500] [900]
+20: __pmDecodeProfile: sts=0 ctxnum=0 ...
+Dump Instance Profile state=INCLUDE, 2 profiles
+	Profile [0] indom=125829121 [30.1] state=EXCLUDE 1 instances
+		Instances: [1]
+	Profile [1] indom=125829122 [30.2] state=EXCLUDE 4 instances
+		Instances: [100] [200] [300] [400]
+__pmDecodeProfile: PM_ERR_IPC: short PDU 20 < min size 24
+23: __pmDecodeProfile failed: IPC protocol failure
+__pmDecodeProfile: PM_ERR_IPC: ctxid -1 < 0
+26: __pmDecodeProfile failed: IPC protocol failure
+__pmDecodeProfile: PM_ERR_IPC: profile_len -1 < 0
+29: __pmDecodeProfile failed: IPC protocol failure
+__pmDecodeProfile: PM_ERR_IPC: profile_len 3 > max 2 for PDU len 64
+32: __pmDecodeProfile failed: IPC protocol failure
+__pmDecodeProfile: PM_ERR_IPC: profile[0] instances_len 5 > max 1 for PDU len 64
+36: __pmDecodeProfile failed: IPC protocol failure
+__pmDecodeProfile: PM_ERR_IPC: profile[1] instances_len 5 > max 3 for PDU len 80
+39: __pmDecodeProfile failed: IPC protocol failure
+__pmDecodeProfile: PM_ERR_IPC: instances_len -1 < 0
+42: __pmDecodeProfile failed: IPC protocol failure
+__pmDecodeProfile: PM_ERR_IPC: PDU too long, remainder 4
+45: __pmDecodeProfile failed: IPC protocol failure
 
 === pdudata/result-event ===
 10: __pmDecodeResult: sts=0 ...

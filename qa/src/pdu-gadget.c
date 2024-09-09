@@ -23,6 +23,8 @@
  *     <libpcp.h>
  *   + str(somestring) {\x to escape x, e.g \), if no ) continue to
  *     next word(s), output is null padded to word boundary}
+ *   + lenstr(somestring) {like str() but with length of string in
+ *     prefix word}
  *   + typelen(<type>.<len>) {no whitespace allowed, set .vtype and
  *     .vlen fields in the first word of a pmValueBlock, <type> is an
  *     integer or FOO for PM_TYPE_FOO and <len> is an integer, use S32 for
@@ -526,6 +528,47 @@ main(int argc, char **argv)
 		}
 		if (*bp == ')') {
 		    /* pdubuf[] stuffing already done, onto next input word */
+		    continue;
+		}
+		fprintf(stderr, "%d: no closing ) for str(...\n", lineno);
+		sts = 1;
+	    }
+	    else if (strncmp(bp, "lenstr(", 7) == 0) {
+		char	*op = (char *)&pdubuf[w+1];
+		int	esc = 0;
+		int	nch = 0;
+		int	len_w = w;	/* length goes here */
+		*wp = c;	/* reinstate end of word */
+		bp += 7;
+		w++;
+		while (*bp && *bp != '\n') {
+		    if (esc == 0) {
+			/* process this char, no preceding \ */
+			if (*bp == '\\') {
+			    esc++;
+			    bp++;
+			    continue;
+			}
+			if (*bp == ')') {
+			    break;
+			}
+		    }
+		    if ((nch % sizeof(pdubuf[0])) == 0) {
+			/* zero fill next element of pdubuf[] */
+			pdubuf[w++] = 0;
+			len += sizeof(pdubuf[0]);
+		    }
+		    *op++ = *bp++;
+		    nch++;
+		    esc = 0;
+		}
+		if (*bp == ')') {
+		    /*
+		     * pdubuf[] stuffing already done, set length prefix and
+		     * onto next input word
+		     */
+		    pdubuf[len_w] = htonl(nch);
+		    len += sizeof(pdubuf[0]);
 		    continue;
 		}
 		fprintf(stderr, "%d: no closing ) for str(...\n", lineno);
@@ -1273,6 +1316,30 @@ next:
 					fprintf(stderr, " name=\"%s\"", irp->namelist[j]);
 				    fputc('\n', stderr);
 				}
+			    }
+			}
+			break;
+
+		    case PDU_PMNS_NAMES:
+			{
+			    int		numnamesp;
+			    char	**namelist;
+			    int		*statuslist;
+			    lsts = __pmDecodeNameList(pdubuf, &numnamesp, &namelist, &statuslist);
+			    if (lsts < 0)
+				fprintf(stderr, "%d: __pmDecodeNameList failed: %s\n", lineno, pmErrStr(lsts));
+			    else {
+				fprintf(stderr, "%d: __pmDecodeNameList: sts=%d numnamesp=%d ...\n", lineno, sts, numnamesp);
+				for (j = 0; j < lsts; j++) {
+				    fprintf(stderr, "  [%d]", j);
+				    fprintf(stderr, " %s", namelist[j]);
+				    if (statuslist != NULL)
+					fprintf(stderr, " (%d)", statuslist[j]);
+				    fputc('\n', stderr);
+				}
+				free(namelist);
+				if (statuslist != NULL)
+				    free(statuslist);
 			    }
 			}
 			break;

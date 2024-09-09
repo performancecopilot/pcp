@@ -249,6 +249,7 @@ __pmDecodeDescs2(__pmPDU *pdubuf, int *numdescs, pmDesc **descs)
     descs_t	*pp;
     pmDesc	*desclist;
     int		total;
+    int		maxdescs;
     int		count;
     int		i;
     int		need;
@@ -263,10 +264,11 @@ __pmDecodeDescs2(__pmPDU *pdubuf, int *numdescs, pmDesc **descs)
 	return PM_ERR_IPC;
     }
     total = ntohl(pp->numdescs);
-    if (total <= 0 || total > (INT_MAX / sizeof(pmDesc))) {
+    maxdescs = (int)((pp->hdr.len - sizeof(descs_t) + sizeof(pmDesc)) / sizeof(pmDesc));
+    if (total <= 0 || total > maxdescs) {
 	if (pmDebugOptions.pdu) {
-	    fprintf(stderr, "__pmDecodeDescs2: PM_ERR_IPC: total %d <= 0 or > (INT_MAX ...) %d\n",
-		total, (int)(INT_MAX / sizeof(pmDesc)));
+	    fprintf(stderr, "__pmDecodeDescs2: PM_ERR_IPC: numdescs %d <= 0 or > max %d for PDU len %d\n",
+		total, maxdescs, pp->hdr.len);
 	}
 	return PM_ERR_IPC;
     }
@@ -280,6 +282,7 @@ __pmDecodeDescs2(__pmPDU *pdubuf, int *numdescs, pmDesc **descs)
 		op = '>';
 	    }
 	    else {
+		/* cannot happen because of maxdescs check above */
 		what = "short";
 		op = '<';
 	    }
