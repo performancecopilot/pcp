@@ -1,6 +1,6 @@
 """ Wrapper module for LIBPCP - the core Performace Co-Pilot API
 #
-# Copyright (C) 2012-2022 Red Hat
+# Copyright (C) 2012-2024 Red Hat
 # Copyright (C) 2009-2012 Michael T. Werner
 #
 # This file is part of the "pcp" module, the python interfaces for the
@@ -94,8 +94,10 @@ import os
 import sys
 import time
 import errno
-import datetime
 import json
+
+from datetime import datetime
+from math import modf
 
 # constants adapted from C header file <pcp/pmapi.h>
 import cpmapi as c_api
@@ -227,8 +229,18 @@ class timeval(Structure):
     _fields_ = [("tv_sec", c_time_t),
                 ("tv_usec", c_suseconds_t)]
 
-    def __init__(self, sec=0, usec=0):
+    def __init__(self, sec=0, usec=None):
         Structure.__init__(self)
+        if usec is None:
+            if isinstance(sec, datetime):
+                epoch = datetime.utcfromtimestamp(0)
+                sec = float((sec - epoch).total_seconds())
+            if isinstance(sec, float):
+                ts = modf(sec)
+                sec = int(ts[1])
+                usec = int(ts[0] * 1000000)
+            else:
+                usec = 0
         self.tv_sec = sec
         self.tv_usec = usec
 
@@ -270,8 +282,18 @@ class timespec(Structure):
     _fields_ = [("tv_sec", c_time_t),
                 ("tv_nsec", c_long)]
 
-    def __init__(self, sec=0, nsec=0):
+    def __init__(self, sec=0, nsec=None):
         Structure.__init__(self)
+        if nsec is None:
+            if isinstance(sec, datetime):
+                epoch = datetime.utcfromtimestamp(0)
+                sec = float((sec - epoch).total_seconds())
+            if isinstance(sec, float):
+                ts = modf(sec)
+                sec = int(ts[1])
+                nsec = int(ts[0] * 1000000000)
+            else:
+                nsec = 0
         self.tv_sec = sec
         self.tv_nsec = nsec
 
@@ -2900,7 +2922,7 @@ class pmContext(object):
     @staticmethod
     def datetime_to_secs(value, precision=c_api.PM_TIME_SEC):
         """ Convert datetime value to seconds of given precision """
-        tdt = value - datetime.datetime.fromtimestamp(0)
+        tdt = value - datetime.fromtimestamp(0)
         if precision == c_api.PM_TIME_SEC:
             tst = (tdt.microseconds + (tdt.seconds + tdt.days * 24.0 * 3600.0) * 10.0**6) / 10.0**6
         elif precision == c_api.PM_TIME_MSEC:
@@ -3030,8 +3052,8 @@ class fetchgroup(object):
             """
             ts = self.ctx.pmLocaltime(self.value.tv_sec)
             us = int(self.value.tv_nsec) // 1000
-            dt = datetime.datetime(ts.tm_year+1900, ts.tm_mon+1, ts.tm_mday,
-                                   ts.tm_hour, ts.tm_min, ts.tm_sec, us, None)
+            dt = datetime(ts.tm_year+1900, ts.tm_mon+1, ts.tm_mday,
+                          ts.tm_hour, ts.tm_min, ts.tm_sec, us, None)
             return dt
 
     class fetchgroup_timeval(object):
@@ -3054,8 +3076,8 @@ class fetchgroup(object):
             """
             ts = self.ctx.pmLocaltime(self.value.tv_sec)
             us = int(self.value.tv_usec)
-            dt = datetime.datetime(ts.tm_year+1900, ts.tm_mon+1, ts.tm_mday,
-                                   ts.tm_hour, ts.tm_min, ts.tm_sec, us, None)
+            dt = datetime(ts.tm_year+1900, ts.tm_mon+1, ts.tm_mday,
+                          ts.tm_hour, ts.tm_min, ts.tm_sec, us, None)
             return dt
 
     # create the backward compatibility alias
@@ -3140,8 +3162,8 @@ class fetchgroup(object):
 
                 ts = self.ctx.pmLocaltime(self.times[i].tv_sec)
                 us = int(self.times[i].tv_nsec) // 1000
-                dt = datetime.datetime(ts.tm_year+1900, ts.tm_mon+1, ts.tm_mday,
-                                       ts.tm_hour, ts.tm_min, ts.tm_sec, us, None)
+                dt = datetime(ts.tm_year+1900, ts.tm_mon+1, ts.tm_mday,
+                              ts.tm_hour, ts.tm_min, ts.tm_sec, us, None)
                 # nested lambda for proper i capture
                 # pylint: disable=cell-var-from-loop,unnecessary-direct-lambda-call
                 vv.append((dt,
