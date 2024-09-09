@@ -71,6 +71,31 @@ refresh_sysfs_thermal_throttle(char *instname,
 }
 
 int
+refresh_sysfs_frequency_scaling_cur_freq(char *instname, int item, percpu_t *cpu)
+{
+    char path[MAXPATHLEN];
+    unsigned long freq;
+    FILE *fp;
+
+    if (cpu->freq.flags & CPUFREQ_SCALE)
+	return 0;
+
+    pmsprintf(path, sizeof(path),
+		"%s/%s/cpu/%s/cpufreq/scaling_cur_freq",
+		linux_statspath, sysfs_path, instname);
+    if ((fp = fopen(path, "r")) != NULL) {
+	if (fscanf(fp, "%lu", &freq) == 1) {
+	    cpu->freq.scale = (float)freq / 1000.0;	/* KHz to MHz */
+	    cpu->freq.count = freq / 1000;	/* convert KHz to MHz */
+	    cpu->freq.flags |= CPUFREQ_COUNT;
+	}
+	fclose(fp);
+    }
+    cpu->freq.flags |= CPUFREQ_SCALE;
+    return 0;
+}
+
+int
 refresh_sysfs_frequency_scaling(char *instname, int item, percpu_t *cpu)
 {
     unsigned long long count, hits, total;
@@ -138,18 +163,8 @@ refresh_sysfs_frequency_scaling(char *instname, int item, percpu_t *cpu)
 	}
 	fclose(fp);
     }
-    pmsprintf(path, sizeof(path),
-		"%s/%s/cpu/%s/cpufreq/scaling_cur_freq",
-		linux_statspath, sysfs_path, instname);
-    if ((fp = fopen(path, "r")) != NULL) {
-	if (fscanf(fp, "%lu", &freq) == 1) {
-	    cpu->freq.count = freq / 1000;	/* convert KHz to MHz */
-	    cpu->freq.flags |= CPUFREQ_COUNT;
-	}
-	fclose(fp);
-    }
     cpu->freq.flags |= CPUFREQ_SAMPLED;
-    return 0;
+    return refresh_sysfs_frequency_scaling_cur_freq(instname, item, cpu);
 }
 
 static char *
