@@ -393,6 +393,12 @@ __pmEventArrayCheck #4: PM_ERR_IPC: pmid[0] value[0] record[1] event record past
 __pmDecodeValueSet: PM_ERR_IPC: pmid[0] value[0] vlen=1
 34: __pmDecodeResult failed: IPC protocol failure
 
+=== pdudata/result.vsoobw ===
+11: __pmDecodeCreds: sts=0 sender=42 credcount=1 ...
+    #0 = { type=0x1 a=0x2 b=0x0 c=0x0 }
+__pmDecodeValueSet: PM_ERR_IPC: pmid[0] value[0] vindex=1020 (max=255)
+18: __pmDecodeResult failed: IPC protocol failure
+
 === pdudata/text ===
 8: __pmDecodeCreds: sts=0 sender=42 credcount=1 ...
     #0 = { type=0x1 a=0x2 b=0x0 c=0x0 }
