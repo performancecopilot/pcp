@@ -2,7 +2,7 @@ QA output created by 1988
 
 pcp-meminfo output : Display default output
 Linux  5.4.17-2136.300.7.el8uek.x86_64  (Mohit-OL8u5-vm1)  09/08/23  x86_64    (2 CPU)
-07:06:54
+Timestamp         : 09/08/2023 07:06:54
 MemTotal          : 1734892 kB
 MemFree           : 244744 kB
 MemAvailable      : 860616 kB
@@ -51,7 +51,7 @@ DirectMap4k       : 362340 kB
 DirectMap2M       : 1734656 kB
 DirectMap1G       : 0 kB
 
-07:06:56
+Timestamp         : 09/08/2023 07:06:56
 MemTotal          : 1734892 kB
 MemFree           : 244272 kB
 MemAvailable      : 860544 kB
@@ -100,7 +100,7 @@ DirectMap4k       : 362340 kB
 DirectMap2M       : 1734656 kB
 DirectMap1G       : 0 kB
 
-07:06:58
+Timestamp         : 09/08/2023 07:06:58
 MemTotal          : 1734892 kB
 MemFree           : 243028 kB
 MemAvailable      : 859744 kB
@@ -149,7 +149,7 @@ DirectMap4k       : 362340 kB
 DirectMap2M       : 1734656 kB
 DirectMap1G       : 0 kB
 
-07:07:00
+Timestamp         : 09/08/2023 07:07:00
 MemTotal          : 1734892 kB
 MemFree           : 243232 kB
 MemAvailable      : 860464 kB
@@ -201,7 +201,7 @@ DirectMap1G       : 0 kB
 
 pcp-meminfo output : Display output when given specified number of samples
 Linux  5.4.17-2136.300.7.el8uek.x86_64  (Mohit-OL8u5-vm1)  09/08/23  x86_64    (2 CPU)
-07:06:54
+Timestamp         : 09/08/2023 07:06:54
 MemTotal          : 1734892 kB
 MemFree           : 244744 kB
 MemAvailable      : 860616 kB
@@ -250,7 +250,7 @@ DirectMap4k       : 362340 kB
 DirectMap2M       : 1734656 kB
 DirectMap1G       : 0 kB
 
-07:06:56
+Timestamp         : 09/08/2023 07:06:56
 MemTotal          : 1734892 kB
 MemFree           : 244272 kB
 MemAvailable      : 860544 kB
@@ -299,7 +299,7 @@ DirectMap4k       : 362340 kB
 DirectMap2M       : 1734656 kB
 DirectMap1G       : 0 kB
 
-07:06:58
+Timestamp         : 09/08/2023 07:06:58
 MemTotal          : 1734892 kB
 MemFree           : 243028 kB
 MemAvailable      : 859744 kB
