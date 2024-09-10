@@ -1,0 +1,8 @@
+# PDU specifications, used by ../src/pdu-gadget to produce a
+# binary PDU stream for QA
+#
+# PDU_CREDS test cases
+
+# credentials: len type from ncred cred[...]
+# BAD ncred big, PDU short
+? PDU_CREDS 42 0xff7f00

@@ -654,3 +654,25 @@ So all the while the value of pmcd.seqnum remains constant we can
 assert the data from all the PMDAs forms a continuous time series
 and in particular no counters or other metrics have been reset due
 to a PMDA start/restart.
+
+@ pmcd.limits.inpdusize maximum input PDU size
+
+Acceptable input PDUs to pmcd are limited to be no larger than this
+value (in bytes).
+
+May be changed with the -L command line option when pmcd is started.
+
+@ pmcd.limits.contexts maximum number of contexts per client
+
+Each PMAPI client of pmcd may create multiple contexts (see
+pmNewContext(3)), up to this limit.
+
+May be changed with the -C command line option when pmcd is started.
+
+@ pmcd.limits.metrics maximum number of metrics per fetch
+
+PMAPI clients of pmcd fetch multiple metrics in a single request (see
+pmFetch(3)), up to this limit.
+
+May be changed with the -M command line option when pmcd is started.
+

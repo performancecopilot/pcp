@@ -46,14 +46,14 @@ CFILES = disk_test.c exercise.c context_test.c chkoptfetch.c \
 	loadderived.c sum16.c badmmv.c multictx.c mmv_simple.c \
 	httpfetch.c json_test.c check_pmiend_fdleak.c check_pmi_errconv.c \
 	archctl_segfault.c debug.c int2pmid.c int2indom.c exectest.c \
-	unpickargs.c hanoi.c progname.c countmark.c \
+	unpickargs.c hanoi.c progname.c countmark.c check_attribute.c \
 	indom2int.c pmid2int.c scanmeta.c traverse_return_codes.c \
 	timeshift.c checkstructs.c bcc_profile.c sha1int2ext.c \
 	getdomainname.c profilecrash.c store_and_fetch.c test_service_notify.c \
 	ctx_derive.c pmstrn.c pmfstring.c pmfg-derived.c mmv_help.c sizeof.c \
 	stampconv.c time_stamp.c archend.c scandata.c wait_for_values.c \
 	dumpstack.c usergroup.c derived_help.c ready-or-not.c cleanmapdir.c \
-	throttle.c throttle_timeout.c y2038.c
+	throttle.c throttle_timeout.c y2038.c bigpmcdpmids.c pdu-gadget.c
 
 ifeq ($(shell test -f ../localconfig && echo 1), 1)
 include ../localconfig
@@ -174,8 +174,8 @@ MYFILES += \
 	permslist \
 	qa_shmctl.c qa_sem_msg_ctl.c \
 	qa_shmctl_stat.c qa_msgctl_stat.c qa_semctl_stat.c \
-	qa_libpcp_compat.c addctxdm.c
-LDIRT += addctxdm.o
+	qa_libpcp_compat.c addctxdm.c myprintresult.c
+LDIRT += addctxdm.o myprintresult.o
 
 MYSCRIPTS = grind-tools show-args fixhosts mkpermslist \
 	memcachestats.pl indomdelta pmjson_array_sort
@@ -429,6 +429,10 @@ throttle_timeout:	throttle_timeout.c
 y2038:	y2038.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+
+pdu-gadget:	pdu-gadget.c myprintresult.o
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< myprintresult.o $(LDLIBS)
 
 # --- need libpcp but also PM_CONTEXT_LOCAL
 #
@@ -779,6 +783,7 @@ chkacc2.o:	libpcp.h
 chkacc3.o:	libpcp.h
 chkacc4.o:	libpcp.h
 chkhelp.o:	libpcp.h
+chkctx2.o:	libpcp.h
 chk_memleak.o:	libpcp.h
 chknumval.o:	libpcp.h
 chkoptfetch.o:	libpcp.h

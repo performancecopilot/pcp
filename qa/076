@@ -1,6 +1,7 @@
 #! /bin/sh
 # PCP QA Test No. 076
-# the pmcd PMDA failed badly on an unknown PMID
+# - the pmcd PMDA failed badly on an unknown PMID
+# - check pmcd handling of large PMID counts.
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -16,3 +17,4 @@ trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
 # real QA test starts here
 src/badpmcdpmid
+src/bigpmcdpmids

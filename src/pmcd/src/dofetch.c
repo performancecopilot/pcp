@@ -453,6 +453,11 @@ HandleFetch(ClientInfo *cip, __pmPDU* pb, int pdutype)
 	return PM_ERR_NOPROFILE;
     }
 
+    if (nPmids > maxmetrics) {
+	__pmUnpinPDUBuf(pb);
+	return PM_ERR_TOOBIG;
+    }
+
     if (nPmids > maxnpmids) {
 	if (endResult != NULL) {
 	    endResult->numpmid = 0;	/* don't free vset's */

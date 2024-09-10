@@ -292,6 +292,7 @@ extern const char *wsastrerror(int);
 
 #define HAVE_PIPE1
 #define HAVE_MKDIR2
+#define HAVE_CLOSEFROM
 #define HAVE_RENAME2
 #define HAVE_DLOPEN
 #define HAVE_FNDELAY

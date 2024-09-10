@@ -1,0 +1,54 @@
+# PDU specifications, used by ../src/pdu-gadget to produce a
+# binary PDU stream for QA
+#
+# PDU_RESULT with event records test cases
+
+# result: len type from timestamp[2] numpmid pmid numval
+#    valfmt (SPTR) inst <ptr> <type+len> nevrec timestamp[2] flags
+#    nparam pmid <type+len>
+# OK
+? PDU_RESULT 42 45296 789000 1 pmid(sampledso.event.records) 1 2 0 11 typelen(EVENT.32) 1 45296 0 6 1 pmid(sampledso.event.param_string) typelen(STRING.4)
+
+# result: len type from timestamp[2] numpmid pmid numval
+#    valfmt (SPTR) inst <ptr> <type+len> nevrec timestamp[2] flags
+#    nparam pmid <type+len>
+# BAD, PDU too short (truncated after 2nd <type+len>), initial pduvp past end of PDU buffer
+? PDU_RESULT 42 45296 789000 1 pmid(sampledso.event.records) 1 2 0 11 typelen(EVENT.32)
+
+# result: len type from timestamp[2] numpmid pmid numval
+#    valfmt (SPTR) inst <ptr> <type+len> nevrec timestamp[2] flags
+#    nparam pmid <type+len>
+# BAD, <ptr> (vindex = 19) too big
+? PDU_RESULT 42 45296 789000 1 pmid(sampledso.event.records) 1 2 0 19 typelen(EVENT.32) 1 45296 0 6 1 pmid(sampledso.event.param_string) typelen(STRING.4)
+
+# result: len type from timestamp[2] numpmid pmid numval
+#    valfmt (SPTR) inst <ptr> <type+len> nevrec timestamp[2] flags
+#    nparam pmid <type+len>
+# BAD, #4 nevrec too large
+? PDU_RESULT 42 45296 789000 1 pmid(sampledso.event.records) 1 2 0 11 typelen(EVENT.32) 100 45296 0 6 1 pmid(sampledso.event.param_string) typelen(STRING.4)
+
+# result: len type from timestamp[2] numpmid pmid numval
+#    valfmt (SPTR) inst <ptr> <type+len> nevrec timestamp[2] flags
+#    nparam pmid <type+len>
+# BAD, PDU too short, second pduvp past end of PDU buffer
+? PDU_RESULT 42 45296 789000 1 pmid(sampledso.event.records) 1 2 0 12 typelen(EVENT.32) 1 45296 0 6 1 pmid(sampledso.event.param_string) typelen(STRING.4)
+
+# WIP ...
+#
+# result: len type from timestamp[2] numpmid pmid numval
+#    valfmt (SPTR) inst <ptr> <type+len> nevrec timestamp[2] flags
+#    nparam pmid <type+len>
+# BAD, <ptr> (vindex) too big
+#? PDU_RESULT 42 45296 789000 1 pmid(sampledso.event.records) 1 2 0 11 typelen(EVENT.33) 1 45296 0 6 1 pmid(sampledso.event.param_string) typelen(STRING.4) 
+
+# result: len type from timestamp[2] numpmid pmid numval
+#    valfmt (SPTR) inst <ptr> <type+len> nevrec timestamp[2] flags
+#    nparam pmid <type+len>
+# BAD, <ptr> (vindex) too big
+#? PDU_RESULT 42 45296 789000 1 pmid(sampledso.event.records) 1 2 0 11 typelen(EVENT.33) 1 45296 0 6 1 pmid(sampledso.event.param_string) typelen(STRING.4) 
+
+# result: len type from timestamp[2] numpmid pmid numval
+#    valfmt (SPTR) inst <ptr> <type+len> nevrec timestamp[2] flags
+#    nparam pmid <type+len>
+# BAD, PDU too short, len for 2nd <type+len> larger than PDU size
+#? PDU_RESULT 42 45296 789000 1 pmid(sampledso.event.records) 1 2 0 11 typelen(EVENT.80) 1 45296 0 6 1 pmid(sampledso.event.param_string) typelen(STRING.4) 0xdeadbeef 0xdeadbeef 0xdeadbeef

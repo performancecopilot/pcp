@@ -161,7 +161,7 @@ _filter_pmproxy_log()
 	-e 's/pmproxy([1-9][0-9]*) Error:/pmproxy(PID) Error:/' \
 	-e '/^pmproxy: Signalled (signal[=][1-9][0-9]*).*/d' \
 	-e '/^pmproxy: disabled time series,.*(missing)/d' \
-	-e '/Error: unsupported key server (got v/d' \
+	-e '/Error: .*unsupported key server (got v/d' \
 	-e '/Info: TLS configured in pmproxy.conf/d' \
 	-e '/Failed to create avahi client:/d' \
 	-e '/Info: connected to .*key server.*/d' \

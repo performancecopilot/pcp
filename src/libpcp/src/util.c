@@ -709,27 +709,32 @@ __pmStringListFind(const char *item, int numElements, char **list)
  * Needed since tracing PDUs really messes __pmDump*() routines
  * up when pmNameInDom is called internally.
  */
-static void
-save_debug(void)
+void
+__pmCtlDebug(int op)
 {
     int		i;
 
-    for (i = 0; i < num_debug; i++) {
-	debug_map[i].state = *(debug_map[i].options);
-	*(debug_map[i].options) = 0;
+    if (op == PM_CTL_DEBUG_SAVE) {
+	/*
+	 * save and clear all debug info
+	 */
+	for (i = 0; i < num_debug; i++) {
+	    debug_map[i].state = *(debug_map[i].options);
+	    *(debug_map[i].options) = 0;
+	    if (debug_map[i].bit != 0)
+		pmDebug &= ~debug_map[i].bit;
+	}
+	pmDebug = 0;
     }
-    pmDebug = 0;
-}
-
-static void
-restore_debug(void)
-{
-    int		i;
-
-    for (i = 0; i < num_debug; i++) {
-	*(debug_map[i].options) = debug_map[i].state;
-	if (debug_map[i].state && debug_map[i].bit != 0)
-	    pmDebug |= debug_map[i].bit;
+    else if (op == PM_CTL_DEBUG_RESTORE) {
+	/*
+	 * restore debug info, assuming earlier PM_CTL_DEBUG_SAVE call
+	 */
+	for (i = 0; i < num_debug; i++) {
+	    *(debug_map[i].options) = debug_map[i].state;
+	    if (debug_map[i].state && debug_map[i].bit != 0)
+		pmDebug |= debug_map[i].bit;
+	}
     }
 }
 
@@ -815,15 +820,14 @@ __pmDumpResult_ctx(__pmContext *ctxp, FILE *f, const pmResult *resp)
 
     if (ctxp != NULL)
 	PM_ASSERT_IS_LOCKED(ctxp->c_lock);
-
-    save_debug();
+    __pmCtlDebug(PM_CTL_DEBUG_SAVE);
     fprintf(f, "pmResult dump from " PRINTF_P_PFX "%p timestamp: %d.%06d ",
 	resp, (int)resp->timestamp.tv_sec, (int)resp->timestamp.tv_usec);
     pmPrintStamp(f, &resp->timestamp);
     fprintf(f, " numpmid: %d\n", resp->numpmid);
     for (i = 0; i < resp->numpmid; i++)
 	dump_valueset(ctxp, f, resp->vset[i]);
-    restore_debug();
+    __pmCtlDebug(PM_CTL_DEBUG_RESTORE);
 }
 
 void
@@ -841,14 +845,14 @@ __pmPrintResult_ctx(__pmContext *ctxp, FILE *f, const __pmResult *resp)
     if (ctxp != NULL)
 	PM_ASSERT_IS_LOCKED(ctxp->c_lock);
 
-    save_debug();
+    __pmCtlDebug(PM_CTL_DEBUG_SAVE);
     fprintf(f, "__pmResult dump from " PRINTF_P_PFX "%p timestamp: %" FMT_INT64 ".%09d ",
 	resp, resp->timestamp.sec, resp->timestamp.nsec);
     __pmPrintTimestamp(f, &resp->timestamp);
     fprintf(f, " numpmid: %d\n", resp->numpmid);
     for (i = 0; i < resp->numpmid; i++)
 	dump_valueset(ctxp, f, resp->vset[i]);
-    restore_debug();
+    __pmCtlDebug(PM_CTL_DEBUG_RESTORE);
 }
 
 void
@@ -866,7 +870,7 @@ __pmDumpHighResResult_ctx(__pmContext *ctxp, FILE *f, const pmHighResResult *hre
     if (ctxp != NULL)
 	PM_ASSERT_IS_LOCKED(ctxp->c_lock);
 
-    save_debug();
+    __pmCtlDebug(PM_CTL_DEBUG_SAVE);
     fprintf(f, "%s dump from " PRINTF_P_PFX "%p timestamp: %lld.%09lld ",
 	    "pmHighResResult", hresp,
 	    (long long)hresp->timestamp.tv_sec,
@@ -875,7 +879,7 @@ __pmDumpHighResResult_ctx(__pmContext *ctxp, FILE *f, const pmHighResResult *hre
     fprintf(f, " numpmid: %d\n", hresp->numpmid);
     for (i = 0; i < hresp->numpmid; i++)
 	dump_valueset(ctxp, f, hresp->vset[i]);
-    restore_debug();
+    __pmCtlDebug(PM_CTL_DEBUG_RESTORE);
 }
 
 void

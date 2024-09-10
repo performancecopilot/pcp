@@ -89,6 +89,12 @@ static pmDesc	desctab[] = {
     { PMDA_PMID(0,25), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* zoneinfo -- local timezone tzfile identification  -- for pmlogger timezone */
     { PMDA_PMID(0,26), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* limits.inpdusize */
+    { PMDA_PMID(0,27), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,1,0,0,PM_SPACE_BYTE,0) },
+/* limits.contexts */
+    { PMDA_PMID(0,28), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* limits.metrics */
+    { PMDA_PMID(0,29), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
 
 /* pdu_in.error */
     { PMDA_PMID(1,0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
@@ -1561,6 +1567,18 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 				    }
 				}
 				atom.cp = zoneinfo;
+				break;
+
+			case 27:	/* limits.inpdusize */
+				atom.ul = maxinpdusize;
+				break;
+
+			case 28:	/* limits.contexts */
+				atom.ul = maxctx;
+				break;
+
+			case 29:	/* limits.metrics */
+				atom.ul = maxmetrics;
 				break;
 
 			default:

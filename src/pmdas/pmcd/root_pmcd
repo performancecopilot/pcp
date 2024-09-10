@@ -15,6 +15,7 @@ root {
 
 pmcd {
     control
+    limits
     pdu_in
     pdu_out
     datasize	PMCD:0:1
@@ -52,6 +53,12 @@ pmcd.control {
     dumptrace	PMCD:0:12
     dumpconn	PMCD:0:13
     sighup	PMCD:0:15
+}
+
+pmcd.limits {
+    inpdusize	PMCD:0:27
+    contexts	PMCD:0:28
+    metrics	PMCD:0:29
 }
 
 /*

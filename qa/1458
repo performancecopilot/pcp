@@ -209,7 +209,8 @@ echo "=== valgrind stdout ===" | tee -a $seq.full
 cat $tmp.valout | _filter_valgrind
 
 echo "=== valgrind stderr ===" | tee -a $seq.full
-cat $tmp.valerr | _filter_pmproxy_log | _filter_port
+cat $tmp.valerr | _filter_pmproxy_log | _filter_port \
+| sed -e '/Cannot connect to key server: Connection refused/d'
 
 # final kill if it's spinning
 $sudo kill -9 $pid >/dev/null 2>&1

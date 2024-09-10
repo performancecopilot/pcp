@@ -460,6 +460,10 @@ not_in_container
 # need an accessible X11 server
 x11
 
+# using common.pmcd.pdu
+#
+pmcd.pdu
+
 # test-group association ... one line per test
 # add :retired or :reserved as a tag immediately after the test number
 # to keep the test number allocated, but prevent the test from being run
@@ -542,7 +546,7 @@ x11
 073 pmclient local pmprobe python kernel
 074 pmda pmda.pmcd local ostest sanity kernel pmda.sample
 075 pmval pmstore ostest remote pmda.sample
-076 pmda.pmcd local ostest
+076 pmda.pmcd local ostest suse
 077 libpcp ostest remote timezone
 078 pmlogdump local ostest
 079 libpcp archive local ostest pmclient
@@ -1443,7 +1447,7 @@ x11
 974 pmda.proc local
 975 pmimport local iostat2pcp
 976 dbpmda perl pmda.lustre local
-977 libpcp valgrind local containers
+977 libpcp valgrind local containers suse
 978 libpcp getopt sanity local timezone
 979 python local
 980 python local
@@ -1984,28 +1988,30 @@ x11
 1515 pmda.denki local valgrind
 1516 derive local valgrind
 1517 derive local valgrind
-1518:reserved suse kenj
-1519:reserved suse kenj
+1518 pmcd libpcp local suse pmcd.pdu
+1519 pmcd libpcp local suse pmcd.pdu
 1520 other libpcp local pmconfig
 1521 derive local
 1522 derive local valgrind
 1523 pmlogdump local multi-archive
 1524 pmview local
 1525 pmview dkvis mpvis
-1526 other local
-1527:reserved suse kenj
-1528:reserved suse kenj
-1529:reserved suse kenj
+# the problem 1526 was aimed at has gone away for the moment, but
+# may reappear, so keep this one around to be reactivated if needed
+1526:retired other local
+1527 pmcd libpcp local suse pmcd.pdu
+1528 pmcd libpcp suse local pmcd.pdu
+1529 pmcd local
 1530 pmda.zfs local valgrind
 1531 pmda.zfs local valgrind
 1532 pmda.zfs local
 1533 pmda.zfs local valgrind
 1534 pmda.zfs local valgrind
-1535:reserved suse kenj
-1536:reserved suse kenj
-1537:reserved suse kenj
-1538:reserved suse kenj
-1539:reserved suse kenj
+1535 pmcd local
+1536 pmcd libpcp suse local pmcd.pdu
+1537 libpcp local
+1538 libpcp pmcd local pmcd.pdu
+1539 pmcd libpcp pmcd.pdu local
 1540 pmda.farm local valgrind
 1541:reserved suse kenj
 1542:reserved suse kenj
@@ -2026,6 +2032,8 @@ x11
 1557:reserved suse kenj
 1558:reserved suse kenj
 1559:reserved suse kenj
+1560 libpcp pdu local
+1561 pmcd libpcp pmcd.pdu suse local
 1564 pmda.linux pcp local
 1566 logutil libpcp local
 1567 pmie_util local
@@ -2046,6 +2054,7 @@ x11
 1603 pmproxy local
 1604 pmseries pmproxy local
 1608 pmproxy local
+1610 libpcp local
 1612 pmda.bpf local
 1613 pmda.linux kernel local
 1619 pmcd local

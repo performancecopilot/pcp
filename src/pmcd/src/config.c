@@ -1064,12 +1064,16 @@ ParseHosts(const char *source, int allow)
 	}
 	else
 	    ok = 1;
+	free(hostnames[i]);
+	hostnames[i] = NULL;
     }
     return ok;
 
 error:
-    for (i = 0; i < nhosts; i++)
-	free(hostnames[i]);
+    for (i = 0; i < nhosts; i++) {
+	if (hostnames[i] != NULL)
+	    free(hostnames[i]);
+    }
     return -1;
 }
 
