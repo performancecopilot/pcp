@@ -548,7 +548,7 @@ text_samp(double sampletime, double nsecs,
 					attron(COLOR_PAIR(FGCOLORINFO));
 			}
 
-			printg(statmsg);
+			printg("%s", statmsg);
 
 			if (screen)
 			{
@@ -589,7 +589,7 @@ text_samp(double sampletime, double nsecs,
 					attron(A_BLINK);
 				}
 
-       				printg(initmsg);
+       				printg("%s", initmsg);
 
 				if (screen)
 				{
@@ -616,7 +616,7 @@ text_samp(double sampletime, double nsecs,
 					attron(A_BLINK);
 				}
 
-       				printg(viewmsg);
+       				printg("%s", viewmsg);
 
 				if (screen)
 				{
