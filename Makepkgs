@@ -561,6 +561,33 @@ prepare_debian_sources()
     cd "$SRCTREE" || exit 1
 
     fix_version "$topdir"/VERSION.pcp VERSION.pcp
+
+    # make changelog match version
+    #
+    if [ ! -f debian/changelog ]
+    then
+	echo "Arrgh! No debian/changelog below `pwd`"
+	exit 1
+    fi
+    if head -1 debian/changelog | grep -q "^pcp ($PACKAGE_MAJOR.$PACKAGE_MINOR.$PACKAGE_REVISION-$PACKAGE_BUILD)"
+    then
+	: all OK
+    else
+	# add dummy stanza for this (developer build)
+	#
+	[ -z "$GIT_AUTHOR_NAME" ] && GIT_AUTHOR_NAME="Bozo the Clown"
+	[ -z "$GIT_AUTHOR_EMAIL" ] && GIT_AUTHOR_EMAIL="bozo@kenj.id.au"
+	cat <<End-of-File >$tmp/changelog
+pcp ($PACKAGE_MAJOR.$PACKAGE_MINOR.$PACKAGE_REVISION-$PACKAGE_BUILD) unstable; urgency=low
+
+  * Developer build.
+
+  -- $GIT_AUTHOR_NAME <$GIT_AUTHOR_EMAIL> `date -R`
+
+End-of-File
+	cat debian/changelog >>$tmp/changelog
+	cp $tmp/changelog debian/changelog
+    fi
 }
 
 prepare_debian_control()
