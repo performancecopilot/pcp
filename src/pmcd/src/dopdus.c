@@ -132,13 +132,15 @@ int
 DoProfile(ClientInfo *cp, __pmPDU *pb)
 {
     __pmHashCtl	*hcp;
-    pmProfile	*newProf;
+    pmProfile	*newProf = NULL;
     int		ctxnum, sts, i;
 
     sts = __pmDecodeProfile(pb, &ctxnum, &newProf);
     if (sts >= 0) {
 	__pmHashNode	*hp;
 	if (ctxnum > maxctx - 1) {
+	    if (newProf != NULL)
+		__pmFreeProfile(newProf);
 	    return -EAGAIN;
 	}
 	hcp = &cp->profile;
