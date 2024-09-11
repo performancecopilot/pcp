@@ -33,6 +33,29 @@ _filter()
     #end
 }
 
+# There is NO uninitialized value use at line 161 or 163 of
+# sysfs_kernel.c ...
+# valgrind on vm20 (x86_64 Ubuntu 20.04) complains circa
+# 11 Sep 2024, but ONLY when the linux PMDA is compiled
+# -O2, not -O0
+#
+cat <<'End-of-File' >$tmp.suppress
+{
+   botch
+   Memcheck:Cond
+   fun:refresh_sysfs_kernel
+   fun:linux_refresh.isra.0
+   fun:linux_fetch
+   fun:dsofetch
+   fun:__pmFetchLocal
+   fun:__pmFetch
+   fun:pmFetch_ctx
+   fun:pmFetch
+   ...
+}
+End-of-File
+grind_extra="--suppressions=$tmp.suppress"
+
 # real QA test starts here
 root=$tmp.root
 export LINUX_STATSPATH=$root
