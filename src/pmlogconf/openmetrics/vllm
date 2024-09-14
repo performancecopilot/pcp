@@ -1,0 +1,5 @@
+#pmlogconf-setup 2.0
+ident	vLLM stats
+probe	openmetrics.vllm values ? include : available
+delta	60 seconds
+	openmetrics.vllm
