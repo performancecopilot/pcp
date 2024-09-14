@@ -355,7 +355,7 @@ update_pcp_metric_instance_domain(char* key, struct metric* item, pmdaExt* pmda)
 static void
 map_metric(char* key, struct metric* item, void* pmda) {
     // skip metric if its still being processed (case when new metric gets added and datagram has only label, but metric addition and label appending are 2 separate actions)
-    if (item->pernament == 0) return;
+    if (item->committed == 0) return;
     // this prevents creating of metrics/labels that have tags as we don't deal with those yet
     struct pmda_data_extension* data = (struct pmda_data_extension*)pmdaExtGetData((pmdaExt*)pmda);
     // lets check if metric already has pmid assigned, if not create new metric for it (including new pmid)

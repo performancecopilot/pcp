@@ -41,11 +41,11 @@ create_labels_dict(
      * Callbacks for metrics hashtable
      */
     static dictType metric_label_dict_callbacks = {
-        .hashFunction	= str_hash_callback,
-        .keyCompare		= str_compare_callback,
-        .keyDup		    = str_duplicate_callback,
-        .keyDestructor	= str_hash_free_callback,
-        .valDestructor	= metric_label_free_callback,
+        .hashFunction   = str_hash_callback,
+        .keyCompare     = str_compare_callback,
+        .keyDup	        = str_duplicate_callback,
+        .keyDestructor  = str_hash_free_callback,
+        .valDestructor  = metric_label_free_callback,
     };
     labels* children = dictCreate(&metric_label_dict_callbacks, container->metrics_privdata);
     item->children = children;
@@ -224,8 +224,9 @@ create_label(
         default:
             status = 0;
     }
-    (*out)->type = item->type;
-    if (!status) {
+    if (status) {
+        (*out)->type = item->type;
+    } else {
         free_metric_label(config, label);
     }    
     return status;
