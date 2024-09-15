@@ -243,7 +243,7 @@ __pmServerAddInterface(const char *address)
     char *intf;
 
     /* one (of possibly several) IP addresses for client requests */
-    intflist = (char **)realloc(intflist, nintf * sizeof(char *));
+    intflist = (char **)realloc(intflist, size);
     if (intflist == NULL)
 	pmNoMem("AddInterface: cannot grow interface list", size, PM_FATAL_ERR);
     if ((intf = strdup(address)) == NULL)
