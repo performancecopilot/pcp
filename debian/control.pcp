@@ -9,8 +9,7 @@ Standards-Version: 3.9.3
 X-Python3-Version: >= 3.3
 
 Package: pcp
-Depends: ${shlibs:Depends}, ${misc:Depends}, gawk, procps, ?{python-pcp}, ?{python}, libpcp-pmda3 (= ${binary:Version}), libpcp-mmv1 (= ${binary:Version}), libpcp-web1 (= ${binary:Version}), libpcp-archive1 (= ${binary:Version}), libpcp3 (= ${binary:Version})
-Breaks: pcp-conf (<< 6.3.1)
+Depends: ${shlibs:Depends}, ${misc:Depends}, gawk, procps, ?{python-pcp}, ?{python}, libpcp-pmda3 (= ${binary:Version}), libpcp-mmv1 (= ${binary:Version}), libpcp-web1 (= ${binary:Version}), libpcp-archive1 (= ${binary:Version}), libpcp3 (= ${binary:Version}), pcp-conf (>= 6.3.1)
 Recommends: libpcp-pmda-perl
 Conflicts: pgpool2, dstat, pcp-webapi, pcp-manager
 Suggests: pcp-gui, libpcp-import-perl, ?{bpftrace}, ?{python3-bpfcc}, redis-server
