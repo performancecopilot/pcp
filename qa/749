@@ -29,6 +29,13 @@ fips_stsfile="/proc/sys/crypto/fips_enabled"
 [ -f $fips_stsfile ] && fips_enabled=`cat $fips_stsfile`
 test $fips_enabled -eq 0 || _notrun "FIPS enabled, no kernel stap testing"
 
+# Need real kernel symbols
+[ -f /boot/System.map-`uname -r` ] || _notrun "/boot/System.map-`uname -r` missing: no kernel symbols"
+if sudo head -1 /boot/System.map-`uname -r` | grep -q 'The real System.map'
+then
+    _notrun "/boot/System.map-`uname -r` is a dummy"
+fi
+
 # real QA test starts here
 cat <<End-of-File >$tmp.stap
 global probe_hits 

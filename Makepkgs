@@ -582,7 +582,7 @@ pcp ($PACKAGE_MAJOR.$PACKAGE_MINOR.$PACKAGE_REVISION-$PACKAGE_BUILD) unstable; u
 
   * Developer build.
 
-  -- $GIT_AUTHOR_NAME <$GIT_AUTHOR_EMAIL> `date -R`
+ -- $GIT_AUTHOR_NAME <$GIT_AUTHOR_EMAIL>  `date -R`
 
 End-of-File
 	cat debian/changelog >>$tmp/changelog
