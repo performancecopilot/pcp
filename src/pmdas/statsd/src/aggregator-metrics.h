@@ -68,7 +68,7 @@ typedef struct metric_label {
 
 typedef struct metric {
     char* name;
-    int pernament;
+    int committed;
     struct metric_metadata* meta;
     labels* children;
     enum METRIC_TYPE type;
@@ -247,6 +247,6 @@ print_metric_meta(FILE* f, struct metric_metadata* meta);
  * Synchronized by mutex on pmda_metrics_container struct
  */
 extern void
-mark_metric_as_pernament(struct pmda_metrics_container* container, struct metric* item);
+mark_metric_as_committed(struct pmda_metrics_container* container, struct metric* item);
 
 #endif
