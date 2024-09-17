@@ -1,3 +1,6 @@
+pcp-6.3.2 (6 November 2024)
+    - Work-in-progress.
+
 pcp-6.3.1 (17 September 2024)
     - Client tools and utilities:
 	pcp2arrow: fix extraction of values for metrics with indoms
