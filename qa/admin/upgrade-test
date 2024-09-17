@@ -1,0 +1,398 @@
+#!/bin/sh
+#
+# Upgrade testing ...
+# - if <distro> packages are available locally below $home/build
+#   + remove all PCP packages
+#   + install the <distro> packages
+#   + upgrade to the <latest> developer packages
+#   + run qa/check -g sanity
+# - if <previous> developer packages are available locally below $home/build
+#   + remove all PCP packages
+#   + install the <previous> developer packages
+#   + upgrade to the <latest> developer packages
+#   + run qa/check -g sanity
+#
+# Copyright (c) 2024 Ken McDonell, Inc.  All Rights Reserved.
+#
+
+_usage()
+{
+    echo >&2 "Usage: $0 [options]"
+    echo >&2 
+    echo >&2 "  -i           interactive"
+    echo >&2 "  -n           show me, don't do it"
+    echo >&2 "  -v           verbose (debugging)"
+    exit 1
+}
+
+export LC_COLLATE=POSIX
+
+interactive=false
+verbose=false
+very_verbose=false
+showme=false
+while getopts 'inv?' p
+do
+    case "$p"
+    in
+	i)	interactive=true
+		;;
+
+	n)	showme=true
+		;;
+
+	v)	if $verbose
+		then
+		    very_verbose=true
+		else
+		    verbose=true
+		fi
+		;;
+
+	?)	_usage
+		# NOTREACHED
+    esac
+done
+shift `expr $OPTIND - 1`
+[ $# -eq 0 ] || _usage
+
+status=1		# failure is the default
+if $very_verbose
+then
+    tmp=tmp
+else
+    tmp=/var/tmp/$$
+    trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+fi
+rm -f $tmp.*
+
+# Need directory where this script is located so we can find the other
+# bits and bob
+#
+home=`pwd`
+while [ "$home" != "/" ]
+do
+    [ -d "$home/build/rpm" ] && break
+    home=`cd "$home"/..; /bin/pwd`
+done
+if [ ! -d $home/build/rpm ]
+then
+    echo >&2 "Botch: no build/rpm dir above here (`pwd`)"
+    exit 1
+fi
+
+_pcp_version()
+{
+    if pmprobe -v pmcd.version >$tmp.out 2>&1
+    then
+	sed -e 's/"$//' -e 's/.*"//' <$tmp.out
+    else
+	cat $tmp.out
+    fi
+}
+
+_ask()
+{
+    ans=''
+    while [ -z "$ans" ]
+    do
+	echo -n "Do $1? yes|no|abort [y] "
+	read </dev/tty ans
+	case "$ans"
+	in
+	    ''|y|yes)	return 0
+	    		;;
+	    n|no)	return 1
+	    		;;
+	    a|bort)	exit
+	    		;;
+	    *)		echo "Answer the question, bozo!"
+	    		ans=''
+			;;
+	esac
+    done
+}
+
+# for each packaging "$type", foo,  need these functions ...
+# _have_latest_foo()
+#	return 0 if developer built packages are present below build dir
+# _uninstall_foo()
+#	remove ALL pcp packages and return 0 on success
+# _install_foo()
+#	install ALL pcp non-source packages in the current directory
+#	and return 0 on success
+# _upgrade_foo()
+#	upgrade ALL pcp non-source packages in the current directory
+#	and return 0 on success
+# 
+
+_have_latest_deb()
+{
+    ndeb=`( [ -d $home/build/deb ] && ls $home/build/deb/*.deb 2>/dev/null ) | wc -l | sed -e 's/ //g'`
+    if [ -n "$ndeb" -a "$ndeb" -ge 40 ]
+    then
+	return 0
+    else
+	echo "Error: expecting at least 40 .debs, found $ndeb"
+	return 1
+    fi
+}
+
+_uninstall_deb()
+{
+    if $interactive
+    then
+	_ask "_uninstall_deb" || return 0
+    fi
+    if apt list --installed >$tmp.out 2>&1
+    then
+	grep -E '^(libpcp|pcp-|pcp/|python3-pcp)' <$tmp.out \
+	| sed -e 's@/.*@@' \
+	| tr '\012' ' ' >$tmp.list
+	if [ -s $tmp.list ]
+	then
+	    if $showme
+	    then
+		echo "+ sudo apt-get purge `cat $tmp.list`"
+	    else
+		if sudo apt-get --yes --quiet purge `cat $tmp.list` >$tmp.out 2>&1
+		then
+		    $showme || echo "Info: PCP uninstalled"
+		else
+		    cat $tmp.out
+		    return 1
+		fi
+	    fi
+	else
+	    echo "Warning: no PCP packages installed?"
+	fi
+    else
+	cat $tmp.out
+	return 1
+    fi
+
+    return 0
+}
+
+_install_deb()
+{
+    if $interactive
+    then
+	_ask "_install_deb from `pwd`" || return 0
+    fi
+    if $showme
+    then
+	echo "+ sudo dpkg -i *.deb"
+    else
+	if sudo dpkg -i *.deb >$tmp.out 2>&1
+	then
+	    $very_verbose && cat $tmp.out
+	else
+	    cat $tmp.out
+	    return 1
+	fi
+    fi
+
+    return 0
+}
+
+_upgrade_deb()
+{
+    if $interactive
+    then
+	_ask "_upgrade_deb from `pwd`" || return 0
+    fi
+    if $showme
+    then
+	echo "+ sudo dpkg -i --auto-deconfigure *.deb"
+    else
+	if sudo dpkg -i --auto-deconfigure *.deb >$tmp.out 2>&1
+	then
+	    $very_verbose && cat $tmp.out
+	else
+	    cat $tmp.out
+	    return 1
+	fi
+    fi
+
+    return 0
+}
+
+_have_latest_rpm()
+{
+    nrpm=`( [ -d $home/pcp-$thisver/build/rpm ] && ls $home/pcp-$thisver/build/rpm/*.rpm 2>/dev/null ) | wc -l | sed -e 's/ //g'`
+    if [ -n "$nrpm" -a "$nrpm" -ge 150 ]
+    then
+	return 0
+    else
+	echo "Error: expecting at least 40 .rpms, found $nrpm"
+	return 1
+    fi
+}
+
+_uninstall_rpm()
+{
+    echo "rpm NYI"
+    return 1
+}
+
+_install_rpm()
+{
+    echo "rpm NYI"
+    return 1
+}
+
+_upgrade_rpm()
+{
+    echo "rpm NYI"
+    return 1
+}
+
+_qa()
+{
+    if $interactive
+    then
+	_ask "_qa" || return 0
+    fi
+    if $showme
+    then
+	echo "+ cd ~pcpqa"
+	echo "+ sudo -u pcpqa ./check -g sanity"
+    else
+	if cd ~pcpqa
+	then
+	    if sudo -u pcpqa ./check -g sanity >$tmp.out 2>&1
+	    then
+		$very_verbose && cat $tmp.out
+		return 0
+	    else
+		cat $tmp.out
+		return 1
+	    fi
+	else
+	    echo "Error: cd to ~pcpqa failed"
+	    return 1
+	fi
+    fi
+}
+
+# construct <distro> from whatami output
+# vm24                6.3.1    x86_64  Ubuntu 24.04 (noble) [kernel=6.8.0 py=3.12.3 se=none]
+#                                          $4-$5
+#
+distro=`$home/qa/admin/whatami | awk '{ print $4 "-" $5 }'`
+$verbose && echo >&2 distro=$distro
+thisver=`sed -n <$home/debian/changelog \
+	  -e '/^pcp /{
+s/-[0-9][0-9]*).*//
+s/.*(//
+p
+q
+}'`
+$verbose && echo >&2 thisver=$thisver
+lastver=`sed -n <$home/debian/changelog \
+	  -e 1d \
+	  -e '/^pcp /{
+s/-[0-9][0-9]*).*//
+s/.*(//
+p
+q
+}'`
+$verbose && echo >&2 lastver=$lastver
+
+case $distro
+in
+    Ubuntu-*)
+	    type=deb
+	    ;;
+
+    Fedora-*)
+	    type=rpm
+	    ;;
+
+    *)
+	    echo "Oops, no recipe for distro $distro as yet"
+	    exit
+	    ;;
+esac
+
+if _have_latest_$type
+then
+    :
+else
+    # no point going on
+    exit
+fi
+
+if [ -d $home/build/$distro ]
+then
+    if _uninstall_$type
+    then
+	$showme && echo "+ cd build/$distro"
+	cd $home/build/$distro
+	if _install_$type
+	then
+	    $showme || echo "Info: PCP `_pcp_version` installed"
+	    $showme && echo "+ cd build/$type"
+	    cd $home/build/$type
+	    if _upgrade_$type
+	    then
+		$showme || echo "Info: PCP `_pcp_version` installed"
+		if _qa
+		then
+		    $showme || echo "Info: sanity QA passes"
+		else
+		    $showme || echo "Error: sanity QA failed"
+		fi
+	    else
+		$showme || echo "Error: upgrade to latest version failed"
+	    fi
+	else
+	    $showme || echo "Error: installation of $distro distro version failed"
+	fi
+    else
+	$showme || echo "Error: uninstallation of all PCP failed"
+    fi
+else
+    echo "Info: build/$distro missing, skip this test"
+fi
+
+if [ -n "$lastver" ]
+then
+    if [ -d $home/build/$type-$lastver ]
+    then
+	if _uninstall_$type
+	then
+	    $showme && echo "+ cd build/$type-$lastver"
+	    cd $home/build/$type-$lastver
+	    if _install_$type
+	    then
+		$showme || echo "Info: PCP `_pcp_version` installed"
+		$showme && echo "+ cd build/$type"
+		cd $home/build/$type
+		if _upgrade_$type
+		then
+		    $showme || echo "Info: PCP `_pcp_version` installed"
+		    if _qa
+		    then
+			$showme || echo "Info: sanity QA passes"
+		    else
+			$showme || echo "Error: sanity QA failed"
+		    fi
+		else
+		    $showme || echo "Error: upgrade to latest version failed"
+		fi
+	    else
+		$showme || echo "Error: installation of previous version failed"
+	    fi
+	else
+	    $showme || echo "Error: uninstallation of all PCP failed"
+	fi
+    else
+	echo "Info: build/$type-$lastver missing, skip this test"
+    fi
+else
+    echo "Info: cannot get previous version from debian/changelog, skip this test"
+fi
+
+exit

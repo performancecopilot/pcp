@@ -1,3 +1,6 @@
 deb
 pack_pcp.bin
 GNUlocaldefs
+Ubuntu-*
+Fedora-*
+deb-*

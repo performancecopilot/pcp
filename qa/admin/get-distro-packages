@@ -1,0 +1,194 @@
+#!/bin/sh
+#
+# Get/update the latest PCP packages for the current distro in
+# build/<distro>
+#
+# Copyright (c) 2024 Ken McDonell, Inc.  All Rights Reserved.
+#
+
+_usage()
+{
+    echo >&2 "Usage: $0 [options]"
+    echo >&2 
+    echo >&2 "  -n           show me, don't do it"
+    echo >&2 "  -v           verbose (debugging)"
+    exit 1
+}
+
+export LC_COLLATE=POSIX
+
+verbose=false
+very_verbose=false
+showme=false
+while getopts 'nv?' p
+do
+    case "$p"
+    in
+	n)	showme=true
+		;;
+
+	v)	if $verbose
+		then
+		    very_verbose=true
+		else
+		    verbose=true
+		fi
+		;;
+
+	?)	_usage
+		# NOTREACHED
+    esac
+done
+shift `expr $OPTIND - 1`
+[ $# -eq 0 ] || _usage
+
+status=1		# failure is the default
+if $very_verbose
+then
+    tmp=tmp
+else
+    tmp=/var/tmp/$$
+    trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+fi
+rm -f $tmp.*
+
+# Need directory where this script is located so we can find the other
+# bits and bob
+#
+home=`pwd`
+while [ "$home" != "/" ]
+do
+    [ -d "$home/build/rpm" ] && break
+    home=`cd "$home"/..; /bin/pwd`
+done
+if [ ! -d $home/build/rpm ]
+then
+    echo >&2 "Botch: no build/rpm dir above here (`pwd`)"
+    exit 1
+fi
+
+# construct <distro> from whatami output
+# vm24                6.3.1    x86_64  Ubuntu 24.04 (noble) [kernel=6.8.0 py=3.12.3 se=none]
+#                                          $4-$5
+#
+distro=`$home/qa/admin/whatami | awk '{ print $4 "-" $5 }'`
+$very_verbose && echo >&2 distro=$distro
+
+case $distro
+in
+    Ubuntu-*)
+	    if [ ! -d $home/build/$distro ]
+	    then
+		if mkdir $home/build/$distro
+		then
+		    :
+		else
+		    echo >&2 "Botch: mkdir failed"
+		    exit
+		fi
+	    fi
+	    if cd $home/build/$distro
+	    then
+		:
+	    else
+		echo >&2 "Botch: cd failed"
+		exit
+	    fi
+	    if apt --all-versions list >$tmp.all 2>$tmp.err
+	    then
+		:
+	    else
+		cat $tmp.all $tmp.err
+		echo >&2 "Botch: apt failed to list all available packages"
+		exit
+	    fi
+	    grep -E '^(libpcp|pcp-|pcp/|python3-pcp)' <$tmp.all \
+	    | grep -v '/now ' \
+	    | awk '{ print $1,$2 }' \
+	    | sed -e 's@/[^ ]*@@' \
+	    | while read pkg vers
+	    do
+		here=`echo "${pkg}_${vers}_"*.deb`
+		case "$here"
+		in
+		    "${pkg}_${vers}_"'*.deb')
+			if $showme
+			then
+			    echo + apt-get download "${pkg}=${vers}"
+			else
+			    if apt-get download "${pkg}=${vers}"
+			    then
+				:
+			    else
+				echo >&2 "Botch: apt-get failed to download ${pkg}=${vers}"
+				exit
+			    fi
+			fi
+			;;
+		    *\ *)
+			echo "Botch"
+			;;
+		    *)
+			$verbose && echo >&2 "${pkg} already downloaded"
+			;;
+		esac
+	    done
+	    ;;
+
+    Fedora-*)
+	    if [ ! -d $home/build/$distro ]
+	    then
+		if mkdir $home/build/$distro
+		then
+		    :
+		else
+		    echo >&2 "Botch: mkdir failed"
+		    exit
+		fi
+	    fi
+	    if cd $home/build/$distro
+	    then
+		:
+	    else
+		echo >&2 "Botch: cd failed"
+		exit
+	    fi
+	    if dnf --cacheonly --quiet repoquery --latest-limit=1 >$tmp.all 2>$tmp.err
+	    then
+		:
+	    else
+		cat $tmp.all $tmp.err
+		echo >&2 "Botch: dnf failed to list all available packages"
+		exit
+	    fi
+	    grep -E '^(pcp-|python3-pcp)' <$tmp.all \
+	    | while read line
+	    do
+		if [ -f "$line" ]
+		then
+		    $verbose && echo >&2 "$line already downloaded"
+		else
+		    pkg=`echo "$line" | sed -e 's/-[0-9][0-9]*:.*//'`
+		    if $showme
+		    then
+			echo "+ dnf download $pkg"
+		    else
+			if dnf download "$pkg"
+			then
+			    :
+			else
+			    echo >&2 "Botch: dnf failed to download $pkg"
+			    exit
+			fi
+		    fi
+		fi
+	    done
+	    ;;
+
+    *)
+	    echo "Oops, no recipe for distro $distro as yet"
+	    exit
+	    ;;
+esac
+
+status=0
