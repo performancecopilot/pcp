@@ -24,7 +24,11 @@
 #include "utils.h"
 
 /**
- * Creates counter value in given dest
+ * Creates counter value in given destination
+ * @arg config - Config
+ * @arg datagram - Data to extract value from
+ * @arg out - Dest pointer
+ * @return 1 on success, 0 on fail. Should NOT allocate "out" when 0 is returned
  */
 int
 create_counter_value(struct agent_config* config, struct statsd_datagram* datagram, void** out) {

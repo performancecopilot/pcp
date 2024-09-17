@@ -26,7 +26,11 @@
 #include "utils.h"
 
 /**
- * Creates duration value in given dest
+ * Creates duration value in given destination
+ * @arg config - Config from which we know what duration
+ * @arg datagram - Data to extract value from
+ * @arg out - Dest pointer
+ * @return 1 on success, 0 on fail. Should NOT allocate "out" when 0 is returned
  */
 int 
 create_duration_value(struct agent_config* config, struct statsd_datagram* datagram, void** out) {
