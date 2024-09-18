@@ -476,11 +476,12 @@ fi
 }
 
 %global run_pmieconf() %{expand:
-if [ -w "%1" ]
+if [ -d "%1" -a -w "%1" -a -w "%1/%2" ]
 then
-    pmieconf -c enable "%2"
+    pmieconf -f "%1/%2" -c enable "%3"
+    chown pcp:pcp "%1/%2" 2>/dev/null
 else
-    echo "WARNING: Cannot write to %1, skipping pmieconf enable of %2." >&2
+    echo "WARNING: Cannot write to %1/%2, skipping pmieconf enable of %3." >&2
 fi
 }
 
@@ -3223,7 +3224,7 @@ for PMDA in dm nfsclient openmetrics ; do
     fi
 done
 # auto-enable these usually optional pmie rules
-%{run_pmieconf "$PCP_PMIECONFIG_DIR" dmthin}
+%{run_pmieconf "$PCP_PMIECONFIG_DIR" config.default dmthin}
 %if 0%{?rhel} <= 9
 %if !%{disable_systemd}
     systemctl restart pcp-reboot-init pmcd pmlogger pmie >/dev/null 2>&1
