@@ -1,0 +1,30 @@
+# PDU specifications, used by ../src/pdu-gadget to produce a
+# binary PDU stream for QA
+#
+# PDU_HIGHRES_FETCH test cases
+
+# credentials: len type from ncred cred[0]
+? PDU_CREDS 42 1 0x01020000
+
+# profile to fetch all instances of all indoms
+? PDU_PROFILE 0 0 0 0 0
+
+# fetch: len type from ctx time[2] (unused) numpmid pmidlist[...]
+# OK
+? PDU_HIGHRES_FETCH 42 0 0 0 3 pmid(sampledso.long.one) pmid(sampledso.long.ten) pmid(sampledso.long.hundred)
+
+# fetch: len type from ctx time[2] (unused) numpmid
+# BAD < min length
+? PDU_HIGHRES_FETCH 42 0 0 0 0
+
+# fetch: len type from ctx time[2] (unused) numpmid pmidlist[...]
+# BAD numpmid < 1
+? PDU_HIGHRES_FETCH 42 0 0 0 -1 pmid(sampledso.long.one) pmid(sampledso.long.ten) pmid(sampledso.long.hundred)
+
+# fetch: len type from ctx time[2] (unused) numpmid pmidlist[...]
+# BAD PDU too long for numpmid == 2
+? PDU_HIGHRES_FETCH 42 0 0 0 2 pmid(sampledso.long.one) pmid(sampledso.long.ten) pmid(sampledso.long.hundred)
+
+# fetch: len type from ctx time[2] (unused) numpmid pmidlist[...]
+# BAD PDU too short for numpmid == 4
+? PDU_HIGHRES_FETCH 42 0 0 0 4 pmid(sampledso.long.one) pmid(sampledso.long.ten) pmid(sampledso.long.hundred)

@@ -181,8 +181,6 @@ void
 DeleteClient(ClientInfo *cp)
 {
     __pmHashCtl		*hcp;
-    __pmHashNode	*hp;
-    pmProfile		*profile;
     int			i;
 
     for (i = 0; i < nClients; i++)
@@ -216,16 +214,13 @@ DeleteClient(ClientInfo *cp)
     }
     hcp = &cp->profile;
     for (i = 0; i < hcp->hsize; i++) {
+	__pmHashNode	*hp;
 	for (hp = hcp->hash[i]; hp != NULL; hp = hp->next) {
-	    profile = (pmProfile *)hp->data;
-	    if (profile != NULL) {
-		__pmFreeProfile(profile);
-		hp->data = NULL;
-	    }
-
+	    if (hp->data != NULL)
+		__pmFreeProfile((pmProfile *)hp->data);
 	}
     }
-    __pmHashClear(hcp);
+    __pmHashFree(hcp);
     __pmFreeAttrsSpec(&cp->attrs);
     __pmHashClear(&cp->attrs);
     __pmSockAddrFree(cp->addr);

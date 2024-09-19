@@ -175,6 +175,12 @@ network.mptcp.rmaddrtxdrop
 network.mptcp.mpcurrestab
     value 54
 
+network.mptcp.mpjoinsynbackuprx
+    value 55
+
+network.mptcp.mpjoinsynackbackuprx
+    value 56
+
 == Checking network.tcp metrics
 
 network.tcp.rtoalgorithm

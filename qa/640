@@ -6,6 +6,10 @@
 # years; so we now simply check the right permissions are in place
 # and move right along...
 #
+# Aug 2024 update
+# SuSE Issue G identifies another possible exploit, so try that
+# as well.
+#
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
@@ -17,13 +21,54 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-status=0	# success is the default!
-trap "$sudo rm -f $tmp.*; exit \$status" 0 1 2 3 15
+rm -f $seq.full
+ls -li $PCP_LOG_DIR/NOTICES $tmp/badness >>$seq.full 2>&1
+
+_cleanup()
+{
+    if [ -f $PCP_LOG_DIR/NOTICES.$seq ]
+    then
+	$sudo rm -f $PCP_LOG_DIR/NOTICES
+	$sudo mv $PCP_LOG_DIR/NOTICES.$seq $PCP_LOG_DIR/NOTICES
+    fi
+    ls -li $PCP_LOG_DIR/NOTICES $tmp/badness >>$seq.full 2>&1
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$PCP_LOG_DIR@PCP_LOG_DIR@g" \
+	-e '/^pmpost:/s/\[.*]/[DATE]/' \
+    # end
+}
 
 # real QA test starts here
 pmpost=$PCP_BINADM_DIR/pmpost
-echo "Using pmpost binary: $pmpost" > $seq.full
+echo "Using pmpost binary: $pmpost" >>$seq.full
 test -u "$pmpost" && echo "FAIL: pmpost has setuid bit set"
 test -g "$pmpost" && echo "FAIL: pmpost has setgid bit set"
+
+$sudo mkdir $tmp || exit
+$sudo chmod 700 $tmp || exit
+$sudo -u $PCP_USER mv $PCP_LOG_DIR/NOTICES $PCP_LOG_DIR/NOTICES.$seq
+
+$sudo -u $PCP_USER ln -s $tmp/badness $PCP_LOG_DIR/NOTICES >>$seq.full
+$pmpost ordinary user 2>&1 | _filter
+$sudo ls -li $PCP_LOG_DIR/NOTICES $tmp/badness >>$seq.full 2>&1
+$sudo -u pcp $pmpost pcp user 2>&1 | _filter
+$sudo ls -li $PCP_LOG_DIR/NOTICES $tmp/badness >>$seq.full 2>&1
+$sudo $pmpost root user 2>&1 | _filter
+$sudo ls -li $PCP_LOG_DIR/NOTICES $tmp/badness >>$seq.full 2>&1
+if $sudo test -f $tmp/badness
+then
+    $sudo cat $tmp/badness
+fi
+
 echo "Test complete"
+
+status=0
 exit

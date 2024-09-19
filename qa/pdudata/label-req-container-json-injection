@@ -1,0 +1,13 @@
+# PDU specifications, used by ../src/pdu-gadget to produce a
+# binary PDU stream for QA
+#
+# PDU_ATTR test cases
+
+# credentials: len type from ncred cred[0]
+? PDU_CREDS 42 1 0x01020040
+
+# setup attr ...
+# attr: len type from attr type (15 == PCP_ATTR_CONTAINER)
+# BAD container name contains json key=value injection
+#
+? PDU_ATTR 42 15 str(evil-container","evilkey":"evilvalue)

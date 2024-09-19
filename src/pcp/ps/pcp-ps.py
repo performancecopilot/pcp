@@ -532,7 +532,7 @@ class ProcessStatusReporter:
 
 class ProcessStatReport(pmcc.MetricGroupPrinter):
     Machine_info_count = 0
-    group = None    
+    group = None
     def __init__(self, group=None):
         self.group = group
 
@@ -559,7 +559,7 @@ class ProcessStatReport(pmcc.MetricGroupPrinter):
     def __get_ncpu(self, group):
         return group['hinv.ncpu'].netValues[0][2]
 
-    def __print_report(self, timestamp, header_indentation, value_indentation,interval_in_seconds):        
+    def __print_report(self, timestamp, header_indentation, value_indentation,interval_in_seconds):
         metric_repository = ReportingMetricRepository(self.group)
         process_report = ProcessStatus(manager, metric_repository)
         process_filter = ProcessFilter(ProcessStatOptions)
@@ -582,24 +582,23 @@ class ProcessStatReport(pmcc.MetricGroupPrinter):
         timestamp = time.strftime(ProcessStatOptions.timefmt, ts.struct_time())
         return timestamp
 
-    def report(self, manager):     
-        try:          
-            if self.group['proc.psinfo.utime'].netPrevValues is None:                
-                # need two fetches to report rate converted counter metrics 
+    def report(self, manager):
+        try:
+            if self.group['proc.psinfo.utime'].netPrevValues is None:
+                # need two fetches to report rate converted counter metrics
                 return
-            if not self.group['hinv.ncpu'].netValues or not self.group['kernel.uname.sysname'].netValues:            
-                return 
-            try:           
+            if not self.group['hinv.ncpu'].netValues or not self.group['kernel.uname.sysname'].netValues:
+                return
+            try:
                 if not self.Machine_info_count:
                     self.print_machine_info(manager)
                     self.Machine_info_count = 1
             except IndexError:
                 return
-            
             timestamp = self.__get_timestamp()
             interval_in_seconds = self.timeStampDelta()
             header_indentation = "        " if len(timestamp) < 9 else (len(timestamp) - 7) * " "
-            value_indentation = ((len(header_indentation) + 9) - len(timestamp)) * " "            
+            value_indentation = ((len(header_indentation) + 9) - len(timestamp)) * " "
 
             # Doing this for one single print instance in case there is no count specified
             if ProcessStatOptions.print_count is None:

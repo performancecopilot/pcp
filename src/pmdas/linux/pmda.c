@@ -4833,6 +4833,16 @@ static pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_NET_NETSTAT,217), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
+/* network.mptcp.mpjoinsynbackuprx */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPJOINSYNBACKUPRX],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,218), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.mptcp.mpjoinsynackbackuprx */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPJOINSYNACKBACKUPRX],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,219), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
 /* hinv.map.scsi */
     { NULL, 
       { PMDA_PMID(CLUSTER_SCSI,0), PM_TYPE_STRING, SCSI_INDOM, PM_SEM_DISCRETE, 
@@ -8867,8 +8877,10 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		break;
 	    case 8: /* filesys.full */
 		used = (__uint64_t)(sbuf->f_blocks - sbuf->f_bfree);
-		ull = used + (__uint64_t)sbuf->f_bavail;
-		atom->d = (100.0 * (double)used) / (double)ull;
+		if ((ull = used + (__uint64_t)sbuf->f_bavail) == 0)
+		    atom->d = 0;  /* protect against divide-by-zero */
+		else
+		    atom->d = (100.0 * (double)used) / (double)ull;
 		break;
 	    case 9: /* filesys.blocksize -- added by Mike Mason <mmlnx@us.ibm.com> */
 		atom->ul = sbuf->f_bsize;
@@ -8939,8 +8951,10 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		break;
 	    case 7: /* tmpfs.full */
 		used = (__uint64_t)(sbuf->f_blocks - sbuf->f_bfree);
-		ull = used + (__uint64_t)sbuf->f_bavail;
-		atom->d = (100.0 * (double)used) / (double)ull;
+		if ((ull = used + (__uint64_t)sbuf->f_bavail) == 0)
+		    atom->d = 0;  /* protect against divide-by-zero */
+		else
+		    atom->d = (100.0 * (double)used) / (double)ull;
 		break;
 	    default:
 		return PM_ERR_PMID;
@@ -10649,6 +10663,8 @@ linux_init(pmdaInterface *dp)
 	hz = atoi(envpath);
     } else
 	hz = sysconf(_SC_CLK_TCK);
+    if (hz == 0)	/* protect against divide-by-zero */
+	hz = 1;
     if ((envpath = getenv("LINUX_NCPUS")) != NULL) {
 	/*
 	 * If $LINUX_NCPUS is set, this is a QA setting that

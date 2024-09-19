@@ -1,2 +1,3 @@
 QA output created by 076
 no value in pmResult -- expected
+expected an error -- got [-12366] IPC protocol failure

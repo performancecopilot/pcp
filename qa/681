@@ -93,6 +93,18 @@ _run_valgrind src/exectest -Dexec -p $tmp.sh 'blah;trickme|foo' cat and dog 2>&1
 
 echo
 echo "=== error and failure cases ==="
+# plug leak in test program, sometimes (probably in child that fails
+# execvp()
+#
+cat <<'End-of-File' >$tmp.suppress
+{
+   foo
+   Memcheck:Leak
+   fun:malloc
+   fun:main
+}
+End-of-File
+grind_extra="--suppressions=$tmp.suppress"
 _run_valgrind src/exectest -Dexec -- /a/b/c -f oo bar 2>&1 | _filter
 
 # success, all done

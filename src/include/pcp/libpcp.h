@@ -1474,6 +1474,9 @@ PCP_CALL extern void __pmFreeResult(__pmResult *);
 /* diagnostics for formatting or printing miscellaneous data structures */
 PCP_CALL extern void __pmDumpContext(FILE *, int, pmInDom);
 PCP_CALL extern void __pmDumpDebug(FILE *);
+#define PM_CTL_DEBUG_SAVE 1
+#define PM_CTL_DEBUG_RESTORE 2
+PCP_CALL extern void __pmCtlDebug(int);
 PCP_CALL extern void __pmDumpErrTab(FILE *);
 PCP_CALL extern void __pmDumpEventRecords(FILE *, pmValueSet *, int);
 PCP_CALL extern void __pmDumpHighResEventRecords(FILE *, pmValueSet *, int);
@@ -1564,6 +1567,9 @@ PCP_CALL extern void __pmCheckDupLabels(const __pmArchCtl *);
 /* diagnostic output throttling */
 PCP_CALL extern int __pmNotifyThrottle(const char *, int);
 PCP_CALL extern int __pmResetNotifyThrottle(const char *, int, int);
+
+/* client attribute value check */
+PCP_CALL extern int __pmCheckAttribute(__pmAttrKey, const char *);
 
 #ifdef __cplusplus
 }

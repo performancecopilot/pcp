@@ -1,0 +1,28 @@
+# PDU specifications, used by ../src/pdu-gadget to produce a
+# binary PDU stream for QA
+#
+# PDU_INSTANCE_REQ test cases
+#
+
+# credentials: len type from ncred cred[0]
+? PDU_CREDS 42 1 0x01020000
+
+# instance_req: len type from indom time[2] (unused) inst namelen [name]
+# OK ... different name[] lengths
+? PDU_INSTANCE_REQ 42 indom(30.2) 45296 789000 -1 0
+? PDU_INSTANCE_REQ 42 indom(30.2) 45296 789000 -1 7 str(bin-500)
+? PDU_INSTANCE_REQ 42 indom(30.2) 45296 789000 -1 8 str(bin-500x)
+? PDU_INSTANCE_REQ 42 indom(30.2) 45296 789000 -1 9 str(bin-500xy)
+? PDU_INSTANCE_REQ 42 indom(30.2) 45296 789000 -1 10 str(bin-500xyz)
+
+# instance_req: len type from indom time[2] (unused) inst
+# BAD, short PDU < min
+? PDU_INSTANCE_REQ 42 indom(30.2) 45296 789000 -1
+
+# instance_req: len type from indom time[2] (unused) inst
+# BAD, namelen > max (needs to go over word boundary)
+? PDU_INSTANCE_REQ 42 indom(30.2) 45296 789000 -1 10 str(bin-500)
+
+# instance_req: len type from indom time[2] (unused) inst
+# BAD, long PDU
+? PDU_INSTANCE_REQ 42 indom(30.2) 45296 789000 -1 7 str(bin-500) 0xdeadbeef

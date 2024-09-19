@@ -110,8 +110,10 @@ static pmLongOptions longopts[] = {
     { "hostname", 1, 'H', "HOST", "set the hostname to be used for pmcd.hostname metric" },
     { "username", 1, 'U', "USER", "in daemon mode, run as named user [default pcp]" },
     PMAPI_OPTIONS_HEADER("Configuration options"),
+    { "maxctx", 1, 'C', "NCTX", "maximum number of contexts per client [default 64]" },
     { "config", 1, 'c', "PATH", "path to configuration file" },
-    { "", 1, 'L', "BYTES", "maximum size for PDUs from clients [default 65536]" },
+    { "maxbytes", 1, 'L', "BYTES", "maximum size for PDUs from clients [default 65536]" },
+    { "maxmetric", 1, 'M', "NMETRIC", "maximum number of metrics per pmFetch from clients [default 32768]" },
     { "", 1, 'q', "TIME", "PMDA initial negotiation timeout (seconds) [default 3]" },
     { "", 1, 't', "TIME", "PMDA response timeout (seconds) [default 5]" },
     { "verify", 0, 'v', 0, "check validity of pmcd configuration, then exit" },
@@ -130,9 +132,12 @@ static pmLongOptions longopts[] = {
 
 static pmOptions opts = {
     .flags = PM_OPTFLAG_POSIX,
-    .short_options = "Ac:D:fH:i:l:L:N:n:p:q:Qs:St:T:U:vx:?",
+    .short_options = "AC:c:D:fH:i:l:L:M:N:n:p:q:Qs:St:T:U:vx:?",
     .long_options = longopts,
 };
+
+/* #define paranoid to include warnings from command arg changes */
+#undef paranoid
 
 static void
 ParseOptions(int argc, char *argv[], int *nports)
@@ -152,6 +157,20 @@ ParseOptions(int argc, char *argv[], int *nports)
 
 	    case 'A':	/* disable pmcd service advertising */
 		__pmServerClearFeature(PM_SERVER_FEATURE_DISCOVERY);
+		break;
+
+	    case 'C': /* maximum nu,ber of contexts per client */
+		val = (int)strtol(opts.optarg, NULL, 0);
+		if (val <= 0) {
+		    pmprintf("%s: -C requires a positive value\n", pmGetProgname());
+		    opts.errors++;
+		}
+		else {
+#ifdef paranoid
+		    pmprintf("%s: -C: max contexts per client changed from %d to %d\n", pmGetProgname(), maxctx, val);
+#endif
+		    maxctx = val;
+		}
 		break;
 
 	    case 'c':	/* configuration file */
@@ -192,8 +211,26 @@ ParseOptions(int argc, char *argv[], int *nports)
 		if (val <= 0) {
 		    pmprintf("%s: -L requires a positive value\n", pmGetProgname());
 		    opts.errors++;
-		} else {
+		}
+		else {
+#ifdef paranoid
+		    pmprintf("%s: -L: max incoming PDU size changed from %d to %d\n", pmGetProgname(), __pmSetPDUCeiling(0), val);
+#endif
 		    __pmSetPDUCeiling(val);
+		}
+		break;
+
+	    case 'M': /* Maximum number of metrics per pmFetch from clients */
+		val = (int)strtol(opts.optarg, NULL, 0);
+		if (val <= 0) {
+		    pmprintf("%s: -M requires a positive value\n", pmGetProgname());
+		    opts.errors++;
+		}
+		else {
+#ifdef paranoid
+		    pmprintf("%s: -M: max metrics per pmFetch changed from %d to %d\n", pmGetProgname(), maxmetrics, val);
+#endif
+		    maxmetrics = val;
 		}
 		break;
 
@@ -281,6 +318,7 @@ ParseOptions(int argc, char *argv[], int *nports)
 		break;
 	}
     }
+    pmflush();
 
     if (usage || opts.errors || opts.optind < argc) {
 	pmUsageMessage(&opts);
@@ -295,8 +333,8 @@ ParseOptions(int argc, char *argv[], int *nports)
     }
 }
 
-static int
-hostname_changed(void)
+static void
+CheckHostnameChange(void)
 {
     static char	host[MAXHOSTNAMELEN];
     static char	*oldhost = NULL;
@@ -314,13 +352,13 @@ hostname_changed(void)
 	 * to add undue load in cases where pmcd is being queried
 	 * very frequently
 	 */
-	return(0);
+	return;
     }
     
     if ((sts = gethostname(host, MAXHOSTNAMELEN)) < 0) {
-	pmNotifyErr(LOG_WARNING, "hostname_changed: gethostname() -> %d (%s)",
-	    sts, pmErrStr(-oserror()));
-	return 0;
+	pmNotifyErr(LOG_WARNING, "CheckHostnameChange: gethostname() -> %d (%s)",
+		    sts, pmErrStr(-oserror()));
+	return;
     }
 
     if (oldhost == NULL) {
@@ -328,9 +366,9 @@ hostname_changed(void)
 	oldhost = strdup(host);
 	if (oldhost == NULL) {
 	    host[MAXHOSTNAMELEN-1] = '\0';
-	    pmNoMem("hostname_changed", strlen(host), PM_RECOV_ERR);
+	    pmNoMem("CheckHostnameChange", strlen(host), PM_RECOV_ERR);
 	}
-	return 0;
+	return;
     }
 
     if (oldhost != NULL && strcmp(oldhost, host) != 0) {
@@ -345,8 +383,6 @@ hostname_changed(void)
 	/* Inform clients there's been a change in pmcd's hostname */
 	MarkStateChanges(PMCD_HOSTNAME_CHANGE);
     }
-
-    return 0;
 }
 
 /*
@@ -393,24 +429,19 @@ HandleClientInput(__pmFdSet *fdsPtr)
 
 	switch (php->type) {
 	    case PDU_PROFILE:
-		if (hostname_changed()) {
-		    sts = 0;
-		    break;
-		}
+		CheckHostnameChange();
 		sts = (cp->denyOps & PMCD_OP_FETCH) ?
 		      PM_ERR_PERMISSION : DoProfile(cp, pb);
 		break;
 
 	    case PDU_FETCH:
-		if (hostname_changed()) {
-		    sts = 0;
-		    break;
-		}
+		CheckHostnameChange();
 		sts = (cp->denyOps & PMCD_OP_FETCH) ?
 		      PM_ERR_PERMISSION : DoFetch(cp, pb);
 		break;
 
 	    case PDU_HIGHRES_FETCH:
+		CheckHostnameChange();
 		sts = (cp->denyOps & PMCD_OP_FETCH) ?
 		      PM_ERR_PERMISSION : DoHighResFetch(cp, pb);
 		break;
@@ -1024,6 +1055,7 @@ main(int argc, char *argv[])
 #endif
 
     pmcd_pid = getpid();
+    maxinpdusize = __pmSetPDUCeiling(0);	/* starting value */
 
     umask(022);
     __pmProcessDataSize(NULL);

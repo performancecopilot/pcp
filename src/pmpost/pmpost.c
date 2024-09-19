@@ -162,8 +162,12 @@ main(int argc, char **argv)
 	goto oops;
     }
 
-    if ((fd = open(notices, O_WRONLY|O_APPEND, 0)) < 0) {
-	if ((fd = open(notices, O_WRONLY|O_CREAT|O_APPEND, 0664)) < 0) {
+    if ((fd = open(notices, O_WRONLY|O_APPEND|O_NOFOLLOW, 0)) < 0) {
+	if (oserror() == ELOOP) {
+	    /* last component is symlink => attack? ... bail! */
+	    goto oops;
+	}
+	if ((fd = open(notices, O_WRONLY|O_CREAT|O_APPEND|O_NOFOLLOW, 0664)) < 0) {
 	    fprintf(stderr, "pmpost: cannot open or create file \"%s\": %s\n",
 		notices, osstrerror());
 	    if (pmDebugOptions.dev2) {

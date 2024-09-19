@@ -1,0 +1,35 @@
+#!/bin/sh
+# PCP QA Test No. 1610
+# Exercise __pmCheckAttribute.
+#
+# Copyright (c) 2024 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+$sudo rm -rf $tmp $tmp.* $seq.full
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+src/check_attribute container abc123
+src/check_attribute container 'x7|'
+src/check_attribute container '{}'
+src/check_attribute unknown 123
+
+# success, all done
+exit
