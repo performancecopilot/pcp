@@ -532,132 +532,84 @@ class ProcessStatusReporter:
 
 class ProcessStatReport(pmcc.MetricGroupPrinter):
     Machine_info_count = 0
+    group = None
+    def __init__(self, group=None):
+        self.group = group
 
-    def timeStampDelta(self, group):
-        s = group.timestamp.tv_sec - group.prevTimestamp.tv_sec
-        u = group.timestamp.tv_usec - group.prevTimestamp.tv_usec
+    def timeStampDelta(self):
+        s = self.group.timestamp.tv_sec - self.group.prevTimestamp.tv_sec
+        u = self.group.timestamp.tv_usec - self.group.prevTimestamp.tv_usec
         return s + u / 1000000.0
 
-    def print_machine_info(self, group, context):
-        timestamp = context.pmLocaltime(group.timestamp.tv_sec)
+    def print_machine_info(self,context):
+        timestamp = context.pmLocaltime(self.group.timestamp.tv_sec)
         # Please check strftime(3) for different formatting options.
         # Also check TZ and LC_TIME environment variables for more
         # information on how to override the default formatting of
         # the date display in the header
         time_string = time.strftime("%x", timestamp.struct_time())
         header_string = ''
-        header_string += group['kernel.uname.sysname'].netValues[0][2] + '  '
-        header_string += group['kernel.uname.release'].netValues[0][2] + '  '
-        header_string += '(' + group['kernel.uname.nodename'].netValues[0][2] + ')  '
+        header_string += self.group['kernel.uname.sysname'].netValues[0][2] + '  '
+        header_string += self.group['kernel.uname.release'].netValues[0][2] + '  '
+        header_string += '(' + self.group['kernel.uname.nodename'].netValues[0][2] + ')  '
         header_string += time_string + '  '
-        header_string += group['kernel.uname.machine'].netValues[0][2] + '  '
-        print("%s  (%s CPU)" % (header_string, self.get_ncpu(group)))
+        header_string += self.group['kernel.uname.machine'].netValues[0][2] + '  '
+        print("%s  (%s CPU)" % (header_string, self.__get_ncpu(self.group)))
 
-    def get_ncpu(self, group):
+    def __get_ncpu(self, group):
         return group['hinv.ncpu'].netValues[0][2]
+
+    def __print_report(self, timestamp, header_indentation, value_indentation,interval_in_seconds):
+        manager = self.group
+        metric_repository = ReportingMetricRepository(self.group)
+        process_report = ProcessStatus(manager, metric_repository)
+        process_filter = ProcessFilter(ProcessStatOptions)
+        stdout = StdoutPrinter()
+        printdecorator = NoneHandlingPrinterDecorator(stdout)
+        report = ProcessStatusReporter(process_report, process_filter, interval_in_seconds,
+                                        printdecorator.Print, ProcessStatOptions)
+        report.print_report(timestamp, header_indentation, value_indentation)
+    def __print_dynamic_report(self, timestamp, header_indentation, value_indentation,interval_in_seconds):
+        manager = self.group
+        metric_repository = ReportingMetricRepository(self.group)
+        process_report = ProcessStatus(manager, metric_repository)
+        process_filter = ProcessFilter(ProcessStatOptions)
+        stdout = StdoutPrinter()
+        printdecorator = NoneHandlingPrinterDecorator(stdout)
+        report = DynamicProcessReporter(process_report, process_filter, interval_in_seconds,
+                                        printdecorator.Print, ProcessStatOptions)
+        report.print_report(timestamp, header_indentation, value_indentation)
+    def __get_timestamp(self):
+        ts = self.group.contextCache.pmLocaltime(int(self.group.timestamp))
+        timestamp = time.strftime(ProcessStatOptions.timefmt, ts.struct_time())
+        return timestamp
 
     def report(self, manager):
         try:
-            group = manager['psstat']
-            if group['proc.psinfo.utime'].netPrevValues is None:
+            if self.group['proc.psinfo.utime'].netPrevValues is None:
                 # need two fetches to report rate converted counter metrics
                 return
-
-            if not group['hinv.ncpu'].netValues or not group['kernel.uname.sysname'].netValues:
+            if not self.group['hinv.ncpu'].netValues or not self.group['kernel.uname.sysname'].netValues:
                 return
-
             try:
                 if not self.Machine_info_count:
-                    self.print_machine_info(group, manager)
+                    self.print_machine_info(manager)
                     self.Machine_info_count = 1
             except IndexError:
-                # missing some metrics
                 return
-
-            ts = group.contextCache.pmLocaltime(int(group.timestamp))
-            timestamp = time.strftime(ProcessStatOptions.timefmt, ts.struct_time())
-            interval_in_seconds = self.timeStampDelta(group)
+            timestamp = self.__get_timestamp()
+            interval_in_seconds = self.timeStampDelta()
             header_indentation = "        " if len(timestamp) < 9 else (len(timestamp) - 7) * " "
             value_indentation = ((len(header_indentation) + 9) - len(timestamp)) * " "
-
-            metric_repository = ReportingMetricRepository(group)
 
             # Doing this for one single print instance in case there is no count specified
             if ProcessStatOptions.print_count is None:
                 ProcessStatOptions.print_count = 1
-
-            # ================================================================
-            if ProcessStatOptions.show_all_process:
-                process_report = ProcessStatus(manager, metric_repository)
-                process_filter = ProcessFilter(ProcessStatOptions)
-                stdout = StdoutPrinter()
-                printdecorator = NoneHandlingPrinterDecorator(stdout)
-                report = ProcessStatusReporter(process_report, process_filter, interval_in_seconds,
-                                               printdecorator.Print, ProcessStatOptions)
-                report.print_report(timestamp, header_indentation, value_indentation)
-
-            if ProcessStatOptions.empty_arg_flag:
-                process_report = ProcessStatus(manager, metric_repository)
-                process_filter = ProcessFilter(ProcessStatOptions)
-                stdout = StdoutPrinter()
-                printdecorator = NoneHandlingPrinterDecorator(stdout)
-                report = ProcessStatusReporter(process_report, process_filter, interval_in_seconds,
-                                               printdecorator.Print, ProcessStatOptions)
-                report.print_report(timestamp, header_indentation, value_indentation)
-
-            if ProcessStatOptions.pid_filter_flag:
-                process_report = ProcessStatus(manager, metric_repository)
-                process_filter = ProcessFilter(ProcessStatOptions)
-                stdout = StdoutPrinter()
-                printdecorator = NoneHandlingPrinterDecorator(stdout)
-                report = ProcessStatusReporter(process_report, process_filter, interval_in_seconds,
-                                               printdecorator.Print, ProcessStatOptions)
-                report.print_report(timestamp, header_indentation, value_indentation)
-            if ProcessStatOptions.ppid_filter_flag:
-                process_report = ProcessStatus(manager, metric_repository)
-                process_filter = ProcessFilter(ProcessStatOptions)
-                stdout = StdoutPrinter()
-                printdecorator = NoneHandlingPrinterDecorator(stdout)
-                report = ProcessStatusReporter(process_report, process_filter, interval_in_seconds,
-                                               printdecorator.Print, ProcessStatOptions)
-                report.print_report(timestamp, header_indentation, value_indentation)
-
-            if ProcessStatOptions.command_filter_flag:
-                process_report = ProcessStatus(manager, metric_repository)
-                process_filter = ProcessFilter(ProcessStatOptions)
-                stdout = StdoutPrinter()
-                printdecorator = NoneHandlingPrinterDecorator(stdout)
-                report = ProcessStatusReporter(process_report, process_filter, interval_in_seconds,
-                                               printdecorator.Print, ProcessStatOptions)
-                report.print_report(timestamp, header_indentation, value_indentation)
-
-            if ProcessStatOptions.user_oriented_format:
-                process_report = ProcessStatus(manager, metric_repository)
-                process_filter = ProcessFilter(ProcessStatOptions)
-                stdout = StdoutPrinter()
-                printdecorator = NoneHandlingPrinterDecorator(stdout)
-                report = ProcessStatusReporter(process_report, process_filter, interval_in_seconds,
-                                               printdecorator.Print, ProcessStatOptions)
-                report.print_report(timestamp, header_indentation, value_indentation)
-
-            if ProcessStatOptions.username_filter_flag:
-                process_report = ProcessStatus(manager, metric_repository)
-                process_filter = ProcessFilter(ProcessStatOptions)
-                stdout = StdoutPrinter()
-                printdecorator = NoneHandlingPrinterDecorator(stdout)
-                report = ProcessStatusReporter(process_report, process_filter, interval_in_seconds,
-                                               printdecorator.Print, ProcessStatOptions)
-                report.print_report(timestamp, header_indentation, value_indentation)
-
             # ================================================================
             if ProcessStatOptions.selective_colum_flag:
-                process_report = ProcessStatus(manager, metric_repository)
-                process_filter = ProcessFilter(ProcessStatOptions)
-                stdout = StdoutPrinter()
-                printdecorator = NoneHandlingPrinterDecorator(stdout)
-                report = DynamicProcessReporter(process_report, process_filter, interval_in_seconds,
-                                                printdecorator.Print, ProcessStatOptions)
-                report.print_report(timestamp, header_indentation, value_indentation)
+                self.__print_dynamic_report(timestamp, header_indentation, value_indentation, interval_in_seconds)
+            else:
+                self.__print_report(timestamp, header_indentation, value_indentation, interval_in_seconds)
         finally:
             sys.stdout.flush()
 
@@ -815,7 +767,7 @@ if __name__ == "__main__":
             sys.stderr.write('Error: not all required metrics are available\nMissing %s\n' % missing)
             sys.exit(1)
         manager['psstat'] = PSSTAT_METRICS
-        manager.printer = ProcessStatReport()
+        manager.printer = ProcessStatReport(manager['psstat'])
         sts = manager.run()
         sys.exit(sts)
     except pmapi.pmErr as pmerror:
