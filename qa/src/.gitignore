@@ -21,7 +21,9 @@ badpmcdpmid
 badpmda
 batch_import.pl
 bcc_profile
+bigpmcdpmids
 chain
+check_attribute
 check_fault_injection
 check_import
 check_import_name
@@ -185,6 +187,7 @@ pcp_lite_crash
 pdubufbounds
 pducheck
 pducrash
+pdu-gadget
 pdu-server
 permfetch
 pmcdgone

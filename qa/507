@@ -117,8 +117,8 @@ do
     echo "=== no args ===" >>$seq.full
     pcp 2>&1 | tee -a $seq.full | _filter > $tmp.noargs
     statusna=$?
-    echo "=== -h $qahost args ===" >>$seq.full
-    pcp -h $qahost 2>&1 | tee -a $seq.full | _filter > $tmp.local
+    echo "=== -h localhost args ===" >>$seq.full
+    pcp -h localhost 2>&1 | tee -a $seq.full | _filter > $tmp.local
     statusll=$?
     export PMCD_HOST=$qahost
     echo "=== \$PMCD_HOST=$PMCD_HOST args ===" >>$seq.full

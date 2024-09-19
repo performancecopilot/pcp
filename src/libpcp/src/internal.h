@@ -60,6 +60,8 @@ extern int __pmGetDate(struct timespec *, char const *, struct timespec const *)
 #define __ntohpmLabel(a)	/* noop */
 #define __htonpmValueBlock(a)	/* noop */
 #define __ntohpmValueBlock(a)	/* noop */
+#define __ntohpmValueBlock_hdr(a)	/* noop */
+#define __ntohpmValueBlock_buf(a)	/* noop */
 #define __htonf(a)		/* noop */
 #define __ntohf(a)		/* noop */
 #define __htond(a)		/* noop */
@@ -90,6 +92,8 @@ extern void __htonpmLabel(pmLabel * const) _PCP_HIDDEN;
 extern void __ntohpmLabel(pmLabel * const) _PCP_HIDDEN;
 extern void __htonpmValueBlock(pmValueBlock * const) _PCP_HIDDEN;
 extern void __ntohpmValueBlock(pmValueBlock * const) _PCP_HIDDEN;
+extern void __ntohpmValueBlock_hdr(pmValueBlock * const) _PCP_HIDDEN;
+extern void __ntohpmValueBlock_buf(pmValueBlock * const) _PCP_HIDDEN;
 extern void __htonf(char *) _PCP_HIDDEN;	/* float */
 #define __ntohf(v) __htonf(v)
 #define __htond(v) __htonll(v)			/* double */
@@ -374,8 +378,6 @@ extern int __pmIsLocked(void *) _PCP_HIDDEN;
 #ifdef BUILD_WITH_LOCK_ASSERTS
 extern void __pmCheckIsUnlocked(void *, char *, int) _PCP_HIDDEN;
 #endif /* BUILD_WITH_LOCK_ASSERTS */
-
-extern int __pmGetPDUCeiling(void) _PCP_HIDDEN;
 
 extern int __pmSetFeaturesIPC(int, int, int) _PCP_HIDDEN;
 extern int __pmSetDataIPC(int, void *) _PCP_HIDDEN;

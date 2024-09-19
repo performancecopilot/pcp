@@ -33,6 +33,7 @@ main(int argc, char **argv)
     int		errflag = 0;
     int		pipein = 0;
     int		pipeout = 0;
+    int		fd;
     int		nargc = 0;
     char	**nargv;
     FILE	*fin = NULL;
@@ -45,7 +46,7 @@ main(int argc, char **argv)
     setlinebuf(stdout);
     setlinebuf(stderr);
 
-    while ((c = getopt(argc, argv, "D:pP:?")) != EOF) {
+    while ((c = getopt(argc, argv, "D:f:pP:?")) != EOF) {
 	switch (c) {
 
 	case 'D':	/* debug options */
@@ -54,6 +55,13 @@ main(int argc, char **argv)
 		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
 		    pmGetProgname(), optarg);
 		errflag++;
+	    }
+	    break;
+
+	case 'f':	/* open a file (for reading or writing) */
+	    if ((fd = open(optarg, O_RDWR)) < 0) {
+		fprintf(stderr, "%s: cannot open \"%s\" for -f: \"%s\"\n",
+		    pmGetProgname(), optarg, pmErrStr(-errno));
 	    }
 	    break;
 
@@ -83,6 +91,7 @@ main(int argc, char **argv)
 \n\
 Options:\n\
   -D debug[,...] set PCP debugging option(s)\n\
+  -f file        open file before exec()\n\
   -p             read to EOF from __pmProcessPipe\n\
   -P data        read data file and write to __pmProcessPipe\n",
                 pmGetProgname());

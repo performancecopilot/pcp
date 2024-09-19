@@ -1,0 +1,8 @@
+QA output created by 1529
+
+fetch batch size 10
+
+fetch batch size 11
+... more than 200 "Result size exceeded" errors
+
+interesting diagnostic lines ...

@@ -1,0 +1,66 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2024 Red Hat.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.\"
+.TH PMCHECKATTRIBUTE 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3__pmCheckAttribute\f1 \- check value for a client connection attribute
+.SH "C SYNOPSIS"
+.ft 3
+#include "pmapi.h"
+.br
+#include "libpcp.h"
+.sp
+int __pmCheckAttribute(__pmAttrKey \fIattr\fP, const char * \fIvalue\fP);
+.sp
+cc ... \-lpcp
+.ft 1
+.SH CAVEAT
+This documentation is intended for internal Performance Co-Pilot
+(PCP) developer use.
+.PP
+These interfaces are not part of the PCP APIs that are guaranteed to
+remain fixed across releases, and they may not work, or may provide
+different semantics at some point in the future.
+.SH DESCRIPTION
+Connection attributes are exchanged between
+.BR pmcd (1)
+and
+PCP client tools at the start of the protocol exchange.
+They provide optional information relating to an individual
+connection, such as the name of a specific container that is
+under analysis by the client.
+.PP
+.B __pmCheckAttribute
+verifies that the given attribute
+.I attr
+follows the expected syntax for that type of attribute.
+This assists with the prevention of malicious content being
+accepted by
+.B pmcd
+as these attributes may subsequently be used in parsers or
+carried into structured output such as JSON format.
+.SH RETURN VALUES
+When presented with an unrecognised attribute or an invalid
+.I value
+for the specified attribute,
+.B __pmCheckAttribute
+returns a negative value suitable for reporting with
+.BR pmErrStr (3).
+Otherwise the return value is zero indicating success.
+.SH SEE ALSO
+.BR pmdbg (1),
+.BR PMAPI (3)
+and
+.BR pmErrStr (3).

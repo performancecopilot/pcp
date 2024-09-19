@@ -1,0 +1,20 @@
+# PDU specifications, used by ../src/pdu-gadget to produce a
+# binary PDU stream for QA
+#
+# PDU_DESC_REQ test cases
+#
+
+# credentials: len type from ncred cred[0]
+? PDU_CREDS 42 1 0x01020000
+
+# desc_req: len type from ident pmid
+# OK
+? PDU_DESC_REQ 42 pmid(sampledso.longlong.million)
+
+# desc_req: len type from ident type
+# BAD short PDU
+? PDU_DESC_REQ 42
+
+# desc_req: len type from ident type
+# BAD long PDU
+? PDU_DESC_REQ 42 pmid(sampledso.longlong.million) 0xdeadbeef

@@ -176,7 +176,7 @@ ParseOptions(int argc, char *argv[], int *nports, int *maxpending)
 		pmprintf("%s: -L requires a positive value\n", pmGetProgname());
 		opts.errors++;
 	    } else {
-		__pmSetPDUCeiling(sts);
+		pmNotifyErr(LOG_INFO, "-L from command line: max incoming PDU size changed from %d to %d", __pmSetPDUCeiling(sts), sts);
 	    }
 	    break;
 

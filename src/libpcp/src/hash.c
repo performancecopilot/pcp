@@ -32,6 +32,11 @@ __pmHashInit(__pmHashCtl *hcp)
 int
 __pmHashPreAlloc(int hsize, __pmHashCtl *hcp)
 {
+    if (hcp->hash != NULL) {
+	/* too late, or already done before */
+	return -1;
+    }
+
     if ((hcp->hash = (__pmHashNode **)calloc(hsize, sizeof(__pmHashNode *))) == NULL)
 	return -oserror();
 

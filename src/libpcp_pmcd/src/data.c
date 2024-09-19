@@ -33,6 +33,9 @@ PMCD_DATA char *pmcd_hostname;		/* Explicitly requested hostname */
 PMCD_DATA char *pmcd_labels;		/* Current set of context labels */
 
 PMCD_DATA unsigned pmcd_sighups;	/* Count of SIGHUPS responded to */
+PMCD_DATA unsigned maxinpdusize;	/* Max input PDU size (bytes) */
+PMCD_DATA unsigned maxmetrics = 32 * 1024;	/* Max number of PMIDs per pmFetch */
+PMCD_DATA unsigned maxctx = 64;		/* Max number of contexts per client */
 
 
 /*

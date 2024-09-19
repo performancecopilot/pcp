@@ -545,7 +545,7 @@ __pmProcessPipe(__pmExecCtl_t **handle, const char *type, int toss, FILE **fp)
 
 	if (type[0] == 'r') {
 	    close(mypipe[0]);
-	    dup2(mypipe[1], fileno(stdout));
+	    dup2(mypipe[1], STDOUT_FILENO);
 	    close(mypipe[1]);
 	    if (toss & PM_EXEC_TOSS_STDIN) {
 		if (freopen("/dev/null", "r", stdin) == NULL)
@@ -554,14 +554,32 @@ __pmProcessPipe(__pmExecCtl_t **handle, const char *type, int toss, FILE **fp)
 	}
 	else {	/* can safely assume 'w' */
 	    close(mypipe[1]);
-	    dup2(mypipe[0], fileno(stdin));
+	    dup2(mypipe[0], STDIN_FILENO);
 	    close(mypipe[0]);
 	    if (toss & PM_EXEC_TOSS_STDOUT) {
 		if (freopen("/dev/null", "w", stdout) == NULL)
 		    fprintf(stderr, "__pmProcessPipe: freopen stdout failed\n");
 	    }
 	}
-
+	dup2(2, STDERR_FILENO);
+	/*
+	 * we cannot guarantee that all fd's beyond the standard 3
+	 * (stdin, stdout and stderr) have been marked O_CLOEXEC, so
+	 * close all remaing fd's and the child will not inherit them
+	 */
+#if HAVE_CLOSEFROM
+	closefrom(3);
+#else
+	{
+	    /*
+	     * punt that no app calling __pmProcessPipe() uses more
+	     * than 64 fd's
+	     */
+	    int	fd;
+	    for (fd = 3; fd < 64; fd++)
+		close(fd);
+	}
+#endif
 	name = path = ep->argv[0];
 	p = &path[strlen(ep->argv[0])-1];
 	/* strip leading part path from argv[0] */

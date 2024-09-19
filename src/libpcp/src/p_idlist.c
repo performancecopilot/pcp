@@ -83,47 +83,54 @@ __pmSendIDList(int fd, int from, int numids, const pmID idlist[], int sts)
 int
 __pmDecodeIDList(__pmPDU *pdubuf, int numids, pmID idlist[], int *sts)
 {
-    idlist_t	*idlist_pdu;
-    char	*pdu_end;
+    idlist_t	*pp;
     int		nids;
     int		j;
+    int		need;
 
-    idlist_pdu = (idlist_t *)pdubuf;
-    pdu_end = (char *)pdubuf + idlist_pdu->hdr.len;
+    pp = (idlist_t *)pdubuf;
 
-    if (pdu_end - (char *)pdubuf < sizeof(idlist_t) - sizeof(pmID)) {
+    if (pp->hdr.len < sizeof(idlist_t)) {
 	if (pmDebugOptions.pdu) {
-	    fprintf(stderr, "__pmDecodeIDList: PM_ERR_IPC: remainder %d < sizeof(idlist_t) %d - sizeof(pmID) %d\n",
-		(int)(pdu_end - (char*)pdubuf), (int)sizeof(idlist_t), (int)sizeof(pmID));
+	    fprintf(stderr, "__pmDecodeIDList: PM_ERR_IPC: short PDU %d < min size %d\n",
+		pp->hdr.len,  (int)sizeof(idlist_t));
 	}
 	return PM_ERR_IPC;
     }
-    *sts = ntohl(idlist_pdu->sts);
-    nids = ntohl(idlist_pdu->numids);
-    if (nids <= 0 || nids != numids || nids > idlist_pdu->hdr.len) {
+    *sts = ntohl(pp->sts);
+    nids = ntohl(pp->numids);
+    if (nids <= 0 || nids != numids) {
 	if (pmDebugOptions.pdu) {
-	    fprintf(stderr, "__pmDecodeIDList: PM_ERR_IPC: nids %d <= 0 or != numids %d or > hdr.len %d\n",
-		nids, numids, idlist_pdu->hdr.len);
+	    if (nids <= 0)
+		fprintf(stderr, "__pmDecodeIDList: PM_ERR_IPC: numids from PDU %d <= 0\n",
+		    nids);
+	    else
+		fprintf(stderr, "__pmDecodeIDList: PM_ERR_IPC: numids from PDU %d != numids from caller %d\n",
+		    nids, numids);
 	}
 	return PM_ERR_IPC;
     }
-    if (nids >= (INT_MAX - sizeof(idlist_t)) / sizeof(pmID)) {
+    need = (int)(sizeof(idlist_t) + (sizeof(pmID) * (nids-1)));
+    if (pp->hdr.len != need) {
 	if (pmDebugOptions.pdu) {
-	    fprintf(stderr, "__pmDecodeIDList: PM_ERR_IPC: nids %d >= (INT_MAX ...) %d\n",
-		nids, (int)((INT_MAX - sizeof(idlist_t)) / sizeof(pmID)));
-	}
-	return PM_ERR_IPC;
-    }
-    if (sizeof(idlist_t) + (sizeof(pmID) * (nids-1)) > (size_t)(pdu_end - (char *)pdubuf)) {
-	if (pmDebugOptions.pdu) {
-	    fprintf(stderr, "__pmDecodeIDList: PM_ERR_IPC: sizeof(idlist_t) %d + sizeof(pmID) %d > remainder %d\n",
-		(int)sizeof(idlist_t), (int)sizeof(pmID), (int)(pdu_end - (char*)pdubuf));
+	    char	*what;
+	    char	op;
+	    if (pp->hdr.len > need) {
+		what = "long";
+		op = '>';
+	    }
+	    else {
+		what = "short";
+		op = '<';
+	    }
+	    fprintf(stderr, "__pmDecodeIDList: PM_ERR_IPC: PDU too %s %d %c required size %d\n",
+		    what, pp->hdr.len, op, need);
 	}
 	return PM_ERR_IPC;
     }
 
     for (j = 0; j < numids; j++)
-	idlist[j] = __ntohpmID(idlist_pdu->idlist[j]);
+	idlist[j] = __ntohpmID(pp->idlist[j]);
 
     if (pmDebugOptions.pmns) {
 	fprintf(stderr, "%s\n", "__pmDecodeIDList");
@@ -141,48 +148,62 @@ __pmDecodeIDList(__pmPDU *pdubuf, int numids, pmID idlist[], int *sts)
 int
 __pmDecodeIDList2(__pmPDU *pdubuf, int *numids, pmID **idlist)
 {
-    idlist_t	*idlist_pdu;
+    idlist_t	*pp;
     pmID	*pmidlist;
-    char	*pdu_end;
     int		nids;
+    int		maxnids;
     int		j;
+    int		need;
 
-    idlist_pdu = (idlist_t *)pdubuf;
-    pdu_end = (char *)pdubuf + idlist_pdu->hdr.len;
+    pp = (idlist_t *)pdubuf;
 
-    if (pdu_end - (char *)pdubuf < sizeof(idlist_t) - sizeof(pmID)) {
+    if (pp->hdr.len < sizeof(idlist_t)) {
 	if (pmDebugOptions.pdu) {
-	    fprintf(stderr, "__pmDecodeIDList2: PM_ERR_IPC: remainder %d < sizeof(idlist_t) %d - sizeof(pmID) %d\n",
-		(int)(pdu_end - (char*)pdubuf), (int)sizeof(idlist_t), (int)sizeof(pmID));
+	    fprintf(stderr, "__pmDecodeIDList2: PM_ERR_IPC: short PDU %d < min size %d\n",
+		pp->hdr.len,  (int)sizeof(idlist_t));
 	}
 	return PM_ERR_IPC;
     }
-    if (ntohl(idlist_pdu->sts) != -1) {
+    if (ntohl(pp->sts) != -1) {
 	if (pmDebugOptions.pdu) {
 	    fprintf(stderr, "__pmDecodeIDList2: PM_ERR_IPC: sts %d != -1\n",
-		ntohl(idlist_pdu->sts));
+		ntohl(pp->sts));
 	}
 	return PM_ERR_IPC;
     }
-    nids = ntohl(idlist_pdu->numids);
-    if (nids <= 0 || nids > idlist_pdu->hdr.len) {
+    nids = ntohl(pp->numids);
+    if (nids <= 0) {
 	if (pmDebugOptions.pdu) {
-	    fprintf(stderr, "__pmDecodeIDList2: PM_ERR_IPC: nids %d <= 0 or > hdr.len %d\n",
-		nids, idlist_pdu->hdr.len);
+	    fprintf(stderr, "__pmDecodeIDList2: PM_ERR_IPC: numids %d <= 0\n",
+		nids);
 	}
 	return PM_ERR_IPC;
     }
-    if (nids >= (INT_MAX - sizeof(idlist_t)) / sizeof(pmID)) {
+    /* PDU size defines number of pmIDs allowed */
+    maxnids = (int)((pp->hdr.len - sizeof(idlist_t) + sizeof(pmID)) / sizeof(pmID));
+    if (nids > maxnids) {
 	if (pmDebugOptions.pdu) {
-	    fprintf(stderr, "__pmDecodeIDList2: PM_ERR_IPC: nids %d >= (INT_MAX ...)%d\n",
-		nids, (int)((INT_MAX - sizeof(idlist_t)) / sizeof(pmID)));
+	    fprintf(stderr, "__pmDecodeIDList2: PM_ERR_IPC: numids %d > max %d for PDU len %d\n",
+		nids, maxnids, pp->hdr.len);
 	}
 	return PM_ERR_IPC;
     }
-    if (sizeof(idlist_t) + (sizeof(pmID) * (nids-1)) > (size_t)(pdu_end - (char *)pdubuf)) {
+    need = (int)(sizeof(idlist_t) + (sizeof(pmID) * (nids-1)));
+    if (pp->hdr.len != need) {
 	if (pmDebugOptions.pdu) {
-	    fprintf(stderr, "__pmDecodeIDList2: PM_ERR_IPC: sizeof(idlist_t) %d + sizeof(pmID) %d * (nids-1) %d > remainder %d\n",
-		(int)sizeof(idlist_t), (int)sizeof(pmID), nids-1, (int)(pdu_end - (char*)pdubuf));
+	    char	*what;
+	    char	op;
+	    if (pp->hdr.len > need) {
+		what = "long";
+		op = '>';
+	    }
+	    else {
+		/* cannot happen because of maxnids check above */
+		what = "short";
+		op = '<';
+	    }
+	    fprintf(stderr, "__pmDecodeIDList2: PM_ERR_IPC: PDU too %s %d %c required size %d\n",
+		    what, pp->hdr.len, op, need);
 	}
 	return PM_ERR_IPC;
     }
@@ -190,10 +211,10 @@ __pmDecodeIDList2(__pmPDU *pdubuf, int *numids, pmID **idlist)
     if ((pmidlist = malloc(nids * sizeof(pmDesc))) == NULL)
 	return -oserror();
     for (j = 0; j < nids; j++)
-	pmidlist[j] = __ntohpmID(idlist_pdu->idlist[j]);
+	pmidlist[j] = __ntohpmID(pp->idlist[j]);
 
     if (pmDebugOptions.pmns) {
-	fprintf(stderr, "%s\n", "__pmDecodeIDList");
+	fprintf(stderr, "%s\n", "__pmDecodeIDList2");
 	__pmDumpIDList(stderr, nids, pmidlist);
     }
 

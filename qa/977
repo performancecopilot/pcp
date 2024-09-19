@@ -20,7 +20,14 @@ trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 # real QA test starts here
 _run_valgrind src/grind_ctx -h pcp://localhost?container=fe4564ddf901
 _run_valgrind src/grind_ctx -h local:?container=fe4564ddf901
-PCP_CONTAINER=fe4564ddf901 _run_valgrind src/grind_ctx -L
+export PCP_CONTAINER
+PCP_CONTAINER=fe4564ddf901
+_run_valgrind src/grind_ctx -L
+echo Container error cases
+PCP_CONTAINER="{bad}name"
+_run_valgrind src/grind_ctx -L
+PCP_CONTAINER="x}y"
+_run_valgrind src/grind_ctx -L
 
 # success, all done
 status=0

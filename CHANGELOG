@@ -1,5 +1,60 @@
-pcp-6.3.1 (17 September 2024)
+pcp-6.3.2 (6 November 2024)
     - Work-in-progress.
+
+pcp-6.3.1 (17 September 2024)
+    - Client tools and utilities:
+	pcp2arrow: fix extraction of values for metrics with indoms
+	pcp-htop: fix platform setting enabling screen tabs
+	pcp-htop: update to latest upstream bug fixes
+	pcp-meminfo: added timestamp string for consistency
+    - PMDA additions, enhancements and bug fixes:
+	pmdaopenmetrics: add vLLM metrics support by default
+	pmdahacluster: handle pacemaker 2.1.6 crm_mon output changes
+	pmdahacluster: handle new style Pacemaker role descriptions
+	pmdalinux: MPJoinSynBackupRx, MPJoinSynAckBackupRx netstat metrics
+	pmdalinux: sysfs fallback from hinv.cpu.clock metric
+	pmdaproc: lazy initialisation for accounting metrics
+	pmdapmcd: expose pmcd limits as new metrics
+	pmdammv: use isnan instead of open-coding NaN checks
+    - Server-side utilities and log management scripts:
+	pmcd: put an explicit cap on max number of fetched PMIDs
+	pmcd: put an explicit cap on max number of contexts per client
+	pmcd: cleanup caching of local hostname string
+	pmpost: guard against possible symlink attack
+	pmproxy: transition to dual Redis/Valkey support
+    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings:
+	libpcp_web: fix a race in webgroup context teardown on timeout
+	libpcp_web: transition to dual Redis/Valkey support
+	libpcp: auto-load the proc PMDA in local context mode
+	libpcp: fix buffer overflow in __pmServerAddInterface
+	libpcp: refactor the attr PDU content checking
+	libpcp: desc PDU consistency check and error message rework
+	libpcp: text PDU consistency check and error message rework
+	libpcp: creds PDU consistency check and error message rework
+	libpcp: label PDU consistency check and error message rework
+	libpcp: instance PDU consistency check and error message rework
+	libpcp: rework some fetch PDU integrity checks and error messages
+	libpcp: reworked __pmDecodeIDList integrity checks and warnings
+	libpcp: ensure no fd leakage to child from __pmProcessPipe
+	libpcp: ensure container names contain limited characters
+	libpcp: fix buffer overrun test in __pmDecodeValueSet
+	libpcp: hardening of the results PDU handling
+	libpcp: hardening of the creds PDU handling
+	libpcp: add new __pmCtlDebug() function
+	python API: fix MMV metric text, indom and semantics handling
+	python API: add log import timestamp convenience mechanisms
+    - Build, infrastructure and packaging updates:
+	build: tweak Makepkgs as dpkg-parsechangelog(1) is a bit picky
+	build: drop gfs2 PMDA from build if distro vendor opts-out
+	build: update denki.conf packaging location for consistency
+    - Documentation:
+	man pages: tidy up references to $PCP_DEBUG
+	man pages: __pmHash* added to man3i
+	man pages: pmnewcontext(3) unix: and local: option details
+	docs: man page updates transitioning away from Redis
+	docs: correct pmlogger(1) man page reference to section 5 page
+	docs: update the books to refer to key servers more generically
+	pmrep et al man pages: describe derived metric troubleshooting
 
 pcp-6.3.0 (30 July 2024)
     - Client tools and utilities:

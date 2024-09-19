@@ -763,17 +763,13 @@ check_read_len:
 }
 
 int
-__pmGetPDUCeiling(void)
-{
-    return ceiling;
-}
-
-int
 __pmSetPDUCeiling(int newceiling)
 {
-    if (newceiling > 0)
-	return (ceiling = newceiling);
-    return ceiling;
+    int		oldceiling = ceiling;
+    if (newceiling > 0) {
+	ceiling = newceiling;
+    }
+    return oldceiling;
 }
 
 void
