@@ -8877,8 +8877,10 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		break;
 	    case 8: /* filesys.full */
 		used = (__uint64_t)(sbuf->f_blocks - sbuf->f_bfree);
-		ull = used + (__uint64_t)sbuf->f_bavail;
-		atom->d = (100.0 * (double)used) / (double)ull;
+		if ((ull = used + (__uint64_t)sbuf->f_bavail) == 0)
+		    atom->d = 0;  /* protect against divide-by-zero */
+		else
+		    atom->d = (100.0 * (double)used) / (double)ull;
 		break;
 	    case 9: /* filesys.blocksize -- added by Mike Mason <mmlnx@us.ibm.com> */
 		atom->ul = sbuf->f_bsize;
@@ -8949,8 +8951,10 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		break;
 	    case 7: /* tmpfs.full */
 		used = (__uint64_t)(sbuf->f_blocks - sbuf->f_bfree);
-		ull = used + (__uint64_t)sbuf->f_bavail;
-		atom->d = (100.0 * (double)used) / (double)ull;
+		if ((ull = used + (__uint64_t)sbuf->f_bavail) == 0)
+		    atom->d = 0;  /* protect against divide-by-zero */
+		else
+		    atom->d = (100.0 * (double)used) / (double)ull;
 		break;
 	    default:
 		return PM_ERR_PMID;
@@ -10659,6 +10663,8 @@ linux_init(pmdaInterface *dp)
 	hz = atoi(envpath);
     } else
 	hz = sysconf(_SC_CLK_TCK);
+    if (hz == 0)	/* protect against divide-by-zero */
+	hz = 1;
     if ((envpath = getenv("LINUX_NCPUS")) != NULL) {
 	/*
 	 * If $LINUX_NCPUS is set, this is a QA setting that

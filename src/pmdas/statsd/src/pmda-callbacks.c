@@ -134,6 +134,7 @@ create_pcp_metric(char* key, struct metric* item, pmdaExt* pmda) {
         "STATSD: adding metric %s %s from %s\n", item->meta->pcp_name, pmIDStr(item->meta->pmid), item->name
     );
     item->meta->pcp_metric_index = i;
+    data->pcp_metric_count += 1;
 }
 
 /***
@@ -366,7 +367,6 @@ map_metric(char* key, struct metric* item, void* pmda) {
     if (item->meta->pcp_instance_change_requested == 1) {
         update_pcp_metric_instance_domain(key, item, (pmdaExt*)pmda);
     }
-    data->pcp_metric_count += 1;
     process_stat(data->config, data->stats_storage, STAT_TRACKED_METRIC, (void*)item->type);
     VERBOSE_LOG(1, "Populated PMNS with %d, %s .", item->meta->pmid, item->meta->pcp_name);
     pmdaTreeInsert(data->pcp_pmns, item->meta->pmid, item->meta->pcp_name);
