@@ -560,6 +560,7 @@ class ProcessStatReport(pmcc.MetricGroupPrinter):
         return group['hinv.ncpu'].netValues[0][2]
 
     def __print_report(self, timestamp, header_indentation, value_indentation,interval_in_seconds):
+        manager = self.group
         metric_repository = ReportingMetricRepository(self.group)
         process_report = ProcessStatus(manager, metric_repository)
         process_filter = ProcessFilter(ProcessStatOptions)
@@ -569,6 +570,7 @@ class ProcessStatReport(pmcc.MetricGroupPrinter):
                                         printdecorator.Print, ProcessStatOptions)
         report.print_report(timestamp, header_indentation, value_indentation)
     def __print_dynamic_report(self, timestamp, header_indentation, value_indentation,interval_in_seconds):
+        manager = self.group
         metric_repository = ReportingMetricRepository(self.group)
         process_report = ProcessStatus(manager, metric_repository)
         process_filter = ProcessFilter(ProcessStatOptions)
