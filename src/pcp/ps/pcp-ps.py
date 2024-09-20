@@ -208,8 +208,11 @@ class ProcessStatusUtil:
             data = '-'
             return data
 
-    def process_name_with_args(self):
-        data = self.__metric_repository.current_value('proc.psinfo.psargs', self.instance)[:30]
+    def process_name_with_args(self,flag = False):
+        if flag is True:
+            data = self.__metric_repository.current_value('proc.psinfo.psargs', self.instance)
+        else:
+            data = self.__metric_repository.current_value('proc.psinfo.psargs', self.instance)[:30]
         if len(data) < 30:
             whitespace = 30 - len(data)
             res = data.ljust(whitespace + len(data), ' ')
@@ -217,6 +220,8 @@ class ProcessStatusUtil:
         else:
             return data
 
+    def process_name_with_args_last(self):
+        return self.process_name_with_args(True)
     def vsize(self):
         return self.__metric_repository.current_value('proc.psinfo.vsize', self.instance)
 
@@ -347,14 +352,16 @@ PIDINFO_PAIR = {"%cpu": ('%CPU', ProcessStatusUtil.system_percent),
                 "start": ("START\t", ProcessStatusUtil.start),
                 "time": ("TIME\t", ProcessStatusUtil.total_time),
                 "cls": ("CLS", ProcessStatusUtil.policy),
-                "cmd": ("Command\t\t\t", ProcessStatusUtil.process_name_with_args),
+                "cmd": ("Command\t\t\t", ProcessStatusUtil.process_name),
+                "args": ("Command\t\t\t", ProcessStatusUtil.process_name_with_args),
+                "args_last": ("Command\t\t\t", ProcessStatusUtil.process_name_with_args_last),
                 "pid": ("PID\t", ProcessStatusUtil.pid),
                 "ppid": ("PPID\t", ProcessStatusUtil.ppid),
                 "pri": ("PRI", ProcessStatusUtil.priority),
                 "state": ("S", ProcessStatusUtil.s_name),
                 "rss": ("RSS", ProcessStatusUtil.rss),
                 "rtprio": ("RTPRIO", ProcessStatusUtil.priority),
-                "tty": ("TT", ProcessStatusUtil.tty_name),
+                "tty": ("TTY\t", ProcessStatusUtil.tty_name),
                 "pname": ("Pname\t\t", ProcessStatusUtil.process_name),
                 "vsize": ("VSZ", ProcessStatusUtil.vsize),
                 "uname": ("USER\t", ProcessStatusUtil.user_name),
@@ -384,6 +391,9 @@ class DynamicProcessReporter:
         self.printer = printer
         self.processStatOptions = processStatOptions
 
+    def _is_last_and_args(self, key):
+        return (key == "args") and \
+        self.processStatOptions.colum_list.index(key) == len(self.processStatOptions.colum_list) - 1
     def print_report(self, timestamp, header_indentation, value_indentation):
 
         # when the print count is exhausted exit the program gracefully
@@ -440,7 +450,9 @@ class DynamicProcessReporter:
             for process in processes:
                 data_to_print = timestamp + '\t'
                 for key in self.processStatOptions.colum_list:
-                    if key in PIDINFO_PAIR:
+                    if self._is_last_and_args(key):
+                        data_to_print += str(PIDINFO_PAIR["args_last"][1](process)) + '\t\t'
+                    elif key in PIDINFO_PAIR:
                         data_to_print += str(PIDINFO_PAIR[key][1](process)) + '\t\t'
                 print(data_to_print)
 
@@ -467,7 +479,7 @@ class ProcessStatusReporter:
             self.printer("Timestamp" + header_indentation + "PID\t\t\tTTY\tTIME\t\tCMD")
             processes = self.process_filter.filter_processes(self.process_report.get_processes(self.delta_time))
             for process in processes:
-                command = process.process_name()
+                command = process.process_name_with_args(True)
                 ttyname = process.tty_name()
                 self.printer("%s%s%s\t\t%s\t%s\t%s" % (timestamp, value_indentation, process.pid(), ttyname,
                                                        process.total_time(), command))
@@ -559,8 +571,7 @@ class ProcessStatReport(pmcc.MetricGroupPrinter):
     def __get_ncpu(self, group):
         return group['hinv.ncpu'].netValues[0][2]
 
-    def __print_report(self, timestamp, header_indentation, value_indentation,interval_in_seconds):
-        manager = self.group
+    def __print_report(self, manager,timestamp, header_indentation, value_indentation,interval_in_seconds):
         metric_repository = ReportingMetricRepository(self.group)
         process_report = ProcessStatus(manager, metric_repository)
         process_filter = ProcessFilter(ProcessStatOptions)
@@ -569,8 +580,7 @@ class ProcessStatReport(pmcc.MetricGroupPrinter):
         report = ProcessStatusReporter(process_report, process_filter, interval_in_seconds,
                                         printdecorator.Print, ProcessStatOptions)
         report.print_report(timestamp, header_indentation, value_indentation)
-    def __print_dynamic_report(self, timestamp, header_indentation, value_indentation,interval_in_seconds):
-        manager = self.group
+    def __print_dynamic_report(self, manager,timestamp, header_indentation, value_indentation,interval_in_seconds):
         metric_repository = ReportingMetricRepository(self.group)
         process_report = ProcessStatus(manager, metric_repository)
         process_filter = ProcessFilter(ProcessStatOptions)
@@ -607,9 +617,10 @@ class ProcessStatReport(pmcc.MetricGroupPrinter):
                 ProcessStatOptions.print_count = 1
             # ================================================================
             if ProcessStatOptions.selective_colum_flag:
-                self.__print_dynamic_report(timestamp, header_indentation, value_indentation, interval_in_seconds)
+                self.__print_dynamic_report(manager,timestamp, header_indentation,
+                                            value_indentation, interval_in_seconds)
             else:
-                self.__print_report(timestamp, header_indentation, value_indentation, interval_in_seconds)
+                self.__print_report(manager,timestamp, header_indentation, value_indentation, interval_in_seconds)
         finally:
             sys.stdout.flush()
 
