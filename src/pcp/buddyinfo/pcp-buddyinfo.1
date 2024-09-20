@@ -23,6 +23,7 @@
 [\f2pcp\ options\f1]
 \f3buddyinfo\f1
 [\f3\-Vz?\f1]
+[\f3\-u?\f1]
 [\f3\-s\f1 \f2samples\f1]
 [\f3\-a\f1 \f2archive\f1]
 [\f3\-Z\f1 \f2timezone\f1]
@@ -71,6 +72,12 @@ Fetch /proc/buddyinfo metrics for the specified archive file
 \fB\-s\fR \fIcount\fR, \fB\-\-samples\fR=\fIcount\fR
 Get the buddyinfo statistics for specified number of samples \fIcount\fR
 .TP
+.TP
+\fB\-u\fR , \fB\-\-no-interpolation\fR
+disable interpolation mode with archives, With the -u option, uninterpolated reporting is enabled - every value is reported according to  the
+native  recording  interval  in  the  set  of  archives.  When the -u option is specified, the -t option makes no sense and is incompatible because the replay interval is always the same as the
+recording interval in the set of archive.  In addition, -u only makes sense when replaying archives, see the -a option on PCPIntro(1), and so if -u is specified then -a must also be specified.
+.TP
 \fB\-z\fR, \fB\-\-hostzone\fR
 Use the local timezone of the host that is the source of the
 performance metrics, as identified by either the
@@ -98,6 +105,12 @@ Display usage message and exit.
 .SH NOTES
 .B pcp-buddyinfo
 collects information from \fI/proc/buddyinfo\fP Linux kernel file.
+
+In no interpolation mode it might be possible that some metrics which are recorded at differnt rate might be shown as 
+.B unknown
+value for a 
+.BR pmlogextract(1)
+archive file.
 .SH PCP ENVIRONMENT
 Environment variables with the prefix \fBPCP_\fP are used to parameterize the file and directory names used by PCP. On each installation, the file \fI/etc/pcp.conf\fP contains the local values for these variables. The \fB$PCP_CONF\fP variable may be used to specify an alternative configuration file, as described in \fBpcp.conf\fP(5).
 .PP

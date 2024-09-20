@@ -188,7 +188,7 @@ class BuddyinfoOptions(pmapi.pmOptions):
         self.context=None
     def checkOptions(self, manager):
         if BuddyinfoOptions.uflag:
-            if manager._options.pmGetOptionInterval():
+            if manager._options.pmGetOptionInterval():  # pylint: disable=protected-access
                 print("Error: -t incompatible with -u")
                 return False
             if manager.type != PM_CONTEXT_ARCHIVE:
@@ -206,7 +206,7 @@ if __name__ == '__main__':
             raise pmapi.pmUsageErr
         if BuddyinfoOptions.uflag:
             # -u turns off interpolation
-            mngr.pmSetMode(PM_MODE_FORW, mngr._options.pmGetOptionOrigin(), 0)
+            mngr.pmSetMode(PM_MODE_FORW, mngr._options.pmGetOptionOrigin(), 0) # pylint: disable=protected-access
 
         missing = mngr.checkMissingMetrics(ALL_METRICS)
         if missing is not None:
