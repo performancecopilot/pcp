@@ -93,7 +93,10 @@ class BuddyinfoReport(pmcc.MetricGroupPrinter):
                 self.header = header_string
             except  IndexError:
                 pass
-        print("%s  (%s CPU)" % (self.header, self.__get_ncpu(context)))
+        try:
+            print("%s  (%s CPU)" % (self.header, self.__get_ncpu(context)))
+        except  IndexError:
+            pass
 
     def __print_header(self,header_indentation,value_indentation):
         value_indentation+=" "*2
@@ -132,10 +135,10 @@ class BuddyinfoReport(pmcc.MetricGroupPrinter):
                 print("%s %s %s %s %s %s %s "%(timestamp,header_indentation,nodename,header_indentation,node,
                                                   header_indentation,value))
 
-    def print_report(self,group,timestamp,header_indentation,value_indentation,manager_buddyinfo):
+    def print_report(self,group,timestamp,header_indentation,value_indentation):
 
         def __print_buddy_status():
-            buddystatus = BuddyStatUtil(manager_buddyinfo)
+            buddystatus = BuddyStatUtil(group)
             if buddystatus.names():
                 try:
                     self.__print_machine_info(group)
@@ -157,13 +160,13 @@ class BuddyinfoReport(pmcc.MetricGroupPrinter):
             self.samples-=1
 
     def report(self, manager):
-        group = manager["sysinfo"]
+        group = manager["allinfo"]
         self.samples=self.opts.pmGetOptionSamples()
         t_s = group.contextCache.pmLocaltime(int(group.timestamp))
         timestamp = time.strftime(BuddyinfoOptions.timefmt, t_s.struct_time())
         header_indentation = "        " if len(timestamp) < 9 else (len(timestamp) - 7) * " "
         value_indentation = ((len(header_indentation) + 2) - len(timestamp)) * " "
-        self.print_report(group,timestamp,header_indentation,value_indentation,manager['buddyinfo'])
+        self.print_report(group,timestamp,header_indentation,value_indentation)
 
 class BuddyinfoOptions(pmapi.pmOptions):
     timefmt = "%H:%M:%S"
@@ -213,7 +216,6 @@ if __name__ == '__main__':
             sys.stderr.write('Error: not all required metrics are available\nMissing: %s\n' % (missing))
             sys.exit(1)
         mngr["buddyinfo"] = BUDDYSTAT_METRICS
-        mngr["sysinfo"] = SYS_MECTRICS
         mngr["allinfo"]=ALL_METRICS
         mngr.printer = BuddyinfoReport(opts,mngr)
         sts = mngr.run()
