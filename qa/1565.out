@@ -1,0 +1,42 @@
+QA output created by 1565
+
+=== -v 500 ===
+vol switch record count 500
+pmlogextract: New log volume 1, at 07:05:11.627549000
+vol switch record count 1000
+pmlogextract: New log volume 2, at 14:01:11.627546000
+vol switch record count 1500
+pmlogextract: New log volume 3, at 20:58:11.627544000
+Note: timezone set to local timezone of host "vm01" from archive
+
+4 volumes
+
+=== -v 4mb ===
+vol switch volume size 4190980 now, next record 8732 bytes
+pmlogextract: New log volume 1, at 07:11:11.626484000
+vol switch volume size 4190836 now, next record 8732 bytes
+pmlogextract: New log volume 2, at 14:13:11.627076000
+vol switch volume size 4191076 now, next record 8732 bytes
+pmlogextract: New log volume 3, at 21:15:11.627074000
+Note: timezone set to local timezone of host "vm01" from archive
+
+4 volumes
+
+=== -v 3h ===
+vol switch volume timespan after next record 10800.027679000 sec
+pmlogextract: New log volume 1, at 03:10:11.627252000
+vol switch volume timespan after next record 10800.000387000 sec
+pmlogextract: New log volume 2, at 06:10:11.627639000
+vol switch volume timespan after next record 10800.006016000 sec
+pmlogextract: New log volume 3, at 09:10:11.633655000
+vol switch volume timespan after next record 10859.993916000 sec
+pmlogextract: New log volume 4, at 12:11:11.627571000
+vol switch volume timespan after next record 10859.999420000 sec
+pmlogextract: New log volume 5, at 15:12:11.626991000
+vol switch volume timespan after next record 10859.998208000 sec
+pmlogextract: New log volume 6, at 18:13:11.625199000
+vol switch volume timespan after next record 10800.001876000 sec
+pmlogextract: New log volume 7, at 21:13:11.627075000
+Note: timezone set to local timezone of host "vm01" from archive
+
+8 volumes

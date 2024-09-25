@@ -2037,6 +2037,7 @@ pmcd.pdu
 1562 pminfo local
 1563 pminfo local valgrind
 1564 pmda.linux pcp local
+1565 pmlogextract local
 1566 logutil libpcp local
 1567 pmie_util local
 1573 pmproxy libpcp_web pmlogger local
