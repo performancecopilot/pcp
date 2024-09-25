@@ -531,6 +531,7 @@ Extending a root LVM with device-mapper by adding a partition
     Assume partiton to add is partiton 1 of /dev/vdb
     $ disk=/dev/vdb
     $ sudo cfdisk $disk		<- make 1 partition, all of the disk
+    				<- gpt, new, write, quit
     $ sudo pvcreate ${disk}1	<- initialize partition for use with LVM
     $ sudo vgdisplay		<- get volume group name
     $ vg=<name>			<- from above will be "fedora-server" or
