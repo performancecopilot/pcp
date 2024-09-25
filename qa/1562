@@ -1,0 +1,94 @@
+#!/bin/sh
+# PCP QA Test No. 1562
+# pminfo malloc/free botch and bad reporting for dynamic metrics with
+# no children (like when a node is left in the PMNS, but the
+# corresponding PMDA is not active via pmcd).
+#
+# non-valgrind variant, see qa/1563 for the valgrind variant
+#
+# Copyright (c) 2024 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+$sudo rm -rf $tmp $tmp.* $seq.full
+
+do_valgrind=false
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+    do_valgrind=true
+elif which valgrind >/dev/null 2>&1
+then
+    [ "$PCPQA_VALGRIND" = both ] || \
+        _notrun "valgrind variant qa/1563 will be run"
+fi
+
+_cleanup()
+{
+    cd $here
+    echo "Restore pmcd.conf and restart PMCD ..."
+    if [ -f $tmp.pmcd.conf ]
+    then
+	$sudo cp $tmp.pmcd.conf $PCP_PMCDCONF_PATH
+	_service pmcd restart 2>&1 | _filter_pcp_start
+	_wait_for_pmcd
+	rm -f $tmp.pmcd.conf
+    fi
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+    # end
+}
+
+# cull the sample PMDA from pmcd.conf, leave names in the PMNS
+#
+cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
+echo "# Installed by PCP QA test $seq on `date`" >$tmp.tmp
+sed -e '/^sample[ 	]/s/^/#/' <$PCP_PMCDCONF_PATH >>$tmp.tmp
+$sudo cp $tmp.tmp $PCP_PMCDCONF_PATH
+_service pmcd restart 2>&1 | _filter_pcp_start
+
+# real QA test starts here
+
+for args in "-b 1 sample.ghosts" \
+	    "sample.ghosts sample.ghosts" \
+	    "-b 1 sample.ghosts sampledso.bin" \
+	    "sampledso.bin sample.ghosts" \
+	    "sample.ghosts sampledso.bin" \
+	    "sample.colour sample.ghosts sample.bin" \
+	    "sampledso.colour sample.ghosts sampledso.bin"
+do
+    echo
+    echo "=== $args ==="
+    if $do_valgrind
+    then
+	_run_valgrind pminfo -d $args
+    else
+	pminfo -d $args
+    fi \
+    | _filter
+done
+
+# success, all done
+exit
