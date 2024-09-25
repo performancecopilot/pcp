@@ -157,7 +157,7 @@ _uninstall_deb()
 	    else
 		if sudo apt-get --yes --quiet purge `cat $tmp.list` >$tmp.out 2>&1
 		then
-		    $showme || echo "Info: PCP uninstalled"
+		    $showme || echo "Info: uninstalled PCP"
 		else
 		    cat $tmp.out
 		    return 1
@@ -170,6 +170,11 @@ _uninstall_deb()
 	cat $tmp.out
 	return 1
     fi
+
+    # cull any left-over bits that will mess with QA after
+    # an install
+    #
+    sudo rm -rf /etc/pcp /var/lib/pcp
 
     return 0
 }
@@ -220,32 +225,99 @@ _upgrade_deb()
 
 _have_latest_rpm()
 {
-    nrpm=`( [ -d $home/pcp-$thisver/build/rpm ] && ls $home/pcp-$thisver/build/rpm/*.rpm 2>/dev/null ) | wc -l | sed -e 's/ //g'`
-    if [ -n "$nrpm" -a "$nrpm" -ge 150 ]
+    nrpm=`( [ -d $home/pcp-$thisver/build/rpm ] && ls $home/pcp-$thisver/build/rpm/*.rpm 2>/dev/null ) | grep -v '.-debuginfo-' | wc -l | sed -e 's/ //g'`
+    if [ -n "$nrpm" -a "$nrpm" -ge 100 ]
     then
 	return 0
     else
-	echo "Error: expecting at least 40 .rpms, found $nrpm"
+	echo "Error: expecting at least 100 .rpms, found $nrpm"
 	return 1
     fi
 }
 
 _uninstall_rpm()
 {
-    echo "rpm NYI"
-    return 1
+    if $interactive
+    then
+	_ask "_uninstall_rpm" || return 0
+    fi
+    if rpm -qa >$tmp.out 2>&1
+    then
+	grep -E '^(pcp-|python.-pcp-|perl-PCP-)' <$tmp.out \
+	| sed -e 's/-[0-9].*//' \
+	| tr '\012' ' ' >$tmp.list
+	if [ -s $tmp.list ]
+	then
+	    if $showme
+	    then
+		echo "+ sudo rpm -e `cat $tmp.list`"
+	    else
+		if sudo rpm -e `cat $tmp.list` >$tmp.out 2>&1
+		then
+		    $showme || echo "Info: uninstalled PCP"
+		else
+		    cat $tmp.out
+		    return 1
+		fi
+	    fi
+	else
+	    echo "Warning: no PCP packages installed?"
+	fi
+    else
+	cat $tmp.out
+	return 1
+    fi
+
+    # cull any left-over bits that will mess with QA after
+    # an install
+    #
+    sudo rm -rf /etc/pcp /var/lib/pcp
+
+    return 0
 }
 
 _install_rpm()
 {
-    echo "rpm NYI"
-    return 1
+    if $interactive
+    then
+	_ask "_install_rpm from `pwd`" || return 0
+    fi
+    if $showme
+    then
+	echo "+ sudo dnf -y install *.rpm"
+    else
+	if sudo dnf -y install *.rpm >$tmp.out 2>&1
+	then
+	    $very_verbose && cat $tmp.out
+	else
+	    cat $tmp.out
+	    return 1
+	fi
+    fi
+
+    return 0
 }
 
 _upgrade_rpm()
 {
-    echo "rpm NYI"
-    return 1
+    if $interactive
+    then
+	_ask "_upgrade_rpm from `pwd`" || return 0
+    fi
+    if $showme
+    then
+	echo "+ sudo rpm -U *.rpm"
+    else
+	if sudo rpm -U `ls *.rpm | sed -e '/\.src\.rpm\\$/d'` >$tmp.out 2>&1
+	then
+	    $very_verbose && cat $tmp.out
+	else
+	    cat $tmp.out
+	    return 1
+	fi
+    fi
+
+    return 0
 }
 
 _qa()
@@ -302,11 +374,11 @@ $verbose && echo >&2 lastver=$lastver
 
 case $distro
 in
-    Ubuntu-*)
+    Debian-*|Ubuntu-*|MX-*)
 	    type=deb
 	    ;;
 
-    Fedora-*)
+    Fedora-*|RHEL-*)
 	    type=rpm
 	    ;;
 
@@ -324,20 +396,36 @@ else
     exit
 fi
 
+case "$type"
+in
+    deb)
+	thispkgdir=build/$type
+	lastpkgdir=build/$type-$lastver
+	;;
+    rpm)
+	thispkgdir=pcp-$thisver/build/$type
+	lastpkgdir=build/$type-$lastver
+	;;
+    *)
+	echo >&2 "Botch: don't know where to find current $type packages"
+	exit
+	;;
+esac
+
 if [ -d $home/build/$distro ]
 then
     if _uninstall_$type
     then
-	$showme && echo "+ cd build/$distro"
+	$showme && echo "+ cd $home/build/$distro"
 	cd $home/build/$distro
 	if _install_$type
 	then
-	    $showme || echo "Info: PCP `_pcp_version` installed"
-	    $showme && echo "+ cd build/$type"
-	    cd $home/build/$type
+	    $showme || echo "Info: installed distro PCP `_pcp_version`"
+	    $showme && echo "+ cd $home/$thispkgdir"
+	    cd $home/$thispkgdir
 	    if _upgrade_$type
 	    then
-		$showme || echo "Info: PCP `_pcp_version` installed"
+		$showme || echo "Info: upgraded to PCP `_pcp_version`"
 		if _qa
 		then
 		    $showme || echo "Info: sanity QA passes"
@@ -351,28 +439,28 @@ then
 	    $showme || echo "Error: installation of $distro distro version failed"
 	fi
     else
-	$showme || echo "Error: uninstallation of all PCP failed"
+	$showme || echo "Error: uninstallation of PCP failed"
     fi
 else
-    echo "Info: build/$distro missing, skip this test"
+    echo "Info: $home/build/$distro missing, skip this test"
 fi
 
 if [ -n "$lastver" ]
 then
-    if [ -d $home/build/$type-$lastver ]
+    if [ -d $home/$lastpkgdir ]
     then
 	if _uninstall_$type
 	then
-	    $showme && echo "+ cd build/$type-$lastver"
-	    cd $home/build/$type-$lastver
+	    $showme && echo "+ cd $home/$lastpkgdir"
+	    cd $home/$lastpkgdir
 	    if _install_$type
 	    then
-		$showme || echo "Info: PCP `_pcp_version` installed"
-		$showme && echo "+ cd build/$type"
-		cd $home/build/$type
+		$showme || echo "Info: installed previous PCP `_pcp_version`"
+		$showme && echo "+ cd $home/$thispkgdir"
+		cd $home/$thispkgdir
 		if _upgrade_$type
 		then
-		    $showme || echo "Info: PCP `_pcp_version` installed"
+		    $showme || echo "Info: upgraded to PCP `_pcp_version`"
 		    if _qa
 		    then
 			$showme || echo "Info: sanity QA passes"
@@ -386,13 +474,15 @@ then
 		$showme || echo "Error: installation of previous version failed"
 	    fi
 	else
-	    $showme || echo "Error: uninstallation of all PCP failed"
+	    $showme || echo "Error: uninstallation of PCP failed"
 	fi
     else
-	echo "Info: build/$type-$lastver missing, skip this test"
+	echo "Info: $home/$lastpkgdir missing, skip this test"
     fi
 else
     echo "Info: cannot get previous version from debian/changelog, skip this test"
 fi
+
+status=0
 
 exit
