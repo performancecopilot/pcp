@@ -120,7 +120,7 @@ One or more suffix of the form **:hostname** after a metric name changes the set
 
 For example **filesys.free :otherhost** is the most recent set of values for the amount of free space on every mounted file system on the host **otherhost**, and may be represented as follows:
 
-.. figure:: ../../images/filesys.free:.png
+.. figure:: ../../images/filesys.free_byhost.png
 
 A suffix of the form **@N..M** after a metric name changes the set of values to be that formed by **all** instances on the default host for pmie, at the sample times **N, N+1, ... M back** from the current time.
 
@@ -128,7 +128,7 @@ And finally more than one type of suffix may be used to control enumeration in e
 
 For example **filesys.free #'/usr' @0..3** refers to the default host, restricts the instances and enumerates the time. This may be represented as follows:
 
-.. figure:: ../../images/filesys.free@.png
+.. figure:: ../../images/filesys.free_bytime.png
 
 
 Forms of pmie predicate
