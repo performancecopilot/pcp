@@ -470,6 +470,8 @@ pmcd.pdu
 
 # ... use sort -n from here on down to tidy up this mess
 #
+# may reappear, so keep this one around to be reactivated if needed
+# the problem 1526 was aimed at has gone away for the moment, but
 000 other pmcd local ostest
 001 pdu local ostest sanity
 002 pdu pmcd local ostest sanity pmda.sample pminfo
@@ -1996,8 +1998,6 @@ pmcd.pdu
 1523 pmlogdump local multi-archive
 1524 pmview local
 1525 pmview dkvis mpvis
-# the problem 1526 was aimed at has gone away for the moment, but
-# may reappear, so keep this one around to be reactivated if needed
 1526:retired other local
 1527 pmcd libpcp local suse pmcd.pdu
 1528 pmcd libpcp suse local pmcd.pdu
@@ -2034,7 +2034,10 @@ pmcd.pdu
 1559:reserved suse kenj
 1560 libpcp pdu local
 1561 pmcd libpcp pmcd.pdu suse local
+1562 pminfo local
+1563 pminfo local valgrind
 1564 pmda.linux pcp local
+1565 pmlogextract local
 1566 logutil libpcp local
 1567 pmie_util local
 1573 pmproxy libpcp_web pmlogger local
