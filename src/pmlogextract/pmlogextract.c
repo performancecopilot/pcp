@@ -2681,9 +2681,9 @@ writerlist(inarch_t *iap, rlist_t **rlready, __pmTimestamp *mintime)
 	    || peek_offset > max_offset) {
 	    vol_switch = 1;
 	    if (pmDebugOptions.appl5)
-		fprintf(stderr, "vol switch volume size %" FMT_INT64 " now, next record %" FMT_INT64 " bytes\n", 
+		fprintf(stderr, "vol switch volume size %ld now, next record %d bytes\n", 
 		    __pmFtell(archctl.ac_mfp),
-		    ((__pmPDUHdr *)pb)->len - sizeof(__pmPDUHdr) + 2*sizeof(int));
+		    (int)(((__pmPDUHdr *)pb)->len - sizeof(__pmPDUHdr) + 2*sizeof(int)));
 	}
 	if (outarchvers == PM_LOG_VERS03)
 	    __pmLoadTimestamp(&pb[3], &stamp);
