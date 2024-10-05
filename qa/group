@@ -424,6 +424,9 @@ pmconfig
 # pmcheck
 pmcheck
 
+# pmlogbasename
+pmlogbasename
+
 # pcp2... pcp2xxx is generic
 pcp2xxx
 pcp2elasticsearch
@@ -2040,6 +2043,7 @@ pmcd.pdu
 1565 pmlogextract local
 1566 logutil libpcp local
 1567 pmie_util local
+1568 pmlogbasename local
 1573 pmproxy libpcp_web pmlogger local
 1574 pmseries libpcp_web local valgrind
 1577 pmda.bpf local

@@ -1,0 +1,55 @@
+#!/bin/sh
+# PCP QA Test No. 1568
+# pmlogbasename workout
+#
+# Copyright (c) 2024 [who are you?].  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+$sudo rm -rf $tmp $tmp.* $seq.full
+
+_filter()
+{
+    sed \
+	-e "s@$here@HERE@" \
+    # end
+}
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+for base in foo ./foo $here/foo
+do
+    for part in '' .index .meta .0 .12345 .bozo
+    do
+	for suff in '' .xz .gz .z .bar
+	do
+	    echo "=== $base$part$suff ===" | _filter
+	    pmlogbasename $base$part$suff 2>&1 | _filter
+	done
+    done
+done
+
+# success, all done
+exit
