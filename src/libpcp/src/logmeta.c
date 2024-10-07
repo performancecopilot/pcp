@@ -1809,11 +1809,11 @@ pmGetInDomArchive(pmInDom indom, int **instlist, char ***namelist)
 void
 __pmLoadTimestamp(const __int32_t *buf, __pmTimestamp *tsp)
 {
-    /*
-     * need to dodge endian issues here ... want the MSB 32-bits of sec
-     * from buf[0] and the LSB 32 bits of sec from buf[1]
-     */
+#if __BYTE_ORDER == __LITTLE_ENDIAN
     tsp->sec = ((((__int64_t)buf[0]) << 32) & 0xffffffff00000000LL) | (buf[1] & 0xffffffff);
+#else
+    tsp->sec = ((((__int64_t)buf[1]) << 32) & 0xffffffff00000000LL) | (buf[0] & 0xffffffff);
+#endif
     tsp->nsec = buf[2];
     __ntohll((char *)&tsp->sec);
     tsp->nsec = ntohl(tsp->nsec);
