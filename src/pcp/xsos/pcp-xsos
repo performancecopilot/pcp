@@ -24,6 +24,14 @@ trap "rm -rf $tmp; exit \$sts" 0 1 2 3 15
 
 progname=`basename $0`
 
+check_gawk()
+{
+    echo >&2 "$progname: this script needs gawk $@"
+    exit
+}
+which gawk >/dev/null 2>&1 || check_gawk "but it is not installed"
+gawk '@include "/dev/null"' {} 2>/dev/null || check_gawk "with @include syntax"
+
 base_metrics=(
     kernel.all.boottime mem.physmem
 )
@@ -239,20 +247,14 @@ netunits=`unitstr $netunits`
 if [ ! -z "$PCP_ARCHIVE" ]
 then
     # extract pmcd values from log label in case metrics missing
-    eval `pmdumplog -Ll 2>/dev/null | $PCP_AWK_PROG '
+    eval `pmdumplog -Ll 2>/dev/null | gawk '
 /^Performance metrics from host/ { printf "pmcd_hostname_value=\"%s\"\n", $5 }
 /^    commencing /               { $1 = ""; printf "sampletime=\"%s\"\n", $0 }
 /^Archive timezone: /            { printf "pmcd_timezone_value=\"%s\"\n", $3 }
 /^Archive zoneinfo: /            { printf "pmcd_zoneinfo_value=\"%s\"\n", $3 }
 '`
 else
-    # --rfc-3339=sec format is the same as --iso-8601=sec format, both
-    # are similar to '+%Y-%m-%d %H:%M:%S%z' so use that explicit format
-    # so we don't have a date(1) version dependency
-    # ... need output format here to match something that date --date
-    # (or equivalent) can parse later on
-    #
-    sampletime=$( date '+%Y-%m-%d %H:%M:%S%z' )
+    sampletime=$( date --iso-8601=ns )
 fi
 if [ ! -z "$PCP_START_TIME" ]
 then
@@ -262,7 +264,6 @@ then
     sampletime=`echo ${PCP_ORIGIN} | sed -e 's/^@//g'`
 fi
 # Timestamp for sample in seconds since the epoch
-# TODO --date is not portable
 timestamp=$( date --date "${sampletime}" +%s.%N 2>$tmp/error)
 if test -s $tmp/error
 then
@@ -315,7 +316,7 @@ then
 fi
 [ -s $tmp/error ] && sed -e '/Unknown metric name/d' <$tmp/error >&2
 
-$PCP_AWK_PROG < $tmp/metrics > $tmp/variables '
+gawk < $tmp/metrics > $tmp/variables '
 function filter(string) {
     gsub(/"/, "\\\"", string) # escape double quotes
     gsub(/\\u/, "\\\\u", string) # escape backslash-u
@@ -503,7 +504,6 @@ pcp_xsos_os()
 
     printf "${H1}Boot time: ${RESET}"
     boottime=`get_value kernel.all.boottime 0`
-    # TODO --date is not portable
     date --date="@$boottime" +"%a %b %d %I:%M:%S %P %Z %Y"
     printf "${H1}Time Zone: ${RESET}"
     timezone=`get_value pmcd.timezone unknown`
@@ -519,7 +519,7 @@ pcp_xsos_os()
     test $ncpus -lt 1 && ncpus=1  # safe division later
     for inst in 1 5 15; do
         load=`get_inst_value kernel.all.load $inst`
-        percent=`$PCP_AWK_PROG "BEGIN {print int(${load}*${ncpus}+.5)}"`
+        percent=`gawk "BEGIN {print int(${load}*${ncpus}+.5)}"`
         test $inst -eq 1 || printf ","
         printf " %.2f (${GREEN}%d%%${RESET})" $load $percent
         test $inst -eq 15 && printf "\n"
@@ -541,7 +541,7 @@ pcp_xsos_os()
     ih=`get_value kernel.all.cpu.irq.hard 0`
     is=`get_value kernel.all.cpu.irq.soft 0`
     st=`get_value kernel.all.cpu.steal 0`
-    $PCP_AWK_PROG "BEGIN {
+    gawk "BEGIN {
         tot=$us+$ni+$sy+$id+$wt+$ih+$is+$st;
         printf \"us %d%%, \", int($us/tot*100+.5)
         printf \"ni %d%%, \", int($ni/tot*100+.5)
@@ -558,8 +558,8 @@ pcp_xsos_os()
 
 pcp_xsos_disk()
 {
-    cat $tmp/metrics >$tmp/awk
-    echo >>$tmp/awk "
+    gawk "
+@include \"$tmp/metrics\"
 BEGIN {
     for (i in disk_dev_capacity_value) {
         nKiB += disk_dev_capacity_value[i]
@@ -592,15 +592,14 @@ BEGIN {
                 round(filesys_full_value[i], 0), filesys_mountdir_value[i]
     }
 }"
-    $PCP_AWK_PROG -f $tmp/awk
 
     echo # additional space for next session (with --all)
 }
 
 pcp_xsos_mem()
 {
-    cat $tmp/metrics >$tmp/awk
-    echo >>$tmp/awk "
+    gawk -v u=${memunits} "
+@include \"$tmp/metrics\"
 function put_hbar(title, color, value, total) {
     width = 50
     ratio = value/total
@@ -732,16 +731,14 @@ BEGIN {
                round(swaptotal/kbytes_divisor, precision_high), u
     }
 }"
-    $PCP_AWK_PROG -v u=${memunits} -f $tmp/awk
-
 
     echo # additional space for next session (with --all)
 }
 
 pcp_xsos_netdev()
 {
-    cat $tmp/metrics >$tmp/awk
-    echo >>$tmp/awk "
+    gawk -v u=${netunits} "
+@include \"$tmp/metrics\"
 BEGIN {
     printf \"${H0}NETDEV\n\"
 
@@ -878,7 +875,6 @@ BEGIN {
                 txcolls\"\" txcollspct, txcarrs\"\" txcarrspct
     }
 }"
-    $PCP_AWK_PROG -v u=${netunits} -f $tmp/awk
 
     echo
     printf "${H0}SOCKSTAT${RESET}\n"
@@ -961,8 +957,8 @@ pcp_xsos_netstat()
 
 pcp_xsos_ps()
 {
-    cat $tmp/metrics >$tmp/awk
-    echo >>$tmp/awk "
+    gawk -v u=${memunits} "
+@include \"$tmp/metrics\"
 function max(a, b) {
     return a > b ? a : b
 }
@@ -1137,7 +1133,6 @@ BEGIN {
             break
     }
 }"
-    $PCP_AWK_PROG -v u=${memunits} -f $tmp/awk
 
     echo # additional space for next session (with --all)
 }
