@@ -59,6 +59,7 @@ grind_extra="--suppressions=$tmp.suppress"
 # real QA test starts here
 root=$tmp.root
 export LINUX_STATSPATH=$root
+export LINUX_PAGESIZE=4096
 pmda="60,$PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init"
 
 memmetrics=`pminfo mem.vmmemctl hyperv.balloon | LC_COLLATE=POSIX sort`

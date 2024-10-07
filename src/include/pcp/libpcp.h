@@ -1179,7 +1179,7 @@ PCP_CALL extern void __pmOptFetchDump(FILE *, const fetchctl_t *);
 PCP_CALL extern void __pmOptFetchGetParams(optcost_t *);
 PCP_CALL extern void __pmOptFetchPutParams(optcost_t *);
 
-/* __pmProcessExec and friends ... replacementes for system(3) and popen(3) */
+/* __pmProcessExec and friends ... replacements for system(3) and popen(3) */
 typedef struct __pmExecCtl __pmExecCtl_t;		/* opaque handle */
 PCP_CALL extern int __pmProcessAddArg(__pmExecCtl_t **, const char *);
 PCP_CALL extern int __pmProcessUnpickArgs(__pmExecCtl_t **, const char *);
