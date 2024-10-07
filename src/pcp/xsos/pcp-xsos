@@ -104,7 +104,8 @@ _usage()
 {
     [ ! -z "$@" ] && echo $@ 1>&2
     pmgetopt --progname=$progname --usage --config=$tmp/usage
-    exit 1
+    sts=0
+    exit
 }
 
 # usage spec for pmgetopt, note posix flag (commands mean no reordering)
