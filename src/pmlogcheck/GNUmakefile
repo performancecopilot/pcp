@@ -18,14 +18,16 @@ include $(TOPDIR)/src/include/builddefs
 CFILES = pmlogcheck.c pass0.c pass1.c pass2.c pass3.c
 HFILES = logcheck.h
 CMDTARGET = pmlogcheck$(EXECSUFFIX)
+HELPER = logdecompress
 LLDLIBS	= $(PCPLIB) $(LIB_FOR_MATH)
 
-default:	$(CMDTARGET)
+default:	$(CMDTARGET) $(HELPER)
 
 include $(BUILDRULES)
 
 install:	$(CMDTARGET)
 	$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BIN_DIR)/$(CMDTARGET)
+	$(INSTALL) -m 755 $(HELPER) $(PCP_SHARE_DIR)/bin/$(HELPER)
 
 default_pcp:	default
 

@@ -1,0 +1,140 @@
+#!/bin/sh
+# PCP QA Test No. 1569
+# checkout logdecompress (helper script for pmlogcheck)
+#
+# Copyright (c) 2024 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+$sudo rm -rf $tmp $tmp.* $seq.full
+
+[ -f $PCP_SHARE_DIR/bin/logdecompress ] || _notrun "$PCP_SHARE_DIR/bin/logdecompress not installed"
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+	-e "s@$here@HERE@g" \
+    # end
+}
+
+_doit()
+{
+    echo "--- $* ---" | _filter
+    $PCP_SHARE_DIR/bin/logdecompress $* 2>$tmp.err >$tmp.out
+    sts=$?
+    _filter <$tmp.out
+    if [ -s $tmp.err ]
+    then
+	echo "stderr ..."
+	cat $tmp.err | _filter
+    fi
+    [ $sts != 0 ] && echo "exit status $sts"
+}
+
+_check()
+{
+    if pmlogdump -z "$1" >$tmp.tmp
+    then
+	diff $tmp.dump.orig $tmp.tmp >$tmp.out
+	if [ -s $tmp.out ]
+	then
+	    echo "pmlogdump diffs!!"
+	    cat $tmp.out
+	fi
+    else
+	echo "pmlogdump failed!"
+    fi
+}
+
+# real QA test starts here
+echo "=== some error cases ==="
+_doit -c $tmp archives/pcp-meminfo
+_doit -d $tmp archives/pcp-meminfo
+_doit -nv no-such-archive
+mkdir $tmp
+touch $tmp/pcp-meminfo.0
+_doit -d $tmp archives/pcp-meminfo
+touch $tmp/pcp-meminfo.index $tmp/pcp-meminfo.meta
+_doit -v $tmp/pcp-meminfo
+
+echo "=== some success cases ==="
+cd $tmp
+rm -f *
+cp $here/archives/pcp-meminfo* .
+pmlogdump -z pcp-meminfo >$tmp.dump.orig
+stat --format='%n %s' pcp-meminfo*
+_doit -n pcp-meminfo
+stat --format='%n %s' pcp-meminfo*
+
+_doit pcp-meminfo
+stat --format='%n %s' pcp-meminfo*
+_check pcp-meminfo
+rm -f $tmp/*
+
+cd $here
+[ -d tmp ] || mkdir tmp
+_doit -v -d tmp archives/pcp-meminfo
+stat --format='%n %s' tmp/pcp-meminfo* | _filter
+_check tmp/pcp-meminfo
+rm -f tmp/pcp-meminfo*
+
+cd $tmp
+rm -f *
+_doit -d . $here/archives/pcp-meminfo.0.xz
+echo "+++ lzma +++"
+xz --format=lzma pcp-meminfo.0
+_doit -v pcp-meminfo
+stat --format='%n %s' pcp-meminfo*
+_check pcp-meminfo
+echo "+++ bz2 +++"
+bzip2 pcp-meminfo.0
+bzip2 pcp-meminfo.meta
+bzip2 pcp-meminfo.index
+_doit -v pcp-meminfo
+stat --format='%n %s' pcp-meminfo*
+_check pcp-meminfo
+echo "+++ bz +++"
+bzip2 pcp-meminfo.0
+mv pcp-meminfo.0.bz2 pcp-meminfo.0.bz
+_doit -v pcp-meminfo
+stat --format='%n %s' pcp-meminfo*
+_check pcp-meminfo
+echo "+++ gz +++"
+gzip pcp-meminfo.0
+gzip pcp-meminfo.meta
+_doit -v pcp-meminfo
+stat --format='%n %s' pcp-meminfo*
+_check pcp-meminfo
+echo "+++ z +++"
+gzip pcp-meminfo.0
+mv pcp-meminfo.0.gz pcp-meminfo.0.z
+_doit -v pcp-meminfo
+stat --format='%n %s' pcp-meminfo*
+_check pcp-meminfo
+
+# success, all done
+exit

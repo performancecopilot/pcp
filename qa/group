@@ -1820,7 +1820,7 @@ pmcd.pdu
 1342 pmda.openmetrics local python
 1343:retired pmmgr local pmlogrewrite
 1344:retired pmmgr local
-1345 pmval fault interp local
+1345 pmval fault archive local
 1346 pmcpp local
 1347 atop pcp local
 1348 pmcpp local valgrind
@@ -1943,7 +1943,7 @@ pmcd.pdu
 1465 pmlogredact pmlogrewrite pmlogdump
 1466 pmlogctl pmcd pmiectl logutil local
 1467 dbpmda local valgrind
-1468 pmval fault interp local valgrind
+1468 pmval fault archive local valgrind
 1469 pmlogsummary local valgrind
 1470 pmval local valgrind
 1471 pmda.linux local valgrind
@@ -2044,6 +2044,7 @@ pmcd.pdu
 1566 logutil libpcp local
 1567 pmie_util local
 1568 pmlogbasename local
+1569 pmlogcheck local
 1573 pmproxy libpcp_web pmlogger local
 1574 pmseries libpcp_web local valgrind
 1577 pmda.bpf local
