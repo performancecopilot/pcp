@@ -72,7 +72,8 @@ _check()
 
 # real QA test starts here
 echo "=== some error cases ==="
-_doit -c $tmp archives/pcp-meminfo
+_doit -c $tmp archives/pcp-meminfo 2>&1 \
+| sed -e 's/.*[Ii]llegal/Illegal/' -e 's/ -- c/ -c/'
 _doit -d $tmp archives/pcp-meminfo
 _doit -nv no-such-archive
 mkdir $tmp
@@ -113,6 +114,12 @@ _check pcp-meminfo
 echo "+++ bz2 +++"
 bzip2 pcp-meminfo.0
 bzip2 pcp-meminfo.meta
+# some bzip2 versions choke on files with link
+# count > 1, so make a copy of the .index file
+#
+cp pcp-meminfo.index eek
+rm -f pcp-meminfo.index
+mv eek pcp-meminfo.index
 bzip2 pcp-meminfo.index
 _doit -v pcp-meminfo
 stat --format='%n %s' pcp-meminfo*
