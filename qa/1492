@@ -65,6 +65,17 @@ _filter()
     # end
 }
 
+# atopsar seems to fork() and this generates a non-deterministic
+# number of LEAK SUMMARY blocks at the end of the output
+#
+_cull_valgrind_dups()
+{
+    $PCP_AWK_PROG '
+/^LEAK SUMMARY:/	{ watch = 1 }
+watch == 0		{ print; next }
+seen[$0] == ""		{ print; seen[$0] = 1 }'
+}
+
 mkdir $tmp || exit 1
 cd $tmp
 tar xJf $here/archives/atop-sar.tar.xz
@@ -96,7 +107,8 @@ then
 }
 End-of-File
     grind_extra="--suppressions=$tmp.suppress"
-    _run_valgrind pcp -z atopsar -r atop-sar 180
+    _run_valgrind pcp -z atopsar -r atop-sar 180 2>&1 \
+    | _cull_valgrind_dups
 else
     pcp -z atopsar -r atop-sar 180 2>&1
 fi \
