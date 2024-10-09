@@ -136,28 +136,28 @@ Node 0, zone    Movable
 Linux  5.4.17-2136.317.5.3.el8uek.x86_64  (localhost.localdomain)  08/23/23  x86_64    (4 CPU)
 TimeStamp = 00:25:21
 NODE  0, per-node status
-	nr_inactive_anon 35933
-	nr_active_anon 533154
-	nr_inactive_file 760769
-	nr_active_file 513583
+	nr_inactive_anon 35915
+	nr_active_anon 534138
+	nr_inactive_file 760878
+	nr_active_file 513584
 	nr_unevictable 3105
-	nr_slab_reclaimable 140646
-	nr_slab_unreclaimable 54046
+	nr_slab_reclaimable 140662
+	nr_slab_unreclaimable 54050
 	nr_isolated_anon 0
 	nr_isolated_file 0
-	nr_anon_pages 523670
-	nr_mapped 173358
-	nr_file_pages 1313502
-	nr_dirty 35
+	nr_anon_pages 524690
+	nr_mapped 173279
+	nr_file_pages 1313594
+	nr_dirty 31
 	nr_writeback 0
 	nr_writeback_temp 0
-	nr_shmem 36501
+	nr_shmem 36483
 	nr_anon_transparent_hugepages 582
 	nr_unstable 0
 	nr_vmscan_write 0
 	nr_vmscan_immediate_reclaim 0
-	nr_dirtied 594934
-	nr_written 572571
+	nr_dirtied 595085
+	nr_written 572708
 	nr_shmem_hugepages 0
 	nr_shmem_pmdmapped 0
 	nr_file_hugepages 0
@@ -220,7 +220,7 @@ Node 0, zone    DMA32
 	numa_local 13
 	nr_zone_inactive_anon 0
 Node 0, zone    Normal
-	pages free 2149304
+	pages free 2147995
 	      min 14245
 	      low 18566
 	      high 22887
@@ -230,23 +230,23 @@ Node 0, zone    Normal
               protection [0, 0, 0, 0, 0]
 	nr_free_pages 0
 	nr_mlock 3105
-	nr_page_table_pages 15186
-	nr_kernel_stack 12616
+	nr_page_table_pages 15222
+	nr_kernel_stack 12688
 	nr_bounce 0
 	nr_free_cma 0
-	numa_hit 87458144
+	numa_hit 87514196
 	numa_miss 0
 	numa_foreign 0
 	numa_interleave 28603
 	numa_other 0
-	nr_zone_active_anon 533154
-	nr_zone_inactive_file 760769
-	nr_zone_active_file 513583
+	nr_zone_active_anon 534138
+	nr_zone_inactive_file 760878
+	nr_zone_active_file 513584
 	nr_zone_unevictable 3105
-	nr_zone_write_pending 35
+	nr_zone_write_pending 31
 	nr_zspages 0
-	numa_local 87458144
-	nr_zone_inactive_anon 35933
+	numa_local 87514196
+	nr_zone_inactive_anon 35915
 Node 0, zone    Device
 	 pages free 0
 	       min 0
@@ -534,28 +534,28 @@ Node 0, zone    Movable
 Linux  5.4.17-2136.317.5.3.el8uek.x86_64  (localhost.localdomain)  08/23/23  x86_64    (4 CPU)
 TimeStamp = 00:25:22
 NODE  0, per-node status
-	nr_inactive_anon 35933
-	nr_active_anon 533154
-	nr_inactive_file 760769
-	nr_active_file 513583
+	nr_inactive_anon 35915
+	nr_active_anon 534138
+	nr_inactive_file 760878
+	nr_active_file 513584
 	nr_unevictable 3105
-	nr_slab_reclaimable 140646
-	nr_slab_unreclaimable 54046
+	nr_slab_reclaimable 140662
+	nr_slab_unreclaimable 54050
 	nr_isolated_anon 0
 	nr_isolated_file 0
-	nr_anon_pages 523670
-	nr_mapped 173358
-	nr_file_pages 1313502
-	nr_dirty 35
+	nr_anon_pages 524690
+	nr_mapped 173279
+	nr_file_pages 1313594
+	nr_dirty 31
 	nr_writeback 0
 	nr_writeback_temp 0
-	nr_shmem 36501
+	nr_shmem 36483
 	nr_anon_transparent_hugepages 582
 	nr_unstable 0
 	nr_vmscan_write 0
 	nr_vmscan_immediate_reclaim 0
-	nr_dirtied 594934
-	nr_written 572571
+	nr_dirtied 595085
+	nr_written 572708
 	nr_shmem_hugepages 0
 	nr_shmem_pmdmapped 0
 	nr_file_hugepages 0
@@ -618,7 +618,7 @@ Node 0, zone    DMA32
 	numa_local 13
 	nr_zone_inactive_anon 0
 Node 0, zone    Normal
-	pages free 2149304
+	pages free 2147995
 	      min 14245
 	      low 18566
 	      high 22887
@@ -628,23 +628,23 @@ Node 0, zone    Normal
               protection [0, 0, 0, 0, 0]
 	nr_free_pages 0
 	nr_mlock 3105
-	nr_page_table_pages 15186
-	nr_kernel_stack 12616
+	nr_page_table_pages 15222
+	nr_kernel_stack 12688
 	nr_bounce 0
 	nr_free_cma 0
-	numa_hit 87458144
+	numa_hit 87514196
 	numa_miss 0
 	numa_foreign 0
 	numa_interleave 28603
 	numa_other 0
-	nr_zone_active_anon 533154
-	nr_zone_inactive_file 760769
-	nr_zone_active_file 513583
+	nr_zone_active_anon 534138
+	nr_zone_inactive_file 760878
+	nr_zone_active_file 513584
 	nr_zone_unevictable 3105
-	nr_zone_write_pending 35
+	nr_zone_write_pending 31
 	nr_zspages 0
-	numa_local 87458144
-	nr_zone_inactive_anon 35933
+	numa_local 87514196
+	nr_zone_inactive_anon 35915
 Node 0, zone    Device
 	 pages free 0
 	       min 0

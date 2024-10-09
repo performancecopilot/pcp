@@ -352,23 +352,23 @@ semantics: instantaneous value
 units:     none
 samples:   63
 interval:  3600.00 sec
-18:00:00.000        444
+18:00:00.000        447
 19:00:00.000        436
-20:00:00.000        436
-21:00:00.000        442
-22:00:00.000        426
-23:00:00.000       1082
-00:00:00.000       1283
-01:00:00.000        788
+20:00:00.000        438
+21:00:00.000        443
+22:00:00.000        417
+23:00:00.000       1095
+00:00:00.000       1287
+01:00:00.000        782
 02:00:00.000        637
-03:00:00.000        639
-04:00:00.000        637
+03:00:00.000        643
+04:00:00.000        638
 05:00:00.000        642
-06:00:00.000        635
-07:00:00.000        638
-08:00:00.000        635
-09:00:00.000        651
-10:00:00.000        651
+06:00:00.000        640
+07:00:00.000        637
+08:00:00.000        634
+09:00:00.000        654
+10:00:00.000        653
 11:00:00.000        647
 12:00:00.000        636
 13:00:00.000        638
@@ -393,12 +393,12 @@ interval:  3600.00 sec
 08:00:00.000        638
 09:00:00.000        845
 10:00:00.000        843
-11:00:00.000        688
-12:00:00.000        687
-13:00:00.000        686
-14:00:00.000        689
+11:00:00.000        685
+12:00:00.000        688
+13:00:00.000        690
+14:00:00.000        687
 15:00:00.000        690
-16:00:00.000        686
+16:00:00.000        685
 17:00:00.000        686
 18:00:00.000       1101
 19:00:00.000       1091
@@ -606,23 +606,23 @@ value[0]: 647
 
 sample 47, delta time=-3600.000 secs
 kernel.all.nprocs: 
-value[0]: 651
+value[0]: 653
 
 sample 48, delta time=-3600.000 secs
 kernel.all.nprocs: 
-value[0]: 651
+value[0]: 654
 
 sample 49, delta time=-3600.000 secs
 kernel.all.nprocs: 
-value[0]: 635
+value[0]: 634
 
 sample 50, delta time=-3600.000 secs
 kernel.all.nprocs: 
-value[0]: 638
+value[0]: 637
 
 sample 51, delta time=-3600.000 secs
 kernel.all.nprocs: 
-value[0]: 635
+value[0]: 640
 
 sample 52, delta time=-3600.000 secs
 kernel.all.nprocs: 
@@ -630,11 +630,11 @@ value[0]: 642
 
 sample 53, delta time=-3600.000 secs
 kernel.all.nprocs: 
-value[0]: 637
+value[0]: 638
 
 sample 54, delta time=-3600.000 secs
 kernel.all.nprocs: 
-value[0]: 639
+value[0]: 643
 
 sample 55, delta time=-3600.000 secs
 kernel.all.nprocs: 
@@ -642,27 +642,27 @@ value[0]: 637
 
 sample 56, delta time=-3600.000 secs
 kernel.all.nprocs: 
-value[0]: 788
+value[0]: 782
 
 sample 57, delta time=-3600.000 secs
 kernel.all.nprocs: 
-value[0]: 1283
+value[0]: 1287
 
 sample 58, delta time=-3600.000 secs
 kernel.all.nprocs: 
-value[0]: 1082
+value[0]: 1095
 
 sample 59, delta time=-3600.000 secs
 kernel.all.nprocs: 
-value[0]: 426
+value[0]: 417
 
 sample 60, delta time=-3600.000 secs
 kernel.all.nprocs: 
-value[0]: 442
+value[0]: 443
 
 sample 61, delta time=-3600.000 secs
 kernel.all.nprocs: 
-value[0]: 436
+value[0]: 438
 
 sample 62, delta time=-3600.000 secs
 kernel.all.nprocs: 
@@ -670,7 +670,7 @@ value[0]: 436
 
 sample 63, delta time=-3600.000 secs
 kernel.all.nprocs: 
-value[0]: 444
+value[0]: 447
 sample[64] pmFetch: End of PCP archive
 
 64 samples required 7565 log reads
@@ -1029,7 +1029,7 @@ log reads: 13266
 === all metrics at once ===
 pmie: timezone set to local timezone from archives/bug-1044
 hinv_ncpu (Fri Jan 10 18:00:00 2014): 4
-kernel_all_nprocs (Fri Jan 10 18:00:00 2014): 444
+kernel_all_nprocs (Fri Jan 10 18:00:00 2014): 447
 pmcd_numagents (Fri Jan 10 18:00:00 2014): ?
 
 hinv_ncpu (Fri Jan 10 19:00:00 2014): 4
@@ -1037,27 +1037,27 @@ kernel_all_nprocs (Fri Jan 10 19:00:00 2014): 436
 pmcd_numagents (Fri Jan 10 19:00:00 2014): ?
 
 hinv_ncpu (Fri Jan 10 20:00:00 2014): 4
-kernel_all_nprocs (Fri Jan 10 20:00:00 2014): 436
+kernel_all_nprocs (Fri Jan 10 20:00:00 2014): 438
 pmcd_numagents (Fri Jan 10 20:00:00 2014): ?
 
 hinv_ncpu (Fri Jan 10 21:00:00 2014): 4
-kernel_all_nprocs (Fri Jan 10 21:00:00 2014): 442
+kernel_all_nprocs (Fri Jan 10 21:00:00 2014): 443
 pmcd_numagents (Fri Jan 10 21:00:00 2014): ?
 
 hinv_ncpu (Fri Jan 10 22:00:00 2014): 4
-kernel_all_nprocs (Fri Jan 10 22:00:00 2014): 426
+kernel_all_nprocs (Fri Jan 10 22:00:00 2014): 417
 pmcd_numagents (Fri Jan 10 22:00:00 2014): ?
 
 hinv_ncpu (Fri Jan 10 23:00:00 2014): 4
-kernel_all_nprocs (Fri Jan 10 23:00:00 2014): 1082
+kernel_all_nprocs (Fri Jan 10 23:00:00 2014): 1095
 pmcd_numagents (Fri Jan 10 23:00:00 2014): ?
 
 hinv_ncpu (Sat Jan 11 00:00:00 2014): 4
-kernel_all_nprocs (Sat Jan 11 00:00:00 2014): 1283
+kernel_all_nprocs (Sat Jan 11 00:00:00 2014): 1287
 pmcd_numagents (Sat Jan 11 00:00:00 2014): ?
 
 hinv_ncpu (Sat Jan 11 01:00:00 2014): 4
-kernel_all_nprocs (Sat Jan 11 01:00:00 2014): 788
+kernel_all_nprocs (Sat Jan 11 01:00:00 2014): 782
 pmcd_numagents (Sat Jan 11 01:00:00 2014): ?
 
 hinv_ncpu (Sat Jan 11 02:00:00 2014): 4
@@ -1065,11 +1065,11 @@ kernel_all_nprocs (Sat Jan 11 02:00:00 2014): 637
 pmcd_numagents (Sat Jan 11 02:00:00 2014): ?
 
 hinv_ncpu (Sat Jan 11 03:00:00 2014): 4
-kernel_all_nprocs (Sat Jan 11 03:00:00 2014): 639
+kernel_all_nprocs (Sat Jan 11 03:00:00 2014): 643
 pmcd_numagents (Sat Jan 11 03:00:00 2014): ?
 
 hinv_ncpu (Sat Jan 11 04:00:00 2014): 4
-kernel_all_nprocs (Sat Jan 11 04:00:00 2014): 637
+kernel_all_nprocs (Sat Jan 11 04:00:00 2014): 638
 pmcd_numagents (Sat Jan 11 04:00:00 2014): ?
 
 hinv_ncpu (Sat Jan 11 05:00:00 2014): 4
@@ -1077,23 +1077,23 @@ kernel_all_nprocs (Sat Jan 11 05:00:00 2014): 642
 pmcd_numagents (Sat Jan 11 05:00:00 2014): ?
 
 hinv_ncpu (Sat Jan 11 06:00:00 2014): 4
-kernel_all_nprocs (Sat Jan 11 06:00:00 2014): 635
+kernel_all_nprocs (Sat Jan 11 06:00:00 2014): 640
 pmcd_numagents (Sat Jan 11 06:00:00 2014): ?
 
 hinv_ncpu (Sat Jan 11 07:00:00 2014): 4
-kernel_all_nprocs (Sat Jan 11 07:00:00 2014): 638
+kernel_all_nprocs (Sat Jan 11 07:00:00 2014): 637
 pmcd_numagents (Sat Jan 11 07:00:00 2014): ?
 
 hinv_ncpu (Sat Jan 11 08:00:00 2014): 4
-kernel_all_nprocs (Sat Jan 11 08:00:00 2014): 635
+kernel_all_nprocs (Sat Jan 11 08:00:00 2014): 634
 pmcd_numagents (Sat Jan 11 08:00:00 2014): ?
 
 hinv_ncpu (Sat Jan 11 09:00:00 2014): 4
-kernel_all_nprocs (Sat Jan 11 09:00:00 2014): 651
+kernel_all_nprocs (Sat Jan 11 09:00:00 2014): 654
 pmcd_numagents (Sat Jan 11 09:00:00 2014): ?
 
 hinv_ncpu (Sat Jan 11 10:00:00 2014): 4
-kernel_all_nprocs (Sat Jan 11 10:00:00 2014): 651
+kernel_all_nprocs (Sat Jan 11 10:00:00 2014): 653
 pmcd_numagents (Sat Jan 11 10:00:00 2014): ?
 
 hinv_ncpu (Sat Jan 11 11:00:00 2014): 4
@@ -1193,19 +1193,19 @@ kernel_all_nprocs (Sun Jan 12 10:00:00 2014): 843
 pmcd_numagents (Sun Jan 12 10:00:00 2014): ?
 
 hinv_ncpu (Sun Jan 12 11:00:00 2014): 4
-kernel_all_nprocs (Sun Jan 12 11:00:00 2014): 688
+kernel_all_nprocs (Sun Jan 12 11:00:00 2014): 685
 pmcd_numagents (Sun Jan 12 11:00:00 2014): ?
 
 hinv_ncpu (Sun Jan 12 12:00:00 2014): 4
-kernel_all_nprocs (Sun Jan 12 12:00:00 2014): 687
+kernel_all_nprocs (Sun Jan 12 12:00:00 2014): 688
 pmcd_numagents (Sun Jan 12 12:00:00 2014): ?
 
 hinv_ncpu (Sun Jan 12 13:00:00 2014): 4
-kernel_all_nprocs (Sun Jan 12 13:00:00 2014): 686
+kernel_all_nprocs (Sun Jan 12 13:00:00 2014): 690
 pmcd_numagents (Sun Jan 12 13:00:00 2014): ?
 
 hinv_ncpu (Sun Jan 12 14:00:00 2014): 4
-kernel_all_nprocs (Sun Jan 12 14:00:00 2014): 689
+kernel_all_nprocs (Sun Jan 12 14:00:00 2014): 687
 pmcd_numagents (Sun Jan 12 14:00:00 2014): ?
 
 hinv_ncpu (Sun Jan 12 15:00:00 2014): 4
@@ -1213,7 +1213,7 @@ kernel_all_nprocs (Sun Jan 12 15:00:00 2014): 690
 pmcd_numagents (Sun Jan 12 15:00:00 2014): ?
 
 hinv_ncpu (Sun Jan 12 16:00:00 2014): 4
-kernel_all_nprocs (Sun Jan 12 16:00:00 2014): 686
+kernel_all_nprocs (Sun Jan 12 16:00:00 2014): 685
 pmcd_numagents (Sun Jan 12 16:00:00 2014): ?
 
 hinv_ncpu (Sun Jan 12 17:00:00 2014): 4

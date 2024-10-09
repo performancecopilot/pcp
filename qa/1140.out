@@ -7,7 +7,7 @@ Timestamp        UID	PID	usr	system	guest	%CPU	CPU	Command
 07:35:06         1000	1238	?	?	?	?	3	pmdaproc
 07:35:06         0	1240	?	?	?	?	0	pmdaxfs
 07:35:06         999	1241	?	?	?	?	2	pmdasample
-07:35:06         0	1242	?	?	?	?	2	pmdalinux
+07:35:06         0	1242	?	?	?	?	1	pmdalinux
 07:35:06         999	1243	?	?	?	?	3	pmdasimple
 Timestamp        UID	PID	usr	system	guest	%CPU	CPU	Command
 07:35:07         0	1235	0.0	0.0	0.0	0.0	2	pmdaroot
@@ -31,16 +31,16 @@ Timestamp        UID	PID	usr	system	guest	%CPU	CPU	Command
 08:59:53         386	22008	0.0	0.0	0.0	0.0	1	pmdatrivial
 08:59:53         386	22009	0.0	0.0	0.0	0.0	3	pmdasimple
 Timestamp        UID	PID	usr	system	guest	%CPU	CPU	Command
-08:59:58         0	21979	0.0	0.0	0.0	0.0	2	pmdaroot
-08:59:58         386	21980	0.48	0.78	0.0	1.26	2	pmdaproc
-08:59:58         0	21981	0.04	0.0	0.0	0.04	7	pmdaxfs
-08:59:58         386	21982	0.0	0.0	0.0	0.0	1	pmdaredis
-08:59:58         386	21983	0.0	0.0	0.0	0.0	6	pmdasample
-08:59:58         0	21984	0.12	0.14	0.0	0.26	7	pmdalinux
-08:59:58         0	21997	0.0	0.0	0.0	0.0	6	pmdakvm
-08:59:58         0	22002	0.0	0.0	0.0	0.0	5	pmdadm
-08:59:58         386	22008	0.0	0.0	0.0	0.0	1	pmdatrivial
-08:59:58         386	22009	0.0	0.0	0.0	0.0	3	pmdasimple
+08:59:58         0	21979	0.0	0.0	0.0	0.0	5	pmdaroot
+08:59:58         386	21980	0.48	0.78	0.0	1.26	3	pmdaproc
+08:59:58         0	21981	0.04	0.0	0.0	0.04	6	pmdaxfs
+08:59:58         386	21982	0.0	0.0	0.0	0.0	0	pmdaredis
+08:59:58         386	21983	0.0	0.0	0.0	0.0	4	pmdasample
+08:59:58         0	21984	0.12	0.14	0.0	0.26	6	pmdalinux
+08:59:58         0	21997	0.0	0.0	0.0	0.0	4	pmdakvm
+08:59:58         0	22002	0.0	0.0	0.0	0.0	2	pmdadm
+08:59:58         386	22008	0.0	0.0	0.0	0.0	0	pmdatrivial
+08:59:58         386	22009	0.0	0.0	0.0	0.0	6	pmdasimple
 
 === testing pcp-iostat on pcp-zeroconf archive
 # Device      rrqm/s  wrqm/s     r/s    w/s    rkB/s    wkB/s avgrq-sz avgqu-sz   await r_await w_await   %util
@@ -65,8 +65,8 @@ other_node                     0
 
 === testing pcp-free on pcp-zeroconf archive
               total        used        free      shared  buff/cache   available
-Mem:       16064800    12347308      678548     1069560     3038944     2308256
-Swap       16773116    10526772     6246344
+Mem:       16064800    12074444      959580     1023960     3030776     2626768
+Swap       16773116     9996852     6776264
 
 === testing pcp-vmstat on pcp-zeroconf archive
 Note: timezone set to local timezone of host "shack" from archive
@@ -75,7 +75,7 @@ Note: timezone set to local timezone of host "shack" from archive
  loadavg                      memory      swap        io    system                     cpu
    1 min   swpd   free   buff  cache   pi   po   bi   bo   in   cs  us  sy  id  wa  st  gu
     3.42  9762m 956272    120  1929m  188    0 1895  184 8116  10K  14   6  80   0   0   0
-    3.42  9762m 956272    120  1929m  175    0 1476  183 8021 9930  13   6  81   0   0   0
+    3.20  9756m 946972    120  1933m  175    0 1476  183 8021 9930  13   6  81   0   0   0
     3.20  9756m 947080    120  1934m   47    0 2049 5386 8646 9006  15   5  80   0   0   0
 
 === testing pmrep with :collectl-sc config on pcp-zeroconf archive
@@ -87,7 +87,7 @@ Note: timezone set to local timezone of host "shack" from archive
 === testing pmrep with :collectl-sm config on pcp-zeroconf archive
    Free   Buff   Cach   Inac   Slab    Map
      GB     GB     GB     GB     GB     GB
-  0.647  0.000  1.891  2.470  1.782  0.539
+  0.915  0.000  1.884  2.303  1.778  0.556
   0.912  0.000  1.884  2.303  1.778  0.556
   0.912  0.000  1.884  2.303  1.778  0.556
 

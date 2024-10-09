@@ -144,7 +144,6 @@ _check_1
 #
 echo
 echo "=== disk.dev.total(PM_SEM_INSTANT) ==="
-echo "(expect slightly smaller values than the case above)"
 echo "disk.dev.total;" \
 | pmie -z -v -t 1sec -a archives/instant-1 >$tmp.1 2>&1
 # check

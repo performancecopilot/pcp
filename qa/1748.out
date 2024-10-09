@@ -34,7 +34,7 @@ WWW | reqs      60 | totKB    133 | byt/rq  2269 | iwork     74 | bwork      1 |
    6532  5m23s 61m35s  0.00s   3.1G 273.8M  21.2M     0B   2% Web Content    
    4307 16m38s 42m05s  0.00s   5.5G 328.5M  16.8M  68.0K   2% gnome-shell    
    6569  2m25s 42m00s  0.00s   3.6G 799.2M  36.1M     0B   1% Web Content    
-   6098  6m43s 28m44s  0.00s   4.9G 835.7M 106.3M 184.0K   1% firefox        
+   6098  6m43s 28m44s  0.00s   4.9G 834.3M 106.3M 184.0K   1% firefox        
    6968 67.28s 17m41s  0.00s  36.7G 207.9M  17.7M     0B   1% slack          
    1242  4m42s  8m04s  0.00s 909.6M 121.3M  39.9M 960.0K   0% redis-server   
    7581 64.04s  9m45s  0.00s  36.8G 411.3M   4.8M     0B   0% chrome         
@@ -82,7 +82,7 @@ WWW | reqs      60 | totKB    133 | byt/rq  2269 | iwork     74 | bwork      1 |
  122029  0.89s  6.13s  0.00s  52.7G 161.4M 468.0K     0B   0% chrome         
     883  5.14s  1.65s  0.00s   2.4M   1.8M 248.0K     0B   0% earlyoom       
    1239  0.87s  5.91s  0.00s   1.9G  55.6M  57.3M 764.0K   0% grafana-server 
- 567882  4.07s  2.10s  0.00s  65.6M  30.8M  16.0K   4.0K   0% pmdaproc       
+ 567882  4.07s  2.10s  0.00s  65.7M  31.1M  16.0K   4.0K   0% pmdaproc       
  510402  0.17s  5.71s  0.00s 477.8M  30.4M 116.0K 180.0K   0% python3        
    4945  0.75s  4.91s  0.00s 545.0M  22.8M     0B     0B   0% ibus-extension 
  148070  0.40s  4.46s  0.00s  40.6G 131.0M     0B     0B   0% chrome         
@@ -242,7 +242,7 @@ WWW | reqs      60 | totKB    133 | byt/rq  2269 | iwork     74 | bwork      1 |
     882  0.01s  0.02s  0.00s   9.1M   4.1M   1.4M     0B   0% bluetoothd     
  567863  0.03s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/0:1-ev 
  567864  0.03s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/6:1-ev 
- 569789  0.01s  0.00s  0.00s  16.4M   7.2M     0B   1.2M   0% pmlogger       
+ 569789  0.01s  0.00s  0.00s  23.4M  11.7M     0B   1.2M   0% pmlogger       
    6868  0.00s  0.02s  0.00s 413.6M  30.2M   2.3M     0B   0% slack          
  259637  0.01s  0.01s  0.00s 301.8M  15.5M 844.0K     0B   0% kdeinit4       
    4633  0.00s  0.02s  0.00s 542.9M  12.0M     0B     0B   0% gsd-datetime   
@@ -431,11 +431,11 @@ NET | enp0s25 ---- | pcki      86 | pcko      16 | si   61 Kbps | so   35 Kbps |
 NET | lo      ---- | pcki      26 | pcko      26 | si   24 Kbps | so   24 Kbps |
 
     PID SYSCPU USRCPU BDELAY  VGROW  RGROW  RDDSK  WRDSK  CPU CMD            
- 567882  0.10s  0.04s  0.00s 148.0K 264.0K     0B     0B  15% pmdaproc       
-   6569  0.00s  0.01s  0.00s     0B     0B     0B     0B   2% Web Content    
- 569789  0.00s  0.01s  0.00s   7.0M   4.5M     0B   1.1M   1% pmlogger       
+ 567882  0.10s  0.04s  0.00s     0B     0B     0B     0B  15% pmdaproc       
+   6569  0.00s  0.01s  0.00s     0B 800.0K     0B     0B   2% Web Content    
+ 569789  0.00s  0.01s  0.00s  -4.0K 236.0K     0B   1.1M   1% pmlogger       
  510378  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% pmcd           
-   6098  0.00s  0.00s  0.00s     0B  -1.4M     0B     0B   0% firefox        
+   6098  0.00s  0.00s  0.00s -20.0K   1.7M     0B     0B   0% firefox        
  112334  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% Web Content    
    6968  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% slack          
    4311  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% pulseaudio     
@@ -443,31 +443,31 @@ NET | lo      ---- | pcki      26 | pcko      26 | si   24 Kbps | so   24 Kbps |
     905  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% thermald       
  510406  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% pmdazfs        
  112368  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% Web Content    
+   7581  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% chrome         
+   4307  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% gnome-shell    
    6667  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% Web Content    
    8038  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% chrome         
-   6532  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% Web Content    
-   7465  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% chrome         
+   6532  0.00s  0.00s  0.00s     0B 136.0K     0B     0B   0% Web Content    
    6234  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% Web Content    
    6289  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% Web Content    
  512101  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% python3        
  149648  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% Web Content    
  251337  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% chrome         
+   1242  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% redis-server   
    6351  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% WebExtensions  
- 507752  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% pmproxy        
    6475  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% Privileged Con 
  259641  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% kded4          
- 558607  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% php-fpm        
    6626  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% RDD Process    
    2725  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% geoclue        
+    960  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% polkitd        
     848  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% systemd-resolv 
-      1  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% systemd        
    7480  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% chrome         
    4972  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% abrt-dbus      
  561042  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% /usr/sbin/http 
-    904  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% systemd-machin 
  510399  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% pmdaperfevent  
  127014  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% gvfsd-dnssd    
  530954  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% bash           
+    937  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% dbus-broker    
    1338  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% (sd-pam        
    8328  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% gconfd-2       
     881  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% avahi-daemon   
@@ -484,6 +484,7 @@ NET | lo      ---- | pcki      26 | pcko      26 | si   24 Kbps | so   24 Kbps |
  520551  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/3:3-mm 
  532562  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/2:0-ev 
  533793  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/1:3-ev 
+ 536069  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/u17:0- 
  536169  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/u16:4- 
  558573  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/u16:3- 
  559476  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/5:2-ev 
@@ -506,7 +507,7 @@ cpu | sys       1% | user      0% | irq       3% | idle     96% | cpu007 w  0% |
 cpu | sys       0% | user      1% | irq       4% | idle     95% | cpu000 w  0% |
 cpu | sys       1% | user      0% | irq       3% | idle     95% | cpu004 w  1% |
 cpu | sys       1% | user      0% | irq       3% | idle     96% | cpu001 w  0% |
-CPL | numcpu     8 | avg1    0.16 | avg5    0.15 | csw     2200 | intr   16357 |
+CPL | numcpu     8 | avg1    0.14 | avg5    0.15 | csw     2200 | intr   16357 |
 MEM | tot    15.3G | free    2.3G | avail   0.0M | cache   4.6G | slab  620.1M |
 MEM | numnode    0 | shmem   2.7G | shswp   0.0M | pgtab   0.0M | zfarc   0.0M |
 SWP | tot    11.7G | free   11.7G | swcac   2.1M | vmcom  22.9G | vmlim  19.1G |
@@ -517,47 +518,41 @@ NET | enp0s25 ---- | pcki      85 | pcko      10 | si   53 Kbps | so    9 Kbps |
 
     PID SYSCPU USRCPU BDELAY  VGROW  RGROW  RDDSK  WRDSK  CPU CMD            
  567882  0.09s  0.05s  0.00s     0B     0B     0B     0B  14% pmdaproc       
-   6569  0.00s  0.06s  0.00s     0B 800.0K     0B     0B   8% Web Content    
-   6098  0.00s  0.00s  0.00s -20.0K   1.7M     0B     0B   2% firefox        
+   6569  0.00s  0.06s  0.00s     0B   4.1M     0B     0B   8% Web Content    
+   6098  0.00s  0.00s  0.00s  20.0K  -0.6M     0B     0B   2% firefox        
    4307  0.00s  0.00s  0.00s     0B     0B     0B     0B   2% gnome-shell    
- 569789  0.00s  0.00s  0.00s  -4.0K 236.0K     0B   1.1M   1% pmlogger       
+ 569789  0.00s  0.00s  0.00s   1.0M   1.1M     0B   1.1M   1% pmlogger       
      24  0.00s  0.00s  0.00s     0B     0B     0B     0B   1% ksoftirqd/2    
  112368  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% Web Content    
-   7581  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% chrome         
  112334  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% Web Content    
    6667  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% Web Content    
    8038  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% chrome         
-   6532  0.00s  0.00s  0.00s     0B 136.0K     0B     0B   0% Web Content    
+   6532  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% Web Content    
    6234  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% Web Content    
    6289  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% Web Content    
    7672  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% chrome         
  512101  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% python3        
  149648  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% Web Content    
-   1242  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% redis-server   
+   7507  0.00s  0.00s  0.00s     0B  -8.0K     0B     0B   0% chrome         
    6351  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% WebExtensions  
+   7539  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% chrome         
    6475  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% Privileged Con 
+   7521  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% chrome         
  259641  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% kded4          
    6626  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% RDD Process    
-   2725  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% geoclue        
-    960  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% polkitd        
     848  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% systemd-resolv 
    7480  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% chrome         
    4972  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% abrt-dbus      
  561042  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% /usr/sbin/http 
  510399  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% pmdaperfevent  
- 127014  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% gvfsd-dnssd    
-    905  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% thermald       
  530954  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% bash           
-    937  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% dbus-broker    
  510378  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% pmcd           
  569803  0.00s  0.00s  0.00s  15.9M   6.0M     0B     0B   0% pmsleep        
    1338  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% (sd-pam        
    8328  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% gconfd-2       
-    881  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% avahi-daemon   
    7263  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% speech-dispatc 
  569742  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% mk.atop-thread 
  116463  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% ssh-agent      
-     14  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% rcu_sched      
      15  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% migration/0    
      18  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% migration/1    
      23  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% migration/2    
@@ -571,8 +566,8 @@ NET | enp0s25 ---- | pcki      85 | pcko      10 | si   53 Kbps | so    9 Kbps |
  520551  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/3:3-ev 
  532562  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/2:0-ev 
  533793  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/1:3-ev 
- 536069  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/u17:0- 
  536169  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/u16:4- 
+ 553270  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/6:3-ev 
  558573  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/u16:3- 
  559476  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/5:2-ev 
  561022  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/1:0-mm 
@@ -1026,31 +1021,31 @@ NET | lo      ---- | pcki      26 | pcko      26 | si   24 Kbps | so   24 Kbps |
     905       -     0B     0B   0.0K   0% thermald       
  510406       -     0B     0B   0.0K   0% pmdazfs        
  112368       -     0B     0B   0.0K   0% Web Content    
+   7581       -     0B     0B   0.0K   0% chrome         
+   4307       -     0B     0B   0.0K   0% gnome-shell    
    6667       -     0B     0B   0.0K   0% Web Content    
    8038       -     0B     0B   0.0K   0% chrome         
    6532       -     0B     0B   0.0K   0% Web Content    
-   7465       -     0B     0B   0.0K   0% chrome         
    6234       -     0B     0B   0.0K   0% Web Content    
    6289       -     0B     0B   0.0K   0% Web Content    
  512101       -     0B     0B   0.0K   0% python3        
  149648       -     0B     0B   0.0K   0% Web Content    
  251337       -     0B     0B   0.0K   0% chrome         
+   1242       -     0B     0B   0.0K   0% redis-server   
    6351       -     0B     0B   0.0K   0% WebExtensions  
- 507752       -     0B     0B   0.0K   0% pmproxy        
    6475       -     0B     0B   0.0K   0% Privileged Con 
  259641       -     0B     0B   0.0K   0% kded4          
- 558607       -     0B     0B   0.0K   0% php-fpm        
    6626       -     0B     0B   0.0K   0% RDD Process    
    2725       -     0B     0B   0.0K   0% geoclue        
+    960       -     0B     0B   0.0K   0% polkitd        
     848       -     0B     0B   0.0K   0% systemd-resolv 
-      1       -     0B     0B   0.0K   0% systemd        
    7480       -     0B     0B   0.0K   0% chrome         
    4972       -     0B     0B   0.0K   0% abrt-dbus      
  561042       -     0B     0B   0.0K   0% /usr/sbin/http 
-    904       -     0B     0B   0.0K   0% systemd-machin 
  510399       -     0B     0B   0.0K   0% pmdaperfevent  
  127014       -     0B     0B   0.0K   0% gvfsd-dnssd    
  530954       -     0B     0B   0.0K   0% bash           
+    937       -     0B     0B   0.0K   0% dbus-broker    
    1338       -     0B     0B   0.0K   0% (sd-pam        
    8328       -     0B     0B   0.0K   0% gconfd-2       
     881       -     0B     0B   0.0K   0% avahi-daemon   
@@ -1067,6 +1062,7 @@ NET | lo      ---- | pcki      26 | pcko      26 | si   24 Kbps | so   24 Kbps |
  520551       -     0B     0B   0.0K   0% kworker/3:3-mm 
  532562       -     0B     0B   0.0K   0% kworker/2:0-ev 
  533793       -     0B     0B   0.0K   0% kworker/1:3-ev 
+ 536069       -     0B     0B   0.0K   0% kworker/u17:0- 
  536169       -     0B     0B   0.0K   0% kworker/u16:4- 
  558573       -     0B     0B   0.0K   0% kworker/u16:3- 
  559476       -     0B     0B   0.0K   0% kworker/5:2-ev 
@@ -1089,7 +1085,7 @@ cpu | sys       1% | user      0% | irq       3% | idle     96% | cpu007 w  0% |
 cpu | sys       0% | user      1% | irq       4% | idle     95% | cpu000 w  0% |
 cpu | sys       1% | user      0% | irq       3% | idle     95% | cpu004 w  1% |
 cpu | sys       1% | user      0% | irq       3% | idle     96% | cpu001 w  0% |
-CPL | numcpu     8 | avg1    0.16 | avg5    0.15 | csw     2200 | intr   16357 |
+CPL | numcpu     8 | avg1    0.14 | avg5    0.15 | csw     2200 | intr   16357 |
 MEM | tot    15.3G | free    2.3G | avail   0.0M | cache   4.6G | slab  620.1M |
 MEM | numnode    0 | shmem   2.7G | shswp   0.0M | pgtab   0.0M | zfarc   0.0M |
 SWP | tot    11.7G | free   11.7G | swcac   2.1M | vmcom  22.9G | vmlim  19.1G |
@@ -1106,7 +1102,6 @@ NET | enp0s25 ---- | pcki      85 | pcko      10 | si   53 Kbps | so    9 Kbps |
    4307       -     0B     0B   0.0K   0% gnome-shell    
      24       -     0B     0B   0.0K   0% ksoftirqd/2    
  112368       -     0B     0B   0.0K   0% Web Content    
-   7581       -     0B     0B   0.0K   0% chrome         
  112334       -     0B     0B   0.0K   0% Web Content    
    6667       -     0B     0B   0.0K   0% Web Content    
    8038       -     0B     0B   0.0K   0% chrome         
@@ -1116,31 +1111,26 @@ NET | enp0s25 ---- | pcki      85 | pcko      10 | si   53 Kbps | so    9 Kbps |
    7672       -     0B     0B   0.0K   0% chrome         
  512101       -     0B     0B   0.0K   0% python3        
  149648       -     0B     0B   0.0K   0% Web Content    
-   1242       -     0B     0B   0.0K   0% redis-server   
+   7507       -     0B     0B   0.0K   0% chrome         
    6351       -     0B     0B   0.0K   0% WebExtensions  
+   7539       -     0B     0B   0.0K   0% chrome         
    6475       -     0B     0B   0.0K   0% Privileged Con 
+   7521       -     0B     0B   0.0K   0% chrome         
  259641       -     0B     0B   0.0K   0% kded4          
    6626       -     0B     0B   0.0K   0% RDD Process    
-   2725       -     0B     0B   0.0K   0% geoclue        
-    960       -     0B     0B   0.0K   0% polkitd        
     848       -     0B     0B   0.0K   0% systemd-resolv 
    7480       -     0B     0B   0.0K   0% chrome         
    4972       -     0B     0B   0.0K   0% abrt-dbus      
  561042       -     0B     0B   0.0K   0% /usr/sbin/http 
  510399       -     0B     0B   0.0K   0% pmdaperfevent  
- 127014       -     0B     0B   0.0K   0% gvfsd-dnssd    
-    905       -     0B     0B   0.0K   0% thermald       
  530954       -     0B     0B   0.0K   0% bash           
-    937       -     0B     0B   0.0K   0% dbus-broker    
  510378       -     0B     0B   0.0K   0% pmcd           
  569803       -     0B     0B   0.0K   0% pmsleep        
    1338       -     0B     0B   0.0K   0% (sd-pam        
    8328       -     0B     0B   0.0K   0% gconfd-2       
-    881       -     0B     0B   0.0K   0% avahi-daemon   
    7263       -     0B     0B   0.0K   0% speech-dispatc 
  569742       -     0B     0B   0.0K   0% mk.atop-thread 
  116463       -     0B     0B   0.0K   0% ssh-agent      
-     14       -     0B     0B   0.0K   0% rcu_sched      
      15       -     0B     0B   0.0K   0% migration/0    
      18       -     0B     0B   0.0K   0% migration/1    
      23       -     0B     0B   0.0K   0% migration/2    
@@ -1154,8 +1144,8 @@ NET | enp0s25 ---- | pcki      85 | pcko      10 | si   53 Kbps | so    9 Kbps |
  520551       -     0B     0B   0.0K   0% kworker/3:3-ev 
  532562       -     0B     0B   0.0K   0% kworker/2:0-ev 
  533793       -     0B     0B   0.0K   0% kworker/1:3-ev 
- 536069       -     0B     0B   0.0K   0% kworker/u17:0- 
  536169       -     0B     0B   0.0K   0% kworker/u16:4- 
+ 553270       -     0B     0B   0.0K   0% kworker/6:3-ev 
  558573       -     0B     0B   0.0K   0% kworker/u16:3- 
  559476       -     0B     0B   0.0K   0% kworker/5:2-ev 
  561022       -     0B     0B   0.0K   0% kworker/1:0-mm 
@@ -1197,7 +1187,7 @@ NET | tun0    ---- | pcki   93648 | pcko  100194 | si  245 Mbps | so   62 Mbps |
 WWW | reqs      60 | totKB    133 | byt/rq  2269 | iwork     74 | bwork      1 |
 
     PID VSTACK  VSIZE  RSIZE  PSIZE  VGROW  RGROW SWAPSZ  MEM CMD            
-   6098 148.0K   4.9G 835.7M     ?K   4.9G 835.7M     0B   5% firefox        
+   6098 148.0K   4.9G 834.3M     ?K   4.9G 834.3M     0B   5% firefox        
    6569 348.0K   3.6G 799.2M     ?K   3.6G 799.2M     0B   5% Web Content    
    2838 132.0K   1.3G 728.3M     ?K   1.3G 728.3M     0B   5% packagekitd    
  112368 200.0K   3.2G 471.2M     ?K   3.2G 471.2M     0B   3% Web Content    
@@ -1256,7 +1246,7 @@ WWW | reqs      60 | totKB    133 | byt/rq  2269 | iwork     74 | bwork      1 |
  259641 132.0K 558.1M  39.1M     ?K 558.1M  39.1M     0B   0% kded4          
    4802 132.0K   1.0G  36.0M     ?K   1.0G  36.0M 492.0K   0% evolution-addr 
    4515 132.0K 913.9M  32.9M     ?K 913.9M  32.9M 368.0K   0% gnome-shell-ca 
- 567882 132.0K  65.6M  30.8M     ?K  65.6M  30.8M     0B   0% pmdaproc       
+ 567882 280.0K  65.7M  31.1M     ?K  65.7M  31.1M     0B   0% pmdaproc       
  510402 216.0K 477.8M  30.4M     ?K 477.8M  30.4M     0B   0% python3        
    6868 136.0K 413.6M  30.2M     ?K 413.6M  30.2M     0B   0% slack          
    6867 136.0K 413.6M  30.2M     ?K 413.6M  30.2M     0B   0% slack          
@@ -1308,6 +1298,7 @@ WWW | reqs      60 | totKB    133 | byt/rq  2269 | iwork     74 | bwork      1 |
  561041 132.0K   2.2G  11.8M     ?K   2.2G  11.8M     0B   0% /usr/sbin/http 
    4916 132.0K 524.1M  11.8M     ?K 524.1M  11.8M     0B   0% ibus-daemon    
    3464 132.0K 547.8M  11.7M     ?K 547.8M  11.7M  92.0K   0% gdm-session-wo 
+ 569789 136.0K  23.4M  11.7M     ?K  23.4M  11.7M     0B   0% pmlogger       
    6870 136.0K 413.6M  11.2M     ?K 413.6M  11.2M     0B   0% slack          
  561040 132.0K   2.4G  11.0M     ?K   2.4G  11.0M     0B   0% /usr/sbin/http 
    3365 132.0K 527.0M  10.9M     ?K 527.0M  10.9M  36.0K   0% colord         
@@ -1348,7 +1339,6 @@ WWW | reqs      60 | totKB    133 | byt/rq  2269 | iwork     74 | bwork      1 |
  566342 132.0K 254.5M   7.3M     ?K 254.5M   7.3M     0B   0% su             
    1230 132.0K 812.3M   7.3M     ?K 812.3M   7.3M     0B   0% pcscd          
     954 132.0K 528.5M   7.2M     ?K 528.5M   7.2M  20.0K   0% accounts-daemo 
- 569789 136.0K  16.4M   7.2M     ?K  16.4M   7.2M     0B   0% pmlogger       
  529850 132.0K 229.0M   7.2M     ?K 229.0M   7.2M     0B   0% bash           
  510409 132.0K  36.3M   7.2M     ?K  36.3M   7.2M     0B   0% pmdasimple     
  537161 132.0K 229.0M   7.2M     ?K 229.0M   7.2M     0B   0% bash           
@@ -1597,8 +1587,8 @@ NET | enp0s25 ---- | pcki      86 | pcko      16 | si   61 Kbps | so   35 Kbps |
 NET | lo      ---- | pcki      26 | pcko      26 | si   24 Kbps | so   24 Kbps |
 
     PID VSTACK  VSIZE  RSIZE  PSIZE  VGROW  RGROW SWAPSZ  MEM CMD            
-   6098 148.0K   4.9G 834.3M     ?K     0B  -1.4M     0B   5% firefox        
-   6569 348.0K   3.6G 799.2M     ?K     0B     0B     0B   5% Web Content    
+   6098 148.0K   4.9G 836.0M     ?K -20.0K   1.7M     0B   5% firefox        
+   6569 348.0K   3.6G 800.0M     ?K     0B 800.0K     0B   5% Web Content    
    2838 132.0K   1.3G 728.3M     ?K     0B     0B     0B   5% packagekitd    
  112368 200.0K   3.2G 471.2M     ?K     0B     0B     0B   3% Web Content    
    7581 220.0K  36.8G 411.3M     ?K     0B     0B     0B   3% chrome         
@@ -1607,7 +1597,7 @@ NET | lo      ---- | pcki      26 | pcko      26 | si   24 Kbps | so   24 Kbps |
  112334 196.0K   3.0G 298.6M     ?K     0B     0B     0B   2% Web Content    
    6667 208.0K   3.0G 291.9M     ?K     0B     0B     0B   2% Web Content    
    8038 360.0K  40.7G 281.4M     ?K     0B     0B     0B   2% chrome         
-   6532 184.0K   3.1G 273.8M     ?K     0B     0B     0B   2% Web Content    
+   6532 184.0K   3.1G 273.9M     ?K     0B 136.0K     0B   2% Web Content    
    7465 132.0K  32.9G 272.6M     ?K     0B     0B     0B   2% chrome         
    6234 192.0K   3.3G 258.5M     ?K     0B     0B     0B   2% Web Content    
    6968 156.0K  36.7G 207.9M     ?K     0B     0B     0B   1% slack          
@@ -1656,7 +1646,7 @@ NET | lo      ---- | pcki      26 | pcko      26 | si   24 Kbps | so   24 Kbps |
  259641 132.0K 558.1M  39.1M     ?K     0B     0B     0B   0% kded4          
    4802 132.0K   1.0G  36.0M     ?K     0B     0B 492.0K   0% evolution-addr 
    4515 132.0K 913.9M  32.9M     ?K     0B     0B 368.0K   0% gnome-shell-ca 
- 567882 280.0K  65.7M  31.1M     ?K 148.0K 264.0K     0B   0% pmdaproc       
+ 567882 280.0K  65.7M  31.1M     ?K     0B     0B     0B   0% pmdaproc       
  510402 216.0K 477.8M  30.4M     ?K     0B     0B     0B   0% python3        
    6868 136.0K 413.6M  30.2M     ?K     0B     0B     0B   0% slack          
    6867 136.0K 413.6M  30.2M     ?K     0B     0B     0B   0% slack          
@@ -1704,11 +1694,11 @@ NET | lo      ---- | pcki      26 | pcko      26 | si   24 Kbps | so   24 Kbps |
     946 132.0K 271.9M  12.0M     ?K     0B     0B     0B   0% sssd_nss       
    4645 132.0K 462.8M  12.0M     ?K     0B     0B     0B   0% gsd-print-noti 
    4633 132.0K 542.9M  12.0M     ?K     0B     0B     0B   0% gsd-datetime   
+ 569789 136.0K  23.4M  11.9M     ?K  -4.0K 236.0K     0B   0% pmlogger       
    4672 132.0K 594.8M  11.8M     ?K     0B     0B  52.0K   0% gsd-smartcard  
  561041 132.0K   2.2G  11.8M     ?K     0B     0B     0B   0% /usr/sbin/http 
    4916 132.0K 524.1M  11.8M     ?K     0B     0B     0B   0% ibus-daemon    
    3464 132.0K 547.8M  11.7M     ?K     0B     0B  92.0K   0% gdm-session-wo 
- 569789 136.0K  23.4M  11.7M     ?K   7.0M   4.5M     0B   0% pmlogger       
    6870 136.0K 413.6M  11.2M     ?K     0B     0B     0B   0% slack          
  561040 132.0K   2.4G  11.0M     ?K     0B     0B     0B   0% /usr/sbin/http 
    3365 132.0K 527.0M  10.9M     ?K     0B     0B  36.0K   0% colord         
@@ -1987,7 +1977,7 @@ cpu | sys       1% | user      0% | irq       3% | idle     96% | cpu007 w  0% |
 cpu | sys       0% | user      1% | irq       4% | idle     95% | cpu000 w  0% |
 cpu | sys       1% | user      0% | irq       3% | idle     95% | cpu004 w  1% |
 cpu | sys       1% | user      0% | irq       3% | idle     96% | cpu001 w  0% |
-CPL | numcpu     8 | avg1    0.16 | avg5    0.15 | csw     2200 | intr   16357 |
+CPL | numcpu     8 | avg1    0.14 | avg5    0.15 | csw     2200 | intr   16357 |
 MEM | tot    15.3G | free    2.3G | avail   0.0M | cache   4.6G | slab  620.1M |
 MEM | numnode    0 | shmem   2.7G | shswp   0.0M | pgtab   0.0M | zfarc   0.0M |
 SWP | tot    11.7G | free   11.7G | swcac   2.1M | vmcom  22.9G | vmlim  19.1G |
@@ -1997,8 +1987,8 @@ NET | lo      ---- | pcki      43 | pcko      43 | si   44 Kbps | so   44 Kbps |
 NET | enp0s25 ---- | pcki      85 | pcko      10 | si   53 Kbps | so    9 Kbps |
 
     PID VSTACK  VSIZE  RSIZE  PSIZE  VGROW  RGROW SWAPSZ  MEM CMD            
-   6098 148.0K   4.9G 836.0M     ?K -20.0K   1.7M     0B   5% firefox        
-   6569 348.0K   3.6G 800.0M     ?K     0B 800.0K     0B   5% Web Content    
+   6098 148.0K   4.9G 835.4M     ?K  20.0K  -0.6M     0B   5% firefox        
+   6569 348.0K   3.6G 804.1M     ?K     0B   4.1M     0B   5% Web Content    
    2838 132.0K   1.3G 728.3M     ?K     0B     0B     0B   5% packagekitd    
  112368 200.0K   3.2G 471.2M     ?K     0B     0B     0B   3% Web Content    
    7581 220.0K  36.8G 411.3M     ?K     0B     0B     0B   3% chrome         
@@ -2007,7 +1997,7 @@ NET | enp0s25 ---- | pcki      85 | pcko      10 | si   53 Kbps | so    9 Kbps |
  112334 196.0K   3.0G 298.6M     ?K     0B     0B     0B   2% Web Content    
    6667 208.0K   3.0G 291.9M     ?K     0B     0B     0B   2% Web Content    
    8038 360.0K  40.7G 281.4M     ?K     0B     0B     0B   2% chrome         
-   6532 184.0K   3.1G 273.9M     ?K     0B 136.0K     0B   2% Web Content    
+   6532 184.0K   3.1G 273.9M     ?K     0B     0B     0B   2% Web Content    
    7465 132.0K  32.9G 272.6M     ?K     0B     0B     0B   2% chrome         
    6234 192.0K   3.3G 258.5M     ?K     0B     0B     0B   2% Web Content    
    6968 156.0K  36.7G 207.9M     ?K     0B     0B     0B   1% slack          
@@ -2029,7 +2019,7 @@ NET | enp0s25 ---- | pcki      85 | pcko      10 | si   53 Kbps | so    9 Kbps |
    1242 132.0K 909.6M 121.3M     ?K     0B     0B 116.0K   1% redis-server   
  536542 168.0K  36.6G 119.6M     ?K     0B     0B     0B   1% chrome         
  251324 132.0K  36.6G 109.1M     ?K     0B     0B     0B   1% chrome         
-   7507 132.0K  32.5G 106.0M     ?K     0B     0B     0B   1% chrome         
+   7507 132.0K  32.5G 106.0M     ?K     0B  -8.0K     0B   1% chrome         
    6351 132.0K   2.6G 103.6M     ?K     0B     0B     0B   1% WebExtensions  
  123743 132.0K  36.6G  95.3M     ?K     0B     0B     0B   1% chrome         
  507752 296.0K 188.0M  88.9M     ?K     0B     0B     0B   1% pmproxy        
@@ -2096,6 +2086,7 @@ NET | enp0s25 ---- | pcki      85 | pcko      10 | si   53 Kbps | so    9 Kbps |
    1275 132.0K  24.6M  13.7M     ?K     0B     0B  44.0K   0% systemd        
    4821 132.0K 544.8M  13.4M     ?K     0B     0B     0B   0% gsd-printer    
     955 132.0K 832.2M  13.2M     ?K     0B     0B 124.0K   0% systemd-logind 
+ 569789 136.0K  24.4M  13.0M     ?K   1.0M   1.1M     0B   0% pmlogger       
     935 132.0K 477.8M  13.0M     ?K     0B     0B 132.0K   0% abrtd          
     665 132.0K  52.2M  12.8M     ?K     0B     0B  56.0K   0% systemd-udevd  
    4541 132.0K 394.4M  12.8M     ?K     0B     0B   8.0K   0% udisksd        
@@ -2104,7 +2095,6 @@ NET | enp0s25 ---- | pcki      85 | pcko      10 | si   53 Kbps | so    9 Kbps |
     946 132.0K 271.9M  12.0M     ?K     0B     0B     0B   0% sssd_nss       
    4645 132.0K 462.8M  12.0M     ?K     0B     0B     0B   0% gsd-print-noti 
    4633 132.0K 542.9M  12.0M     ?K     0B     0B     0B   0% gsd-datetime   
- 569789 136.0K  23.4M  11.9M     ?K  -4.0K 236.0K     0B   0% pmlogger       
    4672 132.0K 594.8M  11.8M     ?K     0B     0B  52.0K   0% gsd-smartcard  
  561041 132.0K   2.2G  11.8M     ?K     0B     0B     0B   0% /usr/sbin/http 
    4916 132.0K 524.1M  11.8M     ?K     0B     0B     0B   0% ibus-daemon    
@@ -2524,166 +2514,166 @@ WWW | reqs      60 | totKB    133 | byt/rq  2269 | iwork     74 | bwork      1 |
    6569  197956  0.18s  0.12s   3.6G 799.2M     0B     0B   0% AudioIP~ent RP 
    6569  197957  0.01s  0.07s   3.6G 799.2M     0B     0B   0% AudioIPC0      
    6569  569772  0.00s  0.00s   3.6G 799.2M     0B     0B   0% StreamT~s #604 
-   6098       -  6m43s 28m44s   4.9G 835.7M 106.3M 184.0K   1% firefox        
-   6098    6121  0.00s  0.00s   4.9G 835.7M     0B     0B   0% gmain          
-   6098    6123  0.00s  0.00s   4.9G 835.7M     0B     0B   0% gdbus          
-   6098    6124  0.00s  0.00s   4.9G 835.7M     0B     0B   0% dconf worker   
-   6098    6129  6m59s  5m16s   4.9G 835.7M 240.0K     0B   0% IPC I/O Parent 
-   6098    6130 14.51s 14.59s   4.9G 835.7M     0B     0B   0% Timer          
-   6098    6131  0.03s  0.02s   4.9G 835.7M 128.0K     0B   0% Netlink Monito 
-   6098    6132 61.53s  2m19s   4.9G 835.7M   1.2M     0B   0% Socket Thread  
-   6098    6133  0.11s  0.03s   4.9G 835.7M 128.0K  30.7M   0% Permission     
-   6098    6137  1.21s  0.99s   4.9G 835.7M     0B     0B   0% JS Watchdog    
-   6098    6138  1.61s  2.20s   4.9G 835.7M 512.0K     0B   0% JS Helper      
-   6098    6139  1.57s  2.19s   4.9G 835.7M 384.0K     0B   0% JS Helper      
-   6098    6141  1.63s  2.21s   4.9G 835.7M   1.1M     0B   0% JS Helper      
-   6098    6142  1.64s  2.26s   4.9G 835.7M   1.8M     0B   0% JS Helper      
-   6098    6143  1.65s  2.31s   4.9G 835.7M 896.0K     0B   0% JS Helper      
-   6098    6144  1.63s  2.18s   4.9G 835.7M   1.1M     0B   0% JS Helper      
-   6098    6145  1.52s  2.30s   4.9G 835.7M   1.5M     0B   0% JS Helper      
-   6098    6146  1.62s  2.26s   4.9G 835.7M 896.0K     0B   0% JS Helper      
-   6098    6179 22.22s 31.94s   4.9G 835.7M 204.2M 887.1M   0% Cache2 I/O     
-   6098    6180  0.00s  0.00s   4.9G 835.7M   2.1M 160.0K   0% Cookie         
-   6098    6183  0.00s  0.00s   4.9G 835.7M     0B     0B   0% Worker Launche 
-   6098    6184  0.00s  0.00s   4.9G 835.7M     0B     0B   0% firefox:disk$0 
-   6098    6185  0.00s  0.00s   4.9G 835.7M     0B     0B   0% firefox:disk$1 
-   6098    6186  0.00s  0.00s   4.9G 835.7M     0B     0B   0% firefox:disk$2 
-   6098    6187  0.00s  0.00s   4.9G 835.7M     0B     0B   0% firefox:disk$3 
-   6098    6188  0.03s  0.07s   4.9G 835.7M     0B     0B   0% Softwar~cThrea 
-   6098    6189  2m58s  4m00s   4.9G 835.7M   6.4M  16.0K   0% Renderer       
-   6098    6190  1.01s  2.45s   4.9G 835.7M   1.1M     0B   0% WRWorker#0     
-   6098    6191  0.69s  1.82s   4.9G 835.7M   1.1M     0B   0% WRWorker#1     
-   6098    6192  0.66s  1.74s   4.9G 835.7M 380.0K     0B   0% WRWorker#2     
-   6098    6193  0.61s  1.62s   4.9G 835.7M  48.0K     0B   0% WRWorker#3     
-   6098    6194  0.59s  1.57s   4.9G 835.7M 132.0K     0B   0% WRWorker#4     
-   6098    6195  0.54s  1.50s   4.9G 835.7M  28.0K     0B   0% WRWorker#5     
-   6098    6196  0.51s  1.43s   4.9G 835.7M  72.0K     0B   0% WRWorker#6     
-   6098    6197  0.49s  1.35s   4.9G 835.7M  80.0K     0B   0% WRWorker#7     
-   6098    6198  1.96s  3.05s   4.9G 835.7M     0B     0B   0% WRWorkerLP#0   
-   6098    6199  1.80s  7.44s   4.9G 835.7M     0B     0B   0% WRWorkerLP#1   
-   6098    6200  1.92s  8.62s   4.9G 835.7M   4.0K     0B   0% WRWorkerLP#2   
-   6098    6201  1.77s  7.43s   4.9G 835.7M     0B     0B   0% WRWorkerLP#3   
-   6098    6202  1.46s  6.20s   4.9G 835.7M     0B     0B   0% WRWorkerLP#4   
-   6098    6203  1.27s  5.33s   4.9G 835.7M     0B     0B   0% WRWorkerLP#5   
-   6098    6204  0.97s  4.33s   4.9G 835.7M     0B     0B   0% WRWorkerLP#6   
-   6098    6205  0.63s  2.32s   4.9G 835.7M     0B     0B   0% WRWorkerLP#7   
-   6098    6206 48.17s  2m04s   4.9G 835.7M 516.0K     0B   0% Compositor     
-   6098    6207  0.00s  0.00s   4.9G 835.7M   8.0K  16.0K   0% firefox:disk$0 
-   6098    6208  0.00s  0.00s   4.9G 835.7M     0B   8.0K   0% firefox:disk$1 
-   6098    6209  0.00s  0.00s   4.9G 835.7M     0B   8.0K   0% firefox:disk$2 
-   6098    6210  0.00s  0.00s   4.9G 835.7M     0B   4.0K   0% firefox:disk$3 
-   6098    6211  0.02s  0.02s   4.9G 835.7M     0B     0B   0% ImageIO        
-   6098    6212 65.91s  1m52s   4.9G 835.7M 224.0K     0B   0% IPDL Backgroun 
-   6098    6216  0.86s  1.35s   4.9G 835.7M  38.7M 608.0K   0% QuotaManager I 
-   6098    6219  0.00s  0.00s   4.9G 835.7M     0B     0B   0% TRR Background 
-   6098    6220  0.30s  1.05s   4.9G 835.7M   2.2M 380.0K   0% DOM Worker     
-   6098    6221  0.11s  0.93s   4.9G 835.7M  84.0K     0B   0% StyleThread#0  
-   6098    6222  0.08s  0.89s   4.9G 835.7M     0B     0B   0% StyleThread#1  
-   6098    6223  0.09s  0.83s   4.9G 835.7M 120.0K     0B   0% StyleThread#2  
-   6098    6224  0.07s  0.68s   4.9G 835.7M     0B     0B   0% StyleThread#3  
-   6098    6225  0.06s  0.62s   4.9G 835.7M     0B     0B   0% StyleThread#4  
-   6098    6226  0.06s  0.56s   4.9G 835.7M     0B     0B   0% StyleThread#5  
-   6098    6227  0.00s  0.00s   4.9G 835.7M     0B     0B   0% ImageBridgeChl 
-   6098    6228 36.67s  3m37s   4.9G 835.7M 672.0K     0B   0% WRScene~ilder# 
-   6098    6229  2.14s  3.16s   4.9G 835.7M  44.0K     0B   0% WRScene~derLP# 
-   6098    6230 38.81s  5m08s   4.9G 835.7M 880.0K     0B   0% WRRende~ckend# 
-   6098    6231  0.00s  0.00s   4.9G 835.7M     0B     0B   0% Breakpad Serve 
-   6098    6232  0.00s  0.00s   4.9G 835.7M     0B     0B   0% firefox        
-   6098    6233  0.20s  0.00s   4.9G 835.7M   8.0K     0B   0% IPC Launch     
-   6098    6235  0.00s  0.00s   4.9G 835.7M 272.0K     0B   0% GMPThread      
-   6098    6243  0.10s  0.04s   4.9G 835.7M     0B     0B   0% FS Broker 6234 
-   6098    6244  0.02s  0.03s   4.9G 835.7M  88.0K     0B   0% ProcessHangMon 
-   6098    6263  6.05s  5.54s   4.9G 835.7M 280.0K     0B   0% AudioIPC Callb 
-   6098    6264  0.50s  0.44s   4.9G 835.7M 104.0K     0B   0% AudioIPC Serve 
-   6098    6274 78.02s  2m41s   4.9G 835.7M 508.0K   5.7G   0% DOM Worker     
-   6098    6282  1.82s 20.20s   4.9G 835.7M     0B     0B   0% ProxyResolutio 
-   6098    6283  0.00s  0.00s   4.9G 835.7M     0B     0B   0% Cache I/O      
-   6098    6284  3.78s  3.84s   4.9G 835.7M     0B     0B   0% DNS Resolver # 
-   6098    6285  0.00s  0.00s   4.9G 835.7M  48.0K     0B   0% HTML5 Parser   
-   6098    6298  0.05s  0.02s   4.9G 835.7M     0B     0B   0% FS Broker 6289 
-   6098    6299  0.00s  0.00s   4.9G 835.7M     0B     0B   0% WRScene~ilder# 
-   6098    6300  0.00s  0.00s   4.9G 835.7M     0B     0B   0% WRScene~derLP# 
-   6098    6301  0.00s  0.00s   4.9G 835.7M     0B     0B   0% WRRende~ckend# 
-   6098    6331  2.05s  3.05s   4.9G 835.7M  38.5M   1.2G   0% localStorage D 
-   6098    6332  0.00s  0.01s   4.9G 835.7M     0B     0B   0% localStorage D 
-   6098    6334 10.51s  2m21s   4.9G 835.7M  10.4M     0B   0% URL Classifier 
-   6098    6335  3.82s  3.83s   4.9G 835.7M     0B     0B   0% DNS Resolver # 
-   6098    6337  3.79s  3.85s   4.9G 835.7M     0B     0B   0% DNS Resolver # 
-   6098    6338  0.01s  0.04s   4.9G 835.7M     0B     0B   0% TaskCon~read # 
-   6098    6339  0.01s  0.03s   4.9G 835.7M     0B     0B   0% TaskCon~read # 
-   6098    6340  0.01s  0.03s   4.9G 835.7M     0B     0B   0% TaskCon~read # 
-   6098    6341  0.01s  0.04s   4.9G 835.7M     0B     0B   0% TaskCon~read # 
-   6098    6342  0.01s  0.03s   4.9G 835.7M     0B     0B   0% TaskCon~read # 
-   6098    6343  0.01s  0.03s   4.9G 835.7M     0B     0B   0% TaskCon~read # 
-   6098    6344  0.01s  0.03s   4.9G 835.7M     0B     0B   0% TaskCon~read # 
-   6098    6348 18.73s 56.67s   4.9G 835.7M 164.4M   1.7G   0% mozStorage #1  
-   6098    6349 10.86s 15.18s   4.9G 835.7M 312.0K   4.6G   0% mozStorage #2  
-   6098    6350  3.79s  3.85s   4.9G 835.7M   4.0K     0B   0% DNS Resolver # 
-   6098    6359  0.00s  0.00s   4.9G 835.7M     0B     0B   0% FS Broker 6351 
-   6098    6360  3.24s  5.66s   4.9G 835.7M  15.4M     0B   0% mozStorage #3  
-   6098    6364  0.05s  0.08s   4.9G 835.7M 112.0K   6.8M   0% mozStorage #4  
-   6098    6375  0.04s  0.16s   4.9G 835.7M 608.0K 192.0K   0% mozStorage #5  
-   6098    6396  3.77s  3.84s   4.9G 835.7M   4.0K     0B   0% DNS Resolver # 
-   6098    6416  0.16s  0.39s   4.9G 835.7M  44.0K   3.3M   0% DOM Worker     
-   6098    6464  0.06s  0.05s   4.9G 835.7M 392.0K   2.7M   0% glean.dispatch 
-   6098    6473  0.00s  0.00s   4.9G 835.7M     0B     0B   0% firefox        
-   6098    6483  0.00s  0.00s   4.9G 835.7M     0B     0B   0% FS Broker 6475 
-   6098    6484  0.52s  0.52s   4.9G 835.7M   3.2M     0B   0% mozStorage #6  
-   6098    6486  3.75s  3.86s   4.9G 835.7M     0B     0B   0% DNS Resolver # 
-   6098    6541  1.13s  0.40s   4.9G 835.7M 256.0K     0B   0% FS Broker 6532 
-   6098    6564  1.83s 17.78s   4.9G 835.7M  17.0M     0B   0% mozStorage #7  
-   6098    6577  0.05s  0.02s   4.9G 835.7M     0B     0B   0% FS Broker 6569 
-   6098    6593  3.83s  3.80s   4.9G 835.7M   4.0K     0B   0% DNS Resolver # 
-   6098    6609  3.71s  3.89s   4.9G 835.7M   4.0K     0B   0% DNS Resolver # 
-   6098    6630  0.00s  0.00s   4.9G 835.7M     0B     0B   0% FS Broker 6626 
-   6098    6675  0.06s  0.02s   4.9G 835.7M     0B     0B   0% FS Broker 6667 
-   6098    7266  0.12s  0.08s   4.9G 835.7M     0B     0B   0% speechd init   
-   6098    7283  0.00s  0.00s   4.9G 835.7M     0B     0B   0% WRScene~ilder# 
-   6098    7284  0.00s  0.00s   4.9G 835.7M     0B     0B   0% WRScene~derLP# 
-   6098    7285  0.00s  0.00s   4.9G 835.7M     0B     0B   0% WRRende~ckend# 
-   6098    8193  0.01s  0.04s   4.9G 835.7M 624.0K   7.0M   0% mozStorage #8  
-   6098    8987  0.00s  0.01s   4.9G 835.7M     0B     0B   0% WRScene~ilder# 
-   6098    8988  0.00s  0.00s   4.9G 835.7M     0B     0B   0% WRScene~derLP# 
-   6098    8989  0.01s  0.02s   4.9G 835.7M     0B     0B   0% WRRende~ckend# 
-   6098    9136  6.48s  9.61s   4.9G 835.7M     0B     0B   0% threaded-ml    
-   6098   10290  0.00s  0.00s   4.9G 835.7M     0B     0B   0% WRScene~ilder# 
-   6098   10291  0.00s  0.00s   4.9G 835.7M     0B     0B   0% WRScene~derLP# 
-   6098   10292  0.00s  0.00s   4.9G 835.7M     0B     0B   0% WRRende~ckend# 
-   6098   11452  0.09s  0.99s   4.9G 835.7M 464.0K   1.3M   0% DOMCacheThread 
-   6098  112337  0.04s  0.02s   4.9G 835.7M 216.0K     0B   0% FS Broker 1123 
-   6098  112376  0.05s  0.02s   4.9G 835.7M     0B     0B   0% FS Broker 1123 
-   6098  115514  0.00s  0.00s   4.9G 835.7M     0B     0B   0% WRScene~ilder# 
-   6098  115515  0.00s  0.00s   4.9G 835.7M     0B     0B   0% WRScene~derLP# 
-   6098  115516  0.00s  0.00s   4.9G 835.7M     0B     0B   0% WRRende~ckend# 
-   6098  117914  0.02s  0.03s   4.9G 835.7M     0B     0B   0% threaded-ml    
-   6098  149651  0.00s  0.00s   4.9G 835.7M     0B     0B   0% FS Broker 1496 
-   6098  157316  0.00s  0.00s   4.9G 835.7M     0B     0B   0% WRScene~lder#1 
-   6098  157317  0.00s  0.00s   4.9G 835.7M     0B     0B   0% WRScene~erLP#1 
-   6098  157318  0.00s  0.01s   4.9G 835.7M     0B     0B   0% WRRende~kend#1 
-   6098  162082  0.01s  0.00s   4.9G 835.7M 384.0K     0B   0% VideoCapture   
-   6098  162083  5.10s  1.31s   4.9G 835.7M     0B     0B   0% InotifyEventTh 
-   6098  163568  2.44s 13.90s   4.9G 835.7M     0B     0B   0% WRScene~lder#1 
-   6098  163569  0.15s  0.19s   4.9G 835.7M     0B     0B   0% WRScene~erLP#1 
-   6098  163570  2.78s 14.14s   4.9G 835.7M     0B     0B   0% WRRende~kend#1 
-   6098  163926  0.00s  0.00s   4.9G 835.7M     0B     0B   0% WRScene~lder#1 
-   6098  163927  0.00s  0.00s   4.9G 835.7M     0B     0B   0% WRScene~erLP#1 
-   6098  163928  0.00s  0.00s   4.9G 835.7M     0B     0B   0% WRRende~kend#1 
-   6098  180089  0.00s  0.00s   4.9G 835.7M     0B     0B   0% WRScene~lder#1 
-   6098  180090  0.00s  0.00s   4.9G 835.7M     0B     0B   0% WRScene~erLP#1 
-   6098  180091  0.00s  0.00s   4.9G 835.7M     0B     0B   0% WRRende~kend#1 
-   6098  259741  0.00s  0.00s   4.9G 835.7M     0B     0B   0% WRScene~lder#1 
-   6098  259742  0.00s  0.00s   4.9G 835.7M     0B     0B   0% WRScene~erLP#1 
-   6098  259743  0.00s  0.00s   4.9G 835.7M     0B     0B   0% WRRende~kend#1 
-   6098  520347  0.03s  0.10s   4.9G 835.7M   4.0K   3.8M   0% Backgro~ol #64 
-   6098  532050  0.15s  0.31s   4.9G 835.7M     0B   5.1M   0% StreamTrans #9 
-   6098  533965  0.11s  0.23s   4.9G 835.7M     0B   2.4M   0% StreamTrans #9 
-   6098  569777  0.00s  0.00s   4.9G 835.7M     0B     0B   0% SSL Cert #788  
-   6098  569778  0.00s  0.00s   4.9G 835.7M     0B     0B   0% IndexedDB #154 
-   6098  569779  0.00s  0.00s   4.9G 835.7M     0B     0B   0% IndexedDB #154 
-   6098  569780  0.02s  0.11s   4.9G 835.7M     0B  28.0K   0% StreamT~ns #10 
-   6098  569781  0.00s  0.06s   4.9G 835.7M     0B     0B   0% StreamT~ns #10 
-   6098  569783  0.00s  0.00s   4.9G 835.7M     0B     0B   0% IndexedDB #154 
-   6098  569784  0.00s  0.00s   4.9G 835.7M     0B     0B   0% IndexedDB #154 
+   6098       -  6m43s 28m44s   4.9G 834.3M 106.3M 184.0K   1% firefox        
+   6098    6121  0.00s  0.00s   4.9G 834.3M     0B     0B   0% gmain          
+   6098    6123  0.00s  0.00s   4.9G 834.3M     0B     0B   0% gdbus          
+   6098    6124  0.00s  0.00s   4.9G 834.3M     0B     0B   0% dconf worker   
+   6098    6129  6m59s  5m16s   4.9G 834.3M 240.0K     0B   0% IPC I/O Parent 
+   6098    6130 14.51s 14.59s   4.9G 834.3M     0B     0B   0% Timer          
+   6098    6131  0.03s  0.02s   4.9G 834.3M 128.0K     0B   0% Netlink Monito 
+   6098    6132 61.53s  2m19s   4.9G 834.3M   1.2M     0B   0% Socket Thread  
+   6098    6133  0.11s  0.03s   4.9G 834.3M 128.0K  30.7M   0% Permission     
+   6098    6137  1.21s  0.99s   4.9G 834.3M     0B     0B   0% JS Watchdog    
+   6098    6138  1.61s  2.20s   4.9G 834.3M 512.0K     0B   0% JS Helper      
+   6098    6139  1.57s  2.19s   4.9G 834.3M 384.0K     0B   0% JS Helper      
+   6098    6141  1.63s  2.21s   4.9G 834.3M   1.1M     0B   0% JS Helper      
+   6098    6142  1.64s  2.26s   4.9G 834.3M   1.8M     0B   0% JS Helper      
+   6098    6143  1.65s  2.31s   4.9G 834.3M 896.0K     0B   0% JS Helper      
+   6098    6144  1.63s  2.18s   4.9G 834.3M   1.1M     0B   0% JS Helper      
+   6098    6145  1.52s  2.30s   4.9G 834.3M   1.5M     0B   0% JS Helper      
+   6098    6146  1.62s  2.26s   4.9G 834.3M 896.0K     0B   0% JS Helper      
+   6098    6179 22.22s 31.94s   4.9G 834.3M 204.2M 887.1M   0% Cache2 I/O     
+   6098    6180  0.00s  0.00s   4.9G 834.3M   2.1M 160.0K   0% Cookie         
+   6098    6183  0.00s  0.00s   4.9G 834.3M     0B     0B   0% Worker Launche 
+   6098    6184  0.00s  0.00s   4.9G 834.3M     0B     0B   0% firefox:disk$0 
+   6098    6185  0.00s  0.00s   4.9G 834.3M     0B     0B   0% firefox:disk$1 
+   6098    6186  0.00s  0.00s   4.9G 834.3M     0B     0B   0% firefox:disk$2 
+   6098    6187  0.00s  0.00s   4.9G 834.3M     0B     0B   0% firefox:disk$3 
+   6098    6188  0.03s  0.07s   4.9G 834.3M     0B     0B   0% Softwar~cThrea 
+   6098    6189  2m58s  4m00s   4.9G 834.3M   6.4M  16.0K   0% Renderer       
+   6098    6190  1.01s  2.45s   4.9G 834.3M   1.1M     0B   0% WRWorker#0     
+   6098    6191  0.69s  1.82s   4.9G 834.3M   1.1M     0B   0% WRWorker#1     
+   6098    6192  0.66s  1.74s   4.9G 834.3M 380.0K     0B   0% WRWorker#2     
+   6098    6193  0.61s  1.62s   4.9G 834.3M  48.0K     0B   0% WRWorker#3     
+   6098    6194  0.59s  1.57s   4.9G 834.3M 132.0K     0B   0% WRWorker#4     
+   6098    6195  0.54s  1.50s   4.9G 834.3M  28.0K     0B   0% WRWorker#5     
+   6098    6196  0.51s  1.43s   4.9G 834.3M  72.0K     0B   0% WRWorker#6     
+   6098    6197  0.49s  1.35s   4.9G 834.3M  80.0K     0B   0% WRWorker#7     
+   6098    6198  1.96s  3.05s   4.9G 834.3M     0B     0B   0% WRWorkerLP#0   
+   6098    6199  1.80s  7.44s   4.9G 834.3M     0B     0B   0% WRWorkerLP#1   
+   6098    6200  1.92s  8.62s   4.9G 834.3M   4.0K     0B   0% WRWorkerLP#2   
+   6098    6201  1.77s  7.43s   4.9G 834.3M     0B     0B   0% WRWorkerLP#3   
+   6098    6202  1.46s  6.20s   4.9G 834.3M     0B     0B   0% WRWorkerLP#4   
+   6098    6203  1.27s  5.33s   4.9G 834.3M     0B     0B   0% WRWorkerLP#5   
+   6098    6204  0.97s  4.33s   4.9G 834.3M     0B     0B   0% WRWorkerLP#6   
+   6098    6205  0.63s  2.32s   4.9G 834.3M     0B     0B   0% WRWorkerLP#7   
+   6098    6206 48.17s  2m04s   4.9G 834.3M 516.0K     0B   0% Compositor     
+   6098    6207  0.00s  0.00s   4.9G 834.3M   8.0K  16.0K   0% firefox:disk$0 
+   6098    6208  0.00s  0.00s   4.9G 834.3M     0B   8.0K   0% firefox:disk$1 
+   6098    6209  0.00s  0.00s   4.9G 834.3M     0B   8.0K   0% firefox:disk$2 
+   6098    6210  0.00s  0.00s   4.9G 834.3M     0B   4.0K   0% firefox:disk$3 
+   6098    6211  0.02s  0.02s   4.9G 834.3M     0B     0B   0% ImageIO        
+   6098    6212 65.91s  1m52s   4.9G 834.3M 224.0K     0B   0% IPDL Backgroun 
+   6098    6216  0.86s  1.35s   4.9G 834.3M  38.7M 608.0K   0% QuotaManager I 
+   6098    6219  0.00s  0.00s   4.9G 834.3M     0B     0B   0% TRR Background 
+   6098    6220  0.30s  1.05s   4.9G 834.3M   2.2M 380.0K   0% DOM Worker     
+   6098    6221  0.11s  0.93s   4.9G 834.3M  84.0K     0B   0% StyleThread#0  
+   6098    6222  0.08s  0.89s   4.9G 834.3M     0B     0B   0% StyleThread#1  
+   6098    6223  0.09s  0.83s   4.9G 834.3M 120.0K     0B   0% StyleThread#2  
+   6098    6224  0.07s  0.68s   4.9G 834.3M     0B     0B   0% StyleThread#3  
+   6098    6225  0.06s  0.62s   4.9G 834.3M     0B     0B   0% StyleThread#4  
+   6098    6226  0.06s  0.56s   4.9G 834.3M     0B     0B   0% StyleThread#5  
+   6098    6227  0.00s  0.00s   4.9G 834.3M     0B     0B   0% ImageBridgeChl 
+   6098    6228 36.67s  3m37s   4.9G 834.3M 672.0K     0B   0% WRScene~ilder# 
+   6098    6229  2.14s  3.16s   4.9G 834.3M  44.0K     0B   0% WRScene~derLP# 
+   6098    6230 38.81s  5m08s   4.9G 834.3M 880.0K     0B   0% WRRende~ckend# 
+   6098    6231  0.00s  0.00s   4.9G 834.3M     0B     0B   0% Breakpad Serve 
+   6098    6232  0.00s  0.00s   4.9G 834.3M     0B     0B   0% firefox        
+   6098    6233  0.20s  0.00s   4.9G 834.3M   8.0K     0B   0% IPC Launch     
+   6098    6235  0.00s  0.00s   4.9G 834.3M 272.0K     0B   0% GMPThread      
+   6098    6243  0.10s  0.04s   4.9G 834.3M     0B     0B   0% FS Broker 6234 
+   6098    6244  0.02s  0.03s   4.9G 834.3M  88.0K     0B   0% ProcessHangMon 
+   6098    6263  6.05s  5.54s   4.9G 834.3M 280.0K     0B   0% AudioIPC Callb 
+   6098    6264  0.50s  0.44s   4.9G 834.3M 104.0K     0B   0% AudioIPC Serve 
+   6098    6274 78.02s  2m41s   4.9G 834.3M 508.0K   5.7G   0% DOM Worker     
+   6098    6282  1.82s 20.20s   4.9G 834.3M     0B     0B   0% ProxyResolutio 
+   6098    6283  0.00s  0.00s   4.9G 834.3M     0B     0B   0% Cache I/O      
+   6098    6284  3.78s  3.84s   4.9G 834.3M     0B     0B   0% DNS Resolver # 
+   6098    6285  0.00s  0.00s   4.9G 834.3M  48.0K     0B   0% HTML5 Parser   
+   6098    6298  0.05s  0.02s   4.9G 834.3M     0B     0B   0% FS Broker 6289 
+   6098    6299  0.00s  0.00s   4.9G 834.3M     0B     0B   0% WRScene~ilder# 
+   6098    6300  0.00s  0.00s   4.9G 834.3M     0B     0B   0% WRScene~derLP# 
+   6098    6301  0.00s  0.00s   4.9G 834.3M     0B     0B   0% WRRende~ckend# 
+   6098    6331  2.05s  3.05s   4.9G 834.3M  38.5M   1.2G   0% localStorage D 
+   6098    6332  0.00s  0.01s   4.9G 834.3M     0B     0B   0% localStorage D 
+   6098    6334 10.51s  2m21s   4.9G 834.3M  10.4M     0B   0% URL Classifier 
+   6098    6335  3.82s  3.83s   4.9G 834.3M     0B     0B   0% DNS Resolver # 
+   6098    6337  3.79s  3.85s   4.9G 834.3M     0B     0B   0% DNS Resolver # 
+   6098    6338  0.01s  0.04s   4.9G 834.3M     0B     0B   0% TaskCon~read # 
+   6098    6339  0.01s  0.03s   4.9G 834.3M     0B     0B   0% TaskCon~read # 
+   6098    6340  0.01s  0.03s   4.9G 834.3M     0B     0B   0% TaskCon~read # 
+   6098    6341  0.01s  0.04s   4.9G 834.3M     0B     0B   0% TaskCon~read # 
+   6098    6342  0.01s  0.03s   4.9G 834.3M     0B     0B   0% TaskCon~read # 
+   6098    6343  0.01s  0.03s   4.9G 834.3M     0B     0B   0% TaskCon~read # 
+   6098    6344  0.01s  0.03s   4.9G 834.3M     0B     0B   0% TaskCon~read # 
+   6098    6348 18.73s 56.67s   4.9G 834.3M 164.4M   1.7G   0% mozStorage #1  
+   6098    6349 10.86s 15.18s   4.9G 834.3M 312.0K   4.6G   0% mozStorage #2  
+   6098    6350  3.79s  3.85s   4.9G 834.3M   4.0K     0B   0% DNS Resolver # 
+   6098    6359  0.00s  0.00s   4.9G 834.3M     0B     0B   0% FS Broker 6351 
+   6098    6360  3.24s  5.66s   4.9G 834.3M  15.4M     0B   0% mozStorage #3  
+   6098    6364  0.05s  0.08s   4.9G 834.3M 112.0K   6.8M   0% mozStorage #4  
+   6098    6375  0.04s  0.16s   4.9G 834.3M 608.0K 192.0K   0% mozStorage #5  
+   6098    6396  3.77s  3.84s   4.9G 834.3M   4.0K     0B   0% DNS Resolver # 
+   6098    6416  0.16s  0.39s   4.9G 834.3M  44.0K   3.3M   0% DOM Worker     
+   6098    6464  0.06s  0.05s   4.9G 834.3M 392.0K   2.7M   0% glean.dispatch 
+   6098    6473  0.00s  0.00s   4.9G 834.3M     0B     0B   0% firefox        
+   6098    6483  0.00s  0.00s   4.9G 834.3M     0B     0B   0% FS Broker 6475 
+   6098    6484  0.52s  0.52s   4.9G 834.3M   3.2M     0B   0% mozStorage #6  
+   6098    6486  3.75s  3.86s   4.9G 834.3M     0B     0B   0% DNS Resolver # 
+   6098    6541  1.13s  0.40s   4.9G 834.3M 256.0K     0B   0% FS Broker 6532 
+   6098    6564  1.83s 17.78s   4.9G 834.3M  17.0M     0B   0% mozStorage #7  
+   6098    6577  0.05s  0.02s   4.9G 834.3M     0B     0B   0% FS Broker 6569 
+   6098    6593  3.83s  3.80s   4.9G 834.3M   4.0K     0B   0% DNS Resolver # 
+   6098    6609  3.71s  3.89s   4.9G 834.3M   4.0K     0B   0% DNS Resolver # 
+   6098    6630  0.00s  0.00s   4.9G 834.3M     0B     0B   0% FS Broker 6626 
+   6098    6675  0.06s  0.02s   4.9G 834.3M     0B     0B   0% FS Broker 6667 
+   6098    7266  0.12s  0.08s   4.9G 834.3M     0B     0B   0% speechd init   
+   6098    7283  0.00s  0.00s   4.9G 834.3M     0B     0B   0% WRScene~ilder# 
+   6098    7284  0.00s  0.00s   4.9G 834.3M     0B     0B   0% WRScene~derLP# 
+   6098    7285  0.00s  0.00s   4.9G 834.3M     0B     0B   0% WRRende~ckend# 
+   6098    8193  0.01s  0.04s   4.9G 834.3M 624.0K   7.0M   0% mozStorage #8  
+   6098    8987  0.00s  0.01s   4.9G 834.3M     0B     0B   0% WRScene~ilder# 
+   6098    8988  0.00s  0.00s   4.9G 834.3M     0B     0B   0% WRScene~derLP# 
+   6098    8989  0.01s  0.02s   4.9G 834.3M     0B     0B   0% WRRende~ckend# 
+   6098    9136  6.48s  9.61s   4.9G 834.3M     0B     0B   0% threaded-ml    
+   6098   10290  0.00s  0.00s   4.9G 834.3M     0B     0B   0% WRScene~ilder# 
+   6098   10291  0.00s  0.00s   4.9G 834.3M     0B     0B   0% WRScene~derLP# 
+   6098   10292  0.00s  0.00s   4.9G 834.3M     0B     0B   0% WRRende~ckend# 
+   6098   11452  0.09s  0.99s   4.9G 834.3M 464.0K   1.3M   0% DOMCacheThread 
+   6098  112337  0.04s  0.02s   4.9G 834.3M 216.0K     0B   0% FS Broker 1123 
+   6098  112376  0.05s  0.02s   4.9G 834.3M     0B     0B   0% FS Broker 1123 
+   6098  115514  0.00s  0.00s   4.9G 834.3M     0B     0B   0% WRScene~ilder# 
+   6098  115515  0.00s  0.00s   4.9G 834.3M     0B     0B   0% WRScene~derLP# 
+   6098  115516  0.00s  0.00s   4.9G 834.3M     0B     0B   0% WRRende~ckend# 
+   6098  117914  0.02s  0.03s   4.9G 834.3M     0B     0B   0% threaded-ml    
+   6098  149651  0.00s  0.00s   4.9G 834.3M     0B     0B   0% FS Broker 1496 
+   6098  157316  0.00s  0.00s   4.9G 834.3M     0B     0B   0% WRScene~lder#1 
+   6098  157317  0.00s  0.00s   4.9G 834.3M     0B     0B   0% WRScene~erLP#1 
+   6098  157318  0.00s  0.01s   4.9G 834.3M     0B     0B   0% WRRende~kend#1 
+   6098  162082  0.01s  0.00s   4.9G 834.3M 384.0K     0B   0% VideoCapture   
+   6098  162083  5.10s  1.31s   4.9G 834.3M     0B     0B   0% InotifyEventTh 
+   6098  163568  2.44s 13.90s   4.9G 834.3M     0B     0B   0% WRScene~lder#1 
+   6098  163569  0.15s  0.19s   4.9G 834.3M     0B     0B   0% WRScene~erLP#1 
+   6098  163570  2.78s 14.14s   4.9G 834.3M     0B     0B   0% WRRende~kend#1 
+   6098  163926  0.00s  0.00s   4.9G 834.3M     0B     0B   0% WRScene~lder#1 
+   6098  163927  0.00s  0.00s   4.9G 834.3M     0B     0B   0% WRScene~erLP#1 
+   6098  163928  0.00s  0.00s   4.9G 834.3M     0B     0B   0% WRRende~kend#1 
+   6098  180089  0.00s  0.00s   4.9G 834.3M     0B     0B   0% WRScene~lder#1 
+   6098  180090  0.00s  0.00s   4.9G 834.3M     0B     0B   0% WRScene~erLP#1 
+   6098  180091  0.00s  0.00s   4.9G 834.3M     0B     0B   0% WRRende~kend#1 
+   6098  259741  0.00s  0.00s   4.9G 834.3M     0B     0B   0% WRScene~lder#1 
+   6098  259742  0.00s  0.00s   4.9G 834.3M     0B     0B   0% WRScene~erLP#1 
+   6098  259743  0.00s  0.00s   4.9G 834.3M     0B     0B   0% WRRende~kend#1 
+   6098  520347  0.03s  0.10s   4.9G 834.3M   4.0K   3.8M   0% Backgro~ol #64 
+   6098  532050  0.15s  0.31s   4.9G 834.3M     0B   5.1M   0% StreamTrans #9 
+   6098  533965  0.11s  0.23s   4.9G 834.3M     0B   2.4M   0% StreamTrans #9 
+   6098  569777  0.00s  0.00s   4.9G 834.3M     0B     0B   0% SSL Cert #788  
+   6098  569778  0.00s  0.00s   4.9G 834.3M     0B     0B   0% IndexedDB #154 
+   6098  569779  0.00s  0.00s   4.9G 834.3M     0B     0B   0% IndexedDB #154 
+   6098  569780  0.02s  0.11s   4.9G 834.3M     0B  28.0K   0% StreamT~ns #10 
+   6098  569781  0.00s  0.06s   4.9G 834.3M     0B     0B   0% StreamT~ns #10 
+   6098  569783  0.00s  0.00s   4.9G 834.3M     0B     0B   0% IndexedDB #154 
+   6098  569784  0.00s  0.00s   4.9G 834.3M     0B     0B   0% IndexedDB #154 
    6968       - 67.28s 17m41s  36.7G 207.9M  17.7M     0B   1% slack          
    6968    6969  0.06s  0.05s  36.7G 207.9M     0B     0B   0% ThreadPoolServ 
    6968    6971 27.66s 37.15s  36.7G 207.9M     0B     0B   0% Chrome_ChildIO 
@@ -3364,7 +3354,7 @@ WWW | reqs      60 | totKB    133 | byt/rq  2269 | iwork     74 | bwork      1 |
    1239    1723  0.99s  7.07s   1.9G  55.6M   3.4M   1.0M   0% grafana-server 
    1239    1724  0.76s  5.93s   1.9G  55.6M 816.0K 732.0K   0% grafana-server 
    1239    1725  0.86s  6.32s   1.9G  55.6M 776.0K 872.0K   0% grafana-server 
- 567882       -  4.07s  2.10s  65.6M  30.8M  16.0K   4.0K   0% pmdaproc       
+ 567882       -  4.07s  2.10s  65.7M  31.1M  16.0K   4.0K   0% pmdaproc       
  510402       -  0.17s  5.71s 477.8M  30.4M 116.0K 180.0K   0% python3        
    4945       -  0.75s  4.91s 545.0M  22.8M     0B     0B   0% ibus-extension 
    4945    4964  0.00s  0.00s 545.0M  22.8M     0B     0B   0% gmain          
@@ -3847,7 +3837,7 @@ WWW | reqs      60 | totKB    133 | byt/rq  2269 | iwork     74 | bwork      1 |
     882       -  0.01s  0.02s   9.1M   4.1M   1.4M     0B   0% bluetoothd     
  567863       -  0.03s  0.00s     0B     0B     0B     0B   0% kworker/0:1-ev 
  567864       -  0.03s  0.00s     0B     0B     0B     0B   0% kworker/6:1-ev 
- 569789       -  0.01s  0.00s  16.4M   7.2M     0B   1.2M   0% pmlogger       
+ 569789       -  0.01s  0.00s  23.4M  11.7M     0B   1.2M   0% pmlogger       
    6868       -  0.00s  0.02s 413.6M  30.2M   2.3M     0B   0% slack          
  259637       -  0.01s  0.01s 301.8M  15.5M 844.0K     0B   0% kdeinit4       
    4633       -  0.00s  0.02s 542.9M  12.0M     0B     0B   0% gsd-datetime   
@@ -4350,282 +4340,9 @@ NET | enp0s25 ---- | pcki      86 | pcko      16 | si   61 Kbps | so   35 Kbps |
 NET | lo      ---- | pcki      26 | pcko      26 | si   24 Kbps | so   24 Kbps |
 
     PID     TID SYSCPU USRCPU  VGROW  RGROW  RDDSK  WRDSK  CPU CMD            
- 567882       -  0.10s  0.04s 148.0K 264.0K     0B     0B  15% pmdaproc       
-   6569       -  0.00s  0.01s     0B     0B     0B     0B   2% Web Content    
-   6569    6572  0.00s  0.00s     0B     0B     0B     0B   0% IPC I/O Child  
-   6569    6581  0.00s  0.00s     0B     0B     0B     0B   0% JS Helper      
-   6569    6582  0.00s  0.00s     0B     0B     0B     0B   0% JS Helper      
-   6569    6583  0.00s  0.00s     0B     0B     0B     0B   0% JS Helper      
-   6569    6584  0.00s  0.00s     0B     0B     0B     0B   0% JS Helper      
-   6569    6585  0.00s  0.00s     0B     0B     0B     0B   0% JS Helper      
-   6569    6586  0.00s  0.00s     0B     0B     0B     0B   0% JS Helper      
-   6569    6587  0.00s  0.00s     0B     0B     0B     0B   0% JS Helper      
-   6569    6588  0.00s  0.00s     0B     0B     0B     0B   0% JS Helper      
-   6569    6589  0.00s  0.00s     0B     0B     0B     0B   1% Timer          
- 569789       -  0.00s  0.01s   7.0M   4.5M     0B   1.1M   1% pmlogger       
- 510378       -  0.00s  0.00s     0B     0B     0B     0B   0% pmcd           
- 510378  510381  0.00s  0.00s     0B     0B     0B     0B   0% pmcd           
-   6098       -  0.00s  0.00s     0B  -1.4M     0B     0B   0% firefox        
-   6098    6121  0.00s  0.00s     0B  -1.4M     0B     0B   0% gmain          
-   6098    6123  0.00s  0.00s     0B  -1.4M     0B     0B   0% gdbus          
-   6098    6124  0.00s  0.00s     0B  -1.4M     0B     0B   0% dconf worker   
-   6098    6129  0.00s  0.00s     0B  -1.4M     0B     0B   1% IPC I/O Parent 
-   6098    6130  0.00s  0.00s     0B  -1.4M     0B     0B   0% Timer          
-   6098    6131  0.00s  0.00s     0B  -1.4M     0B     0B   0% Netlink Monito 
-   6098    6132  0.00s  0.00s     0B  -1.4M     0B     0B   1% Socket Thread  
-   6098    6133  0.00s  0.00s     0B  -1.4M     0B     0B   0% Permission     
-   6098    6137  0.00s  0.00s     0B  -1.4M     0B     0B   0% JS Watchdog    
-   6098    6138  0.00s  0.00s     0B  -1.4M     0B     0B   0% JS Helper      
-   6098    6139  0.00s  0.00s     0B  -1.4M     0B     0B   0% JS Helper      
-   6098    6141  0.00s  0.00s     0B  -1.4M     0B     0B   0% JS Helper      
-   6098    6142  0.00s  0.00s     0B  -1.4M     0B     0B   0% JS Helper      
-   6098    6143  0.00s  0.00s     0B  -1.4M     0B     0B   0% JS Helper      
-   6098    6144  0.00s  0.00s     0B  -1.4M     0B     0B   0% JS Helper      
-   6098    6145  0.00s  0.00s     0B  -1.4M     0B     0B   0% JS Helper      
-   6098    6146  0.00s  0.00s     0B  -1.4M     0B     0B   0% JS Helper      
-   6098    6179  0.00s  0.00s     0B  -1.4M     0B     0B   0% Cache2 I/O     
-   6098    6180  0.00s  0.00s     0B  -1.4M     0B     0B   0% Cookie         
-   6098    6183  0.00s  0.00s     0B  -1.4M     0B     0B   0% Worker Launche 
-   6098    6184  0.00s  0.00s     0B  -1.4M     0B     0B   0% firefox:disk$0 
-   6098    6185  0.00s  0.00s     0B  -1.4M     0B     0B   0% firefox:disk$1 
-   6098    6186  0.00s  0.00s     0B  -1.4M     0B     0B   0% firefox:disk$2 
-   6098    6187  0.00s  0.00s     0B  -1.4M     0B     0B   0% firefox:disk$3 
-   6098    6188  0.00s  0.00s     0B  -1.4M     0B     0B   0% Softwar~cThrea 
-   6098    6189  0.00s  0.00s     0B  -1.4M     0B     0B   0% Renderer       
-   6098    6190  0.00s  0.00s     0B  -1.4M     0B     0B   0% WRWorker#0     
-   6098    6191  0.00s  0.00s     0B  -1.4M     0B     0B   0% WRWorker#1     
-   6098    6192  0.00s  0.00s     0B  -1.4M     0B     0B   0% WRWorker#2     
-   6098    6193  0.00s  0.00s     0B  -1.4M     0B     0B   0% WRWorker#3     
-   6098    6194  0.00s  0.00s     0B  -1.4M     0B     0B   0% WRWorker#4     
-   6098    6195  0.00s  0.00s     0B  -1.4M     0B     0B   0% WRWorker#5     
-   6098    6196  0.00s  0.00s     0B  -1.4M     0B     0B   0% WRWorker#6     
-   6098    6197  0.00s  0.00s     0B  -1.4M     0B     0B   0% WRWorker#7     
-   6098    6198  0.00s  0.00s     0B  -1.4M     0B     0B   0% WRWorkerLP#0   
-   6098    6199  0.00s  0.00s     0B  -1.4M     0B     0B   0% WRWorkerLP#1   
-   6098    6200  0.00s  0.00s     0B  -1.4M     0B     0B   0% WRWorkerLP#2   
-   6098    6201  0.00s  0.00s     0B  -1.4M     0B     0B   0% WRWorkerLP#3   
-   6098    6202  0.00s  0.00s     0B  -1.4M     0B     0B   0% WRWorkerLP#4   
-   6098    6203  0.00s  0.00s     0B  -1.4M     0B     0B   0% WRWorkerLP#5   
-   6098    6204  0.00s  0.00s     0B  -1.4M     0B     0B   0% WRWorkerLP#6   
-   6098    6205  0.00s  0.00s     0B  -1.4M     0B     0B   0% WRWorkerLP#7   
-   6098    6206  0.00s  0.00s     0B  -1.4M     0B     0B   0% Compositor     
-   6098    6207  0.00s  0.00s     0B  -1.4M     0B     0B   0% firefox:disk$0 
-   6098    6208  0.00s  0.00s     0B  -1.4M     0B     0B   0% firefox:disk$1 
-   6098    6209  0.00s  0.00s     0B  -1.4M     0B     0B   0% firefox:disk$2 
-   6098    6210  0.00s  0.00s     0B  -1.4M     0B     0B   0% firefox:disk$3 
-   6098    6211  0.00s  0.00s     0B  -1.4M     0B     0B   0% ImageIO        
-   6098    6212  0.00s  0.00s     0B  -1.4M     0B     0B   0% IPDL Backgroun 
-   6098    6216  0.00s  0.00s     0B  -1.4M     0B     0B   0% QuotaManager I 
-   6098    6219  0.00s  0.00s     0B  -1.4M     0B     0B   0% TRR Background 
-   6098    6220  0.00s  0.00s     0B  -1.4M     0B     0B   0% DOM Worker     
-   6098    6221  0.00s  0.00s     0B  -1.4M     0B     0B   0% StyleThread#0  
-   6098    6222  0.00s  0.00s     0B  -1.4M     0B     0B   0% StyleThread#1  
-   6098    6223  0.00s  0.00s     0B  -1.4M     0B     0B   0% StyleThread#2  
-   6098    6224  0.00s  0.00s     0B  -1.4M     0B     0B   0% StyleThread#3  
-   6098    6225  0.00s  0.00s     0B  -1.4M     0B     0B   0% StyleThread#4  
-   6098    6226  0.00s  0.00s     0B  -1.4M     0B     0B   0% StyleThread#5  
-   6098    6227  0.00s  0.00s     0B  -1.4M     0B     0B   0% ImageBridgeChl 
-   6098    6228  0.00s  0.00s     0B  -1.4M     0B     0B   0% WRScene~ilder# 
-   6098    6229  0.00s  0.00s     0B  -1.4M     0B     0B   0% WRScene~derLP# 
-   6098    6230  0.00s  0.00s     0B  -1.4M     0B     0B   0% WRRende~ckend# 
-   6098    6231  0.00s  0.00s     0B  -1.4M     0B     0B   0% Breakpad Serve 
-   6098    6232  0.00s  0.00s     0B  -1.4M     0B     0B   0% firefox        
-   6098    6233  0.00s  0.00s     0B  -1.4M     0B     0B   0% IPC Launch     
-   6098    6235  0.00s  0.00s     0B  -1.4M     0B     0B   0% GMPThread      
-   6098    6243  0.00s  0.00s     0B  -1.4M     0B     0B   0% FS Broker 6234 
-   6098    6244  0.00s  0.00s     0B  -1.4M     0B     0B   0% ProcessHangMon 
-   6098    6263  0.00s  0.00s     0B  -1.4M     0B     0B   0% AudioIPC Callb 
-   6098    6264  0.00s  0.00s     0B  -1.4M     0B     0B   0% AudioIPC Serve 
-   6098    6274  0.00s  0.00s     0B  -1.4M     0B     0B   0% DOM Worker     
-   6098    6282  0.00s  0.00s     0B  -1.4M     0B     0B   0% ProxyResolutio 
-   6098    6283  0.00s  0.00s     0B  -1.4M     0B     0B   0% Cache I/O      
-   6098    6284  0.00s  0.00s     0B  -1.4M     0B     0B   0% DNS Resolver # 
-   6098    6285  0.00s  0.00s     0B  -1.4M     0B     0B   0% HTML5 Parser   
-   6098    6298  0.00s  0.00s     0B  -1.4M     0B     0B   0% FS Broker 6289 
-   6098    6299  0.00s  0.00s     0B  -1.4M     0B     0B   0% WRScene~ilder# 
-   6098    6300  0.00s  0.00s     0B  -1.4M     0B     0B   0% WRScene~derLP# 
-   6098    6301  0.00s  0.00s     0B  -1.4M     0B     0B   0% WRRende~ckend# 
-   6098    6331  0.00s  0.00s     0B  -1.4M     0B     0B   0% localStorage D 
-   6098    6332  0.00s  0.00s     0B  -1.4M     0B     0B   0% localStorage D 
-   6098    6334  0.00s  0.00s     0B  -1.4M     0B     0B   1% URL Classifier 
-   6098    6335  0.00s  0.00s     0B  -1.4M     0B     0B   0% DNS Resolver # 
-   6098    6337  0.00s  0.00s     0B  -1.4M     0B     0B   0% DNS Resolver # 
-   6098    6338  0.00s  0.00s     0B  -1.4M     0B     0B   0% TaskCon~read # 
-   6098    6339  0.00s  0.00s     0B  -1.4M     0B     0B   0% TaskCon~read # 
-   6098    6340  0.00s  0.00s     0B  -1.4M     0B     0B   0% TaskCon~read # 
-   6098    6341  0.00s  0.00s     0B  -1.4M     0B     0B   0% TaskCon~read # 
-   6098    6342  0.00s  0.00s     0B  -1.4M     0B     0B   0% TaskCon~read # 
-   6098    6343  0.00s  0.00s     0B  -1.4M     0B     0B   0% TaskCon~read # 
-   6098    6344  0.00s  0.00s     0B  -1.4M     0B     0B   0% TaskCon~read # 
-   6098    6348  0.00s  0.00s     0B  -1.4M     0B     0B   0% mozStorage #1  
-   6098    6349  0.00s  0.00s     0B  -1.4M     0B 119.0K   0% mozStorage #2  
-   6098    6350  0.00s  0.00s     0B  -1.4M     0B     0B   0% DNS Resolver # 
-   6098    6359  0.00s  0.00s     0B  -1.4M     0B     0B   0% FS Broker 6351 
-   6098    6360  0.00s  0.00s     0B  -1.4M     0B     0B   0% mozStorage #3  
-   6098    6364  0.00s  0.00s     0B  -1.4M     0B     0B   0% mozStorage #4  
-   6098    6375  0.00s  0.00s     0B  -1.4M     0B     0B   0% mozStorage #5  
-   6098    6396  0.00s  0.00s     0B  -1.4M     0B     0B   0% DNS Resolver # 
-   6098    6416  0.00s  0.00s     0B  -1.4M     0B     0B   0% DOM Worker     
-   6098    6464  0.00s  0.00s     0B  -1.4M     0B     0B   0% glean.dispatch 
-   6098    6473  0.00s  0.00s     0B  -1.4M     0B     0B   0% firefox        
-   6098    6483  0.00s  0.00s     0B  -1.4M     0B     0B   0% FS Broker 6475 
-   6098    6484  0.00s  0.00s     0B  -1.4M     0B     0B   0% mozStorage #6  
-   6098    6486  0.00s  0.00s     0B  -1.4M     0B     0B   0% DNS Resolver # 
-   6098    6541  0.00s  0.00s     0B  -1.4M     0B     0B   0% FS Broker 6532 
-   6098    6564  0.00s  0.00s     0B  -1.4M     0B     0B   0% mozStorage #7  
-   6098    6577  0.00s  0.00s     0B  -1.4M     0B     0B   0% FS Broker 6569 
-   6098    6593  0.00s  0.00s     0B  -1.4M     0B     0B   0% DNS Resolver # 
-   6098    6609  0.00s  0.00s     0B  -1.4M     0B     0B   0% DNS Resolver # 
-   6098    6630  0.00s  0.00s     0B  -1.4M     0B     0B   0% FS Broker 6626 
-   6098    6675  0.00s  0.00s     0B  -1.4M     0B     0B   0% FS Broker 6667 
-   6098    7266  0.00s  0.00s     0B  -1.4M     0B     0B   0% speechd init   
-   6098    7283  0.00s  0.00s     0B  -1.4M     0B     0B   0% WRScene~ilder# 
-   6098    7284  0.00s  0.00s     0B  -1.4M     0B     0B   0% WRScene~derLP# 
-   6098    7285  0.00s  0.00s     0B  -1.4M     0B     0B   0% WRRende~ckend# 
-   6098    8193  0.00s  0.00s     0B  -1.4M     0B     0B   0% mozStorage #8  
-   6098    8987  0.00s  0.00s     0B  -1.4M     0B     0B   0% WRScene~ilder# 
-   6098    8988  0.00s  0.00s     0B  -1.4M     0B     0B   0% WRScene~derLP# 
-   6098    8989  0.00s  0.00s     0B  -1.4M     0B     0B   0% WRRende~ckend# 
-   6098    9136  0.00s  0.00s     0B  -1.4M     0B     0B   0% threaded-ml    
-   6098   10290  0.00s  0.00s     0B  -1.4M     0B     0B   0% WRScene~ilder# 
-   6098   10291  0.00s  0.00s     0B  -1.4M     0B     0B   0% WRScene~derLP# 
-   6098   10292  0.00s  0.00s     0B  -1.4M     0B     0B   0% WRRende~ckend# 
-   6098   11452  0.00s  0.00s     0B  -1.4M     0B     0B   0% DOMCacheThread 
-   6098  112337  0.00s  0.00s     0B  -1.4M     0B     0B   0% FS Broker 1123 
-   6098  112376  0.00s  0.00s     0B  -1.4M     0B     0B   0% FS Broker 1123 
-   6098  115514  0.00s  0.00s     0B  -1.4M     0B     0B   0% WRScene~ilder# 
-   6098  115515  0.00s  0.00s     0B  -1.4M     0B     0B   0% WRScene~derLP# 
-   6098  115516  0.00s  0.00s     0B  -1.4M     0B     0B   0% WRRende~ckend# 
-   6098  117914  0.00s  0.00s     0B  -1.4M     0B     0B   0% threaded-ml    
-   6098  149651  0.00s  0.00s     0B  -1.4M     0B     0B   0% FS Broker 1496 
-   6098  157316  0.00s  0.00s     0B  -1.4M     0B     0B   0% WRScene~lder#1 
-   6098  157317  0.00s  0.00s     0B  -1.4M     0B     0B   0% WRScene~erLP#1 
-   6098  157318  0.00s  0.00s     0B  -1.4M     0B     0B   0% WRRende~kend#1 
-   6098  162082  0.00s  0.00s     0B  -1.4M     0B     0B   0% VideoCapture   
-   6098  162083  0.00s  0.00s     0B  -1.4M     0B     0B   0% InotifyEventTh 
-   6098  163568  0.00s  0.00s     0B  -1.4M     0B     0B   0% WRScene~lder#1 
-   6098  163569  0.00s  0.00s     0B  -1.4M     0B     0B   0% WRScene~erLP#1 
-   6098  163570  0.00s  0.00s     0B  -1.4M     0B     0B   0% WRRende~kend#1 
-   6098  163926  0.00s  0.00s     0B  -1.4M     0B     0B   0% WRScene~lder#1 
-   6098  163927  0.00s  0.00s     0B  -1.4M     0B     0B   0% WRScene~erLP#1 
-   6098  163928  0.00s  0.00s     0B  -1.4M     0B     0B   0% WRRende~kend#1 
-   6098  180089  0.00s  0.00s     0B  -1.4M     0B     0B   0% WRScene~lder#1 
-   6098  180090  0.00s  0.00s     0B  -1.4M     0B     0B   0% WRScene~erLP#1 
-   6098  180091  0.00s  0.00s     0B  -1.4M     0B     0B   0% WRRende~kend#1 
-   6098  259741  0.00s  0.00s     0B  -1.4M     0B     0B   0% WRScene~lder#1 
-   6098  259742  0.00s  0.00s     0B  -1.4M     0B     0B   0% WRScene~erLP#1 
-   6098  259743  0.00s  0.00s     0B  -1.4M     0B     0B   0% WRRende~kend#1 
-   6098  520347  0.00s  0.00s     0B  -1.4M     0B     0B   0% Backgro~ol #64 
-   6098  532050  0.00s  0.00s     0B  -1.4M     0B     0B   0% StreamTrans #9 
-   6098  533965  0.00s  0.00s     0B  -1.4M     0B     0B   0% StreamTrans #9 
-   6098  569777  0.00s  0.00s     0B  -1.4M     0B     0B   0% SSL Cert #788  
-   6098  569778  0.00s  0.00s     0B  -1.4M     0B     0B   0% IndexedDB #154 
-   6098  569779  0.00s  0.00s     0B  -1.4M     0B     0B   0% IndexedDB #154 
-   6098  569780  0.00s  0.00s     0B  -1.4M     0B     0B   0% StreamT~ns #10 
-   6098  569781  0.00s  0.00s     0B  -1.4M     0B     0B   0% StreamT~ns #10 
-   6098  569783  0.00s  0.00s     0B  -1.4M     0B     0B   0% IndexedDB #154 
-   6098  569784  0.00s  0.00s     0B  -1.4M     0B     0B   0% IndexedDB #154 
- 112334       -  0.00s  0.00s     0B     0B     0B     0B   0% Web Content    
- 112334  112353  0.00s  0.00s     0B     0B     0B     0B   0% Timer          
-   6968       -  0.00s  0.00s     0B     0B     0B     0B   0% slack          
-   4311       -  0.00s  0.00s     0B     0B     0B     0B   0% pulseaudio     
-   4311    4385  0.00s  0.00s     0B     0B     0B     0B   0% alsa-sink-ALC3 
- 510388       -  0.00s  0.00s     0B     0B     0B     0B   0% pmdalinux      
-    905       -  0.00s  0.00s     0B     0B     0B     0B   0% thermald       
- 510406       -  0.00s  0.00s     0B     0B     0B     0B   0% pmdazfs        
- 112368       -  0.00s  0.00s     0B     0B     0B     0B   0% Web Content    
- 112368  112387  0.00s  0.00s     0B     0B     0B     0B   1% Timer          
-   6667       -  0.00s  0.00s     0B     0B     0B     0B   0% Web Content    
-   6667    6677  0.00s  0.00s     0B     0B     0B     0B   0% JS Watchdog    
-   6667    6686  0.00s  0.00s     0B     0B     0B     0B   0% Timer          
-   8038       -  0.00s  0.00s     0B     0B     0B     0B   0% chrome         
-   6532       -  0.00s  0.00s     0B     0B     0B     0B   0% Web Content    
-   6532    6552  0.00s  0.00s     0B     0B     0B     0B   0% Timer          
-   6532  569773  0.00s  0.00s     0B     0B     0B     0B   0% DOM Worker     
-   7465       -  0.00s  0.00s     0B     0B     0B     0B   0% chrome         
-   7465    7487  0.00s  0.00s     0B     0B     0B     0B   0% Chrome_IOThrea 
-   7465    7504  0.00s  0.00s     0B     0B     0B   7.0K   0% CacheThread_Bl 
-   6234       -  0.00s  0.00s     0B     0B     0B     0B   0% Web Content    
-   6289       -  0.00s  0.00s     0B     0B     0B     0B   0% Web Content    
- 512101       -  0.00s  0.00s     0B     0B     0B     0B   0% python3        
- 149648       -  0.00s  0.00s     0B     0B     0B     0B   0% Web Content    
- 251337       -  0.00s  0.00s     0B     0B     0B     0B   0% chrome         
-   6351       -  0.00s  0.00s     0B     0B     0B     0B   0% WebExtensions  
- 507752       -  0.00s  0.00s     0B     0B     0B     0B   0% pmproxy        
- 507752  507811  0.00s  0.00s     0B     0B     0B     0B   0% pmproxy        
-   6475       -  0.00s  0.00s     0B     0B     0B     0B   0% Privileged Con 
- 259641       -  0.00s  0.00s     0B     0B     0B     0B   0% kded4          
- 558607       -  0.00s  0.00s     0B     0B     0B     0B   0% php-fpm        
-   6626       -  0.00s  0.00s     0B     0B     0B     0B   0% RDD Process    
-   2725       -  0.00s  0.00s     0B     0B     0B     0B   0% geoclue        
-   2725    2780  0.00s  0.00s     0B     0B     0B     0B   0% gdbus          
-    848       -  0.00s  0.00s     0B     0B     0B     0B   0% systemd-resolv 
-      1       -  0.00s  0.00s     0B     0B     0B     0B   0% systemd        
-   7480       -  0.00s  0.00s     0B     0B     0B     0B   0% chrome         
-   4972       -  0.00s  0.00s     0B     0B     0B     0B   0% abrt-dbus      
-   4972    4990  0.00s  0.00s     0B     0B     0B     0B   0% gdbus          
- 561042       -  0.00s  0.00s     0B     0B     0B     0B   0% /usr/sbin/http 
- 561042  561125  0.00s  0.00s     0B     0B     0B     0B   0% /usr/sbin/http 
- 561042  561234  0.00s  0.00s     0B     0B     0B     0B   0% /usr/sbin/http 
- 561042  561236  0.00s  0.00s     0B     0B     0B     0B   0% /usr/sbin/http 
- 561042  561237  0.00s  0.00s     0B     0B     0B     0B   0% /usr/sbin/http 
- 561042  561253  0.00s  0.00s     0B     0B     0B     0B   0% /usr/sbin/http 
-    904       -  0.00s  0.00s     0B     0B     0B     0B   0% systemd-machin 
- 510399       -  0.00s  0.00s     0B     0B     0B     0B   0% pmdaperfevent  
- 510399  510400  0.00s  0.00s     0B     0B     0B     0B   0% pmdaperfevent  
- 127014       -  0.00s  0.00s     0B     0B     0B     0B   0% gvfsd-dnssd    
- 530954       -  0.00s  0.00s     0B     0B     0B     0B   0% bash           
-   1338       -  0.00s  0.00s     0B     0B     0B     0B   0% (sd-pam        
-   8328       -  0.00s  0.00s     0B     0B     0B     0B   0% gconfd-2       
-    881       -  0.00s  0.00s     0B     0B     0B     0B   0% avahi-daemon   
-   7263       -  0.00s  0.00s     0B     0B     0B     0B   0% speech-dispatc 
- 569742       -  0.00s  0.00s     0B     0B     0B     0B   0% mk.atop-thread 
- 116463       -  0.00s  0.00s     0B     0B     0B     0B   0% ssh-agent      
-     14       -  0.00s  0.00s     0B     0B     0B     0B   0% rcu_sched      
-     24       -  0.00s  0.00s     0B     0B     0B     0B   0% ksoftirqd/2    
-     29       -  0.00s  0.00s     0B     0B     0B     0B   0% ksoftirqd/3    
-     58       -  0.00s  0.00s     0B     0B     0B     0B   0% kcompactd0     
-    137       -  0.00s  0.00s     0B     0B     0B     0B   0% kworker/2:1H-e 
-    276       -  0.00s  0.00s     0B     0B     0B     0B   0% kworker/4:1H-k 
- 258588       -  0.00s  0.00s     0B     0B     0B     0B   0% kworker/7:0-ev 
- 520551       -  0.00s  0.00s     0B     0B     0B     0B   0% kworker/3:3-mm 
- 532562       -  0.00s  0.00s     0B     0B     0B     0B   0% kworker/2:0-ev 
- 533793       -  0.00s  0.00s     0B     0B     0B     0B   0% kworker/1:3-ev 
- 536169       -  0.00s  0.00s     0B     0B     0B     0B   0% kworker/u16:4- 
- 558573       -  0.00s  0.00s     0B     0B     0B     0B   0% kworker/u16:3- 
- 559476       -  0.00s  0.00s     0B     0B     0B     0B   0% kworker/5:2-ev 
- 561022       -  0.00s  0.00s     0B     0B     0B     0B   0% kworker/1:0-mm 
- 567864       -  0.00s  0.00s     0B     0B     0B     0B   0% kworker/6:1-ev 
- 569076       -  0.00s  0.00s     0B     0B     0B     0B   0% kworker/u16:1- 
- 569608       -  0.00s  0.00s     0B     0B     0B     0B   0% kworker/4:0-ev 
- 569687       -  0.00s  0.00s     0B     0B     0B     0B   0% kworker/0:3-ev 
- 569803       -  0.00s  0.00s     0B     0B     0B     0B   0%                
-
-
-ATOP - shard       2021/04/20  15:30:39       y----------------       1s elapsed
-PRC | sys    0.13s | user   0.13s | #proc    377 | #tidle    85 | no  procacct |
-CPU | sys      13% | user     16% | irq      26% | idle    745% | wait      0% |
-cpu | sys       9% | user      6% | irq       3% | idle     82% | cpu002 w  0% |
-cpu | sys       0% | user      6% | irq       3% | idle     91% | cpu003 w  0% |
-cpu | sys       0% | user      2% | irq       2% | idle     96% | cpu005 w  0% |
-cpu | sys       1% | user      1% | irq       3% | idle     95% | cpu006 w  0% |
-cpu | sys       1% | user      0% | irq       3% | idle     96% | cpu007 w  0% |
-cpu | sys       0% | user      1% | irq       4% | idle     95% | cpu000 w  0% |
-cpu | sys       1% | user      0% | irq       3% | idle     95% | cpu004 w  1% |
-cpu | sys       1% | user      0% | irq       3% | idle     96% | cpu001 w  0% |
-CPL | numcpu     8 | avg1    0.16 | avg5    0.15 | csw     2200 | intr   16357 |
-MEM | tot    15.3G | free    2.3G | avail   0.0M | cache   4.6G | slab  620.1M |
-MEM | numnode    0 | shmem   2.7G | shswp   0.0M | pgtab   0.0M | zfarc   0.0M |
-SWP | tot    11.7G | free   11.7G | swcac   2.1M | vmcom  22.9G | vmlim  19.1G |
-NET | transport    | tcpi      44 | tcpo      44 | udpi       0 | udpo       0 |
-NET | network      | ipi       24 | ipo       24 | ipfrw      0 | deliv     24 |
-NET | lo      ---- | pcki      43 | pcko      43 | si   44 Kbps | so   44 Kbps |
-NET | enp0s25 ---- | pcki      85 | pcko      10 | si   53 Kbps | so    9 Kbps |
-
-    PID     TID SYSCPU USRCPU  VGROW  RGROW  RDDSK  WRDSK  CPU CMD            
- 567882       -  0.09s  0.05s     0B     0B     0B     0B  14% pmdaproc       
-   6569       -  0.00s  0.06s     0B 800.0K     0B     0B   8% Web Content    
-   6569    6572  0.00s  0.00s     0B 800.0K     0B     0B   1% IPC I/O Child  
+ 567882       -  0.10s  0.04s     0B     0B     0B     0B  15% pmdaproc       
+   6569       -  0.00s  0.01s     0B 800.0K     0B     0B   2% Web Content    
+   6569    6572  0.00s  0.00s     0B 800.0K     0B     0B   0% IPC I/O Child  
    6569    6573  0.00s  0.00s     0B 800.0K     0B     0B   0% gmain          
    6569    6575  0.00s  0.00s     0B 800.0K     0B     0B   0% gdbus          
    6569    6576  0.00s  0.00s     0B 800.0K     0B     0B   0% dconf worker   
@@ -4634,12 +4351,12 @@ NET | enp0s25 ---- | pcki      85 | pcko      10 | si   53 Kbps | so    9 Kbps |
    6569    6581  0.00s  0.00s     0B 800.0K     0B     0B   0% JS Helper      
    6569    6582  0.00s  0.00s     0B 800.0K     0B     0B   0% JS Helper      
    6569    6583  0.00s  0.00s     0B 800.0K     0B     0B   0% JS Helper      
-   6569    6584  0.00s  0.00s     0B 800.0K     0B     0B   1% JS Helper      
+   6569    6584  0.00s  0.00s     0B 800.0K     0B     0B   0% JS Helper      
    6569    6585  0.00s  0.00s     0B 800.0K     0B     0B   0% JS Helper      
    6569    6586  0.00s  0.00s     0B 800.0K     0B     0B   0% JS Helper      
-   6569    6587  0.00s  0.00s     0B 800.0K     0B     0B   1% JS Helper      
+   6569    6587  0.00s  0.00s     0B 800.0K     0B     0B   0% JS Helper      
    6569    6588  0.00s  0.00s     0B 800.0K     0B     0B   0% JS Helper      
-   6569    6589  0.00s  0.00s     0B 800.0K     0B     0B   0% Timer          
+   6569    6589  0.00s  0.00s     0B 800.0K     0B     0B   1% Timer          
    6569    6591  0.00s  0.00s     0B 800.0K     0B     0B   0% RemoteLzyStrea 
    6569    6592  0.00s  0.00s     0B 800.0K     0B     0B   0% RemVidChild    
    6569    6594  0.00s  0.00s     0B 800.0K     0B     0B   0% firefox:disk$0 
@@ -4670,14 +4387,17 @@ NET | enp0s25 ---- | pcki      85 | pcko      10 | si   53 Kbps | so    9 Kbps |
    6569  197956  0.00s  0.00s     0B 800.0K     0B     0B   0% AudioIP~ent RP 
    6569  197957  0.00s  0.00s     0B 800.0K     0B     0B   0% AudioIPC0      
    6569  569772  0.00s  0.00s     0B 800.0K     0B     0B   0% StreamT~s #604 
-   6098       -  0.00s  0.00s -20.0K   1.7M     0B     0B   2% firefox        
+ 569789       -  0.00s  0.01s  -4.0K 236.0K     0B   1.1M   1% pmlogger       
+ 510378       -  0.00s  0.00s     0B     0B     0B     0B   0% pmcd           
+ 510378  510381  0.00s  0.00s     0B     0B     0B     0B   0% pmcd           
+   6098       -  0.00s  0.00s -20.0K   1.7M     0B     0B   0% firefox        
    6098    6121  0.00s  0.00s -20.0K   1.7M     0B     0B   0% gmain          
    6098    6123  0.00s  0.00s -20.0K   1.7M     0B     0B   0% gdbus          
    6098    6124  0.00s  0.00s -20.0K   1.7M     0B     0B   0% dconf worker   
-   6098    6129  0.00s  0.00s -20.0K   1.7M     0B     0B   0% IPC I/O Parent 
+   6098    6129  0.00s  0.00s -20.0K   1.7M     0B     0B   1% IPC I/O Parent 
    6098    6130  0.00s  0.00s -20.0K   1.7M     0B     0B   0% Timer          
    6098    6131  0.00s  0.00s -20.0K   1.7M     0B     0B   0% Netlink Monito 
-   6098    6132  0.00s  0.00s -20.0K   1.7M     0B     0B   0% Socket Thread  
+   6098    6132  0.00s  0.00s -20.0K   1.7M     0B     0B   1% Socket Thread  
    6098    6133  0.00s  0.00s -20.0K   1.7M     0B     0B   0% Permission     
    6098    6137  0.00s  0.00s -20.0K   1.7M     0B     0B   0% JS Watchdog    
    6098    6138  0.00s  0.00s -20.0K   1.7M     0B     0B   0% JS Helper      
@@ -4730,7 +4450,7 @@ NET | enp0s25 ---- | pcki      85 | pcko      10 | si   53 Kbps | so    9 Kbps |
    6098    6225  0.00s  0.00s -20.0K   1.7M     0B     0B   0% StyleThread#4  
    6098    6226  0.00s  0.00s -20.0K   1.7M     0B     0B   0% StyleThread#5  
    6098    6227  0.00s  0.00s -20.0K   1.7M     0B     0B   0% ImageBridgeChl 
-   6098    6228  0.00s  0.00s -20.0K   1.7M     0B     0B   1% WRScene~ilder# 
+   6098    6228  0.00s  0.00s -20.0K   1.7M     0B     0B   0% WRScene~ilder# 
    6098    6229  0.00s  0.00s -20.0K   1.7M     0B     0B   0% WRScene~derLP# 
    6098    6230  0.00s  0.00s -20.0K   1.7M     0B     0B   0% WRRende~ckend# 
    6098    6231  0.00s  0.00s -20.0K   1.7M     0B     0B   0% Breakpad Serve 
@@ -4752,7 +4472,7 @@ NET | enp0s25 ---- | pcki      85 | pcko      10 | si   53 Kbps | so    9 Kbps |
    6098    6301  0.00s  0.00s -20.0K   1.7M     0B     0B   0% WRRende~ckend# 
    6098    6331  0.00s  0.00s -20.0K   1.7M     0B     0B   0% localStorage D 
    6098    6332  0.00s  0.00s -20.0K   1.7M     0B     0B   0% localStorage D 
-   6098    6334  0.00s  0.00s -20.0K   1.7M     0B     0B   0% URL Classifier 
+   6098    6334  0.00s  0.00s -20.0K   1.7M     0B     0B   1% URL Classifier 
    6098    6335  0.00s  0.00s -20.0K   1.7M     0B     0B   0% DNS Resolver # 
    6098    6337  0.00s  0.00s -20.0K   1.7M     0B     0B   0% DNS Resolver # 
    6098    6338  0.00s  0.00s -20.0K   1.7M     0B     0B   0% TaskCon~read # 
@@ -4763,7 +4483,7 @@ NET | enp0s25 ---- | pcki      85 | pcko      10 | si   53 Kbps | so    9 Kbps |
    6098    6343  0.00s  0.00s -20.0K   1.7M     0B     0B   0% TaskCon~read # 
    6098    6344  0.00s  0.00s -20.0K   1.7M     0B     0B   0% TaskCon~read # 
    6098    6348  0.00s  0.00s -20.0K   1.7M     0B     0B   0% mozStorage #1  
-   6098    6349  0.00s  0.00s -20.0K   1.7M     0B   9.0K   0% mozStorage #2  
+   6098    6349  0.00s  0.00s -20.0K   1.7M     0B 119.0K   0% mozStorage #2  
    6098    6350  0.00s  0.00s -20.0K   1.7M     0B     0B   0% DNS Resolver # 
    6098    6359  0.00s  0.00s -20.0K   1.7M     0B     0B   0% FS Broker 6351 
    6098    6360  0.00s  0.00s -20.0K   1.7M     0B     0B   0% mozStorage #3  
@@ -4830,17 +4550,22 @@ NET | enp0s25 ---- | pcki      85 | pcko      10 | si   53 Kbps | so    9 Kbps |
    6098  569781  0.00s  0.00s -20.0K   1.7M     0B     0B   0% StreamT~ns #10 
    6098  569783  0.00s  0.00s -20.0K   1.7M     0B     0B   0% IndexedDB #154 
    6098  569784  0.00s  0.00s -20.0K   1.7M     0B     0B   0% IndexedDB #154 
-   4307       -  0.00s  0.00s     0B     0B     0B     0B   2% gnome-shell    
- 569789       -  0.00s  0.00s  -4.0K 236.0K     0B   1.1M   1% pmlogger       
-     24       -  0.00s  0.00s     0B     0B     0B     0B   1% ksoftirqd/2    
- 112368       -  0.00s  0.00s     0B     0B     0B     0B   0% Web Content    
- 112368  112371  0.00s  0.00s     0B     0B     0B     0B   0% IPC I/O Child  
- 112368  112387  0.00s  0.00s     0B     0B     0B     0B   0% Timer          
-   7581       -  0.00s  0.00s     0B     0B     0B     0B   0% chrome         
  112334       -  0.00s  0.00s     0B     0B     0B     0B   0% Web Content    
  112334  112338  0.00s  0.00s     0B     0B     0B     0B   0% IPC I/O Child  
+   6968       -  0.00s  0.00s     0B     0B     0B     0B   0% slack          
+   4311       -  0.00s  0.00s     0B     0B     0B     0B   0% pulseaudio     
+   4311    4385  0.00s  0.00s     0B     0B     0B     0B   0% alsa-sink-ALC3 
+ 510388       -  0.00s  0.00s     0B     0B     0B     0B   0% pmdalinux      
+    905       -  0.00s  0.00s     0B     0B     0B     0B   0% thermald       
+ 510406       -  0.00s  0.00s     0B     0B     0B     0B   0% pmdazfs        
+ 112368       -  0.00s  0.00s     0B     0B     0B     0B   0% Web Content    
+ 112368  112371  0.00s  0.00s     0B     0B     0B     0B   0% IPC I/O Child  
+ 112368  112387  0.00s  0.00s     0B     0B     0B     0B   1% Timer          
+   7581       -  0.00s  0.00s     0B     0B     0B     0B   0% chrome         
+   4307       -  0.00s  0.00s     0B     0B     0B     0B   0% gnome-shell    
    6667       -  0.00s  0.00s     0B     0B     0B     0B   0% Web Content    
    6667    6670  0.00s  0.00s     0B     0B     0B     0B   0% IPC I/O Child  
+   6667    6677  0.00s  0.00s     0B     0B     0B     0B   0% JS Watchdog    
    6667    6686  0.00s  0.00s     0B     0B     0B     0B   0% Timer          
    8038       -  0.00s  0.00s     0B     0B     0B     0B   0% chrome         
    6532       -  0.00s  0.00s     0B 136.0K     0B     0B   0% Web Content    
@@ -4893,13 +4618,13 @@ NET | enp0s25 ---- | pcki      85 | pcko      10 | si   53 Kbps | so    9 Kbps |
    6532  569775  0.00s  0.00s     0B 136.0K     0B     0B   0% StreamT~s #160 
    6234       -  0.00s  0.00s     0B     0B     0B     0B   0% Web Content    
    6234    6238  0.00s  0.00s     0B     0B     0B     0B   0% IPC I/O Child  
-   6234    6255  0.00s  0.00s     0B     0B     0B     0B   1% Timer          
+   6234    6255  0.00s  0.00s     0B     0B     0B     0B   0% Timer          
    6289       -  0.00s  0.00s     0B     0B     0B     0B   0% Web Content    
    6289    6292  0.00s  0.00s     0B     0B     0B     0B   0% IPC I/O Child  
-   7672       -  0.00s  0.00s     0B     0B     0B     0B   0% chrome         
  512101       -  0.00s  0.00s     0B     0B     0B     0B   0% python3        
  149648       -  0.00s  0.00s     0B     0B     0B     0B   0% Web Content    
  149648  149652  0.00s  0.00s     0B     0B     0B     0B   0% IPC I/O Child  
+ 251337       -  0.00s  0.00s     0B     0B     0B     0B   0% chrome         
    1242       -  0.00s  0.00s     0B     0B     0B     0B   0% redis-server   
    1242    1412  0.00s  0.00s     0B     0B     0B     0B   0% redis-server   
    6351       -  0.00s  0.00s     0B     0B     0B     0B   0% WebExtensions  
@@ -4916,16 +4641,11 @@ NET | enp0s25 ---- | pcki      85 | pcko      10 | si   53 Kbps | so    9 Kbps |
  561042       -  0.00s  0.00s     0B     0B     0B     0B   0% /usr/sbin/http 
  561042  561125  0.00s  0.00s     0B     0B     0B     0B   0% /usr/sbin/http 
  561042  561237  0.00s  0.00s     0B     0B     0B     0B   0% /usr/sbin/http 
- 561042  561238  0.00s  0.00s     0B     0B     0B     0B   0% /usr/sbin/http 
  510399       -  0.00s  0.00s     0B     0B     0B     0B   0% pmdaperfevent  
  510399  510400  0.00s  0.00s     0B     0B     0B     0B   0% pmdaperfevent  
  127014       -  0.00s  0.00s     0B     0B     0B     0B   0% gvfsd-dnssd    
-    905       -  0.00s  0.00s     0B     0B     0B     0B   0% thermald       
  530954       -  0.00s  0.00s     0B     0B     0B     0B   0% bash           
     937       -  0.00s  0.00s     0B     0B     0B     0B   0% dbus-broker    
- 510378       -  0.00s  0.00s     0B     0B     0B     0B   0% pmcd           
- 510378  510381  0.00s  0.00s     0B     0B     0B     0B   0% pmcd           
- 569803       -  0.00s  0.00s  15.9M   6.0M     0B     0B   0% pmsleep        
    1338       -  0.00s  0.00s     0B     0B     0B     0B   0% (sd-pam        
    8328       -  0.00s  0.00s     0B     0B     0B     0B   0% gconfd-2       
     881       -  0.00s  0.00s     0B     0B     0B     0B   0% avahi-daemon   
@@ -4933,6 +4653,312 @@ NET | enp0s25 ---- | pcki      85 | pcko      10 | si   53 Kbps | so    9 Kbps |
  569742       -  0.00s  0.00s     0B     0B     0B     0B   0% mk.atop-thread 
  116463       -  0.00s  0.00s     0B     0B     0B     0B   0% ssh-agent      
      14       -  0.00s  0.00s     0B     0B     0B     0B   0% rcu_sched      
+     24       -  0.00s  0.00s     0B     0B     0B     0B   0% ksoftirqd/2    
+     29       -  0.00s  0.00s     0B     0B     0B     0B   0% ksoftirqd/3    
+     58       -  0.00s  0.00s     0B     0B     0B     0B   0% kcompactd0     
+    137       -  0.00s  0.00s     0B     0B     0B     0B   0% kworker/2:1H-e 
+    276       -  0.00s  0.00s     0B     0B     0B     0B   0% kworker/4:1H-k 
+ 258588       -  0.00s  0.00s     0B     0B     0B     0B   0% kworker/7:0-ev 
+ 520551       -  0.00s  0.00s     0B     0B     0B     0B   0% kworker/3:3-mm 
+ 532562       -  0.00s  0.00s     0B     0B     0B     0B   0% kworker/2:0-ev 
+ 533793       -  0.00s  0.00s     0B     0B     0B     0B   0% kworker/1:3-ev 
+ 536069       -  0.00s  0.00s     0B     0B     0B     0B   0% kworker/u17:0- 
+ 536169       -  0.00s  0.00s     0B     0B     0B     0B   0% kworker/u16:4- 
+ 558573       -  0.00s  0.00s     0B     0B     0B     0B   0% kworker/u16:3- 
+ 559476       -  0.00s  0.00s     0B     0B     0B     0B   0% kworker/5:2-ev 
+ 561022       -  0.00s  0.00s     0B     0B     0B     0B   0% kworker/1:0-mm 
+ 567864       -  0.00s  0.00s     0B     0B     0B     0B   0% kworker/6:1-ev 
+ 569076       -  0.00s  0.00s     0B     0B     0B     0B   0% kworker/u16:1- 
+ 569608       -  0.00s  0.00s     0B     0B     0B     0B   0% kworker/4:0-ev 
+ 569687       -  0.00s  0.00s     0B     0B     0B     0B   0% kworker/0:3-ev 
+ 569803       -  0.00s  0.00s     0B     0B     0B     0B   0%                
+
+
+ATOP - shard       2021/04/20  15:30:39       y----------------       1s elapsed
+PRC | sys    0.13s | user   0.13s | #proc    377 | #tidle    85 | no  procacct |
+CPU | sys      13% | user     16% | irq      26% | idle    745% | wait      0% |
+cpu | sys       9% | user      6% | irq       3% | idle     82% | cpu002 w  0% |
+cpu | sys       0% | user      6% | irq       3% | idle     91% | cpu003 w  0% |
+cpu | sys       0% | user      2% | irq       2% | idle     96% | cpu005 w  0% |
+cpu | sys       1% | user      1% | irq       3% | idle     95% | cpu006 w  0% |
+cpu | sys       1% | user      0% | irq       3% | idle     96% | cpu007 w  0% |
+cpu | sys       0% | user      1% | irq       4% | idle     95% | cpu000 w  0% |
+cpu | sys       1% | user      0% | irq       3% | idle     95% | cpu004 w  1% |
+cpu | sys       1% | user      0% | irq       3% | idle     96% | cpu001 w  0% |
+CPL | numcpu     8 | avg1    0.14 | avg5    0.15 | csw     2200 | intr   16357 |
+MEM | tot    15.3G | free    2.3G | avail   0.0M | cache   4.6G | slab  620.1M |
+MEM | numnode    0 | shmem   2.7G | shswp   0.0M | pgtab   0.0M | zfarc   0.0M |
+SWP | tot    11.7G | free   11.7G | swcac   2.1M | vmcom  22.9G | vmlim  19.1G |
+NET | transport    | tcpi      44 | tcpo      44 | udpi       0 | udpo       0 |
+NET | network      | ipi       24 | ipo       24 | ipfrw      0 | deliv     24 |
+NET | lo      ---- | pcki      43 | pcko      43 | si   44 Kbps | so   44 Kbps |
+NET | enp0s25 ---- | pcki      85 | pcko      10 | si   53 Kbps | so    9 Kbps |
+
+    PID     TID SYSCPU USRCPU  VGROW  RGROW  RDDSK  WRDSK  CPU CMD            
+ 567882       -  0.09s  0.05s     0B     0B     0B     0B  14% pmdaproc       
+   6569       -  0.00s  0.06s     0B   4.1M     0B     0B   8% Web Content    
+   6569    6572  0.00s  0.00s     0B   4.1M     0B     0B   1% IPC I/O Child  
+   6569    6573  0.00s  0.00s     0B   4.1M     0B     0B   0% gmain          
+   6569    6575  0.00s  0.00s     0B   4.1M     0B     0B   0% gdbus          
+   6569    6576  0.00s  0.00s     0B   4.1M     0B     0B   0% dconf worker   
+   6569    6579  0.00s  0.00s     0B   4.1M     0B     0B   0% Socket Thread  
+   6569    6580  0.00s  0.00s     0B   4.1M     0B     0B   0% JS Watchdog    
+   6569    6581  0.00s  0.00s     0B   4.1M     0B     0B   0% JS Helper      
+   6569    6582  0.00s  0.00s     0B   4.1M     0B     0B   0% JS Helper      
+   6569    6583  0.00s  0.00s     0B   4.1M     0B     0B   0% JS Helper      
+   6569    6584  0.00s  0.00s     0B   4.1M     0B     0B   1% JS Helper      
+   6569    6585  0.00s  0.00s     0B   4.1M     0B     0B   0% JS Helper      
+   6569    6586  0.00s  0.00s     0B   4.1M     0B     0B   0% JS Helper      
+   6569    6587  0.00s  0.00s     0B   4.1M     0B     0B   1% JS Helper      
+   6569    6588  0.00s  0.00s     0B   4.1M     0B     0B   0% JS Helper      
+   6569    6589  0.00s  0.00s     0B   4.1M     0B     0B   0% Timer          
+   6569    6591  0.00s  0.00s     0B   4.1M     0B     0B   0% RemoteLzyStrea 
+   6569    6592  0.00s  0.00s     0B   4.1M     0B     0B   0% RemVidChild    
+   6569    6594  0.00s  0.00s     0B   4.1M     0B     0B   0% firefox:disk$0 
+   6569    6595  0.00s  0.00s     0B   4.1M     0B     0B   0% firefox:disk$1 
+   6569    6596  0.00s  0.00s     0B   4.1M     0B     0B   0% firefox:disk$2 
+   6569    6597  0.00s  0.00s     0B   4.1M     0B     0B   0% firefox:disk$3 
+   6569    6598  0.00s  0.00s     0B   4.1M     0B     0B   0% PaintThread    
+   6569    6605  0.00s  0.00s     0B   4.1M     0B     0B   0% ImageIO        
+   6569    6606  0.00s  0.00s     0B   4.1M     0B     0B   0% ImageBridgeChl 
+   6569    6607  0.00s  0.00s     0B   4.1M     0B     0B   0% ProcessHangMon 
+   6569    6608  0.00s  0.00s     0B   4.1M     0B     0B   0% ProfilerChild  
+   6569    6664  0.00s  0.00s     0B   4.1M     0B     0B   0% Worker Launche 
+   6569    6709  0.00s  0.00s     0B   4.1M     0B     0B   0% HTML5 Parser   
+   6569    6710  0.00s  0.00s     0B   4.1M     0B     0B   0% StyleThread#0  
+   6569    6711  0.00s  0.00s     0B   4.1M     0B     0B   0% StyleThread#1  
+   6569    6712  0.00s  0.00s     0B   4.1M     0B     0B   0% StyleThread#2  
+   6569    6713  0.00s  0.00s     0B   4.1M     0B     0B   0% StyleThread#3  
+   6569    6714  0.00s  0.00s     0B   4.1M     0B     0B   0% StyleThread#4  
+   6569    6715  0.00s  0.00s     0B   4.1M     0B     0B   0% StyleThread#5  
+   6569    6721  0.00s  0.00s     0B   4.1M     0B     0B   0% TaskCon~read # 
+   6569    6722  0.00s  0.00s     0B   4.1M     0B     0B   0% TaskCon~read # 
+   6569    6723  0.00s  0.00s     0B   4.1M     0B     0B   0% TaskCon~read # 
+   6569    6724  0.00s  0.00s     0B   4.1M     0B     0B   0% TaskCon~read # 
+   6569    6725  0.00s  0.00s     0B   4.1M     0B     0B   0% TaskCon~read # 
+   6569    6726  0.00s  0.00s     0B   4.1M     0B     0B   0% TaskCon~read # 
+   6569    6727  0.00s  0.00s     0B   4.1M     0B     0B   0% TaskCon~read # 
+   6569  197949  0.00s  0.00s     0B   4.1M     0B     0B   0% MediaCache     
+   6569  197956  0.00s  0.00s     0B   4.1M     0B     0B   0% AudioIP~ent RP 
+   6569  197957  0.00s  0.00s     0B   4.1M     0B     0B   0% AudioIPC0      
+   6569  569772  0.00s  0.00s     0B   4.1M     0B     0B   0% StreamT~s #604 
+   6098       -  0.00s  0.00s  20.0K  -0.6M     0B     0B   2% firefox        
+   6098    6121  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% gmain          
+   6098    6123  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% gdbus          
+   6098    6124  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% dconf worker   
+   6098    6129  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% IPC I/O Parent 
+   6098    6130  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% Timer          
+   6098    6131  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% Netlink Monito 
+   6098    6132  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% Socket Thread  
+   6098    6133  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% Permission     
+   6098    6137  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% JS Watchdog    
+   6098    6138  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% JS Helper      
+   6098    6139  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% JS Helper      
+   6098    6141  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% JS Helper      
+   6098    6142  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% JS Helper      
+   6098    6143  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% JS Helper      
+   6098    6144  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% JS Helper      
+   6098    6145  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% JS Helper      
+   6098    6146  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% JS Helper      
+   6098    6179  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% Cache2 I/O     
+   6098    6180  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% Cookie         
+   6098    6183  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% Worker Launche 
+   6098    6184  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% firefox:disk$0 
+   6098    6185  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% firefox:disk$1 
+   6098    6186  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% firefox:disk$2 
+   6098    6187  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% firefox:disk$3 
+   6098    6188  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% Softwar~cThrea 
+   6098    6189  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% Renderer       
+   6098    6190  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% WRWorker#0     
+   6098    6191  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% WRWorker#1     
+   6098    6192  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% WRWorker#2     
+   6098    6193  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% WRWorker#3     
+   6098    6194  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% WRWorker#4     
+   6098    6195  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% WRWorker#5     
+   6098    6196  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% WRWorker#6     
+   6098    6197  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% WRWorker#7     
+   6098    6198  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% WRWorkerLP#0   
+   6098    6199  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% WRWorkerLP#1   
+   6098    6200  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% WRWorkerLP#2   
+   6098    6201  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% WRWorkerLP#3   
+   6098    6202  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% WRWorkerLP#4   
+   6098    6203  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% WRWorkerLP#5   
+   6098    6204  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% WRWorkerLP#6   
+   6098    6205  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% WRWorkerLP#7   
+   6098    6206  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% Compositor     
+   6098    6207  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% firefox:disk$0 
+   6098    6208  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% firefox:disk$1 
+   6098    6209  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% firefox:disk$2 
+   6098    6210  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% firefox:disk$3 
+   6098    6211  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% ImageIO        
+   6098    6212  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% IPDL Backgroun 
+   6098    6216  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% QuotaManager I 
+   6098    6219  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% TRR Background 
+   6098    6220  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% DOM Worker     
+   6098    6221  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% StyleThread#0  
+   6098    6222  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% StyleThread#1  
+   6098    6223  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% StyleThread#2  
+   6098    6224  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% StyleThread#3  
+   6098    6225  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% StyleThread#4  
+   6098    6226  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% StyleThread#5  
+   6098    6227  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% ImageBridgeChl 
+   6098    6228  0.00s  0.00s  20.0K  -0.6M     0B     0B   1% WRScene~ilder# 
+   6098    6229  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% WRScene~derLP# 
+   6098    6230  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% WRRende~ckend# 
+   6098    6231  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% Breakpad Serve 
+   6098    6232  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% firefox        
+   6098    6233  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% IPC Launch     
+   6098    6235  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% GMPThread      
+   6098    6243  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% FS Broker 6234 
+   6098    6244  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% ProcessHangMon 
+   6098    6263  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% AudioIPC Callb 
+   6098    6264  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% AudioIPC Serve 
+   6098    6274  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% DOM Worker     
+   6098    6282  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% ProxyResolutio 
+   6098    6283  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% Cache I/O      
+   6098    6284  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% DNS Resolver # 
+   6098    6285  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% HTML5 Parser   
+   6098    6298  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% FS Broker 6289 
+   6098    6299  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% WRScene~ilder# 
+   6098    6300  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% WRScene~derLP# 
+   6098    6301  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% WRRende~ckend# 
+   6098    6331  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% localStorage D 
+   6098    6332  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% localStorage D 
+   6098    6334  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% URL Classifier 
+   6098    6335  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% DNS Resolver # 
+   6098    6337  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% DNS Resolver # 
+   6098    6338  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% TaskCon~read # 
+   6098    6339  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% TaskCon~read # 
+   6098    6340  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% TaskCon~read # 
+   6098    6341  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% TaskCon~read # 
+   6098    6342  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% TaskCon~read # 
+   6098    6343  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% TaskCon~read # 
+   6098    6344  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% TaskCon~read # 
+   6098    6348  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% mozStorage #1  
+   6098    6349  0.00s  0.00s  20.0K  -0.6M     0B   9.0K   0% mozStorage #2  
+   6098    6350  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% DNS Resolver # 
+   6098    6359  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% FS Broker 6351 
+   6098    6360  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% mozStorage #3  
+   6098    6364  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% mozStorage #4  
+   6098    6375  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% mozStorage #5  
+   6098    6396  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% DNS Resolver # 
+   6098    6416  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% DOM Worker     
+   6098    6464  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% glean.dispatch 
+   6098    6473  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% firefox        
+   6098    6483  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% FS Broker 6475 
+   6098    6484  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% mozStorage #6  
+   6098    6486  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% DNS Resolver # 
+   6098    6541  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% FS Broker 6532 
+   6098    6564  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% mozStorage #7  
+   6098    6577  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% FS Broker 6569 
+   6098    6593  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% DNS Resolver # 
+   6098    6609  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% DNS Resolver # 
+   6098    6630  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% FS Broker 6626 
+   6098    6675  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% FS Broker 6667 
+   6098    7266  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% speechd init   
+   6098    7283  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% WRScene~ilder# 
+   6098    7284  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% WRScene~derLP# 
+   6098    7285  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% WRRende~ckend# 
+   6098    8193  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% mozStorage #8  
+   6098    8987  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% WRScene~ilder# 
+   6098    8988  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% WRScene~derLP# 
+   6098    8989  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% WRRende~ckend# 
+   6098    9136  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% threaded-ml    
+   6098   10290  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% WRScene~ilder# 
+   6098   10291  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% WRScene~derLP# 
+   6098   10292  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% WRRende~ckend# 
+   6098   11452  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% DOMCacheThread 
+   6098  112337  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% FS Broker 1123 
+   6098  112376  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% FS Broker 1123 
+   6098  115514  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% WRScene~ilder# 
+   6098  115515  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% WRScene~derLP# 
+   6098  115516  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% WRRende~ckend# 
+   6098  117914  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% threaded-ml    
+   6098  149651  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% FS Broker 1496 
+   6098  157316  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% WRScene~lder#1 
+   6098  157317  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% WRScene~erLP#1 
+   6098  157318  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% WRRende~kend#1 
+   6098  162082  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% VideoCapture   
+   6098  162083  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% InotifyEventTh 
+   6098  163568  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% WRScene~lder#1 
+   6098  163569  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% WRScene~erLP#1 
+   6098  163570  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% WRRende~kend#1 
+   6098  163926  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% WRScene~lder#1 
+   6098  163927  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% WRScene~erLP#1 
+   6098  163928  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% WRRende~kend#1 
+   6098  180089  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% WRScene~lder#1 
+   6098  180090  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% WRScene~erLP#1 
+   6098  180091  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% WRRende~kend#1 
+   6098  259741  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% WRScene~lder#1 
+   6098  259742  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% WRScene~erLP#1 
+   6098  259743  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% WRRende~kend#1 
+   6098  520347  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% Backgro~ol #64 
+   6098  532050  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% StreamTrans #9 
+   6098  533965  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% StreamTrans #9 
+   6098  569777  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% SSL Cert #788  
+   6098  569778  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% IndexedDB #154 
+   6098  569779  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% IndexedDB #154 
+   6098  569780  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% StreamT~ns #10 
+   6098  569781  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% StreamT~ns #10 
+   6098  569783  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% IndexedDB #154 
+   6098  569784  0.00s  0.00s  20.0K  -0.6M     0B     0B   0% IndexedDB #154 
+   4307       -  0.00s  0.00s     0B     0B     0B     0B   2% gnome-shell    
+ 569789       -  0.00s  0.00s   1.0M   1.1M     0B   1.1M   1% pmlogger       
+     24       -  0.00s  0.00s     0B     0B     0B     0B   1% ksoftirqd/2    
+ 112368       -  0.00s  0.00s     0B     0B     0B     0B   0% Web Content    
+ 112368  112371  0.00s  0.00s     0B     0B     0B     0B   0% IPC I/O Child  
+ 112368  112387  0.00s  0.00s     0B     0B     0B     0B   0% Timer          
+ 112334       -  0.00s  0.00s     0B     0B     0B     0B   0% Web Content    
+ 112334  112338  0.00s  0.00s     0B     0B     0B     0B   0% IPC I/O Child  
+ 112334  112353  0.00s  0.00s     0B     0B     0B     0B   0% Timer          
+   6667       -  0.00s  0.00s     0B     0B     0B     0B   0% Web Content    
+   6667    6670  0.00s  0.00s     0B     0B     0B     0B   0% IPC I/O Child  
+   6667    6686  0.00s  0.00s     0B     0B     0B     0B   0% Timer          
+   8038       -  0.00s  0.00s     0B     0B     0B     0B   0% chrome         
+   8038    8041  0.00s  0.00s     0B     0B     0B     0B   0% Chrome_ChildIO 
+   6532       -  0.00s  0.00s     0B     0B     0B     0B   0% Web Content    
+   6532    6536  0.00s  0.00s     0B     0B     0B     0B   0% IPC I/O Child  
+   6532  569773  0.00s  0.00s     0B     0B     0B     0B   0% DOM Worker     
+   6234       -  0.00s  0.00s     0B     0B     0B     0B   0% Web Content    
+   6234    6238  0.00s  0.00s     0B     0B     0B     0B   0% IPC I/O Child  
+   6234    6255  0.00s  0.00s     0B     0B     0B     0B   1% Timer          
+   6289       -  0.00s  0.00s     0B     0B     0B     0B   0% Web Content    
+   6289    6292  0.00s  0.00s     0B     0B     0B     0B   0% IPC I/O Child  
+   7672       -  0.00s  0.00s     0B     0B     0B     0B   0% chrome         
+ 512101       -  0.00s  0.00s     0B     0B     0B     0B   0% python3        
+ 149648       -  0.00s  0.00s     0B     0B     0B     0B   0% Web Content    
+ 149648  149652  0.00s  0.00s     0B     0B     0B     0B   0% IPC I/O Child  
+   7507       -  0.00s  0.00s     0B  -8.0K     0B     0B   0% chrome         
+   7507    7508  0.00s  0.00s     0B  -8.0K     0B     0B   0% ThreadPoolServ 
+   7507    7510  0.00s  0.00s     0B  -8.0K     0B     0B   0% Chrome_ChildIO 
+   7507    7527  0.00s  0.00s     0B  -8.0K     0B     0B   0% inotify_reader 
+   7507    7551  0.00s  0.00s     0B  -8.0K     0B     0B   0% gmain          
+   7507    7552  0.00s  0.00s     0B  -8.0K     0B     0B   0% gdbus          
+   7507   10261  0.00s  0.00s     0B  -8.0K     0B     0B   0% MemoryInfra    
+   7507  534683  0.00s  0.00s     0B  -8.0K     0B     0B   0% ThreadPoolFore 
+   7507  555074  0.00s  0.00s     0B  -8.0K     0B     0B   0% ThreadPoolFore 
+   6351       -  0.00s  0.00s     0B     0B     0B     0B   0% WebExtensions  
+   7539       -  0.00s  0.00s     0B     0B     0B     0B   0% chrome         
+   6475       -  0.00s  0.00s     0B     0B     0B     0B   0% Privileged Con 
+   7521       -  0.00s  0.00s     0B     0B     0B     0B   0% chrome         
+ 259641       -  0.00s  0.00s     0B     0B     0B     0B   0% kded4          
+   6626       -  0.00s  0.00s     0B     0B     0B     0B   0% RDD Process    
+    848       -  0.00s  0.00s     0B     0B     0B     0B   0% systemd-resolv 
+   7480       -  0.00s  0.00s     0B     0B     0B     0B   0% chrome         
+   4972       -  0.00s  0.00s     0B     0B     0B     0B   0% abrt-dbus      
+ 561042       -  0.00s  0.00s     0B     0B     0B     0B   0% /usr/sbin/http 
+ 561042  561125  0.00s  0.00s     0B     0B     0B     0B   0% /usr/sbin/http 
+ 561042  561238  0.00s  0.00s     0B     0B     0B     0B   0% /usr/sbin/http 
+ 510399       -  0.00s  0.00s     0B     0B     0B     0B   0% pmdaperfevent  
+ 510399  510400  0.00s  0.00s     0B     0B     0B     0B   0% pmdaperfevent  
+ 530954       -  0.00s  0.00s     0B     0B     0B     0B   0% bash           
+ 510378       -  0.00s  0.00s     0B     0B     0B     0B   0% pmcd           
+ 569803       -  0.00s  0.00s  15.9M   6.0M     0B     0B   0% pmsleep        
+   1338       -  0.00s  0.00s     0B     0B     0B     0B   0% (sd-pam        
+   8328       -  0.00s  0.00s     0B     0B     0B     0B   0% gconfd-2       
+   7263       -  0.00s  0.00s     0B     0B     0B     0B   0% speech-dispatc 
+ 569742       -  0.00s  0.00s     0B     0B     0B     0B   0% mk.atop-thread 
+ 116463       -  0.00s  0.00s     0B     0B     0B     0B   0% ssh-agent      
      15       -  0.00s  0.00s     0B     0B     0B     0B   0% migration/0    
      18       -  0.00s  0.00s     0B     0B     0B     0B   0% migration/1    
      23       -  0.00s  0.00s     0B     0B     0B     0B   0% migration/2    
@@ -4946,8 +4972,8 @@ NET | enp0s25 ---- | pcki      85 | pcko      10 | si   53 Kbps | so    9 Kbps |
  520551       -  0.00s  0.00s     0B     0B     0B     0B   0% kworker/3:3-ev 
  532562       -  0.00s  0.00s     0B     0B     0B     0B   0% kworker/2:0-ev 
  533793       -  0.00s  0.00s     0B     0B     0B     0B   0% kworker/1:3-ev 
- 536069       -  0.00s  0.00s     0B     0B     0B     0B   0% kworker/u17:0- 
  536169       -  0.00s  0.00s     0B     0B     0B     0B   0% kworker/u16:4- 
+ 553270       -  0.00s  0.00s     0B     0B     0B     0B   0% kworker/6:3-ev 
  558573       -  0.00s  0.00s     0B     0B     0B     0B   0% kworker/u16:3- 
  559476       -  0.00s  0.00s     0B     0B     0B     0B   0% kworker/5:2-ev 
  561022       -  0.00s  0.00s     0B     0B     0B     0B   0% kworker/1:0-mm 

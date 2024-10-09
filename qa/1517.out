@@ -23,9 +23,9 @@ interval:  2.00 sec
 10:19:41.873  No values available
 
                               sdb                   sda                   sdd                   sdc                   sde 
-10:19:43.873               1.830                 6.250                11.40                  0.0                   0.0    
-10:19:45.873               5.327                 0.0                   0.5000                1.265                 0.0    
-10:19:47.873               2.791                 0.0                   1.725                 0.0                   3.600  
+10:19:43.873               5.327                 0.0                   0.5000                1.265                 0.0    
+10:19:45.873               2.791                 0.0                   1.725                 0.0                   3.600  
+10:19:47.873              10.62                 12.00                 18.17                  0.0                   0.0    
 
 === disk.dev.await is a per-context derived metric ===
 === filtered valgrind report ===
@@ -66,9 +66,9 @@ interval:  2.00 sec
 10:19:41.873  No values available
 
                               sdb                   sda                   sdd                   sdc                   sde 
-10:19:43.873               1.830                 6.250                11.40                  0.0                   0.0    
-10:19:45.873               5.327                 0.0                   0.5000                1.265                 0.0    
-10:19:47.873               2.791                 0.0                   1.725                 0.0                   3.600  
+10:19:43.873               5.327                 0.0                   0.5000                1.265                 0.0    
+10:19:45.873               2.791                 0.0                   1.725                 0.0                   3.600  
+10:19:47.873              10.62                 12.00                 18.17                  0.0                   0.0    
 Warning: disk.dev.await [511.2048.5 archive context, remapped] masks global derived metric [511.0.3] with the same name
 
 === disk.dev.await is both a global and a per-context derived metric ===

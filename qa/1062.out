@@ -6,7 +6,7 @@ QA output created by 1062
 == exercise vmstat config section, archive
           r          b       swpd       free       buff      cache         si         so         bi         bo         in         cs         us         sy         id         wa         st         gu
         N/A        N/A        N/A        N/A        N/A        N/A        N/A        N/A        N/A        N/A        N/A        N/A        N/A        N/A        N/A        N/A        N/A        N/A
-          1          0     112936    3060624         84   10021332        N/A        N/A        N/A        N/A        N/A        N/A        N/A        N/A        N/A        N/A        N/A        N/A
-          1          0     112936    3060268         84   10021328          0          0          0         31       1256       2807          0          0         99          0          0          0
-          2          0     112936    3060268         84   10021328          0          0          0          1       1239       2701          0          0         99          0          0          0
-          1          0     112936    3060268         84   10021328          0          0          0          0       1230       2656          0          0         99          0          0          0
+          1          0     112936    3060268         84   10021328        N/A        N/A        N/A        N/A        N/A        N/A        N/A        N/A        N/A        N/A        N/A        N/A
+          2          0     112936    3060268         84   10021328          0          0          0         31       1256       2807          0          0         99          0          0          0
+          1          0     112936    3060268         84   10021328          0          0          0          1       1239       2701          0          0         99          0          0          0
+          1          0     112936    3059400         84   10021332          0          0          0          0       1230       2656          0          0         99          0          0          0

@@ -10,12 +10,12 @@ Linux  5.4.17-2136.317.5.3.el8uek.x86_64  (localhost.localdomain)  08/02/23  x86
 TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
 15:53:24          DMA                node0          0         0         0         0         0         0         0         0         1         1         3          
 15:53:24          DMA32              node0          3         1         1         1         2         3         2         3         3         2         803        
-15:53:24          Normal             node0          1720      4118      1862      671       220       120       66        29        21        26        3040       
+15:53:24          Normal             node0          1657      4118      1862      671       220       120       66        29        21        26        3040       
 Linux  5.4.17-2136.317.5.3.el8uek.x86_64  (localhost.localdomain)  08/02/23  x86_64    (4 CPU)
 TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
 15:53:27          DMA                node0          0         0         0         0         0         0         0         0         1         1         3          
 15:53:27          DMA32              node0          3         1         1         1         2         3         2         3         3         2         803        
-15:53:27          Normal             node0          1720      4118      1862      671       220       120       66        29        21        26        3040       
+15:53:27          Normal             node0          1657      4118      1862      671       220       120       66        29        21        26        3040       
 Linux  5.4.17-2136.317.5.3.el8uek.x86_64  (localhost.localdomain)  08/02/23  x86_64    (4 CPU)
 TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
 15:53:30          DMA                node0          0         0         0         0         0         0         0         0         1         1         3          
@@ -45,7 +45,7 @@ Linux  5.4.17-2136.317.5.3.el8uek.x86_64  (localhost.localdomain)  08/02/23  x86
 TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
 15:53:45          DMA                node0          0         0         0         0         0         0         0         0         1         1         3          
 15:53:45          DMA32              node0          3         1         1         1         2         3         2         3         3         2         803        
-15:53:45          Normal             node0          1657      4118      1862      671       220       120       66        29        21        26        3040       
+15:53:45          Normal             node0          1405      4118      1862      671       220       120       66        29        21        26        3040       
 
 pcp-buddyinfo output : Display output
 Linux  5.4.17-2136.317.5.3.el8uek.x86_64  (localhost.localdomain)  08/02/23  x86_64    (4 CPU)
@@ -62,12 +62,12 @@ Linux  5.4.17-2136.317.5.3.el8uek.x86_64  (localhost.localdomain)  08/02/23  x86
 TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
 15:53:25          DMA                node0          0         0         0         0         0         0         0         0         1         1         3          
 15:53:25          DMA32              node0          3         1         1         1         2         3         2         3         3         2         803        
-15:53:25          Normal             node0          1720      4118      1862      671       220       120       66        29        21        26        3040       
+15:53:25          Normal             node0          1657      4118      1862      671       220       120       66        29        21        26        3040       
 Linux  5.4.17-2136.317.5.3.el8uek.x86_64  (localhost.localdomain)  08/02/23  x86_64    (4 CPU)
 TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
 15:53:28          DMA                node0          0         0         0         0         0         0         0         0         1         1         3          
 15:53:28          DMA32              node0          3         1         1         1         2         3         2         3         3         2         803        
-15:53:28          Normal             node0          1720      4118      1862      671       220       120       66        29        21        26        3040       
+15:53:28          Normal             node0          1657      4118      1862      671       220       120       66        29        21        26        3040       
 Linux  5.4.17-2136.317.5.3.el8uek.x86_64  (localhost.localdomain)  08/02/23  x86_64    (4 CPU)
 TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
 15:53:31          DMA                node0          0         0         0         0         0         0         0         0         1         1         3          
@@ -97,7 +97,7 @@ Linux  5.4.17-2136.317.5.3.el8uek.x86_64  (localhost.localdomain)  08/02/23  x86
 TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
 15:53:46          DMA                node0          0         0         0         0         0         0         0         0         1         1         3          
 15:53:46          DMA32              node0          3         1         1         1         2         3         2         3         3         2         803        
-15:53:46          Normal             node0          1657      4118      1862      671       220       120       66        29        21        26        3040       
+15:53:46          Normal             node0          1405      4118      1862      671       220       120       66        29        21        26        3040       
 
 pcp-buddyinfo output : Display output when given specified number of samples
 Linux  5.4.17-2136.317.5.3.el8uek.x86_64  (localhost.localdomain)  08/02/23  x86_64    (4 CPU)
@@ -114,4 +114,4 @@ Linux  5.4.17-2136.317.5.3.el8uek.x86_64  (localhost.localdomain)  08/02/23  x86
 TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
 15:53:25          DMA                node0          0         0         0         0         0         0         0         0         1         1         3          
 15:53:25          DMA32              node0          3         1         1         1         2         3         2         3         3         2         803        
-15:53:25          Normal             node0          1720      4118      1862      671       220       120       66        29        21        26        3040       
+15:53:25          Normal             node0          1657      4118      1862      671       220       120       66        29        21        26        3040       
