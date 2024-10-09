@@ -144,11 +144,11 @@ lookup_instance_name(pmInDom indom, int inst)
 }
 
 static int
-lookup_instance_inum(pmInDom indom, int index)
+lookup_instance_inum(pmInDom indom, int idx)
 {
     icache_update_name(indom);
-    if (index >= 0 && index < icache_numinst)
-	return icache_instlist[index];
+    if (idx >= 0 && idx < icache_numinst)
+	return icache_instlist[idx];
     return PM_IN_NULL;
 }
 
@@ -172,11 +172,11 @@ lookup_instance_nlabelset(pmInDom indom)
 }
 
 static pmLabelSet *
-lookup_instance_labels(pmInDom indom, int index)
+lookup_instance_labels(pmInDom indom, int idx)
 {
     icache_update_label(indom);
-    if (index >= 0 && index < icache_nlabelset)
-	return &icache_labelset[index];
+    if (idx >= 0 && idx < icache_nlabelset)
+	return &icache_labelset[idx];
     return NULL;
 }
 
@@ -403,14 +403,14 @@ dump_nparams(int numpmid)
 }
 
 static void
-dump_parameter(pmValueSet *xvsp, int index, int *flagsp)
+dump_parameter(pmValueSet *xvsp, int idx, int *flagsp)
 {
     int		sts, flags = *flagsp;
     pmDesc	desc;
     char	**names;
 
     if ((sts = pmNameAll(xvsp->pmid, &names)) >= 0) {
-	if (index == 0) {
+	if (idx == 0) {
 	    if (xvsp->pmid == pmid_flags) {
 		flags = *flagsp = xvsp->vlist[0].value.lval;
 		printf(" flags 0x%x", flags);
@@ -422,7 +422,7 @@ dump_parameter(pmValueSet *xvsp, int index, int *flagsp)
 		printf(" ---\n");
 	}
 	if ((flags & PM_EVENT_FLAG_MISSED) &&
-	    (index == 1) &&
+	    (idx == 1) &&
 	    (xvsp->pmid == pmid_missed)) {
 	    printf("        ==> %d missed event records\n",
 			xvsp->vlist[0].value.lval);
