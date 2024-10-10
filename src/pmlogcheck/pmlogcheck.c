@@ -332,14 +332,14 @@ main(int argc, char *argv[])
 	    pmsprintf(path, sizeof(path), "%s%c%s", archdirname, sep, namelist[i]->d_name);
 	}
 	if (pmDebugOptions.appl3) {
-	    clock_gettime(CLOCK_MONOTONIC_RAW, &then_real);
+	    clock_gettime(CLOCK_MONOTONIC, &then_real);
 	    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &then_cpu);
 	}
 	if (pass0(path) == STS_FATAL)
 	    /* unrepairable or unrepaired error */
 	    sts = STS_FATAL;
 	if (pmDebugOptions.appl3) {
-	    clock_gettime(CLOCK_MONOTONIC_RAW, &now_real);
+	    clock_gettime(CLOCK_MONOTONIC, &now_real);
 	    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &now_cpu);
 	    fprintf(stderr, "pass0(%s) elapsed %.3fs cpu %.6fs\n",
 		namelist[i]->d_name,
@@ -403,12 +403,12 @@ main(int argc, char *argv[])
 	pmsprintf(archname, sizeof(archname), "%s%c%s", archdirname, sep, archbasename);
 
     if (pmDebugOptions.appl3) {
-	clock_gettime(CLOCK_MONOTONIC_RAW, &then_real);
+	clock_gettime(CLOCK_MONOTONIC, &then_real);
 	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &then_cpu);
     }
     sts = pass1(ctxp, archname);
     if (pmDebugOptions.appl3) {
-	clock_gettime(CLOCK_MONOTONIC_RAW, &now_real);
+	clock_gettime(CLOCK_MONOTONIC, &now_real);
 	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &now_cpu);
 	fprintf(stderr, "pass1(%s) elapsed %.3fs cpu %.6fs\n",
 	    archbasename,
@@ -422,12 +422,12 @@ main(int argc, char *argv[])
     }
 
     if (pmDebugOptions.appl3) {
-	clock_gettime(CLOCK_MONOTONIC_RAW, &then_real);
+	clock_gettime(CLOCK_MONOTONIC, &then_real);
 	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &then_cpu);
     }
     sts = pass2(ctxp, archname);
     if (pmDebugOptions.appl3) {
-	clock_gettime(CLOCK_MONOTONIC_RAW, &now_real);
+	clock_gettime(CLOCK_MONOTONIC, &now_real);
 	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &now_cpu);
 	fprintf(stderr, "pass2(%s) elapsed %.3fs cpu %.6fs\n",
 	    archbasename,
@@ -437,12 +437,12 @@ main(int argc, char *argv[])
 
     if (!mflag) {
 	if (pmDebugOptions.appl3) {
-	    clock_gettime(CLOCK_MONOTONIC_RAW, &then_real);
+	    clock_gettime(CLOCK_MONOTONIC, &then_real);
 	    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &then_cpu);
 	}
 	sts = pass3(ctxp, archname, &opts);
 	if (pmDebugOptions.appl3) {
-	    clock_gettime(CLOCK_MONOTONIC_RAW, &now_real);
+	    clock_gettime(CLOCK_MONOTONIC, &now_real);
 	    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &now_cpu);
 	    fprintf(stderr, "pass3(%s) elapsed %.3fs cpu %.6fs\n",
 		archbasename,
