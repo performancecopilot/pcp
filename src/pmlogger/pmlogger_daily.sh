@@ -295,7 +295,7 @@ then
 fi
 COMPRESSREGEX=""
 COMPRESSREGEX_CMDLINE=""
-COMPRESSREGEX_DEFAULT="\.(index|Z|gz|bz2|zip|xz|lzma|lzo|lz4)$"
+COMPRESSREGEX_DEFAULT="\.(index|Z|gz|bz2|zip|xz|lzma|lzo|lz4|zst)$"
 
 # threshold size to roll $PCP_LOG_DIR/NOTICES
 #

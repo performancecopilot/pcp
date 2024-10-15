@@ -110,7 +110,7 @@ else
 fi
 COMPRESSREGEX=""
 COMPRESSREGEX_CMDLINE=""
-COMPRESSREGEX_DEFAULT="\.(index|Z|gz|bz2|zip|xz|lzma|lzo|lz4)$"
+COMPRESSREGEX_DEFAULT="\.(index|Z|gz|bz2|zip|xz|lzma|lzo|lz4|zst)$"
 
 # determine path for pwd command to override shell built-in
 PWDCMND=`which pwd 2>/dev/null | $PCP_AWK_PROG '

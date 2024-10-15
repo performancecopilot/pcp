@@ -85,7 +85,7 @@ CULLAFTER=14
 #
 COMPRESS=xz
 COMPRESSAFTER=""
-COMPRESSREGEX="\.(meta|index|Z|gz|bz2|zip|xz|lzma|lzo|lz4)$"
+COMPRESSREGEX="\.(meta|index|Z|gz|bz2|zip|xz|lzma|lzo|lz4|zst)$"
 
 # mail addresses to send daily logfile summary to
 #

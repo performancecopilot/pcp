@@ -93,7 +93,7 @@ $PCP_BINADM_DIR/pmlogger_rewrite -N -VV foo | sort -r
 echo
 echo "--- populated foo ---"
 base=0
-for suff in xz lzma bz2 bz gz Z z
+for suff in xz lzma bz2 bz gz Z z zst
 do
     touch foo/$base.meta.$suff
     touch foo/$base.0.$suff

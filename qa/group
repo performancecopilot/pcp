@@ -2045,8 +2045,13 @@ pmcd.pdu
 1567 pmie_util local
 1568 pmlogbasename local
 1569 pmlogcheck local
+1570 archive sanity pmlogdump local
+1571 logutil pmlogrewrite local
+1572 logutil pmlogrewrite local
 1573 pmproxy libpcp_web pmlogger local
 1574 pmseries libpcp_web local valgrind
+1575 logutil local
+1576 logutil local
 1577 pmda.bpf local
 1584 pmda.mongodb local
 1588 python iostat local

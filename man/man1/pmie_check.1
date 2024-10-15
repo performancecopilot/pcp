@@ -223,7 +223,11 @@ only the data file to be compressed, and also prevents the program from
 attempting to compress it more than once.
 The default
 .I regex
-is "\.(meta|index|Z|gz|bz2|zip|xz|lzma|lzo|lz4)$" \- such files are
+is
+.br
+"\e.(meta|index|Z|gz|bz2|zip|xz|lzma|lzo|lz4|zst)$"
+.br
+\- such files are
 filtered using the
 .B \-v
 option to
