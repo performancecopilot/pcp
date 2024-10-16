@@ -181,7 +181,7 @@ class BuddyinfoOptions(pmapi.pmOptions):
         self.pmSetLongOptionHeader("General options")
         self.pmSetOptionCallback(self.extraOptions)
         self.pmSetLongOptionArchive()
-        self.pmSetLongOption("no-interpolation", 0, "u", "", "disable interpolation mode with archives")
+        self.pmSetLongOption("no-interpol", 0, "u", "", "disable interpolation mode with archives")
         self.pmSetLongOptionHostZone()
         self.pmSetLongOptionTimeZone()
         self.pmSetLongOptionHelp()
