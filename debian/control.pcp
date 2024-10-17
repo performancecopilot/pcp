@@ -9,7 +9,7 @@ Standards-Version: 3.9.3
 X-Python3-Version: >= 3.3
 
 Package: pcp
-Depends: ${shlibs:Depends}, ${misc:Depends}, gawk, procps, ?{python-pcp}, ?{python}, libpcp-pmda3 (= ${binary:Version}), libpcp-mmv1 (= ${binary:Version}), libpcp-web1 (= ${binary:Version}), libpcp-archive1 (= ${binary:Version}), libpcp3 (= ${binary:Version}), pcp-conf (>= 6.3.1)
+Depends: ${shlibs:Depends}, ${misc:Depends}, gawk, procps, ?{python-pcp}, ?{python}, libpcp-pmda3 (= ${binary:Version}), libpcp-mmv1 (= ${binary:Version}), libpcp-web1 (= ${binary:Version}), libpcp-archive1 (= ${binary:Version}), libpcp3 (= ${binary:Version}), pcp-conf (= ${binary:Version})
 Recommends: libpcp-pmda-perl
 Conflicts: pgpool2, dstat, pcp-webapi, pcp-manager
 Suggests: pcp-gui, libpcp-import-perl, ?{bpftrace}, ?{python3-bpfcc}, redis-server
@@ -60,8 +60,9 @@ Description: Performance Co-Pilot library and headers
 
 Package: libpcp3
 Depends: ${shlibs:Depends}, ${misc:Depends}, pcp-conf (= ${binary:Version})
-Conflicts: pgpool2, libpcp3t64
-Breaks: pcp (<< 2.8.0), libpcp3-dev (<< 2.8.5)
+Conflicts: pgpool2
+Breaks: pcp (<< 2.8.0), libpcp3-dev (<< 2.8.5), libpcp3t64 (<< 6.3.2)
+Replaces: libpcp3t64 (<< 6.3.2)
 Section: libs
 Architecture: any
 Description: Performance Co-Pilot library
@@ -90,7 +91,8 @@ Description: Performance Co-Pilot graphical client tools library and headers
 
 Package: libpcp-gui2
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Conflicts: libpcp-gui2t64
+Breaks: libpcp-gui2t64 (<< 6.3.2)
+Replaces: libpcp-gui2t64 (<< 6.3.2)
 Section: libs
 Architecture: any
 Description: Performance Co-Pilot graphical client tools library
@@ -118,7 +120,8 @@ Description: Performance Co-Pilot Memory Mapped Value library and headers
 
 Package: libpcp-mmv1
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Conflicts: libpcp-mmv1t64
+Breaks: libpcp-mmv1t64 (<< 6.3.2)
+Replaces: libpcp-mmv1t64 (<< 6.3.2)
 Section: libs
 Architecture: any
 Description: Performance Co-Pilot Memory Mapped Value client library
@@ -151,7 +154,8 @@ Description: Performance Co-Pilot Domain Agent library and headers
 
 Package: libpcp-pmda3
 Depends: ${misc:Depends}, ${shlibs:Depends}
-Conflicts: libpcp-pmda3t64
+Breaks: libpcp-pmda3t64 (<< 6.3.2)
+Replaces: libpcp-pmda3t64 (<< 6.3.2)
 Section: libs
 Architecture: any
 Description: Performance Co-Pilot Domain Agent library
@@ -178,7 +182,8 @@ Description: Performance Co-Pilot application tracing library and headers
 
 Package: libpcp-trace2
 Depends: ${misc:Depends}, ${shlibs:Depends}
-Conflicts: libpcp-trace2t64
+Breaks: libpcp-trace2t64 (<< 6.3.2)
+Replaces: libpcp-trace2t64 (<< 6.3.2)
 Section: libs
 Architecture: any
 Description: Performance Co-Pilot application tracing library
@@ -208,7 +213,8 @@ Description: Performance Co-Pilot data import library and headers
 
 Package: libpcp-import1
 Depends: ${misc:Depends}, ${shlibs:Depends}
-Conflicts: libpcp-import1t64
+Breaks: libpcp-import1t64 (<< 6.3.2)
+Replaces: libpcp-import1t64 (<< 6.3.2)
 Section: libs
 Architecture: any
 Description: Performance Co-Pilot data import library
@@ -238,7 +244,8 @@ Description: Performance Co-Pilot web tooling
 
 Package: libpcp-web1
 Depends: ${misc:Depends}, ${shlibs:Depends}
-Conflicts: libpcp-web1t64
+Breaks: libpcp-web1t64 (<< 6.3.2)
+Replaces: libpcp-web1t64 (<< 6.3.2)
 Section: libs
 Architecture: any
 Description: Performance Co-Pilot data import library
@@ -266,9 +273,9 @@ Description: Performance Co-Pilot archive writing library and headers
 
 Package: libpcp-archive1
 Depends: ${misc:Depends}, ${shlibs:Depends}
-Conflicts: libpcp-archive1t64
+Breaks: pcp (<< 6.0.1), libpcp-archive1t64 (<< 6.3.2)
+Replaces: libpcp-archive1t64 (<< 6.3.2)
 Section: libs
-Breaks: pcp (<< 6.0.1)
 Architecture: any
 Description: Performance Co-Pilot archive writing library
  The libpcp-archive package contains the runtime environment required
@@ -393,3 +400,75 @@ Description: Performance Co-Pilot (PCP) Test Suite
  Provides a series of tests that exercise the many utilities and daemon
  processes that form the PCP toolkit.  Regular users should never have
  any need to install this package, it is for developers and testers only.
+
+Package: libpcp3t64
+Depends: libpcp3, ${misc:Depends}
+Architecture: any
+Priority: optional
+Section: oldlibs
+Description: transitional package
+ This is a transitional package to address incorrect Debian renaming.
+ It can safely be removed.
+
+Package: libpcp-archive1t64
+Depends: libpcp-archive1, ${misc:Depends}
+Architecture: any
+Priority: optional
+Section: oldlibs
+Description: transitional package
+ This is a transitional package to address incorrect Debian renaming.
+ It can safely be removed.
+
+Package: libpcp-gui2t64
+Depends: libpcp-gui2, ${misc:Depends}
+Architecture: any
+Priority: optional
+Section: oldlibs
+Description: transitional package
+ This is a transitional package to address incorrect Debian renaming.
+ It can safely be removed.
+
+Package: libpcp-mmv1t64
+Depends: libpcp-mmv1, ${misc:Depends}
+Architecture: any
+Priority: optional
+Section: oldlibs
+Description: transitional package
+ This is a transitional package to address incorrect Debian renaming.
+ It can safely be removed.
+
+Package: libpcp-pmda3t64
+Depends: libpcp-pmda3, ${misc:Depends}
+Architecture: any
+Priority: optional
+Section: oldlibs
+Description: transitional package
+ This is a transitional package to address incorrect Debian renaming.
+ It can safely be removed.
+
+Package: libpcp-trace2t64
+Depends: libpcp-trace2, ${misc:Depends}
+Architecture: any
+Priority: optional
+Section: oldlibs
+Description: transitional package
+ This is a transitional package to address incorrect Debian renaming.
+ It can safely be removed.
+
+Package: libpcp-web1t64
+Depends: libpcp-web1, ${misc:Depends}
+Architecture: any
+Priority: optional
+Section: oldlibs
+Description: transitional package
+ This is a transitional package to address incorrect Debian renaming.
+ It can safely be removed.
+
+Package: libpcp-import1t64
+Depends: libpcp-import1, ${misc:Depends}
+Architecture: any
+Priority: optional
+Section: oldlibs
+Description: transitional package
+ This is a transitional package to address incorrect Debian renaming.
+ It can safely be removed.

@@ -424,6 +424,9 @@ pmconfig
 # pmcheck
 pmcheck
 
+# pmlogbasename
+pmlogbasename
+
 # pcp2... pcp2xxx is generic
 pcp2xxx
 pcp2elasticsearch
@@ -470,6 +473,8 @@ pmcd.pdu
 
 # ... use sort -n from here on down to tidy up this mess
 #
+# may reappear, so keep this one around to be reactivated if needed
+# the problem 1526 was aimed at has gone away for the moment, but
 000 other pmcd local ostest
 001 pdu local ostest sanity
 002 pdu pmcd local ostest sanity pmda.sample pminfo
@@ -1815,7 +1820,7 @@ pmcd.pdu
 1342 pmda.openmetrics local python
 1343:retired pmmgr local pmlogrewrite
 1344:retired pmmgr local
-1345 pmval fault interp local
+1345 pmval fault archive local
 1346 pmcpp local
 1347 atop pcp local
 1348 pmcpp local valgrind
@@ -1938,7 +1943,7 @@ pmcd.pdu
 1465 pmlogredact pmlogrewrite pmlogdump
 1466 pmlogctl pmcd pmiectl logutil local
 1467 dbpmda local valgrind
-1468 pmval fault interp local valgrind
+1468 pmval fault archive local valgrind
 1469 pmlogsummary local valgrind
 1470 pmval local valgrind
 1471 pmda.linux local valgrind
@@ -1996,8 +2001,6 @@ pmcd.pdu
 1523 pmlogdump local multi-archive
 1524 pmview local
 1525 pmview dkvis mpvis
-# the problem 1526 was aimed at has gone away for the moment, but
-# may reappear, so keep this one around to be reactivated if needed
 1526:retired other local
 1527 pmcd libpcp local suse pmcd.pdu
 1528 pmcd libpcp suse local pmcd.pdu
@@ -2034,9 +2037,14 @@ pmcd.pdu
 1559:reserved suse kenj
 1560 libpcp pdu local
 1561 pmcd libpcp pmcd.pdu suse local
+1562 pminfo local
+1563 pminfo local valgrind
 1564 pmda.linux pcp local
+1565 pmlogextract local
 1566 logutil libpcp local
 1567 pmie_util local
+1568 pmlogbasename local
+1569 pmlogcheck local
 1573 pmproxy libpcp_web pmlogger local
 1574 pmseries libpcp_web local valgrind
 1577 pmda.bpf local

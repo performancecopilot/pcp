@@ -54,15 +54,13 @@ _filter()
 	-e '/^logger\.perfile\.reg\.records: No permission/d' \
 	-e '/^logger\.perfile\.fifo\.records: Try again./d' \
 	-e '/^logger\.perfile\.reg\.records: Try again./d' \
-	-e '/^redis\..*_avg_ttl: Try again./d' \
-	-e '/^redis\..*_expires: Try again./d' \
-	-e '/^redis\..*_keys: Try again./d' \
 	-e '/^containers\..*: pmLookupDesc: Unknown or illegal metric/d' \
 	-e '/^elasticsearch\..*: Try again./d' \
 	-e '/^rsyslog\..*: Try again./d' \
 	-e '/^libvirt\..*: Try again./d' \
 	-e '/^apache\..*: Try again./d' \
 	-e '/^oracle\..*: Try again./d' \
+	-e '/^redis\..*: Try again./d' \
 	-e '/^nginx\..*: Try again./d' \
 	-e '/^uwsgi\..*: Try again./d' \
 	-e '/^zswap\..*: Try again./d' \

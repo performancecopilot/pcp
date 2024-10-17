@@ -242,6 +242,10 @@ main(int argc, char *argv[])
     char		*archdirname;	/* after dirname() */
     char		archname[MAXPATHLEN];	/* full pathname to base of archive name */
     char		*tmp;
+    struct timespec	then_real;
+    struct timespec	now_real;
+    struct timespec	then_cpu;
+    struct timespec	now_cpu;
 
     while ((c = pmGetOptions(argc, argv, &opts)) != EOF) {
 	switch (c) {
@@ -327,9 +331,21 @@ main(int argc, char *argv[])
 	else {
 	    pmsprintf(path, sizeof(path), "%s%c%s", archdirname, sep, namelist[i]->d_name);
 	}
+	if (pmDebugOptions.appl3) {
+	    clock_gettime(CLOCK_MONOTONIC_RAW, &then_real);
+	    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &then_cpu);
+	}
 	if (pass0(path) == STS_FATAL)
 	    /* unrepairable or unrepaired error */
 	    sts = STS_FATAL;
+	if (pmDebugOptions.appl3) {
+	    clock_gettime(CLOCK_MONOTONIC_RAW, &now_real);
+	    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &now_cpu);
+	    fprintf(stderr, "pass0(%s) elapsed %.3fs cpu %.6fs\n",
+		namelist[i]->d_name,
+		pmtimespecSub(&now_real, &then_real),
+		pmtimespecSub(&now_cpu, &then_cpu));
+	}
 	free(namelist[i]);
     }
     free(namelist);
@@ -386,17 +402,54 @@ main(int argc, char *argv[])
     else
 	pmsprintf(archname, sizeof(archname), "%s%c%s", archdirname, sep, archbasename);
 
+    if (pmDebugOptions.appl3) {
+	clock_gettime(CLOCK_MONOTONIC_RAW, &then_real);
+	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &then_cpu);
+    }
     sts = pass1(ctxp, archname);
+    if (pmDebugOptions.appl3) {
+	clock_gettime(CLOCK_MONOTONIC_RAW, &now_real);
+	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &now_cpu);
+	fprintf(stderr, "pass1(%s) elapsed %.3fs cpu %.6fs\n",
+	    archbasename,
+	    pmtimespecSub(&now_real, &then_real),
+	    pmtimespecSub(&now_cpu, &then_cpu));
+    }
 
     if (index_state == STATE_BAD) {
 	/* prevent subsequent use of bad temporal index */
 	ctxp->c_archctl->ac_log->numti = 0;
     }
 
+    if (pmDebugOptions.appl3) {
+	clock_gettime(CLOCK_MONOTONIC_RAW, &then_real);
+	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &then_cpu);
+    }
     sts = pass2(ctxp, archname);
+    if (pmDebugOptions.appl3) {
+	clock_gettime(CLOCK_MONOTONIC_RAW, &now_real);
+	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &now_cpu);
+	fprintf(stderr, "pass2(%s) elapsed %.3fs cpu %.6fs\n",
+	    archbasename,
+	    pmtimespecSub(&now_real, &then_real),
+	    pmtimespecSub(&now_cpu, &then_cpu));
+    }
 
-    if (!mflag)
+    if (!mflag) {
+	if (pmDebugOptions.appl3) {
+	    clock_gettime(CLOCK_MONOTONIC_RAW, &then_real);
+	    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &then_cpu);
+	}
 	sts = pass3(ctxp, archname, &opts);
+	if (pmDebugOptions.appl3) {
+	    clock_gettime(CLOCK_MONOTONIC_RAW, &now_real);
+	    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &now_cpu);
+	    fprintf(stderr, "pass3(%s) elapsed %.3fs cpu %.6fs\n",
+		archbasename,
+		pmtimespecSub(&now_real, &then_real),
+		pmtimespecSub(&now_cpu, &then_cpu));
+	}
+    }
 
     if (vflag) {
 	if (result_count > 0)

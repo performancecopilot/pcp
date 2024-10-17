@@ -1,88 +1,100 @@
 QA output created by 321
 pmie: timezone set to local timezone from archives/conn20070309
-shell Fri Mar  9 17:00:40 2007: echo app1 mel CON_USE OK 64 100 100 100 45 Ctns
+shell Fri Mar  9 17:00:40 2007: echo app1 mel CON_USE OK 64 64 100 100 100 Ctns
 
-shell Fri Mar  9 17:00:50 2007: echo app1 mel CON_USE OK 30 64 100 100 100 Ctns
+shell Fri Mar  9 17:00:50 2007: echo app1 mel CON_USE OK 30 64 64 100 100 Ctns
 
-shell Fri Mar  9 17:01:00 2007: echo app1 mel CON_USE OK 30 30 64 100 100 Ctns
+shell Fri Mar  9 17:01:00 2007: echo app1 mel CON_USE OK 97 30 64 64 100 Ctns
 
-shell Fri Mar  9 17:01:10 2007: echo app1 mel CON_USE OK 97 30 30 64 100 Ctns
+shell Fri Mar  9 17:01:10 2007: echo app1 mel CON_USE OK 97 97 30 64 64 Ctns
 
-shell Fri Mar  9 17:01:20 2007: echo app1 mel CON_USE OK 100 97 30 30 64 Ctns
+shell Fri Mar  9 17:01:20 2007: echo app1 mel CON_USE OK 100 97 97 30 64 Ctns
 
-shell Fri Mar  9 17:01:30 2007: echo app1 mel CON_USE OK 100 100 97 30 30 Ctns
+shell Fri Mar  9 17:01:30 2007: echo app1 mel CON_USE CRITICAL 100 100 97 97 30 Ctns
 
-shell Fri Mar  9 17:01:40 2007: echo app1 mel CON_USE CRITICAL 100 100 100 97 30 Ctns
+shell Fri Mar  9 17:01:30 2007: echo app1 mel CON_USE_COUNT CRITICAL 4 Ctns
 
-shell Fri Mar  9 17:01:40 2007: echo app1 mel CON_USE_COUNT CRITICAL 4 Ctns
+shell Fri Mar  9 17:01:40 2007: echo app1 mel CON_USE CRITICAL 100 100 100 97 97 Ctns
+
+shell Fri Mar  9 17:01:40 2007: echo app1 mel CON_USE_COUNT CRITICAL 5 Ctns
 
 shell Fri Mar  9 17:01:50 2007: echo app1 mel CON_USE CRITICAL 60 100 100 100 97 Ctns
 
 shell Fri Mar  9 17:01:50 2007: echo app1 mel CON_USE_COUNT CRITICAL 4 Ctns
 
-shell Fri Mar  9 17:02:00 2007: echo app1 mel CON_USE OK 60 60 100 100 100 Ctns
+shell Fri Mar  9 17:02:00 2007: echo app1 mel CON_USE CRITICAL 100 60 100 100 100 Ctns
 
-shell Fri Mar  9 17:02:10 2007: echo app1 mel CON_USE OK 100 60 60 100 100 Ctns
+shell Fri Mar  9 17:02:00 2007: echo app1 mel CON_USE_COUNT CRITICAL 4 Ctns
 
-shell Fri Mar  9 17:02:20 2007: echo app1 mel CON_USE OK 58 100 60 60 100 Ctns
+shell Fri Mar  9 17:02:10 2007: echo app1 mel CON_USE CRITICAL 100 100 60 100 100 Ctns
 
-shell Fri Mar  9 17:02:30 2007: echo app1 mel CON_USE OK 58 58 100 60 60 Ctns
+shell Fri Mar  9 17:02:10 2007: echo app1 mel CON_USE_COUNT CRITICAL 4 Ctns
 
-shell Fri Mar  9 17:02:40 2007: echo app1 mel CON_USE OK 100 58 58 100 60 Ctns
+shell Fri Mar  9 17:02:20 2007: echo app1 mel CON_USE OK 58 100 100 60 100 Ctns
 
-shell Fri Mar  9 17:02:50 2007: echo app1 mel CON_USE OK 93 100 58 58 100 Ctns
+shell Fri Mar  9 17:02:30 2007: echo app1 mel CON_USE OK 100 58 100 100 60 Ctns
 
-shell Fri Mar  9 17:03:00 2007: echo app1 mel CON_USE OK 93 93 100 58 58 Ctns
+shell Fri Mar  9 17:02:40 2007: echo app1 mel CON_USE CRITICAL 100 100 58 100 100 Ctns
 
-shell Fri Mar  9 17:03:10 2007: echo app1 mel CON_USE WARNING 73 93 93 100 58 Ctns
+shell Fri Mar  9 17:02:40 2007: echo app1 mel CON_USE_COUNT CRITICAL 4 Ctns
 
-shell Fri Mar  9 17:03:20 2007: echo app1 mel CON_USE CRITICAL 100 73 93 93 100 Ctns
+shell Fri Mar  9 17:02:50 2007: echo app1 mel CON_USE CRITICAL 93 100 100 58 100 Ctns
 
-shell Fri Mar  9 17:03:20 2007: echo app1 mel CON_USE_COUNT CRITICAL 4 Ctns
+shell Fri Mar  9 17:02:50 2007: echo app1 mel CON_USE_COUNT CRITICAL 4 Ctns
 
-shell Fri Mar  9 17:03:30 2007: echo app1 mel CON_USE CRITICAL 100 100 73 93 93 Ctns
+shell Fri Mar  9 17:03:00 2007: echo app1 mel CON_USE WARNING 73 93 100 100 58 Ctns
 
-shell Fri Mar  9 17:03:30 2007: echo app1 mel CON_USE_COUNT CRITICAL 4 Ctns
+shell Fri Mar  9 17:03:10 2007: echo app1 mel CON_USE WARNING 73 73 93 100 100 Ctns
 
-shell Fri Mar  9 17:03:40 2007: echo app1 mel CON_USE CRITICAL 100 100 100 73 93 Ctns
+shell Fri Mar  9 17:03:20 2007: echo app1 mel CON_USE WARNING 100 73 73 93 100 Ctns
 
-shell Fri Mar  9 17:03:40 2007: echo app1 mel CON_USE_COUNT CRITICAL 4 Ctns
+shell Fri Mar  9 17:03:30 2007: echo app1 mel CON_USE WARNING 100 100 73 73 93 Ctns
+
+shell Fri Mar  9 17:03:40 2007: echo app1 mel CON_USE WARNING 100 100 100 73 73 Ctns
 
 shell Fri Mar  9 17:03:50 2007: echo app1 mel CON_USE WARNING 55 100 100 100 73 Ctns
 
-shell Fri Mar  9 17:04:00 2007: echo app1 mel CON_USE OK 55 55 100 100 100 Ctns
+shell Fri Mar  9 17:04:00 2007: echo app1 mel CON_USE CRITICAL 88 55 100 100 100 Ctns
 
-shell Fri Mar  9 17:04:10 2007: echo app1 mel CON_USE OK 88 55 55 100 100 Ctns
+shell Fri Mar  9 17:04:00 2007: echo app1 mel CON_USE_COUNT CRITICAL 4 Ctns
 
-shell Fri Mar  9 17:04:20 2007: echo app1 mel CON_USE OK 86 88 55 55 100 Ctns
+shell Fri Mar  9 17:04:10 2007: echo app1 mel CON_USE CRITICAL 88 88 55 100 100 Ctns
 
-shell Fri Mar  9 17:04:30 2007: echo app1 mel CON_USE OK 86 86 88 55 55 Ctns
+shell Fri Mar  9 17:04:10 2007: echo app1 mel CON_USE_COUNT CRITICAL 4 Ctns
 
-shell Fri Mar  9 17:04:40 2007: echo app1 mel CON_USE CRITICAL 100 86 86 88 55 Ctns
+shell Fri Mar  9 17:04:20 2007: echo app1 mel CON_USE CRITICAL 86 88 88 55 100 Ctns
 
-shell Fri Mar  9 17:04:40 2007: echo app1 mel CON_USE_COUNT CRITICAL 4 Ctns
+shell Fri Mar  9 17:04:20 2007: echo app1 mel CON_USE_COUNT CRITICAL 4 Ctns
 
-shell Fri Mar  9 17:04:50 2007: echo app1 mel CON_USE CRITICAL 100 100 86 86 88 Ctns
+shell Fri Mar  9 17:04:30 2007: echo app1 mel CON_USE CRITICAL 100 86 88 88 55 Ctns
+
+shell Fri Mar  9 17:04:30 2007: echo app1 mel CON_USE_COUNT CRITICAL 4 Ctns
+
+shell Fri Mar  9 17:04:40 2007: echo app1 mel CON_USE CRITICAL 100 100 86 88 88 Ctns
+
+shell Fri Mar  9 17:04:40 2007: echo app1 mel CON_USE_COUNT CRITICAL 5 Ctns
+
+shell Fri Mar  9 17:04:50 2007: echo app1 mel CON_USE CRITICAL 100 100 100 86 88 Ctns
 
 shell Fri Mar  9 17:04:50 2007: echo app1 mel CON_USE_COUNT CRITICAL 5 Ctns
 
-shell Fri Mar  9 17:05:00 2007: echo app1 mel CON_USE CRITICAL 100 100 100 86 86 Ctns
+shell Fri Mar  9 17:05:00 2007: echo app1 mel CON_USE CRITICAL 99 100 100 100 86 Ctns
 
 shell Fri Mar  9 17:05:00 2007: echo app1 mel CON_USE_COUNT CRITICAL 5 Ctns
 
-shell Fri Mar  9 17:05:10 2007: echo app1 mel CON_USE CRITICAL 99 100 100 100 86 Ctns
+shell Fri Mar  9 17:05:10 2007: echo app1 mel CON_USE CRITICAL 99 99 100 100 100 Ctns
 
 shell Fri Mar  9 17:05:10 2007: echo app1 mel CON_USE_COUNT CRITICAL 5 Ctns
 
-shell Fri Mar  9 17:05:20 2007: echo app1 mel CON_USE CRITICAL 100 99 100 100 100 Ctns
+shell Fri Mar  9 17:05:20 2007: echo app1 mel CON_USE CRITICAL 100 99 99 100 100 Ctns
 
 shell Fri Mar  9 17:05:20 2007: echo app1 mel CON_USE_COUNT CRITICAL 5 Ctns
 
-shell Fri Mar  9 17:05:30 2007: echo app1 mel CON_USE CRITICAL 100 100 99 100 100 Ctns
+shell Fri Mar  9 17:05:30 2007: echo app1 mel CON_USE CRITICAL 100 100 99 99 100 Ctns
 
 shell Fri Mar  9 17:05:30 2007: echo app1 mel CON_USE_COUNT CRITICAL 5 Ctns
 
-shell Fri Mar  9 17:05:40 2007: echo app1 mel CON_USE CRITICAL 100 100 100 99 100 Ctns
+shell Fri Mar  9 17:05:40 2007: echo app1 mel CON_USE CRITICAL 100 100 100 99 99 Ctns
 
 shell Fri Mar  9 17:05:40 2007: echo app1 mel CON_USE_COUNT CRITICAL 5 Ctns
 
@@ -102,61 +114,61 @@ shell Fri Mar  9 17:06:20 2007: echo app1 mel CON_USE CRITICAL 86 100 100 100 10
 
 shell Fri Mar  9 17:06:20 2007: echo app1 mel CON_USE_COUNT CRITICAL 5 Ctns
 
-shell Fri Mar  9 17:06:30 2007: echo app1 mel CON_USE CRITICAL 86 86 100 100 100 Ctns
+shell Fri Mar  9 17:06:30 2007: echo app1 mel CON_USE CRITICAL 98 86 100 100 100 Ctns
 
 shell Fri Mar  9 17:06:30 2007: echo app1 mel CON_USE_COUNT CRITICAL 5 Ctns
 
-shell Fri Mar  9 17:06:40 2007: echo app1 mel CON_USE CRITICAL 98 86 86 100 100 Ctns
+shell Fri Mar  9 17:06:40 2007: echo app1 mel CON_USE CRITICAL 98 98 86 100 100 Ctns
 
 shell Fri Mar  9 17:06:40 2007: echo app1 mel CON_USE_COUNT CRITICAL 5 Ctns
 
-shell Fri Mar  9 17:06:50 2007: echo app1 mel CON_USE CRITICAL 99 98 86 86 100 Ctns
+shell Fri Mar  9 17:06:50 2007: echo app1 mel CON_USE CRITICAL 99 98 98 86 100 Ctns
 
 shell Fri Mar  9 17:06:50 2007: echo app1 mel CON_USE_COUNT CRITICAL 5 Ctns
 
-shell Fri Mar  9 17:07:00 2007: echo app1 mel CON_USE CRITICAL 99 99 98 86 86 Ctns
+shell Fri Mar  9 17:07:00 2007: echo app1 mel CON_USE CRITICAL 98 99 98 98 86 Ctns
 
 shell Fri Mar  9 17:07:00 2007: echo app1 mel CON_USE_COUNT CRITICAL 5 Ctns
 
-shell Fri Mar  9 17:07:10 2007: echo app1 mel CON_USE CRITICAL 98 99 99 98 86 Ctns
+shell Fri Mar  9 17:07:10 2007: echo app1 mel CON_USE CRITICAL 98 98 99 98 98 Ctns
 
 shell Fri Mar  9 17:07:10 2007: echo app1 mel CON_USE_COUNT CRITICAL 5 Ctns
 
-shell Fri Mar  9 17:07:20 2007: echo app1 mel CON_USE CRITICAL 44 98 99 99 98 Ctns
+shell Fri Mar  9 17:07:20 2007: echo app1 mel CON_USE CRITICAL 44 98 98 99 98 Ctns
 
 shell Fri Mar  9 17:07:20 2007: echo app1 mel CON_USE_COUNT CRITICAL 4 Ctns
 
-shell Fri Mar  9 17:07:30 2007: echo app1 mel CON_USE OK 44 44 98 99 99 Ctns
+shell Fri Mar  9 17:07:30 2007: echo app1 mel CON_USE OK 52 44 98 98 99 Ctns
 
-shell Fri Mar  9 17:07:40 2007: echo app1 mel CON_USE OK 52 44 44 98 99 Ctns
+shell Fri Mar  9 17:07:40 2007: echo app1 mel CON_USE OK 52 52 44 98 98 Ctns
 
-shell Fri Mar  9 17:07:50 2007: echo app1 mel CON_USE OK 41 52 44 44 98 Ctns
+shell Fri Mar  9 17:07:50 2007: echo app1 mel CON_USE OK 41 52 52 44 98 Ctns
 
-shell Fri Mar  9 17:08:00 2007: echo app1 mel CON_USE OK 41 41 52 44 44 Ctns
+shell Fri Mar  9 17:08:00 2007: echo app1 mel CON_USE OK 28 41 52 52 44 Ctns
 
-shell Fri Mar  9 17:08:10 2007: echo app1 mel CON_USE OK 28 41 41 52 44 Ctns
+shell Fri Mar  9 17:08:10 2007: echo app1 mel CON_USE OK 28 28 41 52 52 Ctns
 
-shell Fri Mar  9 17:08:20 2007: echo app1 mel CON_USE OK 51 28 41 41 52 Ctns
+shell Fri Mar  9 17:08:20 2007: echo app1 mel CON_USE OK 51 28 28 41 52 Ctns
 
-shell Fri Mar  9 17:08:30 2007: echo app1 mel CON_USE OK 51 51 28 41 41 Ctns
+shell Fri Mar  9 17:08:30 2007: echo app1 mel CON_USE OK 37 51 28 28 41 Ctns
 
-shell Fri Mar  9 17:08:40 2007: echo app1 mel CON_USE OK 37 51 51 28 41 Ctns
+shell Fri Mar  9 17:08:40 2007: echo app1 mel CON_USE OK 37 37 51 28 28 Ctns
 
-shell Fri Mar  9 17:08:50 2007: echo app1 mel CON_USE OK 100 37 51 51 28 Ctns
+shell Fri Mar  9 17:08:50 2007: echo app1 mel CON_USE OK 100 37 37 51 28 Ctns
 
-shell Fri Mar  9 17:09:00 2007: echo app1 mel CON_USE OK 100 100 37 51 51 Ctns
+shell Fri Mar  9 17:09:00 2007: echo app1 mel CON_USE OK 46 100 37 37 51 Ctns
 
-shell Fri Mar  9 17:09:10 2007: echo app1 mel CON_USE OK 46 100 100 37 51 Ctns
+shell Fri Mar  9 17:09:10 2007: echo app1 mel CON_USE OK 46 46 100 37 37 Ctns
 
-shell Fri Mar  9 17:09:20 2007: echo app1 mel CON_USE OK 42 46 100 100 37 Ctns
+shell Fri Mar  9 17:09:20 2007: echo app1 mel CON_USE OK 42 46 46 100 37 Ctns
 
-shell Fri Mar  9 17:09:30 2007: echo app1 mel CON_USE OK 42 42 46 100 100 Ctns
+shell Fri Mar  9 17:09:30 2007: echo app1 mel CON_USE OK 14 42 46 46 100 Ctns
 
-shell Fri Mar  9 17:09:40 2007: echo app1 mel CON_USE OK 14 42 42 46 100 Ctns
+shell Fri Mar  9 17:09:40 2007: echo app1 mel CON_USE OK 14 14 42 46 46 Ctns
 
-shell Fri Mar  9 17:09:50 2007: echo app1 mel CON_USE OK 19 14 42 42 46 Ctns
+shell Fri Mar  9 17:09:50 2007: echo app1 mel CON_USE OK 19 14 14 42 46 Ctns
 
-shell Fri Mar  9 17:10:00 2007: echo app1 mel CON_USE OK 19 19 14 42 42 Ctns
+shell Fri Mar  9 17:10:00 2007: echo app1 mel CON_USE OK 29 19 14 14 42 Ctns
 
 DATE: HORDES > 249
 [250] 250

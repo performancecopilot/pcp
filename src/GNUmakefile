@@ -136,6 +136,7 @@ OTHER_SUBDIRS += \
 	runaspcp \
 	pmcheck \
 	indomcachectl \
+	pmlogbasename \
 	#
 
 SUBDIRS = \

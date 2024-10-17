@@ -969,10 +969,10 @@ else
 	__prot=`ls -ldL "$__x" | sed -e 's/[ 	].*//'`
 	case $__prot
 	in
-	    dr?xr?xr?[xt]*)
+	    dr?x*)
 		;;
 	    *)
-		echo "Warning: parent directory $__x (mode:$__prot) not world readable and searchable"
+		echo "Warning: parent directory $__x (mode:$__prot) not owner readable and searchable"
 		;;
 	esac
 	__x=`dirname $__x`

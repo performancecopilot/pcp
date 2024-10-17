@@ -400,35 +400,18 @@ expr_4 (DATE): unknown
 expr_5 (DATE): true
 expr_6 (DATE): unknown
 
-print DATE: min_inst: @vm00 [red] 116
-print DATE: min_host: @vm03 [<%i undefined>] 104
-print DATE: max_inst: @vm00 [blue] 318
-print DATE: max_host: @vm00 [<%i undefined>] 116
-vm00 (DATE): 116 217 318
-vm01 (DATE): 113 214 315
-vm02 (DATE): 110 211 312
-vm03 (DATE): 104 205 306
-expr_1 (DATE): unknown
-expr_2 (DATE): true
-expr_3 (DATE): true
-expr_4 (DATE): unknown
-expr_5 (DATE): true
-expr_6 (DATE): true
-
-print DATE: min_sample: @vm00 [red] 116
 print DATE: min_inst: @vm00 [red] 119
 print DATE: min_host: @vm03 [<%i undefined>] 107
-print DATE: max_sample: @vm00 [red] 119
 print DATE: max_inst: @vm00 [blue] 321
 print DATE: max_host: @vm00 [<%i undefined>] 119
 vm00 (DATE): 119 220 321
 vm01 (DATE): 116 217 318
 vm02 (DATE): 113 214 315
 vm03 (DATE): 107 208 309
-expr_1 (DATE): true
+expr_1 (DATE): unknown
 expr_2 (DATE): true
 expr_3 (DATE): true
-expr_4 (DATE): true
+expr_4 (DATE): unknown
 expr_5 (DATE): true
 expr_6 (DATE): true
 
@@ -459,6 +442,23 @@ vm00 (DATE): 125 226 327
 vm01 (DATE): 122 223 324
 vm02 (DATE): 119 220 321
 vm03 (DATE): 113 214 315
+expr_1 (DATE): true
+expr_2 (DATE): true
+expr_3 (DATE): true
+expr_4 (DATE): true
+expr_5 (DATE): true
+expr_6 (DATE): true
+
+print DATE: min_sample: @vm00 [red] 122
+print DATE: min_inst: @vm00 [red] 128
+print DATE: min_host: @vm03 [<%i undefined>] 116
+print DATE: max_sample: @vm00 [red] 128
+print DATE: max_inst: @vm00 [blue] 330
+print DATE: max_host: @vm00 [<%i undefined>] 128
+vm00 (DATE): 128 229 330
+vm01 (DATE): 125 226 327
+vm02 (DATE): 122 223 324
+vm03 (DATE): 116 217 318
 expr_1 (DATE): true
 expr_2 (DATE): true
 expr_3 (DATE): true

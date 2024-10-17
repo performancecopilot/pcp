@@ -75,7 +75,7 @@ then
     # give the rc scripts $wait seconds to get going and poll every
     # $poll milliseconds
     #
-    wait=90
+    wait=120
     poll=250
     iter=`expr $wait \* 1000 / $poll`
     while [ $i -lt $iter ]
@@ -98,6 +98,7 @@ then
 	pminfo -v >/dev/null 2>&1
     else
 	echo "Failed to fix these after ${wait}secs: `tr '\012' ' ' <$tmp.tmp`"
+	echo "at `date`"
 	echo "Recent changes to NOTICES ..."
 	[ -f $PCP_LOG_DIR/NOTICES ] && diff $tmp.NOTICES $PCP_LOG_DIR/NOTICES
 	echo "pmcd-related processes ..."

@@ -324,7 +324,7 @@ s/ .*//p
 	    *)
 		# the old-school dpkg way
 		#
-		if yes Y | sudo dpkg -i --force-depends build/deb/*.deb >>$HOME/daily.log 2>&1
+		if yes Y | sudo dpkg -i --auto-deconfigure --force-depends build/deb/*.deb >>$HOME/daily.log 2>&1
 		then
 		    echo "Info: dpkg install" | tee -a $HOME/daily.log
 		else

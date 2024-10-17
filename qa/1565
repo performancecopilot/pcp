@@ -1,0 +1,67 @@
+#!/bin/sh
+# PCP QA Test No. 1565
+# pmlogextract -v options
+#
+# Copyright (c) 2024 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+$sudo rm -rf $tmp $tmp.* $seq.full
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+    # end
+}
+
+# real QA test starts here
+#
+# archives/20180606
+# 1 volume
+# 1731 physical log records
+# 14311620 bytes in volume 0
+# span
+#    commencing Wed Jun  6 00:10:11.599573 2018
+#    ending     Thu Jun  7 00:10:06.358140 2018
+
+for arg in 500 4mb 3h
+do
+    echo
+    echo "=== -v $arg ==="
+    rm -f $tmp.[0-9]* $tmp.index $tmp.meta
+    if pmlogextract -z -Dappl5 -v $arg archives/20180606 $tmp
+    then
+	echo "`ls $tmp.[0-9]* | wc -l | sed -e 's/ //g'` volumes"
+    else
+	echo "Arrgh, pmlogextract failed!"
+	status=1
+	exit
+    fi
+done
+
+# success, all done
+exit

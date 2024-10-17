@@ -1,0 +1,107 @@
+QA output created by 1569
+=== some error cases ===
+--- -c TMP archives/pcp-meminfo ---
+stderr ...
+Illegal option -c
+Usage: logdecompress [-nv] [-d dir] archive
+--- -d TMP archives/pcp-meminfo ---
+stderr ...
+logdecompress: TMP is not an existing directory
+exit status 1
+--- -nv no-such-archive ---
+stderr ...
+archbase=no-such-archive
+No PCP archive files match "no-such-archive"
+exit status 1
+--- -d TMP archives/pcp-meminfo ---
+stderr ...
+logdecompress: TMP/pcp-meminfo.0 exists and will not be clobbered
+exit status 1
+--- -v TMP/pcp-meminfo ---
+TMP/pcp-meminfo
+stderr ...
+archbase=TMP/pcp-meminfo
+No compresssed PCP archive files match "TMP/pcp-meminfo"
+=== some success cases ===
+pcp-meminfo.0.xz 884
+pcp-meminfo.index 192
+pcp-meminfo.meta.xz 3392
+--- -n pcp-meminfo ---
+pcp-meminfo
+stderr ...
++ xz --decompress pcp-meminfo.0.xz
++ xz --decompress pcp-meminfo.meta.xz
+pcp-meminfo.0.xz 884
+pcp-meminfo.index 192
+pcp-meminfo.meta.xz 3392
+--- pcp-meminfo ---
+pcp-meminfo
+pcp-meminfo.0 14288
+pcp-meminfo.index 192
+pcp-meminfo.meta 11444
+--- -v -d tmp archives/pcp-meminfo ---
+tmp/archives/pcp-meminfo
+stderr ...
+archbase=archives/pcp-meminfo
+2 of 3 files in the archive are compressed
+tmp/pcp-meminfo.0: decompressed
+tmp/pcp-meminfo.index: linked
+tmp/pcp-meminfo.meta: decompressed
+tmp/pcp-meminfo.0 14288
+tmp/pcp-meminfo.index 192
+tmp/pcp-meminfo.meta 11444
+--- -d . HERE/archives/pcp-meminfo.0.xz ---
+./HERE/archives/pcp-meminfo
++++ lzma +++
+--- -v pcp-meminfo ---
+pcp-meminfo
+stderr ...
+archbase=pcp-meminfo
+1 of 3 files in the archive are compressed
+pcp-meminfo.0: decompressed
+pcp-meminfo.0 14288
+pcp-meminfo.index 192
+pcp-meminfo.meta 11444
++++ bz2 +++
+--- -v pcp-meminfo ---
+pcp-meminfo
+stderr ...
+archbase=pcp-meminfo
+3 of 3 files in the archive are compressed
+pcp-meminfo.0: decompressed
+pcp-meminfo.index: decompressed
+pcp-meminfo.meta: decompressed
+pcp-meminfo.0 14288
+pcp-meminfo.index 192
+pcp-meminfo.meta 11444
++++ bz +++
+--- -v pcp-meminfo ---
+pcp-meminfo
+stderr ...
+archbase=pcp-meminfo
+1 of 3 files in the archive are compressed
+pcp-meminfo.0: decompressed
+pcp-meminfo.0 14288
+pcp-meminfo.index 192
+pcp-meminfo.meta 11444
++++ gz +++
+--- -v pcp-meminfo ---
+pcp-meminfo
+stderr ...
+archbase=pcp-meminfo
+2 of 3 files in the archive are compressed
+pcp-meminfo.0: decompressed
+pcp-meminfo.meta: decompressed
+pcp-meminfo.0 14288
+pcp-meminfo.index 192
+pcp-meminfo.meta 11444
++++ z +++
+--- -v pcp-meminfo ---
+pcp-meminfo
+stderr ...
+archbase=pcp-meminfo
+1 of 3 files in the archive are compressed
+pcp-meminfo.0: decompressed
+pcp-meminfo.0 14288
+pcp-meminfo.index 192
+pcp-meminfo.meta 11444

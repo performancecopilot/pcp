@@ -79,7 +79,7 @@ interval:  1.00 sec
 07:45:41.422  No values available
 07:45:42.422        184
 07:45:43.422        183
-07:45:44.422        183
+07:45:44.422        166
 07:45:45.422  No values available
 07:45:46.422  No values available
 07:45:47.422  No values available
@@ -92,9 +92,9 @@ interval:  1.00 sec
 07:45:54.422  No values available
 07:45:55.422  No values available
 07:45:56.422  No values available
-07:45:57.422         70
-07:45:58.422         50
-07:45:59.422         40
+07:45:57.422         50
+07:45:58.422         40
+07:45:59.422         26
 
 === delta=1sec discrete and logged once in the 1st and 3rd sections ===
 Note: timezone set to local timezone of host "gonzo" from archive
@@ -363,11 +363,11 @@ interval:  0.50 sec
 07:45:41.422  No values available
 07:45:41.922  No values available
 07:45:42.422        184
-07:45:42.922        184
+07:45:42.922        183
 07:45:43.422        183
-07:45:43.922        183
-07:45:44.422        183
-07:45:44.922        166
+07:45:43.922        166
+07:45:44.422        166
+07:45:44.922        117
 07:45:45.422  No values available
 07:45:45.922  No values available
 07:45:46.422  No values available
@@ -392,11 +392,11 @@ interval:  0.50 sec
 07:45:55.922  No values available
 07:45:56.422  No values available
 07:45:56.922         70
-07:45:57.422         70
+07:45:57.422         50
 07:45:57.922         50
-07:45:58.422         50
+07:45:58.422         40
 07:45:58.922         40
-07:45:59.422         40
+07:45:59.422         26
 
 === delta=0.5sec discrete and logged once in the 1st and 3rd sections ===
 Note: timezone set to local timezone of host "gonzo" from archive

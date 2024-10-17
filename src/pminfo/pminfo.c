@@ -144,11 +144,11 @@ lookup_instance_name(pmInDom indom, int inst)
 }
 
 static int
-lookup_instance_inum(pmInDom indom, int index)
+lookup_instance_inum(pmInDom indom, int idx)
 {
     icache_update_name(indom);
-    if (index >= 0 && index < icache_numinst)
-	return icache_instlist[index];
+    if (idx >= 0 && idx < icache_numinst)
+	return icache_instlist[idx];
     return PM_IN_NULL;
 }
 
@@ -172,11 +172,11 @@ lookup_instance_nlabelset(pmInDom indom)
 }
 
 static pmLabelSet *
-lookup_instance_labels(pmInDom indom, int index)
+lookup_instance_labels(pmInDom indom, int idx)
 {
     icache_update_label(indom);
-    if (index >= 0 && index < icache_nlabelset)
-	return &icache_labelset[index];
+    if (idx >= 0 && idx < icache_nlabelset)
+	return &icache_labelset[idx];
     return NULL;
 }
 
@@ -403,14 +403,14 @@ dump_nparams(int numpmid)
 }
 
 static void
-dump_parameter(pmValueSet *xvsp, int index, int *flagsp)
+dump_parameter(pmValueSet *xvsp, int idx, int *flagsp)
 {
     int		sts, flags = *flagsp;
     pmDesc	desc;
     char	**names;
 
     if ((sts = pmNameAll(xvsp->pmid, &names)) >= 0) {
-	if (index == 0) {
+	if (idx == 0) {
 	    if (xvsp->pmid == pmid_flags) {
 		flags = *flagsp = xvsp->vlist[0].value.lval;
 		printf(" flags 0x%x", flags);
@@ -422,7 +422,7 @@ dump_parameter(pmValueSet *xvsp, int index, int *flagsp)
 		printf(" ---\n");
 	}
 	if ((flags & PM_EVENT_FLAG_MISSED) &&
-	    (index == 1) &&
+	    (idx == 1) &&
 	    (xvsp->pmid == pmid_missed)) {
 	    printf("        ==> %d missed event records\n",
 			xvsp->vlist[0].value.lval);
@@ -806,6 +806,12 @@ mydesc(pmDesc *desc)
     const char          *units;
     char                strbuf[60];
 
+    if (desc->pmid == PM_ID_NULL) {
+	/* no metadata, reason reported earlier */
+	printf("    Metadata unavailable\n");
+	return;
+    }
+
     printf("    Data Type: %s", (type = mytypestr(desc->type)));
     if (strcmp(type, "???") == 0)
 	printf(" (%d)", desc->type);
@@ -836,31 +842,59 @@ report(void)
     int		all_count;
     int		*all_inst;
     char	**all_names;
+    int		batch = batchidx;
 
     if (batchidx == 0)
 	return;
 
     /* Lookup names. 
      * Cull out names that were unsuccessfully looked up. 
-     * However, it is unlikely to fail because names come from a traverse PMNS. 
+     * However, it is unlikely to fail because names come from a
+     * traverse PMNS, however dynamic metrics can mean the non-leaf
+     * name is in the PMNS, but there are no descendent names.
      */
     if (need_pmid) {
+	int	j;
+	int	lsts;
         if ((sts = pmLookupName(batchidx, (const char **)namelist, pmidlist)) < 0) {
-	    int j = 0;
-	    for (i = 0; i < batchidx; i++) {
-		if (pmidlist[i] == PM_ID_NULL) {
-		    printf("%s: pmLookupName: %s\n", namelist[i], pmErrStr(sts));
-		    free(namelist[i]);
-		}
-		else {
-		    /* assert(j <= i); */
-		    pmidlist[j] = pmidlist[i];
-		    namelist[j] = namelist[i];
-		    j++;
+	    if (batchidx > 1)
+		printf("%s...%s: pmLookupName: %s\n", namelist[0], namelist[batchidx-1], pmErrStr(sts));
+	    else
+		printf("%s: pmLookupName: %s\n", namelist[0], pmErrStr(sts));
+	}
+
+	/*
+	 * cull any names with no PMID
+	 */
+	j = 0;
+	for (i = 0; i < batchidx; i++) {
+	    if (pmidlist[i] == PM_ID_NULL) {
+		if (sts >= 0)  {
+		    /*
+		     * not reported above, get the real reason for this one
+		     * not having a valid PMID
+		     */
+		    lsts = pmLookupName(1, (const char **)&namelist[i], &pmidlist[i]);
+		    printf("%s: pmLookupName: %s\n", namelist[i], pmErrStr(lsts));
 		}
 	    }
-	    batchidx = j;
+	    else {
+		/* assert(j <= i); */
+		if (j != i) {
+		    /*
+		     * swap names, so that free() works at the end
+		     * and shuffle PMIDs
+		     */
+		    char	*tmp;
+		    tmp = namelist[j];
+		    namelist[j] = namelist[i];
+		    namelist[i] = tmp;
+		    pmidlist[j] = pmidlist[i];
+		}
+		j++;
+	    }
 	}
+	batch = j;
     }
 
     if (p_value || p_label || verify) {
@@ -870,21 +904,55 @@ report(void)
 		exit(1);
 	    }
 	}
-	if ((sts = pmFetch(batchidx, pmidlist, &result)) < 0) {
-	    for (i = 0; i < batchidx; i++)
+	if ((sts = pmFetch(batch, pmidlist, &result)) < 0) {
+	    for (i = 0; i < batch; i++)
 		printf("%s: pmFetch: %s\n", namelist[i], pmErrStr(sts));
 	    goto done;
 	}
     }
 
     if (p_desc || p_value || p_label || p_series || verify) {
-	if (batchidx > 1) {
-	    if ((sts = pmLookupDescs(batchidx, pmidlist, desclist)) < 0) {
-		printf("%s...%s: pmLookupDescs: %s\n", namelist[0], namelist[batchidx-1], pmErrStr(sts));
+	if (batch > 1) {
+	    int		j;
+	    int		lsts;
+	    if ((sts = pmLookupDescs(batch, pmidlist, desclist)) < 0) {
+		printf("%s...%s: pmLookupDescs: %s\n", namelist[0], namelist[batch-1], pmErrStr(sts));
 		goto done;
+	    }
+	    /*
+	     * optionally report any metrics with no metadata and remove
+	     * them from the list ... for -f and -v reporting will be
+	     * done after pmFetch() with error codes per metric
+	     */
+	    if (!p_value && !verify) {
+		j = 0;
+		for (i = 0; i < batch; i++) {
+		    if (pmidlist[i] != PM_ID_NULL && desclist[i].pmid == PM_ID_NULL) {
+			/* no metadata, find out why ...  */
+			lsts = pmLookupDesc(pmidlist[i], &desclist[i]);
+			printf("%s: pmLookupDesc: %s\n", namelist[i], pmErrStr(lsts));
+			/* assert(j <= i); */
+			if (j != i) {
+			    /*
+			     * swap names, so that free() works at the end
+			     * and shuffle PMIDs
+			     */
+			    char	*tmp;
+			    tmp = namelist[j];
+			    namelist[j] = namelist[i];
+			    namelist[i] = tmp;
+			    pmidlist[j] = pmidlist[i];
+			}
+		    }
+		    else
+			j++;
+		}
+		batch = j;
 	    }
 	}
 	else {
+	    if (pmidlist[0] == PM_ID_NULL)
+		goto done;
 	    if ((sts = pmLookupDesc(pmidlist[0], &desclist[0])) < 0) {
 		printf("%s: pmLookupDesc: %s\n", namelist[0], pmErrStr(sts));
 		goto done;
@@ -892,12 +960,11 @@ report(void)
 	}
     }
 
-    for (i = 0; i < batchidx; i++) {
+    for (i = 0; i < batch; i++) {
 
 	if (p_desc || p_help || p_value || p_label)
 	    /* Not doing verify, output separator  */
 	    putchar('\n');
-
 
 	if (p_value || verify) {
 	    vsp = result->vset[i];

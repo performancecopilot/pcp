@@ -20,6 +20,7 @@
  * appl2	time window and EOF tests
  * appl3	in/out version decisions
  * appl4	indom juggling
+ * appl5	volume switching
  */
 
 #include <math.h>
@@ -48,7 +49,7 @@ static pmLongOptions longopts[] = {
     { "samples", 1, 's', "NUM", "terminate after NUM log records have been written" },
     PMOPT_FINISH,
     { "outputversion", 1, 'V', "VERSION", "output archive version" },
-    { "", 1, 'v', "SAMPLES", "switch log volumes after this many samples" },
+    { "", 1, 'v', "SIZE", "switch log volumes after size has been accumulated" },
     { "", 0, 'w', 0, "ignore day/month/year" },
     { "", 0, 'x', 0, "skip metrics with mismatched metadata" },
     PMOPT_TIMEZONE,
@@ -96,6 +97,9 @@ rlist_t		*rl;				/* list of __pmResults */
 int		skip_ml_numpmid;		/* num entries in skip_ml list */
 pmID		*skip_ml;
 
+int		vol_switch_samples; 		/* number of samples 'til vol switch */
+__int64_t	vol_switch_bytes;   		/* number of bytes 'til vol switch */
+double		vol_switch_time;		/* log time interval (sec) 'til vol switch */
 
 off_t		new_log_offset;			/* new log offset */
 off_t		new_meta_offset;		/* new meta offset */
@@ -143,7 +147,6 @@ int	old_mark_logic;			/* -m arg - <mark> b/n archives */
 int	sarg = -1;			/* -s arg - finish after X samples */
 char	*Sarg;				/* -S arg - window start */
 char	*Targ;				/* -T arg - window end */
-int	varg = -1;			/* -v arg - switch log vol every X */
 int	warg;				/* -w arg - ignore day/month/year */
 int	xarg;				/* -x arg - skip metrics with mismatched metadata */
 int	zarg;				/* -z arg - use archive timezone */
@@ -2315,6 +2318,7 @@ parseargs(int argc, char *argv[])
     int			sts;
     char		*endnum;
     struct stat		sbuf;
+    struct timeval	switch_time;
 
     while ((c = pmgetopt_r(argc, argv, &opts)) != EOF) {
 	switch (c) {
@@ -2377,11 +2381,17 @@ parseargs(int argc, char *argv[])
 	    break;
 
 	case 'v':	/* number of samples per volume */
-	    varg = (int)strtol(opts.optarg, &endnum, 10);
-	    if (*endnum != '\0' || varg < 0) {
-		pmprintf("%s: -v requires numeric argument\n", pmGetProgname());
+	    sts = ParseSize(opts.optarg, &vol_switch_samples, &vol_switch_bytes,
+			    &switch_time);
+	    if (sts < 0) {
+		pmprintf("%s: illegal size argument '%s' for volume size\n", 
+			pmGetProgname(), opts.optarg);
 		opts.errors++;
 	    }
+	    if (switch_time.tv_sec != -1 && switch_time.tv_usec != -1)
+		vol_switch_time = pmtimevalToReal(&switch_time);
+	    else
+		vol_switch_time = -1;
 	    break;
 
 	case 'w':	/* ignore day/month/year */
@@ -2597,6 +2607,9 @@ writerlist(inarch_t *iap, rlist_t **rlready, __pmTimestamp *mintime)
     __int32_t		*pb;		/* pdu buffer */
     __uint64_t		max_offset;
     unsigned long	peek_offset;
+    int			vol_switch;
+    __pmTimestamp	stamp;
+    static __pmTimestamp	vol_start_stamp;
 
     max_offset = (outarchvers == PM_LOG_VERS02) ? 0x7fffffff : LONGLONG_MAX;
 
@@ -2620,7 +2633,7 @@ writerlist(inarch_t *iap, rlist_t **rlready, __pmTimestamp *mintime)
 	 */
 	if (first_datarec) {
 	    first_datarec = 0;
-	    logctl.label.start = elm->res->timestamp;
+	    vol_start_stamp = logctl.label.start = elm->res->timestamp;
             logctl.state = PM_LOG_STATE_INIT;
             writelabel_data();
         }
@@ -2650,16 +2663,13 @@ writerlist(inarch_t *iap, rlist_t **rlready, __pmTimestamp *mintime)
 	}
 
         /* switch volumes if required */
-        if (varg > 0) {
-            if (written > 0 && (written % varg) == 0) {
-		__pmTimestamp	stamp;
-		if (outarchvers == PM_LOG_VERS03)
-		    __pmLoadTimestamp(&pb[3], &stamp);
-		else
-		    __pmLoadTimeval(&pb[3], &stamp);
-                newvolume(outarchname, &stamp);
-	    }
-        }
+	vol_switch = 0;
+        if (vol_switch_samples > 0 && written > 0
+	    && (written % vol_switch_samples) == 0) {
+	    vol_switch = 1;
+	    if (pmDebugOptions.appl5)
+		fprintf(stderr, "vol switch record count %d\n", written);
+	}
 	/*
 	 * Even without a -v option, we may need to switch volumes
 	 * if the data file exceeds 2^31-1 bytes (for v2 archives)
@@ -2667,13 +2677,29 @@ writerlist(inarch_t *iap, rlist_t **rlready, __pmTimestamp *mintime)
 	 */
 	peek_offset = __pmFtell(archctl.ac_mfp);
 	peek_offset += ((__pmPDUHdr *)pb)->len - sizeof(__pmPDUHdr) + 2*sizeof(int);
-	if (peek_offset > max_offset) {
-	    __pmTimestamp	stamp;
-	    if (outarchvers == PM_LOG_VERS03)
-		__pmLoadTimestamp(&pb[3], &stamp);
-	    else
-		__pmLoadTimeval(&pb[3], &stamp);
+	if ((vol_switch_bytes > 0 && peek_offset > vol_switch_bytes)
+	    || peek_offset > max_offset) {
+	    vol_switch = 1;
+	    if (pmDebugOptions.appl5)
+		fprintf(stderr, "vol switch volume size %ld now, next record %d bytes\n", 
+		    __pmFtell(archctl.ac_mfp),
+		    (int)(((__pmPDUHdr *)pb)->len - sizeof(__pmPDUHdr) + 2*sizeof(int)));
+	}
+	if (outarchvers == PM_LOG_VERS03)
+	    __pmLoadTimestamp(&pb[3], &stamp);
+	else
+	    __pmLoadTimeval(&pb[3], &stamp);
+	if (vol_switch_time > 0
+	    && __pmTimestampSub(&stamp, &vol_start_stamp) > vol_switch_time) {
+	    vol_switch = 1;
+	    if (pmDebugOptions.appl5)
+		fprintf(stderr, "vol switch volume timespan after next record %.9f sec\n", 
+		    __pmTimestampSub(&stamp, &vol_start_stamp));
+	}
+
+	if (vol_switch) {
 	    newvolume(outarchname, &stamp);
+	    vol_start_stamp = stamp;
 	}
 
 	/* write out log record */

@@ -1515,8 +1515,8 @@ if __name__ == '__main__':
     parser.add_argument(
         '-u', '--user',
         type=str,
-        default=None,
-        help='set the username to run under (default is current user)')
+        default='pcp',
+        help='set the username to run under (default is the pcp account)')
 
     args = parser.parse_args()
     if args.nosort:

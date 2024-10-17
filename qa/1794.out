@@ -17,10 +17,10 @@ Columns: ['disk.all.total', 'event.flags', 'event.missed', 'hinv.ncpu', 'kernel.
 1 and 15 minute load averages
    kernel.all.load[1 minute]  kernel.all.load[15 minute]
 0                        NaN                         NaN
-1                   0.024414                         0.0
-2                   0.020508                         0.0
-3                   0.013672                         0.0
-4                   0.012695                         0.0
+1                   SMALLNUM                         ZERONUM
+2                   SMALLNUM                         ZERONUM
+3                   SMALLNUM                         ZERONUM
+4                   SMALLNUM                         ZERONUM
 Shape: (5, 20)
 
 === pcp2arrow proc

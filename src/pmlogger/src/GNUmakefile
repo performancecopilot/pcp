@@ -19,7 +19,7 @@ include $(TOPDIR)/src/include/builddefs
 CMDTARGET = pmlogger$(EXECSUFFIX)
 
 CFILES	= pmlogger.c fetch.c util.c error.c callback.c ports.c \
-	  dopdu.c checks.c logue.c events.c pass0.c
+	  dopdu.c checks.c logue.c events.c pass0.c parsesize.c
 HFILES	= logger.h
 LFILES  = lex.l
 YFILES	= gram.y

@@ -1180,13 +1180,13 @@ Incompatible configuration file version (read v99, need v1).
              Kbyte
 00:47:01     38220
 00:47:21     38220
-00:47:41     38220
+00:47:41     36832
 00:48:01     36832
 00:48:21     36832
-00:48:41     36832
+00:48:41     38236
 00:49:01     38236
 00:49:21     38236
-00:49:41     38236
+00:49:41     37932
           m.u.free
              Kbyte
 00:48:01     36832
@@ -1194,7 +1194,7 @@ Incompatible configuration file version (read v99, need v1).
 == time alignment with archive/host
           m.u.free
              Kbyte
-00:48:00     38220
+00:48:00     36832
 00:48:02     36832
 00:48:04     36832
 00:48:06     36832

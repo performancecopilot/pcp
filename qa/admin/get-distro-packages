@@ -1,0 +1,293 @@
+#!/bin/sh
+#
+# Get/update the latest PCP packages for the current distro in
+# build/<distro>
+#
+# Copyright (c) 2024 Ken McDonell, Inc.  All Rights Reserved.
+#
+
+_usage()
+{
+    echo >&2 "Usage: $0 [options]"
+    echo >&2 
+    echo >&2 "  -n           show me, don't do it"
+    echo >&2 "  -v           verbose (debugging)"
+    exit 1
+}
+
+export LC_COLLATE=POSIX
+
+verbose=false
+very_verbose=false
+showme=false
+while getopts 'nv?' p
+do
+    case "$p"
+    in
+	n)	showme=true
+		;;
+
+	v)	if $verbose
+		then
+		    very_verbose=true
+		else
+		    verbose=true
+		fi
+		;;
+
+	?)	_usage
+		# NOTREACHED
+    esac
+done
+shift `expr $OPTIND - 1`
+[ $# -eq 0 ] || _usage
+
+status=1		# failure is the default
+if $very_verbose
+then
+    tmp=tmp
+else
+    tmp=/var/tmp/$$
+    trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+fi
+rm -f $tmp.*
+
+# Need directory where this script is located so we can find the other
+# bits and bob
+#
+home=`pwd`
+while [ "$home" != "/" ]
+do
+    [ -d "$home/build/rpm" ] && break
+    home=`cd "$home"/..; /bin/pwd`
+done
+if [ ! -d $home/build/rpm ]
+then
+    echo >&2 "Botch: no build/rpm dir above here (`pwd`)"
+    exit 1
+fi
+
+# construct <distro> from whatami output
+# vm24                6.3.1    x86_64  Ubuntu 24.04 (noble) [kernel=6.8.0 py=3.12.3 se=none]
+#                                          $4-$5
+#
+distro=`$home/qa/admin/whatami | awk '{ print $4 "-" $5 }'`
+$verbose && echo >&2 distro=$distro
+
+case $distro
+in
+    Debian-*|Ubuntu-*|MX-*)
+	    if [ ! -d $home/build/$distro ]
+	    then
+		if mkdir $home/build/$distro
+		then
+		    :
+		else
+		    echo >&2 "Botch: mkdir failed"
+		    exit
+		fi
+	    fi
+	    if cd $home/build/$distro
+	    then
+		:
+	    else
+		echo >&2 "Botch: cd failed"
+		exit
+	    fi
+	    if apt --all-versions list >$tmp.all 2>$tmp.err
+	    then
+		:
+	    else
+		cat $tmp.all $tmp.err
+		echo >&2 "Botch: apt failed to list all available packages"
+		exit
+	    fi
+	    rm -f $tmp.pkgs
+	    grep -E '^(libpcp|pcp-|pcp/|python3-pcp)' <$tmp.all \
+	    | grep -v '/now ' \
+	    | awk '{ print $1,$2 }' \
+	    | sed -e 's@/[^ ]*@@' \
+	    | sort \
+	    | uniq \
+	    | while read pkg vers
+	    do
+		echo "$pkk" >>$tmp.pkgs
+		here=`echo "${pkg}_${vers}_"*.deb`
+		case "$here"
+		in
+		    "${pkg}_${vers}_"'*.deb')
+			if $showme
+			then
+			    echo + apt-get download "${pkg}=${vers}"
+			else
+			    if apt-get download "${pkg}=${vers}"
+			    then
+				:
+			    else
+				echo >&2 "Botch: apt-get failed to download ${pkg}=${vers}"
+				exit
+			    fi
+			fi
+			;;
+		    *\ *)
+			echo "Botch"
+			;;
+		    *)
+			$verbose && echo >&2 "${pkg} already downloaded"
+			;;
+		esac
+	    done
+	    if [ -s $tmp.pkgs ]
+	    then
+		$verbose && echo >&2 "`wc -l <$tmp.pkgs | sed -e 's/ //g'` PCP packages from distro $distro"
+	    else
+		echo >&2 "Warning: no PCP packages known to apt-get"
+	    fi
+	    ;;
+
+    Fedora-*|RHEL-8.*|CentOS-Linux7.*)
+	    if [ ! -d $home/build/$distro ]
+	    then
+		if mkdir $home/build/$distro
+		then
+		    :
+		else
+		    echo >&2 "Botch: mkdir failed"
+		    exit
+		fi
+	    fi
+	    if cd $home/build/$distro
+	    then
+		:
+	    else
+		echo >&2 "Botch: cd failed"
+		exit
+	    fi
+	    if sudo dnf --cacheonly --quiet --latest-limit=1 repoquery >$tmp.all 2>$tmp.err
+	    then
+		:
+	    else
+		cat $tmp.all $tmp.err
+		echo >&2 "Botch: dnf failed to list all available packages"
+		exit
+	    fi
+	    distrover=`sed -n <$tmp.all -e '/^pcp-[0-9]/{
+s/-[0-9][0-9]*:/-/
+s/^pcp-//
+s/-.*//
+p
+}'`
+	    $verbose && echo >&2 "distrover=$distrover"
+
+	    rm -f $tmp.pkgs
+	    grep -E '^(pcp-|python.-pcp-|perl-PCP-)' <$tmp.all \
+	    | while read line
+	    do
+		# remove <digit>: before real version number,
+		# e.g. pcp-0:5.3.7-22.el8_10.x86_64
+		#
+		line=`echo "$line" | sed -e 's/-[0-9][0-9]*:/-/'`
+		# only get ones that match our architecture
+		#
+		arch=`echo "$line" | awk -F. '{print $NF}'`
+		case "$arch"
+		in
+		    noarch)	;;
+		    `uname -m`)	;;
+		    *)		$verbose && echo >&2 "$line skip, wrong arch"
+				continue
+		    		;;
+		esac
+		# if it is not $distrover, we're not interested
+		# (RHEL keep older versions for some reason, e.g. when
+		# distrover=5.3.7, dnf reports the that pcp-manager-5.1.1
+		# is available for RHEL-8
+		#
+		if echo "$line" | grep -q ".-$distrover-"
+		then
+		    :
+		else
+		    $verbose && echo >&2 "$line skip, not latest distro version of PCP"
+		    continue
+		fi
+		# and pcp-testsuite from the distro is never interesting,
+		# plus it may drag in dependencies that defeat the blacklisting
+		# described below
+		#
+		if echo "$line" | grep -q "^pcp-testsuite-"
+		then
+		    :
+		else
+		    $verbose && echo >&2 "$line skip, pcp-testsuite package"
+		    continue
+		fi
+		
+		# blacklisted packages ... there are some packages (rarely)
+		# that are created in the distro build, but cannot be upgraded
+		# from a developer build, probably because we can't satisfy
+		# some pre-condition for our build, e.g. a required package
+		# cannot be installed from the distro's "upgrade" repo 
+		#
+		case "$distro"
+		in
+		    RHEL-8.*)
+			case "$line"
+			in
+			    pcp-pmda-statsd-*)
+				# chan-devel and HdrHistogram_c-devel rpms are
+				# not availabe for RHEL-8
+				$verbose && echo >&2 "$line skip, upgrade blacklisted for $distro"
+				continue
+				;;
+			esac
+			;;
+		esac
+		echo "$line" >>$tmp.pkgs
+		if [ -f "$line.rpm" ]
+		then
+		    $verbose && echo >&2 "$line already downloaded"
+		    continue
+		fi
+		# handle upgrades, e.g.
+		# pcp-5.3.7-20.el8_10.x86_64.rpm -> pcp-5.3.7-22.el8_10.x86_64.rpm
+		#           ^^                                ^^
+		pat=`echo "$line.rpm" | sed -e 's/-[0-9][0-9]*\(.[^-]*\)$/-*\1/'`
+		if [ -f "`echo $pat`" ]
+		then
+		    $verbose && echo >&2 "remove old `echo $pat`"
+		    if $showme
+		    then
+			echo "+ sudo rm `echo $pat`"
+		    else
+			sudo rm `echo $pat`
+		    fi
+		fi
+		pkg=`echo "$line" | sed -e 's/-[0-9][0-9]*:.*//'`
+		if $showme
+		then
+		    echo "+ sudo dnf download $pkg"
+		else
+		    if sudo dnf download "$pkg"
+		    then
+			sudo chown $USER "$pkg.rpm"
+		    else
+		    echo >&2 "Botch: dnf failed to download $pkg"
+			exit
+		    fi
+		fi
+	    done
+	    if [ -s $tmp.pkgs ]
+	    then
+		$verbose && echo >&2 "`wc -l <$tmp.pkgs | sed -e 's/ //g'` PCP packages from distro $distro"
+	    else
+		echo >&2 "Warning: no PCP packages known to dnf"
+	    fi
+	    ;;
+
+    *)
+	    echo "Oops, no recipe for distro $distro as yet"
+	    exit
+	    ;;
+esac
+
+status=0
