@@ -1,5 +1,7 @@
 /usr/bin/pmie       --      gen_context(system_u:object_r:pcp_pmie_exec_t,s0)
+/usr/bin/pmiectl    --      gen_context(system_u:object_r:pcp_pmie_exec_t,s0)
 /usr/bin/pmlogger   --      gen_context(system_u:object_r:pcp_pmlogger_exec_t,s0)
+/usr/bin/pmlogctl   --      gen_context(system_u:object_r:pcp_pmlogger_exec_t,s0)
 
 /usr/libexec/pcp/bin/pmcd	--	gen_context(system_u:object_r:pcp_pmcd_exec_t,s0)
 /usr/libexec/pcp/bin/pmproxy    --      gen_context(system_u:object_r:pcp_pmproxy_exec_t,s0)
