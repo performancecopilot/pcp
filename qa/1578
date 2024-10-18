@@ -1,0 +1,86 @@
+#!/bin/sh
+# PCP QA Test No. 1578
+# pmlogcheck with archive ... extension (more than one archive)
+#
+# non-valgrind variant, see qa/1579 for the valgrind variant
+#
+# Copyright (c) 2024 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+$sudo rm -rf $tmp $tmp.* $seq.full
+
+do_valgrind=false
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+    do_valgrind=true
+elif which valgrind >/dev/null 2>&1
+then
+    [ "$PCPQA_VALGRIND" = both ] || \
+        _notrun "valgrind variant qa/1579 will be run"
+fi
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+    # end
+}
+
+# real QA test starts here
+
+echo "lots of archive base names ..."
+if $do_valgrind
+then
+    _run_valgrind pmlogcheck -w -v archives/all-ubuntu.22.04 archives/moomba.client archives/kenj-pc-2 archives/omnibus_v2 archives/omnibus_v3 archives/ok-mv-foo archives/small
+else
+    pmlogcheck -w -v archives/all-ubuntu.22.04 archives/moomba.client archives/kenj-pc-2 archives/omnibus_v2 archives/omnibus_v3 archives/ok-mv-foo archives/small 2>&1
+fi \
+| _filter
+
+echo
+echo "lots of .meta names"
+if $do_valgrind
+then
+    _run_valgrind pmlogcheck -w -v archives/all-ubuntu.22.04.meta* archives/moomba.client.meta* archives/kenj-pc-2.meta* archives/omnibus_v2.meta* archives/omnibus_v3.meta* archives/ok-mv-foo.meta* archives/small.meta*
+else
+    pmlogcheck -w -v archives/all-ubuntu.22.04.meta* archives/moomba.client.meta* archives/kenj-pc-2.meta* archives/omnibus_v2.meta* archives/omnibus_v3.meta* archives/ok-mv-foo.meta* archives/small.meta* 2>&1
+fi \
+| _filter
+
+echo
+echo "lots of names for the same base names ..."
+if $do_valgrind
+then
+    _run_valgrind pmlogcheck -w -v archives/all-ubuntu.22.04.* archives/ok-mv-foo.*
+else
+    pmlogcheck -w -v archives/all-ubuntu.22.04.* archives/ok-mv-foo.*
+fi \
+| _filter
+
+# success, all done
+exit
