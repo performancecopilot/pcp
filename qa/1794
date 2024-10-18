@@ -28,6 +28,8 @@ _filter()
 {
     sed \
 	-e "s@$tmp@TMP@g" \
+	-e "s@0.0[0-9][0-9]*@SMALLNUM@g" \
+	-e "s@0.0@ZERONUM@g" \
     # end
 }
 
@@ -51,7 +53,7 @@ if (len(df.columns) < 42):
 else:
     print('Columns:', len(df.columns))
 print('Shape:', df.shape)
-"
+" | _filter
 done
 
 # success, all done
