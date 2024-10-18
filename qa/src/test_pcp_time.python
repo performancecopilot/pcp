@@ -45,12 +45,13 @@ print("pmWhichZone:  %s" % str(context.pmWhichZone()))
 # https://bugzilla.redhat.com/show_bug.cgi?id=1352465
 print("pmWhichZone:  %s" % str(context.pmWhichZone()))
 
+sample_time_f += 0.5	# sub-second component
+
 timevali = pmapi.timeval(sample_time_i)
 timevalf = pmapi.timeval(sample_time_f)
 print("timeval from int:    %s" % timevali)
 print("timeval from float:  %s" % timevalf)
 
-sample_time_f += 0.5	# sub-second component
 timespeci = pmapi.timespec(sample_time_i)
 timespecf = pmapi.timespec(sample_time_f)
 print("timespec from int:    %s" % timespeci)
