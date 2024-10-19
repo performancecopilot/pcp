@@ -118,7 +118,7 @@ filter(const_dirent *dp)
     if (vflag > 2)
 	fprintf(stderr, "d_name=\"%s\"? ", dp->d_name);
 
-    if (dp->d_name[len] != '.') {
+    if (strlen(dp->d_name) < len+1 || dp->d_name[len] != '.') {
 	if (vflag > 2)
 	    fprintf(stderr, "no (not expected extension after basename)\n");
 	return 0;
