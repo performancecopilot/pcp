@@ -12,7 +12,7 @@ rm -f $tmp.*
 trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 
 cat <<End-of-File >>$tmp.config
-log advisory on once{
+log advisory on 10 seconds{
         kernel.uname.sysname
         kernel.uname.release
         kernel.uname.nodename
@@ -27,7 +27,7 @@ End-of-File
 
 rm -f pcp-buddyinfo.0  pcp-buddyinfo.index  pcp-buddyinfo.meta pcp-buddyinfo.*
 
-if pmlogger -s 5 -c $tmp.config pcp-buddyinfo; then
+if pmlogger -s 10 -c $tmp.config pcp-buddyinfo; then
         xz pcp-buddyinfo.0
         xz pcp-buddyinfo.index
         xz pcp-buddyinfo.meta

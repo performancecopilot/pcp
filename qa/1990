@@ -38,5 +38,8 @@ pcp $archive_first buddyinfo
 echo && echo pcp-buddyinfo output : Display output when given specified number of samples
 pcp $archive_first buddyinfo -s 3
 
+echo && echo pcp-buddyinfo output : Display output with interpolation disabled
+pcp $archive_first buddyinfo -u
+
 status=0
 exit
