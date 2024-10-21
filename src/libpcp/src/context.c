@@ -416,22 +416,50 @@ __pmCheckAttribute(__pmAttrKey attr, const char *name)
 		continue;
 	    return -EINVAL;
 	}
+	if (p == name)
+	    return -EINVAL;
+	break;
+
+    case PCP_ATTR_USERNAME:
+	/*
+	 * Check for POSIX user names - alphabetics, digits, period,
+	 * underscore, and hyphen, with the further restriction that
+	 * hyphen is not allowed as first character of a user name.
+	 */
+	if (name[0] == '-' || name[0] == '\0')
+	    return -EINVAL;
+	for (p = name; *p; p++) {
+	    if (isalnum(*p) || *p == '.' || *p == '-' || *p == '_')
+		continue;
+	    return -EINVAL;
+	}
+	break;
+
+    case PCP_ATTR_USERID:
+    case PCP_ATTR_GROUPID:
+    case PCP_ATTR_PROCESSID:
+	/*
+	 * PID, UID or GID must contain numeric characters only.
+	 */
+	for (p = name; *p; p++) {
+	    if (isdigit(*p))
+		continue;
+	    return -EINVAL;
+	}
+	if (p == name)
+	    return -EINVAL;
 	break;
 
     case PCP_ATTR_PROTOCOL:
     case PCP_ATTR_SECURE:
     case PCP_ATTR_COMPRESS:
     case PCP_ATTR_USERAUTH:
-    case PCP_ATTR_USERNAME:
     case PCP_ATTR_AUTHNAME:
     case PCP_ATTR_PASSWORD:
     case PCP_ATTR_METHOD:
     case PCP_ATTR_REALM:
     case PCP_ATTR_UNIXSOCK:
-    case PCP_ATTR_USERID:
-    case PCP_ATTR_GROUPID:
     case PCP_ATTR_LOCAL:
-    case PCP_ATTR_PROCESSID:
     case PCP_ATTR_EXCLUSIVE:
 	break;
 

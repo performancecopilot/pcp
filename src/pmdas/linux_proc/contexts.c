@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2013,2015,2017 Red Hat.
- * 
+ * Copyright (c) 2013,2015,2017,2024 Red Hat.
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -15,8 +15,12 @@
 #include "pmapi.h"
 #include "pmda.h"
 #include "contexts.h"
+#include <ctype.h>
+#include <pwd.h>
 
+static char **ctxusers;
 static proc_perctx_t *ctxtab;
+static int ctx_passwd_mapped;
 static int num_ctx;
 static uid_t baseuid;
 static gid_t basegid;
@@ -68,6 +72,40 @@ proc_ctx_set_userid(int ctx, const char *value)
     ctxtab[ctx].state |= (CTX_ACTIVE | CTX_USERID);
 }
 
+static int
+proc_ctx_allow_username(const char *value)
+{
+   char *username;
+
+   if (!ctxusers)
+	return 0; /* no allowed usernames, denied */
+    for (username = *ctxusers; username; username++)
+	if (strcmp(username, value) == 0)
+	    return 1;
+    return 0; /* user not in allowed list, denied */
+}
+
+static void
+proc_ctx_set_username(int ctx, const char *value)
+{
+    if (ctx_passwd_mapped) {
+	struct passwd *entry = getpwnam(value);
+	if (!entry)
+	    return; /* no such user, denied */
+	if (!proc_ctx_allow_username(value))
+	    return; /* not allowed, denied */
+	proc_ctx_growtab(ctx);
+	ctxtab[ctx].uid = entry->pw_uid;
+	ctxtab[ctx].gid = entry->pw_gid;
+	ctxtab[ctx].state |= (CTX_ACTIVE | CTX_USERID | CTX_GROUPID);
+    } else {
+	if (!proc_ctx_allow_username(value))
+	    return; /* not allowed, denied */
+	proc_ctx_growtab(ctx);
+	ctxtab[ctx].state |= (CTX_ACTIVE | CTX_USERNAME);
+    }
+}
+
 static void
 proc_ctx_set_groupid(int ctx, const char *value)
 {
@@ -112,6 +150,9 @@ proc_ctx_attrs(int ctx, int attr, const char *value, int length, pmdaExt *pmda)
     case PMDA_ATTR_GROUPID:
 	proc_ctx_set_groupid(ctx, value);
 	break;
+    case PMDA_ATTR_USERNAME:
+	proc_ctx_set_username(ctx, value);
+	break;
     case PMDA_ATTR_CONTAINER:
 	proc_ctx_set_container(ctx, value, length);
 	break;
@@ -121,11 +162,110 @@ proc_ctx_attrs(int ctx, int attr, const char *value, int length, pmdaExt *pmda)
     return 0;
 }
 
-void
-proc_ctx_init(void)
+static char *
+proc_ctx_add_username(char *value)
 {
+    size_t length, count, bytes = strlen(value);
+    char **p = NULL, **q;
+
+    if (!bytes)
+	return value;
+
+    if (!ctxusers)
+	count = 1;
+    else
+	for (count = 1, p = ctxusers; *p; p++)
+	    count++;
+
+    length = (count + 1) * sizeof(char *);
+    if ((q = realloc(ctxusers, length)) == NULL) {
+	pmNoMem("proc_ctx_add_username table", length, PM_RECOV_ERR);
+	return value + bytes;
+    }
+
+    if (ctxusers)
+	p = q + (p - ctxusers);
+    else
+	p = q;
+
+    if ((*p = strndup(value, bytes)) == NULL) {
+	pmNoMem("proc_ctx_add_username value", bytes, PM_RECOV_ERR);
+	free(q);
+    } else {
+	*(++p) = NULL; /* sentinel */
+	ctxusers = q;
+    }
+    return value + bytes;
+}
+
+static char *
+proc_ctx_read_allowed(char *value)
+{
+    char *token, *p = value;
+
+    if ((token = strchr(p, '#')) != NULL)
+	*token = '\0';
+    /* extract list of user names and append to table */
+    while ((token = strsep(&p, " ,\n")) != NULL)
+	proc_ctx_add_username(token);
+    return p;
+}
+
+static char *
+proc_ctx_read_mapped(char *value)
+{
+    char *token, *p = value;
+
+    if ((token = strchr(p, '#')) != NULL)
+	*token = '\0';
+    /* extract boolean setting: getpwnam users or not */
+    while ((token = strsep(&p, " \n")) != NULL)
+	if (strcmp(token, "1") == 0 || strcmp(token, "true") == 0)
+	    ctx_passwd_mapped = 1;
+    return p;
+}
+
+static void
+proc_ctx_config_read(void)
+{
+    char        filename[MAXPATHLEN], buffer[128], *p;
+    FILE        *file;
+    int         skip = 0;
+
+    pmsprintf(filename, sizeof(filename), "%s/proc/access.conf",
+			pmGetConfig("PCP_SYSCONF_DIR"));
+    if ((file = fopen(filename, "r")) != NULL) {
+	while (fgets(buffer, sizeof(buffer), file)) {
+	    for (p = buffer; *p; p++) {
+		if (*p == '#')              /* skip over comments */
+		    skip = 1;
+		else if (*p == '\n')        /* finish the comment */
+		    skip = 0;
+		if (skip || isspace(*p))
+		    continue;
+		if (strncmp(buffer, "mapped:", 7) == 0)
+		    p = proc_ctx_read_mapped(p + 8);
+		else if (strncmp(buffer, "allowed:", 8) == 0)
+		    p = proc_ctx_read_allowed(p + 9);
+		if (!p) {
+		    skip = 0;
+		    break;
+		}
+	    }
+	}
+	fclose(file);
+    }
+}
+
+void
+proc_context_init(void)
+{
+    /* UID and GID of the PMDA process (typically 'root' or 'pcp') */
     baseuid = getuid();
     basegid = getgid();
+
+    /* parse configuration file; setup ctxusers, ctx_passwd_mapped */
+    proc_ctx_config_read();
 }
 
 int
@@ -159,7 +299,7 @@ proc_ctx_access(int ctx)
     if (pp->state & CTX_GROUPID) {
 	accessible++;
 	if (basegid != pp->gid) {
-	    if (setresgid(pp->gid,pp->gid,-1) < 0) {
+	    if (setresgid(pp->gid, pp->gid, -1) < 0) {
 		pmNotifyErr(LOG_ERR, "set*gid(%d) access failed: %s\n",
 			      pp->gid, osstrerror());
 		accessible--;
@@ -169,13 +309,15 @@ proc_ctx_access(int ctx)
     if (pp->state & CTX_USERID) {
 	accessible++;
 	if (baseuid != pp->uid) {
-	    if (setresuid(pp->uid,pp->uid,-1) < 0) {
+	    if (setresuid(pp->uid, pp->uid, -1) < 0) {
 		pmNotifyErr(LOG_ERR, "set*uid(%d) access failed: %s\n",
 			      pp->uid, osstrerror());
 		accessible--;
 	    }
 	}
     }
+    if (pp->state & CTX_USERNAME)
+	return 1;
     return (accessible > 1);
 }
 
@@ -191,12 +333,12 @@ proc_ctx_revert(int ctx)
 	return 0;
 
     if ((pp->state & CTX_USERID) && baseuid != pp->uid) {
-	if (setresuid(baseuid,baseuid,-1) < 0)
+	if (setresuid(baseuid, baseuid, -1) < 0)
 	    pmNotifyErr(LOG_ERR, "set*uid(%d) revert failed: %s\n",
 			  baseuid, osstrerror());
     }
     if ((pp->state & CTX_GROUPID) && basegid != pp->gid) {
-	if (setresgid(basegid,basegid,-1) < 0)
+	if (setresgid(basegid, basegid, -1) < 0)
 	    pmNotifyErr(LOG_ERR, "set*gid(%d) revert failed: %s\n",
 			  basegid, osstrerror());
     }

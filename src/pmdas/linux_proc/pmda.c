@@ -3979,7 +3979,7 @@ proc_init(pmdaInterface *dp)
     hotproc_init();
     init_hotproc_pid(&hotproc_pid);
 
-    proc_ctx_init();
+    proc_context_init();
     proc_dynamic_init(metrictab, nmetrics);
 
     indomtab[ACCT_INDOM].it_indom = ACCT_INDOM;
