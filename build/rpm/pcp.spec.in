@@ -2749,9 +2749,11 @@ for PMDA in $needinstall ; do
 done
 # auto-enable these usually optional pmie rules
 %{run_pmieconf "$PCP_PMIECONFIG_DIR" config.default dmthin}
+# managed via /usr/lib/systemd/system-preset/90-default.preset nowadays:
+%if 0%{?rhel} > 0 && 0%{?rhel} < 10
 %if "@enable_systemd@" == "true"
-    systemctl restart pcp-reboot-init pmcd pmlogger pmie >/dev/null 2>&1
-    systemctl enable pcp-reboot-init pmcd pmlogger pmie >/dev/null 2>&1
+    systemctl restart pmcd pmlogger pmie >/dev/null 2>&1
+    systemctl enable pmcd pmlogger pmie >/dev/null 2>&1
 %else
     /sbin/chkconfig --add pmcd >/dev/null 2>&1
     /sbin/chkconfig --add pmlogger >/dev/null 2>&1
@@ -2759,6 +2761,11 @@ done
     /sbin/service pmcd condrestart
     /sbin/service pmlogger condrestart
     /sbin/service pmie condrestart
+%endif
+%endif
+%if "@enable_systemd@" == "true"
+    systemctl restart pcp-reboot-init >/dev/null 2>&1
+    systemctl enable pcp-reboot-init >/dev/null 2>&1
 %endif
 
 %if "@pmda_systemd@" == "true"
