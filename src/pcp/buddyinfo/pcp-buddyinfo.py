@@ -22,11 +22,11 @@ import time
 from pcp import pmapi, pmcc
 from cpmapi import PM_CONTEXT_ARCHIVE, PM_MODE_FORW
 
-SYS_MECTRICS= ["kernel.uname.sysname","kernel.uname.release",
+SYS_METRICS= ["kernel.uname.sysname","kernel.uname.release",
                "kernel.uname.nodename","kernel.uname.machine","hinv.ncpu"]
 BUDDYSTAT_METRICS = ["mem.buddyinfo.pages","mem.buddyinfo.total"]
 
-ALL_METRICS = BUDDYSTAT_METRICS + SYS_MECTRICS
+ALL_METRICS = BUDDYSTAT_METRICS + SYS_METRICS
 
 def adjust_length(name,size):
     return name.ljust(size)
