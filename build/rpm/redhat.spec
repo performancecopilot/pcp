@@ -2893,6 +2893,7 @@ semodule -r pcpqa >/dev/null 2>&1 || true
 %selinux_relabel_post -s targeted
 %endif
 chown -R pcpqa:pcpqa %{_testsdir} 2>/dev/null
+%{install_file "$PCP_PMDAS_DIR/sample" .NeedInstall}
 %if 0%{?rhel}
 %if !%{disable_systemd}
     systemctl restart pcp-reboot-init pmcd pmlogger >/dev/null 2>&1
