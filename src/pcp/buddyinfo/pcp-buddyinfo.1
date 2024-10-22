@@ -17,13 +17,12 @@
 .\"
 .TH PCP-BUDDYINFO 1 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pcp-buddyinfo\f3 \- Report statistics for buddy algorithm shown in /proc/buddyinfo
+\f3pcp-buddyinfo\f3 \- report Linux kernel buddy algorithm statistics
 .SH SYNOPSIS
 \f3pcp\f1
 [\f2pcp\ options\f1]
 \f3buddyinfo\f1
-[\f3\-Vz?\f1]
-[\f3\-u?\f1]
+[\f3\-uVz?\f1]
 [\f3\-s\f1 \f2samples\f1]
 [\f3\-a\f1 \f2archive\f1]
 [\f3\-Z\f1 \f2timezone\f1]
@@ -31,13 +30,14 @@
 The
 .B pcp-buddyinfo
 command is used for viewing different stats related to buddyinfo.
-It helps users analyze useful information related to the buddy algorithm.
-The information includes the total number of zones that are currently active,
-order pages etc.
+It helps users analyze the dynamic behaviour of the buddy algorithm
+used in the Linux kernel virtual memory subsystem.
+The information includes the total number of zones that are currently
+active, counts of different order pages, and so on.
 By default,
 .B pcp-buddyinfo
 reports live data for the local host.
-
+.PP
 The statistics shown are as follows:
 
 .TS
@@ -67,16 +67,28 @@ The DMA row references the first 16 MB on a system, the HighMem row references a
 .SH OPTIONS
 .TP
 \fB\-a\fR \fIfile\fR, \fB\-\-archive\fR=\fIfile\fR
-Fetch /proc/buddyinfo metrics for the specified archive file
+Fetch buddyinfo metrics from the specified PCP archive.
 .TP
 \fB\-s\fR \fIcount\fR, \fB\-\-samples\fR=\fIcount\fR
-Get the buddyinfo statistics for specified number of samples \fIcount\fR
+Limit reporting to \fIcount\fR samples of buddyinfo statistics.
 .TP
-.TP
-\fB\-u\fR , \fB\-\-no-interpolation\fR
-disable interpolation mode with archives, With the -u option, uninterpolated reporting is enabled - every value is reported according to  the
-native  recording  interval  in  the  set  of  archives.  When the -u option is specified, the -t option makes no sense and is incompatible because the replay interval is always the same as the
-recording interval in the set of archive.  In addition, -u only makes sense when replaying archives, see the -a option on PCPIntro(1), and so if -u is specified then -a must also be specified.
+\fB\-u\fR, \fB\-\-no-interpol\fR
+disable the default interpolation mode when replaying an archive.
+With the
+.B \-u
+option, interpolated reporting is disabled and each sample is
+reported according to native sampling intervals in the archive.
+In this mode the
+.B \-t
+option is ignored.
+Additionally, non-interpolated replay makes sense only when
+replaying an archive (using the
+.B \-a
+option described above), so the
+.B \-a
+option is mandatory when
+.B \-u
+is specified.
 .TP
 \fB\-z\fR, \fB\-\-hostzone\fR
 Use the local timezone of the host that is the source of the
@@ -104,22 +116,23 @@ Display version number and exit.
 Display usage message and exit.
 .SH NOTES
 .B pcp-buddyinfo
-collects information from \fI/proc/buddyinfo\fP Linux kernel file.
-
-In no interpolation mode it might be possible that some metrics which are recorded at differnt rate might be shown as 
-.B unknown
-value for a 
-.BR pmlogextract(1)
-archive file.
+reports information extracted from the \fI/proc/buddyinfo\fP Linux
+kernel procfs file.
+.PP
+If the default interpolation mode is disabled, it is possible that
+some metrics (recorded at different intervals) will be reported as
+having missing values for some samples even if they were recorded.
 .SH PCP ENVIRONMENT
 Environment variables with the prefix \fBPCP_\fP are used to parameterize the file and directory names used by PCP. On each installation, the file \fI/etc/pcp.conf\fP contains the local values for these variables. The \fB$PCP_CONF\fP variable may be used to specify an alternative configuration file, as described in \fBpcp.conf\fP(5).
 .PP
 For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
 .SH SEE ALSO
-.BR PCPIntro(1),
-.BR pcp(1),
-.BR pmParseInterval(3),
-.BR environ(7).
+.BR PCPIntro (1),
+.BR pcp (1),
+.BR pmGetOptions (3),
+.BR pcp.conf (5)
+and
+.BR environ (7).
 
 .\" control lines for scripts/man-spell
 .\" +ok+ PAGE_SIZE buddyinfo {from pcp-buddyinfo} HighMem
