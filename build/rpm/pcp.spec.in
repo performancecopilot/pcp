@@ -2763,10 +2763,6 @@ done
     /sbin/service pmie condrestart
 %endif
 %endif
-%if "@enable_systemd@" == "true"
-    systemctl restart pcp-reboot-init >/dev/null 2>&1
-    systemctl enable pcp-reboot-init >/dev/null 2>&1
-%endif
 
 %if "@pmda_systemd@" == "true"
 %preun pmda-systemd
@@ -3084,6 +3080,8 @@ PCP_SA_DIR=@pcp_sa_dir@
 %if "@enable_systemd@" == "true"
     # clean up any stale symlinks for deprecated pm*-poll services
     rm -f %{_sysconfdir}/systemd/system/pm*.requires/pm*-poll.* >/dev/null 2>&1 || true
+    systemctl restart pcp-reboot-init >/dev/null 2>&1
+    systemctl enable pcp-reboot-init >/dev/null 2>&1
 
     %systemd_postun_with_restart pmcd.service
     %systemd_post pmcd.service

@@ -3239,10 +3239,6 @@ done
     /sbin/service pmie condrestart
 %endif
 %endif
-%if !%{disable_systemd}
-    systemctl restart pcp-reboot-init >/dev/null 2>&1
-    systemctl enable pcp-reboot-init >/dev/null 2>&1
-%endif
 
 %post
 PCP_PMNS_DIR=%{_pmnsdir}
@@ -3252,6 +3248,8 @@ PCP_LOG_DIR=%{_logsdir}
 %if !%{disable_systemd}
     # clean up any stale symlinks for deprecated pm*-poll services
     rm -f %{_sysconfdir}/systemd/system/pm*.requires/pm*-poll.* >/dev/null 2>&1 || true
+    systemctl restart pcp-reboot-init >/dev/null 2>&1
+    systemctl enable pcp-reboot-init >/dev/null 2>&1
 
     %systemd_postun_with_restart pmcd.service
     %systemd_post pmcd.service
