@@ -2893,6 +2893,7 @@ semodule -r pcpqa >/dev/null 2>&1 || true
 %selinux_relabel_post -s targeted
 %endif
 chown -R pcpqa:pcpqa %{_testsdir} 2>/dev/null
+%{install_file "$PCP_PMDAS_DIR/sample" .NeedInstall}
 %if 0%{?rhel}
 %if !%{disable_systemd}
     systemctl restart pcp-reboot-init pmcd pmlogger >/dev/null 2>&1
@@ -3225,10 +3226,11 @@ for PMDA in dm nfsclient openmetrics ; do
 done
 # auto-enable these usually optional pmie rules
 %{run_pmieconf "$PCP_PMIECONFIG_DIR" config.default dmthin}
-%if 0%{?rhel} <= 9
+# managed via /usr/lib/systemd/system-preset/90-default.preset nowadays:
+%if 0%{?rhel} > 0 && 0%{?rhel} < 10
 %if !%{disable_systemd}
-    systemctl restart pcp-reboot-init pmcd pmlogger pmie >/dev/null 2>&1
-    systemctl enable pcp-reboot-init pmcd pmlogger pmie >/dev/null 2>&1
+    systemctl restart pmcd pmlogger pmie >/dev/null 2>&1
+    systemctl enable pmcd pmlogger pmie >/dev/null 2>&1
 %else
     /sbin/chkconfig --add pmcd >/dev/null 2>&1
     /sbin/chkconfig --add pmlogger >/dev/null 2>&1
@@ -3247,6 +3249,8 @@ PCP_LOG_DIR=%{_logsdir}
 %if !%{disable_systemd}
     # clean up any stale symlinks for deprecated pm*-poll services
     rm -f %{_sysconfdir}/systemd/system/pm*.requires/pm*-poll.* >/dev/null 2>&1 || true
+    systemctl restart pcp-reboot-init >/dev/null 2>&1
+    systemctl enable pcp-reboot-init >/dev/null 2>&1
 
     %systemd_postun_with_restart pmcd.service
     %systemd_post pmcd.service

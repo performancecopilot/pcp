@@ -2131,6 +2131,7 @@ pmcd.pdu
 1763 pmlogctl local
 1768 pmfind local
 1769 pmda.linux local
+1770 pmda.proc pmcd pmproxy local
 1772 pmda.amdgpu local
 1773 pmseries pmproxy libpcp_web local
 1774 pmlogctl pmlogger logutil
