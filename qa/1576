@@ -1,6 +1,7 @@
 #!/bin/sh
-# PCP QA Test No. 623
+# PCP QA Test No. 1576
 # pmlogger_daily - options from environment
+# ... xz version for compression, based on No. 623
 #
 # Copyright (c) 2018 Ken McDonell.  All Rights Reserved.
 #
@@ -15,18 +16,10 @@ echo "QA output created by $seq"
 
 if which xz >/dev/null 2>&1
 then
-    PROG=xz
-    SUFF=xz
-elif which bzip2 >/dev/null 2>&1
-then
-    PROG=bzip2
-    SUFF=bz2
-elif which gzip >/dev/null 2>&1
-then
-    PROG=gzip
-    SUFF=gz
+    PROG="xz -0 --block-size=10MiB"
+    SUFF=xst
 else
-    _notrun "cannot find a compression program!"
+    _notrun "cannot find a zstd compression program!"
 fi
 
 NEEDREWRITE=$PCP_LOG_DIR/pmlogger/.NeedRewrite
@@ -119,14 +112,14 @@ echo "simple cmd args" | tee -a $here/$seq.full
 _setup_control
 _filter $tmp.log
 _setup
-pmlogger_daily -D -f -X $PROG -x 1 -c $tmp.control -l $tmp.log >$tmp.out 2>$tmp.err
+pmlogger_daily -D -f -X "$PROG" -x 1 -c $tmp.control -l $tmp.log >$tmp.out 2>$tmp.err
 _filter $tmp.err; _filter $tmp.out; _filter $tmp.log
 _showfiles
 
 echo | tee -a $here/$seq.full
 echo "simple env vars" | tee -a $here/$seq.full
 _setup
-PCP_COMPRESS=$PROG PCP_COMPRESSAFTER=1 pmlogger_daily -D -f -c $tmp.control -l $tmp.log >$tmp.out 2>$tmp.err
+PCP_COMPRESS="$PROG" PCP_COMPRESSAFTER=1 pmlogger_daily -D -f -c $tmp.control -l $tmp.log >$tmp.out 2>$tmp.err
 _filter $tmp.err; _filter $tmp.out; _filter $tmp.log
 _showfiles
 
@@ -150,7 +143,7 @@ echo | tee -a $here/$seq.full
 echo "some warning cases" | tee -a $here/$seq.full
 _setup_control
 _setup
-PCP_COMPRESS=$PROG PCP_COMPRESSAFTER=1 PCP_COMPRESSREGEX='\.index$' pmlogger_daily -D -f -X no-such-compression-tool -x 7 -Y xyz -c $tmp.control -l $tmp.log >$tmp.out 2>$tmp.err
+PCP_COMPRESS="$PROG" PCP_COMPRESSAFTER=1 PCP_COMPRESSREGEX='\.index$' pmlogger_daily -D -f -X no-such-compression-tool -x 7 -Y xyz -c $tmp.control -l $tmp.log >$tmp.out 2>$tmp.err
 _filter $tmp.err; _filter $tmp.out; _filter $tmp.log
 _showfiles
 _setup_control "PCP_COMPRESS='$PROG'" PCP_COMPRESSAFTER=1 "PCP_COMPRESSREGEX='\.(index|meta)$'"

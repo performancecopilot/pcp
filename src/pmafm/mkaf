@@ -39,6 +39,7 @@ _strip_compress_suffix()
 	-e 's/\.gz$//' \
 	-e 's/\.Z$//' \
 	-e 's/\.z$//' \
+	-e 's/\.zst$//' \
     # end
 }
 

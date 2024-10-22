@@ -39,6 +39,7 @@ extern __pm_fops __pm_xz;
 #define	USE_BZIP2	1
 #define USE_GZIP	2
 #define USE_XZ		3
+#define USE_ZSTD	4
 
 #if HAVE_TRANSPARENT_DECOMPRESSION && HAVE_LZMA_DECOMPRESSION
 #define TRANSPARENT_XZ (&__pm_xz)
@@ -58,6 +59,7 @@ static const struct {
     { ".gz",	USE_GZIP,	NULL },
     { ".Z",	USE_GZIP,	NULL },
     { ".z",	USE_GZIP,	NULL },
+    { ".zst",	USE_ZSTD,	NULL },
 };
 static const int ncompress = sizeof(compress_ctl) / sizeof(compress_ctl[0]);
 
@@ -144,24 +146,31 @@ __pmLogBaseName(char *name)
 }
 
 static int
-popen_uncompress(const char *cmd, const char *arg, const char *fname, int fd)
+popen_uncompress(const char *cmd, int narg, char * const *arg, const char *fname, int fd)
 {
     char	buffer[4096];
-    FILE*finp;
+    FILE	*finp;
     ssize_t	bytes;
     int		sts, infd;
+    int		i;
     __pmExecCtl_t	*argp = NULL;
 
     sts = __pmProcessAddArg(&argp, cmd);
-    if (sts == 0)
-	sts = __pmProcessAddArg(&argp, arg);
+    for (i = 0; i < narg; i++) {
+	if (sts == 0)
+	    sts = __pmProcessAddArg(&argp, arg[i]);
+    }
     if (sts == 0)
 	sts = __pmProcessAddArg(&argp, fname);
     if (sts < 0)
 	return sts;
 
-    if (pmDebugOptions.log)
-	fprintf(stderr, "__pmLogOpen: uncompress using: %s %s %s\n", cmd, arg, fname);
+    if (pmDebugOptions.log) {
+	fprintf(stderr, "__pmLogOpen: uncompress using: %s", cmd);
+	for (i = 0; i < narg; i++)
+	    fprintf(stderr, " \"%s\"", arg[i]);
+	fprintf(stderr, " %s\n", fname);
+    }
 
     if ((sts = __pmProcessPipe(&argp, "r", PM_EXEC_TOSS_NONE, &finp)) < 0)
 	return sts;
@@ -244,21 +253,31 @@ fopen_compress(const char *fname, int compress_ix)
     int		sts;
     int		fd;
     char	*cmd;
-    char	*arg;
+    char	*arg[4];	/* up to 4 args */
+    int		narg;		/* # arg[] used */
     __pmFILE	*fp;
 
     /* We will need to decompress this file using an external program first. */
     if (compress_ctl[compress_ix].appl == USE_XZ) {
 	cmd = "xz";
-	arg = "-dc";
+	arg[0] = "-dc";
+	narg = 1;
     }
     else if (compress_ctl[compress_ix].appl == USE_BZIP2) {
 	cmd = "bzip2";
-	arg = "-dc";
+	arg[0] = "-dc";
+	narg = 1;
     }
     else if (compress_ctl[compress_ix].appl == USE_GZIP) {
 	cmd = "gzip";
-	arg = "-dc";
+	arg[0] = "-dc";
+	narg = 1;
+    }
+    else if (compress_ctl[compress_ix].appl == USE_ZSTD) {
+	cmd = "zstd";
+	arg[0] = "-dcq";
+	arg[1] = "--no-progress";
+	narg = 2;
     }
     else {
 	/* botch in compress_ctl[] ... should not happen */
@@ -279,7 +298,7 @@ fopen_compress(const char *fname, int compress_ix)
 	return NULL;
     }
 
-    sts = popen_uncompress(cmd, arg, fname, fd);
+    sts = popen_uncompress(cmd, narg, arg, fname, fd);
     if (sts == -1) {
 	sts = oserror();
 	if (pmDebugOptions.log) {
@@ -409,6 +428,7 @@ __pmAccess(const char *path, int amode)
 	    if (compress_ctl[compress_ix].appl == USE_BZIP2) use = "bzip2";
 	    else if (compress_ctl[compress_ix].appl == USE_GZIP) use = "gzip";
 	    else if (compress_ctl[compress_ix].appl == USE_XZ) use = "xz";
+	    else if (compress_ctl[compress_ix].appl == USE_ZSTD) use = "zstd";
 	    else use = "???";
 	    fprintf(stderr, "__pmAccess(\"%s\", \"%d\"): decompress: %s", path, amode, use);
 	    if (compress_ctl[compress_ix].handler != NULL)
@@ -458,6 +478,7 @@ __pmFopen(const char *path, const char *mode)
 	    if (compress_ctl[compress_ix].appl == USE_BZIP2) use = "bzip2";
 	    else if (compress_ctl[compress_ix].appl == USE_GZIP) use = "gzip";
 	    else if (compress_ctl[compress_ix].appl == USE_XZ) use = "xz";
+	    else if (compress_ctl[compress_ix].appl == USE_ZSTD) use = "zstd";
 	    else use = "???";
 	    fprintf(stderr, "__pmFopen(\"%s\", \"%s\"): decompress: %s", path, mode, use);
 	    if (compress_ctl[compress_ix].handler != NULL)
@@ -638,6 +659,7 @@ __pmStat(const char *path, struct stat *buf)
 	    if (compress_ctl[compress_ix].appl == USE_BZIP2) use = "bzip2";
 	    else if (compress_ctl[compress_ix].appl == USE_GZIP) use = "gzip";
 	    else if (compress_ctl[compress_ix].appl == USE_XZ) use = "xz";
+	    else if (compress_ctl[compress_ix].appl == USE_ZSTD) use = "zstd";
 	    else use = "???";
 	    fprintf(stderr, "__pmStat(\"%s\"): decompress: %s", path, use);
 	    if (compress_ctl[compress_ix].handler != NULL)

@@ -99,7 +99,7 @@ do
 	nfile=`expr $nfile + 1`
 	case $file
 	in
-	    *.xz|*.lzma|*.bz2|*.bz|*.gz|*.Z|*.z)
+	    *.xz|*.lzma|*.bz2|*.bz|*.gz|*.Z|*.z|*.zst)
 		ncompress=`expr $ncompress + 1`
 		if [ -z "$dir" ]
 		then
@@ -213,6 +213,18 @@ do
 
 	    *.Z)
 		echo >&2 TODO: $file
+		;;
+
+	    *.zst)
+		if [ -z "$dir" ]
+		then
+		    outfile=`basename "$file" .zst`
+		    _decompress unzstd --rm --quiet --no-progress "$file"
+		else
+		    outfile="$dir"/`basename "$file" .zst`
+		    _decompress unzstd --stdout --quiet --no-progress  "$file" >"$outfile"
+		fi
+		$verbose && echo >&2 "$outfile: decompressed"
 		;;
 
 	    *)	# not compressed ... do nothing unless -d, and then

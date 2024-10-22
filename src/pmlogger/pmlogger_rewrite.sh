@@ -132,7 +132,7 @@ do
 	# crude filter here ... more precise filtering later on
 	#
 	find "$try" -type f \
-	| grep -E '(\.meta|\.index|\.[0-9][0-9]*)($|(\.xz|\.lzma|\.bz2|\.bz|\.gz|\.Z|\.z)$)' >>$tmp/args
+	| grep -E '\.(meta|index|[0-9][0-9]*)($|\.(xz|lzma|bz2|bz|gz|Z|z|zst)$)' >>$tmp/args
     else
 	echo "$try" >>$tmp/args
     fi
@@ -327,6 +327,15 @@ do
 			$very_verbose && echo "changed and recompressed: $old_file"
 		    else
 			echo "Warning: no gzip(1), cannot recompress $file"
+		    fi
+		    ;;
+		*.zst)
+		    if which zstd >/dev/null 2>&1
+		    then
+			zstd --rm --quiet --no-progress "$file"
+			$very_verbose && echo "changed and recompressed: $old_file"
+		    else
+			echo "Warning: no zstd(1), cannot recompress $file"
 		    fi
 		    ;;
 		*)

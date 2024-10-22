@@ -2016,8 +2016,6 @@ pmcd.pdu
 1538 libpcp pmcd local pmcd.pdu
 1539 pmcd libpcp pmcd.pdu local
 1540 pmda.farm local valgrind
-1541:reserved suse kenj
-1542:reserved suse kenj
 1543 pmproxy local help
 1544 pmproxy python local
 1545 pcp2xml python pcp2xxx local
@@ -2025,16 +2023,6 @@ pmcd.pdu
 1547 pmrep python local
 1548 pmrep python local
 1549 pmrep python local
-1550:reserved suse kenj
-1551:reserved suse kenj
-1552:reserved suse kenj
-1553:reserved suse kenj
-1554:reserved suse kenj
-1555:reserved suse kenj
-1556:reserved suse kenj
-1557:reserved suse kenj
-1558:reserved suse kenj
-1559:reserved suse kenj
 1560 libpcp pdu local
 1561 pmcd libpcp pmcd.pdu suse local
 1562 pminfo local
@@ -2044,10 +2032,17 @@ pmcd.pdu
 1566 logutil libpcp local
 1567 pmie_util local
 1568 pmlogbasename local
-1569 pmlogcheck local
+1569:reserved pmlogcheck local
+1570 archive sanity pmlogdump local
+1571 logutil pmlogrewrite local
+1572 logutil pmlogrewrite local
 1573 pmproxy libpcp_web pmlogger local
 1574 pmseries libpcp_web local valgrind
+1575 logutil local
+1576 logutil local
 1577 pmda.bpf local
+1578 pmlogcheck local
+1579 pmlogcheck local valgrind
 1584 pmda.mongodb local
 1588 python iostat local
 1589 pcp2json pcp2xxx python local

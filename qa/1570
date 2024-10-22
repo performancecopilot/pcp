@@ -1,0 +1,25 @@
+#!/bin/sh
+# PCP QA Test No. 1570
+# Exercise compressed archive files - zstd version
+#
+# Copyright (c) 2014 Red Hat.
+# Copyright (c) 2010,2024 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.compress
+
+which zstd >/dev/null 2>&1 || _notrun No zstd binary installed
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+_prepare_compress "zstd --rm --quiet --no-progress" "unzstd --rm --quiet --no-progress" zst
+_exercise_compression
+
+status=0	# success, we're all done
+exit

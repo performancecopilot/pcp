@@ -194,6 +194,9 @@ _uncompress()
 		*.z)
 			_dest=$tmp/`basename "$_file" .z`
 			;;
+		*.zst)
+			_dest=$tmp/`basename "$_file" .zst`
+			;;
 	    esac
 	    case "$_file"
 	    in
@@ -223,6 +226,16 @@ _uncompress()
 			    :
 			else
 			    echo >&2 "Warning: zcat $_file failed"
+			    rm -f $tmp/ok
+			    break
+			fi
+			;;
+		*.zst)
+			if zstdcat "$_file" >"$_dest"
+			then
+			    :
+			else
+			    echo >&2 "Warning: zstdcat $_file failed"
 			    rm -f $tmp/ok
 			    break
 			fi

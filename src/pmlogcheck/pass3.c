@@ -415,6 +415,7 @@ pass3(__pmContext *ctxp, char *archname, pmOptions *opts)
     __pmTimestamp	label_stamp;
     __pmTimestamp	last_stamp;
     __pmTimestamp	delta_stamp;
+    __pmHashNode	*hptr;
 
     l_ctxp = ctxp;
     l_archname = archname;
@@ -511,7 +512,6 @@ pass3(__pmContext *ctxp, char *archname, pmOptions *opts)
 		 * MARK record ... make sure wrap check is not done
 		 * at next fetch (mimic interp.c from libpcp)
 		 */
-		__pmHashNode	*hptr;
 		/* walk hash list of metrics */
 		for (hptr = __pmHashWalk(&hashlist, PM_HASH_WALK_START);
 		     hptr != NULL;
@@ -544,6 +544,27 @@ pass3(__pmContext *ctxp, char *archname, pmOptions *opts)
 	fprintf(stderr, "]: pmFetch: error: %s\n", pmErrStr(sts));
 	return STS_FATAL;
     }
+
+    /*
+     * free all hash tables
+     */
+    for (hptr = __pmHashWalk(&hashlist, PM_HASH_WALK_START);
+	 hptr != NULL;
+	 hptr = __pmHashWalk(&hashlist, PM_HASH_WALK_NEXT)) {
+	if (hptr->data != NULL) {
+	    checkData		*checkdata;
+	    __pmHashNode	*hnp;
+	    checkdata = (checkData *)hptr->data;
+	    for (hnp = __pmHashWalk(&checkdata->insthash, PM_HASH_WALK_START);
+		 hnp != NULL;
+		 hnp = __pmHashWalk(&checkdata->insthash, PM_HASH_WALK_NEXT)) {
+		free(hnp->data);
+	    }
+	    __pmHashFree(&checkdata->insthash);
+	    free(hptr->data);
+	}
+    }
+    __pmHashFree(&hashlist);
 
     return STS_OK;
 }

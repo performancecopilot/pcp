@@ -12,7 +12,7 @@ __pmLogFindOpen: inspect file "./null.index"
 __pmLogFindOpen: inspect file "./null.meta"
 __pmLogOpen(..., null, ...): __pmLogChangeVol: Corrupted record in a PCP archive
 __pmLogOpen: uncompress failed, exit status: 2
-__pmLogOpen: uncompress using: bzip2 -dc ./null.0.bz2
+__pmLogOpen: uncompress using: bzip2 "-dc" ./null.0.bz2
 bzip2: Compressed file ends unexpectedly;
 bzip2: Success
 data from undamaged sections of corrupted files.
@@ -30,7 +30,7 @@ __pmLogFindOpen: inspect file "./null.index"
 __pmLogFindOpen: inspect file "./null.meta"
 __pmLogOpen(..., null, ...): __pmLogChangeVol: Corrupted record in a PCP archive
 __pmLogOpen: uncompress failed, exit status: 2
-__pmLogOpen: uncompress using: bzip2 -dc ./null.0.bz2
+__pmLogOpen: uncompress using: bzip2 "-dc" ./null.0.bz2
 bzip2: Compressed file ends unexpectedly;
 bzip2: Success
 data from undamaged sections of corrupted files.
