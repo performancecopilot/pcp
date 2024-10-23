@@ -20,13 +20,13 @@ import signal
 import sys
 import time
 from pcp import pmapi, pmcc
-from cpmapi import PM_CONTEXT_ARCHIVE
+from cpmapi import PM_CONTEXT_ARCHIVE, PM_MODE_FORW
 
-SYS_MECTRICS= ["kernel.uname.sysname","kernel.uname.release",
+SYS_METRICS= ["kernel.uname.sysname","kernel.uname.release",
                "kernel.uname.nodename","kernel.uname.machine","hinv.ncpu"]
 BUDDYSTAT_METRICS = ["mem.buddyinfo.pages","mem.buddyinfo.total"]
 
-ALL_METRICS = BUDDYSTAT_METRICS + SYS_MECTRICS
+ALL_METRICS = BUDDYSTAT_METRICS + SYS_METRICS
 
 def adjust_length(name,size):
     return name.ljust(size)
@@ -70,24 +70,33 @@ class BuddyinfoReport(pmcc.MetricGroupPrinter):
         self.group=group
         self.context=opts.context
         self.samples=opts.samples
+        self.header = "unknown"
 
     def __get_ncpu(self, group):
         return group['hinv.ncpu'].netValues[0][2]
 
     def __print_machine_info(self, context):
-        timestamp = self.group.pmLocaltime(context.timestamp.tv_sec)
-        # Please check strftime(3) for different formatting options.
-        # Also check TZ and LC_TIME environment variables for more
-        # information on how to override the default formatting of
-        # the date display in the header
-        time_string = time.strftime("%x", timestamp.struct_time())
-        header_string = ''
-        header_string += context['kernel.uname.sysname'].netValues[0][2] + '  '
-        header_string += context['kernel.uname.release'].netValues[0][2] + '  '
-        header_string += '(' + context['kernel.uname.nodename'].netValues[0][2] + ')  '
-        header_string += time_string + '  '
-        header_string += context['kernel.uname.machine'].netValues[0][2] + '  '
-        print("%s  (%s CPU)" % (header_string, self.__get_ncpu(context)))
+        if self.header == "unknown":
+            try:
+                timestamp = self.group.pmLocaltime(context.timestamp.tv_sec)
+                # Please check strftime(3) for different formatting options.
+                # Also check TZ and LC_TIME environment variables for more
+                    # information on how to override the default formatting of
+                    # the date display in the header
+                time_string = time.strftime("%x", timestamp.struct_time())
+                header_string = ''
+                header_string += context['kernel.uname.sysname'].netValues[0][2] + '  '
+                header_string += context['kernel.uname.release'].netValues[0][2] + '  '
+                header_string += '(' + context['kernel.uname.nodename'].netValues[0][2] + ')  '
+                header_string += time_string + '  '
+                header_string += context['kernel.uname.machine'].netValues[0][2] + '  '
+                self.header = header_string
+            except  IndexError:
+                pass
+        try:
+            print("%s  (%s CPU)" % (self.header, self.__get_ncpu(context)))
+        except  IndexError:
+            pass
 
     def __print_header(self,header_indentation,value_indentation):
         value_indentation+=" "*2
@@ -126,10 +135,10 @@ class BuddyinfoReport(pmcc.MetricGroupPrinter):
                 print("%s %s %s %s %s %s %s "%(timestamp,header_indentation,nodename,header_indentation,node,
                                                   header_indentation,value))
 
-    def print_report(self,group,timestamp,header_indentation,value_indentation,manager_buddyinfo):
+    def print_report(self,group,timestamp,header_indentation,value_indentation):
 
         def __print_buddy_status():
-            buddystatus = BuddyStatUtil(manager_buddyinfo)
+            buddystatus = BuddyStatUtil(group)
             if buddystatus.names():
                 try:
                     self.__print_machine_info(group)
@@ -151,19 +160,28 @@ class BuddyinfoReport(pmcc.MetricGroupPrinter):
             self.samples-=1
 
     def report(self, manager):
-        group = manager["sysinfo"]
+        group = manager["allinfo"]
         self.samples=self.opts.pmGetOptionSamples()
         t_s = group.contextCache.pmLocaltime(int(group.timestamp))
         timestamp = time.strftime(BuddyinfoOptions.timefmt, t_s.struct_time())
         header_indentation = "        " if len(timestamp) < 9 else (len(timestamp) - 7) * " "
         value_indentation = ((len(header_indentation) + 2) - len(timestamp)) * " "
-        self.print_report(group,timestamp,header_indentation,value_indentation,manager['buddyinfo'])
+        self.print_report(group,timestamp,header_indentation,value_indentation)
 
 class BuddyinfoOptions(pmapi.pmOptions):
     timefmt = "%H:%M:%S"
+    uflag = False
+
+    def extraOptions(self,opt,optarg,index):
+        if opt == 'u':
+            BuddyinfoOptions.uflag = True
+
     def __init__(self):
-        pmapi.pmOptions.__init__(self, "a:s:Z:zV?")
+        pmapi.pmOptions.__init__(self, "a:s:Z:uzV?")
         self.pmSetLongOptionHeader("General options")
+        self.pmSetOptionCallback(self.extraOptions)
+        self.pmSetLongOptionArchive()
+        self.pmSetLongOption("no-interpol", 0, "u", "", "disable interpolation mode with archives")
         self.pmSetLongOptionHostZone()
         self.pmSetLongOptionTimeZone()
         self.pmSetLongOptionHelp()
@@ -171,18 +189,33 @@ class BuddyinfoOptions(pmapi.pmOptions):
         self.pmSetLongOptionVersion()
         self.samples=None
         self.context=None
+    def checkOptions(self, manager):
+        if BuddyinfoOptions.uflag:
+            if manager._options.pmGetOptionInterval():  # pylint: disable=protected-access
+                print("Error: -t incompatible with -u")
+                return False
+            if manager.type != PM_CONTEXT_ARCHIVE:
+                print("Error: -u can only be specified with -a archive")
+                return False
+        return True
 
 if __name__ == '__main__':
     try:
         opts = BuddyinfoOptions()
         mngr = pmcc.MetricGroupManager.builder(opts,sys.argv)
         opts.context=mngr.type
+
+        if not opts.checkOptions(mngr):
+            raise pmapi.pmUsageErr
+        if BuddyinfoOptions.uflag:
+            # -u turns off interpolation
+            mngr.pmSetMode(PM_MODE_FORW, mngr._options.pmGetOptionOrigin(), 0) # pylint: disable=protected-access
+
         missing = mngr.checkMissingMetrics(ALL_METRICS)
         if missing is not None:
             sys.stderr.write('Error: not all required metrics are available\nMissing: %s\n' % (missing))
             sys.exit(1)
         mngr["buddyinfo"] = BUDDYSTAT_METRICS
-        mngr["sysinfo"] = SYS_MECTRICS
         mngr["allinfo"]=ALL_METRICS
         mngr.printer = BuddyinfoReport(opts,mngr)
         sts = mngr.run()

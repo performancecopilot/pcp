@@ -56,8 +56,11 @@ command line options follows:
 .B \-A
 Disables use of the credentials provided by
 .B PMAPI
-client tools,
-and simply runs everything under the "root" account.
+client tools and simply runs everything under the "root" account.
+Refer to the ACCESS CONFIGURATION section below for finer grained
+control when using
+.BR pmcd (1)
+with remote client authentication.
 Only enable this option if you understand the risks involved, and
 are sure that all remote accesses will be from benevolent users.
 If enabled, unauthenticated remote
@@ -263,7 +266,7 @@ predicate.
 .SH DYNAMIC CONFIGURATION
 The
 .B hot
-metrics can also be configured at runtime through the
+process metrics can also be configured at runtime through the
 .BR pmstore (1)
 interface (and, implicitly, the
 .BR pmStore (3)
@@ -275,6 +278,37 @@ Examples
 .TP
 To force the config file to be reloaded:
   pmstore hotproc.control.reload_config "1"
+.SH ACCESS CONFIGURATION
+Access to per-process metrics is controlled by several factors.
+.PP
+When using automatically authenticating local connections, such
+as through the "unix:" or "local:" style context, then client
+tools will have full access to these metrics as if sampling the
+metrics directly as the user running the client tool.
+.PP
+When using
+.B pmcd
+with remote, authenticated clients it is possible to specify a
+set of user names that are allowed access to the process metrics.
+.PP
+A configuration file
+.B $PCP_SYSCONF_DIR/proc/access.conf
+can be used to fine-tune this behaviour, and it supports two
+keywords:
+.TP
+.B allowed
+A comma-separated list of authenticated user names that will be
+allowed access to per-process metrics.
+Sampling is performed as the root user.
+.TP
+.B mapped
+A boolean value, when true indicating that authenticated user
+names will be mapped to local system user account names (this
+requires a one-to-one user name mapping between the account and
+the SASL-based authenticated user name enforced by
+.BR pmcd (1)).
+Sampling is performed as that local user.
+.PP
 .SH INSTALLATION
 The
 .B proc
@@ -338,6 +372,9 @@ simple sample hotproc configuration
 .TP 10
 .B $PCP_PMDAS_DIR/proc/hotproc.conf
 default hotproc configuration file
+.TP 10
+.B $PCP_SYSCONF_DIR/proc/access.conf
+default access control configuration file
 .PD
 .SH "PCP ENVIRONMENT"
 Environment variables with the prefix

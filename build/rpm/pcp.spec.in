@@ -2692,6 +2692,7 @@ exit 0
 
 %post testsuite
 %if "@enable_selinux@" == "true"
+PCP_PMDAS_DIR=@pcp_pmdas_dir@
 PCP_SELINUX_DIR=@pcp_selinux_dir@/packages/targeted
 semodule -r pcpqa >/dev/null 2>&1 || true
 %selinux_modules_install -s targeted "$PCP_SELINUX_DIR/pcp-testsuite.pp.bz2"
@@ -2749,9 +2750,11 @@ for PMDA in $needinstall ; do
 done
 # auto-enable these usually optional pmie rules
 %{run_pmieconf "$PCP_PMIECONFIG_DIR" config.default dmthin}
+# managed via /usr/lib/systemd/system-preset/90-default.preset nowadays:
+%if 0%{?rhel} > 0 && 0%{?rhel} < 10
 %if "@enable_systemd@" == "true"
-    systemctl restart pcp-reboot-init pmcd pmlogger pmie >/dev/null 2>&1
-    systemctl enable pcp-reboot-init pmcd pmlogger pmie >/dev/null 2>&1
+    systemctl restart pmcd pmlogger pmie >/dev/null 2>&1
+    systemctl enable pmcd pmlogger pmie >/dev/null 2>&1
 %else
     /sbin/chkconfig --add pmcd >/dev/null 2>&1
     /sbin/chkconfig --add pmlogger >/dev/null 2>&1
@@ -2759,6 +2762,7 @@ done
     /sbin/service pmcd condrestart
     /sbin/service pmlogger condrestart
     /sbin/service pmie condrestart
+%endif
 %endif
 
 %if "@pmda_systemd@" == "true"
@@ -3077,6 +3081,8 @@ PCP_SA_DIR=@pcp_sa_dir@
 %if "@enable_systemd@" == "true"
     # clean up any stale symlinks for deprecated pm*-poll services
     rm -f %{_sysconfdir}/systemd/system/pm*.requires/pm*-poll.* >/dev/null 2>&1 || true
+    systemctl restart pcp-reboot-init >/dev/null 2>&1
+    systemctl enable pcp-reboot-init >/dev/null 2>&1
 
     %systemd_postun_with_restart pmcd.service
     %systemd_post pmcd.service

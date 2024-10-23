@@ -1,17 +1,16 @@
 /*
- * Copyright (c) 2013,2015 Red Hat.
- * 
+ * Copyright (c) 2013,2015,2024 Red Hat.
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-
 #ifndef _CONTEXTS_H
 #define _CONTEXTS_H
 
@@ -25,13 +24,14 @@
  */
 
 enum {
-    CTX_INACTIVE = 0,
-    CTX_ACTIVE   = (1<<0),
-    CTX_USERID   = (1<<1),
-    CTX_GROUPID  = (1<<2),
-    CTX_THREADS  = (1<<3),
-    CTX_CGROUPS  = (1<<4),
-    CTX_CONTAINER= (1<<5),
+    CTX_INACTIVE  = 0,
+    CTX_ACTIVE    = (1<<0),
+    CTX_USERID    = (1<<1),
+    CTX_GROUPID   = (1<<2),
+    CTX_THREADS   = (1<<3),
+    CTX_CGROUPS   = (1<<4),
+    CTX_USERNAME  = (1<<5),
+    CTX_CONTAINER = (1<<6),
 };
 
 typedef struct {
@@ -49,7 +49,8 @@ typedef struct {
     proc_container_t	container;
 } proc_perctx_t;
 
-extern void proc_ctx_init(void);
+extern void proc_context_init(void);
+
 extern int proc_ctx_attrs(int, int, const char *, int, pmdaExt *);
 extern void proc_ctx_end(int);
 extern int proc_ctx_getuid(int);
