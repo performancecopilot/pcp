@@ -2887,6 +2887,7 @@ exit 0
 
 %post testsuite
 %if !%{disable_selinux}
+PCP_PMDAS_DIR=%{_pmdasdir}
 PCP_SELINUX_DIR=%{_selinuxdir}
 semodule -r pcpqa >/dev/null 2>&1 || true
 %selinux_modules_install -s targeted "$PCP_SELINUX_DIR/pcp-testsuite.pp.bz2"

@@ -2692,6 +2692,7 @@ exit 0
 
 %post testsuite
 %if "@enable_selinux@" == "true"
+PCP_PMDAS_DIR=@pcp_pmdas_dir@
 PCP_SELINUX_DIR=@pcp_selinux_dir@/packages/targeted
 semodule -r pcpqa >/dev/null 2>&1 || true
 %selinux_modules_install -s targeted "$PCP_SELINUX_DIR/pcp-testsuite.pp.bz2"
