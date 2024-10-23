@@ -2032,7 +2032,7 @@ pmcd.pdu
 1566 logutil libpcp local
 1567 pmie_util local
 1568 pmlogbasename local
-1569:reserved pmlogcheck local
+1569 pmlogcheck local
 1570 archive sanity pmlogdump local
 1571 logutil pmlogrewrite local
 1572 logutil pmlogrewrite local

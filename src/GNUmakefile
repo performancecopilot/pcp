@@ -137,6 +137,7 @@ OTHER_SUBDIRS += \
 	pmcheck \
 	indomcachectl \
 	pmlogbasename \
+	pmlogcompress \
 	#
 
 SUBDIRS = \
