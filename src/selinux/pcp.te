@@ -388,6 +388,7 @@ require {
 	type ldconfig_exec_t;
 	type mdadm_exec_t;
 	type modules_object_t; # pcp.lio, pcp.bcc
+	type mount_exec_t;
 	type named_exec_t;
 	type ndc_exec_t;
 	type ntop_port_t;
@@ -896,10 +897,14 @@ allow pcp_pmlogger_t setfiles_exec_t:file execute;
 # type=AVC msg=audit(N): avc: denied { write } for pid=PID comm="pmlogger" name="12" dev="dm-0" ino=INO scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:object_r:initrc_tmp_t:s0 tclass=dir permissive=0
 # type=AVC msg=audit(N): avc:  denied  { unlink } for  pid=PID comm="rm" name="pmlogger_check.log" dev="dm-0" ino=58981759 scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:object_r:initrc_tmp_t:s0 tclass=file permissive=0
 # type=AVC msg=audit(N): avc: denied { write } for pid=PID comm="pmlock" name="pmlogger" scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:object_r:etc_t:s0 tclass=dir permissive=0
+# type=AVC msg=audit(N): avc: denied { execute } for pid=PID comm="pmlogctl" name="mount" scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:object_r:mount_exec_t:s0 tclass=file permissive=0
+# type=AVC msg=audit(N): avc: denied { write } for pid=PID comm="pmlogctl" name="cgroup.procs" scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:object_r:cgroup_t:s0 tclass=file permissive=0
 allow pcp_pmlogger_t initrc_tmp_t:dir { add_name read write };
 allow pcp_pmlogger_t initrc_tmp_t:file { create unlink };
+allow pcp_pmlogger_t mount_exec_t:file { execute execute_no_trans };
 allow pcp_pmlogger_t etc_t:dir { add_name read remove_name write };
 allow pcp_pmlogger_t etc_t:file { create unlink write };
+allow pcp_pmlogger_t cgroup_t:file { getattr read open append write };
 
 #============= pcp_pmie_t ==============
 # type=AVC msg=audit(N): avc: denied { execute execute_no_trans getattr open read } for pid=PID comm="pmdaX" name="/" dev="tracefs" ino=INO scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:object_r:hostname_exec_t:s0 tclass=file permissive=0
@@ -927,10 +932,13 @@ allow pcp_pmie_t unconfined_t:process signal;
 # type=AVC msg=audit(N): avc: denied { write } for pid=PID comm="pmie" name="02" dev="dm-0" ino=INO scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:object_r:initrc_tmp_t:s0 tclass=dir permissive=0
 # type=AVC msg=audit(N): avc:  denied  { unlink } for  pid=PID comm="rm" name="pmie_check.log" dev="dm-0" ino=17724510 scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:object_r:initrc_tmp_t:s0 tclass=file permissive=0
 # type=AVC msg=audit(N): avc: denied { write } for pid=PID comm="pmlock" name="pmie" scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:object_r:etc_t:s0 tclass=dir permissive=0
+# type=AVC msg=audit(N): avc: denied { execute } for pid=PID comm="pmiectl" name="mount" scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:object_r:mount_exec_t:s0 tclass=file permissive=0
 allow pcp_pmie_t initrc_tmp_t:dir { add_name read write };
 allow pcp_pmie_t initrc_tmp_t:file { create unlink };
+allow pcp_pmie_t mount_exec_t:file { execute execute_no_trans };
 allow pcp_pmie_t etc_t:dir { add_name read remove_name write };
 allow pcp_pmie_t etc_t:file { create unlink write };
+allow pcp_pmie_t cgroup_t:file { getattr read open append write };
 
 #============= pmda-lio ==============
 # type=AVC msg=audit(N): avc: denied { open read search write } for  pid=PID comm="pmdaX" name="/" dev="tracefs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:configfs_t:s0 tclass=dir permissive=0
