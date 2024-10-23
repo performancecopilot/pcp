@@ -34,7 +34,7 @@ cat <<'End-of-File' >$tmp.usage
 
 Options:
   -A=ARG, --arg=ARG		argument for compression program
-  -c=PROGLIST, --command=CMDLIST	candidate compression program(s)
+  -c=PROGLIST, --command=PROGLIST	candidate compression program(s)
   -f=PROG, --use=PROG		use this compression program
   -d, --decompress		decompress files
   -l=LIMIT, --lower-limit=LIMIT	do no compress files smaller than LIMIT
@@ -49,7 +49,7 @@ Options:
 
 More than one -A option is allowed, and more than one -c option is allowed.
 
-CMD may be one command, or multiple commands separated by colons,
+PROGLIST may be one command, or multiple commands separated by colons,
 [default zstd:xz:bzip2:gzip].
 
 Compression program (without -o or -f) depends on installed programs and

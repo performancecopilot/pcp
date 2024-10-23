@@ -7,7 +7,7 @@ Usage: pmlogcompress [options] archive ...
 
 Options:
   -A ARG, --arg=ARG     argument for compression program
-  -c CMDLIST, --command=CMDLIST
+  -c PROGLIST, --command=PROGLIST
                         candidate compression program(s)
   -f PROG, --use=PROG   use this compression program
   -d, --decompress      decompress files
@@ -25,7 +25,7 @@ Options:
 
 More than one -A option is allowed, and more than one -c option is allowed.
 
-CMD may be one command, or multiple commands separated by colons,
+PROGLIST may be one command, or multiple commands separated by colons,
 [default zstd:xz:bzip2:gzip].
 
 Compression program (without -o or -f) depends on installed programs and

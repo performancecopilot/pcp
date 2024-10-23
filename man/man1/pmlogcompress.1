@@ -131,6 +131,38 @@ When compressing, do not consider files smaller than
 \fB\-N\fR, \fB\-\-show-me\fR
 Do nothing, but show what commands would have been executed.
 .TP
+\fB\-o\fR \fItype\fR, \fB\-\-optimize\fR=\fItype\fR
+When compressing the
+.B \-o
+option will try to pick the compression program from
+.I proglist
+(see the
+.B \-c
+option above)
+that does the ``best'' job, where
+.I type
+may be
+.B size
+to choose the compression program that produces the smallest
+output file, or
+.B cpu
+to choose the compression program that uses the least CPU
+time.
+.RS 5
+.PP
+Use of this option means all the
+.I archive
+files will be compressed multiple times, so it is likely
+that
+.B \-o
+would be used in experiments with
+.B \-N
+(and possibly \fB\-V\fP)
+to determine the best compression tool for the local
+environment and PCP archives.
+.RE
+
+.TP
 \fB\-t\fR \fIdir\fR, \fB\-\-dir\fR=\fIdir\fR
 When decompressing any compressed files will (by default) be
 replaced by their decompressed equivalent.
