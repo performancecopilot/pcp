@@ -114,7 +114,7 @@ _optimize()
 	use_prog=xz
 	return
     fi
-    $verbose && echo 2>&1 "$pick: selected as candidate for optimize measurements"
+    $verbose && echo 2>&1 "$pick: ($pick_size bytes) selected as candidate for optimize measurements"
     pick_size=''
     pick_cpu=''
     use_prog=''

@@ -150,7 +150,16 @@ to choose the compression program that uses the least CPU
 time.
 .RS 5
 .PP
-Use of this option means all the
+If
+.I archive
+is an archive basename then
+the largest of the
+files that are part of the associated PCP archive
+is selected for the test, else
+.I archive
+will be used for the test.
+.PP
+Use of this option means each of the selected
 .I archive
 files will be compressed multiple times, so it is likely
 that
@@ -161,7 +170,6 @@ would be used in experiments with
 to determine the best compression tool for the local
 environment and PCP archives.
 .RE
-
 .TP
 \fB\-t\fR \fIdir\fR, \fB\-\-dir\fR=\fIdir\fR
 When decompressing any compressed files will (by default) be
