@@ -92,9 +92,9 @@ Warning: no clue how to deal with "compression" program no-such-prog
 Warning: no clue how to deal with "compression" program even-less-likely-prog
 pmlogcompress: cannot find a compression program (tried no-such-prog:even-less-likely-prog)
 exit status 1
---- -c zx -o size foobar ---
+--- -f xz -o size foobar ---
 stderr ...
-pmlogcompress: -c [zx] not allowed when compressing with -o
+pmlogcompress: -f [xz] not allowed when compressing with -o
 exit status 1
 --- -o cpu -f bzip foobar ---
 stderr ...
@@ -121,7 +121,7 @@ stderr ...
 archbase=archives/pcp-meminfo
 2 of 3 files in the archive are compressed
 tmp/pcp-meminfo.0: decompressed
-tmp/pcp-meminfo.index: linked
+tmp/pcp-meminfo.index: copied
 tmp/pcp-meminfo.meta: decompressed
 tmp/pcp-meminfo.0 14288
 tmp/pcp-meminfo.index 192

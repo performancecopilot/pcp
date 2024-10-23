@@ -91,7 +91,7 @@ cp $here/archives/foo+.* $tmp
 _doit -l 0 -z -c no-such-prog $tmp/foo+
 _doit -l 0 -z -f no-such-prog $tmp/foo+
 _doit -l 0 -z -c no-such-prog:even-less-likely-prog $tmp/foo+
-_doit -c zx -o size foobar
+_doit -f xz -o size foobar
 _doit -o cpu -f bzip foobar
 
 echo

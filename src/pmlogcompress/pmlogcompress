@@ -640,22 +640,15 @@ _decompress()
 			else
 			    if $showme
 			    then
-				echo >&2 "+ ln $file $outfile"
-				echo >&2 "+ if that fails ... cp $file $outfile"
+				echo >&2 "+ cp $file $outfile"
 			    else
-				if ! ln "$file" "$outfile" >$tmp.err 2>&1
+				if ! cp "$file" "$outfile" >>$tmp.err 2>&1
 				then
-				    $verbose && cat >&2 $tmp.err
-				    if ! cp "$file" "$outfile" >>$tmp.err 2>&1
-				    then
-					cat >&2 $tmp.err
-					echo >&2 "Failed to link or copy $file"
-					exit
-				    else
-					$verbose && echo >&2 "$outfile: copied"
-				    fi
+				    cat >&2 $tmp.err
+				    echo >&2 "Failed to copy $file"
+				    exit
 				else
-				    $verbose && echo >&2 "$outfile: linked"
+				    $verbose && echo >&2 "$outfile: copied"
 				fi
 			    fi
 			fi
@@ -839,14 +832,9 @@ then
     fi
 else
     # Compressing ...
-    # with -o: disallow: -c -f
+    # with -o: disallow: -f
     if [ -n "$optimize" ]
     then
-	if [ -n "$proglist" ]
-	then
-	    echo >&2 "$prog: -c [$proglist] not allowed when compressing with -o"
-	    exit
-	fi
 	if [ -n "$use_prog" ]
 	then
 	    echo >&2 "$prog: -f [$use_prog] not allowed when compressing with -o"
