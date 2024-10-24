@@ -334,7 +334,20 @@ _compress()
 		xz)
 		    if $have_xz || [ "$use_prog" = xz ]
 		    then
-			largs=" -0 --block-size=10MiB"
+			if [ -z "${xz_args+onetrip}" ]
+			then
+			    if xz -0 --block-size=10MiB </dev/null >/dev/null 2>&1
+			    then
+				# want minimal overheads, -0 is the same as --fast ...
+				# these options were selected after extnsive analysis
+				# for original settings in pmlogger_daily
+				#
+				largs=" -0 --block-size=10MiB"
+			    else
+				largs=''
+			    fi
+			    xz_args="$largs"
+			fi
 			[ -n "$args" ] && largs=" $args"
 			if $showme
 			then

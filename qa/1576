@@ -16,7 +16,12 @@ echo "QA output created by $seq"
 
 if which xz >/dev/null 2>&1
 then
-    PROG="xz -0 --block-size=10MiB"
+    if xz -0 --block-size=10MiB </dev/null >/dev/null 2>&1
+    then
+	PROG="xz -0 --block-size=10MiB"
+    else
+	PROG="xz"
+    fi
     SUFF=xst
 else
     _notrun "cannot find a zstd compression program!"
@@ -57,6 +62,11 @@ _setup()
 
 _filter()
 {
+    # Note on sed ... need to deal with
+    # Warning: -X value (no-such-compression-tool) ignored because $PCP_COMPRESS (xz ...) set in environment
+    # Warning: $PCP_COMPRESS (xz ...) reset from control file, previous value (foo) ignored
+    #
+
     if [ $# -eq 0 ]
     then
 	cmd=cat
@@ -83,6 +93,7 @@ _filter()
 	-e '/^Warning: cannot install new date-and-timestamp/d' \
 	-e '/^Start: /d' \
 	-e '/^End: /d' \
+	-e 's/^\(Warning:.*PCP_COMPRESS (xz\)\([^)]*\))/\1 ...)/' \
     # end
 }
 

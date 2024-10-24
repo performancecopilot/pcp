@@ -40,7 +40,7 @@ Error: $PCP_COMPRESSAFTER value (bozo) must be number, time, "forever" or "never
 Warning: skipping log rotation because we don't know which pmlogger to signal
 
 some warning cases
-Warning: -X value (no-such-compression-tool) ignored because $PCP_COMPRESS (xz -0 --block-size=10MiB) set in environment
+Warning: -X value (no-such-compression-tool) ignored because $PCP_COMPRESS (xz ...) set in environment
 Warning: -x value (7) ignored because $PCP_COMPRESSAFTER (1) set in environment
 Warning: -Y value (xyz) ignored because $PCP_COMPRESSREGEX (\.index$) set in environment
 Warning: skipping log rotation because we don't know which pmlogger to signal
@@ -56,7 +56,7 @@ TMP/DATE.8.xz
 TMP/DATE.9.xz
 TMP/DATE.index
 TMP/DATE.meta.xz
-Warning: $PCP_COMPRESS (xz -0 --block-size=10MiB) reset from control file, previous value (foo) ignored
+Warning: $PCP_COMPRESS (xz ...) reset from control file, previous value (foo) ignored
 Warning: $PCP_COMPRESSAFTER (1) reset from control file, previous value (42) ignored
 Warning: $PCP_COMPRESSREGEX (.(index|meta)$) reset from control file, previous value (\.bar$) ignored
 Warning: skipping log rotation because we don't know which pmlogger to signal

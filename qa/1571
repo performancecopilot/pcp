@@ -16,7 +16,12 @@ echo "QA output created by $seq"
 
 if which xz >/dev/null 2>&1
 then
-    PROG="xz -0 --block-size=10MiB"
+    if xz -0 --block-size=10MiB </dev/null >/dev/null 2>&1
+    then
+	PROG="xz -0 --block-size=10MiB"
+    else
+	PROG="xz"
+    fi
     SUFF=xz
 else
     _notrun "cannot find a xz compression program!"
