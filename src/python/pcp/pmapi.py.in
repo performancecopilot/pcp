@@ -237,12 +237,12 @@ class timeval(Structure):
                 sec = float((sec - epoch).total_seconds())
             if isinstance(sec, float):
                 ts = modf(sec)
-                sec = int(ts[1])
-                usec = int(ts[0] * 1000000)
+                sec = ts[1]
+                usec = ts[0] * 1000000
             else:
                 usec = 0
-        self.tv_sec = sec
-        self.tv_usec = usec
+        self.tv_sec = int(sec)
+        self.tv_usec = int(usec)
 
     @classmethod
     def fromInterval(cls, interval):
