@@ -524,5 +524,11 @@ main(int argc, char *argv[])
 
     }
 
-    exit(sts == STS_OK ? 0 : 1);
+    if (donebase != NULL) {
+	for (j = 0; j < done; j++)
+	    free(donebase[j]);
+	free(donebase);
+    }
+
+    return(sts == STS_OK ? 0 : 1);
 }
