@@ -339,10 +339,15 @@ _compress()
 			    if xz -0 --block-size=10MiB </dev/null >/dev/null 2>&1
 			    then
 				# want minimal overheads, -0 is the same as --fast ...
-				# these options were selected after extnsive analysis
+				# these options were selected after extensive analysis
 				# for original settings in pmlogger_daily
 				#
 				largs=" -0 --block-size=10MiB"
+			    elif xz -0 </dev/null >/dev/null 2>&1
+			    then
+				# no --block-size in older versions of xz
+				#
+				largs=" -0"
 			    else
 				largs=''
 			    fi

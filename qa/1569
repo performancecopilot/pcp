@@ -33,11 +33,18 @@ _cleanup()
 status=0	# success is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
+# much of this is pandering to older versions of xz where
+# --block-size is not supported, and the compressed file
+# sizes are a little different
+#
 _filter()
 {
     sed \
 	-e "s@$tmp@TMP@g" \
 	-e "s@$here@HERE@g" \
+	-e '/+ xz -0 foo/s/0/0 --block-size=10MiB/' \
+	-e '/pcp-meminfo.0.xz/s/1032/892/' \
+	-e '/pcp-meminfo.meta.xz/s/3644/3640/' \
     # end
 }
 
@@ -100,12 +107,12 @@ cd $tmp
 rm -f *
 cp $here/archives/pcp-meminfo* .
 pmlogdump -z pcp-meminfo >$tmp.pcp-meminfo.dump
-stat --format='%n %s' pcp-meminfo*
+stat --format='%n %s' pcp-meminfo* | _filter
 _doit -d -N pcp-meminfo
-stat --format='%n %s' pcp-meminfo*
+stat --format='%n %s' pcp-meminfo* | _filter
 
 _doit -d pcp-meminfo
-stat --format='%n %s' pcp-meminfo*
+stat --format='%n %s' pcp-meminfo* | _filter
 _check pcp-meminfo
 rm -f $tmp/*
 
@@ -124,7 +131,7 @@ _doit -d -t . $here/archives/pcp-meminfo
 echo "+++ lzma +++"
 xz --format=lzma pcp-meminfo.0
 _doit -d -V pcp-meminfo
-stat --format='%n %s' pcp-meminfo*
+stat --format='%n %s' pcp-meminfo* | _filter
 _check pcp-meminfo
 echo "+++ bz2 +++"
 bzip2 pcp-meminfo.0
@@ -137,61 +144,61 @@ rm -f pcp-meminfo.index
 mv eek pcp-meminfo.index
 bzip2 pcp-meminfo.index
 _doit -d -V pcp-meminfo
-stat --format='%n %s' pcp-meminfo*
+stat --format='%n %s' pcp-meminfo* | _filter
 _check pcp-meminfo
 echo "+++ bz +++"
 bzip2 pcp-meminfo.0
 mv pcp-meminfo.0.bz2 pcp-meminfo.0.bz
 _doit -d -V pcp-meminfo
-stat --format='%n %s' pcp-meminfo*
+stat --format='%n %s' pcp-meminfo* | _filter
 _check pcp-meminfo
 echo "+++ gz +++"
 gzip pcp-meminfo.0
 gzip pcp-meminfo.meta
 _doit -d -V pcp-meminfo
-stat --format='%n %s' pcp-meminfo*
+stat --format='%n %s' pcp-meminfo* | _filter
 _check pcp-meminfo
 echo "+++ z +++"
 gzip pcp-meminfo.0
 mv pcp-meminfo.0.gz pcp-meminfo.0.z
 _doit -d -V pcp-meminfo
-stat --format='%n %s' pcp-meminfo*
+stat --format='%n %s' pcp-meminfo* | _filter
 _check pcp-meminfo
 
 echo
 echo "=== some compress (and decompress) success cases ==="
 cp $here/archives/foo+.* .
-stat --format='%n %s' foo+*
+stat --format='%n %s' foo+* | _filter
 pmlogdump -z foo+ >$tmp.foo+.dump
 _doit -NV -l10240 foo+
 _doit --lower-limit=0 --compress --show-me --verbose foo+
 _doit -l 0 -z -V -c gzip foo+
-stat --format='%n %s' foo+*
+stat --format='%n %s' foo+* | _filter
 _check foo+
 _doit --decompress foo+
-stat --format='%n %s' foo+*
+stat --format='%n %s' foo+* | _filter
 _doit -l0 -c no-such-prog -c gzip -c bzip2 -V foo+
-stat --format='%n %s' foo+*
+stat --format='%n %s' foo+* | _filter
 _check foo+
 _doit --decompress foo+
-stat --format='%n %s' foo+*
+stat --format='%n %s' foo+* | _filter
 # -N so no change here
 _doit -l0 -A 'foo' -A '--bar' -A '--fumble' -f xz -N foo+
 _doit -l0 -f xz pcp-meminfo
 # skip already compresed files ...
 _doit -l0 -f xz -V pcp-meminfo
-stat --format='%n %s' pcp-meminfo*
+stat --format='%n %s' pcp-meminfo* | _filter
 _check pcp-meminfo
 # args are files, not archive basename
 _doit --decompress pcp-meminfo.meta.xz
-stat --format='%n %s' pcp-meminfo*
+stat --format='%n %s' pcp-meminfo* | _filter
 _doit --decompress pcp-meminfo.0.xz blah
-stat --format='%n %s' pcp-meminfo*
+stat --format='%n %s' pcp-meminfo* | _filter
 _check pcp-meminfo
 _doit --compress -l0 -f xz pcp-meminfo.meta
-stat --format='%n %s' pcp-meminfo*
+stat --format='%n %s' pcp-meminfo* | _filter
 _doit --compress -l0 -f xz pcp-meminfo.0 blah
-stat --format='%n %s' pcp-meminfo*
+stat --format='%n %s' pcp-meminfo* | _filter
 _check pcp-meminfo
 
 # success, all done
