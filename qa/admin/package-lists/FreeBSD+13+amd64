@@ -81,3 +81,4 @@ unbound
 valgrind
 xkeyboard-config
 zabbix64-agent
+zstd

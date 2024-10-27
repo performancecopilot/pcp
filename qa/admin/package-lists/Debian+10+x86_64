@@ -135,3 +135,4 @@ xfsprogs
 xkb-data
 zabbix-agent
 zlib1g-dev
+zstd

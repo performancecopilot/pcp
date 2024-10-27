@@ -98,3 +98,4 @@ valgrind
 xfsprogs
 xkeyboard-config
 xz-devel
+zstd

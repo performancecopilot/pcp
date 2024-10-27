@@ -87,3 +87,4 @@ extra/valgrind
 core/xfsprogs
 extra/xkeyboard-config
 core/xz
+core/zstd

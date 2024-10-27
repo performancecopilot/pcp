@@ -18,8 +18,8 @@ bpftrace-dbgsym not4ci
 bsd-mailx
 build-essential
 chrpath
+clang
 coreutils
-Text::CSV_XS cpan
 cppcheck
 cron
 curl
@@ -40,12 +40,15 @@ grep
 iproute2
 jq
 libavahi-common-dev
+libbpf-dev
+libbpf1
 libclass-dbi-perl
 libcmocka-dev
 libcoin-dev
 libdbd-mysql-perl
 libdbd-pg-perl
 libdevmapper-dev
+libdrm-dev
 libextutils-autoinstall-perl
 libfile-slurp-perl
 libgl1-mesa-dri
@@ -83,6 +86,7 @@ libxml-libxml-perl
 libxml-tokeparser-perl
 libyaml-libyaml-perl
 linux-headers-`uname -r` not4ci
+llvm
 lm-sensors
 make
 man-db
@@ -137,7 +141,4 @@ xfsprogs
 xkb-data
 zfsutils-linux
 zlib1g-dev
-libbpf1
-libbpf-dev
-clang
-llvm
+zstd

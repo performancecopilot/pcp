@@ -1,6 +1,7 @@
 # PCP required package list for Ubuntu 16.04 x86_64
 # created by kenj on vm27 Monday 12 October  13:05:07 AEDT 2020
 #
+Text::CSV_XS cpan
 apache2
 apache2-bin
 auditd not4ci
@@ -16,7 +17,6 @@ build-essential
 chrpath
 clang
 coreutils
-Text::CSV_XS cpan
 cppcheck
 cron
 curl
@@ -91,7 +91,6 @@ pkg-config
 postgresql-client-common
 psmisc
 pylint
-python3-minimal
 python3-all
 python3-all-dev
 python3-dev
@@ -99,6 +98,7 @@ python3-elasticsearch
 python3-json-pointer
 python3-libvirt
 python3-lxml
+python3-minimal
 python3-openpyxl
 python3-pil
 python3-prometheus-client
@@ -130,3 +130,4 @@ xkb-data
 zabbix-agent
 zfsutils-linux
 zlib1g-dev
+zstd

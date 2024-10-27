@@ -144,3 +144,4 @@ zabbix-agent
 # zfsutils-linux fails with ...
 # modprobe: FATAL: Module zfs not found in directory /lib/modules/6.1.0-23-amd64
 zlib1g-dev
+zstd

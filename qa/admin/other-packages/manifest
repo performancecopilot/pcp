@@ -1621,6 +1621,19 @@ brew?		tplist|tplist-bpfcc		[? (QA optional)]
 #
 dpkg?		/usr/share/doc/bpftrace-dbgsym	[bpftrace-dbgsym]
 
+# -- zstd
+#
+dpkg?		zstd		[zstd]
+rpm?		zstd		[zstd]
+emerge?		zstd		[?]
+pkgin?		zstd		[?]
+pkg_add?	zstd		[zstd]
+F_pkg?		zstd		[base FreeBSD install]
+S_pkg?		zstd		[?]
+slackpkg?	zstd		[zstd]
+pacman?		zstd 		[core/zstd]
+brew?		zstd		[?]
+
 # misc
 #
 rpm?		/usr/sbin/qshape	[postfix-perl-scripts]
