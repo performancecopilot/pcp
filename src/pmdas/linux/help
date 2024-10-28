@@ -2692,6 +2692,9 @@ Multipath TCP incoming RM_ADDR drops.
 @ network.mptcp.mpcurrestab the MPCurrEstab field of the MPTcp line from /proc/net/netstat
 @ network.mptcp.mpjoinsynbackuprx the MPJoinSynBackupRx field of the MPTcp line from /proc/net/netstat
 @ network.mptcp.mpjoinsynackbackuprx the MPJoinSynAckBackupRx field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.mpcapableendpattempt the MPCapableEndpAttempt field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.dsscorruptionfallback the DSSCorruptionFallback field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.dsscorruptionreset the DSSCorruptionReset field of the MPTcp line from /proc/net/netstat
 
 @ disk.wwid.scsi_paths per-device/wwid scsi paths to same physical device
 The value of this string typed metric is the sd paths to the same physical

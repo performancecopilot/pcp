@@ -481,6 +481,12 @@ netstat_fields_t netstat_mptcp_fields[] = {
       .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPJOINSYNBACKUPRX] },
     { .field = "MPJoinSynAckBackupRx",
       .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPJOINSYNACKBACKUPRX] },
+    { .field = "MPCapableEndpAttempt",
+      .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPCAPABLEENDPATTEMPT] },
+    { .field = "DSSCorruptionFallback",
+      .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_DSSCORRUPTIONFALLBACK] },
+    { .field = "DSSCorruptionReset",
+      .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_DSSCORRUPTIONRESET] },
 
     { .field = NULL, .offset = NULL }
 };

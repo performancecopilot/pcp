@@ -181,6 +181,15 @@ network.mptcp.mpjoinsynbackuprx
 network.mptcp.mpjoinsynackbackuprx
     value 56
 
+network.mptcp.mpcapableendpattempt
+    value 57
+
+network.mptcp.dsscorruptionfallback
+    value 58
+
+network.mptcp.dsscorruptionreset
+    value 59
+
 == Checking network.tcp metrics
 
 network.tcp.rtoalgorithm

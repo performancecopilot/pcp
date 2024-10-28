@@ -1340,6 +1340,9 @@ network.mptcp {
     mpcurrestab		60:53:217
     mpjoinsynbackuprx		60:53:218
     mpjoinsynackbackuprx		60:53:219
+    mpcapableendpattempt		60:53:220
+    dsscorruptionfallback		60:53:221
+    dsscorruptionreset		60:53:222
 }
 
 network.udp {
