@@ -34,8 +34,8 @@ status=0	# success is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # much of this is pandering to older versions of xz where
-# --block-size is not supported, and the compressed file
-# sizes are a little different
+# --block-size is not supported, and/or the compressed file
+# sizes are a little different between xz versions
 #
 _filter()
 {
@@ -44,7 +44,9 @@ _filter()
 	-e "s@$here@HERE@g" \
 	-e '/+ xz -0 foo/s/0/0 --block-size=10MiB/' \
 	-e '/pcp-meminfo.0.xz/s/1032/892/' \
+	-e '/pcp-meminfo.0.xz/s/900/892/' \
 	-e '/pcp-meminfo.meta.xz/s/3644/3640/' \
+	-e '/pcp-meminfo.meta.xz/s/3648/3640/' \
     # end
 }
 
