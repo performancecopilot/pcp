@@ -140,6 +140,7 @@
    tsearch
    Memcheck:Leak
    fun:malloc
+   ...
    fun:tsearch
    fun:__pmFindPDUBuf
    ...
