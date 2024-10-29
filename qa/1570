@@ -13,12 +13,25 @@ echo "QA output created by $seq"
 
 which zstd >/dev/null 2>&1 || _notrun No zstd binary installed
 
+args=''
+for try in --rm --quiet
+do
+    touch $tmp.try
+    if zstd -c "$try" $tmp.try >/dev/null 2>&1
+    then
+	args="$args $try"
+    fi
+done
+rm -f $tmp.try
+
 status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 
+echo "args=$args" >>$seq.full
+
 # real QA test starts here
-_prepare_compress "zstd --rm --quiet --no-progress" "unzstd --rm --quiet --no-progress" zst
+_prepare_compress "zstd$args" "zstd -d$args" zst
 _exercise_compression
 
 status=0	# success, we're all done

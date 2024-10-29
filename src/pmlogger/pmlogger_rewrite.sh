@@ -332,7 +332,7 @@ do
 		*.zst)
 		    if which zstd >/dev/null 2>&1
 		    then
-			zstd --rm --quiet --no-progress "$file"
+			zstd --rm --quiet "$file"
 			$very_verbose && echo "changed and recompressed: $old_file"
 		    else
 			echo "Warning: no zstd(1), cannot recompress $file"

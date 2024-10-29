@@ -276,8 +276,7 @@ fopen_compress(const char *fname, int compress_ix)
     else if (compress_ctl[compress_ix].appl == USE_ZSTD) {
 	cmd = "zstd";
 	arg[0] = "-dcq";
-	arg[1] = "--no-progress";
-	narg = 2;
+	narg = 1;
     }
     else {
 	/* botch in compress_ctl[] ... should not happen */

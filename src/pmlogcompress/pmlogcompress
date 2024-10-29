@@ -125,7 +125,7 @@ _optimize()
 	    zstd)
 		if $have_zstd
 		then
-		    if time -f '%U %S' zstd -zc -q --no-progress "$pick" >$tmp.tmp 2>$tmp.time
+		    if time -f '%U %S' zstd -zc -q "$pick" >$tmp.tmp 2>$tmp.time
 		    then
 			size=`_size "$tmp.tmp"`
 			cpu=`awk <$tmp.time '{ print 1000*($1+$2) }'`
@@ -310,7 +310,7 @@ _compress()
 		    then
 			if [ "$size" -ge "$min_zstd_size" ] || [ "$use_prog" = zstd ]
 			then
-			    largs=" --rm --quiet --no-progress"
+			    largs=" --rm --quiet"
 			    [ -n "$args" ] && largs=" $args"
 			    if $showme
 			    then
@@ -638,9 +638,9 @@ _decompress()
 		    else
 			if [ -z "$dir" ]
 			then
-			    _run_decompress unzstd --rm --quiet --no-progress "$file"
+			    _run_decompress unzstd --rm --quiet "$file"
 			else
-			    _run_decompress unzstd --stdout --quiet --no-progress  "$file" >"$outfile"
+			    _run_decompress unzstd --stdout --quiet "$file" >"$outfile"
 			fi
 			$verbose && echo >&2 "$outfile: decompressed"
 		    fi

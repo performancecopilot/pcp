@@ -218,7 +218,7 @@ _is_archive()
 	    			;;
 	    *.gz|*.Z|*.z)	gzip -dc "$1"
 	    			;;
-	    *.zst)		zstd -dc --quiet --no-progress "$1"
+	    *.zst)		zstd -dc --quiet "$1"
 	    			;;
 	    *)			cat "$1"
 	    			;;

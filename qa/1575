@@ -16,7 +16,7 @@ echo "QA output created by $seq"
 
 if which zstd >/dev/null 2>&1
 then
-    PROG="zstd --rm --quiet --no-progress"
+    PROG="zstd --rm --quiet"
     SUFF=xst
 else
     _notrun "cannot find a zstd compression program!"
