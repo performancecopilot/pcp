@@ -14,7 +14,7 @@ echo "QA output created by $seq"
 which zstd >/dev/null 2>&1 || _notrun No zstd binary installed
 
 args=''
-for try in --rm --quiet
+for try in --rm --quiet --no-progress
 do
     touch $tmp.try
     if zstd -c "$try" $tmp.try >/dev/null 2>&1
@@ -32,7 +32,8 @@ echo "args=$args" >>$seq.full
 
 # real QA test starts here
 _prepare_compress "zstd$args" "zstd -d$args" zst
-_exercise_compression
+_exercise_compression 2>&1 \
+| sed -e "s/$args/ ARGS/"
 
 status=0	# success, we're all done
 exit
