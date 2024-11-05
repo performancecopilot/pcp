@@ -1,5 +1,36 @@
 pcp-6.3.2 (6 November 2024)
-    - Work-in-progress.
+    - PMDA additions, enhancements and bug fixes:
+	pmdabpf: avoid a too-low rlimit setting within pmdabpf
+	pmdaproc: add an access control mechanism for remote sampling
+	pmdalinux: ensure divide-by-zero cannot happen with tmpfs.full
+	pmdalinux: additional MPTcpExt netstat metrics
+	pmdastatsd: keep correct track of pmns mapped metric count
+	pmdaopenmetrics: run as pcp user rather than root by default
+	pmdaopenmetrics: ensure correct cache file permissions used
+    - Server-side utilities and log management scripts:
+	libpcp, pmlogger: add support for zstd(1) compression of archives
+	pmlogbasename: new, maps filename to PCP archive basename
+	pmlogcompress: new, archive compression/decompression utility
+	pmlogcheck: performance improvements
+	pmlogcheck:  allow multiple archive options on command line
+	pmlogextract: extend -v option with the full pmlogger syntax
+	pmlogextract: fix for reporting file size on 32-bit platforms
+    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings:
+	libpcp: fix 64-bit big endian v3 archive timestamp decoding
+	libpcp: change in archive value interpolation for non-counter metrics
+	python api: allow timeval and timespec init with float/datetime
+    - Client tools and utilities:
+	pminfo: minor error path reworking
+	pcp-buddyinfo: addition of a --no-interpol option
+	pcp-ps: added option to view full task name with its argument
+    - Build, infrastructure and packaging updates:
+	build: deal with botched deb package names from Debian
+	build: ensure pmie config.default created with correct ownership
+	systemd: move pcp-reboot-init rpm spec logic from zeroconf to pcp
+	selinux: ensure farm pmlogger/pmie processes labelled correctly
+    - Documentation:
+	docs: refine pmdaproc -A description details
+	docs: make pmstat(1) match the code for -t defaults
 
 pcp-6.3.1 (17 September 2024)
     - Client tools and utilities:
