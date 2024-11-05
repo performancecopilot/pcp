@@ -2235,6 +2235,7 @@ pmWebGroupStore(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
     } else {
 	infofmt(msg, "bad parameters passed");
 	sts = -EINVAL;
+	mp = NULL;
     }
 
     if ((sts >= 0) &&
