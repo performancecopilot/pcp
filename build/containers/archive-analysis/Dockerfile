@@ -5,7 +5,7 @@ COPY . /usr/src/pcp
 WORKDIR /usr/src/pcp
 RUN dnf install -y git which rpm-build 'dnf-command(builddep)'
 RUN dnf builddep -y build/rpm/redhat.spec
-RUN dnf remove -y selinux-policy selinux-policy-targeted
+RUN dnf remove -y selinux-policy
 
 RUN ./Makepkgs --verbose
 RUN mkdir /build && \
