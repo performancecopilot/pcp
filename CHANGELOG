@@ -1,3 +1,6 @@
+pcp-7.0.0 (1 July 2025)
+    - Work-in-progress.
+
 pcp-6.3.2 (6 November 2024)
     - PMDA additions, enhancements and bug fixes:
 	pmdabpf: avoid a too-low rlimit setting within pmdabpf
