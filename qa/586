@@ -26,7 +26,7 @@ _filter()
 {
     sed \
 	-e "s@$tmp@TMP@g" \
-	-e "s/$PCP_VERSION/PCP_VERSION/" \
+	-e "s/version $PCP_VERSION/version PCP_VERSION/" \
     # end
 }
 
