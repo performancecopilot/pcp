@@ -13,6 +13,7 @@ archend
 archfetch
 archinst
 arch_maxfd
+args
 atomstr
 badUnitsStr_r
 badloglabel

@@ -111,3 +111,9 @@ NET STATS
   Ip.InAddrErrors: XXX
   Ip6.InAddrErrors: XXX
 
+=== Special case: eval command issues
+0 exit status
+=== Special case: multiline ps issues
+0 exit status
+=== Special case: command line errors
+1 exit status

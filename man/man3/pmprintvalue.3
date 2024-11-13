@@ -80,6 +80,15 @@ and
 pairs for each requested metric), based upon the
 metrics type as returned from
 .BR pmLookupDesc (3).
+.SH ENVIRONMENT
+Output of string metric values can be further controlled using
+.BR PCP_SQUASH_NEWLINES .
+When set in the environment of the calling process, and the
+.I type
+is set to PM_TYPE_STRING or PM_TYPE_AGGREGATE, then the output
+value is guaranteed to be free of embedded newline characters.
+If the given value contained such characters, they will have been
+replaced by a space before being printed.
 .SH SEE ALSO
 .BR PMAPI (3),
 .BR pmAtomStr (3),
