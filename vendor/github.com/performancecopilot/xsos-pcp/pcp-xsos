@@ -112,7 +112,6 @@ _usage()
 {
     [ ! -z "$@" ] && echo $@ 1>&2
     pmgetopt --progname=$progname --usage --config=$tmp/usage
-    sts=0
     exit
 }
 
@@ -206,9 +205,11 @@ do
         color=false
         ;;
       -\?)
+        sts=0
         _usage ""
         ;;
       --)        # end of options, start of arguments
+        sts=1
         _usage "Unknown argument: $2"
         ;;
     esac
@@ -304,6 +305,7 @@ fi
 # kernel_all_load_value[15]=0.06
 # kernel_cpu_util_user_error="No value(s) available!"
 
+export PCP_SQUASH_NEWLINES=1
 if ! pminfo $batch --fetch ${metrics[*]} > $tmp/metrics 2>$tmp/error
 then
     if grep "^pminfo:" $tmp/error > /dev/null 2>&1
@@ -320,6 +322,8 @@ gawk < $tmp/metrics > $tmp/variables '
 function filter(string) {
     gsub(/"/, "\\\"", string) # escape double quotes
     gsub(/\\u/, "\\\\u", string) # escape backslash-u
+    # replace any characters with special shell meaning
+    gsub("/\\(|\\$|\\*|)|\\{|\\}\\?|`|;|!/", "-", string)
     gsub(/%/, "%%", string) # percent sign in printf
     gsub(/^\\"|\\"$/, "\"", string) # except on ends
     return string
