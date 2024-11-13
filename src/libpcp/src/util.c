@@ -984,6 +984,18 @@ print_event_summary(FILE *f, const pmValue *val, int highres)
     fputc(']', f);
 }
 
+static void
+squash_string(char *s, unsigned int len)
+{
+    unsigned int i;
+
+    /* replace end-of-line characters */
+    for (i = 0; i < len; i++) {
+	if (isspace(s[i]))
+	    s[i] = ' ';
+    }
+}
+
 /* Print single pmValue. */
 void
 pmPrintValue(FILE *f,			/* output stream */
@@ -997,6 +1009,16 @@ pmPrintValue(FILE *f,			/* output stream */
     int         n;
     char        *p;
     int		sts;
+    static int	squashed = -1;
+
+    if (squashed == -1) {
+	/* one-trip initialization */
+	PM_LOCK(__pmLock_extcall);
+	squashed = 0;
+	if (getenv("PCP_SQUASH_NEWLINES") != NULL)	/* THREADSAFE */
+	    squashed = 1;
+	PM_UNLOCK(__pmLock_extcall);
+    }
 
     if (type != PM_TYPE_UNKNOWN &&
 	type != PM_TYPE_EVENT &&
@@ -1032,7 +1054,10 @@ pmPrintValue(FILE *f,			/* output stream */
         break;
 
     case PM_TYPE_STRING:
-	n = (int)strlen(a.cp) + 2;
+	n = (int)strlen(a.cp);
+	if (squashed)
+	    squash_string(a.cp, n);
+	n += 2;
 	while (n < minwidth) {
 	    fputc(' ', f);
 	    n++;
@@ -1123,6 +1148,8 @@ pmPrintValue(FILE *f,			/* output stream */
 			n++;
 		    }
 		    n = (int)val->value.pval->vlen - PM_VAL_HDR_SIZE;
+		    if (squashed)
+	    	        squash_string(val->value.pval->vbuf, n);
 		    fprintf(f, "\"%*.*s\"", n, n, val->value.pval->vbuf);
 		    done = 1;
 		}
