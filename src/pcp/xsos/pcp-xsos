@@ -112,7 +112,6 @@ _usage()
 {
     [ ! -z "$@" ] && echo $@ 1>&2
     pmgetopt --progname=$progname --usage --config=$tmp/usage
-    sts=0
     exit
 }
 
@@ -206,9 +205,11 @@ do
         color=false
         ;;
       -\?)
+        sts=0
         _usage ""
         ;;
       --)        # end of options, start of arguments
+        sts=1
         _usage "Unknown argument: $2"
         ;;
     esac
