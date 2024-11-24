@@ -119,63 +119,120 @@ foo.bozo.bar
 ./foo.bozo.z
 === ./foo.bozo.bar ===
 ./foo.bozo.bar
-=== HERE/foo ===
-HERE/foo
-=== HERE/foo.xz ===
-HERE/foo.xz
-=== HERE/foo.gz ===
-HERE/foo.gz
-=== HERE/foo.z ===
-HERE/foo.z
-=== HERE/foo.bar ===
-HERE/foo.bar
-=== HERE/foo.index ===
-HERE/foo
-=== HERE/foo.index.xz ===
-HERE/foo
-=== HERE/foo.index.gz ===
-HERE/foo
-=== HERE/foo.index.z ===
-HERE/foo
-=== HERE/foo.index.bar ===
-HERE/foo.index.bar
-=== HERE/foo.meta ===
-HERE/foo
-=== HERE/foo.meta.xz ===
-HERE/foo
-=== HERE/foo.meta.gz ===
-HERE/foo
-=== HERE/foo.meta.z ===
-HERE/foo
-=== HERE/foo.meta.bar ===
-HERE/foo.meta.bar
-=== HERE/foo.0 ===
-HERE/foo
-=== HERE/foo.0.xz ===
-HERE/foo
-=== HERE/foo.0.gz ===
-HERE/foo
-=== HERE/foo.0.z ===
-HERE/foo
-=== HERE/foo.0.bar ===
-HERE/foo.0.bar
-=== HERE/foo.12345 ===
-HERE/foo
-=== HERE/foo.12345.xz ===
-HERE/foo
-=== HERE/foo.12345.gz ===
-HERE/foo
-=== HERE/foo.12345.z ===
-HERE/foo
-=== HERE/foo.12345.bar ===
-HERE/foo.12345.bar
-=== HERE/foo.bozo ===
-HERE/foo.bozo
-=== HERE/foo.bozo.xz ===
-HERE/foo.bozo.xz
-=== HERE/foo.bozo.gz ===
-HERE/foo.bozo.gz
-=== HERE/foo.bozo.z ===
-HERE/foo.bozo.z
-=== HERE/foo.bozo.bar ===
-HERE/foo.bozo.bar
+=== CWD/foo ===
+CWD/foo
+=== CWD/foo.xz ===
+CWD/foo.xz
+=== CWD/foo.gz ===
+CWD/foo.gz
+=== CWD/foo.z ===
+CWD/foo.z
+=== CWD/foo.bar ===
+CWD/foo.bar
+=== CWD/foo.index ===
+CWD/foo
+=== CWD/foo.index.xz ===
+CWD/foo
+=== CWD/foo.index.gz ===
+CWD/foo
+=== CWD/foo.index.z ===
+CWD/foo
+=== CWD/foo.index.bar ===
+CWD/foo.index.bar
+=== CWD/foo.meta ===
+CWD/foo
+=== CWD/foo.meta.xz ===
+CWD/foo
+=== CWD/foo.meta.gz ===
+CWD/foo
+=== CWD/foo.meta.z ===
+CWD/foo
+=== CWD/foo.meta.bar ===
+CWD/foo.meta.bar
+=== CWD/foo.0 ===
+CWD/foo
+=== CWD/foo.0.xz ===
+CWD/foo
+=== CWD/foo.0.gz ===
+CWD/foo
+=== CWD/foo.0.z ===
+CWD/foo
+=== CWD/foo.0.bar ===
+CWD/foo.0.bar
+=== CWD/foo.12345 ===
+CWD/foo
+=== CWD/foo.12345.xz ===
+CWD/foo
+=== CWD/foo.12345.gz ===
+CWD/foo
+=== CWD/foo.12345.z ===
+CWD/foo
+=== CWD/foo.12345.bar ===
+CWD/foo.12345.bar
+=== CWD/foo.bozo ===
+CWD/foo.bozo
+=== CWD/foo.bozo.xz ===
+CWD/foo.bozo.xz
+=== CWD/foo.bozo.gz ===
+CWD/foo.bozo.gz
+=== CWD/foo.bozo.z ===
+CWD/foo.bozo.z
+=== CWD/foo.bozo.bar ===
+CWD/foo.bozo.bar
+
+ambiguous cases potentially involving probing
+=== foo.123 ===
+probe foo.123.meta
+probe foo.123.meta.xz
+probe foo.123.meta.lzma
+probe foo.123.meta.bz2
+probe foo.123.meta.bz
+probe foo.123.meta.gz
+probe foo.123.meta.Z
+probe foo.123.meta.z
+probe foo.123.meta.zst
+foo
+=== foo.1x3 ===
+foo.1x3
+=== foo123 ===
+foo123
+=== 20241125.05.48, no .meta ===
+probe 20241125.05.48.meta
+probe 20241125.05.48.meta.xz
+probe 20241125.05.48.meta.lzma
+probe 20241125.05.48.meta.bz2
+probe 20241125.05.48.meta.bz
+probe 20241125.05.48.meta.gz
+probe 20241125.05.48.meta.Z
+probe 20241125.05.48.meta.z
+probe 20241125.05.48.meta.zst
+20241125.05
+=== 20241125.05.48, with .meta ===
+found 20241125.05.48.meta
+20241125.05.48
+=== 20241125.05.48, with .meta.xz ===
+probe 20241125.05.48.meta
+found 20241125.05.48.meta.xz
+20241125.05.48
+=== 20241125.05.48, with .meta.zst ===
+probe 20241125.05.48.meta
+probe 20241125.05.48.meta.xz
+probe 20241125.05.48.meta.lzma
+probe 20241125.05.48.meta.bz2
+probe 20241125.05.48.meta.bz
+probe 20241125.05.48.meta.gz
+probe 20241125.05.48.meta.Z
+probe 20241125.05.48.meta.z
+found 20241125.05.48.meta.zst
+20241125.05.48
+=== 20241125.05.48, with .metafoo ===
+probe 20241125.05.48.meta
+probe 20241125.05.48.meta.xz
+probe 20241125.05.48.meta.lzma
+probe 20241125.05.48.meta.bz2
+probe 20241125.05.48.meta.bz
+probe 20241125.05.48.meta.gz
+probe 20241125.05.48.meta.Z
+probe 20241125.05.48.meta.z
+probe 20241125.05.48.meta.zst
+20241125.05

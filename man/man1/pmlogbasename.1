@@ -45,7 +45,7 @@ and
 for any integer
 .IR <n> .
 .PP
-The stripping is purely textual and
+For the most part the stripping is purely textual and
 is done without tests for the existence of any of the
 associated files, although if
 .I name
@@ -53,6 +53,28 @@ does not match the pattern of a valid file name for a PCP archive
 then the output is
 .I name
 without any stripping.
+.PP
+The one exception is when
+.I name
+ends with
+.I .N
+where
+.I N
+is a sequence of 1 or more digits, in which case an ambiguity occurs.
+For example consider
+.I name
+to be
+.BR 20241125.05.48 ,
+where this could mean the archive basename is really
+.B 20241125.05.48
+or it could mean this refers to volume
+.B 48
+of the archive basename
+.BR 20241125.05 .
+In the former case, the file \fIname\fB.meta\fR (or one of the
+compressed versions of this) should exist and
+.I pmlogbasename
+probes the filesystem to determine if such a file exists.
 .SH SEE ALSO
 .BR PCPIntro (1)
 and
