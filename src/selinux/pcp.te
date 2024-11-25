@@ -1075,3 +1075,13 @@ allow syslogd_t pcp_log_t:fifo_file { open read write };
 #files_manage_generic_tmp_files(pcp_pmie_t)
 #
 ##============= pcp_pmlogger_t ==============
+
+#============= pmda-denki =================
+require {
+	type pcp_pmcd_t;
+	type cpu_device_t;
+	class chr_file { open read };
+}
+#============= pcp_pmcd_t ==============
+allow pcp_pmcd_t cpu_device_t:chr_file read;
+allow pcp_pmcd_t cpu_device_t:chr_file open;
