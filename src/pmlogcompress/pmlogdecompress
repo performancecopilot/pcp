@@ -1,0 +1,375 @@
+#!/bin/sh
+#
+# Decompression of files of a PCP archive.
+#
+# Copyright (c) 2024 Ken McDonell, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+#
+
+. $PCP_DIR/etc/pcp.env
+
+prog=`basename $0`
+
+tmp=/var/tmp/pmlogdecompress.$$
+status=1
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+cat <<'End-of-File' >$tmp.usage
+# usage: [options] archive ...
+
+Options:
+  -N, --show-me			do nothing, but show me
+  -t=DIR, --dir=DIR		decompress into directory DIR
+  -V, --verbose			increase verbosity
+  --help
+# end
+
+Decompression program is selected based on file extension.
+End-of-File
+
+# get file ($1) size
+#
+_size()
+{
+    ls -l "$1" | awk '{print $5}'
+}
+
+_run_decompress()
+{
+    if $showme
+    then
+	echo >&2 "+ $*"
+    elif ! $*
+    then
+	echo >&2 "$* file failed"
+	exit
+    fi
+}
+
+_decompress()
+{
+    if [ -f "$1" ]
+    then
+	# single file ...
+	#
+	archbase=''
+	filelist="$1"
+    else
+	# assume it is an archive basename
+	#
+	archbase="`pmlogbasename $1`"
+	$verbose && echo >&2 "archbase=$archbase"
+	filelist=`echo ${archbase}*`
+    fi
+
+    # for all the files that seem to be part of this archive,
+    # count the files and the number that are compressed
+    #
+    nfile=0
+    ncompress=0
+    for file in $filelist
+    do
+	[ ! -f "$file" ] && continue
+	if [ -z "$archbase" -o "$archbase" = `pmlogbasename "$file"` ]
+	then
+	    nfile=`expr $nfile + 1`
+	    case $file
+	    in
+		*.xz|*.lzma|*.bz2|*.bz|*.gz|*.Z|*.z|*.zst)
+		    ncompress=`expr $ncompress + 1`
+		    if [ -z "$dir" ]
+		    then
+			outfile=`echo "$file" | sed -e 's/\.[^.]*$//'`
+		    else
+			outfile="$dir"/`basename "$file" | sed -e 's/\.[^.]*$//'`
+		    fi
+		    if [ -f "$outfile" ]
+		    then
+			echo >&2 "$prog: $outfile exists and will not be clobbered"
+			return
+		    fi
+		    ;;
+	    esac
+	fi
+    done
+
+    if [ "$nfile" -eq 0 ]
+    then
+	echo >&2 "$prog: Warning: no PCP archive files match \"$1\""
+	return
+    fi
+
+    if [ "$ncompress" -eq 0 ]
+    then
+	$verbose && echo >&2 "No compresssed PCP archive files match \"$1\""
+	status=0
+	return
+    fi
+    $verbose && echo >&2 "$ncompress of $nfile files in the archive are compressed"
+
+    for file in $filelist
+    do
+	[ ! -f "$file" ] && continue
+	if [ -z "$archbase" -o "$archbase" = `pmlogbasename "$file"` ]
+	then
+	    case $file
+	    in
+		*.xz)
+		    if [ -z "$dir" ]
+		    then
+			outfile=`basename "$file" .xz`
+		    else
+			outfile="$dir"/`basename "$file" .xz`
+		    fi
+		    if [ -f "$outfile" ]
+		    then
+			echo >&2 "$outfile: exists, skip $file decompression"
+		    else
+			if [ -z "$dir" ]
+			then
+			    _run_decompress xz --decompress "$file"
+			else
+			    _run_decompress xz --decompress --stdout "$file" >"$outfile"
+			fi
+			$verbose && echo >&2 "$outfile: decompressed"
+		    fi
+		    ;;
+
+		*.lzma)
+		    if [ -z "$dir" ]
+		    then
+			outfile=`basename "$file" .lzma`
+		    else
+			outfile="$dir"/`basename "$file" .lzma`
+		    fi
+		    if [ -f "$outfile" ]
+		    then
+			echo >&2 "$outfile: exists, skip $file decompression"
+		    else
+			if [ -z "$dir" ]
+			then
+			    _run_decompress xz --decompress --format=lzma "$file"
+			else
+			    _run_decompress xz --decompress --format=lzma --stdout "$file" >"$outfile"
+			fi
+			$verbose && echo >&2 "$outfile: decompressed"
+		    fi
+		    ;;
+
+		*.bz2)
+		    if [ -z "$dir" ]
+		    then
+			outfile=`basename "$file" .bz2`
+		    else
+			outfile="$dir"/`basename "$file" .bz2`
+		    fi
+		    if [ -f "$outfile" ]
+		    then
+			echo >&2 "$outfile: exists, skip $file decompression"
+		    else
+			if [ -z "$dir" ]
+			then
+			    _run_decompress bzip2 --decompress "$file"
+			else
+			    _run_decompress bzip2 --decompress --stdout "$file" >"$outfile"
+			fi
+			$verbose && echo >&2 "$outfile: decompressed"
+		    fi
+		    ;;
+
+		*.bz)
+		    if [ -z "$dir" ]
+		    then
+			outfile=`basename "$file" .bz`
+		    else
+			outfile="$dir"/`basename "$file" .bz`
+		    fi
+		    if [ -f "$outfile" ]
+		    then
+			echo >&2 "$outfile: exists, skip $file decompression"
+		    else
+			if [ -z "$dir" ]
+			then
+			    _run_decompress bzip2 --decompress "$file"
+			else
+			    _run_decompress bzip2 --decompress --stdout "$file" >"$outfile"
+			fi
+			$verbose && echo >&2 "$outfile: decompressed"
+		    fi
+		    ;;
+
+		*.gz)
+		    if [ -z "$dir" ]
+		    then
+			outfile=`basename "$file" .gz`
+		    else
+			outfile="$dir"/`basename "$file" .gz`
+		    fi
+		    if [ -f "$outfile" ]
+		    then
+			echo >&2 "$outfile: exists, skip $file decompression"
+		    else
+			if [ -z "$dir" ]
+			then
+			    _run_decompress gzip -d "$file"
+			else
+			    _run_decompress gzip -dc "$file" >"$outfile"
+			fi
+			$verbose && echo >&2 "$outfile: decompressed"
+		    fi
+		    ;;
+
+		*.z)
+		    if [ -z "$dir" ]
+		    then
+			outfile=`basename "$file" .z`
+		    else
+			outfile="$dir"/`basename "$file" .z`
+		    fi
+		    if [ -f "$outfile" ]
+		    then
+			echo >&2 "$outfile: exists, skip $file decompression"
+		    else
+			if [ -z "$dir" ]
+			then
+			    _run_decompress gzip -d "$file"
+			else
+			    _run_decompress gzip -dc "$file" >"$outfile"
+			fi
+			$verbose && echo >&2 "$outfile: decompressed"
+		    fi
+		    ;;
+
+		*.Z)
+		    echo >&2 TODO: $file
+		    ;;
+
+		*.zst)
+		    if [ -z "$dir" ]
+		    then
+			outfile=`basename "$file" .zst`
+		    else
+			outfile="$dir"/`basename "$file" .zst`
+		    fi
+		    if [ -f "$outfile" ]
+		    then
+			echo >&2 "$outfile: exists, skip $file decompression"
+		    else
+			if [ -z "$dir" ]
+			then
+			    _run_decompress unzstd --rm --quiet "$file"
+			else
+			    _run_decompress unzstd --stdout --quiet "$file" >"$outfile"
+			fi
+			$verbose && echo >&2 "$outfile: decompressed"
+		    fi
+		    ;;
+
+		*)	# not compressed ... do nothing unless -d, and then
+		    # try ln(1), failing that cp(1)
+		    #
+		    if [ -n "$dir" ]
+		    then
+			outfile="$dir/`basename $file`"
+			if [ -f "$outfile" ]
+			then
+			    echo >&2 "$outfile: exists, skip $file decompression"
+			else
+			    if $showme
+			    then
+				echo >&2 "+ cp $file $outfile"
+			    else
+				if ! cp "$file" "$outfile" >>$tmp.err 2>&1
+				then
+				    cat >&2 $tmp.err
+				    echo >&2 "Failed to copy $file"
+				    exit
+				else
+				    $verbose && echo >&2 "$outfile: copied"
+				fi
+			    fi
+			fi
+		    fi
+		    ;;
+	    esac
+	fi
+    done
+
+}
+
+showme=false
+verbose=false
+dir=''
+ARGS=`pmgetopt --progname=$prog --config=$tmp.usage -- "$@"`
+[ $? != 0 ] && exit
+eval set -- "$ARGS"
+
+while [ $# -gt 0 ]
+do
+    case "$1"
+    in
+
+	-N)	# show me, do nothing
+	    showme=true
+	    ;;
+
+	-t)	# temp dir
+	    if [ -z "$2" ]
+	    then
+		echo >&2 "$prog: -t requires a dir argument"
+		exit
+	    fi
+	    if [ ! -d "$2" ]
+	    then
+		echo >&2 "$prog: -t: $2 is not an existing directory"
+		exit
+	    fi
+	    dir="$2"
+	    shift
+	    ;;
+
+	-V)
+	    verbose=true
+	    ;;
+
+	--)
+	    shift
+	    break
+	    ;;
+
+	-\?)
+	    pmgetopt --usage --progname=$prog --config=$tmp.usage
+	    status=0
+	    exit
+	    ;;
+    esac
+    shift
+done
+
+if [ $# -eq 0 ]
+then
+    pmgetopt --usage --progname=$prog --config=$tmp.usage
+    exit
+fi
+
+while [ $# -gt 0 ]
+do
+    _decompress "$1"
+    shift
+done
+
+status=0
+exit
