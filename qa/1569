@@ -43,6 +43,7 @@ _filter()
 	-e "s@$tmp@TMP@g" \
 	-e "s@$here@HERE@g" \
 	-e '/+ xz -0 foo/s/0/0 --block-size=10MiB/' \
+	-e '/xz_setup: /d' \
 	-e '/pcp-meminfo.0.xz/s/1032/892/' \
 	-e '/pcp-meminfo.0.xz/s/900/892/' \
 	-e '/pcp-meminfo.meta.xz/s/3644/3640/' \
@@ -53,7 +54,9 @@ _filter()
 _doit()
 {
     echo "--- $* ---" | _filter
-    pmlogcompress "$@" 2>$tmp.err >$tmp.out
+    prog=$1
+    shift
+    $prog "$@" 2>$tmp.err >$tmp.out
     sts=$?
     _filter <$tmp.out
     if [ -s $tmp.err ]
@@ -81,27 +84,27 @@ _check()
 
 # real QA test starts here
 echo "=== some error cases ==="
-_doit -x $tmp archives/pcp-meminfo 2>&1 \
+_doit pmlogcompress -x $tmp archives/pcp-meminfo 2>&1 \
 | sed -e 's/.*[Ii]llegal/Illegal/' -e 's/ -- c/ -c/'
-_doit -d -t $tmp archives/pcp-meminfo
-_doit -NV no-such-archive
+_doit pmlogdecompress -t $tmp archives/pcp-meminfo
+_doit pmlogcompress -NV no-such-archive
 mkdir $tmp
 touch $tmp/pcp-meminfo.0
-_doit -d -t $tmp archives/pcp-meminfo
+_doit pmlogdecompress -t $tmp archives/pcp-meminfo
 touch $tmp/pcp-meminfo.index $tmp/pcp-meminfo.meta
-_doit -d -V $tmp/pcp-meminfo
-_doit -c foocompress -d foobar
-_doit -A arg1 -A arg2 -A "arg3 and arg4" -d foobar
-_doit -f gzip --decompress foobar
-_doit --decompress -l 0 foobar
-_doit -o size -d foobar
-_doit -o foo foobar
+_doit pmlogdecompress -V $tmp/pcp-meminfo
+_doit pmlogdecompress -c foocompress foobar
+_doit pmlogdecompress -A arg1 -A arg2 -A "arg3 and arg4" foobar
+_doit pmlogdecompress -f gzip foobar
+_doit pmlogdecompress -l 0 foobar
+_doit pmlogdecompress -o space foobar
+_doit pmlogcompress -o foo foobar
 cp $here/archives/foo+.* $tmp
-_doit -l 0 -z -c no-such-prog $tmp/foo+
-_doit -l 0 -z -f no-such-prog $tmp/foo+
-_doit -l 0 -z -c no-such-prog:even-less-likely-prog $tmp/foo+
-_doit -f xz -o size foobar
-_doit -o cpu -f bzip foobar
+_doit pmlogcompress -l 0 -c no-such-prog $tmp/foo+
+_doit pmlogcompress -l 0 -f no-such-prog $tmp/foo+
+_doit pmlogcompress -l 0 -c no-such-prog:even-less-likely-prog $tmp/foo+
+_doit pmlogcompress -f xz -o space foobar
+_doit pmlogcompress -o time -f bzip foobar
 
 echo
 echo "=== some decompress success cases ==="
@@ -110,17 +113,17 @@ rm -f *
 cp $here/archives/pcp-meminfo* .
 pmlogdump -z pcp-meminfo >$tmp.pcp-meminfo.dump
 stat --format='%n %s' pcp-meminfo* | _filter
-_doit -d -N pcp-meminfo
+_doit pmlogdecompress -N pcp-meminfo
 stat --format='%n %s' pcp-meminfo* | _filter
 
-_doit -d pcp-meminfo
+_doit pmlogdecompress pcp-meminfo
 stat --format='%n %s' pcp-meminfo* | _filter
 _check pcp-meminfo
 rm -f $tmp/*
 
 cd $here
 [ -d tmp ] || mkdir tmp
-_doit -d -V -t tmp archives/pcp-meminfo
+_doit pmlogdecompress -V -t tmp archives/pcp-meminfo
 stat --format='%n %s' tmp/pcp-meminfo* | _filter
 cd tmp
 _check pcp-meminfo
@@ -129,10 +132,10 @@ cd $here
 
 cd $tmp
 rm -f *
-_doit -d -t . $here/archives/pcp-meminfo
+_doit pmlogdecompress -t . $here/archives/pcp-meminfo
 echo "+++ lzma +++"
 xz --format=lzma pcp-meminfo.0
-_doit -d -V pcp-meminfo
+_doit pmlogdecompress -V pcp-meminfo
 stat --format='%n %s' pcp-meminfo* | _filter
 _check pcp-meminfo
 echo "+++ bz2 +++"
@@ -145,25 +148,25 @@ cp pcp-meminfo.index eek
 rm -f pcp-meminfo.index
 mv eek pcp-meminfo.index
 bzip2 pcp-meminfo.index
-_doit -d -V pcp-meminfo
+_doit pmlogdecompress -V pcp-meminfo
 stat --format='%n %s' pcp-meminfo* | _filter
 _check pcp-meminfo
 echo "+++ bz +++"
 bzip2 pcp-meminfo.0
 mv pcp-meminfo.0.bz2 pcp-meminfo.0.bz
-_doit -d -V pcp-meminfo
+_doit pmlogdecompress -V pcp-meminfo
 stat --format='%n %s' pcp-meminfo* | _filter
 _check pcp-meminfo
 echo "+++ gz +++"
 gzip pcp-meminfo.0
 gzip pcp-meminfo.meta
-_doit -d -V pcp-meminfo
+_doit pmlogdecompress -V pcp-meminfo
 stat --format='%n %s' pcp-meminfo* | _filter
 _check pcp-meminfo
 echo "+++ z +++"
 gzip pcp-meminfo.0
 mv pcp-meminfo.0.gz pcp-meminfo.0.z
-_doit -d -V pcp-meminfo
+_doit pmlogdecompress -V pcp-meminfo
 stat --format='%n %s' pcp-meminfo* | _filter
 _check pcp-meminfo
 
@@ -172,34 +175,34 @@ echo "=== some compress (and decompress) success cases ==="
 cp $here/archives/foo+.* .
 stat --format='%n %s' foo+* | _filter
 pmlogdump -z foo+ >$tmp.foo+.dump
-_doit -NV -l10240 foo+
-_doit --lower-limit=0 --compress --show-me --verbose foo+
-_doit -l 0 -z -V -c gzip foo+
+_doit pmlogcompress -NV -l10240 foo+
+_doit pmlogcompress --lower-limit=0 --show-me --verbose foo+
+_doit pmlogcompress -l 0 -V -c gzip foo+
 stat --format='%n %s' foo+* | _filter
 _check foo+
-_doit --decompress foo+
+_doit pmlogdecompress foo+
 stat --format='%n %s' foo+* | _filter
-_doit -l0 -c no-such-prog -c gzip -c bzip2 -V foo+
+_doit pmlogcompress -l0 -c no-such-prog -c gzip -c bzip2 -V foo+
 stat --format='%n %s' foo+* | _filter
 _check foo+
-_doit --decompress foo+
+_doit pmlogdecompress foo+
 stat --format='%n %s' foo+* | _filter
 # -N so no change here
-_doit -l0 -A 'foo' -A '--bar' -A '--fumble' -f xz -N foo+
-_doit -l0 -f xz pcp-meminfo
+_doit pmlogcompress -l0 -A 'foo' -A '--bar' -A '--fumble' -f xz -N foo+
+_doit pmlogcompress -l0 -f xz pcp-meminfo
 # skip already compresed files ...
-_doit -l0 -f xz -V pcp-meminfo
+_doit pmlogcompress -l0 -f xz -V pcp-meminfo
 stat --format='%n %s' pcp-meminfo* | _filter
 _check pcp-meminfo
 # args are files, not archive basename
-_doit --decompress pcp-meminfo.meta.xz
+_doit pmlogdecompress pcp-meminfo.meta.xz
 stat --format='%n %s' pcp-meminfo* | _filter
-_doit --decompress pcp-meminfo.0.xz blah
+_doit pmlogdecompress pcp-meminfo.0.xz blah
 stat --format='%n %s' pcp-meminfo* | _filter
 _check pcp-meminfo
-_doit --compress -l0 -f xz pcp-meminfo.meta
+_doit pmlogcompress -l0 -f xz pcp-meminfo.meta
 stat --format='%n %s' pcp-meminfo* | _filter
-_doit --compress -l0 -f xz pcp-meminfo.0 blah
+_doit pmlogcompress -l0 -f xz pcp-meminfo.0 blah
 stat --format='%n %s' pcp-meminfo* | _filter
 _check pcp-meminfo
 

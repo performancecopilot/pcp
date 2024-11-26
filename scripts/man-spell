@@ -336,6 +336,7 @@ pmlogcheck
 pmlogcompress
 pmlogconf
 pmlogctl
+pmlogdecompress
 pmlogdump
 pmlogextract
 pmlogger
