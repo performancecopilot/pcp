@@ -20,25 +20,6 @@
  *   ( https://github.com/deater/uarch-configure / GPL-2.0 License )
  */
 
-/* TODO:
-		- update manpage, README.md, pmda-denki handbook
-		- bring upstream
-		- try on fedora steam deck (AMD)
-		- see how psys metrics matches i.e. battery consumption metric
-		- consider to implement new PCP test cases.. might be hard for msr metrics..
-
- *  Usage on rhel9:
-    dnf -y install pcp-zeroconf pcp-devel pcp-pmda-denki gcc tar redhat-rpm-config
-    cd /usr/libexec/pcp/pmdas/
-    mv denki denki.org
-    tar xfv ~/denki_raplmsr3.tar
-    cd denki
-    semodule -i selinux/denki-msr-read.pp
-    make
-    ./Install
-    pminfo -f denki
-*/
-
 #include <pcp/pmapi.h>
 #include <pcp/pmda.h>
 #include "domain.h"
@@ -268,12 +249,14 @@ static long long read_msr(int fd, int which) {
 static int detect_cpu(void) {
 
 	FILE *fff;
+	char filename[MAXPATHLEN];
 
 	int family,model=-1;
 	char buffer[BUFSIZ],*result;
 	char vendor[BUFSIZ];
 
-	fff=fopen("/proc/cpuinfo","r");
+	pmsprintf(filename,sizeof(filename), "%s/proc/cpuinfo",rootpath);
+	fff=fopen(filename,"r");
 	if (fff==NULL) return -1;
 
 	while(1) {
@@ -551,7 +534,7 @@ static int open_msr(int core) {
 	char msr_filename[BUFSIZ];
 	int fd;
 
-	pmsprintf(msr_filename,sizeof(msr_filename),"/dev/cpu/%d/msr", core);
+	pmsprintf(msr_filename,sizeof(msr_filename),"%s/dev/cpu/%d/msr", rootpath, core);
 	fd = open(msr_filename, O_RDONLY);
 	if ( fd < 0 ) {
 		if ( errno == ENXIO ) {
