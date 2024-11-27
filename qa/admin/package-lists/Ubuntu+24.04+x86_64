@@ -95,7 +95,7 @@ mariadb-client-core
 memcached
 net-tools
 nmap
-openjdk-11-jre-headless
+openjdk-21-jre-headless
 openssl
 perl
 perl-modules-5.38
