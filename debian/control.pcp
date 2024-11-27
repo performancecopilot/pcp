@@ -13,7 +13,7 @@ Package: pcp
 Depends: ${shlibs:Depends}, ${misc:Depends}, gawk, procps, ?{python-pcp}, ?{python}, libpcp-pmda3 (= ${binary:Version}), libpcp-mmv1 (= ${binary:Version}), libpcp-web1 (= ${binary:Version}), libpcp-archive1 (= ${binary:Version}), libpcp3 (= ${binary:Version}), pcp-conf (= ${binary:Version})
 Recommends: libpcp-pmda-perl
 Conflicts: pgpool2, dstat, pcp-webapi, pcp-manager
-Suggests: pcp-gui, libpcp-import-perl, ?{bpftrace}, ?{python3-bpfcc}, redis-server
+Suggests: pcp-gui, libpcp-import-perl, ?{bpftrace}, ?{python3-bpfcc}, redis-server, zstd
 Provides: dstat, pcp-webapi, pcp-manager
 Replaces: dstat, pcp-webapi, pcp-manager
 Architecture: any
