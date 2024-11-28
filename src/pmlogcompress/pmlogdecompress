@@ -114,7 +114,8 @@ _decompress()
 
     if [ "$ncompress" -eq 0 ]
     then
-	$verbose && echo >&2 "No compresssed PCP archive files match \"$1\""
+	# no file needs to be decompressed ...
+	#
 	status=0
 	return
     fi
