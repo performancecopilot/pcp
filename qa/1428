@@ -73,7 +73,7 @@ unset PCP_DERIVED_CONFIG
 
 # real QA test starts here
 mkdir -p $tmp
-cp archives/daily_report.* $tmp
+pmlogcp archives/daily_report $tmp
 _doit
 
 echo

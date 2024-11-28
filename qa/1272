@@ -31,9 +31,9 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 # real QA test starts here
 mkdir $tmp
 
-cp tmparch/foo.* $tmp
-pmlogmv $tmp/foo $tmp/fool
-cp tmparch/foo.* $tmp
+pmlogcp tmparch/foo $tmp
+pmlogcp tmparch/foo $tmp/fool
+
 cd $tmp
 
 _do_it()

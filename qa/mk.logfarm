@@ -118,30 +118,37 @@ do
 	fi
     fi
 
-    for file in "$src".*
-    do
-	if [ "$file" = "$src.*" ]
-	then
-	    echo "mk.logfarm: Error: no files match source ($src.*)"
-	    touch $tmp.abort
-	    break
-	fi
-	cp "$file" "$rootdir"/"$host"
-    done
-    [ -f $tmp.abort ] && break
-    srcbase="`basename $src`"
-
-    # rename if needed ...
-    #
-    if [ "$srcbase" != "$dst" ]
+    if pmlogcp "$src" "$rootdir"/"$host"/"$dst"
     then
-	if pmlogmv "$rootdir"/"$host"/"$srcbase" "$rootdir"/"$host"/"$dst"
+	:
+    else
+        # pmlogcp may fail for "bad" archives, so do it the hard way
+	#
+	for file in "$src".*
+	do
+	    if [ "$file" = "$src.*" ]
+	    then
+		echo "mk.logfarm: Error: no files match source ($src.*)"
+		touch $tmp.abort
+		break
+	    fi
+	    cp "$file" "$rootdir"/"$host"
+	done
+	[ -f $tmp.abort ] && break
+	srcbase="`basename $src`"
+
+	# rename if needed ...
+	#
+	if [ "$srcbase" != "$dst" ]
 	then
-	    :
-	else
-	    echo "mk.logfarm: Error: pmlogmv $host/$srcbase -> $host/$dst failed"
-	    touch $tmp.abort
-	    break
+	    if pmlogmv "$rootdir"/"$host"/"$srcbase" "$rootdir"/"$host"/"$dst"
+	    then
+		:
+	    else
+		echo "mk.logfarm: Error: pmlogmv $host/$srcbase -> $host/$dst failed"
+		touch $tmp.abort
+		break
+	    fi
 	fi
     fi
 

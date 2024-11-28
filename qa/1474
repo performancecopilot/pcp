@@ -55,7 +55,7 @@ $1 != "cputime:" { print }'
 base=pcp-pidstat-process-args
 mkdir $tmp
 cd $tmp
-cp $here/archives/$base.* .
+pmlogcp $here/archives/$base .
 $time  -f 'cputime: %U %S' xzcat $base.0.xz >/dev/null 2>$tmp.time
 _summary <$tmp.time "data uncompress" | tee -a $here/$seq.full >$tmp.tmp
 data=`sed -n <$tmp.tmp -e '/[0-9]cpu (/{

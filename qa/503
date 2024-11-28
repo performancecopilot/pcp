@@ -61,11 +61,8 @@ _filter()
 _setup()
 {
     $sudo rm -f $tmp.arch/*
-    for x in 0 meta index
-    do
-	$sudo cp archives/rewrite.$x $tmp.arch/20111001.21.10.$x
-	$sudo cp archives/rewrite.$x $tmp.arch/20111001.22.10.$x
-    done
+    sudo pmlogcp archives/rewrite $tmp.arch/20111001.21.10
+    sudo pmlogcp archives/rewrite $tmp.arch/20111001.22.10
     echo "global { time -> +1:00:00 }" >$tmp.conf.time
     $sudo $PMLOGREWRITE -c $tmp.conf.time -i $tmp.arch/20111001.22.10
 

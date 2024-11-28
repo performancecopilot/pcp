@@ -31,6 +31,7 @@ _cleanup()
 _filter()
 {
     sed \
+	-e '/pmlogcp: Cannot open archive .*: Missing PCP archive file/d' \
 	-e '/^Roll .*\/NOTICES/d' \
 	-e '/^Start .*\/NOTICES/d' \
 	-e "s@$tmp@TMP@g" \
@@ -41,10 +42,6 @@ _filter()
 	-e '/^.[rwx-][rwx-][rwx-]/s/.* 2001/<ls output> 2001/'
     # end
 }
-
-status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
-trap "_cleanup; exit \$status" 0 1 2 3 15
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
@@ -65,6 +62,7 @@ metric pmcd.pid {
 }
 End-of-File
 pmlogrewrite -c $tmp.config archives/bad-derived $tmp
+ls -l $tmp* >>$seq.full
 cat <<End-of-File >$tmp.farm
 oldsem0		$tmp	20011002
 oldsem0		$tmp	20011003

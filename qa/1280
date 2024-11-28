@@ -56,7 +56,7 @@ _doit()
 
 # real QA test starts here
 mkdir $tmp
-cp archives/20180416.10.00* $tmp
+pmlogcp archives/20180416.10.00 $tmp
 cd $tmp
 for f in *.xz
 do

@@ -39,7 +39,9 @@ _filter2()
     | _filter
 }
 
-cp archives/bozo.client_v2.* $tmp
+pmlogcp archives/bozo.client_v2 $tmp
+# pmlogcp does not like bad archives
+#
 cp badarchives/bozo.client_v2.* $tmp
 mv $tmp/bozo.client_v2.meta $tmp/bozo.client_v2.save
 

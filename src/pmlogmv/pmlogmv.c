@@ -14,6 +14,7 @@
 
 /*
  * pmlogmv - move/rename PCP archives
+ * pmlogcp - copy PCP archives
  */
 
 #include <unistd.h>
@@ -23,6 +24,7 @@
 #include <string.h>
 #include "pmapi.h"
 #include "libpcp.h"
+#include <sys/stat.h>
 
 static int myoverrides(int, pmOptions *);
 
@@ -40,16 +42,22 @@ static pmLongOptions longopts[] = {
 static pmOptions opts = {
     .short_options = "cD:fNV?",
     .long_options = longopts,
-    .short_usage = "[options] oldname newname",
+    .short_usage = "[options] srcname dstname",
     .override = myoverrides
 };
+
+static char	*progname;
+
+#define MV 1
+#define CP 2
+static int	mode;		/* MV or CP depending on argv[0] */
 
 static int	showme = 0;
 static int	verbose = 0;
 static int	force = 0;
 static int	checksum = 0;
-static char	*oldname;		
-static char	*newname;
+static char	*srcname;		
+static char	dstname[MAXPATHLEN];
 /* need a sentinel that is < 0 and ! PM_LOG_VOL_TI amd ! PM_LOG_VOL_META */
 #define PM_LOG_VOL_NONE -100
 static int	lastvol = PM_LOG_VOL_NONE;
@@ -78,7 +86,7 @@ check_name(char *name)
 
     for (p = meta; *p; p++) {
 	if (index(name, *p) != NULL) {
-	    fprintf(stderr, "pmlogmv: newname (%s) unsafe [shell metacharacter '%c']\n", name, *p);
+	    fprintf(stderr, "%s: dstname (%s) unsafe [shell metacharacter '%c']\n", progname, name, *p);
 	    return -1;
 	}
     }
@@ -96,18 +104,18 @@ setup_sufftab(void)
     int		n = 2;
 
     if ((list = strdup(pmGetAPIConfig("compress_suffixes"))) == NULL) {
-	fprintf(stderr, "pmlogmv: cannot get archive suffix list\n");
+	fprintf(stderr, "%s: cannot get archive suffix list\n", progname);
 	return -1;
     }
 
     if ((table = malloc(n * sizeof(char *))) == NULL) {
-	fprintf(stderr, "pmlogmv: cannot malloc suffix table\n");
+	fprintf(stderr, "%s: cannot malloc suffix table\n", progname);
 	free(list);
 	return -1;
     }
 
     if ((table[0] = strdup("")) == NULL) {
-	fprintf(stderr, "pmlogmv: cannot strdup for suffix table[0]\n");
+	fprintf(stderr, "%s: cannot strdup for suffix table[0]\n", progname);
 	free(list);
 	free(table);
 	return -1;
@@ -116,7 +124,7 @@ setup_sufftab(void)
     p = strtok(list, " ");
     while (p) {
 	if ((table_tmp = realloc(table, sizeof(char *) * ++n)) == NULL) {
-	    fprintf(stderr, "pmlogmv: cannot realloc suffix table for %d entries\n", n);
+	    fprintf(stderr, "%s: cannot realloc suffix table for %d entries\n", progname, n);
 	    free(list);
 	    free(table);
 	    return -1;
@@ -144,7 +152,7 @@ setup_sufftab(void)
 void
 do_checksum(const char *file, char *sum)
 {
-    char	cmd[MAXPATHLEN+40];
+    char	cmd[2*MAXPATHLEN+20];
     static char	*executable = NULL;
     FILE	*fp;
     static int	trunc_warn = 0;
@@ -172,7 +180,7 @@ do_checksum(const char *file, char *sum)
 			executable = "sum";
 		    else {
 			executable = "none";
-			fprintf(stderr, "pmlogmv: warning: no checksum command found, checksums skipped\n");
+			fprintf(stderr, "%s: warning: no checksum command found, checksums skipped\n", progname);
 		    }
 		}
 	    }
@@ -188,7 +196,7 @@ do_checksum(const char *file, char *sum)
 	/*
 	 * abandon checksuming ...
 	 */
-	fprintf(stderr, "pmlogmv: pipe(\"%s\") failed: %s\n", cmd, strerror(errno));
+	fprintf(stderr, "%s: pipe(\"%s\") failed: %s\n", progname, cmd, strerror(errno));
 	executable = "none";
     }
     else {
@@ -204,7 +212,7 @@ do_checksum(const char *file, char *sum)
 		 * avoid buffer overrun, report only once unless -V
 		 */
 		if (trunc_warn++ == 0 || verbose)
-		    fprintf(stderr, "pmlogmv: warning: checksum truncated after %d characters\n", MAX_CHECKSUM);
+		    fprintf(stderr, "%s: warning: checksum truncated after %d characters\n", progname, MAX_CHECKSUM);
 		*p = '\0';
 		break;
 	    }
@@ -215,7 +223,7 @@ do_checksum(const char *file, char *sum)
 }
 
 /*
- * make link for one physical file
+ * make link or copy for one physical file
  * return codes:
  * 1: ok
  * 0: source file not found
@@ -224,50 +232,54 @@ do_checksum(const char *file, char *sum)
 static int
 do_link(int vol)
 {
-    char	src[MAXPATHLEN];
-    char	dst[MAXPATHLEN];
+    char	src[MAXPATHLEN+20];	/* +20 to pander to compiler warnings */
+    char	dst[MAXPATHLEN+20];	/* ditto */
     char	**suff;
 
     for (suff = sufftab; *suff != NULL; suff++) {
 	switch (vol) {
 	    case PM_LOG_VOL_TI:
-		    snprintf(src, sizeof(src), "%s.index%s", oldname, *suff);
+		    snprintf(src, sizeof(src), "%s.index%s", srcname, *suff);
 		    break;
 	    case PM_LOG_VOL_META:
-		    snprintf(src, sizeof(src), "%s.meta%s", oldname, *suff);
+		    snprintf(src, sizeof(src), "%s.meta%s", srcname, *suff);
 		    break;
 	    default:
-		    snprintf(src, sizeof(src), "%s.%d%s", oldname, vol, *suff);
+		    snprintf(src, sizeof(src), "%s.%d%s", srcname, vol, *suff);
 		    break;
 	}
 	if (access(src, F_OK) == 0) {
 	    /* src exists ... off to the races */
 	    switch (vol) {
 		case PM_LOG_VOL_TI:
-			snprintf(dst, sizeof(src), "%s.index%s", newname, *suff);
+			snprintf(dst, sizeof(src), "%s.index%s", dstname, *suff);
 			break;
 		case PM_LOG_VOL_META:
-			snprintf(dst, sizeof(src), "%s.meta%s", newname, *suff);
+			snprintf(dst, sizeof(src), "%s.meta%s", dstname, *suff);
 			break;
 		default:
-			snprintf(dst, sizeof(src), "%s.%d%s", newname, vol, *suff);
+			snprintf(dst, sizeof(src), "%s.%d%s", dstname, vol, *suff);
 			break;
 	    }
 	    if (access(dst, F_OK) == 0) {
 		/* dst exists ... blah, no cigar */
-		fprintf(stderr, "pmlogmv: %s: already exists\n", dst);
+		fprintf(stderr, "%s: %s: already exists\n", progname, dst);
 		return -1;
 	    }
-	    if (showme)
-		printf("+ ln %s %s\n", src, dst);
+	    if (showme) {
+		if (mode == MV)
+		    printf("+ ln-or-cp %s %s\n", src, dst);
+		else
+		    printf("+ cp %s %s\n", src, dst);
+	    }
 	    else {
 #ifndef IS_MINGW
-		if (link(src, dst) < 0) {
-		    if (errno == EXDEV) {
+		if (mode == CP || link(src, dst) < 0) {
+		    if (mode == CP || errno == EXDEV) {
 #endif
-			/* link() failed cross-device, need to copy ... */
+			/* pmlogcp or link() failed cross-device, need to copy ... */
 			int		sts;
-			char		cmd[2*MAXPATHLEN+4];
+			char		cmd[2*MAXPATHLEN+60];
 			char		sum_src[MAX_CHECKSUM+1];
 			char		sum_dst[MAX_CHECKSUM+1];
 			if (checksum) {
@@ -282,7 +294,7 @@ do_link(int vol)
 
 			snprintf(cmd, sizeof(cmd), "cp %s %s", src, dst);
 			if ((sts = system(cmd)) != 0) {
-			    fprintf(stderr, "pmlogmv: copy %s -> %s failed: %s\n", src, dst, strerror(errno));
+			    fprintf(stderr, "%s: copy %s -> %s failed: %s\n", progname, src, dst, strerror(errno));
 			    return -1;
 			}
 			if (checksum) {
@@ -291,9 +303,9 @@ do_link(int vol)
 				printf("destination checksum: %s\n", sum_dst);
 			    if (strcmp(sum_src, sum_dst) != 0) {
 				/* different checksums! */
-				fprintf(stderr, "pmlogmv: checksums %s ? %s differ\n", sum_src, sum_dst);
+				fprintf(stderr, "%s: checksums %s ? %s differ\n", progname, sum_src, sum_dst);
 				if (unlink(dst) < 0)
-				    fprintf(stderr, "pmlogmv: unlink %s failed: %s\n", dst, strerror(errno));
+				    fprintf(stderr, "%s: unlink %s failed: %s\n", progname, dst, strerror(errno));
 				else if (verbose)
 				    printf("remove %s\n", dst);
 				return -1;
@@ -304,7 +316,7 @@ do_link(int vol)
 #ifndef IS_MINGW
 		    }
 		    else {
-			fprintf(stderr, "pmlogmv: link %s -> %s failed: %s\n", src, dst, strerror(errno));
+			fprintf(stderr, "%s: link %s -> %s failed: %s\n", progname, src, dst, strerror(errno));
 			return -1;
 		    }
 		}
@@ -320,15 +332,15 @@ do_link(int vol)
     switch (vol) {
 	case PM_LOG_VOL_TI:
 		if (verbose > 1)
-		    fprintf(stderr, "pmlogmv: Warning: source file %s.index not found\n", oldname);
+		    fprintf(stderr, "%s: Warning: source file %s.index not found\n", progname, srcname);
 		break;
 	case PM_LOG_VOL_META:
 		if (verbose)
-		    fprintf(stderr, "pmlogmv: Warning: source file %s.meta not found\n", oldname);
+		    fprintf(stderr, "%s: Warning: source file %s.meta not found\n", progname, srcname);
 		break;
 	default:
 		if (verbose > 1)
-		    fprintf(stderr, "pmlogmv: Warning: source file %s.%d not found\n", oldname, vol);
+		    fprintf(stderr, "%s: Warning: source file %s.%d not found\n", progname, srcname, vol);
 		break;
     }
 
@@ -364,7 +376,7 @@ do_unlink(int cleanup, char *name, int vol)
 		if (verbose)
 		    printf("%sremove %s\n", cleanup ? "cleanup: " : "", src);
 		if (unlink(src) < 0) {
-		    fprintf(stderr, "pmlogmv: unlink %s failed: %s\n", src, strerror(errno));
+		    fprintf(stderr, "%s: unlink %s failed: %s\n", progname, src, strerror(errno));
 		}
 	    }
 	    break;
@@ -384,22 +396,22 @@ cleanup(int sig)
 
     /* order here is the _reverse_ order of creation in main() */
     if (lastvol == PM_LOG_VOL_META) {
-	/* newname.meta was created */
-	do_unlink(1, newname, PM_LOG_VOL_META);
+	/* dstname.meta was created */
+	do_unlink(1, dstname, PM_LOG_VOL_META);
 	lastvol = PM_LOG_VOL_TI;
     }
     if (lastvol == PM_LOG_VOL_TI) {
-	/* newname.index was created */
-	do_unlink(1, newname, PM_LOG_VOL_TI);
+	/* dstname.index was created */
+	do_unlink(1, dstname, PM_LOG_VOL_TI);
 	if (ctxp == NULL)
 	    lastvol = PM_LOG_VOL_NONE;
 	else
 	    lastvol = ctxp->c_archctl->ac_log->maxvol;
     }
     if (lastvol != PM_LOG_VOL_NONE) {
-	/* newname vols were created */
+	/* dstname vols were created */
 	for (i = ctxp->c_archctl->ac_log->minvol; i <= lastvol; i++) {
-	    do_unlink(1, newname, i);
+	    do_unlink(1, dstname, i);
 	}
     }
 
@@ -423,6 +435,19 @@ main(int argc, char **argv)
 #ifdef HAVE_SA_SIGINFO
     static struct sigaction act;
 #endif
+    struct stat	sb;
+
+    pmSetProgname(argv[0]);
+    progname = pmGetProgname();
+
+    if (strcmp(progname, "pmlogmv") == 0)
+	mode = MV;
+    else if (strcmp(progname, "pmlogcp") == 0)
+	mode = CP;
+    else {
+	fprintf(stderr, "%s: Arrgh, not pmlogmv nor pmlogcp so I don't know who I am!\n", progname);
+	return(1);
+    }
 
     setlinebuf(stdout);
     setlinebuf(stderr);
@@ -458,26 +483,39 @@ main(int argc, char **argv)
 	exit(1);
     }
 
-    oldname = strdup(argv[opts.optind]);
-    if (oldname == NULL) {
-	fprintf(stderr, "pmlogmv: malloc(oldname) failed!\n");
+    srcname = strdup(argv[opts.optind]);
+    if (srcname == NULL) {
+	fprintf(stderr, "%s: malloc(srcname) failed!\n", progname);
 	exit(1);
     }
 
-    if ((sts = pmNewContext(PM_CONTEXT_ARCHIVE, oldname)) < 0) {
-	fprintf(stderr, "pmlogmv: Cannot open archive \"%s\": %s\n", oldname, pmErrStr(sts));
+    if ((sts = pmNewContext(PM_CONTEXT_ARCHIVE, srcname)) < 0) {
+	fprintf(stderr, "%s: Cannot open archive \"%s\": %s\n", progname, srcname, pmErrStr(sts));
 	exit(1);
     }
     if ((ctxp = __pmHandleToPtr(sts)) == NULL) {
-	fprintf(stderr, "pmlogmv: botch: __pmHandleToPtr(%d) returns NULL!\n", sts);
+	fprintf(stderr, "%s: botch: __pmHandleToPtr(%d) returns NULL!\n", progname, sts);
 	exit(1);
     }
-    oldname = ctxp->c_archctl->ac_log->name;
+    srcname = ctxp->c_archctl->ac_log->name;
 
     opts.optind++;
-    newname = argv[opts.optind];
+    /*
+     * default is that dstname is really the basename for the
+     * destination archive
+     */
+    snprintf(dstname, sizeof(dstname), "%s", argv[opts.optind]);
+    sb.st_mode = 0;
+    if (stat(argv[opts.optind], &sb) == 0 && S_ISDIR(sb.st_mode)) {
+	/* 
+	 * dstname is an existing directory ... append
+	 * basename of srcname
+	 */
+	snprintf(dstname, sizeof(dstname), "%s%c%s",
+	    argv[opts.optind], pmPathSeparator(), basename(srcname));
+    }
 
-    if (!force && check_name(newname) < 0) {
+    if (!force && check_name(dstname) < 0) {
 	/* error reported in check_name() */
 	exit(1);
     }
@@ -510,15 +548,17 @@ main(int argc, char **argv)
     if (do_link(PM_LOG_VOL_META) < 0)
 	goto abandon;
 
-    /* remove oldname files */
-    for (i = ctxp->c_archctl->ac_log->minvol; i <= ctxp->c_archctl->ac_log->maxvol; i++) {
-	do_unlink(0, oldname, i);
+    /* if pmlogmv remove srcname files */
+    if (mode == MV) {
+	for (i = ctxp->c_archctl->ac_log->minvol; i <= ctxp->c_archctl->ac_log->maxvol; i++) {
+	    do_unlink(0, srcname, i);
+	}
+	do_unlink(0, srcname, PM_LOG_VOL_TI);
+	do_unlink(0, srcname, PM_LOG_VOL_META);
     }
-    do_unlink(0, oldname, PM_LOG_VOL_TI);
-    do_unlink(0, oldname, PM_LOG_VOL_META);
     return 0;
 
-/* fatal error once we're started ... remove any newname files */
+/* fatal error once we're started ... remove any dstname files */
 abandon:
     cleanup(0);
     /* NOTREACHED */

@@ -38,6 +38,7 @@ _cleanup()
 _filter()
 {
     sed \
+	-e '/pmlogcp: Cannot open archive .*: Illegal label record/d' \
 	-e "s@$tmp@TMP@g" \
     # end
 }

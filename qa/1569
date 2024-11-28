@@ -99,7 +99,7 @@ _doit pmlogdecompress -f gzip foobar
 _doit pmlogdecompress -l 0 foobar
 _doit pmlogdecompress -o space foobar
 _doit pmlogcompress -o foo foobar
-cp $here/archives/foo+.* $tmp
+pmlogcp $here/archives/foo+ $tmp
 _doit pmlogcompress -l 0 -c no-such-prog $tmp/foo+
 _doit pmlogcompress -l 0 -f no-such-prog $tmp/foo+
 _doit pmlogcompress -l 0 -c no-such-prog:even-less-likely-prog $tmp/foo+
@@ -110,7 +110,7 @@ echo
 echo "=== some decompress success cases ==="
 cd $tmp
 rm -f *
-cp $here/archives/pcp-meminfo* .
+pmlogcp $here/archives/pcp-meminfo .
 pmlogdump -z pcp-meminfo >$tmp.pcp-meminfo.dump
 stat --format='%n %s' pcp-meminfo* | _filter
 _doit pmlogdecompress -N pcp-meminfo
@@ -172,7 +172,7 @@ _check pcp-meminfo
 
 echo
 echo "=== some compress (and decompress) success cases ==="
-cp $here/archives/foo+.* .
+pmlogcp $here/archives/foo+ .
 stat --format='%n %s' foo+* | _filter
 pmlogdump -z foo+ >$tmp.foo+.dump
 _doit pmlogcompress -NV -l10240 foo+

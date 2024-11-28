@@ -68,7 +68,8 @@ cd $seq.tmp
 # real QA test starts here
 
 echo "=== no errors case ==="
-cp ../archives/foo+.* .
+rm -f foo+.*
+pmlogcp ../archives/foo+ .
 rm -f $tmpdir/foo+.*
 pmlogmv -c foo+ $tmpdir/foo+
 echo "src ..."; (ls foo+.* 2>&1 | _filter_ls)
@@ -76,7 +77,8 @@ echo "dest ..."; (cd $tmpdir; ls foo+.* 2>&1 | _filter_ls)
 
 echo
 echo "=== no errors with -v case ==="
-cp ../archives/foo+.* .
+rm -f foo+.*
+pmlogcp ../archives/foo+ .
 rm -f $tmpdir/foo+.*
 pmlogmv -cV foo+ $tmpdir/foo+ 2>&1 | _filter
 echo "src ..."; (ls foo+.* 2>&1 | _filter_ls)
@@ -95,7 +97,8 @@ chmod 755 md5sum
 # containers
 #
 export PATH=.:$PATH
-cp ../archives/foo+.* .
+rm -f foo+.*
+pmlogcp ../archives/foo+ .
 rm -f $tmpdir/foo+.*
 pmlogmv -c foo+ $tmpdir/foo+ 2>&1 | _filter
 echo "src ..."; (ls foo+.* 2>&1 | _filter_ls)
@@ -109,7 +112,8 @@ cat <<'End-of-File' >cp
 PATH=/bin:/usr/bin cp $*
 End-of-File
 chmod 755 cp
-cp ../archives/foo+.* .
+rm -f foo+.*
+pmlogcp ../archives/foo+ .
 rm -f $tmpdir/foo+.*
 pmlogmv=`which pmlogmv`
 ( PATH=. $pmlogmv -cV foo+ $tmpdir/foo+ ) 2>&1 | _filter

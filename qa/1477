@@ -54,8 +54,8 @@ _doit()
     echo "=== cmd=$cmd $* ===" | tee -a $here/$seq.full
     [ -d $tmp ] || mkdir $tmp
     cd $tmp
-    rm -f out.*
-    cp $here/archives/ok-mv-bar.* .
+    rm -f out.* ok-mv-bar.*
+    pmlogcp $here/archives/ok-mv-bar .
     for cull
     do
 	rm ok-mv-bar.$cull

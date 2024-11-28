@@ -58,10 +58,7 @@ echo | tee -a $seq.full
 echo "metric sample.seconds { type -> U64 }" >$tmp.config
 echo "=== -i `cat $tmp.config` ===" | tee -a $seq.full
 rm -f $tmp.new.*
-for i in index meta 0 1 2
-do
-    cp archives/ok-mv-foo.$i $tmp.new.$i
-done
+pmlogcp archives/ok-mv-foo $tmp.new
 pmlogrewrite -iws -c $tmp.config $tmp.new 2>&1 | _filter
 echo "Output archive contains: `ls $tmp.new.* | tee -a $seq.full | wc -l | sed -e 's/ //g'` files"
 _cmp $tmp.new

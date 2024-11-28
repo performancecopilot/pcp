@@ -54,7 +54,7 @@ _setup_control()
 _setup()
 {
     rm -f $tmp/* $tmp.log
-    cp archives/ok-mv-bigbin.* $tmp
+    pmlogcp archives/ok-mv-bigbin $tmp
     for arch in $tmp/ok-mv-bigbin.*
     do
 	touch -t ${DATE}0102 $arch

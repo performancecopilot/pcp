@@ -61,7 +61,7 @@ mkdir $tmp.arch
 echo "=== metric not in archive ===" | tee -a $seq.full
 arch=rewrite
 rm -f $tmp.arch/*
-cp archives/$arch.* $tmp.arch
+pmlogcp archives/$arch $tmp.arch
 ls -l $tmp.arch | tee -a $seq.full >$tmp.before
 cat <<'End-of-File' >$tmp.conf
 metric kernel.all.load { pmid -> 1.2.3 }
@@ -114,7 +114,7 @@ End-of-File
 cat $tmp.conf >>$seq.full
 arch=mirage
 rm -f $tmp.arch/*
-cp archives/$arch.* $tmp.arch
+pmlogcp archives/$arch $tmp.arch/$arch
 ls $tmp.arch
 ls -l $tmp.arch >>$seq.full
 pmlogrewrite -s -c $tmp.conf $tmp.arch/$arch $tmp.arch/$arch.expect 2>&1 \
@@ -136,7 +136,7 @@ End-of-File
 cat $tmp.conf >>$seq.full
 arch=ok-truncbin
 rm -f $tmp.arch/*
-cp badarchives/$arch.* $tmp.arch
+pmlogcp badarchives/$arch $tmp.arch/$arch
 ls -l $tmp.arch >>$seq.full
 # Note: 204XXX filtering is because stdio does not always return the same
 #       value on different platforms ... it is 204800 (EOF) on OpenBSD 6.3
