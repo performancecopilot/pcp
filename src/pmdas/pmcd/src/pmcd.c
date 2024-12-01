@@ -44,7 +44,7 @@ static pmDesc	desctab[] = {
 /* numclients */
     { PMDA_PMID(0,3), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* control.timeout */
-    { PMDA_PMID(0,4), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
+    { PMDA_PMID(0,4), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,1,0,0,PM_TIME_SEC,0) },
 /* timezone -- local $TZ -- for pmlogger */
     { PMDA_PMID(0,5), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* simabi -- Subprogram Interface Model, ABI version of this pmcd (normally PM_TYPE_STRING) */
@@ -95,6 +95,8 @@ static pmDesc	desctab[] = {
     { PMDA_PMID(0,28), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* limits.metrics */
     { PMDA_PMID(0,29), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* control.creds_timeout */
+    { PMDA_PMID(0,30), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,1,0,0,PM_TIME_SEC,0) },
 
 /* pdu_in.error */
     { PMDA_PMID(1,0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
@@ -1581,6 +1583,10 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 				atom.ul = maxmetrics;
 				break;
 
+			case 30:	/* control.creds_timeout */
+				atom.ul = creds_timeout;
+				break;
+
 			default:
 				sts = atom.l = PM_ERR_PMID;
 				break;
@@ -1991,6 +1997,21 @@ pmcd_store(pmResult *result, pmdaExt *pmda)
 	    else if (item == 24) { /* pmcd.seqnum */
 		/* bump ... intended for QA */
 		pmcd_seqnum++;
+	    }
+	    else if (item == 30) { /* pmcd.control.creds_timeout */
+		val = vsp->vlist[0].value.lval;
+		if (val < 0) {
+		    sts = PM_ERR_SIGN;
+		    break;
+		}
+		else if (val == 0) {
+		    /* must be > 0 */
+		    sts = PM_ERR_CONV;
+		    break;
+		}
+		if (val != creds_timeout) {
+		    creds_timeout = val;
+		}
 	    }
 	    else {
 		sts = PM_ERR_PMID;

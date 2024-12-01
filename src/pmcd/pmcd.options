@@ -4,11 +4,14 @@
 # IP address
 # -i 192.168.0.100
 
-# longer timeout delay for slow agents
+# longer IPC timeout delay for slow agents (default 5)
 # -t 10
 
 # or suppress timeouts
 # -t 0
+
+# longer timeout for slow agent startup (default 3)
+# -q 10
 
 # make log go someplace else
 # -l /some/place/else

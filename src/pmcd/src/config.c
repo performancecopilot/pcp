@@ -1546,7 +1546,7 @@ AgentNegotiate(AgentInfo *aPtr)
     int		sts;
     __pmPDU	*ack;
 
-    sts = __pmGetPDU(aPtr->outFd, ANY_SIZE, _creds_timeout, &ack);
+    sts = __pmGetPDU(aPtr->outFd, ANY_SIZE, creds_timeout, &ack);
     if (sts == PDU_CREDS) {
 	if ((sts = DoAgentCreds(aPtr, ack)) < 0) {
 	    fprintf(stderr, "pmcd: version exchange failed "
