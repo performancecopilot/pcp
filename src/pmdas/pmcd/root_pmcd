@@ -45,6 +45,7 @@ pmcd {
 pmcd.control {
     debug	PMCD:0:0
     timeout	PMCD:0:4
+    creds_timeout	PMCD:0:30
     register	PMCD:0:8
     traceconn	PMCD:0:9
     tracepdu	PMCD:0:10

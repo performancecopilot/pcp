@@ -152,11 +152,11 @@ extern int HarvestAgents(unsigned int);
 /* pmdaroot file descriptor */
 extern int	pmdarootfd;
 
-/* timeout to PMDAs (secs) */
+/* timeout for PMDA response (secs) from -t */
 PMCD_DATA extern int	pmcd_timeout;
 
-/* timeout for credentials */
-extern int	_creds_timeout;
+/* timeout for initial PMDA credentials exchange (secs) from -q */
+PMCD_DATA extern int	creds_timeout;
 
 /* flag for context label changes */
 extern int	labelChanged;

@@ -112,6 +112,22 @@ It is possible to store a new timeout value into this metric.  Storing zero
 will turn off timeouts.  Subsequent storing of a non-zero value will turn
 on the timeouts again.
 
+See also pmcd.control.creds_timeout for the timeout used in the initial
+credentials exchange with a new PMDA.
+
+@ pmcd.control.creds_timeout Timeout interval for initial PMDA credentials exchange
+When started, each agent (PMDA) conducts an initial credentials
+exchange with pmcd and this exchange is expected to happen within a
+specific timeout period.  This metric returns the current credential
+exchange timeout period in seconds.  This corresponds to the -q option
+described in the man page, pmcd(1).
+
+It is possible to store a new credentials exchange timeout value into
+this metric.
+
+See also pmcd.control.timeout for the timeout used in other PMDA-pmcd
+communication.
+
 @ pmcd.control.debug Current value of PMCD debug flags
 The current value of the PMCD debug flags.  This is a bit-wise OR of the
 flags described in the output of pmdbg -l.  The PMCD-specific flags are:
