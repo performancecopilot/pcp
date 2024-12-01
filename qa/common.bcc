@@ -27,6 +27,19 @@ _pmdabcc_check()
     [ -f $PCP_PMDAS_DIR/bcc/pmdabcc.python ] || _notrun "bcc PMDA not installed"
 
     [ -d /lib/modules/$(uname -r) ] || _notrun "kernel headers for kernel $(uname -r) not found"
+
+    if $sudo [ ! -d /sys/kernel/debug/kprobes ]
+    then
+	# on vm13 x86_64  MX 23.4 (Libretto) circa Dec 2024 debugfs
+	# was mysteriously not mounted ... try to fix that
+	#
+	if $sudo mount -t debugfs none /sys/kernel/debug
+	then
+	    :
+	else
+	    _notrun "cannot mount debugfs"
+	fi
+    fi
 }
 
 _pmdabcc_require_kernel_version()
