@@ -2,6 +2,18 @@ package Slurm;
 use strict;
 use warnings;
 
+# PMDA uses
+# use Slurm qw(:constant);
+# so dummy this up ...
+my $foo = 42;
+use Exporter qw(import);
+our @EXPORT = qw($foo);
+our %EXPORT_TAGS = ( 
+    'constant' => [ 
+	qw($foo)
+    ]
+);
+
 sub new {
     my $self = {};
     bless $self;
