@@ -136,6 +136,8 @@ systemtap
 systemtap-sdt-dev
 time
 unbound
+valkey-server
+valkey-tools
 valgrind
 xfsprogs
 xkb-data
