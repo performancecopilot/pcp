@@ -122,6 +122,7 @@ sqlite
 sqlite-libs
 sysstat
 systemd-devel
+systemtap
 systemtap-devel
 systemtap-sdt-devel
 time
