@@ -11,13 +11,6 @@ echo "QA output created by $seq"
 
 _pmdabpftrace_check
 
-__version=`pmpython --version 2>&1 | sed -e 's/Python //'`
-case "$__version"
-in
-    3.[0-6].*)	_notrun "Python $__version too old for asyncio.create_task() [added in 3.7]"
-    		;;
-esac
-
 status=1       # failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 
