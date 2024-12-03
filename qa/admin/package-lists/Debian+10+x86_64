@@ -40,6 +40,7 @@ libcmocka-dev
 libdbd-mysql-perl
 libdbd-pg-perl
 libdevmapper-dev
+libdrm-dev
 libextutils-autoinstall-perl
 libfile-slurp-perl
 libgl1-mesa-dri
