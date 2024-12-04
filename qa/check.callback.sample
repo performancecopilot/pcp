@@ -170,7 +170,7 @@ fi
 
 # Some PMDAs have trouble starting on some VMs ... if one of these
 # has failed, try restarting it ... skip ones that are OK or NOTREADY
-# [pmcd.agetnt.status is 0 or 1]
+# [pmcd.agent.status is 0 or 1]
 #
 pminfo -f pmcd.agent.status | grep 'value [^01]' >$tmp.out
 if grep '"nfsclient"' $tmp.out >/dev/null
@@ -196,11 +196,11 @@ s/"//g
 s/] value / /
 p
 }' \
-    | while read domain name status
+    | while read domain name pmda_status
     do
-	if [ "$status" != 0 -a "$status" != 1 ]
+	if [ "$pmda_status" != 0 -a "$pmda_status" != 1 ]
 	then
-	    echo "check.callback: fail: PMDA $name not well, status=$status!"
+	    echo "check.callback: fail: PMDA $name not well, status=$pmda_status!"
 	    for log in $PCP_LOG_DIR/pmcd/pmcd.log $PCP_LOG_DIR/pmcd/$name.log* ]
 	    do
 		if [ -f "$log" ]
@@ -262,11 +262,11 @@ then
 	-e 's/.* or "//' \
 	-e 's/"] value / /' \
 	-e '/^$/d' \
-    | while read pmda status
+    | while read pmda pmda_status
     do
-	if [ "$status" -ne 0 ]
+	if [ "$pmda_status" -ne 0 ]
 	then
-	    echo "Warning: $pmda PMDA exited? pmcd.agent.status=$status"
+	    echo "Warning: $pmda PMDA exited? pmcd.agent.status=$pmda_status"
 	    echo "Relevant pmcd.log lines ..."
 	    grep "$pmda" "$PCP_LOG_DIR/pmcd/pmcd.log"
 	    if [ -f "$PCP_LOG_DIR/pmcd/$pmda.log" ]
