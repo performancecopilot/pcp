@@ -49,6 +49,7 @@ pmlogdecompress: TMP/pcp-meminfo.0 exists and will not be clobbered
 --- pmlogdecompress -V TMP/pcp-meminfo ---
 stderr ...
 archbase=TMP/pcp-meminfo
+0 of 3 files in the archive are compressed
 --- pmlogdecompress -c foocompress foobar ---
 stderr ...
 pmlogdecompress: invalid option -- 'c'
