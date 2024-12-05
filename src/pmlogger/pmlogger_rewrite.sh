@@ -291,59 +291,15 @@ do
 	    # only cause should be compressed input file, uncompressed
 	    # output file
 	    #
-	    case "$old_file"
-	    in
-		*.xz|*.lzma)
-		    if which xz >/dev/null 2>&1
-		    then
-			# same logic as in pmlogger_daily for optimal
-			# compression
-			#
-			if xz -0 --block-size=10MiB </dev/null >/dev/null 2>&1
-			then
-			    # want minimal overheads, -0 is the same as --fast
-			    xz -0 --block-size=10MiB "$file"
-			else
-			    xz "$file"
-			fi
-			$very_verbose && echo "changed and recompressed: $old_file"
-		    else
-			echo "Warning: no xz(1), cannot recompress $file"
-		    fi
-		    ;;
-		*.bz2|*.bz)
-		    if which bzip2 >/dev/null 2>&1
-		    then
-			bzip2 "$file"
-			$very_verbose && echo "changed and recompressed: $old_file"
-		    else
-			echo "Warning: no bzip2(1), cannot recompress $file"
-		    fi
-		    ;;
-		*.gz|*.Z|*.z)
-		    if which gzip >/dev/null 2>&1
-		    then
-			gzip "$file"
-			$very_verbose && echo "changed and recompressed: $old_file"
-		    else
-			echo "Warning: no gzip(1), cannot recompress $file"
-		    fi
-		    ;;
-		*.zst)
-		    if which zstd >/dev/null 2>&1
-		    then
-			zstd --rm --quiet "$file"
-			$very_verbose && echo "changed and recompressed: $old_file"
-		    else
-			echo "Warning: no zstd(1), cannot recompress $file"
-		    fi
-		    ;;
-		*)
-		    echo "Botch: cannot handle rewriting file name change: $old_file -> $file"
-		    ;;
-	    esac
+	    $very_verbose && echo "changed and recompressed: $file"
+	    if pmlogcompress "$file"
+	    then
+		:
+	    else
+		echo "Warning: pmlogcompress cannot recompress $file"
+	    fi
 	else
-	    $very_verbose && echo "changed: $old_file"
+	    $very_verbose && echo "changed: $file"
 	fi
     done
 done

@@ -112,13 +112,6 @@ _decompress()
 	return
     fi
 
-    if [ "$ncompress" -eq 0 ]
-    then
-	# no file needs to be decompressed ...
-	#
-	status=0
-	return
-    fi
     $verbose && echo >&2 "$ncompress of $nfile files in the archive are compressed"
 
     for file in $filelist
@@ -279,7 +272,7 @@ _decompress()
 		    fi
 		    ;;
 
-		*)	# not compressed ... do nothing unless -d, and then
+		*)  # not compressed ... do nothing unless -t, and then
 		    # try ln(1), failing that cp(1)
 		    #
 		    if [ -n "$dir" ]

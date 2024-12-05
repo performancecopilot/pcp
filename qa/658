@@ -13,7 +13,10 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-if which xz >/dev/null 2>&1
+if which zstd >/dev/null 2>&1
+then
+    SUFF=zst
+elif which xz >/dev/null 2>&1
 then
     SUFF=xz
 elif which bzip2 >/dev/null 2>&1
@@ -65,6 +68,7 @@ mkdir $tmp
 #
 cat <<End-of-File >$tmp.control
 \$version=1.1
+\$PCP_COMPRESS="pmlogcompress -l0 -Z0"
 #Host           P?  S?  directory       args
 thishost        n   n   $tmp/thishost    -c /no/such/config
 otherhost       n   n   $tmp/otherhost   -c /no/such/config

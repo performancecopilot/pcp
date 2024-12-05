@@ -98,6 +98,7 @@ ARCHIVETIMES=false
 VERY_VERBOSE=false
 PFLAG=false
 MYARGS=""
+DEBUG=false		# desperate debugging
 
 ARGS=`pmgetopt --progname=$prog --config=$tmp/usage -- "$@"`
 [ $? != 0 ] && exit 1
@@ -108,6 +109,7 @@ do
     case "$1"
     in
 	-a)	ARCHIVEPATH="$2"
+		$DEBUG && echo "debug: after -a:  ARCHIVEPATH=$ARCHIVEPATH"
 		shift
 		;;
 	-f)	REPORTFILE="$2"
@@ -150,119 +152,11 @@ done
 #
 _uncompress()
 {
-    ls -d $1.* >$tmp/list 2>&1
-
-    rm -f $tmp/uncompress
-    for _suff in `pmconfig -L compress_suffixes | sed -e 's/^compress_suffixes=//'`
-    do
-	if grep "$1.*.$_suff\$" $tmp/list >/dev/null
-	then
-	    touch $tmp/uncompress
-	    break
-	fi
-    done
-
-    if [ -f $tmp/uncompress ]
+    if pmlogdecompress -t $tmp "$1"
     then
-	# at least one of the archive files is compressed, copy and
-	# uncompress
-	#
-	$VERBOSE && echo >&2 "Uncompressing $1"
-	touch $tmp/ok
-	for _file in `cat $tmp/list`
-	do
-	    case "$_file"
-	    in
-		*.xz)
-			_dest=$tmp/`basename "$_file" .xz`
-			;;
-		*.lzma)
-			_dest=$tmp/`basename "$_file" .lzma`
-			;;
-		*.bz2)
-			_dest=$tmp/`basename "$_file" .bz2`
-			;;
-		*.bz)
-			_dest=$tmp/`basename "$_file" .bz`
-			;;
-		*.gz)
-			_dest=$tmp/`basename "$_file" .gz`
-			;;
-		*.Z)
-			_dest=$tmp/`basename "$_file" .Z`
-			;;
-		*.z)
-			_dest=$tmp/`basename "$_file" .z`
-			;;
-		*.zst)
-			_dest=$tmp/`basename "$_file" .zst`
-			;;
-	    esac
-	    case "$_file"
-	    in
-		*.xz|*.lzma)
-			if xzcat "$_file" >"$_dest"
-			then
-			    :
-			else
-			    echo >&2 "Warning: xzcat $_file failed"
-			    rm -f $tmp/ok
-			    break
-			fi
-			;;
-		*.bz2|*.bz)
-			if bzcat "$_file" >"$_dest"
-			then
-			    :
-			else
-			    echo >&2 "Warning: bzcat $_file failed"
-			    rm -f $tmp/ok
-			    break
-			fi
-			;;
-		*.gz|*.Z|*.z)
-			if zcat "$_file" >"$_dest"
-			then
-			    :
-			else
-			    echo >&2 "Warning: zcat $_file failed"
-			    rm -f $tmp/ok
-			    break
-			fi
-			;;
-		*.zst)
-			if zstdcat "$_file" >"$_dest"
-			then
-			    :
-			else
-			    echo >&2 "Warning: zstdcat $_file failed"
-			    rm -f $tmp/ok
-			    break
-			fi
-			;;
-		*)      # not compressed
-			_dest=$tmp/`basename "$_file"`
-			if cp "$_file" "$_dest"
-			then
-			    :
-			else
-			    echo >&2 "Warning: cp $_file failed"
-			    rm -f $tmp/ok
-			    break
-			fi
-			;;
-	    esac
-	done
-	if [ -f $tmp/ok ]
-	then
-	    echo $tmp/`basename "$1"`
-	else
-	    $VERBOSE && echo >&2 "Uncompressing failed, reverting to compressed archive"
-	    echo "$1"
-	fi
+	echo $tmp/`basename "$1"`
     else
-	# no compression, nothing to be done
-	#
+	$VERBOSE && echo >&2 "Uncompressing failed, reverting to compressed archive"
 	echo "$1"
     fi
 }
@@ -357,6 +251,7 @@ fi
 # take a long time to run as a result.
 #
 [ -z "$ARCHIVEPATH" ] && ARCHIVEPATH=$PCP_ARCHIVE_DIR/$HOSTNAME/`pmdate -1d %Y%m%d`
+$DEBUG && echo "debug: after default:  ARCHIVEPATH=$ARCHIVEPATH"
 
 # If input archive has been compressed, then uncompress it
 # into temporary files and use these, to avoid repeated
@@ -364,6 +259,7 @@ fi
 #
 ORIG_ARCHIVEPATH="$ARCHIVEPATH"
 ARCHIVEPATH=`_uncompress $ARCHIVEPATH`
+$DEBUG && echo "debug: after _uncompress:  ARCHIVEPATH=$ARCHIVEPATH"
 $VERBOSE && echo ARCHIVEPATH=$ARCHIVEPATH
 
 # Default output directory
@@ -393,6 +289,7 @@ $VERBOSE && echo REPORTFILE=$REPORTFILE
 #
 if [ ! -f "`echo $ARCHIVEPATH.meta*`" ]; then
     # report this to the log
+    $DEBUG && ls -l $ARCHIVEPATH.*
     echo "$prog: FATAL error: Failed to find input archive \"$ARCHIVEPATH\""
     exit 1
 fi

@@ -61,7 +61,7 @@ _filter()
 	-e '/^+ pmnewlog /s/pmnewlog .*/pmnewlog .../' \
 	-e '/^+ mkaf /s/mkaf .*/mkaf .../' \
 	-e '/^+ rm /d' \
-	-e '/^+ xz /d' \
+	-e '/^+ pmlogcompress /d' \
 	-e '/^+ pmlogger_merge /d' \
 	-e '/^[12][0-9][0-9][0-9][01][0-9][0-3][0-9]\.[0-9][0-9]\.[0-9][0-9]/d' \
 	-e '/Warning: no write access/d' \

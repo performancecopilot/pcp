@@ -268,6 +268,27 @@ file has been edited and
 .B $PCP_COMPRESSAFTER
 has been set to a value greater than
 .BR 0 .
+.RS
+.PP
+The default value of
+.B $PCP_COMPRESSAFTER
+is
+.B 0
+if
+.BR zstd (1)
+is installed, or if
+.BR xz (1)
+is installed and the
+.I lzma
+library is available (as reported for the
+.B transparent_decompress
+option by
+.BR pmconfig (1)).
+Otherwise the default value of
+.B $PCP_COMPRESSAFTER
+is
+.BR never .
+.RE
 .TP 5
 \fB\-l\fR \fIfile\fR, \fB\-\-logfile\fR=\fIfile\fR
 In order to ensure that mail is not unintentionally sent when these
@@ -525,7 +546,7 @@ options (above).
 \fB\-X\fR \fIprogram\fR, \fB\-\-compressor\fR=\fIprogram\fR
 This option specifies the program to use for compression \- by default
 this is
-.BR xz (1).
+.BR pmlogcompress (1).
 The environment variable
 .B $PCP_COMPRESS
 may be used as an alternative mechanism to define
@@ -904,11 +925,12 @@ which provides high precision intervals and semantics that are
 relative to the time of execution and are consistent across
 platforms.
 .SH SEE ALSO
+.BR PCPIntro (1),
 .BR egrep (1),
 .BR find-filter (1),
-.BR PCPIntro (1),
 .BR pmconfig (1),
 .BR pmlc (1),
+.BR pmlogcompress (1),
 .BR pmlogconf (1),
 .BR pmlogctl (1),
 .BR pmlogextract (1),
@@ -919,7 +941,8 @@ platforms.
 .BR pmlogmv (1),
 .BR pmlogrewrite (1),
 .BR systemd (1),
-.BR xz (1)
+.BR xz (1),
+.BR zstd (1)
 and
 .BR cron (8).
 

@@ -1,5 +1,5 @@
 QA output created by 1428
-ARCHIVEPATH=TMP/daily_report
+ARCHIVEPATH=.../pmlogger_daily_report.TMP/daily_report
 System Activity Report
 
 Host: ...
@@ -438,7 +438,6 @@ STAMP              0.000           0.000           0.000           0.000
 STAMP              0.000           0.000           0.000           0.000
 
 xz compression for .meta
-Uncompressing TMP/daily_report
 ARCHIVEPATH=.../pmlogger_daily_report.TMP/daily_report
 System Activity Report
 
@@ -878,7 +877,6 @@ STAMP              0.000           0.000           0.000           0.000
 STAMP              0.000           0.000           0.000           0.000
 
 gzip compression for .0
-Uncompressing TMP/daily_report
 ARCHIVEPATH=.../pmlogger_daily_report.TMP/daily_report
 System Activity Report
 
