@@ -202,6 +202,16 @@ of the files of
 will be copied, and possibly decompressed, into
 .IR dir .
 .PP
+If a file is
+.B not
+compressed, then an attempt will first be made to create
+a hard link in
+.I dir
+with
+.BR ln (1)
+and if this fails then a copy is made with
+.BR cp (1).
+.PP
 .I dir
 must exist before
 .B pmlogdecompress
