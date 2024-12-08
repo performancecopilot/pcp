@@ -3,7 +3,7 @@ Description=PCP Reboot Initialization Helper Service
 Documentation=man:pcp-reboot-init(1)
 DefaultDependencies=no
 After=network-online.target systemd-tmpfiles-setup.service
-Before=pmlogger.service pmie.service pmproxy.service
+Before=pmlogger.service pmie.service pmproxy.service pmcd.service
 
 [Service]
 Type=oneshot
