@@ -13,6 +13,16 @@ These notes should be read in conjunction with the README notes.
     to run QA with, you need to set up the QA
 (f) make sure the user you're going to run QA with can sudo without
     a password
+    For the QA Farm
+      $ su - root
+      # which sudo || apt install sudo
+      # EDITOR=vi visudo
+      add NOPASSWD: tag before last ALL in %sudo (or similar line), e.g.
+      %sudo   ALL=(ALL:ALL) NOPASSWD:ALL
+      # vi /etc/group and make sure kenj and pcpqa are in the sudo:x:... line
+      if /etc/group needed changing, logout and login again, then
+      $ sudo id
+      should not prompt for a password and return uid=0 and gid=0
 (g) make sure there is no firewall, or if there is one the ports mentioned
     in qa/README (pmcd, pmlogger control, pmproxy, etc) are open
     In the simplest case with ufw(1) in play, the following should suffice:
@@ -39,7 +49,12 @@ These notes should be read in conjunction with the README notes.
       $ sudo firewall-cmd --zone=$zone --list-services
       $ sudo firewall-cmd --zone=$zone --list-ports
 (h) git clone the PCP tree
-(i) cd qa/admin and run list-packages -p until you're tired ...
+    For the QA Farm
+      $ sudo apt install git
+      $ mkdir src
+      $ cd src
+      $ git clone bozo:git-mirror/pcp.git
+(i) cd qa/admin and run list-packages -m until you're tired ...
     - the files in qa/admin/package-lists are the inventories for each
       distribution, version and architecture we know about ... see the
       README in that directory if you need to create a new package-list
