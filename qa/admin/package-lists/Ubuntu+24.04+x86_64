@@ -55,6 +55,7 @@ libgl1-mesa-dri
 libibmad-dev
 libibumad-dev
 libicu74
+libinih-dev
 libjson-perl
 liblist-moreutils-perl
 liblzma-dev

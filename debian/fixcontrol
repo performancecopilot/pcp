@@ -253,6 +253,13 @@ else
     echo 's/?{libuv1-dev}, //' >>$tmp.sed
 fi
 
+if $HAVE_LIBINIH
+then
+    echo 's/?{libinih-dev}, /libinih-dev, /' >>$tmp.sed
+else
+    echo 's/?{libinih-dev}, //' >>$tmp.sed
+fi
+
 if $HAVE_PERL
 then
     echo 's/?{\\(perl[^}]*\\)}, /\\1, /' >>$tmp.sed

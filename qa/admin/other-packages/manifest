@@ -32,16 +32,16 @@
 
 # boiler-plate entries for adding a new packaging requirement
 #
-#dpkg?		foo		[?]
-#rpm?		foo		[?]
-#emerge?		foo		[?]
-#pkgin?		foo		[?]
-#pkg_add?	foo		[?]
-#F_pkg?		foo		[?]
-#S_pkg?		foo		[?]
-#slackpkg?	foo		[?]
-#pacman?		foo		[?]
-#brew?		foo		[?]
+#dpkg?		foo		[? {dpkg-based, Debian, Ubuntu, LinuxMint, MX, ...}]
+#rpm?		foo		[? {rpm-based, RHEL, Fedora, OpenSuSE, ...}]
+#emerge?		foo		[? {Gentoo}]
+#pkgin?		foo		[? {NetBSD}]]
+#pkg_add?	foo		[? {OpenBSD}]]
+#F_pkg?		foo		[? {FreeBSD}]
+#S_pkg?		foo		[? {Solaris}]
+#slackpkg?	foo		[? {Slackware}]
+#pacman?		foo		[? {Arch Linux}]
+#brew?		foo		[? {MacOS?}]
 
 #
 # common executables
@@ -1577,6 +1577,19 @@ S_pkg?		?				[? (QA optional)]
 slackpkg?	?				[N/A (QA optional)]
 pacman?		?				[? (QA optional)]
 brew?		?				[? (QA optional)]
+
+# -- libinih (optional for libpcp_web)
+#
+dpkg?		/usr/include/ini.h		[libinih-dev (build optional)]
+rpm?		/usr/include/ini.h		[inih-devel or libinih-devel (build optional)]
+emerge?		/usr/include/ini.h		[dev-libs/inih (build optional)]
+pkgin?		/usr/include/ini.h		[N/A (build optional)]
+pkg_add?	/usr/include/ini.h		[inih (build optional)]
+F_pkg?		/usr/include/ini.h		[inih (build optional)]
+S_pkg?		/usr/include/ini.h		[? (build optional)]
+slackpkg?	/usr/include/ini.h		[inih (build optional)]
+pacman?		/usr/include/ini.h		[libinih (build optional)]
+brew?		/usr/include/ini.h		[? (build optional)]
 
 # -- jq (for pmproxy/pmseries QA)
 #

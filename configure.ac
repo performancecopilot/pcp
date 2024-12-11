@@ -2108,6 +2108,18 @@ AC_CHECK_LIB(uv, uv_pipe_chmod,
 	     have_uv_pipe_chmod=true,
 	     have_uv_pipe_chmod=false)
 
+dnl PKG_CHECK_MODULES() does not work for libinih
+AC_CHECK_LIB(inih, ini_parse,
+       [ have_libinih=true
+	 lib_for_inih="-linih"
+       ],
+       [ have_libinih=false
+         lib_for_inih=""
+       ]
+)
+AC_SUBST(HAVE_LIBINIH, [$have_libinih])
+AC_SUBST(lib_for_inih)
+
 PKG_CHECK_MODULES([ncurses], [ncurses], [have_ncurses=true], [have_ncurses=false])
 AC_SUBST(HAVE_NCURSES, [$have_ncurses])
 

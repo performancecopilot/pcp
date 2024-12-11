@@ -1,10 +1,14 @@
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
+ifeq "$(PMDA_BPF)" "true"
 CFILES	= bpf.c
 CMDTARGET = pmdabpf$(EXECSUFFIX)
 LIBTARGET = pmda_bpf.$(DSOSUFFIX)
 LLDLIBS = $(PCP_WEBLIB) $(LIB_FOR_LIBBPF) $(LIB_FOR_LIBELF) -lz -lm -ldl
+ifeq "$(HAVE_LIBINIH)" "true"
+LLDLIBS += $(LIB_FOR_INIH)
+endif
 LCFLAGS = -I.
 CONFIG	= bpf.conf
 DFILES	= README
@@ -23,7 +27,6 @@ MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
 
 LDIRT	= domain.h *.o $(IAM).log pmda$(IAM) pmda_$(IAM).$(DSOSUFFIX)
 
-ifeq "$(PMDA_BPF)" "true"
 default_pcp default:	$(CMDTARGET) $(LIBTARGET) $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 
@@ -40,12 +43,6 @@ install_pcp install:	default $(SUBDIRS)
 	$(INSTALL) -m 644 -t $(PMDATMPDIR)/$(CONFIG) $(CONFIG) $(PMDACONFIG)/$(CONFIG)
 	@$(INSTALL_MAN)
 	$(SUBDIRS_MAKERULE)
-else
-default_pcp default:
-
-install_pcp install:
-	@$(INSTALL_MAN)
-endif
 
 $(OBJECTS): domain.h
 
@@ -54,6 +51,12 @@ domain.h: ../../pmns/stdpmid
 
 pmns:
 	$(LN_S) -f root_bpf pmns
+else
+default_pcp default:
+
+install_pcp install:
+	@$(INSTALL_MAN)
+endif
 
 check:: $(MAN_PAGES)
 	$(MANLINT) $^
@@ -61,3 +64,5 @@ check:: $(MAN_PAGES)
 clean::
 	$(MAKE) -C modules/ clean
 	rm -f $(LDIRT)
+debug:
+	@echo PMDA_BPF=$(PMDA_BPF)
