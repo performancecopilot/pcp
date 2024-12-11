@@ -768,6 +768,8 @@ ncursesw_CFLAGS
 HAVE_NCURSES
 ncurses_LIBS
 ncurses_CFLAGS
+lib_for_inih
+HAVE_LIBINIH
 HAVE_LIBUV
 libuv_LIBS
 libuv_CFLAGS
@@ -5442,11 +5444,11 @@ if test x$ac_prog_cxx_stdcxx = xno
 then :
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $CXX option to enable C++11 features" >&5
 printf %s "checking for $CXX option to enable C++11 features... " >&6; }
-if test ${ac_cv_prog_cxx_11+y}
+if test ${ac_cv_prog_cxx_cxx11+y}
 then :
   printf %s "(cached) " >&6
 else $as_nop
-  ac_cv_prog_cxx_11=no
+  ac_cv_prog_cxx_cxx11=no
 ac_save_CXX=$CXX
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
@@ -5488,11 +5490,11 @@ if test x$ac_prog_cxx_stdcxx = xno
 then :
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $CXX option to enable C++98 features" >&5
 printf %s "checking for $CXX option to enable C++98 features... " >&6; }
-if test ${ac_cv_prog_cxx_98+y}
+if test ${ac_cv_prog_cxx_cxx98+y}
 then :
   printf %s "(cached) " >&6
 else $as_nop
-  ac_cv_prog_cxx_98=no
+  ac_cv_prog_cxx_cxx98=no
 ac_save_CXX=$CXX
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
@@ -12478,6 +12480,57 @@ printf "%s\n" "#define HAVE_UV_PIPE_CHMOD 1" >>confdefs.h
 else $as_nop
   have_uv_pipe_chmod=false
 fi
+
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for ini_parse in -linih" >&5
+printf %s "checking for ini_parse in -linih... " >&6; }
+if test ${ac_cv_lib_inih_ini_parse+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-linih  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+char ini_parse ();
+int
+main (void)
+{
+return ini_parse ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  ac_cv_lib_inih_ini_parse=yes
+else $as_nop
+  ac_cv_lib_inih_ini_parse=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_inih_ini_parse" >&5
+printf "%s\n" "$ac_cv_lib_inih_ini_parse" >&6; }
+if test "x$ac_cv_lib_inih_ini_parse" = xyes
+then :
+   have_libinih=true
+	 lib_for_inih="-linih"
+
+else $as_nop
+   have_libinih=false
+         lib_for_inih=""
+
+
+fi
+
+HAVE_LIBINIH=$have_libinih
+
 
 
 
