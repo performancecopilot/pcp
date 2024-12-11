@@ -56,6 +56,7 @@ libbpf-devel
 libcmocka-devel
 libdrm-devel
 libicu-devel
+libinih-devel
 libopenssl-devel
 libpfm-devel
 libqt5-qtbase-devel

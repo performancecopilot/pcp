@@ -30,6 +30,7 @@ extra/git
 core/grep
 core/icu
 core/iproute2
+core/libinih
 extra/libmad
 core/libsasl
 extra/libuv
