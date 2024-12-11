@@ -270,6 +270,29 @@ _check_tls()
 	    esac
         fi
     fi
+
+    # user pcp (as in pmcd) has to be able to read tls.conf/pcp.crt
+    # ... which is an issue if $HOME for the person running QA is mode
+    # 700
+    #
+    if $sudo -u $PCP_USER [ -r `pwd`/tls.conf/pcp.crt ]
+    then
+	:
+    else
+	echo "Warning: `pwd`/tls.conf/pcp.crt is not readable by the user $PCP_USER"
+	path=''
+	for dir in `echo $(pwd)/tls.conf | sed -e 's/\// /g'`
+	do
+	    path="$path/$dir"
+	    if $sudo -u $PCP_USER [ -r "$path" ]
+	    then
+		:
+	    else
+		echo "Directory $path is unreadable"
+		break
+	    fi
+	done
+    fi
 }
 
 # creates self-signed (insecure) certificates for QA testing only.
@@ -355,4 +378,7 @@ __END__
     echo "tls-ca-cert-file = $here/tls.conf/ca.crt" >> $tmp.tls
 
     $sudo cp $tmp.tls $PCP_TLSCONF_PATH
+    echo "--- new $PCP_TLSCONF_PATH ---" >>$here/$seq.full
+    cat $PCP_TLSCONF_PATH >>$here/$seq.full
+    echo "--- end $PCP_TLSCONF_PATH ---" >>$here/$seq.full
 }

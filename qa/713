@@ -8,6 +8,8 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
+rm -rf $seq.full
+
 . ./common.secure
 
 _check_tls
@@ -39,7 +41,7 @@ _cleanup()
 status=1	# failure is the default!
 username=`id -u -n`
 signal=$PCP_BINADM_DIR/pmsignal
-$sudo rm -rf $tmp.* $seq.full
+$sudo rm -rf $tmp.*
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 pmproxy_was_running=false
