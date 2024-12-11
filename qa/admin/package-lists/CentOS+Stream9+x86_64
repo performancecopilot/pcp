@@ -39,6 +39,7 @@ git
 git-core
 grep
 httpd
+inih-devel
 initscripts
 iproute
 java-latest-openjdk-headless

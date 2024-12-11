@@ -31,6 +31,7 @@ gfs2-utils
 git
 git-core
 grep
+inih-devel
 iproute
 httpd
 initscripts
