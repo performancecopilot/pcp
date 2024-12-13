@@ -54,10 +54,11 @@ fi
 #
 
 here=`pwd`
-for dir in src/libpcp src/libpcp_pmda src/libpcp_pmcd src/libpcp_gui \
+for dir in src/include src/libpcp src/libpcp_static \
+	src/newhelp src/pmcpp src/pmproxy \
+	src/libpcp_pmda src/libpcp_pmcd src/libpcp_gui \
 	src/libpcp_mmv src/libpcp_web src/libpcp_import src/libpcp_trace \
-	src/libpcp_qmc src/libpcp_fault src/libpcp_static \
-	src/newhelp src/pmcpp src/pmproxy
+	src/libpcp_qmc src/libpcp_fault
 do
     if [ ! -d "$dir" ]
     then
@@ -67,7 +68,14 @@ do
     echo "=== $dir ==="
     cd $dir
     [ -d src ] && cd src
-    $PCP_MAKE_PROG clean
+    case "$dir"
+    in
+	src/include)
+		;;
+	*)
+		$PCP_MAKE_PROG clean
+		;;
+    esac
     if $PCP_MAKE_PROG
     then
 	sudo $PCP_MAKE_PROG install
