@@ -41,6 +41,7 @@ do
 	    echo "Error: $dir directory in both /usr/pcp and /var/pcp!"
 	fi
     else
+	ls -l $PCP_PMDAS_DIR/$dir
 	echo "Error: what is $PCP_PMDAS_DIR/$dir?"
     fi
 
