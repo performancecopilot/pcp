@@ -4,9 +4,10 @@ Denki PMDA
 This is the PMDA providing metrics which are related to the systems
 electricity.
 
-At the moment, metrics from 2 sources are available:
+At the moment, metrics from 3 sources are available:
 
-- RAPL values, available on newer Intel CPUs.
+- RAPL (available on newer Intel CPUs), values read via /sys file system
+- RAPL (available on newer Intel CPUs), values read via cpu MSR registers
 - battery values
 
 
@@ -58,10 +59,10 @@ Troubleshooting
 Usage scenarios/examples
 ========================
 
- -  denki.rapl:
+ -  denki.raplsysfs:
 
-    If RAPL is available, denki.rapl can give an estimation of
-    the current power consumption.  On laptops, typically 4 RAPL
+    If RAPL via /sys is available, denki.raplsysfs can give an estimation 
+	of the current power consumption.  On laptops, typically 4 RAPL
     domains are available:
 
       inst [0 or "package-0"] - consumption of the other 3 domains
@@ -76,7 +77,26 @@ Usage scenarios/examples
     On systems with multiple numa zones, also multiple RAPL 
     packages can be available, pmda-denki should properly deal
     with these.  For these, i.e. domains 0-package-0 and
-    1-package-0 will become available as instances.
+    1-package-0 will become available as instances, i.e.
+
+	denki.raplsysfs
+   	 	inst [0 or "0-package-0"] value 169013
+   	 	inst [1 or "0-dram"] value 12294
+   	 	inst [2 or "1-package-1"] value 135669
+   		inst [3 or "1-dram"] value 9600
+
+ -  denki.raplmsr:
+
+    If RAPL via MSR cpu registers is available, denki.raplmsr can 
+	give an estimation of the current power consumption.  On 
+	laptops, typically 5 RAPL MSR domains are available:
+
+	denki.raplmsr
+   		inst [0 or "package_energy"] value 17222
+    	inst [1 or "cores_energy"] value 6110
+    	inst [2 or "uncore_energy"] value 143
+    	inst [3 or "dram_energy"] value 3167
+    	inst [4 or "psys_energy"] value 53005
 
  -  denki.bat.energy_now:
 
@@ -108,3 +128,13 @@ Usage scenarios/examples
  -  denki.bat.capacity:
 
 	This metric reports the fillstate of the battery in percent.
+
+Links
+=====
+
+More details are available in the pmda-denki handbook:
+* https://github.com/christianhorn/smallhelpers/tree/main/pmda-denki-handbook
+* Rendered as html:
+  https://htmlpreview.github.io/?https://github.com/christianhorn/smallhelpers/blob/main/pmda-denki-handbook/denki.html
+* As pdf:
+  https://github.com/christianhorn/smallhelpers/blob/main/pmda-denki-handbook/denki.pdf
