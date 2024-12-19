@@ -2509,6 +2509,11 @@ AC_SUBST([rdynamic_flag])
 
 dnl check if argument to user's select() method in scandir call is const
 AC_MSG_CHECKING([whether const arg for scandir() select method])
+save_CFLAGS="$CFLAGS"
+dnl Using -Werror to make the compiler fail on purpose if scandir()
+dnl on this system does not support `const struct dirent *' for
+dnl callbacks.
+CFLAGS="-Werror"
 cat <<End-of-File >conftest.c
 #include <stdlib.h>
 #include <unistd.h>
@@ -2518,14 +2523,16 @@ my_select(const struct dirent *foo) { return 0; }
 int main() { struct dirent **list; return scandir(".", &list, my_select, NULL); }
 End-of-File
 (eval $ac_compile) 2>conftest.out
+_ret=$?
 cat conftest.out >&5
-if test -s conftest.out
+if test $_ret != 0
 then
     AC_MSG_RESULT(no)
 else
     AC_DEFINE(HAVE_CONST_DIRENT, [1], [const arg for scandir() select method])
     AC_MSG_RESULT(yes)
 fi
+CFLAGS="$save_CFLAGS"
 rm -f conftest.*
 
 dnl check if struct dirent has a d_off (directory offset) field
@@ -2537,8 +2544,9 @@ cat <<End-of-File >conftest.c
 int main() { struct dirent d; d.d_off = 0; }
 End-of-File
 (eval $ac_compile) 2>conftest.out
+_ret=$?
 cat conftest.out >&5
-if test -s conftest.out
+if test $_ret != 0
 then
     AC_MSG_RESULT(no)
 else
