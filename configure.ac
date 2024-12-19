@@ -563,7 +563,7 @@ AC_MSG_CHECKING([__pmResult padding])
 ans=`sed <conftest.out -n -e '/__pmResult pad/s/.* //p'`
 if test -n "$ans"
 then
-    AC_DEFINE_UNQUOTED(PM_PAD_RESULT, $ans, [])
+    AC_DEFINE_UNQUOTED(PM_PAD_RESULT, $ans, [__pmResult padding])
     AC_MSG_RESULT($ans)
 else
     AC_MSG_RESULT([no])
@@ -572,7 +572,7 @@ AC_MSG_CHECKING([timespec padding])
 ans=`sed <conftest.out -n -e '/timespec pad/s/.* //p'`
 if test -n "$ans"
 then
-    AC_DEFINE_UNQUOTED(PM_PAD_TIMESPEC, $ans, [])
+    AC_DEFINE_UNQUOTED(PM_PAD_TIMESPEC, $ans, [timespec padding])
     AC_MSG_RESULT($ans)
 else
     AC_MSG_RESULT([no])
