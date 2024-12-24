@@ -16,7 +16,6 @@ echo "QA output created by $seq"
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
-rm -f $seq.full
 
 _set()
 {
@@ -84,7 +83,7 @@ _set 16
 
 wait
 
-cat $tmp.log >$seq.full
+cat $tmp.log >$seq_full
 
 echo "----------------------------"
 echo "Raw data (pmval -U)"

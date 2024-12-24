@@ -24,21 +24,20 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; _cleanup; exit \$status" 0 1 2 3 15
 
 $python -c 'from pcp import pmda' 2>/dev/null
 test $? -eq 0 || _notrun 'Python pcp pmda module is not installed'
 
 cd pmdas/slow_python
-$PCP_MAKE_PROG clean >>$here/$seq.full 2>&1
+$PCP_MAKE_PROG clean >>$seq_full 2>&1
 
 # real QA test starts here
 
 # 4 below must be bigger than pmcd's creds_timeout ... make sure
 # this is set to the default [3]
 #
-pmstore pmcd.control.creds_timeout 3 >>$here/$seq.full 2>&1
+pmstore pmcd.control.creds_timeout 3 >>$seq_full 2>&1
 
 for start in 0 4 -4
 do
@@ -55,14 +54,14 @@ do
 	    echo "=== start delay $start sec, using connect_pmcd() ===" | tee -a $here/$seq.full
 	    ;;
     esac
-    date >>$here/$seq.full
+    date >>$seq_full
     cat <<End-of-File | $sudo ./Install
 $start
 End-of-File
-    date >>$here/$seq.full
+    date >>$seq_full
     pminfo -f slow_python | tee -a $here/$seq.full
-    $sudo cat $PCP_LOG_DIR/pmcd/slow_python.log >>$here/$seq.full
-    $sudo tail -40 $PCP_LOG_DIR/pmcd/pmcd.log >>$here/$seq.full
+    $sudo cat $PCP_LOG_DIR/pmcd/slow_python.log >>$seq_full
+    $sudo tail -40 $PCP_LOG_DIR/pmcd/pmcd.log >>$seq_full
 done
 
 # success, all done

@@ -32,7 +32,8 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 _save_config $PCP_TLSCONF_PATH
 _stop_auto_restart pmcd
 _stop_auto_restart pmlogger
-_service pcp stop | _filter_pcp_stop
+if ! _service pcp stop; then _exit 1; fi \
+| _filter_pcp_stop
 
 _filter_tls()
 {
@@ -47,7 +48,7 @@ _filter_tls()
 # real QA test starts here
 _setup_tls
 
-_service pmcd start 2>&1 | _filter_pcp_start
+if ! _service pmcd start 2>&1; then _exit 1; fi | _filter_pcp_start
 _wait_for_pmcd || _exit 1
 
 echo

@@ -17,19 +17,18 @@ src/check_fault_injection >/dev/null 2>&1 || \
     _notrun "libpcp not built with fault injection enabled"
 
 status=0	# success is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 _filter()
 {
-    echo "=== stdout ===" >>$seq.full
-    cat $tmp.out >>$seq.full
-    echo >>$seq.full
-    echo >>$seq.full
-    echo "=== stderr ===" >>$seq.full
-    cat $tmp.err >>$seq.full
-    echo >>$seq.full
-    echo >>$seq.full
+    echo "=== stdout ===" >>$seq_full
+    cat $tmp.out >>$seq_full
+    echo >>$seq_full
+    echo >>$seq_full
+    echo "=== stderr ===" >>$seq_full
+    cat $tmp.err >>$seq_full
+    echo >>$seq_full
+    echo >>$seq_full
     ( cat $tmp.out; echo; cat $tmp.err ) \
     | sed \
 	-e "s/\(host:[ 	]*\)`hostname`/\1localhost/" \

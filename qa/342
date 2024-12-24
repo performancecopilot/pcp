@@ -15,7 +15,6 @@ echo "QA output created by $seq"
 
 status=0	# success is the default!
 username=`id -u -n`
-$sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 _await_file()
@@ -55,7 +54,7 @@ profile 29.1 add 2
 fetch sample.colour
 End-of-File
 
-cat $tmp.log >>$here/$seq.full
+cat $tmp.log >>$seq_full
 
 # success, all done
 exit

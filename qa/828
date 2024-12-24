@@ -17,7 +17,6 @@ echo "QA output created by $seq"
 _check_valgrind
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 _filter()
@@ -286,9 +285,9 @@ p
 }'`
 valgrind_ver=`valgrind --version | sed -e 's/^valgrind-//'`
 machine=`uname -m`
-echo "gcc_ver=$gcc_ver" >>$seq.full
-echo "valgrind_ver=$valgrind_ver" >>$seq.full
-echo "machine=$machine" >>$seq.full
+echo "gcc_ver=$gcc_ver" >>$seq_full
+echo "valgrind_ver=$valgrind_ver" >>$seq_full
+echo "machine=$machine" >>$seq_full
 
 if [ "$machine" = i586 -o "$machine" = i686 ]
 then
@@ -312,9 +311,9 @@ then
 End-of-File
 fi
 
-echo >>$seq.full
-cat $tmp.suppress >>$seq.full
-echo >>$seq.full
+echo >>$seq_full
+cat $tmp.suppress >>$seq_full
+echo >>$seq_full
 
 # real QA test starts here
 
@@ -345,10 +344,10 @@ do
     echo "=== std out ==="
     cat $tmp.valgrind.out
     echo "=== std err ===" | tee -a $seq.full
-    cat $tmp.valgrind.err >>$seq.full
+    cat $tmp.valgrind.err >>$seq_full
     _filter < $tmp.valgrind.err
-    echo "=== valgrind report ===" >>$seq.full
-    cat $tmp.valgrind >>$seq.full
+    echo "=== valgrind report ===" >>$seq_full
+    cat $tmp.valgrind >>$seq_full
     echo "=== filtered valgrind report ==="
     _filter_valgrind <$tmp.valgrind
 done

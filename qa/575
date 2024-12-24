@@ -42,7 +42,7 @@ then
     pmie_was_running=true
     echo "Found pmie PID `cat $PCP_RUN_DIR/pmie.pid` running @ start" >>$seq_full
     _stop_auto_restart pmie
-    _service pmie stop >>$seq_full 2>&1
+    if ! _service pmie stop >>$seq_full 2>&1; then _exit 1; fi
 fi
 $sudo $signal -a pmie >/dev/null 2>&1
 _wait_pmie_end || _exit 1
@@ -56,13 +56,15 @@ _change_config pmie on || _exit 1
 # And the "Waiting for pmie process(es) to terminate ..." message
 # depends on the platform and the state of the system.
 #
-_service pmie stop | _filter_pmie_stop \
+if ! _service pmie stop; then _exit 1; fi \
+| _filter_pmie_stop \
 | sed \
     -e '/pmie not running/d' \
     -e '/Waiting for pmie process/d' \
 # end
 
-_service pmie start | _filter_pmie_start
+if ! _service pmie start; then _exit 1; fi \
+| _filter_pmie_start
 
 # success, all done
 status=0

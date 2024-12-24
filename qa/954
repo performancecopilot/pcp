@@ -37,7 +37,6 @@ _filter()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 echo "qa.a = sample.long.one" >$tmp.c1
@@ -51,14 +50,14 @@ export PCP_DERIVED_CONFIG=''
 echo "=== one config ===" | tee -a $here/$seq.full
 src/loadconfig2 -D lock -c $tmp.c1 qa 2>$tmp.err \
 | _filter
-cat $tmp.err >>$here/$seq.full
+cat $tmp.err >>$seq_full
 grep derived_metric $tmp.err | _filter
 
 echo | tee -a $here/$seq.full
 echo "=== two configs ===" | tee -a $here/$seq.full
 src/loadconfig2 -D lock -c $tmp.c1 -c $tmp.c2 qa 2>$tmp.err \
 | _filter
-cat $tmp.err >>$here/$seq.full
+cat $tmp.err >>$seq_full
 grep derived_metric $tmp.err | _filter
 
 # success, all done

@@ -18,7 +18,6 @@ pminfo proc.nprocs >/dev/null 2>&1 || _notrun "proc PMDA not installed"
 _check_64bit_platform "Test needs 64-bit machine to match /proc test data"
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 _filter()
@@ -48,20 +47,20 @@ do
 
     echo "== Extracting subtrees for later use - $base" | tee -a $seq.full
     trees=`pminfo proc | awk -F. '{ print $2 }' | sort -u | grep -E -v 'nproc'`
-    echo $trees >> $here/$seq.full
+    echo $trees >> $seq_full
 
     echo "== Checking namespace and metric numbering - $base"
     pminfo -L -K clear -K add,3,$pmda proc \
     | LC_COLLATE=POSIX sort \
-    | tee $tmp.names >> $here/$seq.full
+    | tee $tmp.names >> $seq_full
 
     echo "== Checking metric descriptors and a fetch - $base"
     for tree in $trees
     do
 	metric=`grep ^proc.$tree $tmp.names | head -1`
 	[ $tree = "id" ] && metric="proc.id.egid"
-	echo T: $tree >> $here/$seq.full
-	echo M: $metric >> $here/$seq.full
+	echo T: $tree >> $seq_full
+	echo M: $metric >> $seq_full
 	pminfo -L -K clear -K add,3,$pmda -d -f $metric | _filter
     done
 

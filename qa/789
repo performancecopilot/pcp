@@ -71,7 +71,7 @@ zimbra.mailboxd.lmtp.rcvd_msgs	mailboxd.csv	lmtp_rcvd_msgs
 zimbra.mailboxd.heap.free	mailboxd.csv	heap_free
 End-of-File
     do
-	echo "--- $metric ---" >>$here/$seq.full
+	echo "--- $metric ---" >>$seq_full
 	$sudo head -1 $zimbra_home/zmstat/$table >$tmp.head
 	$sudo tail -1 $zimbra_home/zmstat/$table >$tmp.tail
 	eval `pmprobe -v $metric \
@@ -80,8 +80,8 @@ End-of-File
 	      			 print "pcp_value=" $3
 			       }'
 	      `
-	cat $tmp.head >>$here/$seq.full
-	cat $tmp.tail >>$here/$seq.full
+	cat $tmp.head >>$seq_full
+	cat $tmp.tail >>$seq_full
 	if [ "$numval" -lt 1 ]
 	then
 	    echo "Warning: $metric: numval=$numval"
@@ -100,7 +100,7 @@ End-of-File
 	    else
 		eval `$PCP_AWK_PROG -F, <$tmp.tail '{ print "csv_value=" $'$column' }' \
 		      | sed -e 's/=  */=/'`
-		echo "pcp_value=\"$pcp_value\" column=$column csv_value=\"$csv_value\"" >>$here/$seq.full
+		echo "pcp_value=\"$pcp_value\" column=$column csv_value=\"$csv_value\"" >>$seq_full
 		if [ "$pcp_value" = "$csv_value" ]
 		then
 		    echo "$metric: OK"
@@ -125,7 +125,6 @@ _filter()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 
 install_on_cleanup=false
 pminfo zimbra >/dev/null 2>&1 && install_on_cleanup=true
@@ -139,13 +138,13 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 if [ "$PCPQA_SYSTEMD" = yes ]
 then
     eval `systemctl show --property=ActiveState zimbra.service 2>/dev/null`
-    echo "Initial ActiveState=$ActiveState" >>$here/$seq.full
+    echo "Initial ActiveState=$ActiveState" >>$seq_full
     if [ "$ActiveState" = active ]
     then
 	shutdown=false
     else
 	shutdown=true
-	echo "Starting Zimbra: `date`" >>$here/$seq.full
+	echo "Starting Zimbra: `date`" >>$seq_full
 	$sudo systemctl start zimbra.service
 	sleep 30
     fi 
@@ -190,7 +189,7 @@ do
 		zimbra.mailboxd.lmtp.rcvd_msgs zimbra.mailboxd.heap.free
     do
 	nval=`pmprobe $metric | $PCP_AWK_PROG '{print $2}'`
-	echo "wait=$wait metric=$metric nval=$nval" >>$here/$seq.full
+	echo "wait=$wait metric=$metric nval=$nval" >>$seq_full
 	if [ -z "$nval" ]
 	then
 	    ok=false

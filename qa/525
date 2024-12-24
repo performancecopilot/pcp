@@ -19,7 +19,6 @@ echo "QA output created by $seq"
 [ -f $PCP_PMDAS_DIR/summary/pmdasummary ] || _notrun "summary pmda not installed"
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # check if summary PMDA already installed
@@ -88,13 +87,13 @@ $sudo ./Install </dev/null | _filter_pmda_install
 
 # real QA test starts here
 pminfo -d summary | tee -a $here/$seq.full
-pminfo -f summary >>$here/$seq.full
+pminfo -f summary >>$seq_full
 
-cat $PCP_LOG_DIR/pmcd/summary.log >>$here/$seq.full
+cat $PCP_LOG_DIR/pmcd/summary.log >>$seq_full
 
-echo >>$here/$seq.full
-echo "--- pmie directly ---" >>$here/$seq.full
-pmie -v -t 1 -T +2 -c expr.pmie >>$here/$seq.full 2>&1
+echo >>$seq_full
+echo "--- pmie directly ---" >>$seq_full
+pmie -v -t 1 -T +2 -c expr.pmie >>$seq_full 2>&1
 
 # success, all done
 status=0

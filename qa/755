@@ -16,7 +16,6 @@ echo "QA output created by $seq"
 [ -f $PCP_PMDAS_DIR/apache/pmdaapache ] || _notrun "apache pmda not installed"
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 
 _filter_apache()
 {
@@ -44,7 +43,7 @@ pmdaapache_install()
     echo
     echo "=== apache agent installation ==="
     $sudo ./Install </dev/null >$tmp.out 2>&1
-    cat $tmp.out >>$here/$seq.full
+    cat $tmp.out >>$seq_full
     # Check apache metrics have appeared ... X metrics and Y values
     _filter_pmda_install <$tmp.out \
     | sed \

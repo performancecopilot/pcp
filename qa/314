@@ -52,8 +52,7 @@ _wait_for()
 signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
-rm -f $seq.full
-date >>$seq.full
+date >>$seq_full
 
 was_running=false
 [ -f $PCP_RUN_DIR/pmie.pid ] && was_running=true
@@ -69,8 +68,8 @@ delta = 0.2 seconds;
 fetched = simple.numfetch;
 EOF1
 
-echo "=== pmie config ===" >>$seq.full
-cat $tmp.config >>$seq.full
+echo "=== pmie config ===" >>$seq_full
+cat $tmp.config >>$seq_full
 
 # create pmie control files and test out various good/bad conditions
 
@@ -79,12 +78,12 @@ cat > $tmp.control << EOF2
 LOCALHOSTNAME n /tmp/$seq/1.good.log -v -c $tmp.config
 EOF2
 
-echo "=== pmie control ===" >>$seq.full
-cat $tmp.control >>$seq.full
+echo "=== pmie control ===" >>$seq_full
+cat $tmp.control >>$seq_full
 
 # real QA test starts here
-_service pmie stop >>$seq.full
-_wait_pmie_end
+if ! _service pmie stop >>$seq_full; then _exit 1; fi
+_wait_pmie_end || _exit 1
 $sudo $signal -a -s TERM pmie 2>/dev/null
 $sudo rm -fr /tmp/$seq && mkdir /tmp/$seq || exit 1
 $sudo chown -R $PCP_USER:$PCP_GROUP /tmp/$seq
@@ -92,33 +91,33 @@ pmstore simple.numfetch 0 >/dev/null
 
 # fire em all up
 echo "Starting pmie process"
-echo "=== pmie_check ===" >>$seq.full
+echo "=== pmie_check ===" >>$seq_full
 touch $tmp.log
 $sudo chown $PCP_USER:$PCP_GROUP $tmp.log
 $sudo -u $PCP_USER -g $PCP_GROUP $PCP_BINADM_DIR/pmie_check -c $tmp.control -VV -l $tmp.log
-$sudo cat $tmp.log >>$seq.full
+$sudo cat $tmp.log >>$seq_full
 _wait_for /tmp/$seq/1.good.log
-ps $PCP_PS_ALL_FLAGS | grep '[p]mie' >>$seq.full
+ps $PCP_PS_ALL_FLAGS | grep '[p]mie' >>$seq_full
 sleep 6		# fill original log a bit
-cat /tmp/$seq/1.good.log >>$seq.full
-ps $PCP_PS_ALL_FLAGS | grep '[p]mie' >>$seq.full
+cat /tmp/$seq/1.good.log >>$seq_full
+ps $PCP_PS_ALL_FLAGS | grep '[p]mie' >>$seq_full
 
 echo "Rotate, rotate..."
 previous=`pmdate -1d %Y%m%d`
-echo "=== pmie_daily ===" >>$seq.full
+echo "=== pmie_daily ===" >>$seq_full
 $sudo -u $PCP_USER -g $PCP_GROUP $PCP_BINADM_DIR/pmie_daily -c $tmp.control -VV -l $tmp.log
-$sudo cat $tmp.log >>$seq.full
+$sudo cat $tmp.log >>$seq_full
 _wait_for /tmp/$seq/1.good.log
-ps $PCP_PS_ALL_FLAGS | grep '[p]mie' >>$seq.full
+ps $PCP_PS_ALL_FLAGS | grep '[p]mie' >>$seq_full
 sleep 3		# fill rotated log a bit
 
 echo "Shutdown pmie process"
-echo "=== pmie_check ===" >>$seq.full
+echo "=== pmie_check ===" >>$seq_full
 $sudo -u $PCP_USER -g $PCP_GROUP $PCP_BINADM_DIR/pmie_check -c $tmp.control -s -VV -l $tmp.log
-$sudo cat $tmp.log >>$seq.full
-ps $PCP_PS_ALL_FLAGS | grep '[p]mie' >>$seq.full
+$sudo cat $tmp.log >>$seq_full
+ps $PCP_PS_ALL_FLAGS | grep '[p]mie' >>$seq_full
 
-ls -l /tmp/$seq >>$seq.full
+ls -l /tmp/$seq >>$seq_full
 grep rotated /tmp/$seq/1.good.log >/dev/null \
 	|| echo "First log not rotated?"
 grep started /tmp/$seq/1.good.log.$previous >/dev/null \
@@ -134,10 +133,10 @@ _within_tolerance "Old logfile line count" "$oldlines" 66 %75 -v
 # so 36
 _within_tolerance "New logfile line count" "$newlines" 36 %75 -v
 
-echo "=== previous log ($oldlines lines) ===" >>$seq.full
-cat /tmp/$seq/1.good.log.$previous >>$seq.full
-echo "=== current log ($newlines lines) ===" >>$seq.full
-cat /tmp/$seq/1.good.log >>$seq.full
+echo "=== previous log ($oldlines lines) ===" >>$seq_full
+cat /tmp/$seq/1.good.log.$previous >>$seq_full
+echo "=== current log ($newlines lines) ===" >>$seq_full
+cat /tmp/$seq/1.good.log >>$seq_full
 
 # success, all done
 status=0

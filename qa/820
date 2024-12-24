@@ -16,7 +16,6 @@ echo "QA output created by $seq"
 [ $PCP_PLATFORM = "linux" ] || _notrun "Test platform does not support network.softnet metrics"
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
@@ -24,7 +23,7 @@ echo expect no output
 
 for m in processed dropped time_squeeze cpu_collision received_rps flow_limit_count
 do
-    echo "=== $m ===" >> $seq.full
+    echo "=== $m ===" >> $seq_full
     pmprobe -v network.softnet.$m network.softnet.percpu.$m | \
     tee -a $seq.full | \
     awk '

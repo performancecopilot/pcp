@@ -79,7 +79,7 @@ _save_config $PCP_SYSCONFIG_DIR/pmlogger
 _save_config $PCP_PMPROXYOPTIONS_PATH
 
 _stop_auto_restart pmproxy
-_service pmproxy stop >>$seq_full 2>&1
+if ! _service pmproxy stop >>$seq_full 2>&1; then _exit 1; fi
 
 echo "# Installed by PCP QA test $seq on `date`" > $tmp.local
 echo PMCD_LOCAL=1 >> $tmp.local
@@ -112,9 +112,9 @@ echo "# Installed by PCP QA test $seq on `date`" > $tmp.local
 echo "-Dcontext,pdu" >> $tmp.local
 $sudo cp $tmp.local $PCP_PMPROXYOPTIONS_PATH
 
-_service pmproxy start 2>&1 | _filter_pmproxy_start
+if ! _service pmproxy start 2>&1; then _exit 1; fi | _filter_pmproxy_start
 _wait_for_pmproxy || _exit 1
-_service pcp restart 2>&1 | _filter_pcp_stop | _filter_pcp_start
+if ! _service pcp restart 2>&1; then _exit 1; fi | _filter_pcp_stop | _filter_pcp_start
 _wait_for_pmcd || _exit 1
 _wait_for_pmlogger || _exit 1
 

@@ -130,7 +130,6 @@ esac
     _notrun "no data file (sa-sysstat-$file_version.xz) for sysstat version $version"
 
 status=0	# success is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
@@ -142,7 +141,7 @@ unxz < sadist/sa-sysstat-$file_version.xz > sadist/sa-sysstat-$file_version
 # empty string, except below where PCP_DERIVED_CONFIG is used for sar's -u view
 export PCP_DERIVED_CONFIG=""
 
-echo "Using sa-sysstat-$file_version" >>$seq.full
+echo "Using sa-sysstat-$file_version" >>$seq_full
 
 sar2pcp sadist/sa-sysstat-$file_version $tmp
 
@@ -191,8 +190,8 @@ pmval -f 8 -t 5 -a $tmp user \
 s/\.[0-9][0-9]*[0-9]//
 p
 }' >$tmp.pcp
-( echo ""; echo "user = kernel.all.cpu.user + kernel.all.cpu.guest" ) >>$seq.full
-cat $tmp.pcp >>$seq.full
+( echo ""; echo "user = kernel.all.cpu.user + kernel.all.cpu.guest" ) >>$seq_full
+cat $tmp.pcp >>$seq_full
 paste $tmp.sar $tmp.pcp >$tmp.both
 $PCP_AWK_PROG <$tmp.both '
 { if ($3-$NF > 0.001 || $3-$NF < -0.001) print "[",NR,"] mismatch:",$1,$3,$NF }'
@@ -215,13 +214,13 @@ pmval -f 8 -t 5 -a $tmp system \
 s/\.[0-9][0-9][0-9]//
 p
 }' >$tmp.pcp
-( echo ""; echo "system = kernel.all.cpu.sys + kernel.all.cpu.intr" ) >>$seq.full
-cat $tmp.pcp >>$seq.full
+( echo ""; echo "system = kernel.all.cpu.sys + kernel.all.cpu.intr" ) >>$seq_full
+cat $tmp.pcp >>$seq_full
 paste $tmp.sar $tmp.pcp >$tmp.both
 $PCP_AWK_PROG <$tmp.both '
 { if ($5-$NF > 0.001 || $5-$NF < -0.001) print "[",NR,"] mismatch:",$1,$5,$NF }'
 
-echo >>$seq.full
+echo >>$seq_full
 # version 9.x output
 # 11:07:39          tps      rtps      wtps   bread/s   bwrtn/s
 # 11:07:44         0.00      0.00      0.00      0.00      0.00
@@ -264,8 +263,8 @@ pmval -f 8 -t 5 -a $tmp disk.all.total \
 s/\.[0-9][0-9][0-9]//
 p
 }' >$tmp.pcp
-( echo ""; echo "disk.all.total" ) >>$seq.full
-cat $tmp.pcp >>$seq.full
+( echo ""; echo "disk.all.total" ) >>$seq_full
+cat $tmp.pcp >>$seq_full
 paste $tmp.sar $tmp.pcp >$tmp.both
 $PCP_AWK_PROG <$tmp.both '
 { if ($2-$NF > 0.02 || $2-$NF < -0.02) print "[",NR,"] mismatch:",$1,$2,$NF }'
@@ -279,8 +278,8 @@ s/\.[0-9][0-9][0-9]//
 p
 }' \
 | _fuzzy >$tmp.pcp
-( echo ""; echo "disk.all.write_bytes" ) >>$seq.full
-cat $tmp.pcp >>$seq.full
+( echo ""; echo "disk.all.write_bytes" ) >>$seq_full
+cat $tmp.pcp >>$seq_full
 paste $tmp.sar $tmp.pcp >$tmp.both
 $PCP_AWK_PROG <$tmp.both '
 { if ($6-$NF > 0.02 || $6-$NF < -0.02) print "[",NR,"] mismatch:",$1,$6,$NF }'

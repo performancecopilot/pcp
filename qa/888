@@ -21,7 +21,6 @@ echo "QA output created by $seq"
      _notrun "shmctl, msgctl, semctl IPC metrics test, only for Linux"
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "cd $here; $sudo rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here

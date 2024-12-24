@@ -14,7 +14,6 @@ echo "QA output created by $seq"
 . ./common.check
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 migrate=$PCP_VAR_DIR/config/pmlogrewrite/linux_xfs_migrate.conf
@@ -81,10 +80,10 @@ s/ 0x2c/ 0xfXX/
 original=archives/old_xfs
 pmlogrewrite -c $migrate -w $original $tmp.new
 
-echo "=== old ===" >>$seq.full
-pmdumplog -z -dilmst $original >>$seq.full
-echo "=== new ===" >>$seq.full
-pmdumplog -z -dilmst $tmp.new >>$seq.full
+echo "=== old ===" >>$seq_full
+pmdumplog -z -dilmst $original >>$seq_full
+echo "=== new ===" >>$seq_full
+pmdumplog -z -dilmst $tmp.new >>$seq_full
 
 echo "old -> new changes"
 _compare $original $tmp.new

@@ -28,7 +28,6 @@ _cleanup()
     rm -rf $tmp $tmp.*
 }
 
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # move the MMV directory to restore contents later.

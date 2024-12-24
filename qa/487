@@ -16,7 +16,6 @@ echo "QA output created by $seq"
 which pmlogrewrite >/dev/null 2>&1 || _notrun "pmlogrewrite not installed"
 
 status=0	# success is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 _filter()
@@ -48,10 +47,10 @@ _cmp2()
 	return
     fi
     pmval -z -U $1 $3 2>$tmp.err | tee -a $seq.full | sed -e 's/  */ /g' >$tmp.in
-    cat $tmp.err >>$seq.full
+    cat $tmp.err >>$seq_full
     cat $tmp.err >>$tmp.in
     pmval -z -U $2 $3 2>$tmp.err | tee -a $seq.full | sed -e 's/  */ /g' >$tmp.out
-    cat $tmp.err >>$seq.full
+    cat $tmp.err >>$seq_full
     cat $tmp.err >>$tmp.out
     echo "pmval diffs ..."
     diff -u $tmp.in $tmp.out | _filter

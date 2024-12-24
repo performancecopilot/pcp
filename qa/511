@@ -21,7 +21,6 @@ which sadf >/dev/null 2>&1 || _notrun "sadf not installed (sysstat package)"
 which sar2pcp >/dev/null 2>&1 || _notrun "sar2pcp not installed"
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 logcheck()
@@ -30,12 +29,12 @@ logcheck()
     pcplog="$2"
 
     # should be no errors/warnings and pcp tools should also not fail
-    pmdumplog -z -l $pcplog >>$seq.full
+    pmdumplog -z -l $pcplog >>$seq_full
     [ $? -eq 0 ] && echo "pmdumplog approved of the $safile conversion"
 
     # this'll visit and examine in detail every single stored result,
     # as well as all metadata associates with the generated archive.
-    pmlogsummary $pcplog >>$seq.full
+    pmlogsummary $pcplog >>$seq_full
     [ $? -eq 0 ] && echo "pmlogsummary approved of the $safile conversion"
 }
 
@@ -50,7 +49,6 @@ silence()
 
 # real QA test starts here
 cd $here
-rm -f $seq.full
 
 for sadist in \
 	859117-rhel5.bin 859117-rhel5.xml f16-sa20.bin \
@@ -69,7 +67,7 @@ do
 	# this seems to be a common sadf fail message;
 	# happens when the installed sysutils is old:
 	#
-	echo "$safile is not parsable by the installed sysutils" >>$seq.full
+	echo "$safile is not parsable by the installed sysutils" >>$seq_full
 	silence $safile
     elif grep 'mismatched tag at line .*/TokeParser.pm' $tmp.out >/dev/null
     then
@@ -77,8 +75,8 @@ do
 	# is bad as it containts <timestamp .../> ... </timestamp>
 	# instead of <timestamp ...> ... </timestamp>
 	#
-	echo "sadf generates bad XML for $safile" >>$seq.full
-	sadf -x $safile -- -A | nl -ba | grep timestamp >>$seq.full
+	echo "sadf generates bad XML for $safile" >>$seq_full
+	sadf -x $safile -- -A | nl -ba | grep timestamp >>$seq_full
 	silence $safile
     else
 	if [ $sts -eq 0 ]

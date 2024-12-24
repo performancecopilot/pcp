@@ -33,7 +33,6 @@ _filter()
 	-e "/qa-$seq/s/.*qa/... qa/p"
 }
 
-rm -f $seq.full
 $sudo mv $PCP_LOG_DIR/NOTICES $PCP_LOG_DIR/NOTICES.qa.$seq
 # Need date below to be different to today (pmpost uses the ordinal day in year
 # to check for "not today") ... previously we were using 19970102 which was fine
@@ -42,7 +41,7 @@ $sudo mv $PCP_LOG_DIR/NOTICES $PCP_LOG_DIR/NOTICES.qa.$seq
 # - kenj 3 Jan 2022
 #
 $sudo touch -t `pmdate -1d %Y%m%d`0102.00 $PCP_LOG_DIR/NOTICES
-ls -l $PCP_LOG_DIR/NOTICES >>$here/$seq.full
+ls -l $PCP_LOG_DIR/NOTICES >>$seq_full
 
 # real QA test starts here
 for i in 1 2 3 4 5
@@ -61,8 +60,8 @@ wait
 
 _filter $PCP_LOG_DIR/NOTICES
 
-ls -l $PCP_LOG_DIR/NOTICES >>$here/$seq.full
-cat $PCP_LOG_DIR/NOTICES >>$here/$seq.full
+ls -l $PCP_LOG_DIR/NOTICES >>$seq_full
+cat $PCP_LOG_DIR/NOTICES >>$seq_full
 
 # success, all done
 status=0

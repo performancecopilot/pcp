@@ -27,7 +27,7 @@ status=1
 trap "_cleanup" 0 1 2 3 15
 
 # real QA test starts here
-_prepare_pmda_install simple
+_prepare_pmda_install simple || _exit 1
 
 echo
 echo "=== $iam agent installation ==="
@@ -45,7 +45,7 @@ check()
     echo "fetch pmprobe #$iter - $name" | tee -a $here/$seq.full
     pmprobe -v $iam \
     | LC_COLLATE=POSIX sort > $tmp.pmprobe
-    cat $tmp.pmprobe >>$here/$seq.full
+    cat $tmp.pmprobe >>$seq_full
 
     echo "check pmprobe #$iter - $name" | tee -a $here/$seq.full
     cat $tmp.pmprobe \

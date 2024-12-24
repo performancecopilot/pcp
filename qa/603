@@ -65,10 +65,9 @@ otherhost=`./getpmcdhosts -L -n 1 2>$tmp.out`
 [ -z "$otherhost" ] && _notrun `cat $tmp.out`
 qanet=`_host_to_ipaddr $otherhost | sed -e 's/[0-9][0-9]*$/*/'`
 
-rm -f $seq.full
-echo "qahost=$qahost" >$seq.full
-echo "qanet=$qanet" >>$seq.full
-echo "otherhost=$otherhost" >>$seq.full
+echo "qahost=$qahost" >$seq_full
+echo "qanet=$qanet" >>$seq_full
+echo "otherhost=$otherhost" >>$seq_full
 
 cat > $tmp.conf1 << EOF
 n
@@ -100,18 +99,18 @@ EOF
 # real QA test starts here
 cd $PCP_PMDAS_DIR/trace
 
-echo >>$here/$seq.full
-echo "=== first local trace PMDA config ===" >>$here/$seq.full
-cat $tmp.conf1 >>$here/$seq.full
-echo "===" >>$here/$seq.full
+echo >>$seq_full
+echo "=== first local trace PMDA config ===" >>$seq_full
+cat $tmp.conf1 >>$seq_full
+echo "===" >>$seq_full
 
 $sudo ./Install -R / < $tmp.conf1 2>&1 \
 | _filter_trace_install
-_wait_for_pmcd
-grep trace $PCP_PMCDCONF_PATH >>$here/$seq.full
+_wait_for_pmcd || _exit 1
+grep trace $PCP_PMCDCONF_PATH >>$seq_full
 
 echo '=== Attempting bad local access ==='
-echo "=== Attempting bad local access ===" >>$here/$seq.full
+echo "=== Attempting bad local access ===" >>$seq_full
 # Error message mapping is for Linux
 #
 pmtrace -h $qahost $qahost 2>&1 \
@@ -121,25 +120,25 @@ pmtrace -h $qahost $qahost 2>&1 \
     -e "s/Connection refused/Cannot connect to PMDA - permission denied/"
 if [ -f $PCP_LOG_DIR/pmcd/trace.log ]
 then
-    cat $PCP_LOG_DIR/pmcd/trace.log >>$here/$seq.full
+    cat $PCP_LOG_DIR/pmcd/trace.log >>$seq_full
 elif [ -f $PCP_LOG_DIR/trace.log ]
 then
-    cat $PCP_LOG_DIR/trace.log >>$here/$seq.full
+    cat $PCP_LOG_DIR/trace.log >>$seq_full
 else
-    echo "Arrggh! Cannot find log for trace PMDA!" >>$here/$seq.full
+    echo "Arrggh! Cannot find log for trace PMDA!" >>$seq_full
 fi
 
 echo
 
-echo >>$here/$seq.full
-echo "=== second local trace PMDA config ===" >>$here/$seq.full
-cat $tmp.conf2 >>$here/$seq.full
-echo "===" >>$here/$seq.full
+echo >>$seq_full
+echo "=== second local trace PMDA config ===" >>$seq_full
+cat $tmp.conf2 >>$seq_full
+echo "===" >>$seq_full
 
 $sudo ./Install -R / < $tmp.conf2 2>&1 \
 | _filter_trace_install
-_wait_for_pmcd
-grep trace $PCP_PMCDCONF_PATH >>$here/$seq.full
+_wait_for_pmcd || _exit 1
+grep trace $PCP_PMCDCONF_PATH >>$seq_full
 
 echo '=== Building demo program (app2) ==='
 cd $PCP_DEMOS_DIR/trace
@@ -159,7 +158,7 @@ echo '=== Running demo program (app2) ==='
 sleep 3
 
 echo '=== Check access limits ==='
-echo "=== Check access limits ===" >>$here/$seq.full
+echo "=== Check access limits ===" >>$seq_full
 # Error message mapping is for Linux
 #
 pmtrace -h $qahost 'limit exceeded' 2>&1 \
@@ -169,13 +168,13 @@ pmtrace -h $qahost 'limit exceeded' 2>&1 \
 
 $signal -a -s KILL app2
 wait
-echo "=== app2 ===" >>$here/$seq.full
-cat $tmp.out >>$here/$seq.full
+echo "=== app2 ===" >>$seq_full
+cat $tmp.out >>$seq_full
 
 unset PCP_TRACE_HOST
 
 echo '=== Attempting bad remote access ==='
-echo "=== Attempting bad remote access ===" >>$here/$seq.full
+echo "=== Attempting bad remote access ===" >>$seq_full
 # Error message mapping is for Linux
 #
 ssh -q pcpqa@$otherhost "sh -c 'PCP_TRACE_HOST=$qahost pmtrace -v 1 eek'" 2>&1 \
@@ -187,23 +186,23 @@ ssh -q pcpqa@$otherhost "sh -c 'PCP_TRACE_HOST=$qahost pmtrace -v 1 eek'" 2>&1 \
     # end
 if [ -f $PCP_LOG_DIR/pmcd/trace.log ]
 then
-    cat $PCP_LOG_DIR/pmcd/trace.log >>$here/$seq.full
+    cat $PCP_LOG_DIR/pmcd/trace.log >>$seq_full
 elif [ -f $PCP_LOG_DIR/trace.log ]
 then
-    cat $PCP_LOG_DIR/trace.log >>$here/$seq.full
+    cat $PCP_LOG_DIR/trace.log >>$seq_full
 else
-    echo "Arrggh! Cannot find log for trace PMDA!" >>$here/$seq.full
+    echo "Arrggh! Cannot find log for trace PMDA!" >>$seq_full
 fi
 
 echo
 
 # Reinstall defaults
-echo >>$here/$seq.full
-echo "=== Reinstall default config ===" >>$here/$seq.full
+echo >>$seq_full
+echo "=== Reinstall default config ===" >>$seq_full
 cd $PCP_PMDAS_DIR/trace
 $sudo ./Install -R / < /dev/null 2>&1 \
 | _filter_trace_install
-_wait_for_pmcd
+_wait_for_pmcd || _exit 1
 cd $here
 
 # success, all done

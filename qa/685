@@ -30,7 +30,6 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
@@ -49,8 +48,8 @@ End-of-File
 
 $sudo cp $tmp.root $PCP_VAR_DIR/pmns/root_qa
 $sudo touch $PCP_VAR_DIR/pmns/.NeedRebuild
-_service pmcd start 2>&1 | _filter_pcp_start
-_wait_for_pmcd
+if ! _service pmcd start 2>&1; then _exit 1; fi | _filter_pcp_start
+_wait_for_pmcd || _exit 1
 
 # expect Error: qa: Unknown metric name
 # and NOT qa.check: pmLookupDesc: Unknown or illegal metric identifier

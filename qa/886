@@ -16,7 +16,6 @@ echo "QA output created by $seq"
 [ $PCP_PLATFORM = linux ] || _notrun "Linux interrupts test, only works with Linux"
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 
 _cleanup()
 {

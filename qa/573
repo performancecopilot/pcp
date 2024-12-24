@@ -33,8 +33,8 @@ _filter()
 	echo "Arrgh: cannot seqnum from `pmprobe -v pmcd.seqnum`"
 	seqnum=0
     fi
-    echo "pid=$pid" >>$here/$seq.full
-    echo "seqnum=$seqnum" >>$here/$seq.full
+    echo "pid=$pid" >>$seq_full
+    echo "seqnum=$seqnum" >>$seq_full
     # in CI hostname looks like a FQDN, but hostname -f contains
     # extra subdomains and gethostname() is something different
     # - get all the known possibilities
@@ -44,10 +44,10 @@ _filter()
     HOSTNAME=`hostname`
     HOSTNAME_F=`hostname -f`
     PMHOSTNAME=`pmhostname`
-    echo "hostname -> $HOSTNAME" >>$here/$seq.full
-    echo "hostname -f -> $HOSTNAME_F" >>$here/$seq.full
-    echo "pmhostname -> $PMHOSTNAME" >>$here/$seq.full
-    pmhostname -Dappl0 >>$here/$seq.full 2>&1
+    echo "hostname -> $HOSTNAME" >>$seq_full
+    echo "hostname -f -> $HOSTNAME_F" >>$seq_full
+    echo "pmhostname -> $PMHOSTNAME" >>$seq_full
+    pmhostname -Dappl0 >>$seq_full 2>&1
     cat <<End-of-File >$tmp.tmp
 $HOSTNAME
 $HOSTNAME_F
@@ -60,7 +60,7 @@ End-of-File
     | sed >$tmp.sed \
 	-e 's;.*;/pmcd\\.pmlogger\\.host/s/&/HOSTNAME/;'
     # end
-    cat $tmp.sed >>$here/$seq.full
+    cat $tmp.sed >>$seq_full
     tee -a $here/$seq.full \
     | sed \
 	-e "s@$tmp@TMP@g" \
@@ -72,7 +72,6 @@ End-of-File
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here

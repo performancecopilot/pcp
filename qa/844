@@ -19,7 +19,6 @@ which nping >/dev/null 2>&1 || _notrun "nping binary not installed"
 _need_metric network.icmp.inmsgs
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 # Note

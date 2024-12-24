@@ -13,7 +13,6 @@ echo "QA output created by $seq"
 _check_valgrind
 
 status=0	# success is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 _run_valgrind src/parsehostattrs pcps://nas1.servers.com:44321,4321@firewall.servers.com:44322?compress
@@ -58,5 +57,5 @@ _filter_auth()
     # end
 }
 
-echo "pminfo username/password failure valgrind checking" >> $seq.full
+echo "pminfo username/password failure valgrind checking" >> $seq_full
 _run_valgrind pminfo -h pcp://localhost?user=NOsuchUSER\&pass=DEFINITELYnotApassword 2>&1 | _filter_auth

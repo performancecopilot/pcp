@@ -16,7 +16,6 @@ echo "QA output created by $seq"
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
-rm -f $seq.full
 
 # real QA test starts here
 
@@ -32,7 +31,7 @@ End-of-File
 
 if pmlogger -T 15sec -l $tmp.log $tmp <$tmp.config
 then
-    cat $tmp.log >>$seq.full
+    cat $tmp.log >>$seq_full
 else
     echo "Arrgh, pmlogger failed ..."
     cat $tmp.log
@@ -40,7 +39,7 @@ else
 fi
 
 pmdumplog $tmp | _filter_pmdumplog | grep sample | sort -n -k2
-pmdumplog $tmp >>$seq.full
+pmdumplog $tmp >>$seq_full
 
 echo
 echo "expect 4 x one and 6 x million" | tee -a $seq.full
@@ -55,7 +54,7 @@ End-of-File
 
 if pmlogger -T 15sec -t 7 -l $tmp.log $tmp <$tmp.config
 then
-    cat $tmp.log >>$seq.full
+    cat $tmp.log >>$seq_full
 else
     echo "Arrgh, pmlogger failed ..."
     cat $tmp.log
@@ -63,7 +62,7 @@ else
 fi
 
 pmdumplog $tmp | _filter_pmdumplog | grep sample | sort -n -k2
-pmdumplog $tmp >>$seq.full
+pmdumplog $tmp >>$seq_full
 
 # success, all done
 status=0

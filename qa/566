@@ -15,7 +15,6 @@ echo "QA output created by $seq"
 . ./common.check
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 mkdir $tmp
 
@@ -29,11 +28,11 @@ _filter_hostnames()
 _filter()
 {
     _filter_hostnames
-    echo >>$here/$seq.full
-    echo "stdout" >>$here/$seq.full
-    cat $tmp.out >>$here/$seq.full
-    echo "stderr" >>$here/$seq.full
-    cat $tmp.err >>$here/$seq.full
+    echo >>$seq_full
+    echo "stdout" >>$seq_full
+    cat $tmp.out >>$seq_full
+    echo "stderr" >>$seq_full
+    cat $tmp.err >>$seq_full
     sed -e "s;$tmp;TMP;g" $tmp.out
     sed -e "s;$tmp;TMP;g" $tmp.err
 }

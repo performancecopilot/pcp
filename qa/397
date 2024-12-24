@@ -14,7 +14,6 @@ echo "QA output created by $seq"
 . ./common.check
 
 status=0	# success is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "$sudo rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 hostname=`_get_fqdn 2>/dev/null`
@@ -47,11 +46,11 @@ close
 wait 1
 End-of-File
 
-cat $tmp.out >>$seq.full
+cat $tmp.out >>$seq_full
 _filter <$tmp.out
 echo
 echo "=== pmda log ===" | tee -a $seq.full
-cat $tmp.log >>$seq.full
+cat $tmp.log >>$seq_full
 _filter_pmcd_log <$tmp.log | _filter
 
 # success, all done

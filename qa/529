@@ -53,7 +53,6 @@ $1 > big	{ big = $1 }
 END		{ print big }'
 }
 
-rm -f $seq.full
 
 # real qa test starts here
 
@@ -99,7 +98,7 @@ _start_up_pmie1 -t 1sec -T 4sec $pmieopts -l $tmp.out1
 pid1=$pid
 _start_up_pmie2 -t 1sec -T 4sec $pmieopts -l $tmp.out2
 pid2=$pid
-echo "self=$$ pid1=$pid1 and pid2=$pid2" >> $seq.full
+echo "self=$$ pid1=$pid1 and pid2=$pid2" >> $seq_full
 
 sleep 2
 
@@ -118,10 +117,10 @@ echo "log mandatory on default { pmcd.pmie }" \
 
 sleep 4
 
-echo "log from pid=$pid1" >> $seq.full
-cat $tmp.out1 >> $seq.full
-echo "log from pid=$pid2" >> $seq.full
-cat $tmp.out2 >> $seq.full
+echo "log from pid=$pid1" >> $seq_full
+cat $tmp.out1 >> $seq_full
+echo "log from pid=$pid2" >> $seq_full
+cat $tmp.out2 >> $seq_full
 
 # values at the end of the run should be deterministic for these metrics...
 # ... metrics are instantaneous, so 10 samples reported in 9 secs
@@ -142,13 +141,13 @@ do
     echo
     [ $pid = $pid3 ] && echo "first pmie instance ..."
     [ $pid = $pid4 ] && echo "second pmie instance ..."
-    echo "pid=$pid ..." >>$seq.full
+    echo "pid=$pid ..." >>$seq_full
 
     for metric in configfile logfile pmcd_host numrules actions \
 		eval.true eval.false eval.unknown eval.expected eval.actual
     do
 	$PCP_ECHO_PROG $PCP_ECHO_N "$metric	""$PCP_ECHO_C"
-	echo "$metric ..." >>$seq.full
+	echo "$metric ..." >>$seq_full
 	pmdumplog $tmp pmcd.pmie.$metric \
 	| tee -a $seq.full \
 	| grep '"'$pid'"' \

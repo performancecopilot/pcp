@@ -13,41 +13,40 @@ echo "QA output created by $seq"
 date '+%Y' -d today >/dev/null || _notrun "date(1) does not support +fmt -d ... args"
 
 status=0	# success is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 export TZ=UTC
-echo "now: $(date '+%Y-%m-%d')" >>$seq.full
-echo "yesterday: $(date '+%Y-%m-%d' -d 'yesterday')" >>$seq.full
-echo "tomorrow: $(date '+%Y-%m-%d' -d 'tomorrow')" >>$seq.full
-echo "sunday: $(date '+%Y-%m-%d' -d 'sunday')" >>$seq.full
-echo "first sunday: $(date '+%Y-%m-%d' -d 'first sunday')" >>$seq.full
-echo "this sunday: $(date '+%Y-%m-%d' -d 'this sunday')" >>$seq.full
-echo "last sunday: $(date '+%Y-%m-%d' -d 'last sunday')" >>$seq.full
-echo "monday: $(date '+%Y-%m-%d' -d 'monday')" >>$seq.full
-echo "first monday: $(date '+%Y-%m-%d' -d 'first monday')" >>$seq.full
-echo "this monday: $(date '+%Y-%m-%d' -d 'this monday')" >>$seq.full
-echo "last monday: $(date '+%Y-%m-%d' -d 'last monday')" >>$seq.full
-echo "tuesday: $(date '+%Y-%m-%d' -d 'tuesday')" >>$seq.full
-echo "first tuesday: $(date '+%Y-%m-%d' -d 'first tuesday')" >>$seq.full
-echo "this tuesday: $(date '+%Y-%m-%d' -d 'this tuesday')" >>$seq.full
-echo "last tuesday: $(date '+%Y-%m-%d' -d 'last tuesday')" >>$seq.full
-echo "wednesday: $(date '+%Y-%m-%d' -d 'wednesday')" >>$seq.full
-echo "first wednesday: $(date '+%Y-%m-%d' -d 'first wednesday')" >>$seq.full
-echo "this wednesday: $(date '+%Y-%m-%d' -d 'this wednesday')" >>$seq.full
-echo "last wednesday: $(date '+%Y-%m-%d' -d 'last wednesday')" >>$seq.full
-echo "thursday: $(date '+%Y-%m-%d' -d 'thursday')" >>$seq.full
-echo "first thursday: $(date '+%Y-%m-%d' -d 'first thursday')" >>$seq.full
-echo "this thursday: $(date '+%Y-%m-%d' -d 'this thursday')" >>$seq.full
-echo "last thursday: $(date '+%Y-%m-%d' -d 'last thursday')" >>$seq.full
-echo "friday: $(date '+%Y-%m-%d' -d 'friday')" >>$seq.full
-echo "first friday: $(date '+%Y-%m-%d' -d 'first friday')" >>$seq.full
-echo "this friday: $(date '+%Y-%m-%d' -d 'this friday')" >>$seq.full
-echo "last friday: $(date '+%Y-%m-%d' -d 'last friday')" >>$seq.full
-echo "saturday: $(date '+%Y-%m-%d' -d 'saturday')" >>$seq.full
-echo "first saturday: $(date '+%Y-%m-%d' -d 'first saturday')" >>$seq.full
-echo "this saturday: $(date '+%Y-%m-%d' -d 'this saturday')" >>$seq.full
-echo "last saturday: $(date '+%Y-%m-%d' -d 'last saturday')" >>$seq.full
+echo "now: $(date '+%Y-%m-%d')" >>$seq_full
+echo "yesterday: $(date '+%Y-%m-%d' -d 'yesterday')" >>$seq_full
+echo "tomorrow: $(date '+%Y-%m-%d' -d 'tomorrow')" >>$seq_full
+echo "sunday: $(date '+%Y-%m-%d' -d 'sunday')" >>$seq_full
+echo "first sunday: $(date '+%Y-%m-%d' -d 'first sunday')" >>$seq_full
+echo "this sunday: $(date '+%Y-%m-%d' -d 'this sunday')" >>$seq_full
+echo "last sunday: $(date '+%Y-%m-%d' -d 'last sunday')" >>$seq_full
+echo "monday: $(date '+%Y-%m-%d' -d 'monday')" >>$seq_full
+echo "first monday: $(date '+%Y-%m-%d' -d 'first monday')" >>$seq_full
+echo "this monday: $(date '+%Y-%m-%d' -d 'this monday')" >>$seq_full
+echo "last monday: $(date '+%Y-%m-%d' -d 'last monday')" >>$seq_full
+echo "tuesday: $(date '+%Y-%m-%d' -d 'tuesday')" >>$seq_full
+echo "first tuesday: $(date '+%Y-%m-%d' -d 'first tuesday')" >>$seq_full
+echo "this tuesday: $(date '+%Y-%m-%d' -d 'this tuesday')" >>$seq_full
+echo "last tuesday: $(date '+%Y-%m-%d' -d 'last tuesday')" >>$seq_full
+echo "wednesday: $(date '+%Y-%m-%d' -d 'wednesday')" >>$seq_full
+echo "first wednesday: $(date '+%Y-%m-%d' -d 'first wednesday')" >>$seq_full
+echo "this wednesday: $(date '+%Y-%m-%d' -d 'this wednesday')" >>$seq_full
+echo "last wednesday: $(date '+%Y-%m-%d' -d 'last wednesday')" >>$seq_full
+echo "thursday: $(date '+%Y-%m-%d' -d 'thursday')" >>$seq_full
+echo "first thursday: $(date '+%Y-%m-%d' -d 'first thursday')" >>$seq_full
+echo "this thursday: $(date '+%Y-%m-%d' -d 'this thursday')" >>$seq_full
+echo "last thursday: $(date '+%Y-%m-%d' -d 'last thursday')" >>$seq_full
+echo "friday: $(date '+%Y-%m-%d' -d 'friday')" >>$seq_full
+echo "first friday: $(date '+%Y-%m-%d' -d 'first friday')" >>$seq_full
+echo "this friday: $(date '+%Y-%m-%d' -d 'this friday')" >>$seq_full
+echo "last friday: $(date '+%Y-%m-%d' -d 'last friday')" >>$seq_full
+echo "saturday: $(date '+%Y-%m-%d' -d 'saturday')" >>$seq_full
+echo "first saturday: $(date '+%Y-%m-%d' -d 'first saturday')" >>$seq_full
+echo "this saturday: $(date '+%Y-%m-%d' -d 'this saturday')" >>$seq_full
+echo "last saturday: $(date '+%Y-%m-%d' -d 'last saturday')" >>$seq_full
 
 # just as our libpcp code is based on getdate code that has changed
 # over time, date(1) also may have different semantics ... try to
@@ -55,15 +54,15 @@ echo "last saturday: $(date '+%Y-%m-%d' -d 'last saturday')" >>$seq.full
 #
 dodgey_date=false
 TODAY=`date -d today '+%A' | tr '[a-z]' '[A-Z]'`
-echo "TODAY=$TODAY" >>$seq.full
+echo "TODAY=$TODAY" >>$seq_full
 today=`echo "$TODAY" | tr '[A-Z]' '[a-z]'`
-echo "today=$today" >>$seq.full
+echo "today=$today" >>$seq_full
 t1=`date -d "next $today"`
-echo "t1=$t1" >>$seq.full
+echo "t1=$t1" >>$seq_full
 t2=`date -d "$today week"`
-echo "t2=$t2" >>$seq.full
+echo "t2=$t2" >>$seq_full
 [ "$t1" != "$t2" ] && dodgey_date=true
-echo "dodgey_date=$dodgey_date" >>$seq.full
+echo "dodgey_date=$dodgey_date" >>$seq_full
 
 # Be careful, sunday, first sunday, and today could all be
 # the same date.

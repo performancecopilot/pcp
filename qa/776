@@ -19,7 +19,6 @@ addr=`_host_to_ipv6addrs local: | head -1`
 [ ! -z "$addr" ] || _notrun "No active IPv6 interfaces"
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 _sought_filter()
@@ -65,34 +64,34 @@ n
 }
 
 # real QA test starts here
-echo "Using IPv6 addr=$addr" > $seq.full
+echo "Using IPv6 addr=$addr" > $seq_full
 
 _control_service_discovery
 
 # Probe the obtained network.
 # Test various combinations of service queries and subnet sizes. Keep the
 # subnet size small -- say max 4 bits.
-echo "-m probe=$addr/128" >> $seq.full
+echo "-m probe=$addr/128" >> $seq_full
 echo "-m probe=IPV6_ADDR/128"
 pmfind -m probe=$addr/128 | _unresolved_filter
 echo "Exit status: $?" | tee -a $seq.full
 
-echo "-s pmcd -m probe=$addr/127 -r" >> $seq.full
+echo "-s pmcd -m probe=$addr/127 -r" >> $seq_full
 echo "-s pmcd -m probe=IPV6_ADDR/127 -r"
 pmfind -s pmcd -m probe=$addr/126 -r | _resolved_filter
 echo "Exit status: $?" | tee -a $seq.full
 
-echo "-q -m probe=$addr/126" >> $seq.full
+echo "-q -m probe=$addr/126" >> $seq_full
 echo "-q -m probe=IPV6_ADDR/126"
 pmfind -q -m probe=$addr/125 | _unresolved_filter
 echo "Exit status: $?" | tee -a $seq.full
 
-echo "-q -s pmcd -m probe=$addr/125 --resolve" >> $seq.full
+echo "-q -s pmcd -m probe=$addr/125 --resolve" >> $seq_full
 echo "-q -s pmcd -m probe=IPV6_ADDR/125 --resolve"
 pmfind -q -s pmcd -m probe=$addr/124 --resolve | _resolved_filter
 echo "Exit status: $?" | tee -a $seq.full
 
-echo "-q -s pmcd -m probe=$addr/124,maxThreads=8" >> $seq.full
+echo "-q -s pmcd -m probe=$addr/124,maxThreads=8" >> $seq_full
 echo "-q -s pmcd -m probe=IPV6_ADDR/124,maxThreads=8"
 pmfind -q -s pmcd -m probe=$addr/124,maxThreads=8 | _unresolved_filter
 echo "Exit status: $?" | tee -a $seq.full

@@ -14,8 +14,9 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-rm -f $seq.out $seq.full
-endian=`_get_endian`
+rm -f $seq.out
+_get_endian >$tmp.tmp 2>&1 || _exit 1
+endian=`cat $tmp.tmp`
 ln $seq.out.$endian $seq.out
 
 # sane starting point
@@ -25,7 +26,6 @@ pmstore sample.string.write_me 13 >/dev/null
 pmstore sampledso.string.write_me 13 >/dev/null
 
 status=0	# success is the default!
-$sudo rm -rf $tmp.*
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here

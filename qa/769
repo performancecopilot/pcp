@@ -20,7 +20,6 @@ echo "QA output created by $seq"
 [ -f /etc/slackware-version ] && _notrun "chkconfig does not work for Slackware"
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 VERBOSE_CONFIG=false
@@ -43,20 +42,20 @@ _check_chk()
 # real QA test starts here
 
 VERBOSE_CONFIG=true
-is_chkconfig_on pmie >>$seq.full
+is_chkconfig_on pmie >>$seq_full
 VERBOSE_CONFIG=false
 
 for svc in $FULL_LIST
 do
     save=off
     is_chkconfig_on $svc && save=on
-    echo "initial state for $svc: $save" >>$seq.full
+    echo "initial state for $svc: $save" >>$seq_full
     for state in off on
     do
 	echo "=== $svc $state ==="
 	if [ -f $PCP_RC_DIR/$svc ]
 	then
-	    _change_config $svc $state
+	    _change_config $svc $state || _exit 1
 	    _check_chk $svc
 	else
 	    # fake output when init script not installed

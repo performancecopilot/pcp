@@ -15,7 +15,6 @@ echo "QA output created by $seq"
 . ./common.check
 
 status=0	# success is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
@@ -147,7 +146,7 @@ s/No values/No input values/
 p
 }' $tmp.in >$tmp.in2
     echo "--- inputs compared to merge ---" | tee -a $seq.full
-    pmval -rz -w 12 -f 3 -U archives/interpmark $m >>$seq.full 2>&1
+    pmval -rz -w 12 -f 3 -U archives/interpmark $m >>$seq_full 2>&1
 
     pmval -rz -w 12 -f 3 -A 3sec -t 3sec -a archives/interpmark $m \
     | tee -a $seq.full \
@@ -160,7 +159,7 @@ p
     _join $tmp.in2 $tmp.tmp
 
     echo "--- merge compared to reduce ---"
-    pmval -rz -w 12 -f 3 -U $tmp.reduce $m >>$seq.full 2>&1
+    pmval -rz -w 12 -f 3 -U $tmp.reduce $m >>$seq_full 2>&1
 
     pmval -Dfetch,log,interp -rz -w 12 -f 3 -A 3sec -t 3sec -a $tmp.reduce $m 2>&1 \
     | tee -a $seq.full \

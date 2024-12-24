@@ -17,12 +17,11 @@ _check_series
 which curl >/dev/null 2>&1 || _notrun "No curl binary installed"
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "cd $here; _cleanup; exit \$status" 0 1 2 3 15
 
 pmproxy_was_running=false
 [ -f $PCP_RUN_DIR/pmproxy.pid ] && pmproxy_was_running=true
-echo "pmproxy_was_running=$pmproxy_was_running" >>$here/$seq.full
+echo "pmproxy_was_running=$pmproxy_was_running" >>$seq_full
 
 _cleanup()
 {
@@ -39,7 +38,7 @@ _cleanup()
 }
 
 # real QA test starts here
-_service pmproxy restart >/dev/null 2>&1
+if ! _service pmproxy restart >/dev/null 2>&1; then _exit 1; fi
 
 echo "=== Basic" | tee -a $here/$seq.full
 curl -IsS "http://localhost:44323/pmapi/context" | _webapi_header_filter
@@ -53,9 +52,9 @@ curl -isS -X OPTIONS -H "Origin: http://example.com" -H "Access-Control-Request-
 echo "=== Bad Request Method" | tee -a $here/$seq.full
 curl -isS -X OPTIONS -H "Origin: http://example.com" -H "Access-Control-Request-Method: BAD" "http://localhost:44323/pmapi/context" | _webapi_header_filter
 
-echo >>$here/$seq.full
-echo "=== pmproxy log ===" >>$here/$seq.full
-cat $PCP_LOG_DIR/pmproxy/pmproxy.log >>$here/$seq.full
+echo >>$seq_full
+echo "=== pmproxy log ===" >>$seq_full
+cat $PCP_LOG_DIR/pmproxy/pmproxy.log >>$seq_full
 
 # success, all done
 status=0

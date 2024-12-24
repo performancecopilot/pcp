@@ -54,7 +54,6 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
@@ -73,10 +72,10 @@ echo "mounting xfs filesystem"
 $sudo mount -t xfs -o loop,prjquota $tmp.xfsfile $tmp.xfsmount
 
 # stash a copy of metric values for debugging
-pminfo -f quota 2>&1 > $seq.full
+pminfo -f quota 2>&1 > $seq_full
 # ditto for xfs_quota
-echo "" >>$seq.full
-xfs_quota -c print $tmp.xfsmount >>$seq.full
+echo "" >>$seq_full
+xfs_quota -c print $tmp.xfsmount >>$seq_full
 
 echo "checking metric values"
 pmprobe -v quota > $tmp.out

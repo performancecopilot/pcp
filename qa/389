@@ -24,11 +24,9 @@ _filter()
 }
 
 trap "[ -n "$pid" ] && $sudo $PCP_BINADM_DIR/pmsignal -s TERM $pid >/dev/null 2>&1; $sudo rm -f $tmp.*; exit \$status" 0 1 2 3 15
-$sudo rm -f $tmp.* $seq.full
 
 # real QA test starts here
 echo "=== empty config and _no_ -L, should exit immediately ===" | tee -a $here/$seq.full
-$sudo rm -f $tmp.*
 pmlogger -c /dev/null -l $tmp.log $tmp &
 sleep 2
 echo "expect no pmlogger process ..."
@@ -37,12 +35,12 @@ _filter_pmlogger_log <$tmp.log | sed -e "s/$host/HOST/"
 
 echo | tee -a $here/$seq.full
 echo "=== empty config and -L, no reconnect and no exit ===" | tee -a $here/$seq.full
-$sudo rm -f $tmp.*
+$sudo rm -f $tmp.*		# refactor-ok
 _start_up_pmlogger -L -c /dev/null -l $tmp.log $tmp
-_wait_for_pmlogger $pid $tmp.log 5
-_service pcp restart 2>&1 | _filter_pcp_start
-_wait_for_pmcd
-_wait_for_pmlogger
+_wait_for_pmlogger $pid $tmp.log 5 || _exit 1
+if ! _service pcp restart 2>&1; then _exit 1; fi | _filter_pcp_start
+_wait_for_pmcd || _exit 1
+_wait_for_pmlogger || _exit 1
 echo "expect pmlogger process ..."
 ps $PCP_PS_ALL_FLAGS | $PCP_AWK_PROG '$2 == "'$pid'" { print "OK"}'
 _filter_pmlogger_log <$tmp.log | sed -e "s/$host/HOST/"
@@ -53,17 +51,18 @@ echo "=== non-empty config, reconnect when pmcd restarted ===" | tee -a $here/$s
 # force quick reconnection to pmcd for pmlogger
 #
 export PMCD_RECONNECT_TIMEOUT=1
-$sudo rm -f $tmp.*
+$sudo rm -f $tmp.*		# refactor-ok
 echo "log mandatory on 1 sec pmcd.version" >$tmp.config
 _start_up_pmlogger -c $tmp.config -l $tmp.log $tmp
-_wait_for_pmlogger $pid $tmp.log 5
-echo "pid=$pid" >>$here/$seq.full
-ps $PCP_PS_ALL_FLAGS | grep '[p]mlogger' | grep $tmp >>$here/$seq.full
-_service pmcd stop | _filter_pcp_stop
+_wait_for_pmlogger $pid $tmp.log 5 || _exit 1
+echo "pid=$pid" >>$seq_full
+ps $PCP_PS_ALL_FLAGS | grep '[p]mlogger' | grep $tmp >>$seq_full
+if ! _service pmcd stop; then _exit 1; fi \
+| _filter_pcp_stop
 sleep 2
-_service pmcd start 2>&1 | _filter_pcp_start
-_wait_for_pmcd
-_wait_for_pmlogger
+if ! _service pmcd start 2>&1; then _exit 1; fi | _filter_pcp_start
+_wait_for_pmcd || _exit 1
+_wait_for_pmlogger || _exit 1
 # need longer delay here to allow pmlogger to reconnect and revalidate
 # metrics
 sleep 4
@@ -76,8 +75,8 @@ ps $PCP_PS_ALL_FLAGS \
 _filter_pmlogger_log <$tmp.log | _filter | sed -e "s/$host/HOST/"
 $sudo $signal -s TERM $pid
 sleep 2
-echo "pmlogger log file ..." >>$here/$seq.full
-cat $tmp.log >>$here/$seq.full
+echo "pmlogger log file ..." >>$seq_full
+cat $tmp.log >>$seq_full
 echo "expect one mark record ..."
 pmdumplog -M $tmp | grep '<mark>' | wc -l | sed -e 's/ //g'
 

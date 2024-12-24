@@ -14,7 +14,6 @@ echo "QA output created by $seq"
 . ./common.check
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "cd $here; $sudo rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 
 trace()
@@ -40,10 +39,10 @@ export PMLOGGER_INTERVAL=1
 
 pmlogger -c $tmp.config -l $tmp.log -T 5sec $tmp.qa
 pmlogsummary -y $tmp.qa hinv.ncpu > $tmp.summary
-trace $tmp.qa $tmp.summary > $seq.full
+trace $tmp.qa $tmp.summary > $seq_full
 
 $PCP_AWK_PROG '{ printf "%s=%d", $1, $3 }' < $tmp.summary >$tmp.out
-cat $tmp.out >> $seq.full
+cat $tmp.out >> $seq_full
 eval `cat $tmp.out | sed -e 's/\./_/g'`
 
 echo "Silence is golden"

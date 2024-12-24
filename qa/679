@@ -44,7 +44,6 @@ _filter()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 [ -f $NEEDREWRITE ] && $sudo mv $NEEDREWRITE $NEEDREWRITE.$seq
@@ -62,7 +61,7 @@ metric pmcd.pid {
 }
 End-of-File
 pmlogrewrite -c $tmp.config archives/bad-derived $tmp
-ls -l $tmp* >>$seq.full
+ls -l $tmp* >>$seq_full
 cat <<End-of-File >$tmp.farm
 oldsem0		$tmp	20011002
 oldsem0		$tmp	20011003
@@ -173,7 +172,7 @@ _setup
 $sudo -u pcp $PCP_BINADM_DIR/pmlogger_daily -D -c $tmp.control -k forever -x never -V -R -l $tmp.log 2>$tmp.err
 _filter <$tmp.err
 _filter <$tmp.log
-cat $tmp.err $tmp.log >>$here/$seq.full
+cat $tmp.err $tmp.log >>$seq_full
 $sudo rm -f $tmp.err $tmp.log
 for file in oldsem*/*.meta newsem*/*.meta
 do
@@ -189,7 +188,7 @@ $sudo -u pcp touch $PCP_LOG_DIR/pmlogger/.NeedRewrite
 $sudo -u pcp $PCP_BINADM_DIR/pmlogger_daily -D -c $tmp.control -k forever -x never -l $tmp.log 2>$tmp.err
 _filter <$tmp.err
 _filter <$tmp.log
-cat $tmp.err $tmp.log >>$here/$seq.full
+cat $tmp.err $tmp.log >>$seq_full
 $sudo rm -f $tmp.err $tmp.log
 if [ -f $PCP_LOG_DIR/pmlogger/.NeedRewrite ]
 then

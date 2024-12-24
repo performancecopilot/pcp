@@ -16,7 +16,6 @@ echo "QA output created by $seq"
 [ $PCP_PLATFORM = "linux" ] || _notrun "Test platform does not support hotproc"
 
 status=1
-$sudo rm -f $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 _filter_store()

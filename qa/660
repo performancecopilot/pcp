@@ -29,8 +29,6 @@ fi
 PORT=44324
 
 $sudo rm -fr $tmp.dir
-$sudo rm -f $tmp.*
-rm -f $seq.full
 
 signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
@@ -108,11 +106,11 @@ _filter_log_url()
     # end
 }
 
-ipv6local=`_ipv6_localhost 2>>$seq.full`
-echo "ipv6local=$ipv6local" >>$seq.full
+ipv6local=`_ipv6_localhost 2>>$seq_full`
+echo "ipv6local=$ipv6local" >>$seq_full
 
 _stop_auto_restart pmwebd # see GH #394
-_service pmwebd stop >/dev/null 2>&1
+if ! _service pmwebd stop >/dev/null 2>&1; then _exit 1; fi
 $sudo $signal -a pmwebd >/dev/null 2>&1
 
 webargs="-U $username -P"
@@ -121,11 +119,11 @@ echo | tee -a $seq.full
 echo "=== pmwebd default startup  ===" | tee -a $seq.full
 $PCP_BINADM_DIR/pmwebd $webargs -p $PORT -D libweb -l $tmp.log -v -t10 &
 
-echo "pid=$!" >>$seq.full
+echo "pid=$!" >>$seq_full
 _wait_for_pmwebd_logfile $tmp.log $PORT
 
 # prepare the expected output file based on detected mode
-cat $tmp.log >>$seq.full
+cat $tmp.log >>$seq_full
 rm -f $seq.out
 if grep -q IPv6 $tmp.log; then
     grep -q IPv4 $tmp.log || _notrun "QA host running in IPv6 mode only"
@@ -137,7 +135,7 @@ fi
 curl -s -S "http://localhost:$PORT/pmapi/context?local=ANYTHING" \
 | tee -a $seq.full \
 | awk '{print $2}'
-echo >>$seq.full
+echo >>$seq_full
 if grep -q IPv6 $tmp.log; then
     curl -s -S "http://$ipv6local:$PORT/pmapi/context?local=ANYTHING" \
     | tee -a $seq.full \
@@ -149,10 +147,10 @@ echo "=== pmwebd security constraints, file service ===" | tee -a $seq.full
 $sudo $signal -a pmwebd >/dev/null 2>&1
 sleep 2		# let it shutdown
 
-cat $tmp.log >> $seq.full
+cat $tmp.log >> $seq_full
 $PCP_BINADM_DIR/pmwebd $webargs -p $PORT -D libweb -R `pwd` -c 2222 -L -h localhost -N -vv -l $tmp.log >$tmp.err 2>&1 &
 sleep 2		# let it start up
-cat $tmp.err >> $seq.full
+cat $tmp.err >> $seq_full
 
 # Note on curl use:
 # extra echo because line from curl may be missing a \n and this
@@ -248,8 +246,8 @@ echo "+++ should fail with incomplete pmapi request url.size=3" | tee -a $seq.fu
 grep 'url\.size.* 3 .*12345' $tmp.log | _filter_log_url
 echo | tee -a $seq.full
 
-echo "--- pmwebd log for main QA tests ---" >> $seq.full
-cat $tmp.log >> $seq.full
+echo "--- pmwebd log for main QA tests ---" >> $seq_full
+cat $tmp.log >> $seq_full
 
 # look for fd leak in src/ -> src/index.html redirection
 echo OK > $here/src/index.html
@@ -263,8 +261,8 @@ done
 grep -q PMWEBD.error $tmp.out && echo fd leak || echo no fd leak
 grep -q OK $tmp.out && echo redirected file ok || echo redirected file bad
 
-echo "--- output for fd leak tests ---" >> $seq.full
-cat $tmp.out >> $seq.full
+echo "--- output for fd leak tests ---" >> $seq_full
+cat $tmp.out >> $seq_full
 
 
 status=0

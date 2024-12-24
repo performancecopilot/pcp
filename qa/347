@@ -50,7 +50,7 @@ _cleanup()
 install_on_cleanup=false
 pminfo news >/dev/null 2>&1 && install_on_cleanup=true
 
-$sudo rm -rf $tmp.* $here/$seq.full
+$sudo rm -rf $here/$seq_full
 trap "_cleanup" 0 1 2 3 15
 
 _filter()
@@ -83,7 +83,7 @@ unset ROOT MAKEFLAGS
 # at the end of the test and it is not trying to re-connect to a
 # reconfigured pmcd
 #
-_service pmlogger stop >>$here/$seq.full
+if ! _service pmlogger stop >>$seq_full; then _exit 1; fi
 
 # copy the pmcd config file to restore state later.
 cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf

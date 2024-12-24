@@ -14,7 +14,8 @@ echo "QA output created by $seq"
 . ./common.check
 
 rm -f $seq.out
-endian=`_get_endian`
+_get_endian >$tmp.tmp 2>&1 || _exit 1
+endian=`cat $tmp.tmp`
 ln $seq.out.$endian $seq.out
 
 signal=$PCP_BINADM_DIR/pmsignal

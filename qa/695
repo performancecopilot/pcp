@@ -19,7 +19,6 @@ perl -e "use PCP::PMDA" >/dev/null 2>&1
              || _notrun "perl trivial PMDA is not installed"
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 
 pmdatrivial_remove()
 {
@@ -36,7 +35,7 @@ pmdatrivial_install()
 
     echo; echo "=== trivial agent $@ installation ===" | tee -a $here/$seq.full
     echo $@ | $sudo ./Install >$tmp.out 2>&1
-    cat $tmp.out >>$here/$seq.full
+    cat $tmp.out >>$seq_full
     _filter_pmda_install <$tmp.out
 }
 
@@ -48,9 +47,9 @@ pmdatrivial_install perl
 
 firsts=`pmdate %s`	# seconds since the epoch (before sampling)
 pmprobe -v trivial.time > $tmp.out
-echo pmdate $firsts >> $here/$seq.full
-echo pmprobe >> $here/$seq.full
-cat $tmp.out >> $here/$seq.full
+echo pmdate $firsts >> $seq_full
+echo pmprobe >> $seq_full
+cat $tmp.out >> $seq_full
 seconds=`cat $tmp.out | awk '{print $3}'`
 
 if [ $firsts -gt $seconds ]

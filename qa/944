@@ -42,12 +42,11 @@ nobodygid=`id -g nobody`
 
 signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _start_local_pmcd()
 {
-    pmcd -Dauth -f -x $seq.full -l $tmp.log 2>>$here/$seq.full &
+    pmcd -Dauth -f -x $seq.full -l $tmp.log 2>>$seq_full &
     pid=$!
     sleep 2
     pmcd_wait -h unix:$PMCD_SOCKET -v -t 5sec
@@ -135,10 +134,10 @@ sample 29  pipe binary  $PCP_PMDAS_DIR/sample/pmdasample -d 29 -U $username
 allow user $username : fetch;
 disallow user $username : store;
 End-of-File
-cat $tmp.conf >>$seq.full
+cat $tmp.conf >>$seq_full
 _start_local_pmcd
-echo "--- pmcd.log ---" >>$seq.full
-cat $tmp.log >>$seq.full
+echo "--- pmcd.log ---" >>$seq_full
+cat $tmp.log >>$seq_full
 _filter_user <$tmp.log
 
 echo "Testing QA user allowed fetch access (explicit)" | tee -a $seq.full
@@ -174,8 +173,8 @@ $sudo -u nobody pminfo -Dauth -f -h unix:$PMCD_SOCKET sample.control 2>&1 \
 | _filter_auth
 
 _stop_local_pmcd
-echo "--- pmcd.log ---" >>$seq.full
-cat $tmp.log >>$seq.full
+echo "--- pmcd.log ---" >>$seq_full
+cat $tmp.log >>$seq_full
 _filter_user <$tmp.log
 
 # group test cases
@@ -219,8 +218,8 @@ $sudo -u nobody pminfo -Dauth -f -h unix:$PMCD_SOCKET sample.control 2>&1 \
 | _filter_auth
 
 _stop_local_pmcd
-echo "--- pmcd.log ---" >>$seq.full
-cat $tmp.log >>$seq.full
+echo "--- pmcd.log ---" >>$seq_full
+cat $tmp.log >>$seq_full
 _filter_group <$tmp.log
 
 # success, all done

@@ -26,7 +26,6 @@ $PCP_BINADM_DIR/telnet-probe -c localhost 389 || \
 server=localhost
 passwd=password
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 
 pmdads389_remove()
 {
@@ -41,14 +40,14 @@ pmdads389_install()
     # start from known starting points
     cd $PCP_PMDAS_DIR/ds389
     $sudo ./Remove >/dev/null 2>&1
-    _service pmcd stop
+    if ! _service pmcd stop; then _exit 1; fi
 
     cat <<EOF >$tmp.config
 \$server = '$server';
 \$bindpw = '$passwd';
 EOF
-    echo "pmdads389 config:" >> $here/$seq.full
-    cat $tmp.config >> $here/$seq.full
+    echo "pmdads389 config:" >> $seq_full
+    cat $tmp.config >> $seq_full
 
     [ -f $PCP_PMDAS_DIR/ds389/ds389.conf ] && \
     $sudo cp $PCP_PMDAS_DIR/ds389/ds389.conf $tmp.backup

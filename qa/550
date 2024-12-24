@@ -19,7 +19,6 @@ host=localhost
 iterate=1000
 timeout=2
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 pmcd_memory()
@@ -30,7 +29,7 @@ pmcd_memory()
 }
 
 # real QA test starts here
-echo "Initial pmcd memory size:" > $seq.full
+echo "Initial pmcd memory size:" > $seq_full
 MEMINIT=`pmcd_memory`
 cd secure
 for leak_test in leak-*
@@ -44,7 +43,7 @@ do
     MEMUSED=`pmcd_memory`
     # allow for max 64KB increase (several pages on 64KB systems)
     MEMSLOP=`expr $MEMINIT + 640`
-    echo "init=$MEMINIT used=$MEMUSED slop=$MEMSLOP" >> $here/$seq.full
+    echo "init=$MEMINIT used=$MEMUSED slop=$MEMSLOP" >> $seq_full
     [ $MEMUSED -gt $MEMSLOP ] && exit
     echo "$leak_test memory check=OK" | tee -a $here/$seq.full
 done

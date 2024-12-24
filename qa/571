@@ -42,7 +42,7 @@ _cleanup()
     rm -f $tmp.*
 }
 
-$sudo rm -f $control.qa-$seq $seq.full
+$sudo rm -f $control.qa-$seq
 
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
@@ -99,7 +99,7 @@ _dumplog()
 {
     sleep $SLEEPY
     pmdumplog -i $tmp.logfile | _filter
-    pmdumplog -im $tmp.logfile sample.dynamic.instant | _filter >>$here/$seq.full
+    pmdumplog -im $tmp.logfile sample.dynamic.instant | _filter >>$seq_full
 }
 
 # start the pmlogger

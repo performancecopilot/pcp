@@ -56,9 +56,8 @@ then
     _notrun "Cannot get second remote pmcd host with proc.psinfo.ppid metrics"
 fi
 
-rm -f $seq.full
-echo "host1=$host1" >>$seq.full
-echo "host2=$host2" >>$seq.full
+echo "host1=$host1" >>$seq_full
+echo "host2=$host2" >>$seq_full
 done_clean=false
 
 install_on_cleanup=false
@@ -98,19 +97,19 @@ p
 if [ -z "$inst" ]
 then
     echo "Arrgh ... cannot find inst for local pid 1" | tee -a $seq.full
-    pminfo -F proc.psinfo.ppid >>$seq.full
+    pminfo -F proc.psinfo.ppid >>$seq_full
     exit
 fi
 
-echo "inst=$inst" >>$seq.full
-ps $PCP_PS_ALL_FLAGS | grep -E "PID|$inst" >>$seq.full
+echo "inst=$inst" >>$seq_full
+ps $PCP_PS_ALL_FLAGS | grep -E "PID|$inst" >>$seq_full
 
 cat <<end-of-file >$tmp.conf
 log advisory on once { proc.psinfo.ppid[$inst] }
 end-of-file
 
-echo "=== pmlogger config ===" >>$seq.full
-cat $tmp.conf >>$seq.full
+echo "=== pmlogger config ===" >>$seq_full
+cat $tmp.conf >>$seq_full
 
 rm -f $tmp.0 $tmp.index $tmp.meta
 pmlogger -s 1 -c $tmp.conf -l $tmp.log $tmp
@@ -134,7 +133,7 @@ echo "pmlc for local pmlogger ..." | tee -a $seq.full
 rm -f $tmp.0 $tmp.index $tmp.meta $tmp.log
 pmlogger -L -s 1 -c /dev/null -l $tmp.log $tmp &
 pid=$!
-_wait_for_pmlogger $pid $tmp.log
+_wait_for_pmlogger $pid $tmp.log || _exit 1
 ( echo "connect $!"; cat $tmp.conf ) | pmlc
 sleep 2
 x=`pmdumplog $tmp | _filter`
@@ -159,17 +158,17 @@ p
 if [ -z "$inst" ]
 then
     echo "Arrgh ... cannot find inst for host $host1 pid 1" | tee -a $seq.full
-    pminfo -F -h $host1 proc.psinfo.ppid >>$seq.full
+    pminfo -F -h $host1 proc.psinfo.ppid >>$seq_full
     exit
 fi
 cat <<end-of-file >$tmp.conf
 log advisory on once { proc.psinfo.ppid[$inst] }
 end-of-file
 
-echo "inst=$inst" >>$seq.full
-ssh -q pcpqa@$host1 ps -e | grep -E "PID|$inst" >>$seq.full
-echo "=== pmlogger config ===" >>$seq.full
-cat $tmp.conf >>$seq.full
+echo "inst=$inst" >>$seq_full
+ssh -q pcpqa@$host1 ps -e | grep -E "PID|$inst" >>$seq_full
+echo "=== pmlogger config ===" >>$seq_full
+cat $tmp.conf >>$seq_full
 
 cat <<end-of-file >$tmp.cmd
 . \$PCP_DIR/etc/pcp.env
@@ -198,7 +197,7 @@ fi
 # host is not mounting them via NFS ... only matters if the remote
 # pmlogger does not start ...
 #
-_wait_for_pmlogger "-h $host1 $rem_pid" /hosts/$host1/tmp/$rem_tmp.log
+_wait_for_pmlogger "-h $host1 $rem_pid" /hosts/$host1/tmp/$rem_tmp.log || _exit 1
 
 ( echo "connect $rem_pid@$host1"; cat $tmp.conf ) | pmlc
 sleep 2
@@ -230,17 +229,17 @@ p
 if [ -z "$inst" ]
 then
     echo "Arrgh ... cannot find inst for host $host2 pid 1" | tee -a $seq.full
-    pminfo -F -h $host2 proc.psinfo.ppid >>$seq.full
+    pminfo -F -h $host2 proc.psinfo.ppid >>$seq_full
     exit
 fi
 cat <<end-of-file >$tmp.conf
 log advisory on once { proc.psinfo.ppid[$inst] }
 end-of-file
 
-echo "inst=$inst" >>$seq.full
-ssh -q pcpqa@$host2 ps -e | grep -E "PID|$inst" >>$seq.full
-echo "=== pmlogger config ===" >>$seq.full
-cat $tmp.conf >>$seq.full
+echo "inst=$inst" >>$seq_full
+ssh -q pcpqa@$host2 ps -e | grep -E "PID|$inst" >>$seq_full
+echo "=== pmlogger config ===" >>$seq_full
+cat $tmp.conf >>$seq_full
 
 cat <<end-of-file >$tmp.cmd
 . \$PCP_DIR/etc/pcp.env
@@ -266,7 +265,7 @@ fi
 
 # see note above about /hosts/$host1
 #
-_wait_for_pmlogger "-h $host1 $rem_pid" /hosts/$host1/tmp/$rem_tmp.log
+_wait_for_pmlogger "-h $host1 $rem_pid" /hosts/$host1/tmp/$rem_tmp.log || _exit 1
 
 ( echo "connect $rem_pid@$host1"; cat $tmp.conf ) | pmlc
 sleep 2

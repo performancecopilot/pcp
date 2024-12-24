@@ -46,7 +46,6 @@ _cleanup()
     exit $status
 }
 
-$sudo rm -rf $tmp.* $seq.full 
 trap "_cleanup" 0 1 2 3 15
 timezone=`pmprobe -v pmcd.timezone | $PCP_AWK_PROG '{print $3}'`
 
@@ -88,7 +87,6 @@ _filter_pmval_arch()
 
 trap "_cleanup" 0 1 2 3 15
 
-rm -f $seq.full
 
 # real QA test starts here
 _save_config $PCP_SYSCONF_DIR/labels
@@ -103,13 +101,13 @@ sample	29	pipe	binary 		$PCP_PMDAS_DIR/sample/pmdasample -d 29 -U $iam -l $tmp.p
 End-of-File
 
 PMCD_PORT=`_find_free_port`
-echo "PMCD_PORT=$PMCD_PORT" >>$seq.full
+echo "PMCD_PORT=$PMCD_PORT" >>$seq_full
 export PMCD_PORT
 
 $PCP_BINADM_DIR/pmcd -f -c $tmp.pmcd.config -l $tmp.pmcd.log -U $iam -s $tmp.socket &
 pmcd_pid=$!
-echo "pmcd_pid=$pmcd_pid" >>$seq.full
-_wait_for_pmcd
+echo "pmcd_pid=$pmcd_pid" >>$seq_full
+_wait_for_pmcd || _exit 1
 
 cat <<End-of-File >$tmp.config
 log mandatory on default { pmcd.numagents sample.milliseconds }
@@ -131,11 +129,11 @@ if [ -z "$pmda_pid" ]
 then
     echo "Arrgh ... lost pmdasample process?"
     echo "See $seq.full for details"
-    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '([P]PID)|(/[p]mcd)|(/[p]mda)' >>$seq.full
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '([P]PID)|(/[p]mcd)|(/[p]mda)' >>$seq_full
     [ -n "$pmlogger_pid" ] && $signal -s TERM $pmlogger_pid
     [ -n "$pmval_pid" ] && $signal -s TERM $pmval_pid
-    cat $tmp.pmcd.log >>$seq.full
-    cat $tmp.pmda.log >>$seq.full
+    cat $tmp.pmcd.log >>$seq_full
+    cat $tmp.pmda.log >>$seq_full
     exit
 fi
 
@@ -150,11 +148,11 @@ if [ -z "$pmda_pid" ]
 then
     echo "Arrgh ... lost pmdasample process?"
     echo "See $seq.full for details"
-    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]m[cd]( |$)' >>$seq.full
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]m[cd]( |$)' >>$seq_full
     [ -n "$pmlogger_pid" ] && $signal -s TERM $pmlogger_pid
     [ -n "$pmval_pid" ] && $signal -s TERM $pmval_pid
-    cat $tmp.pmcd.log >>$seq.full
-    cat $tmp.pmda.log >>$seq.full
+    cat $tmp.pmcd.log >>$seq_full
+    cat $tmp.pmda.log >>$seq_full
     exit
 fi
 $signal -s TERM $pmda_pid
@@ -187,9 +185,9 @@ pmcd_pid=''
 
 wait
 
-echo >>$seq.full
-echo "pmcd log ..." >>$seq.full
-cat $tmp.pmcd.log >>$seq.full
+echo >>$seq_full
+echo "pmcd log ..." >>$seq_full
+cat $tmp.pmcd.log >>$seq_full
 
 echo
 echo "Trace of observed state changes and PMDA count ..."
@@ -197,9 +195,9 @@ grep -E '(state changes)|( value )' $tmp.pmval \
 | _filter_pmval_live \
 | uniq
 
-echo >>$seq.full
-echo "pmlogger log ..." >>$seq.full
-cat $tmp.log >>$seq.full
+echo >>$seq_full
+echo "pmlogger log ..." >>$seq_full
+cat $tmp.log >>$seq_full
 
 echo
 echo "archive contents ..."
@@ -208,11 +206,11 @@ grep -E '(<mark>)|(pmcd.numagents)' $tmp.out \
 | _filter_pmdumplog \
 | uniq
 
-echo >>$seq.full
+echo >>$seq_full
 pmdumplog -m $tmp sample.milliseconds >>$tmp.dump 2>&1
 nr=`grep '^[012]' <$tmp.dump | wc -l | sed -e 's/  */ /g'`
-echo "archive dump ($nr records)" >>$seq.full
-cat $tmp.dump >>$seq.full
+echo "archive dump ($nr records)" >>$seq_full
+cat $tmp.dump >>$seq_full
 
 # note clip after 6 filtered lines to avoid extra values that sometimes
 # appear due to non-determinism in pmlogger fetch samples
@@ -224,13 +222,13 @@ pmval -t 1 -a $tmp sample.milliseconds 2>&1 \
 | _filter_pmval_arch \
 | sed -e 6q
 
-echo >>$seq.full
-echo "unfiltered pmval live output" >>$seq.full
-cat $tmp.pmval >>$seq.full
+echo >>$seq_full
+echo "unfiltered pmval live output" >>$seq_full
+cat $tmp.pmval >>$seq_full
 
-echo >>$seq.full
-echo "unfiltered pmval archive output" >>$seq.full
-pmval -t 1 -a $tmp sample.milliseconds >>$seq.full 2>&1
+echo >>$seq_full
+echo "unfiltered pmval archive output" >>$seq_full
+pmval -t 1 -a $tmp sample.milliseconds >>$seq_full 2>&1
 
 status=0
 exit

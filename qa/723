@@ -23,22 +23,20 @@ cat /proc/$$/attr/current >/dev/null 2>&1 || _notrun "Incomplete kernel support 
 
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-$sudo rm -f $seq.full
 #debug# ls -l /proc/$pid/attr/current
 syslabel=`cat /proc/$pid/attr/current | tr '\0' '\n'`
-echo "SYS Label for process $pid is: $syslabel" >> $seq.full
+echo "SYS Label for process $pid is: $syslabel" >> $seq_full
 
 pminfo -f proc.psinfo.labels > $tmp.labels
 pcplabel=`grep "^    inst \[$pid or " $tmp.labels \
 	| $PCP_AWK_PROG '{ print $NF }' \
 	| sed -e 's/^"//' -e 's/"$//'`
-echo "PCP Label for process $pid is: $pcplabel" >> $seq.full
-echo "Extracted from list:" >> $seq.full
-cat $tmp.labels >> $seq.full
+echo "PCP Label for process $pid is: $pcplabel" >> $seq_full
+echo "Extracted from list:" >> $seq_full
+cat $tmp.labels >> $seq_full
 
 if [ "$pcplabel" = "$syslabel" ]
 then

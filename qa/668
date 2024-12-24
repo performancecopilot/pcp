@@ -29,8 +29,6 @@ fi
 echo docker ok
 
 $sudo rm -fr $tmp.dir
-$sudo rm -f $tmp.*
-rm -f $seq.full
 
 signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
@@ -65,10 +63,10 @@ _filter()
         -e 's,'$tmp.dir',TMPDIR,'
 }
 
-echo "hostname=$hostname" >>$seq.full
-id >>$seq.full
+echo "hostname=$hostname" >>$seq_full
+id >>$seq_full
 
-date >>$seq.full
+date >>$seq_full
 echo "=== 1. prepare pmmgr config directory  ===" | tee -a $seq.full
 $sudo rm -rf $tmp.dir
 mkdir $tmp.dir
@@ -86,13 +84,13 @@ touch $tmp.dir/pmie
 touch $tmp.dir/pmieconf
 touch $tmp.dir/subtarget-containers
 echo $tmp.dir >$tmp.dir/log-directory  # same dir
-ls -ld $tmp.dir >>$seq.full
+ls -ld $tmp.dir >>$seq_full
 
 $PCP_BINADM_DIR/pmmgr -U `whoami` -v -v -v -p 1 -c $tmp.dir -l $tmp.out &
 pid=$!
-echo "pid=$!" >>$seq.full
+echo "pid=$!" >>$seq_full
 
-date >>$seq.full
+date >>$seq_full
 echo "=== 2. cycle some short-lived containers ===" | tee -a $seq.full
 # need a time long enough to get enough docker instances started,
 # ... and then to run pmlogconf on each found container (in parallel)
@@ -100,15 +98,15 @@ echo "=== 2. cycle some short-lived containers ===" | tee -a $seq.full
 #
 # on a 8cpu bare-metal machine, these steps can finish in a few seconds
 # on a 2vcpu virtual machine, these steps can take minutes (!)
-(docker info >>$seq.full
+(docker info >>$seq_full
  for i in `seq 3`; do
      docker run --rm busybox sleep 150  &
      sleep 20 # staggering seems to reduce load
  done
- docker ps >>$seq.full
+ docker ps >>$seq_full
  wait)
 
-date >>$seq.full
+date >>$seq_full
 echo "=== 3. check that the containers were found ===" | tee -a $seq.full
 num=`ls $tmp.dir/$hostname--*/config.pmlogger 2>/dev/null | wc -l`
 # there might be more if the machine's already running other containers
@@ -130,33 +128,33 @@ else
     echo "not enough config.pmie files $num" | tee -a $seq.full
 fi
 
-date >>$seq.full
+date >>$seq_full
 echo "=== 4. kill pmmgr ===" | tee -a $seq.full
 $sudo kill $pid
 pid=
 sleep 2
 
-echo >>$seq.full
-echo "== collecting full pmmgr logs:" >>$seq.full
-cat $tmp.out >>$seq.full
+echo >>$seq_full
+echo "== collecting full pmmgr logs:" >>$seq_full
+cat $tmp.out >>$seq_full
 
-echo >>$seq.full
-echo "== collecting container logs/configs:" >>$seq.full
+echo >>$seq_full
+echo "== collecting container logs/configs:" >>$seq_full
 for log in $tmp.dir/$hostname--*/*.log $tmp.dir/$hostname--*/config.*
 do
     if [ -f "$log" ]
     then
-	echo "-- $log --" >>$seq.full
-	cat $log >>$seq.full
+	echo "-- $log --" >>$seq_full
+	cat $log >>$seq_full
     fi
 done
 
-echo >>$seq.full
-echo "== container archive data dump:" >>$seq.full
-ls -lR $tmp.dir >>$seq.full # for reference
+echo >>$seq_full
+echo "== container archive data dump:" >>$seq_full
+ls -lR $tmp.dir >>$seq_full # for reference
 for f in $tmp.dir/$hostname--*/*.meta; do
-    echo == $f == >>$seq.full
-    pmdumplog -dilmst $f >>$seq.full
+    echo == $f == >>$seq_full
+    pmdumplog -dilmst $f >>$seq_full
 done
 
 status=0

@@ -29,7 +29,6 @@ do
 done
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 
 activemq_remove()
 {

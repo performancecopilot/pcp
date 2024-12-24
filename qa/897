@@ -14,7 +14,6 @@ echo "QA output created by $seq"
 . ./common.check
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "cd $here; $sudo rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 hostname=`hostname`
@@ -55,7 +54,7 @@ End-of-File
     # Note: _start_up_pmlogger returns with $pid set
     #
     _start_up_pmlogger -L -c $tmp.config -l $tmp.log $tmp
-    _wait_for_pmlogger $pid $tmp.log
+    _wait_for_pmlogger $pid $tmp.log || _exit 1
     pmsleep 0.1
     cat <<End-of-File | pmlc -e 2>&1 | tee -a $seq.full | _filter
 show loggers
@@ -75,7 +74,7 @@ query { sample.colour sample.long.one }
 End-of-File
     $sudo kill -TERM $pid
     wait
-    cat $tmp.log >>$seq.full
+    cat $tmp.log >>$seq_full
 done
 
 # success, all done

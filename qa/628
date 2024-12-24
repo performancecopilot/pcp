@@ -39,9 +39,9 @@ cd $home/simple
 
 # restart pmcd and copy the pmcd config file and pmns to restore state later
 #
-_service pcp restart >/dev/null 2>&1
-_wait_for_pmcd
-_wait_for_pmlogger
+if ! _service pcp restart >/dev/null 2>&1; then _exit 1; fi
+_wait_for_pmcd || _exit 1
+_wait_for_pmlogger || _exit 1
 cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
 cp $PCP_VAR_DIR/pmns/root $tmp.root
 [ -f $PCP_VAR_DIR/pmns/root.bin ] && cp $PCP_VAR_DIR/pmns/root.bin $tmp.root.bin
@@ -65,9 +65,8 @@ cat <<End-of-File | $sudo ./Install >$tmp.out 2>&1
 dso
 End-of-File
 
-rm -f $seq.full
-echo "=== simple install ===" >>$here/$seq.full
-cat $tmp.out >>$here/$seq.full
+echo "=== simple install ===" >>$seq_full
+cat $tmp.out >>$seq_full
 
 if pminfo -v simple
 then
@@ -105,8 +104,8 @@ cat <<End-of-File | $sudo ./Install >$tmp.out 2>&1
 dso
 End-of-File
 
-echo "=== idiot install ===" >>$here/$seq.full
-cat $tmp.out >>$here/$seq.full
+echo "=== idiot install ===" >>$seq_full
+cat $tmp.out >>$seq_full
 
 if pminfo -v idiot
 then
@@ -132,14 +131,14 @@ then
     fi
 fi
 
-echo "=== pmcd log after first pminfo simple ===" >>$here/$seq.full
-cat $PCP_LOG_DIR/pmcd/pmcd.log >>$here/$seq.full
+echo "=== pmcd log after first pminfo simple ===" >>$seq_full
+cat $PCP_LOG_DIR/pmcd/pmcd.log >>$seq_full
 pminfo -fm idiot.numfetch
 pminfo -fm idiot.numfetch
 pminfo -fm idiot.numfetch
 pminfo -fm simple.numfetch idiot.numfetch
-echo "=== pmcd log after last pminfo simple ===" >>$here/$seq.full
-cat $PCP_LOG_DIR/pmcd/pmcd.log >>$here/$seq.full
+echo "=== pmcd log after last pminfo simple ===" >>$seq_full
+cat $PCP_LOG_DIR/pmcd/pmcd.log >>$seq_full
 
 # success, all done
 status=0

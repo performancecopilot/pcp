@@ -17,7 +17,6 @@ which pmlogrewrite >/dev/null 2>&1 || _notrun "pmlogrewrite not installed"
 _check_valgrind
 
 status=0	# success is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 _filter()
@@ -102,9 +101,9 @@ metric irix.kernel.all.load { name->load type->double }
 metric hinv.ncpu { name->hinv.number_of_cpus type->U64 }
 End-of-File
 rm -f $tmp.new.*
-cat $tmp.conf >>$seq.full
+cat $tmp.conf >>$seq_full
 _run_valgrind pmlogrewrite -c $tmp.conf archives/src-rattle $tmp.new 2>$tmp.err | _filter
-cat $tmp.err >>$seq.full
+cat $tmp.err >>$seq_full
 _cmp archives/src-rattle $tmp.new
 
 cat <<End-of-File >$tmp.conf
@@ -112,9 +111,9 @@ metric sample.mirage_longlong { type->U32 indom->NULL }
 metric sample.scale_step.time_up_secs { type->FLOAT units->0,1,0,0,MSEC,0 }
 End-of-File
 rm -f $tmp.new.*
-cat $tmp.conf >>$seq.full
+cat $tmp.conf >>$seq_full
 _run_valgrind pmlogrewrite -c $tmp.conf archives/sample_expr $tmp.new 2>$tmp.err | _filter
-cat $tmp.err >>$seq.full
+cat $tmp.err >>$seq_full
 _cmp archives/sample_expr $tmp.new
 
 cat <<End-of-File >$tmp.conf
@@ -130,9 +129,9 @@ indom 29.2 {
 indom 29.3 { iname "m-00" -> delete inst 33 -> delete }
 End-of-File
 rm -f $tmp.new.*
-cat $tmp.conf >>$seq.full
+cat $tmp.conf >>$seq_full
 _run_valgrind pmlogrewrite -s -c $tmp.conf archives/mirage $tmp.new 2>$tmp.err | _filter
-cat $tmp.err >>$seq.full
+cat $tmp.err >>$seq_full
 oldfilter=_scale
 newfilter=_noscale
 _cmp archives/mirage $tmp.new
@@ -167,9 +166,9 @@ indom 29.2 { inst 200 -> DELETE }
 indom 30.2 { inst 800 -> DELETE }
 End-of-File
 rm -f $tmp.new.*
-cat $tmp.conf >>$seq.full
+cat $tmp.conf >>$seq_full
 _run_valgrind pmlogrewrite -s -c $tmp.conf archives/mirage $tmp.new 2>$tmp.err | _filter
-cat $tmp.err >>$seq.full
+cat $tmp.err >>$seq_full
 
 # success, all done
 exit

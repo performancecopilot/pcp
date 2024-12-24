@@ -48,11 +48,12 @@ echo "pmproxy_was_running=$pmproxy_was_running" >>$seq_full
 
 _save_config $PCP_TLSCONF_PATH
 _stop_auto_restart pmcd
-_service pcp stop | _filter_pcp_stop
+if ! _service pcp stop; then _exit 1; fi \
+| _filter_pcp_stop
 
 # pmcd is now secure.  next, pmproxy...
 _stop_auto_restart pmproxy
-_service pmproxy stop >/dev/null 2>&1
+if ! _service pmproxy stop >/dev/null 2>&1; then _exit 1; fi
 $sudo $signal -a pmproxy >/dev/null 2>&1
 
 _filter_tls()
@@ -68,8 +69,10 @@ _filter_tls()
 # real QA test starts here
 _setup_tls
 
-_service pmcd start | _filter_pcp_start
-_service pmproxy start | _filter_pmproxy_start
+if ! _service pmcd start; then _exit 1; fi \
+| _filter_pcp_start
+if ! _service pmproxy start; then _exit 1; fi \
+| _filter_pmproxy_start
 _wait_for_pmcd || _exit 1
 _wait_for_pmproxy || _exit 1
 

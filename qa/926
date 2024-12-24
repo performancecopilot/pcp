@@ -34,7 +34,6 @@ perl -e "use RRDs" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "perl RRDs module not installed"
 
 status=0        # success is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # We used to use uname -m to pick the right ganglia file, but
@@ -42,8 +41,8 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 # the base platform architecture may not be the same
 # The sizeof(void *) seem safer, which is what src/sizeof reports.
 #
-uname -a >>$seq.full
-src/sizeof int long ptr >>$seq.full
+uname -a >>$seq_full
+src/sizeof int long ptr >>$seq_full
 
 rm -f $seq.out
 eval `src/sizeof ptr`

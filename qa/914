@@ -25,7 +25,6 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
@@ -59,7 +58,7 @@ do
 		;;
     esac
    src/profilecrash -v $src -s 100 $metric >$tmp.out 2>$tmp.err
-    cat $tmp.err $tmp.out >>$here/$seq.full
+    cat $tmp.err $tmp.out >>$seq_full
     cat $tmp.err $tmp.out \
     | grep -E -v 'include|exclude| numpmid=1 '
 done

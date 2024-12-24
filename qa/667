@@ -12,7 +12,7 @@ echo "QA output created by $seq"
 $python -c "from pcp import pmapi" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python pcp pmapi module not installed"
 which socat >/dev/null 2>&1 || _notrun "socat binary not installed"
-which pcp2graphite >$seq.full 2>&1 || _notrun "pcp2graphite not installed"
+which pcp2graphite >$seq_full 2>&1 || _notrun "pcp2graphite not installed"
 
 port_pickled=42004
 port_text=42003
@@ -21,7 +21,6 @@ $PCP_BINADM_DIR/telnet-probe -c localhost $port_pickled \
 $PCP_BINADM_DIR/telnet-probe -c localhost $port_text \
 	&& _notrun "Someone already listening on graphite text port $port_text"
 
-$sudo rm -rf $seq.full $tmp.*
 signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
 
@@ -59,14 +58,14 @@ EOF
 
 _full_stash()
 {
-    echo "--- pcpgraphite stdout --" >>$seq.full
-    cat $tmp.p2g.out >>$seq.full
-    echo "--- pcpgraphite stderr --" >>$seq.full
-    cat $tmp.p2g.err >>$seq.full
-    echo "--- socket cat stdout --" >>$seq.full
-    cat $tmp.socat.out >>$seq.full
-    echo "--- socket cat stderr --" >>$seq.full
-    cat $tmp.socat.err >>$seq.full
+    echo "--- pcpgraphite stdout --" >>$seq_full
+    cat $tmp.p2g.out >>$seq_full
+    echo "--- pcpgraphite stderr --" >>$seq_full
+    cat $tmp.p2g.err >>$seq_full
+    echo "--- socket cat stdout --" >>$seq_full
+    cat $tmp.socat.out >>$seq_full
+    echo "--- socket cat stderr --" >>$seq_full
+    cat $tmp.socat.err >>$seq_full
 }
 
 ncpu=`pmprobe -v hinv.ncpu | awk '{print $3}'`
@@ -177,7 +176,7 @@ _full_stash
 echo | tee -a $seq.full
 echo "=== 6. pcp2graphite and latest pickle version ===" | tee -a $seq.full
 pickle_version=`_latest_pickle`
-echo pickle version: $pickle_version >> $seq.full
+echo pickle version: $pickle_version >> $seq_full
 socat -u tcp-listen:$port_pickled,reuseaddr - >$tmp.socat.out 2>$tmp.socat.err &
 scpid=$!
 sleep 2

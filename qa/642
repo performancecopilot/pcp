@@ -21,19 +21,18 @@ echo "QA output created by $seq"
 [ -f $PCP_PMDAS_DIR/trace/pmdatrace ] || _notrun "trace pmda not installed"
 
 status=0	# success is the default!
-$sudo rm -rf $tmp.*
 done_clean=false
 
-pcp >>$here/$seq.full
+pcp >>$seq_full
 pminfo trace >/dev/null 2>&1
 remove_trace=$?
-echo "remove_trace=$remove_trace" >>$here/$seq.full
+echo "remove_trace=$remove_trace" >>$seq_full
 pminfo trivial >/dev/null 2>&1
 remove_trivial=$?
-echo "remove_trivial=$remove_trivial" >>$here/$seq.full
+echo "remove_trivial=$remove_trivial" >>$seq_full
 pminfo sendmail >/dev/null 2>&1
 remove_sendmail=$?
-echo "remove_sendmail=$remove_sendmail" >>$here/$seq.full
+echo "remove_sendmail=$remove_sendmail" >>$seq_full
 
 _setup_pmdas()
 {
@@ -41,7 +40,7 @@ _setup_pmdas()
     for pmda in trivial simple sample sendmail trace
     do
 	cd $pmda
-	$sudo ./Install -e -Q </dev/null >>$here/$seq.full 2>&1
+	$sudo ./Install -e -Q </dev/null >>$seq_full 2>&1
 	cd ..
     done
 }

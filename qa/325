@@ -57,11 +57,10 @@ _countem()
 signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
-rm -f $seq.full
 
 # real QA test starts here
 
-echo "initially ..." >$seq.full
+echo "initially ..." >$seq_full
 OLDXCONFIRMCNT=`_countem`
 
 # Expect something on stderr
@@ -69,7 +68,7 @@ unset PCP_STDERR
 src/pmprintf foo bee doo
 
 # Expect something in an xconfirm
-echo "DISPLAY=$DISPLAY" >>$seq.full
+echo "DISPLAY=$DISPLAY" >>$seq_full
 export PCP_STDERR=DISPLAY
 if [ -z "$PCP_XCONFIRM_PROG" ]
 then
@@ -81,7 +80,7 @@ fi
 # wait for dialog to fire up
 sleep 3
 rm -f $tmp.out
-echo "after start up ..." >>$seq.full
+echo "after start up ..." >>$seq_full
 XCONFIRMCNT=`_countem`
 
 if [ $XCONFIRMCNT -gt $OLDXCONFIRMCNT ]

@@ -19,7 +19,6 @@ echo "QA output created by $seq"
 
 signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _cleanup()
@@ -39,15 +38,15 @@ mkdir $tmp.pmcd
 cp $PCP_BINADM_DIR/pmsleep $tmp.pmcd/pmcd
 $tmp.pmcd/pmcd 60 &
 pid=$!
-echo "Fake pmcd pid=$pid" >>$here/$seq.full
-echo "Before restart ..." >>$here/$seq.full
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mcd( |$)' >>$here/$seq.full
-echo "_get_pids_by_name pmcd -> `_get_pids_by_name pmcd`" >>$here/$seq.full
-_service pmcd restart 2>&1 | _filter_pcp_start
-_wait_for_pmcd
-_wait_for_pmlogger
-echo "After restart ..." >>$here/$seq.full
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mcd( |$)' >>$here/$seq.full
+echo "Fake pmcd pid=$pid" >>$seq_full
+echo "Before restart ..." >>$seq_full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mcd( |$)' >>$seq_full
+echo "_get_pids_by_name pmcd -> `_get_pids_by_name pmcd`" >>$seq_full
+if ! _service pmcd restart 2>&1; then _exit 1; fi | _filter_pcp_start
+_wait_for_pmcd || _exit 1
+_wait_for_pmlogger || _exit 1
+echo "After restart ..." >>$seq_full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mcd( |$)' >>$seq_full
 $PCP_ECHO_PROG $PCP_ECHO_N "Local pmcd count: ""$PCP_ECHO_C"
 $PCP_PS_PROG $PCP_PS_ALL_FLAGS \
 | grep "$tmp.pmcd/[p]mcd" \

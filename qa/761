@@ -31,15 +31,13 @@ $unix_domain_sockets || _notrun "No unix domain socket support available"
 
 root=$tmp.root
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 
 root_cleanup()
 {
     cd $here
     [ -d $root ] && $sudo rm -fr $root
     [ -f $tmp.conf.backup ] && $sudo cp $tmp.conf.backup $PCP_DIR/etc/pcp.conf
-    _restore_pmda_install root
-    rm -f $tmp.*
+    _restore_pmda_install root || _exit 1
     rm -f $here/$seq.test-lxc-info.sh
 }
 
@@ -80,19 +78,20 @@ export PCP_LXC_DIR=$root/var/lib/lxc
 
 # real QA test starts here
 echo zero | tee -a $here/$seq.full
-_service pmcd status >>$here/$seq.full
+if ! _service pmcd status >>$seq_full; then _exit 1; fi
 # systemd needs may not have caught up with a previous stop
 # and the stop that comes below can cause a
 #	Job for pmcd.service canceled.
 # message.  So sleep a little in the hope that this fixes it ...
 #
 sleep 2
-_service pmcd status >>$here/$seq.full
+if ! _service pmcd status >>$seq_full; then _exit 1; fi
 echo one | tee -a $here/$seq.full
-_service pmcd stop | _filter_pcp_stop
+if ! _service pmcd stop; then _exit 1; fi \
+| _filter_pcp_stop
 echo two | tee -a $here/$seq.full
-_service pmcd status >>$here/$seq.full
-_wait_pmcd_end
+if ! _service pmcd status >>$seq_full; then _exit 1; fi
+_wait_pmcd_end || _exit 1
 echo three | tee -a $here/$seq.full
 
 echo >> $tmp.conf
@@ -104,11 +103,11 @@ echo PCP_SYSTEMD_CGROUP=/system.slice >> $tmp.conf
 echo PCP_PODMAN_RUNDIR=$root/var/run/containers >> $tmp.conf
 echo PCP_PODMAN_DATADIR=$root/var/lib/containers >> $tmp.conf
 $sudo cp $tmp.conf $PCP_DIR/etc/pcp.conf
-_service pcp restart 2>&1 | _filter_pcp_start
+if ! _service pcp restart 2>&1; then _exit 1; fi | _filter_pcp_start
 echo four | tee -a $here/$seq.full
-_service pmcd status >>$here/$seq.full
-_wait_for_pmcd
-_wait_for_pmlogger
+if ! _service pmcd status >>$seq_full; then _exit 1; fi
+_wait_for_pmcd || _exit 1
+_wait_for_pmlogger || _exit 1
 
 echo "=== Checking empty containers configuration, no values"
 pmprobe -v containers | LC_COLLATE=POSIX sort

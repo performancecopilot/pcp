@@ -47,7 +47,6 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _filter()
@@ -59,7 +58,7 @@ _filter()
 src/indom -i 15 kernel.all.load | _filter
 if [ $PCP_PLATFORM != darwin -a $PCP_PLATFORM != solaris -a $PCP_PLATFORM != freebsd -a $PCP_PLATFORM != openbsd ]
 then
-    echo "src/indom $target -i 1 proc.psinfo.pid" >> $here/$seq.full
+    echo "src/indom $target -i 1 proc.psinfo.pid" >> $seq_full
     src/indom $target -i 1 proc.psinfo.pid \
     | tee -a $here/$seq.full \
     | _filter \

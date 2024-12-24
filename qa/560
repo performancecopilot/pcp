@@ -17,9 +17,8 @@ echo "QA output created by $seq"
 
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
-$sudo rm -f $seq.full
 
-echo "PCPQA_IN_CI=$PCPQA_IN_CI" >>$seq.full
+echo "PCPQA_IN_CI=$PCPQA_IN_CI" >>$seq_full
 if [ "$PCPQA_IN_CI" = yes ]
 then
     # in CI
@@ -28,10 +27,10 @@ then
     # persists
     #
     eval `src/sizeof ptr`
-    echo "ptr=$ptr" >>$seq.full
+    echo "ptr=$ptr" >>$seq_full
     if [ "$ptr" = 4 ]
     then
-	admin/whatami >>$seq.full
+	admin/whatami >>$seq_full
 	# 32-bit platform
 	case `admin/whatami`
 	in
@@ -48,8 +47,8 @@ cd $PCP_PMDAS_DIR/simple
 
 unset ROOT MAKEFLAGS
 
-$sudo $PCP_MAKE_PROG clobber >>$here/$seq.full 2>&1
-$sudo $PCP_MAKE_PROG >>$here/$seq.full 2>&1
+$sudo $PCP_MAKE_PROG clobber >>$seq_full 2>&1
+$sudo $PCP_MAKE_PROG >>$seq_full 2>&1
 
 _filter_make()
 {
@@ -67,10 +66,10 @@ then
     echo "Arrgh ... no free TCP port in the range 52078 ... 52127"
     exit
 fi
-echo "port=$port" >>$here/$seq.full
-echo "hostname: `hostname`" >>$here/$seq.full
+echo "port=$port" >>$seq_full
+echo "hostname: `hostname`" >>$seq_full
 
-$sudo fuser tcp/$port >>$here/$seq.full 2>&1
+$sudo fuser tcp/$port >>$seq_full 2>&1
 cat <<End-of-File | $sudo ./Install -e >$tmp.out 2>&1
 foo
 daemon
@@ -105,11 +104,11 @@ p
 
 if [ -f "$PCP_LOG_DIR/pmcd/simple.log" ]
 then
-    cat "$PCP_LOG_DIR/pmcd/simple.log" >>$here/$seq.full
+    cat "$PCP_LOG_DIR/pmcd/simple.log" >>$seq_full
 else
     echo "$PCP_LOG_DIR/pmcd/simple.log: missing?"
 fi
-pminfo -f simple pmcd.agent.status >>$here/$seq.full
+pminfo -f simple pmcd.agent.status >>$seq_full
 
 $sudo ./Remove
 
@@ -135,11 +134,11 @@ tee -a $here/$seq.full <$tmp.out \
 
 if [ -f "$PCP_LOG_DIR/pmcd/simple.log" ]
 then
-    cat "$PCP_LOG_DIR/pmcd/simple.log" >>$here/$seq.full
+    cat "$PCP_LOG_DIR/pmcd/simple.log" >>$seq_full
 else
     echo "$PCP_LOG_DIR/pmcd/simple.log: missing?"
 fi
-pminfo -f simple pmcd.agent.status >>$here/$seq.full
+pminfo -f simple pmcd.agent.status >>$seq_full
 
 # success, all done
 status=0

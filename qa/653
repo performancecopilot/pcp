@@ -75,7 +75,6 @@ END	{ exit(1) }'
 status=1	# failure is the default!
 username=`id -u -n`	# me, myself & I
 trap "_cleanup" 0 1 2 3 15
-$sudo rm -f $tmp.* $seq.full
 
 # make sure the shell babble after username is terminated goes elsewhere
 #
@@ -100,9 +99,9 @@ $sudo $PCP_BINADM_DIR/pmsignal -a username
 wait $pid
 [ -s $tmp.out ] && cat $tmp.out | _filter_out $username
 
-echo >>$here/$seq.full
-echo "==== shell's stderr ===========" >>$seq.full
-cat $tmp.err >>$seq.full
+echo >>$seq_full
+echo "==== shell's stderr ===========" >>$seq_full
+cat $tmp.err >>$seq_full
 
 status=0
 exit

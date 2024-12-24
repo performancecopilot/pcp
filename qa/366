@@ -55,7 +55,6 @@ _filter()
 }
 
 status=0	# success is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 cat <<End-of-File >$tmp.cull-list
@@ -366,13 +365,13 @@ cp $tmp.conf $tmp.orig
 echo q \
 | $PCP_BINADM_DIR/pmlogconf $tmp.conf >/dev/null
 
-cat $tmp.conf >$seq.full
-echo >>$seq.full
-cat $tmp.awk >>$seq.full
+cat $tmp.conf >$seq_full
+echo >>$seq_full
+cat $tmp.awk >>$seq_full
 $PCP_AWK_PROG -f $tmp.awk <$tmp.conf >$tmp.tmp
-echo >>$seq.full
-echo "after awking ..." >>$seq.full
-cat $tmp.tmp >>$seq.full
+echo >>$seq_full
+echo "after awking ..." >>$seq_full
+cat $tmp.tmp >>$seq_full
 
 diff $tmp.orig $tmp.tmp | _filter
 

@@ -23,7 +23,6 @@ _cleanup()
 
 status=1	# failure is the default!
 host=`hostname`
-$sudo rm -rf $tmp.* $seq.full
 signal=$PCP_BINADM_DIR/pmsignal
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
@@ -46,7 +45,6 @@ _filter()
     # end
 }
 
-rm -rf $tmp
 mkdir $tmp
 chmod ugo+w $tmp
 cd $tmp
@@ -59,15 +57,15 @@ no.such.host.pcp.io    n   n   logs/no.such.host.pcp.io  -c ./config
 another.host    n   n   logs/another.host  -c ./config'
 
 # real QA test starts here
-echo Using control file: > $here/$seq.full
-cat control >> $here/$seq.full
-echo pmlogger_check out: >> $here/$seq.full
+echo Using control file: > $seq_full
+cat control >> $seq_full
+echo pmlogger_check out: >> $seq_full
 export PCP_COMPRESSAFTER=0
 $sudo $PCP_BINADM_DIR/pmlogger_check -V -N -c control >$tmp.log  2>$tmp.err
 cat $tmp.err $tmp.log | tee -a $here/$seq.full | _filter
 
-echo pmlogger_check end: >> $here/$seq.full
-find . >> $here/$seq.full
+echo pmlogger_check end: >> $seq_full
+find . >> $seq_full
 
 # success, all done
 status=0

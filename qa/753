@@ -15,7 +15,6 @@ echo "QA output created by $seq"
 . ./common.check
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 export PCP_DERIVED_CONFIG=$tmp.config
 
@@ -43,7 +42,7 @@ want == 1		{ if (-4096 < $1 && $1 < 4096) print "abs(N) < 4096"
 }
 
 # real QA test starts here
-pmstore sample.colour 0 >>$seq.full 2>&1
+pmstore sample.colour 0 >>$seq_full 2>&1
 cat <<End-of-File | while read metric min max ; do
 sample.bin
 sample.colour
@@ -56,9 +55,9 @@ End-of-File
     echo "--- $metric ---" | tee -a $seq.full
     echo "d=delta($metric)" >$tmp.config
     echo "r=rate($metric)" >>$tmp.config
-    echo "+++ delta +++" >>$seq.full
+    echo "+++ delta +++" >>$seq_full
     pmval -t 0.5 -f 0 -s 2 d | _filter $metric
-    echo "+++ rate +++" >>$seq.full
+    echo "+++ rate +++" >>$seq_full
     pmval -t 0.5 -f 0 -s 2 r | _filter $metric
 done
 

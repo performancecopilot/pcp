@@ -17,7 +17,6 @@ echo "QA output created by $seq"
 
 signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _cleanup()
@@ -50,10 +49,10 @@ kill -CONT $pid
 pmsleep 0.1	# some time for process to continue
 cont=`pmprobe -v proc.runq.stopped | awk '{ print $3 }'`
 
-echo "stopped counts:" > $seq.full
-echo "base = $base" >> $seq.full
-echo "stop = $stop" >> $seq.full
-echo "cont = $cont" >> $seq.full
+echo "stopped counts:" > $seq_full
+echo "base = $base" >> $seq_full
+echo "stop = $stop" >> $seq_full
+echo "cont = $cont" >> $seq_full
 
 echo Silence is golden
 # STOP should cause a jump in the number of stopped processes

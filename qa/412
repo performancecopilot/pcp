@@ -67,7 +67,7 @@ _reset()
 {
     pmstore sample.control -1 >/dev/null
     $sudo $signal -a -s HUP pmcd
-    _wait_for_pmcd
+    _wait_for_pmcd || _exit 1
 }
 
 #
@@ -130,7 +130,7 @@ s/\n/ /
     '
     if [ -f $tmp.dbg ]
     then
-	cat $tmp.dbg >>$seq.full
+	cat $tmp.dbg >>$seq_full
 	rm -f $tmp.dbg
     fi
 }
@@ -151,8 +151,8 @@ $1 == "29.0.58" { printf("%s\n", stamp); exit 0; }'
 #
 _pmval_log()
 {
-    echo >>$seq.full
-    echo "--- pmval -S@$starttime -O $half_delta ---" >>$seq.full
+    echo >>$seq_full
+    echo "--- pmval -S@$starttime -O $half_delta ---" >>$seq_full
     #debug debug=-Dinterp,fetch
     pmval $debug -w 15 -f 0 -r -a $tmp.archive -S "@$starttime" -O $half_delta -t $delta 2>$tmp.err \
       sample.wrap.ulong \
@@ -161,7 +161,7 @@ _pmval_log()
 	-e '/metric/,/interval/d' \
 	-e '/^[ 	]*$/d' \
 	-e 's/^[^ ][^ ]*  *//'
-    cat $tmp.err >>$seq.full
+    cat $tmp.err >>$seq_full
 }
 
 #
@@ -169,8 +169,8 @@ _pmval_log()
 #
 _compare_results()
 {
-    echo >>$seq.full
-    echo "--- paste ---" >>$seq.full
+    echo >>$seq_full
+    echo "--- paste ---" >>$seq_full
     # imprecision is in floating point arithmetic where the time
     # stamp precision from pmdumplog is much less than then precision
     # used in interp.c within libpcp
@@ -190,7 +190,6 @@ _compare_results()
     }'
 }
 
-rm -f $seq.full
 
 # real QA test starts here
 
@@ -211,31 +210,31 @@ then
     exit 1
     fi
 pmdumplog $tmp.archive >$tmp.dump
-echo >>$seq.full
-echo "--- pmdumplog ---" >>$seq.full
-cat $tmp.dump >>$seq.full
+echo >>$seq_full
+echo "--- pmdumplog ---" >>$seq_full
+cat $tmp.dump >>$seq_full
 starttime=`_set_starttime`
 
 _wrap_off
 _process_log >$tmp.1
-echo >>$seq.full
-echo "--- process_log wrap_off ---" >>$seq.full
-cat $tmp.1 >>$seq.full
+echo >>$seq_full
+echo "--- process_log wrap_off ---" >>$seq_full
+cat $tmp.1 >>$seq_full
 _pmval_log >$tmp.2
-echo >>$seq.full
-echo "--- process pmval ---" >>$seq.full
-cat $tmp.2 >>$seq.full
+echo >>$seq_full
+echo "--- process pmval ---" >>$seq_full
+cat $tmp.2 >>$seq_full
 _compare_results
 
 _wrap_on
 _process_log >$tmp.1
-echo >>$seq.full
-echo "--- process_log wrap_on ---" >>$seq.full
-cat $tmp.1 >>$seq.full
+echo >>$seq_full
+echo "--- process_log wrap_on ---" >>$seq_full
+cat $tmp.1 >>$seq_full
 _pmval_log >$tmp.2
-echo >>$seq.full
-echo "--- process pmval ---" >>$seq.full
-cat $tmp.2 >>$seq.full
+echo >>$seq_full
+echo "--- process pmval ---" >>$seq_full
+cat $tmp.2 >>$seq_full
 _compare_results
 
 # success, all done

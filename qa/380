@@ -17,7 +17,6 @@ pminfo sampledso | grep percontext >/dev/null || \
     _notrun "No sampledso.percontext.* metrics"
 
 status=0	# success is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
@@ -30,12 +29,12 @@ done
 wait
 pmprobe -v sampledso.pdu >$tmp.end
 
-cat $tmp.start >>$seq.full
+cat $tmp.start >>$seq_full
 for n in 20 15 10 5
 do
-    tail -1 $tmp.$n >>$seq.full
+    tail -1 $tmp.$n >>$seq_full
 done
-cat $tmp.end >>$seq.full
+cat $tmp.end >>$seq_full
 
 # 5 extra pdus seems pretty deterministic for this pattern of
 # clients and requests
@@ -66,12 +65,12 @@ done
 wait
 pmprobe -v sample.pdu >$tmp.end
 
-cat $tmp.start >>$seq.full
+cat $tmp.start >>$seq_full
 for n in 20 15 10 5
 do
-    tail -1 $tmp.$n >>$seq.full
+    tail -1 $tmp.$n >>$seq_full
 done
-cat $tmp.end >>$seq.full
+cat $tmp.end >>$seq_full
 
 # 6 extra pdus seems pretty deterministic for this pattern of
 # clients and requests

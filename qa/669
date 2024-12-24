@@ -16,8 +16,6 @@ which pmmgr >/dev/null 2>&1 || _notrun "No pmmgr binary installed"
 echo pmmgr ok
 
 $sudo rm -fr $tmp.dir
-$sudo rm -f $tmp.*
-rm -f $seq.full
 
 status=1	# failure is the default!
 hostname=`hostname`
@@ -55,17 +53,17 @@ _filter2()
 # This test prereqs only pmcd running locally.
 # In the future, remote, avahi
 
-echo "hostname=$hostname" >>$seq.full
-id >>$seq.full
+echo "hostname=$hostname" >>$seq_full
+id >>$seq_full
 
-date >>$seq.full
+date >>$seq_full
 echo "=== 1. prepare blank pmmgr config directory  ===" | tee -a $seq.full
 $sudo rm -rf $tmp.dir
 mkdir $tmp.dir
 chmod 777 $tmp.dir
-ls -ld $tmp.dir >>$seq.full
+ls -ld $tmp.dir >>$seq_full
 
-date >>$seq.full
+date >>$seq_full
 echo "=== 2. generate a bunch of short archives  ===" | tee -a $seq.full
 # put in some blank lines and terminate without \n
 echo >>$tmp.dir/target-host
@@ -77,16 +75,16 @@ echo '-t 1 -s 1 -c '$tmp.dir'/pmlogger.conf' > $tmp.dir/pmlogger  # "one ping on
 # note -v -v here is the same as -D appl0,appl1
 env PCP_PMMGR_MERGEBATCH=15 pmmgr -v -v -p 1 -l $tmp.out -c $tmp.dir >$tmp.valout 2>$tmp.valerr &
 pid=$!
-echo "pid=$pid" >>$seq.full
+echo "pid=$pid" >>$seq_full
 sleep 5
-_service pmcd start >>$seq.full 2>&1
-_wait_for_pmcd
+if ! _service pmcd start >>$seq_full 2>&1; then _exit 1; fi
+_wait_for_pmcd || _exit 1
 sleep 90 # enough for some 
-_service pmcd stop >>$seq.full 2>&1
+if ! _service pmcd stop >>$seq_full 2>&1; then _exit 1; fi
 
-date >>$seq.full
+date >>$seq_full
 echo "=== 3. check on number of archives and zip 'em up ===" | tee -a $seq.full
-ls -l $tmp.dir/$hostname >> $seq.full
+ls -l $tmp.dir/$hostname >> $seq_full
 num=`ls -1 $tmp.dir/$hostname/*.index | wc -l | sed -e 's/ //g'`
 if [ $num -gt 30 ]; then
     echo more than thirty
@@ -95,20 +93,20 @@ else
 fi
 (cd $tmp.dir; tar cf $hostname.tar $hostname)
 
-date >>$seq.full
+date >>$seq_full
 echo "=== 4. do a few rounds of batched log merging ===" | tee -a $seq.full
 # a few blank lines - interpreted as though there was one
 echo > $tmp.dir/pmlogmerge
 echo VERY IGNORED >> $tmp.dir/pmlogmerge
 echo IGNORED >> $tmp.dir/pmlogmerge
-_service pmcd start >>$seq.full 2>&1
-_wait_for_pmcd
+if ! _service pmcd start >>$seq_full 2>&1; then _exit 1; fi
+_wait_for_pmcd || _exit 1
 sleep 20 # enough for some cycles of log merging batches
-_service pmcd stop >>$seq.full 2>&1
+if ! _service pmcd stop >>$seq_full 2>&1; then _exit 1; fi
 
-date >>$seq.full
+date >>$seq_full
 echo "=== 5. check on number of archives after batched logmerge ===" | tee -a $seq.full
-ls -l $tmp.dir/$hostname >> $seq.full
+ls -l $tmp.dir/$hostname >> $seq_full
 num=`ls -1 $tmp.dir/$hostname/*.index | wc -l | sed -e 's/ //g'`
 if [ $num -lt 5 ]; then
     echo less than 5
@@ -116,53 +114,53 @@ else
     echo "boo num=$num, expected < 5"
 fi
 
-date >>$seq.full
+date >>$seq_full
 echo "=== 5. replace set with original archives  ===" | tee -a $seq.full
 (cd $tmp.dir; mv $hostname $hostname.OLD; tar xf $hostname.tar)
-ls -l $tmp.dir/$hostname >> $seq.full
+ls -l $tmp.dir/$hostname >> $seq_full
 
-date >>$seq.full
+date >>$seq_full
 echo "=== 6. corrupt ten of them  ===" | tee -a $seq.full
 ls -1 $tmp.dir/$hostname/*.meta | head -10 | while read file
 do
     dd if=/dev/zero of=$file count=1 bs=512 >/dev/null 2>&1
 done
 
-date >>$seq.full
+date >>$seq_full
 echo "=== 7. do a few rounds of batched log merging ===" | tee -a $seq.full
 touch $tmp.dir/pmlogmerge
-_service pmcd start >>$seq.full 2>&1
-_wait_for_pmcd
+if ! _service pmcd start >>$seq_full 2>&1; then _exit 1; fi
+_wait_for_pmcd || _exit 1
 sleep 20 # enough for some cycles of log merging batches
-_service pmcd stop >>$seq.full 2>&1
+if ! _service pmcd stop >>$seq_full 2>&1; then _exit 1; fi
 
-date >>$seq.full
+date >>$seq_full
 echo "=== 8. expect 10 corrupt leftovers  ===" | tee -a $seq.full
 ls -1 $tmp.dir/$hostname/corrupt*.meta | wc -l | sed -e 's/ //g'
 
-date >>$seq.full
+date >>$seq_full
 echo "=== 9. turn on short-term corrupt-gc and cycle a little longer  ===" | tee -a $seq.full
 echo 10sec > $tmp.dir/pmlogcheck-corrupt-gc
-_service pmcd start >>$seq.full 2>&1
-_wait_for_pmcd
+if ! _service pmcd start >>$seq_full 2>&1; then _exit 1; fi
+_wait_for_pmcd || _exit 1
 sleep 20 # enough for some cycles of log merging batches
-_service pmcd stop >>$seq.full 2>&1
+if ! _service pmcd stop >>$seq_full 2>&1; then _exit 1; fi
 
-date >>$seq.full
+date >>$seq_full
 echo "=== 10. expect no corrupt leftovers ===" | tee -a $seq.full
 ls -1 $tmp.dir/$hostname/corrupt*.meta 2>/dev/null | wc -l | sed -e 's/ //g'
 
-echo "== collecting full pmmgr logs:" >>$seq.full
-cat $tmp.out >>$seq.full
+echo "== collecting full pmmgr logs:" >>$seq_full
+cat $tmp.out >>$seq_full
 
-echo >>$seq.full
-echo "== collecting recent daemon logs:" >>$seq.full
+echo >>$seq_full
+echo "== collecting recent daemon logs:" >>$seq_full
 for log in $tmp.dir/$hostname/*.log
 do
     if [ -f "$log" ]
     then
-	echo "-- $log --" >>$seq.full
-	cat $log >>$seq.full
+	echo "-- $log --" >>$seq_full
+	cat $log >>$seq_full
     fi
 done
 

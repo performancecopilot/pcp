@@ -21,7 +21,6 @@ $sudo ls /var/log/dirsrv/slapd-*/access 2>&1 >/dev/null || \
 id dirsrv >/dev/null 2>&1 || _notrun "No dirsrv (default) account installed"
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 
 pmdads389log_remove()
 {
@@ -36,14 +35,14 @@ pmdads389log_install()
     # start from known starting points
     cd $PCP_PMDAS_DIR/ds389log
     $sudo ./Remove >/dev/null 2>&1
-    _service pmcd stop
+    if ! _service pmcd stop; then _exit 1; fi
 
     cat <<EOF >$tmp.config
 \$server = '$server';
 \$bindpw = '$passwd';
 EOF
-    echo "pmdads389log config:" >> $here/$seq.full
-    cat $tmp.config >> $here/$seq.full
+    echo "pmdads389log config:" >> $seq_full
+    cat $tmp.config >> $seq_full
 
     [ -f $PCP_PMDAS_DIR/ds389log/ds389log.conf ] && \
     $sudo cp $PCP_PMDAS_DIR/ds389log/ds389log.conf $tmp.backup
@@ -62,10 +61,10 @@ EOF
                                          if ($10 >= 10 && $10 <= 50) $10 = "X"
                                        }
                                        { print }'
-    echo Install: >> $here/$seq.full
-    cat $tmp.out >> $here/$seq.full
-    echo Logfile: >> $here/$seq.full
-    cat $PCP_LOG_DIR/pmcd/ds389log.log >> $here/$seq.full
+    echo Install: >> $seq_full
+    cat $tmp.out >> $seq_full
+    echo Logfile: >> $seq_full
+    cat $PCP_LOG_DIR/pmcd/ds389log.log >> $seq_full
 }
 
 pmdads389log_cleanup()

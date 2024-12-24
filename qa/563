@@ -20,7 +20,6 @@ hostname=`hostname`
 machineid=`_machine_id`
 domainname=`_domain_name`
 need_restore=true
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _cleanup()
@@ -50,7 +49,7 @@ _filter_labels()
 # real QA test starts here
 _save_config $PCP_ETC_DIR/pcp/labels
 $sudo rm -f $PCP_ETC_DIR/pcp/labels/* $PCP_ETC_DIR/pcp/labels/optional/* 2>/dev/null
-_sighup_pmcd
+_sighup_pmcd || _exit 1
 
 echo && echo == No global labels
 pminfo -fl pmcd.labels | _filter_labels
@@ -58,42 +57,42 @@ pminfo -fl pmcd.labels | _filter_labels
 echo && echo == Bad global label
 echo '{one:two}' > $tmp.label
 $sudo cp $tmp.label $PCP_ETC_DIR/pcp/labels/bad.json
-_sighup_pmcd
+_sighup_pmcd || _exit 1
 pminfo -fl pmcd.labels | _filter_labels
 $sudo rm -f $PCP_ETC_DIR/pcp/labels/bad.json
 
 echo && echo == Empty global label
 echo '{}' > $tmp.empty
 $sudo cp $tmp.empty $PCP_ETC_DIR/pcp/labels/empty.json
-_sighup_pmcd
+_sighup_pmcd || _exit 1
 pminfo -fl pmcd.labels | _filter_labels
 $sudo rm $PCP_ETC_DIR/pcp/labels/empty.json
 
 echo && echo == Simple global label
 echo '{"one":"two"}' > $tmp.simple
 $sudo cp $tmp.simple $PCP_ETC_DIR/pcp/labels/simple.json
-_sighup_pmcd
+_sighup_pmcd || _exit 1
 pminfo -fl pmcd.labels | _filter_labels
 $sudo rm $PCP_ETC_DIR/pcp/labels/simple.json
 
 echo && echo == Empty string global label value
 echo '{"one":""}' > $tmp.noval
 $sudo cp $tmp.noval $PCP_ETC_DIR/pcp/labels/noval.json
-_sighup_pmcd
+_sighup_pmcd || _exit 1
 pminfo -fl pmcd.labels | _filter_labels
 $sudo rm $PCP_ETC_DIR/pcp/labels/noval.json
 
 echo && echo == Array global label
 echo '{"a1":[1,2,3,4], "a2":[]}' > $tmp.array
 $sudo cp $tmp.array $PCP_ETC_DIR/pcp/labels/array.json
-_sighup_pmcd
+_sighup_pmcd || _exit 1
 pminfo -fl pmcd.labels | _filter_labels
 $sudo rm $PCP_ETC_DIR/pcp/labels/array.json
 
 echo && echo == Map global label
 echo '{"map1": {"a":1,"b":2}, "map2": {}}' > $tmp.map
 $sudo cp $tmp.map $PCP_ETC_DIR/pcp/labels/map.json
-_sighup_pmcd
+_sighup_pmcd || _exit 1
 pminfo -fl pmcd.labels | _filter_labels
 $sudo rm $PCP_ETC_DIR/pcp/labels/map.json
 
@@ -101,7 +100,7 @@ echo && echo == Multiple global labels
 $sudo cp $tmp.simple $PCP_ETC_DIR/pcp/labels/optional/simple.json
 $sudo cp $tmp.array $PCP_ETC_DIR/pcp/labels/array.json
 $sudo cp $tmp.map $PCP_ETC_DIR/pcp/labels/optional/map.json
-_sighup_pmcd
+_sighup_pmcd || _exit 1
 pminfo -fl pmcd.labels | _filter_labels
 
 # success, all done

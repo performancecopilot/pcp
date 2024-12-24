@@ -36,7 +36,6 @@ trap "_cleanup $iam" 0 1 2 3 15
 
 $sudo rm -fr $root
 $sudo rm -fr $tmp.*.dir
-$sudo rm -f $tmp.* $seq.full
 touch $here/$seq.full
 
 # real QA test starts here

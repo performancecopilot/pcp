@@ -33,7 +33,6 @@ $check || echo "QA output created by $seq"
 [ -f $seq.full.save ] && mv $seq.full.save $seq.full
 
 status=0	# success is the default!
-$check || $sudo rm -f $seq.full
 trap "cd $here; $sudo rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 
 _is_activating()

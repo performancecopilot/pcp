@@ -17,7 +17,6 @@ _get_libpcp_config
 $ipv6 || _notrun "No IPv6 support, so cannot test dbpmda IPv6 support"
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 username=`id -u -n`
@@ -42,7 +41,7 @@ _filter()
 # real QA test starts here
 $PCP_PMDAS_DIR/sample/pmdasample -Dcontext,desperate -6 $port -U $username -l $tmp.log &
 pid=$!
-echo "PMDA sample PID = $pid" > $seq.full
+echo "PMDA sample PID = $pid" > $seq_full
 sleep 2	# allow socket setup to occur
 
 dbpmda -n $PCP_PMDAS_DIR/sample/root -ie <<End-of-File 2>&1 | _filter
@@ -54,9 +53,9 @@ text sample.daemon_pid
 close
 End-of-File
 
-echo >>$seq.full
-echo "=== sample pmda log ===" >>$seq.full
-cat $tmp.log >>$seq.full
+echo >>$seq_full
+echo "=== sample pmda log ===" >>$seq_full
+cat $tmp.log >>$seq_full
 
 # success, all done
 status=0

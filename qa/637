@@ -33,12 +33,11 @@ _filter()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 echo "No rootdir ..."
-rm -rf $tmp
+rm -rf $tmp		# refactor-ok
 if ./mk.logfarm $tmp >$tmp.out 2>&1
 then
     cat $tmp.out
@@ -63,7 +62,7 @@ fi
 
 echo
 echo "OK ..."
-rm -rf $tmp
+rm -rf $tmp		# refactor-ok
 mkdir $tmp
 if ./mk.logfarm $tmp >$tmp.out 2>&1
 then

@@ -120,6 +120,8 @@ my_get_endian_mumble
 _get_config pmie >$tmp.tmp || _exit 1
 if _check_metric simple.now; then :; else _exit 8; fi
 _check_metric sample.seconds $hosts_32 || _exit 1
+space at the end of the line 
+tab at the end of the line	
 
 # no refactoring here ...
 #

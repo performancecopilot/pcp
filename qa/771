@@ -17,7 +17,6 @@ perl -e "use PCP::PMDA" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "perl PCP::PMDA module not installed"
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here

@@ -11,7 +11,6 @@ echo "QA output created by $seq"
 . ./common.python
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
@@ -24,7 +23,7 @@ nops = opts.pmGetOperands()
 nops = opts.pmGetNonOptionsFromList(sys.argv)
 ctx = pmapi.pmContext.fromOptions(opts, sys.argv)
 EOF
-cat $tmp.opts >> $seq.full
+cat $tmp.opts >> $seq_full
 $python $tmp.opts 2>&1 | tee -a $seq.full | grep Error
 
 echo "== check setmode" | tee -a $seq.full
@@ -38,7 +37,7 @@ try:
 except pmapi.pmErr as error:
     sys.stderr.write("Unexpected pmSetMode error: ", error)
 EOF
-cat $tmp.mode >> $seq.full
+cat $tmp.mode >> $seq_full
 $python $tmp.mode 2>&1 | tee -a $seq.full
 
 echo "== check import" | tee -a $seq.full
@@ -51,7 +50,7 @@ log.pmiAddMetric("hinv.ncpu", api.PM_ID_NULL,
                  api.PM_SEM_DISCRETE, log.pmiUnits(0, 0, 0, 0, 0, 0))
 log.pmiPutValue("hinv.ncpu", None, "42")
 EOF
-cat $tmp.pmi >> $seq.full
+cat $tmp.pmi >> $seq_full
 $python $tmp.pmi 2>&1 | tee -a $seq.full
 
 echo "== check derive" | tee -a $seq.full
@@ -64,7 +63,7 @@ try:
 except pmapi.pmErr as error:
     print(error.message())
 EOF
-cat $tmp.derive >> $seq.full
+cat $tmp.derive >> $seq_full
 $python $tmp.derive 2>&1 | tee -a $seq.full
 
 # success, all done

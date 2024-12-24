@@ -120,7 +120,8 @@ _cleanup()
 
 _setup()
 {
-    _service pmlogger stop | _filter_pcp_stop
+    if ! _service pmlogger stop; then _exit 1; fi \
+    | _filter_pcp_stop
     _stop_loggers
     cd
 }

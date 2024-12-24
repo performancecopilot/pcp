@@ -45,7 +45,6 @@ _cleanup()
     exit $status
 }
 
-$sudo rm -rf $tmp.* $seq.full 
 trap "_cleanup" 0 1 2 3 15
 
 # real QA test starts here
@@ -57,7 +56,7 @@ cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
 # start from a known starting point
 _stop_auto_restart pmcd
 _stop_auto_restart pmlogger
-_service pcp stop >/dev/null 2>&1
+if ! _service pcp stop >/dev/null 2>&1; then _exit 1; fi
 
 cat <<End-of-File >$tmp.tmp
 # Installed by PCP QA test $seq on `date`
@@ -68,9 +67,9 @@ End-of-File
 $sudo cp $tmp.tmp $PCP_PMCDCONF_PATH
 
 _writable_primary_logger
-_service pcp restart 2>&1 | _filter_pcp_start
-_wait_for_pmcd
-_wait_for_pmlogger
+if ! _service pcp restart 2>&1; then _exit 1; fi | _filter_pcp_start
+_wait_for_pmcd || _exit 1
+_wait_for_pmlogger || _exit 1
 
 # Reset pmlogger
 echo "log sample.dynamic.meta.metric"
@@ -141,8 +140,8 @@ echo "---------------------------------------------------------------"
 
 # pmlogger should have stopped. Check for the messages indicating that
 # the re-check of the configured metrics failed and that it stopped.
-echo >>$seq.full
-echo "pmlogger log ..." >>$seq.full
+echo >>$seq_full
+echo "pmlogger log ..." >>$seq_full
 cat $LOGGING_DIR/$LOCALHOST/pmlogger.log | tee -a $seq.full | \
 grep \
  -e 'Instance domain of metric "sample.dynamic.meta.metric" has changed from PM_INDOM_NULL to 511.4194302' \

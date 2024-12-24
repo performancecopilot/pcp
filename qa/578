@@ -22,7 +22,6 @@ echo "QA output created by $seq"
 
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
-rm -f $seq.full
 
 pmie_was_running=false
 [ -f $PCP_RUN_DIR/pmie.pid ] && pmie_was_running=true
@@ -157,15 +156,16 @@ export PMCD_PORT
 # don't want these guys trying to connect to pmcd either ...
 #
 _stop_auto_restart pmlogger
-_service pmlogger stop >>$here/$seq.full 2>&1
+if ! _service pmlogger stop >>$seq_full 2>&1; then _exit 1; fi
 if $pmie_was_running
 then
     _stop_auto_restart pmie
-    _service pmie stop >>$here/$seq.full 2>&1
+    if ! _service pmie stop >>$seq_full 2>&1; then _exit 1; fi
 fi
 
 # and we're starting a new pmcd ...
-_service pmcd stop | _filter_pcp_stop
+if ! _service pmcd stop; then _exit 1; fi \
+| _filter_pcp_stop
 
 # Build simple agent
 #
@@ -202,7 +202,7 @@ _renew_pmcd()
 	$sudo cp $tmp.newconf $PCP_PMCDCONF_PATH
 	$sudo $signal -a -s HUP pmcd
 	sleep 4
-	_wait_for_pmcd
+	_wait_for_pmcd || _exit 1
     else
 	echo caller - $1 - has not created $tmp.newconf !!!
     fi
@@ -234,7 +234,7 @@ End-of-File
 
     $sudo $signal -a -s HUP pmcd
     sleep 4
-    _wait_for_pmcd
+    _wait_for_pmcd || _exit 1
 
     if _check_agent $agent true
     then
@@ -324,7 +324,7 @@ fi
 echo "export PMCD_PORT=$PMCD_PORT" >$tmp.start
 echo "$PCP_RC_DIR/pmcd start" >>$tmp.start
 $sudo sh $tmp.start | _filter_pcp_start | _filter_init 2>&1
-_wait_for_pmcd
+_wait_for_pmcd || _exit 1
 
 _test_pmda()
 {
@@ -351,13 +351,13 @@ _test_pmda()
     _agent_remove simple
     pminfo -b 1 -f pmcd.openfds pmcd.client.whoami >>$tmp.pminfo
 
-    echo "=== pminfo output ===" >>$here/$seq.full
-    cat $tmp.pminfo >>$here/$seq.full
+    echo "=== pminfo output ===" >>$seq_full
+    cat $tmp.pminfo >>$seq_full
 
     cat $tmp.pminfo | _filter_openfds_value
 
-    echo "=== pmcd.log from _test_pmda ===" >>$here/$seq.full
-    cat $PCP_LOG_DIR/pmcd/pmcd.log >>$here/$seq.full
+    echo "=== pmcd.log from _test_pmda ===" >>$seq_full
+    cat $PCP_LOG_DIR/pmcd/pmcd.log >>$seq_full
 }
 
 _test_client()
@@ -376,15 +376,15 @@ _test_client()
     wait
     pminfo -b 1 -f pmcd.openfds pmcd.client.whoami >>$tmp.pminfo
 
-    echo "=== pmval output ===" >>$here/$seq.full
-    cat $tmp.tmp >>$here/$seq.full
-    echo "=== pminfo output ===" >>$here/$seq.full
-    cat $tmp.pminfo >>$here/$seq.full
+    echo "=== pmval output ===" >>$seq_full
+    cat $tmp.tmp >>$seq_full
+    echo "=== pminfo output ===" >>$seq_full
+    cat $tmp.pminfo >>$seq_full
     
     cat $tmp.pminfo | _filter_openfds_value
 
-    echo "=== pmcd.log from _test_client ===" >>$here/$seq.full
-    cat $PCP_LOG_DIR/pmcd/pmcd.log >>$here/$seq.full
+    echo "=== pmcd.log from _test_client ===" >>$seq_full
+    cat $PCP_LOG_DIR/pmcd/pmcd.log >>$seq_full
 }
 
 _test_client

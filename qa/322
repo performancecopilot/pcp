@@ -14,7 +14,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-rm -f $seq.full
 
 # based on version 2 or 3 archive remotely ($1)
 #
@@ -81,12 +80,12 @@ test -k \$PCP_TMP_DIR/pmlogger || sudo chmod o+w \$PCP_TMP_DIR/pmlogger
 echo pid=\$! base=\$$
 End-of-File
 
-    echo >>$seq.full
-    echo "stdout from ssh to $host ..." >>$seq.full
-    cat $tmp.tmp >>$seq.full
-    echo >>$seq.full
-    echo "stderr from ssh to $host ..." >>$seq.full
-    cat $tmp.err >>$seq.full
+    echo >>$seq_full
+    echo "stdout from ssh to $host ..." >>$seq_full
+    cat $tmp.tmp >>$seq_full
+    echo >>$seq_full
+    echo "stderr from ssh to $host ..." >>$seq_full
+    cat $tmp.err >>$seq_full
 
     eval `cat $tmp.tmp`
 
@@ -103,11 +102,11 @@ End-of-File
     fi
 
     eval `ssh -q pcpqa@$host grep PCP_ARCHIVE_VERSION /etc/pcp.conf`
-    echo "$host: PCP_ARCHIVE_VERSION=$PCP_ARCHIVE_VERSION" >>$seq.full
+    echo "$host: PCP_ARCHIVE_VERSION=$PCP_ARCHIVE_VERSION" >>$seq_full
 
     for i in 1 2 3 4 5 6 7 8 9 10
     do
-	( echo ; echo "iteration $i" ) >>$seq.full
+	( echo ; echo "iteration $i" ) >>$seq_full
 	if echo quit | pmlc -h $host $pid 2>&1 | tee -a $seq.full | grep 'Connected to' >/dev/null
 	then
 	    break
@@ -149,10 +148,10 @@ End-of-File
     #
     sleep 2
 
-    echo "after first pmlc session ..." >>$seq.full
-    ssh -q pcpqa@$host "ps | grep $pid" >>$seq.full 2>&1
-    ssh -q pcpqa@$host "ls -l /tmp/$base.*" >>$seq.full 2>&1
-    ssh -q pcpqa@$host "cat /tmp/$base.log" >>$seq.full 2>&1
+    echo "after first pmlc session ..." >>$seq_full
+    ssh -q pcpqa@$host "ps | grep $pid" >>$seq_full 2>&1
+    ssh -q pcpqa@$host "ls -l /tmp/$base.*" >>$seq_full 2>&1
+    ssh -q pcpqa@$host "cat /tmp/$base.log" >>$seq_full 2>&1
 
     cat <<End-of-File | pmlc 2>&1 | _filter $PCP_ARCHIVE_VERSION
 connect $pid@$host
@@ -160,10 +159,10 @@ log mandatory off pmcd.agent.type ["sampledso"]
 query pmcd.agent.type ["sample" "pmcd" "sampledso"]
 End-of-File
 
-    echo "after second pmlc session ..." >>$seq.full
-    ssh -q pcpqa@$host "ps | grep $pid" >>$seq.full 2>&1
-    ssh -q pcpqa@$host "ls -l /tmp/$base.*" >>$seq.full 2>&1
-    ssh -q pcpqa@$host "cat /tmp/$base.log" >>$seq.full 2>&1
+    echo "after second pmlc session ..." >>$seq_full
+    ssh -q pcpqa@$host "ps | grep $pid" >>$seq_full 2>&1
+    ssh -q pcpqa@$host "ls -l /tmp/$base.*" >>$seq_full 2>&1
+    ssh -q pcpqa@$host "cat /tmp/$base.log" >>$seq_full 2>&1
 
     # the failures
     #
@@ -227,7 +226,7 @@ then
     _notrun "./getpmcdhosts failed to find a suitable host"
     # NOTREACHED
 else
-    echo "$type => $host" >>$seq.full
+    echo "$type => $host" >>$seq_full
     _speak_to_me $host
 fi
 
@@ -237,7 +236,7 @@ fi
 REMOTE_VER=`pmprobe -v -h $host pmcd.version \
     | sed -e 's/"$//' -e 's/.*"//' \
     | $PCP_AWK_PROG -F. '{printf "%02d%02d%02d\n",$1,$2,$3}'`
-echo "host=$host REMOTE_VER=$REMOTE_VER" >>$seq.full
+echo "host=$host REMOTE_VER=$REMOTE_VER" >>$seq_full
 
 # success, all done
 status=0

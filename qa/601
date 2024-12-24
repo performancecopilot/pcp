@@ -64,7 +64,7 @@ cd $PCP_PMDAS_DIR/trace
 $sudo ./Install -R / </dev/null 2>&1 | _filter_trace_install
 cd $here
 
-_wait_for_pmcd
+_wait_for_pmcd || _exit 1
 
 period=`pminfo -f trace.control.period | grep -F value | sed -e 's/.*value //g'`
 interval=`pminfo -f trace.control.interval | grep -F value | sed -e 's/.*value //g'`

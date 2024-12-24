@@ -22,7 +22,6 @@ else
 fi
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 
 unbound_remove()
 {

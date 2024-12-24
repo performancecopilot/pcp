@@ -17,7 +17,6 @@ downrev=`getpmcdhosts -L -n 1 -v 'pcp>=2.7' -v 'pcp<2.8'`
 [ -n "$downrev" ] || _notrun "Cannot find a PCP 2.7 QA host"
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "cd $here; $sudo rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 
 rm -f $seq.out
@@ -48,7 +47,7 @@ s/'"$localhost"'/LOCALHOST/
 }
 
 # real QA test starts here
-( echo "downrev=$downrev"; pminfo -f -h "$downrev" pmcd.version ) >>$here/$seq.full
+( echo "downrev=$downrev"; pminfo -f -h "$downrev" pmcd.version ) >>$seq_full
 
 echo "Clients locally, down-rev remote pmcd ..."
 echo --- pmval ---

@@ -78,7 +78,6 @@ status=1
 reinstall=0
 iam=resctrl
 trap "_cleanup" 0 1 2 3 15
-rm -f $seq.full
 
 # backup main PCP config
 cp $PCP_DIR/etc/pcp.conf $tmp.conf
@@ -93,7 +92,7 @@ if [ $? -ne 0 ]; then
 fi
 
 # real QA test starts here
-_service pmcd stop 2>&1 | _filter_pcp_stop | sed -e '/^Warning/d'
+if ! _service pmcd stop 2>&1; then _exit 1; fi | _filter_pcp_stop | sed -e '/^Warning/d'
 _wait_pmcd_end || _exit 1
 
 if [ ! -d /sys/fs/resctrl/mon_data ] ; then
@@ -105,7 +104,7 @@ if [ ! -d /sys/fs/resctrl/mon_data ] ; then
 else
     PCP_RESCTRL_DIR=
 fi
-_service pcp restart 2>&1 | _filter_pcp_start | sed -e '/^Warning/d'
+if ! _service pcp restart 2>&1; then _exit 1; fi | _filter_pcp_start | sed -e '/^Warning/d'
 _wait_for_pmcd || _exit 1
 
 echo

@@ -20,7 +20,6 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 cat <<End-of-File >$tmp.config
@@ -65,7 +64,7 @@ $3 == "'$pid'"	{ print "oops, child process found: " $0 }'
 kill -TERM $pid
 wait
 
-cat $tmp.log >>$here/$seq.full
+cat $tmp.log >>$seq_full
 
 # success, all done
 status=0

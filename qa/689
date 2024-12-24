@@ -17,7 +17,6 @@ _get_libpcp_config
 $multi_archive_contexts || _notrun "Multi-archive support is not available"
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 
 # -nan is not possible on some platforms, they report nan ... so need
@@ -49,7 +48,7 @@ do
     OUT=$tmp.44+46+50+57.pmlogextract
     rm -f $OUT.*
     echo "Running pmlogextract $IN $OUT" | _filter | tee $seq.full
-    pmlogextract -z $IN $OUT 2>&1 >> $seq.full
+    pmlogextract -z $IN $OUT 2>&1 >> $seq_full
     [ $? -eq 0 ] || echo "Error running pmlogextract $IN $OUT -- see $seq.full"
 
     # Now run pmclient_fg against the extracted archive.
@@ -66,7 +65,7 @@ do
 
     # Make sure the output is the same
     echo "Running diff $OUTBASE $OUT" | _filter | tee -a $seq.full
-    diff $OUTBASE $OUT 2>&1 >> $seq.full
+    diff $OUTBASE $OUT 2>&1 >> $seq_full
     [ $? -eq 0 ] || echo "$OUT differs from $OUTBASE  -- see $seq.full"
 
     # Now do it again, specifying the set of archives using the directory name
@@ -77,7 +76,7 @@ do
 
     # Make sure the output is the same
     echo "Running diff $OUTBASE $OUT" | _filter | tee -a $seq.full
-    diff $OUTBASE $OUT 2>&1 >> $seq.full
+    diff $OUTBASE $OUT 2>&1 >> $seq_full
     [ $? -eq 0 ] || echo "$OUT differs from $OUTBASE  -- see $seq.full"
 done
 

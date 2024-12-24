@@ -77,7 +77,6 @@ skip > 0				{ next }
 
 # real QA test starts here
 
-rm -f $seq.full
 _save_state
 _remove_pmda weblog > /dev/null
 

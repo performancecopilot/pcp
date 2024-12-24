@@ -122,13 +122,13 @@ _compare_results()
 archive="archives/wrap"
 metric="sample.wrap.long"
 
-_wrap_off > $seq.full
-_calc_stats $archive $metric $wrap >> $seq.full
-pmlogsummary -bmM $archive $metric >> $seq.full
+_wrap_off > $seq_full
+_calc_stats $archive $metric $wrap >> $seq_full
+pmlogsummary -bmM $archive $metric >> $seq_full
 
-_wrap_on >> $seq.full
-_calc_stats $archive $metric $wrap >> $seq.full
-pmlogsummary -bmM $archive $metric >> $seq.full
+_wrap_on >> $seq_full
+_calc_stats $archive $metric $wrap >> $seq_full
+pmlogsummary -bmM $archive $metric >> $seq_full
 
 _compare_results $seq.full
 

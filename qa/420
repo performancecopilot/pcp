@@ -21,7 +21,6 @@ _notrun "Not yet working - libpcp_gui recording"
 status=1	# failure is the default!
 trap "cd $here; rm -rf $tmp; exit \$status" 0 1 2 3 15
 
-$sudo rm -rf $tmp
 mkdir $tmp
 cd $tmp
 

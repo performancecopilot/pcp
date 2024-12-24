@@ -14,7 +14,6 @@ echo "QA output created by $seq"
 . ./common.check
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "$sudo rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 cat <<End-of-File >$tmp.pmie
@@ -103,18 +102,18 @@ s/.*:/HOST:/
 
 wait
 
-echo >>$seq.full
-echo "=== pmie stdout ===" >>$seq.full
-cat $tmp.out >>$seq.full
-echo >>$seq.full
-echo "=== pmie stderr ===" >>$seq.full
-cat $tmp.err >>$seq.full
-echo >>$seq.full
-echo "=== filter after sed ===" >>$seq.full
-cat $tmp.dbg.1 >>$seq.full
-echo >>$seq.full
-echo "=== filter after awk ===" >>$seq.full
-cat $tmp.dbg.2 >>$seq.full
+echo >>$seq_full
+echo "=== pmie stdout ===" >>$seq_full
+cat $tmp.out >>$seq_full
+echo >>$seq_full
+echo "=== pmie stderr ===" >>$seq_full
+cat $tmp.err >>$seq_full
+echo >>$seq_full
+echo "=== filter after sed ===" >>$seq_full
+cat $tmp.dbg.1 >>$seq_full
+echo >>$seq_full
+echo "=== filter after awk ===" >>$seq_full
+cat $tmp.dbg.2 >>$seq_full
 
 status=0
 exit

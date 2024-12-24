@@ -17,7 +17,6 @@ echo "QA output created by $seq"
 $sudo test -d /sys/kernel/debug/zswap || _notrun "No kernel support for zswap"
 
 status=1	# failure is the default!
-$sudo rm -f $tmp.* $seq.full
 
 _filter_zswap()
 {

@@ -28,7 +28,6 @@ $PCP_BINADM_DIR/telnet-probe -c '::1' $port2 \
 # (technically, this is a TOCTTOU race condition)
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 
 signal=$PCP_BINADM_DIR/pmsignal
 
@@ -69,11 +68,10 @@ _filter_pmie()
 # it will fail (since there won't be a pmcd there).
 
 # see also qa/283 for "pmcd -p" testing.
-_service pmcd stop >/dev/null 2>&1
+if ! _service pmcd stop >/dev/null 2>&1; then _exit 1; fi
 # wait for cleanup and closing all sockets
-_wait_pmcd_end
+_wait_pmcd_end || _exit 1
 
-rm -f $seq.full
 
 echo "=== starting pmcd on port $port1 ===" |tee -a $seq.full
 cat >$tmp.sh <<END
@@ -88,7 +86,7 @@ END
 pmcd_pid=`$sudo sh $tmp.sh 2>$tmp.tmp`
 cat $tmp.tmp 1>&2
 export PMCD_PORT=$port1
-_wait_for_pmcd
+_wait_for_pmcd || _exit 1
 unset PMCD_PORT
 
 echo "=== starting socat on port $port2 ===" |tee -a $seq.full
@@ -101,14 +99,14 @@ i=0
 while [ ! -f $tmp.socat -a $i -lt 10 ]
 do
     sleep 2
-    if $PCP_BINADM_DIR/telnet-probe -cv localhost $port1 2>>$seq.full
+    if $PCP_BINADM_DIR/telnet-probe -cv localhost $port1 2>>$seq_full
     then
 	touch $tmp.socat
     else
 	i=`expr $i + 1`
     fi
 done
-cat $tmp.err >>$seq.full
+cat $tmp.err >>$seq_full
 if [ ! -f $tmp.socat ]
 then
     echo "Failed to get socat started ... see $seq.full"
@@ -125,7 +123,7 @@ for port in $port2 $port1 44321  # the latter will fail
 do
     echo "=== running pmie via $port ===" |tee -a $seq.full
     pmie -f -h localhost:$port -c $tmp.pmie -T 5s > $tmp.out 2>&1
-    cat $tmp.out >> $seq.full
+    cat $tmp.out >> $seq_full
     # Especially on slow VMs (like bozo-vm) we may need to dodge warnings
     # from pmie's rule scheduler around pmcd reconnection ... the final
     # awk script does this.
@@ -148,10 +146,10 @@ done
 
 
 # collect misc.
-echo "pmie log" >> $seq.full
-cat $tmp.log >> $seq.full
-echo "socat log" >> $seq.full
-cat $tmp.socat >> $seq.full
+echo "pmie log" >> $seq_full
+cat $tmp.log >> $seq_full
+echo "socat log" >> $seq_full
+cat $tmp.socat >> $seq_full
 
 # success, all done
 status=0

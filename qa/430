@@ -23,7 +23,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-rm -f $seq.full
 
 realhost=`hostname`
 LOCALHOST=`echo $realhost | sed -e 's/\..*//'`
@@ -36,8 +35,9 @@ status=1	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _stop_auto_restart pmlogger
-_service pmlogger stop | _filter_pcp_stop
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger( |$)' >>$here/$seq.full
+if ! _service pmlogger stop; then _exit 1; fi \
+| _filter_pcp_stop
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger( |$)' >>$seq_full
 
 _filter()
 {
@@ -102,7 +102,7 @@ _setup()
     for pid in $pids
     do
 	$signal -s TERM $pid >/dev/null 2>&1
-	_wait_pmlogger_end $pid
+	_wait_pmlogger_end $pid || _exit 1
     done
 
     cd
@@ -151,10 +151,10 @@ _update_hostsfile()
 	    if [ `wc -l <$tmp.tmp | sed -e 's/  *//g'` -lt 1 ]
 	    then
 		echo "Updating $hostsfile failed: no $realhost entry: (see $seq.full):"
-		echo "=== $hostsfile ===" >>$here/$seq.full
-		cat $hostsfile >>$here/$seq.full
-		echo "grep $realhost ..." >>$here/$seq.full
-		cat $tmp.tmp >>$here/$seq.full
+		echo "=== $hostsfile ===" >>$seq_full
+		cat $hostsfile >>$seq_full
+		echo "grep $realhost ..." >>$seq_full
+		cat $tmp.tmp >>$seq_full
 		exit
 	    fi
 	    cat $tmp.tmp >>$tmp.etc.hosts
@@ -166,14 +166,14 @@ _update_hostsfile()
 		openbsd)
 		    # For OpenBSD, we need to make sure this loopback address is enabled ...
 		    #
-		    if ping -w 1 -c 1 127.0.0.$i >>$here/$seq.full 2>&1
+		    if ping -w 1 -c 1 127.0.0.$i >>$seq_full 2>&1
 		    then
 			# already OK
 			:
 		    else
 			# enable it
 			$sudo ifconfig lo0 alias 127.0.0.$i
-			ifconfig lo >>$here/$seq.full 2>&1
+			ifconfig lo >>$seq_full 2>&1
 		    fi
 		    ;;
 	    esac
@@ -189,8 +189,8 @@ _update_hostsfile()
 	$sudo cp $tmp.etc.hosts $hostsfile
     else
 	echo "Updating $hostsfile failed: no 127.0.0.x available: (see $seq.full):"
-	echo "=== $hostsfile ===" >>$here/$seq.full
-	cat $hostsfile >>$here/$seq.full
+	echo "=== $hostsfile ===" >>$seq_full
+	cat $hostsfile >>$seq_full
 	exit
     fi
 }
@@ -226,17 +226,17 @@ EOF
 }
 
 # real QA test starts here
-rm -f $here/$seq.full
+rm -f $here/$seq_full
 
 host1=$LOCALHOST
 host2=$LOCALHOST"super"
-echo "host1=$host1" >>$here/$seq.full
-echo "host2=$host2" >>$here/$seq.full
+echo "host1=$host1" >>$seq_full
+echo "host2=$host2" >>$seq_full
 _update_hostsfile $host2
-echo "=== $hostsfile ===" >>$here/$seq.full
-cat $hostsfile >>$here/$seq.full
-echo "=== check pcp on $host2 ===" >>$here/$seq.full
-pcp -h $host2 >>$here/$seq.full
+echo "=== $hostsfile ===" >>$seq_full
+cat $hostsfile >>$seq_full
+echo "=== check pcp on $host2 ===" >>$seq_full
+pcp -h $host2 >>$seq_full
 
 logdir=$tmp
 logdir2="$tmp.subname"
@@ -289,18 +289,18 @@ test_set="1 2 3 4 5"
 
 for i in $test_set
 do
-    echo >>$here/$seq.full
-    echo "=== test $i ===" >>$here/$seq.full
-    echo "--- before _setup() ---" >>$here/$seq.full
-    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger( |$)' >>$here/$seq.full
+    echo >>$seq_full
+    echo "=== test $i ===" >>$seq_full
+    echo "--- before _setup() ---" >>$seq_full
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger( |$)' >>$seq_full
     _setup
-    echo "--- after _setup() ---" >>$here/$seq.full
-    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger( |$)' >>$here/$seq.full
+    echo "--- after _setup() ---" >>$seq_full
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger( |$)' >>$seq_full
     
     # create the control file from primary
     _extract_control $i > $logdir/control
-    echo "--- control ---" >>$here/$seq.full
-    cat $logdir/control >>$here/$seq.full
+    echo "--- control ---" >>$seq_full
+    cat $logdir/control >>$seq_full
 
     # let's see what control file we are using
     echo
@@ -308,7 +308,7 @@ do
     echo
 
     echo "log mandatory on once pmcd.control.debug" >$logdir/config
-    echo "--- pmlogger_check ---" >> $here/$seq.full
+    echo "--- pmlogger_check ---" >> $seq_full
     $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_check -V -c $logdir/control -l $tmp.log"
     $sudo cat $tmp.log | tee -a $here/$seq.full | _filter
 done
@@ -324,18 +324,18 @@ do
     echo | tee -a $here/$seq.full
     echo "Kill off one pmlogger ..." | tee -a $here/$seq.full
     pid=`grep -l "^$log/" $PCP_TMP_DIR/pmlogger/[0-9]* | sed -e 's/.*pmlogger.//'`
-    echo "`echo $PCP_TMP_DIR/pmlogger/[0-9]* | wc -w | sed -e 's/  *//g'` active pmloggers: `cd $PCP_TMP_DIR/pmlogger; echo *`" >>$here/$seq.full
+    echo "`echo $PCP_TMP_DIR/pmlogger/[0-9]* | wc -w | sed -e 's/  *//g'` active pmloggers: `cd $PCP_TMP_DIR/pmlogger; echo *`" >>$seq_full
     for file in $PCP_TMP_DIR/pmlogger/[0-9]*
     do
-	echo "--- $file ---" >>$here/$seq.full
-	cat $file >>$here/$seq.full
+	echo "--- $file ---" >>$seq_full
+	cat $file >>$seq_full
     done
-    echo "initially pid=$pid" >>$here/$seq.full
+    echo "initially pid=$pid" >>$seq_full
     try=1
     num_pid=`echo "$pid" | wc -w | sed -e 's/ *//g'`
     while [ $try -lt 10 -a $num_pid -ne 1 ]
     do
-	echo "try $try num_pid=$num_pid: `echo $pid`" >>$here/$seq.full
+	echo "try $try num_pid=$num_pid: `echo $pid`" >>$seq_full
 	sleep 1
 	pid=`grep -l "^$log/" $PCP_TMP_DIR/pmlogger/[0-9]* | sed -e 's/.*pmlogger.//'`
 	num_pid=`echo "$pid" | wc -w | sed -e 's/ *//g'`
@@ -344,23 +344,23 @@ do
     if [ $num_pid -ne 1 ]
     then
 	echo "Arrgh ... failed to find just one pmlogger to kill ... see $seq.full"
-	echo "" >>$here/$seq.full
-	echo "Arrgh ... failed to find just one pmlogger to kill ..." >>$here/$seq.full
-	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger( |$)' >>$here/$seq.full
-	echo "$log contents ..." >>$here/$seq.full
-	ls -l $log >>$here/$seq.full
+	echo "" >>$seq_full
+	echo "Arrgh ... failed to find just one pmlogger to kill ..." >>$seq_full
+	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger( |$)' >>$seq_full
+	echo "$log contents ..." >>$seq_full
+	ls -l $log >>$seq_full
 	for ctl in $PCP_TMP_DIR/pmlogger/[0-9]*
 	do
-	    echo "+++ $ctl +++" >>$here/$seq.full
-	    cat $ctl >>$here/$seq.full
+	    echo "+++ $ctl +++" >>$seq_full
+	    cat $ctl >>$seq_full
 	done
-	echo "+ grep -l \"^$log/\"" $PCP_TMP_DIR/pmlogger/[0-9]* >>$here/$seq.full
-	grep "^$log/" $PCP_TMP_DIR/pmlogger/[0-9]* >>$here/$seq.full
+	echo "+ grep -l \"^$log/\"" $PCP_TMP_DIR/pmlogger/[0-9]* >>$seq_full
+	grep "^$log/" $PCP_TMP_DIR/pmlogger/[0-9]* >>$seq_full
 	exit
     fi
-    echo "Victim pid=$pid" >>$here/$seq.full
+    echo "Victim pid=$pid" >>$seq_full
     $PCP_PS_PROG $PCP_PS_ALL_FLAGS \
-    | $PCP_AWK_PROG >>$here/$seq.full '
+    | $PCP_AWK_PROG >>$seq_full '
 NR == 1	{ print
 	  if ($2 != "PID") {
 	    print "PID not in field 2 of ps output!"
@@ -369,9 +369,9 @@ NR == 1	{ print
 	  next
 	}
 $2 == '"$pid"' { print; exit(0) }'
-    echo "status" | pmlc $pid >>$here/$seq.full
-    echo "+++ $PCP_TMP_DIR/pmlogger/$pid +++" >>$here/$seq.full
-    cat $PCP_TMP_DIR/pmlogger/$pid >>$here/$seq.full
+    echo "status" | pmlc $pid >>$seq_full
+    echo "+++ $PCP_TMP_DIR/pmlogger/$pid +++" >>$seq_full
+    cat $PCP_TMP_DIR/pmlogger/$pid >>$seq_full
     $signal -s TERM $pid
     echo "Check ..." | tee -a $here/$seq.full
     $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_check -V -V -c $logdir/control -l $tmp.log"
@@ -394,8 +394,8 @@ $2 == '"$pid"' { print; exit(0) }'
 	pid=`grep -l "^$log/" $PCP_TMP_DIR/pmlogger/[0-9]* | sed -e 's/.*pmlogger.//'`
 	if [ -n "$pid" ]
 	then
-	    echo "Found pid $pid after $x iterations" >>$here/$seq.full
-	    echo "status" | pmlc $pid >>$here/$seq.full
+	    echo "Found pid $pid after $x iterations" >>$seq_full
+	    echo "status" | pmlc $pid >>$seq_full
 	    touch $tmp.found
 	    break
 	fi
@@ -405,7 +405,7 @@ $2 == '"$pid"' { print; exit(0) }'
     if [ ! -f $tmp.found ]
     then
 	echo "Arrgh ... pmlogger_check failed to restart pmloggers" | tee -a $here/$seq.full
-	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger( |$)' >>$here/$seq.full
+	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger( |$)' >>$seq_full
 	for state in $PCP_TMP_DIR/pmlogger/[0-9]*
 	do
 	    echo "=== $state ==="

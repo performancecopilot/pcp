@@ -19,7 +19,6 @@ target="-h localhost"
 $unix_domain_sockets && target="-h unix:"
 
 status=0	# success is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 _filter_solaris()
@@ -349,17 +348,17 @@ _filter()
 
 # real QA test starts here
 pmlogconf $tmp.conf >$tmp.out 2>&1
-cat $tmp.out >$seq.full
+cat $tmp.out >$seq_full
 
 sed -e 's/:n:/:y:/' <$tmp.conf >$tmp.tmp
 mv $tmp.tmp $tmp.conf
 
 yes '' | pmlogconf $tmp.conf >$tmp.out
-( echo && echo "== TMP.OUT" ) >>$seq.full
-cat $tmp.out >>$seq.full
-( echo && echo "== TMP.CONF") >>$seq.full
-cat $tmp.conf >>$seq.full
-( echo && echo "== FILTERED") >>$seq.full
+( echo && echo "== TMP.OUT" ) >>$seq_full
+cat $tmp.out >>$seq_full
+( echo && echo "== TMP.CONF") >>$seq_full
+cat $tmp.conf >>$seq_full
+( echo && echo "== FILTERED") >>$seq_full
 
 sed -n <$tmp.conf \
     -e '/^[ 	]/{

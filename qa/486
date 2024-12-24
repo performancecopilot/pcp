@@ -16,7 +16,6 @@ echo "QA output created by $seq"
 which pmlogrewrite >/dev/null 2>&1 || _notrun "pmlogrewrite not installed"
 
 status=0	# success is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 _filter()
@@ -73,17 +72,17 @@ _cmp()
     if [ ! -z "$filter_old" ]
     then
 	$filter_old <$tmp.in >$tmp.tmp
-	echo >>$seq.full
-	echo "--- after $filter_old ---" >>$seq.full
-	cat $tmp.tmp >>$seq.full
+	echo >>$seq_full
+	echo "--- after $filter_old ---" >>$seq_full
+	cat $tmp.tmp >>$seq_full
 	mv $tmp.tmp $tmp.in
     fi
     if [ ! -z "$filter_new" ]
     then
 	$filter_new <$tmp.out >$tmp.tmp
-	echo >>$seq.full
-	echo "--- after $filter_new ---" >>$seq.full
-	cat $tmp.tmp >>$seq.full
+	echo >>$seq_full
+	echo "--- after $filter_new ---" >>$seq_full
+	cat $tmp.tmp >>$seq_full
 	mv $tmp.tmp $tmp.out
     fi
     echo

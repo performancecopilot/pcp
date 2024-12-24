@@ -15,11 +15,10 @@ echo "QA output created by $seq"
 . ./common.check
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "cd $here; $sudo rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 eval `pmconfig -L lock_asserts`
-echo "lock_asserts=$lock_asserts" >>$here/$seq.full
+echo "lock_asserts=$lock_asserts" >>$seq_full
 
 # The alternte filter is required if libpcp is built with
 # BUILD_LOCK_ASSERTS defined.

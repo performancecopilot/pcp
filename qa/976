@@ -58,7 +58,7 @@ End-of-File
 echo === Testing precanned lustre files
 $sudo dbpmda -n $tmp.root -ie < $tmp.cmds 2>&1 | _filter
 
-cat lustre.log >>$here/$seq.full
+cat lustre.log >>$seq_full
 
 status=0
 exit
