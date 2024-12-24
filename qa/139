@@ -32,19 +32,18 @@ _filter()
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
 # diagnose why primary logger might not be running
-$sudo rm -f $seq.full
-echo "time $seq run:" >> $seq.full
-date >> $seq.full
+echo "time $seq run:" >> $seq_full
+date >> $seq_full
 hostname=`hostname || echo localhost`
 logfile="$PCP_ARCHIVE_DIR/$hostname/pmlogger.log"
-echo "$logfile" >> $seq.full
-cat $logfile >> $seq.full
-echo "check.log" >> $seq.full
-ls -l "$PCP_ARCHIVE_DIR/pmlogger_check.log" >>$seq.full 2>&1
-cat "$PCP_ARCHIVE_DIR/pmlogger_check.log" >> $seq.full 2>&1
-echo "check.log.prev" >> $seq.full
-ls -l "$PCP_ARCHIVE_DIR/pmlogger_check.log.prev" >>$seq.full 2>&1
-cat "$PCP_ARCHIVE_DIR/pmlogger_check.log.prev" >> $seq.full 2>&1
+echo "$logfile" >> $seq_full
+cat $logfile >> $seq_full
+echo "check.log" >> $seq_full
+ls -l "$PCP_ARCHIVE_DIR/pmlogger_check.log" >>$seq_full 2>&1
+cat "$PCP_ARCHIVE_DIR/pmlogger_check.log" >> $seq_full 2>&1
+echo "check.log.prev" >> $seq_full
+ls -l "$PCP_ARCHIVE_DIR/pmlogger_check.log.prev" >>$seq_full 2>&1
+cat "$PCP_ARCHIVE_DIR/pmlogger_check.log.prev" >> $seq_full 2>&1
 
 # real QA test starts here
 cat <<End-of-File >$tmp.pmlc

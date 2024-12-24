@@ -17,7 +17,7 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-rm -f $seq.out $seq.full
+rm -f $seq.out
 if [ ! -f $seq.out.$PCP_PLATFORM ]
 then
     echo "Error: no validated output for this platform ($seq.out.$PCP_PLATFORM)"

@@ -131,7 +131,7 @@ _filter_pmlc <$tmp.out
 
 # wait for pmlogger to terminate
 #
-_wait_pmlogger_end $logger_pid
+_wait_pmlogger_end $logger_pid || _exit 1
 cat $tmp.err $tmp.log | _filter_logger
 
 echo
@@ -142,7 +142,7 @@ then
     | _filter_dump \
     | sed -e 's/TIMESTAMP//' -e 's/^  *//' \
     | LC_COLLATE=POSIX sort -u
-    pmdumplog $tmp >$seq.full 2>&1
+    pmdumplog $tmp >$seq_full 2>&1
 else
     echo "Archive is empty"
 fi

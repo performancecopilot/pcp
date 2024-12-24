@@ -33,7 +33,6 @@ fi
 #debug# tmp=`pwd`/tmp
 compare=`pwd`/src/compare
 status=0	# success is the default!
-$sudo rm -rf $tmp.*
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 if [ ! -x $compare ]
@@ -54,7 +53,6 @@ ns1=$tmp.netstat1
 pcp=$tmp.pcp
 ns2=$tmp.netstat2
 
-rm -f $seq.full
 rm -rf $ns1 $pcp $ns2
 
 cat <<'End-of-File' >$tmp.map
@@ -96,13 +94,13 @@ InEchos|ICMP input  *echo requests: NNN|network.icmp.inechos
 InEchoReps|ICMP input  *echo replies: NNN|network.icmp.inechoreps
 InTimestamps|ICMP input  *timestamp request: NNN|network.icmp.intimestamps
 InTimestampReps|ICMP input  *timestamp reply: NNN|network.icmp.intimestampreps
-InAddrMasks|ICMP input  *address mask request: NNN|network.icmp.inaddrmasks  
+InAddrMasks|ICMP input  *address mask request: NNN|network.icmp.inaddrmasks
 InAddrMaskReps|ICMP input  *address mask replies: NNN|network.icmp.inaddrmaskreps
 OutMsgs|NNN ICMP messages sent|network.icmp.outmsgs
 OutErrors|NNN ICMP messages failed|network.icmp.outerrors
 OutDestUnreachs|ICMP output *destination unreachable: NNN|network.icmp.outdestunreachs
 OutTimeExcds|ICMP output  *time exceeded: NNN|network.icmp.outtimeexcds
-OutParmProbs|ICMP output  *wrong parameters: NNN|network.icmp.outparmprobs    
+OutParmProbs|ICMP output  *wrong parameters: NNN|network.icmp.outparmprobs
 OutSrcQuenchs|ICMP output  *source quench: NNN|network.icmp.outsrcquenchs
 OutRedirects|ICMP output  *redirect: NNN|network.icmp.outredirects
 OutEchos|ICMP output  *echo requests*: NNN|network.icmp.outechos
@@ -157,15 +155,15 @@ _get_netstat()
 skip == 1			{ next }
 /:/				{ print pfx,$0; next }
 				{ pfx = ""; print }'
-    echo "--- Culled netstat ---" >>$seq.full
-    cat $tmp.out >>$seq.full
+    echo "--- Culled netstat ---" >>$seq_full
+    cat $tmp.out >>$seq_full
     $PCP_AWK_PROG <$tmp.map -F\| '
 /^#/	{ next }
 	{ print $2 }' \
     | sed -e 's/NNN/\\\\([0-9][0-9]*\\\\)/' \
     | while read pat
     do
-	echo "pat=$pat" >>$seq.full
+	echo "pat=$pat" >>$seq_full
 	sed -n -e 's/^[ 	]*//' -e "/$pat/s//\\1/p" <$tmp.out >$tmp.tmp
 	if [ -s $tmp.tmp ]
 	then
@@ -178,12 +176,12 @@ skip == 1			{ next }
     done
 }
 
-echo "=== First netstat ===" >>$seq.full
+echo "=== First netstat ===" >>$seq_full
 _get_netstat >$ns1
-echo "=== Filtered first netstat ===" >>$seq.full
-cat $ns1 >>$seq.full
+echo "=== Filtered first netstat ===" >>$seq_full
+cat $ns1 >>$seq_full
 
-echo "=== pmprobe ===" >>$seq.full
+echo "=== pmprobe ===" >>$seq_full
 $PCP_AWK_PROG <$tmp.map -F\| '
 /^#/	{ next }
 	{ print $3 }' \
@@ -206,10 +204,10 @@ do
     fi
 done >$pcp
 
-echo "=== Second netstat ===" >>$seq.full
+echo "=== Second netstat ===" >>$seq_full
 _get_netstat >$ns2
-echo "=== Filtered second netstat ===" >>$seq.full
-cat $ns2 >>$seq.full
+echo "=== Filtered second netstat ===" >>$seq_full
+cat $ns2 >>$seq_full
 
 nm=`wc -l <$pcp | sed -e 's/[ 	]*//g'`
 nn=`wc -l <$ns2  | sed -e 's/[ 	]*//g'`
@@ -238,7 +236,7 @@ NF == 4	{
 echo "exit $sts" >>$tmp.sh
 chmod u+x $tmp.sh
 
-cat $tmp.sh >>$seq.full
+cat $tmp.sh >>$seq_full
 
 # for debugging
 # if sh -x $tmp.sh

@@ -66,10 +66,10 @@ _wait_for_pmcd_from_remote()
 	clients=`ssh $1 -q -n -l pcpqa "sh -c 'PMCD_PORT=$port pmprobe -h $me pmcd.numclients'" 2>/dev/null | sed -e 's/.* //'`
 	if [ $i -eq 0 ]
 	then
-	    echo >>$seq.full
-	    echo "+ ssh $1 -q -n -l pcpqa \"sh -c 'PMCD_PORT=$port pmprobe -h $me pmcd.numclients'\"" >>$seq.full
-	    ssh $1 -q -n -l pcpqa "sh -c 'PMCD_PORT=$port pmprobe -h $me pmcd.numclients'" >>$seq.full 2>&1
-	    echo "clients=\"$clients\"" >>$seq.full
+	    echo >>$seq_full
+	    echo "+ ssh $1 -q -n -l pcpqa \"sh -c 'PMCD_PORT=$port pmprobe -h $me pmcd.numclients'\"" >>$seq_full
+	    ssh $1 -q -n -l pcpqa "sh -c 'PMCD_PORT=$port pmprobe -h $me pmcd.numclients'" >>$seq_full 2>&1
+	    echo "clients=\"$clients\"" >>$seq_full
 	fi
 	if [ ! -z "$clients" ]
 	then
@@ -92,7 +92,7 @@ _wait_for_pmcd_from_remote()
     fi
 }
 
-cleanup()
+_cleanup()
 {
     if $_needclean
     then
@@ -107,9 +107,8 @@ cleanup()
     $sudo rm -f $tmp.*
 }
 
-trap "cleanup; exit \$status" 0 1 2 3 15
+trap "_cleanup; exit \$status" 0 1 2 3 15
 
-rm -f $seq.full
 touch $seq.full
 
 # real QA test starts here
@@ -120,10 +119,11 @@ then
     $NETSTAT -a
     exit 1
 fi
-echo "port=$port" >>$seq.full
+echo "port=$port" >>$seq_full
 
 # _change_config pmlogger off
-_service pcp stop | _filter_pcp_stop
+if ! _service pcp stop; then _exit 1; fi \
+| _filter_pcp_stop
 
 $sudo cp $config $oconfig
 
@@ -164,8 +164,8 @@ then
     ssh -q </dev/null $other2 -n -l pcpqa $NETSTAT -in
     exit
 fi
-echo "other1=$other1 list1=$list1" >>$seq.full
-echo "other2=$other2 list2=$list2" >>$seq.full
+echo "other1=$other1 list1=$list1" >>$seq_full
+echo "other2=$other2 list2=$list2" >>$seq_full
 
 cat >$tmp.access <<End-Of-File
 
@@ -178,18 +178,18 @@ End-Of-File
 $sudo "sed -e '/\[access]/q' $oconfig | sed -e '/\[access]/d' >$config"
 $sudo "cat $tmp.access >>$config"
 
-echo >>$seq.full
-echo "=== First pmcd.conf ===" >>$seq.full
-cat $config >>$seq.full
+echo >>$seq_full
+echo "=== First pmcd.conf ===" >>$seq_full
+cat $config >>$seq_full
 
 # don'use the regular port ...
 #
 PMCD_PORT=$port
 export PMCD_PORT
 
-_service pcp restart 2>&1 | _filter_pcp_start
-_wait_for_pmcd
-_wait_for_pmlogger
+if ! _service pcp restart 2>&1; then _exit 1; fi | _filter_pcp_start
+_wait_for_pmcd || _exit 1
+_wait_for_pmlogger || _exit 1
 
 #DEBUG# pmstore pmcd.control.traceconn 1
 #DEBUG# pmstore pmcd.control.tracepdu 1
@@ -226,8 +226,8 @@ ssh -q $other2 -n -l pcpqa "sh -c 'PMCD_PORT=$port pminfo -h $me -f sample.long.
 | sed \
     -e 's/".*"/"OTHERHOST2"/' \
     -e 's/IPC protocol failure/PMCD connection limit for this host exceeded/'
-#DEBUG# echo "Trying connection limit pminfo again ..." >>$seq.full
-#DEBUG# ssh -q $other2 -n -l pcpqa "sh -c 'PMCD_PORT=$port par -s -SS pminfo -Dall -h $me -f sample.long.one'" >>$seq.full 2>&1
+#DEBUG# echo "Trying connection limit pminfo again ..." >>$seq_full
+#DEBUG# ssh -q $other2 -n -l pcpqa "sh -c 'PMCD_PORT=$port par -s -SS pminfo -Dall -h $me -f sample.long.one'" >>$seq_full 2>&1
 ssh -q $other2 -n -l pcpqa $rsignal -a pmval > /dev/null 2>&1
 
 echo "pmcd.log:======="
@@ -238,8 +238,8 @@ p
 }'
 echo "================"
 
-echo "pmcd.log ..." >>$seq.full
-cat $PCP_PMCDLOG_PATH >>$seq.full
+echo "pmcd.log ..." >>$seq_full
+cat $PCP_PMCDLOG_PATH >>$seq_full
 
 iplist1=`_all_ipaddrs $other1`
 if [ -z "$iplist1" ]
@@ -262,9 +262,9 @@ then
     status=3
     exit
 fi
-echo "other1=$other1 iplist1=$iplist1" >>$seq.full
-echo "other2=$other2 iplist2=$iplist2" >>$seq.full
-echo "localhost iplist3=$iplist3" >>$seq.full
+echo "other1=$other1 iplist1=$iplist1" >>$seq_full
+echo "other2=$other2 iplist2=$iplist2" >>$seq_full
+echo "localhost iplist3=$iplist3" >>$seq_full
 
 netlist2=`echo $iplist2,$iplist3 | sed -e 's/$/,/' -e 's/[0-9][0-9]*\.[0-9][0-9]*,/*,/g' -e 's/,$//'`
 
@@ -279,13 +279,13 @@ End-Of-File
 $sudo "sed -e '/\[access]/q' $oconfig | sed -e '/\[access]/d' >$config"
 $sudo "cat $tmp.access >>$config"
 
-echo >>$seq.full
-echo "=== Second pmcd.conf ===" >>$seq.full
-cat $config >>$seq.full
+echo >>$seq_full
+echo "=== Second pmcd.conf ===" >>$seq_full
+cat $config >>$seq_full
 
-_service pcp restart 2>&1 | _filter_pcp_start
+if ! _service pcp restart 2>&1; then _exit 1; fi | _filter_pcp_start
 _wait_for_pmcd_from_remote $other1
-_wait_for_pmlogger
+_wait_for_pmlogger || _exit 1
 ssh -q $other1 -n -l pcpqa "sh -c 'PMCD_PORT=$port pmstore -h $me pmcd.control.debug 4096'"
 
 echo "    checking default access for this host (store should fail) ..."
@@ -319,8 +319,8 @@ p
 # end
 echo "================"
 
-echo "pmcd.log ..." >>$seq.full
-cat $PCP_PMCDLOG_PATH >>$seq.full
+echo "pmcd.log ..." >>$seq_full
+cat $PCP_PMCDLOG_PATH >>$seq_full
 
 # success, all done
 status=0

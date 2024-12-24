@@ -62,7 +62,6 @@ cat $tmp.A.stamp $tmp.B.stamp \
 
 echo
 echo "pmval [no interpolate] ..."
-rm -f $seq.full
 pmval -U $tmp.C sample.milliseconds 2>&1 \
 | tee $seq.full \
 | $PCP_AWK_PROG '

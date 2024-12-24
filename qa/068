@@ -49,11 +49,11 @@ _cleanup()
     exit 0
 }
 
-rm -f $seq.full
 
 # real QA test starts here
-echo "--- pcp stop ---" >>$here/$seq.full
-_service pcp stop | tee -a $here/$seq.full | _filter_pcp_stop
-echo >>$here/$seq.full
-echo "--- run pmcdgone ---" >>$here/$seq.full
+echo "--- pcp stop ---" >>$seq_full
+if ! _service pcp stop; then _exit 1; fi \
+| tee -a $here/$seq.full | _filter_pcp_stop
+echo >>$seq_full
+echo "--- run pmcdgone ---" >>$seq_full
 $sudo src/pmcdgone | tee -a $here/$seq.full

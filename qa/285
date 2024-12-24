@@ -3,8 +3,8 @@
 #
 # Plan:
 # 1. to show that the indom result for instance requests for
-#    pmLookupInDom and pmNameInDom calls should NOT be different 
-#    for DSOs versus daemon agents. 
+#    pmLookupInDom and pmNameInDom calls should NOT be different
+#    for DSOs versus daemon agents.
 # 2. to verify that opening a dso and then connecting to a daemon
 #    is viable.
 #    Note: qa/147 tests out doing a daemon and then a dso
@@ -65,7 +65,7 @@ instance 30.1 0
 instance 30.1 "red"
 EOF
 
-cat $tmp.log >>$here/$seq.full
+cat $tmp.log >>$seq_full
 
 echo
 echo "Differences ... expect none after the \"open\" processing"
@@ -80,7 +80,7 @@ open dso $sampledso sample_init 30
 open pipe $PCP_PMDAS_DIR/sample/pmdasample $pipeargs -d 29 -l $tmp.log
 EOF
 
-cat $tmp.log >>$here/$seq.full
+cat $tmp.log >>$seq_full
 
 # success, all done
 status=0

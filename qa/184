@@ -98,7 +98,7 @@ End-of-File
 $sudo rm -f $tmp.arch.*
 _start_up_pmlogger -L -c $tmp.config -l $tmp.log $tmp.arch >$tmp.err 2>&1
 logger_pid=$pid
-_wait_for_pmlogger $logger_pid $tmp.log
+_wait_for_pmlogger $logger_pid $tmp.log || _exit 1
 
 echo "=== old log ===" | tee $seq.full
 pmdumplog -dilmst $tmp.arch | tee -a $seq.full | _filter_dumplog
@@ -106,7 +106,7 @@ pmdumplog -dilmst $tmp.arch | tee -a $seq.full | _filter_dumplog
 echo | tee -a $seq.full
 echo "=== pmnewlog ==" | tee -a $seq.full
 $sudo $newlog -V -p $logger_pid -l $tmp.log $tmp.newarch 2>&1 >$tmp.out
-cat $tmp.out >>$seq.full
+cat $tmp.out >>$seq_full
 _filter_newlog <$tmp.out | _filter_dumplog
 
 # Cleanup after youself

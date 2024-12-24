@@ -41,12 +41,11 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 if [ ! -f .rnd ]
 then
-    echo "Creating random bytes in .rnd" >>$seq.full
+    echo "Creating random bytes in .rnd" >>$seq_full
     openssl rand -writerand .rnd
 fi
 
@@ -71,40 +70,40 @@ original=$PCP_TLSCONF_PATH
 cp $original $tmp.tls.orig
 
 _service pmcd start | _filter_pcp_start
-_wait_for_pmcd
+_wait_for_pmcd || _exit 1
 
 echo
 echo "checking client, generic certificate.  should pass..."
 export PCP_SECURE_SOCKETS=1
-yes | pminfo -h $hostname -f hinv.ncpu 2>&1 | tee -a $seq.full | _filter_tls
+yes | pminfo -h $hostname -f hinv.ncpu 2>&1 | tee -a $seq_full | _filter_tls
 
 echo
-echo "checking client, no certificate verify.  should pass..." | tee -a $seq.full
+echo "checking client, no certificate verify.  should pass..." | tee -a $seq_full
 export PCP_SECURE_SOCKETS=1
 export PCP_TLSCONF_PATH=/dev/null
-yes | pminfo -h $hostname -f hinv.ncpu 2>&1 | tee -a $seq.full | _filter_tls
+yes | pminfo -h $hostname -f hinv.ncpu 2>&1 | tee -a $seq_full | _filter_tls
 export PCP_TLSCONF_PATH=$original
 
 echo
-echo "checking client, verify certificate setup.  should pass..." | tee -a $seq.full
+echo "checking client, verify certificate setup.  should pass..." | tee -a $seq_full
 cp $tmp.tls.orig $tmp.tls.conf
 echo "tls-verify-clients = true" >> $tmp.tls.conf
 $sudo cp $tmp.tls.conf $PCP_TLSCONF_PATH
 export PCP_SECURE_SOCKETS=1
-yes | pminfo -h $hostname -f hinv.ncpu 2>&1 | tee -a $seq.full | _filter_tls
+yes | pminfo -h $hostname -f hinv.ncpu 2>&1 | tee -a $seq_full | _filter_tls
 
 echo
-echo "checking client, server certificate only.  should fail..." | tee -a $seq.full
+echo "checking client, server certificate only.  should fail..." | tee -a $seq_full
 cp $tmp.tls.orig $tmp.tls.conf
 sed -i -e 's/pcp.key/server.key/g' $tmp.tls.conf
 sed -i -e 's/pcp.crt/server.crt/g' $tmp.tls.conf
 unset PCP_SECURE_SOCKETS
 _service pmcd start | _filter_pcp_start
-_wait_for_pmcd
+_wait_for_pmcd || _exit 1
 $sudo cp $tmp.tls.conf $PCP_TLSCONF_PATH
 export PCP_TLSCONF_PATH=$original
 export PCP_SECURE_SOCKETS=1
-yes | pminfo -h $hostname -f hinv.ncpu 2>&1 | tee -a $seq.full | _filter_tls
+yes | pminfo -h $hostname -f hinv.ncpu 2>&1 | tee -a $seq_full | _filter_tls
 
 # check mode where separate client/server certificates are used
 #cp $tmp.tls.orig $tmp.tls.conf
@@ -120,9 +119,9 @@ yes | pminfo -h $hostname -f hinv.ncpu 2>&1 | tee -a $seq.full | _filter_tls
 #_wait_for_pmcd
 
 #echo
-#echo "checking both client and server certificates.  should pass..." | tee -a $seq.full
+#echo "checking both client and server certificates.  should pass..." | tee -a $seq_full
 #export PCP_SECURE_SOCKETS=1
-#yes | pminfo -h $hostname -f hinv.ncpu 2>&1 | tee -a $seq.full | _filter_tls
+#yes | pminfo -h $hostname -f hinv.ncpu 2>&1 | tee -a $seq_full | _filter_tls
 
 # success, all done
 status=0

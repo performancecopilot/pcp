@@ -16,10 +16,9 @@ host=localhost
 ppid=0
 count=5
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
-trap "cleanup; exit \$status" 0 1 2 3 15
+trap "_cleanup; exit \$status" 0 1 2 3 15
 
-cleanup()
+_cleanup()
 {
     cd $here
     rm -rf $tmp.*
@@ -40,7 +39,7 @@ exec 2>$tmp.err
 # real QA test starts here
 cd secure
 ncpu=`cpu_count`
-echo "Initial CPU count: $ncpu" > $here/$seq.full
+echo "Initial CPU count: $ncpu" > $seq_full
 for hang_test in hang-*
 do
     echo "$hang_test checking: " | tee -a $here/$seq.full
@@ -51,7 +50,7 @@ do
     while [ $n -lt $count ]
     do
         ncpunow=`cpu_count`
-        echo "Fetched CPU count: $ncpunow" >> $here/$seq.full
+        echo "Fetched CPU count: $ncpunow" >> $seq_full
         if [ $ncpunow != $ncpu ]
         then
             sts=1
@@ -65,14 +64,14 @@ do
     wait $ppid
     ppid=0
     echo "$hang_test complete" | tee -a $here/$seq.full
-    echo "$hang_test output " >> $here/$seq.full
-    cat $tmp.out >> $here/$seq.full
+    echo "$hang_test output " >> $seq_full
+    cat $tmp.out >> $seq_full
     [ $sts -eq 0 ] || exit
 done
 
-echo >>$here/$seq.full
-echo "==== shell's stderr ===========" >>$here/$seq.full
-cat $tmp.err >>$here/$seq.full
+echo >>$seq_full
+echo "==== shell's stderr ===========" >>$seq_full
+cat $tmp.err >>$seq_full
 
 # success, all done
 status=0

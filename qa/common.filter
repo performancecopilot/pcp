@@ -1137,8 +1137,8 @@ _filter_optional_labels()
 		echo "s@${label},*@@g" >>$tmp.filter.optional.labels
 	    done
 	done
-	echo "=== optional context label filter ===" >>$here/$seq.full
-	cat $tmp.filter.optional.labels >>$here/$seq.full
+	echo "=== optional context label filter ===" >>$seq_full
+	cat $tmp.filter.optional.labels >>$seq_full
     fi
 
     if [ -s $tmp.filter.optional.labels ]

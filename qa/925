@@ -64,7 +64,7 @@ _report()
     # equivalent for this test.  Sigh.
     #
     (cd $tmp; ls -lR pmlogger ) \
-    | tee -a $here/$seq.full \
+    | tee -a $seq_full \
     | $PCP_AWK_PROG '
 $1 == "pmlogger:"	{ next }
 NF < 4		{ print; next }
@@ -87,7 +87,6 @@ NF < 4		{ print; next }
 
 status=1	# failure is the default!
 needclean=true
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 [ -f $NEEDREWRITE ] && $sudo mv $NEEDREWRITE $NEEDREWRITE.$seq
@@ -101,7 +100,11 @@ cat <<End-of-File >$tmp.control
 LOCALHOSTNAME n n $tmp/pmlogger/myhost/2017/02/12 -c /dev/null -L
 End-of-File
 
+# need to be a place the user $PCP_USER can cd to from pmlogger_daily
+#
+cd /var/tmp
 $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -D -x never -c $tmp.control -V -l $tmp.log"
+cd $here
 _filter <$tmp.log
 
 _report | _filter

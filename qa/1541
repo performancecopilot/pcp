@@ -1,0 +1,154 @@
+#!/bin/sh
+# PCP QA Test No. 1541
+# exercise the ./refactor test rewriting script
+#
+# Copyright (c) 2024 Ken McDonell.  All Rights Reserved.
+#
+# refactor-all-ok
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+	-e 's/[ 	][ 	]*20..-[01][0-9]-.*/ DATESTAMP/' \
+	-e '/+++/s/+++ [^ 	][^ 	]*/+++ TMP.out/' \
+    # end
+}
+
+
+# real QA test starts here
+#
+
+cat <<'End-of-File' >$tmp.in
+
+# expect these all to to be rewritten
+#
+_change_config foo bar
+_change_config x y
+_wait_for_pmcd
+_wait_pmcd_end	# tab comment
+_wait_for_pmcd_stop
+_wait_for_pmlogger # space comment
+_wait_for_pmlogger pid
+_wait_for_pmlogger -P path
+_wait_for_pmlogger pid path delay
+_wait_pmlogger_end pid
+_wait_for_pmie
+_wait_pmie_end	# tab comment
+_wait_for_pmproxy
+_wait_pmproxy_end # space comment
+_disable_loggers
+_get_primary_logger_pid
+_prepare_pmda_install foo
+_restore_pmda_install bar
+_setup_purify prog
+_sighup_pmcd
+_check_metric sample.bin
+_check_metric sample.bin remotehost
+_service pmcd start
+_service pmcd start >foo
+_service pmcd start 2>foo_err
+    _service pmcd stop | foo cmd
+_service pmcd stop 2>&1 | foo cmd
+
+# expect these to be warnings
+#
+_change_config foo bar || echo "expect warning"
+_wait_for_pmcd || echo "expect warning"
+_wait_pmcd_end && babble
+_wait_for_pmcd_stop 10
+_wait_for_pmlogger && echo "expect warning"
+_wait_pmlogger_end pid &
+_wait_for_pmie warning	# comment
+_wait_pmie_end warning # comment
+_wait_for_pmproxy port_warning
+_wait_for_pmproxy -P logfile__warning
+_wait_pmproxy_end || warning
+_disable_loggers >warning
+_get_primary_logger_pid ; warning
+_prepare_pmda_install foo & true_warning
+_restore_pmda_install bar || foo_warning
+_setup_purify prog foo_warning
+_wait_for_pmcd;warning
+_sighup_pmcd>warning
+_get_config foo
+c=`_get_config pmie`
+c=$(_get_config bar)
+w=`_get_word_size warning`
+w="`_get_word_size warning`"
+w=$(_get_word_size)
+w="$(_get_word_size)"
+e=`_get_endian warning`
+_check_metric foo bar warning
+_service pmcd >foo start
+
+# no changes or warnings ...
+#
+_change_config foo bar || echo nothing	# refactor-ok
+_wait_for_pmcd	# refactor-ok
+_wait_for_pmlogger	# refactor-ok
+_wait_pmlogger_end	# refactor-ok
+x_get_word_size
+_get_word_sizex
+    if _get_word_size
+    if _get_endian
+my_get_endian_mumble
+_get_config pmie >$tmp.tmp || _exit 1
+if _check_metric simple.now; then :; else _exit 8; fi
+_check_metric sample.seconds $hosts_32 || _exit 1
+
+# no refactoring here ...
+#
+_cleanup()
+{
+    _change_config foo	# no change expected
+    _wait_for_pmcd	# no change expected
+    _wait_pmcd_end	# no change expected
+    _wait_for_pmcd_stop	# no change expected
+    _wait_for_pmlogger	# no change expected
+    _wait_pmlogger_end	# no change expected
+    _wait_for_pmie	# no change expected
+    _wait_pmie_end	# no change expected
+    _wait_for_pmproxy	# no change expected
+    _wait_pmproxy_end	# no change expected
+    _disable_loggers	# no change expected
+    _get_primary_logger_pid	# no change expected
+    _prepare_pmda_install	# no change expected
+    _restore_pmda_install	# no change expected
+    _setup_purify	# no change expected
+    _sighup_pmcd	# no change expected
+    _service pmlogger stop	# no change expected
+}
+
+End-of-File
+./refactor -nvv $tmp.in 2>&1 | _filter
+
+# TODO trap not _cleanup pattern
+#
+
+# success, all done
+exit

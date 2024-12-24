@@ -22,7 +22,7 @@ trap "$sudo rm -f $tmp.*; exit" 0 1 2 3 15
 #
 # Get rid of some new sampledso metrics which
 # would make the test vary.
-# Can do this since the point of the test is 
+# Can do this since the point of the test is
 # testing out pmTrimNameSpace
 # --tes
 #

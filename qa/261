@@ -23,15 +23,15 @@ _filter()
 	-e '/^\[[0-9]* bytes]/d'
 }
 
-echo >$seq.full
+echo >$seq_full
 
 # real QA test starts here
 pmdumplog -z -l archives/mirage
-pmdumplog -z -dilmst archives/mirage 2>&1 >>$seq.full
+pmdumplog -z -dilmst archives/mirage 2>&1 >>$seq_full
 
 pmlogextract -S 5min -T 5min archives/mirage $tmp
 
-echo "--- copyied archive ---" >>$seq.full
+echo "--- copyied archive ---" >>$seq_full
 pmdumplog -z -dilmst $tmp | tee -a $seq.full | _filter
 
 # Note on the bizarre 4.0001m termination intervals below ...
@@ -52,10 +52,10 @@ do
     | sed -e "s;$tmp;TMP;g" \
 	  -e '1,2s/	.*/	TODAY/' \
 	  -e 's/--- -/--- Standard Input/'
-    echo "--- $metric, archives/mirage archive, instances" >>$seq.full
-    cat $tmp.orig >>$seq.full
-    echo "--- $metric, copied archive, instances" >>$seq.full
-    cat $tmp.new >>$seq.full
+    echo "--- $metric, archives/mirage archive, instances" >>$seq_full
+    cat $tmp.orig >>$seq_full
+    echo "--- $metric, copied archive, instances" >>$seq_full
+    cat $tmp.new >>$seq_full
 done
 
 echo
@@ -69,10 +69,10 @@ do
     | sed -e "s;$tmp;TMP;g" \
 	  -e '1,2s/	.*/	TODAY/' \
 	  -e 's/--- -/--- Standard Input/'
-    echo "--- $metric, archives/mirage archive, NO instances" >>$seq.full
-    cat $tmp.orig >>$seq.full
-    echo "--- $metric, copied archive, NO instances" >>$seq.full
-    cat $tmp.new >>$seq.full
+    echo "--- $metric, archives/mirage archive, NO instances" >>$seq_full
+    cat $tmp.orig >>$seq_full
+    echo "--- $metric, copied archive, NO instances" >>$seq_full
+    cat $tmp.new >>$seq_full
 done
 
 # success, all done

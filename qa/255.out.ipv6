@@ -193,7 +193,7 @@ active agent dom   pid  in out ver protocol parameters
 ============ === ===== === === === ======== ==========
 [OS]          ??                 2 dso i:?  lib=[OS]pmda.$DSO_SUFFIX entry=[OS]_init
 pmcd           2                 2 dso i:?  lib=...pmda_pmcd.$DSO_SUFFIX entry=pmcd_init
-broken       BROKEN PID FD FD   2 bin pipe cmd=broken_pmda_2_0 -d 249 -l TMP.broken.log
+broken       BROKEN PID FD FD   2 bin pipe cmd=broken_pmda_2_0 -d 249 -l broken.log
 
 Host access list empty: access control turned off
 

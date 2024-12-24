@@ -13,7 +13,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-rm -f $seq.full
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
 # real QA test starts here
@@ -21,7 +20,7 @@ for arch in archives/ok-mv-bigbin
 do
     echo | tee -a $seq.full
     echo "=== $arch ===" | tee -a $seq.full
-    pmdumplog -t $arch >>$seq.full
+    pmdumplog -t $arch >>$seq_full
     src/xarch -a $arch -Dlog 2>&1 \
     | tee -a $seq.full \
     | sed \

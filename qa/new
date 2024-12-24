@@ -249,8 +249,6 @@ fi
 . ./common.filter
 . ./common.check
 
-\$sudo rm -rf \$tmp \$tmp.* \$seq.full
-
 do_valgrind=false
 if [ "\$1" = "--valgrind" ]
 then
@@ -292,7 +290,7 @@ exit
 
 # optional stuff if your test has verbose output to help resolve problems
 #echo
-#echo "If failure, check \$seq.full"
+#echo "If failure, check \$seq_full"
 
 # success, all done
 exit

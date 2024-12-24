@@ -19,7 +19,6 @@ target_ip=1.1.1.1
 
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
-$sudo rm -rf $tmp.* $seq.full
 
 cat <<EOF >$tmp.conf
 # Installed by PCP QA test $seq on `date`
@@ -42,7 +41,7 @@ _pmdabpf_install $tmp.conf
 _pmdabpf_wait_for_metric
 
 # Generate system activity for the CO-RE tcpconnlat module
-echo Started curl at $(date) >> $here/$seq.full
+echo Started curl at $(date) >> $seq_full
 curl -s http://${target_ip} > /dev/null
 
 echo "=== report metric values for comm ==="

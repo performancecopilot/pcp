@@ -16,7 +16,6 @@ echo "QA output created by $seq"
 . ./common.check
 
 trap "$sudo rm -f $tmp.*; exit" 0 1 2 3 15
-rm -f $seq.full
 
 _do_ls()
 {
@@ -68,7 +67,6 @@ _do_time()
 }
 
 # real QA test starts here
-$sudo rm -f $tmp.*
 echo 's/ [A-Z][a-z][a-z] [A-Z][a-z][a-z] .. / month-day /g' >$tmp.sed
 echo 's/ [12][0-9][0-9][0-9]$/ year/' >>$tmp.sed
 
@@ -80,14 +78,14 @@ connect $pid
 log mandatory on 100 msec { sampledso.milliseconds }
 End-of-File
 
-_wait_pmlogger_end $pid
+_wait_pmlogger_end $pid || _exit 1
 
-cat $tmp.log >>$here/$seq.full
+cat $tmp.log >>$seq_full
 
 # write a fixed length hostname into log label (for dumplog determinism)
 $sudo pmloglabel -h qahost $tmp
 
-LC_TIME=POSIX ls -l $tmp.? | tee -a $here/$seq.full | _do_ls
+LC_TIME=POSIX ls -l $tmp.? | tee -a $seq_full | _do_ls
 
 echo
 pmdumplog -t $tmp | _do_time \
@@ -101,12 +99,12 @@ pmdumplog -m $tmp | sed -n '/^[0-9]/p' | wc -l | sed -e 's/  *//g'
 
 # diagnostic output only (-> .full)
 #
-echo "Label ..." >>$here/$seq.full
-pmdumplog -L $tmp >>$here/$seq.full
-echo >>$here/$seq.full
-echo "Selected pmResults ..." >>$here/$seq.full
+echo "Label ..." >>$seq_full
+pmdumplog -L $tmp >>$seq_full
+echo >>$seq_full
+echo "Selected pmResults ..." >>$seq_full
 pmdumplog -m $tmp \
-| $PCP_AWK_PROG >>$here/$seq.full '
+| $PCP_AWK_PROG >>$seq_full '
 BEGIN		{ nrec = 0; want = 0 }
 /^[0-9]/	{ nrec++ }
 want == 0	{ if (nrec <= 2	|| nrec > 50) {

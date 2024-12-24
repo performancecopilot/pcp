@@ -54,7 +54,6 @@ END				{ printf "%d",rec
 				}'
 }
 
-rm -f $seq.full $tmp.*
 
 # real QA test starts here
 cat >$tmp.a.config <<End-of-File
@@ -98,10 +97,10 @@ PMLOGGER_PORT=$port2 \
 pmlogger -c $tmp.b.config -l $tmp.b.log -s 20 $tmp.b >$tmp.b.err 2>&1 &
 
 wait
-echo "log for archive 'a' ..." >>$seq.full
+echo "log for archive 'a' ..." >>$seq_full
 cat $tmp.a.err $tmp.a.log | tee -a $seq.full | _filter_pmlogger_log
-echo >>$seq.full
-echo "log for archive 'b' ..." >>$seq.full
+echo >>$seq_full
+echo "log for archive 'b' ..." >>$seq_full
 cat $tmp.b.err $tmp.b.log | tee -a $seq.full | _filter_pmlogger_log
 
 sleep 2
@@ -111,21 +110,21 @@ sleep 2
 #
 PMLOGGER_PORT=$port3 \
 pmlogger -c $tmp.c.config -l $tmp.c.log -s 10 $tmp.c >$tmp.c.err 2>&1
-echo >>$seq.full
+echo >>$seq_full
 
 wait
-echo "log for archive 'c' ..." >>$seq.full
+echo "log for archive 'c' ..." >>$seq_full
 cat $tmp.c.err $tmp.c.log | tee -a $seq.full | _filter_pmlogger_log
 
 echo "Full merge ..."
 rm -f $tmp.merge.*
 pmlogextract $tmp.a $tmp.b $tmp.c $tmp.merge
-echo >>$seq.full
+echo >>$seq_full
 echo "Log record counts ..." | tee -a $seq.full
 for i in a b c merge
 do
     $PCP_ECHO_PROG $PCP_ECHO_N "$i: ""$PCP_ECHO_C"
-    ( echo; echo "=== $i ===" ) >>$seq.full
+    ( echo; echo "=== $i ===" ) >>$seq_full
     pmdumplog -m $tmp.$i | tee -a $seq.full | _count_rec
 done
 
@@ -150,7 +149,7 @@ pmlogextract -s 10 $tmp.a $tmp.b $tmp.c $tmp.merge-10
 $PCP_ECHO_PROG $PCP_ECHO_N "merge (expect 10): ""$PCP_ECHO_C"
 pmdumplog -m $tmp.merge-10 \
 | tee -a $seq.full \
-| _count_rec 
+| _count_rec
 
 # all of a + b
 #
@@ -180,7 +179,7 @@ echo "Log record counts ..." | tee -a $seq.full
 for i in a b c merge-mv
 do
     $PCP_ECHO_PROG $PCP_ECHO_N "$i: ""$PCP_ECHO_C"
-    ( echo; echo "=== $i ===" ) >>$seq.full
+    ( echo; echo "=== $i ===" ) >>$seq_full
     pmdumplog -m $tmp.$i \
     | tee -a $seq.full \
     | _count_rec
@@ -195,7 +194,7 @@ echo "Log record counts per merged volume ..." | tee -a $seq.full
 for vol in `echo $tmp.merge-mv.[0-9]* | sed -e "s;$tmp\\.merge-mv\\.\\([0-9]*\\)\\.x;\\1;g"`
 do
     $PCP_ECHO_PROG $PCP_ECHO_N "volume $vol: ""$PCP_ECHO_C"
-    ( echo; echo "=== volume $vol ===" ) >>$seq.full
+    ( echo; echo "=== volume $vol ===" ) >>$seq_full
     mv $tmp.merge-mv.$vol.x $tmp.merge-mv.$vol
     pmdumplog -m $tmp.merge-mv \
     | tee -a $seq.full \

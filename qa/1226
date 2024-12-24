@@ -22,12 +22,12 @@ fi
 
 _cleanup()
 {
-    echo "_cleanup: ..." >>$seq.full
+    echo "_cleanup: ..." >>$seq_full
     cd $here
-    $sudo pmiectl -f -c default destroy localhost >>$seq.full 2>&1
-    $sudo pmiectl -a -f -c pmfind destroy localhost >>$seq.full 2>&1
+    $sudo pmiectl -f -c default destroy localhost >>$seq_full 2>&1
+    $sudo pmiectl -a -f -c pmfind destroy localhost >>$seq_full 2>&1
     pmiectl status localhost >$tmp.tmp 2>&1
-    cat $tmp.tmp >>$seq.full
+    cat $tmp.tmp >>$seq_full
     if grep 'localhost not defined in any pmie control file' $tmp.tmp >/dev/null
     then
 	# all good
@@ -36,8 +36,8 @@ _cleanup()
 	# really make sure any errant pmie we started will be stopped
 	#
 	export PCPQA_KILL_SIGNAL=KILL
-	$sudo pmiectl -f -c default destroy localhost >>$seq.full 2>&1
-	$sudo pmiectl -a -f -c pmfind destroy localhost >>$seq.full 2>&1
+	$sudo pmiectl -f -c default destroy localhost >>$seq_full 2>&1
+	$sudo pmiectl -a -f -c pmfind destroy localhost >>$seq_full 2>&1
     fi
     $sudo rm -rf $tmp $tmp.*
     $sudo rm -rf $PCP_LOG_DIR/pmie/localhost
@@ -46,12 +46,11 @@ _cleanup()
     if [ "$pmie_state" = off ]
     then
 	_change_config pmie off
-	_service pmie stop >>$here/$seq.full 2>&1
+	_service pmie stop >>$seq_full 2>&1
     fi
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _filter()
@@ -101,9 +100,11 @@ $5 ~ /^[0-9][0-9]*$/	{ $5 = "<pid>" }
 
 # Need primary pmie running so pmiectl status output is deterministic
 #
-pmie_state=`_get_config pmie`
+_get_config pmie >$tmp.tmp || _exit 1
+pmie_state=`cat $tmp.tmp`
+rm -f $tmp.tmp
 [ "$pmie_state" = off ] && _change_config pmie on
-_service pmie start >>$here/$seq.full 2>&1
+_service pmie start >>$seq_full 2>&1
 
 # real QA test starts here
 
@@ -124,7 +125,7 @@ pmiectl status localhost 2>&1 | _filter_status
 
 echo | tee -a $seq.full
 echo '== stop' | tee -a $seq.full
-$sudo pmiectl -V -V stop localhost 2>>$seq.full | _filter
+$sudo pmiectl -V -V stop localhost 2>>$seq_full | _filter
 pmsleep 1sec
 echo '== status' | tee -a $seq.full
 pmiectl status 2>&1 | _filter_status
@@ -149,7 +150,7 @@ pmiectl status localhost 2>&1 | _filter_status
 
 echo | tee -a $seq.full
 echo '== destroy' | tee -a $seq.full
-$sudo pmiectl -V -V destroy localhost 2>>$seq.full | _filter
+$sudo pmiectl -V -V destroy localhost 2>>$seq_full | _filter
 echo '== status' | tee -a $seq.full
 pmiectl status 2>&1 | _filter_status
 echo '== status localhost' | tee -a $seq.full

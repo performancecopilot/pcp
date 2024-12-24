@@ -13,6 +13,14 @@ echo "QA output created by $seq"
 _pmdabcc_check
 _bcc_check_ArgString || _notrun "bcc is broken (ArgString bug) on this platform"
 
+# the biolatency BCC module uses kprobes that might attach to kernel symbols
+# that are not present ... add to the list below as required
+#
+for symbol in blk_account_io_start
+do
+    grep " T $symbol\$" /proc/kallsyms >/dev/null || _notrun "kernel does not contain required $symbol symbol"
+done
+
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
 $sudo rm -rf $tmp.* $seq.full

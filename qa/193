@@ -15,7 +15,6 @@ echo "QA output created by $seq"
 . ./common.check
 
 status=0	# success is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "_cleanup; rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 _stop_auto_restart pmcd
@@ -38,21 +37,21 @@ _cleanup()
     _restore_auto_restart pmcd
 }
 
-_service pcp stop >/dev/null 2>&1
+if ! _service pcp stop >/dev/null 2>&1; then _exit 1; fi
 sleep 2
-_service pcp start >/dev/null 2>&1
-_wait_for_pmcd
-_wait_for_pmlogger
+if ! _service pcp start >/dev/null 2>&1; then _exit 1; fi
+_wait_for_pmcd || _exit 1
+_wait_for_pmlogger || _exit 1
 
 # real QA test starts here
-pmstore pmcd.control.debug 1 >>$seq.full 2>&1 # pdu==1
+pmstore pmcd.control.debug 1 >>$seq_full 2>&1 # pdu==1
 src/crashpmcd
 
 # give pmcd a chance to deal with PDUs from crashpmcd
 sleep 2
 
-echo "$PCP_PMCDLOG_PATH" >>$seq.full
-cat $PCP_PMCDLOG_PATH >>$seq.full
+echo "$PCP_PMCDLOG_PATH" >>$seq_full
+cat $PCP_PMCDLOG_PATH >>$seq_full
 _filter_pmcd_log <$PCP_PMCDLOG_PATH \
 | sed \
     -e '1,/ok FD /d' \

@@ -14,7 +14,6 @@ _pmdaopenmetrics_check || _notrun "openmetrics pmda and/or load generator not in
 _have_python266 && _notrun "python load generator does not currently work with python 2.6.6"
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 
 _cleanup()
 {
@@ -31,14 +30,17 @@ HERE=`pwd`
 _pmdaopenmetrics_save_config
 
 # add the example URL with header config entries
-for file in $here/openmetrics/samples/simple_metric.txt
+# need to be a place the user $PCP_USER (pmcd) can read
+#
+for file in simple_metric.txt
 do
-    urlbase=`basename $file .txt | tr .- _`
-    echo 'file://'$file > $PCP_PMDAS_DIR/openmetrics/config.d/$urlbase.url
+    cp $here/openmetrics/samples/$file $tmp.$file
+    urlbase=`basename "$file" .txt | tr .- _`
+    echo 'file://'$tmp.$file >$tmp.tmp
 
     #
     # add a bunch of headers to the URL config to test the parser
-    cat <<EOF >>$PCP_PMDAS_DIR/openmetrics/config.d/$urlbase.url
+    cat <<EOF >>$tmp.tmp
 
 # this is a comment and the next line is blank
 
@@ -66,6 +68,7 @@ FILTER: EXCLUDE METRIC .*
 # unrecognized keyword
 SOMECRAP: unrecognised
 EOF
+    $sudo cp $tmp.tmp $PCP_PMDAS_DIR/openmetrics/config.d/$urlbase.url
 
 done
 
@@ -78,14 +81,14 @@ then
 fi
 
 echo; echo === URL configuration file contains
-sed -e "s|$HERE|QA_DIR|g" < $PCP_PMDAS_DIR/openmetrics/config.d/$urlbase.url
+sed -e "s;$tmp;TMP;g" < $PCP_PMDAS_DIR/openmetrics/config.d/$urlbase.url
 
 echo; echo === pminfo listing. Note openmetrics.simple_metric.metric2 should be filtered out
 names=`pminfo openmetrics | grep -F -v openmetrics.control | LC_COLLATE=POSIX sort` 2>$tmp.err
 if [ -z "$names" ]; then
     echo "FAILED - no openmetrics metrics to show"
 else
-    pminfo -mdf openmetrics >>$here/$seq.full 2>&1
+    pminfo -mdf openmetrics >>$seq_full 2>&1
     if pminfo -mdtTf `pminfo openmetrics | grep -F -v openmetrics.control | LC_COLLATE=POSIX sort` > $tmp.info 2>$tmp.err
     then
 	:
@@ -97,8 +100,8 @@ else
 fi
 
 echo == Note: check $seq.full for log entries for the expected headers
-echo == pmdaopenmetrics LOG == >>$here/$seq.full
-cat $PCP_LOG_DIR/pmcd/openmetrics.log >>$here/$seq.full
+echo == pmdaopenmetrics LOG == >>$seq_full
+cat $PCP_LOG_DIR/pmcd/openmetrics.log >>$seq_full
 
 # cleanup preparing for remove (else error messages here)
 $sudo rm $PCP_PMDAS_DIR/openmetrics/config.d/simple_metric.*

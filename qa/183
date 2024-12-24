@@ -29,7 +29,6 @@ _stop_auto_restart pmcd
 _stop_auto_restart pmlogger
 
 # used to debug qa test (tes:June/2000)
-rm -rf $seq.full
 
 hostname=`hostname`
 
@@ -77,10 +76,10 @@ $newlog
 
 echo
 echo "=== archive exists ==="
-echo "=== archive exists ===" >>$seq.full
+echo "=== archive exists ===" >>$seq_full
 $sudo rm -f $tmp.save.*
 _start_up_pmlogger -c $tmp.config -l $tmp.log $tmp.save >$tmp.err 2>&1
-_wait_for_pmlogger $pid $tmp.log
+_wait_for_pmlogger $pid $tmp.log || _exit 1
 $sudo $newlog -p $pid -l $tmp.pmlogger.log $tmp.save >$tmp.out 2>&1
 ok=true
 for base in $tmp.save $tmp.save-00
@@ -100,37 +99,37 @@ else
     cat $tmp.out
 fi
 $sudo $signal -a -s TERM pmlogger >/dev/null 2>&1
-echo "-- new pmlogger log file --" >>$seq.full
-cat $tmp.pmlogger.log >>$seq.full
+echo "-- new pmlogger log file --" >>$seq_full
+cat $tmp.pmlogger.log >>$seq_full
 
 echo
 echo "=== no non-primary logger ==="
-echo "=== no non-primary logger ===" >>$seq.full
+echo "=== no non-primary logger ===" >>$seq_full
 date >/dev/null &
-_wait_pmlogger_end $pid
+_wait_pmlogger_end $pid || _exit 1
 $sudo $newlog -p $! $tmp 2>&1 | tee -a $seq.full | _filter
 
 echo
 echo "=== no primary logger ==="
-echo "=== no primary logger ===" >>$seq.full
+echo "=== no primary logger ===" >>$seq_full
 $sudo $signal -a -s TERM pmlogger
 pmsleep 1.1
 $sudo $newlog $tmp 2>&1 | tee -a $seq.full | _filter
-_service pcp restart 2>&1 \
+if ! _service pcp restart 2>&1; then _exit 1; fi \
 | _filter_pcp_start \
 | sed -e '/pmlogger not running/d'
-_wait_for_pmcd
-_wait_for_pmlogger
+_wait_for_pmcd || _exit 1
+_wait_for_pmlogger || _exit 1
 
 echo
 echo "=== process is not called pmlogger ==="
-echo "=== process is not called pmlogger ===" >>$seq.full
+echo "=== process is not called pmlogger ===" >>$seq_full
 pmsleep 10 &
 $sudo $newlog -p $! $tmp 2>&1 | tee -a $seq.full | _filter
 
 echo
 echo "=== process is not really pmlogger ==="
-echo "=== process is not really pmlogger ===" >>$seq.full
+echo "=== process is not really pmlogger ===" >>$seq_full
 cp `which sleep` $tmp.pmlogger
 $tmp.pmlogger 10 &
 $sudo $newlog -p $! $tmp 2>&1 | tee -a $seq.full | _filter \
@@ -138,10 +137,10 @@ $sudo $newlog -p $! $tmp 2>&1 | tee -a $seq.full | _filter \
 
 echo
 echo "=== non-primary logger busy ==="
-echo "=== non-primary logger busy ===" >>$seq.full
+echo "=== non-primary logger busy ===" >>$seq_full
 $sudo rm -f $tmp.save.*
 _start_up_pmlogger -L -c /dev/null -l $tmp.log $tmp.save >$tmp.err 2>&1
-_wait_for_pmlogger $pid $tmp.log
+_wait_for_pmlogger $pid $tmp.log || _exit 1
 (( echo "connect $pid"; pmsleep 3.0 ) | pmlc ) &
 $sudo $newlog -p $pid $tmp 2>&1 | tee -a $seq.full | _filter \
 | sed -e "/\.save/s/.*/-- ps line removed --/" -e "s/$pid/PID/"
@@ -149,20 +148,20 @@ $sudo $signal -s TERM $pid
 
 echo
 echo "=== primary logger busy ==="
-echo "=== primary logger busy ===" >>$seq.full
+echo "=== primary logger busy ===" >>$seq_full
 (( echo "connect primary"; sleep 3 ) | pmlc ) &
 $sudo $newlog $tmp 2>&1 | tee -a $seq.full | _filter \
 | sed -e "/\/pmlogger/s/.*/-- ps line removed --/"
 
 echo
 echo "=== no extracted configuration ==="
-echo "=== no extracted configuration ===" >>$seq.full
+echo "=== no extracted configuration ===" >>$seq_full
 $sudo rm -f $tmp.save.*
 _start_up_pmlogger -L -c /dev/null -l $tmp.log $tmp.save >$tmp.err 2>&1
-_wait_for_pmlogger $pid $tmp.log
+_wait_for_pmlogger $pid $tmp.log || _exit 1
 
-echo "pid=$pid" >>$seq.full
-ps $PCP_PS_ALL_FLAGS | grep pmlogger >>$seq.full
+echo "pid=$pid" >>$seq_full
+ps $PCP_PS_ALL_FLAGS | grep pmlogger >>$seq_full
 
 pmsleep 1.1
 $sudo $newlog -p $pid $tmp 2>&1 \
@@ -180,18 +179,18 @@ $sudo $newlog -p $pid $tmp 2>&1 \
 
 $sudo $signal -s TERM $pid
 
-_wait_pmlogger_end $pid
-echo "-- tmp.log --" >>$seq.full
-cat $tmp.log  >>$seq.full
-echo "-- tmp.err --" >>$seq.full
-cat $tmp.err >>$seq.full
-echo "-- pmnewlog --" >>$seq.full
+_wait_pmlogger_end $pid || _exit 1
+echo "-- tmp.log --" >>$seq_full
+cat $tmp.log  >>$seq_full
+echo "-- tmp.err --" >>$seq_full
+cat $tmp.err >>$seq_full
+echo "-- pmnewlog --" >>$seq_full
 
 echo
 echo "=== wrong uid to kill pmlogger ==="
-echo "=== wrong uid to kill pmlogger ===" >>$seq.full
+echo "=== wrong uid to kill pmlogger ===" >>$seq_full
 
-echo "=== initial pmloggers ===" >>$seq.full
+echo "=== initial pmloggers ===" >>$seq_full
 # root     29697     1  0 10:45 pts/1    00:00:00 pmlogger -P -c config.default 20101021.10.45
 ps $PCP_PS_ALL_FLAGS \
 | grep '[p]mlogger' \
@@ -199,20 +198,20 @@ ps $PCP_PS_ALL_FLAGS \
 | grep -v sudo \
 | $PCP_AWK_PROG '
 $1 == "root"	{ print $2 }' >$tmp.old
-cat $tmp.old >>$seq.full
+cat $tmp.old >>$seq_full
 
 $sudo rm -f $tmp.save.*
 _start_up_pmlogger -L -c $tmp.config -l $tmp.log $tmp.save >$tmp.err 2>&1
 pmsleep 1.1
 
-echo "=== final pmloggers ===" >>$seq.full
+echo "=== final pmloggers ===" >>$seq_full
 ps $PCP_PS_ALL_FLAGS \
 | grep '[p]mlogger' \
 | tee -a $seq.full \
 | grep -v sudo \
 | $PCP_AWK_PROG '
 $1 == "root"	{ print $2 }' >$tmp.new
-cat $tmp.new >>$seq.full
+cat $tmp.new >>$seq_full
 
 #for pid in `cat $tmp.new`
 #do
@@ -224,7 +223,7 @@ cat $tmp.new >>$seq.full
 #    fi
 #done
 
-echo "target pmlogger pid=$pid" >>$seq.full
+echo "target pmlogger pid=$pid" >>$seq_full
 pmsleep 1.1
 
 $newlog -p $pid $tmp 2>&1 \

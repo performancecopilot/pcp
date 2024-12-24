@@ -17,13 +17,12 @@ signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
-rm -f $seq.full
 
 _reset()
 {
     pmstore sample.control -1 > /dev/null
     $sudo $signal -a -s HUP pmcd
-    _wait_for_pmcd
+    _wait_for_pmcd || _exit 1
 }
 
 
@@ -156,7 +155,7 @@ _test_pmval()
 {
     _metric=$1
     pmval -s$num_samples sample.wrap.$_metric |
-    sed -e 's/!/?/' 
+    sed -e 's/!/?/'
 }
 
 _wrap_off()
@@ -195,12 +194,12 @@ End-of-File
 
 metric="long"
 echo "--- Testing pmval ---"
-echo "--- Testing pmval ---" >> $seq.full
+echo "--- Testing pmval ---" >> $seq_full
 _reset
 _wrap_off
-_test_pmval $metric | _check_wrap_off 
+_test_pmval $metric | _check_wrap_off
 _wrap_on
-echo "-----------------------" >> $seq.full
+echo "-----------------------" >> $seq_full
 _test_pmval $metric | _check_wrap_on
 
 # success, all done

@@ -33,7 +33,6 @@ _cleanup()
 }
 
 status=0	# success is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # borrowed (in part) from _filter_pmlogger_log
@@ -79,7 +78,7 @@ End-of-File
 echo "#!/bin/sh" >$tmp.foo.sh
 echo "echo foo" >>$tmp.foo.sh
 chmod 755 $tmp.foo.sh
-echo "foo.sh -> \"$($tmp.foo.sh)\"" >>$here/$seq.full
+echo "foo.sh -> \"$($tmp.foo.sh)\"" >>$seq_full
 
 # real QA test starts here
 
@@ -161,7 +160,7 @@ End-of-File
 s@.*/@@
 p
 }'`
-	echo "base=$base" >>$here/$seq.full
+	echo "base=$base" >>$seq_full
     fi
     _filter <$tmp.log | _filter_check
     echo "--- $edir contents ---" | _filter

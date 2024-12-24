@@ -21,7 +21,7 @@ _get_libpcp_config
 target="-h localhost"
 $unix_domain_sockets && target="-h unix:"
 
-rm -f $seq.out $seq.full
+rm -f $seq.out
 test -f $seq.out.$PCP_PLATFORM || _notrun "No validated output for $PCP_PLATFORM"
 ln $seq.out.$PCP_PLATFORM $seq.out
 
@@ -37,7 +37,7 @@ _filter_pmids()
 	-e 's/\[60\.9]/[INDOM]/g'
 }
 
-_proc_filter() 
+_proc_filter()
 {
     input=$1
 
@@ -53,7 +53,7 @@ _proc_filter()
 	return
     fi
 
-    echo "+++ start proc_filter $1 +++" >>$seq.full
+    echo "+++ start proc_filter $1 +++" >>$seq_full
     cat $input \
     | tee -a $seq.full \
     | sed \
@@ -89,12 +89,12 @@ s/value \[.*\]/value BINARYDATA/
 					{ print }' \
     | _filter_pmids
 
-    echo "+++ end proc_filter $1 +++" >>$seq.full
+    echo "+++ end proc_filter $1 +++" >>$seq_full
 }
 
 # real QA test starts here
 
-echo "=== pminfo -F output ===" >$seq.full
+echo "=== pminfo -F output ===" >$seq_full
 
 # try fetching all proc metrics
 # cull out the not supported msg component
@@ -119,9 +119,9 @@ src/proc_test $target \
 	> $tmp.out 2>&1
 code=$?
 
-echo >>$seq.full
-echo "=== src/proc_test output ===" >>$seq.full
-cat $tmp.out >>$seq.full
+echo >>$seq_full
+echo "=== src/proc_test output ===" >>$seq_full
+cat $tmp.out >>$seq_full
 
 _proc_filter $tmp.out
 

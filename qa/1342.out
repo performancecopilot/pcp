@@ -3,7 +3,7 @@ QA output created by 1342
 === openmetrics agent installation ===
 
 === URL configuration file contains
-file://QA_DIR/openmetrics/samples/simple_metric.txt
+file://TMP.simple_metric.txt
 
 # this is a comment and the next line is blank
 

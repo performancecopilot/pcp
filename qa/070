@@ -1,6 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 070
-# tests flags options in template.c 
+# tests flags options in template.c
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -61,10 +61,10 @@ _myprog -U
 _myprog -Z
 _myprog -h $remote -D -n
 _myprog -b
-_myprog -a -h $remote -D 1 
+_myprog -a -h $remote -D 1
 _myprog -h $remote -n davenamespace
 _myprog -a hoges.arh -f -l
 _myprog -h hoges -l
-_myprog -h hoges -l -n 
+_myprog -h hoges -l -n
 
 _cleanup

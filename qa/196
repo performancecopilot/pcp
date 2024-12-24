@@ -69,7 +69,7 @@ else
     exit
 fi
 
-_wait_for_pmcd 20 ptg-gate
+_wait_for_pmcd 20 ptg-gate || _exit 1
 
 metric=pmcd.control.debug
 echo "Test that new pmcd is OK..."

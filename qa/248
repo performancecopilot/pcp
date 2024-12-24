@@ -13,7 +13,6 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 
-rm -f $seq.full
 
 status=1	# failure by default
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15

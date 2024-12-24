@@ -1,4 +1,4 @@
-#! /bin/sh 
+#! /bin/sh
 # PCP QA Test No. 252
 # pmlogger with its new formats for -s and -T stopping conditions
 #
@@ -48,7 +48,7 @@ _num_recs()
 _test_sample_size()
 {
   size_arg=$1
-  $pmlogger -s $size_arg -c $tmp.config -l $tmp.log $tmp 
+  $pmlogger -s $size_arg -c $tmp.config -l $tmp.log $tmp
 
   _num_recs
   echo "Expected log sample size: $size_arg"
@@ -60,7 +60,7 @@ _test_file_size_old()
 {
   size_arg=$1
   num_bytes=$2	# bytes version of size_arg
-  $pmlogger -s $size_arg -c $tmp.config -l $tmp.log $tmp 
+  $pmlogger -s $size_arg -c $tmp.config -l $tmp.log $tmp
   if [ -f $tmp.0 ]
   then
     actual_size=`ls -l $tmp.0 | $PCP_AWK_PROG ' {print $5} '`
@@ -84,7 +84,7 @@ _test_file_size()
 {
   size_arg=$1
   num_bytes=$2	# bytes version of size_arg
-  $pmlogger -r -s $size_arg -c $tmp.config -l $tmp.log $tmp 
+  $pmlogger -r -s $size_arg -c $tmp.config -l $tmp.log $tmp
   if [ -f $tmp.0 ]
   then
     bigger_size=`ls -l $tmp.0 | $PCP_AWK_PROG ' {print $5} '`
@@ -100,18 +100,18 @@ s/\[//p
     bigger_size=-1
   fi
   _num_recs
-  echo "_test_file_size: $1: first pass num_recs=$num_recs" >>$here/$seq.full
-  echo "bigger_size=$bigger_size (epilogue_size=$epilogue_size)" >>$here/$seq.full
-  ls -l $tmp.0 >>$here/$seq.full
-  cat $tmp.log >>$here/$seq.full
+  echo "_test_file_size: $1: first pass num_recs=$num_recs" >>$seq_full
+  echo "bigger_size=$bigger_size (epilogue_size=$epilogue_size)" >>$seq_full
+  ls -l $tmp.0 >>$seq_full
+  cat $tmp.log >>$seq_full
   num_recs=`expr $num_recs - 1`
   if [ $num_recs -gt 0 ]
   then
     _clean_archive
-    $pmlogger -r -s $num_recs -c $tmp.config -l $tmp.log $tmp 
-    echo "_test_file_size: $1: second pass ..." >>$here/$seq.full
-    ls -l $tmp.0 >>$here/$seq.full
-    cat $tmp.log >>$here/$seq.full
+    $pmlogger -r -s $num_recs -c $tmp.config -l $tmp.log $tmp
+    echo "_test_file_size: $1: second pass ..." >>$seq_full
+    ls -l $tmp.0 >>$seq_full
+    cat $tmp.log >>$seq_full
     if [ -f $tmp.0 ]
     then
       smaller_size=`ls -l $tmp.0 | $PCP_AWK_PROG ' {print $5} '`
@@ -148,14 +148,14 @@ _time_me ()
 	if [ $PCP_PLATFORM = linux ]
 	then
 	    # 0.00user 0.00system 0:00.00elapsed 0%CPU (0avgtext+0avgdata 2752maxresident)k
-	    tr ' ' "\n" | $PCP_AWK_PROG '/elapsed$/ { sub("elapsed", "", $1); 
+	    tr ' ' "\n" | $PCP_AWK_PROG '/elapsed$/ { sub("elapsed", "", $1);
 			                               split ($1,tt,"[:.]");
 			                               print (tt[1]*60)+tt[2];}'
 	elif [ $PCP_PLATFORM = darwin -o $PCP_PLATFORM = openbsd ]
 	then
 	    #         0.00 real         0.00 user         0.00 sys
 	    $PCP_AWK_PROG '{print $1}' | sed -e 's/\..*//'
-	else 
+	else
 	    # real        0.0
 	    # user        0.0
 	    # sys         0.0

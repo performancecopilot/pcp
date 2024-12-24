@@ -41,7 +41,7 @@ _filter()
 
 _remove_rebuild()
 {
-    rm -f $1/Rebuild 
+    rm -f $1/Rebuild
     if [ -f $1/Xlate-irix-names ]
     then
 	rm -f $1/Xlate-irix-names

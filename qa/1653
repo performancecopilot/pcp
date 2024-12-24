@@ -27,7 +27,6 @@ _cleanup()
 }
 
 status=0	# success is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 userid=`id -u`
@@ -92,7 +91,7 @@ do
 	"s,^args.*,args=\"-U root -r ${ROOTPATH}\","  \
 	Install
     $sudo ./Install 2>&1
-    echo $dataset >> $here/$seq.full
+    echo $dataset >> $seq_full
     pminfo -dfFl denki \
 	    | tee -a $here/$seq.full \
 	    | $here/src/sortinst -v \

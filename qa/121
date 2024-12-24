@@ -13,15 +13,13 @@ echo "QA output created by $seq"
 . ./common.check
 
 status=0	# success is the default!
-$sudo rm -rf $tmp.*
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
-rm -f $seq.full
 
 # real QA test starts here
 pmlogconf $tmp.in >/dev/null 2>&1
-echo "--- default config ---" >>$seq.full
-cat $tmp.in >>$seq.full
+echo "--- default config ---" >>$seq_full
+cat $tmp.in >>$seq_full
 cp $tmp.in $seq.full.in
 
 # strip comments, access control, empty lines and then strip the groups:
@@ -51,22 +49,22 @@ state == 1 && /^#----/	{ state = 0; next }
 state == 2 && /^#\+ memory\/swap/{ state = 1; next }
 state == 0		{ print }'
 cp $tmp.tmp $tmp.in
-echo >>$seq.full
-echo "--- culled and stripped config ---" >>$seq.full
-cat $tmp.in >>$seq.full
+echo >>$seq_full
+echo "--- culled and stripped config ---" >>$seq_full
+cat $tmp.in >>$seq_full
 cp $tmp.in $seq.full.cull
 
 # now process again ... the diffs should be small
 #
-echo >>$seq.full
-echo "--- pmlogconf ---" >>$seq.full
-( echo q; echo y ) | pmlogconf -v $tmp.in >>$seq.full 2>&1
+echo >>$seq_full
+echo "--- pmlogconf ---" >>$seq_full
+( echo q; echo y ) | pmlogconf -v $tmp.in >>$seq_full 2>&1
 
 grep Error: $seq.full
 
-echo >>$seq.full
-echo "--- final config ---" >>$seq.full
-cat $tmp.in >>$seq.full
+echo >>$seq_full
+echo "--- final config ---" >>$seq_full
+cat $tmp.in >>$seq_full
 cp $tmp.in $seq.full.out
 
 echo "Expect few differences ..."

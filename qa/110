@@ -81,33 +81,32 @@ _filter()
 
 _full()
 {
-    echo "--- pmcd.conf ---" >>$here/$seq.full
-    cat $PCP_PMCDCONF_PATH >>$here/$seq.full
-    echo "--- pmcd.log ---" >>$here/$seq.full
-    cat $PCP_PMCDLOG_PATH >>$here/$seq.full
-    echo "--- root.log ---" >>$here/$seq.full
+    echo "--- pmcd.conf ---" >>$seq_full
+    cat $PCP_PMCDCONF_PATH >>$seq_full
+    echo "--- pmcd.log ---" >>$seq_full
+    cat $PCP_PMCDLOG_PATH >>$seq_full
+    echo "--- root.log ---" >>$seq_full
     if [ -f $ROOT_LOG_PATH ]
     then
-	cat $ROOT_LOG_PATH >>$here/$seq.full
+	cat $ROOT_LOG_PATH >>$seq_full
     else
-	echo "$ROOT_LOG_PATH: file not found" >>$here/$seq.full
+	echo "$ROOT_LOG_PATH: file not found" >>$seq_full
     fi
-    echo "--- simple.log ---" >>$here/$seq.full
+    echo "--- simple.log ---" >>$seq_full
     if [ -f $PMDA_LOG_PATH ]
     then
-	cat $PMDA_LOG_PATH >>$here/$seq.full
+	cat $PMDA_LOG_PATH >>$seq_full
     else
-	echo "$PMDA_LOG_PATH: file not found" >>$here/$seq.full
+	echo "$PMDA_LOG_PATH: file not found" >>$seq_full
     fi
-    echo >>$here/$seq.full
+    echo >>$seq_full
 }
 
-rm -f $seq.full
 
 # pmlogger may get confused by pmcd reconfig ... safest to stop it
 # first, and restart it in cleanup()
 #
-_service pmlogger stop >>$here/$seq.full
+if ! _service pmlogger stop >>$seq_full; then _exit 1; fi
 
 # real QA test starts here
 home=$PCP_PMDAS_DIR
@@ -139,7 +138,7 @@ $sudo ./Remove >/dev/null 2>&1
 
 echo
 echo "=== pipe daemon agent ==="
-echo "=== pipe daemon agent ===" >>$here/$seq.full
+echo "=== pipe daemon agent ===" >>$seq_full
 $sudo ./Remove >$tmp.out 2>&1
 $sudo rm -f $PMDA_LOG_PATH
 echo 'daemon
@@ -157,23 +156,23 @@ fi
 
 echo
 echo "=== Unix socket daemon agent ==="
-echo "=== Unix socket daemon agent ===" >>$here/$seq.full
+echo "=== Unix socket daemon agent ===" >>$seq_full
 $sudo ./Remove >$tmp.out 2>&1
 echo 'daemon
 socket
 Unix
 '"$tmp.fifo-1" | $sudo ./Install -e >>$tmp.out 2>&1
-echo "+++ fifo-1 PMDA log +++" >>$here/$seq.full
-cat $PMDA_LOG_PATH >>$here/$seq.full
-ls -ld "$tmp.fifo-1" `dirname "$tmp.fifo-1"` >>$here/$seq.full
+echo "+++ fifo-1 PMDA log +++" >>$seq_full
+cat $PMDA_LOG_PATH >>$seq_full
+ls -ld "$tmp.fifo-1" `dirname "$tmp.fifo-1"` >>$seq_full
 $sudo rm -f $PMDA_LOG_PATH
 echo 'daemon
 socket
 Unix
 '"$tmp.fifo-2" | $sudo ./Install -e >>$tmp.out 2>&1
-echo "+++ fifo-2 PMDA log +++" >>$here/$seq.full
-cat $PMDA_LOG_PATH >>$here/$seq.full
-ls -ld "$tmp.fifo-2" `dirname "$tmp.fifo-2"` >>$here/$seq.full
+echo "+++ fifo-2 PMDA log +++" >>$seq_full
+cat $PMDA_LOG_PATH >>$seq_full
+ls -ld "$tmp.fifo-2" `dirname "$tmp.fifo-2"` >>$seq_full
 _full
 
 _filter <$tmp.out
@@ -187,7 +186,7 @@ fi
 
 echo
 echo "=== Internet socket daemon agent ==="
-echo "=== Internet socket daemon agent ===" >>$here/$seq.full
+echo "=== Internet socket daemon agent ===" >>$seq_full
 $sudo ./Remove >$tmp.out 2>&1
 
 # pick a tcp port that is not in use
@@ -225,7 +224,7 @@ fi
 
 echo
 echo "=== dso agent ==="
-echo "=== dso agent ===" >>$here/$seq.full
+echo "=== dso agent ===" >>$seq_full
 $sudo ./Remove >$tmp.out 2>&1
 echo dso | $sudo ./Install -e >>$tmp.out 2>&1
 $sudo rm -f $PMDA_LOG_PATH

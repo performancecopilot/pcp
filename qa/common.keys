@@ -26,8 +26,8 @@ _key_server_cluster_3nodes_start()
     key_server_node1_port=`_find_free_port`
     $key_server --port $key_server_node1_port --save "" --cluster-enabled yes --cluster-config-file $tmp.keys1.cluster.conf > $tmp.keys1.out 2>&1 &
     __key_server_node1_pid=$!
-    echo "key_server_node1_port=$key_server_node1_port" >>$seq.full
-    echo "__key_server_node1_pid=$__key_server_node1_pid" >>$seq.full
+    echo "key_server_node1_port=$key_server_node1_port" >>$seq_full
+    echo "__key_server_node1_pid=$__key_server_node1_pid" >>$seq_full
     _wait_for_key_server $key_server_node1_port
     $keys_cli -p $key_server_node1_port ping
     $keys_cli -p $key_server_node1_port flushall
@@ -36,8 +36,8 @@ _key_server_cluster_3nodes_start()
     key_server_node2_port=`_find_free_port`
     $key_server --port $key_server_node2_port --save "" --cluster-enabled yes --cluster-config-file $tmp.keys2.cluster.conf > $tmp.keys2.out 2>&1 &
     __key_server_node2_pid=$!
-    echo "key_server_node2_port=$key_server_node2_port" >>$seq.full
-    echo "__key_server_node2_pid=$__key_server_node2_pid" >>$seq.full
+    echo "key_server_node2_port=$key_server_node2_port" >>$seq_full
+    echo "__key_server_node2_pid=$__key_server_node2_pid" >>$seq_full
     _wait_for_key_server $key_server_node2_port
     $keys_cli -p $key_server_node2_port ping
     $keys_cli -p $key_server_node2_port flushall
@@ -46,8 +46,8 @@ _key_server_cluster_3nodes_start()
     key_server_node3_port=`_find_free_port`
     $key_server --port $key_server_node3_port --save "" --cluster-enabled yes --cluster-config-file $tmp.keys3.cluster.conf > $tmp.keys3.out 2>&1 &
     __key_server_node3_pid=$!
-    echo "key_server_node3_port=$key_server_node3_port" >>$seq.full
-    echo "__key_server_node3_pid=$__key_server_node3_pid" >>$seq.full
+    echo "key_server_node3_port=$key_server_node3_port" >>$seq_full
+    echo "__key_server_node3_pid=$__key_server_node3_pid" >>$seq_full
     _wait_for_key_server $key_server_node3_port
     $keys_cli -p $key_server_node3_port ping
     $keys_cli -p $key_server_node3_port flushall
@@ -57,7 +57,7 @@ _key_server_cluster_3nodes_start()
     # --cluster-yes is not supported <= 5.0.3 (RHEL 7), use workaround instead
     yes yes | $keys_cli --cluster create 127.0.0.1:$key_server_node1_port 127.0.0.1:$key_server_node2_port 127.0.0.1:$key_server_node3_port \
     | sed 's/\x1b\[[0-9;]*m//g' \
-    | tee -a $seq.full \
+    | tee -a $seq_full \
     | grep '[OK]'
 
     echo
@@ -86,20 +86,20 @@ _key_server_cluster_3nodes_start()
 
 _key_server_cluster_3nodes_stop()
 {
-    printf "\n== Key server Node 1 keys:\n" >> $seq.full
-    $keys_cli -p $key_server_node1_port keys '*' >> $seq.full
-    printf "\n== Key server Node 1 log:\n" >> $seq.full
-    cat $tmp.keys1.out >> $seq.full
+    printf "\n== Key server Node 1 keys:\n" >> $seq_full
+    $keys_cli -p $key_server_node1_port keys '*' >> $seq_full
+    printf "\n== Key server Node 1 log:\n" >> $seq_full
+    cat $tmp.keys1.out >> $seq_full
 
-    printf "\n== Key server Node 2 keys:\n" >> $seq.full
-    $keys_cli -p $key_server_node2_port keys '*' >> $seq.full
-    printf "\n== Key server Node 2 log:\n" >> $seq.full
-    cat $tmp.keys2.out >> $seq.full
+    printf "\n== Key server Node 2 keys:\n" >> $seq_full
+    $keys_cli -p $key_server_node2_port keys '*' >> $seq_full
+    printf "\n== Key server Node 2 log:\n" >> $seq_full
+    cat $tmp.keys2.out >> $seq_full
 
-    printf "\n== Key server Node 3 keys:\n" >> $seq.full
-    $keys_cli -p $key_server_node3_port keys '*' >> $seq.full
-    printf "\n== Key server Node 3 log:\n" >> $seq.full
-    cat $tmp.keys3.out >> $seq.full
+    printf "\n== Key server Node 3 keys:\n" >> $seq_full
+    $keys_cli -p $key_server_node3_port keys '*' >> $seq_full
+    printf "\n== Key server Node 3 log:\n" >> $seq_full
+    cat $tmp.keys3.out >> $seq_full
 
     [ -n "$key_server_node1_port" ] && $keys_cli -p $key_server_node1_port shutdown
     [ -n "$key_server_node2_port" ] && $keys_cli -p $key_server_node2_port shutdown

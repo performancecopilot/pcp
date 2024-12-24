@@ -119,7 +119,7 @@ sample.bin ["bin-300" "bin-700" "bin-100"]		# out of order
 sample.drift
 sample.mirage ["m-00" "m-13" "m-17" "m-24"]		# in order
 End-of-file
-    
+
 pmlogextract -c $tmp.config archives/mirage $tmp.arch >$tmp.out 2>$tmp.err
 _check_output pmlogextract
 # dump descriptors
@@ -236,12 +236,12 @@ then
     echo "irix.kernel.all.load the same ... good"
 else
     echo "irix.kernel.all.load different ... BAD"
-    echo "--- filtered values from original archive ---" >>$seq.full
-    cat $tmp.m >>$seq.full
-    pmlogcheck -v archives/rattle >>$seq.full 2>&1
-    echo "--- filtered values from extracted archive ---" >>$seq.full
-    cat $tmp.a >>$seq.full
-    pmlogcheck -v $tmp.arch >>$seq.full 2>&1
+    echo "--- filtered values from original archive ---" >>$seq_full
+    cat $tmp.m >>$seq_full
+    pmlogcheck -v archives/rattle >>$seq_full 2>&1
+    echo "--- filtered values from extracted archive ---" >>$seq_full
+    cat $tmp.a >>$seq_full
+    pmlogcheck -v $tmp.arch >>$seq_full 2>&1
 fi
 
 

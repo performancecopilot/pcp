@@ -51,7 +51,7 @@ _doit()
 
 }
 
-rm -f $seq.out $seq.full
+rm -f $seq.out
 if [ $PCP_PLATFORM = linux ]
 then
     # proc metrics may not be available
@@ -100,4 +100,4 @@ then
     echo
 fi
 
-_wait_for_pmcd
+_wait_for_pmcd || _exit 1

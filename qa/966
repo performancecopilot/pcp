@@ -27,7 +27,6 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _save_config $PCP_TLSCONF_PATH
@@ -49,32 +48,32 @@ _filter_tls()
 _setup_tls
 
 _service pmcd start 2>&1 | _filter_pcp_start
-_wait_for_pmcd
+_wait_for_pmcd || _exit 1
 
 echo
-echo "checking client, secure connection.  should pass..." | tee -a $seq.full
+echo "checking client, secure connection.  should pass..." | tee -a $seq_full
 export PCP_SECURE_SOCKETS=1
-yes | pminfo -h $hostname -f hinv.ncpu 2>&1 | tee -a $seq.full | _filter_tls
+yes | pminfo -h $hostname -f hinv.ncpu 2>&1 | tee -a $seq_full | _filter_tls
 
 # verify that pmcd still starts and accepts insecure connections
 # when the TLS configuration is corrupted / partially missing.
 #
 echo
-echo "checking client, bad secure config.  should fail..." | tee -a $seq.full
+echo "checking client, bad secure config.  should fail..." | tee -a $seq_full
 cp $PCP_TLSCONF_PATH $tmp.tls.conf
 sed -i -e 's,^tls-cert-file = .*,tls-cert-file = /dev/null,g' $tmp.tls.conf
 $sudo cp $tmp.tls.conf $PCP_TLSCONF_PATH
-yes | pminfo -h $hostname -f hinv.ncpu 2>&1 | tee -a $seq.full | _filter_tls
+yes | pminfo -h $hostname -f hinv.ncpu 2>&1 | tee -a $seq_full | _filter_tls
 
 echo
 echo "checking client, insecure connection.  should pass..."
 unset PCP_SECURE_SOCKETS
-yes | pminfo -h $hostname -f hinv.ncpu 2>&1 | tee -a $seq.full | _filter_tls
+yes | pminfo -h $hostname -f hinv.ncpu 2>&1 | tee -a $seq_full | _filter_tls
 
 echo
 echo "checking client, connecting via 'local:'.  should pass..."
 unset PCP_SECURE_SOCKETS
-yes | pminfo -h local: -f hinv.ncpu 2>&1 | tee -a $seq.full | _filter_tls
+yes | pminfo -h local: -f hinv.ncpu 2>&1 | tee -a $seq_full | _filter_tls
 
 # success, all done
 status=0

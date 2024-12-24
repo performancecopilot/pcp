@@ -49,8 +49,7 @@ trap "_cleanup; cd $here; $sudo rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 
 debug=`pmprobe -v pmcd.control.debug | $PCP_AWK_PROG '{ print $3 }'`
 
-rm -rf $tmp $seq.full
-mkdir $tmp
+mkdir $tmp || _exit 1
 chmod ugo+w $tmp
 cd $tmp
 
@@ -96,7 +95,7 @@ do
 	status=1
 	exit
     fi
-    echo "iter $i: pmlogger exited after `cat $tmp.done` pmsleep delays" >>$here/$seq.full
+    echo "iter $i: pmlogger exited after `cat $tmp.done` pmsleep delays" >>$seq_full
     [ $i -eq 4 ] && break
     echo "restart pmlogger ..."
     _kill_my_pmloggers
@@ -130,7 +129,7 @@ fi
 
 echo
 echo "merge 'em together ..."
-ls -l >>$here/$seq.full
+ls -l >>$seq_full
 $sudo $PCP_BINADM_DIR/pmlogextract *.meta* out
 pmval -U out pmcd.control.debug \
 | tee -a $here/$seq.full \

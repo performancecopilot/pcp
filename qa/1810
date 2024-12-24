@@ -26,7 +26,6 @@ _pmdabpf_require_libbpf_version 1 0
 
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
-$sudo rm -rf $tmp.* $seq.full
 
 cat <<EOF >$tmp.conf
 # Installed by PCP QA test $seq on `date`
@@ -55,7 +54,7 @@ _pmdabpf_wait_for_metric
 # we were using here
 #
 tail /dev/zero >$tmp.oom.log 2>&1 &
-wait 2>>$here/$seq.full
+wait 2>>$seq_full
 
 echo "=== report metric values for fcomm ==="
 pminfo -dfmtT bpf.oomkill.fcomm 2>&1 | tee -a $here/$seq.full \
@@ -79,9 +78,9 @@ pminfo -dfmtT bpf.oomkill.pages 2>&1 | tee -a $here/$seq.full \
 
 _pmdabpf_remove
 
-echo >>$here/$seq.full
-echo "=== oom log ===" >>$here/$seq.full
-cat $tmp.oom.log >>$here/$seq.full
+echo >>$seq_full
+echo "=== oom log ===" >>$seq_full
+cat $tmp.oom.log >>$seq_full
 
 
 status=0

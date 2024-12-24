@@ -13,7 +13,7 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-rm -f $seq.out $seq.full
+rm -f $seq.out
 endian=`_get_endian`
 ln $seq.out.$endian $seq.out
 
@@ -65,10 +65,10 @@ s/ / server_x=/p
 q
 }'`
 
-echo >>$seq.full
-echo "================" >>$seq.full
-echo "server=$server" >>$seq.full
-echo "server_x=$server_x" >>$seq.full
+echo >>$seq_full
+echo "================" >>$seq_full
+echo "server=$server" >>$seq_full
+echo "server_x=$server_x" >>$seq_full
 
 if [ -z "$server" -o -z "$server_x" ]
 then
@@ -82,8 +82,8 @@ s/.*CLIENTPID /client=/
 s/ / client_x=/p
 q
 }'`
-echo "client=$client" >>$seq.full
-echo "client_x=$client_x" >>$seq.full
+echo "client=$client" >>$seq_full
+echo "client_x=$client_x" >>$seq_full
 
 if [ -z "$client" -o -z "$client_x" ]
 then
@@ -251,9 +251,9 @@ s/482d5a54   455245/545a2d48 45524500/
 /pmResult/ && fix > 0	{ fix--; $6 = "NOW"; $7 = "TODAY" }
 			{ print }'
 
-echo >>$seq.full
-echo "==== shell's stderr ===========" >>$seq.full
-cat $tmp.err >>$seq.full
+echo >>$seq_full
+echo "==== shell's stderr ===========" >>$seq_full
+cat $tmp.err >>$seq_full
 
 # success, all done
 status=0

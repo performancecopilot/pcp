@@ -22,9 +22,9 @@ fi
 
 _cleanup()
 {
-    echo "_cleanup: ..." >>$seq.full
+    echo "_cleanup: ..." >>$seq_full
     cd $here
-    $sudo pmiectl -af -c pmfind destroy localhost >>$seq.full 2>&1
+    $sudo pmiectl -af -c pmfind destroy localhost >>$seq_full 2>&1
     $sudo rm -rf $PCP_ETC_DIR/pcp/pmie/class.d/$seq.?
     $sudo rm -rf $tmp $tmp.*
     for dir in $seq $seq-a $seq-b $seq-c
@@ -34,12 +34,11 @@ _cleanup()
     if [ "$pmie_state" = off ]
     then
 	_change_config pmie off
-	_service pmie stop >>$here/$seq.full 2>&1
+	_service pmie stop >>$seq_full 2>&1
     fi
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 localhost=`hostname`
@@ -105,7 +104,7 @@ _filter_pmie()
 	pmiectl -V status
 	return
     fi
-    echo "=== $1 ===" >>$here/$seq.full
+    echo "=== $1 ===" >>$seq_full
     cat "$1" \
     | tee -a $here/$seq.full \
     | sed  \
@@ -136,9 +135,11 @@ End-of-File
 
 # Need primary pmie running so pmiectl status output is deterministic
 #
-pmie_state=`_get_config pmie`
+_get_config pmie >$tmp.tmp || _exit 1
+pmie_state=`cat $tmp.tmp`
+rm -f $tmp.tmp
 [ "$pmie_state" = off ] && _change_config pmie on
-_service pmie start >>$here/$seq.full 2>&1
+_service pmie start >>$seq_full 2>&1
 
 # real QA test starts here
 echo '== -NV expect pmfind class to be used' | tee -a $seq.full
@@ -269,9 +270,9 @@ pmiectl -V status 2>&1 | _filter_status
 grep sample.lights $PCP_LOG_DIR/pmie/$seq/$seq.config
 pmsleep 0.5		# give pmie a chance to warm up
 _filter_pmie $PCP_LOG_DIR/pmie/$seq/pmie.log | sort | uniq
-echo "--- start pmie config file ---" >>$seq.full
-cat $PCP_LOG_DIR/pmie/$seq/$seq.config >>$seq.full
-echo "--- end pmie config file ---" >>$seq.full
+echo "--- start pmie config file ---" >>$seq_full
+cat $PCP_LOG_DIR/pmie/$seq/$seq.config >>$seq_full
+echo "--- end pmie config file ---" >>$seq_full
 
 cat <<End-of-File >$tmp.policy
 # Installed by PCP QA test $seq on `date`
@@ -299,9 +300,9 @@ do
 done
 pmsleep 0.5		# give pmie a chance to warm up
 _filter_pmie $PCP_LOG_DIR/pmie/$seq-a/pmie.log | sort | uniq
-echo "--- start pmie config file ---" >>$seq.full
-cat $PCP_LOG_DIR/pmie/$seq-a/$seq-a.config >>$seq.full
-echo "--- end pmie config file ---" >>$seq.full
+echo "--- start pmie config file ---" >>$seq_full
+cat $PCP_LOG_DIR/pmie/$seq-a/$seq-a.config >>$seq_full
+echo "--- end pmie config file ---" >>$seq_full
 
 $sudo cp $tmp.policy $PCP_ETC_DIR/pcp/pmie/class.d/$seq.2
 
@@ -316,9 +317,9 @@ do
 done
 pmsleep 0.5		# give pmie a chance to warm up
 _filter_pmie $PCP_LOG_DIR/pmie/$seq-b/pmie.log | sort | uniq
-echo "--- start pmie config file ---" >>$seq.full
-cat $PCP_LOG_DIR/pmie/$seq-b/$seq-b.config >>$seq.full
-echo "--- end pmie config file ---" >>$seq.full
+echo "--- start pmie config file ---" >>$seq_full
+cat $PCP_LOG_DIR/pmie/$seq-b/$seq-b.config >>$seq_full
+echo "--- end pmie config file ---" >>$seq_full
 
 $sudo cp $tmp.policy $PCP_ETC_DIR/pcp/pmie/class.d/$seq.1
 
@@ -333,9 +334,9 @@ do
 done
 pmsleep 0.5		# give pmie a chance to warm up
 _filter_pmie $PCP_LOG_DIR/pmie/$seq-c/pmie.log | sort | uniq
-echo "--- start pmie config file ---" >>$seq.full
-cat $PCP_LOG_DIR/pmie/$seq-c/$seq-c.config >>$seq.full
-echo "--- end pmie config file ---" >>$seq.full
+echo "--- start pmie config file ---" >>$seq_full
+cat $PCP_LOG_DIR/pmie/$seq-c/$seq-c.config >>$seq_full
+echo "--- end pmie config file ---" >>$seq_full
 
 status=0
 exit

@@ -25,7 +25,6 @@ fi
 status=0
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
-rm -f $seq.full
 
 # On Linux mount output looks like
 # /dev/sdb5 on /bozo-0 type ext4 (rw,relatime)
@@ -37,14 +36,14 @@ rm -f $seq.full
 # List of "types" (efs, xfs, ...) needs to match those filesystem types
 # that in the instance domain for the filesys.* metrics.
 #
-echo "-- mount --" >>$seq.full
+echo "-- mount --" >>$seq_full
 filesystems=`mount \
 	     | tee -a $seq.full \
 	     | sed -e 's/[(,)]//g' \
              | $PCP_AWK_PROG '
 $4 == "type" && ($5 == "efs" || $5 == "xfs" || $5 == "ext2" || $5 == "ext3" || $5 == "ext4" || $5 == "btrfs" || $5 == "ffs" || $5 == "vfat") { print $1 }
 $4 == "hfs" || $4 == "ufs" { print $1 }'`
-echo "filesystems=$filesystems" >>$seq.full
+echo "filesystems=$filesystems" >>$seq_full
 
 if [ -z "$filesystems" ]
 then
@@ -53,9 +52,9 @@ then
     exit
 fi
 
-echo "-- df / --" >>$seq.full
+echo "-- df / --" >>$seq_full
 rootdev=`df / | tee -a $seq.full | $PCP_AWK_PROG 'NR == 2 { print $1 }'`
-echo "rootdev=$rootdev" >>$seq.full
+echo "rootdev=$rootdev" >>$seq_full
 if [ -z "$rootdev" ]
 then
     echo "Arrgh, cannot get device for root fs from df(1) ..."
@@ -98,7 +97,7 @@ then
 		;;
 	esac
     fi
-    echo "symroot=$symroot" >>$seq.full
+    echo "symroot=$symroot" >>$seq_full
     rootdev=$symroot
 fi
 
@@ -131,7 +130,7 @@ mount \
 do
     [ ! -L $dev ] && continue
     [ "$dev" = "/dev/root" ] && continue
-    echo "mount device: $dev" >>$seq.full
+    echo "mount device: $dev" >>$seq_full
     if which realpath >/dev/null 2>&1
     then
 	sym=`realpath $dev`
@@ -166,7 +165,7 @@ do
 		;;
 	esac
     fi
-    echo "sym=$sym" >>$seq.full
+    echo "sym=$sym" >>$seq_full
     link=$sym
     [ "$link" != "$dev" ] && echo "s;\"$dev\";$link;" >>$tmp.map
 done
@@ -191,8 +190,8 @@ else
     echo "s;\"$rootdev\";/dev/root;" >>$tmp.map
 fi
 
-echo "-- map --" >>$seq.full
-cat $tmp.map >>$seq.full
+echo "-- map --" >>$seq_full
+cat $tmp.map >>$seq_full
 
 numval=`pmprobe -v filesys.avail 2>/dev/null | $PCP_AWK_PROG '{print $2}'`
 if [ ! -z "$numval" -a "$numval" -gt 0 ]
@@ -204,8 +203,8 @@ else
     free=filesys.free
 fi
 
-echo "-- pcp --" >>$seq.full
-pminfo -f filesys >>$seq.full
+echo "-- pcp --" >>$seq_full
+pminfo -f filesys >>$seq_full
 
 pminfo -f \
     filesys.capacity \
@@ -229,16 +228,16 @@ pminfo -f \
 $1 == "inst" { printf "%s_%s %s\n", metric, $4, $6 }' \
 | LC_COLLATE=POSIX sort > $tmp.1
 
-echo "-- pcp-filtered-1 --" >>$seq.full
-cat $tmp.1 >>$seq.full
+echo "-- pcp-filtered-1 --" >>$seq_full
+cat $tmp.1 >>$seq_full
 
 # map symbolic link names and /dev/root for pcp output
 #
 sed -f $tmp.map $tmp.1 | LC_COLLATE=POSIX sort >$tmp.tmp
 mv $tmp.tmp $tmp.1
 
-echo "-- pcp-filtered-2 --" >>$seq.full
-cat $tmp.1 >>$seq.full
+echo "-- pcp-filtered-2 --" >>$seq_full
+cat $tmp.1 >>$seq_full
 
 (for f in $filesystems
 do
@@ -287,10 +286,10 @@ done) | LC_COLLATE=POSIX sort > $tmp.2
 sed -f $tmp.map $tmp.2 | LC_COLLATE=POSIX sort >$tmp.tmp
 mv $tmp.tmp $tmp.2
 
-echo "-- df -li --" >>$seq.full
-$sudo df -li >>$seq.full 2>&1
-echo "-- df-filtered --" >>$seq.full
-cat $tmp.2 >>$seq.full
+echo "-- df -li --" >>$seq_full
+$sudo df -li >>$seq_full 2>&1
+echo "-- df-filtered --" >>$seq_full
+cat $tmp.2 >>$seq_full
 
 LC_COLLATE=POSIX join -a2 -1 1 $tmp.1 $tmp.2 \
 | $PCP_AWK_PROG '{

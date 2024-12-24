@@ -23,13 +23,12 @@ PMCDLOG=$PCP_LOG_DIR/pmcd/pmcd.log
 pmlogger_do_restore=false
 pmproxy_was_running=false
 [ -f $PCP_RUN_DIR/pmproxy.pid ] && pmproxy_was_running=true
-echo "pmproxy_was_running=$pmproxy_was_running" >>$here/$seq.full
+echo "pmproxy_was_running=$pmproxy_was_running" >>$seq_full
 
 status=0	# success is the default!
 signal=$PCP_BINADM_DIR/pmsignal
 killpid=""
 username=`id -u -n`
-$sudo rm -rf $tmp.* $seq.full
 trap "_cleanup; $sudo rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 _cleanup()
@@ -129,15 +128,15 @@ _filter_pmproxy()
     # end
 }
 
-_service pmproxy stop >>$seq.full 2>&1
-$sudo $signal -a pmproxy >>$seq.full 2>&1
+if ! _service pmproxy stop >>$seq_full 2>&1; then _exit 1; fi
+$sudo $signal -a pmproxy >>$seq_full 2>&1
 
 OLD_PCP_RUN_DIR=$PCP_RUN_DIR
 mkdir -p $tmp.rundir
 export PCP_RUN_DIR=$tmp.rundir
 proxyargs="-Dcontext -U $username -d"
 $PCP_BINADM_DIR/pmproxy $proxyargs -l $tmp.log 2>&1 | _filter_pmproxy
-_wait_for_pmproxy 44322 $tmp.log
+_wait_for_pmproxy 44322 $tmp.log || _exit 1
 
 # real QA test starts here
 export PMPROXY_HOST=localhost
@@ -151,14 +150,14 @@ unset PMPROXY_HOST
 
 sleep 3
 echo "killing pmproxy ..."
-$signal -a pmproxy >>$seq.full 2>&1
+$signal -a pmproxy >>$seq_full 2>&1
 sleep 2
-echo "1st pmproxy log" >$seq.full
-cat $tmp.log >>$seq.full
+echo "1st pmproxy log" >$seq_full
+cat $tmp.log >>$seq_full
 
 echo "re-starting pmproxy ..."
 $PCP_BINADM_DIR/pmproxy $proxyargs -l $tmp.log 2>&1 | _filter_pmproxy
-_wait_for_pmproxy 44322 $tmp.log
+_wait_for_pmproxy 44322 $tmp.log || _exit 1
 
 sleep 4
 
@@ -169,33 +168,33 @@ then
     exit
 fi
 echo "killing pmcd ..." | tee -a $seq.full
-_service pmlogger stop >>$seq.full 2>&1
-_wait_pmlogger_end $primary_logger_pid
-_service pmcd stop >>$seq.full 2>&1
-_wait_pmcd_end
-echo >>$seq.full
-echo "1st pmcd log" >>$seq.full
-cat $PMCDLOG >>$seq.full
+if ! _service pmlogger stop >>$seq_full 2>&1; then _exit 1; fi
+_wait_pmlogger_end $primary_logger_pid || _exit 1
+if ! _service pmcd stop >>$seq_full 2>&1; then _exit 1; fi
+_wait_pmcd_end || _exit 1
+echo >>$seq_full
+echo "1st pmcd log" >>$seq_full
+cat $PMCDLOG >>$seq_full
 
 echo "re-starting pmcd ..." | tee -a $seq.full
 export PCP_RUN_DIR=$OLD_PCP_RUN_DIR
-_service pmcd start >>$seq.full 2>&1
+if ! _service pmcd start >>$seq_full 2>&1; then _exit 1; fi
 _restore_auto_restart pmcd
-_wait_for_pmcd
+_wait_for_pmcd || _exit 1
 
 # need to see the reconnect
 sleep 2
 
-echo >>$seq.full
-echo "2nd pmproxy log" >>$seq.full
-cat $tmp.log >>$seq.full
-echo >>$seq.full
-echo "2nd pmcd log" >>$seq.full
-cat $PMCDLOG >>$seq.full
+echo >>$seq_full
+echo "2nd pmproxy log" >>$seq_full
+cat $tmp.log >>$seq_full
+echo >>$seq_full
+echo "2nd pmcd log" >>$seq_full
+cat $PMCDLOG >>$seq_full
 
-echo >>$seq.full
-echo "pmdumptext output" >>$seq.full
-cat $tmp.out >>$seq.full
+echo >>$seq_full
+echo "pmdumptext output" >>$seq_full
+cat $tmp.out >>$seq_full
 
 _filter <$tmp.out
 

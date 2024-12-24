@@ -22,7 +22,6 @@ _cleanup()
 }
 
 status=0	# success is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 
 _filter_sockets()
 {
@@ -49,7 +48,7 @@ pmdasockets_install()
     echo
     echo "=== sockets agent installation ==="
     $sudo ./Install </dev/null >$tmp.out 2>&1
-    cat $tmp.out >>$here/$seq.full
+    cat $tmp.out >>$seq_full
     # Check sockets metrics have appeared ... X metrics and Y values
     _filter_pmda_install <$tmp.out \
     | sed \
@@ -64,7 +63,7 @@ pmdasockets_install()
 
 _prepare_pmda sockets
 # note: _restore_auto_restart pmcd done in _cleanup_pmda()
-trap "_cleanup_pmda sockets; exit \$status" 0 1 2 3 15
+trap "_cleanup_pmda sockets; _cleanup; exit \$status" 0 1 2 3 15
 
 _stop_auto_restart pmcd
 

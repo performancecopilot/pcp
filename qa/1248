@@ -22,9 +22,9 @@ fi
 
 _cleanup()
 {
-    echo "_cleanup: ..." >>$seq.full
+    echo "_cleanup: ..." >>$seq_full
     cd $here
-    $sudo pmlogctl -af -c pmfind destroy localhost >>$seq.full 2>&1
+    $sudo pmlogctl -af -c pmfind destroy localhost >>$seq_full 2>&1
     $sudo rm -rf $PCP_ETC_DIR/pcp/pmlogger/class.d/$seq.?
     $sudo rm -rf $tmp $tmp.*
     for dir in $seq $seq-a $seq-b $seq-c
@@ -34,7 +34,6 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 localhost=`hostname`
@@ -232,9 +231,9 @@ $sudo pmlogctl -i $seq cond-create localhost 2>&1 | _filter
 pmlogctl -V status 2>&1 | _filter_status
 grep sample.lights $PCP_ARCHIVE_DIR/$seq/$seq.config
 PCP_DERIVED_CONFIG= pmafm $PCP_ARCHIVE_DIR/$seq/Latest pminfo | _filter
-echo "--- start pmlogger config file ---" >>$seq.full
-cat $PCP_ARCHIVE_DIR/$seq/$seq.config >>$seq.full
-echo "--- end pmlogger config file ---" >>$seq.full
+echo "--- start pmlogger config file ---" >>$seq_full
+cat $PCP_ARCHIVE_DIR/$seq/$seq.config >>$seq_full
+echo "--- end pmlogger config file ---" >>$seq_full
 
 cat <<End-of-File >$tmp.policy
 # Installed by PCP QA test $seq on `date`
@@ -262,9 +261,9 @@ do
     PCP_DERIVED_CONFIG= pmafm $PCP_ARCHIVE_DIR/$seq-a/Latest pminfo -v $metric \
     | _filter
 done
-echo "--- start pmlogger config file ---" >>$seq.full
-cat $PCP_ARCHIVE_DIR/$seq-a/$seq-a.config >>$seq.full
-echo "--- end pmlogger config file ---" >>$seq.full
+echo "--- start pmlogger config file ---" >>$seq_full
+cat $PCP_ARCHIVE_DIR/$seq-a/$seq-a.config >>$seq_full
+echo "--- end pmlogger config file ---" >>$seq_full
 
 $sudo cp $tmp.policy $PCP_ETC_DIR/pcp/pmlogger/class.d/$seq.2
 
@@ -279,9 +278,9 @@ do
     PCP_DERIVED_CONFIG= pmafm $PCP_ARCHIVE_DIR/$seq-b/Latest pminfo -v $metric \
     | _filter
 done
-echo "--- start pmlogger config file ---" >>$seq.full
-cat $PCP_ARCHIVE_DIR/$seq-b/$seq-b.config >>$seq.full
-echo "--- end pmlogger config file ---" >>$seq.full
+echo "--- start pmlogger config file ---" >>$seq_full
+cat $PCP_ARCHIVE_DIR/$seq-b/$seq-b.config >>$seq_full
+echo "--- end pmlogger config file ---" >>$seq_full
 
 $sudo cp $tmp.policy $PCP_ETC_DIR/pcp/pmlogger/class.d/$seq.1
 
@@ -296,9 +295,9 @@ do
     PCP_DERIVED_CONFIG= pmafm $PCP_ARCHIVE_DIR/$seq-c/Latest pminfo -v $metric \
     | _filter
 done
-echo "--- start pmlogger config file ---" >>$seq.full
-cat $PCP_ARCHIVE_DIR/$seq-c/$seq-c.config >>$seq.full
-echo "--- end pmlogger config file ---" >>$seq.full
+echo "--- start pmlogger config file ---" >>$seq_full
+cat $PCP_ARCHIVE_DIR/$seq-c/$seq-c.config >>$seq_full
+echo "--- end pmlogger config file ---" >>$seq_full
 
 status=0
 exit

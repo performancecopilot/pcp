@@ -55,20 +55,20 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -f $tmp.* $seq.full
 signal=$PCP_BINADM_DIR/pmsignal
 needclean=false
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _stop_auto_restart pmcd
-pmie_state=`_get_config pmie`
+_get_config pmie >$tmp.tmp 2>&1 || _exit 1
+pmie_state=`cat $tmp.tmp`
 
 lhost=`hostname | sed -e 's/\..*//'`
 host=`_get_fqdn`
 remote=`./getpmcdhosts -n 1 -L 2>$tmp.out`
 rhost=`echo $remote | sed -e 's/\..*//'`
 [ -z "$remote" ] && _notrun `cat $tmp.out`
-echo "remote=$remote" >>$here/$seq.full
+echo "remote=$remote" >>$seq_full
 
 tmpdir=`dirname $tmp`
 
@@ -130,18 +130,18 @@ skip == 0		{ print }
 
 _count_pmies()
 {
-    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mie( |$)' >>$here/$seq.full
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mie( |$)' >>$seq_full
     count=0
-    if [ -d $PCP_TMP_DIR/pmie ] 
+    if [ -d $PCP_TMP_DIR/pmie ]
     then
 	cd $PCP_TMP_DIR/pmie
     else
 	return 0
     fi
 
-    ls -l >>$here/$seq.full
+    ls -l >>$seq_full
     plist=`ls -1`
-    echo "plist=$plist" >>$here/$seq.full
+    echo "plist=$plist" >>$seq_full
     cd $here
 
     for process in $plist
@@ -152,10 +152,10 @@ _count_pmies()
 	    echo "urk, $PCP_TMP_DIR/pmie/$process has no running pmie instance"
 	else
 	    count=`expr $count + 1`
-	    $PCP_PS_PROG -p $process >>$here/$seq.full
+	    $PCP_PS_PROG -p $process >>$seq_full
 	    if which pstree >/dev/null 2>&1
 	    then
-		pstree $pstree_parents -p $process >>$here/$seq.full
+		pstree $pstree_parents -p $process >>$seq_full
 	    fi
 	fi
     done
@@ -204,22 +204,22 @@ pmie_was_running=false
 if [ -f $PCP_RUN_DIR/pmie.pid ]
 then
     pmie_was_running=true
-    echo "Found pmie PID `cat $PCP_RUN_DIR/pmie.pid` running @ start" >>$here/$seq.full
+    echo "Found pmie PID `cat $PCP_RUN_DIR/pmie.pid` running @ start" >>$seq_full
     _stop_auto_restart pmie
-    _service pmie stop >>$here/$seq.full 2>&1
-    _wait_pmie_end
+    if ! _service pmie stop >>$seq_full 2>&1; then _exit 1; fi
+    _wait_pmie_end || _exit 1
 fi
 
 # real QA test starts here
 _save_config $PCP_PMIECONTROL_PATH
 _save_config $PCP_PMCDCONF_PATH
 needclean=true
-$sudo cp $tmp.pmcd.conf $PCP_PMCDCONF_PATH 
+$sudo cp $tmp.pmcd.conf $PCP_PMCDCONF_PATH
 
 $sudo $signal -a -s TERM pmie >/dev/null 2>&1
-_wait_pmie_end
-_change_config pmcd on
-_change_config pmie off
+_wait_pmie_end || _exit 1
+_change_config pmcd on || _exit 1
+_change_config pmie off || _exit 1
 $sudo rm -f $PCP_TMP_DIR/pmie/*
 
 _count_pmies
@@ -227,8 +227,8 @@ echo "pmie count at start of QA testing: $?" | tee -a $here/$seq.full
 echo
 
 echo === check default install operation === | tee -a $here/$seq.full
-_service pmie restart 2>&1 | tee -a $here/$seq.full | _filter_pmie_start
-_wait_for_pmie
+if ! _service pmie restart 2>&1; then _exit 1; fi | tee -a $here/$seq.full | _filter_pmie_start
+_wait_for_pmie || _exit 1
 _count_pmies
 # chkconfig no longer controls start-ability, expect non-zero
 echo "pmie count after chkconfig pmie off: $?"
@@ -238,10 +238,10 @@ echo
 sleep 2
 
 echo === check for missing control file === | tee -a $here/$seq.full
-_change_config pmie off
+_change_config pmie off || _exit 1
 $sudo rm -f $PCP_PMIECONTROL_PATH
-_change_config pmie on
-_service pmie restart 2>&1 | tee -a $here/$seq.full | _filter_pmie_start | _filter
+_change_config pmie on || _exit 1
+if ! _service pmie restart 2>&1; then _exit 1; fi | tee -a $here/$seq.full | _filter_pmie_start | _filter
 _count_pmies
 echo "pmie count after attempt without control file: $?"
 echo
@@ -286,9 +286,9 @@ LOCALHOSTNAME   n n $tmp.locker/ok.$case -c $tmp.conf
 EOF
 rm -f $tmp.locker/ok.$case.lock
 touch $tmp.locker/ok.$case.lock
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mie( |$)' >>$here/$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mie( |$)' >>$seq_full
 pmie_check -V -V -N -c $tmp.warning.$case >$tmp.warning.$case.log
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mie( |$)' >>$here/$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mie( |$)' >>$seq_full
 cat $tmp.warning.$case.log | _filter
 rm -f $tmp.warning.$case.log
 echo
@@ -413,7 +413,7 @@ echo
 $sudo rm -rf $tmp.nogo
 
 $sudo $signal -a -s TERM pmie >/dev/null 2>&1
-_change_config pmie off
+_change_config pmie off || _exit 1
 
 status=0
 exit

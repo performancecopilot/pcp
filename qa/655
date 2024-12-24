@@ -23,9 +23,9 @@ _cleanup()
     [ -f $tmp.conf.backup ] && $sudo cp $tmp.conf.backup $PCP_DIR/etc/pcp.conf
     if [ $reinstall -eq 1 ]
     then
-	echo "putting back installed PMDA ..." >>$here/$seq.full
+	echo "putting back installed PMDA ..." >>$seq_full
 	cd $PCP_PMDAS_DIR/resctrl
-	$sudo ./Install </dev/null >>$here/$seq.full 2>&1
+	$sudo ./Install </dev/null >>$seq_full 2>&1
 	reinstall=0
     fi
     cd $here
@@ -94,7 +94,7 @@ fi
 
 # real QA test starts here
 _service pmcd stop 2>&1 | _filter_pcp_stop | sed -e '/^Warning/d'
-_wait_pmcd_end
+_wait_pmcd_end || _exit 1
 
 if [ ! -d /sys/fs/resctrl/mon_data ] ; then
     echo >> $tmp.conf
@@ -106,17 +106,17 @@ else
     PCP_RESCTRL_DIR=
 fi
 _service pcp restart 2>&1 | _filter_pcp_start | sed -e '/^Warning/d'
-_wait_for_pmcd
+_wait_for_pmcd || _exit 1
 
 echo
 echo "=== $iam agent installation ==="
 (cd $PCP_PMDAS_DIR/$iam;
  $sudo env PCP_RESCTRL_DIR=$PCP_RESCTRL_DIR ./Install </dev/null
 ) > $tmp.out 2>&1
-cat $tmp.out >> $here/$seq.full
-#debug# echo "journalctl -xe" >> $here/$seq.full
-#debug# $sudo journalctl -xe >> $here/$seq.full
-#debug# echo "== journalctl end" >> $here/$seq.full
+cat $tmp.out >> $seq_full
+#debug# echo "journalctl -xe" >> $seq_full
+#debug# $sudo journalctl -xe >> $seq_full
+#debug# echo "== journalctl end" >> $seq_full
 
 _filter_resctrl_install <$tmp.out
 

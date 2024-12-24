@@ -50,7 +50,6 @@ LOCALHOST_FULL=`pmhostname`
 LOGGING_DIR="$PCP_ARCHIVE_DIR"
 _needclean=true
 
-rm -f $seq.full
 
 _filter_log()
 {
@@ -107,7 +106,7 @@ skip > 0				{ skip--; next }
 
 }
 
-cleanup()
+_cleanup()
 {
     if $_needclean
     then
@@ -129,19 +128,19 @@ cleanup()
     rm -f $tmp.*
 }
 
-interrupt()
+_interrupt()
 {
     trap 1 2 3 15
     echo "Interrupted"
-    cleanup
-    status=1
+    _exit 1
 }
 
-trap "interrupt; exit \$status" 1 2 3 15
-trap "cleanup; exit \$status" 0
+trap "_interrupt; exit \$status" 1 2 3 15	# refactor-ok
+trap "_cleanup; exit \$status" 0
 
 _stop_auto_restart pmcd
-_service pcp stop | _filter_pcp_stop
+if ! _service pcp stop; then _exit 1; fi \
+| _filter_pcp_stop
 
 cat <<End-of-File >$tmp.c
 #include <pcp/pmapi.h>
@@ -181,8 +180,8 @@ $1 == "value"	{ if ($2 == 1 || $2 == 2 || $2 == 3) $2 = "1..3" }
 pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
 && $sudo sh $tmp.cmd
 
-echo "host1 = $other1" >>$seq.full
-echo "host2 = $other2" >>$seq.full
+echo "host1 = $other1" >>$seq_full
+echo "host2 = $other2" >>$seq_full
 
 # pick a tcp port that is not in use
 #
@@ -192,7 +191,7 @@ then
     echo "Arrgh ... no free TCP port in the range 4340 ... 4350"
     exit 1
 fi
-echo "port=$port" >>$seq.full
+echo "port=$port" >>$seq_full
 
 me_ip=`_host_to_ipaddr $LOCALHOST`
 me_xip=`_get_hex_addr $me_ip`
@@ -201,9 +200,9 @@ other1_xip=`_get_hex_addr $other1_ip`
 other2_ip=`_host_to_ipaddr $other2`
 other2_xip=`_get_hex_addr $other2_ip`
 
-echo "me: ip=$me_ip hex_ip=$me_xip" >>$seq.full
-echo "host1: ip=$other1_ip hex_ip=$other1_xip" >>$seq.full
-echo "host2: ip=$other2_ip hex_ip=$other2_xip" >>$seq.full
+echo "me: ip=$me_ip hex_ip=$me_xip" >>$seq_full
+echo "host1: ip=$other1_ip hex_ip=$other1_xip" >>$seq_full
+echo "host2: ip=$other2_ip hex_ip=$other2_xip" >>$seq_full
 
 echo "# Installed by PCP QA test $seq on `date`" >$nconfig
 grep -E '^(linux|darwin|solaris|freebsd|openbsd)' $config >>$nconfig
@@ -211,8 +210,8 @@ grep '^pmcd' $config >>$nconfig
 
 $sudo cp $config $oconfig
 $sudo cp $nconfig $config
-echo "--- initial pmcd.conf ---" >>$seq.full
-cat $config >>$seq.full
+echo "--- initial pmcd.conf ---" >>$seq_full
+cat $config >>$seq_full
 
 # need to start pmcd indirectly in a shell script because sudo
 # may cleanse the environment, which also means we cannot use
@@ -228,7 +227,7 @@ $sudo sh $tmp.start 2>&1 \
 | sed \
     -e '/Wait/d' \
 | _filter_pcp_start
-_wait_for_pmcd
+_wait_for_pmcd || _exit 1
 
 echo "should be OK"
 pminfo -f pmcd.numclients | _filter_numclients
@@ -244,8 +243,8 @@ disallow *: all;
 End-of-File
 $sudo cp $nconfig $config
 
-echo "=== local pmcd.conf ===" >>$seq.full
-cat $config >>$seq.full
+echo "=== local pmcd.conf ===" >>$seq_full
+cat $config >>$seq_full
 
 $sudo $signal -a -s HUP pmcd
 sleep 5
@@ -275,7 +274,7 @@ echo
 
 echo "expect two connection limit errors:"
 cmd1='sh -c "PMCD_CONNECT_TIMEOUT=30 PMCD_PORT='$PMCD_PORT'; export PMCD_CONNECT_TIMEOUT PMCD_PORT; pmval -h '$LOCALHOST_FULL' pmcd.numclients"'
-echo "cmd1: $cmd1" >>$seq.full
+echo "cmd1: $cmd1" >>$seq_full
 (ssh -q pcpqa@$other1 $cmd1  &) 1>$tmp.pmval 2>&1
 sleep 5
 
@@ -283,7 +282,7 @@ sleep 5
 # and connected to pmcd so be prepared to try a few times ...
 #
 cmd2='sh -c "PMCD_CONNECT_TIMEOUT=30 PMCD_PORT='$PMCD_PORT'; export PMCD_CONNECT_TIMEOUT PMCD_PORT; pminfo -h '$LOCALHOST_FULL' -f pmcd.numclients"'
-echo "cmd2: $cmd2" >>$seq.full
+echo "cmd2: $cmd2" >>$seq_full
 cnt=0
 echo >$tmp.pminfo
 for i in 1 2 3 4 5 6 7 8 9 10
@@ -306,10 +305,10 @@ then
 fi
 ssh -q pcpqa@$other1 $usersignal -a pmval > /dev/null 2>&1
 echo
-echo "=== pmval output ===" >>$seq.full
-cat $tmp.pmval >>$seq.full
-echo "=== pminfo output ===" >>$seq.full
-cat $tmp.pminfo >>$seq.full
+echo "=== pmval output ===" >>$seq_full
+cat $tmp.pmval >>$seq_full
+echo "=== pminfo output ===" >>$seq_full
+cat $tmp.pminfo >>$seq_full
 
 echo "expect two connection limit errors:"
 (ssh -q pcpqa@$other2 $cmd1 &) > $tmp.pmval 2>&1
@@ -341,7 +340,7 @@ $found || cat $tmp.pminfo
 # gets to attempt the store.
 #
 cmd3='sh -c "PMCD_CONNECT_TIMEOUT=30 PMCD_PORT='$PMCD_PORT'; export PMCD_CONNECT_TIMEOUT PMCD_PORT; pmstore -h '$LOCALHOST_FULL' pmcd.control.debug 1"'
-echo "cmd3: $cmd3" >>$seq.full
+echo "cmd3: $cmd3" >>$seq_full
 # not sure how long it takes to get the remote pmval command started
 # and connected to pmcd so be prepared to try a few times ...
 #
@@ -364,20 +363,20 @@ done
 $found || cat $tmp.pmstore
 ssh -q pcpqa@$other2 $usersignal -a pmval > /dev/null 2>&1
 echo
-echo "=== pmval output ===" >>$seq.full
-cat $tmp.pmval >>$seq.full
-echo "=== pminfo output ===" >>$seq.full
-cat $tmp.pminfo >>$seq.full
-echo "=== pmstore output ===" >>$seq.full
-cat $tmp.pmstore >>$seq.full
+echo "=== pmval output ===" >>$seq_full
+cat $tmp.pmval >>$seq_full
+echo "=== pminfo output ===" >>$seq_full
+cat $tmp.pminfo >>$seq_full
+echo "=== pmstore output ===" >>$seq_full
+cat $tmp.pmstore >>$seq_full
 
 echo 'expect 3 access violation messages for localhost, OTHERHOST1 and OTHERHOST2
 and one endclient access violation for localhost and one endclient connection
 limit for each of OTHERHOST1 and OTHERHOST2'
 _filter_log
 
-echo "=== pmcd.log ===" >>$seq.full
-cat $log >>$seq.full
+echo "=== pmcd.log ===" >>$seq_full
+cat $log >>$seq_full
 
 echo
 echo "If failure, check $seq.full"

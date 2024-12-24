@@ -26,7 +26,6 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _pminfo_value()
@@ -45,7 +44,7 @@ _compare_value()
     if_value=$2
     pcp_value=$3
 
-    echo "$label - ifconfig=\"$if_value\" pcp=\"$pcp_value\"" >>$seq.full
+    echo "$label - ifconfig=\"$if_value\" pcp=\"$pcp_value\"" >>$seq_full
 
     if [ "$pcp_value" = "$if_value" ]
     then
@@ -58,7 +57,7 @@ _compare_value()
 
 # real QA test starts here
 container=`$docker run -d busybox sleep 15`
-echo "== container: $container" >> $seq.full
+echo "== container: $container" >> $seq_full
 
 echo "== extract values from pmdalinux"
 metrics="network.interface.hw_addr network.interface.inet_addr"
@@ -67,10 +66,10 @@ pminfo --fetch --container=$container network.interface.inet_addr >$tmp.pcp_inet
 
 eval pcp_hw_addr=`cat $tmp.pcp_hw | _pminfo_value eth0`
 eval pcp_inet_addr=`cat $tmp.pcp_inet | _pminfo_value eth0`
-echo "== pcp values:" >> $seq.full
-cat $tmp.pcp_hw $tmp.pcp_inet >> $seq.full
-echo "hw_addr:" >> $seq.full
-echo "inet_addr:" >> $seq.full
+echo "== pcp values:" >> $seq_full
+cat $tmp.pcp_hw $tmp.pcp_inet >> $seq_full
+echo "hw_addr:" >> $seq_full
+echo "inet_addr:" >> $seq_full
 
 echo "== extract values from docker" | tee -a $seq.full
 $docker exec $container ifconfig eth0 | tee -a $seq.full >$tmp.ifconfig

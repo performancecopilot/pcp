@@ -15,7 +15,7 @@ echo "QA output created by $seq"
 
 _need_metric kernel.all.cpu.wait.total
 
-rm -f $seq.out $seq.full
+rm -f $seq.out
 if [ $PCP_PLATFORM = darwin ]
 then
     ln $seq.out.2 $seq.out
@@ -24,7 +24,6 @@ else
 fi
 
 status=0	# success is the default!
-$sudo rm -rf $tmp.*
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 cat <<'End-of-File' >$tmp.config
@@ -55,7 +54,7 @@ _filter_err()
 # real QA test starts here
 echo "=== live ===" | tee -a $seq.full
 pmie -v -t 1 -T 3 <$tmp.config >$tmp.out 2>$tmp.tmp
-cat $tmp.out >>$seq.full
+cat $tmp.out >>$seq_full
 sed -e '/Info: evaluator exiting/d' <$tmp.tmp >$tmp.err
 if [ -s $tmp.err ]
 then
@@ -70,7 +69,7 @@ cat $tmp.out \
 echo | tee -a $seq.full
 echo "=== live, pmie -e ===" | tee -a $seq.full
 pmie -v -e -t 1 -T 3 <$tmp.config >$tmp.out 2>$tmp.tmp
-cat $tmp.out >>$seq.full
+cat $tmp.out >>$seq_full
 sed -e '/Info: evaluator exiting/d' <$tmp.tmp >$tmp.err
 if [ -s $tmp.err ]
 then
@@ -85,7 +84,7 @@ cat $tmp.out \
 echo | tee -a $seq.full
 echo "=== archive and pmie2col -w ===" | tee -a $seq.full
 pmie -v -z -A 30m -t 30m -a archives/kenj-pc-1 <$tmp.config >$tmp.out 2>$tmp.tmp
-cat $tmp.out >>$seq.full
+cat $tmp.out >>$seq_full
 sed -e '/Info: evaluator exiting/d' <$tmp.tmp >$tmp.err
 if [ -s $tmp.err ]
 then

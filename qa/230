@@ -15,8 +15,6 @@ echo "QA output created by $seq"
 . ./common.check
 
 status=1
-$sudo rm -rf $tmp.*
-rm -f $seq.full
 trap "_cleanup" 0 1 2 3 15
 
 _cleanup()
@@ -33,10 +31,10 @@ _cleanup()
 
 _check()
 {
-    echo "_check $1" >>$seq.full
+    echo "_check $1" >>$seq_full
     sleep 2
     pidlist=`_get_pids_by_name pmlc`
-    echo "pidlist=$pidlist" >>$seq.full
+    echo "pidlist=$pidlist" >>$seq_full
     for pid in $pidlist
     do
 	if [ "$pid" = "$1" ]
@@ -51,9 +49,9 @@ _check()
 
 _filter()
 {
-    echo >>$seq.full
-    echo "=== $tmp.out ===">>$seq.full
-    cat $tmp.out >>$seq.full
+    echo >>$seq_full
+    echo "=== $tmp.out ===">>$seq_full
+    cat $tmp.out >>$seq_full
     sed <$tmp.out \
 	-e 's/^\[.*]/[DATE]/' \
 	-e 's/pmlc([0-9][0-9]*)/pmlc(PID)/' \
@@ -88,15 +86,15 @@ port=1214
 pmsignal -s KILL -a src/drain-server
 
 # real QA test starts here
-_change_config pmcd on
-_change_config pmlogger on
+_change_config pmcd on || _exit 1
+_change_config pmlogger on || _exit 1
 _writable_primary_logger
-_service pmcd stop >/dev/null 2>&1
-_service pmlogger stop >/dev/null 2>&1
-_service pmcd start >/dev/null 2>&1
-_wait_for_pmcd
-_service pmlogger start >/dev/null 2>&1
-_wait_for_pmlogger
+if ! _service pmcd stop >/dev/null 2>&1; then _exit 1; fi
+if ! _service pmlogger stop >/dev/null 2>&1; then _exit 1; fi
+if ! _service pmcd start >/dev/null 2>&1; then _exit 1; fi
+_wait_for_pmcd || _exit 1
+if ! _service pmlogger start >/dev/null 2>&1; then _exit 1; fi
+_wait_for_pmlogger || _exit 1
 
 $sudo sed -e "1s/.*/$port/" $PCP_TMP_DIR/pmlogger/primary >$tmp.primary
 $sudo cp $PCP_TMP_DIR/pmlogger/primary $PCP_TMP_DIR/pmlogger/primary.qa.$seq

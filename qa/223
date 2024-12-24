@@ -117,7 +117,7 @@ _validate()
 
 _remove_rebuild()
 {
-    rm -f $1/Rebuild 
+    rm -f $1/Rebuild
     if [ -f $1/Xlate-irix-names ]
     then
 	rm -f $1/Xlate-irix-names
@@ -125,7 +125,6 @@ _remove_rebuild()
 }
 
 status=0
-$sudo rm -f $tmp.* $seq.full
 DO_VALIDATE=true
 trap "cd $here; rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 
@@ -134,8 +133,8 @@ trap "cd $here; rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 echo "=== PMNS_OLD does not exist ==="
 _setup
 rm -rf $PMNS_OLD
-echo "=== PMNS_OLD does not exist ===" >>$seq.full
-ls -lR $PMNS_OLD $PMNS_NEW >>$seq.full 2>&1
+echo "=== PMNS_OLD does not exist ===" >>$seq_full
+ls -lR $PMNS_OLD $PMNS_NEW >>$seq_full 2>&1
 _copy_Rebuild $PMNS_NEW
 $sudo "cd $PMNS_NEW; ./Rebuild -uv" >$tmp.err
 chk=$?
@@ -146,8 +145,8 @@ _check $chk
 echo
 echo "=== PMNS_OLD is empty ==="
 _setup
-echo "=== PMNS_OLD is empty ===" >>$seq.full
-ls -lR $PMNS_OLD $PMNS_NEW >>$seq.full 2>&1
+echo "=== PMNS_OLD is empty ===" >>$seq_full
+ls -lR $PMNS_OLD $PMNS_NEW >>$seq_full 2>&1
 _copy_Rebuild $PMNS_NEW
 $sudo "cd $PMNS_NEW; ./Rebuild -uv" >$tmp.err
 chk=$?
@@ -159,8 +158,8 @@ echo
 echo "=== PMNS_OLD contains scripts that can safely be nuked ==="
 _setup
 touch $PMNS_OLD/Brand $PMNS_OLD/Makefile $PMNS_OLD/Rebuild
-echo "=== PMNS_OLD contains scripts that can safely be nuked ===" >>$seq.full
-ls -lR $PMNS_OLD $PMNS_NEW >>$seq.full 2>&1
+echo "=== PMNS_OLD contains scripts that can safely be nuked ===" >>$seq_full
+ls -lR $PMNS_OLD $PMNS_NEW >>$seq_full 2>&1
 _copy_Rebuild $PMNS_NEW
 $sudo "cd $PMNS_NEW; ./Rebuild -uv" >$tmp.err
 chk=$?
@@ -176,8 +175,8 @@ echo >$PMNS_OLD/xxx '
 extra.xxx {
     two 0:0:3
 }'
-echo "=== PMNS_OLD contains files not in conflict with PMNS_NEW, copy them ===" >>$seq.full
-ls -lR $PMNS_OLD $PMNS_NEW >>$seq.full 2>&1
+echo "=== PMNS_OLD contains files not in conflict with PMNS_NEW, copy them ===" >>$seq_full
+ls -lR $PMNS_OLD $PMNS_NEW >>$seq_full 2>&1
 _copy_Rebuild $PMNS_NEW
 $sudo "cd $PMNS_NEW; ./Rebuild -uv" >$tmp.err
 chk=$?
@@ -191,8 +190,8 @@ _setup
 _setup_wxy
 rm $PMNS_NEW/www*
 cp $PMNS_NEW/* $PMNS_OLD
-echo "=== files in PMNS_OLD and PMNS_NEW are identical ===" >>$seq.full
-ls -lR $PMNS_OLD $PMNS_NEW >>$seq.full 2>&1
+echo "=== files in PMNS_OLD and PMNS_NEW are identical ===" >>$seq_full
+ls -lR $PMNS_OLD $PMNS_NEW >>$seq_full 2>&1
 _copy_Rebuild $PMNS_NEW
 $sudo "cd $PMNS_NEW; ./Rebuild -uv" >$tmp.err
 chk=$?
@@ -209,8 +208,8 @@ mv $PMNS_NEW/xxx* $PMNS_OLD
 DO_VALIDATE=false
 _check N/A
 DO_VALIDATE=true
-echo "=== salvage useful stuff from PMNS_OLD ===" >>$seq.full
-ls -lR $PMNS_OLD $PMNS_NEW >>$seq.full 2>&1
+echo "=== salvage useful stuff from PMNS_OLD ===" >>$seq_full
+ls -lR $PMNS_OLD $PMNS_NEW >>$seq_full 2>&1
 _copy_Rebuild $PMNS_NEW
 $sudo "cd $PMNS_NEW; ./Rebuild -uv" >$tmp.err
 chk=$?
@@ -226,8 +225,8 @@ rm $PMNS_NEW/www*
 sed -e 's/two/three/' <$PMNS_NEW/xxx.N >$PMNS_OLD/xxx
 sed -e 's/two/three/' <$PMNS_NEW/yyy.O >$PMNS_OLD/yyy
 _check N/A
-echo "=== hard cases ===" >>$seq.full
-ls -lR $PMNS_OLD $PMNS_NEW >>$seq.full 2>&1
+echo "=== hard cases ===" >>$seq_full
+ls -lR $PMNS_OLD $PMNS_NEW >>$seq_full 2>&1
 _copy_Rebuild $PMNS_NEW
 $sudo "cd $PMNS_NEW; ./Rebuild -uv" >$tmp.err
 chk=$?
@@ -240,8 +239,8 @@ echo "=== PMNS_OLD is a file (error) ==="
 _setup
 rm -rf $PMNS_OLD
 touch $PMNS_OLD
-echo "=== PMNS_OLD is a file (error) ===" >>$seq.full
-ls -lR $PMNS_OLD $PMNS_NEW >>$seq.full 2>&1
+echo "=== PMNS_OLD is a file (error) ===" >>$seq_full
+ls -lR $PMNS_OLD $PMNS_NEW >>$seq_full 2>&1
 _copy_Rebuild $PMNS_NEW
 $sudo "cd $PMNS_NEW; ./Rebuild -uv" >$tmp.err
 chk=$?
@@ -255,8 +254,8 @@ _setup
 _setup_wxy
 touch $PMNS_OLD/www.orphan $PMNS_OLD/xxx.N $PMNS_OLD/yyy.O
 _check N/A
-echo "=== www.orphan, xxx.N and yyy.O in both places, waste the ones from PMNS_OLD ===" >>$seq.full
-ls -lR $PMNS_OLD $PMNS_NEW >>$seq.full 2>&1
+echo "=== www.orphan, xxx.N and yyy.O in both places, waste the ones from PMNS_OLD ===" >>$seq_full
+ls -lR $PMNS_OLD $PMNS_NEW >>$seq_full 2>&1
 _copy_Rebuild $PMNS_NEW
 $sudo "cd $PMNS_NEW; ./Rebuild -uv" >$tmp.err
 chk=$?
@@ -268,8 +267,8 @@ echo
 echo "=== orphan (saveme) in PMNS_OLD ==="
 _setup
 touch $PMNS_OLD/saveme
-echo "=== orphan (saveme) in PMNS_OLD ===" >>$seq.full
-ls -lR $PMNS_OLD $PMNS_NEW >>$seq.full 2>&1
+echo "=== orphan (saveme) in PMNS_OLD ===" >>$seq_full
+ls -lR $PMNS_OLD $PMNS_NEW >>$seq_full 2>&1
 _copy_Rebuild $PMNS_NEW
 $sudo "cd $PMNS_NEW; ./Rebuild -uv" >$tmp.err
 chk=$?
@@ -321,8 +320,8 @@ extra.ID.special {
 }
 '
 
-echo "=== nested decls, a la DBMS PMDAS ===" >>$seq.full
-ls -lR $PMNS_OLD $PMNS_NEW >>$seq.full 2>&1
+echo "=== nested decls, a la DBMS PMDAS ===" >>$seq_full
+ls -lR $PMNS_OLD $PMNS_NEW >>$seq_full 2>&1
 _copy_Rebuild $PMNS_NEW
 $sudo "cd $PMNS_NEW; ./Rebuild -uv" >$tmp.err
 chk=$?

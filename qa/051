@@ -58,7 +58,9 @@ oconfig=$config.O
 log=./pmcd.log
 me=`hostname`
 
-rm -f $here/$seq.full
+_needclean=true
+
+rm -f $here/$seq_full
 
 _filter_hostnames()
 {
@@ -154,32 +156,36 @@ $3 ~ /^[0-9][0-9]*$/	{ $3 = "A_PID" }
 
 }
 
-interrupt()
+_cleanup()
 {
-    echo "Interrupted"
-    rm -f $tmp.*
-    exit
-}
-
-cleanup()
-{
-    if [ -f $oconfig ]
+    if $_needclean
     then
-	$sudo mv $oconfig $config
+        _needclean=false
+	if [ -f $oconfig ]
+	then
+	    $sudo mv $oconfig $config
+	fi
+	echo "Restarting pmcd"
+	echo "Restarting pmcd + pmlogger @ `date`" >>$here/$seq.full
+	unset PMCD_SOCKET
+	export PMLOGGER_CHECK_SKIP_LOGCONF=yes
+	_service pcp restart 2>&1 | _filter_pcp_start
+	_restore_auto_restart pmcd
+	_wait_for_pmcd
+	_wait_for_pmlogger
+	rm -f $tmp.*
     fi
-    echo "Restarting pmcd"
-    echo "Restarting pmcd + pmlogger @ `date`" >>$here/$seq.full
-    unset PMCD_SOCKET
-    export PMLOGGER_CHECK_SKIP_LOGCONF=yes
-    _service pcp restart 2>&1 | _filter_pcp_start
-    _restore_auto_restart pmcd
-    _wait_for_pmcd
-    _wait_for_pmlogger
-    rm -f $tmp.*
 }
 
-trap interrupt 1 2 3 15
-trap cleanup 0
+_interrupt()
+{
+    trap 1 2 3 15
+    echo "Interrupted!"
+    _exit 1
+}
+
+trap _interrupt 1 2 3 15		# refactor-ok
+trap _cleanup 0
 
 _stop_auto_restart pmcd
 
@@ -199,7 +205,8 @@ ls 051.work/kill*
 cd 051.work
 
 echo "terminating pmcd..."
-_service pcp stop | _filter_pcp_stop
+if ! _service pcp stop; then _exit 1; fi \
+| _filter_pcp_stop
 if [ -f $config ]
 then
     $sudo mv $config $oconfig
@@ -218,8 +225,8 @@ do
     rm -f pmcd.log*
     echo
     $PCP_ECHO_PROG $PCP_ECHO_N "$t================""$PCP_ECHO_C"
-    $PCP_ECHO_PROG "$t================" >>$here/$seq.full
-    cat $t >>$here/$seq.full
+    $PCP_ECHO_PROG "$t================" >>$seq_full
+    cat $t >>$seq_full
     echo
     if [ "X$t" = "Xdie.029" -o "X$t" = "Xdie.043" ]
     then
@@ -230,16 +237,16 @@ do
     fi
     $PCP_PMCD_PROG -f -x /no/such/file
     echo "$t logfile----------------"
-    echo "$t logfile----------------" >>$here/$seq.full
-    cat $log >>$here/$seq.full
+    echo "$t logfile----------------" >>$seq_full
+    cat $log >>$seq_full
     if [ -x filter.$t ]
     then
 	./filter.$t <$log
     else
 	_filter_die_log $t
-	echo "$t filtered logfile----------------" >>$here/$seq.full
-	cat $tmp.tmp >>$here/$seq.full
-	echo "$t filtered endlog ----------------" >>$here/$seq.full
+	echo "$t filtered logfile----------------" >>$seq_full
+	cat $tmp.tmp >>$seq_full
+	echo "$t filtered endlog ----------------" >>$seq_full
     fi
     echo "$t endlog ----------------"
 done
@@ -255,16 +262,16 @@ do
     $sudo cp $t $config
     rm -f pmcd.log*
     echo "$t================"
-    echo "$t================" >>$here/$seq.full
-    cat $t >>$here/$seq.full
+    echo "$t================" >>$seq_full
+    cat $t >>$seq_full
     _filter_hostnames <$config \
     | sed -e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;g"
     # Give pmcd 3 seconds to run
     ((sleep 3; $signal -a -s TERM pmcd)&) >/dev/null 2>&1
     $PCP_PMCD_PROG -f
     echo "$t logfile----------------"
-    echo "$t logfile----------------" >>$here/$seq.full
-    cat $log >>$here/$seq.full
+    echo "$t logfile----------------" >>$seq_full
+    cat $log >>$seq_full
     # Note on if | sed ... need to handle GNU coreutils brain
     # damage from newer versions of cat(1) and remove ' quotes
     # from lines like ...

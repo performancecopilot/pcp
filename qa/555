@@ -37,7 +37,7 @@ in
 	;;
 esac
 
-$sudo rm -f $seq.full /tmp/syslog.full /tmp/syslog.out
+$sudo rm -f /tmp/syslog.full /tmp/syslog.out
 
 signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
@@ -101,7 +101,7 @@ echo "daemon=$daemon" >>/tmp/syslog.full
 [ -f /etc/SuSE-release ] && export SYSTEMD_NO_WRAP=1
 [ -f /etc/fedora-release ] && export SYSTEMCTL_SKIP_REDIRECT=1
 
-cleanup()
+_cleanup()
 {
     if [ -f $tmp.setup ]; then
 	if $update_config
@@ -133,7 +133,7 @@ cleanup()
     $sudo rm -f /tmp/syslog.out /tmp/syslog.full
     rm -f $tmp.*
 }
-trap "cleanup; exit \$status" 0 1 2 3 15
+trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # move aside the current syslog configuration, as we have NFI
 # what kind of setup is in use and where our messages will go
@@ -252,7 +252,7 @@ echo >>/tmp/syslog.full
 echo "=== syslog for pid $! ===" >>/tmp/syslog.full
 # More recent syslog format seen on Ubuntu 11.04
 # (high-precision rsyslog timestamps, traditional-mode no longer enabled)
-# 2011-07-09T10:38:40+10:00 HOST pcp-pmie[PID]: 
+# 2011-07-09T10:38:40+10:00 HOST pcp-pmie[PID]:
 # For RH7.x and Centos 7.x we're seeing some trashing of the syslog
 # output, and some different semantics ({13} case), so cull some
 # obviously wrong or chatty lines AND add the tr first step in the

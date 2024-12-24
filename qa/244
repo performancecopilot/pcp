@@ -24,7 +24,7 @@ fi
 _filter_log()
 {
     sleep 3
-    tee -a $here/$seq.full <./pmcd.log \
+    tee -a $seq_full <./pmcd.log \
     | _filter_pmcd_log \
     | sed \
 	-e '/^DATA: from client/d' \
@@ -84,9 +84,9 @@ $1 == "cisco"		{ $4 = "fd_in"; $5 = "fd_out"
 	-e 's/_o32/_SIZE/' \
 	-e 's/_n32/_SIZE/' \
 	-e 's/_64/_SIZE/' \
-	-e "s;$here/src/;;" \
+	-e "s;$tmp\.;;" \
 	-e '/Cleanup "fake_linux" agent (dom 60): unconfigured/q' \
-	#end
+    #end
 }
 
 CONFIG=$PCP_PMCDCONF_PATH
@@ -100,7 +100,6 @@ status=1
 #
 NAMESPACE="-n $here/src/root_irix"
 
-rm -rf $tmp $tmp.* $seq.full
 mkdir $tmp
 chmod ugo+rwx $tmp
 cd $tmp
@@ -113,8 +112,8 @@ _cleanup()
     cd $here
     if $_needclean
     then
-	echo "--- stderr from tmp.sh ---" >>$seq.full
-	cat $tmp.full >>$seq.full
+	echo "--- stderr from tmp.sh ---" >>$seq_full
+	cat $tmp.full >>$seq_full
 	_needclean=false
 	$signal -s TERM $pmcd
 	sleep 1
@@ -131,12 +130,12 @@ _cleanup()
 	_wait_for_pmcd
 	_wait_for_pmlogger
 	pmprobe pmcd.control.debug
-	sleepers=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '/[d]umb_pmda' | $PCP_AWK_PROG '$3 == 1 { print $2 }'`
+	sleepers=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '\.[d]umb_pmda' | $PCP_AWK_PROG '$3 == 1 { print $2 }'`
 	[ ! -z "$sleepers" ] && $sudo $signal -s KILL $sleepers
 	if $pmie_was_running
 	then
 	    _restore_auto_restart pmie
-	    _service pmie start >>$here/$seq.full 2>&1
+	    _service pmie start >>$seq_full 2>&1
 	fi
     fi
     $sudo rm -rf $tmp $tmp.*
@@ -151,15 +150,20 @@ if [ -f $PCP_RUN_DIR/pmie.pid ]
 then
     pmie_was_running=true
     _stop_auto_restart pmie
-    _service pmie stop >>$here/$seq.full 2>&1
+    if ! _service pmie stop >>$seq_full 2>&1; then _exit 1; fi
 fi
 
 # real QA test starts here
 
-_service pcp stop | _filter_pcp_stop
+if ! _service pcp stop; then _exit 1; fi \
+| _filter_pcp_stop
 $sudo $signal -a pmgadgets pmchart pmview >/dev/null 2>&1
-_disable_loggers
+_disable_loggers || _exit 1
 $sudo $signal -a -s TERM pmie >/dev/null 2>&1
+
+# need PMDA executable someplace user $PCP_USER (pmcd) can read it
+#
+cp $here/src/dumb_pmda $tmp.dumb_pmda
 
 # Make our own version of pmcd.conf with dummy agents that will time out.
 # Copy the pmcd PMDA from the original pmcd.conf so that we can check pmcd's
@@ -167,10 +171,10 @@ $sudo $signal -a -s TERM pmie >/dev/null 2>&1
 # NOTE: none of the domains should clash with the pmcd PMDA (domain 2) or the
 # sample agent (domain 254).  These agents will be appended to the file.
 #
-echo "fake_irix 1 pipe binary $here/src/dumb_pmda -d 1 fake_irix" >$NEWCONFIG
-echo "fake_sampledso 30 pipe binary $here/src/dumb_pmda -d 30 fake_sampledso" >>$NEWCONFIG
-echo "fake_cisco 5 pipe binary $here/src/dumb_pmda -d 5 fake_cisco" >>$NEWCONFIG
-echo "fake_linux 60 pipe binary $here/src/dumb_pmda -d 60 fake_linux" >>$NEWCONFIG
+echo "fake_irix 1 pipe binary $tmp.dumb_pmda -d 1 fake_irix" >$NEWCONFIG
+echo "fake_sampledso 30 pipe binary $tmp.dumb_pmda -d 30 fake_sampledso" >>$NEWCONFIG
+echo "fake_cisco 5 pipe binary $tmp.dumb_pmda -d 5 fake_cisco" >>$NEWCONFIG
+echo "fake_linux 60 pipe binary $tmp.dumb_pmda -d 60 fake_linux" >>$NEWCONFIG
 grep pmda_pmcd $CONFIGSAVE | sed -e 's/[ 	][ 	]*/ /g' -e 's/[ 	]*$//' >>$NEWCONFIG
 echo "[access]" >>$NEWCONFIG
 echo "allow localhost : all;" >>$NEWCONFIG
@@ -181,7 +185,8 @@ echo '$PCP_PMCDCONF_PATH contains:'
 echo '<BEGIN>'
 sed <$CONFIG \
     -e '/^pmcd/s; [^ ]*pmda_pmcd.'$DSO_SUFFIX'; ...pmda_pmcd.$DSO_SUFFIX;' \
-    -e "s;$here/src/;;"
+    -e "s;$tmp\.;;" \
+# end
 echo '<END>'
 
 # Use a different port to avoid interference by remote monitors
@@ -197,11 +202,11 @@ username=`id -u -n`
 sudoopts="-u $username"
 id pcp >/dev/null 2>&1 && sudoopts="-u pcp"
 
-echo "sudoopts=$sudoopts" >>$here/$seq.full
-echo "PMCD_PORT=$PMCD_PORT" >>$here/$seq.full
-echo "PMCD_SOCKET=$PMCD_SOCKET" >>$here/$seq.full
-ls -ld $PCP_RUN_DIR >>$here/$seq.full
-ls -l $PCP_RUN_DIR >>$here/$seq.full
+echo "sudoopts=$sudoopts" >>$seq_full
+echo "PMCD_PORT=$PMCD_PORT" >>$seq_full
+echo "PMCD_SOCKET=$PMCD_SOCKET" >>$seq_full
+ls -ld $PCP_RUN_DIR >>$seq_full
+ls -l $PCP_RUN_DIR >>$seq_full
 
 cat >$tmp.sh <<END
 #!/bin/sh
@@ -212,13 +217,13 @@ $PCP_PMCD_PROG -f -t 2 2>>$tmp.full &
 echo \$!
 END
 pmcd=`$sudo $sudoopts sh $tmp.sh`
-echo "pmcd=$pmcd" >>$here/$seq.full
-ls -l $PCP_RUN_DIR >>$here/$seq.full
+echo "pmcd=$pmcd" >>$seq_full
+ls -l $PCP_RUN_DIR >>$seq_full
 
 # complete V1 PMDA timeouts, then wait for pmcd
 #
 sleep 12
-_wait_for_pmcd
+_wait_for_pmcd || _exit 1
 
 # If agent not restarted then both messages will be "no agent for domain..."
 #
@@ -243,11 +248,12 @@ echo '<BEGIN>'
 sed <$CONFIG \
     -e '/^pmcd/s; [^ ]*pmda_pmcd.'$DSO_SUFFIX'; ...pmda_pmcd.$DSO_SUFFIX;' \
     -e '/^sample/s; [^ ]*pmdasample; ...pmdasample;' \
-    -e "s;$here/src/;;"
+    -e "s;$tmp\.;;" \
+# end
 echo '<END>'
 
 $signal -s HUP $pmcd
-_wait_for_pmcd
+_wait_for_pmcd || _exit 1
 
 echo "Expect \"Unknown or illegal metric identifier\" ..."
 pminfo $NAMESPACE -d sampledso.control
@@ -260,7 +266,7 @@ pmprobe $NAMESPACE -v sample.bin
 # restart PMCD (the sample agent's config line will be unchanged) and check
 # that the sample agent has the same PID.
 # The bogus fake_sampledso agent should have been terminated because it is
-# no longer in the config file. 
+# no longer in the config file.
 # That isn't enough to terminate the sleep agent.
 #
 echo
@@ -269,14 +275,14 @@ sample=`pminfo $NAMESPACE -f sample.daemon_pid | $PCP_AWK_PROG '
 $1 == "value"	{ print $2 }
 '`
 sleep 1
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '/[d]umb_pmda' | grep fake_cisco >/dev/null || echo "Error: phony fake_cisco agent died prematurely"
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '\.[d]umb_pmda' | grep fake_cisco >/dev/null || echo "Error: phony fake_cisco agent died prematurely"
 
 $sudo cp $CONFIGSAVE $CONFIG
 
 $signal -s HUP $pmcd
-_wait_for_pmcd
+_wait_for_pmcd || _exit 1
 
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '/[d]umb_pmda' | grep fake_cisco >/dev/null && echo "Error: phony fake_cisco agent still lives!"
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '\.[d]umb_pmda' | grep fake_cisco >/dev/null && echo "Error: phony fake_cisco agent still lives!"
 
 # Generate a PDU into the domain where the fake_sampledso agent used to be (#30 is
 # assumed to be the sampledso PMDA)

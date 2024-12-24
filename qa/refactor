@@ -1,0 +1,419 @@
+#!/bin/sh
+#
+# global script changes
+# - >$here/$seq.full and >$seq.full => >$seq_full
+# - don't rm [-rf] $tmp.* $tmp or $seq_full in the script mainline
+#   ... it is done in common.rc now ... exception is in
+#   trap "..." and _cleanup() { ... }
+# - outside _cleanup() { ... } deal with change in semantics for
+#   _wait_for_...() routines which now return 1 rather than exit
+#   in the case of a failure
+# - comment "# refactor-ok" marks lines to be not processed
+# - comment "# refactor-all-ok" marks files to be not processed
+# - strip trailing whitespace from lines (unfortunate by-product)
+#
+# These need to be fixed manually, not able to be handled in this script:
+# - _get_config
+# - _get_endian
+# - _get_word_size
+#
+# This script delivers verified fixes for:
+# - _change_config
+# - _wait_for_pmcd
+# - _wait_pmcd_end
+# - _wait_for_pmcd_stop
+# - _wait_for_pmlogger
+# - _wait_pmlogger_end
+# - _wait_for_pmie
+# - _wait_pmie_end
+# - _wait_for_pmproxy
+# - _wait_pmproxy_end
+# - _disable_loggers
+# - _get_primary_logger_pid
+# - _prepare_pmda_install
+# - _restore_pmda_install
+# - _setup_purify
+# - _sighup_pmcd
+# - _check_metric
+# - _service
+#
+
+tmp=/var/tmp/refactor-$$
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+_check_trap()
+{
+    grep '^[0-9][0-9]*:[ 	]*trap ' <$1 \
+    | sed \
+	-e '/_.*cleanup/d' \
+	-e '/# refactor-ok/d' \
+	-e 's/^[0-9][0-9]*:/& /' \
+	-e 's/"//' \
+	-e 's/"\([^"]*\)$/;\1/' \
+	-e 's/ && /; /g' \
+	-e 's/^\([0-9][0-9]*:\)[ 	]*trap /\1 /' \
+	-e 's/ cd [^;]*;/ /g' \
+	-e 's/ cd;/ /g' \
+	-e 's/ rm [^;]*;/ /g' \
+	-e 's/ cp [^;]*;/ /g' \
+	-e 's/ chmod [^;]*;/ /g' \
+	-e 's/ exit [^;]*;/ /g' \
+	-e 's/ echo [^;]*;/ /g' \
+	-e 's/ echo;/ /g' \
+	-e 's/ pmstore [^;]*;/ /g' \
+	-e 's/ signal [^;]*;/ /g' \
+	-e 's/ \$signal [^;]*;/ /g' \
+	-e 's/ \\\$signal [^;]*;/ /g' \
+	-e 's/ \$PCP_BINADM_DIR\/pmsignal [^;]*;/ /g' \
+	-e 's/ .\/Install [^;]*;/ /g' \
+	-e 's/ _filter [^;]*;/ /g' \
+	-e 's/ \[[^;]*;/ /g' \
+	-e 's/[ ;][ ;]*/ /g' \
+	-e 's/ cd \$here / /' \
+	-e 's/ \$sudo/ /g' \
+	-e 's/ \$status/ /' \
+	-e 's/ \\\$status/ /' \
+	-e 's/ \$sts/ /' \
+	-e 's/ 1 2 3 15$//' \
+	-e 's/ 0$//' \
+	-e 's/ exit/ /' \
+	-e 's/ \\\$status//' \
+	-e 's/ //g' \
+	-e '/^[0-9][0-9]*:$/d' \
+    # end
+}
+
+echo >$tmp.usage
+cat >>$tmp.usage <<End-of-File
+# Usage: [options] seqnum ...
+
+Options:
+  -n         dry run, showme
+  -v         verbose (repeated for more verbosity)
+  -?
+End-of-File
+
+prog=refactor
+showme=false
+verbose=0
+ARGS=`pmgetopt --progname=$prog --config=$tmp.usage -- "$@"`
+[ $? != 0 ] && exit 1
+eval set -- "$ARGS"
+unset ARGS
+while [ $# -gt 0 ]
+do
+    case "$1"
+    in
+	-n)	showme=true
+		;;
+	-v)	verbose=`expr $verbose + 1`
+		;;
+	--)	shift
+		break
+		;;
+	-\?)	pmgetopt --usage --progname=$prog --config=$tmp.usage
+		exit
+		;;
+    esac
+    shift
+done
+
+for arg
+do
+    if echo "$arg" | grep -q '^[0-9][0-9]*$'
+    then
+	# just a number
+	echo "$arg"
+    elif [ -f "$arg" ]
+    then
+	# existing file
+	echo "$arg"
+    elif echo "$arg" | grep -q '^[0-9][0-9]*-[0-9][0-9]*$'
+    then
+	# range
+	lo=`echo "$arg" | sed -e 's/-.*//'`
+	lo=`expr $lo + 0`
+	hi=`echo "$arg" | sed -e 's/.*-//'`
+	hi=`expr $hi + 0`
+	if [ "$hi" -lt "$lo" ]
+	then
+	    echo >&2 "Error: bad range arg $arg => lo=$lo & hi=$hi"
+	else
+	    while [ "$lo" -le "$hi" ]
+	    do
+		printf "%03d\n" $lo
+		lo=`expr $lo + 1`
+	    done
+	fi
+    else
+	echo >&2 "Error: bad arg $arg, not NNN or NNN-NNN"
+	continue
+    fi \
+    | while read file
+    do
+	if [ ! -f "$file" ]
+	then
+	    echo "$file: does not exist"
+	    continue
+	fi
+	if grep -q '[#] refactor-all-ok' "$file"
+	then
+	    [ $verbose -gt 0 ] && echo "$file: file marked not to be refactored"
+	    continue
+	fi
+
+	# warn about things we cannot reliably rewrite, ignoring
+	# _cleanup() { ... } and stripping comments (anything after
+	# a # which is a bit aggressive), function name may be
+	# preceeded by white space and after any mandatory parameters
+	# we're in trouble if following text is white space plus
+	# _anything_ or a shell metacharacter [<>|&;$] but we can
+	# ignore [`'")] because they cannot exist if the line starts
+	# with whitespace followed by the function name
+	#
+	rm -f $tmp.pre $tmp.cleanup $tmp.post
+	awk <"$file" '
+BEGIN			{ out = "'$tmp.pre'"; ignore = 0 }
+/^_.*cleanup.*\(/	{ ignore=1; out = "'$tmp.cleanup'" }
+			{ if (ignore == 0) print NR ":" $0 >out
+			  else print >out
+			}
+$1 == "}" && ignore	{ ignore=0; out = "'$tmp.post'" }'
+	[ -f $tmp.pre ] && cat $tmp.pre >$tmp.in
+	[ -f $tmp.cleanup ] && echo "+-+ CLEANUP +-+" >>$tmp.in
+	[ -f $tmp.post ] && cat $tmp.post >>$tmp.in
+    sed -E -n <$tmp.in >$tmp.warn \
+	-e '/# refactor-ok/b' \
+	-e 's/[ 	]*#.*//' \
+	-e '/^[0-9]*:[ 	]*_wait_for_pmcd_stop([ 	][ 	]*.|[<>\|&;$])/{
+/ \|\| _exit 1$/b
+p
+}' \
+	-e '/^[0-9]*:[ 	]*_wait_for_pmcd([ 	][ 	]*.|[<>\|&;$])/{
+/ \|\| _exit 1$/b
+p
+}' \
+	-e '/^[0-9]*:[ 	]*_wait_pmcd_end([ 	][ 	]*.|[<>\|&;$])/{
+/ \|\| _exit 1$/b
+p
+}' \
+	-e '/^[0-9]*:[ 	]*_wait_for_pmlogger[ 	][ 	]*[^ 	][^ 	]*[ 	][ 	]*[^ 	][^ 	]*[ 	][ 	]*[^ 	][^ 	]*([ 	][ 	]*.|[<>\|&;$])/{
+/ \|\| _exit 1$/b
+p
+}' \
+	-e '/^[0-9]*:[ 	]*_wait_for_pmlogger[ 	][ 	]*[^ 	][^ 	]*[ 	][ 	]*[^ 	][^ 	]*([ 	][ 	]*.|[<>\|&;$])/{
+/_wait_for_pmlogger[ 	][ 	]*[^ 	][^ 	]*[ 	][ 	]*[^ 	][^ 	]*[ 	][ 	]*[^ 	][^ 	]*$/b
+/ \|\| _exit 1$/b
+p
+}' \
+	-e '/^[0-9]*:[ 	]*_wait_for_pmlogger([ 	][ 	]*.|[<>\|&;$])/{
+/ \|\| _exit 1$/b
+/_wait_for_pmlogger[ 	][ 	]*[^ 	][^ 	]*[ 	][ 	]*[^ 	][^ 	]*[ 	][ 	]*[^ 	][^ 	]*$/b
+/_wait_for_pmlogger[ 	][ 	]*[^ 	][^ 	]*[ 	][ 	]*[^ 	][^ 	]*$/b
+/_wait_for_pmlogger[ 	][ 	]*[^ 	][^ 	]*$/b
+p
+}' \
+	-e '/^[0-9]*:[ 	]*_wait_pmlogger_end[ 	][ 	]*[^ 	][^ 	]*([ 	][ 	]*.|[<>\|&;$])/{
+/ \|\| _exit 1$/b
+p
+}' \
+	-e '/^[0-9]*:[ 	]*_wait_for_pmie([ 	][ 	]*.|[<>\|&;$])/{
+/ \|\| _exit 1$/b
+p
+}' \
+	-e '/^[0-9]*:[ 	]*_wait_pmie_end([ 	][ 	]*.|[<>\|&;$])/{
+/ \|\| _exit 1$/b
+p
+}' \
+	-e '/^[0-9]*:[ 	]*_wait_for_pmproxy([ 	][ 	]*.|[<>\|&;$])/{
+/ \|\| _exit 1$/b
+p
+}' \
+	-e '/^[0-9]*:[ 	]*_wait_pmproxy_end([ 	][ 	]*.|[<>\|&;$])/{
+/ \|\| _exit 1$/b
+p
+}' \
+	-e '/^[0-9]*:[ 	]*_wait_for_port([ 	][ 	]*.|[<>\|&;$])/{
+/ \|\| _exit 1$/b
+p
+}' \
+	-e '/^[0-9]*:[ 	]*_check_metric[ 	][ 	]*[^ 	][^ 	]*[ 	][ 	]*[^	][^	]*([ 	][ 	]*.|[<>\|&;$])/{
+/ \|\| _exit 1$/b
+p
+}' \
+	-e '/^[0-9]*:[ 	]*_setup_purify[ 	][ 	]*[^ 	][^ 	]*([ 	][ 	]*.|[<>\|&;$])/{
+/ \|\| _exit 1$/b
+p
+}' \
+	-e '/^[0-9]*:[ 	]*_change_config[ 	][ 	]*[^ 	][^ 	]*[ 	][ 	]*[^ 	][^ 	]*([ 	][ 	]*.|[<>\|&;$])/{
+/ \|\| _exit 1$/b
+p
+}' \
+	-e '/^[0-9]*:[ 	]*_disable_loggers([ 	][ 	]*.|[<>\|&;$])/{
+/ \|\| _exit 1$/b
+p
+}' \
+	-e '/^[0-9]*:[ 	]*_prepare_pmda_install[ 	][ 	]*[^ 	][^ 	]*([ 	][ 	]*.|[<>\|&;$])/{
+/ \|\| _exit 1$/b
+p
+}' \
+	-e '/^[0-9]*:[ 	]*_restore_pmda_install[ 	][ 	]*[^ 	][^ 	]*([ 	][ 	]*.|[<>\|&;$])/{
+/ \|\| _exit 1$/b
+p
+}' \
+	-e '/^[0-9]*:[ 	]*_get_primary_logger_pid([ 	][ 	]*.|[<>\|&;$])/{
+/ \|\| _exit 1$/b
+p
+}' \
+	-e '/^[0-9]*:[ 	]*_sighup_pmcd([ 	][ 	]*.|[<>\|&;$])/{
+/ \|\| _exit 1$/b
+p
+}' \
+	-e '/^[0-9]*:[ 	]*_set_dsosuffix([ 	][ 	]*.|[<>\|&;$])/{
+/ \|\| _exit 1$/b
+p
+}' \
+	-e '/^[0-9]*:[ 	]*_private_pmcd([ 	][ 	]*.|[<>\|&;$])/{
+/ \|\| _exit 1$/b
+p
+}' \
+	-e '/^[0-9]*:.*_get_config/{
+/[a-zA-Z0-9_]_get_config/b
+/_get_config[a-zA-Z0-9_]/b
+/[ 	]*if[ 	][ 	]*_get_config($|[ 	])/b
+/_get_config .* \|\| _exit 1/b
+p
+}' \
+	-e '/^[0-9]*:.*_get_endian/{
+/[a-zA-Z0-9_]_get_endian/b
+/_get_endian[a-zA-Z0-9_]/b
+/[ 	]*if[ 	][ 	]*_get_endian($|[ 	])/b
+/_get_endian .* \|\| _exit 1/b
+p
+}' \
+	-e '/^[0-9]*:.*_get_word_size/{
+/[a-zA-Z0-9_]_get_word_size/b
+/_get_word_size[a-zA-Z0-9_]/b
+/[ 	]*if[ 	][ 	]*_get_word_size($|[ 	])/b
+/_get_word_size .* \|\| _exit 1/b
+p
+}' \
+	-e '/^[0-9]*:[ 	]*_service[ 	][ 	]*[^ 	][^ 	]*[ 	][ 	]*[^ 	][^ 	]*/{
+/if ! _service .*; then _exit 1; fi /b
+/_service .* || _exit 1$/b
+/_service[ 	][ 	]*[^ 	][^ 	]*[ 	][ 	]*[^ 	][^ 	]*$/b
+/_service[ 	][ 	]*[^ 	][^ 	]*[ 	][ 	]*[^ 	][^ 	]*[ 	][ 	]*(2>|>|\|)/b
+p
+}' \
+	# end
+	if [ -s $tmp.warn ]
+	then
+	    echo "$file: Warning: these are lines that refactor cannot handle"
+	    sed -e 's/^\([0-9][0-9]*\):/[\1]/' $tmp.warn
+	fi
+
+	# check trap lines look kosher ...
+	#
+	_check_trap $tmp.in >$tmp.warn
+	if [ -s $tmp.warn ]
+	then
+	    echo "$file: Warning: these trap lines don't match calling _cleanup()"
+	    sed -e 's/:.*//' <$tmp.warn \
+	    | while read lineno
+	    do
+		grep "^$lineno:" $tmp.in \
+		| sed -e 's/^\([0-9][0-9]*\):/[\1]/'
+	    done
+	fi
+
+	# real work ...
+	sed <$tmp.in \
+	    -e 's/^[0-9][0-9]*://' \
+	    -e 's/\(> *\)\$here\/$seq.full/\1$seq_full/g' \
+	    -e 's/\(> *\)\$seq.full/\1$seq_full/g' \
+	    -e '/[ 	]rm .*\$seq.full/s/\$seq.full/$seq_full/g' \
+	    -e '/^rm .*\$seq.full/s/\$seq.full/$seq_full/g' \
+	| awk '
+/trap "/	{ print; next }
+/[#] refactor-ok/	{ print; next }
+/^rm / || / rm / {
+	    sub(/$/, " ")
+	    gsub(/ \$seq_full /, " ")
+	    gsub(/ \$tmp /, " ")
+	    gsub(/ \$tmp\.\* /, " ")
+	    sub(/  *$/, "")
+	    if ($NF !~ /^-/) print
+	    next
+	}
+	{
+	    # handle trailing comment
+	    tail = ""
+	    if ($0 ~ /#/) {
+		npart = split($0, part, /[ 	]*#/, seps)
+		if (npart == 2) {
+		    tail = seps[1] part[2]
+		    $0 = part[1]
+		}
+	    }
+	    sub(/^[ 	]*_wait_for_pmcd_stop$/, "& || _exit 1")
+	    sub(/^[ 	]*_wait_for_pmcd$/, "& || _exit 1")
+	    sub(/^[ 	]*_wait_pmcd_end$/, "& || _exit 1")
+	    sub(/^[ 	]*_wait_for_pmlogger[ 	][ 	]*[^ 	\|][^ 	\|]*[ 	][ 	]*[^ 	][^ 	]*[ 	][ 	]*[^ 	][^ 	]*$/, "& || _exit 1")
+	    sub(/^[ 	]*_wait_for_pmlogger[ 	][ 	]*[^ 	\|][^ 	\|]*[ 	][ 	]*[^ 	][^ 	]*$/, "& || _exit 1")
+	    sub(/^[ 	]*_wait_for_pmlogger[ 	][ 	]*[^ 	\|][^ 	\|]*$/, "& || _exit 1")
+	    sub(/^[ 	]*_wait_for_pmlogger$/, "& || _exit 1")
+	    sub(/^[ 	]*_wait_pmlogger_end[ 	][ 	]*[^ 	][^ 	]*$/, "& || _exit 1")
+	    sub(/^[ 	]*_wait_for_pmie$/, "& || _exit 1")
+	    sub(/^[ 	]*_wait_pmie_end$/, "& || _exit 1")
+	    sub(/^[ 	]*_wait_for_pmproxy$/, "& || _exit 1")
+	    sub(/^[ 	]*_wait_pmproxy_end$/, "& || _exit 1")
+	    sub(/^[ 	]*_wait_for_port$/, "& || _exit 1")
+	    sub(/^[ 	]*_check_metric[ 	][ 	]*[^ 	][^ 	]*[ 	][ 	]*[^ 	][^ 	]*$/, "& || _exit 1")
+	    sub(/^[ 	]*_check_metric[ 	][ 	]*[^ 	][^ 	]*$/, "& || _exit 1")
+	    sub(/^[ 	]*_setup_purify[ 	][ 	]*[^ 	][^ 	]*$/, "& || _exit 1")
+	    sub(/^[ 	]*_change_config[ 	][ 	]*[^ 	][^ 	]*[ 	][ 	]*[^ 	][^ 	]*$/, "& || _exit 1")
+	    sub(/^[ 	]*_disable_loggers$/, "& || _exit 1")
+	    sub(/^[ 	]*_prepare_pmda_install[ 	][ 	]*[^ 	][^ 	]*$/, "& || _exit 1")
+	    sub(/^[ 	]*_restore_pmda_install[ 	][ 	]*[^ 	][^ 	]*$/, "& || _exit 1")
+	    sub(/^[ 	]*_get_primary_logger_pid$/, "& || _exit 1")
+	    sub(/^[ 	]*_sighup_pmcd$/, "& || _exit 1")
+	    sub(/^[ 	]*_set_dsosuffix$/, "& || _exit 1")
+	    sub(/^[ 	]*_private_pmcd$/, "& || _exit 1")
+	    if (tail != "")
+		$0 = $0 tail
+	}
+	{ print }' \
+	| sed >$tmp.tmp \
+	    -e 's/^\([ 	]*\)\(_service[ 	][ 	]*[^ 	][^ 	]*[ 	][ 	]*[^ 	][^ 	]*\)$/\1if ! \2; then _exit 1; fi/' \
+	    -e 's/^\([ 	]*\)\(_service[ 	][ 	]*[^ 	][^ 	]*[ 	][ 	]*[^ 	][^ 	]*[ 	][ 	]*>>*[ 	]*[^ 	][^ 	]*[ 	][ 	]*2>[ 	]*[^ 	][^ 	]*\)/\1if ! \2; then _exit 1; fi/' \
+	    -e 's/^\([ 	]*\)\(_service[ 	][ 	]*[^ 	][^ 	]*[ 	][ 	]*[^ 	][^ 	]*[ 	][ 	]*>>*[ 	]*[^ 	][^ 	]*\)[ 	]*/\1if ! \2; then _exit 1; fi/' \
+	    -e 's/^\([ 	]*\)\(_service[ 	][ 	]*[^ 	][^ 	]*[ 	][ 	]*[^ 	][^ 	]*\)[ 	][ 	]*[|]/\1if ! \2; then _exit 1; fi \\\n\1|/' \
+	    -e 's/^\([ 	]*\)\(_service[ 	][ 	]*[^ 	][^ 	]*[ 	][ 	]*[^ 	][^ 	]*[ 	][ 	]*2[>][ 	]*[^ 	][^ 	]*\)/\1if ! \2; then _exit 1; fi/' \
+	# end
+
+	if grep -q '^+-+ CLEANUP +-+' $tmp.tmp
+	then
+	    sed -e '/^+-+ CLEANUP +-+/,$d' <$tmp.tmp >$tmp.out
+	    cat $tmp.cleanup >>$tmp.out
+	    sed -e '1,/^+-+ CLEANUP +-+/d' <$tmp.tmp >>$tmp.out
+	else
+	    mv $tmp.tmp $tmp.out
+	fi
+
+	if diff -q "$file" $tmp.out >/dev/null
+	then
+	    [ $verbose -gt 0 ] && echo "$file: no change"
+	else
+	    [ $verbose -gt 0 ] && echo "$file: diffs"
+	    [ $verbose -gt 1 ] && diff -u "$file" $tmp.out
+	    if $showme
+	    then
+		echo "$file: would be updated"
+	    else
+		cp $tmp.out "$file"
+	    fi
+	fi
+    done
+done
+
+

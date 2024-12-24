@@ -20,7 +20,6 @@ fi
 . ./common.filter
 . ./common.check
 
-$sudo rm -rf $tmp $tmp.* $seq.full
 
 which journalctl >/dev/null 2>&1 || _notrun "no journalctl executable installed"
 [ "$PCPQA_SYSTEMD" = no ] && _notrun "we're not using systemd here, so journalctl not useful"
@@ -135,7 +134,7 @@ _filter()
 		-e '/rc\[[0-9]*]: .*run the following as root:/d' \
 		-e '/rc\[[0-9]*]: .*systemctl enable pmlogger\.service/d' \
 		-e '/rc\[[0-9]*]: .*\/pmsignal: .* No such process/d' \
-		-e '/rc\[[0-9]*]: .*pmpost: .* cannot open .* NOTICES/d' \
+		-e '/rc\[[0-9]*]: .*pmpost: .* cannot open .*NOTICES/d' \
 		-e '/rc\[[0-9]*]: .*pmpost: unposted message:/d' \
 	    # end
 	    ;;
@@ -167,9 +166,9 @@ done
 # on ubuntu1804-container in CI
 # Mar 04 19:39:45 cd959fdf2242 pmcd[1179757]: /usr/lib/pcp/bin/pcp-reboot-init: 44: [: -ne: unexpected operator
 #
-which id >>$seq.full 2>&1
-id -u >>$seq.full 2>&1
-$sudo id -u >>$seq.full 2>&1
+which id >>$seq_full 2>&1
+id -u >>$seq_full 2>&1
+$sudo id -u >>$seq_full 2>&1
 
 # success, all done
 exit

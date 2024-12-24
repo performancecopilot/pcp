@@ -17,7 +17,6 @@ echo "QA output created by $seq"
 NEEDREWRITE=$PCP_LOG_DIR/pmlogger/.NeedRewrite
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 signal=$PCP_BINADM_DIR/pmsignal
 
@@ -63,17 +62,17 @@ s/from host .*/from host .../
 
 _stop_loggers()
 {
-    echo "entering _stop_loggers ..." >>$here/$seq.full
+    echo "entering _stop_loggers ..." >>$seq_full
     $PCP_PS_PROG $PCP_PS_ALL_FLAGS \
     | grep -E '[P]PPID|/[p]mlogger( |$)' \
-    | tee -a $here/$seq.full \
+    | tee -a $seq_full \
     | grep -v '[P]PID' \
     | $PCP_AWK_PROG '{print $2}' >$tmp.pids
     $sudo $signal -a -s TERM pmlogger
     for pid in `cat $tmp.pids`
     do
-	_wait_pmlogger_end "$pid"
-	echo "pmlogger [$pid] is done" >>$here/$seq.full
+	_wait_pmlogger_end "$pid" || _exit 1
+	echo "pmlogger [$pid] is done" >>$seq_full
     done
 }
 
@@ -89,14 +88,14 @@ _cleanup()
 
     for x in A B C
     do
-	echo "--- $tmp.$x.log ---" >>$here/$seq.full
-	cat $tmp.$x.log >>$here/$seq.full
-	echo "--- end pmlogger log ---" >>$here/$seq.full
+	echo "--- $tmp.$x.log ---" >>$seq_full
+	cat $tmp.$x.log >>$seq_full
+	echo "--- end pmlogger log ---" >>$seq_full
 	if [ -f $tmp.$x.strace ]
 	then
-	    echo "--- $tmp.$x.strace ---" >>$here/$seq.full
-	    cat $tmp.$x.strace >>$here/$seq.full
-	    echo "--- end strace ---" >>$here/$seq.full
+	    echo "--- $tmp.$x.strace ---" >>$seq_full
+	    cat $tmp.$x.strace >>$seq_full
+	    echo "--- end strace ---" >>$seq_full
 	fi
     done
 
@@ -111,8 +110,8 @@ _cleanup()
 	# badness in the PMNS for the pmproxy.* metrics if check's callback
 	# checks the PMNS .. seen on vm11 (Debian 11.1)
 	#
-	echo "Restart pmproxy ..." >>$here/$seq.full
-	_service pmproxy restart >>$here/$seq.full 2>&1
+	echo "Restart pmproxy ..." >>$seq_full
+	_service pmproxy restart >>$seq_full 2>&1
 	_wait_for_pmproxy
     fi
 
@@ -148,9 +147,9 @@ _check_loggers()
 	    pid=`grep -l "/$x/" $PCP_TMP_DIR/pmlogger/[0-9]* | sed -e 's/.*pmlogger.//'`
 	    if [ -n "$pid" ]
 	    then
-		echo "Found pid $pid for $tmp/$x after $z iterations" >>$here/$seq.full
+		echo "Found pid $pid for $tmp/$x after $z iterations" >>$seq_full
 		echo "status" | pmlc $pid >$tmp.pmlc.out 2>&1
-		cat $tmp.pmlc.out >>$here/$seq.full
+		cat $tmp.pmlc.out >>$seq_full
 		if grep '^log size' $tmp.pmlc.out >/dev/null 2>&1
 		then
 		    touch $tmp.found
@@ -163,32 +162,32 @@ _check_loggers()
 	done
 	if [ ! -f $tmp.found ]
 	then
-	    echo "Arrgh ... pmlogger_* failed to keep pmlogger running for $tmp/$x" | tee -a $here/$seq.full
-	    echo "--- $tmp ---" >>$here/$seq.full
-	    ls -l $tmp* >>$here/$seq.full
-	    echo "--- $tmp/$x ---" >>$here/$seq.full
-	    ls -l $tmp/$x >>$here/$seq.full
-	    echo "--- $tmp.$x.log ---" >>$here/$seq.full
-	    cat $tmp.$x.log >>$here/$seq.full
-	    echo "--- end pmlogger log ---" >>$here/$seq.full
+	    echo "Arrgh ... pmlogger_* failed to keep pmlogger running for $tmp/$x" | tee -a $seq_full
+	    echo "--- $tmp ---" >>$seq_full
+	    ls -l $tmp* >>$seq_full
+	    echo "--- $tmp/$x ---" >>$seq_full
+	    ls -l $tmp/$x >>$seq_full
+	    echo "--- $tmp.$x.log ---" >>$seq_full
+	    cat $tmp.$x.log >>$seq_full
+	    echo "--- end pmlogger log ---" >>$seq_full
 	    for log in log.prev log.from.check log.from.check.prev
 	    do
-		echo "--- $tmp/$log ---" >>$here/$seq.full
+		echo "--- $tmp/$log ---" >>$seq_full
 		if [ -f $tmp/$log ]
 		then
-		    cat $tmp/$log >>$here/$seq.full
+		    cat $tmp/$log >>$seq_full
 		else
-		    echo "<missing>" >>$here/$seq.full
+		    echo "<missing>" >>$seq_full
 		fi
 	    done
-	    echo "--- end of logs ---" >>$here/$seq.full
-	    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger( |$)' >>$here/$seq.full
+	    echo "--- end of logs ---" >>$seq_full
+	    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger( |$)' >>$seq_full
 	    for state in $PCP_TMP_DIR/pmlogger/[0-9]*
 	    do
-		echo "=== $state ===" | tee -a $here/$seq.full
-		cat $state | tee -a $here/$seq.full
+		echo "=== $state ===" | tee -a $seq_full
+		cat $state | tee -a $seq_full
 	    done
-	    echo "See $seq.full for details"
+	    echo "See $seq_full for details"
 	    status=0
 	    exit
 	fi
@@ -204,7 +203,7 @@ End-of-File
 
 pmproxy_was_running=false
 [ -f $PCP_RUN_DIR/pmproxy.pid ] && pmproxy_was_running=true
-echo "pmproxy_was_running=$pmproxy_was_running" >>$here/$seq.full
+echo "pmproxy_was_running=$pmproxy_was_running" >>$seq_full
 
 # real QA test starts here
 
@@ -232,21 +231,25 @@ LOCALHOSTNAME	n   n	"$qatmp/\`echo c | tr '[a-z]' '[A-Z]'\`" --pmlc-ipc-version=
 End-of-File
 sudo -u $PCP_USER -g $PCP_GROUP cp $tmp.control $tmp/control
 
-cat $tmp/control >>$here/$seq.full
-echo "qatmp=$qatmp" >>$here/$seq.full
-echo "PCP_TMP_DIR=$PCP_TMP_DIR" >>$here/$seq.full
+cat $tmp/control >>$seq_full
+echo "qatmp=$qatmp" >>$seq_full
+echo "PCP_TMP_DIR=$PCP_TMP_DIR" >>$seq_full
 
-echo "pmlogger_check #1" | tee -a $here/$seq.full
+echo "pmlogger_check #1" | tee -a $seq_full
+# need to be a place the user $PCP_USER can cd to from pmlogger_check
+#
+cd /var/tmp
 $sudo -u $PCP_USER -g $PCP_GROUP sh -c "qatmp=$qatmp $PCP_BINADM_DIR/pmlogger_check -V -c $tmp/control -l $tmp/log"
+cd $here
 if [ -s $tmp/log ]
 then
-    echo "$tmp.log from pmlogger_check #1 ..." >>$here/$seq.full
-    cat $tmp/log | tee -a $here/$seq.full | _filter
+    echo "$tmp.log from pmlogger_check #1 ..." >>$seq_full
+    cat $tmp/log | tee -a $seq_full | _filter
 fi
 _check_loggers
 for x in A B C
 do
-    ls -l $tmp/$x >>$here/$seq.full
+    ls -l $tmp/$x >>$seq_full
     echo `ls $tmp/$x | grep "\.meta" | wc -l | sed -e 's/ //g'` archives in TMP/$x
 done
 
@@ -255,26 +258,28 @@ sleep 1
 
 _stop_loggers
 
-echo "pmlogger_check #2" | tee -a $here/$seq.full
+echo "pmlogger_check #2" | tee -a $seq_full
+cd /var/tmp
 $sudo -u $PCP_USER -g $PCP_GROUP sh -c "qatmp=$qatmp $PCP_BINADM_DIR/pmlogger_check -V -c $tmp/control -l $tmp/log"
+cd $here
 if [ -s $tmp/log ]
 then
-    echo "$tmp.log from pmlogger_check #2 ..." >>$here/$seq.full
-    cat $tmp/log | tee -a $here/$seq.full | _filter
+    echo "$tmp.log from pmlogger_check #2 ..." >>$seq_full
+    cat $tmp/log | tee -a $seq_full | _filter
 fi
 _check_loggers
 for x in A B C
 do
-    echo "--- $tmp/$x ---" >>$here/$seq.full
-    ls -l $tmp/$x >>$here/$seq.full
+    echo "--- $tmp/$x ---" >>$seq_full
+    ls -l $tmp/$x >>$seq_full
     echo `ls $tmp/$x | grep "\.meta" | wc -l | sed -e 's/ //g'` archives in TMP/$x
 done
 
 # let pmloggers run for a while
 sleep 1
 
-echo "pmlogger processes ..." >>$here/$seq.full
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger( |$)' >>$here/$seq.full
+echo "pmlogger processes ..." >>$seq_full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger( |$)' >>$seq_full
 
 # this test has a history of failing in the pmlogger_daily step below
 # when one (or more) of the pmlogger processes vanishes, so we're
@@ -290,11 +295,13 @@ fi
 
 echo
 echo "pmlogger_daily"
+cd /var/tmp
 $sudo -u $PCP_USER -g $PCP_GROUP sh -c "qatmp=$qatmp $PCP_BINADM_DIR/pmlogger_daily -D -Z -VV -x never -c $tmp/control -l $tmp/log"
+cd $here
 if [ -s $tmp/log ]
 then
-    echo "$tmp.log from pmlogger_daily ..." >>$here/$seq.full
-    cat $tmp/log >>$here/$seq.full
+    echo "$tmp.log from pmlogger_daily ..." >>$seq_full
+    cat $tmp/log >>$seq_full
     sed -n <$tmp/log \
 	-e '/^=== /p' \
 	-e '/^$/p' \
@@ -309,8 +316,8 @@ sleep 1
 _check_loggers
 for x in A B C
 do
-    echo "--- $tmp/$x ---" >>$here/$seq.full
-    ls -l $tmp/$x >>$here/$seq.full
+    echo "--- $tmp/$x ---" >>$seq_full
+    ls -l $tmp/$x >>$seq_full
     echo `ls $tmp/$x | grep "\.meta" | wc -l | sed -e 's/ //g'` archives in TMP/$x
 done
 

@@ -96,7 +96,6 @@ strip == 1			{ print >"'$tmp.tmp'"; next }
 }
 
 trap "$sudo rm -f $tmp.*; exit" 0 1 2 3 15
-$sudo rm -rf $tmp.* $seq.full
 
 remote=`./getpmcdhosts -L -n 1 -a sample 2>$tmp.out`
 [ -z "$remote" ] && _notrun `cat $tmp.out`

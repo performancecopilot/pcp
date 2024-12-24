@@ -3,7 +3,7 @@ QA output created by 1306
 === openmetrics agent installation ===
 
 === URL configuration file contains
-file://QA_DIR/openmetrics/samples/labelfiltering.txt
+file://TMP.labelfiltering.txt
 
 # Filter to remove the "uninteresting" label
 FILTER: EXCLUDE LABEL uninteresting
