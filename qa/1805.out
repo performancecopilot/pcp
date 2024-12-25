@@ -190,6 +190,27 @@ network.mptcp.dsscorruptionfallback
 network.mptcp.dsscorruptionreset
     value 59
 
+network.mptcp.mpcapablesyntxdrop
+    value 60
+
+network.mptcp.mpcapablesyntxdisabled
+    value 61
+
+network.mptcp.mpjoinsyntx
+    value 62
+
+network.mptcp.mpjoinsyntxcreatskerr
+    value 63
+
+network.mptcp.mpjoinsyntxbinderr
+    value 64
+
+network.mptcp.mpjoinsyntxconnecterr
+    value 65
+
+network.mptcp.blackhole
+    value 66
+
 == Checking network.tcp metrics
 
 network.tcp.rtoalgorithm
