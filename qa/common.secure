@@ -115,26 +115,26 @@ nss_setup_certificates()
 {
     __certdomain=`nss_subject_name $qahost $hostname`
 
-    echo "setup_certificates host details:" >> $here/$seq.full
-    echo "HOST=$hostname" >> $here/$seq.full
-    echo "QAHOST=$qahost" >> $here/$seq.full
-    echo "DOMAIN=$__certdomain" >> $here/$seq.full
+    echo "setup_certificates host details:" >>$seq_full
+    echo "HOST=$hostname" >>$seq_full
+    echo "QAHOST=$qahost" >>$seq_full
+    echo "DOMAIN=$__certdomain" >>$seq_full
 
     # create self-signed (-x) server certificate locally
-    echo "== Creating local certificates" | tee -a $here/$seq.full
+    echo "== Creating local certificates" | tee -a $seq_full
     $sudo certutil $__certopts -S -x \
 	-n "Local CA certificate" -s "CN=\"Local PCP Installation, $__certdomain\""  \
-	-t "CT,,"  >> $here/$seq.full 2>&1
+	-t "CT,,"  >>$seq_full 2>&1
     sleep 1 # so that the next cert does not get the same serial number
     $sudo certutil $__certopts -S \
 	-n "PCP Collector certificate" -s "CN=\"PCP Collector\"" \
 	-c "Local CA certificate" -8 "$qahost,$hostname" \
-	-t "P,," >> $here/$seq.full 2>&1
-    echo "== Certificate DB and local certificates created" | tee -a $here/$seq.full
+	-t "P,," >>$seq_full 2>&1
+    echo "== Certificate DB and local certificates created" | tee -a $seq_full
 
     # export ascii copy of the certificate for later use
     $sudo certutil $__certopts -L -n "Local CA certificate" -a > $tmp.cacert.asc
-    cat $tmp.cacert.asc >> $here/$seq.full
+    cat $tmp.cacert.asc >>$seq_full
 }
 
 nss_setup_collector()
@@ -152,7 +152,7 @@ nss_setup_collector()
     echo "$seq.password" > $tmp.password
     $sudo mv $tmp.password $collectorpw
 
-    echo "== Creating empty certificate DB" | tee -a $here/$seq.full
+    echo "== Creating empty certificate DB" | tee -a $seq_full
     $sudo certutil $__certopts -N
 
     $__withcerts && nss_setup_certificates $__fqdn $__host
@@ -185,15 +185,16 @@ End-Of-File
 		;;
     esac
     $sudo chown root:$__grp $PCP_PMCDOPTIONS_PATH
-    echo "Start pmcd, modified \$PCP_PMCDOPTIONS_PATH (pmcd.options):" | tee -a $here/$seq.full
-    _service pcp restart | tee -a $here/$seq.full >$tmp.out
-    _wait_for_pmcd
-    _wait_for_pmlogger
+    echo "Start pmcd, modified \$PCP_PMCDOPTIONS_PATH (pmcd.options):" | tee -a $seq_full
+    if ! _service pcp restart; then _exit 1; fi \
+    | tee -a $seq_full >$tmp.out
+    _wait_for_pmcd || _exit 1
+    _wait_for_pmlogger || _exit 1
     grep -i 'starting pmcd' $tmp.out | sed -e "s/$$/MYPID/" | _filter_pcp_start
-    echo "Checking pmcd.log for unexpected messages" | tee -a $here/$seq.full
+    echo "Checking pmcd.log for unexpected messages" | tee -a $seq_full
     grep -E 'Error:|Info:' $tmp.pmcd.log | sed -e '/PMNS file "DEFAULT" is unchanged/d'
-    cat $tmp.pmcd.log >> $here/$seq.full
-    echo "--- end of pmcd.log ---" >> $here/$seq.full
+    cat $tmp.pmcd.log >>$seq_full
+    echo "--- end of pmcd.log ---" >>$seq_full
 }
 
 nss_setup_empty_userdb()
@@ -252,6 +253,12 @@ filter_sample_log_credentials()
 #
 _check_tls()
 {
+    if [ -z "$tmp" ]
+    then
+	echo "_check_tls: Arrgh \$tmp not set, I give up"
+	return
+    fi
+
     openssl help 2>/dev/null || _notrun "No openssl binary found"
 
     if [ -f /etc/lsb-release ]
@@ -270,29 +277,6 @@ _check_tls()
 	    esac
         fi
     fi
-
-    # user pcp (as in pmcd) has to be able to read tls.conf/pcp.crt
-    # ... which is an issue if $HOME for the person running QA is mode
-    # 700
-    #
-    if $sudo -u $PCP_USER [ -r `pwd`/tls.conf/pcp.crt ]
-    then
-	:
-    else
-	echo "Warning: `pwd`/tls.conf/pcp.crt is not readable by the user $PCP_USER"
-	path=''
-	for dir in `echo $(pwd)/tls.conf | sed -e 's/\// /g'`
-	do
-	    path="$path/$dir"
-	    if $sudo -u $PCP_USER [ -r "$path" ]
-	    then
-		:
-	    else
-		echo "Directory $path is unreadable"
-		break
-	    fi
-	done
-    fi
 }
 
 # creates self-signed (insecure) certificates for QA testing only.
@@ -303,56 +287,59 @@ _setup_cert()
     local __cn="$2"
     local __opts="$3"
 
-    local __keyfile=$here/tls.conf/${__name}.key
-    local __certfile=$here/tls.conf/${__name}.crt
+    if [ -z "$tmp" ]
+    then
+	echo "_setup_cert: Arrgh \$tmp not set, I give up"
+	return
+    fi
 
-    [ -d $here/tls.conf ] || mkdir $here/tls.conf
+    local __keyfile=$tmp.tls/${__name}.key
+    local __certfile=$tmp.tls/${__name}.crt
 
-    [ -f $__keyfile ] || \
-	openssl genrsa -out $__keyfile 2048 >> $here/tls.conf/openssl.log 2>&1
+    [ -d $tmp.tls ] || mkdir $tmp.tls
 
-    [ -f $__certfile ] || \
-	openssl req \
-		-new -sha256 \
-		-subj "/O=PCP QA/CN=$__cn" \
-		-key $__keyfile \
-	| openssl x509 -req -sha256 -days 365 $__opts \
-		-CA $here/tls.conf/ca.crt \
-		-CAkey $here/tls.conf/ca.key \
-		-CAserial $here/tls.conf/ca.txt \
-		-CAcreateserial \
-		-out $__certfile >> $here/tls.conf/openssl.log 2>&1
+    openssl genrsa -out $__keyfile 2048 >>$tmp.tls/openssl.log 2>&1
+
+    openssl req \
+	    -new -sha256 \
+	    -subj "/O=PCP QA/CN=$__cn" \
+	    -key $__keyfile \
+    | openssl x509 -req -sha256 -days 365 $__opts \
+	    -CA $tmp.tls/ca.crt \
+	    -CAkey $tmp.tls/ca.key \
+	    -CAserial $tmp.tls/ca.txt \
+	    -CAcreateserial \
+	    -out $__certfile >>$tmp.tls/openssl.log 2>&1
 }
 
-# configure an /etc/pcp/tls.conf file for secure socket communication
+# Configure an /etc/pcp/tls.conf file for secure socket communication
 # - used by PMAPI clients, pmcd and pmproxy - caller must ensure that
 # a backup of tls.conf has been made, and restore it at end of test.
 #
+# But first, setup keys and certs where anyone can read 'em.
+#
 _setup_tls()
 {
-    find $here/tls.conf/*.crt -mtime +360 2>/dev/null >$tmp.certs
-    if [ -s $tmp.certs ]
+    if [ -z "$tmp" ]
     then
-	# remove old certificates before they expire after one
-	# year and cause havoc to debug
-	#
-	$sudo rm -rf $here/tls.conf
+	echo "_setup_tls: Arrgh \$tmp not set, I give up"
+	return
+    fi
+    if ! mkdir $tmp.tls
+    then
+	echo "_setup_tls: Arrgh cannot create $tmp.tls dir, I give up"
+	return
     fi
 
-    [ -d $here/tls.conf ] || mkdir $here/tls.conf
+    openssl genrsa -out $tmp.tls/ca.key 4096 >>$tmp.tls/openssl.log 2>&1
 
-    [ -f $here/tls.conf/ca.key ] || \
-	openssl genrsa -out $here/tls.conf/ca.key 4096 >> $here/tls.conf/openssl.log 2>&1
+    openssl req \
+	    -x509 -new -nodes -sha256 -days 3650 \
+	    -subj "/O=PCP QA/CN=Certificate Authority" \
+	    -key $tmp.tls/ca.key \
+	    -out $tmp.tls/ca.crt >>$tmp.tls/openssl.log 2>&1
 
-    [ -f $here/tls.conf/ca.crt ] || \
-	openssl req \
-		-x509 -new -nodes -sha256 -days 3650 \
-		-subj "/O=PCP QA/CN=Certificate Authority" \
-		-key $here/tls.conf/ca.key \
-		-out $here/tls.conf/ca.crt >> $here/tls.conf/openssl.log 2>&1
-
-    [ -f $here/tls.conf/openssl.cnf ] || \
-	cat > $here/tls.conf/openssl.cnf <<__END__
+    cat >$tmp.tls/openssl.cnf <<__END__
 [ server_cert ]
 keyUsage = digitalSignature, keyEncipherment
 nsCertType = server
@@ -362,23 +349,23 @@ keyUsage = digitalSignature, keyEncipherment
 nsCertType = client
 __END__
 
-    _setup_cert server "Server-only" "-extfile $here/tls.conf/openssl.cnf -extensions server_cert"
-    _setup_cert client "Client-only" "-extfile $here/tls.conf/openssl.cnf -extensions client_cert"
+    _setup_cert server "Server-only" "-extfile $tmp.tls/openssl.cnf -extensions server_cert"
+    _setup_cert client "Client-only" "-extfile $tmp.tls/openssl.cnf -extensions client_cert"
     _setup_cert pcp "Generic-cert"
 
-    $sudo chown -R pcp:pcp $here/tls.conf
-    $sudo chmod ugo+r $here/tls.conf/*
+    $sudo chown -R $PCP_USER:$PCP_GROUP $tmp.tls
+    $sudo chmod ugo+r $tmp.tls/*
 
-    echo > $tmp.tls
-    echo "# settings related to TLS certificates and keys" >> $tmp.tls
-    echo "# created by QA test $seq" >> $tmp.tls
-    echo >> $tmp.tls
-    echo "tls-key-file = $here/tls.conf/pcp.key" >> $tmp.tls
-    echo "tls-cert-file = $here/tls.conf/pcp.crt" >> $tmp.tls
-    echo "tls-ca-cert-file = $here/tls.conf/ca.crt" >> $tmp.tls
+    echo >$tmp.tls.conf
+    echo "# settings related to TLS certificates and keys" >>$tmp.tls.conf
+    echo "# created by QA test $seq" >>$tmp.tls.conf
+    echo >>$tmp.tls.conf
+    echo "tls-key-file = $tmp.tls/pcp.key" >>$tmp.tls.conf
+    echo "tls-cert-file = $tmp.tls/pcp.crt" >>$tmp.tls.conf
+    echo "tls-ca-cert-file = $tmp.tls/ca.crt" >>$tmp.tls.conf
 
-    $sudo cp $tmp.tls $PCP_TLSCONF_PATH
-    echo "--- new $PCP_TLSCONF_PATH ---" >>$here/$seq.full
-    cat $PCP_TLSCONF_PATH >>$here/$seq.full
-    echo "--- end $PCP_TLSCONF_PATH ---" >>$here/$seq.full
+    $sudo cp $tmp.tls.conf $PCP_TLSCONF_PATH
+    echo "--- new $PCP_TLSCONF_PATH ---" >>$seq_full
+    cat $PCP_TLSCONF_PATH >>$seq_full
+    echo "--- end $PCP_TLSCONF_PATH ---" >>$seq_full
 }

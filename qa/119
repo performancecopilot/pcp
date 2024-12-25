@@ -165,7 +165,11 @@ $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '/[p]mlogger( |$)' >>$seq_full
 echo "+++" >>$seq_full
 echo >>$seq_full
 echo "=== pmlogger_check ===" >>$seq_full
+# need to be a place the user $PCP_USER can cd to from pmlogger_daily
+#
+cd /var/tmp
 $sudo -u $PCP_USER -g $PCP_GROUP $PCP_BINADM_DIR/pmlogger_check -l $PMCHECK_LOG
+cd $here
 echo "+++ after pmlogger_check ..." >>$seq_full
 $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '/[p]mlogger( |$)' >>$seq_full
 echo "+++" >>$seq_full
@@ -174,7 +178,9 @@ cat $PMCHECK_LOG >>$seq_full
 
 echo | tee -a $seq.full
 echo "=== pmlogger_check -T ===" | tee -a $seq.full
+cd /var/tmp
 $sudo -u $PCP_USER -g $PCP_GROUP $PCP_BINADM_DIR/pmlogger_check -T -l $PMCHECK_LOG
+cd $here
 _filter < $PMCHECK_LOG
 cat $PMCHECK_LOG >>$seq_full
 

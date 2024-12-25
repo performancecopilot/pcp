@@ -329,8 +329,12 @@ p
 	# real work ...
 	sed <$tmp.in \
 	    -e 's/^[0-9][0-9]*://' \
-	    -e 's/\(> *\)\$here\/$seq.full/\1$seq_full/g' \
-	    -e 's/\(> *\)\$seq.full/\1$seq_full/g' \
+	    -e 's/\(>[ 	]*\)\$here\/$seq.full/\1$seq_full/g' \
+	    -e 's/\(>[ 	]*\)\$seq.full/\1$seq_full/g' \
+	    -e 's/\(tee[ 	][ 	]*\)\$here\/$seq.full/\1$seq_full/g' \
+	    -e 's/\(tee[ 	][ 	]*\)\$seq.full/\1$seq_full/g' \
+	    -e 's/\(tee[ 	][ 	]*-a[ 	][ 	]*\)\$here\/$seq.full/\1$seq_full/g' \
+	    -e 's/\(tee[ 	][ 	]*-a[ 	][ 	]*\)\$seq.full/\1$seq_full/g' \
 	    -e '/[ 	]rm .*\$seq.full/s/\$seq.full/$seq_full/g' \
 	    -e '/^rm .*\$seq.full/s/\$seq.full/$seq_full/g' \
 	| awk '
@@ -404,12 +408,12 @@ p
 	then
 	    [ $verbose -gt 0 ] && echo "$file: no change"
 	else
-	    [ $verbose -gt 0 ] && echo "$file: diffs"
 	    [ $verbose -gt 1 ] && diff -u "$file" $tmp.out
 	    if $showme
 	    then
 		echo "$file: would be updated"
 	    else
+		[ $verbose -gt 0 ] && echo "$file: updated"
 		cp $tmp.out "$file"
 	    fi
 	fi

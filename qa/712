@@ -70,9 +70,18 @@ _setup_tls
 original=$PCP_TLSCONF_PATH
 cp $original $tmp.tls.orig
 
-if ! _service pmcd start; then _exit 1; fi \
-| _filter_pcp_start
-_wait_for_pmcd || _exit 1
+if ! _service pmcd start || ! _wait_for_pmcd
+then
+    echo "--- cert & key files and sum by user $PCP_USER"
+    for file in $tmp.tls/*
+    do
+	ls -l $file
+	sudo -u $PCP_USER sum $file
+    done
+    echo "--- openssl.log from key & cert setup"
+    cat $tmp.tls/openssl.log
+    _exit 1
+fi | _filter_pcp_start
 
 echo
 echo "checking client, generic certificate.  should pass..."

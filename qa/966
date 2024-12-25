@@ -48,8 +48,18 @@ _filter_tls()
 # real QA test starts here
 _setup_tls
 
-if ! _service pmcd start 2>&1; then _exit 1; fi | _filter_pcp_start
-_wait_for_pmcd || _exit 1
+if ! _service pmcd start || ! _wait_for_pmcd
+then
+    echo "--- cert & key files and sum by user $PCP_USER"
+    for file in $tmp.tls/*
+    do
+	ls -l $file
+	sudo -u $PCP_USER sum $file
+    done
+    echo "--- openssl.log from key & cert setup"
+    cat $tmp.tls/openssl.log
+    _exit 1
+fi | _filter_pcp_start
 
 echo
 echo "checking client, secure connection.  should pass..." | tee -a $seq_full
