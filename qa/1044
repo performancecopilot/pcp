@@ -58,7 +58,6 @@ echo
 echo "=== check for non-existant rules location"
 pmieconf -r /no/such/file -v 5 all
 
-rm -f $seq.full
 echo
 echo "=== check no fatal errors when creating config.pmie"
 pmieconf -r ./pconf -f $seq.full -F >/dev/null 2>$tmp.out

@@ -15,7 +15,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-$sudo rm -rf $tmp $tmp.* $seq.full
 
 _cleanup()
 {

@@ -47,7 +47,7 @@ _cleanup()
 _fixup()
 {
     $sudo cp $PCP_PMCDCONF_PATH.$seq $PCP_PMCDCONF_PATH
-    _service pmcd restart 2>&1 | _filter_pcp_start
+    if ! _service pmcd restart 2>&1; then _exit 1; fi | _filter_pcp_start
     _wait_for_pmcd || _exit 1
 }
 

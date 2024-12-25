@@ -59,12 +59,10 @@ then
     fi
     # may be OK
 else
-    rm -f $tmp.*
     _notrun "man -k ls won't even work ... apropos/whatis index needs rebuilding?"
 fi
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 rm -f $seq.out
@@ -193,14 +191,14 @@ do
 	    :
 	else
 	    # no matching entry from man -k
-	    cat $tmp.out >>$seq.full
-	    cat $tmp.err >>$seq.full
+	    cat $tmp.out >>$seq_full
+	    cat $tmp.err >>$seq_full
 	    echo "No matching man entry for section $sect"
 	fi
     else
 	# no output from man -k
-	cat $tmp.out >>$seq.full
-	cat $tmp.err >>$seq.full
+	cat $tmp.out >>$seq_full
+	cat $tmp.err >>$seq_full
 	echo "No matching man entry in any section!"
     fi
     echo "--- ($sect) ---" | tee -a $seq.full
@@ -210,7 +208,7 @@ do
     then
 	echo OK
     else
-	cat $tmp.out >>$seq.full
+	cat $tmp.out >>$seq_full
 	echo "No match for pattern $pat"
     fi
 

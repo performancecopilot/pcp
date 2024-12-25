@@ -19,7 +19,6 @@ fi
 # get standard Qt environment, filters and checks
 . ./common.qt
 
-$sudo rm -rf $tmp $tmp.* $seq.full
 
 which dkvis >/dev/null 2>&1 || _notrun "No dkvis binary installed"
 which mpvis >/dev/null 2>&1 || _notrun "No mpvis binary installed"

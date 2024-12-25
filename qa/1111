@@ -12,7 +12,7 @@ echo "QA output created by $seq"
 $python -c "from pcp import pmapi" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python pcp pmapi module not installed"
 which socat >/dev/null 2>&1 || _notrun "socat binary not installed"
-which pcp2influxdb >$seq.full 2>&1 || _notrun "pcp2influxdb not installed"
+which pcp2influxdb >$seq_full 2>&1 || _notrun "pcp2influxdb not installed"
 
 $python -c "import requests" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python requests module not installed"
@@ -23,7 +23,6 @@ port=8086
 $PCP_BINADM_DIR/telnet-probe -c localhost $port \
 	&& _notrun "Someone already listening on typical InfluxDB $port"
 
-$sudo rm -rf $seq.full $tmp.*
 signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
 
@@ -31,14 +30,14 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 _full_stash()
 {
-    echo "--- pcp2influxdb stdout --" >>$seq.full
-    cat $tmp.p2i.out >>$seq.full
-    echo "--- pcp2influxdb stderr --" >>$seq.full
-    cat $tmp.p2i.err >>$seq.full
-    echo "--- socket cat stdout --" >>$seq.full
-    cat $tmp.socat.out >>$seq.full
-    echo "--- socket cat stderr --" >>$seq.full
-    cat $tmp.socat.err >>$seq.full
+    echo "--- pcp2influxdb stdout --" >>$seq_full
+    cat $tmp.p2i.out >>$seq_full
+    echo "--- pcp2influxdb stderr --" >>$seq_full
+    cat $tmp.p2i.err >>$seq_full
+    echo "--- socket cat stdout --" >>$seq_full
+    cat $tmp.socat.out >>$seq_full
+    echo "--- socket cat stderr --" >>$seq_full
+    cat $tmp.socat.err >>$seq_full
 }
 
 pcp2influxdb="$python `which pcp2influxdb`"

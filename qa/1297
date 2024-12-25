@@ -36,7 +36,6 @@ _cleanup()
 
 status=1	# failure is the default!
 host=`hostname`
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 was_running=false
 [ -f $PCP_RUN_DIR/pmie.pid ] && was_running=true
@@ -70,16 +69,16 @@ do
 done
 
 # real QA test starts here
-$sudo systemctl stop pmie 2>&1 >>$here/$seq.full
-_wait_pmie_end
+$sudo systemctl stop pmie 2>&1 >>$seq_full
+_wait_pmie_end || _exit 1
 echo
 
 echo "== confirm no primary pmie running:" | tee -a $here/$seq.full
 pcp | grep 'pmie: primary engine' | _filter
 echo "== finished" && echo
 
-$sudo systemctl start pmie 2>&1 >>$here/$seq.full
-_wait_for_pmie
+$sudo systemctl start pmie 2>&1 >>$seq_full
+_wait_for_pmie || _exit 1
 echo "== confirm primary pmie is running:" | tee -a $here/$seq.full
 pcp | grep 'pmie: primary engine' | _filter
 echo "== finished" && echo

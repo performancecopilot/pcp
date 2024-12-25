@@ -36,7 +36,7 @@ $python -c "import lxml" >/dev/null 2>&1
 
 # start libvirtd
 #
-_service libvirtd start >$seq_full 2>&1
+if ! _service libvirtd start >$seq_full 2>&1; then _exit 1; fi
 [ -e /var/run/libvirt/libvirt-sock-ro ] || _notrun "no socket, libvirtd not running?"
 
 status=1	# failure is the default!
@@ -112,7 +112,6 @@ pmdalibvirt_cleanup()
     # note: _restore_auto_restart pmcd done in _cleanup_pmda()
     _cleanup_pmda libvirt
     [ -n "$timeout" ] && pmstore pmcd.control.timeout $timeout >>$seq_full 2>&1
-    rm -f $tmp.*
 }
 
 _prepare_pmda libvirt

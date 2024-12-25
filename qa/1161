@@ -22,7 +22,6 @@ ping -c 1 localhost >/dev/null 2>&1 || _notrun "failed to ping localhost"
 
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
-$sudo rm -rf $tmp.* $seq.full
 
 pmda_filter()
 {
@@ -67,8 +66,8 @@ family = both
 [dns_reverse]
 timeout = 1
 EOF
-    echo "pmdanetcheck config:" >> $here/$seq.full
-    cat $tmp.config >> $here/$seq.full
+    echo "pmdanetcheck config:" >> $seq_full
+    cat $tmp.config >> $seq_full
 
     [ -f $PCP_PMDAS_DIR/netcheck/netcheck.conf ] && \
     $sudo cp $PCP_PMDAS_DIR/netcheck/netcheck.conf $tmp.backup

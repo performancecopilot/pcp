@@ -38,7 +38,6 @@ _cleanup()
 }
 
 status=0	# success is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 #
@@ -74,9 +73,9 @@ do
     pminfo -L -f $int > $tmp.int
     eval `_extract < $tmp.int`
 
-    echo "lo=$lo" >> $here/$seq.full
-    echo "sum=$sum" >> $here/$seq.full
-    echo "all=$all" >> $here/$seq.full
+    echo "lo=$lo" >> $seq_full
+    echo "sum=$sum" >> $seq_full
+    echo "all=$all" >> $seq_full
 
     [ $sum -lt $all ] && echo "$suffix: sum is less than all ($sum -lt $all)"
     sum=`expr $sum - $lo`

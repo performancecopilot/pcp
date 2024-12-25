@@ -15,7 +15,6 @@ _check_series
 _check_requests_json
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 
 pyscript=$here/src/test_webprocesses.py
 signal=$PCP_BINADM_DIR/pmsignal
@@ -46,8 +45,8 @@ _filter()
 echo '== enforcing mode (no unauthenticated proc access)'
 $PCP_BINADM_DIR/pmproxy $webargs -l $tmp.out &
 webpid=$!
-echo "enforcing webpid=$webpid" >>$seq.full
-_wait_for_pmproxy $webport
+echo "enforcing webpid=$webpid" >>$seq_full
+_wait_for_pmproxy $webport || _exit 1
 $python $pyscript --port $webport | _filter
 
 # success, all done

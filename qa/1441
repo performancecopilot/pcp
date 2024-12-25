@@ -25,7 +25,7 @@ fi
 . ./common.filter
 . ./common.check
 
-$sudo rm -rf $tmp $tmp.* $seq.full /tmp/pmie-hb
+$sudo rm -rf /tmp/pmie-hb
 
 oldhostname=`hostname`
 newhostname="boofa-$seq"
@@ -77,8 +77,8 @@ _cleanup()
 #
 _wait_for_new_pmlogger()
 {
-    echo "_wait_for_new_pmlogger previous PID $1 ..." >>$seq.full
-    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger( |$)' >>$seq.full
+    echo "_wait_for_new_pmlogger previous PID $1 ..." >>$seq_full
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger( |$)' >>$seq_full
     max_delay=15
     i=0
     while [ $i -lt $max_delay ]
@@ -90,10 +90,10 @@ _wait_for_new_pmlogger()
     done
     if [ -n "$pid" -a "$pid" != "$1" ]
     then
-	echo "found PID $pid (after ${i}s) ..." >>$seq.full
-	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger( |$)' >>$seq.full
+	echo "found PID $pid (after ${i}s) ..." >>$seq_full
+	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger( |$)' >>$seq_full
     else
-	echo "Failed!" >>$seq.full
+	echo "Failed!" >>$seq_full
 	echo "Arrgh: failed to see new pmlogger after $max_delay seconds"
 	date
 	ls -l $PCP_RUN_DIR/pmlogger.pid
@@ -114,8 +114,8 @@ _wait_for_new_pmlogger()
 #
 _wait_for_new_pmie()
 {
-    echo "_wait_for_new_pmie previous PID $1" >>$seq.full
-    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mie( |$)' >>$seq.full
+    echo "_wait_for_new_pmie previous PID $1" >>$seq_full
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mie( |$)' >>$seq_full
     max_delay=130
     i=0
     while [ $i -lt $max_delay ]
@@ -127,10 +127,10 @@ _wait_for_new_pmie()
     done
     if [ -n "$pid" -a "$pid" != "$1" ]
     then
-	echo "found PID $pid (after ${i}s) ..." >>$seq.full
-	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mie( |$)' >>$seq.full
+	echo "found PID $pid (after ${i}s) ..." >>$seq_full
+	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mie( |$)' >>$seq_full
     else
-	echo "Failed!" >>$seq.full
+	echo "Failed!" >>$seq_full
 	echo "Arrgh: failed to see new pmie after $max_delay seconds"
 	date
 	ls -l $PCP_RUN_DIR/pmie.pid
@@ -138,10 +138,10 @@ _wait_for_new_pmie()
 	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mie( |$)'
 	$sudo -u pcp kill -USR1 "$1"
 	sleep 1
-	echo "=== $oldhostname log ===" >>$seq.full
-	cat $PCP_LOG_DIR/pmie/$oldhostname/pmie.log >>$seq.full
-	echo "=== $newhostname log ===" >>$seq.full
-	cat $PCP_LOG_DIR/pmie/$newhostname/pmie.log >>$seq.full
+	echo "=== $oldhostname log ===" >>$seq_full
+	cat $PCP_LOG_DIR/pmie/$oldhostname/pmie.log >>$seq_full
+	echo "=== $newhostname log ===" >>$seq_full
+	cat $PCP_LOG_DIR/pmie/$newhostname/pmie.log >>$seq_full
 	status=1
     fi
 }
@@ -151,7 +151,7 @@ _wait_for_new_pmie()
 if [ -f $PCP_RUN_DIR/pmlogger.pid ]
 then
     oldlogger=`cat $PCP_RUN_DIR/pmlogger.pid`
-    echo "old pmlogger pid: $oldlogger" >>$seq.full
+    echo "old pmlogger pid: $oldlogger" >>$seq_full
 else
     _notrun "$PCP_RUN_DIR/pmlogger.pid not found for old primary pmlogger"
     # NOTREACHED
@@ -166,7 +166,7 @@ if grep "0 or \"primary\"" <$tmp.pminfo >/dev/null
 then
     :
 else
-    cat $tmp.pminfo >>$seq.full
+    cat $tmp.pminfo >>$seq_full
     _notrun "primary pmie not running"
     # NOTREACHED
 fi
@@ -177,10 +177,10 @@ p
 }'`
 if [ -z "$config" ]
 then
-    cat $tmp.pminfo >>$seq.full
+    cat $tmp.pminfo >>$seq_full
     _notrun "cannot find pmie's config"
 fi
-echo "config=$config" >>$seq.full
+echo "config=$config" >>$seq_full
 _save_config $config
 
 # need to "up" the pace for pmie so that rule firing is more
@@ -197,13 +197,13 @@ qa.heartbeat = hinv.ncpu > 0
    shell "echo \$(expr `cat /tmp/pmie-hb` + 1) >/tmp/pmie-hb";
 End-of-File
 $sudo cp $tmp.config $config
-_service pmie restart >>$seq.full 2>&1
-_wait_for_pmie
+if ! _service pmie restart >>$seq_full 2>&1; then _exit 1; fi
+_wait_for_pmie || _exit 1
 
 if [ -f $PCP_RUN_DIR/pmie.pid ]
 then
     oldpmie=`cat $PCP_RUN_DIR/pmie.pid`
-    echo "old pmie pid: $oldpmie" >>$seq.full
+    echo "old pmie pid: $oldpmie" >>$seq_full
     if [ -z "$oldpmie" ]
     then
 	echo "Botch: $PCP_RUN_DIR/pmie.pid empty?"
@@ -257,7 +257,7 @@ a\
 127.0.0.7	boofa-'$seq'
 }'
     sudo cp $tmp.tmp /etc/hosts
-    echo "Added boofa-$seq entry in /etc/hosts" >>$seq.full
+    echo "Added boofa-$seq entry in /etc/hosts" >>$seq_full
 fi
 
 _filter()
@@ -304,7 +304,7 @@ $PCP_BINADM_DIR/pmiestatus $PCP_TMP_DIR/pmie/$oldpmie \
 
 echo
 echo "Change hostname ..."
-$sudo hostname "$newhostname" 2>>$seq.full
+$sudo hostname "$newhostname" 2>>$seq_full
 _wait_for_new_pmlogger "$oldlogger"
 
 echo
@@ -322,7 +322,7 @@ _filter <$PCP_TMP_DIR/pmlogger/primary
 if [ -f $PCP_RUN_DIR/pmlogger.pid ]
 then
     newlogger=`cat $PCP_RUN_DIR/pmlogger.pid`
-    echo "current pmlogger PID $newlogger" >>$seq.full
+    echo "current pmlogger PID $newlogger" >>$seq_full
 else
     echo "$PCP_RUN_DIR/pmlogger.pid not found for new primary pmlogger"
     status=1
@@ -336,7 +336,7 @@ _wait_for_new_pmie "$oldpmie"
 if [ -f $PCP_RUN_DIR/pmie.pid ]
 then
     newpmie=`cat $PCP_RUN_DIR/pmie.pid`
-    echo "current pmie PID $newpmie" >>$seq.full
+    echo "current pmie PID $newpmie" >>$seq_full
 else
     echo "$PCP_RUN_DIR/pmie.pid not found for new primary pmie"
     status=1

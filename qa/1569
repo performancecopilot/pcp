@@ -20,7 +20,6 @@ fi
 . ./common.filter
 . ./common.check
 
-$sudo rm -rf $tmp $tmp.* $seq.full
 
 which pmlogcompress >/dev/null 2>&1 || _notrun "pmlogcompress not installed"
 

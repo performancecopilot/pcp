@@ -10,7 +10,6 @@ echo "QA output created by $seq"
 
 . ./common.bcc
 
-$sudo rm -rf $tmp.* $seq.full
 
 _pmdabcc_check
 _pmdabcc_require_kernel_version 4 7

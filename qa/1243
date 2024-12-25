@@ -47,7 +47,6 @@ status=1	# failure is the default!
 hostname=`hostname`
 hostip=`_host_to_ipaddr $hostname`
 localip=`_host_to_ipaddr localhost`
-$sudo rm -rf $tmp $tmp.* $seq.full 
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _filter()
@@ -112,12 +111,12 @@ chmod 755 $tmp.kubectl.sh
 
 export PCP_KUBECTL_PROG=$tmp.kubectl.sh
 
-echo "== discovery directory" >> $seq.full
-find $tmp.discover >> $seq.full
-echo "== localhost.sh" >> $seq.full
-$tmp.discover/localhost.sh >> $seq.full
-echo "== hostnames.sh" >> $seq.full
-$tmp.discover/hostnames.sh >> $seq.full
+echo "== discovery directory" >> $seq_full
+find $tmp.discover >> $seq_full
+echo "== localhost.sh" >> $seq_full
+$tmp.discover/localhost.sh >> $seq_full
+echo "== hostnames.sh" >> $seq_full
+$tmp.discover/hostnames.sh >> $seq_full
 
 echo "== checking pcp-kube-pods argument handling" | tee -a $seq.full
 $PCP_BINADM_DIR/discover/pcp-kube-pods

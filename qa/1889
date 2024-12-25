@@ -31,7 +31,6 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
@@ -48,11 +47,12 @@ fi
 echo found primary pmlogger and found control socket in PCP_RUN_DIR
 
 echo "=== disable pmlogger.service" | tee -a $seq.full
-$sudo systemctl disable pmlogger.service >>$seq.full 2>&1
+$sudo systemctl disable pmlogger.service >>$seq_full 2>&1
 
 echo === start primary logger whilst disabled ===
-_service pmlogger start | _filter_pcp_start
-_wait_for_pmlogger
+if ! _service pmlogger start; then _exit 1; fi \
+| _filter_pcp_start
+_wait_for_pmlogger || _exit 1
 
 newpid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '/[p]mlogger.*-P' | \
     grep -v grep | awk '{print $2}'`

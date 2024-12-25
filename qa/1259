@@ -33,7 +33,6 @@ _cleanup()
 }
 
 status=0	# success is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 _filter()
@@ -59,9 +58,9 @@ myname.c= sample.long.one * sample.longlong.one + sample.long.ten * sample.longl
 End-of-File
 
 _run_valgrind src/grind_ctx -D derive -C $tmp.config -s 100 >$tmp.out 2>$tmp.err
-echo "--- stdout ---" >>$seq.full
+echo "--- stdout ---" >>$seq_full
 cat $tmp.out | tee -a $seq.full | _filter
-echo "--- stderr ---" >>$seq.full
+echo "--- stderr ---" >>$seq_full
 cat $tmp.err | tee -a $seq.full | _filter
 
 # success, all done

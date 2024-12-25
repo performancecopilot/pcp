@@ -17,7 +17,6 @@ _pmdaopenmetrics_check || _notrun "openmetrics pmda not installed"
 which curl >/dev/null 2>&1 || _notrun curl not installed
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 
 # only stop pmproxy if it was not running before the QA test starts
 if [ -n "`_get_pids_by_name pmproxy`" ]
@@ -25,9 +24,9 @@ then
     pmproxy_was_running=true
 else
     pmproxy_was_running=false
-    _service pmproxy start >>$seq.full 2>&1
+    if ! _service pmproxy start >>$seq_full 2>&1; then _exit 1; fi
 fi
-echo "pmproxy_was_running=$pmproxy_was_running" >>$here/$seq.full
+echo "pmproxy_was_running=$pmproxy_was_running" >>$seq_full
 
 _cleanup()
 {
@@ -105,7 +104,7 @@ pminfo -v openmetrics
 # squash errors for a clean uninstall
 $sudo rm $PCP_PMDAS_DIR/openmetrics/config.d/invalid_metrics_badinput.sh
 # capture openmetrics log for posterity
-cat $PCP_LOG_DIR/pmcd/openmetrics.log >> $here/$seq.full
+cat $PCP_LOG_DIR/pmcd/openmetrics.log >> $seq_full
 
 _pmdaopenmetrics_remove
 

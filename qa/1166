@@ -31,7 +31,6 @@ _filter()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 cat <<End-of-File >$tmp.makefile
@@ -47,7 +46,7 @@ End-of-File
 # real QA test starts here
 
 echo "=== binary compatibility checks ===" | tee -a $here/$seq.full
-if LCFLAGS="-DBINARY_COMPAT_TEST" $PCP_MAKE_PROG -f $tmp.makefile >$here/$seq.full 2>&1
+if LCFLAGS="-DBINARY_COMPAT_TEST" $PCP_MAKE_PROG -f $tmp.makefile >$seq_full 2>&1
 then
     if $tmp 2>&1 | _filter
     then
@@ -61,7 +60,7 @@ fi
 
 echo
 echo "=== source code compatibility checks ===" | tee -a $here/$seq.full
-if $PCP_MAKE_PROG -f $tmp.makefile >$here/$seq.full 2>&1
+if $PCP_MAKE_PROG -f $tmp.makefile >$seq_full 2>&1
 then
     if $tmp 2>&1 | _filter
     then

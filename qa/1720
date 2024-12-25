@@ -37,7 +37,7 @@ _filter()
 {
     # diagnostics first ...
     #
-    grep '^+++' <$tmp.out >>$here/$seq.full
+    grep '^+++' <$tmp.out >>$seq_full
     # and the other lines
     #
     grep -v '^+++' <$tmp.out
@@ -45,7 +45,6 @@ _filter()
 
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 $sudo rm -f $here/statsd/output/*
 trap "_cleanup; exit \$status" 0 1 2 3 15
 

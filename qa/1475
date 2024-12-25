@@ -16,7 +16,6 @@ _pmdabpf_require_libbpf_version 1 0
 
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
-$sudo rm -rf $tmp.* $seq.full
 
 cat <<EOF >$tmp.conf
 # Installed by PCP QA test $seq on `date`
@@ -39,7 +38,7 @@ _pmdabpf_install $tmp.conf
 _pmdabpf_wait_for_metric
 
 # Generate system activity for the CO-RE mountsnoop module
-$sudo umount /no/such/dir >>$here/$seq.full 2>&1
+$sudo umount /no/such/dir >>$seq_full 2>&1
 
 echo "=== report metric values for comm ==="
 pminfo -dfmtT bpf.mountsnoop.comm 2>&1 | tee -a $here/$seq.full \

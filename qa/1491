@@ -20,7 +20,6 @@ fi
 . ./common.filter
 . ./common.check
 
-$sudo rm -rf $tmp $tmp.* $seq.full
 
 _cleanup()
 {
@@ -225,7 +224,7 @@ echo
 echo "=== actions ==="
 echo '-- -d --'
 $sudo $PCP_BINADM_DIR/pmcheck -d pmcd
-_wait_for_pmcd_stop
+_wait_for_pmcd_stop || _exit 1
 if [ -f $PCP_RUN_DIR/pmcd.pid ]
 then
     echo "$seq: Botch: $PCP_RUN_DIR/pmcd.pid => `cat $PCP_RUN_DIR/pmcd.pid`"
@@ -243,7 +242,7 @@ $sudo $PCP_BINADM_DIR/pmcheck -v -d pmcd 2>&1 \
 
 echo '-- -a --'
 $sudo $PCP_BINADM_DIR/pmcheck -a pmcd
-_wait_for_pmcd
+_wait_for_pmcd || _exit 1
 if [ -f $PCP_RUN_DIR/pmcd.pid ]
 then
     echo "$seq: pmcd started"

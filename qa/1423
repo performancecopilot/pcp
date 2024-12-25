@@ -12,7 +12,7 @@ echo "QA output created by $seq"
 $python -c "from pcp import pmapi" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python pcp pmapi module not installed"
 which nc >/dev/null 2>&1 || _notrun "nc binary not installed"
-which pcp2spark >$here/$seq.full 2>&1 || _notrun "pcp2spark not installed"
+which pcp2spark >$seq_full 2>&1 || _notrun "pcp2spark not installed"
 
 port=44325
 $PCP_BINADM_DIR/telnet-probe -c localhost $port \
@@ -69,8 +69,8 @@ _filter_pcp2spark <$tmp.nc.out
 
 for i in $tmp.p2s.out $tmp.p2s.err $tmp.nc.out $tmp.nc.err
 do
-    echo "=== $i ===" >>$here/$seq.full
-    cat $i >>$here/$seq.full
+    echo "=== $i ===" >>$seq_full
+    cat $i >>$seq_full
 done
 
 echo "" | tee -a $here/$seq.full

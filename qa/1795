@@ -16,7 +16,6 @@ _pmdabpf_require_libbpf_version 0 7
 
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
-$sudo rm -rf $tmp.* $seq.full
 
 cat <<EOF >$tmp.conf
 # Installed by PCP QA test $seq on `date`

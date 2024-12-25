@@ -88,12 +88,11 @@ _filter()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 remote=`./getpmcdhosts -L -n 1`
 [ -z "$remote" ] && _notrun "Cannot find remote host running pmcd"
-echo "remote=\"$remote\"" >>$seq.full
+echo "remote=\"$remote\"" >>$seq_full
 
 _needclean=true
 myhost=`hostname`
@@ -112,14 +111,14 @@ End-of-File
 $sudo cp $tmp.control ${PCP_PMLOGGERCONTROL_PATH}.d/$remote
 
 # real QA test starts here
-echo "[`date`] initially" >>$seq.full
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p](mcd|mlogger)' >>$seq.full
+echo "[`date`] initially" >>$seq_full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p](mcd|mlogger)' >>$seq_full
 
 # stop pmcd, and all pmloggers
 #
-echo "[`date`] pcp stop" >>$seq.full
-_service pcp stop 2>&1 | _filter_pcp_stop
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p](mcd|mlogger)' >>$seq.full
+echo "[`date`] pcp stop" >>$seq_full
+if ! _service pcp stop 2>&1; then _exit 1; fi | _filter_pcp_stop
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p](mcd|mlogger)' >>$seq_full
 
 # from here on, don't use any "_service" wrapper ... we need to dodge
 # any linking of the services and starting stuff under the covers
@@ -127,15 +126,15 @@ $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p](mcd|mlogger)' >>$seq.full
 _dir_hostname=`hostname || echo localhost`
 _logfile="$PCP_ARCHIVE_DIR/$_dir_hostname/pmlogger.log" 
 $sudo rm -f $_logfile
-echo "[`date`]" >>$seq.full
+echo "[`date`]" >>$seq_full
 echo "pmcd not running, expect this to timeout" | tee -a $seq.full
 $sudo $PCP_RC_DIR/pmlogger start 2>&1 | _filter_pcp_start
 _my_wait_for_pmlogger | _filter
-echo "[`date`]" >>$seq.full
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p](mcd|mlogger)' >>$seq.full
+echo "[`date`]" >>$seq_full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p](mcd|mlogger)' >>$seq_full
 
 $sudo $PCP_RC_DIR/pmcd start 2>&1 | _filter_pcp_start
-_wait_for_pmcd
+_wait_for_pmcd || _exit 1
 
 # the "rc" pmlogger script calls pmlogger_check and now pmlogger_check
 # uses pmlogger_janitor to kill off any "lost" pmlogger's, we don't want
@@ -144,12 +143,12 @@ _wait_for_pmcd
 export PMLOGGER_CHECK_SKIP_JANITOR=yes
 
 $sudo rm -f $_logfile
-echo "[`date`]" >>$seq.full
+echo "[`date`]" >>$seq_full
 echo "pmcd running, expect this to work" | tee -a $seq.full
 $sudo $PCP_RC_DIR/pmlogger start 2>&1 | _filter_pcp_start
-_wait_for_pmlogger
-echo "[`date`]" >>$seq.full
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p](mcd|mlogger)' >>$seq.full
+_wait_for_pmlogger || _exit 1
+echo "[`date`]" >>$seq_full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p](mcd|mlogger)' >>$seq_full
 pminfo -f pmcd.pmlogger.pmcd_host | tee -a $seq.full >$tmp.tmp
 if grep '"primary"' $tmp.tmp >/dev/null
 then

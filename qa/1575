@@ -41,7 +41,7 @@ _setup_control()
 	echo "\$$arg" >>$tmp.control
     done
     echo "LOCALHOSTNAME	n   n	$tmp	$tmp.config" >>$tmp.control
-    cat $tmp.control >>$seq.full
+    cat $tmp.control >>$seq_full
 }
 
 _setup()
@@ -97,7 +97,6 @@ _showfiles()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 [ -f $NEEDREWRITE ] && $sudo mv $NEEDREWRITE $NEEDREWRITE.$seq

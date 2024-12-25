@@ -17,7 +17,6 @@ _get_libpcp_config
 $multi_archive_contexts || _notrun "Multi-archive support is not available"
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 
 _filter()
@@ -41,7 +40,7 @@ IN="$DIR/20150508.11.44 $DIR/20150508.11.46 $DIR/20150508.11.50 $DIR/20150508.11
 OUT=$tmp.44+46+50+57.pmlogextract
 rm -f $OUT.*
 echo "Running pmlogextract $IN $OUT" | _filter | tee $seq.full
-pmlogextract $IN $OUT 2>&1 >> $seq.full
+pmlogextract $IN $OUT 2>&1 >> $seq_full
 [ $? -eq 0 ] || echo "Error running pmlogextract $IN $OUT -- see $seq.full"
 
 # Now run pminfo against the extracted archive.
@@ -58,7 +57,7 @@ $TOOL -a $IN 2>&1 | _filter | tee $OUT
 
 # Make sure the output is the same
 echo "Running diff $OUTBASE $OUT" | _filter | tee -a $seq.full
-diff $OUTBASE $OUT 2>&1 >> $seq.full
+diff $OUTBASE $OUT 2>&1 >> $seq_full
 [ $? -eq 0 ] || echo "$OUT differs from $OUTBASE  -- see $seq.full"
 
 # Now do it again, specifying the set of archives using the directory name
@@ -69,7 +68,7 @@ $TOOL -a $IN 2>&1 | _filter | tee $OUT
 
 # Make sure the output is the same
 echo "Running diff $OUTBASE $OUT" | _filter | tee -a $seq.full
-diff $OUTBASE $OUT 2>&1 >> $seq.full
+diff $OUTBASE $OUT 2>&1 >> $seq_full
 [ $? -eq 0 ] || echo "$OUT differs from $OUTBASE  -- see $seq.full"
 
 # success, all done

@@ -18,7 +18,6 @@ _check_podman_images busybox
 
 iam=podman
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 
 pmdapodman_install()
 {
@@ -29,7 +28,7 @@ pmdapodman_install()
     echo
     echo "=== podman agent installation ==="
     $sudo ./Install </dev/null >$tmp.out 2>&1
-    cat $tmp.out >>$here/$seq.full
+    cat $tmp.out >>$seq_full
     # Check podman metrics have appeared ... X metrics and Y values
     _filter_pmda_install <$tmp.out \
     | sed \
@@ -88,17 +87,17 @@ pmdapodman_install
 
 # create some new podman containers
 container1=`$podman run -d busybox sleep 10`
-echo "== container1: $container1" >> $here/$seq.full
+echo "== container1: $container1" >> $seq_full
 container2=`$podman run -d busybox sleep 10`
-echo "== container2: $container2" >> $here/$seq.full
+echo "== container2: $container2" >> $seq_full
 [ -z "$container1" -o -z "$container2" ] && _fail "Failed to create containers"
 
 # RHBZ #1958732
 # create some new podman pods
 #pod1=`$podman pod create`
-#echo "== pod1: $pod1" >> $here/$seq.full
+#echo "== pod1: $pod1" >> $seq_full
 #pod2=`$podman pod create`
-#echo "== pod2: $pod2" >> $here/$seq.full
+#echo "== pod2: $pod2" >> $seq_full
 #[ -z "$pod1" -o -z "$pod2" ] && _fail "Failed to create PODs"
 
 # fetch new state, check for new containers and pods

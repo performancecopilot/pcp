@@ -15,7 +15,6 @@ echo "QA output created by $seq"
 . ./common.check
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 cat >$tmp.config <<'End-of-File'
@@ -61,8 +60,8 @@ skip == 1 	{ next }
 # real QA test starts here
 echo "once case ..." | tee -a $seq.full
 PMLOGGER_ONCE=yes pmlogger -c $tmp.config -s 1 -r -l $tmp.log $tmp
-pmdumplog $tmp >>$seq.full
-cat $tmp.log >>$seq.full
+pmdumplog $tmp >>$seq_full
+cat $tmp.log >>$seq_full
 _filter_pmlogger_log <$tmp.log \
 | _filter
 rm -f $tmp.0 $tmp.meta $tmp.index
@@ -70,8 +69,8 @@ rm -f $tmp.0 $tmp.meta $tmp.index
 echo | tee -a $seq.full
 echo "other case ..." | tee -a $seq.full
 pmlogger -c $tmp.config -s 4 -r -l $tmp.log $tmp
-pmdumplog $tmp >>$seq.full
-cat $tmp.log >>$seq.full
+pmdumplog $tmp >>$seq_full
+cat $tmp.log >>$seq_full
 _filter_pmlogger_log <$tmp.log \
 | _filter
 

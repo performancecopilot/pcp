@@ -30,7 +30,6 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _filter()
@@ -59,9 +58,9 @@ else
     echo "Arrgh: tar failed"
     exit
 fi
-ls -lR $tmp/crontab-sar-report* >>$here/$seq.full
+ls -lR $tmp/crontab-sar-report* >>$seq_full
 $sudo -u pcp $PCP_BINADM_DIR/pmlogger_daily_report -A -a $tmp/crontab-sar-report -l $tmp/LOG -f $tmp/OUT -t 30m || exit
-[ -f $tmp/LOG ] && $sudo cat $tmp/LOG >> $seq.full
+[ -f $tmp/LOG ] && $sudo cat $tmp/LOG >> $seq_full
 $sudo cat $tmp/OUT | tee -a $seq.full | _filter
 
 # optional stuff if your test has verbose output to help resolve problems

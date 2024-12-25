@@ -15,7 +15,6 @@ _bcc_check_ArgString || _notrun "bcc is broken (ArgString bug) on this platform"
 
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
-$sudo rm -rf $tmp.* $seq.full
 
 _value_filter()
 {

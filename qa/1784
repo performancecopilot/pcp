@@ -25,7 +25,6 @@ _cleanup()
 }
 
 status=0	# success is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _filter()
@@ -60,7 +59,7 @@ ident	Instrumented applications summary information
 probe	pmproxy.control.files exists ? include : exclude
 	pmproxy
 EOF
-head $tmp.pmlogconf/qa/* >> $here/$seq.full
+head $tmp.pmlogconf/qa/* >> $seq_full
 pmlogconf -d $tmp.pmlogconf $tmp.config 2>&1 | _filter
 echo "== Initial pmlogger config created" | tee -a $here/$seq.full
 cat $tmp.config | tee -a $here/$seq.full | _filter

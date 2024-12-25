@@ -30,13 +30,12 @@ net_dev=$(ip route get ${target_ip} | awk '{print $5; exit}')
 
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
-$sudo rm -rf $tmp.* $seq.full
 
 # Some combinations of distro and kernel are known to be "bad"
 # for some BPF modules
 #
 kernel=`uname -r`
-echo "$kernel" >>$seq.full
+echo "$kernel" >>$seq_full
 case `admin/whatami`
 in
     *Ubuntu\ 19.10\ *)
@@ -63,7 +62,7 @@ _simulate_network_troubles()
 _revert_network_troubles()
 {
     echo Revert intentional packet loss
-    $sudo tc qdisc del dev ${net_dev} root 2>>$here/$seq.full
+    $sudo tc qdisc del dev ${net_dev} root 2>>$seq_full
 }
 
 _value_filter()

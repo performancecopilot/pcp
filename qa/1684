@@ -10,7 +10,6 @@ echo "QA output created by $seq"
 
 . ./common.python
 
-$sudo rm -rf $tmp $tmp.* $seq.full
 
 _cleanup()
 {

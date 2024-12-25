@@ -33,7 +33,7 @@ _cleanup()
 
 _filter()
 {
-    echo "=== valgrind output" >>$seq.full
+    echo "=== valgrind output" >>$seq_full
     tee -a $seq.full \
     | sed \
 	-e "s,$PCP_BINADM_DIR,PCP_BINADM_DIR,g" \
@@ -47,12 +47,11 @@ _filter()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 signal=$PCP_BINADM_DIR/pmsignal
 username=`id -un`
 dir="$tmp.qa$seq"
 trap "_cleanup; exit \$status" 0 1 2 3 15
-src/time_stamp $tmp.stamp begin >>$seq.full
+src/time_stamp $tmp.stamp begin >>$seq_full
 
 # real QA test starts here
 mkdir $dir
@@ -67,20 +66,20 @@ mkdir $dir
 # 
 
 key_server_port=`_find_free_port`
-src/time_stamp $tmp.stamp 'key server start' >>$seq.full
+src/time_stamp $tmp.stamp 'key server start' >>$seq_full
 $key_server --port $key_server_port --save "" > $tmp.keys 2>&1 &
 _check_key_server_ping $key_server_port
-src/time_stamp $tmp.stamp 'key server active' >>$seq.full
+src/time_stamp $tmp.stamp 'key server active' >>$seq_full
 
 cat > $tmp.sample << EOF2
 log advisory on default { sample }
 EOF2
-src/time_stamp $tmp.stamp 'pmlogger start' >>$seq.full
+src/time_stamp $tmp.stamp 'pmlogger start' >>$seq_full
 pmlogger -t 2.5sec -v 5k -c config.default -T9sec -l$tmp.pmlogger $dir/test &
 pmlogger_pid=$?
 ( sleep 3 && pmlogger -t 1.5sec -v 4k -c $tmp.sample -T4sec -l$tmp.pmlogger2 $dir/test2 ) 2>/dev/null &
 pmlogger2_pid=$?
-src/time_stamp $tmp.stamp 'pmlogger active' >>$seq.full
+src/time_stamp $tmp.stamp 'pmlogger active' >>$seq_full
 
 PROXYPORT=`_find_free_port`
 PROXYSOCK=$tmp.pmproxy.sock
@@ -95,22 +94,22 @@ enabled = false
 enabled = true
 path = $dir
 EOF
-src/time_stamp $tmp.stamp 'pmproxy start' >>$seq.full
+src/time_stamp $tmp.stamp 'pmproxy start' >>$seq_full
 #grind_extra="--track-origins=yes --read-var-info=yes --read-inline-info=yes"
 _run_valgrind $PCP_BINADM_DIR/pmproxy \
 	-f -t -A -c $tmp.conf -U $username -T 10sec -l $tmp.pmproxy \
 	-r $key_server_port -p $PROXYPORT -s $PROXYSOCK \
 	| _filter
-src/time_stamp $tmp.stamp 'pmproxy exited' >>$seq.full
+src/time_stamp $tmp.stamp 'pmproxy exited' >>$seq_full
 
-echo "=== key server log ===" >> $seq.full
-cat $tmp.keys >> $seq.full
-echo "=== pmlogger log ===" >> $seq.full
-cat $tmp.pmlogger >> $seq.full
-echo "=== pmlogger2 log ===" >> $seq.full
-cat $tmp.pmlogger2 >> $seq.full
-echo "=== pmproxy log ===" >> $seq.full
-cat $tmp.pmproxy >> $seq.full
+echo "=== key server log ===" >> $seq_full
+cat $tmp.keys >> $seq_full
+echo "=== pmlogger log ===" >> $seq_full
+cat $tmp.pmlogger >> $seq_full
+echo "=== pmlogger2 log ===" >> $seq_full
+cat $tmp.pmlogger2 >> $seq_full
+echo "=== pmproxy log ===" >> $seq_full
+cat $tmp.pmproxy >> $seq_full
 
 # success, all done
 status=0

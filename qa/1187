@@ -31,7 +31,6 @@ _cleanup()
 
 status=1	# failure is the default!
 username=`id -u -n`
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # read from the pcp-dstat archive with various dstat options
@@ -134,7 +133,7 @@ unset SAVED_TPUT_COLUMNS SAVED_COLUMNS SAVED_LINES
 echo "CSV timestamp"
 $DSTAT -T -o $tmp.csv3 1 2 > /dev/null
 echo "=== done" && echo
-echo "CSV timestamp checking" >> $here/$seq.full
+echo "CSV timestamp checking" >> $seq_full
 cat $tmp.csv3 | tee -a $here/$seq.full | grep 37m
 echo "CSV timestamp complete" | tee -a $here/$seq.full
 

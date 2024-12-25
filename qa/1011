@@ -59,7 +59,6 @@ _pmdumptext_filter()
 }
 
 # real QA test starts here
-rm -f $seq.full
 
 for metric in \
     pmcd.pdu_in.total \
@@ -68,24 +67,24 @@ for metric in \
     sample.bin
 do
     echo Raw $metric
-    echo Raw $metric >>$seq.full
+    echo Raw $metric >>$seq_full
     pmval -t 1 -r -a archives/gap $metric 2>&1 | _pmval_filter > $tmp.pmval
     pmdumptext -G -w 16 -t 1 -r -a archives/gap -d" " -f "%H:%M:%S" $metric 2>&1 | _pmdumptext_filter > $tmp.dump
     diff $tmp.pmval $tmp.dump | _diff_filter
-    echo "--- pmval ---" >>$seq.full
-    cat $tmp.pmval >>$seq.full
-    echo "--- pmdumptext ---" >>$seq.full
-    cat $tmp.dump >>$seq.full
+    echo "--- pmval ---" >>$seq_full
+    cat $tmp.pmval >>$seq_full
+    echo "--- pmdumptext ---" >>$seq_full
+    cat $tmp.dump >>$seq_full
 
     echo Rate $metric
-    echo Rate $metric >>$seq.full
+    echo Rate $metric >>$seq_full
     pmval -t 1 -a archives/gap $metric 2>&1 | _pmval_filter > $tmp.pmval
     pmdumptext -G -w 16 -t 1 -a archives/gap -d" " -f "%H:%M:%S" $metric 2>&1 | _pmdumptext_filter > $tmp.dump 
     diff $tmp.pmval $tmp.dump | _diff_filter
-    echo "--- pmval ---" >>$seq.full
-    cat $tmp.pmval >>$seq.full
-    echo "--- pmdumptext ---" >>$seq.full
-    cat $tmp.dump >>$seq.full
+    echo "--- pmval ---" >>$seq_full
+    cat $tmp.pmval >>$seq_full
+    echo "--- pmdumptext ---" >>$seq_full
+    cat $tmp.dump >>$seq_full
 
 done
 

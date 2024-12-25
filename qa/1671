@@ -23,13 +23,12 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 for t in 1s 5s 30s 1m 5m 10m; do
     echo;echo == testing replay of corrupted archive with interval $t for max 10000 samples | tee -a $seq.full
-    pmrep -Dinterp,log -s 10000 -z -a archives/multi-corrupted -t$t -pf%c kernel.percpu.cpu.user >>$seq.full 2>&1
+    pmrep -Dinterp,log -s 10000 -z -a archives/multi-corrupted -t$t -pf%c kernel.percpu.cpu.user >>$seq_full 2>&1
     pmrep -s 10000 -z -a archives/multi-corrupted -t$t -pf%c kernel.percpu.cpu.user 2>$tmp.err
     cat $tmp.err
 done

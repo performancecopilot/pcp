@@ -21,7 +21,6 @@ fi
 . ./common.filter
 . ./common.check
 
-$sudo rm -rf $seq.full
 
 pmlogctl status 2>&1 | tee -a $seq.full >$tmp.tmp
 nloggers=`sed -e 1d <$tmp.tmp | wc -l | sed -e 's/  *//g'`

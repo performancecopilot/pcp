@@ -61,7 +61,7 @@ _speak_to_me()
     # to pmlogger here if we force pmlogger to offer LOG_PDU_VERSION2
     #
     _start_up_pmlogger -V3 --pmlc-ipc-version=2 -L -c /dev/null -l /tmp/$$.log /tmp/$$ </dev/null >/dev/null 2>&1
-    _wait_for_pmlogger $pid /tmp/$$.log
+    _wait_for_pmlogger $pid /tmp/$$.log || _exit 1
 
     # the success cases
     #
@@ -150,7 +150,7 @@ do
     then
 	_notrun "Cannot find a 64-bit host running PCP"
     else
-	echo "$host for type=$type" >>$here/$seq.full
+	echo "$host for type=$type" >>$seq_full
 	_speak_to_me $host
     fi
 done

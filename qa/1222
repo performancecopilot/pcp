@@ -24,7 +24,6 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # assorted metrics may not be there, plus this ripper ...
@@ -123,11 +122,11 @@ export PROC_ACCESS=1
 
 # order of proc metrics is non-deterministic ... take control
 #
-pminfo -L -Kclear -Kadd,60,$linux_pmda -Kadd,3,$proc_pmda proc 2>>$here/$seq.full \
+pminfo -L -Kclear -Kadd,60,$linux_pmda -Kadd,3,$proc_pmda proc 2>>$seq_full \
 | LC_COLLATE=POSIX sort >$tmp.metrics
-echo "=== metrics ===" >>$here/$seq.full
-cat $tmp.metrics >>$here/$seq.full
-echo "=== end metrics ===" >>$here/$seq.full
+echo "=== metrics ===" >>$seq_full
+cat $tmp.metrics >>$seq_full
+echo "=== end metrics ===" >>$seq_full
 
 echo "=== check for errors, silence is golden ==="
 _run_valgrind --sudo pminfo -vL -Kclear -Kadd,60,$linux_pmda -Kadd,3,$proc_pmda `cat $tmp.metrics` 2>&1 \

@@ -33,12 +33,11 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 pmproxy_was_running=false
 [ -f $PCP_RUN_DIR/pmproxy.pid ] && pmproxy_was_running=true
-echo "pmproxy_was_running=$pmproxy_was_running" >>$here/$seq.full
+echo "pmproxy_was_running=$pmproxy_was_running" >>$seq_full
 
 _filter_context()
 {
@@ -56,9 +55,9 @@ _filter_fetch()
 }
 
 # real QA test starts here
-_service pmproxy stop >/dev/null
-_service pmproxy start >>$here/$seq.full 2>&1
-_wait_for_pmproxy
+if ! _service pmproxy stop >/dev/null; then _exit 1; fi
+if ! _service pmproxy start >>$seq_full 2>&1; then _exit 1; fi
+_wait_for_pmproxy || _exit 1
 
 # curl maintains a connection when given multiple URLs
 echo "Verify no chunk-encoded lengths in output" | tee -a $seq.full

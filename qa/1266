@@ -23,7 +23,6 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
@@ -32,14 +31,14 @@ pcp atop -w atoplog$seq 1 2
 pminfo -a atoplog$seq proc hotproc >$tmp.out 2>$tmp.err
 echo "== Expect no hotproc metrics logged by default"
 if test -s $tmp.err; then
-    cat $tmp.err >> $seq.full
+    cat $tmp.err >> $seq_full
     echo "passed"
 else
     echo "failed"
 fi
 echo "== Expect some proc metrics logged by default"
 if test -s $tmp.out; then
-    cat $tmp.out >> $seq.full
+    cat $tmp.out >> $seq_full
     echo "passed"
 else
     echo "failed"

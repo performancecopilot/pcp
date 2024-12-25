@@ -20,7 +20,6 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _filter()
@@ -39,7 +38,7 @@ IN=$DIR/20180127.08.40
 OUT=$tmp.pmlogrewrite
 rm -f $OUT.*
 echo "Running pmlogrewrite $IN $OUT" | _filter | tee -a $seq.full
-pmlogrewrite $IN $OUT 2>&1 >> $seq.full
+pmlogrewrite $IN $OUT 2>&1 >> $seq_full
 [ $? -eq 0 ] || echo "Error running pmlogrewrite $IN $OUT -- see $seq.full"
 
 # Now run pmdumplog against the original and extracted archives.

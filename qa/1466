@@ -26,27 +26,26 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-_service pmcd restart 2>&1 >> $seq.full
+if ! _service pmcd restart 2>&1; then _exit 1; fi >> $seq_full
 # in a known clean systemd service state now
-_wait_for_pmcd
+_wait_for_pmcd || _exit 1
 pmcdpid=`_get_pids_by_name pmcd`
 
 # add a process to the pmcd service cgroup
 pmpause >/dev/null 2>&1 &
 pid=$!
-echo pid=$pid >> $seq.full
-echo cgroup=`cat /proc/$pid/cgroup` >> $seq.full
-$sudo sh -c ". $PCP_SHARE_DIR/lib/rc-proc.sh; migrate_pid_service -v $pid pmcd.service" 2>&1 >> $seq.full
+echo pid=$pid >> $seq_full
+echo cgroup=`cat /proc/$pid/cgroup` >> $seq_full
+$sudo sh -c ". $PCP_SHARE_DIR/lib/rc-proc.sh; migrate_pid_service -v $pid pmcd.service" 2>&1 >> $seq_full
 
-echo pmsleep >> $seq.full
+echo pmsleep >> $seq_full
 pmsleep 2
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS >> $seq.full
-echo new cgroup=`cat /proc/$pid/cgroup` >> $seq.full
-echo pmcd cgroup=`cat /proc/$pmcdpid/cgroup` >> $seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS >> $seq_full
+echo new cgroup=`cat /proc/$pid/cgroup` >> $seq_full
+echo pmcd cgroup=`cat /proc/$pmcdpid/cgroup` >> $seq_full
 
 if systemctl status pmcd.service 2>&1 | tee $tmp.sts | grep -q -s pmpause
 then
@@ -58,10 +57,10 @@ else
     cgslice=`systemctl status pmcd.service | $PCP_AWK_PROG '/CGroup:/ {print $2}'`
     echo cgslice=${cgslice} | tee -a $seq.full
     find ${cgroot} -type d -name pmcd.service -print -exec ls -l {} ";" | tee -a $seq.full
-    echo cgroup.procs=${cgslice}/cgroup.procs >> $seq.full
-    cat ${cgslice}/cgroup.procs >> $seq.full
-    echo systemctl output >> $seq.full
-    cat $tmp.sts >> $seq.full
+    echo cgroup.procs=${cgslice}/cgroup.procs >> $seq_full
+    cat ${cgslice}/cgroup.procs >> $seq_full
+    echo systemctl output >> $seq_full
+    cat $tmp.sts >> $seq_full
 fi
 
 # all done

@@ -56,7 +56,6 @@ _cleanup()
 status=1	# failure is the default!
 need_restore=false
 username=`id -u -n`
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _check_empty()
@@ -109,12 +108,12 @@ _save_config $PCP_SYSCONF_DIR/labels
 need_restore=true
 
 $sudo rm -rf $PCP_SYSCONF_DIR/labels/*
-_sighup_pmcd
+_sighup_pmcd || _exit 1
 
 openssl req \
 	-new -newkey rsa:4096 -days 365 -nodes -x509 \
 	-subj "/C=US/ST=Denial/L=Springfield/O=Dis/CN=www.pcpqa.com" \
-	-keyout $tmp.key -out $tmp.cert >$seq.full 2>&1
+	-keyout $tmp.key -out $tmp.cert >$seq_full 2>&1
 # creates a self-signed (insecure) certificate, so for testing only
 
 echo "[keys]" >> $tmp.conf
@@ -133,8 +132,8 @@ $_valgrind_clean_assert pmproxy -f -l- --timeseries \
 	>$tmp.valout 2>$tmp.valerr &
 pid=$!
 
-echo "valgrind pid: $pid" >>$seq.full
-echo "pmproxy port: $port" >>$seq.full
+echo "valgrind pid: $pid" >>$seq_full
+echo "pmproxy port: $port" >>$seq_full
 
 # valgrind takes awhile to fire up
 i=0
@@ -146,13 +145,13 @@ do
 done
 if $PCP_BINADM_DIR/telnet-probe -c localhost $port
 then
-    echo "Startup took $i secs" >>$seq.full
+    echo "Startup took $i secs" >>$seq_full
 else
     echo "Arrgh: valgrind failed start pmproxy and get port $port ready after 30 secs"
     exit
 fi
 
-date >>$seq.full
+date >>$seq_full
 echo "=== checking serial http operation ===" | tee -a $seq.full
 for i in 1 2 3 4; do
     curl -Gs "http://localhost:$port/pmapi/metric?name=sample.long.ten" 2>$tmp.err$i >$tmp.out$i
@@ -162,7 +161,7 @@ echo === out$i === | tee -a $seq.full
 _filter_json < $tmp.out$i
 done
 
-date >>$seq.full
+date >>$seq_full
 echo "=== checking parallel http operation ===" | tee -a $seq.full
 for i in 1 2 3 4; do
     curl -Gs "http://localhost:$port/pmapi/metric?name=sample.long.ten" 2>$tmp.err$i >$tmp.out$i & 2>/dev/null eval pid$i=$!
@@ -173,7 +172,7 @@ echo === out$i === | tee -a $seq.full
 _filter_json < $tmp.out$i
 done
 
-date >>$seq.full
+date >>$seq_full
 echo "=== checking serial https/TLS operation ===" | tee -a $seq.full
 for i in 1 2 3 4; do
     curl -k -Gs "https://localhost:$port/pmapi/metric?name=sample.long.ten" 2>$tmp.err$i >$tmp.out$i
@@ -183,7 +182,7 @@ echo === out$i === | tee -a $seq.full
 _check_empty < $tmp.out$i
 done
 
-date >>$seq.full
+date >>$seq_full
 echo "=== checking parallel https/TLS operation ===" | tee -a $seq.full
 for i in 1 2 3 4; do
     curl -k -Gs "https://localhost:$port/pmapi/metric?name=sample.long.ten" 2>$tmp.err$i >$tmp.out$i & 2>/dev/null eval pid$i=$!

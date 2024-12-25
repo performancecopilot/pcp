@@ -22,7 +22,6 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.*
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # Note on ... PMCD state changes: names change
@@ -61,15 +60,15 @@ do
     echo "=== $metric ==="
     # one instance
     #
-    PCP_DERIVED_CONFIG=$tmp.config pmval -Dfetch -t 0.1sec -s 2 -i "bin-300" $metric >>$here/$seq.full 2>$tmp.out
+    PCP_DERIVED_CONFIG=$tmp.config pmval -Dfetch -t 0.1sec -s 2 -i "bin-300" $metric >>$seq_full 2>$tmp.out
     _filter <$tmp.out
     # two instances
     #
-    PCP_DERIVED_CONFIG=$tmp.config pmval -Dfetch -t 0.1sec -s 2 -i "bin-200,bin-400" $metric >>$here/$seq.full 2>$tmp.out
+    PCP_DERIVED_CONFIG=$tmp.config pmval -Dfetch -t 0.1sec -s 2 -i "bin-200,bin-400" $metric >>$seq_full 2>$tmp.out
     _filter <$tmp.out
     # all instances
     #
-    PCP_DERIVED_CONFIG=$tmp.config pmval -Dfetch -t 0.1sec -s 2 $metric >>$here/$seq.full 2>$tmp.out
+    PCP_DERIVED_CONFIG=$tmp.config pmval -Dfetch -t 0.1sec -s 2 $metric >>$seq_full 2>$tmp.out
     _filter <$tmp.out
 done
 

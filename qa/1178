@@ -25,13 +25,12 @@ target_ip=1.1.1.1
 
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
-$sudo rm -rf $tmp.* $seq.full
 
 # Some combinations of distro and kernel are known to be "bad"
 # for some BPF modules
 #
 kernel=`uname -r`
-echo "$kernel" >>$seq.full
+echo "$kernel" >>$seq_full
 case `admin/whatami`
 in
     *Fedora\ 32\ *)

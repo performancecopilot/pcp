@@ -31,7 +31,6 @@ signal=$PCP_BINADM_DIR/pmsignal
 
 username=`id -u -n`
 
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 

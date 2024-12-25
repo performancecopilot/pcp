@@ -13,13 +13,12 @@ echo "QA output created by $seq"
 . ./common.config
 
 _check_display
-echo "DISPLAY=$DISPLAY" >>$here/$seq.full
-echo "PCPQA_CLOSE_X_SERVER=$PCPQA_CLOSE_X_SERVER" >>$here/$seq.full
+echo "DISPLAY=$DISPLAY" >>$seq_full
+echo "PCPQA_CLOSE_X_SERVER=$PCPQA_CLOSE_X_SERVER" >>$seq_full
 
 [ $PCP_PLATFORM = linux ] || _notrun "Test needs to run only on Linux"
 
 status=1       # failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 export PCP_STDERR=$tmp.err
@@ -108,15 +107,15 @@ _check_completion_bash()
     #
     rm -f $tmp.err
     touch $tmp.err
-    echo "=== bash $cmd ===" >>$here/$seq.full
-    echo "comps=$comps" >>$here/$seq.full
+    echo "=== bash $cmd ===" >>$seq_full
+    echo "comps=$comps" >>$seq_full
     $cmd --help >$tmp.out 2>&1
-    echo "--- stdout ---" >>$here/$seq.full
-    cat $tmp.out >>$here/$seq.full
-    echo "--- stderr ---" >>$here/$seq.full
-    cat $tmp.err >>$here/$seq.full
+    echo "--- stdout ---" >>$seq_full
+    cat $tmp.out >>$seq_full
+    echo "--- stderr ---" >>$seq_full
+    cat $tmp.err >>$seq_full
     opts=$(cat $tmp.out $tmp.err | grep -Eo -- ' -.' | tr -d '-' | tr -d '?' | sort | uniq)
-    echo "opts=$opts" >>$here/$seq.full
+    echo "opts=$opts" >>$seq_full
 
     for opt in $opts; do
       echo $comps | grep $opt > /dev/null 2>&1

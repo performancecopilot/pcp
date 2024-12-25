@@ -27,7 +27,6 @@ signal=$PCP_BINADM_DIR/pmsignal
 
 username=`id -u -n`
 
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 
@@ -41,7 +40,7 @@ pmproxy_pid=$!
 # check pmproxy has started and is available for requests
 pmcd_wait -h localhost@localhost:$pmproxyport -v -t 5sec
 grep -o "Key.*" $tmp.pmproxy.log
-cat $tmp.pmproxy.log >>$seq.full
+cat $tmp.pmproxy.log >>$seq_full
 $signal -s TERM $pmproxy_pid
 pmproxy_pid=""
 
@@ -57,7 +56,7 @@ pmproxy_pid=$!
 # check pmproxy has started and is available for requests
 pmcd_wait -h localhost@localhost:$pmproxyport -v -t 5sec
 grep -o "Key.*" $tmp.pmproxy.log
-cat $tmp.pmproxy.log >>$seq.full
+cat $tmp.pmproxy.log >>$seq_full
 $signal -s TERM $pmproxy_pid
 pmproxy_pid=""
 

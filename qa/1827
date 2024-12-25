@@ -27,7 +27,6 @@ cpus=`pmprobe -v hinv.ncpu | awk '{print $3}'`
 hostname=`hostname`
 machineid=`_machine_id`
 domainid=`_domain_name`
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 MYUID=`id -u`

@@ -36,12 +36,11 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 pmproxy_was_running=false
 [ -f $PCP_RUN_DIR/pmproxy.pid ] && pmproxy_was_running=true
-echo "pmproxy_was_running=$pmproxy_was_running" >>$here/$seq.full
+echo "pmproxy_was_running=$pmproxy_was_running" >>$seq_full
 
 # real QA test starts here
 _save_config $PCP_PMPROXYOPTIONS_PATH
@@ -50,16 +49,16 @@ echo "# Option added by PCP QA test $seq" > $tmp.local
 echo --timeseries >> $tmp.local
 $sudo cp $tmp.local $PCP_PMPROXYOPTIONS_PATH
 
-_service pmproxy stop >/dev/null 2>&1
-_wait_pmproxy_end
+if ! _service pmproxy stop >/dev/null 2>&1; then _exit 1; fi
+_wait_pmproxy_end || _exit 1
 # give any running pmproxy a chance to shutdown cleanly
 #
 sleep 2
-_service pmproxy start 2>&1 | _filter_pmproxy_start
-_wait_for_pmproxy
+if ! _service pmproxy start 2>&1; then _exit 1; fi | _filter_pmproxy_start
+_wait_for_pmproxy || _exit 1
 
-_service pmproxy stop 2>&1 | _filter_pmproxy_start
-_wait_pmproxy_end
+if ! _service pmproxy stop 2>&1; then _exit 1; fi | _filter_pmproxy_start
+_wait_pmproxy_end || _exit 1
 _filter_pmproxy_log < $PCP_LOG_DIR/pmproxy/pmproxy.log
 
 # systemd has a default limits ... systemd.unit(5) describe

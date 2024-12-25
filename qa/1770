@@ -21,7 +21,6 @@ test $? -eq 0 || _notrun 'No client support for plain authentication'
 $pluginviewer -s | grep 'Plugin "plain"' >/dev/null 2>&1
 test $? -eq 0 || _notrun 'No server support for plain authentication'
 
-$sudo rm -rf $tmp $tmp.* $seq.full
 
 signal=$PCP_BINADM_DIR/pmsignal
 status=1        # failure is the default!
@@ -66,7 +65,7 @@ full_hostname=`hostname --fqdn`
 
 pmproxy_was_running=false
 [ -f $PCP_RUN_DIR/pmproxy.pid ] && pmproxy_was_running=true
-echo "pmproxy_was_running=$pmproxy_was_running" >>$here/$seq.full
+echo "pmproxy_was_running=$pmproxy_was_running" >>$seq_full
 
 _filter_credentials()
 {
@@ -124,8 +123,8 @@ _json_log()
     pmjson | tee -a $here/$seq.full
 }
 
-echo "hostname=$hostname" >>$seq.full
-echo "full_hostname=$full_hostname" >>$seq.full
+echo "hostname=$hostname" >>$seq_full
+echo "full_hostname=$full_hostname" >>$seq_full
 
 # real QA test starts here
 _save_config $PCP_SYSCONF_DIR/proc
@@ -140,8 +139,8 @@ echo 'mech_list: plain' >$tmp.sasl
 echo "sasldb_path: $tmp.passwd.db" >>$tmp.sasl
 $sudo cp $tmp.sasl $PCP_SASLCONF_DIR/pmcd.conf
 $sudo chown pcp:pcp $PCP_SASLCONF_DIR/pmcd.conf
-ls -l $PCP_SASLCONF_DIR/pmcd.conf >>$seq.full
-$sudo -u pcp cat $PCP_SASLCONF_DIR/pmcd.conf >>$seq.full
+ls -l $PCP_SASLCONF_DIR/pmcd.conf >>$seq_full
+$sudo -u pcp cat $PCP_SASLCONF_DIR/pmcd.conf >>$seq_full
 
 echo "Creating temporary sasldb, add user running QA to it" | tee -a $seq.full
 echo y | saslpasswd2 -p -a pmcd -f $tmp.passwd.db $username
@@ -153,8 +152,8 @@ sasldblistusers2 -f $tmp.passwd.db \
 
 echo "Ensure pmcd can read the password file" | tee -a $seq.full
 $sudo chown pcp:pcp $tmp.passwd.db
-ls -l $tmp.passwd.db >>$seq.full
-$sudo -u pcp od -c $tmp.passwd.db >>$seq.full
+ls -l $tmp.passwd.db >>$seq_full
+$sudo -u pcp od -c $tmp.passwd.db >>$seq_full
 
 echo "New pmdaproc config without any authentication" | tee -a $seq.full
 cat >$tmp.nobody <<EOF
@@ -176,12 +175,12 @@ EOF
 
 echo "Start pmcd with this shiny new sasldb and no access"
 $sudo cp $tmp.nobody $PCP_SYSCONF_DIR/proc/access.conf
-_service pmcd restart 2>&1 | tee -a $seq.full >$tmp.out
-_wait_for_pmcd
+if ! _service pmcd restart 2>&1; then _exit 1; fi | tee -a $seq.full >$tmp.out
+_wait_for_pmcd || _exit 1
 
 echo "Start pmproxy with mandatory authentication"
-_service pmproxy stop >/dev/null
-_service pmproxy start >>$here/$seq.full 2>&1
+if ! _service pmproxy stop >/dev/null; then _exit 1; fi
+if ! _service pmproxy start >>$seq_full 2>&1; then _exit 1; fi
 
 test "$PCPQA_SYSTEMD" = yes && $sudo systemctl daemon-reload
 
@@ -196,8 +195,8 @@ echo
 
 echo "Restart pmcd with this sasldb and remote auth mode"
 $sudo cp $tmp.remote $PCP_SYSCONF_DIR/proc/access.conf
-_service pmcd restart 2>&1 | tee -a $seq.full >$tmp.out
-_wait_for_pmcd
+if ! _service pmcd restart 2>&1; then _exit 1; fi | tee -a $seq.full >$tmp.out
+_wait_for_pmcd || _exit 1
 
 _test_log "Establish context for authenticated user"
 response=$(curl -s --user $username:y "http://localhost:44322/pmapi/context")
@@ -210,8 +209,8 @@ echo
 
 echo "Restart pmcd with this sasldb and mapped auth mode"
 $sudo cp $tmp.mapped $PCP_SYSCONF_DIR/proc/access.conf
-_service pmcd restart 2>&1 | tee -a $seq.full >$tmp.out
-_wait_for_pmcd
+if ! _service pmcd restart 2>&1; then _exit 1; fi | tee -a $seq.full >$tmp.out
+_wait_for_pmcd || _exit 1
 
 _test_log "Establish context for authenticated user"
 response=$(curl -s --user $username:y "http://localhost:44322/pmapi/context")
@@ -222,13 +221,13 @@ _test_log "I/O metric access using mapped authentication"
 curl -s --user $username:y "http://localhost:44322/pmapi/$ctx_authenticated/fetch?names=proc.io.write_bytes" | _json_log | _filter_values
 echo
 
-echo >>$here/$seq.full
-echo "=== pmcd log ===" >>$here/$seq.full
-cat $PCP_LOG_DIR/pmcd/pmcd.log >>$here/$seq.full
-echo "=== pmproxy log ===" >>$here/$seq.full
-cat $PCP_LOG_DIR/pmproxy/pmproxy.log >>$here/$seq.full
-echo "=== proc PMDA log ===" >>$here/$seq.full
-cat $PCP_LOG_DIR/pmcd/proc.log >>$here/$seq.full
+echo >>$seq_full
+echo "=== pmcd log ===" >>$seq_full
+cat $PCP_LOG_DIR/pmcd/pmcd.log >>$seq_full
+echo "=== pmproxy log ===" >>$seq_full
+cat $PCP_LOG_DIR/pmproxy/pmproxy.log >>$seq_full
+echo "=== proc PMDA log ===" >>$seq_full
+cat $PCP_LOG_DIR/pmcd/proc.log >>$seq_full
 
 # success, all done
 status=0

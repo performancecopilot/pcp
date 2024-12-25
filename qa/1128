@@ -20,7 +20,6 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.*
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
@@ -36,7 +35,7 @@ pmie -Dappl2 -t 25 -c $tmp.config 2>$tmp.err &
 sleep 90
 kill -TERM $!
 
-cat $tmp.err >>$here/$seq.full
+cat $tmp.err >>$seq_full
 
 # eval time lines look like
 # eval time: Wed Jul  5 19:51:44.118012 2017

@@ -26,7 +26,6 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # pmResult dump from 0x55df9bb635f0 timestamp: 1597614782.259451 07:53:02.259 numpmid: 5

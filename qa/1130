@@ -25,7 +25,7 @@ in
 esac
 
 which socat >/dev/null 2>&1 || _notrun "socat binary not installed"
-which pcp2elasticsearch >$seq.full 2>&1 || _notrun "pcp2elasticsearch not installed"
+which pcp2elasticsearch >$seq_full 2>&1 || _notrun "pcp2elasticsearch not installed"
 
 $python -c "import requests" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python requests module not installed"
@@ -34,7 +34,6 @@ port=9200
 $PCP_BINADM_DIR/telnet-probe -c localhost $port
 [ $? -eq 1 ] || _notrun "Elasticsearch port $port is already in use"
 
-$sudo rm -rf $seq.full $tmp.*
 signal=$PCP_BINADM_DIR/pmsignal
 status=1       # failure is the default!
 
@@ -59,16 +58,16 @@ _filter_prec()
 
 _full_stash()
 {
-    echo "--- pcp2elasticsearch stdout --" >>$seq.full
-    cat $tmp.p2e.out >>$seq.full
-    echo "--- pcp2elasticsearch stderr --" >>$seq.full
-    cat $tmp.p2e.err >>$seq.full
-    echo "--- socket cat stdout --" >>$seq.full
-    cat $tmp.socat.out >>$seq.full
-    echo "--- socket cat stderr --" >>$seq.full
-    cat $tmp.socat.err >>$seq.full
-    echo "--- socket cat logfile --" >>$seq.full
-    cat $tmp.socat.log >>$seq.full
+    echo "--- pcp2elasticsearch stdout --" >>$seq_full
+    cat $tmp.p2e.out >>$seq_full
+    echo "--- pcp2elasticsearch stderr --" >>$seq_full
+    cat $tmp.p2e.err >>$seq_full
+    echo "--- socket cat stdout --" >>$seq_full
+    cat $tmp.socat.out >>$seq_full
+    echo "--- socket cat stderr --" >>$seq_full
+    cat $tmp.socat.err >>$seq_full
+    echo "--- socket cat logfile --" >>$seq_full
+    cat $tmp.socat.log >>$seq_full
     rm -f $tmp.p2e.out $tmp.p2e.err $tmp.socat.out $tmp.socat.err $tmp.socat.log
 }
 
@@ -77,14 +76,14 @@ pcp2elasticsearch="$python `which pcp2elasticsearch`"
 
 echo | tee -a $seq.full
 echo "=== 1. pcp2elasticsearch one-shot one-metric ===" | tee -a $seq.full
-echo start socat `date '+%H:%M:%S.%N'` >>$seq.full
+echo start socat `date '+%H:%M:%S.%N'` >>$seq_full
 socat -lf $tmp.socat.log -v -t 0.000001 tcp-listen:$port,reuseaddr,fork system:"echo HTTP/1.1 201 Created" >$tmp.socat.out 2>$tmp.socat.err &
 pid=$!
 sleep 2
-echo start pcp2elasticsearch `date '+%H:%M:%S.%N'` >>$seq.full
+echo start pcp2elasticsearch `date '+%H:%M:%S.%N'` >>$seq_full
 $pcp2elasticsearch -t 1 -s 1 hinv.ncpu >$tmp.p2e.out 2>$tmp.p2e.err
 sleep 5
-echo kill pcp2elasticsearch `date '+%H:%M:%S.%N'` >>$seq.full
+echo kill pcp2elasticsearch `date '+%H:%M:%S.%N'` >>$seq_full
 $signal $pid 2>/dev/null
 wait
 # some fatal errors in socat.err, some in socat.log ...

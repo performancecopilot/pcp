@@ -16,7 +16,6 @@ _pmdabcc_check_tracepoint random:urandom_read
 
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
-$sudo rm -rf $tmp.* $seq.full
 
 _value_filter()
 {

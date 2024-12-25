@@ -29,7 +29,6 @@ _cleanup()
 
 status=1	# failure is the default!
 username=`id -u -n`
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # create a pmproxy configuration
@@ -89,7 +88,7 @@ do
 done
 if $PCP_BINADM_DIR/telnet-probe -c localhost $proxyport
 then
-    echo "Startup took $i secs" >>$seq.full
+    echo "Startup took $i secs" >>$seq_full
 else
     echo "Arrgh: valgrind failed start pmproxy and get port $proxyport ready after 30 secs"
     exit

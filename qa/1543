@@ -46,7 +46,6 @@ _cleanup()
 
 status=1	# failure is the default!
 need_restore=false
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # Seen to fail sometimes on vm01 ... pmproxy mysteriously dies off in
@@ -68,7 +67,7 @@ esac
 
 pmproxy_was_running=false
 [ -f $PCP_RUN_DIR/pmproxy.pid ] && pmproxy_was_running=true
-echo "pmproxy_was_running=$pmproxy_was_running" >>$here/$seq.full
+echo "pmproxy_was_running=$pmproxy_was_running" >>$seq_full
 
 hostname=`hostname`
 machineid=`_machine_id`
@@ -153,7 +152,7 @@ series()
 
 infoseries()
 {
-    echo "== pminfo -s $@ ==" >> $here/$seq.full
+    echo "== pminfo -s $@ ==" >> $seq_full
     pminfo -s "$1" | tee -a $here/$seq.full | \
     grep Series: | \
     awk '{ print $NF }'
@@ -173,7 +172,7 @@ _save_config $PCP_SYSCONF_DIR/pmproxy/pmproxy.options
 need_restore=true
 
 $sudo rm -rf $PCP_SYSCONF_DIR/labels/*
-_sighup_pmcd
+_sighup_pmcd || _exit 1
 
 $sudo rm -f $PCP_SYSCONF_DIR/pmproxy/pmproxy.conf $PCP_SYSCONF_DIR/pmproxy/pmproxy.options
 echo "--timeseries" >> $tmp.options
@@ -184,12 +183,12 @@ echo "http.enabled = true" >> $tmp.conf
 $sudo cp $tmp.conf $PCP_SYSCONF_DIR/pmproxy/pmproxy.conf
 
 _stop_auto_restart pmproxy
-_service pmproxy stop >/dev/null
-_service pmproxy start >>$here/$seq.full 2>&1
-_wait_for_pmproxy
+if ! _service pmproxy stop >/dev/null; then _exit 1; fi
+if ! _service pmproxy start >>$seq_full 2>&1; then _exit 1; fi
+_wait_for_pmproxy || _exit 1
 
-echo "After initial _service start ..." >>$here/$seq.full
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy( |$)' >>$here/$seq.full
+echo "After initial _service start ..." >>$seq_full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy( |$)' >>$seq_full
 
 port=44322
 
@@ -206,7 +205,7 @@ curl -s "http://localhost:$port/pmapi/context?hostspec=localhost" \
 	| _filter_json "Check hostspec parameter"
 oldcontext=`cat $tmp.context`
 
-echo "Using context: $oldcontext" >> $seq.full
+echo "Using context: $oldcontext" >> $seq_full
 curl -s "http://localhost:$port/pmapi/$oldcontext/context" \
 	| _filter_json "Pinging active context via URL"
 urlcontext=`cat $tmp.context`
@@ -220,7 +219,7 @@ fi
 curl -s "http://localhost:$port/pmapi/context?polltimeout=250" \
 	| _filter_json "Check polltimeout parameters"
 oldcontext=`cat $tmp.context`
-echo "Using context: $oldcontext" >> $seq.full
+echo "Using context: $oldcontext" >> $seq_full
 pmsleep 250msec	# timeout this context
 pmsleep 100msec	# extra for slow test machines
 curl -s "http://localhost:$port/pmapi/$oldcontext/context" \

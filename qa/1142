@@ -46,7 +46,6 @@ _filter()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
@@ -58,12 +57,12 @@ pmcd_full=`pminfo -f proc.psinfo.utime | grep ' [^ ]*pmcd"]' \
       | sed -e 's/.* or "//' -e 's/".*//'`
 pmcd_pid=`echo "$pmcd_full" | sed -e 's/ .*//'`
 pmcd_trunc=`echo "$pmcd_pid" | sed -e 's/.$//'`
-echo pmcd_full=$pmcd_full pmcd_pid=$pmcd_pid pmcd_trunc=$pmcd_trunc >>$seq.full
+echo pmcd_full=$pmcd_full pmcd_pid=$pmcd_pid pmcd_trunc=$pmcd_trunc >>$seq_full
 
 disk_full=`pminfo -f disk.dev.total | grep '^  *inst ' \
       | sed -e 's/.* or "//' -e 's/".*//' -e 1q`
 disk_trunc=`echo "$disk_full" | sed -e 's/.$//'`
-echo disk_full=$disk_full disk_trunc=$disk_trunc >>$seq.full
+echo disk_full=$disk_full disk_trunc=$disk_trunc >>$seq_full
 
 echo "=== proc.psinfo.utime (space in instance name) ==="
 
@@ -73,7 +72,7 @@ for name in "$pmcd_full" \
     "$pmcd_trunc"
 do
     echo
-    echo "--- $name ---" >>$seq.full
+    echo "--- $name ---" >>$seq_full
     sed -e "s;INST;$name;" <$tmp.config \
     | pmie -t 0.1sec -T +0.35sec 2>&1 \
     | _filter
@@ -92,7 +91,7 @@ for name in "$disk_full irrelevant disk name" \
     "$disk_trunc"
 do
     echo
-    echo "--- $name ---" >>$seq.full
+    echo "--- $name ---" >>$seq_full
     sed -e "s;INST;$name;" <$tmp.config \
     | pmie -t 0.1sec -T +0.35sec 2>&1 \
     | _filter

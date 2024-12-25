@@ -29,7 +29,6 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _filter()
@@ -48,10 +47,10 @@ pmda=$PCP_PMDAS_DIR/dm/pmda_dm,dm_init
 
 echo
 echo "=== Installing device mapper PMDA ===" | tee -a $here/$seq.full
-_prepare_pmda_install dm
+_prepare_pmda_install dm || _exit 1
 cd $PCP_PMDAS_DIR/dm
 $sudo ./Install </dev/null >$tmp.out 2>&1
-cat $tmp.out >> $here/$seq.full
+cat $tmp.out >> $seq_full
 
 for tgz in $here/linux/vdo-root-*.tgz
 do

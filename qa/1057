@@ -17,7 +17,6 @@ config=$PCP_VAR_DIR/config/pmlogrewrite/nfsclient_migrate.conf
 [ -f "$config" ] || _notrun "no $config file"
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "cd $here; $sudo rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 
 _filter_rewrite()

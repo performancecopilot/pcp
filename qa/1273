@@ -26,7 +26,6 @@ _cleanup()
 }
 
 status=0	# success is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # Map PMID for disk.dev.read to the Linux equivalent, so that
@@ -54,9 +53,9 @@ _do_it()
 {
     rm -f $tmp.0 $tmp.meta $tmp.index $tmp.log
     pmlogger -D optfetch,desperate -l $tmp.log -c $tmp.config -s 2 -t 0.25sec $tmp
-    echo >>$seq.full
-    cat $tmp.config >>$seq.full
-    cat $tmp.log >>$seq.full
+    echo >>$seq_full
+    cat $tmp.config >>$seq_full
+    cat $tmp.log >>$seq_full
 
     # delete log down to last "Task 0x5608ac112100 -> t_fetch ..." line
     # then summarize

@@ -48,7 +48,8 @@ pmdauwsgi_install()
     # start from known starting points
     cd $PCP_PMDAS_DIR/$iam
     $sudo ./Remove >/dev/null 2>&1
-    _service pmcd stop | _filter_pcp_stop
+    if ! _service pmcd stop; then _exit 1; fi \
+    | _filter_pcp_stop
 
     echo
     echo "=== $iam check post-install ==="

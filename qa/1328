@@ -27,7 +27,6 @@ _cleanup()
 }
 
 status=0	# success is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
@@ -49,8 +48,8 @@ for try in 1 2 3
 do
     raw=`date '+%y/%m/%d %H:%M:%S'`
     cooked=`TZ=$zoneinfo date '+%y/%m/%d %H:%M:%S'`
-    echo "raw=$raw" >>$seq.full
-    echo "cooked=$cooked (TZ=$zoneinfo)" >>$seq.full
+    echo "raw=$raw" >>$seq_full
+    echo "cooked=$cooked (TZ=$zoneinfo)" >>$seq_full
     if [ "$raw" = "$cooked" ]
     then
 	echo "Dates match."

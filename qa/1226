@@ -104,7 +104,7 @@ _get_config pmie >$tmp.tmp || _exit 1
 pmie_state=`cat $tmp.tmp`
 rm -f $tmp.tmp
 [ "$pmie_state" = off ] && _change_config pmie on
-_service pmie start >>$seq_full 2>&1
+if ! _service pmie start >>$seq_full 2>&1; then _exit 1; fi
 
 # real QA test starts here
 

@@ -22,7 +22,6 @@ _cleanup()
 }
 
 status=0	# success is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
@@ -36,7 +35,7 @@ do
         cat $tmp.$tool | tee -a $seq.full
         status=1
     else
-        cat $tmp.$tool >> $seq.full
+        cat $tmp.$tool >> $seq_full
     fi
 done
 

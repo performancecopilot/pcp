@@ -23,7 +23,6 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
@@ -53,15 +52,15 @@ export PCP_DERIVED_CONFIG=
 pmlogger -c $tmp.conf -T 10sec -l $tmp.log -m qa/$seq $tmp &
 pid=$!
 
-echo "pmlogger PID=$pid" >>$here/$seq.full
+echo "pmlogger PID=$pid" >>$seq_full
 
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger( |$)' >>$here/$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger( |$)' >>$seq_full
 
 sleep 4
 kill -INT $pid
 wait
 
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger( |$)' >>$here/$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger( |$)' >>$seq_full
 
 # Counting is real tricky here ... pmlogger may split the one group in
 # the config file into multiple pmFetch's, so just count the number of
@@ -73,7 +72,7 @@ $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger( |$)' >>$here/$seq.
 #
 if [ -f $tmp.0 ]
 then
-    cat $tmp.log >>$here/$seq.full
+    cat $tmp.log >>$seq_full
     pmdumplog $tmp pmda.version \
     | tee -a $here/$seq.full \
     | grep 'pmda\.version' \

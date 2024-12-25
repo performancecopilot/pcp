@@ -31,7 +31,6 @@ fi
 #
 today=`pmdate %Y%m%d`
 
-$sudo rm -rf $tmp $tmp.* $seq.full
 
 pmie_was_running=false
 [ -f $PCP_RUN_DIR/pmie.pid ] && pmie_was_running=true
@@ -65,7 +64,7 @@ _filter()
 
 if $pmie_was_running
 then
-    _service pmie stop >>$here/$seq.full 2>&1
+    if ! _service pmie stop >>$seq_full 2>&1; then _exit 1; fi
 fi
 
 cd $PCP_LOG_DIR/pmie/`hostname`
@@ -88,15 +87,15 @@ $sudo cp $tmp.log pmie.log
 $sudo chown $PCP_USER:$PCP_GROUP pmie.log
 
 # real QA test starts here
-echo "--- before ---" >>$here/$seq.full
-ls -li >>$here/$seq.full
+echo "--- before ---" >>$seq_full
+ls -li >>$seq_full
 
-_service pmie start 2>&1 \
+if ! _service pmie start 2>&1; then _exit 1; fi \
 | tee -a $here/$seq.full \
 | _filter_pmie_start
 
-echo "--- after ---" >>$here/$seq.full
-ls -li >>$here/$seq.full
+echo "--- after ---" >>$seq_full
+ls -li >>$seq_full
 
 if [ -f pmie.log.$today ]
 then

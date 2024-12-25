@@ -22,7 +22,7 @@ _cleanup()
 }
 
 status=0	# success is the default!
-$sudo rm -rf $tmp $tmp.* \$seq.full
+$sudo rm -rf \$seq_full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 create_rewrite_logs()
@@ -48,11 +48,11 @@ End-of-File2
     migrate=$PCP_VAR_DIR/config/pmlogrewrite/linux_xfs_perdev_buffer.conf
     pmlogrewrite -c $migrate -w $tmp.log-1 $tmp.log-2
     rm $tmp.log.conf $tmp.lrw.conf
-    echo "+++ log +++" >>$seq.full
+    echo "+++ log +++" >>$seq_full
     pmdumplog -z -dil $tmp.log   | tee -a $seq.full >$tmp.log.dump
-    echo "+++ log-1 +++" >>$seq.full
+    echo "+++ log-1 +++" >>$seq_full
     pmdumplog -z -dil $tmp.log-1 | tee -a $seq.full >$tmp.log-1.dump
-    echo "+++ log-2 +++" >>$seq.full
+    echo "+++ log-2 +++" >>$seq_full
     pmdumplog -z -dil $tmp.log-2 | tee -a $seq.full >$tmp.log-2.dump
 }
 

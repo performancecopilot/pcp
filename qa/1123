@@ -50,10 +50,9 @@ in
 	    ;;
 esac
 
-# cannot rm $tmp because common.qt may have already created a directory
+# cannot rm because common.qt may have already created a directory
 # for $XDG_RUNTIME_DIR below there
 #
-$sudo rm -rf $tmp.* $seq.full
 
 # real QA test starts here
 
@@ -66,7 +65,7 @@ pid=$!
 #
 export PMCD_CONNECT_TIMEOUT=30
 export PMCD_REQUEST_TIMEOUT=30
-pmstore pmcd.control.timeout 30 >>$seq.full
+pmstore pmcd.control.timeout 30 >>$seq_full
 
 PCP_STDERR= $PCP_VAR_DIR/config/pmchart/BusyCPU \
 | tee -a $here/$seq.full \
@@ -82,7 +81,7 @@ PCP_STDERR= pmchart -c BusyCPU -C -C >$tmp.out 2>&1
 # some of the processes may have exited, so make that noise
 # go away
 #
-cat $tmp.out >>$seq.full
+cat $tmp.out >>$seq_full
 sed <$tmp.out \
     -e '/^pmchart: Error: local::proc\..*\.utime: IPC protocol failure/d' \
     -e '/^pmchart: Error: local::proc\..*\.utime: Unknown or illegal instance/d' \

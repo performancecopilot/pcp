@@ -16,13 +16,12 @@ which ss >/dev/null 2>&1 || _notrun "No ss binary installed"
 
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
-$sudo rm -rf $tmp.* $seq.full
 
 # Some combinations of distro and kernel are known to be "bad"
 # for some BPF modules
 #
 kernel=`uname -r`
-echo "$kernel" >>$seq.full
+echo "$kernel" >>$seq_full
 case `admin/whatami`
 in
     *Fedora\ 32\ *)
@@ -53,9 +52,9 @@ cat <<'End-of-File' >$tmp.py
 import bcc
 print(bcc.__version__)
 End-of-File
-echo "bcc version ..." >>$seq.full
-version=`pmpython $tmp.py 2>>$seq.full`
-echo "$version" >>$seq.full
+echo "bcc version ..." >>$seq_full
+version=`pmpython $tmp.py 2>>$seq_full`
+echo "$version" >>$seq_full
 case "$version"
 in
     '')

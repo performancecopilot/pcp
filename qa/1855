@@ -20,7 +20,6 @@ $PCP_BINADM_DIR/telnet-probe -c localhost $port || \
     _notrun "rabbitmq not running on default port:$port"
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 
 pmdarabbitmq_remove()
 {
@@ -35,7 +34,8 @@ pmdarabbitmq_install()
     # start from known starting points
     cd $PCP_PMDAS_DIR/rabbitmq
     $sudo ./Remove >/dev/null 2>&1
-    _service pmcd stop | _filter_pcp_stop
+    if ! _service pmcd stop; then _exit 1; fi \
+    | _filter_pcp_stop
 
     echo
     echo "=== rabbitmq agent installation ==="

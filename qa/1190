@@ -36,7 +36,6 @@ _cleanup()
 }
 
 status=0	# success is the default!
-$check || $sudo rm -f $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # Usage: _check_file <realpath> <unexpanded_path_or_prefix>

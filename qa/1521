@@ -23,7 +23,6 @@ fi
 . ./common.filter
 . ./common.check
 
-$sudo rm -rf $tmp $tmp.* $seq.full
 
 do_valgrind=false
 if [ "$1" = "--valgrind" ]
@@ -49,7 +48,7 @@ status=0	# success is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 host=`hostname`
-echo "host=$host" >>$seq.full
+echo "host=$host" >>$seq_full
 
 # need "now" to be > 20 to avoid ambiguous filtering
 # ... only an issue of the sample PMDA was recently restarted
@@ -60,7 +59,7 @@ do
     [ -n "$now" -a "$now" -gt 20 ] && break
     sleep 2
 done
-echo "now=$now" >>$seq.full
+echo "now=$now" >>$seq_full
 
 _filter()
 {
@@ -124,10 +123,10 @@ do
     _filter <$tmp.out
 done
 
-pmstore sample.updown.control.reset 0 >>$seq.full 2>&1
-pmstore sample.updown.control.step 1 >>$seq.full 2>&1
-pmstore sample.updown.control.repeat 1 >>$seq.full 2>&1
-pmstore sample.updown.obs 42 >>$seq.full 2>&1
+pmstore sample.updown.control.reset 0 >>$seq_full 2>&1
+pmstore sample.updown.control.step 1 >>$seq_full 2>&1
+pmstore sample.updown.control.repeat 1 >>$seq_full 2>&1
+pmstore sample.updown.obs 42 >>$seq_full 2>&1
 
 echo
 echo "Evaluations ..."

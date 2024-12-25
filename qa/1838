@@ -25,7 +25,6 @@ _cleanup()
 }
 
 status=0	# success is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _extfrag_sysfs()
@@ -34,7 +33,7 @@ _extfrag_sysfs()
 #Node 0, zone      DMA 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.002 0.002 
 #Node 0, zone   Normal 0.000 0.001 0.009 0.019 0.023 0.027 0.029 0.038 0.044 0.048 0.052 0.063 0.095 
 
-    echo /sys/kernel/debug/extfrag/unusable_index >> $seq.full
+    echo /sys/kernel/debug/extfrag/unusable_index >> $seq_full
     $sudo cat /sys/kernel/debug/extfrag/unusable_index | tee -a $seq.full \
 	     | grep '^Node ' | grep -E 'zone .*Normal' \
 	     | awk '{ for (i = 5; i < NF+1; i++) sum += $i } END { print sum }'
@@ -42,7 +41,7 @@ _extfrag_sysfs()
 
 _extfrag_pmprobe()
 {
-    echo pmprobe -v sysfs.kernel.debug.extfrag_unusable >> $seq.full
+    echo pmprobe -v sysfs.kernel.debug.extfrag_unusable >> $seq_full
     pmprobe -v sysfs.kernel.debug.extfrag_unusable | tee -a $seq.full \
 	    | awk '{ for (i = 3; i < NF+1; i++) sum += $i } END { print sum }'
 }
@@ -51,9 +50,9 @@ _extfrag_pmprobe()
 pcp_value=`_extfrag_pmprobe`
 sys_value=`_extfrag_sysfs`
 
-echo pcp_value=$pcp_value >> $seq.full
+echo pcp_value=$pcp_value >> $seq_full
 
-echo sys_value=$sys_value >> $seq.full
+echo sys_value=$sys_value >> $seq_full
 
 _within_tolerance "sysfs extfrag value" $pcp_value $sys_value 0.05 -v
 status=$?

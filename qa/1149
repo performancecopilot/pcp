@@ -32,7 +32,6 @@ want == 1			{ print }' \
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
@@ -56,7 +55,7 @@ metric irix.kernel.all.load { name->load type->double }
 metric hinv.ncpu { name->hinv.number_of_cpus type->U64 }
 End-of-File
 rm -f $tmp.new.*
-cat $tmp.conf >>$seq.full
+cat $tmp.conf >>$seq_full
 pmlogrewrite -Dpdubuf -c $tmp.conf archives/src-rattle $tmp.new 2>&1 | _filter
 
 # success, all done

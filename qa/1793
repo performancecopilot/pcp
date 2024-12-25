@@ -35,7 +35,6 @@ groupid=`id -g`
 hostname=`hostname`
 machineid=`_machine_id`
 domainname=`_domain_name`
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 need_restore=true
 
@@ -72,12 +71,12 @@ p
 # real QA test starts here
 _save_config $PCP_ETC_DIR/pcp/labels
 $sudo rm -rf $PCP_ETC_DIR/pcp/labels/*
-_sighup_pmcd
+_sighup_pmcd || _exit 1
 
 mkdir -p $tmp
 
 echo === check pmrep writing an archive with labels | tee -a $seq.full
-pmrep -m -t1 -s2 -o archive -F $tmp/pmrep_sample_colour sample.colour >> $seq.full 2>&1
+pmrep -m -t1 -s2 -o archive -F $tmp/pmrep_sample_colour sample.colour >> $seq_full 2>&1
 pmdumplog -e $tmp/pmrep_sample_colour | _filter_pmdumplog |\
     grep -e 'Domain.*labels' -e 'Cluster.*labels' -e 'InDom.*labels' | tee -a $seq.full
 

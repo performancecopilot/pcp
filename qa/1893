@@ -22,7 +22,6 @@ _cleanup()
 }
 
 status=0	# success is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _filter()
@@ -40,9 +39,9 @@ mypid=$$
 mycwd=`pwd`
 myexe=`readlink /proc/$$/exe`
 
-echo mypid: $mypid > $seq.full
-echo mycwd: $mycwd >> $seq.full
-echo myexe: $myexe >> $seq.full
+echo mypid: $mypid > $seq_full
+echo mycwd: $mycwd >> $seq_full
+echo myexe: $myexe >> $seq_full
 
 echo == check for any exe failures
 pminfo -v proc.psinfo.exe
@@ -63,7 +62,7 @@ echo done
 echo == check for psargs with leading space | tee -a $seq.full
 pminfo -f proc.psinfo.psargs > $tmp.psargs
 grep -F ' value " ' $tmp.psargs
-[ $? -ne 0 ] && cat $tmp.psargs >> $seq.full
+[ $? -ne 0 ] && cat $tmp.psargs >> $seq_full
 echo done
 
 # success, all done

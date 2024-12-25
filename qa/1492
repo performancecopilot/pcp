@@ -31,7 +31,6 @@ else
     # NOTREACHED
 fi
 
-$sudo rm -rf $tmp $tmp.* $seq.full
 
 do_valgrind=false
 if [ "$1" = "--valgrind" ]
@@ -79,7 +78,7 @@ seen[$0] == ""		{ print; seen[$0] = 1 }'
 mkdir $tmp || exit 1
 cd $tmp
 tar xJf $here/archives/atop-sar.tar.xz
-sum atop-sar/* >>$seq.full
+sum atop-sar/* >>$seq_full
 
 # real QA test starts here
 

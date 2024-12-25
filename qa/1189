@@ -20,7 +20,6 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 mkdir $tmp
 
@@ -48,7 +47,7 @@ do
     echo | tee -a $here/$seq.full
     echo "predicate: mtime $stamp ..." | tee -a $here/$seq.full
     $PCP_BINADM_DIR/find-filter mtime $stamp <$tmp.all >$tmp.tmp
-    cat $tmp.tmp >>$here/$seq.full
+    cat $tmp.tmp >>$seq_full
     echo "Excluded	Included"
     comm -1 $tmp.tmp $tmp.all \
     | sed -e 's/^	/		/'

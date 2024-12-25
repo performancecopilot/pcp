@@ -15,7 +15,6 @@ _pmdabpf_require_kernel_version 5 0
 
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
-$sudo rm -rf $tmp.* $seq.full
 
 cat <<EOF >$tmp.conf
 # Installed by PCP QA test $seq on `date`
@@ -47,7 +46,7 @@ _pmdabpf_install $tmp.conf
 _pmdabpf_wait_for_metric
 
 # Generate system activity for the BPF biolatency module
-dd if=/dev/zero of=${out_file} bs=${write_size} count=1 oflag=direct 2>$here/$seq.full
+dd if=/dev/zero of=${out_file} bs=${write_size} count=1 oflag=direct 2>$seq_full
 
 echo "=== report metric values ==="
 pminfo -dfmtT bpf.disk.all.latency 2>&1 | tee -a $here/$seq.full \

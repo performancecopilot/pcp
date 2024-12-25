@@ -21,7 +21,6 @@ fi
 . ./common.filter
 . ./common.check
 
-$sudo rm -rf $tmp $tmp.* $seq.full
 
 _cleanup()
 {

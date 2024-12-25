@@ -23,13 +23,12 @@ which pmdumptext >/dev/null 2>&1 || _notrun "No installed pmdumptext binary"
 signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
 username=`id -u -n`
-$sudo rm -rf $tmp.* $seq.full
 trap "_cleanup; $sudo rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 pmproxy_was_running=false
 [ -f $PCP_RUN_DIR/pmproxy.pid ] && pmproxy_was_running=true
-echo "pmproxy_was_running=$pmproxy_was_running" >>$here/$seq.full
-[ -f $PCP_RUN_DIR/pmproxy.pid ] && echo "pmproxy.pid: `cat $PCP_RUN_DIR/pmproxy.pid`" >>$here/$seq.full
+echo "pmproxy_was_running=$pmproxy_was_running" >>$seq_full
+[ -f $PCP_RUN_DIR/pmproxy.pid ] && echo "pmproxy.pid: `cat $PCP_RUN_DIR/pmproxy.pid`" >>$seq_full
 
 _cleanup()
 {
@@ -229,10 +228,10 @@ log advisory on default {
 End-of-File
 }
 
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy( |$)' >>$here/$seq.full
-_service pmproxy stop >/dev/null 2>&1
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy( |$)' >>$seq_full
+if ! _service pmproxy stop >/dev/null 2>&1; then _exit 1; fi
 $sudo $signal -s KILL -a pmproxy >/dev/null 2>&1
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy( |$)' >>$here/$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy( |$)' >>$seq_full
 
 mkdir -p $tmp.rundir
 export PCP_RUN_DIR=$tmp.rundir
@@ -262,9 +261,9 @@ fi
 if [ -f $here/valgrind-suppress-$__version ]
 then
     __extra="$__extra --suppressions=$here/valgrind-suppress-$__version"
-    echo "Warning: using extra $__extra" >>$here/$seq.full
+    echo "Warning: using extra $__extra" >>$seq_full
 else
-    echo "Warning: no extra suppressions found for valgrind version $__version" >>$here/$seq.full
+    echo "Warning: no extra suppressions found for valgrind version $__version" >>$seq_full
 fi
 valgrind \
     --trace-children=yes \
@@ -278,13 +277,13 @@ valgrind \
 # assume default port ...
 #
 rm -f $tmp.started
-_wait_for_pmproxy 44322 $tmp.log
+_wait_for_pmproxy 44322 $tmp.log || _exit 1
 touch $tmp.started
 
 export PMPROXY_HOST=localhost
 $PCP_BINADM_DIR/pmcd_wait -t 5sec -h localhost@localhost
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy( |$)' >>$here/$seq.full
-cat $tmp.log >> $here/$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy( |$)' >>$seq_full
+cat $tmp.log >> $seq_full
 
 # on a slow VM, valgrind can be painful, so a little more patience may
 # be required
@@ -325,15 +324,15 @@ _do pmstat -t 0.5sec -a $tmp.arch -z 2>&1 \
 
 # for debugging this test ...
 #
-pmdumplog -Lm -z $tmp.arch >>$here/$seq.full 2>&1
-#pmstat -Dfetch,interp -S +0.4sec -t 0.5sec -a $tmp.arch -z >>$here/$seq.full 2>&1
+pmdumplog -Lm -z $tmp.arch >>$seq_full 2>&1
+#pmstat -Dfetch,interp -S +0.4sec -t 0.5sec -a $tmp.arch -z >>$seq_full 2>&1
 
-( echo ""; echo "=== pmproxy.log ===" ) >>$seq.full
-cat $tmp.log >>$seq.full
+( echo ""; echo "=== pmproxy.log ===" ) >>$seq_full
+cat $tmp.log >>$seq_full
 
 # stop pmproxy and harvest output ...
 #
-$sudo $signal -s KILL -a pmproxy >>$here/$seq.full 2>&1
+$sudo $signal -s KILL -a pmproxy >>$seq_full 2>&1
 sleep 2
 # valgrind goes by different names ... valgrind, valgrind.bin, ...
 # kill 'em all!
@@ -346,8 +345,8 @@ p
 }' \
 | while read pid
 do
-    echo "Killing PID $pid ..." >>$here/$seq.full
-    $sudo $signal -s KILL $pid >>$here/$seq.full 2>&1
+    echo "Killing PID $pid ..." >>$seq_full
+    $sudo $signal -s KILL $pid >>$seq_full 2>&1
 done
 wait
 

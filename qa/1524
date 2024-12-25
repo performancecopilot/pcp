@@ -22,8 +22,7 @@ fi
 # get standard Qt environment, filters and checks
 . ./common.qt
 
-$sudo rm -rf $tmp $tmp.* $seq.full
-echo "DISPLAY=$DISPLAY" >>$seq.full
+echo "DISPLAY=$DISPLAY" >>$seq_full
 
 which pmview >/dev/null 2>&1 || _notrun "No pmview binary installed"
 

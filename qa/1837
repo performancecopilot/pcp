@@ -19,12 +19,11 @@ curl --request-target 2>&1 | grep -q 'requires parameter' || \
 	_notrun "Test requires curl --request-target option"
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "cd $here; _cleanup; exit \$status" 0 1 2 3 15
 
 pmproxy_was_running=false
 [ -f $PCP_RUN_DIR/pmproxy.pid ] && pmproxy_was_running=true
-echo "pmproxy_was_running=$pmproxy_was_running" >>$here/$seq.full
+echo "pmproxy_was_running=$pmproxy_was_running" >>$seq_full
 
 _cleanup()
 {
@@ -41,7 +40,7 @@ _cleanup()
 }
 
 # real QA test starts here
-_service pmproxy restart >/dev/null 2>&1
+if ! _service pmproxy restart >/dev/null 2>&1; then _exit 1; fi
 
 echo; echo "=== OPTIONS"
 curl -isS -X OPTIONS --request-target "*" http://localhost:44322 \
@@ -51,9 +50,9 @@ echo; echo "=== TRACE"
 curl -isS -X TRACE http://localhost:44322 \
 	2>&1 | tee -a $here/$seq.full | _webapi_header_filter
 
-echo >>$here/$seq.full
-echo "=== pmproxy log ===" >>$here/$seq.full
-cat $PCP_LOG_DIR/pmproxy/pmproxy.log >>$here/$seq.full
+echo >>$seq_full
+echo "=== pmproxy log ===" >>$seq_full
+cat $PCP_LOG_DIR/pmproxy/pmproxy.log >>$seq_full
 
 # success, all done
 status=0

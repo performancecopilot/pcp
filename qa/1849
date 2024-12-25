@@ -22,7 +22,6 @@ fi
 . ./common.filter
 . ./common.check
 
-$sudo rm -rf $tmp $tmp.* $seq.full
 
 do_valgrind=false
 if [ "$1" = "--valgrind" ]
@@ -79,10 +78,10 @@ _filter()
 
 date >/dev/null 2>&1 &
 DEAD1=$!
-echo "DEAD1=$DEAD1" >>$here/$seq.full
+echo "DEAD1=$DEAD1" >>$seq_full
 date >/dev/null 2>&1 &
 DEAD2=$!
-echo "DEAD2=$DEAD2" >>$here/$seq.full
+echo "DEAD2=$DEAD2" >>$seq_full
 
 # real QA test starts here
 
@@ -94,13 +93,13 @@ echo
 echo "+++ dirname is a symlink not a dir ..." | tee -a $here/$seq.full
 ln -s /tmp $tmp
 _doit $tmp
-rm -f $tmp
+rm -f $tmp		# refactor-ok
 
 echo
 echo "+++ dirname is a regular file not a dir ..." | tee -a $here/$seq.full
 touch $tmp
 _doit $tmp
-rm -rf $tmp
+rm -rf $tmp		# refactor-ok
 
 echo
 echo "+++ no permission to read dirname ..." | tee -a $here/$seq.full
@@ -113,14 +112,14 @@ chmod 755 $tmp
 echo
 echo "+++ wrong user for dirname ..." | tee -a $here/$seq.full
 $sudo chown pcp $tmp
-ls -ld $tmp >>$seq.full
+ls -ld $tmp >>$seq_full
 _doit $tmp
 $sudo chown `id -un` $tmp
 
 echo
 echo "+++ wrong group for dirname ..." | tee -a $here/$seq.full
 $sudo chgrp pcp $tmp
-ls -ld $tmp >>$seq.full
+ls -ld $tmp >>$seq_full
 _doit $tmp
 $sudo chgrp `id -gn` $tmp
 
@@ -142,7 +141,7 @@ echo
 echo "+++ bad 'PID' file names and CAN unlink ..." | tee -a $here/$seq.full
 _doit $tmp -C primary
 ls $tmp | _filter | LC_COLLATE=POSIX sort
-rm -f $tmp/*
+rm -f $tmp/*		# refactor-ok
 
 echo
 echo "+++ PIDs -> no process ..." | tee -a $here/$seq.full
@@ -155,7 +154,7 @@ ls $tmp | _filter | LC_COLLATE=POSIX sort
 
 echo
 echo "+++ special not a symlink ..." | tee -a $here/$seq.full
-rm -f $tmp/primary
+rm -f $tmp/primary		# refactor-ok
 touch $tmp/primary
 _doit $tmp -C primary
 ls $tmp | _filter | LC_COLLATE=POSIX sort
@@ -163,7 +162,7 @@ ls $tmp | _filter | LC_COLLATE=POSIX sort
 
 echo
 echo "+++ special points to a bad 'PID' ..." | tee -a $here/$seq.full
-rm -f $tmp/primary $tmp/$$
+rm -f $tmp/primary $tmp/$$		# refactor-ok
 (cd $tmp; rm -f bad; ln -s -- -1 bad)
 _doit $tmp -C bad
 (cd $tmp; rm -f bad; ln -s 0 bad)
@@ -184,7 +183,7 @@ touch $tmp/$$
 
 echo
 echo "+++ special points somewhere else ..." | tee -a $here/$seq.full
-rm -f $tmp/primary
+rm -f $tmp/primary		# refactor-ok
 echo "--- primary -> /etc/passwd"
 (cd $tmp; rm -f primary; ln -s /etc/passwd primary)
 _doit $tmp -C primary

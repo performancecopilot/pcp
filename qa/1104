@@ -20,19 +20,18 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 echo "Silence is golden"
 
 pmprobe -v kernel.all.cpu kernel.percpu.cpu >$tmp.raw
-cat $tmp.raw >$here/$seq.full
+cat $tmp.raw >$seq_full
 
 grep '^kernel\.all\.cpu' $tmp.raw \
 | while read all_metric all_numval all_value
 do
-    echo $all_metric $all_value >>$here/$seq.full
+    echo $all_metric $all_value >>$seq_full
     percpu_metric=`echo "$all_metric" | sed -e 's/all/percpu/'`
     percpu_numval=`grep "^$percpu_metric " $tmp.raw | $PCP_AWK_PROG '{ print $2 }'`
     ok=true
@@ -58,7 +57,7 @@ do
 	sum_value=`grep "^$percpu_metric " $tmp.raw \
 		   | $PCP_AWK_PROG '
     { s = $3; for (i = 4; i <= NF; i++) s += $i; print s }'`
-	echo $percpu_metric $sum_value >>$here/$seq.full
+	echo $percpu_metric $sum_value >>$seq_full
 	_within_tolerance $all_metric $all_value $sum_value 5%
     else
 	echo "Error: $all_metric numval=$all_numval, $percpu_metric numval=$percpu_numval !"

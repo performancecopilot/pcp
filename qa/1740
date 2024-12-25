@@ -27,7 +27,6 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # This test produces different output if process accounting is enabled
@@ -36,28 +35,35 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 rm -f $seq.out
 if which lastcomm >/dev/null 2>&1
 then
-    lastcomm 2>/dev/null >$tmp.1
+    if ! lastcomm 2>/dev/null >$tmp.1
+    then
+	# probably hitting https://bugzilla.redhat.com/show_bug.cgi?id=2190057
+	# where lastcomm dies with 
+	# *** buffer overflow detected ***: terminated
+	#
+	_notrun "lastcomm is borked"
+    fi
     if [ -s $tmp.1 ]
     then
 	# some output from lastcomm ... does it change?
 	#
 	lastcomm 2>/dev/null >$tmp.2
-	if diff $tmp.1 $tmp.2 >>$seq.full
+	if diff $tmp.1 $tmp.2 >>$seq_full
 	then
-	    echo "Accounting is OFF" >>$seq.full
+	    echo "Accounting is OFF" >>$seq_full
 	    ln $seq.off.out $seq.out
 	else
-	    echo "Accounting is ON" >>$seq.full
+	    echo "Accounting is ON" >>$seq_full
 	    ln $seq.on.out $seq.out
 	fi
     else
-	echo "Accounting is OFF (nothing from lastcomm)" >>$seq.full
+	echo "Accounting is OFF (nothing from lastcomm)" >>$seq_full
 	ln $seq.off.out $seq.out
     fi
 else
     # no lastcomm => no user space process account tools
     #
-    echo "Accounting tools are NOT installed" >>$seq.full
+    echo "Accounting tools are NOT installed" >>$seq_full
     ln $seq.off.out $seq.out
 fi
 
@@ -94,7 +100,7 @@ _pminfo()
 }
 
 # ensure accounting is initially off
-$sudo pmstore acct.control.enable_acct 0 >>$seq.full
+$sudo pmstore acct.control.enable_acct 0 >>$seq_full
 
 _header "initially disabled"
 _pminfo

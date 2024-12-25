@@ -36,7 +36,6 @@ _filter_value()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
@@ -47,49 +46,49 @@ echo Running tests with pmrep ...
 # test names-change=abort
 echo testing names-change=abort
 rm -f $PCP_TMP_DIR/mmv/test
-pmstore mmv.control.reload 1 >>$seq.full
+pmstore mmv.control.reload 1 >>$seq_full
 pmrep -s 4 -t 1 --names-change=abort mmv.control.files | _filter_value &
 
 pmsleep 1.5
 $here/src/mmv_genstats test 1
-pmstore mmv.control.reload 1 >>$seq.full
+pmstore mmv.control.reload 1 >>$seq_full
 wait
 
 # test names-change=ignore
 echo testing names-change=ignore
 rm -f $PCP_TMP_DIR/mmv/test
-pmstore mmv.control.reload 1 >>$seq.full
+pmstore mmv.control.reload 1 >>$seq_full
 pmrep -s 4 -t 1 -r --names-change=ignore mmv | _filter_value &
 
 pmsleep 1.5
 $here/src/mmv_genstats test 1
-pmstore mmv.control.reload 1 >>$seq.full
+pmstore mmv.control.reload 1 >>$seq_full
 wait
 
 # test names-change=update
 echo testing names-change=update
 rm -f $PCP_TMP_DIR/mmv/test
-pmstore mmv.control.reload 1 >>$seq.full
+pmstore mmv.control.reload 1 >>$seq_full
 pmrep -s 5 -t 1 -r --names-change=update mmv | _filter_value &
 
 pmsleep 1.5
 $here/src/mmv_genstats test 2
-pmstore mmv.control.reload 1 >>$seq.full
+pmstore mmv.control.reload 1 >>$seq_full
 wait
 
 # test names-change=update
 echo testing names-change=update with instance filtering
 rm -f $PCP_TMP_DIR/mmv/test
-pmstore mmv.control.reload 1 >>$seq.full
+pmstore mmv.control.reload 1 >>$seq_full
 pmrep -s 10 -t 1 -i zero -i eggs -r --names-change=update mmv | _filter_value &
 
 pmsleep 1.5
 $here/src/mmv_genstats test 3
 rm -f $PCP_TMP_DIR/mmv/test
-pmstore mmv.control.reload 1 >>$seq.full
+pmstore mmv.control.reload 1 >>$seq_full
 pmsleep 2
 $here/src/mmv_genstats test 3
-pmstore mmv.control.reload 1 >>$seq.full
+pmstore mmv.control.reload 1 >>$seq_full
 wait
 
 # success, all done

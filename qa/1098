@@ -42,7 +42,6 @@ groupid=`id -g`
 hostname=`hostname`
 machineid=`_machine_id`
 domainname=`_domain_name`
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 need_restore=true
 
@@ -60,7 +59,7 @@ _filter_labels()
 # real QA test starts here
 _save_config $PCP_ETC_DIR/pcp/labels
 $sudo rm -rf $PCP_ETC_DIR/pcp/labels/*
-_sighup_pmcd
+_sighup_pmcd || _exit 1
 
 cd pmdas/test_python
 cat > $tmp.conf <<EOF
@@ -74,7 +73,7 @@ $sudo ./Install </dev/null \
     | _filter_pmda_install \
     | tee -a $here/$seq.full \
     | sed -e '/^Waiting for pmcd/s/\.\.\.[. ]*$/DOTS/' >$tmp.tmp
-    pminfo -f test_python >>$here/$seq.full 2>&1
+    pminfo -f test_python >>$seq_full 2>&1
     if grep 'warnings,' <$tmp.tmp >/dev/null
     then
 	echo "Arrgh: warnings for some metrics!"
@@ -101,7 +100,7 @@ done
 
 # exercise indom cache re-loading from backing store
 echo && echo "=== Bonus Round ===" | tee -a $here/$seq.full
-pmstore test_python.loaded_indom.some_value 0 >>$here/$seq.full
+pmstore test_python.loaded_indom.some_value 0 >>$seq_full
 pminfo -f test_python.loaded_indom.some_value | $here/src/sortinst
 
 # exercise intrinsic and extrinsic label interfaces

@@ -20,7 +20,6 @@ which pcp2openmetrics >/dev/null 2>&1 || _notrun "pcp2openmetrics not installed"
 
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 A="$here/archives/rep"

@@ -57,7 +57,6 @@ hostname=`hostname`
 machineid=`_machine_id`
 domainname=`_domain_name`
 sha256id=`echo -n $machineid | sha256sum | awk '{ print $1 }'`
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 need_restore=true
 
@@ -80,8 +79,8 @@ _save_config $PCP_ETC_DIR/pcp/labels
 $sudo rm -rf $PCP_ETC_DIR/pcp/labels/*
 _save_config $PCP_ETC_DIR/pcp/labels.conf
 
-echo machineid = $machineid >> $here/$seq.full
-echo sha256id = $sha256id >> $here/$seq.full
+echo machineid = $machineid >> $seq_full
+echo sha256id = $sha256id >> $seq_full
 
 cat >$tmp.empty <<EOF
 EOF
@@ -113,7 +112,7 @@ else
 	echo "{\"$name\":$seq}" > $tmp.braces
 	$sudo cp $tmp.braces $PCP_SYSCONF_DIR/labels/change
 	$sudo cp $file $PCP_SYSCONF_DIR/labels.conf
-        _sighup_pmcd
+        _sighup_pmcd || _exit 1
 	# use pmcd - output should be same
 	pminfo -l hinv.ncpu | tee -a $here/$seq.full
     done

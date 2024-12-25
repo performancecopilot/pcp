@@ -28,7 +28,6 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 mkdir $tmp
@@ -67,7 +66,7 @@ do
     done
 done
 
-ls -l $tmp >>$seq.full
+ls -l $tmp >>$seq_full
 
 # real QA test starts here
 cd $tmp
@@ -87,12 +86,12 @@ pmdumplog -a $tmp/5 | diff - $tmp.ref
 
 # diags for CI failure
 #
-echo "--- TI tmparch/foo --" >>$here/$seq.full
-pmdumplog -t tmparch/foo >>$here/$seq.full
-echo "--- TI 2 --" >>$here/$seq.full
-pmdumplog -t $tmp/2 >>$here/$seq.full
-echo "--- TI 5 --" >>$here/$seq.full
-pmdumplog -t $tmp/5 >>$here/$seq.full
+echo "--- TI tmparch/foo --" >>$seq_full
+pmdumplog -t tmparch/foo >>$seq_full
+echo "--- TI 2 --" >>$seq_full
+pmdumplog -t $tmp/2 >>$seq_full
+echo "--- TI 5 --" >>$seq_full
+pmdumplog -t $tmp/5 >>$seq_full
 
 # success, all done
 status=0

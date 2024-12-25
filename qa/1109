@@ -37,7 +37,6 @@ _filter()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
@@ -78,7 +77,7 @@ echo
 #
 if [ -f $tmp.0 ]
 then
-    cat $tmp.log >>$here/$seq.full
+    cat $tmp.log >>$seq_full
     pmdumplog $tmp pmda.version \
     | grep 'pmda\.version' \
     | tee -a $here/$seq.full \

@@ -60,10 +60,9 @@ _cleanup()
 }
 
 status=0	# success is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
-echo "root_group_is_wheel=$root_group_is_wheel" >>$seq.full
+echo "root_group_is_wheel=$root_group_is_wheel" >>$seq_full
 
 _filter()
 {
@@ -102,7 +101,7 @@ $root_group_is_wheel && echo 's/[0-9][0-9]*(wheel)/ROOT(root)/' >>$tmp.sed
 #
 echo 's/,[0-9][0-9]*([^)]*)//g' >>$tmp.sed
 echo 's/,[A-Z][A-Z]*([^)]*)//g' >>$tmp.sed
-cat $tmp.sed >>$seq.full
+cat $tmp.sed >>$seq_full
 if $do_valgrind
 then
     _run_valgrind src/usergroup -u $uids
@@ -136,7 +135,7 @@ $root_group_is_wheel && echo 's/[0-9][0-9]*(root)/ROOT(root)/' >>$tmp.sed
 #
 echo 's/,[0-9][0-9]*([^)]*)//g' >>$tmp.sed
 echo 's/,[A-Z][A-Z]*([^)]*)//g' >>$tmp.sed
-cat $tmp.sed >>$seq.full
+cat $tmp.sed >>$seq_full
 if $do_valgrind
 then
     _run_valgrind src/usergroup -g $gids

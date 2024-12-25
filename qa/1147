@@ -26,16 +26,15 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # make sure systemctl thinks pmlogger is running
 #
-_service -v pmlogger restart >>$here/$seq.full 2>&1
-_wait_for_pmlogger
+_service -v pmlogger restart >>$seq_full 2>&1
+_wait_for_pmlogger || _exit 1
 
 pid=`_get_primary_logger_pid`
-echo "+++ at the start primary pmlogger pid = $pid" >>$here/$seq.full
+echo "+++ at the start primary pmlogger pid = $pid" >>$seq_full
 if [ -z "$pid" ]
 then
     echo "Arrgh ... no primary pmlogger?"
@@ -45,8 +44,9 @@ then
     exit
 fi
 _stop_auto_restart pmlogger
-_service pmlogger stop | _filter_pcp_stop
-_wait_pmlogger_end $pid
+if ! _service pmlogger stop; then _exit 1; fi \
+| _filter_pcp_stop
+_wait_pmlogger_end $pid || _exit 1
 
 # real QA test starts here
 for i in 1 2 3 4
@@ -55,7 +55,7 @@ do
 done
 
 wait
-_wait_for_pmlogger
+_wait_for_pmlogger || _exit 1
 
 for i in 1 2 3 4
 do
@@ -65,7 +65,7 @@ done
 
 ./870 --check
 
-echo "+++ at the end primary pmlogger pid = `_get_primary_logger_pid`" >>$here/$seq.full
+echo "+++ at the end primary pmlogger pid = `_get_primary_logger_pid`" >>$seq_full
 
 # success, all done
 status=0

@@ -20,7 +20,6 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
@@ -33,8 +32,8 @@ then
 fi
 
 new=`expr $old + 1`
-echo "old=$old" >>$seq.full
-echo "new=$new" >>$seq.full
+echo "old=$old" >>$seq_full
+echo "new=$new" >>$seq_full
 
 pmstore -F pmcd.seqnum 1 \
 | tee -a $seq.full \

@@ -20,7 +20,6 @@ _cleanup()
 }
 
 status=0	# success is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _filter_label()
@@ -42,23 +41,23 @@ EOF
 
 echo "Create version 2 archive via logger"
 PCP_ARCHIVE_VERSION=2 pmlogger -T.1 -l $tmp.log2 -c $tmp.config $tmp.logger2
-cat $tmp.log2 >> $seq.full
+cat $tmp.log2 >> $seq_full
 echo "Verify version 2 archive created..."
 pmloglabel -l $tmp.logger2 | _filter_label
 
 echo "Create version 3 archive via logger"
 PCP_ARCHIVE_VERSION=3 pmlogger -T.1 -l $tmp.log3 -c $tmp.config $tmp.logger3
-cat $tmp.log3 >> $seq.full
+cat $tmp.log3 >> $seq_full
 echo "Verify version 3 archive created..."
 pmloglabel -l $tmp.logger3 | _filter_label
 
 echo "Create version 2 archive via import"
-PCP_ARCHIVE_VERSION=2 ./src/check_pmi_errconv $tmp.import2 2>>$seq.full
+PCP_ARCHIVE_VERSION=2 ./src/check_pmi_errconv $tmp.import2 2>>$seq_full
 echo "Verify version 2 archive created..."
 pmloglabel -l $tmp.import2 | _filter_label
 
 echo "Create version 3 archive via import"
-PCP_ARCHIVE_VERSION=3 ./src/check_pmi_errconv $tmp.import3 2>>$seq.full
+PCP_ARCHIVE_VERSION=3 ./src/check_pmi_errconv $tmp.import3 2>>$seq_full
 echo "Verify version 3 archive created..."
 pmloglabel -l $tmp.import3 | _filter_label
 

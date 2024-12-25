@@ -43,12 +43,11 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 pmproxy_was_running=false
 [ -f $PCP_RUN_DIR/pmproxy.pid ] && pmproxy_was_running=true
-echo "pmproxy_was_running=$pmproxy_was_running" >>$here/$seq.full
+echo "pmproxy_was_running=$pmproxy_was_running" >>$seq_full
 
 hostname=`hostname`
 machineid=`_machine_id`
@@ -115,7 +114,7 @@ _save_config $PCP_SYSCONF_DIR/pmproxy/pmproxy.options
 need_restore=true
 
 $sudo rm -rf $PCP_SYSCONF_DIR/labels/*
-_sighup_pmcd
+_sighup_pmcd || _exit 1
 
 $sudo rm -f $PCP_SYSCONF_DIR/pmproxy/pmproxy.conf $PCP_SYSCONF_DIR/pmproxy/pmproxy.options
 echo "--timeseries" >> $tmp.options
@@ -126,12 +125,12 @@ echo "http.enabled = true" >> $tmp.conf
 echo "resp.enabled = true" >> $tmp.conf
 echo "secure.enabled = true" >> $tmp.conf
 $sudo cp $tmp.conf $PCP_SYSCONF_DIR/pmproxy/pmproxy.conf
-cat $tmp.conf >> $here/$seq.full
+cat $tmp.conf >> $seq_full
 
-_service pmproxy stop >/dev/null
-_service pmproxy start >>$here/$seq.full 2>&1
-_wait_for_pmproxy
-cat $PCP_LOG_DIR/pmproxy/pmproxy.log >> $here/$seq.full
+if ! _service pmproxy stop >/dev/null; then _exit 1; fi
+if ! _service pmproxy start >>$seq_full 2>&1; then _exit 1; fi
+_wait_for_pmproxy || _exit 1
+cat $PCP_LOG_DIR/pmproxy/pmproxy.log >> $seq_full
 
 socket="$PCP_RUN_DIR/pmproxy.socket"
 

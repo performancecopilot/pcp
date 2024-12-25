@@ -41,7 +41,6 @@ machineid=`_machine_id`
 domainname=`_domain_name`
 
 need_restore=false
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _filter_source()
@@ -75,7 +74,7 @@ need_restore=true
 echo "Start test key server ..."
 key_server_port=`_find_free_port`
 options="-p $key_server_port"
-echo "key_server_port=$key_server_port" >>$seq.full
+echo "key_server_port=$key_server_port" >>$seq_full
 $key_server --port $key_server_port --save "" > $tmp.keys 2>&1 &
 _check_key_server_ping $key_server_port
 _check_key_server $key_server_port
@@ -88,7 +87,7 @@ pmseries $options --load "$here/archives/proc" | _filter_source
 
 # start pmproxy 
 proxyport=`_find_free_port`
-echo "proxyport=$proxyport" >>$seq.full
+echo "proxyport=$proxyport" >>$seq_full
 proxyopts="-p $proxyport -r $key_server_port -t"  # -Dseries,http,af
 pmproxy -f -U $username -x $tmp.err -Dseries,query -l $tmp.pmproxy.log $proxyopts &
 pmproxy_pid=$!
@@ -102,9 +101,9 @@ then
     cat $tmp.err
 fi
 
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy( |$)' >> $seq.full
-$keys_cli $options keys pcp:* >> $seq.full
-cat $tmp.pmproxy.log >> $seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy( |$)' >> $seq_full
+$keys_cli $options keys pcp:* >> $seq_full
+cat $tmp.pmproxy.log >> $seq_full
 
 # Sanity check
 series1=`pmseries $options disk.all.read`

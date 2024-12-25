@@ -41,7 +41,6 @@ _cleanup()
 }
 
 status=0	# success is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _log()
@@ -69,9 +68,9 @@ then
 else
     pmrepconf $tmp.config </dev/null
 fi | _filter
-cat $tmp.config >> $here/$seq.full
+cat $tmp.config >> $seq_full
 echo Check pmrep syntax validity | tee -a $here/$seq.full
-pmrep -c $tmp.config -C :metrics >> $here/$seq.full
+pmrep -c $tmp.config -C :metrics >> $seq_full
 test $? -eq 0 || echo "Bad pmrep return code"
 echo done
 
@@ -82,9 +81,9 @@ then
 else
     pmrepconf $tmp.config </dev/null
 fi | _filter
-cat $tmp.config >> $here/$seq.full
+cat $tmp.config >> $seq_full
 echo Check pmrep syntax validity | tee -a $here/$seq.full
-pmrep -c $tmp.config -C :metrics >> $here/$seq.full
+pmrep -c $tmp.config -C :metrics >> $seq_full
 test $? -eq 0 || echo "Bad pmrep return code"
 echo done
 
@@ -96,7 +95,7 @@ then
 else
     pmrepconf $options $tmp.option </dev/null
 fi | _filter
-cat $tmp.option >> $here/$seq.full
+cat $tmp.option >> $seq_full
 echo Check options saved | tee -a $here/$seq.full
 grep -E '^globals|^timestamp' $tmp.option
 echo done

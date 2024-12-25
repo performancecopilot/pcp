@@ -19,22 +19,20 @@ test $PCP_PLATFORM = linux || _notrun "Test requires Linux procfs features"
 test -f /proc/$$/oom_score || _notrun "Lacks kernel support for OOM scores"
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-$sudo rm -f $seq.full
 
 sysoom=`cat /proc/$pid/oom_score | tr '\0' '\n'`
-echo "PCP oom_score for process $pid is: $pcpoom" >> $seq.full
+echo "PCP oom_score for process $pid is: $pcpoom" >> $seq_full
 
 pminfo -f proc.psinfo.oom_score > $tmp.oom_score
 pcpoom=`grep "^    inst \[$pid or " $tmp.oom_score \
 	| $PCP_AWK_PROG '{ print $NF }'`
-echo "Extracted from list:" >> $seq.full
-cat $tmp.oom_score >> $seq.full
+echo "Extracted from list:" >> $seq_full
+cat $tmp.oom_score >> $seq_full
 
-echo "SYS oom_score for process $pid is: $sysoom" >> $seq.full
+echo "SYS oom_score for process $pid is: $sysoom" >> $seq_full
 if [ "$pcplabel" = "$syslabel" ]
 then
     echo "OOM score for current process checks out"

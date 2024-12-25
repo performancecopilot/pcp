@@ -16,7 +16,6 @@ which ausyscall >/dev/null 2>&1 || _notrun "No ausyscall binary found"
 
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
-$sudo rm -rf $tmp.* $seq.full
 
 cat <<EOF >$tmp.conf
 # Installed by PCP QA test $seq on `date`
