@@ -1607,7 +1607,9 @@ brew?		jq			[? (QA optional)]
 # -- stap (for pmcd QA)
 #
 dpkg?		stap			[systemtap (QA optional)]
-rpm?		stap			[systemtap-devel (QA optional)]
+dpkg?		staprun			[systemtap-runtime (QA optional)]
+rpm?		stap			[systemtap-devel or systemtap (QA optional)]
+rpm?		staprun			[systemtap-runtime (QA optional)]
 emerge?		stap			[? (QA optional)]
 pkgin?		stap			[? (QA optional)]
 pkg_add?	stap			[N/A (QA optional)]
@@ -1646,6 +1648,19 @@ S_pkg?		zstd		[?]
 slackpkg?	zstd		[zstd]
 pacman?		zstd 		[core/zstd]
 brew?		zstd		[?]
+
+# sudo
+#
+dpkg?		sudo		[sudo]
+rpm?		sudo		[sudo]
+emerge?		sudo		[? {Gentoo}]
+pkgin?		sudo		[? {NetBSD}]]
+pkg_add?	sudo		[? {OpenBSD}]]
+F_pkg?		sudo		[? {FreeBSD}]
+S_pkg?		sudo		[? {Solaris}]
+slackpkg?	sudo		[? {Slackware}]
+pacman?		sudo		[? {Arch Linux}]
+brew?		sudo		[? {MacOS?}]
 
 # misc
 #
