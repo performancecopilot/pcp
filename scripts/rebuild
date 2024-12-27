@@ -85,9 +85,10 @@ fi
 #
 
 here=`pwd`
-for dir in src/include src/libpcp src/libpcp_static \
-	src/newhelp src/pmcpp \
-	src/libpcp_pmda src/libpcp_pmcd src/libpcp_gui \
+for dir in src/include src/libpcp src/libpcp_static src/libpcp_pmda \
+	src/pmcpp src/pmns \
+	src/newhelp \
+	src/libpcp_pmcd src/libpcp_gui \
 	src/libpcp_mmv src/libpcp_web src/libpcp_import src/libpcp_trace \
 	src/libpcp_qmc src/libpcp_fault
 do
@@ -108,7 +109,7 @@ do
     else
 	case "$dir"
 	in
-	    src/include)
+	    src/include|src/pmns)
 		    ;;
 	    *)
 		    $PCP_MAKE_PROG clean
