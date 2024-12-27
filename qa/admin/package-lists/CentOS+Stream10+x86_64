@@ -124,10 +124,12 @@ smartmontools
 socat
 sqlite
 sqlite-libs
+sudo
 sysstat
 systemd-devel
 systemtap-devel
 systemtap-sdt-devel
+systemtap-runtime
 time
 valkey
 valgrind
