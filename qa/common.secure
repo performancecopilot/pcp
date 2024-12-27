@@ -298,6 +298,11 @@ _setup_cert()
 
     [ -d $tmp.tls ] || mkdir $tmp.tls
 
+    # some versions of openssl babble if this file does not exist
+    # with some good "randomness"
+    #
+    [ -f $HOME/.rnd ] || openssl rand 10240 >$HOME/.rnd
+
     openssl genrsa -out $__keyfile 2048 >>$tmp.tls/openssl.log 2>&1
 
     openssl req \
@@ -310,6 +315,10 @@ _setup_cert()
 	    -CAserial $tmp.tls/ca.txt \
 	    -CAcreateserial \
 	    -out $__certfile >>$tmp.tls/openssl.log 2>&1
+
+    echo "--- openssl.log after _setup_cert() ---" >>$seq_full
+    cat $tmp.tls/openssl.log >>$seq_full
+    echo "--- end openssl.log ---" >>$seq_full
 }
 
 # Configure an /etc/pcp/tls.conf file for secure socket communication
@@ -368,4 +377,8 @@ __END__
     echo "--- new $PCP_TLSCONF_PATH ---" >>$seq_full
     cat $PCP_TLSCONF_PATH >>$seq_full
     echo "--- end $PCP_TLSCONF_PATH ---" >>$seq_full
+
+    echo "--- openssl.log after _setup_tls() ---" >>$seq_full
+    cat $tmp.tls/openssl.log >>$seq_full
+    echo "--- end openssl.log ---" >>$seq_full
 }
