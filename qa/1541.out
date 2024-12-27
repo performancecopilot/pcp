@@ -29,7 +29,6 @@ TMP.in: Warning: these are lines that refactor cannot handle
 [58]w="$(_get_word_size)"
 [59]e=`_get_endian warning`
 [60]_check_metric foo bar warning
-TMP.in: diffs
 --- TMP.in DATESTAMP
 +++ TMP.out DATESTAMP
 @@ -1,33 +1,34 @@
