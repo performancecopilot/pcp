@@ -71,6 +71,7 @@ End-of-File
 _filter()
 {
     sed \
+	-e '/[0-9][0-9]* running/s//PID running/' \
 	-e "s/`date +%Y`-`date +%m`-`date +%d`/YYYY-MM-DD/" \
 	-e "s/\([^0-9]\)`date +%Y`/\1YYYY/g" \
 	-e "s/YYYY`date +%m`/YYYYMM/g" \
@@ -80,7 +81,6 @@ _filter()
 	-e 's/\.[0-2][0-9]\.[0-5][0-9]/.TIME/g' \
 	-e 's/TIME-[0-9][0-9]*/TIME/' \
 	-e "s/`hostname`/LOCALHOST/" \
-	-e '/running/s/[0-9][0-9]*/PID/' \
 	-e '/\/lock$/d' \
 	-e 's/  */ /g' \
     # end
