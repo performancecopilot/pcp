@@ -340,6 +340,7 @@ _compress()
 				    $verbose && echo >&2 "$file: compressed with zstd"
 				else
 				    echo >&2 "$file: zstd failed!"
+				    rm -f "$file.zst"
 				    exit
 				fi
 			    fi
