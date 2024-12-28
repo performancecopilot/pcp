@@ -49,6 +49,10 @@ s/\. 1 .* \([^ ][^ ]*\)/ ... \1/
 s/ 1 .* \([^ ][^ ]*\)/ ... \1/
 s/  */ /g
 }' \
+	-e "s/\.$SUFF$/.compressed/" \
+	-e "s/\.$SUFF /.compressed /g" \
+	-e "s/\.xz$/.compressed/" \
+	-e "s/\.xz /.compressed /g" \
     # end
 }
 

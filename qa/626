@@ -94,6 +94,7 @@ _showfiles()
     | sed \
 	-e "s@$tmp@TMP@" \
 	-e "s/\.$SUFF$/.compressed/" \
+	-e "s/\.xz$/.compressed/" \
 	-e "s/$DATE/DATE/" \
     # end
 }

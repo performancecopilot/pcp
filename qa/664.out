@@ -13,17 +13,18 @@ Input archives to be merged:
 	20011004.05.06-00
 	20011004.05.06
 	20011004.07.08
+Compressing 20011004
 Output archive files:
 -rw-r--r-- ... 20011004.meta
 -rw-r--r-- ... 20011004.index
--rw-r--r-- ... 20011004.0
+-rw-r--r-- ... 20011004.0.compressed
 Removing input archive files ............... done
-link ./20011006.00.10.0.xz -> 20011006.0.xz
-link ./20011006.00.10.index.xz -> 20011006.index.xz
-link ./20011006.00.10.meta.xz -> 20011006.meta.xz
-remove ./20011006.00.10.0.xz
-remove ./20011006.00.10.index.xz
-remove ./20011006.00.10.meta.xz
+link ./20011006.00.10.0.compressed -> 20011006.0.compressed
+link ./20011006.00.10.index.compressed -> 20011006.index.compressed
+link ./20011006.00.10.meta.compressed -> 20011006.meta.compressed
+remove ./20011006.00.10.0.compressed
+remove ./20011006.00.10.index.compressed
+remove ./20011006.00.10.meta.compressed
 pmlogger_daily: [TMP.control:3]
 Warning: current volume of current pmlogger not known, compression skipped
 
@@ -39,46 +40,47 @@ Input archives to be merged:
 	20011002.00.10
 	20011002.02.03
 	20011002.03.04
+Compressing 20011002
 Output archive files:
 -rw-r--r-- ... 20011002.meta
 -rw-r--r-- ... 20011002.index
--rw-r--r-- ... 20011002.0
+-rw-r--r-- ... 20011002.0.compressed
 Removing input archive files ............ done
-link ./20011003.00.10.0.xz -> 20011003.0.xz
-link ./20011003.00.10.index.xz -> 20011003.index.xz
-link ./20011003.00.10.meta.xz -> 20011003.meta.xz
-remove ./20011003.00.10.0.xz
-remove ./20011003.00.10.index.xz
-remove ./20011003.00.10.meta.xz
-link ./20011005.00.10.0.xz -> 20011005.0.xz
-link ./20011005.00.10.index.xz -> 20011005.index.xz
-link ./20011005.00.10.meta.xz -> 20011005.meta.xz
-remove ./20011005.00.10.0.xz
-remove ./20011005.00.10.index.xz
-remove ./20011005.00.10.meta.xz
+link ./20011003.00.10.0.compressed -> 20011003.0.compressed
+link ./20011003.00.10.index.compressed -> 20011003.index.compressed
+link ./20011003.00.10.meta.compressed -> 20011003.meta.compressed
+remove ./20011003.00.10.0.compressed
+remove ./20011003.00.10.index.compressed
+remove ./20011003.00.10.meta.compressed
+link ./20011005.00.10.0.compressed -> 20011005.0.compressed
+link ./20011005.00.10.index.compressed -> 20011005.index.compressed
+link ./20011005.00.10.meta.compressed -> 20011005.meta.compressed
+remove ./20011005.00.10.0.compressed
+remove ./20011005.00.10.index.compressed
+remove ./20011005.00.10.meta.compressed
 pmlogger_daily: [TMP.control:4]
 Warning: current volume of current pmlogger not known, compression skipped
 
 And the smouldering ruins ...
-TMP/otherhost/20011002.0 TMP/otherhost/20011002.index TMP/otherhost/20011002.meta
+TMP/otherhost/20011002.0.compressed TMP/otherhost/20011002.index TMP/otherhost/20011002.meta
     commencing Mon Oct  1 23:10:00.257504 2001
-TMP/otherhost/20011003.0.xz TMP/otherhost/20011003.index.xz TMP/otherhost/20011003.meta.xz
+TMP/otherhost/20011003.0.compressed TMP/otherhost/20011003.index.compressed TMP/otherhost/20011003.meta.compressed
     commencing Tue Oct  2 23:10:00.257504 2001
-TMP/otherhost/20011004.0.xz TMP/otherhost/20011004.index.xz TMP/otherhost/20011004.meta.xz
+TMP/otherhost/20011004.0.compressed TMP/otherhost/20011004.index.compressed TMP/otherhost/20011004.meta.compressed
     commencing Wed Oct  3 23:00:00.257504 2001
-TMP/otherhost/20011005.0.xz TMP/otherhost/20011005.index.xz TMP/otherhost/20011005.meta.xz
+TMP/otherhost/20011005.0.compressed TMP/otherhost/20011005.index.compressed TMP/otherhost/20011005.meta.compressed
     commencing Thu Oct  4 23:10:00.257504 2001
-TMP/otherhost/20011006.0.xz TMP/otherhost/20011006.index.xz TMP/otherhost/20011006.meta.xz
+TMP/otherhost/20011006.0.compressed TMP/otherhost/20011006.index.compressed TMP/otherhost/20011006.meta.compressed
     commencing Fri Oct  5 23:00:00.257504 2001
-TMP/thishost/20011002.0.xz TMP/thishost/20011002.index.xz TMP/thishost/20011002.meta.xz
+TMP/thishost/20011002.0.compressed TMP/thishost/20011002.index.compressed TMP/thishost/20011002.meta.compressed
     commencing Tue Oct  2 00:00:00.586568 2001
-TMP/thishost/20011003.0.xz TMP/thishost/20011003.index.xz TMP/thishost/20011003.meta.xz
+TMP/thishost/20011003.0.compressed TMP/thishost/20011003.index.compressed TMP/thishost/20011003.meta.compressed
     commencing Wed Oct  3 00:00:00.586568 2001
-TMP/thishost/20011004.0 TMP/thishost/20011004.index TMP/thishost/20011004.meta
+TMP/thishost/20011004.0.compressed TMP/thishost/20011004.index TMP/thishost/20011004.meta
     commencing Thu Oct  4 01:02:00.586568 2001
-TMP/thishost/20011005.0.xz TMP/thishost/20011005.index.xz TMP/thishost/20011005.meta.xz
+TMP/thishost/20011005.0.compressed TMP/thishost/20011005.index.compressed TMP/thishost/20011005.meta.compressed
     commencing Fri Oct  5 00:00:00.586568 2001
-TMP/thishost/20011006.0.xz TMP/thishost/20011006.index.xz TMP/thishost/20011006.meta.xz
+TMP/thishost/20011006.0.compressed TMP/thishost/20011006.index.compressed TMP/thishost/20011006.meta.compressed
     commencing Sat Oct  6 00:10:00.586568 2001
-TMP/thishost/20011007.0.xz TMP/thishost/20011007.index.xz TMP/thishost/20011007.meta.xz
+TMP/thishost/20011007.0.compressed TMP/thishost/20011007.index.compressed TMP/thishost/20011007.meta.compressed
     commencing Sun Oct  7 00:00:00.586568 2001
