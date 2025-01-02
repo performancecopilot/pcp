@@ -27,15 +27,27 @@
 # blank lines before the @ line are ignored
 #
 
-@ 156.0 all RAPL components
+@ 156.0 all RAPL components available via /sys filesystem
 
-@ 156.1 set of all batteries reporting charge level
+@ 156.1 all RAPL components available via MSR registers
 
-@ 156.2 set of all batteries reporting power
+@ 156.2 set of all batteries reporting charge level
 
-@ 156.3 set of all batteries reporting capacity
+@ 156.3 set of all batteries reporting power
 
-@ denki.rapl cummulative energy consumption of RAPL components
+@ 156.4 set of all batteries reporting capacity
+
+@ denki.raplsysfs cummulative energy consumption of RAPL components
+Cummulative electrical power consumption of x86 hardware components
+in units of Joules.
+
+When consecutive samples are rate converted, the units become
+Joules / second, or Watts.
+
+The RAPL modules offered by the system are available as metric
+instances.
+
+@ denki.raplmsr cummulative energy consumption of RAPL components
 Cummulative electrical power consumption of x86 hardware components
 in units of Joules.
 
