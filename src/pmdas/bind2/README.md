@@ -5,7 +5,7 @@ This PMDA enables the PCP to collect a lot of Bind server statistics (more than 
 ## Main features
 
 * the bind2 PMDA enables the PCP to collect most of the statistics metrics from the Bind server version 9 which includes:
-  - boot-time
+  * boot-time
   * overall memory statistics
   * overall per-query statistics (general queries, EDNS/truncated responses, Update/Notify/AXFR/IXFR messages)
   * overall error statistics (Rejected, SERVFAIL, Update/XFR failures ...)
@@ -26,8 +26,10 @@ The per-socket and per-memory-context statistics that can be retrieved from Bind
 * Copy the bind2-example.conf file to bind2.conf and adapt the contents. Currently it is only the host line is needed to be changed.
 * Configure the Bind server to give all the interesting information via HTTP in named.conf (addr and port must match the configuration in hosts):
 
-  * statistics-channels { inet <addr> port <port> allow { any }; }
-  * options { zone-statistics yes; }
+  * statistics-channels { inet <addr> port <port> allow { any }; };
+    <addr> could be 127.0.0.1 for localhost-only access and <port> could be the common default 8080.
+  * options { zone-statistics yes; };
+    the zone-statistics yes; needs to be added to any existing options { ... }; clause in the Bind server configuration, else a new options { ... }; clause added
 
    Note that you may need to allow the statistics queries/acls on the Bind server depending on the security settings of the Bind server as well. See the Bind server Administration Reference Manual e.g. on https://ftp.isc.org/isc/ appropriate to the version of Bind server you use for details.
 

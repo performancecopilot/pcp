@@ -1,0 +1,118 @@
+#!/bin/sh
+#
+# generate a new xml stats file from named on localhost
+#
+
+tmp=/var/tmp/getxml-$$
+status=1
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+if ! which named >/dev/null 2>&1
+then
+    echo "No named executable, giving up"
+    exit
+fi
+
+if ! which xmllint >/dev/null 2>&1
+then
+    echo "No xmllint executable, giving up"
+    exit
+fi
+
+version=`named -v | awk '{print $2}' | sed -e 's/-.*//'`
+echo "version=$version"
+
+if ! wget -q -O $tmp.tmp  http://localhost:8080
+then
+    echo "wget failed, giving up"
+    exit
+fi
+
+if ! xmllint --format $tmp.tmp >$tmp.xml
+then
+    echo "xmllint failed for tmp.xml, giving up"
+    exit
+fi
+
+if [ ! -f bind-$version-stats.xml ]
+then
+    mv $tmp.xml bind-$version-stats.xml
+    echo "bind-$version-stats.xml created."
+    status=0
+    exit
+fi
+
+echo "bind-$version-stats.xml already exists."
+mv $tmp.xml new-$version-stats.xml
+
+# mimic the bind2 PMDA and extract metric names from the xml
+#
+#    <counters type="opcode">
+#      <counter name="QUERY">239489</counter>
+#      ...
+#    </counters>
+#    <boot-time>2024-12-24T20:47:06.264Z</boot-time>
+#    <summary>
+#      <TotalUse>11267043114</TotalUse>
+#      ...
+#    </summary>
+#
+# skip ...
+#        <zone name=...>
+#        </zone>
+_xtract_metrics()
+{
+    awk <$1 '
+$1 == "<zone"		{ skip = 1; next }
+skip == 1 && $1 == "</zone>"	{ skip = 0; next }
+skip == 1		{ next }
+$1 == "<counters"	{ sub(/type="/, "", $2)
+			  sub(/".*/, "", $2)
+			  prefix = $2
+			}
+$1 == "<counter"	{ sub(/name="/, "", $2)
+			  sub(/".*/, "", $2)
+			  print prefix "." $2
+			}
+/<boot-time>/		{ print "boot_time"; next }
+/<current-time>/	{ print "current_time"; next }
+/<config-time>/	{ print "config_time"; next }
+$1 == "<summary>"	{ in_summary = 1; next }
+in_summary == 1 && $1 == "</summary>" {
+			  in_summary = 0; next
+			}
+in_summary == 1 && $1 ~ /<[A-Z]/		{ 
+			  sub(/[^<]*</, "", $1)
+			  sub(/>.*/, "", $1)
+			  print "memory.total." $1
+			}' \
+| tee $tmp.tee \
+| sed \
+    -e '/\.RESERVED[0-9]/d' \
+    -e '/\.queries\..out\.[0-9]/d' \
+    -e 's/^resstats\./resolver.total.resstats./' \
+    -e 's/^resqtype\./resolver.total.resqtype./' \
+    -e 's/^opcode\./total.queries.out./' \
+    -e 's/^rcode\./total.queries.out./' \
+    -e 's/RTT1600+/RTT1600p/' \
+    | LC_COLLATE=POSIX sort \
+    | uniq
+}
+
+_xtract_metrics bind-$version-stats.xml >$tmp.old
+_xtract_metrics new-$version-stats.xml >$tmp.new
+
+LC_COLLATE=POSIX comm -23 $tmp.old $tmp.new >$tmp.tmp
+if [ -s $tmp.tmp ]
+then
+    echo "metrics from bind-$version-stats.xml not found in new-$version-stats.xml ..."
+    cat $tmp.tmp
+fi
+
+LC_COLLATE=POSIX comm -13 $tmp.old $tmp.new >$tmp.tmp
+if [ -s $tmp.tmp ]
+then
+    echo "metrics from new-$version-stats.xml not found in bind-$version-stats.xml ..."
+    cat $tmp.tmp
+fi
+

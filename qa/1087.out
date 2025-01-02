@@ -29,31 +29,31 @@ Help: <empty entry>
 
 bind2.memory.total.BlockSize PMID: 25.0.3 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: count
+    Semantics: discrete  Units: byte
 Help: <empty entry>
     value 8912896
 
 bind2.memory.total.ContextSize PMID: 25.0.4 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: count
+    Semantics: instant  Units: byte
 Help: <empty entry>
     value 47628928
 
 bind2.memory.total.InUse PMID: 25.0.5 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: count
+    Semantics: instant  Units: byte
 Help: <empty entry>
     value 6025968
 
 bind2.memory.total.Lost PMID: 25.0.6 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: count
+    Semantics: instant  Units: byte
 Help: <empty entry>
     value 0
 
 bind2.memory.total.TotalUse PMID: 25.0.7 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: count
+    Semantics: instant  Units: byte
 Help: <empty entry>
     value 14746148
 
@@ -364,6 +364,270 @@ Help: <empty entry>
     value 0
 
 bind2.nsstat.XfrReqDone PMID: 25.0.59 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resqtype.DNSKEY PMID: 25.0.168 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 2
+
+bind2.resolver.total.resqtype.NS PMID: 25.0.169 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 2
+
+bind2.resolver.total.resstats.BadEDNSVersion PMID: 25.0.170 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.BucketSize PMID: 25.0.171 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 523
+
+bind2.resolver.total.resstats.EDNS0Fail PMID: 25.0.172 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.FORMERR PMID: 25.0.173 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.GlueFetchv4 PMID: 25.0.174 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.GlueFetchv4Fail PMID: 25.0.175 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.GlueFetchv6 PMID: 25.0.176 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.GlueFetchv6Fail PMID: 25.0.177 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.Lame PMID: 25.0.178 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.Mismatch PMID: 25.0.179 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.NXDOMAIN PMID: 25.0.180 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.NumFetch PMID: 25.0.181 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.OtherError PMID: 25.0.182 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.QryRTT10 PMID: 25.0.183 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.QryRTT100 PMID: 25.0.184 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 2
+
+bind2.resolver.total.resstats.QryRTT1600 PMID: 25.0.219 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.QryRTT1600p PMID: 25.0.220 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.QryRTT500 PMID: 25.0.187 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 2
+
+bind2.resolver.total.resstats.QryRTT800 PMID: 25.0.188 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.QueryAbort PMID: 25.0.189 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.QueryCurTCP PMID: 25.0.190 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.QueryCurUDP PMID: 25.0.191 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.QuerySockFail PMID: 25.0.192 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.QueryTimeout PMID: 25.0.193 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.Queryv4 PMID: 25.0.194 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 4
+
+bind2.resolver.total.resstats.Queryv6 PMID: 25.0.195 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.REFUSED PMID: 25.0.196 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.Responsev4 PMID: 25.0.197 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 4
+
+bind2.resolver.total.resstats.Responsev6 PMID: 25.0.198 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.Retry PMID: 25.0.199 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 2
+
+bind2.resolver.total.resstats.SERVFAIL PMID: 25.0.200 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.ServerQuota PMID: 25.0.201 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.SitClientOk PMID: 25.0.202 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.SitClientOut PMID: 25.0.203 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.SitIn PMID: 25.0.204 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.SitOut PMID: 25.0.205 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.Truncated PMID: 25.0.206 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 2
+
+bind2.resolver.total.resstats.ValAttempt PMID: 25.0.207 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 1
+
+bind2.resolver.total.resstats.ValFail PMID: 25.0.208 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.ValNegOk PMID: 25.0.209 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.ValOk PMID: 25.0.210 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 1
+
+bind2.resolver.total.resstats.ZoneQuota PMID: 25.0.211 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
@@ -882,31 +1146,31 @@ Help: <empty entry>
 
 bind2.memory.total.BlockSize PMID: 25.0.3 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: count
+    Semantics: discrete  Units: byte
 Help: <empty entry>
     value 6291456
 
 bind2.memory.total.ContextSize PMID: 25.0.4 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: count
+    Semantics: instant  Units: byte
 Help: <empty entry>
     value 47271344
 
 bind2.memory.total.InUse PMID: 25.0.5 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: count
+    Semantics: instant  Units: byte
 Help: <empty entry>
     value 4465424
 
 bind2.memory.total.Lost PMID: 25.0.6 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: count
+    Semantics: instant  Units: byte
 Help: <empty entry>
     value 0
 
 bind2.memory.total.TotalUse PMID: 25.0.7 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: count
+    Semantics: instant  Units: byte
 Help: <empty entry>
     value 11158402
 
@@ -916,835 +1180,2606 @@ bind2.nsstat.AuthQryRej PMID: 25.0.8 []
 Help: <empty entry>
     value 0
 
-bind2.nsstat.CookieBadSize PMID: 25.0.9 []
+bind2.nsstat.CookieBadSize PMID: 25.0.140 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.CookieBadTime PMID: 25.0.10 []
+bind2.nsstat.CookieBadTime PMID: 25.0.141 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.CookieIn PMID: 25.0.11 []
+bind2.nsstat.CookieIn PMID: 25.0.142 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.CookieMatch PMID: 25.0.12 []
+bind2.nsstat.CookieMatch PMID: 25.0.143 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.CookieNew PMID: 25.0.13 []
+bind2.nsstat.CookieNew PMID: 25.0.144 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.CookieNoMatch PMID: 25.0.14 []
+bind2.nsstat.CookieNoMatch PMID: 25.0.145 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.DNS64 PMID: 25.0.15 []
+bind2.nsstat.DNS64 PMID: 25.0.9 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.ECSOpt PMID: 25.0.16 []
+bind2.nsstat.ECSOpt PMID: 25.0.146 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.ExpireOpt PMID: 25.0.17 []
+bind2.nsstat.ExpireOpt PMID: 25.0.10 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.KeyTagOpt PMID: 25.0.18 []
+bind2.nsstat.KeyTagOpt PMID: 25.0.147 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.NSIDOpt PMID: 25.0.19 []
+bind2.nsstat.NSIDOpt PMID: 25.0.11 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.OtherOpt PMID: 25.0.20 []
+bind2.nsstat.OtherOpt PMID: 25.0.12 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.QryAuthAns PMID: 25.0.21 []
+bind2.nsstat.QryAuthAns PMID: 25.0.13 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.QryBADCOOKIE PMID: 25.0.22 []
+bind2.nsstat.QryBADCOOKIE PMID: 25.0.148 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.QryDropped PMID: 25.0.23 []
+bind2.nsstat.QryDropped PMID: 25.0.14 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.QryDuplicate PMID: 25.0.24 []
+bind2.nsstat.QryDuplicate PMID: 25.0.15 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.QryFORMERR PMID: 25.0.25 []
+bind2.nsstat.QryFORMERR PMID: 25.0.16 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.QryFailure PMID: 25.0.26 []
+bind2.nsstat.QryFailure PMID: 25.0.17 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.QryNXDOMAIN PMID: 25.0.27 []
+bind2.nsstat.QryNXDOMAIN PMID: 25.0.18 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.QryNXRedir PMID: 25.0.28 []
+bind2.nsstat.QryNXRedir PMID: 25.0.149 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.QryNXRedirRLookup PMID: 25.0.29 []
+bind2.nsstat.QryNXRedirRLookup PMID: 25.0.150 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.QryNoauthAns PMID: 25.0.30 []
+bind2.nsstat.QryNoauthAns PMID: 25.0.19 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.QryNxrrset PMID: 25.0.31 []
+bind2.nsstat.QryNxrrset PMID: 25.0.20 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.QryRecursion PMID: 25.0.32 []
+bind2.nsstat.QryRecursion PMID: 25.0.21 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.QryReferral PMID: 25.0.33 []
+bind2.nsstat.QryReferral PMID: 25.0.22 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.QrySERVFAIL PMID: 25.0.34 []
+bind2.nsstat.QrySERVFAIL PMID: 25.0.23 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.QrySuccess PMID: 25.0.35 []
+bind2.nsstat.QrySuccess PMID: 25.0.24 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.QryTCP PMID: 25.0.36 []
+bind2.nsstat.QryTCP PMID: 25.0.25 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.QryTryStale PMID: 25.0.37 []
+bind2.nsstat.QryTryStale PMID: 25.0.151 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.QryUDP PMID: 25.0.38 []
+bind2.nsstat.QryUDP PMID: 25.0.26 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.QryUsedStale PMID: 25.0.39 []
+bind2.nsstat.QryUsedStale PMID: 25.0.152 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.RPZRewrites PMID: 25.0.40 []
+bind2.nsstat.RPZRewrites PMID: 25.0.27 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.RateDropped PMID: 25.0.41 []
+bind2.nsstat.RateDropped PMID: 25.0.28 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.RateSlipped PMID: 25.0.42 []
+bind2.nsstat.RateSlipped PMID: 25.0.29 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.RecQryRej PMID: 25.0.43 []
+bind2.nsstat.RecQryRej PMID: 25.0.30 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.RecursClients PMID: 25.0.44 []
+bind2.nsstat.RecursClients PMID: 25.0.31 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.ReqBadEDNSVer PMID: 25.0.45 []
+bind2.nsstat.ReqBadEDNSVer PMID: 25.0.32 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.ReqBadSIG PMID: 25.0.46 []
+bind2.nsstat.ReqBadSIG PMID: 25.0.33 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.ReqEdns0 PMID: 25.0.47 []
+bind2.nsstat.ReqEdns0 PMID: 25.0.34 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.ReqSIG0 PMID: 25.0.48 []
+bind2.nsstat.ReqSIG0 PMID: 25.0.35 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.ReqTCP PMID: 25.0.49 []
+bind2.nsstat.ReqTCP PMID: 25.0.36 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.ReqTSIG PMID: 25.0.50 []
+bind2.nsstat.ReqTSIG PMID: 25.0.37 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.Requestv4 PMID: 25.0.51 []
+bind2.nsstat.Requestv4 PMID: 25.0.38 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.Requestv6 PMID: 25.0.52 []
+bind2.nsstat.Requestv6 PMID: 25.0.39 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.RespEDNS0 PMID: 25.0.53 []
+bind2.nsstat.RespEDNS0 PMID: 25.0.40 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.RespSIG0 PMID: 25.0.54 []
+bind2.nsstat.RespSIG0 PMID: 25.0.41 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.RespTSIG PMID: 25.0.55 []
+bind2.nsstat.RespTSIG PMID: 25.0.42 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.Response PMID: 25.0.56 []
+bind2.nsstat.Response PMID: 25.0.43 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.TCPConnHighWater PMID: 25.0.57 []
+bind2.nsstat.TCPConnHighWater PMID: 25.0.153 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 2
 
-bind2.nsstat.TruncatedResp PMID: 25.0.58 []
+bind2.nsstat.TruncatedResp PMID: 25.0.50 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.UpdateBadPrereq PMID: 25.0.59 []
+bind2.nsstat.UpdateBadPrereq PMID: 25.0.51 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.UpdateDone PMID: 25.0.60 []
+bind2.nsstat.UpdateDone PMID: 25.0.52 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.UpdateFail PMID: 25.0.61 []
+bind2.nsstat.UpdateFail PMID: 25.0.53 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.UpdateFwdFail PMID: 25.0.62 []
+bind2.nsstat.UpdateFwdFail PMID: 25.0.54 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.UpdateRej PMID: 25.0.63 []
+bind2.nsstat.UpdateRej PMID: 25.0.55 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.UpdateReqFwd PMID: 25.0.64 []
+bind2.nsstat.UpdateReqFwd PMID: 25.0.56 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.UpdateRespFwd PMID: 25.0.65 []
+bind2.nsstat.UpdateRespFwd PMID: 25.0.57 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.XfrRej PMID: 25.0.66 []
+bind2.nsstat.XfrRej PMID: 25.0.58 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.XfrReqDone PMID: 25.0.67 []
+bind2.nsstat.XfrReqDone PMID: 25.0.59 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.FDWatchClose PMID: 25.0.68 []
+bind2.resolver.total.resqtype.DNSKEY PMID: 25.0.168 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 26
+
+bind2.resolver.total.resqtype.NS PMID: 25.0.169 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 26
+
+bind2.resolver.total.resstats.BadCookieRcode PMID: 25.0.214 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.FDwatchConn PMID: 25.0.69 []
+bind2.resolver.total.resstats.BadEDNSVersion PMID: 25.0.170 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.FDwatchConnFail PMID: 25.0.70 []
+bind2.resolver.total.resstats.BucketSize PMID: 25.0.171 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 523
+
+bind2.resolver.total.resstats.ClientCookieOut PMID: 25.0.215 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 40
+
+bind2.resolver.total.resstats.CookieClientOk PMID: 25.0.216 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.FDwatchRecvErr PMID: 25.0.71 []
+bind2.resolver.total.resstats.CookieIn PMID: 25.0.217 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.FDwatchSendErr PMID: 25.0.72 []
+bind2.resolver.total.resstats.EDNS0Fail PMID: 25.0.172 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.FdwatchBindFail PMID: 25.0.73 []
+bind2.resolver.total.resstats.FORMERR PMID: 25.0.173 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.RawActive PMID: 25.0.74 []
+bind2.resolver.total.resstats.GlueFetchv4 PMID: 25.0.174 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.GlueFetchv4Fail PMID: 25.0.175 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.GlueFetchv6 PMID: 25.0.176 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.GlueFetchv6Fail PMID: 25.0.177 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.Lame PMID: 25.0.178 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.Mismatch PMID: 25.0.179 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.NXDOMAIN PMID: 25.0.180 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.NextItem PMID: 25.0.218 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.NumFetch PMID: 25.0.181 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.OtherError PMID: 25.0.182 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.QryRTT10 PMID: 25.0.183 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.QryRTT100 PMID: 25.0.184 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.QryRTT1600 PMID: 25.0.219 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.QryRTT1600p PMID: 25.0.220 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.QryRTT500 PMID: 25.0.187 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.QryRTT800 PMID: 25.0.188 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.QueryAbort PMID: 25.0.189 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.QueryCurTCP PMID: 25.0.190 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.QueryCurUDP PMID: 25.0.191 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.QuerySockFail PMID: 25.0.192 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.QueryTimeout PMID: 25.0.193 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 26
+
+bind2.resolver.total.resstats.Queryv4 PMID: 25.0.194 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 26
+
+bind2.resolver.total.resstats.Queryv6 PMID: 25.0.195 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 26
+
+bind2.resolver.total.resstats.REFUSED PMID: 25.0.196 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.Responsev4 PMID: 25.0.197 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.Responsev6 PMID: 25.0.198 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.Retry PMID: 25.0.199 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 50
+
+bind2.resolver.total.resstats.SERVFAIL PMID: 25.0.200 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.ServerCookieOut PMID: 25.0.222 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.ServerQuota PMID: 25.0.201 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.Truncated PMID: 25.0.206 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.ValAttempt PMID: 25.0.207 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.ValFail PMID: 25.0.208 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.ValNegOk PMID: 25.0.209 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.ValOk PMID: 25.0.210 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.ZoneQuota PMID: 25.0.211 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.sockstat.FDWatchClose PMID: 25.0.60 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.sockstat.FDwatchConn PMID: 25.0.61 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.sockstat.FDwatchConnFail PMID: 25.0.62 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.sockstat.FDwatchRecvErr PMID: 25.0.63 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.sockstat.FDwatchSendErr PMID: 25.0.64 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.sockstat.FdwatchBindFail PMID: 25.0.65 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.sockstat.RawActive PMID: 25.0.66 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 1
 
-bind2.sockstat.RawClose PMID: 25.0.75 []
+bind2.sockstat.RawClose PMID: 25.0.67 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.RawOpen PMID: 25.0.76 []
+bind2.sockstat.RawOpen PMID: 25.0.68 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 1
 
-bind2.sockstat.RawOpenFail PMID: 25.0.77 []
+bind2.sockstat.RawOpenFail PMID: 25.0.69 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.RawRecvErr PMID: 25.0.78 []
+bind2.sockstat.RawRecvErr PMID: 25.0.70 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.TCP4Accept PMID: 25.0.79 []
+bind2.sockstat.TCP4Accept PMID: 25.0.71 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 8
 
-bind2.sockstat.TCP4AcceptFail PMID: 25.0.80 []
+bind2.sockstat.TCP4AcceptFail PMID: 25.0.72 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.TCP4Active PMID: 25.0.81 []
+bind2.sockstat.TCP4Active PMID: 25.0.73 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 5
 
-bind2.sockstat.TCP4BindFail PMID: 25.0.82 []
+bind2.sockstat.TCP4BindFail PMID: 25.0.74 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.TCP4Close PMID: 25.0.83 []
+bind2.sockstat.TCP4Close PMID: 25.0.75 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 7
 
-bind2.sockstat.TCP4Conn PMID: 25.0.84 []
+bind2.sockstat.TCP4Conn PMID: 25.0.76 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.TCP4ConnFail PMID: 25.0.85 []
+bind2.sockstat.TCP4ConnFail PMID: 25.0.77 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.TCP4Open PMID: 25.0.86 []
+bind2.sockstat.TCP4Open PMID: 25.0.78 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 4
 
-bind2.sockstat.TCP4OpenFail PMID: 25.0.87 []
+bind2.sockstat.TCP4OpenFail PMID: 25.0.79 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.TCP4RecvErr PMID: 25.0.88 []
+bind2.sockstat.TCP4RecvErr PMID: 25.0.80 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.TCP4SendErr PMID: 25.0.89 []
+bind2.sockstat.TCP4SendErr PMID: 25.0.81 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.TCP6Accept PMID: 25.0.90 []
+bind2.sockstat.TCP6Accept PMID: 25.0.82 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.TCP6AcceptFail PMID: 25.0.91 []
+bind2.sockstat.TCP6AcceptFail PMID: 25.0.83 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.TCP6Active PMID: 25.0.92 []
+bind2.sockstat.TCP6Active PMID: 25.0.84 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 2
 
-bind2.sockstat.TCP6BindFail PMID: 25.0.93 []
+bind2.sockstat.TCP6BindFail PMID: 25.0.85 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.TCP6Close PMID: 25.0.94 []
+bind2.sockstat.TCP6Close PMID: 25.0.86 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.TCP6Conn PMID: 25.0.95 []
+bind2.sockstat.TCP6Conn PMID: 25.0.87 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.TCP6ConnFail PMID: 25.0.96 []
+bind2.sockstat.TCP6ConnFail PMID: 25.0.88 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.TCP6Open PMID: 25.0.97 []
+bind2.sockstat.TCP6Open PMID: 25.0.89 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 2
 
-bind2.sockstat.TCP6OpenFail PMID: 25.0.98 []
+bind2.sockstat.TCP6OpenFail PMID: 25.0.90 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.TCP6RecvErr PMID: 25.0.99 []
+bind2.sockstat.TCP6RecvErr PMID: 25.0.91 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.TCP6SendErr PMID: 25.0.100 []
+bind2.sockstat.TCP6SendErr PMID: 25.0.92 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.UDP4Active PMID: 25.0.101 []
+bind2.sockstat.UDP4Active PMID: 25.0.93 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 3
 
-bind2.sockstat.UDP4BindFail PMID: 25.0.102 []
+bind2.sockstat.UDP4BindFail PMID: 25.0.94 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.UDP4Close PMID: 25.0.103 []
+bind2.sockstat.UDP4Close PMID: 25.0.95 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 26
 
-bind2.sockstat.UDP4Conn PMID: 25.0.104 []
+bind2.sockstat.UDP4Conn PMID: 25.0.96 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 26
 
-bind2.sockstat.UDP4ConnFail PMID: 25.0.105 []
+bind2.sockstat.UDP4ConnFail PMID: 25.0.97 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.UDP4Open PMID: 25.0.106 []
+bind2.sockstat.UDP4Open PMID: 25.0.98 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 29
 
-bind2.sockstat.UDP4OpenFail PMID: 25.0.107 []
+bind2.sockstat.UDP4OpenFail PMID: 25.0.99 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.UDP4RecvErr PMID: 25.0.108 []
+bind2.sockstat.UDP4RecvErr PMID: 25.0.100 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.UDP4SendErr PMID: 25.0.109 []
+bind2.sockstat.UDP4SendErr PMID: 25.0.101 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.UDP6Active PMID: 25.0.110 []
+bind2.sockstat.UDP6Active PMID: 25.0.102 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 3
 
-bind2.sockstat.UDP6BindFail PMID: 25.0.111 []
+bind2.sockstat.UDP6BindFail PMID: 25.0.103 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.UDP6Close PMID: 25.0.112 []
+bind2.sockstat.UDP6Close PMID: 25.0.104 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 26
 
-bind2.sockstat.UDP6Conn PMID: 25.0.113 []
+bind2.sockstat.UDP6Conn PMID: 25.0.105 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.UDP6ConnFail PMID: 25.0.114 []
+bind2.sockstat.UDP6ConnFail PMID: 25.0.106 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 26
 
-bind2.sockstat.UDP6Open PMID: 25.0.115 []
+bind2.sockstat.UDP6Open PMID: 25.0.107 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 29
 
-bind2.sockstat.UDP6OpenFail PMID: 25.0.116 []
+bind2.sockstat.UDP6OpenFail PMID: 25.0.108 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.UDP6RecvErr PMID: 25.0.117 []
+bind2.sockstat.UDP6RecvErr PMID: 25.0.109 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.UDP6SendErr PMID: 25.0.118 []
+bind2.sockstat.UDP6SendErr PMID: 25.0.110 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 26
 
-bind2.sockstat.UnixAccept PMID: 25.0.119 []
+bind2.sockstat.UnixAccept PMID: 25.0.111 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.UnixAcceptFail PMID: 25.0.120 []
+bind2.sockstat.UnixAcceptFail PMID: 25.0.112 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.UnixActive PMID: 25.0.121 []
+bind2.sockstat.UnixActive PMID: 25.0.113 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.UnixBindFail PMID: 25.0.122 []
+bind2.sockstat.UnixBindFail PMID: 25.0.114 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.UnixClose PMID: 25.0.123 []
+bind2.sockstat.UnixClose PMID: 25.0.115 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.UnixConn PMID: 25.0.124 []
+bind2.sockstat.UnixConn PMID: 25.0.116 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.UnixConnFail PMID: 25.0.125 []
+bind2.sockstat.UnixConnFail PMID: 25.0.117 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.UnixOpen PMID: 25.0.126 []
+bind2.sockstat.UnixOpen PMID: 25.0.118 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.UnixOpenFail PMID: 25.0.127 []
+bind2.sockstat.UnixOpenFail PMID: 25.0.119 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.UnixRecvErr PMID: 25.0.128 []
+bind2.sockstat.UnixRecvErr PMID: 25.0.120 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.UnixSendErr PMID: 25.0.129 []
+bind2.sockstat.UnixSendErr PMID: 25.0.121 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.total.queries.out.IQUERY PMID: 25.0.130 []
+bind2.total.queries.out.BADCOOKIE PMID: 25.0.235 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.total.queries.out.NOTIFY PMID: 25.0.131 []
+bind2.total.queries.out.BADVERS PMID: 25.0.236 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.total.queries.out.QUERY PMID: 25.0.132 []
+bind2.total.queries.out.FORMERR PMID: 25.0.237 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.total.queries.out.STATUS PMID: 25.0.133 []
+bind2.total.queries.out.IQUERY PMID: 25.0.122 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.total.queries.out.UPDATE PMID: 25.0.134 []
+bind2.total.queries.out.NOERROR PMID: 25.0.238 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.zonestat.AXFRReqv4 PMID: 25.0.135 []
+bind2.total.queries.out.NOTAUTH PMID: 25.0.239 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.zonestat.AXFRReqv6 PMID: 25.0.136 []
+bind2.total.queries.out.NOTIFY PMID: 25.0.123 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.zonestat.IXFRReqv4 PMID: 25.0.137 []
+bind2.total.queries.out.NOTIMP PMID: 25.0.240 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.zonestat.IXFRReqv6 PMID: 25.0.138 []
+bind2.total.queries.out.NOTZONE PMID: 25.0.241 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.zonestat.NotifyInv4 PMID: 25.0.139 []
+bind2.total.queries.out.NXDOMAIN PMID: 25.0.242 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.zonestat.NotifyInv6 PMID: 25.0.140 []
+bind2.total.queries.out.NXRRSET PMID: 25.0.243 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.zonestat.NotifyOutv4 PMID: 25.0.141 []
+bind2.total.queries.out.QUERY PMID: 25.0.124 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.zonestat.NotifyOutv6 PMID: 25.0.142 []
+bind2.total.queries.out.REFUSED PMID: 25.0.244 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.zonestat.NotifyRej PMID: 25.0.143 []
+bind2.total.queries.out.SERVFAIL PMID: 25.0.245 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.zonestat.SOAOutv4 PMID: 25.0.144 []
+bind2.total.queries.out.STATUS PMID: 25.0.125 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.zonestat.SOAOutv6 PMID: 25.0.145 []
+bind2.total.queries.out.UPDATE PMID: 25.0.126 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.zonestat.XfrFail PMID: 25.0.146 []
+bind2.total.queries.out.YXDOMAIN PMID: 25.0.246 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.zonestat.XfrSuccess PMID: 25.0.147 []
+bind2.total.queries.out.YXRRSET PMID: 25.0.247 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.zonestat.AXFRReqv4 PMID: 25.0.127 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.zonestat.AXFRReqv6 PMID: 25.0.128 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.zonestat.IXFRReqv4 PMID: 25.0.129 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.zonestat.IXFRReqv6 PMID: 25.0.130 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.zonestat.NotifyInv4 PMID: 25.0.131 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.zonestat.NotifyInv6 PMID: 25.0.132 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.zonestat.NotifyOutv4 PMID: 25.0.133 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.zonestat.NotifyOutv6 PMID: 25.0.134 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.zonestat.NotifyRej PMID: 25.0.135 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.zonestat.SOAOutv4 PMID: 25.0.136 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.zonestat.SOAOutv6 PMID: 25.0.137 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.zonestat.XfrFail PMID: 25.0.138 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.zonestat.XfrSuccess PMID: 25.0.139 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+=== bind2 agent installation with test=bind-9.18.28-stats.xml ===
+Culling the Performance Metrics Name Space ...
+bind2 ... done
+Updating the PMCD control file, and notifying PMCD ...
+Check bind2 metrics have gone away ... OK
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check bind2 metrics have appeared ... X metrics and Y values
+
+=== bind2 metrics ===
+
+bind2.boot_time PMID: 25.0.0 []
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value "2025-01-01T20:10:06.548Z"
+
+bind2.config_time PMID: 25.0.1 []
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value "2025-01-01T20:10:06.577Z"
+
+bind2.current_time PMID: 25.0.2 []
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value "2025-01-02T10:14:29.592Z"
+
+bind2.memory.total.ContextSize PMID: 25.0.4 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: byte
+Help: <empty entry>
+    value 199808
+
+bind2.memory.total.InUse PMID: 25.0.5 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: byte
+Help: <empty entry>
+    value 39956717
+
+bind2.memory.total.Lost PMID: 25.0.6 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: byte
+Help: <empty entry>
+    value 0
+
+bind2.memory.total.Malloced PMID: 25.0.154 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: byte
+Help: <empty entry>
+    value 40150285
+
+bind2.memory.total.TotalUse PMID: 25.0.7 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: byte
+Help: <empty entry>
+    value 264879258
+
+bind2.nsstat.AuthQryRej PMID: 25.0.8 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.nsstat.CookieBadSize PMID: 25.0.140 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.nsstat.CookieBadTime PMID: 25.0.141 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.nsstat.CookieIn PMID: 25.0.142 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.nsstat.CookieMatch PMID: 25.0.143 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.nsstat.CookieNew PMID: 25.0.144 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.nsstat.CookieNoMatch PMID: 25.0.145 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.nsstat.DNS64 PMID: 25.0.9 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.nsstat.ECSOpt PMID: 25.0.146 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.nsstat.ExpireOpt PMID: 25.0.10 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.nsstat.KeepAliveOpt PMID: 25.0.155 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.nsstat.KeyTagOpt PMID: 25.0.147 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.nsstat.NSIDOpt PMID: 25.0.11 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.nsstat.OtherOpt PMID: 25.0.12 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.nsstat.PadOpt PMID: 25.0.156 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.nsstat.Prefetch PMID: 25.0.157 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 1
+
+bind2.nsstat.QryAuthAns PMID: 25.0.13 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 2112
+
+bind2.nsstat.QryBADCOOKIE PMID: 25.0.148 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.nsstat.QryDropped PMID: 25.0.14 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.nsstat.QryDuplicate PMID: 25.0.15 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.nsstat.QryFORMERR PMID: 25.0.16 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.nsstat.QryFailure PMID: 25.0.17 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.nsstat.QryNXDOMAIN PMID: 25.0.18 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 1451
+
+bind2.nsstat.QryNXRedir PMID: 25.0.149 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.nsstat.QryNXRedirRLookup PMID: 25.0.150 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.nsstat.QryNoauthAns PMID: 25.0.19 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 4473
+
+bind2.nsstat.QryNxrrset PMID: 25.0.20 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 1632
+
+bind2.nsstat.QryRecursion PMID: 25.0.21 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 2304
+
+bind2.nsstat.QryReferral PMID: 25.0.22 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.nsstat.QrySERVFAIL PMID: 25.0.23 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.nsstat.QrySuccess PMID: 25.0.24 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 3502
+
+bind2.nsstat.QryTCP PMID: 25.0.25 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.nsstat.QryTryStale PMID: 25.0.151 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.nsstat.QryUDP PMID: 25.0.26 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 6585
+
+bind2.nsstat.QryUsedStale PMID: 25.0.152 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.nsstat.RPZRewrites PMID: 25.0.27 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.nsstat.RateDropped PMID: 25.0.28 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.nsstat.RateSlipped PMID: 25.0.29 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.nsstat.RecLimitDropped PMID: 25.0.158 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.nsstat.RecQryRej PMID: 25.0.30 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.nsstat.RecursClients PMID: 25.0.31 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.nsstat.ReqBadEDNSVer PMID: 25.0.32 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.nsstat.ReqBadSIG PMID: 25.0.33 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.nsstat.ReqEdns0 PMID: 25.0.34 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 3672
+
+bind2.nsstat.ReqSIG0 PMID: 25.0.35 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.nsstat.ReqTCP PMID: 25.0.36 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.nsstat.ReqTSIG PMID: 25.0.37 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.nsstat.Requestv4 PMID: 25.0.38 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 6585
+
+bind2.nsstat.Requestv6 PMID: 25.0.39 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.nsstat.RespEDNS0 PMID: 25.0.40 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 3672
+
+bind2.nsstat.RespSIG0 PMID: 25.0.41 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.nsstat.RespTSIG PMID: 25.0.42 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.nsstat.Response PMID: 25.0.43 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 6585
+
+bind2.nsstat.SynthNODATA PMID: 25.0.159 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.nsstat.SynthNXDOMAIN PMID: 25.0.160 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.nsstat.SynthWILDCARD PMID: 25.0.161 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.nsstat.TCPConnHighWater PMID: 25.0.153 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.nsstat.TruncatedResp PMID: 25.0.50 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.nsstat.UpdateBadPrereq PMID: 25.0.51 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.nsstat.UpdateDone PMID: 25.0.52 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.nsstat.UpdateFail PMID: 25.0.53 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.nsstat.UpdateFwdFail PMID: 25.0.54 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.nsstat.UpdateQuota PMID: 25.0.162 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.nsstat.UpdateRej PMID: 25.0.55 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.nsstat.UpdateReqFwd PMID: 25.0.56 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.nsstat.UpdateRespFwd PMID: 25.0.57 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.nsstat.XfrRej PMID: 25.0.58 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.nsstat.XfrReqDone PMID: 25.0.59 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.qtype.A PMID: 25.0.248 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 2978
+
+bind2.qtype.AAAA PMID: 25.0.249 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 3145
+
+bind2.qtype.HTTPS PMID: 25.0.251 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 284
+
+bind2.qtype.MX PMID: 25.0.252 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 18
+
+bind2.qtype.PTR PMID: 25.0.254 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 146
+
+bind2.qtype.SOA PMID: 25.0.255 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 4
+
+bind2.qtype.SRV PMID: 25.0.256 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 10
+
+bind2.resolver.total.resqtype.A PMID: 25.0.234 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 1435
+
+bind2.resolver.total.resqtype.AAAA PMID: 25.0.223 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 1390
+
+bind2.resolver.total.resqtype.DNSKEY PMID: 25.0.168 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 160
+
+bind2.resolver.total.resqtype.DS PMID: 25.0.225 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 579
+
+bind2.resolver.total.resqtype.HTTPS PMID: 25.0.226 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 234
+
+bind2.resolver.total.resqtype.MX PMID: 25.0.227 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 7
+
+bind2.resolver.total.resqtype.NS PMID: 25.0.169 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 2
+
+bind2.resolver.total.resqtype.PTR PMID: 25.0.229 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 28
+
+bind2.resolver.total.resqtype.SOA PMID: 25.0.230 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 1
+
+bind2.resolver.total.resqtype.SRV PMID: 25.0.231 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 9
+
+bind2.resolver.total.resstats.BadCookieRcode PMID: 25.0.214 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.BadEDNSVersion PMID: 25.0.170 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.BucketSize PMID: 25.0.171 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 384
+
+bind2.resolver.total.resstats.ClientCookieOut PMID: 25.0.215 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 3845
+
+bind2.resolver.total.resstats.ClientQuota PMID: 25.0.232 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.CookieClientOk PMID: 25.0.216 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 14
+
+bind2.resolver.total.resstats.CookieIn PMID: 25.0.217 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 14
+
+bind2.resolver.total.resstats.EDNS0Fail PMID: 25.0.172 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.FORMERR PMID: 25.0.173 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.GlueFetchv4 PMID: 25.0.174 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 89
+
+bind2.resolver.total.resstats.GlueFetchv4Fail PMID: 25.0.175 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.GlueFetchv6 PMID: 25.0.176 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 89
+
+bind2.resolver.total.resstats.GlueFetchv6Fail PMID: 25.0.177 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 6
+
+bind2.resolver.total.resstats.Lame PMID: 25.0.178 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.Mismatch PMID: 25.0.179 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.NXDOMAIN PMID: 25.0.180 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 62
+
+bind2.resolver.total.resstats.NextItem PMID: 25.0.218 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.NumFetch PMID: 25.0.181 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.OtherError PMID: 25.0.182 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.Priming PMID: 25.0.233 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 1
+
+bind2.resolver.total.resstats.QryRTT10 PMID: 25.0.183 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 19
+
+bind2.resolver.total.resstats.QryRTT100 PMID: 25.0.184 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 3628
+
+bind2.resolver.total.resstats.QryRTT1600 PMID: 25.0.219 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 6
+
+bind2.resolver.total.resstats.QryRTT1600p PMID: 25.0.220 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.QryRTT500 PMID: 25.0.187 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 181
+
+bind2.resolver.total.resstats.QryRTT800 PMID: 25.0.188 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 9
+
+bind2.resolver.total.resstats.QueryAbort PMID: 25.0.189 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.QueryCurTCP PMID: 25.0.190 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.QueryCurUDP PMID: 25.0.191 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.QuerySockFail PMID: 25.0.192 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.QueryTimeout PMID: 25.0.193 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 2
+
+bind2.resolver.total.resstats.Queryv4 PMID: 25.0.194 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 3822
+
+bind2.resolver.total.resstats.Queryv6 PMID: 25.0.195 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 23
+
+bind2.resolver.total.resstats.REFUSED PMID: 25.0.196 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.Responsev4 PMID: 25.0.197 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 3822
+
+bind2.resolver.total.resstats.Responsev6 PMID: 25.0.198 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 23
+
+bind2.resolver.total.resstats.Retry PMID: 25.0.199 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 24
+
+bind2.resolver.total.resstats.SERVFAIL PMID: 25.0.200 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.ServerCookieOut PMID: 25.0.222 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.ServerQuota PMID: 25.0.201 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.Truncated PMID: 25.0.206 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 2
+
+bind2.resolver.total.resstats.ValAttempt PMID: 25.0.207 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 3638
+
+bind2.resolver.total.resstats.ValFail PMID: 25.0.208 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.resolver.total.resstats.ValNegOk PMID: 25.0.209 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 1323
+
+bind2.resolver.total.resstats.ValOk PMID: 25.0.210 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 2315
+
+bind2.resolver.total.resstats.ZoneQuota PMID: 25.0.211 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.sockstat.FDWatchClose PMID: 25.0.60 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.sockstat.FDwatchConn PMID: 25.0.61 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.sockstat.FDwatchConnFail PMID: 25.0.62 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.sockstat.FDwatchRecvErr PMID: 25.0.63 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.sockstat.FDwatchSendErr PMID: 25.0.64 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.sockstat.FdwatchBindFail PMID: 25.0.65 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.sockstat.RawActive PMID: 25.0.66 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.sockstat.RawClose PMID: 25.0.67 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.sockstat.RawOpen PMID: 25.0.68 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.sockstat.RawOpenFail PMID: 25.0.69 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.sockstat.RawRecvErr PMID: 25.0.70 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.sockstat.TCP4Accept PMID: 25.0.71 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 39
+
+bind2.sockstat.TCP4AcceptFail PMID: 25.0.72 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.sockstat.TCP4Active PMID: 25.0.73 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 66
+
+bind2.sockstat.TCP4BindFail PMID: 25.0.74 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.sockstat.TCP4Clients PMID: 25.0.163 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.sockstat.TCP4Close PMID: 25.0.75 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 40
+
+bind2.sockstat.TCP4Conn PMID: 25.0.76 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 2
+
+bind2.sockstat.TCP4ConnFail PMID: 25.0.77 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.sockstat.TCP4Open PMID: 25.0.78 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 62
+
+bind2.sockstat.TCP4OpenFail PMID: 25.0.79 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.sockstat.TCP4RecvErr PMID: 25.0.80 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.sockstat.TCP4SendErr PMID: 25.0.81 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.sockstat.TCP6Accept PMID: 25.0.82 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.sockstat.TCP6AcceptFail PMID: 25.0.83 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.sockstat.TCP6Active PMID: 25.0.84 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 325
+
+bind2.sockstat.TCP6BindFail PMID: 25.0.85 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.sockstat.TCP6Clients PMID: 25.0.164 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.sockstat.TCP6Close PMID: 25.0.86 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 24
+
+bind2.sockstat.TCP6Conn PMID: 25.0.87 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.sockstat.TCP6ConnFail PMID: 25.0.88 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.sockstat.TCP6Open PMID: 25.0.89 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 324
+
+bind2.sockstat.TCP6OpenFail PMID: 25.0.90 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.sockstat.TCP6RecvErr PMID: 25.0.91 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.sockstat.TCP6SendErr PMID: 25.0.92 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.sockstat.UDP4Active PMID: 25.0.93 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 39
+
+bind2.sockstat.UDP4BindFail PMID: 25.0.94 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 6
+
+bind2.sockstat.UDP4Close PMID: 25.0.95 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 3826
+
+bind2.sockstat.UDP4Conn PMID: 25.0.96 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 3820
+
+bind2.sockstat.UDP4ConnFail PMID: 25.0.97 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.sockstat.UDP4Open PMID: 25.0.98 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 3862
+
+bind2.sockstat.UDP4OpenFail PMID: 25.0.99 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.sockstat.UDP4RecvErr PMID: 25.0.100 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.sockstat.UDP4SendErr PMID: 25.0.101 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.sockstat.UDP6Active PMID: 25.0.102 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 312
+
+bind2.sockstat.UDP6BindFail PMID: 25.0.103 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.sockstat.UDP6Close PMID: 25.0.104 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 47
+
+bind2.sockstat.UDP6Conn PMID: 25.0.105 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 23
+
+bind2.sockstat.UDP6ConnFail PMID: 25.0.106 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.sockstat.UDP6Open PMID: 25.0.107 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 335
+
+bind2.sockstat.UDP6OpenFail PMID: 25.0.108 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.sockstat.UDP6RecvErr PMID: 25.0.109 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.sockstat.UDP6SendErr PMID: 25.0.110 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.sockstat.UnixAccept PMID: 25.0.111 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.sockstat.UnixAcceptFail PMID: 25.0.112 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.sockstat.UnixActive PMID: 25.0.113 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.sockstat.UnixBindFail PMID: 25.0.114 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.sockstat.UnixClose PMID: 25.0.115 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.sockstat.UnixConn PMID: 25.0.116 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.sockstat.UnixConnFail PMID: 25.0.117 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.sockstat.UnixOpen PMID: 25.0.118 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.sockstat.UnixOpenFail PMID: 25.0.119 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.sockstat.UnixRecvErr PMID: 25.0.120 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.sockstat.UnixSendErr PMID: 25.0.121 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.total.queries.out.BADCOOKIE PMID: 25.0.235 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.total.queries.out.BADVERS PMID: 25.0.236 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.total.queries.out.FORMERR PMID: 25.0.237 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.total.queries.out.IQUERY PMID: 25.0.122 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.total.queries.out.NOERROR PMID: 25.0.238 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 5134
+
+bind2.total.queries.out.NOTAUTH PMID: 25.0.239 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.total.queries.out.NOTIFY PMID: 25.0.123 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.total.queries.out.NOTIMP PMID: 25.0.240 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.total.queries.out.NOTZONE PMID: 25.0.241 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.total.queries.out.NXDOMAIN PMID: 25.0.242 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 1451
+
+bind2.total.queries.out.NXRRSET PMID: 25.0.243 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.total.queries.out.QUERY PMID: 25.0.124 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 6585
+
+bind2.total.queries.out.REFUSED PMID: 25.0.244 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.total.queries.out.SERVFAIL PMID: 25.0.245 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.total.queries.out.STATUS PMID: 25.0.125 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.total.queries.out.UPDATE PMID: 25.0.126 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.total.queries.out.YXDOMAIN PMID: 25.0.246 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.total.queries.out.YXRRSET PMID: 25.0.247 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.zonestat.AXFRReqv4 PMID: 25.0.127 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.zonestat.AXFRReqv6 PMID: 25.0.128 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.zonestat.IXFRReqv4 PMID: 25.0.129 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.zonestat.IXFRReqv6 PMID: 25.0.130 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.zonestat.NotifyInv4 PMID: 25.0.131 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.zonestat.NotifyInv6 PMID: 25.0.132 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.zonestat.NotifyOutv4 PMID: 25.0.133 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.zonestat.NotifyOutv6 PMID: 25.0.134 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.zonestat.NotifyRej PMID: 25.0.135 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.zonestat.SOAOutv4 PMID: 25.0.136 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.zonestat.SOAOutv6 PMID: 25.0.137 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.zonestat.XfrFail PMID: 25.0.138 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help: <empty entry>
+    value 0
+
+bind2.zonestat.XfrSuccess PMID: 25.0.139 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
@@ -1769,871 +3804,691 @@ bind2.boot_time PMID: 25.0.0 []
 Help: <empty entry>
     value "2017-01-19T16:57:11Z"
 
-bind2.current_time PMID: 25.0.1 []
+bind2.current_time PMID: 25.0.2 []
     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count
 Help: <empty entry>
     value "2017-01-20T12:29:49Z"
 
-bind2.memory.total.BlockSize PMID: 25.0.2 []
+bind2.memory.total.BlockSize PMID: 25.0.3 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: count
+    Semantics: discrete  Units: byte
 Help: <empty entry>
     value 43778048
 
-bind2.memory.total.ContextSize PMID: 25.0.3 []
+bind2.memory.total.ContextSize PMID: 25.0.4 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: count
+    Semantics: instant  Units: byte
 Help: <empty entry>
     value 8085544
 
-bind2.memory.total.InUse PMID: 25.0.4 []
+bind2.memory.total.InUse PMID: 25.0.5 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: count
+    Semantics: instant  Units: byte
 Help: <empty entry>
     value 8325665
 
-bind2.memory.total.Lost PMID: 25.0.5 []
+bind2.memory.total.Lost PMID: 25.0.6 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: count
+    Semantics: instant  Units: byte
 Help: <empty entry>
     value 0
 
-bind2.memory.total.TotalUse PMID: 25.0.6 []
+bind2.memory.total.TotalUse PMID: 25.0.7 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: count
+    Semantics: instant  Units: byte
 Help: <empty entry>
     value 46310198
 
-bind2.nsstat.AuthQryRej PMID: 25.0.7 []
+bind2.nsstat.AuthQryRej PMID: 25.0.8 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.QryAuthAns PMID: 25.0.8 []
+bind2.nsstat.QryAuthAns PMID: 25.0.13 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 2387146
 
-bind2.nsstat.QryDropped PMID: 25.0.9 []
+bind2.nsstat.QryDropped PMID: 25.0.14 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.QryDuplicate PMID: 25.0.10 []
+bind2.nsstat.QryDuplicate PMID: 25.0.15 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.QryFORMERR PMID: 25.0.11 []
+bind2.nsstat.QryFORMERR PMID: 25.0.16 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.QryFailure PMID: 25.0.12 []
+bind2.nsstat.QryFailure PMID: 25.0.17 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 9
 
-bind2.nsstat.QryNXDOMAIN PMID: 25.0.13 []
+bind2.nsstat.QryNXDOMAIN PMID: 25.0.18 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 16294
 
-bind2.nsstat.QryNoauthAns PMID: 25.0.14 []
+bind2.nsstat.QryNoauthAns PMID: 25.0.19 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.QryNxrrset PMID: 25.0.15 []
+bind2.nsstat.QryNxrrset PMID: 25.0.20 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.QryRecursion PMID: 25.0.16 []
+bind2.nsstat.QryRecursion PMID: 25.0.21 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.QryReferral PMID: 25.0.17 []
+bind2.nsstat.QryReferral PMID: 25.0.22 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.QrySERVFAIL PMID: 25.0.18 []
+bind2.nsstat.QrySERVFAIL PMID: 25.0.23 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.QrySuccess PMID: 25.0.19 []
+bind2.nsstat.QrySuccess PMID: 25.0.24 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 2370852
 
-bind2.nsstat.RateDropped PMID: 25.0.20 []
+bind2.nsstat.RateDropped PMID: 25.0.28 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.RateSlipped PMID: 25.0.21 []
+bind2.nsstat.RateSlipped PMID: 25.0.29 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.RecQryRej PMID: 25.0.22 []
+bind2.nsstat.RecQryRej PMID: 25.0.30 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 9
 
-bind2.nsstat.ReqBadEDNSVer PMID: 25.0.23 []
+bind2.nsstat.ReqBadEDNSVer PMID: 25.0.32 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.ReqBadSIG PMID: 25.0.24 []
+bind2.nsstat.ReqBadSIG PMID: 25.0.33 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.ReqEdns0 PMID: 25.0.25 []
+bind2.nsstat.ReqEdns0 PMID: 25.0.34 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 2408384
 
-bind2.nsstat.ReqSIG0 PMID: 25.0.26 []
+bind2.nsstat.ReqSIG0 PMID: 25.0.35 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.ReqTCP PMID: 25.0.27 []
+bind2.nsstat.ReqTCP PMID: 25.0.36 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 515
 
-bind2.nsstat.ReqTSIG PMID: 25.0.28 []
+bind2.nsstat.ReqTSIG PMID: 25.0.37 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.Requestv4 PMID: 25.0.29 []
+bind2.nsstat.Requestv4 PMID: 25.0.38 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 2409039
 
-bind2.nsstat.Requestv6 PMID: 25.0.30 []
+bind2.nsstat.Requestv6 PMID: 25.0.39 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.RespEDNS0 PMID: 25.0.31 []
+bind2.nsstat.RespEDNS0 PMID: 25.0.40 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 2397245
 
-bind2.nsstat.RespSIG0 PMID: 25.0.32 []
+bind2.nsstat.RespSIG0 PMID: 25.0.41 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.RespTSIG PMID: 25.0.33 []
+bind2.nsstat.RespTSIG PMID: 25.0.42 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.Response PMID: 25.0.34 []
+bind2.nsstat.Response PMID: 25.0.43 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 2397385
 
-bind2.nsstat.TruncatedResp PMID: 25.0.35 []
+bind2.nsstat.TruncatedResp PMID: 25.0.50 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.UpdateBadPrereq PMID: 25.0.36 []
+bind2.nsstat.UpdateBadPrereq PMID: 25.0.51 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.UpdateDone PMID: 25.0.37 []
+bind2.nsstat.UpdateDone PMID: 25.0.52 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.UpdateFail PMID: 25.0.38 []
+bind2.nsstat.UpdateFail PMID: 25.0.53 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.UpdateFwdFail PMID: 25.0.39 []
+bind2.nsstat.UpdateFwdFail PMID: 25.0.54 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 10099
 
-bind2.nsstat.UpdateRej PMID: 25.0.40 []
+bind2.nsstat.UpdateRej PMID: 25.0.55 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.UpdateReqFwd PMID: 25.0.41 []
+bind2.nsstat.UpdateReqFwd PMID: 25.0.56 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 21238
 
-bind2.nsstat.UpdateRespFwd PMID: 25.0.42 []
+bind2.nsstat.UpdateRespFwd PMID: 25.0.57 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 11139
 
-bind2.nsstat.XfrRej PMID: 25.0.43 []
+bind2.nsstat.XfrRej PMID: 25.0.58 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.nsstat.XfrReqDone PMID: 25.0.44 []
+bind2.nsstat.XfrReqDone PMID: 25.0.59 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 515
 
-bind2.queries.in.A PMID: 25.0.45 []
+bind2.queries.in.A PMID: 25.0.165 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 2386516
 
-bind2.queries.in.IXFR PMID: 25.0.46 []
+bind2.queries.in.IXFR PMID: 25.0.166 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 515
 
-bind2.queries.in.SOA PMID: 25.0.47 []
+bind2.queries.in.SOA PMID: 25.0.167 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 639
 
-bind2.resolver.total.EDNS0Fail PMID: 25.0.48 []
+bind2.sockstat.FDWatchClose PMID: 25.0.60 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.resolver.total.FORMERR PMID: 25.0.49 []
+bind2.sockstat.FDwatchConn PMID: 25.0.61 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.resolver.total.GlueFetchv4 PMID: 25.0.50 []
+bind2.sockstat.FDwatchConnFail PMID: 25.0.62 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.resolver.total.GlueFetchv4Fail PMID: 25.0.51 []
+bind2.sockstat.FDwatchRecvErr PMID: 25.0.63 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.resolver.total.GlueFetchv6 PMID: 25.0.52 []
+bind2.sockstat.FDwatchSendErr PMID: 25.0.64 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.resolver.total.GlueFetchv6Fail PMID: 25.0.53 []
+bind2.sockstat.FdwatchBindFail PMID: 25.0.65 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.resolver.total.Lame PMID: 25.0.54 []
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: count
-Help: <empty entry>
-    value 0
-
-bind2.resolver.total.Mismatch PMID: 25.0.55 []
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: count
-Help: <empty entry>
-    value 0
-
-bind2.resolver.total.NXDOMAIN PMID: 25.0.56 []
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: count
-Help: <empty entry>
-    value 0
-
-bind2.resolver.total.OtherError PMID: 25.0.57 []
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: count
-Help: <empty entry>
-    value 0
-
-bind2.resolver.total.QryRTT10 PMID: 25.0.58 []
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: count
-Help: <empty entry>
-    value 0
-
-bind2.resolver.total.QryRTT100 PMID: 25.0.59 []
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: count
-Help: <empty entry>
-    value 0
-
-bind2.resolver.total.QryRTT1600 PMID: 25.0.60 []
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: count
-Help: <empty entry>
-    value 0
-
-bind2.resolver.total.QryRTT1600+ PMID: 25.0.61 []
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: count
-Help: <empty entry>
-    value 0
-
-bind2.resolver.total.QryRTT500 PMID: 25.0.62 []
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: count
-Help: <empty entry>
-    value 0
-
-bind2.resolver.total.QryRTT800 PMID: 25.0.63 []
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: count
-Help: <empty entry>
-    value 0
-
-bind2.resolver.total.QueryAbort PMID: 25.0.64 []
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: count
-Help: <empty entry>
-    value 0
-
-bind2.resolver.total.QuerySockFail PMID: 25.0.65 []
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: count
-Help: <empty entry>
-    value 0
-
-bind2.resolver.total.QueryTimeout PMID: 25.0.66 []
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: count
-Help: <empty entry>
-    value 0
-
-bind2.resolver.total.Queryv4 PMID: 25.0.67 []
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: count
-Help: <empty entry>
-    value 0
-
-bind2.resolver.total.Queryv6 PMID: 25.0.68 []
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: count
-Help: <empty entry>
-    value 0
-
-bind2.resolver.total.Responsev4 PMID: 25.0.69 []
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: count
-Help: <empty entry>
-    value 0
-
-bind2.resolver.total.Responsev6 PMID: 25.0.70 []
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: count
-Help: <empty entry>
-    value 0
-
-bind2.resolver.total.Retry PMID: 25.0.71 []
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: count
-Help: <empty entry>
-    value 0
-
-bind2.resolver.total.SERVFAIL PMID: 25.0.72 []
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: count
-Help: <empty entry>
-    value 0
-
-bind2.resolver.total.Truncated PMID: 25.0.73 []
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: count
-Help: <empty entry>
-    value 0
-
-bind2.resolver.total.ValAttempt PMID: 25.0.74 []
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: count
-Help: <empty entry>
-    value 0
-
-bind2.resolver.total.ValFail PMID: 25.0.75 []
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: count
-Help: <empty entry>
-    value 0
-
-bind2.resolver.total.ValNegOk PMID: 25.0.76 []
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: count
-Help: <empty entry>
-    value 0
-
-bind2.resolver.total.ValOk PMID: 25.0.77 []
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: count
-Help: <empty entry>
-    value 0
-
-bind2.sockstat.FDWatchClose PMID: 25.0.78 []
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: count
-Help: <empty entry>
-    value 0
-
-bind2.sockstat.FDwatchConn PMID: 25.0.79 []
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: count
-Help: <empty entry>
-    value 0
-
-bind2.sockstat.FDwatchConnFail PMID: 25.0.80 []
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: count
-Help: <empty entry>
-    value 0
-
-bind2.sockstat.FDwatchRecvErr PMID: 25.0.81 []
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: count
-Help: <empty entry>
-    value 0
-
-bind2.sockstat.FDwatchSendErr PMID: 25.0.82 []
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: count
-Help: <empty entry>
-    value 0
-
-bind2.sockstat.FdwatchBindFail PMID: 25.0.83 []
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: count
-Help: <empty entry>
-    value 0
-
-bind2.sockstat.TCP4Accept PMID: 25.0.84 []
+bind2.sockstat.TCP4Accept PMID: 25.0.71 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 1689
 
-bind2.sockstat.TCP4AcceptFail PMID: 25.0.85 []
+bind2.sockstat.TCP4AcceptFail PMID: 25.0.72 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.TCP4BindFail PMID: 25.0.86 []
+bind2.sockstat.TCP4BindFail PMID: 25.0.74 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.TCP4Close PMID: 25.0.87 []
+bind2.sockstat.TCP4Close PMID: 25.0.75 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 23100
 
-bind2.sockstat.TCP4Conn PMID: 25.0.88 []
+bind2.sockstat.TCP4Conn PMID: 25.0.76 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 11266
 
-bind2.sockstat.TCP4ConnFail PMID: 25.0.89 []
+bind2.sockstat.TCP4ConnFail PMID: 25.0.77 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 771
 
-bind2.sockstat.TCP4Open PMID: 25.0.90 []
+bind2.sockstat.TCP4Open PMID: 25.0.78 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 21417
 
-bind2.sockstat.TCP4OpenFail PMID: 25.0.91 []
+bind2.sockstat.TCP4OpenFail PMID: 25.0.79 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.TCP4RecvErr PMID: 25.0.92 []
+bind2.sockstat.TCP4RecvErr PMID: 25.0.80 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.TCP4SendErr PMID: 25.0.93 []
+bind2.sockstat.TCP4SendErr PMID: 25.0.81 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.TCP6Accept PMID: 25.0.94 []
+bind2.sockstat.TCP6Accept PMID: 25.0.82 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.TCP6AcceptFail PMID: 25.0.95 []
+bind2.sockstat.TCP6AcceptFail PMID: 25.0.83 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.TCP6BindFail PMID: 25.0.96 []
+bind2.sockstat.TCP6BindFail PMID: 25.0.85 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.TCP6Close PMID: 25.0.97 []
+bind2.sockstat.TCP6Close PMID: 25.0.86 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.TCP6Conn PMID: 25.0.98 []
+bind2.sockstat.TCP6Conn PMID: 25.0.87 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.TCP6ConnFail PMID: 25.0.99 []
+bind2.sockstat.TCP6ConnFail PMID: 25.0.88 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.TCP6Open PMID: 25.0.100 []
+bind2.sockstat.TCP6Open PMID: 25.0.89 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.TCP6OpenFail PMID: 25.0.101 []
+bind2.sockstat.TCP6OpenFail PMID: 25.0.90 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.TCP6RecvErr PMID: 25.0.102 []
+bind2.sockstat.TCP6RecvErr PMID: 25.0.91 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.TCP6SendErr PMID: 25.0.103 []
+bind2.sockstat.TCP6SendErr PMID: 25.0.92 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.UDP4BindFail PMID: 25.0.104 []
+bind2.sockstat.UDP4BindFail PMID: 25.0.94 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.UDP4Close PMID: 25.0.105 []
+bind2.sockstat.UDP4Close PMID: 25.0.95 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 393
 
-bind2.sockstat.UDP4Conn PMID: 25.0.106 []
+bind2.sockstat.UDP4Conn PMID: 25.0.96 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.UDP4ConnFail PMID: 25.0.107 []
+bind2.sockstat.UDP4ConnFail PMID: 25.0.97 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.UDP4Open PMID: 25.0.108 []
+bind2.sockstat.UDP4Open PMID: 25.0.98 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 395
 
-bind2.sockstat.UDP4OpenFail PMID: 25.0.109 []
+bind2.sockstat.UDP4OpenFail PMID: 25.0.99 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.UDP4RecvErr PMID: 25.0.110 []
+bind2.sockstat.UDP4RecvErr PMID: 25.0.100 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.UDP4SendErr PMID: 25.0.111 []
+bind2.sockstat.UDP4SendErr PMID: 25.0.101 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.UDP6BindFail PMID: 25.0.112 []
+bind2.sockstat.UDP6BindFail PMID: 25.0.103 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.UDP6Close PMID: 25.0.113 []
+bind2.sockstat.UDP6Close PMID: 25.0.104 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.UDP6Conn PMID: 25.0.114 []
+bind2.sockstat.UDP6Conn PMID: 25.0.105 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.UDP6ConnFail PMID: 25.0.115 []
+bind2.sockstat.UDP6ConnFail PMID: 25.0.106 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.UDP6Open PMID: 25.0.116 []
+bind2.sockstat.UDP6Open PMID: 25.0.107 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.UDP6OpenFail PMID: 25.0.117 []
+bind2.sockstat.UDP6OpenFail PMID: 25.0.108 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.UDP6RecvErr PMID: 25.0.118 []
+bind2.sockstat.UDP6RecvErr PMID: 25.0.109 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.UDP6SendErr PMID: 25.0.119 []
+bind2.sockstat.UDP6SendErr PMID: 25.0.110 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.UnixAccept PMID: 25.0.120 []
+bind2.sockstat.UnixAccept PMID: 25.0.111 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.UnixAcceptFail PMID: 25.0.121 []
+bind2.sockstat.UnixAcceptFail PMID: 25.0.112 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.UnixBindFail PMID: 25.0.122 []
+bind2.sockstat.UnixBindFail PMID: 25.0.114 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.UnixClose PMID: 25.0.123 []
+bind2.sockstat.UnixClose PMID: 25.0.115 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.UnixConn PMID: 25.0.124 []
+bind2.sockstat.UnixConn PMID: 25.0.116 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.UnixConnFail PMID: 25.0.125 []
+bind2.sockstat.UnixConnFail PMID: 25.0.117 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.UnixOpen PMID: 25.0.126 []
+bind2.sockstat.UnixOpen PMID: 25.0.118 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.UnixOpenFail PMID: 25.0.127 []
+bind2.sockstat.UnixOpenFail PMID: 25.0.119 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.UnixRecvErr PMID: 25.0.128 []
+bind2.sockstat.UnixRecvErr PMID: 25.0.120 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.sockstat.UnixSendErr PMID: 25.0.129 []
+bind2.sockstat.UnixSendErr PMID: 25.0.121 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.total.queries.out.NOTIFY PMID: 25.0.130 []
+bind2.total.queries.out.NOTIFY PMID: 25.0.123 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 131
 
-bind2.total.queries.out.QUERY PMID: 25.0.131 []
+bind2.total.queries.out.QUERY PMID: 25.0.124 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 2387670
 
-bind2.total.queries.out.UPDATE PMID: 25.0.132 []
+bind2.total.queries.out.UPDATE PMID: 25.0.126 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 21238
 
-bind2.zonestat.AXFRReqv4 PMID: 25.0.133 []
+bind2.zonestat.AXFRReqv4 PMID: 25.0.127 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.zonestat.AXFRReqv6 PMID: 25.0.134 []
+bind2.zonestat.AXFRReqv6 PMID: 25.0.128 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.zonestat.IXFRReqv4 PMID: 25.0.135 []
+bind2.zonestat.IXFRReqv4 PMID: 25.0.129 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 174
 
-bind2.zonestat.IXFRReqv6 PMID: 25.0.136 []
+bind2.zonestat.IXFRReqv6 PMID: 25.0.130 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.zonestat.NotifyInv4 PMID: 25.0.137 []
+bind2.zonestat.NotifyInv4 PMID: 25.0.131 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 131
 
-bind2.zonestat.NotifyInv6 PMID: 25.0.138 []
+bind2.zonestat.NotifyInv6 PMID: 25.0.132 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.zonestat.NotifyOutv4 PMID: 25.0.139 []
+bind2.zonestat.NotifyOutv4 PMID: 25.0.133 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 524
 
-bind2.zonestat.NotifyOutv6 PMID: 25.0.140 []
+bind2.zonestat.NotifyOutv6 PMID: 25.0.134 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.zonestat.NotifyRej PMID: 25.0.141 []
+bind2.zonestat.NotifyRej PMID: 25.0.135 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.zonestat.SOAOutv4 PMID: 25.0.142 []
+bind2.zonestat.SOAOutv4 PMID: 25.0.136 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 287
 
-bind2.zonestat.SOAOutv6 PMID: 25.0.143 []
+bind2.zonestat.SOAOutv6 PMID: 25.0.137 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.zonestat.XfrFail PMID: 25.0.144 []
+bind2.zonestat.XfrFail PMID: 25.0.138 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 47
 
-bind2.zonestat.XfrSuccess PMID: 25.0.145 []
+bind2.zonestat.XfrSuccess PMID: 25.0.139 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>

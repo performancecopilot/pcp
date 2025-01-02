@@ -2019,6 +2019,7 @@ pmcd.pdu
 1538 libpcp pmcd local pmcd.pdu
 1539 pmcd libpcp pmcd.pdu local
 1540 pmda.farm local valgrind
+1542 pmlogrewrite pmda.bind2 local
 1543 pmproxy local help
 1544 pmproxy python local
 1545 pcp2xml python pcp2xxx local
