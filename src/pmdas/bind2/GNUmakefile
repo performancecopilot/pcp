@@ -20,14 +20,16 @@ DOMAIN = BIND2
 PMDATMPDIR = $(PCP_PMDAS_DIR)/$(IAM)
 PMDAADMDIR = $(PCP_PMDASADM_DIR)/$(IAM)
 CONFIGDIR = $(PCP_SYSCONF_DIR)/$(IAM)
+REWRITEDIR	= $(PCP_SYSCONF_DIR)/pmlogrewrite
+REWRITEVARDIR	= $(PCP_VAR_DIR)/config/pmlogrewrite
 
-LDIRT = domain.h root pmns *.log
+LDIRT = domain.h root pmns *.log rewrite.conf
 
 MAN_SECTION = 1
 MAN_PAGES = pmda$(IAM).$(MAN_SECTION)
 MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
 
-default_pcp default: check_domain
+default_pcp default: check_domain rewrite.conf
 
 include $(BUILDRULES)
 
@@ -40,12 +42,16 @@ install: default
 	$(INSTALL) -m 755 -d $(CONFIGDIR)
 	$(INSTALL) -m 644 -t $(PMDATMPDIR)/bind2.conf bind2-example.conf $(CONFIGDIR)/bind2.conf
 	@$(INSTALL_MAN)
+	$(INSTALL) -m 644 -t $(REWRITEVARDIR)/bind2.conf rewrite.conf $(REWRITEDIR)/bind2.conf
 
 install_pcp : install
 else
 install_pcp install:
 	@$(INSTALL_MAN)
 endif
+
+rewrite.conf:	mk.rewrite pmda$(IAM).pl
+	./mk.rewrite
 
 check_domain:	../../pmns/stdpmid
 	$(DOMAIN_PERLRULE)
