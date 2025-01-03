@@ -565,7 +565,7 @@ p
 	sort <$tmp.allpkgs | uniq >$tmp.tmp
 	mv $tmp.tmp $tmp.allpkgs
     else
-	ls -l $tmp.allpkgs
+	ls -l $tmp.allpkgs >&2
 	echo >&2 "Botch: can't generate tmp.allpkgs for $distro"
 	exit
     fi
