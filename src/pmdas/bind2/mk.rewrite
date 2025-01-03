@@ -11,8 +11,6 @@
 # and generate pmlogrewrite(1) rules to force the PMIDs to be correct.
 #
 
-. /etc/pcp.conf
-
 cat <<End-of-File >rewrite.conf
 # Rewriting rules for bind2 PMDA metrics to ensure consistent
 # PMIDs across Bind versions
