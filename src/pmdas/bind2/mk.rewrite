@@ -32,7 +32,7 @@ inlist == 1		{ print }' \
     -e 's/,//g' \
     -e 's/^  */metric /' \
     -e 's/[ 	][ 	]*\([0-9][0-9]*\)/ { pmid -> BIND2.0.\1 }/' \
-) | $PCP_BINADM_DIR/pmcpp -P >>rewrite.conf
+) | ../../pmcpp/pmcpp.static -P >>rewrite.conf
 
 cat <<'End-of-File' >>rewrite.conf
 
