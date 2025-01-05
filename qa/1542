@@ -20,6 +20,8 @@ fi
 . ./common.filter
 . ./common.check
 
+[ -f $PCP_VAR_DIR/config/pmlogrewrite/bind2.conf ] || _notrun "bind2.conf not installed"
+
 _cleanup()
 {
     cd $here
