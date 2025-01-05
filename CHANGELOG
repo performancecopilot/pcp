@@ -1,3 +1,6 @@
+pcp-3.3.3 (15 January 2025)
+    - Debian build changes
+
 pcp-6.3.2 (6 November 2024)
     - PMDA additions, enhancements and bug fixes:
 	pmdabpf: avoid a too-low rlimit setting within pmdabpf
