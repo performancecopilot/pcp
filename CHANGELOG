@@ -1,5 +1,5 @@
 pcp-3.3.3 (15 January 2025)
-    - Debian build changes
+    - Debian build changes - see debian/changelog for details
 
 pcp-6.3.2 (6 November 2024)
     - PMDA additions, enhancements and bug fixes:
