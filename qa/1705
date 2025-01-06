@@ -40,9 +40,29 @@ _filter_exit_code()
     sed -e 's/ value -6$/ value 1/g'
 }
 
-# on vm04, the limit is 512 which is not enough; 600 seems enough
+# names of first 512 d* kprobes are not deterministic ...
 #
-export BPFTRACE_MAX_PROBES=600
+# bpftrace.control.register old value="{}" new value="// name: test4
+# kprobe:d3cold_allowed_show { @c = count(); }
+# kprobe:d3cold_allowed_store { @c = count(); }
+# ...
+# kprobe:debugfs_write_file_bool { @c = count(); }
+# kprobe:debugfs_write_file_str { @c = count(); }"
+#
+_filter_kprobe()
+{
+    $PCP_AWK_PROG '
+!/^kprobe:/	{ print; next }
+		{ print "kprobe:... { @c = count(); }"
+		  print "..."
+		  print "kprobe:... { @c = count(); }\""
+		  exit
+		}'
+}
+
+# this shoud be the default, just to be sure, to be sure, ...
+#
+export BPFTRACE_MAX_PROBES=512
 
 # real QA test starts here
 cat <<EOF | _pmdabpftrace_install
@@ -83,8 +103,29 @@ pminfo -f bpftrace.scripts.test3.error
 pminfo -f bpftrace.scripts.test3.exit_code
 echo
 echo "=== too many attached tracepoints ==="
-pmstore bpftrace.control.register "// name: test4
-kprobe:* { @c = count(); }"
+# kprobe:d* matches between 4000 and 6000 tracepoints, so more than enough
+# ... pick the first 513 of 'em
+#
+# Note: we used to use kprobe:* here, but even though this matches
+# 	a bazillion tracepoints, on some systems it counted as only
+# 	1 probe, so we never saw the 512 max exceeded; so now we're
+# 	enumerating 513 explicit kprobes.
+#
+$sudo bpftrace -l "kprobe:d*" \
+| $PCP_AWK_PROG >$tmp.probe '
+BEGIN		{ print "// name: test4" }
+		{ print $0 " { @c = count(); }" }
+NR > 512	 { exit }'
+num_probes=`wc -l <$tmp.probe | sed -e 's/  *//g'`
+num_probes=`expr $num_probes - 1`
+if [ "$num_probes" -ne 513 ]
+then
+    echo "Arrgh: expecting 513 probes, got $num_probes.  See $seq.full"
+    echo "num_probes=$num_probes" >>$seq.full
+    cat $tmp.probe >>$seq.full
+fi
+pmstore bpftrace.control.register "`cat $tmp.probe`" 2>&1 \
+| _filter_kprobe
 _pmdabpftrace_wait_for_value bpftrace.scripts.test4.status '"error"'
 pminfo -f bpftrace.scripts.test4.error \
 | sed \

@@ -78,16 +78,19 @@ _pmdabpftrace_wait_for_value()
     __value_regex=${2:-".*"}
     __wait_sec=${3:-"10"}
     __wait_iter=`expr $__wait_sec \* 2`
+    echo "_pmdabpftrace_wait_for_value $1 $__value_regex $__wait_sec @`date`" >>$here/$seq.full
     for __i in `seq 1 $__wait_iter`
     do
 	echo "_pmdabpftrace_wait_for_value: iteration $__i" >>$here/$seq.full
         if pminfo -f $1 | tee -a $here/$seq.full | grep -q "value $__value_regex"; then
+	    echo "_pmdabpftrace_wait_for_value success @`date`" >>$here/seq.full
             echo "found metric $1 with matching value $__value_regex"
             return
         fi
         sleep 0.5
     done
 
+    echo "_pmdabpftrace_wait_for_value failure @`date`" >>$here/$seq.full
     echo "Timeout (${__wait_sec}s) while waiting for metric $1 to match value $__value_regex, script data:"
     pminfo -f $(echo "$1" | sed -r 's/bpftrace\.scripts\.([^.]+)\..*/bpftrace.scripts.\1/')
     # error text above is sufficient to mark the test status as Failed
