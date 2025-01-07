@@ -31,8 +31,6 @@ then
     exit
 fi
 
-cd $2
-
 if ./install-pcp -i -l /var/log/pcp_inst.log idb
 then
     :
