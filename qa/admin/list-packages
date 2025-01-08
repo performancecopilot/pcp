@@ -465,14 +465,19 @@ then
 		# end
 	    elif which dnf >/dev/null 2>&1
 	    then
-		# note using dnf's system cache, so no metadata refresh
+		# note using dnf's system cache, so no metadata refresh,
+		# but -C is borked sometimes ...
 		#
-		sudo dnf -C list 2>&1 \
-		| sed >$tmp.allpkgs \
-		    -e '1,/^[^ ]* [pP]ackages/d' \
-		    -e 's/ .*//' \
-		    -e 's/\.[^.]*$//' \
-		# end
+		for dnf_args in "-C" ""
+		do
+		    sudo dnf $dnf_args list 2>&1 \
+		    | sed >$tmp.allpkgs \
+			-e '1,/^[^ ]* [pP]ackages/d' \
+			-e 's/ .*//' \
+			-e 's/\.[^.]*$//' \
+		    # end
+		    [ -s $tmp.allpkgs ] || break
+		done
 	    elif which yum >/dev/null 2>&1
 	    then
 		# note using yum's system cache, so no metadata refresh
