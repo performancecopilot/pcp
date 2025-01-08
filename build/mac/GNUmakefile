@@ -28,7 +28,7 @@ pack_pcp : extrabits
 	 PACKAGE_MAJOR=${PACKAGE_MAJOR} \
 	 PACKAGE_MINOR=${PACKAGE_MINOR} \
 	 PACKAGE_BUILD=${PACKAGE_BUILD} \
-	./build-installer $(PACKAGE_MAKER) $(HDIUTIL) \
+	./build-installer $(PKGBUILD) $(HDIUTIL) \
 			  $$DIST_ROOT ${PACKAGE_NAME} idb 
 
 idb: $(DIST_MANIFEST)
