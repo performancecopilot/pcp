@@ -2,7 +2,7 @@
 
 if [ ! -x "$1" -o ! -x "$2" -o ! -d "$3" -o -z "$4" -o ! -f "$5" ]; then
     if [ ! -x "$1" ]; then
-	echo PackageMaker not executable
+	echo pkgbuild not executable
     fi
     if [ ! -x "$2" ]; then
 	echo hdiutil not executable
@@ -60,7 +60,7 @@ echo "Gathering files from the source tree using install-pcp"
 _do rm -rf $IFDIR
 _do mkdir $IFDIR
 cd $IFDIR
-_do ../install-pcp -R $DIST_ROOT -c $IDB
+_do ../install-pcp -v -R $DIST_ROOT -c $IDB
 cd $HERE
 
 pwd
