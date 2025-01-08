@@ -45,11 +45,9 @@ cat <<'End-of-File' >$tmp.suppress
    fun:refresh_sysfs_kernel
    fun:linux_refresh.isra.0
    fun:linux_fetch
-   fun:dsofetch
+   ...
    fun:__pmFetchLocal
    fun:__pmFetch
-   fun:pmFetch_ctx
-   fun:pmFetch
    ...
 }
 End-of-File
