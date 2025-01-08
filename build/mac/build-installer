@@ -22,7 +22,7 @@ fi
 
 IFDIR="installer-files"
 IRDIR="installer-resources"
-PKGMKR=$1
+PKGBUILD=$1
 HDIUTIL=$2
 DIST_ROOT=$3
 PACKAGE=$4-$PACKAGE_VERSION-$PACKAGE_BUILD
@@ -87,19 +87,20 @@ for f in installer-info installer-description; do
 	    < $f > $nf || exit 1
 done
 
-echo "Launching PackageMaker..."
+echo "Launching pkgbuild..."
 
 _do rm -rf $PKG
 
-# PackageMaker returns non-zero value even if it succeeds.
-# PackageMaker must be run by the user logged into the localhost desktop.
-#
-_run $PKGMKR -build -p $HERE/$PKG  \
-	-f $HERE/installer-files -r $HERE/installer-resources \
-	-i $HERE/info -d $HERE/description &
+# create custom 'flatenned' directory to use for pkgbuild
+pkgroot=`mktemp -d /tmp/macos-pkg.XXXXXXXXX`
+cp -r installer-files/* $pkgroot/
+cp -r installer-resources/* $pkgroot/
+
+# pkgbuild must be run by the user logged into the localhost desktop.
+_run $PKGBUILD --identifier io.pcp.performancecopilot --nopayload --scripts $pkgroot $HERE/$PKG &
 wait
 
-if [ ! -d $HERE/$PKG ]
+if [ ! -s $HERE/$PKG ]
 then
     echo "$prog: Package generation failed"
     exit 1
