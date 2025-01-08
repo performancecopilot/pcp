@@ -115,7 +115,6 @@ _do mv $PKG $PACKAGE
 _do $HDIUTIL makehybrid -quiet -o $PACKAGE.tmp $PACKAGE \
 	-hfs-openfolder dmg.tmp/$DMG -hfs
 _do $HDIUTIL convert -quiet $TEMPDMG -format UDRO -o $DMG
-_do $HDIUTIL internet-enable -quiet -yes $DMG
 
 if [ ! -f $HERE/$DMG ]
 then
