@@ -67,7 +67,7 @@ idb: $(DIST_MANIFEST)
 		} \
 		' $$DIST_MANIFEST \
 	| sed -e 's# '$$WA'/# #g' -e 's# /# #g' | \
-	grep -v "/usr/lib/tmpfiles.d" >> idb
+	grep -v "usr/lib/tmpfiles.d" >> idb
 	@(bdir=`echo $(PCP_BINADM_DIR) | cut -c2-`; \
 	  echo "f 644 root wheel $$bdir/idb idb replace"; \
 	  echo "f 755 root wheel $$bdir/install-pcp install-pcp replace"; \
