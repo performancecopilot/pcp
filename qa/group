@@ -1227,7 +1227,7 @@ pmcd.pdu
 746 valgrind libpcp local
 747 pmda.linux local kernel
 748 pmlogrewrite pmda.mysql local pmlogdump
-749 pmcd local
+749 pmcd local systemtap
 750:retired pmda.rpm local flakey pmval
 751:retired pmda.rpm local pmlogdump pmlogrewrite
 752 libpcp local pmval timezone
