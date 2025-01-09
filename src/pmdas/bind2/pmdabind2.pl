@@ -402,8 +402,8 @@ my %known_pmids = (
     'bind2.resolver.total.resstats.OtherError',		182,
     'bind2.resolver.total.resstats.QryRTT10',		183,
     'bind2.resolver.total.resstats.QryRTT100',		184,
-    'bind2.resolver.total.resstats.QryRTT1800',		165,
-    'bind2.resolver.total.resstats.QryRTT1800p',	166,
+    'bind2.resolver.total.resstats.QryRTT1800',		185,
+    'bind2.resolver.total.resstats.QryRTT1800p',	186,
     'bind2.resolver.total.resstats.QryRTT500',		187,
     'bind2.resolver.total.resstats.QryRTT800',		188,
     'bind2.resolver.total.resstats.QueryAbort',		189,
@@ -436,9 +436,10 @@ my %known_pmids = (
     'bind2.resolver.total.resstats.CookieClientOk',	216,
     'bind2.resolver.total.resstats.CookieIn',		217,
     'bind2.resolver.total.resstats.NextItem',		218,
-    # enabled by resolver metrics patch (for bind version 9.11 or later)
-    'bind2.resolver.total.resstats.QryRTT1600',		219,
-    'bind2.resolver.total.resstats.QryRTT1600p',	220,
+    # duplicates from earlier commit botch ... these are available
+    'UNASSIGNED.219',					219,
+    'UNASSIGNED.220',					220,
+    'UNASSIGNED.221',					221,
     'bind2.resolver.total.resstats.ServerCookieOut',	222,
     # enabled by resolver meteric patch (for bind version somwhere between 9.12 and 9.18)
     'bind2.resolver.total.resqtype.AAAA',		223,

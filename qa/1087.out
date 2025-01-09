@@ -471,13 +471,13 @@ bind2.resolver.total.resstats.QryRTT100 PMID: 25.0.184 []
 Help: <empty entry>
     value 2
 
-bind2.resolver.total.resstats.QryRTT1600 PMID: 25.0.219 []
+bind2.resolver.total.resstats.QryRTT1600 PMID: 25.0.212 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.resolver.total.resstats.QryRTT1600p PMID: 25.0.220 []
+bind2.resolver.total.resstats.QryRTT1600p PMID: 25.0.213 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
@@ -1666,13 +1666,13 @@ bind2.resolver.total.resstats.QryRTT100 PMID: 25.0.184 []
 Help: <empty entry>
     value 0
 
-bind2.resolver.total.resstats.QryRTT1600 PMID: 25.0.219 []
+bind2.resolver.total.resstats.QryRTT1600 PMID: 25.0.212 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.resolver.total.resstats.QryRTT1600p PMID: 25.0.220 []
+bind2.resolver.total.resstats.QryRTT1600p PMID: 25.0.213 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
@@ -3071,13 +3071,13 @@ bind2.resolver.total.resstats.QryRTT100 PMID: 25.0.184 []
 Help: <empty entry>
     value 3628
 
-bind2.resolver.total.resstats.QryRTT1600 PMID: 25.0.219 []
+bind2.resolver.total.resstats.QryRTT1600 PMID: 25.0.212 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 6
 
-bind2.resolver.total.resstats.QryRTT1600p PMID: 25.0.220 []
+bind2.resolver.total.resstats.QryRTT1600p PMID: 25.0.213 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
