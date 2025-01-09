@@ -11,6 +11,10 @@
 # and generate pmlogrewrite(1) rules to force the PMIDs to be correct.
 #
 
+tmp=/var/tmp/mk.rewrite-$$
+status=0
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
 cat <<End-of-File >rewrite.conf
 # Rewriting rules for bind2 PMDA metrics to ensure consistent
 # PMIDs across Bind versions
@@ -22,15 +26,18 @@ End-of-File
 ( grep BIND2 <../../pmns/stdpmid ;
   awk <pmdabind2.pl '
 $2 == "%known_pmids"	{ inlist = 1; next }
-$1 == "#"		{ next }
+/^[ 	]*#/		{ next }
 inlist == 1 && $1 == ");"	{ exit }
 inlist == 1		{ print }' \
+  | tee $tmp.list \
   | sed \
+    -e '/UNASSIGNED/d' \
     -e "s/'//g" \
     -e 's/,//g' \
     -e 's/^  */metric /' \
     -e 's/[ 	][ 	]*\([0-9][0-9]*\)/ { pmid -> BIND2.0.\1 }/' \
-) | ../../pmcpp/pmcpp.static -P >>rewrite.conf
+) \
+| ../../pmcpp/pmcpp.static -P >>rewrite.conf
 
 cat <<'End-of-File' >>rewrite.conf
 
@@ -48,5 +55,46 @@ metric bind2.memory.total.Malloced { units -> 1,0,0,byte,0,0 }
 metric bind2.memory.total.TotalUse { units -> 1,0,0,byte,0,0 }
 End-of-File
 
-exit
+# check for (a) duplicate metric names (fatal), (b) duplicates in
+# the item field of PMID (fatal) and (c) missing values in the sequence
+# of item fields (warning)
+#
+# lines in $tmp.list look like
+#     'bind2.memory.total.InUse',		5,
+#
+export LC_COLLATE=POSIX
 
+sed <$tmp.list \
+    -e "s/^[ 	]*'//" \
+    -e "s/'.*//" \
+| sort >$tmp.metrics
+
+uniq -c <$tmp.metrics \
+| sed -e '/^  *1 /d' \
+| while read count metric
+do
+    echo "Error: Duplicate metric $metric occurs $count times"
+    status=1
+done
+
+sed <$tmp.list \
+    -e "s/.*',[^0-9]*//" \
+    -e 's/,[ 	]*$//' \
+| sort -n >$tmp.items
+
+uniq -c <$tmp.items \
+| sed -e '/^  *1 /d' \
+| while read count item
+do
+    echo "Error: Duplicate PMID BIND2.0.$item occurs $count times"
+    status=1
+done
+
+awk <$tmp.items '
+NR == 1		{ last = $1; next }
+$1 != last + 1	{ for (j = last+1; j < $1; j++)
+		    print "Warning: PMID BIND2.0." j " is missing"
+		}
+		{ last = $1 }'
+
+exit
