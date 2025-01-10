@@ -352,7 +352,7 @@ _install_file()
 			then
 			    _warn "Unable to remove existing $target, continuing"
 			fi
-			if _cmd $MV $source $target
+			if _cmd $CP $source $target
 			then
 			    installed=true
 			else
