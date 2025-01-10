@@ -60,7 +60,7 @@ echo "Gathering files from the source tree using install-pcp"
 _do rm -rf $IFDIR
 _do mkdir $IFDIR
 cd $IFDIR
-_do ../install-pcp -v -R $DIST_ROOT -c $IDB
+_do ../install-pcp -v -l /tmp/install-pcp.log -R $DIST_ROOT -c $IDB
 cd $HERE
 
 pwd
