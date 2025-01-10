@@ -41,6 +41,9 @@ idb: $(DIST_MANIFEST)
 # make source relative to DIST_ROOT
 # ensure that a symlink has a full path for the source (no change needed
 #   if source is already a full path)
+# Remove a linux-specific directory/file that isn't useful and isn't allowed in /usr/lib anyway (tmpfiles.d)
+# Get rid of the QA & Testsuite stuff is as they're not useful resources for the Mac installation (it's not a source-bundle) and some files don't correctly come across anyway
+# - this also speeds up the install and trims down the archive
 # append the installer scripts
 	@echo Making idb...
 	@echo "# Version 1" > idb
@@ -67,7 +70,10 @@ idb: $(DIST_MANIFEST)
 		} \
 		' $$DIST_MANIFEST \
 	| sed -e 's# '$$WA'/# #g' -e 's# /# #g' | \
-	grep -v "usr/lib/tmpfiles.d" >> idb
+	grep -v "usr/lib/tmpfiles.d" | \
+	$(PCP_AWK_PROG) ' \
+		$$6 !~ /^qa/ && $$5 !~ /testsuite/ {print} \
+	 ' >> idb
 	@(bdir=`echo $(PCP_BINADM_DIR) | cut -c2-`; \
 	  echo "f 644 root wheel $$bdir/idb idb replace"; \
 	  echo "f 755 root wheel $$bdir/install-pcp install-pcp replace"; \
