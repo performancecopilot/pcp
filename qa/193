@@ -52,6 +52,11 @@ sleep 2
 
 echo "$PCP_PMCDLOG_PATH" >>$seq_full
 cat $PCP_PMCDLOG_PATH >>$seq_full
+
+# pmcd may receive more PDU's from other clients before
+# we disable the debug flags in _cleanup ... the awk
+# at the end chops any trailing babble off
+#
 _filter_pmcd_log <$PCP_PMCDLOG_PATH \
 | sed \
     -e '1,/ok FD /d' \
@@ -65,7 +70,10 @@ _filter_pmcd_log <$PCP_PMCDLOG_PATH \
     -e 's/Connection reset by peer/Broken pipe/' \
     -e 's/have .*, want .*, got 0/END-OF-FILE/' \
     -e '/PMNS file "DEFAULT" is unchanged/d' \
-    #end
+| $PCP_AWK_PROG '
+/len=201326592/				{ sentinel = 1 }
+sentinel == 1 && ! /len=201326592/	{ exit }
+					{ print }'
 
 # success, all done
 exit
