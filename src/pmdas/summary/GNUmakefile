@@ -42,6 +42,7 @@ build-me:	$(TARGETS)
 install:	build-me
 	$(INSTALL) -m 755 -d $(PMDAADMDIR)
 	$(INSTALL) -m 755 -d $(PMDATMPDIR)
+	$(INSTALL) -m 755 -d $(PMDCONFIG)
 	$(INSTALL) -m 755 -t $(PMDATMPDIR)/pmda$(IAM) $(IAM) $(PMDAADMDIR)/pmda$(IAM)
 	$(INSTALL) -m 755 -t $(PMDATMPDIR) Install Remove $(PMDAADMDIR)
 	$(INSTALL) -m 644 -t $(PMDATMPDIR) root README help pmns domain.h $(PMDAADMDIR)
