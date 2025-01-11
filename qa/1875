@@ -21,8 +21,12 @@ key_server_version_major=`$key_server --version | sed -E 's/.*v=([0-9]).*/\1/g'`
 _cleanup()
 {
     cd $here
+    echo "_cleanup ..." >>$seq.full
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep "$key_server[ ]" >>$seq.full
+    echo "pmproxy_pid=$pmproxy_pid key_server_pid=$key_server_pid" >>$seq.full
     [ -n "$pmproxy_pid" ] && $signal -s TERM $pmproxy_pid
-    [ -n "$keyserver_pid" ] && $signal -s TERM $keyserver_pid
+    [ -n "$key_server_pid" ] && $signal -s TERM $key_server_pid
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep "$key_server[ ]" >>$seq.full
     $sudo rm -rf $tmp $tmp.*
 }
 

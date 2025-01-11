@@ -19,10 +19,13 @@ _check_key_server_version_offline
 _cleanup()
 {
     cd $here
-    [ -n "$tail_pid" ] && $signal -s TERM $tail_pid
+    echo "_cleanup ..." >>$seq.full
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep "$key_server[ ]" >>$seq.full
+    echo "key_server_pid=$key_server_pid pmproxy_pid=$pmproxy_pid keysproxy_pid=$keysproxy_pid" >>$seq.full
+    [ -n "$key_server_pid" ] && $signal -s TERM $key_server_pid
     [ -n "$pmproxy_pid" ] && $signal -s TERM $pmproxy_pid
     [ -n "$keysproxy_pid" ] && $signal -s TERM $keysproxy_pid
-    [ -n "$keys_pid" ] && $signal -s TERM $keys_pid
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep "$key_server[ ]" >>$seq.full
     $sudo rm -rf $tmp $tmp.*
 }
 
