@@ -22,6 +22,7 @@ _cleanup()
     $sudo $PCP_BINADM_DIR/pmnsdel qa
     _service pmcd start 2>&1 | _filter_pcp_start
     _wait_for_pmcd
+    _wait_for_pmlogger
     # expect Error: qa: Unknown metric name
     # and NOT qa.check: pmLookupDesc: Unknown or illegal metric identifier
     #
