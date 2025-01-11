@@ -49,7 +49,13 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 # real QA test starts here
 echo "=== success cases ==="
 echo "--- echo ---"
-src/exectest -Dexec -- /bin/echo 'blah;trickme' 2>&1 | _filter
+src/exectest -Dexec -- /bin/echo 'blah;trickme' 2>&1 | _filter >$tmp.tmp
+# blah;trickme line may be before or after the parent's
+# __pmProcessExec: child pid=PID
+# line
+#
+grep -v '^blah;trickme' $tmp.tmp
+grep '^blah;trickme' $tmp.tmp
 echo "--- /bin/sh -c ---"
 src/exectest -Dexec -- /bin/sh -c "( echo 'f o o'; sleep 1; kill -KILL \$\$; sleep 1; echo b\\ a\\ r )" >$tmp.out 2>$tmp.err
 echo "+++ stderr +++"
