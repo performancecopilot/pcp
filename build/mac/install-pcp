@@ -409,7 +409,7 @@ _install_file()
 	    then
 		_error "$target exists but is a directory"
 	    else
-		if _cmd $MV $source $target
+		if _cmd $CP $source $target
 		then
 		    installed=true
 		else
