@@ -97,8 +97,7 @@ cp -RP installer-files/* $pkgroot/
 cp -RP installer-resources/* $pkgroot/
 
 # pkgbuild must be run by the user logged into the localhost desktop.
-_run $PKGBUILD --identifier io.pcp.performancecopilot --nopayload --scripts --version $PACKAGE_VERSION $pkgroot $HERE/$PKG &
-wait
+_run $PKGBUILD --identifier io.pcp.performancecopilot --version $PACKAGE_VERSION --nopayload --scripts $pkgroot $HERE/$PKG
 
 if [ ! -s $HERE/$PKG ]
 then
