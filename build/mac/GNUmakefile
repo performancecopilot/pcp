@@ -78,15 +78,7 @@ idb: $(DIST_MANIFEST)
 	  echo "f 644 root wheel $$bdir/idb idb replace"; \
 	  echo "f 755 root wheel $$bdir/install-pcp install-pcp replace"; \
 	  echo "f 755 root wheel $$bdir/uninstall-pcp uninstall-pcp replace") >> idb
-	@echo "f 644 root wheel Library/StartupItems/pcp/StartupParameters.plist StartupParameters.plist replace" >> idb
-	@echo "d 755 root wheel Library/StartupItems/pcp/Resources . replace" >> idb
-	@echo "d 755 root wheel Library/StartupItems/pcp/Resources/English.lproj . replace" >> idb
-	@echo "f 644 root wheel Library/StartupItems/pcp/Resources/English.lproj/Localizable.strings English.lproj/Localizable.strings replace" >> idb
-	@echo "s 0 root wheel Library/StartupItems/pcp/pcp etc/init.d/pcp replace" >> idb
-	@echo "s 0 root wheel Library/StartupItems/pcp/pmcd etc/init.d/pmcd replace" >> idb
-	@echo "s 0 root wheel Library/StartupItems/pcp/pmie etc/init.d/pmie replace" >> idb
-	@echo "s 0 root wheel Library/StartupItems/pcp/pmproxy etc/init.d/pmproxy replace" >> idb
-	@echo "s 0 root wheel Library/StartupItems/pcp/pmlogger etc/init.d/pmlogger replace" >> idb
+	@echo "f 644 root wheel Library/LaunchDaemons/io.pcp.pmcd.plist io.pcp.pmcd.plist replace" >> idb
 	@echo idb created
 
 extrabits: idb
