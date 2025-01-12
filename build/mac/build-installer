@@ -60,7 +60,7 @@ echo "Gathering files from the source tree using install-pcp"
 _do rm -rf $IFDIR
 _do mkdir $IFDIR
 cd $IFDIR
-_do ../install-pcp -v -l /tmp/install-pcp.log -R $DIST_ROOT -c $IDB
+_do ../install-pcp -v -R $DIST_ROOT -c $IDB
 cd $HERE
 
 pwd
@@ -93,11 +93,11 @@ _do rm -rf $PKG
 
 # create custom 'flatenned' directory to use for pkgbuild
 pkgroot=`mktemp -d /tmp/macos-pkg.XXXXXXXXX`
-cp -r installer-files/* $pkgroot/
-cp -r installer-resources/* $pkgroot/
+cp -RP installer-files/* $pkgroot/
+cp -RP installer-resources/* $pkgroot/
 
 # pkgbuild must be run by the user logged into the localhost desktop.
-_run $PKGBUILD --identifier io.pcp.performancecopilot --nopayload --scripts $pkgroot $HERE/$PKG &
+_run $PKGBUILD --identifier io.pcp.performancecopilot --nopayload --scripts --version $PACKAGE_VERSION $pkgroot $HERE/$PKG &
 wait
 
 if [ ! -s $HERE/$PKG ]
