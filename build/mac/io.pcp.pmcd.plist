@@ -6,7 +6,7 @@
         <string>io.pcp.pmcd</string>
         <key>ProgramArguments</key>
         <array>
-            <string>/Library/StartupItems/pcp/pmcd</string>
+            <string>/etc/init.d/pmcd</string>
             <string>start</string>
         </array>
         <key>Disabled</key>
