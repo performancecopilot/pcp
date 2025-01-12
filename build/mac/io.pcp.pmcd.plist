@@ -7,15 +7,23 @@
         <key>ProgramArguments</key>
         <array>
             <string>/Library/StartupItems/pcp/pmcd</string>
-            <string>/start</string>
+            <string>start</string>
         </array>
         <key>Disabled</key>
         <false/>
+        <key>UserName</key>
+        <string>root</string>
+        <key>UserGroup</key>
+        <string>wheel</string>
         <key>KeepAlive</key>
-        <true/>
+        <false/>
         <key>ThrottleInterval</key>
         <integer>30</integer>
         <key>RunAtLoad</key>
         <true/>
+        <key>StandardErrorPath</key>
+        <string>/tmp/pmcd.job.err</string>
+        <key>StandardOutPath</key>
+        <string>/tmp/pmcd.job.out</string>
     </dict>
 </plist>
