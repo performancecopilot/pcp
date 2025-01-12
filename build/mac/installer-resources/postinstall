@@ -31,7 +31,7 @@ then
     exit
 fi
 
-if ./install-pcp -v -i -l /var/log/pcp_inst.log idb
+if ./install-pcp -i -l /var/log/pcp_inst.log idb
 then
     :
 else
