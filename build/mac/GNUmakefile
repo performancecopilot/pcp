@@ -84,9 +84,8 @@ idb: $(DIST_MANIFEST)
 extrabits: idb
 	DIST_MANIFEST= $(INSTALL) -m 755 idb install-pcp uninstall-pcp \
 		$(PCP_BINADM_DIR)
-	DIST_MANIFEST= $(INSTALL) -m 644 StartupParameters.plist \
-		Library/StartupItems/pcp/StartupParameters.plist
-	DIST_MANIFEST= $(INSTALL) -m 644 English.lproj/Localizable.strings \
-		Library/StartupItems/pcp/Resources/English.lproj/Localizable.strings
+	DIST_MANIFEST= $(INSTALL) -m 644 io.pcp.pmcd.plist \
+		Library/LaunchDaemons/io.pcp.pmcd.plist
+
 
 include $(BUILDRULES)
