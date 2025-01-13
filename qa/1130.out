@@ -8,21 +8,6 @@ Found correct index in output
 Found proper hostid in output
 === 3. pcp2elasticsearch full-blown archive replay session ===
 --- Start of received data ---
-                    "type": "epoch_milli"
-                    "type": "string"
-                "@host-id": {
-                "@timestamp": {
-                }
-                }
-            "properties": {
-            }
-        "pcp-metric": {
-        }
-    "ignore": 400
-    "mappings": {
-    }
-{
-}
                     "@id": "000001 /usr/lib/systemd/systemd --switched-root --system --deserialize 21"
                     "@id": "1 minute"
                     "@id": "cpu0"
@@ -84,21 +69,6 @@ Found proper hostid in output
     }
     }
     }
-    }
-{
-}
-                    "type": "epoch_milli"
-                    "type": "string"
-                "@host-id": {
-                "@timestamp": {
-                }
-                }
-            "properties": {
-            }
-        "pcp-metric": {
-        }
-    "ignore": 400
-    "mappings": {
     }
 {
 }
@@ -182,21 +152,6 @@ Found proper hostid in output
     }
 {
 }
-                    "type": "epoch_milli"
-                    "type": "string"
-                "@host-id": {
-                "@timestamp": {
-                }
-                }
-            "properties": {
-            }
-        "pcp-metric": {
-        }
-    "ignore": 400
-    "mappings": {
-    }
-{
-}
                         "@id": "cpu0"
                         "user": 0.0
                     "@id": "000001 /usr/lib/systemd/systemd --switched-root --system --deserialize 21"
@@ -277,21 +232,6 @@ Found proper hostid in output
     }
 {
 }
-                    "type": "epoch_milli"
-                    "type": "string"
-                "@host-id": {
-                "@timestamp": {
-                }
-                }
-            "properties": {
-            }
-        "pcp-metric": {
-        }
-    "ignore": 400
-    "mappings": {
-    }
-{
-}
                         "@id": "cpu0"
                         "user": 9.999
                     "@id": "000001 /usr/lib/systemd/systemd --switched-root --system --deserialize 21"
@@ -369,21 +309,6 @@ Found proper hostid in output
     }
     }
     }
-    }
-{
-}
-                    "type": "epoch_milli"
-                    "type": "string"
-                "@host-id": {
-                "@timestamp": {
-                }
-                }
-            "properties": {
-            }
-        "pcp-metric": {
-        }
-    "ignore": 400
-    "mappings": {
     }
 {
 }
