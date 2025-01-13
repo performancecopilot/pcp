@@ -103,7 +103,7 @@ done
 # Now remap the installed binary files so the PCP Library files can be loaded
 destination_lib_path=/usr/local/lib
 
-for basepath in `echo /usr/local/libexec/pcp/bin /usr/local/bin`; do
+for basepath in `echo /usr/local/libexec/pcp/bin /usr/local/bin /opt/homebrew/lib/python3.13/site-packages`; do
 	for binary in `ls -1 ${basepath}`; do
       	  echo "Checking $binary"
      	   # do not remap already remapped libraries
