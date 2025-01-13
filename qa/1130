@@ -2,7 +2,7 @@
 # PCP QA Test No. 1130
 # checks basic pcp2elasticsearch functionality
 #
-# Copyright (c) 2017-2019 Red Hat.
+# Copyright (c) 2017-2025 Red Hat.
 #
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -13,7 +13,7 @@ $python -c "from pcp import pmapi" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python pcp pmapi module not installed"
 
 # From Andreas 27 Jul 2022 ...
-# [pcp2elasticsearch] now uses a method='PUT' argument, but this is
+# [pcp2elasticsearch] now uses a method='POST' argument, but this is
 # not available in Python versions before 3.3
 #
 __version=`$python --version 2>&1 | sed -e 's/Python //'`
@@ -91,11 +91,21 @@ wait
 #
 grep -q 'socat.* Remote end closed connection without response' $tmp.socat.err && \
 	_notrun "socat on this platform is not behaving as expected [closed conn]"
-grep -q 'socat.* Connection reset by peer' $tmp.socat.log && \
-	_notrun "socat on this platform is not behaving as expected [reset conn]"
+
+# From Paul 13 Jan 2025 ...
+# Getting reset connection messages with socat even though exporter works
+# correctly meaning the test is not being run. Happens with prior upstream
+# exporter version also:
+#     ... socat[957217] E read(6, 0x558187c97000, 8192): Connection reset by peer
+#
+# Commenting out the check and allowing QA test to run
+#
+#grep -q 'socat.* Connection reset by peer' $tmp.socat.log && \
+#	_notrun "socat on this platform is not behaving as expected [reset conn]"
+
 grep -q 'socat.* Broken pipe' $tmp.socat.log && \
 	_notrun "socat on this platform is not behaving as expected [broken pipe]"
-grep -E -q '^PUT /+pcp HTTP/' $tmp.socat.err
+grep -E -q '^POST /+pcp/_doc HTTP/' $tmp.socat.err
 [ $? -eq 0 ] && echo "Found correct index in output"
 grep -E -q '"hinv": {"ncpu": '$ncpu'}' $tmp.socat.err
 [ $? -eq 0 ] && echo "Found correct value in output"
@@ -109,7 +119,7 @@ $pcp2elasticsearch -t 1 -s 1 -X QAHOST -x INDEX hinv.ncpu >$tmp.p2e.out 2>$tmp.p
 sleep 2
 $signal $pid 2>/dev/null
 wait
-grep -E -q '^PUT /+INDEX HTTP/' $tmp.socat.err
+grep -E -q '^POST /+INDEX/_doc HTTP/' $tmp.socat.err
 [ $? -eq 0 ] && echo "Found correct index in output"
 grep -E -q '"@host-id": "QAHOST"' $tmp.socat.err
 [ $? -eq 0 ] && echo "Found proper hostid in output"
@@ -124,7 +134,7 @@ sleep 2
 $signal $pid 2>/dev/null
 wait
 echo "--- Start of received data ---"
-grep -E '(mappings|slack)' $tmp.socat.err | sed -e 's,< [1-9].*,,g' >$tmp.archive.data
+grep -E '(slack)' $tmp.socat.err | sed -e 's,< [1-9].*,,g' >$tmp.archive.data
 while read -r line
 do
   echo $line | _filter_prec | pmjson | LC_COLLATE=POSIX sort | tr -d ,
