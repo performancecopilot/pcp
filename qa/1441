@@ -103,7 +103,19 @@ _wait_for_new_pmlogger()
     else
 	echo "Failed!" >>$seq_full
 	date
-	cat $PCP_LOG_DIR/pmlogger/`hostname`/pmlogger.log >>$seq_full
+	if [ -f $PCP_LOG_DIR/pmlogger/$oldhostname/pmlogger.log
+	then
+	    echo "--- start $oldhostname pmlogger.log" >>$seq_full
+	    cat $PCP_LOG_DIR/pmlogger/$oldhostname/pmlogger.log >>$seq.full
+	    echo "--- end $oldhostname pmlogger.log" >>$seq_full
+	elif [ -f $PCP_LOG_DIR/pmlogger/$newhostname/pmlogger.log
+	then
+	    echo "--- start $newhostname pmlogger.log" >>$seq_full
+	    cat $PCP_LOG_DIR/pmlogger/$newhostname/pmlogger.log >>$seq.full
+	    echo "--- end $newhostname pmlogger.log" >>$seq_full
+	else
+	    echo "--- no pmlogger.log" >>$seq_full
+	fi
 	echo "Arrgh: failed to see new pmlogger after $max_delay seconds"
 	echo "oldpid=$1"
 	if [ -f $PCP_RUN_DIR/pmlogger.pid ]
@@ -120,6 +132,19 @@ _wait_for_new_pmlogger()
 	    cat $PCP_TMP_DIR/pmlogger/primary
 	else
 	    echo $PCP_TMP_DIR/pmlogger/primary is missing
+	fi
+	if [ -f $PCP_LOG_DIR/pmlogger/$oldhostname/pmlogger.log
+	then
+	    echo "--- start $oldhostname pmlogger.log" >>$seq_full
+	    cat $PCP_LOG_DIR/pmlogger/$oldhostname/pmlogger.log >>$seq.full
+	    echo "--- end $oldhostname pmlogger.log" >>$seq_full
+	elif [ -f $PCP_LOG_DIR/pmlogger/$newhostname/pmlogger.log
+	then
+	    echo "--- start $newhostname pmlogger.log" >>$seq_full
+	    cat $PCP_LOG_DIR/pmlogger/$newhostname/pmlogger.log >>$seq.full
+	    echo "--- end $newhostname pmlogger.log" >>$seq_full
+	else
+	    echo "--- no pmlogger.log" >>$seq_full
 	fi
 	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger( |$)'
 	echo "--- start pmcd.log" >>$seq_full
@@ -383,10 +408,25 @@ _set_hostname()
 	then
 	    :
 	else
-	    cat $tmp.tmp
-	    echo "Arrgh: hostnamectl(1) failed"
-	    return 1
+	    # try old command line syntax ...
+	    #
+	    if $sudo hostnamectl hostname "$1" >>$tmp.tmp 2>&1
+	    then
+		:
+	    else
+		# hmm, fallback to hostname(1)
+		#
+		if $sudo hostname "$newhostname" >>$tmp.tmp 2>&1
+		then
+		    :
+		else
+		    cat $tmp.tmp
+		    echo "Arrgh: hostnamectl(1) [both variants] and histname(1) failed"
+		    return 1
+		fi
+	    fi
 	fi
+	cat $tmp.tmp >>$seq_full
     else
 	if $sudo hostname "$newhostname" >$tmp.tmp 2>&1
 	then

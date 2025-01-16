@@ -641,7 +641,7 @@ HandleFetch(ClientInfo *cip, __pmPDU* pb, int pdutype)
     if (cip->status.changes) {
 	/* notify client of PMCD state change */
 	if (pmDebugOptions.appl6) {
-	    fprintf(stderr, "HandleFetch: client[%d] (fd %d) sent ", cip - client, cip->fd);
+	    fprintf(stderr, "HandleFetch: client[%d] (fd %d) sent ", (int)(cip - client), cip->fd);
 	    __pmDumpFetchFlags(stderr, cip->status.changes);
 	    fputc('\n', stderr);
 	}
