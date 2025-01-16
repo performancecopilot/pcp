@@ -53,6 +53,7 @@ _filter_log()
 	-e '/Cleanup/d' \
 	-e '/Info: spindle_stats_init/d' \
 	-e '/UNIX_DOMAIN_SOCKET/d' \
+	-e '/ContactAgents: agent/d' \
 	#end
 }
 

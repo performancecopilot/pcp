@@ -20,7 +20,7 @@ _del()
 {
     while true
     do
-	pmlock $tmp.root.lock && break
+	pmlock -i "$$ QA 638" $tmp.root.lock && break
 	sleep 1
     done
     pmnsdel -n $tmp.root $1

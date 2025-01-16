@@ -188,6 +188,7 @@ s/  */ /g
 -e "s/$other1\$/OTHERHOST1/g" \
 -e "s/$other2\$/OTHERHOST2/g" \
 -e '/UNIX_DOMAIN_SOCKET/d' \
+-e '/ContactAgents: agent/d' \
 -e '/1 unix:$/d' \
 -e '/error sending Conn ACK PDU/d' \
 -e "s/[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]/<hexnum>/" \

@@ -20,7 +20,7 @@
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-LLDLIBS = $(LIB_FOR_BASENAME)
+LLDLIBS = $(PCPLIB) $(LIB_FOR_BASENAME)
 CFILES	= pmlock.c
 CMDTARGET = pmlock$(EXECSUFFIX)
 

@@ -20,6 +20,7 @@
  * APPL3	- client connection/disconnection ops
  * APPL4	- timestamps for config file parsing
  * APPL5	- attribute operations
+ * APPL6	- state changes
  */
 
 #include "pmcd.h"
@@ -381,6 +382,11 @@ CheckHostnameChange(void)
 
 	/* Inform clients there's been a change in pmcd's hostname */
 	MarkStateChanges(PMCD_HOSTNAME_CHANGE);
+	if (pmDebugOptions.appl6) {
+	    fprintf(stderr, "CheckHostnameChange: new hostname %s: set ", host);
+	    __pmDumpFetchFlags(stderr, PMCD_HOSTNAME_CHANGE);
+	    fputc('\n', stderr);
+	}
     }
 }
 
@@ -675,6 +681,11 @@ SignalReloadLabels(void)
 {
     /* Inform clients there's been a change in context label state */
     MarkStateChanges(PMCD_LABEL_CHANGE);
+    if (pmDebugOptions.appl6) {
+	fprintf(stderr, "SignalReloadLabels: set ");
+	__pmDumpFetchFlags(stderr, PMCD_LABEL_CHANGE);
+	fputc('\n', stderr);
+    }
 }
 
 static void

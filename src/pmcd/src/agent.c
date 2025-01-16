@@ -172,6 +172,11 @@ CleanupAgent(AgentInfo* aPtr, int why, int status)
 	pmcd_dump_trace(stderr);
 
     MarkStateChanges(PMCD_DROP_AGENT);
+    if (pmDebugOptions.appl6) {
+	fprintf(stderr, "CleanupAgent: agent %s (dom %d): set ", aPtr->pmDomainLabel, aPtr->pmDomainId);
+	__pmDumpFetchFlags(stderr, PMCD_DROP_AGENT);
+	fputc('\n', stderr);
+    }
 }
 
 static int

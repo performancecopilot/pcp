@@ -99,35 +99,34 @@ __pmFinishResult(__pmContext *ctxp, int count, __pmResult **resultp)
     return count;
 }
 
-static void
-dump_fetch_flags(int sts)
+void
+__pmDumpFetchFlags(FILE *f, int sts)
 {
     int flag = 0;
 
-    fprintf(stderr, "PMCD state changes: ");
+    fprintf(f, "PMCD state: ");
     if (sts & PMCD_AGENT_CHANGE) {
-	fprintf(stderr, "agent(s)");
-	if (sts & PMCD_ADD_AGENT) fprintf(stderr, " added");
-	if (sts & PMCD_RESTART_AGENT) fprintf(stderr, " restarted");
-	if (sts & PMCD_DROP_AGENT) fprintf(stderr, " dropped");
+	fprintf(f, "agent(s)");
+	if (sts & PMCD_ADD_AGENT) fprintf(f, " added");
+	if (sts & PMCD_RESTART_AGENT) fprintf(f, " restarted");
+	if (sts & PMCD_DROP_AGENT) fprintf(f, " dropped");
 	flag++;
     }
     if (sts & PMCD_LABEL_CHANGE) {
 	if (flag++)
-	    fprintf(stderr, ", ");
-	fprintf(stderr, "label change");
+	    fprintf(f, ", ");
+	fprintf(f, "label change");
     }
     if (sts & PMCD_NAMES_CHANGE) {
 	if (flag++)
-	    fprintf(stderr, ", ");
-	fprintf(stderr, "names change");
+	    fprintf(f, ", ");
+	fprintf(f, "names change");
     }
     if (sts & PMCD_HOSTNAME_CHANGE) {
 	if (flag++)
-	    fprintf(stderr, ", ");
-	fprintf(stderr, "hostname change");
+	    fprintf(f, ", ");
+	fprintf(f, "hostname change");
     }
-    fputc('\n', stderr);
 }
 
 static void
@@ -253,8 +252,10 @@ pmapi_return:
     if (pmDebugOptions.fetch) {
 	fprintf(stderr, "%s returns ...\n", "pmFetch");
 	if (sts >= 0) {
-	    if (sts > 0)
-		dump_fetch_flags(sts);
+	    if (sts > 0) {
+		__pmDumpFetchFlags(stderr, sts);
+		fputc('\n', stderr);
+	    }
 	    __pmPrintResult_ctx(ctxp, stderr, *result);
 	} else {
 	    char	errmsg[PM_MAXERRMSGLEN];

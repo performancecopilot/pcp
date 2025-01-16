@@ -69,7 +69,7 @@ Found PID <somepid> to stop using signal TERM
 Found PID <somepid> to stop using signal TERM
 Looking for pmlogger using directory PCP_ARCHIVE_DIR/1210-LOCALHOSTNAME ...
 Looking for pmlogger using directory PCP_ARCHIVE_DIR/1210-localhost ...
-Warning: removing lock file older than 30 minutes (PID <mypid>)
+Warning: removing lock file older than 30 minutes (PID <mypid> QA 1210 stale lock)
 pmcd Host Archive Class PID State 
 LOCALHOSTNAME ? <seq> ? stopped by pmlogctl
 localhost ? <seq> ? stopped by pmlogctl

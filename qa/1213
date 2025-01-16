@@ -55,6 +55,7 @@ _filter()
 	-e 's/PID [0-9][0-9]*/PID <somepid>/' \
 	-e 's/TERM [0-9][0-9]*/TERM <somepid>/' \
 	-e '/^------.*\/lock/s/.* /------ ... ls output ... /' \
+	-e '/^-r--r-.*\/lock/s/.* /------ ... ls output ... /' \
     # end
     $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger( |$)' >>$seq_full
 }
@@ -338,7 +339,7 @@ $sudo pmlogctl snafu
 
 echo
 echo "=== mutex" | tee -a $seq.full
-if ! $sudo $PCP_BINADM_DIR/pmlock $PCP_ETC_DIR/pcp/pmlogger/lock
+if ! $sudo $PCP_BINADM_DIR/pmlock -i "$$ QA 1213" $PCP_ETC_DIR/pcp/pmlogger/lock
 then
     echo "Arrgh, failed to get lock $PCP_ETC_DIR/pcp/pmlogger/lock"
 fi

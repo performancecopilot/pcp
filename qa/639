@@ -20,7 +20,7 @@ _add()
 {
     while true
     do
-	pmlock $tmp.root.lock && break
+	pmlock -i "$$ QA 639" $tmp.root.lock && break
 	sleep 1
     done
     pmnsadd -n $tmp.root $1

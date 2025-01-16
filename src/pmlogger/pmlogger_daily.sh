@@ -787,7 +787,7 @@ _lock()
 	delay=200	# tenths of a second
 	while [ $delay -gt 0 ]
 	do
-	    if pmlock -v "$1/lock" >>$tmp/out 2>&1
+	    if pmlock -i "$$ pmlogger_daily" -v "$1/lock" >>$tmp/out 2>&1
 	    then
 		echo "$1/lock" >$tmp/lock
 		break
@@ -800,6 +800,7 @@ _lock()
 		    then
 			_warning "removing lock file older than 30 minutes"
 			LC_TIME=POSIX ls -l "$1/lock"
+			[ -s "$1"/lock" ] && cat "$1"/lock"
 			rm -f "$1/lock"
 		    else
 			# there is a small timing window here where pmlock
@@ -822,6 +823,7 @@ _lock()
 	    then
 		_warning "is another PCP cron job running concurrently?"
 		LC_TIME=POSIX ls -l "$1/lock"
+		[ -s "$dir/lock" ] && cat "$dir/lock"
 	    else
 		echo "$prog: `cat $tmp/out`"
 	    fi

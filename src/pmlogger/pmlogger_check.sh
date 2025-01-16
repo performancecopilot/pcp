@@ -857,13 +857,14 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	    delay=200	# tenths of a second
 	    while [ $delay -gt 0 ]
 	    do
-		if pmlock -v "$dir/lock" >$tmp/out 2>&1
+		if pmlock -i "$$ pmlogger_check" -v "$dir/lock" >$tmp/out 2>&1
 		then
 		    echo "$dir/lock" >$tmp/lock
 		    if $VERY_VERBOSE
 		    then
 			echo "Acquired lock:"
-			ls -l "$dir"/lock
+			LC_TIME=POSIX ls -l "$dir/lock"
+			[ -s "$dir/lock" ] && cat "$dir/lock"
 		    fi
 		    break
 		else
@@ -874,7 +875,8 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 			if [ -f "$dir/lock" ]
 			then
 			    echo "$prog: Warning: removing lock file older than 30 minutes"
-			    LC_TIME=POSIX ls -l "$dir"/lock
+			    LC_TIME=POSIX ls -l "$dir/lock"
+			    [ -s "$dir/lock" ] && cat "$dir/lock"
 			    rm -f "$dir/lock"
 			else
 			    # there is a small timing window here where pmlock
@@ -916,7 +918,8 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 		if [ -f "$dir/lock" ]
 		then
 		    echo "$prog: Warning: is another PCP cron job running concurrently?"
-		    LC_TIME=POSIX ls -l "$dir"/lock
+		    LC_TIME=POSIX ls -l "$dir/lock"
+		    [ -s "$dir/lock" ] && cat "$dir/lock"
 		else
 		    echo "$prog: `cat $tmp/out`"
 		fi

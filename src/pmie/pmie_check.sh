@@ -255,7 +255,7 @@ _lock()
     delay=200		# tenths of a second
     while [ $delay -ne 0 ]
     do
-	if pmlock -v $logfile.lock >$tmp/out
+	if pmlock -i "$$ pmie_check" -v $logfile.lock >$tmp/out 2>&1
 	then
 	    echo $logfile.lock >$tmp/lock
 	    break
@@ -267,7 +267,8 @@ _lock()
 	    if [ -n "`find $logfile.lock ! -newer $tmp/stamp -print 2>/dev/null`" ]
 	    then
 		_warning "removing lock file older than 30 minutes"
-		ls -l $logfile.lock
+		LC_TIME=POSIX ls -l $logfile.lock
+		[ -s $logfile.lock ] && cat $logfile.lock
 		rm -f $logfile.lock
 	    fi
 	fi
@@ -282,7 +283,8 @@ _lock()
 	if [ -f $logfile.lock ]
 	then
 	    _warning "is another PCP cron job running concurrently?"
-	    ls -l $logfile.lock
+	    LC_TIME=POSIX ls -l $logfile.lock
+	    [ -s $logfile.lock ] && cat $logfile.lock
 	else
 	    echo "$prog: `cat $tmp/out`"
 	fi

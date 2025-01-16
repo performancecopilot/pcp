@@ -173,7 +173,7 @@ _pmda_setup()
 {
     # Auto-Install and/or Auto-Remove PMDAs?
     #
-    if $PCP_BINADM_DIR/pmlock $PCP_PMDAS_DIR/pmda.auto.update
+    if $PCP_BINADM_DIR/pmlock -i "$$ rc_pmcd" $PCP_PMDAS_DIR/pmda.auto.update
     then
 	# we got the lock, proceed
 	$PCP_BINADM_DIR/pmpost "PMDA setup: pid=$$ acquire lock"

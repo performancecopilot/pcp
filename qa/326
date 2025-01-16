@@ -191,7 +191,7 @@ cat $tmp.pmcd.log >>$seq_full
 
 echo
 echo "Trace of observed state changes and PMDA count ..."
-grep -E '(state changes)|( value )' $tmp.pmval \
+grep -E '(PMCD state)|( value )' $tmp.pmval \
 | _filter_pmval_live \
 | uniq
 

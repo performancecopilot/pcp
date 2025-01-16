@@ -251,14 +251,14 @@ sleep 2
 
 echo === check pmie_check and custom configs === | tee -a $here/$seq.full
 echo "--- v1.0 ---" | tee -a $here/$seq.full
-pmie_check -V -V -N -c $tmp.control.v1.0 >$tmp.log
+pmie_check -V -V -N -c $tmp.control.v1.0 >$tmp.log 2>&1
 cat $tmp.log | _filter
 rm -f $tmp.log
 # don't bother counting pmie processes, as -N is used above!
 #
 echo
 echo "--- v1.1 ---" | tee -a $here/$seq.full
-pmie_check -V -V -N -c $tmp.control.v1.1 >$tmp.log
+pmie_check -V -V -N -c $tmp.control.v1.1 >$tmp.log 2>&1
 cat $tmp.log | _filter
 rm -f $tmp.log
 # don't bother counting pmie processes, as -N is used above!
@@ -274,7 +274,7 @@ LOCALHOSTNAME   n n $tmp.locker/ok.$case -c $tmp.conf
 EOF
 mkdir $tmp.locker
 touch -t `pmdate -35M %Y%m%d%H%M` $tmp.locker/ok.$case.lock
-pmie_check -V -V -N -c $tmp.warning.$case >$tmp.warning.$case.log
+pmie_check -V -V -N -c $tmp.warning.$case >$tmp.warning.$case.log 2>&1
 cat $tmp.warning.$case.log | _filter
 rm -f $tmp.warning.$case.log
 echo
@@ -287,7 +287,7 @@ EOF
 rm -f $tmp.locker/ok.$case.lock
 touch $tmp.locker/ok.$case.lock
 $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mie( |$)' >>$seq_full
-pmie_check -V -V -N -c $tmp.warning.$case >$tmp.warning.$case.log
+pmie_check -V -V -N -c $tmp.warning.$case >$tmp.warning.$case.log 2>&1
 $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mie( |$)' >>$seq_full
 cat $tmp.warning.$case.log | _filter
 rm -f $tmp.warning.$case.log
@@ -299,7 +299,7 @@ cat >$tmp.warning.$case << EOF
 LOCALHOSTNAME   n n $tmp.locker/ok.$case -c $tmp.conf
 EOF
 chmod 555 $tmp.locker
-pmie_check -V -V -N -c $tmp.warning.$case >$tmp.warning.$case.log
+pmie_check -V -V -N -c $tmp.warning.$case >$tmp.warning.$case.log 2>&1
 cat $tmp.warning.$case.log | _filter
 rm -f $tmp.warning.$case.log
 $sudo rm -rf $tmp.locker
@@ -313,7 +313,7 @@ cat >$tmp.warning.$case << EOF
 \$IFS=a
 LOCALHOSTNAME   n n $tmp.ok.$case -c $tmp.conf
 EOF
-pmie_check -V -V -N -c $tmp.warning.$case >$tmp.warning.$case.log
+pmie_check -V -V -N -c $tmp.warning.$case >$tmp.warning.$case.log 2>&1
 cat $tmp.warning.$case.log | _filter
 rm -f $tmp.warning.$case.log
 echo
@@ -322,7 +322,7 @@ case=`expr $case + 1`
 cat >$tmp.warning.$case << EOF
 LOCALHOSTNAME   n n $tmp.ok.$case -c $tmp.conf
 EOF
-pmie_check -V -V -N -c $tmp.warning.$case >$tmp.warning.$case.log
+pmie_check -V -V -N -c $tmp.warning.$case >$tmp.warning.$case.log 2>&1
 cat $tmp.warning.$case.log | _filter
 rm -f $tmp.warning.$case.log
 echo
@@ -334,7 +334,7 @@ cat >$tmp.error.$case << EOF
 \$version=0.0
 LOCALHOSTNAME   n $tmp.bad.$case -c $tmp.conf
 EOF
-pmie_check -V -V -N -c $tmp.error.$case >$tmp.bad.$case.log
+pmie_check -V -V -N -c $tmp.error.$case >$tmp.bad.$case.log 2>&1
 cat $tmp.bad.$case.log | _filter
 rm -f $tmp.bad.$case.log
 echo
@@ -344,7 +344,7 @@ cat >$tmp.error.$case << EOF
 \$version=1.0
 LOCALHOSTNAME   x $tmp.bad.$case -c $tmp.conf
 EOF
-pmie_check -V -V -N -c $tmp.error.$case >$tmp.bad.$case.log
+pmie_check -V -V -N -c $tmp.error.$case >$tmp.bad.$case.log 2>&1
 cat $tmp.bad.$case.log | _filter
 rm -f $tmp.bad.$case.log
 echo
@@ -354,7 +354,7 @@ cat >$tmp.error.$case << EOF
 \$version=1.1
 LOCALHOSTNAME   n x $tmp.bad.$case -c $tmp.conf
 EOF
-pmie_check -V -V -N -c $tmp.error.$case >$tmp.bad.$case.log
+pmie_check -V -V -N -c $tmp.error.$case >$tmp.bad.$case.log 2>&1
 cat $tmp.bad.$case.log | _filter
 rm -f $tmp.bad.$case.log
 echo
@@ -364,7 +364,7 @@ cat >$tmp.error.$case << EOF
 \$version=1.1
 LOCALHOSTNAME   x n $tmp.bad.$case -c $tmp.conf
 EOF
-pmie_check -V -V -N -c $tmp.error.$case >$tmp.bad.$case.log
+pmie_check -V -V -N -c $tmp.error.$case >$tmp.bad.$case.log 2>&1
 cat $tmp.bad.$case.log | _filter
 rm -f $tmp.bad.$case.log
 echo
@@ -374,7 +374,7 @@ cat >$tmp.error.$case << EOF
 \$version=1.0
 LOCALHOSTNAME   n $tmp.bad.$case
 EOF
-pmie_check -V -V -N -c $tmp.error.$case >$tmp.bad.$case.log
+pmie_check -V -V -N -c $tmp.error.$case >$tmp.bad.$case.log 2>&1
 cat $tmp.bad.$case.log | _filter
 rm -f $tmp.bad.$case.log
 echo
@@ -384,7 +384,7 @@ cat >$tmp.error.$case << EOF
 \$version=1.1
 LOCALHOSTNAME   n n $tmp.bad.$case
 EOF
-pmie_check -V -V -N -c $tmp.error.$case >$tmp.bad.$case.log
+pmie_check -V -V -N -c $tmp.error.$case >$tmp.bad.$case.log 2>&1
 cat $tmp.bad.$case.log | _filter
 rm -f $tmp.bad.$case.log
 echo
@@ -396,7 +396,7 @@ cat >$tmp.error.$case << EOF
 \$version=1.1
 LOCALHOSTNAME   n n $tmp.nogo/subdir/bad.$case -c $tmp.conf
 EOF
-pmie_check -V -V -N -c $tmp.error.$case >$tmp.bad.$case.log
+pmie_check -V -V -N -c $tmp.error.$case >$tmp.bad.$case.log 2>&1
 cat $tmp.bad.$case.log | _filter
 rm -f $tmp.bad.$case.log
 echo
@@ -406,7 +406,7 @@ cat >$tmp.error.$case << EOF
 \$version=1.1
 LOCALHOSTNAME   n n $tmp.nogo/bad.$case -c $tmp.conf
 EOF
-pmie_check -V -V -N -c $tmp.error.$case >$tmp.bad.$case.log
+pmie_check -V -V -N -c $tmp.error.$case >$tmp.bad.$case.log 2>&1
 cat $tmp.bad.$case.log | _filter
 rm -f $tmp.bad.$case.log
 echo
