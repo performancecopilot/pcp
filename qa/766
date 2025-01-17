@@ -93,7 +93,7 @@ echo "addr=$addr" >>$seq_full
 echo "-m probe=$addr/32" >> $seq_full
 echo "-m probe=INET_ADDR/32"
 pmfind -m probe=$addr/32 | _unresolved_filter
-echo "Exit status: $?" | tee -a $seq.full
+echo "Exit status: $?" | tee -a $seq_full
 
 # for this one, we should not be surprised to find peer VMs
 # in the QA Farm ... there is no DNS to support the reverse
@@ -104,32 +104,32 @@ echo "subnet=$subnet" >>$seq_full
 echo "-s pmcd -m probe=$addr/31" -r >> $seq_full
 echo "-s pmcd -m probe=INET_ADDR/31 -r"
 pmfind -s pmcd -m probe=$addr/31 -r \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | _resolved_filter \
 | grep -v "pcp://$subnet"
-echo "Exit status: $?" | tee -a $seq.full
+echo "Exit status: $?" | tee -a $seq_full
 
 echo "-q -m probe=$addr/30" >> $seq_full
 echo "-q -m probe=INET_ADDR/30"
 pmfind -q -m probe=$addr/30 | _unresolved_filter
-echo "Exit status: $?" | tee -a $seq.full
+echo "Exit status: $?" | tee -a $seq_full
 
 echo "-q -s pmcd -m probe=$addr/29 --resolve" >> $seq_full
 echo "-q -s pmcd -m probe=INET_ADDR/29 --resolve"
 pmfind -q -s pmcd -m probe=$addr/29 --resolve | _resolved_filter
-echo "Exit status: $?" | tee -a $seq.full
+echo "Exit status: $?" | tee -a $seq_full
 
 echo "-q -s pmcd -m probe=$addr/28,maxThreads=8" >> $seq_full
 echo "-q -s pmcd -m probe=INET_ADDR/28,maxThreads=8"
 pmfind -q -s pmcd -m probe=$addr/28,maxThreads=8 | _unresolved_filter
-echo "Exit status: $?" | tee -a $seq.full
+echo "Exit status: $?" | tee -a $seq_full
 
 # Try to cause errors; check pmprintf path doesn't blow stack
 # pmfind just needs to survive to its result message
 echo "ulimit -n 10" >> $seq_full
 echo "ulimit -n 10"
-bash -c "ulimit -n 10; pmfind -s pmcd -m probe=127.0.0.1/24,maxThreads=64" 2>&1 | tee -a $seq.full | _error_tolerance_filter
-echo "Exit status: $?" | tee -a $seq.full
+bash -c "ulimit -n 10; pmfind -s pmcd -m probe=127.0.0.1/24,maxThreads=64" 2>&1 | tee -a $seq_full | _error_tolerance_filter
+echo "Exit status: $?" | tee -a $seq_full
 
 # success, all done
 status=0

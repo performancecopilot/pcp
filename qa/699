@@ -49,7 +49,7 @@ echo 'metric sample.seconds { type -> 64 }' >$tmp.config
 
 # real QA test starts here
 
-echo "=== output archive exists, case ===" | tee -a $here/$seq.full
+echo "=== output archive exists, case ===" | tee -a $seq_full
 
 echo "--- check archives before ---"
 pmlogcheck $tmp.in
@@ -59,7 +59,7 @@ pminfo -d sample.seconds -a $tmp.out
 
 echo "--- pmlogrewrite, expect failure ---"
 pmlogrewrite -Dlog -c $tmp.config $tmp.in $tmp.out 2>$tmp.err
-cat $tmp.err | tee -a $here/$seq.full | _filter
+cat $tmp.err | tee -a $seq_full | _filter
 
 echo "--- check archives after ---"
 pmlogcheck $tmp.in
@@ -70,13 +70,13 @@ pminfo -d sample.seconds -a $tmp.out
 
 for suff in meta index 0 1 2
 do
-    echo | tee -a $here/$seq.full
-    echo "=== removed output archive .$suff file ===" | tee -a $here/$seq.full
+    echo | tee -a $seq_full
+    echo "=== removed output archive .$suff file ===" | tee -a $seq_full
     rm -f $tmp.out.$suff
 
     echo "--- pmlogrewrite, expect failure ---"
     pmlogrewrite -Dlog -c $tmp.config $tmp.in $tmp.out 2>$tmp.err
-    cat $tmp.err | tee -a $here/$seq.full | _filter
+    cat $tmp.err | tee -a $seq_full | _filter
 
     echo "--- check archives after ---"
     pminfo -d sample.seconds -a $tmp.in

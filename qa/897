@@ -40,8 +40,8 @@ for acl in enquire advisory mandatory \
     'enquire,advisory' 'enquire,mandatory' 'advisory,mandatory' \
     'enquire,advisory,mandatory'
 do
-    echo | tee -a $seq.full
-    echo "=== allow * : $acl ===" | tee -a $seq.full
+    echo | tee -a $seq_full
+    echo "=== allow * : $acl ===" | tee -a $seq_full
     cat <<End-of-File >$tmp.config
 log mandatory on once { sample.bin }
 
@@ -56,7 +56,7 @@ End-of-File
     _start_up_pmlogger -L -c $tmp.config -l $tmp.log $tmp
     _wait_for_pmlogger $pid $tmp.log || _exit 1
     pmsleep 0.1
-    cat <<End-of-File | pmlc -e 2>&1 | tee -a $seq.full | _filter
+    cat <<End-of-File | pmlc -e 2>&1 | tee -a $seq_full | _filter
 show loggers
 connect $pid
 status
@@ -67,7 +67,7 @@ new volume
 log advisory on 5sec sample.long.one
 log mandatory off sample.colour
 End-of-File
-    cat <<End-of-File | pmlc -e 2>&1 | tee -a $seq.full | _filter
+    cat <<End-of-File | pmlc -e 2>&1 | tee -a $seq_full | _filter
 connect $pid
 # check
 query { sample.colour sample.long.one }

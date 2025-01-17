@@ -43,7 +43,7 @@ _filter_auth()
     # are considered equivalent to
     # Error: Authentication - authentication failure
     #
-    tee -a $seq.full | \
+    tee -a $seq_full | \
     sed \
 	-e '/pminfo.* GSSAPI Error:/d' \
 	-e '/pminfo.* No worthy mechs found/d' \

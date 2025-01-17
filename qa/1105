@@ -21,7 +21,7 @@ _cleanup()
 
 _filter_err()
 {
-    tee -a $seq.full \
+    tee -a $seq_full \
     | sed \
 	-e '/^pmRegisterDerived: /d' \
 	-e '/^Derived metric initialization from /d' \
@@ -45,26 +45,26 @@ End-of-File
 
 for verify in "" -d
 do
-    echo | tee -a $seq.full
-    echo "full PMNS traversal $verify ..." | tee -a $seq.full
+    echo | tee -a $seq_full
+    echo "full PMNS traversal $verify ..." | tee -a $seq_full
     PCP_DERIVED_CONFIG=$tmp.derive pminfo -Dderive $verify 2>$tmp.err \
     | grep -E 'qa\.(hide|ok)'
     _filter_err <$tmp.err
 
-    echo | tee -a $seq.full
-    echo "traverse PMNS below qa $verify ..." | tee -a $seq.full
+    echo | tee -a $seq_full
+    echo "traverse PMNS below qa $verify ..." | tee -a $seq_full
     PCP_DERIVED_CONFIG=$tmp.derive pminfo -Dderive $verify qa 2>$tmp.err \
     | grep -E 'qa\.(hide|ok)'
     _filter_err <$tmp.err
 
-    echo | tee -a $seq.full
-    echo "exact matches in PMNS $verify ..." | tee -a $seq.full
+    echo | tee -a $seq_full
+    echo "exact matches in PMNS $verify ..." | tee -a $seq_full
     PCP_DERIVED_CONFIG=$tmp.derive pminfo -Dderive $verify 2>$tmp.err \
 	qa.hide.ok qa.hide.syntax qa.hide.semantic qa.ok
     _filter_err <$tmp.err
 
-    echo | tee -a $seq.full
-    echo "mismatches in PMNS $verify ..." | tee -a $seq.full
+    echo | tee -a $seq_full
+    echo "mismatches in PMNS $verify ..." | tee -a $seq_full
     PCP_DERIVED_CONFIG=$tmp.derive pminfo $verify 2>$tmp.err \
 	not_qa qa.not_hide qa.hide.not_ok \
     | grep 'not_'

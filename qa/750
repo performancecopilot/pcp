@@ -29,23 +29,23 @@ report_package()
 {
     inst="$1-$2"
 
-    pmval -s 1 rpm.arch -i $inst	2>&1 | filter_pmval | tee -a $seq.full
-    pmval -s 1 rpm.buildhost -i $inst	2>&1 | filter_pmval | tee -a $seq.full
-    pmval -s 1 rpm.buildtime -i $inst	2>&1 | filter_pmval | tee -a $seq.full
-    pmval -s 1 rpm.description -i $inst	2>&1 | filter_pmval | tee -a $seq.full
-    pmval -s 1 rpm.epoch -i $inst	2>&1 | filter_pmval | tee -a $seq.full
-    pmval -s 1 rpm.group -i $inst	2>&1 | filter_pmval | tee -a $seq.full
-    pmval -s 1 rpm.installtime -i $inst	2>&1 | filter_pmval | tee -a $seq.full
-    pmval -s 1 rpm.license -i $inst	2>&1 | filter_pmval | tee -a $seq.full
-    pmval -s 1 rpm.packager -i $inst	2>&1 | filter_pmval | tee -a $seq.full
-    pmval -s 1 rpm.release -i $inst	2>&1 | filter_pmval | tee -a $seq.full
-    pmval -s 1 rpm.size -i $inst	2>&1 | filter_pmval | tee -a $seq.full
-    pmval -s 1 rpm.sourcerpm -i $inst	2>&1 | filter_pmval | tee -a $seq.full
-    pmval -s 1 rpm.summary -i $inst	2>&1 | filter_pmval | tee -a $seq.full
-    pmval -s 1 rpm.url -i $inst		2>&1 | filter_pmval | tee -a $seq.full
-    pmval -s 1 rpm.vendor -i $inst	2>&1 | filter_pmval | tee -a $seq.full
-    pmval -s 1 rpm.version -i $inst	2>&1 | filter_pmval | tee -a $seq.full
-    pmval -s 1 rpm.name -i $inst	2>&1 | filter_pmval | tee -a $seq.full
+    pmval -s 1 rpm.arch -i $inst	2>&1 | filter_pmval | tee -a $seq_full
+    pmval -s 1 rpm.buildhost -i $inst	2>&1 | filter_pmval | tee -a $seq_full
+    pmval -s 1 rpm.buildtime -i $inst	2>&1 | filter_pmval | tee -a $seq_full
+    pmval -s 1 rpm.description -i $inst	2>&1 | filter_pmval | tee -a $seq_full
+    pmval -s 1 rpm.epoch -i $inst	2>&1 | filter_pmval | tee -a $seq_full
+    pmval -s 1 rpm.group -i $inst	2>&1 | filter_pmval | tee -a $seq_full
+    pmval -s 1 rpm.installtime -i $inst	2>&1 | filter_pmval | tee -a $seq_full
+    pmval -s 1 rpm.license -i $inst	2>&1 | filter_pmval | tee -a $seq_full
+    pmval -s 1 rpm.packager -i $inst	2>&1 | filter_pmval | tee -a $seq_full
+    pmval -s 1 rpm.release -i $inst	2>&1 | filter_pmval | tee -a $seq_full
+    pmval -s 1 rpm.size -i $inst	2>&1 | filter_pmval | tee -a $seq_full
+    pmval -s 1 rpm.sourcerpm -i $inst	2>&1 | filter_pmval | tee -a $seq_full
+    pmval -s 1 rpm.summary -i $inst	2>&1 | filter_pmval | tee -a $seq_full
+    pmval -s 1 rpm.url -i $inst		2>&1 | filter_pmval | tee -a $seq_full
+    pmval -s 1 rpm.vendor -i $inst	2>&1 | filter_pmval | tee -a $seq_full
+    pmval -s 1 rpm.version -i $inst	2>&1 | filter_pmval | tee -a $seq_full
+    pmval -s 1 rpm.name -i $inst	2>&1 | filter_pmval | tee -a $seq_full
 }
 
 package_totals_before()
@@ -120,7 +120,7 @@ _rpm_package_prepare
 rm -f $tmp.ok
 for i in 1 2 3 4 5 6 7 8 9 10
 do
-    if [ `pmprobe -v rpm.total.bytes | tee -a $seq.full | $PCP_AWK_PROG '{print $2}'` -ge 0 ]
+    if [ `pmprobe -v rpm.total.bytes | tee -a $seq_full | $PCP_AWK_PROG '{print $2}'` -ge 0 ]
     then
 	touch $tmp.ok
 	break

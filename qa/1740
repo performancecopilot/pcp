@@ -70,7 +70,7 @@ fi
 _filter()
 {
     # capture all in .full but just output first inst and value
-    tee -a $here/$seq.full | \
+    tee -a $seq_full | \
     sed \
 	-e 's/inst \[[0-9][0-9]*/inst [N/g' \
 	-e 's/or \".*\"]/or INSTNAME]/g' \

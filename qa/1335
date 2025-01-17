@@ -49,7 +49,7 @@ _filter()
     rm -f $tmp.sed
     touch $tmp.sed
     tstamp=1
-    tee -a $seq.full \
+    tee -a $seq_full \
     | sed >$tmp.tmp \
 	-e "s@$tmp@TMP@g" \
 	-e '/commencing/s/ing .*/ing DATE/' \

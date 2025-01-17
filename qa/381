@@ -106,7 +106,7 @@ _cleanup()
 	    $sudo $signal -s TERM $pid
 	    sleep 1
 	    pid=''
-	    cat $tmp.log >>$here/$seq.full
+	    cat $tmp.log >>$seq_full
 	fi
 	echo
 	if [ -f $tmp.log ]

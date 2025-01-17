@@ -20,7 +20,7 @@ _check_valgrind
 #
 _filter()
 {
-    tee -a $seq.full \
+    tee -a $seq_full \
     | $PCP_AWK_PROG '
 BEGIN			{ skip = 1 }
 /=== std err ===/	{ skip = 0 }
@@ -33,26 +33,26 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 # real QA test starts here
 for arch in tmparch/foo tmparch/mv-foo tmparch/noti-foo
 do
-    echo | tee -a $seq.full
-    echo "=== archive $arch ===" | tee -a $seq.full
-    echo | tee -a $seq.full
-    echo "metric: sample.seconds" | tee -a $seq.full
+    echo | tee -a $seq_full
+    echo "=== archive $arch ===" | tee -a $seq_full
+    echo | tee -a $seq_full
+    echo "metric: sample.seconds" | tee -a $seq_full
     _run_valgrind src/interp1 -s 6 -a $arch sample.seconds | _filter
 
-    echo | tee -a $seq.full
-    echo "metric: sample.bin" | tee -a $seq.full
+    echo | tee -a $seq_full
+    echo "metric: sample.bin" | tee -a $seq_full
     _run_valgrind src/interp1 -s 6 -a $arch sample.bin | _filter
 
-    echo | tee -a $seq.full
-    echo "metric: sample.colour" | tee -a $seq.full
+    echo | tee -a $seq_full
+    echo "metric: sample.colour" | tee -a $seq_full
     _run_valgrind src/interp1 -s 6 -a $arch sample.colour | _filter
 
-    echo | tee -a $seq.full
-    echo "metric: sample.drift" | tee -a $seq.full
+    echo | tee -a $seq_full
+    echo "metric: sample.drift" | tee -a $seq_full
     _run_valgrind src/interp1 -s 6 -a $arch sample.drift | _filter
 
-    echo | tee -a $seq.full
-    echo "metric: sample.lights" | tee -a $seq.full
+    echo | tee -a $seq_full
+    echo "metric: sample.lights" | tee -a $seq_full
     _run_valgrind src/interp1 -s 6 -a $arch sample.lights | _filter
 done
 

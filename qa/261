@@ -32,7 +32,7 @@ pmdumplog -z -dilmst archives/mirage 2>&1 >>$seq_full
 pmlogextract -S 5min -T 5min archives/mirage $tmp
 
 echo "--- copyied archive ---" >>$seq_full
-pmdumplog -z -dilmst $tmp | tee -a $seq.full | _filter
+pmdumplog -z -dilmst $tmp | tee -a $seq_full | _filter
 
 # Note on the bizarre 4.0001m termination intervals below ...
 # Using _exactly_ 4m introduces a floating point arithmetic instability

@@ -29,7 +29,7 @@ _cleanup()
     #
     if [ ! -f $PCP_RUN_DIR/pmcd.pid ]
     then
-	$sudo _service pmcd restart >>$seq.full
+	$sudo _service pmcd restart >>$seq_full
 	_wait_for_pmcd
     fi
     # and primary pmlogger is back in the land of the living

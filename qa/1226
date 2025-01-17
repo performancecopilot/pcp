@@ -55,7 +55,7 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _filter()
 {
-    tee -a $seq.full \
+    tee -a $seq_full \
     | sed \
 	-e '/^# created by pmiectl/s/ on .*/ on DATE/' \
 	-e "s;$tmp\.;TMP.;g" \
@@ -84,7 +84,7 @@ END	{ print "{ print }" }'
 #
 _filter_status()
 {
-    tee -a $seq.full \
+    tee -a $seq_full \
     | $PCP_AWK_PROG -f $tmp.awk \
     | sed \
 	-e "/^`hostname` .* primary /d" \
@@ -112,61 +112,61 @@ echo "== usage"
 pmiectl --help 2>&1 | _filter
 
 echo
-echo '== -N -V create' | tee -a $seq.full
+echo '== -N -V create' | tee -a $seq_full
 pmiectl -N -V create localhost 2>&1 | _filter
 
-echo | tee -a $seq.full
-echo '== create' | tee -a $seq.full
+echo | tee -a $seq_full
+echo '== create' | tee -a $seq_full
 $sudo pmiectl create localhost 2>&1 | _filter
-echo '== status' | tee -a $seq.full
+echo '== status' | tee -a $seq_full
 pmiectl status 2>&1 | _filter_status
-echo '== status localhost' | tee -a $seq.full
+echo '== status localhost' | tee -a $seq_full
 pmiectl status localhost 2>&1 | _filter_status
 
-echo | tee -a $seq.full
-echo '== stop' | tee -a $seq.full
+echo | tee -a $seq_full
+echo '== stop' | tee -a $seq_full
 $sudo pmiectl -V -V stop localhost 2>>$seq_full | _filter
 pmsleep 1sec
-echo '== status' | tee -a $seq.full
+echo '== status' | tee -a $seq_full
 pmiectl status 2>&1 | _filter_status
-echo '== status localhost' | tee -a $seq.full
+echo '== status localhost' | tee -a $seq_full
 pmiectl status localhost 2>&1 | _filter_status
 
-echo | tee -a $seq.full
-echo '== start' | tee -a $seq.full
+echo | tee -a $seq_full
+echo '== start' | tee -a $seq_full
 $sudo pmiectl start localhost 2>&1 | _filter
-echo '== status' | tee -a $seq.full
+echo '== status' | tee -a $seq_full
 pmiectl status 2>&1 | _filter_status
-echo '== status localhost' | tee -a $seq.full
+echo '== status localhost' | tee -a $seq_full
 pmiectl status localhost 2>&1 | _filter_status
 
-echo | tee -a $seq.full
-echo '== restart' | tee -a $seq.full
+echo | tee -a $seq_full
+echo '== restart' | tee -a $seq_full
 $sudo pmiectl restart localhost 2>&1 | _filter
-echo '== status' | tee -a $seq.full
+echo '== status' | tee -a $seq_full
 pmiectl status 2>&1 | _filter_status
-echo '== status localhost' | tee -a $seq.full
+echo '== status localhost' | tee -a $seq_full
 pmiectl status localhost 2>&1 | _filter_status
 
-echo | tee -a $seq.full
-echo '== destroy' | tee -a $seq.full
+echo | tee -a $seq_full
+echo '== destroy' | tee -a $seq_full
 $sudo pmiectl -V -V destroy localhost 2>>$seq_full | _filter
-echo '== status' | tee -a $seq.full
+echo '== status' | tee -a $seq_full
 pmiectl status 2>&1 | _filter_status
-echo '== status localhost' | tee -a $seq.full
+echo '== status localhost' | tee -a $seq_full
 pmiectl status localhost 2>&1 | _filter_status
 
-echo | tee -a $seq.full
-echo '== cond-create' | tee -a $seq.full
+echo | tee -a $seq_full
+echo '== cond-create' | tee -a $seq_full
 $sudo pmiectl cond-create localhost 2>&1 | _filter
-echo '== status' | tee -a $seq.full
+echo '== status' | tee -a $seq_full
 pmiectl status 2>&1 | _filter_status
 $sudo pmiectl -c pmfind destroy localhost 2>&1 | _filter
 
-echo | tee -a $seq.full
-echo "== cond-create -i $seq-foo" | tee -a $seq.full
+echo | tee -a $seq_full
+echo "== cond-create -i $seq-foo" | tee -a $seq_full
 $sudo pmiectl -i $seq-foo cond-create localhost 2>&1 | _filter
-echo '== status' | tee -a $seq.full
+echo '== status' | tee -a $seq_full
 pmiectl -V status 2>&1 | _filter_status
 
 # success, all done

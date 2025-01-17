@@ -24,7 +24,7 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _filter_label()
 {
-    tee -a $seq.full | \
+    tee -a $seq_full | \
     sed \
 	-e '/^Performance metrics/d' \
 	-e '/commencing/d' \

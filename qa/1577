@@ -53,31 +53,31 @@ dd if=/dev/zero of=${out_file} bs=${write_size} count=1 conv=fsync 2>/dev/null
 dd if=${out_file} of=/dev/null bs=${write_size} count=1 2>/dev/null
 
 echo "=== report metric values for bytes ==="
-pminfo -dfmtT bpf.fsslower.bytes 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bpf.fsslower.bytes 2>&1 | tee -a $seq_full \
 | _value_filter_nonzero
 
 echo "=== report metric values for comm ==="
-pminfo -dfmtT bpf.fsslower.comm 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bpf.fsslower.comm 2>&1 | tee -a $seq_full \
 | _value_filter_any
 
 echo "=== report metric values for filename ==="
-pminfo -dfmtT bpf.fsslower.filename 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bpf.fsslower.filename 2>&1 | tee -a $seq_full \
 | _value_filter_any
 
 echo "=== report metric values for file_op ==="
-pminfo -dfmtT bpf.fsslower.file_op 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bpf.fsslower.file_op 2>&1 | tee -a $seq_full \
 | _value_filter_any
 
 echo "=== report metric values for lat ==="
-pminfo -dfmtT bpf.fsslower.lat 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bpf.fsslower.lat 2>&1 | tee -a $seq_full \
 | _value_filter_nonzero
 
 echo "=== report metric values for pid ==="
-pminfo -dfmtT bpf.fsslower.pid 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bpf.fsslower.pid 2>&1 | tee -a $seq_full \
 | _value_filter_nonzero
 
 echo "=== report metric values for offset ==="
-pminfo -dfmtT bpf.fsslower.offset 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bpf.fsslower.offset 2>&1 | tee -a $seq_full \
 | _value_filter_any
 
 

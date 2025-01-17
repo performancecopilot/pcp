@@ -71,14 +71,14 @@ do
 
     echo "=== scanmeta for input ===" >>$seq_full
     src/scanmeta -a tmparch/sampledso-no-delta_v$version.meta 2>&1 \
-    | tee -a $seq.full \
+    | tee -a $seq_full \
     | sed -e 's/^\[[0-9][0-9]*/[NN/' \
     | LC_COLLATE=POSIX sort >$tmp.input
 
     echo >>$seq_full
     echo "=== scanmeta for output ===" >>$seq_full
     src/scanmeta -a $tmp.meta 2>&1 \
-    | tee -a $seq.full \
+    | tee -a $seq_full \
     | sed -e 's/^\[[0-9][0-9]*/[NN/' \
     | LC_COLLATE=POSIX sort >$tmp.output
 
@@ -87,13 +87,13 @@ do
 
     echo "=== dumplog for input ===" >>$seq_full
     pmdumplog -aI tmparch/sampledso-no-delta_v$version 2>&1 \
-    | tee -a $seq.full \
+    | tee -a $seq_full \
     | sed -e '/^PID for pmlogger:/s/[0-9][0-9]*/<PID>/' >$tmp.input
 
     echo >>$seq_full
     echo "=== dumplog for output ===" >>$seq_full
     pmdumplog -aI $tmp 2>&1 \
-    | tee -a $seq.full \
+    | tee -a $seq_full \
     | sed -e '/^PID for pmlogger:/s/[0-9][0-9]*/<PID>/' >$tmp.output
 
     echo "=== pmdumplog diffs ==="

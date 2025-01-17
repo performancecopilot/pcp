@@ -137,8 +137,8 @@ do
 		;;
 	esac
     fi
-    echo | tee -a $seq.full
-    echo "=== $key ===" | tee -a $seq.full
+    echo | tee -a $seq_full
+    echo "=== $key ===" | tee -a $seq_full
     lc_key=`echo "$key" | tr '[A-Z]' '[a-z']`
     lc_altname=`echo "$altname" | tr '[A-Z]' '[a-z']`
     _run_man_k "$key" >$tmp.out
@@ -201,7 +201,7 @@ do
 	cat $tmp.err >>$seq_full
 	echo "No matching man entry in any section!"
     fi
-    echo "--- ($sect) ---" | tee -a $seq.full
+    echo "--- ($sect) ---" | tee -a $seq_full
     TERM=dumb LANG=POSIX LC_MESSAGES=POSIX man $sect $key 2>&1 \
     | sed -e 's/_//g' -e 's/.//g' -e 's/[ 	][ 	]*/ /g' >$tmp.out
     if grep -E "$pat" $tmp.out >/dev/null

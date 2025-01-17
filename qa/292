@@ -132,7 +132,7 @@ echo "merge 'em together ..."
 ls -l >>$seq_full
 $sudo $PCP_BINADM_DIR/pmlogextract *.meta* out
 pmval -U out pmcd.control.debug \
-| tee -a $here/$seq.full \
+| tee -a $seq_full \
 | _filter
 
 exit

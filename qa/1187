@@ -103,14 +103,14 @@ pcp -z --archive /nosuchfile dstat --version
 echo "=== done" && echo
 
 dstat "CSV stdout" --io --tcp --aio -o $tmp.csv | filter_info
-echo "CSV contents" | tee -a $here/$seq.full
-cat $tmp.csv | tee -a $here/$seq.full | filter_info
-echo "CSV complete" | tee -a $here/$seq.full
+echo "CSV contents" | tee -a $seq_full
+cat $tmp.csv | tee -a $seq_full | filter_info
+echo "CSV complete" | tee -a $seq_full
 
 dstat "CSV instances" --cpu -C 1,2,total --cpu-use -o $tmp.csv2 | filter_info
-echo "CSV instances contents" | tee -a $here/$seq.full
-cat $tmp.csv2 | tee -a $here/$seq.full | filter_info
-echo "CSV instances complete" | tee -a $here/$seq.full
+echo "CSV instances contents" | tee -a $seq_full
+cat $tmp.csv2 | tee -a $seq_full | filter_info
+echo "CSV instances complete" | tee -a $seq_full
 
 # verify no terminal size effects on CSV output
 dstat "CSV terminal default" -tfvnrl -o $tmp.csvterm0 | filter_info
@@ -120,11 +120,11 @@ test -x /usr/bin/tput && export SAVED_TPUT_COLUMNS=`/usr/bin/tput cols`
 test -x /usr/bin/stty && /usr/bin/stty cols 40 >/dev/null 2>&1
 export COLUMNS=40 LINES=40
 dstat "CSV terminal reduced" -tfvnrl -o $tmp.csvterm1 | filter_info
-echo "CSV terminal contents" | tee -a $here/$seq.full
-cat $tmp.csvterm1 | tee -a $here/$seq.full | filter_info
-echo "CSV terminal compared" | tee -a $here/$seq.full
-diff $tmp.csvterm0 $tmp.csvterm1 | tee -a $here/$seq.full | filter_info
-echo "CSV terminal complete" | tee -a $here/$seq.full
+echo "CSV terminal contents" | tee -a $seq_full
+cat $tmp.csvterm1 | tee -a $seq_full | filter_info
+echo "CSV terminal compared" | tee -a $seq_full
+diff $tmp.csvterm0 $tmp.csvterm1 | tee -a $seq_full | filter_info
+echo "CSV terminal complete" | tee -a $seq_full
 export COLUMNS=$SAVED_COLUMNS LINES=$SAVED_LINES
 test -x /usr/bin/stty && /usr/bin/stty cols $SAVED_TPUT_COLUMNS >/dev/null 2>&1
 unset SAVED_TPUT_COLUMNS SAVED_COLUMNS SAVED_LINES
@@ -134,8 +134,8 @@ echo "CSV timestamp"
 $DSTAT -T -o $tmp.csv3 1 2 > /dev/null
 echo "=== done" && echo
 echo "CSV timestamp checking" >> $seq_full
-cat $tmp.csv3 | tee -a $here/$seq.full | grep 37m
-echo "CSV timestamp complete" | tee -a $here/$seq.full
+cat $tmp.csv3 | tee -a $seq_full | grep 37m
+echo "CSV timestamp complete" | tee -a $seq_full
 
 # success, -D all done
 status=0

@@ -80,8 +80,8 @@ skip > 0				{ next }
 _save_state
 _remove_pmda weblog > /dev/null
 
-echo "=== install weblog PMDA ===" | tee -a $seq.full
-_install_pmda weblog | tee -a $seq.full | _filter | $PCP_AWK_PROG '
+echo "=== install weblog PMDA ===" | tee -a $seq_full
+_install_pmda weblog | tee -a $seq_full | _filter | $PCP_AWK_PROG '
 /Installing pmchart view/	{ skip = 0; next }
 /Terminate PMDA if already installed/	{ skip = 0 }
 skip == 1	{ next }
@@ -93,7 +93,7 @@ skip == 1	{ next }
                 
 echo "=== check metrics (expect no output) ===" 
 
-pminfo -v web | tee -a $seq.full | _pminfo_filter
+pminfo -v web | tee -a $seq_full | _pminfo_filter
 
 pminfo -v web > /dev/null                       || _fail "install failed?"
 [ `_pmcount web` -ge 69 ]                       || _fail "Too few metrics?"

@@ -37,8 +37,8 @@ nss_setup_randomness
 nss_setup_collector true $qahost $hostname 1
 
 nss_setup_empty_userdb
-echo "Checking local connection if server certificate exists. Should Pass." | tee -a $seq.full
-pminfo -h local: -f hinv.ncpu 2>&1 | tee -a $seq.full | nss_filter_pminfo
+echo "Checking local connection if server certificate exists. Should Pass." | tee -a $seq_full
+pminfo -h local: -f hinv.ncpu 2>&1 | tee -a $seq_full | nss_filter_pminfo
 
 # success, all done
 status=0

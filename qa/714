@@ -39,9 +39,9 @@ nss_setup_empty_userdb
 nss_import_cert_userdb
 nss_setup_collector true no.such.host.pcp.io no
 
-echo "checking client, bad server certificate.  should fail DNS check..." | tee -a $seq.full
+echo "checking client, bad server certificate.  should fail DNS check..." | tee -a $seq_full
 export PCP_SECURE_SOCKETS=1
-yes | pminfo -h $hostname -f hinv.ncpu 2>&1 | tee -a $seq.full | nss_filter_pminfo
+yes | pminfo -h $hostname -f hinv.ncpu 2>&1 | tee -a $seq_full | nss_filter_pminfo
 unset PCP_SECURE_SOCKETS
 
 # success, all done

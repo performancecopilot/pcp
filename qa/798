@@ -44,7 +44,7 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _filter()
 {
-    tee -a $here/$seq.full \
+    tee -a $seq_full \
     | $here/src/sortinst -v \
     | sed \
 	-e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;" \
@@ -61,7 +61,7 @@ _filter()
 
 _filter_pmda_log()
 {
-    tee -a $here/$seq.full \
+    tee -a $seq_full \
     | sed \
 	-e 's/^\(Log for pmda[^ ]* on\) .*/\1 HOST .../' \
 	-e 's/^\(Log finished\) .*/\1 .../' \

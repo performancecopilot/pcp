@@ -42,7 +42,7 @@ export seq
 skip == 1 && $1 == "==="       { skip = 0 }
 /^=== std err ===/             { skip = 1 }
 skip == 0              { print }
-skip == 1              { print >"'$here/$seq.full'" }'
+skip == 1              { print >"'$seq_full'" }'
 
 # success, all done
 exit

@@ -83,7 +83,7 @@ echo "unique non-preamble/non-postscript record sizes from pmdumplog ..."
 #
 pmdumplog -s $tmp \
 | _filter_pmdumplog \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | grep 'bytes]' \
 | sed -e 1d \
 | sed -e '$d' \

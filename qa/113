@@ -38,7 +38,7 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 #
 echo "-- mount --" >>$seq_full
 filesystems=`mount \
-	     | tee -a $seq.full \
+	     | tee -a $seq_full \
 	     | sed -e 's/[(,)]//g' \
              | $PCP_AWK_PROG '
 $4 == "type" && ($5 == "efs" || $5 == "xfs" || $5 == "ext2" || $5 == "ext3" || $5 == "ext4" || $5 == "btrfs" || $5 == "ffs" || $5 == "vfat") { print $1 }
@@ -53,7 +53,7 @@ then
 fi
 
 echo "-- df / --" >>$seq_full
-rootdev=`df / | tee -a $seq.full | $PCP_AWK_PROG 'NR == 2 { print $1 }'`
+rootdev=`df / | tee -a $seq_full | $PCP_AWK_PROG 'NR == 2 { print $1 }'`
 echo "rootdev=$rootdev" >>$seq_full
 if [ -z "$rootdev" ]
 then
@@ -296,9 +296,9 @@ LC_COLLATE=POSIX join -a2 -1 1 $tmp.1 $tmp.2 \
     a=$2; b=$3; d=a-b
     if (d < 0) d = -d
     if (a < 1)
-	print $1 " pcp=" a " df=" b " delta=" d  >>"'$seq.full'"
+	print $1 " pcp=" a " df=" b " delta=" d  >>"'$seq_full'"
     else
-	printf "%s pcp=%d df=%d delta=%d (%.2f%%)\n",$1,a,b,d,d*100/a >>"'$seq.full'"
+	printf "%s pcp=%d df=%d delta=%d (%.2f%%)\n",$1,a,b,d,d*100/a >>"'$seq_full'"
     # skip small values ... the 1% threshold is meaningless ...
     if (a < 100 || b < 100) next
     if (d > 5 && d > a/100) {

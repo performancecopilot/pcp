@@ -17,7 +17,7 @@ echo "QA output created by $seq"
 
 _filter()
 {
-    tee -a $seq.full \
+    tee -a $seq_full \
     | _filter_pmcd_log \
     | sed \
 	-e '/^ *$/d' \
@@ -35,9 +35,9 @@ _filter()
 
 _expect()
 {
-    echo "" | tee -a $seq.full
-    echo "### Expect: $* ###" | tee -a $seq.full
-    echo "" | tee -a $seq.full
+    echo "" | tee -a $seq_full
+    echo "### Expect: $* ###" | tee -a $seq_full
+    echo "" | tee -a $seq_full
 }
 
 status=1

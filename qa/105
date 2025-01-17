@@ -129,7 +129,7 @@ echo "log mandatory on 25 msec sample.long.one" \
 _filter_pmlc <$tmp.out
 
 _wait_pmlogger_end $logger_pid || _exit 1
-cat $tmp.err $tmp.log | tee -a $here/$seq.full | _filter_logger
+cat $tmp.err $tmp.log | tee -a $seq_full | _filter_logger
 
 echo
 if [ -s $tmp.0 ]

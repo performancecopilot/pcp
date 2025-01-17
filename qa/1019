@@ -14,7 +14,7 @@ _cleanup()
     if [ ! -f $tmp.done ]
     then
 	cd $here/pmdas/dynamic
-	$sudo ./Remove >>$here/$seq.full
+	$sudo ./Remove >>$seq_full
 	cd $here
 	touch $tmp.done
     fi

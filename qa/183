@@ -107,14 +107,14 @@ echo "=== no non-primary logger ==="
 echo "=== no non-primary logger ===" >>$seq_full
 date >/dev/null &
 _wait_pmlogger_end $pid || _exit 1
-$sudo $newlog -p $! $tmp 2>&1 | tee -a $seq.full | _filter
+$sudo $newlog -p $! $tmp 2>&1 | tee -a $seq_full | _filter
 
 echo
 echo "=== no primary logger ==="
 echo "=== no primary logger ===" >>$seq_full
 $sudo $signal -a -s TERM pmlogger
 pmsleep 1.1
-$sudo $newlog $tmp 2>&1 | tee -a $seq.full | _filter
+$sudo $newlog $tmp 2>&1 | tee -a $seq_full | _filter
 if ! _service pcp restart 2>&1; then _exit 1; fi \
 | _filter_pcp_start \
 | sed -e '/pmlogger not running/d'
@@ -125,14 +125,14 @@ echo
 echo "=== process is not called pmlogger ==="
 echo "=== process is not called pmlogger ===" >>$seq_full
 pmsleep 10 &
-$sudo $newlog -p $! $tmp 2>&1 | tee -a $seq.full | _filter
+$sudo $newlog -p $! $tmp 2>&1 | tee -a $seq_full | _filter
 
 echo
 echo "=== process is not really pmlogger ==="
 echo "=== process is not really pmlogger ===" >>$seq_full
 cp `which sleep` $tmp.pmlogger
 $tmp.pmlogger 10 &
-$sudo $newlog -p $! $tmp 2>&1 | tee -a $seq.full | _filter \
+$sudo $newlog -p $! $tmp 2>&1 | tee -a $seq_full | _filter \
 | sed -e "/\.pmlogger/s/.*/-- ps line removed --/" -e "s/$!/PID/"
 
 echo
@@ -142,7 +142,7 @@ $sudo rm -f $tmp.save.*
 _start_up_pmlogger -L -c /dev/null -l $tmp.log $tmp.save >$tmp.err 2>&1
 _wait_for_pmlogger $pid $tmp.log || _exit 1
 (( echo "connect $pid"; pmsleep 3.0 ) | pmlc ) &
-$sudo $newlog -p $pid $tmp 2>&1 | tee -a $seq.full | _filter \
+$sudo $newlog -p $pid $tmp 2>&1 | tee -a $seq_full | _filter \
 | sed -e "/\.save/s/.*/-- ps line removed --/" -e "s/$pid/PID/"
 $sudo $signal -s TERM $pid
 
@@ -150,7 +150,7 @@ echo
 echo "=== primary logger busy ==="
 echo "=== primary logger busy ===" >>$seq_full
 (( echo "connect primary"; sleep 3 ) | pmlc ) &
-$sudo $newlog $tmp 2>&1 | tee -a $seq.full | _filter \
+$sudo $newlog $tmp 2>&1 | tee -a $seq_full | _filter \
 | sed -e "/\/pmlogger/s/.*/-- ps line removed --/"
 
 echo
@@ -165,7 +165,7 @@ ps $PCP_PS_ALL_FLAGS | grep pmlogger >>$seq_full
 
 pmsleep 1.1
 $sudo $newlog -p $pid $tmp 2>&1 \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | _filter \
 | sed \
     -e "/\.save/s/.*/-- ps line removed --/" \
@@ -194,7 +194,7 @@ echo "=== initial pmloggers ===" >>$seq_full
 # root     29697     1  0 10:45 pts/1    00:00:00 pmlogger -P -c config.default 20101021.10.45
 ps $PCP_PS_ALL_FLAGS \
 | grep '[p]mlogger' \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | grep -v sudo \
 | $PCP_AWK_PROG '
 $1 == "root"	{ print $2 }' >$tmp.old
@@ -207,7 +207,7 @@ pmsleep 1.1
 echo "=== final pmloggers ===" >>$seq_full
 ps $PCP_PS_ALL_FLAGS \
 | grep '[p]mlogger' \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | grep -v sudo \
 | $PCP_AWK_PROG '
 $1 == "root"	{ print $2 }' >$tmp.new
@@ -227,7 +227,7 @@ echo "target pmlogger pid=$pid" >>$seq_full
 pmsleep 1.1
 
 $newlog -p $pid $tmp 2>&1 \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | _filter \
 | sed \
     -e "/\.save/s/.*/-- ps line removed --/" \

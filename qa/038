@@ -142,7 +142,7 @@ fi
 echo
 echo "count records in archive (expect 1 for prologue + 2 + 1 for epilogue) ..."
 pmdumplog $tmp 2>&1 \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | _filter_dumplog \
 | sed -n -e '/TIMESTAMP/s/STAMP.*/STAMP/p'
 

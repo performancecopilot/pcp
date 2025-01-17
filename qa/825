@@ -102,7 +102,7 @@ pmdads389_install
 
 echo
 echo "=== extract metric values ==="
-pmprobe -v ds389 2>&1 | $sudo tee -a $seq.full | _filter
+pmprobe -v ds389 2>&1 | $sudo tee -a $seq_full | _filter
 
 pmdads389_remove
 # success, all done

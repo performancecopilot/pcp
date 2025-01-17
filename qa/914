@@ -34,8 +34,8 @@ for args in "-h localhost,sampledso.hordes.one" \
 do
     src=`echo "$args" | sed -e 's/,.*//'`
     metric=`echo "$args" | sed -e 's/.*,//'`
-    echo | tee -a $here/$seq.full
-    echo "=== $src $metric ===" | tee -a $here/$seq.full
+    echo | tee -a $seq_full
+    echo "=== $src $metric ===" | tee -a $seq_full
     case "$src"
     in
 	-a*)	# if archive is compressed, uncompress once to make

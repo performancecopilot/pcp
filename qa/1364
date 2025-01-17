@@ -76,8 +76,8 @@ End-of-File
 pmstore sample.proc.reset 1
 pmlogger -V 2 -c $tmp.config -l $tmp.log -s 20 $tmp.v2
 cat $tmp.log >>$seq_full
-echo "=== V2 archive ===" | tee -a $seq.full
-pmdumplog -Ii $tmp.v2 | tee -a $seq.full | _filter | tee $tmp.v2.dump
+echo "=== V2 archive ===" | tee -a $seq_full
+pmdumplog -Ii $tmp.v2 | tee -a $seq_full | _filter | tee $tmp.v2.dump
 
 pmstore sample.proc.reset 1
 if $do_valgrind
@@ -90,8 +90,8 @@ fi \
 cat $tmp.log >>$seq_full
 
 echo
-echo "=== V3 archive ===" | tee -a $seq.full
-pmdumplog -Ii $tmp.v3 | tee -a $seq.full | _filter | tee $tmp.v3.dump
+echo "=== V3 archive ===" | tee -a $seq_full
+pmdumplog -Ii $tmp.v3 | tee -a $seq_full | _filter | tee $tmp.v3.dump
 
 echo
 echo "=== diffs ... ==="

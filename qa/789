@@ -45,7 +45,7 @@ _cleanup()
 
     if $shutdown
     then
-	echo "Stopping Zimbra: `date`" >>$here/$seq.full
+	echo "Stopping Zimbra: `date`" >>$seq_full
 	$sudo systemctl stop zimbra.service
     fi
 
@@ -75,7 +75,7 @@ End-of-File
 	$sudo head -1 $zimbra_home/zmstat/$table >$tmp.head
 	$sudo tail -1 $zimbra_home/zmstat/$table >$tmp.tail
 	eval `pmprobe -v $metric \
-	      | tee -a $here/$seq.full \
+	      | tee -a $seq_full \
 	      | $PCP_AWK_PROG '{ print "numval=" $2
 	      			 print "pcp_value=" $3
 			       }'

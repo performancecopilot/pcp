@@ -19,7 +19,7 @@ echo "QA output created by $seq"
 #
 _filter()
 {
-    tee -a $seq.full \
+    tee -a $seq_full \
     | _filter_pmdumplog \
     | sed \
 	-e '/^pmlogger .* on host .* is logging metrics from host .*/d' \
@@ -107,7 +107,7 @@ End-of-File
     for i in 1 2 3 4 5 6 7 8 9 10
     do
 	( echo ; echo "iteration $i" ) >>$seq_full
-	if echo quit | pmlc -h $host $pid 2>&1 | tee -a $seq.full | grep 'Connected to' >/dev/null
+	if echo quit | pmlc -h $host $pid 2>&1 | tee -a $seq_full | grep 'Connected to' >/dev/null
 	then
 	    break
 	else

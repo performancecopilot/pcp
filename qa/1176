@@ -55,14 +55,14 @@ _pmdabcc_wait_for_metric
 # Generate write activity the BCC cachestat module
 dd if=/dev/zero of=${out_file} bs=${write_size} count=1 conv=fsync 2>/dev/null
 echo "=== report metric values for writes ==="
-pminfo -dfmtT bcc.mem.vmstat.dirtied 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bcc.mem.vmstat.dirtied 2>&1 | tee -a $seq_full \
 | _value_filter_nonzero
 
 # Generate read activity the BCC cachestat module
 dd if=${out_file} of=/dev/null bs=${write_size} count=1 2>/dev/null
 
 echo "=== report metric values for cached reads ==="
-pminfo -dfmtT bcc.mem.vmstat.hits 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bcc.mem.vmstat.hits 2>&1 | tee -a $seq_full \
 | _value_filter_nonzero
 
 _pmdabcc_remove

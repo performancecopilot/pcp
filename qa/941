@@ -29,7 +29,7 @@ $check || echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-[ -f $seq.full.save ] && mv $seq.full.save $seq.full
+[ -f $seq_full.save ] && mv $seq_full.save $seq_full
 
 _cleanup()
 {

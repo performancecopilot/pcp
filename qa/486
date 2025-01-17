@@ -56,8 +56,8 @@ _cmp()
 	echo "Arrgh ... $2.0 missing" | _filter
 	return
     fi
-    pmdumplog -z -dilmst $1 | tee -a $seq.full >$tmp.in
-    pmdumplog -z -dilmst $2 | tee -a $seq.full >$tmp.out
+    pmdumplog -z -dilmst $1 | tee -a $seq_full >$tmp.in
+    pmdumplog -z -dilmst $2 | tee -a $seq_full >$tmp.out
     echo "pmdumplog diffs ..."
     # For the *BSD platforms, use gdiff in preference to diff, so we
     # don't get bitten by the diff-jackpot non-determinism
@@ -139,9 +139,9 @@ archives/sample_expr	metric sample.mirage_longlong {indom->NULL}
 archives/sample_expr	metric sample.mirage_longlong {indom->NULL output last}
 End-of-File
 do
-    echo | tee -a $seq.full
+    echo | tee -a $seq_full
     echo "$spec" >$tmp.config
-    echo "=== $arch_args: $spec ===" | tee -a $seq.full
+    echo "=== $arch_args: $spec ===" | tee -a $seq_full
     rm -f $tmp.new.*
     arch=`echo "$arch_args" | sed -e 's/|.*//'`
     args=`echo "$arch_args" | sed -n -e '/|/s/.*|//p'`

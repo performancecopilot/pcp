@@ -46,7 +46,7 @@ pmlogger -c $PCP_VAR_DIR/config/pmlogger/config.pmstat -t 0.55 -s 7 -l $tmp.log 
 cat $tmp.log >>$seq_full
 pmdumplog -dilmst $tmp >>$seq_full
 
-pmstat -s 2 -t 1 -a $tmp | tee -a $seq.full | _filter
+pmstat -s 2 -t 1 -a $tmp | tee -a $seq_full | _filter
 
 # success, all done
 status=0

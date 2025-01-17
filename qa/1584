@@ -80,7 +80,7 @@ then
     echo "Success - matching version numbers"
     status=0
 else
-    echo "Mismatch: $pcpversion vs $MONGO_VERSION" | tee -a $here/$seq.full
+    echo "Mismatch: $pcpversion vs $MONGO_VERSION" | tee -a $seq_full
 fi
 
 pmdamongodb_remove

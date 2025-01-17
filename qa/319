@@ -26,7 +26,7 @@ DEBUG=
 # nU - sample.darkness (InDom 29.1)
 
 pmie $DEBUG -v -t 0.5sec -T 3sec <<'End-of-File' 2>$tmp.err \
-| tee $seq.full \
+| tee $seq_full \
 | sed -e 's/.* [0-9][0-9][0-9][0-9]: \([a-z]\)/\1/' \
 | sort \
 | uniq

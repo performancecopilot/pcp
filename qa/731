@@ -91,7 +91,7 @@ do
     echo "== Running valgrind for cgroup fetch - $base"
     cd $here
     _run_valgrind pminfo -L -K clear -K add,3,$pmda -d -f cgroup 2>&1 \
-    | tee -a $seq.full \
+    | tee -a $seq_full \
     | _filter1
 
     # takes too long to verify everything, so check just first
@@ -102,7 +102,7 @@ do
 	name=`pminfo cgroup.$tree | sed 1q`
 	echo "== Running valgrind on $tree for multiple fetches - $base"
 	_run_valgrind pmval -L -K clear -K add,3,$pmda -s 1099 -t 0.00001 $name 2>&1 \
-	| tee -a $seq.full \
+	| tee -a $seq_full \
 	| _filter2
 	echo "checked cgroup tree $tree via metric $metric" >> $seq_full
     done

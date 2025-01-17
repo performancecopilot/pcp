@@ -58,7 +58,7 @@ skip == 1 	{ next }
 }
 
 # real QA test starts here
-echo "once case ..." | tee -a $seq.full
+echo "once case ..." | tee -a $seq_full
 PMLOGGER_ONCE=yes pmlogger -c $tmp.config -s 1 -r -l $tmp.log $tmp
 pmdumplog $tmp >>$seq_full
 cat $tmp.log >>$seq_full
@@ -66,8 +66,8 @@ _filter_pmlogger_log <$tmp.log \
 | _filter
 rm -f $tmp.0 $tmp.meta $tmp.index
 
-echo | tee -a $seq.full
-echo "other case ..." | tee -a $seq.full
+echo | tee -a $seq_full
+echo "other case ..." | tee -a $seq_full
 pmlogger -c $tmp.config -s 4 -r -l $tmp.log $tmp
 pmdumplog $tmp >>$seq_full
 cat $tmp.log >>$seq_full

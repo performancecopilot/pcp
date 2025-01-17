@@ -96,7 +96,7 @@ tail -n +$lineno $tmp.pmproxy.log | _filter_pmproxy_log
 lineno=$((`wc -l < $tmp.pmproxy.log` + 1))
 
 
-# store all logs in $seq.full
+# store all logs in $seq_full
 tail -n +1 $tmp.*.log > $seq_full
 
 # success, all done

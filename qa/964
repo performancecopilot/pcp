@@ -39,7 +39,7 @@ _cleanup()
 	if pmprobe -I pmcd.agent.status | grep '"test_perl"' >/dev/null
 	then
 	    cd $here/pmdas/test_perl
-	    $sudo ./Remove >>$here/$seq.full 2>&1
+	    $sudo ./Remove >>$seq_full 2>&1
 	    $sudo rm -f domain.h.perl
 	    cd $here
 	fi
@@ -78,7 +78,7 @@ _filter_test_perl_install()
 {
     _filter_pmda_install \
     | _filter_pcp_stop \
-    | tee -a $here/$seq.full \
+    | tee -a $seq_full \
     | $PCP_AWK_PROG '
 /Check test_perl metrics have appeared/ { if ($7 >= 0) $7 = "X"
                                            if ($10 >= 0) $10 = "Y"

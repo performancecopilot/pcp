@@ -144,8 +144,8 @@ $sudo ./Remove >$tmp.out 2>&1
 cat $tmp.out
 _check_pmda_gone $iam
 
-echo | tee -a $here/$seq.full
-echo "=== socket Internet agent ===" | tee -a $here/$seq.full
+echo | tee -a $seq_full
+echo "=== socket Internet agent ===" | tee -a $seq_full
 
 # Give the PMDA + internet socket a chance to be setup before pminfo check
 #
@@ -159,7 +159,7 @@ if pminfo -v sample
 then
     :
 else
-    echo "... failed!" | tee -a $here/$seq.full
+    echo "... failed!" | tee -a $seq_full
     pminfo -fd sample.long.ten >>$seq_full
 fi
 _snag_logs
@@ -172,7 +172,7 @@ if pminfo -v sample
 then
     :
 else
-    echo "... failed!" | tee -a $here/$seq.full
+    echo "... failed!" | tee -a $seq_full
     pminfo -fd sample.long.ten >>$seq_full
 fi
 _snag_logs

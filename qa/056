@@ -18,7 +18,7 @@ pmclient="$python $pyclient"
 
 _filter()
 {
-    tee -a $seq.full \
+    tee -a $seq_full \
     | $PCP_AWK_PROG '
 /^Archive: /		{ print "... title ..."; next }
 /^[0-9. 	]*$/	{ print "... " NF " numbers ..."; next }

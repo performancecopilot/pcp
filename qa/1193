@@ -45,23 +45,23 @@ echo ........................ >> $seq_full
 IN=$DIR/20180127.08.40
 OUT=$tmp.pmlogrewrite
 rm -f $OUT.*
-echo "Running pmlogrewrite -c $CONFIG $IN $OUT" | _filter | tee -a $seq.full
+echo "Running pmlogrewrite -c $CONFIG $IN $OUT" | _filter | tee -a $seq_full
 pmlogrewrite -c $CONFIG $IN $OUT 2>&1 >> $seq_full
 [ $? -eq 0 ] || echo "Error running pmlogrewrite -c $CONFIG $IN $OUT -- see $seq.full"
 
 # Now run pmdumplog against the original and extracted archives.
 DUMP1=$tmp.original.txt
-echo "Running pmdumplog -zhid $IN" | _filter | tee -a $seq.full
+echo "Running pmdumplog -zhid $IN" | _filter | tee -a $seq_full
 pmdumplog -zhid $IN 2>&1 > $DUMP1
 
 DUMP2=$tmp.extracted.txt
 IN=$OUT
-echo "Running pmdumplog -zhid $IN" | _filter | tee -a $seq.full
+echo "Running pmdumplog -zhid $IN" | _filter | tee -a $seq_full
 pmdumplog -zhid $IN 2>&1 > $DUMP2
 
 # Make sure the PMID has been updated in the help text records
-echo "Running diff $DUMP1 $DUMP2" | _filter | tee -a $seq.full
-diff $DUMP1 $DUMP2 2>&1 | _filter | tee -a $seq.full
+echo "Running diff $DUMP1 $DUMP2" | _filter | tee -a $seq_full
+diff $DUMP1 $DUMP2 2>&1 | _filter | tee -a $seq_full
 
 # Now, run pmlogrewrite against the archive, changing PMID 70.0.2 to 70.100.2.
 CONFIG=$tmp.config
@@ -75,23 +75,23 @@ echo ........................ >> $seq_full
 IN=$DIR/20180127.08.40
 OUT=$tmp.pmlogrewrite
 rm -f $OUT.*
-echo "Running pmlogrewrite -c $CONFIG $IN $OUT" | _filter | tee -a $seq.full
+echo "Running pmlogrewrite -c $CONFIG $IN $OUT" | _filter | tee -a $seq_full
 pmlogrewrite -c $CONFIG $IN $OUT 2>&1 >> $seq_full
 [ $? -eq 0 ] || echo "Error running pmlogrewrite -c $CONFIG $IN $OUT -- see $seq.full"
 pmlogextract $OUT $tmp.xxxx
 # Now run pmdumplog against the original and extracted archives.
 DUMP1=$tmp.original.txt
-echo "Running pmdumplog -zhid $IN" | _filter | tee -a $seq.full
+echo "Running pmdumplog -zhid $IN" | _filter | tee -a $seq_full
 pmdumplog -zhid $IN 2>&1 > $DUMP1
 
 DUMP2=$tmp.extracted.txt
 IN=$OUT
-echo "Running pmdumplog -zhid $IN" | _filter | tee -a $seq.full
+echo "Running pmdumplog -zhid $IN" | _filter | tee -a $seq_full
 pmdumplog -zhid $IN 2>&1 > $DUMP2
 
 # Make sure the PMID has been updated in the help text records
-echo "Running diff $DUMP1 $DUMP2" | _filter | tee -a $seq.full
-diff $DUMP1 $DUMP2 2>&1 | _filter | tee -a $seq.full
+echo "Running diff $DUMP1 $DUMP2" | _filter | tee -a $seq_full
+diff $DUMP1 $DUMP2 2>&1 | _filter | tee -a $seq_full
 
 # Now, run pmlogrewrite against the archive, changing PMID 70.0.2 to 70.0.400.
 CONFIG=$tmp.config
@@ -105,23 +105,23 @@ echo ........................ >> $seq_full
 IN=$DIR/20180127.08.40
 OUT=$tmp.pmlogrewrite
 rm -f $OUT.*
-echo "Running pmlogrewrite -c $CONFIG $IN $OUT" | _filter | tee -a $seq.full
+echo "Running pmlogrewrite -c $CONFIG $IN $OUT" | _filter | tee -a $seq_full
 pmlogrewrite -c $CONFIG $IN $OUT 2>&1 >> $seq_full
 [ $? -eq 0 ] || echo "Error running pmlogrewrite -c $CONFIG $IN $OUT -- see $seq.full"
 
 # Now run pmdumplog against the original and extracted archives.
 DUMP1=$tmp.original.txt
-echo "Running pmdumplog -zhid $IN" | _filter | tee -a $seq.full
+echo "Running pmdumplog -zhid $IN" | _filter | tee -a $seq_full
 pmdumplog -zhid $IN 2>&1 > $DUMP1
 
 DUMP2=$tmp.extracted.txt
 IN=$OUT
-echo "Running pmdumplog -zhid $IN" | _filter | tee -a $seq.full
+echo "Running pmdumplog -zhid $IN" | _filter | tee -a $seq_full
 pmdumplog -zhid $IN 2>&1 > $DUMP2
 
 # Make sure the PMID has been updated in the help text records
-echo "Running diff $DUMP1 $DUMP2" | _filter | tee -a $seq.full
-diff $DUMP1 $DUMP2 2>&1 | _filter | tee -a $seq.full
+echo "Running diff $DUMP1 $DUMP2" | _filter | tee -a $seq_full
+diff $DUMP1 $DUMP2 2>&1 | _filter | tee -a $seq_full
 
 # success, all done
 status=0

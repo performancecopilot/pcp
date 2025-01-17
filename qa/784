@@ -26,7 +26,7 @@ trap "cd $here; rm -rf $tmp.*; $sudo rm -f mic.log*; exit \$status" 0 1 2 3 15
 
 _filter()
 {
-    tee -a $seq.full | \
+    tee -a $seq_full | \
     sed \
     -e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;" \
     -e '/pmResult/s/ .* numpmid/ ... numpmid/' \
@@ -50,10 +50,10 @@ EOF
 # (sudo use here is so that we are able to change to pcp user)
 
 domain=138
-echo "== Finding mic metrics" | tee -a $seq.full
+echo "== Finding mic metrics" | tee -a $seq_full
 $sudo -E PCP_PYTHON_PMNS=root $python "$pmda_script" 2>/dev/null > $tmp.root
 
-echo "== Testing mic metrics" | tee -a $seq.full
+echo "== Testing mic metrics" | tee -a $seq_full
 $sudo TERM=ansi dbpmda -n $tmp.root -ie <<End-of-File 2>&1 | _filter
 open pipe $python_path $pmda_script
 getdesc on

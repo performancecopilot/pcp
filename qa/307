@@ -65,7 +65,7 @@ done \
 | pmlc -P 2>&1 | _filter
 
 sort -u $tmp.trace
-cp $tmp.trace $seq.full
+cp $tmp.trace $seq_full
 
 # success, all done
 exit

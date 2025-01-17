@@ -25,7 +25,7 @@ test $? -eq 0 || _notrun 'Python pcp pmi module is not installed'
 
 # real QA test starts here
 $python $here/src/test_pmi.py $tmp.pcplog >$seq_full 2>&1
-grep OK $seq.full
+grep OK $seq_full
 
 export PCP_DERIVED_CONFIG=''
 pminfo --desc --fetch -z -a $tmp.pcplog hinv.ncpu kernel.all.load | _filter

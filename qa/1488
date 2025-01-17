@@ -62,7 +62,7 @@ migrate_pid_service -v $$ pmlogger_farm.service
 End-of-File
 
 chmod 755 $tmp.sh
-$sudo $tmp.sh 2>&1 | tee -a $seq.full | _filter
+$sudo $tmp.sh 2>&1 | tee -a $seq_full | _filter
 systemctl -l --quiet --no-pager status pmlogger_farm.service >$tmp.out 2>&1
 cat $tmp.out >>$seq_full
 grep "$$" $tmp.out | _filter

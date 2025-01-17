@@ -27,7 +27,7 @@ status=0	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-cp /dev/null $seq.full
+cp /dev/null $seq_full
 pminfo sample | grep -v bad | while read m; do
     echo >>$seq_full; echo '### ' $m ' ###' >>$seq_full
     src/labelsets.py $m >>$seq_full || { status=1; break; }

@@ -29,5 +29,5 @@ trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 
 # real QA test starts here
 
-#debug# src/torture_api -Dappl0 -v 2>&1 | tee $seq.full | _filter_torture_api
-src/torture_api -v 2>&1 | tee $seq.full | _filter_torture_api
+#debug# src/torture_api -Dappl0 -v 2>&1 | tee $seq_full | _filter_torture_api
+src/torture_api -v 2>&1 | tee $seq_full | _filter_torture_api

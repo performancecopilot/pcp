@@ -55,7 +55,7 @@ _report()
 
 
     cd $PCP_ARCHIVE_DIR
-    ls -lR $seq | tee -a $here/$seq.full | $PCP_AWK_PROG '
+    ls -lR $seq | tee -a $seq_full | $PCP_AWK_PROG '
 NF < 4		{ print; next }
 		{ print "mode=" $1 " user=" $3 " group=" $4 " name=" $NF }' \
     | sed \

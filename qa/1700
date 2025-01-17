@@ -27,7 +27,7 @@ _stop_auto_restart pmcd
 
 _filter_json()
 {
-    tee -a $here/$seq.full | \
+    tee -a $seq_full | \
     sed -E -e 's,"script_id": .*,"script_id": "SCRIPT_ID",g' \
            -e 's,"created_at": .*,"created_at": "CREATED_AT",g' \
            -e 's,"last_accessed_at": .*,"last_accessed_at": "LAST_ACCESSED_AT",g' \
@@ -86,7 +86,7 @@ _pmdabpftrace_remove
 # check if pmdabpftrace process manager was shutdown correctly
 sleep 10
 cat $PCP_LOG_DIR/pmcd/bpftrace.log \
-| tee -a $here/$seq.full \
+| tee -a $seq_full \
 | grep -o "manager: shutdown pmdabpftrace process manager"
 
 

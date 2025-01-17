@@ -93,7 +93,7 @@ sed -e 's/ /\\ /g' -e 's/|/ /g' <src/permslist \
     -e 's@$(PCP_RUN_DIR)@'$PCP_RUN_DIR@g \
     -e 's@$(PCP_SHARE_DIR)@'$PCP_SHARE_DIR@g \
     -e 's@$(PCP_SYSCONF_DIR)@'$PCP_SYSCONF_DIR@g \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | while read makefile mode owner group target optional
 do
     line=`expr $line + 1`

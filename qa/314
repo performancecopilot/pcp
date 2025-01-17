@@ -22,10 +22,10 @@ _cleanup()
 	#
 	sleep 2
 	_restore_auto_restart pmie
-	_service pmie start >>$here/$seq.full 2>&1
+	_service pmie start >>$seq_full 2>&1
     else
-	_service pmie stop >>$here/$seq.full 2>&1
-	$sudo $PCP_BINADM_DIR/pmsignal -a -s TERM pmie >>$here/$seq.full 2>&1
+	_service pmie stop >>$seq_full 2>&1
+	$sudo $PCP_BINADM_DIR/pmsignal -a -s TERM pmie >>$seq_full 2>&1
 	_wait_pmie_end
     fi
     $sudo rm -fr $tmp.*

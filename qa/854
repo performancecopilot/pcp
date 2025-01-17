@@ -109,8 +109,8 @@ echo "---------------------------------------------------------------"
 
 # Get the semantics of sample.dynamic.meta.metric by fetching 
 # sample.dynamic.meta.pmdesc.sem using pminfo.
-echo "pminfo -f sample.dynamic.meta.pmdesc.sem" | tee -a $seq.full
-sem=`pminfo -f sample.dynamic.meta.pmdesc.sem | tee -a $seq.full \
+echo "pminfo -f sample.dynamic.meta.pmdesc.sem" | tee -a $seq_full
+sem=`pminfo -f sample.dynamic.meta.pmdesc.sem | tee -a $seq_full \
     | awk '/value/ { print $2 }'`
 
 # Change the semantics of sample.dynamic.meta.metric by using pmstore to store into
@@ -141,7 +141,7 @@ echo "---------------------------------------------------------------"
 # the re-check of the configured metrics failed and that it stopped.
 echo >>$seq_full
 echo "pmlogger log ..." >>$seq_full
-cat $LOGGING_DIR/$LOCALHOST/$seq.log | tee -a $seq.full | \
+cat $LOGGING_DIR/$LOCALHOST/$seq.log | tee -a $seq_full | \
 grep \
  -e 'Semantics of metric "sample.dynamic.meta.metric" have changed from discrete to instant' \
  -e 'One or more configured metrics have changed after pmcd state change. Exiting'

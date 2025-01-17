@@ -46,7 +46,7 @@ if [ ! -S "$PCP_RUN_DIR/pmlogger.$pid.socket" ]; then
 fi
 echo found primary pmlogger and found control socket in PCP_RUN_DIR
 
-echo "=== disable pmlogger.service" | tee -a $seq.full
+echo "=== disable pmlogger.service" | tee -a $seq_full
 $sudo systemctl disable pmlogger.service >>$seq_full 2>&1
 
 echo === start primary logger whilst disabled ===

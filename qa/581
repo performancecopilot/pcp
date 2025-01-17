@@ -185,7 +185,7 @@ sleep $sleep_stop
 $signal -s TERM $pid_pmie
 wait
 
-cp $tmp.out $seq.full
+cp $tmp.out $seq_full
 
 echo
 echo "Expect only connection lost/re-established and DYN_* lines ..."

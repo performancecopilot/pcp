@@ -83,7 +83,7 @@ pmlogger -s 3 -c $tmp.config -l $tmp.log $tmp
 
 cat $tmp.log >>$seq_full
 pmdumplog $tmp 2>&1 \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | _filter_pmdumplog \
 | sed \
     -e '/(pmcd\./d' \

@@ -46,7 +46,7 @@ _filter()
 
 _filter_pminfo()
 {
-    tee -a $here/$seq.full \
+    tee -a $seq_full \
     | sed \
 	-e "s/\([[\"]\)$pid1 /\1MYPID /g" \
 	-e "s/\([[\"]\)$pid2 /\1MYPID /g" \

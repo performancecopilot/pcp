@@ -73,7 +73,7 @@ cat $tmp.log >>$seq_full
 # write a fixed length hostname into log label (for dumplog determinism)
 $sudo pmloglabel -h qahost $tmp
 
-LC_TIME=POSIX ls -l $tmp.? | tee -a $here/$seq.full | _do_ls
+LC_TIME=POSIX ls -l $tmp.? | tee -a $seq_full | _do_ls
 
 echo
 pmdumplog -t $tmp | _do_time \

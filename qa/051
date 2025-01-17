@@ -166,7 +166,7 @@ _cleanup()
 	    $sudo mv $oconfig $config
 	fi
 	echo "Restarting pmcd"
-	echo "Restarting pmcd + pmlogger @ `date`" >>$here/$seq.full
+	echo "Restarting pmcd + pmlogger @ `date`" >>$seq_full
 	unset PMCD_SOCKET
 	export PMLOGGER_CHECK_SKIP_LOGCONF=yes
 	_service pcp restart 2>&1 | _filter_pcp_start

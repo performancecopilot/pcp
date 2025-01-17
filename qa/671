@@ -56,7 +56,7 @@ _filter_pmafm()
     #   [  2] snort                ./onevol/20011002	<-- end here
     #
     host=`hostname`
-    tee -a $here/$seq.full \
+    tee -a $seq_full \
     | tee $tmp.tmp \
     | sed \
 	-e "s@$tmp@TMP@g" \

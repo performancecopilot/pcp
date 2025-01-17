@@ -51,23 +51,23 @@ _cleanup()
     then
 	$sudo rm $PCP_VAR_DIR/config/pmda/$domain.$loaded
 	cd $here/pmdas/test_python
-	$sudo ./Remove >>$here/$seq.full 2>&1
+	$sudo ./Remove >>$seq_full 2>&1
 	$sudo rm -f domain.h.python
 	cd $here
     fi
 
-    _service pmcd stop >>$seq.full 2>&1
-    _service pmcd start >>$seq.full 2>&1
+    _service pmcd stop >>$seq_full 2>&1
+    _service pmcd start >>$seq_full 2>&1
     _wait_for_pmcd
 
     if $pmproxy_was_running
     then
-	echo "Restart pmproxy ..." >>$here/$seq.full
-	_service pmproxy restart >>$here/$seq.full 2>&1
+	echo "Restart pmproxy ..." >>$seq_full
+	_service pmproxy restart >>$seq_full 2>&1
 	_wait_for_pmproxy
     else
-	echo "Stopping pmproxy ..." >>$here/$seq.full
-	_service pmproxy stop >>$here/$seq.full 2>&1
+	echo "Stopping pmproxy ..." >>$seq_full
+	_service pmproxy stop >>$seq_full 2>&1
     fi
 
     $sudo rm -f $tmp.*
@@ -103,7 +103,7 @@ _filter_listusers2()
 
 _filter_json()
 {
-    tee -a $seq.full | \
+    tee -a $seq_full | \
     sed -e 's,"machineid": .*,"machineid": "MACHINEID",g' \
         -e 's,"context": .*,"context": "CONTEXT",g' \
         -e 's,"hostname": .*,"hostname": "HOSTNAME",g' \
@@ -115,18 +115,18 @@ _filter_json()
 
 _filter_ctx()
 {
-    tee -a $seq.full | \
+    tee -a $seq_full | \
     sed -E -e 's/ctx [0-9]+/ctx ?/g'
 }
 
 _test_log()
 {
-    echo && echo "=== $@ ===" | tee -a $here/$seq.full
+    echo && echo "=== $@ ===" | tee -a $seq_full
 }
 
 _json_log()
 {
-    pmjson | tee -a $here/$seq.full
+    pmjson | tee -a $seq_full
 }
 
 # real QA test starts here
@@ -144,18 +144,18 @@ $sudo chown pcp:pcp $PCP_SASLCONF_DIR/pmcd.conf
 ls -l $PCP_SASLCONF_DIR/pmcd.conf >>$seq_full
 $sudo -u pcp cat $PCP_SASLCONF_DIR/pmcd.conf >>$seq_full
 
-echo "Creating temporary sasldb, add user running QA to it" | tee -a $seq.full
+echo "Creating temporary sasldb, add user running QA to it" | tee -a $seq_full
 password="some=very&secret.passwörd"
 password_urlencoded="some%3Dvery%26secret.passw%C3%B6rd"
 echo $password | saslpasswd2 -p -a pmcd -f $tmp.passwd.db $username
 echo "Using secret password: $password"
 
-echo "Verify saslpasswd2 has successfully added a new user" | tee -a $seq.full
+echo "Verify saslpasswd2 has successfully added a new user" | tee -a $seq_full
 sasldblistusers2 -f $tmp.passwd.db \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | _filter_listusers2
 
-echo "Ensure pmcd can read the password file" | tee -a $seq.full
+echo "Ensure pmcd can read the password file" | tee -a $seq_full
 # don't let umask get in the way!
 #
 chmod 640 $tmp.passwd.db
@@ -164,7 +164,7 @@ ls -l $tmp.passwd.db >>$seq_full
 $sudo -u pcp od -c $tmp.passwd.db >>$seq_full
 
 echo "Start pmcd with this shiny new sasldb"
-if ! _service pmcd restart 2>&1; then _exit 1; fi | tee -a $seq.full >$tmp.out
+if ! _service pmcd restart 2>&1; then _exit 1; fi | tee -a $seq_full >$tmp.out
 _wait_for_pmcd || _exit 1
 
 if [ "$PCPQA_SYSTEMD" = yes ]

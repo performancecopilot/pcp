@@ -38,7 +38,7 @@ _filter()
 
 # real QA test starts here
 echo
-echo "=== Installing Seagate FARM Log PMDA ===" | tee -a $here/$seq.full
+echo "=== Installing Seagate FARM Log PMDA ===" | tee -a $seq_full
 _prepare_pmda_install farm || _exit 1
 cd $PCP_PMDAS_DIR/farm
 $sudo ./Install </dev/null >$tmp.out 2>&1

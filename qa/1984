@@ -65,9 +65,9 @@ fi
 echo; echo == create initial config
 pmlogconf -c -q -d $tmp.path $tmp.conf </dev/null | _filter 2>&1
 
-echo; echo == update config with redis metrics | tee -a $here/$seq.full
+echo; echo == update config with redis metrics | tee -a $seq_full
 $sudo ./Install >>$seq_full 2>&1
-numval=`pmprobe -v redis.process_id | tee -a $here/$seq.full | $PCP_AWK_PROG '{ print $2 }'`
+numval=`pmprobe -v redis.process_id | tee -a $seq_full | $PCP_AWK_PROG '{ print $2 }'`
 if [ -z "$numval" -o "$numval" -lt 0 ]; then
     echo "Botch: redis PMDA install failed"
     pminfo -f redis.process_id
@@ -79,7 +79,7 @@ pmlogconf -r -c -q -d $tmp.path $tmp.conf </dev/null | _filter 2>&1
 echo; echo == verify no subsequent change
 pmlogconf -r -c -q -d $tmp.path $tmp.conf </dev/null | _filter 2>&1
 
-echo; echo == update config without redis metrics | tee -a $here/$seq.full
+echo; echo == update config without redis metrics | tee -a $seq_full
 $sudo ./Remove >>$seq_full 2>&1
 pmlogconf -r -c -q -d $tmp.path $tmp.conf </dev/null | _filter 2>&1
 

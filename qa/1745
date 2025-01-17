@@ -69,7 +69,7 @@ _filter_pmval()
     #end
 }
 pmval -U $tmp.archive kernel.all.pswitch \
-	| tee -a $here/$seq.full \
+	| tee -a $seq_full \
 	| _filter_pmval > $tmp.values
 lines=`wc -l < $tmp.values`
 echo "lines=$lines, expect 6" >>$seq_full

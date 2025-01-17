@@ -60,10 +60,10 @@ do
     cp $tmp.$file $root/proc/net/softnet_stat
     _make_proc_stat $root/proc/stat $LINUX_NCPUS
  
-    echo "== Checking metric values - $file" | tee -a $here/$seq.full
+    echo "== Checking metric values - $file" | tee -a $seq_full
     pminfo -L -K clear -K add,60,$pmda -f $metrics 2>&1 \
-    | tee -a $here/$seq.full
-    ( echo && echo "== done" && echo ) | tee -a $here/$seq.full
+    | tee -a $seq_full
+    ( echo && echo "== done" && echo ) | tee -a $seq_full
 done
 
 # success, all done

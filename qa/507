@@ -97,12 +97,12 @@ End-of-File
 # real QA test starts here
 _config > $tmp.config.pcp
 pmlogger -T 3sec -c $tmp.config.pcp -l $tmp.log $tmp.archive
-echo pmlogger status=$? | tee -a $seq.full
+echo pmlogger status=$? | tee -a $seq_full
 cat $tmp.log >>$seq_full
 pmdumplog $tmp.archive >>$seq_full
 
-pcp -a $tmp.archive | tee -a $seq.full | _filter >$tmp.arch
-echo status=$? | tee -a $seq.full
+pcp -a $tmp.archive | tee -a $seq_full | _filter >$tmp.arch
+echo status=$? | tee -a $seq_full
 
 #  This loop deals with cases when pcp(1) reports that some condition has
 #  changed between the three invokations of pcp(1).  If a difference has
@@ -114,14 +114,14 @@ do
     rm -f $tmp.noargs $tmp.local $tmp.localnoh \
       $tmp.diffnoargslocal $tmp.noargslocalnoh
     echo "=== no args ===" >>$seq_full
-    pcp 2>&1 | tee -a $seq.full | _filter > $tmp.noargs
+    pcp 2>&1 | tee -a $seq_full | _filter > $tmp.noargs
     statusna=$?
     echo "=== -h localhost args ===" >>$seq_full
-    pcp -h localhost 2>&1 | tee -a $seq.full | _filter > $tmp.local
+    pcp -h localhost 2>&1 | tee -a $seq_full | _filter > $tmp.local
     statusll=$?
     export PMCD_HOST=$qahost
     echo "=== \$PMCD_HOST=$PMCD_HOST args ===" >>$seq_full
-    pcp 2>&1 | tee -a $seq.full | _filter > $tmp.localnoh
+    pcp 2>&1 | tee -a $seq_full | _filter > $tmp.localnoh
     statusln=$?
     unset PMCD_HOST
     

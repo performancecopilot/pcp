@@ -61,14 +61,14 @@ End-of-File
 cat $tmp.config >$seq_full
 pmie -T 2sec -v <$tmp.config >$tmp.out 2>$tmp.err
 cat $tmp.out $tmp.err \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | sed -e 's/expr_1:  */expr_1: /' \
 | _show_pmie_errors
 
 echo
 echo "pmval [metric spec on command line]"
 pmval -t0.5 -s 1 $host:pmcd.control.sighup \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | _filter
 
 echo
@@ -79,7 +79,7 @@ echo "pmlc [several uses]"
   echo "status" \
 ) \
 | pmlc -h $host -P \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | _filter_pmlc
 
 # success, all done

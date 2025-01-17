@@ -85,8 +85,8 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 
-echo | tee -a $seq.full
-echo "pmlogger directly ..." | tee -a $seq.full
+echo | tee -a $seq_full
+echo "pmlogger directly ..." | tee -a $seq_full
 inst=`pminfo -F proc.psinfo.ppid \
       | sed -n -e '/inst \[1 /{
 s/^[^"]*"/"/
@@ -96,7 +96,7 @@ p
 
 if [ -z "$inst" ]
 then
-    echo "Arrgh ... cannot find inst for local pid 1" | tee -a $seq.full
+    echo "Arrgh ... cannot find inst for local pid 1" | tee -a $seq_full
     pminfo -F proc.psinfo.ppid >>$seq_full
     exit
 fi
@@ -128,8 +128,8 @@ else
     echo "$x"
 fi
 
-echo | tee -a $seq.full
-echo "pmlc for local pmlogger ..." | tee -a $seq.full
+echo | tee -a $seq_full
+echo "pmlc for local pmlogger ..." | tee -a $seq_full
 rm -f $tmp.0 $tmp.index $tmp.meta $tmp.log
 pmlogger -L -s 1 -c /dev/null -l $tmp.log $tmp &
 pid=$!
@@ -146,8 +146,8 @@ else
     echo "$x"
 fi
 
-echo | tee -a $seq.full
-echo "pmlc local, pmcd and pmlogger remote ..." | tee -a $seq.full
+echo | tee -a $seq_full
+echo "pmlc local, pmcd and pmlogger remote ..." | tee -a $seq_full
 
 inst=`pminfo -F -h $host1 proc.psinfo.ppid \
       | sed -n -e '/inst \[1 /{
@@ -157,7 +157,7 @@ p
 }'`
 if [ -z "$inst" ]
 then
-    echo "Arrgh ... cannot find inst for host $host1 pid 1" | tee -a $seq.full
+    echo "Arrgh ... cannot find inst for host $host1 pid 1" | tee -a $seq_full
     pminfo -F -h $host1 proc.psinfo.ppid >>$seq_full
     exit
 fi
@@ -216,8 +216,8 @@ else
 fi
 ssh -q pcpqa@$host1 "rm -f /tmp/$rem_tmp.*"
 
-echo | tee -a $seq.full
-echo "pmlc local, pmcd remote on one host, pmlogger remote on a different host ..." | tee -a $seq.full
+echo | tee -a $seq_full
+echo "pmlc local, pmcd remote on one host, pmlogger remote on a different host ..." | tee -a $seq_full
 # need this in the format of the pmcd that pmlogger is connected to
 #
 inst=`pminfo -F -h $host2 proc.psinfo.ppid \
@@ -228,7 +228,7 @@ p
 }'`
 if [ -z "$inst" ]
 then
-    echo "Arrgh ... cannot find inst for host $host2 pid 1" | tee -a $seq.full
+    echo "Arrgh ... cannot find inst for host $host2 pid 1" | tee -a $seq_full
     pminfo -F -h $host2 proc.psinfo.ppid >>$seq_full
     exit
 fi

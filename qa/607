@@ -21,7 +21,7 @@ _cleanup()
 
 _filter()
 {
-    tee -a $here/$seq.full \
+    tee -a $seq_full \
     | sed \
 	-e '/^pmgetconfig:/d' \
 	-e "s/`hostname`/HOSTNAME/" \

@@ -22,12 +22,12 @@ _cleanup()
     cd $here
     if $pmproxy_was_running
     then
-	echo "Restart pmproxy ..." >>$here/$seq.full
-	_service pmproxy restart >>$here/$seq.full 2>&1
+	echo "Restart pmproxy ..." >>$seq_full
+	_service pmproxy restart >>$seq_full 2>&1
 	_wait_for_pmproxy
     else
-	echo "Stopping pmproxy ..." >>$here/$seq.full
-	_service pmproxy stop >>$here/$seq.full 2>&1
+	echo "Stopping pmproxy ..." >>$seq_full
+	_service pmproxy stop >>$seq_full 2>&1
     fi
     $sudo rm -rf $tmp $tmp.*
 }
@@ -60,9 +60,9 @@ if ! _service pmproxy start >>$seq_full 2>&1; then _exit 1; fi
 _wait_for_pmproxy || _exit 1
 
 # curl maintains a connection when given multiple URLs
-echo "Verify no chunk-encoded lengths in output" | tee -a $seq.full
+echo "Verify no chunk-encoded lengths in output" | tee -a $seq_full
 url1='http://localhost:44322/metrics'
-curl -s "$url1" "$url1" | tee -a $seq.full > $tmp.out
+curl -s "$url1" "$url1" | tee -a $seq_full > $tmp.out
 
 # remove expected, good comment lines and metric lines
 cat $tmp.out \
@@ -71,13 +71,13 @@ cat $tmp.out \
 echo "Silence is golden"
 
 # curl maintains a connection when given multiple URLs
-echo "Verify no unexpected final EOL markers in output" | tee -a $seq.full
+echo "Verify no unexpected final EOL markers in output" | tee -a $seq_full
 url2='http://localhost:44322/pmapi/fetch?names=hinv.ncpu,disk.dev.read'
-curl -s "$url2" | tee -a $seq.full > $tmp.out
+curl -s "$url2" | tee -a $seq_full > $tmp.out
 tail -1 $tmp.out | sed -e 's/{.*}/JSON/g'
 
 # change instance domain for a single connection
-echo "Verify changes in dynamic instance domain" | tee -a $seq.full
+echo "Verify changes in dynamic instance domain" | tee -a $seq_full
 fetch='http://localhost:44322/pmapi/fetch?name=sample.many.int'
 store1='http://localhost:44322/pmapi/store?name=sample.many.count&value=5'
 store2='http://localhost:44322/pmapi/store?name=sample.many.count&value=3'
@@ -85,20 +85,20 @@ store3='http://localhost:44322/pmapi/store?name=sample.many.count&value=7'
 curl -s "$store1" "$fetch" "$store2" "$fetch" "$store3" "$fetch" | _filter_fetch
 
 # change instance domain for a single connection
-echo "Verify fetching metric with multiple names" | tee -a $seq.full
+echo "Verify fetching metric with multiple names" | tee -a $seq_full
 fetch='http://localhost:44322/pmapi/fetch?name=sample.bin'
 curl -s "$fetch" | _filter_fetch
 
 # check parsing of URLs with strange parameters
-echo "Verify handling of unusual URL contents (empty)" | tee -a $seq.full
+echo "Verify handling of unusual URL contents (empty)" | tee -a $seq_full
 curl -s 'http://localhost:44322/pmapi/context?' | _filter_context
-echo "Verify handling of unusual URL contents (empty with ampersand)" | tee -a $seq.full
+echo "Verify handling of unusual URL contents (empty with ampersand)" | tee -a $seq_full
 curl -s 'http://localhost:44322/pmapi/context?&' | _filter_context
-echo "Verify handling of unusual URL contents (name without equals)" | tee -a $seq.full
+echo "Verify handling of unusual URL contents (name without equals)" | tee -a $seq_full
 curl -s 'http://localhost:44322/pmapi/context?test' | _filter_context
-echo "Verify handling of unusual URL contents (param then name without equals)" | tee -a $seq.full
+echo "Verify handling of unusual URL contents (param then name without equals)" | tee -a $seq_full
 curl -s 'http://localhost:44322/pmapi/context?test1=1&test2' | _filter_context
-echo "Verify handling of unusual URL contents (repeating ampersands)" | tee -a $seq.full
+echo "Verify handling of unusual URL contents (repeating ampersands)" | tee -a $seq_full
 curl -s 'http://localhost:44322/pmapi/context?test1=1&&test2=2' | _filter_context
 
 # success, all done

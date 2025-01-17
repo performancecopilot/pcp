@@ -41,7 +41,7 @@ _filter_pcp2spark()
 
 pcp2spark="$python `which pcp2spark`"
 
-echo "=== pcp2spark archive replay session ===" | tee -a $here/$seq.full
+echo "=== pcp2spark archive replay session ===" | tee -a $seq_full
 $pcp2spark -a $here/archives/rep -I "" >$tmp.p2s.out 2>$tmp.p2s.err &
 # the 2 sleeps below are something of a hack ... if pcp2spark does
 # not get going, then we risk the nc being killed before the socket
@@ -73,7 +73,7 @@ do
     cat $i >>$seq_full
 done
 
-echo "" | tee -a $here/$seq.full
+echo "" | tee -a $seq_full
 
 status=0
 exit

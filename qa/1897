@@ -38,7 +38,7 @@ _filter()
 
 # real QA test starts here
 echo
-echo "=== Installing HACLUSTER PMDA ===" | tee -a $here/$seq.full
+echo "=== Installing HACLUSTER PMDA ===" | tee -a $seq_full
 _prepare_pmda_install hacluster || _exit 1
 cd $PCP_PMDAS_DIR/hacluster
 $sudo ./Install </dev/null >$tmp.out 2>&1

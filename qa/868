@@ -16,7 +16,7 @@ echo "QA output created by $seq"
 _cleanup()
 {
     cd $PCP_VAR_DIR/pmdas/sample
-    ./Install </dev/null >>$here/$seq.full
+    ./Install </dev/null >>$seq_full
     cd $here
     rm -rf $tmp.*
 }

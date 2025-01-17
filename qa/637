@@ -75,8 +75,8 @@ fi
 find $tmp -type f | sort >$tmp.list
 for arch in `sed -n -e '/\.meta/s/\.meta.*//p' <$tmp.list`
 do
-    echo $arch.* | tee -a $seq.full | _filter
-    pmdumplog -z -l $arch | tee -a $seq.full | grep commencing
+    echo $arch.* | tee -a $seq_full | _filter
+    pmdumplog -z -l $arch | tee -a $seq_full | grep commencing
 done
 
 # success, all done

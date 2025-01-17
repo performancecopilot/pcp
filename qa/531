@@ -27,7 +27,7 @@ fi
 
 _filter()
 {
-    tee -a $seq.full | \
+    tee -a $seq_full | \
     sed \
 	-e "s/socket inet $port/socket inet PORT/g" \
 	-e "s/inet port $port/inet port PORT/g" \

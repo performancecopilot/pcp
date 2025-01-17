@@ -36,7 +36,7 @@ echo "old=$old" >>$seq_full
 echo "new=$new" >>$seq_full
 
 pmstore -F pmcd.seqnum 1 \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | sed \
     -e "s/=$old/=OLD/" \
     -e "s/=$new/=NEW/" \

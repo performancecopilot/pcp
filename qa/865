@@ -21,7 +21,7 @@ _cleanup()
     if pmprobe -I pmcd.agent.status | grep '"slow"' >/dev/null
     then
 	cd $here/pmdas/slow
-	$sudo ./Remove >>$here/$seq.full 2>&1
+	$sudo ./Remove >>$seq_full 2>&1
 	$sudo rm -f domain.h.perl pmns.perl
 	cd $here
     fi

@@ -46,7 +46,7 @@ sleep 1
 
 # from _run_valgrind() ...
 #
-echo "=== std out ===" | tee -a $here/$seq.full
+echo "=== std out ===" | tee -a $seq_full
 cat $tmp._valgrind.out >>$seq_full
 sed <$tmp._valgrind.out \
     -e "s@$tmp@TMP@g" \
@@ -56,7 +56,7 @@ s/ --[a-z][^ ]*//g
 s/  */ /g
 }' \
     #end
-echo "=== std err ===" | tee -a $here/$seq.full
+echo "=== std err ===" | tee -a $seq_full
 cat $tmp._valgrind.err >>$seq_full
 sed < $tmp._valgrind.err \
     -e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]/DATE/' \

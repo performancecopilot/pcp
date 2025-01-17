@@ -281,7 +281,7 @@ $1 == "proc:'"$inst"'" && $2 == "'"$idx"':"	{ print }' \
 
 # real QA test starts here
 
-echo '## Testing RHEL6.4 inst/value extraction:' | tee -a $seq.full
+echo '## Testing RHEL6.4 inst/value extraction:' | tee -a $seq_full
 collectl2pcp -F $C/rhel6.raw.gz $TA
 _checksums
 
@@ -308,8 +308,8 @@ End-of-File
 zcat <$C/rhel6.raw.gz >$tmp.raw
 _value_checker
 
-echo | tee -a $seq.full
-echo '## Testing Debian inst/value extraction:' | tee -a $seq.full
+echo | tee -a $seq_full
+echo '## Testing Debian inst/value extraction:' | tee -a $seq_full
 collectl2pcp -F $C/debian_sid_detailed.raw.gz $TA
 _checksums
 

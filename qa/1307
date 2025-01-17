@@ -78,7 +78,7 @@ then
 else
     dbpmda -U `id -un` <$tmp.cmd 2>&1
 fi \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | _filter
 
 # success, all done

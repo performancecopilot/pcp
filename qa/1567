@@ -37,7 +37,7 @@ signal=$PCP_BINADM_DIR/pmsignal
 
 _filter_pmie_webhook()
 {
-    tee -a $here/$seq.full \
+    tee -a $seq_full \
     | col -b \
     | sed \
 	-e "s/^\(Host: localhost\):$port/\1:PORT/g" \
@@ -61,7 +61,7 @@ sleep 2 # let nc start up
 #
 ( sleep 2; $signal $pid1 ) >>$seq_full 2>&1 &
 
-echo "pmie webhook invocation" | tee -a $here/$seq.full
+echo "pmie webhook invocation" | tee -a $seq_full
 pmie_webhook "http://localhost:$port/webhook|Busy CPU|www.abc.com|100%@www.abc.com" 2> $tmp.webhook.err
 cat $tmp.webhook.err >> $seq_full
 echo
@@ -76,7 +76,7 @@ do
     cat $i >>$seq_full
 done
 
-echo "" | tee -a $here/$seq.full
+echo "" | tee -a $seq_full
 
 # success, all done
 exit

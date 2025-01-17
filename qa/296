@@ -114,7 +114,7 @@ sleep 5
 _wait_for_pmcd || _exit 1
 
 ps $PCP_PS_ALL_FLAGS >$tmp.out
-cp $tmp.out $seq.full
+cp $tmp.out $seq_full
 num=`grep pmdasample $tmp.out | wc -l | sed -e 's/ //g'`
 if [ $num -ne 0 ]
 then

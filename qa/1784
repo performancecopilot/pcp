@@ -61,8 +61,8 @@ probe	pmproxy.control.files exists ? include : exclude
 EOF
 head $tmp.pmlogconf/qa/* >> $seq_full
 pmlogconf -d $tmp.pmlogconf $tmp.config 2>&1 | _filter
-echo "== Initial pmlogger config created" | tee -a $here/$seq.full
-cat $tmp.config | tee -a $here/$seq.full | _filter
+echo "== Initial pmlogger config created" | tee -a $seq_full
+cat $tmp.config | tee -a $seq_full | _filter
 
 echo "== Modify deltas and ensure changed values persist"
 cat >$tmp.expect <<EOF
@@ -75,7 +75,7 @@ yes
 EOF
 cat $tmp.expect \
 | pmlogconf -d $tmp.pmlogconf $tmp.config \
-| tee -a $here/$seq.full \
+| tee -a $seq_full \
 | _filter
 echo
 echo

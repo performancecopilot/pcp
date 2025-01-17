@@ -58,12 +58,12 @@ do
     echo "=== $metric ===" >>$seq_full
     echo "--- original ---" >>$seq_full
     pmval -z -a archives/naslog -t 30sec -A 30sec $metric 2>&1 \
-    | tee -a $seq.full \
+    | tee -a $seq_full \
     | _filter >$tmp.in
 
     echo "--- reduced ---" >>$seq_full
     pmval -z -a $tmp -t 30sec -A 30sec $metric 2>&1 \
-    | tee -a $seq.full \
+    | tee -a $seq_full \
     | _filter >$tmp.out
     diff $tmp.in $tmp.out
 done

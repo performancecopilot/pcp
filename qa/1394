@@ -106,14 +106,14 @@ do
 
     echo "=== scanmeta for expected output ===" >>$seq_full
     src/scanmeta -a tmparch/sample-proc_v3.meta 2>&1 \
-    | tee -a $seq.full \
+    | tee -a $seq_full \
     | _filter_scanmeta \
     | LC_COLLATE=POSIX sort >$tmp.expected
 
     echo >>$seq_full
     echo "=== scanmeta for actual output ===" >>$seq_full
     src/scanmeta -a $tmp.meta 2>&1 \
-    | tee -a $seq.full \
+    | tee -a $seq_full \
     | _filter_scanmeta \
     | LC_COLLATE=POSIX sort >$tmp.output
 
@@ -122,13 +122,13 @@ do
 
     echo "=== dumplog for expected output ===" >>$seq_full
     pmdumplog -diLmsI tmparch/sample-proc_v3 2>&1 \
-    | tee -a $seq.full \
+    | tee -a $seq_full \
     | _filter_dumplog >$tmp.expected
 
     echo >>$seq_full
     echo "=== dumplog for actual output ===" >>$seq_full
     pmdumplog -diLmsI $tmp 2>&1 \
-    | tee -a $seq.full \
+    | tee -a $seq_full \
     | _filter_dumplog >$tmp.output
 
     echo "=== pmdumplog diffs ==="

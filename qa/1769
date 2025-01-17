@@ -60,7 +60,7 @@ do
     echo
     all="network.all.$suffix"
     int="network.interface.$suffix"
-    echo "=== Comparing $all to $int ===" | tee -a $here/$seq.full
+    echo "=== Comparing $all to $int ===" | tee -a $seq_full
 
     if $do_valgrind
     then

@@ -83,6 +83,6 @@ _filter_date $tmp.log | _filter_errs
 
 # for debugging
 #
-cp $tmp.out $seq.full
+cp $tmp.out $seq_full
 
 exit 0

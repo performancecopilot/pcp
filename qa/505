@@ -34,7 +34,7 @@ _cmp()
 	return
     fi
     pmdumplog -z -dilmst $1 \
-    | tee -a $seq.full \
+    | tee -a $seq_full \
     | sed -e '/\[[0-9][0-9]* bytes]/d' >$tmp.out
     diff -u $tmp.ref $tmp.out | _filter
 }
@@ -42,24 +42,24 @@ _cmp()
 # real QA test starts here
 
 pmdumplog -z -dilmst archives/ok-mv-foo \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | sed -e '/\[[0-9][0-9]* bytes]/d' >$tmp.ref
 
-echo | tee -a $seq.full
+echo | tee -a $seq_full
 echo "metric sample.seconds { type -> U64 }" >$tmp.config
-echo "=== `cat $tmp.config` ===" | tee -a $seq.full
+echo "=== `cat $tmp.config` ===" | tee -a $seq_full
 rm -f $tmp.new.*
 pmlogrewrite -ws -c $tmp.config archives/ok-mv-foo $tmp.new 2>&1 | _filter
-echo "Output archive contains: `ls $tmp.new.* | tee -a $seq.full | wc -l | sed -e 's/ //g'` files"
+echo "Output archive contains: `ls $tmp.new.* | tee -a $seq_full | wc -l | sed -e 's/ //g'` files"
 _cmp $tmp.new
 
-echo | tee -a $seq.full
+echo | tee -a $seq_full
 echo "metric sample.seconds { type -> U64 }" >$tmp.config
-echo "=== -i `cat $tmp.config` ===" | tee -a $seq.full
+echo "=== -i `cat $tmp.config` ===" | tee -a $seq_full
 rm -f $tmp.new.*
 pmlogcp archives/ok-mv-foo $tmp.new
 pmlogrewrite -iws -c $tmp.config $tmp.new 2>&1 | _filter
-echo "Output archive contains: `ls $tmp.new.* | tee -a $seq.full | wc -l | sed -e 's/ //g'` files"
+echo "Output archive contains: `ls $tmp.new.* | tee -a $seq_full | wc -l | sed -e 's/ //g'` files"
 _cmp $tmp.new
 
 # success, all done

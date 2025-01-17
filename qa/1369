@@ -32,7 +32,7 @@ _cleanup()
 
 _filter_labels()
 {
-    tee -a $here/$seq.full \
+    tee -a $seq_full \
     | sed \
 	-e "s/-U ${username}/-U USERNAME/g" \
 	-e "s/.domainname.:.${domainname}./\"domainname\":\"DOMAINNAME\"/g" \

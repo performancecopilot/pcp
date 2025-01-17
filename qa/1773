@@ -61,11 +61,11 @@ _filter_url()
 _curl_get()
 {
     url="$1"
-    echo "$url" | tee -a $seq.full | _filter_url
+    echo "$url" | tee -a $seq_full | _filter_url
     curl --get --silent "$url" | pmjson | tee $tmp.out |\
     awk '$1 == "{" {n++} END { printf(" .. %d lines with %d json { objects }\n", NR, n); }'
     if grep -q -s '}$' $tmp.out; then src/pmjson_array_sort <$tmp.out; else cat $tmp.out; fi \
-    | tee -a $seq.full
+    | tee -a $seq_full
 }
 
 # some platforms show values in different notation ...
@@ -144,17 +144,17 @@ echo == pmseries kernel.all.load+kernel.all.load : should return one fabricated 
 pmseries $options 'kernel.all.load+kernel.all.load'
 
 
-echo;echo "== verify two host series sum (a + b) SID lookup" | tee -a $seq.full
+echo;echo "== verify two host series sum (a + b) SID lookup" | tee -a $seq_full
 echo "kernel.all.load + kernel.all.load"
 expr="kernel.all.load%20%2B%20kernel.all.load"
 _curl_get "http://localhost:$proxyport/series/query?expr=$expr"
 
-echo;echo "== verify two host series sum (a + b) with samples" | tee -a $seq.full
+echo;echo "== verify two host series sum (a + b) with samples" | tee -a $seq_full
 echo "kernel.all.load[samples:1] + kernel.all.load[samples:1]"
 expr="kernel.all.load%5Bsamples%3A1%5D%20%2B%20kernel.all.load%5Bsamples%3A1%5D"
 _curl_get "http://localhost:$proxyport/series/query?expr=$expr"
 
-echo;echo "== verify two host series sum (a + b) with samples by SID" | tee -a $seq.full
+echo;echo "== verify two host series sum (a + b) with samples by SID" | tee -a $seq_full
 SID=`pmseries $options "kernel.all.load + kernel.all.load"`
 echo "kernel.all.load + kernel.all.load, SID=$SID"
 _curl_get "http://localhost:$proxyport/series/values?series=$SID&samples=1"
@@ -167,17 +167,17 @@ _curl_get "http://localhost:$proxyport/series/instances?series=$SID"
 # read something
 
 
-echo;echo "== verify two host series difference (a - b) SID lookup" | tee -a $seq.full
+echo;echo "== verify two host series difference (a - b) SID lookup" | tee -a $seq_full
 echo "kernel.all.load - kernel.all.load"
 expr="kernel.all.load%20-%20kernel.all.load"
 _curl_get "http://localhost:$proxyport/series/query?expr=$expr"
 
-echo;echo "== verify two host series difference (a - b) with samples" | tee -a $seq.full
+echo;echo "== verify two host series difference (a - b) with samples" | tee -a $seq_full
 echo "kernel.all.load[samples:1] - kernel.all.load[samples:1]"
 expr="kernel.all.load%5Bsamples%3A1%5D%20-%20kernel.all.load%5Bsamples%3A1%5D"
 _curl_get "http://localhost:$proxyport/series/query?expr=$expr"
 
-echo;echo "== verify two host series difference (a - b) with samples by SID" | tee -a $seq.full
+echo;echo "== verify two host series difference (a - b) with samples by SID" | tee -a $seq_full
 SID=`pmseries $options kernel.all.load-kernel.all.load`
 echo "kernel.all.load - kernel.all.load, SID=$SID"
 _curl_get "http://localhost:$proxyport/series/values?series=$SID&samples=1"
@@ -186,17 +186,17 @@ _curl_get "http://localhost:$proxyport/series/metrics?series=$SID"
 _curl_get "http://localhost:$proxyport/series/instances?series=$SID"
 
 
-echo;echo "== verify two host series function (floor(a)) SID lookup" | tee -a $seq.full
+echo;echo "== verify two host series function (floor(a)) SID lookup" | tee -a $seq_full
 echo "floor(kernel.all.load)"
 expr="floor%28kernel.all.load%29"
 _curl_get "http://localhost:$proxyport/series/query?expr=$expr"
 
-echo;echo "== verify two host series function (floor(a)) with samples" | tee -a $seq.full
+echo;echo "== verify two host series function (floor(a)) with samples" | tee -a $seq_full
 echo "floor(kernel.all.load[samples:2])"
 expr="floor%28kernel.all.load%5Bsamples%3A2%5D%29"
 _curl_get "http://localhost:$proxyport/series/query?expr=$expr"
 
-echo;echo "== verify two host series function (floor(a)) with samples by SID" | tee -a $seq.full
+echo;echo "== verify two host series function (floor(a)) with samples by SID" | tee -a $seq_full
 SID=`pmseries $options 'floor(kernel.all.load)'`
 echo "floor(kernel.all.load), SID=$SID"
 _curl_get "http://localhost:$proxyport/series/values?series=$SID&samples=2"
@@ -205,17 +205,17 @@ _curl_get "http://localhost:$proxyport/series/metrics?series=$SID"
 _curl_get "http://localhost:$proxyport/series/instances?series=$SID"
 
 
-echo;echo '== verify two host series function rescale(rate(kernel.percpu.cpu.idle), "millisec/s") SID lookup' | tee -a $seq.full
+echo;echo '== verify two host series function rescale(rate(kernel.percpu.cpu.idle), "millisec/s") SID lookup' | tee -a $seq_full
 echo 'rescale(rate(kernel.percpu.cpu.idle), "millisec/s")'
 expr='rescale%28rate%28kernel.percpu.cpu.idle%29,%22millisec/s%22%29'
 _curl_get "http://localhost:$proxyport/series/query?expr=$expr"
 
-echo;echo '== verify two host series function rescale(rate(kernel.percpu.cpu.idle), "millisec/s") with samples' | tee -a $seq.full
+echo;echo '== verify two host series function rescale(rate(kernel.percpu.cpu.idle), "millisec/s") with samples' | tee -a $seq_full
 echo 'rescale(rate(kernel.percpu.cpu.idle[samples:2]),"millisec/s")'
 expr='rescale%28rate%28kernel.percpu.cpu.idle%5Bsamples%3A2%5D%29,%22millisec/s%22%29'
 _curl_get "http://localhost:$proxyport/series/query?expr=$expr" | _filter_values
 
-echo;echo '== verify two host series function rescale(kernel.percpu.cpu.idle, "millisec/s") with samples by SID' | tee -a $seq.full
+echo;echo '== verify two host series function rescale(kernel.percpu.cpu.idle, "millisec/s") with samples by SID' | tee -a $seq_full
 SID=`pmseries $options 'rescale(rate(kernel.percpu.cpu.idle), "millisec/s")'`
 echo 'rescale(rate(kernel.percpu.cpu.idle), "millisec/s"),' SID=$SID
 _curl_get "http://localhost:$proxyport/series/values?series=$SID&samples=2" | _filter_values

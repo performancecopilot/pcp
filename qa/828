@@ -343,7 +343,7 @@ do
 
     echo "=== std out ==="
     cat $tmp.valgrind.out
-    echo "=== std err ===" | tee -a $seq.full
+    echo "=== std err ===" | tee -a $seq_full
     cat $tmp.valgrind.err >>$seq_full
     _filter < $tmp.valgrind.err
     echo "=== valgrind report ===" >>$seq_full

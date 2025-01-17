@@ -153,7 +153,7 @@ cd $tmp
 # real QA test starts here
 export PCP_DERIVED_CONFIG=
 
-echo "+++ -N, do nothing +++" | tee -a $here/$seq.full
+echo "+++ -N, do nothing +++" | tee -a $seq_full
 _setup
 $PCP_BINADM_DIR/pmlogger_daily -D -c $tmp.control -k forever -x never -NV -R >$tmp.log 2>$tmp.err
 _filter <$tmp.err
@@ -166,8 +166,8 @@ do
     pminfo -d -a $arch pmcd.pid network.interface.in.bytes | grep Semantics
 done
 
-echo | tee -a $here/$seq.full
-echo "+++ -V -R +++" | tee -a $here/$seq.full
+echo | tee -a $seq_full
+echo "+++ -V -R +++" | tee -a $seq_full
 _setup
 $sudo -u pcp $PCP_BINADM_DIR/pmlogger_daily -D -c $tmp.control -k forever -x never -V -R -l $tmp.log 2>$tmp.err
 _filter <$tmp.err
@@ -181,8 +181,8 @@ do
     pminfo -d -a $arch pmcd.pid network.interface.in.bytes | grep Semantics
 done
 
-echo | tee -a $here/$seq.full
-echo "+++ .NeedRewrite +++" | tee -a $here/$seq.full
+echo | tee -a $seq_full
+echo "+++ .NeedRewrite +++" | tee -a $seq_full
 _setup
 $sudo -u pcp touch $PCP_LOG_DIR/pmlogger/.NeedRewrite
 $sudo -u pcp $PCP_BINADM_DIR/pmlogger_daily -D -c $tmp.control -k forever -x never -l $tmp.log 2>$tmp.err

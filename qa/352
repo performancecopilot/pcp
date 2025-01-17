@@ -76,10 +76,10 @@ rm -f $tmp.0 $tmp.meta $tmp.index $tmp.log
 pmlogger -c $tmp.config -l $tmp.log -s 2 $tmp
 cat $tmp.log >>$seq_full
 _filter_pmlogger_log <$tmp.log | _filter
-pmdumplog -mh $tmp | tee -a $seq.full | _filter_pmdumplog | _filter
+pmdumplog -mh $tmp | tee -a $seq_full | _filter_pmdumplog | _filter
 
-echo | tee -a $seq.full
-echo "Now with derived metrics defined ..." | tee -a $seq.full
+echo | tee -a $seq_full
+echo "Now with derived metrics defined ..." | tee -a $seq_full
 export PCP_DERIVED_CONFIG=$tmp.derive
 pminfo -f  `grep sample $tmp.config`
 rm -f $tmp.0 $tmp.meta $tmp.index $tmp.log
@@ -87,7 +87,7 @@ pmlogger -c $tmp.config -l $tmp.log -s 3 $tmp
 cat $tmp.log >>$seq_full
 _filter_pmlogger_log <$tmp.log | _filter
 unset PCP_DERIVED_CONFIG
-pmdumplog -mh $tmp | tee -a $seq.full | _filter_pmdumplog | _filter
+pmdumplog -mh $tmp | tee -a $seq_full | _filter_pmdumplog | _filter
 
 # pmval -a $tmp -t 0.1sec sample.long.nine
 pminfo -ftTl -a $tmp -O 0.05 sample.long \

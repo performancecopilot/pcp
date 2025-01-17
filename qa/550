@@ -24,7 +24,7 @@ trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 pmcd_memory()
 {
     pmprobe -h $host -v pmcd.datasize \
-	| tee -a $here/$seq.full \
+	| tee -a $seq_full \
 	| awk '{ print $3 }'
 }
 
@@ -34,18 +34,18 @@ MEMINIT=`pmcd_memory`
 cd secure
 for leak_test in leak-*
 do
-    echo "$leak_test checking: " | tee -a $here/$seq.full
+    echo "$leak_test checking: " | tee -a $seq_full
     pmpython $leak_test $host $iterate
     pmcd_wait -t $timeout -h $host
     sts=$?
-    echo "$leak_test complete sts=$sts" | tee -a $here/$seq.full
+    echo "$leak_test complete sts=$sts" | tee -a $seq_full
     [ $sts -ne 0 ] && exit
     MEMUSED=`pmcd_memory`
     # allow for max 64KB increase (several pages on 64KB systems)
     MEMSLOP=`expr $MEMINIT + 640`
     echo "init=$MEMINIT used=$MEMUSED slop=$MEMSLOP" >> $seq_full
     [ $MEMUSED -gt $MEMSLOP ] && exit
-    echo "$leak_test memory check=OK" | tee -a $here/$seq.full
+    echo "$leak_test memory check=OK" | tee -a $seq_full
 done
 
 # success, all done

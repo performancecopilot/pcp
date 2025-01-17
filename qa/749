@@ -83,7 +83,7 @@ $sudo stap $tmp.stap >$tmp.out 2>&1
 #
 echo "Output from stap:" >> $seq_full
 cat $tmp.out \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | if grep '^PASS:' $tmp.out >/dev/null
 then
     sed \

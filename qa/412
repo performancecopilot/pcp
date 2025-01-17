@@ -156,7 +156,7 @@ _pmval_log()
     #debug debug=-Dinterp,fetch
     pmval $debug -w 15 -f 0 -r -a $tmp.archive -S "@$starttime" -O $half_delta -t $delta 2>$tmp.err \
       sample.wrap.ulong \
-    | tee -a $seq.full \
+    | tee -a $seq_full \
     | sed \
 	-e '/metric/,/interval/d' \
 	-e '/^[ 	]*$/d' \
@@ -179,7 +179,7 @@ _compare_results()
     #
     error=100000
     paste $tmp.1 $tmp.2 \
-    | tee -a $seq.full \
+    | tee -a $seq_full \
     | $PCP_AWK_PROG -v error=$error ' {
 	    diff = $1-$2; 
 	    if (diff < 0) diff *= -1; 

@@ -42,12 +42,12 @@ check()
     iter=$1
     name=$2
 
-    echo "fetch pmprobe #$iter - $name" | tee -a $here/$seq.full
+    echo "fetch pmprobe #$iter - $name" | tee -a $seq_full
     pmprobe -v $iam \
     | LC_COLLATE=POSIX sort > $tmp.pmprobe
     cat $tmp.pmprobe >>$seq_full
 
-    echo "check pmprobe #$iter - $name" | tee -a $here/$seq.full
+    echo "check pmprobe #$iter - $name" | tee -a $seq_full
     cat $tmp.pmprobe \
     | while read metric nv v1
     do

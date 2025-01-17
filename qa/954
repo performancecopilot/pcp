@@ -47,14 +47,14 @@ echo "qa.b = sample.long.hundred" >$tmp.c2
 export PCP_DERIVED_CONFIG=''
 
 # real QA test starts here
-echo "=== one config ===" | tee -a $here/$seq.full
+echo "=== one config ===" | tee -a $seq_full
 src/loadconfig2 -D lock -c $tmp.c1 qa 2>$tmp.err \
 | _filter
 cat $tmp.err >>$seq_full
 grep derived_metric $tmp.err | _filter
 
-echo | tee -a $here/$seq.full
-echo "=== two configs ===" | tee -a $here/$seq.full
+echo | tee -a $seq_full
+echo "=== two configs ===" | tee -a $seq_full
 src/loadconfig2 -D lock -c $tmp.c1 -c $tmp.c2 qa 2>$tmp.err \
 | _filter
 cat $tmp.err >>$seq_full

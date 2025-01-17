@@ -29,12 +29,12 @@ _cleanup()
 {
     if $pmproxy_was_running
     then
-	echo "Restart pmproxy ..." >>$here/$seq.full
-	_service pmproxy restart >>$here/$seq.full 2>&1
+	echo "Restart pmproxy ..." >>$seq_full
+	_service pmproxy restart >>$seq_full 2>&1
 	_wait_for_pmproxy
     else
-	echo "Stopping pmproxy ..." >>$here/$seq.full
-	_service pmproxy stop >>$here/$seq.full 2>&1
+	echo "Stopping pmproxy ..." >>$seq_full
+	_service pmproxy stop >>$seq_full 2>&1
     fi
     $sudo rm -f $tmp.*
 }
@@ -44,11 +44,11 @@ if ! _service pmproxy restart >/dev/null 2>&1; then _exit 1; fi
 
 echo; echo "=== OPTIONS"
 curl -isS -X OPTIONS --request-target "*" http://localhost:44322 \
-	2>&1 | tee -a $here/$seq.full | _webapi_header_filter
+	2>&1 | tee -a $seq_full | _webapi_header_filter
 
 echo; echo "=== TRACE"
 curl -isS -X TRACE http://localhost:44322 \
-	2>&1 | tee -a $here/$seq.full | _webapi_header_filter
+	2>&1 | tee -a $seq_full | _webapi_header_filter
 
 echo >>$seq_full
 echo "=== pmproxy log ===" >>$seq_full

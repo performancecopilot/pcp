@@ -26,7 +26,7 @@ _cleanup()
 
 _filter()
 {
-    tee -a $seq.full \
+    tee -a $seq_full \
     | sed \
 	-e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;" \
 	-e "s;$PCP_TMP_DIR;\$PCP_TMP_DIR;" \

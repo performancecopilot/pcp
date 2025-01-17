@@ -60,7 +60,7 @@ sleep 2
 #
 debug=false
 pcp -P \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | sed \
     -e '/pmie:/{
 :loop

@@ -98,7 +98,7 @@ esac
 _filter()
 {
     cat \
-    | tee -a $here/$seq.full \
+    | tee -a $seq_full \
     | sed \
 	-e '/re-established connection/d' \
 	-e '/pduread: .* Interrupted system call/d' \
@@ -131,7 +131,7 @@ wait
 
 _filter <$tmp.log
 
-N=`grep '^  Fetch group' $tmp.log | tee -a $here/$seq.full | wc -l | sed -e 's/ //g'`
+N=`grep '^  Fetch group' $tmp.log | tee -a $seq_full | wc -l | sed -e 's/ //g'`
 
 # pmlogger ends up using N fetch groups 
 # without timeouts, expect 6000msec * N fetch groups / 100msec = 60*N records

@@ -85,7 +85,7 @@ echo "--- mount | filter ---" >>$seq_full
 mount | grep -E "$root|/dev/root|$symroot" >>$seq_full
 pminfo -f filesys.mountdir >>$seq_full
 pminfo -f filesys \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | grep -E "(^filesys)|\"$root\"|/dev/root|$symroot\"|\"overlay\"" \
 | _filter_dumpresult 2>&1 > $tmp.out
 

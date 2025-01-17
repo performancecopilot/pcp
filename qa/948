@@ -68,14 +68,14 @@ _filter_pmlc()
 }
 
 # real QA test starts here
-echo "=== error cases ===" | tee -a $seq.full
+echo "=== error cases ===" | tee -a $seq_full
 rm -f $tmp.0 $tmp.meta $tmp.index $tmp.log
 pmlogger -c /dev/null -o -h localhost $tmp -l $tmp.log 2>&1 | _filter_usage
 [ -f $tmp.log ] && cat $tmp.log >>$seq_full
 
-echo | tee -a $seq.full
-echo "=== linger tests ===" | tee -a $seq.full
-echo "--- expect error from pmlc ---" | tee -a $seq.full
+echo | tee -a $seq_full
+echo "=== linger tests ===" | tee -a $seq_full
+echo "--- expect error from pmlc ---" | tee -a $seq_full
 rm -f $tmp.0 $tmp.meta $tmp.index $tmp.log
 pmlogger -c /dev/null -o -l $tmp.log $tmp &
 pid=$!
@@ -92,7 +92,7 @@ then
 fi
 [ -f $tmp.log ] && cat $tmp.log >>$seq_full
 
-echo "--- expect success from pmlc ---" | tee -a $seq.full
+echo "--- expect success from pmlc ---" | tee -a $seq_full
 rm -f $tmp.0 $tmp.meta $tmp.index $tmp.log
 pmlogger -c /dev/null -L -o -l $tmp.log $tmp &
 pid=$!
@@ -107,8 +107,8 @@ else
 fi
 [ -f $tmp.log ] && cat $tmp.log >>$seq_full
 
-echo | tee -a $seq.full
-echo "=== OK case ===" | tee -a $seq.full
+echo | tee -a $seq_full
+echo "=== OK case ===" | tee -a $seq_full
 hertz=`pmprobe -v kernel.all.hz | $PCP_AWK_PROG '{ print $3 }'`
 pagesz=`pmprobe -v hinv.pagesize | $PCP_AWK_PROG '{ print $3 }'`
 

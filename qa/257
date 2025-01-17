@@ -53,21 +53,21 @@ _do_tests()
     esac
 
     echo ""
-    echo "=== pmapi 32, local version $style_str ===" | tee -a $seq.full
+    echo "=== pmapi 32, local version $style_str ===" | tee -a $seq_full
     torture_api="src/torture_api"
     echo "torture_api = $torture_api" >> $seq_full
     $torture_api -v $style 2>&1 | _filter `uname -r` >$tmp.out
     _cmp $tmp.out
 
     echo ""
-    echo "=== pmapi 32, pmcd 32 $style_str ===" | tee -a $seq.full
+    echo "=== pmapi 32, pmcd 32 $style_str ===" | tee -a $seq_full
     torture_api="src/torture_api"
     echo "torture_api = $torture_api" >> $seq_full
     $torture_api -v $style -h $host_32 2>&1 | _filter $host_32_os >$tmp.out
     _cmp $tmp.out
 
     echo ""
-    echo "=== pmapi 32, pmcd 64 $style_str ===" | tee -a $seq.full
+    echo "=== pmapi 32, pmcd 64 $style_str ===" | tee -a $seq_full
     torture_api="src/torture_api"
     echo "torture_api = $torture_api" >> $seq_full
     $torture_api -v $style -h $host_64 2>&1 | _filter $host_64_os >$tmp.out

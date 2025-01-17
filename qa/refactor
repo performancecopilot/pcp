@@ -83,6 +83,31 @@ _check_trap()
     # end
 }
 
+_fix_seq_full()
+{
+    sed \
+	-e 's/$/ /' \
+	-e 's/\(tee[ 	][ 	]*\)\$here\/\$seq\.full /\1$seq_full /g' \
+	-e 's/\(tee[ 	][ 	]*\)\$seq\.full /\1$seq_full /g' \
+	-e 's/\(tee[ 	][ 	]*-a[ 	][ 	]*\)\$here\/\$seq\.full /\1$seq_full /g' \
+	-e 's/\(tee[ 	][ 	]*-a[ 	][ 	]*\)\$seq\.full /\1$seq_full /g' \
+	-e 's/\(>[ 	]*\)\$here\/\$seq\.full /\1$seq_full /g' \
+	-e 's/\(>[ 	]*\)\$seq\.full /\1$seq_full /g' \
+	-e 's/ \$here\/\$seq\.full / $seq_full /g' \
+	-e 's/"\$here\/\$seq\.full"/"$seq_full"/g' \
+	-e 's/"\$seq\.full"/"$seq_full"/g' \
+	-e "s/'\\\$here\/\\\$seq\.full'/'\$seq_full'/g" \
+	-e "s/'\\\$seq\.full'/'\$seq_full'/g" \
+	-e '/ \$seq\.full[ "`;]/{
+/[Ss]ee \$seq\.full/b
+/[Cc]heck \$seq\.full/b
+/\$seq\.full\.save/b
+s/ \$seq\.full\([ "`;]\)/ $seq_full\1/g
+s/ \$seq\.full\([ "`;]\)/ $seq_full\1/g
+}' \
+    | sed -e 's/ $//'
+}
+
 echo >$tmp.usage
 cat >>$tmp.usage <<End-of-File
 # Usage: [options] seqnum ...
@@ -329,14 +354,7 @@ p
 	# real work ...
 	sed <$tmp.in \
 	    -e 's/^[0-9][0-9]*://' \
-	    -e 's/\(>[ 	]*\)\$here\/$seq.full/\1$seq_full/g' \
-	    -e 's/\(>[ 	]*\)\$seq.full/\1$seq_full/g' \
-	    -e 's/\(tee[ 	][ 	]*\)\$here\/$seq.full/\1$seq_full/g' \
-	    -e 's/\(tee[ 	][ 	]*\)\$seq.full/\1$seq_full/g' \
-	    -e 's/\(tee[ 	][ 	]*-a[ 	][ 	]*\)\$here\/$seq.full/\1$seq_full/g' \
-	    -e 's/\(tee[ 	][ 	]*-a[ 	][ 	]*\)\$seq.full/\1$seq_full/g' \
-	    -e '/[ 	]rm .*\$seq.full/s/\$seq.full/$seq_full/g' \
-	    -e '/^rm .*\$seq.full/s/\$seq.full/$seq_full/g' \
+	| _fix_seq_full \
 	| awk '
 /trap "/	{ print; next }
 /[#] refactor-ok/	{ print; next }
@@ -398,7 +416,7 @@ p
 	if grep -q '^+-+ CLEANUP +-+' $tmp.tmp
 	then
 	    sed -e '/^+-+ CLEANUP +-+/,$d' <$tmp.tmp >$tmp.out
-	    cat $tmp.cleanup >>$tmp.out
+	    _fix_seq_full <$tmp.cleanup >>$tmp.out
 	    sed -e '1,/^+-+ CLEANUP +-+/d' <$tmp.tmp >>$tmp.out
 	else
 	    mv $tmp.tmp $tmp.out

@@ -31,8 +31,8 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 # real QA test starts here
 pmlogreduce -t 1min archives/pmiostat_mark $tmp
 
-pmdumplog -zt archives/pmiostat_mark | tee -a $seq.full >$tmp.in
-pmdumplog -zt $tmp | tee -a $seq.full >$tmp.out
+pmdumplog -zt archives/pmiostat_mark | tee -a $seq_full >$tmp.in
+pmdumplog -zt $tmp | tee -a $seq_full >$tmp.out
 
 # can't really compare temporal index entries (pmResults are not exactly
 # time-aligned and pmlogreduce tends to push metric metadata (not indom

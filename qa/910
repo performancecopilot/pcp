@@ -79,7 +79,7 @@ wait	# for reporting tool to complete (-T option)
 echo Finished wait for pmval: `date` >> $seq_full
 
 echo "Observed from running pmval:"
-cat $tmp.out | tee -a $seq.full | _filter | uniq
+cat $tmp.out | tee -a $seq_full | _filter | uniq
 
 cat $tmp.err >>$seq_full
 

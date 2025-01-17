@@ -60,8 +60,8 @@ _filter_url()
 _curl_get()
 {
     url="$1"
-    echo "$url" | tee -a $seq.full | _filter_url
-    curl --get --silent "$url" | pmjson | tee -a $seq.full
+    echo "$url" | tee -a $seq_full | _filter_url
+    curl --get --silent "$url" | pmjson | tee -a $seq_full
 }
 
 # real QA test starts here
@@ -113,17 +113,17 @@ series1=`pmseries $options disk.all.read`
 # REST API queries using newer expression syntax and functions
 #
 
-echo "== verify series sum (a + b) SID lookup" | tee -a $seq.full
+echo "== verify series sum (a + b) SID lookup" | tee -a $seq_full
 echo "kernel.all.load + kernel.all.load"
 expr="kernel.all.load%20%2B%20kernel.all.load"
 _curl_get "http://localhost:$proxyport/series/query?expr=$expr"
 
-echo "== verify series sum (a + b) with samples" | tee -a $seq.full
+echo "== verify series sum (a + b) with samples" | tee -a $seq_full
 echo "kernel.all.load[samples:1] + kernel.all.load[samples:1]"
 expr="kernel.all.load%5Bsamples%3A1%5D%20%2B%20kernel.all.load%5Bsamples%3A1%5D"
 _curl_get "http://localhost:$proxyport/series/query?expr=$expr"
 
-echo "== verify series sum (a + b) with samples by SID" | tee -a $seq.full
+echo "== verify series sum (a + b) with samples by SID" | tee -a $seq_full
 echo "kernel.all.load + kernel.all.load"
 sid="16aa36d93e5cd0733499eee7dafc07dbb2ad7067"
 _curl_get "http://localhost:$proxyport/series/values?series=$sid&samples=1"
@@ -135,17 +135,17 @@ _curl_get "http://localhost:$proxyport/series/instances?series=$sid"
 # echo === pause for gdb -p $pmproxy_pid Log is $tmp.pmproxy.log ===
 # read something
 
-echo "== verify series difference (a - b) SID lookup" | tee -a $seq.full
+echo "== verify series difference (a - b) SID lookup" | tee -a $seq_full
 echo "kernel.all.load - kernel.all.load"
 expr="kernel.all.load%20-%20kernel.all.load"
 _curl_get "http://localhost:$proxyport/series/query?expr=$expr"
 
-echo "== verify series difference (a - b) with samples" | tee -a $seq.full
+echo "== verify series difference (a - b) with samples" | tee -a $seq_full
 echo "kernel.all.load[samples:1] - kernel.all.load[samples:1]"
 expr="kernel.all.load%5Bsamples%3A1%5D%20%2B%20kernel.all.load%5Bsamples%3A1%5D"
 _curl_get "http://localhost:$proxyport/series/query?expr=$expr"
 
-echo "== verify series difference (a - b) with samples by SID" | tee -a $seq.full
+echo "== verify series difference (a - b) with samples by SID" | tee -a $seq_full
 echo "kernel.all.load - kernel.all.load"
 sid="f29c38f54d5a3cb928496439760634617688036b"
 _curl_get "http://localhost:$proxyport/series/values?series=$sid&samples=1"
@@ -154,17 +154,17 @@ _curl_get "http://localhost:$proxyport/series/metrics?series=$sid"
 _curl_get "http://localhost:$proxyport/series/instances?series=$sid"
 
 
-echo "== verify series function (floor(a)) SID lookup" | tee -a $seq.full
+echo "== verify series function (floor(a)) SID lookup" | tee -a $seq_full
 echo "floor(kernel.all.load)"
 expr="floor%28kernel.all.load%29"
 _curl_get "http://localhost:$proxyport/series/query?expr=$expr"
 
-echo "== verify series function (floor(a)) with samples" | tee -a $seq.full
+echo "== verify series function (floor(a)) with samples" | tee -a $seq_full
 echo "floor(kernel.all.load[samples:2])"
 expr="floor%28kernel.all.load%5Bsamples%3A2%5D%29"
 _curl_get "http://localhost:$proxyport/series/query?expr=$expr"
 
-echo "== verify series function (floor(a)) with samples by SID" | tee -a $seq.full
+echo "== verify series function (floor(a)) with samples by SID" | tee -a $seq_full
 echo "floor(kernel.all.load)"
 sid="f2dbf7a113932b3371c8871df932603856d1d7b6"
 _curl_get "http://localhost:$proxyport/series/values?series=$sid&samples=2"

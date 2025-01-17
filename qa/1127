@@ -46,7 +46,7 @@ _pmdabcc_wait_for_metric
 for i in 0 1 2 3 4 5 6 7 8 9 ; do ls /var/empty > /dev/null 2>&1 ; done
 
 echo "=== report metric values ==="
-pminfo -dfmtT bcc.uprobe.hits 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bcc.uprobe.hits 2>&1 | tee -a $seq_full \
 | _value_filter
 
 _pmdabcc_remove

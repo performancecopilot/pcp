@@ -72,7 +72,7 @@ _stop_auto_restart pmcd
 # real QA test starts here
 pmdamounts_install
 
-echo "=== verify mounts values ===" | tee -a $here/$seq.full
+echo "=== verify mounts values ===" | tee -a $seq_full
 if pminfo -f mounts > $tmp.info 2> $tmp.err
 then
     rootdev=`pminfo -f mounts.device | grep '"/"' | awk '{ print $6 }'`

@@ -62,7 +62,7 @@ _doit()
     base=`echo "$2" | sed -e 's/\.[^.][^.]*$//'`
 
     echo
-    echo "=== $base.* ===" | tee -a $seq.full
+    echo "=== $base.* ===" | tee -a $seq_full
     # get all real metrics, including derived ones, and build pmie script
     #
     pminfo -a "$archive" $base \
@@ -84,7 +84,7 @@ _doit()
     for m
     do
 	echo
-	echo "--- cull $m from archive" | tee -a $seq.full
+	echo "--- cull $m from archive" | tee -a $seq_full
 	sed -e "/^$m\$/d" <$tmp.all >$tmp.xtract
 	if diff $tmp.all $tmp.xtract >/dev/null
 	then

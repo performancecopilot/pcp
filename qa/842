@@ -51,13 +51,13 @@ do
 
 	echo >>$seq_full
 	echo "=== metric=$metric field=$field ===" >>$seq_full
-	$PCP_ECHO_PROG $PCP_ECHO_N "Checking pmiostat against pmval -t $t disk.dev.$metric ...""$PCP_ECHO_C" | tee -a $here/$seq.full
+	$PCP_ECHO_PROG $PCP_ECHO_N "Checking pmiostat against pmval -t $t disk.dev.$metric ...""$PCP_ECHO_C" | tee -a $seq_full
 	pmval -t $t -a archives/dm-io -f 1 disk.dev.$metric'[sda]' 2>/dev/null \
-	| tee -a $here/$seq.full \
+	| tee -a $seq_full \
 	| sed -e 's/\.[0-9]*//' \
 	| $PCP_AWK_PROG '/^[0-9][0-9]:/ {print $1, $2}' >$tmp.pmval
 	$PMIOSTAT -P 1 -t $t -a archives/dm-io -xt,h \
-	| tee -a $here/$seq.full \
+	| tee -a $seq_full \
 	| $PCP_AWK_PROG '/^#/ {skip} /sda/ {print $4, $'$field'}' >$tmp.pmiostat
 	if diff $tmp.pmval $tmp.pmiostat >>$seq_full; then $PCP_ECHO_PROG OK; else $PCP_ECHO_PROG FAILED; fi
     done

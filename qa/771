@@ -23,22 +23,22 @@ trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 cd perl
 if [ -f GNUmakefile.install ]
 then
-    if $PCP_MAKE_PROG -f GNUmakefile.install cvalue test.pl 2>&1 >../$seq.full
+    if $PCP_MAKE_PROG -f GNUmakefile.install cvalue test.pl 2>&1 >$seq_full
     then
 	perl test.pl
 	status=$?
     else
 	echo "Arrgh ... make -f GNUmakefile.install failed in qa/perl directory"
-	cat ../$seq.full
+	cat $seq_full
     fi
 else
-    if $PCP_MAKE_PROG 2>&1 >../$seq.full
+    if $PCP_MAKE_PROG 2>&1 >$seq_full
     then
 	perl test.pl
 	status=$?
     else
 	echo "Arrgh ... make failed in qa/perl directory"
-	cat ../$seq.full
+	cat $seq_full
     fi
 fi
 

@@ -22,7 +22,7 @@ _cleanup()
 _filter()
 {
     echo "Expect no buffers to be reported ..."
-    tee -a $seq.full \
+    tee -a $seq_full \
     | $PCP_AWK_PROG '
 BEGIN				{ want=0 }
 /^__pmFindPDUBuf\(DEBUG\)/	{ want=1 }

@@ -23,7 +23,7 @@ status=1	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-pminfo -f pmcd.agent.name | tee -a $seq.full |
+pminfo -f pmcd.agent.name | tee -a $seq_full |
 	sed -e 's/"//g' -e 's/\[//g' -e 's/\]//g' > $tmp.info
 $PCP_AWK_PROG '/inst/ {
                           count++;

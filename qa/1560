@@ -75,8 +75,8 @@ export TZ=UTC
 for data in pdudata/*
 do
     head -1 $data | grep -q '^# PDU specifications' || continue
-    echo | tee -a $seq.full
-    echo "=== $data ===" | tee -a $seq.full
+    echo | tee -a $seq_full
+    echo "=== $data ===" | tee -a $seq_full
     if $do_valgrind
     then
 	_run_valgrind ...your test goes here...

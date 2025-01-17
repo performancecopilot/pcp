@@ -62,12 +62,12 @@ filter_info()
 export TERM=ansi
 
 dstat "Top CPU" --cpu --top-cpu --output $tmp.csv | filter_info
-echo "CSV contents" | tee -a $here/$seq.full
-cat $tmp.csv | tee -a $here/$seq.full | filter_info
+echo "CSV contents" | tee -a $seq_full
+cat $tmp.csv | tee -a $seq_full | filter_info
 
 dstat "Top I/O" --top-bio-adv --top-bio --output $tmp.csv2 | filter_info
-echo "CSV contents" | tee -a $here/$seq.full
-cat $tmp.csv2 | tee -a $here/$seq.full | filter_info
+echo "CSV contents" | tee -a $seq_full
+cat $tmp.csv2 | tee -a $seq_full | filter_info
 
 # success, all done
 exit

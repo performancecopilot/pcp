@@ -116,11 +116,11 @@ echo
 echo "=== report metric values ==="
 metrics=`pminfo netcheck | LC_COLLATE=POSIX sort`
 pminfo -dfmtT $metrics 2>&1 \
-| pmda_filter | tee -a $here/$seq.full
+| pmda_filter | tee -a $seq_full
 
 echo "=== verify metric values ==="
 pminfo -v netcheck 2>&1 \
-| pmda_filter | tee -a $here/$seq.full
+| pmda_filter | tee -a $seq_full
 pmda_remove
 
 status=0

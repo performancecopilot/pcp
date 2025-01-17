@@ -99,7 +99,7 @@ _stop_auto_restart pmcd
 
 $sudo rm -fr $root
 $sudo rm -fr $tmp.*.dir
-touch $here/$seq.full
+touch $seq_full
 
 # real QA test starts here
 cd $here

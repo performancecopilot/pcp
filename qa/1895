@@ -49,11 +49,11 @@ _pmdabpf_wait_for_metric
 dd if=/dev/zero of=${out_file} bs=${write_size} count=1 oflag=direct 2>$seq_full
 
 echo "=== report metric values ==="
-pminfo -dfmtT bpf.disk.all.latency 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bpf.disk.all.latency 2>&1 | tee -a $seq_full \
 | _instances_filter_nonzero
 
 echo "=== check metric labels ==="
-pminfo -l bpf.disk.all.latency 2>&1 | tee -a $here/$seq.full \
+pminfo -l bpf.disk.all.latency 2>&1 | tee -a $seq_full \
 | _label_filter
 
 _pmdabpf_remove

@@ -26,9 +26,9 @@ _cleanup()
     find $here/statsd/output -type f -print \
     | while read f
     do
-	echo "--- $f ---" >>$here/$seq.full
-	$sudo cat "$f" >>$here/$seq.full
-	echo >>$here/$seq.full
+	echo "--- $f ---" >>$seq_full
+	$sudo cat "$f" >>$seq_full
+	echo >>$seq_full
 	rm -f "$f"
     done
 }

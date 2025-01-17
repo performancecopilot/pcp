@@ -36,7 +36,7 @@ _cleanup()
    
    $sudo rm -f $control
 
-   pmdumplog -a $tmp.logfile >>$here/$seq.full
+   pmdumplog -a $tmp.logfile >>$seq_full
 
     [ -f $control.qa-$seq ] && $sudo mv $control.qa-$seq $control
     rm -f $tmp.*

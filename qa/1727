@@ -35,7 +35,7 @@ _cleanup()
     then
         $sudo rm -rf $PCP_ETC_DIR/pcp/labels/*
         _restore_config $PCP_ETC_DIR/pcp/labels
-	$pmproxy_was_running || _service pmproxy stop >>$seq.full 2>&1
+	$pmproxy_was_running || _service pmproxy stop >>$seq_full 2>&1
         need_restore=false
     fi
     _pmdaopenmetrics_cleanup

@@ -95,7 +95,7 @@ curl -s --connect-timeout 5 http://${target_ip}
 _revert_network_troubles
 
 echo "=== report metric values for count ==="
-pminfo -dfmtT bcc.io.net.tcp.retrans.count 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bcc.io.net.tcp.retrans.count 2>&1 | tee -a $seq_full \
 | _value_filter
 
 _pmdabcc_remove

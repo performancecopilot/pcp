@@ -25,7 +25,7 @@ _cleanup()
 #
 _filter()
 {
-    tee -a $here/$seq.full \
+    tee -a $seq_full \
     | sed \
 	-e 's/pid=[0-9][0-9]*/pid=PID/g' \
 	-e 's/fp=[^ ]*/fp=ADDR/' \

@@ -38,20 +38,20 @@ _cleanup()
 	#
 	for suff in out err
 	do
-	    echo "=== valgrind $suff ===" >>$here/$seq.full
-	    cat $tmp._valgrind.$suff >>$here/$seq.full
+	    echo "=== valgrind $suff ===" >>$seq_full
+	    cat $tmp._valgrind.$suff >>$seq_full
 	done
     fi
-    echo "=== valgrind report ===" >>$here/$seq.full
-    cat $tmp._valgrind >>$here/$seq.full
+    echo "=== valgrind report ===" >>$seq_full
+    cat $tmp._valgrind >>$seq_full
     if $pmproxy_was_running
     then
-	echo "Restart pmproxy ..." >>$here/$seq.full
-	_service pmproxy restart >>$here/$seq.full 2>&1
+	echo "Restart pmproxy ..." >>$seq_full
+	_service pmproxy restart >>$seq_full 2>&1
 	_wait_for_pmproxy
     else
-	echo "Stopping pmproxy ..." >>$here/$seq.full
-	_service pmproxy stop >>$here/$seq.full 2>&1
+	echo "Stopping pmproxy ..." >>$seq_full
+	_service pmproxy stop >>$seq_full 2>&1
     fi
 }
 
@@ -140,7 +140,7 @@ _filter_pmproxy()
 #
 _filter_pmstat()
 {
-    tee -a $here/$seq.full \
+    tee -a $seq_full \
     | $PCP_AWK_PROG '
 BEGIN	{ skip = 0; h1 = h2 = h3 = 0 }
 skip == 1	{
@@ -190,10 +190,10 @@ $3 == "swpd"	{
 _do()
 {
     echo
-    echo "+++ $* +++" | tee -a $seq.full | _filter_me
+    echo "+++ $* +++" | tee -a $seq_full | _filter_me
     if which $1 >/dev/null 2>&1
     then
-	eval $* 2>&1 | tee -a $seq.full | _filter
+	eval $* 2>&1 | tee -a $seq_full | _filter
 	connects=`grep AcceptNewClient $tmp.log | wc -l | sed -e 's/  *//g'`
 	disconnects=`grep DeleteClient $tmp.log | wc -l | sed -e 's/  *//g'`
 	difference=$(($connects - $disconnects))

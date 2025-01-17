@@ -60,7 +60,7 @@ if [ $PCP_PLATFORM != darwin -a $PCP_PLATFORM != solaris -a $PCP_PLATFORM != fre
 then
     echo "src/indom $target -i 1 proc.psinfo.pid" >> $seq_full
     src/indom $target -i 1 proc.psinfo.pid \
-    | tee -a $here/$seq.full \
+    | tee -a $seq_full \
     | _filter \
     | sed 's/<0*1/<ONE/g;
 s,/etc/init ,init,g;

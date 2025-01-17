@@ -22,14 +22,14 @@ _cleanup()
     if $needclean
     then
 	# ensure cleanup of any pmie just started
-	_service pmie stop >>$here/$seq.full 2>&1
+	_service pmie stop >>$seq_full 2>&1
 	$sudo $PCP_BINADM_DIR/pmsignal -a -s TERM pmie >/dev/null 2>&1
 	$sudo rm -f ${PCP_PMIECONTROL_PATH}.d/qa-$seq
 	_wait_pmie_end
 	if $pmie_was_running
 	then
 	    _restore_auto_restart pmie
-	    _service pmie start >>$here/$seq.full 2>&1
+	    _service pmie start >>$seq_full 2>&1
 	fi
 	needclean=false
     fi
@@ -44,7 +44,7 @@ _report()
     #
     # and the 12.YYYYMMDD pmie_check summary file may, or may not be there
     #
-    (cd $tmp; ls -lR pmie ) | tee -a $here/$seq.full | $PCP_AWK_PROG '
+    (cd $tmp; ls -lR pmie ) | tee -a $seq_full | $PCP_AWK_PROG '
 $1 == "pmie:"		{ next }
 $NF ~ /^12\.[0-9]/	{ next }
 NF < 4		{ print; next }

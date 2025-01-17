@@ -145,7 +145,7 @@ _cleanup()
 	unset PMCD_PORT # don't worry about preserving just get rid of it
 	unset PMCD_SOCKET
 	_service pcp restart 2>&1 \
-	| tee -a $here/$seq.full \
+	| tee -a $seq_full \
 	| _filterall_pcp_start \
 	| sed \
 	    -e '/Waiting for pmcd to terminate/d' \
@@ -189,9 +189,9 @@ _save_config $PCP_SYSCONFIG_DIR/pmcd
 _disable_agent_restart
 _stop_auto_restart pmcd
 if ! _service pmlogger stop; then _exit 1; fi \
-| tee -a $here/$seq.full | _filter_pcp_stop
+| tee -a $seq_full | _filter_pcp_stop
 if ! _service pmcd stop; then _exit 1; fi \
-| tee -a $here/$seq.full | _filter_pcp_stop
+| tee -a $seq_full | _filter_pcp_stop
 if ! _service pmie stop ; then _exit 1; fi \
 >>$seq_full
 

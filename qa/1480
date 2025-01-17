@@ -78,7 +78,7 @@ fi
 # - this still fails for a fan tuning up suddenly, i.e. from 0 to 3k.
 
 echo "sensors -u output:" >> $seq_full
-SENS=`sensors -u 2>/dev/null | tee -a $here/$seq.full | grep '_input: ' | \
+SENS=`sensors -u 2>/dev/null | tee -a $seq_full | grep '_input: ' | \
 # sanity checks below are really arbitrary
 # - temp < -1000 (was -127 which failed for Jason Koch on Ubuntu 22.04 where
 #   he observed -273.150 (!) for a temperature sensor)
@@ -92,7 +92,7 @@ END				{ print int(sum+0.5) }'`
 
 echo "pminfo -f lmsensors output:" >> $seq_full
 
-PMDA=`pminfo -f lmsensors | tee -a $here/$seq.full | grep '^  *value ' | \
+PMDA=`pminfo -f lmsensors | tee -a $seq_full | grep '^  *value ' | \
 	awk '{ sum += $2 } END { print sum }'`
 
 if _within_tolerance "Expecting $SENS +- 10%" $PMDA $SENS 10%; then

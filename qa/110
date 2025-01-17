@@ -43,7 +43,7 @@ _cleanup()
 	    fi
 	fi
 
-	_service pmlogger start >>$here/$seq.full
+	_service pmlogger start >>$seq_full
 	_wait_for_pmlogger
 
 	$sudo rm -f $tmp.*

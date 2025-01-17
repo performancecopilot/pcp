@@ -30,7 +30,7 @@ $check || echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-[ -f $seq.full.save ] && mv $seq.full.save $seq.full
+[ -f $seq_full.save ] && mv $seq_full.save $seq_full
 
 status=0	# success is the default!
 trap "cd $here; $sudo rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
@@ -330,7 +330,7 @@ then
 fi
 
 echo
-echo "start another primary pmlogger (expect failure) ..." | tee -a $here/$seq.full
+echo "start another primary pmlogger (expect failure) ..." | tee -a $seq_full
 _start_up_pmlogger -Dcontext,pmlc -L -c /dev/null -l $tmp.log -P $tmp.arch
 echo "pmlogger pid $pid" >>$seq_full
 for i in 1 2 3 4 5

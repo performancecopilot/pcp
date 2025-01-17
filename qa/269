@@ -28,7 +28,7 @@ _reset()
 
 _check_wrap_off()
 {
-    tee -a $seq.full |\
+    tee -a $seq_full |\
     $PCP_AWK_PROG -v expected=$tmp.expected -v debug=$debug -v tolerance=$tolerance  -v num_samples=$num_samples -v mismatch_limit=$mismatch_limit '
     BEGIN {
 	if (debug == "true")
@@ -95,7 +95,7 @@ _check_wrap_off()
 
 _check_wrap_on()
 {
-    tee -a $seq.full |\
+    tee -a $seq_full |\
     $PCP_AWK_PROG -v expected=$tmp.expected -v debug=$debug -v tolerance=$tolerance -v num_samples=$num_samples -v mismatch_limit=$mismatch_limit '
     BEGIN {
 	if (debug == "true")

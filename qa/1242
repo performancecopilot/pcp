@@ -45,7 +45,7 @@ do
     IN="$DIR/20150508.11.44 $DIR/20150508.11.46 $DIR/20150508.11.50 $DIR/20150508.11.57"
     OUT=$tmp.44+46+50+57.pmlogextract
     rm -f $OUT.*
-    echo "Running pmlogextract $IN $OUT" | _filter | tee $seq.full
+    echo "Running pmlogextract $IN $OUT" | _filter | tee $seq_full
     pmlogextract $IN $OUT 2>&1 >> $seq_full
     [ $? -eq 0 ] || echo "Error running pmlogextract $IN $OUT -- see $seq.full"
 
@@ -62,7 +62,7 @@ do
     $TOOL -a $IN $METRIC 2>&1 | _filter | tee $OUT
 
     # Make sure the output is the same
-    echo "Running diff $OUTBASE $OUT" | _filter | tee -a $seq.full
+    echo "Running diff $OUTBASE $OUT" | _filter | tee -a $seq_full
     diff $OUTBASE $OUT 2>&1 >> $seq_full
     [ $? -eq 0 ] || echo "$OUT differs from $OUTBASE  -- see $seq.full"
 
@@ -73,7 +73,7 @@ do
     $TOOL -a $IN $METRIC 2>&1 | _filter | tee $OUT
 
     # Make sure the output is the same
-    echo "Running diff $OUTBASE $OUT" | _filter | tee -a $seq.full
+    echo "Running diff $OUTBASE $OUT" | _filter | tee -a $seq_full
     diff $OUTBASE $OUT 2>&1 >> $seq_full
     [ $? -eq 0 ] || echo "$OUT differs from $OUTBASE  -- see $seq.full"
 done

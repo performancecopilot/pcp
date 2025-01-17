@@ -82,7 +82,7 @@ cat $tmp.out | _filter_pcp_stop | _filter_pmda_install | _filter_pmda_warning | 
 # want to make sure PMDA is really healthy ... on vm02 we got
 # this far but the PMDA was dead ...
 #
-numval=`pmprobe -v systemd.numclients | tee -a $here/$seq.full | $PCP_AWK_PROG '{print $2}'`
+numval=`pmprobe -v systemd.numclients | tee -a $seq_full | $PCP_AWK_PROG '{print $2}'`
 if [ "$numval" -lt 0 ]
 then
     echo "Arrgh ... PMDA is not well!"
@@ -96,19 +96,19 @@ then
     exit
 fi
 
-echo | tee -a $here/$seq.full
-echo "=== 1. scalar metrics  ===" | tee -a $here/$seq.full
-pmprobe -v systemd | tee -a $here/$seq.full | _filter_probe
+echo | tee -a $seq_full
+echo "=== 1. scalar metrics  ===" | tee -a $seq_full
+pmprobe -v systemd | tee -a $seq_full | _filter_probe
 
-echo | tee -a $here/$seq.full
-echo "=== 2. journald.records  ===" | tee -a $here/$seq.full
+echo | tee -a $seq_full
+echo "=== 2. journald.records  ===" | tee -a $seq_full
 (pmsleep 2.5; echo yo-$seq-2 | systemd-cat -p notice) &
-pmevent -T 6 systemd.journal.records | tee -a $here/$seq.full | _filter_events
+pmevent -T 6 systemd.journal.records | tee -a $seq_full | _filter_events
 
-echo | tee -a $here/$seq.full
-echo "=== 3. journald.records  ===" | tee -a $here/$seq.full
+echo | tee -a $seq_full
+echo "=== 3. journald.records  ===" | tee -a $seq_full
 (pmsleep 2.5; echo yo-$seq-3 | systemd-cat -p notice) &
-pmevent -T 6 systemd.journal.records_raw | tee -a $here/$seq.full | _filter_events_raw
+pmevent -T 6 systemd.journal.records_raw | tee -a $seq_full | _filter_events_raw
 
 # remove PMDA to ensure proper cleanup (in case it wasnt already installed beforehand)
 $sudo ./Remove </dev/null >>$seq_full 2>&1

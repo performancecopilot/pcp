@@ -62,8 +62,8 @@ _filter()
 #
 _report()
 {
-    echo | tee -a $seq.full
-    echo "=== $1 ===" | tee -a $seq.full
+    echo | tee -a $seq_full
+    echo "=== $1 ===" | tee -a $seq_full
     pmrep -a $tmp -z -E 0 -p -f%H:%M:%S -t1sec "$1" >$tmp.out 2>$tmp.err
     cat $tmp.out $tmp.err >>$seq_full
     if [ -s $tmp.out ]

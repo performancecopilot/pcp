@@ -176,8 +176,8 @@ echo "+++" >>$seq_full
 _filter < $PMCHECK_LOG
 cat $PMCHECK_LOG >>$seq_full
 
-echo | tee -a $seq.full
-echo "=== pmlogger_check -T ===" | tee -a $seq.full
+echo | tee -a $seq_full
+echo "=== pmlogger_check -T ===" | tee -a $seq_full
 cd /var/tmp
 $sudo -u $PCP_USER -g $PCP_GROUP $PCP_BINADM_DIR/pmlogger_check -T -l $PMCHECK_LOG
 cd $here

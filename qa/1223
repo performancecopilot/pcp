@@ -17,9 +17,9 @@ echo "QA output created by $seq"
 
 _cleanup()
 {
-    echo "_cleanup: ..." >>$seq.full
+    echo "_cleanup: ..." >>$seq_full
     cd $here
-    $sudo pmlogctl -af -c $seq destroy >>$seq.full 2>&1
+    $sudo pmlogctl -af -c $seq destroy >>$seq_full 2>&1
     for dir in $seq-localhost $seq-$localhost $seq-local:
     do
 	[ -d "$PCP_ARCHIVE_DIR/$dir" ] && $sudo rm -rf "$PCP_ARCHIVE_DIR/$dir"
@@ -41,7 +41,7 @@ host `pmhostname` >>$seq_full 2>&1
 
 _filter()
 {
-    tee -a $seq.full \
+    tee -a $seq_full \
     | sed \
 	-e '/^# created by pmlogctl/s/ on .*/ on DATE/' \
 	-e "s;$tmp\.;TMP.;g" \
@@ -80,7 +80,7 @@ END	{ print "{ print }" }'
 #
 _filter_status()
 {
-    tee -a $seq.full \
+    tee -a $seq_full \
     | $PCP_AWK_PROG -f $tmp.awk \
     | sed >$tmp.tmp \
 	-e "/^`hostname` .* primary /d" \

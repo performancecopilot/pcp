@@ -88,11 +88,11 @@ servers = localhost:$key_server_node1_port,localhost:$key_server_node2_port,loca
 EOF
 proxyport=`_find_free_port`
 proxyopts="-p $proxyport -c $tmp.conf"
-pmproxy -f -t -U $username -x $seq.full -l $tmp.pmproxy.log $proxyopts &
+pmproxy -f -t -U $username -x $seq_full -l $tmp.pmproxy.log $proxyopts &
 pmproxy_pid=$!
 echo "proxyport=$proxyport" >>$seq_full
 echo "pmproxy_pid=$pmproxy_pid" >>$seq_full
-_wait_for_pmproxy $proxyport $tmp.pmproxy.log
+_wait_for_pmproxy $proxyport $tmp.pmproxy.log || exit
 which netstat >/dev/null && netstat -l | grep -E "$key_server_node1_port|$key_server_node2_port|$key_server_node3_port|$proxyport" >>$seq_full
 _check_key_server_ping $proxyport
 echo
@@ -145,6 +145,6 @@ cat $tmp.conf >> $seq_full
 $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -e '[P]PID|/[p]mproxy( |$)' >> $seq_full
 cat $tmp.pmproxy.log >> $seq_full
 
-echo "== all done" | tee -a $seq.full
+echo "== all done" | tee -a $seq_full
 status=0
 exit

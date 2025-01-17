@@ -22,7 +22,7 @@ fi
 . ./common.check
 
 
-pmlogctl status 2>&1 | tee -a $seq.full >$tmp.tmp
+pmlogctl status 2>&1 | tee -a $seq_full >$tmp.tmp
 nloggers=`sed -e 1d <$tmp.tmp | wc -l | sed -e 's/  *//g'`
 rm -f $tmp.tmp
 [ "$nloggers" -gt 1 ] && _notrun "more than one pmlogger already running"
@@ -128,7 +128,7 @@ pmlogctl status \
 | LC_COLLATE=POSIX sort
 
 find $PCP_ARCHIVE_DIR/$seq \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | _filter \
 | LC_COLLATE=POSIX sort
 

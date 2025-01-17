@@ -74,27 +74,27 @@ _control_service_discovery
 echo "-m probe=$addr/128" >> $seq_full
 echo "-m probe=IPV6_ADDR/128"
 pmfind -m probe=$addr/128 | _unresolved_filter
-echo "Exit status: $?" | tee -a $seq.full
+echo "Exit status: $?" | tee -a $seq_full
 
 echo "-s pmcd -m probe=$addr/127 -r" >> $seq_full
 echo "-s pmcd -m probe=IPV6_ADDR/127 -r"
 pmfind -s pmcd -m probe=$addr/126 -r | _resolved_filter
-echo "Exit status: $?" | tee -a $seq.full
+echo "Exit status: $?" | tee -a $seq_full
 
 echo "-q -m probe=$addr/126" >> $seq_full
 echo "-q -m probe=IPV6_ADDR/126"
 pmfind -q -m probe=$addr/125 | _unresolved_filter
-echo "Exit status: $?" | tee -a $seq.full
+echo "Exit status: $?" | tee -a $seq_full
 
 echo "-q -s pmcd -m probe=$addr/125 --resolve" >> $seq_full
 echo "-q -s pmcd -m probe=IPV6_ADDR/125 --resolve"
 pmfind -q -s pmcd -m probe=$addr/124 --resolve | _resolved_filter
-echo "Exit status: $?" | tee -a $seq.full
+echo "Exit status: $?" | tee -a $seq_full
 
 echo "-q -s pmcd -m probe=$addr/124,maxThreads=8" >> $seq_full
 echo "-q -s pmcd -m probe=IPV6_ADDR/124,maxThreads=8"
 pmfind -q -s pmcd -m probe=$addr/124,maxThreads=8 | _unresolved_filter
-echo "Exit status: $?" | tee -a $seq.full
+echo "Exit status: $?" | tee -a $seq_full
 
 # success, all done
 status=0

@@ -100,9 +100,9 @@ End-of-File
 
 for x in $tmp.pmie.*
 do
-    echo | tee -a $seq.full
-    echo "Test: `echo $x | sed -e "s;$tmp.pmie.;;"` [expect: `sed -n -e '/^\/\/expect /s///p' <$x`]" | tee -a $seq.full
-    cat $x | tee -a $seq.full >>$seq_full
+    echo | tee -a $seq_full
+    echo "Test: `echo $x | sed -e "s;$tmp.pmie.;;"` [expect: `sed -n -e '/^\/\/expect /s///p' <$x`]" | tee -a $seq_full
+    cat $x | tee -a $seq_full >>$seq_full
     pmie -c $x `sed -n -e '/^\/\/args /s///p' <$x` >$tmp.out 2>$tmp.err
     echo "=== pmie output ===" >>$seq_full
     cat $tmp.out >>$seq_full

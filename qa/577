@@ -56,7 +56,7 @@ fi
 #
 $PCP_PS_PROG $PCP_PS_ALL_FLAGS \
 | grep "$pid" \
-| tee -a $here/$seq.full \
+| tee -a $seq_full \
 | $PCP_AWK_PROG '
 $2 == "'$pid'"	{ print "Parent pmlogger found" }
 $3 == "'$pid'"	{ print "oops, child process found: " $0 }'

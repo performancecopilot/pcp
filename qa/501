@@ -95,7 +95,7 @@ notnum4 = (sample.long.one - (sample.long.one + sample.long.ten + sample.long.mi
 
 End-of-File
 
-    cat $tmp.out $tmp.log | tee -a $seq.full | _filter
+    cat $tmp.out $tmp.log | tee -a $seq_full | _filter
 
     echo
     _check_core

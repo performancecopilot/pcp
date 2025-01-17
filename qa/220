@@ -46,8 +46,8 @@ _cleanup()
 	#
 	for i in 1 2 3 4 5
 	do
-	    echo "delay $i" >>$here/$seq.full
-	    if netstat $netstat_args | grep 44321 >>$here/$seq.full
+	    echo "delay $i" >>$seq_full
+	    if netstat $netstat_args | grep 44321 >>$seq_full
 	    then
 		sleep 1
 	    else
@@ -72,10 +72,10 @@ _cleanup()
 	    eval `systemctl show pmlogger.service --property=ActiveState`
 	    if [ "$ActiveState" != active ]
 	    then
-		$sudo systemctl status pmlogger.service >>$here/$seq.full
+		$sudo systemctl status pmlogger.service >>$seq_full
 		if which journalctl >/dev/null 2>&1
 		then
-		    $sudo journalctl -xe -u pmlogger.service >>$here/$seq.full
+		    $sudo journalctl -xe -u pmlogger.service >>$seq_full
 		fi
 	    fi
 	fi

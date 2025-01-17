@@ -72,7 +72,7 @@ _stop_auto_restart pmcd
 _filter_activemq()
 {
     # filter metric values for deterministic output
-    tee -a $here/$seq.full | sed \
+    tee -a $seq_full | sed \
 	-e '/No value(s) available/d' \
 	-e '/not supported by this version/d' \
         -e 's/value [0-9][0-9]*/value NUMBER/'

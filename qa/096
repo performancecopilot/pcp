@@ -70,7 +70,7 @@ _wait_for_pmlogger || _exit 1
 #
 if [ $PCP_PLATFORM = linux ]
 then
-	ps -e | tee -a $seq.full | sed \
+	ps -e | tee -a $seq_full | sed \
 		-e 's#ttyS#tts/#' \
         | $PCP_AWK_PROG '
 	/<defunct>/ { print $1, "?" }
@@ -91,7 +91,7 @@ echo "----" > $tmp.sep
 
 maxfailures=0
 
-cat $tmp.ps $tmp.sep $tmp.pminfo | tee -a $seq.full |\
+cat $tmp.ps $tmp.sep $tmp.pminfo | tee -a $seq_full |\
 $PCP_AWK_PROG -v verbose=$verbose -v maxfailures=$maxfailures -v failfile=$tmp.fail '
 	$0 == "----" { pminfo = 1; next; }
         pminfo == 0  {

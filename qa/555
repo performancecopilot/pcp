@@ -129,7 +129,7 @@ _cleanup()
 	fi
 	rm $tmp.setup
     fi
-    [ -f /tmp/syslog.full ] && cp /tmp/syslog.full $seq.full
+    [ -f /tmp/syslog.full ] && cp /tmp/syslog.full $seq_full
     $sudo rm -f /tmp/syslog.out /tmp/syslog.full
     rm -f $tmp.*
 }

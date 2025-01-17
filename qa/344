@@ -71,7 +71,7 @@ End-of-File
 
 _filter()
 {
-    tee -a $seq.full \
+    tee -a $seq_full \
     | sed \
 	-e "/^pmWhichContext/d" \
 	-e "/^pmNewContext/d" \

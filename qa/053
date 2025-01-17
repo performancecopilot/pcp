@@ -15,7 +15,7 @@ echo "QA output created by $seq"
 
 _filter()
 {
-    tee -a $seq.full \
+    tee -a $seq_full \
     | sed -e 's/pmFetchGroup/pmFetch/g' \
     | $PCP_AWK_PROG '
 /^Archive: /		{ print "... title ..."; next }

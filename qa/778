@@ -29,8 +29,8 @@ trap "cd $here; $sudo mv $CONF.$seq $CONF; _cleanup_pmda postgresql; rm -rf $tmp
 
 pmdapostgresql_remove()
 {
-    echo | tee -a $here/$seq.full
-    echo "=== remove postgresql agent ===" | tee -a $here/$seq.full
+    echo | tee -a $seq_full
+    echo "=== remove postgresql agent ===" | tee -a $seq_full
     $sudo ./Remove >$tmp.out 2>>$seq_full
     cat $tmp.out >>$seq_full
     _filter_pmda_remove <$tmp.out
@@ -53,8 +53,8 @@ EOF
     $sudo mv $tmp.conf $CONF
     $sudo ./Remove >/dev/null 2>&1
 
-    echo | tee -a $here/$seq.full
-    echo "=== postgresql agent installation ===" | tee -a $here/$seq.full
+    echo | tee -a $seq_full
+    echo "=== postgresql agent installation ===" | tee -a $seq_full
     $sudo ./Install </dev/null >$tmp.out 2>&1
     cat $tmp.out >>$seq_full
     _filter_pmda_install < $tmp.out | sed -e '1,/Updating the PMCD control file/d' \
@@ -200,7 +200,7 @@ NR == 2	{ # PCP values
     then
 	echo "$1: match"
     else
-	echo "$1: no match" | tee -a $here/$seq.full
+	echo "$1: no match" | tee -a $seq_full
 	[ -f $tmp.nomatch ] && cat $tmp.nomatch >>$seq_full
     fi
    
@@ -291,8 +291,8 @@ _filter_pmie_log <$tmp.out \
 
 echo "validate values ..."
 
-echo | tee -a $here/$seq.full
-echo "=== pg_stat_activity ===" | tee -a $here/$seq.full
+echo | tee -a $seq_full
+echo "=== pg_stat_activity ===" | tee -a $seq_full
 _do_sql 'select * from pg_stat_activity' >$tmp.db
 pmprobe -v postgresql.stat.activity >$tmp.pcp
 echo "--- DB values ---" >>$seq_full
@@ -304,8 +304,8 @@ _match client_port
 #
 #_match "(current_query|query)" current_query
 
-echo | tee -a $here/$seq.full
-echo "=== pg_stat_bgwriter ===" | tee -a $here/$seq.full
+echo | tee -a $seq_full
+echo "=== pg_stat_bgwriter ===" | tee -a $seq_full
 _do_sql 'select * from pg_stat_bgwriter' >$tmp.db
 pmprobe -v postgresql.stat.bgwriter >$tmp.pcp
 echo "--- DB values ---" >>$seq_full
@@ -315,8 +315,8 @@ cat $tmp.pcp >>$seq_full
 _match checkpoints_timed
 _match buffers_alloc
 
-echo | tee -a $here/$seq.full
-echo "=== pg_stat_database ===" | tee -a $here/$seq.full
+echo | tee -a $seq_full
+echo "=== pg_stat_database ===" | tee -a $seq_full
 _do_sql 'select * from pg_stat_database' >$tmp.db
 pmprobe -v postgresql.stat.database >$tmp.pcp
 echo "--- DB values ---" >>$seq_full
@@ -326,8 +326,8 @@ cat $tmp.pcp >>$seq_full
 _match stats_reset - 10
 _match tup_fetched - - 25
 
-echo | tee -a $here/$seq.full
-echo "=== pg_stat_all_tables ===" | tee -a $here/$seq.full
+echo | tee -a $seq_full
+echo "=== pg_stat_all_tables ===" | tee -a $seq_full
 _do_sql 'select * from pg_stat_all_tables' >$tmp.db
 pmprobe -v postgresql.stat.all_tables >$tmp.pcp
 echo "--- DB values ---" >>$seq_full
@@ -339,8 +339,8 @@ _match seq_scan
 _match idx_tup_fetch
 _match idx_scan
 
-echo | tee -a $here/$seq.full
-echo "=== pg_stat_sys_tables ===" | tee -a $here/$seq.full
+echo | tee -a $seq_full
+echo "=== pg_stat_sys_tables ===" | tee -a $seq_full
 _do_sql 'select * from pg_stat_sys_tables' >$tmp.db
 pmprobe -v postgresql.stat.sys_tables >$tmp.pcp
 echo "--- DB values ---" >>$seq_full
@@ -352,8 +352,8 @@ _match seq_scan
 _match idx_tup_fetch
 _match idx_scan
 
-echo | tee -a $here/$seq.full
-echo "=== pg_stat_all_indexes ===" | tee -a $here/$seq.full
+echo | tee -a $seq_full
+echo "=== pg_stat_all_indexes ===" | tee -a $seq_full
 _do_sql 'select * from pg_stat_all_indexes' >$tmp.db
 pmprobe -v postgresql.stat.all_indexes >$tmp.pcp
 echo "--- DB values ---" >>$seq_full
@@ -365,8 +365,8 @@ _match idx_tup_read
 _match idx_tup_fetch
 _match relname
 
-echo | tee -a $here/$seq.full
-echo "=== pg_stat_sys_indexes ===" | tee -a $here/$seq.full
+echo | tee -a $seq_full
+echo "=== pg_stat_sys_indexes ===" | tee -a $seq_full
 _do_sql 'select * from pg_stat_sys_indexes' >$tmp.db
 pmprobe -v postgresql.stat.sys_indexes >$tmp.pcp
 echo "--- DB values ---" >>$seq_full

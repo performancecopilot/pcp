@@ -47,19 +47,19 @@ echo == check for any exe failures
 pminfo -v proc.psinfo.exe
 echo done
 
-echo == check exe value for self | tee -a $seq.full
-pminfo -f proc.psinfo.exe | tee -a $seq.full | grep -F "inst [$mypid " | _filter
+echo == check exe value for self | tee -a $seq_full
+pminfo -f proc.psinfo.exe | tee -a $seq_full | grep -F "inst [$mypid " | _filter
 echo done
 
 echo == check for any cwd failure
 pminfo -v proc.psinfo.cwd
 echo done
 
-echo == check cwd value for self | tee -a $seq.full
-pminfo -f proc.psinfo.cwd | tee -a $seq.full | grep -F "inst [$mypid " | _filter
+echo == check cwd value for self | tee -a $seq_full
+pminfo -f proc.psinfo.cwd | tee -a $seq_full | grep -F "inst [$mypid " | _filter
 echo done
 
-echo == check for psargs with leading space | tee -a $seq.full
+echo == check for psargs with leading space | tee -a $seq_full
 pminfo -f proc.psinfo.psargs > $tmp.psargs
 grep -F ' value " ' $tmp.psargs
 [ $? -ne 0 ] && cat $tmp.psargs >> $seq_full

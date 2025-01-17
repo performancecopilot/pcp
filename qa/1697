@@ -107,25 +107,25 @@ series3=`pmseries $options kernel.all.uptime`
 echo "Using series $series3 for kernel.all.uptime"
 
 
-echo "== verify metric descs" | tee -a $seq.full
-curl --silent "http://localhost:$proxyport/series/descs" -d "series=$series1,$series2,$series3" | tee -a $seq.full | pmjson
+echo "== verify metric descs" | tee -a $seq_full
+curl --silent "http://localhost:$proxyport/series/descs" -d "series=$series1,$series2,$series3" | tee -a $seq_full | pmjson
 
-echo "== verify metric names" | tee -a $seq.full
-curl --silent "http://localhost:$proxyport/series/metrics" -d "series=$series1,$series2,$series3" | tee -a $seq.full | pmjson
+echo "== verify metric names" | tee -a $seq_full
+curl --silent "http://localhost:$proxyport/series/metrics" -d "series=$series1,$series2,$series3" | tee -a $seq_full | pmjson
 
-echo "== verify metric labels" | tee -a $seq.full
-curl --silent "http://localhost:$proxyport/series/labels" -d "series=$series1,$series3" | tee -a $seq.full | pmjson
+echo "== verify metric labels" | tee -a $seq_full
+curl --silent "http://localhost:$proxyport/series/labels" -d "series=$series1,$series3" | tee -a $seq_full | pmjson
 
-echo "== verify metric insts" | tee -a $seq.full
-curl --silent "http://localhost:$proxyport/series/instances" -d "series=$series2" | tee -a $seq.full | pmjson
+echo "== verify metric insts" | tee -a $seq_full
+curl --silent "http://localhost:$proxyport/series/instances" -d "series=$series2" | tee -a $seq_full | pmjson
 
 # valgrind takes awhile to shutdown too
 pmsignal $pid
 pmsleep 3.5
-echo "=== valgrind stdout ===" | tee -a $seq.full
+echo "=== valgrind stdout ===" | tee -a $seq_full
 cat $tmp.valout | _filter_valgrind
 
-echo "=== valgrind stderr ===" | tee -a $seq.full
+echo "=== valgrind stderr ===" | tee -a $seq_full
 cat $tmp.valerr | _filter_pmproxy_log | grep -v "Cannot connect to key server" | _filter_proxyport
 
 # success, all done

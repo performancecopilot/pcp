@@ -21,7 +21,7 @@ _cleanup()
 {
     if [ -n "$container" ]
     then
-        echo "== removing container" | tee -a $seq.full
+        echo "== removing container" | tee -a $seq_full
         _remove_docker_containers $container
         container=""
     fi 
@@ -33,7 +33,7 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _filter()
 {
-    tee -a $seq.full \
+    tee -a $seq_full \
     | sed \
 	-e "s/\[.*\]: /[INST]: /g" \
 	-e "s/$container/CONTAINER/g" \
@@ -60,7 +60,7 @@ echo "Exclusions: $xargs" >> $seq_full
 container=`$docker run -d busybox sleep 15`
 echo "== container: $container" >> $seq_full
 
-echo "== get host and container hostname " | tee -a $seq.full
+echo "== get host and container hostname " | tee -a $seq_full
 # expect a different hostname to local hostname
 pmprobe --values --container=$container pmcd.hostname > $tmp.chost
 pmprobe --values pmcd.hostname > $tmp.host
@@ -72,7 +72,7 @@ echo container hostname: $container_hostname >> $seq_full
 echo localhost hostname: $localhost_hostname >> $seq_full
 
 # switch to container, then back, reporting pmcd.hostname
-echo "== switch to container, reset, repeat" | tee -a $seq.full
+echo "== switch to container, reset, repeat" | tee -a $seq_full
 $here/src/storepmcd $xargs "$container" "" "$container" "" | _filter
 
 # success, all done

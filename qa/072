@@ -78,7 +78,7 @@ do
     echo "expect 2 sets of values for disks and 2 sets of values for networks ..."
     echo "pmdumplog:" >>$seq_full
     pmdumplog $tmp 2>&1 \
-    | tee -a $seq.full \
+    | tee -a $seq_full \
     | grep -E 'disk\.|network\.' \
     | _filter \
     | LC_COLLATE=POSIX sort

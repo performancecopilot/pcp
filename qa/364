@@ -369,7 +369,7 @@ p
 }' \
 | LC_COLLATE=POSIX sort \
 | uniq \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | xargs pmprobe $target \
 | _filter \
 | $PCP_AWK_PROG '

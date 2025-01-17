@@ -55,7 +55,7 @@ _proc_filter()
 
     echo "+++ start proc_filter $1 +++" >>$seq_full
     cat $input \
-    | tee -a $seq.full \
+    | tee -a $seq_full \
     | sed \
 	-e '/proc.memory.*.txt/s/valfmt: [01]/valfmt: 0-or-1/' \
 	-e '/proc\.psinfo\.[us]time/s/valfmt: [01]/valfmt: 0-or-1/' \
@@ -99,7 +99,7 @@ echo "=== pminfo -F output ===" >$seq_full
 # try fetching all proc metrics
 # cull out the not supported msg component
 pminfo $target -F proc \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | _inst_value_filter \
 | sed -e '/value/d' \
     -e '/not supported/d' \

@@ -22,10 +22,10 @@ fi
 
 _cleanup()
 {
-    echo "_cleanup: ..." >>$seq.full
+    echo "_cleanup: ..." >>$seq_full
     cd $here
-    $sudo pmlogctl -f -c default destroy localhost >>$seq.full 2>&1
-    $sudo pmlogctl -af -c $seq destroy >>$seq.full 2>&1
+    $sudo pmlogctl -f -c default destroy localhost >>$seq_full 2>&1
+    $sudo pmlogctl -af -c $seq destroy >>$seq_full 2>&1
     $sudo rm -rf $tmp $tmp.*
     for dir in $seq-localhost $seq-LOCALHOSTNAME localhost $seq-`hostname`
     do
@@ -40,7 +40,7 @@ localhost=`hostname`
 
 _filter()
 {
-    tee -a $seq.full \
+    tee -a $seq_full \
     | sed \
 	-e '/^# created by pmlogctl/s/ on .*/ on DATE/' \
 	-e "s;$tmp\.;TMP.;g" \
@@ -69,7 +69,7 @@ END	{ print "{ print }" }'
 #
 _filter_status()
 {
-    tee -a $seq.full \
+    tee -a $seq_full \
     | $PCP_AWK_PROG -f $tmp.awk \
     | sed >$tmp.tmp \
 	-e "s;$PCP_ETC_DIR/pcp;PCP_ETC_DIR/pcp;g" \
@@ -98,27 +98,27 @@ log mandatory on default { pmcd.pmlogger }
 End-of-File
 
 # real QA test starts here
-echo '== create running pmlogger instances' | tee -a $seq.full
+echo '== create running pmlogger instances' | tee -a $seq_full
 $sudo pmlogctl -p $tmp.policy -c $seq create localhost | _filter
 $sudo pmlogctl -p $tmp.policy -c $seq create LOCALHOSTNAME | _filter
 $sudo pmlogctl create localhost | _filter
 pmlogctl status | _filter_status
 
 # exercise all the variants for "restart"
-echo '== -a restart localhost' | tee -a $seq.full
+echo '== -a restart localhost' | tee -a $seq_full
 $sudo pmlogctl -a restart localhost | _filter
 pmlogctl status | _filter_status
-echo '== -a restart localhost `hostname`' | tee -a $seq.full
+echo '== -a restart localhost `hostname`' | tee -a $seq_full
 $sudo pmlogctl -a restart localhost `hostname` 2>$tmp.err | _filter_status
 _filter <$tmp.err
 pmlogctl status | _filter_status
-echo '== -a -c restart' | tee -a $seq.full
+echo '== -a -c restart' | tee -a $seq_full
 $sudo pmlogctl -a -c $seq restart | _filter_status
 pmlogctl status | _filter_status
-echo '== -a -c restart localhost' | tee -a $seq.full
+echo '== -a -c restart localhost' | tee -a $seq_full
 $sudo pmlogctl -a -c $seq restart localhost | _filter_status
 pmlogctl status | _filter_status
-echo '== -a -c restart localhost `hostname`' | tee -a $seq.full
+echo '== -a -c restart localhost `hostname`' | tee -a $seq_full
 $sudo pmlogctl -a -c $seq restart localhost `hostname` | _filter_status
 pmlogctl status | _filter_status
 

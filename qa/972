@@ -22,7 +22,7 @@ trap "cd $here; rm -rf $tmp.* zswap.log*; exit \$status" 0 1 2 3 15
 
 _filter()
 {
-    tee -a $seq.full | \
+    tee -a $seq_full | \
     sed \
 	-e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;" \
 	-e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;" \
@@ -64,7 +64,7 @@ export ZSWAP_STATS_PATH="$tmp.zswap"
 _setup_zswap_values
 PCP_PYTHON_PMNS=root $python "$pmda_script" > $tmp.root
 
-echo "== Testing zswap metrics" | tee -a $seq.full
+echo "== Testing zswap metrics" | tee -a $seq_full
 dbpmda -n $tmp.root -ie <<End-of-File 2>&1 | _filter
 open pipe $python_path $pmda_script
 getdesc on
@@ -89,7 +89,7 @@ fetch zswap.stored_pages
 End-of-File
 test -f zswap.log && cat zswap.log >> $seq_full
 
-echo "== Testing zswap without values" | tee -a $seq.full
+echo "== Testing zswap without values" | tee -a $seq_full
 _setup_zswap_novalues
 dbpmda -n $tmp.root -ie <<End-of-File 2>&1 | _filter
 open pipe $python_path $pmda_script

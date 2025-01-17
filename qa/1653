@@ -93,7 +93,7 @@ do
     $sudo ./Install 2>&1
     echo $dataset >> $seq_full
     pminfo -dfFl denki \
-	    | tee -a $here/$seq.full \
+	    | tee -a $seq_full \
 	    | $here/src/sortinst -v \
 	    | _filter_instnames \
 	    | _filter_labels \

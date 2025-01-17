@@ -21,7 +21,7 @@ _cleanup()
 
 _filter()
 {
-    tee -a $seq.full \
+    tee -a $seq_full \
     | sed \
 	-e '/^__pmLogLoadMeta/d' \
 	-e '/^addindom(/d' \

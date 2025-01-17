@@ -48,7 +48,7 @@ rm -rf $ns1 $pcp $ns2
 _get_netstat()
 {
     netstat -s -p ip \
-	| tee -a $seq.full \
+	| tee -a $seq_full \
 	| $PCP_AWK_PROG '
 	    NR > 1	    {
 			    print $1
@@ -135,7 +135,7 @@ END		{ print " || exit 1" }
 
 echo "=== pminfo ===" >>$seq_full
 if sh $tmp.pminfo.sh \
-    | tee -a $seq.full \
+    | tee -a $seq_full \
     | sed -e '/^No/s/.*/    value -666/' \
     | grep ' value ' \
     | $PCP_AWK_PROG '{ print $2 }' \

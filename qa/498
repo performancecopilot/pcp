@@ -31,7 +31,7 @@ _filter()
 _queue_test()
 {
     # always enable library debugging, stash raw results and output filtered
-    src/pmdaqueue -Dlibpmda $@ 2>&1 | tee -a $seq.full | _filter
+    src/pmdaqueue -Dlibpmda $@ 2>&1 | tee -a $seq_full | _filter
 }
 
 # real QA test starts here

@@ -58,7 +58,7 @@ sleep 1
 
 $signal -s TERM $server_pid >/dev/null 2>&1
 
-cp $tmp.out $seq.full
+cp $tmp.out $seq_full
 
 eval `sed -n <$tmp.out -e '/MYPID/{
 s/.*MYPID /server=/

@@ -128,15 +128,15 @@ cat $tmp.config >>$seq_full
 
 $sudo rm -f /tmp/pmie.err
 _run_valgrind pmie -T 10 -v $tmp.config >$tmp.out 2>$tmp.err
-echo | tee -a $seq.full
-echo "=== err ===" | tee -a $seq.full
+echo | tee -a $seq_full
+echo "=== err ===" | tee -a $seq_full
 cat $tmp.err >>$seq_full
 cat $tmp.err | _filter
-echo | tee -a $seq.full
-echo "=== out ===" | tee -a $seq.full
+echo | tee -a $seq_full
+echo "=== out ===" | tee -a $seq_full
 cat $tmp.out >>$seq_full
 cat $tmp.out | _filter | LC_COLLATE=POSIX sort
-echo | tee -a $seq.full
-echo "=== /tmp/pmie.err ===" | tee -a $seq.full
+echo | tee -a $seq_full
+echo "=== /tmp/pmie.err ===" | tee -a $seq_full
 cat /tmp/pmie.err >>$seq_full
 cat /tmp/pmie.err | LC_COLLATE=POSIX sort

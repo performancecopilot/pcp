@@ -27,7 +27,7 @@ cd $tmp
 PMLOGGER=$PCP_BIN_DIR/pmlogger
 spec=qa-$seq-%Y%m%d.%H.%M
 
-echo "== checking SIGUSR2 reexec does not leak FDs" | tee -a $here/$seq.full
+echo "== checking SIGUSR2 reexec does not leak FDs" | tee -a $seq_full
 $PMLOGGER -U$username -t 2s -c config.default -l pmlogger.log $spec 2>$seq.err &
 pid=$!
 echo "pid=$pid" >>$seq_full

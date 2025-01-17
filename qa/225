@@ -48,7 +48,7 @@ $1 == "expr" && $2 == "node" && $3 ~ /^0x/	{ print "s/" $3 "/<addr-" n ">/"; n++
 echo "root { local_pmns_no_pmcd_connection 1:2:3 }" >$tmp.pmns
 
 # real QA test starts here
-echo "No syntax errors here ..." | tee -a $seq.full
+echo "No syntax errors here ..." | tee -a $seq_full
 cat <<End-of-File >$tmp.config
 myname.a = disk.dev.read
 myname.b = disk.dev.read + disk.dev.write
@@ -73,8 +73,8 @@ End-of-File
 pminfo -Dderive,appl0 -c $tmp.config -n $tmp.pmns >$tmp.out 2>&1
 _filter
 
-echo | tee -a $seq.full
-echo "Syntax errors ..." | tee -a $seq.full
+echo | tee -a $seq_full
+echo "Syntax errors ..." | tee -a $seq_full
 cat <<End-of-File >$tmp.config
 myname.a = sample.long.one +
 myname.b = sample.long.one sample.long.ten

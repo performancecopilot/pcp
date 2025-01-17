@@ -73,7 +73,7 @@ $sudo rm -f core* $seq.core*
 # real QA test starts here
 
 pmieconf -f $tmp.conf m global syslog_prefix '$bogus_macro_name$' 2>&1 \
-| tee $seq.full \
+| tee $seq_full \
 | _filter
 
 echo >>$seq_full
@@ -87,7 +87,7 @@ _check_core
 if [ $status = 0 ]
 then
     pmie -C $tmp.conf 2>&1 \
-    | tee -a $seq.full \
+    | tee -a $seq_full \
     | _filter
 fi
 

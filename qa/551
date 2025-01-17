@@ -28,7 +28,7 @@ _cleanup()
 
 cpu_count()
 {
-    pmprobe -h $host -v hinv.ncpu | tee -a $here/$seq.full | awk '{ print $3 }'
+    pmprobe -h $host -v hinv.ncpu | tee -a $seq_full | awk '{ print $3 }'
 }
 
 # make sure the shell babble after $PCP_PYTHON_PROG is terminated goes
@@ -42,7 +42,7 @@ ncpu=`cpu_count`
 echo "Initial CPU count: $ncpu" > $seq_full
 for hang_test in hang-*
 do
-    echo "$hang_test checking: " | tee -a $here/$seq.full
+    echo "$hang_test checking: " | tee -a $seq_full
     $PCP_PYTHON_PROG $hang_test $host >$tmp.out 2>&1 &
     ppid=$!
     sts=0
@@ -56,14 +56,14 @@ do
             sts=1
             break
         fi
-        echo "[$n] check data matched" | tee -a $here/$seq.full
+        echo "[$n] check data matched" | tee -a $seq_full
         n=`expr $n + 1`
         sleep 1
     done
     ( kill $ppid >/dev/null 2>&1 ) &
     wait $ppid
     ppid=0
-    echo "$hang_test complete" | tee -a $here/$seq.full
+    echo "$hang_test complete" | tee -a $seq_full
     echo "$hang_test output " >> $seq_full
     cat $tmp.out >> $seq_full
     [ $sts -eq 0 ] || exit

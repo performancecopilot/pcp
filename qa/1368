@@ -79,8 +79,8 @@ EOF
 pmlogger -c $tmp.config -T 0.25sec -l $tmp.log -t 0.1sec $tmp
 
 echo
-echo "=== Dump labels" | tee -a $here/$seq.full
-pmdumplog -e $tmp | tee -a $here/$seq.full | _filter_labels
+echo "=== Dump labels" | tee -a $seq_full
+pmdumplog -e $tmp | tee -a $seq_full | _filter_labels
 
 echo
 echo "=== Dump help text"

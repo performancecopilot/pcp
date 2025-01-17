@@ -116,7 +116,7 @@ pcp -a $archive xsos -x -n | _filter_net
 echo === Archive pcp xsos -N
 pcp -a $archive xsos -x -N | _filter_netstat
 
-echo === Special case: eval command issues | tee -a $seq.full
+echo === Special case: eval command issues | tee -a $seq_full
 test -f /eperm && $sudo rm -f /eperm
 (./src/args \$\(touch /eperm\) )&
 argspid=$!
@@ -127,7 +127,7 @@ test -f /eperm && echo file exists && $sudo rm -f /eperm
 $PCP_BINADM_DIR/pmsignal $argspid
 wait $argspid
 
-echo === Special case: multiline ps issues | tee -a $seq.full
+echo === Special case: multiline ps issues | tee -a $seq_full
 (./src/args '
 multi
 line
@@ -140,7 +140,7 @@ echo $? exit status
 $PCP_BINADM_DIR/pmsignal $argspid
 wait $argspid
 
-echo === Special case: command line errors | tee -a $seq.full
+echo === Special case: command line errors | tee -a $seq_full
 pcp xsos unknown_arg >> $seq_full 2>&1
 echo $? exit status
 

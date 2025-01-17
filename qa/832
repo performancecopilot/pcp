@@ -70,15 +70,15 @@ cat <<End-Of-File >$tmp.options
 End-Of-File
 $sudo cp $tmp.options $PCP_PMCDOPTIONS_PATH
 
-echo "Start pmcd with modified \$PCP_PMCDOPTIONS_PATH (pmcd.options)" | tee -a $seq.full
+echo "Start pmcd with modified \$PCP_PMCDOPTIONS_PATH (pmcd.options)" | tee -a $seq_full
 cat $PCP_PMCDOPTIONS_PATH >>$seq_full
-if ! _service pmcd stop 2>&1; then _exit 1; fi | tee -a $seq.full >$tmp.out
+if ! _service pmcd stop 2>&1; then _exit 1; fi | tee -a $seq_full >$tmp.out
 # Note: need to use $PCP_RC_DIR/pmcd here, not _service pmcd so that
 # systemd (if it is available) does not set pmcd.service into failed
 # state when pmcd_wait -h local: fails with one of the SASL errors
 # above (seen on vm31)
 #
-$sudo $PCP_RC_DIR/pmcd start 2>&1 | tee -a $seq.full >$tmp.out
+$sudo $PCP_RC_DIR/pmcd start 2>&1 | tee -a $seq_full >$tmp.out
 if [ -f $PCP_LOG_DIR/pmcd/pmcd.log ]
 then
     echo "--- pmcd.log after start ---" >>$seq_full
@@ -87,7 +87,7 @@ else
     echo "No pmcd.log?" >>$seq_full
     $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mcd( |$)' >>$seq_full
 fi
-if ! _wait_for_pmcd 10 unix: 2>&1; then _exit 1; fi | tee -a $seq.full | _filter
+if ! _wait_for_pmcd 10 unix: 2>&1; then _exit 1; fi | tee -a $seq_full | _filter
 grep -i 'starting pmcd' $tmp.out \
 | _filter \
 | sed -e "s/$$/MYPID/" \

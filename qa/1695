@@ -100,19 +100,19 @@ then
 fi
 
 date >>$seq_full
-echo "=== checking metric scrape operation ===" | tee -a $seq.full
+echo "=== checking metric scrape operation ===" | tee -a $seq_full
 curl -Gs "http://localhost:$port/metrics?$params" >$tmp.tmp 2>&1
 grep "^curl" $tmp.tmp
 cat $tmp.tmp >>$seq_full
 
 date >>$seq_full
-echo "=== checking short-fuse scrape operation ===" | tee -a $seq.full
+echo "=== checking short-fuse scrape operation ===" | tee -a $seq_full
 curl -Gs "http://localhost:$port/metrics?polltimeout=1" >$tmp.tmp 2>&1
 grep "^curl" $tmp.tmp
 cat $tmp.tmp >>$seq_full
 
 date >>$seq_full
-echo "=== checking repeated scrape operation ===" | tee -a $seq.full
+echo "=== checking repeated scrape operation ===" | tee -a $seq_full
 for f in `seq 1 100`; do
     curl -Gs "http://localhost:$port/metrics?names=kernel.all.load" >$tmp.tmp 2>&1
 done
@@ -120,21 +120,21 @@ grep "^curl" $tmp.tmp
 cat $tmp.tmp >>$seq_full
 
 date >>$seq_full
-echo "=== checking one client making multiple requests ===" | tee -a $seq.full
+echo "=== checking one client making multiple requests ===" | tee -a $seq_full
 context="http://localhost:$port/pmapi/context"
 curl -Gs $context $context >$tmp.tmp 2>&1
 grep "^curl" $tmp.tmp
 cat $tmp.tmp >>$seq_full
 
 date >>$seq_full
-echo "=== checking metric fetch operation ===" | tee -a $seq.full
+echo "=== checking metric fetch operation ===" | tee -a $seq_full
 metrics="sample.colour,sample.long.one,sample.long.one,sample.double.one"
 curl -Gs "http://localhost:$port/pmapi/fetch?names=$metrics&$params" >$tmp.tmp 2>&1
 grep "^curl" $tmp.tmp
 cat $tmp.tmp >>$seq_full
 
 date >>$seq_full
-echo "=== checking url escaping operation ===" | tee -a $seq.full
+echo "=== checking url escaping operation ===" | tee -a $seq_full
 metrics="%2Csample.long.one%2Csample.double.one%2C%2C"	# %2C == ','
 curl -Gs "http://localhost:$port/pmapi/fetch?names=$metrics&$params" >$tmp.tmp 2>&1
 grep "^curl" $tmp.tmp
@@ -151,10 +151,10 @@ fi
 # valgrind takes awhile to shutdown too
 pmsignal $pid
 pmsleep 3.5
-echo "=== valgrind stdout ===" | tee -a $seq.full
+echo "=== valgrind stdout ===" | tee -a $seq_full
 cat $tmp.valout | _filter_valgrind
 
-echo "=== valgrind stderr ===" | tee -a $seq.full
+echo "=== valgrind stderr ===" | tee -a $seq_full
 cat $tmp.valerr | _filter_pmproxy_log | _filter_port
 
 # success, all done

@@ -30,12 +30,12 @@ trap "_cleanup_avahi_service; exit \$status" 0 1 2 3 15
 # real QA test starts here
 _control_avahi_service
 
-echo "-m avahi" | tee -a $here/$seq.full
-pmfind -m avahi | tee -a $here/$seq.full | _filter_discovery_unresolved
+echo "-m avahi" | tee -a $seq_full
+pmfind -m avahi | tee -a $seq_full | _filter_discovery_unresolved
 echo "Exit status: $?"
 
-echo "-s pmcd -m avahi -r" | tee -a $here/$seq.full
-pmfind -s pmcd -m avahi -r | tee -a $here/$seq.full | _filter_discovery_resolved
+echo "-s pmcd -m avahi -r" | tee -a $seq_full
+pmfind -s pmcd -m avahi -r | tee -a $seq_full | _filter_discovery_resolved
 echo "Exit status: $?"
 
 echo "-q -m avahi"
@@ -56,12 +56,12 @@ AVAHI_DISCOVERY_TIMEOUT=5 pmfind -q -s pmcd -m avahi
 # up to 5 seconds may elapse here
 echo "Exit status: $?"
 
-echo "-m all" | tee -a $here/$seq.full
-pmfind -m all | tee -a $here/$seq.full | _filter_discovery_unresolved
+echo "-m all" | tee -a $seq_full
+pmfind -m all | tee -a $seq_full | _filter_discovery_unresolved
 echo "Exit status: $?"
 
-echo "-m all --resolve" | tee -a $here/$seq.full
-pmfind -m all --resolve | tee -a $here/$seq.full | _filter_discovery_resolved
+echo "-m all --resolve" | tee -a $seq_full
+pmfind -m all --resolve | tee -a $seq_full | _filter_discovery_resolved
 echo "Exit status: $?"
 
 # success, all done

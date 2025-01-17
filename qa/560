@@ -82,7 +82,7 @@ Internet
 $port
 End-of-File
 
-tee -a $here/$seq.full <$tmp.out \
+tee -a $seq_full <$tmp.out \
 | sed \
     -e "s/ $port\$/ PORT/" \
     -e 's/or perl //g' \
@@ -129,7 +129,7 @@ else
     echo "make prior to Install failed!"
 fi
 $sudo ./Install </dev/null >$tmp.out 2>&1
-tee -a $here/$seq.full <$tmp.out \
+tee -a $seq_full <$tmp.out \
 | grep 'Check'
 
 if [ -f "$PCP_LOG_DIR/pmcd/simple.log" ]

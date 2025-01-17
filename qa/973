@@ -21,7 +21,7 @@ status=1	# failure is the default!
 _filter_zswap()
 {
     # filter metric values for deterministic output
-    tee -a $here/$seq.full | sed \
+    tee -a $seq_full | sed \
         -e 's/value [0-9][0-9]*/value NUMBER/'
 }
 

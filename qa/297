@@ -35,27 +35,27 @@ _cleanup()
 {
     # cannot be sure what state pmcd is in if we take a signal, so restart
     #
-    _service pmcd start >>$seq.full 2>&1
+    _service pmcd start >>$seq_full 2>&1
     _restore_auto_restart pmcd
     _wait_for_pmcd
 
     if $pmlogger_do_restore
     then
-	_service pmlogger start >>$seq.full 2>&1
+	_service pmlogger start >>$seq_full 2>&1
 	_restore_auto_restart pmlogger
 	_wait_for_pmlogger
     fi
 
-    $sudo $signal -a pmproxy >>$seq.full 2>&1
+    $sudo $signal -a pmproxy >>$seq_full 2>&1
     [ -n "$killpid" ] && $signal $killpid
     if $pmproxy_was_running
     then
-	echo "Restart pmproxy ..." >>$here/$seq.full
-	_service pmproxy restart >>$here/$seq.full 2>&1
+	echo "Restart pmproxy ..." >>$seq_full
+	_service pmproxy restart >>$seq_full 2>&1
 	_wait_for_pmproxy
     else
-	echo "Stopping pmproxy ..." >>$here/$seq.full
-	_service pmproxy stop >>$here/$seq.full 2>&1
+	echo "Stopping pmproxy ..." >>$seq_full
+	_service pmproxy stop >>$seq_full 2>&1
     fi
 }
 
@@ -167,7 +167,7 @@ then
     echo "Argh! primary pmlogger not running?"
     exit
 fi
-echo "killing pmcd ..." | tee -a $seq.full
+echo "killing pmcd ..." | tee -a $seq_full
 if ! _service pmlogger stop >>$seq_full 2>&1; then _exit 1; fi
 _wait_pmlogger_end $primary_logger_pid || _exit 1
 if ! _service pmcd stop >>$seq_full 2>&1; then _exit 1; fi
@@ -176,7 +176,7 @@ echo >>$seq_full
 echo "1st pmcd log" >>$seq_full
 cat $PMCDLOG >>$seq_full
 
-echo "re-starting pmcd ..." | tee -a $seq.full
+echo "re-starting pmcd ..." | tee -a $seq_full
 export PCP_RUN_DIR=$OLD_PCP_RUN_DIR
 if ! _service pmcd start >>$seq_full 2>&1; then _exit 1; fi
 _restore_auto_restart pmcd

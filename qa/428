@@ -92,7 +92,7 @@ for m in long longlong float double string aggregate
 do
     echo
     echo "Unique values for sample.$m.write_me ..."
-    pmval -U $tmp sample.$m.write_me 2>&1 | tee -a $seq.full | _filter
+    pmval -U $tmp sample.$m.write_me 2>&1 | tee -a $seq_full | _filter
 done
 
 echo
@@ -103,7 +103,7 @@ for m in long longlong float double string aggregate
 do
     echo
     echo "Unique values for sample.$m.write_me ..."
-    pmval -t 0.25sec -a $tmp sample.$m.write_me 2>&1 | tee -a $seq.full | _filter
+    pmval -t 0.25sec -a $tmp sample.$m.write_me 2>&1 | tee -a $seq_full | _filter
 done
 
 # success, all done

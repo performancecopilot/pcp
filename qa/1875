@@ -46,31 +46,31 @@ key_server_pid=$!
 pmsleep 0.125
 
 echo
-echo "=== password auth enabled, no password provided" | tee -a $seq.full
+echo "=== password auth enabled, no password provided" | tee -a $seq_full
 cat <<EOF > $tmp.conf
 EOF
-pmseries -p $key_server_port -c $tmp.conf disk.dev.read 2>&1 | tee -a $seq.full | grep -o "Cannot connect"
+pmseries -p $key_server_port -c $tmp.conf disk.dev.read 2>&1 | tee -a $seq_full | grep -o "Cannot connect"
 
 echo
-echo "=== password auth enabled, wrong password provided" | tee -a $seq.full
+echo "=== password auth enabled, wrong password provided" | tee -a $seq_full
 cat <<EOF > $tmp.conf
 [pmseries]
 enabled = true
 auth.password = topsecret
 EOF
-pmseries -p $key_server_port -c $tmp.conf disk.dev.read 2>&1 | tee -a $seq.full| grep -o "Cannot connect"
+pmseries -p $key_server_port -c $tmp.conf disk.dev.read 2>&1 | tee -a $seq_full | grep -o "Cannot connect"
 
 echo
-echo "=== password auth enabled, correct password provided" | tee -a $seq.full
+echo "=== password auth enabled, correct password provided" | tee -a $seq_full
 cat <<EOF > $tmp.conf
 [pmseries]
 enabled = true
 auth.password = top\$secret
 EOF
-pmseries -p $key_server_port -c $tmp.conf disk.dev.read 2>&1 | tee -a $seq.full| grep -o "Cannot connect" || echo OK
+pmseries -p $key_server_port -c $tmp.conf disk.dev.read 2>&1 | tee -a $seq_full | grep -o "Cannot connect" || echo OK
 
 echo
-echo "=== password auth enabled, correct password provided (pmproxy)" | tee -a $seq.full
+echo "=== password auth enabled, correct password provided (pmproxy)" | tee -a $seq_full
 pmproxyport=`_find_free_port`
 pmproxy -f -U $username -x $tmp.err -l $tmp.pmproxy.log -p $pmproxyport -r $key_server_port -t -c $tmp.conf &
 pmproxy_pid=$!
@@ -92,43 +92,43 @@ key_server_pid=$!
 pmsleep 0.125
 
 echo
-echo "=== ACL auth enabled, no username/password provided" | tee -a $seq.full
+echo "=== ACL auth enabled, no username/password provided" | tee -a $seq_full
 cat <<EOF > $tmp.conf
 EOF
-pmseries -p $key_server_port -c $tmp.conf disk.dev.read 2>&1 | tee -a $seq.full | grep -o "Cannot connect"
+pmseries -p $key_server_port -c $tmp.conf disk.dev.read 2>&1 | tee -a $seq_full | grep -o "Cannot connect"
 
 echo
-echo "=== ACL auth enabled, unknown username provided" | tee -a $seq.full
+echo "=== ACL auth enabled, unknown username provided" | tee -a $seq_full
 cat <<EOF > $tmp.conf
 [pmseries]
 enabled = true
 auth.username = max
 auth.password = topsecret
 EOF
-pmseries -p $key_server_port -c $tmp.conf disk.dev.read 2>&1 | tee -a $seq.full| grep -o "Cannot connect"
+pmseries -p $key_server_port -c $tmp.conf disk.dev.read 2>&1 | tee -a $seq_full | grep -o "Cannot connect"
 
 echo
-echo "=== ACL auth enabled, correct username, wrong password provided" | tee -a $seq.full
+echo "=== ACL auth enabled, correct username, wrong password provided" | tee -a $seq_full
 cat <<EOF > $tmp.conf
 [pmseries]
 enabled = true
 auth.username = alice
 auth.password = topsecret
 EOF
-pmseries -p $key_server_port -c $tmp.conf disk.dev.read 2>&1 | tee -a $seq.full| grep -o "Cannot connect"
+pmseries -p $key_server_port -c $tmp.conf disk.dev.read 2>&1 | tee -a $seq_full | grep -o "Cannot connect"
 
 echo
-echo "=== ACL auth enabled, correct username and password provided" | tee -a $seq.full
+echo "=== ACL auth enabled, correct username and password provided" | tee -a $seq_full
 cat <<EOF > $tmp.conf
 [pmseries]
 enabled = true
 auth.username = alice
 auth.password = top\$secret
 EOF
-pmseries -p $key_server_port -c $tmp.conf disk.dev.read 2>&1 | tee -a $seq.full| grep -o "Cannot connect" || echo OK
+pmseries -p $key_server_port -c $tmp.conf disk.dev.read 2>&1 | tee -a $seq_full | grep -o "Cannot connect" || echo OK
 
 echo
-echo "=== ACL auth enabled, correct username and password provided (pmproxy)" | tee -a $seq.full
+echo "=== ACL auth enabled, correct username and password provided (pmproxy)" | tee -a $seq_full
 pmproxyport=`_find_free_port`
 pmproxy -f -U $username -x $tmp.err -l $tmp.pmproxy.log -p $pmproxyport -r $key_server_port -t -c $tmp.conf &
 pmproxy_pid=$!

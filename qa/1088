@@ -25,7 +25,7 @@ log mandatory on 1 sec {
 }
 EOF
 
-echo "=== pmmgr configuration ===" | tee -a $seq.full
+echo "=== pmmgr configuration ===" | tee -a $seq_full
 $sudo rm -rf $tmp.dir
 mkdir $tmp.dir
 chmod 777 $tmp.dir
@@ -43,7 +43,7 @@ echo $tmp.dir >$tmp.dir/log-directory
 # Give it some time to run
 sleep 30
 
-echo "=== check outout ===" | tee -a $seq.full
+echo "=== check outout ===" | tee -a $seq_full
 count=`ls -1 $tmp.dir/my_host_id/archive-static_date_string.meta | wc -l`
 if [ $count -gt 0 ]; then
     echo Got archive
@@ -59,7 +59,7 @@ for f in $tmp.dir/my_host_id/*.meta; do
     pmloglabel -l $f | grep "Log Label"
 done
 
-echo "=== kill pmmgr ===" | tee -a $seq.full
+echo "=== kill pmmgr ===" | tee -a $seq_full
 kill $pid
 
 status=0

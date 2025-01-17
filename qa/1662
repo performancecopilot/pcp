@@ -34,7 +34,7 @@ _cleanup()
 _filter()
 {
     echo "=== valgrind output" >>$seq_full
-    tee -a $seq.full \
+    tee -a $seq_full \
     | sed \
 	-e "s,$PCP_BINADM_DIR,PCP_BINADM_DIR,g" \
 	-e "s,-c $tmp.conf ,-c CONFFILE ,g" \

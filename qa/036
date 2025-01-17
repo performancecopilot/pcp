@@ -25,7 +25,7 @@ _cleanup()
 #
 _filter()
 {
-    tee -a $here/$seq.full \
+    tee -a $seq_full \
     | sed \
 	-e 's/pid=[0-9][0-9]*/pid=PID/g' \
 	-e "s@$tmp@TMP@g" \
@@ -94,7 +94,7 @@ echo "=== error and failure cases ==="
 # child (after fork()) and order is not deterministic
 #
 src/exectest -Dexec -- /a/b/c -f oo bar 2>&1 \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | _filter \
 | LC_COLLATE=POSIX sort
 

@@ -61,14 +61,14 @@ _cleanup()
 {
     if [ -n "$container1" -o -n "$container2" ]
     then
-        echo "== removing containers" | tee -a $here/$seq.full
+        echo "== removing containers" | tee -a $seq_full
         _remove_podman_containers $container1 $container2
         container2=""
         container1=""
     fi
     if [ -n "$pod1" -o -n "$pod2" ]
     then
-        echo "== removing pods" | tee -a $here/$seq.full
+        echo "== removing pods" | tee -a $seq_full
         _remove_podman_pods $pod1 $pod2
         pod2=""
         pod1=""
@@ -102,7 +102,7 @@ echo "== container2: $container2" >> $seq_full
 
 # fetch new state, check for new containers and pods
 echo "=== podman metric verification ==="
-pminfo --fetch podman.container | tee -a $here/$seq.full | _filter
+pminfo --fetch podman.container | tee -a $seq_full | _filter
 
 echo
 echo "=== remove $iam agent ==="

@@ -87,39 +87,39 @@ curl -s http://${target_ip} > /dev/null
 _pmdabcc_wait_for_value bcc.proc.io.net.tcp.pid
 
 echo "=== report metric values for pid ==="
-pminfo -dfmtT bcc.proc.io.net.tcp.pid 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bcc.proc.io.net.tcp.pid 2>&1 | tee -a $seq_full \
 | _value_filter_nonzero
 
 echo "=== report metric values for comm ==="
-pminfo -dfmtT bcc.proc.io.net.tcp.comm 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bcc.proc.io.net.tcp.comm 2>&1 | tee -a $seq_full \
 | _value_filter_exact '"curl"'
 
 echo "=== report metric values for laddr ==="
-pminfo -dfmtT bcc.proc.io.net.tcp.laddr 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bcc.proc.io.net.tcp.laddr 2>&1 | tee -a $seq_full \
 | _value_filter_any
 
 echo "=== report metric values for lport ==="
-pminfo -dfmtT bcc.proc.io.net.tcp.lport 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bcc.proc.io.net.tcp.lport 2>&1 | tee -a $seq_full \
 | _value_filter_nonzero
 
 echo "=== report metric values for daddr ==="
-pminfo -dfmtT bcc.proc.io.net.tcp.daddr 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bcc.proc.io.net.tcp.daddr 2>&1 | tee -a $seq_full \
 | _value_filter_exact '"'${target_ip}'"'
 
 echo "=== report metric values for dport ==="
-pminfo -dfmtT bcc.proc.io.net.tcp.dport 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bcc.proc.io.net.tcp.dport 2>&1 | tee -a $seq_full \
 | _value_filter_exact 80
 
 echo "=== report metric values for tx ==="
-pminfo -dfmtT bcc.proc.io.net.tcp.tx 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bcc.proc.io.net.tcp.tx 2>&1 | tee -a $seq_full \
 | _value_filter_nonzero
 
 echo "=== report metric values for rx ==="
-pminfo -dfmtT bcc.proc.io.net.tcp.rx 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bcc.proc.io.net.tcp.rx 2>&1 | tee -a $seq_full \
 | _value_filter_nonzero
 
 echo "=== report metric values for duration ==="
-pminfo -dfmtT bcc.proc.io.net.tcp.duration 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bcc.proc.io.net.tcp.duration 2>&1 | tee -a $seq_full \
 | _value_filter_nonzero
 
 _pmdabcc_remove

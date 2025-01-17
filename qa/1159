@@ -74,7 +74,7 @@ if [ -f $tmp.0 ]
 then
     cat $tmp.log >>$seq_full
     pmdumplog $tmp pmda.version \
-    | tee -a $here/$seq.full \
+    | tee -a $seq_full \
     | grep 'pmda\.version' \
     | wc -l \
     | $PCP_AWK_PROG '

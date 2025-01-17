@@ -38,7 +38,7 @@ fi
 _start_client()
 {
     pmval -T 10sec pmcd.client.whoami >$tmp.tmp 2>&1 &
-    echo "=== Started client ===" | tee -a $here/$seq.full
+    echo "=== Started client ===" | tee -a $seq_full
     sleep 3
 }
 
@@ -73,17 +73,17 @@ _cleanup()
     
     if [ -f $tmp.log ]
     then
-	echo '=== pmcd log' >>$here/$seq.full
-	cat $tmp.log >>$here/$seq.full
+	echo '=== pmcd log' >>$seq_full
+	cat $tmp.log >>$seq_full
     fi
 
     if $pmie_was_running
     then
 	_restore_auto_restart pmie
-	_service pmie start >>$here/$seq.full 2>&1
+	_service pmie start >>$seq_full 2>&1
     else
-	_service pmie stop >>$here/$seq.full 2>&1
-	$sudo $PCP_BINADM_DIR/pmsignal -a -s TERM pmie >>$here/$seq.full 2>&1
+	_service pmie stop >>$seq_full 2>&1
+	$sudo $PCP_BINADM_DIR/pmsignal -a -s TERM pmie >>$seq_full 2>&1
 	_wait_pmie_end
     fi
 
@@ -169,7 +169,7 @@ if ! _service pmcd stop; then _exit 1; fi \
 
 # Build simple agent
 #
-echo "=== Building simple agent ===" | tee -a $here/$seq.full
+echo "=== Building simple agent ===" | tee -a $seq_full
 unset ROOT TOOLROOT MAKEFLAGS
 cd $PCP_PMDAS_DIR/simple
 
@@ -196,7 +196,7 @@ cd $here
 #
 _renew_pmcd()
 {
-    echo "=== Restarting PMCD with minimal PMDAs ===" | tee -a $here/$seq.full
+    echo "=== Restarting PMCD with minimal PMDAs ===" | tee -a $seq_full
     if [ -f $tmp.newconf ]
     then
 	$sudo cp $tmp.newconf $PCP_PMCDCONF_PATH
@@ -217,7 +217,7 @@ _agent_install()
     daemon=$3
     path=$PCP_PMDAS_DIR/$agent
 
-    echo "=== Installing $agent ===" | tee -a $here/$seq.full
+    echo "=== Installing $agent ===" | tee -a $seq_full
     cp $tmp.newconf $tmp.latest
     if $daemon
     then
@@ -251,7 +251,7 @@ _agent_remove()
 {
     agent=$1
 
-    echo "=== Removing $agent ===" | tee -a $here/$seq.full
+    echo "=== Removing $agent ===" | tee -a $seq_full
     _renew_pmcd _agent_remove
 
     if _check_agent $agent true
@@ -333,7 +333,7 @@ _test_pmda()
     # Test PMDA 
     #
     echo
-    echo "=== Testing PMDA as a $pmda_type ===" | tee -a $here/$seq.full
+    echo "=== Testing PMDA as a $pmda_type ===" | tee -a $seq_full
 
     rm -f $tmp.pminfo
 
@@ -364,7 +364,7 @@ _test_client()
 {
     # Test a client
     #
-    echo "=== Testing a Client ===" | tee -a $here/$seq.full
+    echo "=== Testing a Client ===" | tee -a $seq_full
 
     rm -f $tmp.pminfo
 

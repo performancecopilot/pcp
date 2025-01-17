@@ -37,7 +37,7 @@ _cleanup()
 {
     if [ -n "$pid" ]; then kill $pid; fi
     # restart pmcd and primary pmlogger
-    _service pcp restart >>$seq.full 2>&1
+    _service pcp restart >>$seq_full 2>&1
     _restore_auto_restart pmcd
     _wait_for_pmcd
     _wait_for_pmlogger
@@ -48,7 +48,7 @@ _cleanup()
 
 _filter()
 {
-    tee -a $seq.full |
+    tee -a $seq_full |
     sed -e 's,^\[.*\],TIMESTAMP,' \
         -e 's,pmmgr.[0-9]*/[0-9]*.,pmmgr(PID/TID),' \
         -e 's,hostid [a-zA-Z0-9_-.]*,hostid HOSTID,' \
@@ -58,7 +58,7 @@ _filter()
 
 _filter2()
 {
-    tee -a $seq.full |
+    tee -a $seq_full |
     sed -e 's,'$hostname',HOSTNAME,' \
         -e 's,[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]\.[0-9][0-9]*[0-9][0-9][0-9][0-9],YYYYMMDD-HHMMSS,'
 }
@@ -70,14 +70,14 @@ echo "hostname=$hostname" >>$seq_full
 id >>$seq_full
 
 date >>$seq_full
-echo "=== 1. prepare blank pmmgr config directory  ===" | tee -a $seq.full
+echo "=== 1. prepare blank pmmgr config directory  ===" | tee -a $seq_full
 $sudo rm -rf $tmp.dir
 mkdir $tmp.dir
 chmod 777 $tmp.dir
 ls -ld $tmp.dir >>$seq_full
 
 date >>$seq_full
-echo "=== 2. pmmgr barenaked startup  ===" | tee -a $seq.full
+echo "=== 2. pmmgr barenaked startup  ===" | tee -a $seq_full
 echo 'local:' >$tmp.dir/target-host
 echo 'localhost' >>$tmp.dir/target-host
 echo 'pcp://localhost:44321/' >>$tmp.dir/target-host
@@ -93,7 +93,7 @@ echo "pid=$pid" >>$seq_full
 sleep 5
 
 date >>$seq_full
-echo "=== 3. look for pmmgr starting no daemons ===" | tee -a $seq.full
+echo "=== 3. look for pmmgr starting no daemons ===" | tee -a $seq_full
 if ! _service pmcd restart >>$seq_full 2>&1; then _exit 1; fi
 _wait_for_pmcd || _exit 1
 sleep 10
@@ -102,7 +102,7 @@ sleep 10 # pmmgr daemon shutdown
 ls -1 $tmp.dir # should be almost empty
 
 date >>$seq_full
-echo "=== 4. add control files to start pmlogger and pmie ===" | tee -a $seq.full
+echo "=== 4. add control files to start pmlogger and pmie ===" | tee -a $seq_full
 echo '-t 1' >$tmp.dir/pmlogger
 touch $tmp.dir/pmie
 touch $tmp.dir/pmlogconf
@@ -110,7 +110,7 @@ touch $tmp.dir/pmieconf
 echo $tmp.dir >$tmp.dir/log-directory  # same dir
 
 date >>$seq_full
-echo "=== 5. restart pmcd a few times to get a bunch of pmlogger archives ===" | tee -a $seq.full
+echo "=== 5. restart pmcd a few times to get a bunch of pmlogger archives ===" | tee -a $seq_full
 for x in 1 2 3 4
 do
     echo restart $x `date` >>$seq_full
@@ -147,7 +147,7 @@ do
 done
 
 date >>$seq_full
-echo "=== 6. check the directories ===" | tee -a $seq.full
+echo "=== 6. check the directories ===" | tee -a $seq_full
 # there should be three archives ... unless some timing glitch interfered
 count=`ls -1 $tmp.dir/$hostname/*.meta | wc -l`
 if [ $count -gt 1 ]; then
@@ -164,7 +164,7 @@ for f in $tmp.dir/$hostname/*.meta; do
 done
 
 date >>$seq_full
-echo "=== 7. add log-merging/rewriting, sans pmFOOconf ===" | tee -a $seq.full
+echo "=== 7. add log-merging/rewriting, sans pmFOOconf ===" | tee -a $seq_full
 touch $tmp.dir/pmlogrewrite
 touch $tmp.dir/pmlogmerge
 echo '-t 2 -c '$tmp.dir/$hostname/config.pmlogger >$tmp.dir/pmlogger
@@ -180,7 +180,7 @@ if ! _service pmcd stop >>$seq_full 2>&1; then _exit 1; fi
 sleep 10 # pmmgr daemon shutdown
 
 date >>$seq_full
-echo "=== 8. recheck the directories past retain/merge ===" | tee -a $seq.full
+echo "=== 8. recheck the directories past retain/merge ===" | tee -a $seq_full
 # there should be only two; one merged and one just-written-to
 count=`ls -1 $tmp.dir/$hostname/*.meta | wc -l`
 if [ $count -lt 3 ]; then
@@ -197,7 +197,7 @@ for f in $tmp.dir/$hostname/*.meta; do
 done
 
 date >>$seq_full
-echo "=== 9. how about some granular/reduced mode with some extra monitoring ===" | tee -a $seq.full
+echo "=== 9. how about some granular/reduced mode with some extra monitoring ===" | tee -a $seq_full
 echo 20sec >$tmp.dir/pmlogmerge
 rm $tmp.dir/pmlogrewrite # separately tested
 touch $tmp.dir/pmlogmerge-granular
@@ -223,7 +223,7 @@ if ! _service pmcd start >>$seq_full 2>&1; then _exit 1; fi
 _wait_for_pmcd || _exit 1
 
 date >>$seq_full
-echo "=== 10. wait a bit ===" | tee -a $seq.full
+echo "=== 10. wait a bit ===" | tee -a $seq_full
 # long enough for all the old archives to age out, only new granular stuff to survive
 # not an exact multiple of the pmlogmerge period, to avoid testing the edge moments
 sleep 170 # apprx. pmlogmerge + pmlogmerge-retain + 2* pmlogreduce-retain
@@ -231,7 +231,7 @@ if ! _service pmcd stop >>$seq_full 2>&1; then _exit 1; fi  # ensure daemons sto
 sleep 10 # pmmgr daemon shutdown
 
 date >>$seq_full
-echo "=== 11. admire grained / reduced / retained / monitor data ===" | tee -a $seq.full
+echo "=== 11. admire grained / reduced / retained / monitor data ===" | tee -a $seq_full
 # there should be 3 archive-*, unless timing glitches
 count=`ls -1 $tmp.dir/$hostname/archive*.meta | wc -l`
 if [ $count -gt 0 -a $count -lt 5 ]; then
@@ -275,7 +275,7 @@ done
 grep . $tmp.dir/$hostname/monitor-* >> $seq_full
 
 date >>$seq_full
-echo "=== ZZZ kill pmmgr ===" | tee -a $seq.full
+echo "=== ZZZ kill pmmgr ===" | tee -a $seq_full
 kill $pid
 sleep 4 # under valgrind this can take some time
 if kill -0 $pid >/dev/null 2>&1
@@ -289,14 +289,14 @@ then
 fi
 pid=
 
-echo "=== valgrind stdout ===" | tee -a $seq.full
+echo "=== valgrind stdout ===" | tee -a $seq_full
 # seen on bozo-laptop
 # warning: evaluate_Dwarf3_Expr: unhandled DW_OP_ 0xf3
 #
 sed <$tmp.valout \
     -e '/evaluate_Dwarf3_Expr: unhandled DW_OP_/d' \
 | _filter_valgrind
-echo "=== valgrind stderr ===" | tee -a $seq.full
+echo "=== valgrind stderr ===" | tee -a $seq_full
 cat $tmp.valerr
 
 echo >>$seq_full

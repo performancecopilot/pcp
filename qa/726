@@ -60,7 +60,7 @@ cat $tmp.log >> $seq_full
 
 echo "pmlogger archive contents" >> $seq_full
 pmdumplog -s $tmp 2>&1 \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | _filter_pmdumplog \
 | sed \
     -e '/(pmcd\./d' \

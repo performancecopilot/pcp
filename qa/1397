@@ -39,7 +39,7 @@ _filter()
 
 # real QA test starts here
 echo
-echo "=== Installing S.M.A.R.T PMDA ===" | tee -a $here/$seq.full
+echo "=== Installing S.M.A.R.T PMDA ===" | tee -a $seq_full
 _prepare_pmda_install smart || _exit 1
 cd $PCP_PMDAS_DIR/smart
 $sudo ./Install </dev/null >$tmp.out 2>&1

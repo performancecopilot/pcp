@@ -45,7 +45,7 @@ do
     tar xzf $tgz
     base=`basename $tgz`
 
-    echo "== Extracting subtrees for later use - $base" | tee -a $seq.full
+    echo "== Extracting subtrees for later use - $base" | tee -a $seq_full
     trees=`pminfo proc | awk -F. '{ print $2 }' | sort -u | grep -E -v 'nproc'`
     echo $trees >> $seq_full
 

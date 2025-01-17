@@ -37,7 +37,7 @@ _zswap_sysfs()
 {
     parameter="$1"
     echo /sys/module/zswap/parameters/$parameter >> $seq_full
-    $sudo cat /sys/module/zswap/parameters/$parameter | tee -a $seq.full \
+    $sudo cat /sys/module/zswap/parameters/$parameter | tee -a $seq_full \
 	     | awk '{ print $NF }'
 }
 
@@ -45,7 +45,7 @@ _zswap_pmprobe()
 {
     parameter="$1"
     echo pmprobe -v sysfs.module.zswap.$parameter >> $seq_full
-    pmprobe -v sysfs.module.zswap.$parameter | tee -a $seq.full \
+    pmprobe -v sysfs.module.zswap.$parameter | tee -a $seq_full \
 	    | awk '{ print $NF }' | tr -d '"'
 }
 

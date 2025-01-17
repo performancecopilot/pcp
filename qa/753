@@ -20,7 +20,7 @@ export PCP_DERIVED_CONFIG=$tmp.config
 
 _filter()
 {
-    tee -a $seq.full \
+    tee -a $seq_full \
     | sed \
 	-e '/^host:/d' \
     | case "$1"
@@ -51,8 +51,8 @@ hinv.ncpu
 sample.string.hullo
 sample.kbyte_rate
 End-of-File
-    echo | tee -a $seq.full
-    echo "--- $metric ---" | tee -a $seq.full
+    echo | tee -a $seq_full
+    echo "--- $metric ---" | tee -a $seq_full
     echo "d=delta($metric)" >$tmp.config
     echo "r=rate($metric)" >>$tmp.config
     echo "+++ delta +++" >>$seq_full

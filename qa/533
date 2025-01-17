@@ -30,7 +30,7 @@ fi
 
 _filter()
 {
-    tee -a $seq.full | \
+    tee -a $seq_full | \
     sed \
         -e "s/socket ipv6 $port/socket ipv6 PORT/g" \
         -e "s/ipv6 port $port/ipv6 port PORT/g" \

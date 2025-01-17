@@ -46,7 +46,7 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 _log()
 {
     echo
-    echo "=== $@ ===" | tee -a $here/$seq.full
+    echo "=== $@ ===" | tee -a $seq_full
 }
 
 _filter()
@@ -69,7 +69,7 @@ else
     pmrepconf $tmp.config </dev/null
 fi | _filter
 cat $tmp.config >> $seq_full
-echo Check pmrep syntax validity | tee -a $here/$seq.full
+echo Check pmrep syntax validity | tee -a $seq_full
 pmrep -c $tmp.config -C :metrics >> $seq_full
 test $? -eq 0 || echo "Bad pmrep return code"
 echo done
@@ -82,7 +82,7 @@ else
     pmrepconf $tmp.config </dev/null
 fi | _filter
 cat $tmp.config >> $seq_full
-echo Check pmrep syntax validity | tee -a $here/$seq.full
+echo Check pmrep syntax validity | tee -a $seq_full
 pmrep -c $tmp.config -C :metrics >> $seq_full
 test $? -eq 0 || echo "Bad pmrep return code"
 echo done
@@ -96,7 +96,7 @@ else
     pmrepconf $options $tmp.option </dev/null
 fi | _filter
 cat $tmp.option >> $seq_full
-echo Check options saved | tee -a $here/$seq.full
+echo Check options saved | tee -a $seq_full
 grep -E '^globals|^timestamp' $tmp.option
 echo done
 

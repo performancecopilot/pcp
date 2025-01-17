@@ -218,7 +218,7 @@ cat $tmp.dump >>$seq_full
 echo
 echo "sanity check with pmval | filter ..."
 pmval -t 1 -a $tmp sample.milliseconds 2>&1 \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | _filter_pmval_arch \
 | sed -e 6q
 

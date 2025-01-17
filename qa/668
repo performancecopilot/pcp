@@ -45,7 +45,7 @@ _cleanup()
 {
     if [ -n "$pid" ]; then $sudo kill $pid; fi
     # restart pmcd and primary pmlogger
-    _service pcp restart >>$seq.full 2>&1
+    _service pcp restart >>$seq_full 2>&1
     _wait_for_pmcd
     _wait_for_pmlogger
     $sudo rm -fr $tmp.dir
@@ -55,7 +55,7 @@ _cleanup()
 
 _filter()
 {
-    tee -a $seq.full |
+    tee -a $seq_full |
     sed -e 's,^\[.*\],TIMESTAMP,' \
         -e 's,pmmgr.[0-9]*/[0-9]*.,pmmgr(PID/TID),' \
         -e 's,hostid [a-zA-Z0-9_-.]*,hostid HOSTID,' \
@@ -67,7 +67,7 @@ echo "hostname=$hostname" >>$seq_full
 id >>$seq_full
 
 date >>$seq_full
-echo "=== 1. prepare pmmgr config directory  ===" | tee -a $seq.full
+echo "=== 1. prepare pmmgr config directory  ===" | tee -a $seq_full
 $sudo rm -rf $tmp.dir
 mkdir $tmp.dir
 $sudo chown pcp.pcp $tmp.dir
@@ -91,7 +91,7 @@ pid=$!
 echo "pid=$!" >>$seq_full
 
 date >>$seq_full
-echo "=== 2. cycle some short-lived containers ===" | tee -a $seq.full
+echo "=== 2. cycle some short-lived containers ===" | tee -a $seq_full
 # need a time long enough to get enough docker instances started,
 # ... and then to run pmlogconf on each found container (in parallel)
 # ... and then to start a pmlogger (in parallel)
@@ -107,29 +107,29 @@ echo "=== 2. cycle some short-lived containers ===" | tee -a $seq.full
  wait)
 
 date >>$seq_full
-echo "=== 3. check that the containers were found ===" | tee -a $seq.full
+echo "=== 3. check that the containers were found ===" | tee -a $seq_full
 num=`ls $tmp.dir/$hostname--*/config.pmlogger 2>/dev/null | wc -l`
 # there might be more if the machine's already running other containers
 if [ "$num" -ge 3 ]; then
-    echo "enough config.pmlogger files" | tee -a $seq.full
+    echo "enough config.pmlogger files" | tee -a $seq_full
 else
-    echo "not enough config.pmlogger files $num" | tee -a $seq.full
+    echo "not enough config.pmlogger files $num" | tee -a $seq_full
 fi
 num=`ls $tmp.dir/$hostname--*/*.meta 2>/dev/null | wc -l`
 if [ "$num" -ge 3 ]; then
-    echo "enough .meta files" | tee -a $seq.full
+    echo "enough .meta files" | tee -a $seq_full
 else
-    echo "not enough .meta files $num" | tee -a $seq.full
+    echo "not enough .meta files $num" | tee -a $seq_full
 fi
 num=`ls $tmp.dir/$hostname--*/config.pmie 2>/dev/null | wc -l`
 if [ "$num" -ge 3 ]; then
-    echo "enough config.pmie files" | tee -a $seq.full
+    echo "enough config.pmie files" | tee -a $seq_full
 else
-    echo "not enough config.pmie files $num" | tee -a $seq.full
+    echo "not enough config.pmie files $num" | tee -a $seq_full
 fi
 
 date >>$seq_full
-echo "=== 4. kill pmmgr ===" | tee -a $seq.full
+echo "=== 4. kill pmmgr ===" | tee -a $seq_full
 $sudo kill $pid
 pid=
 sleep 2

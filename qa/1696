@@ -76,7 +76,7 @@ else
 fi
 
 date >>$seq_full
-echo "=== pmproxy load test ===" | tee -a $seq.full
+echo "=== pmproxy load test ===" | tee -a $seq_full
 ./src/pmproxy_load_test.python $port 100
 
 echo "=== check pmproxy is running ==="
@@ -90,10 +90,10 @@ fi
 # valgrind takes awhile to shutdown too
 pmsignal $pid
 pmsleep 3.5
-echo "=== valgrind stdout ===" | tee -a $seq.full
+echo "=== valgrind stdout ===" | tee -a $seq_full
 cat $tmp.valout | _filter_valgrind
 
-echo "=== valgrind stderr ===" | tee -a $seq.full
+echo "=== valgrind stderr ===" | tee -a $seq_full
 cat $tmp.valerr | _filter_pmproxy_log | grep -v "Cannot connect to key server" | _filter_port
 
 # success, all done

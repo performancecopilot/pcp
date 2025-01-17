@@ -145,7 +145,7 @@ do
     else
         echo "$metric: number of values not 1 as expected: pcp $n1 / memcache $n2"
     fi
-done | tee -a $here/$seq.full
+done | tee -a $seq_full
 
 pmdamemcache_remove
 status=0

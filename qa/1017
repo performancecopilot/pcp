@@ -28,7 +28,7 @@ _cleanup()
 
 _filter()
 {
-    tee $here/$seq.full |\
+    tee $seq_full |\
     sed \
 	-e "s/$host/HOST/g" \
 	-e "/^sample\.seconds/s/= 0.9[0-9]*/= 1/g" \

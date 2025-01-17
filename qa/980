@@ -19,6 +19,6 @@ test $? -eq 0 || _notrun 'Python pcp pmcc module is not installed'
 
 # real QA test starts here
 $python $here/src/test_pmcc.py -a archives/pcp-atop-log.0 >$seq_full 2>&1
-_check_unittest archive $seq.full
+_check_unittest archive $seq_full
 status=$?
 exit

@@ -125,7 +125,7 @@ echo '#define WHACKO 241' >domain.h
 
 ( echo "--- initial state"; cat $PCP_PMCDCONF_PATH ) >>$seq_full
 
-echo "=== no-error case ===" | tee -a $here/$seq.full
+echo "=== no-error case ===" | tee -a $seq_full
 $sudo ./Install </dev/null 2>&1 | _filter_cull
 ( echo "--- after Install"; cat $PCP_PMCDCONF_PATH ) >>$seq_full
 pminfo -mf whacko | _filter
@@ -135,8 +135,8 @@ $sudo ./Remove 2>&1 | _filter_cull
 pminfo -mf whacko | _filter
 pminfo -f pmcd.agent.status | grep -E 'whacko|sample'
 
-echo | tee -a $here/$seq.full
-echo "=== domain number clash case ... will clobber and remove sample PMDA ===" | tee -a $here/$seq.full
+echo | tee -a $seq_full
+echo "=== domain number clash case ... will clobber and remove sample PMDA ===" | tee -a $seq_full
 # borrow sample PMDA's domain
 echo '#define WHACKO 29' >domain.h
 $sudo ./Install </dev/null 2>&1 | _filter_cull
@@ -162,8 +162,8 @@ _fixup >>$seq_full
 cd ..
 mv whacko sample
 cd sample
-echo | tee -a $here/$seq.full
-echo "=== domain name clash case ... will clobber and remove sample PMDA ===" | tee -a $here/$seq.full
+echo | tee -a $seq_full
+echo "=== domain name clash case ... will clobber and remove sample PMDA ===" | tee -a $seq_full
 # borrow ../schizo's domain again
 #
 echo '#define WHACKO 241' >domain.h

@@ -58,7 +58,7 @@ EOF
 mkPMIEConfig
 pcpqa_hyphen_host_no_domain=`echo "$PCPQA_HYPHEN_HOST" | sed -e 's/\..*//'`
 pmie -D APPL0 -C -c $tmp.rule 2>&1 \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | sed \
     -e "s;$tmp;TMP;g" \
     -e '/pmLookupName failed: /d' \

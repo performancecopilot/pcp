@@ -15,7 +15,7 @@ _cleanup()
 {
     # reset pmcd's timeout
     #
-    pmstore pmcd.control.timeout 5 >>$seq.full
+    pmstore pmcd.control.timeout 5 >>$seq_full
 }
 
 _filter()
@@ -68,7 +68,7 @@ export PMCD_REQUEST_TIMEOUT=30
 pmstore pmcd.control.timeout 30 >>$seq_full
 
 PCP_STDERR= $PCP_VAR_DIR/config/pmchart/BusyCPU \
-| tee -a $here/$seq.full \
+| tee -a $seq_full \
 | grep 'Plot .* Instance ' \
 | wc -l \
 | $PCP_AWK_PROG '

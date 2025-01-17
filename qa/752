@@ -69,7 +69,7 @@ echo "dodgey_date=$dodgey_date" >>$seq_full
 # Ditto for all the other days of the week.
 #
 src/rtimetest \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | sed \
     -e '/first /{
 /sunday/s/'$(date '+%Y-%m-%d' -d 'first sunday')' ..:..:../first SUNDAY/

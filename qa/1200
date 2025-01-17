@@ -76,7 +76,7 @@ _my_wait_for_pmlogger()
 
 _filter()
 {
-    tee -a $seq.full \
+    tee -a $seq_full \
     | sed \
 	-e '/^now: /s/ .*/ DATE/' \
 	-e "s@$PCP_ARCHIVE_DIR@PCP_ARCHIVE_DIR@" \

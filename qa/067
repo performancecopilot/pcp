@@ -160,7 +160,7 @@ sleep 1
 echo
 echo "port 2222 should be listening"
 netstat -an \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | grep '[.:]2222 ' \
 | sed \
     -e 's/127\.0\.0\.1/*/g' \
@@ -191,7 +191,7 @@ for t in 1 2 3 4 5 6
 do
     echo >>$seq_full
     echo "wait for pmdashutdown to finish ... cycle $t" >>$seq_full
-    if ps $PCP_PS_ALL_FLAGS | tee -a $seq.full | cut -f1 | grep $pid >/dev/null 2>&1
+    if ps $PCP_PS_ALL_FLAGS | tee -a $seq_full | cut -f1 | grep $pid >/dev/null 2>&1
     then
 	sleep 2
     else

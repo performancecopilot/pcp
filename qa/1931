@@ -53,31 +53,31 @@ _pmdabpf_wait_for_metric
 /bin/ls /tmp/qa_execsnoop
 
 echo "=== report metric values for comm ==="
-pminfo -dfmtT bpf.execsnoop.comm 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bpf.execsnoop.comm 2>&1 | tee -a $seq_full \
 | _value_filter_exact '"echo"'
 
 echo "=== report metric values for pid ==="
-pminfo -dfmtT bpf.execsnoop.pid 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bpf.execsnoop.pid 2>&1 | tee -a $seq_full \
 | _value_filter_nonzero
 
 echo "=== report metric values for ppid ==="
-pminfo -dfmtT bpf.execsnoop.ppid 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bpf.execsnoop.ppid 2>&1 | tee -a $seq_full \
 | _value_filter_any
 
 echo "=== report metric values for ret ==="
-pminfo -dfmtT bpf.execsnoop.ret 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bpf.execsnoop.ret 2>&1 | tee -a $seq_full \
 | _value_filter_exact 0
 
 echo "=== report metric values for args ==="
-pminfo -dfmtT bpf.execsnoop.args 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bpf.execsnoop.args 2>&1 | tee -a $seq_full \
 | _value_filter_exact '"/bin/echo hello PCP"'
 
 echo "=== catch background task ==="
-pminfo -dfmtT bpf.execsnoop.args 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bpf.execsnoop.args 2>&1 | tee -a $seq_full \
 | _value_filter_exact '"/bin/echo zzzzzzzzzzz"'
 
 echo "=== report non-filter value ==="
-pminfo -dfmtT bpf.execsnoop.args 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bpf.execsnoop.args 2>&1 | tee -a $seq_full \
 | _value_filter_exact '"/tmp/qa_execsnoop"'
 
 _pmdabpf_remove

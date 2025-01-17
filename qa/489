@@ -19,8 +19,8 @@ trap "$sudo rm -f $tmp.* $PCP_VAR_DIR/config/pmda/42.42; exit \$status" 0 1 2 3 
 # real QA test starts here
 for arg in -k '' -d '-l -Dindom' -dk '-l -Dindom'
 do
-    echo | tee -a $seq.full
-    echo "=== keycache $arg ===" | tee -a $seq.full
+    echo | tee -a $seq_full
+    echo "=== keycache $arg ===" | tee -a $seq_full
 
     case "$arg"
     in

@@ -77,7 +77,7 @@ nfsstat -rs >$tmp.nfs
 
 # acceptance: abs diff within 10 or diff within 5%
 #
-cat $tmp.pminfo $tmp.nfs | tee $seq.full | $PCP_AWK_PROG '
+cat $tmp.pminfo $tmp.nfs | tee $seq_full | $PCP_AWK_PROG '
 NF == 0	{ next }
 /Server RPC/ { nfstat=1; next }
 /rpc.server/ { # pminfo name

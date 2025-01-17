@@ -22,10 +22,10 @@ fi
 
 _cleanup()
 {
-    echo "_cleanup: ..." >>$seq.full
+    echo "_cleanup: ..." >>$seq_full
     cd $here
-    $sudo pmlogctl -f -c default destroy localhost >>$seq.full 2>&1
-    $sudo pmlogctl -af -c $seq destroy >>$seq.full 2>&1
+    $sudo pmlogctl -f -c default destroy localhost >>$seq_full 2>&1
+    $sudo pmlogctl -af -c $seq destroy >>$seq_full 2>&1
     $sudo rm -rf $tmp $tmp.*
     for dir in $seq-localhost $seq-LOCALHOSTNAME localhost $seq-`hostname`
     do
@@ -40,7 +40,7 @@ localhost=`hostname`
 
 _filter()
 {
-    tee -a $seq.full \
+    tee -a $seq_full \
     | sed \
 	-e '/^# created by pmlogctl/s/ on .*/ on DATE/' \
 	-e "s;$tmp\.;TMP.;g" \
@@ -69,7 +69,7 @@ END	{ print "{ print }" }'
 #
 _filter_status()
 {
-    tee -a $seq.full \
+    tee -a $seq_full \
     | $PCP_AWK_PROG -f $tmp.awk \
     | sed >$tmp.tmp \
 	-e "/^`hostname` .* primary /d" \
@@ -97,33 +97,33 @@ log mandatory on default { pmcd.pmlogger }
 End-of-File
 
 # real QA test starts here
-echo '== -N -V -p -c create' | tee -a $seq.full
+echo '== -N -V -p -c create' | tee -a $seq_full
 pmlogctl -N -V -p $tmp.policy -c $seq create localhost 2>&1 | _filter
 
-echo | tee -a $seq.full
-echo '== -p -c create' | tee -a $seq.full
+echo | tee -a $seq_full
+echo '== -p -c create' | tee -a $seq_full
 $sudo pmlogctl -p $tmp.policy -c $seq create localhost | _filter
 $sudo pmlogctl -p $tmp.policy -c $seq create LOCALHOSTNAME | _filter
 $sudo pmlogctl create localhost | _filter
 
 # exercise all the variants for "status"
 # no args => all instances (hosts + classes)
-echo '== status' | tee -a $seq.full
+echo '== status' | tee -a $seq_full
 pmlogctl status | _filter_status
 # one host & all classes
-echo '== status localhost' | tee -a $seq.full
+echo '== status localhost' | tee -a $seq_full
 pmlogctl status localhost | _filter_status
 # multiple hosts & all classes
-echo '== status localhost `hostname`' | tee -a $seq.full
+echo '== status localhost `hostname`' | tee -a $seq_full
 pmlogctl status localhost `hostname` | _filter_status
 # one class & all hosts
-echo '== -c status' | tee -a $seq.full
+echo '== -c status' | tee -a $seq_full
 pmlogctl -c $seq status | _filter_status
 # one class and one host
-echo '== -c status localhost' | tee -a $seq.full
+echo '== -c status localhost' | tee -a $seq_full
 pmlogctl -c $seq status localhost | _filter_status
 # one class and two hosts
-echo '== -c status localhost `hostname`' | tee -a $seq.full
+echo '== -c status localhost `hostname`' | tee -a $seq_full
 pmlogctl -c $seq status localhost `hostname` | _filter_status
 
 status=0

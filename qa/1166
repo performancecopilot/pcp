@@ -45,7 +45,7 @@ End-of-File
 
 # real QA test starts here
 
-echo "=== binary compatibility checks ===" | tee -a $here/$seq.full
+echo "=== binary compatibility checks ===" | tee -a $seq_full
 if LCFLAGS="-DBINARY_COMPAT_TEST" $PCP_MAKE_PROG -f $tmp.makefile >$seq_full 2>&1
 then
     if $tmp 2>&1 | _filter
@@ -59,7 +59,7 @@ else
 fi
 
 echo
-echo "=== source code compatibility checks ===" | tee -a $here/$seq.full
+echo "=== source code compatibility checks ===" | tee -a $seq_full
 if $PCP_MAKE_PROG -f $tmp.makefile >$seq_full 2>&1
 then
     if $tmp 2>&1 | _filter

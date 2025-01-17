@@ -58,13 +58,13 @@ _cleanup()
 {
     $sudo $signal -a pmproxy
     _wait_for_stop
-    echo "final pmproxy log ..." >>$here/$seq.full
-    cat $tmp.log >>$here/$seq.full
+    echo "final pmproxy log ..." >>$seq_full
+    cat $tmp.log >>$seq_full
     _restore_auto_restart pmproxy
     if $pmproxy_was_running
     then
-	echo "Restart pmproxy ..." >>$here/$seq.full
-	_service pmproxy restart >>$here/$seq.full 2>&1
+	echo "Restart pmproxy ..." >>$seq_full
+	_service pmproxy restart >>$seq_full 2>&1
 	_wait_for_pmproxy
     fi
     $sudo rm -f $tmp.*
@@ -142,11 +142,11 @@ proxyargs="-l $tmp.log"
 proxyargs="$proxyargs -Dcontext,pdu"
 id pcp >/dev/null 2>&1 && proxyargs="$proxyargs -U pcp"
 
-echo "== pmproxy not running ==" | tee -a $here/$seq.full
+echo "== pmproxy not running ==" | tee -a $seq_full
 pmprobe $target -v sample.long.hundred 2>&1 | _filter
 
 echo
-echo "== simplest default case ==" | tee -a $here/$seq.full
+echo "== simplest default case ==" | tee -a $seq_full
 $sudo $PCP_BINADM_DIR/pmproxy $proxyargs 2>&1 \
 | _filter_pmproxy
 _wait_for_start
@@ -154,11 +154,11 @@ _wait_for_start
 pmprobe $target -v sample.long.hundred 2>&1 | _filter
 
 echo
-echo "== simple explicit host case ==" | tee -a $here/$seq.full
+echo "== simple explicit host case ==" | tee -a $seq_full
 pmprobe -v -h localhost hinv.ncpu 2>&1 | _filter
 
 echo
-echo "== non-standard PMPROXY_PORT, expect failure ==" | tee -a $here/$seq.full
+echo "== non-standard PMPROXY_PORT, expect failure ==" | tee -a $seq_full
 export PMPROXY_PORT=94322
 pmprobe $target -v sample.long.hundred 2>&1 | _filter
 
@@ -168,7 +168,7 @@ echo "1st pmproxy log ..." >>$seq_full
 cat $tmp.log >>$seq_full
 
 echo
-echo "== non-standard PMPROXY_PORT, expect success ==" | tee -a $here/$seq.full
+echo "== non-standard PMPROXY_PORT, expect success ==" | tee -a $seq_full
 $sudo $PCP_BINADM_DIR/pmproxy $proxyargs 2>&1 \
 | _filter_pmproxy
 _wait_for_start
@@ -182,7 +182,7 @@ echo "2nd pmproxy log ..." >>$seq_full
 cat $tmp.log >>$seq_full
 
 echo
-echo "== restricted interface for connections, expect failure ==" | tee -a $here/$seq.full
+echo "== restricted interface for connections, expect failure ==" | tee -a $seq_full
 $sudo $PCP_BINADM_DIR/pmproxy -i 127.0.0.1 $proxyargs 2>&1 \
 | _filter_pmproxy
 _wait_for_start
@@ -190,7 +190,7 @@ _wait_for_start
 pmprobe $target -v sample.long.hundred 2>&1 | _filter
 
 echo
-echo "== restricted interface for connections, expect success ==" | tee -a $here/$seq.full
+echo "== restricted interface for connections, expect success ==" | tee -a $seq_full
 export PMPROXY_HOST=localhost
 pmprobe $target -v sample.long.hundred 2>&1 | _filter
 

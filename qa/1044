@@ -60,10 +60,10 @@ pmieconf -r /no/such/file -v 5 all
 
 echo
 echo "=== check no fatal errors when creating config.pmie"
-pmieconf -r ./pconf -f $seq.full -F >/dev/null 2>$tmp.out
+pmieconf -r ./pconf -f $seq_full -F >/dev/null 2>$tmp.out
 sed -e "s/$$/PID/g" $tmp.out
-wc -l <$seq.full | sed -e 's/ //g'	# check the file is what we expect
-head -2 $seq.full			# check the initial lines generated OK
+wc -l <$seq_full | sed -e 's/ //g'	# check the file is what we expect
+head -2 $seq_full			# check the initial lines generated OK
 
 echo
 echo "=== check generated config.pmie is good pmie syntax"
@@ -77,7 +77,7 @@ echo "=== check generated config.pmie is good pmie syntax"
 # FreeBSD issue ... some filesys.* metrics not supported
 # pmie: metric filesys.used not in namespace for host vm06.localdomain
 #
-pmie -C $seq.full >$tmp.out 2>&1
+pmie -C $seq_full >$tmp.out 2>&1
 sts=$?
 
 if [ $PCP_PLATFORM = darwin ]

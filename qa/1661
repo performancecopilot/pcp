@@ -23,12 +23,12 @@ _cleanup()
     $sudo rm -rf "$dir"
 
     echo;echo === see $seq.full for logs 
-    echo "+++ pmproxy.log +++" >>$seq.full
-    cat $PCP_LOG_DIR/pmproxy/pmproxy.log >>$seq.full
-    echo "+++ pmproxy.log.prev +++" >>$seq.full
-    cat $PCP_LOG_DIR/pmproxy/pmproxy.log.prev >>$seq.full
-    echo "+++ pmlogger.log +++" >>$seq.full
-    cat $tmp.pmlogger.log >>$seq.full
+    echo "+++ pmproxy.log +++" >>$seq_full
+    cat $PCP_LOG_DIR/pmproxy/pmproxy.log >>$seq_full
+    echo "+++ pmproxy.log.prev +++" >>$seq_full
+    cat $PCP_LOG_DIR/pmproxy/pmproxy.log.prev >>$seq_full
+    echo "+++ pmlogger.log +++" >>$seq_full
+    cat $tmp.pmlogger.log >>$seq_full
 
     _restore_config $PCP_ETC_DIR/pcp/pmlogger
     _service pcp restart 2>&1 | _filter_pcp_stop | _filter_pcp_start
@@ -36,12 +36,12 @@ _cleanup()
     _wait_for_pmlogger
     if $pmproxy_was_running
     then
-	echo "Restart pmproxy ..." >>$seq.full
-	_service pmproxy restart >>$seq.full 2>&1
+	echo "Restart pmproxy ..." >>$seq_full
+	_service pmproxy restart >>$seq_full 2>&1
 	_wait_for_pmproxy
     else
-	echo "Stopping pmproxy ..." >>$seq.full
-	_service pmproxy stop >>$seq.full 2>&1
+	echo "Stopping pmproxy ..." >>$seq_full
+	_service pmproxy stop >>$seq_full 2>&1
     fi
     $sudo rm -rf $tmp.*
 }
@@ -56,7 +56,7 @@ _filter_pmproxy()
 
 _full_log()
 {
-    echo; echo $@ | tee -a $seq.full
+    echo; echo $@ | tee -a $seq_full
 }
 
 # get current log volume of primary pmlogger, according to pmproxy
@@ -71,7 +71,7 @@ p
     echo "primary pmlogger archive path: $path" >>$seq_full
     echo "contents of /proc/$pmproxy_pid/fd/ ..." >>$seq_full
     $sudo ls -l /proc/$pmproxy_pid/fd/ | \
-        tee -a $seq.full | \
+        tee -a $seq_full | \
 	grep "$path" | \
 	$PCP_AWK_PROG -F. '/pmlogger.'$LOCALHOST'.*.[0-9]$/ {print $NF; exit}'
 }
@@ -132,7 +132,7 @@ if [ -d /proc/$pmproxy_pid ]
 then
     $sudo ls -l /proc/$pmproxy_pid/fd | grep 'testarchive.*(deleted)'
 else
-    echo "Arrgh: pmproxy pid=$pmproxy_pid has vanished" | tee -a $seq.full
+    echo "Arrgh: pmproxy pid=$pmproxy_pid has vanished" | tee -a $seq_full
     $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy( |$)' >>$seq_full
     for log in $PCP_LOG_DIR/pmproxy/pmproxy.log*
     do

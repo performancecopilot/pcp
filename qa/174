@@ -99,8 +99,8 @@ End-of-File
 cat $tmp.out >>$seq_full
 _filter <$tmp.out
 
-echo | tee -a $here/$seq.full
-echo "PDUs sent ..." | tee -a $here/$seq.full
+echo | tee -a $seq_full
+echo "PDUs sent ..." | tee -a $seq_full
 cat $tmp.err >>$seq_full
 _filter_stderr <$tmp.err
 

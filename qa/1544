@@ -27,32 +27,32 @@ _cleanup()
     then
         $sudo rm $PCP_VAR_DIR/config/pmda/$domain.$loaded
         cd $here/pmdas/test_python
-        $sudo ./Remove >>$here/$seq.full 2>&1
+        $sudo ./Remove >>$seq_full 2>&1
         $sudo rm -f domain.h.python
         cd $here
     fi
     if $pmproxy_was_running
     then
-	echo "Restart pmproxy ..." >>$here/$seq.full
-	_service pmproxy restart >>$here/$seq.full 2>&1
+	echo "Restart pmproxy ..." >>$seq_full
+	_service pmproxy restart >>$seq_full 2>&1
 	_wait_for_pmproxy
     else
-	echo "Stopping pmproxy ..." >>$here/$seq.full
-	_service pmproxy stop >>$here/$seq.full 2>&1
+	echo "Stopping pmproxy ..." >>$seq_full
+	_service pmproxy stop >>$seq_full 2>&1
     fi
     $sudo rm -rf $tmp $tmp.*
 }
 
 _filter_json()
 {
-    tee -a $seq.full | \
+    tee -a $seq_full | \
     sed -e 's,"context": .*,"context": CONTEXT,g' \
         -e 's,"timestamp": .*,"timestamp": TIMESTAMP,g'
 }
 
 _filter_ctx()
 {
-    tee -a $seq.full | \
+    tee -a $seq_full | \
     sed -E -e 's/ctx [0-9]+/ctx ?/g'
 }
 

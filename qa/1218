@@ -18,7 +18,7 @@ test -x "$PCP_PMDAS_DIR/root/pmdaroot" || _notrun "No pmdaroot support"
 _cleanup()
 {
     cd $here
-    _service pmcd restart >>$here/$seq.full 2>&1
+    _service pmcd restart >>$seq_full 2>&1
     _wait_for_pmcd
     $sudo rm -rf $tmp $tmp.*
 }

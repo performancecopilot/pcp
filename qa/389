@@ -26,15 +26,15 @@ _filter()
 trap "[ -n "$pid" ] && $sudo $PCP_BINADM_DIR/pmsignal -s TERM $pid >/dev/null 2>&1; $sudo rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-echo "=== empty config and _no_ -L, should exit immediately ===" | tee -a $here/$seq.full
+echo "=== empty config and _no_ -L, should exit immediately ===" | tee -a $seq_full
 pmlogger -c /dev/null -l $tmp.log $tmp &
 sleep 2
 echo "expect no pmlogger process ..."
 ps $PCP_PS_ALL_FLAGS | $PCP_AWK_PROG '$2 == "'$!'" { print }'
 _filter_pmlogger_log <$tmp.log | sed -e "s/$host/HOST/"
 
-echo | tee -a $here/$seq.full
-echo "=== empty config and -L, no reconnect and no exit ===" | tee -a $here/$seq.full
+echo | tee -a $seq_full
+echo "=== empty config and -L, no reconnect and no exit ===" | tee -a $seq_full
 $sudo rm -f $tmp.*		# refactor-ok
 _start_up_pmlogger -L -c /dev/null -l $tmp.log $tmp
 _wait_for_pmlogger $pid $tmp.log 5 || _exit 1
@@ -46,8 +46,8 @@ ps $PCP_PS_ALL_FLAGS | $PCP_AWK_PROG '$2 == "'$pid'" { print "OK"}'
 _filter_pmlogger_log <$tmp.log | sed -e "s/$host/HOST/"
 $sudo $signal -s TERM $pid
 
-echo | tee -a $here/$seq.full
-echo "=== non-empty config, reconnect when pmcd restarted ===" | tee -a $here/$seq.full
+echo | tee -a $seq_full
+echo "=== non-empty config, reconnect when pmcd restarted ===" | tee -a $seq_full
 # force quick reconnection to pmcd for pmlogger
 #
 export PMCD_RECONNECT_TIMEOUT=1
@@ -66,11 +66,11 @@ _wait_for_pmlogger || _exit 1
 # need longer delay here to allow pmlogger to reconnect and revalidate
 # metrics
 sleep 4
-echo "expect pmlogger process ..." | tee -a $here/$seq.full
+echo "expect pmlogger process ..." | tee -a $seq_full
 ps $PCP_PS_ALL_FLAGS \
 | grep '[p]mlogger' \
 | grep $tmp \
-| tee -a $here/$seq.full \
+| tee -a $seq_full \
 | $PCP_AWK_PROG '$2 == "'$pid'" { print "OK"}'
 _filter_pmlogger_log <$tmp.log | _filter | sed -e "s/$host/HOST/"
 $sudo $signal -s TERM $pid

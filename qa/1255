@@ -34,7 +34,7 @@ _filter_dbpmda()
 
 _filter()
 {
-    tee $seq.full \
+    tee $seq_full \
     | sed -e 's/started.*$/started DATE/' | _filter_pmlogger_log | _filter_pmie_log \
     | _filter_pmcd_log | _filter_dbpmda | sed -e 's/'`hostname`'/HOST/g'
 }

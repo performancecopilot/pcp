@@ -188,7 +188,7 @@ pmsleep 0.5	# time for pmlogger to start logging
 proxyport=`_find_free_port`
 proxyopts="-f -A -p $proxyport -r $key_server_port -U $username"
 #proxyopts="$pmproxyopts -Dseries,discovery"
-pmproxy -c $tmp.pmproxy.conf -x $seq.full -l $tmp.pmproxy.log $proxyopts &
+pmproxy -c $tmp.pmproxy.conf -x $seq_full -l $tmp.pmproxy.log $proxyopts &
 pmproxy_pid=$!
 #echo pmproxy=$pmproxy_pid
 
@@ -211,32 +211,32 @@ cat $tmp.pmproxy.log >> $seq_full
 #
 # verify we have data loading and can issue various queries
 #
-echo "== verify metric names" | tee -a $seq.full
+echo "== verify metric names" | tee -a $seq_full
 pmseries $options sample.double.bin* | _filter_series
 
-echo "== verify metric descs" | tee -a $seq.full
+echo "== verify metric descs" | tee -a $seq_full
 series=`pmseries $options sample.long.ten`
 [ -z "$series" ] && _fail "Cannot find any timeseries matching sample.long.ten"
 pmseries $options -d $series | _filter_series
 
-echo "== verify metric insts" | tee -a $seq.full
+echo "== verify metric insts" | tee -a $seq_full
 series=`pmseries $options sample.ulong.bin`
 [ -z "$series" ] && _fail "Cannot find any timeseries matching sample.ulong.bin"
 pmseries $options -i $series | _filter_series
 
-echo "== verify metric labels" | tee -a $seq.full
+echo "== verify metric labels" | tee -a $seq_full
 series=`pmseries $options sample.double.bin`
 [ -z "$series" ] && _fail "Cannot find any timeseries matching sample.double.bin"
 pmseries $options -l $series | _filter_labels | _filter_series
 
-echo "== verify metric values" | tee -a  $seq.full
+echo "== verify metric values" | tee -a  $seq_full
 pmsleep 0.5
 pmseries $options -t sample.ulong.million[samples:2] \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | _filter_values \
 | _filter_series
 
-echo "== verify label names and values" | tee -a  $seq.full
+echo "== verify label names and values" | tee -a  $seq_full
 labels=`pmseries $options -l | LC_COLLATE=POSIX sort`
 pmseries $options -v $labels | _filter_label_values | _filter_agents
 
@@ -246,7 +246,7 @@ wait $pmlogger_pid
 #
 # verify discovery handling of archive deletion
 #
-echo "== verify archive removal" | tee -a  $seq.full
+echo "== verify archive removal" | tee -a  $seq_full
 rm -fr $PCP_ARCHIVE_DIR
 pmsleep 0.5	# allow filesystem event some time to arrive
 pmcd_wait -h localhost@localhost:$proxyport -v -t 1sec	# pmproxy still up?
@@ -257,7 +257,7 @@ cat $tmp.pmproxy.log >> $seq_full
 echo "== key server log " >> $seq_full
 cat $tmp.keys >> $seq_full
 
-echo "== all done" | tee -a $seq.full
+echo "== all done" | tee -a $seq_full
 
 # success, all done
 status=0

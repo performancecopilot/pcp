@@ -113,7 +113,7 @@ do
 	    do
 		[ "$req_ctl $req_state" = "advisory maybe" ] && continue
 		echo ""
-		echo "$ctl $state -> $req_ctl $req_state" | tee -a $seq.full
+		echo "$ctl $state -> $req_ctl $req_state" | tee -a $seq_full
 		cat >$tmp.config <<End-of-File
 log $ctl $state {
     sample.colour [ "blue" ]

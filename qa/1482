@@ -40,20 +40,20 @@ _cleanup()
     fi
     if $pmie_was_running
     then
-	_service pmie start >>$seq.full 2>&1
+	_service pmie start >>$seq_full 2>&1
 	_wait_for_pmie
     elif [ -f $PCP_RUN_DIR/pmie.pid ]
     then
-	_service pmie stop >>$seq.full 2>&1
+	_service pmie stop >>$seq_full 2>&1
 	_wait_pmie_end
     fi
     if $pmproxy_was_running
     then
-	_service pmproxy start >>$seq.full 2>&1
+	_service pmproxy start >>$seq_full 2>&1
 	_wait_for_pmproxy
     elif [ -f $PCP_RUN_DIR/pmproxy.pid ]
     then
-	_service pmproxy stop >>$seq.full 2>&1
+	_service pmproxy stop >>$seq_full 2>&1
 	_wait_pmproxy_end
     fi
     $sudo rm -rf $tmp $tmp.*
@@ -75,8 +75,8 @@ _filter()
 # real QA test starts here
 for svc in pmcd pmlogger pmie pmproxy
 do
-    echo | tee -a $seq.full
-    echo "--- $svc stopping ---" | tee -a $seq.full
+    echo | tee -a $seq_full
+    echo "--- $svc stopping ---" | tee -a $seq_full
     case "$svc"
     in
 	pmcd)
@@ -112,10 +112,10 @@ do
 	    ;;
     esac
 
-    echo "--- $svc stopped ---" | tee -a $seq.full
+    echo "--- $svc stopped ---" | tee -a $seq_full
     if ! _service $svc status; then _exit 1; fi
 
-    echo "--- $svc starting ---" | tee -a $seq.full
+    echo "--- $svc starting ---" | tee -a $seq_full
     case "$svc"
     in
 	pmcd)
@@ -139,7 +139,7 @@ do
 	    ;;
     esac
 
-    echo "--- $svc started ---" | tee -a $seq.full
+    echo "--- $svc started ---" | tee -a $seq_full
     if ! _service $svc status; then _exit 1; fi
 
     case "$svc"

@@ -36,7 +36,7 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 mkdir -p $tmp.config
-echo "pmmgr plain startup" | tee -a $seq.full
+echo "pmmgr plain startup" | tee -a $seq_full
 echo 'local:' >$tmp.config/target-host
 echo 'localhost' >>$tmp.config/target-host
 echo 'pcp://localhost:44321/' >>$tmp.config/target-host
@@ -54,14 +54,14 @@ pid=$!
 echo "pid=$pid" >>$seq_full
 
 date >>$seq_full
-echo "let pmmgr run /monitor a few times" | tee -a $seq.full
+echo "let pmmgr run /monitor a few times" | tee -a $seq_full
 sleep 10 # expecting tenish -p poll iterations!
 
-echo "look for err: messages" | tee -a $seq.full
+echo "look for err: messages" | tee -a $seq_full
 # pick out the error notices only; only a few are needed
 grep 'err:.*/no/such/program' $tmp.out | _filter | head -4
 
-echo "kill pmmgr" | tee -a $seq.full
+echo "kill pmmgr" | tee -a $seq_full
 kill $pid
 sleep 4
 if kill -0 $pid >/dev/null 2>&1

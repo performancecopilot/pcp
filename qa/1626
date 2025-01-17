@@ -19,17 +19,17 @@ which curl >/dev/null 2>&1 || _notrun needs curl
 _cleanup()
 {
     cd $here
-    echo "=== pmproxy.log ===" >>$seq.full
-    cat $PCP_LOG_DIR/pmproxy/pmproxy.log >>$seq.full
+    echo "=== pmproxy.log ===" >>$seq_full
+    cat $PCP_LOG_DIR/pmproxy/pmproxy.log >>$seq_full
     _restore_config $PCP_SYSCONF_DIR/pmproxy/pmproxy.options
     if $pmproxy_was_running
     then
-	echo "Restart pmproxy ..." >>$seq.full
-	_service pmproxy restart >>$seq.full 2>&1
+	echo "Restart pmproxy ..." >>$seq_full
+	_service pmproxy restart >>$seq_full 2>&1
 	_wait_for_pmproxy
     else
-	echo "Stopping pmproxy ..." >>$seq.full
-	_service pmproxy stop >>$seq.full 2>&1
+	echo "Stopping pmproxy ..." >>$seq_full
+	_service pmproxy stop >>$seq_full 2>&1
 	_wait_pmproxy_end
     fi
     $sudo rm -rf $tmp $tmp.*

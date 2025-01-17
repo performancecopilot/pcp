@@ -32,7 +32,7 @@ _filter()
 {
     if $lock_asserts
     then
-	tee -a $here/$seq.full \
+	tee -a $seq_full \
 	| sed \
 	    -e '/^github-50.c:.*pmUnlock(.* not permitted/s/.*/Unlock Fail: Operation not permitted/' \
 	    -e '/^Aborted (core dumped)/d' \
@@ -42,7 +42,7 @@ $1 == "backtrace:"	{ exit }
 $3 == "traceback"	{ exit }
 			{ print }'
     else
-	tee -a $here/$seq.full \
+	tee -a $seq_full \
 	| sed \
 	    -e '/^github-50.c:.*pmUnlock(.* not permitted/d' \
 	# end

@@ -207,9 +207,9 @@ pmlogextract -z -S "@00:00:00" -T "@12:00:00" -w archives/rattle $tmp.arch >$tmp
 _check_output pmlogextract
 
 # dump values for irix.kernel.all.load
-echo "--- dump values for irix.kernel.all.load from original archive ---" | tee -a $seq.full
+echo "--- dump values for irix.kernel.all.load from original archive ---" | tee -a $seq_full
 pmdumplog -z -m archives/rattle irix.kernel.all.load \
-	| tee -a $seq.full \
+	| tee -a $seq_full \
 	| sed \
 	    -e '/^$/d' \
 	    -e '/^[0-9]/{
@@ -218,9 +218,9 @@ N
 s/\n/ /
 }' \
 	| $PCP_AWK_PROG -F":" '{ if ($1 >= 0 && $1 < 12) print $0; }' > $tmp.m
-echo "--- dump values for irix.kernel.all.load from extracted archive ---" | tee -a $seq.full
+echo "--- dump values for irix.kernel.all.load from extracted archive ---" | tee -a $seq_full
 pmdumplog -m -z $tmp.arch irix.kernel.all.load \
-	| tee -a $seq.full \
+	| tee -a $seq_full \
 	| sed \
 	    -e '/^$/d' \
 	    -e '/^[0-9]/{

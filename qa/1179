@@ -59,15 +59,15 @@ _pmdabcc_wait_for_metric
 pmsleep 1
 
 echo "=== report metric values for object creation ==="
-pminfo -dfmtT bcc.proc.ustat.object 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bcc.proc.ustat.object 2>&1 | tee -a $seq_full \
 | grep $javapid\" | _value_filter_nonzero
 
 echo "=== report metric values for method calls ==="
-pminfo -dfmtT bcc.proc.ustat.method 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bcc.proc.ustat.method 2>&1 | tee -a $seq_full \
 | grep $javapid\" | _value_filter_nonzero
 
 echo "=== report metric values for threads started ==="
-pminfo -dfmtT bcc.proc.ustat.thread 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bcc.proc.ustat.thread 2>&1 | tee -a $seq_full \
 | grep $javapid\" | _value_filter_nonzero
 
 $signal -s KILL $javapid > /dev/null 2>&1

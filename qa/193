@@ -33,7 +33,7 @@ esac
 
 _cleanup()
 {
-    pmstore pmcd.control.debug 0 >>$seq.full 2>&1 # pdu==1
+    pmstore pmcd.control.debug 0 >>$seq_full 2>&1 # pdu==1
     _restore_auto_restart pmcd
 }
 

@@ -72,7 +72,7 @@ _filter()
 	return
     fi
     eval $cmd \
-    | tee -a $here/$seq.full \
+    | tee -a $seq_full \
     | sed \
 	-e '/pmlogger_daily.pid: Permission denied/d' \
 	-e '/no pmlogger instance running for host/d' \

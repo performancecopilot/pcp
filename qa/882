@@ -114,8 +114,8 @@ echo "---------------------------------------------------------------"
 
 # Get the units of sample.dynamic.meta.metric by fetching 
 # sample.dynamic.meta.pmdesc.units using pminfo.
-echo "pminfo -f sample.dynamic.meta.pmdesc.units" | tee -a $seq.full
-units=`pminfo -f sample.dynamic.meta.pmdesc.units | tee -a $seq.full \
+echo "pminfo -f sample.dynamic.meta.pmdesc.units" | tee -a $seq_full
+units=`pminfo -f sample.dynamic.meta.pmdesc.units | tee -a $seq_full \
     | awk '/value/ { print $2 }'`
 
 # Change the units of sample.dynamic.meta.metric by using pmstore to store into
@@ -147,7 +147,7 @@ echo "---------------------------------------------------------------"
 # the re-check of the configured metrics failed and that it stopped.
 echo >>$seq_full
 echo "pmlogger log ..." >>$seq_full
-cat $LOGGING_DIR/$LOCALHOST/pmlogger.log | tee -a $seq.full | \
+cat $LOGGING_DIR/$LOCALHOST/pmlogger.log | tee -a $seq_full | \
 grep \
  -e 'Units of metric "sample.dynamic.meta.metric" has changed from ' \
  -e 'One or more configured metrics have changed after pmcd state change. Exiting'

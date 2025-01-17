@@ -46,7 +46,7 @@ _pmdabcc_wait_for_metric
 for i in 1 2 3 ; do pminfo bcc > /dev/null ; done
 
 echo "=== report metric values ==="
-pminfo -dfmtT bcc.kernel.lock.mutex.spin.avg 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bcc.kernel.lock.mutex.spin.avg 2>&1 | tee -a $seq_full \
 | _value_filter
 
 _pmdabcc_remove

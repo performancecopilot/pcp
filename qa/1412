@@ -59,7 +59,7 @@ cd $tmp.dir
 
 # real QA test starts here
 rm -f myarchive.*
-perl $here/src/batch_import.perl -V3 2>&1 | tee -a $here/$seq.full | _filter3
+perl $here/src/batch_import.perl -V3 2>&1 | tee -a $seq_full | _filter3
 pminfo -dm -a myarchive
 pmdumplog -dilmst myarchive 2>&1 | _filter2
 

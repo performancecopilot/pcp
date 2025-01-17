@@ -18,7 +18,7 @@ _cleanup()
 {
     if [ -n "$container" ]
     then
-        echo "== removing container" | tee -a $seq.full
+        echo "== removing container" | tee -a $seq_full
 	_remove_docker_containers $container
 	container=""
     fi
@@ -71,15 +71,15 @@ cat $tmp.pcp_hw $tmp.pcp_inet >> $seq_full
 echo "hw_addr:" >> $seq_full
 echo "inet_addr:" >> $seq_full
 
-echo "== extract values from docker" | tee -a $seq.full
-$docker exec $container ifconfig eth0 | tee -a $seq.full >$tmp.ifconfig
+echo "== extract values from docker" | tee -a $seq_full
+$docker exec $container ifconfig eth0 | tee -a $seq_full >$tmp.ifconfig
 
 eval if_inet_addr=`cat $tmp.ifconfig | grep 'inet addr' \
 	| sed -e 's/.*inet addr://g' -e 's/ .*//g'`
 eval if_hw_addr=`cat $tmp.ifconfig | grep 'HWaddr' \
 	| sed -e 's/.*HWaddr //g' -e 's/ .*//g' -e 's/.*/\L&/'`
 
-echo "== comparing values" | tee -a $seq.full
+echo "== comparing values" | tee -a $seq_full
 _compare_value hw_addr $if_hw_addr $pcp_hw_addr
 _compare_value inet_addr $if_inet_addr $pcp_inet_addr
 

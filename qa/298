@@ -52,7 +52,7 @@ _filter_err()
 }
 
 # real QA test starts here
-echo "=== live ===" | tee -a $seq.full
+echo "=== live ===" | tee -a $seq_full
 pmie -v -t 1 -T 3 <$tmp.config >$tmp.out 2>$tmp.tmp
 cat $tmp.out >>$seq_full
 sed -e '/Info: evaluator exiting/d' <$tmp.tmp >$tmp.err
@@ -63,11 +63,11 @@ then
 fi
 cat $tmp.out \
 | pmie2col \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | _filter
 
-echo | tee -a $seq.full
-echo "=== live, pmie -e ===" | tee -a $seq.full
+echo | tee -a $seq_full
+echo "=== live, pmie -e ===" | tee -a $seq_full
 pmie -v -e -t 1 -T 3 <$tmp.config >$tmp.out 2>$tmp.tmp
 cat $tmp.out >>$seq_full
 sed -e '/Info: evaluator exiting/d' <$tmp.tmp >$tmp.err
@@ -78,11 +78,11 @@ then
 fi
 cat $tmp.out \
 | pmie2col \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | _filter
 
-echo | tee -a $seq.full
-echo "=== archive and pmie2col -w ===" | tee -a $seq.full
+echo | tee -a $seq_full
+echo "=== archive and pmie2col -w ===" | tee -a $seq_full
 pmie -v -z -A 30m -t 30m -a archives/kenj-pc-1 <$tmp.config >$tmp.out 2>$tmp.tmp
 cat $tmp.out >>$seq_full
 sed -e '/Info: evaluator exiting/d' <$tmp.tmp >$tmp.err
@@ -93,7 +93,7 @@ then
 fi
 cat $tmp.out \
 | pmie2col -w 8 \
-| tee -a $seq.full
+| tee -a $seq_full
 
 # success, all done
 exit

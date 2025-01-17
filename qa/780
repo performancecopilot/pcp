@@ -27,12 +27,12 @@ _cleanup()
 {
     if $pmproxy_was_running
     then
-	echo "Restart pmproxy ..." >>$here/$seq.full
-	_service pmproxy restart >>$here/$seq.full 2>&1
+	echo "Restart pmproxy ..." >>$seq_full
+	_service pmproxy restart >>$seq_full 2>&1
 	_wait_for_pmproxy
     else
-	echo "Stopping pmproxy ..." >>$here/$seq.full
-	_service pmproxy stop >>$here/$seq.full 2>&1
+	echo "Stopping pmproxy ..." >>$seq_full
+	_service pmproxy stop >>$seq_full 2>&1
     fi
     $sudo rm -f $tmp.*
 }
@@ -40,16 +40,16 @@ _cleanup()
 # real QA test starts here
 if ! _service pmproxy restart >/dev/null 2>&1; then _exit 1; fi
 
-echo "=== Basic" | tee -a $here/$seq.full
+echo "=== Basic" | tee -a $seq_full
 curl -IsS "http://localhost:44323/pmapi/context" | _webapi_header_filter
 
-echo "=== Preflight" | tee -a $here/$seq.full
+echo "=== Preflight" | tee -a $seq_full
 curl -isS -X OPTIONS "http://localhost:44323/series/query?expr=hinv*" | _webapi_header_filter
 
-echo "=== OK Request Method" | tee -a $here/$seq.full
+echo "=== OK Request Method" | tee -a $seq_full
 curl -isS -X OPTIONS -H "Origin: http://example.com" -H "Access-Control-Request-Method: GET" "http://localhost:44323/pmapi/context" | _webapi_header_filter
 
-echo "=== Bad Request Method" | tee -a $here/$seq.full
+echo "=== Bad Request Method" | tee -a $seq_full
 curl -isS -X OPTIONS -H "Origin: http://example.com" -H "Access-Control-Request-Method: BAD" "http://localhost:44323/pmapi/context" | _webapi_header_filter
 
 echo >>$seq_full

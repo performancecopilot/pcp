@@ -15,9 +15,9 @@ echo "QA output created by $seq"
 
 _cleanup()
 {
-    echo "_cleanup: ..." >>$seq.full
+    echo "_cleanup: ..." >>$seq_full
     cd $here
-    $sudo pmlogctl -af -c $seq -p $tmp.policy destroy >>$seq.full 2>&1
+    $sudo pmlogctl -af -c $seq -p $tmp.policy destroy >>$seq_full 2>&1
     for dir in $seq-localhost $seq-LOCALHOSTNAME $seq-`hostname` $seq-no.such.host.pcp.io
     do
 	[ -d "$PCP_ARCHIVE_DIR/$dir" ] && $sudo rm -rf "$PCP_ARCHIVE_DIR/$dir"
@@ -32,7 +32,7 @@ localhost=`hostname`
 
 _filter()
 {
-    tee -a $seq.full \
+    tee -a $seq_full \
     | sed \
 	-e '/^# created by pmlogctl/s/ on .*/ on DATE/' \
 	-e "s;$tmp\.;TMP.;g" \
@@ -67,7 +67,7 @@ END	{ print "{ print }" }'
 #
 _filter_status()
 {
-    tee -a $seq.full \
+    tee -a $seq_full \
     | $PCP_AWK_PROG -f $tmp.awk \
     | sed >$tmp.tmp \
 	-e "/^`hostname` .* primary /d" \
@@ -177,7 +177,7 @@ pmlogctl status | _filter_status
 # NOTE
 # 	For this next test there is ugly non-determinism from a
 # 	filesystem directory order dependency ... using a sort strategy,
-#	but to triage failures you'll need to look at the $seq.full
+#	but to triage failures you'll need to look at the $seq_full
 #	file to see the original output order from pmlogctl
 #
 echo

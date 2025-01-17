@@ -67,7 +67,7 @@ SOCKS_DEBUG=
 PMCD_CONNECT_TIMEOUT=120
 PMCD_REQUEST_TIMEOUT=120
 export SOCKS_SERVER SOCKS_NS SOCKS_DEBUG PMCD_CONNECT_TIMEOUT PMCD_REQUEST_TIMEOUT
-touch $seq.full
+touch $seq_full
 
 KILLER=""
 for host in www.sgi.com.au $otherhost localhost
@@ -122,13 +122,13 @@ echo
 echo "=== localhost pmval connection ==="
 echo "=== localhost pmval connection ===" >>$seq_full
 pmsocks pmval -s1 -t 0.1 pmcd.control.debug 2>&1 \
-	| tee -a $seq.full | _filter
+	| tee -a $seq_full | _filter
 
 echo
 echo "=== hostname local pmval connection ==="
 echo "=== hostname local pmval connection ===" >>$seq_full
 pmsocks pmval -s1 -t 0.1 -h `hostname` pmcd.control.debug 2>&1 \
-	| tee -a $seq.full | _filter
+	| tee -a $seq_full | _filter
 
 for host in $otherhost www.sgi.com.au
 do
@@ -142,7 +142,7 @@ do
 	echo "=== host $host pmval connection ===" >>$seq_full
     fi
     pmsocks pmval -s1 -t 0.1 -h $host pmcd.control.debug 2>&1 \
-	| tee -a $seq.full | _filter
+	| tee -a $seq_full | _filter
 done
 
 # optional stuff if your test has verbose output to help resolve problems

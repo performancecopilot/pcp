@@ -214,8 +214,8 @@ End-of-File
 pmie -z -c $tmp.config -t 1sec -a archives/instant-1 2>&1 \
 | _filter
 
-echo | tee -a $seq.full
-echo "=== live pmcd cases ===" | tee -a $seq.full
+echo | tee -a $seq_full
+echo "=== live pmcd cases ===" | tee -a $seq_full
 cat <<End-of-File >$tmp.config
 instant sum_inst disk.dev.total;
 sum_inst instant disk.dev.total;
@@ -254,7 +254,7 @@ limit=`expr $now + 4`
 
 echo
 echo "=== man page example ==="
-cat <<End-of-File | pmie -t 0.25 -T 2 2>&1 | tee -a $seq.full | _filter | LC_COLLATE=POSIX sort | uniq
+cat <<End-of-File | pmie -t 0.25 -T 2 2>&1 | tee -a $seq_full | _filter | LC_COLLATE=POSIX sort | uniq
 pmcd.pdu_in.text_req > 3;
 instant pmcd.pdu_in.text_req < $limit;
 pmcd.pdu_in.text_req > 3 && instant pmcd.pdu_in.text_req < $limit;

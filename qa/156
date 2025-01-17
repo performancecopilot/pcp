@@ -91,7 +91,7 @@ cat $tmp.out
 _check_pmda_gone $iam
 
 echo
-echo "=== pipe agent ===" | tee -a $here/$seq.full
+echo "=== pipe agent ===" | tee -a $seq_full
 echo pipe | $sudo ./Install -e >$tmp.out 2>&1
 _filter <$tmp.out
 pminfo -v sample || echo "... failed!"
@@ -101,8 +101,8 @@ _filter <$tmp.out
 pminfo -v sample || echo "... failed!"
 _snag_log
 
-echo | tee -a $here/$seq.full
-echo "=== socket Unix agent ===" | tee -a $here/$seq.full
+echo | tee -a $seq_full
+echo "=== socket Unix agent ===" | tee -a $seq_full
 echo 'socket
 Unix
 '"$tmp.fifo" | $sudo ./Install -e >$tmp.out 2>&1

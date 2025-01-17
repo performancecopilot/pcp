@@ -26,7 +26,7 @@ _filter_store()
 _probe_value()
 {
     metric=$1
-    pmprobe -v $metric | tee -a $seq.full | sed -e "s/^$metric 1 //g"
+    pmprobe -v $metric | tee -a $seq_full | sed -e "s/^$metric 1 //g"
 }
 
 # real QA test starts here

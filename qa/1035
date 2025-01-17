@@ -88,7 +88,7 @@ _query()
     echo === Fetching Oracle $table metrics
 
     echo === Oracle Query: $table >> $seq_full
-    #debug#       | tee -a $seq.full
+    #debug#       | tee -a $seq_full
     sqlplus -S $username/$password@$sids < $file \
 	| tr '\t' ' ' | tr -s ' ' \
 	| sed -e '/^$/d' -e 's/ | /|/g' -e 's/^ //' \
@@ -96,8 +96,8 @@ _query()
     cat $tmp.ora >> $seq_full
     if [ -s $tmp.err ]
     then
-	echo "=== Errors: $table" | tee -a $seq.full
-	cat $tmp.err | tee -a $seq.full
+	echo "=== Errors: $table" | tee -a $seq_full
+	cat $tmp.err | tee -a $seq_full
     fi
     echo === Done: $table >> $seq_full
 }

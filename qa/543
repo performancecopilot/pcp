@@ -96,14 +96,14 @@ $sudo mv $NOTICES $tmp.notices
 [ -f $FORWARD ] && $sudo mv $FORWARD $tmp.forward
 cp /dev/null $tmp.noconf
 $sudo cp $tmp.new $NOTICES
-cp $NOTICES $seq.full
+cp $NOTICES $seq_full
 echo >>$seq_full
 $sudo $PCP_BINADM_DIR/pmlogger_daily -c $tmp.noconf -m pcpqa@$host
 
 sleep 2	# let mail arrive (shouldn't take long)
 
 # see what we got ...
-cat $PCP_LOG_DIR/NOTICES.daily | tee -a $seq.full | _filter
+cat $PCP_LOG_DIR/NOTICES.daily | tee -a $seq_full | _filter
 
 # success, all done
 status=0

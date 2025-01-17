@@ -60,10 +60,10 @@ sleep 2
 pmstore pmcd.control.register 0 >>$seq_full
 wait
 
-echo "=== stderr ===" | tee -a $seq.full
+echo "=== stderr ===" | tee -a $seq_full
 cat $tmp.err >>$seq_full
 _show_pmie_exit <$tmp.err
-echo "=== stdout ===" | tee -a $seq.full
+echo "=== stdout ===" | tee -a $seq_full
 cat $tmp.out >>$seq_full
 # we used to count each uniq output line, but this is just too timing
 # dependent, so "pass" has been relaxed to seeing at least one of each

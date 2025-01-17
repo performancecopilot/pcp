@@ -65,7 +65,7 @@ _do()
     echo >>$seq_full
     echo "=== $1 orig ===" >>$seq_full
     pmval -z -O 1m -A 15m -t 15m -a archives/kenj-pc-1 $1 2>$tmp.orig.err \
-    | tee -a $seq.full \
+    | tee -a $seq_full \
     | _fix_e_fmt \
     | _filter >$tmp.orig
     echo "--- stderr ---" >>$seq_full
@@ -75,7 +75,7 @@ _do()
 
     echo "=== $1 reduce ===" >>$seq_full
     pmval -z -O 15m -A 15m -t 15m -a $tmp $1 2>$tmp.reduce.err \
-    | tee -a $seq.full \
+    | tee -a $seq_full \
     | _fix_e_fmt \
     | _filter >$tmp.reduce
     echo "--- stderr ---" >>$seq_full

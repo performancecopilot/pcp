@@ -22,7 +22,7 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 _log()
 {
-    echo $@ | tee -a $seq.full 
+    echo $@ | tee -a $seq_full 
 }
 
 _filter()
@@ -39,7 +39,7 @@ _check_config()
     debug="APPL0,APPL1,APPL2"
     $PCP_PMDAS_DIR/pipe/pmdapipe -C -c $tmp.config -D $debug >$tmp.log 2>&1
     sts=$?
-    cat $tmp.log | tee -a $seq.full | _filter
+    cat $tmp.log | tee -a $seq_full | _filter
     echo "sts=$sts" && echo
 }
 

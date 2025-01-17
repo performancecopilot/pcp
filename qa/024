@@ -114,10 +114,10 @@ echo ""
 PCP_LITE_SAMPLE=yes
 export PCP_LITE_SAMPLE
 
-echo | tee -a $seq.full
-echo "=== try CONTEXT_LOCAL ===" | tee -a $seq.full
+echo | tee -a $seq_full
+echo "=== try CONTEXT_LOCAL ===" | tee -a $seq_full
 $sudo_local_ctx src/chkctx2_lite -Dcontext -L 2>&1 \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | _filter \
 | _filter2 \
 | _filter_pmcd_log

@@ -34,8 +34,8 @@ End-of-File
 # real QA test starts here
 pmlogrewrite -c $tmp.rewrite archives/pmiostat_mark $tmp
 
-pmdumplog -zt archives/pmiostat_mark | tee -a $seq.full >$tmp.in
-pmdumplog -zt $tmp | tee -a $seq.full >$tmp.out
+pmdumplog -zt archives/pmiostat_mark | tee -a $seq_full >$tmp.in
+pmdumplog -zt $tmp | tee -a $seq_full >$tmp.out
 
 echo "Silence is golden ..."
 diff $tmp.in $tmp.out

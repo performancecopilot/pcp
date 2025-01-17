@@ -79,7 +79,7 @@ _my_wait_for_pmlogger()
 
 _filter()
 {
-    tee -a $seq.full \
+    tee -a $seq_full \
     | sed \
 	-e '/^now: /s/ .*/ DATE/' \
 	-e "s@$PCP_ARCHIVE_DIR@PCP_ARCHIVE_DIR@" \
@@ -127,7 +127,7 @@ _dir_hostname=`hostname || echo localhost`
 _logfile="$PCP_ARCHIVE_DIR/$_dir_hostname/pmlogger.log" 
 $sudo rm -f $_logfile
 echo "[`date`]" >>$seq_full
-echo "pmcd not running, expect this to timeout" | tee -a $seq.full
+echo "pmcd not running, expect this to timeout" | tee -a $seq_full
 $sudo $PCP_RC_DIR/pmlogger start 2>&1 | _filter_pcp_start
 _my_wait_for_pmlogger | _filter
 echo "[`date`]" >>$seq_full
@@ -144,12 +144,12 @@ export PMLOGGER_CHECK_SKIP_JANITOR=yes
 
 $sudo rm -f $_logfile
 echo "[`date`]" >>$seq_full
-echo "pmcd running, expect this to work" | tee -a $seq.full
+echo "pmcd running, expect this to work" | tee -a $seq_full
 $sudo $PCP_RC_DIR/pmlogger start 2>&1 | _filter_pcp_start
 _wait_for_pmlogger || _exit 1
 echo "[`date`]" >>$seq_full
 $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p](mcd|mlogger)' >>$seq_full
-pminfo -f pmcd.pmlogger.pmcd_host | tee -a $seq.full >$tmp.tmp
+pminfo -f pmcd.pmlogger.pmcd_host | tee -a $seq_full >$tmp.tmp
 if grep '"primary"' $tmp.tmp >/dev/null
 then
     echo "Found primary pmlogger"

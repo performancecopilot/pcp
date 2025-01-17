@@ -152,9 +152,9 @@ _wait_for_pmlogger $pid $tmp.log || _exit 1
 echo
 echo "=== logger started, nothing logged ==="
 echo "=== logger started, nothing logged ===" >>$seq_full
-LC_TIME=POSIX ls -l $tmp.? 2>&1 | tee -a $seq.full | _do_ls
-pmdumplog -lt $tmp 2>&1 | tee -a $seq.full | _do_time
-pmdumplog $tmp | tee -a $seq.full | _do_metrics
+LC_TIME=POSIX ls -l $tmp.? 2>&1 | tee -a $seq_full | _do_ls
+pmdumplog -lt $tmp 2>&1 | tee -a $seq_full | _do_time
+pmdumplog $tmp | tee -a $seq_full | _do_metrics
 
 pmlc <<End-of-File
 connect $pid
@@ -166,9 +166,9 @@ echo flush | pmlc $pid >/dev/null
 echo
 echo "=== first volume, one result ==="
 echo "=== first volume, one result ===" >>$seq_full
-LC_TIME=POSIX ls -l $tmp.? | tee -a $seq.full | _do_ls
-pmdumplog -lt $tmp | tee -a $seq.full | _do_time
-pmdumplog $tmp | tee -a $seq.full | _do_metrics
+LC_TIME=POSIX ls -l $tmp.? | tee -a $seq_full | _do_ls
+pmdumplog -lt $tmp | tee -a $seq_full | _do_time
+pmdumplog $tmp | tee -a $seq_full | _do_metrics
 
 pmlc <<End-of-File
 connect $pid
@@ -179,9 +179,9 @@ pmsleep 1.1
 echo
 echo "=== second empty volume ==="
 echo "=== second empty volume ===" >>$seq_full
-LC_TIME=POSIX ls -l $tmp.? | tee -a $seq.full | _do_ls
-pmdumplog -lt $tmp | tee -a $seq.full | _do_time
-pmdumplog $tmp | tee -a $seq.full | _do_metrics
+LC_TIME=POSIX ls -l $tmp.? | tee -a $seq_full | _do_ls
+pmdumplog -lt $tmp | tee -a $seq_full | _do_time
+pmdumplog $tmp | tee -a $seq_full | _do_metrics
 
 pmlc <<End-of-File
 connect $pid
@@ -193,9 +193,9 @@ echo flush | pmlc $pid >/dev/null
 echo
 echo "=== second volume, one result ==="
 echo "=== second volume, one result ===" >>$seq_full
-LC_TIME=POSIX ls -l $tmp.? | tee -a $seq.full | _do_ls
-pmdumplog -lt $tmp | tee -a $seq.full | _do_time
-pmdumplog $tmp | tee -a $seq.full | _do_metrics
+LC_TIME=POSIX ls -l $tmp.? | tee -a $seq_full | _do_ls
+pmdumplog -lt $tmp | tee -a $seq_full | _do_time
+pmdumplog $tmp | tee -a $seq_full | _do_metrics
 
 pmlc <<End-of-File
 connect $pid
@@ -216,9 +216,9 @@ echo flush | pmlc $pid >/dev/null
 echo
 echo "=== second volume, second + third result ==="
 echo "=== second volume, second + third result ===" >>$seq_full
-LC_TIME=POSIX ls -l $tmp.? | tee -a $seq.full | _do_ls
-pmdumplog -lt $tmp | tee -a $seq.full | _do_time
-pmdumplog $tmp | tee -a $seq.full | _do_metrics
+LC_TIME=POSIX ls -l $tmp.? | tee -a $seq_full | _do_ls
+pmdumplog -lt $tmp | tee -a $seq_full | _do_time
+pmdumplog $tmp | tee -a $seq_full | _do_metrics
 
 $sudo $signal -s TERM $pid
 _wait_pmlogger_end $pid || _exit 1
@@ -226,15 +226,15 @@ _wait_pmlogger_end $pid || _exit 1
 echo
 echo "=== logger done ==="
 echo "=== logger done ===" >>$seq_full
-LC_TIME=POSIX ls -l $tmp.? | tee -a $seq.full | _do_ls
-pmdumplog -lt $tmp | tee -a $seq.full | _do_time
-pmdumplog $tmp | tee -a $seq.full | _do_metrics
+LC_TIME=POSIX ls -l $tmp.? | tee -a $seq_full | _do_ls
+pmdumplog -lt $tmp | tee -a $seq_full | _do_time
+pmdumplog $tmp | tee -a $seq_full | _do_metrics
 
 # save the archive files for post-mortem test failure analysis
 #
 for i in 0 1 meta index
 do
-    cp ${tmp}.$i $seq.full.$i
+    cp ${tmp}.$i $seq_full.$i
 done
 
 echo >>$seq_full

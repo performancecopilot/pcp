@@ -63,7 +63,7 @@ _doit()
     $sudo cat $tmp/LOG >> $seq_full
     grep 'Uncompressing' $tmp/LOG | _filter
     grep 'ARCHIVEPATH=' $tmp/LOG | _filter
-    $sudo cat $tmp/OUT | tee -a $seq.full | _filter
+    $sudo cat $tmp/OUT | tee -a $seq_full | _filter
 }
 
 # IMPORTANT - pmrep needs the default set of derived metrics

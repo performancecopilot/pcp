@@ -33,7 +33,7 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 N=`pmprobe -v hinv.ncpu | awk '{print $NF}'`
 for m in user nice sys idle intr steal wait
 do
-    echo checking kernel.all.cpu.$m against derived utilization kernel.cpu.util.$m | tee -a $here/$seq.full
+    echo checking kernel.all.cpu.$m against derived utilization kernel.cpu.util.$m | tee -a $seq_full
     # kernel.all.cpu.util.X is ms/s and kernel.cpu.util.X is the average %util over all CPUs for mode X.
     # So kernel.all.cpu.util.X should be about the same as kernel.cpu.util.X * (1000 / 100) * Ncpus.
     # Subtract them and check they're equal within a reasonable tolerance
@@ -46,7 +46,7 @@ do
     wait
     cat $tmp.err
     cat $tmp.out \
-    | tee -a $here/$seq.full \
+    | tee -a $seq_full \
     | $PCP_AWK_PROG '
 BEGIN			{ tol_pct = 5 }
 # sometimes the colums are in the reversed order (?), so check

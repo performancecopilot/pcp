@@ -224,7 +224,7 @@ do
 	    fi
 	    ;;
     esac
-done | tee -a $here/$seq.full
+done | tee -a $seq_full
 
 echo
 echo "=== remove $iam agent ==="

@@ -24,13 +24,13 @@ _cleanup()
 {
     if [ -n "$container" ]
     then
-        echo "== removing container" | tee -a $here/$seq.full
+        echo "== removing container" | tee -a $seq_full
         _remove_podman_containers $container
         container=""
     fi
     if [ -n "$pod" ]
     then
-        echo "== removing pod" | tee -a $here/$seq.full
+        echo "== removing pod" | tee -a $seq_full
         _remove_podman_pods $pod1
         pod=""
     fi

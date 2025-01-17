@@ -16,7 +16,7 @@ echo "QA output created by $seq"
 
 rm -f tmparch/big2.* tmparch/big3.*
 ./tmparch/mkbig1 > $seq_full 2>&1
-[ $? -eq 0 ] || _notrun `cat $seq.full`
+[ $? -eq 0 ] || _notrun `cat $seq_full`
 
 # 10GB should keep us out of trouble
 free=`_check_freespace 10240`

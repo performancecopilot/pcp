@@ -58,7 +58,7 @@ s/bad/Bad/
 #
 echo "Hullo world" >$tmp.in
 src/exectest -f $tmp.in -p -- sh -c 'cat <&3' 2>&1 \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | _filter \
 | LC_COLLATE=POSIX sort
 

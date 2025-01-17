@@ -41,7 +41,7 @@ _report_tags()
     reallymiatags="reallymia/terry reallymia/cathy reallymia/emma"
     for tag in $miatags $reallymiatags
     do
-	echo checking tag $tag | tee -a $here/$seq.full
+	echo checking tag $tag | tee -a $seq_full
 	pmlogconf -q -g $tag $file 2>> $seq_full
     done
 }

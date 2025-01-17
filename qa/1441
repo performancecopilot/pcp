@@ -106,12 +106,12 @@ _wait_for_new_pmlogger()
 	if [ -f $PCP_LOG_DIR/pmlogger/$oldhostname/pmlogger.log
 	then
 	    echo "--- start $oldhostname pmlogger.log" >>$seq_full
-	    cat $PCP_LOG_DIR/pmlogger/$oldhostname/pmlogger.log >>$seq.full
+	    cat $PCP_LOG_DIR/pmlogger/$oldhostname/pmlogger.log >>$seq_full
 	    echo "--- end $oldhostname pmlogger.log" >>$seq_full
 	elif [ -f $PCP_LOG_DIR/pmlogger/$newhostname/pmlogger.log
 	then
 	    echo "--- start $newhostname pmlogger.log" >>$seq_full
-	    cat $PCP_LOG_DIR/pmlogger/$newhostname/pmlogger.log >>$seq.full
+	    cat $PCP_LOG_DIR/pmlogger/$newhostname/pmlogger.log >>$seq_full
 	    echo "--- end $newhostname pmlogger.log" >>$seq_full
 	else
 	    echo "--- no pmlogger.log" >>$seq_full
@@ -136,12 +136,12 @@ _wait_for_new_pmlogger()
 	if [ -f $PCP_LOG_DIR/pmlogger/$oldhostname/pmlogger.log
 	then
 	    echo "--- start $oldhostname pmlogger.log" >>$seq_full
-	    cat $PCP_LOG_DIR/pmlogger/$oldhostname/pmlogger.log >>$seq.full
+	    cat $PCP_LOG_DIR/pmlogger/$oldhostname/pmlogger.log >>$seq_full
 	    echo "--- end $oldhostname pmlogger.log" >>$seq_full
 	elif [ -f $PCP_LOG_DIR/pmlogger/$newhostname/pmlogger.log
 	then
 	    echo "--- start $newhostname pmlogger.log" >>$seq_full
-	    cat $PCP_LOG_DIR/pmlogger/$newhostname/pmlogger.log >>$seq.full
+	    cat $PCP_LOG_DIR/pmlogger/$newhostname/pmlogger.log >>$seq_full
 	    echo "--- end $newhostname pmlogger.log" >>$seq_full
 	else
 	    echo "--- no pmlogger.log" >>$seq_full

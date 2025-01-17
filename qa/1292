@@ -35,7 +35,7 @@ _cleanup()
     [ -n "$pid" ] && kill -TERM $pid
     wait
     cat $tmp.log \
-    | tee -a $seq.full \
+    | tee -a $seq_full \
     | _filter \
     | sed \
 	-e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9] [0-9][0-9][0-9][0-9]$/DATE/' \

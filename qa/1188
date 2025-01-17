@@ -46,7 +46,7 @@ export DM_VDO_STATSPATH=$root/sys/kvdo
 pmda=$PCP_PMDAS_DIR/dm/pmda_dm,dm_init
 
 echo
-echo "=== Installing device mapper PMDA ===" | tee -a $here/$seq.full
+echo "=== Installing device mapper PMDA ===" | tee -a $seq_full
 _prepare_pmda_install dm || _exit 1
 cd $PCP_PMDAS_DIR/dm
 $sudo ./Install </dev/null >$tmp.out 2>&1

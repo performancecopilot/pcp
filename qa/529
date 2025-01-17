@@ -149,7 +149,7 @@ do
 	$PCP_ECHO_PROG $PCP_ECHO_N "$metric	""$PCP_ECHO_C"
 	echo "$metric ..." >>$seq_full
 	pmdumplog $tmp pmcd.pmie.$metric \
-	| tee -a $seq.full \
+	| tee -a $seq_full \
 	| grep '"'$pid'"' \
 	| _filter
     done

@@ -20,7 +20,7 @@ trap "rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 _filter()
 {
-    tee -a $seq.full \
+    tee -a $seq_full \
     | sed \
 	-e "s;$tmp;TMP;g" \
 	-e "s;/$$\.;/PID.;g" \
@@ -45,8 +45,8 @@ _cmp()
 	fi
     done
     $ok || return
-    pmdumplog -z -dilmst $1 | tee -a $seq.full >$tmp.in
-    pmdumplog -z -dilmst $2 | tee -a $seq.full >$tmp.out
+    pmdumplog -z -dilmst $1 | tee -a $seq_full >$tmp.in
+    pmdumplog -z -dilmst $2 | tee -a $seq_full >$tmp.out
     diff -u $tmp.in $tmp.out | _filter
 }
 

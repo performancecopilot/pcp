@@ -24,7 +24,7 @@ echo expect no lookup errors for kernel metricsets
 for set in mpstat mpstat-P-ALL
 do
     echo "=== $set ===" >>$seq_full
-    pmrep -s 1 :$set 2>&1 | tee -a $seq.full >/dev/null 
+    pmrep -s 1 :$set 2>&1 | tee -a $seq_full >/dev/null 
     sts=$?
     [ $sts -eq 0 ] || echo "FAIL: pmrep :$set returned $sts"
 done

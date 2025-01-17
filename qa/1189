@@ -44,8 +44,8 @@ ls * >$tmp.all
 
 for stamp in -0 -1:12 -0:2 -0:0:3 +0 +1:12 +0:2 +0:0:3
 do
-    echo | tee -a $here/$seq.full
-    echo "predicate: mtime $stamp ..." | tee -a $here/$seq.full
+    echo | tee -a $seq_full
+    echo "predicate: mtime $stamp ..." | tee -a $seq_full
     $PCP_BINADM_DIR/find-filter mtime $stamp <$tmp.all >$tmp.tmp
     cat $tmp.tmp >>$seq_full
     echo "Excluded	Included"

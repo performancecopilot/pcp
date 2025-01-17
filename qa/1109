@@ -80,7 +80,7 @@ then
     cat $tmp.log >>$seq_full
     pmdumplog $tmp pmda.version \
     | grep 'pmda\.version' \
-    | tee -a $here/$seq.full \
+    | tee -a $seq_full \
     | wc -l \
     | $PCP_AWK_PROG '
 BEGIN			{ low = 10; high = 55 }

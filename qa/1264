@@ -52,7 +52,7 @@ _pmdabpf_install $tmp.conf | _filter_pmda_install
 _pmdabpf_wait_for_metric
 
 # Generate system activity for the BCC netproc module
-$PCP_PYTHON_PROG $here/src/bcc_netproc.py server >> "$seq.full" &
+$PCP_PYTHON_PROG $here/src/bcc_netproc.py server >> "$seq_full" &
 server_pid=$!
 
 # wait for server to listen on specified port
@@ -62,13 +62,13 @@ if [ $i -ge 10 ]; then
     exit 1
 fi
 
-$PCP_PYTHON_PROG $here/src/bcc_netproc.py client >> "$seq.full" &
+$PCP_PYTHON_PROG $here/src/bcc_netproc.py client >> "$seq_full" &
 client_pid=$!
 
 wait ${client_pid}
 wait ${server_pid}
-echo "server PID: ${server_pid}" >> "$seq.full"
-echo "client PID: ${client_pid}" >> "$seq.full"
+echo "server PID: ${server_pid}" >> "$seq_full"
+echo "client PID: ${client_pid}" >> "$seq_full"
 
 for metric in bpf.proc.net.tcp.send.packets \
               bpf.proc.net.tcp.send.bytes \
@@ -80,7 +80,7 @@ for metric in bpf.proc.net.tcp.send.packets \
               bpf.proc.net.udp.recv.bytes
 do
     echo && echo && echo "=== report metric values for $metric ==="
-    pminfo -dfmtT $metric 2>&1 | tee -a $seq.full \
+    pminfo -dfmtT $metric 2>&1 | tee -a $seq_full \
     | _pid_filter ${server_pid} ${client_pid} \
     | LC_COLLATE=POSIX sort # sort to fix the non deterministic instance order
 

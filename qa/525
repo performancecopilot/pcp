@@ -37,9 +37,9 @@ _cleanup()
     done
     if $reinstall
     then
-	$sudo ./Install </dev/null >>$here/$seq.full 2>&1
+	$sudo ./Install </dev/null >>$seq_full 2>&1
     else
-	$sudo ./Remove >>$here/$seq.full 2>&1
+	$sudo ./Remove >>$seq_full 2>&1
     fi
     cd $here
     rm -rf $tmp.*
@@ -86,7 +86,7 @@ done
 $sudo ./Install </dev/null | _filter_pmda_install
 
 # real QA test starts here
-pminfo -d summary | tee -a $here/$seq.full
+pminfo -d summary | tee -a $seq_full
 pminfo -f summary >>$seq_full
 
 cat $PCP_LOG_DIR/pmcd/summary.log >>$seq_full

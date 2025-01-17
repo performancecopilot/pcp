@@ -23,7 +23,7 @@ filter_paths()
 
 filter_debug()
 {
-    tee -a $here/$seq.full \
+    tee -a $seq_full \
     | sed \
 	-e '/^__pmLogFindOpen:/d' \
 	-e '/^__pmLogOpen:/d' \

@@ -82,7 +82,7 @@ pminfo -f bcc >>$seq_full
 pminfo -f mem > /dev/null
 
 echo "=== report metric values ==="
-pminfo -dfmtT bcc.usdt.hits 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bcc.usdt.hits 2>&1 | tee -a $seq_full \
 | _value_filter
 
 _pmdabcc_remove

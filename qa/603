@@ -43,7 +43,7 @@ _cleanup()
 _filter_trace_install()
 {
     # some warnings are *expected* - no trace values yet
-    tee -a $here/$seq.full | \
+    tee -a $seq_full | \
     _filter_pmda_install | sed \
 	-e 's/ *[0-9]+ warnings,//g' \
 	-e "s/$qahost/HOSTNAME/g"
@@ -114,7 +114,7 @@ echo "=== Attempting bad local access ===" >>$seq_full
 # Error message mapping is for Linux
 #
 pmtrace -h $qahost $qahost 2>&1 \
-| tee -a $here/$seq.full \
+| tee -a $seq_full \
 | sed \
     -e "s/Connection reset by peer/Cannot connect to PMDA - permission denied/" \
     -e "s/Connection refused/Cannot connect to PMDA - permission denied/"
@@ -162,7 +162,7 @@ echo "=== Check access limits ===" >>$seq_full
 # Error message mapping is for Linux
 #
 pmtrace -h $qahost 'limit exceeded' 2>&1 \
-| tee -a $here/$seq.full \
+| tee -a $seq_full \
 | sed \
     -e "s/Connection reset by peer/Cannot connect to PMDA - connection limit reached/"
 
@@ -178,7 +178,7 @@ echo "=== Attempting bad remote access ===" >>$seq_full
 # Error message mapping is for Linux
 #
 ssh -q pcpqa@$otherhost "sh -c 'PCP_TRACE_HOST=$qahost pmtrace -v 1 eek'" 2>&1 \
-| tee -a $here/$seq.full \
+| tee -a $seq_full \
 | sed \
     -e "s/Interrupted function call/Cannot connect to PMDA - permission denied/" \
     -e "s/Connection refused/Cannot connect to PMDA - permission denied/" \

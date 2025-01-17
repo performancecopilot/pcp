@@ -93,9 +93,9 @@ $sudo $signal -s TERM $logger_pid
 _wait_pmlogger_end $logger_pid || _exit 1
 
 echo
-echo "=== forwards ===" | tee -a $seq.full
+echo "=== forwards ===" | tee -a $seq_full
 pmdumplog -lm $tmp \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | sed -e '/(Log Format Version [0-9][0-9]*)/s/ [23])/ OK)/' \
 | sed \
     -e '/^$/d' \
@@ -109,9 +109,9 @@ s/\n/ /
 LC_COLLATE=POSIX sort -o $tmp.list $tmp.list
 
 echo
-echo "=== backwards ===" | tee -a $seq.full
+echo "=== backwards ===" | tee -a $seq_full
 pmdumplog -lmr $tmp \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | sed -e '/(Log Format Version [0-9][0-9]*)/s/ [23])/ OK)/' \
 | sed \
     -e '/^$/d' \

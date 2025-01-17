@@ -59,7 +59,7 @@ pmsleep 0.5
 echo === initial pmproxy log === >> $seq_full
 cat $tmp.log >> $seq_full
 
-echo "== load test data for verification" | tee -a $here/$seq.full
+echo "== load test data for verification" | tee -a $seq_full
 pmseries $options --load $here/archives/proc > $seq_full
 echo === test data load complete === >> $seq_full
 
@@ -70,7 +70,7 @@ do
 
     echo
     echo == pmseries query for $metric to key server directly
-    pmseries -p $key_server_port $metric | tee -a $here/$seq.full > $tmp.out
+    pmseries -p $key_server_port $metric | tee -a $seq_full > $tmp.out
     key_server_nseries=`wc -l < $tmp.out`
     if [ -z "$key_server_nseries" -o "$key_server_nseries" -le 0 ]
     then
@@ -80,7 +80,7 @@ do
 
     echo
     echo == pmseries query for $metric to key server via pmproxy
-    pmseries -p $proxyport $metric | tee -a $here/$seq.full > $tmp.out
+    pmseries -p $proxyport $metric | tee -a $seq_full > $tmp.out
     proxy_nseries=`wc -l < $tmp.out`
     if [ -z "$proxy_nseries" -o "$proxy_nseries" -le 0 ]
     then

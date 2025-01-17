@@ -24,7 +24,7 @@ _checkerr()
 {
     if [ -s $tmp.err ]
     then
-	tee <$tmp.err -a $seq.full
+	tee <$tmp.err -a $seq_full
 	_filter_qt <$tmp.err >$tmp.tmp
 	if [ -s $tmp.tmp ]
 	then
@@ -37,14 +37,14 @@ _checkerr()
 
 # check pmchart can parse Iostat view
 #
-echo "=== parse Iostat view" | tee -a $seq.full
+echo "=== parse Iostat view" | tee -a $seq_full
 export PCP_STDERR=$tmp.err
 pmchart -C -c Iostat >$tmp.out 2>&1
 _filter_qt <$tmp.out
 _checkerr
 rm -f $tmp.err
 
-echo "=== expect no output, especially no qt/scaling or divide by zero exceptions" | tee -a $seq.full
+echo "=== expect no output, especially no qt/scaling or divide by zero exceptions" | tee -a $seq_full
 pmchart -z -a $here/archives/zero_disk_activity -c Iostat -t 0.1 -O'@fri jul 13 00:11:40' -o $tmp.out.png >$tmp.out 2>&1
 _filter_qt <$tmp.out
 _checkerr

@@ -212,7 +212,7 @@ else
 fi
 echo "check primary pmlogger is running" >>$seq_full
 pmlc -P </dev/null 2>&1 \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | if grep 'Connected to primary pmlogger' >/dev/null
 then
     :

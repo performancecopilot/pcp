@@ -49,7 +49,7 @@ do
     echo >>$seq_full
     echo "=== $file ===" >>$seq_full
     cat $file \
-    | tee -a $seq.full
+    | tee -a $seq_full
 done \
 | _filter
 

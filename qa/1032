@@ -31,7 +31,7 @@ _cleanup()
 {
     if [ -n "$container" ]
     then
-        echo "== removing container" | tee -a $seq.full
+        echo "== removing container" | tee -a $seq_full
         _remove_docker_containers $container
         container=""
     fi

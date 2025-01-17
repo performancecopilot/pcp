@@ -56,7 +56,7 @@ for args in derived.inst derived.ctr derived.expr derived.const
 do
     echo
     pmval -t 0.25 -s 4 -ZUTC -Dfetch,derive,appl2 $args 2>&1 \
-    | tee -a $seq.full \
+    | tee -a $seq_full \
     | _filter
 done
 

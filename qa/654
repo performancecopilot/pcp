@@ -37,7 +37,7 @@ _filter()
 
 # real QA test starts here
 echo
-echo "=== Installing GFS2 PMDA ===" | tee -a $here/$seq.full
+echo "=== Installing GFS2 PMDA ===" | tee -a $seq_full
 _prepare_pmda_install gfs2 || _exit 1
 cd $PCP_PMDAS_DIR/gfs2
 $sudo ./Install </dev/null >$tmp.out 2>&1

@@ -59,9 +59,9 @@ End-of-File
 
 _run_valgrind src/grind_ctx -D derive -C $tmp.config -s 100 >$tmp.out 2>$tmp.err
 echo "--- stdout ---" >>$seq_full
-cat $tmp.out | tee -a $seq.full | _filter
+cat $tmp.out | tee -a $seq_full | _filter
 echo "--- stderr ---" >>$seq_full
-cat $tmp.err | tee -a $seq.full | _filter
+cat $tmp.err | tee -a $seq_full | _filter
 
 # success, all done
 exit

@@ -22,7 +22,7 @@ echo "QA output created by $seq"
 #
 _filter()
 {
-    tee -a $seq.full \
+    tee -a $seq_full \
     | _filter_pmdumplog \
     | sed \
 	-e '/^pmlogger .* on host .* is logging metrics from host .*/d' \

@@ -192,7 +192,7 @@ for m in $tmp.d1 $tmp.one.d2 $tmp.one.one.d3 $tmp.two.d4 $tmp.three.one.d5 \
 do
     pmnsadd -n $tmp.root $m 2>&1
 done \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | grep ' leaf' \
 | LC_COLLATE=POSIX sort -nr
 echo

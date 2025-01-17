@@ -57,7 +57,7 @@ for sadist in \
 do
     safile="sadist/$sadist"
     unxz < $safile.xz > $safile
-    echo "==> Checking $safile" | tee -a $seq.full
+    echo "==> Checking $safile" | tee -a $seq_full
     pcplog=$tmp.pcplog
     sar2pcp $safile $pcplog > $tmp.out 2>&1
     sts=$?

@@ -59,40 +59,40 @@ $sudo chown pcp:pcp $PCP_SASLCONF_DIR/pmcd.conf
 ls -l $PCP_SASLCONF_DIR/pmcd.conf >>$seq_full
 $sudo -u pcp cat $PCP_SASLCONF_DIR/pmcd.conf >>$seq_full
 
-echo "Creating temporary sasldb, add user running QA to it" | tee -a $seq.full
+echo "Creating temporary sasldb, add user running QA to it" | tee -a $seq_full
 echo y | saslpasswd2 -p -a pmcd -f $tmp.passwd.db $username
 
-echo "Verify saslpasswd2 has successfully added a new user" | tee -a $seq.full
+echo "Verify saslpasswd2 has successfully added a new user" | tee -a $seq_full
 sasldblistusers2 -f $tmp.passwd.db \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | _filter_listusers2
 
-echo "Ensure pmcd can read the password file" | tee -a $seq.full
+echo "Ensure pmcd can read the password file" | tee -a $seq_full
 $sudo chown pcp:pcp $tmp.passwd.db
 ls -l $tmp.passwd.db >>$seq_full
 $sudo -u pcp od -c $tmp.passwd.db >>$seq_full
 
 echo "Start pmcd with this shiny new sasldb"
-if ! _service pcp restart 2>&1; then _exit 1; fi | tee -a $seq.full >$tmp.out
+if ! _service pcp restart 2>&1; then _exit 1; fi | tee -a $seq_full >$tmp.out
 _wait_for_pmcd || _exit 1
 _wait_for_pmlogger || _exit 1
 
-echo "Enabling sample PMDA tracing" | tee -a $seq.full
+echo "Enabling sample PMDA tracing" | tee -a $seq_full
 authdbg=`pmdbg -l -o | grep DBG_TRACE_AUTH | awk '{ print $2 }'`
 echo "authdbg=$authdbg" >>$seq_full
 echo "username=$username" >>$seq_full
 pmstore sample.control "$authdbg"
 
-echo "Verifying SASL authentication for new client (FAIL)" | tee -a $seq.full
+echo "Verifying SASL authentication for new client (FAIL)" | tee -a $seq_full
 pmprobe -v -h "pcp://localhost?username=${username}&password=n" sample.control 2>&1\
 | tee -a $tmp.out
 grep -q 'user not found' $tmp.out && _notrun "sasldb user-not-found libsasl bug"
 cat $PCP_LOG_DIR/pmcd/sample.log >>$seq_full
 filter_sample_log_credentials
-echo "pmcd.log (from expected FAIL)" >>$seq_full | tee -a $seq.full
+echo "pmcd.log (from expected FAIL)" >>$seq_full | tee -a $seq_full
 cat $PCP_LOG_DIR/pmcd/pmcd.log >>$seq_full
 
-echo "Verifying SASL authentication for new client (PASS)" | tee -a $seq.full
+echo "Verifying SASL authentication for new client (PASS)" | tee -a $seq_full
 pmprobe -v -h "pcp://localhost?username=${username}&password=y" sample.control
 cat $PCP_LOG_DIR/pmcd/sample.log >>$seq_full
 filter_sample_log_credentials

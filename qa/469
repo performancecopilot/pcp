@@ -21,7 +21,7 @@ maxlen=84
 
 # assumes metric length (i.e. line with metric name) is less than $maxlen
 pminfo -T \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | $PCP_AWK_PROG -v maxlen=$maxlen '
 function skip_me(m)
 {

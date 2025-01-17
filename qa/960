@@ -116,7 +116,7 @@ pmdads389log_install
 
 echo
 echo "=== extract metric values ==="
-pmprobe -v ds389log 2>&1 | tee -a $here/$seq.full | _filter
+pmprobe -v ds389log 2>&1 | tee -a $seq_full | _filter
 
 pmdads389log_remove
 # success, all done

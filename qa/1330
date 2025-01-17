@@ -26,12 +26,12 @@ _cleanup()
 {
     # load generator exits itself for this test
 
-    echo "=== endpoint log ===" >>$here/$seq.full
+    echo "=== endpoint log ===" >>$seq_full
     if [ -f $tmp.endpoint ]
     then
-	cat $tmp.endpoint >>$here/$seq.full
+	cat $tmp.endpoint >>$seq_full
     else
-	echo "Error: endpoint log file is missing" >>$here/$seq.full
+	echo "Error: endpoint log file is missing" >>$seq_full
     fi
 
     cd $here

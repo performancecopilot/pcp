@@ -111,14 +111,14 @@ do
 
 	echo "=== scanmeta for expected output ===" >>$seq_full
 	src/scanmeta -o -a archives/omnibus_v3.meta 2>&1 \
-	| tee -a $seq.full \
+	| tee -a $seq_full \
 	| _filter_scanmeta \
 	| LC_COLLATE=POSIX sort >$tmp.expected
 
 	echo >>$seq_full
 	echo "=== scanmeta for actual output ===" >>$seq_full
 	src/scanmeta -o -a $tmp.meta 2>&1 \
-	| tee -a $seq.full \
+	| tee -a $seq_full \
 	| _filter_scanmeta \
 	| LC_COLLATE=POSIX sort >$tmp.output
 
@@ -127,13 +127,13 @@ do
 
 	echo "=== dumplog for expected output ===" >>$seq_full
 	pmdumplog -aI archives/omnibus_v3 2>&1 \
-	| tee -a $seq.full \
+	| tee -a $seq_full \
 	| _filter_dumplog >$tmp.expected
 
 	echo >>$seq_full
 	echo "=== dumplog for actual output ===" >>$seq_full
 	pmdumplog -aI $tmp 2>&1 \
-	| tee -a $seq.full \
+	| tee -a $seq_full \
 	| _filter_dumplog >$tmp.output
 
 	# Note:

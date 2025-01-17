@@ -59,15 +59,15 @@ mkdir $tmp
 cd $tmp
 
 # real QA test starts here
-echo "C version ..." | tee -a $here/$seq.full
-$here/src/check_import -V3 2>&1 | tee -a $here/$seq.full | _filter1
+echo "C version ..." | tee -a $seq_full
+$here/src/check_import -V3 2>&1 | tee -a $seq_full | _filter1
 pminfo -dm -a myarchive
 pmdumplog -dilmst myarchive 2>&1 | _filter2
 
 echo
-echo "Perl wrapper version ..." | tee -a $here/$seq.full
+echo "Perl wrapper version ..." | tee -a $seq_full
 rm -f myarchive.*
-perl $here/src/check_import.perl -V3 2>&1 | tee -a $here/$seq.full | _filter3
+perl $here/src/check_import.perl -V3 2>&1 | tee -a $seq_full | _filter3
 pminfo -dm -a myarchive
 pmdumplog -dilmst myarchive 2>&1 | _filter2
 

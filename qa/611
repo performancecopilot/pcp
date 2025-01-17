@@ -114,7 +114,7 @@ echo
 echo "Expect no dups reported ..."
 
 pmdumplog -i $tmp \
-| tee -a $here/$seq.full \
+| tee -a $seq_full \
 | _filter
 
 status=0

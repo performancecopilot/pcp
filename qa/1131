@@ -39,7 +39,7 @@ _value_filter()
 
 _filter_pcp2openmetrics()
 {
-    tee -a $here/$seq.full \
+    tee -a $seq_full \
     | col -b \
     | sed \
     -e '/domainname=/s/'$domainid'/DOMAINID/' \

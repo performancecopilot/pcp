@@ -41,7 +41,7 @@ pminfo -f mem.slabinfo >> $seq_full
 
 # check access, reflect to output
 echo == pmprobe >> $seq_full
-pmprobe mem.slabinfo | tee -a $here/$seq.full | $PCP_AWK_PROG '
+pmprobe mem.slabinfo | tee -a $seq_full | $PCP_AWK_PROG '
 	$2 >= 1 { print $1, "values" }
 	$2 <= 0 { print $1, "no values" }'
 

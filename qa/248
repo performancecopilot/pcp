@@ -62,7 +62,7 @@ logger_pid=$!
 wait
 
 cat $tmp.err $tmp.log \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | _filter_pmlogger_log \
 | sed \
     -e "s;$tmp.config;CONFIG;g" \

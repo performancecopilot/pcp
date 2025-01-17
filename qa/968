@@ -14,7 +14,7 @@ status=1	# failure is the default!
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-echo "== options error message" | tee -a $seq.full
+echo "== options error message" | tee -a $seq_full
 cat > $tmp.opts <<EOF
 from pcp import pmapi
 import sys
@@ -24,9 +24,9 @@ nops = opts.pmGetNonOptionsFromList(sys.argv)
 ctx = pmapi.pmContext.fromOptions(opts, sys.argv)
 EOF
 cat $tmp.opts >> $seq_full
-$python $tmp.opts 2>&1 | tee -a $seq.full | grep Error
+$python $tmp.opts 2>&1 | tee -a $seq_full | grep Error
 
-echo "== check setmode" | tee -a $seq.full
+echo "== check setmode" | tee -a $seq_full
 cat > $tmp.mode <<EOF
 from pcp import pmapi
 import cpmapi as api
@@ -38,9 +38,9 @@ except pmapi.pmErr as error:
     sys.stderr.write("Unexpected pmSetMode error: ", error)
 EOF
 cat $tmp.mode >> $seq_full
-$python $tmp.mode 2>&1 | tee -a $seq.full
+$python $tmp.mode 2>&1 | tee -a $seq_full
 
-echo "== check import" | tee -a $seq.full
+echo "== check import" | tee -a $seq_full
 cat > $tmp.pmi <<EOF
 from pcp import pmi
 import cpmapi as api
@@ -51,9 +51,9 @@ log.pmiAddMetric("hinv.ncpu", api.PM_ID_NULL,
 log.pmiPutValue("hinv.ncpu", None, "42")
 EOF
 cat $tmp.pmi >> $seq_full
-$python $tmp.pmi 2>&1 | tee -a $seq.full
+$python $tmp.pmi 2>&1 | tee -a $seq_full
 
-echo "== check derive" | tee -a $seq.full
+echo "== check derive" | tee -a $seq_full
 cat > $tmp.derive <<EOF
 from pcp import pmapi
 import sys
@@ -64,7 +64,7 @@ except pmapi.pmErr as error:
     print(error.message())
 EOF
 cat $tmp.derive >> $seq_full
-$python $tmp.derive 2>&1 | tee -a $seq.full
+$python $tmp.derive 2>&1 | tee -a $seq_full
 
 # success, all done
 echo "== done"

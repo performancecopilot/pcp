@@ -41,7 +41,7 @@ _cleanup()
     $sudo rm -rf $tmp $tmp.*
     # put things back the way they were for sample.updown.*
     #
-    pmstore sample.updown.control.reset 0 >>$seq.full 2>&1
+    pmstore sample.updown.control.reset 0 >>$seq_full 2>&1
 }
 
 status=0	# success is the default!

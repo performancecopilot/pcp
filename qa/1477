@@ -49,8 +49,8 @@ _doit()
 {
     cmd=$1
     shift
-    echo | tee -a $here/$seq.full
-    echo "=== cmd=$cmd $* ===" | tee -a $here/$seq.full
+    echo | tee -a $seq_full
+    echo "=== cmd=$cmd $* ===" | tee -a $seq_full
     [ -d $tmp ] || mkdir $tmp
     cd $tmp
     rm -f out.* ok-mv-bar.*

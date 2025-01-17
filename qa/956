@@ -39,7 +39,7 @@ _cleanup()
 	# need to uninstall dynamic PMDA
 	#
         cd $here/pmdas/dynamic
-        $sudo ./Remove >>$here/$seq.full 2>&1
+        $sudo ./Remove >>$seq_full 2>&1
         cd $here
     fi
 
@@ -48,7 +48,7 @@ _cleanup()
 	# need to cleanup PMNS
 	#
         cd $here/pmdas/dynamic
-        $sudo ./Remove >>$here/$seq.full 2>&1
+        $sudo ./Remove >>$seq_full 2>&1
         cd $here
     fi
 
@@ -103,7 +103,7 @@ else
     $PCP_MAKE_PROG >>$seq_full 2>&1
 fi
 $sudo ./Install < /dev/null >$tmp.out 2>&1
-cat $tmp.out | tee -a $here/$seq.full | _filter_pmda_install | _filter
+cat $tmp.out | tee -a $seq_full | _filter_pmda_install | _filter
 cd $here
 
 # real QA test starts here
@@ -112,7 +112,7 @@ pmprobe -h unix:$tmp.socket -i hinv.ncpu
 
 pmsleep 0.2
 
-echo "Terminate a PMDA needing attributes" | tee -a $here/$seq.full
+echo "Terminate a PMDA needing attributes" | tee -a $seq_full
 date >>$seq_full
 $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mdadynamic( |$)' >> $seq_full
 $signal -s KILL -an pmdadynamic >> $seq_full 2>&1

@@ -75,7 +75,7 @@ _pmdabcc_wait_for_metric
 dd if=/dev/zero of=${out_file} bs=${write_size} count=1 oflag=direct 2>/dev/null
 
 echo "=== report metric values ==="
-pminfo -dfmtT bcc.proc.io.total 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bcc.proc.io.total 2>&1 | tee -a $seq_full \
 | _value_filter
 
 _pmdabcc_remove

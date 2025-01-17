@@ -30,7 +30,7 @@ _cleanup()
 	$sudo rm -f $PCP_LOG_DIR/NOTICES
 	$sudo mv $PCP_LOG_DIR/NOTICES.$seq $PCP_LOG_DIR/NOTICES
     fi
-    ls -li $PCP_LOG_DIR/NOTICES $tmp/badness >>$seq.full 2>&1
+    ls -li $PCP_LOG_DIR/NOTICES $tmp/badness >>$seq_full 2>&1
     $sudo rm -rf $tmp $tmp.*
 }
 

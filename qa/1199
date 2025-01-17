@@ -30,7 +30,7 @@ pminfo -v -b 1000 >/dev/null 2>>$seq_full
 echo "done." >>$seq_full
 
 # real QA test starts here
-pmprobe -v pmcd.datasize | tee -a $here/$seq.full >$tmp.tmp
+pmprobe -v pmcd.datasize | tee -a $seq_full >$tmp.tmp
 start=`cat $tmp.tmp | awk '{print $3}'`
 echo "start=$start" >>$seq_full
 
@@ -49,7 +49,7 @@ grep sample $tmp.out \
 | uniq -c \
 | sed -e 's/^  *//'
 
-pmprobe -v pmcd.datasize | tee -a $here/$seq.full >$tmp.tmp
+pmprobe -v pmcd.datasize | tee -a $seq_full >$tmp.tmp
 end=`cat $tmp.tmp | awk '{print $3}'`
 echo "end=$start" >>$seq_full
 

@@ -34,10 +34,10 @@ _cleanup()
     # primary pmlogger exiting during the test is racey depending on timing
     # of fetches and stopping/starting pmcd (this is also not under test).
     _filter_pcp_stop <$tmp.stop | _filter_dots | sed -e '/logger not running/d'
-    echo >>$seq.full
-    cat $PCP_LOG_DIR/pmcd/pmcd.log >>$seq.full
-    echo >>$seq.full
-    cat $PCP_LOG_DIR/pmcd/dumb_pmda.log >>$seq.full
+    echo >>$seq_full
+    cat $PCP_LOG_DIR/pmcd/pmcd.log >>$seq_full
+    echo >>$seq_full
+    cat $PCP_LOG_DIR/pmcd/dumb_pmda.log >>$seq_full
     _restore_config $PCP_PMCDCONF_PATH
     _restore_config $PCP_SYSCONFIG_DIR/pmcd
     _service pcp start 2>&1 >$tmp.start
@@ -49,10 +49,10 @@ _cleanup()
     _restore_auto_restart pmie
     if $pmie_was_running
     then
-	_service pmie start >>$seq.full 2>&1
+	_service pmie start >>$seq_full 2>&1
     else
-	_service pmie stop >>$seq.full 2>&1
-	$sudo $PCP_BINADM_DIR/pmsignal -a -s TERM pmie >>$seq.full 2>&1
+	_service pmie stop >>$seq_full 2>&1
+	$sudo $PCP_BINADM_DIR/pmsignal -a -s TERM pmie >>$seq_full 2>&1
 	_wait_pmie_end
     fi
 

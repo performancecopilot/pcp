@@ -23,7 +23,7 @@ cp tmparch/foo.* $tmp
 cd $tmp
 
 $here/src/arch_maxfd foo \
-| tee $seq.full \
+| tee $seq_full \
 | $PCP_AWK_PROG '
 $1 == "max"	{ if (maxctx == "") maxctx = $NF
 		  $NF = "<max>-" maxctx-$NF

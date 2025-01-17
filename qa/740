@@ -76,7 +76,7 @@ gid=`id -g`
 wait $!
 
 cat $PCP_LOG_DIR/pmcd/sample.log \
-| tee -a $here/$seq.full \
+| tee -a $seq_full \
 | _filter
 pmstore sample.control 0
 

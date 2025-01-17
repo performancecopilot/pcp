@@ -37,7 +37,7 @@ rsyslog.queues.size["action 7 queue"]
 rsyslog.queues.size["main Q"]
 EOF
 
-# Debug tracing sent to $seq.full - in failure case, pmdumptext will
+# Debug tracing sent to $seq_full - in failure case, pmdumptext will
 # abort on MacOSX as per
 # https://github.com/performancecopilot/pcp/issues/35
 #

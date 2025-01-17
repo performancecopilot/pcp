@@ -47,23 +47,23 @@ _pmdabcc_wait_for_metric
 _pmdabcc_wait_for_value bcc.proc.exec.comm
 
 echo "=== report metric values for comm ==="
-pminfo -dfmtT bcc.proc.exec.comm 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bcc.proc.exec.comm 2>&1 | tee -a $seq_full \
 | _value_filter_exact '"echo"'
 
 echo "=== report metric values for pid ==="
-pminfo -dfmtT bcc.proc.exec.pid 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bcc.proc.exec.pid 2>&1 | tee -a $seq_full \
 | _value_filter_nonzero
 
 echo "=== report metric values for ppid ==="
-pminfo -dfmtT bcc.proc.exec.ppid 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bcc.proc.exec.ppid 2>&1 | tee -a $seq_full \
 | _value_filter_any
 
 echo "=== report metric values for ret ==="
-pminfo -dfmtT bcc.proc.exec.ret 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bcc.proc.exec.ret 2>&1 | tee -a $seq_full \
 | _value_filter_exact 0
 
 echo "=== report metric values for args ==="
-pminfo -dfmtT bcc.proc.exec.args 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bcc.proc.exec.args 2>&1 | tee -a $seq_full \
 | _value_filter_exact '"/bin/echo hello PCP"'
 
 _pmdabcc_remove

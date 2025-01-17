@@ -42,4 +42,4 @@ echo
 echo "Mark records: ... (expect none)"
 pmdumplog $tmp | grep '<mark>'
 
-cp $tmp.out $seq.full
+cp $tmp.out $seq_full

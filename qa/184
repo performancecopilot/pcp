@@ -100,11 +100,11 @@ _start_up_pmlogger -L -c $tmp.config -l $tmp.log $tmp.arch >$tmp.err 2>&1
 logger_pid=$pid
 _wait_for_pmlogger $logger_pid $tmp.log || _exit 1
 
-echo "=== old log ===" | tee $seq.full
-pmdumplog -dilmst $tmp.arch | tee -a $seq.full | _filter_dumplog
+echo "=== old log ===" | tee $seq_full
+pmdumplog -dilmst $tmp.arch | tee -a $seq_full | _filter_dumplog
 
-echo | tee -a $seq.full
-echo "=== pmnewlog ==" | tee -a $seq.full
+echo | tee -a $seq_full
+echo "=== pmnewlog ==" | tee -a $seq_full
 $sudo $newlog -V -p $logger_pid -l $tmp.log $tmp.newarch 2>&1 >$tmp.out
 cat $tmp.out >>$seq_full
 _filter_newlog <$tmp.out | _filter_dumplog
@@ -116,7 +116,7 @@ echo
 echo "=== check old pmlogger has gone ==="
 ps $PCP_PS_ALL_FLAGS | $PCP_AWK_PROG '$2 == '$logger_pid' { print }'
 
-echo | tee -a $seq.full
-echo "=== check what's in the new log ===" | tee -a $seq.full
+echo | tee -a $seq_full
+echo "=== check what's in the new log ===" | tee -a $seq_full
 sleep 1
-pmdumplog -dilmst $tmp.newarch | tee -a $seq.full | _filter_dumplog
+pmdumplog -dilmst $tmp.newarch | tee -a $seq_full | _filter_dumplog

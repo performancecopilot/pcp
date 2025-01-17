@@ -20,7 +20,7 @@ trap "rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 _filter()
 {
-    tee -a $seq.full \
+    tee -a $seq_full \
     | sed \
 	-e "s;$tmp;TMP;g" \
 	-e "s;/$$\.;/PID.;g" \
@@ -48,8 +48,8 @@ _cmp()
 	fi
     done
     $ok || return
-    pmdumplog -z -dilmst $1 | tee -a $seq.full >$tmp.in
-    pmdumplog -z -dilmst $2 | tee -a $seq.full >$tmp.out
+    pmdumplog -z -dilmst $1 | tee -a $seq_full >$tmp.in
+    pmdumplog -z -dilmst $2 | tee -a $seq_full >$tmp.out
     diff -u $tmp.in $tmp.out | _filter
 }
 
@@ -57,11 +57,11 @@ mkdir $tmp.arch
 
 # real QA test starts here
 
-echo "=== metric not in archive ===" | tee -a $seq.full
+echo "=== metric not in archive ===" | tee -a $seq_full
 arch=rewrite
 rm -f $tmp.arch/*
 pmlogcp archives/$arch $tmp.arch
-ls -l $tmp.arch | tee -a $seq.full >$tmp.before
+ls -l $tmp.arch | tee -a $seq_full >$tmp.before
 cat <<'End-of-File' >$tmp.conf
 metric kernel.all.load { pmid -> 1.2.3 }
 End-of-File
@@ -69,7 +69,7 @@ pmlogrewrite -Dlog -iqsvw -c $tmp.conf $tmp.arch/$arch 2>&1 \
 | _filter \
 | LC_COLLATE=POSIX sort
 ls $tmp.arch
-ls -l $tmp.arch | tee -a $seq.full >$tmp.after
+ls -l $tmp.arch | tee -a $seq_full >$tmp.after
 if diff $tmp.before $tmp.after >/dev/null
 then
     :
@@ -81,8 +81,8 @@ else
 fi
 _cmp archives/$arch $tmp.arch/$arch
 
-echo | tee -a $seq.full
-echo "=== correctness checked in QA 493 ... only care about expected file contents here ===" | tee -a $seq.full
+echo | tee -a $seq_full
+echo "=== correctness checked in QA 493 ... only care about expected file contents here ===" | tee -a $seq_full
 cat <<End-of-File >$tmp.conf
 metric sample.ulong.bin_ctr {
     indom -> NULL output MIN
@@ -127,7 +127,7 @@ pmlogrewrite -Dlog -si -c $tmp.conf $tmp.arch/$arch 2>&1 \
 ls -l $tmp.arch >>$seq_full
 _cmp $tmp.arch/$arch $tmp.arch/$arch.expect
 
-echo | tee -a $seq.full
+echo | tee -a $seq_full
 echo "=== truncated archive ... expect no change ==="
 cat <<End-of-File >$tmp.conf
 indom 29.1 { iname "red" -> "really red" }

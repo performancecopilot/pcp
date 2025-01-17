@@ -42,16 +42,16 @@ _cleanup()
 {
     # kill off the pmproxy we started
     #
-    $sudo $signal -a pmproxy >>$here/$seq.full 2>&1
+    $sudo $signal -a pmproxy >>$seq_full 2>&1
 
     if $pmproxy_was_running
     then
-	echo "Restart pmproxy ..." >>$here/$seq.full
-	_service pmproxy restart >>$here/$seq.full 2>&1
+	echo "Restart pmproxy ..." >>$seq_full
+	_service pmproxy restart >>$seq_full 2>&1
 	_wait_for_pmproxy
     else
-	echo "Stopping pmproxy ..." >>$here/$seq.full
-	_service pmproxy stop >>$here/$seq.full 2>&1
+	echo "Stopping pmproxy ..." >>$seq_full
+	_service pmproxy stop >>$seq_full 2>&1
     fi
 }
 
@@ -130,10 +130,10 @@ _filter_pmproxy()
 _do()
 {
     echo
-    echo "+++ $* +++" | tee -a $seq.full | _filter_me
+    echo "+++ $* +++" | tee -a $seq_full | _filter_me
     if which $1 >/dev/null 2>&1
     then
-	eval $* 2>&1 | tee -a $seq.full | _filter
+	eval $* 2>&1 | tee -a $seq_full | _filter
 	connects=`grep AcceptNewClient $tmp.log | wc -l | sed -e 's/  *//g'`
 	disconnects=`grep DeleteClient $tmp.log | wc -l | sed -e 's/  *//g'`
 	difference=$(($connects - $disconnects))

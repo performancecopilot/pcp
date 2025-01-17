@@ -40,7 +40,7 @@ export PMCD_SOCKET=$tmp.pmcd.socket
 cat <<End-of-File >$tmp.conf
 pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.$DSO_SUFFIX
 End-of-File
-pmcd -H no.such.host.pcp.io -f -x $seq.full -l $tmp.log &
+pmcd -H no.such.host.pcp.io -f -x $seq_full -l $tmp.log &
 pid=$!
 pmcd_wait
 

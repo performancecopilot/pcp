@@ -154,7 +154,7 @@ sar2pcp sadist/sa-sysstat-$file_version $tmp
 # 04:50:57 PM     all      0.31      0.00      0.31      0.00      0.00     99.38
 #
 sar $sar_opt -f sadist/sa-sysstat-$file_version -u \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | sed -n '/^[0-2][0-9]:/{
 s/^01\(:..:..\) PM/13\1/
 s/^02\(:..:..\) PM/14\1/
@@ -230,7 +230,7 @@ echo >>$seq_full
 # 04:50:57 PM      0.80      0.00      0.80      0.00      6.40
 #
 sar -f sadist/sa-sysstat-$file_version -b \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | sed -n '/^[0-2][0-9]:/{
 s/^00\(:..:..\) PM/12\1/
 s/^01\(:..:..\) PM/13\1/

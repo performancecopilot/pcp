@@ -57,8 +57,8 @@ do
 	    args="$hargs $margs"
 	    if [ -z "$hargs" ]
 	    then
-		echo | tee -a $seq.full
-		echo "=== $args $metric_args ===" | tee -a $seq.full
+		echo | tee -a $seq_full
+		echo "=== $args $metric_args ===" | tee -a $seq_full
 		pminfo -b 1 -c $tmp.derive $args $metric_args >$tmp.raw
 		cat $tmp.raw >>$seq_full
 		_filter <$tmp.raw \
@@ -69,11 +69,11 @@ do
 		cat $tmp.raw >>$seq_full
 		_filter <$tmp.raw \
 		| LC_COLLATE=POSIX sort >$tmp.tmp
-		echo "--- $args diffs against baseline ---" | tee -a $seq.full
+		echo "--- $args diffs against baseline ---" | tee -a $seq_full
 		diff -u $tmp.base $tmp.tmp \
 		| sed -e "/---/s/.*/- baseline output/" \
 		      -e "/+++/s/.*/+ $args output/" \
-		| tee -a $seq.full
+		| tee -a $seq_full
 	    fi
 	done
     done

@@ -56,22 +56,22 @@ tar xzf $tgz
 
 PMINFO="pminfo -L -K clear -K add,60,$pmda"
 base=`basename $tgz`
-echo "== Checking metric values - $base" | tee -a $here/$seq.full
-$PMINFO -f $metrics 2>&1 | tee -a $here/$seq.full \ | _slice_sort_reassemble
-( echo && echo "== done" && echo ) | tee -a $here/$seq.full
+echo "== Checking metric values - $base" | tee -a $seq_full
+$PMINFO -f $metrics 2>&1 | tee -a $seq_full \ | _slice_sort_reassemble
+( echo && echo "== done" && echo ) | tee -a $seq_full
 
 for leaf in read read_bytes write write_bytes total blkread blkwrite blktotal \
     total_bytes read_merge write_merge avactive read_rawactive write_rawactive \
     total_rawactive
 do
     echo "== Checking aggregated values of disk.dev.$leaf sd[bcde] sum to disk.wwid.$leaf " | \
-    	tee -a $here/$seq.full
+    	tee -a $seq_full
     $PMINFO -f disk.wwid.$leaf | \
     	$PCP_AWK_PROG '/333333330000007d1/ {print "disk.wwid.'$leaf'", $6}' | \
-	tee -a $here/$seq.full
+	tee -a $seq_full
     $PMINFO -f disk.dev.$leaf | \
     	$PCP_AWK_PROG '/sd[bcde]/ {sum += $6} END {print "disk.dev.'$leaf' sums to", sum}' | \
-	tee -a $here/$seq.full
+	tee -a $seq_full
 done
 
 # success, all done

@@ -70,7 +70,7 @@ echo "=== pmie.log ==="
 # from pmie's rule scheduler around pmcd reconnection ... the final
 # awk script does this.
 #
-tee -a $seq.full < $tmp.log \
+tee -a $seq_full < $tmp.log \
 | _filter \
 | $PCP_AWK_PROG '
 skip == 1 && /^[^ ]/		{ skip = 0 }

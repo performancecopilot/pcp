@@ -47,7 +47,7 @@ cd $here
 for sadist in 891688-dash-time.xml
 do
     safile="sadist/$sadist"
-    echo "==> Checking $safile" | tee -a $seq.full
+    echo "==> Checking $safile" | tee -a $seq_full
     pcplog=$tmp.pcplog
     sar2pcp $safile $pcplog > $tmp.out 2>&1
     sts=$?

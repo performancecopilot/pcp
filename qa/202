@@ -18,7 +18,7 @@ trap "rm -f $tmp.*; exit" 0 1 2 3 15
 _filter()
 {
     pmdumplog $1 \
-    | tee -a $seq.full \
+    | tee -a $seq_full \
     | $PCP_AWK_PROG '
 /<mark>/	{ mark++; next }
 /^[0-9][0-9]:[0-9][0-9]:[0-9][0-9]\./	{ rec++ }
@@ -70,7 +70,7 @@ do
     echo
     echo "pmval [no interpolate] ..."
     pmval -U $tmp.C sample.milliseconds 2>&1 \
-    | tee -a $seq.full \
+    | tee -a $seq_full \
     | $PCP_AWK_PROG '
     /suspended/				{ mark++; next }
     /^[0-9][0-9]:[0-9][0-9]:[0-9][0-9]\./   { rec++ }

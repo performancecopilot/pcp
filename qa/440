@@ -67,7 +67,7 @@ _test_sample_size()
   echo "vol=$vol num_vol=$num_vol" >>$seq_full
   if [ "$vol" != "$num_vol" ]
   then
-    echo "Error: Number of volumes is $vol, expected $num_vol" | tee -a $seq.full
+    echo "Error: Number of volumes is $vol, expected $num_vol" | tee -a $seq_full
     ls -l $tmp.[0-9]*
     cat $tmp.log
     $pmdumplog -dilmst $tmp >>$seq_full
@@ -76,9 +76,9 @@ _test_sample_size()
   _num_recs
   if [ "$size_arg" = "$num_recs" ]
   then
-    echo "Log size for $size_arg and volume size for $vol_arg is correct" | tee -a $seq.full
+    echo "Log size for $size_arg and volume size for $vol_arg is correct" | tee -a $seq_full
   else
-    echo "Error: Log contains $num_recs samples, expected $size_arg" | tee -a $seq.full
+    echo "Error: Log contains $num_recs samples, expected $size_arg" | tee -a $seq_full
     ls -l $tmp.*
     cat $tmp.log
     $pmdumplog -dilmst $tmp >>$seq_full
@@ -110,7 +110,7 @@ _test_file_size()
   echo "vol=$vol num_vol=$num_vol" >>$seq_full
   if [ "$vol" != "$num_vol" ]
   then
-    echo "Error: Number of volumes is $vol, expected $num_vol" | tee -a $seq.full
+    echo "Error: Number of volumes is $vol, expected $num_vol" | tee -a $seq_full
     ls -l $tmp.[0-9]*
     cat $tmp.log
     $pmdumplog -dilmst $tmp >>$seq_full
@@ -137,9 +137,9 @@ _test_file_size()
   echo "smaller_size=$smaller_size" >>$seq_full
   if [ $smaller_size -le $num_bytes -a $num_bytes -le $bigger_size ]
   then
-    echo "Log size for $size_arg and volume size for $vol_arg is correct" | tee -a $seq.full
+    echo "Log size for $size_arg and volume size for $vol_arg is correct" | tee -a $seq_full
   else
-    echo "Error: Log size $num_bytes is not within range $smaller_size - $bigger_size" | tee -a $seq.full
+    echo "Error: Log size $num_bytes is not within range $smaller_size - $bigger_size" | tee -a $seq_full
     ls -l $tmp.*
     cat $tmp.log
     $pmdumplog -dilmst $tmp >>$seq_full
@@ -192,16 +192,16 @@ _test_time_size()
   echo "vol=$vol num_vol=$num_vol" >>$seq_full
   if [ "$vol" != "$num_vol" ]
   then
-    echo "Error: Number of volumes is $vol, expected $num_vol" | tee -a $seq.full
+    echo "Error: Number of volumes is $vol, expected $num_vol" | tee -a $seq_full
     ls -l $tmp.[0-9]*
     cat $tmp.log
     $pmdumplog -dilmst $tmp >>$seq_full
   fi
   if _tolerance $num_sec $time $SECS_TOL
   then
-    echo "Log time for $num_sec and volume time for $vol_arg is correct" | tee -a $seq.full
+    echo "Log time for $num_sec and volume time for $vol_arg is correct" | tee -a $seq_full
   else
-    echo "Error: Log time $time, expected $num_sec +/- $SECS_TOL" | tee -a $seq.full
+    echo "Error: Log time $time, expected $num_sec +/- $SECS_TOL" | tee -a $seq_full
     ls -l $tmp.*
     cat $tmp.log
     $pmdumplog -dilmst $tmp >>$seq_full

@@ -43,7 +43,7 @@ _poke_pmcd()
     # going off into systemd land via the pcp init script wrapper
     #
     ( $sudo $PCP_RC_DIR/pmcd restart; $sudo $PCP_RC_DIR/pmlogger restart ) 2>&1 \
-    | tee -a $seq.full \
+    | tee -a $seq_full \
     | sed \
 	-e '/ root .* .usr.etc.pmcd /s/.*/-- ps output line --/' \
 	-e '/UID .* PID /d' \
@@ -182,7 +182,7 @@ _cleanup()
 trap "_cleanup" 0
 trap "_interrupt; _cleanup" 1 2 3 15
 
-touch $seq.full
+touch $seq_full
 
 _exercise_rc_scripts()
 {
@@ -286,7 +286,7 @@ _save_setup
 if ! _service pcp stop; then _exit 1; fi \
 | _filter_pcp_stop
 ( $sudo $PCP_RC_DIR/pmcd restart; $sudo $PCP_RC_DIR/pmlogger restart ) 2>&1 \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | _filter_pcp_start
 _exercise_rc_scripts
 

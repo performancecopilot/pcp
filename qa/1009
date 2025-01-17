@@ -23,7 +23,7 @@ echo "target=$target" >>$seq_full
 
 # real QA test starts here
 inst=`$sudo pminfo $target -F proc.psinfo.pid \
-      | tee -a $seq.full \
+      | tee -a $seq_full \
       | sed -n -e '/inst \[1 /{
 s/^[^"]*"//
 s/ .*//

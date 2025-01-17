@@ -20,7 +20,7 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 pmlogconf $tmp.in >/dev/null 2>&1
 echo "--- default config ---" >>$seq_full
 cat $tmp.in >>$seq_full
-cp $tmp.in $seq.full.in
+cp $tmp.in $seq_full.in
 
 # strip comments, access control, empty lines and then strip the groups:
 #	disk/summary
@@ -52,7 +52,7 @@ cp $tmp.tmp $tmp.in
 echo >>$seq_full
 echo "--- culled and stripped config ---" >>$seq_full
 cat $tmp.in >>$seq_full
-cp $tmp.in $seq.full.cull
+cp $tmp.in $seq_full.cull
 
 # now process again ... the diffs should be small
 #
@@ -60,12 +60,12 @@ echo >>$seq_full
 echo "--- pmlogconf ---" >>$seq_full
 ( echo q; echo y ) | pmlogconf -v $tmp.in >>$seq_full 2>&1
 
-grep Error: $seq.full
+grep Error: $seq_full
 
 echo >>$seq_full
 echo "--- final config ---" >>$seq_full
 cat $tmp.in >>$seq_full
-cp $tmp.in $seq.full.out
+cp $tmp.in $seq_full.out
 
 echo "Expect few differences ..."
 sed -e '/^[ 	]*$/d' $tmp.ref | LC_COLLATE=POSIX sort >$tmp.ref.sort

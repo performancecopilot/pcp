@@ -49,7 +49,7 @@ End-of-File
 cat $tmp.out >>$seq_full
 _filter <$tmp.out
 echo
-echo "=== pmda log ===" | tee -a $seq.full
+echo "=== pmda log ===" | tee -a $seq_full
 cat $tmp.log >>$seq_full
 _filter_pmcd_log <$tmp.log | _filter
 

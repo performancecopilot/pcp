@@ -35,11 +35,11 @@ _cleanup()
 	# QA test, so filter it away - kenj Dec 2021
 	#
 	_filter_pcp_start <$tmp.err \
-	| tee -a $here/$seq.full \
+	| tee -a $seq_full \
 	| sed \
 	    -e '/__pmBind: Address already in use/d' \
 	# end
-	cat $tmp.log >>$here/$seq.full
+	cat $tmp.log >>$seq_full
         echo "Restart and ping pmcd ..."
 	# make sure pmcd's socket is torn down (failure on vm33, BSD 6.8)
 	#

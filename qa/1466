@@ -20,7 +20,7 @@ _cleanup()
 {
     cd $here
     # leave pmcd in a known good state
-    _service pmcd restart >>$seq.full 2>&1
+    _service pmcd restart >>$seq_full 2>&1
     _wait_for_pmcd
     $sudo rm -rf $tmp $tmp.*
 }
@@ -51,12 +51,12 @@ if systemctl status pmcd.service 2>&1 | tee $tmp.sts | grep -q -s pmpause
 then
     echo PASSED, found pmpause process in pmcd.service cgroup
 else
-    echo FAILED, did not find pmpause process in pmcd.service cgroup | tee -a $seq.full
+    echo FAILED, did not find pmpause process in pmcd.service cgroup | tee -a $seq_full
     cgroot=`mount | $PCP_AWK_PROG '/^cgroup/ {print $3; exit}'`
-    echo cgroot=$cgroot | tee -a $seq.full
+    echo cgroot=$cgroot | tee -a $seq_full
     cgslice=`systemctl status pmcd.service | $PCP_AWK_PROG '/CGroup:/ {print $2}'`
-    echo cgslice=${cgslice} | tee -a $seq.full
-    find ${cgroot} -type d -name pmcd.service -print -exec ls -l {} ";" | tee -a $seq.full
+    echo cgslice=${cgslice} | tee -a $seq_full
+    find ${cgroot} -type d -name pmcd.service -print -exec ls -l {} ";" | tee -a $seq_full
     echo cgroup.procs=${cgslice}/cgroup.procs >> $seq_full
     cat ${cgslice}/cgroup.procs >> $seq_full
     echo systemctl output >> $seq_full

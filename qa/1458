@@ -60,7 +60,7 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _check_empty()
 {
-    tee -a $seq.full > $tmp.unfiltered
+    tee -a $seq_full > $tmp.unfiltered
     if [ -s $tmp.unfiltered ]
     then
 	echo "Botch: got output from curl"
@@ -71,7 +71,7 @@ _check_empty()
 
 _filter_json()
 {
-    tee -a $seq.full > $tmp.unfiltered
+    tee -a $seq_full > $tmp.unfiltered
     if [ -s $tmp.unfiltered ]
     then
 	pmjson < $tmp.unfiltered > $tmp.filtered
@@ -152,44 +152,44 @@ else
 fi
 
 date >>$seq_full
-echo "=== checking serial http operation ===" | tee -a $seq.full
+echo "=== checking serial http operation ===" | tee -a $seq_full
 for i in 1 2 3 4; do
     curl -Gs "http://localhost:$port/pmapi/metric?name=sample.long.ten" 2>$tmp.err$i >$tmp.out$i
 done
 for i in 1 2 3 4; do
-echo === out$i === | tee -a $seq.full
+echo === out$i === | tee -a $seq_full
 _filter_json < $tmp.out$i
 done
 
 date >>$seq_full
-echo "=== checking parallel http operation ===" | tee -a $seq.full
+echo "=== checking parallel http operation ===" | tee -a $seq_full
 for i in 1 2 3 4; do
     curl -Gs "http://localhost:$port/pmapi/metric?name=sample.long.ten" 2>$tmp.err$i >$tmp.out$i & 2>/dev/null eval pid$i=$!
 done
 wait $pid1 $pid2 $pid3 $pid4
 for i in 1 2 3 4; do
-echo === out$i === | tee -a $seq.full
+echo === out$i === | tee -a $seq_full
 _filter_json < $tmp.out$i
 done
 
 date >>$seq_full
-echo "=== checking serial https/TLS operation ===" | tee -a $seq.full
+echo "=== checking serial https/TLS operation ===" | tee -a $seq_full
 for i in 1 2 3 4; do
     curl -k -Gs "https://localhost:$port/pmapi/metric?name=sample.long.ten" 2>$tmp.err$i >$tmp.out$i
 done
 for i in 1 2 3 4; do
-echo === out$i === | tee -a $seq.full
+echo === out$i === | tee -a $seq_full
 _check_empty < $tmp.out$i
 done
 
 date >>$seq_full
-echo "=== checking parallel https/TLS operation ===" | tee -a $seq.full
+echo "=== checking parallel https/TLS operation ===" | tee -a $seq_full
 for i in 1 2 3 4; do
     curl -k -Gs "https://localhost:$port/pmapi/metric?name=sample.long.ten" 2>$tmp.err$i >$tmp.out$i & 2>/dev/null eval pid$i=$!
 done
 wait $pid1 $pid2 $pid3 $pid4
 for i in 1 2 3 4; do
-echo === out$i === | tee -a $seq.full
+echo === out$i === | tee -a $seq_full
 _check_empty < $tmp.out$i
 done
 
@@ -204,10 +204,10 @@ fi
 # valgrind takes awhile to shutdown too
 pmsignal $pid >/dev/null 2>&1
 pmsleep 3.5
-echo "=== valgrind stdout ===" | tee -a $seq.full
+echo "=== valgrind stdout ===" | tee -a $seq_full
 cat $tmp.valout | _filter_valgrind
 
-echo "=== valgrind stderr ===" | tee -a $seq.full
+echo "=== valgrind stderr ===" | tee -a $seq_full
 cat $tmp.valerr | _filter_pmproxy_log | _filter_port \
 | sed -e '/Cannot connect to key server: Connection refused/d'
 

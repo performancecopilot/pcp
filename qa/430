@@ -312,19 +312,19 @@ do
     echo "log mandatory on once pmcd.control.debug" >$logdir/config
     echo "--- pmlogger_check ---" >> $seq_full
     $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_check -V -c $logdir/control -l $tmp.log"
-    $sudo cat $tmp.log | tee -a $here/$seq.full | _filter
+    $sudo cat $tmp.log | tee -a $seq_full | _filter
 done
 
-echo | tee -a $here/$seq.full
-echo "Restart tests while other pmloggers are running ..." | tee -a $here/$seq.full
+echo | tee -a $seq_full
+echo "Restart tests while other pmloggers are running ..." | tee -a $seq_full
 
 # now for the 5. case, terminate the pmloggers one at a time and
 # check the pmlogger_check restarts the right one
 #
 for log in $logdir.1 $logdir.2 $logdir.3 $logdir.4 $logdir.5 $logdir.6
 do
-    echo | tee -a $here/$seq.full
-    echo "Kill off one pmlogger ..." | tee -a $here/$seq.full
+    echo | tee -a $seq_full
+    echo "Kill off one pmlogger ..." | tee -a $seq_full
     pid=`grep -l "^$log/" $PCP_TMP_DIR/pmlogger/[0-9]* | sed -e 's/.*pmlogger.//'`
     echo "`echo $PCP_TMP_DIR/pmlogger/[0-9]* | wc -w | sed -e 's/  *//g'` active pmloggers: `cd $PCP_TMP_DIR/pmlogger; echo *`" >>$seq_full
     for file in $PCP_TMP_DIR/pmlogger/[0-9]*
@@ -375,12 +375,12 @@ $2 == '"$pid"' { print; exit(0) }'
     echo "+++ $PCP_TMP_DIR/pmlogger/$pid +++" >>$seq_full
     cat $PCP_TMP_DIR/pmlogger/$pid >>$seq_full
     $signal -s TERM $pid
-    echo "Check ..." | tee -a $here/$seq.full
+    echo "Check ..." | tee -a $seq_full
     $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_check -V -V -c $logdir/control -l $tmp.log"
     if [ -f $tmp.log ]
     then
 	$sudo cat $tmp.log \
-	| tee -a $here/$seq.full \
+	| tee -a $seq_full \
 	| sed -e '/^... try /d' \
 	| _filter
     fi
@@ -406,7 +406,7 @@ $2 == '"$pid"' { print; exit(0) }'
     done
     if [ ! -f $tmp.found ]
     then
-	echo "Arrgh ... pmlogger_check failed to restart pmloggers" | tee -a $here/$seq.full
+	echo "Arrgh ... pmlogger_check failed to restart pmloggers" | tee -a $seq_full
 	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger( |$)' >>$seq_full
 	for state in $PCP_TMP_DIR/pmlogger/[0-9]*
 	do

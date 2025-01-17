@@ -141,7 +141,7 @@ _get_netstat()
     # for some hosts in CI ... this comes from netstat(1)
     #
     netstat -s 2>&1 \
-    | tee -a $seq.full \
+    | tee -a $seq_full \
     | sed \
 	-e '/Problem while parsing \/proc\/net\/netstat/d' \
     | $PCP_AWK_PROG >$tmp.out '
@@ -190,7 +190,7 @@ $PCP_AWK_PROG <$tmp.map -F\| '
 do
     pmprobe -v "$metric" 2>&1
 done \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | while read metric sts val
 do
     if [ "$sts" = 1 ]

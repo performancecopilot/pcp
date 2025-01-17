@@ -66,10 +66,10 @@ $3 == "traceback"	{ exit }
 #
 for arg in ilu ilululu illluluuluu ll iluu
 do
-    echo | tee -a $here/$seq.full
-    echo "=== $arg ===" | tee -a $here/$seq.full
+    echo | tee -a $seq_full
+    echo "=== $arg ===" | tee -a $seq_full
     ( sh -c "src/exerlock $arg" 2>&1 ) \
-    | tee -a $here/$seq.full \
+    | tee -a $seq_full \
     | _filter
 done
 

@@ -74,8 +74,8 @@ _full_stash()
 ncpu=`pmprobe -v hinv.ncpu | awk '{print $3}'`
 pcp2elasticsearch="$python `which pcp2elasticsearch`"
 
-echo | tee -a $seq.full
-echo "=== 1. pcp2elasticsearch one-shot one-metric ===" | tee -a $seq.full
+echo | tee -a $seq_full
+echo "=== 1. pcp2elasticsearch one-shot one-metric ===" | tee -a $seq_full
 echo start socat `date '+%H:%M:%S.%N'` >>$seq_full
 socat -lf $tmp.socat.log -v -t 0.000001 tcp-listen:$port,reuseaddr,fork system:"echo HTTP/1.1 201 Created" >$tmp.socat.out 2>$tmp.socat.err &
 pid=$!
@@ -100,7 +100,7 @@ grep -E -q '"hinv": {"ncpu": '$ncpu'}' $tmp.socat.err
 [ $? -eq 0 ] && echo "Found correct value in output"
 _full_stash
 
-echo "=== 2. pcp2elasticsearch non-default targets ===" | tee -a $seq.full
+echo "=== 2. pcp2elasticsearch non-default targets ===" | tee -a $seq_full
 socat -lf $tmp.socat.log -s -v -t 0.000001 tcp-listen:$port,reuseaddr,fork system:"echo HTTP/1.1 201 Created" >$tmp.socat.out 2>$tmp.socat.err &
 pid=$!
 sleep 2
@@ -114,7 +114,7 @@ grep -E -q '"@host-id": "QAHOST"' $tmp.socat.err
 [ $? -eq 0 ] && echo "Found proper hostid in output"
 _full_stash
 
-echo "=== 3. pcp2elasticsearch full-blown archive replay session ===" | tee -a $seq.full
+echo "=== 3. pcp2elasticsearch full-blown archive replay session ===" | tee -a $seq_full
 socat -lf $tmp.socat.log -s -v -t 0.000001 tcp-listen:$port,reuseaddr,fork system:"echo HTTP/1.1 201 Created" >$tmp.socat.out 2>$tmp.socat.err &
 pid=$!
 sleep 2
@@ -131,7 +131,7 @@ done < $tmp.archive.data
 echo "--- End of received data ---"
 _full_stash
 
-echo "=== 4. pcp2elasticsearch with custom --es-search-type ===" | tee -a $seq.full
+echo "=== 4. pcp2elasticsearch with custom --es-search-type ===" | tee -a $seq_full
 socat -lf $tmp.socat.log -s -v -t 0.000001 tcp-listen:$port,reuseaddr,fork system:"echo HTTP/1.1 201 Created" >$tmp.socat.out 2>$tmp.socat.err &
 pid=$!
 sleep 2

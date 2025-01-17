@@ -31,7 +31,7 @@ pmdatrivial_install()
     cd $PCP_PMDAS_DIR/trivial
     $sudo ./Remove >/dev/null 2>&1
 
-    echo; echo "=== trivial agent $@ installation ===" | tee -a $here/$seq.full
+    echo; echo "=== trivial agent $@ installation ===" | tee -a $seq_full
     echo $@ | $sudo ./Install >$tmp.out 2>&1
     cat $tmp.out >>$seq_full
     _filter_pmda_install <$tmp.out

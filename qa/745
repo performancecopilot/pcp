@@ -51,7 +51,7 @@ _make_helptext nvidia
 
 # real QA test starts here
 echo
-echo "Testing behaviour with no nvidia library available" | tee -a $here/$seq.full
+echo "Testing behaviour with no nvidia library available" | tee -a $seq_full
 _run_valgrind pminfo -L -K clear -K add,120,$pmda -dfmtT -n $pmns nvidia 2>&1 | _filter
 
 if [ -f nvidia.log ]
@@ -61,7 +61,7 @@ then
 fi
 
 echo
-echo "Testing behaviour with QA wrapper nvidia library" | tee -a $here/$seq.full
+echo "Testing behaviour with QA wrapper nvidia library" | tee -a $seq_full
 export LD_LIBRARY_PATH=$here/src
 _run_valgrind pminfo -L -K clear -K add,120,$pmda -dfmtT -n $pmns nvidia 2>&1 | _filter
 

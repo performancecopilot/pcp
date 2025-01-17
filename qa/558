@@ -58,7 +58,7 @@ $signal -s TERM $!
 wait
 _wait_for_pmlogger || _exit 1
 
-cp $tmp.log $seq.full
+cp $tmp.log $seq_full
 
 # Especially on slow VMs (like bozo-vm) we may need to dodge warnings
 # from pmie's rule scheduler around pmcd reconnection ... the second

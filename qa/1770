@@ -42,18 +42,18 @@ _cleanup()
         _restore_config $PCP_SASLCONF_DIR/pmcd.conf
     fi
 
-    _service pmcd stop >>$seq.full 2>&1
-    _service pmcd start >>$seq.full 2>&1
+    _service pmcd stop >>$seq_full 2>&1
+    _service pmcd start >>$seq_full 2>&1
     _wait_for_pmcd
 
     if $pmproxy_was_running
     then
-        echo "Restart pmproxy ..." >>$here/$seq.full
-        _service pmproxy restart >>$here/$seq.full 2>&1
+        echo "Restart pmproxy ..." >>$seq_full
+        _service pmproxy restart >>$seq_full 2>&1
         _wait_for_pmproxy
     else
-        echo "Stopping pmproxy ..." >>$here/$seq.full
-        _service pmproxy stop >>$here/$seq.full 2>&1
+        echo "Stopping pmproxy ..." >>$seq_full
+        _service pmproxy stop >>$seq_full 2>&1
     fi
 
     $sudo rm -rf $tmp $tmp.*
@@ -91,7 +91,7 @@ _filter_listusers2()
 
 _filter_json()
 {
-    tee -a $seq.full | \
+    tee -a $seq_full | \
     sed -e 's,"machineid": .*,"machineid": "MACHINEID",g' \
         -e 's,"context": .*,"context": "CONTEXT",g' \
         -e 's,"hostname": .*,"hostname": "HOSTNAME",g' \
@@ -115,12 +115,12 @@ END { if (count > 1) { print "GOOD VALUES"} else { print "NO VALUES" } }'
 
 _test_log()
 {
-    echo && echo "=== $@ ===" | tee -a $here/$seq.full
+    echo && echo "=== $@ ===" | tee -a $seq_full
 }
 
 _json_log()
 {
-    pmjson | tee -a $here/$seq.full
+    pmjson | tee -a $seq_full
 }
 
 echo "hostname=$hostname" >>$seq_full
@@ -142,32 +142,32 @@ $sudo chown pcp:pcp $PCP_SASLCONF_DIR/pmcd.conf
 ls -l $PCP_SASLCONF_DIR/pmcd.conf >>$seq_full
 $sudo -u pcp cat $PCP_SASLCONF_DIR/pmcd.conf >>$seq_full
 
-echo "Creating temporary sasldb, add user running QA to it" | tee -a $seq.full
+echo "Creating temporary sasldb, add user running QA to it" | tee -a $seq_full
 echo y | saslpasswd2 -p -a pmcd -f $tmp.passwd.db $username
 
-echo "Verify saslpasswd2 has successfully added a new user" | tee -a $seq.full
+echo "Verify saslpasswd2 has successfully added a new user" | tee -a $seq_full
 sasldblistusers2 -f $tmp.passwd.db \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | _filter_listusers2
 
-echo "Ensure pmcd can read the password file" | tee -a $seq.full
+echo "Ensure pmcd can read the password file" | tee -a $seq_full
 $sudo chown pcp:pcp $tmp.passwd.db
 ls -l $tmp.passwd.db >>$seq_full
 $sudo -u pcp od -c $tmp.passwd.db >>$seq_full
 
-echo "New pmdaproc config without any authentication" | tee -a $seq.full
+echo "New pmdaproc config without any authentication" | tee -a $seq_full
 cat >$tmp.nobody <<EOF
 allowed = nobody
 mapped = false
 EOF
 
-echo "New pmdaproc config with remote authentication" | tee -a $seq.full
+echo "New pmdaproc config with remote authentication" | tee -a $seq_full
 cat >$tmp.remote <<EOF
 allowed = bob, $username, root
 mapped = false
 EOF
 
-echo "New pmdaproc config with mapped authentication" | tee -a $seq.full
+echo "New pmdaproc config with mapped authentication" | tee -a $seq_full
 cat >$tmp.mapped <<EOF
 allowed = $username
 mapped = true
@@ -175,7 +175,7 @@ EOF
 
 echo "Start pmcd with this shiny new sasldb and no access"
 $sudo cp $tmp.nobody $PCP_SYSCONF_DIR/proc/access.conf
-if ! _service pmcd restart 2>&1; then _exit 1; fi | tee -a $seq.full >$tmp.out
+if ! _service pmcd restart 2>&1; then _exit 1; fi | tee -a $seq_full >$tmp.out
 _wait_for_pmcd || _exit 1
 
 echo "Start pmproxy with mandatory authentication"
@@ -195,7 +195,7 @@ echo
 
 echo "Restart pmcd with this sasldb and remote auth mode"
 $sudo cp $tmp.remote $PCP_SYSCONF_DIR/proc/access.conf
-if ! _service pmcd restart 2>&1; then _exit 1; fi | tee -a $seq.full >$tmp.out
+if ! _service pmcd restart 2>&1; then _exit 1; fi | tee -a $seq_full >$tmp.out
 _wait_for_pmcd || _exit 1
 
 _test_log "Establish context for authenticated user"
@@ -209,7 +209,7 @@ echo
 
 echo "Restart pmcd with this sasldb and mapped auth mode"
 $sudo cp $tmp.mapped $PCP_SYSCONF_DIR/proc/access.conf
-if ! _service pmcd restart 2>&1; then _exit 1; fi | tee -a $seq.full >$tmp.out
+if ! _service pmcd restart 2>&1; then _exit 1; fi | tee -a $seq_full >$tmp.out
 _wait_for_pmcd || _exit 1
 
 _test_log "Establish context for authenticated user"

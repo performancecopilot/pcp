@@ -29,7 +29,7 @@ _cleanup()
     then
 	$sudo rm $PCP_VAR_DIR/config/pmda/$domain.$loaded
 	cd $here/pmdas/test_python
-	$sudo ./Remove >>$here/$seq.full 2>&1
+	$sudo ./Remove >>$seq_full 2>&1
 	$sudo rm -f domain.h.python
 	cd $here
     fi
@@ -71,7 +71,7 @@ $sudo cp $tmp.conf $PCP_VAR_DIR/config/pmda/$domain.$loaded
 
 $sudo ./Install </dev/null \
     | _filter_pmda_install \
-    | tee -a $here/$seq.full \
+    | tee -a $seq_full \
     | sed -e '/^Waiting for pmcd/s/\.\.\.[. ]*$/DOTS/' >$tmp.tmp
     pminfo -f test_python >>$seq_full 2>&1
     if grep 'warnings,' <$tmp.tmp >/dev/null
@@ -91,7 +91,7 @@ pmstore test_python.some_value 0 \
 
 # need a few invocations to tickle the bug
 for i in 1 2 3 4 5 6 7 8; do
-    echo "=== Round $i ===" | tee -a $here/$seq.full
+    echo "=== Round $i ===" | tee -a $seq_full
     pmprobe \
         test_python.other_indom.some_value \
         test_python.some_value \
@@ -99,12 +99,12 @@ for i in 1 2 3 4 5 6 7 8; do
 done
 
 # exercise indom cache re-loading from backing store
-echo && echo "=== Bonus Round ===" | tee -a $here/$seq.full
+echo && echo "=== Bonus Round ===" | tee -a $seq_full
 pmstore test_python.loaded_indom.some_value 0 >>$seq_full
 pminfo -f test_python.loaded_indom.some_value | $here/src/sortinst
 
 # exercise intrinsic and extrinsic label interfaces
-echo && echo "=== Round Two ===" | tee -a $here/$seq.full
+echo && echo "=== Round Two ===" | tee -a $seq_full
 pminfo -l test_python.some_value | _filter_labels
 
 # success, all done

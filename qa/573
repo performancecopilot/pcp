@@ -61,7 +61,7 @@ End-of-File
 	-e 's;.*;/pmcd\\.pmlogger\\.host/s/&/HOSTNAME/;'
     # end
     cat $tmp.sed >>$seq_full
-    tee -a $here/$seq.full \
+    tee -a $seq_full \
     | sed \
 	-e "s@$tmp@TMP@g" \
 	-e "s/ $pid\$/ PID/" \

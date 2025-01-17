@@ -41,31 +41,31 @@ _pmdabpf_wait_for_metric
 /bin/pwd > /dev/null
 
 echo "=== report metric values for age ==="
-pminfo -dfmtT bpf.exitsnoop.age 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bpf.exitsnoop.age 2>&1 | tee -a $seq_full \
 | _value_filter_any
 
 echo "=== report metric values for comm ==="
-pminfo -dfmtT bpf.exitsnoop.comm 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bpf.exitsnoop.comm 2>&1 | tee -a $seq_full \
 | _value_filter_any
 
 echo "=== report metric values for coredump ==="
-pminfo -dfmtT bpf.exitsnoop.coredump 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bpf.exitsnoop.coredump 2>&1 | tee -a $seq_full \
 | _value_filter_any
 
 echo "=== report metric values for exit_code ==="
-pminfo -dfmtT bpf.exitsnoop.exit_code 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bpf.exitsnoop.exit_code 2>&1 | tee -a $seq_full \
 | _value_filter_any
 
 echo "=== report metric values for pid ==="
-pminfo -dfmtT bpf.exitsnoop.pid 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bpf.exitsnoop.pid 2>&1 | tee -a $seq_full \
 | _value_filter_nonzero
 
 echo "=== report metric values for ppid ==="
-pminfo -dfmtT bpf.exitsnoop.ppid 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bpf.exitsnoop.ppid 2>&1 | tee -a $seq_full \
 | _value_filter_nonzero
 
 echo "=== report metric values for tid ==="
-pminfo -dfmtT bpf.exitsnoop.tid 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bpf.exitsnoop.tid 2>&1 | tee -a $seq_full \
 | _value_filter_nonzero
 
 
