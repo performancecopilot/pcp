@@ -98,7 +98,7 @@ _lock()
     __delay=200		# 1/10 of a second, so max wait is 20 sec
     while [ $__delay -gt 0 ]
     do
-	if pmlock -i "$$ pmlogctl" -v "$__dir/lock" >>$tmp/out 2>&1
+	if pmlock -i "$$ $prog" -v "$__dir/lock" >>$tmp/out 2>&1
 	then
 	    break
 	else
@@ -110,6 +110,7 @@ _lock()
 		then
 		    _warning "removing lock file older than 30 minutes (PID `cat $__dir/lock`)"
 		    LC_TIME=POSIX ls -l "$__dir/lock"
+		    [ -s  "$__dir/lock" ] && cat "$__dir/lock"
 		    rm -f "$__dir/lock"
 		else
 		    # there is a small timing window here where pmlock
