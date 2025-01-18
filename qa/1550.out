@@ -1,2 +1,43 @@
 QA output created by 1550
-[skeleton from qa/new, replace me]
+Usage cases ...
+Usage: pmlock [-v] [-i ident] file
+  -i IDENT, --ident=IDENT
+                        write identifying value into the lock file
+  -v, --verbose         increase verbosity
+  -?, --help            show this usage message and exit
+Usage: pmlock [-v] [-i ident] file
+  -i IDENT, --ident=IDENT
+                        write identifying value into the lock file
+  -v, --verbose         increase verbosity
+  -?, --help            show this usage message and exit
+Usage: pmlock [-v] [-i ident] file
+  -i IDENT, --ident=IDENT
+                        write identifying value into the lock file
+  -v, --verbose         increase verbosity
+  -?, --help            show this usage message and exit
+Usage: pmlock [-v] [-i ident] file
+  -i IDENT, --ident=IDENT
+                        write identifying value into the lock file
+  -v, --verbose         increase verbosity
+  -?, --help            show this usage message and exit
+
+Locking cases ...
+empty lock file ...
+OK
+
+lock file with ident ...
+PID QA 1550
+OK
+
+lock file with ident already exists cases ...
+pmlock: TMP.ident: File exists
+PID QA 1550
+OK
+
+empty lock file already exists cases ...
+pmlock: TMP.empty: File exists
+OK
+
+can't write into dir for lock file ...
+pmlock: /: Directory not writable
+OK

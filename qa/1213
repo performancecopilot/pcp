@@ -56,6 +56,7 @@ _filter()
 	-e 's/TERM [0-9][0-9]*/TERM <somepid>/' \
 	-e '/^------.*\/lock/s/.* /------ ... ls output ... /' \
 	-e '/^-r--r-.*\/lock/s/.* /------ ... ls output ... /' \
+	-e "s/^$$ /PID /" \
     # end
     $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger( |$)' >>$seq_full
 }
@@ -343,8 +344,6 @@ if ! $sudo $PCP_BINADM_DIR/pmlock -i "$$ QA 1213" $PCP_ETC_DIR/pcp/pmlogger/lock
 then
     echo "Arrgh, failed to get lock $PCP_ETC_DIR/pcp/pmlogger/lock"
 fi
-echo $$ >$tmp.tmp
-$sudo cp $tmp.tmp $PCP_ETC_DIR/pcp/pmlogger/lock
 $sudo pmlogctl -V -a -c $seq stop 2>&1 | _filter
 pmlogctl status | _filter_status
 $sudo rm -f $PCP_ETC_DIR/pcp/pmlogger/lock

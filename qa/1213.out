@@ -178,6 +178,7 @@ Error: command "snafu" not known
 === mutex
 Warning: is another pmlogctl job running concurrently?
 ------ ... ls output ... PCP_ETC_DIR/pcp/pmlogger/lock
+PID QA 1213
 Error: failed to acquire exclusive lock (PCP_ETC_DIR/pcp/pmlogger/lock) ...
 pmcd Host Archive Class PID State 
 LOCALHOSTNAME <archivename> <seq> <pid> running 
