@@ -22,7 +22,7 @@ echo '== Arguments: none'
 $here/src/getoptions
 
 echo '== Arguments: usage (x2)'
-$here/src/getoptions -?
+$here/src/getoptions -\?
 $here/src/getoptions --help
 
 echo '== Arguments: own options (x2)'
