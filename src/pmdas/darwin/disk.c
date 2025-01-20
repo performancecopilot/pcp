@@ -33,6 +33,10 @@
 static int
 check_stats_size(struct diskstats *stats, int count)
 {
+
+	pmNotifyErr(LOG_INFO, "check_stats_size - BEGIN\n");
+
+
     if (count > stats->highwater) {
 	if (stats->highwater == 0)
 	    stats->highwater = 1;
@@ -45,6 +49,7 @@ check_stats_size(struct diskstats *stats, int count)
 	    return -ENOMEM;
 	}
     }
+	pmNotifyErr(LOG_INFO, "check_stats_size - BEGIN\n");
     return 0;
 }
 
@@ -107,6 +112,10 @@ static int
 update_disk_stats(struct diskstat *disk,
 		  CFDictionaryRef pproperties, CFDictionaryRef properties)
 {
+
+	pmNotifyErr(LOG_INFO, "update_disk_stats - BEGIN\n");
+
+
     CFDictionaryRef	statistics;
     CFStringRef		name;
     CFNumberRef		number;
@@ -166,6 +175,7 @@ update_disk_stats(struct diskstat *disk,
 	    CFNumberGetValue(number, kCFNumberSInt64Type,
 					&disk->write_time);
     }
+	pmNotifyErr(LOG_INFO, "update_disk_stats - END\n");
     return 0;
 }
 
@@ -226,7 +236,8 @@ update_disk(diskstats_t *stats, io_registry_entry_t drive, int index)
 int
 refresh_disks(struct diskstats *stats, pmdaIndom *indom)
 {
-    io_registry_entry_t		drive;
+	pmNotifyErr(LOG_INFO, "refresh_disks - BEGIN\n");
+	io_registry_entry_t		drive;
     CFMutableDictionaryRef	match;
     unsigned int		count;
     int				status;
@@ -242,7 +253,9 @@ refresh_disks(struct diskstats *stats, pmdaIndom *indom)
 	}
 	memset(stats, 0, sizeof(struct diskstats));
 	inited = 1;
+    	pmNotifyErr(LOG_INFO, "refresh_disks - init completed\n");
     }
+
 
     /* Get an interator for IOMedia objects (drives). */
     match = IOServiceMatching("IOMedia");
