@@ -33,6 +33,10 @@
 static int
 check_stats_size(struct diskstats *stats, int count)
 {
+
+	pmNotifyErr(LOG_INFO, "check_stats_size - BEGIN\n");
+
+
     if (count > stats->highwater) {
 	stats->highwater++;
 	stats->disks = realloc(stats->disks,
@@ -42,6 +46,7 @@ check_stats_size(struct diskstats *stats, int count)
 	    return -ENOMEM;
 	}
     }
+	pmNotifyErr(LOG_INFO, "check_stats_size - BEGIN\n");
     return 0;
 }
 
@@ -104,6 +109,10 @@ static void
 update_disk_stats(struct diskstat *disk,
 		  CFDictionaryRef pproperties, CFDictionaryRef properties)
 {
+
+	pmNotifyErr(LOG_INFO, "update_disk_stats - BEGIN\n");
+
+
     CFDictionaryRef	statistics;
     CFStringRef		name;
     CFNumberRef		number;
@@ -161,6 +170,7 @@ update_disk_stats(struct diskstat *disk,
 	    CFNumberGetValue(number, kCFNumberSInt64Type,
 					&disk->write_time);
     }
+	pmNotifyErr(LOG_INFO, "update_disk_stats - END\n");
 }
 
 static int
@@ -216,7 +226,8 @@ update_disk(diskstats_t *stats, io_registry_entry_t drive, int index)
 int
 refresh_disks(struct diskstats *stats, pmdaIndom *indom)
 {
-    io_registry_entry_t		drive;
+	pmNotifyErr(LOG_INFO, "refresh_disks - BEGIN\n");
+	io_registry_entry_t		drive;
     CFMutableDictionaryRef	match;
     int				i, status;
     static int			inited = 0;
@@ -231,7 +242,9 @@ refresh_disks(struct diskstats *stats, pmdaIndom *indom)
 	}
 	memset(stats, 0, sizeof(struct diskstats));
 	inited = 1;
+    	pmNotifyErr(LOG_INFO, "refresh_disks - init completed\n");
     }
+
 
     /* Get an interator for IOMedia objects (drives). */
     match = IOServiceMatching("IOMedia");
@@ -242,10 +255,12 @@ refresh_disks(struct diskstats *stats, pmdaIndom *indom)
 			__FUNCTION__);
 	    return -oserror();
     }
-
+	pmNotifyErr(LOG_INFO, "refresh_disks - media objects iterator created\n");
     indom->it_numinst = 0;
     clear_disk_totals(stats);
+	pmNotifyErr(LOG_INFO, "refresh_disks - disk totals cleared\n");
     for (i = 0; (drive = IOIteratorNext(mach_device_list)) != 0; i++) {
+    	pmNotifyErr(LOG_INFO, "refresh_disks - iteration of disk\n");
 	status = update_disk(stats, drive, i);
 	if (status)
 		break;
@@ -253,7 +268,10 @@ refresh_disks(struct diskstats *stats, pmdaIndom *indom)
     }
     IOIteratorReset(mach_device_list);
 
+
+
     if (!status)
 	status = update_disk_indom(stats, i, indom);
+	pmNotifyErr(LOG_INFO, "refresh_disks - END\n");
     return status;
 }
