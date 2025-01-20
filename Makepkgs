@@ -262,6 +262,11 @@ then
     # and so on because of security requirements in recent versions.
     #
     configopts="--sysconfdir=/etc --localstatedir=/var --prefix=/usr/local"
+    if [ -x /usr/bin/pkgbuild ]; then
+        echo "MacOS build system detected.  Using pkgbuild"
+        export PKGBUILD=/usr/bin/pkgbuild
+    fi
+
 elif [ $target = netbsd ]
 then
     # Try to mimic where pkgsrc/pkgin places things
