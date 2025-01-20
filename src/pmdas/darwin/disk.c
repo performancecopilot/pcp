@@ -46,7 +46,7 @@ check_stats_size(struct diskstats *stats, int count)
 	    return -ENOMEM;
 	}
     }
-	pmNotifyErr(LOG_INFO, "check_stats_size - BEGIN\n");
+	pmNotifyErr(LOG_INFO, "check_stats_size - END\n");
     return 0;
 }
 
@@ -113,54 +113,70 @@ update_disk_stats(struct diskstat *disk,
 	pmNotifyErr(LOG_INFO, "update_disk_stats - BEGIN\n");
 
 
+
     CFDictionaryRef	statistics;
     CFStringRef		name;
     CFNumberRef		number;
 
     memset(disk, 0, sizeof(struct diskstat));
+	pmNotifyErr(LOG_INFO, "update_disk_stats - memset 0\n");
 
     /* Get name from the drive properties */
     name = (CFStringRef) CFDictionaryGetValue(pproperties,
 			CFSTR(kIOBSDNameKey));
     if(name == NULL)
 	return; /* Not much we can do with no name */
+	pmNotifyErr(LOG_INFO, "update_disk_stats - got name ref\n");
 
     CFStringGetCString(name, disk->name, DEVNAMEMAX,
 			CFStringGetSystemEncoding());
 
+	pmNotifyErr(LOG_INFO, "update_disk_stats - got encoded name\n");
+
     /* Get the blocksize from the drive properties */
     number = (CFNumberRef) CFDictionaryGetValue(pproperties,
 			CFSTR(kIOMediaPreferredBlockSizeKey));
+
     if(number == NULL)
 	return; /* Not much we can do with no number */
+	pmNotifyErr(LOG_INFO, "update_disk_stats - got blocksize ref\n");
+
+
     CFNumberGetValue(number, kCFNumberSInt64Type, &disk->blocksize);
+	pmNotifyErr(LOG_INFO, "update_disk_stats - got blocksize value\n");
 
     /* Get the statistics from the device properties. */
     statistics = (CFDictionaryRef) CFDictionaryGetValue(properties,
 			CFSTR(kIOBlockStorageDriverStatisticsKey));
+	pmNotifyErr(LOG_INFO, "update_disk_stats - got statistics ref\n");
     if (statistics) {
 	number = (CFNumberRef) CFDictionaryGetValue(statistics,
 			CFSTR(kIOBlockStorageDriverStatisticsReadsKey));
+	pmNotifyErr(LOG_INFO, "update_disk_stats - got statistics READ ref\n");
 	if (number)
 	    CFNumberGetValue(number, kCFNumberSInt64Type,
 					&disk->read);
 	number = (CFNumberRef) CFDictionaryGetValue(statistics,
 			CFSTR(kIOBlockStorageDriverStatisticsWritesKey));
+    	pmNotifyErr(LOG_INFO, "update_disk_stats - got statistics WRITE ref\n");
 	if (number)
 	    CFNumberGetValue(number, kCFNumberSInt64Type,
 					&disk->write);
 	number = (CFNumberRef) CFDictionaryGetValue(statistics,
 		CFSTR(kIOBlockStorageDriverStatisticsBytesReadKey));
+    	pmNotifyErr(LOG_INFO, "update_disk_stats - got statistics READ BYTES ref\n");
 	if (number)
 	    CFNumberGetValue(number, kCFNumberSInt64Type,
 					&disk->read_bytes);
 	number = (CFNumberRef) CFDictionaryGetValue(statistics,
 		CFSTR(kIOBlockStorageDriverStatisticsBytesWrittenKey));
+    	pmNotifyErr(LOG_INFO, "update_disk_stats - got statistics WRITE BYTES ref\n");
 	if (number)
 	    CFNumberGetValue(number, kCFNumberSInt64Type,
 					&disk->write_bytes);
 	number = (CFNumberRef) CFDictionaryGetValue(statistics,
 		CFSTR(kIOBlockStorageDriverStatisticsLatentReadTimeKey));
+    	pmNotifyErr(LOG_INFO, "update_disk_stats - got statistics Latent Read Time ref\n");
 	if (number)
 	    CFNumberGetValue(number, kCFNumberSInt64Type,
 					&disk->read_time);
@@ -169,6 +185,7 @@ update_disk_stats(struct diskstat *disk,
 	if (number)
 	    CFNumberGetValue(number, kCFNumberSInt64Type,
 					&disk->write_time);
+    	pmNotifyErr(LOG_INFO, "update_disk_stats - got statistics Latent Write Time ref\n");
     }
 	pmNotifyErr(LOG_INFO, "update_disk_stats - END\n");
 }
