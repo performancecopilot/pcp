@@ -521,15 +521,6 @@ optional_policy(`
 
 optional_policy(`
     require {
-	class lockdown { integrity };
-    }
-    # pmda.kvm
-    # type=AVC msg=audit(YYY.101): avc: denied { integrity } for pid=PID comm="pmdakvm" lockdown_reason="debugfs access" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=lockdown permissive=0
-    allow pcp_pmcd_t self:lockdown integrity;
-')
-
-optional_policy(`
-    require {
 	class rawip_socket { create getopt setopt read write };
     }
     # pmda.netcheck
