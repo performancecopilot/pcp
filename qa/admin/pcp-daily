@@ -794,6 +794,9 @@ do
 
     # hostname-based options setting
     #
+    # Note: $check_what not set and at most one case block is executed
+    #       here, so assign values to $check_what
+    #
     case "$host"
     in
 
@@ -809,12 +812,11 @@ do
 	    ;;
 
 	vm01)
-	    # 739 segv's sometimes deep inside Python
-	    # and 749 recently (Dec 2023) has been locking the whole VM
-	    # up
-	    # fixed? [Jan 2024]
+	    # 749 recently (Dec 2023) has been locking the whole VM up
+	    # -- this test is using systemtap + pmcd static probes
+	    # fixed? [Jan 2024], but not fixed [Jan 2025]
 	    #
-	    #[ X"$what" = Xall ] && check_what='-X 739 -X 749'
+	    [ X"$what" = Xall ] && check_what='-X 749'
 	    ;;
 
 	vm05)
@@ -855,7 +857,7 @@ do
 	    # 365 fails parsing a current /proc/net/netstat
 	    # 374 fails because down-rev pmlc can't talk to current pmlogger
 	    #
-	    [ X"$what" = Xall ] && check_what="$check_what -X 003 -X 066 -X 116 -X 257 -X 322 -X 365 -X 374"
+	    [ X"$what" = Xall ] && check_what='-X 003 -X 066 -X 116 -X 257 -X 322 -X 365 -X 374'
 	    ;;
 
 	vm20)
@@ -910,6 +912,9 @@ do
 	# $arch=x86_64
 	# $distro="CentOS6.10"
 	#
+	# Note: $check_what may have been set above, so need to append
+	#       values here, not assign values
+	#
 	eval `grep "^$host " $HOME/whatami.out \
 	      | sed \
 		-e 's/^/what_host=/' \
@@ -937,19 +942,19 @@ do
 		FreeBSD*)
 		    # Only selected groups at this stage for FreeBSD
 		    #
-		    [ X"$what" = Xall ] && check_what='-g sanity -g trace -g libpcp -g kernel -g pmrep -g threads -g perl -x valgrind'
+		    [ X"$what" = Xall ] && check_what="$check_what -g sanity -g trace -g libpcp -g kernel -g pmrep -g threads -g perl -x valgrind"
 		    ;;
 
 		OpenBSD*)
 		    # Only selected groups this stage for OpenBSD
 		    #
-		    [ X"$what" = Xall ] && check_what='-g sanity -g trace -g libpcp -g kernel -g pmcd -g pminfo -g pmlogger -g pmrep -g threads -g logutil -g dbpmda -g pmcheck -g pmlc'
+		    [ X"$what" = Xall ] && check_what="$check_what -g sanity -g trace -g libpcp -g kernel -g pmcd -g pminfo -g pmlogger -g pmrep -g threads -g logutil -g dbpmda -g pmcheck -g pmlc"
 		    ;;
 
 		NetBSD*)
 		    # Only -g sanity at this stage for NetBSD
 		    #
-		    [ X"$what" = Xall ] && check_what='-g sanity'
+		    [ X"$what" = Xall ] && check_what="$check_what -g sanity"
 		    ;;
 
 	    esac
