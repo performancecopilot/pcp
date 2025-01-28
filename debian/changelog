@@ -5,7 +5,7 @@ pcp (6.3.3-1) unstable; urgency=low
   * avoid dangling systemd symlinks on purge (closes: #986074)
   * change to allow Rules-Requires-Root: no in build (closes: #1089409)
 
- -- Nathan Scott <nathans@debian.org>  Tue, 01 Jul 2025 07:39:11 +1000
+ -- Nathan Scott <nathans@debian.org>  Wed, 29 Jan 2025 09:25:03 +1100
 
 pcp (6.3.2-1) unstable; urgency=low
 
