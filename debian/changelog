@@ -4,6 +4,15 @@ pcp (7.0.0-1) unstable; urgency=low
 
  -- Nathan Scott <nathans@debian.org>  Tue, 01 Jul 2025 07:39:11 +1000
 
+pcp (6.3.3-1) unstable; urgency=low
+
+  * 6.3.2 release plus fixes for Debian build issues
+  * don't dink with /var/run/pcp in pcp.postinst (closes: #1071103)
+  * avoid dangling systemd symlinks on purge (closes: #986074)
+  * change to allow Rules-Requires-Root: no in build (closes: #1089409)
+
+ -- Nathan Scott <nathans@debian.org>  Wed, 29 Jan 2025 09:25:03 +1100
+
 pcp (6.3.2-1) unstable; urgency=low
 
   * New release (full details in CHANGELOG).
