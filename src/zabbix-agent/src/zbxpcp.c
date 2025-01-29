@@ -185,9 +185,9 @@ static void zbx_module_pcp_add_metric(const char *name)
     metrics[metric_count].key = metric;
     metrics[metric_count].flags = 0;
     if (zbx_version >= ZBX_VERSION3)
-	metrics[metric_count].function = zbx_module3_pcp_fetch_metric;
+	metrics[metric_count].function = (int (*)()) zbx_module3_pcp_fetch_metric;
     else
-	metrics[metric_count].function = zbx_module2_pcp_fetch_metric;
+	metrics[metric_count].function = (int (*)()) zbx_module2_pcp_fetch_metric;
     metrics[metric_count].test_param = NULL;
     metric_count++;
 }
