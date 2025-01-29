@@ -5031,7 +5031,8 @@ printf %s "checking __pmResult padding... " >&6; }
 ans=`sed <conftest.out -n -e '/__pmResult pad/s/.* //p'`
 if test -n "$ans"
 then
-    printf "%s\n" "#define PM_PAD_RESULT $ans" >>confdefs.h
+
+printf "%s\n" "#define PM_PAD_RESULT $ans" >>confdefs.h
 
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ans" >&5
 printf "%s\n" "$ans" >&6; }
@@ -5044,7 +5045,8 @@ printf %s "checking timespec padding... " >&6; }
 ans=`sed <conftest.out -n -e '/timespec pad/s/.* //p'`
 if test -n "$ans"
 then
-    printf "%s\n" "#define PM_PAD_TIMESPEC $ans" >>confdefs.h
+
+printf "%s\n" "#define PM_PAD_TIMESPEC $ans" >>confdefs.h
 
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ans" >&5
 printf "%s\n" "$ans" >&6; }
@@ -14580,6 +14582,8 @@ CFLAGS="$save_CFLAGS"
 
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether const arg for scandir() select method" >&5
 printf %s "checking whether const arg for scandir() select method... " >&6; }
+save_CFLAGS="$CFLAGS"
+CFLAGS="-Werror"
 cat <<End-of-File >conftest.c
 #include <stdlib.h>
 #include <unistd.h>
@@ -14589,8 +14593,9 @@ my_select(const struct dirent *foo) { return 0; }
 int main() { struct dirent **list; return scandir(".", &list, my_select, NULL); }
 End-of-File
 (eval $ac_compile) 2>conftest.out
+_ret=$?
 cat conftest.out >&5
-if test -s conftest.out
+if test $_ret != 0
 then
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
@@ -14601,6 +14606,7 @@ printf "%s\n" "#define HAVE_CONST_DIRENT 1" >>confdefs.h
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }
 fi
+CFLAGS="$save_CFLAGS"
 rm -f conftest.*
 
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether struct dirent has a d_off field" >&5
@@ -14612,8 +14618,9 @@ cat <<End-of-File >conftest.c
 int main() { struct dirent d; d.d_off = 0; }
 End-of-File
 (eval $ac_compile) 2>conftest.out
+_ret=$?
 cat conftest.out >&5
-if test -s conftest.out
+if test $_ret != 0
 then
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
