@@ -77,6 +77,7 @@ __ntohpmLabel(pmLabel * const label)
 }
 #endif
 
+#ifndef __htonpmValueBlock
 static void
 __htonpmTimespec(pmTimespec * const tsp)
 {
@@ -84,7 +85,6 @@ __htonpmTimespec(pmTimespec * const tsp)
     __htonll((char *)&tsp->tv_nsec);
 }
 
-#ifndef __htonpmValueBlock
 static void
 htonEventArray(pmValueBlock * const vb, int highres)
 {

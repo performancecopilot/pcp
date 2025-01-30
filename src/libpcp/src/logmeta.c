@@ -1824,17 +1824,6 @@ __pmLoadTimestamp(const __int32_t *buf, __pmTimestamp *tsp)
 }
 
 void
-__pmLoadTimeval(const __int32_t *buf, __pmTimestamp *tsp)
-{
-    tsp->sec = (__int32_t)ntohl(buf[0]);
-    tsp->nsec = ntohl(buf[1]) * 1000;
-    if (pmDebugOptions.logmeta && pmDebugOptions.desperate) {
-	fprintf(stderr, "__pmLoadTimeval: network(%08x %08x usec)", buf[0], buf[1]);
-	fprintf(stderr, " -> %" FMT_INT64 ".%09d (%llx %x nsec)\n", tsp->sec, tsp->nsec, (long long)tsp->sec, tsp->nsec);
-    }
-}
-
-void
 __pmPutTimestamp(const __pmTimestamp *tsp, __int32_t *buf)
 {
     __pmTimestamp	stamp = *tsp;
@@ -1845,12 +1834,28 @@ __pmPutTimestamp(const __pmTimestamp *tsp, __int32_t *buf)
      * need to dodge endian issues here ... want the MSB 32-bits of sec
      * in buf[0] and the LSB 32 bits of sec in buf[1]
      */
-    buf[0] = (stamp.sec >> 32) & 0xffffffff;
-    buf[1] = stamp.sec & 0xffffffff;
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+    buf[0] = (__int32_t)((__int64_t)(stamp.sec >> 32));
+    buf[1] = (__int32_t)((__int64_t)(stamp.sec & 0x00000000ffffffffLL));
+#else
+    buf[1] = (__int32_t)((__int64_t)(stamp.sec >> 32));
+    buf[0] = (__int32_t)((__int64_t)(stamp.sec & 0x00000000ffffffffLL));
+#endif
     buf[2] = stamp.nsec;
     if (pmDebugOptions.logmeta && pmDebugOptions.desperate) {
 	fprintf(stderr, "__pmPutTimestamp: %" FMT_INT64 ".%09d (%llx %x nsec)", tsp->sec, tsp->nsec, (long long)tsp->sec, tsp->nsec);
 	fprintf(stderr, " -> network(%08x%08x %08x nsec)\n", buf[0], buf[1], buf[2]);
+    }
+}
+
+void
+__pmLoadTimeval(const __int32_t *buf, __pmTimestamp *tsp)
+{
+    tsp->sec = (__int32_t)ntohl(buf[0]);
+    tsp->nsec = ntohl(buf[1]) * 1000;
+    if (pmDebugOptions.logmeta && pmDebugOptions.desperate) {
+	fprintf(stderr, "__pmLoadTimeval: network(%08x %08x usec)", buf[0], buf[1]);
+	fprintf(stderr, " -> %" FMT_INT64 ".%09d (%llx %x nsec)\n", tsp->sec, tsp->nsec, (long long)tsp->sec, tsp->nsec);
     }
 }
 
