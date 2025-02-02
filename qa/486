@@ -16,7 +16,6 @@ echo "QA output created by $seq"
 which pmlogrewrite >/dev/null 2>&1 || _notrun "pmlogrewrite not installed"
 
 status=0	# success is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 _filter()
@@ -57,8 +56,8 @@ _cmp()
 	echo "Arrgh ... $2.0 missing" | _filter
 	return
     fi
-    pmdumplog -z -dilmst $1 | tee -a $seq.full >$tmp.in
-    pmdumplog -z -dilmst $2 | tee -a $seq.full >$tmp.out
+    pmdumplog -z -dilmst $1 | tee -a $seq_full >$tmp.in
+    pmdumplog -z -dilmst $2 | tee -a $seq_full >$tmp.out
     echo "pmdumplog diffs ..."
     # For the *BSD platforms, use gdiff in preference to diff, so we
     # don't get bitten by the diff-jackpot non-determinism
@@ -73,17 +72,17 @@ _cmp()
     if [ ! -z "$filter_old" ]
     then
 	$filter_old <$tmp.in >$tmp.tmp
-	echo >>$seq.full
-	echo "--- after $filter_old ---" >>$seq.full
-	cat $tmp.tmp >>$seq.full
+	echo >>$seq_full
+	echo "--- after $filter_old ---" >>$seq_full
+	cat $tmp.tmp >>$seq_full
 	mv $tmp.tmp $tmp.in
     fi
     if [ ! -z "$filter_new" ]
     then
 	$filter_new <$tmp.out >$tmp.tmp
-	echo >>$seq.full
-	echo "--- after $filter_new ---" >>$seq.full
-	cat $tmp.tmp >>$seq.full
+	echo >>$seq_full
+	echo "--- after $filter_new ---" >>$seq_full
+	cat $tmp.tmp >>$seq_full
 	mv $tmp.tmp $tmp.out
     fi
     echo
@@ -140,9 +139,9 @@ archives/sample_expr	metric sample.mirage_longlong {indom->NULL}
 archives/sample_expr	metric sample.mirage_longlong {indom->NULL output last}
 End-of-File
 do
-    echo | tee -a $seq.full
+    echo | tee -a $seq_full
     echo "$spec" >$tmp.config
-    echo "=== $arch_args: $spec ===" | tee -a $seq.full
+    echo "=== $arch_args: $spec ===" | tee -a $seq_full
     rm -f $tmp.new.*
     arch=`echo "$arch_args" | sed -e 's/|.*//'`
     args=`echo "$arch_args" | sed -n -e '/|/s/.*|//p'`

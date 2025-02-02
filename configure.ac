@@ -563,7 +563,7 @@ AC_MSG_CHECKING([__pmResult padding])
 ans=`sed <conftest.out -n -e '/__pmResult pad/s/.* //p'`
 if test -n "$ans"
 then
-    AC_DEFINE_UNQUOTED(PM_PAD_RESULT, $ans, [])
+    AC_DEFINE_UNQUOTED(PM_PAD_RESULT, $ans, [__pmResult padding])
     AC_MSG_RESULT($ans)
 else
     AC_MSG_RESULT([no])
@@ -572,7 +572,7 @@ AC_MSG_CHECKING([timespec padding])
 ans=`sed <conftest.out -n -e '/timespec pad/s/.* //p'`
 if test -n "$ans"
 then
-    AC_DEFINE_UNQUOTED(PM_PAD_TIMESPEC, $ans, [])
+    AC_DEFINE_UNQUOTED(PM_PAD_TIMESPEC, $ans, [timespec padding])
     AC_MSG_RESULT($ans)
 else
     AC_MSG_RESULT([no])
@@ -2108,6 +2108,18 @@ AC_CHECK_LIB(uv, uv_pipe_chmod,
 	     have_uv_pipe_chmod=true,
 	     have_uv_pipe_chmod=false)
 
+dnl PKG_CHECK_MODULES() does not work for libinih
+AC_CHECK_LIB(inih, ini_parse,
+       [ have_libinih=true
+	 lib_for_inih="-linih"
+       ],
+       [ have_libinih=false
+         lib_for_inih=""
+       ]
+)
+AC_SUBST(HAVE_LIBINIH, [$have_libinih])
+AC_SUBST(lib_for_inih)
+
 PKG_CHECK_MODULES([ncurses], [ncurses], [have_ncurses=true], [have_ncurses=false])
 AC_SUBST(HAVE_NCURSES, [$have_ncurses])
 
@@ -2497,6 +2509,11 @@ AC_SUBST([rdynamic_flag])
 
 dnl check if argument to user's select() method in scandir call is const
 AC_MSG_CHECKING([whether const arg for scandir() select method])
+save_CFLAGS="$CFLAGS"
+dnl Using -Werror to make the compiler fail on purpose if scandir()
+dnl on this system does not support `const struct dirent *' for
+dnl callbacks.
+CFLAGS="-Werror"
 cat <<End-of-File >conftest.c
 #include <stdlib.h>
 #include <unistd.h>
@@ -2506,14 +2523,16 @@ my_select(const struct dirent *foo) { return 0; }
 int main() { struct dirent **list; return scandir(".", &list, my_select, NULL); }
 End-of-File
 (eval $ac_compile) 2>conftest.out
+_ret=$?
 cat conftest.out >&5
-if test -s conftest.out
+if test $_ret != 0
 then
     AC_MSG_RESULT(no)
 else
     AC_DEFINE(HAVE_CONST_DIRENT, [1], [const arg for scandir() select method])
     AC_MSG_RESULT(yes)
 fi
+CFLAGS="$save_CFLAGS"
 rm -f conftest.*
 
 dnl check if struct dirent has a d_off (directory offset) field
@@ -2525,8 +2544,9 @@ cat <<End-of-File >conftest.c
 int main() { struct dirent d; d.d_off = 0; }
 End-of-File
 (eval $ac_compile) 2>conftest.out
+_ret=$?
 cat conftest.out >&5
-if test -s conftest.out
+if test $_ret != 0
 then
     AC_MSG_RESULT(no)
 else

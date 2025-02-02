@@ -56,9 +56,11 @@ static const char *metrics[] = {
 static pmID pmids[NMETRICS];
 
 static int
-int_compare(int *a, int *b)
+int_compare(const void *a, const void *b)
 {
-    return *a - *b;
+    const int x = *(const int *)a;
+    const int y = *(const int *)b;
+    return x - y;
 }
 
 int
@@ -73,7 +75,6 @@ main(int argc, char **argv)
     int		all_n;
     int		*all_inst;
     char	**all_names;
-    int		(*int_cmp)() = int_compare;
     static char	*usage = "[-D debugspec] [-n namespace]";
 
     pmSetProgname(argv[0]);
@@ -155,7 +156,7 @@ main(int argc, char **argv)
      * sort the instance identifiers
      * [This has to be done before every fetch]
      */
-    qsort(all_inst, all_n, sizeof(int), int_cmp);
+    qsort(all_inst, all_n, sizeof(int), int_compare);
 
     /*
      * establish an explicit instance profile

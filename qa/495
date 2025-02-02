@@ -16,7 +16,6 @@ echo "QA output created by $seq"
 which pmlogrewrite >/dev/null 2>&1 || _notrun "pmlogrewrite not installed"
 
 status=0	# success is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 _filter()
@@ -39,8 +38,8 @@ _cmp()
 	echo "Arrgh ... $2.0 missing" | _filter
 	return
     fi
-    pmdumplog -z -dilmst $1 | tee -a $seq.full >$tmp.in
-    pmdumplog -z -dilmst $2 | tee -a $seq.full >$tmp.out
+    pmdumplog -z -dilmst $1 | tee -a $seq_full >$tmp.in
+    pmdumplog -z -dilmst $2 | tee -a $seq_full >$tmp.out
     diff -u $tmp.in $tmp.out | _filter
 }
 
@@ -67,9 +66,9 @@ $tmp.old	metric sample.mirage { indom -> 29.8 output inst 11 }
 $tmp.old	metric sample.mirage { indom -> 29.8 output inst 2 }
 End-of-File
 do
-    echo | tee -a $seq.full
+    echo | tee -a $seq_full
     echo "$spec" >$tmp.config
-    echo "=== `cat $tmp.config` ===" | tee -a $seq.full
+    echo "=== `cat $tmp.config` ===" | tee -a $seq_full
     rm -f $tmp.new.*
     pmlogrewrite -ws -c $tmp.config `echo $arch_args | sed -e 's/|/ /g'` $tmp.new 2>&1 | _filter
     _cmp `echo $arch_args | sed -e 's/|.*//'` $tmp.new
@@ -95,9 +94,9 @@ $tmp.old	metric sample.colour { indom -> NULL output inst 12345 }
 $tmp.old	metric sample.colour { indom -> NULL output iname "purple" }
 End-of-File
 do
-    echo | tee -a $seq.full
+    echo | tee -a $seq_full
     echo "$spec" >$tmp.config
-    echo "=== `cat $tmp.config` ===" | tee -a $seq.full
+    echo "=== `cat $tmp.config` ===" | tee -a $seq_full
     rm -f $tmp.new.*
     pmlogrewrite -ws -c $tmp.config `echo $arch_args | sed -e 's/|/ /g'` $tmp.new 2>&1 | _filter
     _cmp `echo $arch_args | sed -e 's/|.*//'` $tmp.new
@@ -123,9 +122,9 @@ $tmp.old	metric sample.seconds { indom -> 29.2 output inst 12345 }
 $tmp.old	metric sample.seconds { indom -> 29.2 output iname "purple" }
 End-of-File
 do
-    echo | tee -a $seq.full
+    echo | tee -a $seq_full
     echo "$spec" >$tmp.config
-    echo "=== `cat $tmp.config` ===" | tee -a $seq.full
+    echo "=== `cat $tmp.config` ===" | tee -a $seq_full
     rm -f $tmp.new.*
     pmlogrewrite -ws -c $tmp.config `echo $arch_args | sed -e 's/|/ /g'` $tmp.new 2>&1 | _filter
     _cmp `echo $arch_args | sed -e 's/|.*//'` $tmp.new
@@ -159,9 +158,9 @@ $tmp.old	metric irix.disk.all.read { indom -> 1.5 output iname "15 min but no on
 $tmp.old	metric irix.disk.all.read { indom -> 1.5 output iname "159" }
 End-of-File
 do
-    echo | tee -a $seq.full
+    echo | tee -a $seq_full
     echo "$spec" >$tmp.config
-    echo "=== `cat $tmp.config` ===" | tee -a $seq.full
+    echo "=== `cat $tmp.config` ===" | tee -a $seq_full
     rm -f $tmp.new.*
     pmlogrewrite -ws -c $tmp.config `echo $arch_args | sed -e 's/|/ /g'` $tmp.new 2>&1 | _filter
     _cmp `echo $arch_args | sed -e 's/|.*//'` $tmp.new

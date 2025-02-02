@@ -33,6 +33,7 @@ gfs2-utils
 git
 git-core
 grep
+inih-devel
 iproute
 httpd
 initscripts
@@ -122,6 +123,7 @@ sqlite
 sqlite-libs
 sysstat
 systemd-devel
+systemtap
 systemtap-devel
 systemtap-sdt-devel
 time

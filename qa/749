@@ -13,7 +13,6 @@ echo "QA output created by $seq"
 . ./common.check
 
 status=0	# success is the default!
-$sudo rm -fr $tmp.* $seq.full
 trap "rm -fr $tmp.*; exit \$status" 0 1 2 3 15
 
 # If no systemtap, we cannot run the script
@@ -57,22 +56,22 @@ probe timer.ms(1000) {
        exit()
 }
 End-of-File
-echo "Using stap config:" >> $seq.full
-cat $tmp.stap >> $seq.full
-echo "Running pmcd process:" >> $seq.full
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mcd( |$)' >> $seq.full
+echo "Using stap config:" >> $seq_full
+cat $tmp.stap >> $seq_full
+echo "Running pmcd process:" >> $seq_full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mcd( |$)' >> $seq_full
 
 # check for stap user probing support
 stap -p4 $tmp.stap >$tmp.out 2>&1
 if [ $? -ne 0 ]
 then
     echo "Systemtap compile check failed"
-    cat $tmp.out >> $seq.full
+    cat $tmp.out >> $seq_full
     _notrun "Systemtap userspace probing unsupported here"
 fi
 
 # start systemtap and count pmcd probe hits
-echo "Fire stap probes:" >> $seq.full
+echo "Fire stap probes:" >> $seq_full
 $sudo stap $tmp.stap >$tmp.out 2>&1
 
 # This seems safe to dodge if we PASS ...
@@ -82,9 +81,9 @@ $sudo stap $tmp.stap >$tmp.out 2>&1
 # and ditto for this one from vm21 (Debian 12.2)
 # WARNING: Kernel function symbol table missing [man warning::symbols]
 #
-echo "Output from stap:" >> $seq.full
+echo "Output from stap:" >> $seq_full
 cat $tmp.out \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | if grep '^PASS:' $tmp.out >/dev/null
 then
     sed \

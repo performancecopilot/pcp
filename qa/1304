@@ -23,13 +23,12 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 _stop_auto_restart pmcd
-_service pmcd stop 2>&1 | _filter_pcp_stop
-_wait_pmcd_end
+if ! _service pmcd stop 2>&1; then _exit 1; fi | _filter_pcp_stop
+_wait_pmcd_end || _exit 1
 
 echo "Running pmstat in local context fallback mode"
 pmstat --interval 0.2 --samples 3 >$tmp.out 2>$tmp.err

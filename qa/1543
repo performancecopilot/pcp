@@ -17,9 +17,9 @@ _check_series
 
 _cleanup()
 {
-    echo "Entering _cleanup ..." >>$here/$seq.full
-    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy( |$)' >>$here/$seq.full
-    cat $PCP_LOG_DIR/pmproxy/pmproxy.log >>$here/$seq.full
+    echo "Entering _cleanup ..." >>$seq_full
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy( |$)' >>$seq_full
+    cat $PCP_LOG_DIR/pmproxy/pmproxy.log >>$seq_full
     cd $here
     _restore_auto_restart pmproxy
     if $need_restore
@@ -32,21 +32,20 @@ _cleanup()
     fi
     if $pmproxy_was_running
     then
-	echo "Restart pmproxy ..." >>$here/$seq.full
-	_service pmproxy restart >>$here/$seq.full 2>&1
+	echo "Restart pmproxy ..." >>$seq_full
+	_service pmproxy restart >>$seq_full 2>&1
 	_wait_for_pmproxy
     else
-	echo "Stopping pmproxy ..." >>$here/$seq.full
-	_service pmproxy stop >>$here/$seq.full 2>&1
+	echo "Stopping pmproxy ..." >>$seq_full
+	_service pmproxy stop >>$seq_full 2>&1
     fi
-    echo "Exiting _cleanup ..." >>$here/$seq.full
-    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy( |$)' >>$here/$seq.full
+    echo "Exiting _cleanup ..." >>$seq_full
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy( |$)' >>$seq_full
     $sudo rm -rf $tmp $tmp.*
 }
 
 status=1	# failure is the default!
 need_restore=false
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # Seen to fail sometimes on vm01 ... pmproxy mysteriously dies off in
@@ -68,7 +67,7 @@ esac
 
 pmproxy_was_running=false
 [ -f $PCP_RUN_DIR/pmproxy.pid ] && pmproxy_was_running=true
-echo "pmproxy_was_running=$pmproxy_was_running" >>$here/$seq.full
+echo "pmproxy_was_running=$pmproxy_was_running" >>$seq_full
 
 hostname=`hostname`
 machineid=`_machine_id`
@@ -76,8 +75,8 @@ domainname=`_domain_name`
 
 _filter_html()
 {
-    echo "== $@ ==" | tee -a $here/$seq.full
-    tee -a $seq.full | \
+    echo "== $@ ==" | tee -a $seq_full
+    tee -a $seq_full | \
     sed \
 	-e "s,pmproxy/$PCP_VERSION,pmproxy/VERSION,g" \
     #end
@@ -85,8 +84,8 @@ _filter_html()
 
 _filter_text()
 {
-    echo "== $@ ==" | tee -a $here/$seq.full
-    tee -a $seq.full | \
+    echo "== $@ ==" | tee -a $seq_full
+    tee -a $seq_full | \
     sed \
 	-e "s/hostname=\"$hostname\"/hostname=\"HOSTNAME\"/g" \
 	-e "s/machineid=\"$machineid\"/machineid=\"MACHINEID\"/g" \
@@ -103,8 +102,8 @@ _filter_value()
 
 _filter_json()
 {
-    echo "== $@ ==" | tee -a $here/$seq.full
-    tee -a $seq.full > $tmp.unfiltered
+    echo "== $@ ==" | tee -a $seq_full
+    tee -a $seq_full > $tmp.unfiltered
 
     pmjson < $tmp.unfiltered > $tmp.filtered
     status=$?
@@ -153,17 +152,17 @@ series()
 
 infoseries()
 {
-    echo "== pminfo -s $@ ==" >> $here/$seq.full
-    pminfo -s "$1" | tee -a $here/$seq.full | \
+    echo "== pminfo -s $@ ==" >> $seq_full
+    pminfo -s "$1" | tee -a $seq_full | \
     grep Series: | \
     awk '{ print $NF }'
 }
 
 section()
 {
-    echo | tee -a $here/$seq.full
-    echo "*****   $@   *****" | tee -a $here/$seq.full
-    echo | tee -a $here/$seq.full
+    echo | tee -a $seq_full
+    echo "*****   $@   *****" | tee -a $seq_full
+    echo | tee -a $seq_full
 }
 
 # real QA test starts here
@@ -173,7 +172,7 @@ _save_config $PCP_SYSCONF_DIR/pmproxy/pmproxy.options
 need_restore=true
 
 $sudo rm -rf $PCP_SYSCONF_DIR/labels/*
-_sighup_pmcd
+_sighup_pmcd || _exit 1
 
 $sudo rm -f $PCP_SYSCONF_DIR/pmproxy/pmproxy.conf $PCP_SYSCONF_DIR/pmproxy/pmproxy.options
 echo "--timeseries" >> $tmp.options
@@ -184,12 +183,12 @@ echo "http.enabled = true" >> $tmp.conf
 $sudo cp $tmp.conf $PCP_SYSCONF_DIR/pmproxy/pmproxy.conf
 
 _stop_auto_restart pmproxy
-_service pmproxy stop >/dev/null
-_service pmproxy start >>$here/$seq.full 2>&1
-_wait_for_pmproxy
+if ! _service pmproxy stop >/dev/null; then _exit 1; fi
+if ! _service pmproxy start >>$seq_full 2>&1; then _exit 1; fi
+_wait_for_pmproxy || _exit 1
 
-echo "After initial _service start ..." >>$here/$seq.full
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy( |$)' >>$here/$seq.full
+echo "After initial _service start ..." >>$seq_full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy( |$)' >>$seq_full
 
 port=44322
 
@@ -206,7 +205,7 @@ curl -s "http://localhost:$port/pmapi/context?hostspec=localhost" \
 	| _filter_json "Check hostspec parameter"
 oldcontext=`cat $tmp.context`
 
-echo "Using context: $oldcontext" >> $seq.full
+echo "Using context: $oldcontext" >> $seq_full
 curl -s "http://localhost:$port/pmapi/$oldcontext/context" \
 	| _filter_json "Pinging active context via URL"
 urlcontext=`cat $tmp.context`
@@ -220,7 +219,7 @@ fi
 curl -s "http://localhost:$port/pmapi/context?polltimeout=250" \
 	| _filter_json "Check polltimeout parameters"
 oldcontext=`cat $tmp.context`
-echo "Using context: $oldcontext" >> $seq.full
+echo "Using context: $oldcontext" >> $seq_full
 pmsleep 250msec	# timeout this context
 pmsleep 100msec	# extra for slow test machines
 curl -s "http://localhost:$port/pmapi/$oldcontext/context" \

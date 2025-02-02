@@ -791,6 +791,12 @@ do
     check_what="$what"
     valgrind_opt=''
     [ X"$what" = Xall ] && check_what=''
+
+    # hostname-based options setting
+    #
+    # Note: $check_what not set and at most one case block is executed
+    #       here, so assign values to $check_what
+    #
     case "$host"
     in
 
@@ -806,12 +812,11 @@ do
 	    ;;
 
 	vm01)
-	    # 739 segv's sometimes deep inside Python
-	    # and 749 recently (Dec 2023) has been locking the whole VM
-	    # up
-	    # fixed? [Jan 2024]
+	    # 749 recently (Dec 2023) has been locking the whole VM up
+	    # -- this test is using systemtap + pmcd static probes
+	    # fixed? [Jan 2024], but not fixed [Jan 2025]
 	    #
-	    #[ X"$what" = Xall ] && check_what='-X 739 -X 749'
+	    [ X"$what" = Xall ] && check_what='-X 749'
 	    ;;
 
 	vm05)
@@ -819,26 +824,6 @@ do
 	    # moment
 	    #
 	    [ X"$what" = Xall ] && check_what='-x valgrind'
-	    ;;
-
-	vm06)
-	    # Only selected groups at this stage for FreeBSD
-	    #	sanity trace libpcp kernel pmrep threads
-	    #
-	    [ X"$what" = Xall ] && check_what='-g sanity -g trace -g libpcp -g kernel -g pmrep -g threads -g perl -x valgrind'
-	    ;;
-
-	vm09)
-	    # Only selected groups at this stage for NetBSD
-	    #	sanity trace libpcp kernel pmrep threads
-	    #
-	    [ X"$what" = Xall ] && check_what='-g sanity -g trace -g libpcp -g kernel -g pmrep -g threads -x valgrind'
-	    ;;
-
-	vm10)
-	    # Only selected groups at this stage for FreeBSD ...
-	    #
-	    [ X"$what" = Xall ] && check_what='-g sanity -g trace -g libpcp -g kernel -g pmrep -g threads -g perl -g pmchart -x valgrind'
 	    ;;
 
 	vm15)
@@ -872,7 +857,7 @@ do
 	    # 365 fails parsing a current /proc/net/netstat
 	    # 374 fails because down-rev pmlc can't talk to current pmlogger
 	    #
-	    [ X"$what" = Xall ] && check_what="$check_what -X 003 -X 066 -X 116 -X 257 -X 322 -X 365 -X 374"
+	    [ X"$what" = Xall ] && check_what='-X 003 -X 066 -X 116 -X 257 -X 322 -X 365 -X 374'
 	    ;;
 
 	vm20)
@@ -880,18 +865,6 @@ do
 	    #
 	    qa_dir=/var/lib/pcp/testsuite
 	    qa_user=pcpqa
-	    ;;
-
-	vm32)
-	    # Only selected groups at this stage for FreeBSD ...
-	    #
-	    [ X"$what" = Xall ] && check_what='-g sanity -g trace -g libpcp -g kernel -g pmrep -g threads -x valgrind -X 603'
-	    ;;
-
-	vm33)
-	    # Only selected groups at this stage for OpenBSD
-	    #
-	    [ X"$what" = Xall ] && check_what='-g sanity -g trace -g libpcp -g kernel -g pmcd -g pminfo -g pmlogger -g pmrep -g threads -g logutil -g dbpmda -g pmcheck -g pmlc'
 	    ;;
 
 	vm35)
@@ -923,19 +896,70 @@ do
 	    fi
 	    ;;
 
-	vm37)
-	    # Only selected groups this stage for OpenBSD
-	    #
-	    [ X"$what" = Xall ] && check_what='-g sanity -g trace -g libpcp -g kernel -g pmcd -g pminfo -g pmlogger -g pmrep -g threads -g logutil -g dbpmda -g pmcheck -g pmlc'
-	    ;;
-
-	vm38)
-	    # Only -g sanity at this stage for NetBSD
-	    #
-	    [ X"$what" = Xall ] && check_what='-g sanity'
-	    ;;
-
     esac
+
+    # distro-based options setting
+    #
+    if [ -f $HOME/whatami.out ]
+    then
+	# pick line (if any) from $HOME/whatami.out matching $host,
+	# e.g.
+	# vm14 7.0.0 x86_64 CentOS6.10 (Final) [kernel=2.6.32 py=none se=disabled]
+	# and set these variables that can be used to conditionally
+	# set (QA in particular) options:
+	# $what_host=vm14
+	# $pcp_ver=7.0.0
+	# $arch=x86_64
+	# $distro="CentOS6.10"
+	#
+	# Note: $check_what may have been set above, so need to append
+	#       values here, not assign values
+	#
+	eval `grep "^$host " $HOME/whatami.out \
+	      | sed \
+		-e 's/^/what_host=/' \
+		-e 's/  */|pcp_ver=/' \
+		-e 's/  */|arch=/' \
+		-e 's/  */|distro="/' \
+		-e 's/ \[.*//' \
+		-e 's/ (.*//' \
+		-e 's/$/"/' \
+		-e 's/|/ /g'`
+	if [ -n "$distro" ]
+	then
+	    case "$distro"
+	    in
+		CentOS6.*|'RHEL * 6.*')
+		    # CentOS 6 and RHEL 6 ... don't bother with valgrind here
+		    # exclude the valgrind group and force the non-valgrind
+		    # variants to be run
+		    #
+		    valgrind_opt='export PCPQA_VALGRIND=both'
+		    [ X"$what" = Xall ] && check_what="$check_what -x valgrind"
+		    echo "Exclude valgrind group for distro=$distro"
+		    ;;
+
+		FreeBSD*)
+		    # Only selected groups at this stage for FreeBSD
+		    #
+		    [ X"$what" = Xall ] && check_what="$check_what -g sanity -g trace -g libpcp -g kernel -g pmrep -g threads -g perl -x valgrind"
+		    ;;
+
+		OpenBSD*)
+		    # Only selected groups this stage for OpenBSD
+		    #
+		    [ X"$what" = Xall ] && check_what="$check_what -g sanity -g trace -g libpcp -g kernel -g pmcd -g pminfo -g pmlogger -g pmrep -g threads -g logutil -g dbpmda -g pmcheck -g pmlc"
+		    ;;
+
+		NetBSD*)
+		    # Only -g sanity at this stage for NetBSD
+		    #
+		    [ X"$what" = Xall ] && check_what="$check_what -g sanity"
+		    ;;
+
+	    esac
+	fi
+    fi
 
     if which virsh >/dev/null 2>&1
     then

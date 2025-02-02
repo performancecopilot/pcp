@@ -15,7 +15,6 @@ echo "QA output created by $seq"
 
 status=1	# failure is the default!
 bindir="$HOME/.pcp/bin"
-$sudo rm -rf $tmp.* $seq.full
 
 _cleanup()
 {

@@ -4,7 +4,8 @@ Priority: extra
 Homepage: https://pcp.io
 Maintainer: PCP Development Team <pcp@groups.io>
 Uploaders: Nathan Scott <nathans@debian.org>, Ken McDonell <kenj@kenj.id.au>
-Build-Depends: bison, flex, gawk, procps, pkg-config, debhelper (>= 5), ?{perl (>= 5.6)}, libreadline-dev | libreadline5-dev | libreadline-gplv2-dev, chrpath, libbsd-dev [kfreebsd-any], libkvm-dev [kfreebsd-any], ?{python-all}, ?{python-dev}, python3-dev, python3-setuptools, libsasl2-dev, ?{libuv1-dev}, ?{libssl-dev}, libavahi-common-dev, ?{qt-dev}, autotools-dev, zlib1g-dev, autoconf, ?{libclass-dbi-perl}, ?{libdbd-mysql-perl}, ?{python-psycopg2}, ?{python-openpyxl}, ?{dh-python}, ?{libpfm4-dev}, libncurses5-dev, ?{python-six}, ?{python-json-pointer}, ?{python-requests}, ?{libextutils-autoinstall-perl}, ?{libxml-tokeparser-perl}, ?{librrds-perl}, ?{libjson-perl}, ?{libwww-perl}, ?{libnet-snmp-perl}, ?{liblzma-dev}, ?{libsystemd-dev}, ?{python3-bpfcc}, ?{bpftrace}, ?{clang}, ?{llvm}, ?{libbpf-dev}, ?{libibumad-dev}, ?{libibmad-dev}, manpages
+Rules-Requires-Root: no
+Build-Depends: bison, flex, gawk, procps, pkg-config, debhelper (>= 5), ?{perl (>= 5.6)}, libreadline-dev | libreadline5-dev | libreadline-gplv2-dev, chrpath, libbsd-dev [kfreebsd-any], libkvm-dev [kfreebsd-any], ?{python-all}, ?{python-dev}, python3-dev, python3-setuptools, libsasl2-dev, ?{libuv1-dev}, ?{libssl-dev}, libavahi-common-dev, ?{qt-dev}, autotools-dev, zlib1g-dev, autoconf, ?{libclass-dbi-perl}, ?{libdbd-mysql-perl}, ?{python-psycopg2}, ?{python-openpyxl}, ?{dh-python}, ?{libpfm4-dev}, libncurses5-dev, ?{python-six}, ?{python-json-pointer}, ?{python-requests}, ?{libextutils-autoinstall-perl}, ?{libxml-tokeparser-perl}, ?{librrds-perl}, ?{libjson-perl}, ?{libwww-perl}, ?{libnet-snmp-perl}, ?{liblzma-dev}, ?{libsystemd-dev}, ?{python3-bpfcc}, ?{bpftrace}, ?{clang}, ?{llvm}, ?{libbpf-dev}, ?{libibumad-dev}, ?{libibmad-dev}, ?{libinih-dev}, manpages
 Standards-Version: 3.9.3
 X-Python3-Version: >= 3.3
 
@@ -12,7 +13,7 @@ Package: pcp
 Depends: ${shlibs:Depends}, ${misc:Depends}, gawk, procps, ?{python-pcp}, ?{python}, libpcp-pmda3 (= ${binary:Version}), libpcp-mmv1 (= ${binary:Version}), libpcp-web1 (= ${binary:Version}), libpcp-archive1 (= ${binary:Version}), libpcp3 (= ${binary:Version}), pcp-conf (= ${binary:Version})
 Recommends: libpcp-pmda-perl
 Conflicts: pgpool2, dstat, pcp-webapi, pcp-manager
-Suggests: pcp-gui, libpcp-import-perl, ?{bpftrace}, ?{python3-bpfcc}, redis-server
+Suggests: pcp-gui, libpcp-import-perl, ?{bpftrace}, ?{python3-bpfcc}, redis-server, zstd
 Provides: dstat, pcp-webapi, pcp-manager
 Replaces: dstat, pcp-webapi, pcp-manager
 Architecture: any
@@ -400,75 +401,3 @@ Description: Performance Co-Pilot (PCP) Test Suite
  Provides a series of tests that exercise the many utilities and daemon
  processes that form the PCP toolkit.  Regular users should never have
  any need to install this package, it is for developers and testers only.
-
-Package: libpcp3t64
-Depends: libpcp3, ${misc:Depends}
-Architecture: any
-Priority: optional
-Section: oldlibs
-Description: transitional package
- This is a transitional package to address incorrect Debian renaming.
- It can safely be removed.
-
-Package: libpcp-archive1t64
-Depends: libpcp-archive1, ${misc:Depends}
-Architecture: any
-Priority: optional
-Section: oldlibs
-Description: transitional package
- This is a transitional package to address incorrect Debian renaming.
- It can safely be removed.
-
-Package: libpcp-gui2t64
-Depends: libpcp-gui2, ${misc:Depends}
-Architecture: any
-Priority: optional
-Section: oldlibs
-Description: transitional package
- This is a transitional package to address incorrect Debian renaming.
- It can safely be removed.
-
-Package: libpcp-mmv1t64
-Depends: libpcp-mmv1, ${misc:Depends}
-Architecture: any
-Priority: optional
-Section: oldlibs
-Description: transitional package
- This is a transitional package to address incorrect Debian renaming.
- It can safely be removed.
-
-Package: libpcp-pmda3t64
-Depends: libpcp-pmda3, ${misc:Depends}
-Architecture: any
-Priority: optional
-Section: oldlibs
-Description: transitional package
- This is a transitional package to address incorrect Debian renaming.
- It can safely be removed.
-
-Package: libpcp-trace2t64
-Depends: libpcp-trace2, ${misc:Depends}
-Architecture: any
-Priority: optional
-Section: oldlibs
-Description: transitional package
- This is a transitional package to address incorrect Debian renaming.
- It can safely be removed.
-
-Package: libpcp-web1t64
-Depends: libpcp-web1, ${misc:Depends}
-Architecture: any
-Priority: optional
-Section: oldlibs
-Description: transitional package
- This is a transitional package to address incorrect Debian renaming.
- It can safely be removed.
-
-Package: libpcp-import1t64
-Depends: libpcp-import1, ${misc:Depends}
-Architecture: any
-Priority: optional
-Section: oldlibs
-Description: transitional package
- This is a transitional package to address incorrect Debian renaming.
- It can safely be removed.

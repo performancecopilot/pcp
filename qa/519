@@ -76,8 +76,8 @@ then
     _notrun "Cannot find second remote host running pmcd"
     exit
 fi
-echo "other1=$other1" >>$here/$seq.full
-echo "other2=$other2" >>$here/$seq.full
+echo "other1=$other1" >>$seq_full
+echo "other2=$other2" >>$seq_full
 
 # real QA test starts here
 $sudo rm -f core* $seq.core*
@@ -119,7 +119,7 @@ _filter <$tmp.err
 #
 if [ "$PCPQA_SYSTEMD" = yes ] && `which journalctl >/dev/null 2>&1`
 then
-    echo "Using journalctl ..." >>$seq.full
+    echo "Using journalctl ..." >>$seq_full
     have_journalctl=true
 else
     have_journalctl=false
@@ -147,7 +147,7 @@ if $have_journalctl
 then
     # be careful ... --boot not supported in all versions, -l not
     # supported in all versions
-    $sudo journalctl -b --full | tail -200 >$tmp.syslog 2>>$seq.full
+    $sudo journalctl -b --full | tail -200 >$tmp.syslog 2>>$seq_full
 else
     $sudo tail -200 $SYSLOG >$tmp.syslog
 fi
@@ -156,15 +156,15 @@ sed <$tmp.syslog -n '/PCP QA '"$seq"' - please ignore/s/\.\.\..*/.../p' \
 | _filter \
 | sort -u
 
-echo >>$seq.full
+echo >>$seq_full
 if $have_journalctl
 then
-    echo "=== tail journalctl -b --full ===" >>$seq.full
+    echo "=== tail journalctl -b --full ===" >>$seq_full
 else
-    echo "=== tail SYSLOG ($SYSLOG) ===" >>$seq.full
+    echo "=== tail SYSLOG ($SYSLOG) ===" >>$seq_full
 fi
-echo "`wc -l <$tmp.syslog | sed -e 's/ //g'` lines ... expect 200" >>$seq.full
-cat $tmp.syslog >>$seq.full
+echo "`wc -l <$tmp.syslog | sed -e 's/ //g'` lines ... expect 200" >>$seq_full
+cat $tmp.syslog >>$seq_full
 
 _check_core
 

@@ -15,7 +15,7 @@ echo "QA output created by $seq"
 
 _filter()
 {
-    tee $seq.full \
+    tee $seq_full \
     | sed \
 	-e 's/ :[^ ]* / :HOST /' \
 	-e 's/ :HOST @0/ :HOST /' \

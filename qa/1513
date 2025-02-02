@@ -22,7 +22,6 @@ fi
 . ./common.filter
 . ./common.check
 
-$sudo rm -rf $tmp $tmp.* $seq.full
 
 do_valgrind=false
 if [ "$1" = "--valgrind" ]
@@ -50,7 +49,7 @@ _do_val()
 	pmval -Dderive -z $* 2>$tmp.err >$tmp.out
     fi
     _filter <$tmp.out
-    cat $tmp.err >>$seq.full
+    cat $tmp.err >>$seq_full
     grep Warning $tmp.err
 }
 
@@ -63,7 +62,7 @@ _do_info()
 	pminfo -Dderive $* 2>$tmp.err >$tmp.out
     fi
     _filter <$tmp.out
-    cat $tmp.err >>$seq.full
+    cat $tmp.err >>$seq_full
     grep Warning $tmp.err
 }
 

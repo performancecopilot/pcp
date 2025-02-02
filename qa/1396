@@ -11,7 +11,6 @@ echo "QA output created by $seq"
 . ./common.python
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 
 test -x $PCP_BINADM_DIR/pcp-pidstat || _notrun "No pcp-pidstat(1) installed"

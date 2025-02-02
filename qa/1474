@@ -25,7 +25,6 @@ which xz >/dev/null 2>&1 || _notrun "No xz binary installed"
 time=`which time`
 [ -z "$time" ] && _notrun "can't find /bin/time nor /usr/bin/time"
 
-$sudo rm -rf $tmp $tmp.* $seq.full
 
 _cleanup()
 {
@@ -55,30 +54,30 @@ $1 != "cputime:" { print }'
 base=pcp-pidstat-process-args
 mkdir $tmp
 cd $tmp
-cp $here/archives/$base.* .
+pmlogcp $here/archives/$base .
 $time  -f 'cputime: %U %S' xzcat $base.0.xz >/dev/null 2>$tmp.time
-_summary <$tmp.time "data uncompress" | tee -a $here/$seq.full >$tmp.tmp
+_summary <$tmp.time "data uncompress" | tee -a $seq_full >$tmp.tmp
 data=`sed -n <$tmp.tmp -e '/[0-9]cpu (/{
 s/cpu (.*//
 s/.* //p
 }'`
-echo "data=$data" >>$here/$seq.full
+echo "data=$data" >>$seq_full
 $time -f 'cputime: %U %S' xzcat $base.meta.xz >/dev/null 2>$tmp.time
-_summary <$tmp.time "metadata uncompress" | tee -a $here/$seq.full >$tmp.tmp
+_summary <$tmp.time "metadata uncompress" | tee -a $seq_full >$tmp.tmp
 metadata=`sed -n <$tmp.tmp -e '/[0-9]cpu (/{
 s/cpu (.*//
 s/.* //p
 }'`
-echo "metadata=$metadata" >>$here/$seq.full
+echo "metadata=$metadata" >>$seq_full
 
 # real QA test starts here
 $time -f 'cputime: %U %S' pmlogrewrite -Dappl3 -qi $base 2>$tmp.time
-_summary logrewrite <$tmp.time | tee -a $here/$seq.full >$tmp.tmp
+_summary logrewrite <$tmp.time | tee -a $seq_full >$tmp.tmp
 rewrite=`sed -n <$tmp.tmp -e '/[0-9]cpu (/{
 s/cpu (.*//
 s/.* //p
 }'`
-echo "rewrite=$rewrite" >>$here/$seq.full
+echo "rewrite=$rewrite" >>$seq_full
 
 # expect the rewrite time to be closer to the metadata time than the
 # data time

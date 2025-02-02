@@ -36,7 +36,6 @@ fi
 
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
-$sudo rm -rf $tmp.* $seq.full
 
 _log_filter()
 {
@@ -73,17 +72,17 @@ _stop_auto_restart pmcd
 _pmdabcc_install <$tmp.conf | _log_filter
 if _pmdabcc_wait_for_metric
 then
-    echo "back from _pmdabcc_wait_for_metric: `date`" >>$here/$seq.full
+    echo "back from _pmdabcc_wait_for_metric: `date`" >>$seq_full
 else
     exit
 fi
 
 # Generate system activity for the BCC uprobe hits module
-pminfo -f bcc >>$here/$seq.full
+pminfo -f bcc >>$seq_full
 pminfo -f mem > /dev/null
 
 echo "=== report metric values ==="
-pminfo -dfmtT bcc.usdt.hits 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bcc.usdt.hits 2>&1 | tee -a $seq_full \
 | _value_filter
 
 _pmdabcc_remove

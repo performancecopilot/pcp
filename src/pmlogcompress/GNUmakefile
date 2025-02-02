@@ -17,7 +17,7 @@
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-TARGETS = pmlogcompress
+TARGETS = pmlogcompress pmlogdecompress
 
 default :: default_pcp
 
@@ -27,5 +27,6 @@ install :: install_pcp
 
 install_pcp : default_pcp
 	$(INSTALL) -m 755 pmlogcompress $(PCP_BIN_DIR)/pmlogcompress$(SHELLSUFFIX)
+	$(INSTALL) -m 755 pmlogdecompress $(PCP_BIN_DIR)/pmlogdecompress$(SHELLSUFFIX)
 
 include $(BUILDRULES)

@@ -16,7 +16,6 @@ echo "QA output created by $seq"
 _check_valgrind
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 _filter()
@@ -26,7 +25,7 @@ _filter()
 
 _run_valgrind src/pdubufbounds > $tmp.out 2>&1
 cat $tmp.out | _filter
-cat $tmp.out >> $seq.full
+cat $tmp.out >> $seq_full
 
 # success, all done
 status=0

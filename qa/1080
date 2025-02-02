@@ -18,7 +18,6 @@ ATOP="$PCP_BINADM_DIR/pcp-atop"
 test -f "$ATOP" || _notrun "$ATOP is not installed, skipped"
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 _filter()
@@ -38,14 +37,14 @@ s/ -r .*\/archives/ -r ...\/archives/
 
 # real QA test starts here
 _run_valgrind $ATOP 2 4 \
-	| tee -a $here/$seq.full | _filter
+	| tee -a $seq_full | _filter
 export PCP_ORIGIN=1.1
 _run_valgrind $ATOP -r $here/archives/pcp-atop.folio \
-	| tee -a $here/$seq.full | _filter
+	| tee -a $seq_full | _filter
 _run_valgrind $ATOP -r $here/archives/pcp-zeroconf 1 15 \
-	| tee -a $here/$seq.full | _filter
+	| tee -a $seq_full | _filter
 _run_valgrind $ATOP -r $here/archives/pcp-hotatop.folio \
-	| tee -a $here/$seq.full | _filter
+	| tee -a $seq_full | _filter
 
 # success, all done
 status=0

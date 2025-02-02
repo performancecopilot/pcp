@@ -12,7 +12,6 @@ echo "QA output created by $seq"
 . ./common.python
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 _check_stderr()
@@ -20,11 +19,11 @@ _check_stderr()
     if [ -s $tmp.stderr ]
     then
 	echo fail
-	cat $tmp.stderr >>$here/$seq.full
+	cat $tmp.stderr >>$seq_full
     else
 	echo pass
     fi
-    rm -f $tmp.stderr 
+    rm -f $tmp.stderr
 }
 
 # real QA test starts here

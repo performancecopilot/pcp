@@ -29,12 +29,11 @@ interface=`_host_to_ipaddr $host`
 [ "$interface" = "127.0.0.1" ] && _notrun "$host => localhost"
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 
-echo "interface=$interface" >>$here/$seq.full
+echo "interface=$interface" >>$seq_full
 pmproxy_was_running=false
 [ -f $PCP_RUN_DIR/pmproxy.pid ] && pmproxy_was_running=true
-echo "pmproxy_was_running=$pmproxy_was_running" >>$here/$seq.full
+echo "pmproxy_was_running=$pmproxy_was_running" >>$seq_full
 
 _cleanup()
 {
@@ -47,12 +46,12 @@ _cleanup()
 
     if $pmproxy_was_running
     then
-	echo "Restart pmproxy ..." >>$here/$seq.full
-	_service pmproxy restart >>$here/$seq.full 2>&1
+	echo "Restart pmproxy ..." >>$seq_full
+	_service pmproxy restart >>$seq_full 2>&1
 	_wait_for_pmproxy
     else
-	echo "Stopping pmproxy ..." >>$here/$seq.full
-	_service pmproxy stop >>$here/$seq.full 2>&1
+	echo "Stopping pmproxy ..." >>$seq_full
+	_service pmproxy stop >>$seq_full 2>&1
     fi
     _restore_auto_restart pmproxy
     _service pcp restart 2>&1 | _filter_pcp_stop | _filter_pcp_start
@@ -64,7 +63,7 @@ _cleanup()
 
 _filter()
 {
-    tee -a $here/$seq.full | \
+    tee -a $seq_full | \
     sed \
 	-e "s/$host/HOSTNAME/g" \
 	-e "s/$interface/INTERFACE/g" \
@@ -80,7 +79,7 @@ _save_config $PCP_SYSCONFIG_DIR/pmlogger
 _save_config $PCP_PMPROXYOPTIONS_PATH
 
 _stop_auto_restart pmproxy
-_service pmproxy stop >>$here/$seq.full 2>&1
+if ! _service pmproxy stop >>$seq_full 2>&1; then _exit 1; fi
 
 echo "# Installed by PCP QA test $seq on `date`" > $tmp.local
 echo PMCD_LOCAL=1 >> $tmp.local
@@ -113,11 +112,11 @@ echo "# Installed by PCP QA test $seq on `date`" > $tmp.local
 echo "-Dcontext,pdu" >> $tmp.local
 $sudo cp $tmp.local $PCP_PMPROXYOPTIONS_PATH
 
-_service pmproxy start 2>&1 | _filter_pmproxy_start
-_wait_for_pmproxy
-_service pcp restart 2>&1 | _filter_pcp_stop | _filter_pcp_start
-_wait_for_pmcd
-_wait_for_pmlogger
+if ! _service pmproxy start 2>&1; then _exit 1; fi | _filter_pmproxy_start
+_wait_for_pmproxy || _exit 1
+if ! _service pcp restart 2>&1; then _exit 1; fi | _filter_pcp_stop | _filter_pcp_start
+_wait_for_pmcd || _exit 1
+_wait_for_pmlogger || _exit 1
 
 echo; echo "== checking loop pmcd access, expecting success"
 pminfo -f -h localhost pmcd.feature.local 2>&1 | _filter
@@ -134,13 +133,13 @@ echo quit | pmlc -h localhost -P 2>&1 | _filter
 echo; echo "== checking bad pmlogger access, expect no control"
 echo quit | pmlc -h $interface -P 2>&1 | _filter
 
-echo; echo "== checking bad pmproxy access, expect no values" | tee -a $here/$seq.full
+echo; echo "== checking bad pmproxy access, expect no values" | tee -a $seq_full
 pminfo -f -h localhost@$interface pmcd.feature.local 2>&1 | _filter
-cat $PCP_LOG_DIR/pmproxy/pmproxy.log >> $here/$seq.full
+cat $PCP_LOG_DIR/pmproxy/pmproxy.log >> $seq_full
 
-echo; echo "== checking loop pmproxy access, expecting success" | tee -a $here/$seq.full
+echo; echo "== checking loop pmproxy access, expecting success" | tee -a $seq_full
 pminfo -f -h localhost@localhost pmcd.feature.local 2>&1 | _filter
-cat $PCP_LOG_DIR/pmproxy/pmproxy.log >> $here/$seq.full
+cat $PCP_LOG_DIR/pmproxy/pmproxy.log >> $seq_full
 
 # success, all done
 status=0

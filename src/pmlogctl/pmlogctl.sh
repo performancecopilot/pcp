@@ -98,9 +98,8 @@ _lock()
     __delay=200		# 1/10 of a second, so max wait is 20 sec
     while [ $__delay -gt 0 ]
     do
-	if pmlock -v "$__dir/lock" >>$tmp/out 2>&1
+	if pmlock -i "$$ $prog" -v "$__dir/lock" >>$tmp/out 2>&1
 	then
-	    echo "$$" >"$__dir/lock"
 	    break
 	else
 	    [ -f $tmp/stamp ] || touch -t `pmdate -30M %Y%m%d%H%M` $tmp/stamp
@@ -111,6 +110,7 @@ _lock()
 		then
 		    _warning "removing lock file older than 30 minutes (PID `cat $__dir/lock`)"
 		    LC_TIME=POSIX ls -l "$__dir/lock"
+		    [ -s  "$__dir/lock" ] && cat "$__dir/lock"
 		    rm -f "$__dir/lock"
 		else
 		    # there is a small timing window here where pmlock
@@ -133,6 +133,7 @@ _lock()
 	then
 	    _warning "is another $prog job running concurrently?"
 	    LC_TIME=POSIX ls -l "$__dir/lock"
+	    [ -s "$__dir/lock" ] && cat "$__dir/lock"
 	else
 	    _error "`cat $tmp/out`"
 	fi

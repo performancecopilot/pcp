@@ -14,7 +14,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-$sudo rm -rf $tmp.*
 status=1	# failure is the default!
 _needclean=true
 [ -z "$PCP_PMLOGGERCONTROL_PATH" ] && \
@@ -66,8 +65,8 @@ _filter()
 # start pmcd ...
 #
 _get_pids_by_name -a pmlogger >$tmp.pid
-_service pcp stop >$tmp.out 2>&1
-cat $tmp.out >$seq.full
+if ! _service pcp stop >$tmp.out 2>&1; then _exit 1; fi
+cat $tmp.out >$seq_full
 
 # wait for all of the extant pmloggers to exit
 #
@@ -75,7 +74,7 @@ if [ -s $tmp.pid ]
 then
     for pid in `cat $tmp.pid`
     do
-	_wait_pmlogger_end $pid
+	_wait_pmlogger_end $pid || _exit 1
     done
 fi
 
@@ -100,16 +99,16 @@ $sudo mkdir -p $LOGGING_DIR/${myhost}-one >/dev/null 2>&1
 $sudo mkdir -p $LOGGING_DIR/${myhost}-two >/dev/null 2>&1
 $sudo mkdir -p $LOGGING_DIR/no.such.host.pcp.io >/dev/null 2>&1
 id pcp >/dev/null 2>&1 && $sudo chown -R pcp:pcp $LOGGING_DIR
-echo "+++ before pcp start ..." >>$seq.full
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '/[p]mlogger( |$)' >>$seq.full
-echo "+++" >>$seq.full
-_service pcp start >$tmp.out 2>&1
-cat $tmp.out >>$seq.full
-_wait_for_pmcd
-_wait_for_pmlogger
-echo "+++ after pcp start ..." >>$seq.full
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '/[p]mlogger( |$)' >>$seq.full
-echo "+++" >>$seq.full
+echo "+++ before pcp start ..." >>$seq_full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '/[p]mlogger( |$)' >>$seq_full
+echo "+++" >>$seq_full
+if ! _service pcp start >$tmp.out 2>&1; then _exit 1; fi
+cat $tmp.out >>$seq_full
+_wait_for_pmcd || _exit 1
+_wait_for_pmlogger || _exit 1
+echo "+++ after pcp start ..." >>$seq_full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '/[p]mlogger( |$)' >>$seq_full
+echo "+++" >>$seq_full
 
 # avoid race with pmloggers not being started before pmlogger_check
 # is run below
@@ -161,23 +160,29 @@ fi
 # real QA test starts here
 echo
 echo "=== pmlogger_check ==="
-echo "+++ before pmlogger_check ..." >>$seq.full
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '/[p]mlogger( |$)' >>$seq.full
-echo "+++" >>$seq.full
-echo >>$seq.full
-echo "=== pmlogger_check ===" >>$seq.full
+echo "+++ before pmlogger_check ..." >>$seq_full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '/[p]mlogger( |$)' >>$seq_full
+echo "+++" >>$seq_full
+echo >>$seq_full
+echo "=== pmlogger_check ===" >>$seq_full
+# need to be a place the user $PCP_USER can cd to from pmlogger_daily
+#
+cd /var/tmp
 $sudo -u $PCP_USER -g $PCP_GROUP $PCP_BINADM_DIR/pmlogger_check -l $PMCHECK_LOG
-echo "+++ after pmlogger_check ..." >>$seq.full
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '/[p]mlogger( |$)' >>$seq.full
-echo "+++" >>$seq.full
+cd $here
+echo "+++ after pmlogger_check ..." >>$seq_full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '/[p]mlogger( |$)' >>$seq_full
+echo "+++" >>$seq_full
 _filter < $PMCHECK_LOG
-cat $PMCHECK_LOG >>$seq.full
+cat $PMCHECK_LOG >>$seq_full
 
-echo | tee -a $seq.full
-echo "=== pmlogger_check -T ===" | tee -a $seq.full
+echo | tee -a $seq_full
+echo "=== pmlogger_check -T ===" | tee -a $seq_full
+cd /var/tmp
 $sudo -u $PCP_USER -g $PCP_GROUP $PCP_BINADM_DIR/pmlogger_check -T -l $PMCHECK_LOG
+cd $here
 _filter < $PMCHECK_LOG
-cat $PMCHECK_LOG >>$seq.full
+cat $PMCHECK_LOG >>$seq_full
 
 # all OK
 status=0

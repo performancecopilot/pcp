@@ -31,7 +31,6 @@ _cleanup()
 
 status=0
 hostname=`hostname`
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
@@ -57,21 +56,21 @@ $PCP_BINADM_DIR/pmproxy -f -p $proxyport -s $tmp.socket \
 	-U $username -l $tmp.log -c $tmp.conf &
 proxypid=$!
 pmsleep 0.5
-echo === initial pmproxy log === >> $seq.full
-cat $tmp.log >> $seq.full
+echo === initial pmproxy log === >> $seq_full
+cat $tmp.log >> $seq_full
 
-echo "== load test data for verification" | tee -a $here/$seq.full
-pmseries $options --load $here/archives/proc > $here/$seq.full
-echo === test data load complete === >> $seq.full
+echo "== load test data for verification" | tee -a $seq_full
+pmseries $options --load $here/archives/proc > $seq_full
+echo === test data load complete === >> $seq_full
 
 metrics="kernel.all.load disk.dev.read"
 for metric in $metrics
 do
-    echo === Verifying $metric series >> $seq.full
+    echo === Verifying $metric series >> $seq_full
 
     echo
     echo == pmseries query for $metric to key server directly
-    pmseries -p $key_server_port $metric | tee -a $here/$seq.full > $tmp.out
+    pmseries -p $key_server_port $metric | tee -a $seq_full > $tmp.out
     key_server_nseries=`wc -l < $tmp.out`
     if [ -z "$key_server_nseries" -o "$key_server_nseries" -le 0 ]
     then
@@ -81,7 +80,7 @@ do
 
     echo
     echo == pmseries query for $metric to key server via pmproxy
-    pmseries -p $proxyport $metric | tee -a $here/$seq.full > $tmp.out
+    pmseries -p $proxyport $metric | tee -a $seq_full > $tmp.out
     proxy_nseries=`wc -l < $tmp.out`
     if [ -z "$proxy_nseries" -o "$proxy_nseries" -le 0 ]
     then
@@ -96,14 +95,14 @@ do
 	status=3
     fi
 
-    echo === pmproxy log === >> $seq.full
-    cat $tmp.log >> $seq.full
+    echo === pmproxy log === >> $seq_full
+    cat $tmp.log >> $seq_full
     if [ $status -ne 0 ]
     then
 	[ $status -eq 1 ] && $_valgrind_clean_assert \
-		pmseries -p $key_server_port $metric >> $seq.full 2>&1
+		pmseries -p $key_server_port $metric >> $seq_full 2>&1
 	[ $status -ge 2 ] && $_valgrind_clean_assert \
-		pmseries -p $proxyport $metric >> $seq.full 2>&1
+		pmseries -p $proxyport $metric >> $seq_full 2>&1
     fi
 done
 

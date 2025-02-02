@@ -20,7 +20,6 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # Derived metric expr dump from 0x8513a48...
@@ -38,8 +37,8 @@ $1 == "expr" && $2 == "node" && $3 ~ /^0x/	{ print "s/" $3 "/<addr>/g" }'
 
     # save all output and addr filtering
     #
-    cat $tmp.out >>$seq.full
-    cat $tmp.sed >>$seq.full
+    cat $tmp.out >>$seq_full
+    cat $tmp.sed >>$seq_full
 }
 
 _filter_values()

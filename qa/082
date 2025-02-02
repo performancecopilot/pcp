@@ -30,7 +30,6 @@ _ls()
 
 umask 022
 
-rm -rf $tmp
 mkdir $tmp
 cd $tmp
 cat <<End-of-File >root

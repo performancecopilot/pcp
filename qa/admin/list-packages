@@ -465,14 +465,19 @@ then
 		# end
 	    elif which dnf >/dev/null 2>&1
 	    then
-		# note using dnf's system cache, so no metadata refresh
+		# note using dnf's system cache, so no metadata refresh,
+		# but -C is borked sometimes ...
 		#
-		( sudo dnf -C list available; dnf -C list installed ) 2>&1 \
-		| sed >$tmp.allpkgs \
-		    -e '1,/^[^ ]* Packages/d' \
-		    -e 's/ .*//' \
-		    -e 's/\.[^.]*$//' \
-		# end
+		for dnf_args in "-C" ""
+		do
+		    sudo dnf $dnf_args list 2>&1 \
+		    | sed >$tmp.allpkgs \
+			-e '1,/^[^ ]* [pP]ackages/d' \
+			-e 's/ .*//' \
+			-e 's/\.[^.]*$//' \
+		    # end
+		    [ -s $tmp.allpkgs ] || break
+		done
 	    elif which yum >/dev/null 2>&1
 	    then
 		# note using yum's system cache, so no metadata refresh
@@ -560,16 +565,14 @@ p
 	echo >&2 "Botch: can't generate tmp.installed for $distro"
 	exit
     fi
-    if [ -f $tmp.allpkgs ]
+    if [ -s $tmp.allpkgs ]
     then
 	sort <$tmp.allpkgs | uniq >$tmp.tmp
 	mv $tmp.tmp $tmp.allpkgs
     else
-	if $check
-	then
-	    echo >&2 "Botch: can't generate tmp.installed for $distro"
-	    exit
-	fi
+	ls -l $tmp.allpkgs >&2
+	echo >&2 "Botch: can't generate tmp.allpkgs for $distro"
+	exit
     fi
 fi
 

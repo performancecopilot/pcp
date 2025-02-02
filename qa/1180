@@ -30,7 +30,6 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _filter()
@@ -45,11 +44,24 @@ _filter()
 # real QA test starts here
 mkdir -p $tmp
 $sudo chown pcp:pcp $tmp
-xzcat archives/crontab-sar-report.tar.xz >$tmp.tar
-$sudo -u pcp tar xf $tmp.tar -C $tmp
+if xzcat archives/crontab-sar-report.tar.xz >$tmp.tar
+then
+    :
+else
+    echo "Arrgh: xzcat failed"
+    exit
+fi
+if $sudo -u pcp tar xf $tmp.tar -C $tmp
+then
+    :
+else
+    echo "Arrgh: tar failed"
+    exit
+fi
+ls -lR $tmp/crontab-sar-report* >>$seq_full
 $sudo -u pcp $PCP_BINADM_DIR/pmlogger_daily_report -A -a $tmp/crontab-sar-report -l $tmp/LOG -f $tmp/OUT -t 30m || exit
-[ -f $tmp/LOG ] && $sudo cat $tmp/LOG >> $seq.full
-$sudo cat $tmp/OUT | tee -a $seq.full | _filter
+[ -f $tmp/LOG ] && $sudo cat $tmp/LOG >> $seq_full
+$sudo cat $tmp/OUT | tee -a $seq_full | _filter
 
 # optional stuff if your test has verbose output to help resolve problems
 echo

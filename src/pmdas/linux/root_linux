@@ -1343,6 +1343,13 @@ network.mptcp {
     mpcapableendpattempt		60:53:220
     dsscorruptionfallback		60:53:221
     dsscorruptionreset		60:53:222
+    mpcapablesyntxdrop		60:53:223
+    mpcapablesyntxdisabled		60:53:224
+    mpjoinsyntx		60:53:225
+    mpjoinsyntxcreatskerr		60:53:226
+    mpjoinsyntxbinderr		60:53:227
+    mpjoinsyntxconnecterr		60:53:228
+    blackhole		60:53:229
 }
 
 network.udp {

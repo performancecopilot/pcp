@@ -41,7 +41,6 @@ _cleanup()
 }
 
 status=0	# success is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # some metrics are unavailable on some platforms, some may be
@@ -63,10 +62,10 @@ _filter()
 #
 _report()
 {
-    echo | tee -a $seq.full
-    echo "=== $1 ===" | tee -a $seq.full
+    echo | tee -a $seq_full
+    echo "=== $1 ===" | tee -a $seq_full
     pmrep -a $tmp -z -E 0 -p -f%H:%M:%S -t1sec "$1" >$tmp.out 2>$tmp.err
-    cat $tmp.out $tmp.err >>$seq.full
+    cat $tmp.out $tmp.err >>$seq_full
     if [ -s $tmp.out ]
     then
 	:
@@ -82,13 +81,13 @@ _report()
 #
 $PCP_BINADM_DIR/pmlogconf -r -c -q $tmp.config 2>&1 \
 | _filter
-cat $tmp.config >>$seq.full
+cat $tmp.config >>$seq_full
 
 # now log like crazy for 5 secs
 #
 echo "Run pmlogger ..."
 pmlogger -l $tmp.log -t 1sec -T 5sec -c $tmp.config $tmp
-cat $tmp.log >>$seq.full
+cat $tmp.log >>$seq_full
 
 # copied directly from pmlogger_daily_report ... if things
 # change there, need to track changes here

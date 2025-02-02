@@ -13,18 +13,17 @@ echo "QA output created by $seq"
 host=localhost
 timeout=2
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 cd secure
 for crash_test in crash-*
 do
-    echo "$crash_test checking: " | tee -a $here/$seq.full
+    echo "$crash_test checking: " | tee -a $seq_full
     $python $crash_test $host
     pmcd_wait -t $timeout -h $host
     sts=$?
-    echo "$crash_test complete sts=$sts" | tee -a $here/$seq.full
+    echo "$crash_test complete sts=$sts" | tee -a $seq_full
     [ $sts -ne 0 ] && exit
 done
 

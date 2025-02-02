@@ -1,32 +1,32 @@
 QA output created by 898
 arg is .0 file name case
-+ ln ./20140417.00.25.0 destination.0
-+ ln ./20140417.00.25.index destination.index
-+ ln ./20140417.00.25.meta destination.meta
++ ln-or-cp ./20140417.00.25.0 destination.0
++ ln-or-cp ./20140417.00.25.index destination.index
++ ln-or-cp ./20140417.00.25.meta destination.meta
 + rm ./20140417.00.25.0
 + rm ./20140417.00.25.index
 + rm ./20140417.00.25.meta
 
 arg is .index file name case
-+ ln ./20140417.00.25.0 destination.0
-+ ln ./20140417.00.25.index destination.index
-+ ln ./20140417.00.25.meta destination.meta
++ ln-or-cp ./20140417.00.25.0 destination.0
++ ln-or-cp ./20140417.00.25.index destination.index
++ ln-or-cp ./20140417.00.25.meta destination.meta
 + rm ./20140417.00.25.0
 + rm ./20140417.00.25.index
 + rm ./20140417.00.25.meta
 
 arg is .meta file name case
-+ ln ./20140417.00.25.0 destination.0
-+ ln ./20140417.00.25.index destination.index
-+ ln ./20140417.00.25.meta destination.meta
++ ln-or-cp ./20140417.00.25.0 destination.0
++ ln-or-cp ./20140417.00.25.index destination.index
++ ln-or-cp ./20140417.00.25.meta destination.meta
 + rm ./20140417.00.25.0
 + rm ./20140417.00.25.index
 + rm ./20140417.00.25.meta
 
 arg is unique prefix case
-+ ln ./20140417.00.25.0 destination.0
-+ ln ./20140417.00.25.index destination.index
-+ ln ./20140417.00.25.meta destination.meta
++ ln-or-cp ./20140417.00.25.0 destination.0
++ ln-or-cp ./20140417.00.25.index destination.index
++ ln-or-cp ./20140417.00.25.meta destination.meta
 + rm ./20140417.00.25.0
 + rm ./20140417.00.25.index
 + rm ./20140417.00.25.meta

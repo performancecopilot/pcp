@@ -27,7 +27,6 @@ hostname=`pmhostname`
 key_server_port=`_find_free_port`
 options="-p $key_server_port"
 
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _filter_source()

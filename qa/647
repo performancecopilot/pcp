@@ -14,7 +14,6 @@ echo "QA output created by $seq"
 . ./common.check
 
 status=1
-$sudo rm -f $tmp.* $seq.full
 username=`id -u -n`
 MMV_STATS_DIR="$PCP_TMP_DIR/mmv"
 
@@ -98,9 +97,9 @@ $sudo ./Remove >$tmp.out 2>&1
 _filter_pmda_remove <$tmp.out
 
 echo
-echo "=== $iam agent re-installation ===" | tee -a $here/$seq.full
+echo "=== $iam agent re-installation ===" | tee -a $seq_full
 $sudo ./Install <$tmp.input >$tmp.out 2>&1
-cat $tmp.out >>$here/$seq.full
+cat $tmp.out >>$seq_full
 _filter_pmda_install <$tmp.out
 
 status=0

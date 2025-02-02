@@ -17,7 +17,6 @@ in
 			;;
 esac
 
-$sudo rm -rf $tmp $tmp.* $seq.full
 
 _cleanup()
 {

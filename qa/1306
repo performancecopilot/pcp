@@ -14,7 +14,6 @@ _pmdaopenmetrics_check || _notrun "openmetrics pmda and/or load generator not in
 _have_python266 && _notrun "python load generator does not currently work with python 2.6.6"
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 
 _cleanup()
 {
@@ -49,12 +48,15 @@ _save_config $PCP_ETC_DIR/pcp/labels
 $sudo rm -rf $PCP_ETC_DIR/pcp/labels/*
 
 # add the URL for this test
-file=$here/openmetrics/samples/labelfiltering.txt
-urlbase=`basename $file .txt | tr .- _`
-echo 'file://'$file > $PCP_PMDAS_DIR/openmetrics/config.d/$urlbase.url
+# need to be a place the user $PCP_USER (pmcd) can read
+#
+file=labelfiltering.txt
+cp $here/openmetrics/samples/$file $tmp.$file
+urlbase=`basename "$file" .txt | tr .- _`
+echo 'file://'$tmp.$file >$tmp.tmp
 
 # add a bunch of label filters to exercise various filtering options
-cat <<EOF >>$PCP_PMDAS_DIR/openmetrics/config.d/$urlbase.url
+cat <<EOF >>$tmp.tmp
 
 # Filter to remove the "uninteresting" label
 FILTER: EXCLUDE LABEL uninteresting
@@ -76,6 +78,7 @@ FILTER: EXCLUDE LABEL def
 FILTER: INCLUDE .*
 
 EOF
+$sudo cp $tmp.tmp $PCP_PMDAS_DIR/openmetrics/config.d/$urlbase.url
 
 _pmdaopenmetrics_install
 
@@ -86,7 +89,7 @@ then
 fi
 
 echo; echo === URL configuration file contains
-sed -e "s|$here|QA_DIR|g" < $PCP_PMDAS_DIR/openmetrics/config.d/$urlbase.url
+sed -e "s;$tmp;TMP;g" < $PCP_PMDAS_DIR/openmetrics/config.d/$urlbase.url
 
 echo; echo === pminfo listing. Note some labels in the pminfo listing have been removed, see _filter
 names=`pminfo openmetrics | grep -F -v openmetrics.control | LC_COLLATE=POSIX sort` 2>$tmp.err
@@ -104,8 +107,8 @@ else
 fi
 
 echo == Note: check $seq.full for details
-echo == pmdaopenmetrics LOG == >>$here/$seq.full
-cat $PCP_LOG_DIR/pmcd/openmetrics.log >>$here/$seq.full
+echo == pmdaopenmetrics LOG == >>$seq_full
+cat $PCP_LOG_DIR/pmcd/openmetrics.log >>$seq_full
 
 _pmdaopenmetrics_remove
 

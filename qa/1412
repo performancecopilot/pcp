@@ -21,7 +21,6 @@ perl -e "use PCP::LogImport" 2>/dev/null || \
 	_notrun "Perl PCP::LogImport module is not installed"
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 _filter1()
@@ -60,7 +59,7 @@ cd $tmp.dir
 
 # real QA test starts here
 rm -f myarchive.*
-perl $here/src/batch_import.perl -V3 2>&1 | tee -a $here/$seq.full | _filter3
+perl $here/src/batch_import.perl -V3 2>&1 | tee -a $seq_full | _filter3
 pminfo -dm -a myarchive
 pmdumplog -dilmst myarchive 2>&1 | _filter2
 

@@ -84,7 +84,7 @@ else if (l0 == $2)
 		}
 		{ print }
 END		{ print "l0=" l0 " l1=" l1 >"'$tmp.last'" }'
-    echo "end _do_ls $tmp.last: `cat $tmp.last`" >>$seq.full
+    echo "end _do_ls $tmp.last: `cat $tmp.last`" >>$seq_full
 
 }
 
@@ -124,7 +124,7 @@ _do_time()
 	fi
     done
 
-    cat $tmp.sed >>$seq.full
+    cat $tmp.sed >>$seq_full
 
     sed -f $tmp.sed $tmp.tmp \
     | $PCP_AWK_PROG '
@@ -140,22 +140,21 @@ _do_metrics()
 }
 
 # real QA test starts here
-$sudo rm -f $tmp.* $seq.full
 
 echo 's/ [A-Z][a-z][a-z] [A-Z][a-z][a-z] .. / month-day /g' >$tmp.sed
 echo 's/ [12][0-9][0-9][0-9]$/ year/' >>$tmp.sed
 echo "l0=0 l1=0" >$tmp.last
-echo "init $tmp.last: `cat $tmp.last`" >>$seq.full
+echo "init $tmp.last: `cat $tmp.last`" >>$seq_full
 
 _start_up_pmlogger -Dlog,desperate -L -c /dev/null -l $tmp.log $tmp
-_wait_for_pmlogger $pid $tmp.log
+_wait_for_pmlogger $pid $tmp.log || _exit 1
 
 echo
 echo "=== logger started, nothing logged ==="
-echo "=== logger started, nothing logged ===" >>$seq.full
-LC_TIME=POSIX ls -l $tmp.? 2>&1 | tee -a $seq.full | _do_ls
-pmdumplog -lt $tmp 2>&1 | tee -a $seq.full | _do_time
-pmdumplog $tmp | tee -a $seq.full | _do_metrics
+echo "=== logger started, nothing logged ===" >>$seq_full
+LC_TIME=POSIX ls -l $tmp.? 2>&1 | tee -a $seq_full | _do_ls
+pmdumplog -lt $tmp 2>&1 | tee -a $seq_full | _do_time
+pmdumplog $tmp | tee -a $seq_full | _do_metrics
 
 pmlc <<End-of-File
 connect $pid
@@ -166,10 +165,10 @@ echo flush | pmlc $pid >/dev/null
 
 echo
 echo "=== first volume, one result ==="
-echo "=== first volume, one result ===" >>$seq.full
-LC_TIME=POSIX ls -l $tmp.? | tee -a $seq.full | _do_ls
-pmdumplog -lt $tmp | tee -a $seq.full | _do_time
-pmdumplog $tmp | tee -a $seq.full | _do_metrics
+echo "=== first volume, one result ===" >>$seq_full
+LC_TIME=POSIX ls -l $tmp.? | tee -a $seq_full | _do_ls
+pmdumplog -lt $tmp | tee -a $seq_full | _do_time
+pmdumplog $tmp | tee -a $seq_full | _do_metrics
 
 pmlc <<End-of-File
 connect $pid
@@ -179,10 +178,10 @@ pmsleep 1.1
 
 echo
 echo "=== second empty volume ==="
-echo "=== second empty volume ===" >>$seq.full
-LC_TIME=POSIX ls -l $tmp.? | tee -a $seq.full | _do_ls
-pmdumplog -lt $tmp | tee -a $seq.full | _do_time
-pmdumplog $tmp | tee -a $seq.full | _do_metrics
+echo "=== second empty volume ===" >>$seq_full
+LC_TIME=POSIX ls -l $tmp.? | tee -a $seq_full | _do_ls
+pmdumplog -lt $tmp | tee -a $seq_full | _do_time
+pmdumplog $tmp | tee -a $seq_full | _do_metrics
 
 pmlc <<End-of-File
 connect $pid
@@ -193,14 +192,14 @@ echo flush | pmlc $pid >/dev/null
 
 echo
 echo "=== second volume, one result ==="
-echo "=== second volume, one result ===" >>$seq.full
-LC_TIME=POSIX ls -l $tmp.? | tee -a $seq.full | _do_ls
-pmdumplog -lt $tmp | tee -a $seq.full | _do_time
-pmdumplog $tmp | tee -a $seq.full | _do_metrics
+echo "=== second volume, one result ===" >>$seq_full
+LC_TIME=POSIX ls -l $tmp.? | tee -a $seq_full | _do_ls
+pmdumplog -lt $tmp | tee -a $seq_full | _do_time
+pmdumplog $tmp | tee -a $seq_full | _do_metrics
 
 pmlc <<End-of-File
 connect $pid
-log mandatory on once { 
+log mandatory on once {
     pmcd.control.debug
     pmcd.control.timeout
     sample.bin
@@ -216,40 +215,40 @@ echo flush | pmlc $pid >/dev/null
 
 echo
 echo "=== second volume, second + third result ==="
-echo "=== second volume, second + third result ===" >>$seq.full
-LC_TIME=POSIX ls -l $tmp.? | tee -a $seq.full | _do_ls
-pmdumplog -lt $tmp | tee -a $seq.full | _do_time
-pmdumplog $tmp | tee -a $seq.full | _do_metrics
+echo "=== second volume, second + third result ===" >>$seq_full
+LC_TIME=POSIX ls -l $tmp.? | tee -a $seq_full | _do_ls
+pmdumplog -lt $tmp | tee -a $seq_full | _do_time
+pmdumplog $tmp | tee -a $seq_full | _do_metrics
 
 $sudo $signal -s TERM $pid
-_wait_pmlogger_end $pid
+_wait_pmlogger_end $pid || _exit 1
 
 echo
 echo "=== logger done ==="
-echo "=== logger done ===" >>$seq.full
-LC_TIME=POSIX ls -l $tmp.? | tee -a $seq.full | _do_ls
-pmdumplog -lt $tmp | tee -a $seq.full | _do_time
-pmdumplog $tmp | tee -a $seq.full | _do_metrics
+echo "=== logger done ===" >>$seq_full
+LC_TIME=POSIX ls -l $tmp.? | tee -a $seq_full | _do_ls
+pmdumplog -lt $tmp | tee -a $seq_full | _do_time
+pmdumplog $tmp | tee -a $seq_full | _do_metrics
 
 # save the archive files for post-mortem test failure analysis
 #
 for i in 0 1 meta index
 do
-    cp ${tmp}.$i $seq.full.$i
+    cp ${tmp}.$i $seq_full.$i
 done
 
-echo >>$seq.full
-echo "-- pmlogger.log --" >>$seq.full
-cat $tmp.log >>$seq.full
+echo >>$seq_full
+echo "-- pmlogger.log --" >>$seq_full
+cat $tmp.log >>$seq_full
 
-echo >>$seq.full
-echo "-- .0 --" >>$seq.full
-src/scandata -o -v $tmp.0 >>$seq.full 2>&1
-echo "-- .1 --" >>$seq.full
-src/scandata -o -v $tmp.1 >>$seq.full 2>&1
-echo "-- .meta --" >>$seq.full
-src/scanmeta -o -a $tmp.meta >>$seq.full 2>&1
-echo "-- .index --" >>$seq.full
-pmdumplog -t $tmp >>$seq.full 2>&1
+echo >>$seq_full
+echo "-- .0 --" >>$seq_full
+src/scandata -o -v $tmp.0 >>$seq_full 2>&1
+echo "-- .1 --" >>$seq_full
+src/scandata -o -v $tmp.1 >>$seq_full 2>&1
+echo "-- .meta --" >>$seq_full
+src/scanmeta -o -a $tmp.meta >>$seq_full 2>&1
+echo "-- .index --" >>$seq_full
+pmdumplog -t $tmp >>$seq_full 2>&1
 
 exit 0

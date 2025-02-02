@@ -53,7 +53,7 @@ BEGIN	{ previous = -1; sum = 0 }
 	  else
 	    print "delta[0]: INT"
 	  next
-	}		   
+	}
 	{ print }
 END	{ if (sum < 4 || sum > 7)
 	    printf("sum of sample.seconds is out of range !(4<=%d<=7)\n", sum)

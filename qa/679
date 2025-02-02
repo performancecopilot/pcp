@@ -31,6 +31,7 @@ _cleanup()
 _filter()
 {
     sed \
+	-e '/pmlogcp: Cannot open archive .*: Missing PCP archive file/d' \
 	-e '/^Roll .*\/NOTICES/d' \
 	-e '/^Start .*\/NOTICES/d' \
 	-e "s@$tmp@TMP@g" \
@@ -43,11 +44,6 @@ _filter()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
-trap "_cleanup; exit \$status" 0 1 2 3 15
-
-status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 [ -f $NEEDREWRITE ] && $sudo mv $NEEDREWRITE $NEEDREWRITE.$seq
@@ -65,6 +61,7 @@ metric pmcd.pid {
 }
 End-of-File
 pmlogrewrite -c $tmp.config archives/bad-derived $tmp
+ls -l $tmp* >>$seq_full
 cat <<End-of-File >$tmp.farm
 oldsem0		$tmp	20011002
 oldsem0		$tmp	20011003
@@ -156,7 +153,7 @@ cd $tmp
 # real QA test starts here
 export PCP_DERIVED_CONFIG=
 
-echo "+++ -N, do nothing +++" | tee -a $here/$seq.full
+echo "+++ -N, do nothing +++" | tee -a $seq_full
 _setup
 $PCP_BINADM_DIR/pmlogger_daily -D -c $tmp.control -k forever -x never -NV -R >$tmp.log 2>$tmp.err
 _filter <$tmp.err
@@ -169,13 +166,13 @@ do
     pminfo -d -a $arch pmcd.pid network.interface.in.bytes | grep Semantics
 done
 
-echo | tee -a $here/$seq.full
-echo "+++ -V -R +++" | tee -a $here/$seq.full
+echo | tee -a $seq_full
+echo "+++ -V -R +++" | tee -a $seq_full
 _setup
 $sudo -u pcp $PCP_BINADM_DIR/pmlogger_daily -D -c $tmp.control -k forever -x never -V -R -l $tmp.log 2>$tmp.err
 _filter <$tmp.err
 _filter <$tmp.log
-cat $tmp.err $tmp.log >>$here/$seq.full
+cat $tmp.err $tmp.log >>$seq_full
 $sudo rm -f $tmp.err $tmp.log
 for file in oldsem*/*.meta newsem*/*.meta
 do
@@ -184,14 +181,14 @@ do
     pminfo -d -a $arch pmcd.pid network.interface.in.bytes | grep Semantics
 done
 
-echo | tee -a $here/$seq.full
-echo "+++ .NeedRewrite +++" | tee -a $here/$seq.full
+echo | tee -a $seq_full
+echo "+++ .NeedRewrite +++" | tee -a $seq_full
 _setup
 $sudo -u pcp touch $PCP_LOG_DIR/pmlogger/.NeedRewrite
 $sudo -u pcp $PCP_BINADM_DIR/pmlogger_daily -D -c $tmp.control -k forever -x never -l $tmp.log 2>$tmp.err
 _filter <$tmp.err
 _filter <$tmp.log
-cat $tmp.err $tmp.log >>$here/$seq.full
+cat $tmp.err $tmp.log >>$seq_full
 $sudo rm -f $tmp.err $tmp.log
 if [ -f $PCP_LOG_DIR/pmlogger/.NeedRewrite ]
 then

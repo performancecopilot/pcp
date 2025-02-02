@@ -51,6 +51,7 @@ libgl1-mesa-dri
 libibmad-dev
 libibumad-dev
 libicu67
+libinih-dev
 libjson-perl
 liblist-moreutils-perl
 liblzma-dev
@@ -92,7 +93,7 @@ mariadb-client-core-10.5
 memcached
 net-tools
 nmap
-openjdk-11-jre-headless
+openjdk-17-jre-headless
 openssl
 perl
 perl-modules-5.32

@@ -109,7 +109,17 @@ then
         sudo=''
     fi
 fi
+
+# where the tests are run from
+#
 here=`pwd`
+
+# full path to .full file ... make sure it is empty at this point
+# to avoid doing it in the scripts and potentially miss output
+# from common.* or _notrun tests
+#
+seq_full=$here/$seq.full
+rm -f $seq_full
 
 # On OpenBSd in particular, /var/tmp is a symbolic link to /tmp
 # which leads to some confusion, especially in pmlogger_check and
@@ -135,6 +145,11 @@ then
 	tmp=$_tmp_dir/$seq-$$
     fi
 fi
+# make sure nothing remains from earlier runs (with the same PID)
+# ... unlikely, but doing it here means we don't have to do it
+# in each script
+#
+$sudo rm -rf $tmp $tmp.*
 
 # We depend on [A-Za-z] and similar patterns all over ... for some
 # platforms this demands LC_COLLATE to be POSIX to avoid case

@@ -14,7 +14,6 @@ echo "QA output created by $seq"
 . ./common.check
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
@@ -22,7 +21,7 @@ echo '== Arguments: none'
 $here/src/getoptions
 
 echo '== Arguments: usage (x2)'
-$here/src/getoptions -?
+$here/src/getoptions -\?
 $here/src/getoptions --help
 
 echo '== Arguments: own options (x2)'

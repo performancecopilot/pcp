@@ -16,7 +16,6 @@ echo "QA output created by $seq"
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
-rm -f $seq.full
 
 _set()
 {
@@ -84,7 +83,7 @@ _set 16
 
 wait
 
-cat $tmp.log >$seq.full
+cat $tmp.log >$seq_full
 
 echo "----------------------------"
 echo "Raw data (pmval -U)"
@@ -93,7 +92,7 @@ for m in long longlong float double string aggregate
 do
     echo
     echo "Unique values for sample.$m.write_me ..."
-    pmval -U $tmp sample.$m.write_me 2>&1 | tee -a $seq.full | _filter
+    pmval -U $tmp sample.$m.write_me 2>&1 | tee -a $seq_full | _filter
 done
 
 echo
@@ -104,7 +103,7 @@ for m in long longlong float double string aggregate
 do
     echo
     echo "Unique values for sample.$m.write_me ..."
-    pmval -t 0.25sec -a $tmp sample.$m.write_me 2>&1 | tee -a $seq.full | _filter
+    pmval -t 0.25sec -a $tmp sample.$m.write_me 2>&1 | tee -a $seq_full | _filter
 done
 
 # success, all done

@@ -48,14 +48,11 @@ $Data::Dumper::Pad = "   <dump> ";
 # Pre-release TODOs:
 #
 #TODO: Review all the metrics for type/semantics/units/help/longhelp
-#TODO: Make somehow the metric id constant even if the metrics change so that the archives are comparable (or doesn't the PCP do it itself?)
 #TODO: follow PMNS naming convensions (i.e. no hyphens)
 
 #
 # TODOs and ideas for improvements:
 #
-#TODO: Update XML parsing to handle newer (changed output) versions of bind.
-#TODO: Check bind2.nsstat.RateDropped, bind2.nsstat.RateSlipped, bind2.resolver.total.Lame
 #TODO: Make the autoconfiguration optional or take it out to a script
 #TODO: Make the instance handling adaptive
 #TODO: Separate the Bind stats reading data into a module, so that it can be otherwise used and better tested
@@ -104,7 +101,6 @@ our %cfg = (
             # Give a list of metrics with non-default semantics here
 
             PM_SEM_DISCRETE() => [qw{bind2.memory.total.BlockSize
-                                     bind2.memory.total.ContextSize
                                      bind2.memory.contexts.name
                                      bind2.sockets.local_address
                                      bind2.sockets.name
@@ -119,7 +115,9 @@ our %cfg = (
 
                                      bind2.memory.total.InUse
                                      bind2.memory.total.Lost
+                                     bind2.memory.total.ContextSize
                                      bind2.memory.total.TotalUse
+                                     bind2.memory.total.Malloced
                                      bind2.memory.contexts.blocksize
                                      bind2.memory.contexts.hiwater
                                      bind2.memory.contexts.inuse
@@ -209,16 +207,313 @@ foreach my $indom_id (sort {$a <=> $b} keys %indoms) {
         foreach sort keys %{$indoms{$indom_id}};
 }
 
-# Add all the metrics
-my $tmp_pmid = -1;
+# known metrics and the item part of their PMID ... this list
+# may need to be updated over time, any metric that ends up with
+# a PMID in cluster 1, so PMID = 25.1.*, is a metrics that should
+# be in %known_pmids, so they end up in cluster 0 with PMID 25.0.*
+#
+my %known_pmids = (
+    # bind version 9.10 (or possibly earlier) metrics
+    'bind2.boot_time',			0,
+    'bind2.config_time',		1,
+    'bind2.current_time',		2,
+    'bind2.memory.total.BlockSize',	3,
+    'bind2.memory.total.ContextSize',	4,
+    'bind2.memory.total.InUse',		5,
+    'bind2.memory.total.Lost',		6,
+    'bind2.memory.total.TotalUse',	7,
+    'bind2.nsstat.AuthQryRej',		8,
+    'bind2.nsstat.DNS64',		9,
+    'bind2.nsstat.ExpireOpt',		10,
+    'bind2.nsstat.NSIDOpt',		11,
+    'bind2.nsstat.OtherOpt',		12,
+    'bind2.nsstat.QryAuthAns',		13,
+    'bind2.nsstat.QryDropped',		14,
+    'bind2.nsstat.QryDuplicate',	15,
+    'bind2.nsstat.QryFORMERR',		16,
+    'bind2.nsstat.QryFailure',		17,
+    'bind2.nsstat.QryNXDOMAIN',		18,
+    'bind2.nsstat.QryNoauthAns',	19,
+    'bind2.nsstat.QryNxrrset',		20,
+    'bind2.nsstat.QryRecursion',	21,
+    'bind2.nsstat.QryReferral',		22,
+    'bind2.nsstat.QrySERVFAIL',		23,
+    'bind2.nsstat.QrySuccess',		24,
+    'bind2.nsstat.QryTCP',		25,
+    'bind2.nsstat.QryUDP',		26,
+    'bind2.nsstat.RPZRewrites',		27,
+    'bind2.nsstat.RateDropped',		28,
+    'bind2.nsstat.RateSlipped',		29,
+    'bind2.nsstat.RecQryRej',		30,
+    'bind2.nsstat.RecursClients',	31,
+    'bind2.nsstat.ReqBadEDNSVer',	32,
+    'bind2.nsstat.ReqBadSIG',		33,
+    'bind2.nsstat.ReqEdns0',		34,
+    'bind2.nsstat.ReqSIG0',		35,
+    'bind2.nsstat.ReqTCP',		36,
+    'bind2.nsstat.ReqTSIG',		37,
+    'bind2.nsstat.Requestv4',		38,
+    'bind2.nsstat.Requestv6',		39,
+    'bind2.nsstat.RespEDNS0',		40,
+    'bind2.nsstat.RespSIG0',		41,
+    'bind2.nsstat.RespTSIG',		42,
+    'bind2.nsstat.Response',		43,
+    'bind2.nsstat.SitBadSize',		44,
+    'bind2.nsstat.SitBadTime',		45,
+    'bind2.nsstat.SitMatch',		46,
+    'bind2.nsstat.SitNew',		47,
+    'bind2.nsstat.SitNoMatch',		48,
+    'bind2.nsstat.SitOpt',		49,
+    'bind2.nsstat.TruncatedResp',	50,
+    'bind2.nsstat.UpdateBadPrereq',	51,
+    'bind2.nsstat.UpdateDone',		52,
+    'bind2.nsstat.UpdateFail',		53,
+    'bind2.nsstat.UpdateFwdFail',	54,
+    'bind2.nsstat.UpdateRej',		55,
+    'bind2.nsstat.UpdateReqFwd',	56,
+    'bind2.nsstat.UpdateRespFwd',	57,
+    'bind2.nsstat.XfrRej',		58,
+    'bind2.nsstat.XfrReqDone',		59,
+    'bind2.sockstat.FDWatchClose',	60,
+    'bind2.sockstat.FDwatchConn',	61,
+    'bind2.sockstat.FDwatchConnFail',	62,
+    'bind2.sockstat.FDwatchRecvErr',	63,
+    'bind2.sockstat.FDwatchSendErr',	64,
+    'bind2.sockstat.FdwatchBindFail',	65,
+    'bind2.sockstat.RawActive',		66,
+    'bind2.sockstat.RawClose',		67,
+    'bind2.sockstat.RawOpen',		68,
+    'bind2.sockstat.RawOpenFail',	69,
+    'bind2.sockstat.RawRecvErr',	70,
+    'bind2.sockstat.TCP4Accept',	71,
+    'bind2.sockstat.TCP4AcceptFail',	72,
+    'bind2.sockstat.TCP4Active',	73,
+    'bind2.sockstat.TCP4BindFail',	74,
+    'bind2.sockstat.TCP4Close',		75,
+    'bind2.sockstat.TCP4Conn',		76,
+    'bind2.sockstat.TCP4ConnFail',	77,
+    'bind2.sockstat.TCP4Open',		78,
+    'bind2.sockstat.TCP4OpenFail',	79,
+    'bind2.sockstat.TCP4RecvErr',	80,
+    'bind2.sockstat.TCP4SendErr',	81,
+    'bind2.sockstat.TCP6Accept',	82,
+    'bind2.sockstat.TCP6AcceptFail',	83,
+    'bind2.sockstat.TCP6Active',	84,
+    'bind2.sockstat.TCP6BindFail',	85,
+    'bind2.sockstat.TCP6Close',		86,
+    'bind2.sockstat.TCP6Conn',		87,
+    'bind2.sockstat.TCP6ConnFail',	88,
+    'bind2.sockstat.TCP6Open',		89,
+    'bind2.sockstat.TCP6OpenFail',	90,
+    'bind2.sockstat.TCP6RecvErr',	91,
+    'bind2.sockstat.TCP6SendErr',	92,
+    'bind2.sockstat.UDP4Active',	93,
+    'bind2.sockstat.UDP4BindFail',	94,
+    'bind2.sockstat.UDP4Close',		95,
+    'bind2.sockstat.UDP4Conn',		96,
+    'bind2.sockstat.UDP4ConnFail',	97,
+    'bind2.sockstat.UDP4Open',		98,
+    'bind2.sockstat.UDP4OpenFail',	99,
+    'bind2.sockstat.UDP4RecvErr',	100,
+    'bind2.sockstat.UDP4SendErr',	101,
+    'bind2.sockstat.UDP6Active',	102,
+    'bind2.sockstat.UDP6BindFail',	103,
+    'bind2.sockstat.UDP6Close',		104,
+    'bind2.sockstat.UDP6Conn',		105,
+    'bind2.sockstat.UDP6ConnFail',	106,
+    'bind2.sockstat.UDP6Open',		107,
+    'bind2.sockstat.UDP6OpenFail',	108,
+    'bind2.sockstat.UDP6RecvErr',	109,
+    'bind2.sockstat.UDP6SendErr',	110,
+    'bind2.sockstat.UnixAccept',	111,
+    'bind2.sockstat.UnixAcceptFail',	112,
+    'bind2.sockstat.UnixActive',	113,
+    'bind2.sockstat.UnixBindFail',	114,
+    'bind2.sockstat.UnixClose',		115,
+    'bind2.sockstat.UnixConn',		116,
+    'bind2.sockstat.UnixConnFail',	117,
+    'bind2.sockstat.UnixOpen',		118,
+    'bind2.sockstat.UnixOpenFail',	119,
+    'bind2.sockstat.UnixRecvErr',	120,
+    'bind2.sockstat.UnixSendErr',	121,
+    'bind2.total.queries.out.IQUERY',	122,
+    'bind2.total.queries.out.NOTIFY',	123,
+    'bind2.total.queries.out.QUERY',	124,
+    'bind2.total.queries.out.STATUS',	125,
+    'bind2.total.queries.out.UPDATE',	126,
+    'bind2.zonestat.AXFRReqv4',		127,
+    'bind2.zonestat.AXFRReqv6',		128,
+    'bind2.zonestat.IXFRReqv4',		129,
+    'bind2.zonestat.IXFRReqv6',		130,
+    'bind2.zonestat.NotifyInv4',	131,
+    'bind2.zonestat.NotifyInv6',	132,
+    'bind2.zonestat.NotifyOutv4',	133,
+    'bind2.zonestat.NotifyOutv6',	134,
+    'bind2.zonestat.NotifyRej',		135,
+    'bind2.zonestat.SOAOutv4',		136,
+    'bind2.zonestat.SOAOutv6',		137,
+    'bind2.zonestat.XfrFail',		138,
+    'bind2.zonestat.XfrSuccess',	139,
+    # bind version 9.11
+    'bind2.nsstat.CookieBadSize',	140,
+    'bind2.nsstat.CookieBadTime',	141,
+    'bind2.nsstat.CookieIn',		142,
+    'bind2.nsstat.CookieMatch',		143,
+    'bind2.nsstat.CookieNew',		144,
+    'bind2.nsstat.CookieNoMatch',	145,
+    'bind2.nsstat.ECSOpt',		146,
+    'bind2.nsstat.KeyTagOpt',		147,
+    'bind2.nsstat.QryBADCOOKIE',	148,
+    'bind2.nsstat.QryNXRedir',		149,
+    'bind2.nsstat.QryNXRedirRLookup',	150,
+    'bind2.nsstat.QryTryStale',		151,
+    'bind2.nsstat.QryUsedStale',	152,
+    'bind2.nsstat.TCPConnHighWater',	153,
+    # bind version somwhere between 9.12 and 9.18
+    'bind2.memory.total.Malloced',	154,
+    'bind2.nsstat.KeepAliveOpt',	155,
+    'bind2.nsstat.PadOpt',		156,
+    'bind2.nsstat.Prefetch',		157,
+    'bind2.nsstat.RecLimitDropped',	158,
+    'bind2.nsstat.SynthNODATA',		159,
+    'bind2.nsstat.SynthNXDOMAIN',	160,
+    'bind2.nsstat.SynthWILDCARD',	161,
+    'bind2.nsstat.UpdateQuota',		162,
+    'bind2.sockstat.TCP4Clients',	163,
+    'bind2.sockstat.TCP6Clients',	164,
+    'bind2.queries.in.A',		165,
+    'bind2.queries.in.IXFR',		166,
+    'bind2.queries.in.SOA',		167,
+    # enabled by resolver metrics patch (for bind version 9.10 or later)
+    'bind2.resolver.total.resqtype.DNSKEY',		168,
+    'bind2.resolver.total.resqtype.NS',			169,
+    'bind2.resolver.total.resstats.BadEDNSVersion',	170,
+    'bind2.resolver.total.resstats.BucketSize',		171,
+    'bind2.resolver.total.resstats.EDNS0Fail',		172,
+    'bind2.resolver.total.resstats.FORMERR',		173,
+    'bind2.resolver.total.resstats.GlueFetchv4',	174,
+    'bind2.resolver.total.resstats.GlueFetchv4Fail',	175,
+    'bind2.resolver.total.resstats.GlueFetchv6',	176,
+    'bind2.resolver.total.resstats.GlueFetchv6Fail',	177,
+    'bind2.resolver.total.resstats.Lame',		178,
+    'bind2.resolver.total.resstats.Mismatch',		179,
+    'bind2.resolver.total.resstats.NXDOMAIN',		180,
+    'bind2.resolver.total.resstats.NumFetch',		181,
+    'bind2.resolver.total.resstats.OtherError',		182,
+    'bind2.resolver.total.resstats.QryRTT10',		183,
+    'bind2.resolver.total.resstats.QryRTT100',		184,
+    'bind2.resolver.total.resstats.QryRTT1800',		185,
+    'bind2.resolver.total.resstats.QryRTT1800p',	186,
+    'bind2.resolver.total.resstats.QryRTT500',		187,
+    'bind2.resolver.total.resstats.QryRTT800',		188,
+    'bind2.resolver.total.resstats.QueryAbort',		189,
+    'bind2.resolver.total.resstats.QueryCurTCP',	190,
+    'bind2.resolver.total.resstats.QueryCurUDP',	191,
+    'bind2.resolver.total.resstats.QuerySockFail',	192,
+    'bind2.resolver.total.resstats.QueryTimeout',	193,
+    'bind2.resolver.total.resstats.Queryv4',		194,
+    'bind2.resolver.total.resstats.Queryv6',		195,
+    'bind2.resolver.total.resstats.REFUSED',		196,
+    'bind2.resolver.total.resstats.Responsev4',		197,
+    'bind2.resolver.total.resstats.Responsev6',		198,
+    'bind2.resolver.total.resstats.Retry',		199,
+    'bind2.resolver.total.resstats.SERVFAIL',		200,
+    'bind2.resolver.total.resstats.ServerQuota',	201,
+    'bind2.resolver.total.resstats.SitClientOk',	202,
+    'bind2.resolver.total.resstats.SitClientOut',	203,
+    'bind2.resolver.total.resstats.SitIn',		204,
+    'bind2.resolver.total.resstats.SitOut',		205,
+    'bind2.resolver.total.resstats.Truncated',		206,
+    'bind2.resolver.total.resstats.ValAttempt',		207,
+    'bind2.resolver.total.resstats.ValFail',		208,
+    'bind2.resolver.total.resstats.ValNegOk',		209,
+    'bind2.resolver.total.resstats.ValOk',		210,
+    'bind2.resolver.total.resstats.ZoneQuota',		211,
+    'bind2.resolver.total.resstats.QryRTT1600',		212,
+    'bind2.resolver.total.resstats.QryRTT1600p',	213,
+    'bind2.resolver.total.resstats.BadCookieRcode',	214,
+    'bind2.resolver.total.resstats.ClientCookieOut',	215,
+    'bind2.resolver.total.resstats.CookieClientOk',	216,
+    'bind2.resolver.total.resstats.CookieIn',		217,
+    'bind2.resolver.total.resstats.NextItem',		218,
+    # duplicates from earlier commit botch ... these are available
+    'UNASSIGNED.219',					219,
+    'UNASSIGNED.220',					220,
+    'UNASSIGNED.221',					221,
+    'bind2.resolver.total.resstats.ServerCookieOut',	222,
+    # enabled by resolver meteric patch (for bind version somwhere between 9.12 and 9.18)
+    'bind2.resolver.total.resqtype.AAAA',		223,
+    'bind2.resolver.total.resqtype.CNAME',		224,
+    'bind2.resolver.total.resqtype.DS',			225,
+    'bind2.resolver.total.resqtype.HTTPS',		226,
+    'bind2.resolver.total.resqtype.MX',			227,
+    'bind2.resolver.total.resqtype.NULL',		228,
+    'bind2.resolver.total.resqtype.PTR',		229,
+    'bind2.resolver.total.resqtype.SOA',		230,
+    'bind2.resolver.total.resqtype.SRV',		231,
+    'bind2.resolver.total.resstats.ClientQuota',	232,
+    'bind2.resolver.total.resstats.Priming',		233,
+    'bind2.resolver.total.resqtype.A',			234,
+    # enabled by rcode & qtype metrics patch (for bind version 9.11 or later)
+    'bind2.total.queries.out.BADCOOKIE',		235,
+    'bind2.total.queries.out.BADVERS',			236,
+    'bind2.total.queries.out.FORMERR',			237,
+    'bind2.total.queries.out.NOERROR',			238,
+    'bind2.total.queries.out.NOTAUTH',			239,
+    'bind2.total.queries.out.NOTIMP',			240,
+    'bind2.total.queries.out.NOTZONE',			241,
+    'bind2.total.queries.out.NXDOMAIN',			242,
+    'bind2.total.queries.out.NXRRSET',			243,
+    'bind2.total.queries.out.REFUSED',			244,
+    'bind2.total.queries.out.SERVFAIL',			245,
+    'bind2.total.queries.out.YXDOMAIN',			246,
+    'bind2.total.queries.out.YXRRSET',			247,
+    # enabled by rcode & qtype meteric patch (for bind version somwhere between 9.12 and 9.18)
+    'bind2.qtype.A',					248,
+    'bind2.qtype.AAAA',					249,
+    'bind2.qtype.DNSKEY',				250,
+    'bind2.qtype.HTTPS',				251,
+    'bind2.qtype.MX',					252,
+    'bind2.qtype.NS',					253,
+    'bind2.qtype.PTR',					254,
+    'bind2.qtype.SOA',					255,
+    'bind2.qtype.SRV',					256,
+);
 
+
+# metrics with non-default pmunits
+my %known_units = (
+    'bind2.memory.total.BlockSize',	pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
+    'bind2.memory.total.ContextSize',	pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
+    'bind2.memory.total.InUse',		pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
+    'bind2.memory.total.TotalUse',	pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
+    'bind2.memory.total.Lost',		pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
+    'bind2.memory.total.Malloced',	pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
+);
+
+# Add all the metrics
+my $serial = 0;		# maximum item field in PMID, used for metrics
+			# not in %known_pmids, and counts UP
 foreach my $metric (sort keys %metrics) {
+    my $item;			# actual item field for each PMID
+    my $cluster;		# actual cluster field for each PMID
+
+    if (exists $known_pmids{$metric}) {
+	$item = $known_pmids{$metric};
+	$cluster = 0;
+    }
+    else {
+	$item = $serial++;
+	$cluster = 1;
+	myinfo("Warning: metric $metric: no fixed PMID, using item $cluster.$item");
+    }
+
     my $refh_metric = $metrics{$metric};
-    my ($pmid,$type,$indom,$semantics,$units,$shorthelp,$longhelp) = ( pmda_pmid(0,++$tmp_pmid),
+    my ($pmid,$type,$indom,$semantics,$units,$shorthelp,$longhelp) = ( pmda_pmid($cluster,$item),
                                                                        $refh_metric->{type},
                                                                        exists $refh_metric->{indom_id} ? $refh_metric->{indom_id} : PM_INDOM_NULL,
                                                                        $refh_metric->{semantics},
-                                                                       pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+                                                                       (exists $known_units{$metric} ? $known_units{$metric} : pmda_units(0,0,1,0,0,PM_COUNT_ONE)),
                                                                        (exists $refh_metric->{help}     ? $refh_metric->{help} : ""),
                                                                        (exists $refh_metric->{longhelp} ? $refh_metric->{longhelp} : ""));
 
@@ -241,7 +536,7 @@ foreach my $metric (sort keys %metrics) {
         $metric,                 # key name
         $shorthelp,              # short help
         $longhelp);              # long help
-    $id2metrics{$tmp_pmid} = $metric;
+    $id2metrics{1024*$cluster + $item} = $metric;
 
     mydebug("... returned '" . ($res // "<undef>") . "'");
 }
@@ -581,7 +876,7 @@ sub get_server_stats {
             my $type = $node->getAttribute('type');
 
             next
-                unless $type =~ /\A(opcode|nsstat|zonestat|sockstat)\Z/;
+                unless $type =~ /\A(opcode|nsstat|zonestat|sockstat|rcode|qtype)\Z/;
 
             foreach my $child_node ($node->childNodes) {
                 next
@@ -590,9 +885,11 @@ sub get_server_stats {
                 my $name = $child_node->getAttribute('name');
                 my $metric = $type;
 
-                if ($type eq "opcode") {
+                if ($type eq "opcode" or $type eq "rcode") {
                     next
                         unless $name !~ /\ARESERVED.*\Z/;
+                    next
+                        unless $name !~ /\A[0-9][0-9]*\Z/;
 
                     $metric = "total.queries.out";
                 }
@@ -762,9 +1059,25 @@ sub get_resstat {
     my ($xml,$view) = @_;
     my $refh_res;
 
-    my $pattern = $cfg{xml_prefix} . "/statistics/views/view[name='$view']/resstat";
+    my $pattern = $cfg{xml_prefix} . "/statistics/views/view[\@name='$view']/resstat|" . $cfg{xml_prefix} . "/statistics/views/view[\@name='$view']/counters[\@type='resstats' or \@type='resqtype']/counter";
+
     foreach my $node ($xml->findnodes($pattern)) {
         my ($name,$value);
+
+	if ($node->nodeName eq 'counter' &&  $node->hasAttribute('name')) {
+	  $name = $node->getAttribute('name');
+	  $name =~ s/\+/p/g;
+	  $value = $node->textContent;
+	  my $type = $node->parentNode->getAttribute('type');
+
+	  $refh_res->{join ".",
+		      $cfg{pmda_prefix},
+		      "resolver",
+		      "total",
+		      $type,
+		    $name} = $value;
+	  next;
+	}
 
         foreach my $child_node ($node->childNodes) {
             my $node_name = $child_node->nodeName;

@@ -19,7 +19,6 @@ man pmrep | grep -q pmrep || _notrun "No man pages installed?"
 
 status=1        # failure is the default!
 hostname=`hostname`
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 # need to check dpkg first, because if it is there, it is likely the
@@ -28,10 +27,10 @@ trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 rm -f $tmp.cmds.txt
 if which dpkg >/dev/null 2>&1
 then
-    dpkg -l 2>>$seq.full | $PCP_AWK_PROG '$1 = "ii" && $2 ~ /pcp/ { print $2 }' | xargs dpkg -L | grep bin/ | sort | uniq > $tmp.cmds.txt
+    dpkg -l 2>>$seq_full | $PCP_AWK_PROG '$1 = "ii" && $2 ~ /pcp/ { print $2 }' | xargs dpkg -L | grep bin/ | sort | uniq > $tmp.cmds.txt
 elif which rpm >/dev/null 2>&1
 then
-    rpm -qa 2>>$seq.full | grep pcp | xargs rpm -ql | grep bin/ | grep -v 'debug$' | sort > $tmp.cmds.txt
+    rpm -qa 2>>$seq_full | grep pcp | xargs rpm -ql | grep bin/ | grep -v 'debug$' | sort > $tmp.cmds.txt
 fi
 if [ ! -s $tmp.cmds.txt ]
 then
@@ -117,8 +116,8 @@ for cmd in $(cat $tmp.cmds.txt); do
   if ! grep -q -- -- $tmp.test; then
     continue
   fi
-  echo "=== $cmd ===" >>$seq.full
-  cat $tmp.test >>$seq.full
+  echo "=== $cmd ===" >>$seq_full
+  cat $tmp.test >>$seq_full
   # run man(1) once, then grep away
   man $bn >$tmp.man 2>$tmp.err
   if [ -s $tmp.err ]

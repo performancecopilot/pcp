@@ -36,8 +36,7 @@ trap "_cleanup $iam" 0 1 2 3 15
 
 $sudo rm -fr $root
 $sudo rm -fr $tmp.*.dir
-$sudo rm -f $tmp.* $seq.full
-touch $here/$seq.full
+touch $seq_full
 
 # real QA test starts here
 pmda=$PCP_PMDAS_DIR/cifs/pmda_cifs.so,cifs_init
@@ -50,7 +49,7 @@ for tgz in $here/cifs/cifs-root-*.tgz
 do
     base=`basename $tgz`
     echo
-    echo "=== Unpacking fake root ($base) === " | tee -a $here/$seq.full
+    echo "=== Unpacking fake root ($base) === " | tee -a $seq_full
     $sudo rm -fr $root
     mkdir $root || _fail "root in use when processing $base"
     cd $root
@@ -58,7 +57,7 @@ do
     cd $here
 
     echo
-    echo "=== Valgrind check cifs metrics for all filesystems ===" | tee -a $here/$seq.full
+    echo "=== Valgrind check cifs metrics for all filesystems ===" | tee -a $seq_full
     _run_valgrind pminfo -L -K clear -K add,121,$pmda -dfmtT -n $pmns cifs
 done
 

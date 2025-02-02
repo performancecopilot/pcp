@@ -21,7 +21,6 @@ else
 fi
 
 compare=`pwd`/src/compare
-rm -rf $tmp.*
 
 trap "rm -rf $tmp.*" 0 1 2 3 15
 
@@ -44,13 +43,12 @@ ns1=$tmp.netstat1
 pcp=$tmp.pcp
 ns2=$tmp.netstat2
 
-rm -f $seq.full
 rm -rf $ns1 $pcp $ns2
 
 _get_netstat()
 {
     netstat -s -p ip \
-	| tee -a $seq.full \
+	| tee -a $seq_full \
 	| $PCP_AWK_PROG '
 	    NR > 1	    {
 			    print $1
@@ -67,7 +65,7 @@ _get_netstat()
 	| tr -d '()'
 }
 
-echo "=== First netstat ===" >>$seq.full
+echo "=== First netstat ===" >>$seq_full
 _get_netstat >$ns1
 
 # Fetch metrics in the same order as they appear in netstat output
@@ -96,7 +94,7 @@ _get_netstat >$ns1
 # 	0 datagrams that can't be fragmented
 # 	0 fragments dropped due to overlap (and ipv4_strict_reassembly = 1)
 # 	0 fragments dropped because they introduced gaps (and ipv4_strict_reassembly = 1)
-# 
+#
 
 ip=network.ip
 
@@ -135,9 +133,9 @@ line % 5 == 0	{ printf " || exit 1\npminfo -f "; line++; }
 END		{ print " || exit 1" }
 '
 
-echo "=== pminfo ===" >>$seq.full
+echo "=== pminfo ===" >>$seq_full
 if sh $tmp.pminfo.sh \
-    | tee -a $seq.full \
+    | tee -a $seq_full \
     | sed -e '/^No/s/.*/    value -666/' \
     | grep ' value ' \
     | $PCP_AWK_PROG '{ print $2 }' \
@@ -149,7 +147,7 @@ else
     exit 1
 fi
 
-echo "=== Second netstat ===" >>$seq.full
+echo "=== Second netstat ===" >>$seq_full
 _get_netstat >$ns2
 
 nm=`wc -l $tmp.metrics | $PCP_AWK_PROG '{print $1}'`

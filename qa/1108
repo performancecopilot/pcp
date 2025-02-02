@@ -39,7 +39,6 @@ _cleanup()
 
 status=0	# success is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
-$sudo rm -f $tmp.* $seq.full
 
 [ -f $NEEDREWRITE ] && $sudo mv $NEEDREWRITE $NEEDREWRITE.$seq
 
@@ -61,7 +60,7 @@ _filter()
 	-e '/^+ pmnewlog /s/pmnewlog .*/pmnewlog .../' \
 	-e '/^+ mkaf /s/mkaf .*/mkaf .../' \
 	-e '/^+ rm /d' \
-	-e '/^+ xz /d' \
+	-e '/^+ pmlogcompress /d' \
 	-e '/^+ pmlogger_merge /d' \
 	-e '/^[12][0-9][0-9][0-9][01][0-9][0-3][0-9]\.[0-9][0-9]\.[0-9][0-9]/d' \
 	-e '/Warning: no write access/d' \
@@ -69,8 +68,8 @@ _filter()
 	| tr -s ' '
 }
 
-echo "pmlogger processes at the beginning ..." >>$seq.full
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '[P]PID|/[p]mlogger( |$)' >>$seq.full
+echo "pmlogger processes at the beginning ..." >>$seq_full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '[P]PID|/[p]mlogger( |$)' >>$seq_full
 
 # Avoid conflict with normal management of the summary logs ...
 # this is lifted from pmlogger_daily
@@ -80,9 +79,9 @@ $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '[P]PID|/[p]mlogger( |$)' >>$seq.full
 # yyyymmdd (new year 2000 format)
 #
 SUMMARY_LOGNAME=`pmdate -1d %Y%m%d`
-echo "SUMMARY_LOGNAME=$SUMMARY_LOGNAME" >>$seq.full
-echo "Files to be moved before we start ..." >>$seq.full
-ls -l $PCP_LOG_DIR/pmlogger/*/$SUMMARY_LOGNAME* >>$seq.full 2>&1
+echo "SUMMARY_LOGNAME=$SUMMARY_LOGNAME" >>$seq_full
+echo "Files to be moved before we start ..." >>$seq_full
+ls -l $PCP_LOG_DIR/pmlogger/*/$SUMMARY_LOGNAME* >>$seq_full 2>&1
 # save yesterday's files
 #
 cd $PCP_LOG_DIR/pmlogger
@@ -120,19 +119,23 @@ then
     status=1
     exit
 fi
-echo "current=$current" >>$seq.full
+echo "current=$current" >>$seq_full
 sec=0
 while [ $sec -lt 60 ]
 do
     now=`pmdate %Y%m%d.%H.%M`
     [ "$now" != "$current" ] && break
-    echo "now=$now" >>$seq.full
+    echo "now=$now" >>$seq_full
     sleep 1
     sec=`expr $sec + 1`
 done
-echo "done, now=$now" >>$seq.full
+echo "done, now=$now" >>$seq_full
 
 # real QA test starts here
+# need to be a place the user $PCP_USER can cd to from pmlogger_daily
+#
+cd /var/tmp
 $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -o -k 550 -N -c $tmp.control" 2>&1 \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | _filter
+cd $here

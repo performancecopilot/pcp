@@ -54,8 +54,7 @@ _notrun()
     echo $@ >$here/$seq.notrun
     echo "$seq: [not run] `cat $here/$seq.notrun`"
     rm -f $here/$seq.pre-avc
-    status=0
-    exit $status
+    _exit 0
 }
 
 # common routine for failing a test in a standard way
@@ -64,8 +63,7 @@ _notrun()
 _fail()
 {
     echo FAIL: $@ 1>&2
-    status=0
-    exit $status
+    _exit 1
 }
 
 # calculate the size of a given fail, echo it on standard output
@@ -270,7 +268,7 @@ _service()
 		      | grep '=failed$' >/dev/null
 		    then
 			$__verbose && echo "_service: using systemctl: reset-failed $__svc"
-			$sudo systemctl reset-failed $__svc.service 2>>$here/$seq.full
+			$sudo systemctl reset-failed $__svc.service 2>>$seq_full
 		    fi
 		done
 
@@ -309,18 +307,18 @@ _service()
 		    then
 			if [ "$ActiveState" != active -a "$ActiveState" != activating ]
 			then
-			    echo "_service $1 $2: expecting $__svc state \"active\", found state \"$ActiveState\"" >>$here/$seq.full
-			    _systemctl_status $__svc >>$here/$seq.full
+			    echo "_service $1 $2: expecting $__svc state \"active\", found state \"$ActiveState\"" >>$seq_full
+			    _systemctl_status $__svc >>$seq_full
 			fi
 		    elif [ "$2" = stop ]
 		    then
 			if [ "$ActiveState" != inactive ]
 			then
-			    echo "_service $1 $2: expecting $__svc state \"inactive\", found state \"$ActiveState\"" >>$here/$seq.full
-			    _systemctl_status $__svc >>$here/$seq.full
+			    echo "_service $1 $2: expecting $__svc state \"inactive\", found state \"$ActiveState\"" >>$seq_full
+			    _systemctl_status $__svc >>$seq_full
 			fi
 		    else
-			echo "_service $1 $2: Botch: don't know what $__svc state to expect, found state \"$ActiveState\"" >>$here/$seq.full
+			echo "_service $1 $2: Botch: don't know what $__svc state to expect, found state \"$ActiveState\"" >>$seq_full
 		    fi
 		done
 		;;
@@ -332,7 +330,7 @@ _service()
 		  | grep '=failed$' >/dev/null
 		then
 		    $__verbose && echo "_service: using systemctl: reset-failed $1"
-		    $sudo systemctl reset-failed $1.service 2>>$here/$seq.full
+		    $sudo systemctl reset-failed $1.service 2>>$seq_full
 		fi
 
 		$__verbose && echo "_service: using systemctl $2 $1.service"
@@ -357,18 +355,18 @@ _service()
 		then
 		    if [ "$ActiveState" != active -a "$ActiveState" != activating ]
 		    then
-			echo "_service $1 $2: expecting state \"active\", found state \"$ActiveState\"" >>$here/$seq.full
-			_systemctl_status $1 >>$here/$seq.full
+			echo "_service $1 $2: expecting state \"active\", found state \"$ActiveState\"" >>$seq_full
+			_systemctl_status $1 >>$seq_full
 		    fi
 		elif [ "$2" = stop ]
 		then
 		    if [ "$ActiveState" != inactive ]
 		    then
-			echo "_service $1 $2: expecting state \"inactive\", found state \"$ActiveState\"" >>$here/$seq.full
-			_systemctl_status $1 >>$here/$seq.full
+			echo "_service $1 $2: expecting state \"inactive\", found state \"$ActiveState\"" >>$seq_full
+			_systemctl_status $1 >>$seq_full
 		    fi
 		else
-		    echo "_service $1 $2: Botch: don't know what state to expect, found state \"$ActiveState\"" >>$here/$seq.full
+		    echo "_service $1 $2: Botch: don't know what state to expect, found state \"$ActiveState\"" >>$seq_full
 		fi
 		;;
 	esac
@@ -378,9 +376,9 @@ _service()
 	$sudo $PCP_RC_DIR/$1 $__vflag $2
     else
 	echo "_service: $1 is not a systemctl service nor a $PCP_RC_DIR script!"
-	status=0
-	exit $status
+	return 1
     fi
+    return 0
 }
 
 # check that a given agent (argument 1) is up and running;
@@ -440,7 +438,7 @@ _prepare_pmda()
     __done_clean=false
     __install_on_cleanup=false
     pminfo $__names >/dev/null 2>&1 && __install_on_cleanup=true
-    echo "_prepare_pmda(agent=$__agent, names=$__names) __install_on_cleanup=$__install_on_cleanup" >>$here/$seq.full
+    echo "_prepare_pmda(agent=$__agent, names=$__names) __install_on_cleanup=$__install_on_cleanup" >>$seq_full
     # copy the pmcd config file to restore state later.
     _save_config $PCP_PMCDCONF_PATH
     unset ROOT MAKEFLAGS
@@ -453,7 +451,7 @@ _cleanup_pmda()
 
     if $__done_clean
     then
-	echo "_cleanup_pmda($__agent,$__iopts) called twice?" >>$here/$seq.full
+	echo "_cleanup_pmda($__agent,$__iopts) called twice?" >>$seq_full
     else
 	_restore_config $PCP_PMCDCONF_PATH
 	_service pcp restart | _filter_pcp_start
@@ -464,10 +462,10 @@ _cleanup_pmda()
 	then
 	    [ "X$__iopts" = "X" ] && __iopts=/dev/null
 	    ( cd $PCP_PMDAS_DIR/$__agent; $sudo ./Install <$__iopts >/dev/null 2>&1 )
-	    echo "_cleanup_pmda($__agent,$__iopts) reinstall PMDA" >>$here/$seq.full
+	    echo "_cleanup_pmda($__agent,$__iopts) reinstall PMDA" >>$seq_full
 	else
 	    ( cd $PCP_PMDAS_DIR/$__agent; $sudo ./Remove >/dev/null 2>&1 )
-	    echo "_cleanup_pmda($__agent,$__iopts) remove PMDA" >>$here/$seq.full
+	    echo "_cleanup_pmda($__agent,$__iopts) remove PMDA" >>$seq_full
 	fi
 	_wait_for_pmcd
 	_wait_for_pmlogger
@@ -638,17 +636,17 @@ _machine_id()
 }
 
 # Check metric ($1) availability from pmcd on host ($2, defaults to
-# a local: pminfo connection) ... abort if no value(s) available
+# a local: pminfo connection) ... return 1 if no values available,
+# else return 0
 #
 _check_metric()
 {
     if pminfo -h ${2-local:} -f $1 2>&1 | grep " value " >/dev/null
     then
-	:
+	return 0
     else
 	echo "Check failed for metric \"$1\" at host \"${2-local:}\" ... is PMDA installed?"
-	status=0
-	exit $status
+	return 1
     fi
 }
 
@@ -779,10 +777,10 @@ _wait_for_pmcd()
 		;;
 	esac
 	_systemctl_status pmcd
-	status=0
 	rm -f $tmp._wait_for_pmcd.err $tmp._wait_for_pmcd.out
-	exit $status
+	return 1
     fi
+    return 0
 }
 
 # wait_for_pmcd_stop [maxdelay]
@@ -830,10 +828,10 @@ _wait_for_pmcd_stop()
 	echo "=== pmcd.log ==="
 	cat $PCP_LOG_DIR/pmcd/pmcd.log
 	_systemctl_status pmcd
-	status=0
 	rm -f $tmp._wait_for_pmcd_stop.err $tmp._wait_for_pmcd_stop.out
-	exit $status
+	return 1
     fi
+    return 0
 }
 
 __triage_systemd()
@@ -910,8 +908,7 @@ _wait_for_pmlogger()
 	    ;;
 	*)
 	    echo "_wait_for_pmlogger(): wrong number of arguments"
-	    status=0
-	    exit $status
+	    return 1
 	    ;;
     esac
 
@@ -935,8 +932,8 @@ _wait_for_pmlogger()
 	then
 	    # pmlogger socket has been set up ...
 	    __dead=false
-	    echo "_wait_for_pmlogger() success at iter $__i ..." >>$here/$seq.full
-	    cat $tmp._wait_for_pmlogger.tmp >>$here/$seq.full
+	    echo "_wait_for_pmlogger() success at iter $__i ..." >>$seq_full
+	    cat $tmp._wait_for_pmlogger.tmp >>$seq_full
 	    # give pmlogger a chance to detect that pmlc has gone away
 	    # so the port is free
 	    pmsleep 0.25
@@ -1042,11 +1039,11 @@ _wait_for_pmlogger()
 	echo "++ Likely looking processes ..."
 	# Note: no ( |$) for egrep, want to find pmlogger_* as well
 	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger'
-	status=0
 	rm -f $tmp._wait_for_pmlogger.*
-	exit $status
+	return 1
     fi
     rm -f $tmp._wait_for_pmlogger.*
+    return 0
 }
 
 # Start a pmlogger with appropriate privs that it can create
@@ -1082,8 +1079,7 @@ _wait_pmlogger_end()
     if [ -z "$1" ]
     then
 	echo "Usage botch: _wait_pmlogger_end() needs pid arg"
-	status=0
-	exit $status
+	return 1
     fi
     __pid=$1
 
@@ -1091,8 +1087,8 @@ _wait_pmlogger_end()
     then
 	# pmlogger process exists, so wait for PID file to go away
 	#
-	echo "pmlogger process $__pid present ..." >>$here/$seq.full
-	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E "[P]PID|/[p]mlogger( |$)|$__pid" >>$here/$seq.full
+	echo "pmlogger process $__pid present ..." >>$seq_full
+	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E "[P]PID|/[p]mlogger( |$)|$__pid" >>$seq_full
     else
 	# pmlogger process is not here, warn if PID file is here,
 	# and we're done
@@ -1100,7 +1096,7 @@ _wait_pmlogger_end()
 	then
 	    echo "_wait_pmlogger_end: warning process $__pid gone but $PCP_TMP_DIR/pmlogger/$__pid still present"
 	fi
-	return
+	return 0
     fi
 
     __i=0
@@ -1110,7 +1106,7 @@ _wait_pmlogger_end()
 	then
 	    # potential race between [ ... ] and ls ... syphon of stderr
 	    #
-	    [ $__i -eq 0 ] && ls -l "$PCP_TMP_DIR/pmlogger/$__pid" >>$here/$seq.full 2>&1
+	    [ $__i -eq 0 ] && ls -l "$PCP_TMP_DIR/pmlogger/$__pid" >>$seq_full 2>&1
 	    __i=`expr $__i + 1`
 	    if [ $__i -ge 100 ]
 	    then
@@ -1119,7 +1115,7 @@ _wait_pmlogger_end()
 		$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E "[P]PID|/[p]mlogger( |$)|$__pid"
 		_systemctl_status pmlogger
 		#debug# set +x
-		return
+		return 1
 	    fi
 	    pmsleep 0.1
 	else
@@ -1146,10 +1142,10 @@ _wait_pmlogger_end()
 $2 == '$__pid' && $0 ~ /defunct/	{ print $3 }'
 			if [ -s "$tmp.pmlogger.defunct" ]
 			then
-			    echo "_wait_pmlogger_end: pid $__pid is defunct" >>$here/$seq.full
+			    echo "_wait_pmlogger_end: pid $__pid is defunct" >>$seq_full
 			    if which pstree >/dev/null 2>&1
 			    then
-				pstree -s -A -pua $__pid >>$here/$seq.full 2>&1
+				pstree -s -A -pua $__pid >>$seq_full 2>&1
 			    else
 				$PCP_PS_PROG $PCP_PS_ALL_FLAGS -p $__pid `cat $tmp.pmlogger.defunct`
 			    fi
@@ -1158,13 +1154,13 @@ $2 == '$__pid' && $0 ~ /defunct/	{ print $3 }'
 			fi
 			_systemctl_status pmlogger
 			#debug# set +x
-			return
+			return 1
 		    fi
 		    pmsleep 0.1
 		else
 		    # process has really exited
 		    #debug# set +x
-		    return
+		    return 0
 		fi
 	    done
 	fi
@@ -1194,7 +1190,7 @@ p
     if [ -z "$__pid" ]
     then
 	#debug# set +x
-	return
+	return 0
     fi
 
     __i=0
@@ -1209,13 +1205,13 @@ p
 		echo "_wait_pmcd_end: failed to see pid $__pid exit after 100 iterations"
 		_systemctl_status pmcd
 		#debug# set +x
-		return
+		return 1
 	    fi
 	    pmsleep 0.1
 	else
 	    # process has really exited
 	    #debug# set +x
-	    return
+	    return 0
 	fi
     done
 }
@@ -1239,13 +1235,13 @@ _wait_for_pmie()
 		echo "_wait_for_pmie: failed to see pmie start after 100 iterations"
 		_systemctl_status pmie
 		#debug# set +x
-		return
+		return 1
 	    fi
 	    pmsleep 0.1
 	else
 	    # process has really started ...
 	    #debug# set +x
-	    return
+	    return 0
 	fi
     done
 }
@@ -1274,7 +1270,7 @@ p
     if [ -z "$__pidlist" ]
     then
 	#debug# set +x
-	return
+	return 0
     fi
 
     __i=0
@@ -1298,13 +1294,13 @@ p
 		$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mie( |$)'
 		_systemctl_status pmie
 		#debug# set +x
-		break
+		return 1
 	    fi
 	    pmsleep 0.1
 	else
 	    # all processes have exited
 	    #debug# set +x
-	    break
+	    return 0
 	fi
     done
 }
@@ -1330,8 +1326,7 @@ _wait_for_pmproxy()
 	    ;;
 	*)
 	    echo "_wait_for_pmproxy(): wrong number of arguments"
-	    status=0
-	    exit $status
+	    return 1
 	    ;;
     esac
 
@@ -1339,7 +1334,7 @@ _wait_for_pmproxy()
     __maxdelay=20
 
     __count=0
-    while ! $PCP_BINADM_DIR/telnet-probe -v -c localhost $__port >>$here/$seq.full 2>&1
+    while ! $PCP_BINADM_DIR/telnet-probe -v -c localhost $__port >>$seq_full 2>&1
     do
 	__count=`expr $__count + 1`
 	if [ $__count -ge $__maxdelay ]
@@ -1355,11 +1350,11 @@ _wait_for_pmproxy()
 		echo "pmproxy logfile ($__logfile) not created"
 	    fi
 	    _systemctl_status pmproxy
-	    status=0
-	    exit $status
+	    return 1
 	fi
 	sleep 1
     done
+    return 0
 }
 
 # Wait for pmproxy server metrics. This should always be called after
@@ -1418,7 +1413,7 @@ p
     if [ -z "$__pid" ]
     then
 	#debug# set +x
-	return
+	return 0
     fi
 
     __i=0
@@ -1433,13 +1428,13 @@ p
 		echo "_wait_proxy_end: failed to see pid $__pid exit after 100 iterations"
 		_systemctl_status proxy
 		#debug# set +x
-		return
+		return 1
 	    fi
 	    pmsleep 0.1
 	else
 	    # process has really exited
 	    #debug# set +x
-	    return
+	    return 0
 	fi
     done
 }
@@ -1450,7 +1445,7 @@ _writable_primary_logger()
 {
     __configfile="$PCP_VAR_DIR/config/pmlogger/config.default"
 
-    echo "_open_primary_logger checking config file: $__configfile" >>$here/$seq.full
+    echo "_open_primary_logger checking config file: $__configfile" >>$seq_full
 
     # first, move aside the default configuration file
     _save_config "$__configfile"
@@ -1458,7 +1453,7 @@ _writable_primary_logger()
     # next, create a new default configuration file
     PMLOGCONF="$PCP_BINADM_DIR/pmlogconf"
     test -f "$__configfile" || \
-	$sudo $PMLOGCONF -q -h localhost "$__configfile" >>$here/$seq.full 2>&1
+	$sudo $PMLOGCONF -q -h localhost "$__configfile" >>$seq_full 2>&1
 
     # finally, open it up to local access from pmlc
     sed <"$__configfile" >$tmp.sed-i \
@@ -1528,7 +1523,6 @@ _setup_purify()
     RSU_LICENSE_MAP=/usr/Rational/config/LICENSE_MAP
     export LM_LICENSE_FILE RSU_LICENSE_MAP
 
-    rm -f $here/$seq.full
     __path=$1
     __prog=`echo $__path | sed -e 's#.*/##'`
     __pure_prog="$__prog.pure"
@@ -1550,10 +1544,10 @@ EOF
     then
 	cat out
 	echo "Hmm ... purify failed to create $__prog.pure"
-	status=0
-	exit $status
+	return 1
     fi
     cd $__here
+    return 0
 }
 
 _run_purify()
@@ -1561,7 +1555,7 @@ _run_purify()
     __here=`pwd`
     cd $__purify_dir
     $__purify_dir/$__pure_prog "$@" > $tmp._purify.out 2>&1
-    cat $tmp._purify.out >>$__here/$seq.full
+    cat $tmp._purify.out >>$__here/$seq_full
     if grep -i expired $tmp._purify.out >/dev/null; then
 	cat $tmp._purify.out
     else
@@ -1614,7 +1608,7 @@ _check_64bit_platform()
     # host, like test-ubuntu1804i386-container in CI
     #
     eval __`$here/src/sizeof ptr`
-    echo "__ptr=$__ptr" >>$here/seq.full
+    echo "__ptr=$__ptr" >>$seq_full
     case "$__ptr"
     in
 	4)
@@ -2022,7 +2016,7 @@ _run_valgrind()
     then
 	__extra="--suppressions=$here/valgrind-suppress-$__version"
     else
-	echo "Warning: no extra suppressions found for valgrind version $__version" >>$here/$seq.full
+	echo "Warning: no extra suppressions found for valgrind version $__version" >>$seq_full
     fi
     valgrind --help >$tmp.valgrind.help 2>&1
     if grep -q .--read-inline-info= <$tmp.valgrind.help
@@ -2042,7 +2036,7 @@ _run_valgrind()
     $sudo rm -f $tmp.valgrind.help
     if [ -n "$__extra" ]
     then
-	echo "Warning: using extra $__extra" >>$here/$seq.full
+	echo "Warning: using extra $__extra" >>$seq_full
     fi
     case "$__whatami"
     in
@@ -2073,8 +2067,8 @@ _run_valgrind()
 	echo "=== std err ==="
 	$sudo cat $tmp._valgrind.err
     fi
-    echo "=== valgrind report ===" >>$here/$seq.full
-    $sudo cat $tmp._valgrind >>$here/$seq.full
+    echo "=== valgrind report ===" >>$seq_full
+    $sudo cat $tmp._valgrind >>$seq_full
     echo "=== filtered valgrind report ==="
     $sudo cat $tmp._valgrind | _filter_valgrind
 }
@@ -2167,7 +2161,7 @@ _run_helgrind()
     then
 	__extra="--suppressions=$here/helgrind-suppress-$__version"
     else
-	echo "Warning: no extra suppressions found for helgrind version $__version" >>$here/$seq.full
+	echo "Warning: no extra suppressions found for helgrind version $__version" >>$seq_full
     fi
     # $grind_extra may be used in the caller to pass additional command
     # line options to valgrind
@@ -2175,7 +2169,7 @@ _run_helgrind()
     [ -n "$grind_extra" ] && __extra="$__extra $grind_extra"
     if [ -n "$__extra" ]
     then
-	echo "Warning: using extra $__extra" >>$here/$seq.full
+	echo "Warning: using extra $__extra" >>$seq_full
     fi
 
     $__helgrind_prefix valgrind \
@@ -2183,8 +2177,8 @@ _run_helgrind()
 	--suppressions=$here/helgrind-suppress $__extra \
 	--log-file=$tmp.valgrind.log \
 	    "$@" 2>$tmp.valgrind.err >$tmp.valgrind.out
-    echo "=== valgrind report ===" >>$here/$seq.full
-    $sudo cat $tmp.valgrind.log >>$here/$seq.full
+    echo "=== valgrind report ===" >>$seq_full
+    $sudo cat $tmp.valgrind.log >>$seq_full
     echo "=== filtered valgrind report ==="
     $sudo cat $tmp.valgrind.log | _filter_helgrind
 }
@@ -2476,12 +2470,13 @@ _get_endian()
     0a61) echo le ;;
     610a) echo be ;;
     *)
-	echo "Arrgh ... od -x returned something odd ($__check)"
-	echo a | od -x
-	status=0
-	exit $status
+	echo >&2 "Arrgh ... od -x returned something odd ($__check)"
+	echo >&2 a | od -x
+	echo "??"
+	return 1
 	;;
     esac
+    return 0
 }
 
 # get host word size ("32" or "64")
@@ -2499,12 +2494,13 @@ _get_word_size()
 	__size=64
 	;;
     *)
-	echo "uname gave machine type with unknown word size ($__machine)"
-	status=0
-	exit $status
+	echo >&2 "uname gave machine type with unknown word size ($__machine)"
+	echo 0
+	return 1
 	;;
     esac
     echo $__size
+    return 0
 }
 
 # _all_hostnames host - generate all hostnames (or IP addresses) for this host,
@@ -2722,8 +2718,7 @@ _change_config()
 		off)	__act=disable ;;
 		*)
 		    echo "_change_config: Error: \$2=$2 not \"on\" or \"off\" as expected"
-		    status=0
-		    exit $status
+		    return 1
 		    ;;
 	    esac
 	    if [ -n "$__pat" ]
@@ -2757,8 +2752,7 @@ _change_config()
 		    off)	__act=delete ;;
 		    *)
 			echo "_change_config: Error: \$2=$2 not \"on\" or \"off\" as expected"
-			status=0
-			exit $status
+			return 1
 			;;
 		esac
 		$sudo rc-update $__act $__pat default >$tmp._tmp 2>&1
@@ -2776,8 +2770,7 @@ _change_config()
 		    off)	__act=disable ;;
 		    *)
 			echo "_change_config: Error: \$2=$2 not \"on\" or \"off\" as expected"
-			status=0
-			exit $status
+			return 1
 			;;
 		esac
 		$sudo update-rc.d $__pat $__act >$tmp._tmp 2>&1
@@ -2791,8 +2784,7 @@ _change_config()
 	    # I have no clue!
 	    #
 	    echo "_change_config: Error: cannot change config \"$1 $2\""
-	    status=0
-	    exit $status
+	    return 1
 	fi
     elif [ $PCP_PLATFORM = solaris ]
     then
@@ -2820,14 +2812,12 @@ _change_config()
 		    $sudo svcadm disable svc:/application/pcp/$__pat
 		else
 		    echo "_change_config: Error: \$2=$2 not \"on\" or \"off\" as expected"
-		    status=0
-		    exit $status
+		    return 1
 		fi
 	    fi
 	else
 	    echo "_change_config: Error: cannot find svcs for Solaris"
-	    status=0
-	    exit $status
+	    return 1
 	fi
     elif [ $PCP_PLATFORM = darwin ]
     then
@@ -2851,8 +2841,7 @@ p
 	    then
 		echo "_change_config: Error: No $__pat control line in /etc/hostconfig"
 		echo "You need to add a $__pat=-YES- line to this file"
-		status=0
-		exit $status
+		return 1
 	    fi
 	    if [ "$2" = "on" ]
 	    then
@@ -2862,8 +2851,7 @@ p
 		__req_state=NO
 	    else
 		echo "_change_config: Error: bad state ($2) should be on or off"
-		status=0
-		exit $status
+		return 1
 	    fi
 	    if [ "$__state" != "$__req_state" ]
 	    then
@@ -2888,10 +2876,10 @@ p
 	# I have no idea what to do for this platform!
 	#
 	echo "_change_config: Error: cannot \"$1 $2\" for $PCP_PLATFORM"
-	status=0
-	exit $status
+	return 1
     fi 2>&1 \
     | _filter_init_distro
+    return 0
 }
 
 _get_config()
@@ -3013,8 +3001,7 @@ _get_config()
 		    off)	__act=disable ;;
 		    *)
 			echo "_get_config: Error: \$2=$2 not \"on\" or \"off\" as expected"
-			status=0
-			exit $status
+			return 1
 			;;
 		esac
 		$sudo update-rc.d $__pat $__act >$tmp._tmp 2>&1
@@ -3026,8 +3013,7 @@ _get_config()
 	    :
 	else
 	    echo "_get_config: Error: don't know how to change config for Linux"
-	    status=0
-	    exit $status
+	    return 1
 	fi
     elif [ $PCP_PLATFORM = solaris ]
     then
@@ -3056,15 +3042,13 @@ _get_config()
 			;;
 		    *)
 			echo "_get_config: Error: smf ($__state) from svcs not expected"
-			status=0
-			exit $status
+			return 1
 			;;
 		esac
 	    fi
 	else
 	    echo "_get_config: Error: cannot find svcs for Solaris"
-	    status=0
-	    exit $status
+	    return 1
 	fi
     elif [ $PCP_PLATFORM = darwin ]
     then
@@ -3087,8 +3071,7 @@ p
 	    then
 		echo "_get_config: Error: No $__pat control line in /etc/hostconfig" >&2
 		echo "You need to add a $__pat=-YES- line to this file" >&2
-		status=0
-		exit $status
+		return 1
 	    fi
 	    if [ "$__state" = "YES" ]
 	    then
@@ -3098,8 +3081,7 @@ p
 		echo off
 	    else
 		echo "_get_config: Error: bad state ($__state) should be YES or NO" >&2
-		status=0
-		exit $status
+		return 1
 	    fi
 	fi
     elif [ $PCP_PLATFORM = freebsd ]
@@ -3117,6 +3099,7 @@ p
     else
 	echo "_get_config: Error: cannot \"$1 $2\" for $PCP_PLATFORM"
     fi
+    return 0
 }
 
 # This used to disable all system pmloggers running via the control
@@ -3136,8 +3119,7 @@ _disable_loggers()
 	echo "_disable_loggers: Botch: $PCP_PMLOGGERCONTROL_PATH.$seq already exists"
 	date
 	ls -l $PCP_PMLOGGERCONTROL_PATH.$seq
-	status=0
-	exit $status
+	return 1
     fi
     if [ -f $PCP_PMLOGGERCONTROL_PATH ]
     then
@@ -3150,8 +3132,7 @@ _disable_loggers()
 	echo "_disable_loggers: Botch: $PCP_PMLOGGERCONTROL_PATH.$seq.d already exists"
 	date
 	ls -ld $PCP_PMLOGGERCONTROL_PATH.$seq.d
-	status=0
-	exit $status
+	return 1
     fi
     if [ -d $PCP_PMLOGGERCONTROL_PATH.d ]
     then
@@ -3167,6 +3148,7 @@ _disable_loggers()
 LOCALHOSTNAME y n PCP_ARCHIVE_DIR/LOCALHOSTNAME -c /dev/null
 End-of-File
     $sudo cp $tmp._tmp $PCP_PMLOGGERCONTROL_PATH
+    return 0
 }
 
 _restore_loggers()
@@ -3258,8 +3240,7 @@ _prepare_pmda_install()
 	else
 	    cat $tmp._tmp
 	    echo "Arrgh, ${MAKE:-make} clobber failed"
-	    status=1
-	    exit $status
+	    return 1
 	fi
     fi
 
@@ -3267,6 +3248,7 @@ _prepare_pmda_install()
     $sudo ./Remove >/dev/null 2>&1
     [ -f $PCP_VAR_DIR/config/$iam/$iam.conf ] && \
 	$sudo mv $PCP_VAR_DIR/config/$iam/$iam.conf $tmp.$iam.conf
+    return 0
 }
 
 # restore a saved pmcd configuration and ensure pmda back in place.
@@ -3326,12 +3308,12 @@ _restore_pmda_install()
     #
     if [ -n "$here" -a -n "$seq" ]
     then
-	echo "_restore_pmda_install: restarting primary pmlogger" >>$here/$seq.full
-	_service pmlogger restart >>$here/$seq.full 2>&1
+	echo "_restore_pmda_install: restarting primary pmlogger" >>$seq_full
+	_service pmlogger restart >>$seq_full 2>&1
     else
 	_service pmlogger restart >/dev/null 2>&1
     fi
-    _wait_for_pmlogger
+    _wait_for_pmlogger || _exit 1
 }
 
 # find a local port that is not in use, optionally starting from a suggested port
@@ -3363,8 +3345,9 @@ _wait_for_port()
     done
     if [ $__i -ge $__wait ]; then
         echo Timeout waiting for an application to bind to port $__port
-        exit
+        return 1
     fi
+    return 0
 }
 
 # wait for pmlogctl's pmlogger lock to clear
@@ -3397,11 +3380,11 @@ _get_primary_logger_pid()
 	then
 	    echo "Arrgh, cannot get symlink for device for root fs ..."
 	    ls -l "$__root"
-	    status=0
-	    exit $status
+	    return 1
 	fi
 	basename "$__symroot"
     fi
+    return 0
 }
 
 _get_libpcp_config()
@@ -3433,7 +3416,7 @@ if conn != None:
 exit(0)
 End-of-File
 	    __libvirt_ver=`$PCP_PYTHON_PROG $tmp.py 2>/dev/null`
-	    echo "Ubuntu and libvirt version $__libvirt_ver" >>$here/$seq.full
+	    echo "Ubuntu and libvirt version $__libvirt_ver" >>$seq_full
 	    case "$__libvirt_ver"
 	    in
 		2005000)
@@ -3457,8 +3440,7 @@ _sighup_pmcd()
     if [ $__sighups_before -lt 0 ]
     then
 	echo _sighup_pmcd called but pmcd not running
-	status=0
-	exit $status
+	return 1
     fi
 
     $sudo $PCP_BINADM_DIR/pmsignal -a -s HUP pmcd >/dev/null 2>&1
@@ -3481,13 +3463,13 @@ _sighup_pmcd()
     if [ $__sts -ne 0 ]
     then
 	echo _sighup_pmcd caused no change in pmcd sighup count
-	status=0
-	exit $status
+	return 1
     fi
 
     # delay for $__signal_delay while pmcd actually does post-SIGHUP work
     #
     $PCP_BINADM_DIR/pmsleep $__signal_delay
+    return 0
 }
 
 # Discover the platform-specific DSO suffix, at set $(DSOSUFFIX)
@@ -3505,8 +3487,7 @@ End-of-File
     else
 	cat $tmp._err
 	echo "Error: $PCP_MAKE_PROG failed establishing DSO suffix"
-	status=1
-	exit
+	return 1
     fi
     if [ -s $tmp._err ]
     then
@@ -3517,17 +3498,17 @@ End-of-File
     if [ -z "$DSOSUFFIX" ]
     then
 	echo "Error: cannot establish the DSO suffix from $PCP_INC_DIR/builddefs"
-	status=1
-	exit
+	return 1
     fi
     rm -f $tmp._mk $tmp._out $tmp._err
+    return 0
 }
 
 # common webapi header filtering
 #
 _webapi_header_filter()
 {
-    tee -a $here/$seq.full \
+    tee -a $seq_full \
     | col -b \
     | sed \
 	-e 's/^\(Content-Length:\) [1-9][0-9]*/\1 SIZE/g' \
@@ -3540,7 +3521,7 @@ _webapi_header_filter()
 
 _webapi_response_filter()
 {
-    tee -a $here/$seq.full \
+    tee -a $seq_full \
     | col -b \
     | sed -e 's,#[0-9]*,####,g' \
         -e 's/ connected$//g' \
@@ -3567,7 +3548,7 @@ _webapi_response_filter()
 #
 # pmlc commands are already in $tmp.pmlc
 # before returning pmlc output is stashed in $tmp.out and $tmp.err and
-# appended to $here/$seq.full
+# appended to $seq_full
 #
 _try_pmlc()
 {
@@ -3581,8 +3562,8 @@ _try_pmlc()
 	    __i=`expr $__i + 1`
 	    pmsleep 0.1
 	else
-	    echo "_try_pmlc: pass @ iter $__i" >>$here/$seq.full
-	    cat $tmp.out $tmp.err >>$here/$seq.full
+	    echo "_try_pmlc: pass @ iter $__i" >>$seq_full
+	    cat $tmp.out $tmp.err >>$seq_full
 	    break
 	fi
     done
@@ -3590,7 +3571,7 @@ _try_pmlc()
     then
 	if [ $# -eq 1 -a "$1" = expect-failure ]
 	then
-	    echo "_try_pmlc: fail as expected" >>$here/$seq.full
+	    echo "_try_pmlc: fail as expected" >>$seq_full
 	else
 	    echo "_try_pmlc: failed"
 	    cat $tmp.out $tmp.err
@@ -3619,16 +3600,73 @@ _try_pmlc()
 #
 _private_pmcd()
 {
-    [ -d $tmp ] || mkdir $tmp || exit 1
+    [ -d $tmp ] || mkdir $tmp || return 1
     cd $tmp
     grep -E '^(sampledso|pmcd)[ 	]' $PCP_PMCDCONF_PATH >pmcd.conf
-    echo "=== private pmcd ..." >>$here/$seq.full
-    cat pmcd.conf >>$here/$seq.full
+    echo "=== private pmcd ..." >>$seq_full
+    cat pmcd.conf >>$seq_full
     pmcd_port=`_find_free_port`
-    echo "pmcd_port=$port" >>$here/$seq.full
+    echo "pmcd_port=$port" >>$seq_full
     $PCP_BINADM_DIR/pmcd $pmcd_args -f -c ./pmcd.conf -s ./pmcd.socket -p $pmcd_port  >pmcd.out 2>pmcd.err &
     pmcd_pid=$!
     export PMCD_PORT=$pmcd_port
-    _wait_for_pmcd
+    _wait_for_pmcd || _exit 1
     cd $here
+    return 0
+}
+
+# Usage: path_readable user path
+#
+_path_readable()
+{
+    # users like pcp (as in pmcd, or pmlogger control scripts) may have
+    # to be able to read some QA-specific path ... which is an issue if
+    # $HOME for the person running QA is mode 700
+    #
+    if [ $# -ne 2 ]
+    then
+	echo >&2 "Usage: _path_readable user path"
+	return 1
+    fi
+    user="$1"
+    path="$2"
+    if $sudo -u $user id >/dev/null 2>&1
+    then
+	:
+    else
+	echo >&2 "_path_readable: cannot run commands as user $user"
+	return 1
+    fi
+    if [ ! -f "$path" ]
+    then
+	echo >&2 "_path_readable: bozo, $path does not exist!"
+	return 1
+    fi
+    if $sudo -u "$user" [ -r "$path" ]
+    then
+	return 0
+    else
+	echo >&2 "_path_readable: $path is not readable by the user $user"
+	tpath=''
+	for dir in `echo "$path" | sed -e 's/\// /g'`
+	do
+	    tpath="$tpath/$dir"
+	    if $sudo -u "$user" [ -r "$tpath" ]
+	    then
+		:
+	    else
+		echo >&2 "_path_readable: directory $tpath is unreadable"
+		break
+	    fi
+	done
+    fi
+    return 1
+}
+
+# exit wrapper ... set $status if $1 present
+#
+_exit()
+{
+    [ $# -gt 0 ] && status="$1"
+    exit
 }

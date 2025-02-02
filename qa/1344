@@ -31,13 +31,12 @@ _filter()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 
 # real QA test starts here
 mkdir -p $tmp.config
-echo "pmmgr plain startup" | tee -a $seq.full
+echo "pmmgr plain startup" | tee -a $seq_full
 echo 'local:' >$tmp.config/target-host
 echo 'localhost' >>$tmp.config/target-host
 echo 'pcp://localhost:44321/' >>$tmp.config/target-host
@@ -52,38 +51,38 @@ echo "$tmp.config" > $tmp.config/log-directory
 
 pmmgr -v -v -p 1 -l $tmp.out -c $tmp.config >$tmp.valout 2>$tmp.valerr &
 pid=$!
-echo "pid=$pid" >>$seq.full
+echo "pid=$pid" >>$seq_full
 
-date >>$seq.full
-echo "let pmmgr run /monitor a few times" | tee -a $seq.full
+date >>$seq_full
+echo "let pmmgr run /monitor a few times" | tee -a $seq_full
 sleep 10 # expecting tenish -p poll iterations!
 
-echo "look for err: messages" | tee -a $seq.full
+echo "look for err: messages" | tee -a $seq_full
 # pick out the error notices only; only a few are needed
 grep 'err:.*/no/such/program' $tmp.out | _filter | head -4
 
-echo "kill pmmgr" | tee -a $seq.full
+echo "kill pmmgr" | tee -a $seq_full
 kill $pid
 sleep 4
 if kill -0 $pid >/dev/null 2>&1
 then
-    echo "pmmgr (pid=$pid) did not die, try harder ..." >>$seq.full
+    echo "pmmgr (pid=$pid) did not die, try harder ..." >>$seq_full
     kill -KILL $pid >/dev/null 2>&1
     if kill -0 $pid >/dev/null 2>&1
     then
-	echo "pmmgr (pid=$pid) will not die!" >>$seq.full
+	echo "pmmgr (pid=$pid) will not die!" >>$seq_full
     fi
 fi
 pid=
 
-echo >>$seq.full
-echo "collecting recent daemon logs:" >>$seq.full
+echo >>$seq_full
+echo "collecting recent daemon logs:" >>$seq_full
 for log in $tmp.out $tmp.config/*/*
 do
     if [ -f "$log" ]
     then
-	echo "-- $log --" >>$seq.full
-	cat $log >>$seq.full
+	echo "-- $log --" >>$seq_full
+	cat $log >>$seq_full
     fi
 done
 # success, all done

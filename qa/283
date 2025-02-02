@@ -19,7 +19,6 @@ echo "QA output created by $seq"
 
 signal="$sudo $PCP_BINADM_DIR/pmsignal"
 status=0	# success is the default!
-$sudo rm -rf $tmp.*
 
 _cleanup()
 {
@@ -32,7 +31,6 @@ _cleanup()
 }
 
 trap "_cleanup; exit \$status" 0 1 2 3 15
-rm -f $seq.full
 
 # Test is failing on test-centos6-container in CI deep inside
 # the avahi code (not the PCP code), so we've decided to
@@ -60,7 +58,7 @@ p
 }
 
 
-_service pcp stop >/dev/null 2>&1
+if ! _service pcp stop >/dev/null 2>&1; then _exit 1; fi
 # allow time to cleanup and close all sockets
 sleep 3
 
@@ -88,7 +86,7 @@ do
 
     echo
     echo "=== PMCD_PORT=$PMCD_PORT pmcd_opt=$pmcd_opt ==="
-    echo "=== PMCD_PORT=$PMCD_PORT pmcd_opt=$pmcd_opt ===" >>$seq.full
+    echo "=== PMCD_PORT=$PMCD_PORT pmcd_opt=$pmcd_opt ===" >>$seq_full
     cat >$tmp.sh <<END
 #!/bin/sh
 PATH=$PATH
@@ -115,9 +113,9 @@ END
 	esac
 
 	echo "--- PMCD_PORT=$PMCD_PORT ---"
-	echo "--- PMCD_PORT=$PMCD_PORT ---" >>$seq.full
+	echo "--- PMCD_PORT=$PMCD_PORT ---" >>$seq_full
 	pmprobe -v -h localhost -D context sample.long.one >$tmp.tmp 2>&1
-	cat $tmp.tmp >>$seq.full
+	cat $tmp.tmp >>$seq_full
 	_filter <$tmp.tmp
 
     done
@@ -126,7 +124,7 @@ END
     pmcd_pid=''
     wait
     sleep 3
-    cat $tmp.log >>$seq.full
+    cat $tmp.log >>$seq_full
     # _filter_pmcd_log <$tmp.log
 
 done

@@ -20,6 +20,7 @@ then
     # check.callback more than likely
     #
     [ $# -ge 2 -a "$2" != "" ] && seq="$2"
+    [ -f $seq.full ] && mv $seq.full $seq.full.save
 fi
 
 $check || echo "QA output created by $seq"
@@ -29,9 +30,9 @@ $check || echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+[ -f $seq_full.save ] && mv $seq_full.save $seq_full
+
 status=0	# success is the default!
-$sudo rm -rf $tmp $tmp.*
-$check || $sudo rm -f $seq.full
 trap "cd $here; $sudo rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 
 _is_activating()
@@ -40,7 +41,7 @@ _is_activating()
 	 -n "$PCP_SYSTEMDUNIT_DIR" -a -f $PCP_SYSTEMDUNIT_DIR/pmlogger.service ]
     then
 	eval `systemctl show --property=ActiveState pmlogger.service`
-	echo "ActiveState=$ActiveState" >>$here/$seq.full
+	echo "ActiveState=$ActiveState" >>$seq_full
 	[ "$ActiveState" = activating ] && return 0
     fi
     return 1
@@ -53,14 +54,14 @@ _check()
 
     if $check
     then
-	echo "--- running 870 --check @ `date` ---" >>$here/$seq.full
+	echo "--- running 870 --check @ `date` ---" >>$seq_full
     fi
     _get_pids_by_name pmlogger >$tmp.pmids
-    echo "_get_pids_by_name pmlogger ..." >>$here/$seq.full
-    cat $tmp.pmids >>$here/$seq.full
+    echo "_get_pids_by_name pmlogger ..." >>$seq_full
+    cat $tmp.pmids >>$seq_full
     $PCP_PS_PROG $PCP_PS_ALL_FLAGS >$tmp.ps.out
-    echo "$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep /[p]mlogger ..." >>$here/$seq.full
-    grep /[p]mlogger <$tmp.ps.out >>$here/$seq.full
+    echo "$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep /[p]mlogger ..." >>$seq_full
+    grep /[p]mlogger <$tmp.ps.out >>$seq_full
     if [ -s $tmp.pmids ]
     then
 	# at least one is running
@@ -217,12 +218,12 @@ $2 == '"$pid"'	{ print }'
 		    # OK
 		    :
 		else
-		    echo "Warning: no matching pmlogger process for ..." >>$here/$seq.full
-		    ls -l $PCP_TMP_DIR/pmlogger/$file >>$here/$seq.full
+		    echo "Warning: no matching pmlogger process for ..." >>$seq_full
+		    ls -l $PCP_TMP_DIR/pmlogger/$file >>$seq_full
 		    if $check
 		    then
 			$sudo rm -f $PCP_TMP_DIR/pmlogger/$file
-			echo "File removed." >>$here/$seq.full
+			echo "File removed." >>$seq_full
 		    fi
 		fi
 	    fi
@@ -271,16 +272,16 @@ $2 == '"$pid"'	{ print }'
 		    # OK
 		    :
 		else
-		    echo "Warning: no matching pmlogger process for ..." >>$here/$seq.full
-		    ls -l $PCP_RUN_DIR/$file >>$here/$seq.full
+		    echo "Warning: no matching pmlogger process for ..." >>$seq_full
+		    ls -l $PCP_RUN_DIR/$file >>$seq_full
 		    if $check
 		    then
 			$sudo rm -f $PCP_RUN_DIR/$file
 			case "$file"
 			in
-			    *.socket)	echo "Socket removed." >>$here/$seq.full
+			    *.socket)	echo "Socket removed." >>$seq_full
 					;;
-			    *)		echo "File removed." >>$here/$seq.full
+			    *)		echo "File removed." >>$seq_full
 					;;
 			esac
 		    fi
@@ -329,9 +330,9 @@ then
 fi
 
 echo
-echo "start another primary pmlogger (expect failure) ..." | tee -a $here/$seq.full
+echo "start another primary pmlogger (expect failure) ..." | tee -a $seq_full
 _start_up_pmlogger -Dcontext,pmlc -L -c /dev/null -l $tmp.log -P $tmp.arch
-echo "pmlogger pid $pid" >>$here/$seq.full
+echo "pmlogger pid $pid" >>$seq_full
 for i in 1 2 3 4 5
 do
     present=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS \
@@ -367,7 +368,7 @@ grep -E 'ERROR:|info:' <$tmp.log \
     -e 's/pid [0-9][0-9]*/pid SOMEPID/g' \
     -e "s@$PCP_TMP_DIR/@PCP_TMP_DIR/@g"
 
-cat $tmp.log >>$here/$seq.full
+cat $tmp.log >>$seq_full
 _check
 
 exit

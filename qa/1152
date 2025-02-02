@@ -15,7 +15,6 @@ _java_check
 
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
-$sudo rm -rf $tmp.* $seq.full
 
 _log_filter()
 {
@@ -56,14 +55,14 @@ _pmdabcc_wait_for_metric
 pmsleep 1
 
 echo "=== report metric values ==="
-pminfo -dfmtT bcc.usdt.jvm.alloc 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bcc.usdt.jvm.alloc 2>&1 | tee -a $seq_full \
 | grep TestUnit | _value_filter
 
 echo "=== check for libpcp pmdaCacheOp segfault if key field is empty ==="
 cp /var/lib/pcp/config/pmda/149.120 $tmp.149.120
 $sudo sed -i 's/ TestUnit//' /var/lib/pcp/config/pmda/149.120
 $sudo mv $tmp.149.120 /var/lib/pcp/config/pmda/149.120
-pminfo -dfmtT bcc.usdt.jvm.alloc 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bcc.usdt.jvm.alloc 2>&1 | tee -a $seq_full \
 | grep TestUnit | _value_filter
 
 $signal -s KILL $javapid > /dev/null 2>&1

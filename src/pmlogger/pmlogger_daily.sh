@@ -262,27 +262,32 @@ CULLAFTER=14
 # 
 COMPRESS=""
 COMPRESS_CMDLINE=""
-if which xz >/dev/null 2>&1
-then
-    if xz -0 --block-size=10MiB </dev/null >/dev/null 2>&1
-    then
-	# want minimal overheads, -0 is the same as --fast
-	COMPRESS_DEFAULT="xz -0 --block-size=10MiB"
-    else
-	COMPRESS_DEFAULT=xz
-    fi
-else
-    # overridden by $PCP_COMPRESS or if not set, no compression
-    COMPRESS_DEFAULT=""
-fi
+COMPRESS_DEFAULT=pmlogcompress
 COMPRESSAFTER_CMDLINE=""
-eval `pmconfig -L -s transparent_decompress`
-if $transparent_decompress
+
+# we will compress aggressively (COMPRESSAFTER_DEFAULT=0) if
+# (a) xstd(1) is available, or
+# (b) xz(1) is available and transparent_decompress=true (liblzma present)
+# Note:
+#	For PCP 7.0.0 (a) is new and has precedence, for prior releases
+#	only (b) was considered
+#
+if which zstd >/dev/null 2>&1
 then
     COMPRESSAFTER_DEFAULT=0
+elif which zx >/dev/null 2>&1
+then
+    eval `pmconfig -L -s transparent_decompress`
+    if $transparent_decompress
+    then
+	COMPRESSAFTER_DEFAULT=0
+    else
+	COMPRESSAFTER_DEFAULT="never"
+    fi
 else
     COMPRESSAFTER_DEFAULT="never"
 fi
+
 if [ -n "$PCP_COMPRESSAFTER" ]
 then
     $PCP_BINADM_DIR/find-filter </dev/null >/dev/null 2>&1 mtime "+$PCP_COMPRESSAFTER"
@@ -782,7 +787,7 @@ _lock()
 	delay=200	# tenths of a second
 	while [ $delay -gt 0 ]
 	do
-	    if pmlock -v "$1/lock" >>$tmp/out 2>&1
+	    if pmlock -i "$$ pmlogger_daily" -v "$1/lock" >>$tmp/out 2>&1
 	    then
 		echo "$1/lock" >$tmp/lock
 		break
@@ -795,6 +800,7 @@ _lock()
 		    then
 			_warning "removing lock file older than 30 minutes"
 			LC_TIME=POSIX ls -l "$1/lock"
+			[ -s "$1"/lock" ] && cat "$1"/lock"
 			rm -f "$1/lock"
 		    else
 			# there is a small timing window here where pmlock
@@ -817,6 +823,7 @@ _lock()
 	    then
 		_warning "is another PCP cron job running concurrently?"
 		LC_TIME=POSIX ls -l "$1/lock"
+		[ -s "$dir/lock" ] && cat "$dir/lock"
 	    else
 		echo "$prog: `cat $tmp/out`"
 	    fi

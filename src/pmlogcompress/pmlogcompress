@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Compression/decompression of files of a PCP archive.
+# Compression of files of a PCP archive.
 #
 # Copyright (c) 2024 Ken McDonell, Inc.  All Rights Reserved.
 # 
@@ -23,7 +23,7 @@
 
 prog=`basename $0`
 
-tmp=/var/tmp/pmlogdecompress.$$
+tmp=/var/tmp/pmlogcompress.$$
 status=1
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
@@ -36,13 +36,10 @@ Options:
   -A=ARG, --arg=ARG		argument for compression program
   -c=PROGLIST, --command=PROGLIST	candidate compression program(s)
   -f=PROG, --use=PROG		use this compression program
-  -d, --decompress		decompress files
   -l=LIMIT, --lower-limit=LIMIT	do no compress files smaller than LIMIT
   -N, --show-me			do nothing, but show me
   -o=TYPE, --optimize=TYPE	choose program to optimize compression
-  -t=DIR, --dir=DIR		decompress into directory DIR
   -V, --verbose			increase verbosity
-  -z, --compress		compress files [default]
   -Z=MIN, --min-zstd-size=MIN   minimum file size for compression with zstd
   --help
 # end
@@ -61,24 +58,39 @@ Decompression program is selected based on file extension.
 LIMIT is in bytes [default 4096]; use 0 to force compression. similarly
 for zstd mimimum file size MIN [default 52428800].
 
-Compression optimization TYPE may be cpu or size.
+Compression optimization TYPE may be time or space.
 End-of-File
 
+# get file ($1) size
+#
 _size()
 {
     ls -l "$1" | awk '{print $5}'
 }
 
-_run_decompress()
+# determine correct args to use for xz(1)
+#
+_xz_setup()
 {
-    if $showme
+    if [ -z "${xz_args+onetrip}" ]
     then
-	echo >&2 "+ $*"
-    elif ! $*
-    then
-	echo >&2 "$* file failed"
-	exit
+	if xz -0 --block-size=10MiB </dev/null >/dev/null 2>&1
+	then
+	    # want minimal overheads, -0 is the same as --fast ...
+	    # these options were selected after extensive analysis
+	    # for original settings in pmlogger_daily
+	    #
+	    xz_args="-0 --block-size=10MiB"
+	elif xz -0 </dev/null >/dev/null 2>&1
+	then
+	    # no --block-size in older versions of xz
+	    #
+	    xz_args="-0"
+	else
+	    xz_args=''
+	fi
     fi
+    $verbose && echo >&2 "xz_setup: compression args=\"$xz_args\""
 }
 
 # component archive filenames are arguments
@@ -89,7 +101,7 @@ _run_decompress()
 _optimize()
 {
     pick=''
-    pick_size=0
+    largest=0
     for file
     do
 	[ -f "$file" ] || continue
@@ -102,19 +114,19 @@ _optimize()
 		    ;;
 	esac
 	size=`_size "$file"`
-	if [ "$size" -ge "$min_size" -a "$size" -gt "$pick_size" ]
+	if [ "$size" -ge "$min_size" -a "$size" -gt "$largest" ]
 	then
 	    pick="$file"
-	    pick_size=$size
+	    largest=$size
 	fi
     done
     if [ -z "$pick" ]
     then
-	$verbose && echo 2>&1 "optimize: failed to find a candidate file, defaulting to xz"
+	$verbose && echo >&2 "optimize: failed to find a candidate file, defaulting to xz"
 	use_prog=xz
 	return
     fi
-    $verbose && echo 2>&1 "$pick: ($pick_size bytes) selected as candidate for optimize measurements"
+    $verbose && echo >&2 "$pick: ($largest bytes) selected as candidate for optimize measurements"
     pick_size=''
     pick_cpu=''
     use_prog=''
@@ -130,7 +142,7 @@ _optimize()
 			size=`_size "$tmp.tmp"`
 			cpu=`awk <$tmp.time '{ print 1000*($1+$2) }'`
 			$verbose && echo >&2 "$pick: zstd size=$size cpu=$cpu"
-			if [ "$optimize" = size ]
+			if [ "$optimize" = space ]
 			then
 			    if [ -z "$pick_size" -o $size -lt 0$pick_size ]
 			    then
@@ -157,12 +169,19 @@ _optimize()
 	    xz)
 		if $have_xz
 		then
-		    if time -f '%U %S' xz -zc -q "$pick" >$tmp.tmp 2>$tmp.time
+		    if [ -n "$args" ]
+		    then 
+			largs=" $args"
+		    else
+			[ -z "${xz_args+onetrip}" ] && _xz_setup
+			largs=" $xz_args"
+		    fi
+		    if time -f '%U %S' xz$largs -zc -q "$pick" >$tmp.tmp 2>$tmp.time
 		    then
 			size=`_size "$tmp.tmp"`
 			cpu=`awk <$tmp.time '{ print 1000*($1+$2) }'`
 			$verbose && echo >&2 "$pick: xz size=$size cpu=$cpu"
-			if [ "$optimize" = size ]
+			if [ "$optimize" = space ]
 			then
 			    if [ -z "$pick_size" -o $size -lt 0$pick_size ]
 			    then
@@ -194,7 +213,7 @@ _optimize()
 			size=`_size "$tmp.tmp"`
 			cpu=`awk <$tmp.time '{ print 1000*($1+$2) }'`
 			$verbose && echo >&2 "$pick: bzip2 size=$size cpu=$cpu"
-			if [ "$optimize" = size ]
+			if [ "$optimize" = space ]
 			then
 			    if [ -z "$pick_size" -o $size -lt $pick_size ]
 			    then
@@ -226,7 +245,7 @@ _optimize()
 			size=`_size "$tmp.tmp"`
 			cpu=`awk <$tmp.time '{ print 1000*($1+$2) }'`
 			$verbose && echo >&2 "$pick: gzip size=$size cpu=$cpu"
-			if [ "$optimize" = size ]
+			if [ "$optimize" = space ]
 			then
 			    if [ -z "$pick_size" -o $size -lt 0$pick_size ]
 			    then
@@ -321,6 +340,7 @@ _compress()
 				    $verbose && echo >&2 "$file: compressed with zstd"
 				else
 				    echo >&2 "$file: zstd failed!"
+				    rm -f "$file.zst"
 				    exit
 				fi
 			    fi
@@ -334,26 +354,13 @@ _compress()
 		xz)
 		    if $have_xz || [ "$use_prog" = xz ]
 		    then
-			if [ -z "${xz_args+onetrip}" ]
-			then
-			    if xz -0 --block-size=10MiB </dev/null >/dev/null 2>&1
-			    then
-				# want minimal overheads, -0 is the same as --fast ...
-				# these options were selected after extensive analysis
-				# for original settings in pmlogger_daily
-				#
-				largs=" -0 --block-size=10MiB"
-			    elif xz -0 </dev/null >/dev/null 2>&1
-			    then
-				# no --block-size in older versions of xz
-				#
-				largs=" -0"
-			    else
-				largs=''
-			    fi
-			    xz_args="$largs"
+			if [ -n "$args" ]
+			then 
+			    largs=" $args"
+			else
+			    [ -z "${xz_args+onetrip}" ] && _xz_setup
+			    largs=" $xz_args"
 			fi
-			[ -n "$args" ] && largs=" $args"
 			if $showme
 			then
 			    echo >&2 "+ xz$largs $file"
@@ -427,258 +434,6 @@ _compress()
     fi
 }
 
-_decompress()
-{
-    if [ -f "$1" ]
-    then
-	# single file ...
-	#
-	archbase=''
-	filelist="$1"
-    else
-	# assume it is an archive basename
-	#
-	archbase="`pmlogbasename $1`"
-	$verbose && echo >&2 "archbase=$archbase"
-	filelist=`echo ${archbase}*`
-    fi
-
-    # for all the files that seem to be part of this archive,
-    # count the files and the number that are compressed
-    #
-    nfile=0
-    ncompress=0
-    for file in $filelist
-    do
-	[ ! -f "$file" ] && continue
-	if [ -z "$archbase" -o "$archbase" = `pmlogbasename "$file"` ]
-	then
-	    nfile=`expr $nfile + 1`
-	    case $file
-	    in
-		*.xz|*.lzma|*.bz2|*.bz|*.gz|*.Z|*.z|*.zst)
-		    ncompress=`expr $ncompress + 1`
-		    if [ -z "$dir" ]
-		    then
-			outfile=`echo "$file" | sed -e 's/\.[^.]*$//'`
-		    else
-			outfile="$dir"/`basename "$file" | sed -e 's/\.[^.]*$//'`
-		    fi
-		    if [ -f "$outfile" ]
-		    then
-			echo >&2 "$prog: $outfile exists and will not be clobbered"
-			return
-		    fi
-		    ;;
-	    esac
-	fi
-    done
-
-    if [ "$nfile" -eq 0 ]
-    then
-	echo >&2 "$prog: Warning: no PCP archive files match \"$1\""
-	return
-    fi
-
-    if [ "$ncompress" -eq 0 ]
-    then
-	$verbose && echo >&2 "No compresssed PCP archive files match \"$1\""
-	status=0
-	return
-    fi
-    $verbose && echo >&2 "$ncompress of $nfile files in the archive are compressed"
-
-    for file in $filelist
-    do
-	[ ! -f "$file" ] && continue
-	if [ -z "$archbase" -o "$archbase" = `pmlogbasename "$file"` ]
-	then
-	    case $file
-	    in
-		*.xz)
-		    if [ -z "$dir" ]
-		    then
-			outfile=`basename "$file" .xz`
-		    else
-			outfile="$dir"/`basename "$file" .xz`
-		    fi
-		    if [ -f "$outfile" ]
-		    then
-			echo >&2 "$outfile: exists, skip $file decompression"
-		    else
-			if [ -z "$dir" ]
-			then
-			    _run_decompress xz --decompress "$file"
-			else
-			    _run_decompress xz --decompress --stdout "$file" >"$outfile"
-			fi
-			$verbose && echo >&2 "$outfile: decompressed"
-		    fi
-		    ;;
-
-		*.lzma)
-		    if [ -z "$dir" ]
-		    then
-			outfile=`basename "$file" .lzma`
-		    else
-			outfile="$dir"/`basename "$file" .lzma`
-		    fi
-		    if [ -f "$outfile" ]
-		    then
-			echo >&2 "$outfile: exists, skip $file decompression"
-		    else
-			if [ -z "$dir" ]
-			then
-			    _run_decompress xz --decompress --format=lzma "$file"
-			else
-			    _run_decompress xz --decompress --format=lzma --stdout "$file" >"$outfile"
-			fi
-			$verbose && echo >&2 "$outfile: decompressed"
-		    fi
-		    ;;
-
-		*.bz2)
-		    if [ -z "$dir" ]
-		    then
-			outfile=`basename "$file" .bz2`
-		    else
-			outfile="$dir"/`basename "$file" .bz2`
-		    fi
-		    if [ -f "$outfile" ]
-		    then
-			echo >&2 "$outfile: exists, skip $file decompression"
-		    else
-			if [ -z "$dir" ]
-			then
-			    _run_decompress bzip2 --decompress "$file"
-			else
-			    _run_decompress bzip2 --decompress --stdout "$file" >"$outfile"
-			fi
-			$verbose && echo >&2 "$outfile: decompressed"
-		    fi
-		    ;;
-
-		*.bz)
-		    if [ -z "$dir" ]
-		    then
-			outfile=`basename "$file" .bz`
-		    else
-			outfile="$dir"/`basename "$file" .bz`
-		    fi
-		    if [ -f "$outfile" ]
-		    then
-			echo >&2 "$outfile: exists, skip $file decompression"
-		    else
-			if [ -z "$dir" ]
-			then
-			    _run_decompress bzip2 --decompress "$file"
-			else
-			    _run_decompress bzip2 --decompress --stdout "$file" >"$outfile"
-			fi
-			$verbose && echo >&2 "$outfile: decompressed"
-		    fi
-		    ;;
-
-		*.gz)
-		    if [ -z "$dir" ]
-		    then
-			outfile=`basename "$file" .gz`
-		    else
-			outfile="$dir"/`basename "$file" .gz`
-		    fi
-		    if [ -f "$outfile" ]
-		    then
-			echo >&2 "$outfile: exists, skip $file decompression"
-		    else
-			if [ -z "$dir" ]
-			then
-			    _run_decompress gzip -d "$file"
-			else
-			    _run_decompress gzip -dc "$file" >"$outfile"
-			fi
-			$verbose && echo >&2 "$outfile: decompressed"
-		    fi
-		    ;;
-
-		*.z)
-		    if [ -z "$dir" ]
-		    then
-			outfile=`basename "$file" .z`
-		    else
-			outfile="$dir"/`basename "$file" .z`
-		    fi
-		    if [ -f "$outfile" ]
-		    then
-			echo >&2 "$outfile: exists, skip $file decompression"
-		    else
-			if [ -z "$dir" ]
-			then
-			    _run_decompress gzip -d "$file"
-			else
-			    _run_decompress gzip -dc "$file" >"$outfile"
-			fi
-			$verbose && echo >&2 "$outfile: decompressed"
-		    fi
-		    ;;
-
-		*.Z)
-		    echo >&2 TODO: $file
-		    ;;
-
-		*.zst)
-		    if [ -z "$dir" ]
-		    then
-			outfile=`basename "$file" .zst`
-		    else
-			outfile="$dir"/`basename "$file" .zst`
-		    fi
-		    if [ -f "$outfile" ]
-		    then
-			echo >&2 "$outfile: exists, skip $file decompression"
-		    else
-			if [ -z "$dir" ]
-			then
-			    _run_decompress unzstd --rm --quiet "$file"
-			else
-			    _run_decompress unzstd --stdout --quiet "$file" >"$outfile"
-			fi
-			$verbose && echo >&2 "$outfile: decompressed"
-		    fi
-		    ;;
-
-		*)	# not compressed ... do nothing unless -d, and then
-		    # try ln(1), failing that cp(1)
-		    #
-		    if [ -n "$dir" ]
-		    then
-			outfile="$dir/`basename $file`"
-			if [ -f "$outfile" ]
-			then
-			    echo >&2 "$outfile: exists, skip $file decompression"
-			else
-			    if $showme
-			    then
-				echo >&2 "+ cp $file $outfile"
-			    else
-				if ! cp "$file" "$outfile" >>$tmp.err 2>&1
-				then
-				    cat >&2 $tmp.err
-				    echo >&2 "Failed to copy $file"
-				    exit
-				else
-				    $verbose && echo >&2 "$outfile: copied"
-				fi
-			    fi
-			fi
-		    fi
-		    ;;
-	    esac
-	fi
-    done
-
-}
-
-mode=''
 args=''
 showme=false
 verbose=false
@@ -716,17 +471,6 @@ do
 	    shift
 	    ;;
 
-	-d)	# decompress
-	    if [ -z "$mode" ]
-	    then
-		mode=decompress
-	    elif [ "$mode" != decompress ]
-	    then
-		echo >&2 "$prog: at most one of -d and -z maybe specified"
-		exit
-	    fi
-	    ;;
-
 	-f)	# use this compression program
 	    use_prog="$2"
 	    shift
@@ -741,48 +485,25 @@ do
 	    showme=true
 	    ;;
 
-	-o)	# optimize compression (option = size|cpu)
+	-o)	# optimize compression (option = space|time)
 	    case "$2"
 	    in
-		size|cpu)
-		    optimize="$2"
+		space)
+		    optimize=space
+		    ;;
+		time)
+		    optimize=time
 		    ;;
 		*)
-		    echo >&2 "$prog: -o option must be size or cpu"
+		    echo >&2 "$prog: -o option must be space or time"
 		    exit
 		    ;;
 	    esac
 	    shift
 	    ;;
 
-	-t)	# temp dir
-	    if [ -z "$2" ]
-	    then
-		echo >&2 "$prog: -t requires a dir argument"
-		exit
-	    fi
-	    if [ ! -d "$2" ]
-	    then
-		echo >&2 "$prog: -t: $2 is not an existing directory"
-		exit
-	    fi
-	    dir="$2"
-	    shift
-	    ;;
-
 	-V)
 	    verbose=true
-	    ;;
-
-	-z)	# compress (default)
-	    if [ -z "$mode" ]
-	    then
-		mode=compress
-	    elif [ "$mode" != compress ]
-	    then
-		echo >&2 "$prog: at most one of -d and -z maybe specified"
-		exit
-	    fi
 	    ;;
 
 	-Z)	# lower limit on file size for zstd compression
@@ -810,54 +531,15 @@ then
     exit
 fi
 
-[ -z "$mode" ] && mode=compress
-
-# some command line args are ONLY valid for one or other of the $mode
+# some combinations of command line args are NOT valid
 #
-if [ "$mode" = decompress ]
+# with -o: disallow: -f
+if [ -n "$optimize" ]
 then
-    # Disallow: -A -c -f -l -o -Z
-    #
-    if [ -n "$args" ]
-    then
-	echo >&2 "$prog: -A [$args] not allowed when decompressing"
-	exit
-    fi
-    if [ -n "$proglist" ]
-    then
-	echo >&2 "$prog: -c [$proglist] not allowed when decompressing"
-	exit
-    fi
     if [ -n "$use_prog" ]
     then
-	echo >&2 "$prog: -f [$use_prog] not allowed when decompressing"
+	echo >&2 "$prog: -f [$use_prog] not allowed when compressing with -o"
 	exit
-    fi
-    if [ -n "$min_size" ]
-    then
-	echo >&2 "$prog: -l [$min_size] not allowed when decompressing"
-	exit
-    fi
-    if [ -n "$optimize" ]
-    then
-	echo >&2 "$prog: -o [$optimize] not allowed when decompressing"
-	exit
-    fi
-    if [ -n "$min_zstd_size" ]
-    then
-	echo >&2 "$prog: -Z [$min_zstd_size] not allowed when decompressing"
-	exit
-    fi
-else
-    # Compressing ...
-    # with -o: disallow: -f
-    if [ -n "$optimize" ]
-    then
-	if [ -n "$use_prog" ]
-	then
-	    echo >&2 "$prog: -f [$use_prog] not allowed when compressing with -o"
-	    exit
-	fi
     fi
 fi
 
@@ -912,13 +594,7 @@ fi
 
 while [ $# -gt 0 ]
 do
-    if [ "$mode" = decompress ]
-    then
-	_decompress "$1"
-    else
-	_compress "$1"
-    fi
-
+    _compress "$1"
     shift
 done
 

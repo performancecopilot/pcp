@@ -21,7 +21,6 @@ grep __pmLocalPMDA src/libpcp.h >/dev/null ||
     _notrun "No libpcp support for __pmLocalPMDA"
 
 status=0	# success is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 cat <<End-of-File >$tmp.derive
@@ -58,23 +57,23 @@ do
 	    args="$hargs $margs"
 	    if [ -z "$hargs" ]
 	    then
-		echo | tee -a $seq.full
-		echo "=== $args $metric_args ===" | tee -a $seq.full
+		echo | tee -a $seq_full
+		echo "=== $args $metric_args ===" | tee -a $seq_full
 		pminfo -b 1 -c $tmp.derive $args $metric_args >$tmp.raw
-		cat $tmp.raw >>$seq.full
+		cat $tmp.raw >>$seq_full
 		_filter <$tmp.raw \
 		| LC_COLLATE=POSIX sort >$tmp.base
 	    else
 		$sudo pminfo -b 1 -c $tmp.derive $args $metric_args >$tmp.raw
-		echo "=== $args $metric_args" >>$seq.full
-		cat $tmp.raw >>$seq.full
+		echo "=== $args $metric_args" >>$seq_full
+		cat $tmp.raw >>$seq_full
 		_filter <$tmp.raw \
 		| LC_COLLATE=POSIX sort >$tmp.tmp
-		echo "--- $args diffs against baseline ---" | tee -a $seq.full
+		echo "--- $args diffs against baseline ---" | tee -a $seq_full
 		diff -u $tmp.base $tmp.tmp \
 		| sed -e "/---/s/.*/- baseline output/" \
 		      -e "/+++/s/.*/+ $args output/" \
-		| tee -a $seq.full
+		| tee -a $seq_full
 	    fi
 	done
     done

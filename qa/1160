@@ -35,7 +35,6 @@ fi
 
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
-$sudo rm -rf $tmp.* $seq.full
 
 pmda_filter()
 {
@@ -79,8 +78,8 @@ timeout = 1
 count = 1
 timeout = 1
 EOF
-    echo "pmdanetcheck config:" >> $here/$seq.full
-    cat $tmp.config >> $here/$seq.full
+    echo "pmdanetcheck config:" >> $seq_full
+    cat $tmp.config >> $seq_full
 
     [ -f $PCP_PMDAS_DIR/netcheck/netcheck.conf ] && \
     $sudo cp $PCP_PMDAS_DIR/netcheck/netcheck.conf $tmp.backup
@@ -117,11 +116,11 @@ echo
 echo "=== report metric values ==="
 metrics=`pminfo netcheck | LC_COLLATE=POSIX sort`
 pminfo -dfmtT $metrics 2>&1 \
-| pmda_filter | tee -a $here/$seq.full
+| pmda_filter | tee -a $seq_full
 
 echo "=== verify metric values ==="
 pminfo -v netcheck 2>&1 \
-| pmda_filter | tee -a $here/$seq.full
+| pmda_filter | tee -a $seq_full
 pmda_remove
 
 status=0

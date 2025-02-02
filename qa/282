@@ -43,7 +43,7 @@ _poke_pmcd()
     # going off into systemd land via the pcp init script wrapper
     #
     ( $sudo $PCP_RC_DIR/pmcd restart; $sudo $PCP_RC_DIR/pmlogger restart ) 2>&1 \
-    | tee -a $seq.full \
+    | tee -a $seq_full \
     | sed \
 	-e '/ root .* .usr.etc.pmcd /s/.*/-- ps output line --/' \
 	-e '/UID .* PID /d' \
@@ -70,16 +70,16 @@ _poke_pmcd()
 	clients=`pmprobe pmcd.numclients 2>/dev/null | sed -e 's/.* //'`
 	if [ $i -eq 0 ]
 	then
-	    echo >>$seq.full
-	    echo "+ pmprobe pmcd.numclients" >>$seq.full
-	    pmprobe pmcd.numclients >>$seq.full 2>&1
-	    echo "clients=\"$clients\"" >>$seq.full
+	    echo >>$seq_full
+	    echo "+ pmprobe pmcd.numclients" >>$seq_full
+	    pmprobe pmcd.numclients >>$seq_full 2>&1
+	    echo "clients=\"$clients\"" >>$seq_full
 	fi
 	[ ! -z "$clients" ] && [ "$clients" -gt 0 ] && break
 	sleep 1
 	i=`expr $i + 1`
     done
-    
+
     $PCP_ECHO_PROG $PCP_ECHO_N "=== probe pmcd: ""$PCP_ECHO_C"
     x=`pmprobe pmcd.control.debug 2>&1 | sed -e "s/$LOCALHOST/HOST/g" -e 's|local:/*|HOST|g'`
     if [ "$x" = "pmcd.control.debug 1" ]
@@ -117,7 +117,7 @@ _poke_pmcd_n_logger()
 	$PCP_ECHO_PROG OK
     else
 	$PCP_ECHO_PROG "$x"
-        if $sleepy 
+        if $sleepy
         then
             echo go check the logs while I wait a couple of minutes
             sleep 240
@@ -143,7 +143,7 @@ _save_setup()
 	    $sudo cp -p $file.$seq $file
 	fi
     done
-    _disable_loggers
+    _disable_loggers || _exit 1
 }
 
 _cleanup()
@@ -182,8 +182,7 @@ _cleanup()
 trap "_cleanup" 0
 trap "_interrupt; _cleanup" 1 2 3 15
 
-rm -f $seq.full
-touch $seq.full
+touch $seq_full
 
 _exercise_rc_scripts()
 {
@@ -247,7 +246,7 @@ End-of-File
     echo "=== start again ==="
     _poke_pmcd_n_logger
 
-    echo 
+    echo
     echo "=== expect 2 x connect failure: pmcd is true(1), so hard for pmlogger ==="
     $sudo rm -f $PCP_PMCD_PROG.$seq
     $sudo mv $PCP_PMCD_PROG $PCP_PMCD_PROG.$seq
@@ -270,13 +269,13 @@ End-of-File
     $sudo kill -STOP $pid
     _poke_pmcd
 
-    echo 
+    echo
     echo "=== expect warning: PMLOGGER.CHECK moved, so no pmlogger ==="
-    $sudo rm $CHECK 
+    $sudo rm $CHECK
     _poke_pmcd_n_logger
     $sudo cp -p $CHECK.$seq $CHECK
 
-    echo 
+    echo
     echo "=== expect error: pmlogger/control moved, so no pmlogger ==="
     $sudo rm -f $PCP_PMLOGGERCONTROL_PATH
     _poke_pmcd_n_logger
@@ -284,9 +283,10 @@ End-of-File
 
 # real QA test starts here
 _save_setup
-_service pcp stop | _filter_pcp_stop
+if ! _service pcp stop; then _exit 1; fi \
+| _filter_pcp_stop
 ( $sudo $PCP_RC_DIR/pmcd restart; $sudo $PCP_RC_DIR/pmlogger restart ) 2>&1 \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | _filter_pcp_start
 _exercise_rc_scripts
 

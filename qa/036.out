@@ -3,9 +3,9 @@ QA output created by 036
 --- echo ---
 __pmProcessExec: argc=2 toss=0 "/bin/echo" "blah;trickme"
 __pmProcessExec: child pid=PID
-blah;trickme
 __pmProcessExec: child pid=PID wait_pid=PID exit=0
 __pmProcessExec -> 0
+blah;trickme
 --- /bin/sh -c ---
 +++ stderr +++
 __pmProcessExec: argc=3 toss=0 "/bin/sh" "-c" "( echo 'f o o'; sleep 1; kill -KILL $$; sleep 1; echo b\ a\ r )"

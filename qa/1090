@@ -34,16 +34,15 @@ _cleanup()
 
 status=1	# failure is the default!
 port=44322
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _dump_curl()
 {
-    echo "$1 curl ..." >>$here/$seq.full
-    echo "<stdout>" >>$here/$seq.full
-    ( cat $tmp.out; echo ) >>$here/$seq.full
-    echo "<stderr>" >>$here/$seq.full
-    ( cat $tmp.err; echo ) >>$here/$seq.full
+    echo "$1 curl ..." >>$seq_full
+    echo "<stdout>" >>$seq_full
+    ( cat $tmp.out; echo ) >>$seq_full
+    echo "<stderr>" >>$seq_full
+    ( cat $tmp.err; echo ) >>$seq_full
 }
 
 _get_context()
@@ -86,14 +85,15 @@ _get_metrics()
 }
 
 _stop_auto_restart pmproxy
-_service pmproxy stop >/dev/null 2>&1
+if ! _service pmproxy stop >/dev/null 2>&1; then _exit 1; fi
 
-_service pmproxy start | _filter_pmproxy_start
-_wait_for_pmproxy $port
+if ! _service pmproxy start; then _exit 1; fi \
+| _filter_pmproxy_start
+_wait_for_pmproxy $port || _exit 1
 
 # real QA test starts here
 ctx1=`_get_context`
-echo "ctx1=$ctx1" >>$here/$seq.full
+echo "ctx1=$ctx1" >>$seq_full
 if [ -z "$ctx1" ]
 then
     echo "Arrg, failed to get context number from ..."
@@ -105,13 +105,13 @@ _get_metrics $ctx1
 
 # kill off pmcd
 echo "Killing off pmcd ..."
-_service pmcd stop 2>&1 | _filter_pcp_stop
+if ! _service pmcd stop 2>&1; then _exit 1; fi | _filter_pcp_stop
 
 echo "Retrying first context ..."
 _get_metrics $ctx1
 
 ctx2=`_get_context`
-echo "ctx2=$ctx2" >>$here/$seq.full
+echo "ctx2=$ctx2" >>$seq_full
 if [ -n "$ctx2" ]
 then
     echo "Warning: got second context number from ..."
@@ -126,11 +126,11 @@ fi
 
 # start pmcd
 echo "Restarting pmcd ..."
-_service pmcd start 2>&1 | _filter_pcp_start
-_wait_for_pmcd
+if ! _service pmcd start 2>&1; then _exit 1; fi | _filter_pcp_start
+_wait_for_pmcd || _exit 1
 
 ctx3=`_get_context`
-echo "ctx3=$ctx3" >>$here/$seq.full
+echo "ctx3=$ctx3" >>$seq_full
 if [ -z "$ctx3" ]
 then
     echo "Arrg, failed to get context number from ..."

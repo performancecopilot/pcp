@@ -41,7 +41,6 @@ _cleanup()
 }
 
 status=0	# success is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _filter()
@@ -110,7 +109,7 @@ End-of-File
 #
 nch=`wc -c <$tmp.equiv | sed -e 's/  *//'`
 nch=`expr $nch - 1`
-dd if=$tmp.equiv of=$tmp.tmp ibs=1 count=$nch 2>>$seq.full
+dd if=$tmp.equiv of=$tmp.tmp ibs=1 count=$nch 2>>$seq_full
 mv $tmp.tmp $tmp.equiv
 nl -b a $tmp.equiv
 export PCP_INDOM_CONFIG=$tmp.equiv

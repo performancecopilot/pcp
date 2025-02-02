@@ -24,12 +24,11 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 pcp2xml -z -a archives/ok-foo "" \
-| tee $seq.full \
+| tee $seq_full \
 | LC_COLLATE=POSIX sort
 
 # success, all done

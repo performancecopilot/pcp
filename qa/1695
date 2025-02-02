@@ -25,7 +25,6 @@ _cleanup()
 
 status=1	# failure is the default!
 username=`id -u -n`
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # create a pmproxy configuration
@@ -67,8 +66,8 @@ export PCP_TMP_DIR=$tmp.pmproxy
 $_valgrind_clean_assert pmproxy -f -r $key_server_port -p $port -U $username -l- -c $tmp.conf >$tmp.valout 2>$tmp.valerr &
 pid=$!
 
-echo "valgrind pid: $pid" >>$seq.full
-echo "pmproxy port: $port" >>$seq.full
+echo "valgrind pid: $pid" >>$seq_full
+echo "pmproxy port: $port" >>$seq_full
 
 # valgrind takes awhile to fire up
 i=0
@@ -80,7 +79,7 @@ do
 done
 if $PCP_BINADM_DIR/telnet-probe -c localhost $port
 then
-    echo "Startup took $i secs" >>$seq.full
+    echo "Startup took $i secs" >>$seq_full
 else
     echo "Arrgh: valgrind failed start pmproxy and get port $port ready after 30 secs"
     exit
@@ -90,56 +89,56 @@ params="polltimeout=20"
 
 if which fuser >/dev/null
 then
-    echo "fuser for port $port ..." >>$seq.full
-    $sudo fuser -n tcp $port >>$seq.full 2>&1
+    echo "fuser for port $port ..." >>$seq_full
+    $sudo fuser -n tcp $port >>$seq_full 2>&1
 fi
 
 if which pstree >/dev/null
 then
-    echo "pstree for pid $pid" >>$seq.full
-    $sudo pstree -p $pid >>$seq.full 2>&1
+    echo "pstree for pid $pid" >>$seq_full
+    $sudo pstree -p $pid >>$seq_full 2>&1
 fi
 
-date >>$seq.full
-echo "=== checking metric scrape operation ===" | tee -a $seq.full
+date >>$seq_full
+echo "=== checking metric scrape operation ===" | tee -a $seq_full
 curl -Gs "http://localhost:$port/metrics?$params" >$tmp.tmp 2>&1
 grep "^curl" $tmp.tmp
-cat $tmp.tmp >>$seq.full
+cat $tmp.tmp >>$seq_full
 
-date >>$seq.full
-echo "=== checking short-fuse scrape operation ===" | tee -a $seq.full
+date >>$seq_full
+echo "=== checking short-fuse scrape operation ===" | tee -a $seq_full
 curl -Gs "http://localhost:$port/metrics?polltimeout=1" >$tmp.tmp 2>&1
 grep "^curl" $tmp.tmp
-cat $tmp.tmp >>$seq.full
+cat $tmp.tmp >>$seq_full
 
-date >>$seq.full
-echo "=== checking repeated scrape operation ===" | tee -a $seq.full
+date >>$seq_full
+echo "=== checking repeated scrape operation ===" | tee -a $seq_full
 for f in `seq 1 100`; do
     curl -Gs "http://localhost:$port/metrics?names=kernel.all.load" >$tmp.tmp 2>&1
 done
 grep "^curl" $tmp.tmp
-cat $tmp.tmp >>$seq.full
+cat $tmp.tmp >>$seq_full
 
-date >>$seq.full
-echo "=== checking one client making multiple requests ===" | tee -a $seq.full
+date >>$seq_full
+echo "=== checking one client making multiple requests ===" | tee -a $seq_full
 context="http://localhost:$port/pmapi/context"
 curl -Gs $context $context >$tmp.tmp 2>&1
 grep "^curl" $tmp.tmp
-cat $tmp.tmp >>$seq.full
+cat $tmp.tmp >>$seq_full
 
-date >>$seq.full
-echo "=== checking metric fetch operation ===" | tee -a $seq.full
+date >>$seq_full
+echo "=== checking metric fetch operation ===" | tee -a $seq_full
 metrics="sample.colour,sample.long.one,sample.long.one,sample.double.one"
 curl -Gs "http://localhost:$port/pmapi/fetch?names=$metrics&$params" >$tmp.tmp 2>&1
 grep "^curl" $tmp.tmp
-cat $tmp.tmp >>$seq.full
+cat $tmp.tmp >>$seq_full
 
-date >>$seq.full
-echo "=== checking url escaping operation ===" | tee -a $seq.full
+date >>$seq_full
+echo "=== checking url escaping operation ===" | tee -a $seq_full
 metrics="%2Csample.long.one%2Csample.double.one%2C%2C"	# %2C == ','
 curl -Gs "http://localhost:$port/pmapi/fetch?names=$metrics&$params" >$tmp.tmp 2>&1
 grep "^curl" $tmp.tmp
-cat $tmp.tmp >>$seq.full
+cat $tmp.tmp >>$seq_full
 
 echo "=== check pmproxy is running ==="
 pminfo -v -h localhost@localhost:$port hinv.ncpu
@@ -152,10 +151,10 @@ fi
 # valgrind takes awhile to shutdown too
 pmsignal $pid
 pmsleep 3.5
-echo "=== valgrind stdout ===" | tee -a $seq.full
+echo "=== valgrind stdout ===" | tee -a $seq_full
 cat $tmp.valout | _filter_valgrind
 
-echo "=== valgrind stderr ===" | tee -a $seq.full
+echo "=== valgrind stderr ===" | tee -a $seq_full
 cat $tmp.valerr | _filter_pmproxy_log | _filter_port
 
 # success, all done

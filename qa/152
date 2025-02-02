@@ -16,9 +16,9 @@ trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
 # real QA test starts here
 ( date; pminfo -f pmcd.client ) >$tmp.before
-pminfo -f pmcd.numclients | tee $here/$seq.full | sed -e '/^$/d' >$tmp.out
+pminfo -f pmcd.numclients | tee $seq_full | sed -e '/^$/d' >$tmp.out
 N=`sed -n '/value/s/    value //p' $tmp.out`
-echo "N=$N" >>$here/$seq.full
+echo "N=$N" >>$seq_full
 sed "s/$N/N/" $tmp.out
 # expect N+4, but pmie processes come and go, so N+4 +/- 1 seems
 # about right
@@ -27,7 +27,7 @@ N=`expr $N + 4`
 MIN=`expr $N - 1`
 MAX=`expr $N + 1`
 PAT="($MIN|$N|$MAX)"
-echo "PAT=$PAT" >>$here/$seq.full
+echo "PAT=$PAT" >>$seq_full
 
 for i in 1 2 3 4
 do
@@ -45,7 +45,7 @@ do
     sleep 2
 done
 
-pminfo -f pmcd.numclients | tee -a $here/$seq.full | sed -e '/^$/d' >$tmp.out
+pminfo -f pmcd.numclients | tee -a $seq_full | sed -e '/^$/d' >$tmp.out
 ( date; pminfo -f pmcd.client ) >$tmp.after
 
 if grep -E "value $PAT" $tmp.out >/dev/null

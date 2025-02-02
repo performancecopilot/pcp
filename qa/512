@@ -24,7 +24,6 @@ else
 fi
 
 status=0	# success is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "$sudo rm -f $tmp.* $tmp-*; exit \$status" 0 1 2 3 15
 
 # we need to run part of the make to get headers and libraries setup
@@ -32,11 +31,11 @@ trap "$sudo rm -f $tmp.* $tmp-*; exit \$status" 0 1 2 3 15
 #
 for dir in include libpcp/src libpcp_archive/src
 do
-    echo "$SRC/$dir ..." >>$seq.full
+    echo "$SRC/$dir ..." >>$seq_full
     cd $SRC/$dir
-    if $PCP_MAKE_PROG 2>$tmp.err >>$here/$seq.full
+    if $PCP_MAKE_PROG 2>$tmp.err >>$seq_full
     then
-	cat $tmp.err >>$here/$seq.full
+	cat $tmp.err >>$seq_full
     else
 	echo "Arrgh ... make failed in $SRC/$dir"
 	cat $tmp.err
@@ -48,7 +47,7 @@ done
 
 _filter()
 {
-    tee -a $seq.full \
+    tee -a $seq_full \
     | sed -n \
 	-e '/lock(/{
 s/.* unlock(/unlock(/
@@ -99,22 +98,22 @@ _post()
 export LD_PRELOAD=$PCP_LIB_DIR/libpcp_fault.so
 
 
-echo "== pminfo ==" | tee -a $seq.full
+echo "== pminfo ==" | tee -a $seq_full
 _pre $SRC/pminfo pminfo
 $SRC/pminfo/pminfo.debug -v -Dlock >/dev/null 2>$tmp.trace
 _post $SRC/pminfo pminfo
 _filter <$tmp.trace
 
-echo | tee -a $seq.full
-echo "== pmlogger ==" | tee -a $seq.full
+echo | tee -a $seq_full
+echo "== pmlogger ==" | tee -a $seq_full
 sed -e 's/1 sec/50 msec/' <tmparch/config.foo >$tmp.config
 _pre $SRC/pmlogger/src pmlogger
 $SRC/pmlogger/src/pmlogger.debug -Dlock -c $tmp.config -s 20 -l $tmp.log $tmp
 _post $SRC/pmlogger/src pmlogger
 _filter <$tmp.log
 
-echo | tee -a $seq.full
-echo "== pmlogextract ==" | tee -a $seq.full
+echo | tee -a $seq_full
+echo "== pmlogextract ==" | tee -a $seq_full
 for arch in a b c
 do
     for i in 0 index meta
@@ -127,15 +126,15 @@ $SRC/pmlogextract/pmlogextract.debug -Dlock $tmp-a $tmp-b $tmp-c $tmp-out 2>$tmp
 _post $SRC/pmlogextract pmlogextract
 _filter <$tmp.trace
 
-echo | tee -a $seq.full
-echo "== pmlogdump ==" | tee -a $seq.full
+echo | tee -a $seq_full
+echo "== pmlogdump ==" | tee -a $seq_full
 _pre $SRC/pmlogdump pmlogdump
 $SRC/pmlogdump/pmlogdump.debug -dilmst -Dlock $tmp-out >$tmp.err 2>$tmp.out
 _post $SRC/pmlogdump pmlogdump
 cat $tmp.out $tmp.err | _filter
 
-echo | tee -a $seq.full
-echo "== dbpmda ==" | tee -a $seq.full
+echo | tee -a $seq_full
+echo "== dbpmda ==" | tee -a $seq_full
 _pre $SRC/dbpmda/src dbpmda
 # based on QA 137
 cat <<End-of-File >$tmp.in
@@ -158,7 +157,7 @@ _post $SRC/dbpmda/src dbpmda
 _filter <$tmp.out
 _filter <$tmp.err
 
-cat $tmp.log >>$here/$seq.full
+cat $tmp.log >>$seq_full
 
 # success, all done
 exit

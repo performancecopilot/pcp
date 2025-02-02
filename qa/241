@@ -23,7 +23,6 @@ status=0	# success is the default!
 done_clean=false
 MMV_STATS_DIR="$PCP_TMP_DIR/mmv"
 
-$sudo rm -rf $tmp.*
 
 # for QA the default install for mmv PMDA is as a dso, not a daemon
 #
@@ -104,7 +103,7 @@ die ("mmv_stats_init failed\n") unless (defined($handle));
 while (my $line = <STDIN>) {
     print $line;
     next if not $line =~ /^new value:/;
-    
+
     my $val;
     ($val = $line) =~ s/^new value: (\d+)/$1/;
     chomp $val;

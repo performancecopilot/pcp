@@ -45,7 +45,7 @@ s/[0-9]*\.[0-9]*\.[0-9]*/PMID/
 # real QA test starts here
 
 echo "=== just bin.sample ==="
-$sudo rm -f $tmp.*
+$sudo rm -f $tmp.*		# refactor-ok
 _start_up_pmlogger -s4 -L -c /dev/null -l $tmp.log $tmp >$tmp.err 2>&1
 sleep 2
 
@@ -53,7 +53,7 @@ pmlc -ie <<End-of-File 2>&1 | _filter_pmlc
 connect $pid
 log mandatory on 200 msec sample.bin
 End-of-File
-_wait_pmlogger_end $pid
+_wait_pmlogger_end $pid || _exit 1
 
 pmdumplog -im $tmp | _filter
 echo "pmval ..."
@@ -62,7 +62,7 @@ _filter <$tmp.err
 
 echo
 echo "=== hinv.ndisk, then bin.sample ==="
-$sudo rm -f $tmp.*
+$sudo rm -f $tmp.*		# refactor-ok
 _start_up_pmlogger -s5 -L -c /dev/null -l $tmp.log $tmp
 sleep 2
 
@@ -81,7 +81,7 @@ pmlc -ie <<End-of-File 2>&1 | _filter_pmlc
 connect $pid
 log mandatory on 200 msec sample.bin
 End-of-File
-_wait_pmlogger_end $pid
+_wait_pmlogger_end $pid || _exit 1
 
 pmdumplog -im $tmp | _filter
 echo "pmval ..."

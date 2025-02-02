@@ -25,17 +25,21 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
+
+# need mmv2_genstats someplace where user $PCP_USER can execute it
+#
+$sudo cp $here/src/mmv2_genstats $tmp.mmv2_genstats
+
 $sudo rm -f $PCP_TMP_DIR/mmv/test
 pminfo -f mmv > /dev/null 2>&1
-pcp2xml -5 -t 1 -s 9 -x --names-change=update mmv > $seq.full 2>&1 &
+pcp2xml -5 -t 1 -s 9 -x --names-change=update mmv > $seq_full 2>&1 &
 pid=$!
 pmsleep 1.5
 for i in 1 2 3 4; do
-    $sudo -u $PCP_USER $here/src/mmv2_genstats test 1
+    $sudo -u $PCP_USER $tmp.mmv2_genstats test 1
     $sudo rm -f $PCP_TMP_DIR/mmv/test
     pmsleep 1
     kill -0 $pid > /dev/null 2>&1 || break
@@ -43,7 +47,7 @@ done
 wait
 
 # Look for the closing tag pcp2xml will write on normal exit
-grep '</pcp>' $seq.full > /dev/null 2>&1
+grep '</pcp>' $seq_full > /dev/null 2>&1
 if [ $? -eq 0 ]; then
   echo Test OK, pcp2xml finished ok
 else

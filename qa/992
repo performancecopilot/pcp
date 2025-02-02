@@ -15,7 +15,6 @@ echo "QA output created by $seq"
 . ./common.check
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 # handle these ...
@@ -93,10 +92,10 @@ cat <<End-of-File >$tmp.macros.default
 %define disk_all_freq 20sec
 End-of-File
 pmlogger -Dlog -C -c $tmp.config >$tmp.out 2>$tmp.err
-echo "--- stdout ---" >>$here/$seq.full
-cat $tmp.out >>$here/$seq.full
-echo "--- stderr ---" >>$here/$seq.full
-cat $tmp.err >>$here/$seq.full
+echo "--- stdout ---" >>$seq_full
+cat $tmp.out >>$seq_full
+echo "--- stderr ---" >>$seq_full
+cat $tmp.err >>$seq_full
 cat $tmp.out $tmp.err | _filter
 
 # success, all done

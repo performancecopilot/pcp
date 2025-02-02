@@ -27,7 +27,6 @@ _cleanup()
     rm -f $tmp.*
     exit $status
 }
-
 _cleanup_agent()
 {
     cd $home/$iam
@@ -46,6 +45,7 @@ _cleanup_agent()
 
     cd $here
 }
+
 
 _filter_ins()
 {

@@ -47,57 +47,56 @@ systemctl is-enabled pmlogger_farm >/dev/null 2>&1 || \
     _notrun pmlogger_farm.service is not enabled
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
-echo "remote=$remote" >>$seq.full
+echo "remote=$remote" >>$seq_full
 
-echo == create pmlogger for remote pmcd using pmlogctl | tee -a $seq.full
+echo == create pmlogger for remote pmcd using pmlogctl | tee -a $seq_full
 $sudo pmlogctl -C '-V -V' create $remote
-remotepid=`pmlogctl status | tee -a $seq.full | $PCP_AWK_PROG '$1 == "'"$remote"'" {print $4}'`
-echo "remotepid=$remotepid" >>$seq.full
+remotepid=`pmlogctl status | tee -a $seq_full | $PCP_AWK_PROG '$1 == "'"$remote"'" {print $4}'`
+echo "remotepid=$remotepid" >>$seq_full
 [ -f  $PCP_ARCHIVE_DIR/pmlogger_check.log ] \
-    && cat $PCP_ARCHIVE_DIR/pmlogger_check.log >>$seq.full
+    && cat $PCP_ARCHIVE_DIR/pmlogger_check.log >>$seq_full
 
 echo === check pmlogctl thinks it is running
-remotestate=`pmlogctl status | tee -a $seq.full | $PCP_AWK_PROG '$1 == "'"$remote"'" {print $5}'`
-echo "remotestate=$remotestate" >>$seq.full
+remotestate=`pmlogctl status | tee -a $seq_full | $PCP_AWK_PROG '$1 == "'"$remote"'" {print $5}'`
+echo "remotestate=$remotestate" >>$seq_full
 if [ "$remotestate" != running ]; then
     echo FAILED to start pmlogger for host $remote
     exit
 fi
 
-echo == kill it with SIGTERM | tee -a $seq.full
+echo == kill it with SIGTERM | tee -a $seq_full
 $sudo kill -TERM $remotepid >/dev/null 2>&1
 sleep 2
 
-echo == check it died | tee -a $seq.full
-remotestate=`pmlogctl status | tee -a $seq.full | $PCP_AWK_PROG '$1 == "'"$remote"'" {print $5}'`
-echo "remotestate=$remotestate" >>$seq.full
+echo == check it died | tee -a $seq_full
+remotestate=`pmlogctl status | tee -a $seq_full | $PCP_AWK_PROG '$1 == "'"$remote"'" {print $5}'`
+echo "remotestate=$remotestate" >>$seq_full
 if [ "$remotestate" != dead ]; then
     echo "FAILED to kill pmlogger (pid=$remotepid) for host $remote"
-    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID)|/[p]mlogger( |$)' >>$seq.full
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID)|/[p]mlogger( |$)' >>$seq_full
     exit
 fi
 
-echo == use pmlogctl check to restart it | tee -a $seq.full
+echo == use pmlogctl check to restart it | tee -a $seq_full
 $sudo pmlogctl check
 
-echo == get the pid and state of the new pmlogger | tee -a $seq.full
-remotepid=`pmlogctl status | tee -a $seq.full | $PCP_AWK_PROG '$1 == "'"$remote"'" {print $4}'`
-echo "remotepid=$remotepid" >>$seq.full
-remotestate=`pmlogctl status | tee -a $seq.full | $PCP_AWK_PROG '$1 == "'"$remote"'" {print $5}'`
-echo "remotestate=$remotestate" >>$seq.full
+echo == get the pid and state of the new pmlogger | tee -a $seq_full
+remotepid=`pmlogctl status | tee -a $seq_full | $PCP_AWK_PROG '$1 == "'"$remote"'" {print $4}'`
+echo "remotepid=$remotepid" >>$seq_full
+remotestate=`pmlogctl status | tee -a $seq_full | $PCP_AWK_PROG '$1 == "'"$remote"'" {print $5}'`
+echo "remotestate=$remotestate" >>$seq_full
 if [ "$remotestate" != running ]; then
     echo FAILED to restart dead pmlogger for host $remote
-    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger( |$)' >>$seq.full
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger( |$)' >>$seq_full
     exit
 fi
 
-echo == migrate it to the pmlogger_farm | tee -a $seq.full
+echo == migrate it to the pmlogger_farm | tee -a $seq_full
 $sudo pmlogctl --migrate check $remote
 
-echo == check it is now in the pmlogger_farm service | tee -a $seq.full
+echo == check it is now in the pmlogger_farm service | tee -a $seq_full
 if systemctl status pmlogger_farm 2>&1 | grep -q -s $remotepid; then
     echo OK all good
 else

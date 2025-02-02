@@ -768,6 +768,8 @@ ncursesw_CFLAGS
 HAVE_NCURSES
 ncurses_LIBS
 ncurses_CFLAGS
+lib_for_inih
+HAVE_LIBINIH
 HAVE_LIBUV
 libuv_LIBS
 libuv_CFLAGS
@@ -5029,7 +5031,8 @@ printf %s "checking __pmResult padding... " >&6; }
 ans=`sed <conftest.out -n -e '/__pmResult pad/s/.* //p'`
 if test -n "$ans"
 then
-    printf "%s\n" "#define PM_PAD_RESULT $ans" >>confdefs.h
+
+printf "%s\n" "#define PM_PAD_RESULT $ans" >>confdefs.h
 
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ans" >&5
 printf "%s\n" "$ans" >&6; }
@@ -5042,7 +5045,8 @@ printf %s "checking timespec padding... " >&6; }
 ans=`sed <conftest.out -n -e '/timespec pad/s/.* //p'`
 if test -n "$ans"
 then
-    printf "%s\n" "#define PM_PAD_TIMESPEC $ans" >>confdefs.h
+
+printf "%s\n" "#define PM_PAD_TIMESPEC $ans" >>confdefs.h
 
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ans" >&5
 printf "%s\n" "$ans" >&6; }
@@ -5442,11 +5446,11 @@ if test x$ac_prog_cxx_stdcxx = xno
 then :
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $CXX option to enable C++11 features" >&5
 printf %s "checking for $CXX option to enable C++11 features... " >&6; }
-if test ${ac_cv_prog_cxx_11+y}
+if test ${ac_cv_prog_cxx_cxx11+y}
 then :
   printf %s "(cached) " >&6
 else $as_nop
-  ac_cv_prog_cxx_11=no
+  ac_cv_prog_cxx_cxx11=no
 ac_save_CXX=$CXX
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
@@ -5488,11 +5492,11 @@ if test x$ac_prog_cxx_stdcxx = xno
 then :
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $CXX option to enable C++98 features" >&5
 printf %s "checking for $CXX option to enable C++98 features... " >&6; }
-if test ${ac_cv_prog_cxx_98+y}
+if test ${ac_cv_prog_cxx_cxx98+y}
 then :
   printf %s "(cached) " >&6
 else $as_nop
-  ac_cv_prog_cxx_98=no
+  ac_cv_prog_cxx_cxx98=no
 ac_save_CXX=$CXX
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
@@ -12480,6 +12484,57 @@ else $as_nop
 fi
 
 
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for ini_parse in -linih" >&5
+printf %s "checking for ini_parse in -linih... " >&6; }
+if test ${ac_cv_lib_inih_ini_parse+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-linih  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+char ini_parse ();
+int
+main (void)
+{
+return ini_parse ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  ac_cv_lib_inih_ini_parse=yes
+else $as_nop
+  ac_cv_lib_inih_ini_parse=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_inih_ini_parse" >&5
+printf "%s\n" "$ac_cv_lib_inih_ini_parse" >&6; }
+if test "x$ac_cv_lib_inih_ini_parse" = xyes
+then :
+   have_libinih=true
+	 lib_for_inih="-linih"
+
+else $as_nop
+   have_libinih=false
+         lib_for_inih=""
+
+
+fi
+
+HAVE_LIBINIH=$have_libinih
+
+
+
 
 pkg_failed=no
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for ncurses" >&5
@@ -14527,6 +14582,8 @@ CFLAGS="$save_CFLAGS"
 
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether const arg for scandir() select method" >&5
 printf %s "checking whether const arg for scandir() select method... " >&6; }
+save_CFLAGS="$CFLAGS"
+CFLAGS="-Werror"
 cat <<End-of-File >conftest.c
 #include <stdlib.h>
 #include <unistd.h>
@@ -14536,8 +14593,9 @@ my_select(const struct dirent *foo) { return 0; }
 int main() { struct dirent **list; return scandir(".", &list, my_select, NULL); }
 End-of-File
 (eval $ac_compile) 2>conftest.out
+_ret=$?
 cat conftest.out >&5
-if test -s conftest.out
+if test $_ret != 0
 then
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
@@ -14548,6 +14606,7 @@ printf "%s\n" "#define HAVE_CONST_DIRENT 1" >>confdefs.h
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }
 fi
+CFLAGS="$save_CFLAGS"
 rm -f conftest.*
 
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether struct dirent has a d_off field" >&5
@@ -14559,8 +14618,9 @@ cat <<End-of-File >conftest.c
 int main() { struct dirent d; d.d_off = 0; }
 End-of-File
 (eval $ac_compile) 2>conftest.out
+_ret=$?
 cat conftest.out >&5
-if test -s conftest.out
+if test $_ret != 0
 then
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }

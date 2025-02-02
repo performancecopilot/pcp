@@ -23,7 +23,6 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _filter()
@@ -46,11 +45,9 @@ cat <<'End-of-File' >$tmp.suppress
    fun:refresh_sysfs_kernel
    fun:linux_refresh.isra.0
    fun:linux_fetch
-   fun:dsofetch
+   ...
    fun:__pmFetchLocal
    fun:__pmFetch
-   fun:pmFetch_ctx
-   fun:pmFetch
    ...
 }
 End-of-File

@@ -32,9 +32,9 @@ _cleanup()
     $sudo rm -rf $tmp.nogo $tmp.locker
     for file in $tmp.*
     do
-	echo >>$here/$seq.full
-	echo "=== $file ===" >>$here/$seq.full
-	cat $file >>$here/$seq.full
+	echo >>$seq_full
+	echo "=== $file ===" >>$seq_full
+	cat $file >>$seq_full
     done
     _restore_auto_restart pmcd
     [ "$pmie_state" = on ] && _change_config pmie on
@@ -44,31 +44,31 @@ _cleanup()
 	#
 	sleep 2
 	_restore_auto_restart pmie
-	_service pmie start >>$here/$seq.full 2>&1
+	_service pmie start >>$seq_full 2>&1
 	_wait_for_pmie
     else
-	_service pmie stop >>$here/$seq.full 2>&1
-	$sudo $PCP_BINADM_DIR/pmsignal -a -s TERM pmie >>$here/$seq.full 2>&1
+	_service pmie stop >>$seq_full 2>&1
+	$sudo $PCP_BINADM_DIR/pmsignal -a -s TERM pmie >>$seq_full 2>&1
 	_wait_pmie_end
     fi
     $sudo rm -f $tmp.*
 }
 
 status=1	# failure is the default!
-$sudo rm -f $tmp.* $seq.full
 signal=$PCP_BINADM_DIR/pmsignal
 needclean=false
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _stop_auto_restart pmcd
-pmie_state=`_get_config pmie`
+_get_config pmie >$tmp.tmp 2>&1 || _exit 1
+pmie_state=`cat $tmp.tmp`
 
 lhost=`hostname | sed -e 's/\..*//'`
 host=`_get_fqdn`
 remote=`./getpmcdhosts -n 1 -L 2>$tmp.out`
 rhost=`echo $remote | sed -e 's/\..*//'`
 [ -z "$remote" ] && _notrun `cat $tmp.out`
-echo "remote=$remote" >>$here/$seq.full
+echo "remote=$remote" >>$seq_full
 
 tmpdir=`dirname $tmp`
 
@@ -92,7 +92,7 @@ tmpdir=`dirname $tmp`
 #
 _filter()
 {
-    tee -a $here/$seq.full \
+    tee -a $seq_full \
     | sed \
 	-e "s;$tmp;TMP;g" \
 	-e "s;$tmpdir;TMPDIR;g" \
@@ -130,18 +130,18 @@ skip == 0		{ print }
 
 _count_pmies()
 {
-    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mie( |$)' >>$here/$seq.full
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mie( |$)' >>$seq_full
     count=0
-    if [ -d $PCP_TMP_DIR/pmie ] 
+    if [ -d $PCP_TMP_DIR/pmie ]
     then
 	cd $PCP_TMP_DIR/pmie
     else
 	return 0
     fi
 
-    ls -l >>$here/$seq.full
+    ls -l >>$seq_full
     plist=`ls -1`
-    echo "plist=$plist" >>$here/$seq.full
+    echo "plist=$plist" >>$seq_full
     cd $here
 
     for process in $plist
@@ -152,10 +152,10 @@ _count_pmies()
 	    echo "urk, $PCP_TMP_DIR/pmie/$process has no running pmie instance"
 	else
 	    count=`expr $count + 1`
-	    $PCP_PS_PROG -p $process >>$here/$seq.full
+	    $PCP_PS_PROG -p $process >>$seq_full
 	    if which pstree >/dev/null 2>&1
 	    then
-		pstree $pstree_parents -p $process >>$here/$seq.full
+		pstree $pstree_parents -p $process >>$seq_full
 	    fi
 	fi
     done
@@ -204,31 +204,31 @@ pmie_was_running=false
 if [ -f $PCP_RUN_DIR/pmie.pid ]
 then
     pmie_was_running=true
-    echo "Found pmie PID `cat $PCP_RUN_DIR/pmie.pid` running @ start" >>$here/$seq.full
+    echo "Found pmie PID `cat $PCP_RUN_DIR/pmie.pid` running @ start" >>$seq_full
     _stop_auto_restart pmie
-    _service pmie stop >>$here/$seq.full 2>&1
-    _wait_pmie_end
+    if ! _service pmie stop >>$seq_full 2>&1; then _exit 1; fi
+    _wait_pmie_end || _exit 1
 fi
 
 # real QA test starts here
 _save_config $PCP_PMIECONTROL_PATH
 _save_config $PCP_PMCDCONF_PATH
 needclean=true
-$sudo cp $tmp.pmcd.conf $PCP_PMCDCONF_PATH 
+$sudo cp $tmp.pmcd.conf $PCP_PMCDCONF_PATH
 
 $sudo $signal -a -s TERM pmie >/dev/null 2>&1
-_wait_pmie_end
-_change_config pmcd on
-_change_config pmie off
+_wait_pmie_end || _exit 1
+_change_config pmcd on || _exit 1
+_change_config pmie off || _exit 1
 $sudo rm -f $PCP_TMP_DIR/pmie/*
 
 _count_pmies
-echo "pmie count at start of QA testing: $?" | tee -a $here/$seq.full
+echo "pmie count at start of QA testing: $?" | tee -a $seq_full
 echo
 
-echo === check default install operation === | tee -a $here/$seq.full
-_service pmie restart 2>&1 | tee -a $here/$seq.full | _filter_pmie_start
-_wait_for_pmie
+echo === check default install operation === | tee -a $seq_full
+if ! _service pmie restart 2>&1; then _exit 1; fi | tee -a $seq_full | _filter_pmie_start
+_wait_for_pmie || _exit 1
 _count_pmies
 # chkconfig no longer controls start-ability, expect non-zero
 echo "pmie count after chkconfig pmie off: $?"
@@ -237,11 +237,11 @@ echo
 #
 sleep 2
 
-echo === check for missing control file === | tee -a $here/$seq.full
-_change_config pmie off
+echo === check for missing control file === | tee -a $seq_full
+_change_config pmie off || _exit 1
 $sudo rm -f $PCP_PMIECONTROL_PATH
-_change_config pmie on
-_service pmie restart 2>&1 | tee -a $here/$seq.full | _filter_pmie_start | _filter
+_change_config pmie on || _exit 1
+if ! _service pmie restart 2>&1; then _exit 1; fi | tee -a $seq_full | _filter_pmie_start | _filter
 _count_pmies
 echo "pmie count after attempt without control file: $?"
 echo
@@ -249,24 +249,24 @@ echo
 #
 sleep 2
 
-echo === check pmie_check and custom configs === | tee -a $here/$seq.full
-echo "--- v1.0 ---" | tee -a $here/$seq.full
-pmie_check -V -V -N -c $tmp.control.v1.0 >$tmp.log
+echo === check pmie_check and custom configs === | tee -a $seq_full
+echo "--- v1.0 ---" | tee -a $seq_full
+pmie_check -V -V -N -c $tmp.control.v1.0 >$tmp.log 2>&1
 cat $tmp.log | _filter
 rm -f $tmp.log
 # don't bother counting pmie processes, as -N is used above!
 #
 echo
-echo "--- v1.1 ---" | tee -a $here/$seq.full
-pmie_check -V -V -N -c $tmp.control.v1.1 >$tmp.log
+echo "--- v1.1 ---" | tee -a $seq_full
+pmie_check -V -V -N -c $tmp.control.v1.1 >$tmp.log 2>&1
 cat $tmp.log | _filter
 rm -f $tmp.log
 # don't bother counting pmie processes, as -N is used above!
 #
 echo
 
-echo "=== warnings ... ===" | tee -a $here/$seq.full
-echo "--- stale lock file ---" | tee -a $here/$seq.full
+echo "=== warnings ... ===" | tee -a $seq_full
+echo "--- stale lock file ---" | tee -a $seq_full
 case=1
 cat >$tmp.warning.$case << EOF
 \$version=1.1
@@ -274,11 +274,11 @@ LOCALHOSTNAME   n n $tmp.locker/ok.$case -c $tmp.conf
 EOF
 mkdir $tmp.locker
 touch -t `pmdate -35M %Y%m%d%H%M` $tmp.locker/ok.$case.lock
-pmie_check -V -V -N -c $tmp.warning.$case >$tmp.warning.$case.log
+pmie_check -V -V -N -c $tmp.warning.$case >$tmp.warning.$case.log 2>&1
 cat $tmp.warning.$case.log | _filter
 rm -f $tmp.warning.$case.log
 echo
-echo "--- existing lock file ---" | tee -a $here/$seq.full
+echo "--- existing lock file ---" | tee -a $seq_full
 case=`expr $case + 1`
 cat >$tmp.warning.$case << EOF
 \$version=1.1
@@ -286,25 +286,25 @@ LOCALHOSTNAME   n n $tmp.locker/ok.$case -c $tmp.conf
 EOF
 rm -f $tmp.locker/ok.$case.lock
 touch $tmp.locker/ok.$case.lock
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mie( |$)' >>$here/$seq.full
-pmie_check -V -V -N -c $tmp.warning.$case >$tmp.warning.$case.log
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mie( |$)' >>$here/$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mie( |$)' >>$seq_full
+pmie_check -V -V -N -c $tmp.warning.$case >$tmp.warning.$case.log 2>&1
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mie( |$)' >>$seq_full
 cat $tmp.warning.$case.log | _filter
 rm -f $tmp.warning.$case.log
 echo
-echo "--- can't create lock file ---" | tee -a $here/$seq.full
+echo "--- can't create lock file ---" | tee -a $seq_full
 case=`expr $case + 1`
 cat >$tmp.warning.$case << EOF
 \$version=1.1
 LOCALHOSTNAME   n n $tmp.locker/ok.$case -c $tmp.conf
 EOF
 chmod 555 $tmp.locker
-pmie_check -V -V -N -c $tmp.warning.$case >$tmp.warning.$case.log
+pmie_check -V -V -N -c $tmp.warning.$case >$tmp.warning.$case.log 2>&1
 cat $tmp.warning.$case.log | _filter
 rm -f $tmp.warning.$case.log
 $sudo rm -rf $tmp.locker
 echo
-echo "--- bad in-line shell commands ---" | tee -a $here/$seq.full
+echo "--- bad in-line shell commands ---" | tee -a $seq_full
 case=`expr $case + 1`
 cat >$tmp.warning.$case << EOF
 \$version=1.1
@@ -313,107 +313,107 @@ cat >$tmp.warning.$case << EOF
 \$IFS=a
 LOCALHOSTNAME   n n $tmp.ok.$case -c $tmp.conf
 EOF
-pmie_check -V -V -N -c $tmp.warning.$case >$tmp.warning.$case.log
+pmie_check -V -V -N -c $tmp.warning.$case >$tmp.warning.$case.log 2>&1
 cat $tmp.warning.$case.log | _filter
 rm -f $tmp.warning.$case.log
 echo
-echo "--- missing \$version but really v1.1 ... original control.local issue ---" | tee -a $here/$seq.full
+echo "--- missing \$version but really v1.1 ... original control.local issue ---" | tee -a $seq_full
 case=`expr $case + 1`
 cat >$tmp.warning.$case << EOF
 LOCALHOSTNAME   n n $tmp.ok.$case -c $tmp.conf
 EOF
-pmie_check -V -V -N -c $tmp.warning.$case >$tmp.warning.$case.log
+pmie_check -V -V -N -c $tmp.warning.$case >$tmp.warning.$case.log 2>&1
 cat $tmp.warning.$case.log | _filter
 rm -f $tmp.warning.$case.log
 echo
 
-echo "=== errors ... ===" | tee -a $here/$seq.full
-echo "--- bad version ---" | tee -a $here/$seq.full
+echo "=== errors ... ===" | tee -a $seq_full
+echo "--- bad version ---" | tee -a $seq_full
 case=1
 cat >$tmp.error.$case << EOF
 \$version=0.0
 LOCALHOSTNAME   n $tmp.bad.$case -c $tmp.conf
 EOF
-pmie_check -V -V -N -c $tmp.error.$case >$tmp.bad.$case.log
+pmie_check -V -V -N -c $tmp.error.$case >$tmp.bad.$case.log 2>&1
 cat $tmp.bad.$case.log | _filter
 rm -f $tmp.bad.$case.log
 echo
 case=`expr $case + 1`
-echo "--- v1.0 socks != y|n ---" | tee -a $here/$seq.full
+echo "--- v1.0 socks != y|n ---" | tee -a $seq_full
 cat >$tmp.error.$case << EOF
 \$version=1.0
 LOCALHOSTNAME   x $tmp.bad.$case -c $tmp.conf
 EOF
-pmie_check -V -V -N -c $tmp.error.$case >$tmp.bad.$case.log
+pmie_check -V -V -N -c $tmp.error.$case >$tmp.bad.$case.log 2>&1
 cat $tmp.bad.$case.log | _filter
 rm -f $tmp.bad.$case.log
 echo
 case=`expr $case + 1`
-echo "--- v1.1 socks != y|n ---" | tee -a $here/$seq.full
+echo "--- v1.1 socks != y|n ---" | tee -a $seq_full
 cat >$tmp.error.$case << EOF
 \$version=1.1
 LOCALHOSTNAME   n x $tmp.bad.$case -c $tmp.conf
 EOF
-pmie_check -V -V -N -c $tmp.error.$case >$tmp.bad.$case.log
+pmie_check -V -V -N -c $tmp.error.$case >$tmp.bad.$case.log 2>&1
 cat $tmp.bad.$case.log | _filter
 rm -f $tmp.bad.$case.log
 echo
 case=`expr $case + 1`
-echo "--- v1.1 primary != y|n ---" | tee -a $here/$seq.full
+echo "--- v1.1 primary != y|n ---" | tee -a $seq_full
 cat >$tmp.error.$case << EOF
 \$version=1.1
 LOCALHOSTNAME   x n $tmp.bad.$case -c $tmp.conf
 EOF
-pmie_check -V -V -N -c $tmp.error.$case >$tmp.bad.$case.log
+pmie_check -V -V -N -c $tmp.error.$case >$tmp.bad.$case.log 2>&1
 cat $tmp.bad.$case.log | _filter
 rm -f $tmp.bad.$case.log
 echo
 case=`expr $case + 1`
-echo "--- v1.0 insufficient fields ---" | tee -a $here/$seq.full
+echo "--- v1.0 insufficient fields ---" | tee -a $seq_full
 cat >$tmp.error.$case << EOF
 \$version=1.0
 LOCALHOSTNAME   n $tmp.bad.$case
 EOF
-pmie_check -V -V -N -c $tmp.error.$case >$tmp.bad.$case.log
+pmie_check -V -V -N -c $tmp.error.$case >$tmp.bad.$case.log 2>&1
 cat $tmp.bad.$case.log | _filter
 rm -f $tmp.bad.$case.log
 echo
 case=`expr $case + 1`
-echo "--- v1.1 insufficient fields ---" | tee -a $here/$seq.full
+echo "--- v1.1 insufficient fields ---" | tee -a $seq_full
 cat >$tmp.error.$case << EOF
 \$version=1.1
 LOCALHOSTNAME   n n $tmp.bad.$case
 EOF
-pmie_check -V -V -N -c $tmp.error.$case >$tmp.bad.$case.log
+pmie_check -V -V -N -c $tmp.error.$case >$tmp.bad.$case.log 2>&1
 cat $tmp.bad.$case.log | _filter
 rm -f $tmp.bad.$case.log
 echo
 mkdir $tmp.nogo
 chmod 000 $tmp.nogo
 case=`expr $case + 1`
-echo "--- can't create dir for logfile ---" | tee -a $here/$seq.full
+echo "--- can't create dir for logfile ---" | tee -a $seq_full
 cat >$tmp.error.$case << EOF
 \$version=1.1
 LOCALHOSTNAME   n n $tmp.nogo/subdir/bad.$case -c $tmp.conf
 EOF
-pmie_check -V -V -N -c $tmp.error.$case >$tmp.bad.$case.log
+pmie_check -V -V -N -c $tmp.error.$case >$tmp.bad.$case.log 2>&1
 cat $tmp.bad.$case.log | _filter
 rm -f $tmp.bad.$case.log
 echo
 case=`expr $case + 1`
-echo "--- can't chdir to dir for logfile ---" | tee -a $here/$seq.full
+echo "--- can't chdir to dir for logfile ---" | tee -a $seq_full
 cat >$tmp.error.$case << EOF
 \$version=1.1
 LOCALHOSTNAME   n n $tmp.nogo/bad.$case -c $tmp.conf
 EOF
-pmie_check -V -V -N -c $tmp.error.$case >$tmp.bad.$case.log
+pmie_check -V -V -N -c $tmp.error.$case >$tmp.bad.$case.log 2>&1
 cat $tmp.bad.$case.log | _filter
 rm -f $tmp.bad.$case.log
 echo
 $sudo rm -rf $tmp.nogo
 
 $sudo $signal -a -s TERM pmie >/dev/null 2>&1
-_change_config pmie off
+_change_config pmie off || _exit 1
 
 status=0
 exit

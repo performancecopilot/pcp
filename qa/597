@@ -57,7 +57,7 @@ status=1
 trap "_cleanup" 0 1 2 3 15
 
 # real QA test starts here
-_prepare_pmda_install $iam
+_prepare_pmda_install $iam || _exit 1
 
 echo
 echo "=== default $iam agent installation ==="

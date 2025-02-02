@@ -44,6 +44,7 @@ libclass-dbi-perl
 libcmocka-dev
 libdbd-mysql-perl
 libdbd-pg-perl
+libdrm-dev
 libdevmapper-dev
 libextutils-autoinstall-perl
 libfile-slurp-perl
@@ -51,6 +52,7 @@ libgl1-mesa-dri
 libibmad-dev
 libibumad-dev
 libicu63
+libinih-dev
 libjson-perl
 liblist-moreutils-perl
 liblzma-dev
@@ -127,8 +129,10 @@ sasl2-bin
 sed
 smartmontools
 socat
+sudo
 sysstat
 systemtap
+systemtap-runtime
 systemtap-sdt-dev
 time
 unbound

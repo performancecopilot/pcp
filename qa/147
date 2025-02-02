@@ -65,7 +65,7 @@ profile 30.2 delete 900
 fetch 30.0.6
 End-of-File
 
-cat $tmp.log >>$here/$seq.full
+cat $tmp.log >>$seq_full
 
 status=0
 exit

@@ -20,12 +20,11 @@ fi
 . ./common.filter
 . ./common.check
 
-$sudo rm -rf $tmp $tmp.* $seq.full
 
 _filter()
 {
     sed \
-	-e "s@$here@HERE@" \
+	-e "s@$cwd@CWD@" \
     # end
 }
 
@@ -39,7 +38,10 @@ status=0	# success is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-for base in foo ./foo $here/foo
+mkdir $tmp
+cd $tmp
+cwd=`pwd`
+for base in foo ./foo $cwd/foo
 do
     for part in '' .index .meta .0 .12345 .bozo
     do
@@ -49,6 +51,24 @@ do
 	    pmlogbasename $base$part$suff 2>&1 | _filter
 	done
     done
+done
+
+echo
+echo "ambiguous cases potentially involving probing"
+pref=20241125.05.48
+for base in foo.123 foo.1x3 foo123
+do
+    echo "=== $base ===" | _filter
+    pmlogbasename -Dappl0,appl1 $base 2>&1 | _filter
+done
+echo "=== $pref, no .meta ===" | _filter
+pmlogbasename -Dappl0,appl1 $pref 2>&1 | _filter
+for suff in .meta .meta.xz .meta.zst .metafoo
+do
+    echo "=== $pref, with $suff ===" | _filter
+    touch $pref$suff
+    pmlogbasename -Dappl0,appl1 $pref 2>&1 | _filter
+    rm -f  $pref$suff
 done
 
 # success, all done

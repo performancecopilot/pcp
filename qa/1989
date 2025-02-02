@@ -19,7 +19,6 @@ in
 esac
 
 status=1        # failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 pcp_slabinfo="$PCP_BINADM_DIR/pcp-slabinfo"

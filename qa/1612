@@ -16,7 +16,6 @@ _pmdabpf_require_libbpf_version 0 7
 
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
-$sudo rm -rf $tmp.* $seq.full
 
 cat <<EOF >$tmp.conf
 # Installed by PCP QA test $seq on `date`
@@ -41,27 +40,27 @@ _pmdabpf_wait_for_metric
 # Generate system activity for the CO-RE opensnoop module
 
 echo "=== report metric values for comm ==="
-pminfo -dfmtT bpf.opensnoop.comm 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bpf.opensnoop.comm 2>&1 | tee -a $seq_full \
 | _value_filter_any
 
 echo "=== report metric values for err ==="
-pminfo -dfmtT bpf.opensnoop.err 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bpf.opensnoop.err 2>&1 | tee -a $seq_full \
 | _value_filter_exact 0
 
 echo "=== report metric values for fd ==="
-pminfo -dfmtT bpf.opensnoop.fd 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bpf.opensnoop.fd 2>&1 | tee -a $seq_full \
 | _value_filter_nonzero
 
 echo "=== report metric values for fname ==="
-pminfo -dfmtT bpf.opensnoop.fname 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bpf.opensnoop.fname 2>&1 | tee -a $seq_full \
 | _value_filter_any
 
 echo "=== report metric values for pid ==="
-pminfo -dfmtT bpf.opensnoop.pid 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bpf.opensnoop.pid 2>&1 | tee -a $seq_full \
 | _value_filter_nonzero
 
 echo "=== report metric values for uid ==="
-pminfo -dfmtT bpf.opensnoop.uid 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bpf.opensnoop.uid 2>&1 | tee -a $seq_full \
 | _value_filter_any
 
 

@@ -19,7 +19,6 @@ _pmdaopenmetrics_check || _notrun "openmetrics pmda and/or load generator not in
 _have_python266 && _notrun "python load generator does not currently work with python 2.6.6"
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 
 _cleanup()
 {
@@ -35,12 +34,17 @@ _stop_auto_restart pmcd
 _pmdaopenmetrics_save_config
 
 # add a whopping set of URL configs to exercise the notready stuff
+# need to be a place the user $PCP_USER (pmcd) can read
+#
+file=simple_metric.txt
+cp $here/openmetrics/samples/$file $tmp.$file
+urlbase=`basename "$file" .txt | tr .- _`
+echo 'file://'$tmp.$file >$tmp.tmp
 for i in $(seq 1 500)
 do
-    file=$here/openmetrics/samples/simple_metric.txt
-    urlbase=`basename $file .txt | tr .- _`
-    echo 'file://'$file > $PCP_PMDAS_DIR/openmetrics/config.d/$urlbase$i.url
+    $sudo cp $tmp.tmp $PCP_PMDAS_DIR/openmetrics/config.d/$urlbase$i.url
 done
+ls -l $PCP_PMDAS_DIR/openmetrics/config.d >>$seq_full
 
 _pmdaopenmetrics_install
 
@@ -82,8 +86,8 @@ else
 fi
 
 echo == Note: check $seq.full for expected log entries
-echo == pmdaopenmetrics LOG == >>$here/$seq.full
-cat $PCP_LOG_DIR/pmcd/openmetrics.log >>$here/$seq.full
+echo == pmdaopenmetrics LOG == >>$seq_full
+cat $PCP_LOG_DIR/pmcd/openmetrics.log >>$seq_full
 grep -E 'Ready to process requests|notready' $PCP_LOG_DIR/pmcd/openmetrics.log | \
 sed -e 's/\[.*\]/[DATE]/' -e 's/([0-9]*)/(PID)/'
 

@@ -13,7 +13,6 @@ echo "kretprobe:vfs_read" >$tmp.tmp
 _pmdabpftrace_check_probes $tmp.tmp
 
 status=1       # failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 
 _prepare_pmda bpftrace
 trap "_pmdabpftrace_cleanup; exit \$status" 0 1 2 3 15
@@ -38,7 +37,7 @@ _pmdabpftrace_wait_for_value bpftrace.scripts.testscript.data.bytes
 echo "=== check metrics ==="
 cat $here/$seq > /dev/null # generate vfs_read syscalls
 pmsleep 2 # bpftrace output interval
-pminfo -dfmtT bpftrace.scripts.testscript.data.bytes 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bpftrace.scripts.testscript.data.bytes 2>&1 | tee -a $seq_full \
   | _instances_filter_any
 pid1=$(pminfo -f bpftrace.scripts.testscript.pid | sed -En 's/.*value ([0-9]+)/\1/gp')
 
@@ -50,7 +49,7 @@ for i in $(seq 1 30);
 do
     if ! ps -p $pid1 > /dev/null; then
         echo OK
-        echo "took $i seconds for the bpftrace script to stop" >> $here/$seq.full
+        echo "took $i seconds for the bpftrace script to stop" >> $seq_full
         break
     fi
     sleep 1
@@ -63,7 +62,7 @@ _pmdabpftrace_wait_for_value bpftrace.scripts.testscript.data.bytes
 echo "=== verify current bpftrace PID is different than last PID ==="
 pid2=$(pminfo -f bpftrace.scripts.testscript.pid | sed -En 's/.*value ([0-9]+)/\1/gp')
 
-echo "check PID $pid2 != $pid1" >> $here/$seq.full
+echo "check PID $pid2 != $pid1" >> $seq_full
 if [ "$pid2" -ne "$pid1" ]; then
     echo "Success: Second PID is different than first PID."
 else

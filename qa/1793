@@ -35,7 +35,6 @@ groupid=`id -g`
 hostname=`hostname`
 machineid=`_machine_id`
 domainname=`_domain_name`
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 need_restore=true
 
@@ -48,7 +47,7 @@ _filter()
 	-e "s/\(\"hostname\"\):\"$hostname\"/\1:\"HOSTNAME\"/g" \
 	-e "s/\(\"machineid\"\):\"$machineid\"/\1:\"MACHINEID\"/g" \
 	-e "s/\(\"domainname\"\):\"$domainname\"/\1:\"DOMAINNAME\"/g" \
-    | tee -a $seq.full \
+    | tee -a $seq_full \
     | pmjson \
     | sed -e 's/^[\{\}]$//' -e '/^$/d' -e 's/,$//' | LC_COLLATE=POSIX sort
 }
@@ -72,39 +71,39 @@ p
 # real QA test starts here
 _save_config $PCP_ETC_DIR/pcp/labels
 $sudo rm -rf $PCP_ETC_DIR/pcp/labels/*
-_sighup_pmcd
+_sighup_pmcd || _exit 1
 
 mkdir -p $tmp
 
-echo === check pmrep writing an archive with labels | tee -a $seq.full
-pmrep -m -t1 -s2 -o archive -F $tmp/pmrep_sample_colour sample.colour >> $seq.full 2>&1
+echo === check pmrep writing an archive with labels | tee -a $seq_full
+pmrep -m -t1 -s2 -o archive -F $tmp/pmrep_sample_colour sample.colour >> $seq_full 2>&1
 pmdumplog -e $tmp/pmrep_sample_colour | _filter_pmdumplog |\
-    grep -e 'Domain.*labels' -e 'Cluster.*labels' -e 'InDom.*labels' | tee -a $seq.full
+    grep -e 'Domain.*labels' -e 'Cluster.*labels' -e 'InDom.*labels' | tee -a $seq_full
 
-echo === check pmrep replaying an archive with labels | tee -a $seq.full
+echo === check pmrep replaying an archive with labels | tee -a $seq_full
 pmrep -m -w 1024 -s1 -i "red" -a $tmp/pmrep_sample_colour sample.colour | \
-    tee -a $seq.full | grep '{' | $PCP_AWK_PROG '{print $1}' | _filter
+    tee -a $seq_full | grep '{' | $PCP_AWK_PROG '{print $1}' | _filter
 
-echo === check pcp2json replaying an archive with labels | tee -a $seq.full
+echo === check pcp2json replaying an archive with labels | tee -a $seq_full
 pcp2json -m -s1 -a $tmp/pmrep_sample_colour sample.colour | \
-    tee -a $seq.full | grep '@labels' | $PCP_AWK_PROG '{print $2}' | \
+    tee -a $seq_full | grep '@labels' | $PCP_AWK_PROG '{print $2}' | \
     sed -e s/\'/\"/g -e 's/,$//' -e 's/^"//' -e 's/"$//' | _filter
 
-echo === check pcp2csv replaying an archive with labels | tee -a $seq.full
+echo === check pcp2csv replaying an archive with labels | tee -a $seq_full
 pcp2csv -m -s1 -a $tmp/pmrep_sample_colour sample.colour \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | _pre_json \
 | _filter
 
-echo === check pmrep outputting labels live | tee -a $seq.full
+echo === check pmrep outputting labels live | tee -a $seq_full
 pmrep -m -w 1024 -s1 -i "red" sample.colour \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | grep '{' \
 | _filter
 
-echo === check pcp2csv outputting labels live | tee -a $seq.full
+echo === check pcp2csv outputting labels live | tee -a $seq_full
 pcp2csv -m -s1 sample.colour \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | _pre_json \
 | _filter
 

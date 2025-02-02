@@ -21,7 +21,7 @@ then
     _notrun "$msg"
     # NOTREACHED
 fi
-rm -f $tmp.tmp $seq.full
+rm -f $tmp.tmp
 
 _filter()
 {
@@ -55,13 +55,13 @@ _speak_to_me()
     _port=$port
     [ -n "$3" ] && _port="$3"
     echo "=== _host=$1 _logger_id=$2 ===" >$tmp.out
-    echo >>$here/$seq.full
-    echo "=== _host=$1 _logger_id=$2 _port=$_port ===" >>$here/$seq.full
+    echo >>$seq_full
+    echo "=== _host=$1 _logger_id=$2 _port=$_port ===" >>$seq_full
     if [ -z "$1" ]
     then
-	pminfo -f pmcd.pmlogger.port >>$here/$seq.full 2>&1
+	pminfo -f pmcd.pmlogger.port >>$seq_full 2>&1
     else
-	pminfo -h `echo $1 | sed -e 's/@//'` -f pmcd.pmlogger.port >>$here/$seq.full 2>&1
+	pminfo -h `echo $1 | sed -e 's/@//'` -f pmcd.pmlogger.port >>$seq_full 2>&1
     fi
     # allow pmlogger socket to be closed and ready to accept()
     #
@@ -79,22 +79,22 @@ connect $2 $1
 status
 flush
 End-of-File
-    cat $tmp.out >>$here/$seq.full
+    cat $tmp.out >>$seq_full
     _filter <$tmp.out \
     | sed -e "s/port $_port/port PORT/g"
 }
 
 _ping()
 {
-    echo "Remote host: $rem_host [pid: $rem_pid port: $rem_port]" >>$here/$seq.full
-    pminfo -f -h $rem_host pmcd.pmlogger.port >>$here/$seq.full 2>&1
+    echo "Remote host: $rem_host [pid: $rem_pid port: $rem_port]" >>$seq_full
+    pminfo -f -h $rem_host pmcd.pmlogger.port >>$seq_full 2>&1
     ssh $rem_host '. /etc/pcp.env; $PCP_PS_PROG $PCP_PS_ALL_FLAGS' 2>&1 \
-    | grep -E '[P]PID|/[p]mlogger( |$)' >>$here/$seq.full
-    echo >>$here/$seq.full
-    echo "Local host: $myhost [pid: $pid port: $port]" >>$here/$seq.full
-    pminfo -f -h $myhost pmcd.pmlogger.port >>$here/$seq.full 2>&1
+    | grep -E '[P]PID|/[p]mlogger( |$)' >>$seq_full
+    echo >>$seq_full
+    echo "Local host: $myhost [pid: $pid port: $port]" >>$seq_full
+    pminfo -f -h $myhost pmcd.pmlogger.port >>$seq_full 2>&1
     $PCP_PS_PROG $PCP_PS_ALL_FLAGS \
-    | grep -E '[P]PID|/[p]mlogger( |$)' >>$here/$seq.full
+    | grep -E '[P]PID|/[p]mlogger( |$)' >>$seq_full
 }
 
 _cleanup()
@@ -106,7 +106,7 @@ _cleanup()
 	    $sudo $signal -s TERM $pid
 	    sleep 1
 	    pid=''
-	    cat $tmp.log >>$here/$seq.full
+	    cat $tmp.log >>$seq_full
 	fi
 	echo
 	if [ -f $tmp.log ]
@@ -134,10 +134,9 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 myhost=`hostname`
 pid=''
 
-$sudo rm -f $tmp.*
 
 _start_up_pmlogger -h $rem_host -L -c /dev/null -l $tmp.log $tmp >/dev/null 2>&1
-_wait_for_pmlogger $pid $tmp.log
+_wait_for_pmlogger $pid $tmp.log || _exit 1
 
 pminfo -f -h $rem_host pmcd.pmlogger.port >$tmp.tmp
 rem_port=`cat $tmp.tmp | sed -n -e '/"primary"/{
@@ -168,7 +167,7 @@ port=`pminfo -f pmcd.pmlogger.port \
 s/.* value //p
 }'`
 
-echo "=== ping @ start ===" >>$here/$seq.full
+echo "=== ping @ start ===" >>$seq_full
 _ping
 
 # real QA test starts here
@@ -187,15 +186,16 @@ prim_pid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '/[p]mlogger' | grep ' -P' | $PC
 if [ ! -z "$prim_pid" ]
 then
     $sudo $signal -s TERM $prim_pid
-    _wait_pmlogger_end $prim_pid
+    _wait_pmlogger_end $prim_pid || _exit 1
 else
     echo "Eh? primary pmlogger not running?"
     _ping
 fi
-_service pcp stop | _filter_pcp_stop
+if ! _service pcp stop; then _exit 1; fi \
+| _filter_pcp_stop
 
-echo >>$here/$seq.full
-echo "=== ping after stopping local pcp and pmcd  ===" >>$here/$seq.full
+echo >>$seq_full
+echo "=== ping after stopping local pcp and pmcd  ===" >>$seq_full
 _ping
 
 echo
@@ -204,8 +204,8 @@ _speak_to_me "" "port $port"
 #debug# DEBUG="-D all"
 _speak_to_me @$rem_host $rem_pid $rem_port
 
-echo >>$here/$seq.full
-echo "=== ping @ end ===" >>$here/$seq.full
+echo >>$seq_full
+echo "=== ping @ end ===" >>$seq_full
 _ping
 
 # success, all done

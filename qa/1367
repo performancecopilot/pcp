@@ -59,10 +59,10 @@ End-of-File
 echo diff between C and python labels output, EXPECT NO OUTPUT
 diff $tmp.simple.python $tmp.simple.C
 
-echo "--- C ---" >>$here/$seq.full
-cat $tmp.simple.C >>$here/$seq.full
-echo "--- python ---" >>$here/$seq.full
-cat $tmp.simple.python >>$here/$seq.full
+echo "--- C ---" >>$seq_full
+cat $tmp.simple.C >>$seq_full
+echo "--- python ---" >>$seq_full
+cat $tmp.simple.python >>$seq_full
 
 status=0
 exit

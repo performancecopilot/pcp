@@ -44,7 +44,6 @@ _filter_pmie()
 }
 
 status=1	# failure is the default!
-$sudo rm -f $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
@@ -115,14 +114,14 @@ echo status=$sts
 _filter_date < $tmp.pmie2
 
 cp $tmp.pmie $tmp.pmie3
-( echo "before pmieconf"; ( [ -f ./pconf/cpu/load_average ] && ls -l ./pconf/cpu/load_average ) ) >>$seq.full
+( echo "before pmieconf"; ( [ -f ./pconf/cpu/load_average ] && ls -l ./pconf/cpu/load_average ) ) >>$seq_full
 $sudo mv ./pconf/cpu/load_average $tmp.load
 echo
 echo "=== check that changes for unsupported rules are moved to end"
 pmieconf -r ./pconf -f $tmp.pmie3 m filesys.buffer_cache holdoff 120 >/dev/null
-( echo "after pmieconf"; ( [ -f ./pconf/cpu/load_average ] && ls -l ./pconf/cpu/load_average ) ) >>$seq.full
+( echo "after pmieconf"; ( [ -f ./pconf/cpu/load_average ] && ls -l ./pconf/cpu/load_average ) ) >>$seq_full
 $sudo mv $tmp.load ./pconf/cpu/load_average
-( echo "after restore"; ( [ -f ./pconf/cpu/load_average ] && ls -l ./pconf/cpu/load_average ) ) >>$seq.full
+( echo "after restore"; ( [ -f ./pconf/cpu/load_average ] && ls -l ./pconf/cpu/load_average ) ) >>$seq_full
 echo status=$?
 pmie -C $tmp.pmie3 >$tmp.out 2>&1
 sts=$?

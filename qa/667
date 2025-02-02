@@ -12,7 +12,7 @@ echo "QA output created by $seq"
 $python -c "from pcp import pmapi" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python pcp pmapi module not installed"
 which socat >/dev/null 2>&1 || _notrun "socat binary not installed"
-which pcp2graphite >$seq.full 2>&1 || _notrun "pcp2graphite not installed"
+which pcp2graphite >$seq_full 2>&1 || _notrun "pcp2graphite not installed"
 
 port_pickled=42004
 port_text=42003
@@ -21,7 +21,6 @@ $PCP_BINADM_DIR/telnet-probe -c localhost $port_pickled \
 $PCP_BINADM_DIR/telnet-probe -c localhost $port_text \
 	&& _notrun "Someone already listening on graphite text port $port_text"
 
-$sudo rm -rf $seq.full $tmp.*
 signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
 
@@ -59,21 +58,21 @@ EOF
 
 _full_stash()
 {
-    echo "--- pcpgraphite stdout --" >>$seq.full
-    cat $tmp.p2g.out >>$seq.full
-    echo "--- pcpgraphite stderr --" >>$seq.full
-    cat $tmp.p2g.err >>$seq.full
-    echo "--- socket cat stdout --" >>$seq.full
-    cat $tmp.socat.out >>$seq.full
-    echo "--- socket cat stderr --" >>$seq.full
-    cat $tmp.socat.err >>$seq.full
+    echo "--- pcpgraphite stdout --" >>$seq_full
+    cat $tmp.p2g.out >>$seq_full
+    echo "--- pcpgraphite stderr --" >>$seq_full
+    cat $tmp.p2g.err >>$seq_full
+    echo "--- socket cat stdout --" >>$seq_full
+    cat $tmp.socat.out >>$seq_full
+    echo "--- socket cat stderr --" >>$seq_full
+    cat $tmp.socat.err >>$seq_full
 }
 
 ncpu=`pmprobe -v hinv.ncpu | awk '{print $3}'`
 pcp2graphite="$python `which pcp2graphite`"
 
-echo | tee -a $seq.full
-echo "=== 1. pcp2graphite one-shot pickle  ===" | tee -a $seq.full
+echo | tee -a $seq_full
+echo "=== 1. pcp2graphite one-shot pickle  ===" | tee -a $seq_full
 socat -u tcp-listen:$port_pickled,reuseaddr - >$tmp.socat.out 2>$tmp.socat.err &
 scpid=$!
 sleep 2
@@ -90,7 +89,7 @@ grep -F -q pcp.hinv.ncpu $tmp.socat.out
 [ $? -eq 0 ] && echo "Found pcp.hinv.ncpu in pickled output"
 _full_stash
 
-echo "=== 2. pcp2graphite text, 2-second aligned  ===" | tee -a $seq.full
+echo "=== 2. pcp2graphite text, 2-second aligned  ===" | tee -a $seq_full
 rm -f $tmp.socat.out $tmp.socat.err
 socat -u tcp-listen:$port_text,reuseaddr,fork - >>$tmp.socat.out 2>>$tmp.socat.err &
 scpid=$!
@@ -108,7 +107,7 @@ grep -E 'foobar\.hinv\.ncpu|foobar\.sample\.datasize' $tmp.socat.out \
 grep 'Excluding' $tmp.p2g.err
 _full_stash
 
-echo "=== 2a. pcp2graphite text, 2-second aligned, local  ===" | tee -a $seq.full
+echo "=== 2a. pcp2graphite text, 2-second aligned, local  ===" | tee -a $seq_full
 rm -f $tmp.socat.out $tmp.socat.err
 socat -u tcp-listen:$port_text,reuseaddr,fork - >>$tmp.socat.out 2>>$tmp.socat.err &
 scpid=$!
@@ -125,7 +124,7 @@ grep 'foobar\.hinv\.ncpu' $tmp.socat.out \
 grep 'Excluding' $tmp.p2g.err
 _full_stash
 
-echo "=== 3. pcp2graphite bad-instance tolerance ===" | tee -a $seq.full
+echo "=== 3. pcp2graphite bad-instance tolerance ===" | tee -a $seq_full
 rm -f $tmp.socat.out $tmp.socat.err
 socat tcp-listen:$port_text,reuseaddr,fork - >>$tmp.socat.out 2>>$tmp.socat.err &
 scpid=$!
@@ -143,7 +142,7 @@ grep 'pcp\.sample\.string\.hullo' $tmp.socat.out \
 grep 'Excluding' $tmp.p2g.err
 _full_stash
 
-echo "=== 4. pcp2graphite count-limited archive transcription ===" | tee -a $seq.full
+echo "=== 4. pcp2graphite count-limited archive transcription ===" | tee -a $seq_full
 rm -f $tmp.socat.out $tmp.socat.err
 socat -u tcp-listen:$port_text,reuseaddr,fork - >>$tmp.socat.out 2>>$tmp.socat.err &
 scpid=$!
@@ -157,7 +156,7 @@ echo
 cat $tmp.p2g.out
 _full_stash
 
-echo "=== 5. pcp2graphite time-limited archive transcription ===" | tee -a $seq.full
+echo "=== 5. pcp2graphite time-limited archive transcription ===" | tee -a $seq_full
 rm -f $tmp.socat.out $tmp.socat.err
 socat -u tcp-listen:$port_pickled,reuseaddr,fork - >>$tmp.socat.out 2>>$tmp.socat.err &
 scpid=$!
@@ -174,10 +173,10 @@ echo
 cat $tmp.p2g.out
 _full_stash
 
-echo | tee -a $seq.full
-echo "=== 6. pcp2graphite and latest pickle version ===" | tee -a $seq.full
+echo | tee -a $seq_full
+echo "=== 6. pcp2graphite and latest pickle version ===" | tee -a $seq_full
 pickle_version=`_latest_pickle`
-echo pickle version: $pickle_version >> $seq.full
+echo pickle version: $pickle_version >> $seq_full
 socat -u tcp-listen:$port_pickled,reuseaddr - >$tmp.socat.out 2>$tmp.socat.err &
 scpid=$!
 sleep 2

@@ -1,0 +1,61 @@
+#!/bin/sh
+# PCP QA Test No. 1542
+# pmlogrewrite rules for the bind2 PMDA
+#
+# Copyright (c) 2024 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -f $PCP_VAR_DIR/config/pmlogrewrite/bind2.conf ] || _notrun "bind2.conf not installed"
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+    # end
+}
+
+# real QA test starts here
+pmlogrewrite -c $PCP_VAR_DIR/config/pmlogrewrite/bind2.conf archives/bind2-9.18 $tmp
+export PCP_DERIVED_CONFIG=0
+
+pminfo -a archives/bind2-9.18+ -m >$tmp.new
+pminfo -a $tmp -m \
+| while read name pad pmid
+do
+    if grep -q "$name $pad $pmid" <$tmp.new
+    then
+	# rewritten PMID == new PMID
+	#
+	echo "ok: $name"
+    else
+	echo "rewrite: $name $pad $pmid"
+	echo "new: `grep "^$name "`"
+    fi
+done
+
+# success, all done
+exit

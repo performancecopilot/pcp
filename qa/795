@@ -14,20 +14,19 @@ echo "QA output created by $seq"
 . ./common.check
 
 status=0	# success is the default!
-$sudo rm -rf $tmp.* $seq.full
 
-which sheet2pcp >>$seq.full 2>&1
+which sheet2pcp >>$seq_full 2>&1
 [ $? -eq 0 ] || _notrun "sheet2pcp not installed"
-perl -e "use XML::TokeParser" >>$seq.full 2>&1
+perl -e "use XML::TokeParser" >>$seq_full 2>&1
 [ $? -eq 0 ] || _notrun "perl XML::TokeParser module not installed"
-perl -e "use Spreadsheet::ReadSXC" >>$seq.full 2>&1
+perl -e "use Spreadsheet::ReadSXC" >>$seq_full 2>&1
 [ $? -eq 0 ] || _notrun "perl Spreadsheet::ReadSXC module not installed"
 cat <<End-of-File >$tmp.pl
 use Spreadsheet::ReadSXC;
 Spreadsheet::ReadSXC::read_sxc("/dev/null");
 exit(0);
 End-of-File
-perl $tmp.pl >>$seq.full 2>&1
+perl $tmp.pl >>$seq_full 2>&1
 if [ $? -ne 0 ]
 then
     rm -f $tmp.pl

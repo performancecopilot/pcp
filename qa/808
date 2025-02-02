@@ -31,8 +31,8 @@ _cleanup()
 	# badness in the PMNS for the pmproxy.* metrics if check's callback
 	# checks the PMNS .. seen on vm11 (Debian 11.1)
 	#
-	echo "Restart pmproxy ..." >>$here/$seq.full
-	_service pmproxy restart >>$here/$seq.full 2>&1
+	echo "Restart pmproxy ..." >>$seq_full
+	_service pmproxy restart >>$seq_full 2>&1
 	_wait_for_pmproxy
     fi
 
@@ -40,14 +40,13 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _stop_auto_restart pmlogger
 
 pmproxy_was_running=false
 [ -f $PCP_RUN_DIR/pmproxy.pid ] && pmproxy_was_running=true
-echo "pmproxy_was_running=$pmproxy_was_running" >>$here/$seq.full
+echo "pmproxy_was_running=$pmproxy_was_running" >>$seq_full
 
 # real QA test starts here
 
@@ -70,8 +69,9 @@ else
     $sudo kill -0 $pid >/dev/null 2>&1 && echo "Arrggh, pid $pid won't die!"
 
     echo === restart primary logger ===
-    _service pmlogger start | _filter_pcp_start
-    _wait_for_pmlogger
+    if ! _service pmlogger start; then _exit 1; fi \
+    | _filter_pcp_start
+    _wait_for_pmlogger || _exit 1
 
     newpid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '/[p]mlogger.*-P' | \
 	grep -v grep | awk '{print $2}'`
@@ -115,8 +115,9 @@ else
     $sudo ln $PCP_RUN_DIR/pmlogger.$pid.socket $PCP_RUN_DIR/pmlogger.primary.socket
 
     echo === restart primary logger ===
-    _service pmlogger start | _filter_pcp_start
-    _wait_for_pmlogger
+    if ! _service pmlogger start; then _exit 1; fi \
+    | _filter_pcp_start
+    _wait_for_pmlogger || _exit 1
 
     newpid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '/[p]mlogger.*-P' | \
 	grep -v grep | awk '{print $2}'`

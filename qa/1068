@@ -20,19 +20,18 @@ which pcp2zabbix >/dev/null 2>&1 || _notrun "pcp2zabbix not installed"
 
 status=1	# failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 _seq_store()
 {
-    echo "--- pcp2zabbix stdout --" >>$seq.full
-    cat $tmp.pcp2zabbix.out >>$seq.full
-    echo "--- pcp2zabbix stderr --" >>$seq.full
-    cat $tmp.pcp2zabbix.err >>$seq.full
-    echo "--- socat stdout --" >>$seq.full
-    cat $tmp.socat.out >>$seq.full
-    echo "--- socat stderr --" >>$seq.full
-    cat $tmp.socat.err >>$seq.full
+    echo "--- pcp2zabbix stdout --" >>$seq_full
+    cat $tmp.pcp2zabbix.out >>$seq_full
+    echo "--- pcp2zabbix stderr --" >>$seq_full
+    cat $tmp.pcp2zabbix.err >>$seq_full
+    echo "--- socat stdout --" >>$seq_full
+    cat $tmp.socat.out >>$seq_full
+    echo "--- socat stderr --" >>$seq_full
+    cat $tmp.socat.err >>$seq_full
 }
 
 _zbx_header()
@@ -63,7 +62,7 @@ secs = sample.seconds
 msecs = sample.milliseconds
 EOF
 
-cat $tmp.config >>$seq.full
+cat $tmp.config >>$seq_full
 
 # start a longer-lived copy of socat we can use for consecutive tests
 socat tcp-listen:$zabbix_port,reuseaddr,fork - >>$tmp.socat.out 2>$tmp.socat.err &

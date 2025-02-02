@@ -17,9 +17,9 @@ echo "QA output created by $seq"
 
 _cleanup()
 {
-    echo "_cleanup: ..." >>$seq.full
+    echo "_cleanup: ..." >>$seq_full
     cd $here
-    $sudo pmlogctl -af -c $seq destroy >>$seq.full 2>&1
+    $sudo pmlogctl -af -c $seq destroy >>$seq_full 2>&1
     for dir in $seq-localhost $seq-$localhost $seq-local:
     do
 	[ -d "$PCP_ARCHIVE_DIR/$dir" ] && $sudo rm -rf "$PCP_ARCHIVE_DIR/$dir"
@@ -28,21 +28,20 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 localhost=`hostname`
-echo "localhost -> \"$localhost\"" >>$seq.full
-echo "hostname -f -> \"`hostname -f 2>&1`\"" >>$seq.full
-echo "pmhostname -> `pmhostname -Dappl0 2>&1`" >>$seq.full
-host localhost >>$seq.full 2>&1
-host $localhost >>$seq.full 2>&1
-host `hostname -f 2>&1` >>$seq.full 2>&1
-host `pmhostname` >>$seq.full 2>&1
+echo "localhost -> \"$localhost\"" >>$seq_full
+echo "hostname -f -> \"`hostname -f 2>&1`\"" >>$seq_full
+echo "pmhostname -> `pmhostname -Dappl0 2>&1`" >>$seq_full
+host localhost >>$seq_full 2>&1
+host $localhost >>$seq_full 2>&1
+host `hostname -f 2>&1` >>$seq_full 2>&1
+host `pmhostname` >>$seq_full 2>&1
 
 _filter()
 {
-    tee -a $seq.full \
+    tee -a $seq_full \
     | sed \
 	-e '/^# created by pmlogctl/s/ on .*/ on DATE/' \
 	-e "s;$tmp\.;TMP.;g" \
@@ -81,7 +80,7 @@ END	{ print "{ print }" }'
 #
 _filter_status()
 {
-    tee -a $seq.full \
+    tee -a $seq_full \
     | $PCP_AWK_PROG -f $tmp.awk \
     | sed >$tmp.tmp \
 	-e "/^`hostname` .* primary /d" \
@@ -133,9 +132,9 @@ End-of-File
 _setup()
 {
     $sudo cp $tmp.control $PCP_ETC_DIR/pcp/pmlogger/control.d/$seq
-    echo "=== setup" >>$seq.full
-    $sudo pmlogctl -V -c $seq restart >>$seq.full 2>&1
-    pmlogctl -V status >>$seq.full 2>&1
+    echo "=== setup" >>$seq_full
+    $sudo pmlogctl -V -c $seq restart >>$seq_full 2>&1
+    pmlogctl -V status >>$seq_full 2>&1
 }
 
 # real QA test starts here

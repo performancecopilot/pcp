@@ -25,7 +25,6 @@ echo "this tests access control for pmlogger and exercises pmlc"
 
 # Remember that we cd into $tmp
 #
-here=`pwd`
 signal=$PCP_BINADM_DIR/pmsignal
 config=$tmp/pmlogger.conf
 log=$tmp/pmlogger.log
@@ -33,8 +32,8 @@ me=`_get_fqdn`
 shortme=`hostname`
 errors=$tmp/errors.pmlc
 
-echo "me=$me" >$here/$seq.full
-echo "shortme=$shortme" >>$here/$seq.full
+echo "me=$me" >$seq_full
+echo "shortme=$shortme" >>$seq_full
 
 _filter()
 {
@@ -44,7 +43,7 @@ _filter()
     # And the "receiving response from pmlogger" part of the no permission
     # error message may not be there for older pmlc versions.
     #
-    tee -a $here/$seq.full \
+    tee -a $seq_full \
     | sed -e "s/$me/ME/" \
 	-e "s/local:/ME/" \
 	-e "s/$shortme/ME/" \
@@ -107,44 +106,48 @@ _await_logger()
     fi
 }
 
-interrupt()
+_interrupt()
 {
-    echo "Interrupted"
-    _restore_auto_restart pmcd
-    _restore_auto_restart pmlogger
-    exit
+    echo "Interrupted!"
+    _exit 1
 }
 
-cleanup()
+_cleanup()
 {
-    cd $here
-    # kill off any surviving pmloggers
-    #
-    $sudo $signal -a -s TERM pmlogger
-    _await_logger false
-    echo "Restarting pmcd and friends..."
-    _service pcp restart 2>&1 \
-    | _filter_pcp_start \
-    | sed -e '/pmlogger not running/d'
-    _restore_auto_restart pmcd
-    _restore_auto_restart pmlogger
-    _wait_for_pmcd
-    echo "+++ after restart primary pmlogger pid = `_get_primary_logger_pid`" >>$here/$seq.full
-    case `hostname -s`
-    in
-	vm10|vm32)
-	    # on these VMs we consistently don't get pmlogger started in the
-	    # default 20 seconds, so be patient ...
-	    #
-	    sleep 30
-	    ;;
-    esac
-    _wait_for_pmlogger
-    rm -rf $tmp $tmp.*
+    if $_needclean
+    then
+	cd $here
+	# kill off any surviving pmloggers
+	#
+	$sudo $signal -a -s TERM pmlogger
+	_await_logger false
+	echo "Restarting pmcd and friends..."
+	_service pcp restart 2>&1 \
+	| _filter_pcp_start \
+	| sed -e '/pmlogger not running/d'
+	_restore_auto_restart pmcd
+	_restore_auto_restart pmlogger
+	_wait_for_pmcd
+	echo "+++ after restart primary pmlogger pid = `_get_primary_logger_pid`" >>$seq_full
+	case `hostname -s`
+	in
+	    vm10|vm32)
+		# on these VMs we consistently don't get pmlogger started in the
+		# default 20 seconds, so be patient ...
+		#
+		sleep 30
+		;;
+	esac
+	_wait_for_pmlogger
+	rm -rf $tmp $tmp.*
+	_needclean=false
+    fi
 }
 
-trap interrupt 1 2 3 15
-trap cleanup 0
+status=0
+_needclean=true
+trap _interrupt 1 2 3 15		# refactor-ok
+trap "_cleanup; exit \$status" 0
 
 _stop_auto_restart pmcd
 _stop_auto_restart pmlogger
@@ -176,8 +179,8 @@ then
     _notrun "Cannot find second remote host running pmcd v2.x"
     # NOTREACHED
 fi
-echo "other1=$other1" >>$here/$seq.full
-echo "other2=$other2" >>$here/$seq.full
+echo "other1=$other1" >>$seq_full
+echo "other2=$other2" >>$seq_full
 
 # kill off any existing primary pmlogger
 #
@@ -212,8 +215,8 @@ allow $me :		all;
 allow localhost :	all;
 End-Of-File
 
-echo >>$here/$seq.full
-cat $config >>$here/$seq.full
+echo >>$seq_full
+cat $config >>$seq_full
 
 echo "starting test pmlogger..."
 #
@@ -225,13 +228,13 @@ echo "starting test pmlogger..."
 #
 ( sh -c "$sudo $PCP_BINADM_DIR/pmlogger --pmlc-ipc-version=2 -P -c $config -l $log TEST" >$tmp/sh.log 2>&1 & ) >/dev/null 2>&1
 _await_logger true
-_wait_for_pmlogger $logger_pid $log
+_wait_for_pmlogger $logger_pid $log || _exit 1
 
 # Check connect and enquire access
 
-echo | tee -a $here/$seq.full
-echo "================" | tee -a $here/$seq.full
-echo "checking enquire access for this host..." | tee -a $here/$seq.full
+echo | tee -a $seq_full
+echo "================" | tee -a $seq_full
+echo "checking enquire access for this host..." | tee -a $seq_full
 pmlc -P <<End-Of-File 2>$errors \
 | _filter
 query kernel.all.load[1,5,15]
@@ -239,16 +242,16 @@ quit
 End-Of-File
 if [ -s $errors ]
 then
-    echo Errors: | tee -a $here/$seq.full
+    echo Errors: | tee -a $seq_full
     _filter < $errors
     $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '/[p]m|[P]PID'
     exit 1
 fi
 
 
-echo | tee -a $here/$seq.full
-echo "================" | tee -a $here/$seq.full
-echo "checking enquire access for other1..." | tee -a $here/$seq.full
+echo | tee -a $seq_full
+echo "================" | tee -a $seq_full
+echo "checking enquire access for other1..." | tee -a $seq_full
 ssh -q pcpqa@$other1 "sh -c 'PMCD_CONNECT_TIMEOUT=60 PMCD_REQUEST_TIMEOUT=60 pmlc -h $me -P'" <<End-Of-File 2>$errors \
 | _filter
 query kernel.all.load[1,5,15]
@@ -256,15 +259,15 @@ quit
 End-Of-File
 if [ -s $errors ]
 then
-    echo Errors: | tee -a $here/$seq.full
+    echo Errors: | tee -a $seq_full
     _filter < $errors
     echo FAILED ... sleeping
     exit 1
 fi
 
-echo | tee -a $here/$seq.full
-echo "================" | tee -a $here/$seq.full
-echo "checking enquire access for other2 (should fail)..." | tee -a $here/$seq.full
+echo | tee -a $seq_full
+echo "================" | tee -a $seq_full
+echo "checking enquire access for other2 (should fail)..." | tee -a $seq_full
 ssh -q pcpqa@$other2 "sh -c 'PMCD_CONNECT_TIMEOUT=60 PMCD_REQUEST_TIMEOUT=60 pmlc -h $me -P'" <<End-Of-File 2>$errors \
 | _filter
 query kernel.all.load[1,5,15]
@@ -272,13 +275,13 @@ quit
 End-Of-File
 if [ -s $errors ]
 then
-    echo Errors: | tee -a $here/$seq.full
+    echo Errors: | tee -a $seq_full
     _filter < $errors
 fi
 
-echo | tee -a $here/$seq.full
-echo "================" | tee -a $here/$seq.full
-echo "re-checking enquire access for this host..." | tee -a $here/$seq.full
+echo | tee -a $seq_full
+echo "================" | tee -a $seq_full
+echo "re-checking enquire access for this host..." | tee -a $seq_full
 pmlc -P <<End-Of-File 2>$errors \
 | _filter
 query kernel.all.load[1,5,15]
@@ -286,7 +289,7 @@ quit
 End-Of-File
 if [ -s $errors ]
 then
-    echo Errors: | tee -a $here/$seq.full
+    echo Errors: | tee -a $seq_full
     _filter < $errors
     exit 1
 fi
@@ -307,8 +310,8 @@ allow $other2 :		enquire;
 disallow *: all;
 End-Of-File
 
-echo >>$here/$seq.full
-cat $config >>$here/$seq.full
+echo >>$seq_full
+cat $config >>$seq_full
 
 echo "killing pmlogger used for enquire tests..."
 $sudo $signal -a -s TERM pmlogger
@@ -321,12 +324,12 @@ echo "starting new pmlogger for advisory & mandatory tests..."
 #
 ( sh -c "$sudo $PCP_BINADM_DIR/pmlogger --pmlc-ipc-version=2 -P -c $config -l $log TEST2" >$tmp/sh.log 2>&1 & ) >/dev/null 2>&1
 _await_logger true
-_wait_for_pmlogger $logger_pid $log
+_wait_for_pmlogger $logger_pid $log || _exit 1
 
-echo | tee -a $seq.full
-echo "================" | tee -a $seq.full
-echo "checking advisory access for this host..." | tee -a $seq.full
-echo "(100,400 will change, 700 will not)" | tee -a $seq.full
+echo | tee -a $seq_full
+echo "================" | tee -a $seq_full
+echo "checking advisory access for this host..." | tee -a $seq_full
+echo "(100,400 will change, 700 will not)" | tee -a $seq_full
 pmlc -P <<End-Of-File 2>$errors \
 | _filter
 query sample.bin[100,200,300,400,500,600,700,800,900]
@@ -345,17 +348,17 @@ if [ -s $errors ]
 then
     $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep pmlc
     cat $log
-    echo Errors: | tee -a $seq.full
+    echo Errors: | tee -a $seq_full
     _filter < $errors
     echo "pmlogger sh log:"
     cat $tmp/sh.log
     exit 1
 fi
 
-echo | tee -a $seq.full
-echo "================" | tee -a $seq.full
-echo "checking advisory access for other1..." | tee -a $seq.full
-echo "(200,500 will change, 800 will not)" | tee -a $seq.full
+echo | tee -a $seq_full
+echo "================" | tee -a $seq_full
+echo "checking advisory access for other1..." | tee -a $seq_full
+echo "(200,500 will change, 800 will not)" | tee -a $seq_full
 ssh -q pcpqa@$other1 "sh -c 'PMCD_CONNECT_TIMEOUT=60 PMCD_REQUEST_TIMEOUT=60 pmlc -h $me -P'" <<End-Of-File 2>$errors \
 | _filter
 query sample.bin[100,200,300,400,500,600,700,800,900]
@@ -372,14 +375,14 @@ quit
 End-Of-File
 if [ -s $errors ]
 then
-    echo Errors: | tee -a $seq.full
+    echo Errors: | tee -a $seq_full
     _filter < $errors
 fi
 
-echo | tee -a $seq.full
-echo "================" | tee -a $seq.full
-echo "checking advisory access for other2..." | tee -a $seq.full
-echo "(expect 3 permission errors)" | tee -a $seq.full
+echo | tee -a $seq_full
+echo "================" | tee -a $seq_full
+echo "checking advisory access for other2..." | tee -a $seq_full
+echo "(expect 3 permission errors)" | tee -a $seq_full
 ssh -q pcpqa@$other2 "sh -c 'PMCD_CONNECT_TIMEOUT=60 PMCD_REQUEST_TIMEOUT=60 pmlc -h $me -P'" <<End-Of-File 2>$errors \
 | _filter
 query sample.bin[100,200,300,400,500,600,700,800,900]
@@ -396,7 +399,7 @@ quit
 End-Of-File
 if [ -s $errors ]
 then
-    echo Errors: | tee -a $seq.full
+    echo Errors: | tee -a $seq_full
     _filter < $errors
 fi
 
@@ -414,12 +417,12 @@ echo "starting new pmlogger for mandatory tests..."
 #
 ( sh -c "$sudo $PCP_BINADM_DIR/pmlogger --pmlc-ipc-version=2 -P -c $config -l $log TEST3" >$tmp/sh.log 2>&1 & ) >/dev/null 2>&1
 _await_logger true
-_wait_for_pmlogger $logger_pid $log
+_wait_for_pmlogger $logger_pid $log || _exit 1
 
-echo | tee -a $seq.full
-echo "================" | tee -a $seq.full
-echo "checking mandatory access for this host..." | tee -a $seq.full
-echo "(100,400,700 will change)" | tee -a $seq.full
+echo | tee -a $seq_full
+echo "================" | tee -a $seq_full
+echo "checking mandatory access for this host..." | tee -a $seq_full
+echo "(100,400,700 will change)" | tee -a $seq_full
 pmlc -P <<End-Of-File 2>$errors \
 | _filter
 query sample.bin[100,200,300,400,500,600,700,800,900]
@@ -436,14 +439,14 @@ quit
 End-Of-File
 if [ -s $errors ]
 then
-    echo Errors: | tee -a $seq.full
+    echo Errors: | tee -a $seq_full
     _filter < $errors
 fi
 
-echo | tee -a $seq.full
-echo "================" | tee -a $seq.full
-echo "checking mandatory access for other1..." | tee -a $seq.full
-echo "Expect 3 permission errors" | tee -a $seq.full
+echo | tee -a $seq_full
+echo "================" | tee -a $seq_full
+echo "checking mandatory access for other1..." | tee -a $seq_full
+echo "Expect 3 permission errors" | tee -a $seq_full
 ssh -q pcpqa@$other1 "sh -c 'PMCD_CONNECT_TIMEOUT=60 PMCD_REQUEST_TIMEOUT=60 pmlc -h $me -P'" <<End-Of-File 2>$errors \
 | _filter
 query sample.bin[100,200,300,400,500,600,700,800,900]
@@ -460,14 +463,14 @@ quit
 End-Of-File
 if [ -s $errors ]
 then
-    echo Errors: | tee -a $seq.full
+    echo Errors: | tee -a $seq_full
     _filter < $errors
 fi
 
-echo | tee -a $seq.full
-echo "================" | tee -a $seq.full
-echo "checking mandatory access for other2..." | tee -a $seq.full
-echo "Expect 3 permission errors" | tee -a $seq.full
+echo | tee -a $seq_full
+echo "================" | tee -a $seq_full
+echo "checking mandatory access for other2..." | tee -a $seq_full
+echo "Expect 3 permission errors" | tee -a $seq_full
 ssh -q pcpqa@$other2 "sh -c 'PMCD_CONNECT_TIMEOUT=60 PMCD_REQUEST_TIMEOUT=60 pmlc -h $me -P'" <<End-Of-File 2>$errors \
 | _filter
 query sample.bin[100,200,300,400,500,600,700,800,900]
@@ -484,15 +487,15 @@ quit
 End-Of-File
 if [ -s $errors ]
 then
-    echo Errors: | tee -a $seq.full
+    echo Errors: | tee -a $seq_full
     _filter < $errors
 fi
 
 # Check that each pmlogger only accepts one pmlc connection at a time
 
-echo | tee -a $seq.full
-echo "================" | tee -a $seq.full
-echo "checking 2nd pmlc for pmlogger (should fail)..." | tee -a $seq.full
+echo | tee -a $seq_full
+echo "================" | tee -a $seq_full
+echo "checking 2nd pmlc for pmlogger (should fail)..." | tee -a $seq_full
 ( ( sleep 5 | pmlc -P ) & ) >/dev/null 2>&1
 sleep 3
 pmlc -P <<End-Of-File 2>$errors \
@@ -501,10 +504,10 @@ quit
 End-Of-File
 if [ -s $errors ]
 then
-    echo Errors: | tee -a $seq.full
+    echo Errors: | tee -a $seq_full
     _filter < $errors
 fi
 
 wait
 
-echo "+++ at the end primary pmlogger pid = `_get_primary_logger_pid`" >>$here/$seq.full
+echo "+++ at the end primary pmlogger pid = `_get_primary_logger_pid`" >>$seq_full

@@ -19,7 +19,6 @@ _pmdaopenmetrics_check || _notrun "openmetrics pmda and/or load generator not in
 _have_python266 && _notrun "python load generator does not currently work with python 2.6.6"
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 totalendpoints=5 #total queue to work through
 endpoints=5 #openmetrics endpoints
 iterations=5
@@ -35,12 +34,12 @@ _cleanup()
 	pid=""
     fi
 
-    echo "=== endpoint log ===" >>$here/$seq.full
+    echo "=== endpoint log ===" >>$seq_full
     if [ -f $tmp.endpoint ]
     then
-	cat $tmp.endpoint >>$here/$seq.full
+	cat $tmp.endpoint >>$seq_full
     else
-	echo "Error: endpoint log file is missing" >>$here/$seq.full
+	echo "Error: endpoint log file is missing" >>$seq_full
     fi
 
     cd $here
@@ -56,7 +55,7 @@ _pmdaopenmetrics_save_config
 _pmdaopenmetrics_install
 
 port=`_find_free_port 10000`
-echo "port=$port" >>$here/$seq.full
+echo "port=$port" >>$seq_full
 
 $python $here/openmetrics/openmetrics_endpoint.python \
 	--port=$port \

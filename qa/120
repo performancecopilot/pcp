@@ -15,7 +15,6 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 
-rm -rf $tmp.*
 
 # Find an efs filesystem ... if you do not have one, abandon ship
 #

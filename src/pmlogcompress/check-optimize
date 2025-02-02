@@ -1,0 +1,203 @@
+#!/bin/sh
+#
+# exercise pmlogcompress -o space on a bunch of archives
+#
+# This script is NOT packaged and shipped.
+#
+# Usage: check-optimize base ...
+# where base is the pathname to a PCP archive or a directory (=> all archives
+# below there)
+#
+
+tmp=/var/tmp/check-optimize-$$
+here=`pwd`
+
+verbose=false
+
+trap "rm -rf $tmp $tmp.*; exit 0" 0 1 2 3 15
+
+_doit()
+{
+    $verbose && echo >&2 "_doit $1"
+    if [ -f "$1" ]
+    then
+	base="`pmlogbasename $1`"
+    else
+	base="$1"
+    fi
+    if [ "`echo $base.meta*`" = "$base.meta*" ]
+    then
+	# no meta file!
+	#
+	$verbose && echo >&2 "$1: Error: no .meta file for PCP archive $base"
+	return
+    fi
+
+    for file in $base.*
+    do
+	[ "$base" = `pmlogbasename "$file"` ] || continue
+	if cp "$file" $tmp
+	then
+	    :
+	else
+	    echo "Arrgh! cp $file $tmp failed"
+	    exit
+	fi
+    done
+
+    if cd $tmp
+    then
+	:
+    else
+	echo "Arrgh! cd $tmp failed"
+	exit
+    fi
+    $verbose && echo >&2 "$1: Info: files after cp: `echo *`"
+
+    # decompress any files already compressed
+    #
+    for file in *
+    do
+        case "$file"
+	in
+	    *.xz)
+		# if foo and foo.xz, get rid of foo first
+		#
+		[ -f "`basename $file .xz`" ] && rm -f `basename $file .xz`
+	    	unxz -q "$file"
+		;;
+	    *.zst)
+		# if foo and foo.zstd, get rid of foo first
+		#
+		[ -f "`basename $file .zst`" ] && rm -f `basename $file .zst`
+	    	unzstd --rm -q "$file"
+		;;
+	esac
+    done
+    $verbose && echo >&2 "$1: Info: files after decompress: `echo *`"
+
+    # does it look like a PCP archive?
+    #
+    ok=true
+    lbase=`basename $base`
+    if [ ! -f "$lbase.meta" ]
+    then
+	$verbose && echo >&2 "$1: Error: no .meta file for PCP archive: `echo *`"
+	ok=false
+    fi
+    if $ok && [ ! -f "`echo *.meta`" ]
+    then
+	# more than one meta file!
+	#
+	$verbose && echo >&2 "$1: Error: multiple .meta files for PCP archive: `echo *.meta`"
+	ok=false
+    fi
+    # believe it or not file(1) checks for SIMH "tapes" can
+    # jackpot mismatch on PCP .meta files
+    #
+    if $ok
+    then
+	case "`file -e simh "$lbase.meta" 2>&1`"
+	in
+	    *PCP\ archive\ *\ metadata\ *)
+		;;
+	    *)
+		$verbose && echo >&2 "$1: Error: not a PCP .meta file: `file "$lbase.meta" | sed -s 's/.*: //'`"
+		ok=false
+		;;
+	esac
+    fi
+
+
+    if $ok
+    then
+	pmlogcompress -VN -o space -l0 -c 'xz:zstd' $lbase 2>&1 \
+	| _filter
+    fi
+
+    if cd $here
+    then
+	:
+    else
+	echo "Arrgh! cd $here failed"
+	exit
+    fi
+
+    rm $tmp/*
+}
+
+
+
+# Turn this ...
+# archbase=20201109
+# 20201109.0: (44756252 bytes) selected as candidate for optimize measurements
+# xz_setup: compression args=" -0 --block-size=10MiB"
+# 20201109.0: xz size=4489312 cpu=1200
+# 20201109.0: zstd size=1914185 cpu=120
+# optimize: pick zstd
+# + zstd --rm --quiet 20201109.0
+# + zstd --rm --quiet 20201109.meta
+# into this ...
+# File		orig sz		xz sz	compr	zstd sz	compr	pick
+# 20201109.0	44756252	4489312 xx.xx	1914185	xx.xx	zstd
+
+_filter()
+{
+    sed \
+	-e '/^archbase=/d' \
+	-e '/^xz_setup:/d' \
+	-e '/^+ /d' \
+	-e 's/[:()=]/ /g' \
+	-e 's/  */ /g' \
+    | awk '
+BEGIN			{ fmt="%24.24s %12d %12d %5.2f %12d %5.2f %s\n" }
+/selected as candidate/	{ name=$1; orig=$2 }
+/xz size/		{ xz=$4 }
+/zstd size/		{ zstd=$4 }
+/^optimize pick/	{ pick=$3 }
+			# keep consistent with pmlogcompress -l default,
+			# files < 4096 bytes will not be compressed
+			#
+END			{ if (orig >= 4096) {
+			    if (xz > 0)
+				xz_compr=orig/xz
+			    else
+				xz_compr=-1
+			    if (zstd > 0)
+				zstd_compr=orig/zstd
+			    else
+				zstd_compr=-1
+			    printf fmt,name,orig,xz,xz_compr,zstd,zstd_compr,pick
+			  }
+			}'
+}
+
+if mkdir $tmp
+then
+    :
+else
+    echo "Arrgh! mkdir failed"
+    exit
+fi
+
+printf "%24.24s %12.12s %12.12s %5.5s %12.12s %5.5s %s\n" "File" "orig sz" "xz sz" "compr" "zstd sz" "compr" "pick"
+
+for arch
+do
+    if [ X"$arch" = X-V ]
+    then
+	verbose=true
+	continue
+    fi
+    if [ -d "$arch" ]
+    then
+	find "$arch" -name "*.meta" -o -name "*.meta.*" \
+	| sed -e 's/\.meta.*//' \
+	| while read arg
+	do
+	    _doit "$arg"
+	done
+    else
+	_doit "$arch"
+    fi
+done

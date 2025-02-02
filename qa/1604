@@ -40,7 +40,6 @@ machineid=`_machine_id`
 domainname=`_domain_name`
 
 need_restore=false
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _filter_source()
@@ -77,7 +76,7 @@ pmseries $options --load "$here/archives/bozo-disk" | _filter_source
 # start pmproxy
 proxyport=`_find_free_port`
 proxyopts="-p $proxyport -r $key_server_port -t"  # -Dseries,http,af
-pmproxy -f -U $username -x $seq.full -l $tmp.pmproxy.log $proxyopts &
+pmproxy -f -U $username -x $seq_full -l $tmp.pmproxy.log $proxyopts &
 pmproxy_pid=$!
 
 # check pmproxy has started and is available for requests
@@ -88,28 +87,28 @@ series1=`pmseries $options disk.all.read`
 echo "Using series $series1 for disk.all.read"
 
 
-echo "== no interval" | tee -a $seq.full
+echo "== no interval" | tee -a $seq_full
 url="http://localhost:$proxyport/series/values?series=$series1&start=1489620673&finish=1489620793"
-echo "$url" >> $seq.full
-curl --get --silent "$url" | tee -a $seq.full | _format_timestamps
+echo "$url" >> $seq_full
+curl --get --silent "$url" | tee -a $seq_full | _format_timestamps
 
-echo "== 10s interval" | tee -a $seq.full
+echo "== 10s interval" | tee -a $seq_full
 url="http://localhost:$proxyport/series/values?series=$series1&start=1489620673&finish=1489620793&interval=10"
-echo "$url" >> $seq.full
-curl --get --silent "$url" | tee -a $seq.full | _format_timestamps
+echo "$url" >> $seq_full
+curl --get --silent "$url" | tee -a $seq_full | _format_timestamps
 
-echo "== 20s interval" | tee -a $seq.full
+echo "== 20s interval" | tee -a $seq_full
 url="http://localhost:$proxyport/series/values?series=$series1&start=1489620673&finish=1489620793&interval=20"
-echo "$url" >> $seq.full
-curl --get --silent "$url" | tee -a $seq.full | _format_timestamps
-cat $tmp.pmproxy.log >> $seq.full
+echo "$url" >> $seq_full
+curl --get --silent "$url" | tee -a $seq_full | _format_timestamps
+cat $tmp.pmproxy.log >> $seq_full
 
-echo "== 20s interval, starting 2m before first sample in archive" | tee -a $seq.full
+echo "== 20s interval, starting 2m before first sample in archive" | tee -a $seq_full
 url="http://localhost:$proxyport/series/values?series=$series1&start=1489620553&finish=1489620793&interval=20"
-echo "$url" >> $seq.full
-curl --get --silent "$url" | tee -a $seq.full | _format_timestamps
+echo "$url" >> $seq_full
+curl --get --silent "$url" | tee -a $seq_full | _format_timestamps
 
 
-cat $tmp.pmproxy.log >> $seq.full
+cat $tmp.pmproxy.log >> $seq_full
 status=0
 exit

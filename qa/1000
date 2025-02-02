@@ -37,7 +37,6 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # filter ...
@@ -77,7 +76,7 @@ pmdumptext -s 1 -h no.such.host.pcp.io 'proc.psinfo.utime[12345]'
 
 _stop_auto_restart pmcd
 _stop_auto_restart pmlogger
-_service pcp stop >/dev/null 2>&1
+if ! _service pcp stop >/dev/null 2>&1; then _exit 1; fi
 echo
 echo "=== pmcd not running, default case ==="
 pmdumptext -s 1 'sample.bin[bin-300]' 2>&1 | _filter2

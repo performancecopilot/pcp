@@ -16,7 +16,6 @@ echo "QA output created by $seq"
 
 status=0	# success is the default!
 username=`id -u -n`
-$sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 cat <<End-of-File >$tmp.def
@@ -71,4 +70,4 @@ End-of-File
 _filter <$tmp.out
 _filter <$tmp.err
 
-cat $tmp.log >>$here/$seq.full
+cat $tmp.log >>$seq_full

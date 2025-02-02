@@ -58,33 +58,33 @@ _wait_filter()
 
 _start()
 {
-    echo "restart @ `date` ..." >>$seq.full
+    echo "restart @ `date` ..." >>$seq_full
     $sudo $PCP_RC_DIR/pmcd restart >$tmp.start.out
-    echo "restart log @ `date` ..." >>$seq.full
-    cat $tmp.start.out >>$seq.full
-    _wait_for_pmcd
+    echo "restart log @ `date` ..." >>$seq_full
+    cat $tmp.start.out >>$seq_full
+    _wait_for_pmcd || _exit 1
 }
 
 _stop()
 {
-    echo "stop @ `date`..." >>$seq.full
+    echo "stop @ `date`..." >>$seq_full
     $sudo $PCP_RC_DIR/pmcd stop >$tmp.stop.out
-    echo "stop log @ `date` ..." >>$seq.full
-    cat $tmp.stop.out >>$seq.full
+    echo "stop log @ `date` ..." >>$seq_full
+    cat $tmp.stop.out >>$seq_full
 }
 
 # real QA test starts here
-_change_config pmlogger off
+_change_config pmlogger off || _exit 1
 _stop_auto_restart pmlogger
-_service pcp stop | _filter_pcp_stop
+if ! _service pcp stop; then _exit 1; fi \
+| _filter_pcp_stop
 
 delta=10
 pre_delta=5
 post_delta=15
 
-rm -f $seq.full
 
-echo "*** test 1 ***" | tee -a $seq.full
+echo "*** test 1 ***" | tee -a $seq_full
 _start
 sleep 2
 if pmcd_wait -v 2>$tmp.err
@@ -97,13 +97,13 @@ else
 fi
 _filter <$tmp.start.out
 
-echo "*** test 2 ***" | tee -a $seq.full
+echo "*** test 2 ***" | tee -a $seq_full
 _stop
 sleep 2
 if pmcd_wait -v -t $delta 2>$tmp.err
 then
    echo ""
-   echo "ERROR: pmcd_wait should not have succeeded !" | tee -a $seq.full
+   echo "ERROR: pmcd_wait should not have succeeded !" | tee -a $seq_full
    echo ""
 else
    _wait_filter < $tmp.err
@@ -113,7 +113,7 @@ else
 fi
 _filter <$tmp.stop.out
 
-echo "*** test 4 ***" | tee -a $seq.full
+echo "*** test 4 ***" | tee -a $seq_full
 _stop
 sleep 2
 rm -f $tmp.done
@@ -125,7 +125,7 @@ then
    echo ""
 else
    echo ""
-   echo "ERROR: pmcd_wait should have succeeded !" | tee -a $seq.full
+   echo "ERROR: pmcd_wait should have succeeded !" | tee -a $seq_full
    echo ""
    _wait_filter < $tmp.err
 fi
@@ -139,7 +139,7 @@ do
 done
 if [ ! -f $tmp.done ]
 then
-    echo "Arrgh @ `date` ... _start is really dragging the chain ... check $seq.full" | tee -a $seq.full
+    echo "Arrgh @ `date` ... _start is really dragging the chain ... check $seq.full" | tee -a $seq_full
     status=1
     exit
 fi
@@ -148,7 +148,7 @@ _filter <$tmp.stop.out \
 | sed -e '/pmlogger not running/d'
 _filter <$tmp.start.out
 
-echo "*** test 5 ***" | tee -a $seq.full
+echo "*** test 5 ***" | tee -a $seq_full
 _stop
 sleep 2
 (sleep $post_delta; _start ) &
@@ -156,7 +156,7 @@ pid=$!
 if pmcd_wait -v -t $delta 2>$tmp.err
 then
    echo ""
-   echo "ERROR: pmcd_wait should not have succeeded !" | tee -a $seq.full
+   echo "ERROR: pmcd_wait should not have succeeded !" | tee -a $seq_full
    echo ""
 else
    _wait_filter < $tmp.err

@@ -46,8 +46,8 @@ _cleanup()
 	#
 	for i in 1 2 3 4 5
 	do
-	    echo "delay $i" >>$here/$seq.full
-	    if netstat $netstat_args | grep 44321 >>$here/$seq.full
+	    echo "delay $i" >>$seq_full
+	    if netstat $netstat_args | grep 44321 >>$seq_full
 	    then
 		sleep 1
 	    else
@@ -72,10 +72,10 @@ _cleanup()
 	    eval `systemctl show pmlogger.service --property=ActiveState`
 	    if [ "$ActiveState" != active ]
 	    then
-		$sudo systemctl status pmlogger.service >>$here/$seq.full
+		$sudo systemctl status pmlogger.service >>$seq_full
 		if which journalctl >/dev/null 2>&1
 		then
-		    $sudo journalctl -xe -u pmlogger.service >>$here/$seq.full
+		    $sudo journalctl -xe -u pmlogger.service >>$seq_full
 		fi
 	    fi
 	fi
@@ -92,8 +92,8 @@ _stop_auto_restart pmlogger
 
 # Make sure we have a stable starting point. This test was passing when
 # run alone, but failing if test 184 was run immediately before it.
-_service pmlogger restart 2>&1 | _filter_pcp_start
-_wait_for_pmlogger
+if ! _service pmlogger restart 2>&1; then _exit 1; fi | _filter_pcp_start
+_wait_for_pmlogger || _exit 1
 
 # all running, get primary pmlogger pid, then stop 'em all
 #
@@ -103,8 +103,9 @@ then
     echo "Botch: primary pmlogger PID not found"
     ls -l $PCP_RUN_DIR
 fi
-_service pcp stop | _filter_pcp_stop
-_wait_pmcd_end
+if ! _service pcp stop; then _exit 1; fi \
+| _filter_pcp_stop
+_wait_pmcd_end || _exit 1
 [ -n "$_pid" ] && _wait_pmlogger_end $_pid
 echo "primary pmlogger processes?  expect none"
 ps $PCP_PS_ALL_FLAGS | grep '[p]mlogger.* -P'

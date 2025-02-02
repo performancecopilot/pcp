@@ -14,7 +14,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-$sudo rm -f $seq.full
 trap "rm -f $tmp $tmp.*; exit" 0 1 2 3 15
 
 # real QA test starts here
@@ -27,8 +26,8 @@ fi
 eval realhost=`pmprobe -v -h $host pmcd.hostname | $PCP_AWK_PROG '{ print $3 }'`
 [ $realhost = Unknown ] && realhost=`pmhostname $host`
 
-echo "Using host: $host" >> $seq.full
-echo "Using realhost: $realhost" >> $seq.full
+echo "Using host: $host" >> $seq_full
+echo "Using realhost: $realhost" >> $seq_full
 
 # Note:
 #   This used to log just hinv.ncpu, but as of late 2019 I started seeing
@@ -53,5 +52,4 @@ pmdumplog -l $tmp 2>&1 \
 | _filter_pmdumplog --any-version \
 | sed -e 's/Host /host /'
 
-rm -f $tmp.*
 exit 0

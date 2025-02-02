@@ -57,31 +57,30 @@ then
 fi
 
 # make sure we have latest ttymap
-$sudo rm -f $seq.full
 $sudo rm -f /tmp/pcp.ttymap
 # make sure proc agent reloads it
 _stop_auto_restart pmcd
 _stop_auto_restart pmlogger
-_service pcp restart 2>&1 | _filter_pcp_start
-_wait_for_pmcd
-_wait_for_pmlogger
+if ! _service pcp restart 2>&1; then _exit 1; fi | _filter_pcp_start
+_wait_for_pmcd || _exit 1
+_wait_for_pmlogger || _exit 1
 
 #
 # tty filtering per PCP_PLATFORM
 #
 if [ $PCP_PLATFORM = linux ]
 then
-	ps -e | tee -a $seq.full | sed \
+	ps -e | tee -a $seq_full | sed \
 		-e 's#ttyS#tts/#' \
         | $PCP_AWK_PROG '
 	/<defunct>/ { print $1, "?" }
-        {print}' >$tmp.ps  
+        {print}' >$tmp.ps
 else
     echo "Arrgh ... Need to know how to do tty filtering for PCP_PLATFORM $PCP_PLATFORM"
     exit 1
 fi
 
-echo "=====================" >>$seq.full
+echo "=====================" >>$seq_full
 
 pminfo -F proc.psinfo.ttyname |\
   sed > $tmp.pminfo \
@@ -92,15 +91,15 @@ echo "----" > $tmp.sep
 
 maxfailures=0
 
-cat $tmp.ps $tmp.sep $tmp.pminfo | tee -a $seq.full |\
+cat $tmp.ps $tmp.sep $tmp.pminfo | tee -a $seq_full |\
 $PCP_AWK_PROG -v verbose=$verbose -v maxfailures=$maxfailures -v failfile=$tmp.fail '
 	$0 == "----" { pminfo = 1; next; }
-        pminfo == 0  { 
+        pminfo == 0  {
 			# handle defunct processes which have "-" as tty
 			if ($2 == "-")
 			    $2 = "?"
 			ps[$1] = $2
-			ps_cmd[$1] = $4 
+			ps_cmd[$1] = $4
 			next
 		     }
 / inst \[/	{
@@ -110,27 +109,27 @@ $PCP_AWK_PROG -v verbose=$verbose -v maxfailures=$maxfailures -v failfile=$tmp.f
 		  # not necessarily so
 		}
 /] value "/	{
-		  sub(/.*] value "/, "") # delete up to value " 
+		  sub(/.*] value "/, "") # delete up to value "
 		  sub(/"/,"") 		# delete the final "
 		  value = $1;
 
 		# do the comparison
 		if (pid in ps) {
 		    if (ps[pid] != value && value != "?") {
-			printf("mismatch: pid = %s, ps = %s, proc = %s, cmd = %s\n", pid, ps[pid], value, ps_cmd[pid]) > failfile;	
+			printf("mismatch: pid = %s, ps = %s, proc = %s, cmd = %s\n", pid, ps[pid], value, ps_cmd[pid]) > failfile;
 			failures++;
 		    }
 		    else if (verbose == 1) {
-			printf("match for pid = %d, value = %s, ps[pid] = %s, cmd = %s\n", pid, value, ps[pid], ps_cmd[pid]);	
+			printf("match for pid = %d, value = %s, ps[pid] = %s, cmd = %s\n", pid, value, ps[pid], ps_cmd[pid]);
 		    }
 		}
 	}
-	END          { 
+	END          {
 			if (failures > maxfailures) {
-			    printf("Number of failures = %d\n", failures) 
+			    printf("Number of failures = %d\n", failures)
 			    system("cat " failfile)
 			}
-			else 
+			else
 			    printf("proc.psinfo.ttyname matches with ps\n")
 		     }
 '

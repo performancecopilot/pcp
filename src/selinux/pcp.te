@@ -521,15 +521,6 @@ optional_policy(`
 
 optional_policy(`
     require {
-	class lockdown { integrity };
-    }
-    # pmda.kvm
-    # type=AVC msg=audit(YYY.101): avc: denied { integrity } for pid=PID comm="pmdakvm" lockdown_reason="debugfs access" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=lockdown permissive=0
-    allow pcp_pmcd_t self:lockdown integrity;
-')
-
-optional_policy(`
-    require {
 	class rawip_socket { create getopt setopt read write };
     }
     # pmda.netcheck
@@ -906,6 +897,10 @@ allow pcp_pmlogger_t etc_t:dir { add_name read remove_name write };
 allow pcp_pmlogger_t etc_t:file { create unlink write };
 allow pcp_pmlogger_t cgroup_t:file { getattr read open append write };
 
+# type=AVC msg=audit(N) : avc:  denied  { getattr } for  pid=PID comm=mount path=/dev/dm-0 dev="devtmpfs" ino=INO scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:object_r:fixed_disk_device_t:s0 tclass=blk_file permissive=0
+allow pcp_pmlogger_t fixed_disk_device_t:blk_file getattr;
+allow pcp_pmlogger_t sysfs_t:lnk_file read;
+
 #============= pcp_pmie_t ==============
 # type=AVC msg=audit(N): avc: denied { execute execute_no_trans getattr open read } for pid=PID comm="pmdaX" name="/" dev="tracefs" ino=INO scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:object_r:hostname_exec_t:s0 tclass=file permissive=0
 allow pcp_pmie_t hostname_exec_t:file { execute execute_no_trans getattr open read };
@@ -939,6 +934,10 @@ allow pcp_pmie_t mount_exec_t:file { execute execute_no_trans };
 allow pcp_pmie_t etc_t:dir { add_name read remove_name write };
 allow pcp_pmie_t etc_t:file { create unlink write };
 allow pcp_pmie_t cgroup_t:file { getattr read open append write };
+
+# type=AVC msg=audit(N) : avc:  denied  { getattr } for  pid=PID comm=mount path=/dev/dm-0 dev="devtmpfs" ino=INO scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:object_r:fixed_disk_device_t:s0 tclass=blk_file permissive=0 
+allow pcp_pmie_t fixed_disk_device_t:blk_file getattr;
+allow pcp_pmie_t sysfs_t:lnk_file read;
 
 #============= pmda-lio ==============
 # type=AVC msg=audit(N): avc: denied { open read search write } for  pid=PID comm="pmdaX" name="/" dev="tracefs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:configfs_t:s0 tclass=dir permissive=0

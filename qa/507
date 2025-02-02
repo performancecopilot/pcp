@@ -15,9 +15,8 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.check
 
-rm -f $seq.full
 qahost=`_get_fqdn`
-echo "qahost=$qahost" >>$seq.full
+echo "qahost=$qahost" >>$seq_full
 if [ -z "$qahost" ]
 then
     echo "$seq: Arrgh: cannot determine fully qualified domain name for local host"
@@ -27,17 +26,17 @@ local=`uname -n`
 
 # For CI debugging ...
 #
-echo "hostname -> `hostname`" >>$seq.full
+echo "hostname -> `hostname`" >>$seq_full
 ans=`hostname | grep '\.'`
 if [ -z "$ans" ]
 then
-    echo "No . in hostname" >>$seq.full
+    echo "No . in hostname" >>$seq_full
 else
-    echo "ans -> $ans" >>$seq.full
-    echo "nslookup $ans -> `nslookup $ans </dev/null 2>&1`" >>$seq.full
-    echo "host $ans -> `host $ans 2>&1`" >>$seq.full
+    echo "ans -> $ans" >>$seq_full
+    echo "nslookup $ans -> `nslookup $ans </dev/null 2>&1`" >>$seq_full
+    echo "host $ans -> `host $ans 2>&1`" >>$seq_full
 fi
-echo "local -> $local" >>$seq.full
+echo "local -> $local" >>$seq_full
 
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
@@ -98,12 +97,12 @@ End-of-File
 # real QA test starts here
 _config > $tmp.config.pcp
 pmlogger -T 3sec -c $tmp.config.pcp -l $tmp.log $tmp.archive
-echo pmlogger status=$? | tee -a $seq.full
-cat $tmp.log >>$seq.full
-pmdumplog $tmp.archive >>$seq.full
+echo pmlogger status=$? | tee -a $seq_full
+cat $tmp.log >>$seq_full
+pmdumplog $tmp.archive >>$seq_full
 
-pcp -a $tmp.archive | tee -a $seq.full | _filter >$tmp.arch
-echo status=$? | tee -a $seq.full
+pcp -a $tmp.archive | tee -a $seq_full | _filter >$tmp.arch
+echo status=$? | tee -a $seq_full
 
 #  This loop deals with cases when pcp(1) reports that some condition has
 #  changed between the three invokations of pcp(1).  If a difference has
@@ -114,15 +113,15 @@ until [ $isdiff = FALSE -o $itns = 0 ]
 do
     rm -f $tmp.noargs $tmp.local $tmp.localnoh \
       $tmp.diffnoargslocal $tmp.noargslocalnoh
-    echo "=== no args ===" >>$seq.full
-    pcp 2>&1 | tee -a $seq.full | _filter > $tmp.noargs
+    echo "=== no args ===" >>$seq_full
+    pcp 2>&1 | tee -a $seq_full | _filter > $tmp.noargs
     statusna=$?
-    echo "=== -h localhost args ===" >>$seq.full
-    pcp -h localhost 2>&1 | tee -a $seq.full | _filter > $tmp.local
+    echo "=== -h localhost args ===" >>$seq_full
+    pcp -h localhost 2>&1 | tee -a $seq_full | _filter > $tmp.local
     statusll=$?
     export PMCD_HOST=$qahost
-    echo "=== \$PMCD_HOST=$PMCD_HOST args ===" >>$seq.full
-    pcp 2>&1 | tee -a $seq.full | _filter > $tmp.localnoh
+    echo "=== \$PMCD_HOST=$PMCD_HOST args ===" >>$seq_full
+    pcp 2>&1 | tee -a $seq_full | _filter > $tmp.localnoh
     statusln=$?
     unset PMCD_HOST
     

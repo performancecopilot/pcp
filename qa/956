@@ -39,7 +39,7 @@ _cleanup()
 	# need to uninstall dynamic PMDA
 	#
         cd $here/pmdas/dynamic
-        $sudo ./Remove >>$here/$seq.full 2>&1
+        $sudo ./Remove >>$seq_full 2>&1
         cd $here
     fi
 
@@ -48,7 +48,7 @@ _cleanup()
 	# need to cleanup PMNS
 	#
         cd $here/pmdas/dynamic
-        $sudo ./Remove >>$here/$seq.full 2>&1
+        $sudo ./Remove >>$seq_full 2>&1
         cd $here
     fi
 
@@ -56,7 +56,6 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 signal=$PCP_BINADM_DIR/pmsignal
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
@@ -67,7 +66,7 @@ then
     $NETSTAT -a
     exit 1
 fi
-echo "port=$port" >>$seq.full
+echo "port=$port" >>$seq_full
 _save_config $PCP_PMCDOPTIONS_PATH
 cat <<End-of-File >$tmp.newoptions
 # New pmcd.options file created by PCP QA test $seq
@@ -77,7 +76,8 @@ End-of-File
 
 _stop_auto_restart pmcd
 _stop_auto_restart pmlogger
-_service pcp stop | _filter_pcp_stop
+if ! _service pcp stop; then _exit 1; fi \
+| _filter_pcp_stop
 
 $sudo cp $tmp.newoptions $PCP_PMCDOPTIONS_PATH
 
@@ -91,19 +91,19 @@ echo "$PCP_RC_DIR/pmcd restart" >>$tmp.start
 $sudo sh $tmp.start 2>&1 | _filter_pcp_start
 export PMCD_PORT=$port
 export PMCD_SOCKET=$tmp.socket
-_wait_for_pmcd
+_wait_for_pmcd || _exit 1
 
 cd $here/pmdas/dynamic
 if [ -f GNUmakefile.install ]
 then
-    $PCP_MAKE_PROG -f GNUmakefile.install clean >>$here/$seq.full 2>&1
-    $PCP_MAKE_PROG -f GNUmakefile.install >>$here/$seq.full 2>&1
+    $PCP_MAKE_PROG -f GNUmakefile.install clean >>$seq_full 2>&1
+    $PCP_MAKE_PROG -f GNUmakefile.install >>$seq_full 2>&1
 else
-    $PCP_MAKE_PROG clean >>$here/$seq.full 2>&1
-    $PCP_MAKE_PROG >>$here/$seq.full 2>&1
+    $PCP_MAKE_PROG clean >>$seq_full 2>&1
+    $PCP_MAKE_PROG >>$seq_full 2>&1
 fi
 $sudo ./Install < /dev/null >$tmp.out 2>&1
-cat $tmp.out | tee -a $here/$seq.full | _filter_pmda_install | _filter
+cat $tmp.out | tee -a $seq_full | _filter_pmda_install | _filter
 cd $here
 
 # real QA test starts here
@@ -112,19 +112,19 @@ pmprobe -h unix:$tmp.socket -i hinv.ncpu
 
 pmsleep 0.2
 
-echo "Terminate a PMDA needing attributes" | tee -a $here/$seq.full
-date >>$here/$seq.full
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mdadynamic( |$)' >> $here/$seq.full
-$signal -s KILL -an pmdadynamic >> $here/$seq.full 2>&1
-$sudo $signal -s KILL -a pmdadynamic >> $here/$seq.full 2>&1
+echo "Terminate a PMDA needing attributes" | tee -a $seq_full
+date >>$seq_full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mdadynamic( |$)' >> $seq_full
+$signal -s KILL -an pmdadynamic >> $seq_full 2>&1
+$sudo $signal -s KILL -a pmdadynamic >> $seq_full 2>&1
 
 # wait up to 2 seconds for dynamic PMDA to die
 i=0
 while [ $i -lt 10 ]
 do
     $PCP_PS_PROG $PCP_PS_ALL_FLAGS >$tmp.tmp
-    echo "ps probe #$i" >>$here/$seq.full
-    grep -E '[P]PID|/[p]mdadynamic( |$)' $tmp.tmp >>$here/$seq.full
+    echo "ps probe #$i" >>$seq_full
+    grep -E '[P]PID|/[p]mdadynamic( |$)' $tmp.tmp >>$seq_full
     # looking for a defunct PMDA process
     #
     if grep -E '(pmdadynamic.*defunct)|( Z .*pmdadynamic)|\(pmdadynamic\)' $tmp.tmp >/dev/null
@@ -149,7 +149,7 @@ then
     grep -E '[P]PID|[p]mdadynamic' $tmp.tmp
     exit
 fi
-date >>$here/$seq.full
+date >>$seq_full
 
 # and a bit more for pmcd to notice the PMDA has exited
 pmsleep 3.75
@@ -162,11 +162,11 @@ then
     # this is not expected
     #
     echo "Error: nval=$nval not as expected ... see $seq.full"
-    pmprobe -h unix:$tmp.socket -i hinv.ncpu >>$here/$seq.full
-    pminfo -f pmcd.agent.status pmcd.agent.fenced >>$here/$seq.full
-    echo "+++ Tickle failed `date` +++" >>$here/$seq.full
-    cat $PCP_LOG_DIR/pmcd/pmcd.log >>$here/$seq.full
-    cat $PCP_LOG_DIR/pmcd/dynamic.log >>$here/$seq.full
+    pmprobe -h unix:$tmp.socket -i hinv.ncpu >>$seq_full
+    pminfo -f pmcd.agent.status pmcd.agent.fenced >>$seq_full
+    echo "+++ Tickle failed `date` +++" >>$seq_full
+    cat $PCP_LOG_DIR/pmcd/pmcd.log >>$seq_full
+    cat $PCP_LOG_DIR/pmcd/dynamic.log >>$seq_full
 fi
 
 echo "Verify subsequent return to healthy state"

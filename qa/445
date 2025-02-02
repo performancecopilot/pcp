@@ -106,12 +106,12 @@ EOF
 esac
 
 # real QA test starts here
-$sudo rm -f ${TRACELOG}? $seq.full
+$sudo rm -f ${TRACELOG}?
 _save_config $PCP_PMCDCONF_PATH
 $sudo cp $tmp.conf $PCP_PMCDCONF_PATH
-_service pcp restart 2>&1 | _filter_pcp_start
-_wait_for_pmcd
-_wait_for_pmlogger
+if ! _service pcp restart 2>&1; then _exit 1; fi | _filter_pcp_start
+_wait_for_pmcd || _exit 1
+_wait_for_pmlogger || _exit 1
 sleep 15
 
 for log in ${TRACELOG}?

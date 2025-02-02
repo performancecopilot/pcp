@@ -16,7 +16,6 @@ echo "QA output created by $seq"
 [ -f $PCP_PMDAS_DIR/nvidia/pmdanvidia ] || _notrun "nvidia pmda not installed"
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 _check_valgrind
@@ -52,23 +51,23 @@ _make_helptext nvidia
 
 # real QA test starts here
 echo
-echo "Testing behaviour with no nvidia library available" | tee -a $here/$seq.full
+echo "Testing behaviour with no nvidia library available" | tee -a $seq_full
 _run_valgrind pminfo -L -K clear -K add,120,$pmda -dfmtT -n $pmns nvidia 2>&1 | _filter
 
 if [ -f nvidia.log ]
 then
-    $sudo cat nvidia.log >>$here/$seq.full
+    $sudo cat nvidia.log >>$seq_full
     $sudo rm -f nvidia.log*
 fi
 
 echo
-echo "Testing behaviour with QA wrapper nvidia library" | tee -a $here/$seq.full
+echo "Testing behaviour with QA wrapper nvidia library" | tee -a $seq_full
 export LD_LIBRARY_PATH=$here/src
 _run_valgrind pminfo -L -K clear -K add,120,$pmda -dfmtT -n $pmns nvidia 2>&1 | _filter
 
 if [ -f nvidia.log ]
 then
-    $sudo cat nvidia.log >>$here/$seq.full
+    $sudo cat nvidia.log >>$seq_full
     $sudo rm -f nvidia.log*
 fi
 

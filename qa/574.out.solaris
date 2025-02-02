@@ -37,6 +37,7 @@ pmid: 75.0.56 name: hinv.ncpu
 
 pmid: PM_ID_NULL name: pmcd.control
 children of "pmcd.control" ...
+    creds_timeout       <s = 0>
     debug               <s = 0>
     dumpconn            <s = 0>
     dumptrace           <s = 0>

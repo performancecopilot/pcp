@@ -16,7 +16,6 @@ echo "QA output created by $seq"
 which pmlogrewrite >/dev/null 2>&1 || _notrun "pmlogrewrite not installed"
 
 status=0	# success is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 _filter()
@@ -33,8 +32,8 @@ _cmp()
     pminfo -a $2 -m >$tmp.out
     echo "--- pmns diffs ---"
     diff -u $tmp.in $tmp.out | _filter
-    pmdumplog -z -dilmst $1 | tee -a $seq.full >$tmp.in
-    pmdumplog -z -dilmst $2 | tee -a $seq.full >$tmp.out
+    pmdumplog -z -dilmst $1 | tee -a $seq_full >$tmp.in
+    pmdumplog -z -dilmst $2 | tee -a $seq_full >$tmp.out
     echo "--- pmdumplog diffs ---"
     diff -u $tmp.in $tmp.out | _filter
 }
@@ -50,9 +49,9 @@ archives/ace_v2		metric 40.*.* { delete } metric 1.25.* { delete }
 archives/mirage		indom 29.3 { iname "m-00" -> delete inst 33 -> delete }
 End-of-File
 do
-    echo | tee -a $seq.full
+    echo | tee -a $seq_full
     echo "$spec" >$tmp.config
-    echo "=== `cat $tmp.config` ===" | tee -a $seq.full
+    echo "=== `cat $tmp.config` ===" | tee -a $seq_full
     rm -f $tmp.new.*
     pmlogrewrite -w -c $tmp.config `echo $arch_args | sed -e 's/|/ /g'` $tmp.new 2>&1 | _filter
     if [ -f $tmp.new.0 ]

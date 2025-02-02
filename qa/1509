@@ -22,7 +22,6 @@ fi
 . ./common.filter
 . ./common.check
 
-$sudo rm -rf $tmp $tmp.* $seq.full
 
 do_valgrind=false
 if [ "$1" = "--valgrind" ]
@@ -63,7 +62,7 @@ _doit()
     base=`echo "$2" | sed -e 's/\.[^.][^.]*$//'`
 
     echo
-    echo "=== $base.* ===" | tee -a $seq.full
+    echo "=== $base.* ===" | tee -a $seq_full
     # get all real metrics, including derived ones, and build pmie script
     #
     pminfo -a "$archive" $base \
@@ -74,7 +73,7 @@ _doit()
     # end
     # baseline
     #
-    pmie -t 3 -v -z -a "$archive" -c $tmp.pmie 2>>$seq.full \
+    pmie -t 3 -v -z -a "$archive" -c $tmp.pmie 2>>$seq_full \
     | _filter >$tmp.baseline
     pmlogdump -a "$archive" >$tmp.dump.baseline
     # all the real metrics in the archive
@@ -85,7 +84,7 @@ _doit()
     for m
     do
 	echo
-	echo "--- cull $m from archive" | tee -a $seq.full
+	echo "--- cull $m from archive" | tee -a $seq_full
 	sed -e "/^$m\$/d" <$tmp.all >$tmp.xtract
 	if diff $tmp.all $tmp.xtract >/dev/null
 	then
@@ -98,17 +97,17 @@ _doit()
 	# audit extracted archive diffs
 	#
 	pmlogdump -a $tmp >$tmp.tmp
-	diff $tmp.dump.baseline $tmp.tmp >>$seq.full
+	diff $tmp.dump.baseline $tmp.tmp >>$seq_full
 	# rerun pmie
 	#
 	if $do_valgrind
 	then
 	    _run_valgrind --save-output pmie -t 3 -v -z -a $tmp -c $tmp.pmie 2>&1 \
 	    | _filter
-	    cat $tmp.err >>$seq.full
+	    cat $tmp.err >>$seq_full
 	    _filter <$tmp.out >$tmp.tmp
 	else
-	    pmie -t 3 -v -z -a $tmp -c $tmp.pmie 2>>$seq.full \
+	    pmie -t 3 -v -z -a $tmp -c $tmp.pmie 2>>$seq_full \
 	    | _filter >$tmp.tmp
 	fi
 	# show only diffs

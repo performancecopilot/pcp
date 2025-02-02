@@ -19,7 +19,6 @@ perl -e "use PCP::PMDA" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "perl PCP::PMDA module not installed"
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 #setup the tmp proc file system for older config
@@ -37,7 +36,6 @@ pmdanetfilter_remove()
     echo "=== remove netfilter agent ==="
     $sudo ./Remove >$tmp.out 2>&1
     _filter_pmda_remove <$tmp.out
-    $sudo rm -rf $tmp $tmp.*
 }
 
 pmdanetfilter_install()
@@ -49,7 +47,7 @@ pmdanetfilter_install()
     echo
     echo "=== netfilter agent installation ==="
     $sudo ./Install <$tmp.input >$tmp.out 2>&1
-    cat $tmp.out >>$here/$seq.full
+    cat $tmp.out >>$seq_full
     # Check netfilter metrics have appeared ... X metrics and Y values
     _filter_pmda_install <$tmp.out \
     | sed \

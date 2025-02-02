@@ -14,7 +14,6 @@ echo "QA output created by $seq"
 . ./common.filter
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 signal=$PCP_BINADM_DIR/pmsignal
 
 _terminate()
@@ -69,8 +68,8 @@ echo PMCD_REQUEST_TIMEOUT=10 >> $tmp.options
 $sudo cp $tmp.options $PCP_PMCDOPTIONS_PATH
 
 # terminate any pmcds and get rid of core file to get to a sane starting place
-_service pcp stop >/dev/null 2>&1
-_wait_pmcd_end
+if ! _service pcp stop >/dev/null 2>&1; then _exit 1; fi
+_wait_pmcd_end || _exit 1
 $sudo rm -f $PCP_LOG_DIR/core* $PCP_LOG_DIR/pmcd/core* $PCP_PMCDLOG_PATH
 
 _check
@@ -103,7 +102,7 @@ echo "Checking for core file ..."
 _check
 
 _terminate
-cat $tmp.out >> $seq.full
+cat $tmp.out >> $seq_full
 
 # success, all done
 status=0

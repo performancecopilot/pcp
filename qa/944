@@ -42,12 +42,11 @@ nobodygid=`id -g nobody`
 
 signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _start_local_pmcd()
 {
-    pmcd -Dauth -f -x $seq.full -l $tmp.log 2>>$here/$seq.full &
+    pmcd -Dauth -f -x $seq_full -l $tmp.log 2>>$seq_full &
     pid=$!
     sleep 2
     pmcd_wait -h unix:$PMCD_SOCKET -v -t 5sec
@@ -135,15 +134,15 @@ sample 29  pipe binary  $PCP_PMDAS_DIR/sample/pmdasample -d 29 -U $username
 allow user $username : fetch;
 disallow user $username : store;
 End-of-File
-cat $tmp.conf >>$seq.full
+cat $tmp.conf >>$seq_full
 _start_local_pmcd
-echo "--- pmcd.log ---" >>$seq.full
-cat $tmp.log >>$seq.full
+echo "--- pmcd.log ---" >>$seq_full
+cat $tmp.log >>$seq_full
 _filter_user <$tmp.log
 
-echo "Testing QA user allowed fetch access (explicit)" | tee -a $seq.full
+echo "Testing QA user allowed fetch access (explicit)" | tee -a $seq_full
 pmprobe -Dauth -v -h unix:$PMCD_SOCKET sample.control 2>&1 \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | _filter_auth
 
 # if we have secure sockets, the next test produces a Username:/Password:
@@ -154,28 +153,28 @@ if $secure_sockets
 then
     :
 else
-    echo "Testing QA user allowed fetch access (explicit) ... but fails with non-unix domain socket connection" | tee -a $seq.full
+    echo "Testing QA user allowed fetch access (explicit) ... but fails with non-unix domain socket connection" | tee -a $seq_full
     pmprobe -Dauth -v -h `hostname` sample.control 2>&1 \
-    | tee -a $seq.full \
+    | tee -a $seq_full \
     | sed -e "s/`hostname`/HOSTNAME/" \
     | _filter_auth
 fi
 
-echo "Testing QA user disallowed store access (explicit)" | tee -a $seq.full
+echo "Testing QA user disallowed store access (explicit)" | tee -a $seq_full
 # expected to produce two lines of output - an initial fetch is done
 # (which is allowed), pmstore reports what it would do, then fails.
 pmstore -Dauth -f -h unix:$PMCD_SOCKET sample.write_me 1 2>&1 \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | _filter_auth
 
 echo "Testing nobody user disallowed fetch access (implicit)"
 $sudo -u nobody pminfo -Dauth -f -h unix:$PMCD_SOCKET sample.control 2>&1 \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | _filter_auth
 
 _stop_local_pmcd
-echo "--- pmcd.log ---" >>$seq.full
-cat $tmp.log >>$seq.full
+echo "--- pmcd.log ---" >>$seq_full
+cat $tmp.log >>$seq_full
 _filter_user <$tmp.log
 
 # group test cases
@@ -190,7 +189,7 @@ _filter_group <$tmp.log
 
 echo "Testing QA group allowed fetch access (explicit)"
 pmprobe -Dauth -v -h unix:$PMCD_SOCKET sample.control 2>&1 \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | _filter_auth
 
 # See comment above in the user case.
@@ -199,9 +198,9 @@ if $secure_sockets
 then
     :
 else
-    echo "Testing QA group allowed fetch access (explicit) ... but fails with non-unix domain socket connection" | tee -a $seq.full
+    echo "Testing QA group allowed fetch access (explicit) ... but fails with non-unix domain socket connection" | tee -a $seq_full
     pmprobe -Dauth -v -h `hostname` sample.control 2>&1 \
-    | tee -a $seq.full \
+    | tee -a $seq_full \
     | sed -e "s/`hostname`/HOSTNAME/" \
     | _filter_auth
 fi
@@ -210,17 +209,17 @@ echo "Testing QA group disallowed store access (explicit)"
 # expected to produce two lines of output - an initial fetch is done
 # (which is allowed), pmstore reports what it would do, then fails.
 pmstore -Dauth -f -h unix:$PMCD_SOCKET sample.write_me 1 2>&1 \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | _filter_auth
 
 echo "Testing nobody group disallowed fetch access (implicit)"
 $sudo -u nobody pminfo -Dauth -f -h unix:$PMCD_SOCKET sample.control 2>&1 \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | _filter_auth
 
 _stop_local_pmcd
-echo "--- pmcd.log ---" >>$seq.full
-cat $tmp.log >>$seq.full
+echo "--- pmcd.log ---" >>$seq_full
+cat $tmp.log >>$seq_full
 _filter_group <$tmp.log
 
 # success, all done

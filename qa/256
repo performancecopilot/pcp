@@ -14,26 +14,25 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-# For this test, don't load any global derived metric configs by default. 
+# For this test, don't load any global derived metric configs by default.
 # So the PCP_DERIVED_CONFIG environment variable is set to an empty string.
 export PCP_DERIVED_CONFIG=""
 
 status=0	# success is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "$sudo rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # Derived metric expr dump from 0x8513a48...
 # expr node 0x867eb68 type=PLUS left=0x867eb98 right=0x867ed28
 _filter()
 {
-    cat $tmp.out >>$seq.full
+    cat $tmp.out >>$seq_full
     awk <$tmp.out >$tmp.sed '
 BEGIN				{ n = 0 }
 $1 == "expr" && $2 == "node" && $3 ~ /^0x/	{ print "s/" $3 "/<addr-" n ">/"; n++ }
 				{ next }'
-    echo "=== sed ===" >>$seq.full
-    cat $tmp.sed >>$seq.full
-    echo "=== end sed ===" >>$seq.full
+    echo "=== sed ===" >>$seq_full
+    cat $tmp.sed >>$seq_full
+    echo "=== end sed ===" >>$seq_full
     sed -f $tmp.sed <$tmp.out \
     | sed \
 	-e '/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/s/[^ ]*.*numpmid/TIMESTAMP ... numpmid/' \
@@ -58,9 +57,9 @@ want == 1 && $3 == "val"	{ if (seen[$4] != "y") {
 				  }
 				}
 $1 == "expr"		{ want = 0 }'
-    echo "=== sed2 ===" >>$seq.full
-    cat $tmp.sed2 >>$seq.full
-    echo "=== end sed2 ===" >>$seq.full
+    echo "=== sed2 ===" >>$seq_full
+    cat $tmp.sed2 >>$seq_full
+    echo "=== end sed2 ===" >>$seq_full
     sed -f $tmp.sed2 \
     | sed \
 	-e '/pmGetChildren(name="")/s/ [0-9][0-9]* regular/ N regular/' \
@@ -69,7 +68,7 @@ $1 == "expr"		{ want = 0 }'
 
 # real QA test starts here
 
-echo "HOST context ..." | tee -a $seq.full
+echo "HOST context ..." | tee -a $seq_full
 cat <<End-of-File >$tmp.config
 myname.one = sample.long.one
 myname.suba.two = 2*sample.long.one
@@ -78,23 +77,23 @@ myname.suba.subb.four = 4*sample.long.one
 myname.suba.subb.subc.subd.five = 5*sample.long.one
 myname.suba.subb.subc.subd.six = 6*sample.long.one
 End-of-File
-echo | tee -a $seq.full
-cat $tmp.config | tee -a $seq.full
+echo | tee -a $seq_full
+cat $tmp.config | tee -a $seq_full
 
 for args in myname.suba.subb.subc.subd.six myname.suba.subb myname \
     myname.one.bad myname.suba.subb.subc.bad
 do
-    echo | tee -a $seq.full
-    echo "=== -h local: $args ===" | tee -a $seq.full
+    echo | tee -a $seq_full
+    echo "=== -h local: $args ===" | tee -a $seq_full
     pminfo -h local: -c $tmp.config $args >$tmp.out 2>&1
     _filter
-    echo "=== -h local: -f $args ===" | tee -a $seq.full
+    echo "=== -h local: -f $args ===" | tee -a $seq_full
     pminfo -h local: -c $tmp.config -f $args >$tmp.out 2>&1
     _filter
 done
 
-echo | tee -a $seq.full
-echo "ARCHIVE context ..." | tee -a $seq.full
+echo | tee -a $seq_full
+echo "ARCHIVE context ..." | tee -a $seq_full
 cat <<End-of-File >$tmp.config
 sample.one = sample.longlong.one
 sample.suba.two = 2*sample.longlong.one
@@ -103,23 +102,23 @@ sample.suba.subb.four = 4*sample.longlong.one
 sample.suba.subb.subc.subd.five = 5*sample.longlong.one
 sample.suba.subb.subc.subd.six = 6*sample.longlong.one
 End-of-File
-echo | tee -a $seq.full
-cat $tmp.config | tee -a $seq.full
+echo | tee -a $seq_full
+cat $tmp.config | tee -a $seq_full
 
 for args in sample.suba.subb.subc.subd.six sample.suba.subb sample \
     sample.one.bad sample.suba.subb.subc.bad
 do
-    echo | tee -a $seq.full
-    echo "=== -a archives/reduce-1 $args ===" | tee -a $seq.full
+    echo | tee -a $seq_full
+    echo "=== -a archives/reduce-1 $args ===" | tee -a $seq_full
     pminfo -a archives/reduce-1 -c $tmp.config $args >$tmp.out 2>&1
     _filter
-    echo "=== -a archives/reduce-1 -f $args ===" | tee -a $seq.full
+    echo "=== -a archives/reduce-1 -f $args ===" | tee -a $seq_full
     pminfo -a archives/reduce-1 -c $tmp.config -f $args >$tmp.out 2>&1
     _filter
 done
 
-echo | tee -a $seq.full
-echo "LOCAL context ..." | tee -a $seq.full
+echo | tee -a $seq_full
+echo "LOCAL context ..." | tee -a $seq_full
 cat <<End-of-File >$tmp.config
 sampledso.one = sampledso.longlong.one
 sampledso.suba.two = 2*sampledso.longlong.one
@@ -128,18 +127,18 @@ sampledso.suba.subb.four = 4*sampledso.longlong.one
 sampledso.suba.subb.subc.subd.five = 5*sampledso.longlong.one
 sampledso.suba.subb.subc.subd.six = 6*sampledso.longlong.one
 End-of-File
-echo | tee -a $seq.full
-cat $tmp.config | tee -a $seq.full
+echo | tee -a $seq_full
+cat $tmp.config | tee -a $seq_full
 export PMDA_LOCAL_SAMPLE=yes
 
 for args in sampledso.suba.subb.subc.subd.six sampledso.suba.subb sampledso \
     sampledso.one.bad sampledso.suba.subb.subc.bad
 do
-    echo | tee -a $seq.full
-    echo "=== -L $args ===" | tee -a $seq.full
+    echo | tee -a $seq_full
+    echo "=== -L $args ===" | tee -a $seq_full
     $sudo_local_ctx pminfo -L -c $tmp.config $args >$tmp.out 2>&1
     _filter
-    echo "=== -L -f $args ===" | tee -a $seq.full
+    echo "=== -L -f $args ===" | tee -a $seq_full
     $sudo_local_ctx pminfo -L -c $tmp.config -f $args >$tmp.out 2>&1
     _filter \
     | $PCP_AWK_PROG '
@@ -147,18 +146,18 @@ NF == 0	{ want = 0; next }
 $1 == "sampledso.one"	{ print ""; want = 1 }
 $1 ~ /^sampledso\.suba\./	{ print ""; want = 1 }
 want == 1		{ print }'
-    echo "=== -n .../root -L ===" | tee -a $seq.full
+    echo "=== -n .../root -L ===" | tee -a $seq_full
     $sudo_local_ctx pminfo -L -c $tmp.config -n $PCP_VAR_DIR/pmns/root $args >$tmp.out 2>&1
     _filter
-    echo "=== -n .../root ===" | tee -a $seq.full
+    echo "=== -n .../root ===" | tee -a $seq_full
     export PCP_DERIVED_CONFIG=$tmp.config
     src/nameall -n $PCP_VAR_DIR/pmns/root $args >$tmp.out 2>&1
     _filter | sed -e '/Name space load:/s/[0-9.]* msec/N.NN msec/'
     unset PCP_DERIVED_CONFIG
 done
 
-echo | tee -a $seq.full
-echo "Splice-n-dice into existing PMNS ..." | tee -a $seq.full
+echo | tee -a $seq_full
+echo "Splice-n-dice into existing PMNS ..." | tee -a $seq_full
 cat <<End-of-File >$tmp.config
 derived = sample.long.one
 derived_tree.ten = sample.long.ten
@@ -167,8 +166,8 @@ derived_tree.sample.long.million = sample.long.million
 sample.long.derived = sample.long.one
 sample.long.foo.bar.derived = sample.long.one
 End-of-File
-echo | tee -a $seq.full
-cat $tmp.config | tee -a $seq.full
+echo | tee -a $seq_full
+cat $tmp.config | tee -a $seq_full
 
 _filter_derived()
 {
@@ -181,16 +180,16 @@ _filter_derived()
 
 for args in "" derived derived_tree sample
 do
-    echo | tee -a $seq.full
-    echo "=== $args ===" | tee -a $seq.full
+    echo | tee -a $seq_full
+    echo "=== $args ===" | tee -a $seq_full
     pminfo -c $tmp.config $args 2>&1 \
     | _filter_derived \
     | sed -e '/bind_expr: error: .*.: Unknown metric name/d' \
     # end
 done
 
-echo | tee -a $seq.full
-echo "Check diags ..." | tee -a $seq.full
+echo | tee -a $seq_full
+echo "Check diags ..." | tee -a $seq_full
 cat <<End-of-File >$tmp.config
 derived.tree.one = sample.long.one
 derived.tree.ten = sample.long.ten

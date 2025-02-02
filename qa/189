@@ -18,13 +18,13 @@ _numchildren()
 {
    $PCP_AWK_PROG -v pid=$pmie_pid '
    $5 == pid { n++ ; pidlist[n] = $4; next}
-   $1 == "----" { 
+   $1 == "----" {
 	      # output: <num> <pid> <pid>...
-	      printf("%d ", n); 
+	      printf("%d ", n);
 	      for(i=1;i<=n;i++)
 		 printf("%d ", pidlist[i]);
 	      printf("\n");
-	      n = 0 
+	      n = 0
           }'
 }
 
@@ -32,9 +32,9 @@ _numchildren()
 # start ...
 #
 cp $PCP_LOG_DIR/pmcd/pmcd.log $tmp.pmcd.log
-echo "=== Start @ `date` ===" >>$here/$seq.full
-ls -l $PCP_LOG_DIR/pmcd/pmcd.log >>$here/$seq.full
-pcp >>$here/$seq.full
+echo "=== Start @ `date` ===" >>$seq_full
+ls -l $PCP_LOG_DIR/pmcd/pmcd.log >>$seq_full
+pcp >>$seq_full
 
 # real QA test starts here
 tolerance=10 # allow only one round of 100msec children to accumulate
@@ -51,11 +51,11 @@ pmie_pid=$!
 wait $pmie_pid
 cat $tmp.out $tmp.err | _show_pmie_exit
 
-echo "== stdout ==" >$seq.full
-cat $tmp.out >>$seq.full
-echo >>$seq.full
-echo "== stderr ==" >>$seq.full
-cat $tmp.err >>$seq.full
+echo "== stdout ==" >$seq_full
+cat $tmp.out >>$seq_full
+echo >>$seq_full
+echo "== stderr ==" >>$seq_full
+cat $tmp.err >>$seq_full
 
 _numchildren < $tmp.ps > $tmp.num
 max=`cut -d' ' -f1 < $tmp.num | LC_COLLATE=POSIX sort -nr  | head -1 | sed -e 's/  *//g'`
@@ -87,7 +87,7 @@ cat $tmp.num >>$tmp.psawk
 echo "----" >>$tmp.psawk
 cat $tmp.ps.final >>$tmp.psawk
 $PCP_AWK_PROG < $tmp.psawk '
-  final == 0 {  
+  final == 0 {
 	        # skip over $1 (num)
 		# chuck all others in pidlist
 		for(i=2;i<=NF;i++)
@@ -96,21 +96,21 @@ $PCP_AWK_PROG < $tmp.psawk '
 	     }
   $1 == "----" { final = 1; next }
   final == 1 {
-	        # check if process in final ps is in pidlist	
+	        # check if process in final ps is in pidlist
 		if ($4 in pidlist) {
 		   printf("process %s (pid=%d) is still alive\n",
-			  $14, $4); 
+			  $14, $4);
 		}
 	     }
 '
 
 # see note above about vm24 and slow start for pmie
 #
-echo >>$here/$seq.full
-echo "=== End @ `date` ===" >>$here/$seq.full
-ls -l $PCP_LOG_DIR/pmcd/pmcd.log >>$here/$seq.full
-echo "pmcd.log diffs ..." >>$here/$seq.full
-diff $tmp.pmcd.log $PCP_LOG_DIR/pmcd/pmcd.log >>$here/$seq.full
-pcp >>$here/$seq.full
+echo >>$seq_full
+echo "=== End @ `date` ===" >>$seq_full
+ls -l $PCP_LOG_DIR/pmcd/pmcd.log >>$seq_full
+echo "pmcd.log diffs ..." >>$seq_full
+diff $tmp.pmcd.log $PCP_LOG_DIR/pmcd/pmcd.log >>$seq_full
+pcp >>$seq_full
 
 exit 0

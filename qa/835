@@ -22,7 +22,6 @@ $PCP_BINADM_DIR/telnet-probe -c localhost $port || \
     _notrun "Noones home on the default memcached port $port"
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 
 pmdamemcache_remove()
 {
@@ -36,16 +35,17 @@ pmdamemcache_install()
 {
     # start from known starting points
     cd $PCP_PMDAS_DIR/memcache
-    $sudo ./Remove >>$here/$seq.full 2>&1
-    _service pmcd stop | _filter_pcp_stop
-    _wait_pmcd_end
+    $sudo ./Remove >>$seq_full 2>&1
+    if ! _service pmcd stop; then _exit 1; fi \
+    | _filter_pcp_stop
+    _wait_pmcd_end || _exit 1
 
     cat <<EOF >$tmp.config
 \$memcache_delay = 1;
 @memcache_instances = ( 0 => '127.0.0.1:11211' );
 EOF
-    echo "pmdamemcache config:" >>$here/$seq.full
-    cat $tmp.config >>$here/$seq.full
+    echo "pmdamemcache config:" >>$seq_full
+    cat $tmp.config >>$seq_full
 
     [ -f $PCP_PMDAS_DIR/memcache/memcache.conf ] && \
     $sudo cp $PCP_PMDAS_DIR/memcache/memcache.conf $tmp.backup
@@ -54,7 +54,7 @@ EOF
     echo
     echo "=== memcache agent installation ==="
     $sudo ./Install </dev/null >$tmp.out 2>&1
-    cat $tmp.out >>$here/$seq.full
+    cat $tmp.out >>$seq_full
     # Check metrics have appeared ... X metrics and Y values
     _filter_pmda_install <$tmp.out \
     | sed \
@@ -105,17 +105,17 @@ echo "=== extract metric values ==="
 pmprobe -v memcache \
 | rewrite_memcache_metric_names \
 | LC_COLLATE=POSIX sort >$tmp.probe
-echo "from pmprobe ..." >>$here/$seq.full
+echo "from pmprobe ..." >>$seq_full
 
 $here/src/memcachestats.pl \
 | sed -e 's/ / 1 /' \
 | LC_COLLATE=POSIX sort >$tmp.values
-echo "from src/memcachestats.pl ..." >>$here/$seq.full
+echo "from src/memcachestats.pl ..." >>$seq_full
 
-cat $tmp.values >>$here/$seq.full
+cat $tmp.values >>$seq_full
 LC_COLLATE=POSIX join $tmp.probe $tmp.values >$tmp.all
-echo >>$here/$seq.full
-cat $tmp.all >>$here/$seq.full
+echo >>$seq_full
+cat $tmp.all >>$seq_full
 
 echo
 echo "=== check values ==="
@@ -145,7 +145,7 @@ do
     else
         echo "$metric: number of values not 1 as expected: pcp $n1 / memcache $n2"
     fi
-done | tee -a $here/$seq.full
+done | tee -a $seq_full
 
 pmdamemcache_remove
 status=0

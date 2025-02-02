@@ -14,7 +14,6 @@ echo "QA output created by $seq"
 . ./common.check
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 username=`id -u -n`
@@ -28,7 +27,7 @@ fi
 
 _filter()
 {
-    tee -a $seq.full | \
+    tee -a $seq_full | \
     sed \
 	-e "s/socket inet $port/socket inet PORT/g" \
 	-e "s/inet port $port/inet port PORT/g" \
@@ -39,7 +38,7 @@ _filter()
 # real QA test starts here
 $PCP_PMDAS_DIR/sample/pmdasample -i $port -U $username -l $tmp.log &
 pid=$!
-echo "PMDA sample PID = $pid" > $seq.full
+echo "PMDA sample PID = $pid" > $seq_full
 sleep 2	# allow socket setup to occur
 
 dbpmda -n $PCP_PMDAS_DIR/sample/root -ie <<End-of-File 2>&1 | _filter
@@ -51,7 +50,7 @@ text sample.daemon_pid
 close
 End-of-File
 
-cat $tmp.log >>$here/$seq.full
+cat $tmp.log >>$seq_full
 
 # success, all done
 status=0

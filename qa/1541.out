@@ -1,0 +1,96 @@
+QA output created by 1541
+TMP.in: Warning: these are lines that refactor cannot handle
+[34]_change_config foo bar || echo "expect warning"
+[35]_wait_for_pmcd || echo "expect warning"
+[36]_wait_pmcd_end && babble
+[37]_wait_for_pmcd_stop 10
+[38]_wait_for_pmlogger && echo "expect warning"
+[38]_wait_for_pmlogger && echo "expect warning"
+[38]_wait_for_pmlogger && echo "expect warning"
+[39]_wait_pmlogger_end pid &
+[40]_wait_for_pmie warning
+[41]_wait_pmie_end warning
+[42]_wait_for_pmproxy port_warning
+[43]_wait_for_pmproxy -P logfile__warning
+[44]_wait_pmproxy_end || warning
+[45]_disable_loggers >warning
+[46]_get_primary_logger_pid ; warning
+[47]_prepare_pmda_install foo & true_warning
+[48]_restore_pmda_install bar || foo_warning
+[49]_setup_purify prog foo_warning
+[50]_wait_for_pmcd;warning
+[51]_sighup_pmcd>warning
+[52]_get_config foo
+[53]c=`_get_config pmie`
+[54]c=$(_get_config bar)
+[55]w=`_get_word_size warning`
+[56]w="`_get_word_size warning`"
+[57]w=$(_get_word_size)
+[58]w="$(_get_word_size)"
+[59]e=`_get_endian warning`
+[60]_check_metric foo bar warning
+--- TMP.in DATESTAMP
++++ TMP.out DATESTAMP
+@@ -1,33 +1,34 @@
+ 
+ # expect these all to to be rewritten
+ #
+-_change_config foo bar
+-_change_config x y
+-_wait_for_pmcd
+-_wait_pmcd_end	# tab comment
+-_wait_for_pmcd_stop
+-_wait_for_pmlogger # space comment
+-_wait_for_pmlogger pid
+-_wait_for_pmlogger -P path
+-_wait_for_pmlogger pid path delay
+-_wait_pmlogger_end pid
+-_wait_for_pmie
+-_wait_pmie_end	# tab comment
+-_wait_for_pmproxy
+-_wait_pmproxy_end # space comment
+-_disable_loggers
+-_get_primary_logger_pid
+-_prepare_pmda_install foo
+-_restore_pmda_install bar
+-_setup_purify prog
+-_sighup_pmcd
+-_check_metric sample.bin
+-_check_metric sample.bin remotehost
+-_service pmcd start
+-_service pmcd start >foo
+-_service pmcd start 2>foo_err
+-    _service pmcd stop | foo cmd
+-_service pmcd stop 2>&1 | foo cmd
++_change_config foo bar || _exit 1
++_change_config x y || _exit 1
++_wait_for_pmcd || _exit 1
++_wait_pmcd_end || _exit 1	# tab comment
++_wait_for_pmcd_stop || _exit 1
++_wait_for_pmlogger || _exit 1 # space comment
++_wait_for_pmlogger pid || _exit 1
++_wait_for_pmlogger -P path || _exit 1
++_wait_for_pmlogger pid path delay || _exit 1
++_wait_pmlogger_end pid || _exit 1
++_wait_for_pmie || _exit 1
++_wait_pmie_end || _exit 1	# tab comment
++_wait_for_pmproxy || _exit 1
++_wait_pmproxy_end || _exit 1 # space comment
++_disable_loggers || _exit 1
++_get_primary_logger_pid || _exit 1
++_prepare_pmda_install foo || _exit 1
++_restore_pmda_install bar || _exit 1
++_setup_purify prog || _exit 1
++_sighup_pmcd || _exit 1
++_check_metric sample.bin || _exit 1
++_check_metric sample.bin remotehost || _exit 1
++if ! _service pmcd start; then _exit 1; fi
++if ! _service pmcd start >foo; then _exit 1; fi
++if ! _service pmcd start 2>foo_err; then _exit 1; fi
++    if ! _service pmcd stop; then _exit 1; fi \
++    | foo cmd
++if ! _service pmcd stop 2>&1; then _exit 1; fi | foo cmd
+ 
+ # expect these to be warnings
+ #
+TMP.in: would be updated

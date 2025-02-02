@@ -154,6 +154,7 @@ eval `pmconfig -L -s compress_suffixes`
 # warn if .index is missing.
 # Need to handle compressed versions of all of these.
 #
+rm -f $tmp/was_compressed
 for input in `cat $tmp/input`
 do
     empty=0
@@ -165,6 +166,7 @@ do
 	    if [ -f "$input.$part$suff" ]
 	    then
 		touch $tmp/found
+		[ -n "$suff" ] && touch $tmp/was_compressed
 		if [ ! -s "$input.$part$suff" ]
 		then
 		    empty=`expr $empty + 1`
@@ -273,7 +275,20 @@ else
     else
 	if $cmd
 	then
-	    :
+	    if [ -f $tmp/was_compressed ]
+	    then
+		# some component of the input archive(s) was
+		# compressed, so compress the output archive
+		#
+		$VERBOSE && echo "Compressing $output"
+		if pmlogcompress $output
+		then
+		    :
+		else
+		    echo "$prog: Failed: pmlogcompress $output"
+		    _warning
+		fi
+	    fi
 	else
 	    echo "$prog: Directory: `pwd`"
 	    echo "$prog: Failed: pmlogextract $list $output"
@@ -282,6 +297,14 @@ else
 	$VERBOSE && echo "Output archive files:"
 	for file in $output.meta $output.index $output.0
 	do
+	    for suff in "" $compress_suffixes
+	    do
+		if [ -f "$file$suff" ]
+		then
+		    file="$file$suff"
+		    break
+		fi
+	    done
 	    if [ -f $file ]
 	    then
 		$VERBOSE && LC_TIME=POSIX ls -l $file

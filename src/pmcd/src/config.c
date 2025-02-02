@@ -1546,7 +1546,7 @@ AgentNegotiate(AgentInfo *aPtr)
     int		sts;
     __pmPDU	*ack;
 
-    sts = __pmGetPDU(aPtr->outFd, ANY_SIZE, _creds_timeout, &ack);
+    sts = __pmGetPDU(aPtr->outFd, ANY_SIZE, creds_timeout, &ack);
     if (sts == PDU_CREDS) {
 	if ((sts = DoAgentCreds(aPtr, ack)) < 0) {
 	    fprintf(stderr, "pmcd: version exchange failed "
@@ -2158,6 +2158,11 @@ ContactAgents(void)
 	    else
 		pmcd_trace(TR_ADD_AGENT, aPtr->pmDomainId, aPtr->inFd, aPtr->outFd);
 	    MarkStateChanges(PMCD_ADD_AGENT);
+	    if (pmDebugOptions.appl6) {
+		fprintf(stderr, "ContactAgents: agent %s (dom %d): set ", aPtr->pmDomainLabel, aPtr->pmDomainId);
+		__pmDumpFetchFlags(stderr, PMCD_ADD_AGENT);
+		fputc('\n', stderr);
+	    }
 	    pmcd_seqnum++;
 	    aPtr->status.notReady = aPtr->status.startNotReady;
 	}
@@ -2554,6 +2559,11 @@ ParseRestartAgents(char *fileName)
 	    }
 
 	    MarkStateChanges(PMCD_RESTART_AGENT);
+	    if (pmDebugOptions.appl6) {
+		fprintf(stderr, "ParseRestartAgents: agent %s (dom %d): set ", agent[i].pmDomainLabel, agent[i].pmDomainId);
+		__pmDumpFetchFlags(stderr, PMCD_RESTART_AGENT);
+		fputc('\n', stderr);
+	    }
 	    pmcd_seqnum++;
 	}
 	PrintAgentInfo(stderr);

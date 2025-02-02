@@ -24,7 +24,6 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 export PCP_DERIVED_CONFIG=
@@ -39,14 +38,14 @@ pminfo \
 echo "}" >>$tmp.config
 
 pmlogger -l $tmp.log -c $tmp.config -s 1 $tmp
-cat $tmp.log >>$seq.full
+cat $tmp.log >>$seq_full
 
-echo "values in the archive ..." >>$seq.full
+echo "values in the archive ..." >>$seq_full
 textgrep=""
 [ $PCP_PLATFORM = linux ] && textgrep="-a"
 pmdumplog $tmp \
 | grep $textgrep ' value ' \
-| wc -l >>$seq.full
+| wc -l >>$seq_full
 
 echo "=== no change ==="
 pmlogrewrite -c $PCP_VAR_DIR/config/pmlogrewrite -Dappl0,appl3 -q -i $tmp 2>&1

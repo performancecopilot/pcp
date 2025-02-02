@@ -25,7 +25,6 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _filter()
@@ -38,11 +37,11 @@ _filter()
 
 # real QA test starts here
 echo
-echo "=== Installing GFS2 PMDA ===" | tee -a $here/$seq.full
-_prepare_pmda_install gfs2
+echo "=== Installing GFS2 PMDA ===" | tee -a $seq_full
+_prepare_pmda_install gfs2 || _exit 1
 cd $PCP_PMDAS_DIR/gfs2
 $sudo ./Install </dev/null >$tmp.out 2>&1
-cat $tmp.out >> $here/$seq.full
+cat $tmp.out >> $seq_full
 
 root=$tmp.root
 export GFS2_SETUP_SYSFS="./sysfsdir/"

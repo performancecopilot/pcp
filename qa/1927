@@ -22,7 +22,6 @@ _cleanup()
 }
 
 status=0	# success is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 
 _filter_sockets()
 {
@@ -49,7 +48,7 @@ pmdasockets_install()
     echo
     echo "=== sockets agent installation ==="
     $sudo ./Install </dev/null >$tmp.out 2>&1
-    cat $tmp.out >>$here/$seq.full
+    cat $tmp.out >>$seq_full
     # Check sockets metrics have appeared ... X metrics and Y values
     _filter_pmda_install <$tmp.out \
     | sed \
@@ -64,7 +63,7 @@ pmdasockets_install()
 
 _prepare_pmda sockets
 # note: _restore_auto_restart pmcd done in _cleanup_pmda()
-trap "_cleanup_pmda sockets; exit \$status" 0 1 2 3 15
+trap "_cleanup_pmda sockets; _cleanup; exit \$status" 0 1 2 3 15
 
 _stop_auto_restart pmcd
 
@@ -83,7 +82,7 @@ cat $tmp.out $tmp.err | _filter_sockets
 
 echo "Check the values for v6only metric are 0 or 1 ..."
 pminfo -f network.persocket.v6only > $tmp.out 2> $tmp.err
-cat $tmp.out $tmp.err | tee -a $here/$seq.full | _filter_sockets | grep -E -v 'value [01]$' | sed -e '/^$/d'
+cat $tmp.out $tmp.err | tee -a $seq_full | _filter_sockets | grep -E -v 'value [01]$' | sed -e '/^$/d'
 
 pmdasockets_remove
 status=0

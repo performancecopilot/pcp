@@ -44,7 +44,6 @@ _cleanup()
 }
 
 status=0	# success is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _filter()
@@ -72,31 +71,31 @@ do
     | sed -e "s@$tmp@TMP@g" \
     | _filter
 
-    echo "=== scanmeta for input ===" >>$seq.full
+    echo "=== scanmeta for input ===" >>$seq_full
     src/scanmeta -a tmparch/sample-proc_v$version.meta 2>&1 \
-    | tee -a $seq.full \
+    | tee -a $seq_full \
     | sed -e 's/^\[[0-9][0-9]*/[NN/' \
     | LC_COLLATE=POSIX sort >$tmp.input
 
-    echo >>$seq.full
-    echo "=== scanmeta for output ===" >>$seq.full
+    echo >>$seq_full
+    echo "=== scanmeta for output ===" >>$seq_full
     src/scanmeta -a $tmp.meta 2>&1 \
-    | tee -a $seq.full \
+    | tee -a $seq_full \
     | sed -e 's/^\[[0-9][0-9]*/[NN/' \
     | LC_COLLATE=POSIX sort >$tmp.output
 
     echo "=== scanmeta diffs ==="
     diff $tmp.input $tmp.output
 
-    echo "=== dumplog for input ===" >>$seq.full
+    echo "=== dumplog for input ===" >>$seq_full
     pmdumplog -aI tmparch/sample-proc_v$version 2>&1 \
-    | tee -a $seq.full \
+    | tee -a $seq_full \
     | sed -e '/^PID for pmlogger:/s/[0-9][0-9]*/<PID>/' >$tmp.input
 
-    echo >>$seq.full
-    echo "=== dumplog for output ===" >>$seq.full
+    echo >>$seq_full
+    echo "=== dumplog for output ===" >>$seq_full
     pmdumplog -aI $tmp 2>&1 \
-    | tee -a $seq.full \
+    | tee -a $seq_full \
     | sed -e '/^PID for pmlogger:/s/[0-9][0-9]*/<PID>/' >$tmp.output
 
     echo "=== pmdumplog diffs ==="

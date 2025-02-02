@@ -14,7 +14,6 @@ echo "QA output created by $seq"
 . ./common.check
 
 status=0	# success is the default!
-$sudo rm -rf $tmp.* $seq.full
 mkdir $tmp
 trap "rm -rf $tmp; exit \$status" 0 1 2 3 15
 
@@ -39,7 +38,9 @@ _filter2()
     | _filter
 }
 
-cp archives/bozo.client_v2.* $tmp
+pmlogcp archives/bozo.client_v2 $tmp
+# pmlogcp does not like bad archives
+#
 cp badarchives/bozo.client_v2.* $tmp
 mv $tmp/bozo.client_v2.meta $tmp/bozo.client_v2.save
 
@@ -85,7 +86,7 @@ pmval -z -t 5sec -Dlogmeta,desperate -a archives/ac15 -i '"15 minute","5","1 min
 echo
 echo "torture ..."
 src/torture_logmeta -Dlogmeta,desperate archives/ac15 60 2 123 2>&1 \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | _filter
 
 # success, all done

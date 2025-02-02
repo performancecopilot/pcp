@@ -32,24 +32,23 @@ _cleanup()
     fi
     if $pmproxy_was_running
     then
-	echo "Restart pmproxy ..." >>$here/$seq.full
-	_service pmproxy restart >>$here/$seq.full 2>&1
+	echo "Restart pmproxy ..." >>$seq_full
+	_service pmproxy restart >>$seq_full 2>&1
 	_wait_for_pmproxy
     else
-	echo "Stopping pmproxy ..." >>$here/$seq.full
-	_service pmproxy stop >>$here/$seq.full 2>&1
+	echo "Stopping pmproxy ..." >>$seq_full
+	_service pmproxy stop >>$seq_full 2>&1
     fi
     $sudo rm -rf $tmp $tmp.*
 }
 
 status=1	# failure is the default!
 need_restore=false
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 pmproxy_was_running=false
 [ -f $PCP_RUN_DIR/pmproxy.pid ] && pmproxy_was_running=true
-echo "pmproxy_was_running=$pmproxy_was_running" >>$here/$seq.full
+echo "pmproxy_was_running=$pmproxy_was_running" >>$seq_full
 
 # real QA test starts here
 _save_config $PCP_SYSCONF_DIR/pmproxy
@@ -71,7 +70,7 @@ echo "[pmseries]" >> $tmp.conf
 echo "enabled = false" >> $tmp.conf
 $sudo cp $tmp.conf $PCP_SYSCONF_DIR/pmproxy/pmproxy.conf
 
-_service pmlogger stop >/dev/null
+if ! _service pmlogger stop >/dev/null; then _exit 1; fi
 
 # move aside existing logs so we can measure base memory footprint
 [ -d $PCP_LOG_DIR/pmlogger.$seq ] && $sudo mv $PCP_LOG_DIR/pmlogger.$seq $PCP_LOG_DIR/pmlogger.$seq.saved
@@ -80,8 +79,8 @@ $sudo mkdir -p $PCP_LOG_DIR/pmlogger
 $sudo chmod 775 $PCP_LOG_DIR/pmlogger
 $sudo chown $PCP_USER:$PCP_USER $PCP_LOG_DIR/pmlogger
 
-_service pmproxy restart >>$here/$seq.full 2>&1
-_wait_for_pmproxy
+if ! _service pmproxy restart >>$seq_full 2>&1; then _exit 1; fi
+_wait_for_pmproxy || _exit 1
 
 pmproxy_pid=`_get_pids_by_name -a pmproxy`
 [ -z "$pmproxy_pid" ] && echo === pmproxy not running && status=1 && exit 1
@@ -98,8 +97,8 @@ then
 fi
 
 echo === restarting pmlogger # primary only
-_service pmlogger restart 2>&1 | _filter_pcp_start
-_wait_for_pmlogger
+if ! _service pmlogger restart 2>&1; then _exit 1; fi | _filter_pcp_start
+_wait_for_pmlogger || _exit 1
 
 echo === wait for pmproxy to process filesystem events
 pmsleep 4.2
@@ -120,10 +119,10 @@ echo === checking rss within tolerance
 _within_tolerance "rss" $pmproxy_rss1 $pmproxy_rss2 10%
 [ $pmproxy_rss2 -gt 10000 ] && echo "Unexpected pmproxy RSS: $pmproxy_rss2, was initially $pmproxy_rss1"
 
-echo "RSS1 for PID $pmproxy_pid is $pmproxy_rss1" >> $here/$seq.full
-echo "RSS2 for PID $pmproxy_pid is $pmproxy_rss2" >> $here/$seq.full
-cat $PCP_LOG_DIR/pmproxy/pmproxy.log >>$seq.full
-[ -f /proc/$pmproxy_pid/maps ] && echo == maps >>$seq.full && $sudo cat /proc/$pmproxy_pid/maps >>$seq.full
+echo "RSS1 for PID $pmproxy_pid is $pmproxy_rss1" >> $seq_full
+echo "RSS2 for PID $pmproxy_pid is $pmproxy_rss2" >> $seq_full
+cat $PCP_LOG_DIR/pmproxy/pmproxy.log >>$seq_full
+[ -f /proc/$pmproxy_pid/maps ] && echo == maps >>$seq_full && $sudo cat /proc/$pmproxy_pid/maps >>$seq_full
 echo === see $seq.full for pmproxy rss and logs
 
 # success, all done

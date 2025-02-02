@@ -75,7 +75,7 @@ class SecureReport(Verifier):
         status = self.current(group, 'pmcd.feature.secure')
         if status[''] != 1:
             print("== FAIL: pmcd(1) doesn't support secure sockets")
-            print('\tCheck tutorials, verify NSS certificate database.')
+            print('\tCheck tutorials, verify TLS configuration.')
             STATUS = 2
         status = self.current(group, 'pmcd.feature.authentication')
         if status[''] == 0:

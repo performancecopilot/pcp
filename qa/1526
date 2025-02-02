@@ -7,7 +7,7 @@
 # VMs and containers in github's CI infrastructure.
 #
 # If the "hook" is being used, it _must_ generate something on stdout
-# and then $seq.out and/or $seq.full may be used to deliver the probe's
+# and then $seq.out and/or $seq_full may be used to deliver the probe's
 # payload.
 #
 # Copyright (c) 2024 Ken McDonell.  All Rights Reserved.
@@ -21,7 +21,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-$sudo rm -rf $tmp $tmp.* $seq.full
 
 _cleanup()
 {

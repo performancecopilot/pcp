@@ -24,7 +24,6 @@ fi
 . ./common.filter
 . ./common.check
 
-$sudo rm -rf $tmp $tmp.* $seq.full
 
 do_valgrind=false
 if [ "$1" = "--valgrind" ]
@@ -67,7 +66,7 @@ cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
 echo "# Installed by PCP QA test $seq on `date`" >$tmp.tmp
 sed -e '/^sample[ 	]/s/^/#/' <$PCP_PMCDCONF_PATH >>$tmp.tmp
 $sudo cp $tmp.tmp $PCP_PMCDCONF_PATH
-_service pmcd restart 2>&1 | _filter_pcp_start
+if ! _service pmcd restart 2>&1; then _exit 1; fi | _filter_pcp_start
 
 # real QA test starts here
 

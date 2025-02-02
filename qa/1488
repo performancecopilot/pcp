@@ -24,7 +24,6 @@ fi
 [ -n "$PCP_SYSTEMDUNIT_DIR" ] || _notrun "PCP_SYSTEMDUNIT_DIR not set, so no systemd here"
 [ -f $PCP_SYSTEMDUNIT_DIR/pmlogger_farm.service ] || _notrun "$PCP_SYSTEMDUNIT_DIR/pmlogger_farm.service not found"
 
-$sudo rm -rf $tmp $tmp.* $seq.full
 
 _cleanup()
 {
@@ -63,9 +62,9 @@ migrate_pid_service -v $$ pmlogger_farm.service
 End-of-File
 
 chmod 755 $tmp.sh
-$sudo $tmp.sh 2>&1 | tee -a $seq.full | _filter
+$sudo $tmp.sh 2>&1 | tee -a $seq_full | _filter
 systemctl -l --quiet --no-pager status pmlogger_farm.service >$tmp.out 2>&1
-cat $tmp.out >>$seq.full
+cat $tmp.out >>$seq_full
 grep "$$" $tmp.out | _filter
 
 # success, all done

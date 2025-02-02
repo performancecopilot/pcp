@@ -19,8 +19,8 @@ status=1	# failure is the default!
 trap "cd; rm -rf $tmp; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-_setup_purify src/pmnsunload
-_run_purify -i 3 
+_setup_purify src/pmnsunload || _exit 1
+_run_purify -i 3
 
 # all done
 status=0

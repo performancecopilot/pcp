@@ -234,7 +234,7 @@ default default_pcp: \
 	$(SRCARCHPART) \
 	$(PLFILES) $(PYFILES)
 
-setup: default $(XTRATARGETS)
+setup: libpcp.h default $(XTRATARGETS)
 
 $(TARGETS):
 

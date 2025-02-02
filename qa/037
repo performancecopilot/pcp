@@ -29,7 +29,7 @@ s/ offset 808 / offset AFTERLABEL /
 $1 == "refcnt" && $11 == "origin"	{ if (t == 0) {
 					    t = $12
 					    $12 = "TIME"
-					  } 
+					  }
 					  else {
 					    if (t == $12)
 						$12 = "SAME TIME"

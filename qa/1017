@@ -16,7 +16,6 @@ trap "_cleanup_qt; exit \$status" 0 1 2 3 15
 
 SIMPLE_CONF=$PCP_PMDAS_DIR/simple/simple.conf
 status=1	# failure is the default!
-rm -f $seq.full
 
 _cleanup()
 {
@@ -29,7 +28,7 @@ _cleanup()
 
 _filter()
 {
-    tee $here/$seq.full |\
+    tee $seq_full |\
     sed \
 	-e "s/$host/HOST/g" \
 	-e "/^sample\.seconds/s/= 0.9[0-9]*/= 1/g" \
@@ -80,7 +79,7 @@ $sudo cp $tmp.newconf $SIMPLE_CONF
 cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
 cd $PCP_PMDAS_DIR/simple
 $sudo ./Install </dev/null >$tmp.install 2>&1
-_check_metric simple.now
+_check_metric simple.now || _exit 1
 
 cd $here/qt/qmc_metric
 $sudo ./qmc_metric -DPMC,OPTFETCH 2>&1 | _filter

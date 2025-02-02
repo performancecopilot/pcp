@@ -20,6 +20,7 @@
  * APPL3	- client connection/disconnection ops
  * APPL4	- timestamps for config file parsing
  * APPL5	- attribute operations
+ * APPL6	- state changes
  */
 
 #include "pmcd.h"
@@ -50,7 +51,6 @@ static int	maxReqPortFd;		/* Largest request port fd */
 static char	configFileName[MAXPATHLEN]; /* path to pmcd.conf */
 static char	*logfile = "pmcd.log";	/* log file name */
 static int	run_daemon = 1;		/* run as a daemon, see -f */
-int		_creds_timeout;		/* Timeout for agents credential PDU */
 static char	*fatalfile = "/dev/tty";/* fatal messages at startup go here */
 static char	*pmnsfile = PM_NS_DEFAULT;
 static char	*username;
@@ -259,7 +259,7 @@ ParseOptions(int argc, char *argv[], int *nports)
 			pmGetProgname());
 		    opts.errors++;
 		} else {
-		    _creds_timeout = val;
+		    creds_timeout = val;
 		}
 		break;
 
@@ -382,6 +382,11 @@ CheckHostnameChange(void)
 
 	/* Inform clients there's been a change in pmcd's hostname */
 	MarkStateChanges(PMCD_HOSTNAME_CHANGE);
+	if (pmDebugOptions.appl6) {
+	    fprintf(stderr, "CheckHostnameChange: new hostname %s: set ", host);
+	    __pmDumpFetchFlags(stderr, PMCD_HOSTNAME_CHANGE);
+	    fputc('\n', stderr);
+	}
     }
 }
 
@@ -676,6 +681,11 @@ SignalReloadLabels(void)
 {
     /* Inform clients there's been a change in context label state */
     MarkStateChanges(PMCD_LABEL_CHANGE);
+    if (pmDebugOptions.appl6) {
+	fprintf(stderr, "SignalReloadLabels: set ");
+	__pmDumpFetchFlags(stderr, PMCD_LABEL_CHANGE);
+	fputc('\n', stderr);
+    }
 }
 
 static void
@@ -1088,21 +1098,21 @@ main(int argc, char *argv[])
      * timeout for credentials exchange comes from -q, else
      * $PMCD_CREDS_TIMEOUT, else the default of 3 (seconds)
      */
-    if (_creds_timeout == 0) {
+    if (creds_timeout == 0) {
 	/* no -q */
 	char	*timeout_str = getenv("PMCD_CREDS_TIMEOUT");
 	if (timeout_str != NULL) {
 	    char	*end_ptr;
-	    _creds_timeout = (int)strtol(timeout_str, &end_ptr, 10);
-	    if (*end_ptr != '\0' || _creds_timeout < 1) {
+	    creds_timeout = (int)strtol(timeout_str, &end_ptr, 10);
+	    if (*end_ptr != '\0' || creds_timeout < 1) {
 		fprintf(stderr, "Warning: ignored bad PMCD_CREDS_TIMEOUT = '%s'\n", timeout_str);
-		_creds_timeout = 0;
+		creds_timeout = 0;
 	    }
 	}
     }
-    if (_creds_timeout == 0) {
+    if (creds_timeout == 0) {
 	/* default */
-	_creds_timeout = 3;
+	creds_timeout = 3;
     }
 
     /* Set the local socket path. A message will be generated into the log

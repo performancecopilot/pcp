@@ -206,15 +206,15 @@ binary-indep: checkroot build-stamp
 	dh_installdocs -i
 	dh_installchangelogs -i
 	dh_link -i
+	dh_fixperms -i
 	dh_compress -i
 	dh_installdirs -i
-	dh_install -v -i --sourcedir=debian/$(pcp)
+	dh_install -i --sourcedir=debian/$(pcp)
 	dh_perl -i -p $(pcp_import_sar)
 	dh_perl -i -p $(pcp_import_ganglia)
 	dh_perl -i -p $(pcp_import_mrtg)
 	dh_perl -i -p $(pcp_import_sheet)
 	dh_perl -i -p $(pcp_import_iostat)
-	dh_missing --list-files
 	dh_installdeb -i
 	dh_gencontrol -i $(SUBSTVARS)
 	dh_md5sums -i
@@ -248,10 +248,20 @@ binary-arch: checkroot build-stamp
 	    $(MAKE) -C src/python clean; \
 	    $(pkgpcp_python3) $(MAKE) PYTHON=python$$V -C src/python install_python3; \
 	done
-
 	dh_installdocs -a
 	dh_installchangelogs -a
 	dh_link -a
+	# pmcd.stp added to dh_fixperms because on Ubuntu 16.04
+	# $(PCP_SHARE_DIR)/../systemtap/tapset/pmcd.stp was getting an
+	# unwanted mode change from 444 to 644
+	# Note:	with the change to
+	#		Rules-Requires-Root: no
+	#	in the control file, in response to addressing
+	#		https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1089409
+	#	(which is a change in Debian build process, not a PCP bug)
+	#	dh_fixperms needs to come *before* dh_strip
+	#	- thanks to Niels Thykier <niels at thykier.net> for this tip
+	dh_fixperms -a -Xvar/lib/pcp/tmp -Xvar/lib/pcp/pmcd -Xpmcd.stp
 	# Note: --no-automatic-dbgsym not defined for all releases up to
 	# 	and including Debian 8 (jessie), but defined after that
 	# 	... expect a warning on older releases, but no other ill
@@ -259,10 +269,6 @@ binary-arch: checkroot build-stamp
 	# 	aborting on Ubuntu 14.04 (vm00) on 23 Nov 2017
 	if dh_strip -a --no-automatic-dbgsym; then :; else dh_strip -a; fi
 	dh_compress -a
-	# pmcd.stp added to dh_fixperms because on Ubuntu 16.04
-	# $(PCP_SHARE_DIR)/../systemtap/tapset/pmcd.stp was getting an
-	# unwanted mode change from 444 to 644
-	dh_fixperms -a -Xvar/lib/pcp/tmp -Xvar/lib/pcp/pmcd -Xpmcd.stp
 	dh_installdirs -a
 	dh_install -a --sourcedir=debian/$(pcp)
 	@$(uninstall)
@@ -306,6 +312,9 @@ binary-arch: checkroot build-stamp
 binary: binary-indep binary-arch
 
 checkroot:
-	test 0 -eq `id -u`
+# removed as per Debian bug https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1089409
+#	test 0 -eq `id -u`
+#
+	dh_testroot
 
 .PHONY: binary binary-arch binary-indep clean checkroot

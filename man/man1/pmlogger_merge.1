@@ -33,7 +33,7 @@ is a wrapper script for
 .BR pmlogextract (1)
 that merges all of the archives matching the
 .I input-basename
-arguments, and creates a new archive using
+arguments and creates a new archive using
 .I output-name
 as the base name for the physical files that constitute
 an archive.
@@ -41,6 +41,15 @@ The
 .I input-basename
 arguments may contain meta characters in the style of
 .BR sh (1).
+.PP
+If any of the files that are components of the
+.I input-basename
+archives has been compressed then on success
+.B pmlogger_merge
+will compress
+.I output-name
+using
+.BR pmlogcompress (1).
 .SH OPTIONS
 The available command line options are:
 .TP 5
@@ -90,6 +99,7 @@ The \fB$PCP_CONF\fP variable may be used to specify an alternative
 configuration file, as described in \fBpcp.conf\fP(5).
 .SH SEE ALSO
 .BR PCPIntro (1),
+.BR pmlogcompress (1),
 .BR pmlogextract (1),
 .BR pmlogger (1)
 and

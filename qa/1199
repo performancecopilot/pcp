@@ -21,38 +21,37 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _stop_auto_restart pmcd
-_service pmcd restart 2>&1 | _filter_pcp_start
-echo "initial pminfo ..." >>$seq.full
-pminfo -v -b 1000 >/dev/null 2>>$seq.full
-echo "done." >>$seq.full
+if ! _service pmcd restart 2>&1; then _exit 1; fi | _filter_pcp_start
+echo "initial pminfo ..." >>$seq_full
+pminfo -v -b 1000 >/dev/null 2>>$seq_full
+echo "done." >>$seq_full
 
 # real QA test starts here
-pmprobe -v pmcd.datasize | tee -a $here/$seq.full >$tmp.tmp
+pmprobe -v pmcd.datasize | tee -a $seq_full >$tmp.tmp
 start=`cat $tmp.tmp | awk '{print $3}'`
-echo "start=$start" >>$here/$seq.full
+echo "start=$start" >>$seq_full
 
 src/churnctx -i bin-100,bin-200,bin-300,bin-400,bin-900 -s 1000 -t 0 sample.bin sample.long.one >$tmp.out 2>$tmp.err
 
-echo >>$here/$seq.full
-echo '=== stderr'  >>$here/$seq.full
-cat $tmp.err >>$here/$seq.full
+echo >>$seq_full
+echo '=== stderr'  >>$seq_full
+cat $tmp.err >>$seq_full
 
-echo >>$here/$seq.full
-echo '=== stdout'  >>$here/$seq.full
-cat $tmp.out >>$here/$seq.full
+echo >>$seq_full
+echo '=== stdout'  >>$seq_full
+cat $tmp.out >>$seq_full
 
 grep sample $tmp.out \
 | sort \
 | uniq -c \
 | sed -e 's/^  *//'
 
-pmprobe -v pmcd.datasize | tee -a $here/$seq.full >$tmp.tmp
+pmprobe -v pmcd.datasize | tee -a $seq_full >$tmp.tmp
 end=`cat $tmp.tmp | awk '{print $3}'`
-echo "end=$start" >>$here/$seq.full
+echo "end=$start" >>$seq_full
 
 # we have to be a little tolerant here ... there are a number of
 # deferred initializations that might not have been done at the time

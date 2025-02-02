@@ -20,7 +20,6 @@ fi
 . ./common.filter
 . ./common.check
 
-$sudo rm -rf $tmp $tmp.* $seq.full
 
 which journalctl >/dev/null 2>&1 || _notrun "no journalctl executable installed"
 [ "$PCPQA_SYSTEMD" = no ] && _notrun "we're not using systemd here, so journalctl not useful"
@@ -42,6 +41,11 @@ _filter()
     # then the case ... esac deals with the per-service
     # culling
     #
+    # and there is some undiagnosed issue when QA is running that
+    # dinks with /var/log/pcp/NOTICES ... triage has failed and
+    # the file always ends up with the correct permissions after
+    # QA is done
+    #
     sed \
 	-e '/^-- Boot .* --$/d' \
 	-e '/^-- Reboot --$/d' \
@@ -50,6 +54,8 @@ _filter()
 	-e '/^-- Logs begin at /d' \
 	-e '/: End: /d' \
 	-e '/error while loading shared libraries: libpcp/d' \
+	-e '/rc\[[0-9]*]: .*pmpost:.* cannot open .*NOTICES/d' \
+	-e '/rc\[[0-9]*]: .*pmpost: unposted message:/d' \
     | case "$1"
     in
 
@@ -97,8 +103,7 @@ _filter()
 		-e '/pmie_check failed - see .*\/pmie_check.log/d' \
 		-e '/pmie_daily failed - see .*\/pmie_daily.log/d' \
 		-e '/pmiectl\[[0-9]*]: .* (localhost) defined multiple times,/d' \
-		-e '/vm03\.localdomain pmiectl\[[0-9]*]: mount: write error/d' \
-		-e '/vm03 pmiectl\[[0-9]*]: mount: write error/d' \
+		-e '/ pmiectl\[[0-9]*]: mount: write error/d' \
 	    # end
 	    ;;
 
@@ -122,8 +127,7 @@ _filter()
 		-e '/pmlogctl\[[0-9]*]: .*\/pmlogger\/lock$/d' \
 		-e '/pmlogctl\[[0-9]*]: .* failed to acquire exclusive lock/d' \
 		-e '/pmlogctl\[[0-9]*]: Terminated$/d' \
-		-e '/bozo\.localdomain pmlogctl\[[0-9]*]: mount: write error/d' \
-		-e '/vm03\.localdomain pmlogctl\[[0-9]*]: mount: write error/d' \
+		-e '/ pmlogctl\[[0-9]*]: mount: write error/d' \
 		-e '/vm03 pmlogctl\[[0-9]*]: mount: write error/d' \
 		-e '/pmlogctl\[[0-9]*]: .* (localhost) defined multiple times,/d' \
 		-e '/rc\[[0-9]*]: Terminated$/d' \
@@ -161,9 +165,9 @@ done
 # on ubuntu1804-container in CI
 # Mar 04 19:39:45 cd959fdf2242 pmcd[1179757]: /usr/lib/pcp/bin/pcp-reboot-init: 44: [: -ne: unexpected operator
 #
-which id >>$seq.full 2>&1
-id -u >>$seq.full 2>&1
-$sudo id -u >>$seq.full 2>&1
+which id >>$seq_full 2>&1
+id -u >>$seq_full 2>&1
+$sudo id -u >>$seq_full 2>&1
 
 # success, all done
 exit

@@ -14,7 +14,6 @@ echo "QA output created by $seq"
 . ./common.check
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 cat <<End-of-File >$tmp.config
@@ -29,7 +28,7 @@ End-of-File
 # real QA test starts here
 export PCP_DERIVED_CONFIG=$tmp.config
 pmprobe -v qa.instant.milliseconds sample.milliseconds >$tmp.out
-cat $tmp.out >>$here/$seq.full
+cat $tmp.out >>$seq_full
 # expect 3rd value to be the same in these two lines of output ...
 # qa.instant.milliseconds 1 91065894.656
 # sample.milliseconds 1 91065894.656

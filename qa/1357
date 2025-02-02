@@ -19,19 +19,18 @@ _check_podman_images busybox
 
 iam=podman
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 
 _cleanup()
 {
     if [ -n "$container" ]
     then
-        echo "== removing container" | tee -a $here/$seq.full
+        echo "== removing container" | tee -a $seq_full
         _remove_podman_containers $container
         container=""
     fi
     if [ -n "$pod" ]
     then
-        echo "== removing pod" | tee -a $here/$seq.full
+        echo "== removing pod" | tee -a $seq_full
         _remove_podman_pods $pod1
         pod=""
     fi
@@ -52,12 +51,12 @@ _filter()
 $sudo systemctl restart podman.service
 
 container=`$podman run -d busybox sleep 10`
-echo "== container: $container" >> $here/$seq.full
+echo "== container: $container" >> $seq_full
 [ -z "$container" ] && _fail "Failed to create container"
 
 # RHBZ #1958732
 #pod=`$podman pod create`
-#echo "== pod: $pod" >> $here/$seq.full
+#echo "== pod: $pod" >> $seq_full
 #[ -z "$pod" ] && _fail "Failed to create pod"
 
 pmda=$PCP_PMDAS_DIR/podman/pmda_podman.so,podman_init

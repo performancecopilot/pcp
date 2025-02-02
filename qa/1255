@@ -13,7 +13,6 @@ echo "QA output created by $seq"
 . ./common.check
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 
 _cleanup()
 {
@@ -35,7 +34,7 @@ _filter_dbpmda()
 
 _filter()
 {
-    tee $seq.full \
+    tee $seq_full \
     | sed -e 's/started.*$/started DATE/' | _filter_pmlogger_log | _filter_pmie_log \
     | _filter_pmcd_log | _filter_dbpmda | sed -e 's/'`hostname`'/HOST/g'
 }
@@ -60,7 +59,7 @@ End-of-File
 rm -f $tmp.ok
 for i in 1 2 3 4 5
 do
-    if $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '/[p]mdasimple .* -l-' >>$here/$seq.full
+    if $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '/[p]mdasimple .* -l-' >>$seq_full
     then
 	sleep 1
     else

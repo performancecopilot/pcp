@@ -1,0 +1,38 @@
+#!/bin/sh
+#
+# remake the bind2-* archives ...
+# these archives are intended to be checked in and not remade, this script is
+# simply a record of how they were created
+#
+# base
+# bind2-9.18 Bind 9.18
+# bind2-9.18+	Bind 9.18 + changes from https://github.com/performancecopilot/pcp/issues/2113
+
+base=bind2-9.18
+base=bind2-9.18+
+
+. /etc/pcp.env
+
+tmp=/var/tmp/$$
+rm -f $tmp.*
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+cat <<End-of-File >>$tmp.config
+log advisory on 1 seconds {
+        bind2
+        sample.bin
+	sample.long
+}
+End-of-File
+
+rm -f $base.0  $base.index  $base.meta $base.*
+
+if pmlogger -T 5sec -c $tmp.config $base
+then
+    pmlogcompress $base
+else
+    echo "Argh: pmlogger failed ..."
+    cat pmlogger.log
+fi
+
+

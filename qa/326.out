@@ -6,15 +6,15 @@ QA output created by 326
 
 Trace of observed state changes and PMDA count ...
    value 2
-PMCD state changes: agent(s) added restarted dropped
+PMCD state: agent(s) added restarted dropped
    value 2
-PMCD state changes: agent(s) dropped
+PMCD state: agent(s) dropped
    value 1
-PMCD state changes: agent(s) added restarted
+PMCD state: agent(s) added restarted
    value 2
-PMCD state changes: agent(s) dropped
+PMCD state: agent(s) dropped
    value 1
-PMCD state changes: agent(s) added
+PMCD state: agent(s) added
    value 2
 
 archive contents ...

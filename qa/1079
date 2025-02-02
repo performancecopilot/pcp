@@ -17,7 +17,6 @@ ATOP="$PCP_BINADM_DIR/pcp-atop"
 test -f "$ATOP" || _notrun "$ATOP is not installed, skipped"
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 # read from the pcp-atop archive with various atop options
@@ -65,7 +64,7 @@ diff $tmp.mem1 $tmp.mem2 && echo OK
 echo "Recording an archive using atop"
 $ATOP -w $tmp.atop 1 5
 echo "Replaying an archive using atop"
-$ATOP -r $tmp.atop 1 >> $seq.full
+$ATOP -r $tmp.atop 1 >> $seq_full
 echo "done"
 
 # success, all done

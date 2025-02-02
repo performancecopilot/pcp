@@ -22,17 +22,16 @@ else
     # NOTREACHED
 fi
 
-# For this test, don't load any global derived metric configs by default. 
+# For this test, don't load any global derived metric configs by default.
 # So the PCP_DERIVED_CONFIG environment variable is set to an empty string.
 export PCP_DERIVED_CONFIG=""
 
 status=0	# success is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 _filter()
 {
-    cat $tmp.out >>$seq.full
+    cat $tmp.out >>$seq_full
     sed <$tmp.out \
 	-e "s;$tmp;TMP;"
 }

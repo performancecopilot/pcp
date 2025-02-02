@@ -26,7 +26,7 @@ lock=${1-$PCP_VAR_DIR/pmns/root}.lock
 i=0
 while true
 do
-    if pmlock $lock
+    if pmlock -i "$$ pmnslock" $lock
     then
 	# lock acquired
 	#

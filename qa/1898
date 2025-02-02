@@ -15,7 +15,6 @@ _pmdabpf_require_kernel_version 5 0
 
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
-$sudo rm -rf $tmp.* $seq.full
 
 cat <<EOF >$tmp.conf
 # Installed by PCP QA test $seq on `date`
@@ -41,11 +40,11 @@ _pmdabpf_wait_for_metric
 dd if=/dev/urandom bs=`expr 20 \* 1024 \* 1024` count=1 2>/dev/null | bzip2 -9 >> /dev/null
 
 echo "=== report metric values ==="
-pminfo -dfmtT bpf.runq.latency 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bpf.runq.latency 2>&1 | tee -a $seq_full \
 | _instances_filter_nonzero
 
 echo "=== check metric labels ==="
-pminfo -l bpf.runq.latency 2>&1 | tee -a $here/$seq.full \
+pminfo -l bpf.runq.latency 2>&1 | tee -a $seq_full \
 | _label_filter
 
 _pmdabpf_remove

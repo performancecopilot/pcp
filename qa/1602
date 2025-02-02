@@ -46,7 +46,6 @@ machineid=`_machine_id`
 domainname=`_domain_name`
 
 need_restore=false
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _filter_key_server()
@@ -64,7 +63,7 @@ _filter_key_server_err()
 }
 
 _stop_auto_restart pmproxy
-_service pmproxy stop >/dev/null 2>&1
+if ! _service pmproxy stop >/dev/null 2>&1; then _exit 1; fi
 
 # real QA test starts here
 _save_config $PCP_SYSCONF_DIR/pmproxy
@@ -73,9 +72,9 @@ need_restore=true
 
 # start cluster
 _key_server_cluster_3nodes_start
-echo "key_server_node1_port=$key_server_node1_port" >>$seq.full
-echo "key_server_node2_port=$key_server_node2_port" >>$seq.full
-echo "key_server_node3_port=$key_server_node3_port" >>$seq.full
+echo "key_server_node1_port=$key_server_node1_port" >>$seq_full
+echo "key_server_node2_port=$key_server_node2_port" >>$seq_full
+echo "key_server_node3_port=$key_server_node3_port" >>$seq_full
 echo
 
 echo "== start pmproxy"
@@ -89,12 +88,12 @@ servers = localhost:$key_server_node1_port,localhost:$key_server_node2_port,loca
 EOF
 proxyport=`_find_free_port`
 proxyopts="-p $proxyport -c $tmp.conf"
-pmproxy -f -t -U $username -x $seq.full -l $tmp.pmproxy.log $proxyopts &
+pmproxy -f -t -U $username -x $seq_full -l $tmp.pmproxy.log $proxyopts &
 pmproxy_pid=$!
-echo "proxyport=$proxyport" >>$seq.full
-echo "pmproxy_pid=$pmproxy_pid" >>$seq.full
-_wait_for_pmproxy $proxyport $tmp.pmproxy.log
-which netstat >/dev/null && netstat -l | grep -E "$key_server_node1_port|$key_server_node2_port|$key_server_node3_port|$proxyport" >>$seq.full
+echo "proxyport=$proxyport" >>$seq_full
+echo "pmproxy_pid=$pmproxy_pid" >>$seq_full
+_wait_for_pmproxy $proxyport $tmp.pmproxy.log || exit
+which netstat >/dev/null && netstat -l | grep -E "$key_server_node1_port|$key_server_node2_port|$key_server_node3_port|$proxyport" >>$seq_full
 _check_key_server_ping $proxyport
 echo
 
@@ -142,10 +141,10 @@ echo "== node3"
 $keys_cli -p $key_server_node3_port keys pcpqa:*
 echo
 
-cat $tmp.conf >> $seq.full
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -e '[P]PID|/[p]mproxy( |$)' >> $seq.full
-cat $tmp.pmproxy.log >> $seq.full
+cat $tmp.conf >> $seq_full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -e '[P]PID|/[p]mproxy( |$)' >> $seq_full
+cat $tmp.pmproxy.log >> $seq_full
 
-echo "== all done" | tee -a $seq.full
+echo "== all done" | tee -a $seq_full
 status=0
 exit

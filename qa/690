@@ -35,7 +35,6 @@ $1 == "expr" && $2 == "node" && $3 ~ /^0x/	{ print "s/" $3 "/<addr-" n ">/"; n++
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
@@ -49,7 +48,7 @@ End-of-File
 
 export PCP_DERIVED_CONFIG=$tmp.config
 pminfo -df -Dderive,appl1,appl2 qa >$tmp.out 2>&1
-cat $tmp.out >>$here/$seq.full
+cat $tmp.out >>$seq_full
 _filter
 
 echo
@@ -62,7 +61,7 @@ End-of-File
 
 export PCP_DERIVED_CONFIG=$tmp.config
 pminfo -df -Dderive,appl1,appl2 qa >$tmp.out 2>&1
-cat $tmp.out >>$here/$seq.full
+cat $tmp.out >>$seq_full
 _filter
 
 # success, all done

@@ -22,7 +22,6 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
@@ -30,7 +29,8 @@ $sudo rm -f $PCP_TMP_DIR/mmv/test
 $here/src/fetchloop -s 6 -t 1 -v mmv.control.files > $tmp.out &
 
 pmsleep 2
-$sudo -u $PCP_USER $here/src/mmv_genstats
+cp $here/src/mmv_genstats $tmp.mmv_genstats
+$sudo -u $PCP_USER $tmp.mmv_genstats
 
 #
 # remove duplicate output lines - we expect to see several fetches

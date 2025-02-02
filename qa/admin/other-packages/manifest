@@ -32,16 +32,16 @@
 
 # boiler-plate entries for adding a new packaging requirement
 #
-#dpkg?		foo		[?]
-#rpm?		foo		[?]
-#emerge?		foo		[?]
-#pkgin?		foo		[?]
-#pkg_add?	foo		[?]
-#F_pkg?		foo		[?]
-#S_pkg?		foo		[?]
-#slackpkg?	foo		[?]
-#pacman?		foo		[?]
-#brew?		foo		[?]
+#dpkg?		foo		[? {dpkg-based, Debian, Ubuntu, LinuxMint, MX, ...}]
+#rpm?		foo		[? {rpm-based, RHEL, Fedora, OpenSuSE, ...}]
+#emerge?		foo		[? {Gentoo}]
+#pkgin?		foo		[? {NetBSD}]]
+#pkg_add?	foo		[? {OpenBSD}]]
+#F_pkg?		foo		[? {FreeBSD}]
+#S_pkg?		foo		[? {Solaris}]
+#slackpkg?	foo		[? {Slackware}]
+#pacman?		foo		[? {Arch Linux}]
+#brew?		foo		[? {MacOS?}]
 
 #
 # common executables
@@ -1571,12 +1571,25 @@ dpkg?		/usr/lib/*/libdrm.so		[libdrm-dev (QA optional)]
 rpm?		/usr/lib*/libdrm.so.*		[libdrm-devel or libdrm2-devel (QA optional)]
 emerge?		?				[? (QA optional)]
 pkgin?		?				[? (QA optional)]
-pkg_add?	?				[? (QA optional)]
+pkg_add?	/usr/X11R6/lib/libdrm.so.*	[xbase74 (QA optional)]
 F_pkg?		libdrm.so			[N/A (QA optional)]
 S_pkg?		?				[? (QA optional)]
 slackpkg?	?				[N/A (QA optional)]
 pacman?		?				[? (QA optional)]
 brew?		?				[? (QA optional)]
+
+# -- libinih (optional for libpcp_web)
+#
+dpkg?		/usr/include/ini.h		[libinih-dev (build optional)]
+rpm?		/usr/include/ini.h		[inih-devel or libinih-devel (build optional)]
+emerge?		/usr/include/ini.h		[dev-libs/inih (build optional)]
+pkgin?		/usr/include/ini.h		[N/A (build optional)]
+pkg_add?	/usr/include/ini.h		[inih (build optional)]
+F_pkg?		/usr/include/ini.h		[inih (build optional)]
+S_pkg?		/usr/include/ini.h		[? (build optional)]
+slackpkg?	/usr/include/ini.h		[inih (build optional)]
+pacman?		/usr/include/ini.h		[libinih (build optional)]
+brew?		/usr/include/ini.h		[? (build optional)]
 
 # -- jq (for pmproxy/pmseries QA)
 #
@@ -1594,7 +1607,9 @@ brew?		jq			[? (QA optional)]
 # -- stap (for pmcd QA)
 #
 dpkg?		stap			[systemtap (QA optional)]
-rpm?		stap			[systemtap-devel (QA optional)]
+dpkg?		staprun			[systemtap-runtime (QA optional)]
+rpm?		stap			[systemtap-devel or systemtap (QA optional)]
+rpm?		staprun			[systemtap-runtime (QA optional)]
 emerge?		stap			[? (QA optional)]
 pkgin?		stap			[? (QA optional)]
 pkg_add?	stap			[N/A (QA optional)]
@@ -1633,6 +1648,19 @@ S_pkg?		zstd		[?]
 slackpkg?	zstd		[zstd]
 pacman?		zstd 		[core/zstd]
 brew?		zstd		[?]
+
+# sudo
+#
+dpkg?		sudo		[sudo]
+rpm?		sudo		[sudo]
+emerge?		sudo		[? {Gentoo}]
+pkgin?		sudo		[? {NetBSD}]]
+pkg_add?	sudo		[? {OpenBSD}]]
+F_pkg?		sudo		[? {FreeBSD}]
+S_pkg?		sudo		[? {Solaris}]
+slackpkg?	sudo		[? {Slackware}]
+pacman?		sudo		[? {Arch Linux}]
+brew?		sudo		[? {MacOS?}]
 
 # misc
 #

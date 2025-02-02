@@ -44,7 +44,7 @@ do
     esac
 done
 
-cleanup()
+_cleanup()
 {
     # restore any modified pmcd configuration files
     _restore_config $PCP_SASLCONF_DIR/pmcd.conf
@@ -58,11 +58,10 @@ cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
-trap "cleanup; exit \$status" 0 1 2 3 15
+trap "_cleanup; exit \$status" 0 1 2 3 15
 
 hostname=`hostname`
-echo "hostname -> $hostname" >>$seq.full
+echo "hostname -> $hostname" >>$seq_full
 if which domainname >/dev/null 2>&1
 then
     domainname=`domainname`
@@ -72,9 +71,9 @@ then
 else
     domainname=''
 fi
-echo "domainname -> $domainname" >>$seq.full
+echo "domainname -> $domainname" >>$seq_full
 
-echo "hostname -f -> `hostname -f`" >>$seq.full
+echo "hostname -f -> `hostname -f`" >>$seq_full
 if [ -n "$domainname" ]
 then
     :
@@ -98,37 +97,37 @@ echo "mech_list: $mechanisms" >$tmp.sasl
 echo "sasldb_path: $tmp.passwd.db" >>$tmp.sasl
 $sudo cp $tmp.sasl $PCP_SASLCONF_DIR/pmcd.conf
 $sudo chown pcp:pcp $PCP_SASLCONF_DIR/pmcd.conf
-ls -l $PCP_SASLCONF_DIR/pmcd.conf >>$seq.full
-$sudo -u pcp cat $PCP_SASLCONF_DIR/pmcd.conf >>$seq.full
+ls -l $PCP_SASLCONF_DIR/pmcd.conf >>$seq_full
+$sudo -u pcp cat $PCP_SASLCONF_DIR/pmcd.conf >>$seq_full
 
-echo "Creating temporary sasldb, add user running QA to it" | tee -a $seq.full
+echo "Creating temporary sasldb, add user running QA to it" | tee -a $seq_full
 echo y | saslpasswd2 -p -a pmcd -f $tmp.passwd.db $username
 
-echo "Verify saslpasswd2 has successfully added a new user" | tee -a $seq.full
+echo "Verify saslpasswd2 has successfully added a new user" | tee -a $seq_full
 sasldblistusers2 -f $tmp.passwd.db \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | _filter_listusers2
 
-echo "Ensure pmcd can read the password file" | tee -a $seq.full
+echo "Ensure pmcd can read the password file" | tee -a $seq_full
 $sudo chown pcp:pcp $tmp.passwd.db
-ls -l $tmp.passwd.db >>$seq.full
-$sudo -u pcp od -c $tmp.passwd.db >>$seq.full
+ls -l $tmp.passwd.db >>$seq_full
+$sudo -u pcp od -c $tmp.passwd.db >>$seq_full
 
 echo "Start pmcd with this shiny new sasldb"
-_service pcp restart 2>&1 | tee -a $seq.full >$tmp.out
-_wait_for_pmcd
-_wait_for_pmlogger
+if ! _service pcp restart 2>&1; then _exit 1; fi | tee -a $seq_full >$tmp.out
+_wait_for_pmcd || _exit 1
+_wait_for_pmlogger || _exit 1
 
 for method in $mechanisms
 do
     echo
-    echo "=== method: ${method}, authentication with invalid password ===" | tee -a $seq.full
-    pminfo -f -h "pcp://localhost?method=${method}&username=${username}&password=n" pmcd.feature.authentication 2>&1 | tee -a $seq.full \
+    echo "=== method: ${method}, authentication with invalid password ===" | tee -a $seq_full
+    pminfo -f -h "pcp://localhost?method=${method}&username=${username}&password=n" pmcd.feature.authentication 2>&1 | tee -a $seq_full \
     | grep 'Authentication - ' | grep -E -q "authentication failure|Cannot connect"
     test $? -eq 0 && echo "authentication failure"
 
     echo
-    echo "=== method: ${method}, authentication with correct password ===" | tee -a $seq.full
+    echo "=== method: ${method}, authentication with correct password ===" | tee -a $seq_full
     pminfo -f -h "pcp://localhost?method=${method}&username=${username}&password=y" pmcd.feature.authentication
 done
 

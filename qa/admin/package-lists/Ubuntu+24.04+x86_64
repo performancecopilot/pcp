@@ -55,6 +55,7 @@ libgl1-mesa-dri
 libibmad-dev
 libibumad-dev
 libicu74
+libinih-dev
 libjson-perl
 liblist-moreutils-perl
 liblzma-dev
@@ -95,7 +96,7 @@ mariadb-client-core
 memcached
 net-tools
 nmap
-openjdk-11-jre-headless
+openjdk-21-jre-headless
 openssl
 perl
 perl-modules-5.38
@@ -136,6 +137,8 @@ systemtap
 systemtap-sdt-dev
 time
 unbound
+valkey-server
+valkey-tools
 valgrind
 xfsprogs
 xkb-data

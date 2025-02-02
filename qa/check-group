@@ -70,21 +70,21 @@ do
     in
 
 	folio)		# executable might be pmafm or mkaf
-	    ( grep -v '^#' $seq \
+	    ( grep -v '^[ 	]*#' $seq \
 	      | grep -E -q "(^[ 	]*(pmafm|mkaf)([ '\"]|$))|([ /'\"\`_=](pmafm|mkaf)([ '\"\`_]|$))" \
 	    ) && echo $seq >>$tmp.tmp
 	    report_group="pmafm or mkaf"
 	    ;;
 
 	logutil)	# pmlogger_ scripts
-	    ( grep -v '^#' $seq \
+	    ( grep -v '^[ 	]*#' $seq \
 	      | grep -E -q "(^[ 	]*(pmlogger_check|pmlogger_daily|pmlogger_daily_report|pmlogger_merge|pmlogger_rewrite)([ '\"]|$))|([ /'\"\`_=](pmlogger_check|pmlogger_daily|pmlogger_daily_report|pmlogger_merge|pmlogger_rewrite)([ '\"\`_]|$))" \
 	    ) && echo $seq >>$tmp.tmp
 	    report_group="pmlogger_* scripts"
 	    ;;
 
 	pmclient)	# executable might be pmlient_fg
-	    ( grep -v '^#' $seq \
+	    ( grep -v '^[ 	]*#' $seq \
 	      | grep -E -q "(^[ 	]*(pmclient|pmclient_fg)([ '\"]|$))|([ /'\"\`_=](pmclient|pmclient_fg)([ '\"\`_]|$))" \
 	    ) && echo $seq >>$tmp.tmp
 	    report_group="pmclient et al"
@@ -94,25 +94,25 @@ do
 			# these are aliases ...
 			# executable might be hidden in _exercise_compression
 			# wrapper from common.compress
-	    ( grep -v '^#' $seq \
+	    ( grep -v '^[ 	]*#' $seq \
 	      | grep -E -q "(^[ 	]*(pmlogdump|pmdumplog|_exercise_compression)([ '\"]|$))|([ /'\"\`_=](pmlogdump|pmdumplog|_exercise_compression)([ '\"\`_]|$))" \
 	    ) && echo $seq >>$tmp.tmp
 	    ;;
 
 	pmie)		# executable might be hidden in src/grind
-	    ( grep -v '^#' $seq \
+	    ( grep -v '^[ 	]*#' $seq \
 	      | grep -E -q "(^[ 	]*(pmie|src/grind-tools)([ '\"]|$))|([ /'\"\`_=](pmie|src/grind-tools)([ '\"\`_]|$))" \
 	    ) && echo $seq >>$tmp.tmp
 	    ;;
 
 	pmlogrewrite)	# executable might be hidden in mk.logfarm
-	    ( grep -v '^#' $seq \
+	    ( grep -v '^[ 	]*#' $seq \
 	      | grep -E -q "(^[ 	]*(pmlogrewrite|mk.logfarm)([ '\"]|$))|([ /'\"\`_=](pmlogrewrite|mk.logfarm)([ '\"\`_]|$))" \
 	    ) && echo $seq >>$tmp.tmp
 	    ;;
 
 	pmpost)		# executable might be in $PCP_BINADM_DIR
-	    ( grep -v '^#' $seq \
+	    ( grep -v '^[ 	]*#' $seq \
 	      | grep -E "(^[ 	]*pmpost([ '\"]|$))|([ '\"\`/]pmpost([ '\"\`]|$))" >$tmp.debug \
 	    ) && echo $seq >>$tmp.tmp
 	    ;;
@@ -122,7 +122,7 @@ do
 			# contains the "dual" guard ...
 			# if [ "$1" = "--valgrind" ]
 			#
-	    if ( grep -v '^#' $seq \
+	    if ( grep -v '^[ 	]*#' $seq \
 	      | grep -E -q "(^[ 	]*(valgrind|_check_valgrind)([ '\"]|$))|([ /'\"\`_=](valgrind|_run_valgrind)([ '\"\`_]|$))" \
 	    )
 	    then
@@ -140,25 +140,38 @@ do
 	pcp-*)		# pcp-xxx is cmd, expected group is pcp AND xxx
 			# pcp ... xxx is also cmd
 	    subcmd=`echo "$1" | sed -e 's/pcp-//'`
-	    ( grep -v '^#' $seq \
+	    ( grep -v '^[ 	]*#' $seq \
 	      | grep -E "(^[ 	]*$1([ '\"]|$))|([ '\"\`]$1([ '\"\`]|$))|(^[ 	]*pcp .*$subcmd([ '\"]|$))|([ '\"\`]$pcp .*$subcmd([ '\"\`]|$))" >$tmp.debug \
 	    ) && echo $seq >>$tmp.tmp
 	    group_list="`echo $1 | sed -e 's/-/ /'`"
 	    ;;
 
 	iostat)		# executable maybe pcp-iostat or pcp iostat or pmiostat
-	    ( grep -v '^#' $seq \
+	    ( grep -v '^[ 	]*#' $seq \
 	      | grep -E -q "(^[ 	]*(pcp-iostat|pcp iostat|pmiostat)([ '\"]|$))|([ /'\"\`_=](pcp-iostat|pcp iostat|pmiostat)([ '\"\`_]|$))" \
 	    ) && echo $seq >>$tmp.tmp
 	    ;;
 
 	not_in_ci)
-	    ( grep '^#.*:not_in_ci:' $seq >$tmp.debug  \
+	    ( grep '^[ 	]*#.*:not_in_ci:' $seq >$tmp.debug  \
 	    )  && echo $seq >>$tmp.tmp
 	    ;;
+
+	pmlogcompress)	# this is a group
+	    ( grep -v '^[ 	]*#' $seq \
+	      | grep -E -q "(^[ 	]*(pmlogcompress|pmlogdecompress)([ '\"]|$))|([ /'\"\`_=](pmlogcompress|pmlogdecompress)([ '\"\`_]|$))" \
+	    ) && echo $seq >>$tmp.tmp
+	    ;;
+
+	pmlogmv)	# this is a group or maybe hidden in mk.logfarm
+	    ( grep -v '^[ 	]*#' $seq \
+	      | grep -E -q "(^[ 	]*(pmlogmv|pmlogcp|mk.logfarm)([ '\"]|$))|([ /'\"\`_=](pmlogmv|pmlogcp|mk.logfarm)([ '\"\`_]|$))" \
+	    ) && echo $seq >>$tmp.tmp
+	    ;;
+
 	*)
-	    ( grep -v '^#' $seq \
-	      | grep -E "(^[ 	]*$1([ '\"]|$))|([ '\"\`]$1([ '\"\`]|$))" >$tmp.debug \
+	    ( grep -v '^[ 	]*#' $seq \
+	      | grep -E "(^[ 	]*$1([ '\"]|$))|([ /'\"\`]$1([ '\"\`]|$))" >$tmp.debug \
 	    ) && echo $seq >>$tmp.tmp
 	    $debug && [ -s $tmp.debug ] && echo $seq: && cat $tmp.debug
 	    ;;

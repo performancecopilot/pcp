@@ -277,7 +277,7 @@ summary_store(pmResult *result, pmdaExt * ex)
 void
 summary_init(pmdaInterface *dp)
 {
-    void (*callback)() = freeResultCallback;
+    void (*callback)(pmResult *) = freeResultCallback;
 
     dp->version.two.profile = summary_profile;
     dp->version.two.fetch = summary_fetch;

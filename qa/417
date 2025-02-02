@@ -30,7 +30,6 @@ _check_core()
     fi
 }
 
-rm -rf $tmp
 mkdir $tmp
 cd $tmp
 

@@ -30,12 +30,11 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _filter1()
 {
-    tee -a $seq.full \
+    tee -a $seq_full \
     | sed \
 	-e 's/Permission denied/No permission to perform requested operation/'
 }
@@ -53,7 +52,7 @@ $7 == "localhost"	{ sub(/^[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*$/,"
 }
 
 # real QA test starts here
-echo "=== __pmMultiThreaded ===" | tee -a $seq.full
+echo "=== __pmMultiThreaded ===" | tee -a $seq_full
 _run_helgrind src/multithread0
 if [ -s $tmp.valgrind.err ]
 then
@@ -63,8 +62,8 @@ fi
 echo "=== stdout ==="
 LC_COLLATE=POSIX sort $tmp.valgrind.out
 
-echo | tee -a $seq.full
-echo "=== PM_CONTEXT_LOCAL ===" | tee -a $seq.full
+echo | tee -a $seq_full
+echo "=== PM_CONTEXT_LOCAL ===" | tee -a $seq_full
 _run_helgrind --sudo src/multithread1
 if [ -s $tmp.valgrind.err ]
 then
@@ -74,8 +73,8 @@ fi
 echo "=== stdout ==="
 cat $tmp.valgrind.out | _filter1 | LC_COLLATE=POSIX sort
 
-echo | tee -a $seq.full
-echo "=== PM_SCOPE_AF and PM_SCOPE_ACL ===" | tee -a $seq.full
+echo | tee -a $seq_full
+echo "=== PM_SCOPE_AF and PM_SCOPE_ACL ===" | tee -a $seq_full
 _run_helgrind --sudo src/multithread2
 if [ -s $tmp.valgrind.err ]
 then

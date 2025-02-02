@@ -37,21 +37,20 @@ _pmdabpf_require_libbpf_version()
 #
 _pmdabpf_tryload()
 {
-    echo "--- start pmdabpf config ---" >>$here/$seq.full
-    cat $1 >>$here/$seq.full
-    echo "--- end pmdabpf config ---" >>$here/$seq.full
+    echo "--- start pmdabpf config ---" >>$seq_full
+    cat $1 >>$seq_full
+    echo "--- end pmdabpf config ---" >>$seq_full
 
-    echo "=== start module load test ===" >>$here/$seq.full
+    echo "=== start module load test ===" >>$seq_full
     $sudo $PCP_PMDAS_DIR/bpf/pmdabpf --tryload $1 >$tmp.out 2>&1
     __tryload=$?
-    cat $tmp.out >>$here/$seq.full
+    cat $tmp.out >>$seq_full
     if [ $__tryload -eq 0 ]
     then
-	echo "=== end module load test (passed) ===" >>$here/$seq.full
+	echo "=== end module load test (passed) ===" >>$seq_full
     else
-	echo "=== end module load test (failed) ===" >>$here/$seq.full
-	$sudo rm -rf $tmp $tmp.*
-	_notrun "cannot load BPF module(s) for this test, see $seq.full for details"
+	echo "=== end module load test (failed) ===" >>$seq_full
+	_notrun "cannot load BPF module(s) for this test, see $seq_full for details"
     fi
 }
 
@@ -109,7 +108,7 @@ _pmdabpf_wait_for_metric()
         echo PMDA was not ready in $__canwait seconds, test failed
         exit
     fi
-    echo "=== _pmdabpf_wait_for_metric: after $__i secs, metrics should be available ===" >>$here/$seq.full
+    echo "=== _pmdabpf_wait_for_metric: after $__i secs, metrics should be available ===" >>$seq_full
     # "should" be available, but now wait up to 5 seconds for values
     # to be seen ...
     #
@@ -141,8 +140,8 @@ _pmdabpf_wait_for_metric()
 	then
 	    # goodness
 	    #
-	    echo "=== _pmdabpf_wait_for_metric: after another $__i secs, values are available ===" >>$here/$seq.full
-	    pminfo -f bpf >>$here/$seq.full
+	    echo "=== _pmdabpf_wait_for_metric: after another $__i secs, values are available ===" >>$seq_full
+	    pminfo -f bpf >>$seq_full
 	    return 0
 	fi
 	sleep 1
@@ -175,9 +174,9 @@ _pmdabpf_remove()
     cd $PCP_PMDAS_DIR/bpf
 
     echo
-    echo "=== remove bpf agent ===" | tee -a $here/$seq.full
+    echo "=== remove bpf agent ===" | tee -a $seq_full
     $sudo ./Remove >$tmp.out 2>&1
-    cat $tmp.out >>$here/$seq.full
+    cat $tmp.out >>$seq_full
     _filter_pmda_remove <$tmp.out \
     | sed \
 	-e '/ Info: /d' \
@@ -186,7 +185,7 @@ _pmdabpf_remove()
 
 _pmdabpf_cleanup()
 {
-    cat $PCP_LOG_DIR/pmcd/bpf.log >> $here/$seq.full
+    cat $PCP_LOG_DIR/pmcd/bpf.log >> $seq_full
     # restore any pre-existing BPF configuration file
     if [ -f $PCP_PMDAS_DIR/bpf/bpf.conf.$seq ]; then
         $sudo cp $PCP_PMDAS_DIR/bpf/bpf.conf.$seq $PCP_PMDAS_DIR/bpf/bpf.conf

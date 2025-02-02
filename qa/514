@@ -16,7 +16,6 @@ echo "QA output created by $seq"
 . ./common.check
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 LOCALHOST=`hostname`
@@ -41,7 +40,7 @@ esac
 have_syslog=true
 if [ "$PCPQA_SYSTEMD" = yes ] && `which journalctl >/dev/null 2>&1`
 then
-    echo "Using journalctl ..." >>$seq.full
+    echo "Using journalctl ..." >>$seq_full
     have_journalctl=true
 else
     have_journalctl=false
@@ -59,7 +58,7 @@ else
     then
 	# Probably running in a container, like in CI
 	#
-	echo "Cannot find your syslog file ..." >>$seq.full
+	echo "Cannot find your syslog file ..." >>$seq_full
 	have_syslog=false
     fi
 fi
@@ -178,14 +177,14 @@ in
 	;;
 esac
 
-echo >>$seq.full
-echo "pmie PID $!" >>$seq.full
-echo >>$seq.full
-echo "=== pmie output ===" >>$seq.full
-cat $tmp.out >>$seq.full
-echo >>$seq.full
-echo "=== pmie errors ===" >>$seq.full
-cat $tmp.err >>$seq.full
+echo >>$seq_full
+echo "pmie PID $!" >>$seq_full
+echo >>$seq_full
+echo "=== pmie output ===" >>$seq_full
+cat $tmp.out >>$seq_full
+echo >>$seq_full
+echo "=== pmie errors ===" >>$seq_full
+cat $tmp.err >>$seq_full
 
 _filter2 <$tmp.err | _filter
 _filter <$tmp.out
@@ -197,7 +196,7 @@ then
     sleep 5
     # be careful ... --boot not supported in all versions, -l not
     # supported in all versions
-    $sudo journalctl -b --full 2>&1 | tail -200 >$tmp.syslog 2>>$seq.full
+    $sudo journalctl -b --full 2>&1 | tail -200 >$tmp.syslog 2>>$seq_full
 elif $have_syslog
 then
     $sudo tail -200 $SYSLOG >$tmp.syslog
@@ -218,31 +217,31 @@ p
 }' \
 | LC_COLLATE=POSIX sort -u
 
-echo >>$seq.full
+echo >>$seq_full
 if $have_journalctl
 then
-    echo "=== tail journalctl -b --full ===" >>$seq.full
+    echo "=== tail journalctl -b --full ===" >>$seq_full
 else
-    echo "=== tail SYSLOG ($SYSLOG) ===" >>$seq.full
+    echo "=== tail SYSLOG ($SYSLOG) ===" >>$seq_full
 fi
-echo "`wc -l <$tmp.syslog | sed -e 's/ //g'` lines ... expect 200" >>$seq.full
-cat $tmp.syslog >>$seq.full
+echo "`wc -l <$tmp.syslog | sed -e 's/ //g'` lines ... expect 200" >>$seq_full
+cat $tmp.syslog >>$seq_full
 if $have_journalctl
 then
     :
 else
-    echo >>$seq.full
-    date >>$seq.full
+    echo >>$seq_full
+    date >>$seq_full
     for f in /var/adm/SYSLOG /var/log/daemon.log /var/log/messages /var/log/syslog /var/log/system.log
     do
-	echo "$f:" >>$seq.full
-	[ -f "$f" ] && ls -l "$f" >>$seq.full
+	echo "$f:" >>$seq_full
+	[ -f "$f" ] && ls -l "$f" >>$seq_full
     done
     if [ -f /etc/rsyslog.conf ]
     then
-	echo >>$seq.full
-	echo "critical info from /etc/rsyslog.conf ..." >>$seq.full
-	sed -n -e '/^#/d' -e '/[^ ]/p' </etc/rsyslog.conf >>$seq.full
+	echo >>$seq_full
+	echo "critical info from /etc/rsyslog.conf ..." >>$seq_full
+	sed -n -e '/^#/d' -e '/[^ ]/p' </etc/rsyslog.conf >>$seq_full
     fi
 fi
 

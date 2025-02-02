@@ -12,7 +12,7 @@ echo "QA output created by $seq"
 $python -c "from pcp import pmapi" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python pcp pmapi module not installed"
 which socat >/dev/null 2>&1 || _notrun "socat binary not installed"
-which pcp2influxdb >$seq.full 2>&1 || _notrun "pcp2influxdb not installed"
+which pcp2influxdb >$seq_full 2>&1 || _notrun "pcp2influxdb not installed"
 
 $python -c "import requests" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python requests module not installed"
@@ -23,7 +23,6 @@ port=8086
 $PCP_BINADM_DIR/telnet-probe -c localhost $port \
 	&& _notrun "Someone already listening on typical InfluxDB $port"
 
-$sudo rm -rf $seq.full $tmp.*
 signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
 
@@ -31,20 +30,20 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 _full_stash()
 {
-    echo "--- pcp2influxdb stdout --" >>$seq.full
-    cat $tmp.p2i.out >>$seq.full
-    echo "--- pcp2influxdb stderr --" >>$seq.full
-    cat $tmp.p2i.err >>$seq.full
-    echo "--- socket cat stdout --" >>$seq.full
-    cat $tmp.socat.out >>$seq.full
-    echo "--- socket cat stderr --" >>$seq.full
-    cat $tmp.socat.err >>$seq.full
+    echo "--- pcp2influxdb stdout --" >>$seq_full
+    cat $tmp.p2i.out >>$seq_full
+    echo "--- pcp2influxdb stderr --" >>$seq_full
+    cat $tmp.p2i.err >>$seq_full
+    echo "--- socket cat stdout --" >>$seq_full
+    cat $tmp.socat.out >>$seq_full
+    echo "--- socket cat stderr --" >>$seq_full
+    cat $tmp.socat.err >>$seq_full
 }
 
 pcp2influxdb="$python `which pcp2influxdb`"
 
-echo | tee -a $seq.full
-echo "=== 1. pcp2influxdb one-shot noauth ===" | tee -a $seq.full
+echo | tee -a $seq_full
+echo "=== 1. pcp2influxdb one-shot noauth ===" | tee -a $seq_full
 socat tcp-listen:$port,reuseaddr - >$tmp.socat.out 2>$tmp.socat.err &
 pid=$!
 sleep 2
@@ -61,7 +60,7 @@ grep -E -q "sample_control value=0 [0-9]+$" $tmp.socat.out
 [ $? -eq 0 ] && echo "Found correct zero value in noauth output"
 _full_stash
 
-echo "=== 2. pcp2influxdb noauth with tags ===" | tee -a $seq.full
+echo "=== 2. pcp2influxdb noauth with tags ===" | tee -a $seq_full
 socat tcp-listen:$port,reuseaddr - >$tmp.socat.out 2>$tmp.socat.err &
 pid=$!
 sleep 2
@@ -77,7 +76,7 @@ grep -E -q "hinv_ncpu,host=me\.example\.com value=[0-9]+(\.[0-9]+)? [0-9]+$" $tm
 [ $? -eq 0 ] && echo "Found proper metric body in noauth output"
 _full_stash
 
-echo "=== 3. pcp2influxdb auth with tags ===" | tee -a $seq.full
+echo "=== 3. pcp2influxdb auth with tags ===" | tee -a $seq_full
 socat tcp-listen:$port,reuseaddr - >$tmp.socat.out 2>$tmp.socat.err &
 pid=$!
 sleep 2
@@ -96,7 +95,7 @@ grep -E -q "hinv_ncpu,host=me\.example\.com value=[0-9]+(\.[0-9]+)? [0-9]+$" $tm
 [ $? -eq 0 ] && echo "Found proper metric body in output"
 _full_stash
 
-echo "=== 4. pcp2influxdb bad-instance tolerance ===" | tee -a $seq.full
+echo "=== 4. pcp2influxdb bad-instance tolerance ===" | tee -a $seq_full
 rm -f $tmp.socat.out $tmp.socat.err
 socat tcp-listen:$port,reuseaddr - >>$tmp.socat.out 2>>$tmp.socat.err &
 pid=$!

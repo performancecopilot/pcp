@@ -15,7 +15,6 @@ _pmdabcc_require_kernel_version 4 7
 
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
-$sudo rm -rf $tmp.* $seq.full
 
 _instance_filter()
 {
@@ -48,7 +47,7 @@ _pmdabcc_install <$tmp.conf
 _pmdabcc_wait_for_metric
 
 echo "=== pmrep output ==="
-pmrep -g -r -1 -s 1 bcc.kernel.lock.mutex.spin.avg 2>&1 | tee -a $here/$seq.full \
+pmrep -g -r -1 -s 1 bcc.kernel.lock.mutex.spin.avg 2>&1 | tee -a $seq_full \
 | grep bcc.kernel.lock.mutex.spin.avg | _instance_filter | sort | uniq
 
 _pmdabcc_remove

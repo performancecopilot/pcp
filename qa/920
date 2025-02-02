@@ -20,7 +20,6 @@ _check_job_scheduler
 
 status=1	# failure is the default!
 needclean=true
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _cleanup()
@@ -56,7 +55,7 @@ _report()
 
 
     cd $PCP_ARCHIVE_DIR
-    ls -lR $seq | tee -a $here/$seq.full | $PCP_AWK_PROG '
+    ls -lR $seq | tee -a $seq_full | $PCP_AWK_PROG '
 NF < 4		{ print; next }
 		{ print "mode=" $1 " user=" $3 " group=" $4 " name=" $NF }' \
     | sed \
@@ -116,7 +115,8 @@ End-of-File
     $sudo cp $tmp.timers $PCP_SYSCONFIG_DIR/pmlogger_timers
 fi
 
-_service pmlogger restart | _filter_pcp_start
+if ! _service pmlogger restart; then _exit 1; fi \
+| _filter_pcp_start
 
 # wait up to 20 seconds for our pmlogger to start
 #
@@ -143,15 +143,15 @@ echo
 # previous start for the primary pmlogger before it is finished starting
 # up, and this may lead to systemd complaints
 #
-_wait_for_pmlogger
+_wait_for_pmlogger || _exit 1
 
 # save pmlogger logs for triage
 #
-echo "=== pmlogger -c /dev/null -L" >>$here/$seq.full
-ls -lR $PCP_ARCHIVE_DIR/$seq/myhost/2017/02/12 >>$here/$seq.full
-cat $tmp.log.1 >>$here/$seq.full
-echo "=== pmlogger -c config.default" >>$here/$seq.full
-cat $tmp.log.2 >>$here/$seq.full
+echo "=== pmlogger -c /dev/null -L" >>$seq_full
+ls -lR $PCP_ARCHIVE_DIR/$seq/myhost/2017/02/12 >>$seq_full
+cat $tmp.log.1 >>$seq_full
+echo "=== pmlogger -c config.default" >>$seq_full
+cat $tmp.log.2 >>$seq_full
 
 # success, all done
 status=0

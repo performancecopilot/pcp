@@ -28,7 +28,6 @@ test $? -eq 0 || _notrun 'No client support for plain authentication'
 $pluginviewer -s | grep 'Plugin "plain"' >/dev/null 2>&1
 test $? -eq 0 || _notrun 'No server support for plain authentication'
 
-$sudo rm -f $tmp.* $seq.full
 
 signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
@@ -55,23 +54,23 @@ _cleanup()
     then
 	$sudo rm $PCP_VAR_DIR/config/pmda/$domain.$loaded
 	cd $here/pmdas/test_python
-	$sudo ./Remove >>$here/$seq.full 2>&1
+	$sudo ./Remove >>$seq_full 2>&1
 	$sudo rm -f domain.h.python
 	cd $here
     fi
 
-    _service pmcd stop >>$seq.full 2>&1
-    _service pmcd start >>$seq.full 2>&1
+    _service pmcd stop >>$seq_full 2>&1
+    _service pmcd start >>$seq_full 2>&1
     _wait_for_pmcd
 
     if $pmproxy_was_running
     then
-	echo "Restart pmproxy ..." >>$here/$seq.full
-	_service pmproxy restart >>$here/$seq.full 2>&1
+	echo "Restart pmproxy ..." >>$seq_full
+	_service pmproxy restart >>$seq_full 2>&1
 	_wait_for_pmproxy
     else
-	echo "Stopping pmproxy ..." >>$here/$seq.full
-	_service pmproxy stop >>$here/$seq.full 2>&1
+	echo "Stopping pmproxy ..." >>$seq_full
+	_service pmproxy stop >>$seq_full 2>&1
     fi
 
     $sudo rm -f $tmp.*
@@ -83,7 +82,7 @@ full_hostname=`hostname --fqdn`
 
 pmproxy_was_running=false
 [ -f $PCP_RUN_DIR/pmproxy.pid ] && pmproxy_was_running=true
-echo "pmproxy_was_running=$pmproxy_was_running" >>$here/$seq.full
+echo "pmproxy_was_running=$pmproxy_was_running" >>$seq_full
 
 _filter_credentials()
 {
@@ -109,7 +108,7 @@ _filter_listusers2()
 
 _filter_json()
 {
-    tee -a $seq.full | \
+    tee -a $seq_full | \
     sed -e 's,"machineid": .*,"machineid": "MACHINEID",g' \
         -e 's,"context": .*,"context": "CONTEXT",g' \
         -e 's,"hostname": .*,"hostname": "HOSTNAME",g' \
@@ -121,22 +120,22 @@ _filter_json()
 
 _filter_ctx()
 {
-    tee -a $seq.full | \
+    tee -a $seq_full | \
     sed -E -e 's/ctx [0-9]+/ctx ?/g'
 }
 
 _test_log()
 {
-    echo && echo "=== $@ ===" | tee -a $here/$seq.full
+    echo && echo "=== $@ ===" | tee -a $seq_full
 }
 
 _json_log()
 {
-    pmjson | tee -a $here/$seq.full
+    pmjson | tee -a $seq_full
 }
 
-echo "hostname=$hostname" >>$seq.full
-echo "full_hostname=$full_hostname" >>$seq.full
+echo "hostname=$hostname" >>$seq_full
+echo "full_hostname=$full_hostname" >>$seq_full
 
 # real QA test starts here
 _save_config $PCP_SYSCONF_DIR/labels
@@ -150,25 +149,25 @@ echo 'mech_list: plain' >$tmp.sasl
 echo "sasldb_path: $tmp.passwd.db" >>$tmp.sasl
 $sudo cp $tmp.sasl $PCP_SASLCONF_DIR/pmcd.conf
 $sudo chown pcp:pcp $PCP_SASLCONF_DIR/pmcd.conf
-ls -l $PCP_SASLCONF_DIR/pmcd.conf >>$seq.full
-$sudo -u pcp cat $PCP_SASLCONF_DIR/pmcd.conf >>$seq.full
+ls -l $PCP_SASLCONF_DIR/pmcd.conf >>$seq_full
+$sudo -u pcp cat $PCP_SASLCONF_DIR/pmcd.conf >>$seq_full
 
-echo "Creating temporary sasldb, add user running QA to it" | tee -a $seq.full
+echo "Creating temporary sasldb, add user running QA to it" | tee -a $seq_full
 echo y | saslpasswd2 -p -a pmcd -f $tmp.passwd.db $username
 
-echo "Verify saslpasswd2 has successfully added a new user" | tee -a $seq.full
+echo "Verify saslpasswd2 has successfully added a new user" | tee -a $seq_full
 sasldblistusers2 -f $tmp.passwd.db \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | _filter_listusers2
 
-echo "Ensure pmcd can read the password file" | tee -a $seq.full
+echo "Ensure pmcd can read the password file" | tee -a $seq_full
 $sudo chown pcp:pcp $tmp.passwd.db
-ls -l $tmp.passwd.db >>$seq.full
-$sudo -u pcp od -c $tmp.passwd.db >>$seq.full
+ls -l $tmp.passwd.db >>$seq_full
+$sudo -u pcp od -c $tmp.passwd.db >>$seq_full
 
 echo "Start pmcd with this shiny new sasldb"
-_service pmcd restart 2>&1 | tee -a $seq.full >$tmp.out
-_wait_for_pmcd
+if ! _service pmcd restart 2>&1; then _exit 1; fi | tee -a $seq_full >$tmp.out
+_wait_for_pmcd || _exit 1
 
 if [ "$PCPQA_SYSTEMD" = yes ]
 then
@@ -176,8 +175,8 @@ then
 fi
 
 echo "Start pmproxy with mandatory authentication"
-_service pmproxy stop >/dev/null
-_service pmproxy start >>$here/$seq.full 2>&1
+if ! _service pmproxy stop >/dev/null; then _exit 1; fi
+if ! _service pmproxy start >>$seq_full 2>&1; then _exit 1; fi
 
 echo "Start test Python PMDA to check if username is in per-context state"
 cd pmdas/test_python
@@ -221,11 +220,11 @@ _test_log "using authenticated context, with HTTP auth headers (expect success)"
 curl -s --user $username:y "http://localhost:44322/pmapi/$ctx_authenticated/fetch?names=test_python.current_username" | _json_log | grep '"value"' | _filter_ctx | _filter_username
 
 
-echo >>$here/$seq.full
-echo "=== pmproxy log ===" >>$here/$seq.full
-cat $PCP_LOG_DIR/pmproxy/pmproxy.log >>$here/$seq.full
-echo "=== test_python PMDA log ===" >>$here/$seq.full
-cat $PCP_LOG_DIR/pmcd/test_python.log >>$here/$seq.full
+echo >>$seq_full
+echo "=== pmproxy log ===" >>$seq_full
+cat $PCP_LOG_DIR/pmproxy/pmproxy.log >>$seq_full
+echo "=== test_python PMDA log ===" >>$seq_full
+cat $PCP_LOG_DIR/pmcd/test_python.log >>$seq_full
 
 status=0
 exit

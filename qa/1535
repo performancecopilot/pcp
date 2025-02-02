@@ -13,7 +13,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-$sudo rm -rf $tmp $tmp.* $seq.full
 
 _cleanup()
 {
@@ -34,7 +33,7 @@ _filter()
 
 # real QA test starts here
 pmcd_args='-C 10'
-_private_pmcd
+_private_pmcd || _exit 1
 
 for c in 10 11
 do
@@ -46,7 +45,7 @@ done
 
 echo
 echo "interesting diagnostic lines ..."
-cat $tmp/pmcd.log >>$seq.full
+cat $tmp/pmcd.log >>$seq_full
 [ -s $tmp/pmcd.out ] && cat $tmp/pmcd.out
 [ -s $tmp/pmcd.err ] && cat $tmp/pmcd.err
 

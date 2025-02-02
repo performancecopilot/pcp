@@ -22,7 +22,6 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.*
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _filter_pminfo()
@@ -37,20 +36,20 @@ hostname=`hostname`
 
 echo "=== read from file ==="
 $PCP_ECHO_PROG $PCP_ECHO_N 123"$PCP_ECHO_C" > $tmp.out
-pmlogpaste -f $tmp.out -o $tmp.out1 > $seq.full 2>&1
+pmlogpaste -f $tmp.out -o $tmp.out1 > $seq_full 2>&1
 [ $? -eq 0 ] || _fail "Failed input file test case"
 echo "=== verify archive ==="
 pminfo -f -l -a $tmp.out1 paste | _filter_pminfo
 
 echo "=== read from stdin ==="
 $PCP_ECHO_PROG $PCP_ECHO_N 456"$PCP_ECHO_C" | \
-	pmlogpaste -o $tmp.out2 > $seq.full 2>&1
+	pmlogpaste -o $tmp.out2 > $seq_full 2>&1
 [ $? -eq 0 ] || _fail "Failed stdin input test case"
 echo "=== verify archive ==="
 pminfo -f -l -a $tmp.out2 paste | _filter_pminfo
 
 echo "=== command line value and labels ==="
-pmlogpaste -o $tmp.out3 -l key1:val1 -l key2:val2 -m paste.metric a cmd line value > $seq.full 2>&1
+pmlogpaste -o $tmp.out3 -l key1:val1 -l key2:val2 -m paste.metric a cmd line value > $seq_full 2>&1
 [ $? -eq 0 ] || _fail "Failed command line input test case"
 echo "=== verify archive ==="
 pminfo -f -l -a $tmp.out3 paste | _filter_pminfo

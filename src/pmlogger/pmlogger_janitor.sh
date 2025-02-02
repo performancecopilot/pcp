@@ -95,19 +95,7 @@ CONTROLDIR=$PCP_PMLOGGERCONTROL_PATH.d
 # 
 COMPRESS=""
 COMPRESS_CMDLINE=""
-if which xz >/dev/null 2>&1
-then
-    if xz -0 --block-size=10MiB </dev/null >/dev/null 2>&1
-    then
-	# want minimal overheads, -0 is the same as --fast
-	COMPRESS_DEFAULT="xz -0 --block-size=10MiB"
-    else
-	COMPRESS_DEFAULT=xz
-    fi
-else
-    # overridden by $PCP_COMPRESS or if not set, no compression
-    COMPRESS_DEFAULT=""
-fi
+COMPRESS_DEFAULT="pmlogcompress"
 COMPRESSREGEX=""
 COMPRESSREGEX_CMDLINE=""
 COMPRESSREGEX_DEFAULT="\.(index|Z|gz|bz2|zip|xz|lzma|lzo|lz4|zst)$"
@@ -516,13 +504,14 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	    delay=200	# tenths of a second
 	    while [ $delay -gt 0 ]
 	    do
-		if pmlock -v "$dir/lock" >$tmp/out 2>&1
+		if pmlock -i "$$ pmlogger_janitor" -v "$dir/lock" >$tmp/out 2>&1
 		then
 		    echo "$dir/lock" >$tmp/lock
 		    if $VERY_VERBOSE
 		    then
 			echo "Acquired lock:"
-			ls -l $dir/lock
+			LC_TIME=POSIX ls -l "$dir/lock"
+			[ -s "$dir/lock" ] && cat "$dir/lock"
 		    fi
 		    break
 		else
@@ -533,7 +522,8 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 			if [ -f "$dir/lock" ]
 			then
 			    echo "$prog: Warning: removing lock file older than 30 minutes"
-			    LC_TIME=POSIX ls -l $dir/lock
+			    LC_TIME=POSIX ls -l "$dir/lock"
+			    [ -s "$dir"/lock" ] && cat "$dir"/lock"
 			    rm -f "$dir/lock"
 			else
 			    # there is a small timing window here where pmlock
@@ -575,7 +565,8 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 		if [ -f "$dir/lock" ]
 		then
 		    echo "$prog: Warning: is another PCP cron job running concurrently?"
-		    LC_TIME=POSIX ls -l $dir/lock
+		    LC_TIME=POSIX ls -l "$dir/lock"
+		    [ -s "$dir/lock" ] && cat "$dir/lock"
 		else
 		    echo "$prog: `cat $tmp/out`"
 		fi

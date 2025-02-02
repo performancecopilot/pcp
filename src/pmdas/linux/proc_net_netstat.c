@@ -487,6 +487,20 @@ netstat_fields_t netstat_mptcp_fields[] = {
       .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_DSSCORRUPTIONFALLBACK] },
     { .field = "DSSCorruptionReset",
       .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_DSSCORRUPTIONRESET] },
+    { .field = "MPCapableSYNTXDrop",
+      .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPCAPABLESYNTXDROP] },
+    { .field = "MPCapableSYNTXDisabled",
+      .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPCAPABLESYNTXDISABLED] },
+    { .field = "MPJoinSynTx",
+      .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPJOINSYNTX] },
+    { .field = "MPJoinSynTxCreatSkErr",
+      .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPJOINSYNTXCREATSKERR] },
+    { .field = "MPJoinSynTxBindErr",
+      .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPJOINSYNTXBINDERR] },
+    { .field = "MPJoinSynTxConnectErr",
+      .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPJOINSYNTXCONNECTERR] },
+    { .field = "Blackhole",
+      .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_BLACKHOLE] },
 
     { .field = NULL, .offset = NULL }
 };

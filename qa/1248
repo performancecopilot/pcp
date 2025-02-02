@@ -22,9 +22,9 @@ fi
 
 _cleanup()
 {
-    echo "_cleanup: ..." >>$seq.full
+    echo "_cleanup: ..." >>$seq_full
     cd $here
-    $sudo pmlogctl -af -c pmfind destroy localhost >>$seq.full 2>&1
+    $sudo pmlogctl -af -c pmfind destroy localhost >>$seq_full 2>&1
     $sudo rm -rf $PCP_ETC_DIR/pcp/pmlogger/class.d/$seq.?
     $sudo rm -rf $tmp $tmp.*
     for dir in $seq $seq-a $seq-b $seq-c
@@ -34,14 +34,13 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 localhost=`hostname`
 
 _filter()
 {
-    tee -a $seq.full \
+    tee -a $seq_full \
     | sed \
 	-e '/^# created by pmlogctl/s/ on .*/ on DATE/' \
 	-e "s;$tmp\.;TMP.;g" \
@@ -74,7 +73,7 @@ END	{ print "{ print }" }'
 #
 _filter_status()
 {
-    tee -a $seq.full \
+    tee -a $seq_full \
     | $PCP_AWK_PROG -f $tmp.awk \
     | sed >$tmp.tmp \
 	-e "/^`hostname` .* primary /d" \
@@ -105,100 +104,100 @@ log mandatory on default { sample.lights }
 End-of-File
 
 # real QA test starts here
-echo '== -NV expect pmfind class to be used' | tee -a $seq.full
+echo '== -NV expect pmfind class to be used' | tee -a $seq_full
 pmlogctl -NV cond-create localhost 2>&1 | _filter
 
-echo | tee -a $seq.full
-echo '== -NV -p, no [create] section, expect on instance to be created' | tee -a $seq.full
+echo | tee -a $seq_full
+echo '== -NV -p, no [create] section, expect on instance to be created' | tee -a $seq_full
 cp $tmp.policy.head $tmp.policy
 pmlogctl -NV -p $tmp.policy cond-create localhost 2>&1 | _filter
 
-echo | tee -a $seq.full
-echo '== -NV -p -c, no [create] section, expect no instance to be created' | tee -a $seq.full
+echo | tee -a $seq_full
+echo '== -NV -p -c, no [create] section, expect no instance to be created' | tee -a $seq_full
 pmlogctl -NV -p $tmp.policy -c $seq cond-create localhost 2>&1 | _filter
 
 echo "[create]" >>$tmp.policy.head
 
-echo | tee -a $seq.full
-echo '== -NV -p -c exists() false, expect no instance to be created' | tee -a $seq.full
+echo | tee -a $seq_full
+echo '== -NV -p -c exists() false, expect no instance to be created' | tee -a $seq_full
 cp $tmp.policy.head $tmp.policy
 echo "exists(hinv.foo)" >>$tmp.policy
 pmlogctl -NV -p $tmp.policy -c $seq cond-create localhost 2>&1 | _filter
 
-echo | tee -a $seq.full
-echo '== -NV -p -c exists() true (leaf in PMNS), expect instance to be created' | tee -a $seq.full
+echo | tee -a $seq_full
+echo '== -NV -p -c exists() true (leaf in PMNS), expect instance to be created' | tee -a $seq_full
 cp $tmp.policy.head $tmp.policy
 echo "exists(sample.bin)" >>$tmp.policy
 pmlogctl -NV -p $tmp.policy -c $seq cond-create localhost 2>&1 | _filter
 
-echo | tee -a $seq.full
-echo '== -NV -p -c exists() true (non-leaf in PMNS), expect instance to be created' | tee -a $seq.full
+echo | tee -a $seq_full
+echo '== -NV -p -c exists() true (non-leaf in PMNS), expect instance to be created' | tee -a $seq_full
 cp $tmp.policy.head $tmp.policy
 echo "exists(sample)" >>$tmp.policy
 pmlogctl -NV -p $tmp.policy -c $seq cond-create localhost 2>&1 | _filter
 
-echo | tee -a $seq.full
-echo '== -NV -p -c values() false (bad metric), expect no instance to be created' | tee -a $seq.full
+echo | tee -a $seq_full
+echo '== -NV -p -c values() false (bad metric), expect no instance to be created' | tee -a $seq_full
 cp $tmp.policy.head $tmp.policy
 echo "values(hinv.foo.bar)" >>$tmp.policy
 pmlogctl -NV -p $tmp.policy -c $seq cond-create localhost 2>&1 | _filter
 
-echo | tee -a $seq.full
-echo '== -NV -p -c values() false (numval < 1), expect no instance to be created' | tee -a $seq.full
+echo | tee -a $seq_full
+echo '== -NV -p -c values() false (numval < 1), expect no instance to be created' | tee -a $seq_full
 cp $tmp.policy.head $tmp.policy
 echo "values(sample.bad.novalues)" >>$tmp.policy
 pmlogctl -NV -p $tmp.policy -c $seq cond-create localhost 2>&1 | _filter
 
-echo | tee -a $seq.full
-echo '== -NV -p -c values() true (leaf & singular), expect instance to be created' | tee -a $seq.full
+echo | tee -a $seq_full
+echo '== -NV -p -c values() true (leaf & singular), expect instance to be created' | tee -a $seq_full
 cp $tmp.policy.head $tmp.policy
 echo "values(sample.long)" >>$tmp.policy
 pmlogctl -NV -p $tmp.policy -c $seq cond-create localhost 2>&1 | _filter
 
-echo | tee -a $seq.full
-echo '== -NV -p -c values() true (leaf & indom), expect instance to be created' | tee -a $seq.full
+echo | tee -a $seq_full
+echo '== -NV -p -c values() true (leaf & indom), expect instance to be created' | tee -a $seq_full
 cp $tmp.policy.head $tmp.policy
 echo "values(sample.bin)" >>$tmp.policy
 pmlogctl -NV -p $tmp.policy -c $seq cond-create localhost 2>&1 | _filter
 
-echo | tee -a $seq.full
-echo '== -NV -p -c values() true (non-leaf & indom), expect instance to be created' | tee -a $seq.full
+echo | tee -a $seq_full
+echo '== -NV -p -c values() true (non-leaf & indom), expect instance to be created' | tee -a $seq_full
 cp $tmp.policy.head $tmp.policy
 echo "values(disk.dev)" >>$tmp.policy
 pmlogctl -NV -p $tmp.policy -c $seq cond-create localhost 2>&1 | _filter
 
-echo | tee -a $seq.full
-echo '== -NV -p -c condition() false (bad expr), expect no instance to be created' | tee -a $seq.full
+echo | tee -a $seq_full
+echo '== -NV -p -c condition() false (bad expr), expect no instance to be created' | tee -a $seq_full
 cp $tmp.policy.head $tmp.policy
 echo "condition(hinv.ncpu >)" >>$tmp.policy
 pmlogctl -NV -p $tmp.policy -c $seq cond-create localhost 2>&1 | _filter
 
-echo | tee -a $seq.full
-echo '== -NV -p -c condition() false (singular value == 0), expect no instance to be created' | tee -a $seq.full
+echo | tee -a $seq_full
+echo '== -NV -p -c condition() false (singular value == 0), expect no instance to be created' | tee -a $seq_full
 cp $tmp.policy.head $tmp.policy
 echo "condition(hinv.ncpu < 1)" >>$tmp.policy
 pmlogctl -NV -p $tmp.policy -c $seq cond-create localhost 2>&1 | _filter
 
-echo | tee -a $seq.full
-echo '== -NV -p -c condition() false (indom value < 0), expect no instance to be created' | tee -a $seq.full
+echo | tee -a $seq_full
+echo '== -NV -p -c condition() false (indom value < 0), expect no instance to be created' | tee -a $seq_full
 cp $tmp.policy.head $tmp.policy
 echo "condition(-sample.bin)" >>$tmp.policy
 pmlogctl -NV -p $tmp.policy -c $seq cond-create localhost 2>&1 | _filter
 
-echo | tee -a $seq.full
-echo '== -NV -p -c condition() true (singular value > 0), expect instance to be created' | tee -a $seq.full
+echo | tee -a $seq_full
+echo '== -NV -p -c condition() true (singular value > 0), expect instance to be created' | tee -a $seq_full
 cp $tmp.policy.head $tmp.policy
 echo "values(hinv.ndisk > 0 ? hinv.ndisk : 1 + hinv.ncpu > 0 ? hinv.ndisk : 1)" >>$tmp.policy
 pmlogctl -NV -p $tmp.policy -c $seq cond-create localhost 2>&1 | _filter
 
-echo | tee -a $seq.full
-echo '== -NV -p -c hostname() false, expect no instance to be created' | tee -a $seq.full
+echo | tee -a $seq_full
+echo '== -NV -p -c hostname() false, expect no instance to be created' | tee -a $seq_full
 cp $tmp.policy.head $tmp.policy
 echo "hostname(.*[fF][oO][oO].*)" >>$tmp.policy
 pmlogctl -NV -p $tmp.policy -c $seq cond-create localhost 2>&1 | _filter
 
-echo | tee -a $seq.full
-echo '== -NV -p -c hostname() true, expect instance to be created' | tee -a $seq.full
+echo | tee -a $seq_full
+echo '== -NV -p -c hostname() true, expect instance to be created' | tee -a $seq_full
 cp $tmp.policy.head $tmp.policy
 echo "hostname((local|LOCAL)host)" >>$tmp.policy
 pmlogctl -NV -p $tmp.policy -c $seq cond-create localhost 2>&1 | _filter
@@ -207,8 +206,8 @@ pmlogctl -NV -p $tmp.policy -c $seq cond-create localhost 2>&1 | _filter
 #
 $sudo cp $tmp.policy $PCP_ETC_DIR/pcp/pmlogger/class.d/$seq.1
 
-echo | tee -a $seq.full
-echo '== -NV, expect simple instance to be created' | tee -a $seq.full
+echo | tee -a $seq_full
+echo '== -NV, expect simple instance to be created' | tee -a $seq_full
 pmlogctl -NV cond-create localhost 2>&1 | _filter
 
 cat <<End-of-File >$tmp.policy
@@ -226,15 +225,15 @@ condition(1)
 End-of-File
 $sudo cp $tmp.policy $PCP_ETC_DIR/pcp/pmlogger/class.d/$seq.2
 
-echo | tee -a $seq.full
-echo '== -i, 2 explicit configs, expect concat config file for one pmfind instance' | tee -a $seq.full
+echo | tee -a $seq_full
+echo '== -i, 2 explicit configs, expect concat config file for one pmfind instance' | tee -a $seq_full
 $sudo pmlogctl -i $seq cond-create localhost 2>&1 | _filter
 pmlogctl -V status 2>&1 | _filter_status
 grep sample.lights $PCP_ARCHIVE_DIR/$seq/$seq.config
 PCP_DERIVED_CONFIG= pmafm $PCP_ARCHIVE_DIR/$seq/Latest pminfo | _filter
-echo "--- start pmlogger config file ---" >>$seq.full
-cat $PCP_ARCHIVE_DIR/$seq/$seq.config >>$seq.full
-echo "--- end pmlogger config file ---" >>$seq.full
+echo "--- start pmlogger config file ---" >>$seq_full
+cat $PCP_ARCHIVE_DIR/$seq/$seq.config >>$seq_full
+echo "--- end pmlogger config file ---" >>$seq_full
 
 cat <<End-of-File >$tmp.policy
 # Installed by PCP QA test $seq on `date`
@@ -251,8 +250,8 @@ condition(hinv.ncpu > 0)
 End-of-File
 $sudo cp $tmp.policy $PCP_ETC_DIR/pcp/pmlogger/class.d/$seq.3
 
-echo | tee -a $seq.full
-echo '== -i, + logconf config, expect concat config file for one pmfind instance' | tee -a $seq.full
+echo | tee -a $seq_full
+echo '== -i, + logconf config, expect concat config file for one pmfind instance' | tee -a $seq_full
 $sudo pmlogctl -i $seq-a cond-create localhost 2>&1 | _filter
 pmlogctl -V status 2>&1 | _filter_status
 for metric in sample.lights network.interface.total.bytes disk.dev.total
@@ -262,14 +261,14 @@ do
     PCP_DERIVED_CONFIG= pmafm $PCP_ARCHIVE_DIR/$seq-a/Latest pminfo -v $metric \
     | _filter
 done
-echo "--- start pmlogger config file ---" >>$seq.full
-cat $PCP_ARCHIVE_DIR/$seq-a/$seq-a.config >>$seq.full
-echo "--- end pmlogger config file ---" >>$seq.full
+echo "--- start pmlogger config file ---" >>$seq_full
+cat $PCP_ARCHIVE_DIR/$seq-a/$seq-a.config >>$seq_full
+echo "--- end pmlogger config file ---" >>$seq_full
 
 $sudo cp $tmp.policy $PCP_ETC_DIR/pcp/pmlogger/class.d/$seq.2
 
-echo | tee -a $seq.full
-echo '== -i, 2x logconf config, expect concat config file for one pmfind instance' | tee -a $seq.full
+echo | tee -a $seq_full
+echo '== -i, 2x logconf config, expect concat config file for one pmfind instance' | tee -a $seq_full
 $sudo pmlogctl -i $seq-b cond-create localhost 2>&1 | _filter
 pmlogctl -V status 2>&1 | _filter_status
 for metric in sample.lights network.interface.total.bytes disk.dev.total
@@ -279,14 +278,14 @@ do
     PCP_DERIVED_CONFIG= pmafm $PCP_ARCHIVE_DIR/$seq-b/Latest pminfo -v $metric \
     | _filter
 done
-echo "--- start pmlogger config file ---" >>$seq.full
-cat $PCP_ARCHIVE_DIR/$seq-b/$seq-b.config >>$seq.full
-echo "--- end pmlogger config file ---" >>$seq.full
+echo "--- start pmlogger config file ---" >>$seq_full
+cat $PCP_ARCHIVE_DIR/$seq-b/$seq-b.config >>$seq_full
+echo "--- end pmlogger config file ---" >>$seq_full
 
 $sudo cp $tmp.policy $PCP_ETC_DIR/pcp/pmlogger/class.d/$seq.1
 
-echo | tee -a $seq.full
-echo '== -i, 3x logconf config, expect concat config file for one pmfind instance' | tee -a $seq.full
+echo | tee -a $seq_full
+echo '== -i, 3x logconf config, expect concat config file for one pmfind instance' | tee -a $seq_full
 $sudo pmlogctl -i $seq-c cond-create localhost 2>&1 | _filter
 pmlogctl -V status 2>&1 | _filter_status
 for metric in sample.lights network.interface.total.bytes disk.dev.total
@@ -296,9 +295,9 @@ do
     PCP_DERIVED_CONFIG= pmafm $PCP_ARCHIVE_DIR/$seq-c/Latest pminfo -v $metric \
     | _filter
 done
-echo "--- start pmlogger config file ---" >>$seq.full
-cat $PCP_ARCHIVE_DIR/$seq-c/$seq-c.config >>$seq.full
-echo "--- end pmlogger config file ---" >>$seq.full
+echo "--- start pmlogger config file ---" >>$seq_full
+cat $PCP_ARCHIVE_DIR/$seq-c/$seq-c.config >>$seq_full
+echo "--- end pmlogger config file ---" >>$seq_full
 
 status=0
 exit

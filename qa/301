@@ -80,7 +80,7 @@ waitTilDead () {
 
 
 dbugEcho 1 "Shutting down PCP"
-_service pcp stop >/dev/null &
+if ! _service pcp stop >/dev/null; then _exit 1; fi&
 
 #  Wait for PMDAs with sprocs to exit.
 dbugEcho 1 "Waiting until PCP is dead"
@@ -111,9 +111,9 @@ then
     sleep $BREATHER
 fi
 dbugEcho 1 "Starting up PCP"
-_service pcp restart >>$here/$seq.full 2>&1
-_wait_for_pmcd
-_wait_for_pmlogger
+if ! _service pcp restart >>$seq_full 2>&1; then _exit 1; fi
+_wait_for_pmcd || _exit 1
+_wait_for_pmlogger || _exit 1
 
 # success or failure, we've finished
 status=`expr $status - 1`

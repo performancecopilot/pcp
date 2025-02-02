@@ -28,6 +28,7 @@ git
 gmake
 gtar
 icu
+inih
 jq
 kubectl
 libuv

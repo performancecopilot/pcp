@@ -26,12 +26,11 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _filter()
 {
-    tee -a $seq.full | \
+    tee -a $seq_full | \
     sed \
 	-e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;" \
 	-e '/pmResult/s/ .* numpmid/ ... numpmid/' \
@@ -54,7 +53,7 @@ export UNBOUND_STATS="$here/unbound/test.sh"
 # real QA test starts here
 PCP_PYTHON_PMNS=root $python "$pmda_script" > $tmp.root
 
-echo "== Testing unbound metric values" | tee -a $seq.full
+echo "== Testing unbound metric values" | tee -a $seq_full
 cat > $tmp.fetch <<End-of-File
 open pipe $python_path $pmda_script
 getdesc on
@@ -65,7 +64,7 @@ do
     echo fetch $metric >> $tmp.fetch
 done
 dbpmda -n $tmp.root -ie < $tmp.fetch 2>&1 | _filter
-test -f unbound.log && cat unbound.log >> $seq.full
+test -f unbound.log && cat unbound.log >> $seq_full
 
 status=0
 exit

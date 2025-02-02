@@ -15,7 +15,6 @@ _bcc_check_ArgString || _notrun "bcc is broken (ArgString bug) on this platform"
 
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
-$sudo rm -rf $tmp.* $seq.full
 
 _value_filter()
 {
@@ -51,11 +50,11 @@ for i in 0 1 2 3 4 5 6 7 8 9 ; do /bin/true ; done
 echo "=== report metric values ==="
 metrics=`pminfo bcc | LC_COLLATE=POSIX sort`
 pminfo -dfmtT $metrics 2>&1 | _value_filter \
-| tee -a $here/$seq.full
+| tee -a $seq_full
 
 echo "=== verify metric values ==="
 pminfo -v bcc 2>&1 \
-| tee -a $here/$seq.full
+| tee -a $seq_full
 
 _pmdabcc_remove
 

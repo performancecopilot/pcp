@@ -15,7 +15,6 @@ echo "QA output created by $seq"
 
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
-rm -f $seq.full
 
 # real QA test starts here
 
@@ -26,7 +25,7 @@ src/slow_af -D af 2>$tmp.err \
     -e 's/#16$/#last/' \
     -e 's/#17$/#last/'
 
-cat $tmp.err >>$seq.full
+cat $tmp.err >>$seq_full
 echo
 echo "Diagnostic output lines ..."
 sed <$tmp.err \

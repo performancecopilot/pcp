@@ -1571,6 +1571,9 @@ PCP_CALL extern int __pmResetNotifyThrottle(const char *, int, int);
 /* client attribute value check */
 PCP_CALL extern int __pmCheckAttribute(__pmAttrKey, const char *);
 
+/* dump status change flags from pmcd */
+PCP_CALL extern void __pmDumpFetchFlags(FILE *, int);
+
 #ifdef __cplusplus
 }
 #endif

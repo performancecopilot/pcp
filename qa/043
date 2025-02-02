@@ -29,22 +29,21 @@ _cleanup()
 }
 
 status=1
-rm -f $seq.full
 trap "_cleanup" 0 1 2 3 15
 
 # need to make sure the primary pmlogger allows all pmlc access
 # from the localhost (by ip addr)
 #
-admin/allow-pmlc-access >>$seq.full 2>&1
+admin/allow-pmlc-access >>$seq_full 2>&1
 
 # real QA test starts here
-_change_config pmcd on
-_change_config pmlogger on
+_change_config pmcd on || _exit 1
+_change_config pmlogger on || _exit 1
 _writable_primary_logger
-_service -v pmcd restart >>$here/$seq.full 2>&1
-_wait_for_pmcd
-_service -v pmlogger restart >>$here/$seq.full 2>&1
-_wait_for_pmlogger
+_service -v pmcd restart >>$seq_full 2>&1 || _exit 1
+_wait_for_pmcd || _exit 1
+_service -v pmlogger restart >>$seq_full 2>&1 || _exit 1
+_wait_for_pmlogger || _exit 1
 
 src/chknumval | _filter
 status=0

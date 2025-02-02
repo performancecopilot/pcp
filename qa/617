@@ -186,6 +186,6 @@ else
 fi \
 | _filter
 
-cat $tmp.log >>$here/$seq.full
+cat $tmp.log >>$seq_full
 
 exit

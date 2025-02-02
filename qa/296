@@ -87,9 +87,9 @@ sample	99	pipe	binary		$PCP_PMDAS_DIR/sample/pmdasample -d 99
 sample	109	pipe	binary		$PCP_PMDAS_DIR/sample/pmdasample -d 109
 End-of-File
 $sudo cp $tmp.out $PCP_PMCDCONF_PATH
-_service pcp restart 2>&1 | _filter_pcp_start
-_wait_for_pmcd
-_wait_for_pmlogger
+if ! _service pcp restart 2>&1; then _exit 1; fi | _filter_pcp_start
+_wait_for_pmcd || _exit 1
+_wait_for_pmlogger || _exit 1
 
 ps $PCP_PS_ALL_FLAGS >$tmp.out
 num=`grep pmdasample $tmp.out | wc -l | sed -e 's/ //g'`
@@ -111,10 +111,10 @@ echo "unconfigure them all"
 $sudo cp $tmp.minconf $PCP_PMCDCONF_PATH
 $sudo $signal -a -s HUP pmcd
 sleep 5
-_wait_for_pmcd
+_wait_for_pmcd || _exit 1
 
 ps $PCP_PS_ALL_FLAGS >$tmp.out
-cp $tmp.out $seq.full
+cp $tmp.out $seq_full
 num=`grep pmdasample $tmp.out | wc -l | sed -e 's/ //g'`
 if [ $num -ne 0 ]
 then

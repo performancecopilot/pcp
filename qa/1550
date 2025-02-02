@@ -1,0 +1,139 @@
+#!/bin/sh
+# PCP QA Test No. 1550
+# pmlock workout
+#
+# Copyright (c) 2025 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+    # end
+}
+
+# real QA test starts here
+echo "Usage cases ..."
+pmlock
+pmlock -v
+pmlock --verbose -ident="it is me"
+pmlock --verbose -ident="it is me" $tmp.one $tmp.two
+
+echo
+echo "Locking cases ..."
+echo "empty lock file ..."
+if pmlock -v $tmp.empty >$tmp.out 2>&1
+then
+    _filter <$tmp.out
+    if [ -s $tmp.empty ]
+    then
+	echo "oops, expect zero size file, got ..."
+	ls -l $tmp.empty
+    else
+	echo "OK"
+    fi
+else
+    _filter <$tmp.out
+    echo "oops, lock $tmp.empty failed ..."
+    ls -l $tmp.empty
+fi
+
+echo
+echo "lock file with ident ..."
+if pmlock -v -i "$$ QA $seq" $tmp.ident >$tmp.out 2>&1
+then
+    _filter <$tmp.out
+    if [ -s $tmp.ident ]
+    then
+	cat $tmp.ident | sed -e "s/$$/PID/"
+	echo "OK"
+    else
+	echo "oops, expect non-zero size file, got ..."
+	ls -l $tmp.ident
+    fi
+else
+    _filter <$tmp.out
+    echo "oops, lock $tmp.ident failed ..."
+    ls -l $tmp.ident
+fi
+
+echo
+echo "lock file with ident already exists cases ..."
+if pmlock -v $tmp.ident >$tmp.out 2>&1
+then
+    _filter <$tmp.out
+    echo "oops, lock $tmp.ident worked when it should not have ..."
+    ls -l $tmp.ident
+    cat $tmp.ident
+else
+    _filter <$tmp.out
+    if [ -s $tmp.ident ]
+    then
+	cat $tmp.ident | sed -e "s/$$/PID/"
+	echo "OK"
+    else
+	echo "oops, expect non-zero size file, got ..."
+	ls -l $tmp.ident
+    fi
+fi
+
+echo
+echo "empty lock file already exists cases ..."
+if pmlock -v -i "$$ QA $seq" $tmp.empty >$tmp.out 2>&1
+then
+    _filter <$tmp.out
+    echo "oops, lock $tmp.empty worked when it should not have ..."
+    ls -l $tmp.empty
+    cat $tmp.empty
+else
+    _filter <$tmp.out
+    if [ -s $tmp.empty ]
+    then
+	echo "oops, expect zero size file, got ..."
+	ls -l $tmp.empty
+	cat $tmp.empty | sed -e "s/$$/PID/"
+    else
+	echo "OK"
+    fi
+fi
+
+echo
+echo "can't write into dir for lock file ..."
+if pmlock -v -i "$$ QA $seq" /$seq.ident >$tmp.out 2>&1
+then
+    _filter <$tmp.out
+    echo "oops, lock /$seq.ident worked when it should not have ..."
+    ls -l /$seq.ident
+    $sudo cat /$seq.ident
+else
+    _filter <$tmp.out
+    echo "OK"
+fi
+
+
+# success, all done
+exit

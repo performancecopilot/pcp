@@ -30,7 +30,7 @@ _need_metric mem.physmem
 status=0	# success is the default!
 host=`hostname`
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
-$sudo rm -f core* $seq.core* $seq.full
+$sudo rm -f core* $seq.core*
 
 _filter()
 {
@@ -95,7 +95,7 @@ notnum4 = (sample.long.one - (sample.long.one + sample.long.ten + sample.long.mi
 
 End-of-File
 
-    cat $tmp.out $tmp.log | tee -a $seq.full | _filter
+    cat $tmp.out $tmp.log | tee -a $seq_full | _filter
 
     echo
     _check_core

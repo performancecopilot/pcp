@@ -62,7 +62,7 @@ _filter()
 	echo "Warning: no clue how to set max line length for fmt(1)"
 	cmd="fmt"
     fi
-    tee -a $seq.full \
+    tee -a $seq_full \
     | $PCP_AWK_PROG '
 BEGIN				{ cmd = "'"`echo $cmd`"'" }
 /^Archive files older than/	{ eatlines=1; longone="   "; print; next }
@@ -126,14 +126,12 @@ _cleanup()
 
 status=1	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
-$sudo rm -rf $tmp $tmp.*
 
 [ -f $NEEDREWRITE ] && $sudo mv $NEEDREWRITE $NEEDREWRITE.$seq
 
 # take explicit control of the umask
 umask 022
 
-rm -f $seq.full
 mkdir $tmp
 
 # try to track down QA failures in CI ...
@@ -147,25 +145,25 @@ rm -f $seq.out
 # sets $VERBOSE_CONFIG for THIS shell ... aargh
 #
 VERBOSE_CONFIG=true
-if is_chkconfig_on pmlogger >>$seq.full 2>&1
+if is_chkconfig_on pmlogger >>$seq_full 2>&1
 then
-    echo "is_chkconfig_on pmlogger => true" >>$seq.full
+    echo "is_chkconfig_on pmlogger => true" >>$seq_full
     ln $seq.out.enabled $seq.out
 else
-    echo "is_chkconfig_on pmlogger => false" >>$seq.full
+    echo "is_chkconfig_on pmlogger => false" >>$seq_full
     ln $seq.out.disabled $seq.out
 fi
 VERBOSE_CONFIG=false
 if [ "$PCPQA_SYSTEMD" = yes ]
 then
-    systemctl is-enabled pmlogger.service >>$seq.full 2>&1
-    if systemctl -q is-enabled pmlogger.service >>$seq.full 2>&1
+    systemctl is-enabled pmlogger.service >>$seq_full 2>&1
+    if systemctl -q is-enabled pmlogger.service >>$seq_full 2>&1
     then
-	echo "-q is-enabled pmlogger => true" >>$seq.full
+	echo "-q is-enabled pmlogger => true" >>$seq_full
     else
-	echo "-q is-enabled pmlogger => false" >>$seq.full
+	echo "-q is-enabled pmlogger => false" >>$seq_full
     fi
-    systemctl status pmlogger >>$seq.full
+    systemctl status pmlogger >>$seq_full
 fi
 
 # real QA test starts here
@@ -211,45 +209,53 @@ do
     echo >$tmp.control '$version=1.1
 LOCALHOSTNAME	n   n	'"$tmp"'	-c ./config'
 
-    cat $tmp.sed >>$seq.full
-    echo >>$seq.full
+    cat $tmp.sed >>$seq_full
+    echo >>$seq_full
 
     echo
     echo "=== [$verbose_text] regular show ==="
-    echo "=== [$verbose_text] regular show ===" >>$seq.full
+    echo "=== [$verbose_text] regular show ===" >>$seq_full
     _fixperms
+    # need to be a place the user $PCP_USER can cd to from pmlogger_daily
+    #
+    cd /var/tmp
     $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -D -o -x forever -c $tmp.control -k 4 $verbose -l $tmp.log"
+    cd $here
 
     $sudo cat $tmp.log | _filter
-    ls -lt $tmp >>$seq.full
-    ls $tmp | sed -f $tmp.sed | tee -a $seq.full | LC_COLLATE=POSIX sort
+    ls -lt $tmp >>$seq_full
+    ls $tmp | sed -f $tmp.sed | tee -a $seq_full | LC_COLLATE=POSIX sort
 
     echo
     echo "=== [$verbose_text] nothing to do but cull some more ==="
-    echo "=== [$verbose_text] nothing to do but cull some more ===" >>$seq.full
+    echo "=== [$verbose_text] nothing to do but cull some more ===" >>$seq_full
     for ext in 0 index meta
     do
 	$sudo mv $tmp/$yesterday.$ext $tmp/save.$ext
     done
     _fixperms
+    cd /var/tmp
     $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -D -o -x forever -c $tmp.control -k 3 $verbose -l $tmp.log"
+    cd $here
     $sudo cat $tmp.log | _filter
-    ls -lt $tmp >>$seq.full
-    ls $tmp | sed -f $tmp.sed | tee -a $seq.full | LC_COLLATE=POSIX sort
+    ls -lt $tmp >>$seq_full
+    ls $tmp | sed -f $tmp.sed | tee -a $seq_full | LC_COLLATE=POSIX sort
 
     echo
     echo "=== [$verbose_text] error, output already exists ==="
-    echo "=== [$verbose_text] error, output already exists ===" >>$seq.full
+    echo "=== [$verbose_text] error, output already exists ===" >>$seq_full
     for ext in 0 index meta
     do
 	$sudo cp archives/arch_a.$ext $tmp/$yesterday.17.18.$ext
 	$sudo mv $tmp/save.$ext $tmp/$yesterday.$ext
     done
     _fixperms
+    cd /var/tmp
     $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -D -o -x forever -c $tmp.control -k 3 $verbose -l $tmp.log"
+    cd $here
     $sudo cat $tmp.log | _filter
-    ls -lt $tmp >>$seq.full
-    ls $tmp | sed -f $tmp.sed | tee -a $seq.full | LC_COLLATE=POSIX sort
+    ls -lt $tmp >>$seq_full
+    ls $tmp | sed -f $tmp.sed | tee -a $seq_full | LC_COLLATE=POSIX sort
 
     verbose=-V
     verbose_text='verbose'

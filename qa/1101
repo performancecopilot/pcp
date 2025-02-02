@@ -42,14 +42,13 @@ else
 fi
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 cp json/ceph_data1.json $PCP_TMP_DIR/web/
 _run_valgrind src/json_test "$PCP_TMP_DIR/web/ceph_data1.json" > $tmp.out 2>&1
 cat $tmp.out | _filter
-cat $tmp.out >> $seq.full
+cat $tmp.out >> $seq_full
 
 # success, all done
 status=0

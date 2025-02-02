@@ -2,10 +2,10 @@ QA output created by 658
 
 === daily maintenance of PCP archives for host thishost ===
 
-pmlogger_daily: [TMP.control:3]
+pmlogger_daily: [TMP.control:4]
 Error: no pmlogger instance running for host "thishost"
 ... logging for host "thishost" unchanged
-pmlogger_daily: [TMP.control:3]
+pmlogger_daily: [TMP.control:4]
 Warning: skipping log rotation because we don't know which pmlogger to signal
 Input archives to be merged:
 	20011004.01.02
@@ -30,10 +30,10 @@ Archive files being compressed ...
 
 === daily maintenance of PCP archives for host otherhost ===
 
-pmlogger_daily: [TMP.control:4]
+pmlogger_daily: [TMP.control:5]
 Error: no pmlogger instance running for host "otherhost"
 ... logging for host "otherhost" unchanged
-pmlogger_daily: [TMP.control:4]
+pmlogger_daily: [TMP.control:5]
 Warning: skipping log rotation because we don't know which pmlogger to signal
 Input archives to be merged:
 	20011002.00.10-00

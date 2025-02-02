@@ -20,11 +20,11 @@ fi
 
 _cleanup()
 {
-    echo "_cleanup: ..." >>$seq.full
+    echo "_cleanup: ..." >>$seq_full
     cd $here
-    $sudo pmlogctl -f -c default destroy localhost >>$seq.full 2>&1
-    $sudo pmlogctl -af -c $seq destroy >>$seq.full 2>&1
-    $sudo pmlogctl -af -c $seq-bad destroy >>$seq.full 2>&1
+    $sudo pmlogctl -f -c default destroy localhost >>$seq_full 2>&1
+    $sudo pmlogctl -af -c $seq destroy >>$seq_full 2>&1
+    $sudo pmlogctl -af -c $seq-bad destroy >>$seq_full 2>&1
     for dir in $seq-localhost $seq-localhost-a $seq-localhost-b \
     	$seq-LOCALHOSTNAME $seq-`hostname` $seq-no.such.host.pcp.io localhost
     do
@@ -36,14 +36,13 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 localhost=`hostname`
 
 _filter()
 {
-    tee -a $seq.full \
+    tee -a $seq_full \
     | sed \
 	-e '/^# created by pmlogctl/s/ on .*/ on DATE/' \
 	-e "s;$tmp\.;TMP.;g" \
@@ -56,8 +55,10 @@ _filter()
 	-e 's/PID [0-9][0-9]*/PID <somepid>/' \
 	-e 's/TERM [0-9][0-9]*/TERM <somepid>/' \
 	-e '/^------.*\/lock/s/.* /------ ... ls output ... /' \
+	-e '/^-r--r-.*\/lock/s/.* /------ ... ls output ... /' \
+	-e "s/^$$ /PID /" \
     # end
-    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger( |$)' >>$seq.full
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger( |$)' >>$seq_full
 }
 
 # Build filter for any existing non-qa and non-primary pmlogger instances.
@@ -77,7 +78,7 @@ END	{ print "{ print }" }'
 #
 _filter_status()
 {
-    tee -a $seq.full \
+    tee -a $seq_full \
     | $PCP_AWK_PROG -f $tmp.awk \
     | sed >$tmp.tmp \
 	-e "s;$PCP_TMP_DIR/;PCP_TMP_DIR/;g" \
@@ -193,73 +194,73 @@ _setup
 # 	For this first group of tests there is ugly non-determinism from
 # 	mixed output on stdeout and stderr, and a filesystem directory order
 # 	dependency ... using a split-n-sort strategy, but to triage failures
-# 	you'll need to look at the $seq.full file to see the original output
+# 	you'll need to look at the $seq_full file to see the original output
 # 	order from pmlogctl
 #
-echo "=== not run as root" | tee -a $seq.full
-echo "- create -" | tee -a $seq.full
+echo "=== not run as root" | tee -a $seq_full
+echo "- create -" | tee -a $seq_full
 pmlogctl -N -c $seq -p $tmp.policy create local: 2>$tmp.err | _filter | LC_COLLATE=POSIX sort
 _filter <$tmp.err | LC_COLLATE=POSIX sort
 pmlogctl    -c $seq -p $tmp.policy create local: 2>&1 | _filter | LC_COLLATE=POSIX sort
-echo "- start (nothing to be done) -" | tee -a $seq.full
+echo "- start (nothing to be done) -" | tee -a $seq_full
 pmlogctl -N -c $seq start 2>$tmp.err | _filter | LC_COLLATE=POSIX sort
 _filter <$tmp.err | LC_COLLATE=POSIX sort
 pmlogctl    -c $seq start 2>&1 | _filter | LC_COLLATE=POSIX sort
 $sudo pmlogctl -c $seq stop
-echo "- start -" | tee -a $seq.full
+echo "- start -" | tee -a $seq_full
 pmlogctl -N -c $seq start 2>$tmp.err | _filter | LC_COLLATE=POSIX sort
 _filter <$tmp.err | LC_COLLATE=POSIX sort
 pmlogctl    -c $seq start 2>&1 | _filter | LC_COLLATE=POSIX sort
-echo "- stop (nothing to be done) -" | tee -a $seq.full
+echo "- stop (nothing to be done) -" | tee -a $seq_full
 pmlogctl -N -c $seq stop 2>$tmp.err | _filter | LC_COLLATE=POSIX sort
 _filter <$tmp.err | LC_COLLATE=POSIX sort
 pmlogctl    -c $seq stop 2>&1 | _filter | LC_COLLATE=POSIX sort
 $sudo pmlogctl -c $seq start
-echo "- stop -" | tee -a $seq.full
+echo "- stop -" | tee -a $seq_full
 pmlogctl -N -c $seq stop 2>$tmp.err | _filter | LC_COLLATE=POSIX sort
 _filter <$tmp.err | LC_COLLATE=POSIX sort
 pmlogctl    -c $seq stop 2>&1 | _filter | LC_COLLATE=POSIX sort
-echo "- restart -" | tee -a $seq.full
+echo "- restart -" | tee -a $seq_full
 pmlogctl -N -c $seq restart 2>$tmp.err | _filter | LC_COLLATE=POSIX sort
 _filter <$tmp.err | LC_COLLATE=POSIX sort
 pmlogctl    -c $seq restart 2>&1 | _filter | LC_COLLATE=POSIX sort
-echo "- destroy -" | tee -a $seq.full
+echo "- destroy -" | tee -a $seq_full
 pmlogctl -N -c $seq -p $tmp.policy destroy 2>$tmp.err | _filter | LC_COLLATE=POSIX sort
 _filter <$tmp.err | LC_COLLATE=POSIX sort
 pmlogctl    -c $seq -p $tmp.policy destroy 2>&1 | _filter | LC_COLLATE=POSIX sort
 
 echo
-echo "=== missing \"primary\" field in policy file" | tee -a $seq.full
+echo "=== missing \"primary\" field in policy file" | tee -a $seq_full
 $sudo pmlogctl -c $seq -p $tmp.policy.bad.1 create local: 2>&1 | _filter
 pmlogctl status | _filter_status
 
 echo
-echo "=== bad \"primary\" field in policy file" | tee -a $seq.full
+echo "=== bad \"primary\" field in policy file" | tee -a $seq_full
 $sudo pmlogctl -c $seq -p $tmp.policy.bad.2 create local: 2>&1 | _filter
 pmlogctl status | _filter_status
 
 echo
-echo "=== missing \"directory\" field in policy file" | tee -a $seq.full
+echo "=== missing \"directory\" field in policy file" | tee -a $seq_full
 $sudo pmlogctl -c $seq -p $tmp.policy.bad.3 create local: 2>&1 | _filter
 pmlogctl status | _filter_status
 
 echo
-echo "=== missing [control] section in policy file" | tee -a $seq.full
+echo "=== missing [control] section in policy file" | tee -a $seq_full
 $sudo pmlogctl -c $seq -p $tmp.policy.bad.4 create local: 2>&1 | _filter
 pmlogctl status | _filter_status
 
 echo
-echo "=== bad [ident] section in policy file" | tee -a $seq.full
+echo "=== bad [ident] section in policy file" | tee -a $seq_full
 $sudo pmlogctl -c $seq -p $tmp.policy.bad.5 create local: 2>&1 | _filter
 pmlogctl status | _filter_status
 
 echo
-echo "=== empty [control] section in policy file" | tee -a $seq.full
+echo "=== empty [control] section in policy file" | tee -a $seq_full
 $sudo pmlogctl -c $seq -p $tmp.policy.bad.6 create local: 2>&1 | _filter
 pmlogctl status | _filter_status
 
 echo
-echo "=== missing \"primary\" field in control file" | tee -a $seq.full
+echo "=== missing \"primary\" field in control file" | tee -a $seq_full
 cat <<End-of-File >$tmp.control
 # Installed by PCP QA test $seq on `date`
 \$version=1.1
@@ -273,7 +274,7 @@ _filter <$tmp.err
 $sudo rm -f $PCP_ETC_DIR/pcp/pmlogger/control.d/$seq-foo
 
 echo
-echo "=== missing \"directory\" field in control file" | tee -a $seq.full
+echo "=== missing \"directory\" field in control file" | tee -a $seq_full
 cat <<End-of-File >$tmp.control
 # Installed by PCP QA test $seq on `date`
 \$version=1.1
@@ -287,7 +288,7 @@ _filter <$tmp.err
 $sudo rm -f $PCP_ETC_DIR/pcp/pmlogger/control.d/$seq-foo
 
 echo
-echo "=== host in class more than once" | tee -a $seq.full
+echo "=== host in class more than once" | tee -a $seq_full
 cat <<End-of-File >$tmp.control
 # Installed by PCP QA test $seq on `date`
 \$version=1.1
@@ -304,7 +305,7 @@ _filter <$tmp.err
 $sudo rm -f $PCP_ETC_DIR/pcp/pmlogger/control.d/$seq-bad
 
 echo
-echo "=== host in multiple classes" | tee -a $seq.full
+echo "=== host in multiple classes" | tee -a $seq_full
 $sudo pmlogctl start localhost 2>&1 | _filter
 pmlogctl status localhost | _filter_status
 $sudo pmlogctl stop localhost 2>&1 | _filter
@@ -315,36 +316,34 @@ $sudo pmlogctl destroy localhost 2>&1 | _filter
 pmlogctl status localhost | _filter_status
 
 echo
-echo "=== create the same entry twice" | tee -a $seq.full
+echo "=== create the same entry twice" | tee -a $seq_full
 $sudo pmlogctl -V -p $tmp.policy -c $seq create localhost 2>&1 | _filter
 pmlogctl status localhost | _filter_status
 
 echo
-echo "=== policy file missing" | tee -a $seq.full
+echo "=== policy file missing" | tee -a $seq_full
 $sudo pmlogctl -c $seq create local: 2>&1 | _filter
 pmlogctl status localhost | _filter_status
 $sudo pmlogctl -c $seq destroy local: 2>&1 | _filter
 pmlogctl status localhost | _filter_status
 
 echo
-echo "=== no host/class specified" | tee -a $seq.full
+echo "=== no host/class specified" | tee -a $seq_full
 $sudo pmlogctl destroy 2>&1 | _filter
 $sudo pmlogctl create 2>&1 | _filter
 $sudo pmlogctl start 2>&1 | _filter
 
 echo
-echo "=== bad action" | tee -a $seq.full
+echo "=== bad action" | tee -a $seq_full
 pmlogctl fubar
 $sudo pmlogctl snafu
 
 echo
-echo "=== mutex" | tee -a $seq.full
-if ! $sudo $PCP_BINADM_DIR/pmlock $PCP_ETC_DIR/pcp/pmlogger/lock
+echo "=== mutex" | tee -a $seq_full
+if ! $sudo $PCP_BINADM_DIR/pmlock -i "$$ QA 1213" $PCP_ETC_DIR/pcp/pmlogger/lock
 then
     echo "Arrgh, failed to get lock $PCP_ETC_DIR/pcp/pmlogger/lock"
 fi
-echo $$ >$tmp.tmp
-$sudo cp $tmp.tmp $PCP_ETC_DIR/pcp/pmlogger/lock
 $sudo pmlogctl -V -a -c $seq stop 2>&1 | _filter
 pmlogctl status | _filter_status
 $sudo rm -f $PCP_ETC_DIR/pcp/pmlogger/lock

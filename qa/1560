@@ -20,7 +20,6 @@ fi
 . ./common.filter
 . ./common.check
 
-$sudo rm -rf $tmp $tmp.* $seq.full
 
 do_valgrind=false
 if [ "$1" = "--valgrind" ]
@@ -41,7 +40,7 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 _filter()
 {
     cat >$tmp.tmp
-    sed -n <$tmp.tmp >>$seq.full \
+    sed -n <$tmp.tmp >>$seq_full \
 	-e '/pmXmitPDU:/p' \
 	-e '/pmGetPDU:/p' \
 	-e '/^[0-9][0-9][0-9]:/p' \
@@ -76,8 +75,8 @@ export TZ=UTC
 for data in pdudata/*
 do
     head -1 $data | grep -q '^# PDU specifications' || continue
-    echo | tee -a $seq.full
-    echo "=== $data ===" | tee -a $seq.full
+    echo | tee -a $seq_full
+    echo "=== $data ===" | tee -a $seq_full
     if $do_valgrind
     then
 	_run_valgrind ...your test goes here...

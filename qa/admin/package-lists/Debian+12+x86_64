@@ -39,6 +39,7 @@ gfs2-utils
 git
 grep
 iproute2
+jq
 kubernetes-client
 libavahi-common-dev
 libbpf1
@@ -56,6 +57,7 @@ libgl1-mesa-dri
 libibmad-dev
 libibumad-dev
 libicu72
+libinih-dev
 libjson-perl
 liblist-moreutils-perl
 liblzma-dev
@@ -113,6 +115,7 @@ python3-elasticsearch
 python3-json-pointer
 python3-libvirt
 python3-lxml
+python3-minimal
 python3-openpyxl
 python3-pil
 python3-prometheus-client
@@ -133,6 +136,7 @@ sed
 smartmontools
 socat
 sysstat
+systemtap
 systemtap-sdt-dev
 time
 unbound

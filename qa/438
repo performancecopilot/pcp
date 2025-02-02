@@ -14,7 +14,6 @@ echo "QA output created by $seq"
 . ./common.check
 
 status=0	# success is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # older version ...
@@ -48,10 +47,10 @@ for i in badarchives/badlen-*.0
 do
     [ "$i" = "badarchives/badlen-0.0" ] && continue
     i=`echo $i | sed -e 's/\.0$//'`
-    echo | tee -a $seq.full
-    echo "--- $i ---" | tee -a $seq.full
+    echo | tee -a $seq_full
+    echo "--- $i ---" | tee -a $seq_full
     pmdumplog -Dlog $i 2>&1 \
-    | tee -a $seq.full \
+    | tee -a $seq_full \
     | _filter
 done
 

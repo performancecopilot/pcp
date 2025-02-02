@@ -17,6 +17,7 @@ then
     # check.callback more than likely
     #
     [ $# -ge 2 -a "$2" != "" ] && seq="$2"
+    [ -f $seq.full ] && mv $seq.full $seq.full.save
 fi
 
 $check || echo "QA output created by $seq"
@@ -26,6 +27,8 @@ $check || echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+[ -f $seq_full.save ] && mv $seq_full.save $seq_full
+
 _cleanup()
 {
     cd $here
@@ -33,8 +36,6 @@ _cleanup()
 }
 
 status=0	# success is the default!
-$sudo rm -rf $tmp $tmp.*
-$check || $sudo rm -f $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # Usage: _check_file <realpath> <unexpanded_path_or_prefix>
@@ -49,9 +50,9 @@ _check_file()
     #
     if [ -r "$1" ]
     then
-	grep -i QA "$1" >$tmp.out 2>>$here/$seq.full
+	grep -i QA "$1" >$tmp.out 2>>$seq_full
     else
-	$sudo grep -i QA "$1" >$tmp.out 2>>$here/$seq.full
+	$sudo grep -i QA "$1" >$tmp.out 2>>$seq_full
     fi
     # some of these are indeed expected and OK, so handle the exceptions
     # here ...

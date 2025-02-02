@@ -18,7 +18,7 @@ trap "rm -f $tmp.*; exit" 0 1 2 3 15
 # of the pmFetch groups is sensitive to endian-ness ... hence the
 # filter for a range of number of groups and computed costs.
 src/chkoptfetch \
-| tee $seq.full \
+| tee $seq_full \
 | $PCP_AWK_PROG '
 /re-arrangement/	{ if ($5 == "1," || $5 == "2," || $5 == "3,") $5="1-3,"
 			  if ($NF >= 50 && $NF <= 85) $NF = "[in range]"

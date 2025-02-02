@@ -61,7 +61,7 @@ then
     elif which dpkg >/dev/null 2>&1
     then
 	lib=`find /lib /usr/lib -name libc.so 2>/dev/null | sed -e '/plexmediaserver/d' -e 1q`
-	echo "lib=$lib" >>$seq.full
+	echo "lib=$lib" >>$seq_full
 	if [ -n "$lib" ]
 	then
 	    pkg=`dpkg -S $lib | sed -e 's/: .*//' -e 1q`
@@ -86,7 +86,7 @@ then
     fi
 
     # Use glibc version
-    echo "glibc a=$a b=$b c=$c" >>$seq.full
+    echo "glibc a=$a b=$b c=$c" >>$seq_full
     if [ "$a" -lt 2 ]
     then
 	# a.?.?, a < 2
@@ -184,7 +184,7 @@ status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-src/tztest >>$seq.full
+src/tztest >>$seq_full
 
 TZ=XYZ-11; export TZ
 src/tztest

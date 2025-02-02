@@ -20,7 +20,6 @@ _cleanup()
 }
 
 status=0	# success is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # pmdumplog instance domain timestamps
@@ -67,10 +66,10 @@ BEGIN	{ ns = 1; last = "" }
 	  ns++
 	  last = $1
 	}'
-    echo "--- tmp.sed ---" >>$seq.full
-    cat $tmp.sed >>$seq.full
-    echo "--- tmp.out ---" >>$seq.full
-    cat $tmp.out >>$seq.full
+    echo "--- tmp.sed ---" >>$seq_full
+    cat $tmp.sed >>$seq_full
+    echo "--- tmp.out ---" >>$seq_full
+    cat $tmp.out >>$seq_full
     sed -f $tmp.sed $tmp.out \
     | sed \
 	-e "s/ `hostname`/ LOCALHOST/g" \

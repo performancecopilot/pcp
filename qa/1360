@@ -32,7 +32,6 @@ _cleanup()
 
 status=1	# failure is the default!
 username=`id -u -n`
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # create a pmproxy configuration
@@ -61,8 +60,8 @@ export PCP_TMP_DIR=$tmp.pmproxy
 $_valgrind_clean_assert pmproxy -f -p $port -U $username -l- -c $tmp.conf >$tmp.valout 2>$tmp.valerr &
 pid=$!
 
-echo "valgrind pid: $pid" >>$seq.full
-echo "pmproxy port: $port" >>$seq.full
+echo "valgrind pid: $pid" >>$seq_full
+echo "pmproxy port: $port" >>$seq_full
 
 # valgrind takes awhile to fire up
 i=0
@@ -74,14 +73,14 @@ do
 done
 if $PCP_BINADM_DIR/telnet-probe -c localhost $port
 then
-    echo "Startup took $i secs" >>$seq.full
+    echo "Startup took $i secs" >>$seq_full
 else
     echo "Arrgh: valgrind failed start pmproxy and get port $port ready after 30 secs"
     exit
 fi
 
-date >>$seq.full
-echo "=== pmproxy load test ===" | tee -a $seq.full
+date >>$seq_full
+echo "=== pmproxy load test ===" | tee -a $seq_full
 ./src/pmproxy_load_test.python $port 100
 
 echo "=== check pmproxy is running ==="
@@ -96,10 +95,10 @@ fi
 pmsignal $pid
 pmsleep 3.5
 
-echo "=== valgrind stdout ===" | tee -a $seq.full
+echo "=== valgrind stdout ===" | tee -a $seq_full
 cat $tmp.valout | _filter_valgrind
 
-echo "=== valgrind stderr ===" | tee -a $seq.full
+echo "=== valgrind stderr ===" | tee -a $seq_full
 cat $tmp.valerr | _filter_pmproxy_log | grep -v "Cannot connect to key server" | _filter_port
 
 # success, all done

@@ -40,12 +40,14 @@ libcmocka-dev
 libdbd-mysql-perl
 libdbd-pg-perl
 libdevmapper-dev
+libdrm-dev
 libextutils-autoinstall-perl
 libfile-slurp-perl
 libgl1-mesa-dri
 libibmad-dev
 libibumad-dev
 libicu63
+libinih-dev
 libjson-perl
 liblist-moreutils-perl
 liblzma-dev

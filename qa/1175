@@ -16,7 +16,6 @@ _java_check
 
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
-$sudo rm -rf $tmp.* $seq.full
 
 cat <<EOF >$tmp.conf
 # Installed by PCP QA test $seq on `date`
@@ -44,7 +43,7 @@ _pmdabcc_wait_for_metric
 pmsleep 3
 
 echo "=== validate no metrics ==="
-pminfo -dfmtT bcc.usdt.jvm.threads.start 2>&1 | tee -a $here/$seq.full
+pminfo -dfmtT bcc.usdt.jvm.threads.start 2>&1 | tee -a $seq_full
 
 echo "=== start test program ==="
 cd java
@@ -57,7 +56,7 @@ cd ..
 pmsleep 3
 
 echo "=== validate ok metrics ==="
-pminfo -dfmtT bcc.usdt.jvm.threads.start 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bcc.usdt.jvm.threads.start 2>&1 | tee -a $seq_full \
 | _value_filter_nonzero
 
 $signal -s KILL $javapid > /dev/null 2>&1

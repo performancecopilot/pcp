@@ -23,7 +23,6 @@ PIPE_INDOM_CACHE=$PCP_VAR_DIR/config/pmda/128.0
 
 status=1	# failure is the default!
 username=`id -u -n`
-$sudo rm -rf $tmp $tmp.* $seq.full
 
 _cleanup()
 {
@@ -130,7 +129,7 @@ pmdapipe_install()
     echo
     echo "=== pipe agent installation ==="
     $sudo ./Install </dev/null >$tmp.out 2>&1
-    cat $tmp.out >>$here/$seq.full
+    cat $tmp.out >>$seq_full
     # Check pipe metrics have appeared ... X metrics and Y values
     _filter_pmda_install <$tmp.out \
     | sed \
@@ -160,10 +159,10 @@ sleep 2
 # and setup states.
 if pminfo -v pipe > $tmp.info 2> $tmp.err
 then
-    echo "--- pminfo stdout ---" >>$here/$seq.full
-    cat $tmp.info >>$here/$seq.full
-    echo "--- pminfo stderr ---" >>$here/$seq.full
-    cat $tmp.err >>$here/$seq.full
+    echo "--- pminfo stdout ---" >>$seq_full
+    cat $tmp.info >>$seq_full
+    echo "--- pminfo stderr ---" >>$seq_full
+    cat $tmp.err >>$seq_full
     cat $tmp.info $tmp.err | _filter_pipe
     _exercise_pipe
 else

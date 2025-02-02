@@ -13,7 +13,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-$sudo rm -rf $tmp $tmp.* $seq.full
 
 test -d /sys/module || _notrun No support for sysfs module metrics
 test -d /sys/module/zswap || _notrun No support for sysfs module zswap metric
@@ -37,16 +36,16 @@ _filter()
 _zswap_sysfs()
 {
     parameter="$1"
-    echo /sys/module/zswap/parameters/$parameter >> $seq.full
-    $sudo cat /sys/module/zswap/parameters/$parameter | tee -a $seq.full \
+    echo /sys/module/zswap/parameters/$parameter >> $seq_full
+    $sudo cat /sys/module/zswap/parameters/$parameter | tee -a $seq_full \
 	     | awk '{ print $NF }'
 }
 
 _zswap_pmprobe()
 {
     parameter="$1"
-    echo pmprobe -v sysfs.module.zswap.$parameter >> $seq.full
-    pmprobe -v sysfs.module.zswap.$parameter | tee -a $seq.full \
+    echo pmprobe -v sysfs.module.zswap.$parameter >> $seq_full
+    pmprobe -v sysfs.module.zswap.$parameter | tee -a $seq_full \
 	    | awk '{ print $NF }' | tr -d '"'
 }
 
@@ -54,18 +53,18 @@ _zswap_pmprobe()
 pcp_value=`_zswap_pmprobe max_pool_percent`
 sys_value=`_zswap_sysfs max_pool_percent`
 
-echo "max_pool_percent" >> $seq.full
-echo pcp_value=$pcp_value >> $seq.full
-echo sys_value=$sys_value >> $seq.full
+echo "max_pool_percent" >> $seq_full
+echo pcp_value=$pcp_value >> $seq_full
+echo sys_value=$sys_value >> $seq_full
 
 _within_tolerance "sysfs zswap pool value" $pcp_value $sys_value 0.05 -v
 status=$?
 
 pcp_value=`_zswap_pmprobe enabled`
 sys_value=`_zswap_sysfs enabled`
-echo "enabled" >> $seq.full
-echo pcp_value=$pcp_value >> $seq.full
-echo sys_value=$sys_value >> $seq.full
+echo "enabled" >> $seq_full
+echo pcp_value=$pcp_value >> $seq_full
+echo sys_value=$sys_value >> $seq_full
 
 if [ "$pcp_value" = "$sys_value" ]; then
     echo "sysfs zswap enabled value correct"

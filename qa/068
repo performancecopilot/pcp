@@ -26,34 +26,34 @@ _stop_auto_restart pmcd
 
 _cleanup()
 {
-    echo >>$seq.full
-    echo "--- cleanup ---" >>$seq.full
+    echo >>$seq_full
+    echo "--- cleanup ---" >>$seq_full
     if [ $_needclean ]
     then
 	pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
 	&& $sudo sh $tmp.cmd
-	echo >>$seq.full
-	echo "--- pcp stop ---" >>$here/$seq.full
-	_service pcp stop >>$here/$seq.full 2>&1
-	echo "--- pcp start ---" >>$here/$seq.full
-	_service pcp start 2>&1 | tee -a $here/$seq.full | _filter_pcp_start
+	echo >>$seq_full
+	echo "--- pcp stop ---" >>$seq_full
+	_service pcp stop >>$seq_full 2>&1
+	echo "--- pcp start ---" >>$seq_full
+	_service pcp start 2>&1 | tee -a $seq_full | _filter_pcp_start
 	_restore_auto_restart pmcd
-	echo >>$here/$seq.full
-	echo "--- _wait_for_pmcd ---" >>$here/$seq.full
-	_wait_for_pmcd | tee -a $here/$seq.full
-	echo >>$here/$seq.full
-	echo "--- _wait_for_pmlogger ---" >>$here/$seq.full
-	_wait_for_pmlogger | tee -a $here/$seq.full
+	echo >>$seq_full
+	echo "--- _wait_for_pmcd ---" >>$seq_full
+	_wait_for_pmcd | tee -a $seq_full
+	echo >>$seq_full
+	echo "--- _wait_for_pmlogger ---" >>$seq_full
+	_wait_for_pmlogger | tee -a $seq_full
     fi
     rm -f $tmp.*
     exit 0
 }
 
-rm -f $seq.full
 
 # real QA test starts here
-echo "--- pcp stop ---" >>$here/$seq.full
-_service pcp stop | tee -a $here/$seq.full | _filter_pcp_stop
-echo >>$here/$seq.full
-echo "--- run pmcdgone ---" >>$here/$seq.full
-$sudo src/pmcdgone | tee -a $here/$seq.full
+echo "--- pcp stop ---" >>$seq_full
+if ! _service pcp stop; then _exit 1; fi \
+| tee -a $seq_full | _filter_pcp_stop
+echo >>$seq_full
+echo "--- run pmcdgone ---" >>$seq_full
+$sudo src/pmcdgone | tee -a $seq_full

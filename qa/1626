@@ -19,17 +19,17 @@ which curl >/dev/null 2>&1 || _notrun needs curl
 _cleanup()
 {
     cd $here
-    echo "=== pmproxy.log ===" >>$seq.full
-    cat $PCP_LOG_DIR/pmproxy/pmproxy.log >>$seq.full
+    echo "=== pmproxy.log ===" >>$seq_full
+    cat $PCP_LOG_DIR/pmproxy/pmproxy.log >>$seq_full
     _restore_config $PCP_SYSCONF_DIR/pmproxy/pmproxy.options
     if $pmproxy_was_running
     then
-	echo "Restart pmproxy ..." >>$seq.full
-	_service pmproxy restart >>$seq.full 2>&1
+	echo "Restart pmproxy ..." >>$seq_full
+	_service pmproxy restart >>$seq_full 2>&1
 	_wait_for_pmproxy
     else
-	echo "Stopping pmproxy ..." >>$seq.full
-	_service pmproxy stop >>$seq.full 2>&1
+	echo "Stopping pmproxy ..." >>$seq_full
+	_service pmproxy stop >>$seq_full 2>&1
 	_wait_pmproxy_end
     fi
     $sudo rm -rf $tmp $tmp.*
@@ -50,12 +50,11 @@ _probe_val()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 pmproxy_was_running=false
 [ -f $PCP_RUN_DIR/pmproxy.pid ] && pmproxy_was_running=true
-echo "pmproxy_was_running=$pmproxy_was_running" >>$seq.full
+echo "pmproxy_was_running=$pmproxy_was_running" >>$seq_full
 
 # Need to make sure -A is not included in the pmproxy options
 #
@@ -70,10 +69,10 @@ $sudo cp $tmp.options $PCP_SYSCONF_DIR/pmproxy/pmproxy.options
 status=0
 
 # need a fresh pmproxy service
-_service pmproxy stop >/dev/null 2>&1
-_wait_pmproxy_end
-_service pmproxy start 2>&1 | _filter_pmproxy_start
-_wait_for_pmproxy
+if ! _service pmproxy stop >/dev/null 2>&1; then _exit 1; fi
+_wait_pmproxy_end || _exit 1
+if ! _service pmproxy start 2>&1; then _exit 1; fi | _filter_pmproxy_start
+_wait_for_pmproxy || _exit 1
 
 echo == wait for pmproxy server metrics
 _wait_for_pmproxy_metrics || exit
@@ -103,14 +102,14 @@ while true; do
     if [ $count -gt 20 ]
     then
 	echo FAILED sz=\"$sz\" after $count iterations
-	pminfo -f pmproxy >>$seq.full
-	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy( |$)' >>$seq.full
-	pminfo -f pmcd.agent.status >>$seq.full
+	pminfo -f pmproxy >>$seq_full
+	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy( |$)' >>$seq_full
+	pminfo -f pmcd.agent.status >>$seq_full
 	exit
     fi
     sleep 1
 done
-echo "namespace metrics found after $count iterations" >>$seq.full
+echo "namespace metrics found after $count iterations" >>$seq_full
 
 echo === pmproxy.map size metrics should now be nonzero
 for m in instance label metric context; do
@@ -137,24 +136,24 @@ while true; do
     if [ $count -gt 20 ]
     then
 	echo FAILED partial=\"$partial\" after $count iterations
-	pminfo -f pmproxy >>$seq.full
-	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy( |$)' >>$seq.full
-	pminfo -f pmcd.agent.status >>$seq.full
+	pminfo -f pmproxy >>$seq_full
+	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy( |$)' >>$seq_full
+	pminfo -f pmcd.agent.status >>$seq_full
 	exit
     fi
-    pmstore pmproxy.control.reload 1 >>$seq.full 2>&1
+    pmstore pmproxy.control.reload 1 >>$seq_full 2>&1
     sleep 1
 done
-echo "discovery metrics found after $count iterations" >>$seq.full
+echo "discovery metrics found after $count iterations" >>$seq_full
 
 echo === check for discovery partial metadata reads
 partial=`_probe_val pmproxy.discover.metadata.partial_reads`
 if [ "$partial" != 0 ]
 then
     echo FAIL \"$partial\" partial reads, should be zero
-    pminfo -f pmproxy >>$seq.full
-    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy( |$)' >>$seq.full
-    pminfo -f pmcd.agent.status >>$seq.full
+    pminfo -f pmproxy >>$seq_full
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy( |$)' >>$seq_full
+    pminfo -f pmcd.agent.status >>$seq_full
     exit
 fi
 
@@ -172,7 +171,7 @@ for n in `seq 1 100`; do
 done
 finish_maxrss=`_probe_val pmproxy.mem.maxrss`
 growth=`expr $finish_maxrss - $start_maxrss`
-[ $growth -gt 0 ] && echo start=$start_maxrss finish=$finish_maxrss, growth=$growth >>$seq.full
+[ $growth -gt 0 ] && echo start=$start_maxrss finish=$finish_maxrss, growth=$growth >>$seq_full
 _within_tolerance "maxrss growth after 100 /metrics calls" $finish_maxrss $start_maxrss 50% -v
 
 # sleep to avoid systemd StartLimitIntervalSec limits
