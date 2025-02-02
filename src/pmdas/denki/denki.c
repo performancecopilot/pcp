@@ -1105,7 +1105,7 @@ static void denki_rapl_sysfs_init(void)
 				else
 					pmsprintf(tmp,sizeof(tmp),"%s",event_names[pkg][dom]);
 
-				/* raplsysfs */
+				/* rapl.sysfs */
 				sts = pmdaCacheStore(*rapl_sysfs_indom, PMDA_CACHE_ADD, tmp, NULL);
 				if (sts < 0) {
 					pmNotifyErr(LOG_ERR, "pmdaCacheStore failed: %s", pmErrStr(sts));
@@ -1271,10 +1271,10 @@ denki_label(int ident, int type, pmLabelSet **lpp, pmdaExt *pmda)
 			serial = pmInDom_serial((pmInDom)ident);
 			switch (serial) {
 				case RAPL_SYSFS_INDOM:
-					pmdaAddLabels(lpp, "{\"indom_name\":\"raplsysfs\"}");
+					pmdaAddLabels(lpp, "{\"indom_name\":\"rapl sysfs\"}");
 					break;
 				case RAPL_MSR_INDOM:
-					pmdaAddLabels(lpp, "{\"indom_name\":\"raplmsr\"}");
+					pmdaAddLabels(lpp, "{\"indom_name\":\"rapl msr\"}");
 					break;
 				case BAT_ENERGYNOW_INDOM:
 					pmdaAddLabels(lpp, "{\"units\":\"watt hours\"}");
