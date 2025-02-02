@@ -15,13 +15,17 @@
  */
 
 denki {
-    raplsysfs	DENKI:0:0
-    raplmsr	DENKI:1:0
+    rapl
     bat
 }
 
+denki.rapl {
+    sysfs		DENKI:0:0
+    msr			DENKI:0:1
+}
+
 denki.bat {
-    energy_now	DENKI:2:0
-    power_now	DENKI:2:1
-    capacity	DENKI:2:2
+    energy_now	DENKI:1:0
+    power_now	DENKI:1:1
+    capacity	DENKI:1:2
 }

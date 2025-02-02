@@ -2,7 +2,7 @@
  * Denki (電気, Japanese for 'electricity'), PMDA for electricity related 
  * metrics
  *
- * Copyright (c) 2012-2014,2017,2021-2024 Red Hat.
+ * Copyright (c) 2012-2014,2017,2021-2025 Red Hat.
  * Copyright (c) 1995,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -842,8 +842,8 @@ static int read_batteries(void) {
 /*
  * Denki PMDA metrics
  *
- * denki.raplsysfs			- energy counter from RAPL, read from sysfs
- * denki.raplmsr			- energy counter from RAPL, read from msr registers
+ * denki.rapl.sysfs			- energy counter from RAPL, read from sysfs
+ * denki.rapl.msr			- energy counter from RAPL, read from msr registers
  * denki.bat.energy_now		- <battery>/energy_now raw reading, 
  *				  			current battery charge in Wh
  * denki.bat.power_now		- <battery>/power_now raw reading
@@ -858,49 +858,49 @@ static int read_batteries(void) {
  */
 
 static pmdaIndom indomtab[] = {
-#define RAPL_SYSFS_INDOM	0	/* serial number for RAPL sysfs instance domain */
+#define RAPL_SYSFS_INDOM	0	/* serial number for rapl.sysfs instance domain */
 	{ RAPL_SYSFS_INDOM, 0, NULL },
-#define RAPL_MSR_INDOM		1	/* serial number for RAPL msr instance domain */
+#define RAPL_MSR_INDOM		1	/* serial number for rapl.msr instance domain */
 	{ RAPL_MSR_INDOM, 0, NULL },
-#define ENERGYNOW_INDOM		2	/* serial number for energy_now instance domain */
-	{ ENERGYNOW_INDOM, 0, NULL },
-#define POWERNOW_INDOM		3	/* serial number for power_now instance domain */
-	{ POWERNOW_INDOM, 0, NULL },
-#define CAPACITY_INDOM		4	/* serial number for capacity instance domain */
-	{ CAPACITY_INDOM, 0, NULL }
+#define BAT_ENERGYNOW_INDOM		2	/* serial number for bat.energy_now instance domain */
+	{ BAT_ENERGYNOW_INDOM, 0, NULL },
+#define BAT_POWERNOW_INDOM		3	/* serial number for bat.power_now instance domain */
+	{ BAT_POWERNOW_INDOM, 0, NULL },
+#define BAT_CAPACITY_INDOM		4	/* serial number for bat.capacity instance domain */
+	{ BAT_CAPACITY_INDOM, 0, NULL }
 };
 
 /* this is merely a convenience */
 static pmInDom	*rapl_sysfs_indom = &indomtab[RAPL_SYSFS_INDOM].it_indom;
 static pmInDom	*rapl_msr_indom = &indomtab[RAPL_MSR_INDOM].it_indom;
-static pmInDom	*energynow_indom = &indomtab[ENERGYNOW_INDOM].it_indom;
-static pmInDom	*powernow_indom = &indomtab[POWERNOW_INDOM].it_indom;
-static pmInDom	*capacity_indom = &indomtab[CAPACITY_INDOM].it_indom;
+static pmInDom	*bat_energynow_indom = &indomtab[BAT_ENERGYNOW_INDOM].it_indom;
+static pmInDom	*bat_powernow_indom = &indomtab[BAT_POWERNOW_INDOM].it_indom;
+static pmInDom	*bat_capacity_indom = &indomtab[BAT_CAPACITY_INDOM].it_indom;
 
 /*
  * All metrics supported in this PMDA - one table entry for each.
  */
 
 static pmdaMetric metrictab[] = {
-/* rapl sysfs */
+/* rapl.sysfs */
 	{ NULL,
 	{ PMDA_PMID(0,0), PM_TYPE_U64, RAPL_SYSFS_INDOM, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0,0,0,0,0,0) }, },
-/* rapl msr */
+/* rapl.msr */
 	{ NULL,
-	{ PMDA_PMID(1,0), PM_TYPE_U64, RAPL_MSR_INDOM, PM_SEM_COUNTER,
+	{ PMDA_PMID(0,1), PM_TYPE_U64, RAPL_MSR_INDOM, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0,0,0,0,0,0) }, },
 /* bat.energy_now */
 	{ NULL,
-	{ PMDA_PMID(2,0), PM_TYPE_DOUBLE, ENERGYNOW_INDOM, PM_SEM_INSTANT,
+	{ PMDA_PMID(1,0), PM_TYPE_DOUBLE, BAT_ENERGYNOW_INDOM, PM_SEM_INSTANT,
 	PMDA_PMUNITS(0,0,0,0,0,0) }, },
 /* bat.power_now */
 	{ NULL,
-	{ PMDA_PMID(2,1), PM_TYPE_DOUBLE, POWERNOW_INDOM, PM_SEM_INSTANT,
+	{ PMDA_PMID(1,1), PM_TYPE_DOUBLE, BAT_POWERNOW_INDOM, PM_SEM_INSTANT,
 	PMDA_PMUNITS(0,0,0,0,0,0) }, },
 /* bat.capacity */
 	{ NULL,
-	{ PMDA_PMID(2,2), PM_TYPE_32, CAPACITY_INDOM, PM_SEM_INSTANT,
+	{ PMDA_PMID(1,2), PM_TYPE_32, BAT_CAPACITY_INDOM, PM_SEM_INSTANT,
 	PMDA_PMUNITS(0,0,0,0,0,0) }, }
 };
 
@@ -972,7 +972,7 @@ denki_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
 	if (cluster == 0) {
 		switch (item) {
-			case 0:				/* rapl sysfs */
+			case 0:				/* rapl.sysfs */
 				if ((sts = pmdaCacheLookup(*rapl_sysfs_indom, inst, NULL, NULL)) != PMDA_CACHE_ACTIVE) {
 					if (sts < 0)
 						pmNotifyErr(LOG_ERR, "pmdaCacheLookup failed: inst=%d: %s", inst, pmErrStr(sts));
@@ -980,13 +980,7 @@ denki_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 				}
 				atom->ull = lookup_rapl_dom(inst)/1000000;
 				break;
-			default:
-				return PM_ERR_PMID;
-		}
-	}
-	else if (cluster == 1) {
-		switch (item) {
-			case 0:				/* rapl msr */
+			case 1:				/* rapl.msr */
 				if ((sts = pmdaCacheLookup(*rapl_msr_indom, inst, NULL, NULL)) != PMDA_CACHE_ACTIVE) {
 					if (sts < 0)
 						pmNotifyErr(LOG_ERR, "pmdaCacheLookup failed: inst=%d: %s", inst, pmErrStr(sts));
@@ -1013,10 +1007,10 @@ denki_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 				return PM_ERR_PMID;
 		}
 	}
-	else if (cluster == 2) {
+	else if (cluster == 1) {
 		switch (item) {
 			case 0:				/* denki.bat.energy_now */
-				if ((sts = pmdaCacheLookup(*energynow_indom, inst, NULL, NULL)) != PMDA_CACHE_ACTIVE) {
+				if ((sts = pmdaCacheLookup(*bat_energynow_indom, inst, NULL, NULL)) != PMDA_CACHE_ACTIVE) {
 					if (sts < 0)
 						pmNotifyErr(LOG_ERR, "pmdaCacheLookup failed: inst=%d: %s", inst, pmErrStr(sts));
 					return PM_ERR_INST;
@@ -1024,7 +1018,7 @@ denki_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 				atom->d = energy_now[inst]/energy_convert_factor[inst];
 				break;
 			case 1:				/* denki.bat.power_now */
-				if ((sts = pmdaCacheLookup(*powernow_indom, inst, NULL, NULL)) != PMDA_CACHE_ACTIVE) {
+				if ((sts = pmdaCacheLookup(*bat_powernow_indom, inst, NULL, NULL)) != PMDA_CACHE_ACTIVE) {
 					if (sts < 0)
 						pmNotifyErr(LOG_ERR, "pmdaCacheLookup failed: inst=%d: %s", inst, pmErrStr(sts));
 					return PM_ERR_INST;
@@ -1032,7 +1026,7 @@ denki_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 				atom->d = power_now[inst]/1000000.0;
 				break;
 			case 2:				/* denki.bat.capacity */
-				if ((sts = pmdaCacheLookup(*capacity_indom, inst, NULL, NULL)) != PMDA_CACHE_ACTIVE) {
+				if ((sts = pmdaCacheLookup(*bat_capacity_indom, inst, NULL, NULL)) != PMDA_CACHE_ACTIVE) {
 					if (sts < 0)
 						pmNotifyErr(LOG_ERR, "pmdaCacheLookup failed: inst=%d: %s", inst, pmErrStr(sts));
 					return PM_ERR_INST;
@@ -1244,21 +1238,21 @@ denki_bat_init(void)
 		pmsprintf(tmp,sizeof(tmp),"battery-%d",battery);
 
 		/* bat.energy_now */
-		sts = pmdaCacheStore(*energynow_indom, PMDA_CACHE_ADD, tmp, NULL);
+		sts = pmdaCacheStore(*bat_energynow_indom, PMDA_CACHE_ADD, tmp, NULL);
 		if (sts < 0) {
 			pmNotifyErr(LOG_ERR, "pmdaCacheStore failed: %s", pmErrStr(sts));
 			return;
 		}
 
 		/* bat.power_now */
-		sts = pmdaCacheStore(*powernow_indom, PMDA_CACHE_ADD, tmp, NULL);
+		sts = pmdaCacheStore(*bat_powernow_indom, PMDA_CACHE_ADD, tmp, NULL);
 		if (sts < 0) {
 			pmNotifyErr(LOG_ERR, "pmdaCacheStore failed: %s", pmErrStr(sts));
 			return;
 		}
 
 		/* bat.capacity */
-		sts = pmdaCacheStore(*capacity_indom, PMDA_CACHE_ADD, tmp, NULL);
+		sts = pmdaCacheStore(*bat_capacity_indom, PMDA_CACHE_ADD, tmp, NULL);
 		if (sts < 0) {
 			pmNotifyErr(LOG_ERR, "pmdaCacheStore failed: %s", pmErrStr(sts));
 			return;
@@ -1282,13 +1276,13 @@ denki_label(int ident, int type, pmLabelSet **lpp, pmdaExt *pmda)
 				case RAPL_MSR_INDOM:
 					pmdaAddLabels(lpp, "{\"indom_name\":\"raplmsr\"}");
 					break;
-				case ENERGYNOW_INDOM:
+				case BAT_ENERGYNOW_INDOM:
 					pmdaAddLabels(lpp, "{\"units\":\"watt hours\"}");
 					break;
-				case POWERNOW_INDOM:
+				case BAT_POWERNOW_INDOM:
 					pmdaAddLabels(lpp, "{\"units\":\"watt\"}");
 					break;
-				case CAPACITY_INDOM:
+				case BAT_CAPACITY_INDOM:
 					pmdaAddLabels(lpp, "{\"units\":\"percent\"}");
 					break;
 			}
@@ -1310,26 +1304,26 @@ __PMDA_INIT_CALL
 denki_init(pmdaInterface *dp)
 {
 	if (isDSO) {
-	int sep = pmPathSeparator();
-
-	if (strcmp(rootpath, "/") == 0) {
-		/*
-		 * no -r ROOTPATH on the command line ... check for
-		 * DENKI_SYSPATH in the environment
-		 */
-		char	*envpath = getenv("DENKI_SYSPATH");
-		if (envpath)
-			pmsprintf(rootpath, sizeof(rootpath), "%s", envpath);
-	}
-	pmsprintf(mypath, sizeof(mypath), "%s%c" "denki" "%c" "help",
-		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-	pmdaDSO(dp, PMDA_INTERFACE_7, "denki DSO", mypath);
+		int sep = pmPathSeparator();
+	
+		if (strcmp(rootpath, "/") == 0) {
+			/*
+			 * no -r ROOTPATH on the command line ... check for
+			 * DENKI_SYSPATH in the environment
+			 */
+			char	*envpath = getenv("DENKI_SYSPATH");
+			if (envpath)
+				pmsprintf(rootpath, sizeof(rootpath), "%s", envpath);
+		}
+		pmsprintf(mypath, sizeof(mypath), "%s%c" "denki" "%c" "help",
+			pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
+		pmdaDSO(dp, PMDA_INTERFACE_7, "denki DSO", mypath);
 	} else {
-	pmSetProcessIdentity(username);
+		pmSetProcessIdentity(username);
 	}
 
 	if (dp->status != 0)
-	return;
+		return;
 
 	dp->version.any.fetch = denki_fetch;
 	dp->version.any.instance = denki_instance;

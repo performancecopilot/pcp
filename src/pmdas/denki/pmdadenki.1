@@ -1,31 +1,32 @@
-.\" 
-.\" Copyright (c) 2021-2024 Red Hat.
-.\" 
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2021-2025 Red Hat.
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
-.TH "PMDADENKI" "1" "PCP" "Performance Co-Pilot" ""
-.SH "NAME"
+.\"
+.TH PMDADENKI 1 "PCP" "Performance Co-Pilot"
+.SH NAME
 \f3pmdadenki\f1 \- metrics related to the systems electrical consumption
-.SH "SYNOPSIS"
+.SH SYNOPSIS
 \f3$PCP_PMDAS_DIR/denki/pmdadenki\f1
 [\f3\-d\f1 \f2domain\f1]
 [\f3\-l\f1 \f2logfile\f1]
-.SH "DESCRIPTION"
+.SH DESCRIPTION
 .B pmdadenki
 is a Performance Metrics Domain Agent (PMDA) which extracts
 electricity related performance metrics.
-.PP 
+.PP
 Currently, metrics from RAPL (on Intel cpus) and battery
 charge values are available, if supported by the hardware.
-.PP 
+.PP
 .B \-l
 Location of the log file.  By default, a log file named
 .I denki.log
@@ -42,28 +43,28 @@ The
 .B denki
 PMDA is installed and available by default on Linux.
 If you want to undo the installation, do the following as root:
-.PP 
+.PP
 .ft CR
-.nf 
+.nf
 .in +0.5i
 # cd $PCP_PMDAS_DIR/denki
 # ./Remove
 .in
-.fi 
+.fi
 .ft 1
-.PP 
+.PP
 If you want to establish access to the names, help text and values for the
 denki metrics once more, after removal, do the following as root:
-.PP 
+.PP
 .ft CR
-.nf 
+.nf
 .in +0.5i
 # cd $PCP_PMDAS_DIR/denki
 # ./Install
 .in
-.fi 
+.fi
 .ft 1
-.PP 
+.PP
 .B pmdadenki
 is launched by
 .BR pmcd (1)
@@ -117,5 +118,5 @@ as described in
 and
 .BR pcp.env (5).
 
-.\" control lines for scripts/man\-spell
+.\" control lines for scripts/man-spell
 .\" +ok+ pmdadenki denki RAPL cpus

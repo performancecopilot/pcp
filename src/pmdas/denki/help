@@ -37,7 +37,7 @@
 
 @ 156.4 set of all batteries reporting capacity
 
-@ denki.raplsysfs cummulative energy consumption of RAPL components
+@ denki.rapl.sysfs cummulative energy consumption of RAPL components
 Cummulative electrical power consumption of x86 hardware components
 in units of Joules.
 
@@ -47,7 +47,7 @@ Joules / second, or Watts.
 The RAPL modules offered by the system are available as metric
 instances.
 
-@ denki.raplmsr cummulative energy consumption of RAPL components
+@ denki.rapl.msr cummulative energy consumption of RAPL components
 Cummulative electrical power consumption of x86 hardware components
 in units of Joules.
 
