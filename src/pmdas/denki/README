@@ -59,9 +59,9 @@ Troubleshooting
 Usage scenarios/examples
 ========================
 
- -  denki.raplsysfs:
+ -  denki.rapl.sysfs:
 
-    If RAPL via /sys is available, denki.raplsysfs can give an estimation 
+    If RAPL via /sys is available, denki.rapl.sysfs can give an estimation 
 	of the current power consumption.  On laptops, typically 4 RAPL
     domains are available:
 
@@ -79,15 +79,15 @@ Usage scenarios/examples
     with these.  For these, i.e. domains 0-package-0 and
     1-package-0 will become available as instances, i.e.
 
-	denki.raplsysfs
+	denki.rapl.sysfs
    	 	inst [0 or "0-package-0"] value 169013
    	 	inst [1 or "0-dram"] value 12294
    	 	inst [2 or "1-package-1"] value 135669
    		inst [3 or "1-dram"] value 9600
 
- -  denki.raplmsr:
+ -  denki.rapl.msr:
 
-    If RAPL via MSR cpu registers is available, denki.raplmsr can 
+    If RAPL via MSR cpu registers is available, denki.rapl.msr can 
 	give an estimation of the current power consumption.  On 
 	laptops, typically 5 RAPL MSR domains are available:
 
