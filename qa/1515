@@ -67,7 +67,7 @@ _prepare_pmda denki
 pmdadenki_install
 
 pmda=$PCP_PMDAS_DIR/denki/pmda_denki,denki_init
-_run_valgrind pminfo -L -K clear -K add,156,$pmda -v denki | pmdadenki_filter
+_run_valgrind pminfo -L -K clear -K add,156,$pmda -v denki 2>&1 | pmdadenki_filter
 
 # success, all done
 exit
