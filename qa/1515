@@ -30,9 +30,10 @@ pmdadenki_filter()
 {
     sed \
 	-e "/^$/d" \
+	-e "/pminfo([0-9][0-9]*) Info: /d" \
 	-e "s,$PCP_PMDAS_DIR,PCP_PMDAS_DIR,g" \
 	-e "/denki.bat.*: No value(s) available/d" \
-	-e "/denki.rapl: No value(s) available/d" \
+	-e "/denki.rapl.*: No value(s) available/d" \
 	-e "/RAPL detected, with [0-9][0-9]* cpu-/d" \
 	-e "/battery we should provide metrics for/d" \
 	-e "/core [0-9][0-9]* (package [0-9][0-9]*)/d" \
