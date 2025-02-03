@@ -7,16 +7,7 @@ Terminate PMDA if already installed ...
 Updating the PMCD control file, and notifying PMCD ...
 Check denki metrics have appeared ... X metrics and Y values
 === std out ===
-denki.rapl.sysfs: No value(s) available
-denki.rapl.msr: No value(s) available
 === std err ===
-[Mon Feb  3 12:01:34] pminfo(1974250) Info: Configured to use / as rootpath.
-[Mon Feb  3 12:01:34] pminfo(1974250) Info: Unsupported processor model -1
-[Mon Feb  3 12:01:34] pminfo(1974250) Info: Found extra MSRs: dram 0, pp0 0, pp1 0, psys 0
-[Mon Feb  3 12:01:34] pminfo(1974250) Info: Looking for RAPL packages.
-[Mon Feb  3 12:01:34] pminfo(1974250) Info: Detected 8 cpu-cores and 0 rapl-packages.
-[Mon Feb  3 12:01:34] pminfo(1974250) Info: RAPL via /sys-filesystem not found.
-[Mon Feb  3 12:01:34] pminfo(1974250) Info: CPU model -1 not supported for RAPL MSR.
 === filtered valgrind report ===
 Memcheck, a memory error detector
 Command: pminfo -L -K clear -K add,156,PCP_PMDAS_DIR/denki/pmda_denki,denki_init -v denki
