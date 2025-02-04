@@ -238,6 +238,7 @@ storepdu
 storepmcd
 store_and_fetch
 stripmark
+strnfoo
 sum16
 tabort
 template

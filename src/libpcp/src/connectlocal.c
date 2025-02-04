@@ -88,8 +88,7 @@ build_dsotab(void)
 	return PM_ERR_GENERIC;
     if ((config = pmGetOptionalConfig("PCP_PMCDCONF_PATH")) == NULL)
 	return PM_ERR_GENERIC;
-    strncpy(configFileName, config, sizeof(configFileName));
-    configFileName[sizeof(configFileName) - 1] = '\0';
+    pmstrncpy(configFileName, sizeof(configFileName), config);
     if (pmDebugOptions.context) {
 	fprintf(stderr, "build_dsotab: parsing %s\n", configFileName);
     }

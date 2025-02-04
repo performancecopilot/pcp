@@ -187,7 +187,9 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 src/tztest >>$seq_full
 
 TZ=XYZ-11; export TZ
-src/tztest
+src/tztest -Dcontext 2>>$seq_full >$tmp.out
+sed -n -e '/^pmSetDebug(/p' $tmp.out >>$seq_full
+sed -e '/^pmSetDebug(/d' $tmp.out
 
 status=0
 exit

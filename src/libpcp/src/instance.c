@@ -304,7 +304,7 @@ inresult_to_lists(pmInResult *result, int **instlist, char ***namelist)
 	int len = result->namelist[i] ? strlen(result->namelist[i]) : 0;
 	ilist[i] = result->instlist[i];
 	/* name could be NULL or zero length string, see above */
-	strncpy(p, len ? result->namelist[i] : "\0", len+1);
+	pmstrncpy(p, len+1, len ? result->namelist[i] : "\0");
 	nlist[i] = p;
 	p += len + 1;
     }

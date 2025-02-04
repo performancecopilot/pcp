@@ -347,8 +347,9 @@ logreopen(const char *progname, const char *logname, FILE *oldstream,
 		char	*p;
 		p = strerror_r(save_error, errmsg, sizeof(errmsg));
 		if (p != errmsg)
-		    strncpy(errmsg, p, sizeof(errmsg));
-		errmsg[sizeof(errmsg)-1] = '\0';
+		    pmstrncpy(errmsg, sizeof(errmsg), p);
+		else
+		    errmsg[sizeof(errmsg)-1] = '\0';
 	    }
 #else
 	    /*
@@ -2075,8 +2076,7 @@ __pmSetClientId(const char *id)
 		    osstrerror_r(errmsg, sizeof(errmsg)));
 	}
 	else {
-	    strncpy(host, servInfoName, sizeof(host));
-	    host[sizeof(host) - 1] = '\0';
+	    pmstrncpy(host, sizeof(host), servInfoName);
 	    free(servInfoName);
 	}
 	vblen = strlen(host) + strlen(id) + 2;
@@ -2218,8 +2218,7 @@ __pmMakePath(const char *dir, mode_t mode)
     if (sts < 0 && oserror() != ENOENT)
 	return -1;
 
-    strncpy(path, dir, sizeof(path));
-    path[sizeof(path)-1] = '\0';
+    pmstrncpy(path, sizeof(path), dir);
 
     for (p = path+1; *p != '\0'; p++) {
 	if (*p == pmPathSeparator()) {
@@ -2278,8 +2277,7 @@ strndup(const char *s, size_t n)
     char	*buf;
 
     if ((buf = malloc(n + 1)) != NULL) {
-	strncpy(buf, s, n);
-	buf[n] = '\0';
+	pmstrncpy(buf, n, s);
     }
     return buf;
 }

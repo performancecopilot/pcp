@@ -121,8 +121,7 @@ __pmDecodeInstanceReq(__pmPDU *pdubuf, pmInDom *indom, int *inst, char **name)
 	}
 	if ((np = (char *)malloc(namelen+1)) == NULL)
 	    return -oserror();
-	strncpy(np, pp->name, namelen);
-	np[namelen] = '\0';
+	pmstrncpy(np, namelen+1, pp->name);
 	*name = np;
     }
     else if (namelen < 0) {

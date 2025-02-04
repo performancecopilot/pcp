@@ -219,8 +219,7 @@ strerror_x(int code, char *buf, int buflen)
     char	*p;
     p = strerror_r(code, buf, buflen);
     if (p != buf) {
-	strncpy(buf, p, buflen);
-	buf[buflen-1] = '\0';
+	pmstrncpy(buf, buflen, p);
     }
 #else
     /*
@@ -243,8 +242,7 @@ pmErrStr_r(int code, char *buf, int buflen)
 #endif
 
     if (code == 0) {
-	strncpy(buf, "No error", buflen);
-	buf[buflen-1] = '\0';
+	pmstrncpy(buf, buflen, "No error");
 	return buf;
     }
 
@@ -328,16 +326,14 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
     if (code > -PM_ERR_BASE || code < -PM_ERR_NYI) {
 	const char	*bp;
 	if ((bp = wsastrerror(-code)) != NULL) {
-	    strncpy(buf, bp, buflen);
-	    buf[buflen-1] = '\0';
+	    pmstrncpy(buf, buflen, bp);
 	}
 	else {
 	    /* No strerror_r in MinGW, so need to lock */
 	    char	*tbp;
 	    PM_LOCK(__pmLock_extcall);
 	    tbp = strerror(-code);		/* THREADSAFE */
-	    strncpy(buf, tbp, buflen);
-	    buf[buflen-1] = '\0';
+	    pmstrncpy(buf, buflen, tbp);
 	    PM_UNLOCK(__pmLock_extcall);
 	}
 
@@ -348,8 +344,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
 
     for (i = 0; errtab[i].err; i++) {
 	if (errtab[i].err == code) {
-	    strncpy(buf, errtab[i].errmess, buflen);
-	    buf[buflen-1] = '\0';
+	    pmstrncpy(buf, buflen, errtab[i].errmess);
 	    return buf;
 	}
     }

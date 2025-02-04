@@ -1047,6 +1047,7 @@ int
 setenv(const char *name, const char *value, int overwrite)
 {
     char	*ebuf;
+    size_t	buf_size;
 
     if (getenv(name) != NULL) {		/* THREADSAFE */
 	/* already in the environment */
@@ -1054,12 +1055,14 @@ setenv(const char *name, const char *value, int overwrite)
 	    return(0);
     }
 
-    if ((ebuf = (char *)malloc(strlen(name) + strlen(value) + 2)) == NULL)
+    /* +1 for = and +1 for \0 */
+    buf_size = strlen(name) + strlen(value) + 2;
+    if ((ebuf = (char *)malloc(buf_size)) == NULL)
 	return -1;
 
-    strncpy(ebuf, name, strlen(name)+1);
-    strncat(ebuf, "=", 1);
-    strncat(ebuf, value, strlen(value));
+    pmstrncpy(ebuf, buf_size, name);
+    pmstrncat(ebuf, buf_size, "=");
+    pmstrncat(ebuf, buf_size, value);
 
     return _putenv(ebuf);		/* THREADSAFE */
 }
@@ -1071,14 +1074,17 @@ int
 unsetenv(const char *name)
 {
     char	*ebuf;
+    size_t	buf_size;
     int		sts;
 
-    if ((ebuf = (char *)malloc(strlen(name) + 2)) == NULL)
+    /* +1 for = and +1 for \0 */
+    buf_size = strlen(name) + strlen(value) + 2;
+    if ((ebuf = (char *)malloc(buf_size)) == NULL)
 	return -1;
 
     /* strange but true */
-    strncpy(ebuf, name, strlen(name)+1);
-    strncat(ebuf, "=", 1);
+    pmstrncpy(ebuf, buf_size, name);
+    pmstrncat(ebuf, buf_size, "=");
     sts = _putenv(ebuf);		/* THREADSAFE */
     free(ebuf);
     return sts;

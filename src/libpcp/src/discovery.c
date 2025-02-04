@@ -201,8 +201,7 @@ __pmDiscoverServicesWithOptions(const char *service,
 		char	*p;
 		p = strerror_r(sts, errmsg, sizeof(errmsg));
 		if (p != errmsg)
-		    strncpy(errmsg, p, sizeof(errmsg));
-		errmsg[sizeof(errmsg)-1] = '\0';
+		    pmstrncpy(errmsg, sizeof(errmsg), p);
 	    }
 #else
 	    /*

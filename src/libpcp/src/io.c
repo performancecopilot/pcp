@@ -361,7 +361,7 @@ __pmCompressedFileIndex(char *fname, size_t flen)
 	     *
 	     * Update fname with the compressed file name
 	     */
-	    strncpy(fname, tmpname, flen);
+	    pmstrncpy(fname, flen, tmpname);
 	    return i;
 	}
     }

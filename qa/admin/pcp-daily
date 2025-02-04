@@ -857,7 +857,7 @@ do
 	    # 365 fails parsing a current /proc/net/netstat
 	    # 374 fails because down-rev pmlc can't talk to current pmlogger
 	    #
-	    [ X"$what" = Xall ] && check_what='-X 003 -X 066 -X 116 -X 257 -X 322 -X 365 -X 374'
+	    [ X"$what" = Xall ] && check_what="$check_what -X 003 -X 066 -X 116 -X 257 -X 322 -X 365 -X 374"
 	    ;;
 
 	vm20)

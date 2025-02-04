@@ -12,11 +12,12 @@ create_header(void *mapping, int tocs)
     mmv_disk_header_t *header = (mmv_disk_header_t *)mapping;
 
     memset(header, 0, sizeof(mmv_disk_header_t));
-    strncpy(header->magic, "MMV", 4);
+    memcpy(header->magic, "MMV", 4);
     header->version = MMV_VERSION;
     header->cluster = 123;
     header->process = getpid();
     header->tocs = tocs;
+    header->g1 = header->g2 = 1;
     return header;
 }
 
@@ -40,7 +41,7 @@ create_metric(void *mapping, size_t offset)
     pmUnits dimension = MMV_UNITS(0,0,1,0,0,PM_COUNT_ONE);
 
     memset(metric, 0, sizeof(mmv_disk_metric_t));
-    strcpy(metric->name, "ondisk.counter");
+    strcpy(metric->name, "counter");
     metric->item = 1;
     metric->type = MMV_TYPE_U32;
     metric->indom = PM_INDOM_NULL;

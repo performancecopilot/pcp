@@ -278,7 +278,7 @@ pmGetHostName(int handle, char *buf, int buflen)
 		if (resp->vset[0]->numval > 0 &&
 		    (resp->vset[0]->valfmt == PM_VAL_DPTR || resp->vset[0]->valfmt == PM_VAL_SPTR)) {
 		    /* pmcd.hostname present */
-		    strncpy(buf, resp->vset[0]->vlist[0].value.pval->vbuf, buflen);
+		    pmstrncpy(buf, buflen, resp->vset[0]->vlist[0].value.pval->vbuf);
 		    __pmFreeResult(resp);
 		    break;
 		}
@@ -297,7 +297,7 @@ pmGetHostName(int handle, char *buf, int buflen)
 		(strncmp(name, "localhost", 9) == 0)) /* localhost[46] */
 		gethostname(buf, buflen);
 	    else
-		strncpy(buf, name, buflen-1);
+		pmstrncpy(buf, buflen, name);
 	    break;
 
 	case PM_CONTEXT_LOCAL:
@@ -305,11 +305,10 @@ pmGetHostName(int handle, char *buf, int buflen)
 	    break;
 
 	case PM_CONTEXT_ARCHIVE:
-	    strncpy(buf, ctxp->c_archctl->ac_log->label.hostname, buflen-1);
+	    pmstrncpy(buf, buflen, ctxp->c_archctl->ac_log->label.hostname);
 	    break;
 	}
 
-	buf[buflen-1] = '\0';
 	PM_UNLOCK(ctxp->c_lock);
     }
 
@@ -1647,8 +1646,7 @@ pmDupContext(void)
 	__pmUnparseHostSpec(oldcon->c_pmcd->pc_hosts,
 			oldcon->c_pmcd->pc_nhosts, hostspec, sizeof(hostspec));
     else if (old_c_type == PM_CONTEXT_ARCHIVE) {
-	strncpy(archivename, oldcon->c_archctl->ac_log->name, MAXPATHLEN-1);
-	archivename[MAXPATHLEN-1] = '\0';
+	pmstrncpy(archivename, MAXPATHLEN, oldcon->c_archctl->ac_log->name);
     }
 
     /*
@@ -2054,7 +2052,7 @@ __pmIsLogCtlLock(void *lock)
 		    pmNoMem("__pmIsLogCtlLock: malloc", reslen, PM_FATAL_ERR);
 		    /* NOTREACHED */
 		}
-		strncpy(result, number, numlen + 1);
+		pmstrncpy(result, reslen, number);
 	    }
 	    else {
 		reslen += 1 + numlen + 1;
@@ -2063,8 +2061,8 @@ __pmIsLogCtlLock(void *lock)
 		    /* NOTREACHED */
 		}
 		result = result_new;
-		strncat(result, ",", 2);
-		strncat(result, number, numlen + 1);
+		pmstrncat(result, reslen, ",");
+		pmstrncat(result, reslen, number);
 	    }
 	}
     }

@@ -10,7 +10,7 @@ These notes should be read in conjunction with the README notes.
     as per the DNS configured on bozo (other VMs need to be able to find
     you, and my local DHCP is not hooked into the DNS)
 (e) if the install was done with a user different to the one you're going
-    to run QA with, you need to set up the QA
+    to run QA with, you need to set up the QA user
 (f) make sure the user you're going to run QA with can sudo without
     a password
     For the QA Farm
@@ -25,8 +25,9 @@ These notes should be read in conjunction with the README notes.
       should not prompt for a password and return uid=0 and gid=0
 (g) git clone the PCP tree
     For the QA Farm
+      $ cd
       $ sudo apt install git
-      $ mkdir src
+      $ [ -d src ] || mkdir src
       $ cd src
       $ git clone bozo:git-mirror/pcp.git
       $ cd pcp
@@ -34,6 +35,9 @@ These notes should be read in conjunction with the README notes.
     in qa/README (pmcd, pmlogger control, pmproxy, etc) are open
     Use the scripts/smack-firewall script, or ...
     In the simplest case with ufw(1) in play, the following should suffice:
+      # see if it is Active
+      $ sudo ufw status
+      # and if so, ...
       $ sudo ufw allow 44321/tcp comment pmcd
       $ sudo ufw allow 44322/tcp comment pmproxy
       $ sudo ufw allow 44323/tcp comment pmwebapi

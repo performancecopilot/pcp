@@ -177,7 +177,8 @@ __pmDecodeText(__pmPDU *pdubuf, int *ident, char **buffer)
     }
     if ((bp = (char *)malloc(buflen+1)) == NULL)
 	return -oserror();
-    strncpy(bp, pp->buffer, buflen);
+    /* Note: src points into PDU and is not null-byte terminated */
+    memcpy(bp, pp->buffer, buflen);
     bp[buflen] = '\0';
     *buffer = bp;
     return 0;

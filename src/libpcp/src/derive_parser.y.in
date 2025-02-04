@@ -3317,8 +3317,7 @@ __dmchildren(__pmContext *ctxp, int derive_locked, const char *name, char ***off
 		    pmNoMem("__dmchildren: name", len+1, PM_FATAL_ERR);
 		    /*NOTREACHED*/
 		}
-		strncpy(children[num_chn-1], &cp->mlist[i].name[start], len);
-		children[num_chn-1][len] = '\0';
+		pmstrncpy(children[num_chn-1], len+1, &cp->mlist[i].name[start]);
 		need += len+1;
 		if (pmDebugOptions.derive && pmDebugOptions.appl2) {
 		    fprintf(stderr, "__dmchildren: offspring[%d] %s", num_chn-1, children[num_chn-1]);

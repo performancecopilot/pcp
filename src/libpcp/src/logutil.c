@@ -654,8 +654,7 @@ __pmLogFindOpen(__pmArchCtl *acp, const char *name)
      * Find file name component
      * basename(3) may modify the buffer passed to it. Use a copy.
      */
-    strncpy(filename, name, MAXPATHLEN);
-    filename[MAXPATHLEN-1] = '\0';
+    pmstrncpy(filename, MAXPATHLEN, name);
     if ((base = strdup(basename(filename))) == NULL) {		/* THREADSAFE */
 	sts = -oserror();
 	free(tbuf);
@@ -669,8 +668,7 @@ __pmLogFindOpen(__pmArchCtl *acp, const char *name)
      * __pmCompressedFileExists() may modify the buffer passed to it.
      * Use a copy.
      */
-    strncpy(filename, name, MAXPATHLEN);
-    filename[MAXPATHLEN-1] = '\0';
+    pmstrncpy(filename, MAXPATHLEN, name);
     if (access(name, R_OK) == 0 ||
 	__pmCompressedFileIndex(filename, sizeof(filename)) >= 0) {
 	/*

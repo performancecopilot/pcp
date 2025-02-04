@@ -338,7 +338,7 @@ static char *
 hostStrndup(const char *name, int namelen)
 {
     char *s = malloc(namelen + 1);
-    strncpy(s, name, namelen);
+    memcpy(s, name, namelen);
     s[namelen] = '\0';
     return s;
 }
@@ -454,7 +454,7 @@ parseHostSpec(
 		break;
 	    else if (s == start)
 		continue;
-	    hsp = hostAdd(hsp, &nhosts, start, s - start);
+	    hsp = hostAdd(hsp, &nhosts, start, s - start + 1);
 	    if (hsp == NULL) {
 		sts = -ENOMEM;
 		goto fail;
@@ -536,7 +536,7 @@ parseSocketPath(
     }
     else {
 	path = start;
-	len = s - start;
+	len = s - start + 1;
 	if (len >= MAXPATHLEN)
 	    len = MAXPATHLEN - 1;
     }
@@ -547,10 +547,7 @@ parseSocketPath(
      */
     if (*path != pmPathSeparator()) {
 	absolute_path[0] = pmPathSeparator();
-	strncpy(absolute_path + 1, path, len);
-	if (len < sizeof(absolute_path)-1)
-	    absolute_path[++len] = '\0';
-	absolute_path[sizeof(absolute_path)-1] = '\0';
+	pmstrncpy(absolute_path + 1, sizeof(absolute_path) - 1, path);
 	path = absolute_path;
     }
 
@@ -855,8 +852,18 @@ parseAttributeSpec(
 	    if ((*s == '\0' || *s == '/') && s == start)
 		break;
 	    len = v ? (v - start - 1) : (s - start);
-	    buflen = (len < sizeof(buffer)-1) ? len : sizeof(buffer)-1;
-	    strncpy(buffer, start, buflen);
+	    if (len > sizeof(buffer) - 1) {
+		buflen = sizeof(buffer) - 1;
+		if (pmDebugOptions.context) {
+		    fprintf(stderr, "parseAttributeSpec(spec=%s, ...): attribute \"%*.*s\" too long, truncated to \"%*.*s\"\n",
+			spec, len, len, start,
+			buflen, buflen, start);
+		}
+	    }
+	    else {
+		buflen = len;
+	    }
+	    memcpy(buffer, start, buflen);
 	    buffer[buflen] = '\0';
 	    attr = __pmLookupAttrKey(buffer, buflen+1);
 	    if (attr != PCP_ATTR_NONE) {
@@ -869,6 +876,12 @@ parseAttributeSpec(
 		if ((sts = __pmHashAdd(attr, (void *)val, attributes)) < 0) {
 		    free(val);
 		    goto fail;
+		}
+	    }
+	    else {
+		if (pmDebugOptions.context) {
+		    fprintf(stderr, "parseAttributeSpec(spec=%s, ...): \"%s\" is not a valid attribute name\n",
+			spec, buffer);
 		}
 	    }
 	    v = NULL;

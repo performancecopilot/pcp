@@ -73,7 +73,7 @@ create_header(void *mapping, int tocs)
     mmv_disk_header_t *header = (mmv_disk_header_t *)mapping;
 
     memset(mapping, 0, sizeof(*header));
-    strncpy(header->magic, "MMV", 4);
+    memcpy(header->magic, "MMV", 4);
     header->version = MMV_VERSION;
     header->tocs = tocs;
     return header;
@@ -104,7 +104,7 @@ corrupt_header(void)
     length = sizeof(unsigned long long);
     mapping = create_mapping(section, test++, length);
     header = (mmv_disk_header_t *)mapping;
-    strncpy(header->magic, "MMV", 4);
+    memcpy(header->magic, "MMV", 4);
     header->version = MMV_VERSION;
     /* all other fields beyond EOF */
     finish_mapping(mapping, length);
@@ -115,7 +115,7 @@ corrupt_header(void)
     /* Case #2 - bad magic */
     mapping = create_mapping(section, test++, length);
     header = create_header(mapping, 2);
-    strncpy(header->magic, "MMv", 4);
+    memcpy(header->magic, "MMv", 4);
     finish_mapping(mapping, length);
 
     /* Case #3 - bad version */

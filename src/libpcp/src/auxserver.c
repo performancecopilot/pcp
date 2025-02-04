@@ -1206,8 +1206,7 @@ __pm_sd_notify(int clear, const char *notify_socket, const char *msg)
 	}
 
 	su.sun_family = AF_UNIX;
-	strncpy(su.sun_path, notify_socket, sizeof(su.sun_path)-1);
-	su.sun_path[sizeof(su.sun_path)-1] = '\0';
+	pmstrncpy(su.sun_path, sizeof(su.sun_path), notify_socket);
 
 	if (notify_socket[0] == '@')
 	    su.sun_path[0] = '\0';

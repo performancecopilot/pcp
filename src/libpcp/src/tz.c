@@ -153,8 +153,7 @@ __pmSquashTZ(char *tzbuffer)
 	}
     }
     else {
-	strncpy(tzbuffer, tzn, PM_TZ_MAXLEN);
-	tzbuffer[PM_TZ_MAXLEN] = '\0';
+	pmstrncpy(tzbuffer, PM_TZ_MAXLEN, tzn);
     }
     if (pmDebugOptions.context)
 	fprintf(stderr, " -> %s\n", tzbuffer);
@@ -518,9 +517,8 @@ __pmTimezone(void)
 	    char *end = tb;
 
 	    while ((zeros = strstr(ptz, ":00")) != NULL) {
-		strncpy(end, ptz, zeros-ptz);
+		pmstrncpy(end, zeros-ptz+1, ptz);
 		end += zeros-ptz;
-		*end = '\0';
 		ptz = zeros+3;
 	    }
 
@@ -548,8 +546,7 @@ __pmTimezone(void)
 char *
 __pmTimezone_r(char *buf, int buflen)
 {
-    strncpy(buf, __pmTimezone(), (size_t)buflen);
-    buf[buflen-1] = '\0';
+    pmstrncpy(buf, (size_t)buflen, __pmTimezone());
     return buf;
 }
 

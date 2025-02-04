@@ -179,6 +179,7 @@ char *__pmNativePath(char *path)
      */
     char	*p;
     char	*new_path;
+    size_t	path_len;
     char	*start;
     static char *pcp_dir;
     static int	init = 1;
@@ -208,16 +209,17 @@ char *__pmNativePath(char *path)
     else
 	start = path;
 
-    new_path = (char *)malloc(strlen(pcp_dir) + strlen(start) + 1);
+    path_len = strlen(pcp_dir) + strlen(start) + 1;
+    new_path = (char *)malloc(path_len);
     if (new_path == NULL) {
-	pmNoMem("__pmNativePath", strlen(pcp_dir) + strlen(start) + 1, PM_FATAL_ERR);
+	pmNoMem("__pmNativePath", path_len, PM_FATAL_ERR);
 	/* NOTREACHED */
     }
-    strncpy(new_path, pcp_dir, strlen(pcp_dir) + 1);
+    pmstrncpy(new_path, path_len, pcp_dir);
     for (p = new_path; *p; p++) {
 	if (*p == '\\') *p = '/';
     }
-    strncat(new_path, start, strlen(start) + 1);
+    pmstrncat(new_path, path_len, start);
     if (pmDebugOptions.config && pmDebugOptions.desperate)
 	fprintf(stderr, "__pmNativePath: \"%s\" start @ [%d] -> \"%s\"\n", path, (int)(start - path), new_path);
 

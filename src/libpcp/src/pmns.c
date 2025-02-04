@@ -1151,8 +1151,7 @@ AddPMNSNode(__pmnsNode *root, int pmid, const char *name)
 		free(np);
 		return -oserror();
 	    }
-	    strncpy(np->name, name_p, nch);
-	    np->name[nch] = '\0';
+	    pmstrncpy(np->name, nch+1, name_p);
 
 	    /* fixup some links */
 	    np->first = np->hash = np->next = NULL;
@@ -1509,8 +1508,7 @@ load(const char *filename, int dupok, int use_cpp)
 
     if ((f = getfname(filename)) == NULL)
 	return PM_ERR_GENERIC;
-    strncpy(fname, f, sizeof(fname));
-    fname[sizeof(fname)-1] = '\0';
+    pmstrncpy(fname, sizeof(fname), f);
  
     if (pmDebugOptions.pmns)
 	fprintf(stderr, "load(name=%s, dupok=%d, use_cpp=%d) lic case=%d fname=%s\n",

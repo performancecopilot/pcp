@@ -205,13 +205,13 @@ __pmSendLogStatus(int fd, __pmLoggerStatus *status)
 	pp->size = status->size;
 	__htonll((char *)&pp->size);
 	memset(pp->hostname, 0, sizeof(pp->hostname));
-	strncpy(pp->hostname, status->pmcd.hostname, PM_LOG_MAXHOSTLEN-1);
+	pmstrncpy(pp->hostname, PM_LOG_MAXHOSTLEN, status->pmcd.hostname);
 	memset(pp->fqdn, 0, sizeof(pp->fqdn));
-	strncpy(pp->fqdn, status->pmcd.fqdn, PM_LOG_MAXHOSTLEN-1);
+	pmstrncpy(pp->fqdn, PM_LOG_MAXHOSTLEN, status->pmcd.fqdn);
 	memset(pp->pmcd_tz, 0, sizeof(pp->pmcd_tz));
-	strncpy(pp->pmcd_tz, status->pmcd.timezone, PM_TZ_MAXLEN-1);
+	pmstrncpy(pp->pmcd_tz, PM_TZ_MAXLEN, status->pmcd.timezone);
 	memset(pp->pmlogger_tz, 0, sizeof(pp->pmlogger_tz));
-	strncpy(pp->pmlogger_tz, status->pmlogger.timezone, PM_TZ_MAXLEN-1);
+	pmstrncpy(pp->pmlogger_tz, PM_TZ_MAXLEN, status->pmlogger.timezone);
 
 	sts = __pmXmitPDU(fd, (__pmPDU *)pp);
 	__pmUnpinPDUBuf(pp);

@@ -29,21 +29,62 @@ cc ... \-lpcp
 is safe string copying routine with semantics similar to
 .BR strncpy (3).
 .PP
-The main differences are that
-.I src
-must be null-byte terminated,
-.I destlen
-is the length of the destination buffer (\c
-.IR dest )
-not the length of the source string (\c
-.IR src ),
+The main differences between
+.B pmstrncpy
 and
+.BR strncpy (3)
+are:
+.PD 0
+.IP \(bu 2n
+.I src
+must be null-byte terminated for
+.B pmstrncpy
+.IP \(bu 2n
 .B pmstrncpy
 ensures that
 .I dest
-is null-byte terminated, even when \fIstrlen\fP(\fIsrc\fP) is larger
-than
-.IR destlen .
+is null-byte terminated, even when
+.I src
+is larger than
+.IR destlen ;
+this may result in
+truncated copying of
+.I src
+.IP \(bu 2n
+when
+.I src
+is shorter than
+.I destlen
+.B pmstrncpy
+does not null-byte fill the remainder of
+.I dest
+after
+.I src
+has been copied and null-byte terminated
+.IP \(bu 2n
+the length
+argument has the same semantics for
+.B pmstrncpy
+and
+.BR pmstrncat (3),
+unlike
+.BR strncpy (3)
+and
+.BR strncat (3).
+.IP \(bu 2n
+the return value from
+.B pmstrncpy
+is useful
+.IP \(bu 2n
+the order of the arguments for
+.B pmstrncpy
+has been
+.I deliberatelly
+changed from the order of the arguments for
+.BR strncpy (3)
+to avoid accidental misuse that a compiler can easily
+detect
+.PD
 .PP
 On success,
 .B pmstrncpy
@@ -52,7 +93,23 @@ returns 0, else -1 indicates that
 is too big and the result been truncated to ensure
 .I dest
 has no been overrun.
+.SH HISTORY
+.BR strncpy (3)
+first appeared in Edition 7 AT&T Unix around 1979.
+It was specifically crafted to copy file names
+from component names from on-disk directory
+entries that were of a fixed maximum size and may have zero, one or more
+trailing null-bytes
+.PP
+The subsequent attempts to use
+.BR strnpy (3)
+for more generally string copying operations has been
+fraught with abuse and security issues;
+.BR pmstrncpy
+is an attempt to address these problems.
 .SH SEE ALSO
-.BR pmstrncat (3)
+.BR PMAPI (3),
+.BR pmstrncat (3),
+.BR strncat (3)
 and
 .BR strncpy (3).

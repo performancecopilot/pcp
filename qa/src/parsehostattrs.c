@@ -2,6 +2,20 @@
 #include <pcp/pmapi.h>
 #include "libpcp.h"
 
+static pmLongOptions longopts[] = {
+    PMAPI_OPTIONS_HEADER("Options"),
+    PMOPT_DEBUG,	/* -D */
+    PMOPT_HELP,		/* -? */
+    PMAPI_OPTIONS_END
+};
+
+static pmOptions opts = {
+    .short_options = "D:",
+    .long_options = longopts,
+    .short_usage = "[...] spec",
+};
+
+
 static __pmHashWalkState
 print_attribute(const __pmHashNode *tp, void *cp)
 {
@@ -24,15 +38,22 @@ main(int argc, char **argv)
     __pmHashCtl		attrs;
     __pmHostSpec	*hosts;
     int			count, sts, i, j;
+    int			c;
 
-    if (argc != 2) {
-	fprintf(stderr, "Usage: parsehostattrs spec\n");
-	exit(1);
+    pmSetProgname(argv[0]);
+
+    while ((c = pmGetOptions(argc, argv, &opts)) != EOF) {
+	;
+    }
+
+    if (opts.errors || opts.optind != argc-1) {
+	pmUsageMessage(&opts);
+	exit(EXIT_FAILURE);
     }
 
     __pmHashInit(&attrs);
-    printf("pmParseHostAttrsSpec(\"%s\", ...)\n", argv[1]);
-    sts = __pmParseHostAttrsSpec(argv[1], &hosts, &count, &attrs, &msg);
+    printf("pmParseHostAttrsSpec(\"%s\", ...)\n", argv[opts.optind]);
+    sts = __pmParseHostAttrsSpec(argv[opts.optind], &hosts, &count, &attrs, &msg);
     if (sts < 0) {
 	if (sts == PM_ERR_GENERIC)
 	    printf("pmParseHostAttrsSpec error:\n%s\n", msg);
@@ -57,7 +78,7 @@ main(int argc, char **argv)
 	printf("pmUnparseHostAttrsSpec: %s\n", pmErrStr(sts));
 	exit(1);
     }
-    printf("pmUnparseHostAttrsSpec(\"%s\") -> \"%s\"\n", argv[1], buffer);
+    printf("pmUnparseHostAttrsSpec(\"%s\") -> \"%s\"\n", argv[opts.optind], buffer);
 
     __pmFreeHostAttrsSpec(hosts, count, &attrs);
     __pmHashClear(&attrs);

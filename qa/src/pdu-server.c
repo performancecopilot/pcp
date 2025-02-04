@@ -420,17 +420,12 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		break;
 	    }
 	    if (pmDebugOptions.appl0) {
-		char	buf[32] = { 0 };
-
 		fprintf(stderr, "+ PDU_AUTH: attr=%d length=%d", attr, length);
-		if (length < sizeof(buf)-2) {
-                    strncpy(buf, buffer, length);
-		    fprintf(stderr, " value=\"%s\"\n", buf);
+		if (length <= 30) {
+		    fprintf(stderr, " value=\"%*.*s\"\n", length-1, length-1, buffer);
 		} else {
-                    strncpy(buf, buffer, sizeof(buf)-2);
-		    fprintf(stderr, " value=\"%12.12s ... ", buf);
-                    strncpy(buf, &buffer[length-18], sizeof(buf)-2);
-		    fprintf(stderr, "%s\"\n", buf);
+		    fprintf(stderr, " value=\"%12.12s ... ", buffer);
+		    fprintf(stderr, "%*.*s\"\n", length-18-1, length-18-1, &buffer[length-18]);
 		}
 	    }
 	    if ((e = __pmSendAuth(fd, mypid, attr, buffer, length)) < 0) {
