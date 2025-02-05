@@ -409,18 +409,23 @@ samelabelset(const pmLabelSet *set1, const pmLabelSet *set2)
 	if (n2 == set2->nlabels)
 	    return 0; /* not the same */
     }
-		
+
     /* All of the labels in set1 are in set2 with the same values. */
     return 1; /* the same */
 }
 
 /*
  * Discard any label sets within idp which are also within idp_next.
+ * Instance labels are a special case which cannot be reduced due to
+ * the potentially dynamic nature of the associated instance domain.
  */
 static void
 discard_dup_labelsets(__pmLogLabelSet *idp, const __pmLogLabelSet *idp_next)
 {
     int			i, j;
+
+    if (idp->type & PM_LABEL_INSTANCES)
+	return;
 
     for (i = 0; i < idp->nsets; ++i) {
 	for (j = 0; j < idp_next->nsets; ++j) {
