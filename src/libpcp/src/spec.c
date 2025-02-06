@@ -556,7 +556,7 @@ parseSocketPath(
 	}
 	absolute_path[0] = pmPathSeparator();
 	memcpy(absolute_path+1, path, len);
-	absolute_path[len+1] = '\0';
+	absolute_path[++len] = '\0';
 	path = absolute_path;
     }
 
