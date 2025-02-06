@@ -179,31 +179,44 @@ Note: timezone set to local timezone of pmcd from archive
     The external instance names are the instance number, space, then
     a random "executable" name.
 [16] @ TIMESTAMP indom 29.12 numinst 14
-[17] metric 29.0.157 (sample.proc.exec)
+[17] metric label @ TIMESTAMP type=instances ident=121634828 nsets=14
+[18] metric 29.0.157 (sample.proc.exec)
     Data Type: string  InDom: 29.12 0x740000c
     Semantics: instant  Units: none
-[18] oneline text pmid 29.0.157 
+[19] oneline text pmid 29.0.157 
     "executable" name
-[19] help text pmid 29.0.157 
+[20] help text pmid 29.0.157 
     Path to an imaginary executable for the fake "process", randomly
     constructed from 3 sets of make believe directory names.
-[20] metric 29.0.156 (sample.proc.ordinal)
+[21] metric 29.0.156 (sample.proc.ordinal)
     Data Type: 32-bit unsigned int  InDom: 29.12 0x740000c
     Semantics: instant  Units: none
-[21] oneline text pmid 29.0.156 
+[22] oneline text pmid 29.0.156 
     sequence number for each "process"
-[22] help text pmid 29.0.156 
+[23] help text pmid 29.0.156 
     A global counter starts at 1 and increases each time a new fake "process"
     is created.
-[23] @ TIMESTAMP delta indom 29.12 numinst 1
-[24] @ TIMESTAMP delta indom 29.12 numinst 2
-[25] @ TIMESTAMP delta indom 29.12 numinst 2
-[26] @ TIMESTAMP delta indom 29.12 numinst 1
-[27] @ TIMESTAMP delta indom 29.12 numinst 1
-[28] @ TIMESTAMP delta indom 29.12 numinst 1
-[29] @ TIMESTAMP delta indom 29.12 numinst 1
-[30] @ TIMESTAMP delta indom 29.12 numinst 2
-[31] @ TIMESTAMP delta indom 29.12 numinst 2
+[24] @ TIMESTAMP delta indom 29.12 numinst 1
+[25] metric label @ TIMESTAMP type=instances ident=121634828 nsets=13
+[26] @ TIMESTAMP delta indom 29.12 numinst 2
+[27] metric label @ TIMESTAMP type=instances ident=121634828 nsets=11
+[28] @ TIMESTAMP delta indom 29.12 numinst 2
+[29] metric label @ TIMESTAMP type=instances ident=121634828 nsets=11
+[30] @ TIMESTAMP delta indom 29.12 numinst 1
+[31] metric label @ TIMESTAMP type=instances ident=121634828 nsets=10
 [32] @ TIMESTAMP delta indom 29.12 numinst 1
-[33] @ TIMESTAMP delta indom 29.12 numinst 3
-[34] @ TIMESTAMP delta indom 29.12 numinst 3
+[33] metric label @ TIMESTAMP type=instances ident=121634828 nsets=11
+[34] @ TIMESTAMP delta indom 29.12 numinst 1
+[35] metric label @ TIMESTAMP type=instances ident=121634828 nsets=10
+[36] @ TIMESTAMP delta indom 29.12 numinst 1
+[37] metric label @ TIMESTAMP type=instances ident=121634828 nsets=9
+[38] @ TIMESTAMP delta indom 29.12 numinst 2
+[39] metric label @ TIMESTAMP type=instances ident=121634828 nsets=9
+[40] @ TIMESTAMP delta indom 29.12 numinst 2
+[41] metric label @ TIMESTAMP type=instances ident=121634828 nsets=11
+[42] @ TIMESTAMP delta indom 29.12 numinst 1
+[43] metric label @ TIMESTAMP type=instances ident=121634828 nsets=12
+[44] @ TIMESTAMP delta indom 29.12 numinst 3
+[45] metric label @ TIMESTAMP type=instances ident=121634828 nsets=13
+[46] @ TIMESTAMP delta indom 29.12 numinst 3
+[47] metric label @ TIMESTAMP type=instances ident=121634828 nsets=14
