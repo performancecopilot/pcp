@@ -16,7 +16,7 @@ echo "QA output created by $seq"
 signal=$PCP_BINADM_DIR/pmsignal
 status=1
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
-$sudo rm -f $here/$seq_full
+$sudo rm -f $seq_full
 
 _filter()
 {

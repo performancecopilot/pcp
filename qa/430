@@ -228,7 +228,7 @@ EOF
 }
 
 # real QA test starts here
-rm -f $here/$seq_full
+rm -f $seq_full
 
 host1=$LOCALHOST
 host2=$LOCALHOST"super"

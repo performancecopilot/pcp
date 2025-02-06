@@ -168,7 +168,7 @@ _disable_agent_restart()
 
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
-rm -f $here/$seq_full
+rm -f $seq_full
 echo "SAVE_LOGGER=$SAVE_LOGGER" >>$seq_full
 
 # real QA test starts here

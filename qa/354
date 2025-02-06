@@ -98,7 +98,7 @@ NR == 1	{ if ($2 != "PID") {
 	{ print "ps:",$2,$cmd,$(cmd+1),$(cmd+2),$(cmd+3),$(cmd+4) }'
 }
 
-rm -f $here/$seq_full
+rm -f $seq_full
 
 # NOT the default pmconfirm(1), please
 #
