@@ -454,7 +454,7 @@ parseHostSpec(
 		break;
 	    else if (s == start)
 		continue;
-	    hsp = hostAdd(hsp, &nhosts, start, s - start + 1);
+	    hsp = hostAdd(hsp, &nhosts, start, s - start);
 	    if (hsp == NULL) {
 		sts = -ENOMEM;
 		goto fail;
@@ -536,9 +536,12 @@ parseSocketPath(
     }
     else {
 	path = start;
-	len = s - start + 1;
-	if (len >= MAXPATHLEN)
+	len = s - start;
+	if (len >= MAXPATHLEN) {
 	    len = MAXPATHLEN - 1;
+	    if (pmDebugOptions.context)
+		fprintf(stderr, "parseSocketPath(spec=%s, ...): path truncated [case 1] to %" FMT_SIZE " bytes\n", spec, len);
+	}
     }
 
     /*
@@ -546,8 +549,14 @@ parseSocketPath(
      * (optional) "//" from "local://some/path".
      */
     if (*path != pmPathSeparator()) {
+	if (len > MAXPATHLEN - 2) {
+	    len = MAXPATHLEN - 2;
+	    if (pmDebugOptions.context)
+		fprintf(stderr, "parseSocketPath(spec=%s, ...): path truncated [case 2] to %" FMT_SIZE " bytes\n", spec, len);
+	}
 	absolute_path[0] = pmPathSeparator();
-	pmstrncpy(absolute_path + 1, sizeof(absolute_path) - 1, path);
+	memcpy(absolute_path+1, path, len);
+	absolute_path[len+1] = '\0';
 	path = absolute_path;
     }
 
