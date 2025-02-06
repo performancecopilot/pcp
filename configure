@@ -742,6 +742,7 @@ fmt_pthread
 lib_for_pthreads
 fmt_uint64
 fmt_int64
+fmt_size
 fmt_pid
 rdynamic_flag
 lib_for_backtrace
@@ -14798,6 +14799,25 @@ End-of-File
 fi
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $fmt_pid" >&5
 printf "%s\n" "$fmt_pid" >&6; }
+
+rm -rf conftest.c conftest.debug
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking printf type for size_t" >&5
+printf %s "checking printf type for size_t... " >&6; }
+if test "$cross_compiling" = "yes"; then
+    ans=$printf_fmt_size
+    echo "cross-compile -> \"$ans\"" >&5
+    fmt_size=$ans
+else
+    cat <<End-of-File >conftest.c
+#include <sys/types.h>
+size_t bozo;
+End-of-File
+    _do_type
+    fmt_size=$_fmt
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $fmt_size" >&5
+printf "%s\n" "$fmt_size" >&6; }
 
 rm -rf conftest.c conftest.debug
 

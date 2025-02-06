@@ -2718,6 +2718,24 @@ AC_MSG_RESULT($fmt_pid)
 AC_SUBST(fmt_pid)
 rm -rf conftest.c conftest.debug
 
+dnl printf type for size_t
+AC_MSG_CHECKING([printf type for size_t])
+if test "$cross_compiling" = "yes"; then
+    ans=$printf_fmt_size
+    echo "cross-compile -> \"$ans\"" >&5
+    fmt_size=$ans
+else
+    cat <<End-of-File >conftest.c
+#include <sys/types.h>
+size_t bozo;
+End-of-File
+    _do_type
+    fmt_size=$_fmt
+fi
+AC_MSG_RESULT($fmt_size)
+AC_SUBST(fmt_size)
+rm -rf conftest.c conftest.debug
+
 dnl printf type for int64_t
 AC_MSG_CHECKING([printf type for int64_t ])
 if test "$cross_compiling" = "yes"; then
