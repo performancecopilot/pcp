@@ -34,24 +34,6 @@ Metric Labels in the Log ...
         [0] name(2,3) : value(7,3) [instances]
     InDom 29.2[900] labels (11 bytes): {"bin":900}
         [0] name(2,3) : value(7,3) [instances]
-    InDom 29.2[100] labels (11 bytes): {"bin":100}
-        [0] name(2,3) : value(7,3) [instances]
-    InDom 29.2[200] labels (11 bytes): {"bin":200}
-        [0] name(2,3) : value(7,3) [instances]
-    InDom 29.2[300] labels (11 bytes): {"bin":300}
-        [0] name(2,3) : value(7,3) [instances]
-    InDom 29.2[400] labels (11 bytes): {"bin":400}
-        [0] name(2,3) : value(7,3) [instances]
-    InDom 29.2[500] labels (11 bytes): {"bin":500}
-        [0] name(2,3) : value(7,3) [instances]
-    InDom 29.2[600] labels (11 bytes): {"bin":600}
-        [0] name(2,3) : value(7,3) [instances]
-    InDom 29.2[700] labels (11 bytes): {"bin":700}
-        [0] name(2,3) : value(7,3) [instances]
-    InDom 29.2[800] labels (11 bytes): {"bin":800}
-        [0] name(2,3) : value(7,3) [instances]
-    InDom 29.2[900] labels (11 bytes): {"bin":900}
-        [0] name(2,3) : value(7,3) [instances]
 
 === Dump help text
 
