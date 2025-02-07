@@ -116,6 +116,7 @@ enum {
 	CLUSTER_WWID,		/* 92 multipath aggregated stats */
 	CLUSTER_PRESSURE_IRQ,	/* 93 /proc/pressure/irq metrics */
 	CLUSTER_HUGEPAGES,	/* 94 /sys/kernel/mm/hugepages metrics */
+	CLUSTER_NUMA_HUGEPAGES,	/* 95 /sys/devices/system/node/nodeN/hugepages metrics */
 
 	NUM_CLUSTERS		/* one more than highest numbered cluster */
 };
@@ -197,6 +198,7 @@ enum {
 	SOFTIRQ_CPU_INDOM,	/* 41 - per-CPU soft IRQs */
 	WWID_INDOM,		/* 42 - per-WWID multipath device */
 	HUGEPAGES_INDOM,	/* 43 - hugepages (fixed sizes) */
+	NUMA_HUGEPAGES_INDOM,	/* 44 - NUMA hugepages (fixed sizes) */
 
 	NUM_INDOMS		/* one more than highest numbered cluster */
 };

@@ -3,7 +3,7 @@
 # Portions Copyright (c) International Business Machines Corp., 2002
 # Portions Copyright (c) 2007-2009 Aconex.  All Rights Reserved.
 # Portions Copyright (c) 2016-2017 Fujitsu.
-# Portions Copyright (c) 2013-2021,2023-2024 Red Hat.
+# Portions Copyright (c) 2013-2021,2023-2025 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -1041,6 +1041,11 @@ filled up manually after running some bandwidth saturation benchmark tools.
 @ mem.numa.util.hugepagesTotalBytes per-node total amount of hugepages memory
 @ mem.numa.util.hugepagesFreeBytes per-node amount of free hugepages memory
 @ mem.numa.util.hugepagesSurpBytes per-node amount of surplus hugepages memory
+@ mem.numa.hugepages.pagesize per-node available huge page sizes
+@ mem.numa.hugepages.free per-node huge page space not yet allocated
+@ mem.numa.hugepages.surplus per-node huge page space in the pool above total size
+@ mem.numa.hugepages.totalsize per-node memory consumed by each huge page size
+
 @ mem.vmstat.nr_dirty number of pages in dirty state
 Instantaneous number of pages in dirty state, from /proc/vmstat
 @ mem.vmstat.nr_dirty_background_threshold background writeback threshold
