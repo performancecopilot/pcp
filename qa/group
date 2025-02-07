@@ -2131,6 +2131,7 @@ pmcd.pdu
 1727 pmproxy libpcp_web pmda.openmetrics local
 1740 pmda.proc local
 1745 pmlogger libpcp pmval local pmda.sample pmda.simple pmlogdump
+1747 pmlogger labels local
 1748 atop local
 1753 fetch valgrind local
 1763 pmlogctl local

@@ -60,7 +60,7 @@ me=`hostname`
 
 _needclean=true
 
-rm -f $here/$seq_full
+rm -f $seq_full
 
 _filter_hostnames()
 {

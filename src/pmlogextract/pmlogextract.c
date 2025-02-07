@@ -1151,7 +1151,7 @@ append_textreclist(int i)
 
     /*
      * Find matching record, if any. We want the record with the same
-     * target (pmid vs indom and class (one line vs help).
+     * target (pmid vs indom) and class (one line vs help).
      */
     curr = text_lookup(type, ident);
 
@@ -1191,9 +1191,8 @@ append_textreclist(int i)
 	    }
 	}
 	/*
-	 * Tolerate change for the purpose of making
-	 * corrections over time. Do this by keeping the latest version and
-	 * discarding the original.
+	 * Tolerate change for the purpose of making corrections over time.
+	 * Do this by keeping the latest version and discarding the original.
 	 */
 	free(curr->pdu);
     }

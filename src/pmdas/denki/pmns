@@ -15,8 +15,13 @@
  */
 
 denki {
-    rapl	DENKI:0:0
+    rapl
     bat
+}
+
+denki.rapl {
+    sysfs		DENKI:0:0
+    msr			DENKI:0:1
 }
 
 denki.bat {

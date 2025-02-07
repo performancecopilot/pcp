@@ -18,7 +18,7 @@ Due to earlier errors, cannot continue ... bye
 TMP/foo.0 missing:
 Scanning for components of archive "TMP/foo"
 TMP/foo.index: start pass0 ... found 4 records
-TMP/foo.meta: start pass0 ... found 34 records
+TMP/foo.meta: start pass0 ... found 36 records
 TMP/foo.0 (or similar): missing log file 
 Due to earlier errors, cannot continue ... bye
 
@@ -26,7 +26,7 @@ TMP/foo.index missing:
 Note: timezone set to local timezone of host "HOST" from archive
 
 Scanning for components of archive "TMP/foo"
-TMP/foo.meta: start pass0 ... found 34 records
+TMP/foo.meta: start pass0 ... found 36 records
 TMP/foo.0: start pass0 ... found 11 records
 TMP/foo: start pass1 (check temporal index)
 TMP/foo: warning temporal index is missing
@@ -41,7 +41,7 @@ pmlogcheck: no PCP archive files match "TMP/bar"
 TMP/foo:
 Scanning for components of archive "TMP/foo"
 TMP/foo.index: start pass0 ... found 4 records
-TMP/foo.meta: start pass0 ... found 34 records
+TMP/foo.meta: start pass0 ... found 36 records
 TMP/foo.0: start pass0 ... found 11 records
 TMP/foo.1: cannot open file: Permission denied
 TMP/foo.999: start pass0 ... 
@@ -51,7 +51,7 @@ Due to earlier errors, cannot continue ... bye
 foo:
 Scanning for components of archive "foo"
 foo.index: start pass0 ... found 4 records
-foo.meta: start pass0 ... found 34 records
+foo.meta: start pass0 ... found 36 records
 foo.0: start pass0 ... found 11 records
 foo.1: cannot open file: Permission denied
 foo.999: start pass0 ... 
@@ -63,7 +63,7 @@ Note: timezone set to local timezone of host "HOST" from archive
 
 Scanning for components of archive "foo.index"
 foo.index: start pass0 ... found 4 records
-foo.meta: start pass0 ... found 34 records
+foo.meta: start pass0 ... found 36 records
 foo.0: start pass0 ... found 11 records
 foo.1: start pass0 ... 
 foo.1: contains no PCP data
@@ -79,7 +79,7 @@ Note: timezone set to local timezone of host "HOST" from archive
 
 Scanning for components of archive "archive-20150415.044829"
 archive-20150415.044829.index: start pass0 ... found 4 records
-archive-20150415.044829.meta: start pass0 ... found 34 records
+archive-20150415.044829.meta: start pass0 ... found 36 records
 archive-20150415.044829.0: start pass0 ... found 11 records
 archive-20150415.044829: start pass1 (check temporal index)
 archive-20150415.044829: start pass2

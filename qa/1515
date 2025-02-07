@@ -30,9 +30,10 @@ pmdadenki_filter()
 {
     sed \
 	-e "/^$/d" \
+	-e "/pminfo([0-9][0-9]*) Info: /d" \
 	-e "s,$PCP_PMDAS_DIR,PCP_PMDAS_DIR,g" \
 	-e "/denki.bat.*: No value(s) available/d" \
-	-e "/denki.rapl: No value(s) available/d" \
+	-e "/denki.rapl.*: No value(s) available/d" \
 	-e "/RAPL detected, with [0-9][0-9]* cpu-/d" \
 	-e "/battery we should provide metrics for/d" \
 	-e "/core [0-9][0-9]* (package [0-9][0-9]*)/d" \
@@ -66,7 +67,7 @@ _prepare_pmda denki
 pmdadenki_install
 
 pmda=$PCP_PMDAS_DIR/denki/pmda_denki,denki_init
-_run_valgrind pminfo -L -K clear -K add,156,$pmda -v denki | pmdadenki_filter
+_run_valgrind pminfo -L -K clear -K add,156,$pmda -v denki 2>&1 | pmdadenki_filter
 
 # success, all done
 exit

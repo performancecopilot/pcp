@@ -8,35 +8,41 @@ QA output created by 1653
 Updating the Performance Metrics Name Space (PMNS) ...
 Terminate PMDA if already installed ...
 Updating the PMCD control file, and notifying PMCD ...
-Check denki metrics have appeared ... 4 metrics and 4 values
+Check denki metrics have appeared ... 5 metrics and 4 values
 
-denki.rapl
+denki.rapl.sysfs
     Data Type: 64-bit unsigned int  InDom: 156.0 0x27000000
     Semantics: counter  Units: none
-    labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"rapl","machineid":"MACHINEID","userid":USERID}
-    inst [0 or "0-package-1"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"rapl","machineid":"MACHINEID","userid":USERID}
-    inst [1 or "0-core"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"rapl","machineid":"MACHINEID","userid":USERID}
-    inst [2 or "1-package-0"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"rapl","machineid":"MACHINEID","userid":USERID}
-    inst [3 or "1-core"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"rapl","machineid":"MACHINEID","userid":USERID}
+    labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"rapl sysfs","machineid":"MACHINEID","userid":USERID}
+    inst [0 or "0-package-1"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"rapl sysfs","machineid":"MACHINEID","userid":USERID}
+    inst [1 or "0-core"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"rapl sysfs","machineid":"MACHINEID","userid":USERID}
+    inst [2 or "1-package-0"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"rapl sysfs","machineid":"MACHINEID","userid":USERID}
+    inst [3 or "1-core"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"rapl sysfs","machineid":"MACHINEID","userid":USERID}
     inst [2 or "1-package-0"] value 13719
     inst [1 or "0-core"] value 3483
     inst [3 or "1-core"] value 8334
     inst [0 or "0-package-1"] value 8826
 
+denki.rapl.msr
+    Data Type: 64-bit unsigned int  InDom: 156.1 0x27000001
+    Semantics: counter  Units: none
+    labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"rapl msr","machineid":"MACHINEID","userid":USERID}
+No value(s) available!
+
 denki.bat.energy_now
-    Data Type: double  InDom: 156.1 0x27000001
+    Data Type: double  InDom: 156.2 0x27000002
     Semantics: instant  Units: none
     labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"watt hours","userid":USERID}
 No value(s) available!
 
 denki.bat.power_now
-    Data Type: double  InDom: 156.2 0x27000002
+    Data Type: double  InDom: 156.3 0x27000003
     Semantics: instant  Units: none
     labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"watt","userid":USERID}
 No value(s) available!
 
 denki.bat.capacity
-    Data Type: 32-bit int  InDom: 156.3 0x27000003
+    Data Type: 32-bit int  InDom: 156.4 0x27000004
     Semantics: instant  Units: none
     labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"percent","userid":USERID}
 No value(s) available!
@@ -46,30 +52,36 @@ No value(s) available!
 Updating the Performance Metrics Name Space (PMNS) ...
 Terminate PMDA if already installed ...
 Updating the PMCD control file, and notifying PMCD ...
-Check denki metrics have appeared ... 4 metrics and 3 values
+Check denki metrics have appeared ... 5 metrics and 3 values
 
-denki.rapl
+denki.rapl.sysfs
     Data Type: 64-bit unsigned int  InDom: 156.0 0x27000000
     Semantics: counter  Units: none
-    labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"rapl","machineid":"MACHINEID","userid":USERID}
+    labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"rapl sysfs","machineid":"MACHINEID","userid":USERID}
+No value(s) available!
+
+denki.rapl.msr
+    Data Type: 64-bit unsigned int  InDom: 156.1 0x27000001
+    Semantics: counter  Units: none
+    labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"rapl msr","machineid":"MACHINEID","userid":USERID}
 No value(s) available!
 
 denki.bat.energy_now
-    Data Type: double  InDom: 156.1 0x27000001
+    Data Type: double  InDom: 156.2 0x27000002
     Semantics: instant  Units: none
     labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"watt hours","userid":USERID}
     inst [N or BATTERY-N"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"watt hours","userid":USERID}
     inst [N or BATTERY-N"] value 15.23
 
 denki.bat.power_now
-    Data Type: double  InDom: 156.2 0x27000002
+    Data Type: double  InDom: 156.3 0x27000003
     Semantics: instant  Units: none
     labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"watt","userid":USERID}
     inst [N or BATTERY-N"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"watt","userid":USERID}
     inst [N or BATTERY-N"] value 4.077
 
 denki.bat.capacity
-    Data Type: 32-bit int  InDom: 156.3 0x27000003
+    Data Type: 32-bit int  InDom: 156.4 0x27000004
     Semantics: instant  Units: none
     labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"percent","userid":USERID}
     inst [N or BATTERY-N"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"percent","userid":USERID}
@@ -80,23 +92,29 @@ denki.bat.capacity
 Updating the Performance Metrics Name Space (PMNS) ...
 Terminate PMDA if already installed ...
 Updating the PMCD control file, and notifying PMCD ...
-Check denki metrics have appeared ... 4 metrics and 10 values
+Check denki metrics have appeared ... 5 metrics and 10 values
 
-denki.rapl
+denki.rapl.sysfs
     Data Type: 64-bit unsigned int  InDom: 156.0 0x27000000
     Semantics: counter  Units: none
-    labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"rapl","machineid":"MACHINEID","userid":USERID}
-    inst [0 or "package-0"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"rapl","machineid":"MACHINEID","userid":USERID}
-    inst [1 or "core"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"rapl","machineid":"MACHINEID","userid":USERID}
-    inst [2 or "uncore"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"rapl","machineid":"MACHINEID","userid":USERID}
-    inst [3 or "dram"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"rapl","machineid":"MACHINEID","userid":USERID}
+    labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"rapl sysfs","machineid":"MACHINEID","userid":USERID}
+    inst [0 or "package-0"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"rapl sysfs","machineid":"MACHINEID","userid":USERID}
+    inst [1 or "core"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"rapl sysfs","machineid":"MACHINEID","userid":USERID}
+    inst [2 or "uncore"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"rapl sysfs","machineid":"MACHINEID","userid":USERID}
+    inst [3 or "dram"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"rapl sysfs","machineid":"MACHINEID","userid":USERID}
     inst [2 or "uncore"] value 1
     inst [1 or "core"] value 1568
     inst [3 or "dram"] value 2120
     inst [0 or "package-0"] value 2977
 
+denki.rapl.msr
+    Data Type: 64-bit unsigned int  InDom: 156.1 0x27000001
+    Semantics: counter  Units: none
+    labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"rapl msr","machineid":"MACHINEID","userid":USERID}
+No value(s) available!
+
 denki.bat.energy_now
-    Data Type: double  InDom: 156.1 0x27000001
+    Data Type: double  InDom: 156.2 0x27000002
     Semantics: instant  Units: none
     labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"watt hours","userid":USERID}
     inst [N or BATTERY-N"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"watt hours","userid":USERID}
@@ -105,7 +123,7 @@ denki.bat.energy_now
     inst [N or BATTERY-N"] value 15.87
 
 denki.bat.power_now
-    Data Type: double  InDom: 156.2 0x27000002
+    Data Type: double  InDom: 156.3 0x27000003
     Semantics: instant  Units: none
     labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"watt","userid":USERID}
     inst [N or BATTERY-N"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"watt","userid":USERID}
@@ -114,7 +132,7 @@ denki.bat.power_now
     inst [N or BATTERY-N"] value 1.576
 
 denki.bat.capacity
-    Data Type: 32-bit int  InDom: 156.3 0x27000003
+    Data Type: 32-bit int  InDom: 156.4 0x27000004
     Semantics: instant  Units: none
     labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"percent","userid":USERID}
     inst [N or BATTERY-N"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"percent","userid":USERID}
@@ -127,37 +145,43 @@ denki.bat.capacity
 Updating the Performance Metrics Name Space (PMNS) ...
 Terminate PMDA if already installed ...
 Updating the PMCD control file, and notifying PMCD ...
-Check denki metrics have appeared ... 4 metrics and 7 values
+Check denki metrics have appeared ... 5 metrics and 7 values
 
-denki.rapl
+denki.rapl.sysfs
     Data Type: 64-bit unsigned int  InDom: 156.0 0x27000000
     Semantics: counter  Units: none
-    labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"rapl","machineid":"MACHINEID","userid":USERID}
-    inst [0 or "package-0"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"rapl","machineid":"MACHINEID","userid":USERID}
-    inst [1 or "core"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"rapl","machineid":"MACHINEID","userid":USERID}
-    inst [2 or "uncore"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"rapl","machineid":"MACHINEID","userid":USERID}
-    inst [3 or "dram"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"rapl","machineid":"MACHINEID","userid":USERID}
+    labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"rapl sysfs","machineid":"MACHINEID","userid":USERID}
+    inst [0 or "package-0"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"rapl sysfs","machineid":"MACHINEID","userid":USERID}
+    inst [1 or "core"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"rapl sysfs","machineid":"MACHINEID","userid":USERID}
+    inst [2 or "uncore"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"rapl sysfs","machineid":"MACHINEID","userid":USERID}
+    inst [3 or "dram"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"rapl sysfs","machineid":"MACHINEID","userid":USERID}
     inst [1 or "core"] value 12628
     inst [0 or "package-0"] value 26716
     inst [2 or "uncore"] value 2711
     inst [3 or "dram"] value 7743
 
+denki.rapl.msr
+    Data Type: 64-bit unsigned int  InDom: 156.1 0x27000001
+    Semantics: counter  Units: none
+    labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"rapl msr","machineid":"MACHINEID","userid":USERID}
+No value(s) available!
+
 denki.bat.energy_now
-    Data Type: double  InDom: 156.1 0x27000001
+    Data Type: double  InDom: 156.2 0x27000002
     Semantics: instant  Units: none
     labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"watt hours","userid":USERID}
     inst [N or BATTERY-N"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"watt hours","userid":USERID}
     inst [N or BATTERY-N"] value 34.71
 
 denki.bat.power_now
-    Data Type: double  InDom: 156.2 0x27000002
+    Data Type: double  InDom: 156.3 0x27000003
     Semantics: instant  Units: none
     labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"watt","userid":USERID}
     inst [N or BATTERY-N"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"watt","userid":USERID}
     inst [N or BATTERY-N"] value 26.439
 
 denki.bat.capacity
-    Data Type: 32-bit int  InDom: 156.3 0x27000003
+    Data Type: 32-bit int  InDom: 156.4 0x27000004
     Semantics: instant  Units: none
     labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"percent","userid":USERID}
     inst [N or BATTERY-N"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"percent","userid":USERID}

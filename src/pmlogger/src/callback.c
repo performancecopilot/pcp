@@ -388,8 +388,14 @@ manageLabels(pmDesc *desc, const __pmTimestamp *tsp, int only_instances)
 	else
 	    ident = PM_IN_NULL;
 
-	/* Lookup returns >= 0 when the key exists */
-	if (__pmLogLookupLabel(&archctl, type, ident, &label, tsp) >= 0)
+	/*
+	 * Lookup returns >= 0 when the key exists
+	 *
+	 * In the instance-domain-is-changing scenario we can skip this
+	 * as we must always log label metadata in that special case.
+	 */
+	if (!only_instances &&
+	    __pmLogLookupLabel(&archctl, type, ident, &label, tsp) >= 0)
 	    continue;
 
 	if ((sts = putlabels(type, ident, tsp)) < 0)

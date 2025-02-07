@@ -45,7 +45,7 @@ _filter()
 
 # real QA test starts here
 
-rm -f $here/$seq_full
+rm -f $seq_full
 pcp collectl -R 1.25 -i 1 | tee -a $seq_full | _filter
 
 # success, all done
