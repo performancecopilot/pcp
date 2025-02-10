@@ -1,0 +1,38 @@
+#!/bin/sh
+# __author__ = "Mohith Kumar Thummaluru"
+# __email__ = "mohith.k.kumar.thummaluru@oracle.com"
+#
+# Copyright (c) 2025 Oracle and/or its affiliates.
+# DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# Remove the rocestat PMDA
+#
+
+# source the PCP configuration environment variables
+. $PCP_DIR/etc/pcp.env
+
+# Get the common procedures and variable assignments
+#
+. $PCP_SHARE_DIR/lib/pmdaproc.sh
+
+# The name of the PMDA
+#
+iam=rocestat
+
+# Do it
+#
+pmdaSetup
+pmdaRemove
+
+
+exit

@@ -1,0 +1,646 @@
+# __author__ = "Mohith Kumar Thummaluru"
+# __email__ = "mohith.k.kumar.thummaluru@oracle.com"
+#
+# Copyright (c) 2025 Oracle and/or its affiliates.
+# DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+# pylint: disable=no-self-use, consider-using-f-string, too-many-instance-attributes
+# pylint: disable=c-extension-no-member, consider-iterating-dictionary
+# pylint: disable=too-many-locals, too-many-arguments, too-many-lines, unused-argument, line-too-long
+# pylint: disable=too-many-return-statements, too-many-branches, too-many-statements, bare-except
+"""
+Python implementation of the "rocestat" Performance Metrics Domain Agent.
+"""
+from __future__ import print_function
+from __future__ import absolute_import
+from __future__ import division
+
+import subprocess, os, re, datetime, time, copy
+from time import sleep
+import argparse
+
+import os
+import re
+import subprocess
+import sys
+import socket as sk
+from collections import OrderedDict
+import cpmapi as c_api
+from pcp.pmda import PMDA, pmdaMetric, pmdaIndom
+from pcp.pmapi import pmUnits
+from cpmda import PMDA_FETCH_NOVALUES
+from ctypes import c_int, c_ulonglong, c_float, c_double, POINTER, cast, Structure, c_byte
+
+lane_mapping = {
+    0: 'Default(TCP) - 0',
+    1: 'Normal Large - 1',
+    2: 'VIP Small    - 2',
+    3: 'VIP Large    - 3',
+    4: 'Normal Small - 4',
+    5: 'VIP Small    - 5',
+    6: 'Unused       - 6',
+    7: 'CNP          - 7',
+}
+
+CLUSTER_HW = 1
+CLUSTER_HW_XMIT = 2
+CLUSTER_HW_RCV = 3
+CLUSTER_HW_UCAST = 4
+CLUSTER_HW_MCAST = 5
+CLUSTER_HW_REQ = 6
+CLUSTER_HW_RESP = 7
+CLUSTER_HW_RNR = 8
+CLUSTER_HW_LINK = 9
+
+CLUSTER_NIC = 10
+deltat = 5
+
+RoceStatHW = [
+        ("symbol_error", c_ulonglong),
+        ("excessive_buffer_overrun_errors", c_ulonglong),
+        ("VL15_dropped", c_ulonglong),
+        ("out_of_sequence", c_ulonglong),
+        ("out_of_buffer", c_ulonglong),
+        ("roce_adp_retrans", c_ulonglong),
+        ("packet_seq_err", c_ulonglong),
+        ("implied_nak_seq_err", c_ulonglong),
+        ("lifespan", c_ulonglong),
+        ("local_ack_timeout_err", c_ulonglong),
+        ("clear_counters", c_ulonglong),
+        ("roce_adp_retrans_to", c_ulonglong),
+        ("roce_slow_restart", c_ulonglong),
+        ("roce_slow_restart_cnps", c_ulonglong),
+        ("roce_slow_restart_trans", c_ulonglong)
+    ]
+
+RoceStatXmit = [
+        ("port_xmit_discards", c_ulonglong),
+        ("port_xmit_packets", c_ulonglong),
+        ("port_xmit_wait", c_ulonglong),
+        ("port_xmit_constraint_errors", c_ulonglong),
+        ("port_xmit_data", c_ulonglong)
+    ]
+
+RoceStatRcv = [
+        ("port_rcv_switch_relay_errors", c_ulonglong),
+        ("port_rcv_constraint_errors", c_ulonglong),
+        ("port_rcv_data", c_ulonglong),
+        ("port_rcv_packets", c_ulonglong),
+        ("port_rcv_remote_physical_errors", c_ulonglong),
+        ("port_rcv_errors", c_ulonglong)
+    ]
+
+RoceStatUcast = [
+        ("unicast_xmit_packets", c_ulonglong),
+        ("unicast_rcv_packets", c_ulonglong)
+    ]
+
+RoceStatMcast = [
+        ("multicast_xmit_packets", c_ulonglong),
+        ("multicast_rcv_packets", c_ulonglong)
+    ]
+
+RoceStatReq = [
+        ("rx_write_requests", c_ulonglong),
+        ("req_remote_access_errors", c_ulonglong),
+        ("rx_atomic_requests", c_ulonglong),
+        ("rx_read_requests", c_ulonglong),
+        ("duplicate_request", c_ulonglong),
+        ("req_cqe_flush_error", c_ulonglong),
+        ("req_cqe_error", c_ulonglong),
+        ("req_remote_invalid_request", c_ulonglong)
+    ]
+
+RoceStatResp = [
+        ("resp_remote_access_errors", c_ulonglong),
+        ("resp_cqe_flush_error", c_ulonglong),
+        ("resp_cqe_error", c_ulonglong),
+        ("resp_local_length_error", c_ulonglong)
+    ]
+
+RoceStatRnr = [
+        ("rnr_nak_retry_err", c_ulonglong)
+    ]
+
+RoceStatLink = [
+        ("local_link_integrity_errors", c_ulonglong),
+        ("link_downed", c_ulonglong),
+        ("link_error_recovery", c_ulonglong),
+    ]
+
+class RoceDev(Structure):
+    ''' Statistic values per-mlnx-device (mlnx device indom cache lookup) '''
+    _fields_ = RoceStatHW + RoceStatXmit + RoceStatRcv
+    _fields_ += RoceStatUcast + RoceStatMcast
+    _fields_ += RoceStatReq + RoceStatResp
+    _fields_ += RoceStatRnr + RoceStatLink
+
+class NicStats(Structure):
+    _fields_ = [
+        ("tx_bytes", c_ulonglong),
+        ("rx_bytes", c_ulonglong),
+        ("tx_bytes_bw", c_double),
+        ("rx_bytes_bw", c_double),
+        ("rx_pause", c_ulonglong),
+        ("rx_pause_delta", c_double),
+    ]
+
+class NICSTATS:
+    def __init__(self):
+        self.up_interfaces = []
+        self.ethtool_stats = {}
+
+    def get_up_interfaces(self):
+        """Get the names of all interfaces that are in the Up state."""
+        result = subprocess.Popen(['/usr/bin/ibdev2netdev'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+        output, error = result.communicate()
+
+        if result.returncode != 0:
+            # print(f"Error: {error}")
+            return []
+
+        # Regular expression to find interfaces and their status
+        pattern = re.compile(r'(\S+) \(Up\)')
+        self.up_interfaces = pattern.findall(output)
+        return self.up_interfaces
+
+    def get_ethtool_stats(self, interface):
+        """Get the ethtool -S output for the specified interface and filter stats containing 'prio'."""
+        result = subprocess.Popen(['ethtool', '-S', interface], stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+        output, error = result.communicate()
+
+        if result.returncode != 0:
+            # print(f"Error: {error}")
+            return {}
+
+        # Filter the stats to include only those with 'prio' in their names
+        prio_stats = {}
+        for line in output.splitlines():
+            if 'prio' in line:
+                if line.__contains__('bytes') or line.__contains__('pause'):
+                    key, value = line.strip().split(':', 1)
+                    value = int(value)
+                    if value > 0:
+                        prio_stats[key] = value
+
+        return prio_stats
+
+    def process_prio_stats(self, prio_stats):
+        """Process the prio stats to group them by lanes."""
+        all_lanes = [f"lane{i}" for i in range(0,8)]
+
+        lanes = {lane:{} for lane in all_lanes}
+
+        for key, value in prio_stats.items():
+            # Extract the lane number from the key
+            match = re.match(r'(rx|tx)_prio(\d+)_(pause|bytes)', key)
+            if match:
+                direction, lane, key = match.groups()
+
+                lane = "lane" + str(lane)
+                # if lane not in lanes:
+                #     lanes[lane] = {}
+                if (direction =='rx' and key.endswith("pause")) or key.endswith("bytes"):
+                    lanes[lane][f'{direction}_{key}'] = value
+
+        for lane, sub_dict in lanes.items():
+            metrics = ['rx_bytes', 'tx_bytes', 'rx_pause']
+            for metric in metrics:
+                if metric not in sub_dict.keys():
+                    lanes[lane][metric] = 0
+        return lanes
+
+    def collect_stats(self):
+        """Collect ethtool stats for all Up interfaces."""
+        self.get_up_interfaces()
+        for interface in self.up_interfaces:
+            stats = self.get_ethtool_stats(interface)
+            lanes_stats = self.process_prio_stats(stats)
+            self.ethtool_stats[interface] = lanes_stats
+        return self.convert_dict(self.ethtool_stats)
+
+    def convert_dict(self, input_dict):
+        output_dict = {}
+        for key1, sub_dict in input_dict.items():
+            if(type(sub_dict) == dict):
+                for key2, value in sub_dict.items():
+                    new_key = f"{key1}_{key2}"
+                    output_dict[new_key] = value
+        # output_dict['time'] = time.time()
+        return output_dict
+
+class MLNXCOUNTERS():
+    hw_counter_hash = {}
+    hw_counter_path = []
+    hw_counter = []
+    first_hw_qry  = True
+
+    def get_hw_counter_names(self, base_path='/sys/class/infiniband'):
+        counter_paths = []
+
+        # Check if base path exists
+        if not os.path.exists(base_path):
+            return counter_paths
+            # raise FileNotFoundError(f"Base path {base_path} does not exist.")
+
+        # Traverse each device directory in the base path
+        for device in os.listdir(base_path):
+            device_path = os.path.join(base_path, device)
+            ports_path = os.path.join(device_path, 'ports')
+
+            # Check if ports directory exists
+            if os.path.exists(ports_path):
+                # Traverse each port directory in the device's ports directory
+                for port in os.listdir(ports_path):
+                    port_path = os.path.join(ports_path, port)
+
+                    # Check and collect counter file paths
+                    counters_path = os.path.join(port_path, 'counters')
+                    if os.path.exists(counters_path):
+                        for counter_file in os.listdir(counters_path):
+                            counter_paths.append(os.path.join(counters_path, counter_file))
+
+                    # Check and collect hw_counters file paths
+                    hw_counters_path = os.path.join(port_path, 'hw_counters')
+                    if os.path.exists(hw_counters_path):
+                        for hw_counter_file in os.listdir(hw_counters_path):
+                            counter_paths.append(os.path.join(hw_counters_path, hw_counter_file))
+
+        return counter_paths
+
+    def find_device_status(self, device):
+        infiniband_base = "/sys/class/infiniband"
+        ports_dir = os.path.join(infiniband_base, device, "ports")
+
+        if not os.path.isdir(ports_dir):
+            return False
+
+        try:
+            ports = os.listdir(ports_dir)
+        except FileNotFoundError:
+            return False
+
+        for port in ports:
+            port_dir = os.path.join(infiniband_base, device, "ports", str(port))
+
+            if os.path.isfile(os.path.join(port_dir, "phys_state")):
+                with open(os.path.join(port_dir, "phys_state"), 'r') as f:
+                    phys_state = f.read().strip()
+                    if phys_state.__contains__("LinkUp"):
+                        # print(phys_state)
+                        return True
+            else:
+                return False
+
+    def get_active_devices(self):
+
+        active_devices = []
+        visit = set()
+
+        for path in self.hw_counter:
+            token = path.split('/')
+            if (len(token) > 8):
+                mlx = token[4]
+                if mlx not in visit:
+                    status = self.find_device_status(mlx)
+                    if status == True:
+                        active_devices.append(mlx)
+                        self.hw_counter_path.append(path.strip())
+                visit.add(mlx)
+        return active_devices
+
+    # initialize the hardware counters
+    # self.hw_counter_hash['mlnx5_0'][1]['np_cnp_sent'] = <val>
+    # where mlnx5_0 is device, 1 is port, np_cnp_sent is the counter
+    def init_hw_counter(self, active_devices):
+        port_keys = {}
+        port_keys['1'] = 0
+        port_keys['2'] = 0
+        for i in self.hw_counter:
+            token = i.split('/')
+            if (len(token) > 8):
+                mlx = token[4]
+                port = token[6]
+                if mlx not in active_devices:
+                    continue
+                self.hw_counter_path.append(i.strip())
+                counter = token[8].strip()
+                if mlx not in self.hw_counter_hash:
+                    self.hw_counter_hash[mlx] = {}
+                if port not in self.hw_counter_hash[mlx]:
+                    self.hw_counter_hash[mlx][port] = {}
+                self.hw_counter_hash[mlx][port][counter] = 0
+                port_keys[port] += 1
+
+    # get_hw_counters probes the counter periodically and updates the counter stats
+    def get_hw_counters(self, counter_path, hw_counter_vals):
+        for path in counter_path:
+            with open(path, 'r') as fread:
+                ret = fread.read().strip()
+
+            token = path.split('/')
+            mlx, port, counter = token[4], token[6], token[8]
+            hw_counter_vals[mlx][port][counter] = int(ret)
+
+        return hw_counter_vals
+
+    def convert_dict(self, input_dict):
+        output_dict = {}
+        for key1, sub_dict in input_dict.items():
+            if(type(sub_dict) == dict):
+                for key2, value in sub_dict.items():
+                    new_key = f"{key1}_{key2}"
+                    output_dict[new_key] = value
+        return output_dict
+
+    def fetch_mlnx_counters(self):
+        self.hw_counter = self.get_hw_counter_names()
+        active_device = self.get_active_devices()
+
+        self.init_hw_counter(active_device)
+
+        sleep(1)
+
+        self.hw_counter_hash = self.get_hw_counters(self.hw_counter_path, self.hw_counter_hash)
+        return self.convert_dict(self.hw_counter_hash)
+
+
+class ROCESTATPMDA(PMDA):
+    """
+    A ROCE Performance Metrics Domain Agent.
+    Install it and make basic use of it, as follows:
+
+    # $PCP_PMDAS_DIR/rocestat/Install
+    [select python option]
+    $ pminfo -fmdtT rocestat
+    """
+
+    # Cluster definitions
+
+    mlnx_counters = {}
+    nic_stats = {}
+
+    def register_metrics(self, name):
+        """
+        Register Metrics
+        """
+        pm_type_32 = c_api.PM_TYPE_U32
+        pm_type_64 = c_api.PM_TYPE_U64
+        pm_type_double = c_api.PM_TYPE_DOUBLE
+        pm_type_str = c_api.PM_TYPE_STRING
+
+        null_indom = c_api.PM_INDOM_NULL
+        inst_sem = c_api.PM_SEM_INSTANT
+        count_sem = c_api.PM_SEM_COUNTER
+
+        pm_units = pmUnits(0, 0, 0, 0, 0, 0)
+
+        # Registering MLNX HW Counters
+        self.mlnx_indom = self.indom(0)
+        self.add_indom(pmdaIndom(self.mlnx_indom, self.mlnx_counters))
+
+        hw_metric = [(f"{name}.hw.{dev_attr[0]}", CLUSTER_HW, dev_attr[1]) for dev_attr in RoceStatHW]
+        hw_metric += [(f"{name}.hw.xmit.{dev_attr[0]}", CLUSTER_HW_XMIT, dev_attr[1]) for dev_attr in RoceStatXmit]
+        hw_metric += [(f"{name}.hw.rcv.{dev_attr[0]}", CLUSTER_HW_RCV, dev_attr[1]) for dev_attr in RoceStatRcv]
+        hw_metric += [(f"{name}.hw.ucast.{dev_attr[0]}", CLUSTER_HW_UCAST, dev_attr[1]) for dev_attr in RoceStatUcast]
+        hw_metric += [(f"{name}.hw.mcast.{dev_attr[0]}", CLUSTER_HW_MCAST, dev_attr[1]) for dev_attr in RoceStatMcast]
+        hw_metric += [(f"{name}.hw.req.{dev_attr[0]}", CLUSTER_HW_REQ, dev_attr[1]) for dev_attr in RoceStatReq]
+        hw_metric += [(f"{name}.hw.resp.{dev_attr[0]}", CLUSTER_HW_RESP, dev_attr[1]) for dev_attr in RoceStatResp]
+        hw_metric += [(f"{name}.hw.rnr.{dev_attr[0]}", CLUSTER_HW_RNR, dev_attr[1]) for dev_attr in RoceStatRnr]
+        hw_metric += [(f"{name}.hw.link.{dev_attr[0]}", CLUSTER_HW_LINK, dev_attr[1]) for dev_attr in RoceStatLink]
+
+        idx = 0
+        for m_name, m_cluster, m_type in hw_metric:
+            if m_type == c_int:
+                m_type = pm_type_32
+            elif m_type == c_ulonglong:
+                m_type = pm_type_64
+
+            self.add_metric(m_name,
+                            pmdaMetric(self.pmid(m_cluster, idx),
+                            m_type,
+                            self.mlnx_indom, inst_sem, pm_units))
+            idx += 1
+
+        # Register Per Lane NIC stats
+        self.nic_indom = self.indom(1)
+        self.add_indom(pmdaIndom(self.nic_indom, self.nic_stats))
+
+        nic_metric = [f"{name}.lane.{dev_attr[0]}" for dev_attr in NicStats._fields_]
+
+        idx = 0
+        for m_name in nic_metric:
+            self.add_metric(m_name,
+                            pmdaMetric(self.pmid(CLUSTER_NIC, idx),
+                            pm_type_double if m_name.endswith("bw") or m_name.endswith("delta") else pm_type_64,
+                            self.nic_indom, inst_sem, pm_units))
+            idx += 1
+        self.first_query = True
+
+    def rocestat_fetch_mlnx_counters(self, item, inst):
+
+        voidp = self.inst_lookup(self.mlnx_indom, inst)
+
+        if voidp is None:
+            return [c_api.PM_ERR_INST, 0]
+
+        cache = cast(voidp, POINTER(RoceDev))
+        item_lookup = [dev_attr[0] for dev_attr in RoceDev._fields_]
+        dev = cache.contents
+
+        if 0 <= item < len(RoceDev._fields_):
+            return [getattr(dev, item_lookup[item]), 1]
+        else:
+            return [c_api.PM_ERR_INST, 0]
+
+    def rocestat_fetch_nic_stats(self, item, inst):
+
+        voidp = self.inst_lookup(self.nic_indom, inst)
+
+        if voidp is None:
+            return [c_api.PM_ERR_INST, 0]
+
+        cache = cast(voidp, POINTER(NicStats))
+        item_lookup = [dev_attr[0] for dev_attr in NicStats._fields_]
+        nic = cache.contents
+
+        if 0 <= item < len(NicStats._fields_):
+            return [getattr(nic, item_lookup[item]), 1]
+        else:
+            return [c_api.PM_ERR_INST, 0]
+
+    def refresh_mlnx_counters(self):
+        ''' Refresh the values and instances for mlnx devices'''
+        try:
+            roce_stat = MLNXCOUNTERS()
+            hw_cnts = roce_stat.fetch_mlnx_counters()
+        except:
+            self.log("failed to fetch mlnx counters")
+
+        cached_mlnx_counters = {}
+        if bool(self.mlnx_counters):
+            for dev_name, subdict in self.mlnx_counters.items():
+                if not dev_name.endswith('delta'):
+                    prev_values = {}
+                    for counter_tuple in RoceDev._fields_:
+                        prev_values[counter_tuple[0]] = getattr(subdict, counter_tuple[0])
+
+                    cached_mlnx_counters[dev_name] = prev_values
+        else:
+            self.log("No counters in the cache")
+
+        hw_cnts_diff = {k: v for k, v in hw_cnts.items() if not k.endswith('delta')}
+
+        # if there are mlnx counters cached then calculate the delta
+        if bool(cached_mlnx_counters):
+            for key, subdict in cached_mlnx_counters.items():
+                hw_cnts_diff[f"{key}_delta"] = {}
+
+                temp = {}
+                for sub_key, value in subdict.items():
+                    temp[sub_key] = hw_cnts[key][sub_key] - cached_mlnx_counters[key][sub_key]
+
+                hw_cnts_diff[f"{key}_delta"] = temp
+        # If this is the first query then there wouldn't be cached counters
+        else:
+            for dev, subdict in hw_cnts.items():
+                temp = {k:0 for k in subdict}
+                hw_cnts_diff[dev+"_delta"] = temp
+
+        hw_cnts_diff = {k: dict(v.items()) for k, v in sorted(hw_cnts_diff.items())}
+
+        for device, dict_counters in hw_cnts_diff.items():
+            dev = RoceDev()
+            for k,v in dict_counters.items():
+                setattr(dev, k, v)
+
+            self.mlnx_counters[device] = dev
+
+    def refresh_nic_stats(self):
+        try:
+            collector = NICSTATS()
+            nic_stats = collector.collect_stats()
+        except:
+            self.log("failed to fetch nic stats")
+
+        cached_nic_stats = {}
+        if bool(self.nic_stats):
+            for dev_lane, subdict in self.nic_stats.items():
+                if not dev_lane.endswith('delta'):
+                    prev_values = {}
+                    for stat_tuple in NicStats._fields_:
+                        prev_values[stat_tuple[0]] = getattr(subdict, stat_tuple[0])
+
+                    cached_nic_stats[dev_lane] = prev_values
+        else:
+            self.log("No per lane stats in the cache")
+
+        bw = lambda x,y: float("%0.2f" % ((float(y)-float(x))*8.0e-9/deltat))
+        per_sec = lambda x,y: (int(x)-int(y))/deltat if deltat > 0 else (int(x)-int(y))
+
+        if bool(cached_nic_stats):
+            for key in nic_stats.keys():
+                nic_stats[key]['tx_bytes_bw'] = bw(cached_nic_stats[key]['tx_bytes'], nic_stats[key]['tx_bytes'])
+                nic_stats[key]['rx_bytes_bw'] = bw(cached_nic_stats[key]['rx_bytes'], nic_stats[key]['rx_bytes'])
+                nic_stats[key]['rx_pause_delta'] = per_sec(nic_stats[key]['rx_pause'], cached_nic_stats[key]['rx_pause'])
+        else:
+            for key in nic_stats.keys():
+                nic_stats[key]['tx_bytes_bw'] = 0
+                nic_stats[key]['rx_bytes_bw'] = 0
+                nic_stats[key]['rx_pause_delta'] = 0
+
+        for nic_lane, dict_stats in nic_stats.items():
+            nic = NicStats()
+            for k,v in dict_stats.items():
+                setattr(nic, k, v)
+
+            self.nic_stats[nic_lane] = nic
+
+    def refresh(self):
+        try:
+            self.refresh_mlnx_counters()
+            try:
+                self.refresh_nic_stats()
+            except:
+                self.log("Nic stats refresh failed")
+        except:
+            self.log("mlnx counters refresh failed")
+
+    def roce_stat_fetch(self):
+        ''' Called once per "fetch" PDU '''
+        self.refresh()
+        self.replace_indom(self.mlnx_indom, self.mlnx_counters)
+        self.replace_indom(self.nic_indom, self.nic_stats)
+
+    def roce_fetch_callback(self, cluster, item, inst):
+        """
+        Main fetch callback
+        """
+
+        if CLUSTER_HW <= cluster <= CLUSTER_HW_LINK:
+            return self.rocestat_fetch_mlnx_counters(item, inst)
+
+        if cluster == CLUSTER_NIC:
+            return self.rocestat_fetch_nic_stats(item, inst)
+
+        return [c_api.PM_ERR_PMID, 0]
+
+
+    def roce_store_callback(self, cluster, item, inst, val):
+        """
+        Store callback, executed when a request to write to a metric happens
+        """
+        self.log("storing values\n")
+
+
+    def __init__(self, name, domain, user, logfile):
+
+        super().__init__(name, domain, logfile)
+        if user is not None:
+            self.set_user(user)
+
+        self.connect_pmcd()
+
+        self.pmda_name = name
+
+        self.register_metrics(name)
+        self.set_fetch(self.roce_stat_fetch)
+
+        self.set_fetch_callback(self.roce_fetch_callback)
+        self.set_store_callback(self.roce_store_callback)
+
+    @staticmethod
+    def log(message):
+        PMDA.log(str(message))
+
+    @staticmethod
+    def err(message):
+        PMDA.err(message)
+
+    @classmethod
+    def in_pmda_setup(cls):
+        """Check if PMDA is in setup state"""
+        return os.environ.get('PCP_PYTHON_DOMAIN') or os.environ.get('PCP_PYTHON_PMNS')
+
+if __name__ == "__main__":
+    # This PMDA starts up in the "notready" state, see the Install script where
+    # the IPC protocol is ipc_prot="binary notready". See also pmcd(1) man page.
+    # The "binary notready" setting can also be manually configured in pmcd.conf.
+    pmda = ROCESTATPMDA(name='rocestat', domain=257, user="root", logfile='rocestat.log')
+
+    pmda.pmda_ready()
+    if not pmda.in_pmda_setup():
+        pmda.log("Ready to process requests.")
+
+    # Now enter the main loop
+    pmda.run()

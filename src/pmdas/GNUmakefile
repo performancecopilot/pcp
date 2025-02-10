@@ -38,7 +38,7 @@ PLPMDAS = bonding netfilter zimbra postgresql \
 PYPMDAS = bcc gluster zswap unbound mic haproxy \
 	json libvirt lio openmetrics elasticsearch \
 	bpftrace mssql netcheck rabbitmq openvswitch \
-	nfsclient mongodb
+	nfsclient mongodb rocestat
 
 SUBDIRS = $(CPMDAS) $(PLPMDAS) $(PYPMDAS)
 LDIRT = pmcd.conf

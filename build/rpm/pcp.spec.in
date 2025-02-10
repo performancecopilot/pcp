@@ -330,6 +330,7 @@ Requires: pcp-pmda-hacluster pcp-pmda-sockets pcp-pmda-podman
 Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-mic
 Requires: pcp-pmda-haproxy pcp-pmda-nfsclient pcp-pmda-lmsensors
 Requires: pcp-pmda-netcheck pcp-pmda-rabbitmq pcp-pmda-openvswitch
+Requires: pcp-pmda-rocestat
 %endif
 %if "@pmda_statsd@" == "true"
 Requires: pcp-pmda-statsd
@@ -1755,6 +1756,24 @@ This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about RabbitMQ message queues.
 #end pcp-pmda-rabbitmq
 
+#
+# pcp-pmda-rocestat
+#
+%package pmda-rocestat
+License: GPL-2.0-or-later
+Summary: Performance Co-Pilot (PCP) metrics for simple network checks
+URL: https://pcp.io
+Requires: pcp = @package_version@ pcp-libs = @package_version@
+%if "@enable_python3@" == "true"
+Requires: python3-pcp
+%else
+Requires: %{__python2}-pcp
+%endif
+%description pmda-rocestat
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting statistics for RDMA over Converged Ethernet (RoCE) devices.
+# end pcp-pmda-rocestat
+
 %endif
 
 %if "@pmda_libvirt@" == "true"
@@ -2356,6 +2375,7 @@ basic_manifest | keep '(etc/pcp|pmdas)/postfix(/|$)' >pcp-pmda-postfix-files
 basic_manifest | keep '(etc/pcp|pmdas)/postgresql(/|$)' >pcp-pmda-postgresql-files
 basic_manifest | keep '(etc/pcp|pmdas)/rabbitmq(/|$)' >pcp-pmda-rabbitmq-files
 basic_manifest | keep '(etc/pcp|pmdas)/redis(/|$)' >pcp-pmda-redis-files
+basic_manifest | keep '(etc/pcp|pmdas)/rocestat(/|$)' >pcp-pmda-rocestat-files
 basic_manifest | keep '(etc/pcp|pmdas)/roomtemp(/|$)' >pcp-pmda-roomtemp-files
 basic_manifest | keep '(etc/pcp|pmdas)/rsyslog(/|$)' >pcp-pmda-rsyslog-files
 basic_manifest | keep '(etc/pcp|pmdas)/samba(/|$)' >pcp-pmda-samba-files
@@ -2391,7 +2411,7 @@ for pmda_package in \
     nutcracker nvidia \
     openmetrics openvswitch oracle \
     pdns perfevent podman postfix postgresql \
-    rabbitmq redis roomtemp rsyslog \
+    rabbitmq redis rocestat roomtemp rsyslog \
     samba sendmail shping slurm smart snmp \
     sockets statsd summary systemd \
     unbound \
@@ -2805,6 +2825,9 @@ done
 
 %preun pmda-rabbitmq
 %{pmda_remove "$1" "rabbitmq"}
+
+%preun pmda-rocestat
+%{pmda_remove "$1" "rocestat"}
 %endif
 
 %preun pmda-apache
@@ -3107,6 +3130,8 @@ fi
 %files pmda-openvswitch -f pcp-pmda-openvswitch-files.rpm
 
 %files pmda-rabbitmq -f pcp-pmda-rabbitmq-files.rpm
+
+%files pmda-rocestat -f pcp-pmda-rocestat-files.rpm
 
 %files export-pcp2graphite -f pcp-export-pcp2graphite-files.rpm
 
