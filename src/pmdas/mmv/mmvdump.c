@@ -491,9 +491,10 @@ dump_values2(void *addr, size_t size, int idx, long base, __uint64_t offset, __i
 		return 1;
 	    }
 	    string = (mmv_disk_string_t *)((char *)addr + name);
-	    memcpy(buf, string->payload, sizeof(buf));
-	    buf[sizeof(buf)-1] = '\0';
-	    printf("[%d or \"%s\"]", instance->internal, buf);
+	    //pmstrncpy(buf, sizeof(buf), string->payload);
+	    //buf[sizeof(buf)-1] = '\0';
+	    //printf("[%d or \"%s\"]", instance->internal, buf);
+	    printf("[%d or \"%s\"]", instance->internal, string->payload);
 	}
 	dump_value(addr, size, vals, i, idx, metric->type);
     }
@@ -524,7 +525,7 @@ dump_strings(void *addr, size_t size, int idx, long base, __uint64_t offset, __i
 	__uint64_t off = offset + i * sizeof(mmv_disk_value_t);
 
 	if (size < off + sizeof(mmv_disk_string_t)) {
-	    printf("Bad file size: toc[%d] string[%d]\n", idx, i);
+	    printf("Bad file size: toc[%d] string[%d] size %" FMT_SIZE " < off %" FMT_SIZE " + %" FMT_SIZE "\n", idx, i, size, off, sizeof(mmv_disk_string_t));
 	    return 1;
 	}
 	printf("  [%u/%"PRIu64"] %s\n",
@@ -657,8 +658,8 @@ dump(const char *file, void *addr, size_t size)
 	count = toc[i].count;
 	offset = toc[i].offset;
 
-	if (count < 1) {
-	    printf("Bad TOC[%d]: invalid entry count %d\n", i, count);
+	if ((__int32_t)count < 1) {
+	    printf("Bad TOC[%d]: invalid entry count %d\n", i, (__int32_t)count);
 	    continue;
 	}
 

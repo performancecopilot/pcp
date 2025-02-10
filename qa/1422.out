@@ -121,7 +121,7 @@ mmv.spacex.keypool
     inst [2117158819 or "qa108/organizationsnapshot"] value NUMBER
     inst [2136477134 or "qa108/alertlog"] value NUMBER
 === std err ===
-[DATE] pminfo(PID) Warning: MMV: verify_metric_item: invalid item 1024 (mmv.spacex.packages.request.circuitbreaker.fallback) in large-parfait, ignored
+[DATE] pminfo(PID) Error: verify_metric_item: invalid item 1024 (mmv.spacex.packages.request.circuitbreaker.fallback) in large-parfait, ignored
 [DATE] pminfo(PID) Error: pmdaFetch: PMID 70.42.464 not handled by fetch callback
 [DATE] pminfo(PID) Error: pmdaFetch: PMID 70.42.464 not handled by fetch callback
 === filtered valgrind report ===

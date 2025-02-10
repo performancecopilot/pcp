@@ -5,7 +5,7 @@ Updating the Performance Metrics Name Space (PMNS) ...
 Terminate PMDA if already installed ...
 [...install files, make output...]
 Updating the PMCD control file, and notifying PMCD ...
-Check mmv metrics have appeared ... 3 metrics and 3 values
+Check mmv metrics have appeared ... 4 metrics and 4 values
 
 === Listing with a valid process and with prefix ===
 mmv.test.strings 2 "00oo00" ""
@@ -13,6 +13,7 @@ mmv.test.string 1 "g'day world"
 mmv.test.indom 2 43 0
 mmv.test.discrete 1 42
 mmv.test.counter 1 41
+mmv.control.metrics 1 6
 mmv.control.files 1 1
 mmv.control.debug 1 0
 mmv.control.reload 1 0
@@ -22,6 +23,7 @@ mmv.string 1 "g'day world"
 mmv.indom 2 43 0
 mmv.discrete 1 42
 mmv.counter 1 41
+mmv.control.metrics 1 6
 mmv.control.files 1 1
 mmv.control.debug 1 0
 mmv.control.reload 1 0
@@ -31,10 +33,12 @@ mmv.string 1 "g'day world"
 mmv.indom 2 43 0
 mmv.discrete 1 42
 mmv.counter 1 41
+mmv.control.metrics 1 6
 mmv.control.files 1 1
 mmv.control.debug 1 0
 mmv.control.reload 1 0
 === Listing without a valid process ===
+mmv.control.metrics 1 0
 mmv.control.files 1 0
 mmv.control.debug 1 0
 mmv.control.reload 1 0
@@ -51,4 +55,4 @@ Updating the Performance Metrics Name Space (PMNS) ...
 Terminate PMDA if already installed ...
 [...install files, make output...]
 Updating the PMCD control file, and notifying PMCD ...
-Check mmv metrics have appeared ... 3 metrics and 3 values
+Check mmv metrics have appeared ... 4 metrics and 4 values
