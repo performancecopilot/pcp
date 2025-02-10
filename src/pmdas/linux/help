@@ -3,7 +3,7 @@
 # Portions Copyright (c) International Business Machines Corp., 2002
 # Portions Copyright (c) 2007-2009 Aconex.  All Rights Reserved.
 # Portions Copyright (c) 2016-2017 Fujitsu.
-# Portions Copyright (c) 2013-2021 Red Hat.
+# Portions Copyright (c) 2013-2021,2023-2024 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -73,6 +73,7 @@ devices all share the same statistics in the kernel as the st devices.
 @ 60.40 per-processor IRQs
 @ 60.41 per-processor soft IRQs
 @ 60.42 scsi devices identified by unique WWID
+@ 60.43 set of hugepage sizes
 
 @ kernel.uname.release release level of the running kernel
 Release level of the running kernel as reported via the release[]
@@ -209,6 +210,13 @@ statistics to each physical device and to determine the proportion
 of traffic over different paths. See also multipathd(1), where the
 same ID strings (WWID) are used to identify different paths to each
 physical device.
+
+@ hinv.disk.ctlr physical disk device controller
+The disk controller is extracted from /sys/devices/pci0000:00/0000:<ctlr>.
+Multiple disks may share the same controller.
+
+@ hinv.disk.model physical disk device model
+The disk model is extracted from /sys/devices/.../model.
 
 @ disk.dev.avactive per-disk count of active time
 Counts the number of milliseconds for which at least one I/O is in
@@ -962,8 +970,29 @@ you will get real memory on demand, and just as much as you use.
 @ mem.util.hugepagesFreeBytes amount of memory in free hugepages
 @ mem.util.hugepagesRsvdBytes amount of memory in reserved hugepages
 @ mem.util.hugepagesSurpBytes amount of memory in surplus hugepages
-
 User memory (Kbytes) in pages not backed by files, e.g. from malloc()
+@ mem.util.shmemhugepages amount of shared memory allocated with hugepages
+@ mem.util.shmempmdmapped shared memory mapped into userspace with hugepages
+@ mem.util.filehugepages page cache (file) pages allocated with hugepages
+@ mem.util.filepmdmapped page cache mapped into userspace with hugepages
+@ mem.util.cmatotal total contiguous memory allocator memory
+@ mem.util.cmafree free contiguous memory allocator memory
+@ mem.util.unaccepted amount of unaccepted memory
+When this mechanism is in use, a virtual machine can be launched with
+its memory in an unaccepted state.  Such a system will not be able to
+make use of the memory provided until that memory has been explicitly
+accepted.  On these systems, the bootloader will typically pre-accept
+enough memory to allow the guest kernel to boot then that kernel must
+take responsibility for accepting the rest before using it.
+@ mem.util.zswap total size of the zswap memory pool
+@ mem.util.zswapped current memory used from the zswap memory pool
+@ mem.util.shadowcallstack memory used for shadown call stacks
+Shadow stacks are a modern security feature allowing for detection of
+corruption of the call stack, allowing the kernel to react to such an
+attach in an appropriate fashion.  Shadow stacks are often maintained
+by the processor hardware and require additional stack memory.
+@ mem.util.percpu amount of per CPU allocator memory
+
 @ mem.numa.util.total per-node total memory
 @ mem.numa.util.free per-node free memory
 @ mem.numa.util.used per-node used memory
@@ -1087,6 +1116,8 @@ from /proc/vmstat
 @ mem.vmstat.pgrefill_movable movable mem pages inspected in refill_inactive_zone
 Count of movable mem pages inspected in refill_inactive_zone since boot,
 from /proc/vmstat
+@ mem.vmstat.pgsteal_anon anonymous mem pages reclaimed
+Count of anonymous mem pages reclaimed since boot, from /proc/vmstat
 @ mem.vmstat.pgsteal_direct mem pages directly reclaimed
 Count of mem pages directly reclaimed since boot, from /proc/vmstat
 @ mem.vmstat.pgsteal_kswapd mem pages reclaimed by kswapd
@@ -1095,6 +1126,8 @@ Count of mem pages reclaimed by kswapd since boot, from /proc/vmstat
 Count of file memory pages reclaimed since boot, from /proc/vmstat
 @ mem.vmstat.pgsteal_high high mem pages reclaimed
 Count of high mem pages reclaimed since boot, from /proc/vmstat
+@ mem.vmstat.pgsteal_khugepaged huge page memory pages reclaimed
+Count of huge page memory pages reclaimed since boot, from /proc/vmstat
 @ mem.vmstat.pgsteal_normal normal mem pages reclaimed
 Count of normal mem pages reclaimed since boot, from /proc/vmstat
 @ mem.vmstat.pgsteal_dma dma mem pages reclaimed
@@ -1105,39 +1138,34 @@ Count of dma32 mem pages reclaimed since boot, from /proc/vmstat
 Count of movable mem pages reclaimed since boot, from /proc/vmstat
 @ mem.vmstat.pgsteal_kswapd_dma dma mem pages reclaimed by kswapd
 Count of dma mem pages reclaimed by kswapd since boot, from /proc/vmstat
-since Linux 3.4
 @ mem.vmstat.pgsteal_kswapd_dma32 dma32 mem pages reclaimed by kswapd
 Count of dma32 mem pages reclaimed by kswapd since boot, from /proc/vmstat
-since Linux 3.4
 @ mem.vmstat.pgsteal_kswapd_normal normal mem pages reclaimed by kswapd
 Count of normal mem pages reclaimed by kswapd since boot, from /proc/vmstat
-since Linux 3.4
 @ mem.vmstat.pgsteal_kswapd_movable movable mem pages reclaimed by kswapd
 Count of movable mem pages reclaimed by kswapd since boot, from /proc/vmstat
-since Linux 3.4
 @ mem.vmstat.pgsteal_direct_dma dma mem pages reclaimed
 Count of dma mem pages reclaimed since boot, from /proc/vmstat
-since Linux 3.4
 @ mem.vmstat.pgsteal_direct_dma32 dma32 mem pages reclaimed
 Count of dma32 mem pages reclaimed since boot, from /proc/vmstat
-since Linux 3.4
 @ mem.vmstat.pgsteal_direct_normal normal mem pages reclaimed
 Count of normal mem pages reclaimed since boot, from /proc/vmstat
-since Linux 3.4
 @ mem.vmstat.pgsteal_direct_movable movable mem pages reclaimed
 Count of movable mem pages reclaimed since boot, from /proc/vmstat
-since Linux 2.6.23
 @ mem.vmstat.pgsteal_total cumulative total mem pages reclaimed
+@ mem.vmstat.pgscan_anon anonymous mem pages scanned
+Count of anonymous mem pages scanned since boot, from /proc/vmstat
 @ mem.vmstat.pgscan_direct directly scanned mem pages
 Count of mem pages scanned directly since boot, from /proc/vmstat
-since Linux 3.4
 @ mem.vmstat.pgscan_direct_throttle throttled direct scanned mem pages
 Count of throttled mem pages scanned directly since boot, from /proc/vmstat
-since Linux 3.4
 @ mem.vmstat.pgscan_direct_total cumulative total of directly scanned mem pages
+@ mem.vmstat.pgscan_file file backed pages scanned
+Count of file backed mem pages scanned since boot, from /proc/vmstat
+@ mem.vmstat.pgscan_khugepaged huge page memory pages scanned
+Count of huge page memory pages scanned since boot, from /proc/vmstat
 @ mem.vmstat.pgscan_kswapd mem pages scanned by kswapd
 Count of mem pages scanned by kswapd since boot, from /proc/vmstat
-since Linux 3.4
 @ mem.vmstat.pgscan_kswapd_high high mem pages scanned by kswapd
 Count of high mem pages scanned by kswapd since boot, from /proc/vmstat
 @ mem.vmstat.pgscan_kswapd_normal normal mem pages scanned by kswapd
@@ -1302,6 +1330,14 @@ page table entry.
 @ mem.vmstat.nr_zspages number of compressed pages
 @ mem.vmstat.thp_file_alloc count of times huge pages were allocated and put in page cache
 @ mem.vmstat.thp_file_mapped count of times huge pages were used for file mappings
+@ mem.vmstat.pgdemote_direct count of direct reclaims of memory pages
+Counts the direct reclaim and occurs when a page allocation is requested but
+there is no more space in DRAM.
+@ mem.vmstat.pgdemote_kswapd count of periodic reclaims performed by the kernel
+@ mem.vmstat.pgdemote_khugepaged count of periodic reclaims of huge pages performed by the kernel
+@ mem.vmstat.pgdemote_total count of total reclaims performed by the kernel
+@ mem.vmstat.pgpromote_success count of successfully promoted pages
+@ mem.vmstat.pgpromote_candidate count of candidates that get selected for promotion
 @ mem.zoneinfo.free free space in each zone for each NUMA node
 @ mem.zoneinfo.min  min space in each zone for each NUMA node
 @ mem.zoneinfo.low  low space in each zone for each NUMA node
@@ -1395,6 +1431,14 @@ each NUMA node.
 @ mem.ksm.pages_volatile Number of pages that are candidate to be shared
 @ mem.ksm.run_state Whether the KSM daemon has run and/or is running
 @ mem.ksm.sleep_time Time ksmd should sleep between batches
+@ mem.hugepages.pagesize Available sizes for huge pages
+@ mem.hugepages.free Huge page space not yet allocated
+@ mem.hugepages.reserved Huge page space committed but not yet allocated
+@ mem.hugepages.surplus Huge page space in the pool above total size
+@ mem.hugepages.totalsize Amount of memory consumed by each huge page size
+@ mem.hugepages.overcommit Upper bound on huge page space available for allocation
+@ mem.vmmemctl.current Virtual machine balloon memory actually allocated
+@ mem.vmmemctl.target Virtual machine balloon memory allocation target size
 
 @ swap.length total swap available metric from /proc/meminfo
 @ swap.used swap used metric from /proc/meminfo
@@ -1550,6 +1594,9 @@ See also network.interface.speed for the Megabytes/second value.
 @ network.softnet.cpu_collision number of times that two cpus collided trying to get the device queue lock
 @ network.softnet.received_rps number of times rps_trigger_softirq has been called
 @ network.softnet.flow_limit_count softnet_data flow limit counter
+@ network.softnet.total_backlog sum of softnet input and process queue lengths
+@ network.softnet.input_qlen softnet input packet queue length
+@ network.softnet.process_qlen softnet process queue length
 @ network.softnet.percpu.processed number of packets (not including netpoll) received by the interrupt handler
 @ network.softnet.percpu.dropped number of packets that were dropped because netdev_max_backlog was exceeded
 @ network.softnet.percpu.time_squeeze number of times ksoftirq ran out of netdev_budget or time slice with work remaining
@@ -1560,6 +1607,9 @@ The network stack has to drop packets when a receive processing a CPUs
 backlog reaches netdev_max_backlog.  The flow_limit_count counter is
 the number of times very active flows have dropped their traffic earlier
 to maintain capacity for other less active flows.
+@ network.softnet.percpu.total_backlog sum of softnet input and process queue lengths
+@ network.softnet.percpu.input_qlen softnet input packet queue length
+@ network.softnet.percpu.process_qlen softnet process queue length
 
 @ network.ip6.inreceives count of ip6 inreceives
 @ network.ip6.inhdrerrors count of ip6 inhdrerrors
@@ -1700,6 +1750,10 @@ are SCSI tapes and scd[0-9] are SCSI CD-ROMS.
 @ filesys.blocksize Size of each block on mounted filesystem (Bytes)
 @ filesys.avail Total space free to non-superusers on mounted filesystem (Kbytes)
 @ filesys.readonly Indicates whether a filesystem is mounted readonly
+@ filesys.uuid UUID of a mounted filesystem
+The UUID of the block device behind each mounted filesystem.
+If the device does not have a UUID, the value "" is returned.
+@ filesys.type mounted filesystem type from /proc/*/mounts
 @ tmpfs.capacity Total capacity of mounted tmpfs filesystem (Kbytes)
 @ tmpfs.used Total space used on mounted tmpfs filesystem (Kbytes)
 @ tmpfs.free Total space free on mounted tmpfs filesystem (Kbytes)
@@ -2139,6 +2193,15 @@ When kernel CONFIG_COMPACTION compile option is active in the running kernel
 this metric exports the fraction of Normal zone memory that is unusuable for
 all NUMA nodes. Note that it is extracted using the sysfs debug namespace so
 it may not persist in future kernel versions.
+@ sysfs.module.zswap.max_pool_percent percentage of memory compressed pool can use
+@ sysfs.module.zswap.enabled kernel string indicating zswap module state
+
+@ hyperv.balloon.state State of Hyper-V memory ballooning
+@ hyperv.balloon.pagesize Hyper-V balloon memory page size in bytes
+@ hyperv.balloon.added Hyper-V balloon memory pages added in bytes
+@ hyperv.balloon.onlined Hyper-V balloon memory onlined after hot adding
+@ hyperv.balloon.ballooned Hyper-V balloon memory given back to host
+@ hyperv.balloon.total_committed Total committed Hyper-V balloon memory
 
 @ hinv.ntape number of Linux scsi tape devices
 @ tape.dev.in_flight number of I/Os currently outstanding to this tape device
@@ -2551,6 +2614,7 @@ the Z field of the Tcp line from /proc/net/netstat
 @ network.tcp.tcpmigratereqsuccess the TCPMigrateReqSuccess field of the Tcp line from /proc/net/netstat
 @ network.tcp.tcpmigratereqfailure the TCPMigrateReqFailure field of the Tcp line from /proc/net/netstat
 @ network.ip.reasmoverlaps the ReasmOverlaps field of the Ip line from /proc/net/netstat
+@ network.ip.outtransmits the OutTransmits field of the Ip line from /proc/net/snmp
 @ network.mptcp.dssnomatchtcp the DSSNoMatchTCP field of the MPTcp line from /proc/net/netstat
 Multipath TCP DSS-mapping did not map with TCP's sequence numbers.
 @ network.mptcp.datacsumerr the DataCsumErr field of the MPTcp line from /proc/net/netstat
@@ -2593,6 +2657,11 @@ Multipath TCP MP_PRIO receives.
 Incoming multipath packet dropped due to memory limit.
 @ network.tcp.tcploss the TCPLOSS field of the Tcp line from /proc/net/netstat
 @ network.tcp.tcpplbrehash the TCPPLBRehash field of the Tcp line from /proc/net/netstat
+@ network.tcp.tcpaorequired the TCPAORequired field of the Tcp line from /proc/net/netstat
+@ network.tcp.tcpaobad the TCPAOBad field of the Tcp line from /proc/net/netstat
+@ network.tcp.tcpaokeynotfound the TCPAOKeyNotFound field of the Tcp line from /proc/net/netstat
+@ network.tcp.tcpaogood the TCPAOGood field of the Tcp line from /proc/net/netstat
+@ network.tcp.tcpaodroppedicmps the TCPAODroppedIcmps field of the Tcp line from /proc/net/netstat
 @ network.mptcp.mpfailtx the MPFailTx field of the MPTcp line from /proc/net/netstat
 Multipath TCP MP_FAIL transmits.
 @ network.mptcp.mpfailrx the MPFailRx field of the MPTcp line from /proc/net/netstat
@@ -2614,6 +2683,25 @@ Multipath TCP incoming RM_ADDR drops.
 @ network.mptcp.rcvwndshared the RcvWndShared field of the MPTcp line from /proc/net/netstat
 @ network.mptcp.rcvwndconflictupdate the RcvWndConflictUpdate field of the MPTcp line from /proc/net/netstat
 @ network.mptcp.rcvwndconflict the RcvWndConflict field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.addaddrtx the AddAddrTx field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.addaddrtxdrop the AddAddrTxDrop field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.echoaddtx the EchoAddTx field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.echoaddtxdrop the EchoAddTxDrop field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.rmaddrtx the RmAddrTx field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.rmaddrtxdrop the RmAddrTxDrop field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.mpcurrestab the MPCurrEstab field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.mpjoinsynbackuprx the MPJoinSynBackupRx field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.mpjoinsynackbackuprx the MPJoinSynAckBackupRx field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.mpcapableendpattempt the MPCapableEndpAttempt field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.dsscorruptionfallback the DSSCorruptionFallback field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.dsscorruptionreset the DSSCorruptionReset field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.mpcapablesyntxdrop the MPCapableSYNTXDrop field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.mpcapablesyntxdisabled the MPCapableSYNTXDisabled field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.mpjoinsyntx the MPJoinSynTx field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.mpjoinsyntxcreatskerr the MPJoinSynTxCreatSkErr field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.mpjoinsyntxbinderr the MPJoinSynTxBindErr field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.mpjoinsyntxconnecterr the MPJoinSynTxConnectErr field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.blackhole the Blackhole field of the MPTcp line from /proc/net/netstat
 
 @ disk.wwid.scsi_paths per-device/wwid scsi paths to same physical device
 The value of this string typed metric is the sd paths to the same physical

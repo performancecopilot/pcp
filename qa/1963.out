@@ -1,0 +1,15 @@
+QA output created by 1963
+== Checking hinv.cpu.clock metric values - sysfs-cpufreq-scaling-001.tgz
+
+hinv.cpu.clock
+    inst [N or "cpu0"] value 912
+    inst [N or "cpu1"] value 912
+    inst [N or "cpu2"] value 912
+    inst [N or "cpu3"] value 912
+    inst [N or "cpu4"] value 702
+    inst [N or "cpu5"] value 702
+    inst [N or "cpu6"] value 2208
+    inst [N or "cpu7"] value 2208
+
+== done
+

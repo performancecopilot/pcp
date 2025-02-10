@@ -206,15 +206,15 @@ Output archive files:
 Removing input archive files ...... done
 --- TMP.in
 +++ TMP.out
-@@ -40,7 +40,7 @@
-     Data Type: 32-bit int  InDom: 30.2 0x7800002
+@@ -52,7 +52,7 @@
+     Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
      Semantics: instant  Units: none
  PMID: 30.0.27 (sampledso.double.hundred)
 -    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
 +    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
      Semantics: instant  Units: none
- PMID: 30.0.3 (sampledso.milliseconds)
-     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+ PMID: 30.0.50 (sampledso.part_bin)
+     Data Type: 32-bit int  InDom: 30.2 0x7800002
 @@ -121,10 +121,10 @@
  21:10:11.751520	      0          132          132
  21:10:11.876269	      0          350          284
@@ -250,15 +250,15 @@ Output archive files:
 Removing input archive files ...... done
 --- TMP.in
 +++ TMP.out
-@@ -40,7 +40,7 @@
-     Data Type: 32-bit int  InDom: 30.2 0x7800002
+@@ -52,7 +52,7 @@
+     Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
      Semantics: instant  Units: none
  PMID: 30.0.27 (sampledso.double.hundred)
 -    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
 +    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
      Semantics: instant  Units: none
- PMID: 30.0.3 (sampledso.milliseconds)
-     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+ PMID: 30.0.50 (sampledso.part_bin)
+     Data Type: 32-bit int  InDom: 30.2 0x7800002
 @@ -121,10 +121,10 @@
  21:10:11.751520	      0          132          132
  21:10:11.876269	      0          350          284
@@ -294,15 +294,15 @@ Output archive files:
 Removing input archive files ...... done
 --- TMP.in
 +++ TMP.out
-@@ -40,7 +40,7 @@
-     Data Type: 32-bit int  InDom: 30.2 0x7800002
+@@ -52,7 +52,7 @@
+     Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
      Semantics: instant  Units: none
  PMID: 30.0.27 (sampledso.double.hundred)
 -    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
 +    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
      Semantics: instant  Units: none
- PMID: 30.0.3 (sampledso.milliseconds)
-     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+ PMID: 30.0.50 (sampledso.part_bin)
+     Data Type: 32-bit int  InDom: 30.2 0x7800002
 @@ -121,10 +121,10 @@
  21:10:11.751520	      0          132          132
  21:10:11.876269	      0          350          284
@@ -338,15 +338,15 @@ Output archive files:
 Removing input archive files ...... done
 --- TMP.in
 +++ TMP.out
-@@ -40,7 +40,7 @@
-     Data Type: 32-bit int  InDom: 30.2 0x7800002
+@@ -52,7 +52,7 @@
+     Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
      Semantics: instant  Units: none
  PMID: 30.0.27 (sampledso.double.hundred)
 -    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
 +    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
      Semantics: instant  Units: none
- PMID: 30.0.3 (sampledso.milliseconds)
-     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+ PMID: 30.0.50 (sampledso.part_bin)
+     Data Type: 32-bit int  InDom: 30.2 0x7800002
 @@ -121,10 +121,10 @@
  21:10:11.751520	      0          132          132
  21:10:11.876269	      0          350          284

@@ -8,6 +8,8 @@ Released under the GNU GPLv2+, see the COPYING file
 in the source distribution for its full text.
 */
 
+#include "config.h" // IWYU pragma: keep
+
 #include "netbsd/NetBSDProcess.h"
 
 #include <stdlib.h>
@@ -149,6 +151,7 @@ const ProcessFieldData Process_fields[LAST_PROCESSFIELD] = {
       .flags = 0,
       .defaultSortDesc = true,
       .autoWidth = true,
+      .autoTitleRightAlign = true,
    },
    [PERCENT_NORM_CPU] = {
       .name = "PERCENT_NORM_CPU",
@@ -216,7 +219,7 @@ Process* NetBSDProcess_new(const Machine* host) {
    NetBSDProcess* this = xCalloc(1, sizeof(NetBSDProcess));
    Object_setClass(this, Class(NetBSDProcess));
    Process_init(&this->super, host);
-   return &this->super;
+   return (Process*)this;
 }
 
 void Process_delete(Object* cast) {
@@ -225,16 +228,20 @@ void Process_delete(Object* cast) {
    free(this);
 }
 
-static void NetBSDProcess_writeField(const Process* this, RichString* str, ProcessField field) {
+static void NetBSDProcess_rowWriteField(const Row* super, RichString* str, ProcessField field) {
+   const NetBSDProcess* np = (const NetBSDProcess*) super;
+
    char buffer[256]; buffer[255] = '\0';
    int attr = CRT_colors[DEFAULT_COLOR];
+   //size_t n = sizeof(buffer) - 1;
 
    switch (field) {
    // add NetBSD-specific fields here
    default:
-      Process_writeField(this, str, field);
+      Process_writeField(&np->super, str, field);
       return;
    }
+
    RichString_appendWide(str, attr, buffer);
 }
 
@@ -254,11 +261,18 @@ static int NetBSDProcess_compareByKey(const Process* v1, const Process* v2, Proc
 
 const ProcessClass NetBSDProcess_class = {
    .super = {
-      .extends = Class(Process),
-      .display = Process_display,
-      .delete = Process_delete,
-      .compare = Process_compare
+      .super = {
+         .extends = Class(Process),
+         .display = Row_display,
+         .delete = Process_delete,
+         .compare = Process_compare
+      },
+      .isHighlighted = Process_rowIsHighlighted,
+      .isVisible = Process_rowIsVisible,
+      .matchesFilter = Process_rowMatchesFilter,
+      .compareByParent = Process_compareByParent,
+      .sortKeyString = Process_rowGetSortKey,
+      .writeField = NetBSDProcess_rowWriteField
    },
-   .writeField = NetBSDProcess_writeField,
    .compareByKey = NetBSDProcess_compareByKey
 };

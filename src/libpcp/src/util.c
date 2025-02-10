@@ -288,18 +288,22 @@ logreopen(const char *progname, const char *logname, FILE *oldstream,
 	 */
 	return NULL;
     }
-
     oldfd = fileno(oldstream);
     if ((dupoldfd = dup(oldfd)) >= 0) {
 	/*
-	 * try to remove the file first ... don't bother if this fails,
-	 * but if it succeeds, we at least get a chance to define the
-	 * owner and mode, rather than inheriting this from an existing
+	 * try to rename or remove the file first ... don't bother if this
+	 * fails, but if it succeeds, we at least get a chance to define
+	 * the owner and mode, rather than inheriting this from an existing
 	 * writeable file ... really only a problem when called as with
 	 * uid == 0, e.g. from pmcd(1).
 	 */
-	unlink(logname);
+	char		prev[MAXPATHLEN+1];
 
+	pmsprintf(prev, sizeof(prev)-1, "%s.prev", logname);
+	unlink(prev);
+	if (rename(logname, prev) < 0) {
+	    unlink(logname);
+	}
 	oldstream = outstream = freopen(logname, "w", oldstream);
 	if (oldstream == NULL) {
 	    int		save_error = oserror();	/* need for error message */
@@ -705,27 +709,32 @@ __pmStringListFind(const char *item, int numElements, char **list)
  * Needed since tracing PDUs really messes __pmDump*() routines
  * up when pmNameInDom is called internally.
  */
-static void
-save_debug(void)
+void
+__pmCtlDebug(int op)
 {
     int		i;
 
-    for (i = 0; i < num_debug; i++) {
-	debug_map[i].state = *(debug_map[i].options);
-	*(debug_map[i].options) = 0;
+    if (op == PM_CTL_DEBUG_SAVE) {
+	/*
+	 * save and clear all debug info
+	 */
+	for (i = 0; i < num_debug; i++) {
+	    debug_map[i].state = *(debug_map[i].options);
+	    *(debug_map[i].options) = 0;
+	    if (debug_map[i].bit != 0)
+		pmDebug &= ~debug_map[i].bit;
+	}
+	pmDebug = 0;
     }
-    pmDebug = 0;
-}
-
-static void
-restore_debug(void)
-{
-    int		i;
-
-    for (i = 0; i < num_debug; i++) {
-	*(debug_map[i].options) = debug_map[i].state;
-	if (debug_map[i].state && debug_map[i].bit != 0)
-	    pmDebug |= debug_map[i].bit;
+    else if (op == PM_CTL_DEBUG_RESTORE) {
+	/*
+	 * restore debug info, assuming earlier PM_CTL_DEBUG_SAVE call
+	 */
+	for (i = 0; i < num_debug; i++) {
+	    *(debug_map[i].options) = debug_map[i].state;
+	    if (debug_map[i].state && debug_map[i].bit != 0)
+		pmDebug |= debug_map[i].bit;
+	}
     }
 }
 
@@ -811,15 +820,14 @@ __pmDumpResult_ctx(__pmContext *ctxp, FILE *f, const pmResult *resp)
 
     if (ctxp != NULL)
 	PM_ASSERT_IS_LOCKED(ctxp->c_lock);
-
-    save_debug();
+    __pmCtlDebug(PM_CTL_DEBUG_SAVE);
     fprintf(f, "pmResult dump from " PRINTF_P_PFX "%p timestamp: %d.%06d ",
 	resp, (int)resp->timestamp.tv_sec, (int)resp->timestamp.tv_usec);
     pmPrintStamp(f, &resp->timestamp);
     fprintf(f, " numpmid: %d\n", resp->numpmid);
     for (i = 0; i < resp->numpmid; i++)
 	dump_valueset(ctxp, f, resp->vset[i]);
-    restore_debug();
+    __pmCtlDebug(PM_CTL_DEBUG_RESTORE);
 }
 
 void
@@ -837,14 +845,14 @@ __pmPrintResult_ctx(__pmContext *ctxp, FILE *f, const __pmResult *resp)
     if (ctxp != NULL)
 	PM_ASSERT_IS_LOCKED(ctxp->c_lock);
 
-    save_debug();
+    __pmCtlDebug(PM_CTL_DEBUG_SAVE);
     fprintf(f, "__pmResult dump from " PRINTF_P_PFX "%p timestamp: %" FMT_INT64 ".%09d ",
 	resp, resp->timestamp.sec, resp->timestamp.nsec);
     __pmPrintTimestamp(f, &resp->timestamp);
     fprintf(f, " numpmid: %d\n", resp->numpmid);
     for (i = 0; i < resp->numpmid; i++)
 	dump_valueset(ctxp, f, resp->vset[i]);
-    restore_debug();
+    __pmCtlDebug(PM_CTL_DEBUG_RESTORE);
 }
 
 void
@@ -862,7 +870,7 @@ __pmDumpHighResResult_ctx(__pmContext *ctxp, FILE *f, const pmHighResResult *hre
     if (ctxp != NULL)
 	PM_ASSERT_IS_LOCKED(ctxp->c_lock);
 
-    save_debug();
+    __pmCtlDebug(PM_CTL_DEBUG_SAVE);
     fprintf(f, "%s dump from " PRINTF_P_PFX "%p timestamp: %lld.%09lld ",
 	    "pmHighResResult", hresp,
 	    (long long)hresp->timestamp.tv_sec,
@@ -871,7 +879,7 @@ __pmDumpHighResResult_ctx(__pmContext *ctxp, FILE *f, const pmHighResResult *hre
     fprintf(f, " numpmid: %d\n", hresp->numpmid);
     for (i = 0; i < hresp->numpmid; i++)
 	dump_valueset(ctxp, f, hresp->vset[i]);
-    restore_debug();
+    __pmCtlDebug(PM_CTL_DEBUG_RESTORE);
 }
 
 void
@@ -976,6 +984,18 @@ print_event_summary(FILE *f, const pmValue *val, int highres)
     fputc(']', f);
 }
 
+static void
+squash_string(char *s, unsigned int len)
+{
+    unsigned int i;
+
+    /* replace end-of-line characters */
+    for (i = 0; i < len; i++) {
+	if (isspace(s[i]))
+	    s[i] = ' ';
+    }
+}
+
 /* Print single pmValue. */
 void
 pmPrintValue(FILE *f,			/* output stream */
@@ -989,6 +1009,16 @@ pmPrintValue(FILE *f,			/* output stream */
     int         n;
     char        *p;
     int		sts;
+    static int	squashed = -1;
+
+    if (squashed == -1) {
+	/* one-trip initialization */
+	PM_LOCK(__pmLock_extcall);
+	squashed = 0;
+	if (getenv("PCP_SQUASH_NEWLINES") != NULL)	/* THREADSAFE */
+	    squashed = 1;
+	PM_UNLOCK(__pmLock_extcall);
+    }
 
     if (type != PM_TYPE_UNKNOWN &&
 	type != PM_TYPE_EVENT &&
@@ -1024,7 +1054,10 @@ pmPrintValue(FILE *f,			/* output stream */
         break;
 
     case PM_TYPE_STRING:
-	n = (int)strlen(a.cp) + 2;
+	n = (int)strlen(a.cp);
+	if (squashed)
+	    squash_string(a.cp, n);
+	n += 2;
 	while (n < minwidth) {
 	    fputc(' ', f);
 	    n++;
@@ -1115,6 +1148,8 @@ pmPrintValue(FILE *f,			/* output stream */
 			n++;
 		    }
 		    n = (int)val->value.pval->vlen - PM_VAL_HDR_SIZE;
+		    if (squashed)
+	    	        squash_string(val->value.pval->vbuf, n);
 		    fprintf(f, "\"%*.*s\"", n, n, val->value.pval->vbuf);
 		    done = 1;
 		}
@@ -3161,4 +3196,246 @@ __pmLogFeaturesStr(__uint32_t features)
     }
 
     return(ans);
+}
+
+/* map inode type part of st_mode from lstat() -> string */
+static char *
+inodetype(mode_t st_mode)
+{
+    switch (st_mode & S_IFMT) {
+	case S_IFBLK:	return "block device";
+	case S_IFCHR:	return "character device";
+	case S_IFDIR:	return "directory";
+	case S_IFIFO:	return "FIFO/pipe";
+	case S_IFREG:	return "regular file";
+#if !defined(IS_MINGW)
+	case S_IFLNK:	return "symlink";
+	case S_IFSOCK:	return "socket";
+#endif
+	default:	return "unknown?";
+    }
+}
+
+/*
+ * check the validity of an entry from a map file directory (path)
+ * ... should be numeric, with some restrictions and should be the
+ * PID of a running process
+ * the entry is either name (for a regular file) or link (if name
+ * is a symlink, then the value of the symlink)
+ */
+static int
+check_map_name(const char *path, const char *name, const char *link, const char *link_pid)
+{
+    long	numb;
+    int		sts;
+    pid_t	pid;
+    char	*p;
+
+    setoserror(0);
+    if (link_pid != NULL)
+	numb = strtol(link_pid, &p, 10);
+    else
+	numb = strtol(name, &p, 10);
+    sts = oserror();
+    if (*p != '\0') {
+	if (pmDebugOptions.misc) {
+	    fprintf(stderr, "__pmCleanMapDir: %s", path);
+	    if (link) fprintf(stderr, " -> %s (%s)", link, link_pid);
+	    fprintf(stderr, ": remove: name not numeric so cannot be a PID\n");
+	}
+	return 0;
+    }
+    if (numb < 1) {
+	if (pmDebugOptions.misc) {
+	    fprintf(stderr, "__pmCleanMapDir: %s", path);
+	    if (link) fprintf(stderr, " -> %s (%s)", link, link_pid);
+	    fprintf(stderr, ": remove: PID must be at least 1\n");
+	}
+	return 0;
+    }
+    pid = numb;
+    if (sts == ERANGE || pid != numb) {
+	if (pmDebugOptions.misc) {
+	    fprintf(stderr, "__pmCleanMapDir: %s", path);
+	    if (link) fprintf(stderr, " -> %s (%s)", link, link_pid);
+	    fprintf(stderr, ": remove: pid_t overflow so cannot be a PID\n");
+	}
+	return 0;
+    }
+    if (!__pmProcessExists(pid)) {
+	if (pmDebugOptions.misc) {
+	    fprintf(stderr, "__pmCleanMapDir: %s", path);
+	    if (link) fprintf(stderr, " -> %s (%s)", link, link_pid);
+	    fprintf(stderr, ": remove: process does not exist\n");
+	}
+	return 0;
+    }
+
+    return 1;
+}
+
+#if defined(IS_MINGW)
+#define lstat(p,s)	stat(p,s)
+#endif
+
+/*
+ * remove old files from a map directory
+ * - use -Dmisc for verbose diagnostics
+ */
+int
+__pmCleanMapDir(const char *dirname, const char * special)
+{
+    int			n = 0;
+    int			sts;
+    struct stat		sbuf;
+    DIR			*dirp;
+    struct dirent	*dp;
+    char		errmsg[PM_MAXERRMSGLEN];
+    char		path[MAXPATHLEN+1];
+
+    PM_LOCK(__pmLock_extcall);		/* hold lock throughout */
+
+    if ((sts = lstat(dirname, &sbuf)) < 0) {
+	sts = -oserror();
+	PM_UNLOCK(__pmLock_extcall);
+	if (pmDebugOptions.misc)
+	    fprintf(stderr, "__pmCleanMapDir: lstat(%s) failed: %s\n",
+		dirname, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	return sts;
+    }
+
+    if ((sbuf.st_mode & S_IFMT) != S_IFDIR) {
+	sts = -ENOTDIR;
+	PM_UNLOCK(__pmLock_extcall);
+	if (pmDebugOptions.misc)
+	    fprintf(stderr, "__pmCleanMapDir: dirname %s: is a %s: %s\n",
+		dirname, inodetype(sbuf.st_mode), pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	return sts;
+    }
+
+#if !defined(IS_MINGW)
+    if (sbuf.st_uid != geteuid()) {
+	sts = -EPERM;
+	PM_UNLOCK(__pmLock_extcall);
+	if (pmDebugOptions.misc)
+	    fprintf(stderr, "__pmCleanMapDir: dirname %s: uid %d different to caller uid %d: %s\n",
+		dirname, sbuf.st_uid, geteuid(), pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	return sts;
+    }
+
+    if (sbuf.st_gid != getegid()) {
+	sts = -EPERM;
+	PM_UNLOCK(__pmLock_extcall);
+	if (pmDebugOptions.misc)
+	    fprintf(stderr, "__pmCleanMapDir: dirname %s: gid %d different to caller gid %d: %s\n",
+		dirname, sbuf.st_gid, getegid(), pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	return sts;
+    }
+#endif
+
+    if ((dirp = opendir(dirname)) == NULL) {
+	sts = -oserror();
+	PM_UNLOCK(__pmLock_extcall);
+	if (pmDebugOptions.misc)
+	    fprintf(stderr, "__pmCleanMapDir: opendir(%s) failed: %s\n",
+		dirname, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	return sts;
+    }
+
+    while ((dp = readdir(dirp)) != NULL) {
+	if (strcmp(dp->d_name, ".") == 0) continue;
+	if (strcmp(dp->d_name, "..") == 0) continue;
+	pmsprintf(path, sizeof(path)-1, "%s%c%s", dirname, pmPathSeparator(), dp->d_name);
+	if ((sts = lstat(path, &sbuf)) < 0) {
+	    sts = -oserror();
+	    if (pmDebugOptions.misc) {
+		fprintf(stderr, "__pmCleanMapDir: lstat(%s) failed: %s\n",
+		    path, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	    }
+	    continue;
+	}
+	if (special != NULL && strcmp(dp->d_name, special) == 0) {
+	    ssize_t	llen;
+	    char	link[MAXPATHLEN+1];
+	    char	*lp;
+	    char	*linkp;
+	    char	sep = pmPathSeparator();
+
+	    if ((sts = lstat(path, &sbuf)) < 0) {
+		sts = -oserror();
+		if (pmDebugOptions.misc)
+		    fprintf(stderr, "__pmCleanMapDir: lstat(%s) [special] failed: %s\n",
+			path, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+		goto unlink;
+	    }
+	    if (!S_ISLNK(sbuf.st_mode)) {
+		if (pmDebugOptions.misc)
+		    fprintf(stderr, "__pmCleanMapDir: %s [special]: remove: is a %s, expected a symlink\n",
+			path, inodetype(sbuf.st_mode));
+		goto unlink;
+	    }
+	    /*
+	     * ignore the (silent) possible truncation by readlink(2) ...
+	     * if this happens the link is a priori bogus and the checks
+	     * below will remove it
+	     */
+	    if ((llen = readlink(path, link, sizeof(link)-1)) < 0) {
+		sts = -oserror();
+		if (pmDebugOptions.misc)
+		    fprintf(stderr, "__pmCleanMapDir: readlink(%s) failed: %s\n",
+			path, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+		goto unlink;
+	    }
+	    /*
+	     * for the "special" symlink, expect the value to be an
+	     * optional path prefix, followed by a number (PID),
+	     * e.g. 1234 or /foo/bar/someplace/1234
+	     */
+	    link[llen] = '\0';
+	    linkp = link;
+	    for (lp = link; *lp; lp++) {
+		if (*lp == sep)
+		    /* start of next component in path */
+		    linkp = &lp[1];
+	    }
+	    if (*linkp == '\0')
+		/* path prefix, then nothing to folow ... */
+		linkp = link;
+	    if (check_map_name(path, dp->d_name, link, linkp)) {
+		if (pmDebugOptions.misc) {
+		    fprintf(stderr, "__pmCleanMapDir: %s [special]: keep: OK\n",
+			path);
+		}
+	    }
+	    else
+		goto unlink;
+	}
+	else {
+	    if (check_map_name(path, dp->d_name, NULL, NULL)) {
+		if (pmDebugOptions.misc) {
+		    fprintf(stderr, "__pmCleanMapDir: %s: keep: OK\n",
+			path);
+		}
+	    }
+	    else
+		goto unlink;
+	}
+	continue;
+
+unlink:
+	if (unlink(path) < 0) {
+	    sts = -oserror();
+	    if (pmDebugOptions.misc) {
+		fprintf(stderr, "__pmCleanMapDir: unlink(%s) failed: %s\n",
+		    path, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	    }
+	}
+	else
+	    n++;
+    }
+
+    closedir(dirp);
+
+    PM_UNLOCK(__pmLock_extcall);
+    return n;
 }

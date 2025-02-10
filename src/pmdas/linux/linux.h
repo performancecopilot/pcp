@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2023 Red Hat.
+ * Copyright (c) 2016-2024 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -56,7 +56,7 @@ enum {
 	PROC_PID_IO,		/* 32 /proc/<pid>/io -> proc PMDA */
 	CLUSTER_NET_ADDR,	/* 33 /proc/net/dev and ioctl(SIOCGIFCONF) */
 	CLUSTER_TMPFS,		/* 34 /proc/mounts + statfs (tmpfs only) */
-	CLUSTER_SYSFS_KERNEL,	/* 35 /sys/kernel metrics */
+	CLUSTER_SYSFS_KERNEL,	/* 35 /sys/kernel + /sys/module metrics */
 	CLUSTER_NUMA_MEMINFO,	/* 36 /sys/devices/system/node* NUMA memory */
 	PROC_CGROUP_SUBSYS,	/* 37 /proc/cgroups control group subsystems -> proc PMDA */
 	PROC_CGROUP_MOUNTS,	/* 38 /proc/mounts active control groups -> proc PMDA */
@@ -115,6 +115,7 @@ enum {
 	CLUSTER_FCHOST,		/* 91 /sys/class/fc_host metrics */
 	CLUSTER_WWID,		/* 92 multipath aggregated stats */
 	CLUSTER_PRESSURE_IRQ,	/* 93 /proc/pressure/irq metrics */
+	CLUSTER_HUGEPAGES,	/* 94 /sys/kernel/mm/hugepages metrics */
 
 	NUM_CLUSTERS		/* one more than highest numbered cluster */
 };
@@ -141,6 +142,9 @@ enum {
 
 	REFRESH_SYSFS_KERNEL_UEVENTSEQ,
 	REFRESH_SYSFS_KERNEL_EXTFRAG,
+	REFRESH_SYSFS_MODULE_ZSWAP,
+	REFRESH_SYSFS_KERNEL_VMMEMCTL,
+	REFRESH_SYSFS_KERNEL_HVBALLOON,
 
 	NUM_REFRESHES		/* one more than highest refresh index */
 };
@@ -192,6 +196,7 @@ enum {
 	INTERRUPT_CPU_INDOM,	/* 40 - per-CPU interrupt lines */
 	SOFTIRQ_CPU_INDOM,	/* 41 - per-CPU soft IRQs */
 	WWID_INDOM,		/* 42 - per-WWID multipath device */
+	HUGEPAGES_INDOM,	/* 43 - hugepages (fixed sizes) */
 
 	NUM_INDOMS		/* one more than highest numbered cluster */
 };
@@ -292,6 +297,7 @@ typedef struct {
     uint64_t		time;
     uint32_t		max;
     uint32_t		min;
+    float		scale;
 } cpufreq_t;
 
 typedef struct {
@@ -302,6 +308,9 @@ typedef struct {
     uint64_t		cpu_collision;
     uint64_t		received_rps;
     uint64_t		flow_limit_count;
+    uint64_t		total_backlog;
+    uint64_t		input_qlen;
+    uint64_t		process_qlen;
 } softnet_t;
 
 typedef struct {

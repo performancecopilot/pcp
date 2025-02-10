@@ -8,6 +8,7 @@ jsonsl.c
 sha256.h
 sha256.c
 getdate.h
+getdate.y
 getdate.tab.?
 derive_parser.y
 derive_parser.output

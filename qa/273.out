@@ -26,6 +26,7 @@ sampledso.xmit_pdu [Count of PDUs transmitted]
 sampledso.noinst [No instance available]
 sampledso.needprofile [Metrics that need an explicit profile]
 sampledso.not_ready [interval (in seconds) during which PMDA does not respond to PDUs]
+sampledso.not_ready_msec [interval (in milliseconds) during which PMDA does not respond to PDUs]
 sampledso.rapid [count very quickly]
 sampledso.error_code [Arbitrary PMAPI error code for sample.error_check]
 sampledso.error_check [Return PMAPI error code from sample.error_code]
@@ -42,9 +43,23 @@ sampledso.secret.foo.bar.four [dynamic *.secret.foo.bar.four metric]
 sampledso.secret.foo.bar.grunt.five [dynamic *.secret.foo.bar.grunt.five metric]
 sampledso.secret.foo.bar.grunt.snort.six [dynamic *.secret.foo.bar.grunt.snort.six metric]
 sampledso.secret.foo.bar.grunt.snort.huff.puff.seven [dynamic *.secret.foo.bar.grunt.snort.huff.puff.seven metric]
-sampledso.secret.foo.one [dynamic *.secret.foo.one metric]
-sampledso.secret.foo.two [dynamic *.secret.foo.two metric]
-sampledso.secret.bar [dynamic *.secret.bar metric]
+sampledso.secret.foo.one [dynamic sampledso.secret.foo.one metric]
+sampledso.secret.foo.two [dynamic sampledso.secret.foo.two metric]
+sampledso.secret.bin [Several constant instances]
+sampledso.secret.bar [dynamic sampledso.secret.bar metric]
+sampledso.secret.family [Family day of month for birthday]
+sampledso.secret.en.one [dynamic sampledso.secret.foo.one metric]
+sampledso.secret.en.two [dynamic sampledso.secret.foo.two metric]
+sampledso.secret.en.three [dynamic *.secret.foo.bar.three metric]
+sampledso.secret.fr.un [dynamic sampledso.secret.foo.one metric]
+sampledso.secret.fr.deux [dynamic sampledso.secret.foo.two metric]
+sampledso.secret.fr.trois [dynamic *.secret.foo.bar.three metric]
+sampledso.secret.dk.et [dynamic sampledso.secret.foo.one metric]
+sampledso.secret.dk.to [dynamic sampledso.secret.foo.two metric]
+sampledso.secret.dk.tre [dynamic *.secret.foo.bar.three metric]
+sampledso.secret.es.unos [dynamic sampledso.secret.foo.one metric]
+sampledso.secret.es.dos [dynamic sampledso.secret.foo.two metric]
+sampledso.secret.es.tres [dynamic *.secret.foo.bar.three metric]
 sampledso.ghosts.visible [Number of visible ghosts]
 sampledso.long.one [1 as a 32-bit integer]
 sampledso.long.ten [10 as a 32-bit integer]
@@ -196,6 +211,8 @@ sampledso.updown.control.repeat [repetition count for values of sample.updown.ob
 sampledso.updown.control.min [minumum value for sample.updown.obs]
 sampledso.updown.control.max [maximum value for sample.updown.obs]
 sampledso.updown.control.step [increment or decrement value for sample.updown.obs]
+sampledso.updown.control.mode [up-down mode for sample.updown.obs]
+sampledso.updown.control.reset [reset all controls for sample.updown.obs]
 --- help.c case 2 ---
 
 sampledso.control
@@ -420,7 +437,17 @@ following PDU received will result in the following sequence of events:
   2. sleep for the given number of seconds
   3. sends an error PDU with PM_ERR_PMDAREADY to pmcd
 If everything went as planned, sampledso.not_ready returns to 0, otherwise it
-has a negative error code as value.
+has a negative error code as the value.
+
+sampledso.not_ready_msec
+Help:
+Store a positive number of milliseconds as the value of this metric. The
+following PDU received will result in the following sequence of events:
+  1. return an error PDU with PM_ERR_PMDANOTREADY to pmcd
+  2. sleep for the given number of milliseconds
+  3. sends an error PDU with PM_ERR_PMDAREADY to pmcd
+If everything went as planned, sampledso.not_ready returns to 0, otherwise it
+has a negative error code as the value.
 
 sampledso.rapid
 Help:
@@ -485,6 +512,9 @@ sampledso.secret.foo.bar.three
 Help:
 Value 3.
 
+Aliases sampledso.secret.en.one, sample.secret.fr.trois, secret.dk.tre and
+sampledso.secret.es.tres.
+
 sampledso.secret.foo.bar.four
 Help:
 Value 4.
@@ -505,13 +535,123 @@ sampledso.secret.foo.one
 Help:
 Value 1.
 
+Aliases sampledso.secret.en.one, sample.secret.fr.un, secret.dk.et and
+sampledso.secret.es.unos.
+
 sampledso.secret.foo.two
 Help:
 Value 2.
 
+Aliases sampledso.secret.en.two, sample.secret.fr.deux, secret.dk.to and
+sampledso.secret.es.dos.
+
+sampledso.secret.bin
+Help:
+9 instances labelled "bin-100" thru "bin-900", each with an
+initial value of 100 thru 900.
+
+pmstore(1) may be used to change the values of some or all of
+the instances, but note this will also change the values of the
+metrics that share the same underlying values, i.e. sampledso.bucket,
+sampledso.part_bin, sample.bogus_bin, sample.scramble.bin
+sampledso.long.bin, sample.long.bin_ctr, sample.ulong.bin,
+sampledso.ulong.bin_ctr, sample.longlong.bin, sample.longlong.bin_ctr,
+sampledso.ulonglong.bin, sample.ulonglong.bin_ctr, sample.float.bin,
+sampledso.float.bin_ctr, sample.double.bin, sample.double.bin_ctr
+and sampledso.string.bin.
+
 sampledso.secret.bar
 Help:
 Value "foo".
+
+sampledso.secret.family
+Help:
+Same metric as sampledso.needprofile but without the explicit profile
+requirement, so all of the "family" instance domain.
+
+sampledso.secret.en.one
+Help:
+Value 1.
+
+Aliases sampledso.secret.en.one, sample.secret.fr.un, secret.dk.et and
+sampledso.secret.es.unos.
+
+sampledso.secret.en.two
+Help:
+Value 2.
+
+Aliases sampledso.secret.en.two, sample.secret.fr.deux, secret.dk.to and
+sampledso.secret.es.dos.
+
+sampledso.secret.en.three
+Help:
+Value 3.
+
+Aliases sampledso.secret.en.one, sample.secret.fr.trois, secret.dk.tre and
+sampledso.secret.es.tres.
+
+sampledso.secret.fr.un
+Help:
+Value 1.
+
+Aliases sampledso.secret.en.one, sample.secret.fr.un, secret.dk.et and
+sampledso.secret.es.unos.
+
+sampledso.secret.fr.deux
+Help:
+Value 2.
+
+Aliases sampledso.secret.en.two, sample.secret.fr.deux, secret.dk.to and
+sampledso.secret.es.dos.
+
+sampledso.secret.fr.trois
+Help:
+Value 3.
+
+Aliases sampledso.secret.en.one, sample.secret.fr.trois, secret.dk.tre and
+sampledso.secret.es.tres.
+
+sampledso.secret.dk.et
+Help:
+Value 1.
+
+Aliases sampledso.secret.en.one, sample.secret.fr.un, secret.dk.et and
+sampledso.secret.es.unos.
+
+sampledso.secret.dk.to
+Help:
+Value 2.
+
+Aliases sampledso.secret.en.two, sample.secret.fr.deux, secret.dk.to and
+sampledso.secret.es.dos.
+
+sampledso.secret.dk.tre
+Help:
+Value 3.
+
+Aliases sampledso.secret.en.one, sample.secret.fr.trois, secret.dk.tre and
+sampledso.secret.es.tres.
+
+sampledso.secret.es.unos
+Help:
+Value 1.
+
+Aliases sampledso.secret.en.one, sample.secret.fr.un, secret.dk.et and
+sampledso.secret.es.unos.
+
+sampledso.secret.es.dos
+Help:
+Value 2.
+
+Aliases sampledso.secret.en.two, sample.secret.fr.deux, secret.dk.to and
+sampledso.secret.es.dos.
+
+sampledso.secret.es.tres
+Help:
+Value 3.
+
+Aliases sampledso.secret.en.one, sample.secret.fr.trois, secret.dk.tre and
+sampledso.secret.es.tres.
 
 sampledso.ghosts.visible
 Help:
@@ -1424,6 +1564,19 @@ When sampledso.updown.obs is being incremented or decremented, this is
 the amount that is added or subtracted.
 
 Defaults to 10, but maybe changed with pmstore(1).
+
+sampledso.updown.control.mode
+Help:
+1 if sampledso.obs.updown in incrementing, -1 if sample.obs.updown is
+decrementing.
+
+Defaults to 1, but maybe changed with pmstore(1).
+
+sampledso.updown.control.reset
+Help:
+Used with pmstore(1) and any value will trigger a reset of the control
+state to: obs=0, min=0, max=200, step=10, repeat=5 and mode=1.
+up.
 --- help.c case 3 ---
 
 sample.seconds

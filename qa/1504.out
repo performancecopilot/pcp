@@ -1,0 +1,123 @@
+QA output created by 1504
+Count metrics in PMNS ...
+40
+Note: timezone set to local timezone of host "bozo.localdomain" from archive
+
+metric:    hinv.ndisk
+archive:   archives/multi_mixed
+host:      bozo.localdomain
+start:     Fri Mar 15 09:53:02 2024
+end:       Fri Mar 15 09:53:26 2024
+semantics: discrete instantaneous value
+units:     none
+samples:   13
+interval:  2.00 sec
+09:53:02.030  No values available
+09:53:04.030          5
+09:53:06.030          5
+09:53:08.030          5
+09:53:10.030          5
+09:53:12.030          5
+09:53:14.030          5
+09:53:16.030          5
+09:53:18.030          5
+09:53:20.030          5
+09:53:22.030          5
+09:53:24.030          5
+09:53:26.030          5
+Note: timezone set to local timezone of host "bozo.localdomain" from archive
+
+metric:    hinv.physmem
+archive:   archives/multi_mixed
+host:      bozo.localdomain
+start:     Fri Mar 15 09:53:02 2024
+end:       Fri Mar 15 09:53:26 2024
+semantics: discrete instantaneous value
+units:     Mbyte
+samples:   13
+interval:  2.00 sec
+09:53:02.030  No values available
+09:53:04.030  No values available
+09:53:06.030  No values available
+09:53:08.030  No values available
+09:53:10.030  No values available
+09:53:12.030      31992
+09:53:14.030      31992
+09:53:16.030      31992
+09:53:18.030      31992
+09:53:20.030      31992
+09:53:22.030      31992
+09:53:24.030      31992
+09:53:26.030      31992
+Note: timezone set to local timezone of host "bozo.localdomain" from archive
+
+metric:    sampledso.ulong.hundred
+archive:   archives/multi_mixed
+host:      bozo.localdomain
+start:     Fri Mar 15 09:53:02 2024
+end:       Fri Mar 15 09:53:26 2024
+semantics: instantaneous value
+units:     none
+samples:   13
+interval:  2.00 sec
+09:53:02.030  No values available
+09:53:04.030  No values available
+09:53:06.030  No values available
+09:53:08.030  No values available
+09:53:10.030  No values available
+09:53:12.030  No values available
+09:53:14.030  No values available
+09:53:16.030  No values available
+09:53:18.030  No values available
+09:53:20.030        100
+09:53:22.030        100
+09:53:24.030        100
+09:53:26.030        100
+Note: timezone set to local timezone of host "bozo.localdomain" from archive
+
+metric:    sample.seconds
+archive:   archives/multi_mixed
+host:      bozo.localdomain
+start:     Fri Mar 15 09:53:02 2024
+end:       Fri Mar 15 09:53:26 2024
+semantics: cumulative counter (converting to rate)
+units:     sec (converting to time utilization)
+samples:   13
+interval:  2.00 sec
+09:53:02.030  No values available
+09:53:04.030  No values available
+09:53:06.030     1.000 
+09:53:08.030     1.000 
+09:53:10.030     1.000 
+09:53:12.030  No values available
+09:53:14.030  No values available
+09:53:16.030     1.000 
+09:53:18.030     1.000 
+09:53:20.030  No values available
+09:53:22.030  No values available
+09:53:24.030     1.000 
+09:53:26.030     1.000 
+Note: timezone set to local timezone of host "bozo.localdomain" from archive
+
+metric:    sample.milliseconds
+archive:   archives/multi_mixed
+host:      bozo.localdomain
+start:     Fri Mar 15 09:53:02 2024
+end:       Fri Mar 15 09:53:26 2024
+semantics: cumulative counter (converting to rate)
+units:     millisec (converting to time utilization)
+samples:   13
+interval:  2.00 sec
+09:53:02.030  No values available
+09:53:04.030  No values available
+09:53:06.030  No values available
+09:53:08.030  No values available
+09:53:10.030  No values available
+09:53:12.030  No values available
+09:53:14.030               1.000 
+09:53:16.030               1.000 
+09:53:18.030               1.000 
+09:53:20.030  No values available
+09:53:22.030  No values available
+09:53:24.030               1.000 
+09:53:26.030               1.000 

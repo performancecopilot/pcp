@@ -19,7 +19,6 @@ in
 esac
 
 status=1        # failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 pcp_ps="$PCP_BINADM_DIR/pcp-ps"
@@ -49,6 +48,12 @@ pcp $archive_first -s2 ps -P 1,2,3,4,5
 
 echo && echo pcp-ps output : Display the begining 10 process to test broken pipe
 pcp $archive_first ps -u | head -10
+
+echo && echo pcp-ps output : Display the colum "args" in between of -o option colum list
+pcp $archive_first -s2 ps -o pid,ppid,args,tty,wchan
+
+echo && echo pcp-ps output : Display the colum "args" in the end of -o option colum list
+pcp $archive_first -s2 ps -o pid,ppid,tty,args
 
 status=0
 exit

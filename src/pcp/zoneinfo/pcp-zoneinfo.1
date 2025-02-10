@@ -1,0 +1,211 @@
+'\"! tbl | mmdoc
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2023 Oracle and/or its affiliates.
+.\" DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.TH PCP-ZONEINFO 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pcp-zoneinfo\f1 \- Report NUMA zone statistics
+.SH SYNOPSIS
+\f3pcp\f1
+[\f2pcp\ options\f1]
+\f3zoneinfo\f1
+[\f3\-Vz?\f1]
+[\f3\-s\f1 \f2samples\f1]
+[\f3\-a\f1 \f2archive\f1]
+[\f3\-S\f1 \f2start_time\f1]
+[\f3\-T\f1 \f2end_time\f1]
+[\f3\-Z\f1 \f2timezone\f1]
+.SH DESCRIPTION
+The
+.B pcp-zoneinfo
+command is used for viewing the different kinds of stats related to NUMA nodes.
+Using various options it helps a user to analyze useful information related to
+the zone availability for different NUMA nodes.
+This is useful for analyzing virtual memory behavior.
+By default
+.B pcp-zoneinfo
+reports live data for the local host.
+
+The statistics shown are as follows:
+
+.TS
+cfB s
+lfB lfB
+l   lx.
+Per node stats (for each NUMA node)
+HEADER	DESCRIPTION
+nr_inactive_anon	zone inactive anonymous pages
+nr_active_anon	active anonymous memory pages
+nr_inactive_file	inactive file memory pages
+nr_active_file	active file memory memory pages
+nr_unevictable	unevictable pages
+nr_slab_reclaimable	reclaimable slab pages
+nr_slab_unreclaimable	unreclaimable slab pages
+nr_isolated_anon	isolated anonymous memory pages
+nr_isolated_file	isolated file memory pages
+nr_anon_pages	anonymous mapped pagecache pages
+nr_mapped	mapped pagecache pages
+nr_file_pages	file pagecache pages
+nr_dirty	pages dirty state
+nr_writeback	pages writeback state
+nr_writeback_temp	temporary writeback pages
+nr_shmem	shared memory pages
+nr_shmem_hugepages	shared memory huge pages
+nr_shmem_pmdmapped	shared memory PMD mappings
+nr_file_hugepages	file-backed huge pages
+nr_file_pmdmapped	file-backed PMD mappings
+nr_anon_transparent_hugepages	T{
+.ad l
+anonymous transparent huge pages
+T}
+nr_unstable	pages in unstable state in each zone
+nr_vmscan_write	T{
+.ad l
+pages written from the LRU by the VM scanner
+The VM is supposed to minimise the number of
+pages which get written from the LRU (for IO
+scheduling efficiency and reclaim success).
+T}
+nr_vmscan_immediate_reclaim	T{
+.ad l
+prioritise for reclaim when writeback ends
+T}
+nr_dirtied	pages entering dirty state
+nr_written	pages written out in each zone
+nr_kernel_misc_reclaimable	miscellaneous reclaimable kernel pages
+.TE
+
+.TS
+cfB s
+lfB lfB
+l   lx.
+Per zone stats (in each zone for each NUMA node)
+HEADER	DESCRIPTION
+pages free	free space
+pages min	min space
+pages low	low space
+pages high	high space
+pages spanned	spanned space
+pages present	present space
+pages managed	managed space
+pages protection	protection space
+nr_free_pages	number of free pages
+nr_zone_inactive_anon	zone inactive anonymous pages
+nr_zone_active_anon	zone active anonymous pages
+nr_zone_inactive_file	zone inactive file-backed pages
+nr_zone_active_file	zone active file-backed pages
+nr_zone_unevictable	zone unevictable pages
+nr_zone_write_pending	zone write-pending pages
+nr_mlock	pages under mlock
+nr_page_table_pages	page table pages
+nr_kernel_stack	pages of kernel stack
+nr_bounce	bounce buffer pages
+nr_zspages	zsmalloc memory allocator pages
+nr_free_cma	free Contiguous Memory Allocator pages
+numa_hit	T{
+.ad l
+successful allocations from preferred NUMA zone
+T}
+numa_miss	T{
+.ad l
+unsuccessful allocations from preferred NUMA zone
+T}
+numa_foreign	foreign NUMA zone allocations
+numa_interleave	interleaved NUMA allocations
+numa_local	T{
+.ad l
+successful allocations from local NUMA zone
+T}
+numa_other	T{
+.ad l
+unsuccessful allocations from local NUMA zone
+T}
+.TE
+
+.SH OPTIONS
+.TP
+\fB\-a\fR \fIfile\fR, \fB\-\-archive\fR=\fIfile\fR
+Fetch /proc/zoneinfo for a specified archive \fIfile\fR
+.TP
+\fB\-s\fR \fIcount\fR, \fB\-\-samples\fR=\fIcount\fR
+Get the zoneinfo statistics for specified number of samples \fIcount\fR
+.TP
+\fB\-S\fR, \fB\-\-start\fR=\fItime\fR
+Filter the samples from the archive from the given \fItime\fR
+.TP
+\fB\-T\fR, \fB\-\-finish=time\fR
+Filter the samples from the archive until the given \fItime\fR
+.TP
+\fB\-V\fR, \fB\-\-version\fR
+Display version number and exit.
+.TP
+\fB\-z\fR, \fB\-\-hostzone\fR
+Use the local timezone of the host that is the source of the
+performance metrics, as identified by either the
+.B \-h
+or the
+.B \-a
+options.
+The default is to use the timezone of the local host.
+.TP
+\fB\-Z\fR \fItimezone\fR, \fB\-\-timezone\fR=\fItimezone\fR
+Use
+.I timezone
+for the date and time.
+.I Timezone
+is in the format of the environment variable
+.B TZ
+as described in
+.BR environ (7).
+.TP
+\fB\-?\fR, \fB\-\-help\fR
+Display usage message and exit.
+.SH NOTES
+.B pcp-zoneinfo
+collects information from
+.IR /proc/zoneinfo .
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
+.PP
+For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pcp (1),
+.BR pmParseInterval (3)
+and
+.BR environ (7).
+
+
+.\" control lines for scripts/man-spell
+.\" +ok+ nr_anon_transparent_hugepages nr_vmscan_immediate_reclaim
+.\" +ok+ nr_kernel_misc_reclaimable nr_slab_unreclaimable
+.\" +ok+ nr_zone_inactive_anon nr_zone_inactive_file nr_zone_write_pending
+.\" +ok+ nr_page_table_pages nr_slab_reclaimable nr_zone_active_anon
+.\" +ok+ nr_zone_active_file nr_zone_unevictable nr_shmem_hugepages
+.\" +ok+ nr_shmem_pmdmapped nr_file_hugepages nr_file_pmdmapped
+.\" +ok+ nr_writeback_temp nr_inactive_anon nr_inactive_file nr_isolated_anon
+.\" +ok+ nr_isolated_file nr_kernel_stack nr_vmscan_write numa_interleave
+.\" +ok+ nr_active_anon nr_active_file nr_unevictable unreclaimable
+.\" +ok+ nr_anon_pages nr_file_pages nr_free_pages nr_writeback numa_foreign
+.\" +ok+ unevictable nr_free_cma nr_unstable nr_dirtied nr_written nr_zspages
+.\" +ok+ prioritise numa_local numa_other pagecache nr_bounce nr_mapped
+.\" +ok+ writeback numa_miss minimise Zoneinfo nr_dirty nr_mlock nr_shmem
+.\" +ok+ zsmalloc numa_hit mlock NUMA numa VM
+.\" +ok+ PMD {not PMCD from shared memory PMD mappings}

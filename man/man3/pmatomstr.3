@@ -28,15 +28,15 @@ char *pmAtomStr_r(const pmAtomValue *\fIavp\fP, int \fItype\fP, char *\fIbuf\fP,
 cc ... \-lpcp
 .ft 1
 .SH DESCRIPTION
-.de CW
-.ie t \f(CW\\$1\f1\\$2
+.de CR
+.ie t \f(CR\\$1\f1\\$2
 .el \fI\\$1\f1\\$2
 ..
 All performance metric values may be encoded in a
-.CW pmAtomValue
+.CR pmAtomValue
 union, defined as follows;
 .PP
-.ft CW
+.ft CR
 .nf
 .in +0.5i
 typedef union {
@@ -71,7 +71,7 @@ which should have room for at least 80 bytes.
 The value for
 .I type
 is typically extracted from a
-.CW pmDesc
+.CR pmDesc
 structure, following a call to
 .BR pmLookupDesc (3)
 for a particular performance metric.
@@ -117,3 +117,6 @@ instead.
 .BR pmTypeStr (3)
 and
 .BR pmUnitsStr (3).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ vbp ull ptr ll ul

@@ -17,14 +17,13 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 ( $python $here/src/pmapi_daemon.python ) 2> $tmp.out &
 # need to see the D_* values appear
 #
 pmsleep 3
-cat $tmp.out >> $seq.full
+cat $tmp.out >> $seq_full
 
 # verify process identifiers changed appropriately
 . $tmp.out

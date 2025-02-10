@@ -31,6 +31,35 @@ PmTimeLive::PmTimeLive() : PmTime()
     setMinimumSize(size);
     setMaximumSize(size);
 #endif
+
+    connect(fileHideAction, SIGNAL(triggered()),
+	    SLOT(hideWindow()));
+    connect(helpAboutAction, SIGNAL(triggered()),
+	    SLOT(helpAbout()));
+    connect(helpAboutQtAction, SIGNAL(triggered()),
+	    SLOT(helpAboutQt()));
+    connect(helpSeeAlsoAction, SIGNAL(triggered()),
+	    SLOT(helpSeeAlso()));
+    connect(buttonPlay, SIGNAL(clicked()),
+	    SLOT(play_clicked()));
+    connect(buttonStop, SIGNAL(clicked()),
+	    SLOT(stop_clicked()));
+    connect(optionsDetailShow_MillisecondsAction, SIGNAL(triggered()),
+	    SLOT(clickShowMsec()));
+    connect(optionsDetailShow_YearAction, SIGNAL(triggered()),
+	    SLOT(clickShowYear()));
+    connect(optionsShowConsoleAction, SIGNAL(triggered()),
+	    SLOT(showConsole()));
+    connect(comboBoxDelta, SIGNAL(activated(int)),
+	    SLOT(changeDelta(int)));
+    connect(helpWhats_ThisAction, SIGNAL(triggered()),
+	    SLOT(whatsThis()));
+    connect(lineEditDelta, SIGNAL(returnPressed()),
+	    SLOT(lineEditDelta_validate()));
+    connect(lineEditDelta, SIGNAL(textChanged(QString)),
+	    SLOT(lineEditDelta_changed(QString)));
+    connect(helpManualAction, SIGNAL(triggered()),
+	    SLOT(helpManual()));
 }
 
 typedef struct {

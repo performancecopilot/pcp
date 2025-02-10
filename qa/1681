@@ -25,6 +25,7 @@ fi
 . ./common.check
 
 which pmrep >/dev/null 2>&1 || _notrun "no pmrep executable"
+[ "$PCP_PLATFORM" = freebsd ] && _notrun "Insufficient metrics on FreeBSD to exercise pmrepconf"
 
 do_valgrind=false
 if [ "$1" = "--valgrind" ]
@@ -40,13 +41,12 @@ _cleanup()
 }
 
 status=0	# success is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _log()
 {
     echo
-    echo "=== $@ ===" | tee -a $here/$seq.full
+    echo "=== $@ ===" | tee -a $seq_full
 }
 
 _filter()
@@ -68,9 +68,9 @@ then
 else
     pmrepconf $tmp.config </dev/null
 fi | _filter
-cat $tmp.config >> $here/$seq.full
-echo Check pmrep syntax validity | tee -a $here/$seq.full
-pmrep -c $tmp.config -C :metrics >> $here/$seq.full
+cat $tmp.config >> $seq_full
+echo Check pmrep syntax validity | tee -a $seq_full
+pmrep -c $tmp.config -C :metrics >> $seq_full
 test $? -eq 0 || echo "Bad pmrep return code"
 echo done
 
@@ -81,9 +81,9 @@ then
 else
     pmrepconf $tmp.config </dev/null
 fi | _filter
-cat $tmp.config >> $here/$seq.full
-echo Check pmrep syntax validity | tee -a $here/$seq.full
-pmrep -c $tmp.config -C :metrics >> $here/$seq.full
+cat $tmp.config >> $seq_full
+echo Check pmrep syntax validity | tee -a $seq_full
+pmrep -c $tmp.config -C :metrics >> $seq_full
 test $? -eq 0 || echo "Bad pmrep return code"
 echo done
 
@@ -95,8 +95,8 @@ then
 else
     pmrepconf $options $tmp.option </dev/null
 fi | _filter
-cat $tmp.option >> $here/$seq.full
-echo Check options saved | tee -a $here/$seq.full
+cat $tmp.option >> $seq_full
+echo Check options saved | tee -a $seq_full
 grep -E '^globals|^timestamp' $tmp.option
 echo done
 

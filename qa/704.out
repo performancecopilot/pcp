@@ -12,15 +12,15 @@ Checking pmdammv queries
 
 mmv.pytest.strings PMID: 70.42.6 [test string metrics]
     Data Type: string  InDom: 70.86017 0x11815001
-    Semantics: counter  Units: none
+    Semantics: instant  Units: none
 Help:
-test string metrics
+Yep, string metric with instances
     inst [0 or "zero"] value ""
     inst [1 or "hero"] value ""
 
 mmv.pytest.string PMID: 70.42.5 []
     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: none
+    Semantics: instant  Units: none
 Help: <empty entry>
     value ""
 
@@ -35,21 +35,21 @@ Help: <empty entry>
 
 mmv.pytest.indom PMID: 70.42.3 []
     Data Type: 32-bit unsigned int  InDom: 70.86017 0x11815001
-    Semantics: counter  Units: none
+    Semantics: discrete  Units: none
 Help: <empty entry>
     inst [0 or "zero"] value NUMBER
     inst [1 or "hero"] value NUMBER
 
 mmv.pytest.instant PMID: 70.42.2 [Example instant metric]
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: none
+    Semantics: instant  Units: none
 Help:
-Example instant metric
+Yep, a test instantaneous metric
     value NUMBER
 
 mmv.pytest.counter PMID: 70.42.1 [Example counter metric]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: none
 Help:
-Example counter metric
+Yep, a test counter metric
     value NUMBER

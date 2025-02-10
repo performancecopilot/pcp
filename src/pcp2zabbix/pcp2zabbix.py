@@ -64,9 +64,6 @@ from pcp import pmapi, pmconfig
 from cpmapi import PM_CONTEXT_ARCHIVE, PM_DEBUG_APPL0, PM_DEBUG_APPL1
 from cpmapi import PM_TIME_SEC
 
-if sys.version_info[0] >= 3:
-    long = int # pylint: disable=redefined-builtin
-
 # Default config
 DEFAULT_CONFIG = ["./pcp2zabbix.conf", "$HOME/.pcp2zabbix.conf", "$HOME/.pcp/pcp2zabbix.conf", "$PCP_SYSCONF_DIR/pcp2zabbix.conf"]
 
@@ -371,8 +368,7 @@ class PCP2Zabbix(object):
         # Adjust interval
         if self.zabbix_interval:
             self.zabbix_interval = float(pmapi.timeval.fromInterval(self.zabbix_interval))
-            if self.zabbix_interval < float(self.interval):
-                self.zabbix_interval = float(self.interval)
+            self.zabbix_interval = max(float(self.interval), self.zabbix_interval)
         else:
             self.zabbix_interval = float(self.interval)
 
@@ -537,11 +533,10 @@ class PCP2Zabbix(object):
         for metric in results:
             fmt = "." + str(self.metrics[metric][6]) + "f"
 
+            send_lld = False
             if self.zabbix_lld:
-                send_lld = False
                 if metric in self.lld_history:
                     metric_lld = self.lld_history[metric]
-                    send_lld = False
                 else:
                     metric_lld = self.lld_history[metric] = set()
                     send_lld = True

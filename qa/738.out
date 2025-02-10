@@ -1,6 +1,6 @@
 QA output created by 738
 === Usage, no input files, incomplete input archive ===
-Usage: pmlogmv [options] oldname newname
+Usage: pmlogmv [options] srcname dstname
 
 Options:
   -c, --checksum        checksum all source and destintion files when copying
@@ -9,7 +9,7 @@ Options:
   -V, --verbose         increase diagnostic verbosity
   -?, --help            show this usage message and exit
 exit status 1
-Usage: pmlogmv [options] oldname newname
+Usage: pmlogmv [options] srcname dstname
 
 Options:
   -c, --checksum        checksum all source and destintion files when copying
@@ -20,9 +20,9 @@ Options:
 exit status 1
 pmlogmv: Cannot open archive "foo": No such file or directory
 exit status 1
-pmlogmv: Cannot open archive "foo": Missing PCP archive log file
+pmlogmv: Cannot open archive "foo": Missing PCP archive file
 exit status 1
-pmlogmv: Cannot open archive "foo": Missing PCP archive log file
+pmlogmv: Cannot open archive "foo": Missing PCP archive file
 exit status 1
 
 === non-pcp archives and output files already exist ===
@@ -65,9 +65,9 @@ foo.index
 foo.meta
 
 === simplest case ===
-+ ln ./foo.0 bar.0
-+ ln ./foo.index bar.index
-+ ln ./foo.meta bar.meta
++ ln-or-cp ./foo.0 bar.0
++ ln-or-cp ./foo.index bar.index
++ ln-or-cp ./foo.meta bar.meta
 + rm ./foo.0
 + rm ./foo.index
 + rm ./foo.meta

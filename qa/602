@@ -111,17 +111,17 @@ _filter_trace_install()
 
 # Check units changes #1 ...
 $sudo ./Install -R / <$tmp.conf1 2>&1 | _filter_trace_install
-_wait_for_pmcd
+_wait_for_pmcd || _exit 1
 pminfo -d trace.observe.value
 
 # Check units changes #1 ...
 $sudo ./Install -R / <$tmp.conf2 2>&1 | _filter_trace_install
-_wait_for_pmcd
+_wait_for_pmcd || _exit 1
 pminfo -d trace.counter.value
 
 # Check a default install ...
 $sudo ./Install -R / <$tmp.default 2>&1 | _filter_trace_install
-_wait_for_pmcd
+_wait_for_pmcd || _exit 1
 pminfo -d trace.observe.value trace.counter.value
 
 [ $remove -eq 1 ] && $sudo $PCP_PMDAS_DIR/trace/Remove >/dev/null 2>&1

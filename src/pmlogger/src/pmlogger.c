@@ -25,7 +25,6 @@
  * appl7	skip pass0 ... pass0() becomes a NOOP
  */
 
-#include <ctype.h>
 #include <limits.h>
 #include <sys/stat.h>
 #include "logger.h"
@@ -62,7 +61,8 @@ int		host_context = PM_CONTEXT_HOST;	 /* pmcd / local context mode */
 int		archive_version;	/* Type of archive to create by default */
 int		linger = 0;		/* linger with no tasks/events */
 int		notify_service_mgr = 0;	/* notify service manager when we're ready (daemon mode only) */
-int		pmlogger_reexec = 0;	/* set when PMLOGGER_REEXEC is set in the environment */
+int		pmlogger_reexec = 0;	/* set when __PMLOGGER_REEXEC is set in the environment */
+char		*last_timezone = NULL;	/* local timezone & offset ([+-]hhmm) */
 int		pmlc_ipc_version = LOG_PDU_VERSION;
 int		rflag;			/* report sizes */
 int		Cflag;			/* parse config and exit */
@@ -142,7 +142,14 @@ run_done(int sts, char *msg)
 	cleanup();
 
 	/* this tells the next pmlogger it has been re-exec'd */
-	putenv("PMLOGGER_REEXEC=1");
+	putenv("__PMLOGGER_REEXEC=1");
+	if (last_timezone != NULL) {
+	    /* and our previous local timezone offset */
+	    char	tz_env[100];
+	    pmsprintf(tz_env, sizeof(tz_env), "__PMLOGGER_TZ=%s", last_timezone);
+	    putenv(tz_env);
+	}
+
 
 	execvp(argv_saved[0], argv_saved);
 	perror("Error: execvp returned unexpectedly");
@@ -193,119 +200,6 @@ maxfd(void)
     if (rsc_fd > max)
 	max = rsc_fd;
     return max;
-}
-
-/*
- * tolower_str - convert a string to all lowercase
- */
-static void 
-tolower_str(char *str)
-{
-    char *s = str;
-
-    while (*s) {
-      *s = tolower((int)*s);
-      s++;
-    }
-}
-
-/*
- * ParseSize - parse a size argument given in a command option
- *
- * The size can be in one of the following forms:
- *   "40"    = sample counter of 40
- *   "40b"   = byte size of 40
- *   "40Kb"  = byte size of 40*1024 bytes = 40 kilobytes (kibibytes)
- *   "40Mb"  = byte size of 40*1024*1024 bytes = 40 megabytes (mebibytes)
- *   time-format = time delta in seconds
- *
- */
-static int
-ParseSize(char *size_arg, int *sample_counter, __int64_t *byte_size, 
-          struct timeval *time_delta)
-{
-    long x = 0; /* the size number */
-    char *ptr = NULL;
-    char *interval_err;
-
-    *sample_counter = -1;
-    *byte_size = -1;
-    time_delta->tv_sec = -1;
-    time_delta->tv_usec = -1;
-  
-    x = strtol(size_arg, &ptr, 10);
-
-    /* must be positive */
-    if (x <= 0)
-	return -1;
-
-    if (*ptr == '\0') {
-	/* we have consumed entire string as a long */
-	/* => we have a sample counter */
-	*sample_counter = x;
-	return 1;
-    }
-
-    /* we have a number followed by something else */
-    if (ptr != size_arg) {
-	int len;
-
-	tolower_str(ptr);
-
-	/* chomp off plurals */
-	len = strlen(ptr);
-	if (ptr[len-1] == 's')
-	    ptr[len-1] = '\0';
-
-	/* if bytes */
-	if (strcmp(ptr, "b") == 0 ||
-	    strcmp(ptr, "byte") == 0) {
-	    *byte_size = x;
-	    return 1;
-	}  
-
-	/* if kilobytes */
-	if (strcmp(ptr, "k") == 0 ||
-	    strcmp(ptr, "kb") == 0 ||
-	    strcmp(ptr, "kib") == 0 ||
-	    strcmp(ptr, "kbyte") == 0 ||
-	    strcmp(ptr, "kibibyte") == 0 ||
-	    strcmp(ptr, "kilobyte") == 0) {
-	    *byte_size = x*1024;
-	    return 1;
-	}
-
-	/* if megabytes */
-	if (strcmp(ptr, "m") == 0 ||
-	    strcmp(ptr, "mb") == 0 ||
-	    strcmp(ptr, "mib") == 0 ||
-	    strcmp(ptr, "mbyte") == 0 ||
-	    strcmp(ptr, "mebibyte") == 0 ||
-	    strcmp(ptr, "megabyte") == 0) {
-	    *byte_size = x*1024*1024;
-	    return 1;
-	}
-
-	/* if gigabytes */
-	if (strcmp(ptr, "g") == 0 ||
-	    strcmp(ptr, "gb") == 0 ||
-	    strcmp(ptr, "gib") == 0 ||
-	    strcmp(ptr, "gbyte") == 0 ||
-	    strcmp(ptr, "gibibyte") == 0 ||
-	    strcmp(ptr, "gigabyte") == 0) {
-	    *byte_size = ((__int64_t)x)*1024*1024*1024;
-	    return 1;
-	}
-    }
-
-    /* Doesn't fit pattern above, try a time interval */
-    if (pmParseInterval(size_arg, time_delta, &interval_err) >= 0)
-        return 1;
-    /* error message not used here */
-    free(interval_err);
-  
-    /* Doesn't match anything, return an error */
-    return -1;
 }
 
 /* time manipulation */
@@ -526,7 +420,7 @@ do_dialog(char cmd)
 failed:
 	    fprintf(stderr, "Dialog:\n");
 	    fputs(p, stderr);
-	    strcpy(lbuf, "Yes");
+	    strncpy(lbuf, "Yes", 4);
 	}
 	else {
 	    /* strip at first newline */
@@ -543,7 +437,7 @@ failed:
     else {
 	fprintf(stderr, "Error: failed to create recording session dialog message!\n");
 	fprintf(stderr, "Reason? %s\n", osstrerror());
-	strcpy(lbuf, "Yes");
+	strncpy(lbuf, "Yes", 4);
     }
 
     free(p);
@@ -720,22 +614,14 @@ updateLatestFolio(const char *host, const char *base)
     FILE *fp;
     time_t now;
     char date[26];
-    char dir[MAXPATHLEN];
-    char *logdir = pmGetConfig("PCP_ARCHIVE_DIR");
     char thishost[MAXHOSTNAMELEN];
 
     /*
-     * Only write the "Latest" folio if we're a pmlogger service daemon,
-     * i.e. pmlogger current dir is below $PCP_ARCHIVE_DIR
+     * Only write the "Latest" folio if we're a pmlogger service daemon
      */
-    if (getcwd(dir, sizeof(dir)) == NULL) {
+    if (!runfromcontrol) {
 	if (pmDebugOptions.services)
-	    fprintf(stderr, "Info: updateLatestFolio: getcwd() failed for host %s: %s\n", host, strerror(errno));
-	return;
-    }
-    if (strncmp(dir, logdir, strlen(logdir)) != 0) {
-	if (pmDebugOptions.services)
-	    fprintf(stderr, "Info: not creating \"Latest\" archive folio for host %s: cwd %s not below %s\n", host, dir, logdir);
+	    fprintf(stderr, "Info: not creating \"Latest\" archive folio for host %s\n", host);
     	return;
     }
 
@@ -1225,7 +1111,7 @@ main(int argc, char **argv)
 	exit(1);
     }
 
-    if (getenv("PMLOGGER_REEXEC") != NULL) {
+    if (getenv("__PMLOGGER_REEXEC") != NULL) {
 	/*
 	 * We have been re-exec'd. See run_done(). This flag indicates
 	 * not to daemonize, do not notify the service manager, do
@@ -1234,6 +1120,16 @@ main(int argc, char **argv)
 	 * are cleaned up by the outgoing pmlogger prior to exec.
 	 */
 	pmlogger_reexec = 1;
+
+	/* and the last local timezone offset */
+	last_timezone = getenv("__PMLOGGER_TZ");
+	if (pmDebugOptions.services) {
+	    fprintf(stderr, "From env timezone offset (__PMLOGGER_TZ)");
+	    if (last_timezone == NULL)
+		fprintf(stderr, " not set\n");
+	    else
+		fprintf(stderr, " %s\n", last_timezone);
+	}
     }
 
     if (rsc_fd != -1 && note == NULL) {
@@ -1287,19 +1183,43 @@ main(int argc, char **argv)
 	     */
 	    time_t	now;
 	    struct tm	*arch_tm;
+	    char	this_timezone[100];
 
 	    if ((archBase = malloc(MAXPATHLEN+1)) == NULL) {
 		pmNoMem("main malloc archBase", MAXPATHLEN+1, PM_FATAL_ERR);
 		/* NOTREACHED */
 	    }
-	    time(&now);
+	    /*
+	     * need to force the libc implementation to reload the
+	     * timezone info, not use cached information ... pmlogger
+	     * is now long-running and the *same* process can easily
+	     * exist both before and after a DST change
+	     */
+	    unsetenv("TZ");
+	    tzset();
+	    now = time(NULL);
 	    arch_tm = localtime(&now);
+	    strftime(this_timezone, sizeof(this_timezone), "%Z%z", arch_tm);
+	    if (last_timezone != NULL) {
+		if (strcmp(this_timezone, last_timezone) != 0) {
+		    fprintf(stderr, "Warning: timezone offset changed from %s to %s\n",
+			last_timezone, this_timezone);
+		    last_timezone = strdup(this_timezone);
+		}
+		/* else nothing has changed */
+	    }
+	    else {
+		/* first time thru here and we've not been re-exec'd */
+		last_timezone = strdup(this_timezone);
+	    }
+
 	    if (strftime(archBase, MAXPATHLEN, argv[opts.optind], arch_tm) == 0) {
 		fprintf(stderr, "Error: strftime failed on \"%s\"\n", argv[opts.optind]);
 		exit(1);
 	    }
 	    if (pmDebugOptions.services)
-		fprintf(stderr, "archBase after strftime substitutions: \"%s\"\n", archBase);
+		fprintf(stderr, "archBase after strftime(): \"%s\" (timezone offset: %s)\n",
+		    archBase, this_timezone);
 	    make_uniq = 1;
 	}
     }
@@ -1482,7 +1402,7 @@ main(int argc, char **argv)
 	else
 	    snprintf(&archName[dirlen], MAXPATHLEN - dirlen, "%s-%02d", archBase, suff);
 
-	if ((sts = __pmLogCreate(pmcd_host, archName, archive_version, &archctl)) < 0) {
+	if ((sts = __pmLogCreate(pmcd_host, archName, archive_version, &archctl, 0)) < 0) {
 	    if (make_uniq)
 		continue;	/* try the next -NN */
 	    /* otherwise this is fatal */
@@ -1743,9 +1663,16 @@ main(int argc, char **argv)
 	    /*NOTREACHED*/
 	}
 
+	if (sig_code) {
+	    static char sig_msg[100];
+	    pmsprintf(sig_msg, sizeof(sig_msg), "Caught signal %d", sig_code);
+	    exit_msg = sig_msg;
+	    break;
+	}
+
 	/*
 	 * if log_alarm was not set, we need to wait for control port
-	 * work to be done, or next SIGALARM ...
+	 * work to be done, or next SIGALRM ...
 	 */
 	__pmFD_COPY(&readyfds, &fds);
 	nready = __pmSelectRead(numfds, &readyfds, NULL);	/* block */
@@ -1777,13 +1704,6 @@ main(int argc, char **argv)
 
 	if (target_pid && !__pmProcessExists(target_pid)) {
 	    exit_msg = "process from -p has vanished";
-	    break;
-	}
-
-	if (sig_code) {
-	    static char sig_msg[100];
-	    pmsprintf(sig_msg, sizeof(sig_msg), "Caught signal %d", sig_code);
-	    exit_msg = sig_msg;
 	    break;
 	}
     }

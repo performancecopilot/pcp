@@ -1,0 +1,93 @@
+#!/bin/sh
+#
+# Run or more tests over and over until one of them fails
+#
+# - stop with ^C (ugly) or touch ./grind.stop
+#
+
+tmp=/var/tmp/grind-$$
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+date --help >$tmp.tmp 2>&1
+if grep '.--date=STRING' <$tmp.tmp >/dev/null
+then
+    # GNU/Linux date(1)
+    #
+    date_style=linux
+elif grep '.-r seconds' <$tmp.tmp >/dev/null
+then
+    # BSD
+    #
+    date_style=bsd
+else
+    echo "No clue how your date(1) works ... need fix!"
+    exit
+fi
+
+seqlist="$*"
+if [ -z "$seqlist" ]
+then
+    echo "Usage: grind seq ..."
+    exit
+fi
+
+for seq in $seqlist
+do
+    [ -f $seq.out.bad ] && rm $seq.out.bad
+done
+
+iter=0
+start=`date +%s`
+while true
+do
+    if [ -f ./grind.stop ]
+    then
+	echo "Stopped via ./grind.stop"
+	# rm ./grind.stop so it is a one-trip signal
+	#
+	rm -f ./grind.stop
+	break
+    fi
+    touch $tmp.grind.on
+    for seq in $seqlist
+    do
+	check -l $seq | grep -v '^PMDA probe: ' | grep -v '^Passed 1 test'
+	if [ -f $seq.out.bad ]
+	then
+	    rm -f $tmp.grind.on
+	    break
+	fi
+    done
+    [ ! -f $tmp.grind.on ] && break
+    now=`date +%s`
+    runtime=`expr $now - $start`
+    if [ "$date_style" = linux ]
+    then
+	date_arg="--date=@$runtime"
+    elif [ "$date_style" = bsd ]
+    then
+	date_arg="-r $runtime"
+    else
+	echo "Botch: date_style=$date_style"
+	exit
+    fi
+    echo -n "+++ iter $iter done, "
+    if [ "$runtime" -lt 60 ]
+    then
+	echo "`TZ=UTC date $date_arg +'%Ss'` elapsed time +++"
+    elif [ "$runtime" -lt 3600 ]
+    then
+	echo "`TZ=UTC date $date_arg +'%Mm %Ss'` elapsed time +++"
+    elif [ "$runtime" -lt 86400 ]
+    then
+	echo "`TZ=UTC date $date_arg +'%Hh %Mm %Ss'` elapsed time +++"
+    else
+	echo "`TZ=UTC date $date_arg +'%jd %Hh %Mm %Ss'` elapsed time +++"
+    fi
+    iter=`expr $iter + 1`
+done
+
+for seq in $seqlist
+do
+    [ -f $seq.out.bad ] && echo "$seq failed, yipee!"
+done

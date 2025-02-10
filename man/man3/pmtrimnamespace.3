@@ -43,7 +43,7 @@ on the associated host and no pruning is required
 for a PMAPI context of type
 .B PM_CONTEXT_ARCHIVE
 the PMNS is stored within the associated
-Performance Co-Pilot (PCP) archive log and no pruning is required
+Performance Co-Pilot (PCP) archive and no pruning is required
 .IP \(bu 3n
 for a PMAPI context of type
 .B PM_CONTEXT_LOCAL
@@ -97,7 +97,7 @@ the
 .I local
 PMNS is trimmed to exclude
 metrics for which no description can
-be found in the PCP archive log.
+be found in the PCP archive.
 The PMNS is further trimmed to remove empty subtrees that do not contain any
 performance metric.
 Since PCP archives usually contain some subset
@@ -128,3 +128,6 @@ the current PMAPI context is invalid
 .BR pmNewContext (3)
 and
 .BR PMNS (5).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ op {from no-op}

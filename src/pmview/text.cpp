@@ -106,7 +106,7 @@ Text::Text(const QString &theString,
 	break;
     default:
 	if (pmDebugOptions.appl1)
-	    cerr << "Text::Text: Illegal size specified" << endl;
+	    cerr << "Text::Text: Illegal size specified" << Qt::endl;
 	_fontSize = medium;
 	_root->addChild(theMediumFont->copy());
     }
@@ -171,7 +171,7 @@ Text::Text(const QString &theString,
 	    if (pmDebugOptions.appl2)
 	    	cerr << "Text::Text: Bogus bounding box returned for \""
 		     << theString << "\": x = " << x << ", y = " << y
-		     << ", z = " << z << endl;
+		     << ", z = " << z << Qt::endl;
 	    x = 0.0;
 	    y = 0.0;
 	    z = 0.0;
@@ -185,7 +185,7 @@ Text::Text(const QString &theString,
 	if (pmDebugOptions.appl1)
 	    cerr << "Text::Text: " << theString << ": width = " 
 		 << _width << " height = " << _depth << " low = " 
-		 << ((hasLow != (char *)0) ? 1 : 0) << endl;
+		 << ((hasLow != (char *)0) ? 1 : 0) << Qt::endl;
 
 	switch(_dir) {
 	case left:
@@ -227,7 +227,7 @@ Text::Text(const QString &theString,
 	default:
 	    if (pmDebugOptions.appl1)
 		cerr << "Text::Text: Illegal direction specified (" 
-		     << (int)_dir << ")" << endl;
+		     << (int)_dir << ")" << Qt::endl;
 	    break;
 	}
     }

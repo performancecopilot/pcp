@@ -3,14 +3,14 @@ QA output created by 1826
 empty
 
 hinv.ncpu
-    labels {"agent":"linux","domainname":"DOMAIN","empty":1826,"groupid":GID,"hostname":"HOSTNAME","machineid":"MACHINE","userid":UID}
+    labels {"agent":"PLATFORM","domainname":"DOMAIN","empty":1826,"groupid":GID,"hostname":"HOSTNAME","machineid":"MACHINE","userid":UID}
 
 none
 
 hinv.ncpu
-    labels {"agent":"linux","domainname":"DOMAIN","groupid":GID,"hostname":"HOSTNAME","machineid":"MACHINE","none":1826,"userid":UID}
+    labels {"agent":"PLATFORM","domainname":"DOMAIN","groupid":GID,"hostname":"HOSTNAME","machineid":"MACHINE","none":1826,"userid":UID}
 
 sha256
 
 hinv.ncpu
-    labels {"agent":"linux","domainname":"DOMAIN","groupid":GID,"hostname":"HOSTNAME","machineid_sha256":"SHA256ID","sha256":1826,"userid":UID}
+    labels {"agent":"PLATFORM","domainname":"DOMAIN","groupid":GID,"hostname":"HOSTNAME","machineid_sha256":"SHA256ID","sha256":1826,"userid":UID}

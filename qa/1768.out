@@ -10,7 +10,7 @@ pcp://slick:44321 n n PCP_LOG_DIR/pmie/243f90596d76cf23e8da47476ec452a2adbe0b32/
 --- end control file ---
 Installing control file: PCP_ETC_DIR/pcp/pmie/control.d/243f90596d76cf23e8da47476ec452a2adbe0b32
 + cp PCP_TMPFILE_DIR/pmiectl.XXXXX/control PCP_ETC_DIR/pcp/pmie/control.d/243f90596d76cf23e8da47476ec452a2adbe0b32
-+ sudo -u pcp -g pcp PCP_BINADM_DIR/pmie_check -c PCP_ETC_DIR/pcp/pmie/control.d/243f90596d76cf23e8da47476ec452a2adbe0b32
++ PCP_BINADM_DIR/runaspcp PCP_BINADM_DIR/pmie_check  -c "PCP_ETC_DIR/pcp/pmie/control.d/243f90596d76cf23e8da47476ec452a2adbe0b32"
 PCP_ETC_DIR/pcp/pmlogger/class.d/pmfind: host pcp://slick:44321 hostname(.*) true
 --- start control file ---
 # created by pmlogctl on DATE
@@ -21,7 +21,7 @@ pcp://slick:44321 n n PCP_ARCHIVE_DIR/243f90596d76cf23e8da47476ec452a2adbe0b32 -
 --- end control file ---
 Installing control file: PCP_ETC_DIR/pcp/pmlogger/control.d/243f90596d76cf23e8da47476ec452a2adbe0b32
 + cp PCP_TMPFILE_DIR/pmlogctl.XXXXX/control PCP_ETC_DIR/pcp/pmlogger/control.d/243f90596d76cf23e8da47476ec452a2adbe0b32
-+ sudo -u pcp -g pcp PCP_BINADM_DIR/pmlogger_check -c PCP_ETC_DIR/pcp/pmlogger/control.d/243f90596d76cf23e8da47476ec452a2adbe0b32
++ PCP_BINADM_DIR/runaspcp PCP_BINADM_DIR/pmlogger_check  -c "PCP_ETC_DIR/pcp/pmlogger/control.d/243f90596d76cf23e8da47476ec452a2adbe0b32"
 Discovered host pcp://slack:44321 [8d00c4cf51d11bb9dced8a0e7507542653635377]
 PCP_ETC_DIR/pcp/pmie/class.d/pmfind: host pcp://slack:44321 hostname(.*) true
 --- start control file ---
@@ -33,7 +33,7 @@ pcp://slack:44321 n n PCP_LOG_DIR/pmie/8d00c4cf51d11bb9dced8a0e7507542653635377/
 --- end control file ---
 Installing control file: PCP_ETC_DIR/pcp/pmie/control.d/8d00c4cf51d11bb9dced8a0e7507542653635377
 + cp PCP_TMPFILE_DIR/pmiectl.XXXXX/control PCP_ETC_DIR/pcp/pmie/control.d/8d00c4cf51d11bb9dced8a0e7507542653635377
-+ sudo -u pcp -g pcp PCP_BINADM_DIR/pmie_check -c PCP_ETC_DIR/pcp/pmie/control.d/8d00c4cf51d11bb9dced8a0e7507542653635377
++ PCP_BINADM_DIR/runaspcp PCP_BINADM_DIR/pmie_check  -c "PCP_ETC_DIR/pcp/pmie/control.d/8d00c4cf51d11bb9dced8a0e7507542653635377"
 PCP_ETC_DIR/pcp/pmlogger/class.d/pmfind: host pcp://slack:44321 hostname(.*) true
 --- start control file ---
 # created by pmlogctl on DATE
@@ -44,7 +44,7 @@ pcp://slack:44321 n n PCP_ARCHIVE_DIR/8d00c4cf51d11bb9dced8a0e7507542653635377 -
 --- end control file ---
 Installing control file: PCP_ETC_DIR/pcp/pmlogger/control.d/8d00c4cf51d11bb9dced8a0e7507542653635377
 + cp PCP_TMPFILE_DIR/pmlogctl.XXXXX/control PCP_ETC_DIR/pcp/pmlogger/control.d/8d00c4cf51d11bb9dced8a0e7507542653635377
-+ sudo -u pcp -g pcp PCP_BINADM_DIR/pmlogger_check -c PCP_ETC_DIR/pcp/pmlogger/control.d/8d00c4cf51d11bb9dced8a0e7507542653635377
++ PCP_BINADM_DIR/runaspcp PCP_BINADM_DIR/pmlogger_check  -c "PCP_ETC_DIR/pcp/pmlogger/control.d/8d00c4cf51d11bb9dced8a0e7507542653635377"
 Discovered host pcp://localhost:44321?container=b0cd2cc912a3 [7745e45ed37ca712f418ec7b871c04fc898b9276]
 PCP_ETC_DIR/pcp/pmie/class.d/pmfind: host pcp://localhost:44321?container=b0cd2cc912a3 hostname(.*) true
 --- start control file ---
@@ -56,7 +56,7 @@ pcp://localhost:44321?container=b0cd2cc912a3 n n PCP_LOG_DIR/pmie/7745e45ed37ca7
 --- end control file ---
 Installing control file: PCP_ETC_DIR/pcp/pmie/control.d/7745e45ed37ca712f418ec7b871c04fc898b9276
 + cp PCP_TMPFILE_DIR/pmiectl.XXXXX/control PCP_ETC_DIR/pcp/pmie/control.d/7745e45ed37ca712f418ec7b871c04fc898b9276
-+ sudo -u pcp -g pcp PCP_BINADM_DIR/pmie_check -c PCP_ETC_DIR/pcp/pmie/control.d/7745e45ed37ca712f418ec7b871c04fc898b9276
++ PCP_BINADM_DIR/runaspcp PCP_BINADM_DIR/pmie_check  -c "PCP_ETC_DIR/pcp/pmie/control.d/7745e45ed37ca712f418ec7b871c04fc898b9276"
 PCP_ETC_DIR/pcp/pmlogger/class.d/pmfind: host pcp://localhost:44321?container=b0cd2cc912a3 hostname(.*) true
 --- start control file ---
 # created by pmlogctl on DATE
@@ -67,7 +67,7 @@ pcp://localhost:44321?container=b0cd2cc912a3 n n PCP_ARCHIVE_DIR/7745e45ed37ca71
 --- end control file ---
 Installing control file: PCP_ETC_DIR/pcp/pmlogger/control.d/7745e45ed37ca712f418ec7b871c04fc898b9276
 + cp PCP_TMPFILE_DIR/pmlogctl.XXXXX/control PCP_ETC_DIR/pcp/pmlogger/control.d/7745e45ed37ca712f418ec7b871c04fc898b9276
-+ sudo -u pcp -g pcp PCP_BINADM_DIR/pmlogger_check -c PCP_ETC_DIR/pcp/pmlogger/control.d/7745e45ed37ca712f418ec7b871c04fc898b9276
++ PCP_BINADM_DIR/runaspcp PCP_BINADM_DIR/pmlogger_check  -c "PCP_ETC_DIR/pcp/pmlogger/control.d/7745e45ed37ca712f418ec7b871c04fc898b9276"
 Discovered host pcp://localhost:44321?container=77475e5fa09c [68dcffbdd4111d3ee82bb855286e3e35da828ca2]
 PCP_ETC_DIR/pcp/pmie/class.d/pmfind: host pcp://localhost:44321?container=77475e5fa09c hostname(.*) true
 --- start control file ---
@@ -79,7 +79,7 @@ pcp://localhost:44321?container=77475e5fa09c n n PCP_LOG_DIR/pmie/68dcffbdd4111d
 --- end control file ---
 Installing control file: PCP_ETC_DIR/pcp/pmie/control.d/68dcffbdd4111d3ee82bb855286e3e35da828ca2
 + cp PCP_TMPFILE_DIR/pmiectl.XXXXX/control PCP_ETC_DIR/pcp/pmie/control.d/68dcffbdd4111d3ee82bb855286e3e35da828ca2
-+ sudo -u pcp -g pcp PCP_BINADM_DIR/pmie_check -c PCP_ETC_DIR/pcp/pmie/control.d/68dcffbdd4111d3ee82bb855286e3e35da828ca2
++ PCP_BINADM_DIR/runaspcp PCP_BINADM_DIR/pmie_check  -c "PCP_ETC_DIR/pcp/pmie/control.d/68dcffbdd4111d3ee82bb855286e3e35da828ca2"
 PCP_ETC_DIR/pcp/pmlogger/class.d/pmfind: host pcp://localhost:44321?container=77475e5fa09c hostname(.*) true
 --- start control file ---
 # created by pmlogctl on DATE
@@ -90,4 +90,4 @@ pcp://localhost:44321?container=77475e5fa09c n n PCP_ARCHIVE_DIR/68dcffbdd4111d3
 --- end control file ---
 Installing control file: PCP_ETC_DIR/pcp/pmlogger/control.d/68dcffbdd4111d3ee82bb855286e3e35da828ca2
 + cp PCP_TMPFILE_DIR/pmlogctl.XXXXX/control PCP_ETC_DIR/pcp/pmlogger/control.d/68dcffbdd4111d3ee82bb855286e3e35da828ca2
-+ sudo -u pcp -g pcp PCP_BINADM_DIR/pmlogger_check -c PCP_ETC_DIR/pcp/pmlogger/control.d/68dcffbdd4111d3ee82bb855286e3e35da828ca2
++ PCP_BINADM_DIR/runaspcp PCP_BINADM_DIR/pmlogger_check  -c "PCP_ETC_DIR/pcp/pmlogger/control.d/68dcffbdd4111d3ee82bb855286e3e35da828ca2"

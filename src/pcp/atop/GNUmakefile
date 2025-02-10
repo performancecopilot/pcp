@@ -21,7 +21,7 @@ DISTLINKS = pcp-atopsar
 LLDFLAGS = -L$(TOPDIR)/src/libpcp_gui/src
 LLDLIBS = $(PCP_GUILIB) $(LIB_FOR_NCURSESW) $(LIB_FOR_MATH)
 GENMAPS = $(shell echo *.map | sed -e 's/\.map/\.h/g')
-LDIRT = pmgenmap.sh $(GENMAPS)
+LDIRT = pmgenmap.sh $(DISTLINKS) $(GENMAPS)
 
 CFILES = \
 	atop.c \
@@ -115,10 +115,6 @@ acctproc.o:	acctmetrics.h
 gpucom.o:	gpumetrics.h
 
 atop.o atopsar.o various.o:	$(TOPDIR)/src/include/pcp/libpcp.h
-
-check::	$(CFILES) $(HFILES)
-	#$(CLINT) $^
-	#disabled due to https://bugzilla.redhat.com/show_bug.cgi?id=2056773
 
 check::	$(MAN_PAGES)
 	$(MANLINT) $^

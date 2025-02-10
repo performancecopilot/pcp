@@ -24,6 +24,8 @@
 **                                                                        **
 \**************************************************************************/
 #define PY_SSIZE_T_CLEAN
+#define _FILE_OFFSET_BITS 64
+#define _TIME_BITS 64
 #include <Python.h>
 #define PMAPI_VERSION 3
 #include <pcp/pmapi.h>
@@ -1624,10 +1626,15 @@ MOD_INIT(cpmapi)
     dict_add(dict, "PM_CONTEXT_ARCHIVE", PM_CONTEXT_ARCHIVE);
     dict_add(dict, "PM_CONTEXT_LOCAL", PM_CONTEXT_LOCAL);
     dict_add(dict, "PM_CONTEXT_TYPEMASK", PM_CONTEXT_TYPEMASK);
+    dict_add(dict, "PM_CTXFLAG_SHALLOW", PM_CTXFLAG_SHALLOW);
     dict_add(dict, "PM_CTXFLAG_EXCLUSIVE", PM_CTXFLAG_EXCLUSIVE);
     dict_add(dict, "PM_CTXFLAG_SECURE", PM_CTXFLAG_SECURE);
     dict_add(dict, "PM_CTXFLAG_COMPRESS", PM_CTXFLAG_COMPRESS);
     dict_add(dict, "PM_CTXFLAG_RELAXED", PM_CTXFLAG_RELAXED);
+    dict_add(dict, "PM_CTXFLAG_AUTH", PM_CTXFLAG_AUTH);
+    dict_add(dict, "PM_CTXFLAG_CONTAINER", PM_CTXFLAG_CONTAINER);
+    dict_add(dict, "PM_CTXFLAG_NO_FEATURE_CHECK", PM_CTXFLAG_NO_FEATURE_CHECK);
+    dict_add(dict, "PM_CTXFLAG_METADATA_ONLY", PM_CTXFLAG_METADATA_ONLY);
 
     dict_add(dict, "PM_VAL_HDR_SIZE", PM_VAL_HDR_SIZE);
     dict_add(dict, "PM_VAL_VLEN_MAX", PM_VAL_VLEN_MAX);

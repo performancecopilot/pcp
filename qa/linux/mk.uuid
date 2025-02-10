@@ -1,0 +1,40 @@
+#!/bin/sh
+#
+# rebuild the uuid-root tarball
+
+# regular files, paths relative to /
+#
+filelist="proc/self/mounts"
+
+# directories, paths relative to /
+#
+dirlist="dev/disk/by-uuid dev/mapper"
+
+here=`pwd`
+sudo rm -rf tmp
+mkdir tmp || exit 1
+cd tmp || exit 1
+
+for dir in $dirlist
+do
+    [ -d "./$dir" ] || mkdir -p "./$dir" || exit 1
+    (( cd /; tar cf - $dir ) | sudo tar xpf - ) || exit 1
+done
+
+for file in $filelist
+do
+    dir=`dirname $file`
+    [ -d "./$dir" ] || mkdir -p "./$dir" || exit 1
+    sudo cp "/$file" "./$file" || exit 1
+done
+
+cd ./dev/disk/by-uuid || exit 1
+devs="`ls -l | sed -n '/ -> /s@.*/@@p'`"
+( cd /dev; tar cf - $devs ) | ( cd ../..; sudo tar xpf - )
+
+cd $here/tmp
+tar czf ../uuid-root.tgz proc dev
+cd $here
+
+echo "uuid-root.tgz created, remember to rename uid-NN-root.tgz before commit"
+echo "FYI, unpacked .tgz remains in ./tmp for LINUX_STATSPATH=tmp ... use"

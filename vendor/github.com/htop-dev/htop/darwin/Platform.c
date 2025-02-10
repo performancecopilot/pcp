@@ -14,7 +14,11 @@ in the source distribution for its full text.
 #include <math.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <sys/_types/_mach_port_t.h>
+#include <net/if.h>
+#include <net/if_types.h>
+#include <net/route.h>
+#include <sys/socket.h>
+#include <mach/port.h>
 
 #include <CoreFoundation/CFBase.h>
 #include <CoreFoundation/CFDictionary.h>
@@ -138,6 +142,7 @@ const MeterClass* const Platform_meterTypes[] = {
    &ZfsArcMeter_class,
    &ZfsCompressedArcMeter_class,
    &DiskIOMeter_class,
+   &NetworkIOMeter_class,
    &FileDescriptorMeter_class,
    &BlankMeter_class,
    NULL
@@ -227,7 +232,7 @@ void Platform_getLoadAverage(double* one, double* five, double* fifteen) {
    }
 }
 
-int Platform_getMaxPid(void) {
+pid_t Platform_getMaxPid(void) {
    /* http://opensource.apple.com/source/xnu/xnu-2782.1.97/bsd/sys/proc_internal.hh */
    return 99999;
 }
@@ -267,12 +272,18 @@ double Platform_setCPUValues(Meter* mtr, unsigned int cpu) {
       total += (double)curr->cpu_ticks[i] - (double)prev->cpu_ticks[i];
    }
 
-   mtr->values[CPU_METER_NICE]
-      = ((double)curr->cpu_ticks[CPU_STATE_NICE] - (double)prev->cpu_ticks[CPU_STATE_NICE]) * 100.0 / total;
-   mtr->values[CPU_METER_NORMAL]
-      = ((double)curr->cpu_ticks[CPU_STATE_USER] - (double)prev->cpu_ticks[CPU_STATE_USER]) * 100.0 / total;
-   mtr->values[CPU_METER_KERNEL]
-      = ((double)curr->cpu_ticks[CPU_STATE_SYSTEM] - (double)prev->cpu_ticks[CPU_STATE_SYSTEM]) * 100.0 / total;
+   if (total > 1e-6) {
+      mtr->values[CPU_METER_NICE]
+         = ((double)curr->cpu_ticks[CPU_STATE_NICE] - (double)prev->cpu_ticks[CPU_STATE_NICE]) * 100.0 / total;
+      mtr->values[CPU_METER_NORMAL]
+         = ((double)curr->cpu_ticks[CPU_STATE_USER] - (double)prev->cpu_ticks[CPU_STATE_USER]) * 100.0 / total;
+      mtr->values[CPU_METER_KERNEL]
+         = ((double)curr->cpu_ticks[CPU_STATE_SYSTEM] - (double)prev->cpu_ticks[CPU_STATE_SYSTEM]) * 100.0 / total;
+   } else {
+      mtr->values[CPU_METER_NICE] = 0.0;
+      mtr->values[CPU_METER_NORMAL] = 0.0;
+      mtr->values[CPU_METER_KERNEL] = 0.0;
+   }
 
    mtr->curItems = 3;
 
@@ -292,9 +303,9 @@ void Platform_setMemoryValues(Meter* mtr) {
 
    mtr->total = dhost->host_info.max_mem / 1024;
    mtr->values[MEMORY_METER_USED] = (double)(vm->active_count + vm->wire_count) * page_K;
-   mtr->values[MEMORY_METER_BUFFERS] = (double)vm->purgeable_count * page_K;
    // mtr->values[MEMORY_METER_SHARED] = "shared memory, like tmpfs and shm"
    // mtr->values[MEMORY_METER_COMPRESSED] = "compressed memory, like zswap on linux"
+   mtr->values[MEMORY_METER_BUFFERS] = (double)vm->purgeable_count * page_K;
    mtr->values[MEMORY_METER_CACHE] = (double)vm->inactive_count * page_K;
    // mtr->values[MEMORY_METER_AVAILABLE] = "available memory"
 }
@@ -467,10 +478,65 @@ bool Platform_getDiskIO(DiskIOData* data) {
    return true;
 }
 
+/* Caution: Given that interfaces are dynamic, and it is not possible to get statistics on interfaces that no longer exist,
+   if some interface disappears between the time of two samples, the values of the second sample may be lower than those of
+   the first one. */
 bool Platform_getNetworkIO(NetworkIOData* data) {
-   // TODO
-   (void)data;
-   return false;
+   int mib[6] = {CTL_NET,
+      PF_ROUTE, /* routing messages */
+      0, /* protocol number, currently always 0 */
+      0, /* select all address families */
+      NET_RT_IFLIST2, /* interface list with addresses */
+      0};
+
+   for (size_t retry = 0; retry < 4; retry++) {
+      size_t len = 0;
+
+      /* Determine len */
+      if (sysctl(mib, ARRAYSIZE(mib), NULL, &len, NULL, 0) < 0 || len == 0)
+         return false;
+
+      len += 16 * retry * retry * sizeof(struct if_msghdr2);
+      char *buf = xMalloc(len);
+
+      if (sysctl(mib, ARRAYSIZE(mib), buf, &len, NULL, 0) < 0) {
+         free(buf);
+         if (errno == ENOMEM && retry < 3)
+            continue;
+         else
+            return false;
+      }
+
+      uint64_t bytesReceived_sum = 0, packetsReceived_sum = 0, bytesTransmitted_sum = 0, packetsTransmitted_sum = 0;
+
+      for (char *next = buf; next < buf + len;) {
+         void *tmp = (void*) next;
+         struct if_msghdr *ifm = (struct if_msghdr*) tmp;
+
+         next += ifm->ifm_msglen;
+
+         if (ifm->ifm_type != RTM_IFINFO2)
+            continue;
+
+         struct if_msghdr2 *ifm2 = (struct if_msghdr2*) ifm;
+
+         if (ifm2->ifm_data.ifi_type != IFT_LOOP) { /* do not count loopback traffic */
+            bytesReceived_sum += ifm2->ifm_data.ifi_ibytes;
+            packetsReceived_sum += ifm2->ifm_data.ifi_ipackets;
+            bytesTransmitted_sum += ifm2->ifm_data.ifi_obytes;
+            packetsTransmitted_sum += ifm2->ifm_data.ifi_opackets;
+         }
+      }
+
+      data->bytesReceived = bytesReceived_sum;
+      data->packetsReceived = packetsReceived_sum;
+      data->bytesTransmitted = bytesTransmitted_sum;
+      data->packetsTransmitted = packetsTransmitted_sum;
+
+      free(buf);
+   }
+
+   return true;
 }
 
 void Platform_getBattery(double* percent, ACPresence* isOnAC) {

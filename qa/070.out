@@ -7,7 +7,7 @@ Usage: template [options] ...
 General options:
   -A TIME, --align=TIME align sample times on natural boundaries
   -a FILE, --archive=FILE
-                        metrics source is a PCP log archive
+                        metrics source is a PCP archive
   -g, --guimode         start in GUI mode with new time control
   -h HOST, --host=HOST  metrics source is PMCD on host
   -n FILE, --namespace=FILE
@@ -50,7 +50,7 @@ Usage: template [options] ...
 General options:
   -A TIME, --align=TIME align sample times on natural boundaries
   -a FILE, --archive=FILE
-                        metrics source is a PCP log archive
+                        metrics source is a PCP archive
   -g, --guimode         start in GUI mode with new time control
   -h HOST, --host=HOST  metrics source is PMCD on host
   -n FILE, --namespace=FILE
@@ -93,7 +93,7 @@ Usage: template [options] ...
 General options:
   -A TIME, --align=TIME align sample times on natural boundaries
   -a FILE, --archive=FILE
-                        metrics source is a PCP log archive
+                        metrics source is a PCP archive
   -g, --guimode         start in GUI mode with new time control
   -h HOST, --host=HOST  metrics source is PMCD on host
   -n FILE, --namespace=FILE
@@ -136,7 +136,7 @@ Usage: template [options] ...
 General options:
   -A TIME, --align=TIME align sample times on natural boundaries
   -a FILE, --archive=FILE
-                        metrics source is a PCP log archive
+                        metrics source is a PCP archive
   -g, --guimode         start in GUI mode with new time control
   -h HOST, --host=HOST  metrics source is PMCD on host
   -n FILE, --namespace=FILE
@@ -179,7 +179,7 @@ Usage: template [options] ...
 General options:
   -A TIME, --align=TIME align sample times on natural boundaries
   -a FILE, --archive=FILE
-                        metrics source is a PCP log archive
+                        metrics source is a PCP archive
   -g, --guimode         start in GUI mode with new time control
   -h HOST, --host=HOST  metrics source is PMCD on host
   -n FILE, --namespace=FILE
@@ -222,7 +222,7 @@ Usage: template [options] ...
 General options:
   -A TIME, --align=TIME align sample times on natural boundaries
   -a FILE, --archive=FILE
-                        metrics source is a PCP log archive
+                        metrics source is a PCP archive
   -g, --guimode         start in GUI mode with new time control
   -h HOST, --host=HOST  metrics source is PMCD on host
   -n FILE, --namespace=FILE
@@ -265,7 +265,7 @@ Usage: template [options] ...
 General options:
   -A TIME, --align=TIME align sample times on natural boundaries
   -a FILE, --archive=FILE
-                        metrics source is a PCP log archive
+                        metrics source is a PCP archive
   -g, --guimode         start in GUI mode with new time control
   -h HOST, --host=HOST  metrics source is PMCD on host
   -n FILE, --namespace=FILE
@@ -308,7 +308,7 @@ Usage: template [options] ...
 General options:
   -A TIME, --align=TIME align sample times on natural boundaries
   -a FILE, --archive=FILE
-                        metrics source is a PCP log archive
+                        metrics source is a PCP archive
   -g, --guimode         start in GUI mode with new time control
   -h HOST, --host=HOST  metrics source is PMCD on host
   -n FILE, --namespace=FILE
@@ -351,7 +351,7 @@ Usage: template [options] ...
 General options:
   -A TIME, --align=TIME align sample times on natural boundaries
   -a FILE, --archive=FILE
-                        metrics source is a PCP log archive
+                        metrics source is a PCP archive
   -g, --guimode         start in GUI mode with new time control
   -h HOST, --host=HOST  metrics source is PMCD on host
   -n FILE, --namespace=FILE
@@ -394,7 +394,7 @@ Usage: template [options] ...
 General options:
   -A TIME, --align=TIME align sample times on natural boundaries
   -a FILE, --archive=FILE
-                        metrics source is a PCP log archive
+                        metrics source is a PCP archive
   -g, --guimode         start in GUI mode with new time control
   -h HOST, --host=HOST  metrics source is PMCD on host
   -n FILE, --namespace=FILE
@@ -437,7 +437,7 @@ Usage: template [options] ...
 General options:
   -A TIME, --align=TIME align sample times on natural boundaries
   -a FILE, --archive=FILE
-                        metrics source is a PCP log archive
+                        metrics source is a PCP archive
   -g, --guimode         start in GUI mode with new time control
   -h HOST, --host=HOST  metrics source is PMCD on host
   -n FILE, --namespace=FILE
@@ -480,7 +480,7 @@ Usage: template [options] ...
 General options:
   -A TIME, --align=TIME align sample times on natural boundaries
   -a FILE, --archive=FILE
-                        metrics source is a PCP log archive
+                        metrics source is a PCP archive
   -g, --guimode         start in GUI mode with new time control
   -h HOST, --host=HOST  metrics source is PMCD on host
   -n FILE, --namespace=FILE
@@ -523,7 +523,7 @@ Usage: template [options] ...
 General options:
   -A TIME, --align=TIME align sample times on natural boundaries
   -a FILE, --archive=FILE
-                        metrics source is a PCP log archive
+                        metrics source is a PCP archive
   -g, --guimode         start in GUI mode with new time control
   -h HOST, --host=HOST  metrics source is PMCD on host
   -n FILE, --namespace=FILE
@@ -566,7 +566,7 @@ Usage: template [options] ...
 General options:
   -A TIME, --align=TIME align sample times on natural boundaries
   -a FILE, --archive=FILE
-                        metrics source is a PCP log archive
+                        metrics source is a PCP archive
   -g, --guimode         start in GUI mode with new time control
   -h HOST, --host=HOST  metrics source is PMCD on host
   -n FILE, --namespace=FILE
@@ -609,7 +609,7 @@ Usage: template [options] ...
 General options:
   -A TIME, --align=TIME align sample times on natural boundaries
   -a FILE, --archive=FILE
-                        metrics source is a PCP log archive
+                        metrics source is a PCP archive
   -g, --guimode         start in GUI mode with new time control
   -h HOST, --host=HOST  metrics source is PMCD on host
   -n FILE, --namespace=FILE

@@ -242,7 +242,7 @@ is specified, an appropriate PMAPI error code will be stored there.
 .PP
 As a review, only the \fIpmfg\fP, \fImetric\fP, and \fIout_type\fP
 parameters are mandatory.
-Others may be NULL to indicate applicaton disinterest.
+Others may be NULL to indicate application disinterest.
 .PP
 The normal function return code is zero.
 This function may fail in
@@ -327,7 +327,7 @@ stored in the appropriate position.
 .PP
 As a review, only the \fIpmfg\fP, \fImetric\fP, \fIout_type\fP, and
 \fIout_maxnum\fP parameters are mandatory.
-Others may be NULL to indicate applicaton disinterest.
+Others may be NULL to indicate application disinterest.
 .PP
 The normal function return code is zero.
 This function may fail in
@@ -413,7 +413,7 @@ stored in the appropriate position.
 .PP
 As a review, only the \fIpmfg\fP, \fImetric\fP, \fIfield\fP,
 \fIout_type\fP, and \fIout_maxnum\fP parameters are mandatory.
-Others may be NULL to indicate applicaton disinterest.
+Others may be NULL to indicate application disinterest.
 .PP
 The normal function return code is zero.
 This function may fail in
@@ -643,3 +643,11 @@ registration until the \fBpmDestroyFetchGroup\fP call.
 .BR pmRegisterDerived (3)
 and
 .BR pmExtractValue (3).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ pmExtendFetchGroup_timespec pmExtendFetchGroup_timeval
+.\" +ok+ pmExtendFetchGroup_ pmFetchGroupExtent_ pmClearFetchGroup
+.\" +ok+ PCP_DISK_UNITS {from env var in example}
+.\" +ok+ fetchgroups pcpassert diskunits idletime
+.\" +ok+ specifes _maxnum structs mutexes _values _names
+.\" +ok+ _stss enum _num NaN sts fg

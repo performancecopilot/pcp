@@ -80,6 +80,40 @@ else
     fi
 fi
 
+# need to add metric into PMNS via root_linux
+#
+if pminfo -n root_linux -m network.$group.$field >$tmp.tmp 2>$tmp.err
+then
+    echo "Warning: network.$group.$field already defined in root_linux"
+    item=`sed -e 's/.*\.\([^.][^.]*\)$/\1/' <$tmp.tmp`
+else
+    # CLUSTER_NET_NETSTAT from linux.h
+    #
+    cluster=53
+    pminfo -n root_linux -m network \
+    | sed -n -e "/\\.$cluster\\./"'{
+s/.* PMID: //
+p
+}' \
+    | awk -F . '{print $3}' \
+    | sort -nr \
+    | head -1 >$tmp.tmp
+    item=`cat $tmp.tmp`
+    item=`expr $item + 1`
+    awk <root_linux >$tmp.tmp '
+inblock == 1 && $1 == "}"	{ print "    '"$field"'\t\t60:'"$cluster:$item"'"
+				  inblock = 0
+				}
+				{ print }
+$1 == "'"network.$group"'"	{ inblock = 1; next }'
+    if $showme
+    then
+	diff -c root_linux $tmp.tmp 
+    else
+	mv $tmp.tmp root_linux
+    fi
+fi
+
 # need to add to the correct enum in proc_net_netstat.h
 #
 if grep " _PM_NETSTAT_${TAG}_${FIELD}," <proc_net_netstat.h >/dev/null
@@ -186,40 +220,6 @@ NR == '"$line"'	{ print "@ network.'"${group}.${field}"' the '"$Field"' field of
     fi
 fi
 
-# need to add metric into PMNS via root_linux
-#
-if pminfo -n root_linux -m network.$group.$field >$tmp.tmp
-then
-    echo "Warning: network.$group.$field already defined in root_linux"
-    item=`sed -e 's/.*\.\([^.][^.]*\)$/\1/' <$tmp.tmp`
-else
-    # CLUSTER_NET_NETSTAT from linux.h
-    #
-    cluster=53
-    pminfo -n root_linux -m network \
-    | sed -n -e "/\\.$cluster\\./"'{
-s/.* PMID: //
-p
-}' \
-    | awk -F . '{print $3}' \
-    | sort -nr \
-    | head -1 >$tmp.tmp
-    item=`cat $tmp.tmp`
-    item=`expr $item + 1`
-    awk <root_linux >$tmp.tmp '
-inblock == 1 && $1 == "}"	{ print "    '"$field"'\t\t60:'"$cluster:$item"'"
-				  inblock = 0
-				}
-				{ print }
-$1 == "'"network.$group"'"	{ inblock = 1; next }'
-    if $showme
-    then
-	diff -c root_linux $tmp.tmp 
-    else
-	mv $tmp.tmp root_linux
-    fi
-fi
-
 # add field for qa/1805 data file
 #
 if sed -e 's/$/ /' <../../../qa/linux/proc_net_netstat | grep "^$Tag:.* $Field " >/dev/null
@@ -239,6 +239,6 @@ $0 ~ /^'"$Tag"': 1 /	{ print $0 " '"$val"'"; next }
 	diff -c ../../../qa/linux/proc_net_netstat $tmp.tmp 
     else
 	mv $tmp.tmp ../../../qa/linux/proc_net_netstat
-	echo "Warning: need to remake 1805 in ../../../qa"
+	echo "Warning: need to check 957 and remake 1805 in ../../../qa"
     fi
 fi

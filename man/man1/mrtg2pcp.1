@@ -24,7 +24,7 @@ basename \fIoutfile\fR.
 The \fIhostname\fR, \fIdevname\fR, and \fItimezone\fR arguments
 specify information about the system for which the statistics were gathered.
 .PP
-The resultant \s-1PCP\s0 achive may be used with all \s-1PCP\s0 client tools
+The resultant \s-1PCP\s0 archive may be used with all \s-1PCP\s0 client tools
 to graph subsets of the data using \fBpmchart\fR(1),
 perform data reduction and reporting, filter with
 the \s-1PCP\s0 inference engine \fBpmie\fR(1), etc.
@@ -38,7 +38,7 @@ If any of these files exists already,
 then \fBmrtg2pcp\fR will \fBnot\fR overwrite them and will exit with an error
 message of the form
 .PP
-_\|_pmLogNewFile: ``blah.0'' already exists, not over-written
+\&__pmLogNewFile: ``blah.0'' already exists, not over-written
 .PP
 \&\fBmrtg2pcp\fR is a Perl script that uses the PCP::LogImport Perl wrapper
 around the \s-1PCP\s0 \fIlibpcp_import\fR
@@ -59,3 +59,6 @@ configuration file, as described in \fBpcp.conf\fP(5).
 .BR LOGIMPORT (3)
 and
 .BR PCP::LogImport (3).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ MRTG {from MRTG2PCP}

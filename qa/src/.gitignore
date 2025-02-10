@@ -13,6 +13,7 @@ archend
 archfetch
 archinst
 arch_maxfd
+args
 atomstr
 badUnitsStr_r
 badloglabel
@@ -21,7 +22,9 @@ badpmcdpmid
 badpmda
 batch_import.pl
 bcc_profile
+bigpmcdpmids
 chain
+check_attribute
 check_fault_injection
 check_import
 check_import_name
@@ -46,6 +49,7 @@ chkopenlog
 chkoptfetch
 chktrim
 churnctx
+cleanmapdir
 clientid
 clienttimeout
 compare
@@ -184,6 +188,7 @@ pcp_lite_crash
 pdubufbounds
 pducheck
 pducrash
+pdu-gadget
 pdu-server
 permfetch
 pmcdgone
@@ -210,6 +215,7 @@ pv
 pv64
 pv64.c
 read-bf
+ready-or-not
 recon
 record
 record-setarg
@@ -239,6 +245,8 @@ test_encodings
 test_hostspec
 test_service_notify
 t_fetch
+throttle
+throttle_timeout
 timeshift
 time_stamp
 torture_api
@@ -265,3 +273,4 @@ xlog
 xmktime
 xval
 xxx
+y2038

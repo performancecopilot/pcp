@@ -85,7 +85,7 @@ statistics regions have to be created.
 For example, to enable basic statistics for all local device-mapper logical devices,
 use the following command:
 .P
-.ft CW
+.ft CR
 .nf
 .in +0.5i
 # dmstats create --alldevices
@@ -94,7 +94,7 @@ use the following command:
 .PP
 To create statistics regions with specified histogram boundaries, use the following:
 .P
-.ft CW
+.ft CR
 .nf
 .in +0.5i
 # dmstats create --alldevices --bounds\fP \fIhistogram_boundaries
@@ -113,7 +113,7 @@ may be given after each value to specify units of nanoseconds,
 microseconds, miliseconds or seconds respectively.
 For example,
 .P
-.ft CW
+.ft CR
 .nf
 .in +0.5i
 # dmstats create --alldevices --bounds 10us,30us,50us,70us,90us
@@ -178,7 +178,7 @@ latency times falling into that bin's time range during the sample period.
 The number of latency histogram bins configured for the area.
 .RE
 .SH EXAMPLES
-.ft CW
+.ft CR
 .nf
 .in
 # dmstats create looptest0 --bounds 10us,30us,50us
@@ -186,7 +186,7 @@ looptest0: Created new region with 1 area(s) as region ID 0
 .in
 .fi
 .PP
-.ft CW
+.ft CR
 .in
 # pminfo -f dmstats.read dmstats.histogram.hist_count
 .P
@@ -221,3 +221,11 @@ configuration file, as described in \fIpcp.conf\fR(5).
 .BR dmsetup (8)
 and
 .BR dmstats (8).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ writes_merged reads_merged libdevmapper miliseconds in_progress
+.\" +ok+ write_bytes write_ticks writes_time queue_ticks read_bytes read_ticks
+.\" +ok+ reads_time devicename hist_count diskstats userspace io_ticks
+.\" +ok+ looptest dmsetup dmstats kbytes hist
+.\" +ok+ stat sys {both from /sys/block/*/*/stat. } DM {from DM PMDA }
+.\" +ok+ rc {from rc.local} dm {from $PCP_PMDAS_DIR/dm}

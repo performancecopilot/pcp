@@ -209,7 +209,23 @@ Debug options:          pdu fetch profile value context indom pdubuf log logmeta
 Getiname:               off
 dbpmda> debug tls
 dbpmda> status
+Debug options:          pdu fetch profile value context indom pdubuf log logmeta optfetch af appl0 appl1 appl2 pmns libpmda timecontrol pmc derive lock interp config pmapi fault auth discovery attr http desperate deprecated exec labels series libweb alloc services appl3 appl4 appl5 access qa search query compress dev0 dev1 dev2 pmlc appl6 appl7 appl8 appl9 tls
+Getiname:               off
+dbpmda> debug misc
+dbpmda> status
+Debug options:          pdu fetch profile value context indom pdubuf log logmeta optfetch af appl0 appl1 appl2 pmns libpmda timecontrol pmc derive lock interp config pmapi fault auth discovery attr http desperate deprecated exec labels series libweb alloc services appl3 appl4 appl5 access qa search query compress dev0 dev1 dev2 pmlc appl6 appl7 appl8 appl9 tls misc
+Getiname:               off
+dbpmda> debug qed
+dbpmda> status
 Debug options:          (all)
+Getiname:               off
+dbpmda> debug -qed
+dbpmda> status
+Debug options:          pdu fetch profile value context indom pdubuf log logmeta optfetch af appl0 appl1 appl2 pmns libpmda timecontrol pmc derive lock interp config pmapi fault auth discovery attr http desperate deprecated exec labels series libweb alloc services appl3 appl4 appl5 access qa search query compress dev0 dev1 dev2 pmlc appl6 appl7 appl8 appl9 tls misc
+Getiname:               off
+dbpmda> debug -misc
+dbpmda> status
+Debug options:          pdu fetch profile value context indom pdubuf log logmeta optfetch af appl0 appl1 appl2 pmns libpmda timecontrol pmc derive lock interp config pmapi fault auth discovery attr http desperate deprecated exec labels series libweb alloc services appl3 appl4 appl5 access qa search query compress dev0 dev1 dev2 pmlc appl6 appl7 appl8 appl9 tls
 Getiname:               off
 dbpmda> debug -tls
 dbpmda> status
@@ -427,7 +443,7 @@ dbpmda> debug none
 dbpmda> status
 Debug options:          (none)
 Getiname:               off
-dbpmda> debug  tls appl9 appl8 appl7 appl6 pmlc dev2 dev1 dev0 compress query search qa access appl5 appl4 appl3 services alloc libweb series labels exec deprecated desperate http attr discovery auth fault pmapi config interp lock derive pmc timecontrol libpmda pmns appl2 appl1 appl0 af optfetch logmeta log pdubuf indom context value profile fetch pdu
+dbpmda> debug  qed misc tls appl9 appl8 appl7 appl6 pmlc dev2 dev1 dev0 compress query search qa access appl5 appl4 appl3 services alloc libweb series labels exec deprecated desperate http attr discovery auth fault pmapi config interp lock derive pmc timecontrol libpmda pmns appl2 appl1 appl0 af optfetch logmeta log pdubuf indom context value profile fetch pdu
 dbpmda> status
 Debug options:          (all)
 Getiname:               off

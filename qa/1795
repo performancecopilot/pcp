@@ -16,7 +16,13 @@ _pmdabpf_require_libbpf_version 0 7
 
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
-$sudo rm -rf $tmp.* $seq.full
+
+cat <<EOF >$tmp.conf
+# Installed by PCP QA test $seq on `date`
+[vfsstat.so]
+enabled=true
+EOF
+_pmdabpf_tryload $tmp.conf
 
 _cleanup()
 {
@@ -28,11 +34,7 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 _stop_auto_restart pmcd
 
 # real QA test starts here
-cat <<EOF | _pmdabpf_install
-# Installed by PCP QA test $seq on `date`
-[vfsstat.so]
-enabled=true
-EOF
+_pmdabpf_install $tmp.conf
 _pmdabpf_wait_for_metric
 
 # Wait for values to appear
@@ -41,23 +43,23 @@ pmsleep 2
 # Generate system activity for the CO-RE vfsstat module
 
 echo "=== report metric values for create ==="
-pminfo -dfmtT bpf.vfsstat.create 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bpf.vfsstat.create 2>&1 | tee -a $seq_full \
 | _value_filter_any
 
 echo "=== report metric values for read ==="
-pminfo -dfmtT bpf.vfsstat.read 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bpf.vfsstat.read 2>&1 | tee -a $seq_full \
 | _value_filter_any
 
 echo "=== report metric values for write ==="
-pminfo -dfmtT bpf.vfsstat.write 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bpf.vfsstat.write 2>&1 | tee -a $seq_full \
 | _value_filter_any
 
 echo "=== report metric values for fsync ==="
-pminfo -dfmtT bpf.vfsstat.fsync 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bpf.vfsstat.fsync 2>&1 | tee -a $seq_full \
 | _value_filter_any
 
 echo "=== report metric values for open ==="
-pminfo -dfmtT bpf.vfsstat.open 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bpf.vfsstat.open 2>&1 | tee -a $seq_full \
 | _value_filter_any
 
 

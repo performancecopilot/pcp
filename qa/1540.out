@@ -1,0 +1,961 @@
+QA output created by 1540
+
+=== Installing Seagate FARM Log PMDA ===
+== Checking metric descriptors and values - farm-root-001.tgz
+
+farm.ata.drive_information.assembly_date PMID: 160.1.26 [Drive assembly date (YYWW)]
+    Data Type: string  InDom: 160.0 0x28000000
+    Semantics: discrete  Units: none
+Help:
+The drive assembly date
+    inst [0 or "sda"] value ""
+
+farm.ata.drive_information.ata_features_enabled PMID: 160.1.13 [Value for ATA features enabled (ID Word 79)]
+    Data Type: string  InDom: 160.0 0x28000000
+    Semantics: discrete  Units: none
+Help:
+The value in hex for the enabled ATA feature set of the drive
+    inst [0 or "sda"] value "0x0000000000000044"
+
+farm.ata.drive_information.ata_features_supported PMID: 160.1.12 [Value for ATA features supported (ID Word 78)]
+    Data Type: string  InDom: 160.0 0x28000000
+    Semantics: discrete  Units: none
+Help:
+The value in hex for the supported ATA feature set of the drive
+    inst [0 or "sda"] value "0x0168cc"
+
+farm.ata.drive_information.ata_security_state PMID: 160.1.11 [Value of the ATA security state (ID Word 128)]
+    Data Type: string  InDom: 160.0 0x28000000
+    Semantics: discrete  Units: none
+Help:
+The value in hex for the current ATA security state of the drive
+    inst [0 or "sda"] value "0x01629"
+
+farm.ata.drive_information.depopulation_head_mask PMID: 160.1.27 [Depopulation head mask]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: instant  Units: byte
+Help:
+The drive depopulation head mask
+    inst [0 or "sda"] value 0
+
+farm.ata.drive_information.device_buffer_size PMID: 160.1.6 [Size of the buffer on the drive]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: instant  Units: byte
+Help:
+The given device buffer size of the drive
+    inst [0 or "sda"] value 134217728
+
+farm.ata.drive_information.device_capacity_in_sectors PMID: 160.1.3 [Number of drive sectors]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: instant  Units: byte
+Help:
+The given total number of sectors given for the drive
+    inst [0 or "sda"] value 7814037168
+
+farm.ata.drive_information.device_form_factor PMID: 160.1.8 [The form factor of the drive]
+    Data Type: string  InDom: 160.0 0x28000000
+    Semantics: discrete  Units: none
+Help:
+The physical form factor reported by the drive
+    inst [0 or "sda"] value "3.5 inches"
+
+farm.ata.drive_information.device_interface PMID: 160.1.2 [Connected interface for the drive]
+    Data Type: string  InDom: 160.0 0x28000000
+    Semantics: discrete  Units: none
+Help:
+The interface type of which the drive is connected to the system
+    inst [0 or "sda"] value "SATA"
+
+farm.ata.drive_information.drive_recording_type PMID: 160.1.24 [Drive recording type]
+    Data Type: string  InDom: 160.0 0x28000000
+    Semantics: discrete  Units: none
+Help:
+Drive recording type technology used
+    inst [0 or "sda"] value "UNKNOWN"
+
+farm.ata.drive_information.firmware_rev PMID: 160.1.10 [Revision of the drive firmware]
+    Data Type: string  InDom: 160.0 0x28000000
+    Semantics: discrete  Units: none
+Help:
+The given revision of the firmware on the drive
+    inst [0 or "sda"] value "TN05"
+
+farm.ata.drive_information.hardware_reset_count PMID: 160.1.19 [Hardware reset count of the drive]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: counter  Units: byte
+Help:
+The hardware reset count reported by the drive
+    inst [0 or "sda"] value 92
+
+farm.ata.drive_information.head_flight_hours PMID: 160.1.16 [Number of hours of drive head flight]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: counter  Units: hour / count
+Help:
+The number of hours that the drive head has been in flight for
+    inst [0 or "sda"] value 132776428525
+
+farm.ata.drive_information.head_load_events PMID: 160.1.17 [Number of drive head load events]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: counter  Units: byte
+Help:
+The number of reported drive head load events for the drive
+    inst [0 or "sda"] value 7021
+
+farm.ata.drive_information.logical_sector_size PMID: 160.1.5 [Logical size of the sectors on the drive]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: instant  Units: byte
+Help:
+The given logical size of the drive given in number of sectors
+    inst [0 or "sda"] value 512
+
+farm.ata.drive_information.max_number_available_sectors_reassignment PMID: 160.1.25 [Number of available sectors for reassignment]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: instant  Units: byte
+Help:
+The maximum number of available sectors available for reassignment on the drive
+    inst [0 or "sda"] value 0
+
+farm.ata.drive_information.model_number PMID: 160.1.23 [Drive model number]
+    Data Type: string  InDom: 160.0 0x28000000
+    Semantics: discrete  Units: none
+Help:
+Drive model number
+    inst [0 or "sda"] value ""
+
+farm.ata.drive_information.number_of_heads PMID: 160.1.7 [Number of drive heads]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: instant  Units: byte
+Help:
+The given number of drive heads for the drive
+    inst [0 or "sda"] value 7
+
+farm.ata.drive_information.physical_sector_size PMID: 160.1.4 [Physical size of the sectors on the drive]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: instant  Units: byte
+Help:
+The given physical size of the drive given in number of sectors
+    inst [0 or "sda"] value 512
+
+farm.ata.drive_information.power_cycle_count PMID: 160.1.18 [Power cycle count of the drive]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: counter  Units: byte
+Help:
+The power cycle count reported by the drive
+    inst [0 or "sda"] value 59
+
+farm.ata.drive_information.power_on_hours PMID: 160.1.14 [Number of hours drive powered on]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: counter  Units: hour / count
+Help:
+The number of hours that the drive has been powered on for
+    inst [0 or "sda"] value 49532
+
+farm.ata.drive_information.rotation_rate PMID: 160.1.9 [Rotational rate of the drive]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: instant  Units: byte
+Help:
+The given rotational rate of the drive
+    inst [0 or "sda"] value 7200
+
+farm.ata.drive_information.serial_number PMID: 160.1.0 [Serial number of the drive]
+    Data Type: string  InDom: 160.0 0x28000000
+    Semantics: discrete  Units: none
+Help:
+The serial number of the drive
+    inst [0 or "sda"] value "ZC11KLR7"
+
+farm.ata.drive_information.spin_up_time PMID: 160.1.20 [Drive spin up time (ms)]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: instant  Units: byte
+Help:
+Reported spin-up time for the drive in ms
+    inst [0 or "sda"] value 7
+
+farm.ata.drive_information.spindle_power_on_hours PMID: 160.1.15 [Number of hours drive spindle powered on]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: counter  Units: hour / count
+Help:
+The number of hours that the drive spindle has been powered on for
+    inst [0 or "sda"] value 132776477921
+
+farm.ata.drive_information.time_drive_held_in_staggered_spin PMID: 160.1.22 [Time drive is held in staggered spin (ms)]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: instant  Units: byte
+Help:
+Reported time that the drive is held in staggered spin in ms
+    inst [0 or "sda"] value 0
+
+farm.ata.drive_information.time_to_ready_last_power_cycle PMID: 160.1.21 [Time to ready of the last power cycle (ms)]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: instant  Units: byte
+Help:
+Reported time for the drive to ready for the last power cycle in ms
+    inst [0 or "sda"] value 0
+
+farm.ata.drive_information.world_wide_name PMID: 160.1.1 [World wide name identifier for the drive]
+    Data Type: string  InDom: 160.0 0x28000000
+    Semantics: discrete  Units: none
+Help:
+The world wide name identifier for the drive
+    inst [0 or "sda"] value "0x5000c500a277a7cb"
+
+farm.ata.environment_statistics.average_long_term_temperature PMID: 160.4.4 [Average long-term temperature]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: instant  Units: byte
+Help:
+Average long term temperature for the drive
+    inst [0 or "sda"] value 0
+
+farm.ata.environment_statistics.average_short_term_temperature PMID: 160.4.3 [Average short-term temperature]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: instant  Units: byte
+Help:
+Average short term temperature for the drive
+    inst [0 or "sda"] value 27
+
+farm.ata.environment_statistics.current_12_volts PMID: 160.4.15 [Current 12 volts reading]
+    Data Type: double  InDom: 160.0 0x28000000
+    Semantics: instant  Units: byte
+Help:
+Current 12 volts reading
+    inst [0 or "sda"] value 0
+
+farm.ata.environment_statistics.current_5_volts PMID: 160.4.18 [Current 5 volts reading]
+    Data Type: double  InDom: 160.0 0x28000000
+    Semantics: instant  Units: byte
+Help:
+Current 5 volts reading
+    inst [0 or "sda"] value 0
+
+farm.ata.environment_statistics.current_motor_power PMID: 160.4.14 [Current motor power for the drive]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: instant  Units: byte
+Help:
+Current motor power for the drive
+    inst [0 or "sda"] value 8617
+
+farm.ata.environment_statistics.current_relative_humidity PMID: 160.4.13 [Relative humidity]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: instant  Units: byte
+Help:
+Current relative humidity recorded by the drive
+    inst [0 or "sda"] value 383
+
+farm.ata.environment_statistics.current_temperature PMID: 160.4.0 [Current temperature]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: instant  Units: byte
+Help:
+Current temperature for the drive
+    inst [0 or "sda"] value 29
+
+farm.ata.environment_statistics.highest_average_long_term_temperature PMID: 160.4.7 [Highest average long-term temp]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: instant  Units: byte
+Help:
+Highest average recorded long term temperature for the drive
+    inst [0 or "sda"] value 0
+
+farm.ata.environment_statistics.highest_average_short_term_temperature PMID: 160.4.5 [Highest average short-term temp]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: instant  Units: byte
+Help:
+Highest average recorded short term temperature for the drive
+    inst [0 or "sda"] value 29
+
+farm.ata.environment_statistics.highest_temperature PMID: 160.4.1 [Highest temperature]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: instant  Units: byte
+Help:
+Highest temperature recorded for the drive
+    inst [0 or "sda"] value 35
+
+farm.ata.environment_statistics.lowest_average_long_term_temperature PMID: 160.4.8 [Lowest average long-term temp]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: instant  Units: byte
+Help:
+Lowest average recorded long term temperature for the drive
+    inst [0 or "sda"] value 0
+
+farm.ata.environment_statistics.lowest_average_short_term_temperature PMID: 160.4.6 [Lowest average short-term temp]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: instant  Units: byte
+Help:
+Lowest average recorded short term temperature for the drive
+    inst [0 or "sda"] value 25
+
+farm.ata.environment_statistics.lowest_temperature PMID: 160.4.2 [Lowest temperature]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: instant  Units: byte
+Help:
+Lowest temperature recorded for the drive
+    inst [0 or "sda"] value 17
+
+farm.ata.environment_statistics.maximum_12_volts PMID: 160.4.17 [Maximum 12 volts reading]
+    Data Type: double  InDom: 160.0 0x28000000
+    Semantics: instant  Units: byte
+Help:
+Maximum 12 volts reading
+    inst [0 or "sda"] value 0
+
+farm.ata.environment_statistics.maximum_5_volts PMID: 160.4.20 [Maximum 5 volts reading]
+    Data Type: double  InDom: 160.0 0x28000000
+    Semantics: instant  Units: byte
+Help:
+Maximum 5 volts reading
+    inst [0 or "sda"] value 0
+
+farm.ata.environment_statistics.minimum_12_volts PMID: 160.4.16 [Minimum 12 volts reading]
+    Data Type: double  InDom: 160.0 0x28000000
+    Semantics: instant  Units: byte
+Help:
+Minimum 12 volts reading
+    inst [0 or "sda"] value 0
+
+farm.ata.environment_statistics.minimum_5_volts PMID: 160.4.19 [Minimum 5 volts reading]
+    Data Type: double  InDom: 160.0 0x28000000
+    Semantics: instant  Units: byte
+Help:
+Minimum 5 volts reading
+    inst [0 or "sda"] value 0
+
+farm.ata.environment_statistics.power_average_12v PMID: 160.4.21 [12 volts power average reading]
+    Data Type: double  InDom: 160.0 0x28000000
+    Semantics: instant  Units: byte
+Help:
+12 volts power average reading
+    inst [0 or "sda"] value 0
+
+farm.ata.environment_statistics.power_average_5v PMID: 160.4.24 [5 volts power average reading]
+    Data Type: double  InDom: 160.0 0x28000000
+    Semantics: instant  Units: byte
+Help:
+5 volts power average reading
+    inst [0 or "sda"] value 0
+
+farm.ata.environment_statistics.power_maximum_12v PMID: 160.4.23 [12 volts power maximum reading]
+    Data Type: double  InDom: 160.0 0x28000000
+    Semantics: instant  Units: byte
+Help:
+12 volts power maximum reading
+    inst [0 or "sda"] value 0
+
+farm.ata.environment_statistics.power_maximum_5v PMID: 160.4.26 [5 volts power maximum reading]
+    Data Type: double  InDom: 160.0 0x28000000
+    Semantics: instant  Units: byte
+Help:
+5 volts power maximum reading
+    inst [0 or "sda"] value 0
+
+farm.ata.environment_statistics.power_minimum_12v PMID: 160.4.22 [12 volts power minimum reading]
+    Data Type: double  InDom: 160.0 0x28000000
+    Semantics: instant  Units: byte
+Help:
+12 volts power minimum reading
+    inst [0 or "sda"] value 0
+
+farm.ata.environment_statistics.power_minimum_5v PMID: 160.4.25 [5 volts power minimum reading]
+    Data Type: double  InDom: 160.0 0x28000000
+    Semantics: instant  Units: byte
+Help:
+5 volts power minimum reading
+    inst [0 or "sda"] value 0
+
+farm.ata.environment_statistics.specified_max_operating_temperature PMID: 160.4.11 [Max operating temperature]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: instant  Units: byte
+Help:
+Specified maximum operating temperature for the drive
+    inst [0 or "sda"] value 60
+
+farm.ata.environment_statistics.specified_min_operating_temperature PMID: 160.4.12 [Min operating temperature]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: instant  Units: byte
+Help:
+Specified minimum operating temperature for the drive
+    inst [0 or "sda"] value 5
+
+farm.ata.environment_statistics.time_in_over_temperature PMID: 160.4.9 [Over temperature time]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: instant  Units: byte
+Help:
+Time in over temperature (minutes) for the drive
+    inst [0 or "sda"] value 0
+
+farm.ata.environment_statistics.time_in_under_temperature PMID: 160.4.10 [Under temperature time]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: instant  Units: byte
+Help:
+Time in under temperature (minutes) for the drive
+    inst [0 or "sda"] value 0
+
+farm.ata.error_statistics.asr_events PMID: 160.3.6 [ASR events count]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: counter  Units: byte
+Help:
+Number of ASR events for the drive
+    inst [0 or "sda"] value 9
+
+farm.ata.error_statistics.cto_count_over_5s PMID: 160.3.13 [CTO count over 5s]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: counter  Units: byte
+Help:
+CTO count over 5s for the drive
+    inst [0 or "sda"] value 2
+
+farm.ata.error_statistics.cto_count_over_7s PMID: 160.3.14 [CTO count over 7.5s]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: counter  Units: byte
+Help:
+CTO count over 7.5s for the drive
+    inst [0 or "sda"] value 2
+
+farm.ata.error_statistics.cto_count_total PMID: 160.3.12 [CTO count]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: counter  Units: byte
+Help:
+CTO count total for the drive
+    inst [0 or "sda"] value 2
+
+farm.ata.error_statistics.cumulative_lifetime_unrecoverable_errors_due_to_erc PMID: 160.3.18 [Cumulative unrecoverable read errors ERC]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: counter  Units: byte
+Help:
+Number of cumulative lifetime unrecoverable read errors due to ERC
+    inst [0 or "sda"] value 0
+
+farm.ata.error_statistics.cumulative_lifetime_unrecoverable_read_repeating PMID: 160.7.0 []
+    Data Type: 64-bit unsigned int  InDom: 160.2 0x28000002
+    Semantics: counter  Units: byte
+Help:
+Drive head cumulative lifetime unrecoverable read repeating for the drive
+    inst [0 or "sda::head_0"] value 0
+    inst [1 or "sda::head_1"] value 0
+    inst [2 or "sda::head_2"] value 0
+    inst [3 or "sda::head_3"] value 0
+    inst [4 or "sda::head_4"] value 0
+    inst [5 or "sda::head_5"] value 0
+    inst [6 or "sda::head_6"] value 0
+
+farm.ata.error_statistics.cumulative_lifetime_unrecoverable_read_unique PMID: 160.7.1 []
+    Data Type: 64-bit unsigned int  InDom: 160.2 0x28000002
+    Semantics: counter  Units: byte
+Help:
+Drive head cumulative lifetime unrecoverable read unique for the drive
+    inst [0 or "sda::head_0"] value 0
+    inst [1 or "sda::head_1"] value 0
+    inst [2 or "sda::head_2"] value 0
+    inst [3 or "sda::head_3"] value 0
+    inst [4 or "sda::head_4"] value 0
+    inst [5 or "sda::head_5"] value 0
+    inst [6 or "sda::head_6"] value 0
+
+farm.ata.error_statistics.flash_led_event_information PMID: 160.6.0 [Flash LED Event information]
+    Data Type: 64-bit unsigned int  InDom: 160.1 0x28000001
+    Semantics: instant  Units: byte
+Help:
+Flash LED Event information
+    inst [0 or "sda::event_0"] value 0
+    inst [1 or "sda::event_1"] value 0
+    inst [2 or "sda::event_2"] value 0
+    inst [3 or "sda::event_3"] value 0
+    inst [4 or "sda::event_4"] value 0
+    inst [5 or "sda::event_5"] value 0
+    inst [6 or "sda::event_6"] value 0
+    inst [7 or "sda::event_7"] value 0
+
+farm.ata.error_statistics.flash_led_event_power_cycle PMID: 160.6.2 [Flash LED Power Cycle Event]
+    Data Type: 64-bit unsigned int  InDom: 160.1 0x28000001
+    Semantics: instant  Units: byte
+Help:
+Flash LED Power Cycle Event
+    inst [0 or "sda::event_0"] value 0
+    inst [1 or "sda::event_1"] value 0
+    inst [2 or "sda::event_2"] value 0
+    inst [3 or "sda::event_3"] value 0
+    inst [4 or "sda::event_4"] value 0
+    inst [5 or "sda::event_5"] value 0
+    inst [6 or "sda::event_6"] value 0
+    inst [7 or "sda::event_7"] value 0
+
+farm.ata.error_statistics.flash_led_event_timestamp PMID: 160.6.1 [Flash LED Timestamp of Event]
+    Data Type: 64-bit unsigned int  InDom: 160.1 0x28000001
+    Semantics: instant  Units: byte
+Help:
+Flash LED Timestamp of Event
+    inst [0 or "sda::event_0"] value 0
+    inst [1 or "sda::event_1"] value 0
+    inst [2 or "sda::event_2"] value 0
+    inst [3 or "sda::event_3"] value 0
+    inst [4 or "sda::event_4"] value 0
+    inst [5 or "sda::event_5"] value 0
+    inst [6 or "sda::event_6"] value 0
+    inst [7 or "sda::event_7"] value 0
+
+farm.ata.error_statistics.index_of_last_flash_led PMID: 160.3.16 [Index of the last Flash LED for the drive]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: instant  Units: byte
+Help:
+Index of the last Flash LED for the drive
+    inst [0 or "sda"] value 0
+
+farm.ata.error_statistics.interface_crc_errors PMID: 160.3.7 [CRC error count]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: counter  Units: byte
+Help:
+Number of interface CRC errors for the drive
+    inst [0 or "sda"] value 0
+
+farm.ata.error_statistics.ioedc_errors PMID: 160.3.11 [IOEDC error count ]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: counter  Units: byte
+Help:
+Number of IOEDC errors (Raw)
+    inst [0 or "sda"] value 0
+
+farm.ata.error_statistics.mechanical_start_failures PMID: 160.3.4 [Mechanical start failures]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: counter  Units: byte
+Help:
+Number of mechanical start failures for the drive
+    inst [0 or "sda"] value 0
+
+farm.ata.error_statistics.read_recovery_attempts PMID: 160.3.3 [Read recovery attempts]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: counter  Units: byte
+Help:
+Number of read recovery attempts recorded on the drive
+    inst [0 or "sda"] value 0
+
+farm.ata.error_statistics.reallocated_candidate_sectors PMID: 160.3.5 [Reallocated candidate sectors]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: counter  Units: byte
+Help:
+Number of reallocated candidate sectors for the drive
+    inst [0 or "sda"] value 0
+
+farm.ata.error_statistics.reallocated_sectors PMID: 160.3.2 [Reallocated sectors]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: counter  Units: byte
+Help:
+Number of reallocated sectors on the drive
+    inst [0 or "sda"] value 0
+
+farm.ata.error_statistics.spin_retry_count PMID: 160.3.8 [Spin retry count]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: counter  Units: byte
+Help:
+Spin retry count for the drive
+    inst [0 or "sda"] value 0
+
+farm.ata.error_statistics.spin_retry_count_normalized PMID: 160.3.9 [Spin retry count normalized]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: counter  Units: byte
+Help:
+Spin retry count for the drive normalized
+    inst [0 or "sda"] value 100
+
+farm.ata.error_statistics.spin_retry_count_worst PMID: 160.3.10 [Spin retry count worst]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: counter  Units: byte
+Help:
+Spin retry count worst for the drive
+    inst [0 or "sda"] value 100
+
+farm.ata.error_statistics.total_flash_led_assert_events PMID: 160.3.15 [Total Flash LED (Assert) events for the drive]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: counter  Units: byte
+Help:
+Total Flash LED (Assert) events for the drive
+    inst [0 or "sda"] value 0
+
+farm.ata.error_statistics.uncorrectable_errors PMID: 160.3.17 [Uncorrectable errors count ]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: counter  Units: byte
+Help:
+Number of uncorrectable errors for the drive
+    inst [0 or "sda"] value 0
+
+farm.ata.error_statistics.unrecoverable_read_errors PMID: 160.3.0 [Unrecoverable read errors]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: counter  Units: byte
+Help:
+Number of unrecoverable read errors on the drive
+    inst [0 or "sda"] value 0
+
+farm.ata.error_statistics.unrecoverable_write_errors PMID: 160.3.1 [Unrecoverable write errors]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: counter  Units: byte
+Help:
+Number of unrecoverable write errors on the drive
+    inst [0 or "sda"] value 0
+
+farm.ata.log_header.heads_supported PMID: 160.0.4 [Number of drive heads supported by log]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: instant  Units: byte
+Help:
+The maximum number of drive heads supported by this version of the FARM log
+    inst [0 or "sda"] value 24
+
+farm.ata.log_header.log_size PMID: 160.0.2 [FARM log size (bytes)]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: counter  Units: byte
+Help:
+The size in bytes for the FARM log on the drive
+    inst [0 or "sda"] value 98304
+
+farm.ata.log_header.log_version PMID: 160.0.0 [Listed version of the FARM log]
+    Data Type: string  InDom: 160.0 0x28000000
+    Semantics: discrete  Units: none
+Help:
+The current version for the FARM log provided by the drive
+    inst [0 or "sda"] value "1.9"
+
+farm.ata.log_header.number_of_copies PMID: 160.0.5 [Number of FARM log entry copies]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: instant  Units: byte
+Help:
+The number of FARM log entry copies on the drive
+    inst [0 or "sda"] value 0
+
+farm.ata.log_header.page_size PMID: 160.0.3 [FARM log size per page (bytes)]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: instant  Units: byte
+Help:
+The size in bytes for each page of the FARM log on the drive
+    inst [0 or "sda"] value 16384
+
+farm.ata.log_header.pages_supported PMID: 160.0.1 [Number of FARM log pages supported]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: instant  Units: byte
+Help:
+Number of FARM log pages supported by the drive
+    inst [0 or "sda"] value 6
+
+farm.ata.log_header.reason_for_frame_capture PMID: 160.0.6 [Reason for the capture of the FARM log]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: instant  Units: byte
+Help:
+Reason for the capture of the FARM log
+    inst [0 or "sda"] value 0
+
+farm.ata.reliability_statistics.dvga_skip_write_detected PMID: 160.7.2 [DVGA skip write detect by head for the drive]
+    Data Type: 64-bit unsigned int  InDom: 160.2 0x28000002
+    Semantics: counter  Units: byte
+Help:
+DVGA skip write detect by head for the drive
+    inst [0 or "sda::head_0"] value 0
+    inst [1 or "sda::head_1"] value 0
+    inst [2 or "sda::head_2"] value 0
+    inst [3 or "sda::head_3"] value 0
+    inst [4 or "sda::head_4"] value 0
+    inst [5 or "sda::head_5"] value 0
+    inst [6 or "sda::head_6"] value 0
+
+farm.ata.reliability_statistics.error_rate_smart_1_normalized PMID: 160.5.1 [SMART 1 (Normalized)]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: counter  Units: byte
+Help:
+Error rate (SMART attribute 1 Normalized) for the drive
+    inst [0 or "sda"] value 81
+
+farm.ata.reliability_statistics.error_rate_smart_1_raw PMID: 160.5.0 [SMART 1 (Raw)]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: counter  Units: byte
+Help:
+Error rate (SMART attribute 1 Raw) for the drive
+    inst [0 or "sda"] value 132279807
+
+farm.ata.reliability_statistics.error_rate_smart_1_worst PMID: 160.5.2 [SMART 1 (Worst)]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: counter  Units: byte
+Help:
+Error rate (SMART attribute 1 Worst) for the drive
+    inst [0 or "sda"] value 64
+
+farm.ata.reliability_statistics.fvga_skip_write_detected PMID: 160.7.4 [FVGA skip write detect by head for the drive]
+    Data Type: 64-bit unsigned int  InDom: 160.2 0x28000002
+    Semantics: counter  Units: byte
+Help:
+FVGA skip write detect by head for the drive
+    inst [0 or "sda::head_0"] value 0
+    inst [1 or "sda::head_1"] value 0
+    inst [2 or "sda::head_2"] value 0
+    inst [3 or "sda::head_3"] value 0
+    inst [4 or "sda::head_4"] value 0
+    inst [5 or "sda::head_5"] value 0
+    inst [6 or "sda::head_6"] value 0
+
+farm.ata.reliability_statistics.helium_pressure_threshold_tripped PMID: 160.5.7 [Helium pressure threshold trip]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: instant  Units: byte
+Help:
+Helium pressure threshold tripped for the drive
+    inst [0 or "sda"] value 0
+
+farm.ata.reliability_statistics.high_priority_unload_events PMID: 160.5.6 [High priority unload events count]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: instant  Units: byte
+Help:
+Number of high priority unload events for the drive
+    inst [0 or "sda"] value 1187
+
+farm.ata.reliability_statistics.lbas_corrected_by_parity_sector PMID: 160.5.8 [LBA corrected by parity sector ]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: counter  Units: byte
+Help:
+LBAs corrected by parity sector for the drive
+    inst [0 or "sda"] value 0
+
+farm.ata.reliability_statistics.mr_head_resistance PMID: 160.7.7 [MR head resistance from head ]
+    Data Type: 64-bit unsigned int  InDom: 160.2 0x28000002
+    Semantics: counter  Units: byte
+Help:
+MR head resistance from head 
+    inst [0 or "sda::head_0"] value 0
+    inst [1 or "sda::head_1"] value 0
+    inst [2 or "sda::head_2"] value 0
+    inst [3 or "sda::head_3"] value 0
+    inst [4 or "sda::head_4"] value 0
+    inst [5 or "sda::head_5"] value 0
+    inst [6 or "sda::head_6"] value 0
+
+farm.ata.reliability_statistics.number_of_reallocated_sectors PMID: 160.7.9 [Number of reallocated sectors by head ]
+    Data Type: 64-bit unsigned int  InDom: 160.2 0x28000002
+    Semantics: counter  Units: byte
+Help:
+Number of reallocated sectors by head 
+    inst [0 or "sda::head_0"] value 0
+    inst [1 or "sda::head_1"] value 0
+    inst [2 or "sda::head_2"] value 0
+    inst [3 or "sda::head_3"] value 0
+    inst [4 or "sda::head_4"] value 0
+    inst [5 or "sda::head_5"] value 0
+    inst [6 or "sda::head_6"] value 0
+
+farm.ata.reliability_statistics.number_of_reallocation_candidate_sectors PMID: 160.7.10 [Reallocation candidate sectors head]
+    Data Type: 64-bit unsigned int  InDom: 160.2 0x28000002
+    Semantics: counter  Units: byte
+Help:
+Reallocation candidate sectors head
+    inst [0 or "sda::head_0"] value 0
+    inst [1 or "sda::head_1"] value 0
+    inst [2 or "sda::head_2"] value 0
+    inst [3 or "sda::head_3"] value 0
+    inst [4 or "sda::head_4"] value 0
+    inst [5 or "sda::head_5"] value 0
+    inst [6 or "sda::head_6"] value 0
+
+farm.ata.reliability_statistics.rvga_skip_write_detected PMID: 160.7.3 [RVGA skip write detect by head for the drive]
+    Data Type: 64-bit unsigned int  InDom: 160.2 0x28000002
+    Semantics: counter  Units: byte
+Help:
+RVGA skip write detect by head for the drive
+    inst [0 or "sda::head_0"] value 0
+    inst [1 or "sda::head_1"] value 0
+    inst [2 or "sda::head_2"] value 0
+    inst [3 or "sda::head_3"] value 0
+    inst [4 or "sda::head_4"] value 0
+    inst [5 or "sda::head_5"] value 0
+    inst [6 or "sda::head_6"] value 0
+
+farm.ata.reliability_statistics.second_mr_head_resistance PMID: 160.7.8 [Second MR head resistance from head ]
+    Data Type: 64-bit unsigned int  InDom: 160.2 0x28000002
+    Semantics: counter  Units: byte
+Help:
+Second MR head resistance from head 
+    inst [0 or "sda::head_0"] value 0
+    inst [1 or "sda::head_1"] value 0
+    inst [2 or "sda::head_2"] value 0
+    inst [3 or "sda::head_3"] value 0
+    inst [4 or "sda::head_4"] value 0
+    inst [5 or "sda::head_5"] value 0
+    inst [6 or "sda::head_6"] value 0
+
+farm.ata.reliability_statistics.seek_error_rate_smart_7_normalized PMID: 160.5.4 [SMART 7 (Normalized)]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: counter  Units: byte
+Help:
+Seek error rate (SMART attribute 7 Normalized) for the drive
+    inst [0 or "sda"] value 94
+
+farm.ata.reliability_statistics.seek_error_rate_smart_7_raw PMID: 160.5.3 [SMART 7 (Raw)]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: counter  Units: byte
+Help:
+Seek error rate (SMART attribute 7 Raw) for the drive
+    inst [0 or "sda"] value 2621498656
+
+farm.ata.reliability_statistics.seek_error_rate_smart_7_worst PMID: 160.5.5 [SMART 7 (Worst)]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: counter  Units: byte
+Help:
+Seek error rate (SMART attribute 7 Worst) for the drive
+    inst [0 or "sda"] value 60
+
+farm.ata.reliability_statistics.skip_write_detect_threshold_detect PMID: 160.7.5 [Skip write detect threshold exceeded by head]
+    Data Type: 64-bit unsigned int  InDom: 160.2 0x28000002
+    Semantics: counter  Units: byte
+Help:
+Skip write detect threshold exceeded by head
+    inst [0 or "sda::head_0"] value 0
+    inst [1 or "sda::head_1"] value 0
+    inst [2 or "sda::head_2"] value 0
+    inst [3 or "sda::head_3"] value 0
+    inst [4 or "sda::head_4"] value 0
+    inst [5 or "sda::head_5"] value 0
+    inst [6 or "sda::head_6"] value 0
+
+farm.ata.reliability_statistics.write_power_hrs PMID: 160.7.6 [Write power-on (hrs) by head]
+    Data Type: 64-bit unsigned int  InDom: 160.2 0x28000002
+    Semantics: counter  Units: byte
+Help:
+Write power-on (hrs) by head
+    inst [0 or "sda::head_0"] value 0
+    inst [1 or "sda::head_1"] value 0
+    inst [2 or "sda::head_2"] value 0
+    inst [3 or "sda::head_3"] value 0
+    inst [4 or "sda::head_4"] value 0
+    inst [5 or "sda::head_5"] value 0
+    inst [6 or "sda::head_6"] value 0
+
+farm.ata.workload_statistics.dither_events_current_power_cycle PMID: 160.2.7 [Dither events this power cycle ]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: counter  Units: byte
+Help:
+Number of dither events during the current power cycle of drive
+    inst [0 or "sda"] value 0
+
+farm.ata.workload_statistics.dither_held_off_random_workloads PMID: 160.2.8 [Dither held off random workloads]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: counter  Units: byte
+Help:
+Number of times dither was held off during random workloads
+    inst [0 or "sda"] value 0
+
+farm.ata.workload_statistics.dither_held_off_sequential_workloads PMID: 160.2.9 [Dither held off sequential workloads]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: counter  Units: byte
+Help:
+Number of times dither was held off during sequential workloads
+    inst [0 or "sda"] value 0
+
+farm.ata.workload_statistics.logical_sectors_read PMID: 160.2.6 [Number of logical sectors read on drive]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: counter  Units: byte
+Help:
+The total number of recorded logical sectors read on the drive
+    inst [0 or "sda"] value 44603589669
+
+farm.ata.workload_statistics.logical_sectors_written PMID: 160.2.5 [Number of logical sectors written on drive]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: counter  Units: byte
+Help:
+The total number of recorded logical sectors written on the drive
+    inst [0 or "sda"] value 148199221061
+
+farm.ata.workload_statistics.read_commands_0_3_lba_space_last_3_smart_summary_frames PMID: 160.2.10 [Read commands 0-3.125% LBA space]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: instant  Units: byte
+Help:
+Number of read commands from 0-3.125% of LBA space for the last 3 SMART summary frames
+    inst [0 or "sda"] value 0
+
+farm.ata.workload_statistics.read_commands_25_75_lba_space_last_3_smart_summary_frames PMID: 160.2.12 [Read commands 25-75% LBA space]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: instant  Units: byte
+Help:
+Number of read commands from 25-75% of LBA space for the last 3 SMART summary frames
+    inst [0 or "sda"] value 0
+
+farm.ata.workload_statistics.read_commands_3_25_lba_space_last_3_smart_summary_frames PMID: 160.2.11 [Read commands 3.125-25% LBA space]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: instant  Units: byte
+Help:
+Number of read commands from 3.125-25% of LBA space for the last 3 SMART summary frames
+    inst [0 or "sda"] value 0
+
+farm.ata.workload_statistics.read_commands_75_100_lba_space_last_3_smart_summary_frames PMID: 160.2.13 [Read commands 75-100% LBA space]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: instant  Units: byte
+Help:
+Number of read commands from 75-100% of LBA space for the last 3 SMART summary frames
+    inst [0 or "sda"] value 0
+
+farm.ata.workload_statistics.total_other_commands PMID: 160.2.4 [Total number of other commands on drive]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: counter  Units: byte
+Help:
+The total number of other commands on the drive
+    inst [0 or "sda"] value 153183012
+
+farm.ata.workload_statistics.total_random_read_commands PMID: 160.2.2 [Total number of random read commands on drive]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: counter  Units: byte
+Help:
+The total number of recorded random read commands on the drive
+    inst [0 or "sda"] value 76395841
+
+farm.ata.workload_statistics.total_random_write_commands PMID: 160.2.3 [Total number of random write commands on drive]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: counter  Units: byte
+Help:
+The total number of recorded random write commands on the drive
+    inst [0 or "sda"] value 824509792
+
+farm.ata.workload_statistics.total_read_commands PMID: 160.2.0 [Total number of read commands on drive]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: counter  Units: byte
+Help:
+The total number of recorded read commands done on the drive
+    inst [0 or "sda"] value 246636536
+
+farm.ata.workload_statistics.total_write_commands PMID: 160.2.1 [Total number of write commands on drive]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: counter  Units: byte
+Help:
+The total number of recorded write commands done on the drive
+    inst [0 or "sda"] value 856168463
+
+farm.ata.workload_statistics.write_commands_0_3_lba_space_last_3_smart_summary_frames PMID: 160.2.14 [Write commands 0-3.125% LBA space]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: instant  Units: byte
+Help:
+Number of write commands from 0-3.125% of LBA space for the last 3 SMART summary frames
+    inst [0 or "sda"] value 0
+
+farm.ata.workload_statistics.write_commands_25_75_lba_space_last_3_smart_summary_frames PMID: 160.2.16 [Write commands 25-75% LBA space]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: instant  Units: byte
+Help:
+Number of write commands from 25-75% of LBA space for the last 3 SMART summary frames
+    inst [0 or "sda"] value 0
+
+farm.ata.workload_statistics.write_commands_3_25_lba_space_last_3_smart_summary_frames PMID: 160.2.15 [Write commands 3.125-25% LBA space]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: instant  Units: byte
+Help:
+Number of write commands from 3.125-25 % of LBA space for the last 3 SMART summary frames
+    inst [0 or "sda"] value 0
+
+farm.ata.workload_statistics.write_commands_75_100_lba_space_last_3_smart_summary_frames PMID: 160.2.17 [Write commands 75-100% LBA space]
+    Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
+    Semantics: instant  Units: byte
+Help:
+Number of write commands for 75-100% of LBA space for the last 3 SMART summary frames
+    inst [0 or "sda"] value 0
+== Checking with valgrind - farm-root-001.tgz
+=== std out ===
+
+farm.ata.drive_information.device_capacity_in_sectors
+    inst [0 or "sda"] value 7814037168
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -K clear -K add,160,PCP_PMDAS_DIR/farm/pmda_farm.so,farm_init -f farm.ata.drive_information.device_capacity_in_sectors
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+== done
+

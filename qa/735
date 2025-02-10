@@ -19,24 +19,22 @@ test $PCP_PLATFORM = linux || _notrun "Test unsupported on $PCP_PLATFORM"
 test -f /proc/$pid/cgroup || _notrun "No per-process support for cgroups"
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-$sudo rm -f $seq.full
 syscgroups=`cat /proc/$pid/cgroup \
 	| sed -e 's/^[0-9][0-9]*://' \
 	| tr '\n' ';' \
 	| sed -e 's/;$/\n/'`
-echo "SYS cgroup list for process $pid is: $syscgroups" >> $seq.full
+echo "SYS cgroup list for process $pid is: $syscgroups" >> $seq_full
 
 pminfo -f proc.psinfo.cgroups > $tmp.cgroups
 pcpcgroups=`grep "^    inst \[$pid or " $tmp.cgroups \
 	| $PCP_AWK_PROG '{ print $NF }' \
 	| sed -e 's/^"//' -e 's/"$//'`
-echo "PCP cgroup list for process $pid is: $pcpcgroups" >> $seq.full
-echo "Extracted from pminfo:" >> $seq.full
-cat $tmp.cgroups >> $seq.full
+echo "PCP cgroup list for process $pid is: $pcpcgroups" >> $seq_full
+echo "Extracted from pminfo:" >> $seq_full
+cat $tmp.cgroups >> $seq_full
 
 if [ "$pcpcgroups" = "$syscgroups" ]
 then

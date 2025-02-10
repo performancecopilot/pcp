@@ -42,7 +42,9 @@ resources (from a performance point of view),
 i.e. CPUs, memory, disks and network interfaces. Besides,
 information is gathered about the processes (or threads) that
 are responsible for the utilization of the CPUs, memory and disks.
-Network load per process is shown only when the PCP
+Network load per process is shown only when the optional
+.BR pmdabpf (1)
+or
 .BR pmdabcc (1)
 metrics have been installed and configured.
 .SH BAR GRAPH MODE
@@ -108,7 +110,7 @@ Memory is presented as a column in which the
 specific categories of memory consumption are shown. These categories
 are (code, data and  stack of) processes/kernel, slab caches
 (i.e. dynamically allocated kernel memory), shared memory, tmpfs,
-page cache and free memory.
+static huge pages, page cache and free memory.
 .br
 Swap space (if present) is also presented as a column in which the
 categories processes/tmpfs, shared memory and free space are shown.
@@ -193,7 +195,7 @@ Usually the bar graphs will not be sorted on busy percentage when there
 is enough horizontal space. However, after switching from text mode to
 bar graph mode the bar graphs might have been sorted because this was
 needed for the presentation in text mode. The next interval in bar graph
-mode shows the bars unsorted again unless the window width is unsufficient
+mode shows the bars unsorted again unless the window width is insufficient
 for all bars.
 .PP
 The remaining part of this manual page mainly describes the information
@@ -250,10 +252,10 @@ options
 .BR \-\-interval ,
 .BR \-v /\c
 .BR \-\-version ,
-.BR \-z /\c ,
+.BR \-z /\c
 .B \-\-hostzone
 and
-.BR \-z /\c ,
+.BR \-z /\c
 .BR \-\-timezone
 become indirectly available.
 Additionally, the
@@ -373,6 +375,23 @@ as well (see separate man-page of
 .BR pcp-atoprc (5)).
 .PP
 With the key 'x' (or flag \fB\-x\fR), the use of colors can be suppressed in text mode.  The use of colors is however mandatory in case of bar graph mode.
+.SH NETATOP BPF MODULE
+Per-process and per-thread network activity can be measured by the
+.I netatop
+BPF module that can be separately installed with
+.BR pmdabpf (1).
+or
+.BR pmdabcc (1).
+.br
+When
+.B pcp-atop
+gathers counters for a new interval, it verifies if the eBPF
+module is currently active. If so,
+.B pcp-atop
+obtains the relevant network counters from this module and shows
+the number of sent and received packets per process/thread in the generic
+screen. Besides, detailed counters can be requested by
+pressing the 'n' key.
 .SH GPU STATISTICS GATHERING
 GPU statistics can be gathered by
 .BR pmdanvidia (1)
@@ -412,6 +431,15 @@ when
 .B pcp-atop
 accesses metrics with root privileges.
 .br
+When the optional
+.BR pmdabpf (1)
+or
+.BR pmdabcc (1)
+module
+.B netatop
+is loaded, the data transfer for send/receive
+of network packets is shown for each process.
+.br
 The last columns contain the state, the occupation percentage for the
 chosen resource (default: CPU) and the process name.
 
@@ -442,6 +470,30 @@ process-id, amount of data read from disk, amount of data written to disk,
 amount of data that was written but has been withdrawn again (WCANCL),
 disk occupation percentage and process name.
 .TP 5
+.B n
+Show network related output.
+
+Per process the following fields are shown in case of a window width
+of 80 positions:
+process-id, thread-id,
+total bandwidth for received packets,
+total bandwidth for sent packets,
+number of received TCP packets with the average size per packet (in bytes),
+number of sent TCP packets with the average size per packet (in bytes),
+number of received UDP packets with the average size per packet (in bytes),
+number of sent UDP packets with the average size per packet (in bytes),
+the network occupation percentage and process name.
+.br
+This information can only be shown when the optional
+.BR pmdabpf (1)
+or
+.BR pmdabcc (1)
+module
+.I netatop
+is installed.
+
+When more than 80 positions are available, other information is added.
+.TP 5
 .B s
 Show scheduling characteristics.
 
@@ -451,6 +503,7 @@ process-id,
 number of threads in state 'running' (R),
 number of threads in state 'interruptible sleeping' (S),
 number of threads in state 'uninterruptible sleeping' (D),
+number of threads in state 'idle' (I),
 scheduling policy (normal timesharing, realtime round-robin, realtime fifo),
 nice value, priority, realtime priority, current processor,
 status, exit code, state, the occupation percentage for the chosen
@@ -534,7 +587,7 @@ per individual thread (in a different color).
 Depending on the option 'a' (all or active toggle), all threads are shown
 or only the threads that were active during the last interval.
 Depending on the option 'Y' (sort threads), the threads per
-process will be sorted on the chosen sort criterium or not.
+process will be sorted on the chosen sort criterion or not.
 .br
 Whether this key is active or not can be seen in the header line.
 .TP 5
@@ -554,7 +607,9 @@ When
 .B pcp-atop
 access metrics with root privileges,
 the accumulated read and write throughput on disk is shown.
-When the
+When the optional
+.BR pmdabpf (1)
+or
 .BR pmdabcc (1)
 module 'netproc' has been installed,
 the number of receive and send network calls are shown.
@@ -584,9 +639,10 @@ The last columns contain the accumulated occupation percentage for the
 chosen resource (default: CPU) and the program name.
 .TP 5
 .B j
-Show the process activity accumulated per Docker container.
+Show the process activity accumulated per container/pod.
 
-Per container the following fields are shown: number of processes active
+Per container (e.g. Docker/Podman) or pod (e.g. Kubernetes) the following fields
+are shown: number of processes active
 or terminated during last interval (or in total if combined with command 'a'),
 accumulated CPU consumption during last interval in system and user mode,
 the current virtual and resident memory space consumed by active processes
@@ -597,12 +653,14 @@ When
 access metrics with root privileges,
 the accumulated read and write throughput on disk is shown.
 When the
+.BR pmdabpf (1)
+or
 .BR pmdabcc (1)
 module 'netproc' has been installed,
 the number of receive and send network calls are shown.
 .br
 The last columns contain the accumulated occupation percentage for the
-chosen resource (default: CPU) and the Docker container id (CID).
+chosen resource (default: CPU) and the container/pod name (CID/POD).
 .TP 5
 .B C
 Sort the current list in the order of CPU consumption (default).
@@ -648,6 +706,8 @@ A sorting order for disk is only possible when
 .B pcp-atop
 runs with root privileges.
 A sorting-order for network is only possible when the
+.BR pmdabpf (1)
+or
 .BR pmdabcc (1)
 module 'netproc' has been installed.
 .PP
@@ -776,11 +836,13 @@ processes will be shown again.
 Whether this key is active or not can be seen in the header line.
 .TP 5
 .B J
-Specify a Docker container id of 12 (hexadecimal) characters.
+Specify a container id (e.g. Docker or Podman) or pod name (e.g. Kubernetes)
+of maximum 15 characters. In case the name is longer, the last 15 characters
+are expected.
 From now on, only processes will be shown that run in that specific
-Docker container (CID).
+container or pod.
 The system statistics are still system wide.
-If the Enter-key is pressed without specifying a container id,
+If the Enter-key is pressed without specifying a container id or pod name,
 all (active) processes will be shown again.
 .br
 Whether this key is active or not can be seen in the header line.
@@ -956,7 +1018,7 @@ With the flag
 .B \-b
 (begin time) and/or
 .B \-e
-(end time) followed by a time argument of the form [YY-MM-DD] HH:MM,
+(end time) followed by a time argument of the form [YYYYMMDD]hhmm[ss],
 a certain time period within the archive can be selected.
 .SH OUTPUT DESCRIPTION
 The first sample shows the system level activity since boot
@@ -995,8 +1057,9 @@ Process and thread level totals.
 This line contains the total CPU time consumed
 in system mode ('sys') and in user mode ('user'),
 the total number of processes present at this moment ('#proc'),
-the total number of threads present at this moment in state 'running' ('#trun'),
-\'sleeping interruptible' ('#tslpi') and 'sleeping uninterruptible' ('#tslpu'),
+the total number of threads present at this moment in state 'running'
+('#trun'), 'sleeping interruptible' ('#tslpi'), 'sleeping uninterruptible'
+('#tslpu') and 'idle' ('#tidle'),
 the number of zombie processes ('#zombie'),
 the number of clone system calls ('clones'), and
 the number of processes that ended during the interval
@@ -1148,20 +1211,25 @@ Memory occupation (two lines).
 .br
 These lines contain the total amount of physical memory
 ('tot'), the amount of memory which is currently free ('free'),
+the amount of memory that is available for new workloads
+without pushing the system into swap ('avail'),
 the amount of memory in use as page cache including
 the total resident shared memory ('cache'), the amount of memory within the
 page cache that has to be flushed to disk ('dirty'), the amount
 of memory used for filesystem meta data ('buff'), the amount of
 memory being used for kernel mallocs ('slab'), the amount of
-slab memory that is reclaimable ('slrec'), the resident size of shared
-memory including tmpfs ('shmem'), the resident size of shared memory ('shrss')
-the amount of shared memory that is currently swapped ('shswp'),
+slab memory that is reclaimable ('slrec'),
+the resident size of SYSV shared memory including tmpfs
+but excluding static huge pages ('shmem'),
+the resident size of SYSV shared memory including static huge pages ('shrss'),
+the amount of SYSV shared memory that is currently swapped ('shswp'),
 the amount of memory that is currently used for page tables ('pgtab'),
 the number of NUMA nodes in this system ('numnode'),
 the amount of memory that is currently claimed by vmware's
 balloon driver ('vmbal'),
 the amount of memory that is currently claimed by the ARC (cache)
 of ZFSonlinux ('zfarc'),
+the amount of memory for anonymous transparent huge pages ('anthp'),
 the amount of memory that is claimed for huge pages ('hptot'),
 the amount of huge page memory that is really in use ('hpuse'),
 the amount of memory that is used for TCP sockets ('tcps'), and
@@ -1176,8 +1244,8 @@ Swap occupation and overcommit info.
 This line contains the total amount of swap space on disk ('tot') and
 the amount of free swap space ('free'),
 the size of the swap cache ('swcac'),
-the total size of compressed storage in zswap ('zpool'),
-the total size of the compressed pages stored in zswap ('zstor'),
+the size of compressed storage used for zswap ('zswap'),
+the real (decompressed) size of the pages stored in zswap ('zstor'),
 the total size of the memory used for KSM ('ksuse', i.e. shared), and
 the total size of the memory saved (deduped) by KSM ('kssav', i.e. sharing).
 .br
@@ -1189,23 +1257,23 @@ private memory space for processes.
 The kernel only verifies whether the
 committed space exceeds the limit if strict overcommit handling is
 configured (vm.overcommit_memory is 2).
-.\".TP 5
-.\".B LLC
-.\"Last-Level Cache of CPU info.
-.\".br
-.\"This line contains the total memory bandwidth of LLC ('tot'),
-.\"the bandwidth of the local NUMA node ('loc'), and
-.\"the percentage of LLC in use ('LLCXX YY%').
-.\"
-.\"Note that this feature depends on the 'resctrl' pseudo filesystem.
-.\"Be sure that the kernel is built with the relevant config and
-.\"take care that the pseudo-filesystem is mounted:
-.\"
-.\".B \  mount -t resctrl resctrl -o mba_MBps /sys/fs/resctrl
-.\"(on Intel)
-.\".br
-.\".B \  mount -t resctrl resctrl -o cdp \ \ \ \ \ /sys/fs/resctrl
-.\"(on AMD)
+.TP 5
+.B LLC
+Last-Level Cache of CPU info.
+.br
+This line contains the total memory bandwidth of LLC ('tot'),
+the bandwidth of the local NUMA node ('loc'), and
+the percentage of LLC in use ('LLCXX YY%').
+
+Note that this feature depends on the 'resctrl' pseudo filesystem.
+Be sure that the kernel is built with the relevant config and
+take care that the pseudo-filesystem is mounted:
+
+.B \  mount -t resctrl resctrl -o mba_MBps /sys/fs/resctrl
+(on Intel)
+.br
+.B \  mount -t resctrl resctrl -o cdp \ \ \ \ \ /sys/fs/resctrl
+(on AMD)
 .TP 5
 .B NUM
 Memory utilization per NUMA node (not shown for single NUMA node).
@@ -1215,8 +1283,8 @@ the amount of free memory ('free'), the amount of memory for cached file data
 ('file'), modified cached file data ('dirty'), recently used memory ('activ'),
 less recently used memory ('inact'), memory being used for kernel mallocs
 ('slab'), the amount of slab memory that is reclaimable ('slrec'),
-shared memory including tmpfs ('shmem'), total huge pages ('hptot') and
-the fragmentation percentage ('frag').
+shared memory including tmpfs ('shmem'), total huge pages ('hptot'),
+used huge pages('hpuse'), and the fragmentation percentage ('frag').
 .TP 5
 .B NUC
 CPU utilization per NUMA node (not shown for single NUMA node).
@@ -1241,6 +1309,8 @@ NUMA nodes or for compaction ('migrate') are shown.
 .br
 Also the number of memory pages the system read from block devices ('pgin'),
 the number of memory pages the system wrote to block devices ('pgout'),
+the number of memory pages swapped in from zswap ('zswin'),
+the number of memory pages swapped out to zswap ('zswout'),
 the number of memory pages the system read from swap space ('swin'),
 the number of memory pages the system wrote to swap space ('swout'), and
 the number of out-of-memory kills ('oomkill').
@@ -1352,8 +1422,9 @@ the number of passive TCP opens ('tcppo'),
 the number of TCP output retransmissions ('tcprs'),
 the number of TCP input errors ('tcpie'),
 the number of TCP output resets ('tcpor'),
-the number of UDP no ports ('udpnp'), and
-the number of UDP input errors ('udpie').
+the number of UDP no ports ('udpnp'),
+the number of UDP input errors ('udpie'), and
+the number of TCP incorrect checksums ('csumie').
 .br
 If the screen-width does not allow all of these counters,
 only a relevant subset is shown.
@@ -1451,7 +1522,9 @@ Total bandwidth for received TCP and UDP packets consumed by this process
 This value can be compared with the value 'si'
 on interface level (used bandwidth per interface).
 .br
-This information will only be shown when the
+This information will only be shown when the optional
+.BR pmdabpf (1)
+or
 .BR pmdabcc (1)
 module 'netproc' has been installed.
 .TP 9
@@ -1461,7 +1534,9 @@ Total bandwidth for sent TCP and UDP packets consumed by this process
 This value can be compared with the value 'so'
 on interface level (used bandwidth per interface).
 .br
-This information will only be shown when the
+This information will only be shown when the optional
+.BR pmdabpf (1)
+or
 .BR pmdabcc (1)
 module 'netproc' has been installed.
 .TP 9
@@ -1473,18 +1548,28 @@ Path name of the cgroup (version 2) to which this process belongs.
 This path name is relative to the cgroup root directory, which
 is usually '/sys/fs/cgroup'.
 .TP 9
-.B CID
-Container ID of 12 hexadecimal digits, referring to the container
-in which the process/thread is running.
+.B CID/POD
+Container id (e.g. Docker or Podman) or pod name (e.g. Kubernetes) referring to
+the container/pod in which the process/thread is running.
+When a pod name is longer than 15 characters, only the last 15 characters
+are shown.
+
 If a process has been started and finished during the last
-interval, a '?' is shown because the container ID is not part of
+interval, a '?' is shown because the container id or pod name is not part of
 the standard process accounting record.
+
+This column will only be shown when
+.I atop
+runs with superuser privileges and when at least one containerized
+process is detected.
 .TP 9
 .B CMD
 The name of the process.
 This name can be surrounded by "less/greater than"
 signs ('<name>') which means that the process has finished during the last
-interval.
+interval. A single accounting record is written for the
+entire process on termination of the last thread in the process. When the
+main thread exits, the process name is changed to the thread name.
 .br
 Behind the abbreviation 'CMD' in the header line, the current page number and
 the total number of pages of the process/thread list are shown.
@@ -1493,6 +1578,12 @@ the total number of pages of the process/thread list are shown.
 The full command line of the process (including arguments). If the length of
 the command line exceeds the length of the screen line, the arrow
 keys \-> and <\- can be used for horizontal scroll.
+
+The '-z <regex>' command
+line option can be used to prepend matching environment variables to the
+displayed command line. POSIX Extended Regular Expression syntax are used
+(see regex(3)). When a matching environment variable is too long (exceeding
+the buffer that should contain the command line), it will be truncated.
 .br
 Behind the verb 'COMMAND-LINE' in the header line, the current page number
 and the total number of pages of the process/thread list are shown.
@@ -1624,7 +1715,9 @@ The occupation percentage of this process related to the total load that
 is produced by all processes (i.e. consumed network bandwidth
 of all processes during the last interval).
 .br
-This information will only be shown when the
+This information will only be shown when the optional
+.BR pmdabpf (1)
+or
 .BR pmdabcc (1)
 module 'netproc' has been installed.
 .TP 9
@@ -1714,6 +1807,17 @@ allocated memory.
 For a process which started during the last interval, the resident growth
 reflects the total resident size of the process at that moment.
 .TP 9
+.B RNET
+The number of TCP- and UDP packets received by this process.
+This information will only be shown when the optional
+.BR pmdabpf (1)
+or
+.BR pmdabcc (1)
+netatop module is installed.
+.br
+If a process has finished during the last interval, no value is shown
+since network counters are not part of the standard process accounting record.
+.TP 9
 .B RSIZE
 The total resident memory usage consumed by this process (or user).
 Notice that the RSIZE of a process includes all resident memory used
@@ -1740,6 +1844,14 @@ processes which have finished during the last interval.
 .B SGID
 The saved group-id of the process.
 .TP 9
+.B SNET
+The number of TCP and UDP packets transmitted by this process.
+This information will only be shown when the optional
+.BR pmdabpf (1)
+or
+.BR pmdabcc (1)
+netatop module is installed.
+.TP 9
 .B ST
 The status of a process.
 .br
@@ -1758,12 +1870,12 @@ in the column 'EXC'.
 .br
 The value
 .I S
-means that the process has been terminated unvoluntarily
+means that the process has been terminated involuntarily
 by a signal; the signal number is displayed in the in the column 'EXC'.
 .br
 The value
 .I C
-means that the process has been terminated unvoluntarily
+means that the process has been terminated involuntarily
 by a signal, producing a core dump in its current directory;
 the signal number is displayed in the column 'EXC'.
 .TP 9
@@ -1793,23 +1905,35 @@ due to system call handling.
 .TP 9
 .B TCPRASZ
 The average size of a received TCP buffer in bytes.
-This information will only be shown when the BCC PMDA is active
-and the 'netproc' module is enabled.
+This information will only be shown when the optional
+.BR pmdabpf (1)
+or
+.BR pmdabcc (1)
+netproc module is enabled.
 .TP 9
 .B TCPRCV
 The number of tcp_recvmsg()/tcp_cleanup_rbuf() calls from this process.
-This information will only be shown when the BCC PMDA is active
-and the 'netproc' module is enabled.
+This information will only be shown when the optional
+.BR pmdabpf (1)
+or
+.BR pmdabcc (1)
+netproc module is enabled.
 .TP 9
 .B TCPSASZ
 The average size of a TCP buffer requested to be transmitted in bytes.
-This information will only be shown when the BCC PMDA is active
-and the 'netproc' module is enabled.
+This information will only be shown when the optional
+.BR pmdabpf (1)
+or
+.BR pmdabcc (1)
+netproc module is enabled.
 .TP 9
 .B TCPSND
 The number of tcp_sendmsg() calls from this process.
-This information will only be shown when the BCC PMDA is active
-and the 'netproc' module is enabled.
+This information will only be shown when the optional
+.BR pmdabpf (1)
+or
+.BR pmdabcc (1)
+netproc module is enabled.
 .TP 9
 .B THR
 Total number of threads within this process.
@@ -1824,6 +1948,10 @@ different TID.
 This value is shown for individual threads in
 multi-threaded processes (when using the key 'y').
 .TP 9
+.B TIDLE
+Number of threads within this process that are in the state 'idle' (I),
+i.e. uninterruptible sleeping threads that do not count for the load average.
+.TP 9
 .B TRUN
 Number of threads within this process that are in the state 'running' (R).
 .TP 9
@@ -1837,23 +1965,35 @@ state 'uninterruptible sleeping' (D).
 .TP 9
 .B UDPRASZ
 The average size of a received UDP buffer in bytes.
-This information will only be shown when the BCC PMDA is active
-and the 'netproc' module is enabled.
+This information will only be shown when the optional
+.BR pmdabpf (1)
+or
+.BR pmdabcc (1)
+netproc module is enabled.
 .TP 9
 .B UDPRCV
 The number of udp_recvmsg()/skb_consume_udp() calls from this process.
-This information will only be shown when the BCC PMDA is active
-and the 'netproc' module is enabled.
+This information will only be shown when the optional
+.BR pmdabpf (1)
+or
+.BR pmdabcc (1)
+netproc module is enabled.
 .TP 9
 .B UDPSASZ
 The average size of a UDP buffer requested to be transmitted in bytes.
-This information will only be shown when the BCC PMDA is active
-and the 'netproc' module is enabled.
+This information will only be shown when the optional
+.BR pmdabpf (1)
+or
+.BR pmdabcc (1)
+netproc module is enabled.
 .TP 9
 .B UDPSND
 The number of udp_sendmsg() calls from this process.
-This information will only be shown when the BCC PMDA is active
-and the 'netproc' module is enabled.
+This information will only be shown when the optional
+.BR pmdabpf (1)
+or
+.BR pmdabcc (1)
+netproc module is enabled.
 .TP 9
 .B USRCPU
 CPU time consumption of this process in user mode, due to processing the
@@ -1932,7 +2072,12 @@ that can be found in the interactive output:
 .br
 For process-level statistics special labels are introduced:
 "PRG" (general), "PRC" (CPU), "PRE" (GPU), "PRM" (memory), "PRD"
-(disk, only if "storage accounting" is active).
+(disk, only if "storage accounting" is active) and "PRN" (only if
+the optional
+.BR pmdabpf (1)
+or
+.BR pmdabcc (1)
+netproc module is installed).
 .br
 With the label "ALL", all system and process level statistics are shown.
 .PP
@@ -2040,15 +2185,20 @@ total size of vmware's balloon pages (pages),
 total size of shared memory (pages),
 size of resident shared memory (pages),
 size of swapped shared memory (pages),
-huge page size (in bytes),
-total size of huge pages (huge pages),
-size of free huge pages (huge pages),
+smaller huge page size (in bytes),
+total size of smaller huge pages (huge pages),
+size of free smaller huge pages (huge pages),
 size of ARC (cache) of ZFSonlinux (pages),
 size of sharing pages for KSM (pages),
 size of shared pages for KSM (pages),
 size of memory used for TCP sockets (pages),
-size of memory used for UDP sockets (pages), and
-size of pagetables (pages).
+size of memory used for UDP sockets (pages),
+size of pagetables (pages),
+larger huge page size (in bytes),
+total size of larger huge pages (huge pages),
+size of free larger huge pages (huge pages),
+size of available memory (pages) for new workloads without swapping, and
+size of anonymous transparent huge pages ('normal' pages).
 .TP 9
 .B SWP
 Subsequent fields:
@@ -2059,14 +2209,15 @@ size of swap cache (pages),
 size of committed space (pages),
 limit for committed space (pages),
 size of the swap cache (pages),
-size of compressed pages stored in zswap (pages), and
-total size of compressed pool in zswap (pages).
-.\".TP 9
-.\".B LLC
-.\"Subsequent fields:
-.\"LLC id, percentage of LLC in use,
-.\"total memory bandwidth of this LLC (in bytes), and
-.\"memory bandwidth on local NUMA node of this LLC (in bytes).
+the real (decompressed) size of the pages stored
+in zswap (pages), and
+the size of compressed storage used for zswap (pages).
+.TP 9
+.B LLC
+Subsequent fields:
+LLC id, percentage of LLC in use,
+total memory bandwidth of this LLC (in bytes), and
+memory bandwidth on local NUMA node of this LLC (in bytes).
 .TP 9
 .B PAG
 Subsequent fields:
@@ -2080,8 +2231,10 @@ number of oomkills (-1 when counter not present),
 number of process stalls to run memory compaction,
 number of pages successfully migrated in total,
 number of NUMA pages migrated,
-number of pages read from block devices, and
-number of pages written to block devices.
+number of pages read from block devices,
+number of pages written to block devices,
+number of swapins from zswap, and
+number of swapouts to zswap.
 .TP 9
 .B PSI
 Subsequent fields:
@@ -2170,8 +2323,9 @@ number of passive opens (TCP),
 number of passive opens (TCP),
 number of established connections at this moment (TCP),
 number of retransmitted segments (TCP),
-number of input errors (TCP), and
-number of output resets (TCP).
+number of input errors (TCP),
+number of output resets (TCP), and
+number of checksum errors on received packets (TCP).
 
 Next, one line is shown for every interface.
 .br
@@ -2206,8 +2360,8 @@ size of cached file data (pages),
 dirty pages in cache (pages),
 slab memory being used for kernel mallocs (pages),
 slab memory that is reclaimable (pages),
-shared memory including tmpfs (pages), and
-total huge pages (pages).
+shared memory including tmpfs (pages),
+total huge pages (huge pages), and free huge pages (huge pages).
 .TP 9
 .B NUC
 Subsequent fields:
@@ -2238,10 +2392,11 @@ effective uid, effective gid,
 saved uid, saved gid,
 filesystem uid, filesystem gid, elapsed time of terminated process (hertz),
 is_process (y/n), OpenVZ  virtual pid (VPID), OpenVZ container id (CTID),
-Container id (CID),
+container/pod name (CID/POD),
 indication if the task is newly started during this interval ('N'),
-cgroup v2 path name (between parenthesis or underscores for spaces), and
-end time (epoch. or 0 if still active).
+cgroup v2 path name (between parenthesis or underscores for spaces),
+end time (epoch. or 0 if still active), and
+number of threads in state 'idle' (I).
 .TP 9
 .B PRC
 For every process one line is shown.
@@ -2262,7 +2417,7 @@ block I/O delay (clockticks),
 .\"cgroup v2 most restrictive 'cpu.max' in upper directories calculated as percentage
 .\"(-3 means no cgroup v2 support, -2 means undefined and -1 means maximum),
 number of voluntary context switches, and
-number of involunatary context switches.
+number of involuntary context switches.
 .TP 9
 .B PRE
 For every process one line is shown.
@@ -2327,6 +2482,8 @@ For every process one line is shown.
 .br
 Subsequent fields:
 PID, name (between parenthesis or underscores for spaces), state,
+.BR pmdabpf (1)
+or
 .BR pmdabcc (1)
 module 'netproc' loaded ('y' or 'n'),
 number of tcp_sendmsg() calls,
@@ -2408,15 +2565,16 @@ Some features of
 .BR pcp-atop
 (such as reporting on the Apache HTTP daemon, Infiniband, NFS
 client mounts, hardware event counts, GPU statistics and per-process
-TCP and UDP statistics) are only activated if the corresonding PCP metrics
+TCP and UDP statistics) are only activated if the corresponding PCP metrics
 are available. Refer to the documentation for
 .BR pmdaapache (1),
 .BR pmdainfiniband (1),
 .BR pmdanfsclient (1),
 .BR pmdanvidia (1),
 .BR pmdaperfevent (1)
-and
 .BR pmdabcc (1)
+and
+.BR pmdabpf (1)
 for further details on activating these metrics.
 .PP
 The semantics of the per-process network statistics deviate slightly from the
@@ -2453,6 +2611,7 @@ For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
 .BR pcp-atopsar (1),
 .BR pmdaapache (1),
 .BR pmdabcc (1),
+.BR pmdabpf (1),
 .BR pmdainfiniband (1),
 .BR pmdanfsclient (1),
 .BR pmdanvidia (1),
@@ -2462,3 +2621,39 @@ For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
 .BR pmlogger_daily (1)
 and
 .BR pcp-atoprc (5).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ overcommit_memory tcp_cleanup_rbuf skb_consume_udp
+.\" +ok+ overcommitting
+.\" +ok+ cpufreq_stats brendangregg
+.\" +ok+ SCHED_OTHER tcp_recvmsg tcp_sendmsg udp_recvmsg udp_sendmsg
+.\" +ok+ allocstalls cpucritperc dskcritperc ownprocline SCHED_FIFO ZFSonlinux
+.\" +ok+ pagetables scrollable whereafter clockticks InfiniBand is_process
+.\" +ok+ overcommit Langeveld langeveld unflushed PARSABLE SCHED_RR
+.\" +ok+ YYYYMMDD mba_MBps Realtime realtime vmware's
+.\" +ok+ uncached modprobe VolGroup oomkills procacct atoptool Runqueue
+.\" +ok+ runqueue swapouts TCPRASZ TCPSASZ UDPRASZ UDPSASZ MEMBUSY NETATOP
+.\" +ok+ GPUBUSY GPUNUMS mallocs ncurses deduped membusy memfull memsome
+.\" +ok+ resctrl netatop netproc retxmit KiBytes MiBytes bitlist
+.\" +ok+ softirq logfile oomkill gpubusy cpusome rpwrite
+.\" +ok+ atopsar numamig numnode curscal avgscal swapins MAJFLT BANDWI
+.\" +ok+ BANDWO WCANCL TCPRCV TCPSND BDELAY RDELAY UDPRCV UDPSND MEMAVG
+.\" +ok+ MEMNOW CGROUP MINFLT NIVCSW ENDATE ENTIME LOCKSZ NPROCS VSLIBS
+.\" +ok+ USRCPU VSTACK VSTEXT STDATE STTIME AVGRSZ AVGWSZ SWAPSZ SYSCPU
+.\" +ok+ badaut badcln badfmt rchits rcmiss rcnoca memocc Gerlof
+.\" +ok+ gerlof nettcp netudp cgroup discrd Podman iofull noport iosome
+.\" +ok+ OpenVZ csumie zswout atoprc autref Nvidia WCHAN VDATA RDDSK RGROW
+.\" +ok+ VGROW TIDLE LLCXX ENVID CPUNR WRDSK FSGID PSIZE RSIZE VSIZE TSLPI
+.\" +ok+ TSLPU FSUID NVCSW icmpi icmpo tcpao tcpie tcpor tcppo tcprs activ
+.\" +ok+ udpie udpnp deliv zfarc pgout pgtab shmem shrss shswp niced tidle
+.\" +ok+ slrec vmbal vmcom vmlim tmpfs inact inflt anthp ipfrw hptot hpuse
+.\" +ok+ cread mread nread usavg tslpi tslpu kssav zstor ksuse zswap zswin
+.\" +ok+ lvtmp swcac swout cwrit dwrit mwrit nwrit eBPF MBcr MBcw ICMP ACPU
+.\" +ok+ PCPU ADSK EGID RGID SGID TGID AMEM ANET RNET SNET POLI RPCs PPID
+.\" +ok+ VPID TRUN CTID RTPR EUID RUID SUID NUMA NVMe SYSV YYYY Mbps pcki
+.\" +ok+ pcko tcpi tcpo tcps udpi udpo udps PgDn PgUp pgin hhmm fifo sirq
+.\" +ok+ mlti intr coll drpi drpo erri erro trun btch curf avgf avio
+.\" +ok+ swin cyan cycl yyyy PAG MBr MBw MDD MEM SEP IFB NFC NFM THR TID
+.\" +ok+ LLC PMC CMD OOM BPF CPL PRC PRD PRE PRG PRI PRM PRN DSK KSM NUC
+.\" +ok+ NUM LVM SWP EXC sda cdp tmp loc rpc ipi ipo irq srv csw
+.\" +ok+ Avg avg avq sys DD HH SS RX TX YY dd mf hh si nl vm sp rr fs ss Av yy

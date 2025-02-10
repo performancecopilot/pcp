@@ -1,8 +1,71 @@
-pcp (6.1.0-1) unstable; urgency=low
+pcp (7.0.0-1) unstable; urgency=low
 
   * New release (full details in CHANGELOG).
 
- -- Nathan Scott <nathans@debian.org>  Thu, 31 Aug 2023 11:13:24 +1000
+ -- Nathan Scott <nathans@debian.org>  Tue, 01 Jul 2025 07:39:11 +1000
+
+pcp (6.3.3-1) unstable; urgency=low
+
+  * 6.3.2 release plus fixes for Debian build issues
+  * don't dink with /var/run/pcp in pcp.postinst (closes: #1071103)
+  * avoid dangling systemd symlinks on purge (closes: #986074)
+  * change to allow Rules-Requires-Root: no in build (closes: #1089409)
+
+ -- Nathan Scott <nathans@debian.org>  Wed, 29 Jan 2025 09:25:03 +1100
+
+pcp (6.3.2-1) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Wed, 06 Nov 2024 09:26:47 +1100
+
+pcp (6.3.1-1) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+  * Fix build dependency on python3-setuptools (closes: #1080703)
+
+ -- Nathan Scott <nathans@debian.org>  Tue, 17 Sep 2024 10:27:34 +1000
+
+pcp (6.3.0-1) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Tue, 30 Jul 2024 09:18:12 +1000
+
+pcp (6.2.2-1) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+  * Fix build dependency on [lib]systemd-dev (closes: #1060493)
+  * Relocate pmcheck to resolve a Perl conflict (closes: #1071010)
+
+ -- Nathan Scott <nathans@debian.org>  Wed, 15 May 2024 06:22:01 +1000
+
+pcp (6.2.1-1) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+  * Drop BCC metrics as python3-bpfcc is no more (closes: #1068389)
+
+ -- Nathan Scott <nathans@debian.org>  Wed, 10 Apr 2024 09:14:46 +1000
+
+pcp (6.2.0-1) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+  * Do not ship empty directory /usr/lib/pkgconfig (closes: #1041754)
+
+ -- Nathan Scott <nathans@debian.org>  Mon, 12 Feb 2024 09:18:37 +1100
+
+pcp (6.1.1-1) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Fri, 17 Nov 2023 12:08:42 +1100
+
+pcp (6.1.0-1) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+  * Fix several makefile clean targets (closes: #1045430)
+
+ -- Nathan Scott <nathans@debian.org>  Tue, 05 Sep 2023 11:13:24 +1000
 
 pcp (6.0.5-1) unstable; urgency=low
 

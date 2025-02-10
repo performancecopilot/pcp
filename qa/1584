@@ -28,7 +28,6 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 pmdamongodb_remove()
@@ -48,8 +47,8 @@ pmdamongodb_install()
     echo
     echo "=== mongodb agent installation ==="
     $sudo ./Install </dev/null >$tmp.out 2>&1
-    cat $tmp.out >>$here/$seq.full
-    cat $PCP_LOG_DIR/pmcd/mongodb.log >>$here/$seq.full
+    cat $tmp.out >>$seq_full
+    cat $PCP_LOG_DIR/pmcd/mongodb.log >>$seq_full
     # Check mongodb metrics have appeared ... X metrics and Y values
     _filter_pmda_install <$tmp.out \
     | sed \
@@ -71,7 +70,7 @@ _stop_auto_restart pmcd
 pmdamongodb_install
 
 echo "Check across all metrics for warnings on fetch"
-pminfo -dft mongodb >> $here/$seq.full
+pminfo -dft mongodb >> $seq_full
 pminfo -v mongodb
 
 echo "Check server version value matches mongo shell"
@@ -81,7 +80,7 @@ then
     echo "Success - matching version numbers"
     status=0
 else
-    echo "Mismatch: $pcpversion vs $MONGO_VERSION" | tee -a $here/$seq.full
+    echo "Mismatch: $pcpversion vs $MONGO_VERSION" | tee -a $seq_full
 fi
 
 pmdamongodb_remove

@@ -454,7 +454,7 @@
             <xhtml:div
                style="box-sizing: border-box; font-size: 0; text-align: center; ">
               <xhtml:div
-                 style="display: inline-block; font-size: 10px; font-family: Sans-serif; color: #000000; line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">PCP Archive Log</xhtml:div>
+                 style="display: inline-block; font-size: 10px; font-family: Sans-serif; color: #000000; line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">PCP Archive</xhtml:div>
             </xhtml:div>
           </xhtml:div>
         </foreignObject>
@@ -466,7 +466,7 @@
            font-size="10px"
            text-anchor="middle"
            font-weight="bold"
-           id="text730">PCP Archive Log</text>
+           id="text730">PCP Archive</text>
       </switch>
     </g>
     <path
@@ -587,7 +587,7 @@
             <xhtml:div
                style="box-sizing: border-box; font-size: 0; text-align: center; ">
               <xhtml:div
-                 style="display: inline-block; font-size: 10px; font-family: sans-serif; color: #000000; line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">Redis Instance</xhtml:div>
+                 style="display: inline-block; font-size: 10px; font-family: sans-serif; color: #000000; line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">Key Server</xhtml:div>
             </xhtml:div>
           </xhtml:div>
         </foreignObject>
@@ -603,11 +603,11 @@
              sodipodi:role="line"
              id="tspan669"
              x="565"
-             y="291">Redis</tspan><tspan
+             y="291">Key</tspan><tspan
              sodipodi:role="line"
              id="tspan671"
              x="565"
-             y="303.5">Instance</tspan></text>
+             y="303.5">Server</tspan></text>
       </switch>
     </g>
     <rect
@@ -1011,7 +1011,7 @@
             <xhtml:div
                style="box-sizing: border-box; font-size: 0; text-align: center; ">
               <xhtml:div
-                 style="display: inline-block; font-size: 10px; font-family: Sans-serif; color: #000000; line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">PCP Archive Log</xhtml:div>
+                 style="display: inline-block; font-size: 10px; font-family: Sans-serif; color: #000000; line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">PCP Archive</xhtml:div>
             </xhtml:div>
           </xhtml:div>
         </foreignObject>
@@ -1023,7 +1023,7 @@
            font-size="10px"
            text-anchor="middle"
            font-weight="bold"
-           id="text840">PCP Archive Log</text>
+           id="text840">PCP Archive</text>
       </switch>
     </g>
     <path
@@ -1522,7 +1522,7 @@
             <xhtml:div
                style="box-sizing: border-box; font-size: 0; text-align: center; ">
               <xhtml:div
-                 style="display: inline-block; font-size: 10px; font-family: Sans-serif; color: #000000; line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">PCP Archive Log</xhtml:div>
+                 style="display: inline-block; font-size: 10px; font-family: Sans-serif; color: #000000; line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">PCP Archive</xhtml:div>
             </xhtml:div>
           </xhtml:div>
         </foreignObject>
@@ -1534,7 +1534,7 @@
            font-size="10px"
            text-anchor="middle"
            font-weight="bold"
-           id="text942">PCP Archive Log</text>
+           id="text942">PCP Archive</text>
       </switch>
     </g>
     <path

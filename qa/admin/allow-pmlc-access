@@ -5,89 +5,21 @@
 #
 # TODO IPv6?
 #
-
-# same function is in check-vm ... need to track changes
 #
-_getnetworkaddr()
-{
-    __verbose=false
-    $very_verbose && __verbose=true
-    if `which hostname >/dev/null 2>&1`
-    then
-	host=`hostname`
-	if `which host >/dev/null 2>&1`
-	then
-	    host_out=`host $host`
-	    if echo "$host_out" | grep ' has address ' >/dev/null
-	    then
-		addr=`echo "$host_out" | sed -e 's/.*address //'`
-		$__verbose && echo "_getnetworkaddr: host -> addr=$addr" >&2
-		if `which ifconfig >/dev/null 2>&1`
-		then
-		    # ifconfig line of interest looks like:
-		    # inet 192.168.1.100  netmask 255.255.255.0  ...
-		    # or
-		    # inet addr:192.168.1.224  Bcast:192.168.1.255  Mask:255.255.255.0
-		    # or
-		    # inet 192.168.1.238/24 broadcast 192.168.1.255 flags 0x0
-		    #
-		    __config=`ifconfig | grep "[ :]$addr[ /]"`
-		    if echo "$__config" | grep '[Mm]ask' >/dev/null
-		    then
-			mask=`echo "$__config" | sed -e 's/.*ask[ :]\([^ ][^ ]*\).*/\1/'`
-		    elif echo "$__config" | grep " $addr/" >/dev/null
-		    then
-			mask=`echo "$__config" | sed -e '/\/24/s/.*/255.255.255.0/'`
-		    else
-			echo "_getnetworkaddr: botched config line: $__config" >&2
-			mask=''
-		    fi
-		    $__verbose && echo "_getnetworkaddr: ifconfig -> mask=$mask" >&2
-		    case "$mask"
-		    in
-			255.255.255.0|0xffffff00|ffffff00)	# /24 network
-			    echo "$addr" | sed -e 's/\.[0-9]*$/.*/'
-			    ;;
-			# pmcd's [access] is not smart enough to handle other
-			# than /24 networks, so map the other likely options
-			# to the broader /24 network
-			#
-			255.255.255.128|255.255.255.192|255.255.255.224|255.255.255.240|255.255.255.248|255.255.255.252|255.255.255.254)
-			    echo "$addr" | sed -e 's/\.[0-9]*$/.*/'
-			    ;;
-			*)
-			    echo >&2 "_getnetworkaddr: Warning: cannot handle network mask: $mask"
-			    ;;
-		    esac
-		elif `which ip >/dev/null 2>&1`
-		then
-		    # ip line of interest looks like:
-		    # 4: br0    inet 192.168.1.100/24 ...
-		    #
-		    mask=`ip -f inet -o address | grep " $addr/" | sed -e 's/.*inet //' -e 's/[0-9.][0-9.]*\/\([^ ][^ ]*\) .*/\1/'`
-		    $__verbose && echo "_getnetworkaddr: ip -> mask=$mask" >&2
-		    if [ "$mask" != 24 ]
-		    then
-			# pmcd's [access] is not smart enough to handle other
-			# than /24 networks, so map the other likely options
-			echo >&2 "_getnetworkaddr: Warning: cannot handle network mask: $mask"
-		    fi
-		    # /24 netmask
-		    mask=255.255.255.0
-		    echo "$addr" | sed -e 's/\.[0-9]*$/.*/'
-		else
-		    echo >&2 "Neither ifconfig(1) nor ip(1)? Not sure how to get primary ip addr and netmask"
-		fi
-	    else
-		echo >&2 "Unexpected host(1) output: $host_out ... cannot get ip addr and netmask"
-	    fi
-	else
-	    echo >&2 "No host(1)? Not sure how to get primary ip addr and netmask"
-	fi
-    else
-	echo >&2 "No hostname(1)? Not sure how to get primary ip addr and netmask"
-    fi
-}
+home=`echo $0 | sed -e 's/\/*allow-pmlc-access$//'`
+if [ ! -f $home/whatami ]
+then
+    echo >&2 "Botch: \$0=$0 -> bad \$home=$home ?"
+    exit 1
+fi
+
+if [ ! -f $home/packages.rc ]
+then
+    echo >&2 "Botch: cannot find $home/packages.rc"
+    exit
+fi
+
+. $home/packages.rc
 
 tmp=/var/tmp/$$
 sts=0

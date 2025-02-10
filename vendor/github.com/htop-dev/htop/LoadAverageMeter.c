@@ -5,12 +5,14 @@ Released under the GNU GPLv2+, see the COPYING file
 in the source distribution for its full text.
 */
 
+#include "config.h" // IWYU pragma: keep
+
 #include "LoadAverageMeter.h"
 
 #include "CRT.h"
+#include "Machine.h"
 #include "Object.h"
 #include "Platform.h"
-#include "ProcessList.h"
 #include "RichString.h"
 #include "XUtils.h"
 
@@ -107,6 +109,7 @@ const MeterClass LoadAverageMeter_class = {
    },
    .updateValues = LoadAverageMeter_updateValues,
    .defaultMode = TEXT_METERMODE,
+   .supportedModes = METERMODE_DEFAULT_SUPPORTED,
    .maxItems = 3,
    .total = 100.0,
    .attributes = LoadAverageMeter_attributes,
@@ -124,6 +127,7 @@ const MeterClass LoadMeter_class = {
    },
    .updateValues = LoadMeter_updateValues,
    .defaultMode = TEXT_METERMODE,
+   .supportedModes = METERMODE_DEFAULT_SUPPORTED,
    .maxItems = 1,
    .total = 100.0,
    .attributes = LoadMeter_attributes,

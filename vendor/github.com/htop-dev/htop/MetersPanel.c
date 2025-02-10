@@ -5,6 +5,8 @@ Released under the GNU GPLv2+, see the COPYING file
 in the source distribution for its full text.
 */
 
+#include "config.h" // IWYU pragma: keep
+
 #include "MetersPanel.h"
 
 #include <stdlib.h>
@@ -95,62 +97,46 @@ static HandlerResult MetersPanel_eventHandler(Panel* super, int ch) {
       case 0x0a:
       case 0x0d:
       case KEY_ENTER:
-      {
          if (!Vector_size(this->meters))
             break;
          MetersPanel_setMoving(this, !(this->moving));
          result = HANDLED;
          break;
-      }
       case ' ':
       case KEY_F(4):
-      case 't':
-      {
+      case 't': {
          if (!Vector_size(this->meters))
             break;
          Meter* meter = (Meter*) Vector_get(this->meters, selected);
-         int mode = meter->mode + 1;
-         if (mode == LAST_METERMODE)
-            mode = 1;
+         MeterModeId mode = Meter_nextSupportedMode(meter);
          Meter_setMode(meter, mode);
          Panel_set(super, selected, (Object*) Meter_toListItem(meter, this->moving));
          result = HANDLED;
          break;
       }
       case KEY_UP:
-      {
-         if (!this->moving) {
+         if (!this->moving)
             break;
-         }
-      }
          /* else fallthrough */
       case KEY_F(7):
       case '[':
       case '-':
-      {
          Vector_moveUp(this->meters, selected);
          Panel_moveSelectedUp(super);
          result = HANDLED;
          break;
-      }
       case KEY_DOWN:
-      {
-         if (!this->moving) {
+         if (!this->moving)
             break;
-         }
-      }
          /* else fallthrough */
       case KEY_F(8):
       case ']':
       case '+':
-      {
          Vector_moveDown(this->meters, selected);
          Panel_moveSelectedDown(super);
          result = HANDLED;
          break;
-      }
       case KEY_RIGHT:
-      {
          sideMove = moveToNeighbor(this, this->rightNeighbor, selected);
          if (this->moving && !sideMove) {
             // lock user here until it exits positioning-mode
@@ -159,18 +145,14 @@ static HandlerResult MetersPanel_eventHandler(Panel* super, int ch) {
          // if user is free, don't set HANDLED;
          // let ScreenManager handle focus.
          break;
-      }
       case KEY_LEFT:
-      {
          sideMove = moveToNeighbor(this, this->leftNeighbor, selected);
          if (this->moving && !sideMove) {
             result = HANDLED;
          }
          break;
-      }
       case KEY_F(9):
       case KEY_DC:
-      {
          if (!Vector_size(this->meters))
             break;
          if (selected < Vector_size(this->meters)) {
@@ -180,8 +162,8 @@ static HandlerResult MetersPanel_eventHandler(Panel* super, int ch) {
          MetersPanel_setMoving(this, false);
          result = HANDLED;
          break;
-      }
    }
+
    if (result == HANDLED || sideMove) {
       Header* header = this->scr->header;
       this->settings->changed = true;
@@ -189,6 +171,7 @@ static HandlerResult MetersPanel_eventHandler(Panel* super, int ch) {
       Header_calculateHeight(header);
       ScreenManager_resize(this->scr);
    }
+
    return result;
 }
 

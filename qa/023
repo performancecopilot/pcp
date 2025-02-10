@@ -113,21 +113,22 @@ SAVE_LOGCONTROL=$tmp/control.save
 signal=$PCP_BINADM_DIR/pmsignal
 _needclean=true
 
-rm -rf $tmp $tmp.*
 mkdir $tmp
 chmod ugo+rwx $tmp
 cd $tmp
 
-SAVE_LOGGER=`_get_config pmlogger`
+_get_config pmlogger >$tmp.tmp || _exit 1
+SAVE_LOGGER=`cat $tmp.tmp`
+rm -f $tmp.tmp
 [ -f $LOGCONTROL ] && $sudo mv $LOGCONTROL $SAVE_LOGCONTROL
 
-cleanup()
+_cleanup()
 {
-    echo >>$here/$seq.full
-    echo "pmcd.log at cleanup" >>$here/$seq.full
-    cat pmcd.log >>$here/$seq.full
+    echo >>$seq_full
+    echo "pmcd.log at _cleanup" >>$seq_full
+    cat pmcd.log >>$seq_full
     cd $here
-    _change_config pmlogger on
+    _change_config pmlogger on || _exit 1
     if $_needclean
     then
 	_needclean=false
@@ -135,28 +136,28 @@ cleanup()
 
         _restore_config $PCP_PMCDCONF_PATH
 	_restore_config $PCP_SYSCONFIG_DIR/pmcd
-	echo "=== restored $PCP_PMCDCONF_PATH ===" >>$here/$seq.full
-	cat $PCP_PMCDCONF_PATH >>$here/$seq.full
+	echo "=== restored $PCP_PMCDCONF_PATH ===" >>$seq_full
+	cat $PCP_PMCDCONF_PATH >>$seq_full
 	[ -f $SAVE_LOGCONTROL ] && $sudo mv $SAVE_LOGCONTROL $LOGCONTROL
-	echo "=== restored $LOGCONTROL ===" >>$here/$seq.full
-	cat $LOGCONTROL >>$here/$seq.full
+	echo "=== restored $LOGCONTROL ===" >>$seq_full
+	cat $LOGCONTROL >>$seq_full
 	echo "Restart and ping pmcd ..."
 	unset PMCD_PORT # don't worry about preserving just get rid of it
 	unset PMCD_SOCKET
 	_service pcp restart 2>&1 \
-	| tee -a $here/$seq.full \
+	| tee -a $seq_full \
 	| _filterall_pcp_start \
 	| sed \
 	    -e '/Waiting for pmcd to terminate/d' \
 	    -e '/Installing .* PMDA \.\.\./d'
 	_restore_auto_restart pmcd
-	_wait_for_pmcd
-	_wait_for_pmlogger
+	_wait_for_pmcd || _exit 1
+	_wait_for_pmlogger || _exit 1
 	pmprobe pmcd.control.debug
 	sleepers=`ps $PCP_PS_ALL_FLAGS | grep '[d]umb_pmda' | $PCP_AWK_PROG '$3 == 1 { print $2 }'`
 	[ ! -z "$sleepers" ] && $sudo $signal -s TERM $sleepers
     fi
-    rm -rf $tmp $tmp.*
+    rm -rf $tmp $tmp.* dumb_pmda.log*
 }
 
 _disable_agent_restart()
@@ -165,10 +166,10 @@ _disable_agent_restart()
     $sudo cp $tmp.defaults $PCP_SYSCONFIG_DIR/pmcd
 }
 
-trap "cleanup; exit \$status" 0 1 2 3 15
+trap "_cleanup; exit \$status" 0 1 2 3 15
 
-rm -f $here/$seq.full
-echo "SAVE_LOGGER=$SAVE_LOGGER" >>$here/$seq.full
+rm -f $seq_full
+echo "SAVE_LOGGER=$SAVE_LOGGER" >>$seq_full
 
 # real QA test starts here
 
@@ -187,11 +188,14 @@ fi
 _save_config $PCP_SYSCONFIG_DIR/pmcd
 _disable_agent_restart
 _stop_auto_restart pmcd
-_service pmlogger stop | tee -a $here/$seq.full | _filter_pcp_stop
-_service pmcd stop | tee -a $here/$seq.full | _filter_pcp_stop
-_service pmie stop >>$here/$seq.full
+if ! _service pmlogger stop; then _exit 1; fi \
+| tee -a $seq_full | _filter_pcp_stop
+if ! _service pmcd stop; then _exit 1; fi \
+| tee -a $seq_full | _filter_pcp_stop
+if ! _service pmie stop ; then _exit 1; fi \
+>>$seq_full
 
-_change_config pmlogger off
+_change_config pmlogger off || _exit 1
 
 # Create a fake namespace to force pminfo to query the fake agent
 FAKE_NS=$tmp/$seq.fake_ns
@@ -243,7 +247,7 @@ PMCD_PORT=$port
 PATH=$PATH:$here/src
 PMCD_SOCKET=$tmp/pmcd.socket
 export PMCD_PORT PATH PMCD_SOCKET
-$PCP_PMCD_PROG -f -t 2 2>>$here/$seq.full &
+$PCP_PMCD_PROG -f -t 2 2>>$seq_full &
 pmcd=$!
 if [ -d $PCP_RUN_DIR ]
 then
@@ -252,11 +256,11 @@ then
 fi
 
 # Sleep 3 sec for each fake pmda
-sleep 15 
-_wait_for_pmcd
+sleep 15
+_wait_for_pmcd || _exit 1
 _filter_log
-echo "pmcd.log after pmcd first started" >>$here/$seq.full
-cat pmcd.log >>$here/$seq.full
+echo "pmcd.log after pmcd first started" >>$seq_full
+cat pmcd.log >>$seq_full
 
 # Get pmcd to stop the fake_kernel PMDA by asking for a metric from it.
 # Sleep won't do anything, so it'll be timed out returning an IPC protocol
@@ -297,11 +301,11 @@ $signal -s HUP $pmcd
 
 # Sleep 3 sec for each fake pmda in the config
 sleep 15
-_wait_for_pmcd
+_wait_for_pmcd || _exit 1
 _filter_log
-echo >>$here/$seq.full
-echo "pmcd.log after pmcd SIGHUP" >>$here/$seq.full
-cat pmcd.log >>$here/$seq.full
+echo >>$seq_full
+echo "pmcd.log after pmcd SIGHUP" >>$seq_full
+cat pmcd.log >>$seq_full
 
 pminfo -f pmcd.agent.status
 echo

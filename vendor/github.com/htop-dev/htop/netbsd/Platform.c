@@ -9,6 +9,8 @@ Released under the GNU GPLv2+, see the COPYING file
 in the source distribution for its full text.
 */
 
+#include "config.h" // IWYU pragma: keep
+
 #include "netbsd/Platform.h"
 
 #include <errno.h>
@@ -229,7 +231,7 @@ void Platform_getLoadAverage(double* one, double* five, double* fifteen) {
    *fifteen = (double) loadAverage.ldavg[2] / loadAverage.fscale;
 }
 
-int Platform_getMaxPid(void) {
+pid_t Platform_getMaxPid(void) {
    // https://nxr.netbsd.org/xref/src/sys/sys/ansi.h#__pid_t
    // pid is assigned as a 32bit Integer.
    return INT32_MAX;
@@ -272,9 +274,9 @@ void Platform_setMemoryValues(Meter* this) {
    const Machine* host = this->host;
    this->total = host->totalMem;
    this->values[MEMORY_METER_USED] = host->usedMem;
-   this->values[MEMORY_METER_BUFFERS] = host->buffersMem;
    // this->values[MEMORY_METER_SHARED] = "shared memory, like tmpfs and shm"
    // this->values[MEMORY_METER_COMPRESSED] = "compressed memory, like zswap on linux"
+   this->values[MEMORY_METER_BUFFERS] = host->buffersMem;
    this->values[MEMORY_METER_CACHE] = host->cachedMem;
    // this->values[MEMORY_METER_AVAILABLE] = "available memory"
 }

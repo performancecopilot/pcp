@@ -4,69 +4,39 @@ Expect nothing here ...
 Check rewrite rules ...
 --- BAD
 +++ GOOD
-@@ -252,7 +252,7 @@
-     Data Type: 64-bit unsigned int  InDom: 60.1 0xf000001
-     Semantics: counter  Units: count
+@@ -156,25 +156,25 @@
+     Data Type: 32-bit unsigned int  InDom: 60.1 0xf000001
+     Semantics: counter  Units: millisec
  PMID: 60.0.96 (disk.all.discard)
 -    Data Type: 64-bit unsigned int  InDom: 60.1 0xf000001
 +    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-     Semantics: counter  Units: count
- PMID: 60.54.0 (disk.dm.read)
-     Data Type: 64-bit unsigned int  InDom: 60.24 0xf000018
-@@ -261,7 +261,7 @@
-     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
      Semantics: counter  Units: count
  PMID: 60.0.97 (disk.all.blkdiscard)
 -    Data Type: 64-bit unsigned int  InDom: 60.1 0xf000001
 +    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
      Semantics: counter  Units: count
- PMID: 60.54.1 (disk.dm.write)
-     Data Type: 64-bit unsigned int  InDom: 60.24 0xf000018
-@@ -270,7 +270,7 @@
-     Data Type: 64-bit unsigned int  InDom: 60.1 0xf000001
-     Semantics: counter  Units: Kbyte
  PMID: 60.0.98 (disk.all.discard_bytes)
 -    Data Type: 64-bit unsigned int  InDom: 60.1 0xf000001
 +    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-     Semantics: counter  Units: Kbyte
- PMID: 60.54.2 (disk.dm.total)
-     Data Type: 64-bit unsigned int  InDom: 60.24 0xf000018
-@@ -279,7 +279,7 @@
-     Data Type: 64-bit unsigned int  InDom: 60.1 0xf000001
      Semantics: counter  Units: Kbyte
  PMID: 60.0.99 (disk.all.discard_merge)
 -    Data Type: 64-bit unsigned int  InDom: 60.1 0xf000001
 +    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
      Semantics: counter  Units: count
- PMID: 60.3.27 (hinv.ninterface)
-     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-@@ -294,7 +294,7 @@
-     Data Type: 64-bit unsigned int  InDom: 60.1 0xf000001
-     Semantics: counter  Units: Kbyte
  PMID: 60.0.100 (disk.all.discard_rawactive)
 -    Data Type: 32-bit unsigned int  InDom: 60.1 0xf000001
 +    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
      Semantics: counter  Units: millisec
- PMID: 60.10.0 (disk.partitions.read)
-     Data Type: 64-bit unsigned int  InDom: 60.10 0xf00000a
-@@ -312,7 +312,7 @@
-     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-     Semantics: counter  Units: Kbyte
  PMID: 60.0.101 (disk.all.flush)
 -    Data Type: 64-bit unsigned int  InDom: 60.1 0xf000001
 +    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
      Semantics: counter  Units: count
- PMID: 60.10.1 (disk.partitions.write)
-     Data Type: 64-bit unsigned int  InDom: 60.10 0xf00000a
-@@ -330,7 +330,7 @@
-     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-     Semantics: counter  Units: Kbyte
  PMID: 60.0.102 (disk.all.flush_rawactive)
 -    Data Type: 32-bit unsigned int  InDom: 60.1 0xf000001
 +    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
      Semantics: counter  Units: millisec
- PMID: 60.10.2 (disk.partitions.total)
-     Data Type: 64-bit unsigned int  InDom: 60.10 0xf00000a
+ PMID: 60.1.9 (hinv.physmem)
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
 @@ -848,13 +848,13 @@
          inst [1 or "sda1"] value 112757
          inst [2 or "sda2"] value 2

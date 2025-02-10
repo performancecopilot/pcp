@@ -1,3 +1,11 @@
+/*
+htop - InfoScreen.c
+(C) 2016 Hisham H. Muhammad
+(C) 2020,2022 htop dev team
+Released under the GNU GPLv2+, see the COPYING file
+in the source distribution for its full text.
+*/
+
 #include "config.h" // IWYU pragma: keep
 
 #include "InfoScreen.h"
@@ -130,48 +138,48 @@ void InfoScreen_run(InfoScreen* this) {
       }
 
       switch (ch) {
-      case ERR:
-         continue;
-      case KEY_F(3):
-      case '/':
-         IncSet_activate(this->inc, INC_SEARCH, panel);
-         break;
-      case KEY_F(4):
-      case '\\':
-         IncSet_activate(this->inc, INC_FILTER, panel);
-         break;
-      case KEY_F(5):
-         clear();
-         if (As_InfoScreen(this)->scan) {
-            Vector_prune(this->lines);
-            InfoScreen_scan(this);
-         }
-
-         InfoScreen_draw(this);
-         break;
-      case '\014': // Ctrl+L
-         clear();
-         InfoScreen_draw(this);
-         break;
-      case 27:
-      case 'q':
-      case KEY_F(10):
-         looping = false;
-         break;
-      case KEY_RESIZE:
-         Panel_resize(panel, COLS, LINES - 2);
-         if (As_InfoScreen(this)->scan) {
-            Vector_prune(this->lines);
-            InfoScreen_scan(this);
-         }
-
-         InfoScreen_draw(this);
-         break;
-      default:
-         if (As_InfoScreen(this)->onKey && InfoScreen_onKey(this, ch)) {
+         case ERR:
             continue;
-         }
-         Panel_onKey(panel, ch);
+         case KEY_F(3):
+         case '/':
+            IncSet_activate(this->inc, INC_SEARCH, panel);
+            break;
+         case KEY_F(4):
+         case '\\':
+            IncSet_activate(this->inc, INC_FILTER, panel);
+            break;
+         case KEY_F(5):
+            clear();
+            if (As_InfoScreen(this)->scan) {
+               Vector_prune(this->lines);
+               InfoScreen_scan(this);
+            }
+
+            InfoScreen_draw(this);
+            break;
+         case '\014': // Ctrl+L
+            clear();
+            InfoScreen_draw(this);
+            break;
+         case 27:
+         case 'q':
+         case KEY_F(10):
+            looping = false;
+            break;
+         case KEY_RESIZE:
+            Panel_resize(panel, COLS, LINES - 2);
+            if (As_InfoScreen(this)->scan) {
+               Vector_prune(this->lines);
+               InfoScreen_scan(this);
+            }
+
+            InfoScreen_draw(this);
+            break;
+         default:
+            if (As_InfoScreen(this)->onKey && InfoScreen_onKey(this, ch)) {
+               continue;
+            }
+            Panel_onKey(panel, ch);
       }
    }
 }

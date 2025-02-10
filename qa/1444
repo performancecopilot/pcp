@@ -16,7 +16,13 @@ _pmdabpf_require_libbpf_version 0 7
 
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
-$sudo rm -rf $tmp.* $seq.full
+
+cat <<EOF >$tmp.conf
+# Installed by PCP QA test $seq on `date`
+[statsnoop.so]
+enabled=true
+EOF
+_pmdabpf_tryload $tmp.conf
 
 _cleanup()
 {
@@ -28,11 +34,7 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 _stop_auto_restart pmcd
 
 # real QA test starts here
-cat <<EOF | _pmdabpf_install
-# Installed by PCP QA test $seq on `date`
-[statsnoop.so]
-enabled=true
-EOF
+_pmdabpf_install $tmp.conf
 _pmdabpf_wait_for_metric
 
 # Generate system activity for the CO-RE statsnoop module;
@@ -40,28 +42,33 @@ _pmdabpf_wait_for_metric
 # which can peturb the results here (see comm filter below).
 touch /tmp/test-file && stat /tmp/test-file 1> /dev/null
 
-echo "=== report metric values for comm ===" | tee -a $seq.full
-pminfo -dfmtT bpf.statsnoop.comm 2>&1 | tee -a $here/$seq.full \
+echo "=== report metric values for comm ===" | tee -a $seq_full
+pminfo -dfmtT bpf.statsnoop.comm 2>&1 | tee -a $seq_full \
     | sed \
+	-e 's/"pmcd"/"stat"/g' \
+	-e 's/"sed"/"stat"/g' \
 	-e 's/"tee"/"stat"/g' \
 	-e 's/"1444"/"stat"/g' \
 	-e 's/"pminfo"/"stat"/g' \
+	-e 's/".\/pminfo"/"stat"/g' \
+	-e 's/"pmprobe"/"stat"/g' \
+	-e 's/".\/pmprobe"/"stat"/g' \
 | _value_filter_exact '"stat"'
 
-echo "=== report metric values for err ===" | tee -a $seq.full
-pminfo -dfmtT bpf.statsnoop.err 2>&1 | tee -a $here/$seq.full \
+echo "=== report metric values for err ===" | tee -a $seq_full
+pminfo -dfmtT bpf.statsnoop.err 2>&1 | tee -a $seq_full \
 | _value_filter_any
 
-echo "=== report metric values for path ===" | tee -a $seq.full
-pminfo -dfmtT bpf.statsnoop.path 2>&1 | tee -a $here/$seq.full \
+echo "=== report metric values for path ===" | tee -a $seq_full
+pminfo -dfmtT bpf.statsnoop.path 2>&1 | tee -a $seq_full \
 | _value_filter_any
 
-echo "=== report metric values for pid ===" | tee -a $seq.full
-pminfo -dfmtT bpf.statsnoop.pid 2>&1 | tee -a $here/$seq.full \
+echo "=== report metric values for pid ===" | tee -a $seq_full
+pminfo -dfmtT bpf.statsnoop.pid 2>&1 | tee -a $seq_full \
 | _value_filter_nonzero
 
-echo "=== report metric values for ret ===" | tee -a $seq.full
-pminfo -dfmtT bpf.statsnoop.ret 2>&1 | tee -a $here/$seq.full \
+echo "=== report metric values for ret ===" | tee -a $seq_full
+pminfo -dfmtT bpf.statsnoop.ret 2>&1 | tee -a $seq_full \
 | _value_filter_any
 
 _pmdabpf_remove

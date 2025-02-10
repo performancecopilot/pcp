@@ -56,8 +56,8 @@ $1 == "__pmLogRead:"		{ if (fd4 == "") fd4 = $2
 	-e 's/pid=[0-9][0-9]*/pid=PID/g' \
 	-e 's/posn=[0-9][0-9]*/posn=OFFSET/g' \
 	-e 's/header+[0-9][0-9]*+trailer/header+LEN+trailer/g'
-    grep __pmLogOpen $tmp.tmp | LC_COLLATE=POSIX sort
-    grep -v __pmLogOpen $tmp.tmp
+    grep __pmLogFindOpen $tmp.tmp | LC_COLLATE=POSIX sort
+    grep -v __pmLogFindOpen $tmp.tmp
 }
 
 echo "log mandatory on once pmcd.control" \
@@ -67,6 +67,7 @@ echo === no dir ===
 pmdumplog -Dlog -l $tmp >$tmp.out 2>&1
 echo "[filtered and sorted stderr]"
 _filter <$tmp.out
+cat $tmp.out >>$seq_full
 
 echo
 echo === empty dir ===

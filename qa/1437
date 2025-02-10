@@ -18,11 +18,10 @@ echo "QA output created by $seq"
 _cleanup()
 {
     cd $here
-    $sudo rm -rf $tmp $tmp.*
+    $sudo rm -rf $tmp $tmp.* kvm.log*
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _filter()

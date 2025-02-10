@@ -133,6 +133,7 @@ LZMACFLAGS = @lzma_CFLAGS@
 LIBUVCFLAGS = @libuv_CFLAGS@
 OPENSSLCFLAGS = @openssl_CFLAGS@
 SASLCFLAGS = @libsasl2_CFLAGS@
+CMOCKACFLAGS = @cmocka_CFLAGS@
 
 LDFLAGS += $(PLDFLAGS) $(WARN_OFF) $(PCP_LIBS) $(LLDFLAGS)
 
@@ -181,8 +182,8 @@ ECHO	= @echo@
 LN_S	= @LN_S@
 GREP    = @grep@
 GIT	= @GIT@
-MANLINT	= $(TOPDIR)/scripts/man-lint
-CLINT	= $(TOPDIR)/scripts/c-lint -I$(TOPDIR)/src/include/pcp
+# man-lint should not break the build (-f)
+MANLINT	= $(TOPDIR)/scripts/man-lint -f
 PYLINT	= @PYLINT@ --rcfile=$(TOPDIR)/.pylintrc --output-format=colorized
 PYTHON	= @PYTHON@
 PYTHON3	= @PYTHON3@
@@ -286,6 +287,7 @@ HAVE_PYTHON_JSONPOINTER = @have_python_jsonpointer@
 HAVE_PYTHON_ORDEREDDICT = @have_python_OrderedDict@
 HAVE_PYTHON_INFLUXDB = @have_python_influxdb@
 HAVE_PYTHON_OPENPYXL = @have_python_openpyxl@
+HAVE_PYTHON_PYARROW = @have_python_pyarrow@
 HAVE_PYTHON_BPF = @have_python_BPF@
 
 # for desktop icons in a variety of img sizes
@@ -309,6 +311,8 @@ LIB_FOR_BACKTRACE = @lib_for_backtrace@
 
 HAVE_LIBUV = @HAVE_LIBUV@
 LIB_FOR_LIBUV = @libuv_LIBS@
+HAVE_LIBINIH = @HAVE_LIBINIH@
+LIB_FOR_INIH = @lib_for_inih@
 HAVE_LIBBPF = @HAVE_LIBBPF@
 LIBBPF_VERSION = @libbpf_version@
 LIB_FOR_LIBBPF = @libbpf_LIBS@
@@ -326,6 +330,14 @@ HAVE_SASL = @HAVE_SASL@
 LIB_FOR_LIBSASL2 = @libsasl2_LIBS@
 HAVE_OPENSSL = @HAVE_OPENSSL@
 LIB_FOR_OPENSSL = @openssl_LIBS@
+HAVE_ZLIB = @HAVE_ZLIB@
+LIB_FOR_ZLIB = @zlib_LIBS@
+HAVE_LIBDRM = @HAVE_LIBDRM@
+LIB_FOR_LIBDRM = @libdrm_LIBS@
+CFLAGS_FOR_LIBDRM = @libdrm_CFLAGS@
+HAVE_LIBDRM_AMDGPU = @HAVE_LIBDRM_AMDGPU@
+LIB_FOR_LIBDRM_AMDGPU = @libdrm_amdgpu_LIBS@
+CFLAGS_FOR_LIBDRM_AMDGPU = @libdrm_amdgpu_CFLAGS@
 
 # configuration state for optional performance domains
 SYSTEMD_CFLAGS = @SYSTEMD_CFLAGS@
@@ -336,6 +348,7 @@ PMDA_BCC = @PMDA_BCC@
 PMDA_BPF = @PMDA_BPF@
 PMDA_BPFTRACE = @PMDA_BPFTRACE@
 PMDA_JSON = @PMDA_JSON@
+PMDA_GFS2 = @PMDA_GFS2@
 PMDA_STATSD = @PMDA_STATSD@
 PMDA_LIBVIRT = @PMDA_LIBVIRT@
 PMDA_SYSTEMD = @PMDA_SYSTEMD@
@@ -355,6 +368,8 @@ PMDA_BIND2 = @PMDA_BIND2@
 PMDA_NUTCRACKER = @PMDA_NUTCRACKER@
 PMDA_LIO = @PMDA_LIO@
 PMDA_MSSQL = @PMDA_MSSQL@
+PMDA_RESCTRL = @PMDA_RESCTRL@
+PMDA_AMDGPU = @PMDA_AMDGPU@
 
 SHELL = /bin/sh
 IMAGES_DIR = $(TOPDIR)/all-images
@@ -744,8 +759,9 @@ PYTHON_INSTALL = \
 		dn=`dirname $$f`; \
 		pydir="$(TOPDIR)/src/python"; \
 		$(INSTALL) -d $$dn || exit 1; \
-		src=`find $$pydir/build $$pydir/pcp.egg-info -name $$bn`; \
-		$(INSTALL) $$src $$f || exit 1; \
+		for src in `find $$pydir/build $$pydir/pcp.egg-info -name $$bn`; do \
+		    $(INSTALL) $$src $$f || exit 1; \
+	        done; \
 	    done; \
 	fi
 PYTHON3_INSTALL = \
@@ -756,8 +772,9 @@ PYTHON3_INSTALL = \
 		dn=`dirname $$f`; \
 		pydir="$(TOPDIR)/src/python"; \
 		$(INSTALL) -d $$dn || exit 1; \
-		src=`find $$pydir/build $$pydir/pcp.egg-info -name $$bn`; \
-		$(INSTALL) $$src $$f || exit 1; \
+		for src in `find $$pydir/build $$pydir/pcp.egg-info -name $$bn`; do \
+		    $(INSTALL) $$src $$f || exit 1; \
+	        done; \
 	    done; \
 	fi
 else
@@ -913,7 +930,7 @@ PCP_GUILIB = -lpcp_gui $(PCPLIB)
 PCP_PMDALIB = -lpcp_pmda $(PCPLIB)
 PCP_TRACELIB = -lpcp_trace $(PCPLIB)
 PCP_MMVLIB = -lpcp_mmv $(PCPLIB)
-PCPWEBLIB_EXTRAS = $(LIB_FOR_LIBSASL2) $(LIB_FOR_OPENSSL) $(LIB_FOR_LIBUV) $(PCP_PMDALIB) $(PCP_MMVLIB)
+PCPWEBLIB_EXTRAS = $(LIB_FOR_LIBSASL2) $(LIB_FOR_OPENSSL) $(LIB_FOR_LIBUV) $(LIB_FOR_LIBINH) $(PCP_PMDALIB) $(PCP_MMVLIB)
 PCP_WEBLIB = -lpcp_web $(PCPWEBLIB_EXTRAS)
 PCP_ARCHIVELIB = -lpcp_archive
 

@@ -1,0 +1,121 @@
+QA output created by 1507
+error handling ...
++ indomcachectl 
+Usage: indomcachectl [options] domain.serial
+
+Options:
+  -g GROUP, --group=GROUP
+                        create cache file owned by group GROUP
+  -l, --list            list indom cache contents
+  -m MODE, --mode=MODE  create cache file with mode MODE (octal)
+  -u USER, --user=USER  create cache file owned user USER
+  -w, --warning         issue warnings
+  -?, --help            show this usage message and exit
+indomcachectl failed: exit 1
++ indomcachectl -blah
+indomcachectl: invalid option -- 'b'
+indomcachectl: invalid option -- 'a'
+indomcachectl: invalid option -- 'h'
+Usage: indomcachectl [options] domain.serial
+
+Options:
+  -g GROUP, --group=GROUP
+                        create cache file owned by group GROUP
+  -l, --list            list indom cache contents
+  -m MODE, --mode=MODE  create cache file with mode MODE (octal)
+  -u USER, --user=USER  create cache file owned user USER
+  -w, --warning         issue warnings
+  -?, --help            show this usage message and exit
+indomcachectl failed: exit 1
++ indomcachectl foo.bar
+indomcachectl: Error: bad format domain.serial: foo.bar
+indomcachectl failed: exit 1
++ indomcachectl x-123.456
+indomcachectl: Error: bad format domain.serial: x-123.456
+indomcachectl failed: exit 1
++ indomcachectl 251.-456
+indomcachectl: Error: out-of-range domain.serial: 251.-456
+indomcachectl failed: exit 1
++ indomcachectl 512.42
+indomcachectl: Error: out-of-range domain.serial: 512.42
+indomcachectl failed: exit 1
++ indomcachectl 251.4194304
+indomcachectl: Error: out-of-range domain.serial: 251.4194304
+indomcachectl failed: exit 1
++ indomcachectl -u OTHERUSER -l 251.42
+indomcachectl: Error: -l is mutually exclusive with -u, -g and -m
+indomcachectl failed: exit 1
++ indomcachectl -g OTHERGROUP -l 251.42
+indomcachectl: Error: -l is mutually exclusive with -u, -g and -m
+indomcachectl failed: exit 1
++ indomcachectl -m 0600 -l 251.42
+indomcachectl: Error: -l is mutually exclusive with -u, -g and -m
+indomcachectl failed: exit 1
++ indomcachectl -u OTHERUSER -g OTHERGROUP -m 0600 -l 251.42
+indomcachectl: Error: -l is mutually exclusive with -u, -g and -m
+indomcachectl failed: exit 1
++ indomcachectl -u user-is-not-in-password-file 251.42
+indomcachectl: Error: getpwnam(user-is-not-in-password-file) failed
+indomcachectl failed: exit 1
++ indomcachectl -g group-is-not-in-group-file 251.42
+indomcachectl: Error: getgrnam(group-is-not-in-group-file) failed
+indomcachectl failed: exit 1
++ indomcachectl -m 069 251.42
+indomcachectl: Error: mode (069) is not a valid
+indomcachectl failed: exit 1
++ indomcachectl -m 1777 251.42
+indomcachectl: Error: mode (1777) is not a valid
+indomcachectl failed: exit 1
+
+listing ...
++ indomcachectl -l 251.42
+indomcachectl: Error: 251.42: failed to load indom cache file
+indomcachectl failed: exit 1
++ indomcachectl -lw 251.42
+Warning: 251.42: PMDA_CACHE_LOAD: No such file or directory
+indomcachectl: Error: 251.42: failed to load indom cache file
+indomcachectl failed: exit 1
++ indomcachectl -lw 251.42
+Instance domain 251.42 cache contents ...
+No entries
+indom cache file 251.42: mode=-rw------- owner=root.root
+2 0 2147483647
++ indomcachectl -lw 251.42
+Instance domain 251.42 cache contents ...
+ inst_id inst_name
+       0 red
+       1 orange
+       2 yellow
+       3 green
+       4 blue
+       5 indigo
+       6 violet
+indom cache file 251.42: mode=-rw------- owner=root.root
+2 0 2147483647
+0 1665074605 red
+1 1665074605 orange
+2 1665074605 yellow
+3 1665074605 green
+4 1665074605 blue
+5 1665074605 indigo
+6 1665074605 violet
+
+creation errors ...
++ indomcachectl 251.42
+indomcachectl: Error: 251.42: indom cache file already exists
+indomcachectl failed: exit 1
++ indomcachectl 251.42
+Error: indomcachectl: create PCP_VAR_DIR/config/pmda/251.42 failed: Permission denied
+indomcachectl failed: exit 1
+
+creation ...
++ indomcachectl -w 251.42
+Warning: 251.42: PMDA_CACHE_LOAD: No such file or directory
+indom cache file 251.42: mode=-rw-rw---- owner=root.root
+2 0 2147483647
++ indomcachectl -m 0060 -g MYGROUP 251.42
+indom cache file 251.42: mode=----rw---- owner=root.MYGROUP
+2 0 2147483647
++ indomcachectl -u OTHERUSER 251.42
+indom cache file 251.42: mode=-rw-rw---- owner=OTHERUSER.OTHERGROUP
+2 0 2147483647

@@ -64,7 +64,7 @@ done
 echo; echo "-- -t 0.2 -s 4 --"
 pmval -t 0.2 -s 4 sample.milliseconds 2>$tmp.err | _filter | _one
 [ -s $tmp.err ] && cat $tmp.err
- 
+
 echo; echo "-- -r -t 0.2 -s 4 --"
 pmval -r -t 0.2 -s 4 sample.milliseconds 2>$tmp.err | _filter | _not_one
 [ -s $tmp.err ] && cat $tmp.err

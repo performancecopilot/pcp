@@ -2,9 +2,9 @@ TOPDIR = ..
 include $(TOPDIR)/src/include/builddefs
 
 ifeq "$(ENABLE_QT)" "true"
-DESKTOP_ICONS = pmchart.png pmtime.png
+DESKTOP_ICONS = pmchart.png pmtime.png pmview.png
 endif
-HTMLDOC_ICONS = pcpicon.png pmcharticon.png pmtimeicon.png
+HTMLDOC_ICONS = pcpicon.png pmcharticon.png pmtimeicon.png pmviewicon.png
 
 SVGFILES = $(shell echo *.svg)
 PNGFILES = $(shell echo *.svg | sed -e 's/\.svg/.png/g')

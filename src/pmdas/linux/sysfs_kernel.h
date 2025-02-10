@@ -1,7 +1,7 @@
 /*
  * Linux sysfs_kernel cluster
  *
- * Copyright (c) 2009,2023 Red Hat.
+ * Copyright (c) 2009,2023-2024 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,8 +17,25 @@
 #define SYSFS_KERNEL_H
 
 typedef struct {
+	/* /sys/kernel/uevent_seqnum */
+	uint64_t	uevent_seqnum;
 	int		valid_uevent_seqnum;
-	uint64_t	uevent_seqnum; /* /sys/kernel/uevent_seqnum */
+
+	/* /sys/module/zswap */
+	uint32_t	zswap_max_pool_percent;
+	char		zswap_enabled[4];
+
+	/* /sys/kernel/debug/vmmemctl */
+	uint64_t	vmmemctl_current;
+	uint64_t	vmmemctl_target;
+
+	/* /sys/kernel/debug/hv-balloon */
+	uint32_t	hv_balloon_state;
+	uint32_t	hv_balloon_pagesize;
+	uint64_t	hv_balloon_added;
+	uint64_t	hv_balloon_onlined;
+	uint64_t	hv_balloon_ballooned;
+	uint64_t	hv_balloon_total_committed;
 } sysfs_kernel_t;
 
 /* refresh sysfs_kernel */

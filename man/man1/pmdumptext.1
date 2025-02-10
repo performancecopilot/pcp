@@ -12,7 +12,7 @@
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
 .\"
-.TH PMDUMPTEXT 1 "SGI" "Performance Co-Pilot"
+.TH PMDUMPTEXT 1 "" "Performance Co-Pilot"
 .SH NAME
 \f3pmdumptext\f1 \- dump performance metrics to an ASCII table
 .SH SYNOPSIS
@@ -103,7 +103,7 @@ instance if more than one is stated.
 For example, some legal metrics are:
 .PP
 .in 1.5i
-.ft CW
+.ft CR
 .nf
 kernel.all.cpu.idle
 myhost:kernel.all.cpu.idle[cpu0,cpu3]
@@ -115,7 +115,7 @@ myhost:kernel.all.cpu.idle[cpu0,cpu3]
 When a
 .I metric
 does not contain a host: or archive/ prefix, e.g.
-\f(CWkernel.all.cpu.idle\fP above, then the source of the metric
+\f(CRkernel.all.cpu.idle\fP above, then the source of the metric
 is determined by the following rules:
 .PD 0
 .TP 4n
@@ -163,7 +163,7 @@ the file system that is used could be dumped with this
 .IR config :
 .PP
 .in 1.5i
-.ft CW
+.ft CR
 .nf
 filesys.used[/dev/root] 19654.37
 .fi
@@ -263,7 +263,7 @@ The syntax of this string is the same as that described in
 .BR strftime (3).
 An empty
 .I format
-string (eg. '') will remove the timestamps from the output.
+string (e.g. '') will remove the timestamps from the output.
 .TP
 \fB\-F\fR, \fB\-\-fixed\fR
 Output the values in a fixed width format of 6 characters.
@@ -337,7 +337,7 @@ Load an alternative local PMNS from the file
 .IR pmnsfile .
 .TP
 \fB\-o\fR, \fB\-\-offset\fR
-When a timestamp is being reported (ie. unless an empty format string is
+When a timestamp is being reported (i.e. unless an empty format string is
 given with the
 .B \-f
 option), the timestamp is prefixed with the offset in seconds from
@@ -407,6 +407,7 @@ is greater than 5.
 Output the column number and complete metric names, one-per-line,
 both before dumping the first set of values and again each time the
 header is repeated.
+.TP
 \fB\-z\fR, \fB\-\-hostzone\fR
 Use the local timezone of the host that is the source of the
 performance metrics, as identified by either the
@@ -470,7 +471,7 @@ abbreviated to ``util'' and the values are normalized to the range zero to one.
 o To examine the load on two hosts foo and bar, simultaneously:
 .PP
 .in 0.5i
-.ft CW
+.ft CR
 .nf
 $ pmdumptext \-il 'foo:kernel.all.load[1]' 'bar:kernel.all.load[1]'
              Source        foo     bar
@@ -484,7 +485,7 @@ Wed Jul 30 11:37:55      0.309   0.409
 o To output the memory utilization on a remote host called bong with a simpler timestamp:
 .PP
 .in 0.5i
-.ft CW
+.ft CR
 .nf
 $ pmdumptext \-imu \-h bong \-f '%H:%M:%S' mem.util
   Metric        kernel  fs_ctl  _dirty  _clean    free    user
@@ -502,7 +503,7 @@ o To dump all metrics collected in an archive at a 30 second interval to a file
 for processing by another tool:
 .PP
 .in 0.5i
-.ft CW
+.ft CR
 .nf
 $ pminfo \-a archive | pmdumptext \-t 30s \-m \-a archive > outfile
 .fi
@@ -531,3 +532,8 @@ For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
 .BR strftime (3)
 and
 .BR environ (7).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ Jul _clean _dirty dd explict filesys fs_ctl
+.\" +ok+ myarchive myhost outfile
+.\" +ok+ il {from -il} imu {from -imu} lmNu {from -lmNu}

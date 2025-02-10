@@ -17,7 +17,7 @@
 .TH PMFETCHARCHIVE 3 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pmFetchArchive\f1,
-\f3pmFetchHighResArchive\f1 \- get performance metric values directly from archive logs
+\f3pmFetchHighResArchive\f1 \- get performance metric values directly from archives
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
@@ -39,7 +39,7 @@ and
 .BR pmFetchHighRes (3)
 interfaces that may only be used when the current
 Performance Metrics Application Programming Interface (PMAPI)
-context is associated with a set of archive logs.
+context is associated with a set of archives.
 .PP
 The
 .I result
@@ -60,11 +60,11 @@ This is a
 .I <mark>
 record that indicates a temporal discontinuity in the time series
 of performance metrics.
-This can happen at the boundary between archive logs in a set or if
-the archive log associated with the current PMAPI context was created
+This can happen at the boundary between archives in a set or if
+the archive associated with the current PMAPI context was created
 using
 .BR pmlogextract (1)
-to concatenate two or more PCP archive logs, and the
+to concatenate two or more PCP archives, and the
 .I <mark>
 record marks a point in time between the end of one input archive and
 the start of the next input archive.
@@ -73,14 +73,14 @@ It is expected that
 .B pmFetchArchive
 and
 .B pmFetchHighResArchive
-will be used to create utilities that scan sets of archive logs,
+will be used to create utilities that scan sets of archives,
 while the more common access to the archives would be via the
 .B pmFetch
 and
 .B pmFetchHighRes
 interfaces.
 .PP
-To skip records within the set of archive logs, use
+To skip records within the set of archives, use
 .BR pmSetMode (3)
 or
 .BR pmSetModeHighRes (3)
@@ -118,7 +118,7 @@ and
 returns zero on success.
 .SH DIAGNOSTICS
 .IP \f3PM_ERR_NOTARCHIVE\f1
-the current PMAPI context is not associated with a set of archive logs
+the current PMAPI context is not associated with a set of archives
 .SH SEE ALSO
 .BR PMAPI (3),
 .BR pmFetchHighRes (3),

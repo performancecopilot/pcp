@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018-2020 Red Hat.
+# Copyright (c) 2018-2020,2024 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -47,9 +47,11 @@ install_pcp install: default
 	$(INSTALL) -m 755 -d $(LOGCONFDIR)
 	$(INSTALL) -m 755 -d $(LOGCONFVARDIR)
 	$(INSTALL) -m 644 -t $(LOGCONFVARDIR)/summary pmlogconf.summary $(LOGCONFDIR)/summary
+	$(INSTALL) -m 755 $(IAM).pmcheck $(PCP_SHARE_DIR)/lib/pmcheck/pmda-$(IAM)
 else
 build-me:
-install_pcp install:
+install_pcp install: $(TOPDIR)/src/pmcheck/pmda.na.template
+	$(INSTALL) -m 755 $< $(PCP_SHARE_DIR)/lib/pmcheck/pmda-$(IAM)
 	@$(INSTALL_MAN)
 endif
 

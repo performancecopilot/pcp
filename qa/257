@@ -22,11 +22,11 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 _filter()
 {
     os=$1
-    echo "--- os = $os ---" >>$seq.full
+    echo "--- os = $os ---" >>$seq_full
     cat - > $tmp.1
 
-    echo "--- unfiltered output ---" >>$seq.full
-    cat $tmp.1 >> $seq.full
+    echo "--- unfiltered output ---" >>$seq_full
+    cat $tmp.1 >> $seq_full
 
     _filter_torture_api <$tmp.1
 }
@@ -53,31 +53,29 @@ _do_tests()
     esac
 
     echo ""
-    echo "=== pmapi 32, local version $style_str ===" | tee -a $seq.full
+    echo "=== pmapi 32, local version $style_str ===" | tee -a $seq_full
     torture_api="src/torture_api"
-    echo "torture_api = $torture_api" >> $seq.full
+    echo "torture_api = $torture_api" >> $seq_full
     $torture_api -v $style 2>&1 | _filter `uname -r` >$tmp.out
     _cmp $tmp.out
 
     echo ""
-    echo "=== pmapi 32, pmcd 32 $style_str ===" | tee -a $seq.full
+    echo "=== pmapi 32, pmcd 32 $style_str ===" | tee -a $seq_full
     torture_api="src/torture_api"
-    echo "torture_api = $torture_api" >> $seq.full
+    echo "torture_api = $torture_api" >> $seq_full
     $torture_api -v $style -h $host_32 2>&1 | _filter $host_32_os >$tmp.out
     _cmp $tmp.out
 
     echo ""
-    echo "=== pmapi 32, pmcd 64 $style_str ===" | tee -a $seq.full
+    echo "=== pmapi 32, pmcd 64 $style_str ===" | tee -a $seq_full
     torture_api="src/torture_api"
-    echo "torture_api = $torture_api" >> $seq.full
+    echo "torture_api = $torture_api" >> $seq_full
     $torture_api -v $style -h $host_64 2>&1 | _filter $host_64_os >$tmp.out
     _cmp $tmp.out
 
 }
 
 # real QA test starts here
-rm -f $tmp.*
-rm -f $seq.full
 
 # try against variously configured hosts
 #
@@ -93,7 +91,7 @@ if [ $? -eq 1 ]; then
     _notrun "$host_32"
     # NOTREACHED
 fi
-echo "host_32 = $host_32" >> $seq.full
+echo "host_32 = $host_32" >> $seq_full
 host_32_os=`ssh -q pcpqa@$host_32 uname -r`
 
 host_64=`./getpmcdhosts -s $PCP_PLATFORM -b 64 -v "pcp>=5" -n 1 -a sample 2>&1`
@@ -101,14 +99,14 @@ if [ $? -eq 1 ]; then
     _notrun "$host_64"
     # NOTREACHED
 fi
-echo "host_64 = $host_64" >> $seq.full
+echo "host_64 = $host_64" >> $seq_full
 host_64_os=`ssh -q pcpqa@$host_64 uname -r`
 
 # make sure it's got the metrics we want for torture_api
-_check_metric sample.seconds $hosts_32
-_check_metric sampledso.sysinfo $hosts_32
-_check_metric sample.seconds $hosts_64
-_check_metric sampledso.sysinfo $hosts_64
+_check_metric sample.seconds $hosts_32 || _exit 1
+_check_metric sampledso.sysinfo $hosts_32 || _exit 1
+_check_metric sample.seconds $hosts_64 || _exit 1
+_check_metric sampledso.sysinfo $hosts_64 || _exit 1
 
 # uses libpcp2 and local PMNS
 _do_tests -s1

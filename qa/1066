@@ -39,7 +39,6 @@ _filter()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
@@ -101,6 +100,10 @@ qa$seq.m49 = sample.bin[bin-300] + sample.part_bin[bin-300]
 qa$seq.m50 = matchinst(/^m-/, sample.mirage)
 # qa/1103
 qa$seq.m51 = (scalar(sample.bin[bin-100]) + scalar(matchinst(/^bin-200$/,sample.bin)) + scalar(sample.bin[bin-300])) / 3
+
+# bugs
+qa$seq.m52 = scalar(sample.bad.novalues)
+qa$seq.m53 = (sample.bin)[bin-500]
 
 # others
 qa$seq.m99 = anon(PM_TYPE_U64)

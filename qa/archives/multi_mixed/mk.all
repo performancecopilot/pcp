@@ -1,0 +1,86 @@
+#!/bin/sh
+# remake the mixed "multi" archives
+#
+rm -f *.0 *meta *.index *.xz
+
+tmp=/var/tmp/mk.all.$$
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+
+# first archive, initial metrics and V3
+#
+cat <<'End-of-File' >$tmp.config
+log mandatory on once {
+    hinv.ncpu
+    hinv.ndisk
+    hinv.nfilesys
+    hinv.ninterface
+}
+log mandatory on default {
+    sample.seconds
+    sample.mirage
+    sample.long.hundred
+    sample.ulong.hundred
+    sample.float.hundred
+    sample.double.hundred
+    sample.proc.ordinal
+    sample.proc.exec
+    sample.proc.time
+}
+End-of-File
+pmstore sample.proc.reset 1
+if pmlogger -V3 -t 1sec -s 10 -c $tmp.config arch-0
+then
+    :
+else
+    echo "Arrgh! ..."
+    cat pmlogger.log
+    exit
+fi
+
+# second archive, add some metrics and V2
+#
+cat <<'End-of-File' >>$tmp.config
+log mandatory on once {
+    hinv.pagesize
+    hinv.physmem
+}
+log mandatory on default {
+    sample.milliseconds
+    sample.longlong.hundred
+    sample.ulonglong.hundred
+    sample.event.records
+}
+End-of-File
+if pmlogger -V2 -t 1sec -s 10 -c $tmp.config arch-1
+then
+    :
+else
+    echo "Arrgh! ..."
+    cat pmlogger.log
+    exit
+fi
+
+# third archive, drop or replace some metrics and V3
+#
+sed <$tmp.config >$tmp.tmp \
+    -e '/sample.*long/s/sample/sampledso/' \
+    -e '/sample.\seconds/d' \
+    -e '/sample.\mirage/d' \
+    -e '/sample.\event\.records/d' \
+# end
+mv $tmp.tmp $tmp.config
+if pmlogger -V3 -t 1sec -s 10 -c $tmp.config arch-2
+then
+    :
+else
+    echo "Arrgh! ..."
+    cat pmlogger.log
+    exit
+fi
+
+# and compress the first archive
+#
+xz arch-0.0
+xz arch-0.meta
+
+exit

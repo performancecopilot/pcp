@@ -1,0 +1,165 @@
+#!/bin/sh
+#
+# Make a duplicate of PCP QA test
+#
+# Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2024 Ken McDonell.  All Rights Reserved.
+#
+# Usage: new-dup [-n] seq-no
+#
+
+# generic initialization
+. ./common.rc
+
+id=`./new -sn`
+if [ -z "$id" ]
+then
+    echo "Error: ./new -sn failed!"
+    exit 1
+fi
+
+_usage()
+{
+    echo >&2 "Usage: new-dup [options] seq-no"
+    echo >&2
+    echo >&2 "Options:"
+    echo >&2 "-n   show-me, change nothing"
+
+    exit 1
+}
+
+showme=false
+while getopts 'n?' p
+do
+    case "$p"
+    in
+	n)	showme=true
+		;;
+	?)	echo "bad arg: $p"; _usage
+		# NOTREACHED
+    esac
+done
+shift `expr $OPTIND - 1`
+
+tmp=/tmp/new-dup.$$
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+_cleanup()
+{
+    :
+}
+
+if [ ! -f "$1" ]
+then
+    echo "Error: old test ($1) does not exist"
+    exit
+fi
+
+if [ -f $id ]
+then
+    echo >&2 "Error: new test $id already exists, but not in group file!"
+    _cleanup
+    exit
+fi
+
+if $showme
+then
+    :
+else
+    if [ ! -w group ]
+    then
+	echo "Error: cannot write index file \"group\""
+	_cleanup
+	exit
+    fi
+fi
+
+echo "Allocated test number $id"
+cp "$1" $tmp.tmp
+sed <$tmp.tmp >$tmp.$id \
+    -e "/^#.* Test No\./s/No\. .*/No. $id/" \
+    -e '/^# Copyright/a\
+# Copyright (c) '"`date +%Y`"' [who are you?].  All Rights Reserved.
+' \
+# end
+
+# add annotation to new test
+#
+awk <$tmp.$id >$tmp.tmp '
+BEGIN			{ done = 0 }
+NF == 1 && $1 == "#" && done == 0	{
+		      print "#"
+		      print "# XYZ variant, see qa/'$1' for the ABC variant"
+		      done = 1
+		    }
+		    { print }'
+mv $tmp.tmp $tmp.$id
+
+echo "Adding $id to group index"
+sed <group >$tmp.tmp \
+    -e "/^$1[: ]/"'{
+p
+'"s/$1/$id/"'
+}' \
+# end
+# sort the tests numerically
+#
+$PCP_AWK_PROG <$tmp.tmp '
+BEGIN				{ state = "group" }
+state == "group" && /^[0-9]/	{ state = "list" }
+				{ print >"'$tmp'." state }'
+sort -n $tmp.list >>$tmp.group
+
+for o in $1*out*
+do
+    [ -f "$o" ] || continue
+    if $showme
+    then
+	echo + cp "$o" "`echo "$o" | sed -e "s/^$1/$id/"`"
+    else
+	cp "$o" "`echo "$o" | sed -e "s/^$1/$id/"`"
+    fi
+done
+
+if $showme
+then
+    echo "== diff $1 $id"
+    diff -u $1 $tmp.$id
+    echo "== group diffs"
+    diff -u group $tmp.group
+else
+    mv $tmp.$id $id
+    chmod 755 $id
+    mv $tmp.group group
+    # add annotation to old test
+    #
+    awk <$1 >$tmp.tmp '
+BEGIN			{ done = 0 }
+NF == 1 && $1 == "#" && done == 0	{
+			  print "#"
+			  print "# ABC variant, see qa/'$id' for the XYZ variant"
+			  done = 1
+			}
+			{ print }'
+    mv $tmp.tmp $1
+    chmod 755 $1
+    # fix seq no in .out files
+    #
+    for o in $id*out*
+    do
+	[ -f "$o" ] || continue
+	sed <$o >$tmp.tmp -e "/^QA output created by $1/s/ $1/ $id/"
+	mv $tmp.tmp $o
+    done
+    # and finally, don't forget the git work ...
+    #
+    git add $id
+    for o in $id*out*
+    do
+	[ -f "$o" ] || continue
+	git add $o
+    done
+fi
+
+exit
+

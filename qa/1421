@@ -7,6 +7,7 @@
 #
 # Copyright (c) 2022 [who are you?].  All Rights Reserved.
 #
+# check-group-include: pmdumplog
 
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -25,7 +26,6 @@ _cleanup()
 }
 
 status=0	# success is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
@@ -34,7 +34,7 @@ export seq
 skip == 1 && $1 == "==="       { skip = 0 }
 /^=== std err ===/             { skip = 1 }
 skip == 0              { print }
-skip == 1              { print >>"'$here/$seq.full'" }'
+skip == 1              { print >>"'$seq_full'" }'
 
 # success, all done
 exit

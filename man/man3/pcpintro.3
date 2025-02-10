@@ -96,7 +96,7 @@ to indicate these situations.
 .I "IPC protocol failure"
 .br
 Generic protocol failure
-on a pipe or socket connecting two PCP applications, eg. client\-\c
+on a pipe or socket connecting two PCP applications, e.g. client\-\c
 .BR pmcd ,
 or client\-\c
 .BR pmtime ,
@@ -117,7 +117,7 @@ requested metric or instance domain help text.
 .br
 This error is used for a number of conditions in which the value
 of a performance metric is inappropriate for the context in
-which it is being used, eg.
+which it is being used, e.g.
 .RS
 .IP (a) 4n
 Bad value for the metric
@@ -166,7 +166,7 @@ to a PMDA.
 .B PM_ERR_EOF
 .I "IPC channel closed"
 .br
-End of file on a pipe or socket connecting two PCP applications, eg. client\-\c
+End of file on a pipe or socket connecting two PCP applications, e.g. client\-\c
 .BR pmcd ,
 or client\-\c
 .B pmtime
@@ -195,7 +195,7 @@ Platform-specific permission errors are returned as
 .B PM_ERR_CONV
 .I "Impossible value or scale conversion"
 .br
-Some value conversion requests are illegal, eg. bad debug flag symbolic name
+Some value conversion requests are illegal, e.g. bad debug flag symbolic name
 for
 .B \-D/\-\-debug
 option, or asking
@@ -449,7 +449,7 @@ This error occurs when one of the physical files is missing or
 cannot be opened for reading.
 .TP
 .B PM_ERR_EOL
-.I "End of PCP archive log"
+.I "End of PCP archive"
 .br
 An attempt is made to read past the end file of the last volume
 of a set of PCP archives, or past the
@@ -470,11 +470,11 @@ For archives created with versions of PCP prior to 4.0, the
 and
 .BR pmLookupInDomText (3)
 calls will return this code for archive PMAPI contexts (help
-and one-line text was not previously recorded in archive logs).
+and one-line text was not previously recorded in archives).
 .RE
 .TP
 .B PM_ERR_LOGREC
-.I "Corrupted record in a PCP archive log"
+.I "Corrupted record in a PCP archive"
 .br
 PCP archives can become corrupted for a variety of reasons,
 but the most common is premature termination of
@@ -482,7 +482,7 @@ but the most common is premature termination of
 without flushing its output buffers.
 .TP
 .B PM_ERR_LABEL
-.I "Illegal label record at start of a PCP archive log file"
+.I "Illegal label record at start of a PCP archive file"
 .br
 Each physical file in a PCP archive should begin with a common
 label record.  This is a special case of
@@ -490,7 +490,7 @@ label record.  This is a special case of
 errors.
 .TP
 .B PM_ERR_NODATA
-.I "Empty archive log file"
+.I "Empty archive file"
 .br
 An empty physical file can never be part of a valid PCP archive
 (at least the label record should be present).
@@ -510,14 +510,14 @@ or
 when the current context is not associated with a set of PCP archives.
 .TP
 .B PM_ERR_PMID_LOG
-.I "Metric not defined in the PCP archive log"
+.I "Metric not defined in the PCP archive"
 .br
 A PCP client has requested information about a metric,
 and there is no corresponding information in the set of PCP archives.
 This should not happen for well-behaved PCP clients.
 .TP
 .B PM_ERR_INDOM_LOG
-.I "Instance domain identifier not defined in the PCP archive log"
+.I "Instance domain identifier not defined in the PCP archive"
 .br
 A PCP client has requested information about an instance domain
 for one or more performance metrics,
@@ -538,7 +538,7 @@ of an archive.
 .RE
 .TP
 .B PM_ERR_INST_LOG
-.I "Instance identifier not defined in the PCP archive log"
+.I "Instance identifier not defined in the PCP archive"
 .br
 A PCP client has requested information about a specific instance
 of a performance metric,

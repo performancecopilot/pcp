@@ -11,6 +11,7 @@ in the source distribution for its full text.
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "CRT.h"
 #include "FunctionBar.h"
@@ -37,42 +38,43 @@ static HandlerResult DisplayOptionsPanel_eventHandler(Panel* super, int ch) {
    OptionItem* selected = (OptionItem*) Panel_getSelected(super);
 
    switch (ch) {
-   case '\n':
-   case '\r':
-   case KEY_ENTER:
-   case KEY_MOUSE:
-   case KEY_RECLICK:
-   case ' ':
-      switch (OptionItem_kind(selected)) {
-      case OPTION_ITEM_TEXT:
+      case '\n':
+      case '\r':
+      case KEY_ENTER:
+      case KEY_MOUSE:
+      case KEY_RECLICK:
+      case ' ':
+         switch (OptionItem_kind(selected)) {
+            case OPTION_ITEM_TEXT:
+               break;
+            case OPTION_ITEM_CHECK:
+               CheckItem_toggle((CheckItem*)selected);
+               result = HANDLED;
+               break;
+            case OPTION_ITEM_NUMBER:
+               NumberItem_toggle((NumberItem*)selected);
+               result = HANDLED;
+               break;
+         }
          break;
-      case OPTION_ITEM_CHECK:
-         CheckItem_toggle((CheckItem*)selected);
-         result = HANDLED;
+      case '-':
+         if (OptionItem_kind(selected) == OPTION_ITEM_NUMBER) {
+            NumberItem_decrease((NumberItem*)selected);
+            result = HANDLED;
+         }
          break;
-      case OPTION_ITEM_NUMBER:
-         NumberItem_toggle((NumberItem*)selected);
-         result = HANDLED;
+      case '+':
+         if (OptionItem_kind(selected) == OPTION_ITEM_NUMBER) {
+            NumberItem_increase((NumberItem*)selected);
+            result = HANDLED;
+         }
          break;
-      }
-      break;
-   case '-':
-      if (OptionItem_kind(selected) == OPTION_ITEM_NUMBER) {
-         NumberItem_decrease((NumberItem*)selected);
-         result = HANDLED;
-      }
-      break;
-   case '+':
-      if (OptionItem_kind(selected) == OPTION_ITEM_NUMBER) {
-         NumberItem_increase((NumberItem*)selected);
-         result = HANDLED;
-      }
-      break;
    }
 
    if (result == HANDLED) {
       this->settings->changed = true;
       this->settings->lastUpdate++;
+      CRT_updateDelay();
       Header* header = this->scr->header;
       Header_calculateHeight(header);
       Header_reinit(header);
@@ -80,6 +82,7 @@ static HandlerResult DisplayOptionsPanel_eventHandler(Panel* super, int ch) {
       Header_draw(header);
       ScreenManager_resize(this->scr);
    }
+
    return result;
 }
 
@@ -104,7 +107,7 @@ DisplayOptionsPanel* DisplayOptionsPanel_new(Settings* settings, ScreenManager* 
 
    #define TABMSG "For current screen tab: \0"
    char tabheader[sizeof(TABMSG) + SCREEN_NAME_LEN + 1] = TABMSG;
-   strncat(tabheader, settings->ss->name, SCREEN_NAME_LEN);
+   strncat(tabheader, settings->ss->heading, SCREEN_NAME_LEN);
    Panel_add(super, (Object*) TextItem_new(tabheader));
    #undef TABMSG
 

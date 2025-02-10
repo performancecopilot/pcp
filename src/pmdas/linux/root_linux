@@ -2,7 +2,7 @@
  * Copyright (c) 2000,2004,2007-2008 SGI. All Rights Reserved.
  * Copyright (c) 2002 International Business Machines Corp.
  * Copyright (c) 2007-2009 Aconex.  All Rights Reserved.
- * Copyright (c) 2013-2021 Red Hat.
+ * Copyright (c) 2013-2021,2023-2024 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -37,6 +37,7 @@ root {
     tty
     zram
     fchost
+    hyperv
 }
 
 hinv {
@@ -54,6 +55,7 @@ hinv {
     hugepagesize	60:1:59
     ntape		60:71:16
     nfchost		60:91:16
+    disk
 }
 
 hinv.map {
@@ -104,6 +106,11 @@ hinv.cpu.frequency_scaling {
     time		60:55:7
     max			60:55:8
     min			60:55:9
+}
+
+hinv.disk {
+    ctlr		60:0:105
+    model		60:0:106
 }
 
 kernel {
@@ -636,6 +643,22 @@ mem {
     slabinfo
     zoneinfo
     ksm
+    hugepages
+    vmmemctl
+}
+
+mem.vmmemctl {
+    current		60:35:4
+    target		60:35:5
+}
+
+mem.hugepages {
+    pagesize		60:94:0
+    free		60:94:1
+    reserved		60:94:2
+    surplus		60:94:3
+    totalsize		60:94:4
+    overcommit		60:94:5
 }
 
 mem.ksm {
@@ -712,6 +735,17 @@ mem.util {
     hugepagesFreeBytes	60:1:61
     hugepagesRsvdBytes	60:1:62
     hugepagesSurpBytes	60:1:63
+    shmemhugepages	60:1:64
+    shmempmdmapped	60:1:65
+    filehugepages	60:1:66
+    filepmdmapped	60:1:67
+    cmatotal		60:1:68
+    cmafree		60:1:69
+    unaccepted		60:1:70
+    zswap		60:1:71
+    zswapped		60:1:72
+    shadowcallstack	60:1:73
+    percpu		60:1:74
 }
 
 mem.numa {
@@ -1050,6 +1084,7 @@ network.ip {
     ect0pkts            60:53:15
     cepkts              60:53:16
     reasmoverlaps	60:53:168
+    outtransmits		60:14:96
 }
 
 network.icmp {
@@ -1237,6 +1272,11 @@ network.tcp {
     tcpmigratereqfailure	60:53:167
     tcploss			60:53:189
     tcpplbrehash		60:53:205
+    tcpaorequired		60:53:212
+    tcpaobad		60:53:213
+    tcpaokeynotfound		60:53:214
+    tcpaogood		60:53:215
+    tcpaodroppedicmps		60:53:216
 }
 
 network.mptcp {
@@ -1291,6 +1331,25 @@ network.mptcp {
     rcvwndshared	60:53:202
     rcvwndconflictupdate 60:53:203
     rcvwndconflict	60:53:204
+    addaddrtx		60:53:206
+    addaddrtxdrop		60:53:207
+    echoaddtx		60:53:208
+    echoaddtxdrop		60:53:209
+    rmaddrtx		60:53:210
+    rmaddrtxdrop		60:53:211
+    mpcurrestab		60:53:217
+    mpjoinsynbackuprx		60:53:218
+    mpjoinsynackbackuprx		60:53:219
+    mpcapableendpattempt		60:53:220
+    dsscorruptionfallback		60:53:221
+    dsscorruptionreset		60:53:222
+    mpcapablesyntxdrop		60:53:223
+    mpcapablesyntxdisabled		60:53:224
+    mpjoinsyntx		60:53:225
+    mpjoinsyntxcreatskerr		60:53:226
+    mpjoinsyntxbinderr		60:53:227
+    mpjoinsyntxconnecterr		60:53:228
+    blackhole		60:53:229
 }
 
 network.udp {
@@ -1329,6 +1388,9 @@ network.softnet {
     cpu_collision	60:57:3
     received_rps	60:57:4
     flow_limit_count	60:57:5
+    total_backlog	60:57:12
+    input_qlen		60:57:14
+    process_qlen	60:57:16
     percpu
 }
 
@@ -1339,6 +1401,9 @@ network.softnet.percpu {
     cpu_collision	60:57:9
     received_rps	60:57:10
     flow_limit_count	60:57:11
+    total_backlog	60:57:13
+    input_qlen		60:57:15
+    process_qlen	60:57:17
 }
 
 network.ip6 {
@@ -1515,6 +1580,19 @@ fchost.out {
     bytes		60:91:3
 }
 
+hyperv {
+    balloon 
+}
+
+hyperv.balloon {
+    state		60:35:6
+    pagesize		60:35:7
+    added		60:35:9
+    onlined		60:35:8
+    ballooned		60:35:10
+    total_committed	60:35:11
+}
+
 filesys {
     capacity		60:5:1
     used		60:5:2
@@ -1527,6 +1605,8 @@ filesys {
     blocksize           60:5:9
     avail               60:5:10
     readonly            60:5:11
+    uuid		60:5:12
+    type		60:5:13
 }
 
 tmpfs {
@@ -1767,6 +1847,10 @@ mem.vmstat {
 	pgrefill_dma32			60:28:65
 	pgrefill_movable		60:28:66
 	pgdeactivate			60:28:15
+	pgdemote_direct                 60:28:182
+	pgdemote_khugepaged             60:28:183
+	pgdemote_kswapd                 60:28:184
+	pgdemote_total                  60:28:185
 	pgfault				60:28:16
 	pgfree				60:28:13
 	pginodesteal			60:28:30
@@ -1776,10 +1860,13 @@ mem.vmstat {
 	pgmigrate_success		60:28:118
 	pgpgin				60:28:6
 	pgpgout				60:28:7
+	pgpromote_candidate             60:28:186
+	pgpromote_success               60:28:187
 	pgrefill_dma			60:28:20
 	pgrefill_high			60:28:18
 	pgrefill_normal			60:28:19
 	pgrotated			60:28:36
+	pgscan_anon			60:28:180
 	pgscan_direct			60:28:146
 	pgscan_direct_dma		60:28:29
 	pgscan_direct_dma32		60:28:67
@@ -1788,6 +1875,8 @@ mem.vmstat {
 	pgscan_direct_normal		60:28:28
 	pgscan_direct_throttle		60:28:147
 	pgscan_direct_total		60:28:176
+	pgscan_file			60:28:181
+	pgscan_khugepaged		60:28:188
 	pgscan_kswapd			60:28:148
 	pgscan_kswapd_dma		60:28:26
 	pgscan_kswapd_dma32		60:28:69
@@ -1795,12 +1884,14 @@ mem.vmstat {
 	pgscan_kswapd_movable		60:28:70
 	pgscan_kswapd_normal		60:28:25
 	pgscan_kswapd_total		60:28:177
+	pgsteal_anon			60:28:179
 	pgsteal_dma			60:28:23
 	pgsteal_dma32			60:28:71
 	pgsteal_file			60:28:167
 	pgsteal_high			60:28:21
 	pgsteal_movable			60:28:72
 	pgsteal_normal			60:28:22
+	pgsteal_khugepaged		60:28:189
 	pgsteal_kswapd			60:28:150
 	pgsteal_kswapd_dma		60:28:138
 	pgsteal_kswapd_dma32		60:28:139
@@ -1905,6 +1996,7 @@ vfs.locks.lease {
 
 sysfs {
     kernel
+    module
 }
 
 sysfs.kernel {
@@ -1914,6 +2006,15 @@ sysfs.kernel {
 
 sysfs.kernel.debug {
     extfrag_unusable	60:35:1
+}
+
+sysfs.module {
+    zswap
+}
+
+sysfs.module.zswap {
+    max_pool_percent	60:35:2
+    enabled		60:35:3
 }
 
 tape {

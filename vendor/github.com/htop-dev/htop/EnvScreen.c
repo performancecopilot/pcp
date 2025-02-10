@@ -1,3 +1,12 @@
+/*
+htop - EnvScreen.c
+(C) 2015,2016 Michael Klein
+(C) 2016,2017 Hisham H. Muhammad
+(C) 2020,2021 htop dev team
+Released under the GNU GPLv2+, see the COPYING file
+in the source distribution for its full text.
+*/
+
 #include "config.h" // IWYU pragma: keep
 
 #include "EnvScreen.h"
@@ -24,7 +33,7 @@ void EnvScreen_delete(Object* this) {
 }
 
 static void EnvScreen_draw(InfoScreen* this) {
-   InfoScreen_drawTitled(this, "Environment of process %d - %s", this->process->pid, Process_getCommand(this->process));
+   InfoScreen_drawTitled(this, "Environment of process %d - %s", Process_getPid(this->process), Process_getCommand(this->process));
 }
 
 static void EnvScreen_scan(InfoScreen* this) {
@@ -33,7 +42,7 @@ static void EnvScreen_scan(InfoScreen* this) {
 
    Panel_prune(panel);
 
-   char* env = Platform_getProcessEnv(this->process->pid);
+   char* env = Platform_getProcessEnv(Process_getPid(this->process));
    if (env) {
       for (const char* p = env; *p; p = strrchr(p, 0) + 1)
          InfoScreen_addLine(this, p);

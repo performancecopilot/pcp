@@ -7,8 +7,6 @@ Released under the GNU GPLv2+, see the COPYING file
 in the source distribution for its full text.
 */
 
-#include "config.h" // IWYU pragma: keep
-
 #include <assert.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -19,6 +17,7 @@ in the source distribution for its full text.
 
 typedef enum HeaderLayout_ {
    HF_INVALID = -1,
+   HF_ONE_100,
    HF_TWO_50_50,
    HF_TWO_33_67,
    HF_TWO_67_33,
@@ -26,6 +25,9 @@ typedef enum HeaderLayout_ {
    HF_THREE_25_25_50,
    HF_THREE_25_50_25,
    HF_THREE_50_25_25,
+   HF_THREE_40_30_30,
+   HF_THREE_30_40_30,
+   HF_THREE_30_30_40,
    HF_THREE_40_20_40,
    HF_FOUR_25_25_25_25,
    LAST_HEADER_LAYOUT
@@ -37,6 +39,7 @@ static const struct {
    const char* name;
    const char* description;
 } HeaderLayout_layouts[LAST_HEADER_LAYOUT] = {
+   [HF_ONE_100]          = { 1, { 100, 0,  0,  0 }, "one_100",          "1 column  - full width",      },
    [HF_TWO_50_50]        = { 2, { 50, 50,  0,  0 }, "two_50_50",        "2 columns - 50/50 (default)", },
    [HF_TWO_33_67]        = { 2, { 33, 67,  0,  0 }, "two_33_67",        "2 columns - 33/67",           },
    [HF_TWO_67_33]        = { 2, { 67, 33,  0,  0 }, "two_67_33",        "2 columns - 67/33",           },
@@ -44,6 +47,9 @@ static const struct {
    [HF_THREE_25_25_50]   = { 3, { 25, 25, 50,  0 }, "three_25_25_50",   "3 columns - 25/25/50",        },
    [HF_THREE_25_50_25]   = { 3, { 25, 50, 25,  0 }, "three_25_50_25",   "3 columns - 25/50/25",        },
    [HF_THREE_50_25_25]   = { 3, { 50, 25, 25,  0 }, "three_50_25_25",   "3 columns - 50/25/25",        },
+   [HF_THREE_40_30_30]   = { 3, { 40, 30, 30,  0 }, "three_40_30_30",   "3 columns - 40/30/30",        },
+   [HF_THREE_30_40_30]   = { 3, { 30, 40, 30,  0 }, "three_30_40_30",   "3 columns - 30/40/30",        },
+   [HF_THREE_30_30_40]   = { 3, { 30, 30, 40,  0 }, "three_30_30_40",   "3 columns - 30/30/40",        },
    [HF_THREE_40_20_40]   = { 3, { 40, 20, 40,  0 }, "three_40_20_40",   "3 columns - 40/20/40",        },
    [HF_FOUR_25_25_25_25] = { 4, { 25, 25, 25, 25 }, "four_25_25_25_25", "4 columns - 25/25/25/25",     },
 };

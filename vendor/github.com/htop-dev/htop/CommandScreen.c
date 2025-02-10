@@ -1,3 +1,11 @@
+/*
+htop - CommandScreen.c
+(C) 2017,2020 ryenus
+(C) 2020,2021 htop dev team
+Released under the GNU GPLv2+, see the COPYING file
+in the source distribution for its full text.
+*/
+
 #include "config.h" // IWYU pragma: keep
 
 #include "CommandScreen.h"
@@ -46,7 +54,7 @@ static void CommandScreen_scan(InfoScreen* this) {
 }
 
 static void CommandScreen_draw(InfoScreen* this) {
-   InfoScreen_drawTitled(this, "Command of process %d - %s", this->process->pid, Process_getCommand(this->process));
+   InfoScreen_drawTitled(this, "Command of process %d - %s", Process_getPid(this->process), Process_getCommand(this->process));
 }
 
 const InfoScreenClass CommandScreen_class = {

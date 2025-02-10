@@ -39,7 +39,8 @@ postinstall: postinstall.head postinstall.tail
 pack_pcp : 
 	@ BINTAR=$(PACKAGE_NAME)-$(PACKAGE_VERSION)-$(PACKAGE_BUILD).tar.gz \
 	; export HERE=`pwd` \
-	; ./listfiles \
+	; ./pack-perl $${DIST_ROOT:-/} \
+	; ./listfiles $${DIST_ROOT:-/} \
 	| ( cd $${DIST_ROOT:-/} ; $(TAR) -T - -cf - ) \
 	| gzip > $$HERE/$$BINTAR \
 	; echo Wrote: $$HERE/$$BINTAR

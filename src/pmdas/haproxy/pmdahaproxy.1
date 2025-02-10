@@ -31,7 +31,7 @@ See the HAProxy documentation for detailed description of each metric.
 .PD 0
 .RS +4
 .IP \(bu 2
-.I \f(CW$PCP_PMDAS_DIR\fP/haproxy/haproxy.conf
+.I \f(CR$PCP_PMDAS_DIR\fP/haproxy/haproxy.conf
 .RE
 .PD
 .PP
@@ -105,19 +105,19 @@ The Install and Remove scripts notify \fBpmcd\fR(1) when the
 agent is installed or removed.
 .SH FILES
 .TP
-.I \f(CW$PCP_PMDAS_DIR\fP/haproxy/haproxy.conf
+.I \f(CR$PCP_PMDAS_DIR\fP/haproxy/haproxy.conf
 configuration file for the \fBpmdahaproxy\fR agent
 .TP
-.I \f(CW$PCP_PMDAS_DIR\fP/haproxy/connect
+.I \f(CR$PCP_PMDAS_DIR\fP/haproxy/connect
 connection test helper using the \fBpmdahaproxy\fR agent configuration
 .TP
-.I \f(CW$PCP_PMDAS_DIR\fP/haproxy/Install
+.I \f(CR$PCP_PMDAS_DIR\fP/haproxy/Install
 installation script for the \fBpmdahaproxy\fR agent
 .TP
-.I \f(CW$PCP_PMDAS_DIR\fP/haproxy/Remove
+.I \f(CR$PCP_PMDAS_DIR\fP/haproxy/Remove
 undo installation script for the \fBpmdahaproxy\fR agent
 .TP
-.I \f(CW$PCP_LOG_DIR\fP/pmcd/haproxy.log
+.I \f(CR$PCP_LOG_DIR\fP/pmcd/haproxy.log
 default log file for messages from the \fBpmdahaproxy\fR agent
 .SH PCP ENVIRONMENT
 Environment variables with the prefix \fBPCP_\fR are used to parameterize
@@ -131,3 +131,7 @@ configuration file, as described in \fBpcp.conf\fR(5).
 .BR haproxy (1)
 and
 .BR pmcd (1).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ pmdahaproxy HAProxy haproxy auth url
+.\" +ok+ csv {from http://127.0.0.1:9000/?stats;csv}

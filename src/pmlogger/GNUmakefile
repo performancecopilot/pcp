@@ -17,12 +17,13 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
 SUBDIRS = src
-OTHERS	= pmnewlog.sh control rc_pmlogger \
+OTHERS	= pmnewlog.sh control rc_pmlogger rc_wrapper \
 	  pmlogger_daily.sh pmlogger_check.sh \
 	  pmlogger_janitor.sh pmlogger_merge.sh \
 	  pmlogger_daily_report.sh pmlogger_rewrite.sh \
 	  pmlogger_farm.sh pmlogger_farm_check.service \
-	  pmlogger_farm_check.timer pmlogger_farm_check.service
+	  pmlogger_farm_check.timer pmlogger_farm_check.service \
+	  pmlogger.pmcheck
 LDIRT	= crontab crontab.daily_report pmlogger.service \
 	  pmlogger_daily.service \
 	  pmlogger_check.service pmlogger_farm.service pmlogger_farm_check.service
@@ -50,9 +51,7 @@ install:: default
 	$(INSTALL) -m 644 pmlogger.defaults $(PCP_SYSCONFIG_DIR)/pmlogger
 	$(INSTALL) -m 755 -d $(PCP_SHARE_DIR)/zeroconf
 	$(INSTALL) -m 644 pmlogger.zeroconf $(PCP_SHARE_DIR)/zeroconf/pmlogger
-ifneq ($(PACKAGE_DISTRIBUTION),debian)
 	$(INSTALL) -m 755 -d $(PCP_SYSCONF_DIR)/pmlogger
-endif
 	$(INSTALL) -m 755 -d $(PCP_PMLOGGERCONTROL_PATH).d
 	$(INSTALL) -m 644 control $(PCP_PMLOGGERCONTROL_PATH)
 	$(INSTALL) -m 644 control.local $(PCP_PMLOGGERCONTROL_PATH).d/local
@@ -63,7 +62,8 @@ endif
 	$(INSTALL) -m 755 pmlogger_farm.sh $(PCP_BINADM_DIR)/pmlogger_farm$(SHELLSUFFIX)
 	$(INSTALL) -m 755 pmlogger_merge.sh $(PCP_BINADM_DIR)/pmlogger_merge$(SHELLSUFFIX)
 	$(INSTALL) -m 755 pmlogger_rewrite.sh $(PCP_BINADM_DIR)/pmlogger_rewrite$(SHELLSUFFIX)
-	$(INSTALL) -m 755 rc_pmlogger $(PCP_RC_DIR)/pmlogger
+	$(INSTALL) -m 755 rc_wrapper $(PCP_RC_DIR)/pmlogger
+	$(INSTALL) -m 755 rc_pmlogger $(PCP_SYSCONF_DIR)/pmlogger/rc
 ifeq ($(ENABLE_SYSTEMD),true)
 	$(INSTALL) -m 644 pmlogger.service $(PCP_SYSTEMDUNIT_DIR)/pmlogger.service
 	$(INSTALL) -m 644 pmlogger_daily.timer $(PCP_SYSTEMDUNIT_DIR)/pmlogger_daily.timer
@@ -84,6 +84,7 @@ endif
 	$(INSTALL) -m 644 -t $(PCP_SHARE_DIR)/lib/utilproc.sh utilproc.sh $(PCP_LIBADM_DIR)/utilproc.sh
 	$(INSTALL) -m 755 pmlogger_daily_report.sh $(PCP_BINADM_DIR)/pmlogger_daily_report$(SHELLSUFFIX)
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_SA_DIR)
+	$(INSTALL) -m 755 pmlogger.pmcheck $(PCP_SHARE_DIR)/lib/pmcheck/pmlogger
 
 include $(BUILDRULES)
 
@@ -93,8 +94,10 @@ install_pcp : install
 
 pmlogger.service : pmlogger.service.in
 	$(SED) <$< >$@ \
-	    -e 's;@PCP_RC_DIR@;'$(PCP_RC_DIR)';' \
+	    -e 's;@PCP_SYSCONF_DIR@;'$(PCP_SYSCONF_DIR)';' \
 	    -e 's;@PCP_RUN_DIR@;'$(PCP_RUN_DIR)';' \
+	    -e 's;@PCP_GROUP@;'$(PCP_GROUP)';' \
+	    -e 's;@PCP_USER@;'$(PCP_USER)';' \
 	    -e 's;@PCP_SYSCONFIG_DIR@;'$(PCP_SYSCONFIG_DIR)';' \
 	# END
 

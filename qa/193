@@ -15,41 +15,65 @@ echo "QA output created by $seq"
 . ./common.check
 
 status=0	# success is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "_cleanup; rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 _stop_auto_restart pmcd
 
+# and NO malloc() hardening ...
+# vm33:
+#   false match on DoAttributes() -> __pmSendAttr() -> __pmUnpinPDUBuf() -> free()
+#   code path
+#
+case $PCP_PLATFORM
+in
+    openbsd)
+    	unset MALLOC_OPTIONS
+	;;
+esac
+
 _cleanup()
 {
+    pmstore pmcd.control.debug 0 >>$seq_full 2>&1 # pdu==1
     _restore_auto_restart pmcd
 }
 
-_service pcp stop >/dev/null 2>&1
+if ! _service pcp stop >/dev/null 2>&1; then _exit 1; fi
 sleep 2
-_service pcp start >/dev/null 2>&1
-_wait_for_pmcd
-_wait_for_pmlogger
+if ! _service pcp start >/dev/null 2>&1; then _exit 1; fi
+_wait_for_pmcd || _exit 1
+_wait_for_pmlogger || _exit 1
 
 # real QA test starts here
+pmstore pmcd.control.debug 1 >>$seq_full 2>&1 # pdu==1
 src/crashpmcd
 
 # give pmcd a chance to deal with PDUs from crashpmcd
 sleep 2
 
-echo "$PCP_PMCDLOG_PATH" >>$seq.full
-cat $PCP_PMCDLOG_PATH >>$seq.full
+echo "$PCP_PMCDLOG_PATH" >>$seq_full
+cat $PCP_PMCDLOG_PATH >>$seq_full
+
+# pmcd may receive more PDU's from other clients before
+# we disable the debug flags in _cleanup ... the awk
+# at the end chops any trailing babble off
+#
 _filter_pmcd_log <$PCP_PMCDLOG_PATH \
 | sed \
     -e '1,/ok FD /d' \
     -e '/ok FD /d' \
+    -e '/pmXmitPDU: ERROR/d' \
+    -e '/pmGetPDU: TYPE/d' \
+    -e '/^000:/d' \
     -e 's/fd=[0-9][0-9]*/fd=N/' \
     -e '/HandleClientInput/s/client\[[0-9][0-9]*]/client[N]/' \
     -e 's/len=-1: Connection reset by peer.*/END-OF-FILE/' \
     -e 's/Connection reset by peer/Broken pipe/' \
     -e 's/have .*, want .*, got 0/END-OF-FILE/' \
     -e '/PMNS file "DEFAULT" is unchanged/d' \
-    #end
+| $PCP_AWK_PROG '
+/len=201326592/				{ sentinel = 1 }
+sentinel == 1 && ! /len=201326592/	{ exit }
+					{ print }'
 
 # success, all done
 exit

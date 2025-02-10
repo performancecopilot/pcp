@@ -56,12 +56,11 @@ _cleanup()
 status=1	# failure is the default!
 need_restore=false
 username=`id -u -n`
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _check_empty()
 {
-    tee -a $seq.full > $tmp.unfiltered
+    tee -a $seq_full > $tmp.unfiltered
     if [ -s $tmp.unfiltered ]
     then
 	echo "Botch: got output from curl"
@@ -72,7 +71,7 @@ _check_empty()
 
 _filter_json()
 {
-    tee -a $seq.full > $tmp.unfiltered
+    tee -a $seq_full > $tmp.unfiltered
     if [ -s $tmp.unfiltered ]
     then
 	pmjson < $tmp.unfiltered > $tmp.filtered
@@ -109,15 +108,15 @@ _save_config $PCP_SYSCONF_DIR/labels
 need_restore=true
 
 $sudo rm -rf $PCP_SYSCONF_DIR/labels/*
-_sighup_pmcd
+_sighup_pmcd || _exit 1
 
 openssl req \
 	-new -newkey rsa:4096 -days 365 -nodes -x509 \
 	-subj "/C=US/ST=Denial/L=Springfield/O=Dis/CN=www.pcpqa.com" \
-	-keyout $tmp.key -out $tmp.cert >$seq.full 2>&1
+	-keyout $tmp.key -out $tmp.cert >$seq_full 2>&1
 # creates a self-signed (insecure) certificate, so for testing only
 
-echo "[redis]" >> $tmp.conf
+echo "[keys]" >> $tmp.conf
 echo "enabled = false" >> $tmp.conf
 echo "[pmproxy]" >> $tmp.conf
 echo "http.enabled = true" >> $tmp.conf
@@ -133,8 +132,8 @@ $_valgrind_clean_assert pmproxy -f -l- --timeseries \
 	>$tmp.valout 2>$tmp.valerr &
 pid=$!
 
-echo "valgrind pid: $pid" >>$seq.full
-echo "pmproxy port: $port" >>$seq.full
+echo "valgrind pid: $pid" >>$seq_full
+echo "pmproxy port: $port" >>$seq_full
 
 # valgrind takes awhile to fire up
 i=0
@@ -146,51 +145,51 @@ do
 done
 if $PCP_BINADM_DIR/telnet-probe -c localhost $port
 then
-    echo "Startup took $i secs" >>$seq.full
+    echo "Startup took $i secs" >>$seq_full
 else
     echo "Arrgh: valgrind failed start pmproxy and get port $port ready after 30 secs"
     exit
 fi
 
-date >>$seq.full
-echo "=== checking serial http operation ===" | tee -a $seq.full
+date >>$seq_full
+echo "=== checking serial http operation ===" | tee -a $seq_full
 for i in 1 2 3 4; do
     curl -Gs "http://localhost:$port/pmapi/metric?name=sample.long.ten" 2>$tmp.err$i >$tmp.out$i
 done
 for i in 1 2 3 4; do
-echo === out$i === | tee -a $seq.full
+echo === out$i === | tee -a $seq_full
 _filter_json < $tmp.out$i
 done
 
-date >>$seq.full
-echo "=== checking parallel http operation ===" | tee -a $seq.full
+date >>$seq_full
+echo "=== checking parallel http operation ===" | tee -a $seq_full
 for i in 1 2 3 4; do
     curl -Gs "http://localhost:$port/pmapi/metric?name=sample.long.ten" 2>$tmp.err$i >$tmp.out$i & 2>/dev/null eval pid$i=$!
 done
 wait $pid1 $pid2 $pid3 $pid4
 for i in 1 2 3 4; do
-echo === out$i === | tee -a $seq.full
+echo === out$i === | tee -a $seq_full
 _filter_json < $tmp.out$i
 done
 
-date >>$seq.full
-echo "=== checking serial https/TLS operation ===" | tee -a $seq.full
+date >>$seq_full
+echo "=== checking serial https/TLS operation ===" | tee -a $seq_full
 for i in 1 2 3 4; do
     curl -k -Gs "https://localhost:$port/pmapi/metric?name=sample.long.ten" 2>$tmp.err$i >$tmp.out$i
 done
 for i in 1 2 3 4; do
-echo === out$i === | tee -a $seq.full
+echo === out$i === | tee -a $seq_full
 _check_empty < $tmp.out$i
 done
 
-date >>$seq.full
-echo "=== checking parallel https/TLS operation ===" | tee -a $seq.full
+date >>$seq_full
+echo "=== checking parallel https/TLS operation ===" | tee -a $seq_full
 for i in 1 2 3 4; do
     curl -k -Gs "https://localhost:$port/pmapi/metric?name=sample.long.ten" 2>$tmp.err$i >$tmp.out$i & 2>/dev/null eval pid$i=$!
 done
 wait $pid1 $pid2 $pid3 $pid4
 for i in 1 2 3 4; do
-echo === out$i === | tee -a $seq.full
+echo === out$i === | tee -a $seq_full
 _check_empty < $tmp.out$i
 done
 
@@ -205,11 +204,12 @@ fi
 # valgrind takes awhile to shutdown too
 pmsignal $pid >/dev/null 2>&1
 pmsleep 3.5
-echo "=== valgrind stdout ===" | tee -a $seq.full
+echo "=== valgrind stdout ===" | tee -a $seq_full
 cat $tmp.valout | _filter_valgrind
 
-echo "=== valgrind stderr ===" | tee -a $seq.full
-cat $tmp.valerr | _filter_pmproxy_log | _filter_port
+echo "=== valgrind stderr ===" | tee -a $seq_full
+cat $tmp.valerr | _filter_pmproxy_log | _filter_port \
+| sed -e '/Cannot connect to key server: Connection refused/d'
 
 # final kill if it's spinning
 $sudo kill -9 $pid >/dev/null 2>&1

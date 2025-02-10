@@ -375,13 +375,146 @@ actArg(Expr *x)
 /*
  * fake actions for archive mode
  */
+
+/* first -f|--format support ... */
+typedef struct {
+    int		type;
+    void	*data;
+} msg_fmt;
+
+#define FMT_UNKNOWN	-1
+#define FMT_STR		0
+#define FMT_ACTION	1
+#define FMT_DATETIME	2
+#define FMT_FILE	3
+#define FMT_LINENO	4
+#define FMT_MSG		5
+#define FMT_USECDATE	6
+#define FMT_END		99
+
+static msg_fmt *parse_fmt(char *fmt)
+{
+    msg_fmt	*res = NULL;
+    msg_fmt	*rp;
+    int		npart = 0;
+    char	*p;
+    char	*q;
+
+    p = q = fmt;
+
+    while (*q) {
+	if (*q == '%') {
+	    int		type = FMT_UNKNOWN;
+	    if (q > p) {
+		/* string before % */
+		npart++;
+		if ((rp = (msg_fmt *)realloc(res, npart*sizeof(msg_fmt))) == NULL) {
+		    fprintf(stderr, "parse_fmt: realloc for part %d failed\n", npart);
+		    free(res);
+		    return NULL;
+		}
+		res = rp;
+		rp = &res[npart-1];
+		rp->type = FMT_STR;
+		rp->data = (void *)strndup(p, q-p);
+	    }
+	    /* look at next char ... */
+	    switch (q[1]) {
+		case 'a':
+			type = FMT_ACTION;
+			break;
+
+		case 'd':
+			type = FMT_DATETIME;
+			break;
+
+		case 'f':
+			type = FMT_FILE;
+			break;
+
+		case 'l':
+			type = FMT_LINENO;
+			break;
+
+		case 'm':
+			type = FMT_MSG;
+			break;
+
+		case 'u':
+			type = FMT_USECDATE;
+			break;
+
+		case '%':
+			p = ++q;
+			break;
+		case '\0':
+			p = q;
+			break;
+		default:
+			fprintf(stderr, "Warning: unrecognized field specifier '%%%c' in format\n", q[1]);
+			p = q;
+			break;
+	    }
+	    if (type != FMT_UNKNOWN) {
+		npart++;
+		if ((rp = (msg_fmt *)realloc(res, npart*sizeof(msg_fmt))) == NULL) {
+		    fprintf(stderr, "parse_fmt: realloc for part %d (field %%%c) failed\n", npart, q[1]);
+		    free(res);
+		    return NULL;
+		}
+		res = rp;
+		rp = &res[npart-1];
+		rp->type = type;
+		rp->data = NULL;
+		++q;
+		p = ++q;
+	    }
+	    else
+		++q;
+	}
+	else
+	    ++q;
+    }
+
+    if (*p != '\0') {
+	/* trailing string */
+	npart++;
+	if ((rp = (msg_fmt *)realloc(res, npart*sizeof(msg_fmt))) == NULL) {
+	    fprintf(stderr, "parse_fmt: realloc for part %d failed\n", npart);
+	    free(res);
+	    return NULL;
+	}
+	res = rp;
+	rp = &res[npart-1];
+	rp->type = FMT_STR;
+	rp->data = (void *)strndup(p, q-p);
+    }
+
+    /* end-of-format */
+    npart++;
+    if ((rp = (msg_fmt *)realloc(res, npart*sizeof(msg_fmt))) == NULL) {
+	fprintf(stderr, "parse_fmt: realloc for part END failed\n");
+	free(res);
+	return NULL;
+    }
+    res = rp;
+    rp = &res[npart-1];
+    rp->type = FMT_END;
+    rp->data = NULL;
+
+    return res;
+}
+
 void
 actFake(Expr *x)
 {
-    Expr    *arg1 = x->arg1;
-    Expr    *arg2 = x->arg2;
-    time_t  clock = (time_t)now;
-    char    bfr[26];
+    Expr    		*arg1 = x->arg1;
+    Expr    		*arg2 = x->arg2;
+    aux_action		*aap = (aux_action *)x->auxdata;
+    time_t  		clock = (time_t)now;
+    char    		bfr[26];
+    static msg_fmt	*fmt = NULL;
+    extern char		*format;
 
     if ((arg2 == NULL) ||
 	(x->smpls[0].stamp == 0) ||
@@ -392,7 +525,62 @@ actFake(Expr *x)
 	x->smpls[0].stamp = now;
 	pmCtime(&clock, bfr);
 	bfr[24] = '\0';
-	printf("%s %s: %s\n", opStrings(x->op), bfr, (char *)arg1->ring);
+
+	if (format != NULL && fmt == NULL) {
+	    /*
+	     * one-trip for -o|--format option
+	     */
+	    fmt = parse_fmt(format);
+	    if (fmt == NULL) {
+		/* fallback to default */
+		format = NULL;
+	    }
+	}
+
+	if (format) {
+	    int		i;
+	    /* -o|--format in play */
+	    for (i = 0; ; i++) {
+		switch (fmt[i].type) {
+		    case FMT_STR:
+			printf("%s", (char *)fmt[i].data);
+			break;
+		    case FMT_ACTION:
+			printf("%s", opStrings(x->op));
+			break;
+		    case FMT_DATETIME:
+			printf("%s", bfr);
+			break;
+		    case FMT_FILE:
+			printf("%s", aap->fname);
+			break;
+		    case FMT_LINENO:
+			printf("%d", aap->lineno);
+			break;
+		    case FMT_MSG:
+			printf("%s", (char *)arg1->ring);
+			break;
+		    case FMT_USECDATE:
+			/*
+			 * bfr[18] is where the time (in seconds) from
+			 * pmCtime() ends
+			 */
+			printf("%19.19s.", bfr);
+			printf("%06ld", (long)((now - clock) * 1000000));
+			printf("%s", &bfr[19]);
+			break;
+		    case FMT_END:
+			putchar('\n');
+			break;
+		}
+		if (fmt[i].type == FMT_END)
+		    break;
+	    }
+	}
+	else {
+	    /* default */
+	    printf("%s %s: %s\n", opStrings(x->op), bfr, (char *)arg1->ring);
+	}
     }
 }
 

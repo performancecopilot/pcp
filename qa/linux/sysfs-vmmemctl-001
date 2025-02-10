@@ -1,0 +1,30 @@
+balloon capabilities  :             0x3e
+used capabilities     :             0x1e
+is resetting          :                n
+target                :          1023777
+current               :          1024000
+start                 :                0 (0 failed)
+target                :              768 (0 failed)
+lock                  :                0 (0 failed)
+unlock                :                0 (0 failed)
+guestType             :                0 (0 failed)
+batchLock             :                0 (0 failed)
+batchUnlock           :                0 (0 failed)
+2m-lock               :               15 (0 failed)
+2m-unlock             :                2 (0 failed)
+doorbellSet           :                0 (0 failed)
+timer                 :              768
+doorbell              :               14
+reset                 :                0
+shrink                :                0
+shrinkFree            :                0
+alloc             (4k):                0
+alloc             (2M):             2036
+allocFail         (4k):                0
+allocFail         (2M):                0
+errAlloc          (4k):                0
+errAlloc          (2M):                0
+errFree           (4k):                0
+errFree           (2M):                0
+free              (4k):                0
+free              (2M):               36

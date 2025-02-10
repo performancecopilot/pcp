@@ -14,17 +14,21 @@ pmdumplog diffs ...
 +    ending     Sat Oct  1 21:10:42.128378 2011
  
  Descriptions for Metrics in the Log ...
- PMID: 29.0.100 (sample.ulonglong.hundred)
-@@ -69,7 +69,7 @@
+ PMID: 2.3.0 (pmcd.pmlogger.port)
+@@ -69,10 +69,10 @@
  
  Instance Domains in the Log ...
+ InDom: 2.1
+-21:10:11.751520 1 instances
++21:10:41.751520 1 instances
+    1933 or "1933"
  InDom: 29.2
 -21:10:11.878990 9 instances
 +21:10:41.878990 9 instances
     100 or "bin-100"
     200 or "bin-200"
     300 or "bin-300"
-@@ -80,7 +80,7 @@
+@@ -83,7 +83,7 @@
     800 or "bin-800"
     900 or "bin-900"
  InDom: 30.2
@@ -33,13 +37,7 @@ pmdumplog diffs ...
     100 or "bin-100"
     200 or "bin-200"
     300 or "bin-300"
-@@ -91,24 +91,24 @@
-    800 or "bin-800"
-    900 or "bin-900"
- InDom: 2.1
--21:10:11.751520 1 instances
-+21:10:41.751520 1 instances
-    1933 or "1933"
+@@ -96,19 +96,19 @@
  
  Temporal Index
  		Log Vol    end(meta)     end(log)
@@ -145,17 +143,21 @@ pmdumplog diffs ...
 +    ending     Fri Sep 30 21:10:12.129378 2011
  
  Descriptions for Metrics in the Log ...
- PMID: 29.0.100 (sample.ulonglong.hundred)
-@@ -69,7 +69,7 @@
+ PMID: 2.3.0 (pmcd.pmlogger.port)
+@@ -69,10 +69,10 @@
  
  Instance Domains in the Log ...
+ InDom: 2.1
+-21:10:11.751520 1 instances
++21:10:11.752520 1 instances
+    1933 or "1933"
  InDom: 29.2
 -21:10:11.878990 9 instances
 +21:10:11.879990 9 instances
     100 or "bin-100"
     200 or "bin-200"
     300 or "bin-300"
-@@ -80,7 +80,7 @@
+@@ -83,7 +83,7 @@
     800 or "bin-800"
     900 or "bin-900"
  InDom: 30.2
@@ -164,13 +166,7 @@ pmdumplog diffs ...
     100 or "bin-100"
     200 or "bin-200"
     300 or "bin-300"
-@@ -91,24 +91,24 @@
-    800 or "bin-800"
-    900 or "bin-900"
- InDom: 2.1
--21:10:11.751520 1 instances
-+21:10:11.752520 1 instances
-    1933 or "1933"
+@@ -96,19 +96,19 @@
  
  Temporal Index
  		Log Vol    end(meta)     end(log)
@@ -264,64 +260,73 @@ pmdumplog diffs ...
 pmdumplog diffs ...
 --- TMP.in
 +++ TMP.out
-@@ -16,22 +16,22 @@
-     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+@@ -16,25 +16,25 @@
+     Data Type: string  InDom: 2.1 0x800001
+     Semantics: discrete  Units: none
+ PMID: 29.0.6 (sample.bin)
+-    Data Type: 32-bit int  InDom: 29.2 0x7400002
++    Data Type: 32-bit int  InDom: 109.2 0x1b400002
+     Semantics: instant  Units: none
+ PMID: 29.0.50 (sample.part_bin)
+-    Data Type: 32-bit int  InDom: 29.2 0x7400002
++    Data Type: 32-bit int  InDom: 109.2 0x1b400002
+     Semantics: instant  Units: none
+ PMID: 29.0.100 (sample.ulonglong.hundred)
+     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
      Semantics: instant  Units: none
  PMID: 29.0.106 (sample.ulong.bin_ctr)
 -    Data Type: 32-bit unsigned int  InDom: 29.2 0x7400002
 +    Data Type: 32-bit unsigned int  InDom: 109.2 0x1b400002
      Semantics: counter  Units: Kbyte
- PMID: 29.0.112 (sample.ulonglong.bin_ctr)
--    Data Type: 64-bit unsigned int  InDom: 29.2 0x7400002
-+    Data Type: 64-bit unsigned int  InDom: 109.2 0x1b400002
-     Semantics: counter  Units: Kbyte
- PMID: 30.0.114 (sampledso.double.bin_ctr)
-     Data Type: double  InDom: 30.2 0x7800002
-     Semantics: counter  Units: Kbyte
  PMID: 29.0.108 (sample.float.bin_ctr)
 -    Data Type: float  InDom: 29.2 0x7400002
 +    Data Type: float  InDom: 109.2 0x1b400002
      Semantics: counter  Units: Kbyte
- PMID: 30.0.104 (sampledso.long.bin_ctr)
-     Data Type: 32-bit int  InDom: 30.2 0x7800002
-     Semantics: counter  Units: Kbyte
- PMID: 29.0.6 (sample.bin)
--    Data Type: 32-bit int  InDom: 29.2 0x7400002
-+    Data Type: 32-bit int  InDom: 109.2 0x1b400002
-     Semantics: instant  Units: none
- PMID: 2.3.0 (pmcd.pmlogger.port)
-     Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
-@@ -46,10 +46,10 @@
-     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-     Semantics: counter  Units: millisec
- PMID: 29.0.50 (sample.part_bin)
--    Data Type: 32-bit int  InDom: 29.2 0x7400002
-+    Data Type: 32-bit int  InDom: 109.2 0x1b400002
-     Semantics: instant  Units: none
  PMID: 29.0.110 (sample.longlong.bin_ctr)
 -    Data Type: 64-bit int  InDom: 29.2 0x7400002
 +    Data Type: 64-bit int  InDom: 109.2 0x1b400002
      Semantics: counter  Units: Kbyte
- PMID: 2.3.2 (pmcd.pmlogger.archive)
-     Data Type: string  InDom: 2.1 0x800001
-@@ -68,7 +68,7 @@
-     Semantics: instant  Units: none
- 
- Instance Domains in the Log ...
+ PMID: 29.0.112 (sample.ulonglong.bin_ctr)
+-    Data Type: 64-bit unsigned int  InDom: 29.2 0x7400002
++    Data Type: 64-bit unsigned int  InDom: 109.2 0x1b400002
+     Semantics: counter  Units: Kbyte
+ PMID: 30.0.3 (sampledso.milliseconds)
+     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+@@ -71,8 +71,8 @@
+ InDom: 2.1
+ 21:10:11.751520 1 instances
+    1933 or "1933"
 -InDom: 29.2
-+InDom: 109.2
- 21:10:11.878990 9 instances
+-21:10:11.878990 9 instances
++InDom: 30.2
++21:10:11.876269 9 instances
     100 or "bin-100"
     200 or "bin-200"
+    300 or "bin-300"
+@@ -82,8 +82,8 @@
+    700 or "bin-700"
+    800 or "bin-800"
+    900 or "bin-900"
+-InDom: 30.2
+-21:10:11.876269 9 instances
++InDom: 109.2
++21:10:11.878990 9 instances
+    100 or "bin-100"
+    200 or "bin-200"
+    300 or "bin-300"
 
 === metric 30.*.* { pmid -> 123.*.* } ===
 pmdumplog diffs ...
 --- TMP.in
 +++ TMP.out
-@@ -9,10 +9,10 @@
- PMID: 29.0.100 (sample.ulonglong.hundred)
-     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-     Semantics: instant  Units: none
+@@ -36,34 +36,34 @@
+ PMID: 29.0.112 (sample.ulonglong.bin_ctr)
+     Data Type: 64-bit unsigned int  InDom: 29.2 0x7400002
+     Semantics: counter  Units: Kbyte
+-PMID: 30.0.3 (sampledso.milliseconds)
++PMID: 123.0.3 (sampledso.milliseconds)
+     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: millisec
 -PMID: 30.0.6 (sampledso.bin)
 +PMID: 123.0.6 (sampledso.bin)
      Data Type: 32-bit int  InDom: 30.2 0x7800002
@@ -330,59 +335,34 @@ pmdumplog diffs ...
 +PMID: 123.0.12 (sampledso.long.hundred)
      Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
      Semantics: instant  Units: none
- PMID: 29.0.106 (sample.ulong.bin_ctr)
-@@ -21,13 +21,13 @@
- PMID: 29.0.112 (sample.ulonglong.bin_ctr)
-     Data Type: 64-bit unsigned int  InDom: 29.2 0x7400002
-     Semantics: counter  Units: Kbyte
--PMID: 30.0.114 (sampledso.double.bin_ctr)
-+PMID: 123.0.114 (sampledso.double.bin_ctr)
-     Data Type: double  InDom: 30.2 0x7800002
-     Semantics: counter  Units: Kbyte
- PMID: 29.0.108 (sample.float.bin_ctr)
-     Data Type: float  InDom: 29.2 0x7400002
-     Semantics: counter  Units: Kbyte
--PMID: 30.0.104 (sampledso.long.bin_ctr)
-+PMID: 123.0.104 (sampledso.long.bin_ctr)
-     Data Type: 32-bit int  InDom: 30.2 0x7800002
-     Semantics: counter  Units: Kbyte
- PMID: 29.0.6 (sample.bin)
-@@ -36,13 +36,13 @@
- PMID: 2.3.0 (pmcd.pmlogger.port)
-     Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
-     Semantics: discrete  Units: none
--PMID: 30.0.50 (sampledso.part_bin)
-+PMID: 123.0.50 (sampledso.part_bin)
-     Data Type: 32-bit int  InDom: 30.2 0x7800002
+-PMID: 30.0.17 (sampledso.float.hundred)
++PMID: 123.0.17 (sampledso.float.hundred)
+     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: instant  Units: none
+-PMID: 30.0.22 (sampledso.longlong.hundred)
++PMID: 123.0.22 (sampledso.longlong.hundred)
+     Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
      Semantics: instant  Units: none
 -PMID: 30.0.27 (sampledso.double.hundred)
 +PMID: 123.0.27 (sampledso.double.hundred)
      Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
      Semantics: instant  Units: none
--PMID: 30.0.3 (sampledso.milliseconds)
-+PMID: 123.0.3 (sampledso.milliseconds)
-     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-     Semantics: counter  Units: millisec
- PMID: 29.0.50 (sample.part_bin)
-@@ -54,16 +54,16 @@
- PMID: 2.3.2 (pmcd.pmlogger.archive)
-     Data Type: string  InDom: 2.1 0x800001
-     Semantics: discrete  Units: none
--PMID: 30.0.22 (sampledso.longlong.hundred)
-+PMID: 123.0.22 (sampledso.longlong.hundred)
-     Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
+-PMID: 30.0.50 (sampledso.part_bin)
++PMID: 123.0.50 (sampledso.part_bin)
+     Data Type: 32-bit int  InDom: 30.2 0x7800002
      Semantics: instant  Units: none
--PMID: 30.0.17 (sampledso.float.hundred)
-+PMID: 123.0.17 (sampledso.float.hundred)
-     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
-     Semantics: instant  Units: none
- PMID: 2.3.3 (pmcd.pmlogger.host)
-     Data Type: string  InDom: 2.1 0x800001
-     Semantics: discrete  Units: none
 -PMID: 30.0.95 (sampledso.ulong.hundred)
 +PMID: 123.0.95 (sampledso.ulong.hundred)
      Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
      Semantics: instant  Units: none
+-PMID: 30.0.104 (sampledso.long.bin_ctr)
++PMID: 123.0.104 (sampledso.long.bin_ctr)
+     Data Type: 32-bit int  InDom: 30.2 0x7800002
+     Semantics: counter  Units: Kbyte
+-PMID: 30.0.114 (sampledso.double.bin_ctr)
++PMID: 123.0.114 (sampledso.double.bin_ctr)
+     Data Type: double  InDom: 30.2 0x7800002
+     Semantics: counter  Units: Kbyte
  
 @@ -109,24 +109,24 @@
  
@@ -520,55 +500,60 @@ pmdumplog diffs ...
 pmdumplog diffs ...
 --- TMP.in
 +++ TMP.out
-@@ -16,22 +16,22 @@
-     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+@@ -16,25 +16,25 @@
+     Data Type: string  InDom: 2.1 0x800001
+     Semantics: discrete  Units: none
+ PMID: 29.0.6 (sample.bin)
+-    Data Type: 32-bit int  InDom: 29.2 0x7400002
++    Data Type: 32-bit int  InDom: 109.2 0x1b400002
+     Semantics: instant  Units: none
+ PMID: 29.0.50 (sample.part_bin)
+-    Data Type: 32-bit int  InDom: 29.2 0x7400002
++    Data Type: 32-bit int  InDom: 109.2 0x1b400002
+     Semantics: instant  Units: none
+ PMID: 29.0.100 (sample.ulonglong.hundred)
+     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
      Semantics: instant  Units: none
  PMID: 29.0.106 (sample.ulong.bin_ctr)
 -    Data Type: 32-bit unsigned int  InDom: 29.2 0x7400002
 +    Data Type: 32-bit unsigned int  InDom: 109.2 0x1b400002
      Semantics: counter  Units: Kbyte
- PMID: 29.0.112 (sample.ulonglong.bin_ctr)
--    Data Type: 64-bit unsigned int  InDom: 29.2 0x7400002
-+    Data Type: 64-bit unsigned int  InDom: 109.2 0x1b400002
-     Semantics: counter  Units: Kbyte
- PMID: 30.0.114 (sampledso.double.bin_ctr)
-     Data Type: double  InDom: 30.2 0x7800002
-     Semantics: counter  Units: Kbyte
  PMID: 29.0.108 (sample.float.bin_ctr)
 -    Data Type: float  InDom: 29.2 0x7400002
 +    Data Type: float  InDom: 109.2 0x1b400002
      Semantics: counter  Units: Kbyte
- PMID: 30.0.104 (sampledso.long.bin_ctr)
-     Data Type: 32-bit int  InDom: 30.2 0x7800002
-     Semantics: counter  Units: Kbyte
- PMID: 29.0.6 (sample.bin)
--    Data Type: 32-bit int  InDom: 29.2 0x7400002
-+    Data Type: 32-bit int  InDom: 109.2 0x1b400002
-     Semantics: instant  Units: none
- PMID: 2.3.0 (pmcd.pmlogger.port)
-     Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
-@@ -46,10 +46,10 @@
-     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-     Semantics: counter  Units: millisec
- PMID: 29.0.50 (sample.part_bin)
--    Data Type: 32-bit int  InDom: 29.2 0x7400002
-+    Data Type: 32-bit int  InDom: 109.2 0x1b400002
-     Semantics: instant  Units: none
  PMID: 29.0.110 (sample.longlong.bin_ctr)
 -    Data Type: 64-bit int  InDom: 29.2 0x7400002
 +    Data Type: 64-bit int  InDom: 109.2 0x1b400002
      Semantics: counter  Units: Kbyte
- PMID: 2.3.2 (pmcd.pmlogger.archive)
-     Data Type: string  InDom: 2.1 0x800001
-@@ -68,7 +68,7 @@
-     Semantics: instant  Units: none
- 
- Instance Domains in the Log ...
+ PMID: 29.0.112 (sample.ulonglong.bin_ctr)
+-    Data Type: 64-bit unsigned int  InDom: 29.2 0x7400002
++    Data Type: 64-bit unsigned int  InDom: 109.2 0x1b400002
+     Semantics: counter  Units: Kbyte
+ PMID: 30.0.3 (sampledso.milliseconds)
+     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+@@ -71,8 +71,8 @@
+ InDom: 2.1
+ 21:10:11.751520 1 instances
+    1933 or "1933"
 -InDom: 29.2
-+InDom: 109.2
- 21:10:11.878990 9 instances
+-21:10:11.878990 9 instances
++InDom: 30.2
++21:10:11.876269 9 instances
     100 or "bin-100"
     200 or "bin-200"
+    300 or "bin-300"
+@@ -82,8 +82,8 @@
+    700 or "bin-700"
+    800 or "bin-800"
+    900 or "bin-900"
+-InDom: 30.2
+-21:10:11.876269 9 instances
++InDom: 109.2
++21:10:11.878990 9 instances
+    100 or "bin-100"
+    200 or "bin-200"
+    300 or "bin-300"
 
 === indom 29.* { indom -> 109.* } metric sample.bin { indom -> 123.2 } ===
 Semantic error in configuration file (TMP.config)
@@ -579,7 +564,7 @@ Arrgh ... cannot find TMP.new.0
 pmdumplog diffs ...
 --- TMP.in
 +++ TMP.out
-@@ -664,9 +664,9 @@
+@@ -671,9 +671,9 @@
     0 or "sda"
  InDom: 60.2
  20:10:22.959242 3 instances
@@ -589,9 +574,9 @@ pmdumplog diffs ...
 +   60 or "60 second"
 +   300 or "300 second"
 +   900 or "900 second"
- InDom: 60.10
- 20:10:22.959242 7 instances
-    0 or "sda1"
+ InDom: 60.9
+ 20:10:22.959242 304 instances
+    1 or "000001 /sbin/init"
 @@ -998,7 +998,7 @@
  		Log Vol    end(meta)     end(log)
  20:10:22.289859	      0          132          132
@@ -909,15 +894,45 @@ pmns diffs ...
 pmdumplog -i diffs ...
 --- TMP.in
 +++ TMP.out
-@@ -27,7 +27,7 @@
- 20:10:22.959242 2 instances
-    0 or "cpu0"
-    1 or "cpu1"
+@@ -17,7 +17,20 @@
+    1 or "1 minute"
+    5 or "5 minute"
+    15 or "15 minute"
 -InDom: 60.9
++InDom: 60.10
++20:10:22.959242 7 instances
++   0 or "sda1"
++   1 or "sda2"
++   2 or "sda3"
++   3 or "sda4"
++   4 or "sda5"
++   5 or "sda6"
++   6 or "sr0"
++InDom: 60.11
++20:10:22.959242 2 instances
++   0 or "scsi0:0:0:0 CD-ROM"
++   1 or "scsi2:0:0:0 Direct-Access"
 +InDom: 123.0
  20:10:22.959242 304 instances
     1 or "000001 /sbin/init"
     2 or "000002 (kthreadd)"
+@@ -323,16 +336,3 @@
+    29942 or "029942 /var/lib/pcp/pmdas/sample/pmdasample -d 29"
+    30016 or "030016 pmlogger -P -c config.default 20110930.17.20"
+    32556 or "032556 /usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1"
+-InDom: 60.10
+-20:10:22.959242 7 instances
+-   0 or "sda1"
+-   1 or "sda2"
+-   2 or "sda3"
+-   3 or "sda4"
+-   4 or "sda5"
+-   5 or "sda6"
+-   6 or "sr0"
+-InDom: 60.11
+-20:10:22.959242 2 instances
+-   0 or "scsi0:0:0:0 CD-ROM"
+-   1 or "scsi2:0:0:0 Direct-Access"
 
 pmdumplog -m diffs ...
 --- TMP.in

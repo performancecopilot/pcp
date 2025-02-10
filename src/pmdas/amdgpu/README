@@ -1,0 +1,5 @@
+AMD GPU PMDA
+============
+
+The AMD GPU PMDA is a PCP module for gathering metrics on the performance of
+AMD graphics cards. It uses the libdrm to query the states of attached cards.

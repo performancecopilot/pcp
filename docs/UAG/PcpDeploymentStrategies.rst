@@ -123,7 +123,7 @@ It is possible to exploit this arrangement even further, with these methods:
 PCP Archive Logger Deployment
 *******************************
 
-PCP archive logs are created by the **pmlogger** utility, as discussed in Chapter 6, :ref:`Archive Logging`. They provide a critical capability to perform retrospective 
+PCP archives are created by the **pmlogger** utility, as discussed in Chapter 6, :ref:`Archive Logging`. They provide a critical capability to perform retrospective 
 performance analysis, for example, to detect performance regressions, for problem analysis, or to support capacity planning. The following sections discuss the options 
 and trade-offs for **pmlogger** deployment.
 
@@ -153,39 +153,39 @@ the PCP collector system (PMCD and the PMDAs), which are independent of the host
 A local **pmlogger** consumes disk bandwidth and disk space on the PCP collector system. A remote **pmlogger** consumes disk space on the site where it is running and 
 network bandwidth between that host and the PCP collector host.
 
-The archive logs typically grow at a rate of anywhere between a few kilobytes (KB) to tens of megabytes (MB) per day, depending on how many performance metrics are 
-logged and the choice of sampling frequencies. There are some advantages in minimizing the number of hosts over which the disk resources for PCP archive logs must be 
+The archives typically grow at a rate of anywhere between a few kilobytes (KB) to tens of megabytes (MB) per day, depending on how many performance metrics are 
+logged and the choice of sampling frequencies. There are some advantages in minimizing the number of hosts over which the disk resources for PCP archives must be 
 allocated; however, the aggregate requirement is independent of where the **pmlogger** processes are running.
 
 Operational Management
 ========================
 
 There is an initial administrative cost associated with configuring each **pmlogger** instance, and an ongoing administrative investment to monitor these configurations, 
-perform regular housekeeping (such as rotation, compression, and culling of PCP archive log files), and execute periodic tasks to process the archives (such as nightly 
+perform regular housekeeping (such as rotation, compression, and culling of PCP archive files), and execute periodic tasks to process the archives (such as nightly 
 performance regression checking with **pmie**).
 
-Many of these tasks are handled by the supplied **pmlogger** administrative tools and scripts, as described in Section 6.2.3, “:ref:`Archive Log File Management`”. 
+Many of these tasks are handled by the supplied **pmlogger** administrative tools and scripts, as described in Section 6.2.3, “:ref:`Archive File Management`”. 
 However, the necessity and importance of these tasks favor a centralized  pmlogger deployment, as shown in `Figure 7.5. Designated PCP Archive Site`_.
 
-⁠Exporting PCP Archive Logs
+⁠Exporting PCP Archives
 ============================
 
-Collecting PCP archive logs is of little value unless the logs are processed as part of the ongoing performance monitoring and management functions. This processing 
-typically involves the use of the tools on a PCP monitor system, and hence the archive logs may need to be read on a host different from the one they were created on.
+Collecting PCP archives is of little value unless the archives are processed as part of the ongoing performance monitoring and management functions. This processing 
+typically involves the use of the tools on a PCP monitor system, and hence the archives may need to be read on a host different from the one they were created on.
 
-NFS mounting is obviously an option, but the PCP tools support random access and both forward and backward temporal motion within an archive log. If an archive is to 
-be subjected to intensive and interactive processing, it may be more efficient to copy the files of the archive log to the PCP monitor system first.
+NFS mounting is obviously an option, but the PCP tools support random access and both forward and backward temporal motion within an archive. If an archive is to 
+be subjected to intensive and interactive processing, it may be more efficient to copy the files of the archive to the PCP monitor system first.
 
 .. note::
-   Each PCP archive log consists of at least three separate files (see Section 6.2.3, “:ref:`Archive Log File Management`” for details). You must have concurrent 
-   access to all of these files before a PCP tool is able to process an archive log correctly.
+   Each PCP archive consists of at least three separate files (see Section 6.2.3, “:ref:`Archive File Management`” for details). You must have concurrent 
+   access to all of these files before a PCP tool is able to process an archive correctly.
    
 PCP Inference Engine Deployment
 *********************************
 
 The **pmie** utility supports automated reasoning about system performance, as discussed in Chapter 5, :ref:`Performance Metrics Inference Engine`, and plays a key 
 role in monitoring system performance for both real-time and retrospective analysis, with the performance data being retrieved respectively from a PCP collector system 
-and a PCP archive log.
+and a PCP archive.
 
 The following sections discuss the options and trade-offs for **pmie** deployment.
 
@@ -198,7 +198,7 @@ The issue is relatively simple and reduces to “On which host(s) should **pmie*
 
 * For real-time analysis, run **pmie** on some of the PCP monitor systems to monitor the performance of remote PCP collector systems.
 
-* For retrospective analysis, run **pmie** on the systems where the PCP archive logs reside. The problem then reduces to **pmlogger** deployment as discussed in 
+* For retrospective analysis, run **pmie** on the systems where the PCP archives reside. The problem then reduces to **pmlogger** deployment as discussed in 
   Section 7.3, “`PCP Archive Logger Deployment`_”.
 
 * As an example of the “distributed management with centralized control” philosophy, designate some system to act as the PCP Management Site to run all **pmlogger** and 

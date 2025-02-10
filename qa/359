@@ -15,7 +15,6 @@ echo "QA output created by $seq"
 . ./common.check
 
 status=0	# success is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 _filter()
@@ -54,16 +53,15 @@ _filter()
 	-e '/^logger\.perfile\.reg\.records: No permission/d' \
 	-e '/^logger\.perfile\.fifo\.records: Try again./d' \
 	-e '/^logger\.perfile\.reg\.records: Try again./d' \
-	-e '/^redis\..*_avg_ttl: Try again./d' \
-	-e '/^redis\..*_expires: Try again./d' \
-	-e '/^redis\..*_keys: Try again./d' \
 	-e '/^containers\..*: pmLookupDesc: Unknown or illegal metric/d' \
 	-e '/^elasticsearch\..*: Try again./d' \
 	-e '/^rsyslog\..*: Try again./d' \
 	-e '/^libvirt\..*: Try again./d' \
 	-e '/^apache\..*: Try again./d' \
 	-e '/^oracle\..*: Try again./d' \
+	-e '/^redis\..*: Try again./d' \
 	-e '/^nginx\..*: Try again./d' \
+	-e '/^uwsgi\..*: Try again./d' \
 	-e '/^zswap\..*: Try again./d' \
 	-e '/Container not found/d' \
 	-e '/^postgresql/d' \
@@ -99,7 +97,7 @@ _filter_libvirt()
 # if one of the PMDAs is broken or mis-installed the test will likely
 # fail ... this might give a clue to help diagnosis
 #
-pcp >>$here/$seq.full 2>&1
+pcp >>$seq_full 2>&1
 
 # real QA test starts here
 

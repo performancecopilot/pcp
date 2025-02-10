@@ -6,6 +6,8 @@ Released under the GNU GPLv2+, see the COPYING file
 in the source distribution for its full text.
 */
 
+#include "config.h" // IWYU pragma: keep
+
 #include "linux/PressureStallMeter.h"
 
 #include <stdbool.h>
@@ -73,6 +75,7 @@ const MeterClass PressureStallCPUSomeMeter_class = {
    },
    .updateValues = PressureStallMeter_updateValues,
    .defaultMode = TEXT_METERMODE,
+   .supportedModes = METERMODE_DEFAULT_SUPPORTED,
    .maxItems = 3,
    .total = 100.0,
    .attributes = PressureStallMeter_attributes,
@@ -90,6 +93,7 @@ const MeterClass PressureStallIOSomeMeter_class = {
    },
    .updateValues = PressureStallMeter_updateValues,
    .defaultMode = TEXT_METERMODE,
+   .supportedModes = METERMODE_DEFAULT_SUPPORTED,
    .maxItems = 3,
    .total = 100.0,
    .attributes = PressureStallMeter_attributes,
@@ -107,6 +111,7 @@ const MeterClass PressureStallIOFullMeter_class = {
    },
    .updateValues = PressureStallMeter_updateValues,
    .defaultMode = TEXT_METERMODE,
+   .supportedModes = METERMODE_DEFAULT_SUPPORTED,
    .maxItems = 3,
    .total = 100.0,
    .attributes = PressureStallMeter_attributes,
@@ -124,6 +129,7 @@ const MeterClass PressureStallIRQFullMeter_class = {
    },
    .updateValues = PressureStallMeter_updateValues,
    .defaultMode = TEXT_METERMODE,
+   .supportedModes = METERMODE_DEFAULT_SUPPORTED,
    .maxItems = 3,
    .total = 100.0,
    .attributes = PressureStallMeter_attributes,
@@ -141,6 +147,7 @@ const MeterClass PressureStallMemorySomeMeter_class = {
    },
    .updateValues = PressureStallMeter_updateValues,
    .defaultMode = TEXT_METERMODE,
+   .supportedModes = METERMODE_DEFAULT_SUPPORTED,
    .maxItems = 3,
    .total = 100.0,
    .attributes = PressureStallMeter_attributes,
@@ -158,6 +165,7 @@ const MeterClass PressureStallMemoryFullMeter_class = {
    },
    .updateValues = PressureStallMeter_updateValues,
    .defaultMode = TEXT_METERMODE,
+   .supportedModes = METERMODE_DEFAULT_SUPPORTED,
    .maxItems = 3,
    .total = 100.0,
    .attributes = PressureStallMeter_attributes,

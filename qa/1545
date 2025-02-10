@@ -39,14 +39,13 @@ _filter_xml()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 _prepare_pmda_mmv
 
-echo "--- before mmv_genstats started " >>$seq.full
-pminfo -f mmv.test >>$seq.full 2>&1
+echo "--- before mmv_genstats started " >>$seq_full
+pminfo -f mmv.test >>$seq_full 2>&1
 
 # test names-change=update with pcp2xml
 echo testing names-change=update with pcp2xml
@@ -62,14 +61,14 @@ pmsleep 2.5
 #
 src/mmv_genstats test 5 &
 pmsleep 1
-pmstore mmv.control.reload 1 >>$seq.full
-echo "--- after mmv_genstats started and mmv reload" >>$seq.full
-pminfo -f mmv.test >>$seq.full 2>&1
+pmstore mmv.control.reload 1 >>$seq_full
+echo "--- after mmv_genstats started and mmv reload" >>$seq_full
+pminfo -f mmv.test >>$seq_full 2>&1
 
 wait
 
-echo "--- after pcp2xml is done" >>$seq.full
-pminfo -f mmv.test >>$seq.full 2>&1
+echo "--- after pcp2xml is done" >>$seq_full
+pminfo -f mmv.test >>$seq_full 2>&1
 
 # success, all done
 status=0

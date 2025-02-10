@@ -135,7 +135,6 @@ __pmFaultInject(const char *ident, int class)
 		    while (*lp && isspace((int)*lp)) lp++;
 		    if (*lp == '\0') {
 			op = PM_FAULT_GT;
-			thres = 0;
 		    }
 		    else {
 			if (strncmp(lp, "<=", 2) == 0) {

@@ -39,7 +39,6 @@ _filter()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 export PM_FAULT_CONTROL=$tmp.control
@@ -77,13 +76,19 @@ End-of-File
 src/exectest echo not supposed to get here 2>&1 \
 | _filter
 
+# note: the fork() does not really fail, the fault injection
+# makes it look like the fork() has failed, so we have the
+# risk of the output appearing for both parent and child, hence
+# the sort | uniq
 echo
 echo "fork() fails"
 cat >$tmp.control <<End-of-File
 libpcp/exec.c:4	> 0
 End-of-File
 src/exectest -- sh -c "sleep 1; echo not supposed to get here" 2>&1 \
-| _filter
+| _filter \
+| sort \
+| uniq
 
 echo
 echo "pipe() fails"
@@ -97,7 +102,7 @@ echo "fork() fails after pipe()"
 cat >$tmp.control <<End-of-File
 libpcp/exec.c:6	> 0
 End-of-File
-src/exectest -Dexec -p -- echo hullo world 2>&1 | _filter
+src/exectest -Dexec -p -- echo hullo world 2>&1 | _filter | _cull_dup_lines
 
 echo
 echo "realloc() fails for pipe map"

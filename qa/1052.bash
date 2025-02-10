@@ -30,7 +30,7 @@ $python -c "import six" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python six module not installed"
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
+$sudo rm -rf $tmp.* $seq_full
 mkdir $tmp
 chmod ugo+rwx $tmp
 cd $tmp
@@ -68,20 +68,20 @@ _drain_output_sorted()
 
 _filter()
 {
-    tee -a $here/$seq.full | \
+    tee -a $seq_full | \
     sed \
 	-e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;" \
         -e '/pmResult/s/ .* numpmid/ ... numpmid/' \
         -e '/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/s/[^ ]*/TIMESTAMP/' \
 	-e "s;$python_path;\$PCP_PYTHON_PROG;" \
-	-e "s;$python;python;" \
+	-e "s;$python_basename;python;" \
 	-e 's;137.3.[0-9][0-9]*;137.3.ID;' \
     #end
 }
 
 _filter2()
 {
-    tee -a $here/$seq.full | \
+    tee -a $seq_full | \
     sed \
 	-e '2,$s/^\([0-9][0-9]*\) [0-9][0-9]* /\1 TIMESTAMP /'
 }
@@ -484,7 +484,7 @@ _drain_output
 # Wait for dbpmda to quit.
 wait
 
-cat json.log >>$here/$seq.full
+cat json.log >> $seq_full
 
 status=0
 exit

@@ -29,7 +29,8 @@ then
     do_valgrind=true
 elif which valgrind >/dev/null 2>&1
 then
-    _notrun "valgrind variant qa/1421 will be run"
+    [ $PCPQA_VALGRIND = both ] || \
+	_notrun "valgrind variant qa/1421 will be run"
 fi
 
 _cleanup()
@@ -39,7 +40,6 @@ _cleanup()
 }
 
 status=0	# success is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 cat <<End-of-File >$tmp.config
@@ -155,8 +155,8 @@ do
 	fi
 	# mv $tmp.in tmp.in
 	# mv $tmp.out tmp.out
-	# pmdumplog -a $tmp.x >>$seq.full
-	# pmdumplog -a $tmp >>$seq.full
+	# pmdumplog -a $tmp.x >>$seq_full
+	# pmdumplog -a $tmp >>$seq_full
     done
 
 done

@@ -34,7 +34,7 @@ _cleanup()
 	sleep $i
     done
     # restart pmcd and primary pmlogger
-    _service pcp restart >>$seq.full 2>&1
+    _service pcp restart >>$seq_full 2>&1
     _wait_for_pmcd
     _restore_auto_restart pmcd
     _wait_for_pmlogger
@@ -54,7 +54,6 @@ _filter()
 		      		  	    { print }'
 }
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 _stop_auto_restart pmcd
 
@@ -88,9 +87,9 @@ mkdir -p $tmp.xfsmount || exit 1
 echo "mounting xfs filesystem"
 $sudo mount -t xfs -o loop,prjquota $tmp.xfsfile $tmp.xfsmount
 $sudo chmod 777 $tmp.xfsmount
-ls -ld $tmp.xfsmount >>$seq.full
+ls -ld $tmp.xfsmount >>$seq_full
 
-echo "pmmgr plain startup" | tee -a $seq.full
+echo "pmmgr plain startup" | tee -a $seq_full
 echo 'local:' >$tmp.xfsmount/target-host
 echo 'localhost' >>$tmp.xfsmount/target-host
 echo 'pcp://localhost:44321/' >>$tmp.xfsmount/target-host
@@ -100,18 +99,18 @@ echo 0 > $tmp.xfsmount/target-threads
 
 pmmgr -v -v -p 6 -l $tmp.out -c $tmp.xfsmount >$tmp.valout 2>$tmp.valerr &
 pid=$!
-echo "pid=$pid" >>$seq.full
+echo "pid=$pid" >>$seq_full
 
-date >>$seq.full
-echo "look for pmmgr starting no daemons" | tee -a $seq.full
-_service pmcd restart >>$seq.full 2>&1
-_wait_for_pmcd
+date >>$seq_full
+echo "look for pmmgr starting no daemons" | tee -a $seq_full
+if ! _service pmcd restart >>$seq_full 2>&1; then _exit 1; fi
+_wait_for_pmcd || _exit 1
 sleep 10
-_service pmcd stop >>$seq.full 2>&1
+if ! _service pmcd stop >>$seq_full 2>&1; then _exit 1; fi
 sleep 10 # pmmgr daemon shutdown
 ls -1 $tmp.xfsmount # should be almost empty
 
-echo "add control files to start pmlogger" | tee -a $seq.full
+echo "add control files to start pmlogger" | tee -a $seq_full
 echo '-t 2 -c '$tmp.config >$tmp.xfsmount/pmlogger
 #touch $tmp.xfsmount/pmlogconf
 echo "$tmp.xfsmount/" >$tmp.xfsmount/log-directory  # same dir
@@ -122,21 +121,21 @@ echo "60 seconds" >$tmp.xfsmount/pmlogmerge-retain
 echo '0.1' >$tmp.xfsmount/disk-full-threshold
 echo '0.25' >$tmp.xfsmount/disk-full-retention
 
-echo "restart pmlogger to create a bunch of archives to merge" | tee -a $seq.full
+echo "restart pmlogger to create a bunch of archives to merge" | tee -a $seq_full
 for x in 1 2 3 4 5
 do
-    echo restart $x `date` >>$seq.full
+    echo restart $x `date` >>$seq_full
 #    rm -f $tmp.xfsmount/$hostname/config.pmlogger
-    _service pmcd start >>$seq.full 2>&1
-    _wait_for_pmcd
+    if ! _service pmcd start >>$seq_full 2>&1; then _exit 1; fi
+    _wait_for_pmcd || _exit 1
 
     i=0;
     # wait up to 300ish seconds for pm*conf to run
     while [ $i -lt 25 ]; do
 	rm -f $tmp.ok
         i=`expr $i + 1`
-	echo "pmlogger probe #$i `date`" >>$seq.full
-        ls -l $tmp.xfsmount/$hostname/config.pmlogger >>$seq.full 2>&1
+	echo "pmlogger probe #$i `date`" >>$seq_full
+        ls -l $tmp.xfsmount/$hostname/config.pmlogger >>$seq_full 2>&1
 
         # NB: shan't check through pminfo pmcd.*, since these daemons run unprivileged
         # under the pcpqa userid and may not have permission to write into the
@@ -154,28 +153,28 @@ do
 	ls -lR $tmp.xfsmount
     fi
 
-    _service pmcd stop >>$seq.full 2>&1
+    if ! _service pmcd stop >>$seq_full 2>&1; then _exit 1; fi
     sleep 10 # pmmgr daemon shutdown
     if [ -f $tmp.xfsmount/$hostname/pmlogger.log ]
     then
 	# this may not work of course if the test fs is full
 	#
-	mv $tmp.xfsmount/$hostname/pmlogger.log $tmp.xfsmount/$hostname/pmlogger-$x.log 2>>$seq.full 
+	mv $tmp.xfsmount/$hostname/pmlogger.log $tmp.xfsmount/$hostname/pmlogger-$x.log 2>>$seq_full 
     fi
 done
 
-echo "add log-merging/rewriting" | tee -a $seq.full
+echo "add log-merging/rewriting" | tee -a $seq_full
 echo '-t 2 -c '$tmp.config >$tmp.xfsmount/pmlogger
 #echo 20sec >$tmp.xfsmount/pmlogmerge
 #rm $tmp.xfsmount/pmlogconf
-_service pmcd start >>$seq.full 2>&1
-_wait_for_pmcd
+if ! _service pmcd start >>$seq_full 2>&1; then _exit 1; fi
+_wait_for_pmcd || _exit 1
 sleep 20 # enough time to get new daemons started up, logs rotated/merged
-_service pmcd stop >>$seq.full 2>&1
+if ! _service pmcd stop >>$seq_full 2>&1; then _exit 1; fi
 sleep 10 # pmmgr daemon shutdown
 
-date >>$seq.full
-echo "recheck the directories past retain/merge" | tee -a $seq.full
+date >>$seq_full
+echo "recheck the directories past retain/merge" | tee -a $seq_full
 # there should be only two; one merged and one just-written-to
 count=`ls -1 $tmp.xfsmount/$hostname/*.meta | grep -v reduced| wc -l`
 if [ $count -lt 3 ]; then
@@ -185,43 +184,43 @@ else
     ls -l $tmp.xfsmount/$hostname/*.meta
 fi
 
-ls -lR $tmp.xfsmount >>$seq.full # for reference
+ls -lR $tmp.xfsmount >>$seq_full # for reference
 for f in $tmp.xfsmount/$hostname/*.meta; do
-    echo == $f == >>$seq.full
-    pmloglabel -L $f >>$seq.full
+    echo == $f == >>$seq_full
+    pmloglabel -L $f >>$seq_full
 done
 
-_service pmcd start >>$seq.full 2>&1
-_wait_for_pmcd
+if ! _service pmcd start >>$seq_full 2>&1; then _exit 1; fi
+_wait_for_pmcd || _exit 1
 
-echo "kill pmmgr" | tee -a $seq.full
+echo "kill pmmgr" | tee -a $seq_full
 kill $pid
 sleep 4
 if kill -0 $pid >/dev/null 2>&1
 then
-    echo "pmmgr (pid=$pid) did not die, try harder ..." >>$seq.full
+    echo "pmmgr (pid=$pid) did not die, try harder ..." >>$seq_full
     kill -KILL $pid >/dev/null 2>&1
     if kill -0 $pid >/dev/null 2>&1
     then
-	echo "pmmgr (pid=$pid) will not die!" >>$seq.full
+	echo "pmmgr (pid=$pid) will not die!" >>$seq_full
     fi
 fi
 pid=
 
-echo >>$seq.full
-echo "collecting recent daemon logs:" >>$seq.full
+echo >>$seq_full
+echo "collecting recent daemon logs:" >>$seq_full
 for log in $tmp.xfsmount/$hostname/*.log
 do
     if [ -f "$log" ]
     then
-	echo "-- $log --" >>$seq.full
-	cat $log >>$seq.full
+	echo "-- $log --" >>$seq_full
+	cat $log >>$seq_full
     fi
 done
 # the exact number of adjustments made can be finkey, so lets just
 # make sure that some occured
 retention_count=`cat $tmp.out | grep "retention" | wc -l`
-echo $retention_count >> $seq.full
+echo $retention_count >> $seq_full
 if [ $retention_count -gt 0 ]
 then
     echo "Log retention adjustments made"

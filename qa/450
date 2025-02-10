@@ -16,12 +16,11 @@ echo "QA output created by $seq"
 
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
-$sudo rm -f $seq.full
 
 # bump pmcd's seqnum, just in case tmparch/mv-foo was created by the
 # current pmcd (instantiation and config)
 #
-pmstore pmcd.seqnum 1 >$here/$seq.full 2>&1
+pmstore pmcd.seqnum 1 >$seq_full 2>&1
 
 # real QA test starts here
 pmlogger -c tmparch/config.foo -s 8 -v 3 $tmp
@@ -41,7 +40,7 @@ pmval -U $tmp.out sample.drift 2>&1 \
 	-e '/^samples:/d' \
 	-e '/^interval:/d' \
 	-e '/No values available/d' \
-	-e '/End of PCP archive log/d' \
+	-e '/End of PCP archive/d' \
 	-e 's/  *[0-9][0-9]*$/  NUMBER/' \
 	-e 's/^[0-9][0-9]:[0-9][0-9]:[0-9][0-9]\.[0-9][0-9]*[0-9]/TIMESTAMP/'
 

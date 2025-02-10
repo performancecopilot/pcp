@@ -29,8 +29,8 @@ int pmAddDerivedMetric(char *\fIname\fP, char *\fIexpr\fP, char **\fIerrmsg\fP);
 cc ... \-lpcp
 .ft 1
 .SH DESCRIPTION
-.de CW
-.ie t \f(CW\\$1\fR\\$2
+.de CR
+.ie t \f(CR\\$1\fR\\$2
 .el \fI\\$1\fR\\$2
 ..
 Derived metrics provide a way of extending the Performance Metrics
@@ -53,7 +53,7 @@ are created with the associated
 .BR pmRegisterDerived (3),
 .BR pmRegisterDerivedMetric (3)
 and
-.BR pmRegisterLoadConfig (3)
+.BR pmLoadDerivedConfig (3)
 routines.
 .PP
 The arguments to
@@ -138,9 +138,9 @@ e.g.
 .in +1i
 Error: pmAddDerivedMetric("my.disk.rates", ...) syntax error
 .br
-.CW "\&4rat(disk.dev.read)"
+.CR "\&4rat(disk.dev.read)"
 .br
-.CW "\&    ^"
+.CR "\&    ^"
 .in -1i
 .PP
 The position indicator line may be followed by an additional

@@ -13,6 +13,11 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+if which realpath >/dev/null 2>&1
+then
+    [ `realpath $PCP_ARCHIVE_DIR/$(hostname)` = "$PCP_ARCHIVE_DIR/$(hostname)" ] || _notrun "symlinks in PCP_ARCHIVE_DIR: `realpath $PCP_ARCHIVE_DIR/$(hostname)` != $PCP_ARCHIVE_DIR/$(hostname)"
+fi
+
 _filter()
 {
     [ -z "$PCP_PMLOGGERCONTROL_PATH" ] && \
@@ -63,10 +68,10 @@ _stop_auto_restart pmlogger
 _cleanup()
 {
     _restore_config $PCP_ETC_DIR/pcp/pmlogger
-    _service pmcd restart 2>&1 | tee -a $seq.full | _filter_pcp_start
+    _service pmcd restart 2>&1 | tee -a $seq_full | _filter_pcp_start
     _wait_for_pmcd
     _restore_auto_restart pmcd
-    _service pmlogger restart 2>&1 | tee -a $seq.full | _filter_pcp_start
+    _service pmlogger restart 2>&1 | tee -a $seq_full | _filter_pcp_start
     _wait_for_pmlogger
     _restore_auto_restart pmlogger
 }
@@ -82,7 +87,6 @@ skip == 1 && $1 == "pmlc> "					{ skip = 0 }
 skip == 0							{ print }'
 }
 
-rm -f $seq.full
 
 export PMLOGGER_CHECK_SKIP_LOGCONF=yes
 
@@ -93,26 +97,31 @@ umask 022
 
 # start from a known state
 #
-_service pcp stop >/dev/null 2>&1
-_wait_pmcd_end
-_service pcp start 2>&1 | _filter_pcp_start
-_wait_for_pmcd
-_wait_for_pmlogger -P $LOGGING_DIR/$LOCALHOST/pmlogger.log
+if ! _service pcp stop >/dev/null 2>&1; then _exit 1; fi
+_wait_pmcd_end || _exit 1
+if ! _service pcp start 2>&1; then _exit 1; fi | _filter_pcp_start
+_wait_for_pmcd || _exit 1
+_wait_for_pmlogger -P $LOGGING_DIR/$LOCALHOST/pmlogger.log || _exit 1
 
 # these sometimes get left around and are owned by root
 $sudo rm -f $PCP_VAR_DIR/config/pmlogger/*.{tmp,saved} 2>/dev/null
 
 echo
-echo "Ping primary logger ..." | tee -a $seq.full
+echo "Ping primary logger ..." | tee -a $seq_full
 echo 'connect primary' >$tmp.pmlc
 _try_pmlc
 
 echo
-echo "Expect this should do nothing ..." | tee -a $seq.full
+echo "Expect this should do nothing ..." | tee -a $seq_full
 touch $tmp.log
 $sudo chown $PCP_USER:$PCP_GROUP $tmp.log
+
+# need to be a place the user $PCP_USER can cd to from pmlogger_check
+#
+cd /var/tmp
 $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_check -V -l $tmp.log"
-[ -f $tmp.log ] && $sudo cat $tmp.log | tee -a $seq.full | _filter
+cd $here
+[ -f $tmp.log ] && $sudo cat $tmp.log | tee -a $seq_full | _filter
 _try_pmlc
 
 pid=`_get_primary_logger_pid`
@@ -125,9 +134,9 @@ then
 fi
 
 echo
-echo "Kill off primary logger ..." | tee -a $here/$seq.full
-_service pmlogger stop 2>&1 | _filter_pcp_stop
-_wait_pmlogger_end $pid
+echo "Kill off primary logger ..." | tee -a $seq_full
+if ! _service pmlogger stop 2>&1; then _exit 1; fi | _filter_pcp_stop
+_wait_pmlogger_end $pid || _exit 1
 _try_pmlc expect-failure
 cat $tmp.out $tmp.err | _filter_pmlc | _cull_welcome
 pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
@@ -138,15 +147,17 @@ pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
 sleep 2
 
 echo
-echo "Expect this to re-start the primary logger ..." | tee -a $seq.full
+echo "Expect this to re-start the primary logger ..." | tee -a $seq_full
+cd /var/tmp
 $sudo -u $PCP_USER -g $PCP_USER sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_check -V -l $tmp.log"
-[ -f $tmp.log ] && $sudo cat $tmp.log | tee -a $seq.full | _filter
+cd $here
+[ -f $tmp.log ] && $sudo cat $tmp.log | tee -a $seq_full | _filter
 _try_pmlc
 
 # if it is present, get systemctl on the same page ...
 #
-_service pmlogger start 2>&1 | _filter_pcp_start
-_wait_for_pmlogger -P $LOGGING_DIR/$LOCALHOST/pmlogger.log
+if ! _service pmlogger start 2>&1; then _exit 1; fi | _filter_pcp_start
+_wait_for_pmlogger -P $LOGGING_DIR/$LOCALHOST/pmlogger.log || _exit 1
 
 pid=`_get_primary_logger_pid`
 if [ -z "$pid" ]
@@ -158,9 +169,9 @@ then
 fi
 
 echo
-echo "Kill off primary logger ..." | tee -a $here/$seq.full
-_service pmlogger stop 2>&1 | _filter_pcp_stop
-_wait_pmlogger_end $pid
+echo "Kill off primary logger ..." | tee -a $seq_full
+if ! _service pmlogger stop 2>&1; then _exit 1; fi | _filter_pcp_stop
+_wait_pmlogger_end $pid || _exit 1
 _try_pmlc expect-failure
 cat $tmp.out $tmp.err | _filter_pmlc | _cull_welcome
 pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
@@ -171,34 +182,40 @@ pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
 sleep 2
 
 echo
-echo "Expect this to quietly re-start the primary logger ..." | tee -a $seq.full
+echo "Expect this to quietly re-start the primary logger ..." | tee -a $seq_full
+cd /var/tmp
 $sudo -u $PCP_USER -g $PCP_USER sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_check -l $tmp.log"
-[ -f $tmp.log ] && $sudo cat $tmp.log | tee -a $seq.full | _filter
+cd $here
+[ -f $tmp.log ] && $sudo cat $tmp.log | tee -a $seq_full | _filter
 _try_pmlc
 
 echo
-echo "Expect this to get a mutex failure ..." | tee -a $seq.full
+echo "Expect this to get a mutex failure ..." | tee -a $seq_full
 $sudo touch $LOGGING_DIR/$LOCALHOST/lock
+cd /var/tmp
 $sudo -u $PCP_USER -g $PCP_USER sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_check -l $tmp.log"
+cd $here
 if [ -f $tmp.log ]
 then
-    $sudo cat $tmp.log | tee -a $seq.full | _filter \
+    $sudo cat $tmp.log | tee -a $seq_full | _filter \
     | $PCP_AWK_PROG '
 /-r.-r.-r.-/	{ $3 = "USER"; $4 = "GROUP"; $6 = "Mmm"; $7 = "D"; $8 = "YYYY" }
 		{ print }'
 fi
 
 echo
-echo "Expect this to cleanup an old lock file ..." | tee -a $seq.full
+echo "Expect this to cleanup an old lock file ..." | tee -a $seq_full
 $sudo rm -f $LOGGING_DIR/$LOCALHOST/lock
 $sudo touch -t 199701020304.00 $LOGGING_DIR/$LOCALHOST/lock
+cd /var/tmp
 $sudo -u $PCP_USER -g $PCP_USER sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_check -l $tmp.log"
+cd $here
 for i in 1 2 3 4 5 6 7 8 9 10
 do
     if [ -f $tmp.log ]
     then
 	$sudo cat $tmp.log \
-	| tee -a $seq.full \
+	| tee -a $seq_full \
 	| _filter \
 	| $PCP_AWK_PROG '
 /-r.-r.-r.-/	{ $3 = "USER"; $4 = "GROUP" }

@@ -5,6 +5,8 @@ Released under the GNU GPLv2+, see the COPYING file
 in the source distribution for its full text.
 */
 
+#include "config.h" // IWYU pragma: keep
+
 #include "zfs/ZfsCompressedArcMeter.h"
 
 #include <stddef.h>
@@ -77,6 +79,7 @@ const MeterClass ZfsCompressedArcMeter_class = {
    },
    .updateValues = ZfsCompressedArcMeter_updateValues,
    .defaultMode = TEXT_METERMODE,
+   .supportedModes = METERMODE_DEFAULT_SUPPORTED,
    .maxItems = 1,
    .total = 100.0,
    .attributes = ZfsCompressedArcMeter_attributes,

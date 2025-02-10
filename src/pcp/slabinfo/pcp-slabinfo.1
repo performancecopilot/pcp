@@ -1,0 +1,108 @@
+'\"! tbl | mmdoc
+'\"macro stdmacro
+.\"
+.\" Man page for pcp-slabinfo
+.\" Copyright (c) 2023 Oracle and/or its affiliates.
+.\" DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.TH PCP-SLABINFO 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pcp-slabinfo\f1 \- Report statistics for kernel slab allocator
+.SH SYNOPSIS
+\f3pcp\f1
+[\f2pcp\ options\f1]
+\f3slabinfo\f1
+[\f3\-a\f1 \f2archive\f1]
+[\f3\-s\f1 \f2samples\f1]
+[\f3\-Z\f1 \f2timezone\f1]
+.SH DESCRIPTION
+The
+.B pcp-slabinfo
+command is used for viewing different stats related to slab.
+It helps users analyze useful information related to the slab allocator.
+The information includes the total number of objects that are currently
+active, allocated objects, pages per slab, etc.
+By default,
+.B pcp-slabinfo
+reports live data for the local host.
+.PP
+The statistics shown are as follows:
+.TS
+lfB  lfB
+l    lx.
+HEADER	DESCRIPTION
+_	_
+active_objs	T{
+.ad l
+The number of objects that are currently active (i.e., in use)
+T}
+num_objs	T{
+.ad l
+The total number of allocated objects (i.e. objects that are both in use and not in use).
+T}
+objsize	The size of objects in this slab, in bytes.
+objperslab	The number of objects stored in each slab.
+pagesperslab	The number of pages allocated for each slab
+active_slabs	The number of active slabs.
+num_slabs	The total number of slabs.
+.TE
+.SH OPTIONS
+.TP
+\fB\-a\fR \fIfile\fR, \fB\-\-archive\fR=\fIfile\fR
+Fetch /proc/slabinfo for a specified archive \fIfile\fR
+.TP
+\fB\-s\fR \fIcount\fR, \fB\-\-samples\fR=\fIcount\fR
+Get the slabinfo statistics for specified number of samples \fIcount\fR
+.TP
+\fB\-V\fR, \fB\-\-version\fR
+Display version number and exit.
+.TP
+\fB\-z\fR, \fB\-\-hostzone\fR
+Use the local timezone of the host that is the source of the
+performance metrics, as identified by either the
+.B \-h
+or the
+.B \-a
+options.
+The default is to use the timezone of the local host.
+.TP
+\fB\-Z\fR \fItimezone\fR, \fB\-\-timezone\fR=\fItimezone\fR
+Use
+.I timezone
+for the date and time.
+.I Timezone
+is in the format of the environment variable
+.B TZ
+as described in
+.BR environ (7).
+.TP
+\fB\-?\fR, \fB\-\-help\fR
+Display usage message and exit.
+.SH NOTES
+.B pcp-slabinfo
+collects information from
+.IR /proc/slabinfo .
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fP are used to parameterize the file and directory names used by PCP. On each installation, the file \fI/etc/pcp.conf\fP contains the local values for these variables. The \fB$PCP_CONF\fP variable may be used to specify an alternative configuration file, as described in \fBpcp.conf\fP(5).
+.PP
+For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pcp (1),
+.BR pmParseInterval (3),
+.BR environ (7).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ pagesperslab active_slabs active_objs objperslab num_slabs
+.\" +ok+ slabinfo {from pcp-slabinfo}
+.\" +ok+ num_objs objsize

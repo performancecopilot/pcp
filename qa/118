@@ -12,8 +12,19 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 
-trap "rm -f $tmp.*; exit" 0 1 2 3 15
 signal=$PCP_BINADM_DIR/pmsignal
+
+_cleanup()
+{
+    if [ -n "$KILL_PID" ]
+    then
+	$signal -s KILL $KILL_PID
+	KILL_PID=''
+    fi
+    rm -f $tmp.*
+}
+
+trap "_cleanup; exit" 0 1 2 3 15
 
 echo checking disk.all metrics against sum of disk.dev metrics
 
@@ -67,5 +78,6 @@ KILL_PID=$!
 pmie -T 20 $tmp.config >$tmp.out 2>$tmp.err
 
 $signal -s TERM $KILL_PID
-cat $tmp.out 
+KILL_PID=''
+cat $tmp.out
 cat $tmp.err | _show_pmie_exit

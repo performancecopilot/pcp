@@ -852,3 +852,27 @@ PCP_3.38 {
     pmAddDerivedText;
     __pmEquivInDom;
 } PCP_3.37;
+
+PCP_3.39 {
+    __pmCleanMapDir;
+} PCP_3.38;
+
+PCP_3.40 {
+    __pmLogChangeArchive;
+    __pmCheckDupLabels;
+} PCP_3.39;
+
+PCP_3.41 {
+    pmGetInDom_ctx;
+    __pmNotifyThrottle;
+    __pmResetNotifyThrottle;
+} PCP_3.40;
+
+PCP_3.42 {
+    __pmCheckAttribute;
+    __pmCtlDebug;
+} PCP_3.41;
+
+PCP_3.43 {
+    __pmDumpFetchFlags;
+} PCP_3.42;

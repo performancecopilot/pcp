@@ -748,7 +748,7 @@ Fri May  8 11:56:24 2015     965.000     364.000     998.000     780.000
 Fri May  8 11:56:25 2015     965.000     363.000     997.000     781.000
 Fri May  8 11:56:26 2015     965.000     364.000     998.000     780.000
 Fri May  8 11:56:27 2015     965.000     363.000     998.000     781.000
-pmrep: Corrupted record in a PCP archive log
+pmrep: Corrupted record in a PCP archive
 
 == testing replay of corrupted archive with interval 5s for max 10000 samples
                           k.p.c.user  k.p.c.user  k.p.c.user  k.p.c.user
@@ -903,7 +903,7 @@ Fri May  8 11:56:09 2015     965.000     363.400     997.800     780.600
 Fri May  8 11:56:14 2015     965.200     363.400     997.600     780.600
 Fri May  8 11:56:19 2015     965.000     363.600     997.600     780.400
 Fri May  8 11:56:24 2015     965.200     363.400     997.600     780.600
-pmrep: Corrupted record in a PCP archive log
+pmrep: Corrupted record in a PCP archive
 
 == testing replay of corrupted archive with interval 30s for max 10000 samples
                           k.p.c.user  k.p.c.user  k.p.c.user  k.p.c.user
@@ -934,7 +934,7 @@ Fri May  8 11:54:34 2015     961.600     589.233     972.633     593.800
 Fri May  8 11:55:04 2015     950.033     951.367     988.867     212.800
 Fri May  8 11:55:34 2015     953.433     817.133     990.833     342.433
 Fri May  8 11:56:04 2015     965.133     363.433     997.600     780.533
-pmrep: Corrupted record in a PCP archive log
+pmrep: Corrupted record in a PCP archive
 
 == testing replay of corrupted archive with interval 1m for max 10000 samples
                           k.p.c.user  k.p.c.user  k.p.c.user  k.p.c.user
@@ -953,7 +953,7 @@ Fri May  8 11:53:04 2015     708.567     518.800     977.150     530.800
 Fri May  8 11:54:04 2015     804.050     554.583     972.183     539.767
 Fri May  8 11:55:04 2015     955.817     770.300     980.750     403.300
 Fri May  8 11:56:04 2015     959.283     590.283     994.217     561.483
-pmrep: Corrupted record in a PCP archive log
+pmrep: Corrupted record in a PCP archive
 
 == testing replay of corrupted archive with interval 5m for max 10000 samples
                           k.p.c.user  k.p.c.user  k.p.c.user  k.p.c.user
@@ -962,7 +962,7 @@ pmrep: Corrupted record in a PCP archive log
 Fri May  8 11:44:04 2015         N/A         N/A         N/A         N/A
 Fri May  8 11:49:04 2015         N/A         N/A         N/A         N/A
 Fri May  8 11:54:04 2015         N/A         N/A         N/A         N/A
-pmrep: Corrupted record in a PCP archive log
+pmrep: Corrupted record in a PCP archive
 
 == testing replay of corrupted archive with interval 10m for max 10000 samples
                           k.p.c.user  k.p.c.user  k.p.c.user  k.p.c.user
@@ -970,5 +970,5 @@ pmrep: Corrupted record in a PCP archive log
                                 ms/s        ms/s        ms/s        ms/s
 Fri May  8 11:44:04 2015         N/A         N/A         N/A         N/A
 Fri May  8 11:54:04 2015         N/A         N/A         N/A         N/A
-pmrep: Corrupted record in a PCP archive log
+pmrep: Corrupted record in a PCP archive
 if unexpected output, see 1671.full

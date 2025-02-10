@@ -25,7 +25,6 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 _stop_auto_restart pmcd
 _stop_auto_restart pmlogger
@@ -69,18 +68,18 @@ _filter_pmlc()
 }
 
 # real QA test starts here
-echo "=== error cases ===" | tee -a $seq.full
+echo "=== error cases ===" | tee -a $seq_full
 rm -f $tmp.0 $tmp.meta $tmp.index $tmp.log
 pmlogger -c /dev/null -o -h localhost $tmp -l $tmp.log 2>&1 | _filter_usage
-[ -f $tmp.log ] && cat $tmp.log >>$seq.full
+[ -f $tmp.log ] && cat $tmp.log >>$seq_full
 
-echo | tee -a $seq.full
-echo "=== linger tests ===" | tee -a $seq.full
-echo "--- expect error from pmlc ---" | tee -a $seq.full
+echo | tee -a $seq_full
+echo "=== linger tests ===" | tee -a $seq_full
+echo "--- expect error from pmlc ---" | tee -a $seq_full
 rm -f $tmp.0 $tmp.meta $tmp.index $tmp.log
 pmlogger -c /dev/null -o -l $tmp.log $tmp &
 pid=$!
-echo "pid=$pid" >>$seq.full
+echo "pid=$pid" >>$seq_full
 cat <<End-of-File >$tmp.pmlc
 quit
 End-of-File
@@ -91,32 +90,33 @@ then
     echo "Error: pmlogger still alive!"
     kill -TERM $pid
 fi
-[ -f $tmp.log ] && cat $tmp.log >>$seq.full
+[ -f $tmp.log ] && cat $tmp.log >>$seq_full
 
-echo "--- expect success from pmlc ---" | tee -a $seq.full
+echo "--- expect success from pmlc ---" | tee -a $seq_full
 rm -f $tmp.0 $tmp.meta $tmp.index $tmp.log
-$sudo_local_ctx pmlogger -c /dev/null -L -o -l $tmp.log $tmp &
+pmlogger -c /dev/null -L -o -l $tmp.log $tmp &
 pid=$!
-echo "pid=$pid" >>$seq.full
+echo "pid=$pid" >>$seq_full
 sleep 1
-$sudo_local_ctx pmlc -e <$tmp.pmlc $pid 2>&1 | _filter_pmlc
+pmlc -e <$tmp.pmlc $pid 2>&1 | _filter_pmlc
 if ps -p $pid >/dev/null
 then
-    $sudo_local_ctx kill -TERM $pid
+    kill -TERM $pid
 else
     echo "Error: pmlogger has died!"
 fi
-[ -f $tmp.log ] && cat $tmp.log >>$seq.full
+[ -f $tmp.log ] && cat $tmp.log >>$seq_full
 
-echo | tee -a $seq.full
-echo "=== OK case ===" | tee -a $seq.full
+echo | tee -a $seq_full
+echo "=== OK case ===" | tee -a $seq_full
 hertz=`pmprobe -v kernel.all.hz | $PCP_AWK_PROG '{ print $3 }'`
 pagesz=`pmprobe -v hinv.pagesize | $PCP_AWK_PROG '{ print $3 }'`
 
 # ensure pmcd is unavailable while this test is running
-_service pcp stop | _filter_pcp_stop
-$sudo_local_ctx rm -f $tmp.0 $tmp.meta $tmp.index $tmp.log
-pmlogger -c $tmp.config -l $tmp.log -T 5 --local-PMDA -K add,30,$PCP_PMDAS_DIR/sample/pmda_sample.$DSO_SUFFIX,sample_init $tmp >$tmp.err 2>&1
+if ! _service pcp stop; then _exit 1; fi \
+| _filter_pcp_stop
+rm -f $tmp.0 $tmp.meta $tmp.index $tmp.log
+$sudo_local_ctx pmlogger -c $tmp.config -l $tmp.log -T 5 --local-PMDA -K add,30,$PCP_PMDAS_DIR/sample/pmda_sample.$DSO_SUFFIX,sample_init $tmp >$tmp.err 2>&1
 
 _filter_pmlogger_log <$tmp.log
 
@@ -143,8 +143,8 @@ pmdumplog $tmp \
 	| _filter_kernel \
 	| sed -e 5d -e 6d
 
-echo "Full log dump:" >> $seq.full
-pmdumplog $tmp >> $seq.full
+echo "Full log dump:" >> $seq_full
+pmdumplog $tmp >> $seq_full
 
 # success, all done
 status=0

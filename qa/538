@@ -62,7 +62,7 @@ echo
 echo "=== check data file has gone..."
 [ -f $PCP_TMP_DIR/pmie/$pid ] && echo "urk, data file is still there!"
 echo "=== check log file after real exit..."
-cp $tmp.out $seq.full
+cp $tmp.out $seq_full
 
 # $PCP_AWK_PROG filter filters out repeated messages from pmie - including the
 # odd one that occurs after or between the termination messages

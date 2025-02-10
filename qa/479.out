@@ -1,14 +1,17 @@
 QA output created by 479
 
 === bad #1 ===
+__pmLogLoadMeta(acp=ADDR) => name=TMP/bozo.client_v2)
 __pmLogLoadMeta: record len=49, type=DESC (1) @ offset=132
 __pmLogLoadMeta: PMID: 1.18.2 name: hinv.ncpu
 __pmLogLoadMeta: record len=54, type=DESC (1) @ offset=181
 __pmLogLoadMeta: PMID: 1.82.9 name: disk.all.total
 __pmLogLoadMeta: header read -> 8: expected: 8 or len=-194
-pmdumplog: Cannot open archive "TMP/bozo.client_v2": Corrupted record in a PCP archive log
+__pmLogLoadMeta => -12373, records desc:2 total:2
+pmdumplog: Cannot open archive "TMP/bozo.client_v2": Corrupted record in a PCP archive
 
 === bad #2 ===
+__pmLogLoadMeta(acp=ADDR) => name=TMP/bozo.client_v2)
 __pmLogLoadMeta: record len=49, type=DESC (1) @ offset=132
 __pmLogLoadMeta: PMID: 1.18.2 name: hinv.ncpu
 __pmLogLoadMeta: record len=54, type=DESC (1) @ offset=181
@@ -24,29 +27,37 @@ __pmLogLoadMeta: PMID: 1.18.3 name: kernel.all.load
 __pmLogLoadMeta: record len=80, type=INDOM_V2 (2) @ offset=454
 addindom( ..., 1.5, TIMESTAMP, type=INDOM_V2, numinst=3, alloc=0x0)
 __pmLogLoadMeta: trailer read -> 4 or len=-1: expected 80 @ offset=530
-pmdumplog: Cannot open archive "TMP/bozo.client_v2": Corrupted record in a PCP archive log
+__pmLogLoadMeta => -12373, records desc:5 indomv2:2 total:7
+pmdumplog: Cannot open archive "TMP/bozo.client_v2": Corrupted record in a PCP archive
 
 === size 100 ===
-pmdumplog: Cannot open archive "TMP/bozo.client_v2": Illegal label record at start of a PCP archive log file
+pmdumplog: Cannot open archive "TMP/bozo.client_v2": Illegal label record at start of a PCP archive file
 
 === size 132 ===
-pmdumplog: Cannot open archive "TMP/bozo.client_v2": Empty archive log file
+pmdumplog: Cannot open archive "TMP/bozo.client_v2": Empty archive file
 
 === size 136 ===
+__pmLogLoadMeta(acp=ADDR) => name=TMP/bozo.client_v2)
 __pmLogLoadMeta: no metrics found?
-pmdumplog: Cannot open archive "TMP/bozo.client_v2": Corrupted record in a PCP archive log
+__pmLogLoadMeta => -12373, records total:0
+pmdumplog: Cannot open archive "TMP/bozo.client_v2": Corrupted record in a PCP archive
 
 === size 160 ===
+__pmLogLoadMeta(acp=ADDR) => name=TMP/bozo.client_v2)
 __pmLogLoadMeta: record len=49, type=DESC (1) @ offset=132
 __pmLogLoadMeta: numnames read -> 0: expected: 4
-pmdumplog: Cannot open archive "TMP/bozo.client_v2": Corrupted record in a PCP archive log
+__pmLogLoadMeta => -12373, records desc:1 total:1
+pmdumplog: Cannot open archive "TMP/bozo.client_v2": Corrupted record in a PCP archive
 
 === size 164 ===
+__pmLogLoadMeta(acp=ADDR) => name=TMP/bozo.client_v2)
 __pmLogLoadMeta: record len=49, type=DESC (1) @ offset=132
 __pmLogLoadMeta: len name[0] read -> 0: expected: 4
-pmdumplog: Cannot open archive "TMP/bozo.client_v2": Corrupted record in a PCP archive log
+__pmLogLoadMeta => -12373, records desc:1 total:1
+pmdumplog: Cannot open archive "TMP/bozo.client_v2": Corrupted record in a PCP archive
 
 === size 407 ===
+__pmLogLoadMeta(acp=ADDR) => name=TMP/bozo.client_v2)
 __pmLogLoadMeta: record len=49, type=DESC (1) @ offset=132
 __pmLogLoadMeta: PMID: 1.18.2 name: hinv.ncpu
 __pmLogLoadMeta: record len=54, type=DESC (1) @ offset=181
@@ -59,9 +70,11 @@ __pmLogLoadMeta: record len=61, type=DESC (1) @ offset=338
 __pmLogLoadMeta: PMID: 1.28.9 name: kernel.percpu.cpu.sys
 __pmLogLoadMeta: record len=55, type=DESC (1) @ offset=399
 __pmLogLoadMeta: pmDesc read -> 0: expected: 20
-pmdumplog: Cannot open archive "TMP/bozo.client_v2": Corrupted record in a PCP archive log
+__pmLogLoadMeta => -12373, records desc:5 indomv2:1 total:6
+pmdumplog: Cannot open archive "TMP/bozo.client_v2": Corrupted record in a PCP archive
 
 === size 440 ===
+__pmLogLoadMeta(acp=ADDR) => name=TMP/bozo.client_v2)
 __pmLogLoadMeta: record len=49, type=DESC (1) @ offset=132
 __pmLogLoadMeta: PMID: 1.18.2 name: hinv.ncpu
 __pmLogLoadMeta: record len=54, type=DESC (1) @ offset=181
@@ -74,9 +87,11 @@ __pmLogLoadMeta: record len=61, type=DESC (1) @ offset=338
 __pmLogLoadMeta: PMID: 1.28.9 name: kernel.percpu.cpu.sys
 __pmLogLoadMeta: record len=55, type=DESC (1) @ offset=399
 __pmLogLoadMeta: name[0] read -> 5: expected: 15
-pmdumplog: Cannot open archive "TMP/bozo.client_v2": Corrupted record in a PCP archive log
+__pmLogLoadMeta => -12373, records desc:5 indomv2:1 total:6
+pmdumplog: Cannot open archive "TMP/bozo.client_v2": Corrupted record in a PCP archive
 
 === size 512 ===
+__pmLogLoadMeta(acp=ADDR) => name=TMP/bozo.client_v2)
 __pmLogLoadMeta: record len=49, type=DESC (1) @ offset=132
 __pmLogLoadMeta: PMID: 1.18.2 name: hinv.ncpu
 __pmLogLoadMeta: record len=54, type=DESC (1) @ offset=181
@@ -91,7 +106,8 @@ __pmLogLoadMeta: record len=55, type=DESC (1) @ offset=399
 __pmLogLoadMeta: PMID: 1.18.3 name: kernel.all.load
 __pmLogLoadMeta: record len=80, type=INDOM_V2 (2) @ offset=454
 __pmLogLoadInDom: indom read -> 50: expected: 68
-pmdumplog: Cannot open archive "TMP/bozo.client_v2": Corrupted record in a PCP archive log
+__pmLogLoadMeta => -12373, records desc:5 indomv2:2 total:7
+pmdumplog: Cannot open archive "TMP/bozo.client_v2": Corrupted record in a PCP archive
 
 torture_indom ... silence is golden
 
@@ -103,6 +119,7 @@ print DATE: active disks: dks1d1 dks3d1 dks3d4 dks4d2
 print DATE: active disks: dks3d1 dks3d4 dks4d2
 print DATE: active disks: dks4d2
 
+__pmLogLoadMeta(acp=ADDR) => name=archives/ace_v2)
 __pmLogLoadMeta: record len=46, type=DESC (1) @ offset=132
 __pmLogLoadMeta: PMID: 40.0.8 name: 40.0.8
 __pmLogLoadMeta: record len=46, type=DESC (1) @ offset=178
@@ -165,6 +182,8 @@ __pmLogLoadMeta: record len=59, type=DESC (1) @ offset=1861
 __pmLogLoadMeta: PMID: 1.10.7 name: kernel.all.cpu.idle
 __pmLogLoadMeta: record len=58, type=DESC (1) @ offset=1920
 __pmLogLoadMeta: PMID: 1.10.3 name: kernel.all.pswitch
+__pmLogLoadMeta => 0, records desc:28 indomv2:3 total:31
+__pmLogLoadMeta(acp=ADDR) => name=archives/ace_v2)
 __pmLogLoadMeta: record len=46, type=DESC (1) @ offset=132
 __pmLogLoadMeta: PMID: 40.0.8 name: 40.0.8
 __pmLogLoadMeta: record len=46, type=DESC (1) @ offset=178
@@ -227,7 +246,9 @@ __pmLogLoadMeta: record len=59, type=DESC (1) @ offset=1861
 __pmLogLoadMeta: PMID: 1.10.7 name: kernel.all.cpu.idle
 __pmLogLoadMeta: record len=58, type=DESC (1) @ offset=1920
 __pmLogLoadMeta: PMID: 1.10.3 name: kernel.all.pswitch
+__pmLogLoadMeta => 0, records desc:28 indomv2:3 total:31
 pmie: timezone set to local timezone from archives/ace_v2
+__pmLogLoadMeta(acp=ADDR) => name=archives/ace_v2)
 __pmLogLoadMeta: record len=46, type=DESC (1) @ offset=132
 __pmLogLoadMeta: PMID: 40.0.8 name: 40.0.8
 __pmLogLoadMeta: record len=46, type=DESC (1) @ offset=178
@@ -290,9 +311,11 @@ __pmLogLoadMeta: record len=59, type=DESC (1) @ offset=1861
 __pmLogLoadMeta: PMID: 1.10.7 name: kernel.all.cpu.idle
 __pmLogLoadMeta: record len=58, type=DESC (1) @ offset=1920
 __pmLogLoadMeta: PMID: 1.10.3 name: kernel.all.pswitch
+__pmLogLoadMeta => 0, records desc:28 indomv2:3 total:31
 [TIMESTAMP] pmie(PID) Error: metric disk.dev.total from archive archives/ace_v2 (host moomba) does not (currently) have instance "dks1d7"
 
 pmval archive meta data exercises ...
+__pmLogLoadMeta(acp=ADDR) => name=archives/ac15)
 __pmLogLoadMeta: record len=58, type=DESC (1) @ offset=132
 __pmLogLoadMeta: PMID: 2.3.3 name: pmcd.pmlogger.host
 __pmLogLoadMeta: record len=41, type=INDOM_V2 (2) @ offset=190
@@ -333,6 +356,7 @@ __pmLogLoadMeta: record len=48, type=DESC (1) @ offset=1158
 __pmLogLoadMeta: PMID: 60.0.11 name: swap.out
 __pmLogLoadMeta: record len=47, type=DESC (1) @ offset=1206
 __pmLogLoadMeta: PMID: 60.0.10 name: swap.in
+__pmLogLoadMeta => 0, records desc:18 indomv2:2 total:20
 Note: timezone set to local timezone of host "ac15" from archive
 
 metric:    kernel.all.load
@@ -349,9 +373,10 @@ interval:  5.00 sec
                  1 minute      5 minute     15 minute 
 08:48:34.436      31.16         31.19         31.16   
 08:48:39.436      31.16         31.19         31.16   
-08:48:44.436      31.16         31.19         31.16   
+08:48:44.436      31.13         31.18         31.16   
 08:48:49.436      31.13         31.18         31.16   
 
+__pmLogLoadMeta(acp=ADDR) => name=archives/ac15)
 __pmLogLoadMeta: record len=58, type=DESC (1) @ offset=132
 __pmLogLoadMeta: PMID: 2.3.3 name: pmcd.pmlogger.host
 __pmLogLoadMeta: record len=41, type=INDOM_V2 (2) @ offset=190
@@ -392,6 +417,7 @@ __pmLogLoadMeta: record len=48, type=DESC (1) @ offset=1158
 __pmLogLoadMeta: PMID: 60.0.11 name: swap.out
 __pmLogLoadMeta: record len=47, type=DESC (1) @ offset=1206
 __pmLogLoadMeta: PMID: 60.0.10 name: swap.in
+__pmLogLoadMeta => 0, records desc:18 indomv2:2 total:20
 Note: timezone set to local timezone of host "ac15" from archive
 
 metric:    kernel.all.load
@@ -408,7 +434,7 @@ interval:  5.00 sec
                  1 minute             5     15 minute 
 08:48:34.436      31.16         31.19         31.16   
 08:48:39.436      31.16         31.19         31.16   
-08:48:44.436      31.16         31.19         31.16   
+08:48:44.436      31.13         31.18         31.16   
 08:48:49.436      31.13         31.18         31.16   
 
 torture ...
@@ -434,6 +460,7 @@ pmNameInDomArchive(60.2, 1234567) -> Operation requires context with archive sou
 pmGetInDomArchive(60.123) -> Operation requires context with archive source of metrics
 pmLookupInDomArchive(60.123, foobar) -> Operation requires context with archive source of metrics
 pmNameInDomArchive(60.123, 1234567) -> Operation requires context with archive source of metrics
+__pmLogLoadMeta(acp=ADDR) => name=archives/ac15)
 __pmLogLoadMeta: record len=58, type=DESC (1) @ offset=132
 __pmLogLoadMeta: PMID: 2.3.3 name: pmcd.pmlogger.host
 __pmLogLoadMeta: record len=41, type=INDOM_V2 (2) @ offset=190
@@ -474,50 +501,51 @@ __pmLogLoadMeta: record len=48, type=DESC (1) @ offset=1158
 __pmLogLoadMeta: PMID: 60.0.11 name: swap.out
 __pmLogLoadMeta: record len=47, type=DESC (1) @ offset=1206
 __pmLogLoadMeta: PMID: 60.0.10 name: swap.in
+__pmLogLoadMeta => 0, records desc:18 indomv2:2 total:20
 
 === iteration 2 context 1 ===
 pmGetInDomArchive(PM_INDOM_NULL) -> Unknown or illegal instance domain identifier
 pmLookupInDomArchive(PM_INDOM_NULL, foobar) -> Unknown or illegal instance domain identifier
 pmNameInDomArchive(PM_INDOM_NULL, 1234567) -> Unknown or illegal instance domain identifier
 __pmLogSearchInDom( ..., PM_INDOM_NULL, TIMESTAMP)
-__pmLogGetInDom(PM_INDOM_NULL) -> Instance domain identifier not defined in the PCP archive log
+__pmLogGetInDom(PM_INDOM_NULL) -> Instance domain identifier not defined in the PCP archive
 __pmLogSearchInDom( ..., PM_INDOM_NULL, TIMESTAMP)
-__pmLogLookupInDom(PM_INDOM_NULL, foobar) -> Instance domain identifier not defined in the PCP archive log
+__pmLogLookupInDom(PM_INDOM_NULL, foobar) -> Instance domain identifier not defined in the PCP archive
 __pmLogSearchInDom( ..., PM_INDOM_NULL, TIMESTAMP)
-__pmLogNameInDom(PM_INDOM_NULL, 1234567) -> Instance domain identifier not defined in the PCP archive log
+__pmLogNameInDom(PM_INDOM_NULL, 1234567) -> Instance domain identifier not defined in the PCP archive
 __pmLogSearchInDom( ..., PM_INDOM_NULL, TIMESTAMP)
-__pmLogGetInDom(PM_INDOM_NULL) -> Instance domain identifier not defined in the PCP archive log
+__pmLogGetInDom(PM_INDOM_NULL) -> Instance domain identifier not defined in the PCP archive
 __pmLogSearchInDom( ..., PM_INDOM_NULL, TIMESTAMP)
-__pmLogLookupInDom(PM_INDOM_NULL, foobar) -> Instance domain identifier not defined in the PCP archive log
+__pmLogLookupInDom(PM_INDOM_NULL, foobar) -> Instance domain identifier not defined in the PCP archive
 __pmLogSearchInDom( ..., PM_INDOM_NULL, TIMESTAMP)
-__pmLogNameInDom(PM_INDOM_NULL, 1234567) -> Instance domain identifier not defined in the PCP archive log
+__pmLogNameInDom(PM_INDOM_NULL, 1234567) -> Instance domain identifier not defined in the PCP archive
 pmGetInDomArchive(60.2) -> 3
    [1] 1 minute
    [5] 5 minute
    [15] 15 minute
-pmLookupInDomArchive(60.2, foobar) -> Instance identifier not defined in the PCP archive log
+pmLookupInDomArchive(60.2, foobar) -> Instance identifier not defined in the PCP archive
 pmLookupInDomArchive(60.2, 1 minute) -> 1
 pmLookupInDomArchive(60.2, 1) -> 1
-pmNameInDomArchive(60.2, 1234567) -> Instance identifier not defined in the PCP archive log
+pmNameInDomArchive(60.2, 1234567) -> Instance identifier not defined in the PCP archive
 pmNameInDomArchive(60.2, 1) -> 1 minute
 __pmLogSearchInDom( ..., 60.2, TIMESTAMP)
 request @ 08:48:29.436806000 is too early for indom @ 08:48:34.052818000
-__pmLogGetInDom(60.2) -> Instance domain identifier not defined in the PCP archive log
+__pmLogGetInDom(60.2) -> Instance domain identifier not defined in the PCP archive
 __pmLogSearchInDom( ..., 60.2, TIMESTAMP)
 request @ 08:48:29.436806000 is too early for indom @ 08:48:34.052818000
-__pmLogLookupInDom(60.2, foobar) -> Instance domain identifier not defined in the PCP archive log
+__pmLogLookupInDom(60.2, foobar) -> Instance domain identifier not defined in the PCP archive
 __pmLogSearchInDom( ..., 60.2, TIMESTAMP)
 request @ 08:48:29.436806000 is too early for indom @ 08:48:34.052818000
-__pmLogLookupInDom(60.2, 1 minute) -> Instance domain identifier not defined in the PCP archive log
+__pmLogLookupInDom(60.2, 1 minute) -> Instance domain identifier not defined in the PCP archive
 __pmLogSearchInDom( ..., 60.2, TIMESTAMP)
 request @ 08:48:29.436806000 is too early for indom @ 08:48:34.052818000
-__pmLogLookupInDom(60.2, 1) -> Instance domain identifier not defined in the PCP archive log
+__pmLogLookupInDom(60.2, 1) -> Instance domain identifier not defined in the PCP archive
 __pmLogSearchInDom( ..., 60.2, TIMESTAMP)
 request @ 08:48:29.436806000 is too early for indom @ 08:48:34.052818000
-__pmLogNameInDom(60.2, 1234567) -> Instance domain identifier not defined in the PCP archive log
+__pmLogNameInDom(60.2, 1234567) -> Instance domain identifier not defined in the PCP archive
 __pmLogSearchInDom( ..., 60.2, TIMESTAMP)
 request @ 08:48:29.436806000 is too early for indom @ 08:48:34.052818000
-__pmLogNameInDom(60.2, 1) -> Instance domain identifier not defined in the PCP archive log
+__pmLogNameInDom(60.2, 1) -> Instance domain identifier not defined in the PCP archive
 __pmLogSearchInDom( ..., 60.2, TIMESTAMP)
 success for indom @ 08:48:34.052818000
 __pmLogGetInDom(60.2) -> 3
@@ -526,7 +554,7 @@ __pmLogGetInDom(60.2) -> 3
    [15] 15 minute
 __pmLogSearchInDom( ..., 60.2, TIMESTAMP)
 success for indom @ 08:48:34.052818000
-__pmLogLookupInDom(60.2, foobar) -> Instance identifier not defined in the PCP archive log
+__pmLogLookupInDom(60.2, foobar) -> Instance identifier not defined in the PCP archive
 __pmLogSearchInDom( ..., 60.2, TIMESTAMP)
 success for indom @ 08:48:34.052818000
 __pmLogLookupInDom(60.2, 1 minute) -> 1
@@ -535,37 +563,37 @@ success for indom @ 08:48:34.052818000
 __pmLogLookupInDom(60.2, 1) -> 1
 __pmLogSearchInDom( ..., 60.2, TIMESTAMP)
 success for indom @ 08:48:34.052818000
-__pmLogNameInDom(60.2, 1234567) -> Instance identifier not defined in the PCP archive log
+__pmLogNameInDom(60.2, 1234567) -> Instance identifier not defined in the PCP archive
 __pmLogSearchInDom( ..., 60.2, TIMESTAMP)
 success for indom @ 08:48:34.052818000
 __pmLogNameInDom(60.2, 1) -> 1 minute
-pmGetInDomArchive(60.123) -> Instance domain identifier not defined in the PCP archive log
-pmLookupInDomArchive(60.123, foobar) -> Instance domain identifier not defined in the PCP archive log
-pmLookupInDomArchive(60.123, 1 minute) -> Instance domain identifier not defined in the PCP archive log
-pmLookupInDomArchive(60.123, 1) -> Instance domain identifier not defined in the PCP archive log
-pmNameInDomArchive(60.123, 1234567) -> Instance domain identifier not defined in the PCP archive log
-pmNameInDomArchive(60.123, 1) -> Instance domain identifier not defined in the PCP archive log
+pmGetInDomArchive(60.123) -> Instance domain identifier not defined in the PCP archive
+pmLookupInDomArchive(60.123, foobar) -> Instance domain identifier not defined in the PCP archive
+pmLookupInDomArchive(60.123, 1 minute) -> Instance domain identifier not defined in the PCP archive
+pmLookupInDomArchive(60.123, 1) -> Instance domain identifier not defined in the PCP archive
+pmNameInDomArchive(60.123, 1234567) -> Instance domain identifier not defined in the PCP archive
+pmNameInDomArchive(60.123, 1) -> Instance domain identifier not defined in the PCP archive
 __pmLogSearchInDom( ..., 60.123, TIMESTAMP)
-__pmLogGetInDom(60.123) -> Instance domain identifier not defined in the PCP archive log
+__pmLogGetInDom(60.123) -> Instance domain identifier not defined in the PCP archive
 __pmLogSearchInDom( ..., 60.123, TIMESTAMP)
-__pmLogLookupInDom(60.123, foobar) -> Instance domain identifier not defined in the PCP archive log
+__pmLogLookupInDom(60.123, foobar) -> Instance domain identifier not defined in the PCP archive
 __pmLogSearchInDom( ..., 60.123, TIMESTAMP)
-__pmLogLookupInDom(60.123, 1 minute) -> Instance domain identifier not defined in the PCP archive log
+__pmLogLookupInDom(60.123, 1 minute) -> Instance domain identifier not defined in the PCP archive
 __pmLogSearchInDom( ..., 60.123, TIMESTAMP)
-__pmLogLookupInDom(60.123, 1) -> Instance domain identifier not defined in the PCP archive log
+__pmLogLookupInDom(60.123, 1) -> Instance domain identifier not defined in the PCP archive
 __pmLogSearchInDom( ..., 60.123, TIMESTAMP)
-__pmLogNameInDom(60.123, 1234567) -> Instance domain identifier not defined in the PCP archive log
+__pmLogNameInDom(60.123, 1234567) -> Instance domain identifier not defined in the PCP archive
 __pmLogSearchInDom( ..., 60.123, TIMESTAMP)
-__pmLogNameInDom(60.123, 1) -> Instance domain identifier not defined in the PCP archive log
+__pmLogNameInDom(60.123, 1) -> Instance domain identifier not defined in the PCP archive
 __pmLogSearchInDom( ..., 60.123, TIMESTAMP)
-__pmLogGetInDom(60.123) -> Instance domain identifier not defined in the PCP archive log
+__pmLogGetInDom(60.123) -> Instance domain identifier not defined in the PCP archive
 __pmLogSearchInDom( ..., 60.123, TIMESTAMP)
-__pmLogLookupInDom(60.123, foobar) -> Instance domain identifier not defined in the PCP archive log
+__pmLogLookupInDom(60.123, foobar) -> Instance domain identifier not defined in the PCP archive
 __pmLogSearchInDom( ..., 60.123, TIMESTAMP)
-__pmLogLookupInDom(60.123, 1 minute) -> Instance domain identifier not defined in the PCP archive log
+__pmLogLookupInDom(60.123, 1 minute) -> Instance domain identifier not defined in the PCP archive
 __pmLogSearchInDom( ..., 60.123, TIMESTAMP)
-__pmLogLookupInDom(60.123, 1) -> Instance domain identifier not defined in the PCP archive log
+__pmLogLookupInDom(60.123, 1) -> Instance domain identifier not defined in the PCP archive
 __pmLogSearchInDom( ..., 60.123, TIMESTAMP)
-__pmLogNameInDom(60.123, 1234567) -> Instance domain identifier not defined in the PCP archive log
+__pmLogNameInDom(60.123, 1234567) -> Instance domain identifier not defined in the PCP archive
 __pmLogSearchInDom( ..., 60.123, TIMESTAMP)
-__pmLogNameInDom(60.123, 1) -> Instance domain identifier not defined in the PCP archive log
+__pmLogNameInDom(60.123, 1) -> Instance domain identifier not defined in the PCP archive

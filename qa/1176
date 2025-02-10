@@ -13,6 +13,14 @@ echo "QA output created by $seq"
 _pmdabcc_check
 _bcc_check_ArgString || _notrun "bcc is broken (ArgString bug) on this platform"
 
+# the cachestat BCC module uses kprobes that might attach to kernel symbols
+# that are not present ... add to the list below as required
+#
+for symbol in account_page_dirtied
+do
+    grep " T $symbol\$" /proc/kallsyms >/dev/null || _notrun "kernel does not contain required $symbol symbol"
+done
+
 # Only ext4 seems to be working currently:
 # https://github.com/iovisor/bcc/issues/1993
 fstype=$(df --output=fstype $(dirname $tmp) | grep -v Type)
@@ -23,7 +31,6 @@ out_file=$tmp.tmpfile
 
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
-$sudo rm -rf $tmp.* $seq.full
 
 cat <<EOF >$tmp.conf
 # Installed by PCP QA test $seq on `date`
@@ -48,14 +55,14 @@ _pmdabcc_wait_for_metric
 # Generate write activity the BCC cachestat module
 dd if=/dev/zero of=${out_file} bs=${write_size} count=1 conv=fsync 2>/dev/null
 echo "=== report metric values for writes ==="
-pminfo -dfmtT bcc.mem.vmstat.dirtied 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bcc.mem.vmstat.dirtied 2>&1 | tee -a $seq_full \
 | _value_filter_nonzero
 
 # Generate read activity the BCC cachestat module
 dd if=${out_file} of=/dev/null bs=${write_size} count=1 2>/dev/null
 
 echo "=== report metric values for cached reads ==="
-pminfo -dfmtT bcc.mem.vmstat.hits 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bcc.mem.vmstat.hits 2>&1 | tee -a $seq_full \
 | _value_filter_nonzero
 
 _pmdabcc_remove

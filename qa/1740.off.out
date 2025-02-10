@@ -1,0 +1,241 @@
+QA output created by 1740
+
+=== initially disabled ===
+
+
+acct.control.state
+    value 0
+
+acct.control.enable_acct
+    value 0
+
+acct.psinfo.btime
+No value(s) available!
+
+acct.psinfo.etime
+No value(s) available!
+
+acct.psinfo.exitcode
+No value(s) available!
+
+acct.psinfo.io
+No value(s) available!
+
+acct.psinfo.majflt
+No value(s) available!
+
+acct.psinfo.mem
+No value(s) available!
+
+acct.psinfo.minflt
+No value(s) available!
+
+acct.psinfo.pid
+No value(s) available!
+
+acct.psinfo.ppid
+No value(s) available!
+
+acct.psinfo.rw
+No value(s) available!
+
+acct.psinfo.stime
+No value(s) available!
+
+acct.psinfo.swaps
+No value(s) available!
+
+acct.psinfo.tty
+No value(s) available!
+
+acct.psinfo.ttyname
+No value(s) available!
+
+acct.psinfo.utime
+No value(s) available!
+
+acct.flag.core
+No value(s) available!
+
+acct.flag.fork
+No value(s) available!
+
+acct.flag.su
+No value(s) available!
+
+acct.flag.xsig
+No value(s) available!
+
+acct.id.gid
+No value(s) available!
+
+acct.id.gid_nm
+No value(s) available!
+
+acct.id.uid
+No value(s) available!
+
+acct.id.uid_nm
+No value(s) available!
+
+=== enable accounting as non-root ===
+
+acct.control.enable_acct: new value="1" pmStore: No permission to perform requested operation
+
+=== enable accounting as root ===
+
+acct.control.enable_acct old value=0 new value=1
+
+acct.control.state
+    value 2
+
+acct.control.enable_acct
+    value 1
+
+acct.psinfo.btime
+    inst [N or INSTNAME] value VALUE
+
+acct.psinfo.etime
+    inst [N or INSTNAME] value VALUE
+
+acct.psinfo.exitcode
+    inst [N or INSTNAME] value VALUE
+
+acct.psinfo.io
+    inst [N or INSTNAME] value VALUE
+
+acct.psinfo.majflt
+    inst [N or INSTNAME] value VALUE
+
+acct.psinfo.mem
+    inst [N or INSTNAME] value VALUE
+
+acct.psinfo.minflt
+    inst [N or INSTNAME] value VALUE
+
+acct.psinfo.pid
+    inst [N or INSTNAME] value VALUE
+
+acct.psinfo.ppid
+    inst [N or INSTNAME] value VALUE
+
+acct.psinfo.rw
+    inst [N or INSTNAME] value VALUE
+
+acct.psinfo.stime
+    inst [N or INSTNAME] value VALUE
+
+acct.psinfo.swaps
+    inst [N or INSTNAME] value VALUE
+
+acct.psinfo.tty
+    inst [N or INSTNAME] value VALUE
+
+acct.psinfo.ttyname
+    inst [N or INSTNAME] value VALUE
+
+acct.psinfo.utime
+    inst [N or INSTNAME] value VALUE
+
+acct.flag.core
+    inst [N or INSTNAME] value VALUE
+
+acct.flag.fork
+    inst [N or INSTNAME] value VALUE
+
+acct.flag.su
+    inst [N or INSTNAME] value VALUE
+
+acct.flag.xsig
+    inst [N or INSTNAME] value VALUE
+
+acct.id.gid
+    inst [N or INSTNAME] value VALUE
+
+acct.id.gid_nm
+    inst [N or INSTNAME] value VALUE
+
+acct.id.uid
+    inst [N or INSTNAME] value VALUE
+
+acct.id.uid_nm
+    inst [N or INSTNAME] value VALUE
+
+=== disable accounting ===
+
+acct.control.enable_acct old value=1 new value=0
+
+acct.control.state
+    value 0
+
+acct.control.enable_acct
+    value 0
+
+acct.psinfo.btime
+No value(s) available!
+
+acct.psinfo.etime
+No value(s) available!
+
+acct.psinfo.exitcode
+No value(s) available!
+
+acct.psinfo.io
+No value(s) available!
+
+acct.psinfo.majflt
+No value(s) available!
+
+acct.psinfo.mem
+No value(s) available!
+
+acct.psinfo.minflt
+No value(s) available!
+
+acct.psinfo.pid
+No value(s) available!
+
+acct.psinfo.ppid
+No value(s) available!
+
+acct.psinfo.rw
+No value(s) available!
+
+acct.psinfo.stime
+No value(s) available!
+
+acct.psinfo.swaps
+No value(s) available!
+
+acct.psinfo.tty
+No value(s) available!
+
+acct.psinfo.ttyname
+No value(s) available!
+
+acct.psinfo.utime
+No value(s) available!
+
+acct.flag.core
+No value(s) available!
+
+acct.flag.fork
+No value(s) available!
+
+acct.flag.su
+No value(s) available!
+
+acct.flag.xsig
+No value(s) available!
+
+acct.id.gid
+No value(s) available!
+
+acct.id.gid_nm
+No value(s) available!
+
+acct.id.uid
+No value(s) available!
+
+acct.id.uid_nm
+No value(s) available!

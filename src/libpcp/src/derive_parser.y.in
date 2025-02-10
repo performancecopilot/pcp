@@ -40,6 +40,7 @@
 #ifdef HAVE_STRINGS_H
 #include <strings.h>
 #endif
+#include "derive.h"
 
 #define YYDEBUG 1
 
@@ -108,8 +109,21 @@ static const char name_str[]	 = "Metric name";
 static const char unexpected_str[]	 = "Unexpected";
 static const char initial_str[]	 = "Unexpected initial";
 
+/*
+ * bit-field flags for speclist in mkconst() and novalue() to
+ * indicate which parameters have been explicitly set ... accumulated in
+ * specflags and then stored in flags in the associated expr node
+ */
+#define META_PMID	1	/* not used, here for completeness */
+#define META_TYPE	2
+#define META_INDOM	4	/* not used, here for completeness */
+#define META_SEM	8
+#define META_UNITS	16
+
 static const pmUnits noUnits;
-static pmDesc specdesc;
+static pmDesc specdesc;		/* used for speclist */
+static int specflags;		/* ditto */
+static node_t *specmeta;	/* metric name from meta=... */
 
 /*
  * Handle one component of the ':' separated derived config spec.
@@ -376,7 +390,8 @@ free_expr(node_t *np)
 	    }
 	    free(np->data.info->ivlist);
 	}
-	if (np->data.info->last_ivlist != NULL) {
+	if (np->data.info->last_ivlist != NULL &&
+	    np->type != N_INTEGER && np->type != N_DOUBLE) {
 	    if (np->desc.type == PM_TYPE_STRING) {
 		int	j;
 		for (j = 0; j < np->data.info->last_numval; j++) {
@@ -415,131 +430,6 @@ free_expr_ctx(node_t *np)
      */
     np->left = np->right = NULL;
     free_expr(np);
-}
-
-/*
- * Bind an expression tree in a specific context.
- * For registered metrics this involves copy the expression tree
- * (the intial ctxp->expr points into registered.mlist[n].expr),
- * but for per-context metrics ctxp->expr is already mostly set
- * up.
- * Metadata and the data.info block need to be initialized.
- */
-static node_t *
-bind_expr(__pmContext *ctxp, int n, node_t *np, int lookup_err_ok, int is_global)
-{
-    node_t	*new;
-
-    PM_ASSERT_IS_LOCKED(registered.mutex);
-    assert(np != NULL);
-
-    if (is_global)
-	new = newnode(np->type);
-    else
-	new = np;
-
-    if (np->left != NULL) {
-	/*
-	 * defined(name) is special ... 
-	 */
-	if (np->type == N_DEFINED)
-	    new->left = bind_expr(ctxp, n, np->left, 1, is_global);
-	else
-	    new->left = bind_expr(ctxp, n, np->left, 0, is_global);
-	if (new->left == NULL) {
-	    /* error, reported deeper in the recursion, clean up */
-	    if (is_global)
-		free_expr(new);
-	    return(NULL);
-	}
-    }
-    if (np->right != NULL) {
-	if ((new->right = bind_expr(ctxp, n, np->right, 0, is_global)) == NULL) {
-	    /* error, reported deeper in the recursion, clean up */
-	    if (is_global)
-		free_expr(new);
-	    return(NULL);
-	}
-    }
-    if (is_global && np->type == N_SCALE) {
-	new->data.info = NULL;
-    }
-    if (np->type == N_PATTERN) {
-	if (is_global) {
-	    if ((new->data.pattern = (pattern_t *)malloc(sizeof(pattern_t))) == NULL) {
-		PM_UNLOCK(registered.mutex);
-		pmNoMem("bind_expr: pattern block", sizeof(pattern_t), PM_FATAL_ERR);
-		/*NOTREACHED*/
-	    }
-	    new->data.pattern->ftype = np->data.pattern->ftype;
-	    if (np->data.pattern->ftype == F_REGEX) {
-		new->data.pattern->regex = np->data.pattern->regex;
-		new->data.pattern->invert = np->data.pattern->invert;
-	      __pmHashInit(&new->data.pattern->hash);
-		new->data.pattern->used = 0;
-	    }
-	    else {
-		/* F_EXACT */
-		new->data.pattern->inst = np->data.pattern->inst;
-	    }
-	}
-    }
-    else {
-	/*
-	 * need to allocate the data.info block ... this is not done
-	 * in the parser for any of the nodes
-	 */
-	if ((new->data.info = (info_t *)calloc(1, sizeof(info_t))) == NULL) {
-	    PM_UNLOCK(registered.mutex);
-	    pmNoMem("bind_expr: info block", sizeof(info_t), PM_FATAL_ERR);
-	    /*NOTREACHED*/
-	}
-	new->data.info->pmid = PM_ID_NULL;
-	new->data.info->mul_scale = new->data.info->div_scale = 1;
-	new->data.info->time_scale = -1; /* one-trip initialization if needed */
-    }
-
-    if (is_global) {
-	new->value = np->value;		/* value[] does not change */
-	new->save_last = np->save_last;
-    }
-
-    if (new->type == N_NAME) {
-	int	sts;
-	/* get pmID and pmDesc from context */
-	sts = pmLookupName_ctx(ctxp, PM_LOCKED, 1, (const char **)&new->value, &new->data.info->pmid);
-	if (sts < 0) {
-	    if (lookup_err_ok) {
-		/* derived(x) -> false case */
-		new->data.info->pmid = PM_ID_NULL;
-		return new;
-	    }
-	    if (pmDebugOptions.derive) {
-		char	errmsg[PM_MAXERRMSGLEN];
-		fprintf(stderr, "bind_expr: error: derived metric %s: operand: %s: %s\n", registered.mlist[n].name, new->value, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
-	    }
-	    if (is_global)
-		free_expr(new);
-	    return NULL;
-	}
-	sts = pmLookupDesc_ctx(ctxp, PM_LOCKED, new->data.info->pmid, &new->desc);
-	if (sts < 0) {
-	    if (pmDebugOptions.derive) {
-		char	strbuf[20];
-		char	errmsg[PM_MAXERRMSGLEN];
-		fprintf(stderr, "bind_expr: error: derived metric %s: operand (%s [%s]): %s\n", registered.mlist[n].name, new->value, pmIDStr_r(new->data.info->pmid, strbuf, sizeof(strbuf)), pmErrStr_r(sts, errmsg, sizeof(errmsg)));
-	    }
-	    if (is_global)
-		free_expr(new);
-	    return NULL;
-	}
-    }
-    else if (new->type == N_INTEGER || new->type == N_DOUBLE || new->type == N_SCALE) {
-	if (is_global)
-	    new->desc = np->desc;
-    }
-
-    return new;
 }
 
 static void
@@ -632,6 +522,9 @@ report_sem_error(char *name, node_t *np)
 	case N_FILTERINST:
 	    pmprintf("%s ", __dmnode_type_str(np->type));
 	    break;
+	case N_NAME:
+	    pmprintf("operand %s", np->value);
+	    break;
 	default:
 	    /* should never get here ... */
 	    pmprintf("botch @ node type #%d?", np->type);
@@ -640,6 +533,269 @@ report_sem_error(char *name, node_t *np)
     pmprintf(": %s\n", PM_TPD(derive_errmsg));
     pmflush();
     PM_TPD(derive_errmsg) = NULL;
+}
+
+static pmDesc
+bind_desc(node_t *np, pmDesc param)
+{
+    pmDesc	temp;
+    char	strbuf[60];
+
+    if (np->left == NULL)
+	return param;
+    temp = np->left->desc;
+    if (pmDebugOptions.derive && pmDebugOptions.appl1 && pmDebugOptions.desperate) {
+	fprintf(stderr, "bind_desc: meta: type=%s", pmTypeStr_r(temp.type, strbuf, sizeof(strbuf)));
+	fprintf(stderr, ",indom=%s", pmInDomStr_r(temp.indom, strbuf, sizeof(strbuf)));
+	fprintf(stderr, ",sem=%s", pmSemStr_r(temp.sem, strbuf, sizeof(strbuf)));
+	fprintf(stderr, ",units=%s\n", pmUnitsStr_r(&temp.units, strbuf, sizeof(strbuf)));
+	if (np->flags != 0) {
+	    fprintf(stderr, "           params:");
+	    if (np->flags & META_TYPE)
+		fprintf(stderr, " type=%s", pmTypeStr_r(param.type, strbuf, sizeof(strbuf)));
+	    if (np->flags & META_INDOM)
+		fprintf(stderr, " indom=%s", pmInDomStr_r(param.indom, strbuf, sizeof(strbuf)));
+	    if (np->flags & META_SEM)
+		fprintf(stderr, " sem=%s", pmSemStr_r(param.sem, strbuf, sizeof(strbuf)));
+	    if (np->flags & META_UNITS)
+		fprintf(stderr, " units=%s", pmUnitsStr_r(&param.units, strbuf, sizeof(strbuf)));
+	    fprintf(stderr, " flags=%x", np->flags);
+	    fputc('\n', stderr);
+	}
+    }
+
+    if (np->flags & META_PMID)
+	temp.pmid = param.pmid;
+    if (np->flags & META_TYPE)
+	temp.type = param.type;
+    if (np->flags & META_INDOM)
+	temp.indom = param.indom;
+    if (np->flags & META_SEM)
+	temp.sem = param.sem;
+    if (np->flags & META_UNITS)
+	temp.units = param.units;
+
+    if (pmDebugOptions.derive && pmDebugOptions.appl1 && pmDebugOptions.desperate && np->flags != 0) {
+	fprintf(stderr, "           result: type=%s", pmTypeStr_r(temp.type, strbuf, sizeof(strbuf)));
+	fprintf(stderr, ",indom=%s", pmInDomStr_r(temp.indom, strbuf, sizeof(strbuf)));
+	fprintf(stderr, ",sem=%s", pmSemStr_r(temp.sem, strbuf, sizeof(strbuf)));
+	fprintf(stderr, ",units=%s\n", pmUnitsStr_r(&temp.units, strbuf, sizeof(strbuf)));
+    }
+
+    return temp;
+}
+
+/*
+ * Bind an expression tree in a specific context.
+ * For registered metrics this involves copy the expression tree
+ * (the intial ctxp->expr points into registered.mlist[n].expr),
+ * but for per-context metrics ctxp->expr is already mostly set
+ * up.
+ * Metadata and the data.info block need to be initialized.
+ */
+static node_t *
+bind_expr(__pmContext *ctxp, int n, node_t *np, node_t *parent, int lookup_mode, int is_global, int async)
+{
+    node_t	*new;
+    int		next_lookup = lookup_mode;
+    ctl_t		*cp = NULL;	/* pander to gcc */
+
+    PM_ASSERT_IS_LOCKED(registered.mutex);
+    assert(np != NULL);
+
+    if (is_global)
+	new = newnode(np->type);
+    else {
+	new = np;
+	cp = (ctl_t *)ctxp->c_dm;
+    }
+
+    if (np->type == N_QUEST) {
+	/*
+	 * <guard> ? <left> : <right> is special because any subtree
+	 * below N_QUEST could validly contain references to metrics that
+	 * do not exist, so set use QUEST_BIND_LAZY when binding these ones
+	 */
+	next_lookup = QUEST_BIND_LAZY;
+    }
+    else if (np->type == N_DEFINED) {
+	/*
+	 * defined(x) ... failing to lookup x is sort of expected
+	 */
+	next_lookup = QUEST_BIND_LAZY;
+    }
+    else {
+	/* else follow the NOW|LAZY binding we were called with */
+	next_lookup = lookup_mode;
+    }
+
+    if (np->left != NULL) {
+	new->left = bind_expr(ctxp, n, np->left, np, next_lookup, is_global, async);
+	if (new->left == NULL) {
+	    /* error, reported deeper in the recursion, clean up */
+	    if (is_global)
+		free_expr(new);
+	    return(NULL);
+	}
+    }
+    if (np->right != NULL) {
+	if ((new->right = bind_expr(ctxp, n, np->right, np, next_lookup, is_global, async)) == NULL) {
+	    /* error, reported deeper in the recursion, clean up */
+	    if (is_global)
+		free_expr(new);
+	    return(NULL);
+	}
+    }
+    if (is_global && np->type == N_SCALE) {
+	new->data.info = NULL;
+    }
+    if (np->type == N_PATTERN) {
+	if (is_global) {
+	    if ((new->data.pattern = (pattern_t *)malloc(sizeof(pattern_t))) == NULL) {
+		PM_UNLOCK(registered.mutex);
+		pmNoMem("bind_expr: pattern block", sizeof(pattern_t), PM_FATAL_ERR);
+		/*NOTREACHED*/
+	    }
+	    new->data.pattern->ftype = np->data.pattern->ftype;
+	    if (np->data.pattern->ftype == F_REGEX) {
+		new->data.pattern->regex = np->data.pattern->regex;
+		new->data.pattern->invert = np->data.pattern->invert;
+	      __pmHashInit(&new->data.pattern->hash);
+		new->data.pattern->used = 0;
+	    }
+	    else {
+		/* F_EXACT */
+		new->data.pattern->inst = np->data.pattern->inst;
+	    }
+	}
+    }
+    else {
+	/*
+	 * need to allocate the data.info block ... this is not done
+	 * in the parser for any of the nodes
+	 */
+	if ((new->data.info = (info_t *)calloc(1, sizeof(info_t))) == NULL) {
+	    PM_UNLOCK(registered.mutex);
+	    pmNoMem("bind_expr: info block", sizeof(info_t), PM_FATAL_ERR);
+	    /*NOTREACHED*/
+	}
+	new->data.info->pmid = PM_ID_NULL;
+	new->data.info->mul_scale = new->data.info->div_scale = 1;
+	new->data.info->time_scale = -1; /* one-trip initialization if needed */
+    }
+
+    if (is_global) {
+	new->value = np->value;		/* value[] does not change */
+	new->save_last = np->save_last;
+    }
+    new->flags = np->flags;
+
+    if (new->type == N_NAME) {
+	int	sts;
+	/* get pmID and pmDesc from context */
+	sts = pmLookupName_ctx(ctxp, PM_LOCKED, 1, (const char **)&new->value, &new->data.info->pmid);
+	if (sts < 0) {
+	    if (lookup_mode == QUEST_BIND_LAZY) {
+		/*
+		 * undefined metrics maybe OK here ...
+		 * set pmid for later testing
+		 */
+		new->desc.pmid = new->data.info->pmid = PM_ID_NULL;
+		return new;
+	    }
+	    if (async) {
+		/*
+		 * We used to unconditionally report the error here,
+		 * but it is better to be silent because the offending
+		 * metric may never be accessed.
+		 * Using -Dderive will expose the error message if needed.
+		 */
+		if (pmDebugOptions.derive) {
+		    char	errmsg[PM_MAXERRMSGLEN];
+		    if (is_global)
+			pmprintf("bind_expr: error: global derived metric %s: operand: %s: %s\n", registered.mlist[n].name, new->value, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+		    else
+			pmprintf("bind_expr: error: per-context derived metric %s: operand: %s: %s\n", cp->mlist[n].name, new->value, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+		    pmflush();
+		}
+	    }
+	    else {
+		PM_TPD(derive_errmsg) = "Unknown operand metric";
+	    }
+	    if (is_global)
+		free_expr(new);
+	    return NULL;
+	}
+
+	/*
+	 * nested definitions are not allowed ... if this N_NAME node
+	 * has a derived metric PMID, you lose ... but there are
+	 * exceptions:
+	 * - N_NOVALUE - this comes from novalue(meta=metric)
+	 * - N_INTEGER or N_DOUBLE - this comes from mkconst(...,meta=metric)
+	 * ... in both cases the metadata is all we need, and this is
+	 * available provided metric is already defined, and we never
+	 * evaluate these nodes, so there is no nested evaluation
+	 */
+	if (IS_DERIVED(new->data.info->pmid) &&
+	    parent != NULL && parent->type != N_NOVALUE &&
+	    parent->type != N_INTEGER && parent->type != N_DOUBLE) {
+		PM_TPD(derive_errmsg) = "Illegal nested derived metric";
+		if (async) {
+		    if (is_global)
+			report_sem_error(registered.mlist[n].name, np);
+		    else
+			report_sem_error(cp->mlist[n].name, np);
+		}
+	    if (is_global)
+		free_expr(new);
+	    return NULL;
+	}
+
+
+	sts = pmLookupDesc_ctx(ctxp, PM_LOCKED, new->data.info->pmid, &new->desc);
+	if (sts < 0) {
+	    if (async) {
+		/*
+		 * We used to unconditionally report the error here,
+		 * but it is better to be silent because the offending
+		 * metric may never be accessed.
+		 * Using -Dderive will expose the error message if needed.
+		 */
+		if (pmDebugOptions.derive) {
+		    char	strbuf[20];
+		    char	errmsg[PM_MAXERRMSGLEN];
+		    if (is_global)
+			pmprintf("bind_expr: error: global derived metric %s: operand (%s [%s]): %s\n", registered.mlist[n].name, new->value, pmIDStr_r(new->data.info->pmid, strbuf, sizeof(strbuf)), pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+		    else
+			pmprintf("bind_expr: error: per-context derived metric %s: operand (%s [%s]): %s\n", cp->mlist[n].name, new->value, pmIDStr_r(new->data.info->pmid, strbuf, sizeof(strbuf)), pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+		    pmflush();
+		}
+	    }
+	    else {
+		 PM_TPD(derive_errmsg) = "Metadata for operand metric not available";
+	    }
+	    if (is_global)
+		free_expr(new);
+	    return NULL;
+	}
+    }
+    else if (new->type == N_SCALE) {
+	if (is_global)
+	    new->desc = np->desc;
+    }
+    else if (new->type == N_INTEGER || new->type == N_DOUBLE) {
+	if (is_global)
+	    new->desc = bind_desc(new, np->desc);
+    }
+    else if (new->type == N_NOVALUE) {
+	if (is_global) {
+	    new->desc = bind_desc(new, np->desc);
+	    new->data.info->numval = 0;
+	}
+    }
+
+    return new;
 }
 
 /* type promotion */
@@ -886,7 +1042,7 @@ map_desc(dm_t *dmp, node_t *np, int async)
 	    PM_TPD(derive_errmsg) = "Incompatible dimensions";
 	    goto bad;
 	}
-	np->desc.units = np->right->desc.units;		/* struct assignment */
+	np->desc.units = np->right->desc.units;		/* struct copy */
 	return 0;
     }
     else if (np->type == N_PATTERN) {
@@ -1096,7 +1252,7 @@ map_desc(dm_t *dmp, node_t *np, int async)
 	     np->type == N_GEQ || np->type == N_GT || np->type == N_NEQ ||
 	     np->type == N_AND || np->type == N_OR || np->type == N_NOT) {
 	/* no units for relational or boolean expressions */
-	np->desc.units = noUnits;	/* struct assignment */
+	np->desc.units = noUnits;	/* struct copy */
     }
 
     /*
@@ -1123,12 +1279,93 @@ bad:
 }
 
 /*
+ * recursive descent from a COLON node to check if all operand metrics
+ * are defined (needed after QUEST_BIND_LAZY has been used) ... returns
+ * the node_t of the first metric that is not defined, else NULL
+ *
+ * be careful with nested COLON nodes, need to honour their lazy
+ * binding as well
+ *
+ * hand is "left" or "right" of the initial COLON node for error
+ * messages (for nested COLON expressions we may find the missing
+ * metric down the hand-><left-or-right>-><left-or-right> branches
+ * so there is some ambiguity here that cannot be avoided
+ */
+static node_t *
+check_metrics(node_t *np, char *hand)
+{
+    node_t	*bad = NULL;
+
+    assert(np != NULL);
+    if (np->left != NULL) {
+	if (np->type != N_COLON || np->data.info->bind & QUEST_BIND_LEFT)
+	    bad = check_metrics(np->left, hand);
+    }
+    if (bad != NULL)
+	return bad;
+    if (np->type == N_NAME && np->desc.pmid == PM_ID_NULL) {
+	if (pmDebugOptions.derive && pmDebugOptions.appl1) {
+	    fprintf(stderr, "Semantic error: ternary op: metric \"%s\" not found for <%s-expr>\n", np->value, hand);
+	}
+	PM_TPD(derive_errmsg) = "Unknown metric for ternary expression";
+	return np;
+    }
+    if (np->right != NULL) {
+	if (np->type != N_COLON || np->data.info->bind & QUEST_BIND_RIGHT)
+	    bad = check_metrics(np->right, hand);
+    }
+
+    return bad;
+}
+
+/*
+ * evaluate a ? guard @ bind-time (not eval-time) ... if it
+ * is a constant expression we can return 1 (true) or 0 (false)
+ * else -1 (unknown)
+ */
+static int
+eval_guard(node_t *np)
+{
+    int		sts;
+
+    if (np->type == N_DEFINED) {
+	sts = np->data.info->ivlist[0].value.ul;
+    }
+    else if (np->type == N_INTEGER) {
+	if (atoi(np->value) == 0)
+	    sts = 0;
+	else
+	    sts = 1;
+    }
+    else if (np->type == N_NOT) {
+	sts = eval_guard(np->left);
+	if (sts != -1)
+	    sts = 1 - sts;
+    }
+    else if (np->type == N_OR) {
+	sts = eval_guard(np->left);
+	if (sts == 0)
+	    sts = eval_guard(np->right);
+    }
+    else if (np->type == N_AND) {
+	sts = eval_guard(np->left);
+	if (sts == 1)
+	    sts = eval_guard(np->right);
+    }
+    else
+	sts = -1;
+
+    return sts;
+}
+
+/*
  * see __dmbind() for semantics of async parameter
  */
 static int
-check_expr(dm_t *dmp, node_t *np, int async)
+check_expr(dm_t *dmp, node_t *np, node_t *parent, int async)
 {
     int		sts;
+    node_t	*bad;
 
     assert(np != NULL);
 
@@ -1169,27 +1406,122 @@ check_expr(dm_t *dmp, node_t *np, int async)
 	np->left = NULL;
 	return 0;
     }
+    else if (np->type == N_NOVALUE) {
+	return 0;
+    }
 
     /* otherwise, np->left is never NULL ... */
     assert(np->left != NULL);
 
-    if ((sts = check_expr(dmp, np->left, async)) < 0)
-	return sts;
+    if (np->type == N_COLON) {
+	/*
+	 * <guard> ? <left-expr> : <right-expr>
+	 *
+	 * the default strategy is to ensure pmDesc for the <left-expr>
+	 * and the <right-expr> are the same, and choose pmDesc from
+	 * <left-expr> ... then for the indom start assuming they are
+	 * the same, may need to adjust if one <expr> has an indom and
+	 * the other does not (see below)
+	 *
+	 * but first, some special case exceptions to limit the
+	 * binding and checking ...
+	 */
+	np->data.info->bind = QUEST_BIND_BOTH;
+	if (parent->type == N_QUEST) {
+	    /*
+	     * special handling for <guard> ? <left> : <right>
+	     * depending on the result of <guard> choose do lazy
+	     * checking and binding of only <left> (true) or only
+	     * <right> (false) or both <left> and <right> (unknown)
+	     * Note: evaluation of <guard> is static, not dynamic, so
+	     * true or false is restricted to <guard>s involving ONLY
+	     * defined(x), integer constants and the boolean operators
+	     * (!, && and ||)
+	     */
+	    int	guard = eval_guard(parent->left);
+	    if (pmDebugOptions.derive && pmDebugOptions.appl1 && pmDebugOptions.desperate) {
+		fprintf(stderr, "check_expr: guard(%s) = %d [bind %s @ %p(%s)]\n",
+		    __dmnode_type_str(parent->left->type), guard,
+		    guard == 1 ? "left" : (guard == 0 ? "right" : "both"),
+		    np, __dmnode_type_str(np->type));
+	    }
+	    if (guard == 1)
+		np->data.info->bind = QUEST_BIND_LEFT;
+	    else if (guard == 0)
+		np->data.info->bind = QUEST_BIND_RIGHT;
+	}
+    }
+
+    if (np->type != N_COLON || (np->data.info->bind & QUEST_BIND_LEFT)) {
+	if ((sts = check_expr(dmp, np->left, np, async)) < 0)
+	    return sts;
+    }
 
     if (np->right != NULL) {
-	if ((sts = check_expr(dmp, np->right, async)) < 0)
-	    return sts;
+	if (np->type != N_COLON || (np->data.info->bind & QUEST_BIND_RIGHT)) {
+	    if ((sts = check_expr(dmp, np->right, np, async)) < 0)
+		return sts;
+	}
+
 	switch (np->type) {
 
 	case N_COLON:
+	    /* update metadata */
+	    if (np->data.info->bind == QUEST_BIND_BOTH) {
+		/* prefer other expr to novalue() */
+		if (np->left->type == N_NOVALUE)
+		    np->desc = np->right->desc;		/* struct copy */
+		else
+		    np->desc = np->left->desc;		/* struct copy */
+		/* prefer indom to no indom */
+		if (np->left->desc.indom == PM_INDOM_NULL)
+		    np->desc.indom = np->right->desc.indom;
+		else
+		    np->desc.indom = np->left->desc.indom;
+	    }
+	    else if (np->data.info->bind & QUEST_BIND_LEFT)
+		np->desc = np->left->desc;		/* struct copy */
+	    else
+		np->desc = np->right->desc;		/* struct copy */
+
 	    /*
-	     * ensures pmDesc for left and right options are
-	     * the same, and choose left arbitrarily ... start
-	     * assuming the same, may need to adjust indom if
-	     * one operand has an indom and the other does not
-	     * (see below)
+	     * recursive descent looking for undefined metrics
+	     * in left and/or right expr ... use info->bind to guide
+	     * note all errors are reported in check_metrics()
 	     */
-	    np->desc = np->left->desc;
+	    bad = NULL;
+	    if (np->data.info->bind & QUEST_BIND_LEFT)
+		bad = check_metrics(np->left,"left");
+	    if (bad == NULL && (np->data.info->bind & QUEST_BIND_RIGHT))
+		bad = check_metrics(np->right, "right");
+	    /* if either of these fails, no point in trying other checks */
+	    if (bad != NULL) {
+		if (async)
+		    report_sem_error(dmp->name, bad);
+		return -1;
+	    }
+
+	    /*
+	     * special case when left or right operand is novalue()
+	     * (grammer ensures it cannot be both), then skip semantic
+	     * checks as these will fail comparing novalue() to the other
+	     * <expr>, and even worse the other <expr> may contain undefined
+	     * metrics with no metadata available
+	     */
+	    if (np->left->type == N_NOVALUE || np->right->type == N_NOVALUE)
+		return 0;
+
+	    /*
+	     * if QUEST_BIND_LEFT or QUEST_BIND_RIGHT (and not
+	     * QUEST_BIND_BOTH), then skip remaining checks, they are
+	     * doomed to fail but the *unselected* expression tree is
+	     * never evaluated, so it is OK
+	     */
+	    if (np->data.info->bind == QUEST_BIND_LEFT || np->data.info->bind == QUEST_BIND_RIGHT)
+		return 0;
+
+
+	    /* semantic checks for left-expr cf right-expr */
 	    if (np->left->desc.type != np->right->desc.type) {
 		if (pmDebugOptions.derive && pmDebugOptions.appl1) {
 		    char	strbuf[20];
@@ -1220,10 +1552,6 @@ check_expr(dm_t *dmp, node_t *np, int async)
 		    report_sem_error(dmp->name, np);
 		return -1;
 	    }
-	    if (np->left->desc.indom != PM_INDOM_NULL)
-		np->desc.indom = np->left->desc.indom;
-	    else
-		np->desc.indom = np->right->desc.indom;
 	    if (np->left->desc.sem != np->right->desc.sem) {
 		if (pmDebugOptions.derive && pmDebugOptions.appl1) {
 		    char	strbuf[20];
@@ -1325,8 +1653,8 @@ check_expr(dm_t *dmp, node_t *np, int async)
 	    return map_desc(dmp, np, async);
 	}
     }
-
     np->desc = np->left->desc;	/* struct copy */
+
     /*
      * special cases for functions ...
      * count()		u32 and instantaneous
@@ -1509,6 +1837,22 @@ __dmdumpexpr(node_t *np, int level)
     if (level == 0) fprintf(stderr, "Derived metric expr dump from " PRINTF_P_PFX "%p...\n", np);
     if (np == NULL) return;
     fprintf(stderr, "expr node " PRINTF_P_PFX "%p type=%s", np, __dmnode_type_str(np->type));
+    if (np->type == N_COLON && np->data.info != NULL) {
+	if (np->data.info->bind == QUEST_BIND_LEFT)
+	    fprintf(stderr, " [LEFT]");
+	else if (np->data.info->bind == QUEST_BIND_RIGHT)
+	    fprintf(stderr, " [RIGHT]");
+    }
+    if (np->type == N_DEFINED) {
+	if (np->left != NULL) {
+	    /* has not been evaluated, name in N_NAME node */
+	    fprintf(stderr, "(%s)", np->left->value);
+	}
+	else {
+	    /* np->left has been free'd */
+	    fprintf(stderr, "(%s)", np->value);
+	}
+    }
     if (np->type == N_PATTERN) {
 	__pmHashNode	*hnp;
 	instctl_t	*icp;
@@ -1924,11 +2268,13 @@ __dminit_configfile(const char *fname)
     char	*buf;
     char	*p;
     int		c;
+    int		lastc = '\0';
     int		sts = 0;
     int		eq = -1;	/* offset to =, start of <expr> or <value> */
     int		lp = -1;	/* offset to (, start of <attr> */
     int		rp = -1;	/* offset to ), end of <attr> */
     int		lineno = 1;
+    int		clineno = 0;	/* continuation line count */
 
     if (pmDebugOptions.derive) {
 	fprintf(stderr, "pmLoadDerivedConfig(\"%s\")\n", fname);
@@ -1978,7 +2324,14 @@ __dminit_configfile(const char *fname)
 		rp = p - buf;
 	    }
 	}
-	if (c == '\n') {
+	if (c == '\n' && lastc == '\\') {
+	    /* \ continuation at the end of a line */
+	    clineno++;
+	    p--;
+	    lastc = c;
+	    continue;
+	}
+	if (c == '\n' && lastc != '\\') {
 	    if (p == buf || buf[0] == '#') {
 		/* comment or empty line, skip it ... */
 		goto next_line;
@@ -2070,8 +2423,8 @@ __dminit_configfile(const char *fname)
 		    char	*vp;		/* start of <value> */
 		    char	*value;		/* accumulated <value> */
 		    int		vlen = 0;	/* length of value */
-		    char	delim = '\0';	/* string delimiter, if any */
 		    int		lsts;
+		    char	delim;		/* string delimiter, if any */
 		    /* trim white space from tail of <attr> */
 		    q = &dupbuf[rp];
 		    *q-- = '\0';
@@ -2096,6 +2449,8 @@ __dminit_configfile(const char *fname)
 			delim = *vp;
 			vp++;
 		    }
+		    else
+			delim = '\0';
 		    if (*vp == '\0') {
 			pmprintf("[%s:%d] Error: pmLoadDerivedConfig: attribute value missing\n%s\n", fname, lineno, buf);
 			pmflush();
@@ -2108,7 +2463,7 @@ __dminit_configfile(const char *fname)
 			pmNoMem("pmLoadDerivedConfig: value", vlen, PM_FATAL_ERR);
 			/*NOTREACHED*/
 		    }
-		    if (delim == 0) {
+		    if (delim == '\0') {
 			/* no string delimiter, so <value> is complete */
 			;
 		    }
@@ -2175,8 +2530,6 @@ __dminit_configfile(const char *fname)
 			    }
 			    *v++ = c;
 			}
-			if (xtralines > 1)
-			    lineno += xtralines - 1;
 			if (c == EOF) {
 			    pmprintf("[%s:%d] Error: pmLoadDerivedConfig: missing termination (%c) for value\n", fname, lineno, delim);
 			    pmflush();
@@ -2214,9 +2567,13 @@ __dminit_configfile(const char *fname)
 				    pmprintf(") after attribute value will be ignored\n");
 				    pmflush();
 				}
+				if (c == '\n')
+				    xtralines++;
 			    }
 			    vp = value;
 			}
+			if (xtralines > 1)
+			    clineno += xtralines - 1;
 		    }
 
 		    if (vp != NULL) {
@@ -2252,11 +2609,17 @@ __dminit_configfile(const char *fname)
 	    }
 next_line:
 	    lineno++;
+	    if (clineno) {
+		lineno += clineno;
+		clineno = 0;
+	    }
 	    p = buf;
 	    eq = lp = rp = -1;
 	}
-	else
+	else {
+	    lastc = c;
 	    *p++ = c;
+	}
     }
     fclose(fp);
     free(buf);
@@ -2318,17 +2681,9 @@ addderived(const char *name, const char *expr, char **p)
 		PM_UNLOCK(ctxp->c_lock);
 		return PM_ERR_BADDERIVE;
 	    }
-	    else {
-		/*
-		 * global name same as per-context name, the latter wins
-		 * and the former is "masked"
-		 */
-		cp->mlist[i].flags |= DM_MASKED;
-		if (pmDebugOptions.derive)
-		    fprintf(stderr, "pmAddDerived(ctx->%d): per-context metric \"%s\" masks global derived metric of the same name\n", ctxp->c_handle, name);
-	    }
 	}
     }
+
     if (pmDebugOptions.derive && pmDebugOptions.appl0 &&
         pmDebugOptions.desperate) {
 	/* turn on bison diagnostics */
@@ -2377,6 +2732,27 @@ PM_FAULT_POINT("libpcp/derive.c:2", PM_FAULT_MISC);
 	    PM_TPD(derive_errmsg) = "per-context PMID space exhausted";
 	    PM_UNLOCK(ctxp->c_lock);
 	    return PM_ERR_BADDERIVE;
+	}
+    }
+
+    /*
+     * check for masking ...
+     */
+    for (i = 0; i < cp->nmetric; i++) {
+	if (strcmp(name, cp->mlist[i].name) == 0) {
+	    /*
+	     * global name same as per-context name, the latter wins
+	     * and the former is "masked"
+	     */
+	    cp->mlist[i].flags |= DM_MASKED;
+	    if (pmDebugOptions.derive && pmDebugOptions.appl0) {
+		char	strbuf[20];
+		fprintf(stderr, "pmAddDerived(ctx->%d): per-context metric \"%s\" [%s]",
+		    ctxp->c_handle, name,
+		    pmIDStr_r(*((pmID *)&pmid), strbuf, sizeof(strbuf)));
+		fprintf(stderr, " masks global derived metric of the same name [%s]\n",
+		    pmIDStr_r(cp->mlist[i].pmid, strbuf, sizeof(strbuf)));
+	    }
 	}
     }
 
@@ -2814,8 +3190,12 @@ __dmtraverse(__pmContext *ctxp, const char *name, char ***namelist)
 	    if (!cp->mlist[i].anon) {
 		if ((cp->mlist[i].flags & DM_BIND) && cp->mlist[i].expr == NULL) {
 		    if (pmDebugOptions.derive) {
-			fprintf(stderr, "__dmtraverse: name=\"%s\", omitting invalid child \"%s\"\n",
-			    name, cp->mlist[i].name);
+			char	strbuf[20];
+			fprintf(stderr, "__dmtraverse: name=\"%s\", omitting %s child %s [%s]\n",
+			    name,
+			    cp->mlist[i].flags & DM_MASKED ? "masked" : "invalid",
+			    cp->mlist[i].name,
+			    pmIDStr_r(cp->mlist[i].pmid, strbuf, sizeof(strbuf)));
 		    }
 		    continue;
 		}
@@ -3062,7 +3442,7 @@ __dmgetname(__pmContext *ctxp, pmID pmid, char ** name)
     if (cp == &registered) {
 	if (pmDebugOptions.derive && pmDebugOptions.appl2) {
 	    char	strbuf[20];
-	    fprintf(stderr, "__dmgetname: using registered for pmID %s\n", pmIDStr_r(pmid, strbuf, sizeof(strbuf)));
+	    fprintf(stderr, "__dmgetname: using registered for PMID %s\n", pmIDStr_r(pmid, strbuf, sizeof(strbuf)));
 	}
     }
     else if (cp->glob_last < registered.nmetric)
@@ -3092,6 +3472,75 @@ __dmgetname(__pmContext *ctxp, pmID pmid, char ** name)
 }
 
 /*
+ * Look for name masking ... this looks a lot like __dmgetpmid() only
+ * we keep iterating and don't skip masked global drived metrics.
+ *
+ * Only called if -Dderive, so can skip that guard
+ */
+void
+__dmcheckname(__pmContext *ctxp, int derive_locked, const char *name, pmID pmid)
+{
+    int		i;
+    ctl_t	*cp;
+    char	strbuf[20];
+
+    if (derive_locked == PM_NOT_LOCKED) {
+	PM_LOCK(registered.mutex);
+	__dminit();
+    }
+    else {
+	PM_ASSERT_IS_LOCKED(registered.mutex);
+    }
+
+    if ((cp = getctl(ctxp)) == NULL)
+	/* PMNS operations are safe, even below PMCS */
+    	cp = &registered;
+
+    if (cp == &registered) {
+	if (pmDebugOptions.derive && pmDebugOptions.appl2)
+	    fprintf(stderr, "__dmcheckname: using registered for metric \"%s\"\n", name);
+    }
+    else if (cp->glob_last < registered.nmetric)
+	refresh(ctxp);
+
+    for (i = 0; i < cp->nmetric; i++) {
+	if (strcmp(name, cp->mlist[i].name) == 0) {
+	    if (cp->mlist[i].pmid == pmid)
+		continue;
+	    fprintf(stderr, "Warning: %s [%s",
+		name, pmIDStr_r(pmid, strbuf, sizeof(strbuf)));
+	    if (IS_DERIVED(pmid)) {
+		fprintf(stderr, " derived");
+	    }
+	    else {
+		switch (ctxp->c_type) {
+		    case PM_CONTEXT_HOST:
+			fprintf(stderr, " host");
+			break;
+		    case PM_CONTEXT_ARCHIVE:
+			fprintf(stderr, " archive");
+			break;
+		    case PM_CONTEXT_LOCAL:
+			fprintf(stderr, " local");
+			break;
+		    default:
+			fprintf(stderr, " unknown");
+			break;
+		}
+		fprintf(stderr, " context");
+	    }
+	    if (IS_DERIVED_LOGGED(pmid))
+		fprintf(stderr, ", remapped");
+	    fprintf(stderr, "] masks %s derived metric [%s] with the same name\n",
+		    cp->mlist[i].flags & DM_GLOBAL ? "global" : "per-context",
+		    pmIDStr_r(cp->mlist[i].pmid, strbuf, sizeof(strbuf)));
+	}
+    }
+    if (derive_locked == PM_NOT_LOCKED)
+	PM_UNLOCK(registered.mutex);
+}
+
+/*
  * bind the ith derived metric expression in the current context ...
  * sets cp->mlist[i].expr as return value (NULL for error)
  *
@@ -3103,7 +3552,7 @@ __dmgetname(__pmContext *ctxp, pmID pmid, char ** name)
 void
 __dmbind(int derive_locked, __pmContext *ctxp, int i, int async)
 {
-    int		sts;
+    int		sts = 0;
     pmID	pmid;
     ctl_t	*cp;
 
@@ -3130,33 +3579,45 @@ __dmbind(int derive_locked, __pmContext *ctxp, int i, int async)
 	 */
 	sts = pmLookupName_ctx(ctxp, PM_LOCKED, 1, (const char **)&cp->mlist[i].name, &pmid);
 	if (sts >= 0 && !IS_DERIVED(pmid)) {
-	    if (pmDebugOptions.derive) {
-		char	strbuf[20];
-		fprintf(stderr, "Warning: %s: derived name matches metric %s: derived ignored\n",
-		    cp->mlist[i].name, pmIDStr_r(pmid, strbuf, sizeof(strbuf)));
-	    }
+	    /* use metric of same name from context, not the derived one */
 	    cp->mlist[i].expr = NULL;
 	    goto done;
 	}
     }
+    if (pmDebugOptions.derive && pmDebugOptions.appl1 && pmDebugOptions.desperate) {
+	fprintf(stderr, "__dmbind: metric[%d] %s: before bind_expr ...\n", i, cp->mlist[i].name);
+	__dmdumpexpr(cp->mlist[i].expr, 0);
+    }
     /* failures must be reported in bind_expr() or below */
-    cp->mlist[i].expr = bind_expr(ctxp, i, cp->mlist[i].expr, 0, cp->mlist[i].flags & DM_GLOBAL);
+    cp->mlist[i].expr = bind_expr(ctxp, i, cp->mlist[i].expr, NULL, QUEST_BIND_NOW, cp->mlist[i].flags & DM_GLOBAL, async);
     if (cp->mlist[i].expr != NULL) {
-	/* failures must be reported in check_expr() or below */
-	sts = check_expr(&cp->mlist[i], cp->mlist[i].expr, async);
-	if (sts < 0) {
-	    free_expr(cp->mlist[i].expr);
-	    cp->mlist[i].expr = NULL;
+	if (pmDebugOptions.derive && pmDebugOptions.appl1 && pmDebugOptions.desperate) {
+	    fprintf(stderr, "__dmbind: metric[%d] %s: after bind_expr and before check_expr ...\n", i, cp->mlist[i].name);
+	    __dmdumpexpr(cp->mlist[i].expr, 0);
 	}
-	else {
+	/* failures must be reported in check_expr() or below */
+	sts = check_expr(&cp->mlist[i], cp->mlist[i].expr, NULL, async);
+	if (sts >= 0) {
 	    /* set correct PMID in pmDesc at the top level */
 	    cp->mlist[i].expr->desc.pmid = cp->mlist[i].pmid;
 	}
     }
-    if (pmDebugOptions.derive && cp->mlist[i].expr != NULL) {
-	fprintf(stderr, "__dmbind: bind metric[%d] %s\n", i, cp->mlist[i].name);
-	if (pmDebugOptions.appl1)
-	    __dmdumpexpr(cp->mlist[i].expr, 0);
+    if (pmDebugOptions.derive && (cp->mlist[i].expr == NULL || sts < 0)) {
+	if (cp->mlist[i].expr == NULL)
+	    fprintf(stderr, "__dmbind: bind_expr failed for metric[%d] %s\n", i, cp->mlist[i].name);
+	else {
+	    fprintf(stderr, "__dmbind: check_expr failed for metric[%d] %s\n", i, cp->mlist[i].name);
+	    if (pmDebugOptions.appl1)
+		__dmdumpexpr(cp->mlist[i].expr, 0);
+	}
+    }
+    else if (pmDebugOptions.derive && pmDebugOptions.appl1 && pmDebugOptions.desperate) {
+	fprintf(stderr, "__dmbind: metric[%d] %s: after check_expr ...\n", i, cp->mlist[i].name);
+	__dmdumpexpr(cp->mlist[i].expr, 0);
+    }
+    if (sts < 0 && cp->mlist[i].expr != NULL) {
+	free_expr(cp->mlist[i].expr);
+	cp->mlist[i].expr = NULL;
     }
 
 done:
@@ -3404,7 +3865,7 @@ static node_t *np;
  * yacc token and operator declarations
  ***********************************************************************/
 
-PUT-PREFIX-DECL-HERE ... see GNumakefile
+PUT-PREFIX-DECL-HERE ... see GNUmakefile and fix_derive_parser_y
 
 %expect     0
 %start      defn
@@ -3438,6 +3899,8 @@ PUT-PREFIX-DECL-HERE ... see GNumakefile
 %token      L_AND
 %token      L_OR
 %token      L_MKCONST
+%token      L_META
+%token      L_NOVALUE
 %token      L_RESCALE
 %token      L_DEFINED
 %token      L_MATCHINST
@@ -3463,6 +3926,7 @@ PUT-PREFIX-DECL-HERE ... see GNumakefile
 %type  <n>  regexpr
 %type  <n>  num
 %type  <n>  func
+%type  <n>  novalue
 %type  <i>  opt_bang
 %type  <d>  spec
 %type  <d>  speclist
@@ -3486,32 +3950,32 @@ defn	: expr L_EOS
 
 	/* error reporting for trailing operators */
 	| expr L_PLUS error
-		{ gramerr(unexpected_str, NULL, "+"); YYERROR; }
+		{ gramerr(unexpected_str, NULL, "+"); free_expr($1); YYERROR; }
 	/* not L_MINUS */
 	| expr L_STAR error
-		{ gramerr(unexpected_str, NULL, "*"); YYERROR; }
+		{ gramerr(unexpected_str, NULL, "*"); free_expr($1); YYERROR; }
 	| expr L_SLASH error
-		{ gramerr(unexpected_str, NULL, "/"); YYERROR; }
+		{ gramerr(unexpected_str, NULL, "/"); free_expr($1); YYERROR; }
 	| expr L_LPAREN error
-		{ gramerr(unexpected_str, NULL, "("); YYERROR; }
+		{ gramerr(unexpected_str, NULL, "("); free_expr($1); YYERROR; }
 	| expr L_RPAREN error
-		{ gramerr(unexpected_str, NULL, ")"); YYERROR; }
+		{ gramerr(unexpected_str, NULL, ")"); free_expr($1); YYERROR; }
 	| expr L_LT error
-		{ gramerr(unexpected_str, NULL, "<"); YYERROR; }
+		{ gramerr(unexpected_str, NULL, "<"); free_expr($1); YYERROR; }
 	| expr L_LEQ error
-		{ gramerr(unexpected_str, NULL, "<="); YYERROR; }
+		{ gramerr(unexpected_str, NULL, "<="); free_expr($1); YYERROR; }
 	| expr L_EQ error
-		{ gramerr(unexpected_str, NULL, "=="); YYERROR; }
+		{ gramerr(unexpected_str, NULL, "=="); free_expr($1); YYERROR; }
 	| expr L_GEQ error
-		{ gramerr(unexpected_str, NULL, ">="); YYERROR; }
+		{ gramerr(unexpected_str, NULL, ">="); free_expr($1); YYERROR; }
 	| expr L_GT error
-		{ gramerr(unexpected_str, NULL, ">"); YYERROR; }
+		{ gramerr(unexpected_str, NULL, ">"); free_expr($1); YYERROR; }
 	| expr L_NEQ error
-		{ gramerr(unexpected_str, NULL, "!="); YYERROR; }
+		{ gramerr(unexpected_str, NULL, "!="); free_expr($1); YYERROR; }
 	| expr L_AND error
-		{ gramerr(unexpected_str, NULL, "&&"); YYERROR; }
+		{ gramerr(unexpected_str, NULL, "&&"); free_expr($1); YYERROR; }
 	| expr L_OR error
-		{ gramerr(unexpected_str, NULL, "||"); YYERROR; }
+		{ gramerr(unexpected_str, NULL, "||"); free_expr($1); YYERROR; }
 	/* not L_NOT */
 
 	/* error reporting for initial operators */
@@ -3576,7 +4040,7 @@ expr	: L_LPAREN expr L_RPAREN
 		      pmNoMem("pmRegisterDerived: alloc pattern", (int)sizeof(pattern_t), PM_FATAL_ERR);
 		      /*NOTREACHED*/
 		  }
-		  np->left->data.pattern->ftype = F_REGEX;
+		  np->left->data.pattern->ftype = F_EXACT;
 		  np->left->data.pattern->inst = PM_IN_NULL;
 		  $$ = np;
 		}
@@ -3623,6 +4087,29 @@ expr	: L_LPAREN expr L_RPAREN
 		  np->right->right = $5;
 		  $$ = np;
 		}
+	| expr L_QUEST novalue L_COLON expr
+		{ np = newnode(N_QUEST);
+		  np->left = $1;
+		  np->right = newnode(N_COLON);
+		  np->right->left = $3;
+		  np->right->right = $5;
+		  $$ = np;
+		}
+	| expr L_QUEST expr L_COLON novalue
+		{ np = newnode(N_QUEST);
+		  np->left = $1;
+		  np->right = newnode(N_COLON);
+		  np->right->left = $3;
+		  np->right->right = $5;
+		  $$ = np;
+		}
+	| expr L_QUEST novalue L_COLON novalue
+		{ PM_TPD(derive_errmsg) = "novalue() may appear at most once in a ternary expression";
+		  free_expr($1);
+		  free_expr($3);
+		  free_expr($5);
+		  YYERROR;
+		}
 
 	/* boolean expressions */
 	| expr L_AND expr
@@ -3636,37 +4123,70 @@ expr	: L_LPAREN expr L_RPAREN
 	| L_NAME error
 		{ gramerr(op_str, follow, __dmnode_type_str(N_NAME)); YYERROR; }
 	| expr L_PLUS error
-		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_PLUS)); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_PLUS)); free_expr($1); YYERROR; }
 	| expr L_MINUS error
-		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_MINUS)); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_MINUS)); free_expr($1); YYERROR; }
 	| expr L_STAR error
-		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_STAR)); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_STAR)); free_expr($1); YYERROR; }
 	| expr L_SLASH error
-		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_SLASH)); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_SLASH)); free_expr($1); YYERROR; }
 	| L_MINUS error
 		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_NEG)); YYERROR; }
 	| expr L_LT error
-		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_LT)); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_LT)); free_expr($1); YYERROR; }
 	| expr L_LEQ error
-		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_LEQ)); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_LEQ)); free_expr($1); YYERROR; }
 	| expr L_EQ error
-		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_EQ)); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_EQ)); free_expr($1); YYERROR; }
 	| expr L_GEQ error
-		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_GEQ)); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_GEQ)); free_expr($1); YYERROR; }
 	| expr L_GT error
-		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_GT)); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_GT)); free_expr($1); YYERROR; }
 	| expr L_NEQ error
-		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_NEQ)); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_NEQ)); free_expr($1); YYERROR; }
 	| expr L_AND error
-		{ gramerr(bexpr_str, follow, __dmnode_type_str(N_AND)); YYERROR; }
+		{ gramerr(bexpr_str, follow, __dmnode_type_str(N_AND)); free_expr($1); YYERROR; }
 	| expr L_OR error
-		{ gramerr(bexpr_str, follow, __dmnode_type_str(N_OR)); YYERROR; }
+		{ gramerr(bexpr_str, follow, __dmnode_type_str(N_OR)); free_expr($1); YYERROR; }
 	| L_NOT error
 		{ gramerr(bexpr_str, follow, __dmnode_type_str(N_NOT)); YYERROR; }
 	| expr L_QUEST error
-		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_QUEST)); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_QUEST)); free_expr($1); YYERROR; }
 	| expr L_QUEST expr L_COLON error
-		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_COLON)); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_COLON));
+		  free_expr($1);
+		  free_expr($3);
+		  YYERROR;
+		}
+	;
+
+novalue : L_NOVALUE L_LPAREN L_RPAREN
+		{ np = newnode(N_NOVALUE);
+		  /*
+		   * defaults ... not needed, but makes __dmdumpexpr()
+		   * happy in case is is called
+		   */
+		  np->desc.pmid = PM_ID_NULL;
+		  np->desc.type = PM_TYPE_32;
+		  np->desc.indom = PM_INDOM_NULL;
+		  np->desc.sem = PM_SEM_DISCRETE;
+		  np->desc.units = noUnits;
+		  $$ = np;
+		}
+	| L_NOVALUE L_LPAREN speclist L_RPAREN
+		{ np = newnode(N_NOVALUE);
+		  np->desc = specdesc;	/* struct copy */
+		  np->desc.pmid = PM_ID_NULL;
+		  if (specmeta != NULL) {
+		      np->left = specmeta;
+		      specmeta = NULL;
+		  }
+		  np->flags = specflags;
+		  specflags = 0;
+		  $$ = np;
+		}
+	| L_NOVALUE L_LPAREN error
+		{ gramerr("metadata keyword", follow, "novalue("); YYERROR; }
 	;
 
 regexpr	: opt_bang L_PATTERN
@@ -3729,7 +4249,13 @@ num	: L_INTEGER
 		  specdesc.units = noUnits;
 		}
 	    speclist L_RPAREN
-		{ np->desc = specdesc;	/* struct assignment */
+		{ np->desc = specdesc;	/* struct copy */
+		  if (specmeta != NULL) {
+		      np->left = specmeta;
+		      specmeta = NULL;
+		  }
+		  np->flags = specflags;
+		  specflags = 0;
 		  $$ = np;
 		}
 	| L_MKCONST L_LPAREN L_DOUBLE L_COMMA
@@ -3750,9 +4276,17 @@ num	: L_INTEGER
 		      derive_error(NULL);
 		      return -1;
 		  }
-		  np->desc = specdesc;	/* struct assignment */
+		  np->desc = specdesc;	/* struct copy */
+		  if (specmeta != NULL) {
+		      np->left = specmeta;
+		      specmeta = NULL;
+		  }
+		  np->flags = specflags;
+		  specflags = 0;
 		  $$ = np;
 		}
+	| L_MKCONST L_LPAREN L_INTEGER error
+		{ gramerr("metadata keyword", follow, "mkconst(type"); YYERROR; }
 	;
 
 speclist :
@@ -3779,6 +4313,7 @@ spec	: L_TYPE L_ASSIGN specval
 		      return -1;
 		  }
 		  free($3);
+		  specflags |= META_TYPE;
 		  $$ = specdesc;
 		}
 	| L_SEMANTICS L_ASSIGN specval
@@ -3794,6 +4329,7 @@ spec	: L_TYPE L_ASSIGN specval
 		      return -1;
 		  }
 		  free($3);
+		  specflags |= META_SEM;
 		  $$ = specdesc;
 		}
 	| L_UNITS L_ASSIGN specval
@@ -3810,7 +4346,13 @@ spec	: L_TYPE L_ASSIGN specval
 		      return -1;
 		  }
 		  free($3);
+		  specflags |= META_UNITS;
 		  $$ = specdesc;
+		}
+	| L_META L_ASSIGN L_NAME
+		{ specmeta = newnode(N_NAME);
+		  specmeta->value = $3;
+		  $$ = specdesc;	/* not used from this rule */
 		}
 	;
 
@@ -3860,10 +4402,9 @@ func	: L_ANON L_LPAREN L_NAME L_RPAREN
 		  np->left->value = $3;
 		  $$ = np;
 		}
-	| L_DELTA L_LPAREN L_NAME L_RPAREN
+	| L_DELTA L_LPAREN expr L_RPAREN
 		{ np = newnode(N_DELTA);
-		  np->left = newnode(N_NAME);
-		  np->left->value = $3;
+		  np->left = $3;
 		  np->left->save_last = 1;
 		  $$ = np;
 		}
@@ -3885,17 +4426,15 @@ func	: L_ANON L_LPAREN L_NAME L_RPAREN
 		  np->left->value = $3;
 		  $$ = np;
 		}
-	| L_RATE L_LPAREN L_NAME L_RPAREN
+	| L_RATE L_LPAREN expr L_RPAREN
 		{ np = newnode(N_RATE);
-		  np->left = newnode(N_NAME);
-		  np->left->value = $3;
+		  np->left = $3;
 		  np->left->save_last = 1;
 		  $$ = np;
 		}
-	| L_INSTANT L_LPAREN L_NAME L_RPAREN
+	| L_INSTANT L_LPAREN expr L_RPAREN
 		{ np = newnode(N_INSTANT);
-		  np->left = newnode(N_NAME);
-		  np->left->value = $3;
+		  np->left = $3;
 		  $$ = np;
 		}
 	| L_DEFINED L_LPAREN L_NAME L_RPAREN
@@ -3917,7 +4456,7 @@ func	: L_ANON L_LPAREN L_NAME L_RPAREN
 		      return -1;
 		  }
 		  np->right = newnode(N_SCALE);
-		  np->right->desc.units = units;	/* struct assign */
+		  np->right->desc.units = units;	/* struct copy */
 		  free($5);
 		  $$ = np;
 		}
@@ -3941,7 +4480,7 @@ func	: L_ANON L_LPAREN L_NAME L_RPAREN
 	| L_COUNT L_LPAREN error
 		{ gramerr(name_str, follow, "count("); YYERROR; }
 	| L_DELTA L_LPAREN error
-		{ gramerr(name_str, follow, "delta("); YYERROR; }
+		{ gramerr("<expr>", follow, "delta("); YYERROR; }
 	| L_MAX L_LPAREN error
 		{ gramerr(name_str, follow, "max("); YYERROR; }
 	| L_MIN L_LPAREN error
@@ -3949,7 +4488,7 @@ func	: L_ANON L_LPAREN L_NAME L_RPAREN
 	| L_SUM L_LPAREN error
 		{ gramerr(name_str, follow, "sum("); YYERROR; }
 	| L_RATE L_LPAREN error
-		{ gramerr(name_str, follow, "rate("); YYERROR; }
+		{ gramerr("<expr>", follow, "rate("); YYERROR; }
 	| L_INSTANT L_LPAREN error
 		{ gramerr(name_str, follow, "instant("); YYERROR; }
 	| L_RESCALE L_LPAREN error
@@ -3983,6 +4522,8 @@ static const struct {
     { L_RATE,	"rate" },
     { L_INSTANT,"instant" },
     { L_MKCONST,"mkconst" },
+    { L_META,	"meta" },
+    { L_NOVALUE,"novalue" },
     { L_RESCALE,"rescale" },
     { L_DEFINED,"defined" },
     { L_MATCHINST, "matchinst" },
@@ -4027,6 +4568,8 @@ static struct {
     { L_RATE,		N_RATE,		"RATE",		NULL },
     { L_INSTANT,	N_INSTANT,	"INSTANT",	NULL },
     { L_MKCONST,	0,		"MKCONST",	NULL },
+    { L_META,		N_META,		"META",		NULL },
+    { L_NOVALUE,	N_NOVALUE,	"NOVALUE",	NULL },
     { L_RESCALE,	N_RESCALE,	"RESCALE",	NULL },
     { 0,		N_SCALE,	"SCALE",	NULL },
     { L_DEFINED,	N_DEFINED,	"DEFINED",	NULL },
@@ -4341,6 +4884,10 @@ derive_lex(void)
 		}
 		else if (strcmp(tokbuf, "units") == 0) {
 		    ret = L_UNITS;
+		    break;
+		}
+		else if (strcmp(tokbuf, "meta") == 0) {
+		    ret = L_META;
 		    break;
 		}
 		if ((derive_lval.s = strdup(tokbuf)) == NULL) {

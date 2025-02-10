@@ -53,6 +53,7 @@ _filter_log()
 	-e '/Cleanup/d' \
 	-e '/Info: spindle_stats_init/d' \
 	-e '/UNIX_DOMAIN_SOCKET/d' \
+	-e '/ContactAgents: agent/d' \
 	#end
 }
 
@@ -63,28 +64,33 @@ _filter_pmda_log()
 	-e 's/^\(Log finished\) .*/\1 .../'
 }
 
-interrupt()
+_interrupt()
 {
-    echo "Interrupted"
-    _restore_auto_restart pmcd
-    exit
+    echo "Interrupted!"
+    _exit 1
 }
 
-cleanup()
+_needclean=true
+
+_cleanup()
 {
-    _restore_config $PCP_PMCDCONF_PATH
-    pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
-    && $sudo sh $tmp.cmd
-    echo "Restarting pmcd"
-    _service pcp restart 2>&1 | _filter_pcp_start
-    _restore_auto_restart pmcd
-    _wait_for_pmcd
-    _wait_for_pmlogger
-    rm -f $tmp.*
+    if [ $_needclean ]
+    then
+	_restore_config $PCP_PMCDCONF_PATH
+	pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
+	&& $sudo sh $tmp.cmd
+	echo "Restarting pmcd"
+	_service pcp restart 2>&1 | _filter_pcp_start
+	_restore_auto_restart pmcd
+	_wait_for_pmcd
+	_wait_for_pmlogger
+	_needclean=false
+	rm -f $tmp.*
+    fi
 }
 
-trap interrupt 1 2 3 15
-trap cleanup 0
+trap _interrupt 1 2 3 15	# refactor-ok
+trap _cleanup 0
 
 _stop_auto_restart pmcd
 
@@ -149,12 +155,12 @@ fi
 $sudo $signal -a pmgadgets pmchart pmview pmie >/dev/null 2>&1
 src/pmdashutdown -i 2222 -d $domain -l $tmp.pmdalog &
 pid=$!
-echo "pmdashutdown pid: $pid" >$seq.full
+echo "pmdashutdown pid: $pid" >$seq_full
 sleep 1
 echo
 echo "port 2222 should be listening"
 netstat -an \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | grep '[.:]2222 ' \
 | sed \
     -e 's/127\.0\.0\.1/*/g' \
@@ -167,13 +173,14 @@ _save_config $PCP_PMCDCONF_PATH
 $sudo cp $tmp.config $PCP_PMCDCONF_PATH
 pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
 && $sudo sh $tmp.cmd
-_service pcp stop | _filter_pcp_stop
+if ! _service pcp stop; then _exit 1; fi \
+| _filter_pcp_stop
 # Note: need to use $PCP_RC_DIR/* here, not _service pcp so that
 # systemd (if running) does not get to see the pmcd exit status
 #
 ( $sudo $PCP_RC_DIR/pmcd start; $sudo $PCP_RC_DIR/pmlogger start ) 2>&1 | _filter_pcp_start
-_wait_for_pmcd
-_wait_for_pmlogger
+_wait_for_pmcd || _exit 1
+_wait_for_pmlogger || _exit 1
 # echo "config:"
 # cat $config | sed -e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;"
 echo
@@ -182,9 +189,9 @@ echo
 #
 for t in 1 2 3 4 5 6
 do
-    echo >>$seq.full
-    echo "wait for pmdashutdown to finish ... cycle $t" >>$seq.full
-    if ps $PCP_PS_ALL_FLAGS | tee -a $seq.full | cut -f1 | grep $pid >/dev/null 2>&1
+    echo >>$seq_full
+    echo "wait for pmdashutdown to finish ... cycle $t" >>$seq_full
+    if ps $PCP_PS_ALL_FLAGS | tee -a $seq_full | cut -f1 | grep $pid >/dev/null 2>&1
     then
 	sleep 2
     else
@@ -192,8 +199,8 @@ do
     fi
 done
 
-echo >>$seq.full
-cat $tmp.pmdalog >>$seq.full
+echo >>$seq_full
+cat $tmp.pmdalog >>$seq_full
 echo
 echo "pmda log (should have terminated):"
 _filter_pmda_log <$tmp.pmdalog

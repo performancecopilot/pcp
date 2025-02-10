@@ -18,13 +18,15 @@ echo "QA output created by $seq"
 _cleanup()
 {
     cd $here
+    $sudo rm -rf $PCP_SYSCONF_DIR/labels/*
+    _restore_config $PCP_SYSCONF_DIR/labels
+    _sighup_pmcd
     $sudo cp $tmp.install $PCP_PMDAS_DIR/denki/Install
     _cleanup_pmda denki
     $sudo rm -rf $tmp $tmp.*
 }
 
 status=0	# success is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 userid=`id -u`
@@ -41,7 +43,7 @@ _filter_labels()
 	-e "s/\(\"hostname\"\):\"$hostname\"/\1:\"HOSTNAME\"/g" \
 	-e "s/\(\"machineid\"\):\"$machineid\"/\1:\"MACHINEID\"/g" \
 	-e "s/\(\"domainname\"\):\"$domainname\"/\1:\"DOMAINNAME\"/g" \
-    # end
+    | _filter_optional_labels
 }
 
 _filter_instnames()
@@ -60,6 +62,10 @@ _filter()
 }
 
 # real QA test starts here
+_save_config $PCP_SYSCONF_DIR/labels
+$sudo rm -rf $PCP_SYSCONF_DIR/labels/*
+$sudo mkdir $PCP_SYSCONF_DIR/labels/optional
+
 cd $here/denki
 datasets=`LC_COLLATE=POSIX ls -1 -r *.tgz | sed -e 's/\.tgz$//g'`
 
@@ -85,9 +91,9 @@ do
 	"s,^args.*,args=\"-U root -r ${ROOTPATH}\","  \
 	Install
     $sudo ./Install 2>&1
-    echo $dataset >> $here/$seq.full
+    echo $dataset >> $seq_full
     pminfo -dfFl denki \
-	    | tee -a $here/$seq.full \
+	    | tee -a $seq_full \
 	    | $here/src/sortinst -v \
 	    | _filter_instnames \
 	    | _filter_labels \

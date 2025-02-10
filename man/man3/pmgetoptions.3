@@ -86,7 +86,7 @@ struct, which are defined as follows (internal fields are not
 presented, for brevity):
 .sp 0.5v
 .PP
-.ft CW
+.ft CR
 .nf
 .in +0.25i
 typedef struct {
@@ -226,7 +226,7 @@ method, which allows a callback function to be provided which will
 be called on receipt of every argument, prior to common processing.
 If this callback returns a non-zero value the common processing will
 be short-circuited for that option, otherwise processing continues.
-Thus, aach client tool is free to choose exactly which of the standard
+Thus, each client tool is free to choose exactly which of the standard
 options they wish to support \- this can be all, some, or none, and
 no matter what they choose, each tool always has access to the long
 option parsing capability and the usage message generation facility.
@@ -534,7 +534,7 @@ T{
 .ad l
 $PCP_ORIGIN
 \fRor\fP
-$ORIGIN_TIME
+$PCP_ORIGIN_TIME
 T}	\-O	--origin	T{
 .hy 0
 .ad l
@@ -663,3 +663,13 @@ function.
 .BR pmflush (3)
 and
 .BR PMAPI (3).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ guiport_optarg short_options finish_optarg origin_optarg align_optarg
+.\" +ok+ long_options start_optarg getopt_long short_usage
+.\" +ok+ timezones uniqnames long_opt hostzone has_arg argname guiflag
+.\" +ok+ guimode guiport nhosts optarg opterr optind optopt nsflag tzflag
+.\" +ok+ pmLongOpts narchives short_opt
+.\" +ok+ PM_CONTEXT_ {from PM_CONTEXT_<lb>HOST,ARCHIVE,LOCAL<rb>}
+.\" +ok+ Lflag {from C variable}
+.\" +ok+ de {from de-facto}

@@ -19,8 +19,8 @@
 static char *
 ss_instname(ss_stats_t *ss, char *buf, int buflen)
 {
-    /* af/src:port */
-    pmsprintf(buf, buflen, "%s%s%s", ss->netid, ss->v6only ? "6/" : "/", ss->src);
+    /* af/src:port<->dst:port */
+    pmsprintf(buf, buflen, "%s%s%s<->%s", ss->netid, ss->v6only ? "6/" : "/", ss->src, ss->dst);
 
     return buf;
 }
@@ -40,7 +40,7 @@ ss_refresh(int indom)
     ss_stats_t *ss, parsed_ss;
     int inst;
     int has_state_field;
-    char instname[128];
+    char instname[2*SZ_ADDR_PORT+2];	/* src<->addr */
     char line[4096] = {0};
 
     if ((fp = ss_open_stream()) == NULL)

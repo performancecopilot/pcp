@@ -75,6 +75,7 @@ install: default
 	$(INSTALL) -m 755 -d $(PMDATMPDIR)
 	$(INSTALL) -m 644 -t $(PMDATMPDIR) domain.h help help.dir help.pag root root_proc $(PMDAADMDIR)
 	$(INSTALL) -m 755 -d $(PMDACONFIG)
+	$(INSTALL) -m 644 access.conf $(PMDACONFIG)/access.conf
 	$(INSTALL) -m 644 -t $(PMDATMPDIR)/samplehotproc.conf samplehotproc.conf $(PMDACONFIG)/samplehotproc.conf
 	$(INSTALL) -m 755 -t $(PMDATMPDIR) $(LIBTARGET) $(CMDTARGET) $(SCRIPTS) $(PMDAADMDIR)
 	$(INSTALL) -m 644 -t $(PCP_PMNS_DIR)/root_proc root_proc $(PCP_PMNSADM_DIR)/root_proc
@@ -121,9 +122,6 @@ pmda.o:	getinfo.h
 pmda.o:	$(VERSION_SCRIPT)
 
 acct.o cgroups.o contexts.o pmda.o proc_dynamic.o proc_pid.o:	$(TOPDIR)/src/include/pcp/libpcp.h
-
-check::	$(CFILES) $(HFILES)
-	$(CLINT) $^
 
 check:: $(MAN_PAGES)
 	$(MANLINT) $^

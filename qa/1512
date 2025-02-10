@@ -1,0 +1,83 @@
+#!/bin/sh
+# PCP QA Test No. 1512
+# __pmOutputThrottle exerciser
+#
+# Copyright (c) 2024 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+
+do_valgrind=false
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+    do_valgrind=true
+fi
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# [Sat May  4 13:06:04] throttle_timeout(PID) Info: Some error message
+# [DATE] throttle_timeout(PID) Info: [19 messages were suppressed]
+#              expect 15-20 here      ^^
+#
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+	-e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]/DATE/' \
+	-e 's/throttle_timeout([0-9]*)/throttle_timeout(PID)/' \
+	-e 's/\[1[5-9] messages were/[N messages were/' \
+	-e 's/\[2[0] messages were/[N messages were/' \
+    # end
+}
+
+# real QA test starts here
+
+unset PCP_NOTIFY_THROTTLE
+for limit in '' 7 '42bad'
+do
+    [ -n "$limit" ] && export PCP_NOTIFY_THROTTLE="$limit"
+    echo "=== limit $limit ==="
+
+    if $do_valgrind
+    then
+	_run_valgrind ...your test goes here...
+    else
+	src/throttle 2>&1
+    fi \
+    | _filter
+
+    echo
+done
+
+unset PCP_NOTIFY_THROTTLE
+if $do_valgrind
+then
+    _run_valgrind ...your test goes here...
+else
+    src/throttle_timeout 2>&1
+fi \
+| _filter
+# success, all done
+exit

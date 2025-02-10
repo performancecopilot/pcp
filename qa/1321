@@ -12,7 +12,6 @@ _pmdaopenmetrics_check || _notrun "openmetrics pmda and/or load generator not in
 _have_python266 && _notrun "python load generator does not currently work with python 2.6.6"
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 
 _cleanup()
 {
@@ -81,13 +80,13 @@ $sudo $PCP_BINADM_DIR/pmsignal -s TERM $pmlogger_pid >/dev/null 2>&1
 
 echo;echo === resulting archive contains the following openmetrics metrics ===
 pminfo -a $tmp.dynamic openmetrics | LC_COLLATE=POSIX sort
-# rm -rf /tmp/saved; mkdir -p /tmp/saved; cp $tmp.dynamic.* $PCP_LOG_DIR/pmcd/openmetrics.log $tmp.pmlogger.log /tmp/saved
+# rm -rf /tmp/saved; mkdir -p /tmp/saved; cp $tmp.dynamic.* $PCP_LOG_DIR/pmcd/openmetrics.log* $tmp.pmlogger.log /tmp/saved
 
-echo === openmetrics.log === >> $here/$seq.full
-cat $PCP_LOG_DIR/pmcd/openmetrics.log >> $here/$seq.full
+echo === openmetrics.log === >> $seq_full
+cat $PCP_LOG_DIR/pmcd/openmetrics.log >> $seq_full
 
-echo === pmlogger.log === >> $here/$seq.full
-cat $tmp.pmlogger.log >> $here/$seq.full
+echo === pmlogger.log === >> $seq_full
+cat $tmp.pmlogger.log >> $seq_full
 
 _pmdaopenmetrics_remove
 

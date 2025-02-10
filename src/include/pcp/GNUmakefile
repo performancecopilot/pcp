@@ -30,23 +30,11 @@ CONFFILES = config.h configsz.h platform_defs.h platformsz.h
 GENERATED_HFILES = $(CONFFILES)
 NOSHIP_HFILES = libpcp.h sdsalloc.h
 
-LDIRT = $(GENERATED_HFILES)
+LDIRT = $(GENERATED_HFILES) $(INIH_HFILES) $(SDSH_HFILES) $(EXTERNAL_HFILES)
 
 default :: default_pcp
 
 default_pcp : $(HEADERS) $(GENERATED_HFILES) $(INIH_HFILES) $(SDSH_HFILES) $(EXTERNAL_HFILES)
-	@if grep HAVE_64BIT config.h.in >/dev/null; then \
-	   echo "HAVE_64 in config.h.in; move to configsz.h.in for multilib." \
-	   "This requires manual intervention after running an 'autoreconf'." \
-	   "Nuke it with fire... or just discard the change to config.h.in in git."; \
-	   exit 1; \
-	fi
-	@if grep PM_SIZEOF config.h.in >/dev/null; then \
-	   echo "PM_SIZEOF macro in config.h.in; move to configsz.h.in for multilib." \
-	   "This requires manual intervention after running an 'autoreconf'." \
-	   "Nuke it with fire... or just discard the change to config.h.in in git."; \
-	   exit 1; \
-	fi
 
 include $(BUILDRULES)
 

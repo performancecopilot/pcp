@@ -35,6 +35,7 @@
 #include "internal.h"
 #include <string.h>
 #include <assert.h>
+#include <ctype.h>
 
 static __pmContext	**contexts;		/* array of context ptrs */
 static int		contexts_len;		/* number of contexts */
@@ -50,7 +51,8 @@ static int		*contexts_map;
  * Special sentinals for contexts_map[] ...
  */
 #define MAP_FREE	-1		/* contexts[i] can be reused */
-#define MAP_TEARDOWN	-2		/* contexts[i] is being destroyed */
+#define MAP_INIT	-2		/* contexts[i] is being setup */
+#define MAP_TEARDOWN	-3		/* contexts[i] is being destroyed */
 
 #ifdef PM_MULTI_THREAD
 #ifdef HAVE___THREAD
@@ -161,22 +163,22 @@ waitawhile(__pmPMCDCtl *ctl)
 	    n_backoff = 5;
 	    backoff = def_backoff;
 	}
-	PM_UNLOCK(contexts_lock);
 	if (bad) {
+	    PM_UNLOCK(contexts_lock);
 	    pmNotifyErr(LOG_WARNING,
 			 "pmReconnectContext: ignored bad PMCD_RECONNECT_TIMEOUT = '%s'\n",
 			 q);
+	    PM_LOCK(contexts_lock);
 	}
 	if (q != NULL)
 	    free(q);
     }
-    else
-	PM_UNLOCK(contexts_lock);
     if (ctl->pc_timeout == 0)
 	ctl->pc_timeout = 1;
     else if (ctl->pc_timeout < n_backoff)
 	ctl->pc_timeout++;
     ctl->pc_again = time(NULL) + backoff[ctl->pc_timeout-1];
+    PM_UNLOCK(contexts_lock);
 }
 
 /*
@@ -397,6 +399,76 @@ initcontextlock(pthread_mutex_t *lock)
 #define initcontextlock(x)	do { } while (0)
 #endif
 
+int
+__pmCheckAttribute(__pmAttrKey attr, const char *name)
+{
+    const char *p;
+
+    switch (attr) {
+    case PCP_ATTR_CONTAINER:
+	/*
+	 * Container names are parsed later as part of JSONB labelsets,
+	 * ensure the name is drawn from a limited character set that
+	 * is not going to result in conflicts with any other uses.
+	 */
+	for (p = name; *p; p++) {
+	    if (isalnum(*p) || *p == '.' || *p == '-' || *p == '_')
+		continue;
+	    return -EINVAL;
+	}
+	if (p == name)
+	    return -EINVAL;
+	break;
+
+    case PCP_ATTR_USERNAME:
+	/*
+	 * Check for POSIX user names - alphabetics, digits, period,
+	 * underscore, and hyphen, with the further restriction that
+	 * hyphen is not allowed as first character of a user name.
+	 */
+	if (name[0] == '-' || name[0] == '\0')
+	    return -EINVAL;
+	for (p = name; *p; p++) {
+	    if (isalnum(*p) || *p == '.' || *p == '-' || *p == '_')
+		continue;
+	    return -EINVAL;
+	}
+	break;
+
+    case PCP_ATTR_USERID:
+    case PCP_ATTR_GROUPID:
+    case PCP_ATTR_PROCESSID:
+	/*
+	 * PID, UID or GID must contain numeric characters only.
+	 */
+	for (p = name; *p; p++) {
+	    if (isdigit(*p))
+		continue;
+	    return -EINVAL;
+	}
+	if (p == name)
+	    return -EINVAL;
+	break;
+
+    case PCP_ATTR_PROTOCOL:
+    case PCP_ATTR_SECURE:
+    case PCP_ATTR_COMPRESS:
+    case PCP_ATTR_USERAUTH:
+    case PCP_ATTR_AUTHNAME:
+    case PCP_ATTR_PASSWORD:
+    case PCP_ATTR_METHOD:
+    case PCP_ATTR_REALM:
+    case PCP_ATTR_UNIXSOCK:
+    case PCP_ATTR_LOCAL:
+    case PCP_ATTR_EXCLUSIVE:
+	break;
+
+    default:
+	return -EINVAL;
+    }
+    return 0;
+}
+
 static int
 ctxlocal(__pmHashCtl *attrs)
 {
@@ -406,6 +478,10 @@ ctxlocal(__pmHashCtl *attrs)
 
     PM_LOCK(__pmLock_extcall);
     if ((container = getenv("PCP_CONTAINER")) != NULL) {	/* THREADSAFE */
+	if ((sts = __pmCheckAttribute(PCP_ATTR_CONTAINER, container)) < 0) {
+	    PM_UNLOCK(__pmLock_extcall);
+	    return sts;
+	}
 	if ((name = strdup(container)) == NULL) {
 	    PM_UNLOCK(__pmLock_extcall);
 	    return -ENOMEM;
@@ -470,6 +546,10 @@ ctxflags(__pmHashCtl *attrs, int *flags)
 	PM_LOCK(__pmLock_extcall);
 	container = getenv("PCP_CONTAINER");		/* THREADSAFE */
 	if (container != NULL) {
+	    if ((sts = __pmCheckAttribute(PCP_ATTR_CONTAINER, container)) < 0) {
+		PM_UNLOCK(__pmLock_extcall);
+		return sts;
+	    }
 	    if ((name = strdup(container)) == NULL) {
 		PM_UNLOCK(__pmLock_extcall);
 		return -ENOMEM;
@@ -653,7 +733,7 @@ addName(const char *dirname, char *list, size_t *listsize,
     /* Allocate more space */
     if (list == NULL) {
 	if ((list = malloc(dirsize + itemsize + 1)) == NULL) {
-	    pmNoMem("initarchive", itemsize + 1, PM_FATAL_ERR);
+	    pmNoMem("addName", itemsize + 1, PM_FATAL_ERR);
 	    /* NOTREACHED */
 	}
 	*listsize = 0;
@@ -661,7 +741,7 @@ addName(const char *dirname, char *list, size_t *listsize,
     else {
 	/* The comma goes where the previous nul was */
 	if ((list_new = realloc(list, dirsize + *listsize + itemsize + 1)) == NULL) {
-	    pmNoMem("initarchive", *listsize + itemsize + 1, PM_FATAL_ERR);
+	    pmNoMem("addName", *listsize + itemsize + 1, PM_FATAL_ERR);
 	    /* NOTREACHED */
 	}
 	list = list_new;
@@ -714,7 +794,7 @@ expandArchiveList(const char *names)
 	 * We need nul terminated copy of the name fpr opendir(3).
 	 */
 	if ((dirname = malloc(length + 1)) == NULL) {
-	    pmNoMem("initarchive", length + 1, PM_FATAL_ERR);
+	    pmNoMem("expandArchiveList", length + 1, PM_FATAL_ERR);
 	    /* NOTREACHED */
 	}
 	memcpy(dirname, current, length);
@@ -770,9 +850,6 @@ expandArchiveList(const char *names)
  * 'name' may be a single archive name or a list of archive names separated by
  * commas.
  *
- * 'chkfeature' is 0 to skip feature bits checks for V3 archives, else 1
- * for the default behaviour to check feature bits.
- *
  * Coming soon:
  * - name can be one or more glob expressions specifying the archives of
  *   interest.
@@ -780,7 +857,7 @@ expandArchiveList(const char *names)
  * NB: no locks are being held at entry.
  */
 static int
-initarchive(__pmContext	*ctxp, const char *name, int chkfeatures)
+initarchive(__pmContext	*ctxp, const char *name)
 {
     int			i;
     int			sts;
@@ -814,7 +891,8 @@ initarchive(__pmContext	*ctxp, const char *name, int chkfeatures)
     acp->ac_log_list = NULL;
     acp->ac_log = NULL;
     acp->ac_mark_done = 0;
-    acp->ac_chkfeatures = chkfeatures;
+    acp->ac_flags = ctxp->c_flags;
+    acp->ac_meta_loaded = 0;
 
     /*
      * The list of names may contain one or more directories. Examine the
@@ -949,6 +1027,15 @@ initarchive(__pmContext	*ctxp, const char *name, int chkfeatures)
     }
     free(namelist);
     namelist = NULL;
+    acp->ac_meta_loaded = 1;
+
+    /*
+     * All archives processed now, build PMNS hash
+     */
+    __pmFixPMNSHashTab(acp->ac_log->pmns, acp->ac_log->numpmid, 1);
+
+    /* Check for duplicate label sets. */
+    __pmCheckDupLabels(acp);
 
     if (acp->ac_num_logs > 1) {
 	/*
@@ -1124,7 +1211,7 @@ INIT_CONTEXT:
     PM_TPD(curr_handle) = new->c_handle = ++last_handle;
     new->c_slot = ctxnum;
     contexts[ctxnum] = &being_initialized;
-    contexts_map[ctxnum] = last_handle;
+    contexts_map[ctxnum] = MAP_INIT;
     PM_UNLOCK(contexts_lock);
     /* c_lock not re-initialized, created once from initcontextlock() above */
     new->c_type = (type & PM_CONTEXT_TYPEMASK);
@@ -1207,12 +1294,12 @@ INIT_CONTEXT:
     }
     else if (new->c_type == PM_CONTEXT_ARCHIVE) {
         /*
-         * Unlock during the archive inital file opens, which can take
+         * Unlock during the archive initial file opens, which can take
          * a noticeable amount of time, esp. for multi-archives.  This
          * is OK because no other thread can validly touch our
          * partly-initialized context.
          */
-        sts = initarchive(new, name, !(type & PM_CTXFLAG_NO_FEATURE_CHECK));
+        sts = initarchive(new, name);
         if (sts < 0)
 	    goto FAILED;
     }
@@ -1228,6 +1315,7 @@ INIT_CONTEXT:
        battle station ^W context. */
     PM_LOCK(contexts_lock);
     contexts[ctxnum] = new;
+    contexts_map[ctxnum] = new->c_handle;
     PM_UNLOCK(contexts_lock);
 
     /* return the handle to the new (current) context */
@@ -1380,19 +1468,15 @@ pmapi_return:
     return sts;
 }
 
-/*
- * TODO - move all the context copying earlier to a local temporary
- * under the protection of oldcon->c_lock ... then release oldcon->c_lock
- * and after the new one is created lock newcon->c_lock and cherry-pick
- * copy from the local temporary to the new __pmContext
- */
 int
 pmDupContext(void)
 {
-    int			sts, oldtype;
+    int			sts, oldtype, old_c_type;
     int			old, new = -1;
     char		hostspec[4096];
+    char		archivename[MAXPATHLEN];
     __pmContext		*newcon, *oldcon;
+    __pmContext		tmpcon = { 0 };		/* used to build new context */
     __pmMultiLogCtl	*newmlcp, *oldmlcp;
     pmInDomProfile	*q, *p, *p_end;
     int			i;
@@ -1417,60 +1501,50 @@ pmDupContext(void)
     }
 
     oldcon = contexts[ctxnum];
-    PM_UNLOCK(contexts_lock);
-    oldtype = oldcon->c_type | oldcon->c_flags;
-    if (oldcon->c_type == PM_CONTEXT_HOST) {
-	__pmUnparseHostSpec(oldcon->c_pmcd->pc_hosts,
-			oldcon->c_pmcd->pc_nhosts, hostspec, sizeof(hostspec));
-	new = pmNewContext(oldtype, hostspec);
-    }
-    else if (oldcon->c_type == PM_CONTEXT_LOCAL)
-	new = pmNewContext(oldtype, NULL);
-    else if (oldcon->c_type == PM_CONTEXT_ARCHIVE)
-	new = pmNewContext(oldtype, oldcon->c_archctl->ac_log->name);
-    if (new < 0) {
-	/* failed to connect or out of memory */
-	sts = new;
-	goto done;
-    }
-    PM_LOCK(contexts_lock);
-    if ((ctxnum = map_handle(new)) < 0) {
-	sts = PM_ERR_NOCONTEXT;
-	PM_UNLOCK(contexts_lock);
-	goto done;
-    }
-    newcon = contexts[ctxnum];
     PM_LOCK(oldcon->c_lock);
-    PM_LOCK(newcon->c_lock);
     PM_UNLOCK(contexts_lock);
     /*
-     * cherry-pick the fields of __pmContext that need to be copied
+     * Build a skeletal __pmContext in tmpcon with oldcon->c_lock held.
      */
-    newcon->c_mode = oldcon->c_mode;
-    newcon->c_origin = oldcon->c_origin;
-    newcon->c_delta = oldcon->c_delta;
-    newcon->c_direction = oldcon->c_direction;
-    newcon->c_flags = oldcon->c_flags;
+    tmpcon.c_mode = oldcon->c_mode;
+    tmpcon.c_origin = oldcon->c_origin;
+    tmpcon.c_delta = oldcon->c_delta;
+    tmpcon.c_direction = oldcon->c_direction;
+    tmpcon.c_flags = oldcon->c_flags;
 
     /* clone the per-domain profiles (if any) */
+    if ((tmpcon.c_instprof = (pmProfile *)calloc(1, sizeof(pmProfile))) == NULL) {
+	sts = -oserror();
+	goto setup_fail;
+    }
+    tmpcon.c_instprof->state = oldcon->c_instprof->state;
     if (oldcon->c_instprof->profile_len > 0) {
-	newcon->c_instprof->profile = (pmInDomProfile *)malloc(
+	tmpcon.c_instprof->profile_len = oldcon->c_instprof->profile_len;
+	tmpcon.c_instprof->profile = (pmInDomProfile *)malloc(
 	    oldcon->c_instprof->profile_len * sizeof(pmInDomProfile));
-	if (newcon->c_instprof->profile == NULL) {
+	if (tmpcon.c_instprof->profile == NULL) {
 	    sts = -oserror();
-	    goto done_locked;
+	    free(tmpcon.c_instprof);
+	    tmpcon.c_instprof = NULL;
+	    goto setup_fail;
 	}
-	memcpy(newcon->c_instprof->profile, oldcon->c_instprof->profile,
+	memcpy(tmpcon.c_instprof->profile, oldcon->c_instprof->profile,
 	    oldcon->c_instprof->profile_len * sizeof(pmInDomProfile));
 	p = oldcon->c_instprof->profile;
 	p_end = p + oldcon->c_instprof->profile_len;
-	q = newcon->c_instprof->profile;
+	q = tmpcon.c_instprof->profile;
 	for (; p < p_end; p++, q++) {
 	    if (p->instances) {
 		q->instances = (int *)malloc(p->instances_len * sizeof(int));
 		if (q->instances == NULL) {
 		    sts = -oserror();
-		    goto done_locked;
+		    /* free any allocated profiles up to the failue */
+		    for (q--; q >= tmpcon.c_instprof->profile; q--)
+			free(q->instances);
+		    free(tmpcon.c_instprof->profile);
+		    free(tmpcon.c_instprof);
+		    tmpcon.c_instprof = NULL;
+		    goto setup_fail;
 		}
 		memcpy(q->instances, p->instances,
 		    p->instances_len * sizeof(int));
@@ -1478,47 +1552,44 @@ pmDupContext(void)
 	}
     }
 
-    /*
-     * The call to pmNewContext (above) should have connected to the pmcd.
-     * Make sure the new profile will be sent before the next fetch.
-     */
-    newcon->c_sent = 0;
-
     /* clone the archive control struct, if any */
-    if (newcon->c_archctl != NULL)
-	__pmArchCtlFree(newcon->c_archctl); /* will allocate a new one below */
     if (oldcon->c_archctl != NULL) {
-	if ((newcon->c_archctl = (__pmArchCtl *)malloc(sizeof(__pmArchCtl))) == NULL) {
+	if ((tmpcon.c_archctl = (__pmArchCtl *)malloc(sizeof(__pmArchCtl))) == NULL) {
 	    sts = -oserror();
-	    goto done_locked;
+	    goto setup_fail;
 	}
-	*newcon->c_archctl = *oldcon->c_archctl;	/* struct assignment */
+	*tmpcon.c_archctl = *oldcon->c_archctl;	/* struct assignment */
+
+	/*
+	 * force new and independent reload of metadata in the new context
+	 * */
+	tmpcon.c_archctl->ac_meta_loaded = 0;
+
 	/*
 	 * Need to make hash list and read cache independent in case oldcon
 	 * is subsequently closed via pmDestroyContext() and don't want
 	 * __pmFreeInterpData() to trash our hash list and read cache.
 	 * Start with an empty hash list and read cache for the dup'd context.
 	 */
-	newcon->c_archctl->ac_pmid_hc.nodes = 0;
-	newcon->c_archctl->ac_pmid_hc.hsize = 0;
-	newcon->c_archctl->ac_cache = NULL;
+	tmpcon.c_archctl->ac_pmid_hc.nodes = 0;
+	tmpcon.c_archctl->ac_pmid_hc.hsize = 0;
+	tmpcon.c_archctl->ac_cache = NULL;
 
 	/*
 	 * Need a new ac_mfp, but pointing at the same volume so ac_offset
 	 * is OK
 	 */
-	newcon->c_archctl->ac_mfp = NULL;
-	vol = newcon->c_archctl->ac_curvol;
-	newcon->c_archctl->ac_curvol = -1;
-	sts = __pmLogChangeVol(newcon->c_archctl, vol);
+	tmpcon.c_archctl->ac_mfp = NULL;
+	vol = oldcon->c_archctl->ac_curvol;
+	tmpcon.c_archctl->ac_curvol = -1;
+	sts = __pmLogChangeVol(tmpcon.c_archctl, vol);
 	if  (sts < 0) {
 	    if (pmDebugOptions.log) {
 		char	errmsg[PM_MAXERRMSGLEN];
-		fprintf(stderr, "pmDupContext: __pmLogChangeVol(newcon, %d) failed: %s\n",
+		fprintf(stderr, "pmDupContext: __pmLogChangeVol(tmpcon, %d) failed: %s\n",
 		    vol, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	    }
-	    free(newcon->c_archctl);
-	    goto done_locked;
+	    goto setup_fail;
 	}
 
 	/*
@@ -1528,16 +1599,15 @@ pmDupContext(void)
 	if (oldcon->c_archctl->ac_log_list != NULL) {
 	    size_t size = oldcon->c_archctl->ac_num_logs *
 		sizeof(*oldcon->c_archctl->ac_log_list);
-	    if ((newcon->c_archctl->ac_log_list = malloc(size)) == NULL) {
+	    if ((tmpcon.c_archctl->ac_log_list = malloc(size)) == NULL) {
 		sts = -oserror();
-		free(newcon->c_archctl);
-		goto done_locked;
+		goto setup_fail;
 	    }
 	    /* We need to duplicate each ac_log_list entry. */
-	    for (i = 0; i < newcon->c_archctl->ac_num_logs; i++) {
-		newcon->c_archctl->ac_log_list[i] =
-		    malloc(sizeof(*newcon->c_archctl->ac_log_list[i]));
-		newmlcp = newcon->c_archctl->ac_log_list[i];
+	    for (i = 0; i < tmpcon.c_archctl->ac_num_logs; i++) {
+		tmpcon.c_archctl->ac_log_list[i] =
+		    malloc(sizeof(*tmpcon.c_archctl->ac_log_list[i]));
+		newmlcp = tmpcon.c_archctl->ac_log_list[i];
 		oldmlcp = oldcon->c_archctl->ac_log_list[i];
 		*newmlcp = *oldmlcp;
 		/*
@@ -1546,36 +1616,111 @@ pmDupContext(void)
 		 */
 		if ((newmlcp->name = strdup(newmlcp->name)) == NULL) {
 		    sts = -oserror();
-		    goto done_locked;
+		    goto setup_fail;
 		}
 		if ((newmlcp->hostname = strdup(newmlcp->hostname)) == NULL) {
 		    sts = -oserror();
-		    goto done_locked;
+		    goto setup_fail;
 		}
 		if (newmlcp->timezone != NULL) {
 		    if ((newmlcp->timezone = strdup(newmlcp->timezone)) == NULL) {
 			sts = -oserror();
-			goto done_locked;
+			goto setup_fail;
 		    }
 		}
 		if (newmlcp->zoneinfo != NULL) {
 		    if ((newmlcp->zoneinfo = strdup(newmlcp->zoneinfo)) == NULL) {
 			sts = -oserror();
-			goto done_locked;
+			goto setup_fail;
 		    }
 		}
 	    }
 	    /* We need to bump up the reference count of the ac_log. */
-	    if (newcon->c_archctl->ac_log != NULL)
-		++newcon->c_archctl->ac_log->refcnt;
+	    if (tmpcon.c_archctl->ac_log != NULL)
+		++tmpcon.c_archctl->ac_log->refcnt;
 	}
     }
 
-    sts = new;
+    oldtype = oldcon->c_type | oldcon->c_flags;
+    old_c_type = oldcon->c_type;
+    if (old_c_type == PM_CONTEXT_HOST)
+	__pmUnparseHostSpec(oldcon->c_pmcd->pc_hosts,
+			oldcon->c_pmcd->pc_nhosts, hostspec, sizeof(hostspec));
+    else if (old_c_type == PM_CONTEXT_ARCHIVE) {
+	strncpy(archivename, oldcon->c_archctl->ac_log->name, MAXPATHLEN-1);
+	archivename[MAXPATHLEN-1] = '\0';
+    }
 
-done_locked:
+    /*
+     * we now have local copies of everything we need to preserve/use
+     * from the old __pmContext
+     */
     PM_UNLOCK(oldcon->c_lock);
+
+    if (old_c_type == PM_CONTEXT_HOST)
+	new = pmNewContext(oldtype, hostspec);
+    else if (old_c_type == PM_CONTEXT_LOCAL)
+	new = pmNewContext(oldtype, NULL);
+    else if (old_c_type == PM_CONTEXT_ARCHIVE)
+	new = pmNewContext(oldtype, archivename);
+    if (new < 0) {
+	/* failed to connect or out of memory */
+	sts = new;
+	goto new_fail;
+    }
+    PM_LOCK(contexts_lock);
+    if ((ctxnum = map_handle(new)) < 0) {
+	sts = PM_ERR_NOCONTEXT;
+	PM_UNLOCK(contexts_lock);
+	goto done;
+    }
+    newcon = contexts[ctxnum];
+    PM_LOCK(newcon->c_lock);
+    PM_UNLOCK(contexts_lock);
+    /*
+     * cherry-pick the fields of __pmContext that need to be copied
+     */
+    newcon->c_mode = tmpcon.c_mode;
+    newcon->c_origin = tmpcon.c_origin;
+    newcon->c_delta = tmpcon.c_delta;
+    newcon->c_direction = tmpcon.c_direction;
+    newcon->c_flags = tmpcon.c_flags;
+    // newcon->c_instprof->state = tmpcon.c_instprof->state;
+    newcon->c_instprof->profile_len = tmpcon.c_instprof->profile_len;
+    newcon->c_instprof->profile = tmpcon.c_instprof->profile;
+    free (tmpcon.c_instprof);
+
+    /*
+     * For a HOST context, the call to pmNewContext (above) should
+     * have connected to the pmcd.
+     * Make sure the new profile will be sent before the next fetch.
+     */
+    newcon->c_sent = 0;
+
+    /* clone the archive control struct, if any */
+    if (newcon->c_archctl != NULL)
+	__pmArchCtlFree(newcon->c_archctl); /* will allocate a new one below */
+    newcon->c_archctl = tmpcon.c_archctl;
     PM_UNLOCK(newcon->c_lock);
+
+    sts = new;
+    goto done;
+
+setup_fail:
+    /* failure, get here with c_lock held on oldcon */
+    PM_UNLOCK(oldcon->c_lock);
+    /* FALLTHROUGH */
+
+new_fail:
+    /*
+     * failure, get here with no locks held, but tmpcon may have
+     * malloc'd memory we need to free
+     */
+    if (tmpcon.c_archctl != NULL)
+	free(tmpcon.c_archctl);
+    if (tmpcon.c_instprof != NULL)
+	__pmFreeProfile(tmpcon.c_instprof);
+    /* FALLTHROUGH */
 
 done:
     /* return an error code, or the handle for the new context */
@@ -1592,7 +1737,7 @@ done:
     }
 
 pmapi_return:
-
+    /* no locks held */
     if (pmDebugOptions.pmapi) {
 	fprintf(stderr, ":> returns ");
 	if (sts >= 0)
@@ -1765,11 +1910,15 @@ __pmDumpContext(FILE *f, int context, pmInDom indom)
 {
     int			i, j;
     __pmContext		*con;
+    int			idx;
 
     PM_INIT_LOCKS();
 
+    PM_LOCK(contexts_lock);
+    idx = map_handle_nolock(PM_TPD(curr_handle));
+    PM_UNLOCK(contexts_lock);
     fprintf(f, "Dump Contexts: current -> contexts[%d] handle %d\n",
-	map_handle_nolock(PM_TPD(curr_handle)), PM_TPD(curr_handle));
+	idx, PM_TPD(curr_handle));
     if (PM_TPD(curr_handle) < 0)
 	return;
 

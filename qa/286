@@ -15,11 +15,9 @@ echo "QA output created by $seq"
 . ./common.check
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "$sudo rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-rm -f $seq.full
 
 # iterate over local context (dso) kernel pmda metrics,
 # checking each one with different PDU orderings.
@@ -27,14 +25,14 @@ rm -f $seq.full
 $sudo_local_ctx pminfo -L kernel hinv 2>/dev/null |
 while read metric
 do
-    echo checking metric: $metric  >> $seq.full
+    echo checking metric: $metric  >> $seq_full
 
     # check fetch (eg. RH BZ 858384)
-    $sudo_local_ctx pmval -s 1 @:$metric  >> $seq.full
+    $sudo_local_ctx pmval -s 1 @:$metric  >> $seq_full
     [ $? -ne 0 ] && echo "$metric failed (pmval)"
 
     # check instance identifiers (only, no fetch)
-    $sudo_local_ctx pmprobe -L -i $metric  >> $seq.full
+    $sudo_local_ctx pmprobe -L -i $metric  >> $seq_full
     [ $? -ne 0 ] && echo "$metric failed (pmprobe)"
 done
 

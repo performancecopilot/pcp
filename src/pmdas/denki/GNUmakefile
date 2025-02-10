@@ -25,14 +25,14 @@ PMDAADMDIR	= $(PCP_PMDASADM_DIR)/$(IAM)
 PMDATMPDIR	= $(PCP_PMDAS_DIR)/$(IAM)
 
 LLDLIBS		= $(PCP_PMDALIB)
+LLDLIBS 	+= $(LIB_FOR_MATH)
 LCFLAGS		= $(INVISIBILITY)
 
 CFILES		= denki.c
 
 SCRIPTS		= Install Remove
 VERSION_SCRIPT	= exports
-HELPTARGETS	= help.dir help.pag
-LDIRT		= $(HELPTARGETS) domain.h $(VERSION_SCRIPT)
+LDIRT		= domain.h $(VERSION_SCRIPT)
 
 MAN_SECTION	= 1
 MAN_PAGES	= pmda$(IAM).$(MAN_SECTION)
@@ -43,15 +43,14 @@ default:	build-me
 include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "linux"
-build-me: $(LIBTARGET) $(CMDTARGET) $(HELPTARGETS)
+build-me: $(LIBTARGET) $(CMDTARGET)
 
 install: default
 	$(INSTALL) -m 755 -d $(PMDAADMDIR)
 	$(INSTALL) -m 755 -d $(PMDATMPDIR)
-	$(INSTALL) -m 644 -t $(PMDATMPDIR) domain.h help help.dir help.pag $(PMDAADMDIR)
-	$(INSTALL) -m 644 -t $(PMDATMPDIR) root root_denki README $(PMDAADMDIR)
+	$(INSTALL) -m 644 -t $(PMDATMPDIR) domain.h help $(PMDAADMDIR)
+	$(INSTALL) -m 644 -t $(PMDATMPDIR) root pmns README $(PMDAADMDIR)
 	$(INSTALL) -m 755 -t $(PMDATMPDIR) $(LIBTARGET) $(CMDTARGET) $(SCRIPTS) $(PMDAADMDIR)
-	$(INSTALL) -m 644 -t $(PCP_PMNS_DIR)/root_denki root_denki $(PCP_PMNSADM_DIR)/root_denki
 	@$(INSTALL_MAN)
 else
 build-me:
@@ -62,9 +61,6 @@ default_pcp : default
 
 install_pcp : install
 
-$(HELPTARGETS) : help
-	$(NEWHELP) -n root_denki -v 2 -o help < help
-
 $(VERSION_SCRIPT):
 	$(VERSION_SCRIPT_MAKERULE)
 
@@ -74,9 +70,6 @@ domain.h: ../../pmns/stdpmid
 $(OBJECTS): domain.h
 pmda.o: $(VERSION_SCRIPT)
 pmda.o:	$(TOPDIR)/src/include/pcp/libpcp.h
-
-check:: $(CFILES)
-	$(CLINT) $^
 
 check:: $(MAN_PAGES)
 	$(MANLINT) $^

@@ -7,11 +7,14 @@ in the source distribution for its full text.
 This meter written by Ian P. Hands (iphands@gmail.com, ihands@redhat.com).
 */
 
+#include "config.h" // IWYU pragma: keep
+
 #include "BatteryMeter.h"
 
 #include <math.h>
 
 #include "CRT.h"
+#include "Macros.h"
 #include "Object.h"
 #include "Platform.h"
 #include "XUtils.h"
@@ -27,7 +30,7 @@ static void BatteryMeter_updateValues(Meter* this) {
 
    Platform_getBattery(&percent, &isOnAC);
 
-   if (isnan(percent)) {
+   if (!isNonnegative(percent)) {
       this->values[0] = NAN;
       xSnprintf(this->txtBuffer, sizeof(this->txtBuffer), "N/A");
       return;
@@ -37,16 +40,16 @@ static void BatteryMeter_updateValues(Meter* this) {
 
    const char* text;
    switch (isOnAC) {
-   case AC_PRESENT:
-      text = this->mode == TEXT_METERMODE ? " (Running on A/C)" : "(A/C)";
-      break;
-   case AC_ABSENT:
-      text = this->mode == TEXT_METERMODE ? " (Running on battery)" : "(bat)";
-      break;
-   case AC_ERROR:
-   default:
-      text = "";
-      break;
+      case AC_PRESENT:
+         text = this->mode == TEXT_METERMODE ? " (Running on A/C)" : "(A/C)";
+         break;
+      case AC_ABSENT:
+         text = this->mode == TEXT_METERMODE ? " (Running on battery)" : "(bat)";
+         break;
+      case AC_ERROR:
+      default:
+         text = "";
+         break;
    }
 
    xSnprintf(this->txtBuffer, sizeof(this->txtBuffer), "%.1f%%%s", percent, text);
@@ -59,6 +62,7 @@ const MeterClass BatteryMeter_class = {
    },
    .updateValues = BatteryMeter_updateValues,
    .defaultMode = TEXT_METERMODE,
+   .supportedModes = METERMODE_DEFAULT_SUPPORTED,
    .maxItems = 1,
    .total = 100.0,
    .attributes = BatteryMeter_attributes,

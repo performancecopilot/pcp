@@ -51,7 +51,6 @@ divert > 0	{ # end of diversion
 
 status=1	# failure is the default
 trap "cd $here; rm -f $tmp.*; exit \$status" 0 1 2 3 15
-rm -f $seq.full
 cd perfevent
 
 if [ -f perf_event_test.c ]
@@ -61,7 +60,7 @@ then
     # so need to make over there first
     #
     cd $here/../src/pmdas/perfevent
-    if $PCP_MAKE_PROG clean default >>$here/$seq.full 2>&1
+    if $PCP_MAKE_PROG clean default >>$seq_full 2>&1
     then
 	:
     else
@@ -70,7 +69,7 @@ then
     fi
     cd $here/perfevent
     rm -f perfevent_test
-    if $PCP_MAKE_PROG clean perfevent_test fakefs >>$here/$seq.full 2>&1
+    if $PCP_MAKE_PROG clean perfevent_test fakefs >>$seq_full 2>&1
     then
 	:
     else

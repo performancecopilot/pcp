@@ -134,6 +134,9 @@ network.ip.outnoroutes
 network.ip.outrequests
     value 352043
 
+network.ip.outtransmits
+No value(s) available!
+
 network.ip.reasmfails
     value 0
 
@@ -335,6 +338,9 @@ network.ip.outnoroutes
 
 network.ip.outrequests
     value 92067342
+
+network.ip.outtransmits
+No value(s) available!
 
 network.ip.reasmfails
     value 0
@@ -538,6 +544,9 @@ network.ip.outnoroutes
 network.ip.outrequests
     value 10
 
+network.ip.outtransmits
+No value(s) available!
+
 network.ip.reasmfails
     value 16
 
@@ -739,6 +748,9 @@ network.ip.outnoroutes
 
 network.ip.outrequests
     value 10
+
+network.ip.outtransmits
+No value(s) available!
 
 network.ip.reasmfails
     value 16

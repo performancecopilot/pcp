@@ -15,11 +15,16 @@ done
 export PATH
 
 # migrate and clean configs
-echo >>$PCP_LOG_DIR/install.log
-date >>$PCP_LOG_DIR/install.log
+$show_me || echo >>$PCP_LOG_DIR/install.log
+$show_me || date >>$PCP_LOG_DIR/install.log
 for base in pmcd pmie pmlogger pmproxy
 do
-    _clean_configs -v 2>>$PCP_LOG_DIR/install.log $PCP_SYSCONF_DIR/$base /var/lib/pcp/config/$base /etc/$base /etc/pcp/$base /etc/sysconfig/$base
+    if $show_me
+    then
+	_clean_configs -n $PCP_SYSCONF_DIR/$base /var/lib/pcp/config/$base /etc/$base /etc/pcp/$base /etc/sysconfig/$base
+    else
+	_clean_configs -v 2>>$PCP_LOG_DIR/install.log $PCP_SYSCONF_DIR/$base /var/lib/pcp/config/$base /etc/$base /etc/pcp/$base /etc/sysconfig/$base
+    fi
 done
 
 for svc in pmproxy pmie pmlogger pmmgr pmcd pcp 
@@ -33,13 +38,13 @@ do
     #   may have clobbered libpcp.so during the earlier build on this host.
     #
     pids=`_get_pids_by_name -a $svc`
-    [ -n "$pids" ] && kill -TERM $pids
+    [ -n "$pids" ] && $KILL -TERM $pids
     if which systemctl >/dev/null 2>&1
     then
 	if systemctl list-unit-files $svc.service 2>&1 | grep "^$svc.service" >/dev/null
 	then
-	    systemctl stop $svc.service
-	    systemctl disable $svc.service
+	    $SYSTEMCTL stop $svc.service
+	    $SYSTEMCTL disable $svc.service
 	fi
     elif which rc-update >/dev/null 2>&1
     then
@@ -47,7 +52,7 @@ do
 	then
 	    # service is installed ...
 	    #
-	    rc-update delete $svc
+	    $RC_UPDATE delete $svc
 	fi
     fi
 done
@@ -57,11 +62,12 @@ for conf in \
     $PCP_PMIECONTROL_PATH $PCP_PMLOGGERCONTROL_PATH \
     $PCP_PMPROXYOPTIONS_PATH $PCP_PMWEBDOPTIONS_PATH \
     $PCP_ETC_DIR/pcp/indom.config \
+# end
 do
     if [ -f "$conf" ]
     then
-	rm -f "$conf.pre"
-	mv "$conf" "$conf.pre"
+	$RM -f "$conf.pre"
+	$MV "$conf" "$conf.pre"
     fi
 done
 

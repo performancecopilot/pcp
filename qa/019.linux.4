@@ -626,7 +626,9 @@ sampledso.float.bin_ctr: pmLookupDesc: No PMCD agent for domain of request
 
 *** This should 2/3 work, proc[no] irix[yes] sampledso[yes]
 PMDA_LOCAL_SAMPLE=yes
-proc.nprocs: pmLookupDesc: No PMCD agent for domain of request
+
+proc.nprocs
+    value NUMBER
 
 kernel.all.cpu.idle
     value NUMBER
@@ -675,7 +677,9 @@ sampledso.float.bin_ctr
 
 *** This should work, proc[yes] irix[yes] sampledso[yes]
 PMDA_LOCAL_SAMPLE=yes PMDA_LOCAL_PROC=yes
-proc.nprocs: pmLookupDesc: No PMCD agent for domain of request
+
+proc.nprocs
+    value NUMBER
 
 kernel.all.cpu.idle
     value NUMBER

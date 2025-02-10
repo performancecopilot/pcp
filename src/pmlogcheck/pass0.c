@@ -129,6 +129,12 @@ pass0(char *fname)
     char	logBase[MAXPATHLEN];
     long	offset = 0;
 
+    goldenmagic = 0;		/* force new label record each time thru' */
+    if (goldenfname != NULL) {
+	free(goldenfname);
+	goldenfname = NULL;
+    }
+
     if ((f = __pmFopen(fname, "r")) == NULL) {
 	fprintf(stderr, "%s: cannot open file: %s\n", fname, osstrerror());
 	sts = STS_FATAL;

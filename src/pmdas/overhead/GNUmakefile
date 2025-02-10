@@ -49,9 +49,11 @@ install: build-me
 	$(INSTALL) -m 755 -d $(PMDACONFIG)/examples
 	$(INSTALL) -m 644 -t $(PMDATMPDIR)/sample.conf sample.conf $(PMDACONFIG)/examples/sample.conf
 	$(INSTALL) -m 644 -t $(PMDATMPDIR)/default.conf default.conf $(PMDACONFIG)/conf.d/default.conf
+	$(INSTALL) -m 755 overhead.pmcheck $(PCP_SHARE_DIR)/lib/pmcheck/pmda-overhead
 else
 build-me:
-install:
+install: $(TOPDIR)/src/pmcheck/pmda.na.template
+	$(INSTALL) -m 755 $< $(PCP_SHARE_DIR)/lib/pmcheck/pmda-overhead
 endif
 
 $(CMDTARGET):	$(OBJECTS)

@@ -34,10 +34,12 @@ typedef enum http_flags {
     HTTP_FLAG_JSON	= (1<<0),
     HTTP_FLAG_TEXT	= (1<<1),
     HTTP_FLAG_HTML	= (1<<2),
-    HTTP_FLAG_UTF8	= (1<<10),
-    HTTP_FLAG_UTF16	= (1<<11),
-    HTTP_FLAG_NO_BODY	= (1<<13),
-    HTTP_FLAG_COMPRESS	= (1<<14),
+    HTTP_FLAG_UTF8	= (1<<3),
+    HTTP_FLAG_UTF16	= (1<<4),
+    HTTP_FLAG_NO_BODY	= (1<<11),
+    HTTP_FLAG_GZIP	= (1<<12),
+    HTTP_FLAG_DEFLATE	= (1<<13),
+    HTTP_FLAG_FLUSHING	= (1<<14),
     HTTP_FLAG_STREAMING	= (1<<15),
     /* maximum 16 for server.h */
 } http_flags_t;

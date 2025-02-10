@@ -8,19 +8,18 @@ Released under the GNU GPLv2+, see the COPYING file
 in the source distribution for its full text.
 */
 
-#include "config.h" // IWYU pragma: keep
-
 #include <kstat.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <sys/param.h>
-#include <sys/uio.h>
 #include <sys/resource.h>
+#include <sys/swap.h>
 #include <sys/sysconf.h>
 #include <sys/sysinfo.h>
-#include <sys/swap.h>
+#include <sys/uio.h>
 
 #include "Hashtable.h"
+#include "Machine.h"
 #include "UsersTable.h"
 
 #include "zfs/ZfsArcStats.h"

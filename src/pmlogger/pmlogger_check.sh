@@ -230,27 +230,22 @@ _compress_now()
 #
 if $SHOWME
 then
+    # Exception is for -N where we want to see the output.
+    #
     :
 elif [ "$PROGLOG" = "/dev/tty" ]
 then
-    # special case for debugging ... no salt away previous, no chown, no exec
+    # special case for debugging ... no salt away previous
     #
     :
 else
     # Salt away previous log, if any ...
     #
-    PROGLOGDIR=`dirname "$PROGLOG"`
-    [ -d "$PROGLOGDIR" ] || mkdir_and_chown "$PROGLOGDIR" 755 $PCP_USER:$PCP_GROUP 2>/dev/null
     _save_prev_file "$PROGLOG"
     # After argument checking, everything must be logged to ensure no mail is
     # accidentally sent from cron.  Close stdout and stderr, then open stdout
-    # as our logfile and redirect stderr there too.  Create the log file with
-    # correct ownership first.
+    # as our logfile and redirect stderr there too.
     #
-    # Exception ($SHOWME, above) is for -N where we want to see the output.
-    #
-    touch "$MYPROGLOG"
-    chown $PCP_USER:$PCP_GROUP "$MYPROGLOG" >/dev/null 2>&1
     exec 1>"$MYPROGLOG" 2>&1
 fi
 
@@ -415,11 +410,26 @@ _configure_pmlogger()
 		    elif [ -w "$configfile" ]
 		    then
 			$VERBOSE && echo "Reconfigured: \"$configfile\" (pmlogconf)"
-			chown $PCP_USER:$PCP_GROUP "$tmpconfig" >/dev/null 2>&1
 			eval $MV "$tmpconfig" "$configfile"
+			echo "=== pmlogconf changes @ `date` ==="
+			cat $tmp/diag
 		    else
-			_warning "no write access to pmlogconf file \"$configfile\", skip reconfiguration"
+			# transition problem we're trying to resolve ... configfile may have
+			# been owned by root but in a dir owned by $PCP_USER ... if so we'd
+			# like configfile to end up ownded by $PCP_USER
+			#
+			_warning "no write access to pmlogconf file \"$configfile\""
 			ls -l "$configfile"
+			echo "Trying to remove and replace \"$configfile\" ..."
+			$RM -f "$configfile"
+			if [ -e "$configfile" ]
+			then
+			    echo "Failed, parent directory is ..."
+			    ls -l `dirname "$configfile"`
+			    _warning "skip reconfiguration"
+			else
+			    eval $MV "$tmpconfig" "$configfile"
+			fi
 		    fi
 		else
 		    _warning "pmlogconf failed to reconfigure \"$configfile\""
@@ -448,7 +458,6 @@ _configure_pmlogger()
 	    echo "=== end pmlogconf file ==="
 	else
 	    $VERBOSE && echo "Created: \"$configfile\" (pmlogconf)"
-	    chown $PCP_USER:$PCP_GROUP "$configfile" >/dev/null 2>&1
 	fi
     else
 	$VERBOSE && echo "Botched: \"$configfile\" (pmlogconf)"
@@ -812,7 +821,11 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	#
 	if [ ! -d "$dir" ]
 	then
-	    mkdir_and_chown "$dir" 755 $PCP_USER:$PCP_GROUP >$tmp/tmp 2>&1
+	    # mode rwxrwxr-x is the default for pcp:pcp dirs
+	    umask 002
+	    mkdir -p -m 0775 "$dir" >$tmp/tmp 2>&1
+	    # reset the default mode to rw-rw-r- for files
+	    umask 022
 	    if [ ! -d "$dir" ]
 	    then
 		cat $tmp/tmp
@@ -822,10 +835,6 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 		_warning "creating directory ($dir) for PCP archive files"
 	    fi
 	fi
-
-	# and the logfile is writeable, if it exists
-	#
-	[ -f "$logfile" ] && chown $PCP_USER:$PCP_GROUP "$logfile" >/dev/null 2>&1
 
 	if cd "$dir"
 	then
@@ -848,13 +857,14 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	    delay=200	# tenths of a second
 	    while [ $delay -gt 0 ]
 	    do
-		if pmlock -v "$dir/lock" >$tmp/out 2>&1
+		if pmlock -i "$$ pmlogger_check" -v "$dir/lock" >$tmp/out 2>&1
 		then
 		    echo "$dir/lock" >$tmp/lock
 		    if $VERY_VERBOSE
 		    then
 			echo "Acquired lock:"
-			ls -l "$dir"/lock
+			LC_TIME=POSIX ls -l "$dir/lock"
+			[ -s "$dir/lock" ] && cat "$dir/lock"
 		    fi
 		    break
 		else
@@ -865,7 +875,8 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 			if [ -f "$dir/lock" ]
 			then
 			    echo "$prog: Warning: removing lock file older than 30 minutes"
-			    LC_TIME=POSIX ls -l "$dir"/lock
+			    LC_TIME=POSIX ls -l "$dir/lock"
+			    [ -s "$dir/lock" ] && cat "$dir/lock"
 			    rm -f "$dir/lock"
 			else
 			    # there is a small timing window here where pmlock
@@ -907,7 +918,8 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 		if [ -f "$dir/lock" ]
 		then
 		    echo "$prog: Warning: is another PCP cron job running concurrently?"
-		    LC_TIME=POSIX ls -l "$dir"/lock
+		    LC_TIME=POSIX ls -l "$dir/lock"
+		    [ -s "$dir/lock" ] && cat "$dir/lock"
 		else
 		    echo "$prog: `cat $tmp/out`"
 		fi
@@ -939,10 +951,10 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 		elif _get_pids_by_name pmlogger | grep "^$pid\$" >/dev/null
 		then
 		    $VERY_VERBOSE && echo "primary pmlogger process $pid identified, OK"
-		    $VERY_VERY_VERBOSE && $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]ID|[p]mlogger '
+		    $VERY_VERY_VERBOSE && $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]ID|/[p]mlogger( |$)'
 		else
 		    $VERY_VERBOSE && echo "primary pmlogger process $pid not running"
-		    $VERY_VERY_VERBOSE && $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]ID|[p]mlogger '
+		    $VERY_VERY_VERBOSE && $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]ID|/[p]mlogger( |$)'
 		    pid=''
 		fi
 	    else
@@ -978,11 +990,11 @@ END				{ print m }'`
 		    if _get_pids_by_name pmlogger | grep "^$pid\$" >/dev/null
 		    then
 			$VERY_VERBOSE && echo "pmlogger process $pid identified, OK"
-			$VERY_VERY_VERBOSE && $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]ID|[p]mlogger '
+			$VERY_VERY_VERBOSE && $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]ID|/[p]mlogger( |$)'
 			break
 		    fi
 		    $VERY_VERBOSE && echo "pmlogger process $pid not running, skip"
-		    $VERY_VERY_VERBOSE && $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]ID|[p]mlogger '
+		    $VERY_VERY_VERBOSE && $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]ID|/[p]mlogger( |$)'
 		    pid=''
 		else
 		    $VERY_VERBOSE && echo "different directory, skip"
@@ -1070,11 +1082,6 @@ END				{ print m }'`
             fi
 
 	    _get_logfile
-	    if [ -f $logfile ]
-	    then
-		$VERBOSE && $SHOWME && echo
-		eval $MV -f $logfile $logfile.prior
-	    fi
 
 	    # Notify service manager (if any) for the primary logger ONLY.
 	    [ "$primary" = y ] && args="-N $args"

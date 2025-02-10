@@ -115,9 +115,9 @@ esac
 
 _save_config $PCP_PMCDCONF_PATH
 $sudo cp $tmp.conf $PCP_PMCDCONF_PATH
-_service pcp restart 2>&1 | _filter_pcp_start
-_wait_for_pmcd
-_wait_for_pmlogger
+if ! _service pcp restart 2>&1; then _exit 1; fi | _filter_pcp_start
+_wait_for_pmcd || _exit 1
+_wait_for_pmlogger || _exit 1
 
 unset ROOT MAKEFLAGS
 cd $PCP_PMDAS_DIR/trivial
@@ -143,14 +143,14 @@ do
     $sudo touch $PCP_PMCDCONF_PATH
     $sudo $signal -a -s HUP pmcd
     sleep 1
-    _wait_for_pmcd
+    _wait_for_pmcd || _exit 1
     pminfo -f pmcd.agent.type
     echo "cull trivial PMDA ..."
     $sudo cp $tmp.conf $PCP_PMCDCONF_PATH
     $sudo touch $PCP_PMCDCONF_PATH
     $sudo $signal -a -s HUP pmcd
     sleep 1
-    _wait_for_pmcd
+    _wait_for_pmcd || _exit 1
     pminfo -f pmcd.agent.type
 done
 

@@ -46,7 +46,6 @@ _cleanup()
     exit $status
 }
 
-$sudo rm -rf $tmp.* $seq.full 
 trap "_cleanup" 0 1 2 3 15
 
 # real QA test starts here
@@ -56,7 +55,7 @@ PMDA_PMCD_PATH=$PCP_PMDAS_DIR/pmcd/pmda_pmcd.$DSO_SUFFIX
 cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
 
 # start from a known starting point
-_service pcp stop >/dev/null 2>&1
+if ! _service pcp stop >/dev/null 2>&1; then _exit 1; fi
 
 cat <<End-of-File >$tmp.tmp
 # Installed by PCP QA test $seq on `date`
@@ -67,9 +66,9 @@ End-of-File
 $sudo cp $tmp.tmp $PCP_PMCDCONF_PATH
 
 _writable_primary_logger
-_service pcp restart 2>&1 | _filter_pcp_start
-_wait_for_pmcd
-_wait_for_pmlogger
+if ! _service pcp restart 2>&1; then _exit 1; fi | _filter_pcp_start
+_wait_for_pmcd || _exit 1
+_wait_for_pmlogger || _exit 1
 
 # Reset pmlogger
 echo "log sample.dynamic.meta.metric"
@@ -95,7 +94,7 @@ _try_pmlc
 # thanks to systemd, so remember the current archive and the current log
 #
 archive=`pmafm $LOGGING_DIR/$LOCALHOST/Latest list | sed -n -e '/ 1]/s/.* //p'`
-echo "archive=$archive" >>$seq.full
+echo "archive=$archive" >>$seq_full
 $sudo rm -f $LOGGING_DIR/$LOCALHOST/$seq.log
 $sudo ln $LOGGING_DIR/$LOCALHOST/pmlogger.log $LOGGING_DIR/$LOCALHOST/$seq.log
 
@@ -110,8 +109,8 @@ echo "---------------------------------------------------------------"
 
 # Get the type of sample.dynamic.meta.metric by fetching 
 # sample.dynamic.meta.pmdesc.type using pminfo.
-echo "pminfo -f sample.dynamic.meta.pmdesc.type" | tee -a $seq.full
-type=`pminfo -f sample.dynamic.meta.pmdesc.type | tee -a $seq.full \
+echo "pminfo -f sample.dynamic.meta.pmdesc.type" | tee -a $seq_full
+type=`pminfo -f sample.dynamic.meta.pmdesc.type | tee -a $seq_full \
     | awk '/value/ { print $2 }'`
 
 # Change the type of sample.dynamic.meta.metric by using pmstore to store into
@@ -140,9 +139,9 @@ echo "---------------------------------------------------------------"
 
 # pmlogger should have stopped. Check for the messages indicating that
 # the re-check of the configured metrics failed and that it stopped.
-echo >>$seq.full
-echo "pmlogger log ..." >>$seq.full
-cat $LOGGING_DIR/$LOCALHOST/$seq.log | tee -a $seq.full | \
+echo >>$seq_full
+echo "pmlogger log ..." >>$seq_full
+cat $LOGGING_DIR/$LOCALHOST/$seq.log | tee -a $seq_full | \
 grep \
  -e 'Type of metric "sample.dynamic.meta.metric" has changed from 32 to U32' \
  -e 'One or more configured metrics have changed after pmcd state change. Exiting'

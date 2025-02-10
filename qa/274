@@ -16,7 +16,7 @@ echo "QA output created by $seq"
 signal=$PCP_BINADM_DIR/pmsignal
 status=1
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
-$sudo rm -f $here/$seq.full
+$sudo rm -f $seq_full
 
 _filter()
 {
@@ -104,21 +104,21 @@ $sudo $signal -a -s HUP pmcd >/dev/null 2>&1
 # ensure everything is built
 if [ -f GNUmakefile.install ]
 then
-    $sudo $PCP_MAKE_PROG -f GNUmakefile.install >>$here/$seq.full 2>&1
+    $sudo $PCP_MAKE_PROG -f GNUmakefile.install >>$seq_full 2>&1
 else
-    $sudo $PCP_MAKE_PROG >>$here/$seq.full 2>&1
+    $sudo $PCP_MAKE_PROG >>$seq_full 2>&1
 fi
 cd $here
 
 # Remove the PMDA
-_remove()
+_cleanup()
 {
     cd $here/pmdas/broken
     $sudo ./broken_Remove
     cd $here
 }
 
-trap "_remove; rm -f $tmp.*; exit \$status" 0 1 2 3 15
+trap "_cleanup; rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 dbpmda -ie 2>&1 <<End-of-File | _filter
 open pipe pmdas/broken/broken_pmda_2_0 -Dlibpmda,appl2,appl0 -l $tmp.log
@@ -159,8 +159,8 @@ sleep 1
 if [ -f $tmp.log ]
 then
     cat $tmp.log | _filter2
-    echo "=== PMDA should survive tests ===" >>$here/$seq.full
-    cat $tmp.log >>$here/$seq.full
+    echo "=== PMDA should survive tests ===" >>$seq_full
+    cat $tmp.log >>$seq_full
     rm -f $tmp.log
 fi
 
@@ -177,9 +177,9 @@ sleep 1
 if [ -f $tmp.log ]
 then
     cat $tmp.log | _filter2
-    echo >>$here/$seq.full
-    echo "=== broken_pmda_2_1 ===" >>$here/$seq.full
-    cat $tmp.log >>$here/$seq.full
+    echo >>$seq_full
+    echo "=== broken_pmda_2_1 ===" >>$seq_full
+    cat $tmp.log >>$seq_full
     rm -f $tmp.log
 fi
 
@@ -194,9 +194,9 @@ sleep 1
 if [ -f $tmp.log ]
 then
     cat $tmp.log | _filter2
-    echo >>$here/$seq.full
-    echo "=== broken_pmda_2_2 ===" >>$here/$seq.full
-    cat $tmp.log >>$here/$seq.full
+    echo >>$seq_full
+    echo "=== broken_pmda_2_2 ===" >>$seq_full
+    cat $tmp.log >>$seq_full
     rm -f $tmp.log
 fi
 
@@ -211,9 +211,9 @@ sleep 1
 if [ -f $tmp.log ]
 then
     cat $tmp.log | _filter2
-    echo >>$here/$seq.full
-    echo "=== broken_pmda_2_3 ===" >>$here/$seq.full
-    cat $tmp.log >>$here/$seq.full
+    echo >>$seq_full
+    echo "=== broken_pmda_2_3 ===" >>$seq_full
+    cat $tmp.log >>$seq_full
     rm -f $tmp.log
 fi
 
@@ -229,9 +229,9 @@ sleep 1
 if [ -f $tmp.log ]
 then
     cat $tmp.log | _filter2
-    echo >>$here/$seq.full
-    echo "=== broken_pmda_2_4 ===" >>$here/$seq.full
-    cat $tmp.log >>$here/$seq.full
+    echo >>$seq_full
+    echo "=== broken_pmda_2_4 ===" >>$seq_full
+    cat $tmp.log >>$seq_full
     rm -f $tmp.log
 fi
 
@@ -247,9 +247,9 @@ sleep 1
 if [ -f $tmp.log ]
 then
     cat $tmp.log | _filter2
-    echo >>$here/$seq.full
-    echo "=== broken_pmda_2_5 ===" >>$here/$seq.full
-    cat $tmp.log >>$here/$seq.full
+    echo >>$seq_full
+    echo "=== broken_pmda_2_5 ===" >>$seq_full
+    cat $tmp.log >>$seq_full
     rm -f $tmp.log
 fi
 

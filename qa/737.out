@@ -6,3 +6,7 @@ pmCtime from int:        Mon Feb  3 04:46:19 2014
 pmCtime from float:      Mon Feb  3 04:46:19 2014
 pmWhichZone:  UTC
 pmWhichZone:  UTC
+timeval from int:    1391402779.000
+timeval from float:  1391402779.500
+timespec from int:    1391402779.000
+timespec from float:  1391402779.500

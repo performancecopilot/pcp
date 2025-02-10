@@ -1,7 +1,7 @@
 QA output created by 485
 
 === global hostname -> foo.bar.com ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 Hostname:	snort -> foo.bar.com
 pmdumplog diffs ...
 --- TMP.in
@@ -18,7 +18,7 @@ pmdumplog diffs ...
  
 
 === global tz -> GMT ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 Timezone:	EST-11EST-10,89/2:00,299/2:00 -> GMT
 pmdumplog diffs ...
 --- TMP.in
@@ -33,7 +33,7 @@ pmdumplog diffs ...
 +    ending     Sun Nov  2 22:33:24.637736 1997
  
  Descriptions for Metrics in the Log ...
- PMID: 2.3.2 (pmcd.pmlogger.archive)
+ PMID: 2.3.0 (pmcd.pmlogger.port)
 @@ -18,15 +18,15 @@
  
  Instance Domains in the Log ...
@@ -55,7 +55,7 @@ pmdumplog diffs ...
      2.3.2 (pmcd.pmlogger.archive): inst [21308 or "21308"] value "/usr/people/chatz/end"
 
 === global time->10:20:30 ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 Delta:		-> 10:20:30.000000000
 pmdumplog diffs ...
 --- TMP.in
@@ -70,7 +70,7 @@ pmdumplog diffs ...
 +    ending     Mon Nov  3 19:53:54.637736 1997
  
  Descriptions for Metrics in the Log ...
- PMID: 2.3.2 (pmcd.pmlogger.archive)
+ PMID: 2.3.0 (pmcd.pmlogger.port)
 @@ -18,15 +18,15 @@
  
  Instance Domains in the Log ...
@@ -92,7 +92,7 @@ pmdumplog diffs ...
      2.3.2 (pmcd.pmlogger.archive): inst [21308 or "21308"] value "/usr/people/chatz/end"
 
 === global time->+10:20:30 ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 Delta:		-> 10:20:30.000000000
 pmdumplog diffs ...
 --- TMP.in
@@ -107,7 +107,7 @@ pmdumplog diffs ...
 +    ending     Mon Nov  3 19:53:54.637736 1997
  
  Descriptions for Metrics in the Log ...
- PMID: 2.3.2 (pmcd.pmlogger.archive)
+ PMID: 2.3.0 (pmcd.pmlogger.port)
 @@ -18,15 +18,15 @@
  
  Instance Domains in the Log ...
@@ -129,7 +129,7 @@ pmdumplog diffs ...
      2.3.2 (pmcd.pmlogger.archive): inst [21308 or "21308"] value "/usr/people/chatz/end"
 
 === global time->-10:20:30 ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 Delta:		-> -10:20:30.000000000
 pmdumplog diffs ...
 --- TMP.in
@@ -144,7 +144,7 @@ pmdumplog diffs ...
 +    ending     Sun Nov  2 23:12:54.637736 1997
  
  Descriptions for Metrics in the Log ...
- PMID: 2.3.2 (pmcd.pmlogger.archive)
+ PMID: 2.3.0 (pmcd.pmlogger.port)
 @@ -18,15 +18,15 @@
  
  Instance Domains in the Log ...
@@ -166,7 +166,7 @@ pmdumplog diffs ...
      2.3.2 (pmcd.pmlogger.archive): inst [21308 or "21308"] value "/usr/people/chatz/end"
 
 === global time->-22:33:24.637 tz->"GMT" hostname->eek ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 Hostname:	snort -> eek
 Timezone:	EST-11EST-10,89/2:00,299/2:00 -> GMT
 Delta:		-> -22:33:24.637000000
@@ -186,7 +186,7 @@ pmdumplog diffs ...
 +    ending     Sun Nov  2 00:00:00.000736 1997
  
  Descriptions for Metrics in the Log ...
- PMID: 2.3.2 (pmcd.pmlogger.archive)
+ PMID: 2.3.0 (pmcd.pmlogger.port)
 @@ -18,15 +18,15 @@
  
  Instance Domains in the Log ...

@@ -10,7 +10,7 @@ echo "QA output created by $seq"
 
 . ./common.secure
 
-_check_redis_server
+_check_key_server
 _check_valgrind
 _check_tls
 
@@ -30,12 +30,11 @@ _cleanup()
 status=1	# failure is the default!
 need_restore=false
 username=`id -u -n`
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _filter_json()
 {
-    tee -a $seq.full > $tmp.unfiltered
+    tee -a $seq_full > $tmp.unfiltered
     if [ -s $tmp.unfiltered ]
     then
 	pmjson < $tmp.unfiltered > $tmp.filtered
@@ -73,14 +72,14 @@ _save_config $PCP_TLSCONF_PATH
 need_restore=true
 
 $sudo rm -rf $PCP_SYSCONF_DIR/labels/*
-_sighup_pmcd
+_sighup_pmcd || _exit 1
 
 # creates a self-signed (insecure) certificate, so for testing only
 _setup_tls
 echo "[pmproxy]" >> $tmp.conf
 echo "pcp.enabled = true" >> $tmp.conf
 echo "http.enabled = true" >> $tmp.conf
-echo "redis.enabled = true" >> $tmp.conf
+echo "resp.enabled = true" >> $tmp.conf
 echo "secure.enabled = true" >> $tmp.conf
 echo "private_key = $here/tls.conf/pcp.key" >> $tmp.conf
 echo "certificates = $here/tls.conf/pcp.crt" >> $tmp.conf
@@ -95,8 +94,8 @@ $_valgrind_clean_assert pmproxy -f -l- --timeseries \
 	>$tmp.valout 2>$tmp.valerr &
 pid=$!
 
-echo "valgrind pid: $pid" >>$seq.full
-echo "pmproxy port: $port" >>$seq.full
+echo "valgrind pid: $pid" >>$seq_full
+echo "pmproxy port: $port" >>$seq_full
 
 # valgrind takes awhile to fire up
 i=0
@@ -108,56 +107,56 @@ do
 done
 if $PCP_BINADM_DIR/telnet-probe -c localhost $port
 then
-    echo "Startup took $i secs" >>$seq.full
+    echo "Startup took $i secs" >>$seq_full
 else
     echo "Arrgh: valgrind failed start pmproxy and get port $port ready after 30 secs"
     exit
 fi
 
-date >>$seq.full
-echo "=== checking serial http operation ===" | tee -a $seq.full
+date >>$seq_full
+echo "=== checking serial http operation ===" | tee -a $seq_full
 for i in 1 2 3 4; do
     curl -Gs "http://localhost:$port/pmapi/metric?name=sample.long.ten" 2>$tmp.err$i >$tmp.out$i
 done
 for i in 1 2 3 4; do
-echo === out$i === | tee -a $seq.full
+echo === out$i === | tee -a $seq_full
 _filter_json < $tmp.out$i
 done
 
-date >>$seq.full
-echo "=== checking parallel http operation ===" | tee -a $seq.full
+date >>$seq_full
+echo "=== checking parallel http operation ===" | tee -a $seq_full
 for i in 1 2 3 4; do
     curl -Gs "http://localhost:$port/pmapi/metric?name=sample.long.ten" 2>$tmp.err$i >$tmp.out$i & 2>/dev/null eval pid$i=$!
 done
 wait $pid1 $pid2 $pid3 $pid4
 for i in 1 2 3 4; do
-echo === out$i === | tee -a $seq.full
+echo === out$i === | tee -a $seq_full
 _filter_json < $tmp.out$i
 done
 
-date >>$seq.full
-echo "=== checking serial https/TLS operation ===" | tee -a $seq.full
+date >>$seq_full
+echo "=== checking serial https/TLS operation ===" | tee -a $seq_full
 for i in 1 2 3 4; do
     curl -k -Gs "https://localhost:$port/pmapi/metric?name=sample.long.ten" 2>$tmp.err$i >$tmp.out$i
 done
 for i in 1 2 3 4; do
-echo === out$i === | tee -a $seq.full
+echo === out$i === | tee -a $seq_full
 _filter_json < $tmp.out$i
 done
 
-date >>$seq.full
-echo "=== checking parallel https/TLS operation ===" | tee -a $seq.full
+date >>$seq_full
+echo "=== checking parallel https/TLS operation ===" | tee -a $seq_full
 for i in 1 2 3 4; do
     curl -k -Gs "https://localhost:$port/pmapi/metric?name=sample.long.ten" 2>$tmp.err$i >$tmp.out$i & 2>/dev/null eval pid$i=$!
 done
 wait $pid1 $pid2 $pid3 $pid4
 for i in 1 2 3 4; do
-echo === out$i === | tee -a $seq.full
+echo === out$i === | tee -a $seq_full
 _filter_json < $tmp.out$i
 done
 
-date >>$seq.full
-echo "=== checking parallel mixed http and https/TLS operations ===" | tee -a $seq.full
+date >>$seq_full
+echo "=== checking parallel mixed http and https/TLS operations ===" | tee -a $seq_full
 for i in 1 3 5 7; do
     j=`expr $i + 1`
     curl -k -Gs "http://localhost:$port/pmapi/metric?name=sample.long.ten" 2>$tmp.err$i >$tmp.out$i & 2>/dev/null eval pid$i=$!
@@ -165,7 +164,7 @@ for i in 1 3 5 7; do
 done
 wait $pid1 $pid2 $pid3 $pid4 $pid5 $pid6 $pid7 $pid8
 for i in 1 2 3 4 5 6 7 8; do
-echo === out$i === | tee -a $seq.full
+echo === out$i === | tee -a $seq_full
 _filter_json < $tmp.out$i
 done
 
@@ -180,10 +179,10 @@ fi
 # valgrind takes awhile to shutdown too
 pmsignal $pid >/dev/null 2>&1
 pmsleep 3.5
-echo "=== valgrind stdout ===" | tee -a $seq.full
+echo "=== valgrind stdout ===" | tee -a $seq_full
 cat $tmp.valout | _filter_valgrind
 
-echo "=== valgrind stderr ===" | tee -a $seq.full
+echo "=== valgrind stderr ===" | tee -a $seq_full
 cat $tmp.valerr | _filter_pmproxy_log | _filter_port
 
 # success, all done

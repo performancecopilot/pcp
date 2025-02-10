@@ -1,0 +1,19 @@
+#!/bin/sh
+# PCP QA Test No. 1519
+# SUSE Issue B)
+#	__pmDecodeCreds() Accesses `numcreds` Even if There is not
+#	Enough Data
+#
+# Copyright (c) 2024 Ken McDonell.  All Rights Reserved.
+# Copyright (c) 2024 Matthias Gerstner.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+pdu_data=pdudata/numcreds-undefined-data
+grep_pattern=__pmDecodeCreds
+
+# this is one of the generic pmcd PDU exerciser tests ...
+#
+. ./common.pmcd.pdu

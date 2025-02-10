@@ -1,0 +1,220 @@
+#!/bin/sh
+#
+# Extract and cull warnings and errors from a PCP build.
+#
+# The input is assumed to be a Logs/pcp log from Makepkgs (so a full
+# build and package).
+#
+# The things we're culling are
+# - false warnings, often from older toolchains
+# - warnings from code the is not part of PCP proper, e.g. the qwt library
+#   and the vendor code (hiredis, hiredis-cluster, jasonl, libbpf-tools,
+#   bpftool, htop, etc) ... we assume fixed these is "someone else's
+#   problem"
+# - things's we triaged and decided are OK, e.g. rand() or random() use
+#   in qa apps, safe uses of strcpy() or strcat() or sprintf()
+# - packaging warnings we can't do anything about
+#
+# This is a filter, so reads from stdin.
+#
+
+tmp=/var/tmp/c-b-w-$$
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+# Gather all the lines of interest, add leading ' ' to make later
+# filtering easier
+#
+sed >$tmp.out -n \
+    -e 's/^ / /' \
+    -e '/Permission denied/p' \
+    -e '/ [Ee]rror: /p' \
+    -e '/ [Ww][Aa][Rr][Nn][Ii][Nn][Gg]: /p' \
+    -e 's/^ //' \
+# end
+mv $tmp.out $tmp.in
+
+# Cull false warnings
+#
+sed <$tmp.in >$tmp.out \
+    -e '/yyunput.* defined but not used/d' \
+    -e '/input.* defined but not used/d' \
+    -e '/jobserver unavailable: using -j1/d'\
+    -e '/pmprintf("%s: Warning: /d' \
+    -e '/^main.cpp:237:21: warning: .%s. directive argument is null/d' \
+    -e '/^qmc_metric.cpp:270:12: warning: variable .len. set but not used/d' \
+    -e '/^stackmod.cpp[ :].* warning: writing 1 byte into a region of size 0/d' \
+    -e '/ shadowed declaration is here/d' \
+    -e '/^lto-wrapper: warning: using serial compilation/d' \
+    -e '/^> .*Warning: /d' \
+    -e '/^> .*Error: /d' \
+    -e '/^pmdasample: cannot open log "sample.log" for writing : Permission denied/d' \
+# end
+mv $tmp.out $tmp.in
+
+# Cull warnings from non-PCP code
+#
+sed <$tmp.in >$tmp.out \
+    -e '/^qwt_/d' \
+    -e '/^\.\/qwt_/d' \
+    -e '/^deps\/hiredis\/sds.h[ :].* declaration of .sh. shadows a previous local/d' \
+    -e '/^deps\/hiredis\/sds.c[ :].* declaration of .sh. shadows a previous local/d' \
+    -e '/^deps\/hiredis\/sds.c[ :].* declaration shadows a local variable/d' \
+    -e '/\/selinux\/.*\.if[ :].* duplicate definition of /d' \
+    -e '/^libbpf.c[ :].* comparison of integer expressions of different signedness/d' \
+    -e '/^libbpf.c[ :].* comparison between signed and unsigned integer expressions/d' \
+    -e '/^libbpf.c[ :].* operand of .?:. changes signedness from /d' \
+    -e '/^libbpf.c[ :].* signed and unsigned type in conditional expression/d' \
+    -e '/^libbpf_internal.h[ :].* comparison of integer expressions of different signedness/d' \
+    -e '/^libbpf_internal.h[ :].* comparison between signed and unsigned integer expressions/d' \
+    -e '/^\.\.\/libbpf\/src\/libbpf.c[ :].* may be used uninitialized/d' \
+    -e '/^\.\.\/libbpf\/src\/btf.c[ :].* may be used uninitialized/d' \
+    -e '/^bpf.c[ :].* comparison of integer expressions of different signedness/d' \
+    -e '/^bpf.c[ :].* comparison between signed and unsigned integer expressions/d' \
+    -e '/^btf.c[ :].* comparison of integer expressions of different signedness/d' \
+    -e '/^btf.c[ :].* comparison between signed and unsigned integer expressions/d' \
+    -e '/^btf.c[ :].* operand of .?:. changes signedness from /d' \
+    -e '/^btf.c[ :].* signed and unsigned type in conditional expression/d' \
+    -e '/^query.c[ :].*missing.braces/d' \
+    -e '/^query.c[ :].*near initialization for/d' \
+    -e '/^query.c[ :].*zero-length-bounds/d' \
+    -e '/^btf_dump.c[ :].* comparison of integer expressions of different signedness/d' \
+    -e '/^btf_dump.c[ :].* comparison between signed and unsigned integer expressions/d' \
+    -e '/^gen_loader.c[ :].* comparison of integer expressions of different signedness/d' \
+    -e '/^gen_loader.c[ :].* comparison between signed and unsigned integer expressions/d' \
+    -e '/^hashmap.h[ :].* comparison of integer expressions of different signedness/d' \
+    -e '/^hashmap.h[ :].* comparison between signed and unsigned integer expressions/d' \
+    -e '/^linker.c[ :].* comparison of integer expressions of different signedness/d' \
+    -e '/^linker.c[ :].* comparison between signed and unsigned integer expressions/d' \
+    -e '/^netlink.c[ :].* comparison of integer expressions of different signedness/d' \
+    -e '/^netlink.c[ :].* comparison between signed and unsigned integer expressions/d' \
+    -e '/^nlattr.c[ :].* comparison of integer expressions of different signedness/d' \
+    -e '/^nlattr.c[ :].* comparison between signed and unsigned integer expressions/d' \
+    -e '/^relo_core.c[ :].* comparison of integer expressions of different signedness/d' \
+    -e '/^relo_core.c[ :].* comparison between signed and unsigned integer expressions/d' \
+    -e '/^strset.c[ :].* comparison of integer expressions of different signedness/d' \
+    -e '/^strset.c[ :].* comparison between signed and unsigned integer expressions/d' \
+    -e '/^usdt.c[ :].* comparison of integer expressions of different signedness/d' \
+    -e '/^usdt.c[ :].* comparison between signed and unsigned integer expressions/d' \
+    -e '/^common.c[ :].*_GNU_SOURCE.* redefined/d' \
+    -e '/^iter.c[ :].*_GNU_SOURCE.* redefined/d' \
+    -e '/^net.c[ :].*_GNU_SOURCE.* redefined/d' \
+    -e '/^perf.c[ :].*_GNU_SOURCE.* redefined/d' \
+    -e '/^prog.c[ :].*_GNU_SOURCE.* redefined/d' \
+    -e '/^xlated_dumper.c[ :].*_GNU_SOURCE.* redefined/d' \
+# end
+mv $tmp.out $tmp.in
+
+# Cull warnings that we've triaged and can ignore
+#
+sed <$tmp.in >$tmp.out \
+    -e '/^configure: WARNING: unrecognized options: --disable-dependency-tracking/d' \
+    -e '/\/qmc_config.h[ :].* warning: .Qt::fixed. defined but not used/d' \
+    -e '/^qmc_config.h[ :].* warning: .Qt::fixed. defined but not used/d' \
+    -e '/\/qmc_config.h[ :].* warning: .Qt::endl. defined but not used/d' \
+    -e '/^qmc_config.h[ :].* warning: .Qt::endl. defined but not used/d' \
+    -e '/warning _FORTIFY_SOURCE requires compiling with optimization/d' \
+    -e '/^acme.c[ :].* rand() may return deterministic/d' \
+    -e '/^multithread13.c[ :].* random() may return deterministic/d' \
+    -e '/^profilecrash.c[ :].* random() may return deterministic/d' \
+    -e '/^callback.c[ :].*pmValueSet.0.. is partly outside array bounds/d' \
+    -e '/^weblog.c[ :].*pmValueSet.0.. is partly outside array bounds/d' \
+    -e '/^pmcd.c[ :].*pmValueSet.0.. is partly outside array bounds/d' \
+    -e '/^pass0.c[ :].* warning: .fp. may be used uninitialized/d' \
+    -e '/^proc_pid.c[ :].* warning: ignoring return value of .strtoul/d' \
+    -e '/^showgeneric.c[ :].* warning: ignoring return value of .strtol/d' \
+    -e '/^util.c:2084.* strcat() is almost always misused/d' \
+# end
+mv $tmp.out $tmp.in
+
+# Cull warnings from packaging that have been triaged
+#
+sed <$tmp.in >$tmp.out \
+    -e '/Deprecated external dependency generator is used!/d' \
+    -e '/^dpkg-shlibdeps: warning: .*\/pmda_pmcd.so contains an unresolvable .* probably a plugin/d' \
+    -e '/^dpkg-shlibdeps: warning: package could avoid a useless dependency/d' \
+    -e '/^dpkg-source: warning: ignoring deletion of file src\/pmlogconf\/openmetrics\/GNUmakefile/d' \
+# end
+mv $tmp.out $tmp.in
+
+# Cull host-specific warnings that we don't care about
+#
+cat $tmp.in \
+| case "$1"
+in
+    "")	# no hostname on command line, nothing extra
+	cat
+	;;
+
+    vm04|vm39)
+	# ld.conf.so babble
+	sed \
+	    -e '/\/sbin\/ldconfig: Warning: ignoring configuration file that cannot be opened/d' \
+	# end
+	;;
+
+    vm06|vm10)
+	# libcrypto babble
+	sed \
+	    -e '/ warning: libcrypto\.so\..* needed by .* may conflict with libcrypto\.so/d' \
+	# end
+	;;
+
+    vm08|vm14|vm28|vm29)
+	# shadow messages are rubbish, ditto for missing braces in
+	# initialization and may be used uninitialized
+	sed \
+	    -e '/ declaration of .* shadows a member of .this./d' \
+	    -e '/ declaration of .* shadows a global declaration/d' \
+	    -e '/^context.c[ :].*missing.braces/d' \
+	    -e '/^context.c[ :].*near initialization for/d' \
+	    -e '/^timer.c[ :].*missing.braces/d' \
+	    -e '/^timer.c[ :].*near initialization for/d' \
+	    -e '/^pcp\/Platform.c[ :].*missing.braces/d' \
+	    -e '/^pcp\/Platform.c[ :].*near initialization for/d' \
+	    -e '/^derive_fetch.c:1512: warning: .save_origin.* may be used uninitialized/d' \
+	    -e '/^pacemaker.c:641: warning: .tofree. may be used uninitialized/d' \
+	# end
+	;;
+
+    vm21)
+	# c++ is just plain wrong here
+	sed \
+	    -e '/^main.cpp:238:38: warning: .%s. directive argument is null/d' \
+	# end
+	;;
+
+    vm33|vm37)
+	# strcpy(), strcat() and sprinf() uses in our code are all OK
+	# (brave assertion, but most follow a pattern of malloc() enough
+	# space, then str-away)
+	sed \
+	    -e '/ warning: strcpy() is almost always misused/d' \
+	    -e '/ warning: strcat() is almost always misused/d' \
+	    -e '/ warning: sprintf() is often misused/d' \
+	# end
+	;;
+
+    *)	# no extra rules for this hostname
+	cat
+	;;
+esac
+
+exit
+
+# old filter lines from pcp-daily ...
+#
+sed </dev/null \
+    -e '/^warning: File listed twice: .*python/d' \
+    -e '/QtCore\/qvector.h[ :].* memcpy(/d' \
+    -e '/libpython.* warning: warning: tmpnam() possibly used unsafely/d' \
+    -e '/libpython.* warning: warning: tempnam() possibly used unsafely/d' \
+    -e '/WARNING: missing directory entry for <.*pcp/s/WARNING/Warning/' \
+    -e '/WARNING: missing directory entry for </d' \
+    -e '/^Project WARNING: CONFIG-=import_qpa_plugin is deprecated./d' \
+    -e '/^Project MESSAGE: Warning: unknown QT: widgets/d' \
+    -e '/^Project MESSAGE: Warning: unknown QT: printsupport/d' \
+    -e '/ldconfig: Warning: ignoring configuration file that cannot be opened: .*pcp.*BUILDROOT/d' \
+    -e '/<stdout>.* warning: comparison between signed and unsigned/d' \
+    -e '/ declaration shadows a variable in the global scope/d' \
+    -e '/^util.c[ :].* declaration shadows a global variable/d' \
+# end

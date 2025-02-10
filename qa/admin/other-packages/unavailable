@@ -31,11 +31,12 @@ CentOS       6\.10    -       389-ds apache2 avahi-utils bpftrace ccache chan-de
 #     8   jessie
 #     9   stretch
 #    10   buster
-#    11   bullseye (testing)
+#    11   bullseye
 #     ?   sid (unstable)
-Debian       bullseye -       apache2-mpm-worker avahi-tools libicu libreadline6-dev libsoqt-dev libsoqt-dev-common libuv-dev mariadb-client-core mysql-client-core mysql-client-core-[0-9][0-9.]* perl-modules qt4-qmake redis-cli zfsutils-linux
+Debian       12\..*   i.86    bpfcc-tools python3-bpfcc
+Debian       11\..*   -       apache2-mpm-worker avahi-tools libicu libreadline6-dev libsoqt-dev libsoqt-dev-common libuv-dev mariadb-client-core mysql-client-core mysql-client-core-[0-9][0-9.]* perl-modules qt4-qmake redis-cli zfsutils-linux
 Debian       10\..*   -       apache2-mpm-worker avahi-tools kubernetes-client libreadline6-dev libsoqt5-dev libsoqt-dev libsoqt-dev-common libuv-dev mariadb-client-core mysql-client-core mysql-client-core-[0-9][0-9.]* perl-modules realpath redis-cli zfsutils-linux
-Debian       10\..*   i.86    bpftrace
+Debian       10\..*   i.86    bpftrace bpfcc-tools
 Debian       9\..*    -       bpftrace docker.io kubernetes-client libsoqt5-dev libuv-dev python3-bpfcc redis-cli
 Debian       8\.[11]  -       avahi-tools cpan(Text::CSV_XS) docker.io kubernetes-client libcoin-dev libsoqt5-dev libspreadsheet-readsxc-perl libuv1-dev mariadb-client-core mysql-client-core python3-bpfcc python3-openpyxl python3-prometheus-client python-prometheus-client zfsutils-linux
 #-- Fedora
@@ -44,9 +45,10 @@ Fedora       33       -       389-ds Coin-devel apache2 avahi-utils docker-commo
 Fedora       32       -       389-ds apache2 avahi-utils Coin[0-9]-devel Coin-devel docker docker-common docker-io libavahi-devel libibmad-devel libibumad-devel libqt5Core-devel libQt5Core-devel libqt5-qtbase-devel libqt5-qtsvg-devel libsqlite3 libvirt-python libvirt-python3 mariadb-client mysql net-tools-deprecated perl-base perl-DBD-mysql perl-Getopt-Std perl-ldap perl-rrdtool perl-Spreadsheet-Read pkg-config pkgconfig platform-python-devel platform-python-setuptools python36-devel python36-libs python36-lxml python36-pillow python36-requests python36-setuptools python36-six python3-curses python3-libvirt-python python3-Pillow python3-rtslib-fb realpath sensors system-python-libs zabbix22-agent
 Fedora       31       -       389-ds apache2 avahi-utils Coin[0-9]-devel Coin-devel docker docker-common docker-io libavahi-devel libibmad-devel libibumad-devel libqt5Core-devel libQt5Core-devel libqt5-qtbase-devel libqt5-qtsvg-devel libsqlite3 libvirt-python libvirt-python3 mariadb-client mysql net-tools-deprecated perl-base perl-DBD-mysql perl-Getopt-Std perl-ldap perl-rrdtool perl-Spreadsheet-Read pkg-config pkgconfig platform-python-devel platform-python-setuptools python36-devel python36-libs python36-lxml python36-pillow python36-requests python36-setuptools python36-six python3-curses python3-libvirt-python python3-Pillow python3-rtslib-fb realpath RediSearch sensors system-python-libs zabbix22-agent
 #-- FreeBSD
-FreeBSD      10\.4    -       lm_sensors py36-pillow
-FreeBSD      11\.[1-3] -      inventor libibmad libibumad lm_sensors py36-pillow zabbix34-agent
-FreeBSD      12\.[0]  -       inventor libibmad libibumad lm_sensors
+FreeBSD      10\.4    -       py36-pillow
+FreeBSD      11\.[1-3] -      libibmad libibumad py36-pillow zabbix34-agent
+FreeBSD      12\.[0]  -       libibmad libibumad
+FreeBSD      13\.     -       libibmad libibumad p5-Class-DBI-mysql p5-DBD-mysql
 #-- Gentoo
 Gentoo       -        -
 #-- LinuxMint

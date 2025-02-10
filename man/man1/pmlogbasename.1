@@ -1,0 +1,84 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2024 Ken McDonell.  All Rights Reserved.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.TH PMLOGBASENAME 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmlogbasename\f1 \- basename of a PCP archive
+.SH SYNOPSIS
+\f3pmlogbasename\f1
+\f2name\f1
+.SH DESCRIPTION
+.B pmlogbasename
+takes
+.I name
+(usually the name of one of the physical files in a PCP archive)
+and strips it of any compression suffixes
+then strips it of any PCP archive component suffixes,
+then reports the result (the basename of a PCP archive) on standard output.
+.PP
+The compression suffixes known to PCP are:
+.BR .xz ,
+.BR .lzma ,
+.BR .bz2 ,
+.BR .bz ,
+.BR .gz ,
+.B .Z
+and
+.BR .z .
+.PP
+The PCP archive component suffixes are:
+.BR .meta ,
+.B .index
+and
+.BI . <n>
+for any integer
+.IR <n> .
+.PP
+For the most part the stripping is purely textual and
+is done without tests for the existence of any of the
+associated files, although if
+.I name
+does not match the pattern of a valid file name for a PCP archive
+then the output is
+.I name
+without any stripping.
+.PP
+The one exception is when
+.I name
+ends with
+.I .N
+where
+.I N
+is a sequence of 1 or more digits, in which case an ambiguity occurs.
+For example consider
+.I name
+to be
+.BR 20241125.05.48 ,
+where this could mean the archive basename is really
+.B 20241125.05.48
+or it could mean this refers to volume
+.B 48
+of the archive basename
+.BR 20241125.05 .
+In the former case, the file \fIname\fB.meta\fR (or one of the
+compressed versions of this) should exist and
+.I pmlogbasename
+probes the filesystem to determine if such a file exists.
+.SH SEE ALSO
+.BR PCPIntro (1)
+and
+.BR LOGARCHIVE (5).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ pmlogbasename lzma

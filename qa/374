@@ -17,13 +17,12 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-rm -f $seq.full
 
 # based on version 2 or 3 archive remotely ($1)
 #
 _filter()
 {
-    tee -a $seq.full \
+    tee -a $seq_full \
     | _filter_pmdumplog \
     | sed \
 	-e '/^pmlogger .* on host .* is logging metrics from host .*/d' \
@@ -64,12 +63,12 @@ End-of-File
     ssh -q pcpqa@$host sh ./$seq.cmd >$tmp.out 2>$tmp.err
     ssh -q pcpqa@$host "rm -f $seq.cmd"
 
-    echo >>$seq.full
-    echo "_remote_signal: ssh to $host ..." >>$seq.full
-    echo "--- stdout ---" >>$seq.full
-    cat $tmp.out >>$seq.full
-    echo "--- stderr ---" >>$seq.full
-    cat $tmp.err >>$seq.full
+    echo >>$seq_full
+    echo "_remote_signal: ssh to $host ..." >>$seq_full
+    echo "--- stdout ---" >>$seq_full
+    cat $tmp.out >>$seq_full
+    echo "--- stderr ---" >>$seq_full
+    cat $tmp.err >>$seq_full
 }
 
 _speak_to_me()
@@ -106,12 +105,12 @@ End-of-File
 
     eval `ssh -q pcpqa@$host grep PCP_ARCHIVE_VERSION /etc/pcp.conf`
 
-    echo >>$seq.full
-    echo "_speak_to_me: ssh to $host ..." >>$seq.full
-    echo "--- stdout ---" >>$seq.full
-    cat $tmp.out >>$seq.full
-    echo "--- stderr ---" >>$seq.full
-    cat $tmp.err >>$seq.full
+    echo >>$seq_full
+    echo "_speak_to_me: ssh to $host ..." >>$seq_full
+    echo "--- stdout ---" >>$seq_full
+    cat $tmp.out >>$seq_full
+    echo "--- stderr ---" >>$seq_full
+    cat $tmp.err >>$seq_full
 
     eval `cat $tmp.out`
 

@@ -1,6 +1,6 @@
 QA output created by 440
 Log size for 4000bytes and volume size for 2000BYTE is correct
-Log size for 4K and volume size for 1024b is correct
+Log size for 5K and volume size for 1024b is correct
 Log size for 4kilobytes and volume size for 10Mbyte is correct
 Log size for 4kibibytes and volume size for 10Mebibytes is correct
 Log size for 4194B and volume size for 3K is correct

@@ -5,6 +5,8 @@ Released under the GNU GPLv2+, see the COPYING file
 in the source distribution for its full text.
 */
 
+#include "config.h" // IWYU pragma: keep
+
 #include "UptimeMeter.h"
 
 #include "CRT.h"
@@ -27,10 +29,7 @@ static void UptimeMeter_updateValues(Meter* this) {
    int minutes = (totalseconds / 60) % 60;
    int hours = (totalseconds / 3600) % 24;
    int days = (totalseconds / 86400);
-   this->values[0] = days;
-   if (days > this->total) {
-      this->total = days;
-   }
+
    char daysbuf[32];
    if (days > 100) {
       xSnprintf(daysbuf, sizeof(daysbuf), "%d days(!), ", days);
@@ -51,8 +50,9 @@ const MeterClass UptimeMeter_class = {
    },
    .updateValues = UptimeMeter_updateValues,
    .defaultMode = TEXT_METERMODE,
-   .maxItems = 1,
-   .total = 100.0,
+   .supportedModes = (1 << TEXT_METERMODE) | (1 << LED_METERMODE),
+   .maxItems = 0,
+   .total = 0.0,
    .attributes = UptimeMeter_attributes,
    .name = "Uptime",
    .uiName = "Uptime",

@@ -5,12 +5,14 @@ Released under the GNU GPLv2+, see the COPYING file
 in the source distribution for its full text.
 */
 
+#include "config.h" // IWYU pragma: keep
+
 #include "Scheduling.h"
-#include "EnvScreen.h"
 
 #ifdef SCHEDULER_SUPPORT
 
-#include <errno.h>
+#include <assert.h>
+#include <stddef.h>
 
 #include "FunctionBar.h"
 #include "ListItem.h"
@@ -97,7 +99,7 @@ Panel* Scheduling_newPriorityPanel(int policy, int preSelectedPriority) {
    return this;
 }
 
-bool Scheduling_setPolicy(Process* proc, Arg arg) {
+static bool Scheduling_setPolicy(Process* p, Arg arg) {
    const SchedulingArg* sarg = arg.v;
    int policy = sarg->policy;
 
@@ -112,11 +114,17 @@ bool Scheduling_setPolicy(Process* proc, Arg arg) {
       policy &= SCHED_RESET_ON_FORK;
    #endif
 
-   int r = sched_setscheduler(proc->pid, policy, &param);
+   int r = sched_setscheduler(Process_getPid(p), policy, &param);
 
    /* POSIX says on success the previous scheduling policy should be returned,
     * but Linux always returns 0. */
    return r != -1;
+}
+
+bool Scheduling_rowSetPolicy(Row* row, Arg arg) {
+   Process* p = (Process*) row;
+   assert(Object_isA((const Object*) p, (const ObjectClass*) &Process_class));
+   return Scheduling_setPolicy(p, arg);
 }
 
 const char* Scheduling_formatPolicy(int policy) {
@@ -125,30 +133,33 @@ const char* Scheduling_formatPolicy(int policy) {
 #endif
 
    switch (policy) {
-   case SCHED_OTHER:
-      return "OTHER";
-   case SCHED_FIFO:
-      return "FIFO";
-   case SCHED_RR:
-      return "RR";
+      case SCHED_OTHER:
+         return "OTHER";
+      case SCHED_FIFO:
+         return "FIFO";
+      case SCHED_RR:
+         return "RR";
 #ifdef SCHED_BATCH
-   case SCHED_BATCH:
-      return "BATCH";
+      case SCHED_BATCH:
+         return "BATCH";
 #endif
 #ifdef SCHED_IDLE
-   case SCHED_IDLE:
-      return "IDLE";
+      case SCHED_IDLE:
+         return "IDLE";
 #endif
 #ifdef SCHED_DEADLINE
-   case SCHED_DEADLINE:
-      return "EDF";
+      case SCHED_DEADLINE:
+         return "EDF";
 #endif
-   default:
-      return "???";
+      default:
+         return "???";
    }
 }
 
+/*
+ * Gather scheduling policy (thread-specific data)
+ */
 void Scheduling_readProcessPolicy(Process* proc) {
-   proc->scheduling_policy = sched_getscheduler(proc->pid);
+   proc->scheduling_policy = sched_getscheduler(Process_getPid(proc));
 }
 #endif  /* SCHEDULER_SUPPORT */

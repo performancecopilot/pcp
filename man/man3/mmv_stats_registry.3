@@ -68,7 +68,7 @@ handle returned by an earlier initialization call and also frees
 the registry structure.
 .P
 The combination of \f3mmv_stats_registry\f1 and \f3mmv_stats_start\f1
-do the same as the deprecated calls \f3mmv_stats(2)_init\f1.
+do the same as the deprecated calls \f3mmv_stats2_init\f1.
 However, now, one should first call \f3mmv_stats_registry\f1 and then
 the API calls that add instances, indoms, metrics and labels.
 In this way, there is no need to know in advance which version of the
@@ -215,3 +215,11 @@ for decoding with
 .BR strerror (3)
 and
 .BR mmv (5).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ mmv_metric_type_t mmv_stats_flags_t MMV_BOOLEAN_TYPE MMV_FLAG_PROCESS
+.\" +ok+ mmv_metric_sem_t mmv_value_type_t MMV_NUMBER_TYPE MMV_STRING_TYPE
+.\" +ok+ MMV_ARRAY_TYPE mmv_registry_t mmv_instances MMV_NULL_TYPE
+.\" +ok+ MMV_MAP_TYPE mmv_metric shorthelp shorttext mmv_indom
+.\" +ok+ helptext instname longhelp INDOMS instid
+.\" +ok+ _init {from mmv_stats2_init} IDs sem

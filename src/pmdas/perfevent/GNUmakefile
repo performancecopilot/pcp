@@ -77,6 +77,3 @@ perfalloc: perfalloc.o perflock.o
 
 clean clobber::
 	$(RM) configparser.yy.c perfalloc perfalloc.o
-
-check:: $(CFILES) $(HFILES)
-	$(CLINT) $^

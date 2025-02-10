@@ -43,8 +43,5 @@ default_pcp : default
 
 install_pcp : install
 
-check::	$(CFILES)
-	$(CLINT) $^
-
 check :: $(MAN_PAGES)
 	$(MANLINT) $^

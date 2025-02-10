@@ -27,7 +27,6 @@ _cleanup()
 }
 
 status=0	# success is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # odd cases to be filtered out ...
@@ -48,7 +47,7 @@ _filter()
 }
 
 # real QA test starts here
-admin/whatami >>$seq.full
+admin/whatami >>$seq_full
 
 echo "list-packages -m (CI case)"
 admin/list-packages -m -x notci -x cpan -x pip3 2>&1 | _filter

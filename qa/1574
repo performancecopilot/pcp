@@ -13,20 +13,20 @@ path=""
 . ./common.product
 . ./common.filter
 . ./common.check
+. ./common.keys
 
-# This test is not run if we dont have pmseries and redis installed.
+# This test is not run if we dont have pmseries and a key server installed.
 _check_series
 
 _cleanup()
 {
-    [ -n "$redisport" ] && redis-cli -p $redisport shutdown
+    [ -n "$key_server_port" ] && $keys_cli -p $key_server_port shutdown
     _restore_config $PCP_SYSCONF_DIR/pmseries
     cd $here
     $sudo rm -rf $tmp $tmp.*
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _filter_load()
@@ -39,7 +39,7 @@ _filter_load()
 _filter_query()
 {
     sed \
-	-e "s,$redisport,REDISPORT,g" \
+	-e "s,$key_server_port,KEYSERVERPORT,g" \
     #end
 }
 
@@ -54,22 +54,22 @@ _sort_context()
 }
 
 # real QA test starts here
-redisport=`_find_free_port`
+key_server_port=`_find_free_port`
 _save_config $PCP_SYSCONF_DIR/pmseries
 $sudo rm -f $PCP_SYSCONF_DIR/pmseries/*
 
-echo "Start test Redis server ..."
-redis-server --port $redisport --save "" > $tmp.redis 2>&1 &
-_check_redis_ping $redisport
-_check_redis_server $redisport
+echo "Start test key server ..."
+$key_server --port $key_server_port --save "" > $tmp.keys 2>&1 &
+_check_key_server_ping $key_server_port
+_check_key_server $key_server_port
 echo
 
-_check_redis_server_version $redisport
+_check_key_server_version $key_server_port
 
-args="-p $redisport -Z UTC"
+args="-p $key_server_port -Z UTC"
 query="kernel.all.load[count:2]"
 
-echo "== Load metric data into this redis instance"
+echo "== Load metric data into this key server instance"
 pmseries $args --load "{source.path: \"$here/archives/proc\"}" | _filter_load
 
 echo

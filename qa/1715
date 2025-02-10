@@ -23,7 +23,6 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _prepare_pmda statsd
@@ -32,7 +31,7 @@ trap "_cleanup_pmda statsd; exit \$status" 0 1 2 3 15
 _stop_auto_restart pmcd
 
 cd $here/statsd/src
-$sudo $python cases/09.py 2>>$here/$seq.full
+$sudo $python cases/09.py 2>>$seq_full
 cd $here
 status=0
 exit

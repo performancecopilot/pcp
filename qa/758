@@ -16,7 +16,8 @@ echo "QA output created by $seq"
 perl -e "use PCP::PMDA" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "perl PCP::PMDA module not installed"
 
-domain=242
+domain=`sed -n <$PCP_VAR_DIR/pmns/stdpmid -e '/^#define[ 	]QA_TEST_PERL[ 	]/s///p'`
+[ -n "$domain" ] || _notrun "Domain for QA_TEST_PERL not defined in stdpmid"
 loaded=2
 
 _cleanup()
@@ -25,15 +26,16 @@ _cleanup()
     then
 	$sudo rm $PCP_VAR_DIR/config/pmda/$domain.$loaded
 	cd $here/pmdas/test_perl
-	$sudo ./Remove >>$here/$seq.full 2>&1
+	$sudo ./Remove >>$seq_full 2>&1
 	$sudo rm -f domain.h.perl
 	cd $here
     fi
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; _cleanup; exit \$status" 0 1 2 3 15
+
+echo "domain=$domain" >>$seq_full
 
 # real QA test starts here
 cd pmdas/test_perl
@@ -58,7 +60,7 @@ pmstore test_perl.some_value 0 \
 
 # need a few invocations to tickle the bug
 for i in 1 2 3 4 5; do
-    echo "=== Round $i ===" | tee -a $here/$seq.full
+    echo "=== Round $i ===" | tee -a $seq_full
     pmprobe \
 	test_perl.other_indom.some_value \
 	test_perl.some_value \
@@ -66,8 +68,8 @@ for i in 1 2 3 4 5; do
 done
 
 # exercise indom cache re-loading from backing store
-echo && echo "=== Bonus Round ===" | tee -a $here/$seq.full
-pmstore test_perl.loaded_indom.some_value 0 >>$here/$seq.full
+echo && echo "=== Bonus Round ===" | tee -a $seq_full
+pmstore test_perl.loaded_indom.some_value 0 >>$seq_full
 pminfo -f test_perl.loaded_indom.some_value | $here/src/sortinst
 
 # success, all done

@@ -13,12 +13,11 @@ echo "QA output created by $seq"
 [ -d $PCP_PMDAS_DIR/sample ] || _notrun "sample PMDA directory is not installed"
 
 status=0	# success is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "$sudo rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 _filter()
 {
-    tee -a $here/$seq.full \
+    tee -a $seq_full \
     | sed \
 	-e '/dbpmda([0-9][0-9]*)/s//dbpmda(PID)/' \
 	-e '/pmdasample([0-9][0-9]*)/s//pmdasample(PID)/' \
@@ -33,8 +32,8 @@ cd "$PCP_PMDAS_DIR/sample"
 echo .
 
 # pipe PMDA variant of test
-echo "=== pipe PMDA ===" >>$here/$seq.full
-$sudo rm -f sample.log
+echo "=== pipe PMDA ===" >>$seq_full
+$sudo rm -f sample.log*
 $sudo TERM=ansi dbpmda -n root -ie <<End-of-File 2>&1 | _filter
 debug AUTH
 open pipe pmdasample -l $tmp.log -D AUTH
@@ -51,14 +50,14 @@ End-of-File
 #
 sleep 2
 
-echo Checking log file, pipe mode | tee -a $here/$seq.full
-cat $tmp.log >>$here/$seq.full
+echo Checking log file, pipe mode | tee -a $seq_full
+cat $tmp.log >>$seq_full
 grep -i attribute $tmp.log | _filter
 $sudo rm -f $tmp.log
 echo .
 
 # DSO PMDA variant of test
-echo "=== DSO PMDA ===" >>$here/$seq.full
+echo "=== DSO PMDA ===" >>$seq_full
 $sudo TERM=ansi dbpmda -n root -ie <<End-of-File 2>&1 | _filter
 debug AUTH
 open dso pmda_sample.$DSO_SUFFIX sample_init

@@ -25,8 +25,8 @@ int pmDestroyContext(int \fIhandle\fP);
 cc ... \-lpcp
 .ft 1
 .SH DESCRIPTION
-.de CW
-.ie t \f(CW\\$1\f1\\$2
+.de CR
+.ie t \f(CR\\$1\f1\\$2
 .el \fI\\$1\f1\\$2
 ..
 An application using the
@@ -34,14 +34,14 @@ Performance Metrics Application Programming Interface (PMAPI)
 may manipulate several concurrent contexts,
 each associated with a source of performance metrics, e.g. \c
 .BR pmcd (1)
-on some host, or an archive log of performance metrics as created by
+on some host, or an archive of performance metrics as created by
 .BR pmlogger (1).
 .PP
 .B pmDestroyContext
 destroys the PMAPI context identified by
 .IR handle .
 Typically this would imply some termination of a connection
-to a PMCD or closing an archive log file, and orderly clean-up.
+to a PMCD or closing an archive file, and orderly clean-up.
 .PP
 The context
 must have been previously created using

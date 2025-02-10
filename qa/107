@@ -49,10 +49,10 @@ export PMLOGGER_CHECK_SKIP_LOGCONF=yes
 
 # Need healthy pmlogger connected to pmcd ... force this
 #
-_service pcp stop >>$seq.full 2>&1
-_service pcp start >>$seq.full 2>&1
-_wait_for_pmcd
-_wait_for_pmlogger
+if ! _service pcp stop >>$seq_full 2>&1; then _exit 1; fi
+if ! _service pcp start >>$seq_full 2>&1; then _exit 1; fi
+_wait_for_pmcd || _exit 1
+_wait_for_pmlogger || _exit 1
 sleep 5
 
 # real QA test starts here
@@ -61,7 +61,7 @@ connect primary
 query { disk network kernel pmcd sample sampledso }
 End-of-File
 
-cat $tmp.tmp >>$seq.full
+cat $tmp.tmp >>$seq_full
 
 $PCP_ECHO_PROG $PCP_ECHO_N "Expect at least one metric with logging state \"on\" ...""$PCP_ECHO_C"
 if grep -E '^    (mand on )|(adv  on )' $tmp.tmp >/dev/null

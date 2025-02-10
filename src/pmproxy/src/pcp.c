@@ -133,7 +133,7 @@ pcp_client_connect_pmcd(struct client *client)
     struct sockaddr_in	pmcd;
     uv_handle_t		*handle;
 
-    if (pmDebugOptions.context | pmDebugOptions.pdu)
+    if (pmDebugOptions.context || pmDebugOptions.pdu)
 	fprintf(stderr, "%s: connecting to pmcd on host %s, port %u\n",
 			"pcp_client_connect_pmcd",
 			client->u.pcp.hostname, client->u.pcp.port);

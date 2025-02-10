@@ -27,7 +27,7 @@ metric hotproc.id.fsgid_nm { delete }
 #
 metric ipc.shm.owner { value /.*/ -> "[redacted]" }
 
-# metrics who's values may include usernames or groupnames
+# metrics whose values may include usernames or groupnames
 #
 metric proc.psinfo.environ { delete }
 metric hotproc.psinfo.environ { delete }
@@ -39,14 +39,14 @@ metric hotproc.psinfo.cwd { delete }
 metric proc.psinfo.exe { value "/.*/(.*)" -> "\1" }
 metric hotproc.psinfo.exe { value replace "/.*/(.*)" -> "\1" }
 
-# metrics who's values may include the path to user's home
+# metrics whose values may include the path to user's home
 # directories (and hence => usernames)
 #
 metric proc.memory.maps { delete }
 metric hotproc.memory.maps { delete }
 
 # proc.psinfo metrics may contain sensitive information (like
-# pathanme to executables below a user's home directory) in the
+# pathname to executables below a user's home directory) in the
 # external instance name
 #
 # remove pathname prefix (may expose $HOME => usernames) from indom

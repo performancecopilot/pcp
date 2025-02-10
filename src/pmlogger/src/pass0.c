@@ -225,8 +225,14 @@ cache_bind(void)
 	 * if there is a single metric in the config and it is a non-leaf
 	 * (like in QA!), this can happen ...
 	 */
-	if (sts != PM_ERR_NONLEAF || num_to_bind > 1)
-	    fprintf(stderr, "cache_bind(): pmLookupName(%d, ...): %s\n", num_to_bind, pmErrStr(sts));
+	if (sts != PM_ERR_NONLEAF || num_to_bind > 1) {
+	    fprintf(stderr, "cache_bind(): pmLookupName(%d, ", num_to_bind);
+	    if (num_to_bind == 1)
+		fprintf(stderr, "%s", namelist[0]);
+	    else
+		fprintf(stderr, "%s ... %s", namelist[0], namelist[num_to_bind-1]);
+	    fprintf(stderr, "): %s\n", pmErrStr(sts));
+	}
 	if (sts == PM_ERR_IPC) {
 	    fprintf(stderr, "cache_bind(): Arrgh: lost connection to pmcd, giving up!\n");
 	    exit(1);

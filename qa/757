@@ -16,7 +16,6 @@ echo "QA output created by $seq"
 test -e $PCP_PMDAS_DIR/perfevent/pmdaperfevent || _notrun "Optional perfevent PMDA not present"
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 
 perfevent_remove()
 {
@@ -75,7 +74,7 @@ _stop_auto_restart pmcd
 _filter_perfevent()
 {
     # filter metric values for deterministic output
-    tee -a $here/$seq.full | sed \
+    tee -a $seq_full | sed \
         -e 's/value [0-9][0-9]*/value NUMBER/'
 }
 
@@ -93,7 +92,7 @@ fi
 cat $tmp.info $tmp.err | _filter_perfevent
 
 # Verify label extraction doesn't crash PMDA
-pminfo --labels perfevent >$here/$seq.full
+pminfo --labels perfevent >$seq_full
 
 # Check that the correct metrics are present
 pminfo perfevent

@@ -1,5 +1,6 @@
 QA output created by 1465
-=== before ===
+=== archives/all-ubuntu.22.04 before ===
+	Context labels (134 bytes): {"domainname":"localdomain","groupid":1000,"hostname":"bozo.localdomain","machineid":"6c78e37f87514105b535e855a43de6ac","userid":1000}
 	Note: timezone set to local timezone of host "bozo.localdomain" from archive
 ipc.shm.owner	inst [0 or "0"] value "nobody"
 ipc.shm.owner	inst [1 or "32769"] value "kenj"
@@ -64,7 +65,8 @@ sampledso.proc.ordinal	inst [2 or "0002 /etc/bozo"] value 2
 sampledso.proc.time	inst [2 or "0002 /etc/bozo"] value 1462125
 sampledso.proc.time	inst [2 or "0002 /etc/bozo"] value 1464919
 
-=== after ===
+=== archives/all-ubuntu.22.04 after ===
+	2 or "0002 /etc/bozo"
 openmetrics.control.status	inst [1 or "grafana"] value "failed to fetch URL or execute script /var/lib/pcp/pmdas/openmetrics/config.d/grafana.url: HTTPConnectionPool(host='localhost', port=3000): Max retries exceeded with url: /metrics (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7f1145b278b0>: Failed to establish a new connection: [Errno 111] Connection refused'))"
 pmcd.agent.name	inst [1 or "root"] value "root"
 pmcd.pmie.configfile	inst [0 or "primary"] value "/var/lib/pcp/config/pmie/config.default"
@@ -78,3 +80,11 @@ sampledso.proc.exec	inst [2 or "0002 /etc/bozo"] value "bozo"
 sampledso.proc.ordinal	inst [2 or "0002 /etc/bozo"] value 2
 sampledso.proc.time	inst [2 or "0002 /etc/bozo"] value 1462125
 sampledso.proc.time	inst [2 or "0002 /etc/bozo"] value 1464919
+=== archives/geo-foo before ===
+	Context labels (175 bytes): {"domainname":"localdomain","groupid":1000,"hostname":"bozo.localdomain","latitude":-37.8140,"longitude":144.9633,"machineid":"6c78e37f87514105b535e855a43de6ac","userid":1000}
+	Note: timezone set to local timezone of host "bozo.localdomain" from archive
+pmcd.pmlogger.archive	inst [3094159 or "3094159"] value "/home/kenj/src/pcp/qa/tmparch/foo"
+pmcd.pmlogger.host	inst [3094159 or "3094159"] value "bozo.localdomain"
+
+=== archives/geo-foo after ===
+	Context labels (177 bytes): {"domainname":"localdomain","groupid":1000,"hostname":"[redacted]","latitude":"[redacted]","longitude":"[redacted]","machineid":"6c78e37f87514105b535e855a43de6ac","userid":1000}

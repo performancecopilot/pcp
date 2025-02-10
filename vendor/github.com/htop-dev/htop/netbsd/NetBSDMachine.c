@@ -8,6 +8,8 @@ Released under the GNU GPLv2+, see the COPYING file
 in the source distribution for its full text.
 */
 
+#include "config.h" // IWYU pragma: keep
+
 #include "netbsd/NetBSDMachine.h"
 
 #include <kvm.h>
@@ -79,7 +81,7 @@ static void NetBSDMachine_updateCPUcount(NetBSDMachine* this) {
    }
 
    if (value != super->existingCPUs) {
-      opl->cpuData = xReallocArray(this->cpuData, value + 1, sizeof(CPUData));
+      this->cpuData = xReallocArray(this->cpuData, value + 1, sizeof(CPUData));
       super->existingCPUs = value;
       change = true;
    }
@@ -112,7 +114,7 @@ Machine* Machine_new(UsersTable* usersTable, uid_t userId) {
    NetBSDMachine_updateCPUcount(this);
 
    size = sizeof(this->fscale);
-   if (sysctl(fmib, 2, &this->fscale, &size, NULL, 0) < 0) {
+   if (sysctl(fmib, 2, &this->fscale, &size, NULL, 0) < 0 || this->fscale <= 0) {
       CRT_fatalError("fscale sysctl call failed");
    }
 
@@ -125,11 +127,11 @@ Machine* Machine_new(UsersTable* usersTable, uid_t userId) {
       CRT_fatalError("kvm_openfiles() failed");
    }
 
-   return this;
+   return super;
 }
 
 void Machine_delete(Machine* super) {
-   NetBSDMachine* this = (NetBSDProcessList*) super;
+   NetBSDMachine* this = (NetBSDMachine*) super;
 
    Machine_done(super);
 
@@ -266,11 +268,11 @@ static void NetBSDMachine_scanCPUFrequency(NetBSDMachine* this) {
 void Machine_scan(Machine* super) {
    NetBSDMachine* this = (NetBSDMachine*) super;
 
-   NetBSDProcessList_scanMemoryInfo(this);
-   NetBSDProcessList_scanCPUTime(this);
+   NetBSDMachine_scanMemoryInfo(this);
+   NetBSDMachine_scanCPUTime(this);
 
    if (super->settings->showCPUFrequency) {
-      NetBSDProcessList_scanCPUFrequency(npl);
+      NetBSDMachine_scanCPUFrequency(this);
    }
 }
 

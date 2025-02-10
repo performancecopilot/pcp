@@ -13,6 +13,7 @@ _usage()
     echo >&2 "  -c           check packing list"
     echo >&2 "  -i tag       include only lines with a tag"
     echo >&2 "  -m           list only missing packages"
+    echo >&2 "  -n           report my packing-list file and quit"
     echo >&2 "  -v           verbose (debugging)"
     echo >&2 "  -V version   override platform version"
     echo >&2 "  -x tag       exclude lines with a tag"
@@ -38,7 +39,7 @@ _do_check()
     # end
     [ -s $tmp.require ] && $very_verbose && echo >&2 "require: `cat $tmp.require`"
 
-    # And then any skipped packages
+    # Then any skipped packages
     #
     _parse_file $home/other-packages/skip \
     | sed >$tmp.skip \
@@ -47,11 +48,20 @@ _do_check()
     # end
     [ -s $tmp.skip ] && $very_verbose && echo >&2 "skip: `cat $tmp.skip`"
 
+    # And any unavailable packages
+    #
+    _parse_file $home/other-packages/unavailable \
+    | sed >$tmp.na \
+	-e 's/{//g' \
+	-e 's/}//g' \
+    # end
+    [ -s $tmp.na ] && $very_verbose && echo >&2 "unavailable: `cat $tmp.na`"
+
     # And then process the manifest.
     # The packaging types (tags @ start of manifest lines) we know about.
     #
     cat <<End-of-File >$tmp.tags
-dpkg	Ubuntu Debian LinuxMint
+dpkg	Ubuntu Debian LinuxMint MX
 rpm	RHEL Fedora CentOS openSUSE SUSE SLES
 emerge	Gentoo
 pkgin	NetBSD
@@ -69,9 +79,11 @@ End-of-File
 	exit
     fi
 
+    rm -f $tmp.matched
     awk <$home/other-packages/manifest '{ print NR ":" $0 }' \
     | grep ":$tag?" \
     | sed \
+	-e 's/[ 	]*#.*//' \
 	-e 's/:[^[]*\[/ /' \
 	-e 's/  *$//' \
 	-e 's/ *]$//' \
@@ -111,6 +123,7 @@ End-of-File
 BEGIN		{ sts=1 }
 		{ for (i = 1; i <= NF; i++) {
 		    if ($i == "'"$pkg"'" || $i ~ /^'"$pkg_re"'$/) {
+			print $0 >>"'$tmp.matched'"
 			sts=0
 			exit
 		    }
@@ -126,7 +139,8 @@ END		{ exit sts }'
 		    echo "manifest:$lineno $pkg: in packing list, but not available?"
 		else
 		    touch $tmp.ok
-		    break
+		    # keep going so we check all the pkg in $pkgs from the
+		    # manifest
 		fi
 	    fi
 	done
@@ -138,10 +152,11 @@ END		{ exit sts }'
 	    #
 	    for pkg in $pkgs
 	    do
-		# not in list, unless it is to be skipped, or we have
-		# a required package for this manifest line, is it available?
+		# not in list, unless it is to be skipped, or not available
+		# or we have a required package for this manifest line,
+		# is it available?
 		#
-		rm -f $tmp.skipme
+		rm -f $tmp.skip_me
 		for skip_pkg in `cat $tmp.skip`
 		do
 		    skip_pkg_re=`echo "$skip_pkg" | sed -e 's;/;\\\\/;g'`
@@ -157,11 +172,31 @@ BEGIN		{ sts=1 }
 END		{ exit sts }'
 		    then
 			$very_verbose && echo >&2 "$pkg ($skip_pkg): skipped"
-			touch $tmp.skipme
+			touch $tmp.skip_me
 			break
 		    fi
 		done
-		if [ ! -f $tmp.skipme ]
+		rm -f $tmp.na_me
+		for na_pkg in `cat $tmp.na`
+		do
+		    na_pkg_re=`echo "$na_pkg" | sed -e 's;/;\\\\/;g'`
+		    if echo "$pkg" | awk '
+BEGIN		{ sts=1 }
+		{ for (i = 1; i <= NF; i++) {
+		    if ($i == "'"$na_pkg"'" || $i ~ /^'"$na_pkg_re"'$/) {
+			sts=0
+			exit
+		    }
+		  }
+		}
+END		{ exit sts }'
+		    then
+			$very_verbose && echo >&2 "$pkg ($na_pkg): not available"
+			touch $tmp.na_me
+			break
+		    fi
+		done
+		if [ ! -f $tmp.skip_me -a ! -f $tmp.na_me ]
 		then
 		    if [ ! -f $tmp.havereq ]
 		    then
@@ -206,6 +241,20 @@ END		{ exit sts }'
 	fi
     done
 
+    # and does the packing list contain lines that do not match the
+    # manifest?
+    if [ -s $tmp.matched ]
+    then
+	sed <$tmp.list -e '/cpan(/d' -e '/pip3(/d' \
+	| sort -o $tmp.list
+	sort -o $tmp.matched $tmp.matched
+	comm -23 $tmp.list $tmp.matched >$tmp.no-manifest
+	if [ -s $tmp.no-manifest ]
+	then
+	    echo "In packing list, but not in manifest ..."
+	    fmt -72 <$tmp.no-manifest | sed -e 's/^/    /'
+	fi
+    fi
 }
 
 export LC_COLLATE=POSIX
@@ -216,7 +265,8 @@ include=''
 exclude=''
 missing=false
 check=false
-while getopts 'A:cD:i:mvV:x:?' p
+nflag=false
+while getopts 'A:cD:i:mnvV:x:?' p
 do
     case "$p"
     in
@@ -238,6 +288,9 @@ do
 		;;
 
 	m)	missing=true
+		;;
+
+	n)	nflag=true
 		;;
 
 	v)	if $verbose
@@ -358,6 +411,13 @@ else
     exit
 fi
 
+if $nflag
+then
+    echo "$home/package-lists/${distro}+${version}+${arch}"
+    status=0
+    exit
+fi
+
 if [ -n "$exclude" ]
 then
     $very_verbose && [ -n "$exclude" ] && echo >&2 "Excluding tags:$exclude"
@@ -388,7 +448,7 @@ then
     rm -f $tmp.installed $tmp.allpkgs
     case "$distro"
     in
-	Ubuntu|Debian|LinuxMint)
+	Ubuntu|Debian|LinuxMint|MX)
 	    dpkg-query -W -f '${package} ${status}\n' \
 	    | sed -n -e '/ installed$/s/ .*//p' >$tmp.installed
 	    apt-cache dumpavail | sed -n -e '/^Package: /s///p' >$tmp.allpkgs
@@ -398,26 +458,31 @@ then
 	    rpm -qa --qf '%{NAME}\n' >$tmp.installed
 	    if which zypper >/dev/null 2>&1
 	    then
-		zypper packages 2>&1 \
+		zypper --no-refresh packages 2>&1 \
 		| awk -F \| ' { print $3 }' \
 		| sed >$tmp.allpkgs \
 		    -e 's/  *//g' \
 		# end
 	    elif which dnf >/dev/null 2>&1
 	    then
-		# note using dnf's system cache, so no metadata refresh
+		# note using dnf's system cache, so no metadata refresh,
+		# but -C is borked sometimes ...
 		#
-		( dnf -C list available; dnf -C list installed ) 2>&1 \
-		| sed >$tmp.allpkgs \
-		    -e '1,/^[^ ]* Packages/d' \
-		    -e 's/ .*//' \
-		    -e 's/\.[^.]*$//' \
-		# end
+		for dnf_args in "-C" ""
+		do
+		    sudo dnf $dnf_args list 2>&1 \
+		    | sed >$tmp.allpkgs \
+			-e '1,/^[^ ]* [pP]ackages/d' \
+			-e 's/ .*//' \
+			-e 's/\.[^.]*$//' \
+		    # end
+		    [ -s $tmp.allpkgs ] || break
+		done
 	    elif which yum >/dev/null 2>&1
 	    then
 		# note using yum's system cache, so no metadata refresh
 		#
-		( yum -C list available; yum list installed ) 2>&1 \
+		( yum -C list available; yum -C list installed ) 2>&1 \
 		| sed >$tmp.allpkgs \
 		    -e '1,/^[^ ]* Packages/d' \
 		    -e 's/ .*//' \
@@ -455,7 +520,7 @@ p
 
 	FreeBSD)
 	    pkg info -a | sed -e 's/-[0-9].*//' >$tmp.installed
-	    # TODO $tmp.allpkgs
+	    pkg search -L name . | sed -e 's/ .*//' >$tmp.allpkgs
 	    ;;
 
 	OpenIndiana)
@@ -474,7 +539,7 @@ p
 	    do
 		[ -f "$f" ] || continue
 		zcat "$f" \
-		| $PCP_AWK_PROG '{ print $1 }' \
+		| awk '{ print $1 }' \
 		| sed \
 		    -e 's/\-[0-9].*//' \
 		    -e 's;.*/;;' \
@@ -500,16 +565,14 @@ p
 	echo >&2 "Botch: can't generate tmp.installed for $distro"
 	exit
     fi
-    if [ -f $tmp.allpkgs ]
+    if [ -s $tmp.allpkgs ]
     then
 	sort <$tmp.allpkgs | uniq >$tmp.tmp
 	mv $tmp.tmp $tmp.allpkgs
     else
-	if $check
-	then
-	    echo >&2 "Botch: can't generate tmp.installed for $distro"
-	    exit
-	fi
+	ls -l $tmp.allpkgs >&2
+	echo >&2 "Botch: can't generate tmp.allpkgs for $distro"
+	exit
     fi
 fi
 
@@ -663,7 +726,16 @@ then
     fi
 fi
 
-# list selected packages (if any) on a single line
+# report manifest missing package name (?:<lineno>) on stderr
+#
+if grep '^?:[0-9][0-9]*$' $tmp.list >$tmp.tmp
+then
+    ( tr '\012' ' ' <$tmp.tmp ; echo ) >&2
+    grep -v '^?:[0-9][0-9]*$' $tmp.list >$tmp.tmp
+    mv $tmp.tmp $tmp.list
+fi
+
+# list missing packages (if any) on a single line on stdout
 #
 if [ -s $tmp.list ]
 then

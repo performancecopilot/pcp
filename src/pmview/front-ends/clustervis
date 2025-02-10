@@ -182,12 +182,12 @@ _marginWidth 4
 _marginDepth 4
 
 _colorList net_colors (
-        rgbi:0.8/0.0/0.0
-	rgbi:0.0/0.8/0.8 
-        rgbi:1.0/0.5/0.0
+        "#cc0000"	# rgbi:0.8/0.0/0.0
+	"#00cccc"	# rgbi:0.0/0.8/0.8 
+        "#ff7f00"	# rgbi:1.0/0.5/0.0
 )
 
-_colorList cpu_colors  ( red2 blue2 blue2 )
+_colorList cpu_colors  ( "#ee0000" "#0000ee" "#00ee00" )	# red2 blue2 blue2
 
 # main grid
 _grid _show (
@@ -249,7 +249,8 @@ do
     echo "_baseHeight 8" >>$tmp.pmview
     echo "_grid $hostcol $hostrow _hide (" >>$tmp.pmview
 
-    echo "    _baseColor rgbi:0.4/0.4/0.6" >>$tmp.pmview
+    # rgbi:0.4/0.4/0.6
+    echo "    _baseColor \"#666699\"" >>$tmp.pmview
     echo "    _label 0 0 _down _large \"$host\"" >>$tmp.pmview
     echo "    _grid 1 0 _show (" >>$tmp.pmview
 
@@ -325,7 +326,7 @@ echo ")" >>$tmp.pmview
 
 $verbose && cat $tmp.pmview
 
-eval $PMVIEW <$tmp.pmview $args -title "'$titleArg'" -xrm "'*iconName: $prog'"
+eval $PMVIEW <$tmp.pmview $args -title "'$titleArg'"
 
 exit
 

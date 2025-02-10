@@ -31,8 +31,8 @@ int pmStoreHighRes(const pmHighResResult *\fIresult\fP);
 cc ... \-lpcp
 .ft 1
 .SH DESCRIPTION
-.de CW
-.ie t \f(CW\\$1\f1\\$2
+.de CR
+.ie t \f(CR\\$1\f1\\$2
 .el \fI\\$1\f1\\$2
 ..
 In some special cases it may be helpful to modify the current values of
@@ -65,7 +65,7 @@ to
 or
 .B pmStoreHighRes
 in which the
-.CW numval
+.CR numval
 field within any of the
 .B pmValueSet
 structures has a value less than one.
@@ -78,7 +78,7 @@ current value of the nominated metrics will be changed, i.e.
 and
 .B pmStoreHighRes
 cannot be used to make retrospective changes to information in either
-the archive logs, or in the recent past for real-time sources of metrics.
+the archives, or in the recent past for real-time sources of metrics.
 .PP
 The return code from
 .B pmStore
@@ -111,11 +111,11 @@ The number of metrics specified in
 is less than one.
 .IP \f3PM_ERR_VALUE\f1
 One or more of the
-.CW pmValueSet s
+.CR pmValueSet s
 in
 .I result
 has a
-.CW numval
+.CR numval
 field with a value less than one.
 .SH SEE ALSO
 .BR PMAPI (3),

@@ -14,19 +14,17 @@ echo "QA output created by $seq"
 . ./common.check
 
 status=0	# success is the default!
-$sudo rm -rf $tmp.*
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
-rm -f $seq.full
 
 # real QA test starts here
 
 for pmda in sample sampledso
 do
     echo "=== $pmda pmda ==="
-    echo "=== $pmda pmda ===" >>$seq.full
+    echo "=== $pmda pmda ===" >>$seq_full
     then=`pmprobe -v $pmda.datasize | $PCP_AWK_PROG '{print $NF}'`
-    echo "then=$then" >>$seq.full
+    echo "then=$then" >>$seq_full
 
     for i in 1 2 3 4
     do
@@ -41,7 +39,7 @@ do
     done
 
     now=`pmprobe -v $pmda.datasize | $PCP_AWK_PROG '{print $NF}'`
-    echo "now=$now" >>$seq.full
+    echo "now=$now" >>$seq_full
     delta=`expr $now - $then`
 
     # A 4 (Kbyte) slop is allowed for one-trip non-determinism for the
@@ -63,7 +61,7 @@ do
 	status=1
     fi
 
-    cat $tmp.1 >>$seq.full
+    cat $tmp.1 >>$seq_full
 done
 
 exit

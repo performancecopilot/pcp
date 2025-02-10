@@ -17,7 +17,13 @@ which expect >/dev/null 2>&1 || _notrun "expect binary not installed"
 
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
-$sudo rm -rf $tmp.* $seq.full
+
+cat <<EOF >$tmp.conf
+# Installed by PCP QA test $seq on `date`
+[bashreadline.so]
+enabled=true
+EOF
+_pmdabpf_tryload $tmp.conf
 
 _non_filter()
 {
@@ -34,12 +40,10 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 _stop_auto_restart pmcd
 
 # real QA test starts here
-cat <<EOF | _pmdabpf_install
-# Installed by PCP QA test $seq on `date`
-[bashreadline.so]
-enabled=true
-EOF
+_pmdabpf_install $tmp.conf
 _pmdabpf_wait_for_metric
+
+sleep 5
 
 # Generate system activity for the CO-RE execsnoop module
 cat <<EOF | expect 1> /dev/null
@@ -49,12 +53,14 @@ send "exit\r"
 expect eof
 EOF
 
+sleep 5
+
 echo "=== report metric values for comm ==="
-pminfo -dfmtT bpf.bashreadline.comm 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bpf.bashreadline.comm 2>&1 | tee -a $seq_full \
 | _value_filter_exact '"echo this is a test from bash"'
 
 echo "=== report metric values for pid ==="
-pminfo -dfmtT bpf.bashreadline.pid 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bpf.bashreadline.pid 2>&1 | tee -a $seq_full \
 | _value_filter_nonzero
 
 _pmdabpf_remove

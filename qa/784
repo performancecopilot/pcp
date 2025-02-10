@@ -22,18 +22,17 @@ $python -c "from pcp import pmda" >/dev/null 2>&1
 export PMDAMIC_MPSS_PYTHON_DIR="$here/mic"
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
-trap "cd $here; rm -rf $tmp.*; $sudo rm -f mic.log; exit \$status" 0 1 2 3 15
+trap "cd $here; rm -rf $tmp.*; $sudo rm -f mic.log*; exit \$status" 0 1 2 3 15
 
 _filter()
 {
-    tee -a $seq.full | \
+    tee -a $seq_full | \
     sed \
     -e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;" \
     -e '/pmResult/s/ .* numpmid/ ... numpmid/' \
     -e '/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/s/[^ ]*/TIMESTAMP/' \
     -e "s;$python_path;\$PCP_PYTHON_PROG;" \
-    -e "s;$python;python;" \
+    -e "s;$python_basename;python;" \
     -e "s/value [0-9]/value NUMBER/"
 }
 
@@ -44,24 +43,24 @@ _traverse()
 open pipe $python_path $pmda_script
 traverse $1
 EOF
-    cat mic.log >>$here/$seq.full
+    cat mic.log >>$seq_full
 }
 
 # real QA test starts here
 # (sudo use here is so that we are able to change to pcp user)
 
 domain=138
-echo "== Finding mic metrics" | tee -a $seq.full
+echo "== Finding mic metrics" | tee -a $seq_full
 $sudo -E PCP_PYTHON_PMNS=root $python "$pmda_script" 2>/dev/null > $tmp.root
 
-echo "== Testing mic metrics" | tee -a $seq.full
+echo "== Testing mic metrics" | tee -a $seq_full
 $sudo TERM=ansi dbpmda -n $tmp.root -ie <<End-of-File 2>&1 | _filter
 open pipe $python_path $pmda_script
 getdesc on
 desc mic.mgmt.numcards
 fetch mic.mgmt.numcards
 End-of-File
-cat mic.log >>$here/$seq.full
+cat mic.log >>$seq_full
 
 echo "== Traversing mgmt trees"
 _traverse mic.mgmt.power

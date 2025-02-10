@@ -36,12 +36,12 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 mkdir $tmp
-cp archives/ok-foo.* archives/ok-mv-bar.* $tmp
+pmlogcp archives/ok-foo $tmp
+pmlogcp archives/ok-mv-bar $tmp
 cd $tmp
 
 echo "=== ok-foo ==="

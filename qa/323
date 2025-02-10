@@ -27,8 +27,6 @@ _cleanup()
 iam=shping
 status=1
 trap "_cleanup" 0 1 2 3 15
-rm -f $seq.full
-here=`pwd`
 
 _filter_info()
 {
@@ -40,7 +38,7 @@ _filter_info()
 }
 
 # real QA test starts here
-_prepare_pmda_install $iam
+_prepare_pmda_install $iam || _exit 1
 
 # make sure no old config file is hanging about, otherwise the "3" answer
 # below would need to be "4" !
@@ -49,7 +47,7 @@ $sudo rm -f $PCP_VAR_DIR/config/$iam/$iam.conf
 
 # timing is real tricky here ...
 echo
-echo "=== install $iam agent ===" | tee -a $here/$seq.full
+echo "=== install $iam agent ===" | tee -a $seq_full
 echo '3
 y
 null exit 0
@@ -60,7 +58,7 @@ timeout sleep 10
 6' \
 | $sudo ./Install >$tmp.out 2>&1
 _filter_pmda_install <$tmp.out
-cat $tmp.out >>$here/$seq.full
+cat $tmp.out >>$seq_full
 
 if pminfo -v $iam
 then
@@ -77,18 +75,18 @@ pminfo -f shping.control.cycletime shping.control.timeout
 pminfo -f shping.time.real shping.time.cpu_usr shping.time.cpu_sys 2>&1 \
 | _filter_info
 
-echo | tee -a $here/$seq.full
-echo "=== remove $iam agent ===" | tee -a $here/$seq.full
+echo | tee -a $seq_full
+echo "=== remove $iam agent ===" | tee -a $seq_full
 $sudo ./Remove >$tmp.out 2>&1
 _filter_pmda_remove <$tmp.out
-cat $tmp.out >>$here/$seq.full
+cat $tmp.out >>$seq_full
 
-echo >>$here/$seq.full
-ls -l $PCP_LOG_DIR/pmcd/shping.log >>$here/$seq.full
-cat $PCP_LOG_DIR/pmcd/shping.log >>$here/$seq.full
-echo >>$here/$seq.full
-ls -l $PCP_LOG_DIR/pmcd/pmcd.log >>$here/$seq.full
-cat $PCP_LOG_DIR/pmcd/pmcd.log >>$here/$seq.full
+echo >>$seq_full
+ls -l $PCP_LOG_DIR/pmcd/shping.log >>$seq_full
+cat $PCP_LOG_DIR/pmcd/shping.log >>$seq_full
+echo >>$seq_full
+ls -l $PCP_LOG_DIR/pmcd/pmcd.log >>$seq_full
+cat $PCP_LOG_DIR/pmcd/pmcd.log >>$seq_full
 
 status=0
 exit

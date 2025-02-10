@@ -21,7 +21,7 @@ _cleanup()
 {
     if [ -n "$container" ]
     then
-        echo "== removing container" | tee -a $seq.full
+        echo "== removing container" | tee -a $seq_full
         _remove_docker_containers $container
         container=""
     fi 
@@ -29,12 +29,11 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _filter()
 {
-    tee -a $seq.full \
+    tee -a $seq_full \
     | sed \
 	-e "s/\[.*\]: /[INST]: /g" \
 	-e "s/$container/CONTAINER/g" \
@@ -56,24 +55,24 @@ _exclude_clients()
 
 # real QA test starts here
 xargs=`_exclude_clients`
-echo "Exclusions: $xargs" >> $seq.full
+echo "Exclusions: $xargs" >> $seq_full
 
 container=`$docker run -d busybox sleep 15`
-echo "== container: $container" >> $seq.full
+echo "== container: $container" >> $seq_full
 
-echo "== get host and container hostname " | tee -a $seq.full
+echo "== get host and container hostname " | tee -a $seq_full
 # expect a different hostname to local hostname
 pmprobe --values --container=$container pmcd.hostname > $tmp.chost
 pmprobe --values pmcd.hostname > $tmp.host
 eval container_hostname=`awk '{ print $3 }' $tmp.chost`
 eval localhost_hostname=`awk '{ print $3 }' $tmp.host`
 
-cat $tmp.chost $tmp.host >> $seq.full
-echo container hostname: $container_hostname >> $seq.full
-echo localhost hostname: $localhost_hostname >> $seq.full
+cat $tmp.chost $tmp.host >> $seq_full
+echo container hostname: $container_hostname >> $seq_full
+echo localhost hostname: $localhost_hostname >> $seq_full
 
 # switch to container, then back, reporting pmcd.hostname
-echo "== switch to container, reset, repeat" | tee -a $seq.full
+echo "== switch to container, reset, repeat" | tee -a $seq_full
 $here/src/storepmcd $xargs "$container" "" "$container" "" | _filter
 
 # success, all done

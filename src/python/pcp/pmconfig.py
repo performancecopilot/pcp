@@ -168,10 +168,10 @@ class pmConfig(object):
         if name == 'speclocal':
             self.util.speclocal = value
         elif name == 'derived':
-            if value.find(';') != -1:
-                self.util.derived = value
+            if str(value).find(';') != -1:
+                self.util.derived = str(value)
             else:
-                self.util.derived = value.replace(",", ";")
+                self.util.derived = str(value).replace(",", ";")
         elif name == 'samples':
             self.util.opts.pmSetOptionSamples(value)
             self.util.samples = self.util.opts.pmGetOptionSamples()
@@ -189,7 +189,7 @@ class pmConfig(object):
             else:
                 self.util.type_prefer = 0
         elif name == 'instances':
-            self.util.instances = value.split(",")
+            self.util.instances = str(value).split(",")
         else:
             try:
                 setattr(self.util, name, int(value))
@@ -334,12 +334,14 @@ class pmConfig(object):
                     raise ValueError("Undeclared metric key %s" % key)
                 self.parse_verbose_metric_info(metrics, key, spec, value)
 
-    def prepare_metrics(self):
+    def prepare_metrics(self, pmns=False):
         """ Construct and prepare metricset """
         metrics = self.util.opts.pmGetOperands()
-        if not metrics:
+        if not metrics and not pmns:
             sys.stderr.write("No metrics specified.\n")
             raise pmapi.pmUsageErr()
+        if not metrics and pmns:  # all metrics in the namespace
+            metrics = self.util.context.pmGetChildren('')
 
         def read_cmd_line_items():
             """ Helper to read command line items """
@@ -942,14 +944,14 @@ class pmConfig(object):
             # Finalize text label and unit/scale
             try:
                 label = self.util.metrics[metric][2]
-                (unitstr, mult) = self.util.context.pmParseUnitsStr(self.util.metrics[metric][2])
+                (pmunit, mult) = self.util.context.pmParseUnitsStr(self.util.metrics[metric][2])
                 if self.util.metrics[metric][3] == 0 and \
                    self.descs[i].contents.type != pmapi.c_api.PM_TYPE_STRING and \
                    self.descs[i].sem == pmapi.c_api.PM_SEM_COUNTER and \
                    '/' not in label:
                     label += " / s"
                 label = self.format_metric_label(label)
-                self.util.metrics[metric][2] = (label, unitstr, mult)
+                self.util.metrics[metric][2] = (label, pmunit, mult)
             except pmapi.pmErr as error:
                 sys.stderr.write("%s: %s.\n" % (str(error), self.util.metrics[metric][2]))
                 sys.exit(1)
@@ -957,7 +959,7 @@ class pmConfig(object):
             # Set metric type - default to double for precision
             mtype = pmapi.c_api.PM_TYPE_DOUBLE
             # But use native type if nothing else was requested
-            if str(unitstr) == str(self.descs[i].contents.units):
+            if str(pmunit) == str(self.descs[i].contents.units):
                 mtype = self.descs[i].contents.type
             # However always use double for non-raw counters
             if self.util.metrics[metric][3] == 0 and \

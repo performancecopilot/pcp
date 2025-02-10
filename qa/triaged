@@ -32,23 +32,137 @@
 #                                                           <key software versions>
 #
 
+098	vm37	fails in QA run, but later passes with check-flakey
+102	vm37	fails in QA run, but later passes with check-flakey
 135	bozo-vm	sometimes this VM (VMware on Windows) goes to sleep and
 		the pmlogger fetches are long-delayed causing the test
 		to fail miserably
+280	.*	there is a potential collision with the regular running
+		of pmlogger_check and this test finds the lock file in
+		place and goes down a rabbit hole ... it is just too hard
+		to engineer our way around this
+749	CentOS Stream9	systemtap-devel is busted here, staprun is missing
+749	vm22	test stap -p4 $tmp.stap may hang forever, so we don't
+		even get to the _notrun here
 878	.*	on some QA hosts this fails sometimes when we don't see
 		the first or second event record ... despite extensive
 		triage the problem is not understood
+946	.*	Avahi confusion results in no discovery, disabled by default.
+1080	Ubuntu 2[02]\.	for pcp-atop built -O2 (not -O0) valgrind reports
+			Conditional jump or move depends on uninitialised value
+			at 0x11F1D2: deviattask (deviate.c:340)
+			but this seems bogus and is not seen elsewhere
+1171	openSUSE Leap 15.6	bcc module profile => LLVM ERROR: and no details
+1173	Fedora 38	pmdabcc cannot get the ucalls module to work here
+1179	openSUSE Leap 15.6	bcc module ustat => bpf: Argument list too long
 1210	vm[0-9][0-9]	may collide with pmlogger_check and (correctly)
 			detects presence of /etc/pcp/pmlogger/lock
-1221	vm27	extra labels associated with
-		openmetrics.vmware_exporter.vmware_vm_guest_disk_* metrics
-		for no known reason
 1290	Debian 1[01]	valgrind-reported issues in libpcp_web redis i/o functions
+1339	OpenBSD 7\.	there is some race condition between pmcd and the sample
+			PMDA when using inet sockects to communicate ... the
+			test passes sometimes and fails other times and hand
+			testing with dbpmda cannot reproduce a failure
+1475	Fedora 39	pmdabpf cannot get the mountsnoop module to work here
+1490	Fedora 39	mem leak appears to be from the pile of steaming stuff
+			know as Python, not the PCP labelsets code
+1490	Fedora 40	ditto
 1574	.*	valgrind-reported issue in libpcp_web pmseries functions
 1662	.*	valgrind-reported issue in libpcp_web archive discovery
 		handling of sources
-1701	Ubuntu 22\.04	nm: /usr/bin/bpftrace: no symbols issue
-1722	Ubuntu 22\.04	nm: /usr/bin/bpftrace: no symbols issue
-1723	Ubuntu 22\.04	nm: /usr/bin/bpftrace: no symbols issue
-		fixed: https://github.com/iovisor/bpftrace/pull/2264
-		but yet to arrive upstream
+1673	openSUSE Leap 15.[56]	bashreadline.so does not work here for the
+				bpf PMDA
+1701	Fedora 38	Python exception in json/decoder.py
+1702	Fedora 38	bpftrace PMDA is broken here, check-flakey passes
+1704	Fedora 38	bpftrace PMDA is broken here, check-flakey passes
+1705	Fedora 38	bpftrace PMDA is broken here, check-flakey passes
+1707	Fedora 38	bpftrace PMDA is broken here, check-flakey passes
+			(sometimes)
+1709	Fedora 38	statsd PMDA is broken here, check-flakey passes
+1740	vm21		acct(2) just seems broken here
+1724	Fedora 38	bpftrace PMDA is broken here, check-flakey passes
+			(sometimes)
+1973	Ubuntu 16\.04	Python here is 3.5.2 and there a bunch of what look like
+			dict ordering and/or cacheing sequence differences
+			and some arithmetic rounding differences ... not
+			worth wasting more time on
+1988	Ubuntu 16\.04	Python here is 3.5.2 and there a bunch of what look
+			arithmetic rounding differences ... not worth wasting
+			more time on
+1989	Ubuntu 16\.04	Python here is 3.5.2 and the output is not even
+			close to the expected output with different timestamps
+			and order of stats being reported ... not worth
+			wasting more time on
+1990	Ubuntu 16\.04	Python here is 3.5.2 and the output is not even
+			close to the expected output with different timestamps
+			and order of stats being reported ... not worth
+			wasting more time on
+1991	Ubuntu 16\.04	Python here is 3.5.2 and there are a couple of
+			timestamps that are off by one second ... not worth
+			wasting more time on
+# special QA environment probing test
+#
+1526	.*		failure indicates the environment probe is active,
+			not a QA failure
+# tzset botch for Python time module on FreeBSD 14 ... which is really
+# a localtime() botch as per https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+#
+035	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+317	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+922	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+1038	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+1070	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+1071	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+1072	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+1132	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+1134	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+1135	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+1136	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+1139	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+1140	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+1169	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+1183	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+1185	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+1202	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+1240	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+1242	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+1489	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+1500	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+1546	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+1547	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+1549	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+1623	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+1671	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+1793	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+# and these ones are just localtime() botched, no Python involved
+#
+079	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+165	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+176	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+289	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+313	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+486	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+495	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+556	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+585	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+634	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
+# perl issue on CentOS Stream9
+369	CentOS Stream9	Perl SEGV in munmap_chunk()
+372	CentOS Stream9	Perl SEGV in munmap_chunk()
+373	CentOS Stream9	Perl SEGV in munmap_chunk()
+511	CentOS Stream9	Perl SEGV in munmap_chunk()
+527	CentOS Stream9	Perl SEGV in munmap_chunk()
+528	CentOS Stream9	Perl SEGV in munmap_chunk()
+537	CentOS Stream9	Perl SEGV in munmap_chunk()
+711	CentOS Stream9	Perl SEGV in munmap_chunk()
+846	CentOS Stream9	Perl SEGV in munmap_chunk()
+926	CentOS Stream9	Perl SEGV in munmap_chunk()
+975	CentOS Stream9	Perl SEGV in munmap_chunk()
+985	CentOS Stream9	Perl SEGV in munmap_chunk()
+1070	CentOS Stream9	Perl SEGV in munmap_chunk()
+1406	CentOS Stream9	Perl SEGV in munmap_chunk()
+1409	CentOS Stream9	Perl SEGV in munmap_chunk()
+1410	CentOS Stream9	Perl SEGV in munmap_chunk()
+1411	CentOS Stream9	Perl SEGV in munmap_chunk()
+1412	CentOS Stream9	Perl SEGV in munmap_chunk()
+1417	CentOS Stream9	Perl SEGV in munmap_chunk()
+1418	CentOS Stream9	Perl SEGV in munmap_chunk()

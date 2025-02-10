@@ -1,7 +1,7 @@
 /*
  * Linux /proc/vmstat metrics cluster
  *
- * Copyright (c) 2013,2016-2017,2021 Red Hat.
+ * Copyright (c) 2013,2016-2017,2021,2023 Red Hat.
  * Copyright (c) 2007,2011 Aconex.  All Rights Reserved.
  * Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -117,6 +117,10 @@ typedef struct {
 	__uint64_t pgalloc_movable;
 	__uint64_t pgalloc_normal;
 	__uint64_t pgdeactivate;
+	__uint64_t pgdemote_direct;
+	__uint64_t pgdemote_khugepaged;
+	__uint64_t pgdemote_kswapd;
+	__uint64_t pgdemote_total;
 	__uint64_t pgfault;
 	__uint64_t pgfree;
 	__uint64_t pginodesteal;
@@ -126,12 +130,15 @@ typedef struct {
 	__uint64_t pgmigrate_success;
 	__uint64_t pgpgin;
 	__uint64_t pgpgout;
+	__uint64_t pgpromote_candidate;
+	__uint64_t pgpromote_success;
 	__uint64_t pgrefill_dma;
 	__uint64_t pgrefill_dma32;
 	__uint64_t pgrefill_high;
 	__uint64_t pgrefill_movable;
 	__uint64_t pgrefill_normal;
 	__uint64_t pgrotated;
+	__uint64_t pgscan_anon;
 	__uint64_t pgscan_direct;
 	__uint64_t pgscan_direct_dma;
 	__uint64_t pgscan_direct_dma32;
@@ -140,6 +147,8 @@ typedef struct {
 	__uint64_t pgscan_direct_normal;
 	__uint64_t pgscan_direct_throttle;
 	__uint64_t pgscan_direct_total;
+	__uint64_t pgscan_file;
+	__uint64_t pgscan_khugepaged;
 	__uint64_t pgscan_kswapd;
 	__uint64_t pgscan_kswapd_dma;
 	__uint64_t pgscan_kswapd_dma32;
@@ -147,6 +156,7 @@ typedef struct {
 	__uint64_t pgscan_kswapd_movable;
 	__uint64_t pgscan_kswapd_normal;
 	__uint64_t pgscan_kswapd_total;
+	__uint64_t pgsteal_anon;
 	__uint64_t pgsteal_direct;
 	__uint64_t pgsteal_direct_dma;
 	__uint64_t pgsteal_direct_dma32;
@@ -156,6 +166,7 @@ typedef struct {
 	__uint64_t pgsteal_dma32;
 	__uint64_t pgsteal_file;
 	__uint64_t pgsteal_high;
+	__uint64_t pgsteal_khugepaged;
 	__uint64_t pgsteal_kswapd;
 	__uint64_t pgsteal_kswapd_dma;
 	__uint64_t pgsteal_kswapd_dma32;

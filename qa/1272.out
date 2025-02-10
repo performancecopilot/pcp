@@ -1,7 +1,7 @@
 QA output created by 1272
 
 === foo -> foo? ===
-pmlogmv: newname (foo?) unsafe [shell metacharacter '?']
+pmlogmv: dstname (foo?) unsafe [shell metacharacter '?']
 
 === foo -> foo? ===
 link ./foo.0 -> foo?.0
@@ -31,7 +31,7 @@ fool.index
 fool.meta
 
 === foo -> foo* ===
-pmlogmv: newname (foo*) unsafe [shell metacharacter '*']
+pmlogmv: dstname (foo*) unsafe [shell metacharacter '*']
 
 === foo -> foo* ===
 link ./foo.0 -> foo*.0
@@ -61,7 +61,7 @@ fool.index
 fool.meta
 
 === foo -> foo$ ===
-pmlogmv: newname (foo$) unsafe [shell metacharacter '$']
+pmlogmv: dstname (foo$) unsafe [shell metacharacter '$']
 
 === foo -> foo$ ===
 link ./foo.0 -> foo$.0
@@ -91,7 +91,7 @@ fool.index
 fool.meta
 
 === foo -> foo[bar] ===
-pmlogmv: newname (foo[bar]) unsafe [shell metacharacter '[']
+pmlogmv: dstname (foo[bar]) unsafe [shell metacharacter '[']
 
 === foo -> foo[bar] ===
 link ./foo.0 -> foo[bar].0
@@ -229,7 +229,7 @@ fool.index
 fool.meta
 
 === foo -> foo<x> ===
-pmlogmv: newname (foo<x>) unsafe [shell metacharacter '<']
+pmlogmv: dstname (foo<x>) unsafe [shell metacharacter '<']
 
 === foo -> foo<x> ===
 link ./foo.0 -> foo<x>.0
@@ -259,7 +259,7 @@ fool.index
 fool.meta
 
 === foo -> foo| ===
-pmlogmv: newname (foo|) unsafe [shell metacharacter '|']
+pmlogmv: dstname (foo|) unsafe [shell metacharacter '|']
 
 === foo -> foo| ===
 link ./foo.0 -> foo|.0
@@ -289,7 +289,7 @@ fool.index
 fool.meta
 
 === foo -> foo; ===
-pmlogmv: newname (foo;) unsafe [shell metacharacter ';']
+pmlogmv: dstname (foo;) unsafe [shell metacharacter ';']
 
 === foo -> foo; ===
 link ./foo.0 -> foo;.0
@@ -319,7 +319,7 @@ fool.index
 fool.meta
 
 === foo -> foo& ===
-pmlogmv: newname (foo&) unsafe [shell metacharacter '&']
+pmlogmv: dstname (foo&) unsafe [shell metacharacter '&']
 
 === foo -> foo& ===
 link ./foo.0 -> foo&.0
@@ -349,7 +349,7 @@ fool.index
 fool.meta
 
 === foo -> foofoo bar ===
-pmlogmv: newname (foofoo bar) unsafe [shell metacharacter ' ']
+pmlogmv: dstname (foofoo bar) unsafe [shell metacharacter ' ']
 
 === foo -> foofoo bar ===
 link ./foo.0 -> foofoo bar.0

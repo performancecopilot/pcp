@@ -74,6 +74,24 @@ mem.buddyinfo.total
 mem.freemem
     value 4650860
 
+mem.hugepages.free
+No value(s) available!
+
+mem.hugepages.overcommit
+No value(s) available!
+
+mem.hugepages.pagesize
+No value(s) available!
+
+mem.hugepages.reserved
+No value(s) available!
+
+mem.hugepages.surplus
+No value(s) available!
+
+mem.hugepages.totalsize
+No value(s) available!
+
 mem.ksm.full_scans
     value 0
 
@@ -287,6 +305,12 @@ mem.util.cache_clean
 mem.util.cached
     value 7628228
 
+mem.util.cmafree
+    value 0
+
+mem.util.cmatotal
+    value 0
+
 mem.util.commitLimit
     value 16071992
 
@@ -307,6 +331,12 @@ mem.util.directMap4k
 
 mem.util.dirty
     value 172
+
+mem.util.filehugepages
+No value(s) available!
+
+mem.util.filepmdmapped
+No value(s) available!
 
 mem.util.free
     value 4650860
@@ -374,10 +404,16 @@ mem.util.other
 mem.util.pageTables
     value 55928
 
+mem.util.percpu
+No value(s) available!
+
 mem.util.quicklists
 No value(s) available!
 
 mem.util.reverseMaps
+No value(s) available!
+
+mem.util.shadowcallstack
 No value(s) available!
 
 mem.util.shared
@@ -385,6 +421,12 @@ No value(s) available!
 
 mem.util.shmem
     value 406288
+
+mem.util.shmemhugepages
+No value(s) available!
+
+mem.util.shmempmdmapped
+No value(s) available!
 
 mem.util.slab
     value 1339256
@@ -404,6 +446,9 @@ mem.util.swapFree
 mem.util.swapTotal
     value 8060924
 
+mem.util.unaccepted
+No value(s) available!
+
 mem.util.unevictable
     value 16
 
@@ -420,6 +465,18 @@ mem.util.vmallocUsed
     value 0
 
 mem.util.writeback
+    value 0
+
+mem.util.zswap
+No value(s) available!
+
+mem.util.zswapped
+No value(s) available!
+
+mem.vmmemctl.current
+    value 0
+
+mem.vmmemctl.target
     value 0
 
 mem.vmstat.allocstall
@@ -710,6 +767,18 @@ mem.vmstat.pgalloc_normal
 mem.vmstat.pgdeactivate
     value 63
 
+mem.vmstat.pgdemote_direct
+    value 0
+
+mem.vmstat.pgdemote_khugepaged
+    value 0
+
+mem.vmstat.pgdemote_kswapd
+    value 0
+
+mem.vmstat.pgdemote_total
+    value 0
+
 mem.vmstat.pgfault
     value 414185127
 
@@ -737,6 +806,12 @@ mem.vmstat.pgpgin
 mem.vmstat.pgpgout
     value 20759330
 
+mem.vmstat.pgpromote_candidate
+    value 0
+
+mem.vmstat.pgpromote_success
+    value 0
+
 mem.vmstat.pgrefill_dma
     value 0
 
@@ -754,6 +829,9 @@ mem.vmstat.pgrefill_normal
 
 mem.vmstat.pgrotated
     value 577
+
+mem.vmstat.pgscan_anon
+No value(s) available!
 
 mem.vmstat.pgscan_direct
 No value(s) available!
@@ -779,6 +857,12 @@ mem.vmstat.pgscan_direct_throttle
 mem.vmstat.pgscan_direct_total
     value 0
 
+mem.vmstat.pgscan_file
+No value(s) available!
+
+mem.vmstat.pgscan_khugepaged
+    value 0
+
 mem.vmstat.pgscan_kswapd
 No value(s) available!
 
@@ -799,6 +883,9 @@ mem.vmstat.pgscan_kswapd_normal
 
 mem.vmstat.pgscan_kswapd_total
     value 0
+
+mem.vmstat.pgsteal_anon
+No value(s) available!
 
 mem.vmstat.pgsteal_direct
 No value(s) available!
@@ -826,6 +913,9 @@ No value(s) available!
 
 mem.vmstat.pgsteal_high
 No value(s) available!
+
+mem.vmstat.pgsteal_khugepaged
+    value 0
 
 mem.vmstat.pgsteal_kswapd
 No value(s) available!
@@ -2774,6 +2864,24 @@ No value(s) available!
 mem.freemem
     value 87287012
 
+mem.hugepages.free
+No value(s) available!
+
+mem.hugepages.overcommit
+No value(s) available!
+
+mem.hugepages.pagesize
+No value(s) available!
+
+mem.hugepages.reserved
+No value(s) available!
+
+mem.hugepages.surplus
+No value(s) available!
+
+mem.hugepages.totalsize
+No value(s) available!
+
 mem.ksm.full_scans
     value 0
 
@@ -3024,6 +3132,12 @@ mem.util.cache_clean
 mem.util.cached
     value 31228980
 
+mem.util.cmafree
+No value(s) available!
+
+mem.util.cmatotal
+No value(s) available!
+
 mem.util.commitLimit
     value 70109824
 
@@ -3044,6 +3158,12 @@ mem.util.directMap4k
 
 mem.util.dirty
     value 8
+
+mem.util.filehugepages
+No value(s) available!
+
+mem.util.filepmdmapped
+No value(s) available!
 
 mem.util.free
     value 87287012
@@ -3111,10 +3231,16 @@ mem.util.other
 mem.util.pageTables
     value 40644
 
+mem.util.percpu
+No value(s) available!
+
 mem.util.quicklists
 No value(s) available!
 
 mem.util.reverseMaps
+No value(s) available!
+
+mem.util.shadowcallstack
 No value(s) available!
 
 mem.util.shared
@@ -3122,6 +3248,12 @@ No value(s) available!
 
 mem.util.shmem
     value 1001280
+
+mem.util.shmemhugepages
+No value(s) available!
+
+mem.util.shmempmdmapped
+No value(s) available!
 
 mem.util.slab
     value 1452008
@@ -3141,6 +3273,9 @@ mem.util.swapFree
 mem.util.swapTotal
     value 4194300
 
+mem.util.unaccepted
+No value(s) available!
+
 mem.util.unevictable
     value 149708
 
@@ -3157,6 +3292,18 @@ mem.util.vmallocUsed
     value 513640
 
 mem.util.writeback
+    value 0
+
+mem.util.zswap
+No value(s) available!
+
+mem.util.zswapped
+No value(s) available!
+
+mem.vmmemctl.current
+    value 0
+
+mem.vmmemctl.target
     value 0
 
 mem.vmstat.allocstall
@@ -3447,6 +3594,18 @@ mem.vmstat.pgalloc_normal
 mem.vmstat.pgdeactivate
     value 0
 
+mem.vmstat.pgdemote_direct
+    value 0
+
+mem.vmstat.pgdemote_khugepaged
+    value 0
+
+mem.vmstat.pgdemote_kswapd
+    value 0
+
+mem.vmstat.pgdemote_total
+    value 0
+
 mem.vmstat.pgfault
     value 1891461678
 
@@ -3474,6 +3633,12 @@ mem.vmstat.pgpgin
 mem.vmstat.pgpgout
     value 39010237
 
+mem.vmstat.pgpromote_candidate
+    value 0
+
+mem.vmstat.pgpromote_success
+    value 0
+
 mem.vmstat.pgrefill_dma
     value 0
 
@@ -3491,6 +3656,9 @@ mem.vmstat.pgrefill_normal
 
 mem.vmstat.pgrotated
     value 131
+
+mem.vmstat.pgscan_anon
+No value(s) available!
 
 mem.vmstat.pgscan_direct
 No value(s) available!
@@ -3516,6 +3684,12 @@ mem.vmstat.pgscan_direct_throttle
 mem.vmstat.pgscan_direct_total
     value 0
 
+mem.vmstat.pgscan_file
+No value(s) available!
+
+mem.vmstat.pgscan_khugepaged
+    value 0
+
 mem.vmstat.pgscan_kswapd
 No value(s) available!
 
@@ -3536,6 +3710,9 @@ mem.vmstat.pgscan_kswapd_normal
 
 mem.vmstat.pgscan_kswapd_total
     value 0
+
+mem.vmstat.pgsteal_anon
+No value(s) available!
 
 mem.vmstat.pgsteal_direct
 No value(s) available!
@@ -3563,6 +3740,9 @@ No value(s) available!
 
 mem.vmstat.pgsteal_high
 No value(s) available!
+
+mem.vmstat.pgsteal_khugepaged
+    value 0
 
 mem.vmstat.pgsteal_kswapd
 No value(s) available!
@@ -5489,6 +5669,24 @@ No value(s) available!
 mem.freemem
     value 87287012
 
+mem.hugepages.free
+No value(s) available!
+
+mem.hugepages.overcommit
+No value(s) available!
+
+mem.hugepages.pagesize
+No value(s) available!
+
+mem.hugepages.reserved
+No value(s) available!
+
+mem.hugepages.surplus
+No value(s) available!
+
+mem.hugepages.totalsize
+No value(s) available!
+
 mem.ksm.full_scans
     value 0
 
@@ -5739,6 +5937,12 @@ mem.util.cache_clean
 mem.util.cached
     value 31228980
 
+mem.util.cmafree
+No value(s) available!
+
+mem.util.cmatotal
+No value(s) available!
+
 mem.util.commitLimit
     value 70109824
 
@@ -5759,6 +5963,12 @@ mem.util.directMap4k
 
 mem.util.dirty
     value 8
+
+mem.util.filehugepages
+No value(s) available!
+
+mem.util.filepmdmapped
+No value(s) available!
 
 mem.util.free
     value 87287012
@@ -5826,10 +6036,16 @@ mem.util.other
 mem.util.pageTables
     value 40644
 
+mem.util.percpu
+No value(s) available!
+
 mem.util.quicklists
 No value(s) available!
 
 mem.util.reverseMaps
+No value(s) available!
+
+mem.util.shadowcallstack
 No value(s) available!
 
 mem.util.shared
@@ -5837,6 +6053,12 @@ No value(s) available!
 
 mem.util.shmem
     value 1001280
+
+mem.util.shmemhugepages
+No value(s) available!
+
+mem.util.shmempmdmapped
+No value(s) available!
 
 mem.util.slab
     value 1452008
@@ -5856,6 +6078,9 @@ mem.util.swapFree
 mem.util.swapTotal
     value 4194300
 
+mem.util.unaccepted
+No value(s) available!
+
 mem.util.unevictable
     value 149708
 
@@ -5873,6 +6098,18 @@ mem.util.vmallocUsed
 
 mem.util.writeback
     value 4
+
+mem.util.zswap
+No value(s) available!
+
+mem.util.zswapped
+No value(s) available!
+
+mem.vmmemctl.current
+    value 0
+
+mem.vmmemctl.target
+    value 0
 
 mem.vmstat.allocstall
     value 0
@@ -6162,6 +6399,18 @@ mem.vmstat.pgalloc_normal
 mem.vmstat.pgdeactivate
     value 0
 
+mem.vmstat.pgdemote_direct
+    value 0
+
+mem.vmstat.pgdemote_khugepaged
+    value 0
+
+mem.vmstat.pgdemote_kswapd
+    value 0
+
+mem.vmstat.pgdemote_total
+    value 0
+
 mem.vmstat.pgfault
     value 1891461678
 
@@ -6189,6 +6438,12 @@ mem.vmstat.pgpgin
 mem.vmstat.pgpgout
     value 39010237
 
+mem.vmstat.pgpromote_candidate
+    value 0
+
+mem.vmstat.pgpromote_success
+    value 0
+
 mem.vmstat.pgrefill_dma
     value 0
 
@@ -6206,6 +6461,9 @@ mem.vmstat.pgrefill_normal
 
 mem.vmstat.pgrotated
     value 131
+
+mem.vmstat.pgscan_anon
+No value(s) available!
 
 mem.vmstat.pgscan_direct
 No value(s) available!
@@ -6231,6 +6489,12 @@ mem.vmstat.pgscan_direct_throttle
 mem.vmstat.pgscan_direct_total
     value 0
 
+mem.vmstat.pgscan_file
+No value(s) available!
+
+mem.vmstat.pgscan_khugepaged
+    value 0
+
 mem.vmstat.pgscan_kswapd
 No value(s) available!
 
@@ -6251,6 +6515,9 @@ mem.vmstat.pgscan_kswapd_normal
 
 mem.vmstat.pgscan_kswapd_total
     value 0
+
+mem.vmstat.pgsteal_anon
+No value(s) available!
 
 mem.vmstat.pgsteal_direct
 No value(s) available!
@@ -6278,6 +6545,9 @@ No value(s) available!
 
 mem.vmstat.pgsteal_high
 No value(s) available!
+
+mem.vmstat.pgsteal_khugepaged
+    value 0
 
 mem.vmstat.pgsteal_kswapd
 No value(s) available!
@@ -8204,6 +8474,24 @@ No value(s) available!
 mem.freemem
     value 3264460
 
+mem.hugepages.free
+No value(s) available!
+
+mem.hugepages.overcommit
+No value(s) available!
+
+mem.hugepages.pagesize
+No value(s) available!
+
+mem.hugepages.reserved
+No value(s) available!
+
+mem.hugepages.surplus
+No value(s) available!
+
+mem.hugepages.totalsize
+No value(s) available!
+
 mem.ksm.full_scans
     value 0
 
@@ -8417,6 +8705,12 @@ mem.util.cache_clean
 mem.util.cached
     value 281572
 
+mem.util.cmafree
+    value 0
+
+mem.util.cmatotal
+    value 0
+
 mem.util.commitLimit
     value 4631924
 
@@ -8437,6 +8731,12 @@ mem.util.directMap4k
 
 mem.util.dirty
     value 0
+
+mem.util.filehugepages
+No value(s) available!
+
+mem.util.filepmdmapped
+No value(s) available!
 
 mem.util.free
     value 3264460
@@ -8504,10 +8804,16 @@ mem.util.other
 mem.util.pageTables
     value 20784
 
+mem.util.percpu
+No value(s) available!
+
 mem.util.quicklists
 No value(s) available!
 
 mem.util.reverseMaps
+No value(s) available!
+
+mem.util.shadowcallstack
 No value(s) available!
 
 mem.util.shared
@@ -8515,6 +8821,12 @@ No value(s) available!
 
 mem.util.shmem
     value 1340
+
+mem.util.shmemhugepages
+    value 0
+
+mem.util.shmempmdmapped
+    value 0
 
 mem.util.slab
     value 109736
@@ -8534,6 +8846,9 @@ mem.util.swapFree
 mem.util.swapTotal
     value 2621436
 
+mem.util.unaccepted
+No value(s) available!
+
 mem.util.unevictable
     value 0
 
@@ -8550,6 +8865,18 @@ mem.util.vmallocUsed
     value 0
 
 mem.util.writeback
+    value 0
+
+mem.util.zswap
+No value(s) available!
+
+mem.util.zswapped
+No value(s) available!
+
+mem.vmmemctl.current
+    value 0
+
+mem.vmmemctl.target
     value 0
 
 mem.vmstat.allocstall
@@ -8840,6 +9167,18 @@ mem.vmstat.pgalloc_normal
 mem.vmstat.pgdeactivate
     value 0
 
+mem.vmstat.pgdemote_direct
+    value 0
+
+mem.vmstat.pgdemote_khugepaged
+    value 0
+
+mem.vmstat.pgdemote_kswapd
+    value 0
+
+mem.vmstat.pgdemote_total
+    value 0
+
 mem.vmstat.pgfault
     value 986124
 
@@ -8867,6 +9206,12 @@ mem.vmstat.pgpgin
 mem.vmstat.pgpgout
     value 27860
 
+mem.vmstat.pgpromote_candidate
+    value 0
+
+mem.vmstat.pgpromote_success
+    value 0
+
 mem.vmstat.pgrefill_dma
 No value(s) available!
 
@@ -8884,6 +9229,9 @@ No value(s) available!
 
 mem.vmstat.pgrotated
     value 0
+
+mem.vmstat.pgscan_anon
+No value(s) available!
 
 mem.vmstat.pgscan_direct
     value 0
@@ -8909,6 +9257,12 @@ mem.vmstat.pgscan_direct_throttle
 mem.vmstat.pgscan_direct_total
     value 0
 
+mem.vmstat.pgscan_file
+No value(s) available!
+
+mem.vmstat.pgscan_khugepaged
+    value 0
+
 mem.vmstat.pgscan_kswapd
     value 0
 
@@ -8929,6 +9283,9 @@ No value(s) available!
 
 mem.vmstat.pgscan_kswapd_total
     value 0
+
+mem.vmstat.pgsteal_anon
+No value(s) available!
 
 mem.vmstat.pgsteal_direct
     value 0
@@ -8956,6 +9313,9 @@ No value(s) available!
 
 mem.vmstat.pgsteal_high
 No value(s) available!
+
+mem.vmstat.pgsteal_khugepaged
+    value 0
 
 mem.vmstat.pgsteal_kswapd
     value 0
@@ -10650,6 +11010,24 @@ No value(s) available!
 mem.freemem
     value 2496772
 
+mem.hugepages.free
+No value(s) available!
+
+mem.hugepages.overcommit
+No value(s) available!
+
+mem.hugepages.pagesize
+No value(s) available!
+
+mem.hugepages.reserved
+No value(s) available!
+
+mem.hugepages.surplus
+No value(s) available!
+
+mem.hugepages.totalsize
+No value(s) available!
+
 mem.ksm.full_scans
     value 0
 
@@ -10863,6 +11241,12 @@ mem.util.cache_clean
 mem.util.cached
     value 7246776
 
+mem.util.cmafree
+    value 0
+
+mem.util.cmatotal
+    value 0
+
 mem.util.commitLimit
     value 16119160
 
@@ -10883,6 +11267,12 @@ mem.util.directMap4k
 
 mem.util.dirty
     value 1724
+
+mem.util.filehugepages
+No value(s) available!
+
+mem.util.filepmdmapped
+No value(s) available!
 
 mem.util.free
     value 2496772
@@ -10950,10 +11340,16 @@ mem.util.other
 mem.util.pageTables
     value 94572
 
+mem.util.percpu
+No value(s) available!
+
 mem.util.quicklists
 No value(s) available!
 
 mem.util.reverseMaps
+No value(s) available!
+
+mem.util.shadowcallstack
 No value(s) available!
 
 mem.util.shared
@@ -10961,6 +11357,12 @@ No value(s) available!
 
 mem.util.shmem
     value 978508
+
+mem.util.shmemhugepages
+    value 0
+
+mem.util.shmempmdmapped
+    value 0
 
 mem.util.slab
     value 694056
@@ -10980,6 +11382,9 @@ mem.util.swapFree
 mem.util.swapTotal
     value 8093692
 
+mem.util.unaccepted
+No value(s) available!
+
 mem.util.unevictable
     value 80
 
@@ -10996,6 +11401,18 @@ mem.util.vmallocUsed
     value 0
 
 mem.util.writeback
+    value 0
+
+mem.util.zswap
+No value(s) available!
+
+mem.util.zswapped
+No value(s) available!
+
+mem.vmmemctl.current
+    value 0
+
+mem.vmmemctl.target
     value 0
 
 mem.vmstat.allocstall
@@ -11286,6 +11703,18 @@ mem.vmstat.pgalloc_normal
 mem.vmstat.pgdeactivate
     value 1337431
 
+mem.vmstat.pgdemote_direct
+    value 0
+
+mem.vmstat.pgdemote_khugepaged
+    value 0
+
+mem.vmstat.pgdemote_kswapd
+    value 0
+
+mem.vmstat.pgdemote_total
+    value 0
+
 mem.vmstat.pgfault
     value 4461699309
 
@@ -11313,6 +11742,12 @@ mem.vmstat.pgpgin
 mem.vmstat.pgpgout
     value 169046659
 
+mem.vmstat.pgpromote_candidate
+    value 0
+
+mem.vmstat.pgpromote_success
+    value 0
+
 mem.vmstat.pgrefill_dma
 No value(s) available!
 
@@ -11330,6 +11765,9 @@ No value(s) available!
 
 mem.vmstat.pgrotated
     value 857
+
+mem.vmstat.pgscan_anon
+No value(s) available!
 
 mem.vmstat.pgscan_direct
     value 39699
@@ -11355,6 +11793,12 @@ mem.vmstat.pgscan_direct_throttle
 mem.vmstat.pgscan_direct_total
     value 39699
 
+mem.vmstat.pgscan_file
+No value(s) available!
+
+mem.vmstat.pgscan_khugepaged
+    value 0
+
 mem.vmstat.pgscan_kswapd
     value 6328636
 
@@ -11375,6 +11819,9 @@ No value(s) available!
 
 mem.vmstat.pgscan_kswapd_total
     value 6328636
+
+mem.vmstat.pgsteal_anon
+No value(s) available!
 
 mem.vmstat.pgsteal_direct
     value 26263
@@ -11402,6 +11849,9 @@ No value(s) available!
 
 mem.vmstat.pgsteal_high
 No value(s) available!
+
+mem.vmstat.pgsteal_khugepaged
+    value 0
 
 mem.vmstat.pgsteal_kswapd
     value 5435316
@@ -13160,6 +13610,24 @@ No value(s) available!
 mem.freemem
     value 2524972
 
+mem.hugepages.free
+No value(s) available!
+
+mem.hugepages.overcommit
+No value(s) available!
+
+mem.hugepages.pagesize
+No value(s) available!
+
+mem.hugepages.reserved
+No value(s) available!
+
+mem.hugepages.surplus
+No value(s) available!
+
+mem.hugepages.totalsize
+No value(s) available!
+
 mem.ksm.full_scans
     value 0
 
@@ -13373,6 +13841,12 @@ mem.util.cache_clean
 mem.util.cached
     value 708152
 
+mem.util.cmafree
+No value(s) available!
+
+mem.util.cmatotal
+No value(s) available!
+
 mem.util.commitLimit
     value 5081520
 
@@ -13393,6 +13867,12 @@ mem.util.directMap4k
 
 mem.util.dirty
     value 16
+
+mem.util.filehugepages
+No value(s) available!
+
+mem.util.filepmdmapped
+No value(s) available!
 
 mem.util.free
     value 2524972
@@ -13460,10 +13940,16 @@ mem.util.other
 mem.util.pageTables
     value 8848
 
+mem.util.percpu
+No value(s) available!
+
 mem.util.quicklists
 No value(s) available!
 
 mem.util.reverseMaps
+No value(s) available!
+
+mem.util.shadowcallstack
 No value(s) available!
 
 mem.util.shared
@@ -13471,6 +13957,12 @@ No value(s) available!
 
 mem.util.shmem
     value 202696
+
+mem.util.shmemhugepages
+    value 0
+
+mem.util.shmempmdmapped
+    value 0
 
 mem.util.slab
     value 425060
@@ -13490,6 +13982,9 @@ mem.util.swapFree
 mem.util.swapTotal
     value 3145724
 
+mem.util.unaccepted
+No value(s) available!
+
 mem.util.unevictable
     value 0
 
@@ -13506,6 +14001,18 @@ mem.util.vmallocUsed
     value 0
 
 mem.util.writeback
+    value 0
+
+mem.util.zswap
+No value(s) available!
+
+mem.util.zswapped
+No value(s) available!
+
+mem.vmmemctl.current
+    value 0
+
+mem.vmmemctl.target
     value 0
 
 mem.vmstat.allocstall
@@ -13796,6 +14303,18 @@ mem.vmstat.pgalloc_normal
 mem.vmstat.pgdeactivate
     value 0
 
+mem.vmstat.pgdemote_direct
+    value 0
+
+mem.vmstat.pgdemote_khugepaged
+    value 0
+
+mem.vmstat.pgdemote_kswapd
+    value 0
+
+mem.vmstat.pgdemote_total
+    value 0
+
 mem.vmstat.pgfault
     value 456254498
 
@@ -13823,6 +14342,12 @@ mem.vmstat.pgpgin
 mem.vmstat.pgpgout
     value 73590026
 
+mem.vmstat.pgpromote_candidate
+    value 0
+
+mem.vmstat.pgpromote_success
+    value 0
+
 mem.vmstat.pgrefill_dma
 No value(s) available!
 
@@ -13840,6 +14365,9 @@ No value(s) available!
 
 mem.vmstat.pgrotated
     value 2
+
+mem.vmstat.pgscan_anon
+No value(s) available!
 
 mem.vmstat.pgscan_direct
     value 0
@@ -13865,6 +14393,12 @@ mem.vmstat.pgscan_direct_throttle
 mem.vmstat.pgscan_direct_total
     value 0
 
+mem.vmstat.pgscan_file
+No value(s) available!
+
+mem.vmstat.pgscan_khugepaged
+    value 0
+
 mem.vmstat.pgscan_kswapd
     value 0
 
@@ -13885,6 +14419,9 @@ No value(s) available!
 
 mem.vmstat.pgscan_kswapd_total
     value 0
+
+mem.vmstat.pgsteal_anon
+No value(s) available!
 
 mem.vmstat.pgsteal_direct
     value 0
@@ -13912,6 +14449,9 @@ No value(s) available!
 
 mem.vmstat.pgsteal_high
 No value(s) available!
+
+mem.vmstat.pgsteal_khugepaged
+    value 0
 
 mem.vmstat.pgsteal_kswapd
     value 0
@@ -14942,6 +15482,24 @@ No value(s) available!
 mem.freemem
     value 4211712
 
+mem.hugepages.free
+No value(s) available!
+
+mem.hugepages.overcommit
+No value(s) available!
+
+mem.hugepages.pagesize
+No value(s) available!
+
+mem.hugepages.reserved
+No value(s) available!
+
+mem.hugepages.surplus
+No value(s) available!
+
+mem.hugepages.totalsize
+No value(s) available!
+
 mem.ksm.full_scans
     value 0
 
@@ -15192,6 +15750,12 @@ mem.util.cache_clean
 mem.util.cached
     value 3194544
 
+mem.util.cmafree
+    value 0
+
+mem.util.cmatotal
+    value 0
+
 mem.util.commitLimit
     value 12211660
 
@@ -15211,6 +15775,12 @@ mem.util.directMap4k
     value 192364
 
 mem.util.dirty
+    value 0
+
+mem.util.filehugepages
+    value 0
+
+mem.util.filepmdmapped
     value 0
 
 mem.util.free
@@ -15279,10 +15849,16 @@ mem.util.other
 mem.util.pageTables
     value 4072
 
+mem.util.percpu
+    value 5280
+
 mem.util.quicklists
 No value(s) available!
 
 mem.util.reverseMaps
+No value(s) available!
+
+mem.util.shadowcallstack
 No value(s) available!
 
 mem.util.shared
@@ -15290,6 +15866,12 @@ No value(s) available!
 
 mem.util.shmem
     value 1148
+
+mem.util.shmemhugepages
+    value 0
+
+mem.util.shmempmdmapped
+    value 0
 
 mem.util.slab
     value 298464
@@ -15309,6 +15891,9 @@ mem.util.swapFree
 mem.util.swapTotal
     value 8140796
 
+mem.util.unaccepted
+No value(s) available!
+
 mem.util.unevictable
     value 0
 
@@ -15325,6 +15910,18 @@ mem.util.vmallocUsed
     value 79940
 
 mem.util.writeback
+    value 0
+
+mem.util.zswap
+No value(s) available!
+
+mem.util.zswapped
+No value(s) available!
+
+mem.vmmemctl.current
+    value 0
+
+mem.vmmemctl.target
     value 0
 
 mem.vmstat.allocstall
@@ -15615,6 +16212,18 @@ mem.vmstat.pgalloc_normal
 mem.vmstat.pgdeactivate
     value 0
 
+mem.vmstat.pgdemote_direct
+    value 0
+
+mem.vmstat.pgdemote_khugepaged
+    value 0
+
+mem.vmstat.pgdemote_kswapd
+    value 0
+
+mem.vmstat.pgdemote_total
+    value 0
+
 mem.vmstat.pgfault
     value 5527692
 
@@ -15642,6 +16251,12 @@ mem.vmstat.pgpgin
 mem.vmstat.pgpgout
     value 4394821
 
+mem.vmstat.pgpromote_candidate
+    value 0
+
+mem.vmstat.pgpromote_success
+    value 0
+
 mem.vmstat.pgrefill_dma
 No value(s) available!
 
@@ -15659,6 +16274,9 @@ No value(s) available!
 
 mem.vmstat.pgrotated
     value 1
+
+mem.vmstat.pgscan_anon
+    value 0
 
 mem.vmstat.pgscan_direct
     value 0
@@ -15684,6 +16302,12 @@ mem.vmstat.pgscan_direct_throttle
 mem.vmstat.pgscan_direct_total
     value 0
 
+mem.vmstat.pgscan_file
+    value 0
+
+mem.vmstat.pgscan_khugepaged
+    value 0
+
 mem.vmstat.pgscan_kswapd
     value 0
 
@@ -15703,6 +16327,9 @@ mem.vmstat.pgscan_kswapd_normal
 No value(s) available!
 
 mem.vmstat.pgscan_kswapd_total
+    value 0
+
+mem.vmstat.pgsteal_anon
     value 0
 
 mem.vmstat.pgsteal_direct
@@ -15731,6 +16358,9 @@ mem.vmstat.pgsteal_file
 
 mem.vmstat.pgsteal_high
 No value(s) available!
+
+mem.vmstat.pgsteal_khugepaged
+    value 0
 
 mem.vmstat.pgsteal_kswapd
     value 0

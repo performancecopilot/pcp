@@ -14,6 +14,7 @@
 
 #include <pcp/pmapi.h>
 #include <ctype.h>
+#include <regex.h>
 
 #include "atop.h"
 #include "photoproc.h"
@@ -21,6 +22,73 @@
 
 static pmID	pmids[TASK_NMETRICS];
 static pmDesc	descs[TASK_NMETRICS];
+
+extern char     prependenv;
+extern regex_t  envregex;
+
+/*
+** store the full command line
+**
+** the command line may be prepended by environment variables
+*/
+
+#define ABBENVLEN	16
+
+static void
+proccmd(struct tstat *task, int pid, char *name, pmResult *rp, pmDesc *dp, int offset)
+{
+	size_t		env_len = 0, next_len;
+	char		*p, *q, *pc, *nametail = name;
+	char		environ[BUFSIZ];
+
+	strsep(&nametail, " ");	/* remove process identifier prefix; might fail */
+	pc = nametail ? nametail : name;
+
+	if (prependenv)
+	{
+		p = extract_string_inst(rp, dp, TASK_GEN_ENVIRON, &environ[0],
+				sizeof environ, pid, offset);
+		while ((p = strsep(&p, " ")))
+		{
+			if (!regexec(&envregex, p, 0, NULL, 0))
+			{
+				if ((q = strchr(p, ' ')) == NULL)
+					next_len = strlen(p);
+				else
+					next_len = q - p;
+
+				if (env_len + next_len >= CMDLEN)
+				{
+					// try to add abbreviated env string
+					//
+					if (env_len + ABBENVLEN + 1 >= CMDLEN)
+					{
+						break;
+					}
+					else
+					{
+						p[ABBENVLEN-4] = '.';
+						p[ABBENVLEN-3] = '.';
+						p[ABBENVLEN-2] = '.';
+						p[ABBENVLEN-1] = '\0';
+						p[ABBENVLEN]   = '\0';
+						next_len= ABBENVLEN;
+					}
+				}
+
+				env_len += next_len;
+
+				*(p+next_len-1) = ' ';	// modify NULL byte to space
+
+				strcpy(pc, p);
+				pc += next_len;
+			}
+		}
+	}
+
+	strncpy(task->gen.cmdline, pc, CMDLEN-env_len);
+	task->gen.cmdline[CMDLEN] = '\0';
+}
 
 /*
 ** sampled proc values into task structure, for one process/thread
@@ -31,13 +99,10 @@ update_task(struct tstat *task, int pid, char *name, pmResult *rp, pmDesc *dp, i
 	int key;
 	char buf[32];
 	char cgname[CGRLEN+2];
-	char *nametail = name;
 
 	memset(task, 0, sizeof(struct tstat));
 
-	strsep(&nametail, " ");	/* remove process identifier prefix; might fail */
-	strncpy(task->gen.cmdline, nametail ? nametail : name, CMDLEN);
-	task->gen.cmdline[CMDLEN] = '\0';
+	proccmd(task, pid, name, rp, dp, offset);
 	task->gen.isproc = 1;		/* thread/process marker */
 
 	/* accumulate Pss from smaps (optional, relatively expensive) */
@@ -52,10 +117,10 @@ update_task(struct tstat *task, int pid, char *name, pmResult *rp, pmDesc *dp, i
 				sizeof task->cpu.wchan, pid, offset);
 
 	/* /proc/pid/cgroup */
-	extract_string_inst(rp, dp, TASK_GEN_CONTAINER, &task->gen.container[0],
-			    sizeof task->gen.container, pid, offset);
-        if (task->gen.container[0] != '\0')
-		supportflags |= DOCKSTAT;
+	extract_string_inst(rp, dp, TASK_GEN_CONTAINER, &task->gen.utsname[0],
+			    sizeof task->gen.utsname, pid, offset);
+        if (task->gen.utsname[0] != '\0')
+		supportflags |= CONTAINERSTAT;
 
 	cgname[0] = '\0';
 	extract_string_inst(rp, dp, TASK_GEN_CGROUP, &cgname[0],
@@ -174,6 +239,8 @@ update_task(struct tstat *task, int pid, char *name, pmResult *rp, pmDesc *dp, i
 		task->gen.nthrslpi = 1;
 		break;
   	   case 'I':
+		task->gen.nthridle = 1;
+		break;
   	   case 'D':
 		task->gen.nthrslpu = 1;
 		break;
@@ -235,8 +302,7 @@ unsigned long
 photoproc(struct tstat **tasks, unsigned long *taskslen)
 {
 	static int	setup;
-	static pmID	pssid;
-	static pmID	wchanid;
+	static pmID	envid, pssid, wchanid;
 	pmResult	*result;
 	char		**insts;
 	int		*pids, offset;
@@ -246,18 +312,28 @@ photoproc(struct tstat **tasks, unsigned long *taskslen)
 	{
 		wchanid = pmids[TASK_GEN_WCHAN];
 		pssid = pmids[TASK_MEM_PMEM];
+		envid = pmids[TASK_GEN_ENVIRON];
 		setup = 1;
 	}
 
 	/*
 	** reading the smaps file for every process with every sample
-	** is a really 'expensive' from a CPU consumption point-of-view,
+	** is quite 'expensive' from a CPU consumption point-of-view,
 	** so gathering this info is optional
 	*/
 	if (!calcpss)
 		pmids[TASK_MEM_PMEM] = PM_ID_NULL;
 	else
 		pmids[TASK_MEM_PMEM] = pssid;
+
+	/*
+	 ** similar situation reading the environment of every process
+	 */
+	if (!prependenv)
+		pmids[TASK_GEN_ENVIRON] = PM_ID_NULL;
+	else
+		pmids[TASK_GEN_ENVIRON] = envid;
+
 	/*
 	** determine thread's wchan, if wanted ('expensive' from
 	** a CPU consumption point-of-view)
@@ -280,7 +356,7 @@ photoproc(struct tstat **tasks, unsigned long *taskslen)
 		*taskslen = count;
 	}
 
-	supportflags &= ~DOCKSTAT;
+	supportflags &= ~CONTAINERSTAT;
 
 	for (i=0; i < count; i++)
 	{
@@ -293,6 +369,9 @@ photoproc(struct tstat **tasks, unsigned long *taskslen)
 
 	if (supportflags & NETATOP)
 		netproc_update_tasks(tasks, count);
+
+	if (supportflags & NETATOPBPF)
+		netbpfproc_update_tasks(tasks, count);
 
 	if (pmDebugOptions.appl0)
 		fprintf(stderr, "%s: done %lu processes\n", pmGetProgname(), count);

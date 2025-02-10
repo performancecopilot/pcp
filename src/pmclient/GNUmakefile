@@ -61,6 +61,5 @@ install_pcp:	install
 
 pmclient.o pmclient_fg.o:	$(TOPDIR)/src/include/pcp/libpcp.h
 
-check::	$(CFILES)
-	$(CLINT) $(CFILES)
+check:: $(PYFILES)
 	$(PYLINT) $(PYFILES)

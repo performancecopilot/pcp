@@ -1,0 +1,116 @@
+#!/bin/sh
+# PCP QA Test No. 1510
+# derived metrics - extension of qa/1227 with meta=... for
+# the mkconst() constructors
+#
+# Copyright (c) 2017,2024 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+
+do_valgrind=false
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+    do_valgrind=true
+fi
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# Note on ... PMCD state changes: names change
+# this can happen due to concurrent changes in state for _any_
+# PMDA, not just sampledso we're using in this test, and probably
+# from a PMDA that changes from NOTREADY to READY after a pmcd
+# restart.  These are not relevant to this test, so make 'em go
+# away.
+#
+_filter()
+{
+    sed \
+	-e '/pmResult/s/ .* numpmid/ ... numpmid/' \
+	-e '/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/s/[^ ]*/TIMESTAMP/' \
+	-e '/value /s/\(value.*\) ".*"/\1 STRING/' \
+	-e '/^PMCD state changes: names change$/d' \
+	-e "/host:/s/`hostname`/HOSTNAME/" \
+    # end
+}
+
+# want guard to be true or false and indom to be right or left or both
+#
+cat <<'End-of-File' >$tmp.config
+true.right = sampledso.long.hundred == 100 ? mkconst(42, meta=sampledso.double.bin_ctr) : sampledso.double.bin_ctr
+false.right = sampledso.long.hundred != 100 ? mkconst(42, meta=sampledso.double.bin_ctr) : sampledso.double.bin_ctr
+true.left = sampledso.long.hundred == 100 ? sampledso.double.bin_ctr : mkconst(42, meta=sampledso.double.bin_ctr)
+false.left = sampledso.long.hundred != 100 ? sampledso.double.bin_ctr : mkconst(42, meta=sampledso.double.bin_ctr)
+true.both = sampledso.long.hundred == 100 ? sampledso.double.bin_ctr : sampledso.double.bin_ctr - sampledso.double.bin_ctr + mkconst(42, meta=sampledso.double.bin_ctr)
+false.both = sampledso.long.hundred != 100 ? sampledso.double.bin_ctr : sampledso.double.bin_ctr - sampledso.double.bin_ctr + mkconst(42, meta=sampledso.double.bin_ctr)
+End-of-File
+
+# real QA test starts here
+export PCP_DERIVED_CONFIG=$tmp.config
+
+# real QA test starts here
+
+for metric in true.right false.right true.left false.left true.both false.both
+do
+    echo
+    echo "=== $metric ==="
+    # one instance
+    #
+    if $do_valgrind
+    then
+	_run_valgrind ...your test goes here...
+    else
+	pmval -Dfetch -t 0.1sec -s 2 -i "bin-300" $metric >$tmp.out 2>$tmp.err
+    fi
+    cat $tmp.out >>$seq_full
+    _filter <$tmp.err
+
+    # two instances
+    #
+    if $do_valgrind
+    then
+	_run_valgrind ...your test goes here...
+    else
+	pmval -Dfetch -t 0.1sec -s 2 -i "bin-200,bin-400" $metric >$tmp.out 2>$tmp.err
+    fi
+    cat $tmp.out >>$seq_full
+    _filter <$tmp.err
+
+    # all instances
+    #
+    if $do_valgrind
+    then
+	_run_valgrind ...your test goes here...
+    else
+	pmval -Dfetch -t 0.1sec -s 2 $metric >$tmp.out 2>$tmp.err
+    fi
+    _filter <$tmp.out
+    cat $tmp.out >>$seq_full
+    _filter <$tmp.err
+
+done
+
+# success, all done
+exit

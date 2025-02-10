@@ -11,22 +11,17 @@ echo "QA output created by $seq"
 # get standard environment, filters and checks
 . ./common.python
 . ./common.config
-echo "PCPQA_CLOSE_X_SERVER=$PCPQA_CLOSE_X_SERVER" >>$here/$seq.full
+
+_check_display
+echo "DISPLAY=$DISPLAY" >>$seq_full
+echo "PCPQA_CLOSE_X_SERVER=$PCPQA_CLOSE_X_SERVER" >>$seq_full
 
 [ $PCP_PLATFORM = linux ] || _notrun "Test needs to run only on Linux"
 
 status=1       # failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 export PCP_STDERR=$tmp.err
-echo "DISPLAY=$DISPLAY" >>$here/$seq.full
-echo "PCPQA_CLOSE_X_SERVER=$PCPQA_CLOSE_X_SERVER" >>$here/$seq.full
-if [ -z "$DISPLAY" ]
-then
-    export DISPLAY=$PCPQA_CLOSE_X_SERVER
-    echo "DISPLAY=$DISPLAY" >>$here/$seq.full
-fi
 
 # these may not be available if needed modules missing
 #
@@ -91,6 +86,9 @@ _check_completion_bash()
   cmds="$(grep '  pcp2.*)' $bash_comp | tr -d ')')"
   cmds="$cmds $(grep '  pm.*)' $bash_comp | tr -d ')')"
   for cmd in $cmds; do
+    # Handle aliases
+    str="  $cmd"
+    [ "$cmd" = "pmlogdump|pmdumplog" ] && cmd=pmdumplog && str="  pmlogdump|pmdumplog"
     which $cmd > /dev/null 2>&1 || continue
     $skip_pcp2elasticsearch && [ "$cmd" = pcp2elasticsearch ] && continue
     $skip_pcp2graphite && [ "$cmd" = pcp2graphite ] && continue
@@ -104,20 +102,20 @@ _check_completion_bash()
     $skip_pmdumptext && [ "$cmd" = pmdumptext ] && continue
     $skip_pmrep && [ "$cmd" = pmrep ] && continue
     $skip_pmseries && [ "$cmd" = pmseries ] && continue
-    comps=$(grep -A 1 "  $cmd)" $bash_comp | tail -n 1 | sed -e 's,all_args=",,' -e 's,",,')
+    comps=$(grep -A 1 "$str)" $bash_comp | tail -n 1 | sed -e 's,all_args=",,' -e 's,",,')
     # Need $tmp.err and PCP_STDERR for pmchart ...
     #
     rm -f $tmp.err
     touch $tmp.err
-    echo "=== bash $cmd ===" >>$here/$seq.full
-    echo "comps=$comps" >>$here/$seq.full
+    echo "=== bash $cmd ===" >>$seq_full
+    echo "comps=$comps" >>$seq_full
     $cmd --help >$tmp.out 2>&1
-    echo "--- stdout ---" >>$here/$seq.full
-    cat $tmp.out >>$here/$seq.full
-    echo "--- stderr ---" >>$here/$seq.full
-    cat $tmp.err >>$here/$seq.full
+    echo "--- stdout ---" >>$seq_full
+    cat $tmp.out >>$seq_full
+    echo "--- stderr ---" >>$seq_full
+    cat $tmp.err >>$seq_full
     opts=$(cat $tmp.out $tmp.err | grep -Eo -- ' -.' | tr -d '-' | tr -d '?' | sort | uniq)
-    echo "opts=$opts" >>$here/$seq.full
+    echo "opts=$opts" >>$seq_full
 
     for opt in $opts; do
       echo $comps | grep $opt > /dev/null 2>&1

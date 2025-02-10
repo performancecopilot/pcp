@@ -23,7 +23,6 @@ done
 
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
-$sudo rm -rf $tmp.* $seq.full
 
 write_size=`expr 20 \* 1024 \* 1024` # number of bytes to write into testfile
 out_file="$PCP_TMPFILE_DIR/pcp-qa-$seq" # block device required here (no tmpfs)
@@ -31,8 +30,8 @@ out_file="$PCP_TMPFILE_DIR/pcp-qa-$seq" # block device required here (no tmpfs)
 _value_filter()
 {
     cat > $tmp.value
-    echo === input to _value_filter >>$here/$seq.full
-    cat $tmp.value >> $here/$seq.full
+    echo === input to _value_filter >>$seq_full
+    cat $tmp.value >> $seq_full
 
     _values=`awk '/inst.*value/ {print $NF}' $tmp.value`
     for value in $_values
@@ -41,7 +40,7 @@ _value_filter()
             echo "found value ${write_size} +- 20%"
             break
 	else
-	    echo "failed: $value not in range `expr 80 \* ${write_size} / 100` ... `expr 120 \* ${write_size} / 100`" >>$here/$seq.full
+	    echo "failed: $value not in range `expr 80 \* ${write_size} / 100` ... `expr 120 \* ${write_size} / 100`" >>$seq_full
         fi
     done
 }
@@ -76,7 +75,7 @@ _pmdabcc_wait_for_metric
 dd if=/dev/zero of=${out_file} bs=${write_size} count=1 oflag=direct 2>/dev/null
 
 echo "=== report metric values ==="
-pminfo -dfmtT bcc.proc.io.total 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bcc.proc.io.total 2>&1 | tee -a $seq_full \
 | _value_filter
 
 _pmdabcc_remove

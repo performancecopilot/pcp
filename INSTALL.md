@@ -170,15 +170,46 @@ It is strongly recommended that you run the script:
 ```
 $ qa/admin/check-vm
 ```
-and review the output before commencing a build.  It is is generally
+and review the output before commencing a build.
+
+To identify any missing packages, check-vm uses another
+PCP script list-packages, as in:
+```
+$ qa/admin/list-packages -m
+```
+
+If list-packages complains that no matching file is found in
+```
+.../qa/admin/package-lists/<distro>+<version>+<arch>
+```
+then PCP has never been built for your combination of distribution,
+version and architecture.  You'll need to explore the
+```
+qa/admin/package-lists
+```
+directory and find the closest match, then copy that file to an
+appropriate name in the same directory, or try to autogenerate
+one as in:
+```
+$ cd qa/admin/package-lists
+$ ./new
+```
+
+Once you have a list of missing packages, the simplest approach is
+to install all of them with your platform's package installation
+tool
+(excluding the ones marked **cpan** or **pip3** which need to
+be installed with cpan(1) or pip3(1) respectively).
+
+If you want to be more targeted, then for each missing package
+find the entry for your packaging system (dpkg, rpm, pkgin, etc)
+in the file
+```
+qa/admin/other-packages/manifest
+```
+and it is is generally
 safe to ignore packages marked as "N/A" (not available), "build
-optional" or "QA optional".  Alternatively use:
-```
-$ qa/admin/check-vm -bfp
-```
-(-b for basic packages, -f to **not** try to guess Python, Perl, ...
-version and -p to output just package names) to produce a minimal
-list of packages that should be installed.
+optional" or "QA optional".
 
 ### 1. Configure, build and install the package
 
@@ -200,7 +231,7 @@ Once "Makepkgs" completes you will have package binaries that will
 need to be installed.  The recipe depends on the packaging flavour,
 but the following should provide guidance:
 
-**dkg install** (Debian and derivative distributions)
+**dpkg install** (Debian and derivative distributions)
 ```
 $ cd build/deb
 $ dpkg -i *.deb
@@ -208,7 +239,7 @@ $ dpkg -i *.deb
 **rpm install** (RedHat, SuSE and their derivative distributions)
 ```
 $ cd pcp-<version>/build/rpm
-$ sudo rpm -U `echo *.rpm | sed -e '/\.src\.rpm$/d'`
+$ sudo rpm -U `ls -1 *.rpm | sed -e '/\.src\.rpm$/d'`
 ```
 **tarball install** (where we don't have native packaging working yet)
 ```
@@ -226,21 +257,18 @@ cross-compilation.  Currently packaging is no longer performed,
 although previously MSI builds were possible.  Work on tackling
 this short-coming would be most welcome.
 
-Base package list needed for Fedora (26+) cross-compilation:
+Base package list needed for Fedora (39+) cross-compilation:
     mingw64-gcc
     mingw64-binutils
-    mingw64-qt5-qttools-tools
-    mingw64-qt5-qtbase-devel
+    mingw64-qt6-qttools
+    mingw64-qt6-qtsvg
+    mingw64-qt6-qt3d
     mingw64-pkg-config
     mingw64-readline
     mingw64-xz-libs
-    mingw64-qt5-qtsvg
     mingw64-pdcurses
     mingw64-libgnurx
-
-Since Fedora 28, there are also Python packages available:
-
-    mingw64-python2
+    mingw64-python3
 
 ### 2. Account creation
 

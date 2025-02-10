@@ -20,4 +20,6 @@ extern const PanelClass AvailableColumnsPanel_class;
 
 AvailableColumnsPanel* AvailableColumnsPanel_new(Panel* columns, Hashtable* dynamicColumns);
 
+void AvailableColumnsPanel_fill(AvailableColumnsPanel* this, const char* dynamicScreen, Hashtable* dynamicColumns);
+
 #endif

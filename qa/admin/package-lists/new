@@ -68,7 +68,7 @@ home=`echo $0 | sed -e 's/\/*new$//'`
 home=`cd $home/..; /bin/pwd`
 if [ ! -f $home/whatami ]
 then
-    echo "Botch: \$0=$0 -> bad \$home=$home ?"
+    echo >&2 "Botch: \$0=$0 -> bad \$home=$home ?"
     exit 1
 fi
 
@@ -77,7 +77,7 @@ fi
 #
 if [ ! -f $home/packages.rc ]
 then
-    echo "Botch: cannot find $home/packages.rc"
+    echo >&2 "Botch: cannot find $home/packages.rc"
     exit
 fi
 

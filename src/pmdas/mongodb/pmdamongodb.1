@@ -29,7 +29,7 @@ Next, \fBpmdamongodb\fP reads an optional ini-style configuration file:
 .IP
 .PD 0
 .IP
-.I \f(CW$PCP_PMDAS_DIR\fP/mongodb/mongodb.conf
+.I \f(CR$PCP_PMDAS_DIR\fP/mongodb/mongodb.conf
 .PD
 .PP
 This file currently allows for two sections, one for configuring the
@@ -80,16 +80,16 @@ The \fBInstall\fP and \fBRemove\fP scripts notify \fBpmcd\fP(1) when
 the agent is installed or removed.
 .SH FILES
 .TP 5
-.I \f(CW$PCP_PMDAS_DIR\fP/mongodb/mongodb.conf
+.I \f(CR$PCP_PMDAS_DIR\fP/mongodb/mongodb.conf
 configuration file for the \fBpmdamongodb\fR agent
 .TP
-.I \f(CW$PCP_PMDAS_DIR\fP/mongodb/Install
+.I \f(CR$PCP_PMDAS_DIR\fP/mongodb/Install
 installation script for the \fBpmdamongodb\fR agent
 .TP
-.I \f(CW$PCP_PMDAS_DIR\fP/mongodb/Remove
+.I \f(CR$PCP_PMDAS_DIR\fP/mongodb/Remove
 undo installation script for the \fBpmdamongodb\fR agent
 .TP
-.I \f(CW$PCP_LOG_DIR\fP/pmcd/mongodb.log
+.I \f(CR$PCP_LOG_DIR\fP/pmcd/mongodb.log
 default log file for messages from the \fBpmdamongodb\fR agent
 .PP
 Note that the usual/default value for \fB$PCP_PMDAS_DIR\fP is
@@ -108,3 +108,6 @@ configuration file, as described in \fBpcp.conf\fR(5).
 .BR PCPIntro (1)
 and
 .BR pmcd (1).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ pmdamongodb mongodb pymongo

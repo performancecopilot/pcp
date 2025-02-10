@@ -25,7 +25,7 @@ live performance data from a running MySQL or MariaDB database.
 .IP "\(bu" 4
 /etc/pcpdbi.conf
 .IP "\(bu" 4
-\&\f(CW$PCP_PMDAS_DIR\fR/mysql/mysql.conf
+\&\f(CR$PCP_PMDAS_DIR\fR/mysql/mysql.conf
 .PP
 This file can contain overridden values (Perl code) for the settings
 listed at the start of pmdamysql.pl, namely:
@@ -90,7 +90,7 @@ mysql.slave_status.slave_io_running_num
 .IP "\fB/etc/pcpdbi.conf\fR" 4
 configuration file for all \s-1PCP\s0 database monitors
 .ie n .IP "\fB$PCP_PMDAS_DIR/mysql/mysql.conf\f1" 4
-.el .IP "\f(CW$PCP_PMDAS_DIR\fR/mysql/mysql.conf\f1" 4
+.el .IP "\f(CR$PCP_PMDAS_DIR\fR/mysql/mysql.conf\f1" 4
 configuration file for \fBpmdamysql\fR
 .IP "\fB$PCP_PMDAS_DIR/mysql/Install\fR" 4
 installation script for the \fBpmdamysql\fR agent
@@ -111,3 +111,10 @@ configuration file, as described in \fIpcp.conf\fR(5).
 .BR pmie (1)
 and
 .BR DBI (3).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ slave_io_running_num performance_schema slave_io_running slave_status
+.\" +ok+ pmdadbping dbmonitor pmdamysql pcpdbi mysqld mysql DBI
+.\" +ok+ _num {from a _num extension}
+.\" +ok+ cnf {from my.cnf}
+.\" +ok+ Eg {from .SS "Eg:"} pl {from pmdamysql.pl}

@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# Copyright (c) 2019,2021 Red Hat.
+# Copyright (c) 2019,2021,2024 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -19,16 +19,23 @@
 
 if grep -q '^mssql.*perl ' "$PCP_PMCDCONF_PATH" 2>/dev/null
 then
-    sed -i \
-	-e "s,perl $PCP_PMDAS_DIR/mssql/pmdamssql.pl,$PCP_PYTHON_PROG $PCP_PMDAS_DIR/mssql/pmdamssql.python,g" \
-	$PCP_PMCDCONF_PATH 2>/dev/null
+    # convert original perl implementation to python
+    sed -i $PCP_PMCDCONF_PATH 2>/dev/null \
+	-e "s,perl $PCP_PMDAS_DIR/mssql/pmdamssql.pl,$PCP_PYTHON_PROG $PCP_PMDAS_DIR/mssql/pmdamssql.python,g"
 fi
 
-if grep -q '^mssql.*python ' "$PCP_PMCDCONF_PATH" 2>/dev/null
+if grep -q ^mssql "$PCP_PMCDCONF_PATH" 2>/dev/null
 then
-    sed -i \
-	-e "s,python $PCP_PMDAS_DIR/mssql/,$PCP_PYTHON_PROG $PCP_PMDAS_DIR/mssql/,g" \
-	$PCP_PMCDCONF_PATH 2>/dev/null
+    if grep ^mssql "$PCP_PMCDCONF_PATH" | grep -q "$PCP_PYTHON_PROG" 2>/dev/null
+    then
+	:	# already using $PCP_PYTHON_PROG, leave this line untouched
+    else
+	# convert hard-coded python or python3 binary to PCP_PYTHON_PROG
+	sed -i $PCP_PMCDCONF_PATH 2>/dev/null \
+	    -e "s,python3 $PCP_PMDAS_DIR/mssql/,$PCP_PYTHON_PROG $PCP_PMDAS_DIR/mssql/,g" \
+	    -e "s,python $PCP_PMDAS_DIR/mssql/,$PCP_PYTHON_PROG $PCP_PMDAS_DIR/mssql/,g" \
+	# end
+    fi
 fi
 
 perlpath=`which $PCP_PERL_PROG`

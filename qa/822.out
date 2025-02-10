@@ -13,7 +13,7 @@ delete metric ref-- InDom: 29.2 refcnt: 1 (for PMID: 29.0.6)
 Delete: pmDesc for 29.0.6
 --- TMP.in
 +++ TMP.out
-@@ -9,9 +9,6 @@
+@@ -15,9 +15,6 @@
  PMID: 29.0.5 (sample.colour)
      Data Type: 32-bit int  InDom: 29.1 0x7400001
      Semantics: instant  Units: none
@@ -55,7 +55,7 @@ Delete: InDom: 29.2: no output metrics use this
 Delete: pmDesc for 29.0.6
 --- TMP.in
 +++ TMP.out
-@@ -9,12 +9,6 @@
+@@ -15,12 +15,6 @@
  PMID: 29.0.5 (sample.colour)
      Data Type: 32-bit int  InDom: 29.1 0x7400001
      Semantics: instant  Units: none
@@ -65,10 +65,10 @@ Delete: pmDesc for 29.0.6
 -PMID: 29.0.48 (sample.bucket)
 -    Data Type: 32-bit int  InDom: 29.2 0x7400002
 -    Semantics: instant  Units: none
- PMID: 2.3.0 (pmcd.pmlogger.port)
-     Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
-     Semantics: discrete  Units: none
-@@ -40,17 +34,6 @@
+ PMID: 30.0.3 (sampledso.milliseconds)
+     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: millisec
+@@ -43,17 +37,6 @@
     0 or "red"
     1 or "green"
     2 or "blue"
@@ -110,30 +110,28 @@ Rewrite: pmDesc for 29.0.5
 Delete: InDom: 29.1: no output metrics use this
 --- TMP.in
 +++ TMP.out
-@@ -6,9 +6,6 @@
- PMID: 30.0.6 (sampledso.bin)
-     Data Type: 32-bit int  InDom: 30.2 0x7800002
-     Semantics: instant  Units: none
+@@ -12,9 +12,6 @@
+ PMID: 29.0.3 (sample.milliseconds)
+     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: millisec
 -PMID: 29.0.5 (sample.colour)
 -    Data Type: 32-bit int  InDom: 29.1 0x7400001
 -    Semantics: instant  Units: none
  PMID: 29.0.6 (sample.bin)
      Data Type: 32-bit int  InDom: 29.2 0x7400002
      Semantics: instant  Units: none
-@@ -18,6 +15,9 @@
- PMID: 2.3.0 (pmcd.pmlogger.port)
-     Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
-     Semantics: discrete  Units: none
+@@ -33,16 +30,14 @@
+ PMID: 30.0.48 (sampledso.bucket)
+     Data Type: 32-bit int  InDom: 30.2 0x7800002
+     Semantics: instant  Units: none
 +PMID: 30.1.5 (sample.colour)
 +    Data Type: 32-bit int  InDom: 30.1 0x7800001
 +    Semantics: instant  Units: none
- PMID: 30.0.3 (sampledso.milliseconds)
-     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-     Semantics: counter  Units: millisec
-@@ -35,11 +35,6 @@
-     Semantics: instant  Units: none
  
  Instance Domains in the Log ...
+ InDom: 2.1
+ TIMESTAMP 1 instances
+    25031 or "25031"
 -InDom: 29.1
 -TIMESTAMP 3 instances
 -   0 or "red"
@@ -285,43 +283,39 @@ Rewrite: pmDesc for 60.15.0
 Delete: InDom: 60.11: no output metrics use this
 --- TMP.in
 +++ TMP.out
-@@ -1,7 +1,7 @@
- 
- Descriptions for Metrics in the Log ...
+@@ -775,11 +775,11 @@
+     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
  PMID: 60.15.0 (hinv.map.scsi)
 -    Data Type: string  InDom: 60.11 0xf00000b
 +    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
      Semantics: discrete  Units: none
- PMID: 60.0.0 (kernel.percpu.cpu.user)
-     Data Type: 64-bit unsigned int  InDom: 60.0 0xf000000
-@@ -461,7 +461,7 @@
-     Semantics: counter  Units: count
  PMID: 60.18.0 (hinv.cpu.clock)
      Data Type: float  InDom: 60.0 0xf000000
 -    Semantics: discrete  Units: count
 +    Semantics: discrete  Units: / microsec
- PMID: 60.3.0 (network.interface.in.bytes)
-     Data Type: 64-bit unsigned int  InDom: 60.3 0xf000003
-     Semantics: counter  Units: byte
-@@ -515,7 +515,7 @@
-     Semantics: counter  Units: millisec
+ PMID: 60.18.1 (hinv.cpu.vendor)
+     Data Type: string  InDom: 60.0 0xf000000
+     Semantics: discrete  Units: none
+@@ -791,7 +791,7 @@
+     Semantics: discrete  Units: none
  PMID: 60.18.4 (hinv.cpu.cache)
      Data Type: 32-bit unsigned int  InDom: 60.0 0xf000000
 -    Semantics: discrete  Units: none
 +    Semantics: discrete  Units: Kbyte
- PMID: 60.14.20 (network.icmp.inmsgs)
-     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-     Semantics: counter  Units: count
-@@ -1506,9 +1506,6 @@
-    60 or "linux"
-    70 or "mmv"
-    122 or "jbd2"
+ PMID: 60.18.5 (hinv.cpu.bogomips)
+     Data Type: float  InDom: 60.0 0xf000000
+     Semantics: discrete  Units: none
+@@ -1147,9 +1147,6 @@
+    0 or "sda1"
+    1 or "sda2"
+    2 or "mmcblk0p1"
 -InDom: 60.11
 -TIMESTAMP 1 instances
 -   0 or "scsi0:0:0:0 Direct-Access"
- InDom: 60.17
- TIMESTAMP 4 instances
-    0 or "lo"
+ InDom: 60.12
+ TIMESTAMP 120 instances
+    0 or "nfs_direct_cache"
 
 hinv.map.scsi
     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
@@ -444,33 +438,33 @@ Rewrite: pmDesc for 60.7.4
 Rewrite: pmDesc for 60.18.4
 --- TMP.in
 +++ TMP.out
-@@ -461,7 +461,7 @@
-     Semantics: counter  Units: count
- PMID: 60.18.0 (hinv.cpu.clock)
-     Data Type: float  InDom: 60.0 0xf000000
--    Semantics: discrete  Units: count
-+    Semantics: discrete  Units: / microsec
- PMID: 60.3.0 (network.interface.in.bytes)
-     Data Type: 64-bit unsigned int  InDom: 60.3 0xf000003
-     Semantics: counter  Units: byte
-@@ -515,7 +515,7 @@
-     Semantics: counter  Units: millisec
- PMID: 60.18.4 (hinv.cpu.cache)
-     Data Type: 32-bit unsigned int  InDom: 60.0 0xf000000
--    Semantics: discrete  Units: none
-+    Semantics: discrete  Units: Kbyte
- PMID: 60.14.20 (network.icmp.inmsgs)
-     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-     Semantics: counter  Units: count
-@@ -727,7 +727,7 @@
-     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+@@ -520,7 +520,7 @@
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
      Semantics: counter  Units: count
  PMID: 60.7.4 (nfs.client.reqs)
 -    Data Type: 32-bit unsigned int  InDom: 60.7 0xf000007
 +    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
      Semantics: counter  Units: count
- PMID: 60.3.20 (network.interface.total.mcasts)
-     Data Type: 64-bit unsigned int  InDom: 60.3 0xf000003
+ PMID: 60.7.12 (nfs.server.reqs)
+     Data Type: 32-bit unsigned int  InDom: 60.7 0xf000007
+@@ -779,7 +779,7 @@
+     Semantics: discrete  Units: none
+ PMID: 60.18.0 (hinv.cpu.clock)
+     Data Type: float  InDom: 60.0 0xf000000
+-    Semantics: discrete  Units: count
++    Semantics: discrete  Units: / microsec
+ PMID: 60.18.1 (hinv.cpu.vendor)
+     Data Type: string  InDom: 60.0 0xf000000
+     Semantics: discrete  Units: none
+@@ -791,7 +791,7 @@
+     Semantics: discrete  Units: none
+ PMID: 60.18.4 (hinv.cpu.cache)
+     Data Type: 32-bit unsigned int  InDom: 60.0 0xf000000
+-    Semantics: discrete  Units: none
++    Semantics: discrete  Units: Kbyte
+ PMID: 60.18.5 (hinv.cpu.bogomips)
+     Data Type: float  InDom: 60.0 0xf000000
+     Semantics: discrete  Units: none
 
 nfs.client.reqs
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -537,16 +531,16 @@ Rewrite: pmDesc for 1.42.2
 Delete: InDom: 1.19: no output metrics use this
 --- TMP.in
 +++ TMP.out
-@@ -40,7 +40,7 @@
+@@ -121,7 +121,7 @@
      Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
      Semantics: discrete  Units: none
  PMID: 1.42.2 (hinv.map.xbow)
 -    Data Type: string  InDom: 1.19 0x400013
 +    Data Type: string  InDom: 1.17 0x400011
      Semantics: discrete  Units: none
- PMID: 1.38.10 (hw.router.cb_errors)
-     Data Type: 64-bit unsigned int  InDom: 1.15 0x40000f
-@@ -180,10 +180,6 @@
+ PMID: 1.80.13 (hinv.map.disk)
+     Data Type: string  InDom: 1.2 0x400002
+@@ -184,10 +184,6 @@
     66304 or "node:1.3"
     131328 or "node:2.1"
     131840 or "node:2.3"
@@ -554,9 +548,9 @@ Delete: InDom: 1.19: no output metrics use this
 -TIMESTAMP 2 instances
 -   65792 or "xbow0"
 -   131328 or "xbow1"
- InDom: 1.2
- TIMESTAMP 2 instances
-    256 or "dks0d1"
+ InDom: 2.1
+ TIMESTAMP 1 instances
+    22276 or "22276"
 
 hinv.map.node
     Data Type: string  InDom: 1.17 0x400011
@@ -609,15 +603,15 @@ renumber indom ref++ InDom: 1.17 refcnt: 2 (for PMID: 1.26.9)
 Rewrite: pmDesc for 1.26.9
 --- TMP.in
 +++ TMP.out
-@@ -58,7 +58,7 @@
-     Data Type: string  InDom: 1.16 0x400010
+@@ -28,7 +28,7 @@
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
      Semantics: discrete  Units: none
  PMID: 1.26.9 (hinv.map.cpu)
 -    Data Type: string  InDom: 1.1 0x400001
 +    Data Type: string  InDom: 1.17 0x400011
      Semantics: discrete  Units: none
- PMID: 1.80.13 (hinv.map.disk)
-     Data Type: string  InDom: 1.2 0x400002
+ PMID: 1.26.10 (hinv.mincpuclock)
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
 
 hinv.map.node
     Data Type: string  InDom: 1.17 0x400011
@@ -696,23 +690,23 @@ Delete: InDom: 1.19: no output metrics use this
 Rewrite: pmDesc for 1.39.49
 --- TMP.in
 +++ TMP.out
-@@ -34,13 +34,13 @@
-     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-     Semantics: discrete  Units: none
+@@ -115,13 +115,13 @@
+     Data Type: 32-bit unsigned int  InDom: 1.16 0x400010
+     Semantics: instant  Units: none
  PMID: 1.39.49 (hinv.map.node)
 -    Data Type: string  InDom: 1.17 0x400011
 +    Data Type: string  InDom: 1.42 0x40002a
      Semantics: discrete  Units: none
- PMID: 1.26.6 (hinv.pmeminterleave)
+ PMID: 1.42.1 (hinv.nxbow)
      Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
      Semantics: discrete  Units: none
  PMID: 1.42.2 (hinv.map.xbow)
 -    Data Type: string  InDom: 1.19 0x400013
 +    Data Type: string  InDom: 1.42 0x40002a
      Semantics: discrete  Units: none
- PMID: 1.38.10 (hw.router.cb_errors)
-     Data Type: 64-bit unsigned int  InDom: 1.15 0x40000f
-@@ -174,16 +174,12 @@
+ PMID: 1.80.13 (hinv.map.disk)
+     Data Type: string  InDom: 1.2 0x400002
+@@ -178,16 +178,12 @@
     131586 or "rport:2.2.2"
     131589 or "rport:2.2.5"
     131590 or "rport:2.2.6"
@@ -727,9 +721,9 @@ Rewrite: pmDesc for 1.39.49
 -TIMESTAMP 2 instances
 -   65792 or "xbow0"
 -   131328 or "xbow1"
- InDom: 1.2
- TIMESTAMP 2 instances
-    256 or "dks0d1"
+ InDom: 2.1
+ TIMESTAMP 1 instances
+    22276 or "22276"
 
 hinv.map.node
     Data Type: string  InDom: 1.42 0x40002a
@@ -785,25 +779,25 @@ Rewrite: pmDesc for 1.42.2
 Rewrite: pmDesc for 1.26.9
 --- TMP.in
 +++ TMP.out
-@@ -40,7 +40,7 @@
+@@ -28,7 +28,7 @@
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: discrete  Units: none
+ PMID: 1.26.9 (hinv.map.cpu)
+-    Data Type: string  InDom: 1.1 0x400001
++    Data Type: string  InDom: 1.42 0x40002a
+     Semantics: discrete  Units: none
+ PMID: 1.26.10 (hinv.mincpuclock)
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+@@ -121,7 +121,7 @@
      Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
      Semantics: discrete  Units: none
  PMID: 1.42.2 (hinv.map.xbow)
 -    Data Type: string  InDom: 1.19 0x400013
 +    Data Type: string  InDom: 1.42 0x40002a
      Semantics: discrete  Units: none
- PMID: 1.38.10 (hw.router.cb_errors)
-     Data Type: 64-bit unsigned int  InDom: 1.15 0x40000f
-@@ -58,7 +58,7 @@
-     Data Type: string  InDom: 1.16 0x400010
-     Semantics: discrete  Units: none
- PMID: 1.26.9 (hinv.map.cpu)
--    Data Type: string  InDom: 1.1 0x400001
-+    Data Type: string  InDom: 1.42 0x40002a
-     Semantics: discrete  Units: none
  PMID: 1.80.13 (hinv.map.disk)
      Data Type: string  InDom: 1.2 0x400002
-@@ -180,7 +180,7 @@
+@@ -184,7 +184,7 @@
     66304 or "node:1.3"
     131328 or "node:2.1"
     131840 or "node:2.3"
@@ -887,15 +881,15 @@ renumber indom ref++ InDom: 1.17 refcnt: 2 (for PMID: 1.26.12)
 Rewrite: pmDesc for 1.26.12
 --- TMP.in
 +++ TMP.out
-@@ -88,7 +88,7 @@
-     Data Type: 32-bit unsigned int  InDom: 1.16 0x400010
-     Semantics: instant  Units: none
+@@ -37,7 +37,7 @@
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: discrete  Units: count x 10^6 / sec
  PMID: 1.26.12 (hinv.machine)
 -    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
 +    Data Type: string  InDom: 1.17 0x400011
      Semantics: discrete  Units: none
- PMID: 1.38.2 (hw.router.portmask)
-     Data Type: 32-bit unsigned int  InDom: 1.15 0x40000f
+ PMID: 1.26.13 (hinv.cputype)
+     Data Type: string  InDom: 1.1 0x400001
 
 hinv.map.node
     Data Type: string  InDom: 1.17 0x400011
@@ -949,33 +943,46 @@ Rewrite: pmDesc for 1.39.49
 Rewrite: pmDesc for 1.26.12
 --- TMP.in
 +++ TMP.out
-@@ -34,7 +34,7 @@
+@@ -37,7 +37,7 @@
      Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-     Semantics: discrete  Units: none
- PMID: 1.39.49 (hinv.map.node)
--    Data Type: string  InDom: 1.17 0x400011
-+    Data Type: string  InDom: 1.42 0x40002a
-     Semantics: discrete  Units: none
- PMID: 1.26.6 (hinv.pmeminterleave)
-     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-@@ -88,7 +88,7 @@
-     Data Type: 32-bit unsigned int  InDom: 1.16 0x400010
-     Semantics: instant  Units: none
+     Semantics: discrete  Units: count x 10^6 / sec
  PMID: 1.26.12 (hinv.machine)
 -    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
 +    Data Type: string  InDom: 1.42 0x40002a
      Semantics: discrete  Units: none
- PMID: 1.38.2 (hw.router.portmask)
-     Data Type: 32-bit unsigned int  InDom: 1.15 0x40000f
-@@ -174,7 +174,7 @@
+ PMID: 1.26.13 (hinv.cputype)
+     Data Type: string  InDom: 1.1 0x400001
+@@ -115,7 +115,7 @@
+     Data Type: 32-bit unsigned int  InDom: 1.16 0x400010
+     Semantics: instant  Units: none
+ PMID: 1.39.49 (hinv.map.node)
+-    Data Type: string  InDom: 1.17 0x400011
++    Data Type: string  InDom: 1.42 0x40002a
+     Semantics: discrete  Units: none
+ PMID: 1.42.1 (hinv.nxbow)
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+@@ -178,16 +178,16 @@
     131586 or "rport:2.2.2"
     131589 or "rport:2.2.5"
     131590 or "rport:2.2.6"
 -InDom: 1.17
++InDom: 1.19
++TIMESTAMP 2 instances
++   65792 or "xbow0"
++   131328 or "xbow1"
 +InDom: 1.42
  TIMESTAMP 4 instances
     65792 or "node:1.1"
     66304 or "node:1.3"
+    131328 or "node:2.1"
+    131840 or "node:2.3"
+-InDom: 1.19
+-TIMESTAMP 2 instances
+-   65792 or "xbow0"
+-   131328 or "xbow1"
+ InDom: 2.1
+ TIMESTAMP 1 instances
+    22276 or "22276"
 
 hinv.map.node
     Data Type: string  InDom: 1.42 0x40002a

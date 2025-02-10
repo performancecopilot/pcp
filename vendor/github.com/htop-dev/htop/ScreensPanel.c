@@ -1,17 +1,21 @@
 /*
 htop - ScreensPanel.c
 (C) 2004-2011 Hisham H. Muhammad
-(C) 2020-2022 htop dev team
+(C) 2020-2023 htop dev team
 Released under the GNU GPLv2+, see the COPYING file
 in the source distribution for its full text.
 */
 
+#include "config.h" // IWYU pragma: keep
+
 #include "ScreensPanel.h"
 
-#include <stdlib.h>
+#include <assert.h>
 #include <ctype.h>
+#include <stdlib.h>
 #include <string.h>
 
+#include "AvailableColumnsPanel.h"
 #include "CRT.h"
 #include "FunctionBar.h"
 #include "Hashtable.h"
@@ -43,10 +47,10 @@ ScreenListItem* ScreenListItem_new(const char* value, ScreenSettings* ss) {
 }
 
 static const char* const ScreensFunctions[] = {"      ", "Rename", "      ", "      ", "New   ", "      ", "MoveUp", "MoveDn", "Remove", "Done  ", NULL};
+static const char* const DynamicFunctions[] = {"      ", "Rename", "      ", "      ", "      ", "      ", "MoveUp", "MoveDn", "Remove", "Done  ", NULL};
 
 static void ScreensPanel_delete(Object* object) {
    Panel* super = (Panel*) object;
-   ScreensPanel* this = (ScreensPanel*) object;
 
    /* do not delete screen settings still in use */
    int n = Panel_size(super);
@@ -55,12 +59,7 @@ static void ScreensPanel_delete(Object* object) {
       item->ss = NULL;
    }
 
-   /* during renaming the ListItem's value points to our static buffer */
-   if (this->renamingItem)
-      this->renamingItem->value = this->saved;
-
-   Panel_done(super);
-   free(this);
+   Panel_delete(object);
 }
 
 static HandlerResult ScreensPanel_eventHandlerRenaming(Panel* super, int ch) {
@@ -73,49 +72,48 @@ static HandlerResult ScreensPanel_eventHandlerRenaming(Panel* super, int ch) {
          super->selectedLen = strlen(this->buffer);
          Panel_setCursorToSelection(super);
       }
-   } else {
-      switch (ch) {
-         case 127:
-         case KEY_BACKSPACE:
-         {
-            if (this->cursor > 0) {
-               this->cursor--;
-               this->buffer[this->cursor] = '\0';
-               super->selectedLen = strlen(this->buffer);
-               Panel_setCursorToSelection(super);
-            }
-            break;
+
+      return HANDLED;
+   }
+
+   switch (ch) {
+      case 127:
+      case KEY_BACKSPACE:
+         if (this->cursor > 0) {
+            this->cursor--;
+            this->buffer[this->cursor] = '\0';
+            super->selectedLen = strlen(this->buffer);
+            Panel_setCursorToSelection(super);
          }
-         case '\n':
-         case '\r':
-         case KEY_ENTER:
-         {
-            ListItem* item = (ListItem*) Panel_getSelected(super);
-            if (!item)
-               break;
-            assert(item == this->renamingItem);
-            free(this->saved);
-            item->value = xStrdup(this->buffer);
-            this->renamingItem = NULL;
-            super->cursorOn = false;
-            Panel_setSelectionColor(super, PANEL_SELECTION_FOCUS);
-            ScreensPanel_update(super);
+         break;
+      case '\n':
+      case '\r':
+      case KEY_ENTER: {
+         ListItem* item = (ListItem*) Panel_getSelected(super);
+         if (!item)
             break;
-         }
-         case 27: // Esc
-         {
-            ListItem* item = (ListItem*) Panel_getSelected(super);
-            if (!item)
-               break;
-            assert(item == this->renamingItem);
-            item->value = this->saved;
-            this->renamingItem = NULL;
-            super->cursorOn = false;
-            Panel_setSelectionColor(super, PANEL_SELECTION_FOCUS);
+         assert(item == this->renamingItem);
+         free(this->saved);
+         item->value = xStrdup(this->buffer);
+         this->renamingItem = NULL;
+         super->cursorOn = false;
+         Panel_setSelectionColor(super, PANEL_SELECTION_FOCUS);
+         ScreensPanel_update(super);
+         break;
+      }
+      case 27: { // Esc
+         ListItem* item = (ListItem*) Panel_getSelected(super);
+         if (!item)
             break;
-         }
+         assert(item == this->renamingItem);
+         item->value = this->saved;
+         this->renamingItem = NULL;
+         super->cursorOn = false;
+         Panel_setSelectionColor(super, PANEL_SELECTION_FOCUS);
+         break;
       }
    }
+
    return HANDLED;
 }
 
@@ -177,14 +175,14 @@ static HandlerResult ScreensPanel_eventHandlerNormal(Panel* super, int ch) {
    ScreenListItem* oldFocus = (ScreenListItem*) Panel_getSelected(super);
    bool shouldRebuildArray = false;
    HandlerResult result = IGNORED;
+
    switch (ch) {
       case '\n':
       case '\r':
       case KEY_ENTER:
       case KEY_MOUSE:
-      case KEY_RECLICK:
-      {
-         this->moving = !(this->moving);
+      case KEY_RECLICK: {
+         this->moving = !this->moving;
          Panel_setSelectionColor(super, this->moving ? PANEL_SELECTION_FOLLOW : PANEL_SELECTION_FOCUS);
          ListItem* item = (ListItem*) Panel_getSelected(super);
          if (item)
@@ -198,87 +196,77 @@ static HandlerResult ScreensPanel_eventHandlerNormal(Panel* super, int ch) {
       case KEY_NPAGE:
       case KEY_PPAGE:
       case KEY_HOME:
-      case KEY_END: {
+      case KEY_END:
          Panel_onKey(super, ch);
          break;
-      }
       case KEY_F(2):
       case KEY_CTRL('R'):
-      {
          startRenaming(super);
          result = HANDLED;
          break;
-      }
       case KEY_F(5):
       case KEY_CTRL('N'):
-      {
+         if (this->settings->dynamicScreens)
+            break;
          addNewScreen(super);
          startRenaming(super);
          shouldRebuildArray = true;
          result = HANDLED;
          break;
-      }
       case KEY_UP:
-      {
          if (!this->moving) {
             Panel_onKey(super, ch);
             break;
          }
-         /* else fallthrough */
-      } /* FALLTHRU */
+         /* FALLTHRU */
       case KEY_F(7):
       case '[':
       case '-':
-      {
          Panel_moveSelectedUp(super);
          shouldRebuildArray = true;
          result = HANDLED;
          break;
-      }
       case KEY_DOWN:
-      {
          if (!this->moving) {
             Panel_onKey(super, ch);
             break;
          }
-         /* else fallthrough */
-      } /* FALLTHRU */
+         /* FALLTHRU */
       case KEY_F(8):
       case ']':
       case '+':
-      {
          Panel_moveSelectedDown(super);
          shouldRebuildArray = true;
          result = HANDLED;
          break;
-      }
       case KEY_F(9):
       //case KEY_DC:
-      {
          if (Panel_size(super) > 1)
             Panel_remove(super, selected);
          shouldRebuildArray = true;
          result = HANDLED;
          break;
-      }
       default:
-      {
          if (ch < 255 && isalpha(ch))
             result = Panel_selectByTyping(super, ch);
          if (result == BREAK_LOOP)
             result = IGNORED;
          break;
-      }
    }
+
    ScreenListItem* newFocus = (ScreenListItem*) Panel_getSelected(super);
    if (newFocus && oldFocus != newFocus) {
-      ColumnsPanel_fill(this->columns, newFocus->ss, this->settings->dynamicColumns);
+      Hashtable* dynamicColumns = this->settings->dynamicColumns;
+      ColumnsPanel_fill(this->columns, newFocus->ss, dynamicColumns);
+      AvailableColumnsPanel_fill(this->availableColumns, newFocus->ss->dynamic, dynamicColumns);
       result = HANDLED;
    }
+
    if (shouldRebuildArray)
       rebuildSettingsArray(super, selected);
    if (result == HANDLED)
       ScreensPanel_update(super);
+
    return result;
 }
 
@@ -304,11 +292,12 @@ ScreensPanel* ScreensPanel_new(Settings* settings) {
    ScreensPanel* this = AllocThis(ScreensPanel);
    Panel* super = (Panel*) this;
    Hashtable* columns = settings->dynamicColumns;
-   FunctionBar* fuBar = FunctionBar_new(ScreensFunctions, NULL, NULL);
+   FunctionBar* fuBar = FunctionBar_new(settings->dynamicScreens ? DynamicFunctions : ScreensFunctions, NULL, NULL);
    Panel_init(super, 1, 1, 1, 1, Class(ListItem), true, fuBar);
 
    this->settings = settings;
    this->columns = ColumnsPanel_new(settings->screens[0], columns, &(settings->changed));
+   this->availableColumns = AvailableColumnsPanel_new((Panel*) this->columns, columns);
    this->moving = false;
    this->renamingItem = NULL;
    super->cursorOn = false;
@@ -317,7 +306,7 @@ ScreensPanel* ScreensPanel_new(Settings* settings) {
 
    for (unsigned int i = 0; i < settings->nScreens; i++) {
       ScreenSettings* ss = settings->screens[i];
-      char* name = ss->name;
+      char* name = ss->heading;
       Panel_add(super, (Object*) ScreenListItem_new(name, ss));
    }
    return this;
@@ -332,9 +321,8 @@ void ScreensPanel_update(Panel* super) {
    for (int i = 0; i < size; i++) {
       ScreenListItem* item = (ScreenListItem*) Panel_get(super, i);
       ScreenSettings* ss = item->ss;
-      free(ss->name);
+      free_and_xStrdup(&ss->heading, ((ListItem*) item)->value);
       this->settings->screens[i] = ss;
-      ss->name = xStrdup(((ListItem*) item)->value);
    }
    this->settings->screens[size] = NULL;
 }

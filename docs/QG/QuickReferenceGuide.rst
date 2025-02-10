@@ -76,7 +76,7 @@ PMDAs provide the actual data from different components (domains) in the
 system, for example from the Linux Kernel PMDA or the NFS Client PMDA.
 The default configuration includes over 1000 metrics with negligible
 overall overhead when queried. If no queries for metrics are sent to the
-agent, it doesn't do anything at all. Local PCP archive logs will also
+agent, it doesn't do anything at all. Local PCP archives will also
 be enabled on the host for convenience with
 `pmlogger(1) <http://man7.org/linux/man-pages/man1/pmlogger.1.html>`__.
 
@@ -106,7 +106,7 @@ package.
 | # yum install pcp-doc pcp-gui pcp-system-tools  # or apt-get or dnf or zypper |
 +-------------------------------------------------------------------------------+
 
-To enable centralized archive log collection on the monitoring host, its
+To enable centralized archive collection on the monitoring host, its
 pmlogger is configured to fetch performance metrics from collector
 hosts. Add each collector host to the pmlogger configuration file
 /etc/pcp/pmlogger/control and then restart the pmlogger service on the
@@ -173,7 +173,7 @@ System Level Performance Monitoring
 ===================================
 
 PCP comes with a wide range of command line utilities for accessing live
-performance metrics via PMCDs or historical data using archive logs. The
+performance metrics via PMCDs or historical data using archives. The
 following examples illustrate some of the most useful use cases, please
 see the corresponding manual pages for each command for additional
 information. In the examples below **-h <host>** could be used to query
@@ -262,7 +262,7 @@ Monitoring Live Performance Metrics
 Retrospective Performance Analysis
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-PCP archive logs are located under /var/log/pcp/pmlogger/**hostname**,
+PCP archives are located under /var/log/pcp/pmlogger/**hostname**,
 and the archive names indicate the time they cover. Archives are
 self-contained, and machine- and version-independent so they can be
 transfered to any machine for offline analysis.
@@ -423,7 +423,7 @@ Process Level Performance Monitoring
 PCP provides details of each running process via the standard PCP
 interfaces and tools on the localhost but due to security and
 performance considerations, most of the process related information is
-not stored in archive logs by default. Also for security reasons, only
+not stored in archives by default. Also for security reasons, only
 root can access some details of running processes of other users.
 
 Custom application instrumentation is possible with the Memory Mapped
@@ -570,20 +570,20 @@ Fast, Scalable Time Series Querying
 
 Performance Metrics Series
 (`pmseries(1) <http://man7.org/linux/man-pages/man1/pmseries.1.html>`__)
-works with local pmlogger and `Redis <http://redis.io>`__ servers to
-allow fast, scalable performance queries spanning multiple hosts.
+works with pmlogger and key servers such as `Valkey <http://valkey.io>`__
+to allow fast, scalable performance queries spanning multiple hosts.
 
 +-----------------------------------------------------------------------+
 | To enable and start metrics series collection::                       |
 |                                                                       |
-| # systemctl enable --now pmlogger pmproxy redis                       |
+| # systemctl enable --now pmlogger pmproxy valkey                      |
 +-----------------------------------------------------------------------+
 
-Redis can be run standalone or in large, highly available setups. It is
-also provided as a scalable service by many cloud vendors.
+Key servers can be run standalone or in large, highly available setups.
+They are also provided as a scalable service by many cloud vendors.
 
 The metrics indexing process is designed to spread data across multiple
-Redis nodes for improved query performance, so adding more nodes can
+key servers for improved query performance, so adding more servers can
 significantly improve performance.
 
 Examples of the
@@ -622,7 +622,7 @@ accessing PCP performance metrics over HTTP.
 +-----------------------------------------------------------------------+
 | To install the PCP REST APIs service::                                |
 |                                                                       |
-| # systemctl enable --now pmproxy redis                                |
+| # systemctl enable --now pmproxy valkey                               |
 +-----------------------------------------------------------------------+
 
 After installing the PCP REST API services as described above, install

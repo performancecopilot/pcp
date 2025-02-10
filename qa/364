@@ -19,7 +19,6 @@ target="-h localhost"
 $unix_domain_sockets && target="-h unix:"
 
 status=0	# success is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 _filter_solaris()
@@ -87,13 +86,28 @@ _filter_freebsd()
 	    -e '/^disk\.all\.blkdiscard .* Unknown metric name/d' \
 	    -e '/^disk\.all\.discard .* Unknown metric name/d' \
 	    -e '/^disk\.dev\.avactive .* Unknown metric name/d' \
+	    -e '/^disk\.dev\.aveq .* Unknown metric name/d' \
+	    -e '/^disk\.dev\.total_rawactive .* Unknown metric name/d' \
 	    -e '/^filesys .* Unknown metric name/d' \
 	    -e '/^filesys\..* Unknown metric name/d' \
+	    -e '/^hinv\.cpu\.clock .* Unknown metric name/d' \
 	    -e '/^hinv\.nnode .* Unknown metric name/d' \
+	    -e '/^kernel\.all\.boottime .* Unknown metric name/d' \
+	    -e '/^kernel\.all\.cpu\.guest .* Unknown metric name/d' \
+	    -e '/^kernel\.all\.cpu\.guest_nice .* Unknown metric name/d' \
+	    -e '/^kernel\.all\.cpu\.irq\.soft .* Unknown metric name/d' \
+	    -e '/^kernel\.all\.cpu\.steal .* Unknown metric name/d' \
+	    -e '/^kernel\.all\.cpu\.wait\.total .* Unknown metric name/d' \
 	    -e '/^kernel\.all\.io\..* Unknown metric name/d' \
 	    -e '/^kernel\.all\.kpreempt .* Unknown metric name/d' \
 	    -e '/^kernel\.all\.kswitch .* Unknown metric name/d' \
 	    -e '/^kernel\.all\.nusers .* Unknown metric name/d' \
+	    -e '/^kernel\.all\.pid_max .* Unknown metric name/d' \
+	    -e '/^kernel\.all\.pressure\.cpu\.some\.avg .* Unknown metric name/d' \
+	    -e '/^kernel\.all\.pressure\.io\.full\.avg .* Unknown metric name/d' \
+	    -e '/^kernel\.all\.pressure\.io\.some\.avg .* Unknown metric name/d' \
+	    -e '/^kernel\.all\.pressure\.memory\.full\.avg .* Unknown metric name/d' \
+	    -e '/^kernel\.all\.pressure\.memory\.some\.avg .* Unknown metric name/d' \
 	    -e '/^kernel\.all\.pswitch .* Unknown metric name/d' \
 	    -e '/^kernel\.all\.sysexec .* Unknown metric name/d' \
 	    -e '/^kernel\.all\.sysfork .* Unknown metric name/d' \
@@ -101,10 +115,18 @@ _filter_freebsd()
 	    -e '/^kernel\.all\.sysread .* Unknown metric name/d' \
 	    -e '/^kernel\.all\.syswrite .* Unknown metric name/d' \
 	    -e '/^kernel\.all\.uptime .* Unknown metric name/d' \
+	    -e '/^kernel\.percpu\.cpu\.guest .* Unknown metric name/d' \
+	    -e '/^kernel\.percpu\.cpu\.guest_nice .* Unknown metric name/d' \
+	    -e '/^kernel\.percpu\.cpu\.irq\.soft .* Unknown metric name/d' \
+	    -e '/^kernel\.percpu\.cpu\.steal .* Unknown metric name/d' \
+	    -e '/^kernel\.percpu\.cpu\.wait\.total .* Unknown metric name/d' \
 	    -e '/^kernel\.percpu\.pswitch .* Unknown metric name/d' \
 	    -e '/^kernel\.percpu\.syscall .* Unknown metric name/d' \
+	    -e '/^mem\.physmem .* Unknown metric name/d' \
 	    -e '/^mem\.util\.available .* Unknown metric name/d' \
 	    -e '/^mem\.util\.bufmem .* Unknown metric name/d' \
+	    -e '/^mem\.util\.shmem .* Unknown metric name/d' \
+	    -e '/^mem\.util\.slabReclaimable .* Unknown metric name/d' \
 	    -e '/^mem\.util\.swapCached .* Unknown metric name/d' \
 	    -e '/^mem\.util\.swapFree .* Unknown metric name/d' \
 	    -e '/^mem\.util\.swapTotal .* Unknown metric name/d' \
@@ -112,14 +134,26 @@ _filter_freebsd()
 	    -e '/^name_cache\.misses .* Unknown metric name/d' \
 	    -e '/^name_cache\.removes .* Unknown metric name/d' \
 	    -e '/^name_cache\.searches .* Unknown metric name/d' \
+	    -e '/^network\.all\.in\.bytes .* Unknown metric name/d' \
+	    -e '/^network\.all\.in\.packets .* Unknown metric name/d' \
+	    -e '/^network\.all\.out\.bytes .* Unknown metric name/d' \
+	    -e '/^network\.all\.out\.packets .* Unknown metric name/d' \
 	    -e '/^network\.icmp .* Unknown metric name/d' \
 	    -e '/^network\.igmp .* Unknown metric name/d' \
 	    -e '/^network\.interface\.collisions .* Unknown metric name/d' \
 	    -e '/^network\.ip .* Unknown metric name/d' \
 	    -e '/^network\.tcp .* Unknown metric name/d' \
+	    -e '/^network\.tcp\.listenoverflows .* Unknown metric name/d' \
+	    -e '/^network\.tcp\.reqqfulldocookies .* Unknown metric name/d' \
+	    -e '/^network\.tcp\.reqqfulldrop .* Unknown metric name/d' \
 	    -e '/^network\.udp .* Unknown metric name/d' \
 	    -e '/^network\.udplite .* Unknown metric name/d' \
 	    -e '/^proc\..* Unknown metric name/d' \
+	    -e '/^vfs\.files\.count .* Unknown metric name/d' \
+	    -e '/^vfs\.files\.max .* Unknown metric name/d' \
+	    -e '/^zram\.capacity .* Unknown metric name/d' \
+	    -e '/^zram\.mm_stat\.data_size\.compressed .* Unknown metric name/d' \
+	    -e '/^zram\.mm_stat\.data_size\.original .* Unknown metric name/d' \
 	# freebsd
     fi
 }
@@ -253,6 +287,7 @@ _filter_linux()
 {
     # pcp-atop uses metrics not supported on some kernels
     # proc.smaps.* metrics are not present for older kernels
+    # proc.fdinfo.* metrics neither
     #
     if [ $PCP_PLATFORM != linux ]
     then
@@ -275,6 +310,7 @@ _filter_linux()
 	    -e '/^proc\.psinfo\.cgroups -12351 Missing metric value(s)/d' \
 	    -e '/^proc\.namespaces\.envid -12350 Metric not supported/d' \
 	    -e '/^hotproc\.namespaces\.envid -12350 Metric not supported/d' \
+	    -e '/^proc\.fdinfo\..* Metric not supported/d' \
 	# linux
     fi
 }
@@ -312,17 +348,17 @@ _filter()
 
 # real QA test starts here
 pmlogconf $tmp.conf >$tmp.out 2>&1
-cat $tmp.out >$seq.full
+cat $tmp.out >$seq_full
 
 sed -e 's/:n:/:y:/' <$tmp.conf >$tmp.tmp
 mv $tmp.tmp $tmp.conf
 
 yes '' | pmlogconf $tmp.conf >$tmp.out
-( echo && echo "== TMP.OUT" ) >>$seq.full
-cat $tmp.out >>$seq.full
-( echo && echo "== TMP.CONF") >>$seq.full
-cat $tmp.conf >>$seq.full
-( echo && echo "== FILTERED") >>$seq.full
+( echo && echo "== TMP.OUT" ) >>$seq_full
+cat $tmp.out >>$seq_full
+( echo && echo "== TMP.CONF") >>$seq_full
+cat $tmp.conf >>$seq_full
+( echo && echo "== FILTERED") >>$seq_full
 
 sed -n <$tmp.conf \
     -e '/^[ 	]/{
@@ -333,7 +369,7 @@ p
 }' \
 | LC_COLLATE=POSIX sort \
 | uniq \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | xargs pmprobe $target \
 | _filter \
 | $PCP_AWK_PROG '

@@ -1,0 +1,172 @@
+#!/bin/sh
+# PCP QA Test No. 1482
+# System-V (non-systemctl) status checks
+#
+# Copyright (c) 2024 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+
+[ "$PCPQA_SYSTEMD" = no ] || _notrun "using systemctl, not System-V init"
+
+_cleanup()
+{
+    cd $here
+    if [ ! -f $PCP_RUN_DIR/pmcd.pid ]
+    then
+	echo "Oops, pmcd not running as expected ... restarting"
+	_service pmcd start
+	_wait_for_pmcd
+    fi
+    if [ ! -f $PCP_RUN_DIR/pmlogger.pid ]
+    then
+	echo "Oops, pmlogger not running as expected ... restarting"
+	_service pmlogger start
+	_wait_for_pmlogger
+    fi
+    if $pmie_was_running
+    then
+	_service pmie start >>$seq_full 2>&1
+	_wait_for_pmie
+    elif [ -f $PCP_RUN_DIR/pmie.pid ]
+    then
+	_service pmie stop >>$seq_full 2>&1
+	_wait_pmie_end
+    fi
+    if $pmproxy_was_running
+    then
+	_service pmproxy start >>$seq_full 2>&1
+	_wait_for_pmproxy
+    elif [ -f $PCP_RUN_DIR/pmproxy.pid ]
+    then
+	_service pmproxy stop >>$seq_full 2>&1
+	_wait_pmproxy_end
+    fi
+    $sudo rm -rf $tmp $tmp.*
+}
+
+pmie_was_running=false
+pmproxy_was_running=false
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+    # end
+}
+
+# real QA test starts here
+for svc in pmcd pmlogger pmie pmproxy
+do
+    echo | tee -a $seq_full
+    echo "--- $svc stopping ---" | tee -a $seq_full
+    case "$svc"
+    in
+	pmcd)
+	    if ! _service $svc stop >>$seq_full 2>&1; then _exit 1; fi
+	    _wait_pmcd_end || _exit 1
+	    ;;
+
+	pmlogger)
+	    if [ -f $PCP_RUN_DIR/pmlogger.pid ]
+	    then
+		pid=`cat $PCP_RUN_DIR/pmlogger.pid`
+		if ! _service $svc stop >>$seq_full 2>&1; then _exit 1; fi
+		_wait_pmlogger_end $pid || _exit 1
+	    fi
+	    ;;
+
+	pmie)
+	    if [ -f $PCP_RUN_DIR/pmie.pid ]
+	    then
+		pmie_was_running=true
+		if ! _service $svc stop >>$seq_full 2>&1; then _exit 1; fi
+		_wait_pmie_end || _exit 1
+	    fi
+	    ;;
+
+	pmproxy)
+	    if [ -f $PCP_RUN_DIR/pmproxy.pid ]
+	    then
+		pmproxy_was_running=true
+		if ! _service $svc stop >>$seq_full 2>&1; then _exit 1; fi
+		_wait_pmproxy_end || _exit 1
+	    fi
+	    ;;
+    esac
+
+    echo "--- $svc stopped ---" | tee -a $seq_full
+    if ! _service $svc status; then _exit 1; fi
+
+    echo "--- $svc starting ---" | tee -a $seq_full
+    case "$svc"
+    in
+	pmcd)
+	if ! _service $svc start >>$seq_full 2>&1; then _exit 1; fi
+	_wait_for_pmcd || _exit 1
+	    ;;
+
+	pmlogger)
+	    if ! _service $svc start >>$seq_full 2>&1; then _exit 1; fi
+	    _wait_for_pmlogger || _exit 1
+	    ;;
+
+	pmie)
+	    if ! _service $svc start >>$seq_full 2>&1; then _exit 1; fi
+	    _wait_for_pmie || _exit 1
+	    ;;
+
+	pmproxy)
+	    if ! _service $svc start >>$seq_full 2>&1; then _exit 1; fi
+	    _wait_for_pmproxy || _exit 1
+	    ;;
+    esac
+
+    echo "--- $svc started ---" | tee -a $seq_full
+    if ! _service $svc status; then _exit 1; fi
+
+    case "$svc"
+    in
+	pmcd|pmlogger)
+	    ;;
+
+	pmie)
+	    if $pmie_was_running
+	    then
+		if ! _service pmie start >>$seq_full 2>&1; then _exit 1; fi
+		_wait_for_pmie || _exit 1
+		pmie_was_running=false
+	    fi
+	    ;;
+
+	pmproxy)
+	    if $pmproxy_was_running
+	    then
+		if ! _service pmproxy start >>$seq_full 2>&1; then _exit 1; fi
+		_wait_for_pmproxy || _exit 1
+		pmproxy_was_running=false
+	    fi
+	    ;;
+    esac
+
+done
+
+# success, all done
+exit

@@ -45,7 +45,7 @@ _filter_errs()
 
 # real QA test starts here
 _start_up_pmlogger -L -c /dev/null -l $tmp.log $tmp
-_wait_for_pmlogger $pid $tmp.log 10
+_wait_for_pmlogger $pid $tmp.log 10 || _exit 1
 
 cat <<End-of-File >$tmp.cmd
 pmlc <<E-O-F >>$tmp.out
@@ -83,6 +83,6 @@ _filter_date $tmp.log | _filter_errs
 
 # for debugging
 #
-cp $tmp.out $seq.full
+cp $tmp.out $seq_full
 
 exit 0

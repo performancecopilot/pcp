@@ -59,14 +59,14 @@ Warning: deprecated __pmSetDebugBits() called
 arg: all
 pmSetDebug("all") ...
 pmDebug:	pdu,fetch,profile,value,context,indom,pdubuf,log,logmeta,optfetch,af,appl0,appl1,appl2,pmns,libpmda,timecontrol,pmc,derive,lock,interp,config,pmapi,fault,auth,discovery,attr,http,desperate
-pmDebugOptions:	pdu,fetch,profile,value,context,indom,pdubuf,log,logmeta,optfetch,af,appl0,appl1,appl2,pmns,libpmda,timecontrol,pmc,derive,lock,interp,config,pmapi,fault,auth,discovery,attr,http,desperate,deprecated,exec,labels,series,libweb,alloc,services,appl3,appl4,appl5,access,qa,search,query,compress,dev0,dev1,dev2,pmlc,appl6,appl7,appl8,appl9,tls
+pmDebugOptions:	pdu,fetch,profile,value,context,indom,pdubuf,log,logmeta,optfetch,af,appl0,appl1,appl2,pmns,libpmda,timecontrol,pmc,derive,lock,interp,config,pmapi,fault,auth,discovery,attr,http,desperate,deprecated,exec,labels,series,libweb,alloc,services,appl3,appl4,appl5,access,qa,search,query,compress,dev0,dev1,dev2,pmlc,appl6,appl7,appl8,appl9,tls,misc,qed
 pmClearDebug("all") ...
 pmDebug:	Nothing set
 pmDebugOptions:	Nothing set
 __pmParseDebug("all") ...
 __pmParseDebug -> 2147483647
 pmDebug:	pdu,fetch,profile,value,context,indom,pdubuf,log,logmeta,optfetch,af,appl0,appl1,appl2,pmns,libpmda,timecontrol,pmc,derive,lock,interp,config,pmapi,fault,auth,discovery,attr,http,desperate
-pmDebugOptions:	pdu,fetch,profile,value,context,indom,pdubuf,log,logmeta,optfetch,af,appl0,appl1,appl2,pmns,libpmda,timecontrol,pmc,derive,lock,interp,config,pmapi,fault,auth,discovery,attr,http,desperate,deprecated,exec,labels,series,libweb,alloc,services,appl3,appl4,appl5,access,qa,search,query,compress,dev0,dev1,dev2,pmlc,appl6,appl7,appl8,appl9,tls
+pmDebugOptions:	pdu,fetch,profile,value,context,indom,pdubuf,log,logmeta,optfetch,af,appl0,appl1,appl2,pmns,libpmda,timecontrol,pmc,derive,lock,interp,config,pmapi,fault,auth,discovery,attr,http,desperate,deprecated,exec,labels,series,libweb,alloc,services,appl3,appl4,appl5,access,qa,search,query,compress,dev0,dev1,dev2,pmlc,appl6,appl7,appl8,appl9,tls,misc,qed
 pmClearDebug("all") ...
 pmDebug:	Nothing set
 pmDebugOptions:	Nothing set

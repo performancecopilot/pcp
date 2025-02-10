@@ -22,10 +22,10 @@ fi
 
 _cleanup()
 {
-    echo "_cleanup: ..." >>$seq.full
+    echo "_cleanup: ..." >>$seq_full
     cd $here
-    $sudo pmlogctl -f -c default destroy localhost >>$seq.full 2>&1
-    $sudo pmlogctl -a -f -c pmfind destroy localhost >>$seq.full 2>&1
+    $sudo pmlogctl -f -c default destroy localhost >>$seq_full 2>&1
+    $sudo pmlogctl -a -f -c pmfind destroy localhost >>$seq_full 2>&1
     $sudo rm -rf $tmp $tmp.*
     $sudo rm -rf $PCP_ARCHIVE_DIR/localhost
     $sudo rm -rf $PCP_ARCHIVE_DIR/pmfind-localhost
@@ -34,12 +34,11 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _filter()
 {
-    tee -a $seq.full \
+    tee -a $seq_full \
     | sed \
 	-e '/^# created by pmlogctl/s/ on .*/ on DATE/' \
 	-e "s;$tmp\.;TMP.;g" \
@@ -69,7 +68,7 @@ END	{ print "{ print }" }'
 _filter_status()
 {
     _wait_pmlogctl
-    tee -a $seq.full \
+    tee -a $seq_full \
     | $PCP_AWK_PROG -f $tmp.awk \
     | sed >$tmp.tmp \
 	-e "/^`hostname` .* primary /d" \
@@ -84,67 +83,67 @@ _filter_status()
 # real QA test starts here
 
 echo "== usage"
-pmlogctl --usage 2>&1 | _filter \
+pmlogctl --help 2>&1 | _filter \
 | sed \
     -e 's/[ 	][ 	]*/ /g' \
 # end
 
 echo
-echo '== -N -V create' | tee -a $seq.full
-pmlogctl -N -V create localhost | _filter
+echo '== -N -V create' | tee -a $seq_full
+pmlogctl -N -V create localhost 2>&1 | _filter
 
-echo | tee -a $seq.full
-echo '== create' | tee -a $seq.full
+echo | tee -a $seq_full
+echo '== create' | tee -a $seq_full
 $sudo pmlogctl create localhost | _filter
-echo '== status' | tee -a $seq.full
+echo '== status' | tee -a $seq_full
 pmlogctl status | _filter_status
-echo '== status localhost' | tee -a $seq.full
+echo '== status localhost' | tee -a $seq_full
 pmlogctl status localhost | _filter_status
 
-echo | tee -a $seq.full
-echo '== stop' | tee -a $seq.full
+echo | tee -a $seq_full
+echo '== stop' | tee -a $seq_full
 $sudo pmlogctl stop localhost | _filter
-echo '== status' | tee -a $seq.full
+echo '== status' | tee -a $seq_full
 pmlogctl status | _filter_status
-echo '== status localhost' | tee -a $seq.full
+echo '== status localhost' | tee -a $seq_full
 pmlogctl status localhost | _filter_status
 
-echo | tee -a $seq.full
-echo '== start' | tee -a $seq.full
+echo | tee -a $seq_full
+echo '== start' | tee -a $seq_full
 $sudo pmlogctl start localhost | _filter
-echo '== status' | tee -a $seq.full
+echo '== status' | tee -a $seq_full
 pmlogctl status | _filter_status
-echo '== status localhost' | tee -a $seq.full
+echo '== status localhost' | tee -a $seq_full
 pmlogctl status localhost | _filter_status
 
-echo | tee -a $seq.full
-echo '== restart' | tee -a $seq.full
+echo | tee -a $seq_full
+echo '== restart' | tee -a $seq_full
 $sudo pmlogctl restart localhost | _filter
-echo '== status' | tee -a $seq.full
+echo '== status' | tee -a $seq_full
 pmlogctl status | _filter_status
-echo '== status localhost' | tee -a $seq.full
+echo '== status localhost' | tee -a $seq_full
 pmlogctl status localhost | _filter_status
 
-echo | tee -a $seq.full
-echo '== destroy' | tee -a $seq.full
+echo | tee -a $seq_full
+echo '== destroy' | tee -a $seq_full
 $sudo pmlogctl destroy localhost | _filter
-echo '== status' | tee -a $seq.full
+echo '== status' | tee -a $seq_full
 pmlogctl status | _filter_status
-echo '== status localhost' | tee -a $seq.full
+echo '== status localhost' | tee -a $seq_full
 pmlogctl status localhost | _filter_status
 
-echo | tee -a $seq.full
-echo '== cond-create' | tee -a $seq.full
+echo | tee -a $seq_full
+echo '== cond-create' | tee -a $seq_full
 $sudo pmlogctl cond-create localhost | _filter
-echo '== status' | tee -a $seq.full
+echo '== status' | tee -a $seq_full
 pmlogctl status | _filter_status
 $sudo pmlogctl -c pmfind destroy localhost | _filter
 
-echo | tee -a $seq.full
-echo "== cond-create -i $seq-foo" | tee -a $seq.full
+echo | tee -a $seq_full
+echo "== cond-create -i $seq-foo" | tee -a $seq_full
 $sudo pmlogctl -i $seq-foo cond-create localhost | _filter
-echo '== status' | tee -a $seq.full
-pmlogctl -V status | _filter_status
+echo '== status' | tee -a $seq_full
+pmlogctl -V status 2>&1 | _filter_status
 
 # success, all done
 status=0

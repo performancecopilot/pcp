@@ -13,7 +13,7 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-_check_redis_server
+_check_key_server
 eval `pmconfig -L ipv6 unix_domain_sockets`
 [ "$ipv6" = "true" ] || _notrun "No IPv6 support"
 [ "$unix_domain_sockets" = "true" ] || _notrun "No Unix socket support"
@@ -24,24 +24,23 @@ _cleanup()
     _restore_config $PCP_PMPROXYOPTIONS_PATH
     if $pmproxy_was_running
     then
-	echo "Restart pmproxy ..." >>$here/$seq.full
-	_service pmproxy restart >>$here/$seq.full 2>&1
+	echo "Restart pmproxy ..." >>$seq_full
+	_service pmproxy restart >>$seq_full 2>&1
 	_wait_for_pmproxy
     else
-	echo "Stopping pmproxy ..." >>$here/$seq.full
-	_service pmproxy stop >>$here/$seq.full 2>&1
+	echo "Stopping pmproxy ..." >>$seq_full
+	_service pmproxy stop >>$seq_full 2>&1
 	_wait_pmproxy_end
     fi
     $sudo rm -rf $tmp $tmp.*
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 pmproxy_was_running=false
 [ -f $PCP_RUN_DIR/pmproxy.pid ] && pmproxy_was_running=true
-echo "pmproxy_was_running=$pmproxy_was_running" >>$here/$seq.full
+echo "pmproxy_was_running=$pmproxy_was_running" >>$seq_full
 
 # real QA test starts here
 _save_config $PCP_PMPROXYOPTIONS_PATH
@@ -50,16 +49,16 @@ echo "# Option added by PCP QA test $seq" > $tmp.local
 echo --timeseries >> $tmp.local
 $sudo cp $tmp.local $PCP_PMPROXYOPTIONS_PATH
 
-_service pmproxy stop >/dev/null 2>&1
-_wait_pmproxy_end
+if ! _service pmproxy stop >/dev/null 2>&1; then _exit 1; fi
+_wait_pmproxy_end || _exit 1
 # give any running pmproxy a chance to shutdown cleanly
 #
 sleep 2
-_service pmproxy start 2>&1 | _filter_pmproxy_start
-_wait_for_pmproxy
+if ! _service pmproxy start 2>&1; then _exit 1; fi | _filter_pmproxy_start
+_wait_for_pmproxy || _exit 1
 
-_service pmproxy stop 2>&1 | _filter_pmproxy_start
-_wait_pmproxy_end
+if ! _service pmproxy stop 2>&1; then _exit 1; fi | _filter_pmproxy_start
+_wait_pmproxy_end || _exit 1
 _filter_pmproxy_log < $PCP_LOG_DIR/pmproxy/pmproxy.log
 
 # systemd has a default limits ... systemd.unit(5) describe

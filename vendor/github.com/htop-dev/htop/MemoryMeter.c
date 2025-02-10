@@ -5,12 +5,16 @@ Released under the GNU GPLv2+, see the COPYING file
 in the source distribution for its full text.
 */
 
+#include "config.h" // IWYU pragma: keep
+
 #include "MemoryMeter.h"
 
+#include <assert.h>
 #include <math.h>
 #include <stddef.h>
 
 #include "CRT.h"
+#include "Macros.h"
 #include "Object.h"
 #include "Platform.h"
 #include "RichString.h"
@@ -18,9 +22,9 @@ in the source distribution for its full text.
 
 static const int MemoryMeter_attributes[] = {
    MEMORY_USED,
-   MEMORY_BUFFERS,
    MEMORY_SHARED,
    MEMORY_COMPRESSED,
+   MEMORY_BUFFERS,
    MEMORY_CACHE
 };
 
@@ -40,11 +44,12 @@ static void MemoryMeter_updateValues(Meter* this) {
       "MEMORY_METER_AVAILABLE is not the last item in MemoryMeterValues");
    this->curItems = MEMORY_METER_AVAILABLE;
 
-   /* we actually want to show "used + compressed" */
+   /* we actually want to show "used + shared + compressed" */
    double used = this->values[MEMORY_METER_USED];
-   if (!isnan(this->values[MEMORY_METER_COMPRESSED])) {
+   if (isPositive(this->values[MEMORY_METER_SHARED]))
+      used += this->values[MEMORY_METER_SHARED];
+   if (isPositive(this->values[MEMORY_METER_COMPRESSED]))
       used += this->values[MEMORY_METER_COMPRESSED];
-   }
 
    written = Meter_humanUnit(buffer, used, size);
    METER_BUFFER_CHECK(buffer, size, written);
@@ -66,30 +71,30 @@ static void MemoryMeter_display(const Object* cast, RichString* out) {
    RichString_appendAscii(out, CRT_colors[METER_TEXT], " used:");
    RichString_appendAscii(out, CRT_colors[MEMORY_USED], buffer);
 
-   Meter_humanUnit(buffer, this->values[MEMORY_METER_BUFFERS], sizeof(buffer));
-   RichString_appendAscii(out, CRT_colors[METER_TEXT], " buffers:");
-   RichString_appendAscii(out, CRT_colors[MEMORY_BUFFERS_TEXT], buffer);
-
    /* shared memory is not supported on all platforms */
-   if (!isnan(this->values[MEMORY_METER_SHARED])) {
+   if (isNonnegative(this->values[MEMORY_METER_SHARED])) {
       Meter_humanUnit(buffer, this->values[MEMORY_METER_SHARED], sizeof(buffer));
       RichString_appendAscii(out, CRT_colors[METER_TEXT], " shared:");
       RichString_appendAscii(out, CRT_colors[MEMORY_SHARED], buffer);
    }
 
    /* compressed memory is not supported on all platforms */
-   if (!isnan(this->values[MEMORY_METER_COMPRESSED])) {
+   if (isNonnegative(this->values[MEMORY_METER_COMPRESSED])) {
       Meter_humanUnit(buffer, this->values[MEMORY_METER_COMPRESSED], sizeof(buffer));
       RichString_appendAscii(out, CRT_colors[METER_TEXT], " compressed:");
       RichString_appendAscii(out, CRT_colors[MEMORY_COMPRESSED], buffer);
    }
+
+   Meter_humanUnit(buffer, this->values[MEMORY_METER_BUFFERS], sizeof(buffer));
+   RichString_appendAscii(out, CRT_colors[METER_TEXT], " buffers:");
+   RichString_appendAscii(out, CRT_colors[MEMORY_BUFFERS_TEXT], buffer);
 
    Meter_humanUnit(buffer, this->values[MEMORY_METER_CACHE], sizeof(buffer));
    RichString_appendAscii(out, CRT_colors[METER_TEXT], " cache:");
    RichString_appendAscii(out, CRT_colors[MEMORY_CACHE], buffer);
 
    /* available memory is not supported on all platforms */
-   if (!isnan(this->values[MEMORY_METER_AVAILABLE])) {
+   if (isNonnegative(this->values[MEMORY_METER_AVAILABLE])) {
       Meter_humanUnit(buffer, this->values[MEMORY_METER_AVAILABLE], sizeof(buffer));
       RichString_appendAscii(out, CRT_colors[METER_TEXT], " available:");
       RichString_appendAscii(out, CRT_colors[METER_VALUE], buffer);
@@ -104,6 +109,7 @@ const MeterClass MemoryMeter_class = {
    },
    .updateValues = MemoryMeter_updateValues,
    .defaultMode = BAR_METERMODE,
+   .supportedModes = METERMODE_DEFAULT_SUPPORTED,
    .maxItems = MEMORY_METER_ITEMCOUNT,
    .total = 100.0,
    .attributes = MemoryMeter_attributes,

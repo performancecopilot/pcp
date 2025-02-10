@@ -24,7 +24,7 @@
 .br
 #include <pcp/archive.h>
 .sp
-int pmaGetLog(__pmArchctl *\fIacp\fP, int \fIvol\fP, __int32_t **\fIrbuf\fP);
+int pmaGetLog(__pmArchCtl *\fIacp\fP, int \fIvol\fP, __int32_t **\fIrbuf\fP);
 .sp
 cc ... \-lpcp_archive \-lpcp
 .ft 1
@@ -36,8 +36,8 @@ These interfaces are not part of the PCP APIs that are guaranteed to
 remain fixed across releases, and they may not work, or may provide
 different semantics at some point in the future.
 .SH DESCRIPTION
-.de CW
-.ie t \f(CW\\$1\fR\\$2
+.de CR
+.ie t \f(CR\\$1\fR\\$2
 .el \fI\\$1\fR\\$2
 ..
 This is a cut-down version of
@@ -73,4 +73,4 @@ else some other error code less than zero.
 .BR pmaPutLog (3),
 .BR PMAPI (3)
 and
-.BR __pmLogread (3).
+.BR __pmLogRead (3).

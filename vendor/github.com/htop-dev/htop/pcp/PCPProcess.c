@@ -7,6 +7,8 @@ Released under the GNU GPLv2+, see the COPYING file
 in the source distribution for its full text.
 */
 
+#include "config.h" // IWYU pragma: keep
+
 #include "pcp/PCPProcess.h"
 
 #include <math.h>
@@ -49,12 +51,13 @@ const ProcessFieldData Process_fields[] = {
    [M_VIRT] = { .name = "M_VIRT", .title = " VIRT ", .description = "Total program size in virtual memory", .flags = 0, .defaultSortDesc = true, },
    [M_RESIDENT] = { .name = "M_RESIDENT", .title = "  RES ", .description = "Resident set size, size of the text and data sections, plus stack usage", .flags = 0, .defaultSortDesc = true, },
    [M_SHARE] = { .name = "M_SHARE", .title = "  SHR ", .description = "Size of the process's shared pages", .flags = 0, .defaultSortDesc = true, },
+   [M_PRIV] = { .name = "M_PRIV", .title = " PRIV ", .description = "The private memory size of the process - resident set size minus shared memory", .flags = 0, .defaultSortDesc = true, },
    [M_TRS] = { .name = "M_TRS", .title = " CODE ", .description = "Size of the text segment of the process", .flags = 0, .defaultSortDesc = true, },
    [M_DRS] = { .name = "M_DRS", .title = " DATA ", .description = "Size of the data segment plus stack usage of the process", .flags = 0, .defaultSortDesc = true, },
    [M_LRS] = { .name = "M_LRS", .title = "  LIB ", .description = "The library size of the process (unused since Linux 2.6; always 0)", .flags = 0, .defaultSortDesc = true, },
    [M_DT] = { .name = "M_DT", .title = " DIRTY ", .description = "Size of the dirty pages of the process (unused since Linux 2.6; always 0)", .flags = 0, .defaultSortDesc = true, },
    [ST_UID] = { .name = "ST_UID", .title = "UID", .description = "User ID of the process owner", .flags = 0, },
-   [PERCENT_CPU] = { .name = "PERCENT_CPU", .title = " CPU%", .description = "Percentage of the CPU time the process used in the last sampling", .flags = 0, .defaultSortDesc = true, .autoWidth = true, },
+   [PERCENT_CPU] = { .name = "PERCENT_CPU", .title = " CPU%", .description = "Percentage of the CPU time the process used in the last sampling", .flags = 0, .defaultSortDesc = true, .autoWidth = true, .autoTitleRightAlign = true, },
    [PERCENT_NORM_CPU] = { .name = "PERCENT_NORM_CPU", .title = "NCPU%", .description = "Normalized percentage of the CPU time the process used in the last sampling (normalized by cpu count)", .flags = 0, .defaultSortDesc = true, .autoWidth = true, },
    [PERCENT_MEM] = { .name = "PERCENT_MEM", .title = "MEM% ", .description = "Percentage of the memory the process is using, based on resident memory size", .flags = 0, .defaultSortDesc = true, },
    [USER] = { .name = "USER", .title = "USER       ", .description = "Username of the process owner (or user ID if name cannot be determined)", .flags = 0, },
@@ -71,7 +74,9 @@ const ProcessFieldData Process_fields[] = {
    [IO_READ_RATE] = { .name = "IO_READ_RATE", .title = " DISK READ ", .description = "The I/O rate of read(2) in bytes per second for the process", .flags = PROCESS_FLAG_IO, .defaultSortDesc = true, },
    [IO_WRITE_RATE] = { .name = "IO_WRITE_RATE", .title = " DISK WRITE ", .description = "The I/O rate of write(2) in bytes per second for the process", .flags = PROCESS_FLAG_IO, .defaultSortDesc = true, },
    [IO_RATE] = { .name = "IO_RATE", .title = "   DISK R/W ", .description = "Total I/O rate in bytes per second", .flags = PROCESS_FLAG_IO, .defaultSortDesc = true, },
-   [CGROUP] = { .name = "CGROUP", .title = "    CGROUP ", .description = "Which cgroup the process is in", .flags = PROCESS_FLAG_LINUX_CGROUP, },
+   [CGROUP] = { .name = "CGROUP", .title = "CGROUP (raw)                        ", .description = "Which cgroup the process is in", .flags = PROCESS_FLAG_LINUX_CGROUP, },
+   [CCGROUP] = { .name = "CCGROUP", .title = "CGROUP (compressed)                 ", .description = "Which cgroup the process is in (condensed to essentials)", .flags = PROCESS_FLAG_LINUX_CGROUP, },
+   [CONTAINER] = { .name = "CONTAINER", .title = "CONTAINER                           ", .description = "Name of the container the process is in (guessed by heuristics)", .flags = PROCESS_FLAG_LINUX_CGROUP, },
    [OOM] = { .name = "OOM", .title = " OOM ", .description = "OOM (Out-of-Memory) killer score", .flags = PROCESS_FLAG_LINUX_OOM, .defaultSortDesc = true, },
    [PERCENT_CPU_DELAY] = { .name = "PERCENT_CPU_DELAY", .title = "CPUD% ", .description = "CPU delay %", .flags = 0, .defaultSortDesc = true, },
    [PERCENT_IO_DELAY] = { .name = "PERCENT_IO_DELAY", .title = " IOD% ", .description = "Block I/O delay %", .flags = 0, .defaultSortDesc = true, },
@@ -92,69 +97,76 @@ Process* PCPProcess_new(const Machine* host) {
    PCPProcess* this = xCalloc(1, sizeof(PCPProcess));
    Object_setClass(this, Class(PCPProcess));
    Process_init(&this->super, host);
-   return &this->super;
+   return (Process*)this;
 }
 
 void Process_delete(Object* cast) {
    PCPProcess* this = (PCPProcess*) cast;
    Process_done((Process*)cast);
+   free(this->cgroup_short);
    free(this->cgroup);
    free(this->secattr);
    free(this);
 }
 
-static void PCPProcess_printDelay(float delay_percent, char* buffer, int n) {
-   if (isnan(delay_percent)) {
-      xSnprintf(buffer, n, " N/A  ");
-   } else {
+static void PCPProcess_printDelay(float delay_percent, char* buffer, size_t n) {
+   if (isNonnegative(delay_percent)) {
       xSnprintf(buffer, n, "%4.1f  ", delay_percent);
+   } else {
+      xSnprintf(buffer, n, " N/A  ");
    }
 }
 
-static void PCPProcess_writeField(const Process* this, RichString* str, ProcessField field) {
-   const PCPProcess* pp = (const PCPProcess*) this;
-   bool coloring = this->host->settings->highlightMegabytes;
+static double PCPProcess_totalIORate(const PCPProcess* pp) {
+   double totalRate = NAN;
+   if (isNonnegative(pp->io_rate_read_bps)) {
+      totalRate = pp->io_rate_read_bps;
+      if (isNonnegative(pp->io_rate_write_bps)) {
+         totalRate += pp->io_rate_write_bps;
+      }
+   } else if (isNonnegative(pp->io_rate_write_bps)) {
+      totalRate = pp->io_rate_write_bps;
+   }
+   return totalRate;
+}
+
+static void PCPProcess_rowWriteField(const Row* super, RichString* str, ProcessField field) {
+   const PCPProcess* pp = (const PCPProcess*) super;
+
+   bool coloring = super->host->settings->highlightMegabytes;
    char buffer[256]; buffer[255] = '\0';
    int attr = CRT_colors[DEFAULT_COLOR];
-   int n = sizeof(buffer) - 1;
+   size_t n = sizeof(buffer) - 1;
+
    switch ((int)field) {
-   case CMINFLT: Process_printCount(str, pp->cminflt, coloring); return;
-   case CMAJFLT: Process_printCount(str, pp->cmajflt, coloring); return;
-   case M_DRS: Process_printBytes(str, pp->m_drs, coloring); return;
-   case M_DT: Process_printBytes(str, pp->m_dt, coloring); return;
-   case M_LRS: Process_printBytes(str, pp->m_lrs, coloring); return;
-   case M_TRS: Process_printBytes(str, pp->m_trs, coloring); return;
-   case M_SHARE: Process_printBytes(str, pp->m_share, coloring); return;
-   case M_PSS: Process_printKBytes(str, pp->m_pss, coloring); return;
-   case M_SWAP: Process_printKBytes(str, pp->m_swap, coloring); return;
-   case M_PSSWP: Process_printKBytes(str, pp->m_psswp, coloring); return;
-   case UTIME: Process_printTime(str, pp->utime, coloring); return;
-   case STIME: Process_printTime(str, pp->stime, coloring); return;
-   case CUTIME: Process_printTime(str, pp->cutime, coloring); return;
-   case CSTIME: Process_printTime(str, pp->cstime, coloring); return;
-   case RCHAR:  Process_printBytes(str, pp->io_rchar, coloring); return;
-   case WCHAR:  Process_printBytes(str, pp->io_wchar, coloring); return;
-   case SYSCR:  Process_printCount(str, pp->io_syscr, coloring); return;
-   case SYSCW:  Process_printCount(str, pp->io_syscw, coloring); return;
-   case RBYTES: Process_printBytes(str, pp->io_read_bytes, coloring); return;
-   case WBYTES: Process_printBytes(str, pp->io_write_bytes, coloring); return;
-   case CNCLWB: Process_printBytes(str, pp->io_cancelled_write_bytes, coloring); return;
-   case IO_READ_RATE:  Process_printRate(str, pp->io_rate_read_bps, coloring); return;
-   case IO_WRITE_RATE: Process_printRate(str, pp->io_rate_write_bps, coloring); return;
-   case IO_RATE: {
-      double totalRate = NAN;
-      if (!isnan(pp->io_rate_read_bps) && !isnan(pp->io_rate_write_bps))
-         totalRate = pp->io_rate_read_bps + pp->io_rate_write_bps;
-      else if (!isnan(pp->io_rate_read_bps))
-         totalRate = pp->io_rate_read_bps;
-      else if (!isnan(pp->io_rate_write_bps))
-         totalRate = pp->io_rate_write_bps;
-      else
-         totalRate = NAN;
-      Process_printRate(str, totalRate, coloring);
-      return;
-   }
-   case CGROUP: xSnprintf(buffer, n, "%-10s ", pp->cgroup ? pp->cgroup : ""); break;
+   case CMINFLT: Row_printCount(str, pp->cminflt, coloring); return;
+   case CMAJFLT: Row_printCount(str, pp->cmajflt, coloring); return;
+   case M_DRS: Row_printBytes(str, pp->m_drs, coloring); return;
+   case M_DT: Row_printBytes(str, pp->m_dt, coloring); return;
+   case M_LRS: Row_printBytes(str, pp->m_lrs, coloring); return;
+   case M_TRS: Row_printBytes(str, pp->m_trs, coloring); return;
+   case M_SHARE: Row_printBytes(str, pp->m_share, coloring); return;
+   case M_PRIV: Row_printBytes(str, pp->m_priv, coloring); return;
+   case M_PSS: Row_printKBytes(str, pp->m_pss, coloring); return;
+   case M_SWAP: Row_printKBytes(str, pp->m_swap, coloring); return;
+   case M_PSSWP: Row_printKBytes(str, pp->m_psswp, coloring); return;
+   case UTIME: Row_printTime(str, pp->utime, coloring); return;
+   case STIME: Row_printTime(str, pp->stime, coloring); return;
+   case CUTIME: Row_printTime(str, pp->cutime, coloring); return;
+   case CSTIME: Row_printTime(str, pp->cstime, coloring); return;
+   case RCHAR:  Row_printBytes(str, pp->io_rchar, coloring); return;
+   case WCHAR:  Row_printBytes(str, pp->io_wchar, coloring); return;
+   case SYSCR:  Row_printCount(str, pp->io_syscr, coloring); return;
+   case SYSCW:  Row_printCount(str, pp->io_syscw, coloring); return;
+   case RBYTES: Row_printBytes(str, pp->io_read_bytes, coloring); return;
+   case WBYTES: Row_printBytes(str, pp->io_write_bytes, coloring); return;
+   case CNCLWB: Row_printBytes(str, pp->io_cancelled_write_bytes, coloring); return;
+   case IO_READ_RATE:  Row_printRate(str, pp->io_rate_read_bps, coloring); return;
+   case IO_WRITE_RATE: Row_printRate(str, pp->io_rate_write_bps, coloring); return;
+   case IO_RATE: Row_printRate(str, PCPProcess_totalIORate(pp), coloring); return;
+   case CGROUP: xSnprintf(buffer, n, "%-35.35s ", pp->cgroup ? pp->cgroup : "N/A"); break;
+   case CCGROUP: xSnprintf(buffer, n, "%-35.35s ", pp->cgroup_short ? pp->cgroup_short : (pp->cgroup ? pp->cgroup : "N/A")); break;
+   case CONTAINER: xSnprintf(buffer, n, "%-35.35s ", pp->container_short ? pp->container_short : "N/A"); break;
    case OOM: xSnprintf(buffer, n, "%4u ", pp->oom); break;
    case PERCENT_CPU_DELAY:
       PCPProcess_printDelay(pp->cpu_delay_percent, buffer, n);
@@ -192,17 +204,11 @@ static void PCPProcess_writeField(const Process* this, RichString* str, ProcessF
       }
       break;
    default:
-      Process_writeField(this, str, field);
+      Process_writeField(&pp->super, str, field);
       return;
    }
+
    RichString_appendWide(str, attr, buffer);
-}
-
-static double adjustNaN(double num) {
-   if (isnan(num))
-      return -0.0005;
-
-   return num;
 }
 
 static int PCPProcess_compareByKey(const Process* v1, const Process* v2, ProcessField key) {
@@ -220,6 +226,8 @@ static int PCPProcess_compareByKey(const Process* v1, const Process* v2, Process
       return SPACESHIP_NUMBER(p1->m_trs, p2->m_trs);
    case M_SHARE:
       return SPACESHIP_NUMBER(p1->m_share, p2->m_share);
+   case M_PRIV:
+      return SPACESHIP_NUMBER(p1->m_priv, p2->m_priv);
    case M_PSS:
       return SPACESHIP_NUMBER(p1->m_pss, p2->m_pss);
    case M_SWAP:
@@ -249,21 +257,25 @@ static int PCPProcess_compareByKey(const Process* v1, const Process* v2, Process
    case CNCLWB:
       return SPACESHIP_NUMBER(p1->io_cancelled_write_bytes, p2->io_cancelled_write_bytes);
    case IO_READ_RATE:
-      return SPACESHIP_NUMBER(adjustNaN(p1->io_rate_read_bps), adjustNaN(p2->io_rate_read_bps));
+      return compareRealNumbers(p1->io_rate_read_bps, p2->io_rate_read_bps);
    case IO_WRITE_RATE:
-      return SPACESHIP_NUMBER(adjustNaN(p1->io_rate_write_bps), adjustNaN(p2->io_rate_write_bps));
+      return compareRealNumbers(p1->io_rate_write_bps, p2->io_rate_write_bps);
    case IO_RATE:
-      return SPACESHIP_NUMBER(adjustNaN(p1->io_rate_read_bps) + adjustNaN(p1->io_rate_write_bps), adjustNaN(p2->io_rate_read_bps) + adjustNaN(p2->io_rate_write_bps));
+      return compareRealNumbers(PCPProcess_totalIORate(p1), PCPProcess_totalIORate(p2));
    case CGROUP:
       return SPACESHIP_NULLSTR(p1->cgroup, p2->cgroup);
+   case CCGROUP:
+      return SPACESHIP_NULLSTR(p1->cgroup_short, p2->cgroup_short);
+   case CONTAINER:
+      return SPACESHIP_NULLSTR(p1->container_short, p2->container_short);
    case OOM:
       return SPACESHIP_NUMBER(p1->oom, p2->oom);
    case PERCENT_CPU_DELAY:
-      return SPACESHIP_NUMBER(p1->cpu_delay_percent, p2->cpu_delay_percent);
+      return compareRealNumbers(p1->cpu_delay_percent, p2->cpu_delay_percent);
    case PERCENT_IO_DELAY:
-      return SPACESHIP_NUMBER(p1->blkio_delay_percent, p2->blkio_delay_percent);
+      return compareRealNumbers(p1->blkio_delay_percent, p2->blkio_delay_percent);
    case PERCENT_SWAP_DELAY:
-      return SPACESHIP_NUMBER(p1->swapin_delay_percent, p2->swapin_delay_percent);
+      return compareRealNumbers(p1->swapin_delay_percent, p2->swapin_delay_percent);
    case CTXT:
       return SPACESHIP_NUMBER(p1->ctxt_diff, p2->ctxt_diff);
    case SECATTR:
@@ -281,11 +293,18 @@ static int PCPProcess_compareByKey(const Process* v1, const Process* v2, Process
 
 const ProcessClass PCPProcess_class = {
    .super = {
-      .extends = Class(Process),
-      .display = Process_display,
-      .delete = Process_delete,
-      .compare = Process_compare
+      .super = {
+         .extends = Class(Process),
+         .display = Row_display,
+         .delete = Process_delete,
+         .compare = Process_compare
+      },
+      .isHighlighted = Process_rowIsHighlighted,
+      .isVisible = Process_rowIsVisible,
+      .matchesFilter = Process_rowMatchesFilter,
+      .compareByParent = Process_compareByParent,
+      .sortKeyString = Process_rowGetSortKey,
+      .writeField = PCPProcess_rowWriteField,
    },
-   .writeField = PCPProcess_writeField,
-   .compareByKey = PCPProcess_compareByKey
+   .compareByKey = PCPProcess_compareByKey,
 };

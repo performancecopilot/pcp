@@ -37,8 +37,7 @@ LCFLAGS		= -I$(TOPDIR)/src/libpcp_web/src -Ideps
 
 SCRIPTS		= Install Remove
 VERSION_SCRIPT	= exports
-HELPTARGETS	= help.dir help.pag
-LDIRT		= $(HELPTARGETS) domain.h $(VERSION_SCRIPT) $(JSONSL_XFILES)
+LDIRT		= domain.h $(VERSION_SCRIPT) $(JSONSL_XFILES)
 
 MAN_SECTION	= 1
 MAN_PAGES	= pmda$(IAM).$(MAN_SECTION)
@@ -49,14 +48,13 @@ default:	build-me
 include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "linux"
-build-me: $(JSONSL_XFILES) $(LIBTARGET) $(CMDTARGET) $(HELPTARGETS)
+build-me: $(JSONSL_XFILES) $(LIBTARGET) $(CMDTARGET)
 
 install: default
 	$(INSTALL) -m 755 -d $(PMDAADMDIR)
 	$(INSTALL) -m 755 -d $(PMDATMPDIR)
-	$(INSTALL) -m 644 -t $(PMDATMPDIR) domain.h help help.dir help.pag root root_podman $(PMDAADMDIR)
+	$(INSTALL) -m 644 -t $(PMDATMPDIR) domain.h help root pmns $(PMDAADMDIR)
 	$(INSTALL) -m 755 -t $(PMDATMPDIR) $(LIBTARGET) $(CMDTARGET) $(SCRIPTS) $(PMDAADMDIR)
-	$(INSTALL) -m 644 -t $(PCP_PMNS_DIR)/root_podman root_podman $(PCP_PMNSADM_DIR)/root_podman
 	@$(INSTALL_MAN)
 else
 build-me:
@@ -71,9 +69,6 @@ default_pcp : default
 
 install_pcp : install
 
-$(HELPTARGETS) : help
-	$(NEWHELP) -n root_podman -v 2 -o help < help
-
 $(VERSION_SCRIPT):
 	$(VERSION_SCRIPT_MAKERULE)
 
@@ -84,9 +79,6 @@ $(OBJECTS): domain.h
 pmda.o: $(VERSION_SCRIPT)
 pmda.o:	$(TOPDIR)/src/include/pcp/libpcp.h
 podman.o: $(JSONSL_HFILES)
-
-check:: $(CFILES) $(HFILES)
-	$(CLINT) $^
 
 check:: $(MAN_PAGES)
 	$(MANLINT) $^

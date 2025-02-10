@@ -32,11 +32,10 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-echo "=== profile and fetch operations with three contexts, same host, different fd's ===" | tee -a $seq.full
+echo "=== profile and fetch operations with three contexts, same host, different fd's ===" | tee -a $seq_full
 $sudo rm -f /tmp/func?.out
 _run_helgrind src/multithread7 `hostname` localhost 127.0.0.1
 cat $tmp.valgrind.out
@@ -48,8 +47,8 @@ fi
 echo "=== output files ==="
 cat /tmp/func?.out | LC_COLLATE=POSIX sort | uniq -c | sed -e 's/  */ /g'
 
-echo | tee -a $seq.full
-echo "=== profile and fetch operations with three contexts, same host, same fd's ===" | tee -a $seq.full
+echo | tee -a $seq_full
+echo "=== profile and fetch operations with three contexts, same host, same fd's ===" | tee -a $seq_full
 $sudo rm -f /tmp/func?.out
 _run_helgrind src/multithread7 `hostname` `hostname` `hostname`
 cat $tmp.valgrind.out
@@ -61,7 +60,7 @@ fi
 echo "=== output files ==="
 cat /tmp/func?.out | LC_COLLATE=POSIX sort | uniq -c | sed -e 's/  */ /g'
 
-echo | tee -a $seq.full
+echo | tee -a $seq_full
 echo "=== help text operations with three contexts, same host, different fd's ==="
 $sudo rm -f /tmp/func?.out
 _run_helgrind src/multithread8 `hostname` localhost 127.0.0.1
@@ -74,7 +73,7 @@ fi
 echo "=== output files ==="
 cat /tmp/func?.out | LC_COLLATE=POSIX sort | uniq -c | sed -e 's/  */ /g'
 
-echo | tee -a $seq.full
+echo | tee -a $seq_full
 echo "=== help text operations with three contexts, same host, same fd's ==="
 $sudo rm -f /tmp/func?.out
 _run_helgrind src/multithread8 `hostname` `hostname` `hostname`
@@ -87,7 +86,7 @@ fi
 echo "=== output files ==="
 cat /tmp/func?.out | LC_COLLATE=POSIX sort | uniq -c | sed -e 's/  */ /g'
 
-echo | tee -a $seq.full
+echo | tee -a $seq_full
 echo "=== pmns operations with three contexts, same host, different fd's ==="
 _run_helgrind src/multithread9 `hostname` localhost 127.0.0.1
 cat $tmp.valgrind.out
@@ -99,7 +98,7 @@ fi
 echo "=== output files ==="
 cat /tmp/func?.out | LC_COLLATE=POSIX sort | uniq -c | sed -e 's/  */ /g'
 
-echo | tee -a $seq.full
+echo | tee -a $seq_full
 echo "=== pmns operations with three contexts, same host, same fd's ==="
 _run_helgrind src/multithread9 `hostname` `hostname` `hostname`
 cat $tmp.valgrind.out

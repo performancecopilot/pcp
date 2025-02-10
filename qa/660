@@ -29,8 +29,6 @@ fi
 PORT=44324
 
 $sudo rm -fr $tmp.dir
-$sudo rm -f $tmp.*
-rm -f $seq.full
 
 signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
@@ -108,24 +106,24 @@ _filter_log_url()
     # end
 }
 
-ipv6local=`_ipv6_localhost 2>>$seq.full`
-echo "ipv6local=$ipv6local" >>$seq.full
+ipv6local=`_ipv6_localhost 2>>$seq_full`
+echo "ipv6local=$ipv6local" >>$seq_full
 
 _stop_auto_restart pmwebd # see GH #394
-_service pmwebd stop >/dev/null 2>&1
+if ! _service pmwebd stop >/dev/null 2>&1; then _exit 1; fi
 $sudo $signal -a pmwebd >/dev/null 2>&1
 
 webargs="-U $username -P"
 
-echo | tee -a $seq.full
-echo "=== pmwebd default startup  ===" | tee -a $seq.full
+echo | tee -a $seq_full
+echo "=== pmwebd default startup  ===" | tee -a $seq_full
 $PCP_BINADM_DIR/pmwebd $webargs -p $PORT -D libweb -l $tmp.log -v -t10 &
 
-echo "pid=$!" >>$seq.full
+echo "pid=$!" >>$seq_full
 _wait_for_pmwebd_logfile $tmp.log $PORT
 
 # prepare the expected output file based on detected mode
-cat $tmp.log >>$seq.full
+cat $tmp.log >>$seq_full
 rm -f $seq.out
 if grep -q IPv6 $tmp.log; then
     grep -q IPv4 $tmp.log || _notrun "QA host running in IPv6 mode only"
@@ -135,59 +133,59 @@ else
 fi
 
 curl -s -S "http://localhost:$PORT/pmapi/context?local=ANYTHING" \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | awk '{print $2}'
-echo >>$seq.full
+echo >>$seq_full
 if grep -q IPv6 $tmp.log; then
     curl -s -S "http://$ipv6local:$PORT/pmapi/context?local=ANYTHING" \
-    | tee -a $seq.full \
+    | tee -a $seq_full \
     | awk '{print $2}'
 fi
 
-echo | tee -a $seq.full
-echo "=== pmwebd security constraints, file service ===" | tee -a $seq.full
+echo | tee -a $seq_full
+echo "=== pmwebd security constraints, file service ===" | tee -a $seq_full
 $sudo $signal -a pmwebd >/dev/null 2>&1
 sleep 2		# let it shutdown
 
-cat $tmp.log >> $seq.full
+cat $tmp.log >> $seq_full
 $PCP_BINADM_DIR/pmwebd $webargs -p $PORT -D libweb -R `pwd` -c 2222 -L -h localhost -N -vv -l $tmp.log >$tmp.err 2>&1 &
 sleep 2		# let it start up
-cat $tmp.err >> $seq.full
+cat $tmp.err >> $seq_full
 
 # Note on curl use:
 # extra echo because line from curl may be missing a \n and this
 # breaks some sed implementations (in _webapi_response_filter), and
 # then need post-filter sed to remove empty line (if any)
 #
-echo "+++ should fail due to -N" | tee -a $seq.full
+echo "+++ should fail due to -N" | tee -a $seq_full
 ( curl -s -S "http://localhost:$PORT/pmapi/context?local=anything"; echo ) \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | _webapi_response_filter \
 | sed -e '/^$/d'
-echo | tee -a $seq.full
+echo | tee -a $seq_full
 
-echo "+++ should fail due to nonexistent context#" | tee -a $seq.full
+echo "+++ should fail due to nonexistent context#" | tee -a $seq_full
 ( curl -s -S "http://localhost:$PORT/pmapi/2225/_fetch"; echo ) \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | _webapi_response_filter \
 | sed -e '/^$/d'
-echo | tee -a $seq.full
+echo | tee -a $seq_full
 
-echo "+++ should fail with a different error (insufficient elements; ie pmFetch failed)" | tee -a $seq.full
+echo "+++ should fail with a different error (insufficient elements; ie pmFetch failed)" | tee -a $seq_full
 # NB: the curl -v part reports http headers too, for ACAO presence assertion
 ( curl -s -v -S "http://localhost:$PORT/pmapi/2222/_fetch?names=" 2>&1; echo ) \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | _webapi_response_filter \
 | sed -e '/^$/d' \
 | _filter
-echo | tee -a $seq.full
+echo | tee -a $seq_full
 
-echo "+++ should fail with a different error (insufficient elements; ie pmFetch failed)" | tee -a $seq.full
+echo "+++ should fail with a different error (insufficient elements; ie pmFetch failed)" | tee -a $seq_full
 ( curl -s -S "http://localhost:$PORT/pmapi/2223/_fetch?pmids="; echo ) \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | _webapi_response_filter \
 | sed -e '/^$/d'
-echo | tee -a $seq.full
+echo | tee -a $seq_full
 
 # filter for responses from newer microhttpd libraries, where
 # symlink paths are rewritten (with verbose diagnostics that
@@ -201,55 +199,55 @@ _symlink_response_filter()
     #end
 }
 
-echo "+++ should fail due to suspicious pmresapi path name" | tee -a $seq.full
+echo "+++ should fail due to suspicious pmresapi path name" | tee -a $seq_full
 ( curl -s -v -S "http://localhost:$PORT/../../etc/passwd" 2>&1; echo ) \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | _webapi_response_filter \
 | sed -e '/^$/d' \
 | _symlink_response_filter \
 | _filter
-echo | tee -a $seq.full
+echo | tee -a $seq_full
 
-echo "+++ should fail due to non-enablement of graphite" | tee -a $seq.full
+echo "+++ should fail due to non-enablement of graphite" | tee -a $seq_full
 ( curl -s -v -S "http://localhost:$PORT/graphite/render?target=*" 2>&1; echo ) \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | _webapi_response_filter \
 | sed -e '/^$/d' \
 | _filter
 
-echo | tee -a $seq.full
-echo "+++ should pass, feed this very script" | tee -a $seq.full
+echo | tee -a $seq_full
+echo "+++ should pass, feed this very script" | tee -a $seq_full
 curl -s -S "http://localhost:$PORT/$seq" > $tmp.out2
 diff $tmp.out2 $0 && echo file service ok
 
-echo "+++ should not fail after patch from GH PR594" | tee -a $seq.full
+echo "+++ should not fail after patch from GH PR594" | tee -a $seq_full
 ( curl -s -v -S "http://localhost:$PORT/pmapi/1/metrics" 2>&1; echo ) \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | _webapi_response_filter \
 | sed -e '/^$/d' \
 | _filter
-echo | tee -a $seq.full
+echo | tee -a $seq_full
 
-echo "+++ should fail with incomplete pmapi request url.size=2" | tee -a $seq.full
+echo "+++ should fail with incomplete pmapi request url.size=2" | tee -a $seq_full
 ( curl -s -v -S "http://localhost:$PORT/pmapi" 2>&1; echo ) \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | _webapi_response_filter \
 | sed -e '/^$/d' \
 | _filter
 grep 'url\.size.* 2' $tmp.log | _filter_log_url
-echo | tee -a $seq.full
+echo | tee -a $seq_full
 
-echo "+++ should fail with incomplete pmapi request url.size=3" | tee -a $seq.full
+echo "+++ should fail with incomplete pmapi request url.size=3" | tee -a $seq_full
 ( curl -s -v -S "http://localhost:$PORT/pmapi/12345" 2>&1; echo ) \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | _webapi_response_filter \
 | sed -e '/^$/d' \
 | _filter
 grep 'url\.size.* 3 .*12345' $tmp.log | _filter_log_url
-echo | tee -a $seq.full
+echo | tee -a $seq_full
 
-echo "--- pmwebd log for main QA tests ---" >> $seq.full
-cat $tmp.log >> $seq.full
+echo "--- pmwebd log for main QA tests ---" >> $seq_full
+cat $tmp.log >> $seq_full
 
 # look for fd leak in src/ -> src/index.html redirection
 echo OK > $here/src/index.html
@@ -263,8 +261,8 @@ done
 grep -q PMWEBD.error $tmp.out && echo fd leak || echo no fd leak
 grep -q OK $tmp.out && echo redirected file ok || echo redirected file bad
 
-echo "--- output for fd leak tests ---" >> $seq.full
-cat $tmp.out >> $seq.full
+echo "--- output for fd leak tests ---" >> $seq_full
+cat $tmp.out >> $seq_full
 
 
 status=0

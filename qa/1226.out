@@ -37,7 +37,7 @@ localhost n n PCP_LOG_DIR/pmie/localhost/pmie.log -c ./localhost.config
 --- end control file ---
 Installing control file: PCP_ETC_DIR/pcp/pmie/control.d/localhost
 + cp PCP_TMPFILE_DIR/pmiectl.XXXXX/control PCP_ETC_DIR/pcp/pmie/control.d/localhost
-+ sudo -u pcp -g pcp PCP_BINADM_DIR/pmie_check -c PCP_ETC_DIR/pcp/pmie/control.d/localhost
++ PCP_BINADM_DIR/runaspcp PCP_BINADM_DIR/pmie_check  -c "PCP_ETC_DIR/pcp/pmie/control.d/localhost"
 
 == create
 == status

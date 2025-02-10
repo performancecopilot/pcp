@@ -73,7 +73,7 @@ StackObj::finishedAdd()
 			cerr << "StackObj::finishedAdd: Adding " 
 			     << colSpec->_list.length()
 			     << " colors for " << _metrics.numMetrics() 
-			     << " metrics" << endl;
+			     << " metrics" << Qt::endl;
 
 		    for (i = 0; i < colSpec->_list.size(); i++)
 			_metrics.add(*(colSpec->_list)[i]);
@@ -86,8 +86,8 @@ StackObj::finishedAdd()
 	    _metrics.resolveColors(MetricList::perValue);
 
 	    if (pmDebugOptions.appl0)
-		cerr << "StackObj::finishedAdd: metrics: " << endl 
-		     << _metrics << endl;
+		cerr << "StackObj::finishedAdd: metrics: " << Qt::endl 
+		     << _metrics << Qt::endl;
 
 	    _stack = new StackMod(&_metrics, ViewObj::object(_shape), _height);
 	    _root->addChild(_stack->root());
@@ -103,7 +103,7 @@ StackObj::finishedAdd()
     }
 
     if (pmDebugOptions.appl0)
-	cerr << name() << "has length " << _length << endl;
+	cerr << name() << "has length " << _length << Qt::endl;
 
     _width = baseWidth() + _length;
     _depth = baseDepth() + _length;
@@ -131,7 +131,7 @@ StackObj::display(QTextStream& os) const
     BaseObj::display(os);
     os << ", length = " << _length << ": ";
     if (_stack)
-	os << *_stack << endl;
+	os << *_stack << Qt::endl;
     else
-	os << "stack undefined!" << endl;
+	os << "stack undefined!" << Qt::endl;
 }

@@ -1,0 +1,30 @@
+#!/bin/sh
+#
+# ohead PMDA "plugin" for pmcheck
+#
+
+. $PCP_DIR/etc/pcp.env || exit 1
+. $PCP_SHARE_DIR/lib/checkproc.sh
+
+_do_args "$@"
+
+if $lflag
+then
+    [ "$verbose" -gt 0 ] && echo "overhead PMDA - measure overhead of PCP components"
+elif $sflag
+then
+    _ctl_pmda state overhead
+    status=$?
+    [ "$verbose" -gt 0 -a -s $tmp/out ] && cat /tmp/out
+elif $aflag
+then
+    _ctl_pmda activate overhead pmdaoverhead || status=1
+elif $dflag
+then
+    _ctl_pmda deactivate overhead || status=1
+else
+    [ $verbose -gt 0 ] && echo "botch sflag=$sflag aflag=$aflag dflag=$dflag show_me=$show_me verbose=$verbose"
+    status=99
+fi
+
+exit

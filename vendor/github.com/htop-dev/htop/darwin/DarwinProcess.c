@@ -40,7 +40,7 @@ const ProcessFieldData Process_fields[LAST_PROCESSFIELD] = {
    [M_VIRT] = { .name = "M_VIRT", .title = " VIRT ", .description = "Total program size in virtual memory", .flags = 0, .defaultSortDesc = true, },
    [M_RESIDENT] = { .name = "M_RESIDENT", .title = "  RES ", .description = "Resident set size, size of the text and data sections, plus stack usage", .flags = 0, .defaultSortDesc = true, },
    [ST_UID] = { .name = "ST_UID", .title = "UID", .description = "User ID of the process owner", .flags = 0, },
-   [PERCENT_CPU] = { .name = "PERCENT_CPU", .title = " CPU%", .description = "Percentage of the CPU time the process used in the last sampling", .flags = 0, .defaultSortDesc = true, .autoWidth = true, },
+   [PERCENT_CPU] = { .name = "PERCENT_CPU", .title = " CPU%", .description = "Percentage of the CPU time the process used in the last sampling", .flags = 0, .defaultSortDesc = true, .autoWidth = true, .autoTitleRightAlign = true, },
    [PERCENT_NORM_CPU] = { .name = "PERCENT_NORM_CPU", .title = "NCPU%", .description = "Normalized percentage of the CPU time the process used in the last sampling (normalized by cpu count)", .flags = 0, .defaultSortDesc = true, .autoWidth = true, },
    [PERCENT_MEM] = { .name = "PERCENT_MEM", .title = "MEM% ", .description = "Percentage of the memory the process is using, based on resident memory size", .flags = 0, .defaultSortDesc = true, },
    [USER] = { .name = "USER", .title = "USER       ", .description = "Username of the process owner (or user ID if name cannot be determined)", .flags = 0, },
@@ -62,7 +62,7 @@ Process* DarwinProcess_new(const Machine* host) {
    this->taskAccess = true;
    this->translated = false;
 
-   return &this->super;
+   return (Process*)this;
 }
 
 void Process_delete(Object* cast) {
@@ -72,18 +72,21 @@ void Process_delete(Object* cast) {
    free(this);
 }
 
-static void DarwinProcess_writeField(const Process* this, RichString* str, ProcessField field) {
-   const DarwinProcess* dp = (const DarwinProcess*) this;
+static void DarwinProcess_rowWriteField(const Row* super, RichString* str, ProcessField field) {
+   const DarwinProcess* dp = (const DarwinProcess*) super;
+
    char buffer[256]; buffer[255] = '\0';
    int attr = CRT_colors[DEFAULT_COLOR];
-   int n = sizeof(buffer) - 1;
+   size_t n = sizeof(buffer) - 1;
+
    switch (field) {
    // add Platform-specific fields here
    case TRANSLATED: xSnprintf(buffer, n, "%c ", dp->translated ? 'T' : 'N'); break;
    default:
-      Process_writeField(this, str, field);
+      Process_writeField(&dp->super, str, field);
       return;
    }
+
    RichString_appendWide(str, attr, buffer);
 }
 
@@ -292,14 +295,14 @@ static char* DarwinProcess_getDevname(dev_t dev) {
 
 void DarwinProcess_setFromKInfoProc(Process* proc, const struct kinfo_proc* ps, bool exists) {
    DarwinProcess* dp = (DarwinProcess*)proc;
-   const Settings* settings = proc->host->settings;
+   const Settings* settings = proc->super.host->settings;
 
    const struct extern_proc* ep = &ps->kp_proc;
 
    /* UNSET HERE :
     *
     * processor
-    * user (set at ProcessList level)
+    * user (set at ProcessTable level)
     * nlwp
     * percent_cpu
     * percent_mem
@@ -312,12 +315,12 @@ void DarwinProcess_setFromKInfoProc(Process* proc, const struct kinfo_proc* ps, 
    /* First, the "immutable" parts */
    if (!exists) {
       /* Set the PID/PGID/etc. */
-      proc->pid = ep->p_pid;
-      proc->ppid = ps->kp_eproc.e_ppid;
+      Process_setPid(proc, ep->p_pid);
+      Process_setThreadGroup(proc, ep->p_pid);
+      Process_setParent(proc, ps->kp_eproc.e_ppid);
       proc->pgrp = ps->kp_eproc.e_pgid;
       proc->session = 0; /* TODO Get the session id */
       proc->tpgid = ps->kp_eproc.e_tpgid;
-      proc->tgid = proc->pid;
       proc->isKernelThread = false;
       proc->isUserlandThread = false;
       dp->translated = ps->kp_proc.p_flag & P_TRANSLATED;
@@ -359,14 +362,14 @@ void DarwinProcess_setFromKInfoProc(Process* proc, const struct kinfo_proc* ps, 
    proc->state = (ep->p_stat == SZOMB) ? ZOMBIE : UNKNOWN;
 
    /* Make sure the updated flag is set */
-   proc->updated = true;
+   proc->super.updated = true;
 }
 
-void DarwinProcess_setFromLibprocPidinfo(DarwinProcess* proc, DarwinProcessList* dpl, double timeIntervalNS) {
+void DarwinProcess_setFromLibprocPidinfo(DarwinProcess* proc, DarwinProcessTable* dpt, double timeIntervalNS) {
    struct proc_taskinfo pti;
 
-   if (sizeof(pti) == proc_pidinfo(proc->super.pid, PROC_PIDTASKINFO, 0, &pti, sizeof(pti))) {
-      const DarwinMachine* dhost = (const DarwinMachine*) proc->super.host;
+   if (sizeof(pti) == proc_pidinfo(Process_getPid(&proc->super), PROC_PIDTASKINFO, 0, &pti, sizeof(pti))) {
+      const DarwinMachine* dhost = (const DarwinMachine*) proc->super.super.host;
 
       uint64_t total_existing_time_ns = proc->stime + proc->utime;
 
@@ -394,11 +397,27 @@ void DarwinProcess_setFromLibprocPidinfo(DarwinProcess* proc, DarwinProcessList*
       proc->stime = system_time_ns;
       proc->utime = user_time_ns;
 
-      dpl->super.kernelThreads += 0; /*pti.pti_threads_system;*/
-      dpl->super.userlandThreads += pti.pti_threadnum; /*pti.pti_threads_user;*/
-      dpl->super.totalTasks += pti.pti_threadnum;
-      dpl->super.runningTasks += pti.pti_numrunning;
+      dpt->super.kernelThreads += 0; /*pti.pti_threads_system;*/
+      dpt->super.userlandThreads += pti.pti_threadnum; /*pti.pti_threads_user;*/
+      dpt->super.totalTasks += pti.pti_threadnum;
+      dpt->super.runningTasks += pti.pti_numrunning;
    }
+}
+
+static ProcessState stateToChar(int run_state) {
+   switch (run_state) {
+   case TH_STATE_RUNNING:
+      return RUNNING;
+   case TH_STATE_STOPPED:
+      return STOPPED;
+   case TH_STATE_WAITING:
+      return WAITING;
+   case TH_STATE_UNINTERRUPTIBLE:
+      return UNINTERRUPTIBLE_WAIT;
+   case TH_STATE_HALTED:
+      return BLOCKED;
+   }
+   return UNKNOWN;
 }
 
 /*
@@ -406,7 +425,7 @@ void DarwinProcess_setFromLibprocPidinfo(DarwinProcess* proc, DarwinProcessList*
  * Based on: http://stackoverflow.com/questions/6788274/ios-mac-cpu-usage-for-thread
  * and       https://github.com/max-horvath/htop-osx/blob/e86692e869e30b0bc7264b3675d2a4014866ef46/ProcessList.c
  */
-void DarwinProcess_scanThreads(DarwinProcess* dp) {
+void DarwinProcess_scanThreads(DarwinProcess* dp, DarwinProcessTable* dpt) {
    Process* proc = (Process*) dp;
    kern_return_t ret;
 
@@ -418,65 +437,122 @@ void DarwinProcess_scanThreads(DarwinProcess* dp) {
       return;
    }
 
-   task_t port;
-   ret = task_for_pid(mach_task_self(), proc->pid, &port);
+   pid_t pid = Process_getPid(proc);
+
+   task_t task;
+   ret = task_for_pid(mach_task_self(), pid, &task);
    if (ret != KERN_SUCCESS) {
+      // TODO: workaround for modern MacOS limits on task_for_pid()
+      if (ret != KERN_FAILURE)
+         CRT_debug("task_for_pid(%d) failed: %s", pid, mach_error_string(ret));
       dp->taskAccess = false;
       return;
    }
 
-   task_info_data_t tinfo;
-   mach_msg_type_number_t task_info_count = TASK_INFO_MAX;
-   ret = task_info(port, TASK_BASIC_INFO, (task_info_t) tinfo, &task_info_count);
-   if (ret != KERN_SUCCESS) {
-      dp->taskAccess = false;
-      return;
+   {
+      task_info_data_t tinfo;
+      mach_msg_type_number_t task_info_count = TASK_INFO_MAX;
+      ret = task_info(task, TASK_BASIC_INFO, (task_info_t) &tinfo, &task_info_count);
+      if (ret != KERN_SUCCESS) {
+         CRT_debug("task_info(%d) failed: %s", pid, mach_error_string(ret));
+         dp->taskAccess = false;
+         mach_port_deallocate(mach_task_self(), task);
+         return;
+      }
    }
 
    thread_array_t thread_list;
    mach_msg_type_number_t thread_count;
-   ret = task_threads(port, &thread_list, &thread_count);
+   ret = task_threads(task, &thread_list, &thread_count);
    if (ret != KERN_SUCCESS) {
+      CRT_debug("task_threads(%d) failed: %s", pid, mach_error_string(ret));
       dp->taskAccess = false;
-      mach_port_deallocate(mach_task_self(), port);
+      mach_port_deallocate(mach_task_self(), task);
       return;
    }
 
-   integer_t run_state = 999;
-   for (unsigned int i = 0; i < thread_count; i++) {
-      thread_info_data_t thinfo;
-      mach_msg_type_number_t thread_info_count = THREAD_BASIC_INFO_COUNT;
-      ret = thread_info(thread_list[i], THREAD_BASIC_INFO, (thread_info_t)thinfo, &thread_info_count);
-      if (ret == KERN_SUCCESS) {
-         thread_basic_info_t basic_info_th = (thread_basic_info_t) thinfo;
-         if (basic_info_th->run_state < run_state) {
-            run_state = basic_info_th->run_state;
-         }
-         mach_port_deallocate(mach_task_self(), thread_list[i]);
-      }
-   }
-   vm_deallocate(mach_task_self(), (vm_address_t) thread_list, sizeof(thread_port_array_t) * thread_count);
-   mach_port_deallocate(mach_task_self(), port);
+   const bool hideUserlandThreads = dpt->super.super.host->settings->hideUserlandThreads;
 
-   /* Taken from: https://github.com/apple/darwin-xnu/blob/2ff845c2e033bd0ff64b5b6aa6063a1f8f65aa32/osfmk/mach/thread_info.h#L129 */
-   switch (run_state) {
-      case TH_STATE_RUNNING: proc->state = RUNNING; break;
-      case TH_STATE_STOPPED: proc->state = STOPPED; break;
-      case TH_STATE_WAITING: proc->state = WAITING; break;
-      case TH_STATE_UNINTERRUPTIBLE: proc->state = UNINTERRUPTIBLE_WAIT; break;
-      case TH_STATE_HALTED: proc->state = BLOCKED; break;
-      default: proc->state = UNKNOWN;
+   integer_t run_state = 999;
+   for (mach_msg_type_number_t i = 0; i < thread_count; i++) {
+
+      thread_identifier_info_data_t identifer_info;
+      mach_msg_type_number_t identifer_info_count = THREAD_IDENTIFIER_INFO_COUNT;
+      ret = thread_info(thread_list[i], THREAD_IDENTIFIER_INFO, (thread_info_t) &identifer_info, &identifer_info_count);
+      if (ret != KERN_SUCCESS) {
+         CRT_debug("thread_info(%d:%d) for identifier failed: %s", pid, i, mach_error_string(ret));
+         continue;
+      }
+
+      uint64_t tid = identifer_info.thread_id;
+
+      bool preExisting;
+      Process *tprocess = ProcessTable_getProcess(&dpt->super, tid, &preExisting, DarwinProcess_new);
+      tprocess->super.updated = true;
+      dpt->super.totalTasks++;
+
+      if (hideUserlandThreads) {
+         tprocess->super.show = false;
+         continue;
+      }
+
+      assert(Process_getPid(tprocess) == tid);
+      Process_setParent(tprocess, pid);
+      Process_setThreadGroup(tprocess, pid);
+      tprocess->super.show       = true;
+      tprocess->isUserlandThread = true;
+      tprocess->st_uid           = proc->st_uid;
+      tprocess->user             = proc->user;
+
+      thread_extended_info_data_t extended_info;
+      mach_msg_type_number_t extended_info_count = THREAD_EXTENDED_INFO_COUNT;
+      ret = thread_info(thread_list[i], THREAD_EXTENDED_INFO, (thread_info_t) &extended_info, &extended_info_count);
+      if (ret != KERN_SUCCESS) {
+         CRT_debug("thread_info(%d:%d) for extended failed: %s", pid, i, mach_error_string(ret));
+         continue;
+      }
+
+      DarwinProcess* tdproc     = (DarwinProcess*)tprocess;
+      tdproc->super.state       = stateToChar(extended_info.pth_run_state);
+      tdproc->super.percent_cpu = extended_info.pth_cpu_usage / 10.0;
+      tdproc->stime             = extended_info.pth_system_time;
+      tdproc->utime             = extended_info.pth_user_time;
+      tdproc->super.time        = (extended_info.pth_system_time + extended_info.pth_user_time) / 10000000;
+      tdproc->super.priority    = extended_info.pth_curpri;
+
+      if (extended_info.pth_run_state < run_state)
+         run_state = extended_info.pth_run_state;
+
+      // TODO: depend on setting
+      const char* name = extended_info.pth_name[0] != '\0' ? extended_info.pth_name : proc->procComm;
+      Process_updateCmdline(tprocess, name, 0, strlen(name));
+
+      if (!preExisting)
+         ProcessTable_add(&dpt->super, tprocess);
    }
+
+   vm_deallocate(mach_task_self(), (vm_address_t) thread_list, sizeof(thread_port_array_t) * thread_count);
+   mach_port_deallocate(mach_task_self(), task);
+
+   if (run_state != 999)
+      proc->state = stateToChar(run_state);
 }
 
 
 const ProcessClass DarwinProcess_class = {
    .super = {
-      .extends = Class(Process),
-      .display = Process_display,
-      .delete = Process_delete,
-      .compare = Process_compare
+      .super = {
+         .extends = Class(Process),
+         .display = Row_display,
+         .delete = Process_delete,
+         .compare = Process_compare
+      },
+      .isHighlighted = Process_rowIsHighlighted,
+      .isVisible = Process_rowIsVisible,
+      .matchesFilter = Process_rowMatchesFilter,
+      .compareByParent = Process_compareByParent,
+      .sortKeyString = Process_rowGetSortKey,
+      .writeField = DarwinProcess_rowWriteField
    },
-   .writeField = DarwinProcess_writeField,
-   .compareByKey = DarwinProcess_compareByKey,
+   .compareByKey = DarwinProcess_compareByKey
 };

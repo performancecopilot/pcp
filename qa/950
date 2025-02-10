@@ -12,7 +12,6 @@ echo "QA output created by $seq"
 _check_avahi_service
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 service=pmproxy
 trap "_cleanup_avahi_service; exit \$status" 0 1 2 3 15
 
@@ -25,7 +24,7 @@ _filter()
 
 # real QA test starts here
 _control_avahi_service
-_wait_for_pmproxy
+_wait_for_pmproxy || _exit 1
 sleep 5
 
 _verify_avahi_service 2>&1 | _filter

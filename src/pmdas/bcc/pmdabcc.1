@@ -33,7 +33,7 @@ See the BPF and BCC documentation for detailed description of both.
 .IP
 .PD 0
 .IP
-.I \f(CW$PCP_PMDAS_DIR\fP/bcc/bcc.conf
+.I \f(CR$PCP_PMDAS_DIR\fP/bcc/bcc.conf
 .PD
 .PP
 This file must contain a \fB[pmda]\fP section.
@@ -63,7 +63,7 @@ register the provided PMNS metrics, see \fBPMNS\fP(5))
 will always cause the PMDA to fail.
 .PP
 Of particular note, the \fBprocess\fP option accepted by some modules
-evalutes the given PIDs and process names at PMDA/module initialization
+evaluates the given PIDs and process names at PMDA/module initialization
 time and apply filtering for only those processes found at that stage.
 This is due to fact that the in-kernel BPF program is compiled at module
 initialization time and, even more importantly, they are often running
@@ -135,19 +135,19 @@ For instance, the \fBtcpperpid\fP module will not provide any values unless
 there are processes generating TCP traffic on the system.
 .SH FILES
 .TP 5
-.I \f(CW$PCP_PMDAS_DIR\fP/bcc/bcc.conf
+.I \f(CR$PCP_PMDAS_DIR\fP/bcc/bcc.conf
 configuration file for the \fBpmdabcc\fP agent
 .TP
-.I \f(CW$PCP_PMDAS_DIR\fP/bcc/modules/*.{py,python}
+.I \f(CR$PCP_PMDAS_DIR\fP/bcc/modules/*.{py,python}
 PCP BCC PMDA Python modules available for the \fBpmdabcc\fP agent
 .TP
-.I \f(CW$PCP_PMDAS_DIR\fP/bcc/Install
+.I \f(CR$PCP_PMDAS_DIR\fP/bcc/Install
 installation script for the \fBpmdabcc\fP agent
 .TP
-.I \f(CW$PCP_PMDAS_DIR\fP/bcc/Remove\fP
+.I \f(CR$PCP_PMDAS_DIR\fP/bcc/Remove\fP
 undo installation script for the \fBpmdabcc\fP agent
 .TP
-.I \f(CW$PCP_LOG_DIR\fP/pmcd/bcc.log
+.I \f(CR$PCP_LOG_DIR\fP/pmcd/bcc.log
 default log file for messages from the \fBpmdabcc\fP agent
 .PP
 Note that the usual/default value for \fB$PCP_PMDAS_DIR\fP is
@@ -168,3 +168,7 @@ configuration file, as described in \fBpcp.conf\fP(5).
 .BR bpf (1)
 and
 .BR pmcd (1).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ module_failure_fatal process_refresh tcpperpid frontend
+.\" +ok+ java BCC BPF bcc bpf py

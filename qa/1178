@@ -25,13 +25,12 @@ target_ip=1.1.1.1
 
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
-$sudo rm -rf $tmp.* $seq.full
 
 # Some combinations of distro and kernel are known to be "bad"
 # for some BPF modules
 #
 kernel=`uname -r`
-echo "$kernel" >>$seq.full
+echo "$kernel" >>$seq_full
 case `admin/whatami`
 in
     *Fedora\ 32\ *)
@@ -89,7 +88,7 @@ curlpid=$!
 pmsleep 3
 
 echo "=== report metric values ==="
-pminfo -dfmtT bcc.proc.io.net.total.rx 2>&1 | grep $curl_pid\" | tee -a $here/$seq.full \
+pminfo -dfmtT bcc.proc.io.net.total.rx 2>&1 | grep $curl_pid\" | tee -a $seq_full \
 | _value_filter_nonzero >$tmp.1
 if grep OK <$tmp.1 >/dev/null
 then
@@ -99,7 +98,7 @@ else
     # results occasionally with some delay.
     # Safe to remove when no kernel < 4.16 / bcc < 0.6 in use anywhere
     pmsleep 2
-    pminfo -dfmtT bcc.proc.io.net.total.rx 2>&1 | grep $curl_pid\" | tee -a $here/$seq.full \
+    pminfo -dfmtT bcc.proc.io.net.total.rx 2>&1 | grep $curl_pid\" | tee -a $seq_full \
     | _value_filter_nonzero >$tmp.2
     if grep OK <$tmp.2 >/dev/null
     then

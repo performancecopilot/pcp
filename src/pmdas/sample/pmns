@@ -58,6 +58,7 @@ sample {
     hordes
     bad
     not_ready	SAMPLE:0:56
+    not_ready_msec	SAMPLE:0:169
     wrap
     slow_wrap
     dodgey
@@ -372,4 +373,6 @@ sample.updown.control {
     min 		SAMPLE:0:166
     max 		SAMPLE:0:167
     step		SAMPLE:0:168
+    mode		SAMPLE:0:170
+    reset		SAMPLE:0:171
 }

@@ -4,6 +4,10 @@ dbpmda> open dso $PCP_PMDAS_DIR/sample/pmda_sample.DSO_SUFFIX sample_init 30
 dbpmda> name 30.0.1001
 PMID: 30.0.1001
    sampledso.secret.foo.one
+   sampledso.secret.en.one
+   sampledso.secret.fr.un
+   sampledso.secret.dk.et
+   sampledso.secret.es.unos
 dbpmda> name 30.0.1007
 PMID: 30.0.1007
    sampledso.secret.foo.bar.grunt.snort.huff.puff.seven
@@ -56,6 +60,10 @@ Start pmdasample PMDA: $PCP_PMDAS_DIR/sample/pmdasample 29 -l TMP.log
 dbpmda> name 29.0.1001
 PMID: 29.0.1001
    sample.secret.foo.one
+   sample.secret.en.one
+   sample.secret.fr.un
+   sample.secret.dk.et
+   sample.secret.es.unos
 dbpmda> name 29.0.1007
 PMID: 29.0.1007
    sample.secret.foo.bar.grunt.snort.huff.puff.seven

@@ -22,7 +22,7 @@ CFILES	= pmie.c symbol.c dstruct.c lexicon.c syntax.c pragmatics.c eval.c \
 	  show.c match_inst.c systemlog.c stomp.c andor.c
 
 HFILES  = fun.h dstruct.h eval.h lexicon.h pragmatics.h stats.h \
-	  show.h symbol.h syntax.h systemlog.h stomp.h andor.h
+	  show.h symbol.h syntax.h systemlog.h stomp.h andor.h act.h
 
 SKELETAL = hdr.sk fetch.sk misc.sk aggregate.sk unary.sk binary.sk \
 	merge.sk act.sk binary_str.sk
@@ -51,6 +51,8 @@ install:	default
 	$(INSTALL) -m 755 $(DUMPER)$(EXECSUFFIX) $(PCP_BINADM_DIR)/$(DUMPER)$(EXECSUFFIX)
 
 lexicon.o syntax.o:	grammar.h
+
+syntax.o:	act.h
 
 fun.o:	fun.h
 
@@ -82,6 +84,3 @@ $(OBJECTS):	$(TOPDIR)/src/include/pcp/libpcp.h
 
 $(DUMPER)$(EXECSUFFIX):	$(DUMPER).c
 	$(CCF) -o $@ $(DUMPER).c $(LDFLAGS) $(LDLIBS)
-
-check::	$(CFILES) $(HFILES)
-	$(CLINT) $^

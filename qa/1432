@@ -20,6 +20,8 @@ fi
 . ./common.filter
 . ./common.check
 
+[ -d $PCP_PMDAS_DIR/overhead ] || _notrun "overhead PMDA not installed"
+
 _cleanup()
 {
     cd $here
@@ -31,7 +33,6 @@ _cleanup()
 }
 
 status=0	# success is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 
 _prepare_pmda overhead
 trap "_cleanup; exit \$status" 0 1 2 3 15
@@ -45,7 +46,7 @@ _filter()
 
 _filter_pminfo()
 {
-    tee -a $here/$seq.full \
+    tee -a $seq_full \
     | sed \
 	-e "s/\([[\"]\)$pid1 /\1MYPID /g" \
 	-e "s/\([[\"]\)$pid2 /\1MYPID /g" \

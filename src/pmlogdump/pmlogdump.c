@@ -66,30 +66,31 @@ static int overrides(int, pmOptions *);
 static pmOptions opts = {
     .version = PMAPI_VERSION_3,
     .flags = PM_OPTFLAG_DONE | PM_OPTFLAG_STDOUT_TZ | PM_OPTFLAG_BOUNDARIES,
-    .short_options = "aD:dehIilLmMn:rS:sT:tv:xZ:z?",
+    .short_options = "aD:dehIilLmMn:rS:sT:tVv:xZ:z?",
     .long_options = longopts,
     .short_usage = "[options] [archive [metricname ...]]",
     .override = overrides,
 };
 
 static __pmContext	*ctxp;
+static int		multi_archive;
 
 static void
 dump_timeval(struct timeval *stamp)
 {
-    time_t	time = stamp->tv_sec;
+    time_t	_time = stamp->tv_sec;
     int		usec = (int)stamp->tv_usec;
     char	*yr = NULL;
     char       	*ddmm;
     struct tm	tm;
 
     if (xflag) {
-	ddmm = pmCtime(&time, timebuf);
+	ddmm = pmCtime(&_time, timebuf);
 	ddmm[10] = '\0';
 	yr = &ddmm[20];
 	printf("%s ", ddmm);
     }
-    pmLocaltime(&time, &tm);
+    pmLocaltime(&_time, &tm);
     printf("%02d:%02d:%02d.%06d", tm.tm_hour, tm.tm_min, tm.tm_sec, usec);
     if (xflag && yr)
 	printf(" %4.4s", yr);
@@ -127,18 +128,18 @@ myPrintTimestamp(FILE *f, const __pmTimestamp *tsp)
 static void
 dump_pmTimestamp(const __pmTimestamp *tsp)
 {
-    time_t	time = tsp->sec;
+    time_t	_time = tsp->sec;
     char	*yr = NULL;
     char       	*ddmm;
     struct tm	tm;
 
     if (xflag) {
-	ddmm = pmCtime(&time, timebuf);
+	ddmm = pmCtime(&_time, timebuf);
 	ddmm[10] = '\0';
 	yr = &ddmm[20];
 	printf("%s ", ddmm);
     }
-    pmLocaltime(&time, &tm);
+    pmLocaltime(&_time, &tm);
     myPrintTimestamp(stdout, tsp);
     if (xflag && yr)
 	printf(" %4.4s", yr);
@@ -258,14 +259,14 @@ dump_nparams(int npmids)
 }
 
 static void
-dump_parameter(pmValueSet *xvsp, int index, int *flagsp)
+dump_parameter(pmValueSet *xvsp, int _index, int *flagsp)
 {
     int		sts, flags = *flagsp;
     pmDesc	desc;
     char	**names;
 
     if ((sts = pmNameAll(xvsp->pmid, &names)) >= 0) {
-	if (index == 0) {
+	if (_index == 0) {
 	    if (xvsp->pmid == pmid_flags) {
 		flags = *flagsp = xvsp->vlist[0].value.lval;
 		printf(" flags 0x%x", flags);
@@ -275,7 +276,7 @@ dump_parameter(pmValueSet *xvsp, int index, int *flagsp)
 	    }
 	    printf(" ---\n");
 	}
-	if ((flags & PM_EVENT_FLAG_MISSED) && index == 1 &&
+	if ((flags & PM_EVENT_FLAG_MISSED) && _index == 1 &&
 	    (xvsp->pmid == pmid_missed)) {
 	    printf("        ==> %d missed event records\n",
 		    xvsp->vlist[0].value.lval);
@@ -299,7 +300,7 @@ dump_parameter(pmValueSet *xvsp, int index, int *flagsp)
 }
 
 static void
-dump_event(int numnames, char **names, pmValueSet *vsp, int index, int indom, int type)
+dump_event(int numnames, char **names, pmValueSet *vsp, int _index, int indom, int type)
 {
     int		r;		/* event records */
     int		p;		/* event parameters */
@@ -308,7 +309,7 @@ dump_event(int numnames, char **names, pmValueSet *vsp, int index, int indom, in
     int		nmissed = 0;
     int		highres = (type == PM_TYPE_HIGHRES_EVENT);
     char	*iname;
-    pmValue	*vp = &vsp->vlist[index];
+    pmValue	*vp = &vsp->vlist[_index];
 
     printf("    %s (", pmIDStr(vsp->pmid));
     __pmPrintMetricNames(stdout, numnames, names, " or ");
@@ -329,7 +330,7 @@ dump_event(int numnames, char **names, pmValueSet *vsp, int index, int indom, in
     if (highres) {
 	pmHighResResult	**hr;
 
-	if ((nrecords = pmUnpackHighResEventRecords(vsp, index, &hr)) < 0)
+	if ((nrecords = pmUnpackHighResEventRecords(vsp, _index, &hr)) < 0)
 	    return;
 	if (nrecords == 0) {
 	    printf("No event records\n");
@@ -361,7 +362,7 @@ dump_event(int numnames, char **names, pmValueSet *vsp, int index, int indom, in
     else {
 	pmResult	**res;
 
-	if ((nrecords = pmUnpackEventRecords(vsp, index, &res)) < 0)
+	if ((nrecords = pmUnpackEventRecords(vsp, _index, &res)) < 0)
 	    return;
 	if (nrecords == 0) {
 	    printf("No event records\n");
@@ -393,12 +394,12 @@ dump_event(int numnames, char **names, pmValueSet *vsp, int index, int indom, in
 }
 
 static void
-dump_metric(int numnames, char **names, pmValueSet *vsp, int index, int indom, int type)
+dump_metric(int numnames, char **names, pmValueSet *vsp, int _index, int indom, int type)
 {
-    pmValue	*vp = &vsp->vlist[index];
+    pmValue	*vp = &vsp->vlist[_index];
     char	*iname;
 
-    if (index == 0) {
+    if (_index == 0) {
 	printf("    %s (", pmIDStr(vsp->pmid));
 	__pmPrintMetricNames(stdout, numnames, names, " or ");
 	printf("):");
@@ -490,11 +491,24 @@ next:
     }
 }
 
+static int
+comp_desc(const void *a, const void *b)
+{
+    if (((pmDesc *)a)->pmid == ((pmDesc *)b)->pmid)
+	return 0;
+    else if (((pmDesc *)a)->pmid < ((pmDesc *)b)->pmid)
+	return -1;
+    else
+	return 1;
+}
+
 static void
 dumpDesc(void)
 {
     int			i;
     int			sts;
+    int			numdesc = 0;
+    pmDesc		*desclist = NULL;
     char		**names;
     __pmHashNode	*hp;
     pmDesc		*dp;
@@ -503,23 +517,36 @@ dumpDesc(void)
     for (i = 0; i < ctxp->c_archctl->ac_log->hashpmid.hsize; i++) {
 	for (hp = ctxp->c_archctl->ac_log->hashpmid.hash[i]; hp != NULL; hp = hp->next) {
 	    dp = (pmDesc *)hp->data;
-	    names = NULL; /* silence coverity */
-	    sts = pmNameAll(dp->pmid, &names);
-	    if (sts < 0)
-		printf("PMID: %s (%s)\n", pmIDStr(dp->pmid), "<noname>");
-	    else {
-		printf("PMID: %s (", pmIDStr(dp->pmid));
-		__pmPrintMetricNames(stdout, sts, names, " or ");
-		printf(")\n");
-		free(names);
+	    numdesc++;
+	    if ((desclist = (pmDesc *)realloc(desclist, numdesc * sizeof(pmDesc))) == NULL) {
+		fprintf(stderr, "%s: malloc(desclist[%d]): %s\n", pmGetProgname(), numdesc, osstrerror());
+		exit(1);
 	    }
-	    pmPrintDesc(stdout, dp);
+	    desclist[numdesc-1] = *dp;	/* struct assignment */
 	}
     }
+    qsort((void *)desclist, numdesc, sizeof(desclist[0]), comp_desc);
+
+    for (i = 0; i < numdesc; i++) {
+	names = NULL; /* silence coverity */
+	dp = &desclist[i];
+	sts = pmNameAll(dp->pmid, &names);
+	if (sts < 0)
+	    printf("PMID: %s (%s)\n", pmIDStr(dp->pmid), "<noname>");
+	else {
+	    printf("PMID: %s (", pmIDStr(dp->pmid));
+	    __pmPrintMetricNames(stdout, sts, names, " or ");
+	    printf(")\n");
+	    free(names);
+	}
+	pmPrintDesc(stdout, dp);
+    }
+
+    free(desclist);
 }
 
 static void
-dumpDiskInDom(void)
+dumpDiskInDom_current(void)
 {
     size_t	n;
     size_t	rlen;
@@ -528,7 +555,7 @@ dumpDiskInDom(void)
     __pmLogCtl	*lcp = ctxp->c_archctl->ac_log;
     __pmFILE	*f = lcp->mdfp;
 
-    printf("\nInstance Domains on-disk ...\n");
+    printf("Instance Domains on-disk ...\n");
 
     __pmFseek(f, (long)__pmLogLabelSize(lcp), SEEK_SET);
     for ( ; ; ) {
@@ -609,10 +636,52 @@ dumpDiskInDom(void)
 }
 
 static void
+dumpDiskInDom(void)
+{
+    if (multi_archive) {
+	int		a;
+	int		sts;
+
+	for (a = 0; a < ctxp->c_archctl->ac_num_logs; a++) {
+	    putchar('\n');
+	    printf("--- archive %s ---\n", ctxp->c_archctl->ac_log_list[a]->name);
+	    if ((sts = __pmLogChangeArchive(ctxp, a)) < 0) {
+		fprintf(stderr, "%s: __pmLogChangeArchive(...,%d (%s)): %s\n",
+			pmGetProgname(), a, ctxp->c_archctl->ac_log_list[a]->name, pmErrStr(sts));
+		exit(1);
+	    }
+	    dumpDiskInDom_current();
+	}
+    }
+    else {
+	putchar('\n');
+	dumpDiskInDom_current();
+    }
+}
+
+typedef struct {
+    pmInDom		indom;
+    __pmHashNode	*hp;
+} sort_indom;
+
+static int
+comp_indom(const void *a, const void *b)
+{
+    if (((sort_indom *)a)->indom == ((sort_indom *)b)->indom)
+	return 0;
+    else if (((sort_indom *)a)->indom < ((sort_indom *)b)->indom)
+	return -1;
+    else
+	return 1;
+}
+
+static void
 dumpInDom(void)
 {
     int		i;
     int		j;
+    int		numindom = 0;
+    sort_indom	*indomlist = NULL;
     __pmHashNode	*hp;
     __pmLogInDom	*idp;
     __pmLogInDom	*ldp;
@@ -620,29 +689,43 @@ dumpInDom(void)
     printf("\nInstance Domains in the Log ...\n");
     for (i = 0; i < ctxp->c_archctl->ac_log->hashindom.hsize; i++) {
 	for (hp = ctxp->c_archctl->ac_log->hashindom.hash[i]; hp != NULL; hp = hp->next) {
-	    printf("InDom: %s\n", pmInDomStr((pmInDom)hp->key));
-	    /*
-	     * in reverse chronological order, so iteration is a bit funny
-	     */
-	    ldp = NULL;
-	    for ( ; ; ) {
-		for (idp = (__pmLogInDom *)hp->data; idp->next != ldp; idp =idp->next)
-			;
-		if (idp->isdelta)
-		    __pmLogUndeltaInDom((pmInDom)hp->key, idp);
-		dump_pmTimestamp(&idp->stamp);
-		printf(" %d instances\n", idp->numinst);
-		for (j = 0; j < idp->numinst; j++) {
-		    printf("   %d or \"%s\"\n",
-			idp->instlist[j], idp->namelist[j]);
-		}
-		fflush(stdout);
-		if (idp == (__pmLogInDom *)hp->data)
-		    break;
-		ldp = idp;
+	    numindom++;
+	    if ((indomlist = (sort_indom *)realloc(indomlist, numindom * sizeof(pmDesc))) == NULL) {
+		fprintf(stderr, "%s: malloc(indomlist[%d]): %s\n", pmGetProgname(), numindom, osstrerror());
+		exit(1);
 	    }
+	    indomlist[numindom-1].indom = (pmInDom)hp->key;
+	    indomlist[numindom-1].hp = hp;
 	}
     }
+    qsort((void *)indomlist, numindom, sizeof(indomlist[0]), comp_indom);
+
+    for (i = 0; i < numindom; i++) {
+	hp = indomlist[i].hp;
+	printf("InDom: %s\n", pmInDomStr((pmInDom)hp->key));
+	/*
+	 * in reverse chronological order, so iteration is a bit funny
+	 */
+	ldp = NULL;
+	for ( ; ; ) {
+	    for (idp = (__pmLogInDom *)hp->data; idp->next != ldp; idp =idp->next)
+		    ;
+	    if (idp->isdelta)
+		__pmLogUndeltaInDom((pmInDom)hp->key, idp);
+	    dump_pmTimestamp(&idp->stamp);
+	    printf(" %d instances\n", idp->numinst);
+	    for (j = 0; j < idp->numinst; j++) {
+		printf("   %d or \"%s\"\n",
+		    idp->instlist[j], idp->namelist[j]);
+	    }
+	    fflush(stdout);
+	    if (idp == (__pmLogInDom *)hp->data)
+		break;
+	    ldp = idp;
+	}
+    }
+
+    free(indomlist);
 }
 
 static void
@@ -873,11 +956,11 @@ dumpLabelSets(void)
 }
 
 static void
-dumpTI(void)
+dumpTI_current(void)
 {
     __pmLogCtl	*lcp = ctxp->c_archctl->ac_log;
 
-    printf("\nTemporal Index\n");
+    printf("Temporal Index\n");
     if (xflag)
 	printf("\t\t");
     if (xflag >= 2)
@@ -964,25 +1047,49 @@ dumpTI(void)
 }
 
 static void
-dumpLabel(int verbose)
+dumpTI(void)
+{
+    if (multi_archive) {
+	int		a;
+	int		sts;
+
+	for (a = 0; a < ctxp->c_archctl->ac_num_logs; a++) {
+	    putchar('\n');
+	    printf("--- archive %s ---\n", ctxp->c_archctl->ac_log_list[a]->name);
+	    if ((sts = __pmLogChangeArchive(ctxp, a)) < 0) {
+		fprintf(stderr, "%s: __pmLogChangeArchive(...,%d (%s)): %s\n",
+			pmGetProgname(), a, ctxp->c_archctl->ac_log_list[a]->name, pmErrStr(sts));
+		exit(1);
+	    }
+	    dumpTI_current();
+	}
+    }
+    else {
+	putchar('\n');
+	dumpTI_current();
+    }
+}
+
+static void
+dumpLabel_current(int verbose, __pmLogLabel *lp)
 {
     char		*ddmm;
     char		*yr;
     __pmTimestamp	end;
-    time_t		time;
+    time_t		_time;
 
-    printf("Log Label (Log Format Version %d)\n", version);
-    printf("Performance metrics from host %s\n", label.hostname);
+    printf("Log Label (Log Format Version %d)\n", lp->magic & 0xff);
+    printf("Performance metrics from host %s\n", lp->hostname);
 
-    time = label.start.sec;
-    ddmm = pmCtime(&time, timebuf);
+    _time = lp->start.sec;
+    ddmm = pmCtime(&_time, timebuf);
     ddmm[10] = '\0';
     yr = &ddmm[20];
     printf("    commencing %s ", ddmm);
-    myPrintTimestamp(stdout, &label.start);
+    myPrintTimestamp(stdout, &lp->start);
     printf(" %4.4s", yr);
     if (xflag >= 3)
-	printf(" %" FMT_UINT64, (uint64_t)label.start.sec);
+	printf(" %" FMT_UINT64, (uint64_t)lp->start.sec);
     putchar('\n');
 
     if (__pmGetArchiveEnd(ctxp->c_archctl, &end) < 0) {
@@ -990,8 +1097,8 @@ dumpLabel(int verbose)
 	printf("    ending     UNKNOWN\n");
     }
     else {
-	time = end.sec;
-	ddmm = pmCtime(&time, timebuf);
+	_time = end.sec;
+	ddmm = pmCtime(&_time, timebuf);
 	ddmm[10] = '\0';
 	yr = &ddmm[20];
 	printf("    ending     %s ", ddmm);
@@ -1003,26 +1110,55 @@ dumpLabel(int verbose)
     }
 
     if (verbose) {
-	if (label.timezone != NULL && label.timezone[0] != '\0')
-	    printf("Archive timezone: %s\n", label.timezone);
-	if (label.zoneinfo != NULL && label.zoneinfo[0] != '\0')
-	    printf("Archive zoneinfo: %s\n", label.zoneinfo);
-	if (label.features != 0) {
+	if (lp->timezone != NULL && lp->timezone[0] != '\0')
+	    printf("Archive timezone: %s\n", lp->timezone);
+	if (lp->zoneinfo != NULL && lp->zoneinfo[0] != '\0')
+	    printf("Archive zoneinfo: %s\n", lp->zoneinfo);
+	if (lp->features != 0) {
 	    __uint32_t	mask = ~(PM_LOG_FEATURES);
-	    printf("Archive features: 0x%x", label.features);
-	    if (label.features & mask) {
-		char	*bits = __pmLogFeaturesStr(label.features & mask);
+	    printf("Archive features: 0x%x", lp->features);
+	    if (lp->features & mask) {
+		char	*bits = __pmLogFeaturesStr(lp->features & mask);
 		if (bits != NULL) {
 		    printf(" [unknown: %s]", bits);
 		    free(bits);
 		}
 		else
-		    printf(" [unknown: 0x%x]", label.features & mask);
+		    printf(" [unknown: 0x%x]", lp->features & mask);
 	    }
 	    putchar('\n');
 	}
-	printf("PID for pmlogger: %" FMT_PID "\n", label.pid);
+	printf("PID for pmlogger: %" FMT_PID "\n", lp->pid);
     }
+}
+
+static void
+dumpLabel(int verbose)
+{
+    if (multi_archive) {
+	int		a;
+	int		sts;
+	__pmLogLabel	multilabel;
+
+	for (a = 0; a < ctxp->c_archctl->ac_num_logs; a++) {
+	    printf("--- archive %s ---\n", ctxp->c_archctl->ac_log_list[a]->name);
+	    if ((sts = __pmLogChangeArchive(ctxp, a)) < 0) {
+		fprintf(stderr, "%s: __pmLogChangeArchive(...,%d (%s)): %s\n",
+			pmGetProgname(), a, ctxp->c_archctl->ac_log_list[a]->name, pmErrStr(sts));
+		exit(1);
+	    }
+	    memset((void *)&multilabel, 0, sizeof(multilabel));
+	    if ((sts = __pmLogLoadLabel(ctxp->c_archctl->ac_mfp, &multilabel)) < 0) {
+		fprintf(stderr, "%s: Cannot get archive %s label record: %s\n",
+			pmGetProgname(), ctxp->c_archctl->ac_log_list[a]->name, pmErrStr(sts));
+		exit(1);
+	    }
+	    dumpLabel_current(verbose, &multilabel);
+	    __pmLogFreeLabel(&multilabel);
+	}
+    }
+    else
+	dumpLabel_current(verbose, &label);
 }
 
 static void
@@ -1101,26 +1237,7 @@ overrides(int opt, pmOptions *options)
     return 0;
 }
 
-static int
-isSingleArchive(const char *name)
-{
-    struct stat	sbuf;
-
-    /* Do not allow a comma within the name. */
-    if (strchr(name, ',') != NULL)
-	return 0;
-
-    /* No not allow a directory */
-    if (__pmStat(name, &sbuf) != 0)
-	return 1; /* Let pmNewContext(1) issue the error */
-
-    if (S_ISDIR(sbuf.st_mode))
-	return 0; /* It's a directory */
-
-    return 1; /* ok */
-}
-
-int
+    int
 main(int argc, char *argv[])
 {
     int			c;
@@ -1244,13 +1361,6 @@ main(int argc, char *argv[])
     opts.flags &= ~PM_OPTFLAG_DONE;
     __pmEndOptions(&opts);
 
-    /* For now, ensure that we have only a single archive. */
-    if (!isSingleArchive(opts.archives[0])) {
-	fprintf(stderr, "%s: Multiple archives are not supported\n",
-		pmGetProgname());
-	exit(1);
-    }
-
     if ((sts = ctxid = pmNewContext(PM_CONTEXT_ARCHIVE, opts.archives[0])) < 0) {
 	if (sts == PM_ERR_FEATURE) {
 	    fprintf(stderr, "%s: Warning: unsupported feature bits, other errors may follow ...\n", pmGetProgname());
@@ -1310,6 +1420,11 @@ main(int argc, char *argv[])
      *	     within libpcp.
      */
     PM_UNLOCK(ctxp->c_lock);
+
+    if (ctxp->c_archctl->ac_log_list != NULL && ctxp->c_archctl->ac_num_logs > 1) {
+	multi_archive = 1;
+	printf("Note: multi-archive context with %d archives\n", ctxp->c_archctl->ac_num_logs);
+    }
 
     memset((void *)&label, 0, sizeof(label));
     if ((sts = __pmLogLoadLabel(ctxp->c_archctl->ac_mfp, &label)) < 0) {

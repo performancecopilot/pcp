@@ -18,7 +18,7 @@
 .ft 3
 #include <QmcSource.h>
 .sp
-CC ... \-lqmc \-lpcp
+c++ ... \-lpcp_qmc \-lpcp
 .ft 1
 .SH DESCRIPTION
 The
@@ -89,7 +89,7 @@ If
 .I matchHosts
 is equal to
 .BR true ,
-host contexts will be matched to a pre-defined archive source collected from
+host contexts will be matched to a predefined archive source collected from
 that
 .IR source .
 If no archive sources for the
@@ -118,3 +118,10 @@ to the global debugging specification, as described in
 .BR pmNewContext (3)
 and
 .BR pmprintf (3).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ bool
+.\" +ok+ pmc {from -D pmc}
+.\" +ok+ QMC {man page name}
+.\" +ok+ matchHosts {from arg to getSource}
+.\" +ok+ getSource {public method for the QmcSource class}

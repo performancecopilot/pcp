@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2011-2018,2020 Red Hat.
+# Copyright (c) 2011-2018,2020,2023 Red Hat.
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -33,6 +33,7 @@ SUBDIRS = \
 	libvirt \
 	memory \
 	networking \
+	openmetrics \
 	platform \
 	statsd \
 	storage \
@@ -45,9 +46,12 @@ SUBDIRS = \
 #
 ifeq "$(TARGET_OS)" "linux"
 SUBDIRS += zeroconf
+PMCHECK=zeroconf.pmcheck
+else
+PMCHECK=no.zeroconf.pmcheck
 endif
 
-default: $(CMDTARGET) pmrepconf makefiles
+default: $(CMDTARGET) pmrepconf makefiles $(PMCHECK)
 
 include $(BUILDRULES)
 
@@ -56,6 +60,7 @@ install: default $(SUBDIRS)
 	$(INSTALL) -m 755 $(CMDTARGET) $(DISTARGET)
 	$(INSTALL) -S $(DISTARGET) $(PCP_BIN_DIR)/pmrepconf
 	$(INSTALL) -S $(DISTARGET) $(PCP_BINADM_DIR)/$(CMDTARGET)
+	$(INSTALL) -m 755 $(PMCHECK) $(PCP_SHARE_DIR)/lib/pmcheck/zeroconf
 
 default_pcp : default
 
@@ -63,9 +68,6 @@ install_pcp : install
 
 pmrepconf:	$(CMDTARGET)
 	@$(LN_S) -f $^ $@
-
-check:: $(CFILES) $(HFILES)
-	$(CLINT) $^
 
 # for src-link-pcp target from buildrules
 $(SUBDIRS):	makefiles

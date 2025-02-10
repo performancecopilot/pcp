@@ -643,10 +643,10 @@ procprt_CID_a(struct tstat *curstat, int avgval, double nsecs)
 {
         static char buf[64];
 
-	if (curstat->gen.container[0])
-        	pmsprintf(buf, sizeof buf, "%-12s", curstat->gen.container);
+	if (curstat->gen.utsname[0])
+        	pmsprintf(buf, sizeof buf, "%-15s", curstat->gen.utsname);
 	else
-        	pmsprintf(buf, sizeof buf, "%-12s", "host--------");
+        	pmsprintf(buf, sizeof buf, "%-15s", "host-----------");
 
         return buf;
 }
@@ -656,16 +656,16 @@ procprt_CID_e(struct tstat *curstat, int avgval, double nsecs)
 {
         static char buf[64];
 
-	if (curstat->gen.container[0])
-        	pmsprintf(buf, sizeof buf, "%-12s", curstat->gen.container);
+	if (curstat->gen.utsname[0])
+        	pmsprintf(buf, sizeof buf, "%-15s", curstat->gen.utsname);
 	else
-        	pmsprintf(buf, sizeof buf, "%-12s", "?");
+        	pmsprintf(buf, sizeof buf, "%-15s", "?");
 
         return buf;
 }
 
 proc_printdef procprt_CID = 
-   { "CID         ", "CID", procprt_CID_a, procprt_CID_e, 12};
+   { "CID/POD     ", "CID", procprt_CID_a, procprt_CID_e, 15};
 /***************************************************************/
 char *
 procprt_SYSCPU_ae(struct tstat *curstat, int avgval, double nsecs)
@@ -1291,6 +1291,24 @@ procprt_TSLPU_e(struct tstat *curstat, int avgval, double nsecs)
 proc_printdef procprt_TSLPU = 
    { "TSLPU", "TSLPU", procprt_TSLPU_a, procprt_TSLPU_e, 5 };
 /***************************************************************/
+char *
+procprt_TIDLE_a(struct tstat *curstat, int avgval, double nsecs)
+{
+        static char buf[15];
+
+        sprintf(buf, "%5d", curstat->gen.nthridle);
+        return buf;
+}
+
+char *
+procprt_TIDLE_e(struct tstat *curstat, int avgval, double nsecs)
+{
+        return "    0";
+}
+
+proc_printdef procprt_TIDLE = 
+   { "TIDLE", "TIDLE", procprt_TIDLE_a, procprt_TIDLE_e, 5 };
+/***************************************************************/
 #define SCHED_NORMAL	0
 #define SCHED_FIFO	1
 #define SCHED_RR	2
@@ -1620,7 +1638,7 @@ procprt_TCPRCV_a(struct tstat *curstat, int avgval, double nsecs)
 char *
 procprt_TCPRCV_e(struct tstat *curstat, int avgval, double nsecs) 
 {      
-	if (supportflags & NETATOPD)
+	if (supportflags & NETATOPD || supportflags & NETATOPBPF )
 	{
         	static char buf[10];
         
@@ -1651,7 +1669,7 @@ procprt_TCPRASZ_a(struct tstat *curstat, int avgval, double nsecs)
 char *
 procprt_TCPRASZ_e(struct tstat *curstat, int avgval, double nsecs)
 {
-	if (supportflags & NETATOPD)
+	if (supportflags & NETATOPD || supportflags & NETATOPBPF )
 	{
         	static char buf[10];
         
@@ -1681,7 +1699,7 @@ procprt_TCPSND_a(struct tstat *curstat, int avgval, double nsecs)
 char *
 procprt_TCPSND_e(struct tstat *curstat, int avgval, double nsecs)
 {
-	if (supportflags & NETATOPD)
+	if (supportflags & NETATOPD || supportflags & NETATOPBPF )
 	{
         	static char buf[10];
         
@@ -1711,7 +1729,7 @@ procprt_TCPSASZ_a(struct tstat *curstat, int avgval, double nsecs)
 char *
 procprt_TCPSASZ_e(struct tstat *curstat, int avgval, double nsecs)
 {
-	if (supportflags & NETATOPD)
+	if (supportflags & NETATOPD || supportflags & NETATOPBPF )
 	{
         	static char buf[10];
         
@@ -1741,7 +1759,7 @@ procprt_UDPRCV_a(struct tstat *curstat, int avgval, double nsecs)
 char *
 procprt_UDPRCV_e(struct tstat *curstat, int avgval, double nsecs) 
 {
-	if (supportflags & NETATOPD)
+	if (supportflags & NETATOPD || supportflags & NETATOPBPF )
 	{
         	static char buf[10];
         
@@ -1772,7 +1790,7 @@ procprt_UDPRASZ_a(struct tstat *curstat, int avgval, double nsecs)
 char *
 procprt_UDPRASZ_e(struct tstat *curstat, int avgval, double nsecs)
 {
-	if (supportflags & NETATOPD)
+	if (supportflags & NETATOPD || supportflags & NETATOPBPF )
 	{
         	static char buf[10];
         
@@ -1803,7 +1821,7 @@ procprt_UDPSND_a(struct tstat *curstat, int avgval, double nsecs)
 char *
 procprt_UDPSND_e(struct tstat *curstat, int avgval, double nsecs)
 {
-	if (supportflags & NETATOPD)
+	if (supportflags & NETATOPD || supportflags & NETATOPBPF )
 	{
         	static char buf[10];
         
@@ -1833,7 +1851,7 @@ procprt_UDPSASZ_a(struct tstat *curstat, int avgval, double nsecs)
 char *
 procprt_UDPSASZ_e(struct tstat *curstat, int avgval, double nsecs)
 {
-	if (supportflags & NETATOPD)
+	if (supportflags & NETATOPD || supportflags & NETATOPBPF )
 	{
         	static char buf[10];
         
@@ -1865,7 +1883,7 @@ procprt_RNET_a(struct tstat *curstat, int avgval, double nsecs)
 char *
 procprt_RNET_e(struct tstat *curstat, int avgval, double nsecs)
 {
-	if (supportflags & NETATOPD)
+	if (supportflags & NETATOPD || supportflags & NETATOPBPF )
 	{
         	static char buf[10];
  
@@ -1894,7 +1912,7 @@ procprt_SNET_a(struct tstat *curstat, int avgval, double nsecs)
 char *
 procprt_SNET_e(struct tstat *curstat, int avgval, double nsecs)
 {
-	if (supportflags & NETATOPD)
+	if (supportflags & NETATOPD || supportflags & NETATOPBPF )
 	{
 	        static char buf[10];
         
@@ -1922,7 +1940,7 @@ procprt_BANDWI_a(struct tstat *curstat, int avgval, double nsecs)
 char *
 procprt_BANDWI_e(struct tstat *curstat, int avgval, double nsecs)
 {
-	if (supportflags & NETATOPD)
+	if (supportflags & NETATOPD || supportflags & NETATOPBPF )
 	{
         	static char buf[16];
 		count_t     rkbps = (curstat->net.tcprsz + curstat->net.udprsz)
@@ -1951,7 +1969,7 @@ procprt_BANDWO_a(struct tstat *curstat, int avgval, double nsecs)
 char *
 procprt_BANDWO_e(struct tstat *curstat, int avgval, double nsecs)
 {
-	if (supportflags & NETATOPD)
+	if (supportflags & NETATOPD || supportflags & NETATOPBPF )
 	{
         	static char buf[16];
 		count_t     skbps = (curstat->net.tcpssz + curstat->net.udpssz)

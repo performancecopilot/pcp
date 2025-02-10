@@ -95,7 +95,7 @@ the rule condition is true.";
 
 shell	global.webhook_action
 	enabled	= no
-	default	= "pmie_webhook '$webhook_endpoint$|$rule$^|$action_expand$^'"
+	default	= "pmie_webhook '$webhook_endpoint$|$rule$^|%h|$action_expand$^'"
 	help	=
 "HTTP POST message will be sent to \"webhook_endpoint\" when a
 rule condition is true.  The message will be in JSON format.";

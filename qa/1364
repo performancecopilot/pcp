@@ -30,7 +30,8 @@ then
     do_valgrind=true
 elif which valgrind >/dev/null 2>&1
 then
-    _notrun "valgrind variant qa/1365 will be run"
+    [ $PCPQA_VALGRIND = both ] || \
+	_notrun "valgrind variant qa/1365 will be run"
 fi
 
 _cleanup()
@@ -40,7 +41,6 @@ _cleanup()
 }
 
 status=0	# success is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # standard pmdumplog filtering, but need to also cull the
@@ -75,9 +75,9 @@ End-of-File
 #
 pmstore sample.proc.reset 1
 pmlogger -V 2 -c $tmp.config -l $tmp.log -s 20 $tmp.v2
-cat $tmp.log >>$seq.full
-echo "=== V2 archive ===" | tee -a $seq.full
-pmdumplog -Ii $tmp.v2 | tee -a $seq.full | _filter | tee $tmp.v2.dump
+cat $tmp.log >>$seq_full
+echo "=== V2 archive ===" | tee -a $seq_full
+pmdumplog -Ii $tmp.v2 | tee -a $seq_full | _filter | tee $tmp.v2.dump
 
 pmstore sample.proc.reset 1
 if $do_valgrind
@@ -87,11 +87,11 @@ else
     pmlogger -V 3 -c $tmp.config -l $tmp.log -s 20 $tmp.v3
 fi \
 | sed -e "s@$tmp@TMP@g"
-cat $tmp.log >>$seq.full
+cat $tmp.log >>$seq_full
 
 echo
-echo "=== V3 archive ===" | tee -a $seq.full
-pmdumplog -Ii $tmp.v3 | tee -a $seq.full | _filter | tee $tmp.v3.dump
+echo "=== V3 archive ===" | tee -a $seq_full
+pmdumplog -Ii $tmp.v3 | tee -a $seq_full | _filter | tee $tmp.v3.dump
 
 echo
 echo "=== diffs ... ==="

@@ -421,8 +421,19 @@ __pmAuthServerNegotiation(int fd, int ssf, __pmHashCtl *attrs)
     }
     else if (sts == PDU_ERROR)
 	__pmDecodeError(pb, &sts);
-    else if (sts != PM_ERR_TIMEOUT)
+    else if (sts != PM_ERR_TIMEOUT) {
+	if (pmDebugOptions.pdu) {
+	    char	strbuf[20];
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    if (sts < 0)
+		fprintf(stderr, "__pmSecureClientHandshake: PM_ERR_IPC: expecting PDU_AUTH but__pmGetPDU returns %d (%s)\n",
+		    sts, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	    else
+		fprintf(stderr, "__pmSecureClientHandshake: PM_ERR_IPC: expecting PDU_AUTH but__pmGetPDU returns %d (type=%s)\n",
+		    sts, __pmPDUTypeStr_r(sts, strbuf, sizeof(strbuf)));
+	}
 	sts = PM_ERR_IPC;
+    }
 
     if (pinned > 0)
 	__pmUnpinPDUBuf(pb);
@@ -463,8 +474,19 @@ __pmAuthServerNegotiation(int fd, int ssf, __pmHashCtl *attrs)
 	}
 	else if (sts == PDU_ERROR)
 	    __pmDecodeError(pb, &sts);
-	else if (sts != PM_ERR_TIMEOUT)
+	else if (sts != PM_ERR_TIMEOUT) {
+	    if (pmDebugOptions.pdu) {
+		char	strbuf[20];
+		char	errmsg[PM_MAXERRMSGLEN];
+		if (sts < 0)
+		    fprintf(stderr, "__pmAuthServerNegotiation: PM_ERR_IPC: expecting PDU_AUTH but__pmGetPDU returns %d (%s)\n",
+			sts, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+		else
+		    fprintf(stderr, "__pmAuthServerNegotiation: PM_ERR_IPC: expecting PDU_AUTH but__pmGetPDU returns %d (type=%s)\n",
+			sts, __pmPDUTypeStr_r(sts, strbuf, sizeof(strbuf)));
+	    }
 	    sts = PM_ERR_IPC;
+	}
 
 	if (pinned > 0)
 	    __pmUnpinPDUBuf(pb);
@@ -492,8 +514,12 @@ __pmSecureServerHandshake(int fd, int flags, __pmHashCtl *attrs)
     /* protect from unsupported requests from future/oddball clients */
     if (flags & ~(PDU_FLAG_SECURE | PDU_FLAG_SECURE_ACK | PDU_FLAG_COMPRESS |
 		  PDU_FLAG_AUTH | PDU_FLAG_CREDS_REQD | PDU_FLAG_CONTAINER |
-		  PDU_FLAG_CERT_REQD))
+		  PDU_FLAG_CERT_REQD)) {
+	if (pmDebugOptions.pdu) {
+	    fprintf(stderr, "__pmAuthServerNegotiation: PM_ERR_IPC: bad flags %x\n", flags);
+	}
 	return PM_ERR_IPC;
+    }
 
     if (flags & PDU_FLAG_CREDS_REQD) {
 	if (__pmHashSearch(PCP_ATTR_USERID, attrs) != NULL)

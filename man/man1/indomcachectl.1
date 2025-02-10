@@ -1,0 +1,154 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.\"
+.TH INDOMCACHECTL 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3indomcachectl\f1 \- manage instance domain cache files
+.SH SYNOPSIS
+.B $PCP_BINADM_DIR/indomcachectl
+[\fB\-w\fR]
+\fB\-l\fR
+.I indom
+.sp
+.B $PCP_BINADM_DIR/indomcachectl
+[\fB\-w\fR]
+[\fB\-m\fR \fImode\fR]
+[\fB\-g\fR \fIgroup\fR]
+[\fB\-u\fR \fIuser\fR]
+.I indom
+.SH DESCRIPTION
+.de EX
+.in +0.5i
+.ie t .ft CB
+.el .ft B
+.ie t .sp .5v
+.el .sp
+.ta \\w' 'u*8
+.nf
+..
+.de EE
+.fi
+.ie t .sp .5v
+.el .sp
+.ft R
+.in
+..
+.B indomcachectl
+assists in the management of the Instance Domain cache files that
+are stored in
+.BR $PCP_VAR_DIR/config/pmda .
+.PP
+The mandatory
+.I indom
+parameter uses a 2-dotted format to specify the
+.I domain
+and
+.I serial
+fields of the instance domain number.
+The required values can be reported for a particular metric using the
+.B \-d
+option to
+.BR pminfo (1).
+.PP
+The list of available options can be retrieved using the
+.BR \-? / \-\-help
+option, which displays a usage message and exits.
+.PP
+If the
+.BR \-l / \-\-list
+option is specified the contents of the instance domain cache file
+are dumped on
+.I stdout
+and
+.I indomcachectl
+exits.
+.PP
+Otherwise an empty instance domain cache file will be created.
+The user ownership of the created file is assigned to the uid
+of the caller, but may optionally assigned to the uid of
+.I user
+from the
+.BR passwd (5)
+file if the
+.BR \-u / \-\-user
+option is specified.
+The group ownership of the created file is assigned to the gid
+of the caller, else the default gid of the user
+.I user
+if the
+.I \-u
+option is specified, else the gid of
+.I group
+from the
+.BR group (5)
+file if the
+.BR \-g / \-\-group
+option is specified.
+.PP
+The instance domain cache file is created with mode 0660 by
+default (some PMDAs use group read-write permission to access
+and update the contents of the file)
+\- if this
+does not suit the
+.BR \-m / \-\-mode
+option may be used to set the mode to the (octal) value
+.IR mode .
+.PP
+Because the indom cache files are precious to the associated PMDA
+.I indomcachectl
+will not over-write an existing indom cache file.
+.PP
+Operation is usually silent, except for errors (or warnings if the
+.BR \-w / \-\-warning
+option is used).
+The exit status is 0 for success, 1 for failure.
+.SH OTHER MANAGEMENT OPTIONS
+The files in
+.BR $PCP_VAR_DIR/config/pmda
+are all text files (one per cached instance domain)
+so judicious surgery may be used to make changes
+or even remove the files
+in extreme cases
+.B provided
+the PMDA is not executing.
+.PP
+Here is an example for the instance domain number
+60.17 that is associated with the
+network.interface.* metrics.
+.EX
+$ cat /var/lib/pcp/config/pmda/60.17
+2 0 2147483647
+0 1712727825 ens33
+1 1712727825 virbr0
+2 1712727825 lo
+.EE
+.PP
+The first line is a magic header, do not change it.
+Following that is one line per instance with the instance identifier
+(an integer) in the first field, some magic in the second field
+(do not change this) and the external instance name in the third field.
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR chmod (1),
+.BR pminfo (1),
+.BR PMAPI (3),
+.BR PMDA (3),
+.BR pmdaCache (3),
+.BR group (5)
+and
+.BR passwd (5).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ virbr ens sp {from network interfaces}

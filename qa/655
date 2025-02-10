@@ -1,0 +1,137 @@
+#!/bin/sh
+# PCP QA Test No. 655
+# test resctrl PMDA
+#
+# Copyright (c) 2023 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+test "$PCP_PLATFORM" = "linux" || _notrun "No resctrl support on PCP_PLATFORM $PCP_PLATFORM"
+test -x "$PCP_BINADM_DIR/pcp-atop" || _notrun "No pcp-atop binary available on this platform"
+test -f /sys/devices/system/cpu/cpu0/cache/index3/size || _notrun "No L3 cache size available"
+test -f "$PCP_VAR_DIR/pmdas/resctrl/pmdaresctrl" || _notrun "No resctrl PMDA installed"
+
+_cleanup()
+{
+    [ -f $tmp.conf.backup ] && $sudo cp $tmp.conf.backup $PCP_DIR/etc/pcp.conf
+    if [ $reinstall -eq 1 ]
+    then
+	echo "putting back installed PMDA ..." >>$seq_full
+	cd $PCP_PMDAS_DIR/resctrl
+	$sudo ./Install </dev/null >>$seq_full 2>&1
+	reinstall=0
+    fi
+    cd $here
+    rm -f $tmp.*
+    exit $status
+}
+
+_check()
+{
+    pminfo -f resctrl > $tmp.pminfo
+
+    PCP_TMPFILE_DIR=/tmp pcp atop -P LLC 1 3 > $tmp.pcpatop
+
+    $PCP_AWK_PROG '
+    /resctrl.llc.occupancy/ {getline;gsub("[0-9.]+",0.99);print "llc.occupancy",$6} 
+    /resctrl.llc.mbm_local/ {type=$0;getline;gsub("[0-9.]+",999);print "llc.mbm_local",$6} 
+    /resctrl.llc.mbm_total/ {getline;gsub("[0-9.]+",999);print "llc.mbm_total",$6}' $tmp.pminfo
+
+    $PCP_AWK_PROG '
+    /^LLC.* LLC00 / {gsub("[0-9]+","999",$3);gsub("[0-9]+","999",$6);gsub("[0-9.]+","99",$8);print $3,$6,$8}' $tmp.pcpatop
+}
+
+# expect some errors from systemd for non-resctrl systems
+_filter_resctrl_install()
+{
+    sed \
+	-e '/^Created symlink /d' \
+	-e '/^Job failed/d' \
+        -e '/^Mounted/d' \
+	-e '/^Warning/d' \
+	-e '/^Using/d' \
+	-e 's/Install resctrl.*? .daemon. //' \
+    | _filter_pmda_install
+}
+
+if [ ! -d /sys/fs/resctrl/mon_data ]
+then
+    for d in /tmp/sys/fs/resctrl/mon_data/mon_L3_00/
+    do
+	# Synthesize a l3 cache structure if needed
+	mkdir -p $d
+	LLC_OCCUPANCY=$($PCP_AWK_PROG -FK '{print int($1*1024*.99)}' /sys/devices/system/cpu/cpu0/cache/index3/size)
+	echo $LLC_OCCUPANCY >| $d/llc_occupancy
+	echo 515154526208 >| $d/mbm_local_bytes
+	echo 515154526208 >| $d/mbm_total_bytes
+    done    
+fi
+
+status=1
+reinstall=0
+iam=resctrl
+trap "_cleanup" 0 1 2 3 15
+
+# backup main PCP config
+cp $PCP_DIR/etc/pcp.conf $tmp.conf
+cp $PCP_DIR/etc/pcp.conf $tmp.conf.backup
+
+pmprobe -v $iam | grep -q 'Unknown metric name' 2>&1
+if [ $? -ne 0 ]; then
+    cd $PCP_PMDAS_DIR/$iam
+    $sudo ./Remove >/dev/null 2>&1
+    reinstall=1
+    cd $here
+fi
+
+# real QA test starts here
+if ! _service pmcd stop 2>&1; then _exit 1; fi | _filter_pcp_stop | sed -e '/^Warning/d'
+_wait_pmcd_end || _exit 1
+
+if [ ! -d /sys/fs/resctrl/mon_data ] ; then
+    echo >> $tmp.conf
+    echo "# from QA $seq ..." >> $tmp.conf
+    PCP_RESCTRL_DIR=/tmp/sys/fs/resctrl/
+    echo PCP_RESCTRL_DIR=$PCP_RESCTRL_DIR >> $tmp.conf
+    $sudo cp $tmp.conf $PCP_DIR/etc/pcp.conf
+else
+    PCP_RESCTRL_DIR=
+fi
+if ! _service pcp restart 2>&1; then _exit 1; fi | _filter_pcp_start | sed -e '/^Warning/d'
+_wait_for_pmcd || _exit 1
+
+echo
+echo "=== $iam agent installation ==="
+(cd $PCP_PMDAS_DIR/$iam;
+ $sudo env PCP_RESCTRL_DIR=$PCP_RESCTRL_DIR ./Install </dev/null
+) > $tmp.out 2>&1
+cat $tmp.out >> $seq_full
+#debug# echo "journalctl -xe" >> $seq_full
+#debug# $sudo journalctl -xe >> $seq_full
+#debug# echo "== journalctl end" >> $seq_full
+
+_filter_resctrl_install <$tmp.out
+
+if pminfo -f pmcd.agent.status | grep -q resctrl ; then
+    RESCTRL_PMDA_ACTIVE=1
+fi
+
+_check
+
+echo "=== remove $iam agent ==="
+
+(cd $PCP_PMDAS_DIR/$iam;
+ $sudo ./Remove >$tmp.out 2>&1
+)
+
+_filter_pmda_remove <$tmp.out 
+
+status=0
+exit

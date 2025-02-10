@@ -36,7 +36,6 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 mkdir $tmp
@@ -46,13 +45,13 @@ cd $tmp
 
 for arg in ok-mv-bigbin ok-mv-bigbin.index ok-mv-bigbin.meta ok-mv-bigbin.4
 do
-    echo | tee -a $here/$seq.full
-    echo "=== uncompressed, $arg as arg ===" | tee -a $here/$seq.full
+    echo | tee -a $seq_full
+    echo "=== uncompressed, $arg as arg ===" | tee -a $seq_full
     rm -f foo.* ok-mv-bigbin.*
-    cp $here/archives/ok-mv-bigbin.* .
-    ( echo "before" ; ls ) >>$here/$seq.full
+    pmlogcp $here/archives/ok-mv-bigbin .
+    ( echo "before" ; ls ) >>$seq_full
     pmlogmv $arg foo
-    ( echo "after" ; ls ) >>$here/$seq.full
+    ( echo "after" ; ls ) >>$seq_full
     if pmlogcheck foo >$tmp.out 2>&1
     then
 	echo OK
@@ -65,14 +64,14 @@ done
 
 for arg in ok-mv-bigbin ok-mv-bigbin.index ok-mv-bigbin.meta ok-mv-bigbin.4 ok-mv-bigbin.0.$SUFF
 do
-    echo | tee -a $here/$seq.full
-    echo "=== one data volume compressed, `echo $arg | sed -e s@$SUFF@SUFF@` as arg ===" | tee -a $here/$seq.full
+    echo | tee -a $seq_full
+    echo "=== one data volume compressed, `echo $arg | sed -e s@$SUFF@SUFF@` as arg ===" | tee -a $seq_full
     rm -f foo.* ok-mv-bigbin.*
-    cp $here/archives/ok-mv-bigbin.* .
+    pmlogcp $here/archives/ok-mv-bigbin .
     $PROG ok-mv-bigbin.0
-    ( echo "before" ; ls ) >>$here/$seq.full
+    ( echo "before" ; ls ) >>$seq_full
     pmlogmv $arg foo
-    ( echo "after" ; ls ) >>$here/$seq.full
+    ( echo "after" ; ls ) >>$seq_full
     if pmlogcheck foo >$tmp.out 2>&1
     then
 	echo OK
@@ -85,17 +84,17 @@ done
 
 for arg in ok-mv-bigbin ok-mv-bigbin.index ok-mv-bigbin.meta ok-mv-bigbin.4.$SUFF
 do
-    echo | tee -a $here/$seq.full
-    echo "=== all data volumes compressed, arg as `echo $arg | sed -e s@$SUFF@SUFF@` ===" | tee -a $here/$seq.full
+    echo | tee -a $seq_full
+    echo "=== all data volumes compressed, arg as `echo $arg | sed -e s@$SUFF@SUFF@` ===" | tee -a $seq_full
     rm -f foo.* ok-mv-bigbin.*
-    cp $here/archives/ok-mv-bigbin.* .
+    pmlogcp $here/archives/ok-mv-bigbin .
     for data in ok-mv-bigbin.[0-9]*
     do
 	$PROG $data
     done
-    ( echo "before" ; ls ) >>$here/$seq.full
+    ( echo "before" ; ls ) >>$seq_full
     pmlogmv $arg foo
-    ( echo "after" ; ls ) >>$here/$seq.full
+    ( echo "after" ; ls ) >>$seq_full
     if pmlogcheck foo >$tmp.out 2>&1
     then
 	echo OK
@@ -108,17 +107,17 @@ done
 
 for arg in ok-mv-bigbin ok-mv-bigbin.index.$SUFF ok-mv-bigbin.meta.$SUFF ok-mv-bigbin.4.$SUFF
 do
-    echo | tee -a $here/$seq.full
-    echo "=== all files compressed, `echo $arg | sed -e s@$SUFF@SUFF@` as arg ===" | tee -a $here/$seq.full
+    echo | tee -a $seq_full
+    echo "=== all files compressed, `echo $arg | sed -e s@$SUFF@SUFF@` as arg ===" | tee -a $seq_full
     rm -f foo.* ok-mv-bigbin.*
-    cp $here/archives/ok-mv-bigbin.* .
+    pmlogcp $here/archives/ok-mv-bigbin .
     for file in ok-mv-bigbin.*
     do
 	$PROG $file
     done
-    ( echo "before" ; ls ) >>$here/$seq.full
+    ( echo "before" ; ls ) >>$seq_full
     pmlogmv $arg foo
-    ( echo "after" ; ls ) >>$here/$seq.full
+    ( echo "after" ; ls ) >>$seq_full
     if pmlogcheck foo >$tmp.out 2>&1
     then
 	echo OK

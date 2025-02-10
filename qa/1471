@@ -21,7 +21,6 @@ fi
 . ./common.filter
 . ./common.check
 
-$sudo rm -rf $tmp $tmp.* $seq.full
 
 _check_valgrind
 
@@ -69,7 +68,7 @@ End-of-File
 $sudo sh $tmp.sh 2>&1 \
 | _filter
 
-cat $tmp.log >>$seq.full
+cat $tmp.log >>$seq_full
 
 # success, all done
 exit

@@ -7,7 +7,7 @@ Terminate PMDA if already installed ...
 Updating the PMCD control file, and notifying PMCD ...
 Check bpftrace metrics have appeared ... 7 metrics and X values
 
-=== bpftrace script without variabes ===
+=== bpftrace script without variables ===
 "error": "no bpftrace variables or printf statements found, please include at least one variable or printf statement in your script"
 
 === invalid probe ===
@@ -34,7 +34,9 @@ bpftrace.scripts.test3.exit_code
 
 === too many attached tracepoints ===
 bpftrace.control.register old value="{}" new value="// name: test4
-kprobe:* { @c = count(); }"
+kprobe:... { @c = count(); }
+...
+kprobe:... { @c = count(); }"
 found metric bpftrace.scripts.test4.status with matching value "error"
 
 bpftrace.scripts.test4.error

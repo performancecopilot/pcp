@@ -1,0 +1,117 @@
+#!/bin/sh
+# PCP QA Test No. 1492
+# pcp-atopsar with multiple archives in a directory
+# - reproducer for https://github.com/performancecopilot/pcp/issues/1911
+#
+# non-valgrind variant, see qa/1493 for the valgrind variant
+#
+# Copyright (c) 2024 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+if which pcp-atopsar >/dev/null 2>&1
+then
+    :
+else
+    _notrun "no pcp-atopsar executable installed"
+    # NOTREACHED
+fi
+
+
+do_valgrind=false
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+    do_valgrind=true
+elif which valgrind >/dev/null 2>&1
+then
+    [ "$PCPQA_VALGRIND" = both ] || \
+        _notrun "valgrind variant qa/1493 will be run"
+fi
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# filter the <date> line as it seems to be timezone and/or DST
+# sensitive
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+	-e "s@^\(  *\)20[0-9][0-9]/[0-9][0-9]/[0-9][0-9]@\1<date>@" \
+	-e '/Warning: invalid file descriptor -1 in syscall/d' \
+	-e '/Command: /s@/usr/bin/@/bin/@' \
+    # end
+}
+
+# atopsar seems to fork() and this generates a non-deterministic
+# number of LEAK SUMMARY blocks at the end of the output
+#
+_cull_valgrind_dups()
+{
+    $PCP_AWK_PROG '
+/^LEAK SUMMARY:/	{ watch = 1 }
+watch == 0		{ print; next }
+seen[$0] == ""		{ print; seen[$0] = 1 }'
+}
+
+mkdir $tmp || exit 1
+cd $tmp
+tar xJf $here/archives/atop-sar.tar.xz
+sum atop-sar/* >>$seq_full
+
+# real QA test starts here
+
+if $do_valgrind
+then
+    # plug leak in bash!
+    cat <<'End-of-File' >$tmp.suppress
+# vm14 CentOS6.10
+# vm28 RHEL Server 6.10
+{
+   bash botch
+   Memcheck:Leak
+   fun:malloc
+   fun:xmalloc
+   obj:/bin/bash
+}
+# vm29 RHEL Server 7.9
+# vm39 RHEL 8.9
+{
+   bash botch
+   Memcheck:Leak
+   fun:malloc
+   fun:xmalloc
+   obj:/usr/bin/bash
+}
+End-of-File
+    grind_extra="--suppressions=$tmp.suppress"
+    _run_valgrind pcp -z atopsar -r atop-sar 180 2>&1 \
+    | _cull_valgrind_dups
+else
+    pcp -z atopsar -r atop-sar 180 2>&1
+fi \
+| _filter
+
+# success, all done
+exit

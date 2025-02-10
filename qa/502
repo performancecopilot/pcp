@@ -16,12 +16,11 @@ echo "QA output created by $seq"
 which pmlogrewrite >/dev/null 2>&1 || _notrun "pmlogrewrite not installed"
 
 status=0	# success is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 _filter()
 {
-    tee -a $seq.full \
+    tee -a $seq_full \
     | sed \
 	-e "s;$tmp;TMP;g" \
 	-e "s;/$$\.;/PID.;g" \
@@ -49,8 +48,8 @@ _cmp()
 	fi
     done
     $ok || return
-    pmdumplog -z -dilmst $1 | tee -a $seq.full >$tmp.in
-    pmdumplog -z -dilmst $2 | tee -a $seq.full >$tmp.out
+    pmdumplog -z -dilmst $1 | tee -a $seq_full >$tmp.in
+    pmdumplog -z -dilmst $2 | tee -a $seq_full >$tmp.out
     diff -u $tmp.in $tmp.out | _filter
 }
 
@@ -58,11 +57,11 @@ mkdir $tmp.arch
 
 # real QA test starts here
 
-echo "=== metric not in archive ===" | tee -a $seq.full
+echo "=== metric not in archive ===" | tee -a $seq_full
 arch=rewrite
 rm -f $tmp.arch/*
-cp archives/$arch.* $tmp.arch
-ls -l $tmp.arch | tee -a $seq.full >$tmp.before
+pmlogcp archives/$arch $tmp.arch
+ls -l $tmp.arch | tee -a $seq_full >$tmp.before
 cat <<'End-of-File' >$tmp.conf
 metric kernel.all.load { pmid -> 1.2.3 }
 End-of-File
@@ -70,7 +69,7 @@ pmlogrewrite -Dlog -iqsvw -c $tmp.conf $tmp.arch/$arch 2>&1 \
 | _filter \
 | LC_COLLATE=POSIX sort
 ls $tmp.arch
-ls -l $tmp.arch | tee -a $seq.full >$tmp.after
+ls -l $tmp.arch | tee -a $seq_full >$tmp.after
 if diff $tmp.before $tmp.after >/dev/null
 then
     :
@@ -82,8 +81,8 @@ else
 fi
 _cmp archives/$arch $tmp.arch/$arch
 
-echo | tee -a $seq.full
-echo "=== correctness checked in QA 493 ... only care about expected file contents here ===" | tee -a $seq.full
+echo | tee -a $seq_full
+echo "=== correctness checked in QA 493 ... only care about expected file contents here ===" | tee -a $seq_full
 cat <<End-of-File >$tmp.conf
 metric sample.ulong.bin_ctr {
     indom -> NULL output MIN
@@ -111,33 +110,33 @@ metric sample.longlong.bin_ctr {
 indom 29.2 { inst 200 -> DELETE }
 indom 30.2 { inst 800 -> DELETE }
 End-of-File
-cat $tmp.conf >>$seq.full
+cat $tmp.conf >>$seq_full
 arch=mirage
 rm -f $tmp.arch/*
-cp archives/$arch.* $tmp.arch
+pmlogcp archives/$arch $tmp.arch/$arch
 ls $tmp.arch
-ls -l $tmp.arch >>$seq.full
+ls -l $tmp.arch >>$seq_full
 pmlogrewrite -s -c $tmp.conf $tmp.arch/$arch $tmp.arch/$arch.expect 2>&1 \
 | _filter \
 | LC_COLLATE=POSIX sort
 ls $tmp.arch
-ls -l $tmp.arch >>$seq.full
+ls -l $tmp.arch >>$seq_full
 pmlogrewrite -Dlog -si -c $tmp.conf $tmp.arch/$arch 2>&1 \
 | _filter \
 | LC_COLLATE=POSIX sort
-ls -l $tmp.arch >>$seq.full
+ls -l $tmp.arch >>$seq_full
 _cmp $tmp.arch/$arch $tmp.arch/$arch.expect
 
-echo | tee -a $seq.full
+echo | tee -a $seq_full
 echo "=== truncated archive ... expect no change ==="
 cat <<End-of-File >$tmp.conf
 indom 29.1 { iname "red" -> "really red" }
 End-of-File
-cat $tmp.conf >>$seq.full
+cat $tmp.conf >>$seq_full
 arch=ok-truncbin
 rm -f $tmp.arch/*
-cp badarchives/$arch.* $tmp.arch
-ls -l $tmp.arch >>$seq.full
+pmlogcp badarchives/$arch $tmp.arch/$arch
+ls -l $tmp.arch >>$seq_full
 # Note: 204XXX filtering is because stdio does not always return the same
 #       value on different platforms ... it is 204800 (EOF) on OpenBSD 6.3
 #       (vm33) but 204456 elsewhere
@@ -154,7 +153,7 @@ s/\.0/.EXT/
     -e '/occurred/s/offset 204[0-9][0-9][0-9]/offset 204XXX/' \
 # end
 ls $tmp.arch
-ls -l $tmp.arch >>$seq.full
+ls -l $tmp.arch >>$seq_full
 _cmp badarchives/$arch $tmp.arch/$arch
 
 # success, all done

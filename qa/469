@@ -15,14 +15,13 @@ echo "QA output created by $seq"
 
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
-rm -f $seq.full
 
 # real QA test starts here
 maxlen=84
 
 # assumes metric length (i.e. line with metric name) is less than $maxlen
 pminfo -T \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | $PCP_AWK_PROG -v maxlen=$maxlen '
 function skip_me(m)
 {
@@ -46,10 +45,10 @@ for intr in interrupts softirqs
 do
     if [ -f /proc/$intr ]
     then
-	echo "--- start /proc/$intr ---" >>$here/$seq.full
-	cat /proc/$intr >>$here/$seq.full
-	echo "--- end /proc/$intr ---" >>$here/$seq.full
-	pminfo -tT kernel.percpu.$intr >>$here/$seq.full
+	echo "--- start /proc/$intr ---" >>$seq_full
+	cat /proc/$intr >>$seq_full
+	echo "--- end /proc/$intr ---" >>$seq_full
+	pminfo -tT kernel.percpu.$intr >>$seq_full
     fi
 done
 

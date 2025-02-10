@@ -43,7 +43,7 @@ _filter()
 	-e 's/\(pmie.pure[([]\)[0-9][0-9]*/\1PID/'
 }
 
-_setup_purify $PCP_BIN_DIR/pmie
+_setup_purify $PCP_BIN_DIR/pmie || _exit 1
 
 # real QA test starts here
 PMCD_RECONNECT_TIMEOUT=1
@@ -53,11 +53,12 @@ export PMCD_RECONNECT_TIMEOUT PURIFY_FILTER_EXTRA
 echo "sample.bin > 0" | _run_purify -t 1sec -T 25sec >$tmp.purified 2>&1 &
 
 sleep 5
-_service pcp stop | _filter_pcp_stop
+if ! _service pcp stop; then _exit 1; fi \
+| _filter_pcp_stop
 sleep 5
-_service pcp start 2>&1 | _filter_pcp_start
-_wait_for_pmcd
-_wait_for_pmlogger
+if ! _service pcp start 2>&1; then _exit 1; fi | _filter_pcp_start
+_wait_for_pmcd || _exit 1
+_wait_for_pmlogger || _exit 1
 wait
 
 echo

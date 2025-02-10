@@ -9,56 +9,44 @@ seq=`basename $0`
 echo "QA output created by $seq"
 
 # get standard environment, filters and checks
-. ./common.product
-. ./common.filter
-. ./common.check
-. ./common.config
+. ./common.qt
+status=1	# failure is the default!
+trap "_cleanup_qt; exit \$status" 0 1 2 3 15
 
 which pmchart >/dev/null 2>&1 || _notrun "pmchart not installed"
 [ -z "$DISPLAY" -a -z "$PCPQA_CLOSE_X_SERVER" ] && _notrun "need DISPLAY or PCPQA_CLOSE_X_SERVER"
 
-_cleanup()
-{
-    cd $here
-    $sudo rm -rf $tmp $tmp.*
-}
 
-status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
-trap "_cleanup; exit \$status" 0 1 2 3 15
-
-if [ -z "$DISPLAY" ]
-then
-    export DISPLAY=$PCPQA_CLOSE_X_SERVER
-fi
-
-_filter()
-{
-    sed -e '/^QStandardPaths: XDG_RUNTIME_DIR not set.*/d'
-}
+echo "DISPLAY=$DISPLAY" >>$seq_full
+echo "PCPQA_CLOSE_X_SERVER=$PCPQA_CLOSE_X_SERVER" >>$seq_full
 
 _checkerr()
 {
-    sed <$tmp.err \
-	-e '/libGL error: No matching fbConfigs/d' \
-	-e '/libGL error: failed to load driver: swrast/d' \
-    | _filter > $tmp.tmp
-    if [ -s $tmp.tmp ]
+    if [ -s $tmp.err ]
     then
-	echo "Arrgh ... stderr from pmchart ..."
-	cat $tmp.err
-	exit
+	tee <$tmp.err -a $seq_full
+	_filter_qt <$tmp.err >$tmp.tmp
+	if [ -s $tmp.tmp ]
+	then
+	    echo "Arrgh ... stderr from pmchart ..."
+	    cat $tmp.tmp
+	    exit
+	fi
     fi
 }
 
 # check pmchart can parse Iostat view
 #
+echo "=== parse Iostat view" | tee -a $seq_full
 export PCP_STDERR=$tmp.err
-pmchart -C -c Iostat 2>&1 | _filter
-[ -s $tmp.err ] && _checkerr
+pmchart -C -c Iostat >$tmp.out 2>&1
+_filter_qt <$tmp.out
+_checkerr
+rm -f $tmp.err
 
-echo expect no output, especially no qt/scaling or divide by zero exceptions
-pmchart -z -a $here/archives/zero_disk_activity -c Iostat -t 0.1 -O'@fri jul 13 00:11:40' -o $tmp.out.png 2>>$tmp.err
+echo "=== expect no output, especially no qt/scaling or divide by zero exceptions" | tee -a $seq_full
+pmchart -z -a $here/archives/zero_disk_activity -c Iostat -t 0.1 -O'@fri jul 13 00:11:40' -o $tmp.out.png >$tmp.out 2>&1
+_filter_qt <$tmp.out
 _checkerr
 
 # success, all done

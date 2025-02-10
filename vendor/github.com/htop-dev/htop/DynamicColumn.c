@@ -12,6 +12,7 @@ in the source distribution for its full text.
 #include "DynamicColumn.h"
 
 #include <stddef.h>
+#include <stdlib.h>
 
 #include "Platform.h"
 #include "RichString.h"
@@ -19,7 +20,10 @@ in the source distribution for its full text.
 
 
 Hashtable* DynamicColumns_new(void) {
-   return Platform_dynamicColumns();
+   Hashtable* dynamics = Platform_dynamicColumns();
+   if (!dynamics)
+      dynamics = Hashtable_new(0, true);
+   return dynamics;
 }
 
 void DynamicColumns_delete(Hashtable* dynamics) {
@@ -29,8 +33,14 @@ void DynamicColumns_delete(Hashtable* dynamics) {
    }
 }
 
-const char* DynamicColumn_init(unsigned int key) {
-   return Platform_dynamicColumnInit(key);
+const char* DynamicColumn_name(unsigned int key) {
+   return Platform_dynamicColumnName(key);
+}
+
+void DynamicColumn_done(DynamicColumn* this) {
+   free(this->heading);
+   free(this->caption);
+   free(this->description);
 }
 
 typedef struct {

@@ -1,0 +1,49 @@
+#!/bin/sh
+#
+# Postgresql PMDA "plugin" for pmcheck
+#
+
+. $PCP_DIR/etc/pcp.env || exit 1
+. $PCP_SHARE_DIR/lib/checkproc.sh
+
+_do_args "$@"
+
+_check()
+{
+    test -n "$@" && echo "$@" >> $tmp/out
+    [ "$verbose" -gt 0 -a -s $tmp/out ] && cat $tmp/out
+    [ $status -eq 0 ] || exit
+}
+
+iam=postgresql
+iname=postgres
+
+if $lflag
+then
+    [ "$verbose" -gt 0 ] && echo "PostgreSQL PMDA - metrics from PostgreSQL"
+elif $sflag
+then
+    status=0  # assume active until proven not to be
+    _ctl_svc state $iam || status=$?
+    _check "$iam service status: $status"
+    _ctl_pmda state $iam || status=$?
+    _check "$iam PMDA status: $status"
+    # No longer use probe due to difficulties with the PMDA implementation;
+    # in particular it switches user to postgres which we cannot easily do.
+    # Heuristic instead is simply to test to see if a postgres user exists.
+    #PROBE="$PCP_PYTHON_PROG $PCP_PMDAS_DIR/$iam/pmda$iam.python"
+    #PCP_PYTHON_PROBE=1 $PROBE || status=2
+    id $iname >/dev/null 2>&1 || status=2
+    _check "$iname user status: $status"
+elif $aflag
+then
+    _ctl_pmda activate $iam pmda$iam.python || status=1
+elif $dflag
+then
+    _ctl_pmda deactivate $iam || status=1
+else
+    [ $verbose -gt 0 ] && echo "botch sflag=$sflag aflag=$aflag dflag=$dflag show_me=$show_me verbose=$verbose"
+    status=99
+fi
+
+exit

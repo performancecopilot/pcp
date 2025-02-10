@@ -76,9 +76,9 @@ An optional set of data values for one or more metric-instance pairs
 (ready for the next record to be written
 to the output PCP archive) as defined
 by calls to
-.BR pmPutValue (3)
+.BR pmiPutValue (3)
 or
-.BR pmPutValuehandle (3).
+.BR pmiPutValueHandle (3).
 .PP
 If
 .I inherit
@@ -99,7 +99,7 @@ Since no physical files for the output PCP archive
 will be created until the first call to
 .BR pmiWrite (3)
 or
-.BR pmiPutRecord(3),
+.BR pmiPutResult(3),
 .I archive
 could be NULL to create a
 convenience context that is populated with metadata to be
@@ -124,22 +124,23 @@ It is an error if the physical files
 until the first attempt is made to output some data by calling
 .BR pmiWrite (3)
 or
-.BR pmiPutRecord(3),
+.BR pmiPutResult(3),
 so
 .B pmiStart
 always returns a positive context identifier.
 .SH SEE ALSO
 .BR LOGIMPORT (3),
+.BR PMAPI (3),
 .BR pmiAddInstance (3),
 .BR pmiAddMetric (3),
 .BR pmiEnd (3),
 .BR pmiErrStr (3),
 .BR pmiGetHandle (3),
+.BR pmiPutLabel (3),
 .BR pmiPutResult (3),
+.BR pmiPutText (3),
 .BR pmiPutValue (3),
 .BR pmiPutValueHandle (3),
-.BR pmiPutText (3),
-.BR pmiPutLabel (3),
 .BR pmiSetHostname (3),
 .BR pmiSetTimezone (3),
 .BR pmiSetVersion (3),

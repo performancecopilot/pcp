@@ -20,6 +20,17 @@ test -f /etc/zabbix/zabbix_agentd.conf || \
 test -f /etc/zabbix/zabbix_agentd.d/zbxpcp.conf || \
 	_notrun "Zabbix agent PCP module is not installed"
 
+# zabbix_agentd goes off with the pixies on vm21 after upgrading to
+# Debian 12 (uses all cpu cycles, mostly in system mode) ... not our
+# problem and not worth the triage bandwidth to investigate
+#
+case `admin/whatami`
+in
+    *Debian\ 12.*)
+	_notrun "avoid zabbix_agentd locking up the system Debian 12.?"
+	;;
+esac
+
 rm -f $seq.out
 # Known versions ...
 # Zabbix Agent (daemon) v2.2.7 (revision 50148) (24 October 2014)
@@ -42,11 +53,11 @@ in
     2.[0-2].*)
     		ln $seq.out.0 $seq.out
 		;;
-    2.4.*|3.*|4.*|5.*)
+    2.4.*|3.*|4.*|5.*|6.*)
     		ln $seq.out.1 $seq.out
     		;;
     *)		echo "Botch: need to know what output to expect for zabbix_agent version $version"
-    		exit
+    		exit 1
 		;;
 esac
 
@@ -68,9 +79,8 @@ need_control=false
 need_derived=false
 control=$PCP_PMDAS_DIR/sample/dynamic.indom
 derived=/etc/zabbix/zbxpcp-derived-metrics.conf
-$sudo rm -rf $tmp $tmp.* $seq.full
 
-echo "zabbix_agentd version: $version" >>$here/$seq.full
+echo "zabbix_agentd version: $version" >>$seq_full
 
 _cleanup()
 {
@@ -124,8 +134,8 @@ LoadModule=$ZBXPCP
 Timeout=30
 EOF
 
-echo "zabbix_agentd config:" >>$seq.full
-cat $tmp.conf >>$seq.full
+echo "zabbix_agentd config:" >>$seq_full
+cat $tmp.conf >>$seq_full
 
 # need the sample.proc metricss to be deterministic
 pmstore sample.proc.reset 1
@@ -154,14 +164,14 @@ $zabbix_agentd -t pcp.sample.bad.nosupport
 $zabbix_agentd -t pcp.sample.bad.novalues
 
 # verify enumeration of all metrics
-echo "== enumerated names and filtered values" | tee -a $seq.full
-pmstore sample.ghosts.visible "-1" >>$seq.full 2>&1
+echo "== enumerated names and filtered values" | tee -a $seq_full
+pmstore sample.ghosts.visible "-1" >>$seq_full 2>&1
 $sudo rm -f $control	# control the dynamic indom
 echo '1 one' >$tmp.indom
 echo '2 two' >>$tmp.indom
 $sudo cp $tmp.indom $control
 $zabbix_agentd -p \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | grep -F pcp.sample. \
 | _filter_values
 

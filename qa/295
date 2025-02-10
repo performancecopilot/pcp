@@ -18,27 +18,29 @@ which pmproxy >/dev/null 2>&1 || _notrun "No pmproxy binary installed"
 signal=$PCP_BINADM_DIR/pmsignal
 status=0	# success is the default!
 username=`id -u -n`
-$sudo rm -rf $tmp.* $seq.full
-trap "_cleanup; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+trap "_cleanup; $sudo rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 pmproxy_was_running=false
 [ -f $PCP_RUN_DIR/pmproxy.pid ] && pmproxy_was_running=true
-echo "pmproxy_was_running=$pmproxy_was_running" >>$here/$seq.full
+echo "pmproxy_was_running=$pmproxy_was_running" >>$seq_full
+OLD_RUN_DIR="$PCP_RUN_DIR"
 
 _cleanup()
 {
     # kill off the pmproxy we started
     #
-    $sudo $signal -a pmproxy >>$here/$seq.full 2>&1
+    $sudo $signal -a pmproxy >>$seq_full 2>&1
 
     if $pmproxy_was_running
     then
-	echo "Restart pmproxy ..." >>$here/$seq.full
-	_service pmproxy restart >>$here/$seq.full 2>&1
+	PCP_RUN_DIR="$OLD_RUN_DIR"
+	export PCP_RUN_DIR
+	echo "Restart pmproxy ..." >>$seq_full
+	_service pmproxy restart >>$seq_full 2>&1
 	_wait_for_pmproxy
     else
-	echo "Stopping pmproxy ..." >>$here/$seq.full
-	_service pmproxy stop >>$here/$seq.full 2>&1
+	echo "Stopping pmproxy ..." >>$seq_full
+	_service pmproxy stop >>$seq_full 2>&1
     fi
 }
 
@@ -60,12 +62,12 @@ _check()
     difference=`expr $connects - $disconnects`
     echo "N connects"
     echo "N-$difference disconnects"
-    echo "--- $tmp.log ---" >>$here/$seq.full
-    cat $tmp.log >>$here/$seq.full
-    echo "--- end $tmp.log ---" >>$here/$seq.full
+    echo "--- $tmp.log ---" >>$seq_full
+    cat $tmp.log >>$seq_full
+    echo "--- end $tmp.log ---" >>$seq_full
 }
 
-_service pmproxy stop >>$here/$seq.full 2>&1
+if ! _service pmproxy stop >>$seq_full 2>&1; then _exit 1; fi
 if $pmproxy_was_running
 then
     i=0
@@ -94,13 +96,13 @@ $PCP_BINADM_DIR/pmproxy $proxyargs -l $tmp.log 2>&1 | _filter_pmproxy
 # real QA test starts here
 export PMPROXY_HOST=localhost
 pidlist=`sh -c "pmval -h $PMPROXY_HOST hinv.ncpu >$tmp.1 2>&1 & echo \\\$!"`
-echo "pmval pid=$pidlist" >>$here/$seq.full
+echo "pmval pid=$pidlist" >>$seq_full
 pid=`sh -c "pmstat -h $PMPROXY_HOST >$tmp.2 2>&1 & echo \\\$!"`
-echo "pmstat pid=$pid" >>$here/$seq.full
+echo "pmstat pid=$pid" >>$seq_full
 pidlist="$pidlist $pid"
 echo "kernel.all.load;" >$tmp.in
 pid=`sh -c "pmie -v -h $PMPROXY_HOST -c $tmp.in >$tmp.3 2>&1 & echo \\\$!"`
-echo "pmie pid=$pid" >>$here/$seq.full
+echo "pmie pid=$pid" >>$seq_full
 pidlist="$pidlist $pid"
 
 sleep 3
@@ -113,20 +115,20 @@ for pid in $pidlist
 do
     echo
     echo "kill off a client ..."
-    echo "kill off client pid=$pid" >>$here/$seq.full
-    $signal -s KILL $pid >>$here/$seq.full 2>&1
+    echo "kill off client pid=$pid" >>$seq_full
+    $signal -s KILL $pid >>$seq_full 2>&1
     sleep 1
     _check
 done
 
-echo "pmval output ..." >>$here/$seq.full
-cat $tmp.1 >>$here/$seq.full
-echo >>$here/$seq.full
-echo "pmstat output ..." >>$here/$seq.full
-cat $tmp.2 >>$here/$seq.full
-echo >>$here/$seq.full
-echo "pmie output ..." >>$here/$seq.full
-cat $tmp.3 >>$here/$seq.full
+echo "pmval output ..." >>$seq_full
+cat $tmp.1 >>$seq_full
+echo >>$seq_full
+echo "pmstat output ..." >>$seq_full
+cat $tmp.2 >>$seq_full
+echo >>$seq_full
+echo "pmie output ..." >>$seq_full
+cat $tmp.3 >>$seq_full
 
 # success, all done
 exit

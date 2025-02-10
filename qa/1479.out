@@ -1,0 +1,254 @@
+QA output created by 1479
+== Checking network metrics from /proc/net/snmp
+
+network.icmp.inmsgs
+    value 1
+
+network.icmp.inerrors
+    value 2
+
+network.icmp.indestunreachs
+    value 4
+
+network.icmp.intimeexcds
+    value 5
+
+network.icmp.inparmprobs
+    value 6
+
+network.icmp.insrcquenchs
+    value 7
+
+network.icmp.inredirects
+    value 8
+
+network.icmp.inechos
+    value 9
+
+network.icmp.inechoreps
+    value 10
+
+network.icmp.intimestamps
+    value 11
+
+network.icmp.intimestampreps
+    value 12
+
+network.icmp.inaddrmasks
+    value 13
+
+network.icmp.inaddrmaskreps
+    value 14
+
+network.icmp.outmsgs
+    value 15
+
+network.icmp.outerrors
+    value 16
+
+network.icmp.outdestunreachs
+    value 19
+
+network.icmp.outtimeexcds
+    value 20
+
+network.icmp.outparmprobs
+    value 21
+
+network.icmp.outsrcquenchs
+    value 22
+
+network.icmp.outredirects
+    value 23
+
+network.icmp.outechos
+    value 24
+
+network.icmp.outechoreps
+    value 25
+
+network.icmp.outtimestamps
+    value 26
+
+network.icmp.outtimestampreps
+    value 27
+
+network.icmp.outaddrmasks
+    value 28
+
+network.icmp.outaddrmaskreps
+    value 29
+
+network.icmp.incsumerrors
+    value 3
+
+network.icmp.outratelimitglobal
+    value 17
+
+network.icmp.outratelimithost
+    value 18
+
+network.icmpmsg.intype
+    inst [3 or "Type3"] value 2
+
+network.icmpmsg.outtype
+    inst [3 or "Type3"] value 1
+
+network.ip.forwarding
+    value 1
+
+network.ip.defaultttl
+    value 2
+
+network.ip.outdiscards
+    value 11
+
+network.ip.outnoroutes
+    value 12
+
+network.ip.reasmtimeout
+    value 13
+
+network.ip.reasmreqds
+    value 14
+
+network.ip.reasmoks
+    value 15
+
+network.ip.reasmfails
+    value 16
+
+network.ip.fragoks
+    value 17
+
+network.ip.fragfails
+    value 18
+
+network.ip.fragcreates
+    value 19
+
+network.ip.inreceives
+    value 3
+
+network.ip.inhdrerrors
+    value 4
+
+network.ip.inaddrerrors
+    value 5
+
+network.ip.forwdatagrams
+    value 6
+
+network.ip.inunknownprotos
+    value 7
+
+network.ip.indiscards
+    value 8
+
+network.ip.indelivers
+    value 9
+
+network.ip.outrequests
+    value 10
+
+network.ip.outtransmits
+    value 20
+
+network.tcp.rtoalgorithm
+    value 1
+
+network.tcp.rtomin
+    value 2
+
+network.tcp.rtomax
+    value 3
+
+network.tcp.maxconn
+    value 4
+
+network.tcp.activeopens
+    value 5
+
+network.tcp.passiveopens
+    value 6
+
+network.tcp.attemptfails
+    value 7
+
+network.tcp.estabresets
+    value 8
+
+network.tcp.currestab
+    value 9
+
+network.tcp.insegs
+    value 10
+
+network.tcp.outsegs
+    value 11
+
+network.tcp.retranssegs
+    value 12
+
+network.tcp.inerrs
+    value 13
+
+network.tcp.outrsts
+    value 14
+
+network.tcp.incsumerrors
+    value 15
+
+network.udp.indatagrams
+    value 1
+
+network.udp.noports
+    value 2
+
+network.udp.inerrors
+    value 3
+
+network.udp.outdatagrams
+    value 4
+
+network.udp.recvbuferrors
+    value 5
+
+network.udp.sndbuferrors
+    value 6
+
+network.udp.incsumerrors
+    value 7
+
+network.udp.ignoredmulti
+    value 8
+
+network.udp.memerrors
+    value 9
+
+network.udplite.indatagrams
+    value 1
+
+network.udplite.noports
+    value 2
+
+network.udplite.inerrors
+    value 3
+
+network.udplite.outdatagrams
+    value 4
+
+network.udplite.recvbuferrors
+    value 5
+
+network.udplite.sndbuferrors
+    value 6
+
+network.udplite.incsumerrors
+    value 7
+
+network.udplite.ignoredmulti
+    value 8
+
+network.udplite.memerrors
+    value 9

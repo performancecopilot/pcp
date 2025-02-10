@@ -21,7 +21,7 @@ _cleanup()
     if pmprobe -I pmcd.agent.status | grep '"slow"' >/dev/null
     then
 	cd $here/pmdas/slow
-	$sudo ./Remove >>$here/$seq.full 2>&1
+	$sudo ./Remove >>$seq_full 2>&1
 	$sudo rm -f domain.h.perl pmns.perl
 	cd $here
     fi
@@ -37,11 +37,10 @@ _filter()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp $tmp.*; _cleanup; exit \$status" 0 1 2 3 15
 
 cd $here/pmdas/slow
-$PCP_MAKE_PROG clean >>$here/$seq.full 2>&1
+$PCP_MAKE_PROG clean >>$seq_full 2>&1
 cat <<End-of-File | $sudo ./Install
 0
 3

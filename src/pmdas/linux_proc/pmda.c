@@ -33,6 +33,7 @@
 #include "../linux/convert.h"
 
 #include <ctype.h>
+#include <sys/syslog.h>
 #include <unistd.h>
 #include <sys/vfs.h>
 #include <sys/stat.h>
@@ -1345,6 +1346,55 @@ static pmdaMetric metrictab[] = {
 /* acct.control.enabled */
   { NULL, { PMDA_PMID(CLUSTER_ACCT,CONTROL_ACCT_ENABLE), PM_TYPE_U32, PM_INDOM_NULL,
     PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+/* acct.control.state */
+  { NULL, { PMDA_PMID(CLUSTER_ACCT,CONTROL_ACCT_STATE), PM_TYPE_32, PM_INDOM_NULL,
+    PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+/*
+ * Fdinfo cluster
+ */
+
+/* proc.fdinfo.drm_memory */
+  { NULL, { PMDA_PMID(CLUSTER_PID_FDINFO,0), PM_TYPE_U64, PROC_INDOM,
+    PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
+/* proc.fdinfo.drm_memory_cpu */
+  { NULL, { PMDA_PMID(CLUSTER_PID_FDINFO,1), PM_TYPE_U64, PROC_INDOM,
+    PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
+/* proc.fdinfo.drm_memory_gtt */
+  { NULL, { PMDA_PMID(CLUSTER_PID_FDINFO,2), PM_TYPE_U64, PROC_INDOM,
+    PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
+/* proc.fdinfo.drm_memory_vram */
+  { NULL, { PMDA_PMID(CLUSTER_PID_FDINFO,3), PM_TYPE_U64, PROC_INDOM,
+    PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
+/* proc.fdinfo.drm_shared_cpu */
+  { NULL, { PMDA_PMID(CLUSTER_PID_FDINFO,4), PM_TYPE_U64, PROC_INDOM,
+    PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
+/* proc.fdinfo.drm_shared_gtt */
+  { NULL, { PMDA_PMID(CLUSTER_PID_FDINFO,5), PM_TYPE_U64, PROC_INDOM,
+    PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
+/* proc.fdinfo.drm_shared_vram */
+  { NULL, { PMDA_PMID(CLUSTER_PID_FDINFO,6), PM_TYPE_U64, PROC_INDOM,
+    PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
+
+/* proc.fdinfo.amd_evicted_visible_vram */
+  { NULL, { PMDA_PMID(CLUSTER_PID_FDINFO,7), PM_TYPE_U64, PROC_INDOM,
+    PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
+/* proc.fdinfo.amd_evicted_vram */
+  { NULL, { PMDA_PMID(CLUSTER_PID_FDINFO,8), PM_TYPE_U64, PROC_INDOM,
+    PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
+/* proc.fdinfo.amd_memory_visible_vram */
+  { NULL, { PMDA_PMID(CLUSTER_PID_FDINFO,9), PM_TYPE_U64, PROC_INDOM,
+    PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
+/* proc.fdinfo.amd_requested_gtt */
+  { NULL, { PMDA_PMID(CLUSTER_PID_FDINFO,10), PM_TYPE_U64, PROC_INDOM,
+    PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
+/* proc.fdinfo.amd_requested_visible_vram */
+  { NULL, { PMDA_PMID(CLUSTER_PID_FDINFO,11), PM_TYPE_U64, PROC_INDOM,
+    PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
+/* proc.fdinfo.amd_requested_vram */
+  { NULL, { PMDA_PMID(CLUSTER_PID_FDINFO,12), PM_TYPE_U64, PROC_INDOM,
+    PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
+
 };
 
 pmInDom
@@ -1441,6 +1491,7 @@ proc_refresh(pmdaExt *pmda, int *need_refresh)
 	need_refresh[CLUSTER_PID_CWD] ||
 	need_refresh[CLUSTER_PID_EXE] ||
 	need_refresh[CLUSTER_PID_FD] ||
+	need_refresh[CLUSTER_PID_FDINFO] ||
 	need_refresh[CLUSTER_PROC_RUNQ]) {
 	refresh_proc_pid(&proc_pid,
 		need_refresh[CLUSTER_PROC_RUNQ]? &proc_runq : NULL,
@@ -1461,6 +1512,7 @@ proc_refresh(pmdaExt *pmda, int *need_refresh)
         need_refresh[CLUSTER_HOTPROC_PID_CWD] ||
         need_refresh[CLUSTER_HOTPROC_PID_EXE] ||
         need_refresh[CLUSTER_HOTPROC_PID_FD] ||
+        need_refresh[CLUSTER_HOTPROC_PID_FDINFO] ||
         need_refresh[CLUSTER_HOTPROC_GLOBAL] ||
         need_refresh[CLUSTER_HOTPROC_PRED]){
         refresh_hotproc_pid(&hotproc_pid,
@@ -1492,6 +1544,7 @@ proc_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt 
         need_refresh[CLUSTER_PID_CWD]++;
         need_refresh[CLUSTER_PID_IO]++;
         need_refresh[CLUSTER_PID_FD]++;
+        need_refresh[CLUSTER_PID_FDINFO]++;
 	break;
     case HOTPROC_INDOM:
         need_refresh[CLUSTER_HOTPROC_PID_STAT]++;
@@ -1508,6 +1561,7 @@ proc_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt 
         need_refresh[CLUSTER_HOTPROC_PID_FD]++;
         need_refresh[CLUSTER_HOTPROC_GLOBAL]++;
         need_refresh[CLUSTER_HOTPROC_PRED]++;
+        need_refresh[CLUSTER_HOTPROC_PID_FDINFO]++;
         break;
 
     case CGROUP_CPUSET_INDOM:
@@ -3427,6 +3481,59 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	}
 	break;
 
+    case CLUSTER_HOTPROC_PID_FDINFO:
+	active_proc_pid = &hotproc_pid;
+	/*FALLTHROUGH*/
+    case CLUSTER_PID_FDINFO:
+	if (!have_access)
+	  return PM_ERR_PERMISSION;
+	if ((entry = fetch_proc_pid_fdinfo(inst, active_proc_pid, &sts)) == NULL)
+	  return sts;
+	if (!(entry->success & PROC_PID_FLAG_FDINFO))
+	  return 0;
+
+	switch (item) {
+	  case 0: /* proc.fdinfo.drm_memory_cpu */
+	    atom->ull = entry->fdinfo.drm_memory_cpu;
+	    break;
+	  case 1: /* proc.fdinfo.drm_memory_gtt */
+	    atom->ull = entry->fdinfo.drm_memory_gtt;
+	    break;
+	  case 2: /* proc.fdinfo.drm_memory_vram */
+	    atom->ull = entry->fdinfo.drm_memory_vram;
+	    break;
+	  case 3: /* proc.fdinfo.drm_shared_cpu */
+	    atom->ull = entry->fdinfo.drm_shared_cpu;
+	    break;
+	  case 4: /* proc.fdinfo.drm_shared_gtt */
+	    atom->ull = entry->fdinfo.drm_shared_gtt;
+	    break;
+	  case 5: /* proc.fdinfo.drm_shared_vram */
+	    atom->ull = entry->fdinfo.drm_shared_vram;
+	    break;
+
+	  case 6: /* proc.fdinfo.amd_evicted_visible_vram */
+	    atom->ull = entry->fdinfo.amd_evicted_visible_vram;
+	    break;
+	  case 7: /* proc.fdinfo.amd_evicted_vram */
+	    atom->ull = entry->fdinfo.amd_evicted_vram;
+	    break;
+	  case 8: /* proc.fdinfo.amd_memory_visible_vram */
+	    atom->ull = entry->fdinfo.amd_memory_visible_vram;
+	    break;
+	  case 9: /* proc.fdinfo.amd_requested_gtt */
+	    atom->ull = entry->fdinfo.amd_requested_gtt;
+	    break;
+	  case 10: /* proc.fdinfo.amd_requested_visible_vram */
+	    atom->ull = entry->fdinfo.amd_requested_visible_vram;
+	    break;
+	  case 11: /* proc.fdinfo.amd_requested_vram */
+	    atom->ull = entry->fdinfo.amd_requested_vram;
+	    break;
+	  default: /* unknown cluster */
+	    return PM_ERR_PMID;
+	}
+	break;
     default: /* unknown cluster */
 	return PM_ERR_PMID;
     }
@@ -3576,7 +3683,7 @@ proc_store(pmResult *result, pmdaExt *pmda)
 	    if (!isroot)
 		sts = PM_ERR_PERMISSION;
 	    else
-		sts = acct_store(result, pmda, vsp);
+		sts = acct_store(result, pmda, vsp, &proc_acct);
 	    break;
 
 	default:
@@ -3872,12 +3979,11 @@ proc_init(pmdaInterface *dp)
     hotproc_init();
     init_hotproc_pid(&hotproc_pid);
 
-    proc_ctx_init();
+    proc_context_init();
     proc_dynamic_init(metrictab, nmetrics);
 
     indomtab[ACCT_INDOM].it_indom = ACCT_INDOM;
     proc_acct.indom = &indomtab[ACCT_INDOM];
-    acct_init(&proc_acct);
 
     tty_driver_init();
 

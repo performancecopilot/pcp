@@ -19,6 +19,7 @@ then
     # check.callback more than likely
     #
     [ $# -ge 2 -a "$2" != "" ] && seq="$2"
+    [ -f $seq.full ] && mv $seq.full $seq.full.save
 fi
 
 $check || echo "QA output created by $seq"
@@ -28,6 +29,8 @@ $check || echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+[ -f $seq_full.save ] && mv $seq_full.save $seq_full
+
 _cleanup()
 {
     cd $here
@@ -35,8 +38,6 @@ _cleanup()
 }
 
 status=0	# success is the default!
-$check || $sudo rm -f $seq.full
-$sudo rm -rf $tmp $tmp.*
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
@@ -50,7 +51,7 @@ then
     cat $tmp.pids
     $PCP_PS_PROG $PCP_PS_ALL_FLAGS >$tmp.ps.out
     echo "$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep pmcd ..."
-    grep -E 'PID|pmcd' <$tmp.ps.out
+    grep -E '[P]PID|/[p]mcd( |$)' <$tmp.ps.out
     echo "num_pmcds=$num_pmcds (should be 1)"
 fi
 case "$num_pmcds"

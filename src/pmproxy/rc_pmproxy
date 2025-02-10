@@ -1,44 +1,23 @@
 #! /bin/sh
 #
-# Copyright (c) 2014-2016 Red Hat.
+# Copyright (c) 2014-2016,2023 Red Hat.
 # Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
-# 
+#
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 2 of the License, or (at your
 # option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
-# 
-# Start or Stop the Performance Co-Pilot (PCP) proxy daemon for pmcd
 #
-# The following is for chkconfig on RedHat based systems
-# chkconfig: 2345 95 05
-# description: pmproxy is the pmcd proxy daemon for the Performance Co-Pilot (PCP)
+# Start or Stop the Performance Co-Pilot (PCP) pmproxy process.
 #
-# The following is for insserv(1) based systems,
-# e.g. SuSE, where chkconfig is a perl script.
-### BEGIN INIT INFO
-# Provides:       pmproxy
-# Required-Start: $remote_fs
-# Should-Start: $local_fs $network $syslog $time $pmcd
-# Required-Stop: $remote_fs
-# Should-Stop:  $local_fs $network $syslog $pmcd
-# Default-Start:  2 3 4 5
-# Default-Stop:   0 1 6
-# Short-Description: Control pmproxy (the pmcd proxy daemon for PCP)
-# Description:       Configure and control pmproxy (the pmcd proxy daemon for the Performance Co-Pilot)
-### END INIT INFO
-#
-# For FreeBSD
-# PROVIDE: pmproxy
-# REQUIRE: NETWORKING FILESYSTEMS pmcd
-# KEYWORD: shutdown
-# And add the following lines to /etc/rc.conf to run pmcd:
-# pmproxy_enable="YES"
+# This script expects to be run as pcp:pcp, either from systemd via the
+# pmproxy.service or from init (or similar) via the rc_wrapper script
+# installed in $PCP_RC_DIR/pmproxy
 #
 
 . $PCP_DIR/etc/pcp.env
@@ -50,11 +29,9 @@
 #debug# env >>$PCP_LOG_DIR/rc_pmproxy.log
 
 PMPROXY=$PCP_BINADM_DIR/pmproxy
-PMPROXYOPTS=$PCP_PMPROXYOPTIONS_PATH
 PMPROXYENVS=$PCP_SYSCONFIG_DIR/pmproxy
-RUNDIR=$PCP_LOG_DIR/pmproxy
-pmprog=$PCP_RC_DIR/pmproxy
-prog=$PCP_RC_DIR/`basename $0`
+pmprog=$PCP_SYSCONF_DIR/pmproxy/rc
+prog=$PCP_SYSCONF_DIR/pmproxy/`basename $0`
 
 tmp=`mktemp -d "$PCP_TMPFILE_DIR/pmproxy_rc.XXXXXXXXX"` || exit 1
 status=1
@@ -110,7 +87,7 @@ _shutdown()
     if [ ! -s $tmp/tmp ]
     then
 	[ "$1" = verbose ] && echo "$pmprog: pmproxy not running"
-	rm -f $PCP_RUN_DIR/pmproxy.pid
+	rm -f $PCP_RUN_DIR/pmproxy.pid $PCP_RUN_DIR/pmproxy.socket
 	return 0
     fi
 
@@ -199,18 +176,6 @@ else				# For a quiet startup and shutdown
     ECHO=:
 fi
 
-if [ "$IAM" != 0 -a "$1" != "status" ]
-then
-    if [ -n "$PCP_DIR" ]
-    then
-	: running in a non-default installation, do not need to be root
-    else
-	echo "$prog:"'
-Error: You must be root (uid 0) to start or stop the PCP pmproxy daemon.'
-	exit
-    fi
-fi
-
 # First reset status of this service
 $RC_RESET
  
@@ -244,37 +209,25 @@ case "$1" in
 
 	if [ -x $PMPROXY ]
 	then
-	    if [ ! -f "$PMPROXYOPTS" ]
+	    if [ ! -f "$PCP_PMPROXYOPTIONS_PATH" ]
 	    then
 		echo "$prog:"'
-Error: pmproxy options file "$PMPROXYOPTS" is missing, cannot start pmproxy.'
+Error: pmproxy options file $PCP_PMPROXYOPTIONS_PATH ("'"$PCP_PMPROXYOPTIONS_PATH"'") is missing, cannot start pmproxy.'
 		exit
 	    fi
-	    # create directory housing daemon pid file
 	    if [ ! -d "$PCP_RUN_DIR" ]
 	    then
-		mkdir -p -m 775 "$PCP_RUN_DIR"
-		chown $PCP_USER:$PCP_GROUP "$PCP_RUN_DIR"
-		if which restorecon >/dev/null 2>&1
-		then
-		    restorecon -r "$PCP_RUN_DIR"
-		fi
+		echo "$prog:"'
+Error: pmproxy runtime directory $PCP_RUN_DIR ("'"$PCP_RUN_DIR"'") is missing, cannot start pmproxy.'
+		exit
 	    fi
-	    # create directory which will serve as cwd
-	    if [ ! -d "$RUNDIR" ]
+	    if [ ! -d "$PCP_LOG_DIR/pmproxy" ]
 	    then
-		mkdir -p -m 775 "$RUNDIR"
-		chown $PCP_USER:$PCP_GROUP "$RUNDIR"
+		echo "$prog:"'
+Error: pmproxy log directory $PCP_LOG_DIR/pmproxy ("'"$PCP_LOG_DIR/pmproxy"'") is missing, cannot start pmproxy.'
+		exit
 	    fi
-	    cd "$RUNDIR"
-
-	    # salvage the previous versions of any pmproxy
-	    #
-	    if [ -f pmproxy.log ]
-	    then
-		rm -f pmproxylog.log.prev
-		mv pmproxy.log pmproxy.log.prev
-	    fi
+	    cd "$PCP_LOG_DIR/pmproxy"
 
 	    [ "$1" = "start-systemd" ] ||\
 	    $ECHO $PCP_ECHO_N "Starting pmproxy ..." "$PCP_ECHO_C"
@@ -285,7 +238,7 @@ Error: pmproxy options file "$PMPROXYOPTS" is missing, cannot start pmproxy.'
 	    # only consider lines which start with a hyphen
 	    # get rid of the -f option
 	    # ensure multiple lines concat onto 1 line
-	    OPTS=`sed < "$PMPROXYOPTS" 2>/dev/null \
+	    OPTS=`sed < "$PCP_PMPROXYOPTIONS_PATH" 2>/dev/null \
 			    -e '/^[^-]/d' \
 			    -e 's/^/ /' \
 			    -e 's/$/ /' \

@@ -1,0 +1,112 @@
+#!/bin/sh
+# PCP QA Test No. 1474
+# exercise PM_CTXFLAG_METADATA_ONLY and pmlogrewrite
+#
+# Copyright (c) 2023 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+which xz >/dev/null 2>&1 || _notrun "No xz binary installed"
+
+time=`which time`
+[ -z "$time" ] && _notrun "can't find /bin/time nor /usr/bin/time"
+
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+    # end
+}
+_summary()
+{
+    $PCP_AWK_PROG '
+$1 == "cputime:" { printf "'"$1"': %.2fcpu (%.2fusr + %.2fsys)\n",$2+$3, $2, $3 }
+$1 != "cputime:" { print }'
+}
+
+# archives/pcp-pidstat-process-args.0.xz is the largest QA archive(s)
+# we have (to date) at 361Mb expanded ...
+#
+base=pcp-pidstat-process-args
+mkdir $tmp
+cd $tmp
+pmlogcp $here/archives/$base .
+$time  -f 'cputime: %U %S' xzcat $base.0.xz >/dev/null 2>$tmp.time
+_summary <$tmp.time "data uncompress" | tee -a $seq_full >$tmp.tmp
+data=`sed -n <$tmp.tmp -e '/[0-9]cpu (/{
+s/cpu (.*//
+s/.* //p
+}'`
+echo "data=$data" >>$seq_full
+$time -f 'cputime: %U %S' xzcat $base.meta.xz >/dev/null 2>$tmp.time
+_summary <$tmp.time "metadata uncompress" | tee -a $seq_full >$tmp.tmp
+metadata=`sed -n <$tmp.tmp -e '/[0-9]cpu (/{
+s/cpu (.*//
+s/.* //p
+}'`
+echo "metadata=$metadata" >>$seq_full
+
+# real QA test starts here
+$time -f 'cputime: %U %S' pmlogrewrite -Dappl3 -qi $base 2>$tmp.time
+_summary logrewrite <$tmp.time | tee -a $seq_full >$tmp.tmp
+rewrite=`sed -n <$tmp.tmp -e '/[0-9]cpu (/{
+s/cpu (.*//
+s/.* //p
+}'`
+echo "rewrite=$rewrite" >>$seq_full
+
+# expect the rewrite time to be closer to the metadata time than the
+# data time
+#
+echo "$data $rewrite $metadata" | $PCP_AWK_PROG '
+function abs(a,b)
+{
+    if (a >= b)
+	return a-b
+    else
+	return b-a
+}
+{ d1 = abs($1 - $2)
+  d2 = abs($2 - $3)
+  if (d2 < d1)
+    print "pmlogrewrite time closer to metadata decompress than data decompress"
+  else
+    print "Failed closer test: data-to-pmlogrewrite",d1,"pmlogrewrite-to-metadata",d2
+}'
+
+# expect the data time to be _at least_ 40 times the rewrite time,
+# but need to set bar at 20 times thanks to slow VMs
+#
+echo "$data $rewrite" | $PCP_AWK_PROG '
+{ if ($1 >= 20 * $2)
+    print "pmlogrewrite time more than 20 times faster than data decompress time"
+  else
+    print "Failed 20 times test: pmlogrewrite",$2,"data decompress",$1
+}'
+
+# success, all done
+exit

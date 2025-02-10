@@ -22,7 +22,6 @@ $python -c "import six" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python six module not installed"
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 
 pmdajson_remove()
 {
@@ -41,7 +40,7 @@ pmdajson_install()
     echo
     echo "=== json agent installation ==="
     $sudo ./Install </dev/null >$tmp.out 2>&1
-    cat $tmp.out >>$here/$seq.full
+    cat $tmp.out >>$seq_full
     # Check json metrics have appeared ... X metrics and Y values
     _filter_pmda_install <$tmp.out \
     | sed \
@@ -54,7 +53,7 @@ pmdajson_install()
                                       { print }'
 }
 
-cleanup()
+_cleanup()
 {
     if [ -f ${pmda_config}.$seq ]; then
 	_restore_config ${pmda_config}
@@ -64,7 +63,7 @@ cleanup()
 }
 
 _prepare_pmda json
-trap "cleanup; exit \$status" 0 1 2 3 15
+trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _stop_auto_restart pmcd
 

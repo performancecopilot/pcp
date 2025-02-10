@@ -16,7 +16,7 @@
 .TH PMLOGDUMP 1 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pmlogdump\f1,
-\f3pmdumplog\f1 \- dump internal details of a performance metrics archive log
+\f3pmdumplog\f1 \- dump internal details of a performance metrics archive
 .SH SYNOPSIS
 \f3pmlogdump\f1
 [\f3\-adehIilLmMrstxzV?\f1]
@@ -32,11 +32,16 @@
 .SH DESCRIPTION
 .B pmlogdump
 dumps assorted control, metadata, index and state information from
-the files of a Performance Co-Pilot (PCP) archive log.
-The archive log has the base name
+the files of a Performance Co-Pilot (PCP) archive.
+The archive has the base name
 .I archive
 and must have been previously created using
 .BR pmlogger (1).
+Alternatively
+.I archive
+is the name of a directory that contains a set of PCP archives
+than could be opened with
+.BR pmNewContext (3).
 .PP
 Historically,
 .B pmlogdump
@@ -92,6 +97,8 @@ that appear at least once in the archive:
 see
 .BR pmLookupDesc (3)
 for more details on the metadata describing metrics.
+Metrics are reported in ascending
+Performance Metric Identifier (PMID) sequence.
 .TP
 \fB\-e\fR, \fB\-\-labelsets\fR
 Display the label metadata if it is present in the archive.
@@ -110,6 +117,9 @@ Display the instance domains, and any variations in their instance
 members over the duration of the archive: see
 .BR pmGetInDom (3)
 for more details on instance domains.
+Instance domains are reported in ascending
+Instance Domain Identifier sequence and then ascending time for
+each set of observed instance members within an instance domain.
 .TP
 \fB\-I\fR, \fB\-\-on-disk-insts\fR
 Display the on-disk instance domains, which may use a different format
@@ -122,7 +132,7 @@ The on-disk format is only of interest when investigating the internal
 structure of PCP archives.
 .TP
 \fB\-l\fR, \fB\-\-label\fR
-Dump the archive label, showing the log format version,
+Dump the archive label, showing the archive format version,
 the time and date for the start and (current) end of the archive, and
 the host from which the performance metrics values were collected.
 .TP
@@ -176,7 +186,7 @@ arguments are specified.
 .RS +5n
 .P
 .I <mark>
-records are inserted into a PCP archive log by
+records are inserted into a PCP archive by
 .BR pmlogger (1),
 .BR pmlogextract (1),
 and similar tools to indicate a temporal discontinuity in the
@@ -275,7 +285,7 @@ since 1970-01-01 00:00:00 UTC).
 \fB\-z\fR, \fB\-\-hostzone\fR
 Change the timezone to the local timezone at the
 host that is the source of the performance metrics, as specified in
-the label record of the archive log.
+the label record of the archive.
 .TP
 \fB\-Z\fR \fItimezone\fR, \fB\-\-timezone\fR=\fItimezone\fR
 By default,
@@ -311,15 +321,19 @@ configuration file, as described in \fBpcp.conf\fP(5).
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pmlogcheck (1),
+.BR pmlogextract (1),
 .BR pmlogger (1),
 .BR pmlogger_check (1),
 .BR pmlogger_daily (1),
 .BR pmloglabel (1),
-.BR pmlogextract (1),
 .BR PMAPI (3),
 .BR pmGetInDom (3),
 .BR pmLookupDesc (3),
+.BR pmNewContext (3),
 .BR pcp.conf (5),
 .BR pcp.env (5)
 and
 .BR PMNS (5).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ pmdumplog { old name ref }

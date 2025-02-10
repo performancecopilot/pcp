@@ -16,6 +16,8 @@ echo "QA output created by $seq"
 perl -e "use PCP::PMDA" >/dev/null 2>&1
 test $? -eq 0 || _notrun "PCP::PMDA perl module is not installed"
 
+[ "`hostname`" = vm28.localdomain ] && _notrun "ssh to pcpqa@vm16 does not work here"
+
 status=1	# failure is the default!
 
 [ -z "$PCP_PMLOGGERCONTROL_PATH" ] && \
@@ -35,7 +37,7 @@ _filter_pminfo()
 me=`_get_fqdn`
 _needclean=true
 
-cleanup()
+_cleanup()
 {
     if $_needclean
     then
@@ -61,9 +63,8 @@ cleanup()
     exit $status
 }
 
-trap "cleanup; exit \$status" 0 1 2 3 15
+trap "_cleanup; exit \$status" 0 1 2 3 15
 
-rm -f $seq.full
 
 # see if unix domain sockets are available (permissions)
 _get_libpcp_config
@@ -95,8 +96,8 @@ then
     # NOTREACHED
 fi
 
-echo "me=$me" >>$seq.full
-echo "other=$other" >>$seq.full
+echo "me=$me" >>$seq_full
+echo "other=$other" >>$seq_full
 
 list=`_all_hostnames $other`
 if [ -z "$list" ]
@@ -104,7 +105,7 @@ then
     echo "Error: failed to expand hostnames for other=\"$other\""
     exit
 fi
-echo "list=$list" >>$seq.full
+echo "list=$list" >>$seq_full
 
 cat >$tmp.access <<End-Of-File
 
@@ -118,14 +119,14 @@ sed -e '/\[access]/q' $PCP_PMCDCONF_PATH.$seq  \
 cat $tmp.access >>$tmp.config
 $sudo cp $tmp.config $PCP_PMCDCONF_PATH
 
-echo >>$seq.full
-echo "---- start pmcd.conf ----" >>$seq.full
-cat $PCP_PMCDCONF_PATH >>$seq.full
-echo "---- end pmcd.conf ----" >>$seq.full
+echo >>$seq_full
+echo "---- start pmcd.conf ----" >>$seq_full
+cat $PCP_PMCDCONF_PATH >>$seq_full
+echo "---- end pmcd.conf ----" >>$seq_full
 
-_service pcp restart 2>&1 | _filter_pcp_start
-_wait_for_pmcd 20 $target
-_wait_for_pmlogger
+if ! _service pcp restart 2>&1; then _exit 1; fi | _filter_pcp_start
+_wait_for_pmcd 20 $target || _exit 1
+_wait_for_pmlogger || _exit 1
 
 echo "    checking default access for this host ..."
 pminfo -f sample.long.million \
@@ -152,7 +153,7 @@ then
     echo "Error: failed to expand ip addrs for other=\"$other\""
     exit
 fi
-echo "iplist=$iplist" >>$seq.full
+echo "iplist=$iplist" >>$seq_full
 
 cat >$tmp.access <<End-Of-File
 
@@ -166,14 +167,14 @@ sed -e '/\[access]/q' $PCP_PMCDCONF_PATH.$seq  \
 cat $tmp.access >>$tmp.config
 $sudo cp $tmp.config $PCP_PMCDCONF_PATH
 
-echo >>$seq.full
-echo "---- start pmcd.conf ----" >>$seq.full
-cat $PCP_PMCDCONF_PATH >>$seq.full
-echo "---- end pmcd.conf ----" >>$seq.full
+echo >>$seq_full
+echo "---- start pmcd.conf ----" >>$seq_full
+cat $PCP_PMCDCONF_PATH >>$seq_full
+echo "---- end pmcd.conf ----" >>$seq_full
 
-_service pcp restart 2>&1 | _filter_pcp_start
-_wait_for_pmcd
-_wait_for_pmlogger
+if ! _service pcp restart 2>&1; then _exit 1; fi | _filter_pcp_start
+_wait_for_pmcd || _exit 1
+_wait_for_pmlogger || _exit 1
 
 echo "    checking default access for this host ..."
 pminfo -f sample.long.million
@@ -183,6 +184,9 @@ echo
 echo "    checking access for iplist (should fail)"
 ssh -q pcpqa@$other pminfo -h $me -f pmcd.numclients 2>&1 \
 | _filter_pminfo
+
+# make sure pmcd has seen and logged end of client
+pmsleep 1
 
 echo "pmcd.log:======="
 sed -n <$PCP_PMCDLOG_PATH -e '/endclient/{

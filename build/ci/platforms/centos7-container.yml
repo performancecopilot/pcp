@@ -7,8 +7,12 @@ artifactory:
 container:
   containerfile: |
     FROM quay.io/centos/centos:centos7
+    RUN sed -i -e '/mirrorlist=/d' /etc/yum.repos.d/CentOS-Base.repo
+    RUN sed -i -e 's/#baseurl=/baseurl=/g' /etc/yum.repos.d/CentOS-Base.repo
+    RUN sed -i -e 's,http://mirror.centos.org/centos/$releasever,https://vault.centos.org/7.9.2009,g' /etc/yum.repos.d/CentOS-Base.repo
     RUN yum install -y sudo
-    RUN yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm # libuv-devel
+    RUN yum install -y https://archives.fedoraproject.org/pub/archive/epel/7/x86_64/Packages/l/libuv-1.44.2-1.el7.x86_64.rpm 
+    RUN yum install -y https://archives.fedoraproject.org/pub/archive/epel/7/x86_64/Packages/l/libuv-devel-1.44.2-1.el7.x86_64.rpm
     RUN useradd --create-home pcpbuild
     RUN echo 'pcpbuild ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/pcpbuild
     CMD ["/usr/sbin/init"]

@@ -22,7 +22,6 @@ else
 fi
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 
 unbound_remove()
 {
@@ -66,7 +65,7 @@ _stop_auto_restart pmcd
 _filter_unbound()
 {
     # filter metric values for deterministic output
-    tee -a $here/$seq.full | sed \
+    tee -a $seq_full | sed \
         -e 's/value [0-9][0-9]*/value NUMBER/'
 }
 

@@ -1,0 +1,31 @@
+#!/bin/sh
+#
+# zeroconf "plugin" for pmcheck ...
+# this version is for distros/platforms/builds where the pcp-zeroconf
+# package is not available (currently anything other than Linux)
+#
+
+. $PCP_DIR/etc/pcp.env || exit 1
+. $PCP_SHARE_DIR/lib/checkproc.sh
+
+_do_args "$@"
+
+na="not currently available for `uname -s`"
+
+if $lflag
+then
+    [ "$verbose" -gt 0 ] && echo "Zeroconf Package - $na"
+elif $sflag
+then
+    status=2
+    [ "$verbose" -gt 0 ] && echo "pcp-zeroconf package $na"
+elif $aflag || $dflag
+then
+    status=1
+    [ "$verbose" -gt 0 ] && echo "pcp-zeroconf package $na"
+else
+    [ $verbose -gt 0 ] && echo "botch sflag=$sflag aflag=$aflag dflag=$dflag show_me=$show_me verbose=$verbose"
+    status=99
+fi
+
+exit

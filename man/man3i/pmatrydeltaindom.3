@@ -36,8 +36,8 @@ These interfaces are not part of the PCP APIs that are guaranteed to
 remain fixed across releases, and they may not work, or may provide
 different semantics at some point in the future.
 .SH DESCRIPTION
-.de CW
-.ie t \f(CW\\$1\fR\\$2
+.de CR
+.ie t \f(CR\\$1\fR\\$2
 .el \fI\\$1\fR\\$2
 ..
 The input instance domain is passed in as either a
@@ -68,7 +68,7 @@ or
 .I lidp
 (whichever is not
 .BR NULL ).
-If conversion takes place, any storage assocated with the input instance domain
+If conversion takes place, any storage associated with the input instance domain
 will have been free'd.
 .PP
 The ``delta indom'' format is only supported for Version 3 archives and it
@@ -88,7 +88,7 @@ The copy and the cache are all managed privately by
 .B pmaTryDeltaInDom
 so the caller is unaware of this activity.
 .PP
-The cacheing scheme requires that the caller must call
+The caching scheme requires that the caller must call
 .B pmaTryDeltaInDom
 for
 .B every

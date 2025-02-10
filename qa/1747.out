@@ -1,0 +1,16 @@
+QA output created by 1747
+Log for pmlogger on HOST started DATE
+
+[DATE] pmlogger(PID) Info: Start
+Config parsed
+Starting logger for host "HOST"
+Archive basename: ARCHIVE
+[DATE] pmlogger(PID) Info: pmlogger: End of run time, exiting
+
+Log finished DATE
+
+simple.now
+    labels {"domainname":"DOMAIN","groupid":GID,"hostname":"HOSTNAME","indom_name":"time","machineid":"MACHINE","role":"testing","unitsystem":"SI","userid":UID}
+    inst [0 or "sec"] labels {"domainname":"DOMAIN","groupid":GID,"hostname":"HOSTNAME","indom_name":"time","machineid":"MACHINE","role":"testing","units":"sec","unitsystem":"SI","userid":UID}
+    inst [1 or "min"] labels {"domainname":"DOMAIN","groupid":GID,"hostname":"HOSTNAME","indom_name":"time","machineid":"MACHINE","role":"testing","units":"min","unitsystem":"SI","userid":UID}
+    inst [2 or "hour"] labels {"domainname":"DOMAIN","groupid":GID,"hostname":"HOSTNAME","indom_name":"time","machineid":"MACHINE","role":"testing","units":"hour","unitsystem":"SI","userid":UID}

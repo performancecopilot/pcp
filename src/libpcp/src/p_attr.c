@@ -34,8 +34,13 @@ __pmSendAttr(int fd, int from, int attr, const char *value, int length)
     int		i;
     int		sts;
 
-    if (length < 0 || length >= LIMIT_ATTR_PDU)
+    if (length < 0 || length >= LIMIT_ATTR_PDU) {
+	if (pmDebugOptions.pdu) {
+	    fprintf(stderr, "__pmSendAttr: PM_ERR_IPC: length %d < 0 or >= LIMIT_ATTR_PDU %d\n",
+		length, LIMIT_ATTR_PDU);
+	}
 	return PM_ERR_IPC;
+    }
 
     need = (sizeof(*pp) - sizeof(pp->value)) + length;
     if ((pp = (attr_t *)__pmFindPDUBuf((int)need)) == NULL)
@@ -83,8 +88,20 @@ __pmDecodeAttr(__pmPDU *pdubuf, int *attr, char **value, int *vlen)
     pp = (attr_t *)pdubuf;
     pdulen = pp->hdr.len;	/* ntohl() converted already in __pmGetPDU() */
     length = pdulen - (sizeof(*pp) - sizeof(pp->value));
-    if (length < 0 || length >= LIMIT_ATTR_PDU)
+    if (length < 0) {
+	if (pmDebugOptions.pdu) {
+	    fprintf(stderr, "__pmDecodeAttr: PM_ERR_IPC: short PDU %d < min size %d\n",
+		pp->hdr.len, (int)(sizeof(*pp) - sizeof(pp->value)));
+	}
 	return PM_ERR_IPC;
+    }
+    if (length >= LIMIT_ATTR_PDU) {
+	if (pmDebugOptions.pdu) {
+	    fprintf(stderr, "__pmDecodeAttr: PM_ERR_IPC: long PDU %d > max size %d\n",
+		pp->hdr.len, (int)(sizeof(*pp) - sizeof(pp->value)) + LIMIT_ATTR_PDU - 1);
+	}
+	return PM_ERR_IPC;
+    }
 
     *attr = ntohl(pp->attr);
     *value = length ? pp->value : NULL;
@@ -114,8 +131,13 @@ __pmDecodeAttr(__pmPDU *pdubuf, int *attr, char **value, int *vlen)
 int
 __pmSendAuth(int fd, int from, int attr, const char *value, int length)
 {
-    if (length >= LIMIT_AUTH_PDU)
+    if (length >= LIMIT_AUTH_PDU) {
+	if (pmDebugOptions.pdu) {
+	    fprintf(stderr, "__pmSendAttr: PM_ERR_IPC: length %d >= LIMIT_ATTR_PDU %d\n",
+		length, LIMIT_AUTH_PDU);
+	}
 	return PM_ERR_IPC;
+    }
     return __pmSendAttr(fd, from, attr, value, length);
 }
 
@@ -126,7 +148,12 @@ __pmDecodeAuth(__pmPDU *pdubuf, int *attr, char **value, int *vlen)
 
     if ((sts = __pmDecodeAttr(pdubuf, attr, value, vlen)) < 0)
 	return sts;
-    if (*vlen >= LIMIT_AUTH_PDU)
+    if (*vlen >= LIMIT_AUTH_PDU) {
+	if (pmDebugOptions.pdu) {
+	    fprintf(stderr, "__pmDecodeAuth: PM_ERR_IPC: *vlen %d >= LIMIT_AUTH_PDU %d\n",
+		*vlen, LIMIT_AUTH_PDU);
+	}
 	return PM_ERR_IPC;
+    }
     return sts;
 }

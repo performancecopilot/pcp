@@ -98,9 +98,8 @@ _lock()
     __delay=200		# 1/10 of a second, so max wait is 20 sec
     while [ $__delay -gt 0 ]
     do
-	if pmlock -v "$__dir/lock" >>$tmp/out 2>&1
+	if pmlock -i "$$ $prog" -v "$__dir/lock" >>$tmp/out 2>&1
 	then
-	    echo "$$" >"$__dir/lock"
 	    break
 	else
 	    [ -f $tmp/stamp ] || touch -t `pmdate -30M %Y%m%d%H%M` $tmp/stamp
@@ -111,6 +110,7 @@ _lock()
 		then
 		    _warning "removing lock file older than 30 minutes (PID `cat $__dir/lock`)"
 		    LC_TIME=POSIX ls -l "$__dir/lock"
+		    [ -s  "$__dir/lock" ] && cat "$__dir/lock"
 		    rm -f "$__dir/lock"
 		else
 		    # there is a small timing window here where pmlock
@@ -133,6 +133,7 @@ _lock()
 	then
 	    _warning "is another $prog job running concurrently?"
 	    LC_TIME=POSIX ls -l "$__dir/lock"
+	    [ -s "$__dir/lock" ] && cat "$__dir/lock"
 	else
 	    _error "`cat $tmp/out`"
 	fi
@@ -141,7 +142,7 @@ _lock()
     else
 	if $VERY_VERBOSE
 	then
-	    echo "Lock acquired `cat $__dir/lock` `ls -l $__dir/lock`"
+	    echo >&2 "Lock acquired `cat $__dir/lock` `ls -l $__dir/lock`"
 	fi
     fi
 
@@ -155,7 +156,7 @@ _unlock()
     if [ -f "$__dir/lock" ]
     then
 	rm -f "$__dir/lock"
-	$VERY_VERBOSE && echo "Lock released"
+	$VERY_VERBOSE && echo >&2 "Lock released"
     fi
 }
 
@@ -253,7 +254,7 @@ _get_matching_hosts()
     fi
     for _host
     do
-	$VERY_VERBOSE && echo "Looking for host $_host in class $CLASS ..."
+	$VERY_VERBOSE && echo >&2 "Looking for host $_host in class $CLASS ..."
 	rm -f $tmp/primary_seen
 	if [ "$_host" = "$LOCALHOST" ]
 	then
@@ -373,10 +374,10 @@ _get_matching_hosts()
 	done >$tmp/tmp
 	if $VERY_VERBOSE
 	then
-	    echo "Candidate control files:"
+	    echo >&2 "Candidate control files:"
 	    sed -e 's/ .*//' <$tmp/tmp \
 	    | LC_COLLATE=POSIX sort \
-	    | uniq
+	    | uniq >&2
 	fi
 	if $EXPLICIT_CLASS
 	then
@@ -396,7 +397,7 @@ _get_matching_hosts()
 		then
 		    echo "$control" default "$host" "$primary" "$socks" "$dir" "$args" >>$tmp/tmp2
 		else
-		    $VERY_VERBOSE && echo "No match for control $control host $host directory $dir class $class"
+		    $VERY_VERBOSE && echo >&2 "No match for control $control host $host directory $dir class $class"
 		fi
 	    done
 	    if [ -s $tmp/tmp2 ]
@@ -408,8 +409,8 @@ _get_matching_hosts()
 	    fi
 	    if $VERY_VERBOSE
 	    then
-		echo "Matching control files:"
-		sed -e 's/ .*//' $tmp/tmp
+		echo >&2 "Matching control files:"
+		sed >&2 -e 's/ .*//' $tmp/tmp
 	    fi
 	else
 	    # add "class" of "-" to make $tmp/tmp format the same in
@@ -477,14 +478,14 @@ _get_matching_hosts()
     then
 	if $VERY_VERBOSE
 	then
-	    echo "_get_matching_hosts results:"
-	    echo "# control class host dir"
+	    echo >&2 "_get_matching_hosts results:"
+	    echo >&2 "# control class host dir"
 	    cat $tmp/args \
 	    | while read control class host primary socks dir other
 	    do
-		echo "$control $class $host $dir"
+		echo >&2 "$control $class $host $dir"
 	    done
-	    echo "# end"
+	    echo >&2 "# end"
 	fi
     fi
 }
@@ -552,7 +553,7 @@ _expand_control()
 {
     sed \
 	-e 's/[ 	][ 	]*/ /g' \
-	-e "s;PCP_ARCHIVE_DIR/;$PCP_LOG_DIR/pmlogger/;g" \
+	-e "s;PCP_ARCHIVE_DIR/;$PCP_ARCHIVE_DIR/;g" \
 	-e "s;PCP_LOG_DIR/;$PCP_LOG_DIR/;g" \
 	-e "s/^LOCALHOSTNAME /$LOCALHOST /g" \
 	-e "s/\\([^a-zA-Z0-9]\\)LOCALHOSTNAME/\\1$LOCALHOST/g" \
@@ -564,7 +565,7 @@ _expand_control()
 _unexpand_control()
 {
     sed \
-	-e "s;$PCP_LOG_DIR/pmlogger/;PCP_ARCHIVE_DIR/;g" \
+	-e "s;$PCP_ARCHIVE_DIR/;PCP_ARCHIVE_DIR/;g" \
 	-e "s;$PCP_LOG_DIR/;PCP_LOG_DIR/;g" \
 	-e "s/^$LOCALHOST /LOCALHOSTNAME /g" \
 	-e "s/\\([^a-zA-Z0-9]\\)$LOCALHOST/\\1LOCALHOSTNAME/g" \
@@ -577,7 +578,7 @@ _unexpand_control()
 _unexpand_pcp_control()
 {
     sed \
-	-e "s;$PCP_LOG_DIR/pmlogger/;PCP_ARCHIVE_DIR/;g" \
+	-e "s;$PCP_ARCHIVE_DIR/;PCP_ARCHIVE_DIR/;g" \
 	-e "s;$PCP_LOG_DIR/;PCP_LOG_DIR/;g" \
     # end
 }
@@ -627,10 +628,10 @@ _check_started()
     dir="$1"
     max=600		# 1/10 of a second, so 1 minute max
     i=0
-    $VERY_VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N "Started? ""$PCP_ECHO_C"
+    $VERY_VERBOSE && $PCP_ECHO_PROG >&2 $PCP_ECHO_N "Started? ""$PCP_ECHO_C"
     while [ $i -lt $max ]
     do
-	$VERY_VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N ".""$PCP_ECHO_C"
+	$VERY_VERBOSE && $PCP_ECHO_PROG >&2 $PCP_ECHO_N ".""$PCP_ECHO_C"
 	# rebuild active pids list, then check for our $dir
 	_get_pids_by_name ${IAM} | sed -e 's/.*/^&$/' >$tmp/pids
 	pid=`_get_pid "$dir"`
@@ -640,11 +641,11 @@ _check_started()
     done
     if [ -z "$pid" ]
     then
-	$VERY_VERBOSE && $PCP_ECHO_PROG " no"
+	$VERY_VERBOSE && $PCP_ECHO_PROG >&2 " no"
 	_warning "${IAM} failed to start for host $host and directory $dir"
 	sts=1
     else
-	$VERY_VERBOSE && $PCP_ECHO_PROG " yes"
+	$VERY_VERBOSE && $PCP_ECHO_PROG >&2 " yes"
 	if $MIGRATE
 	then
 	    # Add new process to the farm service (pmlogger_farm or pmie_farm).
@@ -660,7 +661,7 @@ _check_started()
 # check ${IAM} really stopped
 #
 # $1 = dir as it appears on the $PCP_TMP_DIR/${IAM} files (so a real path,
-#      not a possibly sybolic path from a control file)
+#      not a possibly symbolic path from a control file)
 #
 _check_stopped()
 {
@@ -668,10 +669,10 @@ _check_stopped()
     dir="$1"
     max=50		# 1/10 of a second, so 5 secs max
     i=0
-    $VERY_VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N "Stopped? ""$PCP_ECHO_C"
+    $VERY_VERBOSE && $PCP_ECHO_PROG >&2 $PCP_ECHO_N "Stopped? ""$PCP_ECHO_C"
     while [ $i -lt $max ]
     do
-	$VERY_VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N ".""$PCP_ECHO_C"
+	$VERY_VERBOSE && $PCP_ECHO_PROG >&2 $PCP_ECHO_N ".""$PCP_ECHO_C"
 	# rebuild active pids list, then check for our $dir
 	_get_pids_by_name ${IAM} | sed -e 's/.*/^&$/' >$tmp/pids
 	pid=`_get_pid "$dir"`
@@ -681,11 +682,11 @@ _check_stopped()
     done
     if [ -n "$pid" ]
     then
-	$VERY_VERBOSE && $PCP_ECHO_PROG " no"
+	$VERY_VERBOSE && $PCP_ECHO_PROG >&2 " no"
 	_warning "${IAM} failed to stop for host $host and directory $dir (PID=$pid)"
 	sts=1
     else
-	$VERY_VERBOSE && $PCP_ECHO_PROG " yes"
+	$VERY_VERBOSE && $PCP_ECHO_PROG >&2 " yes"
 	sts=0
     fi
     return $sts
@@ -717,22 +718,50 @@ _do_status()
 
     # see if system-level controls have stopped (all) ${IAM} processes
     #
-    systemctl_state=''
+    system_state=''
     if which systemctl >/dev/null 2>&1
     then
-	if [ -n "$PCP_SYSTEMDUNIT_DIR" -a -f "$PCP_SYSTEMDUNIT_DIR/${IAM}.service" ]
+	# we have a systemctl executable, but it might be disabled,
+	# e.g. on MX Linux
+	#
+	if systemctl -q is-active local-fs.target >/dev/null 2>&1
 	then
-	    # systemctl is handling this
-	    #
-	    if [ "`systemctl is-enabled ${IAM}.service`" = enabled ]
+	    if [ -n "$PCP_SYSTEMDUNIT_DIR" -a -f "$PCP_SYSTEMDUNIT_DIR/${IAM}.service" ]
 	    then
-		if [ "`systemctl is-active ${IAM}.service`" = inactive ]
+		# systemctl is handling this
+		#
+		if [ "`systemctl is-enabled ${IAM}.service`" = enabled ]
 		then
-		    systemctl_state='stopped by systemctl'
+		    if [ "`systemctl is-active ${IAM}.service`" = inactive ]
+		    then
+			system_state='stopped by systemctl'
+		    fi
+		else
+		    system_state='disabled by systemctl'
 		fi
-	    else
-		systemctl_state='disabled by systemctl'
 	    fi
+	fi
+    fi
+    if [ -z "$system_state" ]
+    then
+	if which invoke-rc.d >/dev/null 2>&1
+	then
+	    state=`invoke-rc.d ${IAM} status 2>/dev/null | sed -n -e '/^Checking for/{
+s/.*: //p
+}'`
+	    case "$state"
+	    in
+		running)
+			;;
+		stopped)
+			if [ -f /etc/rc5.d/S*${IAM} ]
+			then
+			    system_state='stopped by invoke-rc.d'
+			else
+			    system_state='disabled by update-rc.d'
+			fi
+			;;
+	    esac
 	fi
     fi
 
@@ -858,9 +887,9 @@ found == 0 && $3 == "'"$host"'" && $6 == "'"$dir"'"	{ print NR >>"'$tmp/match'";
 	    then
 		if [ "$state" = running ]
 		then
-		    if [ -n "$systemctl_state" ]
+		    if [ -n "$system_state" ]
 		    then
-			state="$systemctl_state"
+			state="$system_state"
 		    else
 			state="dead"
 		    fi
@@ -897,14 +926,14 @@ found == 0 && $3 == "'"$host"'" && $6 == "'"$dir"'"	{ print NR >>"'$tmp/match'";
 	then
 	    if $VERBOSE
 	    then
-		printf "$fmt" "pmcd Host" Archive Class PID State "Instance Id"
+		printf >&2 "$fmt" "pmcd Host" Archive Class PID State "Instance Id"
 	    else
 		printf "$fmt" "pmcd Host" Archive Class PID State
 	    fi
 	else
 	    if $VERBOSE
 	    then
-		printf "$fmt" "pmcd Host" Rules Evaluations Class PID State "Instance Id"
+		printf >&2 "$fmt" "pmcd Host" Rules Evaluations Class PID State "Instance Id"
 	    else
 		printf "$fmt" "pmcd Host" Rules Evaluations Class PID State
 	    fi
@@ -924,10 +953,10 @@ found == 0 && $3 == "'"$host"'" && $6 == "'"$dir"'"	{ print NR >>"'$tmp/match'";
 		    else
 			ident=`echo "$dir" | sed -e 's;/pmie.log;;' -e 's;.*/;;'`
 		    fi
-		    printf "$fmt" "$host" "$archive" "$class" "$pid" "$state" "$ident"
+		    printf >&2 "$fmt" "$host" "$archive" "$class" "$pid" "$state" "$ident"
 		    if [ "$state" = dead ]
 		    then
-			_diagnose "$host" "$dir" 
+			_diagnose >&2 "$host" "$dir" 
 		    fi
 		done
 	    else
@@ -1047,13 +1076,13 @@ state == 3 && $1 !~ /^#/		{ state = 4; part = 2 }
 					{ part = 2 }'
 	    if $VERY_VERY_VERBOSE
 	    then
-		echo "$config split ->"
+		echo >&2 "$config split ->"
 		for p in 0 1 2 3
 		do
-		    echo "--- part $p ---"
-		    [ -f $tmp/$p ] && cat $tmp/$p
+		    echo >&2 "--- part $p ---"
+		    [ -f $tmp/$p ] && cat >&2 $tmp/$p
 		done
-		echo "--- end parts ---"
+		echo >&2 "--- end parts ---"
 	    fi
 	    if [ -f $tmp/0 ]
 	    then
@@ -1135,7 +1164,7 @@ _do_cond_create()
 	    then
 		if [ "`cat $tmp/condition-true`" -gt 0 ]
 		then
-		    $VERY_VERBOSE && echo "host: $host condition true for some class, skip pmfind class"
+		    $VERY_VERBOSE && echo >&2 "host: $host condition true for some class, skip pmfind class"
 		    break
 		fi
 		continue
@@ -1163,10 +1192,10 @@ _do_cond_create()
 			    if pminfo -h "$host" "$args" >/dev/null 2>&1
 			    then
 				touch $tmp/match
-				$VERBOSE && echo "$policy: host $host exists($args) true"
+				$VERBOSE && echo >&2 "$policy: host $host exists($args) true"
 				break
 			    else
-				$VERY_VERBOSE && echo "$policy: host $host exists($args) false"
+				$VERY_VERBOSE && echo >&2 "$policy: host $host exists($args) false"
 			    fi
 			    ;;
 
@@ -1178,10 +1207,10 @@ $2 > 0	{ sts=0; exit }
 END	{ exit(sts) }'
 			    then
 				touch $tmp/match
-				$VERBOSE && echo "$policy: host $host values($args) true"
+				$VERBOSE && echo >&2 "$policy: host $host values($args) true"
 				break
 			    else
-				$VERY_VERBOSE && echo "$policy: host $host values($args) false"
+				$VERY_VERBOSE && echo >&2 "$policy: host $host values($args) false"
 			    fi
 			    ;;
 
@@ -1199,13 +1228,13 @@ END	{ exit(sts) }'
 				if [ "$val" -gt 0 ]
 				then
 				    touch $tmp/match
-				    $VERBOSE && echo "$policy: host $host condition($args) true, value $val"
+				    $VERBOSE && echo >&2 "$policy: host $host condition($args) true, value $val"
 				    break
 				else
-				    $VERY_VERBOSE && echo "$policy: host $host condition($args) false, value $val"
+				    $VERY_VERBOSE && echo >&2 "$policy: host $host condition($args) false, value $val"
 				fi
 			    else
-				$VERY_VERBOSE && echo "$policy: host $host condition($args) false, numval $numval"
+				$VERY_VERBOSE && echo >&2 "$policy: host $host condition($args) false, numval $numval"
 
 			    fi
 			    ;;
@@ -1214,9 +1243,9 @@ END	{ exit(sts) }'
 			    if echo "$host" | grep -E "$args" >/dev/null
 			    then
 				touch $tmp/match
-				$VERBOSE && echo "$policy: host $host hostname($args) true"
+				$VERBOSE && echo >&2 "$policy: host $host hostname($args) true"
 			    else
-				$VERY_VERBOSE && echo "$policy: host $host hostname($args) false"
+				$VERY_VERBOSE && echo >&2 "$policy: host $host hostname($args) false"
 				break
 			    fi
 			    ;;
@@ -1240,13 +1269,13 @@ END	{ exit(sts) }'
 		    fi
 		fi
 	    else
-		$VERY_VERBOSE && echo "$policy: no [create] section, skip class"
+		$VERY_VERBOSE && echo >&2 "$policy: no [create] section, skip class"
 	    fi
 	done
 	n=`cat $tmp/condition-true`
 	if [ "$n" -eq 0 ]
 	then
-	    $VERBOSE && _warning "no instance created for host $host"
+	    $VERBOSE && _warning >&2 "no instance created for host $host"
 	    continue
 	elif [ "$n" -eq 1 ]
 	then
@@ -1260,7 +1289,7 @@ END	{ exit(sts) }'
 	    _resolve_configs "$host" $tmp/control.*
 	    if $VERBOSE
 	    then
-		echo "--- start combined config file ---"
+		echo >&2 "--- start combined config file ---"
 		cat $tmp/config
 		echo "--- end combined config file ---"
 	    fi
@@ -1320,14 +1349,14 @@ End-of-File
 $1 == "'"$host"'"	{ print $4 }'`
 	if $VERBOSE
 	then
-	    echo "--- start control file ---"
-	    cat $tmp/control
-	    echo "--- end control file ---"
+	    echo >&2 "--- start control file ---"
+	    cat >&2 $tmp/control
+	    echo >&2 "--- end control file ---"
 	fi
-	$VERBOSE && echo "Installing control file: $CONTROLDIR/$ident"
+	$VERBOSE && echo >&2 "Installing control file: $CONTROLDIR/$ident"
 
 	$CP $tmp/control "$CONTROLDIR/$ident"
-	$CHECK $CHECKARGS -c "$CONTROLDIR/$ident"
+	$RUNASPCP "$CHECKCMD $CHECKARGS -c \"$CONTROLDIR/$ident\""
 	dir_args="`echo "$dir" | _expand_control`"
 	_check_started "$dir_args" || sts=1
     done
@@ -1393,7 +1422,7 @@ End-of-File
 	then
 	    :
 	else
-	    $VERBOSE && echo "Adding \$version=1.1 to control file"
+	    $VERBOSE && echo >&2 "Adding \$version=1.1 to control file"
 	    echo '#DO NOT REMOVE OR EDIT THE FOLLOWING LINE' >>$tmp/control
 	    echo '$version=1.1' >>$tmp/control
 	fi
@@ -1438,13 +1467,13 @@ $1 == "'"$host"'"	{ print $4 }'`
 	else
 	    if $VERBOSE
 	    then
-		echo "--- start control file ---"
-		cat $tmp/control
-		echo "--- end control file ---"
+		echo >&2 "--- start control file ---"
+		cat >&2 $tmp/control
+		echo >&2 "--- end control file ---"
 	    fi
-	    $VERBOSE && echo "Installing control file: $CONTROLDIR/$ident"
+	    $VERBOSE && echo >&2 "Installing control file: $CONTROLDIR/$ident"
 	    $CP $tmp/control "$CONTROLDIR/$ident"
-	    $CHECK $CHECKARGS -c "$CONTROLDIR/$ident"
+	    $RUNASPCP "$CHECKCMD $CHECKARGS -c \"$CONTROLDIR/$ident\""
 	    dir_args="`echo "$dir" | _expand_control`"
 	    _check_started "$dir_args" || sts=1
 	fi
@@ -1482,15 +1511,15 @@ $1 == "'"#!#$host"'" && ($4 == "'"$dir"'" || $4 == "'"$alt_dir"'")	{ next }
 									{ print }'
 	if cmp -s "$control" $tmp/control
 	then
-	    $VERBOSE && echo "${IAM} for host $host and directory $dir already removed from control file $control"
+	    $VERBOSE && echo >&2 "${IAM} for host $host and directory $dir already removed from control file $control"
 	else
 	    if $VERY_VERBOSE
 	    then
-		echo "Diffs for control file $control after removing host $host and directory $dir ..."
-		diff "$control" $tmp/control
+		echo >&2 "Diffs for control file $control after removing host $host and directory $dir ..."
+		diff >&2 "$control" $tmp/control
 	    elif $VERBOSE
 	    then
-		echo "Remove ${IAM} for host $host and directory $dir in control file $control"
+		echo >&2 "Remove ${IAM} for host $host and directory $dir in control file $control"
 	    fi
 	fi
 	sed -n <$tmp/control >$tmp/tmp -e '/^[^$# 	]/p'
@@ -1501,7 +1530,7 @@ $1 == "'"#!#$host"'" && ($4 == "'"$dir"'" || $4 == "'"$alt_dir"'")	{ next }
 	    #
 	    $CP $tmp/control "$control"
 	else
-	    $VERBOSE && echo "Remove control file $control"
+	    $VERBOSE && echo >&2 "Remove control file $control"
 	    $RM "$control"
 	fi
     done
@@ -1519,12 +1548,12 @@ _do_start()
     cat $tmp/args \
     | while read control class args_host primary socks args_dir args
     do
-	$VERBOSE && echo "Looking for ${IAM} using directory $args_dir ..."
+	$VERBOSE && echo >&2 "Looking for ${IAM} using directory $args_dir ..."
 	pid=`_get_pid "$args_dir"`
 	if [ -n "$pid" ]
 	then
-	    $VERBOSE && echo "${IAM} PID $pid already running for host $args_host, nothing to do"
-	    $VERBOSE && $restart && echo "Not expected for restart!"
+	    $VERBOSE && echo >&2 "${IAM} PID $pid already running for host $args_host, nothing to do"
+	    $VERBOSE && $restart && echo >&2 "Not expected for restart!"
 	    if $MIGRATE
 	    then
 		$VERBOSE && vflag="-v"
@@ -1536,9 +1565,9 @@ _do_start()
 	then
 	    if $restart
 	    then
-		echo "Not found as expected, launching new ${IAM}"
+		echo >&2 "Not found as expected, launching new ${IAM}"
 	    else
-		echo "Not found, launching new ${IAM}"
+		echo >&2 "Not found, launching new ${IAM}"
 	    fi
 	fi
 	if [ ! -f "$control" ]
@@ -1559,20 +1588,20 @@ $1 == "'"#!#$host"'" && ($4 == "'"$dir"'" || $4 == "'"$alt_dir"'")	{ sub(/^#!#/,
 	    then
 		:
 	    else
-		$VERBOSE && echo "${IAM} for host $host and directory $dir already enabled in control file $control"
+		$VERBOSE && echo >&2 "${IAM} for host $host and directory $dir already enabled in control file $control"
 	    fi
 	else
 	    if $VERY_VERBOSE
 	    then
-		echo "Diffs for control file $control after enabling host $host and directory $dir ..."
-		diff "$control" $tmp/control
+		echo >&2 "Diffs for control file $control after enabling host $host and directory $dir ..."
+		diff >&2 "$control" $tmp/control
 	    elif $VERBOSE
 	    then
-		echo "Enable ${IAM} for host $host and directory $dir in control file $control"
+		echo >&2 "Enable ${IAM} for host $host and directory $dir in control file $control"
 	    fi
 	    $CP $tmp/control "$control"
 	fi
-	$CHECK $CHECKARGS -c "$control"
+	$RUNASPCP "$CHECKCMD $CHECKARGS -c \"$control\""
 
 	_check_started "$args_dir" || sts=1
     done
@@ -1604,7 +1633,7 @@ _do_stop()
 	    _warning "${IAM} for host $host already stopped, nothing to do"
 	    continue
 	fi
-	$VERBOSE && echo "Looking for ${IAM} using directory $args_dir ..."
+	$VERBOSE && echo >&2 "Looking for ${IAM} using directory $args_dir ..."
 	pid=`_get_pid "$args_dir"`
 	if [ -z "$pid" ]
 	then
@@ -1612,11 +1641,24 @@ _do_stop()
 	else
 	    # $PCPQA_KILL_SIGNAL is only intended for QA tests
 	    #
-	    $VERBOSE && echo "Found PID $pid to stop using signal ${PCPQA_KILL_SIGNAL-TERM}"
+	    $VERBOSE && echo >&2 "Found PID $pid to stop using signal ${PCPQA_KILL_SIGNAL-TERM}"
 	    $KILL ${PCPQA_KILL_SIGNAL-TERM} $pid
 	    if _check_stopped "$args_dir"
 	    then
 		:
+	    elif [ -z "$PCPQA_KILL_SIGNAL" ]
+	    then
+		# Not QA and SIGTERM did not work, try a bigger hammer ...
+		#
+		$VERBOSE && echo >&2 "That didn't work, try using signal KILL"
+		$KILL KILL $pid
+		if _check_stopped "$args_dir"
+		then
+		    :
+		else
+		    echo 1 >$tmp/sts
+		    continue
+		fi
 	    else
 		echo 1 >$tmp/sts
 		continue
@@ -1636,15 +1678,15 @@ $1 == "'"$host"'" && ($4 == "'"$dir"'" || $4 == "'"$alt_dir"'")	{ $1 = "#!#" $1 
 								{ print }'
 	if cmp -s "$control" $tmp/control
 	then
-	    $VERBOSE && echo "${IAM} for host $host and directory $dir already disabled in control file $control"
+	    $VERBOSE && echo >&2 "${IAM} for host $host and directory $dir already disabled in control file $control"
 	else
 	    if $VERY_VERBOSE
 	    then
-		echo "Diffs for control file $control after disabling host $host and directory $dir ..."
-		diff "$control" $tmp/control
+		echo >&2 "Diffs for control file $control after disabling host $host and directory $dir ..."
+		diff >&2 "$control" $tmp/control
 	    elif $VERBOSE
 	    then
-		echo "Disable ${IAM} for host $host and directory $dir in control file $control"
+		echo >&2 "Disable ${IAM} for host $host and directory $dir in control file $control"
 	    fi
 	    $CP $tmp/control "$control"
 	fi
@@ -1694,7 +1736,8 @@ IDENT=''
 SHOWME=false
 CP=cp
 RM=rm
-CHECK="sudo -u $PCP_USER -g $PCP_GROUP $PCP_BINADM_DIR/${IAM}_check"
+RUNASPCP="$PCP_BINADM_DIR/runaspcp"
+CHECKCMD="$PCP_BINADM_DIR/${IAM}_check"
 CHECKARGS=''
 KILL="$PCP_BINADM_DIR/pmsignal -s"
 MIGRATE=false
@@ -1728,7 +1771,7 @@ do
 	-N)	SHOWME=true
 		CP="echo + $CP"
 		RM="echo + $RM"
-		CHECK="echo + $CHECK"
+		RUNASPCP="echo + $RUNASPCP"
 		KILL="echo + $KILL"
 		;;
 	-p)	POLICY="$2"
@@ -1786,9 +1829,9 @@ if $VERY_VERBOSE
 then
     if $EXPLICIT_CLASS
     then
-	echo "Using class: $CLASS"
+	echo >&2 "Using class: $CLASS"
     else
-	echo "Using default class"
+	echo >&2 "Using default class"
     fi
 fi
 [ -z "$POLICY" ] && POLICY="$PCP_ETC_DIR/pcp/${IAM}/class.d/$CLASS"
@@ -1823,7 +1866,7 @@ End-of-File
 	    echo '%h n n PCP_LOG_DIR/pmie/%i/pmie.log -c ./%i.config' >>$tmp/policy
 	fi
 	POLICY=$tmp/policy
-	$VERY_VERBOSE && echo "Using default policy"
+	$VERY_VERBOSE && echo >&2 "Using default policy"
     fi
 else
     if [ ! -f "$POLICY" ]
@@ -1837,7 +1880,7 @@ else
 	    _error "policy file $POLICY not found, class $CLASS is not defined so cannot destroy"
 	fi
     fi
-    $VERY_VERBOSE && echo "Using policy: $POLICY"
+    $VERY_VERBOSE && echo >&2 "Using policy: $POLICY"
 fi
 
 FIND_ALL_HOSTS=false

@@ -1,4 +1,35 @@
 QA output created by 1030
+== Checking metric values - el9
+
+network.softnet.cpu_collision
+    value 0
+
+network.softnet.dropped
+    value 0
+
+network.softnet.flow_limit_count
+    value 0
+
+network.softnet.input_qlen
+    value 4
+
+network.softnet.process_qlen
+    value 2
+
+network.softnet.processed
+    value 2562585
+
+network.softnet.received_rps
+    value 0
+
+network.softnet.time_squeeze
+    value 997
+
+network.softnet.total_backlog
+    value 6
+
+== done
+
 == Checking metric values - el7
 
 network.softnet.cpu_collision
@@ -10,6 +41,12 @@ network.softnet.dropped
 network.softnet.flow_limit_count
     value 6
 
+network.softnet.input_qlen
+Error: Metric not supported by this version of monitored application
+
+network.softnet.process_qlen
+Error: Metric not supported by this version of monitored application
+
 network.softnet.processed
     value 6647645
 
@@ -18,6 +55,9 @@ network.softnet.received_rps
 
 network.softnet.time_squeeze
     value 3
+
+network.softnet.total_backlog
+Error: Metric not supported by this version of monitored application
 
 == done
 
@@ -32,6 +72,12 @@ network.softnet.dropped
 network.softnet.flow_limit_count
 Error: Metric not supported by this version of monitored application
 
+network.softnet.input_qlen
+Error: Metric not supported by this version of monitored application
+
+network.softnet.process_qlen
+Error: Metric not supported by this version of monitored application
+
 network.softnet.processed
     value 43552
 
@@ -40,6 +86,9 @@ network.softnet.received_rps
 
 network.softnet.time_squeeze
     value 3
+
+network.softnet.total_backlog
+Error: Metric not supported by this version of monitored application
 
 == done
 
@@ -54,6 +103,12 @@ network.softnet.dropped
 network.softnet.flow_limit_count
 Error: Metric not supported by this version of monitored application
 
+network.softnet.input_qlen
+Error: Metric not supported by this version of monitored application
+
+network.softnet.process_qlen
+Error: Metric not supported by this version of monitored application
+
 network.softnet.processed
     value 9009
 
@@ -62,6 +117,9 @@ Error: Metric not supported by this version of monitored application
 
 network.softnet.time_squeeze
     value 3
+
+network.softnet.total_backlog
+Error: Metric not supported by this version of monitored application
 
 == done
 

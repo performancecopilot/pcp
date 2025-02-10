@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019,2021-2022 Red Hat.
+ * Copyright (c) 2018-2019,2021-2024 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -20,6 +20,9 @@
 #ifdef HAVE_OPENSSL
 #include <openssl/ssl.h>
 #endif
+#ifdef HAVE_ZLIB
+#include <zlib.h>
+#endif
 
 #include "pmapi.h"
 #include "mmv_stats.h"
@@ -30,10 +33,11 @@
 #include "http.h"
 #include "pcp.h"
 
+
 typedef enum proxy_registry {
     METRICS_NOTUSED	= 0,	/* special "next available" MMV cluster */
     METRICS_SERVER,
-    METRICS_REDIS,
+    METRICS_KEYS,
     METRICS_HTTP,
     METRICS_PCP,
     METRICS_DISCOVER,
@@ -42,6 +46,14 @@ typedef enum proxy_registry {
     METRICS_SEARCH,
     NUM_REGISTRY
 } proxy_registry_t;
+
+typedef enum proxy_values {
+    VALUE_HTTP_COMPRESSED_COUNT,
+    VALUE_HTTP_UNCOMPRESSED_COUNT,
+    VALUE_HTTP_COMPRESSED_BYTES,
+    VALUE_HTTP_UNCOMPRESSED_BYTES,
+    NUM_VALUES
+} proxy_values_t;
 
 typedef struct stream_write_baton {
     uv_write_t		writer;
@@ -72,14 +84,10 @@ typedef struct stream {
 typedef enum stream_protocol {
     STREAM_UNKNOWN	= 0,
     STREAM_SECURE	= 0x1,
-    STREAM_REDIS	= 0x2,
+    STREAM_KEYS		= 0x2,
     STREAM_HTTP		= 0x4,
     STREAM_PCP		= 0x8,
 } stream_protocol_t;
-
-typedef struct redis_client {
-    redisReader		*reader;	/* RESP request handling state */
-} redis_client_t;
 
 typedef struct http_client {
     http_parser		parser;		/* HTTP request parsing state */
@@ -93,7 +101,14 @@ typedef struct http_client {
     void		*data;		/* opaque servlet information */
     unsigned int	type : 16;	/* HTTP response content type */
     unsigned int	flags : 16;	/* request status flags field */
+#ifdef HAVE_ZLIB
+    z_stream		strm;
+#endif
 } http_client_t;
+
+typedef struct key_client {
+    respReader		*reader;	/* RESP request handling state */
+} key_client_t;
 
 typedef struct pcp_client {
     pcp_proxy_state_t	state;
@@ -131,8 +146,8 @@ typedef struct client {
     secure_client	secure;
 #endif
     union {
-	redis_client_t	redis;
 	http_client_t	http;
+	key_client_t	keys;
 	pcp_client_t	pcp;
     } u;
     struct proxy	*proxy;
@@ -148,15 +163,17 @@ typedef struct proxy {
     struct client	*first;		/* doubly linked list of clients */
     struct server	*servers;	/* array of tcp/pipe socket servers */
     unsigned int	nservers;	/* count of entries in server array */
-    unsigned int	redisetup;	/* is Redis slots information setup */
+    unsigned int	keys_setup;	/* key server slot information setup */
     struct client	*pending_writes;
 #ifdef HAVE_OPENSSL
     SSL_CTX		*ssl;
     __pmSecureConfig	tls;
 #endif
-    redisSlots		*slots;		/* mapping of Redis keys to servers */
+    keySlots		*slots;		/* mapping of key names to servers */
     struct servlet	*servlets;	/* linked list of http URL handlers */
     mmv_registry_t	*metrics[NUM_REGISTRY];	/* performance metrics */
+    pmAtomValue		*values[NUM_VALUES]; /* local metric values */
+    void		*map;		/* MMV mapped metric values */
     struct dict		*config;	/* configuration dictionary */
     uv_loop_t		*events;	/* global, async event loop */
     uv_callback_t	write_callbacks;
@@ -192,15 +209,15 @@ extern void on_secure_client_close(struct client *);
 #define on_secure_client_close(c)	do { (void)(c); } while (0)
 #endif
 
-extern void on_redis_client_read(struct proxy *, struct client *,
-				ssize_t, const uv_buf_t *);
-extern void on_redis_client_write(struct client *);
-extern void on_redis_client_close(struct client *);
-
 extern void on_http_client_read(struct proxy *, struct client *,
 				ssize_t, const uv_buf_t *);
 extern void on_http_client_write(struct client *);
 extern void on_http_client_close(struct client *);
+
+extern void on_key_client_read(struct proxy *, struct client *,
+				ssize_t, const uv_buf_t *);
+extern void on_key_client_write(struct client *);
+extern void on_key_client_close(struct client *);
 
 extern void on_pcp_client_read(struct proxy *, struct client *,
 				ssize_t, const uv_buf_t *);
@@ -217,11 +234,11 @@ extern void close_secure_module(struct proxy *);
 #define close_secure_module(p)	do { (void)(p); } while (0)
 #endif
 
-extern void setup_redis_module(struct proxy *);
-extern void close_redis_module(struct proxy *);
-
 extern void setup_http_module(struct proxy *);
 extern void close_http_module(struct proxy *);
+
+extern void setup_keys_module(struct proxy *);
+extern void close_keys_module(struct proxy *);
 
 extern void setup_pcp_module(struct proxy *);
 extern void close_pcp_module(struct proxy *);

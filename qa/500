@@ -49,7 +49,7 @@ for arg in '-D pdu' -r '-t 5sec' '-v 100k'
 do
     echo
     echo "pmnewlog args: -V -L -c null -p ... $arg one"
-    _wait_for_pmlogger $pmlogger_pid pmlogger.log
+    _wait_for_pmlogger $pmlogger_pid pmlogger.log || _exit 1
     $sudo rm -f one.*
     # Need to do this really as root so the pmsignal to kill pmlogger
     # works as expected.
@@ -74,7 +74,7 @@ p
 done
 
 $sudo $signal -s TERM $pmlogger_pid
-_wait_pmlogger_end $pmlogger_pid
+_wait_pmlogger_end $pmlogger_pid || _exit 1
 
 echo
 echo "expect none of my pmloggers to be running ..."

@@ -15,7 +15,7 @@
 .\"
 .TH LOGARCHIVE 5 "" "Performance Co-Pilot"
 .SH NAME
-\f3LOGARCHIVE\f1 \- Performance Co-Pilot archive log formats
+\f3LOGARCHIVE\f1 \- Performance Co-Pilot archive formats
 .de TW	\" wrap a table row
 .ad l
 .hy 0
@@ -44,7 +44,7 @@ release in May 1998.
 Archives may be read by most PCP client tools, using the
 .IR "\-a/\-\-archive NAME"
 option, or dumped raw by
-.BR pmdumplog (1).
+.BR pmlogdump (1).
 Archives are created primarily by
 .BR pmlogger (1),
 however they can also be created using the
@@ -755,7 +755,7 @@ scripts
 .BR pmafm (1),
 .BR pmchart (1),
 .BR pmdaproc (1),
-.BR pmdumplog (1),
+.BR pmlogdump (1),
 .BR pmlogger (1),
 .BR pmlogger_check (1),
 .BR pmlogger_daily (1),
@@ -773,3 +773,15 @@ scripts
 .BR pcp.conf (5)
 and
 .BR pcp.env (5).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ PM_LOG_FEATURE_XXX INSITU endian
+.\" +ok+ subrecords subsampled labelsets
+.\" +ok+ pmLogText pmLogLabelSet {from "record" types described here}
+.\" +ok+ subrecord myarchive labelset unframed
+.\" +ok+ AEDT DPTR NOP PiB src LN
+.\" +ok+ __pmLog {from __pmLog* types in ...}
+.\" +ok+ logmeta {from libpcp/src/logmeta.c}
+.\" +ok+ logutil {from libpcp/src/logutil.c}
+.\" +ok+ PM_SEM_ {from PM_SEM_*} PM_TEXT_ {from PM_TEXT_*}
+.\" +ok+ PM_LABEL_ {from PM_LABEL_*}

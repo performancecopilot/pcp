@@ -1,0 +1,46 @@
+#! /bin/sh
+#
+# Copyright (c) 2023 Red Hat.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# Install the resctrl PMDA and/or PMNS
+#
+
+. $PCP_DIR/etc/pcp.env
+. $PCP_SHARE_DIR/lib/pmdaproc.sh
+
+if [ ! -d /sys/fs/resctrl/mon_data ] ; then
+    if [ -n "$PCP_RESCTRL_DIR" ]; then
+	echo "Using $PCP_RESCTRL_DIR for testing"
+    else
+	#debug# VENDOR=$(lscpu | awk '/^Vendor ID/ {print $3}')
+	systemctl enable --now sys-fs-resctrl.mount
+	STATUS=$?
+	if [ $STATUS -eq 0 ] ; then
+	    echo "Mounted /sys/fs/resctrl/mon_data"
+	fi
+	PCP_RESCTRL_DIR=/sys/fs/resctrl
+    fi
+    if [ ! -d $PCP_RESCTRL_DIR/mon_data ] ; then
+	echo "No $PCP_RESCTRL_DIR/mon_data directory, last level cache metrics are not supported"
+	exit 1
+    fi
+else
+    echo "Using previously mounted /sys/fs/resctrl/mon_data"
+fi
+
+iam=resctrl
+dso_opt=true
+
+pmdaSetup
+pmdaInstall
+exit 0

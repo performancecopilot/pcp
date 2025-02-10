@@ -1127,7 +1127,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], __pmResult *
 	    }
 	    sts = __pmLogLookupDesc(ctxp->c_archctl, pmidlist[j], &pcp->desc);
 	    if (sts < 0)
-		/* not in the archive log */
+		/* not in the archive */
 		pcp->desc.type = -1;
 	    else {
 		/* enumerate all the instances from the domain underneath */
@@ -1712,12 +1712,20 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_CALL);
 			    rp->vset[j]->vlist[i++].value.lval = icp->v_next.lval;
 			else {
 			    if (pcp->desc.sem == PM_SEM_DISCRETE) {
-				if (icp->t_prior >= 0)
-				    rp->vset[j]->vlist[i++].value.lval = icp->v_prior.lval;
+				if (icp->t_prior >= 0) {
+				    if (!IS_VALUE(icp->s_next) || t_req <= (icp->t_prior + icp->t_next)/2)
+					rp->vset[j]->vlist[i++].value.lval = icp->v_prior.lval;
+				    else
+					rp->vset[j]->vlist[i++].value.lval = icp->v_next.lval;
+				}
 			    }
 			    else if (pcp->desc.sem == PM_SEM_INSTANT) {
-				if (icp->t_prior >= 0 && icp->t_next >= 0)
-				    rp->vset[j]->vlist[i++].value.lval = icp->v_prior.lval;
+				if (icp->t_prior >= 0 && icp->t_next >= 0) {
+				    if (t_req <= (icp->t_prior + icp->t_next)/2)
+					rp->vset[j]->vlist[i++].value.lval = icp->v_prior.lval;
+				    else
+					rp->vset[j]->vlist[i++].value.lval = icp->v_next.lval;
+				}
 			    }
 			    else {
 				/* assume COUNTER */
@@ -1780,12 +1788,20 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_CALL);
 			    rp->vset[j]->vlist[i++].value.lval = icp->v_next.lval;
 			else {
 			    if (pcp->desc.sem == PM_SEM_DISCRETE) {
-				if (icp->t_prior >= 0)
-				    rp->vset[j]->vlist[i++].value.lval = icp->v_prior.lval;
+				if (icp->t_prior >= 0) {
+				    if (!IS_VALUE(icp->s_next) || t_req <= (icp->t_prior + icp->t_next)/2)
+					rp->vset[j]->vlist[i++].value.lval = icp->v_prior.lval;
+				    else
+					rp->vset[j]->vlist[i++].value.lval = icp->v_next.lval;
+				}
 			    }
 			    else if (pcp->desc.sem == PM_SEM_INSTANT) {
-				if (icp->t_prior >= 0 && icp->t_next >= 0)
-				    rp->vset[j]->vlist[i++].value.lval = icp->v_prior.lval;
+				if (icp->t_prior >= 0 && icp->t_next >= 0) {
+				    if (t_req <= (icp->t_prior + icp->t_next)/2)
+					rp->vset[j]->vlist[i++].value.lval = icp->v_prior.lval;
+				    else
+					rp->vset[j]->vlist[i++].value.lval = icp->v_next.lval;
+				}
 			    }
 			    else {
 				/* assume COUNTER */
@@ -1823,14 +1839,22 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_CALL);
 			    memcpy((void *)vp->vbuf, (void *)icp->v_next.pval->vbuf, sizeof(float));
 			else {
 			    if (pcp->desc.sem == PM_SEM_DISCRETE) {
-				if (icp->t_prior >= 0)
-				    memcpy((void *)vp->vbuf, (void *)icp->v_prior.pval->vbuf, sizeof(float));
+				if (icp->t_prior >= 0) {
+				    if (!IS_VALUE(icp->s_next) || t_req <= (icp->t_prior + icp->t_next)/2)
+					memcpy((void *)vp->vbuf, (void *)icp->v_prior.pval->vbuf, sizeof(float));
+				    else
+					memcpy((void *)vp->vbuf, (void *)icp->v_next.pval->vbuf, sizeof(float));
+				}
 				else
 				    ok = 0;
 			    }
 			    else if (pcp->desc.sem == PM_SEM_INSTANT) {
-				if (icp->t_prior >= 0 && icp->t_next >= 0)
-				    memcpy((void *)vp->vbuf, (void *)icp->v_prior.pval->vbuf, sizeof(float));
+				if (icp->t_prior >= 0 && icp->t_next >= 0) {
+				    if (t_req <= (icp->t_prior + icp->t_next)/2)
+					memcpy((void *)vp->vbuf, (void *)icp->v_prior.pval->vbuf, sizeof(float));
+				    else
+					memcpy((void *)vp->vbuf, (void *)icp->v_next.pval->vbuf, sizeof(float));
+				}
 				else
 				    ok = 0;
 			    }
@@ -1885,14 +1909,22 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_CALL);
 			    memcpy((void *)vp->vbuf, (void *)icp->v_next.pval->vbuf, sizeof(__int64_t));
 			else {
 			    if (pcp->desc.sem == PM_SEM_DISCRETE) {
-				if (icp->t_prior >= 0)
-				    memcpy((void *)vp->vbuf, (void *)icp->v_prior.pval->vbuf, sizeof(__int64_t));
+				if (icp->t_prior >= 0) {
+				    if (!IS_VALUE(icp->s_next) || t_req <= (icp->t_prior + icp->t_next)/2)
+					memcpy((void *)vp->vbuf, (void *)icp->v_prior.pval->vbuf, sizeof(__int64_t));
+				    else
+					memcpy((void *)vp->vbuf, (void *)icp->v_next.pval->vbuf, sizeof(__int64_t));
+				}
 				else
 				    ok = 0;
 			    }
 			    else if (pcp->desc.sem == PM_SEM_INSTANT) {
-				if (icp->t_prior >= 0 && icp->t_next >= 0)
-				    memcpy((void *)vp->vbuf, (void *)icp->v_prior.pval->vbuf, sizeof(__int64_t));
+				if (icp->t_prior >= 0 && icp->t_next >= 0) {
+				    if (t_req <= (icp->t_prior + icp->t_next)/2)
+					memcpy((void *)vp->vbuf, (void *)icp->v_prior.pval->vbuf, sizeof(__int64_t));
+				    else
+					memcpy((void *)vp->vbuf, (void *)icp->v_next.pval->vbuf, sizeof(__int64_t));
+				}
 				else
 				    ok = 0;
 			    }
@@ -2025,14 +2057,22 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_CALL);
 			    memcpy((void *)vp->vbuf, (void *)icp->v_next.pval->vbuf, sizeof(double));
 			else {
 			    if (pcp->desc.sem == PM_SEM_DISCRETE) {
-				if (icp->t_prior >= 0)
-				    memcpy((void *)vp->vbuf, (void *)icp->v_prior.pval->vbuf, sizeof(double));
+				if (icp->t_prior >= 0) {
+				    if (!IS_VALUE(icp->s_next) || t_req <= (icp->t_prior + icp->t_next)/2)
+					memcpy((void *)vp->vbuf, (void *)icp->v_prior.pval->vbuf, sizeof(double));
+				    else
+					memcpy((void *)vp->vbuf, (void *)icp->v_next.pval->vbuf, sizeof(double));
+				}
 				else
 				    ok = 0;
 			    }
 			    else if (pcp->desc.sem == PM_SEM_INSTANT) {
-				if (icp->t_prior >= 0 && icp->t_next >= 0)
-				    memcpy((void *)vp->vbuf, (void *)icp->v_prior.pval->vbuf, sizeof(double));
+				if (icp->t_prior >= 0 && icp->t_next >= 0) {
+				    if (t_req <= (icp->t_prior + icp->t_next)/2)
+					memcpy((void *)vp->vbuf, (void *)icp->v_prior.pval->vbuf, sizeof(double));
+				    else
+					memcpy((void *)vp->vbuf, (void *)icp->v_next.pval->vbuf, sizeof(double));
+				}
 				else
 				    ok = 0;
 			    }

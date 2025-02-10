@@ -10,7 +10,7 @@ in the source distribution for its full text.
 #include <sys/sysctl.h>
 
 #include "Machine.h"
-#include "darwin/DarwinProcessList.h"
+#include "darwin/DarwinProcessTable.h"
 
 
 #define PROCESS_FLAG_TTY 0x00000100
@@ -34,13 +34,13 @@ void Process_delete(Object* cast);
 
 void DarwinProcess_setFromKInfoProc(Process* proc, const struct kinfo_proc* ps, bool exists);
 
-void DarwinProcess_setFromLibprocPidinfo(DarwinProcess* proc, DarwinProcessList* dpl, double timeIntervalNS);
+void DarwinProcess_setFromLibprocPidinfo(DarwinProcess* proc, DarwinProcessTable* dpt, double timeIntervalNS);
 
 /*
  * Scan threads for process state information.
  * Based on: http://stackoverflow.com/questions/6788274/ios-mac-cpu-usage-for-thread
  * and       https://github.com/max-horvath/htop-osx/blob/e86692e869e30b0bc7264b3675d2a4014866ef46/ProcessList.c
  */
-void DarwinProcess_scanThreads(DarwinProcess* dp);
+void DarwinProcess_scanThreads(DarwinProcess* dp, DarwinProcessTable* dpt);
 
 #endif

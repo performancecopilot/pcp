@@ -5,13 +5,14 @@ Released under the GNU GPLv2+, see the COPYING file
 in the source distribution for its full text.
 */
 
+#include "config.h" // IWYU pragma: keep
+
 #include "CategoriesPanel.h"
 
 #include <ctype.h>
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "AvailableColumnsPanel.h"
 #include "AvailableMetersPanel.h"
 #include "ColorsPanel.h"
 #include "DisplayOptionsPanel.h"
@@ -25,6 +26,8 @@ in the source distribution for its full text.
 #include "Object.h"
 #include "ProvideCurses.h"
 #include "ScreensPanel.h"
+#include "ScreenTabsPanel.h"
+#include "Settings.h"
 #include "Vector.h"
 #include "XUtils.h"
 
@@ -72,11 +75,21 @@ static void CategoriesPanel_makeColorsPage(CategoriesPanel* this) {
    ScreenManager_add(this->scr, colors, -1);
 }
 
+#if defined(HTOP_PCP)   /* all platforms supporting dynamic screens */
+static void CategoriesPanel_makeScreenTabsPage(CategoriesPanel* this) {
+   Settings* settings = this->host->settings;
+   Panel* screenTabs = (Panel*) ScreenTabsPanel_new(settings);
+   Panel* screenNames = (Panel*) ((ScreenTabsPanel*)screenTabs)->names;
+   ScreenManager_add(this->scr, screenTabs, 20);
+   ScreenManager_add(this->scr, screenNames, -1);
+}
+#endif
+
 static void CategoriesPanel_makeScreensPage(CategoriesPanel* this) {
    Settings* settings = this->host->settings;
    Panel* screens = (Panel*) ScreensPanel_new(settings);
    Panel* columns = (Panel*) ((ScreensPanel*)screens)->columns;
-   Panel* availableColumns = (Panel*) AvailableColumnsPanel_new(columns, settings->dynamicColumns);
+   Panel* availableColumns = (Panel*) ((ScreensPanel*)screens)->availableColumns;
    ScreenManager_add(this->scr, screens, 20);
    ScreenManager_add(this->scr, columns, 20);
    ScreenManager_add(this->scr, availableColumns, -1);
@@ -94,10 +107,13 @@ typedef struct CategoriesPanelPage_ {
    CategoriesPanel_makePageFunc ctor;
 } CategoriesPanelPage;
 
-static const CategoriesPanelPage categoriesPanelPages[] = {
+static CategoriesPanelPage categoriesPanelPages[] = {
    { .name = "Display options", .ctor = CategoriesPanel_makeDisplayOptionsPage },
    { .name = "Header layout", .ctor = CategoriesPanel_makeHeaderOptionsPage },
    { .name = "Meters", .ctor = CategoriesPanel_makeMetersPage },
+#if defined(HTOP_PCP)   /* all platforms supporting dynamic screens */
+   { .name = "Screen tabs", .ctor = CategoriesPanel_makeScreenTabsPage },
+#endif
    { .name = "Screens", .ctor = CategoriesPanel_makeScreensPage },
    { .name = "Colors", .ctor = CategoriesPanel_makeColorsPage },
 };

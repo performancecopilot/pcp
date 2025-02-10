@@ -15,7 +15,7 @@ fnmatch implementation for Windows builds only
     - freebsd/master/lib/libc/gen/fnmatch.c
 
 crc16, dict, sha1, sha256 (hash and string helpers)
-    - https://github.com/redis/redis/blob/6.0/src
+    - https://github.com/valkey-io/valkey/tree/unstable/src
 
 Callback functions on main libuv thread
     - https://github.com/litesync/uv_callback

@@ -13,6 +13,8 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
  */
+
+#include <pcp/pmapi.h>
 #include "qed_groupcontrol.h"
 #include "qed_console.h"
 #include "qed_app.h"
@@ -130,8 +132,10 @@ void QedGroupControl::adjustLiveWorldViewForward(QmcTime::Packet *packet)
 {
     console->post("QedGroupControl::adjustLiveWorldViewForward");
 
-    if (isActive(packet))
+    if (isActive(packet)) {
 	newButtonState(packet->state, packet->mode, isRecording(packet));
+	updateTimeButton();
+    }
 }
 
 void QedGroupControl::adjustArchiveWorldViewForward(QmcTime::Packet *packet, bool setup)
@@ -140,8 +144,10 @@ void QedGroupControl::adjustArchiveWorldViewForward(QmcTime::Packet *packet, boo
 
     if (setup)
 	packet->state = QmcTime::StoppedState;
-    if (isActive(packet))
+    if (isActive(packet)) {
 	newButtonState(packet->state, packet->mode, isRecording(packet));
+	updateTimeButton();
+    }
 }
 
 void QedGroupControl::adjustArchiveWorldViewBackward(QmcTime::Packet *packet, bool setup)
@@ -150,8 +156,10 @@ void QedGroupControl::adjustArchiveWorldViewBackward(QmcTime::Packet *packet, bo
 
     if (setup)
 	packet->state = QmcTime::StoppedState;
-    if (isActive(packet))
+    if (isActive(packet)) {
 	newButtonState(packet->state, packet->mode, isRecording(packet));
+	updateTimeButton();
+    }
 }
 
 void QedGroupControl::adjustArchiveWorldViewStopped(QmcTime::Packet *packet, bool needFetch)
@@ -191,6 +199,8 @@ void QedGroupControl::step(QmcTime::Packet *packet)
 
     console->post("QedGroupControl::step: stepping to time %.2f, delta=%.2f, state=%s",
 	stepPosition, my.realDelta, timeState());
+    if (pmDebugOptions.desperate)
+	console->post("Packet: %s", QmcTime::packetStr(packet));
 
     if ((packet->source == QmcTime::ArchiveSource &&
 	((packet->state == QmcTime::ForwardState &&
@@ -209,8 +219,10 @@ void QedGroupControl::step(QmcTime::Packet *packet)
     adjustStep(packet);
     fetch();
 
-    if (isActive(packet))
+    if (isActive(packet)) {
 	newButtonState(packet->state, packet->mode, isRecording(packet));
+	updateTimeButton();
+    }
 }
 
 void QedGroupControl::VCRMode(QmcTime::Packet *packet, bool dragMode)

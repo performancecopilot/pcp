@@ -14,7 +14,6 @@ echo "QA output created by $seq"
 . ./common.check
 
 status=0	# success is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 ./getpmcdhosts -L -v 'pcp>=2' -n 2 -a sample 2>$tmp.err \
@@ -50,13 +49,13 @@ multi5       = avg_host min_sample count_inst sample.bin $hosts @0..2 > 400;
 
 EOF
 
-cat $tmp.config >>$seq.full
+cat $tmp.config >>$seq_full
 
 # real QA test starts here
 pmie -T 10 -v $tmp.config >$tmp.out 2>$tmp.err
-( echo; echo "=== err ==="; cat $tmp.err ) >>$seq.full
+( echo; echo "=== err ==="; cat $tmp.err ) >>$seq_full
 cat $tmp.err | _show_pmie_exit
-( echo; echo "=== out ==="; cat $tmp.out ) >>$seq.full
+( echo; echo "=== out ==="; cat $tmp.out ) >>$seq_full
 cat $tmp.out | LC_COLLATE=POSIX sort
 
 # success, all done

@@ -16,13 +16,12 @@ echo "QA output created by $seq"
 
 signal=$PCP_BINADM_DIR/pmsignal
 status=0	# success is the default!
-$sudo rm -rf $tmp.*
-trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+trap "rm -f $tmp.* dumb_pmda.log*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 $sudo rm -f core*
 
-( src/dumb_pmda >$seq.full 2>&1 ) &
+( src/dumb_pmda >$seq_full 2>&1 ) &
 
 sleep 15
 $signal -a -s KILL dumb_pmda >/dev/null 2>&1

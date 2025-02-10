@@ -1,5 +1,5 @@
 /*
-** Copyright (C) 2015-2022 Red Hat.
+** Copyright (C) 2015-2024 Red Hat.
 ** Copyright (C) 2000-2012 Gerlof Langeveld.
 **
 ** This program is free software; you can redistribute it and/or modify it
@@ -16,6 +16,7 @@
 #include <pcp/pmapi.h>
 
 #include "atop.h"
+#include "photoproc.h"
 #include "photosyst.h"
 #include "systmetrics.h"
 #include "showgeneric.h"
@@ -66,6 +67,10 @@ sstat_alloc(const char *purpose)
 	ptrverify(ptr, "Alloc failed for %s (GPUs)\n", purpose);
 	sstat->gpu.gpu = (struct pergpu *)ptr;
 
+	ptr = calloc(1, sizeof(struct perllc));
+	ptrverify(ptr, "Alloc failed for %s (LLCs)\n", purpose);
+	sstat->llc.perllc = (struct perllc *)ptr;
+
 	return sstat;
 }
 
@@ -77,9 +82,9 @@ void
 sstat_reset(struct sstat *sstat)
 {
 	void		*cpu, *gpu, *intf, *ifb, *memnuma, *cpunuma;
-	void	       	*dsk, *lvm, *mdd, *nfs;
+	void	       	*dsk, *lvm, *mdd, *nfs, *llc;
 	unsigned int	nrcpu, nrgpus, nrintf, nrports, nrmemnuma, nrcpunuma;
-	unsigned int	nrdsk, nrlvm, nrmdd, nrnfs;
+	unsigned int	nrdsk, nrlvm, nrmdd, nrnfs, nrllcs;
 
 	cpu = sstat->cpu.cpu;
 	gpu = sstat->gpu.gpu;
@@ -91,6 +96,7 @@ sstat_reset(struct sstat *sstat)
 	nfs = sstat->nfs.nfsmounts.nfsmnt;
 	memnuma = sstat->memnuma.numa;
 	cpunuma = sstat->cpunuma.numa;
+	llc = sstat->llc.perllc;
 
 	nrcpu = sstat->cpu.nrcpu;
 	nrintf = sstat->intf.nrintf;
@@ -102,6 +108,7 @@ sstat_reset(struct sstat *sstat)
 	nrnfs = sstat->nfs.nfsmounts.nrmounts;
 	nrmemnuma = sstat->memnuma.nrnuma;
 	nrcpunuma = sstat->cpunuma.nrnuma;
+	nrllcs = sstat->llc.nrllcs;
 
 	/* clear fixed portion now that pointers/sized are safe */
 	memset(sstat, 0, sizeof(struct sstat));
@@ -117,6 +124,7 @@ sstat_reset(struct sstat *sstat)
 	memset(nfs, 0, sizeof(struct pernfsmount) * nrnfs);
 	memset(memnuma, 0, sizeof(struct mempernuma) * nrmemnuma);
 	memset(cpunuma, 0, sizeof(struct cpupernuma) * nrcpunuma);
+	memset(llc, 0, sizeof(struct perllc) * nrllcs);
 
 	/* stitch the main sstat buffer back together once more */
 	sstat->cpu.cpu = cpu;
@@ -129,6 +137,7 @@ sstat_reset(struct sstat *sstat)
 	sstat->nfs.nfsmounts.nfsmnt = nfs;
 	sstat->memnuma.numa = memnuma;
 	sstat->cpunuma.numa = cpunuma;
+	sstat->llc.perllc = llc;
 
 	sstat->cpu.nrcpu = nrcpu;
 	sstat->gpu.nrgpus = nrgpus;
@@ -140,6 +149,7 @@ sstat_reset(struct sstat *sstat)
 	sstat->nfs.nfsmounts.nrmounts = nrnfs;
 	sstat->memnuma.nrnuma = nrmemnuma;
 	sstat->cpunuma.nrnuma = nrcpunuma;
+	sstat->llc.nrllcs = nrllcs;
 }
 
 static void
@@ -233,6 +243,7 @@ update_memnuma(struct mempernuma *nmp, int id, char *name, pmResult *rp, pmDesc 
 	nmp->inactive = extract_count_t_inst(rp, dp, PERNODE_MEM_INACTIVE, id, offset);
 	nmp->shmem = extract_count_t_inst(rp, dp, PERNODE_MEM_SHMEM, id, offset);
 	nmp->tothp = extract_count_t_inst(rp, dp, PERNODE_MEM_HUGEPAGES, id, offset);
+	nmp->freehp = extract_count_t_inst(rp, dp, PERNODE_MEM_HUGEPAGESFREE, id, offset);
 }
 
 static void
@@ -353,6 +364,17 @@ update_gpu(struct pergpu *gpu, int id, char *name, pmResult *rp, pmDesc *dp, int
 	gpu->memusecum /= 1024;	/* convert to KiB */
 }
 
+static void
+update_llc(struct perllc *llc, char id, char *name, pmResult *rp, pmDesc *dp, int offset)
+{
+        sscanf(name + 7, "%hhd\n", (char*)&id);
+	llc->id = id;
+	llc->mbm_local = extract_count_t_inst(rp, dp, LLC_MBM_LOCAL, id, offset);
+	llc->mbm_total = extract_count_t_inst(rp, dp, LLC_MBM_TOTAL, id, offset);
+	llc->occupancy = extract_float_inst(rp, dp, LLC_OCCUPANCY, id, offset);
+}
+
+
 static pmID	pmids[SYST_NMETRICS];
 static pmDesc	descs[SYST_NMETRICS];
 
@@ -368,10 +390,10 @@ photosyst(struct sstat *si)
 	count_t		count;
 	unsigned int	nrcpu, nrdisk, nrintf, nrports;
 	unsigned int	onrcpu, onrdisk, onrintf, onrports;
-	unsigned int	nrmemnuma, nrcpunuma;
+	unsigned int	nrmemnuma, nrcpunuma, nrllc;
 	unsigned int	nrlvm, nrmdd, nrnfs, nrgpus;
 	unsigned int	onrlvm, onrmdd, onrnfs, onrgpus;
-	unsigned int	onrmemnuma, onrcpunuma;
+	unsigned int	onrmemnuma, onrcpunuma, onrllc;
 	pmResult	*result;
 	size_t		size;
 	char		**insts;
@@ -390,6 +412,7 @@ photosyst(struct sstat *si)
 	onrgpus = si->gpu.nrgpus;
 	onrmemnuma = si->memnuma.nrnuma;
 	onrcpunuma = si->cpunuma.nrnuma;
+	onrllc = si->llc.nrllcs;
 
 	sstat_reset(si);
 	si->stamp = result->timestamp;
@@ -464,6 +487,7 @@ photosyst(struct sstat *si)
 	count += extract_count_t(result, descs, MEM_STEAL_MOVABLE);
 	count += extract_count_t(result, descs, MEM_STEAL_NORMAL);
 	si->mem.pgsteal = count;
+	si->mem.pgouts = extract_count_t(result, descs, MEM_PGPGOUT);
 	si->mem.oomkills = extract_count_t(result, descs, MEM_OOM_KILL);
 	si->mem.pgins = extract_count_t(result, descs, MEM_PGPGIN);
 	si->mem.pgouts = extract_count_t(result, descs, MEM_PGPGOUT);
@@ -471,6 +495,8 @@ photosyst(struct sstat *si)
 	si->mem.compactstall = extract_count_t(result, descs, MEM_COMPACTSTALL);
 	si->mem.pgmigrate = extract_count_t(result, descs, MEM_PGMIGRATE);
 	si->mem.numamigrate = extract_count_t(result, descs, MEM_NUMAMIGRATE);
+	si->mem.zswouts = extract_count_t(result, descs, MEM_ZSWPOUT);
+	si->mem.zswins = extract_count_t(result, descs, MEM_ZSWPIN);
 
 	/* /proc/meminfo */
 	si->mem.swapcached = extract_count_t(result, descs, MEM_SWAPCACHED);
@@ -487,9 +513,13 @@ photosyst(struct sstat *si)
 	si->mem.committed = extract_count_t(result, descs, MEM_COMMITTED);
 	si->mem.commitlim = extract_count_t(result, descs, MEM_COMMITLIM);
 	si->mem.pagetables = extract_count_t(result, descs, MEM_PAGETABLES);
-	si->mem.tothugepage = extract_count_t(result, descs, MEM_TOTHUGEPAGE);
-	si->mem.freehugepage = extract_count_t(result, descs, MEM_FREEHUGEPAGE);
-	si->mem.hugepagesz = extract_count_t(result, descs, HUGEPAGESZ);
+	si->mem.stothugepage = extract_count_t(result, descs, MEM_TOTHUGEPAGE);
+	si->mem.sfreehugepage = extract_count_t(result, descs, MEM_FREEHUGEPAGE);
+	si->mem.shugepagesz = extract_count_t(result, descs, HUGEPAGESZ);
+	si->mem.anonhugepage = extract_count_t(result, descs, MEM_ANONHUGEPAGE);
+	si->mem.availablemem = extract_count_t(result, descs, MEM_AVAILABLE);
+	si->mem.zswapped = extract_count_t(result, descs, MEM_ZSWAPPED);
+	si->mem.zswap = extract_count_t(result, descs, MEM_ZSWAP);
 
 	/* /sys/kernel/debug/vmmemctl or /proc/vmmemctl */
 	si->mem.vmwballoon = (count_t) -1; /* TODO */
@@ -498,9 +528,9 @@ photosyst(struct sstat *si)
 	si->mem.ksmshared = extract_count_t(result, descs, MEM_KSMSHARED);
 	si->mem.ksmsharing = extract_count_t(result, descs, MEM_KSMSHARING);
 
-	/* shmctl(2) */
-	si->mem.shmrss = extract_count_t(result, descs, MEM_SHMRSS) * 1024;
-	si->mem.shmswp = extract_count_t(result, descs, MEM_SHMSWP) * 1024;
+	/* shmctl(2) values in bytes */
+	si->mem.shmrss = extract_count_t(result, descs, MEM_SHMRSS);
+	si->mem.shmswp = extract_count_t(result, descs, MEM_SHMSWP);
 
 	/* /proc/net/dev */
 	insts = NULL; /* silence coverity */
@@ -810,8 +840,7 @@ photosyst(struct sstat *si)
 	si->mem.zfsarcsize = extract_count_t(result, descs, ZFS_ARCSIZE);
 
 	/* /sys/kernel/debug/zswap */
-	si->mem.zswtotpool = extract_count_t(result, descs, ZSWAP_TOTALSIZE);
-	si->mem.zswstored = extract_count_t(result, descs, ZSWAP_STOREDMEM);
+	extract_string(result, descs, ZSWAP_STATE, si->mem.zswstate, sizeof si->mem.zswstate);
 
 	/* NUMA memory metrics */
 	insts = NULL; /* silence coverity */
@@ -861,12 +890,27 @@ photosyst(struct sstat *si)
 	si->mem.tcpsock = extract_count_t(result, descs, NET_SOCKSTAT_TCPMEM);
 	si->mem.udpsock = extract_count_t(result, descs, NET_SOCKSTAT_UDPMEM);
 
-	/* TODO - LLC statistics */
-#if 0
-	si->llc.perllc[n].occupancy;
-	si->llc.perllc[n].mbm_local;
-	si->llc.perllc[n].mbm_total;
-#endif
+	/* LLC statistics */
+	insts = NULL;
+	ids = NULL;
+	nrllc = get_instances("llc", LLC_OCCUPANCY, descs, &ids, &insts);
+	if (nrllc > onrllc)
+	{
+		size = (nrllc + 1) * sizeof(struct perllc);
+		si->llc.perllc = (struct perllc *)realloc(si->llc.perllc, size);
+	}
+
+	for (i=0; i < nrllc; i++)
+	{
+		if (pmDebugOptions.appl0)
+			fprintf(stderr, "%s: updating perllc %d: %s\n",
+				pmGetProgname(), ids[i], insts[i]);
+		update_llc(&si->llc.perllc[i], ids[i], insts[i], result, descs, i);
+	}
+	
+	si->llc.nrllcs = nrllc;
+	free(insts);
+	free(ids);
 
 	/* Infiniband statistics */
 	insts = NULL; /* silence coverity */

@@ -5,6 +5,8 @@ Released under the GNU GPLv2+, see the COPYING file
 in the source distribution for its full text.
 */
 
+#include "config.h" // IWYU pragma: keep
+
 #include "freebsd/FreeBSDProcess.h"
 
 #include <stdlib.h>
@@ -38,7 +40,7 @@ const ProcessFieldData Process_fields[LAST_PROCESSFIELD] = {
    [M_VIRT] = { .name = "M_VIRT", .title = " VIRT ", .description = "Total program size in virtual memory", .flags = 0, .defaultSortDesc = true, },
    [M_RESIDENT] = { .name = "M_RESIDENT", .title = "  RES ", .description = "Resident set size, size of the text and data sections, plus stack usage", .flags = 0, .defaultSortDesc = true, },
    [ST_UID] = { .name = "ST_UID", .title = "UID", .description = "User ID of the process owner", .flags = 0, },
-   [PERCENT_CPU] = { .name = "PERCENT_CPU", .title = " CPU%", .description = "Percentage of the CPU time the process used in the last sampling", .flags = 0, .defaultSortDesc = true, .autoWidth = true, },
+   [PERCENT_CPU] = { .name = "PERCENT_CPU", .title = " CPU%", .description = "Percentage of the CPU time the process used in the last sampling", .flags = 0, .defaultSortDesc = true, .autoWidth = true, .autoTitleRightAlign = true, },
    [PERCENT_NORM_CPU] = { .name = "PERCENT_NORM_CPU", .title = "NCPU%", .description = "Normalized percentage of the CPU time the process used in the last sampling (normalized by cpu count)", .flags = 0, .defaultSortDesc = true, .autoWidth = true, },
    [PERCENT_MEM] = { .name = "PERCENT_MEM", .title = "MEM% ", .description = "Percentage of the memory the process is using, based on resident memory size", .flags = 0, .defaultSortDesc = true, },
    [USER] = { .name = "USER", .title = "USER       ", .description = "Username of the process owner (or user ID if name cannot be determined)", .flags = 0, },
@@ -53,6 +55,7 @@ const ProcessFieldData Process_fields[LAST_PROCESSFIELD] = {
 #endif
    [JID] = { .name = "JID", .title = "JID", .description = "Jail prison ID", .flags = 0, .pidColumn = true, },
    [JAIL] = { .name = "JAIL", .title = "JAIL        ", .description = "Jail prison name", .flags = 0, },
+   [SCHEDCLASS] = { .name = "SCHEDCLASS", .title = "SC", .description = "Scheduling Class (Timesharing, Realtime, Idletime)", .flags = 0, },
    [EMULATION] = { .name = "EMULATION", .title = "EMULATION        ", .description = "System call emulation environment (ABI)", .flags = 0, },
 };
 
@@ -60,7 +63,7 @@ Process* FreeBSDProcess_new(const Machine* machine) {
    FreeBSDProcess* this = xCalloc(1, sizeof(FreeBSDProcess));
    Object_setClass(this, Class(FreeBSDProcess));
    Process_init(&this->super, machine);
-   return &this->super;
+   return (Process*)this;
 }
 
 void Process_delete(Object* cast) {
@@ -71,25 +74,46 @@ void Process_delete(Object* cast) {
    free(this);
 }
 
-static void FreeBSDProcess_writeField(const Process* this, RichString* str, ProcessField field) {
-   const FreeBSDProcess* fp = (const FreeBSDProcess*) this;
-   char buffer[256];
-   size_t n = sizeof(buffer);
+static const char FreeBSD_schedclassChars[MAX_SCHEDCLASS] = {
+   [SCHEDCLASS_UNKNOWN] = '?',     // Something went wrong or the base system has a new scheduling class
+   [SCHEDCLASS_INTR_THREAD] = '-', // interrupt thread, these have special handling of priority
+   [SCHEDCLASS_IDLE] = 'i',        // idletime scheduling
+   [SCHEDCLASS_TIMESHARE] = ' ',   // timesharing process scheduling (regular processes are timeshared)
+   [SCHEDCLASS_REALTIME] = 'r',    // realtime scheduling
+};
+
+static void FreeBSDProcess_rowWriteField(const Row* super, RichString* str, ProcessField field) {
+   const FreeBSDProcess* fp = (const FreeBSDProcess*) super;
+
+   char buffer[256]; buffer[255] = '\0';
+   char sched_class;
    int attr = CRT_colors[DEFAULT_COLOR];
+   size_t n = sizeof(buffer) - 1;
 
    switch (field) {
    // add FreeBSD-specific fields here
    case JID: xSnprintf(buffer, n, "%*d ", Process_pidDigits, fp->jid); break;
+
    case JAIL:
-      Process_printLeftAlignedField(str, attr, fp->jname ? fp->jname : "N/A", 11);
+      Row_printLeftAlignedField(str, attr, fp->jname ? fp->jname : "N/A", 11);
       return;
+
    case EMULATION:
-      Process_printLeftAlignedField(str, attr, fp->emul ? fp->emul : "N/A", 16);
+      Row_printLeftAlignedField(str, attr, fp->emul ? fp->emul : "N/A", 16);
       return;
+
+   case SCHEDCLASS:
+      assert(0 <= fp->sched_class && fp->sched_class < ARRAYSIZE(FreeBSD_schedclassChars));
+      sched_class = FreeBSD_schedclassChars[fp->sched_class];
+      assert(sched_class);
+      xSnprintf(buffer, n, " %c", sched_class);
+      break;
+
    default:
-      Process_writeField(this, str, field);
+      Process_writeField(&fp->super, str, field);
       return;
    }
+
    RichString_appendWide(str, attr, buffer);
 }
 
@@ -105,6 +129,8 @@ static int FreeBSDProcess_compareByKey(const Process* v1, const Process* v2, Pro
       return SPACESHIP_NULLSTR(p1->jname, p2->jname);
    case EMULATION:
       return SPACESHIP_NULLSTR(p1->emul, p2->emul);
+   case SCHEDCLASS:
+      return SPACESHIP_NUMBER(p1->sched_class, p2->sched_class);
    default:
       return Process_compareByKey_Base(v1, v2, key);
    }
@@ -112,11 +138,18 @@ static int FreeBSDProcess_compareByKey(const Process* v1, const Process* v2, Pro
 
 const ProcessClass FreeBSDProcess_class = {
    .super = {
-      .extends = Class(Process),
-      .display = Process_display,
-      .delete = Process_delete,
-      .compare = Process_compare
+      .super = {
+         .extends = Class(Process),
+         .display = Row_display,
+         .delete = Process_delete,
+         .compare = Process_compare
+      },
+      .isHighlighted = Process_rowIsHighlighted,
+      .isVisible = Process_rowIsVisible,
+      .matchesFilter = Process_rowMatchesFilter,
+      .compareByParent = Process_compareByParent,
+      .sortKeyString = Process_rowGetSortKey,
+      .writeField = FreeBSDProcess_rowWriteField
    },
-   .writeField = FreeBSDProcess_writeField,
    .compareByKey = FreeBSDProcess_compareByKey
 };

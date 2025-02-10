@@ -13,10 +13,20 @@ echo "QA output created by $seq"
 
 _check_valgrind
 [ $PCP_PLATFORM = linux ] || _notrun "Linux ZFS PMDA is Linux-specific (uses procfs)"
+[ -d $PCP_PMDAS_DIR/zfs ] || _notrun "Linux ZFS PMDA not installed"
 
 status=1
-$sudo rm -rf $tmp.* $seq.full
 trap "cd $here; $sudo rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+if [ ! -f $PCP_PMDAS_DIR/zfs/help.pag ]
+then
+    # PMDA has not been Install'd ... we need the compiled help files
+    # for this test
+    #
+    cd $PCP_PMDAS_DIR/zfs
+    $sudo $PCP_BINADM_DIR/newhelp -n root -o help <help
+    cd $here
+fi
 
 _filter()
 {
@@ -43,7 +53,7 @@ BEGIN			{ outfile = "'$tmp.0'" }
 }
 
 root=$tmp.root
-pmns=$PCP_VAR_DIR/pmns/root_zfs
+pmns=$PCP_PMDAS_DIR/zfs/root
 pmda=$PCP_PMDAS_DIR/zfs/pmda_zfs.so,zfs_init
 tgz=$here/linux/zfs-stats.v0.tgz
 $sudo rm -f $PCP_VAR_DIR/config/pmda/153.*

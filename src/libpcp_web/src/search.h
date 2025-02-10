@@ -16,7 +16,7 @@
 
 #include <pmapi.h>
 #include <mmv_stats.h>
-#include "redis.h"
+#include "keys.h"
 #include "private.h"
 #include "schema.h"
 #include "slots.h"
@@ -83,19 +83,19 @@
 #define FT_WITHSCORES	"WITHSCORES"
 #define FT_WITHSCORES_LEN  (sizeof(FT_WITHSCORES)-1)
 
-extern void redisSearchInit(struct dict *);
-extern void redisSearchClose(void);
-extern void redis_load_search_schema(void *);
-extern void redis_search_text_add(redisSlots *, pmSearchTextType,
+extern void keysSearchInit(struct dict *);
+extern void keysSearchClose(void);
+extern void keys_load_search_schema(void *);
+extern void keys_search_text_add(keySlots *, pmSearchTextType,
 		const char *, const char *, const char *, const char *, void *);
 
 /*
  * Asynchronous search baton structures
  */
-typedef struct redisSearchBaton {
+typedef struct keysSearchBaton {
     seriesBatonMagic	header;		/* MAGIC_SEARCH */
 
-    redisSlots		*slots;		/* Redis server slots */
+    keySlots		*slots;		/* key server slots */
     pmSearchFlags	flags;
     int			error;
     void		*module;
@@ -104,6 +104,6 @@ typedef struct redisSearchBaton {
     struct timespec	started;
     void		*userdata;
     void		*arg;
-} redisSearchBaton;
+} keysSearchBaton;
 
 #endif	/* SEARCH_SCHEMA_H */

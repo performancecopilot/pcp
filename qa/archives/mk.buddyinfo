@@ -1,0 +1,39 @@
+#!/bin/sh
+#
+# remake the pcp-buddyinfo archive ...
+# this archive is intended to be checked in and not remade, this script is
+# simply a record of how it was created
+#
+
+. /etc/pcp.env
+
+tmp=/var/tmp/$$
+rm -f $tmp.*
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+cat <<End-of-File >>$tmp.config
+log advisory on 10 seconds{
+        kernel.uname.sysname
+        kernel.uname.release
+        kernel.uname.nodename
+        kernel.uname.machine
+        hinv.ncpu
+}
+log advisory on 10 seconds {
+	mem.buddyinfo.pages
+	mem.buddyinfo.total
+}
+End-of-File
+
+rm -f pcp-buddyinfo.0  pcp-buddyinfo.index  pcp-buddyinfo.meta pcp-buddyinfo.*
+
+if pmlogger -s 10 -c $tmp.config pcp-buddyinfo; then
+        xz pcp-buddyinfo.0
+        xz pcp-buddyinfo.index
+        xz pcp-buddyinfo.meta
+else
+    echo "Argh: pmlogger failed ..."
+    cat pmlogger.log
+fi
+
+

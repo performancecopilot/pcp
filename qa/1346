@@ -28,7 +28,9 @@ then
     do_valgrind=true
 elif which valgrind >/dev/null 2>&1
 then
-    _notrun "valgrind variant qa/1348 will be run"
+    : note we want to run both variants for this test, as the
+    : valgrind variant filters away the functional checks and
+    : only reports memory issues
 fi
 
 _cleanup()
@@ -38,7 +40,6 @@ _cleanup()
 }
 
 status=0	# success is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
@@ -82,10 +83,10 @@ else
 	cat $tmp.out
     else
 	echo "Arrgh ... see $seq.full"
-	echo "tmp.out ..." >>$seq.full
-	cat $tmp.out >>$seq.full
-	echo "tmp.tmp ..." >>$seq.full
-	cat $tmp.tmp >>$seq.full
+	echo "tmp.out ..." >>$seq_full
+	cat $tmp.out >>$seq_full
+	echo "tmp.tmp ..." >>$seq_full
+	cat $tmp.tmp >>$seq_full
     fi
 fi
 

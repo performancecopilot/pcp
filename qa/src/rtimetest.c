@@ -38,9 +38,8 @@ set_tm(struct timespec *nts, struct tm *ntm, struct tm *btm, int mon,
 void
 dump_dt(char *str, struct tm *atm)
 {
-    int pfx;
-    printf("\"%s\"%n", str, &pfx);
-    printf("%*s", 33 - pfx, " ");
+    printf("\"%s\"", str);
+    printf("%*s", (int)(33 - strlen(str) - 2), " ");
     printf("%d-%.2d-%.2d %.2d:%.2d:%.2d\n",
 	   atm->tm_year + 1900,
 	   atm->tm_mon + 1,

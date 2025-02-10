@@ -109,7 +109,7 @@ tunable_policy(`pcp_bind_all_unreserved_ports',`
 
 allow pcp_pmcd_t self:capability { dac_read_search dac_override ipc_owner net_admin sys_admin sys_ptrace };
 allow pcp_pmcd_t self:process { setsched };
-allow pcp_pmcd_t self:unix_dgram_socket create_socket_perms;
+allow pcp_pmcd_t self:unix_dgram_socket { create_socket_perms getattr };
 allow pcp_pmcd_t self:cap_userns sys_ptrace;
 
 kernel_get_sysvipc_info(pcp_pmcd_t)
@@ -126,6 +126,7 @@ kernel_read_net_sysctls(pcp_pmcd_t)
 corecmd_exec_bin(pcp_pmcd_t)
 corecmd_exec_shell(pcp_pmcd_t)
 
+corenet_tcp_connect_ntop_port(pcp_pmcd_t)
 corenet_all_recvfrom_netlabel(pcp_pmcd_t)
 corenet_tcp_sendrecv_generic_if(pcp_pmcd_t)
 corenet_tcp_sendrecv_generic_node(pcp_pmcd_t)
@@ -225,6 +226,9 @@ optional_policy(`
     allow pcp_pmproxy_t self:io_uring { sqpoll };
 ')
 
+ifdef(`kernel_io_uring_use',`
+	kernel_io_uring_use(pcp_pmproxy_t)
+')
 kernel_search_network_sysctl(pcp_pmproxy_t)
 
 logging_send_syslog_msg(pcp_pmproxy_t)
@@ -262,17 +266,25 @@ corecmd_getattr_all_executables(pcp_pmie_t)
 
 domain_read_all_domains_state(pcp_pmie_t)
 
+fs_dontaudit_getattr_nsfs_files(pcp_pmie_t)
 fs_search_cgroup_dirs(pcp_pmie_t)
 
 init_status(pcp_pmie_t)
+optional_policy(`
+    init_manage_script_tmp_files(pcp_pmie_t)
+')
 
 logging_send_syslog_msg(pcp_pmie_t)
 
 systemd_exec_systemctl(pcp_pmie_t)
 systemd_read_unit_files(pcp_pmie_t)
 systemd_search_unit_dirs(pcp_pmie_t)
+systemd_status_systemd_services(pcp_pmie_t)
 
 userdom_read_user_tmp_files(pcp_pmie_t)
+
+files_manage_generic_tmp_dirs(pcp_pmie_t)
+files_manage_generic_tmp_files(pcp_pmie_t)
 
 ########################################
 #
@@ -303,16 +315,24 @@ corenet_tcp_bind_generic_node(pcp_pmlogger_t)
 
 domain_read_all_domains_state(pcp_pmlogger_t)
 
+fs_dontaudit_getattr_nsfs_files(pcp_pmlogger_t)
 fs_mount_tracefs(pcp_pmlogger_t)
 fs_getattr_all_fs(pcp_pmlogger_t)
 
 init_read_utmp(pcp_pmlogger_t)
 init_status(pcp_pmlogger_t)
+optional_policy(`
+    init_manage_script_tmp_files(pcp_pmlogger_t)
+')
 
 logging_send_syslog_msg(pcp_pmlogger_t)
 
 systemd_exec_systemctl(pcp_pmlogger_t)
 systemd_getattr_unit_files(pcp_pmlogger_t)
+systemd_status_systemd_services(pcp_pmlogger_t)
+
+userdom_manage_tmp_dirs(pcp_pmlogger_t)
+userdom_manage_tmp_files(pcp_pmlogger_t)
 
 optional_policy(`
     hostname_exec(pcp_pmlogger_t)
@@ -353,6 +373,7 @@ require {
 	type debugfs_t;
 	type default_t;
 	type device_t;
+	type etc_t;
 	type fixed_disk_device_t;
 	type fs_t;
 	type fsadm_exec_t;
@@ -367,6 +388,7 @@ require {
 	type ldconfig_exec_t;
 	type mdadm_exec_t;
 	type modules_object_t; # pcp.lio, pcp.bcc
+	type mount_exec_t;
 	type named_exec_t;
 	type ndc_exec_t;
 	type ntop_port_t;
@@ -422,7 +444,7 @@ require {
 	class system { module_request };
 	class tcp_socket { name_bind name_connect };
 	class udp_socket { name_bind };
-	class unix_dgram_socket { sendto };
+	class unix_dgram_socket { create_socket_perms getattr sendto };
 	class unix_stream_socket connectto;
 }
 
@@ -499,15 +521,6 @@ optional_policy(`
 
 optional_policy(`
     require {
-	class lockdown { integrity };
-    }
-    # pmda.kvm
-    # type=AVC msg=audit(YYY.101): avc: denied { integrity } for pid=PID comm="pmdakvm" lockdown_reason="debugfs access" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=lockdown permissive=0
-    allow pcp_pmcd_t self:lockdown integrity;
-')
-
-optional_policy(`
-    require {
 	class rawip_socket { create getopt setopt read write };
     }
     # pmda.netcheck
@@ -525,7 +538,7 @@ optional_policy(`
 
 optional_policy(`
     require {
-	class netlink_kobject_uevent_socket { getattr };
+	class netlink_kobject_uevent_socket { getattr read };
     }
     # type=AVC msg=audit(N): avc: denied { getattr } for pid=PID comm="python3" path="socket:[36479]" dev="sockfs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 tclass=netlink_kobject_uevent_socket permissive=0
     allow pcp_pmcd_t self:netlink_kobject_uevent_socket { getattr read };
@@ -660,7 +673,18 @@ optional_policy(`
     # type=AVC msg=audit(N): avc: denied { signal } for pid=PID comm="pmsignal" scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:system_r:unconfined_service_t:s0 tclass=process permissive=0
     allow pcp_pmcd_t unconfined_service_t:process signull;
     allow pcp_pmlogger_t unconfined_service_t:process signal;
-    allow pcp_pmie_t unconfined_service_t:process signal;
+    allow pcp_pmie_t unconfined_service_t:process { signal signull };
+')
+
+optional_policy(`
+    require {
+	type init_tmp_t;
+    }
+    # type=AVC msg=audit(N): avc:  denied  { write } for  pid=PID comm="pmie_check" path="/var/tmp/pmie_rc.FTTTXkNr6/pmie" dev="dm-0" ino=755982 scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:object_r:init_tmp_t:s0 tclass=file permissive=0
+    # type=AVC msg=audit(N): avc:  denied  { write } for  pid=PID comm="pmlogger_check" path="/var/tmp/pmlogger_rc_start.mbj4oP4Vg/pmcheck.out" dev="dm-0" ino=51322314 scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:object_r:init_tmp_t:s0 tclass=file permissive=0
+
+    allow pcp_pmie_t init_tmp_t:file write;
+    allow pcp_pmlogger_t init_tmp_t:file write; 
 ')
 
 optional_policy(`
@@ -689,6 +713,18 @@ optional_policy(`
     # pmda.statsd
     # type=AVC msg=audit(N): avc:  denied  { name_bind } for  pid=46938 comm=4E65742E204C697374656E6572 src=8125 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:statsd_port_t:s0 tclass=udp_socket permissive=1
     corenet_udp_bind_statsd_port(pcp_pmcd_t);
+')
+
+optional_policy(`
+    # pmda.zimbra
+    # type=AVC msg=audit(N): avc:  denied  { write } for  pid=PID comm="java" name="hsperfdata_zimbra" dev="dm-0" ino=42488265 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=unconfined_u:object_r:user_tmp_t:s0 tclass=dir permissive=0
+    # type=AVC msg=audit(N): avc:  denied  { kill } for  pid=PID comm="zimbraprobe" capability=5  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=capability permissive=0
+    # type=AVC msg=audit(N): avc: denied { execute } for pid=PID comm="zimbraprobe" name="su" dev="dm-0" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:su_exec_t:s0 tclass=file permissive=0
+    allow pcp_pmcd_t self:capability kill;
+    allow pcp_pmcd_t user_tmp_t:dir write;
+    allow pcp_pmcd_t su_exec_t:file { execute execute_no_trans };
+    userdom_manage_tmp_dirs(pcp_pmcd_t)
+    userdom_manage_tmp_files(pcp_pmcd_t)
 ')
 
 #============= init_t ==============
@@ -819,10 +855,6 @@ allow pcp_pmcd_t self:capability { fsetid };
 # type=AVC msg=audit(N): avc: denied { module_request } for pid=PID comm="pmdalinux" kmod="netdev-tun0" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:kernel_t:s0 tclass=system permissive=0
 allow pcp_pmcd_t kernel_t:system module_request;
 
-# type=AVC msg=audit(N): avc: denied { execute } for pid=PID comm="zimbraprobe" name="su" dev="dm-0" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:su_exec_t:s0 tclass=file permissive=0
-#pmdazimbra
-allow pcp_pmcd_t su_exec_t:file { execute execute_no_trans };
-
 # type=AVC msg=audit(N): avc: denied { write } for pid=PID comm="python3" name=".s.PGSQL.5432" dev="tmpfs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:postgresql_var_run_t:s0 tclass=sock_file permissive=0
 allow pcp_pmcd_t postgresql_var_run_t:sock_file { write };
 
@@ -854,8 +886,20 @@ allow pcp_pmlogger_t user_tmp_t:file { setattr unlink };
 allow pcp_pmlogger_t setfiles_exec_t:file execute;
 
 # type=AVC msg=audit(N): avc: denied { write } for pid=PID comm="pmlogger" name="12" dev="dm-0" ino=INO scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:object_r:initrc_tmp_t:s0 tclass=dir permissive=0
+# type=AVC msg=audit(N): avc:  denied  { unlink } for  pid=PID comm="rm" name="pmlogger_check.log" dev="dm-0" ino=58981759 scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:object_r:initrc_tmp_t:s0 tclass=file permissive=0
+# type=AVC msg=audit(N): avc: denied { write } for pid=PID comm="pmlock" name="pmlogger" scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:object_r:etc_t:s0 tclass=dir permissive=0
+# type=AVC msg=audit(N): avc: denied { execute } for pid=PID comm="pmlogctl" name="mount" scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:object_r:mount_exec_t:s0 tclass=file permissive=0
+# type=AVC msg=audit(N): avc: denied { write } for pid=PID comm="pmlogctl" name="cgroup.procs" scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:object_r:cgroup_t:s0 tclass=file permissive=0
 allow pcp_pmlogger_t initrc_tmp_t:dir { add_name read write };
-allow pcp_pmlogger_t initrc_tmp_t:file create;
+allow pcp_pmlogger_t initrc_tmp_t:file { create unlink };
+allow pcp_pmlogger_t mount_exec_t:file { execute execute_no_trans };
+allow pcp_pmlogger_t etc_t:dir { add_name read remove_name write };
+allow pcp_pmlogger_t etc_t:file { create unlink write };
+allow pcp_pmlogger_t cgroup_t:file { getattr read open append write };
+
+# type=AVC msg=audit(N) : avc:  denied  { getattr } for  pid=PID comm=mount path=/dev/dm-0 dev="devtmpfs" ino=INO scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:object_r:fixed_disk_device_t:s0 tclass=blk_file permissive=0
+allow pcp_pmlogger_t fixed_disk_device_t:blk_file getattr;
+allow pcp_pmlogger_t sysfs_t:lnk_file read;
 
 #============= pcp_pmie_t ==============
 # type=AVC msg=audit(N): avc: denied { execute execute_no_trans getattr open read } for pid=PID comm="pmdaX" name="/" dev="tracefs" ino=INO scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:object_r:hostname_exec_t:s0 tclass=file permissive=0
@@ -881,8 +925,19 @@ allow pcp_pmie_t self:process setrlimit;
 allow pcp_pmie_t unconfined_t:process signal;
 
 # type=AVC msg=audit(N): avc: denied { write } for pid=PID comm="pmie" name="02" dev="dm-0" ino=INO scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:object_r:initrc_tmp_t:s0 tclass=dir permissive=0
+# type=AVC msg=audit(N): avc:  denied  { unlink } for  pid=PID comm="rm" name="pmie_check.log" dev="dm-0" ino=17724510 scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:object_r:initrc_tmp_t:s0 tclass=file permissive=0
+# type=AVC msg=audit(N): avc: denied { write } for pid=PID comm="pmlock" name="pmie" scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:object_r:etc_t:s0 tclass=dir permissive=0
+# type=AVC msg=audit(N): avc: denied { execute } for pid=PID comm="pmiectl" name="mount" scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:object_r:mount_exec_t:s0 tclass=file permissive=0
 allow pcp_pmie_t initrc_tmp_t:dir { add_name read write };
-allow pcp_pmie_t initrc_tmp_t:file create;
+allow pcp_pmie_t initrc_tmp_t:file { create unlink };
+allow pcp_pmie_t mount_exec_t:file { execute execute_no_trans };
+allow pcp_pmie_t etc_t:dir { add_name read remove_name write };
+allow pcp_pmie_t etc_t:file { create unlink write };
+allow pcp_pmie_t cgroup_t:file { getattr read open append write };
+
+# type=AVC msg=audit(N) : avc:  denied  { getattr } for  pid=PID comm=mount path=/dev/dm-0 dev="devtmpfs" ino=INO scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:object_r:fixed_disk_device_t:s0 tclass=blk_file permissive=0 
+allow pcp_pmie_t fixed_disk_device_t:blk_file getattr;
+allow pcp_pmie_t sysfs_t:lnk_file read;
 
 #============= pmda-lio ==============
 # type=AVC msg=audit(N): avc: denied { open read search write } for  pid=PID comm="pmdaX" name="/" dev="tracefs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:configfs_t:s0 tclass=dir permissive=0
@@ -1003,3 +1058,21 @@ optional_policy(`
     logging_watch_journal_dir(pcp_domain);
 ')
 allow syslogd_t pcp_log_t:fifo_file { open read write };
+
+#============= pcp_pmcd_t ==============
+#
+##============= pcp_pmie_t ==============
+#files_manage_generic_tmp_dirs(pcp_pmie_t)
+#files_manage_generic_tmp_files(pcp_pmie_t)
+#
+##============= pcp_pmlogger_t ==============
+
+#============= pmda-denki =================
+require {
+	type pcp_pmcd_t;
+	type cpu_device_t;
+	class chr_file { open read };
+}
+#============= pcp_pmcd_t ==============
+allow pcp_pmcd_t cpu_device_t:chr_file read;
+allow pcp_pmcd_t cpu_device_t:chr_file open;

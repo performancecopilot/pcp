@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 # man page lint checking, mainly for use in PCP CI builds.
-# Usage: scripts/man-lint <file>...
+# Usage: scripts/man-lint [-f] <file>...
 #
 # Note: silently exits if 'mandoc' utility is unavailable.
 # Will also (optionally) use 'lexgrog' if it is installed,
@@ -11,30 +11,48 @@
 which mandoc >/dev/null 2>&1
 [ $? -eq 0 ] || exit 0	# not installed
 
-sts=1
+sts=0
+exit_sts=true
+if [ $# -gt 0 -a "X$1" = X-f ]
+then
+    # -f => exit status is 0, so don't break the build!
+    #
+    exit_sts=false
+    shift
+fi
+
 tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
 trap "rm -rf $tmp; exit \$sts" 0 1 2 3 15
 
+# some things reported by mandoc -T lint are just plain bogus,
+# or things we are not going to change
+#
+# the WARNING -> Warning substitution is so that the warnings
+# will get picked up by the daily builds (scripts/pcp-daily)
+#
 mandoc -T lint "$@" \
-    | grep -v ' UNSUPP: ' \
-    | grep -v ' WARNING: missing date' \
-    | grep -v ' WARNING: cannot parse date' \
-    | grep -v ' STYLE: input text line longer than 80 bytes' \
+    | sed \
+	-e '/ UNSUPP: /d' \
+	-e '/ WARNING: missing date/d' \
+	-e '/ WARNING: cannot parse date/d' \
+	-e '/ STYLE: input text line longer than 80 bytes/d' \
+	-e 's/ WARNING:/ Warning:/' \
 > $tmp/mandoc 2>&1
-
 if test -s $tmp/mandoc
 then
+    $exit_sts && sts=1
     cat $tmp/mandoc	# failure, report issues
-else
-    which lexgrog >/dev/null 2>&1
-    if test $? -eq 0
+fi
+
+if which lexgrog >/dev/null 2>&1
+then
+    if lexgrog "$@" > $tmp/lexgrog
     then
-	lexgrog "$@" > $tmp/lexgrog
-	sts=$?
-	[ $sts -ne 0 ] && cat $tmp/lexgrog	# failure, report issues
+	:
     else
-        sts=0
+	$exit_sts && sts=1
+	cat $tmp/lexgrog	# failure, report issues
     fi
 fi
 
-exit $sts
+exit

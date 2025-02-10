@@ -8,15 +8,14 @@ Released under the GNU GPLv2+, see the COPYING file
 in the source distribution for its full text.
 */
 
-#include "config.h" // IWYU pragma: keep
-
 #include <stdbool.h>
-#include <sys/types.h>
 
-#include "linux/IOPriority.h"
 #include "Machine.h"
 #include "Object.h"
 #include "Process.h"
+#include "Row.h"
+
+#include "linux/IOPriority.h"
 
 
 #define PROCESS_FLAG_LINUX_IOPRIO    0x00000100
@@ -30,6 +29,8 @@ in the source distribution for its full text.
 #define PROCESS_FLAG_LINUX_LRS_FIX   0x00010000
 #define PROCESS_FLAG_LINUX_DELAYACCT 0x00040000
 #define PROCESS_FLAG_LINUX_AUTOGROUP 0x00080000
+#define PROCESS_FLAG_LINUX_GPU       0x00100000
+#define PROCESS_FLAG_LINUX_CONTAINER 0x00200000
 
 typedef struct LinuxProcess_ {
    Process super;
@@ -41,6 +42,7 @@ typedef struct LinuxProcess_ {
    unsigned long long int cutime;
    unsigned long long int cstime;
    long m_share;
+   long m_priv;
    long m_pss;
    long m_swap;
    long m_psswp;
@@ -90,6 +92,7 @@ typedef struct LinuxProcess_ {
    #endif
    char* cgroup;
    char* cgroup_short;
+   char* container_short;
    unsigned int oom;
    #ifdef HAVE_DELAYACCT
    unsigned long long int delay_read_time;
@@ -104,6 +107,13 @@ typedef struct LinuxProcess_ {
    unsigned long ctxt_diff;
    char* secattr;
    unsigned long long int last_mlrs_calctime;
+
+   /* Total GPU time used in nano seconds */
+   unsigned long long int gpu_time;
+   /* GPU utilization in percent */
+   float gpu_percent;
+   /* Activity of GPU: 0 if active, otherwise time of last scan in milliseconds */
+   uint64_t gpu_activityMs;
 
    /* Autogroup scheduling (CFS) information */
    long int autogroup_id;
@@ -122,13 +132,13 @@ Process* LinuxProcess_new(const Machine* host);
 
 void Process_delete(Object* cast);
 
-IOPriority LinuxProcess_updateIOPriority(LinuxProcess* this);
+IOPriority LinuxProcess_updateIOPriority(Process* proc);
 
-bool LinuxProcess_setIOPriority(Process* this, Arg ioprio);
+bool LinuxProcess_rowSetIOPriority(Row* super, Arg ioprio);
 
 bool LinuxProcess_isAutogroupEnabled(void);
 
-bool LinuxProcess_changeAutogroupPriorityBy(Process* this, Arg delta);
+bool LinuxProcess_rowChangeAutogroupPriorityBy(Row* super, Arg delta);
 
 bool Process_isThread(const Process* this);
 

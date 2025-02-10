@@ -20,11 +20,10 @@ _cleanup()
     cd $here
     [ -f $tmp.backup ] && $sudo mv $tmp.backup $PCP_PMDAS_DIR/proc/hotproc.conf
     rm -rf $tmp.*
-    $sudo rm -f proc.log
+    $sudo rm -f proc.log*
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _filter()

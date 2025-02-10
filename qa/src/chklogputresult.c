@@ -118,7 +118,7 @@ Options:\n\
     memset(&logctl, 0, sizeof(logctl));
     memset(&archctl, 0, sizeof(archctl));
     archctl.ac_log = &logctl;
-    if ((sts = __pmLogCreate("qatest", argv[optind], version, &archctl)) != 0) {
+    if ((sts = __pmLogCreate("qatest", argv[optind], version, &archctl, 0)) != 0) {
 	fprintf(stderr, "%s: __pmLogCreate failed: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }

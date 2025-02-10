@@ -36,7 +36,7 @@ _filter_number()
 	-e 's/^ //' \
 	-e 's/[ 	][ 	]*/ /g' \
 	-e 's/Mon\|Tue\|Wed\|Thu\|Fri\|Sat\|Sun/DAY/' \
-	-e 's/Jan\|Feb\|Mar\|Apr\|May\|Jun\|Jul\|Aug\|Sep\|Oct\|Nov\|Dec/MONTH/' 
+	-e 's/Jan\|Feb\|Mar\|Apr\|May\|Jun\|Jul\|Aug\|Sep\|Oct\|Nov\|Dec/MONTH/'
 }
 
 status=1	# failure is the default!

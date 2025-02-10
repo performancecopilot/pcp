@@ -48,7 +48,7 @@ do
 	echo "=== $bad: does not exist ==="
     fi
     $sudo rm -f core*
-    pmdumplog -D 128 -l $bad 2>$tmp.err >$tmp.out
+    pmdumplog -D log -l $bad 2>$tmp.err >$tmp.out
 
     _filter_pmdumplog --any-version <$tmp.out
     if [ -s $tmp.err ]

@@ -12,7 +12,6 @@ echo "QA output created by $seq"
 _check_series
 _check_requests_json
 
-$sudo rm -f $tmp.* $seq.full
 signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
 hostname=`hostname`
@@ -20,8 +19,18 @@ machineid=`_machine_id`
 domainname=`_domain_name`
 need_restore=true
 
+# only stop pmproxy if it was not running before the QA test starts
+if [ -n "`_get_pids_by_name pmproxy`" ]
+then
+    pmproxy_was_running=true
+else
+    pmproxy_was_running=false
+fi
+echo "pmproxy_was_running=$pmproxy_was_running" >>$seq_full
+
 _cleanup()
 {
+    cd $here
     if $need_restore
     then
 	need_restore=false
@@ -30,7 +39,7 @@ _cleanup()
 	_sighup_pmcd
     fi
     _restore_auto_restart pmproxy
-    $restart_pmproxy && _service pmproxy restart >/dev/null 2>&1
+    $pmproxy_was_running && _service pmproxy restart >$seq_full 2>&1
     $sudo rm -f $tmp.*
 }
 
@@ -48,20 +57,21 @@ _filter_labels()
 # real test starts here
 _save_config $PCP_ETC_DIR/pcp/labels
 $sudo rm -rf $PCP_ETC_DIR/pcp/labels/*
-_sighup_pmcd
-
-_service pmproxy restart >/dev/null 2>&1
+_sighup_pmcd || _exit 1
 
 # make the same derived metrics available between the processes
 # being compared (pminfo is run within test_webapi.py, which is
 # affected by this (qa/common unsets this).
 #
 export PCP_DERIVED_CONFIG="$PCP_VAR_DIR/config/derived"
+
+if ! _service pmproxy restart >/dev/null 2>&1; then _exit 1; fi
+
 $python $here/src/test_webapi.py | _webapi_response_filter | _filter_labels
 
-echo >>$here/$seq.full
-echo "=== pmproxy log ===" >>$here/$seq.full
-cat $PCP_LOG_DIR/pmproxy/pmproxy.log >>$here/$seq.full
+echo >>$seq_full
+echo "=== pmproxy log ===" >>$seq_full
+cat $PCP_LOG_DIR/pmproxy/pmproxy.log >>$seq_full
 
 status=0
 exit

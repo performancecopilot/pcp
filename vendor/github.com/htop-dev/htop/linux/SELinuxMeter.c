@@ -5,6 +5,8 @@ Released under the GNU GPLv2+, see the COPYING file
 in the source distribution for its full text.
 */
 
+#include "config.h" // IWYU pragma: keep
+
 #include "linux/SELinuxMeter.h"
 
 #include "CRT.h"
@@ -83,8 +85,9 @@ const MeterClass SELinuxMeter_class = {
    },
    .updateValues = SELinuxMeter_updateValues,
    .defaultMode = TEXT_METERMODE,
+   .supportedModes = (1 << TEXT_METERMODE),
    .maxItems = 0,
-   .total = 100.0,
+   .total = 0.0,
    .attributes = SELinuxMeter_attributes,
    .name = "SELinux",
    .uiName = "SELinux",

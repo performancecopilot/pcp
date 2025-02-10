@@ -1,0 +1,275 @@
+QA output created by 1522
+QA output created by 1521 --valgrind
+Syntax/semantic errors ...
+--- qa.bad.b01 = delta("foo")
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -Dderive -f qa.bad
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+[TMP.config:1] Error: pmRegisterDerived(qa.bad.b01, ...) syntax error
+ delta("foo")
+       ^     
+<expr> expected to follow delta(
+Error: qa.bad: Unknown metric name
+--- qa.bad.b02 = rate(samples.string.hullo)
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -Dderive -f qa.bad
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+bind_expr: error: global derived metric qa.bad.b02: operand: samples.string.hullo: Unknown metric name
+__dmbind: bind_expr failed for metric[2] qa.bad.b02
+Error: qa.bad: Unknown metric name
+--- qa.bad.b03 = delta(sample.bad.unknown)
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -Dderive -f qa.bad
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+bind_expr: error: global derived metric qa.bad.b03: operand (sample.bad.unknown [29.0.54]): Unknown or illegal metric identifier
+__dmbind: bind_expr failed for metric[2] qa.bad.b03
+Error: qa.bad: Unknown metric name
+--- qa.bad.b04 = rate(sample.string.hullo)
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -Dderive -f qa.bad
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+Semantic error: derived metric qa.bad.b04: RATE(sample.string.hullo): Non-arithmetic operand for function
+__dmbind: check_expr failed for metric[2] qa.bad.b04
+Error: qa.bad: Unknown metric name
+--- qa.bad.b05 = delta(sample.event.records)
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -Dderive -f qa.bad
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+Semantic error: derived metric qa.bad.b05: DELTA(sample.event.records): Non-arithmetic operand for function
+__dmbind: check_expr failed for metric[2] qa.bad.b05
+Error: qa.bad: Unknown metric name
+--- qa.bad.b06 = rate(sampledso.sysinfo)
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -Dderive -f qa.bad
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+Semantic error: derived metric qa.bad.b06: RATE(sampledso.sysinfo): Non-arithmetic operand for function
+__dmbind: check_expr failed for metric[2] qa.bad.b06
+Error: qa.bad: Unknown metric name
+
+Evaluations ...
+--- qa.g01 = delta(42)
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmval -Dderive,appl2 -f4 -w9 -s 3 -t 0.1sec qa.g01
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+pmRegisterDerived: global metric[0] event.flags = anon(PM_TYPE_U32)
+pmRegisterDerived: global metric[1] event.missed = anon(PM_TYPE_U32)
+Derived metric initialization from $PCP_DERIVED_CONFIG
+pmLoadDerivedConfig("TMP.config")
+pmRegisterDerived: global metric[2] qa.g01 = delta(42)
+__dmgetpmid: metric "qa.g01" -> PMID 511.0.3
+__dmgetpmid: metric "qa.g01" -> PMID 511.0.3
+__dmpostvalueset: [0] root node 511.0.3: numval=0
+expr node <addr> type=DELTA left=<addr> right=(nil) save_last=0
+    PMID: PM_ID_NULL (511.0.3 from pmDesc) numval: 0
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0x...
+    Semantics: instant  Units: none
+expr node <addr> type=INTEGER left=(nil) right=(nil) save_last=1 [42] primary=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 1
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0x...
+    Semantics: discrete  Units: none
+[0] inst=-1, val=42
+__dmpostvalueset: [0] root node 511.0.3: numval=1 vset[0]: inst=-1 ll=0
+expr node <addr> type=DELTA left=<addr> right=(nil) save_last=0
+    PMID: PM_ID_NULL (511.0.3 from pmDesc) numval: 1
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0x...
+    Semantics: instant  Units: none
+[0] inst=-1, val=0
+expr node <addr> type=INTEGER left=(nil) right=(nil) save_last=1 [42] primary=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 1
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0x...
+    Semantics: discrete  Units: none
+[0] inst=-1, val=42 (last inst=-1, val=42)
+__dmpostvalueset: [0] root node 511.0.3: numval=1 vset[0]: inst=-1 ll=0
+expr node <addr> type=DELTA left=<addr> right=(nil) save_last=0
+    PMID: PM_ID_NULL (511.0.3 from pmDesc) numval: 1
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0x...
+    Semantics: instant  Units: none
+[0] inst=-1, val=0
+expr node <addr> type=INTEGER left=(nil) right=(nil) save_last=1 [42] primary=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 1
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0x...
+    Semantics: discrete  Units: none
+[0] inst=-1, val=42 (last inst=-1, val=42)
+__dmclosecontext(->ctx 0) called dm-><addr> 3 metrics
+
+metric:    qa.g01
+host:      HOST
+semantics: instantaneous value
+units:     none
+samples:   3
+interval:  0.10 sec
+No values available
+        0
+        0
+--- qa.g02 = rate(1 * 100 + 2*10 + 3 + 4/10 + 5/100 + 6/1000)
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmval -f4 -w9 -s 3 -t 0.1sec qa.g02
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+metric:    qa.g02
+host:      HOST
+semantics: instantaneous value
+units:     / sec
+samples:   3
+interval:  0.10 sec
+No values available
+   0.0000
+   0.0000
+--- qa.g03 = delta(sample.updown.obs)
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmval -f4 -w9 -s 3 -t 0.1sec qa.g03
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+metric:    qa.g03
+host:      HOST
+semantics: instantaneous value
+units:     none
+samples:   3
+interval:  0.10 sec
+No values available
+   close to 1.000
+   close to 1.000
+--- qa.g04 = delta(sample.long.hundred * sample.updown.obs)
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmval -f4 -w9 -s 3 -t 0.1sec qa.g04
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+metric:    qa.g04
+host:      HOST
+semantics: instantaneous value
+units:     none
+samples:   3
+interval:  0.10 sec
+No values available
+      100
+      100
+--- qa.g05 = rate(max(sample.proc.time))
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmval -f4 -w9 -s 3 -t 0.1sec qa.g05
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+metric:    qa.g05
+host:      HOST
+semantics: instantaneous value
+units:     none
+samples:   3
+interval:  0.10 sec
+No values available
+   close to 1.000
+   close to 1.000
+--- qa.g06 = delta(defined(sample.updown.obs) ? sample.updown.obs : 13)
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmval -f4 -w9 -s 3 -t 0.1sec qa.g06
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+metric:    qa.g06
+host:      HOST
+semantics: instantaneous value
+units:     none
+samples:   3
+interval:  0.10 sec
+No values available
+   close to 1.000
+   close to 1.000
+--- qa.g07 = rate(defined(sample.updown.no.metric) ? 13 : sample.updown.obs)
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmval -f4 -w9 -s 3 -t 0.1sec qa.g07
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+metric:    qa.g07
+host:      HOST
+semantics: instantaneous value
+units:     / sec
+samples:   3
+interval:  0.10 sec
+No values available
+   close to 10.000
+   close to 10.000
+--- qa.g08 = instant(1950 + 5/12 + 26/365)
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmval -f4 -w9 -s 3 -t 0.1sec qa.g08
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+metric:    qa.g08
+host:      HOST
+semantics: discrete instantaneous value
+units:     none
+samples:   3
+interval:  0.10 sec
+1950.4879
+1950.4879
+1950.4879
+--- qa.g09 = instant(2 * sample.seconds - sample.seconds)
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmval -f4 -w9 -s 3 -t 0.1sec qa.g09
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+metric:    qa.g09
+host:      HOST
+semantics: instantaneous value
+units:     sec
+samples:   3
+interval:  0.10 sec
+   close to <now>
+   close to <now>
+   close to <now>

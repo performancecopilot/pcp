@@ -9,8 +9,6 @@ Released under the GNU GPLv2+, see the COPYING file
 in the source distribution for its full text.
 */
 
-#include "config.h" // IWYU pragma: keep
-
 #include <kstat.h>
 
 /* On OmniOS /usr/include/sys/regset.h redefines ERR to 13 - \r, breaking the Enter key.
@@ -30,12 +28,12 @@ in the source distribution for its full text.
 
 #include "Action.h"
 #include "BatteryMeter.h"
+#include "CommandLine.h"
 #include "DiskIOMeter.h"
 #include "Hashtable.h"
 #include "NetworkIOMeter.h"
 #include "ProcessLocksScreen.h"
 #include "SignalsPanel.h"
-#include "CommandLine.h"
 #include "generic/gettime.h"
 #include "generic/hostname.h"
 #include "generic/uname.h"
@@ -72,7 +70,7 @@ int Platform_getUptime(void);
 
 void Platform_getLoadAverage(double* one, double* five, double* fifteen);
 
-int Platform_getMaxPid(void);
+pid_t Platform_getMaxPid(void);
 
 double Platform_setCPUValues(Meter* this, unsigned int cpu);
 
@@ -150,12 +148,24 @@ static inline Hashtable* Platform_dynamicColumns(void) {
 
 static inline void Platform_dynamicColumnsDone(ATTR_UNUSED Hashtable* table) { }
 
-static inline const char* Platform_dynamicColumnInit(ATTR_UNUSED unsigned int key) {
+static inline const char* Platform_dynamicColumnName(ATTR_UNUSED unsigned int key) {
    return NULL;
 }
 
 static inline bool Platform_dynamicColumnWriteField(ATTR_UNUSED const Process* proc, ATTR_UNUSED RichString* str, ATTR_UNUSED unsigned int key) {
    return false;
 }
+
+static inline Hashtable* Platform_dynamicScreens(void) {
+   return NULL;
+}
+
+static inline void Platform_defaultDynamicScreens(ATTR_UNUSED Settings* settings) { }
+
+static inline void Platform_addDynamicScreen(ATTR_UNUSED ScreenSettings* ss) { }
+
+static inline void Platform_addDynamicScreenAvailableColumns(ATTR_UNUSED Panel* availableColumns, ATTR_UNUSED const char* screen) { }
+
+static inline void Platform_dynamicScreensDone(ATTR_UNUSED Hashtable* screens) { }
 
 #endif

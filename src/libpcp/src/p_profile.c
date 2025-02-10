@@ -119,12 +119,22 @@ __pmDecodeProfile(__pmPDU *pdubuf, int *ctxidp, pmProfile **resultp)
     /* First the profile */
     pduProfile = (profile_t *)pdubuf;
     pdu_end = (char*)pdubuf + pduProfile->hdr.len;
-    if (pdu_end - (char*)pdubuf < sizeof(profile_t))
+    if (pduProfile->hdr.len < sizeof(profile_t) - sizeof(pduProfile->pad)) {
+	if (pmDebugOptions.pdu) {
+	    fprintf(stderr, "__pmDecodeProfile: PM_ERR_IPC: short PDU %d < min size %d\n",
+		pduProfile->hdr.len, (int)(sizeof(profile_t) - sizeof(pduProfile->pad)));
+	}
 	return PM_ERR_IPC;
+    }
 
     ctxid = ntohl(pduProfile->ctxid);
-    if (ctxid < 0)
+    if (ctxid < 0) {
+	if (pmDebugOptions.pdu) {
+	    fprintf(stderr, "__pmDecodeProfile: PM_ERR_IPC: ctxid %d < 0\n",
+		ctxid);
+	}
 	return PM_ERR_IPC;
+    }
 PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
     if ((instprof = (pmProfile *)malloc(sizeof(pmProfile))) == NULL)
 	return -oserror();
@@ -132,6 +142,10 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
     instprof->profile = NULL;
     instprof->profile_len = ntohl(pduProfile->numprof);
     if (instprof->profile_len < 0) {
+	if (pmDebugOptions.pdu) {
+	    fprintf(stderr, "__pmDecodeProfile: PM_ERR_IPC: profile_len %d < 0\n",
+		instprof->profile_len);
+	}
 	sts = PM_ERR_IPC;
 	goto fail;
     }
@@ -139,8 +153,13 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
     p += sizeof(profile_t) / sizeof(__pmPDU);
 
     if (instprof->profile_len > 0) {
-	if (instprof->profile_len >= INT_MAX / sizeof(pmInDomProfile) ||
-	    instprof->profile_len >= pduProfile->hdr.len) {
+	int	maxprofile_len;
+	maxprofile_len = (pduProfile->hdr.len - sizeof(profile_t)) / sizeof(instprof_t);
+	if (instprof->profile_len > maxprofile_len) {
+	    if (pmDebugOptions.pdu) {
+		fprintf(stderr, "__pmDecodeProfile: PM_ERR_IPC: profile_len %d > max %d for PDU len %d\n",
+		    instprof->profile_len, maxprofile_len, pduProfile->hdr.len);
+	    }
 	    sts = PM_ERR_IPC;
 	    goto fail;
 	}
@@ -156,6 +175,14 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
 	     prof < p_end;
 	     prof++) {
 	    if ((char *)p >= pdu_end) {
+		if (pmDebugOptions.pdu) {
+		    /*
+		     * not sure that this can happen now with maxprofile_len
+		     * check above
+		     */
+		    fprintf(stderr, "__pmDecodeProfile: PM_ERR_IPC: profile[%d] buffer overrun\n",
+			(int)((pmInDomProfile *)p - instprof->profile));
+		}
 		sts = PM_ERR_IPC;
 		goto fail;
 	    }
@@ -174,8 +201,15 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
 	    int j;
 
 	    if (prof->instances_len > 0) {
-		if (prof->instances_len >= INT_MAX / sizeof(int) ||
-		    prof->instances_len >= pduProfile->hdr.len) {
+		int	maxinstances_len;
+		maxinstances_len = (pdu_end - (char *)p) / sizeof(__pmPDU);
+		if (prof->instances_len > maxinstances_len) {
+		    if (pmDebugOptions.pdu) {
+			fprintf(stderr, "__pmDecodeProfile: PM_ERR_IPC: profile[%d] instances_len %d > max %d for PDU len %d\n",
+			    (int)((pmInDomProfile *)prof - instprof->profile),
+			    prof->instances_len, maxinstances_len,
+			    pduProfile->hdr.len);
+		    }
 		    sts = PM_ERR_IPC;
 		    goto fail;
 		}
@@ -187,6 +221,15 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_ALLOC);
 		}
 		for (j = 0; j < prof->instances_len; j++, p++) {
 		    if ((char *)p >= pdu_end) {
+			/*
+			 * not sure that this can happen now with
+			 * maxinstances_len check above
+			 */
+			if (pmDebugOptions.pdu) {
+			    fprintf(stderr, "__pmDecodeProfile: PM_ERR_IPC: profile[%d] instance[%d] instance buffer overrun\n",
+				(int)((pmInDomProfile *)prof - instprof->profile),
+				j);
+			}
 			sts = PM_ERR_IPC;
 			goto fail;
 		    }
@@ -194,6 +237,10 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_ALLOC);
 		}
 	    }
 	    else if (prof->instances_len < 0) {
+		if (pmDebugOptions.pdu) {
+		    fprintf(stderr, "__pmDecodeProfile: PM_ERR_IPC: instances_len %d < 0\n",
+			prof->instances_len);
+		}
 		sts = PM_ERR_IPC;
 		goto fail;
 	    }
@@ -205,10 +252,19 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_ALLOC);
 		;
 	    }
 	}
+	if (pdu_end - (char *)p > 0) {
+	    if (pmDebugOptions.pdu) {
+		fprintf(stderr, "__pmDecodeProfile: PM_ERR_IPC: PDU too long, remainder %d\n",
+			(int)(pdu_end - (char *)p));
+	    }
+	    sts = PM_ERR_IPC;
+	    goto fail;
+	}
     }
     else {
 	instprof->profile = NULL;
     }
+
 
     *resultp = instprof;
     *ctxidp = ctxid;

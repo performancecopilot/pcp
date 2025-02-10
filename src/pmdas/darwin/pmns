@@ -199,6 +199,8 @@ rpc.client {
     lookupcache
     biocache
     direofcache
+    pageins		DARWIN:11:127
+    pageouts		DARWIN:11:128
 }
 
 rpc.client.attrcache {
@@ -248,8 +250,6 @@ rpc.server {
     faults		DARWIN:11:118
     cache
     vopwrites		DARWIN:11:126
-    pageins		DARWIN:11:127
-    pageouts		DARWIN:11:128
 }
 
 rpc.server.cache {

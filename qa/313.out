@@ -79,7 +79,7 @@ interval:  1.00 sec
 07:45:41.422  No values available
 07:45:42.422        184
 07:45:43.422        183
-07:45:44.422        183
+07:45:44.422        166
 07:45:45.422  No values available
 07:45:46.422  No values available
 07:45:47.422  No values available
@@ -92,9 +92,9 @@ interval:  1.00 sec
 07:45:54.422  No values available
 07:45:55.422  No values available
 07:45:56.422  No values available
-07:45:57.422         70
-07:45:58.422         50
-07:45:59.422         40
+07:45:57.422         50
+07:45:58.422         40
+07:45:59.422         26
 
 === delta=1sec discrete and logged once in the 1st and 3rd sections ===
 Note: timezone set to local timezone of host "gonzo" from archive
@@ -363,11 +363,11 @@ interval:  0.50 sec
 07:45:41.422  No values available
 07:45:41.922  No values available
 07:45:42.422        184
-07:45:42.922        184
+07:45:42.922        183
 07:45:43.422        183
-07:45:43.922        183
-07:45:44.422        183
-07:45:44.922        166
+07:45:43.922        166
+07:45:44.422        166
+07:45:44.922        117
 07:45:45.422  No values available
 07:45:45.922  No values available
 07:45:46.422  No values available
@@ -392,11 +392,11 @@ interval:  0.50 sec
 07:45:55.922  No values available
 07:45:56.422  No values available
 07:45:56.922         70
-07:45:57.422         70
+07:45:57.422         50
 07:45:57.922         50
-07:45:58.422         50
+07:45:58.422         40
 07:45:58.922         40
-07:45:59.422         40
+07:45:59.422         26
 
 === delta=0.5sec discrete and logged once in the 1st and 3rd sections ===
 Note: timezone set to local timezone of host "gonzo" from archive
@@ -634,19 +634,16 @@ Descriptions for Metrics in the Log ...
 PMID: 1.18.2 (hinv.ncpu)
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
-PMID: 2.3.0 (pmcd.pmlogger.port)
-    Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
-    Semantics: discrete  Units: none
-PMID: 29.0.6 (sample.bin)
-    Data Type: 32-bit int  InDom: 29.2 0x7400002
-    Semantics: instant  Units: none
 PMID: 1.25.19 (irix.network.interface.total.packets)
     Data Type: 32-bit unsigned int  InDom: 1.6 0x400006
     Semantics: counter  Units: count
-PMID: 29.0.7 (sample.drift)
-    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
+PMID: 2.3.0 (pmcd.pmlogger.port)
+    Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
 PMID: 2.3.2 (pmcd.pmlogger.archive)
+    Data Type: string  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+PMID: 2.3.3 (pmcd.pmlogger.host)
     Data Type: string  InDom: 2.1 0x800001
     Semantics: discrete  Units: none
 PMID: 29.0.2 (sample.seconds)
@@ -655,9 +652,12 @@ PMID: 29.0.2 (sample.seconds)
 PMID: 29.0.3 (sample.milliseconds)
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: millisec
-PMID: 2.3.3 (pmcd.pmlogger.host)
-    Data Type: string  InDom: 2.1 0x800001
-    Semantics: discrete  Units: none
+PMID: 29.0.6 (sample.bin)
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+PMID: 29.0.7 (sample.drift)
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
 
 Instance Domains in the Log ...
 InDom: 1.6
@@ -669,6 +669,13 @@ InDom: 1.6
    1 or "ec0"
    2 or "ec2"
    3 or "lo0"
+InDom: 2.1
+07:45:41.422332 1 instances
+   1318 or "1318"
+07:45:48.643735 1 instances
+   1342 or "1342"
+07:45:55.913666 1 instances
+   1368 or "1368"
 InDom: 29.2
 07:45:42.422184 9 instances
    100 or "bin-100"
@@ -700,13 +707,6 @@ InDom: 29.2
    700 or "bin-700"
    800 or "bin-800"
    900 or "bin-900"
-InDom: 2.1
-07:45:41.422332 1 instances
-   1318 or "1318"
-07:45:48.643735 1 instances
-   1342 or "1342"
-07:45:55.913666 1 instances
-   1368 or "1368"
 
 Temporal Index
 		Log Vol    end(meta)     end(log)

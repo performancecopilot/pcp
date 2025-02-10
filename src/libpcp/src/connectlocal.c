@@ -125,6 +125,19 @@ build_dsotab(void)
 	     */
 	    goto eatline;
 	}
+	if (strncmp(p, "proc", 4) == 0) {
+	    /*
+	     * the proc PMDA is an exception now too ... we run it as root
+	     * (daemon) but we still want to make the DSO available for any
+	     * local context users.  We add this explicitly below.
+	     */
+	    domain = 3;
+	    init = "proc_init";
+	    pmsprintf(pathbuf, sizeof(pathbuf), "%s/proc/pmda_proc.so", pmdas);
+	    name = pathbuf;
+	    peekc = *p;
+	    goto dsoload;
+	}
 	if (strncmp(p, "linux", 5) == 0) {
 	    /*
 	     * the Linux PMDA is an exception now too ... we run it as root

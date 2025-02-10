@@ -4,7 +4,7 @@ Usage: pcp [options] [[...] command [...]]
 
 Summary Options:
   -a FILE, --archive=FILE
-                        metrics source is a PCP log archive
+                        metrics source is a PCP archive
   -h HOST, --host=HOST  metrics source is PMCD on host
   -n FILE, --namespace=FILE
                         use an alternative PMNS
@@ -17,7 +17,7 @@ Command Options:
                         use an alternative PMNS
   -A TIME, --align=TIME align sample times on natural boundaries
   -a FILE, --archive=FILE
-                        metrics source is a PCP log archive
+                        metrics source is a PCP archive
   -g                    start in GUI mode with new time control
   -n FILE               use an alternative PMNS
   -O TIME               initial sample time within the time window
@@ -60,6 +60,7 @@ Options:
 == verify handling of spaces and single quotes
 -- '/a/b/pcp log' '/c/d/foo'\''bar'
 == verify handling of an invalid option
+pcpqa: invalid option -- 'x'
 -? -- '/a/b/pcplog'
 == verify handling of archive folios and host/archive lists
 Usage: pcpqa [options]

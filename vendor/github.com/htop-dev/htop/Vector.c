@@ -5,6 +5,8 @@ Released under the GNU GPLv2+, see the COPYING file
 in the source distribution for its full text.
 */
 
+#include "config.h" // IWYU pragma: keep
+
 #include "Vector.h"
 
 #include <assert.h>
@@ -23,14 +25,16 @@ Vector* Vector_new(const ObjectClass* type, bool owner, int size) {
 
    assert(size > 0);
    this = xMalloc(sizeof(Vector));
-   this->growthRate = size;
-   this->array = (Object**) xCalloc(size, sizeof(Object*));
-   this->arraySize = size;
-   this->items = 0;
-   this->type = type;
-   this->owner = owner;
-   this->dirty_index = -1;
-   this->dirty_count = 0;
+   *this = (Vector) {
+      .growthRate = size,
+      .array = xCalloc(size, sizeof(Object*)),
+      .arraySize = size,
+      .items = 0,
+      .type = type,
+      .owner = owner,
+      .dirty_index = -1,
+      .dirty_count = 0,
+   };
    return this;
 }
 
@@ -101,7 +105,7 @@ void Vector_prune(Vector* this) {
    this->items = 0;
    this->dirty_index = -1;
    this->dirty_count = 0;
-   memset(this->array, '\0', this->arraySize * sizeof(Object *));
+   memset(this->array, '\0', this->arraySize * sizeof(Object*));
 }
 
 //static int comparisons = 0;
@@ -198,7 +202,7 @@ static void Vector_resizeIfNecessary(Vector* this, int newSize) {
       assert(Vector_isConsistent(this));
       int oldSize = this->arraySize;
       this->arraySize = newSize + this->growthRate;
-      this->array = (Object **)xReallocArrayZero(this->array, oldSize, this->arraySize, sizeof(Object*));
+      this->array = (Object**)xReallocArrayZero(this->array, oldSize, this->arraySize, sizeof(Object*));
    }
    assert(Vector_isConsistent(this));
 }

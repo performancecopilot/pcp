@@ -14,7 +14,6 @@ echo "QA output created by $seq"
 . ./common.check
 
 status=0	# success is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 _filter()
@@ -32,7 +31,7 @@ _filter()
 _queue_test()
 {
     # always enable library debugging, stash raw results and output filtered
-    src/pmdaqueue -Dlibpmda $@ 2>&1 | tee -a $seq.full | _filter
+    src/pmdaqueue -Dlibpmda $@ 2>&1 | tee -a $seq_full | _filter
 }
 
 # real QA test starts here

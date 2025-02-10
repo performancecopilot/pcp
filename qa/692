@@ -40,7 +40,6 @@ p
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 cat <<'End-of-File' >$tmp.pmie
@@ -53,20 +52,20 @@ falling count_inst (sample.ghosts.state == 0) >= 5 -> print "falling!";
 End-of-File
 
 # real QA test starts here
-echo "=== with metric visible from the start ===" | tee -a $seq.full
-pmstore sample.ghosts.visible 8 >>$seq.full
+echo "=== with metric visible from the start ===" | tee -a $seq_full
+pmstore sample.ghosts.visible 8 >>$seq_full
 pmie -t 0.1sec -T2.5sec -c $tmp.pmie -v >$tmp.out 2>$tmp.err
-cat $tmp.out $tmp.err >>$seq.full
+cat $tmp.out $tmp.err >>$seq_full
 _filter <$tmp.out
 
-echo | tee -a $seq.full
-echo "=== with metric invisible from the start ===" | tee -a $seq.full
-pmstore sample.ghosts.visible -1 >>$seq.full
+echo | tee -a $seq_full
+echo "=== with metric invisible from the start ===" | tee -a $seq_full
+pmstore sample.ghosts.visible -1 >>$seq_full
 pmie -t 0.1sec -T3.5sec -c $tmp.pmie -v >$tmp.out 2>$tmp.err &
 pmsleep 1sec
-pmstore sample.ghosts.visible 8 >>$seq.full
+pmstore sample.ghosts.visible 8 >>$seq_full
 wait
-cat $tmp.out $tmp.err >>$seq.full
+cat $tmp.out $tmp.err >>$seq_full
 _filter <$tmp.out
 
 # success, all done

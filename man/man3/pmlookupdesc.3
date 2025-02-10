@@ -44,8 +44,8 @@ int pmLookupDescs(int \fInumpmid\fP, pmID *\fIpmids\fP, pmDesc *\fIdescs\fP);
 cc ... \-lpcp
 .ft 1
 .SH DESCRIPTION
-.de CW
-.ie t \f(CW\\$1\f1\\$2
+.de CR
+.ie t \f(CR\\$1\f1\\$2
 .el \fI\\$1\f1\\$2
 ..
 Given a Performance Metrics Identifier (PMID) as
@@ -53,7 +53,7 @@ Given a Performance Metrics Identifier (PMID) as
 the
 .B pmLookupDesc
 routine fills in the given
-.CW pmDesc
+.CR pmDesc
 structure, pointed to by the parameter
 .IR desc ,
 from the current
@@ -77,18 +77,18 @@ and
 hence both lists contain exactly
 .I numpmid
 elements.
-For this reason, the caller is expected to have pre-allocated a suitably
+For this reason, the caller is expected to have preallocated a suitably
 sized array for
 .IR descs .
 .PP
 The
-.CW pmDesc
+.CR pmDesc
 structure provides all of the information required to describe and
 manipulate a
 performance metric via the
 PMAPI, and has the following declaration.
 .PP
-.ft CW
+.ft CR
 .nf
 .in +0.5i
 /* Performance Metric Descriptor */
@@ -124,9 +124,9 @@ typedef struct {
 .ft 1
 .PP
 The
-.CW type
+.CR type
 field in the
-.CW pmDesc
+.CR pmDesc
 describes various encodings (or formats) for a metric's value.
 .PP
 If a value is
@@ -157,33 +157,33 @@ each of 3 orthogonal dimensions, namely Space, Time and Count
 (or Events, which are dimensionless).
 For example I/O throughput might be represented as
 .ti 1i
-.CW "\0\0\0\0\0\0\0\0\0\0-1"
+.CR "\0\0\0\0\0\0\0\0\0\0-1"
 .ti 1i
-.CW "Space.Time"
+.CR "Space.Time"
 .br
 while the
 running total of system calls is
-.CW "Count" ,
+.CR "Count" ,
 memory allocation is
-.CW Space
+.CR Space
 and average
 service time is
 .ti 1i
-.CW "\0\0\0\0\0\0\0\0\0\0-1"
+.CR "\0\0\0\0\0\0\0\0\0\0-1"
 .ti 1i
-.CW "Time.Count"
+.CR "Time.Count"
 .br
 In each dimension there are a number
 of common scale values that may be used to better encode ranges that might
 otherwise exhaust the precision of a 32-bit value.
 This information is encoded
 in the
-.CW pmUnits
+.CR pmUnits
 structure which is embedded in the
-.CW pmDesc
+.CR pmDesc
 structure.
 .PP
-.ft CW
+.ft CR
 .nf
 .in +0.5i
 /*
@@ -233,12 +233,12 @@ Special routines (e.g. \c
 .BR pmConvScale (3))
 are provided to manipulate values in
 conjunction with the
-.CW pmUnits
+.CR pmUnits
 structure that defines the dimension and scale of the values for a particular
 performance metric.
 .PP
 Below the PMAPI, the information required to complete the
-.CW pmDesc
+.CR pmDesc
 structure, is fetched from the PMDAs, and in this way the format
 and scale of performance metrics may change dynamically, as
 the PMDAs and their underlying
@@ -302,3 +302,10 @@ probing for more error details in the case of a specific failure.
 .BR pcp.conf (5)
 and
 .BR pcp.env (5).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ syscalls
+.\" +ok+ scaleCount scaleSpace scaleTime dimCount dimSpace dimTime {all from pmUnits defn}
+.\" +ok+ sem {from pmDesc defn}
+.\" +ok+ PM_COUNT_ {from PM_COUNT_*} PM_SPACE_ {from PM_SPACE_*}
+.\" +ok+ PM_TIME_ {from PM_TIME_*}

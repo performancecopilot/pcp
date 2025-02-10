@@ -46,6 +46,11 @@ in the source distribution for its full text.
    AUTOGROUP_ID = 127,           \
    AUTOGROUP_NICE = 128,         \
    CCGROUP = 129,                \
+   CONTAINER = 130,              \
+   M_PRIV = 131,                 \
+   GPU_TIME = 132,               \
+   GPU_PERCENT = 133,            \
+   ISCONTAINER = 134,            \
    // End of list
 
 

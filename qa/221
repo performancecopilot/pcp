@@ -21,7 +21,7 @@ echo "log mandatory on 100 msec pmcd.timezone" \
 
 echo "expect no messages ..."
 cat $tmp.err $tmp.log \
-| tee $seq.full \
+| tee $seq_full \
 | grep timestamp \
 | $PCP_AWK_PROG '
 /Starting logger/	{ state = 1; next }

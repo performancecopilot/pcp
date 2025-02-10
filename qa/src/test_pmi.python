@@ -55,6 +55,9 @@ def test_pmi(self, path = OUTFILE, inherit = 0):
     print("pmiPutValue: hinv.ncpu")
     self.assertTrue(code >= 0)
 
+    # write record at fixed time (float mode)
+    log.pmiWrite(1547483646.654321)
+
     # create a metric with instances (kernel.all.load)
     code = log.pmiAddMetric("kernel.all.load", pmid,
                             cpmapi.PM_TYPE_FLOAT, indom,
@@ -85,7 +88,7 @@ def test_pmi(self, path = OUTFILE, inherit = 0):
     # date --date='@1547483647'
     # Tue 15 Jan 2019 03:34:07 AEDT
 
-    # write the record at a fixed time
+    # write the record at a fixed time (split mode)
     sec = 1547483647
     usec = 123456
     log.pmiWrite(sec, usec)

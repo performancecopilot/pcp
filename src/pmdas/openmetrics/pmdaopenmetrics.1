@@ -206,7 +206,7 @@ An example configuration file that provides 3 commonly used headers
 and an authentication token might be :
 .PP
 .in 1i
-.ft CW
+.ft CR
 .nf
 http://somehost/path/endpoint.html
 # this is a comment
@@ -333,7 +333,7 @@ or whatever tool is desired.
 .PP
 A simple example of a scripted config entry follows:
 .in 1i
-.ft CW
+.ft CR
 .nf
 
 #! /bin/sh
@@ -351,7 +351,7 @@ awk '{
 This script produces the following OpenMetrics-formatted metric
 data when run:
 .in 1i
-.ft CW
+.ft CR
 .nf
 
 # HELP loadavg local load average
@@ -407,7 +407,7 @@ and then load the new module using
 .BR semodule ,
 e.g. as follows :
 .in 1i
-.ft CW
+.ft CR
 .nf
 
     $ sudo grep '^type=AVC.*pcp' /var/log/audit/audit.log \\
@@ -480,7 +480,7 @@ An example of such a
 .B pmlogger
 configuration file is :
 .in 1i
-.ft CW
+.ft CR
 .nf
 
 log mandatory on 2 second {
@@ -506,7 +506,7 @@ and
 .BR pmParseUnitsStr (3)
 and examples in shipped configuration files.
 .PP
-In-line "PCP5" metadata must be supplied by the metrics source end-pont (URL or script).
+In-line "PCP5" metadata must be supplied by the metrics source end-point (URL or script).
 An alternative is to specify this in the URL configuration file directly, which has the advantage
 of not having to modify the source/end-point if the metadata is incorrect or missing.
 Metadata specified in the URL configuration file over-rides any in-line metadata.
@@ -527,7 +527,7 @@ Where:
 .br
 \f2semantics\fP is either \f3counter\fP, \f3instant\fP or \f3discrete\fP and
 .br
-\f2units\fP is either \f3none\fP or a string extending to end of line that is parseable by
+\f2units\fP is either \f3none\fP or a string extending to end of line that is parsable by
 .BR pmParseUnitsStr(3),
 i.e. the units, dimensions and scaling to be used for matching metrics.
 .PP
@@ -698,3 +698,13 @@ configuration file, as described in
 .BR semodule (1),
 and
 .IR https://prometheus.io/docs/instrumenting/exposition_formats .
+
+.\" control lines for scripts/man-spell
+.\" +ok+ grafana_api_response_status_total exposition_formats
+.\" +ok+ OpenObservability
+.\" +ok+ OpenMetrics status_code parse_time headername fetch_time prometheus
+.\" +ok+ labelsets scriptlet semodule somefile somehost somepath
+.\" +ok+ mypolicy mysource SELinux loadavg Grafana ABCDEF github Config
+.\" +ok+ stat IDs EOL AVC url RC rc {from /etc/pcp/pmcd/rc.local}
+.\" +ok+ md {from https://github.com/OpenObservability/OpenMetrics/blob/master/specification/OpenMetrics.md}
+.\" +ok+ pp {from mypolicy.pp}

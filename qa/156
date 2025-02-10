@@ -16,13 +16,16 @@ echo "QA output created by $seq"
 
 _filter()
 {
-    _filter_pmda_install | \
-    sed -e 's/ 1[34][0-9][0-9] values/ 1300+ values/' \
+    _filter_pmda_install \
+    | _filter_compiler_babble \
+    | sed \
+	-e 's/ 1[34][0-9][0-9] values/ 1300+ values/' \
 	-e 's/ 1[0-9] warnings/ 10+ warnings/' \
-	-e 's/ 1[0-9][0-9] metrics/ 100+ metrics/' \
+	-e 's/ [12][0-9][0-9] metrics/ 100+ metrics/' \
 	-e "s;$tmp;TMP;" \
 	-e "s/$port1/PORT1/" \
-	-e "s/$port2/PORT2/"
+	-e "s/$port2/PORT2/" \
+    # end
 }
 
 _check_pmda_gone()
@@ -46,7 +49,7 @@ _snag_log()
 {
     if [ -f "$PCP_LOG_DIR/pmcd/sample.log" ]
     then
-	cat "$PCP_LOG_DIR/pmcd/sample.log" >>$here/$seq.full
+	cat "$PCP_LOG_DIR/pmcd/sample.log" >>$seq_full
     else
 	echo "$PCP_LOG_DIR/pmcd/sample.log: missing?"
     fi
@@ -54,7 +57,6 @@ _snag_log()
 
 status=1
 
-$sudo rm -f $seq.full
 
 # save pmcd.conf and restore it after the test
 cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
@@ -89,7 +91,7 @@ cat $tmp.out
 _check_pmda_gone $iam
 
 echo
-echo "=== pipe agent ===" | tee -a $here/$seq.full
+echo "=== pipe agent ===" | tee -a $seq_full
 echo pipe | $sudo ./Install -e >$tmp.out 2>&1
 _filter <$tmp.out
 pminfo -v sample || echo "... failed!"
@@ -99,8 +101,8 @@ _filter <$tmp.out
 pminfo -v sample || echo "... failed!"
 _snag_log
 
-echo | tee -a $here/$seq.full
-echo "=== socket Unix agent ===" | tee -a $here/$seq.full
+echo | tee -a $seq_full
+echo "=== socket Unix agent ===" | tee -a $seq_full
 echo 'socket
 Unix
 '"$tmp.fifo" | $sudo ./Install -e >$tmp.out 2>&1

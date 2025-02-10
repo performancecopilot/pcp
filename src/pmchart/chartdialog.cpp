@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2013-2015,2021 Red Hat.
+ * Copyright (c) 2013-2015,2021,2023 Red Hat.
  * Copyright (c) 2007-2008, Aconex.  All Rights Reserved.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -35,6 +35,53 @@ void ChartDialog::languageChange()
 
 void ChartDialog::init()
 {
+    connect(buttonApply, SIGNAL(clicked()),
+		this, SLOT(buttonApply_clicked()));
+    connect(buttonOk, SIGNAL(clicked()),
+		this, SLOT(buttonOk_clicked()));
+    connect(buttonCancel, SIGNAL(clicked()),
+		this, SLOT(reject()));
+    connect(metricInfoButton, SIGNAL(clicked()),
+		this, SLOT(metricInfoButtonClicked()));
+    connect(metricDeleteButton, SIGNAL(clicked()),
+		this, SLOT(metricDeleteButtonClicked()));
+    connect(metricAddButton, SIGNAL(clicked()),
+		this, SLOT(metricAddButtonClicked()));
+    connect(sourceButton, SIGNAL(clicked()),
+		this, SLOT(sourceButtonClicked()));
+    connect(applyColorButton, SIGNAL(clicked()),
+		this, SLOT(applyColorButtonClicked()));
+    connect(revertColorButton, SIGNAL(clicked()),
+		this, SLOT(revertColorButtonClicked()));
+    connect(legendOn, SIGNAL(clicked()),
+		this, SLOT(legendOnClicked()));
+    connect(legendOff, SIGNAL(clicked()),
+		this, SLOT(legendOffClicked()));
+    connect(autoScaleOn, SIGNAL(clicked()),
+		this, SLOT(autoScaleOnClicked()));
+    connect(autoScaleOff, SIGNAL(clicked()),
+		this, SLOT(autoScaleOffClicked()));
+    connect(yAxisMinimum, SIGNAL(valueChanged(double)),
+		this, SLOT(yAxisMinimumValueChanged(double)));
+    connect(yAxisMaximum, SIGNAL(valueChanged(double)),
+		this, SLOT(yAxisMaximumValueChanged(double)));
+    connect(rateConvertCheckBox, SIGNAL(clicked()),
+		this, SLOT(rateConvertClicked()));
+    connect(plotLabelLineEdit, SIGNAL(editingFinished()),
+		this, SLOT(plotLabelLineEdit_editingFinished()));
+    connect(metricSearchButton, SIGNAL(clicked()),
+		this, SLOT(metricSearchButtonClicked()));
+    connect(colorSchemeComboBox, SIGNAL(currentIndexChanged(int)),
+		this, SLOT(colorSchemeComboBox_currentIndexChanged(int)));
+    connect(availableMetricsTreeWidget, SIGNAL(doubleClicked(QModelIndex)),
+		this, SLOT(availableMetricsTreeWidget_doubleClicked(QModelIndex)));
+    connect(antiAliasingOn, SIGNAL(clicked()),
+		this, SLOT(antiAliasingOnClicked()));
+    connect(antiAliasingOff, SIGNAL(clicked()),
+		this, SLOT(antiAliasingOffClicked()));
+    connect(antiAliasingAuto, SIGNAL(clicked()),
+		this, SLOT(antiAliasingAutoClicked()));
+
     my.rateConvert = true;
     my.chartTreeSelected = false;
     my.availableTreeSelected = false;
@@ -243,9 +290,7 @@ void ChartDialog::buttonOk_clicked()
 	QDialog::accept();
     } else {
 	tabWidget->setCurrentIndex(index);
-	QMessageBox::warning(this, pmGetProgname(), message,
-		    QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
-		    Qt::NoButton, Qt::NoButton);
+	QMessageBox::warning(this, pmGetProgname(), message);
     }
 }
 
@@ -262,9 +307,7 @@ void ChartDialog::buttonApply_clicked()
     }
     else {
 	tabWidget->setCurrentIndex(index);
-	QMessageBox::warning(this, pmGetProgname(), message,
-		    QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
-		    Qt::NoButton, Qt::NoButton);
+	QMessageBox::warning(this, pmGetProgname(), message);
     }
 }
 
@@ -344,9 +387,7 @@ void ChartDialog::metricAddButtonClicked()
 	    QString message = item->metricName();
 	    message.prepend(tr("Cannot plot metric: "));
 	    message.append(tr("\nThis metric does not have a numeric type."));
-	    QMessageBox::warning(this, pmGetProgname(), message,
-		    QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
-		    Qt::NoButton, Qt::NoButton);
+	    QMessageBox::warning(this, pmGetProgname(), message);
 	}
     }
 
@@ -410,9 +451,7 @@ void ChartDialog::hostButtonClicked()
 
 	if (hostspec.isNull() || hostspec.length() == 0) {
 	    hostspec.append(tr("Hostname not specified\n"));
-	    QMessageBox::warning(this, pmGetProgname(), hostspec,
-		    QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
-		    Qt::NoButton, Qt::NoButton);
+	    QMessageBox::warning(this, pmGetProgname(), hostspec);
 	} else if ((sts = liveGroup->use(PM_CONTEXT_HOST, hostspec, flags)) < 0) {
 	    pmflush();
 	} else {
@@ -860,7 +899,7 @@ void ChartDialog::createChartPlot(Chart *cp, NameSpace *name)
 	    msg.append("Units for this metric are not compatible with other plots in this chart");
 	else
 	    msg.append(pmErrStr(m));
-	QMessageBox::critical(pmchart, pmGetProgname(),  msg);
+	QMessageBox::warning(this, pmGetProgname(), msg);
     }
     else {
 	cp->setStroke(m, style, name->currentColor());

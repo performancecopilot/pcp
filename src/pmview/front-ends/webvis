@@ -375,40 +375,40 @@ _stackLength 26
 _marginWidth 8
 _marginDepth 8
 
-_colorList cpu_colors ( blue2 red2 yellow2 cyan2 )
+_colorList cpu_colors ( "#0000e" "#ee0000" "#eeee00" "#00eeee" )	# blue2 red2 yellow2 cyan2
 _colorList disk_colors ( violet yellow )
-_colorList memory_colors (
-    rgbi:1.0/1.0/0.0
-    rgbi:0.0/1.0/1.0
-    rgbi:1.0/0.0/0.0
-    rgbi:1.0/0.0/1.0
-    rgbi:0.0/0.0/1.0
-    rgbi:0.0/1.0/0.0
+_colorlist memory_colors (
+    yellow
+    cyan
+    red
+    magenta
+    blue
+    green
 )
 _colorList network_colors (
-        rgbi:0.8/0.0/0.0
-        rgbi:1.0/0.5/0.0
-	rgbi:0.0/0.8/0.0 
+    "#cc0000"	# rgbi:0.8/0.0/0.0
+    "#ff7f00"	# rgbi:1.0/0.5/0.0
+    "#00cc00"	# rgbi:0.0/0.8/0.0 
 )
 _colorList type_colors (
-	rgbi:0.8/0.0/0.0
-	rgbi:1.0/1.0/0.6
-	rgbi:1.0/0.0/1.0
-	rgbi:0.0/1.0/1.0
-	rgbi:1.0/1.0/0.0
+    "#cc0000"	# rgbi:0.8/0.0/0.0
+    "#ffff99"	# rgbi:1.0/1.0/0.6
+    magenta
+    cyan
+    yellow
 )
 
 _colorList size_colors (
-	rgbi:1.0/0.35/0.0
-	rgbi:0.6/0.0/0.9
-	rgbi:0.0/1.0/0.0
-	rgbi:1.0/0.5/0.0
-	rgbi:0.65/0.3/1.0
-	rgbi:0.3/1.0/0.3
-	rgbi:1.0/0.65/0.3
-	rgbi:0.8/0.6/1.0
-	rgbi:0.6/1.0/0.6
-	rgbi:1.0/0.8/0.6
+    "#ff5900"	# rgbi:1.0/0.35/0.0
+    "#9900e5"	# rgbi:0.6/0.0/0.9
+    green
+    "#ff7f00"	# rgbi:1.0/0.5/0.0
+    "#a64cff"	# rgbi:0.65/0.3/1.0
+    "#4cff4c"	# rgbi:0.3/1.0/0.3
+    "#ffa64c"	# rgbi:1.0/0.65/0.3
+    "#cc99ff"	# rgbi:0.8/0.6/1.0
+    "#99ff99"	# rgbi:0.6/1.0/0.6
+    "#ffcc99"	# rgbi:1.0/0.8/0.6
 )
 
 _grid _hide (
@@ -432,7 +432,7 @@ done
 cat << end-of-file >> $tmp.pmview
 		)
 		_colorList (
-			red1 red1 red1 red1 red1 red1
+			red red red red red red
 		)
 		_baseLabel "$basestr_atcp"
 	    )
@@ -451,7 +451,7 @@ done
 cat << end-of-file >> $tmp.pmview
 		)
 		_colorList (
-			yellow rgbi:1.0/0.5/0.0 rgbi:1.0/0.5/0.0
+			yellow "#ff7f00" "#ff7f00"	# rgbi:1.0/0.5/0.0 rgbi:1.0/0.5/0.0
 		)
 		_baseLabel "$basestr_amem"
 	    )
@@ -525,7 +525,7 @@ _marginDepth 4
 _baseHeight 4
 
 	    _grid 1 0 2 1 _show (
-		_baseColor rgbi:0.30/0.30/0.30
+		_baseColor "#4c4c4c"		# rgbi:0.30/0.30/0.30
                 _stack 0 0 south _cylinder (
                	    _metrics (
                        	disk.all.write		$maxio
@@ -545,14 +545,14 @@ end-of-file
 		    _metrics (
 			disk.all.avg_disk.active	$maxactive
 		    )
-		    _colorList ( green2 )
+		    _colorList ( "#00ee00" )	# green2
 		    _baseLabel "$basestr_diskact"
 		)
 end-of-file
     fi
 
     cat << end-of-file >> $tmp.pmview
-		_baseColor rgbi:0.15/0.15/0.15
+		_baseColor "#262626"		# rgbi:0.15/0.15/0.15
             ) 
 	    _label 1 1 2 1 north _medium "Disk"
 
@@ -564,7 +564,7 @@ end-of-file
 
 	cat << end-of-file >> $tmp.pmview
 	    _grid 3 0 2 1 _show (
-		_baseColor rgbi:0.30/0.30/0.30
+		_baseColor "#4c4c4c"		# rgbi:0.30/0.30/0.30
 end-of-file
 
 	if _pmview_fetch mem.freemem 
@@ -574,7 +574,7 @@ end-of-file
 		    _metrics (
 			mem.freemem		$realmem
 		    )
-		    _colorList ( rgbi:0.0/0.8/0.0 )
+		    _colorList ( "#00cc00" )	# rgbi:0.0/0.8/0.0
 		    _baseLabel "Free memory"
 		)
 end-of-file
@@ -606,7 +606,7 @@ end-of-file
 	fi
 
 	cat << end-of-file >> $tmp.pmview
-		_baseColor rgbi:0.15/0.15/0.15
+		_baseColor "#262626"		# rgbi:0.15/0.15/0.15
 	    )
 	    _label 3 1 2 1 north _medium "Mem"
 end-of-file
@@ -637,7 +637,7 @@ _marginDepth 4
 _baseHeight 4
 
 		_grid 1 0 $ninterfaces 2 _show (
-		    _baseColor rgbi:0.30/0.30/0.30
+		    _baseColor "#4c4c4c"	# rgbi:0.30/0.30/0.30
 
 end-of-file
 
@@ -672,7 +672,7 @@ end-of-file
 
     cat << end-of-file >> $tmp.pmview
 		    _baseLabel "$basestr_net"
-_baseColor rgbi:0.15/0.15/0.15
+_baseColor "#262626"	# rgbi:0.15/0.15/0.15
 		)
 # restore defaults
 #
@@ -701,7 +701,7 @@ end-of-file
 
 $verbose && cat $tmp.pmview
 
-eval $PMVIEW <$tmp.pmview $args -title "'$titleArg'" -xrm "'*iconName: $prog'"
+eval $PMVIEW <$tmp.pmview $args -title "'$titleArg'"
 
 exit
 

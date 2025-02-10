@@ -41,7 +41,7 @@ CFILES = connect.c context.c desc.c err.c fetch.c fetchgroup.c result.c \
 	fault.c access.c getopt.c getopt2.c getopt3.c \
 	io.c io_stdio.c exec.c sha256.c strings.c \
 	shellprobe.c subnetprobe.c deprecated.c equivindom.c \
-	e_loglabel.c e_index.c e_indom.c e_labels.c \
+	e_loglabel.c e_index.c e_indom.c e_labels.c throttle.c \
 	$(JSONSL_CFILES)
 HFILES = derive.h internal.h compiler.h pmdbg.h sha256.h sort_r.h \
 	avahi.h subnetprobe.h shellprobe.h \
@@ -95,7 +95,7 @@ SYMTARGET =
 endif
 
 LDIRT += $(SYMTARGET) $(YFILES:%.y=%.tab.?) $(XFILES) $(LIBCONFIG) \
-	getdate.h derive_parser.y check.done $(GENERATED_HFILES) exports \
+	getdate.h getdate.y derive_parser.y check.done $(GENERATED_HFILES) exports \
 	$(JSONSL_XFILES)
 
 base default : $(XFILES) $(JSONSL_XFILES) \
@@ -123,6 +123,9 @@ $(OBJECTS):	$(TOPDIR)/src/include/pcp/pmapi.h \
 .NOTPARALLEL:
 getdate.h getdate.tab.c: getdate.y
 	$(YACC) -d -b `basename $< .y` $< && cp `basename $@ .h`.tab.h $@
+
+getdate.y: getdate.y.in fix_getdate_y
+	./fix_getdate_y
 
 .NOTPARALLEL:
 derive_parser.tab.h derive_parser.tab.c: derive_parser.y derive.h
@@ -194,6 +197,3 @@ $(LIBCONFIG): $(LIBCONFIG).in
 endif
 
 $(OBJECTS):	$(TOPDIR)/src/include/pcp/libpcp.h $(JSONSL_XFILES)
-
-check::	$(CFILES) $(HFILES)
-	$(CLINT) $^

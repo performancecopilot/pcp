@@ -1,0 +1,143 @@
+#!/bin/sh
+# PCP QA Test No. 1501
+# pmlogdump with multi-archive contexts
+#
+# non-valgrind variant, see qa/1502 for the valgrind variant
+#
+# Copyright (c) 2024 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+
+do_valgrind=false
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+    do_valgrind=true
+elif which valgrind >/dev/null 2>&1
+then
+    [ "$PCPQA_VALGRIND" = both ] || \
+        _notrun "valgrind variant qa/1502 will be run"
+fi
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+    # end
+}
+
+# report first, last and total number of fetches
+#
+_filter_fetch()
+{
+    sed -e '/^$/d' >$tmp.out
+    head $tmp.out >>$seq_full
+    sed <$tmp.out >$tmp.tmp -n -e '/^[^ ].* [0-9][0-9]* metric/{
+=
+}'
+    nrec=`wc -l <$tmp.tmp | sed -e 's/  *//g'`
+    sed -n -e "`head -2 <$tmp.tmp | tr '\012' ',' | sed -e 's/,$/p/'`" <$tmp.out
+    echo "..."
+    sed -n -e "`tail -2 <$tmp.tmp | tr '\012' ',' | sed -e 's/,$/p/'`" <$tmp.out
+    echo "[$nrec records]"
+}
+
+# run a single execution of pmdumplog
+#
+_doit()
+{
+    rm -f $tmp.err
+    if $do_valgrind
+    then
+	_run_valgrind pmdumplog -zx $1
+    else
+	pmdumplog -zx $1 2>$tmp.err
+    fi
+    if [ -s $tmp.err ]
+    then
+	echo "--- stderr ---"
+	cat $tmp.err
+    fi
+}
+
+mkdir $tmp || exit 1
+cd $tmp
+tar xJf $here/archives/atop-sar.tar.xz
+cd $here
+
+# real QA test starts here
+
+arg="-l archives/multi_mixed"
+echo "== $arg ==" | _filter
+_doit "$arg" | _filter
+
+arg="-L $tmp/atop-sar"
+echo "== $arg ==" | _filter
+_doit "$arg" | _filter
+
+arg="-d archives/multi_mixed"
+echo
+echo "== $arg ==" | _filter
+_doit "$arg" | _filter
+
+arg="-h archives/multi_mixed"
+echo
+echo "== $arg ==" | _filter
+_doit "$arg" | _filter
+
+arg="-I archives/multi_mixed"
+echo
+echo "== $arg ==" | _filter
+_doit "$arg" | _filter
+
+arg="-i archives/multi_mixed"
+echo
+echo "== $arg ==" | _filter
+_doit "$arg" | _filter
+
+arg="-e archives/multi_mixed"
+echo
+echo "== $arg ==" | _filter
+_doit "$arg" | _filter
+
+arg="-t archives/multi_mixed"
+echo
+echo "== $arg ==" | _filter
+_doit "$arg" | _filter
+
+arg="-m $tmp/atop-sar kernel.all.load"
+echo
+echo "== $arg ==" | _filter
+_doit "$arg" | _filter_fetch
+
+arg="-rm $tmp/atop-sar kernel.all.load"
+echo
+echo "== $arg (reading in reverse order) ==" | _filter
+_doit "$arg" | _filter_fetch
+
+# success, all done
+exit

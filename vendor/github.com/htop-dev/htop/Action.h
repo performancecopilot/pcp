@@ -7,8 +7,6 @@ Released under the GNU GPLv2+, see the COPYING file
 in the source distribution for its full text.
 */
 
-#include "config.h" // IWYU pragma: keep
-
 #include <stdbool.h>
 #include <sys/types.h>
 
@@ -18,7 +16,6 @@ in the source distribution for its full text.
 #include "Panel.h"
 #include "Process.h"
 #include "Settings.h"
-#include "UsersTable.h"
 
 
 typedef enum {
@@ -57,7 +54,7 @@ bool Action_setUserOnly(const char* userName, uid_t* userId);
 
 Htop_Reaction Action_setSortKey(Settings* settings, ProcessField sortKey);
 
-Htop_Reaction Action_setScreenTab(Settings* settings, int x);
+Htop_Reaction Action_setScreenTab(State* st, int x);
 
 Htop_Reaction Action_follow(State* st);
 

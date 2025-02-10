@@ -1,0 +1,155 @@
+#!/bin/sh
+#
+# generate rules from rules.pcp
+#
+tmp=/var/tmp/$$
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+rm -f $tmp.sed
+
+eval `grep -E '^(ENABLE_|PMDA_|HAVE_|QT_)' ../src/include/builddefs | sed -e 's/ //g'`
+
+if $PMDA_INFINIBAND
+then
+    :
+else
+    echo '/^pcp_pmda_infiniband = /d' >>$tmp.sed
+    echo '/^dirpcp_pmda_infiniband = /d' >>$tmp.sed
+    echo '/^pkgpcp_pmda_infiniband = /d' >>$tmp.sed
+    echo '/\\$(pkgpcp_pmda_infiniband) \\$(MAKE)/d' >>$tmp.sed
+    echo '/uninstallib/d' >>$tmp.sed
+    echo 's/ \\$(dirpcp_pmda_infiniband)//' >>$tmp.sed
+fi
+
+if $PMDA_BCC
+then
+    :
+else
+    : TODO
+fi
+
+if $PMDA_BPFTRACE
+then
+    :
+else
+    : TODO
+fi
+
+if $PMDA_BPF
+then
+    :
+else
+    : TODO
+fi
+
+if $PMDA_POSTGRESQL
+then
+    :
+else
+    : TODO
+fi
+
+if $PMDA_SYSTEMD
+then
+    :
+else
+    : TODO
+fi
+
+if $ENABLE_PYTHON2
+then
+    :
+else
+    : TODO
+fi
+
+if $ENABLE_PYTHON3
+then
+    :
+elif $ENABLE_PYTHON2
+then
+    :
+else
+    : TODO
+fi
+
+if $HAVE_PYTHON_JSONPOINTER
+then
+    :
+else
+    : TODO
+fi
+
+if $HAVE_PYTHON_OPENPYXL
+then
+    :
+else
+    : TODO
+fi
+
+if $HAVE_PYTHON_REQUESTS
+then
+    :
+else
+    : TODO
+fi
+
+if $HAVE_PYTHON_SIX
+then
+    :
+else
+    : TODO
+fi
+
+if $ENABLE_LZMA
+then
+    :
+else
+    : TODO
+fi
+
+if [ "$QT_VERSION" -ge 5 ]
+then
+    :
+elif [ "$QT_VERSION" -ge 4 ]
+then
+    :
+else
+    : TODO
+fi
+
+if $HAVE_OPENSSL
+then
+    :
+else
+    : TODO
+fi
+
+if $HAVE_LIBUV
+then
+    :
+else
+    : TODO
+fi
+
+if $HAVE_PERL
+then
+    :
+else
+    echo '/^[a-z][a-z_]*[a-z]_perl = /d' >>$tmp.sed
+    echo '/dh_perl -[ia] -p/d' >>$tmp.sed
+    echo '/\\$(pkg[a-z][a-z_]*[a-z]_perl) \\$(MAKE) /d' >>$tmp.sed
+    echo 's/[ 	]\\$([a-z][a-z_]*[a-z]_perl)//g' >>$tmp.sed
+    echo '/^allperldir = /d' >>$tmp.sed
+    echo 's/ \\$(allperldir)//g' >>$tmp.sed
+    echo 's/ \\$([a-z][a-z_]*[a-z]_perl)//g' >>$tmp.sed
+    echo '/^unrpathperl = /d' >>$tmp.sed
+    echo '/@\\$(unrpathperl)/d' >>$tmp.sed
+fi
+
+if [ -s $tmp.sed ]
+then
+    sed -f $tmp.sed <rules.pcp
+else
+    cat rules.pcp
+fi

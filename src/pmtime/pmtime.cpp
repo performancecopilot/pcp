@@ -53,7 +53,7 @@ void PmTime::helpManual()
 {
     bool ok;
     QString documents("file://");
-    QString separator = QString(pmPathSeparator());
+    QString separator = QString(QChar(pmPathSeparator()));
     documents.append(pmGetConfig("PCP_HTML_DIR"));
     documents.append(separator).append("timecontrol.html");
     ok = QDesktopServices::openUrl(QUrl(documents, QUrl::TolerantMode));

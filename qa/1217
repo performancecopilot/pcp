@@ -17,15 +17,14 @@ $python -c "from collections import OrderedDict" >/dev/null 2>&1
 which pmrep >/dev/null 2>&1 || _notrun "pmrep not installed"
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 echo expect no lookup errors for kernel metricsets
 for set in mpstat mpstat-P-ALL
 do
-    echo "=== $set ===" >>$seq.full
-    pmrep -s 1 :$set 2>&1 | tee -a $seq.full >/dev/null 
+    echo "=== $set ===" >>$seq_full
+    pmrep -s 1 :$set 2>&1 | tee -a $seq_full >/dev/null 
     sts=$?
     [ $sts -eq 0 ] || echo "FAIL: pmrep :$set returned $sts"
 done

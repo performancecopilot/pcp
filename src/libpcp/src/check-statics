@@ -185,6 +185,7 @@ AF.o
     afid			# single-threaded PM_SCOPE_AF
     block			# single-threaded PM_SCOPE_AF
     root			# single-threaded PM_SCOPE_AF
+    gc				# single-threaded PM_SCOPE_AF
     ?afblock			# guarded by AF_lock mutex
     ?afsetup			# guarded by AF_lock mutex
     ?aftimer			# guarded by AF_lock mutex
@@ -283,6 +284,8 @@ derive_parser.tab.o
     ?registered			# guarded by registered.mutex
     pmid			# guarded by registered.mutex
     specdesc			# guarded by registered.mutex
+    specmeta			# guarded by registered.mutex
+    specflags			# guarded by registered.mutex
     errmsg			# sort of guarded by registered.mutex (on
     				# error path, and unlikely that two threads
 				# are trying to run pmRegisterDerived at the
@@ -443,6 +446,7 @@ secureconnect.o
     common_callbacks		# const
     setup			# single-threaded
     tls				# guarded by secureclient_lock mutex
+    ?mybio			# guarded by secureclient_lock mutex
 optfetch.o
     optfetch_lock		# local mutex
     optcost			# guarded by optfetch_lock mutex
@@ -484,6 +488,7 @@ pdu.o
     tracenext			# guarded by pdu_lock mutex
 pmns.o
     pmns_lock			# local mutex
+    pmns_fix_lock		# local mutex
     lineno			# guarded by pmns_lock mutex
     export			# guarded by pmns_lock mutex
     fin				# guarded by pmns_lock mutex
@@ -543,6 +548,7 @@ tz.o
     savetz			# guarded by __pmLock_libpcp mutex
     tzbuffer			# guarded by __pmLock_libpcp mutex
     ?wildabbr			# const (MinGW)
+    ?names			# const (clang, MacOSx)
 units.o
     abuf			# pmAtomStr deprecated by pmAtomStr_r
     ubuf			# pmUnitsStr deprecated by pmUnitsStr_r
@@ -575,6 +581,8 @@ util.o
     msgbuf			# guarded by util_lock mutex
     msgbuflen			# guarded by util_lock mutex
     msgsize			# guarded by util_lock mutex
+    squashed			# guarded by __pmLock_extcall mutex when set
+    				# in a one-trip initialization
     filename			# guarded by __pmLock_extcall mutex when set
     				# in a one-trip initialization
     ?base			# no unsafe side-effects, see notes in util.c
@@ -588,6 +596,10 @@ util.o
     ?highwater			# sbrk(0) hack for Mac OS X, safe
     ?pick			# sbrk(0) hack for Mac OS X, safe
     text_start			# no unsage side-effects, see notes in util.c
+throttle.o
+    throttle_lock		# local mutex
+    hashtab			# guarded by throttle_lock mutex
+    g_limit			# guarded by throttle_lock mutex
 deprecated.o
 strings.o
 ?win32.o
@@ -674,6 +686,9 @@ do
 		#   0000000000000000 D .XB$BAAB6IVtXk4i.pmfstate.errtype
 		#   becomes
 		#   0000000000000000 D errtype
+		# for Clang
+		# + strip  s str.NNN lines
+		#
 		# + strip .bss, .data, .picdata and .rodata lines
 		#
 		skip_file=false
@@ -709,6 +724,7 @@ do
 		    -e 's/\([bds] \).*\.\([_a-zA-Z]\)/\1\2/' \
 		    -e 's/s _glib_relative_date\./s /' \
 		    -e '/ s EH_/d' \
+		    -e '/ s str\.[0-9][0-9]*$/d' \
 		    -e '/ b \.bss/d' \
 		    -e '/ d \.data/d' \
 		    -e '/ r \.rdata/d' \

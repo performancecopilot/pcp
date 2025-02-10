@@ -109,26 +109,26 @@ _do_cmds()
 x=3
 
 # real QA test starts here
-$sudo rm -f $tmp.0 $tmp.meta $tmp.index $seq.full
+$sudo rm -f $tmp.0 $tmp.meta $tmp.index
 
 # trying to understand why on vm24 there is sometimes a <mark> record
 # in the log ... hence the interest in pmcd's log
 #
 cp $PCP_LOG_DIR/pmcd/pmcd.log $tmp.pmcd.log
-echo "=== Start @ `date` ===" >>$here/$seq.full
-ls -l $PCP_LOG_DIR/pmcd/pmcd.log >>$here/$seq.full
-pcp >>$here/$seq.full
+echo "=== Start @ `date` ===" >>$seq_full
+ls -l $PCP_LOG_DIR/pmcd/pmcd.log >>$seq_full
+pcp >>$seq_full
 
 # start pmlogger with the expected number of samples plus a few more
 # to detect extra log output
 #
 _start_up_pmlogger -t 0.5sec -L -s 30 -c /dev/null -l $tmp.log $tmp >$tmp.err 2>&1
 logger_pid=$pid
-_wait_for_pmlogger $pid $tmp.log
+_wait_for_pmlogger $pid $tmp.log || _exit 1
 
-echo "logger_pid=$pid" >>$here/$seq.full
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '[p]mlogger' >>$here/$seq.full
-pmlc $logger_pid </dev/null >>$here/$seq.full
+echo "logger_pid=$pid" >>$seq_full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '/[p]mlogger( |$)' >>$seq_full
+pmlc $logger_pid </dev/null >>$seq_full
 
 sleep 2
 _do_cmds $logger_pid >$tmp.out 2>&1
@@ -142,11 +142,11 @@ _filter_pmlc <$tmp.out
 
 # wait for pmlogger to terminate
 #
-_wait_pmlogger_end $logger_pid
+_wait_pmlogger_end $logger_pid || _exit 1
 cat $tmp.err $tmp.log | _filter_logger
-echo >>$here/$seq.full
-echo "=== pmlogger log ===" >>$here/$seq.full
-cat $tmp.log >>$here/$seq.full
+echo >>$seq_full
+echo "=== pmlogger log ===" >>$seq_full
+cat $tmp.log >>$seq_full
 
 echo
 if [ -s $tmp.0 ]
@@ -156,20 +156,20 @@ then
     | _filter_dump \
     | sed -e 's/TIMESTAMP//' -e 's/^  *//' \
     | LC_COLLATE=POSIX sort -u
-    echo >>$here/$seq.full
-    echo "=== pmdumplog ===" >>$here/$seq.full
-    pmdumplog $tmp >>$here/$seq.full 2>&1
+    echo >>$seq_full
+    echo "=== pmdumplog ===" >>$seq_full
+    pmdumplog $tmp >>$seq_full 2>&1
 else
-    echo "Archive log is empty"
+    echo "Archive is empty"
 fi
 
 # see note above about vm24 and <mark> record
 #
-echo >>$here/$seq.full
-echo "=== End @ `date` ===" >>$here/$seq.full
-ls -l $PCP_LOG_DIR/pmcd/pmcd.log >>$here/$seq.full
-echo "pmcd.log diffs ..." >>$here/$seq.full
-diff $tmp.pmcd.log $PCP_LOG_DIR/pmcd/pmcd.log >>$here/$seq.full
-pcp >>$here/$seq.full
+echo >>$seq_full
+echo "=== End @ `date` ===" >>$seq_full
+ls -l $PCP_LOG_DIR/pmcd/pmcd.log >>$seq_full
+echo "pmcd.log diffs ..." >>$seq_full
+diff $tmp.pmcd.log $PCP_LOG_DIR/pmcd/pmcd.log >>$seq_full
+pcp >>$seq_full
 
 exit

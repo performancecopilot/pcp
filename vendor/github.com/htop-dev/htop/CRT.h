@@ -7,8 +7,6 @@ Released under the GNU GPLv2+, see the COPYING file
 in the source distribution for its full text.
 */
 
-#include "config.h"
-
 #include <stdbool.h>
 
 #include "Macros.h"
@@ -123,6 +121,11 @@ typedef enum ColorElements_ {
    CPU_SOFTIRQ,
    CPU_STEAL,
    CPU_GUEST,
+   GPU_ENGINE_1,
+   GPU_ENGINE_2,
+   GPU_ENGINE_3,
+   GPU_ENGINE_4,
+   GPU_RESIDUE,
    PANEL_EDIT,
    SCREENS_OTH_BORDER,
    SCREENS_OTH_TEXT,
@@ -170,6 +173,8 @@ void CRT_handleSIGSEGV(int signal) ATTR_NORETURN;
 #define KEY_RECLICK   KEY_F(32)
 #define KEY_SHIFT_TAB KEY_F(33)
 #define KEY_ALT(x)    (KEY_F(64 - 26) + ((x) - 'A'))
+#define KEY_FOCUS_IN  (KEY_MAX + 'I')
+#define KEY_FOCUS_OUT (KEY_MAX + 'O')
 
 extern const char* CRT_degreeSign;
 
@@ -197,7 +202,7 @@ void CRT_setMouse(bool enabled);
 #define CRT_setMouse(enabled)
 #endif
 
-void CRT_init(const Settings* settings, bool allowUnicode);
+void CRT_init(const Settings* settings, bool allowUnicode, bool retainScreenOnExit);
 
 void CRT_done(void);
 
@@ -208,6 +213,10 @@ int CRT_readKey(void);
 void CRT_disableDelay(void);
 
 void CRT_enableDelay(void);
+
+static inline void CRT_updateDelay(void) {
+   CRT_enableDelay(); // pushes new delay setting into halfdelay(3X)
+}
 
 void CRT_setColors(int colorScheme);
 

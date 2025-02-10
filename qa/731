@@ -17,10 +17,44 @@ echo "QA output created by $seq"
 _check_valgrind
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "cd $here; $sudo rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
-_filter()
+# things just got more complicated because the acct metrics
+# initialization _may_ do a fork() and exit() to test if an existing
+# process accounting file is being updated ... this creates a child
+# process that is guaranteed to have exited, and valgrind may notice.
+#
+# when this happens we get one HEAP-LEAK-ERROR block for the
+# child process and one for the main process.  since we expect
+# them to be identical and report 0 lost bytes, just report the
+# unique lines
+#
+#  and we _may_ have error lines like
+# [date] ... Warning: acct: existing pacct file did not grow as expected, file system full?
+# [date] ... Info: acct: enable -Dappl3 for more detailed logging
+# if the process accounting file exists, but process accounting is turned
+# off or the file system is full
+#
+_my_filter_valgrind()
+{
+    $PCP_AWK_PROG '
+/^=== std err ===/	{ want = 1 }
+want == 1 && $1 == "LEAK"	{ want = 2 }
+want == 2		{ # first word in the "interesting" blocks are unique
+			  # LEAK, definitely, indirectly and ERROR
+			  if ($0 == seen[$1]) next
+			  seen[$1] = $0
+			}
+want > 0		{ print }' \
+    | sed \
+	-e '/Warning: acct: existing pacct file did not grow /d' \
+	-e '/Info: acct: enable -Dappl3 /d' \
+	-e "s,$PCP_PMDAS_DIR/,PCP_PMDAS_DIR/,g" \
+    # end
+}
+
+# for pminfo ...
+_filter1()
 {
     cat >$tmp.out
     sed -e 1q $tmp.out
@@ -29,10 +63,15 @@ _filter()
     nvalue=`grep 'inst \[' <$tmp.out | wc -l | sed -e 's/ //g'`
     echo
     echo "and $nvalue instance values."
-    $PCP_AWK_PROG <$tmp.out '
-/^=== std err ===/	{ want = 1 }
-want == 1		{ print }' \
-    | sed -e "s,$PCP_PMDAS_DIR/,PCP_PMDAS_DIR/,g"
+    _my_filter_valgrind <$tmp.out
+}
+
+# for pmval ...
+_filter2()
+{
+    cat >$tmp.out
+    echo "`grep -E '^( *[0-9"])|(No values)' <$tmp.out | wc -l | sed -e 's/  *//g'` report lines"
+    _my_filter_valgrind <$tmp.out
 }
 
 # real QA test starts here
@@ -52,8 +91,8 @@ do
     echo "== Running valgrind for cgroup fetch - $base"
     cd $here
     _run_valgrind pminfo -L -K clear -K add,3,$pmda -d -f cgroup 2>&1 \
-    | tee -a $seq.full \
-    | _filter
+    | tee -a $seq_full \
+    | _filter1
 
     # takes too long to verify everything, so check just first
     echo $base | grep -q 001 || continue
@@ -62,8 +101,10 @@ do
     do
 	name=`pminfo cgroup.$tree | sed 1q`
 	echo "== Running valgrind on $tree for multiple fetches - $base"
-	_run_valgrind pmval -L -K clear -K add,3,$pmda -s 1099 -t 0.00001 $name >/dev/null
-	echo "checked cgroup tree $tree via metric $metric" >> $seq.full
+	_run_valgrind pmval -L -K clear -K add,3,$pmda -s 1099 -t 0.00001 $name 2>&1 \
+	| tee -a $seq_full \
+	| _filter2
+	echo "checked cgroup tree $tree via metric $metric" >> $seq_full
     done
 
     echo && echo "== done" && echo

@@ -52,6 +52,9 @@ HFILES = $(shell echo *.h)
 LLDLIBS = $(LIB_FOR_HDR_HISTOGRAM) $(LIB_FOR_CHAN)
 LLDLIBS += $(LIB_FOR_PTHREADS) $(LIB_FOR_MATH)
 LLDLIBS += $(PCP_WEBLIB)
+ifeq "$(HAVE_LIBINIH)" "true"
+LLDLIBS += $(LIB_FOR_INIH)
+endif
 LCFLAGS = $(INVISIBILITY)
 #LCFLAGS += -Wextra -MMD -MP
 LDIRT = domain.h *.log $(RFILES)
@@ -99,6 +102,3 @@ $(VERSION_SCRIPT):
 
 domain.h: $(TOPDIR)/src/pmns/stdpmid
 	$(DOMAIN_MAKERULE)
-
-check:: $(CFILES) $(HFILES)
-	$(CLINT) $^

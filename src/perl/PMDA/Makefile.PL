@@ -18,8 +18,7 @@ else {
     $libs = ["-L$ENV{PCP_TOPDIR}/src/libpcp_pmda/src -L$ENV{PCP_TOPDIR}/src/libpcp/src -lpcp_pmda -lpcp"];
 }
 if ($ENV{TARGET_OS} eq "darwin") {
-    # standard ones, minus -arch ppc
-    $lddlflags = "-arch x86_64 -arch i386 -bundle -undefined dynamic_lookup";
+    $lddlflags = "-bundle -undefined dynamic_lookup";
 }
 else {
     $lddlflags = "-shared \$(OPTIMIZE) \$(LDFLAGS)";
@@ -55,7 +54,7 @@ WriteMakefile(
     OPTIMIZE		=> '-g',
     XSPROTOARG		=> '-noprototypes',
     OBJECT		=> 'local.o PMDA.o',
-    DEFINE		=> '-DPERLIO_NOT_STDIO=0 -DPCP_VERSION',
+    DEFINE		=> '-DPERLIO_NOT_STDIO=0 -DPCP_VERSION  -D_FILE_OFFSET_BITS=64',
     LDFROM		=> $ldfrom,
     LDDLFLAGS		=> $lddlflags,
     CCCDLFLAGS		=> $cccdlflags,

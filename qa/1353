@@ -20,7 +20,6 @@ _cleanup()
 }
 
 status=0	# success is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _filter()
@@ -57,7 +56,7 @@ log mandatory on 15 seconds { is_a_name_3 is_a_name_4 # is_not_a_name_5
 End-of-File
 
 pmlogger -C -c $tmp.config -Dappl6 2>&1 \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | _filter
 
 # success, all done

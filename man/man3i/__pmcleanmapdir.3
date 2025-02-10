@@ -1,0 +1,98 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2023 Ken McDonell.  All Rights Reserved.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.\"
+.TH PMCLEANMAPDIR 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3__pmCleanMapDir\f1 \- remove old files from a map directory
+.SH "C SYNOPSIS"
+.ft 3
+#include "pmapi.h"
+.br
+#include "libpcp.h"
+.sp
+int __pmCleanMapDir(const char *\fIdirname\fP, const char * \fIspecial\fP);
+.sp
+cc ... \-lpcp
+.ft 1
+.SH CAVEAT
+This documentation is intended for internal Performance Co-Pilot
+(PCP) developer use.
+.PP
+These interfaces are not part of the PCP APIs that are guaranteed to
+remain fixed across releases, and they may not work, or may provide
+different semantics at some point in the future.
+.SH DESCRIPTION
+.BR pmlogger (1)
+and
+.BR pmie (1)
+maintain directories of map files that provide a mapping from a
+.BR pmlogger (1)
+or
+.BR pmie (1)
+process id (PID) to important parameters of those processes.
+.PP
+.B __pmCleanMapDir
+removes ``dead'' files in these directories, specifically the
+directory entries in
+.I dirname
+should follow these rules, else
+.B __pmCleanMapDir
+will remove them:
+.IP + 2n
+the name should be numeric, else it should be equal
+.I special
+(if
+.I special
+is not NULL)
+.IP + 2n
+for a numeric directory entry it should be a regular file
+and the name should be the PID of a running process
+.IP + 2n
+for a match on
+.I special
+the directory entry should be a symbolic link and the last
+component of the link
+should be the ASCII encoding of the PID of a running process
+.PP
+Before any of these checks are done,
+.B __pmCleanMapDir
+checks that
+.I dirname
+is indeed a directory, and the user id and group id of the caller
+match the user id and group id of
+.IR dirname .
+.SH RETURN VALUES
+If a serious error occurs,
+.B __pmCleanMapDir
+returns a negative value suitable for reporting with
+.BR pmErrStr (3).
+Otherwise the return value is the number of entries that have been
+removed.
+.SH DIAGNOSTICS
+Verbose diagnostics describing the actions of
+.B __pmCleanMapDir
+will be reported on standard error of the debug option
+.B misc
+is set, e.g. via
+.B "\-D misc"
+from the command line.
+.SH SEE ALSO
+.BR pmdbg (1),
+.BR PMAPI (3)
+and
+.BR pmErrStr (3).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ misc {from -D misc}

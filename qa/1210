@@ -15,9 +15,9 @@ echo "QA output created by $seq"
 
 _cleanup()
 {
-    echo "_cleanup: ..." >>$seq.full
+    echo "_cleanup: ..." >>$seq_full
     cd $here
-    $sudo pmlogctl -af -c $seq -p $tmp.policy destroy >>$seq.full 2>&1
+    $sudo pmlogctl -af -c $seq -p $tmp.policy destroy >>$seq_full 2>&1
     for dir in $seq-localhost $seq-LOCALHOSTNAME $seq-`hostname` $seq-no.such.host.pcp.io
     do
 	[ -d "$PCP_ARCHIVE_DIR/$dir" ] && $sudo rm -rf "$PCP_ARCHIVE_DIR/$dir"
@@ -26,14 +26,13 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 localhost=`hostname`
 
 _filter()
 {
-    tee -a $seq.full \
+    tee -a $seq_full \
     | sed \
 	-e '/^# created by pmlogctl/s/ on .*/ on DATE/' \
 	-e "s;$tmp\.;TMP.;g" \
@@ -46,6 +45,8 @@ _filter()
 	-e "s/PID $mypid/PID <mypid>/" \
 	-e 's/PID [0-9][0-9]*/PID <somepid>/' \
 	-e '/^------.*\/lock/s/.* /------ ... ls output ... /' \
+	-e '/^-r--r-.*\/lock/s/.* /------ ... ls output ... /' \
+	-e "/^$mypid QA $seq/d" \
     # end
 }
 
@@ -66,7 +67,7 @@ END	{ print "{ print }" }'
 #
 _filter_status()
 {
-    tee -a $seq.full \
+    tee -a $seq_full \
     | $PCP_AWK_PROG -f $tmp.awk \
     | sed >$tmp.tmp \
 	-e "/^`hostname` .* primary /d" \
@@ -176,23 +177,23 @@ pmlogctl status | _filter_status
 # NOTE
 # 	For this next test there is ugly non-determinism from a
 # 	filesystem directory order dependency ... using a sort strategy,
-#	but to triage failures you'll need to look at the $seq.full
+#	but to triage failures you'll need to look at the $seq_full
 #	file to see the original output order from pmlogctl
 #
 echo
 echo "=== stale mutex"
-if ! $sudo $PCP_BINADM_DIR/pmlock $PCP_ETC_DIR/pcp/pmlogger/lock
+if ! $sudo $PCP_BINADM_DIR/pmlock -i "$mypid QA $seq" $PCP_ETC_DIR/pcp/pmlogger/lock
 then
     echo "Arrgh, failed to get lock $PCP_ETC_DIR/pcp/pmlogger/lock"
 fi
-echo $mypid >$tmp.tmp
+echo "$mypid QA $seq stale lock" >$tmp.tmp
 $sudo cp $tmp.tmp $PCP_ETC_DIR/pcp/pmlogger/lock
 $sudo touch -t `pmdate -35M %Y%m%d%H%M` $PCP_ETC_DIR/pcp/pmlogger/lock
 $sudo pmlogctl -V -a -c $seq stop 2>$tmp.err | _filter | LC_COLLATE=POSIX sort
-_filter <$tmp.err
+_filter <$tmp.err | LC_COLLATE=POSIX sort
 pmlogctl status | _filter_status
 $sudo rm -f $PCP_ETC_DIR/pcp/pmlogger/lock
-$sudo pmlogctl -V -a -c $seq start | _filter | LC_COLLATE=POSIX sort
+$sudo pmlogctl -V -a -c $seq start 2>&1 | _filter | LC_COLLATE=POSIX sort
 
 # success, all done
 status=0

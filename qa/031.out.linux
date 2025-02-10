@@ -12,6 +12,7 @@ children of "pmcd" ...
     cputime             <s = 1>
     datasize            <s = 0>
     labels              <s = 0>
+    limits              <s = 1>
     numagents           <s = 0>
     numclients          <s = 0>
     openfds             <s = 0>
@@ -36,6 +37,7 @@ pmid: 60.0.32 name: hinv.ncpu
 
 pmid: PM_ID_NULL name: pmcd.control
 children of "pmcd.control" ...
+    creds_timeout       <s = 0>
     debug               <s = 0>
     dumpconn            <s = 0>
     dumptrace           <s = 0>

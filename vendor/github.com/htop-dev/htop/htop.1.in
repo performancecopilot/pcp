@@ -1,11 +1,11 @@
-.TH "HTOP" "1" "2023" "@PACKAGE_STRING@" "User Commands"
+.TH "HTOP" "1" "2024" "@PACKAGE_STRING@" "User Commands"
 .SH "NAME"
 htop, pcp-htop \- interactive process viewer
 .SH "SYNOPSIS"
 .B htop
 .RB [ \-dCFhpustvH ]
 .br
-.B pcp\ htop
+.B pcp-htop
 .RB [ \-dCFhpustvH ]
 .RB [ \-\-host/-h\ host ]
 .SH "DESCRIPTION"
@@ -257,6 +257,10 @@ displayed in the process list. (This is a toggle key.)
 Hide user threads: on systems that represent them differently than ordinary
 processes (such as recent NPTL-based systems), this can hide threads from
 userspace processes in the process list. (This is a toggle key.)
+.TP
+.B O
+Hide containerized processes: prevent processes running in a container
+from being displayed in the process list. (This is a toggle key.)
 .TP
 .B p
 Show full paths to running programs, where applicable. (This is a toggle key.)
@@ -598,7 +602,7 @@ By default
 .B htop
 reads its configuration from the XDG-compliant path
 .IR ~/.config/htop/htoprc .
-The configuration file is overwritten by
+The configuration file is overwritten upon clean exit by
 .BR htop 's
 in-program Setup configuration, so it should not be hand-edited.
 If no user configuration exists
@@ -615,12 +619,23 @@ The
 .B pcp-htop
 utility makes use of
 .I htoprc
-in exactly the same way.
-In addition, it supports additional configuration files allowing
-new meters and columns to be added to the display via the usual
-Setup function, which will display additional Available Meters
-and Available Column entries for each runtime configured meter
-or column.
+in a similar way.
+However,
+.B pcp-htop
+reads its configuration from a path more conventionally used by
+Performance Co-Pilot tools,
+.IR ~/.pcp/htop/htoprc ,
+in order to provide separate configuration when both
+.B htop
+and
+.B pcp-htop
+are installed and in use.
+.B pcp-htop
+supports additional configuration files below the same directory
+allowing new meters, columns and screen tabs to be added via the
+Setup screen (F2).
+This displays additional Available Meters, Available Column and
+Screen Tabs for each meter, column or screen configuration file.
 .LP
 These
 .B pcp-htop
@@ -640,15 +655,24 @@ can also be displayed by
 if the
 .BR pmdaopenmetrics (1)
 component is configured.
+.LP
+The configuration for both
+.B htop
+and
+.B pcp-htop
+is only saved when a clean exit is performed. Sending any signal will cause
+.I all configuration changes to be lost.
 .SH "MEMORY SIZES"
 Memory sizes in
 .B htop
 are displayed in a human-readable form.
-Sizes are printed in powers of 1024. (e.g., 1023M = 1072693248 Bytes)
+Sizes are printed in powers of 1024 using binary IEC units.
+If no suffix is shown the units are implicitly K as in KiB (kibibyte, 1 KiB = 1024 bytes).
 .LP
 The decision to use this convention was made in order to conserve screen
 space and make memory size representations consistent throughout
-.BR htop .
+.B htop
+as allocations are granular to full memory pages (4 KiB for most platforms).
 .SH "SEE ALSO"
 .BR proc (5),
 .BR top (1),
@@ -674,7 +698,7 @@ communities, and forms part of the Performance Co-Pilot suite of tools.
 .SH "COPYRIGHT"
 Copyright \(co 2004-2019 Hisham Muhammad.
 .br
-Copyright \(co 2020-2023 htop dev team.
+Copyright \(co 2020-2024 htop dev team.
 .LP
 License GPLv2+: GNU General Public License version 2 or, at your option, any later version.
 .LP

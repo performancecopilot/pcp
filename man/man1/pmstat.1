@@ -86,7 +86,7 @@ If the
 option is specified, then
 .BR pmcd (1)
 is bypassed, and metrics are fetched from PMDAs on the local host
-using the standalone
+using the stand-alone
 .B PM_CONTEXT_LOCAL
 variant of
 .BR pmNewContext (3).
@@ -107,7 +107,7 @@ flags.
 Alternatively, if the
 .B \-a
 option is used, the metrics are retrieved from the Performance Co-Pilot
-archive log files identified by
+archive files identified by
 .IR archive ,
 which is a comma-separated list of names, each
 of which may be the base name of an archive or the name of a directory containing
@@ -122,7 +122,7 @@ the
 .B \-P
 flag may also be used to pause the output after each interval.
 .PP
-Standalone mode can only connect to the local host, using a set of archives implies
+Stand-alone mode can only connect to the local host, using a set of archives implies
 a host name, and nominating a host precludes using an archive, so the options
 .BR \-L ,
 .B \-a
@@ -166,7 +166,7 @@ The available command line options are:
 .TP 5
 \fB\-a\fR \fIarchive\fR, \fB\-\-archive\fR=\fIarchive\fR
 Performance metric values are retrieved from the set of Performance
-Co-Pilot (PCP) archive log files identified by the
+Co-Pilot (PCP) archive files identified by the
 .I archive
 argument, which is a comma-separated list of names,
 each of which may be the base name of an archive or the name of
@@ -289,7 +289,7 @@ for a complete description of the syntax for
 \fB\-t\fR \fIinterval\fR, \fB\-\-interval\fR=\fIinterval\fR
 Set the reporting
 .I interval
-to something other than the default 1 second.
+to something other than the default 5 seconds.
 The
 .I interval
 argument follows the syntax described in
@@ -306,8 +306,9 @@ records logged before or at
 Display version number and exit.
 .TP
 \fB\-x\fR, \fI\-\-xcpu\fR
-The extended CPU metrics option, causes two additional CPU metrics to be
-reported, namely wait for I/O ("wa") and virtualisation steal time ("st").
+The extended CPU metrics option, causes three additional CPU metrics to be
+reported, namely wait for I/O ("wa"), virtualisation steal time ("st"),
+and virtual guest time ("gu").
 .TP
 \fB\-z\fR, \fB\-\-hostzone\fR
 Change the reporting timezone to the local timezone at the host
@@ -448,3 +449,7 @@ For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
 .BR pcp.env (5)
 and
 .BR PMNS (5).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ bi bo po si swpd sy wa loadavg {all are column headings}
+.\" +ok+ vmstat {from pcp-vmstat} hostlist

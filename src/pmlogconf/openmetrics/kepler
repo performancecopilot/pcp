@@ -1,0 +1,5 @@
+#pmlogconf-setup 2.0
+ident	Kepler power stats
+probe	openmetrics.kepler values ? include : available
+delta	60 seconds
+	openmetrics.kepler

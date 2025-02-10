@@ -24,7 +24,6 @@ domain=156
 
 dso_opt=false
 socket_opt=false
-pmns_source=root_denki
 
 # args="-U root -D appl0"
 # args="-U root -r <directory>"
@@ -34,9 +33,20 @@ args="-U root"
 #
 if [ -d $PCP_VAR_DIR/config/pmda ]
 then
-    touch $PCP_VAR_DIR/config/pmda/$domain.1
-    chown $PCP_USER:$PCP_GROUP $PCP_VAR_DIR/config/pmda/$domain.1
-    chmod 644 $PCP_VAR_DIR/config/pmda/$domain.1
+    if [ ! -f "$PCP_VAR_DIR/config/pmda/$domain.1" ]
+    then
+	# First time Install, initialize PMDA's indom cache file
+	#
+	if "$PCP_BINADM_DIR/indomcachectl" -u $PCP_USER -g $PCP_GROUP $domain.1
+	then
+	    :
+	else
+	    echo "Cannot create indom cache file"
+	    echo "Failed on: $PCP_VAR_DIR/config/pmda/$domain.1"
+	    status=1
+	    exit
+	fi
+    fi
 fi
 
 pmdaSetup

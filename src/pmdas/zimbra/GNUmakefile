@@ -28,17 +28,27 @@ MAN_SECTION = 1
 MAN_PAGES = pmda$(IAM).$(MAN_SECTION)
 MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
 
-default: build-me check_domain runaszimbra
+ifneq "$(TARGET_OS)" "mingw"
+RUNASZIMBRA = runaszimbra
+else
+RUNASZIMBRA =
+endif
+LDIRT += $(RUNASZIMBRA)
+
+default: build-me check_domain
 
 include $(BUILDRULES)
 
 ifeq "$(HAVE_PERL)" "true"
-build-me:
+build-me: $(RUNASZIMBRA)
 install: default
 	$(INSTALL) -m 755 -d $(PMDAADMDIR)
 	$(INSTALL) -m 755 -d $(PMDATMPDIR)
-	$(INSTALL) -m 755 -t $(PMDATMPDIR) runaszimbra Install Remove $(PMDAADMDIR)
+	$(INSTALL) -m 755 -t $(PMDATMPDIR) Install Remove $(PMDAADMDIR)
+ifneq "$(TARGET_OS)" "mingw"
+	$(INSTALL) -m 755 -t $(PMDATMPDIR)/runaszimbra runaszimbra $(PMDAADMDIR)/runaszimbra
 	$(INSTALL) -m 755 -t $(PMDATMPDIR)/zimbraprobe zimbraprobe.sh $(PMDAADMDIR)/zimbraprobe
+endif
 	$(INSTALL) -m 644 -t $(PMDATMPDIR)/pmda$(IAM).pl pmda$(IAM).pl $(PMDAADMDIR)/pmda$(IAM).pl
 	@$(INSTALL_MAN)
 	$(INSTALL) -m 755 -d $(LOGCONFDIR)

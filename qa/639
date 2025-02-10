@@ -20,7 +20,7 @@ _add()
 {
     while true
     do
-	pmlock $tmp.root.lock && break
+	pmlock -i "$$ QA 639" $tmp.root.lock && break
 	sleep 1
     done
     pmnsadd -n $tmp.root $1
@@ -185,14 +185,14 @@ pminfo -m -n $tmp.main
 
 echo
 echo "Serial additions ..."
-echo "Serial additions ..." >$seq.full
+echo "Serial additions ..." >$seq_full
 cp $tmp.main $tmp.root
 for m in $tmp.d1 $tmp.one.d2 $tmp.one.one.d3 $tmp.two.d4 $tmp.three.one.d5 \
 	 $tmp.one.one.d6 $tmp.one.one.d7 $tmp.one.one.d8 $tmp.two.d9
 do
     pmnsadd -n $tmp.root $m 2>&1
 done \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | grep ' leaf' \
 | LC_COLLATE=POSIX sort -nr
 echo
@@ -200,7 +200,7 @@ pminfo -m -n $tmp.root | LC_COLLATE=POSIX sort
 
 echo
 echo "Parallel additions ..."
-echo "Parallel additions ..." >>$seq.full
+echo "Parallel additions ..." >>$seq_full
 cp $tmp.main $tmp.root
 rm -f $tmp*.out
 for m in $tmp.d1 $tmp.one.d2 $tmp.one.one.d3 $tmp.two.d4 $tmp.three.one.d5 \
@@ -217,9 +217,9 @@ echo
 
 for f in $tmp*.out
 do
-    echo >>$seq.full
-    echo "=== $f ===" >>$seq.full
-    cat $f >>$seq.full
+    echo >>$seq_full
+    echo "=== $f ===" >>$seq_full
+    cat $f >>$seq_full
 done
 
 pminfo -m -n $tmp.root | LC_COLLATE=POSIX sort

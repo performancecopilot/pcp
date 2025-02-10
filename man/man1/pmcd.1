@@ -21,10 +21,12 @@
 \f3pmcd\f1
 [\f3\-AfQSv?\f1]
 [\f3\-c\f1 \f2config\f1]
+[\f3\-C\f1 \f2nctx\f1]
 [\f3\-H\f1 \f2hostname\f1]
 [\f3\-i\f1 \f2ipaddress\f1]
 [\f3\-l\f1 \f2logfile\f1]
 [\f3\-L\f1 \f2bytes\f1]
+[\f3\-M\f1 \f2nmetric\f1]
 [\f3\-\f1[\f3n\f1|\f3N\f1] \f2pmnsfile\f1]
 [\f3\-p\f1 \f2port\f1[,\f2port\f1 ...]]
 [\f3\-q\f1 \f2timeout\f1]
@@ -111,6 +113,19 @@ However, these values may be overridden with
 using this option.
 The format of this configuration file is described below.
 .TP
+\f3\-C\f1 \f2nctx\f1, \f3\-\-maxctx\f1=\f2nctx\f1
+Each client of
+.B pmcd
+may create one or more contexts.
+The number of contexts per client is restricted to a
+maximum of 64 by default to defend against Denial of
+Service attacks through memory and file descriptor depletion.
+The
+.B \-C
+option may be used to change the maximum to
+.I nctx
+contexts.
+.TP
 \f3\-f\f1, \f3\-\-foreground\f1
 By default
 .B pmcd
@@ -175,7 +190,7 @@ instead of the default.
 If the log file cannot be created or is not writable, output is
 written to the standard error instead.
 .TP
-\f3\-L\f1 \f2bytes\f1
+\f3\-L\f1 \f2bytes\f1, \f3\-\-maxbytes\f1=\f2bytes\f1
 .IR PDU s
 received by
 .B pmcd
@@ -187,6 +202,20 @@ The
 option may be used to change the maximum incoming
 .I PDU
 size.
+.TP
+\f3\-M\f1 \f2nmetric\f1, \f3\-\-maxmetric\f1=\f2nmetric\f1
+Each
+.B fetch
+received by
+.B pmcd
+from monitoring clients is restricted to a
+maximum of 32768 metrics by default to defend against Denial of
+Service attacks through memory depletion.
+The
+.B \-M
+option may be used to change the maximum to
+.I nmetric
+metrics.
 .TP
 \f3\-n\f1 \f2pmnsfile\f1, \f3\-\-namespace\f1=\f2pmnsfile\f1
 Normally
@@ -222,15 +251,22 @@ provide backward compatibility) uses this timeout to specify how long pmcd
 should wait before assuming that no version response is coming from an agent.
 If this timeout is reached, the agent is assumed to be an agent which does
 not understand the PCP 2.0 protocol.
-The default timeout interval is five seconds,
+The default timeout interval is three seconds,
 but the
 .B \-q
 option allows an alternative timeout interval (which must be greater than
 zero) to be specified.
-The unit of time is seconds.
+The unit of
+.I timeout
+is seconds.
+Alternatively, if
+.B \-q
+is not used, the
+.B PMCD_CREDS_TIMEOUT
+environment variable may be used to define the timeout interval.
 .TP
 \f3\-Q\f1, \f3\-\-remotecert\f1
-Require that all remote client connections provide a certficate.
+Require that all remote client connections provide a certificate.
 .TP
 \f3\-s\f1 \f2sockname\f1, \f3\-\-socket\f1=\f2sockname\f1
 Specify the path to a local unix domain socket (for platforms supporting this
@@ -481,7 +517,7 @@ The default search path is
 For agents providing socket connections, a line of the form
 .TP
 \&
-\f2label\f1 \f2domain-no\f1 \f3socket\f1 \f2addr-family\f1 \f2address\f1 [ \f2command\f1 ]
+\f2label\f1 \f2domain-no\f1 \f3socket\f1 \f2addr_family\f1 \f2address\f1 [ \f2command\f1 ]
 .PP
 should appear.
 Where,
@@ -493,7 +529,7 @@ is a string identifying the agent
 .I domain-no
 is an unsigned integer specifying the agent's domain in the range 1 to 510
 .TP 14
-.I addr-family
+.I addr_family
 designates whether the socket is in the
 .B AF_INET,
 .B AF_INET6
@@ -510,7 +546,7 @@ respectively.
 .I address
 specifies the address of the socket within the previously
 specified
-.I addr-family.
+.I addr_family.
 For
 .B unix
 sockets, the address should be the name of an agent's socket on the
@@ -710,7 +746,7 @@ Names of users, groups or hosts may not be wildcarded.
 The following are all valid host identifiers:
 .de CS
 .in +0.5i
-.ft CW
+.ft CR
 .nf
 ..
 .de CE
@@ -754,7 +790,7 @@ The second and fifth examples are not valid because there is more than
 one wildcard character.
 The third and sixth contain an embedded wildcard, the fourth and seventh
 have a wildcard character that is not the last component of
-the address (the last components are \f(CW127*\f1 and \f(CWfe80*\f1 respectively).
+the address (the last components are \f(CR127*\f1 and \f(CRfe80*\f1 respectively).
 .PP
 The name
 .B localhost
@@ -1043,7 +1079,7 @@ When
 .B pmcd
 receives a SIGHUP, it checks the configuration file for changes.
 If the file
-has been modified, it is reparsed and the contents become the new
+has been modified, it is re-parsed and the contents become the new
 configuration.
 If there are errors in the configuration file, the existing
 configuration is retained and the contents of the file are ignored.
@@ -1328,7 +1364,7 @@ variable controls whether or not
 .B pmcd
 or
 .B pmdaroot
-(when available), start subsequent pmdas.
+(when available), start subsequent PMDAs.
 When set to a non-zero value,
 .B pmcd
 will opt to have
@@ -1344,7 +1380,7 @@ typical response in the presence of very large, usually domain-induced,
 PDU latencies).
 When set to a non-zero value,
 .B pmcd
-will attempt to restart such PMDAS once every minute.
+will attempt to restart such PMDAs once every minute.
 When set to zero, it uses the original behaviour of just logging the failure.
 .SH PCP ENVIRONMENT
 Environment variables with the prefix \fBPCP_\fP are used to parameterize
@@ -1372,3 +1408,15 @@ For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
 .BR pcp.env (5)
 and
 .BR PMNS (5).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ Avahi PMCD_CREDS_TIMEOUT PMCD_MAXPENDING
+.\" +ok+ SASL SD addr_family appl boing
+.\" +ok+ OpenRequestSocket
+.\" +ok+ PMCD_LOCAL PMCD_PATH
+.\" +ok+ PMCD_RESTART_AGENTS PMCD_ROOT_AGENT PMCD_SOCKET PMCD_VARIABLE
+.\" +ok+ OpenSSL \.melbourne melbourne TIME_WAIT creds_required dumptrace
+.\" +ok+ fe feaf ff {all from IPv6 addr like fe80::223:14ff:feaf:*}
+.\" +ok+ grouplist hostlist inet ipc_prot
+.\" +ok+ userlist postgresql simabi nmetric
+.\" +ok+ tracebufs traceconn tracenobuf tracepdu

@@ -17,12 +17,11 @@ echo "QA output created by $seq"
 $sudo test -d /sys/kernel/debug/zswap || _notrun "No kernel support for zswap"
 
 status=1	# failure is the default!
-$sudo rm -f $tmp.* $seq.full
 
 _filter_zswap()
 {
     # filter metric values for deterministic output
-    tee -a $here/$seq.full | sed \
+    tee -a $seq_full | sed \
         -e 's/value [0-9][0-9]*/value NUMBER/'
 }
 

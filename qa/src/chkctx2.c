@@ -11,11 +11,13 @@
  */
 
 #include <pcp/pmapi.h>
+#include "libpcp.h"
 
 static int inst_bin[] = { 100, 200, 300, 400, 500, 600, 700, 800, 900 };
+static int inst_colour[] = { 0, 1, 2 };
 
-static int xpect_bin[] = { 1 };
-static int xpect_colour[] = { 0 };
+static int xpect_bin[] = { 1, 1, 4 };
+static int xpect_colour[] = { 0, 1, 3 };
 
 static const char *namelist[] = {
     "sampledso.bin",
@@ -24,7 +26,9 @@ static const char *namelist[] = {
 
 /*
  * handle	profile				values expected
- *   0		bin=500, no colour		1 bin	0 colour
+ *   0,1	bin=500, no colour		1 bin	0 colour
+ * <even>	bin=100, color=red		1 bin   1 colour
+ * <odd>        bin=200,400,600 color=all	3 bin	3 colour
  */
 
 int
@@ -32,8 +36,10 @@ main(int argc, char **argv)
 {
     int		c;
     int		sts;
+    int		xpect;
     int		errflag = 0;
     int		type = 0;
+    int		numctx = 2;
     char	*host = "localhost";
     char	*namespace = PM_NS_DEFAULT;
     pmInDom	indom_bin, indom_colour;
@@ -41,11 +47,11 @@ main(int argc, char **argv)
     pmResult	*resp;
     pmDesc	desc;
     int		handle;
-    static char	*usage = "[-a archive] [-D debugspec] [-h hostname] [-L] [-n namespace]";
+    static char	*usage = "[-a archive] [-c numctx] [-D debugspec] [-h hostname] [-L] [-n namespace]";
 
     pmSetProgname(argv[0]);
 
-    while ((c = getopt(argc, argv, "a:D:h:Ln:")) != EOF) {
+    while ((c = getopt(argc, argv, "a:c:D:h:Ln:")) != EOF) {
 	switch (c) {
 
 	case 'a':	/* archive name */
@@ -55,6 +61,14 @@ main(int argc, char **argv)
 	    }
 	    type = PM_CONTEXT_ARCHIVE;
 	    host = optarg;
+	    break;
+
+	case 'c':	/* number of contexts */
+	    numctx = atoi(optarg);
+	    if (numctx < 0) {
+		fprintf(stderr, "%s: -c argument must be >= 1\n", pmGetProgname());
+		errflag++;
+	    }
 	    break;
 
 	case 'D':	/* debug options */
@@ -100,6 +114,13 @@ main(int argc, char **argv)
 	exit(1);
     }
 
+    /* make context 0 the default localhost one */
+    if ((handle = pmNewContext(PM_CONTEXT_HOST, "localhost")) < 0) {
+	fprintf(stderr, "pmNewContext(..., \"localhost\"): %s\n",
+		pmErrStr(handle));
+	exit(1);
+    }
+
     if ((sts = pmLoadASCIINameSpace(namespace, 1)) < 0) {
 	printf("%s: Cannot load namespace from \"%s\": %s\n", pmGetProgname(), namespace, pmErrStr(sts));
 	exit(1);
@@ -110,37 +131,33 @@ main(int argc, char **argv)
 	exit(1);
     }
 
-    /* make context 0 the default localhost one */
-    if ((sts = pmNewContext(PM_CONTEXT_HOST, "localhost")) < 0) {
-	fprintf(stderr, "pmNewContext(..., \"localhost\"): %s\n",
-		pmErrStr(sts));
-	exit(1);
-    }
-
     if (type == 0)
 	type = PM_CONTEXT_HOST;		/* default */
 
-    if (type == PM_CONTEXT_HOST) {
-	if ((sts = pmNewContext(PM_CONTEXT_HOST, host)) < 0) {
-	    fprintf(stderr, "handle: pmNewContext(host=%s): %s\n", host, pmErrStr(sts));
-	    exit(1);
+    /* already have contrxt 0 from above, now create the others */
+    while (handle < numctx-1) {
+	if (type == PM_CONTEXT_HOST) {
+	    if ((sts = pmNewContext(PM_CONTEXT_HOST, host)) < 0) {
+		fprintf(stderr, "handle: pmNewContext(host=%s): %s\n", host, pmErrStr(sts));
+		exit(1);
+	    }
 	}
-    }
-    else if (type == PM_CONTEXT_LOCAL) {
-	if ((sts = pmNewContext(PM_CONTEXT_LOCAL, host)) < 0) {
-	    fprintf(stderr, "handle: pmNewContext(local): %s\n", pmErrStr(sts));
-	    exit(1);
+	else if (type == PM_CONTEXT_LOCAL) {
+	    if ((sts = pmNewContext(PM_CONTEXT_LOCAL, host)) < 0) {
+		fprintf(stderr, "handle: pmNewContext(local): %s\n", pmErrStr(sts));
+		exit(1);
+	    }
 	}
-    }
-    else {
-	if ((sts = pmNewContext(PM_CONTEXT_ARCHIVE, host)) < 0) {
-	    fprintf(stderr, "handle: pmNewContext(archive=%s): %s\n", host, pmErrStr(sts));
-	    exit(1);
+	else {
+	    if ((sts = pmNewContext(PM_CONTEXT_ARCHIVE, host)) < 0) {
+		fprintf(stderr, "handle: pmNewContext(archive=%s): %s\n", host, pmErrStr(sts));
+		exit(1);
+	    }
 	}
+	handle = sts;
     }
-    handle = sts;
 
-    while (handle >= 0) {
+    for (handle = numctx-1; handle >= 0; handle--) {
 	pmUseContext(handle);
 
 	if ((sts = pmLookupDesc(metrics[0], &desc)) < 0) {
@@ -156,9 +173,29 @@ main(int argc, char **argv)
 	}
 	indom_colour = desc.indom;
 
-	pmDelProfile(indom_bin, 0, (int *)0);
-	pmAddProfile(indom_bin, 1, &inst_bin[4]);
-	pmDelProfile(indom_colour, 0, (int *)0);
+	if (handle == 0 || handle == 1) {
+	    pmDelProfile(indom_bin, 0, (int *)0);
+	    pmAddProfile(indom_bin, 1, &inst_bin[4]);
+	    pmDelProfile(indom_colour, 0, (int *)0);
+	    xpect = 0;
+	}
+	else if ((handle & 1) == 0) {
+	    /* <odd> */
+	    pmDelProfile(indom_bin, 0, (int *)0);
+	    pmAddProfile(indom_bin, 1, &inst_bin[0]);
+	    pmDelProfile(indom_colour, 0, (int *)0);
+	    pmAddProfile(indom_colour, 1, &inst_colour[0]);
+	    xpect = 1;
+	}
+	else {
+	    /* <even> */
+	    pmDelProfile(indom_bin, 0, (int *)0);
+	    pmAddProfile(indom_bin, 1, &inst_bin[1]);
+	    pmAddProfile(indom_bin, 1, &inst_bin[3]);
+	    pmAddProfile(indom_bin, 1, &inst_bin[5]);
+	    pmAddProfile(indom_bin, 1, &inst_bin[7]);
+	    xpect = 2;
+	}
 
 	sts = pmFetch(2, metrics, &resp);
 	if (sts < 0) {
@@ -166,22 +203,28 @@ main(int argc, char **argv)
 		    handle, SOURCE, HOST, pmErrStr(sts));
 	}
 	else {
+	    int		botch = 0;
 	    if (resp->numpmid != 2) {
 		fprintf(stderr, "botch @ context=%d %s=%s: numpmid %d != 2\n",
 			handle, SOURCE, HOST, resp->numpmid);
+		botch++;
 	    }
 	    else {
-		if (resp->vset[0]->numval != xpect_bin[0]) {
+		if (resp->vset[0]->numval != xpect_bin[xpect]) {
 		    fprintf(stderr, "botch @ context=%d %s=%s: [indom %s] numval got: %d expect: %d\n",
 			handle, SOURCE, HOST, pmInDomStr(indom_bin),
-			resp->vset[0]->numval, xpect_bin[0]);
+			resp->vset[0]->numval, xpect_bin[xpect]);
+		    botch++;
 		}
-		if (resp->vset[1]->numval != xpect_colour[0]) {
+		if (resp->vset[1]->numval != xpect_colour[xpect]) {
 		    fprintf(stderr, "botch @ context=%d %s=%s: [indom %s] numval got: %d expect: %d\n",
 			handle, SOURCE, HOST, pmInDomStr(indom_colour),
-			resp->vset[1]->numval, xpect_colour[0]);
+			resp->vset[1]->numval, xpect_colour[xpect]);
+		    botch++;
 		}
 	    }
+	    if (botch)
+		__pmDumpResult(stderr, resp);
 	    pmFreeResult(resp);
 	}
 	if (handle) {
@@ -189,7 +232,6 @@ main(int argc, char **argv)
 		fprintf(stderr, "pmDestroyContext %d %s=%s: %s\n",
 		    handle, TYPE, host, pmErrStr(sts));
 	}
-	handle--;
     }
 
     exit(0);

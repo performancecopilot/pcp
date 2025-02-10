@@ -19,7 +19,6 @@ signal=$PCP_BINADM_DIR/pmsignal
 host=`hostname`
 status=1	# failure is the default!
 trap "cd $here; rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
-rm -rf $tmp
 mkdir $tmp
 if [ ! -d $tmp ]
 then
@@ -99,7 +98,7 @@ NR == 1	{ if ($2 != "PID") {
 	{ print "ps:",$2,$cmd,$(cmd+1),$(cmd+2),$(cmd+3),$(cmd+4) }'
 }
 
-rm -f $here/$seq.full
+rm -f $seq_full
 
 # NOT the default pmconfirm(1), please
 #
@@ -115,7 +114,7 @@ export PCP_XCONFIRM_PROG=$tmp.xconfirm
 
 echo
 echo "=== folio name relative to cwd ==="
-echo "=== folio name relative to cwd ===" >>$here/$seq.full
+echo "=== folio name relative to cwd ===" >>$seq_full
 echo
 
 $here/src/record foo no-1 1 $host localhost $host localhost 2>&1 >$tmp.out &
@@ -129,22 +128,22 @@ sleep 10
 # and we need to extract lZYiOH not lZYiOHa
 #
 MKTEMP=`ls *.localhost.0 \
-        | tee -a $here/$seq.full \
+        | tee -a $seq_full \
 	| awk '{ print length($0),$0 }' \
 	| sort -n \
 	| sed -e 's/^[0-9][0-9]* //' -e 's/\.localhost\.0//' -e 1q`
-echo "MKTEMP=$MKTEMP" >>$here/$seq.full
+echo "MKTEMP=$MKTEMP" >>$seq_full
 _build_sed $tmp.out
-echo "-- $tmp.sed --" >>$here/$seq.full
-cat $tmp.sed >>$here/$seq.full
-echo "-- $tmp.out --" >>$here/$seq.full
-cat $tmp.out >>$here/$seq.full
+echo "-- $tmp.sed --" >>$seq_full
+cat $tmp.sed >>$seq_full
+echo "-- $tmp.out --" >>$seq_full
+cat $tmp.out >>$seq_full
 _filter $tmp.out
 echo
 echo "pmlogger processes:"
-echo "pmlogger processes:" >>$here/$seq.full
+echo "pmlogger processes:" >>$seq_full
 ps $PCP_PS_ALL_FLAGS 2>&1 \
-| tee -a $here/$seq.full \
+| tee -a $seq_full \
 | sed -n \
     -e 1p \
     -e '/check .*-g pmlogger/d' \
@@ -164,7 +163,7 @@ then
     echo "Arrgh, no pmlogger process found ... see $seq.full"
     exit
 else
-    echo "pmlogger pid: $pid" >>$here/$seq.full
+    echo "pmlogger pid: $pid" >>$seq_full
     npmlogger=`echo "$pid" | wc -w | sed -e 's/ //g'`
     if [ "$npmlogger" -ne 1 ]
     then
@@ -206,37 +205,37 @@ for log in `LC_COLLATE=POSIX ls *.log`
 do
     echo
     echo "=== $log ==="
-    echo "=== $log ===" >>$here/$seq.full
+    echo "=== $log ===" >>$seq_full
     _filter $log
-    cat $log >>$here/$seq.full
+    cat $log >>$seq_full
 done
 
 rm -rf *
 echo
 echo "=== absolute folio name ==="
-echo "=== absolute folio name ===" >>$here/$seq.full
+echo "=== absolute folio name ===" >>$seq_full
 echo
 
 $here/src/record `pwd`/foo no-2 0 $host localhost $host localhost 2>&1 >$tmp.out &
 sleep 10
 # see note above
 MKTEMP=`ls *.localhost.0 \
-        | tee -a $here/$seq.full \
+        | tee -a $seq_full \
 	| awk '{ print length($0),$0 }' \
 	| sort -n \
 	| sed -e 's/^[0-9][0-9]* //' -e 's/\.localhost\.0//' -e 1q`
-echo "MKTEMP=$MKTEMP" >>$here/$seq.full
+echo "MKTEMP=$MKTEMP" >>$seq_full
 _build_sed $tmp.out
-echo "-- $tmp.sed --" >>$here/$seq.full
-cat $tmp.sed >>$here/$seq.full
-echo "-- $tmp.out --" >>$here/$seq.full
-cat $tmp.out >>$here/$seq.full
+echo "-- $tmp.sed --" >>$seq_full
+cat $tmp.sed >>$seq_full
+echo "-- $tmp.out --" >>$seq_full
+cat $tmp.out >>$seq_full
 _filter $tmp.out
 echo
 echo "pmlogger processes:"
-echo "pmlogger processes:" >>$here/$seq.full
+echo "pmlogger processes:" >>$seq_full
 ps $PCP_PS_ALL_FLAGS 2>&1 \
-| tee -a $here/$seq.full \
+| tee -a $seq_full \
 | sed -n \
     -e 1p \
     -e '/check .*-g pmlogger/d' \
@@ -256,7 +255,7 @@ then
     echo "Arrgh, no pmlogger process found ... see $seq.full"
     exit
 else
-    echo "pmlogger pid: $pid" >>$here/$seq.full
+    echo "pmlogger pid: $pid" >>$seq_full
     $signal -s TERM $pid
 fi
 
@@ -292,9 +291,9 @@ for log in `LC_COLLATE=POSIX ls *.log`
 do
     echo
     echo "=== $log ==="
-    echo "=== $log ===" >>$here/$seq.full
+    echo "=== $log ===" >>$seq_full
     _filter $log
-    cat $log >>$here/$seq.full
+    cat $log >>$seq_full
 done
 
 # success, all done

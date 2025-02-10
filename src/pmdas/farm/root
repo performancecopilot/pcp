@@ -1,0 +1,13 @@
+/*
+ * fake "root" for validating the local PMNS subtree
+ */
+
+#include <stdpmid>
+
+root { farm }
+
+#ifndef FARM
+#define FARM 160
+#endif
+
+#include "pmns"

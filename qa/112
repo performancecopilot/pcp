@@ -39,7 +39,6 @@ _failok()
 
 
 # real QA test starts here
-rm -f $tmp.*
 
 cp $PCP_VAR_DIR/pmns/root $tmp.ascii
 

@@ -58,7 +58,6 @@ hostname=`hostname`
 machineid=`_machine_id`
 domainname=`_domain_name`
 need_restore=true
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
@@ -67,7 +66,7 @@ $sudo rm -rf $PCP_ETC_DIR/pcp/labels/*
 echo "{\"QA\":$seq}" > $tmp.$seq
 $sudo mkdir $PCP_ETC_DIR/pcp/labels 2>/dev/null
 $sudo cp $tmp.$seq $PCP_ETC_DIR/pcp/labels/$seq.json
-_sighup_pmcd
+_sighup_pmcd || _exit 1
 
 ##debug##
 # echo && pminfo -f pmcd.labels
@@ -80,8 +79,8 @@ EOF
 pmlogger -c $tmp.config -T 0.25sec -l $tmp.log -t 0.1sec $tmp
 
 echo
-echo "=== Dump labels" | tee -a $here/$seq.full
-pmdumplog -e $tmp | tee -a $here/$seq.full | _filter_labels
+echo "=== Dump labels" | tee -a $seq_full
+pmdumplog -e $tmp | tee -a $seq_full | _filter_labels
 
 echo
 echo "=== Dump help text"

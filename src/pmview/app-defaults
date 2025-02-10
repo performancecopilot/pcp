@@ -183,7 +183,8 @@ PmView+*baseBorderDepth: 8
 PmView+*baseHeight: 2
 
 ! Color of base plane
-PmView+*baseColor: rgbi:0.15/0.15/0.15
+! rgbi:0.15/0.15/0.15
+PmView+*baseColor: #262626
 
 ! Spacing between Bar blocks
 PmView+*barSpaceWidth: 8
@@ -200,7 +201,7 @@ PmView+*barHeight: 80
 PmView+*labelMargin: 5
 
 ! Color of labels
-PmView+*labelColor: rgbi:1.0/1.0/1.0
+PmView+*labelColor: white
 
 ! Width and depth of Grid columns and rows
 PmView+*gridMinWidth: 20

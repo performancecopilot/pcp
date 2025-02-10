@@ -1,17 +1,17 @@
 #!/bin/sh
 #
-# Copyright (c) 2019 Red Hat.
-# 
+# Copyright (c) 2019,2024 Red Hat.
+#
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 2 of the License, or (at your
 # option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
-# 
+#
 # Install the OpenMetrics PMDA - https://openmetrics.io/
 #
 
@@ -23,10 +23,19 @@ python_opt=true
 daemon_opt=false
 
 #
-# See pmcd(1) man page. PMDA starts up in the "not ready" state.
-# When it has finished starting up, it sends a PM_ERR_PMDAREADY
-# error PDU to PMCD to indicate it's ready to start processing
-# requests.
+# If PMDA ran as root previously, permissions will be incorrect.
+#
+if [ -O "$PCP_VAR_DIR/config/pmda/144.0.py" ]
+then
+    chown $PCP_USER:$PCP_GROUP $PCP_VAR_DIR/config/pmda/144.*.py
+fi
+
+#
+# Starts in not-ready state as described in the pmcd(1) man page.
+# When it has completed its startup a PM_ERR_PMDAREADY error PDU
+# is sent to PMCD, indicating PMDA readiness to start processing
+# client requests.
+#
 ipc_prot="binary notready"
 
 pmdaSetup

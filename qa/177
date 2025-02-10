@@ -98,13 +98,12 @@ BEGIN		{ min = 32; max = 32 }
 }
 
 # real QA test starts here
-$sudo rm -f $tmp.* $seq.full
 _start_up_pmlogger -s 30 -L -c /dev/null -l $tmp.log $tmp
 
 pmsleep 0.5
 
 echo
-echo "=== log sample.bin[bin-100] ===" | tee -a $seq.full
+echo "=== log sample.bin[bin-100] ===" | tee -a $seq_full
 pmlc <<End-of-File
 connect $pid
 log mandatory on 200 msec sample.bin ["bin-100"]
@@ -112,22 +111,22 @@ End-of-File
 pmsleep 4.0
 
 echo
-echo "=== log sample.bin[bin-200] ===" | tee -a $seq.full
+echo "=== log sample.bin[bin-200] ===" | tee -a $seq_full
 pmlc <<End-of-File
 connect $pid
 log mandatory on 200 msec sample.bin ["bin-200"]
 End-of-File
 
-_wait_pmlogger_end $pid
+_wait_pmlogger_end $pid || _exit 1
 pid=''
 _filter_pmlogger_log <$tmp.log
-cat $tmp.log >>$seq.full
+cat $tmp.log >>$seq_full
 
 echo
-echo "=== pmdumplog ===" | tee -a $seq.full
-pmdumplog -L $tmp >>$seq.full
+echo "=== pmdumplog ===" | tee -a $seq_full
+pmdumplog -L $tmp >>$seq_full
 pmdumplog -m $tmp \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | sed \
     -e '/^[0-9]/{
 s/[0-9][0-9]* metrics*//
@@ -137,17 +136,17 @@ s/\n/ /
 | _filter_dump
 
 offset=`_arch_start $tmp 0.05`
-echo "offset=$offset" >>$seq.full
+echo "offset=$offset" >>$seq_full
 
 for delta in 0.1 0.2 0.4
 do
     echo
-    echo "=== pmval -t $delta ===" | tee -a $seq.full
+    echo "=== pmval -t $delta ===" | tee -a $seq_full
     pmval -O $offset -Dlog,logmeta,interp -i "bin-100,bin-200" -t $delta -a $tmp sample.bin 2>$tmp.err \
-    | tee -a $seq.full \
+    | tee -a $seq_full \
     | _filter $delta
     _filter_err $delta <$tmp.err
-    cat $tmp.err >>$seq.full
+    cat $tmp.err >>$seq_full
 done
 
 exit 0

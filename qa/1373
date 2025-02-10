@@ -26,9 +26,10 @@ if [ "$1" = "--valgrind" ]
 then
     _check_valgrind
     do_valgrind=true
-elif which valgrind >/dev/null 2>&1
+elif _prefer_valgrind
 then
-    _notrun "valgrind variant qa/1374 will be run"
+    [ $PCPQA_VALGRIND = both ] || \
+	_notrun "valgrind variant qa/1374 will be run"
 fi
 
 _cleanup()
@@ -38,7 +39,6 @@ _cleanup()
 }
 
 status=0	# success is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # indoms and labels have size that depend on the length of the
@@ -46,7 +46,7 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 #
 _filter()
 {
-    tee -a $seq.full \
+    tee -a $seq_full \
     | sed \
 	-e '/data:/{
 s/[0-9][0-9]* bytes/NNNNN bytes/
@@ -59,7 +59,21 @@ s/[0-9][0-9]*%/NN%/
 s/[0-9][0-9]* bytes/NNN bytes/
 s/[0-9][0-9]*%/N%/
 }' \
-    # end
+    | $PCP_AWK_PROG '
+special == 1	{	# texts|overhead maybe off by 1
+		  if ($1 == "texts:") {
+		    if ($4 == "[25%," || $4 == "[26%,")
+			$4 = "[OK%,"
+		  }
+		  if ($1 == "overhead:") {
+		    if ($4 == "[25%]" || $4 == "[26%]")
+			$4 = "[OK%]"
+		  }
+		}
+		{ print }
+$1 == "tmparch/sample-proc_v3.meta:"	{ special = 1; next }
+$1 ~ /^tmparch/				{ special = 0 }
+'
 }
 
 # real QA test starts here

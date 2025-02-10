@@ -20,7 +20,6 @@ fi
 . ./common.filter
 . ./common.check
 
-$sudo rm -rf $tmp $tmp.* $seq.full
 
 _cleanup()
 {
@@ -44,6 +43,7 @@ _hunt()
     # - usernames or home directory paths
     # - host's hostname or fqdn
     # - host's ipaddr or mac for network devices
+    # - geolocation
     #
 
     if [ ! -f $tmp.usernames ]
@@ -145,6 +145,11 @@ End-of-File
 	#
 	echo '/[ "][0-9a-f][0-9a-f]:[0-9a-f][0-9a-f]:[0-9a-f][0-9a-f]:[0-9a-f][0-9a-f]:/ { seen++ }' >>$tmp.awk
 
+	# geolocation in labels
+	#
+	echo '/"latitude":/ { seen++ }' >>$tmp.awk
+	echo '/"longitude":/ { seen++ }' >>$tmp.awk
+
 	# awk epilogue ...
 	#
 	cat <<'End-of-File' >>$tmp.awk
@@ -157,7 +162,7 @@ End-of-File
 
     fi
 
-    pmdumplog -z $1 \
+    pmdumplog -z -emi $1 \
     | sed \
 	-e '/^[0-2].* metrics$/d' \
 	-e '/^  *[0-9][0-9.]* (/{
@@ -173,12 +178,16 @@ s/): */\
 }
 
 # real QA test starts here
-echo "=== before ==="
-_hunt archives/all-ubuntu.22.04
-$PCP_BINADM_DIR/pmlogredact archives/all-ubuntu.22.04 $tmp
-echo
-echo "=== after ==="
-_hunt $tmp
+for arch in archives/all-ubuntu.22.04 archives/geo-foo
+do
+    rm -f $tmp.0 $tmp.index $tmp.meta
+    echo "=== $arch before ==="
+    _hunt "$arch"
+    $PCP_BINADM_DIR/pmlogredact "$arch" $tmp
+    echo
+    echo "=== $arch after ==="
+    _hunt $tmp
+done
 
 # success, all done
 exit

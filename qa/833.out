@@ -188,7 +188,7 @@ kernel.all.load (60.2.0): 3 values
 hinv.ncpu (60.0.32): 1 value
 disk.dev.total (60.0.28): 10 values
 __pmFindPDUBuf(DEBUG)
-churnctx: pmFetch failed: End of PCP archive log
+churnctx: pmFetch failed: End of PCP archive
 
 === pmDupContext ===
 Note: timezone set to local timezone of host "sourceware.org" from archive
@@ -379,7 +379,7 @@ kernel.all.load (60.2.0): 3 values
 hinv.ncpu (60.0.32): 1 value
 disk.dev.total (60.0.28): 10 values
 __pmFindPDUBuf(DEBUG)
-churnctx: pmFetch failed: End of PCP archive log
+churnctx: pmFetch failed: End of PCP archive
 
 === host context, and pmNewContext ... just to be sure ===
 __pmFindPDUBuf(DEBUG)

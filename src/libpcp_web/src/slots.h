@@ -17,23 +17,19 @@
 #include <hiredis-cluster/hircluster.h>
 #include <mmv_stats.h>
 #include "batons.h"
-#include "redis.h"
+#include "keys.h"
 #include "maps.h"
 
 #define MAXSLOTS	(1 << 14)
 #define SLOTMASK	(MAXSLOTS-1)
 #define SLOTS_PHASES	5
 
-/* Unfortunately there is no error code for these errors to match */
-#define REDIS_ELOADING		"LOADING Redis is loading the dataset in memory"
-#define REDIS_ENOCLUSTER	"ERR This instance has cluster support disabled"
-
-typedef enum redisSlotsFlags {
+typedef enum keySlotsFlags {
     SLOTS_NONE		= 0,
     SLOTS_VERSION	= (1 << 0),
     SLOTS_KEYMAP	= (1 << 1),
     SLOTS_SEARCH	= (1 << 2),
-} redisSlotsFlags;
+} keySlotsFlags;
 
 enum {
     SLOT_REQUESTS_TOTAL,
@@ -48,58 +44,58 @@ enum {
     NUM_SLOT_METRICS
 };
 
-typedef enum redisSlotsState {
+typedef enum keySlotsState {
     SLOTS_DISCONNECTED,
     SLOTS_CONNECTING,
     SLOTS_CONNECTED,
-    SLOTS_READY		/* Redis version check done, keymap loaded, search schema setup completed */,
+    SLOTS_READY,	/* version check, keymap loaded, search schema done */
     SLOTS_ERR_FATAL	/* fatal error, do not try to reconnect */
-} redisSlotsState;
+} keySlotsState;
 
 /* note: this struct persists for reconnects */
-typedef struct redisSlots {
-    redisClusterAsyncContext *acc;	/* cluster context */
-    redisSlotsState	state;		/* connection state */
+typedef struct keySlots {
+    keyClusterAsyncContext *acc;	/* cluster context */
+    keySlotsState	state;		/* connection state */
     unsigned int	conn_seq;	/* connection sequence (incremented for every connection) */
-    unsigned int	search : 1;	/* RediSearch use enabled */
-    unsigned int	cluster : 1;	/* Redis cluster mode enabled */
-    redisMap		*keymap;	/* map command names to key position */
+    unsigned int	search : 1;	/* search module enabled */
+    unsigned int	cluster : 1;	/* cluster mode enabled */
+    keyMap		*keymap;	/* map command names to key position */
     void		*events;	/* libuv event loop */
     mmv_registry_t	*registry;	/* MMV metrics for instrumentation */
     void		*map;		/* MMV mapped metric values handle */
     pmAtomValue		*metrics[NUM_SLOT_METRICS]; /* direct handle lookup */
-} redisSlots;
+} keySlots;
 
-/* wraps the actual Redis callback and data */
-typedef struct redisSlotsReplyData {
-    redisSlots			*slots;
+/* wraps the actual callback and data */
+typedef struct keySlotsReplyData {
+    keySlots			*slots;
     uint64_t			start;		/* time of the request (usec) */
     unsigned int		conn_seq;	/* connection sequence when this request was issued */
     size_t			req_size;	/* size of request */
 
-    redisClusterCallbackFn	*callback;	/* actual callback */
+    keyClusterCallbackFn	*callback;	/* actual callback */
     void			*arg;		/* actual callback args */
-} redisSlotsReplyData;
+} keySlotsReplyData;
 
-typedef void (*redisPhase)(redisSlots *, void *);	/* phased operations */
+typedef void (*keyPhase)(keySlots *, void *);	/* phased operations */
 
-extern void redisSlotsSetupMetrics(redisSlots *);
-extern int redisSlotsSetMetricRegistry(redisSlots *, mmv_registry_t *);
-extern redisSlots *redisSlotsInit(dict *, void *);
-extern redisSlots *redisSlotsConnect(dict *, redisSlotsFlags,
-		redisInfoCallBack, redisDoneCallBack, void *, void *, void *);
-extern void redisSlotsReconnect(redisSlots *, redisSlotsFlags,
-		redisInfoCallBack, redisDoneCallBack, void *, void *, void *);
-extern uint64_t redisSlotsInflightRequests(redisSlots *);
-extern int redisSlotsRequest(redisSlots *, sds, redisClusterCallbackFn *, void *);
-extern int redisSlotsRequestFirstNode(redisSlots *slots, const sds cmd,
-		redisClusterCallbackFn *callback, void *arg);
-extern void redisSlotsFree(redisSlots *);
+extern void keySlotsSetupMetrics(keySlots *);
+extern int keySlotsSetMetricRegistry(keySlots *, mmv_registry_t *);
+extern keySlots *keySlotsInit(dict *, void *);
+extern keySlots *keySlotsConnect(dict *, keySlotsFlags,
+		keysInfoCallBack, keysDoneCallBack, void *, void *, void *);
+extern void keySlotsReconnect(keySlots *, keySlotsFlags,
+		keysInfoCallBack, keysDoneCallBack, void *, void *, void *);
+extern uint64_t keySlotsInflightRequests(keySlots *);
+extern int keySlotsRequest(keySlots *, sds, keyClusterCallbackFn *, void *);
+extern int keySlotsRequestFirstNode(keySlots *slots, const sds cmd,
+		keyClusterCallbackFn *callback, void *arg);
+extern void keySlotsFree(keySlots *);
 
-extern int redisSlotsProxyConnect(redisSlots *,
-		redisInfoCallBack, redisReader **, const char *, ssize_t,
-		redisClusterCallbackFn *, void *);
-extern void redisSlotsProxyFree(redisReader *);
+extern int keySlotsProxyConnect(keySlots *,
+		keysInfoCallBack, respReader **, const char *, ssize_t,
+		keyClusterCallbackFn *, void *);
+extern void keySlotsProxyFree(respReader *);
 
 typedef struct {
     seriesBatonMagic	magic;		/* MAGIC_SLOTS */
@@ -107,28 +103,28 @@ typedef struct {
     seriesBatonPhase	phases[SLOTS_PHASES];
     int			version;
     int			error;
-    redisSlots		*slots;
-    redisInfoCallBack	info;
-    redisDoneCallBack	done;
+    keySlots		*slots;
+    keysInfoCallBack	info;
+    keysDoneCallBack	done;
     void		*userdata;
     void		*arg;
-} redisSlotsBaton;
+} keySlotsBaton;
 
-extern void redis_slots_end_phase(void *);
+extern void keys_slots_end_phase(void *);
 
-/* Redis reply helper routines */
-extern int testReplyError(redisReply *, const char *);
-extern void reportReplyError(redisInfoCallBack, void *,
-	redisClusterAsyncContext *, redisReply *, const char *, va_list);
-extern int checkStatusReplyOK(redisInfoCallBack, void *,
-	redisClusterAsyncContext *, redisReply *, const char *, ...);
-extern int checkStreamReplyString(redisInfoCallBack, void *,
-	redisClusterAsyncContext *, redisReply *, sds, const char *, ...);
-extern int checkArrayReply(redisInfoCallBack, void *,
-	redisClusterAsyncContext *, redisReply *, const char *, ...);
-extern long long checkIntegerReply(redisInfoCallBack, void *,
-	redisClusterAsyncContext *, redisReply *, const char *, ...);
-extern sds checkStringReply(redisInfoCallBack, void *,
-	redisClusterAsyncContext *, redisReply *, const char *, ...);
+/* Key server reply helper routines */
+extern int testReplyError(respReply *, const char *);
+extern void reportReplyError(keysInfoCallBack, void *,
+	keyClusterAsyncContext *, respReply *, const char *, va_list);
+extern int checkStatusReplyOK(keysInfoCallBack, void *,
+	keyClusterAsyncContext *, respReply *, const char *, ...);
+extern int checkStreamReplyString(keysInfoCallBack, void *,
+	keyClusterAsyncContext *, respReply *, sds, const char *, ...);
+extern int checkArrayReply(keysInfoCallBack, void *,
+	keyClusterAsyncContext *, respReply *, const char *, ...);
+extern long long checkIntegerReply(keysInfoCallBack, void *,
+	keyClusterAsyncContext *, respReply *, const char *, ...);
+extern sds checkStringReply(keysInfoCallBack, void *,
+	keyClusterAsyncContext *, respReply *, const char *, ...);
 
 #endif	/* SLOTS_H */

@@ -116,20 +116,22 @@ do_dir(char *dname, char *result)
     char	sep = pmPathSeparator();
     char	here[MAXPATHLEN];
     int		sts = 0;
+    size_t	need;
 
     if (dname == NULL || dname[0] == '\0') {
 	result[0] = '\0';
 	return 0;
     }
 
-    cmd = malloc(strlen(CMD_A) + strlen(dname) + strlen(CMD_B) + 1);
+    need = strlen(CMD_A) + strlen(dname) + strlen(CMD_B) + 1;
+    cmd = malloc(need);
     if (cmd == NULL) {
 	sts = -oserror();
-	pmNoMem("do_dir", strlen(CMD_A) + strlen(dname) + strlen(CMD_B) + 1, PM_RECOV_ERR);
+	pmNoMem("do_dir", (int)need, PM_RECOV_ERR);
 	result[0] = '\0';
 	return sts;
     }
-    sprintf(cmd, "%s%s%s", CMD_A, dname, CMD_B);
+    pmsprintf(cmd, need, "%s%s%s", CMD_A, dname, CMD_B);
     f = popen(cmd, "r");
     if (f == NULL) {
 	sts = -oserror();
@@ -176,7 +178,7 @@ do_dir(char *dname, char *result)
 	    if (*p == sep) {
 		*p = '\0';
 		if (chdir(result) < 0) {
-		    if (mkdir(result, 0777) < 0) {
+		    if (mkdir2(result, 0777) < 0) {
 			sts = -oserror();
 			fprintf(stderr, "do_dir(%s, ...): mkdir(%s, ...) failed: %s\n", dname, result, pmErrStr(sts));
 			*p = sep;
@@ -189,7 +191,7 @@ do_dir(char *dname, char *result)
 	}
 	/* try again ... */
 	if (chdir(result) < 0) {
-	    if (mkdir(result, 0777) < 0) {
+	    if (mkdir2(result, 0777) < 0) {
 		sts = -oserror();
 		fprintf(stderr, "do_dir(%s, ...): mkdir(%s, ...) failed: %s\n", dname, result, pmErrStr(sts));
 		goto restore;

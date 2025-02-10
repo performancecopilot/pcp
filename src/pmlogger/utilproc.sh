@@ -172,7 +172,7 @@ _save_prev_file()
 	return 0
     elif [ -L "$1" ]
     then
-	echo "_save_prev_filename: \"$1\" exists and is a symlink"
+	echo "_save_prev_file: \"$1\" exists and is a symlink"
 	ls -ld "$1"
 	return 1
     elif [ -f "$1" ]
@@ -189,7 +189,7 @@ _save_prev_file()
 	rm -f "$1" 2>/dev/null
 	return 0
     else
-	echo "_save_prev_filename: \"$1\" exists and is not a file"
+	echo "_save_prev_file: \"$1\" exists and is not a file"
 	ls -ld "$1"
 	return 1
     fi
@@ -217,6 +217,8 @@ _is_archive()
 	    *.bz2|*.bz)		bzip2 -dc "$1"
 	    			;;
 	    *.gz|*.Z|*.z)	gzip -dc "$1"
+	    			;;
+	    *.zst)		zstd -dc --quiet "$1"
 	    			;;
 	    *)			cat "$1"
 	    			;;

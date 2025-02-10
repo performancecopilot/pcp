@@ -13,6 +13,8 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+_need_metric rpc.server.rpccnt
+
 rm -f $seq.out
 case $PCP_PLATFORM
 in
@@ -44,30 +46,30 @@ sleep 2
 
 # Example Output:
 # > pminfo -f rpc.server
-# 
+#
 # rpc.server.badcalls
 #     value 0
-# 
+#
 # rpc.server.badlen
 #     value 0
-# 
+#
 # rpc.server.calls
 #     value 111217257
-# 
+#
 # rpc.server.duphits
 #     value 426
-# 
+#
 # rpc.server.nullrecv
 #     value 11687166
-# 
+#
 # rpc.server.xdrcall
 #     value 0
-# 
+#
 # > nfsstat -rs
-# 
+#
 # Server RPC:
 # calls      badcalls   nullrecv   badlen     xdrcall    duphits    dupage
-# 111220948  0          11687178   0          0          426        6198.58 
+# 111220948  0          11687178   0          0          426        6198.58
 
 
 pminfo -f rpc.server >$tmp.pminfo
@@ -75,10 +77,10 @@ nfsstat -rs >$tmp.nfs
 
 # acceptance: abs diff within 10 or diff within 5%
 #
-cat $tmp.pminfo $tmp.nfs | tee $seq.full | $PCP_AWK_PROG '
+cat $tmp.pminfo $tmp.nfs | tee $seq_full | $PCP_AWK_PROG '
 NF == 0	{ next }
 /Server RPC/ { nfstat=1; next }
-/rpc.server/ { # pminfo name 
+/rpc.server/ { # pminfo name
                metric = $1
                sub("rpc.server.", "", metric)
                next
@@ -90,7 +92,7 @@ NF == 0	{ next }
           }
           pminfo[metric] = value
           next
-        } 
+        }
 NF>3 && nfstat==1 && /calls/ { # stat names
           for(i=1;i<=NF;i++){
 	     stat_names[i] = $i
@@ -102,8 +104,8 @@ NF>3 && nfstat==1 { # stat values
 	    name = stat_names[i]
             stat_chk[name] = 1
 	    stat_value = $i
-            if (! (name in pminfo) ) { 
-		print name ": not in pminfo output" 
+            if (! (name in pminfo) ) {
+		print name ": not in pminfo output"
 		next
             }
             pminfo_value = pminfo[name]
@@ -111,28 +113,28 @@ NF>3 && nfstat==1 { # stat values
 	    if (delta < 0) delta *= -1
 
             ok=0
-	    if (delta < 10) { 
-                  ok = 1 
+	    if (delta < 10) {
+                  ok = 1
             }
             else {
                 if (stat_value == 0) {
-                   ok = 0 
-                } else { 
+                   ok = 0
+                } else {
 		    pct = delta / stat_value
 		    ok = (0.95 <= pct && pct <= 1.05)
                 }
             }
-            if (ok) 
+            if (ok)
 		  print name ": OK"
 	    else
-		  print name ": mismatch, pcp=" pminfo_value " nfsstat=" stat_value 
+		  print name ": mismatch, pcp=" pminfo_value " nfsstat=" stat_value
           }
         }
 END {
 	for (name in pminfo) {
            if (! (name in stat_chk) ) {
-		print name ": not in stats output" 
+		print name ": not in stats output"
            }
         }
     }
-' | sort 
+' | sort

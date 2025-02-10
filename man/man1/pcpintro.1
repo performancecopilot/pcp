@@ -19,8 +19,8 @@
 .SH NAME
 \f3PCPIntro\f1 \- introduction to the Performance Co-Pilot (PCP)
 .SH INTRODUCTION
-.de CW
-.ie t \f(CW\\$1\f1\\$2
+.de CR
+.ie t \f(CR\\$1\f1\\$2
 .el \fI\\$1\f1\\$2
 ..
 The Performance Co-Pilot (PCP) is a toolkit designed for monitoring
@@ -289,7 +289,7 @@ decimal integers, see
 for a description of the supported option names and values.
 .PP
 In the absence of a live or archive source of metrics, a heuristic search
-for archive logs for the local host can be invoked via the
+for archives for the local host can be invoked via the
 .B \-O
 (or
 .BR \-\-origin )
@@ -416,7 +416,7 @@ option is specified).
 .SH TIME WINDOW SPECIFICATION
 Many PCP tools are designed to operate in some time window of interest,
 for example to define a termination time for real-time monitoring or to
-define a start and end time within a set of PCP archive logs.
+define a start and end time within a set of PCP archives.
 .PP
 In the absence of the
 .B \-O
@@ -435,7 +435,7 @@ The following options may be used to specify a time window of interest.
 \fB\-S\fR \fIstarttime\fR, \fB\-\-start\fR=\fIstarttime\fR
 .RS
 By default the time window commences immediately in real-time mode,
-or coincides with time at the start of the set of PCP archive logs
+or coincides with time at the start of the set of PCP archives
 in archive mode.
 The
 .B \-S
@@ -468,14 +468,14 @@ now in real-time mode, or exactly 30 minutes from the start of a set
 of PCP archives.
 .TP
 \-\fIinterval\fR
-To specify an offset from the end of a set of PCP archive logs, prefix
+To specify an offset from the end of a set of PCP archives, prefix
 the \fIinterval\fR argument with a minus sign.
 In this case, the start of the time window precedes
 the time at the end of the set of archives by the given interval.
 For example
 .B "\-S \-1hour"
 will set the start of the time window to be exactly one hour before the
-time of the last sample in a set of PCP archive logs.
+time of the last sample in a set of PCP archives.
 .TP
 @\f2datetime\f1
 To specify the calendar date and time (local time in the reporting
@@ -487,8 +487,7 @@ Refer to the datetime description below for detailed information.
 \fB\-T\fR \fIendtime\fR, \fB\-\-finish\fR=\fIendtime\fR
 .RS
 By default the end of the time window is unbounded
-(in real-time mode) or aligned with the time at the end of a set of PCP archive
-logs (in archive mode).
+(in real-time mode) or aligned with the time at the end of a set of PCP archives (in archive mode).
 The
 .B \-T
 or
@@ -518,12 +517,12 @@ will set the end of the time window to be 2 hours and 30 minutes after
 the start of the time window.
 .TP
 \-\f2interval\f1
-To specify an offset back from the time at the end of a set of PCP archive logs,
+To specify an offset back from the time at the end of a set of PCP archives,
 prefix the \f2interval\f1 argument with a minus sign.
 For example
 .B "\-T \-90m"
 will set the end of the time window to be 90 minutes before the time of
-the last sample in a set of PCP archive logs.
+the last sample in a set of PCP archives.
 .TP
 @\f2datetime\f1
 To specify the calendar date and time (local time in the reporting timezone)
@@ -627,7 +626,7 @@ and
 If any high order fields are missing, they are filled in by
 starting with the
 year, month and day from the current time (real-time mode) or
-the time at the beginning of the set of PCP archive logs (archive mode)
+the time at the beginning of the set of PCP archives (archive mode)
 and advancing the
 time until it matches the fields that are specified.
 So, for example if the time window starts by default at
@@ -646,7 +645,7 @@ the seconds component may be a floating point number.
 .PP
 If a timezone is not included in a
 .I datetime
-then there ares several interpretations available depending
+then there are several interpretations available depending
 on the other command line options used.
 The default is to use the local timezone on the system where
 the PCP tool is being run.
@@ -695,19 +694,19 @@ The root node in
 the PMNS is unlabeled, so all names begin with the label associated
 with one of the descendent nodes below the root node of the PMNS,
 for example \c
-.CW "kernel.percpu.syscall".
+.CR "kernel.percpu.syscall".
 Typically (although this is not a requirement)
 there would be at most one name for each PMID in a PMNS.
 For example
-.CW kernel.all.cpu.idle
+.CR kernel.all.cpu.idle
 and
-.CW disk.dev.read
+.CR disk.dev.read
 are the unique names for two distinct performance
 metrics, each with a unique PMID.
 .PP
 Groups of related PMIDs may be named
 by naming a non-leaf node in the PMNS tree, for example \c
-.CW disk .
+.CR disk .
 .PP
 The default local PMNS used by
 .B pmcd
@@ -765,7 +764,7 @@ interface to the PCP utilities.
 Multiple performance metrics may be associated with a single instance
 domain.
 For example, per-process metrics under
-.CW proc
+.CR proc
 all share the same instance domain.
 .PP
 PCP arranges for information describing instance domains to be exported
@@ -800,7 +799,7 @@ syntax is
 .ti +1i
 \fIhost\fB:\fImetric\fB[\fIinstance1\fB,\fIinstance2\fB,\fR...\fB]\fR
 .PP
-If the source of performance metrics is a set of PCP archive logs then the
+If the source of performance metrics is a set of PCP archives then the
 accepted syntax
 is
 .br
@@ -927,7 +926,7 @@ connection through a firewall, and with IPv6 and IPv4 addresses as shown.
 .PP
 .in +0.5i
 .nf
-.ft CW
+.ft CR
 $ pcp \-\-host nas1.acme.com:44321,4321@firewall.acme.com:44322
 $ pcp \-\-host nas1.acme.com:44321@firewall.acme.com:44322
 $ pcp \-\-host nas1.acme.com:44321@firewall.acme.com
@@ -950,7 +949,7 @@ This can be altered, as in the following examples.
 .PP
 .in +0.5i
 .nf
-.ft CW
+.ft CR
 $ pcp \-\-host pcps://app2.acme.com?container=cae8e6edc0d5
 $ pcp \-\-host pcps://nas1.acme.com:44321?username=tanya&method=gssapi
 $ pcp \-\-host pcps://nas2.acme.com@firewalls.r.us?method=plain
@@ -1154,7 +1153,10 @@ being performed.
 When set, this variable provides an alternate to the
 .B \-D
 command line option described above to initialize
-the diagnostic and debug options.
+the diagnostic and debug options for applications that
+use
+.BR pmGetOptions (3)
+to process command line options and arguments.
 The value for
 .B $PCP_DEBUG
 is the same as for the
@@ -1207,10 +1209,10 @@ be silently ignored.
 When PCP archives logs are created there may be temporal gaps associated
 with discontinuities in the time series of logged data, for example when
 .BR pmcd (1)
-is restarted or when multiple archive logs are concatenated with
+is restarted or when multiple archives are concatenated with
 .BR pmlogextract (1).
 These discontinuities are internally noted with a <mark> record in
-the PCP archive logs, and
+the PCP archives, and
 value interpolation as described in
 .BR pmSetMode (3)
 is not supported across <mark> records (because
@@ -1396,25 +1398,17 @@ wrapped once in the interval between consecutive samples.
 This ``wrapping'' behavior was the default in earlier PCP versions, but
 by default has been disabled in PCP release from version 1.3 on.
 .TP
-.B PMDA_PATH
+.B PCP_PMDAS_DIR
 The
-.B PMDA_PATH
+.B PCP_PMDAS_DIR
 environment variable
-may be used to modify the search path used by
+may be used to modify the directory used by
 .BR pmcd (1)
 and
 .BR pmNewContext (3)
 (for
 .B PM_CONTEXT_LOCAL
 contexts) when searching for a daemon or DSO PMDA.
-The syntax follows that for
-.B PATH
-in
-.BR sh (1),
-i.e. a colon separated list of directories,
-and the default search path is ``/var/pcp/lib:/usr/pcp/lib'',
-(or ``/var/lib/pcp/lib'' on Linux, depending on the value
-of the $PCP_VAR_DIR environment variable).
 .TP
 .B PMCD_PORT
 The TCP/IP port(s) used by
@@ -1439,7 +1433,7 @@ set in their environment before attempting a connection.
 The following environment variables are relevant to installations
 in which
 .BR pmlogger (1),
-the PCP archive logger, is used.
+the PCP archiver, is used.
 .TP
 .B PMLOGGER_PORT
 The environment variable
@@ -1589,3 +1583,15 @@ and
 .IR "Performance Co-Pilot Programmer's Guide"
 which can be found at
 .BR https://pcp.readthedocs.io/en/latest/ .
+
+.\" control lines for scripts/man-spell
+.\" +ok+ ACLs AuthenticatedConnections DD EST EncryptedConnections
+.\" +ok+ HH Inet MacOSX OpenSSL PCP_ALLOW_BAD_CERT_DOMAIN
+.\" +ok+ PCP_ALLOW_SERVER_SELF_CERT PCP_CONSOLE
+.\" +ok+ PCP_IGNORE_MARK_RECORDS PCP_SECURE_SOCKETS
+.\" +ok+ PMDA_LOCAL_PROC
+.\" +ok+ PMDA_LOCAL_SAMPLE PMLOGGER_PORT
+.\" +ok+ QG SASL SS SSL
+.\" +ok+ TLS YY YYYY app cae credentialed debugspec datetime
+.\" +ok+ edc endtime fe ff gssapi myarchive myarchives nas openssl pcps
+.\" +ok+ prev rc sha starttime syscall tanya tzselect

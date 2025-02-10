@@ -6,21 +6,27 @@ Released under the GNU GPLv2+, see the COPYING file
 in the source distribution for its full text.
 */
 
+#include "config.h" // IWYU pragma: keep
+
 #include "Machine.h"
 
 #include <stdlib.h>
-#include <string.h>
+#include <unistd.h>
 
-#include "CRT.h"
-#include "Hashtable.h"
-#include "Macros.h"
+#include "Object.h"
 #include "Platform.h"
+#include "Row.h"
 #include "XUtils.h"
 
 
 void Machine_init(Machine* this, UsersTable* usersTable, uid_t userId) {
    this->usersTable = usersTable;
    this->userId = userId;
+
+   this->htopUserId = getuid();
+
+   // discover fixed column width limits
+   Row_setPidColumnWidth(Platform_getMaxPid());
 
    // always maintain valid realtime timestamps
    Platform_gettime_realtime(&this->realtime, &this->realtimeMs);
@@ -49,12 +55,75 @@ void Machine_done(Machine* this) {
    if (this->topologyOk) {
       hwloc_topology_destroy(this->topology);
    }
-#else
-   (void)this;
 #endif
+   Object_delete(this->processTable);
+   free(this->tables);
 }
 
-void Machine_addList(Machine* this, struct ProcessList_ *pl) {
-   // currently only process lists are supported
-   this->pl = pl;
+static void Machine_addTable(Machine* this, Table* table) {
+   /* check that this table has not been seen previously */
+   for (size_t i = 0; i < this->tableCount; i++)
+      if (this->tables[i] == table)
+         return;
+
+   size_t nmemb = this->tableCount + 1;
+   Table** tables = xReallocArray(this->tables, nmemb, sizeof(Table*));
+   tables[nmemb - 1] = table;
+   this->tables = tables;
+   this->tableCount++;
+}
+
+void Machine_populateTablesFromSettings(Machine* this, Settings* settings, Table* processTable) {
+   this->settings = settings;
+   this->processTable = processTable;
+
+   for (size_t i = 0; i < settings->nScreens; i++) {
+      ScreenSettings* ss = settings->screens[i];
+      Table* table = ss->table;
+      if (!table)
+         table = ss->table = processTable;
+      if (i == 0)
+         this->activeTable = table;
+
+      Machine_addTable(this, table);
+   }
+}
+
+void Machine_setTablesPanel(Machine* this, Panel* panel) {
+   for (size_t i = 0; i < this->tableCount; i++) {
+      Table_setPanel(this->tables[i], panel);
+   }
+}
+
+void Machine_scanTables(Machine* this) {
+   // set scan timestamp
+   static bool firstScanDone = false;
+
+   if (firstScanDone) {
+      this->prevMonotonicMs = this->monotonicMs;
+      Platform_gettime_monotonic(&this->monotonicMs);
+   } else {
+      this->prevMonotonicMs = 0;
+      this->monotonicMs = 1;
+      firstScanDone = true;
+   }
+   assert(this->monotonicMs > this->prevMonotonicMs);
+
+   this->maxUserId = 0;
+   Row_resetFieldWidths();
+
+   for (size_t i = 0; i < this->tableCount; i++) {
+      Table* table = this->tables[i];
+
+      // pre-processing of each row
+      Table_scanPrepare(table);
+
+      // scan values for this table
+      Table_scanIterate(table);
+
+      // post-process after scanning
+      Table_scanCleanup(table);
+   }
+
+   Row_setUidColumnWidth(this->maxUserId);
 }

@@ -1,0 +1,139 @@
+QA output created by 1595
+== Valgrind checking hv-balloon metric values and metadata - sysfs-hv-balloon-001
+=== std out ===
+
+hyperv.balloon.added PMID: 60.35.9 [Hyper-V balloon memory pages added in bytes]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: byte
+Help:
+Hyper-V balloon memory pages added in bytes
+    value 0
+
+hyperv.balloon.ballooned PMID: 60.35.10 [Hyper-V balloon memory given back to host]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: byte
+Help:
+Hyper-V balloon memory given back to host
+    value 13421772800
+
+hyperv.balloon.onlined PMID: 60.35.8 [Hyper-V balloon memory onlined after hot adding]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: byte
+Help:
+Hyper-V balloon memory onlined after hot adding
+    value 0
+
+hyperv.balloon.pagesize PMID: 60.35.7 [Hyper-V balloon memory page size in bytes]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: byte
+Help:
+Hyper-V balloon memory page size in bytes
+    value 4096
+
+hyperv.balloon.state PMID: 60.35.6 [State of Hyper-V memory ballooning]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Help:
+State of Hyper-V memory ballooning
+    value 1
+
+hyperv.balloon.total_committed PMID: 60.35.11 [Total committed Hyper-V balloon memory]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: byte
+Help:
+Total committed Hyper-V balloon memory
+    value 16491409408
+
+mem.vmmemctl.current PMID: 60.35.4 [Virtual machine balloon memory actually allocated]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: byte
+Help:
+Virtual machine balloon memory actually allocated
+    value 0
+
+mem.vmmemctl.target PMID: 60.35.5 [Virtual machine balloon memory allocation target size]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: byte
+Help:
+Virtual machine balloon memory allocation target size
+    value 0
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -K clear -K add,60,PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init -dfmtT hyperv.balloon.added hyperv.balloon.ballooned hyperv.balloon.onlined hyperv.balloon.pagesize hyperv.balloon.state hyperv.balloon.total_committed mem.vmmemctl.current mem.vmmemctl.target
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+== done
+
+== Valgrind checking vmmemctl metric values and metadata - sysfs-vmmemctl-001
+=== std out ===
+
+hyperv.balloon.added PMID: 60.35.9 [Hyper-V balloon memory pages added in bytes]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: byte
+Help:
+Hyper-V balloon memory pages added in bytes
+    value 0
+
+hyperv.balloon.ballooned PMID: 60.35.10 [Hyper-V balloon memory given back to host]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: byte
+Help:
+Hyper-V balloon memory given back to host
+    value 0
+
+hyperv.balloon.onlined PMID: 60.35.8 [Hyper-V balloon memory onlined after hot adding]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: byte
+Help:
+Hyper-V balloon memory onlined after hot adding
+    value 0
+
+hyperv.balloon.pagesize PMID: 60.35.7 [Hyper-V balloon memory page size in bytes]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: byte
+Help:
+Hyper-V balloon memory page size in bytes
+    value 0
+
+hyperv.balloon.state PMID: 60.35.6 [State of Hyper-V memory ballooning]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Help:
+State of Hyper-V memory ballooning
+    value 0
+
+hyperv.balloon.total_committed PMID: 60.35.11 [Total committed Hyper-V balloon memory]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: byte
+Help:
+Total committed Hyper-V balloon memory
+    value 0
+
+mem.vmmemctl.current PMID: 60.35.4 [Virtual machine balloon memory actually allocated]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: byte
+Help:
+Virtual machine balloon memory actually allocated
+    value 4194304000
+
+mem.vmmemctl.target PMID: 60.35.5 [Virtual machine balloon memory allocation target size]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: byte
+Help:
+Virtual machine balloon memory allocation target size
+    value 4193390592
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -K clear -K add,60,PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init -dfmtT hyperv.balloon.added hyperv.balloon.ballooned hyperv.balloon.onlined hyperv.balloon.pagesize hyperv.balloon.state hyperv.balloon.total_committed mem.vmmemctl.current mem.vmmemctl.target
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+== done
+

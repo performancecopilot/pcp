@@ -29,7 +29,8 @@ export DM_SETUP_THIN="cat $root/dmthin-thin"
 # don't want Install to possibly restart pmcd via systemctl, as this
 # will clobber the environment, ...
 #
-_service pcp stop | _filter_pcp_stop
+if ! _service pcp stop; then _exit 1; fi \
+| _filter_pcp_stop
 if [ "$PCPQA_SYSTEMD" = x -o "${PCPQA_SYSTEMD-x}" != x ]
 then
     # $PCPQA_SYSTEMD is already set ...
@@ -98,8 +99,7 @@ _stop_auto_restart pmcd
 
 $sudo rm -fr $root
 $sudo rm -fr $tmp.*.dir
-$sudo rm -f $tmp.* $seq.full
-touch $here/$seq.full
+touch $seq_full
 
 # real QA test starts here
 cd $here
@@ -117,7 +117,7 @@ cd $here
 
 echo
 echo "=== Installing Device Mapper PMDA ==="
-_prepare_pmda_install dm
+_prepare_pmda_install dm || _exit 1
 _install_pmda
 
 echo

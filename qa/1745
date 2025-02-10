@@ -30,16 +30,15 @@ _cleanup()
 }
 
 status=0	# success is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-_prepare_pmda_install simple
+_prepare_pmda_install simple || _exit 1
 
 echo "=== $iam agent installation ==="
 $sudo ./Install -e </dev/null >$tmp.out 2>&1
 # Check simple metrics have appeared ... X metrics and Y values
-_filter_pmda_install <$tmp.out >> $here/$seq.full
+_filter_pmda_install <$tmp.out >> $seq_full
 
 echo "=== create pmlogger archive ==="
 cat << End-of-File > $tmp.conf
@@ -50,9 +49,9 @@ log advisory on default {
 	kernel.all.pswitch
 }
 End-of-File
-pmlogger -t 1 -T6 -c $tmp.conf -l $tmp.log $tmp.archive
-cat $tmp.log >> $here/$seq.full
-pmdumplog -a $tmp.archive >> $here/$seq.full
+pmlogger -t 0.25sec -s 7 -c $tmp.conf -l $tmp.log $tmp.archive
+cat $tmp.log >> $seq_full
+pmdumplog -a $tmp.archive >> $seq_full
 
 echo "=== check archive contents ==="
 _filter_pmval()
@@ -70,9 +69,10 @@ _filter_pmval()
     #end
 }
 pmval -U $tmp.archive kernel.all.pswitch \
-	| tee -a $here/$seq.full \
+	| tee -a $seq_full \
 	| _filter_pmval > $tmp.values
 lines=`wc -l < $tmp.values`
+echo "lines=$lines, expect 6" >>$seq_full
 if [ $lines -ge 4 -a $lines -le 7 ]
 then
     echo "Raw sample count in expected range"

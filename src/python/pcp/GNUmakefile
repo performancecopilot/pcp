@@ -17,7 +17,7 @@ include $(TOPDIR)/src/include/builddefs
 
 PYCODE	= $(shell echo *.py)
 
-default default_pcp:
+default default_pcp: pmapi.py
 
 include $(BUILDRULES)
 
@@ -25,3 +25,6 @@ install_pcp install:
 
 check:: $(PYCODE)
 	$(PYLINT) $^
+
+pmapi.py:	pmapi.py.in fixup
+	./fixup

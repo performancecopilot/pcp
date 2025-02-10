@@ -1,0 +1,193 @@
+QA output created by 1491
+basic stuff ...
+-- no args --
+pmcd            OK
+pmda-overhead   OK
+pmda-postgresql OK
+pmda-redis      OK
+pmda-sample     OK
+pmda-uwsgi      OK
+pmie            OK
+pmlogger        OK
+pmproxy         OK
+zeroconf        OK
+-- -l --
+pmcd           
+pmda-overhead  
+pmda-postgresql
+pmda-redis     
+pmda-sample    
+pmda-uwsgi     
+pmie           
+pmlogger       
+pmproxy        
+zeroconf       
+-- -lv --
+pmcd            Performance Metrics Collection Daemon - local source of performance data
+pmda-overhead   overhead PMDA - ...
+pmda-postgresql postgresql PMDA - metrics from postgresql
+pmda-redis      redis PMDA - metrics from redis-server(1)
+pmda-sample     sample PMDA
+pmda-uwsgi      uwsgi PMDA - metrics from uwsgi servers
+pmie            Inference Engine - rule-based monitoring
+pmlogger        Archive logger - record performance data for subsequent replay
+pmproxy         Proxy Daemon - proxy, web and redis integration
+zeroconf        Zeroconf Package ...
+-- -s --
+pmcd            OK
+pmda-overhead   OK
+pmda-postgresql OK
+pmda-redis      OK
+pmda-sample     OK
+pmda-uwsgi      OK
+pmie            OK
+pmlogger        OK
+pmproxy         OK
+zeroconf        OK
+
+=== usage ===
+-- --help --
+Usage: pmcheck [options] [component ...]
+
+options:
+  -a, --activate        activate component(s)
+  -c SCRIPT, --file=SCRIPT
+                        use this executable SCRIPT file instead of a standard component
+  -d, --deactivate      deactivate component(s)
+  -l, --list            list components
+  -n, --show-me         dry run
+  -s, --state           report state of component(s)
+  -v, --verbose         increase verbosity
+  -x, --trace           run component script with sh -x
+  -?, --help            show this usage message
+
+component is one or more manageable components and may include shell
+glob metacharacters, e.g. pmda.* or pm[cl]*
+-- -l + -c --
+/bin/echo       success              -l
+-- -l + component arg --
+pmcd           
+-- -c does not exist --
+pmcheck: Error: "/no.such.file" does not exist
+-- -c not executable --
+pmcheck: Error: "TMP.pmcheck" must be an executable script
+-- -c + component arg --
+pmcheck: Error: option -c and component arguments are mutually exclusive
+-- component arg + no action opt --
+pmcd            active              
+-- -n without -a or -d --
+pmcheck: Warning: neither -a nor -d specified, so -n ignored
+pmcd            active              
+-- -c + no action opt --
+/bin/echo       active               -s
+-- multiple actions --
+pmcheck: Error: at most one of -a, -d, -l or -s may be specified
+pmcheck: Error: at most one of -a, -d, -l or -s may be specified
+-- bad option --
+pmcheck: invalid option -- 'f'
+pmcheck: invalid option -- 'o'
+pmcheck: invalid option -- 'o'
+Usage: pmcheck [options] [component ...]
+
+options:
+  -a, --activate        activate component(s)
+  -c SCRIPT, --file=SCRIPT
+                        use this executable SCRIPT file instead of a standard component
+  -d, --deactivate      deactivate component(s)
+  -l, --list            list components
+  -n, --show-me         dry run
+  -s, --state           report state of component(s)
+  -v, --verbose         increase verbosity
+  -x, --trace           run component script with sh -x
+  -?, --help            show this usage message
+
+component is one or more manageable components and may include shell
+glob metacharacters, e.g. pmda.* or pm[cl]*
+pmcheck: invalid option -- 'f'
+pmcheck: invalid option -- 'o'
+pmcheck: invalid option -- 'o'
+Usage: pmcheck [options] [component ...]
+
+options:
+  -a, --activate        activate component(s)
+  -c SCRIPT, --file=SCRIPT
+                        use this executable SCRIPT file instead of a standard component
+  -d, --deactivate      deactivate component(s)
+  -l, --list            list components
+  -n, --show-me         dry run
+  -s, --state           report state of component(s)
+  -v, --verbose         increase verbosity
+  -x, --trace           run component script with sh -x
+  -?, --help            show this usage message
+
+component is one or more manageable components and may include shell
+glob metacharacters, e.g. pmda.* or pm[cl]*
+
+=== parsing and arg hand-off to component script ===
+-- -c ... -s --
+TMP.pmcheck active               component called, 1 args: -s
+-- -c ... -nav --
+component called, 3 args: -n -a -v
+-- -c ... -lv --
+TMP.pmcheck success              I am here for QA 1491
+-- RC=0 -c ... -s --
+TMP.pmcheck active              
+-- RC=1 -c ... -s --
+TMP.pmcheck could be activated  
+-- RC=2 -c ... -s --
+TMP.pmcheck cannot be activated 
+-- RC=0 -c ... -a --
+TMP.pmcheck success             
+-- RC=0 -c ... -av --
+TMP.pmcheck success              some activation explanation
+-- RC=0 -c ... -an --
+# some-magic-activation-command TMP.pmcheck
+-- RC=0 -c ... -anv --
+# some-magic-activation-command TMP.pmcheck
+some activation explanation
+-- RC=0 -c ... -d --
+TMP.pmcheck success             
+-- RC=0 -c ... -dv --
+TMP.pmcheck success              some deactivation explanation
+-- RC=0 -c ... -dn --
+# some-magic-deactivation-command TMP.pmcheck
+-- RC=0 -c ... -dnv --
+# some-magic-deactivation-command TMP.pmcheck
+some deactivation explanation
+-- RC=1 -c ... -a --
+TMP.pmcheck failure             
+-- RC=1 -c ... -av --
+TMP.pmcheck failure              some activation explanation
+-- RC=1 -c ... -an --
+# some-magic-activation-command TMP.pmcheck
+-- RC=1 -c ... -anv --
+# some-magic-activation-command TMP.pmcheck
+some activation explanation
+-- RC=1 -c ... -d --
+TMP.pmcheck failure             
+-- RC=1 -c ... -dv --
+TMP.pmcheck failure              some deactivation explanation
+-- RC=1 -c ... -dn --
+# some-magic-deactivation-command TMP.pmcheck
+-- RC=1 -c ... -dnv --
+# some-magic-deactivation-command TMP.pmcheck
+some deactivation explanation
+
+=== glob expansion ===
+-- -s pm[cl]* --
+pmcd            active              
+pmlogger        active              
+
+=== actions ===
+-- -d --
+pmcd            success             
+1491: pmcd stopped
+pmcd            could be activated  
+-- and -d again with -v --
+pmcd            success              already STOPPED via ...
+-- -a --
+pmcd            success             
+1491: pmcd started
+pmcd            active              
+-- and -a again with -v --
+pmcd            success              already STARTED via ...

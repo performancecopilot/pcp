@@ -1,0 +1,142 @@
+#!/bin/sh
+# PCP QA Test No. 1513
+# derived metric masking tests
+#
+# non-valgrind variant, see qa/1517 for the valgrind variant
+#
+# Copyright (c) 2024 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+
+do_valgrind=false
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+    do_valgrind=true
+elif which valgrind >/dev/null 2>&1
+then
+    [ "$PCPQA_VALGRIND" = both ] || \
+        _notrun "valgrind variant qa/1517 will be run"
+fi
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+_do_val()
+{
+    if $do_valgrind
+    then
+	_run_valgrind --save-output pmval -Dderive -z $*
+    else
+	pmval -Dderive -z $* 2>$tmp.err >$tmp.out
+    fi
+    _filter <$tmp.out
+    cat $tmp.err >>$seq_full
+    grep Warning $tmp.err
+}
+
+_do_info()
+{
+    if $do_valgrind
+    then
+	_run_valgrind --save-output pminfo -Dderive $*
+    else
+	pminfo -Dderive $* 2>$tmp.err >$tmp.out
+    fi
+    _filter <$tmp.out
+    cat $tmp.err >>$seq_full
+    grep Warning $tmp.err
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+	-e '/or "red"/s/[0-9][0-9]*$/NNN/' \
+	-e '/or "green"/s/[0-9][0-9]*$/NNN/' \
+	-e '/or "blue"/s/[0-9][0-9]*$/NNN/' \
+    # end
+}
+
+# real QA test starts here
+export PCP_DERIVED_CONFIG=$tmp.config
+
+# man page xxx xxx xxx xxx
+#                      global
+#                  per-context
+#              remapped
+#          base metric
+# man page  no yes  no  no
+echo "=== No derived metrics ==="
+echo >$tmp.config
+_do_val -t 2 -a archives/derive disk.dev.await
+
+# man page  no yes yes  no
+echo
+echo "=== disk.dev.await is a per-context derived metric ==="
+_do_info -df -a archives/derive -r disk.dev.await=sample.bin disk.dev.await
+
+# man page  no yes  no yes
+echo
+echo "=== disk.dev.await is a global derived metric ==="
+cat <<'End-of-File' >$tmp.config
+disk.dev.await = defined(disk.dev.total_rawactive) ? \
+    (delta(disk.dev.total) == 0 ? \
+	mkconst(0, meta=disk.dev.read, type=double, semantics=instant, units="millisec/count") \
+	: delta(disk.dev.total_rawactive) / delta(disk.dev.total)) \
+    : novalue(meta=disk.dev.read, type=double, semantics=instant, units="millisec/count")
+sample.colour = sum(sample.bin)
+End-of-File
+_do_val -t 2 -a archives/derive disk.dev.await
+
+# man page  no yes yes yes
+echo
+echo "=== disk.dev.await is both a global and a per-context derived metric ==="
+_do_info -df -a archives/derive -r disk.dev.await=sample.bin disk.dev.await
+
+
+# man page  no  no yes yes
+echo
+echo "=== and again for a host context ==="
+_do_info -df -r disk.dev.await=sample.bin disk.dev.await
+
+# man page yes  no  no yes
+echo
+echo "=== sample.colour is global derived metric and real host metric ==="
+_do_info -df sample.colour
+
+# man page yes  no yes  no
+echo
+echo "=== sample.colour is per-context derived metric and real host metric ==="
+echo >$tmp.config
+_do_info -df -r 'sample.colour=avg(sample.bin)' sample.colour
+
+# man page yes  no yes yes
+cat <<'End-of-File' >$tmp.config
+sample.colour = sum(sample.bin)
+End-of-File
+_do_info -df -r 'sample.colour=avg(sample.bin)' sample.colour
+
+# success, all done
+exit

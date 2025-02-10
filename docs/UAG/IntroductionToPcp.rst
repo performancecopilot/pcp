@@ -65,11 +65,11 @@ PCP also detects loss of client-server connections, and most clients support sub
 Logging and Retrospective Analysis
 ==================================
 
-A range of tools is provided to support flexible, adaptive logging of performance metrics for archive, playback, remote diagnosis, and capacity planning. PCP archive logs may be accumulated either at the host being monitored, at a monitoring workstation, or both.
+A range of tools is provided to support flexible, adaptive logging of performance metrics for archive, playback, remote diagnosis, and capacity planning. PCP archives may be accumulated either at the host being monitored, at a monitoring workstation, or both.
 
 A universal replay mechanism, modeled on `media controls <https://en.wikipedia.org/wiki/Media_control_symbols>`_, supports play, step, rewind, fast forward and variable speed processing of archived performance data. Replay for multiple archives, from multiple hosts, is facilitated by an archive aggregation concept.
 
-Most PCP applications are able to process archive logs and real-time performance data with equal facility. Unification of real-time access and access to the archive logs, in conjunction with the media controls, provides powerful mechanisms for building performance tools and to review both current and historical performance data.
+Most PCP applications are able to process archives and real-time performance data with equal facility. Unification of real-time access and access to the archives, in conjunction with the media controls, provides powerful mechanisms for building performance tools and to review both current and historical performance data.
 
 Automated Operational Support
 =============================
@@ -77,7 +77,7 @@ Automated Operational Support
 For operational and production environments, PCP provides a framework with scripts to customize in order to automate the execution of ongoing tasks such as these:
 
 * Centralized archive logging for multiple remote hosts
-* Archive log rotation, consolidation, and culling
+* Archive rotation, consolidation, and culling
 * Web-based publishing of charts showing snapshots of performance activity levels in the recent past
 * Flexible alarm monitoring: parameterized rules to address common critical performance scenarios and facilities to customize and refine this monitoring
 * Retrospective performance audits covering the recent past; for example, daily or weekly checks for performance regressions or quality of service problems
@@ -126,9 +126,9 @@ Current Metric Context
 
 When performance metrics are retrieved, they are delivered in the context of a particular source of metrics, a point in time, and a profile of desired instances. This means that the application making the request has already negotiated to establish the context in which the request should be executed.
 
-A metric source may be the current performance data from a particular host (a live or real-time source), or a set of archive logs of performance data collected by **pmlogger** at some distant host or at an earlier time (a retrospective or archive source).
+A metric source may be the current performance data from a particular host (a live or real-time source), or a set of archives of performance data collected by **pmlogger** at some distant host or at an earlier time (a retrospective or archive source).
 
-By default, the collection time for a performance metric is the current time of day for real-time sources, or current point within an archive source. For archives, the collection time may be reset to an arbitrary time within the bounds of the set of archive logs.
+By default, the collection time for a performance metric is the current time of day for real-time sources, or current point within an archive source. For archives, the collection time may be reset to an arbitrary time within the bounds of the set of archives.
 
 Sources of Performance Metrics and Their Domains
 ================================================
@@ -272,7 +272,7 @@ Each PCP enabled host can operate as a collector, a monitor, or both.
 Retrospective Sources of Performance Metrics
 =============================================
 
-The PMAPI also supports delivery of performance metrics from a historical source in the form of a PCP archive log. Archive logs are created using the **pmlogger** utility, and are replayed in an architecture as shown in :ref:`Figure 1.4. Architecture for Retrospective Analysis`.  
+The PMAPI also supports delivery of performance metrics from a historical source in the form of a PCP archive. Archives are created using the **pmlogger** utility, and are replayed in an architecture as shown in :ref:`Figure 1.4. Architecture for Retrospective Analysis`.  
 
 .. _Figure 1.4. Architecture for Retrospective Analysis:
 
@@ -309,19 +309,27 @@ A representative list of PCP tools and commands, grouped by functionality, is pr
 Performance Monitoring and Visualization
 =========================================
 
-The following tools provide the principal services for the PCP end-user with an interest in monitoring, visualizing, or processing performance information collected either in real time or from PCP archive logs:  
+The following tools provide the principal services for the PCP end-user with an interest in monitoring, visualizing, or processing performance information collected either in real time or from PCP archives:  
 
 **pcp-atop**
 
-Full-screen monitor of the load on a system from a kernel, hardware and processes point of view. It is modeled on the Linux **atop(1)** tool (`home page <https://www.atoptool.nl/>`_) and provides a showcase for the variety of data available using PCP services and the Python scripting interfaces.
+Full-screen monitor of the load on a system from a kernel, hardware and processes point of view. It is modeled on the Linux **atop(1)** tool (`home page <https://www.atoptool.nl/>`_) and supports both live and historical analysis.
+
+**pcp-dstat**
+
+Line-based analysis tool, showing arbitrary metrics through a configurable plugin system. This tool was created to continue the original **dstat(1)** utility (`home page <http://dag.wiee.rs/home-made/dstat/>`_) and provides a showcase for the variety of data available using PCP services and the Python scripting interfaces.  It also supports both live and historical analysis.
+
+**pcp-htop**
+
+Beautiful, classic, live monitor of system activity. It is part of the **htop(1)** ecosystem (`home page <https://htop.dev/>`_) and allows any PCP metric to be displayed through a configurable system of plugins.
 
 **pmchart**
 
 Strip chart tool for arbitrary performance metrics. Interactive graphical utility that can display multiple charts simultaneously, from multiple hosts or set of archives, aligned on a unified time axis (X-axis), or on multiple tabs.  
 
-**pcp-collectl**
+**pmcheck**
 
-Statistics collection tool with good coverage of a number of Linux kernel subsystems, with the everything-in-one-tool approach pioneered by **sar(1)**. It is modeled on the Linux **collectl(1)** utility (`home page <http://collectl.sourceforge.net/>`_) and provides another example of use of the Python scripting interfaces to build more complex functionality with relative ease, with PCP as a foundation.
+Probe a system and report on possible missing configuration that could improve the analysis capabilities. For example, if a local database metric agent exists (but is not installed) and the database is actively running, it informs the user.
 
 **pmrep**
 
@@ -351,6 +359,10 @@ Calculates and reports various statistical summaries of the performance metric v
 
 Probes for performance metric availability, values, and instances.
 
+**pmseries**
+
+Scalable, multi-host time series querying utility. Command line interface to the same query language available in grafana-pcp.
+
 **pmstat**
 
 Provides a text-based display of metrics that summarize the performance of one or more systems at a high level.
@@ -362,15 +374,15 @@ Provides a text-based display of the values for arbitrary instances of a selecte
 Collecting, Transporting, and Archiving Performance Information
 ================================================================
 
-PCP provides the following tools to support real-time data collection, network transport, and archive log creation services for performance data:
+PCP provides the following tools to support real-time data collection, network transport, and archive creation services for performance data:
 
 **mkaf** 
 
-Aggregates an arbitrary collection of PCP archive logs into a *folio* to be used with **pmafm**.
+Aggregates an arbitrary collection of PCP archives into a *folio* to be used with **pmafm**.
 
 **pmafm**
 
-Interrogates, manages, and replays an archive folio as created by **mkaf**, or the periodic archive log management scripts, or the record mode of other PCP tools.
+Interrogates, manages, and replays an archive folio as created by **mkaf**, or the periodic archive management scripts, or the record mode of other PCP tools.
 
 **pmcd**
 
@@ -480,10 +492,6 @@ Extracts performance metrics from the systemd and journald services.
 
 Exports transaction performance metrics from application processes that use the **pcp_trace** library.
 
-**pmdavmware**
-
-Extracts performance metrics from a VMWare virtualization host.
-
 **pmdaweblog**
 
 Scans Web-server logs to extract metrics characterizing.
@@ -492,9 +500,9 @@ Scans Web-server logs to extract metrics characterizing.
 
 Extracts performance metrics from the Linux kernel XFS filesystem implementation.
 
-**pmdumplog**
+**pmlogdump**
 
-Displays selected state information, control data, and metric values from a set of PCP archive logs created by **pmlogger**.
+Displays selected state information, control data, and metric values from a set of PCP archives created by **pmlogger**.
 
 **pmlc**
 
@@ -510,19 +518,15 @@ Creates or modifies **pmlogger** configuration files for many common logging sce
 
 **pmlogextract**
 
-Reads one or more PCP archive logs and creates a temporally merged and reduced PCP archive log as output.
+Reads one or more PCP archives and creates a temporally merged and reduced PCP archive as output.
 
 **pmlogger**
 
-Creates PCP archive logs of performance metrics over time. Many tools accept these PCP archive logs as alternative sources of metrics for retrospective analysis.
+Creates PCP archives of performance metrics over time. Many tools accept these PCP archives as alternative sources of metrics for retrospective analysis.
 
 **pmproxy**
 
-Provides REST APIs, archive discovery, and both PCP and Redis protocol proxying when executing PCP or Redis client tools through a network firewall system.
-
-**pmtrace**
-
-Provides a simple command line interface to the trace PMDA and its associated **pcp_trace** library.
+Provides REST APIs, archive discovery, and both PCP and RESP proxying when executing PCP or key server (e.g. Valkey) tools through a network firewall system.
 
 Operational and Infrastructure Support
 =======================================
@@ -555,11 +559,11 @@ Attempts to acquire an exclusive lock by creating a file with a mode of 0.
 
 **\pmlogger_***
 
-Allows you to create a customized regime of administration and management for PCP archive log files. The **pmlogger_check**, **pmlogger_daily**, and **pmlogger_merge** scripts are intended for periodic execution via the **cron** command.
+Allows you to create a customized regime of administration and management for PCP archive files. The **pmlogger_check**, **pmlogger_daily**, and **pmlogger_merge** scripts are intended for periodic execution via the **cron** command.
 
 **pmnewlog**
 
-Performs archive log rotation by stopping and restarting an instance of **pmlogger**.
+Performs archive rotation by stopping and restarting an instance of **pmlogger**.
 
 **pmnsadd**
 

@@ -15,16 +15,16 @@ LOCALHOSTNAME n n PCP_ARCHIVE_DIR/1213-LOCALHOSTNAME -c TMP.config
 Installing control file: PCP_ETC_DIR/pcp/pmlogger/control.d/1213-LOCALHOSTNAME
 === not run as root
 - create -
++ PCP_BINADM_DIR/runaspcp PCP_BINADM_DIR/pmlogger_check  -c "PCP_ETC_DIR/pcp/pmlogger/control.d/1213-local:"
 + cp PCP_TMPFILE_DIR/pmlogctl.XXXXX/control PCP_ETC_DIR/pcp/pmlogger/control.d/1213-local:
-+ sudo -u pcp -g pcp PCP_BINADM_DIR/pmlogger_check -c PCP_ETC_DIR/pcp/pmlogger/control.d/1213-local:
 Error: you must be root (uid 0) to change the Performance Co-Pilot logger setup
 - start (nothing to be done) -
 Error: you must be root (uid 0) to change the Performance Co-Pilot logger setup
 - start -
++ PCP_BINADM_DIR/runaspcp PCP_BINADM_DIR/pmlogger_check  -c "PCP_ETC_DIR/pcp/pmlogger/control.d/1213-LOCALHOSTNAME"
++ PCP_BINADM_DIR/runaspcp PCP_BINADM_DIR/pmlogger_check  -c "PCP_ETC_DIR/pcp/pmlogger/control.d/1213-localhost"
 + cp PCP_TMPFILE_DIR/pmlogctl.XXXXX/control PCP_ETC_DIR/pcp/pmlogger/control.d/1213-LOCALHOSTNAME
 + cp PCP_TMPFILE_DIR/pmlogctl.XXXXX/control PCP_ETC_DIR/pcp/pmlogger/control.d/1213-localhost
-+ sudo -u pcp -g pcp PCP_BINADM_DIR/pmlogger_check -c PCP_ETC_DIR/pcp/pmlogger/control.d/1213-LOCALHOSTNAME
-+ sudo -u pcp -g pcp PCP_BINADM_DIR/pmlogger_check -c PCP_ETC_DIR/pcp/pmlogger/control.d/1213-localhost
 Error: you must be root (uid 0) to change the Performance Co-Pilot logger setup
 - stop (nothing to be done) -
 Warning: pmlogger for host LOCALHOSTNAME already stopped, nothing to do
@@ -178,6 +178,7 @@ Error: command "snafu" not known
 === mutex
 Warning: is another pmlogctl job running concurrently?
 ------ ... ls output ... PCP_ETC_DIR/pcp/pmlogger/lock
+PID QA 1213
 Error: failed to acquire exclusive lock (PCP_ETC_DIR/pcp/pmlogger/lock) ...
 pmcd Host Archive Class PID State 
 LOCALHOSTNAME <archivename> <seq> <pid> running 

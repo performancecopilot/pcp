@@ -19,41 +19,40 @@ curl --request-target 2>&1 | grep -q 'requires parameter' || \
 	_notrun "Test requires curl --request-target option"
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "cd $here; _cleanup; exit \$status" 0 1 2 3 15
 
 pmproxy_was_running=false
 [ -f $PCP_RUN_DIR/pmproxy.pid ] && pmproxy_was_running=true
-echo "pmproxy_was_running=$pmproxy_was_running" >>$here/$seq.full
+echo "pmproxy_was_running=$pmproxy_was_running" >>$seq_full
 
 _cleanup()
 {
     if $pmproxy_was_running
     then
-	echo "Restart pmproxy ..." >>$here/$seq.full
-	_service pmproxy restart >>$here/$seq.full 2>&1
+	echo "Restart pmproxy ..." >>$seq_full
+	_service pmproxy restart >>$seq_full 2>&1
 	_wait_for_pmproxy
     else
-	echo "Stopping pmproxy ..." >>$here/$seq.full
-	_service pmproxy stop >>$here/$seq.full 2>&1
+	echo "Stopping pmproxy ..." >>$seq_full
+	_service pmproxy stop >>$seq_full 2>&1
     fi
     $sudo rm -f $tmp.*
 }
 
 # real QA test starts here
-_service pmproxy restart >/dev/null 2>&1
+if ! _service pmproxy restart >/dev/null 2>&1; then _exit 1; fi
 
 echo; echo "=== OPTIONS"
 curl -isS -X OPTIONS --request-target "*" http://localhost:44322 \
-	2>&1 | tee -a $here/$seq.full | _webapi_header_filter
+	2>&1 | tee -a $seq_full | _webapi_header_filter
 
 echo; echo "=== TRACE"
 curl -isS -X TRACE http://localhost:44322 \
-	2>&1 | tee -a $here/$seq.full | _webapi_header_filter
+	2>&1 | tee -a $seq_full | _webapi_header_filter
 
-echo >>$here/$seq.full
-echo "=== pmproxy log ===" >>$here/$seq.full
-cat $PCP_LOG_DIR/pmproxy/pmproxy.log >>$here/$seq.full
+echo >>$seq_full
+echo "=== pmproxy log ===" >>$seq_full
+cat $PCP_LOG_DIR/pmproxy/pmproxy.log >>$seq_full
 
 # success, all done
 status=0

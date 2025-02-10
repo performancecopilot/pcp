@@ -23,7 +23,7 @@
 #include "launch.h"
 
 //
-// Use debug flag LIBPMDA to trace Bar refreshes
+// Use debug flag -Dappl3 to trace Bar refreshes
 //
 
 const char BarMod::theBarId = 'b';
@@ -36,7 +36,7 @@ BarMod::BarMod(MetricList *metrics,
 	       SoNode *obj, 
 	       BarMod::Direction dir,
 	       BarMod::Grouping group,
-	       float xScale, float yScale, float zScale,
+	       float xScale, float __yScale, float zScale,
 	       float xSpace, float zSpace)
 : Modulate(metrics),
   _blocks(),
@@ -49,7 +49,7 @@ BarMod::BarMod(MetricList *metrics,
   _infoMetric(0),
   _infoInst(0),
   _xScale(xScale),
-  _yScale(yScale),
+  _yScale(__yScale),
   _zScale(zScale)
 {
     generate(obj, xSpace, zSpace);
@@ -61,7 +61,7 @@ BarMod::BarMod(MetricList *metrics,
 	       BarMod::Direction dir,
 	       BarMod::Modulation mod,
 	       BarMod::Grouping group,
-	       float xScale, float yScale, float zScale,
+	       float xScale, float __yScale, float zScale,
 	       float xSpace, float zSpace)
 : Modulate(metrics),
   _blocks(),
@@ -74,7 +74,7 @@ BarMod::BarMod(MetricList *metrics,
   _infoMetric(0),
   _infoInst(0),
   _xScale(xScale),
-  _yScale(yScale),
+  _yScale(__yScale),
   _zScale(zScale)
 {
     generate(obj, xSpace, zSpace);
@@ -88,6 +88,9 @@ BarMod::generate(SoNode *obj, float xSpace, float zSpace)
     int	maxInst = 0;
     char	buf[32];
     int		m, i, v;
+
+    if (pmDebugOptions.appl2)
+	cerr << "BarMod::generate() called" << Qt::endl;
 
     _root = new SoSeparator;
 
@@ -136,7 +139,7 @@ BarMod::generate(SoNode *obj, float xSpace, float zSpace)
 	add();
         if (pmDebugOptions.appl2)
             cerr << "BarMod::generate: Added " << numValues << " in " << _cols
-		 << " cols and " << _rows << " rows." << endl;
+		 << " cols and " << _rows << " rows." << Qt::endl;
 
     }
 
@@ -151,6 +154,9 @@ BarMod::refresh(bool fetchFlag)
 {
     int m, i, v;
 
+    if (pmDebugOptions.appl3)
+	cerr << "BarMod::refresh() called fetchlag=" << fetchFlag << " numMetrics=" << _metrics->numMetrics() << Qt::endl;
+
     if (status() < 0)
 	return;
 
@@ -164,7 +170,10 @@ BarMod::refresh(bool fetchFlag)
 
 	    BarBlock &block = _blocks[v];
 
-	    if (metric.error(i) <= 0) {
+	    if (metric.error(i) < 0) {
+
+		if (pmDebugOptions.appl3)
+		    cerr << "BarMod::refresh() " << &metric << " metric[" << i << "] error=" << metric.error(i) << Qt::endl;
 
 		if (block._state != Modulate::error) {
 		    block._color->rgb.setValue(_errorColor.getValue());
@@ -178,6 +187,11 @@ BarMod::refresh(bool fetchFlag)
 	    else {
 		double  unscaled    = metric.value(i);
 		double  value       = unscaled * theScale;
+
+		if (pmDebugOptions.appl3) {
+		    cerr << "BarMod::refresh() " << &metric << " theNormError=" << theNormError << " metric[" << i << "] value=";
+		    metric.dump(cerr, false, i);
+		}
                 
 		if (value > theNormError) {
 		    if (block._state != Modulate::saturated) {
@@ -224,7 +238,7 @@ BarMod::selectAll()
     theModList->selectAllId(_root, _blocks.size());
 
     if (pmDebugOptions.appl2)
-	cerr << "BarMod::selectAll" << endl;
+	cerr << "BarMod::selectAll" << Qt::endl;
 
     for (i = 0; i < _blocks.size(); i++) {
 	if (_blocks[i]._selected == false) {
@@ -247,7 +261,7 @@ BarMod::select(SoPath *path)
 
 	if (pmDebugOptions.appl2)
 	    cerr << "BarMod::select: value = " << value
-		 << ", count = " << _selectCount << endl;
+		 << ", count = " << _selectCount << Qt::endl;
     }
     return _selectCount;
 }
@@ -264,12 +278,12 @@ BarMod::remove(SoPath *path)
 
 	if (pmDebugOptions.appl2)
 	    cerr << "BarMod::remove: value = " << value
-		 << ", count = " << _selectCount << endl;
+		 << ", count = " << _selectCount << Qt::endl;
     }
 
     else if (pmDebugOptions.appl2)
 	cerr << "BarMod::remove: did not remove " << value 
-	     << ", count = " << _selectCount << endl;
+	     << ", count = " << _selectCount << Qt::endl;
 
     return _selectCount;
 }
@@ -297,7 +311,7 @@ void BarMod::infoText(QString &str, bool selected) const
     if (v >= _blocks.size()) {
 	if (pmDebugOptions.appl2)
 	    cerr << "BarMod::infoText: infoText requested but nothing selected"
-		 << endl;
+		 << Qt::endl;
 	str = "";
     }
     else {
@@ -436,9 +450,9 @@ BarMod::dump(QTextStream &os) const
 	os << ", Color & Y-Scale: ";
 
     if (status() < 0)
-        os << "Invalid metrics: " << pmErrStr(status()) << endl;
+        os << "Invalid metrics: " << pmErrStr(status()) << Qt::endl;
     else {
-	os << endl;
+	os << Qt::endl;
 	for (m = 0, v = 0; m < _metrics->numMetrics(); m++) {
 	    QmcMetric &metric = _metrics->metric(m);
 	    for (i = 0; i < metric.numValues(); i++, v++) {
@@ -474,7 +488,7 @@ BarMod::findBlock(SoPath *path, int &metric, int &inst,
     if (i >= 0) {
 
 	if (pmDebugOptions.appl2)
-	    cerr << "BarMod::findBlock: Bar id = " << str << endl;
+	    cerr << "BarMod::findBlock: Bar id = " << str << Qt::endl;
 
 	sscanf(str, "%c%d", &c, &value);
 	
@@ -506,7 +520,7 @@ BarMod::findBlock(SoPath *path, int &metric, int &inst,
 
     if (pmDebugOptions.appl2)
 	cerr << "BarMod::findBlock: metric = " << metric
-	     << ", inst = " << inst << ", value = " << value << endl;
+	     << ", inst = " << inst << ", value = " << value << Qt::endl;
 
     return;
 }
@@ -517,6 +531,9 @@ BarMod::regenerate(float xScale, float zScale, float xSpace, float zSpace)
     int		m, i, v;
     float	halfX = xScale / 2.0;
     float	halfZ = zScale / 2.0;
+
+    if (pmDebugOptions.appl2)
+	cerr << "BarMod::regenerate() called" << Qt::endl;
 
     if (status() < 0)
 	return;

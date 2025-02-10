@@ -99,7 +99,7 @@ The available command line options are:
 .TP 5
 \fB\-a\fR \fIarchive\fR, \fB\-\-archive\fR=\fIarchive\fR
 Performance metric values are retrieved from the set of Performance
-Co-Pilot (PCP) archive log files identified by the
+Co-Pilot (PCP) archive files identified by the
 .I archive
 argument, which is a comma-separated list of names,
 each of which may be the base name of an archive or the name of
@@ -267,9 +267,9 @@ in the format of the environment variable TZ as described in
 Display usage message and exit.
 .SH EXAMPLES
 .nf
-.ft CW
+.ft CR
 $ pmprobe disk.dev
-.ft CW
+.ft CR
 disk.dev.read 2
 disk.dev.write 2
 disk.dev.total 2
@@ -279,23 +279,23 @@ disk.dev.blktotal 2
 disk.dev.active 2
 disk.dev.response 2
 .sp
-.ft CW
+.ft CR
 $ pmprobe \-I disk.dev.read disk.dev.write disk.all.total
-.ft CW
+.ft CR
 disk.dev.read 2 "sda" "sdb"
 disk.dev.write 2 "sda" "sdb"
 disk.all.total 1 PM_IN_NULL
 .sp
-.ft CW
+.ft CR
 $ pmprobe \-v pmcd.numagents pmcd.version pmcd.control.timeout
-.ft CW
+.ft CR
 pmcd.numagents 1 9
 pmcd.version 1 "5.0.0"
 pmcd.control.timeout 1 5
 .sp
-.ft CW
+.ft CR
 $ pmprobe \-v disk.dev.total disk.all.total
-.ft CW
+.ft CR
 disk.dev.total \-1012 Unknown metric name
 disk.all.total 1 4992466
 .fi
@@ -316,8 +316,8 @@ For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pmcd (1),
-.BR pmdumplog (1),
 .BR pminfo (1),
+.BR pmlogdump (1),
 .BR PMAPI (3),
 .BR pmErrStr (3),
 .BR pmGetOptions (3),
@@ -326,3 +326,6 @@ For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
 .BR pcp.env (5)
 and
 .BR PMNS (5).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ blkread blktotal blkwrite dmfile numagents sda sdb

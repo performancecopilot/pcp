@@ -14,7 +14,6 @@ echo "QA output created by $seq"
 . ./common.check
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "cd $here; $sudo rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 
 metric="sample.control"
@@ -25,7 +24,7 @@ log mandatory on 1 sec {
 EOF
 
 pmlogger -H my_new_label_hostname -s1 -c $tmp.config -l $tmp.log $tmp.arch 1>$tmp.out 2>&1
-cat $tmp.log >> $seq.full
+cat $tmp.log >> $seq_full
 
 pmdumplog -l $tmp.arch \
 | sed \

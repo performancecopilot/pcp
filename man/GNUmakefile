@@ -29,3 +29,8 @@ install_pcp : $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 
 include $(BUILDRULES)
+
+# see ./naught-boy to explain this
+#
+brian:
+	./naughty-boy

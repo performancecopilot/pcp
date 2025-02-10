@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2017 Ronak Jain.
-# Copyright (c) 2017,2019-2020 Red Hat.
+# Copyright (c) 2017,2019-2020,2023-2024 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -21,7 +21,7 @@ PYSCRIPT = pmda$(IAM).python
 LDIRT	= domain.h root pmns $(IAM).log
 DOMAIN	= $(IAM)
 # common endpoint URLs (on: enabled, off: available)
-ONURLS	= grafana.url
+ONURLS	= grafana.url kepler.url vllm.url
 OFFURLS	= collectd.url etcd.url spark.url vmware.url
 
 MAN_SECTION = 1

@@ -647,7 +647,7 @@ class DstatTool(object):
                 index = self.timeplugins.index(section)
                 plugin = self.timelist[index]
                 name = 'dstat.' + section + '.' + plugin.name # metric name
-                value = 'event.missed'  # a valid metric that always exists
+                value = '0' # constant expression, always valid as a metric
                 lib.parse_new_verbose_metric(metrics, name, name)
                 lib.parse_verbose_metric_info(metrics, name, 'formula', value)
                 lib.parse_verbose_metric_info(metrics, name, 'label', section)
@@ -1746,7 +1746,7 @@ class DstatTool(object):
             showcsvheader = True
 
         if sys.stdout.isatty():
-            oldcols = cols
+            oldcols = cols  # pylint: disable=used-before-assignment
             rows, cols = self.term.get_size()
 
             # Trim object list to what is visible on screen

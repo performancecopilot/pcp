@@ -92,10 +92,12 @@ then
     # DISTRIB_ID=LinuxMint
     # DISTRIB_RELEASE=12
     # DISTRIB_CODENAME=lisa
+    # or
+    # DISTRIB_CODENAME="Libretto"
     #
     id=`sed </etc/lsb-release -n -e '/^DISTRIB_ID *= */s///p'`
     release=`sed </etc/lsb-release -n -e '/^DISTRIB_RELEASE *= */s///p'`
-    codename=`sed </etc/lsb-release -n -e '/^DISTRIB_CODENAME *= */s///p'`
+    codename=`sed </etc/lsb-release -n -e 's/"//g' -e '/^DISTRIB_CODENAME *= */s///p'`
     os="$id $release ($codename)"
     $debug && from=' [/etc/lsb-release]'
 elif [ -f /etc/debian_version ]
@@ -140,6 +142,12 @@ then
     # VERSION = 12.1 (Asparagus)
     # or
     # NAME="Arch Linux"
+    # or
+    # NAME=FreeBSD
+    # VERSION="13.2-RELEASE-p5"
+    # or
+    # NAME="openSUSE Leap"
+    # VERSION="15.6 Beta"
     #
     name=`sed </etc/os-release -n -e '/^NAME *= */{
 s///
@@ -147,8 +155,17 @@ s/"//g
 p
 }'`
     name=`echo "$name" | sed -e 's/"//g'`
-    ver=`sed </etc/os-release -n -e '/^VERSION *= */{
-s///
+    if [ "$name" = FreeBSD ]
+    then
+	sed </etc/os-release -e '/^VERSION *=/s/-RELEASE-p[0-9][0-9]*//'
+    elif [ "$name" = 'openSUSE Leap' ]
+    then
+	sed </etc/os-release -e '/^VERSION *=/s/ Beta//'
+    else
+	cat /etc/os-release
+    fi >$tmp.out
+    ver=`sed <$tmp.out -n -e '/^VERSION *= */{
+s/^VERSION *= *//
 s/"//g
 p
 }'`

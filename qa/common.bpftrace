@@ -34,8 +34,8 @@ _pmdabpftrace_install()
 
     # update config
     $sudo cp $PCP_PMDAS_DIR/bpftrace/bpftrace.conf $PCP_PMDAS_DIR/bpftrace/bpftrace.conf.backup
-    echo "pmdabpftrace config:" >> $here/$seq.full
-    tee -a $here/$seq.full > $tmp.bpftrace.conf
+    echo "pmdabpftrace config:" >> $seq_full
+    tee -a $seq_full > $tmp.bpftrace.conf
     $sudo cp $tmp.bpftrace.conf $PCP_PMDAS_DIR/bpftrace/bpftrace.conf
 
     echo
@@ -58,13 +58,17 @@ _pmdabpftrace_remove()
 
 _pmdabpftrace_cleanup()
 {
-    cat $PCP_LOG_DIR/pmcd/bpftrace.log >> $here/$seq.full
+    cat $PCP_LOG_DIR/pmcd/bpftrace.log >> $seq_full
     if [ -f $PCP_PMDAS_DIR/bpftrace/bpftrace.conf.backup ]; then
         $sudo mv $PCP_PMDAS_DIR/bpftrace/bpftrace.conf.backup $PCP_PMDAS_DIR/bpftrace/bpftrace.conf
     fi
 
     # note: _restore_auto_restart pmcd done in _cleanup_pmda()
     _cleanup_pmda bpftrace
+
+    # restore the credentials exchange timeout to the default
+    #
+    pmstore pmcd.control.creds_timeout 3 >>$seq_full 2>&1
 }
 
 # Usage: _pmdabpftrace_wait_for_value [value_regex [timeout_sec]]
@@ -74,16 +78,19 @@ _pmdabpftrace_wait_for_value()
     __value_regex=${2:-".*"}
     __wait_sec=${3:-"10"}
     __wait_iter=`expr $__wait_sec \* 2`
+    echo "_pmdabpftrace_wait_for_value $1 $__value_regex $__wait_sec @`date`" >>$seq_full
     for __i in `seq 1 $__wait_iter`
     do
-	echo "_pmdabpftrace_wait_for_value: iteration $__i" >>$here/$seq.full
-        if pminfo -f $1 | tee -a $here/$seq.full | grep -q "value $__value_regex"; then
+	echo "_pmdabpftrace_wait_for_value: iteration $__i" >>$seq_full
+        if pminfo -f $1 | tee -a $seq_full | grep -q "value $__value_regex"; then
+	    echo "_pmdabpftrace_wait_for_value success @`date`" >>$seq_full
             echo "found metric $1 with matching value $__value_regex"
             return
         fi
         sleep 0.5
     done
 
+    echo "_pmdabpftrace_wait_for_value failure @`date`" >>$seq_full
     echo "Timeout (${__wait_sec}s) while waiting for metric $1 to match value $__value_regex, script data:"
     pminfo -f $(echo "$1" | sed -r 's/bpftrace\.scripts\.([^.]+)\..*/bpftrace.scripts.\1/')
     # error text above is sufficient to mark the test status as Failed
@@ -126,7 +133,6 @@ _pmdabpftrace_check_probes()
 	-e 's/^kretprobe/kprobe/' \
 	-e '/^hardware:/p' \
 	-e '/^kprobe:/p' \
-	-e '/^kprobe:/p' \
 	-e '/^software:/p' \
 	-e '/^tracepoint:/p' \
     | while read __probe
@@ -146,3 +152,8 @@ _pmdabpftrace_check_probes()
 	# NOTREACHED
     fi
 }
+
+# on vm03 the PMDA takes a long time to get into gear, so increase
+# the credentials exchange timeout
+#
+pmstore pmcd.control.creds_timeout 15 >>$seq_full 2>&1

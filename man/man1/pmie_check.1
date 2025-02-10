@@ -223,7 +223,11 @@ only the data file to be compressed, and also prevents the program from
 attempting to compress it more than once.
 The default
 .I regex
-is "\.(meta|index|Z|gz|bz2|zip|xz|lzma|lzo|lz4)$" \- such files are
+is
+.br
+"\e.(meta|index|Z|gz|bz2|zip|xz|lzma|lzo|lz4|zst)$"
+.br
+\- such files are
 filtered using the
 .B \-v
 option to
@@ -258,7 +262,7 @@ useful to set and export variables into the environment of
 the administrative script, e.g.
 .br
 .in +4n
-.ft CW
+.ft CR
 .nf
 $ PMCD_CONNECT_TIMEOUT=20
 .fi
@@ -270,7 +274,7 @@ There
 be a version line in the initial control file of the form:
 .br
 .in +4n
-.ft CW
+.ft CR
 .nf
 $ version=1.1
 .fi
@@ -283,7 +287,7 @@ for each
 instance of the form:
 
 .in +4n
-.ft CW
+.ft CR
 .nf
 \f2host\f1 \f3y\f1|\f3n\f1 \f3y\f1|\f3n\f1 \f2logfile\f1 \f2args\f1
 .fi
@@ -371,7 +375,7 @@ and another monitoring performance metrics from the host
 .IR splat .
 .PP
 .nf
-.ft CW
+.ft CR
 wobbly  n  PCP_LOG_DIR/pmie/wobbly  \-c config.default
 splat   n  PCP_LOG_DIR/pmie/splat   \-c splat/cpu.conf
 .ft 1
@@ -391,7 +395,7 @@ already)
 and shown below.
 .PP
 .nf
-.ft CW
+.ft CR
 # daily processing of pmie logs
 08      0       *       *       *       $PCP_BINADM_DIR/pmie_daily
 # every 30 minutes, check pmie instances are running
@@ -427,7 +431,7 @@ to the
 .I /etc/sudoers
 configuration file as follows:
 .P
-.ft CW
+.ft CR
 .nf
 .in +0.5i
 Defaults requiretty
@@ -520,3 +524,8 @@ configuration file, as described in \fBpcp.conf\fP(5).
 .BR xz (1)
 and
 .BR cron (8).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ RC {from RC scripts} args
+.\" +ok+ lz lzma lzo {from compression suffixes}
+.\" +ok+ myhost nologin prev requiretty runlevel sudoers

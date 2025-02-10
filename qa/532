@@ -21,7 +21,7 @@ echo "QA output created by $seq"
 
 _filter()
 {
-    tee -a $seq.full \
+    tee -a $seq_full \
     | sed -f $tmp/sed \
     | sed \
 	-e '/^Roll .*\/NOTICES/d' \
@@ -47,7 +47,6 @@ _cleanup()
 {
     cd $here
     $sudo rm -rf $tmp $tmp.*
-    $sudo mv $PCP_LOG_DIR/NOTICES.$seq $PCP_LOG_DIR/NOTICES
     [ -f $NEEDREWRITE.$seq ] && $sudo mv $NEEDREWRITE.$seq $NEEDREWRITE
 }
 
@@ -60,9 +59,6 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 #
 umask 022
 
-$sudo mv $PCP_LOG_DIR/NOTICES $PCP_LOG_DIR/NOTICES.$seq
-rm -f $seq.full
-rm -rf $tmp $tmp.*
 mkdir $tmp
 mkdir $tmp/foo
 
@@ -137,13 +133,17 @@ $sudo chown $PCP_USER:$PCP_GROUP $tmp
 echo
 echo "Before ..."
 ls $tmp | sed -f $tmp/sed | LC_COLLATE=POSIX sort | tee $tmp.before
-ls -l $tmp >>$seq.full
+ls -l $tmp >>$seq_full
 
 # list of culled files is in directory order, hence the cut and sort
 # complexity at the end of this pipeline
 #
 echo
+# need to be a place the user $PCP_USER can cd to from pmlogger_daily
+#
+cd /var/tmp
 $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -D -o -c $tmp/control -x never -k 3 $verbose -l $tmp.log"
+cd $here
 $sudo cat $tmp.log \
 | _filter \
 | $PCP_AWK_PROG '
@@ -158,16 +158,16 @@ cat $tmp.out.0
 LC_COLLATE=POSIX sort $tmp.out.1
 [ -f $tmp.out.0 ] && cat $tmp.out.2
 
-echo "out.0 ..." >>$seq.full
-cat $tmp.out.0 >>$seq.full
-echo "out.1 ..." >>$seq.full
-cat $tmp.out.1 >>$seq.full
+echo "out.0 ..." >>$seq_full
+cat $tmp.out.0 >>$seq_full
+echo "out.1 ..." >>$seq_full
+cat $tmp.out.1 >>$seq_full
 
 echo
 echo "After ..."
 ls $tmp | sed -f $tmp/sed | LC_COLLATE=POSIX sort | tee $tmp.after
 
-pmdumplog -dilmst $tmp/$yesterday >>$seq.full
+pmdumplog -dilmst $tmp/$yesterday >>$seq_full
 
 echo
 echo "Differences ..."

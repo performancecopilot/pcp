@@ -1,0 +1,5 @@
+.gitignore
+domain.h
+exports
+pmda_farm.so
+pmdafarm

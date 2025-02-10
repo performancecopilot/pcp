@@ -18,7 +18,7 @@
 .SH NAME
 \f3pmlogreduce\f1 \- temporal reduction of Performance Co-Pilot archives
 .SH SYNOPSIS
-\f3$PCP_BINADM_DIR/pmlogreduce\f1
+\f3pmlogreduce\f1
 [\f3\-z?\f1]
 [\f3\-A\f1 \f2align\f1]
 [\f3\-s\f1 \f2samples\f1]
@@ -122,7 +122,7 @@ option causes
 .B pmlogreduce
 to start a new volume after
 .I volsamples
-log records have been written to the
+records have been written to the
 .I output
 archive.
 .RS 7
@@ -271,7 +271,7 @@ and
 archives, several physical files are used.
 .TP 5
 \f2archive\f3.meta
-metadata (metric descriptions, instance domains, etc.) for the archive log
+metadata (metric descriptions, instance domains, etc.) for the archive
 .TP
 \f2archive\f3.0
 initial volume of metrics values (subsequent volumes have suffixes
@@ -291,7 +291,7 @@ suffix.
 .TP
 \f2archive\f3.index
 temporal index to support rapid random access to the other files in the
-archive log.
+archive.
 .SH PCP ENVIRONMENT
 Environment variables with the prefix \fBPCP_\fP are used to parameterize
 the file and directory names used by PCP.
@@ -301,8 +301,8 @@ The \fB$PCP_CONF\fP variable may be used to specify an alternative
 configuration file, as described in \fBpcp.conf\fP(5).
 .SH SEE ALSO
 .BR PCPIntro (1),
-.BR pmdumplog (1),
 .BR pmlc (1),
+.BR pmlogdump (1),
 .BR pmlogextract (1),
 .BR pmlogger (1),
 .BR pcp.conf (5)

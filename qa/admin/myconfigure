@@ -37,7 +37,7 @@ then
     exit 1
 fi
 
-. VERSION.pcp
+. ./VERSION.pcp
 version=$PACKAGE_MAJOR.$PACKAGE_MINOR.$PACKAGE_REVISION
 
 target=`uname -s | sed -e 's/ .*//' | tr 'A-Z' 'a-z'`
@@ -51,7 +51,19 @@ dodeb=unknown
 if [ $dorpm = unknown ]
 then
     dorpm=false
-    [ -x /usr/bin/rpmbuild ] && dorpm=true
+    if which slackpkg >/dev/null 2>&1
+    then
+	# Slackware has rpm(1) and rpmbuild(1), but don't build RPMs
+	#
+	:
+    elif which mx-boot-repair >/dev/null 2>&1
+    then
+	# MX Linux has rpm(1) and rpmbuild(1), but don't build RPMs
+	#
+	:
+    else
+	[ -x /usr/bin/rpmbuild ] && dorpm=true
+    fi
 fi
 if [ $dodeb = unknown ]
 then
@@ -69,23 +81,23 @@ fi
 
 if $dodeb
 then
-    # needs to match configure_paths in debian/rules ... so just get the
+    # needs to match configure_paths in debian/rules.pcp ... so just get the
     # magic setting from there
     #
-    if [ ! -f debian/rules ]
+    if [ ! -f debian/rules.pcp ]
     then
-	echo "Botch: cannot find debian/rules"
+	echo "Botch: cannot find debian/rules.pcp"
 	exit 1
     fi
-    configopts=`sed -n <debian/rules -e '/^configure_paths/s/^[^=]*= *//p'`
+    configopts=`sed -n <debian/rules.pcp -e '/^configure_paths/s/^[^=]*= *//p'`
     if [ -z "$configopts" ]
     then
-	echo "Botch: cannot get configopts from configure_paths in debian/rules"
+	echo "Botch: cannot get configopts from configure_paths in debian/rules.pcp"
 	exit 1
     fi
-    # and optionally configure_tools from debian/rules also ...
+    # and optionally configure_tools from debian/rules.pcp also ...
     #
-    configtools=`sed -n <debian/rules -e '/^configure_tools/s/^[^=]*= *//p'`
+    configtools=`sed -n <debian/rules.pcp -e '/^configure_tools/s/^[^=]*= *//p'`
     echo configtools=$configtools
 elif $dorpm
 then
@@ -118,7 +130,7 @@ then
     configopts="--prefix=/usr/pkg --exec-prefix=/usr/pkg --mandir=/usr/pkg/man --with-rcdir=/etc/rc.d --localstatedir=/usr/pkg --with-rundir=/var/run --with-tmpdir=/var/tmp --with-logdir=/var/log/pcp"
 elif [ $target = freebsd ]
 then
-    # Python build does not work on FreeBSD 9.3, so skip it
+    # FreeBSD - see Makepkgs for explanations ...
     #
     case `uname -r`
     in
@@ -126,6 +138,26 @@ then
 		# default case, just without python
 		#
 		configopts="--prefix=/usr --sysconfdir=/etc --localstatedir=/var --with-python=no --with-python3=no"
+		;;
+	10.*|11.*)
+		# Bog-standard, just without python2
+		#
+		configopts="--sysconfdir=/etc --localstatedir=/var --with-python=no --prefix=/usr"
+		;;
+	12.*)
+		# Bog-standard, just without python2 and static-probes
+		#
+		configopts="--sysconfdir=/etc --localstatedir=/var --with-python=no --with-static-probes=no --prefix=/usr"
+		;;
+	13.*)
+		# Bog-standard, just without python2 and qt and static-probes
+		#
+		configopts="--sysconfdir=/etc --localstatedir=/var --with-python=no --with-qt=no --with-static-probes=no --prefix=/usr"
+		;;
+	14.*)
+		# Bog-standard, just without python2 and static-probes
+		#
+		configopts="--sysconfdir=/etc --localstatedir=/var --with-python=no --with-static-probes=no --prefix=/usr"
 		;;
 	*)
 		# default case, as below ...
@@ -189,7 +221,7 @@ then
     exit 1
 fi
 
-. src/include/pcp.conf
+. ./src/include/pcp.conf
 
 here=`pwd`
 

@@ -27,9 +27,10 @@ if [ "$1" = "--valgrind" ]
 then
     _check_valgrind
     do_valgrind=true
-elif which valgrind >/dev/null 2>&1
+elif _prefer_valgrind
 then
-    _notrun "valgrind variant qa/1439 will be run"
+    [ $PCPQA_VALGRIND = both ] || \
+	_notrun "valgrind variant qa/1439 will be run"
 fi
 
 root_group_is_wheel=false
@@ -59,14 +60,13 @@ _cleanup()
 }
 
 status=0	# success is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
-echo "root_group_is_wheel=$root_group_is_wheel" >>$seq.full
+echo "root_group_is_wheel=$root_group_is_wheel" >>$seq_full
 
 _filter()
 {
-    tee -a $seq.full \
+    tee -a $seq_full \
     | sed -f $tmp.sed
 }
 
@@ -79,7 +79,7 @@ else
     gids="$uids"
 fi
 
-echo "=== users ===" | tee -a $seq.full
+echo "=== users ===" | tee -a $seq_full
 for name in $uids
 do
     $PCP_AWK_PROG </etc/passwd >>$tmp.sed -F ':' '
@@ -101,7 +101,7 @@ $root_group_is_wheel && echo 's/[0-9][0-9]*(wheel)/ROOT(root)/' >>$tmp.sed
 #
 echo 's/,[0-9][0-9]*([^)]*)//g' >>$tmp.sed
 echo 's/,[A-Z][A-Z]*([^)]*)//g' >>$tmp.sed
-cat $tmp.sed >>$seq.full
+cat $tmp.sed >>$seq_full
 if $do_valgrind
 then
     _run_valgrind src/usergroup -u $uids
@@ -111,7 +111,7 @@ fi \
 | sed -e "s@$tmp@TMP@g" \
 | _filter
 
-echo "=== groups ===" | tee -a $seq.full
+echo "=== groups ===" | tee -a $seq_full
 rm -f $tmp.sed
 for name in $gids
 do
@@ -135,7 +135,7 @@ $root_group_is_wheel && echo 's/[0-9][0-9]*(root)/ROOT(root)/' >>$tmp.sed
 #
 echo 's/,[0-9][0-9]*([^)]*)//g' >>$tmp.sed
 echo 's/,[A-Z][A-Z]*([^)]*)//g' >>$tmp.sed
-cat $tmp.sed >>$seq.full
+cat $tmp.sed >>$seq_full
 if $do_valgrind
 then
     _run_valgrind src/usergroup -g $gids

@@ -13,8 +13,9 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-rm -f $seq.out $seq.full
-endian=`_get_endian`
+rm -f $seq.out
+_get_endian >$tmp.tmp 2>&1 || _exit 1
+endian=`cat $tmp.tmp`
 ln $seq.out.$endian $seq.out
 
 signal=$PCP_BINADM_DIR/pmsignal
@@ -33,6 +34,15 @@ then
     exit 1
 fi
 
+# and NO malloc() hardening ... it is only catching qa/src/pdu-server
+#
+case $PCP_PLATFORM
+in
+    openbsd)
+    	unset MALLOC_OPTIONS
+	;;
+esac
+
 # make sure the shell babble after pdu-server is terminated goes elsewhere
 #
 exec 2>$tmp.err
@@ -48,7 +58,7 @@ sleep 1
 
 $signal -s TERM $server_pid >/dev/null 2>&1
 
-cp $tmp.out $seq.full
+cp $tmp.out $seq_full
 
 eval `sed -n <$tmp.out -e '/MYPID/{
 s/.*MYPID /server=/
@@ -56,10 +66,10 @@ s/ / server_x=/p
 q
 }'`
 
-echo >>$seq.full
-echo "================" >>$seq.full
-echo "server=$server" >>$seq.full
-echo "server_x=$server_x" >>$seq.full
+echo >>$seq_full
+echo "================" >>$seq_full
+echo "server=$server" >>$seq_full
+echo "server_x=$server_x" >>$seq_full
 
 if [ -z "$server" -o -z "$server_x" ]
 then
@@ -73,8 +83,8 @@ s/.*CLIENTPID /client=/
 s/ / client_x=/p
 q
 }'`
-echo "client=$client" >>$seq.full
-echo "client_x=$client_x" >>$seq.full
+echo "client=$client" >>$seq_full
+echo "client_x=$client_x" >>$seq_full
 
 if [ -z "$client" -o -z "$client_x" ]
 then
@@ -242,9 +252,9 @@ s/482d5a54   455245/545a2d48 45524500/
 /pmResult/ && fix > 0	{ fix--; $6 = "NOW"; $7 = "TODAY" }
 			{ print }'
 
-echo >>$seq.full
-echo "==== shell's stderr ===========" >>$seq.full
-cat $tmp.err >>$seq.full
+echo >>$seq_full
+echo "==== shell's stderr ===========" >>$seq_full
+cat $tmp.err >>$seq_full
 
 # success, all done
 status=0

@@ -36,7 +36,7 @@ Next, \fBpmdamssql\fP reads an optional ini-style configuration file:
 .IP
 .PD 0
 .IP
-.I \f(CW$PCP_PMDAS_DIR\fP/mssql/mssql.conf
+.I \f(CR$PCP_PMDAS_DIR\fP/mssql/mssql.conf
 .PD
 .PP
 This file currently allows for two sections, one for configuring the
@@ -126,16 +126,16 @@ the agent is installed or removed.
 if its connection is lost - e.g. if the SQL Server service is restarted.
 .SH FILES
 .TP 5
-.I \f(CW$PCP_PMDAS_DIR\fP/mssql/mssql.conf
+.I \f(CR$PCP_PMDAS_DIR\fP/mssql/mssql.conf
 configuration file for the \fBpmdamssql\fR agent
 .TP
-.I \f(CW$PCP_PMDAS_DIR\fP/mssql/Install
+.I \f(CR$PCP_PMDAS_DIR\fP/mssql/Install
 installation script for the \fBpmdamssql\fR agent
 .TP
-.I \f(CW$PCP_PMDAS_DIR\fP/mssql/Remove
+.I \f(CR$PCP_PMDAS_DIR\fP/mssql/Remove
 undo installation script for the \fBpmdamssql\fR agent
 .TP
-.I \f(CW$PCP_LOG_DIR\fP/pmcd/mssql.log
+.I \f(CR$PCP_LOG_DIR\fP/pmcd/mssql.log
 default log file for messages from the \fBpmdamssql\fR agent
 .PP
 Note that the usual/default value for \fB$PCP_PMDAS_DIR\fP is
@@ -155,3 +155,6 @@ configuration file, as described in \fBpcp.conf\fR(5).
 .BR kinit (1)
 and
 .BR pmcd (1).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ pmdamssql msodbcsql pyodbc kinit mssql ODBC tcp

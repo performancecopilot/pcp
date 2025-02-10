@@ -8,6 +8,9 @@ URL:     https://pcp.io
 BuildRoot: @build_root@
 Distribution: @package_distribution@
 Source0: pcp-%{version}.src.tar.gz
+%if 0%{?fedora} >= 40 || 0%{?rhel} >= 10
+ExcludeArch: %{ix86}
+%endif
 
 # The additional linker flags break out-of-tree PMDAs.
 # https://bugzilla.redhat.com/show_bug.cgi?id=2043092
@@ -23,11 +26,13 @@ Source0: pcp-%{version}.src.tar.gz
 %global __python2 python
 %endif
 
-# UsrMerge was completed in EL 7, however the latest 'hostname' package in EL 7 contains "Provides: /bin/hostname"
+# UsrMerge was completed in EL 7, however the latest 'hostname' package in EL 7 contains "Provides: /bin/hostname".  Likewise for /bin/ps from procps[-ng] packages.
 %if 0%{?rhel} >= 8 || 0%{?fedora} >= 17
 %global _hostname_executable /usr/bin/hostname
+%global _ps_executable /usr/bin/ps
 %else
 %global _hostname_executable /bin/hostname
+%global _ps_executable /bin/ps
 %endif
 
 # prevent conflicting binary and man page install for pcp(1)
@@ -92,23 +97,25 @@ BuildRequires: gcc-c++
 %endif
 %if "@enable_qt@" == "true"
 %if "%{_vendor}" == "suse"
-%if @qt_version@ >= 5
+%if @qt_version@ >= 6
+BuildRequires: libqt6-qtbase-common-devel
+BuildRequires: libqt6-qtsvg-devel
+%else
 BuildRequires: libqt5-qtbase-common-devel
 BuildRequires: libqt5-qtsvg-devel
-%else
-BuildRequires: qt-devel >= 4.4
 %endif
 %else
-%if @qt_version@ >= 5
+%if @qt_version@ >= 6
+BuildRequires: qt6-qtbase-devel
+BuildRequires: qt6-qtsvg-devel
+%else
 BuildRequires: qt5-qtbase-devel
 BuildRequires: qt5-qtsvg-devel
-%else
-BuildRequires: qt4-devel >= 4.4
 %endif
 %endif
 %endif
 %if "%{_vendor}" == "redhat"
-BuildRequires: %{_hostname_executable}
+BuildRequires: %{_hostname_executable} %{_ps_executable}
 %if "@enable_systemd@" == "false"
 BuildRequires: initscripts
 %endif
@@ -131,9 +138,9 @@ BuildRequires: ncurses-devel
 BuildRequires: readline-devel
 
 # Utilities used indirectly e.g. by scripts we install
-Requires: bash xz gawk sed grep coreutils findutils
+Requires: bash xz gawk sed grep coreutils diffutils findutils
 %if "%{_vendor}" == "redhat"
-Requires: %{_hostname_executable}
+Requires: %{_hostname_executable} %{_ps_executable}
 %endif
 # which(1) comes from different places
 %if 0%{?suse_version} >= 1100
@@ -213,11 +220,12 @@ fi
 }
 
 %global run_pmieconf() %{expand:
-if [ -w "%1" ]
+if [ -d "%1" -a -w "%1" -a -w "%1/%2" ]
 then
-    pmieconf -c enable "%2"
+    pmieconf -f "%1/%2" -c enable "%3"
+    chown pcp:pcp "%1/%2" 2>/dev/null
 else
-    echo "WARNING: Cannot write to %1, skipping pmieconf enable of %2." >&2
+    echo "WARNING: Cannot write to %1/%2, skipping pmieconf enable of %3." >&2
 fi
 }
 
@@ -321,16 +329,21 @@ Requires: pcp-pmda-gpfs pcp-pmda-gpsd pcp-pmda-lustre pcp-pmda-pdns
 Requires: pcp-pmda-memcache pcp-pmda-named pcp-pmda-netfilter pcp-pmda-news
 Requires: pcp-pmda-redis pcp-pmda-samba pcp-pmda-slurm pcp-pmda-zimbra
 %endif
-Requires: pcp-pmda-apache pcp-pmda-bash pcp-pmda-cisco pcp-pmda-dm pcp-pmda-gfs2
+Requires: pcp-pmda-apache pcp-pmda-bash pcp-pmda-cisco pcp-pmda-dm
 Requires: pcp-pmda-logger pcp-pmda-mailq pcp-pmda-mounts
 Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping
-Requires: pcp-pmda-lustrecomm pcp-pmda-docker pcp-pmda-smart
+Requires: pcp-pmda-lustrecomm pcp-pmda-docker pcp-pmda-smart pcp-pmda-farm
 Requires: pcp-pmda-hacluster pcp-pmda-sockets pcp-pmda-podman
 %if "@have_python@" == "true"
+Requires: pcp-geolocate pcp-export-pcp2openmetrics pcp-export-pcp2json
+Requires: pcp-export-pcp2spark pcp-export-pcp2xml pcp-export-pcp2zabbix
 Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-mic
 Requires: pcp-pmda-haproxy pcp-pmda-nfsclient pcp-pmda-lmsensors
-Requires: pcp-pmda-netcheck pcp-pmda-rabbitmq pcp-pmda-openvswitch
-Requires: pcp-pmda-rocestat
+Requires: pcp-pmda-netcheck pcp-pmda-rabbitmq pcp-pmda-uwsgi
+Requires: pcp-pmda-openvswitch pcp-pmda-rocestat
+%endif
+%if "@pmda_gfs2@" == "true"
+Requires: pcp-pmda-gfs2
 %endif
 %if "@pmda_statsd@" == "true"
 Requires: pcp-pmda-statsd
@@ -391,6 +404,12 @@ Requires: pcp-pmda-elasticsearch
 %endif
 %if "@pmda_postfix@" == "true"
 Requires: pcp-pmda-postfix
+%endif
+%if "@pmda_resctrl@" == "true"
+Requires: pcp-pmda-resctrl
+%endif
+%if "@pmda_amdgpu@" == "true"
+Requires: pcp-pmda-amdgpu
 %endif
 Requires: pcp-system-tools
 %if "@enable_qt@" == "true"
@@ -600,6 +619,25 @@ See https://www.elastic.co/community for further details.
 
 %if "@have_python@" == "true"
 #
+# pcp-geolocate
+#
+%package geolocate
+License: GPL-2.0-or-later
+Summary: Performance Co-Pilot geographical location metric labels
+URL: https://pcp.io
+Requires: pcp-libs >= %{version}-%{release}
+%if "@enable_python3@" == "true"
+Requires: python3-pcp = @package_version@
+%else
+Requires: %{__python2}-pcp = @package_version@
+%endif
+
+%description geolocate
+Performance Co-Pilot (PCP) tools that automatically apply metric labels
+containing latitude and longitude, based on IP-address-based lookups.
+Used with live maps to show metric values from different locations.
+
+#
 # pcp-export-pcp2graphite
 #
 %package export-pcp2graphite
@@ -656,6 +694,24 @@ Requires: %{__python2}-pcp = @package_version@
 %description export-pcp2json
 Performance Co-Pilot (PCP) front-end tools for exporting metric values
 in JSON format.
+
+#
+# pcp-export-pcp2openmetrics
+#
+%package export-pcp2openmetrics
+License: GPL-2.0-or-later
+Summary: Performance Co-Pilot tools for exporting PCP metrics in OpenMetrics format
+URL: https://pcp.io
+Requires: pcp-libs >= @package_version@
+%if "@enable_python3@" == "true"
+Requires: python3-pcp = @package_version@
+%else
+Requires: %{__python2}-pcp = @package_version@
+%endif
+
+%description export-pcp2openmetrics
+Performance Co-Pilot (PCP) front-end tools for exporting metric values
+in OpenMetrics (https://openmetrics.io/) format.
 
 #
 # pcp-export-pcp2spark
@@ -735,6 +791,28 @@ Performance Co-Pilot (PCP) front-end tools for exporting metric values
 in Excel spreadsheet format.
 %endif
 
+%if "@pcp2arrow@" == "true"
+#
+# pcp-export-pcp2arrow
+#
+%package export-pcp2arrow
+License: GPL-2.0-or-later
+Summary: Performance Co-Pilot tool for exporting PCP metrics to Apache Arrow
+URL: https://pcp.io
+Requires: pcp-libs >= %{version}-%{release}
+%if "@enable_python3@" == "true"
+Requires: python3-pcp = @package_version@
+Requires: python3-pyarrow
+%else
+Requires: %{__python2}-pcp = @package_version@
+Requires: %{__python2}-pyarrow
+%endif
+
+%description export-pcp2arrow
+Performance Co-Pilot (PCP) front-end tool for exporting metric values
+to Apache Arrow, which supports the columnar parquet data format.
+%endif
+
 %if "@enable_python2@" == "true"
 #
 # python2-pcp. This is the PCP library bindings for python.
@@ -768,14 +846,9 @@ Metric Domain Agents (PMDA) collector tools written in Python.
 License: GPL-2.0-or-later
 Summary: Performance Co-Pilot (PCP) Python3 bindings and documentation
 URL: https://pcp.io
-%if 0%{?centos_ver} == 7
-BuildRequires: python36-devel
-Requires: python36
-%else
 BuildRequires: python3-devel
 BuildRequires: python3-setuptools
 Requires: python3
-%endif
 Requires: pcp-libs = @package_version@
 
 %description -n python3-pcp
@@ -1055,7 +1128,7 @@ Summary: Performance Co-Pilot (PCP) metrics for NutCracker (TwemCache)
 URL: https://pcp.io
 Requires: pcp = @package_version@ pcp-libs = @package_version@
 Requires: perl-PCP-PMDA = @package_version@
-Maybe-Requires: perl(YAML::XS::LibYAML)
+Maybe-Requires: perl(YAML::XS)
 Maybe-Requires: perl(JSON)
 
 %description pmda-nutcracker
@@ -1499,8 +1572,12 @@ License: Apache-2.0 AND GPL-2.0-or-later
 Summary: Performance Co-Pilot (PCP) metrics from eBPF ELF modules
 URL: https://pcp.io
 Requires: pcp = @package_version@ pcp-libs = @package_version@
+%if 0%{?sle_version} >= 150500
+Requires: libbpf1
+%else
 Requires: libbpf
-BuildRequires: libbpf-devel clang llvm bpftool
+%endif
+BuildRequires: libbpf-devel clang llvm
 %description pmda-bpf
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 extracting performance metrics from eBPF ELF modules.
@@ -1757,6 +1834,24 @@ collecting metrics about RabbitMQ message queues.
 #end pcp-pmda-rabbitmq
 
 #
+# pcp-pmda-uwsgi
+#
+%package pmda-uwsgi
+License: GPL-2.0-or-later
+Summary: Performance Co-Pilot (PCP) metrics for uWSGI servers
+URL: https://pcp.io
+Requires: pcp = @package_version@ pcp-libs = @package_version@
+%if "@enable_python3@" == "true"
+Requires: python3-pcp
+%else
+Requires: %{__python2}-pcp
+%endif
+%description pmda-uwsgi
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting metrics from uWSGI servers.
+#end pcp-pmda-uwsgi
+
+#
 # pcp-pmda-rocestat
 #
 %package pmda-rocestat
@@ -1790,7 +1885,11 @@ Requires: python3-pcp python3-lxml
 %if "%{_vendor}" == "suse"
 Requires: python3-libvirt-python
 %else
+%if 0%{?centos_ver} == 7
+Requires: python36-libvirt
+%else
 Requires: libvirt-python3
+%endif
 %endif
 %else
 Requires: %{__python2}-pcp
@@ -1960,6 +2059,23 @@ collecting metrics about Cisco routers.
 # end pcp-pmda-cisco
 
 #
+# pcp-pmda-farm
+#
+%package pmda-farm
+License: GPL-2.0-or-later
+Summary: Performance Co-Pilot (PCP) metrics for Seagate FARM Log metrics
+URL: https://pcp.io
+Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
+Requires: smartmontools
+%description pmda-farm
+This package contains the PCP Performance Metric Domain Agent (PMDA) for
+collecting metrics from Seagate Hard Drive vendor specific Field Accessible
+Reliability Metrics (FARM) Log making use of data from the smartmontools 
+package.
+# end pcp-pmda-farm
+
+%if "@pmda_gfs2@" == "true"
+#
 # pcp-pmda-gfs2
 #
 %package pmda-gfs2
@@ -1971,6 +2087,7 @@ Requires: pcp = @package_version@ pcp-libs = @package_version@
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about the Global Filesystem v2.
 # end pcp-pmda-gfs2
+%endif
 
 #
 # pcp-pmda-logger
@@ -2024,6 +2141,21 @@ Requires: pcp = @package_version@ pcp-libs = @package_version@
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about Nvidia GPUs.
 # end pcp-pmda-nvidia-gpu
+
+%if "@pmda_resctrl@" == "true"
+#
+# pcp-pmda-resctrl
+#
+%package pmda-resctrl
+License: GPL-2.0-or-later
+Summary: Performance Co-Pilot (PCP) metrics from Linux resource control
+URL: https://pcp.io
+Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
+%description pmda-resctrl
+This package contains the PCP Performance Metric Domain Agent (PMDA) for
+collecting metrics from the Linux kernel resource control functionality.
+#end pcp-pmda-resctrl
+%endif
 
 #
 # pcp-pmda-roomtemp
@@ -2161,6 +2293,27 @@ collecting metrics about web server logs.
 # end pcp-pmda-weblog
 # end C pmdas
 
+%if "@pmda_amdgpu@" == "true"
+#
+# pcp-pmda-amdgpu
+#
+%package pmda-amdgpu
+License: GPL-2.0-or-later
+Summary: Performance Co-Pilot (PCP) metrics from AMD GPU devices
+URL: https://pcp.io
+Requires: pcp = @package_version@ pcp-libs = @package_version@
+%if "%{_vendor}" == "suse"
+Requires: libdrm2
+%else
+Requires: libdrm
+%endif
+BuildRequires: libdrm-devel
+%description pmda-amdgpu
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+extracting performance metrics from AMDGPU devices.
+# end pcp-pmda-amdgpu
+%endif
+
 
 %package zeroconf
 License: GPL-2.0-or-later
@@ -2181,8 +2334,6 @@ This package contains configuration tweaks and files to increase metrics
 gathering frequency, several extended pmlogger configurations, as well as
 automated pmie diagnosis, alerting and self-healing for the localhost.
 
-%global __strip %{_builddir}/%{?buildsubdir}/build/rpm/custom-strip
-
 %prep
 %setup -q
 
@@ -2191,6 +2342,9 @@ automated pmie diagnosis, alerting and self-healing for the localhost.
 rm -Rf $RPM_BUILD_ROOT
 
 %build
+# the buildsubdir macro gets defined in %%setup and is apparently only available in the next step (i.e. the %%build step)
+%global __strip %{_builddir}/%{?buildsubdir}/build/rpm/custom-strip
+
 # fix up build version
 _build=`echo %{release} | sed -e 's/\..*$//'`
 sed -i "/PACKAGE_BUILD/s/=[0-9]*/=$_build/" VERSION.pcp
@@ -2245,7 +2399,7 @@ sed -i '/.a$/d' pcp-devel-files
 sed -i '/\/man\//d' pcp-devel-files
 sed -i '/\/include\//d' pcp-devel-files
 
-%ifarch x86_64 ppc64 ppc64le aarch64 s390x
+%ifarch x86_64 ppc64 ppc64le aarch64 s390x riscv64
 sed -i -e 's/usr\/lib\//usr\/lib64\//' pcp-libs-files
 sed -i -e 's/usr\/lib\//usr\/lib64\//' pcp-devel-files
 sed -i -e 's/usr\/lib\//usr\/lib64\//' pcp-libs-devel-files
@@ -2260,7 +2414,7 @@ sed -i -e 's/usr\/lib\//usr\/lib64\//' pcp-libs-devel-files
 
 # some special cases for devel
 awk '{print $NF}' $DIST_MANIFEST |\
-grep -E 'pcp\/(examples|demos)|(etc/pcp|pcp/pmdas)\/(sample|simple|trivial|txmon)|bin/(pmdbg|pmclient|pmerr|genpmda)' | grep -E -v tutorials >>pcp-devel-files
+grep -E 'pcp/(examples|demos)|(etc/pcp|pcp/pmdas)/(sample|simple|trivial|txmon)|bin/(pmdbg|pmclient|pmerr|genpmda)' | grep -E -v tutorials >>pcp-devel-files
 
 # Patterns for files to be marked %config(noreplace).
 # Note: /etc/pcp.{conf,env,sh} are %config but not noreplace
@@ -2293,33 +2447,37 @@ basic_manifest() {
 # to isolate the (somewhat exotic) dependencies for these tools.
 # Likewise, for the pcp-pmda and pcp-testsuite subpackages.
 #
-total_manifest | keep 'testsuite|pcpqa|etc/systemd/system|libpcp_fault|pcp/fault.h' >pcp-testsuite-files
+total_manifest | keep 'testsuite|pcpqa|etc/systemd/system|libpcp_fault|pcp/fault.h|pmcheck/pmda-sample' >pcp-testsuite-files
 total_manifest | keep 'tutorials|/html/|pcp-doc|man.*\.[1-9].*' | cull 'out' >pcp-doc-files
 basic_manifest | keep "$PCP_GUI|pcp-gui|applications|pixmaps|hicolor" | cull 'pmtime.h' >pcp-gui-files
 basic_manifest | keep 'selinux' | cull 'tmp|testsuite' >pcp-selinux-files
-basic_manifest | keep 'zeroconf|daily[-_]report|/sa$' >pcp-zeroconf-files
+basic_manifest | keep 'zeroconf|daily[-_]report|/sa$' | cull 'pmcheck' >pcp-zeroconf-files
 basic_manifest | grep -E -e 'pmiostat|pmrep|dstat|htop|pcp2csv' \
-   -e 'pcp-atop|pcp-dmcache|pcp-dstat|pcp-free|pcp-htop' \
-   -e 'pcp-ipcs|pcp-iostat|pcp-lvmcache|pcp-mpstat' \
-   -e 'pcp-numastat|pcp-pidstat|pcp-shping|pcp-tapestat' \
-   -e 'pcp-uptime|pcp-verify|pcp-ss|pcp-ps|pcp-meminfo' | \
+   -e 'pcp-atop|pcp-dmcache|pcp-dstat|pcp-free' \
+   -e 'pcp-htop|pcp-ipcs|pcp-iostat|pcp-lvmcache|pcp-mpstat' \
+   -e 'pcp-numastat|pcp-pidstat|pcp-shping|pcp-ss' \
+   -e 'pcp-tapestat|pcp-uptime|pcp-verify|pcp-xsos' | \
    cull 'selinux|pmlogconf|pmieconf|pmrepconf' >pcp-system-tools-files
+basic_manifest | keep 'geolocate' >pcp-geolocate-files
 basic_manifest | keep 'sar2pcp' >pcp-import-sar2pcp-files
 basic_manifest | keep 'iostat2pcp' >pcp-import-iostat2pcp-files
 basic_manifest | keep 'sheet2pcp' >pcp-import-sheet2pcp-files
 basic_manifest | keep 'mrtg2pcp' >pcp-import-mrtg2pcp-files
 basic_manifest | keep 'ganglia2pcp' >pcp-import-ganglia2pcp-files
 basic_manifest | keep 'collectl2pcp' >pcp-import-collectl2pcp-files
+basic_manifest | keep 'pcp2arrow' >pcp-export-pcp2arrow-files
 basic_manifest | keep 'pcp2elasticsearch' >pcp-export-pcp2elasticsearch-files
 basic_manifest | keep 'pcp2influxdb' >pcp-export-pcp2influxdb-files
 basic_manifest | keep 'pcp2xlsx' >pcp-export-pcp2xlsx-files
 basic_manifest | keep 'pcp2graphite' >pcp-export-pcp2graphite-files
 basic_manifest | keep 'pcp2json' >pcp-export-pcp2json-files
+basic_manifest | keep 'pcp2openmetrics' >pcp-export-pcp2openmetrics-files
 basic_manifest | keep 'pcp2spark' >pcp-export-pcp2spark-files
 basic_manifest | keep 'pcp2xml' >pcp-export-pcp2xml-files
 basic_manifest | keep 'pcp2zabbix' >pcp-export-pcp2zabbix-files
 basic_manifest | keep 'zabbix|zbxpcp' | cull pcp2zabbix >pcp-export-zabbix-agent-files
 basic_manifest | keep '(etc/pcp|pmdas)/activemq(/|$)' >pcp-pmda-activemq-files
+basic_manifest | keep '(etc/pcp|pmdas)/amdgpu(/|$)' >pcp-pmda-amdgpu-files
 basic_manifest | keep '(etc/pcp|pmdas)/apache(/|$)' >pcp-pmda-apache-files
 basic_manifest | keep '(etc/pcp|pmdas)/bash(/|$)' >pcp-pmda-bash-files
 basic_manifest | keep '(etc/pcp|pmdas)/bcc(/|$)' >pcp-pmda-bcc-files
@@ -2336,6 +2494,7 @@ basic_manifest | keep '(etc/pcp|pmdas)/docker(/|$)' >pcp-pmda-docker-files
 basic_manifest | keep '(etc/pcp|pmdas)/ds389log(/|$)' >pcp-pmda-ds389log-files
 basic_manifest | keep '(etc/pcp|pmdas)/ds389(/|$)' >pcp-pmda-ds389-files
 basic_manifest | keep '(etc/pcp|pmdas)/elasticsearch(/|$)' >pcp-pmda-elasticsearch-files
+basic_manifest | keep '(etc/pcp|pmdas)/farm(/|$)' >pcp-pmda-farm-files
 basic_manifest | keep '(etc/pcp|pmdas)/gfs2(/|$)' >pcp-pmda-gfs2-files
 basic_manifest | keep '(etc/pcp|pmdas)/gluster(/|$)' >pcp-pmda-gluster-files
 basic_manifest | keep '(etc/pcp|pmdas)/gpfs(/|$)' >pcp-pmda-gpfs-files
@@ -2375,6 +2534,7 @@ basic_manifest | keep '(etc/pcp|pmdas)/postfix(/|$)' >pcp-pmda-postfix-files
 basic_manifest | keep '(etc/pcp|pmdas)/postgresql(/|$)' >pcp-pmda-postgresql-files
 basic_manifest | keep '(etc/pcp|pmdas)/rabbitmq(/|$)' >pcp-pmda-rabbitmq-files
 basic_manifest | keep '(etc/pcp|pmdas)/redis(/|$)' >pcp-pmda-redis-files
+basic_manifest | keep '(etc/pcp|pmdas)/resctrl(/|$)|sys-fs-resctrl' >pcp-pmda-resctrl-files
 basic_manifest | keep '(etc/pcp|pmdas)/rocestat(/|$)' >pcp-pmda-rocestat-files
 basic_manifest | keep '(etc/pcp|pmdas)/roomtemp(/|$)' >pcp-pmda-roomtemp-files
 basic_manifest | keep '(etc/pcp|pmdas)/rsyslog(/|$)' >pcp-pmda-rsyslog-files
@@ -2390,17 +2550,19 @@ basic_manifest | keep '(etc/pcp|pmdas)/summary(/|$)' >pcp-pmda-summary-files
 basic_manifest | keep '(etc/pcp|pmdas)/systemd(/|$)' >pcp-pmda-systemd-files
 basic_manifest | keep '(etc/pcp|pmdas)/trace(/|$)' >pcp-pmda-trace-files
 basic_manifest | keep '(etc/pcp|pmdas)/unbound(/|$)' >pcp-pmda-unbound-files
+basic_manifest | keep '(etc/pcp|pmdas)/uwsgi(/|$)' >pcp-pmda-uwsgi-files
 basic_manifest | keep '(etc/pcp|pmdas)/weblog(/|$)' >pcp-pmda-weblog-files
 basic_manifest | keep '(etc/pcp|pmdas)/zimbra(/|$)' >pcp-pmda-zimbra-files
 basic_manifest | keep '(etc/pcp|pmdas)/zswap(/|$)' >pcp-pmda-zswap-files
 
 rm -f packages.list
 for pmda_package in \
-    activemq apache \
+    activemq amdgpu apache \
     bash bcc bind2 bonding bpf bpftrace \
     cifs cisco \
     dbping denki docker dm ds389 ds389log \
     elasticsearch \
+    farm \
     gfs2 gluster gpfs gpsd \
     hacluster haproxy \
     infiniband \
@@ -2411,10 +2573,10 @@ for pmda_package in \
     nutcracker nvidia \
     openmetrics openvswitch oracle \
     pdns perfevent podman postfix postgresql \
-    rabbitmq redis rocestat roomtemp rsyslog \
+    rabbitmq redis resctrl rocestat roomtemp rsyslog \
     samba sendmail shping slurm smart snmp \
     sockets statsd summary systemd \
-    unbound \
+    unbound uwsgi \
     trace \
     weblog \
     zimbra zswap ; \
@@ -2429,15 +2591,15 @@ do \
 done
 
 for export_package in \
-    pcp2elasticsearch pcp2graphite pcp2influxdb pcp2json \
-    pcp2spark pcp2xlsx pcp2xml pcp2zabbix zabbix-agent ; \
+    pcp2arrow pcp2elasticsearch pcp2graphite pcp2influxdb pcp2json \
+    pcp2openmetrics pcp2spark pcp2xlsx pcp2xml pcp2zabbix zabbix-agent ; \
 do \
     export_packages="$export_packages pcp-export-$export_package"; \
 done
 
 for subpackage in \
     pcp-conf pcp-gui pcp-doc pcp-libs pcp-devel pcp-libs-devel \
-    pcp-selinux pcp-system-tools pcp-testsuite pcp-zeroconf \
+    pcp-geolocate pcp-selinux pcp-system-tools pcp-testsuite pcp-zeroconf \
     $pmda_packages $import_packages $export_packages ; \
 do \
     echo $subpackage >> packages.list; \
@@ -2537,7 +2699,7 @@ done
 %selinux_relabel_pre -s targeted
 %endif
 %if 0%{?fedora} >= 32 || 0%{?rhel} >= 9
-systemd-sysusers --replace=@pcp_systemdsysusers_dir@/pcp-testsuite.conf - < %{_builddir}/debian/pcp-testsuite.sysusers
+systemd-sysusers --replace=@pcp_systemdsysusers_dir@/pcp-testsuite.conf - < %{_topdir}/debian/pcp-testsuite.sysusers
 %else
 getent group pcpqa >/dev/null || groupadd -r pcpqa
 getent passwd pcpqa >/dev/null || \
@@ -2549,6 +2711,7 @@ exit 0
 
 %post testsuite
 %if "@enable_selinux@" == "true"
+PCP_PMDAS_DIR=@pcp_pmdas_dir@
 PCP_SELINUX_DIR=@pcp_selinux_dir@/packages/targeted
 semodule -r pcpqa >/dev/null 2>&1 || true
 %selinux_modules_install -s targeted "$PCP_SELINUX_DIR/pcp-testsuite.pp.bz2"
@@ -2557,8 +2720,8 @@ semodule -r pcpqa >/dev/null 2>&1 || true
 chown -R pcpqa:pcpqa @pcp_var_dir@/testsuite 2>/dev/null
 # inherited from %post for pcp-collector
 %if "@enable_systemd@" == "true"
-    systemctl restart pmcd pmlogger >/dev/null 2>&1
-    systemctl enable pmcd pmlogger >/dev/null 2>&1
+    systemctl restart pcp-reboot-init pmcd pmlogger >/dev/null 2>&1
+    systemctl enable pcp-reboot-init pmcd pmlogger >/dev/null 2>&1
 %else
     /sbin/chkconfig --add pmcd >/dev/null 2>&1
     /sbin/chkconfig --add pmlogger >/dev/null 2>&1
@@ -2577,7 +2740,7 @@ fi
 
 %pre
 %if 0%{?fedora} >= 32 || 0%{?rhel} >= 9
-systemd-sysusers --replace=@pcp_systemdsysusers_dir@/pcp.conf - < %{_builddir}/debian/pcp.sysusers
+systemd-sysusers --replace=@pcp_systemdsysusers_dir@/pcp.conf - < %{_topdir}/debian/pcp.sysusers
 %else
 getent group pcp >/dev/null || groupadd -r pcp
 getent passwd pcp >/dev/null || \
@@ -2605,7 +2768,9 @@ for PMDA in $needinstall ; do
     fi
 done
 # auto-enable these usually optional pmie rules
-%{run_pmieconf "$PCP_PMIECONFIG_DIR" dmthin}
+%{run_pmieconf "$PCP_PMIECONFIG_DIR" config.default dmthin}
+# managed via /usr/lib/systemd/system-preset/90-default.preset nowadays:
+%if 0%{?rhel} > 0 && 0%{?rhel} < 10
 %if "@enable_systemd@" == "true"
     systemctl restart pmcd pmlogger pmie >/dev/null 2>&1
     systemctl enable pmcd pmlogger pmie >/dev/null 2>&1
@@ -2616,6 +2781,7 @@ done
     /sbin/service pmcd condrestart
     /sbin/service pmlogger condrestart
     /sbin/service pmie condrestart
+%endif
 %endif
 
 %if "@pmda_systemd@" == "true"
@@ -2828,10 +2994,18 @@ done
 
 %preun pmda-rocestat
 %{pmda_remove "$1" "rocestat"}
+
+%preun pmda-uwsgi
+%{pmda_remove "$1" "uwsgi"}
 %endif
 
 %preun pmda-apache
 %{pmda_remove "$1" "apache"}
+
+%if "@pmda_amdgpu@" == "true"
+%preun pmda-amdgpu
+%{pmda_remove "$1" "amdgpu"}
+%endif
 
 %preun pmda-bash
 %{pmda_remove "$1" "bash"}
@@ -2842,8 +3016,16 @@ done
 %preun pmda-cisco
 %{pmda_remove "$1" "cisco"}
 
+%preun pmda-farm
+%{pmda_remove "$1" "farm"}
+
+%if "@pmda_gfs2@" == "true"
 %preun pmda-gfs2
 %{pmda_remove "$1" "gfs2"}
+%endif
+
+%preun pmda-hacluster
+%{pmda_remove "$1" "hacluster"}
 
 %preun pmda-logger
 %{pmda_remove "$1" "logger"}
@@ -2857,6 +3039,11 @@ done
 %preun pmda-nvidia-gpu
 %{pmda_remove "$1" "nvidia"}
 
+%if "@pmda_resctrl@" == "true"
+%preun pmda-resctrl
+%{pmda_remove "$1" "resctrl"}
+%endif
+
 %preun pmda-roomtemp
 %{pmda_remove "$1" "roomtemp"}
 
@@ -2868,9 +3055,6 @@ done
 
 %preun pmda-smart
 %{pmda_remove "$1" "smart"}
-
-%preun pmda-hacluster
-%{pmda_remove "$1" "hacluster"}
 
 %preun pmda-summary
 %{pmda_remove "$1" "summary"}
@@ -2889,9 +3073,9 @@ if [ "$1" -eq 0 ]
 then
     # stop daemons before erasing the package
     %if "@enable_systemd@" == "true"
-	%systemd_preun pmlogger_check.timer pmlogger_daily.timer pmlogger_farm_check.timer pmlogger_farm_check.service pmlogger_farm.service pmlogger.service pmie_check.timer pmie_daily.timer pmie_farm_check.timer pmie_farm_check.service pmie_farm.service pmie.service pmproxy.service pmfind.service pmcd.service
+	%systemd_preun pmlogger_check.timer pmlogger_daily.timer pmlogger_farm_check.timer pmlogger_farm_check.service pmlogger_farm.service pmlogger.service pmie_check.timer pmie_daily.timer pmie_farm_check.timer pmie_farm_check.service pmie_farm.service pmie.service pmproxy.service pmfind.service pmcd.service pcp-reboot-init.service
 
-	systemctl stop pmlogger.service pmie.service pmproxy.service pmfind.service pmcd.service >/dev/null 2>&1
+	systemctl stop pmlogger.service pmie.service pmproxy.service pmfind.service pmcd.service pcp-reboot-init.service >/dev/null 2>&1
     %else
 	/sbin/service pmlogger stop >/dev/null 2>&1
 	/sbin/service pmie stop >/dev/null 2>&1
@@ -2919,6 +3103,8 @@ PCP_SA_DIR=@pcp_sa_dir@
 %if "@enable_systemd@" == "true"
     # clean up any stale symlinks for deprecated pm*-poll services
     rm -f %{_sysconfdir}/systemd/system/pm*.requires/pm*-poll.* >/dev/null 2>&1 || true
+    systemctl restart pcp-reboot-init >/dev/null 2>&1
+    systemctl enable pcp-reboot-init >/dev/null 2>&1
 
     %systemd_postun_with_restart pmcd.service
     %systemd_post pmcd.service
@@ -3111,6 +3297,8 @@ fi
 %endif
 
 %if "@have_python@" == "true"
+%files geolocate -f pcp-geolocate-files.rpm
+
 %files pmda-gluster -f pcp-pmda-gluster-files.rpm
 
 %files pmda-zswap -f pcp-pmda-zswap-files.rpm
@@ -3133,9 +3321,13 @@ fi
 
 %files pmda-rocestat -f pcp-pmda-rocestat-files.rpm
 
+%files pmda-uwsgi -f pcp-pmda-uwsgi-files.rpm
+
 %files export-pcp2graphite -f pcp-export-pcp2graphite-files.rpm
 
 %files export-pcp2json -f pcp-export-pcp2json-files.rpm
+
+%files export-pcp2openmetrics -f pcp-export-pcp2openmetrics-files.rpm
 
 %files export-pcp2spark -f pcp-export-pcp2spark-files.rpm
 
@@ -3143,6 +3335,10 @@ fi
 
 %files export-pcp2zabbix -f pcp-export-pcp2zabbix-files.rpm
 
+%endif
+
+%if "@pcp2arrow@" == "true"
+%files export-pcp2arrow -f pcp-export-pcp2arrow-files.rpm
 %endif
 
 %if "@pcp2elasticsearch@" == "true"
@@ -3177,13 +3373,21 @@ fi
 
 %files pmda-apache -f pcp-pmda-apache-files.rpm
 
+%if "@pmda_amdgpu@" == "true"
+%files pmda-amdgpu -f pcp-pmda-amdgpu-files.rpm
+%endif
+
 %files pmda-bash -f pcp-pmda-bash-files.rpm
 
 %files pmda-cifs -f pcp-pmda-cifs-files.rpm
 
 %files pmda-cisco -f pcp-pmda-cisco-files.rpm
 
+%files pmda-farm -f pcp-pmda-farm-files.rpm
+
+%if "@pmda_gfs2@" == "true"
 %files pmda-gfs2 -f pcp-pmda-gfs2-files.rpm
+%endif
 
 %files pmda-logger -f pcp-pmda-logger-files.rpm
 
@@ -3192,6 +3396,10 @@ fi
 %files pmda-mounts -f pcp-pmda-mounts-files.rpm
 
 %files pmda-nvidia-gpu -f pcp-pmda-nvidia-files.rpm
+
+%if "@pmda_resctrl@" == "true"
+%files pmda-resctrl -f pcp-pmda-resctrl-files.rpm
+%endif
 
 %files pmda-roomtemp -f pcp-pmda-roomtemp-files.rpm
 

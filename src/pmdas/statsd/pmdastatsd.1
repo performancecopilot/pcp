@@ -66,7 +66,7 @@ Default:
 .I 1472
 .TP
 .B \-P, \-\-port=<value>
-Which port agent will listen to for incoming trafic.
+Which port agent will listen to for incoming traffic.
 Default:
 .I 8125
 .TP
@@ -74,11 +74,11 @@ Default:
 Verbosity level.
 Prints info about agent execution into logfile. Valid values are 0-2. 0 = Default value, shows config information, read socket state, and
 first 100 dropped messages. 1 = Shows PMNS and related information. 2 = Most detailed verbosity level, also shows dropped messages above 100.
-All levels include those belows.
+All levels include those below.
 .TP
 .B \-o, \-\-debug\-output\-filename=<value>
 You can send USR1 signal that 'asks' agent to output basic information about all
-aggregated metric into a $PCP\_LOG\_DIR/pmcd/statsd\_{name} file.
+aggregated metric into a $PCP_LOG_DIR/pmcd/statsd_{name} file.
 Default:
 .I 0
 .TP
@@ -164,7 +164,7 @@ If you want to install the
 .BR pmdastatsd ,
 do the following as root:
 .PP
-.ft CW
+.ft CR
 .nf
 .in +0.5i
 # cd $PCP_PMDAS_DIR/statsd
@@ -175,7 +175,7 @@ do the following as root:
 .PP
 To uninstall, do the following as root:
 .PP
-.ft CW
+.ft CR
 .nf
 .in +0.5i
 # cd $PCP_PMDAS_DIR/statsd
@@ -252,7 +252,7 @@ After aggregating following messages:
 Value available to PCP will be:
 .PP
 .RS 4
-.ft CW
+.ft CR
 .nf
 # pminfo \-\-fetch statsd.metric
 .P
@@ -274,7 +274,7 @@ can be in a form of:
 .RS 4
 .P
 .BR '\-{value}' ,
-when negative value is supplied agent will substract value stored
+when negative value is supplied agent will subtract value stored
 with the value passed
 
 .BR '+{value}' ,
@@ -303,7 +303,7 @@ After aggregating following messages:
 Value available to PCP will be:
 .PP
 .RS 4
-.ft CW
+.ft CR
 .nf
 # pminfo \-\-fetch statsd.metric
 .P
@@ -337,7 +337,7 @@ After aggregating following messages:
 Values available to PCP will be:
 .PP
 .RS 4
-.ft CW
+.ft CR
 .nf
 # pminfo \-\-fetch statsd.metric
 .P
@@ -403,7 +403,7 @@ When
 .I key
 is not unique, right most
 .I value
-takes precendence.
+takes precedence.
 This is valid:
 .RS 4
 .P
@@ -427,10 +427,10 @@ Single label:
 .B metric,tagX=X:5|c
 .RE
 .P
-Such a payload would map to PCP as follows (non-related labels were ommited):
+Such a payload would map to PCP as follows (non-related labels were omitted):
 .PP
 .RS 4
-.ft CW
+.ft CR
 .nf
 # pminfo \-\-fetch \-\-labels statsd.metric
 .P
@@ -451,7 +451,7 @@ Example:
 This resolves to:
 .PP
 .RS 4
-.ft CW
+.ft CR
 .nf
 # pminfo \-\-fetch \-\-labels statsd.metric
 .P
@@ -486,7 +486,7 @@ Creates 18 instances.
 Duration data type and label name compose instance name in following manner:
 .PP
 .RS 4
-.ft CW
+.ft CR
 .nf
 # pminfo \-\-fetch \-\-labels statsd.metric
 .P
@@ -550,7 +550,7 @@ Used parser type
 .B statsd.pmda.settings.duration_aggregation_type
 Used duration aggregation type
 .P
-These names are blocklisted for user usage.
+These names are blacklisted for user usage.
 No messages with these names will processed.
 While not yet reserved, the whole
 .B statsd.pmda.*
@@ -596,3 +596,13 @@ as described in
 .BR pcp.conf (5)
 and
 .BR pcp.env (5).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ duration_aggregation_type max_unprocessed_packets
+.\" +ok+ time_spent_aggregating debug_output_filename max_udp_packet_size
+.\" +ok+ time_spent_parsing metrics_tracked std_deviation parser_type
+.\" +ok+ metricname pmdastatsd Hardcoded
+.\" +ok+ logfile StatsD statsd Ragel
+.\" +ok+ tagW tagX HDR USR udp
+.\" +ok+ statsd_ {from PCP_LOG_DIR/pmcd/statsd_<lb>name<rb}
+.\" +ok+ ZA zA {both from regex's}

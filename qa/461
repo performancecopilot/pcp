@@ -59,10 +59,9 @@ _needclean=true
 trap "_cleanup" 0 1 2 3 15
 
 # real QA test starts here
-_prepare_pmda_install logger
+_prepare_pmda_install logger || _exit 1
 
 # prepare test case files (see below)
-$sudo rm -f $tmp.*
 touch  $tmp.reg
 
 echo "

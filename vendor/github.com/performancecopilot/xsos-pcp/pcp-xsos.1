@@ -1,0 +1,138 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2024 Red Hat.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.\"
+.TH PCP-XSOS 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pcp-xsos\f1 \- high-level summary reports for a system
+.SH SYNOPSIS
+\f3pcp\f1
+[\f2pcp\ options\f1]
+\f3xsos\f1
+[\f3\-\-all\f1]
+[\f3\-dmnNopx\f1]
+[\f3\-u\f1 \f2units\f1]
+.SH DESCRIPTION
+.B pcp-xsos
+gives a summary report of a system using either a PCP archive
+or live metric values from that system.
+.PP
+It is designed to be fast and performs a single-sample only,
+similar to tools like
+.BR ps (1).
+Thus, level of detail in reporting is traded off in favour of
+execution speed.
+.B pcp-xsos
+is designed as an initial performance triage tool that
+quickly informs an operator as to avenues of investigation
+that may prove more fruitful.
+At this time the focus is entirely on operating system metrics,
+however this is not a requirement and in time it may be extended
+to report on any performance domain with associated PCP metrics.
+.PP
+When invoked via the
+.BR pcp (1)
+command, the
+.BR \-h /\c
+.BR \-\-host ,
+.BR \-a /\c
+.BR \-\-archive ,
+.BR \-O /\c
+.BR \-\-origin
+.B pcp
+.I options
+become indirectly available, see
+.BR PCPIntro (1)
+for their descriptions.
+.PP
+The default report with no command line options presented is
+the operating system overview.
+.SH OPTIONS
+The available command line options are:
+.TP 5
+\fB\-\-all\fP
+iteratively report each subsection, one after the other.
+.TP
+\fB\-o\fP, \fB\-\-os\fP
+display the default report with high level kernel information,
+including version, uptime, number of users, process states and
+aggregated processor utilisation.
+.TP
+\fB\-d\fP, \fB\-\-disks\fP
+Report storage information from the archive or live host,
+including the total capacity for each block device as well
+as available filesystem space for each mounted filesystem.
+.TP
+\fB\-m\fP, \fB\-\-memory\fP
+Detailed memory report, including percentage of total memory
+used for various operating system functions, swap use, and
+optionally hugepages and virtual machine balloon information.
+.TP
+\fB\-n\fP, \fB\-\-netdev\fP
+Statistics for each configured network interface, including
+packet and byte transfer rates (since boot), errors, drops,
+and so on.
+Additionally, socket statistics are also reported with this
+command line option, for raw, UDP and TCP (IPv4 and IPv6).
+.TP
+\fB\-N\fP, \fB\-\-netstats\fP
+Report aggregate network statistics such as various ICMP and
+TCP error and timeout counters.
+.TP
+\fB\-p\fP, \fB\-\-ps\fP
+Inspect running processes in a style similar to
+.BR ps .
+These are grouped and filtered to show the most important
+processes in terms of resource use (CPU, memory) as well as
+processes in zombie or blocked states.
+.TP
+\fB\-u\fR \fIunit\fP, \fB\-\-units\fR=\fIunit\fR
+Change the byte display for various reports.
+Valid values for
+.I unit
+are "b" (bytes), "k" (kibibytes), "m" (mibibytes), "g"
+(gibibytes) or "t" (tebibytes).
+.TP
+\fB\-x\fP, \fB\-\-nocolor\fP
+Display reports without using colors to highlight various
+aspects of each subsystem.
+.TP
+\fB\-?\fR, \fB\-\-help\fR
+Display usage message and exit.
+.SH NOTES
+.B pcp-xsos
+is inspired by the
+.BR xsos
+utility, aims to be command line compatible with it where possible
+and also provide a consistent output style.
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
+.PP
+For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3)
+which provides \fBpmgetopt\fP(1) functionality used by \fBpcp-xsos\fP.
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pcp (1),
+.BR ps (1),
+.BR pmgetopt (1),
+.BR pmGetOptions (3)
+and
+.BR environ (7).
+
+.\" control lines for scripts/man-spell

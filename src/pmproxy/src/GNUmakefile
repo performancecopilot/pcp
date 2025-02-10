@@ -19,6 +19,7 @@ CMDTARGET = pmproxy$(EXECSUFFIX)
 HFILES = pmproxy.h
 CFILES = pmproxy.c
 XFILES = uv_callback.h uv_callback.c
+LDIRT = $(XFILES)
 
 LCFLAGS = $(PIECFLAGS) \
 	-I$(TOPDIR)/src/libpcp_web/src \
@@ -33,11 +34,15 @@ PCPLIB_LDFLAGS += \
 ifeq "$(HAVE_LIBUV)" "true"
 LCFLAGS += $(LIBUVCFLAGS) -DHAVE_LIBUV=1
 SERVLETS = search.c series.c webapi.c
-CFILES += openmetrics.c server.c http.c pcp.c uv_callback.c redis.c $(SERVLETS)
+CFILES += openmetrics.c server.c http.c pcp.c uv_callback.c keys.c $(SERVLETS)
 HFILES += openmetrics.h server.h http.h pcp.h uv_callback.h
 ifeq "$(HAVE_OPENSSL)" "true"
 LCFLAGS += $(OPENSSLCFLAGS) -DHAVE_OPENSSL=1
 CFILES += secure.c
+endif
+ifeq "$(HAVE_ZLIB)" "true"
+LCFLAGS += $(ZLIBCFLAGS) -DHAVE_ZLIB=1
+LLDLIBS += $(LIB_FOR_ZLIB)
 endif
 endif
 CFILES += deprecated.c
@@ -57,6 +62,3 @@ $(XFILES):
 	$(LN_S) -f $(TOPDIR)/src/external/$@ $@
 
 $(OBJECTS):	$(HFILES) $(TOPDIR)/src/include/pcp/libpcp.h
-
-check:: $(CFILES) $(HFILES)
-	$(CLINT) $^

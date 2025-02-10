@@ -14,7 +14,8 @@
 #include "pmwebapi.h"
 #include "libpcp.h"
 #include "util.h"
-#include <inih/ini.h>
+#include <ini.h>
+#include <ctype.h>
 
 int
 pmIniFileParse(const char *progname, ini_handler handler, void *data)
@@ -53,13 +54,68 @@ pmIniFileParse(const char *progname, ini_handler handler, void *data)
     return 0;
 }
 
+char *
+construct_canonic_envvar_name(const char *group, const char *key)
+{
+    int i;
+    size_t section_length = strlen(group);
+    size_t option_length = strlen(key);
+    char section[section_length+1];
+    char option[option_length+1];
+    char *tmp;
+
+    /* Canonical form: "PCP_<SECTION>_<OPTION>\0" */
+    int envvar_name_len = 4 + section_length + 1 + option_length + 1;
+    char *envvar_name = malloc((size_t)envvar_name_len*sizeof(char));
+    if (!envvar_name)
+	return NULL;
+
+    for (i = 0; i < section_length; i++)
+	section[i] = toupper(group[i]);
+    section[section_length] = '\0';
+
+    for (i = 0; i < option_length; i++)
+	if (key[i] == '.')
+		option[i] = '_';
+	else
+		option[i] = toupper(key[i]);
+    option[option_length] = '\0';
+
+    tmp = memcpy(envvar_name, "PCP_", 4) + 4;
+    tmp = memcpy(tmp, section, section_length) + section_length;
+    tmp = memcpy(tmp, "_", 1) + 1;
+    tmp = memcpy(tmp, option, option_length);
+    envvar_name[envvar_name_len - 1] = '\0';
+
+    return envvar_name;
+}
+
+const char *
+check_envvar_override(const char *group, const char *key, const char *value)
+{
+    char *tmp_value;
+    char *envvar_name = construct_canonic_envvar_name(group, key);
+    if (!envvar_name)
+	return value;
+
+    if ((tmp_value = getenv(envvar_name)) != NULL)
+	value = tmp_value;
+
+    free(envvar_name);
+    return value;
+}
+
 static int
 dict_handler(void *arg, const char *group, const char *key, const char *value)
 {
     dict	*config = (dict *)arg;
     sds		name = sdsempty();
 
-    name = sdscatfmt(name, "%s.%s", group ? group : pmGetProgname(), key);
+    if (!group)
+	group = pmGetProgname();
+
+    value = check_envvar_override(group, key, value);
+    name = sdscatfmt(name, "%s.%s", group, key);
     if (pmDebugOptions.libweb)
 	fprintf(stderr, "pmIniFileParse set %s = %s\n", name, value);
     return dictReplace(config, name, sdsnew(value)) != DICT_OK;

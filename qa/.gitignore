@@ -2,6 +2,7 @@
 # cleaned up in "make clobber" should also be mentioned here ...
 #
 .rnd
+.findmetric/
 /*.full
 /*.notrun
 /*.full.ok
@@ -10,6 +11,7 @@
 /*.new
 /*.raw
 /*.log
+/*.log.prev
 /*.bz2
 tmp/*
 big1.*
@@ -65,10 +67,11 @@ sudo
 250.out
 255.out
 262.out
-276.out
 287.out
 294.out
 298.out
+338.out
+344.out
 365.out
 367.out
 370.out
@@ -101,3 +104,4 @@ sudo
 1411.out
 1414.out
 1623.out
+1740.out

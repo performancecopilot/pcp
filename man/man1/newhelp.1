@@ -74,7 +74,7 @@ Following lines (up to the next line beginning with ``@''
 or end of file) may contain a verbose help description.
 E.g.
 .PP
-.ft CW
+.ft CR
 .nf
 .in +0.5i
 #
@@ -89,11 +89,11 @@ of CPU idle time, summed over all processors.
 .PP
 Three-part numeric metric identifiers (PMIDs) may be used in place of metric names,
 e.g. \c
-.ft CW
+.ft CR
 60.0.23
 .ft 1
 rather than
-.ft CW
+.ft CR
 kernel.all.cpu.idle
 .ft 1
 in the example above.
@@ -164,3 +164,6 @@ For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
 .BR pcp.env (5)
 and
 .BR PMNS (5).
+
+.\" control lines for scripts/man-spell
+.\" +ok+  NNN dir outout pag

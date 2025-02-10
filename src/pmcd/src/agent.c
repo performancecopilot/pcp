@@ -29,9 +29,7 @@
 static pid_t
 waitpid_pmcd(int *status)
 {
-#if defined(HAVE_WAIT3)
-    return wait3(status, WNOHANG, NULL);
-#elif defined(HAVE_WAITPID)
+#if defined(HAVE_WAITPID)
     return waitpid((pid_t)-1, status, WNOHANG);
 #else
     return (pid_t)-1;
@@ -174,6 +172,11 @@ CleanupAgent(AgentInfo* aPtr, int why, int status)
 	pmcd_dump_trace(stderr);
 
     MarkStateChanges(PMCD_DROP_AGENT);
+    if (pmDebugOptions.appl6) {
+	fprintf(stderr, "CleanupAgent: agent %s (dom %d): set ", aPtr->pmDomainLabel, aPtr->pmDomainId);
+	__pmDumpFetchFlags(stderr, PMCD_DROP_AGENT);
+	fputc('\n', stderr);
+    }
 }
 
 static int

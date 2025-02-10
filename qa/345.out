@@ -48,7 +48,7 @@ QA output created by 345
 --- -L -f diffs against baseline ---
 - baseline output
 + -L -f output
-@@ -13,7 +13,7 @@
+@@ -50,7 +50,7 @@
  sampledso.secret.foo.bar.grunt.five
  sampledso.secret.foo.bar.grunt.snort.huff.puff.seven
  sampledso.secret.foo.bar.grunt.snort.six

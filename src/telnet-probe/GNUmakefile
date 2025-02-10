@@ -21,7 +21,7 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
 CFILES	= telnet-probe.c
-CMDTARGET = telnet-probe
+CMDTARGET = telnet-probe$(EXECSUFFIX)
 LLDLIBS = -lpcp
 
 default: $(CMDTARGET)
@@ -36,6 +36,3 @@ install_pcp : install
 default_pcp : default
 
 telnet-probe.o:	$(TOPDIR)/src/include/pcp/libpcp.h
-
-check:: $(CFILES)
-	$(CLINT) $^

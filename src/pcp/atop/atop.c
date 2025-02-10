@@ -121,7 +121,7 @@
 #include "parseable.h"
 #include "gpucom.h"
 
-#define	allflags  "ab:cde:fghijklmnopqr:stuvw:xyz1ABCDEFGHIJKL:MNOP:QRSTUVWXYZ?"
+#define	allflags  "ab:cde:fghijklmnopqr:stuvw:xyz:1ABCDEFGHIJKL:MNOP:QRSTUVWXYZ?"
 #define	MAXFL		64      /* maximum number of command-line flags  */
 
 /*
@@ -156,6 +156,10 @@ char      	rmspaces   = 0;  /* boolean: remove spaces from command  */
 
 char            displaymode = 'T';      /* 'T' = text, 'D' = draw        */
 char            barmono     = 0; /* boolean: bar without categories?     */
+		                 /* name in case of parseable output     */
+char		prependenv = 0;  /* boolean: prepend selected            */
+				 /* environment variables to cmdline     */
+regex_t		envregex;
 
 unsigned short	hertz;
 unsigned int	pidmax;
@@ -370,7 +374,15 @@ main(int argc, char *argv[])
 				break;
 
                            case MCALCPSS:	/* calculate PSS per sample ? */
-				calcpss = 1;
+				if (rawreadflag)
+				{
+					fprintf(stderr,
+					        "PSIZE gathering depends on rawfile\n");
+					sleep(3);
+					break;
+				}
+
+                                calcpss    = 1;
 				break;
 
                            case MGETWCHAN:	/* obtain wchan string?       */
@@ -379,6 +391,15 @@ main(int argc, char *argv[])
 
                            case MRMSPACES:	/* remove spaces from command */
 				rmspaces = 1;
+				break;
+
+			   case 'z':            /* prepend regex matching environment variables */
+				if (regcomp(&envregex, optarg, REG_NOSUB|REG_EXTENDED))
+				{
+					fprintf(stderr, "Invalid environment regular expression!");
+					prusage(pmGetProgname(), &opts);
+				}
+				prependenv = 1;
 				break;
 
 			   default:		/* gather other flags */
@@ -498,7 +519,6 @@ engine(void)
 
 	unsigned long		ntaskpres;	/* number of tasks present   */
 	unsigned long		nprocexit;	/* number of exited procs    */
-
 	unsigned long		noverflow;
 
 	unsigned int		nrgpuproc = 0;	/* number of GPU processes   */
@@ -715,6 +735,8 @@ prusage(char *myname, pmOptions *opts)
 			MRMSPACES);
 	printf("\t  -L  alternate line length (default 80) in case of "
 			"non-screen output\n");
+	printf("\t  -z  prepend regex matching environment variables to "
+                        "command line\n");
 
 	if (vis.show_usage)
 		(*vis.show_usage)();

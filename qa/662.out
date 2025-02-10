@@ -66,7 +66,7 @@ len(metrics[]):3
   metric:no.such.metric2 metadata:3
   metric:pmcd.client.whoami metadata:10
 context #### metadata prefix=sample response code 200
-len(metrics[]):196
+len(metrics[]):213
   metric:sample.aggregate.hullo metadata:9
   metric:sample.aggregate.null metadata:9
   metric:sample.aggregate.write_me metadata:9
@@ -188,6 +188,7 @@ len(metrics[]):196
   metric:sample.negative.instant.m_float metadata:9
   metric:sample.noinst metadata:9
   metric:sample.not_ready metadata:9
+  metric:sample.not_ready_msec metadata:9
   metric:sample.part_bin metadata:10
   metric:sample.pdu metadata:9
   metric:sample.percontext.control.active metadata:9
@@ -214,6 +215,17 @@ len(metrics[]):196
   metric:sample.scramble.version metadata:9
   metric:sample.seconds metadata:9
   metric:sample.secret.bar metadata:9
+  metric:sample.secret.bin metadata:10
+  metric:sample.secret.dk.et metadata:9
+  metric:sample.secret.dk.to metadata:9
+  metric:sample.secret.dk.tre metadata:9
+  metric:sample.secret.en.one metadata:9
+  metric:sample.secret.en.three metadata:9
+  metric:sample.secret.en.two metadata:9
+  metric:sample.secret.es.dos metadata:9
+  metric:sample.secret.es.tres metadata:9
+  metric:sample.secret.es.unos metadata:9
+  metric:sample.secret.family metadata:10
   metric:sample.secret.foo.bar.four metadata:9
   metric:sample.secret.foo.bar.grunt.five metadata:9
   metric:sample.secret.foo.bar.grunt.snort.huff.puff.seven metadata:9
@@ -222,6 +234,9 @@ len(metrics[]):196
   metric:sample.secret.foo.bar.three metadata:9
   metric:sample.secret.foo.one metadata:9
   metric:sample.secret.foo.two metadata:9
+  metric:sample.secret.fr.deux metadata:9
+  metric:sample.secret.fr.trois metadata:9
+  metric:sample.secret.fr.un metadata:9
   metric:sample.slow_wrap.long metadata:9
   metric:sample.slow_wrap.longlong metadata:9
   metric:sample.slow_wrap.ulong metadata:9
@@ -254,7 +269,9 @@ len(metrics[]):196
   metric:sample.ulonglong.write_me metadata:9
   metric:sample.updown.control.max metadata:9
   metric:sample.updown.control.min metadata:9
+  metric:sample.updown.control.mode metadata:9
   metric:sample.updown.control.repeat metadata:9
+  metric:sample.updown.control.reset metadata:9
   metric:sample.updown.control.step metadata:9
   metric:sample.updown.obs metadata:9
   metric:sample.wrap.long metadata:9

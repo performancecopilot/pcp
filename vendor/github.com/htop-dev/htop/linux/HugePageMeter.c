@@ -5,6 +5,8 @@ Released under the GNU GPLv2+, see the COPYING file
 in the source distribution for its full text.
 */
 
+#include "config.h" // IWYU pragma: keep
+
 #include "linux/HugePageMeter.h"
 
 #include <assert.h>
@@ -12,9 +14,9 @@ in the source distribution for its full text.
 #include <stddef.h>
 
 #include "CRT.h"
+#include "Machine.h"
 #include "Macros.h"
 #include "Object.h"
-#include "ProcessList.h"
 #include "RichString.h"
 #include "linux/LinuxMachine.h"
 
@@ -80,7 +82,7 @@ static void HugePageMeter_display(const Object* cast, RichString* out) {
    RichString_appendAscii(out, CRT_colors[METER_VALUE], buffer);
 
    for (unsigned i = 0; i < ARRAYSIZE(HugePageMeter_active_labels); i++) {
-      if (isnan(this->values[i])) {
+      if (!HugePageMeter_active_labels[i]) {
          break;
       }
       RichString_appendAscii(out, CRT_colors[METER_TEXT], HugePageMeter_active_labels[i]);
@@ -97,6 +99,7 @@ const MeterClass HugePageMeter_class = {
    },
    .updateValues = HugePageMeter_updateValues,
    .defaultMode = BAR_METERMODE,
+   .supportedModes = METERMODE_DEFAULT_SUPPORTED,
    .maxItems = ARRAYSIZE(HugePageMeter_active_labels),
    .total = 100.0,
    .attributes = HugePageMeter_attributes,

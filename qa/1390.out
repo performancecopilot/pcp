@@ -28,10 +28,10 @@ HOST-SUMMARY-LINE
 11:03:22      537       220      0.00      1.04     1.06      1.06
 11:03:23      577       248      1.00      1.04     1.06      1.06
 
-11:03:21  clones/s pexit/s  curproc curzomb    thrrun thrslpi thrslpu _procthr_
-11:03:21  225394.00    0.00      253       0         1     250       1
-11:03:22      0.00    0.00      253       0         1     251       1
-11:03:23      1.00    0.00      253       0         1     250       1
+11:03:21  clones/s pexit/s  curproc curzomb   trun  tslpi tslpu tidle _procthr_
+11:03:21  225394.00    0.00      253       0      1    250     1     0
+11:03:22      0.00    0.00      253       0      1    251     1     0
+11:03:23      1.00    0.00      253       0      1    250     1     0
 
 11:03:21     busaddr   gpubusy  membusy  memocc  memtot memuse  gputype   _gpu_
 11:03:21  
@@ -39,12 +39,12 @@ HOST-SUMMARY-LINE
 11:03:23  
 
 11:03:21  memtotal memfree buffers cached dirty slabmem  swptotal swpfree _mem_
-11:03:21     3849M    196M    275M  1553M    0M    357M    13661M  13652M
+11:03:21     3849M    195M    275M  1553M    0M    358M    13661M  13652M
 11:03:22     3849M    195M    275M  1553M    0M    358M    13661M  13652M
-11:03:23     3849M    195M    275M  1553M    0M    358M    13661M  13652M
+11:03:23     3849M    195M    275M  1554M    0M    358M    13661M  13652M
 
 11:03:21  pagescan/s  swapin/s swapout/s oomkill  commitspc  commitlim   _swap_
-11:03:21   412940.00     96.00   2329.00       0      4254M     15586M
+11:03:21   412940.00     96.00   2329.00       0      4244M     15586M
 11:03:22        0.00      0.00      0.00       0      4244M     15586M
 11:03:23        0.00      0.00      0.00       0      4244M     15586M
 

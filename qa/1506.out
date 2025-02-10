@@ -1,0 +1,52 @@
+QA output created by 1506
+Note: timezone set to local timezone of host "jyoder-ol8-3" from archive
+
+metric:    disk.dev.util
+archive:   archives/buggy_archive
+host:      jyoder-ol8-3
+start:     Sat Aug 26 19:04:00 2023
+end:       Sat Aug 26 19:05:58 2023
+semantics: instantaneous value
+units:     none
+samples:   24
+interval:  5.00 sec
+19:04:00.955  No values available
+
+                              sda                   sdb 
+19:04:05.955               0.0800                0.0000 
+19:04:10.955               0.0800                0.0000 
+19:04:15.955               0.3400                0.0000 
+19:04:20.955               0.3600                0.0000 
+19:04:25.955                    ?                0.0000 
+19:04:30.955  No values available
+
+                              sda                   sdb 
+19:04:35.955                    ?                0.0000 
+19:04:40.955  No values available
+
+                              sda                   sdb 
+19:04:45.955                    ?                0.0000 
+19:04:50.955                    ?                0.0000 
+19:04:55.955  No values available
+
+                              sda                   sdb 
+19:05:00.955                    ?                0.0000 
+19:05:05.955  No values available
+
+                              sda                   sdb 
+19:05:10.955                    ?                0.0000 
+19:05:15.955                    ?                0.0000 
+19:05:20.955  No values available
+
+                              sda                   sdb 
+19:05:25.955                    ?                0.0000 
+19:05:30.955  No values available
+
+                              sda                   sdb 
+19:05:35.955                    ?                0.0000 
+19:05:40.955                    ?                0.0000 
+19:05:45.955  No values available
+
+                              sda                   sdb 
+19:05:50.955              40.0800                0.0000 
+19:05:55.955              94.4200                0.0000 

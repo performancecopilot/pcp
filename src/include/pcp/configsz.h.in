@@ -26,14 +26,4 @@
 /* pointer size */
 #undef HAVE_64BIT_PTR
 
-/* sizeof suseconds_t ... only ever going to exist on linux-like systems */
-#undef PM_SIZEOF_SUSECONDS_T
-
-/* sizeof time_t */
-#undef PM_SIZEOF_TIME_T
-
-#ifndef PM_SIZEOF_TIME_T
-#error Unknown time_t size
-#endif
-
 #endif /* PCP_CONFIGSZ_H */

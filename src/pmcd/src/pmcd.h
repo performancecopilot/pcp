@@ -152,14 +152,21 @@ extern int HarvestAgents(unsigned int);
 /* pmdaroot file descriptor */
 extern int	pmdarootfd;
 
-/* timeout to PMDAs (secs) */
+/* timeout for PMDA response (secs) from -t */
 PMCD_DATA extern int	pmcd_timeout;
 
-/* timeout for credentials */
-extern int	_creds_timeout;
+/* timeout for initial PMDA credentials exchange (secs) from -q */
+PMCD_DATA extern int	creds_timeout;
 
 /* flag for context label changes */
 extern int	labelChanged;
+
+/* client limits */
+PMCD_DATA extern unsigned	maxmetrics;	/* max PMIDs per pmFetch */
+PMCD_DATA extern unsigned	maxctx;		/* max number of contexts per client */
+
+/* input PDU size (bytes) */
+PMCD_DATA extern unsigned	maxinpdusize;
 
 /* global PMCD PMDA variables */
 

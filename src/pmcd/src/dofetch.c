@@ -350,14 +350,45 @@ SendFetch(DomPmidList *dpList, AgentInfo *aPtr, ClientInfo *cPtr, int ctxnum)
  * pmResults coming back from PMDAs have their timestamp field
  * overloaded to contain out-of-band information such as state
  * changes that may need to be communicated back to clients.
- * Extract the flags that indicate those state changes here.
+ * Extract the flags that indicate those state changes here from
+ * PMDA agent[i].
  */
 static int
-ExtractState(void *timestamp)
+ExtractState(int i, void *timestamp)
 {
     unsigned char	byte;
 
     memcpy(&byte, timestamp, sizeof(unsigned char));
+    /*
+     * integrity checks on the state change ...
+     * - only 7 bits defined in pmapi.h (so max value is 0x3f)
+     * - cannot have any of the PMCD_AGENT_CHANGE bits set (these
+     *   are set by pmcd, not a PMDA)
+     * - ditto for the PMCD_HOSTNAME_CHANGE bit
+     */
+    if (byte > 0x3f ||
+        (byte & PMCD_AGENT_CHANGE) ||
+	(byte & PMCD_HOSTNAME_CHANGE)) {
+	/*
+	 * mapping to at most PMCD_LABEL_CHANGE | PMCD_NAMES_CHANGE
+	 * is probably not right (the PMDA is broken), but this is a
+	 * pretty harmless state change for upstream clients,
+	 * e.g. won't kill pmlogger!
+	 */
+	unsigned char	new_byte = byte & (PMCD_LABEL_CHANGE | PMCD_NAMES_CHANGE);
+
+	pmNotifyErr(LOG_WARNING,
+	    "ExtractState: \"%s\" agent returned a bogus state change (0x%x) modified to 0x%x\n",
+	    agent[i].pmDomainLabel, byte, new_byte);
+	byte = new_byte;
+    }
+
+    if (byte != 0 && pmDebugOptions.appl6) {
+	fprintf(stderr, "ExtractState: %s agent (dom %d) set ", agent[i].pmDomainLabel, agent[i].pmDomainId);
+	__pmDumpFetchFlags(stderr, byte);
+	fputc('\n', stderr);
+    }
+
     return (int)byte;
 }
 
@@ -428,6 +459,11 @@ HandleFetch(ClientInfo *cip, __pmPDU* pb, int pdutype)
 	return PM_ERR_NOPROFILE;
     }
 
+    if (nPmids > maxmetrics) {
+	__pmUnpinPDUBuf(pb);
+	return PM_ERR_TOOBIG;
+    }
+
     if (nPmids > maxnpmids) {
 	if (endResult != NULL) {
 	    endResult->numpmid = 0;	/* don't free vset's */
@@ -462,7 +498,7 @@ HandleFetch(ClientInfo *cip, __pmPDU* pb, int pdutype)
 		maxFd = fd;
 	    nWait++;
 	} else {
-	    changes |= ExtractState(&results[j]->timestamp);
+	    changes |= ExtractState(i, &results[j]->timestamp);
 	}
     }
     /* Construct pmResult for bad-pmID list */
@@ -527,7 +563,7 @@ HandleFetch(ClientInfo *cip, __pmPDU* pb, int pdutype)
 		if ((sts = __pmDecodeResult(pb, &rp)) >= 0) {
 		    results[i] = __pmOffsetResult(rp);
 		    if (results[i]->numpmid == aFreq[i]) {
-			changes |= ExtractState(&rp->timestamp);
+			changes |= ExtractState(i, &rp->timestamp);
 		    } else {
 			if (pmDebugOptions.appl0)
 			    pmNotifyErr(LOG_ERR, "DoFetch: \"%s\" agent given %d pmIDs, returned %d\n",
@@ -604,6 +640,11 @@ HandleFetch(ClientInfo *cip, __pmPDU* pb, int pdutype)
     sts = 0;
     if (cip->status.changes) {
 	/* notify client of PMCD state change */
+	if (pmDebugOptions.appl6) {
+	    fprintf(stderr, "HandleFetch: client[%d] (fd %d) sent ", (int)(cip - client), cip->fd);
+	    __pmDumpFetchFlags(stderr, cip->status.changes);
+	    fputc('\n', stderr);
+	}
 	sts = __pmSendError(cip->fd, FROM_ANON, (int)cip->status.changes);
 	if (sts > 0)
 	    sts = 0;

@@ -17,11 +17,27 @@ _pmdaopenmetrics_check || _notrun "openmetrics pmda not installed"
 which curl >/dev/null 2>&1 || _notrun curl not installed
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
+
+# only stop pmproxy if it was not running before the QA test starts
+if [ -n "`_get_pids_by_name pmproxy`" ]
+then
+    pmproxy_was_running=true
+else
+    pmproxy_was_running=false
+    if ! _service pmproxy start >>$seq_full 2>&1; then _exit 1; fi
+fi
+echo "pmproxy_was_running=$pmproxy_was_running" >>$seq_full
 
 _cleanup()
 {
     cd $here
+    if $need_restore
+    then
+        $sudo rm -rf $PCP_ETC_DIR/pcp/labels/*
+        _restore_config $PCP_ETC_DIR/pcp/labels
+	$pmproxy_was_running || _service pmproxy stop >>$seq_full 2>&1
+        need_restore=false
+    fi
     _pmdaopenmetrics_cleanup
     $sudo rm -rf $tmp $tmp.*
 }
@@ -29,6 +45,7 @@ _cleanup()
 _filter_openmetrics_labels()
 {
     sed \
+    -e "s;$PCP_PMDAS_DIR;PCP_PMDAS_DIR;g" \
     -e 's;machineid="[a-z0-9]*";machineid=MACHINEID;g' \
     -e 's;hostname="[a-zA-Z0-9_\.\-]*";hostname=HOSTNAME;g' \
     -e 's;hostname:[a-zA-Z0-9_\.\-]*";hostname:HOSTNAME";g' \
@@ -38,12 +55,15 @@ _filter_openmetrics_labels()
     # end
 }
 
+need_restore=true
 _prepare_pmda openmetrics
 trap "_cleanup; exit \$status" 0 1 2 3 15
 _stop_auto_restart pmcd
 
-HERE=`pwd`
+# real QA test starts here
 _pmdaopenmetrics_save_config
+_save_config $PCP_ETC_DIR/pcp/labels
+$sudo rm -rf $PCP_ETC_DIR/pcp/labels/*
 
 # set up a scripted config
 MYHOST=`hostname`
@@ -84,7 +104,7 @@ pminfo -v openmetrics
 # squash errors for a clean uninstall
 $sudo rm $PCP_PMDAS_DIR/openmetrics/config.d/invalid_metrics_badinput.sh
 # capture openmetrics log for posterity
-cat $PCP_LOG_DIR/pmcd/openmetrics.log >> $here/$seq.full
+cat $PCP_LOG_DIR/pmcd/openmetrics.log >> $seq_full
 
 _pmdaopenmetrics_remove
 

@@ -72,7 +72,7 @@ static pmDesc	desctab[] = {
     { PMDA_PMID(0,4), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* colour */
     { PMDA_PMID(0,5), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
-/* bin or dupnames.two.bin or dupnames.three.bin */
+/* bin or dupnames.two.bin or dupnames.three.bin or secret.bin */
     { PMDA_PMID(0,6), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* drift */
     { PMDA_PMID(0,7), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
@@ -398,13 +398,19 @@ static pmDesc	desctab[] = {
     { PMDA_PMID(0,167), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* updown.control.step */
     { PMDA_PMID(0,168), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* not_ready_msec */
+    { PMDA_PMID(0,169), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_TIME_MSEC,0,0) },
+/* updown.control.mode */
+    { PMDA_PMID(0,170), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* updown.control.reset */
+    { PMDA_PMID(0,171), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 
 /*
  * dynamic PMNS ones
  * secret.bar
  */
     { PMDA_PMID(0,1000), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
-/*  secret.foo.one */
+/*  secret.*.one */
     { PMDA_PMID(0,1001), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
 /*  secret.foo.two */
     { PMDA_PMID(0,1002), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
@@ -418,6 +424,8 @@ static pmDesc	desctab[] = {
     { PMDA_PMID(0,1006), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
 /*  secret.foo.bar.grunt.snort.seven */
     { PMDA_PMID(0,1007), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
+/*  secret.family */
+    { PMDA_PMID(0,1012), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
 
 /* ghosts.visible */
     { PMDA_PMID(0,1008), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
@@ -693,7 +701,7 @@ static int		updown_max = 200;	/* updown.control.max */
 static unsigned int	updown_step = 10;	/* updown.control.step */
 
 /* this needs to be visible in pmda.c */
-int			not_ready = 0;	/* sleep interval in seconds */
+int			not_ready = 0;	/* sleep interval in milliseconds */
 int			sample_done = 0;/* pending request to terminate, see sample_store() */
 
 int			_isDSO = 1;	/* =0 I am a daemon */
@@ -708,7 +716,9 @@ static struct {
     int		mark;
 } dynamic_ones[] = {
     { "secret.foo.bar.max.redirect", PMDA_PMID(0,0) },
+    { "secret.bin", PMDA_PMID(0,6) },
     { "secret.bar", PMDA_PMID(0,1000) },
+    { "secret.family", PMDA_PMID(0,1012) },
     { "secret.foo.one", PMDA_PMID(0,1001) },
     { "secret.foo.two", PMDA_PMID(0,1002) },
     { "secret.foo.bar.three", PMDA_PMID(0,1003) },
@@ -716,7 +726,19 @@ static struct {
     { "secret.foo.bar.grunt.five", PMDA_PMID(0,1005) },
     { "secret.foo.bar.grunt.snort.six", PMDA_PMID(0,1006) },
     { "secret.foo.bar.grunt.snort.huff.puff.seven", PMDA_PMID(0,1007) },
-    { "ghosts.visible", PMDA_PMID(0,1008) },
+    { "secret.en.one", PMDA_PMID(0,1001) },	// English
+    { "secret.en.two", PMDA_PMID(0,1002) },
+    { "secret.en.three", PMDA_PMID(0,1003) },
+    { "secret.fr.un", PMDA_PMID(0,1001) },	// French
+    { "secret.fr.deux", PMDA_PMID(0,1002) },
+    { "secret.fr.trois", PMDA_PMID(0,1003) },
+    { "secret.dk.et", PMDA_PMID(0,1001) },	// Danish
+    { "secret.dk.to", PMDA_PMID(0,1002) },
+    { "secret.dk.tre", PMDA_PMID(0,1003) },
+    { "secret.es.unos", PMDA_PMID(0,1001) },	// Spanish
+    { "secret.es.dos", PMDA_PMID(0,1002) },
+    { "secret.es.tres", PMDA_PMID(0,1003) },
+    { "ghosts.visible", PMDA_PMID(0,1008) },	// the ghost ones
     { "ghosts.origin", PMDA_PMID(0,1009) },
     { "ghosts.karma", PMDA_PMID(0,1010) },
     { "ghosts.state", PMDA_PMID(0,1011) },
@@ -1257,6 +1279,7 @@ init_tables(int dom)
 		dp->indom = indomtab[MIRAGE_INDOM].it_indom;
 		break;
 	    case PMDA_PMID(0,49):	/* needprofile */
+	    case PMDA_PMID(0,1012):	/* secret.family */
 		dp->indom = indomtab[FAMILY_INDOM].it_indom;
 		break;
 	    case PMDA_PMID(0,52):	/* hordes.one */
@@ -1468,6 +1491,10 @@ sample_pmid(const char *name, pmID *pmid, pmdaExt *pmda)
     int		i;
     const char	*p;
 
+    if (not_ready > 0) {
+	return limbo();
+    }
+
     /* skip the sample. or sampledso. part */
     for (p = name; *p != '.' && *p; p++)
 	;
@@ -1487,6 +1514,24 @@ sample_pmid(const char *name, pmID *pmid, pmdaExt *pmda)
 	}
     }
 
+    /*
+     * not an exact match ... but a prefix match would mean a non-leaf in
+     * the PMNS
+     */
+    for (i = 0; i < numdyn; i++) {
+    	const char	*tp;
+	char		*td;
+
+	if (visible_ghosts < 0 && pmID_cluster(dynamic_ones[i].pmid) == 0 &&
+	    (pmID_item(dynamic_ones[i].pmid) == 1009 || pmID_item(dynamic_ones[i].pmid) == 1010 || pmID_item(dynamic_ones[i].pmid) == 1011))
+	    continue;
+
+	for (tp = p, td = dynamic_ones[i].name; *tp && *td && *tp == *td; tp++, td++)
+	    ;
+	if (*tp == '\0' && *td == '.')
+	    return PM_ERR_NONLEAF;
+    }
+
     return PM_ERR_NAME;
 }
 
@@ -1499,6 +1544,10 @@ sample_name(pmID pmid, char ***nameset, pmdaExt *pmda)
     char	*pfx;
     char	*p;
     char	**list;
+
+    if (not_ready > 0) {
+	return limbo();
+    }
 
     if (_isDSO)
 	pfx = "sampledso.";
@@ -1559,6 +1608,10 @@ sample_children(const char *name, int traverse, char ***offspring, int **status,
     int		*sts = NULL;
     size_t	len = 0;
     size_t	tlen = 0;
+
+    if (not_ready > 0) {
+	return limbo();
+    }
 
     /* skip the sample. or sampledso. part */
     for (p = name; *p != '.' && *p; p++)
@@ -2152,20 +2205,20 @@ doit:
 			need_mirage = 1;
 			break;
 		    case 49:
-			/* need profile */
+			/* needprofile */
 			switch (inst) {
 			    case 0:		/* "colleen" */
-				atom.f = 3.05;
+				atom.f = 5;
 				break;
 			    case 1:		/* "terry" */
-				atom.f = 12.05;
+				atom.f = 5;
 				break;
 			    case 2:		/* "emma" */
 			    case 3:		/* "cathy" */
-				atom.f = 11.09;
+				atom.f = 9;
 				break;
-			    case 4:		/* "alexi" */
-				atom.f = 5.26;
+			    case 4:		/* "fat bald bastard" */
+				atom.f = 26;
 				break;
 			}
 			break;
@@ -2270,7 +2323,7 @@ doit:
 			atom.l = 499 - inst;
 			break;
 		    case 56:
-			atom.l = not_ready;
+			atom.l = not_ready / 1000;
 			break;
 		    case 57:	/* wrap.long */
 			_wrap += INT_MAX / 2 - 1;
@@ -2641,16 +2694,28 @@ doit:
 			atom.ul = updown_step;
 			break;
 
+		    case 169:	/* not_ready_msec */
+			atom.l = not_ready;
+			break;
+
+		    case 170:	/* updown.control.mode */
+			atom.l = updown_dir;
+			break;
+
+		    case 171:	/* updown.control.reset */
+			atom.ul = 0;
+			break;
+
 		    case 1000:	/* secret.bar */
 			atom.cp = "foo";
 			break;
-		    case 1001:	/* secret.foo.one */
+		    case 1001:	/* secret.foo.one and aliases */
 			atom.l = 1;
 			break;
-		    case 1002:	/* secret.foo.two */
+		    case 1002:	/* secret.foo.two and aliases */
 			atom.l = 2;
 			break;
-		    case 1003:	/* secret.foo.bar.three */
+		    case 1003:	/* secret.foo.bar.three and aliases */
 			atom.l = 3;
 			break;
 		    case 1004:	/* secret.foo.bar.four */
@@ -2735,6 +2800,24 @@ doit:
 				break;
 			    case 8:
 				atom.ul = 0;
+				break;
+			}
+			break;
+		    case 1012: /* secret.family */
+			/* similar to needprofile */
+			switch (inst) {
+			    case 0:		/* "colleen" */
+				atom.cp = "05";
+				break;
+			    case 1:		/* "terry" */
+				atom.cp = "05";
+				break;
+			    case 2:		/* "emma" */
+			    case 3:		/* "cathy" */
+				atom.cp = "09";
+				break;
+			    case 4:		/* "fat bald bastard" */
+				atom.cp = "26";
 				break;
 			}
 			break;
@@ -2910,10 +2993,14 @@ sample_store(pmResult *result, pmdaExt *ep)
 	    case 149:	/* negative.discrete.m_32 */
 	    case 155:	/* controller.mirage */
 	    case 159:	/* proc.reset */
+	    case 164:	/* updown.obs */
 	    case 165:	/* updown.control.repeat */
 	    case 166:	/* updown.control.min */
 	    case 167:	/* updown.control.max */
 	    case 168:	/* updown.control.step */
+	    case 169:	/* not_ready_msec */
+	    case 170:	/* updown.control.mode */
+	    case 171:	/* updown.control.reset */
 	    case 1008:	/* ghosts.visible */
 		if (vsp->numval != 1 || vsp->valfmt != PM_VAL_INSITU)
 		    sts = PM_ERR_BADSTORE;
@@ -3074,7 +3161,7 @@ sample_store(pmResult *result, pmdaExt *ep)
 		_aggr35 = av.vbp;
 		break;
 	    case 56:	/* not_ready */
-		not_ready = av.l;
+		not_ready = av.l * 1000;
 		break;
 	    case 61:	/* dodgey.control */
 		dodgey = av.l;
@@ -3156,11 +3243,15 @@ sample_store(pmResult *result, pmdaExt *ep)
 	    case 159:	/* proc.reset */
 		proc_reset(&indomtab[PROC_INDOM]);
 		break;
+	    case 164:	/* updown.obs */
+		updown = av.l;
+		break;
 	    case 165:	/* updown.control.repeat */
 		if (av.l < 0)
 		    sts = PM_ERR_SIGN;
-		else
-		    updown_repeat = av.ul;
+		else {
+		    updown_click = updown_repeat = av.ul;
+		}
 		break;
 	    case 166:	/* updown.control.min */
 		updown_min = av.l;
@@ -3173,6 +3264,24 @@ sample_store(pmResult *result, pmdaExt *ep)
 		    sts = PM_ERR_SIGN;
 		else
 		    updown_step = av.ul;
+		break;
+	    case 169:	/* not_ready_msec */
+		not_ready = av.l;
+		break;
+	    case 170:	/* updown.control.mode */
+		if (av.l == -1 || av.l == 1)
+		    updown_dir = av.l;
+		else
+		    sts = PM_ERR_BADSTORE;
+		break;
+	    case 171:	/* updown.control.reset */
+		updown = 0;
+		updown_dir = 1;
+		updown_click = 5;
+		updown_repeat = 5;
+		updown_min = 0;
+		updown_max = 200;
+		updown_step = 10;
 		break;
 	    case 1008:	/* ghosts.visible */
 		visible_ghosts = av.l;

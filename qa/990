@@ -28,7 +28,6 @@ _cleanup()
     rm -rf $tmp $tmp.*
 }
 
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # move the MMV directory to restore contents later.
@@ -73,7 +72,7 @@ _verify()
     $here/src/badmmv --$section
 
     # run valgrind once for all files in section (its slow to start)
-    echo -- verify $section data files | tee -a $seq.full
+    echo -- verify $section data files | tee -a $seq_full
     _run_valgrind pminfo -L -Kclear -Kadd,70,$pmda -v mmv \
 		| _filter
 

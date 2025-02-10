@@ -67,8 +67,19 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_CALL);
 		}
 		else if (sts == PDU_ERROR)
 		    __pmDecodeError(pb, &sts);
-		else if (sts != PM_ERR_TIMEOUT)
+		else if (sts != PM_ERR_TIMEOUT) {
+		    if (pmDebugOptions.pdu) {
+			char	strbuf[20];
+			char	errmsg[PM_MAXERRMSGLEN];
+			if (sts < 0)
+			    fprintf(stderr, "pmLookupInDom_ctx: PM_ERR_IPC: expecting PDU_INSTANCE but__pmGetPDU returns %d (%s)\n",
+				sts, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+			else
+			    fprintf(stderr, "pmLookupInDom_ctx: PM_ERR_IPC: expecting PDU_INSTANCE but__pmGetPDU returns %d (type=%s)\n",
+				sts, __pmPDUTypeStr_r(sts, strbuf, sizeof(strbuf)));
+		    }
 		    sts = PM_ERR_IPC;
+		}
 
 		if (pinpdu > 0)
 		    __pmUnpinPDUBuf(pb);
@@ -181,8 +192,19 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_CALL);
 		}
 		else if (sts == PDU_ERROR)
 		    __pmDecodeError(pb, &sts);
-		else if (sts != PM_ERR_TIMEOUT)
+		else if (sts != PM_ERR_TIMEOUT) {
+		    if (pmDebugOptions.pdu) {
+			char	strbuf[20];
+			char	errmsg[PM_MAXERRMSGLEN];
+			if (sts < 0)
+			    fprintf(stderr, "pmNameInDom_ctx: PM_ERR_IPC: expecting PDU_INSTANCE but__pmGetPDU returns %d (%s)\n",
+				sts, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+			else
+			    fprintf(stderr, "pmNameInDom_ctx: PM_ERR_IPC: expecting PDU_INSTANCE but__pmGetPDU returns %d (type=%s)\n",
+				sts, __pmPDUTypeStr_r(sts, strbuf, sizeof(strbuf)));
+		    }
 		    sts = PM_ERR_IPC;
+		}
 
 		if (pinpdu > 0)
 		    __pmUnpinPDUBuf(pb);
@@ -291,12 +313,18 @@ inresult_to_lists(pmInResult *result, int **instlist, char ***namelist)
     return n;
 }
 
+/*
+ * Internal variant of pmGetInDom() ... ctxp is not NULL for
+ * internal callers where the current context is already locked, but
+ * NULL for callers from above the PMAPI or internal callers when the
+ * current context is not locked.
+ */
 int
-pmGetInDom(pmInDom indom, int **instlist, char ***namelist)
+pmGetInDom_ctx(__pmContext *ctxp, pmInDom indom, int **instlist, char ***namelist)
 {
     int			sts;
+    int			need_unlock = 0;
     int			i;
-    __pmContext		*ctxp;
     char		*p;
     int			need;
     int			*ilist = NULL;
@@ -314,11 +342,16 @@ pmGetInDom(pmInDom indom, int **instlist, char ***namelist)
 
     if ((sts = pmWhichContext()) >= 0) {
 	int	ctx = sts;
-	ctxp = __pmHandleToPtr(ctx);
 	if (ctxp == NULL) {
-	    sts = PM_ERR_NOCONTEXT;
-	    goto pmapi_return;
+	    ctxp = __pmHandleToPtr(ctx);
+	    if (ctxp == NULL) {
+		sts = PM_ERR_NOCONTEXT;
+		goto pmapi_return;
+	    }
+	    need_unlock = 1;
 	}
+	else
+	    PM_ASSERT_IS_LOCKED(ctxp->c_lock);
 	if (ctxp->c_type == PM_CONTEXT_HOST) {
 	    sts = __pmSendInstanceReq(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp), indom, PM_IN_NULL, NULL);
 	    if (sts < 0)
@@ -335,15 +368,27 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_CALL);
 		    if ((sts = __pmDecodeInstance(pb, &result)) < 0) {
 			if (pinpdu > 0)
 			    __pmUnpinPDUBuf(pb);
-			PM_UNLOCK(ctxp->c_lock);
+			if (need_unlock)
+			    PM_UNLOCK(ctxp->c_lock);
 			goto pmapi_return;
 		    }
 		    sts = inresult_to_lists(result, instlist, namelist);
 		}
 		else if (sts == PDU_ERROR)
 		    __pmDecodeError(pb, &sts);
-		else if (sts != PM_ERR_TIMEOUT)
+		else if (sts != PM_ERR_TIMEOUT) {
+		    if (pmDebugOptions.pdu) {
+			char	strbuf[20];
+			char	errmsg[PM_MAXERRMSGLEN];
+			if (sts < 0)
+			    fprintf(stderr, "pmGetInDom_ctx: PM_ERR_IPC: expecting PDU_INSTANCE but__pmGetPDU returns %d (%s)\n",
+				sts, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+			else
+			    fprintf(stderr, "pmGetInDom_ctx: PM_ERR_IPC: expecting PDU_INSTANCE but__pmGetPDU returns %d (type=%s)\n",
+				sts, __pmPDUTypeStr_r(sts, strbuf, sizeof(strbuf)));
+		    }
 		    sts = PM_ERR_IPC;
+		}
 
 		if (pinpdu > 0)
 		    __pmUnpinPDUBuf(pb);
@@ -376,12 +421,16 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_CALL);
 		for (i = 0; i < sts; i++)
 		    need += sizeof(char *) + strlen(nametmp[i]) + 1;
 		if ((ilist = (int *)malloc(sts * sizeof(insttmp[0]))) == NULL) {
-		    PM_UNLOCK(ctxp->c_lock);
+		    if (need_unlock)
+			PM_UNLOCK(ctxp->c_lock);
 		    sts = -oserror();
 		    goto pmapi_return;
 		}
 		if ((nlist = (char **)malloc(need)) == NULL) {
-		    PM_UNLOCK(ctxp->c_lock);
+		    free(ilist);
+		    ilist = NULL;
+		    if (need_unlock)
+			PM_UNLOCK(ctxp->c_lock);
 		    sts = -oserror();
 		    goto pmapi_return;
 		}
@@ -396,7 +445,8 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_CALL);
 		}
 	    }
 	}
-	PM_UNLOCK(ctxp->c_lock);
+	if (need_unlock)
+	    PM_UNLOCK(ctxp->c_lock);
     }
 
     if (sts == 0) {
@@ -427,6 +477,14 @@ pmapi_return:
 	    free(nlist);
     }
 
+    return sts;
+}
+
+int
+pmGetInDom(pmInDom indom, int **instlist, char ***namelist)
+{
+    int	sts;
+    sts = pmGetInDom_ctx(NULL, indom, instlist, namelist);
     return sts;
 }
 

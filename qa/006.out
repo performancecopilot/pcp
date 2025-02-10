@@ -8,7 +8,7 @@ QA output created by 006
 -12351 Missing metric value(s)
 -12352 No such PMAPI error code (-12352)
 -12353 Timeout waiting for a response from PMCD
--12354 Empty archive log file
+-12354 Empty archive file
 -12355 PMCD reset or configuration change
 -12356 No such PMAPI error code (-12356)
 -12357 Unknown metric name
@@ -24,17 +24,17 @@ QA output created by 006
 -12367 No such PMAPI error code (-12367)
 -12368 IPC channel closed
 -12369 Operation requires context with host source of metrics
--12370 End of PCP archive log
+-12370 End of PCP archive
 -12371 Illegal mode specification
--12372 Illegal label record at start of a PCP archive log file
--12373 Corrupted record in a PCP archive log
+-12372 Illegal label record at start of a PCP archive file
+-12373 Corrupted record in a PCP archive
 -12374 Operation requires context with archive source of metrics
--12375 Missing PCP archive log file
+-12375 Missing PCP archive file
 -12376 Attempt to use an illegal context
 -12377 NULL pmInDom with non-NULL instlist
--12378 Metric not defined in the PCP archive log
--12379 Instance domain identifier not defined in the PCP archive log
--12380 Instance identifier not defined in the PCP archive log
+-12378 Metric not defined in the PCP archive
+-12379 Instance domain identifier not defined in the PCP archive
+-12380 Instance identifier not defined in the PCP archive
 -12381 Missing profile - protocol botch
 -12382 No such PMAPI error code (-12382)
 -12383 No such PMAPI error code (-12383)

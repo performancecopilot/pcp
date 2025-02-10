@@ -1,17 +1,16 @@
 QA output created by 271
 === no dir ===
 [filtered and sorted stderr]
-__pmLogOpen: inspect file "TMP.0"
-__pmLogOpen: inspect file "TMP.index"
-__pmLogOpen: inspect file "TMP.meta"
-__pmStat("TMP"): no decompress
+__pmLogFindOpen: inspect file "TMP.0"
+__pmLogFindOpen: inspect file "TMP.index"
+__pmLogFindOpen: inspect file "TMP.meta"
 __pmFopen("TMP.???", "r"): no decompress
 __pmFopen("TMP.???", "r"): no decompress
 __pmFopen("TMP.???", "r"): no decompress
-chkLabel: fd=<n1> vol=0 [magic=0x5005260X version=X vol=0 pid=PID start=TIMESTAMP host=HOST]
+chkLabel: fd=<n1> vol=0 [magic=0x5005260X version=X vol=0 pid=PID start=TIMESTAMP host=HOST] version=3
 __pmLogChangeVol: change to volume 0
-chkLabel: fd=<n2> vol=-2 [magic=0x5005260X version=X vol=-2 pid=PID start=TIMESTAMP host=HOST]
-chkLabel: fd=<n3> vol=-1 [magic=0x5005260X version=X vol=-1 pid=PID start=TIMESTAMP host=HOST]
+chkLabel: fd=<n2> vol=-2 [magic=0x5005260X version=X vol=-2 pid=PID start=TIMESTAMP host=HOST] version=3
+chkLabel: fd=<n3> vol=-1 [magic=0x5005260X version=X vol=-1 pid=PID start=TIMESTAMP host=HOST] version=3
 __pmLogRead: fd=<n4> (peek) mode=back vol=0 posn=OFFSET @TIMESTAMP len=header+LEN+trailer
 __pmLogSetTime(0) TIMESTAMP delta=0.000000000 at ti[0]@TIMESTAMP vol=0 posn=OFFSET serial=1
 Log Label (Log Format Version OK)
@@ -21,17 +20,16 @@ Performance metrics from host HOST
 
 === empty dir ===
 [filtered and sorted stderr]
-__pmLogOpen: inspect file "TMP.0"
-__pmLogOpen: inspect file "TMP.index"
-__pmLogOpen: inspect file "TMP.meta"
-__pmStat("TMP"): no decompress
+__pmLogFindOpen: inspect file "TMP.0"
+__pmLogFindOpen: inspect file "TMP.index"
+__pmLogFindOpen: inspect file "TMP.meta"
 __pmFopen("TMP.???", "r"): no decompress
 __pmFopen("TMP.???", "r"): no decompress
 __pmFopen("TMP.???", "r"): no decompress
-chkLabel: fd=<n1> vol=0 [magic=0x5005260X version=X vol=0 pid=PID start=TIMESTAMP host=HOST]
+chkLabel: fd=<n1> vol=0 [magic=0x5005260X version=X vol=0 pid=PID start=TIMESTAMP host=HOST] version=3
 __pmLogChangeVol: change to volume 0
-chkLabel: fd=<n2> vol=-2 [magic=0x5005260X version=X vol=-2 pid=PID start=TIMESTAMP host=HOST]
-chkLabel: fd=<n3> vol=-1 [magic=0x5005260X version=X vol=-1 pid=PID start=TIMESTAMP host=HOST]
+chkLabel: fd=<n2> vol=-2 [magic=0x5005260X version=X vol=-2 pid=PID start=TIMESTAMP host=HOST] version=3
+chkLabel: fd=<n3> vol=-1 [magic=0x5005260X version=X vol=-1 pid=PID start=TIMESTAMP host=HOST] version=3
 __pmLogRead: fd=<n4> (peek) mode=back vol=0 posn=OFFSET @TIMESTAMP len=header+LEN+trailer
 __pmLogSetTime(0) TIMESTAMP delta=0.000000000 at ti[0]@TIMESTAMP vol=0 posn=OFFSET serial=1
 Log Label (Log Format Version OK)
@@ -41,17 +39,16 @@ Performance metrics from host HOST
 
 === non-empty dir ===
 [filtered and sorted stderr]
-__pmLogOpen: inspect file "TMP.0"
-__pmLogOpen: inspect file "TMP.index"
-__pmLogOpen: inspect file "TMP.meta"
-__pmStat("TMP"): no decompress
+__pmLogFindOpen: inspect file "TMP.0"
+__pmLogFindOpen: inspect file "TMP.index"
+__pmLogFindOpen: inspect file "TMP.meta"
 __pmFopen("TMP.???", "r"): no decompress
 __pmFopen("TMP.???", "r"): no decompress
 __pmFopen("TMP.???", "r"): no decompress
-chkLabel: fd=<n1> vol=0 [magic=0x5005260X version=X vol=0 pid=PID start=TIMESTAMP host=HOST]
+chkLabel: fd=<n1> vol=0 [magic=0x5005260X version=X vol=0 pid=PID start=TIMESTAMP host=HOST] version=3
 __pmLogChangeVol: change to volume 0
-chkLabel: fd=<n2> vol=-2 [magic=0x5005260X version=X vol=-2 pid=PID start=TIMESTAMP host=HOST]
-chkLabel: fd=<n3> vol=-1 [magic=0x5005260X version=X vol=-1 pid=PID start=TIMESTAMP host=HOST]
+chkLabel: fd=<n2> vol=-2 [magic=0x5005260X version=X vol=-2 pid=PID start=TIMESTAMP host=HOST] version=3
+chkLabel: fd=<n3> vol=-1 [magic=0x5005260X version=X vol=-1 pid=PID start=TIMESTAMP host=HOST] version=3
 __pmLogRead: fd=<n4> (peek) mode=back vol=0 posn=OFFSET @TIMESTAMP len=header+LEN+trailer
 __pmLogSetTime(0) TIMESTAMP delta=0.000000000 at ti[0]@TIMESTAMP vol=0 posn=OFFSET serial=1
 Log Label (Log Format Version OK)

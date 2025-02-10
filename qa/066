@@ -22,19 +22,15 @@ else
     ln $seq.out.nonipv6 $seq.out || exit 1
 fi
 
-trap "_cleanup; rm -f $tmp $tmp.*; exit" 0 1 2 3 15
-rm -f $seq.full
+status=0
+trap "_interrupt" 1 2 3 15	# refactor-ok
+trap "_cleanup; exit \$status" 0
 
 # don't need to regenerate config.default with pmlogconf
 #
 export PMLOGGER_CHECK_SKIP_LOGCONF=yes
 
 _stop_auto_restart pmcd
-
-_cleanup()
-{
-    _restore_auto_restart pmcd
-}
 
 # real QA test starts here
 
@@ -66,6 +62,7 @@ _filter_log()
 	-e "s;\.$DSO_SUFFIX;.\$DSO_SUFFIX;g" \
 	-e '/UNIX_DOMAIN_SOCKET/d' \
 	-e '/unix:/d' \
+	-e '/ContactAgents: agent/d' \
     | $PCP_AWK_PROG '
 /localhost/		{ sub(/^[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*$/,"MYIPADDR",$5)
 			  sub(/^[0-9a-f:][0-9a-f:]*%[0-9a-z]+$/,"MYIPADDR",$5)
@@ -75,14 +72,13 @@ _filter_log()
 			{ print }'
 }
 
-interrupt()
+_interrupt()
 {
-    echo "Interrupted"
-    _restore_auto_restart pmcd
-    exit
+    echo "Interrupted!"
+    _exit 1
 }
 
-cleanup()
+_cleanup()
 {
     if [ $_needclean ]
     then
@@ -92,8 +88,8 @@ cleanup()
 	pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
 	    && $sudo sh $tmp.cmd
 	echo "Restarting pmcd"
-	echo "+++ restarting pmcd `date` +++" >>$seq.full
-	_service pcp restart 2>&1 | tee -a $seq.full | _filter_pcp_start
+	echo "+++ restarting pmcd `date` +++" >>$seq_full
+	_service pcp restart 2>&1 | tee -a $seq_full | _filter_pcp_start
 	_restore_auto_restart pmcd
 	_wait_for_pmcd
 	_wait_for_pmlogger
@@ -118,9 +114,6 @@ _myfilter_config()
 
 pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
     && $sudo sh $tmp.cmd
-
-trap "interrupt; cleanup; exit" 1 2 3 15
-trap "cleanup; exit" 0
 
 cat >$tmp  <<End-of-File
 # Need the pmcd PMDA so that "init" restart can start pmlogger
@@ -185,20 +178,21 @@ then
 fi
 
 _save_config $PCP_PMCDCONF_PATH
-echo "+++ stopping pmcd `date` +++" >>$seq.full
-_service pcp stop | tee -a $seq.full | _filter_pcp_stop
+echo "+++ stopping pmcd `date` +++" >>$seq_full
+if ! _service pcp stop; then _exit 1; fi \
+| tee -a $seq_full | _filter_pcp_stop
 $sudo $signal -a pmgadgets pmchart pmview >/dev/null 2>&1
 $sudo cp $tmp $PCP_PMCDCONF_PATH
 # try to dodge bind: Address already in use
 [ $PCP_PLATFORM = solaris ] && sleep 10
-echo "+++ starting pmcd `date` +++" >>$seq.full
+echo "+++ starting pmcd `date` +++" >>$seq_full
 # cannot use _service here as we don't want systemctl in the picture
 # because pmcd will have trouble starting ...
 #
-$sudo $PCP_RC_DIR/pmcd start 2>&1 | tee -a $seq.full | _filter_pcp_start
-$sudo $PCP_RC_DIR/pmlogger start 2>&1 | tee -a $seq.full | _filter_pcp_start
-_wait_for_pmcd
-_wait_for_pmlogger
+$sudo $PCP_RC_DIR/pmcd start 2>&1 | tee -a $seq_full | _filter_pcp_start
+$sudo $PCP_RC_DIR/pmlogger start 2>&1 | tee -a $seq_full | _filter_pcp_start
+_wait_for_pmcd || _exit 1
+_wait_for_pmlogger || _exit 1
 echo "first config:"
 _myfilter_config  <$PCP_PMCDCONF_PATH
 echo
@@ -217,7 +211,7 @@ _myfilter_config <$PCP_PMCDCONF_PATH
 
 echo
 $sudo $signal -a -s HUP pmcd
-_wait_for_pmcd
+_wait_for_pmcd || _exit 1
 
 # wait for PMCD to finish writing log (or 5 seconds)
 for t in 1 2 3 4 5
@@ -226,7 +220,7 @@ do
     then
 	echo "$log missing!"
 	ls -l `dirname $log`
-	cat ${log}.prev >>$seq.full
+	cat ${log}.prev >>$seq_full
 	exit
     elif [ `grep -E '^Host access' $log | wc -l` = 2 ]
     then

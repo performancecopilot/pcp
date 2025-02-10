@@ -392,7 +392,16 @@ following PDU received will result in the following sequence of events:
   2. sleep for the given number of seconds
   3. sends an error PDU with PM_ERR_PMDAREADY to pmcd
 If everything went as planned, sample.not_ready returns to 0, otherwise it
-has a negative error code as value.
+has a negative error code as the value.
+
+@ sample.not_ready_msec interval (in milliseconds) during which PMDA does not respond to PDUs
+Store a positive number of milliseconds as the value of this metric. The
+following PDU received will result in the following sequence of events:
+  1. return an error PDU with PM_ERR_PMDANOTREADY to pmcd
+  2. sleep for the given number of milliseconds
+  3. sends an error PDU with PM_ERR_PMDAREADY to pmcd
+If everything went as planned, sample.not_ready returns to 0, otherwise it
+has a negative error code as the value.
 
 @ sample.wrap.long long counter that wraps
 The metric value increments by INT_MAX / 2 - 1 (from <limits.h>) every
@@ -606,17 +615,26 @@ data segment of the PMDA.
 
 This is handy for tracing memory utilization (and leaks) in libpcp_pmda.
 
-@ SAMPLE.0.1000 dynamic *.secret.bar metric
+@ SAMPLE.0.1000 dynamic sample.secret.bar metric
 Value "foo".
 
-@ SAMPLE.0.1001 dynamic *.secret.foo.one metric
+@ SAMPLE.0.1001 dynamic sample.secret.foo.one metric
 Value 1.
 
-@ SAMPLE.0.1002 dynamic *.secret.foo.two metric
+Aliases sample.secret.en.one, sample.secret.fr.un, secret.dk.et and
+sample.secret.es.unos.
+
+@ SAMPLE.0.1002 dynamic sample.secret.foo.two metric
 Value 2.
+
+Aliases sample.secret.en.two, sample.secret.fr.deux, secret.dk.to and
+sample.secret.es.dos.
 
 @ SAMPLE.0.1003 dynamic *.secret.foo.bar.three metric
 Value 3.
+
+Aliases sample.secret.en.one, sample.secret.fr.trois, secret.dk.tre and
+sample.secret.es.tres.
 
 @ SAMPLE.0.1004 dynamic *.secret.foo.bar.four metric
 Value 4.
@@ -653,6 +671,10 @@ repeats for consecutive fetches (columns).
     Krahang    1 1 1 0 0 0 1 1 1 0 0 0 1 1 1 0 0 0 1 1 1 0 0 0
     Zmeu       1 1 1 1 0 0 0 0 1 1 1 1 0 0 0 0 1 1 1 1 0 0 0 0
     Duppy      0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+
+@ SAMPLE.0.1012 Family day of month for birthday
+Same metric as sample.needprofile but without the explicit profile
+requirement, so all of the "family" instance domain.
 
 @ sample.scramble.bin Several constant instances, instances scrambled
 Like sample.bin, except
@@ -906,3 +928,14 @@ When sample.updown.obs is being incremented or decremented, this is
 the amount that is added or subtracted.
 
 Defaults to 10, but maybe changed with pmstore(1).
+
+@ sample.updown.control.mode up-down mode for sample.updown.obs
+1 if sample.obs.updown in incrementing, -1 if sample.obs.updown is
+decrementing.
+
+Defaults to 1, but maybe changed with pmstore(1).
+
+@ sample.updown.control.reset reset all controls for sample.updown.obs
+Used with pmstore(1) and any value will trigger a reset of the control
+state to: obs=0, min=0, max=200, step=10, repeat=5 and mode=1.
+up.

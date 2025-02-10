@@ -2,7 +2,6 @@
 # created by kenj on bozo-vm.localdomain Fri 03 Jun 2022 13:41:04 AEST
 #
 Text::CSV_XS cpan
-apache2
 apache2-bin
 auditd not4ci
 autoconf
@@ -20,8 +19,8 @@ bpftrace-dbgsym not4ci
 bsd-mailx
 build-essential
 chrpath
+clang
 coreutils
-Text::CSV_XS cpan
 cppcheck
 cron
 curl
@@ -30,6 +29,7 @@ dh-python
 docker.io not4ci
 dpkg-dev
 ed
+expect
 flex
 g++
 gawk
@@ -41,23 +41,26 @@ grep
 iproute2
 jq
 libavahi-common-dev
+libbpf-dev
+libbpf0
 libclass-dbi-perl
 libcmocka-dev
 libcoin-dev
 libdbd-mysql-perl
 libdbd-pg-perl
 libdevmapper-dev
+libdrm-dev
 libextutils-autoinstall-perl
 libfile-slurp-perl
 libgl1-mesa-dri
 libibmad-dev
 libibumad-dev
 libicu70
+libinih-dev
 libjson-perl
 liblist-moreutils-perl
 liblzma-dev
 libncurses-dev
-libncurses5-dev
 libnet-snmp-perl
 libperl5.34
 libpfm4-dev
@@ -84,6 +87,8 @@ libvirt-daemon-system
 libxml-libxml-perl
 libxml-tokeparser-perl
 libyaml-libyaml-perl
+linux-headers-`uname -r` not4ci
+llvm
 lm-sensors
 make
 man-db
@@ -92,7 +97,7 @@ mariadb-client-core-10.6
 memcached
 net-tools
 nmap
-openjdk-11-jre-headless
+openjdk-21-jre-headless
 openssl
 perl
 perl-modules-5.34
@@ -108,11 +113,13 @@ python3-elasticsearch
 python3-json-pointer
 python3-libvirt
 python3-lxml
+python3-minimal
 python3-openpyxl
 python3-pil
 python3-prometheus-client
 python3-psycopg2
 python3-pymongo
+python3-pyodbc
 python3-requests
 python3-setuptools
 python3-six
@@ -137,11 +144,4 @@ xkb-data
 zabbix-agent
 zfsutils-linux
 zlib1g-dev
-libbpf0
-libbpf-dev
-clang-14
-clang
-llvm-14
-llvm
-fakeroot
-
+zstd

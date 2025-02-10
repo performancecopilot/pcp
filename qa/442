@@ -14,9 +14,9 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-rm -f $seq.full tmparch/big2.* tmparch/big3.*
-./tmparch/mkbig1 > $seq.full 2>&1
-[ $? -eq 0 ] || _notrun `cat $seq.full`
+rm -f tmparch/big2.* tmparch/big3.*
+./tmparch/mkbig1 > $seq_full 2>&1
+[ $? -eq 0 ] || _notrun `cat $seq_full`
 
 # 10GB should keep us out of trouble
 free=`_check_freespace 10240`
@@ -30,7 +30,7 @@ do
     ln $file `echo $file | sed -e 's/big1/big2/'`
     :
 done
-ls -l tmparch/big1* tmparch/big2* >$seq.full 2>&1
+ls -l tmparch/big1* tmparch/big2* >$seq_full 2>&1
 
 _filter()
 {
@@ -40,7 +40,7 @@ _filter()
 
 # real QA test starts here
 pmlogextract tmparch/big1 tmparch/big2 tmparch/big3 2>&1 | _filter
-ls -l tmparch/big3* >>$seq.full 2>&1
+ls -l tmparch/big3* >>$seq_full 2>&1
 
 # expect 3 volumes, and all < 2^31 bytes in size
 #
@@ -77,7 +77,7 @@ do
     echo "-$size" >>$tmp.bc
 done
 
-cat $tmp.bc >>$seq.full
+cat $tmp.bc >>$seq_full
 echo
 echo "sum(input data volume sizes) - sum(output data volume sizes)"
 ( tr '\012' ' ' <$tmp.bc ; echo ) | bc

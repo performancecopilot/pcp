@@ -14,6 +14,7 @@
 
 #include <pcp/pmapi.h>
 #include <pcp/pmda.h>
+#include <pcp/libpcp.h>
 #include "ss_stats.h"
 
 static ss_stats_t ss_p;
@@ -194,22 +195,70 @@ ss_parse(char *line, int has_state_field, ss_stats_t *ss)
     int i;
     char *r, *s, *p = line;
     int sts = 0;
+    int		numscan;
+    char	*netid;
+    char	*state;
+    char	*src;
+    char	*dst;
 
     memset(&ss_p, 0, sizeof(ss_p));
     if (has_state_field) {
-        sscanf(line, "%s %s %u %u %s %s",
-                ss_p.netid, ss_p.state, &ss_p.recvq, &ss_p.sendq, ss_p.src, ss_p.dst);
+        numscan = sscanf(line, "%ms %ms %u %u %ms %ms",
+                &netid, &state, &ss_p.recvq, &ss_p.sendq, &src, &dst);
+	if (numscan != 6) {
+	    if (__pmNotifyThrottle(__FILE__, __LINE__) < 2)
+		pmNotifyErr(LOG_INFO, "ss_parse: sscanf->%d not 6: %s\n", numscan, line);
+	    return PM_ERR_CONV;
+	}
         for (i=0; i < 6; i++)
             p = skip(p, ' ');
-
     } else {
         /* Some filters cause ss to omit the State column */
-        strcpy(ss_p.state, "FILTER");
-        sscanf(line, "%s %u %u %s %s",
-                ss_p.netid, &ss_p.recvq, &ss_p.sendq, ss_p.src, ss_p.dst);
+        state = "FILTER";
+        numscan = sscanf(line, "%ms %u %u %ms %ms",
+                &netid, &ss_p.recvq, &ss_p.sendq, &src, &dst);
+	if (numscan != 5) {
+	    if (__pmNotifyThrottle(__FILE__, __LINE__) < 2)
+		pmNotifyErr(LOG_INFO, "ss_parse: sscanf->%d not 5: %s\n", numscan, line);
+	    return PM_ERR_CONV;
+	}
         for (i=0; i < 5; i++)
             p = skip(p, ' ');
     }
+
+    numscan = 2;
+    if (strlen(netid)+1 <= sizeof(ss_p.netid)) {
+	numscan++;
+	strcpy(ss_p.netid, netid);
+    }
+    else if (__pmNotifyThrottle(__FILE__, __LINE__) < 2)
+	pmNotifyErr(LOG_INFO, "ss_parse: netid: %s > %d bytes\n", netid, (int)sizeof(ss_p.netid));
+    free(netid);
+    
+    if (strlen(state)+1 <= sizeof(ss_p.state)) {
+	numscan++;
+	strcpy(ss_p.state, state);
+    }
+    else if (__pmNotifyThrottle(__FILE__, __LINE__) < 2)
+	pmNotifyErr(LOG_INFO, "ss_parse: state: %s > %d bytes\n", state, (int)sizeof(ss_p.state));
+    if (has_state_field)
+	free(state);
+    if (strlen(src)+1 <= sizeof(ss_p.src)) {
+	numscan++;
+	strcpy(ss_p.src, src);
+    }
+    else if (__pmNotifyThrottle(__FILE__, __LINE__) < 2)
+	pmNotifyErr(LOG_INFO, "ss_parse: src: %s > %d bytes\n", src, (int)sizeof(ss_p.src));
+    free(src);
+    if (strlen(dst)+1 <= sizeof(ss_p.dst)) {
+	numscan++;
+	strcpy(ss_p.dst, dst);
+    }
+    else if (__pmNotifyThrottle(__FILE__, __LINE__) < 2)
+	pmNotifyErr(LOG_INFO, "ss_parse: dst: %s > %d bytes\n", dst, (int)sizeof(ss_p.dst));
+    free(dst);
+    if (numscan != 6)
+	return PM_ERR_TRUNC;
 
     for (i=0; parse_table[i].field != NULL; i++)
         parse_table[i].found = 0;

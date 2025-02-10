@@ -18,7 +18,6 @@
 
 # Example use of this module for creating a PCP archive:
 
-        import math
         import time
         import pmapi
         from pcp import pmi
@@ -43,21 +42,22 @@
         log.pmiPutValue("kernel.all.load", "1 minute", "%f" % 0.01)
         log.pmiPutValue("kernel.all.load", "5 minute", "%f" % 0.05)
         log.pmiPutValue("kernel.all.load", "15 minute", "%f" % 0.15)
-        timetuple = math.modf(time.time())
-        useconds = int(timetuple[0] * 1000000)
-        seconds = int(timetuple[1])
-        log.pmiWrite(seconds, useconds)
+        log.pmiWrite(time.time())  # sec since epoch, or datetime, or
+        #log.pmiWrite(seconds, useconds)
+
         del log
 """
 
 from pcp.pmapi import pmID, pmInDom, pmUnits, pmHighResResult, pmResult
 from cpmi import pmiErrSymDict, PMI_MAXERRMSGLEN
-
-import ctypes
-from ctypes import cast, c_int, c_uint, c_longlong, c_char_p, POINTER
+from ctypes import c_int, c_uint, c_longlong, c_char_p
+from ctypes import cast, create_string_buffer, POINTER, CDLL
+from ctypes.util import find_library
+from datetime import datetime
+from math import modf
 
 # Performance Co-Pilot PMI library (C)
-LIBPCP_IMPORT = ctypes.CDLL(ctypes.util.find_library("pcp_import"))
+LIBPCP_IMPORT = CDLL(find_library("pcp_import"))
 
 ##
 # PMI Log Import Services
@@ -156,7 +156,7 @@ class pmiErr(Exception):
     def __str__(self):
         try:
             error_symbol = pmiErrSymDict[self.code]
-            error_string = ctypes.create_string_buffer(PMI_MAXERRMSGLEN)
+            error_string = create_string_buffer(PMI_MAXERRMSGLEN)
             error_string = LIBPCP_IMPORT.pmiErrStr_r(self.code, error_string,
                                                      PMI_MAXERRMSGLEN)
         except KeyError:
@@ -201,6 +201,7 @@ class pmiLogImport(object):
         if not isinstance(path, bytes):
             path = path.encode('utf-8')
         self._path = path        # the archive path (file name)
+        self._epoch = datetime.utcfromtimestamp(0)    # epoch sec
         self._ctx = LIBPCP_IMPORT.pmiStart(c_char_p(path), inherit)
         if self._ctx < 0:
             raise pmiErr(self._ctx)
@@ -360,11 +361,20 @@ class pmiLogImport(object):
             raise pmiErr(status)
         return status
 
-    def pmiWrite(self, sec, usec):
+    def pmiWrite(self, sec, usec=None):
         """PMI - flush data to a Log Import archive """
         status = LIBPCP_IMPORT.pmiUseContext(self._ctx)
         if status < 0:
             raise pmiErr(status)
+        if sec and not usec:
+            if isinstance(sec, datetime):
+                sec = float((sec - self._epoch).total_seconds())
+            if isinstance(sec, float):
+                ts = modf(sec)
+                sec = int(ts[1])
+                usec = int(ts[0] * 1000000)
+            else:
+                usec = 0
         status = LIBPCP_IMPORT.pmiWrite2(sec, usec)
         if status < 0:
             raise pmiErr(status)

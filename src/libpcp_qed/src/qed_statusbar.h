@@ -49,13 +49,11 @@ protected:
 
     struct {
 	QGridLayout *grid;
-	QSpacerItem *labelSpacer;	// spacer between date/value labels
-	QSpacerItem *rightSpacer;	// spacer at right edge for toolbar
 	QToolButton *timeFrame;
 	QedTimeButton *timeButton;
-	QLabel *gadgetLabel;
-	QLabel *valueLabel;
-	QLabel *dateLabel;
+	  QLabel *dateLabel;
+	  QSpacerItem *labelSpacer;
+	  QLabel *valueLabel;
     } my;
 };
 

@@ -19,7 +19,7 @@ in the source distribution for its full text.
 
 #include "Hashtable.h"
 #include "Machine.h"
-#include "ProcessList.h"
+#include "ProcessTable.h"
 #include "UsersTable.h"
 
 
@@ -56,6 +56,6 @@ typedef struct DragonFlyBSDMachine_ {
    unsigned long* cp_times_n;
 } DragonFlyBSDMachine;
 
-char* DragonFlyBSDMachine_readJailName(DragonFlyBSDMachine* host, int jailid);
+char* DragonFlyBSDMachine_readJailName(const DragonFlyBSDMachine* host, int jailid);
 
 #endif

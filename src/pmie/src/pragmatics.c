@@ -1157,7 +1157,7 @@ void
 fillVSet(Expr *x, pmValueSet *vset)
 {
     if (x->valid > 0) {
-	if (finite(*((double *)x->ring))) {	/* copy value */
+	if (isfinite(*((double *)x->ring))) {	/* copy value */
 	    vset->numval = 1;
 	    memcpy(&vset->vlist[0].value.pval->vbuf, x->ring, sizeof(double));
 	}

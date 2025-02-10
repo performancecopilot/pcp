@@ -13,6 +13,7 @@ bcc-tools
 bind-utils
 bison
 bpftrace
+clang
 coreutils
 cronie
 curl
@@ -22,6 +23,7 @@ cyrus-sasl-lib
 cyrus-sasl-md5
 cyrus-sasl-plain
 ed
+expect
 flex
 gawk
 gcc
@@ -31,15 +33,21 @@ gfs2-utils
 git
 git-core
 grep
+inih-devel
 iproute
 httpd
 initscripts
 java-latest-openjdk-headless
+jq
+libbpf
+libdrm-devel
 libicu-devel
 libpfm-devel
+libselinux-devel
 libuv-devel
 libvirt-daemon
 libvirt-daemon-driver-qemu
+llvm
 lm_sensors
 mailx
 make
@@ -83,10 +91,13 @@ python3-jsonpointer
 python3-libs
 python3-libvirt
 python3-lxml
+# broken install on RHEL 8.10 (vm39) 20 Sep 2024
+#python3-pandas
 python3-pillow
 python3-prometheus_client
 python3-psycopg2
 python3-pylint
+python3-pymongo
 python3-requests
 python3-rtslib
 python3-setuptools
@@ -112,9 +123,14 @@ sqlite
 sqlite-libs
 sysstat
 systemd-devel
+systemtap
+systemtap-devel
 systemtap-sdt-devel
 time
+valkey
 valgrind
 xfsprogs
 xkeyboard-config
 xz-devel
+zabbix7.0-agent
+zstd

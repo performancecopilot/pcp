@@ -21,8 +21,7 @@ which sqlplus >/dev/null 2>&1 || _notrun "No Oracle 'sqlplus' binary found"
 count=`pmprobe oracle.version | awk '{ print $2 }'`
 [ $count -ge 1 ] || _notrun "Oracle database PMDA is not setup and running"
 
-$sudo rm -rf $tmp $tmp.* $seq.full
-perl $PCP_PMDAS_DIR/oracle/connect.pl >$seq.full 2>&1
+perl $PCP_PMDAS_DIR/oracle/connect.pl >$seq_full 2>&1
 [ $? -eq 0 ] || _notrun "Oracle database connectivity unavailable"
 
 # pick a sensible sounding default SID for oraenv
@@ -88,19 +87,19 @@ _query()
 
     echo === Fetching Oracle $table metrics
 
-    echo === Oracle Query: $table >> $seq.full
-    #debug#       | tee -a $seq.full
+    echo === Oracle Query: $table >> $seq_full
+    #debug#       | tee -a $seq_full
     sqlplus -S $username/$password@$sids < $file \
 	| tr '\t' ' ' | tr -s ' ' \
 	| sed -e '/^$/d' -e 's/ | /|/g' -e 's/^ //' \
 	> $tmp.ora 2> $tmp.err
-    cat $tmp.ora >> $seq.full
+    cat $tmp.ora >> $seq_full
     if [ -s $tmp.err ]
     then
-	echo "=== Errors: $table" | tee -a $seq.full
-	cat $tmp.err | tee -a $seq.full
+	echo "=== Errors: $table" | tee -a $seq_full
+	cat $tmp.err | tee -a $seq_full
     fi
-    echo === Done: $table >> $seq.full
+    echo === Done: $table >> $seq_full
 }
 
 _probe()
@@ -111,9 +110,9 @@ _probe()
     echo === Fetching PCP $table metrics
     pmprobe -v $metric | sed -e "s/$metric 1 //g" -e 's/"//g' > $tmp.pcp
 
-    echo === PCP Values: $table >> $seq.full
-    cat $tmp.pcp >> $seq.full
-    echo === Done: $table >> $seq.full
+    echo === PCP Values: $table >> $seq_full
+    cat $tmp.pcp >> $seq_full
+    echo === Done: $table >> $seq_full
 }
 
 _probe_insts()
@@ -130,9 +129,9 @@ _probe_insts()
 		-e 's/\"\] value /|/g' \
 	    | LC_COLLATE=POSIX sort -u > $tmp.pcp
 
-    echo === PCP Values: $table >> $seq.full
-    cat $tmp.pcp >> $seq.full
-    echo === Done: $table >> $seq.full
+    echo === PCP Values: $table >> $seq_full
+    cat $tmp.pcp >> $seq_full
+    echo === Done: $table >> $seq_full
 }
 
 _exact_match()

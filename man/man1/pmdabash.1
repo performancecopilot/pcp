@@ -89,7 +89,7 @@ but in older versions the superuser account ("root") was used by default.
 In order for a host to export the names, help text and values for the bash
 performance metrics, do the following as root:
 .PP
-.ft CW
+.ft CR
 .nf
 .in +0.5i
 # cd $PCP_PMDAS_DIR/bash
@@ -104,7 +104,7 @@ agent is required.
 .PP
 If you want to undo the installation, do the following as root:
 .PP
-.ft CW
+.ft CR
 .nf
 .in +0.5i
 # cd $PCP_PMDAS_DIR/bash
@@ -127,7 +127,7 @@ script and
 .BR pmdabash ,
 the script should take the following actions:
 .PP
-.ft CW
+.ft CR
 .nf
 .in +0.5i
 #!/bin/sh
@@ -145,7 +145,7 @@ pcp_trace off         # disable tracing
 The tracing can be enabled and disabled any number of times by the script.
 On successful installation of the agent, several metrics will be available:
 .PP
-.ft CW
+.ft CR
 .nf
 .in +0.5i
 $ pminfo bash
@@ -168,7 +168,7 @@ can be verified using the
 .BR pmevent (1)
 command, as follows:
 .PP
-.ft CW
+.ft CR
 .nf
 .in +0.5i
 $ pmevent \-t 1 \-x '' bash.xtrace.records
@@ -246,3 +246,6 @@ as described in
 .BR pmevent (1)
 and
 .BR pmcd (1).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ SHell bashproc lineno maxmem numclients pcp_trace queuemem xtrace

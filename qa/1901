@@ -21,26 +21,26 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 mkdir -p $tmp
+cd $tmp
 PMLOGGER=$PCP_BIN_DIR/pmlogger
 spec=qa-$seq-%Y%m%d.%H.%M
 
-echo "== checking SIGUSR2 reexec does not leak FDs" | tee -a $seq.full
-$PMLOGGER -U$username -t 2s -c config.default -l $tmp/pmlogger.log $tmp/$spec 2>$tmp/$seq.err &
+echo "== checking SIGUSR2 reexec does not leak FDs" | tee -a $seq_full
+$PMLOGGER -U$username -t 2s -c config.default -l pmlogger.log $spec 2>$seq.err &
 pid=$!
-echo "pid=$pid" >>$seq.full
-_wait_for_pmlogger $pid $tmp/pmlogger.log
+echo "pid=$pid" >>$seq_full
+_wait_for_pmlogger $pid pmlogger.log || _exit 1
 sleep 5
 before=`$sudo pminfo -f proc.fd.count | awk '$2 ~ /^\['$pid'$/ {print $NF}'`
-echo "before=$before" >>$seq.full
+echo "before=$before" >>$seq_full
 $sudo -u $username kill -USR2 $pid
 sleep 5
 after=`$sudo pminfo -f proc.fd.count | awk '$2 ~ /^\['$pid'$/ {print $NF}'`
-echo "after=$pid" >>$seq.full
-echo === log === >>$seq.full; cat $tmp/pmlogger.log >>$seq.full
-echo === err === >>$seq.full; cat $tmp/$seq.err >>$seq.full
+echo "after=$pid" >>$seq_full
+echo === log === >>$seq_full; cat pmlogger.log >>$seq_full
+echo === err === >>$seq_full; cat $seq.err >>$seq_full
 if [ "$before" != "$after" ]
 then
     echo "FAILED $before not equal to $after"
@@ -50,6 +50,6 @@ else
     status=0
 fi
 $sudo -u $username kill -TERM $pid
-_wait_pmlogger_end $pid
+_wait_pmlogger_end $pid || _exit 1
 
 exit

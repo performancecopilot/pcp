@@ -16,7 +16,6 @@ echo "QA output created by $seq"
 which pmdumptext >/dev/null 2>&1 || _notrun "pmdumptext not installed"
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
@@ -38,12 +37,12 @@ rsyslog.queues.size["action 7 queue"]
 rsyslog.queues.size["main Q"]
 EOF
 
-# Debug tracing sent to $seq.full - in failure case, pmdumptext will
+# Debug tracing sent to $seq_full - in failure case, pmdumptext will
 # abort on MacOSX as per
 # https://github.com/performancecopilot/pcp/issues/35
 #
 pmdumptext -z -S@07:00 -a archives/small -c $tmp.dumptext -t 15sec -s 100 \
-	-DDESPERATE,PDUBUF,LOG,FETCH 2>$seq.full
+	-DDESPERATE,PDUBUF,LOG,FETCH 2>$seq_full
 
 # additional tests to make sure the output has the same values for both
 # -c config spec and command line spec

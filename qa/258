@@ -54,8 +54,8 @@ _cleanup()
     exit $status
 }
 
-_change_config pmlogger on
-_change_config pmcd on
+_change_config pmlogger on || _exit 1
+_change_config pmcd on || _exit 1
 
 install_on_cleanup=false
 pminfo trace >/dev/null 2>&1 && install_on_cleanup=true
@@ -93,9 +93,9 @@ export PCP_TRACE_RECONNECT
 
 ( ( $PCP_DEMOS_DIR/trace/app2 >/dev/null 2>&1 & ) )
 sleep 3
-_service pcp restart 2>&1 | _filter_pcp_start
-_wait_for_pmcd
-_wait_for_pmlogger
+if ! _service pcp restart 2>&1; then _exit 1; fi | _filter_pcp_start
+_wait_for_pmcd || _exit 1
+_wait_for_pmlogger || _exit 1
 
 # time_sucker transaction sleeps for 10 secs - wait for this
 sleep 11

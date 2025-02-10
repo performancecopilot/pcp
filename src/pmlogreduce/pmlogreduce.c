@@ -1,5 +1,5 @@
 /*
- * pmlogreduce - statistical reduction of a PCP archive log
+ * pmlogreduce - statistical reduction of a PCP archive
  *
  * Copyright (c) 2014,2017,2021-2022 Red Hat.
  * Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
@@ -320,7 +320,7 @@ main(int argc, char **argv)
     /* create output log - must be done before writing label */
     archctl.ac_log = &logctl;
     vers = ilabel.ll_magic & 0xff;
-    if ((sts = __pmLogCreate("", oname, vers, &archctl)) < 0) {
+    if ((sts = __pmLogCreate("", oname, vers, &archctl, 0)) < 0) {
 	fprintf(stderr, "%s: Error: __pmLogCreate: %s\n",
 		pmGetProgname(), pmErrStr(sts));
 	exit(1);

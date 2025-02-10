@@ -1,13 +1,13 @@
 /*
- * Copyright (c) 2014,2016,2021-2022 Red Hat.
+ * Copyright (c) 2014,2016,2021-2023 Red Hat.
  * Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
  * Copyright (c) 2007-2009, Aconex.  All Rights Reserved.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -17,7 +17,6 @@
 #include <QSettings>
 #include <QStatusBar>
 #include <QApplication>
-#include <QDesktopWidget>
 #include "main.h"
 #include "openviewdialog.h"
 #include <pcp/libpcp.h>
@@ -688,7 +687,7 @@ main(int argc, char ** argv)
     else if (liveGroup->numContexts() > 0) {
 	liveGroup->defaultTZ(tzLabel, tzString);
 	pmtimevalNow(&logStartTime);
-	logEndTime.tv_sec = logEndTime.tv_usec = PM_MAX_TIME_T;
+	logEndTime.tv_sec = PM_MAX_TIME_T;
 	logEndTime.tv_usec = 0;
 	if ((sts = pmParseTimeWindow(opts.start_optarg, opts.finish_optarg,
 					opts.align_optarg, opts.origin_optarg,

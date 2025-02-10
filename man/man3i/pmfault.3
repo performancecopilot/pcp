@@ -1,0 +1,449 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.\"
+.TH PMFAULT 3 "" "Performance Co-Pilot"
+.ds xM pmfault
+.SH NAME
+\f3__pmFaultInject\f1,
+\f3__pmFaultSummary\f1,
+\f3PM_FAULT_POINT\f1,
+\f3PM_FAULT_RETURN\f1,
+\f3PM_FAULT_CHECK\f1,
+\f3PM_FAULT_CLEAR\f1 \- Fault Injection Infrastructure for QA
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.br
+#include <pcp/fault.h>
+.sp
+void __pmFaultInject(const char *\fIident\fP, int \fIclass\fP);
+.br
+void __pmFaultSummary(FILE *\fIf\fP);
+.sp
+PM_FAULT_POINT(\fIident\fP, \fIclass\fP);
+.br
+PM_FAULT_RETURN(\fIretvalue\fP);
+.br
+PM_FAULT_CHECK;
+.br
+PM_FAULT_CLEAR;
+.sp
+cc \-DPM_FAULT_INJECTION=1 ... \-lpcp_fault
+.ft 1
+.SH DESCRIPTION
+As part of the coverage-driven changes to QA in PCP 3.6, it became
+apparent that we needed someway to exercise the ``uncommon''
+code paths associated with error detection and recovery.
+.PP
+The facilities described below provide
+a basic fault injection infrastructure (for
+.I libpcp
+only at this stage, although the mechanism is far more general and could
+easily be extended).
+.PP
+A special build is required to create
+.I libpcp_fault
+and the associated
+.I <pcp/fault.h>
+header file.
+Once this has been done, new QA applications may be built with
+.B \-DPM_FAULT_INJECTION=1
+and/or existing applications can be exercised in presence of
+fault injection by forcing
+.I libpcp_fault
+to be used in preference to
+.I libpcp
+as described below.
+.PP
+In the code to be tested,
+.B __pmFaultInject
+defines a fault point at which a fault of type
+.I class
+may be injected.
+.I ident
+is a string to uniquely identify the fault point across all
+of the PCP source code, so something
+like "libpcp/" __FILE__ ":<number>" works just fine.
+The
+.I ident
+string also determines if a fault will be injected at run-time or not
+\- refer to the
+.B "RUN-TIME CONTROL"
+section below.
+.I class
+selects a failure type, using one of the following defined
+values (this list may well grow over time):
+.TP
+.B PM_FAULT_ALLOC
+Will cause the
+.B next
+call to
+.BR malloc (3),
+.BR realloc (3)
+or
+.BR strdup (3)
+to fail, returning NULL and setting
+.I errno
+to
+.BR ENOMEM .
+We could extend the coverage to all of the malloc-related routines,
+but these three are sufficient to cover the vast majority of the uses
+within
+.IR libpcp .
+.TP
+.B PM_FAULT_CALL
+Will cause the
+.B next
+call to an instrumented routine
+to fail by returning an error code (possibly the new
+.B PM_ERR_FAULT
+code).
+The actual error code is defined in the
+.B PM_FAULT_RETURN
+macro at the head of an instrumented routine.
+Initially, only
+.BR __pmRegisterAnon (3)
+(returns
+.BR PM_ERR_FAULT ),
+.BR __pmGetPDU (3)
+(returns
+.BR PM_ERR_TIMEOUT )
+and
+.BR __pmAllocResult (3)
+(returns
+.BR NULL )
+were instrumented as a proof of concept for this part of the
+facility, however other routines may have this fault injection
+capability added over time.
+.TP
+.B PM_FAULT_MISC
+The ``other'' class, currently used with
+.B PM_FAULT_CHECK
+as described below.
+.PP
+To allow fault injection to co-exist within the production source
+code,
+.B PM_FAULT_POINT
+is a macro that emits no code by default, but when
+.B PM_FAULT_INJECTION
+is defined this becomes a call to
+.BR __pmFaultInject .
+Throughout
+.I libpcp
+we use
+.B PM_FAULT_POINT
+and
+.B not
+.B __pmFaultInject
+so that both
+.I libpcp
+and
+.I libpcp_fault
+can be built from the same source code.
+.PP
+Similarly, the macro
+.B PM_FAULT_RETURN
+emits no code unless
+.B PM_FAULT_INJECTION
+is defined, in which case if a fault of type
+.B PM_FAULT_CALL
+has been armed with
+.B __pmFaultInject
+then, the enclosing
+routine return with the function value
+.IR retvalue .
+.PP
+The
+.B PM_FAULT_CHECK
+macro returns a value that may be 0 or 1.
+If
+.B PM_FAULT_INJECTION
+is defined then if a fault of type
+.B PM_FAULT_MISC
+has been armed with
+.B __pmFaultInject
+then the value is 1 else it is 0.
+.PP
+.B PM_FAULT_CHECK
+is most often used in concert with the
+.B PM_FAULT_POINT
+macro with the
+.B PM_FAULT_MISC
+class to potentially arm a trigger, then test
+.B PM_FAULT_CHECK
+and if this has the value 1, then the
+.B PM_FAULT_CLEAR
+macro is used to clear any armed faults, and
+the fault injection code is executed.
+.PP
+This is illustrated
+in the example below from
+.IR src/libpcp/src/exec.c :
+.sp
+.ft CR
+.nf
+    pid = fork();
+
+    /* begin fault-injection block */
+    PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_MISC);
+    if (PM_FAULT_CHECK) {
+	PM_FAULT_CLEAR;
+	if (pid > (pid_t)0)
+	    kill(pid, SIGKILL);
+	setoserror(EAGAIN);
+	pid = -1;
+    }
+    /* end fault-injection block */
+.fi
+.ft
+.PP
+A summary of fault points seen and faults injected is produced
+on stdio stream
+.I f
+by
+.BR __pmFaultSummary .
+.PP
+Additional tracing (via
+.B \-Dfault
+or
+.BR pmDebugOptions.fault )
+and a new
+PMAPI error code (\c
+.BR PM_ERR_FAULT )
+are also defined, although
+these will only ever be seen or used in
+.IR libpcp_fault .
+If
+.B pmDebugOptions.fault
+is set the first time
+.B __pmFaultInject
+is called, then
+.B __pmFaultSummary
+will be called automatically to report on
+.I stderr
+when the application exits (via
+.BR atexit (3)).
+.PP
+Fault injection cannot be nested.  Each call to
+.B __pmFaultInject
+clears any previous fault injection that has been armed, but not yet
+executed.
+.PP
+The fault injection infrastructure is
+.B not
+thread-safe and should only be used with applications that are
+known to be single-threaded.
+.SH RUN-TIME CONTROL
+By default, no fault injection is enabled at run-time, even when
+.B __pmFaultInject
+is called.
+.PP
+Faults are selectively enabled using a control file, identified by the environment
+variable
+.BR $PM_FAULT_CONTROL ;
+if this is not set, no faults are enabled.
+.PP
+The control file (if it exists) is read the first time
+.B __pmFaultInject
+is called, and
+contains lines of the form:
+.ti +8n
+.I ident
+.I op
+.I number
+.br
+that define fault injection guards.
+.PP
+.I ident
+is a fault point string (as defined by a call to
+.BR __pmFaultInject ,
+or more usually the
+.B PM_FAULT_POINT
+macro).  So one needs access to the
+.I libpcp
+source code to determine the available
+.I ident
+strings and their semantics.
+.PP
+.I op
+is one of the C-style operators
+.BR >= ,
+.BR > ,
+.BR == ,
+.BR < ,
+.BR <= ,
+.B !=
+or
+.BR %
+and
+.I number
+is an unsigned integer.
+.I op
+.I number
+is optional and the default is
+.BR ">0"
+.PP
+The semantics of the fault injection guards are that each time
+.B __pmFaultInject
+is called for a particular
+.IR ident ,
+a trip count is incremented (the first
+trip is 1); if the C-style expression
+.I tripcount
+.I op
+.I number
+has the
+value 1 (so
+.B true
+for most
+.IR op s,
+or the remainder equals 1 for the
+.B %
+.IR op ),
+then
+a fault of the
+.I class
+defined for the fault point associated with
+.I ident
+will be armed, and executed as soon as possible.
+.PP
+Within the control file, blank lines are ignored and lines
+beginning with # are treated as comments.
+.PP
+For an existing application linked with
+.I libpcp
+fault injection may still be used by forcing
+.I libpcp_fault
+to be used in the place of
+.IR libpcp .
+The following example shows how this might be done.
+.sp
+.ft CR
+.nf
+$ export PM_FAULT_CONTROL=/tmp/control
+$ cat $PM_FAULT_CONTROL
+# ok for 2 trips, then inject errors
+libpcp/events.c:1  >2
+
+$ export LD_PRELOAD=/usr/lib/libpcp_fault.so
+$ pmevent -Dfault -s 3 sample.event.records
+host:      localhost
+samples:   3
+interval:  1.00 sec
+sample.event.records[fungus]: 0 event records
+__pmFaultInject(libpcp/events.c:1) ntrip=1 SKIP
+sample.event.records[bogus]: 2 event records
+  10:46:12.413 --- event record [0] flags 0x1 (point) ---
+    sample.event.param_string "fetch #0"
+  10:46:12.413 --- event record [1] flags 0x1 (point) ---
+    sample.event.param_string "bingo!"
+__pmFaultInject(libpcp/events.c:1) ntrip=2 SKIP
+sample.event.records[fungus]: 1 event records
+  10:46:03.416 --- event record [0] flags 0x1 (point) ---
+__pmFaultInject(libpcp/events.c:1) ntrip=3 INJECT
+sample.event.records[bogus]: pmUnpackEventRecords: Cannot allocate memory
+__pmFaultInject(libpcp/events.c:1) ntrip=4 INJECT
+sample.event.records[fungus]: pmUnpackEventRecords: Cannot allocate memory
+__pmFaultInject(libpcp/events.c:1) ntrip=5 INJECT
+sample.event.records[bogus]: pmUnpackEventRecords: Cannot allocate memory
+=== Fault Injection Summary Report ===
+libpcp/events.c:1: guard trip>2, 5 trips, 3 faults
+.fi
+.ft
+.SH EXAMPLES
+Refer to the PCP and PCP QA source code.
+.PP
+The macro definitions are in
+.IR src/include/pcp/fault.h .
+.PP
+.I src/libpcp/src/fault.c
+contains all of the the underlying implementation.
+.PP
+.I src/libpcp_fault
+and
+.I src/libpcp_fault/src
+contains the recipe and Makefiles for creating and
+installing
+.IR libpcp_fault.so
+and
+.IR <pcp/fault.h> .
+.PP
+.BR PM_FAULT_RETURN
+was initiallly used in the following
+.I libpcp
+source files:
+.IR derive_parser.y.in ,
+.I pdu.c
+and
+.IR result.c .
+.PP
+.BR PM_FAULT_POINT .
+was initiallly used in the following
+.I libpcp
+source files:
+.IR derive_parser.y.in ,
+.IR desc.c ,
+.IR e_indom.c ,
+.IR e_labels.c ,
+.IR err.c ,
+.IR events.c ,
+.IR exec.c ,
+.IR fetch.c ,
+.IR help.c ,
+.IR instance.c ,
+.IR interp.c ,
+.IR labels.c ,
+.IR logmeta.c ,
+.IR pmns.c ,
+.I p_profile.c
+and
+.IR store.c .
+.PP
+The ``fault'' group of QA tests
+show examples of control file use.  To see which tests are involved
+.sp
+.ft CR
+.nf
+$ cd qa
+$ check -n -g fault
+.fi
+.ft
+.SH DIAGNOSTICS
+Some non-recoverable errors are reported on
+.IR stderr .
+.SH ENVIRONMENT
+.TP
+.B PM_FAULT_CONTROL
+Full path to the fault injection control file.
+.TP
+.B LD_PRELOAD
+Force
+.I libpcp_fault
+to be used in preference to
+.IR libpcp .
+.SH SEE ALSO
+.BR PMAPI (3)
+
+.\" control lines for scripts/man-spell
+.\" +ok+ DPM_FAULT_INJECTION {from -DPM_FAULT_INJECTION}
+.\" +ok+ PM_FAULT_INJECTION PM_FAULT_CONTROL
+.\" +ok+ PM_FAULT_RETURN PM_FAULT_ALLOC PM_FAULT_CHECK PM_FAULT_CLEAR
+.\" +ok+ PM_FAULT_POINT derive_parser PM_FAULT_CALL
+.\" +ok+ PM_FAULT_MISC param_string LD_PRELOAD setoserror
+.\" +ok+ initiallly {from -lpcp_fault}
+.\" +ok+ p_profile tripcount __FILE__ e_labels
+.\" +ok+ e_indom logmeta Dfault {from -Dfault} interp ntrip
+.\" +ok+ desc pdu tmp src qa co {from co-exist} op {from op(erator)}
+.\" +ok+ pmfault {man page title}

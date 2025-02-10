@@ -3,7 +3,7 @@
 # pmlogreduce rate conversion
 #
 # Copyright (c) 2002 Silicon Graphics, Inc.  All Rights Reserved.
-# 
+#
 
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -14,10 +14,8 @@ echo "QA output created by $seq"
 . ./common.check
 
 status=0	# success is the default!
-$sudo rm -rf $tmp.*
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
-rm -f $seq.full
 
 _filter()
 {
@@ -25,7 +23,7 @@ _filter()
 	-e '/^ *$/d' \
 	-e 's/  */ /g' \
 	-e 's/ $//' \
-	-e '/End of PCP archive log/d' \
+	-e '/End of PCP archive/d' \
     | $PCP_AWK_PROG '
 BEGIN			{ skip = 1 }
 $1 == "interval:"	{ skip = 0; next }
@@ -64,26 +62,26 @@ _fix_e_fmt()
 _do()
 {
     $PCP_ECHO_PROG $PCP_ECHO_N "$1""$PCP_ECHO_C"
-    echo >>$seq.full
-    echo "=== $1 orig ===" >>$seq.full
+    echo >>$seq_full
+    echo "=== $1 orig ===" >>$seq_full
     pmval -z -O 1m -A 15m -t 15m -a archives/kenj-pc-1 $1 2>$tmp.orig.err \
-    | tee -a $seq.full \
+    | tee -a $seq_full \
     | _fix_e_fmt \
     | _filter >$tmp.orig
-    echo "--- stderr ---" >>$seq.full
-    cat $tmp.orig.err >>$seq.full
-    echo "--- filtered ---" >>$seq.full
-    cat $tmp.orig >>$seq.full
+    echo "--- stderr ---" >>$seq_full
+    cat $tmp.orig.err >>$seq_full
+    echo "--- filtered ---" >>$seq_full
+    cat $tmp.orig >>$seq_full
 
-    echo "=== $1 reduce ===" >>$seq.full
+    echo "=== $1 reduce ===" >>$seq_full
     pmval -z -O 15m -A 15m -t 15m -a $tmp $1 2>$tmp.reduce.err \
-    | tee -a $seq.full \
+    | tee -a $seq_full \
     | _fix_e_fmt \
     | _filter >$tmp.reduce
-    echo "--- stderr ---" >>$seq.full
-    cat $tmp.reduce.err >>$seq.full
-    echo "--- filtered ---" >>$seq.full
-    cat $tmp.reduce >>$seq.full
+    echo "--- stderr ---" >>$seq_full
+    cat $tmp.reduce.err >>$seq_full
+    echo "--- filtered ---" >>$seq_full
+    cat $tmp.reduce >>$seq_full
 
     # Bizarre ... NetBSD join demands NO SPACE after -a in this usage!
     #
@@ -103,8 +101,8 @@ $3 == "?"	{ print; next }
     if [ -s $tmp.chk ]
     then
 	$PCP_ECHO_PROG " mismatches ..."
-	echo "--- chk ---" >>$seq.full
-	cat $tmp.chk >>$seq.full
+	echo "--- chk ---" >>$seq_full
+	cat $tmp.chk >>$seq_full
 	cat $tmp.orig.err
 	cat $tmp.reduce.err
 	diff -u $tmp.orig $tmp.reduce
@@ -114,7 +112,7 @@ $3 == "?"	{ print; next }
 }
 
 # real QA test starts here
-pmlogreduce -A 15m -t 15m -D appl0,appl1,appl2 archives/kenj-pc-1 $tmp 2>>$seq.full
+pmlogreduce -A 15m -t 15m -D appl0,appl1,appl2 archives/kenj-pc-1 $tmp 2>>$seq_full
 
 for m in \
     disk.all.total kernel.all.cpu.idle \

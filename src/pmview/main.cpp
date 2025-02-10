@@ -53,7 +53,7 @@ static void usage(void)
     pmprintf("Usage: %s [options] [sources]\n\n"
 "Options:\n"
 "  -A align      align sample times on natural boundaries\n"
-"  -a archive    add PCP log archive to metrics source list\n"
+"  -a archive    add PCP archive to metrics source list\n"
 "  -c configfile initial view to load\n"
 "  -C            with -c, parse config, report any errors and exit\n"
 "  -CC           like -C, but also connect to pmcd to check semantics\n"
@@ -84,8 +84,7 @@ int warningMsg(const char *file, int line, const char *msg, ...)
     pmsprintf(theBuffer + pos, theBufferLen - pos, "\n");
 
     if (somedebug) {
-	QTextStream cerr(stderr);
-	cerr << file << ":" << line << ": " << theBuffer << endl;
+	cerr << file << ":" << line << ": " << theBuffer << Qt::endl;
     }
 
     sts = QMessageBox::warning(pmview, "Warning", theBuffer, sts, sts);
@@ -172,7 +171,7 @@ void readSettings(void)
 
     globalSettings.gridBackgroundModified = false;
     globalSettings.gridBackgroundName = userSettings.value(
-		"gridBackgroundColor", "rgbi:0.15/0.15/0.15").toString();
+		"gridBackgroundColor", "#262626").toString(); // rgbi:0.15/0.15/0.15
     globalSettings.gridBackground = QColor(globalSettings.gridBackgroundName);
 
     //
@@ -202,7 +201,6 @@ genInventor(void)
 {
     int sts = 0;
     char *configfile;
-    QTextStream cerr(stderr);
 
     if (theConfigName.length()) {
 	configfile = strdup((const char *)theConfigName.toLatin1());
@@ -236,12 +234,13 @@ genInventor(void)
 	if (fd < 0) goto fail;
 	if (!(theAltConfig = fdopen(fd, "a")))
 fail:
-            pmprintf("%s: Warning: Unable to save configuration for "
-		     "recording to \"%s\": %s\n",
-		    pmGetProgname(), configfile, strerror(errno));
+	    pmprintf("%s: Warning: Unable to save configuration for"
+	             "recording to \"%s\": %s\n",
+		    pmGetProgname(), configfile == NULL ? "???" : configfile,
+		    strerror(errno));
 	else if (pmDebugOptions.appl0)
 	    cerr << "genInventor: Copy of configuration saved to "
-		 << configfile << endl;
+		 << configfile << Qt::endl;
 
 	theAltConfigName = configfile;
     }
@@ -253,8 +252,11 @@ fail:
 
     if (pmDebugOptions.appl0) {
 	cerr << pmGetProgname() << ": " << errorCount << " errors detected in "
-	     << theConfigName << endl;
+	     << theConfigName << Qt::endl;
     }
+
+    if (warnCount > 0)
+	pmflush();
 
     sts = -errorCount;
 
@@ -343,6 +345,7 @@ main(int argc, char **argv)
     }
 
     a.startconsole();
+    console->setWindowTitle(QCoreApplication::translate("Console", "pmview Console", nullptr));
 
     if (a.my.archives.size() > 0)
 	while (optind < argc)

@@ -2,6 +2,9 @@ FILES = \
 	atop-proc \
 	disk \
 	filesystem \
+	hugepages \
+	hv-balloon \
+	hv-balloon-summary \
 	interrupts \
 	nfsclient \
 	numa \
@@ -11,5 +14,6 @@ FILES = \
 	rpc \
 	tapestat \
 	tty \
+	vmmemctl \
 	xfs-perdev \
 # END

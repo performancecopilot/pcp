@@ -66,9 +66,11 @@ pcp.spec: pcp.spec.in
 	    -e's|@package_release@|$(PACKAGE_BUILD)|g' \
 	    -e's|@package_configure@|$(PACKAGE_CONFIGURE)|g' \
 	    -e's|@package_distribution@|$(PACKAGE_DISTRIBUTION)|g' \
+	    -e's|@pmda_amdgpu@|$(PMDA_AMDGPU)|g' \
 	    -e's|@pmda_bcc@|$(PMDA_BCC)|g' \
 	    -e's|@pmda_bpf@|$(PMDA_BPF)|g' \
 	    -e's|@pmda_bpftrace@|$(PMDA_BPFTRACE)|g' \
+	    -e's|@pmda_gfs2@|$(PMDA_GFS2)|g' \
 	    -e's|@pmda_statsd@|$(PMDA_STATSD)|g' \
 	    -e's|@pmda_systemd@|$(PMDA_SYSTEMD)|g' \
 	    -e's|@pmda_infiniband@|$(PMDA_INFINIBAND)|g' \
@@ -89,6 +91,8 @@ pcp.spec: pcp.spec.in
 	    -e's|@pmda_activemq@|$(PMDA_ACTIVEMQ)|g' \
 	    -e's|@pmda_bind2@|$(PMDA_BIND2)|g' \
 	    -e's|@pmda_nutcracker@|$(PMDA_NUTCRACKER)|g' \
+	    -e's|@pmda_resctrl@|$(PMDA_RESCTRL)|g' \
+	    -e's|@pcp2arrow@|$(HAVE_PYTHON_PYARROW)|g' \
 	    -e's|@pcp2xlsx@|$(HAVE_PYTHON_OPENPYXL)|g' \
 	    -e's|@pcp2influxdb@|$(HAVE_PYTHON_INFLUXDB)|g' \
 	    -e's|@pcp2elasticsearch@|$(HAVE_PYTHON_REQUESTS)|g' \

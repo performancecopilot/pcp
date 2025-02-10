@@ -25,16 +25,14 @@ ENV = CFLAGS=$(CFLAGS_ABI)
 else
 ENV = nothing=''
 endif
-ifeq ($(PCP_PLATFORM),darwin)
-# Universal binaries for Mac OS X
-ENV += ARCHFLAGS='-arch i386 -arch x86_64'
-endif
 ifeq ($(PCP_PLATFORM),mingw)
 ENV += CC="$(CC)"
 ENV += LD="$(LD)"
 ENV += LDSHARED="$(CC) -shared -fstack-protector"
 ENV += PYTHONCPREFIX="/usr/x86_64-w64-mingw32/sys-root/mingw/"
-EXTRA_PY_INCLUDES = :/usr/x86_64-w64-mingw32/sys-root/mingw/include:/usr/x86_64-w64-mingw32/sys-root/mingw/include/python2.7
+# investigate pkgconfig for this (version-specific currently & missing libs?)
+# /usr/x86_64-w64-mingw32/sys-root/mingw/lib/pkgconfig/python3-embed.pc
+EXTRA_PY_INCLUDES = :/usr/x86_64-w64-mingw32/sys-root/mingw/include:/usr/x86_64-w64-mingw32/sys-root/mingw/include/python3.11
 endif
 ifeq "$(HAVE_PYTHON_SETUPTOOLS)" "true"
 SETUP_PY = setup.py
@@ -42,7 +40,7 @@ else
 SETUP_PY = distutils-setup.py
 endif
 
-default default_pcp: build_python2 build_python3
+default default_pcp: pre_build build_python2 build_python3
 
 ifeq "$(ENABLE_PYTHON2)" "true"
 PY_BUILD_OPTS = $(SETUP_PY_BUILD_OPTIONS)
@@ -80,10 +78,15 @@ include $(BUILDRULES)
 
 install_pcp install: install_python2 install_python3
 
-check::	$(CFILES)
-	$(CLINT) $^
-
 test:
 	pmpython -m unittest discover -s test -p '*_test.py'
 
 build_python2 build_python3:	$(TOPDIR)/src/include/pcp/libpcp.h
+
+# deal with any configurable Python source, e.g. pmapi.py.in
+#
+pre_build:
+	cd pcp; $(MAKE) default
+
+foo:
+	echo $(CFLAGS)

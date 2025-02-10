@@ -1,6 +1,7 @@
 # PCP required package list for Ubuntu 18.04 i686
 # created by kenj on vm01.localdomain Mon 12 Oct 12:52:55 AEDT 2020
 #
+Text::CSV_XS cpan
 apache2
 apache2-bin
 auditd not4ci
@@ -15,7 +16,6 @@ bsd-mailx
 build-essential
 chrpath
 coreutils
-Text::CSV_XS cpan
 cppcheck
 cron
 curl
@@ -45,9 +45,11 @@ libgl1-mesa-dri
 libibmad-dev
 libibumad-dev
 libicu60
+libinih-dev
 libjson-perl
 liblist-moreutils-perl
 liblzma-dev
+libncurses5-dev
 libncurses5-dev
 libnet-snmp-perl
 libperl5.26
@@ -109,6 +111,7 @@ python3-pil
 python3-prometheus-client
 python3-psycopg2
 python3-pymongo
+python3-pyodbc
 python3-requests
 python3-setuptools
 python3-six
@@ -133,3 +136,4 @@ xkb-data
 zabbix-agent
 zfsutils-linux
 zlib1g-dev
+zstd

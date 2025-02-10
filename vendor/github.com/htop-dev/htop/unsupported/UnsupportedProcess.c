@@ -35,7 +35,7 @@ const ProcessFieldData Process_fields[LAST_PROCESSFIELD] = {
    [M_VIRT] = { .name = "M_VIRT", .title = " VIRT ", .description = "Total program size in virtual memory", .flags = 0, .defaultSortDesc = true, },
    [M_RESIDENT] = { .name = "M_RESIDENT", .title = "  RES ", .description = "Resident set size, size of the text and data sections, plus stack usage", .flags = 0, .defaultSortDesc = true, },
    [ST_UID] = { .name = "ST_UID", .title = "UID", .description = "User ID of the process owner", .flags = 0, },
-   [PERCENT_CPU] = { .name = "PERCENT_CPU", .title = " CPU%", .description = "Percentage of the CPU time the process used in the last sampling", .flags = 0, .defaultSortDesc = true, .autoWidth = true, },
+   [PERCENT_CPU] = { .name = "PERCENT_CPU", .title = " CPU%", .description = "Percentage of the CPU time the process used in the last sampling", .flags = 0, .defaultSortDesc = true, .autoWidth = true, .autoTitleRightAlign = true, },
    [PERCENT_NORM_CPU] = { .name = "PERCENT_NORM_CPU", .title = "NCPU%", .description = "Normalized percentage of the CPU time the process used in the last sampling (normalized by cpu count)", .flags = 0, .defaultSortDesc = true, .autoWidth = true, },
    [PERCENT_MEM] = { .name = "PERCENT_MEM", .title = "MEM% ", .description = "Percentage of the memory the process is using, based on resident memory size", .flags = 0, .defaultSortDesc = true, },
    [USER] = { .name = "USER", .title = "USER       ", .description = "Username of the process owner (or user ID if name cannot be determined)", .flags = 0, },
@@ -58,23 +58,24 @@ void Process_delete(Object* cast) {
    free(cast);
 }
 
-static void UnsupportedProcess_writeField(const Process* this, RichString* str, ProcessField field) {
-   const UnsupportedProcess* up = (const UnsupportedProcess*) this;
-   bool coloring = this->host->settings->highlightMegabytes;
+static void UnsupportedProcess_rowWriteField(const Row* super, RichString* str, ProcessField field) {
+   const UnsupportedProcess* up = (const UnsupportedProcess*) super;
+
+   bool coloring = super->host->settings->highlightMegabytes;
    char buffer[256]; buffer[255] = '\0';
    int attr = CRT_colors[DEFAULT_COLOR];
    size_t n = sizeof(buffer) - 1;
 
-   (void) up;
    (void) coloring;
    (void) n;
 
    switch (field) {
    /* Add platform specific fields */
    default:
-      Process_writeField(this, str, field);
+      Process_writeField(&up->super, str, field);
       return;
    }
+
    RichString_appendWide(str, attr, buffer);
 }
 
@@ -94,11 +95,18 @@ static int UnsupportedProcess_compareByKey(const Process* v1, const Process* v2,
 
 const ProcessClass UnsupportedProcess_class = {
    .super = {
-      .extends = Class(Process),
-      .display = Process_display,
-      .delete = Process_delete,
-      .compare = Process_compare
+      .super = {
+         .extends = Class(Process),
+         .display = Row_display,
+         .delete = Process_delete,
+         .compare = Process_compare
+      },
+      .isHighlighted = Process_rowIsHighlighted,
+      .isVisible = Process_rowIsVisible,
+      .matchesFilter = Process_rowMatchesFilter,
+      .compareByParent = Process_compareByParent,
+      .sortKeyString = Process_rowGetSortKey,
+      .writeField = UnsupportedProcess_rowWriteField
    },
-   .writeField = UnsupportedProcess_writeField,
    .compareByKey = UnsupportedProcess_compareByKey
 };

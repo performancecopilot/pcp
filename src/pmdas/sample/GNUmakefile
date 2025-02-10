@@ -40,6 +40,7 @@ install_pcp install :: default
 ifeq "$(ENABLE_QT)" "true"
 	$(INSTALL) -m 644 -t $(PMCHARTVARDIR)/Sample Sample.pmchart $(PMCHARTDIR)/Sample
 endif
+	$(INSTALL) -m 755 $(TOPDIR)/src/pmcheck/pmda.template $(PCP_SHARE_DIR)/lib/pmcheck/pmda-sample
 
 $(OBJECTS): domain.h
 

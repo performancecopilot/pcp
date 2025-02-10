@@ -67,7 +67,7 @@ Optional calls to
 .BR pmiGetHandle (3)
 to defined convenience handles for metric-instance pairs.
 .IP \(bu 3n
-A main loop in which performance data is injested and for each
+A main loop in which performance data is ingested and for each
 sample time interval, the PCP archive record is constructed by calls
 to
 .BR pmiPutValue (3),
@@ -88,7 +88,7 @@ Once the input source of data has been consumed, calling
 to complete the PCP archive creation and close all open files.
 .PP
 If new metrics and/or instances are discovered during the data
-injestion, these can be added by subsequent calls to
+ingestion, these can be added by subsequent calls to
 .BR pmiAddMetric (3)
 and/or
 .BR pmiAddInstance (3),
@@ -101,19 +101,23 @@ that references those metrics and instances.
 .SH SEE ALSO
 .BR pmcd (1),
 .BR pmlogger (1),
-.BR pmiGetHandle (3),
+.BR PMAPI (3),
 .BR pmiAddInstance (3),
 .BR pmiAddMetric (3),
 .BR pmiEnd (3),
 .BR pmiErrStr (3),
+.BR pmiGetHandle (3),
+.BR pmiPutLabel (3),
 .BR pmiPutMark (3),
 .BR pmiPutResult (3),
+.BR pmiPutText (3),
 .BR pmiPutValue (3),
 .BR pmiPutValueHandle (3),
-.BR pmiPutText (3),
-.BR pmiPutLabel (3),
 .BR pmiSetHostname (3),
 .BR pmiSetTimezone (3),
 .BR pmiStart (3)
 and
 .BR pmiWrite (3).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ pmi {from ... import pmi}

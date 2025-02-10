@@ -1,0 +1,177 @@
+#!/bin/sh
+# PCP QA Test No. 1507
+# check out indomcachectl
+#
+# Copyright (c) 2024 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+qadomain=`sed -n <$PCP_VAR_DIR/pmns/stdpmid -e '/[ 	]FORQA[ 	]/s/.*FORQA[ 	]*//p'`
+if [ -z "$qadomain" ]
+then
+    echo "Arrgh! cannot get FORQA domain from $PCP_VAR_DIR/pmns/stdpmid"
+    status=1
+    exit
+fi
+
+# need another user with uid != 0
+#
+otheruser=''
+othergroup=''
+for user in daemon bin sys games man lp main news uucp nobody
+do
+    uid=`id -u $user 2>/dev/null`
+    [ -z "$uid" -o "$uid" -eq 0 ] && continue
+    otheruser=$user
+    othergroup=`id -n -g $otheruser`
+    break
+done
+[ -n "$otheruser" ] || _notrun "cannot find another non-root user"
+[ -n "$othergroup" ] || _notrun "cannot find group of non-root user $otheruser"
+
+$sudo rm -f "$PCP_VAR_DIR/config/pmda/$qadomain.42"
+mygroup=`id -gn`
+
+echo "mygroup=$mygroup" >>$seq_full
+echo "otheruser=$otheruser" >>$seq_full
+echo "othergroup=$othergroup" >>$seq_full
+
+_filter()
+{
+    sed \
+	-e "s@$PCP_VAR_DIR@PCP_VAR_DIR@g" \
+	-e "s/-g $mygroup /-g MYGROUP /" \
+	-e "s/=root\.$mygroup\$/=root.MYGROUP/" \
+	-e "s/-u *$otheruser /-u OTHERUSER /" \
+	-e "s/-g $othergroup /-g OTHERGROUP /" \
+	-e "s/=$otheruser\.$othergroup\$/=OTHERUSER.OTHERGROUP/" \
+    # end
+}
+
+_doit()
+{
+    echo "+ indomcachectl $*" | _filter
+    $sudo "$PCP_BINADM_DIR/indomcachectl" $* >$tmp.out 2>&1
+    lsts=$?
+    _filter <$tmp.out
+    if [ "$lsts" = 0 ]
+    then
+	if [ -f "$PCP_VAR_DIR/config/pmda/$qadomain.42" ]
+	then
+	    ls -l "$PCP_VAR_DIR/config/pmda/$qadomain.42" \
+	    | $PCP_AWK_PROG '{ print "indom cache file '$qadomain.42': mode=" $1 " owner=" $3 "." $4 }' \
+	    | sed -e 's/\(mode=..........\)\./\1/' \
+	    | _filter
+	    $sudo cat $PCP_VAR_DIR/config/pmda/$qadomain.42
+	else
+	    echo "indom cache file $qadomain.42: not found"
+	fi
+    else
+	echo "indomcachectl failed: exit $lsts"
+    fi
+}
+
+# real QA test starts here
+echo "error handling ..."
+_doit
+_doit -blah
+_doit foo.bar
+_doit x-123.456
+_doit $qadomain.-456
+# too many domain bits
+_doit 512.42
+# too many serial bits
+_doit $qadomain.4194304
+# -u and -l
+_doit -u $otheruser -l $qadomain.42
+# -g and -l
+_doit -g $othergroup -l $qadomain.42
+# -m and -l
+_doit -m 0600 -l $qadomain.42
+# -u and -g and -m and -l
+_doit -u $otheruser -g $othergroup -m 0600 -l $qadomain.42
+# bad -u
+_doit -u user-is-not-in-password-file $qadomain.42
+# bad -g
+_doit -g group-is-not-in-group-file $qadomain.42
+# bad -m
+_doit -m 069 $qadomain.42
+_doit -m 1777 $qadomain.42
+
+echo
+echo "listing ..."
+_doit -l $qadomain.42
+_doit -lw $qadomain.42
+# empty
+cat <<End-of-File >$tmp.cache
+2 0 2147483647
+End-of-File
+$sudo cp $tmp.cache "$PCP_VAR_DIR/config/pmda/$qadomain.42"
+# force mode so ls is deterministic
+$sudo chmod 0600 "$PCP_VAR_DIR/config/pmda/$qadomain.42"
+_doit -lw $qadomain.42
+# rainbow ...
+cat <<End-of-File >$tmp.cache
+2 0 2147483647
+0 1665074605 red
+1 1665074605 orange
+2 1665074605 yellow
+3 1665074605 green
+4 1665074605 blue
+5 1665074605 indigo
+6 1665074605 violet
+End-of-File
+$sudo cp $tmp.cache "$PCP_VAR_DIR/config/pmda/$qadomain.42"
+$sudo chmod 0600 "$PCP_VAR_DIR/config/pmda/$qadomain.42"
+_doit -lw $qadomain.42
+
+echo
+echo "creation errors ..."
+# pre-existance error ...
+_doit $qadomain.42
+$sudo rm -f "$PCP_VAR_DIR/config/pmda/$qadomain.42"
+# permissions
+save_sudo="$sudo"
+sudo=''
+_doit $qadomain.42
+sudo="$save_sudo"
+
+echo
+echo "creation ..."
+$sudo rm -f "$PCP_VAR_DIR/config/pmda/$qadomain.42"
+_doit -w $qadomain.42
+$sudo rm -f "$PCP_VAR_DIR/config/pmda/$qadomain.42"
+_doit -m 0060 -g $mygroup $qadomain.42
+$sudo rm -f "$PCP_VAR_DIR/config/pmda/$qadomain.42"
+
+# this one sort of matches the use case in the PMDA Install scripts
+#
+_doit -u$otheruser $qadomain.42
+
+
+# success, all done
+exit

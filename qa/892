@@ -13,19 +13,20 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-$sudo rm -rf $tmp.* $seq.full
 
 _get_libpcp_config
 $ipv6 || _notrun "IPv6 support is not available"
 host=`hostname`
 [ -z "$host" ] && _notrun "Cannot discover local host name"
-_host_to_ipv6addrs $host | tee -a $seq.full >$tmp.tmp
+_host_to_ipv6addrs $host | tee -a $seq_full >$tmp.tmp
 addr=`head -1 $tmp.tmp`
+rm -f $tmp.tmp
 [ -z "$addr" ] && _notrun "Cannot translate hostname ($host) to IPv6 address"
 ipv6local=`_ipv6_localhost 2>$tmp.tmp`
 if [ -z "$ipv6local" ]
 then
-    cat $tmp.tmp >>$seq.full
+    cat $tmp.tmp >>$seq_full
+    rm -f $tmp.tmp
     _notrun "Cannot find IPv6 address for localhost"
     # NOTREACHED
 fi
@@ -64,7 +65,7 @@ _cleanup()
 
 _filter()
 {
-    tee -a $seq.full | \
+    tee -a $seq_full | \
     sed \
 	-e "s/$host/HOSTNAME/g" \
 	-e "s/$addr/IPV6ADDR/g" \
@@ -81,7 +82,7 @@ export PMLOGGER_CHECK_SKIP_LOGCONF=yes
 export PMLOGGER_CHECK_SKIP_LOGCONF=yes
 
 # real QA test starts here
-echo "Using IPv6 addr=\"$addr\" ipv6local=\"$ipv6local\"" >>$seq.full
+echo "Using IPv6 addr=\"$addr\" ipv6local=\"$ipv6local\"" >>$seq_full
 
 _save_config $PCP_SYSCONFIG_DIR/pmcd
 
@@ -96,9 +97,9 @@ echo "# Dummy entry added by PCP QA test $seq" > $tmp.local
 echo PMCD_LOCAL=1 >> $tmp.local
 $sudo cp $tmp.local $PCP_SYSCONFIG_DIR/pmcd
 
-_service pmcd restart 2>&1 | _filter_pcp_stop | _filter_pcp_start
-_wait_for_pmcd
-_wait_for_pmlogger
+if ! _service pmcd restart 2>&1; then _exit 1; fi | _filter_pcp_stop | _filter_pcp_start
+_wait_for_pmcd || _exit 1
+_wait_for_pmlogger || _exit 1
 
 echo; echo "== checking loop pmcd access, expecting success"
 pminfo -f -h "pcp://$ipv6local" pmcd.feature.local 2>&1 | _filter

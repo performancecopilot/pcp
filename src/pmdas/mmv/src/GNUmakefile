@@ -25,7 +25,7 @@ TARGETS		= $(CMDTARGET) $(LIBTARGET)
 
 CFILES		= mmv.c
 VERSION_SCRIPT	= exports
-LLDLIBS		= $(PCP_PMDALIB)
+LLDLIBS		= $(PCP_PMDALIB) $(LIB_FOR_MATH)
 LCFLAGS		= $(INVISIBILITY)
 LDIRT		= domain.h *.log pmns
 
@@ -60,6 +60,3 @@ pmns:
 	$(LN_S) -f root_mmv pmns
 
 mmv.o:	$(TOPDIR)/src/include/pcp/libpcp.h
-
-check::	$(CFILES)
-	$(CLINT) $^

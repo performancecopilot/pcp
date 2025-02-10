@@ -1,0 +1,169 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2024 Ken McDonell.  All Rights Reserved.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.\"
+.TH PMNOTIFYTHROTTLE 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3__pmNotifyThrottle\f1,
+\f3__pmResetNotifyThrottle\f1 \- control diagnostic output message `flooding''
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.br
+#include <pcp/libpcp.h>
+.sp
+int __pmNotifyThrottle(char *\fIkey\fP, int \fIsubkey\fP);
+.br
+int __pmResetNotifyThrottle(char *\fIkey\fP, int \fIsubkey\fP);
+.sp
+cc ... \-lpcp
+.ft 1
+.SH CAVEAT
+This documentation is intended for internal Performance Co-Pilot
+(PCP) developer use.
+.PP
+These interfaces are not part of the PCP APIs that are guaranteed to
+remain fixed across releases, and they may not work, or may provide
+different semantics at some point in the future.
+.SH DESCRIPTION
+.de CR
+.ie t \f(CR\\$1\fR\\$2
+.el \fI\\$1\fR\\$2
+..
+When the same error condition occurs over and over, like in a DoS
+attack, or catastrophic networking failure, or bad system configuration,
+or software botch,
+there is a risk that a PCP application could generate a large number
+of identical diagnostic messages, filling up a log file and hence a
+filesystem.
+.B __pmNotifyThrottle
+is intended to be used as a guard that can detect repeated calls
+for the same error condition and allow the caller to stop issuing
+messages when repeated badness happens.
+.PP
+The error condition is identified by
+.I key
+and
+.IR subkey ,
+and the most common use case would be for these to be
+.B __FILE__
+and
+.B __LINE__
+at the point where
+.B __pmNotifyThrottle
+is called.
+.PP
+For each unique
+.I key
+and
+.I subkey
+pair
+.B __pmNotifyThrottle
+maintains a count of the number of times it has been called in
+the life of the calling process.
+.PP
+The return values are 0 if the throttle limit for
+.I key
+and
+.I subkey
+has not been reached, else 1 if the throttle limit has been
+reached, else 2 if the throttle limit has been exceeded.
+.PP
+The same throttle limit as applied across all error conditions
+and set by the environment variable
+.B PCP_NOTIFY_THROTTLE
+else a default of 10 if the environment variable is not set,
+although this can be subsequently modified by calling
+.BR __pmResetNotifyThrottle .
+.PP
+.B __pmResetNotifyThrottle
+may be used to reset the counter for an error condition to
+zero,
+so that diagnostic output can be resumed if the caller determines
+it is safe to do so.
+If
+.I limit
+is greater than zero then the limit for the error condition is also
+reset, otherwise the limit is unchanged.
+.PP
+Calling
+.B __pmResetNotifyThrottle
+with a
+.I key
+value of NULL will reset the counters (and possibly limits) for
+.B all
+error conditions, and in this case if
+.I limit
+is greater than zero the default limit for any new error conditions is
+also set (over-riding the default setting or the value initialized
+from the
+.B PCP_NOTIFY_THROTTLE
+environment variable).
+.PP
+.B __pmResetNotifyThrottle
+will return -ENOENT if
+.I key
+and
+.I subkey
+does not match an existing error condition, else the return value
+is the sum of the number of times the limit has been exceeded
+across all selected error conditions.
+.SH EXAMPLE
+The following is a simple throttle that stops reporting errors
+after 10 trips.
+.ft CR
+.in +4n
+.nf
+if ((sts = __pmNotifyThrottle(__FILE__, __LINE__)) < 2) {
+    fprintf(stderr, "Some error message\en");
+    if (sts == 1)
+	fprintf(stderr, "[further messages will be suppressed]\en");
+}
+.fi
+.in -4n
+.ft P
+.PP
+The more sophisticated example below throttles messages, but
+enables them again after 10 minutes.
+.ft CR
+.in +4n
+.nf
+int    lineno;
+time_t first_throttle;
+\&...
+lineno = __LINE__ + 1;
+if ((sts = __pmNotifyThrottle(__FILE__, lineno)) < 2) {
+    pmNotifyErr(LOG_INFO, "Some error message");
+    if (sts == 1) {
+	first_throttle = time(NULL);
+	pmNotifyErr(LOG_INFO, "[further messages will be suppressed]");
+    }
+}
+else if (sts == 2) {
+    if (time(NULL) - first_throttle >= 600) {
+	sts = __pmResetNotifyThrottle(__FILE__, lineno, -1);
+	pmNotifyErr(LOG_INFO, "[%d messages were suppressed]", sts);
+    }
+}
+.fi
+.in -4n
+.ft P
+.SH SEE ALSO
+.BR PMAPI (3)
+and
+.BR pmOpenLog (3).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ DoS LOG_INFO
+.\" +ok+ __FILE__ __LINE__ sts lineno first_throttle {all from example C code}

@@ -96,7 +96,6 @@ strip == 1			{ print >"'$tmp.tmp'"; next }
 }
 
 trap "$sudo rm -f $tmp.*; exit" 0 1 2 3 15
-$sudo rm -rf $tmp.* $seq.full
 
 remote=`./getpmcdhosts -L -n 1 -a sample 2>$tmp.out`
 [ -z "$remote" ] && _notrun `cat $tmp.out`
@@ -115,10 +114,10 @@ echo ""
 PCP_LITE_SAMPLE=yes
 export PCP_LITE_SAMPLE
 
-echo | tee -a $seq.full
-echo "=== try CONTEXT_LOCAL ===" | tee -a $seq.full
+echo | tee -a $seq_full
+echo "=== try CONTEXT_LOCAL ===" | tee -a $seq_full
 $sudo_local_ctx src/chkctx2_lite -Dcontext -L 2>&1 \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | _filter \
 | _filter2 \
 | _filter_pmcd_log

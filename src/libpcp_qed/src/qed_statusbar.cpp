@@ -43,39 +43,29 @@ QedStatusBar::QedStatusBar()
 
     delete layout();
     QHBoxLayout *box = new QHBoxLayout;
-    box->setMargin(0);
+    box->setContentsMargins(0, 0, 0, 0);
     box->setSpacing(1);
     box->addWidget(my.timeButton);
     box->addWidget(my.timeFrame);
     setLayout(box);
 
-    my.gadgetLabel = new QLabel(my.timeFrame);
-    my.gadgetLabel->setFont(*font);
-    my.gadgetLabel->hide();	// shown with gadget Views
-
     my.dateLabel = new QLabel(my.timeFrame);
-    my.dateLabel->setIndent(8);
     my.dateLabel->setFont(*font);
     my.dateLabel->setAlignment(Qt::AlignRight | Qt::AlignBottom);
 
     my.labelSpacer = new QSpacerItem(10, 0,
 				QSizePolicy::Fixed, QSizePolicy::Minimum);
-    my.rightSpacer = new QSpacerItem(0, 0,
-				QSizePolicy::Fixed, QSizePolicy::Minimum);
 
     my.valueLabel = new QLabel(my.timeFrame);
-    my.valueLabel->setIndent(8);
     my.valueLabel->setFont(*font);
-    my.valueLabel->setAlignment(Qt::AlignLeft | Qt::AlignBottom);
+    my.valueLabel->setAlignment(Qt::AlignLeft | Qt::AlignTop);
 
-    my.grid = new QGridLayout;	// Grid of [5 x 3] cells
-    my.grid->setMargin(0);
-    my.grid->setSpacing(0);
-    my.grid->addWidget(my.gadgetLabel, 0, 0, 1, 3);
-    my.grid->addWidget(my.dateLabel, 2, 2, 1, 1);  // bottom row, last two cols
-    my.grid->addItem(my.labelSpacer, 2, 1, 1, 1);  // bottom row, second column
-    my.grid->addWidget(my.valueLabel, 2, 0, 1, 1); // bottom row, first column.
-    my.grid->addItem(my.rightSpacer, 0, 4, 2, 1);  // all rows, in final column
+    my.grid = new QGridLayout;	// Grid of [3 x 1] cells
+    my.grid->setContentsMargins(4, 4, 4, 4);
+    my.grid->setSpacing(1);
+    my.grid->addWidget(my.dateLabel, 0, 0, 1, 1);  // date & time on top row
+    my.grid->addItem(my.labelSpacer, 1, 0, 1, 1);  // spacer
+    my.grid->addWidget(my.valueLabel, 2, 0, 1, 1); // metric-instance value on bottom row
     my.timeFrame->setLayout(my.grid);
 }
 

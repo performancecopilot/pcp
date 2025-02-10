@@ -135,7 +135,7 @@ main(int argc, char **argv)
 "Usage: %s options ...\n\
 \n\
 Options\n\
-  -a   archive	  metrics source is an archive log\n\
+  -a   archive	  metrics source is an archive\n\
   -c   configfile file to load configuration from\n\
   -D   debugspec  standard PCP debugging options\n\
   -f		  force .. \n\

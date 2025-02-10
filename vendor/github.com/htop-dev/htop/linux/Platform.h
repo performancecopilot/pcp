@@ -7,8 +7,6 @@ Released under the GNU GPLv2+, see the COPYING file
 in the source distribution for its full text.
 */
 
-#include "config.h"
-
 #include <limits.h>
 #include <stdbool.h>
 #include <stddef.h>
@@ -23,14 +21,17 @@ in the source distribution for its full text.
 #include "Macros.h"
 #include "Meter.h"
 #include "NetworkIOMeter.h"
+#include "Panel.h"
 #include "Process.h"
 #include "ProcessLocksScreen.h"
 #include "RichString.h"
+#include "Settings.h"
 #include "SignalsPanel.h"
 #include "CommandLine.h"
 #include "generic/gettime.h"
 #include "generic/hostname.h"
 #include "generic/uname.h"
+
 
 /* GNU/Hurd does not have PATH_MAX in limits.h */
 #ifndef PATH_MAX
@@ -59,7 +60,7 @@ int Platform_getUptime(void);
 
 void Platform_getLoadAverage(double* one, double* five, double* fifteen);
 
-int Platform_getMaxPid(void);
+pid_t Platform_getMaxPid(void);
 
 double Platform_setCPUValues(Meter* this, unsigned int cpu);
 
@@ -132,12 +133,24 @@ static inline Hashtable* Platform_dynamicColumns(void) {
 
 static inline void Platform_dynamicColumnsDone(ATTR_UNUSED Hashtable* table) { }
 
-static inline const char* Platform_dynamicColumnInit(ATTR_UNUSED unsigned int key) {
+static inline const char* Platform_dynamicColumnName(ATTR_UNUSED unsigned int key) {
    return NULL;
 }
 
 static inline bool Platform_dynamicColumnWriteField(ATTR_UNUSED const Process* proc, ATTR_UNUSED RichString* str, ATTR_UNUSED unsigned int key) {
    return false;
 }
+
+static inline Hashtable* Platform_dynamicScreens(void) {
+   return NULL;
+}
+
+static inline void Platform_defaultDynamicScreens(ATTR_UNUSED Settings* settings) { }
+
+static inline void Platform_addDynamicScreen(ATTR_UNUSED ScreenSettings* ss) { }
+
+static inline void Platform_addDynamicScreenAvailableColumns(ATTR_UNUSED Panel* availableColumns, ATTR_UNUSED const char* screen) { }
+
+static inline void Platform_dynamicScreensDone(ATTR_UNUSED Hashtable* screens) { }
 
 #endif

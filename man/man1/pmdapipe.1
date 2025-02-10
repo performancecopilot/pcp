@@ -190,7 +190,7 @@ The wildcard ``*'' can be used to refer to all \f2instance\f1 names.
 If you want access to the names, help text and values for the pipe
 performance metrics, do the following as root:
 .PP
-.ft CW
+.ft CR
 .nf
 .in +0.5i
 # cd $PCP_PMDAS_DIR/pipe
@@ -210,7 +210,7 @@ for further details).
 .PP
 If you want to undo the installation, do the following as root:
 .PP
-.ft CW
+.ft CR
 .nf
 .in +0.5i
 # cd $PCP_PMDAS_DIR/pipe
@@ -234,7 +234,7 @@ configuration and use of the pipe metrics to run the
 command, by user \f3bob\f1:
 .de CS
 .in +0.5i
-.ft CW
+.ft CR
 .nf
 ..
 .de CE
@@ -315,3 +315,7 @@ as described in
 .BR pcp.conf (5)
 and
 .BR pcp.env (5).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ WS {from example output} bdev_trace btrace firehose groupname
+.\" +ok+ jane kvm maxsize perf qemu rw  rw_syscalls sda

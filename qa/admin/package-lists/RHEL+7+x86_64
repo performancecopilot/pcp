@@ -2,9 +2,7 @@
 # created by kenj on vm29.localdomain Wed Oct 14 07:38:04 AEDT 2020
 #
 389-ds-base
-Coin3-devel
 Net::SNMP cpan
-SoQt-devel
 Spreadsheet::Read cpan
 Spreadsheet::WriteExcel cpan
 Spreadsheet::XLSX cpan
@@ -15,6 +13,7 @@ bc
 bcc-tools
 bind-utils
 bison
+clang
 coreutils
 cppcheck
 cronie
@@ -27,6 +26,7 @@ cyrus-sasl-plain
 docker
 docker-common
 ed
+expect
 flex
 gawk
 gcc
@@ -39,14 +39,17 @@ iproute
 httpd
 initscripts
 java-latest-openjdk-headless
+jq
 kubernetes-client
 kubernetes-node
+libcmocka-devel
 libicu-devel
 libpfm-devel
 libuv-devel
 libvirt-daemon
 libvirt-daemon-driver-qemu
 libvirt-python
+llvm
 lm_sensors
 mailx
 make
@@ -58,8 +61,8 @@ mesa-dri-drivers
 ncurses-devel
 net-tools
 nmap
-openssl11
-openssl11-devel
+openssl
+openssl-devel
 perl
 perl-CPAN
 perl-DBD-MySQL
@@ -93,7 +96,6 @@ python-rtslib
 python-setuptools
 python-six
 python2-pylint
-qt-devel
 qt5-qtbase-devel
 qt5-qtsvg-devel
 ragel
@@ -112,9 +114,12 @@ socat
 sqlite
 sysstat
 systemd-devel
+systemtap-devel
 systemtap-sdt-devel
 time
 valgrind
 xfsprogs
 xkeyboard-config
+zabbix6.0-agent
 xz-devel
+zstd

@@ -5,6 +5,8 @@ Released under the GNU GPLv2+, see the COPYING file
 in the source distribution for its full text.
 */
 
+#include "config.h" // IWYU pragma: keep
+
 #include "generic/fdstat_sysctl.h"
 
 #include <math.h>
@@ -13,8 +15,6 @@ in the source distribution for its full text.
 
 #include <sys/types.h> // Shitty FreeBSD upstream headers
 #include <sys/sysctl.h>
-
-#include "config.h"
 
 
 static void Generic_getFileDescriptors_sysctl_internal(
@@ -43,9 +43,6 @@ static void Generic_getFileDescriptors_sysctl_internal(
    len = sizeof(open_fd);
    if (sysctlname_numfiles && sysctlbyname(sysctlname_numfiles, &open_fd, &len, NULL, 0) == 0) {
       *used = open_fd;
-   }
-
-   if (!isnan(*used)) {
       return;
    }
 
@@ -68,9 +65,9 @@ void Generic_getFileDescriptors_sysctl(double* used, double* max) {
 #if defined(HTOP_DARWIN)
    Generic_getFileDescriptors_sysctl_internal(
       "kern.maxfiles", "kern.num_files", 0, 0, used, max);
-#elif defined(HTOP_DRAGONFLY)
+#elif defined(HTOP_DRAGONFLYBSD)
    Generic_getFileDescriptors_sysctl_internal(
-      "kern.maxfiles", NULL, 0, sizeof(struct kinfo_file), used, max);
+      "kern.maxfiles", "kern.openfiles", 0, 0, used, max);
 #elif defined(HTOP_FREEBSD)
    Generic_getFileDescriptors_sysctl_internal(
       "kern.maxfiles", "kern.openfiles", 0, 0, used, max);

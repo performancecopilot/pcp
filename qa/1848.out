@@ -1,0 +1,317 @@
+QA output created by 1848
+QA output created by 1849 --valgrind
+
++++ dirname does not exist ...
+=== filtered valgrind report ===
+=== std err ===
+=== std out ===
+Command: src/cleanmapdir -Dmisc TMP
+ERROR SUMMARY: 0 errors from 0 contexts ...
+LEAK SUMMARY:
+Memcheck, a memory error detector
+__pmCleanMapDir(TMP, (null)) => -2
+__pmCleanMapDir: lstat(TMP) failed: No such file or directory
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+
++++ dirname is a symlink not a dir ...
+=== filtered valgrind report ===
+=== std err ===
+=== std out ===
+Command: src/cleanmapdir -Dmisc TMP
+ERROR SUMMARY: 0 errors from 0 contexts ...
+LEAK SUMMARY:
+Memcheck, a memory error detector
+__pmCleanMapDir(TMP, (null)) => -20
+__pmCleanMapDir: dirname TMP: is a symlink: Not a directory
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+
++++ dirname is a regular file not a dir ...
+=== filtered valgrind report ===
+=== std err ===
+=== std out ===
+Command: src/cleanmapdir -Dmisc TMP
+ERROR SUMMARY: 0 errors from 0 contexts ...
+LEAK SUMMARY:
+Memcheck, a memory error detector
+__pmCleanMapDir(TMP, (null)) => -20
+__pmCleanMapDir: dirname TMP: is a regular file: Not a directory
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+
++++ no permission to read dirname ...
+=== filtered valgrind report ===
+=== std err ===
+=== std out ===
+Command: src/cleanmapdir -Dmisc TMP
+ERROR SUMMARY: 0 errors from 0 contexts ...
+LEAK SUMMARY:
+Memcheck, a memory error detector
+__pmCleanMapDir(TMP, (null)) => -13
+__pmCleanMapDir: opendir(TMP) failed: Permission denied
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+
++++ wrong user for dirname ...
+=== filtered valgrind report ===
+=== std err ===
+=== std out ===
+Command: src/cleanmapdir -Dmisc TMP
+ERROR SUMMARY: 0 errors from 0 contexts ...
+LEAK SUMMARY:
+Memcheck, a memory error detector
+__pmCleanMapDir(TMP, (null)) => -1
+__pmCleanMapDir: dirname TMP: uid UU different to caller uid UU: Operation not permitted
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+
++++ wrong group for dirname ...
+=== filtered valgrind report ===
+=== std err ===
+=== std out ===
+Command: src/cleanmapdir -Dmisc TMP
+ERROR SUMMARY: 0 errors from 0 contexts ...
+LEAK SUMMARY:
+Memcheck, a memory error detector
+__pmCleanMapDir(TMP, (null)) => -1
+__pmCleanMapDir: dirname TMP: gid GG different to caller gid GG: Operation not permitted
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+
++++ bad 'PID' file names and CANNOT unlink ...
+=== filtered valgrind report ===
+=== std err ===
+=== std out ===
+Command: src/cleanmapdir -Dmisc TMP -C primary
+ERROR SUMMARY: 0 errors from 0 contexts ...
+LEAK SUMMARY:
+Memcheck, a memory error detector
+__pmCleanMapDir(TMP, primary) => 0
+__pmCleanMapDir: TMP/-1: remove: PID must be at least 1
+__pmCleanMapDir: TMP/0: remove: PID must be at least 1
+__pmCleanMapDir: TMP/12345678901234567890123456789: remove: pid_t overflow so cannot be a PID
+__pmCleanMapDir: TMP/123456mumble: remove: name not numeric so cannot be a PID
+__pmCleanMapDir: TMP/QA-TEST-PID: keep: OK
+__pmCleanMapDir: TMP/foo-bar: remove: name not numeric so cannot be a PID
+__pmCleanMapDir: TMP/primary [special]: keep: OK
+__pmCleanMapDir: unlink(TMP/-1) failed: Permission denied
+__pmCleanMapDir: unlink(TMP/0) failed: Permission denied
+__pmCleanMapDir: unlink(TMP/12345678901234567890123456789) failed: Permission denied
+__pmCleanMapDir: unlink(TMP/123456mumble) failed: Permission denied
+__pmCleanMapDir: unlink(TMP/foo-bar) failed: Permission denied
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+-1
+0
+12345678901234567890123456789
+123456mumble
+QA-TEST-PID
+foo-bar
+primary
+
++++ bad 'PID' file names and CAN unlink ...
+=== filtered valgrind report ===
+=== std err ===
+=== std out ===
+Command: src/cleanmapdir -Dmisc TMP -C primary
+ERROR SUMMARY: 0 errors from 0 contexts ...
+LEAK SUMMARY:
+Memcheck, a memory error detector
+__pmCleanMapDir(TMP, primary) => 5
+__pmCleanMapDir: TMP/-1: remove: PID must be at least 1
+__pmCleanMapDir: TMP/0: remove: PID must be at least 1
+__pmCleanMapDir: TMP/12345678901234567890123456789: remove: pid_t overflow so cannot be a PID
+__pmCleanMapDir: TMP/123456mumble: remove: name not numeric so cannot be a PID
+__pmCleanMapDir: TMP/QA-TEST-PID: keep: OK
+__pmCleanMapDir: TMP/foo-bar: remove: name not numeric so cannot be a PID
+__pmCleanMapDir: TMP/primary [special]: keep: OK
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+QA-TEST-PID
+primary
+
++++ PIDs -> no process ...
+=== filtered valgrind report ===
+=== std err ===
+=== std out ===
+Command: src/cleanmapdir -Dmisc TMP -C primary
+ERROR SUMMARY: 0 errors from 0 contexts ...
+LEAK SUMMARY:
+Memcheck, a memory error detector
+__pmCleanMapDir(TMP, primary) => 2
+__pmCleanMapDir: TMP/DEAD-PID-1: remove: process does not exist
+__pmCleanMapDir: TMP/DEAD-PID-2: remove: process does not exist
+__pmCleanMapDir: TMP/QA-TEST-PID: keep: OK
+__pmCleanMapDir: TMP/primary [special]: keep: OK
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+QA-TEST-PID
+primary
+
++++ special not a symlink ...
+=== filtered valgrind report ===
+=== std err ===
+=== std out ===
+Command: src/cleanmapdir -Dmisc TMP -C primary
+ERROR SUMMARY: 0 errors from 0 contexts ...
+LEAK SUMMARY:
+Memcheck, a memory error detector
+__pmCleanMapDir(TMP, primary) => 1
+__pmCleanMapDir: TMP/QA-TEST-PID: keep: OK
+__pmCleanMapDir: TMP/primary [special]: remove: is a regular file, expected a symlink
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+QA-TEST-PID
+
++++ special points to a bad 'PID' ...
+=== filtered valgrind report ===
+=== std err ===
+=== std out ===
+Command: src/cleanmapdir -Dmisc TMP -C bad
+ERROR SUMMARY: 0 errors from 0 contexts ...
+LEAK SUMMARY:
+Memcheck, a memory error detector
+__pmCleanMapDir(TMP, bad) => 1
+__pmCleanMapDir: TMP/bad -> -1 (-1): remove: PID must be at least 1
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+=== filtered valgrind report ===
+=== std err ===
+=== std out ===
+Command: src/cleanmapdir -Dmisc TMP -C bad
+ERROR SUMMARY: 0 errors from 0 contexts ...
+LEAK SUMMARY:
+Memcheck, a memory error detector
+__pmCleanMapDir(TMP, bad) => 1
+__pmCleanMapDir: TMP/bad -> 0 (0): remove: PID must be at least 1
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+=== filtered valgrind report ===
+=== std err ===
+=== std out ===
+Command: src/cleanmapdir -Dmisc TMP -C bad
+ERROR SUMMARY: 0 errors from 0 contexts ...
+LEAK SUMMARY:
+Memcheck, a memory error detector
+__pmCleanMapDir(TMP, bad) => 1
+__pmCleanMapDir: TMP/bad -> foo-bar (foo-bar): remove: name not numeric so cannot be a PID
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+=== filtered valgrind report ===
+=== std err ===
+=== std out ===
+Command: src/cleanmapdir -Dmisc TMP -C bad
+ERROR SUMMARY: 0 errors from 0 contexts ...
+LEAK SUMMARY:
+Memcheck, a memory error detector
+__pmCleanMapDir(TMP, bad) => 1
+__pmCleanMapDir: TMP/bad -> 12345678901234567890123456789 (12345678901234567890123456789): remove: pid_t overflow so cannot be a PID
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+=== filtered valgrind report ===
+=== std err ===
+=== std out ===
+Command: src/cleanmapdir -Dmisc TMP -C bad
+ERROR SUMMARY: 0 errors from 0 contexts ...
+LEAK SUMMARY:
+Memcheck, a memory error detector
+__pmCleanMapDir(TMP, bad) => 1
+__pmCleanMapDir: TMP/bad -> 123! (123!): remove: name not numeric so cannot be a PID
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+=== filtered valgrind report ===
+=== std err ===
+=== std out ===
+Command: src/cleanmapdir -Dmisc TMP -C bad
+ERROR SUMMARY: 0 errors from 0 contexts ...
+LEAK SUMMARY:
+Memcheck, a memory error detector
+__pmCleanMapDir(TMP, bad) => 1
+__pmCleanMapDir: TMP/bad -> DEAD-PID-1 (DEAD-PID-1): remove: process does not exist
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+
++++ special points somewhere else ...
+--- primary -> /etc/passwd
+=== filtered valgrind report ===
+=== std err ===
+=== std out ===
+Command: src/cleanmapdir -Dmisc TMP -C primary
+ERROR SUMMARY: 0 errors from 0 contexts ...
+LEAK SUMMARY:
+Memcheck, a memory error detector
+__pmCleanMapDir(TMP, primary) => 1
+__pmCleanMapDir: TMP/QA-TEST-PID: keep: OK
+__pmCleanMapDir: TMP/primary -> /etc/passwd (passwd): remove: name not numeric so cannot be a PID
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+--- foo -> ../foo
+=== filtered valgrind report ===
+=== std err ===
+=== std out ===
+Command: src/cleanmapdir -Dmisc TMP -C foo
+ERROR SUMMARY: 0 errors from 0 contexts ...
+LEAK SUMMARY:
+Memcheck, a memory error detector
+__pmCleanMapDir(TMP, foo) => 1
+__pmCleanMapDir: TMP/QA-TEST-PID: keep: OK
+__pmCleanMapDir: TMP/foo -> ../foo (foo): remove: name not numeric so cannot be a PID
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+--- bar -> ../DEAD1
+=== filtered valgrind report ===
+=== std err ===
+=== std out ===
+Command: src/cleanmapdir -Dmisc TMP -C bar
+ERROR SUMMARY: 0 errors from 0 contexts ...
+LEAK SUMMARY:
+Memcheck, a memory error detector
+__pmCleanMapDir(TMP, bar) => 1
+__pmCleanMapDir: TMP/QA-TEST-PID: keep: OK
+__pmCleanMapDir: TMP/bar -> ../DEAD-PID-1 (DEAD-PID-1): remove: process does not exist
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+--- bar -> TMP/DEAD1
+=== filtered valgrind report ===
+=== std err ===
+=== std out ===
+Command: src/cleanmapdir -Dmisc TMP -C bar
+ERROR SUMMARY: 0 errors from 0 contexts ...
+LEAK SUMMARY:
+Memcheck, a memory error detector
+__pmCleanMapDir(TMP, bar) => 1
+__pmCleanMapDir: TMP/QA-TEST-PID: keep: OK
+__pmCleanMapDir: TMP/bar -> TMP/DEAD-PID-1 (DEAD-PID-1): remove: process does not exist
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+--- bar -> TMP/QA-TEST-PID
+=== filtered valgrind report ===
+=== std err ===
+=== std out ===
+Command: src/cleanmapdir -Dmisc TMP -C bar
+ERROR SUMMARY: 0 errors from 0 contexts ...
+LEAK SUMMARY:
+Memcheck, a memory error detector
+__pmCleanMapDir(TMP, bar) => 0
+__pmCleanMapDir: TMP/QA-TEST-PID: keep: OK
+__pmCleanMapDir: TMP/bar [special]: keep: OK
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+QA-TEST-PID
+bar
+
++++ special -> no process ...
+=== filtered valgrind report ===
+=== std err ===
+=== std out ===
+Command: src/cleanmapdir -Dmisc TMP -C primary
+ERROR SUMMARY: 0 errors from 0 contexts ...
+LEAK SUMMARY:
+Memcheck, a memory error detector
+__pmCleanMapDir(TMP, primary) => 1
+__pmCleanMapDir: TMP/QA-TEST-PID: keep: OK
+__pmCleanMapDir: TMP/primary -> DEAD-PID-1 (DEAD-PID-1): remove: process does not exist
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+QA-TEST-PID

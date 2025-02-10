@@ -1,11 +1,10 @@
 ## Build
-FROM registry.fedoraproject.org/fedora:36 AS build
+FROM quay.io/fedora/fedora:latest AS build
 COPY . /usr/src/pcp
 
 WORKDIR /usr/src/pcp
 RUN dnf install -y git which rpm-build 'dnf-command(builddep)'
 RUN dnf builddep -y build/rpm/redhat.spec
-RUN dnf remove -y selinux-policy
 
 RUN ./Makepkgs --verbose
 RUN mkdir /build && \
@@ -25,7 +24,7 @@ RUN mkdir /build && \
       /build
 
 ## Deploy
-FROM registry.fedoraproject.org/fedora:36
+FROM quay.io/fedora/fedora:latest
 COPY --from=build /build /build
 
 ENV SUMMARY="Performance Co-Pilot" \

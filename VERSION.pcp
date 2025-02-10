@@ -1,7 +1,7 @@
 #
 # This file is used by configure to get version information
 #
-PACKAGE_MAJOR=6
-PACKAGE_MINOR=1
+PACKAGE_MAJOR=7
+PACKAGE_MINOR=0
 PACKAGE_REVISION=0
 PACKAGE_BUILD=1

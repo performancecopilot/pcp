@@ -1,0 +1,159 @@
+#!/bin/sh
+# PCP QA Test No. 1508
+# derived metrics additional features checkout
+# - novalue() for derived metrics
+# - lazy binding for derived metrics invovling guard ? left-expr : right-expr
+# - check to stop nested derived metric definitions
+# - \ continuation @ end of line
+# - meta= for novalue() and mkconst()
+#
+# non-valgrind variant, see qa/1514 for the valgrind variant
+#
+# Copyright (c) 2024 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+which pmrep > /dev/null 2>&1 || _notrun "pmrep not installed"
+
+
+do_valgrind=false
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+    do_valgrind=true
+elif which valgrind >/dev/null 2>&1
+then
+    [ "$PCPQA_VALGRIND" = both ] || \
+        _notrun "valgrind variant qa/1514 will be run"
+fi
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    tee -a $seq_full \
+    | sed \
+	-e "/Command:/s@ /bin/pmrep@ /usr/bin/pmrep@" \
+	-e 's/=0x0 /=(nil) /g' \
+	-e 's/=0x[0-9a-f[0-9a-f]*/=<addr>/g' \
+	-e 's/node 0x[0-9a-f[0-9a-f]*/node <addr>/g' \
+	-e 's/from 0x[0-9a-f[0-9a-f]*/from <addr>/g' \
+	-e '/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/s/[^ ]*.*numpmid/TIMESTAMP ... numpmid/' \
+	-e "s;$PCP_BIN_DIR;PCP_BIN_DIR;" \
+	-e "s;$tmp;TMP;" \
+# -e 's/ val=[0-9][0-9]*/ val=<number>/g'
+}
+
+# real QA test starts here
+
+cat <<'End-of-File' >$tmp.config
+# ok cases - value is sample.bin
+qa.bin.a = !defined(sample.bin) ? novalue() : sample.bin
+qa.bin.b = defined(sample.bin) ? sample.bin : novalue()
+# defined(x) guard true, unselected <right-expr> contains bad metric
+qa.bin.c = defined(sample.bin) ? sample.bin : sample.long.bad
+
+# expect value == 12
+qa.twelve.a = defined(sample.bin) ? (defined(sample.colour) ? count(sample.bin) + count(sample.colour) : novalue()) : novalue()
+qa.twelve.b = defined(sample.bin) && defined(sample.colour) ? count(sample.bin) + count(sample.colour) : novalue()
+
+# expect value == 100
+qa.hundred.a = defined(sample.bin) ? sample.float.hundred : novalue() 
+# defined(x) guard false, unselected <left-expr> contains bad metric
+qa.hundred.b = defined(sample.bin.bad) ? simple.bin.bad : sample.long.hundred
+# constant guard true, unselected <right-expr> contains bad metric
+qa.hundred.c = 1 ? sample.long.hundred : sample.bin.bad
+
+# ok cases - expect no values
+qa.novalues.a = !defined(sample.bin) ? sample.bin : novalue()
+qa.novalues.b = defined(sample.bin) ? novalue() : sample.bin
+qa.novalues.c = defined(no.metric) ? sample.bin / no.metric : novalue()
+qa.novalues.d = defined(sample.bin) ? novalue(type=float,semantics=counter,units="Mbyte/hour") : sample.bin
+
+# Marko's case
+tcprecv = defined(no.such.metric) ? no.such.metric : novalue()
+
+# error cases
+qa.bad.a = novalue()
+qa.bad.b = sample.colour + novalue()
+qa.bad.c = defined(sample.bin) ? novalue() : novalue()
+qa.bad.d = defined(no.such.metric) ? no.such.metric : some.other.no.such.metric
+# defined(x) guard true, selected <left-expr> contains bad metric
+qa.bad.e = defined(sample.bin) ? sample.long.ten.bad : sample.bin
+# defined(x) guard false, selected <right-expr> contains bad metric
+qa.bad.f = ! defined(sample.bin) ? sample.long.ten : sample.bin.bad
+# constant guard true, unselected <left-expr> contains bad metric
+qa.bad.g = 1 ? sample.long.hundred.bad : sample.bin
+# dynamic guard true, unselected <left-expr> contains bad metric
+qa.bad.h = sample.long.one > 0 ? sample.long.hundred.bad : sample.bin
+# dynamic guard true, unselected <right-expr> contains bad metric
+qa.bad.i = sample.long.one > 0 ? sample.long.hundred : sample.long.one + sample.bin.bad
+
+# static guard evaluation exercises
+qa.ten.a = 1 ? sample.long.ten : novalue()
+qa.ten.b = 0 ? novalue() : sample.long.ten
+qa.ten.c = defined(sample.long.ten) && !defined(foo) ? sample.long.ten : novalue()
+qa.ten.d = (defined(foo) || defined(bar) || defined(sample.long.ten)) \
+  && !defined(fumble) \
+  ? sample.long.ten \
+  : novalue()
+
+# meta= cases
+qa.meta.a = mkconst(123, meta=sample.byte_rate_perhour)
+qa.meta.b = 1 ? novalue(meta=sample.byte_rate_perhour) : 0
+qa.meta.c = mkconst(123.456, meta=sample.byte_rate_perhour,type=float,semantics=discrete)
+qa.meta.d = 1 ? novalue(units="mbyte/sec",meta=sample.byte_rate_perhour) : 0
+End-of-File
+
+export PCP_DERIVED_CONFIG=$tmp.config
+
+if $do_valgrind
+then
+    _run_valgrind --save-output pminfo -Dderive -Dappl1 -df qa
+    cat $tmp.err $tmp.out
+else
+    pminfo -Dderive -Dappl1 -df qa 2>&1
+fi \
+| _filter
+
+echo
+echo "=== Marko's nested defn case ==="
+cat <<'End-of-File' >$tmp.config
+foo = delta(disk.all.read_bytes)
+bar = instant(disk.all.read_bytes)
+baz = foo + bar
+bah = instant(bar)
+End-of-File
+
+if $do_valgrind
+then
+    _run_valgrind --save-output pmrep -s 2 baz bah
+    cat $tmp.err $tmp.out
+else
+    pmrep -s 2 baz bah 2>&1
+fi \
+| _filter
+
+# success, all done
+exit

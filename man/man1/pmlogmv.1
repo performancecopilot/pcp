@@ -15,12 +15,17 @@
 .\"
 .TH PMLOGMV 1 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmlogmv\f1 \- move (rename) Performance Co-Pilot archive files
+\f3pmlogmv\f1, \f3pmlogcp\f1 \- move (rename) or copy Performance Co-Pilot archive files
 .SH SYNOPSIS
 \f3pmlogmv\f1
 [\f3\-cfNV?\f1]
-\f2oldname\f1
-\f2newname\f1
+\f2srcname\f1
+\f2dstname\f1
+.br
+\f3pmlogcp\f1
+[\f3\-cfNV?\f1]
+\f2srcname\f1
+\f2dstname\f1
 .SH DESCRIPTION
 A Performance Co-Pilot (PCP) archive consists of multiple files as
 created by
@@ -28,23 +33,36 @@ created by
 .B pmlogmv
 allows all the files of a single PCP archive
 to be moved or renamed as a group in a single operation.
+Similarly
+.B pmlogcp
+copies all the files of single PCP archive in a single operation.
 .PP
 The
-.I oldname
+.I srcname
 argument identifies the target archive, and may be either the basename
 that is common to all files in that archive or one of the archive's
 files.
+.PP
 The new archive's basename is
-.IR newname .
+.IR dstname ,
+except when
+.I dstname
+is an existing directory, in which case the files are moved or copied
+into
+.I dstname
+using the same archive basename as
+.IR srcname .
 .PP
 Because PCP archives are important records of system activity, special
 care is taken to ensure the integrity of an archive's files.
 For recoverable problems encountered during the execution of
-.BR pmlogmv ,
+.B pmlogmv
+or
+.BR pmlogcp ,
 all the files associated with
-.I oldname
+.I srcname
 will be preserved, and no new files with the
-.I newname
+.I dstname
 prefix will be created.
 ``Recoverable problems'' include signals that can be caught (such as SIGHUP,
 SIGINT, SIGQUIT and SIGTERM), permissions issues, new files already existing,
@@ -58,9 +76,9 @@ restrictions of
 .IR ln (2)
 which for most systems means the directories containing both
 the
-.I oldname
+.I srcname
 and the
-.I newname
+.I dstname
 PCP archive files need to be within the
 .B same
 file system.
@@ -69,9 +87,13 @@ When this is not possible,
 falls back to using
 .BR cp (1)
 to copy
-.I oldname
+.I srcname
 to
-.IR newname .
+.IR dstname .
+.PP
+.B pmlogcp
+always uses
+.BR cp (1).
 .SH OPTIONS
 The available command line options are:
 .TP 5
@@ -94,10 +116,12 @@ checksum check is skipped.
 \fB\-f\fR, \fB\-\-force\fR
 Normally
 .B pmlogmv
-takes a conservative view in respect of
-.I newname
+and
+.B pmlogcp
+take a conservative view in respect of
+.I dstname
 and will not proceed if
-.I newname
+.I dstname
 contains any characters that are likely to cause a problem for
 .BR sh (1).
 This includes ``glob'' characters like ``?'', ``*'' and ``['', shell
@@ -109,9 +133,8 @@ a space, etc.
 The
 .B \-f
 flag forces
-.B pmlogmv
-to proceed, even if
-.I newname
+the rename or copy to proceed, even if
+.I dstname
 contains any of these ``unsafe'' characters.
 .RE
 .TP
@@ -137,3 +160,6 @@ errors produce a non-zero exit status.
 .BR sha256sum (1)
 and
 .BR LOGARCHIVE (5).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ md {from md5sum} sha {from sha256sum}

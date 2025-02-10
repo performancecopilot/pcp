@@ -922,7 +922,7 @@ save_cache(hdr_t *h, int hstate)
     int		state = h->hstate & ~CACHE_STRINGS;
     char	strbuf[20];
 
-    if ((state & hstate) == 0) {
+    if ((state & hstate) == 0 && hstate != 0) {
 	/* nothing to be done */
 	return 0;
     }
@@ -1242,6 +1242,9 @@ int pmdaCacheOp(pmInDom indom, int op)
 
 	case PMDA_CACHE_SAVE:
 	    return save_cache(h, DIRTY_INSTANCE);
+
+	case PMDA_CACHE_WRITE:
+	    return save_cache(h, 0);
 
 	case PMDA_CACHE_SYNC:
 	    return save_cache(h, DIRTY_INSTANCE|DIRTY_STAMP);

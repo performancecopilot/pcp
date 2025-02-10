@@ -113,7 +113,7 @@ The
 .B \-a
 option causes
 .B pmrep
-to use the specified set of archive logs rather than connecting to a PMCD.
+to use the specified set of archives rather than connecting to a PMCD.
 The
 .B \-a
 and
@@ -141,7 +141,7 @@ If a metricspec specifies a non-leaf node in the
 Performance Metrics Name Space (PMNS), then
 .B pmrep
 will recursively descend the PMNS and report on all leaf nodes
-(i.e., metrics) for that metricspec.
+(i.e. metrics) for that metricspec.
 Use
 .BR pminfo (1)
 to list all the metrics (PMNS lead nodes) and their descriptions.
@@ -167,7 +167,7 @@ This so-called
 of a metricspec is defined as follows:
 .PP
 .in 0.5i
-.ft CW
+.ft CR
 .nf
 metric[,label[,instances[,unit/scale[,type[,width[,precision[,limit]]]]]]]
 .fi
@@ -242,7 +242,7 @@ are optional, they must always be provided in the order specified above,
 thus the commas.
 .PP
 .in 1.5i
-.ft CW
+.ft CR
 .nf
 kernel.all.sysfork,forks,,,,8
 .fi
@@ -357,7 +357,7 @@ but this option \fIwill\fP override per-metric specifications.
 .TP
 \fB\-a\fR \fIarchive\fR, \fB\-\-archive\fR=\fIarchive\fR
 Performance metric values are retrieved from the set of Performance
-Co-Pilot (PCP) archive log files identified by the
+Co-Pilot (PCP) archive files identified by the
 .I archive
 argument, which is a comma-separated list of names,
 each of which may be the base name of an archive or the name of
@@ -434,7 +434,7 @@ to effect a pause, rather than
 the default behaviour of replaying at full speed.
 .TP
 .B \-\-daemonize
-Daemonize on startup.
+Daemonise on startup.
 .TP
 \fB\-e\fR \fIderived\fR, \fB\-\-derived\fR=\fIderived\fR
 Specify
@@ -453,6 +453,15 @@ and
 Alternatively, using
 .BR pmrep.conf (5)
 configuration syntax allows defining derived metrics as part of metricsets.
+.RS
+.PP
+In case of issues with derived metrics, review the aforementioned manual
+pages in detail and ensure all the required metrics are available,
+especially when using archives.
+Use
+.B -Dderive
+to see additional debug information about parsing derived metrics.
+.RE
 .TP
 \fB\-E\fR \fIlines\fR, \fB\-\-repeat\-header\fR=\fIlines\fR
 Repeat the header every
@@ -475,7 +484,7 @@ method which is mostly the same as that described in
 .BR strftime (3).
 An empty
 .I format
-string (i.e., "") will remove the timestamps from the output.
+string (i.e. "") will remove the timestamps from the output.
 Defaults to
 .B %H:%M:%S
 when using the
@@ -676,6 +685,11 @@ is two spaces (``  '') and comma (``,'') for
 When using a non-whitespace delimiter,
 all instances of the delimiter in string values will be replaced by
 the underscore (``_'') character.
+Note that many default metricsets specify a delimiter (that may
+not be a comma) so it might be
+necessary to use this option with metricsets to explicitly
+set the delimiter as comma for CSV output, i.e. \c.
+.B \-\-delimiter=,
 .TP
 \fB\-L\fR, \fB\-\-local\-PMDA\fR
 Use a local context to collect metrics from DSO PMDAs on the local host
@@ -1161,7 +1175,7 @@ $ pmrep \-o archive \-F ./a \-J 3 \-N proc.memory.rss proc.memory proc.io
 .I pmrep.conf
 \fBpmrep\fP configuration file (see \fB\-c\fP)
 .TP
-.I \f(CW$PCP_SYSCONF_DIR\fP/pmrep/*.conf
+.I \f(CR$PCP_SYSCONF_DIR\fP/pmrep/*.conf
 system provided default \fBpmrep\fP configuration files
 .SH PCP ENVIRONMENT
 Environment variables with the prefix \fBPCP_\fP are used to parameterize
@@ -1176,7 +1190,6 @@ For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
 .BR PCPIntro (1),
 .BR mkaf (1),
 .BR pcp (1),
-.BR pcp\-atop (1),
 .BR pcp2elasticsearch (1),
 .BR pcp2graphite (1),
 .BR pcp2influxdb (1),
@@ -1185,13 +1198,14 @@ For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
 .BR pcp2xlsx (1),
 .BR pcp2xml (1),
 .BR pcp2zabbix (1),
+.BR pcp\-atop (1),
 .BR pmcd (1),
 .BR pmchart (1),
 .BR pmdiff (1),
-.BR pmdumplog (1),
 .BR pmdumptext (1),
 .BR pminfo (1),
 .BR pmiostat (1),
+.BR pmlogdump (1),
 .BR pmlogextract (1),
 .BR pmlogsummary (1),
 .BR pmprobe (1),
@@ -1199,6 +1213,7 @@ For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
 .BR pmval (1),
 .BR sadf (1),
 .BR sar (1),
+.BR PMAPI (3),
 .BR pmGetOptions (3),
 .BR pmLoadDerivedConfig (3),
 .BR pmParseUnitsStr (3),
@@ -1206,9 +1221,19 @@ For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
 .BR pmSpecLocalPMDA (3),
 .BR strftime (3),
 .BR LOGARCHIVE (5),
+.BR PMNS (5),
 .BR pcp.conf (5),
 .BR pmrep.conf (5),
-.BR PMNS (5),
 .BR environ (7)
 and
 .BR vmstat (8).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ CdgGHIjkLmnprRuUvVxz EST NUMA XFS csv datetime
+.\" +ok+ eth incompat influxdb inodes java
+.\" +ok+ kmalloc metricset metricsets sda slabinfo
+.\" +ok+ total_bytes total_size vfs vmstat wlan
+.\" +ok+ xfs xfs_inode zsh
+.\" +ok+ ds {from ds389} gp gUJ {all from command line -xxx args}
+.\" +ok+ sp {from .sp in troff macro} un {from (un)available)}
+.\" +ok+ alt {from --overall-rank-alt}

@@ -101,7 +101,7 @@ sub PM_ERR_TEXT		{ -12349; }	# One-line or help text is not available
 sub PM_ERR_APPVERSION	{ -12350; }	# Metric not supported by this version of monitored application
 sub PM_ERR_VALUE	{ -12351; }	# Missing metric value(s)
 sub PM_ERR_TIMEOUT	{ -12353; }	# Timeout waiting for a response from PMCD
-sub PM_ERR_NODATA	{ -12354; }	# Empty archive log file
+sub PM_ERR_NODATA	{ -12354; }	# Empty archive file
 sub PM_ERR_RESET	{ -12355; }	# PMCD reset or configuration change
 sub PM_ERR_NAME		{ -12357; }	# Unknown metric name
 sub PM_ERR_PMID		{ -12358; }	# Unknown or illegal metric identifier
@@ -116,17 +116,17 @@ sub PM_ERR_PROFILE	{ -12365; }	# Explicit instance identifier(s) required
 sub PM_ERR_IPC		{ -12366; }	# IPC protocol failure
 sub PM_ERR_EOF		{ -12368; }	# IPC channel closed
 sub PM_ERR_NOTHOST	{ -12369; }	# Operation requires context with host source of metrics
-sub PM_ERR_EOL		{ -12370; }	# End of PCP archive log
+sub PM_ERR_EOL		{ -12370; }	# End of PCP archive
 sub PM_ERR_MODE		{ -12371; }	# Illegal mode specification
-sub PM_ERR_LABEL	{ -12372; }	# Illegal label record at start of a PCP archive log file
-sub PM_ERR_LOGREC	{ -12373; }	# Corrupted record in a PCP archive log
-sub PM_ERR_LOGFILE	{ -12375; }	# Missing PCP archive log file
+sub PM_ERR_LABEL	{ -12372; }	# Illegal label record at start of a PCP archive file
+sub PM_ERR_LOGREC	{ -12373; }	# Corrupted record in a PCP archive
+sub PM_ERR_LOGFILE	{ -12375; }	# Missing PCP archive file
 sub PM_ERR_NOTARCHIVE	{ -12374; }	# Operation requires context with archive source of metrics
 sub PM_ERR_NOCONTEXT	{ -12376; }	# Attempt to use an illegal context
 sub PM_ERR_PROFILESPEC	{ -12377; }	# NULL pmInDom with non-NULL instlist
-sub PM_ERR_PMID_LOG	{ -12378; }	# Metric not defined in the PCP archive log
-sub PM_ERR_INDOM_LOG	{ -12379; }	# Instance domain identifier not defined in the PCP archive log
-sub PM_ERR_INST_LOG	{ -12380; }	# Instance identifier not defined in the PCP archive log
+sub PM_ERR_PMID_LOG	{ -12378; }	# Metric not defined in the PCP archive
+sub PM_ERR_INDOM_LOG	{ -12379; }	# Instance domain identifier not defined in the PCP archive
+sub PM_ERR_INST_LOG	{ -12380; }	# Instance identifier not defined in the PCP archive
 sub PM_ERR_NOPROFILE	{ -12381; }	# Missing profile - protocol botch
 sub PM_ERR_NOAGENT	{ -12386; }	# No PMCD agent for domain of request
 sub PM_ERR_PERMISSION	{ -12387; }	# No permission to perform requested operation
@@ -297,7 +297,7 @@ previously registered using B<add_indom>(),
 changes in any way, this change must be reflected by replacing the
 existing mapping with a new one (I<insts>).
 
-The replacement mapping must be a hash if the instance domain 
+The replacement mapping must be a hash if the instance domain
 was registered initially with B<add_indom>() as a hash, otherwise it must be
 a list.
 
@@ -502,7 +502,7 @@ is an actual PMDA invocation via B<pmcd>(1).
 Most of the PM_* macros from the PCP C headers are available.
 
 For example the I<type> of a metric's value may be directly
-specified as one of 
+specified as one of
 B<PM_TYPE_32>, B<PM_TYPE_U32>, B<PM_TYPE_64>, B<PM_TYPE_U64>,
 B<PM_TYPE_FLOAT>, B<PM_TYPE_DOUBLE>, B<PM_TYPE_STRING> or
 B<PM_TYPE_NOSUPPORT>.

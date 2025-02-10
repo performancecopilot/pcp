@@ -16,10 +16,9 @@ echo "QA output created by $seq"
 
 which netstat >/dev/null 2>&1 || _notrun "netstat not installed"
 
-rm -f $seq.full
-
-pmlogctl status 2>&1 | tee -a $seq.full >$tmp.tmp
+pmlogctl status 2>&1 | tee -a $seq_full >$tmp.tmp
 nloggers=`sed -e 1d <$tmp.tmp | wc -l | sed -e 's/  *//g'`
+rm -f $tmp.tmp
 [ "$nloggers" -gt 1 ] && _notrun "more than one pmlogger already running"
 
 rm -f $seq.out
@@ -97,7 +96,8 @@ export PMCD_PORT PMLOGGER_PORT
 # don't want init script to restart pmcd via systemctl, as this
 # will clobber the environment, ...
 #
-_service pcp stop | _filter_pcp_stop
+if ! _service pcp stop; then _exit 1; fi \
+| _filter_pcp_stop
 if [ "$PCPQA_SYSTEMD" = x -o "${PCPQA_SYSTEMD-x}" != x ]
 then
     # $PCPQA_SYSTEMD is already set ...
@@ -116,7 +116,7 @@ echo "export PMLOGGER_PORT=$PMLOGGER_PORT" >>$tmp.start
 echo "$PCP_RC_DIR/pcp restart" >>$tmp.start
 
 $sudo sh $tmp.start 2>&1 | _filter_pcp_start
-_wait_for_pmlogger -P $LOGGING_DIR/$LOCALHOST/pmlogger.log
+_wait_for_pmlogger -P $LOGGING_DIR/$LOCALHOST/pmlogger.log || _exit 1
 
 echo
 echo "pminfo with PMCD_PORT=$PMCD_PORT"
@@ -144,7 +144,7 @@ sed -e 1q $PCP_TMP_DIR/pmlogger/primary
 #
 echo "... and netstat"
 netstat -an \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | sed -n -e '/4[23]000.*LISTEN/{
 s/0\.0\.0\.0/inet/g
 s/:::/inet6:/g

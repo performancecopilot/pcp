@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2021 Red Hat.
+ * Copyright (c) 2012-2021,2024 Red Hat.
  * Copyright (c) 2009-2010 Aconex. All Rights Reserved.
  * Copyright (c) 1995-2000,2009 Silicon Graphics, Inc. All Rights Reserved.
  *
@@ -33,6 +33,7 @@
 #include <sys/stat.h>
 #include <inttypes.h>
 #include <ctype.h>
+#include <math.h>
 
 static int isDSO = 1;
 static char *username;
@@ -41,8 +42,6 @@ static const char *pmproxy_prefix = "pmproxy";
 static void *privdata;
 
 static int setup;
-static float fNaN;
-static double dNaN;
 static pmAtomValue aNaN;
 
 /* command line option handling - both short and long options */
@@ -1008,12 +1007,12 @@ mmv_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		break;
 	    case MMV_TYPE_FLOAT:
 		memcpy(atom, &v->value, sizeof(pmAtomValue));
-		if ((flags & MMV_FLAG_SENTINEL) && atom->f == fNaN)
+		if ((flags & MMV_FLAG_SENTINEL) && isnan(atom->f))
 		    return PMDA_FETCH_NOVALUES;
 		break;
 	    case MMV_TYPE_DOUBLE:
 		memcpy(atom, &v->value, sizeof(pmAtomValue));
-		if ((flags & MMV_FLAG_SENTINEL) && atom->d == dNaN)
+		if ((flags & MMV_FLAG_SENTINEL) && isnan(atom->d))
 		    return PMDA_FETCH_NOVALUES;
 		break;
 	    case MMV_TYPE_ELAPSED: {
@@ -1396,8 +1395,6 @@ init_pmda(pmdaInterface *dp, agent_t *ap)
 
     if (!setup) {
 	setup++;
-	fNaN = (float)0.0 / (float)0.0;
-	dNaN = (double)0.0 / (double)0.0;
 	memset(&aNaN, -1, sizeof(pmAtomValue));
     }
 

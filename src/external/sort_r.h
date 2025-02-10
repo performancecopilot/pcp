@@ -23,12 +23,22 @@ void sort_r(void *base, size_t nel, size_t width,
 */
 
 #if (defined __APPLE__ || defined __MACH__ || defined __DARWIN__ || \
-     defined __FreeBSD__ || defined __DragonFly__)
-#  define _SORT_R_BSD
+     defined __DragonFly__)
+#  define _SORT_R_OLD_BSD
 #  define _SORT_R_INLINE inline
 #elif (defined __NetBSD__ || defined __OpenBSD__)
   /* we may be using __GNU__ but we don't have any qsort_r in libc */
 #  define _SORT_R_INLINE
+#elif (defined __FreeBSD__)
+#  define _SORT_R_INLINE __inline
+#  if (__FreeBSD__ >= 14)
+   /* modern BSD with libc implementation that matches modern glibc */
+   /* prototype comes from <stdlib.h> */
+#  define _SORT_R_NEW_BSD
+#  else
+   /* old FreeBSD with arse-backwards argument order */
+#  define _SORT_R_OLD_BSD
+#  endif
 #elif (defined _WIN32 || defined _WIN64 || defined __WINDOWS__)
 #  define _SORT_R_WINDOWS
 #  define _SORT_R_INLINE __inline
@@ -143,7 +153,7 @@ static _SORT_R_INLINE void sort_r_simple(void *base, size_t nel, size_t w,
 
   /* Declare structs and functions */
 
-  #if defined _SORT_R_BSD
+  #if defined _SORT_R_OLD_BSD
 
     /* Ensure qsort_r is defined */
     extern void qsort_r(void *base, size_t nel, size_t width, void *thunk,
@@ -151,9 +161,9 @@ static _SORT_R_INLINE void sort_r_simple(void *base, size_t nel, size_t w,
 
   #endif
 
-  #if defined _SORT_R_BSD || defined _SORT_R_WINDOWS
+  #if defined _SORT_R_OLD_BSD || defined _SORT_R_WINDOWS
 
-    /* BSD (qsort_r), Windows (qsort_s) require argument swap */
+    /* Old BSD (qsort_r), Windows (qsort_s) require argument swap */
 
     struct sort_r_data
     {
@@ -197,12 +207,17 @@ static _SORT_R_INLINE void sort_r_simple(void *base, size_t nel, size_t w,
 
       #endif
 
-    #elif defined _SORT_R_BSD
+    #elif defined _SORT_R_OLD_BSD
 
       struct sort_r_data tmp;
       tmp.arg = arg;
       tmp.compar = compar;
       qsort_r(base, nel, width, &tmp, sort_r_arg_swap);
+
+    #elif defined _SORT_R_NEW_BSD
+
+       /* same as modern glibc */
+       qsort_r(base, nel, width, compar, arg);
 
     #elif defined _SORT_R_WINDOWS
 
@@ -224,6 +239,7 @@ static _SORT_R_INLINE void sort_r_simple(void *base, size_t nel, size_t w,
 #undef _SORT_R_INLINE
 #undef _SORT_R_WINDOWS
 #undef _SORT_R_LINUX
-#undef _SORT_R_BSD
+#undef _SORT_R_OLD_BSD
+#undef _SORT_R_NEW_BSD
 
 #endif /* SORT_R_H_ */

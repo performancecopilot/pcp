@@ -28,7 +28,6 @@ _cleanup()
 }
 
 status=0	# success is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _filter()
@@ -42,16 +41,16 @@ _filter()
 # real QA test starts here
 badie=badarchives/20230506.20.02-01
 goodie=$tmp
-pmlogextract $badie $goodie 2>&1 | _filter
+pmlogextract -z $badie $goodie 2>&1 | _filter
 
 for archive in $badie $goodie
 do
     echo
     echo "=== $archive ===" | _filter
     echo "--- pmlogdump ---"
-    pmlogdump $archive | grep '70\.1\.'
+    pmlogdump -z $archive | grep '70\.1\.'
     echo "--- pmlogcheck ---"
-    pmlogcheck $archive
+    pmlogcheck -z $archive
 done
 
 # success, all done

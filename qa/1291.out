@@ -2,7 +2,7 @@ QA output created by 1291
 
 
 ATOP -         2020/11/09  09:00:14        -----------------         20s elapsed
-PRC | sys    8h21m | user  24h31m | #proc    392 | #zombie    0 | no  procacct |
+PRC | sys    8h21m | user  24h31m | #proc    392 | #tidle   101 | no  procacct |
 CPU | sys      10% | user     23% | irq      46% | idle    720% | wait      1% |
 cpu | sys       1% | user      4% | irq       6% | idle     89% | cpu006 w  0% |
 cpu | sys       1% | user      4% | irq       6% | idle     89% | cpu004 w  0% |
@@ -12,11 +12,11 @@ cpu | sys       1% | user      2% | irq       6% | idle     91% | cpu007 w  0% |
 cpu | sys       1% | user      2% | irq       6% | idle     91% | cpu005 w  0% |
 cpu | sys       1% | user      2% | irq       6% | idle     91% | cpu003 w  0% |
 cpu | sys       1% | user      2% | irq       6% | idle     91% | cpu001 w  0% |
-CPL | numcpu     8 | avg1    0.23 | avg5    0.24 | csw 838830e4 | intr 17700e6 |
-MEM | tot    15.3G | free  286.3M | cache 721.6M | buff   48.0M | slab  624.3M |
-MEM | numnode    1 | shmem 237.9M | shrss   4.0G | tcpsk   0.1M | zfarc   0.0M |
+CPL | numcpu     8 | avg1    0.19 | avg5    0.23 | csw 838830e4 | intr 17700e6 |
+MEM | tot    15.3G | free  282.3M | avail   2.7G | cache 721.7M | slab  624.4M |
+MEM | numnode    1 | shmem 237.7M | shswp   1.1G | pgtab  22.8M | zfarc   0.0M |
 SWP | tot    11.7G | free    3.3G | swcac  34.9M | vmcom  31.6G | vmlim  19.1G |
-PAG | migrate 76e4 | pgin      12 | pgout   1228 | swout 2662e3 | oomkill    0 |
+PAG | numamig    0 | migrate 76e4 | pgin      12 | pgout   1228 | oomkill    0 |
 LVM | a_shard-root | busy      0% | read 2124419 | write 5583e3 | avio  0.0 ns |
 LVM | a_shard-swap | busy      0% | read  198044 | write 1380e3 | avio  0.0 ns |
 LVM | a_shard-home | busy      0% | read 4615230 | write 9619e3 | avio  0.0 ns |
@@ -423,7 +423,7 @@ NET | tun0    ---- | pcki  732362 | pcko  763839 | si  148 Mbps | so   95 Mbps |
 
 
 ATOP -         2020/11/09  09:00:24        -----------------         10s elapsed
-PRC | sys    0.50s | user   1.25s | #proc    392 | #zombie    0 | no  procacct |
+PRC | sys    0.50s | user   1.25s | #proc    392 | #tidle   101 | no  procacct |
 CPU | sys       3% | user     14% | irq      48% | idle    734% | wait      1% |
 cpu | sys       1% | user      8% | irq       6% | idle     85% | cpu000 w  0% |
 cpu | sys       1% | user      2% | irq       6% | idle     92% | cpu002 w  0% |
@@ -433,11 +433,11 @@ cpu | sys       0% | user      1% | irq       6% | idle     92% | cpu007 w  0% |
 cpu | sys       0% | user      1% | irq       6% | idle     93% | cpu005 w  0% |
 cpu | sys       0% | user      0% | irq       6% | idle     93% | cpu001 w  0% |
 cpu | sys       0% | user      0% | irq       6% | idle     94% | cpu003 w  0% |
-CPL | numcpu     8 | avg1    0.19 | avg5    0.23 | csw    60604 | intr  182964 |
-MEM | tot    15.3G | free  282.3M | cache 721.7M | buff   48.1M | slab  624.4M |
-MEM | numnode    1 | shmem 237.7M | shrss   4.0G | tcpsk   0.1M | zfarc   0.0M |
+CPL | numcpu     8 | avg1    0.24 | avg5    0.24 | csw    60604 | intr  182964 |
+MEM | tot    15.3G | free  258.9M | avail   2.7G | cache 734.6M | slab  624.3M |
+MEM | numnode    1 | shmem 237.8M | shswp   1.1G | pgtab  22.8M | zfarc   0.0M |
 SWP | tot    11.7G | free    3.3G | swcac  34.9M | vmcom  31.6G | vmlim  19.1G |
-PAG | migrate    0 | pgin    4288 | pgout    350 | swout      0 | oomkill    0 |
+PAG | numamig    0 | migrate    0 | pgin    4288 | pgout    350 | oomkill    0 |
 LVM | a_shard-root | busy      0% | read       0 | write     13 | avio  0.0 ns |
 LVM | a_shard-swap | busy      0% | read       5 | write      0 | avio  0.0 ns |
 LVM | a_shard-home | busy      0% | read      91 | write     70 | avio  0.0 ns |
@@ -449,15 +449,15 @@ NET | tun0    ---- | pcki      15 | pcko      13 | si   14 Kbps | so    0 Kbps |
 NET | lo      ---- | pcki       3 | pcko       3 | si    2 Kbps | so    2 Kbps |
 
     PID SYSCPU USRCPU BDELAY  VGROW  RGROW  RDDSK  WRDSK  CPU CMD            
- 110376  0.11s  0.40s  0.00s     0B     0B     0B     0B   5% chrome         
-1345181  0.03s  0.30s  0.00s     0B     0B     0B     0B   3% firefox        
+ 110376  0.11s  0.40s  0.00s     0B 456.0K     0B     0B   5% chrome         
+1345181  0.03s  0.30s  0.00s     0B  -6.4M     0B     0B   3% firefox        
  110323  0.08s  0.15s  0.00s     0B     0B     0B     0B   2% chrome         
-   8385  0.00s  0.05s  0.00s     0B     0B     0B     0B   1% slack          
- 110365  0.00s  0.04s  0.00s     0B     0B     0B     0B   0% chrome         
+   8385  0.00s  0.05s  0.00s   4.0G   1.3M     0B     0B   1% slack          
+ 110365  0.00s  0.04s  0.00s  -4.0G  -2.8M     0B     0B   0% chrome         
  110285  0.01s  0.02s  0.00s     0B     0B     0B     0B   0% chrome         
-1348927  0.00s  0.03s  0.00s     0B     0B     0B     0B   0% Web Content    
-1345391  0.00s  0.03s  0.00s     0B     0B     0B     0B   0% Web Content    
-1345651  0.00s  0.01s  0.00s     0B     0B     0B     0B   0% Web Content    
+1348927  0.00s  0.03s  0.00s     0B 248.0K     0B     0B   0% Web Content    
+1345391  0.00s  0.03s  0.00s     0B 296.0K     0B     0B   0% Web Content    
+1345651  0.00s  0.01s  0.00s     0B 264.0K     0B     0B   0% Web Content    
  110325  0.00s  0.01s  0.00s     0B     0B     0B     0B   0% chrome         
 1626796  0.02s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/3:1-ev 
 1626879  0.02s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/7:1-ev 
@@ -471,12 +471,12 @@ NET | lo      ---- | pcki       3 | pcko       3 | si    2 Kbps | so    2 Kbps |
 1627028  0.01s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/1:1-ev 
 1039494  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% inkscape       
    3662  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% gsd-smartcard  
-1140856  0.00s  0.01s  0.00s     0B     0B     0B     0B   0% pmproxy        
-1345585  0.00s  0.01s  0.00s     0B     0B     0B     0B   0% Web Content    
+1140856  0.00s  0.01s  0.00s   1.6M   1.5M     0B     0B   0% pmproxy        
+1345585  0.00s  0.01s  0.00s     0B  -0.2M     0B     0B   0% Web Content    
 1618117  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% chrome         
-   3490  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% Xwayland       
+   3490  0.00s  0.00s  0.00s -64.0K     0B     0B     0B   0% Xwayland       
 1618104  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% chrome         
-   8371  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% slack          
+   8371  0.00s  0.00s  0.00s     0B   4.0K     0B     0B   0% slack          
    1008  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% polkitd        
    3551  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% goa-daemon     
    1133  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% mysqld         
@@ -485,11 +485,11 @@ NET | lo      ---- | pcki       3 | pcko       3 | si    2 Kbps | so    2 Kbps |
 1140638  0.00s  0.00s  0.00s     0B     0B     0B 140.0K   0% pmlogger       
 1289734  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% python3        
    3565  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% goa-identity-s 
-1288219  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% chrome         
-   8279  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% slack          
-1037590  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% chrome         
-1037727  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% chrome         
- 110592  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% chrome         
+1288219  0.00s  0.00s  0.00s     0B 264.0K     0B     0B   0% chrome         
+   8279  0.00s  0.00s  0.00s     0B  56.0K     0B     0B   0% slack          
+1037590  0.00s  0.00s  0.00s     0B  32.0K     0B     0B   0% chrome         
+1037727  0.00s  0.00s  0.00s     0B 212.0K     0B     0B   0% chrome         
+ 110592  0.00s  0.00s  0.00s     0B  20.0K     0B     0B   0% chrome         
 1037677  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% chrome         
    1278  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% grafana-server 
  110605  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% chrome         
@@ -514,16 +514,31 @@ NET | lo      ---- | pcki       3 | pcko       3 | si    2 Kbps | so    2 Kbps |
 1350890  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% Web Content    
  110459  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% chrome         
  110567  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% chrome         
-    630  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% systemd-journa 
+    630  0.00s  0.00s  0.00s     0B  44.0K     0B     0B   0% systemd-journa 
+1345513  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% Privileged Con 
       1  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% systemd        
+   1003  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% systemd-logind 
+ 897869  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% gvfsd-dnssd    
+    953  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% thermald       
+    916  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% avahi-daemon   
+1289721  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% pmdaxfs        
+ 110580  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% chrome         
+    950  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% systemd-machin 
+1616505  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% gpg-agent      
+1616540  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% gpg-agent      
+     54  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% kauditd        
+    532  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% jbd2/dm-0-8    
+    857  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% jbd2/dm-2-8    
+1625900  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/u16:3- 
+1627853  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/u16:2- 
 __pmLogFetchInterp: unbound items scanned: pass2: 24 first: 23 forget: 1 trim: 24 pass3: 24 last: 23 forget: 20568 trim: 24
-__pmLogFetchInterp: unbound items scanned: pass2: 466 first: 445 forget: 1 trim: 446 pass3: 466 last: 445 forget: 382222 trim: 446
+__pmLogFetchInterp: unbound items scanned: pass2: 469 first: 448 forget: 1 trim: 449 pass3: 469 last: 448 forget: 384793 trim: 449
 __pmLogFetchInterp: unbound items scanned: pass2: 20240 first: 15719 forget: 1 trim: 15720 pass3: 20240 last: 15719 forget: 13472040 trim: 15720
 __pmLogFetchInterp: unbound items scanned: pass2: 0 first: 0 forget: 0 trim: 0 pass3: 0 last: 0 forget: 0 trim: 0
-__pmLogFetchInterp: unbound items scanned: pass2: 466 first: 147 forget: 35 trim: 20 pass3: 466 last: 433 forget: 868 trim: 434
+__pmLogFetchInterp: unbound items scanned: pass2: 469 first: 147 forget: 35 trim: 20 pass3: 469 last: 436 forget: 874 trim: 437
 __pmLogFetchInterp: unbound items scanned: pass2: 20240 first: 391 forget: 394 trim: 0 pass3: 20240 last: 15287 forget: 13071240 trim: 15288
 __pmLogFetchInterp: unbound items scanned: pass2: 0 first: 0 forget: 0 trim: 0 pass3: 0 last: 0 forget: 0 trim: 0
-__pmLogFetchInterp: unbound items scanned: pass2: 466 first: 1765 forget: 452 trim: 434 pass3: 466 last: 0 forget: 0 trim: 0
+__pmLogFetchInterp: unbound items scanned: pass2: 469 first: 1774 forget: 455 trim: 437 pass3: 469 last: 0 forget: 0 trim: 0
 __pmLogFetchInterp: unbound items scanned: pass2: 20240 first: 508 forget: 514 trim: 117 pass3: 20240 last: 0 forget: 0 trim: 0
 __pmLogFetchInterp: unbound items scanned: pass2: 0 first: 0 forget: 0 trim: 0 pass3: 0 last: 0 forget: 0 trim: 0
 __pmLogFetchInterp: unbound items scanned: pass2: 0 first: 0 forget: 0 trim: 0 pass3: 0 last: 0 forget: 0 trim: 0

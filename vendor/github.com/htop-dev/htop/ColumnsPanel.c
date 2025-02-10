@@ -5,6 +5,8 @@ Released under the GNU GPLv2+, see the COPYING file
 in the source distribution for its full text.
 */
 
+#include "config.h" // IWYU pragma: keep
+
 #include "ColumnsPanel.h"
 
 #include <assert.h>
@@ -19,6 +21,7 @@ in the source distribution for its full text.
 #include "Object.h"
 #include "Process.h"
 #include "ProvideCurses.h"
+#include "RowField.h"
 #include "XUtils.h"
 
 
@@ -44,7 +47,6 @@ static HandlerResult ColumnsPanel_eventHandler(Panel* super, int ch) {
       case KEY_ENTER:
       case KEY_MOUSE:
       case KEY_RECLICK:
-      {
          if (selected < size - 1) {
             this->moving = !(this->moving);
             Panel_setSelectionColor(super, this->moving ? PANEL_SELECTION_FOLLOW : PANEL_SELECTION_FOCUS);
@@ -54,59 +56,45 @@ static HandlerResult ColumnsPanel_eventHandler(Panel* super, int ch) {
             result = HANDLED;
          }
          break;
-      }
       case KEY_UP:
-      {
-         if (!this->moving) {
+         if (!this->moving)
             break;
-         }
-      }
          /* else fallthrough */
       case KEY_F(7):
       case '[':
       case '-':
-      {
          if (selected < size - 1)
             Panel_moveSelectedUp(super);
          result = HANDLED;
          break;
-      }
       case KEY_DOWN:
-      {
-         if (!this->moving) {
+         if (!this->moving)
             break;
-         }
-      }
          /* else fallthrough */
       case KEY_F(8):
       case ']':
       case '+':
-      {
          if (selected < size - 2)
             Panel_moveSelectedDown(super);
          result = HANDLED;
          break;
-      }
       case KEY_F(9):
       case KEY_DC:
-      {
-         if (selected < size - 1) {
+         if (selected < size - 1)
             Panel_remove(super, selected);
-         }
          result = HANDLED;
          break;
-      }
       default:
-      {
          if (0 < ch && ch < 255 && isgraph((unsigned char)ch))
             result = Panel_selectByTyping(super, ch);
          if (result == BREAK_LOOP)
             result = IGNORED;
          break;
-      }
    }
+
    if (result == HANDLED)
       ColumnsPanel_update(super);
+
    return result;
 }
 
@@ -128,9 +116,8 @@ static void ColumnsPanel_add(Panel* super, unsigned int key, Hashtable* columns)
       if (!column) {
          name = NULL;
       } else {
-         name = column->caption ? column->caption : column->heading;
-         if (!name)
-            name = column->name; /* name is a mandatory field */
+         /* heading preferred here but name is always available */
+         name = column->heading ? column->heading : column->name;
       }
    }
    if (name == NULL)
@@ -141,7 +128,7 @@ static void ColumnsPanel_add(Panel* super, unsigned int key, Hashtable* columns)
 void ColumnsPanel_fill(ColumnsPanel* this, ScreenSettings* ss, Hashtable* columns) {
    Panel* super = (Panel*) this;
    Panel_prune(super);
-   for (const ProcessField* fields = ss->fields; *fields; fields++)
+   for (const RowField* fields = ss->fields; *fields; fields++)
       ColumnsPanel_add(super, *fields, columns);
    this->ss = ss;
 }

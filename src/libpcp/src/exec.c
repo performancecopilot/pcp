@@ -15,7 +15,7 @@
  *
  * Thread-safe notes
  *	- map and nmap protected by exec_lock
- *      - -Dexec diagnostics are rotected by exec_lock, but this does
+ *      - -Dexec diagnostics are protected by exec_lock, but this does
  *         not apply to any child process after a fork()
  */
 
@@ -181,8 +181,8 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_ALLOC);
  * If toss&PM_EXEC_TOSS_STDOUT, reassign stdout to /dev/null.
  * If toss&PM_EXEC_TOSS_STDERR, reassign stderr to /dev/null.
  *
- * If wait == PM_EXEC_WAIT, wait for the child process to exit and
- * return 0 if exit status is 0, else return -1 and the status
+ * If mywait == PM_EXEC_WAIT, mywait for the child process to exit
+ * and return 0 if exit status is 0, else return -1 and the status
  * from waitpid() is returned via status.
  * Otherwise, don't wait and return 0.
  *
@@ -196,7 +196,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_ALLOC);
  * so we do the same.
  */
 int
-__pmProcessExec(__pmExecCtl_t **handle, int toss, int wait)
+__pmProcessExec(__pmExecCtl_t **handle, int toss, int mywait)
 {
     __pmExecCtl_t	*ep = *handle;
     int			i;
@@ -282,7 +282,8 @@ __pmProcessExec(__pmExecCtl_t **handle, int toss, int wait)
 	namelen = strlen(name)+1;
 	if ((name = strdup(name)) == NULL) {
 	    pmNoMem("__pmProcessExec: name strdup", namelen, PM_RECOV_ERR);
-	    exit(126);
+	    cleanup(ep);
+	    _exit(126);
 	}
 	/* still hold ref to argv[0] via path */
 	ep->argv[0] = name;
@@ -302,10 +303,9 @@ __pmProcessExec(__pmExecCtl_t **handle, int toss, int wait)
 
 	execvp(path, (char * const *)ep->argv);
 	/* oops, not supposed to get here */
-	if (pmDebugOptions.exec) {
-	    fprintf(stderr, "__pmProcessExec: child pid=%" FMT_PID " execvp(%s, ...) failed\n", getpid(), path);
-	}
-	exit(127);
+	fprintf(stderr, "__pmProcessExec: child pid=%" FMT_PID " execvp(%s, ...) failed\n", getpid(), path);
+	cleanup(ep);
+	_exit(127);
     }
 
     if (pmDebugOptions.exec) {
@@ -321,7 +321,7 @@ __pmProcessExec(__pmExecCtl_t **handle, int toss, int wait)
     if (pid > (pid_t)0) {
 	/* parent */
 
-	if (wait == PM_EXEC_WAIT) {
+	if (mywait == PM_EXEC_WAIT) {
 	    pid_t	wait_pid;
 	    while ((wait_pid = waitpid(pid, &status, 0)) < 0) {
 		if (oserror() != EINTR)
@@ -371,7 +371,7 @@ __pmProcessExec(__pmExecCtl_t **handle, int toss, int wait)
  * MinGW version
  */
 int
-__pmProcessExec(__pmExecCtl_t **handle, int toss, int wait)
+__pmProcessExec(__pmExecCtl_t **handle, int toss, int mywait)
 {
     __pmExecCtl_t	*ep = *handle;
     int			i;
@@ -408,7 +408,7 @@ __pmProcessExec(__pmExecCtl_t **handle, int toss, int wait)
 	    ;
 	if (toss & PM_EXEC_TOSS_STDOUT)
 	    ;
-	if (wait == PM_EXEC_WAIT) {
+	if (mywait == PM_EXEC_WAIT) {
 	    wait_pid = __pmProcessWait(pid, 0, &status, &sig);
 	    if (pmDebugOptions.exec) {
 		PM_LOCK(exec_lock);
@@ -545,7 +545,7 @@ __pmProcessPipe(__pmExecCtl_t **handle, const char *type, int toss, FILE **fp)
 
 	if (type[0] == 'r') {
 	    close(mypipe[0]);
-	    dup2(mypipe[1], fileno(stdout));
+	    dup2(mypipe[1], STDOUT_FILENO);
 	    close(mypipe[1]);
 	    if (toss & PM_EXEC_TOSS_STDIN) {
 		if (freopen("/dev/null", "r", stdin) == NULL)
@@ -554,14 +554,32 @@ __pmProcessPipe(__pmExecCtl_t **handle, const char *type, int toss, FILE **fp)
 	}
 	else {	/* can safely assume 'w' */
 	    close(mypipe[1]);
-	    dup2(mypipe[0], fileno(stdin));
+	    dup2(mypipe[0], STDIN_FILENO);
 	    close(mypipe[0]);
 	    if (toss & PM_EXEC_TOSS_STDOUT) {
 		if (freopen("/dev/null", "w", stdout) == NULL)
 		    fprintf(stderr, "__pmProcessPipe: freopen stdout failed\n");
 	    }
 	}
-
+	dup2(2, STDERR_FILENO);
+	/*
+	 * we cannot guarantee that all fd's beyond the standard 3
+	 * (stdin, stdout and stderr) have been marked O_CLOEXEC, so
+	 * close all remaing fd's and the child will not inherit them
+	 */
+#if HAVE_CLOSEFROM
+	closefrom(3);
+#else
+	{
+	    /*
+	     * punt that no app calling __pmProcessPipe() uses more
+	     * than 64 fd's
+	     */
+	    int	fd;
+	    for (fd = 3; fd < 64; fd++)
+		close(fd);
+	}
+#endif
 	name = path = ep->argv[0];
 	p = &path[strlen(ep->argv[0])-1];
 	/* strip leading part path from argv[0] */
@@ -576,7 +594,8 @@ __pmProcessPipe(__pmExecCtl_t **handle, const char *type, int toss, FILE **fp)
 	namelen = strlen(name)+1;
 	if ((name = strdup(name)) == NULL) {
 	    pmNoMem("__pmProcessPipe: name strdup", namelen, PM_RECOV_ERR);
-	    exit(126);
+	    cleanup(ep);
+	    _exit(126);
 	}
 	/* still hold ref to argv[0] via path */
 	ep->argv[0] = name;
@@ -588,7 +607,9 @@ __pmProcessPipe(__pmExecCtl_t **handle, const char *type, int toss, FILE **fp)
 
 	execvp(path, (char * const *)ep->argv);
 	/* oops, not supposed to get here */
-	exit(127);
+	fprintf(stderr, "__pmProcessPipe: child pid=%" FMT_PID " execvp(%s, ...) failed\n", getpid(), path);
+	cleanup(ep);
+	_exit(127);
     }
 
     /* cleanup on the parent (caller) side */

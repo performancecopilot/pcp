@@ -23,6 +23,8 @@
 **                                                                        **
 \**************************************************************************/
 #define PY_SSIZE_T_CLEAN
+#define _FILE_OFFSET_BITS 64
+#define _TIME_BITS 64
 #include <Python.h>
 #include <pcp/pmafm.h>
 #include <pcp/pmtime.h>

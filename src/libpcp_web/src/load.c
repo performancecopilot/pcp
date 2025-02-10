@@ -22,7 +22,7 @@
 #include "util.h"
 
 void initSeriesLoadBaton(seriesLoadBaton *, void *, pmSeriesFlags, 
-	pmLogInfoCallBack, pmSeriesDoneCallBack, redisSlots *, void *);
+	pmLogInfoCallBack, pmSeriesDoneCallBack, keySlots *, void *);
 void freeSeriesLoadBaton(seriesLoadBaton *);
 
 void initSeriesGetContext(seriesGetContext *, void *);
@@ -34,7 +34,7 @@ static void server_cache_window(void *);
 static void
 server_cache_source(seriesLoadBaton *baton)
 {
-    redis_series_source(baton->slots, baton);
+    keys_series_source(baton->slots, baton);
 }
 
 /* cache information about this metric (values/metadata) */
@@ -42,14 +42,14 @@ static void
 server_cache_metric(seriesLoadBaton *baton,
 		metric_t *metric, sds timestamp, int meta, int data)
 {
-    redis_series_metric(baton->slots, metric, timestamp, meta, data, baton);
+    keys_series_metric(baton->slots, metric, timestamp, meta, data, baton);
 }
 
 /* cache a mark record (discontinuity) for metrics from this source */
 static void
 server_cache_mark(seriesLoadBaton *baton, sds timestamp, int data)
 {
-    redis_series_mark(baton->slots, timestamp, data, baton);
+    keys_series_mark(baton->slots, timestamp, data, baton);
 }
 
 #if 0
@@ -498,7 +498,7 @@ series_cache_update(seriesLoadBaton *baton, struct dict *exclude)
 	if (write_meta)
 	    get_instance_metadata(baton, metric->desc.indom, write_inst);
 
-	/* initiate writes to backend caching servers (Redis) */
+	/* initiate writes to backend caching key servers */
 	server_cache_metric(baton, metric, timestamp, write_meta, write_data);
     }
 
@@ -542,6 +542,7 @@ server_cache_series_finished(void *arg)
     doneSeriesLoadBaton(baton, "server_cache_series_finished");
 }
 
+#if defined(HAVE_LIBUV)
 static void
 server_cache_update_done(void *arg)
 {
@@ -558,7 +559,6 @@ server_cache_update_done(void *arg)
     server_cache_window(baton);
 }
 
-#if defined(HAVE_LIBUV)
 /* this function runs in a worker thread */
 static void
 fetch_archive(uv_work_t *req)
@@ -881,11 +881,11 @@ series_string_mapping_callback(void *arg)
 }
 
 static void
-series_string_mapping(seriesLoadBaton *baton, redisMap *mapping,
+series_string_mapping(seriesLoadBaton *baton, keyMap *mapping,
 			unsigned char *hash, sds string)
 {
     /* completes immediately (fills hash), but may issue async I/O too */
-    redisGetMap(baton->slots, mapping, hash, string,
+    keyGetMap(baton->slots, mapping, hash, string,
 		series_string_mapping_callback,
 		baton->info, baton->userdata, baton);
 }
@@ -1024,11 +1024,11 @@ connect_pmapi_source_service(void *arg)
 }
 
 static void
-connect_redis_source_service(seriesLoadBaton *baton)
+connect_keys_source_service(seriesLoadBaton *baton)
 {
     pmSeriesModule	*module = (pmSeriesModule *)baton->module;
     seriesModuleData	*data = getSeriesModuleData(module);
-    redisSlotsFlags	flags;
+    keySlotsFlags	flags;
     sds			option;
 
     /* attempt to re-use existing slots connections */
@@ -1038,7 +1038,8 @@ connect_redis_source_service(seriesLoadBaton *baton)
 	baton->slots = data->slots;
 	series_load_end_phase(baton);
     } else {
-	option = pmIniFileLookup(data->config, "redis", "enabled");
+	if (!(option = pmIniFileLookup(data->config, "resp", "enabled")))
+	    option = pmIniFileLookup(data->config, "redis", "enabled"); // compat
 	if (option && strcmp(option, "false") == 0) {
 	    baton->error = -ENOTSUP;
 	} else {
@@ -1046,7 +1047,7 @@ connect_redis_source_service(seriesLoadBaton *baton)
 	    if ((baton->flags & PM_SERIES_FLAG_TEXT))
 		flags |= SLOTS_SEARCH;
 	    baton->slots = data->slots =
-		redisSlotsConnect(
+		keySlotsConnect(
 		    data->config, flags, baton->info,
 		    series_load_end_phase, baton->userdata,
 		    data->events, (void *)baton);
@@ -1066,19 +1067,19 @@ setup_pmapi_source_service(void *arg)
 }
 
 static void
-setup_redis_source_service(void *arg)
+setup_keys_source_service(void *arg)
 {
     seriesLoadBaton	*baton = (seriesLoadBaton *)arg;
 
-    seriesBatonCheckMagic(baton, MAGIC_LOAD, "setup_redis_source_service");
-    seriesBatonReferences(baton, 1, "setup_redis_source_service");
+    seriesBatonCheckMagic(baton, MAGIC_LOAD, "setup_keys_source_service");
+    seriesBatonReferences(baton, 1, "setup_keys_source_service");
 
-    connect_redis_source_service(baton);
+    connect_keys_source_service(baton);
 }
 
 void
 initSeriesLoadBaton(seriesLoadBaton *baton, void *module, pmSeriesFlags flags, 
-	pmLogInfoCallBack info, pmSeriesDoneCallBack done, redisSlots *slots,
+	pmLogInfoCallBack info, pmSeriesDoneCallBack done, keySlots *slots,
 	void *userdata)
 {
     initSeriesBatonMagic(baton, MAGIC_LOAD);
@@ -1157,9 +1158,9 @@ series_load(pmSeriesSettings *settings,
     /* ordering of async operations */
     i = 0;
     baton->current = &baton->phases[i];
-    /* Coverity CID341699 - split pmapi and redis setup to avoid use after free */
+    /* Coverity CID341699 - split pmapi and keys setup to avoid use after free */
     baton->phases[i++].func = setup_pmapi_source_service;
-    baton->phases[i++].func = setup_redis_source_service;
+    baton->phases[i++].func = setup_keys_source_service;
     /* assign source/host string map (series_source_mapping) */
     baton->phases[i++].func = series_source_mapping;
     /* write source info into schema (series_cache_source) */

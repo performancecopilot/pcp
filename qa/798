@@ -36,22 +36,21 @@ _cleanup()
     cd $here
     [ -f $PCP_VAR_DIR/config/pmda/$domain.0.$seq ] && \
 	_restore_config $PCP_VAR_DIR/config/pmda/$domain.0
-    $sudo rm -f $PCP_PMDAS_DIR/nfsclient/nfsclient.log
+    $sudo rm -f $PCP_PMDAS_DIR/nfsclient/nfsclient.log*
     rm -f $tmp.*
 }
 
 trap "_cleanup; exit \$status" 0 1 2 3 15
-rm -f $seq.full
 
 _filter()
 {
-    tee -a $here/$seq.full \
+    tee -a $seq_full \
     | $here/src/sortinst -v \
     | sed \
 	-e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;" \
 	-e "s;$script;pmdanfsclient.python;" \
 	-e "s; $python_path; \$PYTHON;" \
-	-e "s; $python; \$PYTHON;" \
+	-e "s; $python_basename; \$PYTHON;" \
 	-e '/pmResult/s/ .* numpmid/ ... numpmid/' \
 	-e '/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/s/[^ ]*/TIMESTAMP/' \
 	-e 's/ 32-bit int / 32-BIT /' \
@@ -62,7 +61,7 @@ _filter()
 
 _filter_pmda_log()
 {
-    tee -a $here/$seq.full \
+    tee -a $seq_full \
     | sed \
 	-e 's/^\(Log for pmda[^ ]* on\) .*/\1 HOST .../' \
 	-e 's/^\(Log finished\) .*/\1 .../' \
@@ -301,7 +300,7 @@ for file in $test/*.qa
 do
     export NFSCLIENT_MOUNTSTATS_PATH="$file"
     echo === Test case: `basename $file`
-    $sudo rm -f nfsclient.log $PCP_VAR_DIR/config/pmda/$domain.0
+    $sudo rm -f nfsclient.log* $PCP_VAR_DIR/config/pmda/$domain.0
     $sudo TERM=ansi \
 	sh -c ". /etc/pcp.env; dbpmda -n $tmp.root -ie" < $tmp.cmds 2>&1 \
 	| _filter | _filter_indom
@@ -314,7 +313,7 @@ for file in $test/*3.qa
 do
     export NFSCLIENT_MOUNTSTATS_PATH="$file"
     echo === Test case: `basename $file`
-    $sudo rm -f nfsclient.log $PCP_VAR_DIR/config/pmda/$domain.0
+    $sudo rm -f nfsclient.log* $PCP_VAR_DIR/config/pmda/$domain.0
     $sudo TERM=ansi \
 	sh -c ". /etc/pcp.env; dbpmda -n $tmp.root -ie" < $tmp.v3cmds 2>&1 \
 	| _filter | _filter_indom
@@ -327,7 +326,7 @@ for file in $test/*42.qa
 do
     export NFSCLIENT_MOUNTSTATS_PATH="$file"
     echo === Test case: `basename $file`
-    $sudo rm -f nfsclient.log $PCP_VAR_DIR/config/pmda/$domain.0
+    $sudo rm -f nfsclient.log* $PCP_VAR_DIR/config/pmda/$domain.0
     $sudo TERM=ansi \
 	sh -c ". /etc/pcp.env; dbpmda -n $tmp.root -ie" < $tmp.42cmds 2>&1 \
 	| _filter | _filter_indom
@@ -340,7 +339,7 @@ for file in $test/*rpc-v*.qa
 do
     export NFSCLIENT_MOUNTSTATS_PATH="$file"
     echo === Test case: `basename $file`
-    $sudo rm -f nfsclient.log $PCP_VAR_DIR/config/pmda/$domain.0
+    $sudo rm -f nfsclient.log* $PCP_VAR_DIR/config/pmda/$domain.0
     $sudo TERM=ansi \
 	sh -c ". /etc/pcp.env; dbpmda -n $tmp.root -ie" < $tmp.rpccmds 2>&1 \
 	| _filter | _filter_indom

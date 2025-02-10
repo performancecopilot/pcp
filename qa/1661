@@ -15,7 +15,7 @@ echo "QA output created by $seq"
 
 [ $PCP_PLATFORM = linux ] || _notrun "Test only runs on Linux"
 which pmproxy >/dev/null 2>&1 || _notrun "No pmproxy binary installed"
-_check_redis_server
+_check_key_server
 
 _cleanup()
 {
@@ -23,12 +23,12 @@ _cleanup()
     $sudo rm -rf "$dir"
 
     echo;echo === see $seq.full for logs 
-    echo "+++ pmproxy.log +++" >>$seq.full
-    cat $PCP_LOG_DIR/pmproxy/pmproxy.log >>$seq.full
-    echo "+++ pmproxy.log.prev +++" >>$seq.full
-    cat $PCP_LOG_DIR/pmproxy/pmproxy.log.prev >>$seq.full
-    echo "+++ pmlogger.log +++" >>$seq.full
-    cat $tmp.pmlogger.log >>$seq.full
+    echo "+++ pmproxy.log +++" >>$seq_full
+    cat $PCP_LOG_DIR/pmproxy/pmproxy.log >>$seq_full
+    echo "+++ pmproxy.log.prev +++" >>$seq_full
+    cat $PCP_LOG_DIR/pmproxy/pmproxy.log.prev >>$seq_full
+    echo "+++ pmlogger.log +++" >>$seq_full
+    cat $tmp.pmlogger.log >>$seq_full
 
     _restore_config $PCP_ETC_DIR/pcp/pmlogger
     _service pcp restart 2>&1 | _filter_pcp_stop | _filter_pcp_start
@@ -36,12 +36,12 @@ _cleanup()
     _wait_for_pmlogger
     if $pmproxy_was_running
     then
-	echo "Restart pmproxy ..." >>$seq.full
-	_service pmproxy restart >>$seq.full 2>&1
+	echo "Restart pmproxy ..." >>$seq_full
+	_service pmproxy restart >>$seq_full 2>&1
 	_wait_for_pmproxy
     else
-	echo "Stopping pmproxy ..." >>$seq.full
-	_service pmproxy stop >>$seq.full 2>&1
+	echo "Stopping pmproxy ..." >>$seq_full
+	_service pmproxy stop >>$seq_full 2>&1
     fi
     $sudo rm -rf $tmp.*
 }
@@ -50,12 +50,13 @@ _filter_pmproxy()
 {
     sed \
 	-e '/pmproxy: disabled time series, requires libuv support (missing)/d' \
-    # end
+    | _filter_pmproxy_stop \
+    | _filter_pmproxy_start
 }
 
 _full_log()
 {
-    echo; echo $@ | tee -a $seq.full
+    echo; echo $@ | tee -a $seq_full
 }
 
 # get current log volume of primary pmlogger, according to pmproxy
@@ -67,19 +68,18 @@ s/"$//
 s/.*"//
 p
 }'`
-    echo "primary pmlogger archive path: $path" >>$seq.full
-    echo "contents of /proc/$pmproxy_pid/fd/ ..." >>$seq.full
+    echo "primary pmlogger archive path: $path" >>$seq_full
+    echo "contents of /proc/$pmproxy_pid/fd/ ..." >>$seq_full
     $sudo ls -l /proc/$pmproxy_pid/fd/ | \
-        tee -a $seq.full | \
+        tee -a $seq_full | \
 	grep "$path" | \
 	$PCP_AWK_PROG -F. '/pmlogger.'$LOCALHOST'.*.[0-9]$/ {print $NF; exit}'
 }
 
 status=1	# failure is the default!
 dir="$PCP_ARCHIVE_DIR/qa$seq"
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
-src/time_stamp $tmp.stamp begin >>$seq.full
+src/time_stamp $tmp.stamp begin >>$seq_full
 
 export PMLOGGER_CHECK_SKIP_LOGCONF=yes
 
@@ -92,11 +92,11 @@ find $PCP_ARCHIVE_DIR -type f -mtime +30 \
 do
     $sudo rm -f "$f"
 done
-src/time_stamp $tmp.stamp 'cleanup old archives' >>$seq.full
+src/time_stamp $tmp.stamp 'cleanup old archives' >>$seq_full
 
 pmproxy_was_running=false
 [ -f $PCP_RUN_DIR/pmproxy.pid ] && pmproxy_was_running=true
-echo "pmproxy_was_running=$pmproxy_was_running" >>$seq.full
+echo "pmproxy_was_running=$pmproxy_was_running" >>$seq_full
 
 # real QA test starts here
 LOCALHOST=`hostname`
@@ -104,52 +104,52 @@ LOCALHOST=`hostname`
 # only want the primary logger running
 _save_config $PCP_ETC_DIR/pcp/pmlogger
 _restore_pmlogger_control
-_service pmlogger stop 2>&1 | _filter_pcp_stop
+if ! _service pmlogger stop 2>&1; then _exit 1; fi | _filter_pcp_stop
 
 _full_log === restarting pmproxy service to ensure sane starting condition 
-_service pmproxy restart 2>&1 | _filter_pcp_stop | _filter_pcp_start | _filter_pmproxy
-_wait_for_pmproxy
+if ! _service pmproxy restart 2>&1; then _exit 1; fi | _filter_pcp_stop | _filter_pcp_start | _filter_pmproxy
+_wait_for_pmproxy || _exit 1
 
 pmproxy_pid=`_get_pids_by_name -a pmproxy`
 [ -z "$pmproxy_pid" ] && echo === pmproxy not running && exit
-date >>$seq.full
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]ID|[p]mproxy' >>$seq.full
-echo "pmproxy_pid=$pmproxy_pid" >>$seq.full
+date >>$seq_full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy( |$)' >>$seq_full
+echo "pmproxy_pid=$pmproxy_pid" >>$seq_full
 
 #debug# echo "sudo gdb -p $pmproxy_pid"
 #debug# read x
-src/time_stamp $tmp.stamp 'restart pmproxy' >>$seq.full
+src/time_stamp $tmp.stamp 'restart pmproxy' >>$seq_full
 
 _full_log === creating archive in new archive directory 
 $sudo sh -c ". $PCP_SHARE_DIR/lib/rc-proc.sh; mkdir_and_chown $dir 775 $PCP_USER:$PCP_GROUP"
 # make sure no archive files left here from a previous run of this test
 $sudo rm -f $dir/testarchive.*
 $sudo sh -c "pmlogger -s 10 -t 0.5sec -c config.default -l$tmp.pmlogger.log $dir/testarchive"
-src/time_stamp $tmp.stamp 'pmlogger done' >>$seq.full
+src/time_stamp $tmp.stamp 'pmlogger done' >>$seq_full
 
 _full_log === checking pmproxy file descriptors for deleted files, should be none 
 if [ -d /proc/$pmproxy_pid ]
 then
     $sudo ls -l /proc/$pmproxy_pid/fd | grep 'testarchive.*(deleted)'
 else
-    echo "Arrgh: pmproxy pid=$pmproxy_pid has vanished" | tee -a $seq.full
-    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]ID|[p]mproxy' >>$seq.full
+    echo "Arrgh: pmproxy pid=$pmproxy_pid has vanished" | tee -a $seq_full
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy( |$)' >>$seq_full
     for log in $PCP_LOG_DIR/pmproxy/pmproxy.log*
     do
 	if [ -f "$log" ]
 	then
 	    echo >>$seq.log
-	    ls -l "$log" >>$seq.full
-	    cat "$log" >>$seq.full
+	    ls -l "$log" >>$seq_full
+	    cat "$log" >>$seq_full
 	else
-	    echo "No pmproxy log files?" >>$seq.full
-	    ls -ld $PCP_LOG_DIR/pmproxy >>$seq.full
-	    ls -l $PCP_LOG_DIR/pmproxy >>$seq.full
+	    echo "No pmproxy log files?" >>$seq_full
+	    ls -ld $PCP_LOG_DIR/pmproxy >>$seq_full
+	    ls -l $PCP_LOG_DIR/pmproxy >>$seq_full
 	fi
     done
     exit
 fi
-src/time_stamp $tmp.stamp 'fd check' >>$seq.full
+src/time_stamp $tmp.stamp 'fd check' >>$seq_full
 
 _full_log === compressing the new archives, which also deletes the originals 
 for suff in 0 meta
@@ -163,12 +163,12 @@ do
     fi
     $sudo chown -R $PCP_USER $dir
 done
-src/time_stamp $tmp.stamp 'compression' >>$seq.full
+src/time_stamp $tmp.stamp 'compression' >>$seq_full
 
 _full_log === restarting pmlogger # primary only
-_service pmlogger restart 2>&1 | _filter_pcp_start
-_wait_for_pmlogger
-src/time_stamp $tmp.stamp 'restart pmcd & pmlogger' >>$seq.full
+if ! _service pmlogger restart 2>&1; then _exit 1; fi | _filter_pcp_start
+_wait_for_pmlogger || _exit 1
+src/time_stamp $tmp.stamp 'restart pmcd & pmlogger' >>$seq_full
 
 _full_log === wait for pmproxy to process filesystem events
 
@@ -187,7 +187,7 @@ in
 	    pmsleep 2
 	    ;;
 esac
-src/time_stamp $tmp.stamp 'wait for pmproxy' >>$seq.full
+src/time_stamp $tmp.stamp 'wait for pmproxy' >>$seq_full
 
 _full_log === checking pmproxy file descriptors for deleted files, should be none 
 if [ -d /proc/$pmproxy_pid ]
@@ -197,13 +197,13 @@ else
     echo "Arrgh: pmproxy pid=$pmproxy_pid has vanished"
     exit
 fi
-src/time_stamp $tmp.stamp 'check for deleted files' >>$seq.full
+src/time_stamp $tmp.stamp 'check for deleted files' >>$seq_full
 
 _full_log === checking pmproxy correctly switches logvol when pmlogger bumps to a new logvol
 retry=0
 while true; do
     curlogvol=`_log_volume`
-    echo "curlogvol=$curlogvol" >>$seq.full
+    echo "curlogvol=$curlogvol" >>$seq_full
     if [ -n "$curlogvol" ]
     then
 	break
@@ -213,7 +213,7 @@ while true; do
 	    echo "Arrgh ... curlogvol not found from ..."
 	    $sudo ls -l /proc/$pmproxy_pid/fd/
 	    echo "pmproxy_pid=$pmproxy_pid"
-	    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]ID|[p]mproxy'
+	    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy( |$)'
 	    exit
 	else
 	    retry=`expr $retry + 1`
@@ -221,9 +221,9 @@ while true; do
 	fi
     fi
 done
-src/time_stamp $tmp.stamp 'found old volume #' >>$seq.full
-pminfo -f pmproxy.discover.logvol.change_vol >>$seq.full 2>&1
-( echo 'new volume'; echo 'log mandatory on once { sample.long.one }' ) | $sudo pmlc -P >> $seq.full 2>&1
+src/time_stamp $tmp.stamp 'found old volume #' >>$seq_full
+pminfo -f pmproxy.discover.logvol.change_vol >>$seq_full 2>&1
+( echo 'new volume'; echo 'log mandatory on once { sample.long.one }' ) | $sudo pmlc -P >> $seq_full 2>&1
 # make sure pmproxy has noticed ...
 # there is no apparent way to make this deterministic, see comment above
 #
@@ -236,15 +236,15 @@ in
 	    pmsleep 2
 	    ;;
 esac
-pminfo -f pmproxy.discover.logvol.change_vol >>$seq.full 2>&1
+pminfo -f pmproxy.discover.logvol.change_vol >>$seq_full 2>&1
 newlogvol=`_log_volume`
-echo "newlogvol=$newlogvol" >>$seq.full
+echo "newlogvol=$newlogvol" >>$seq_full
 if [ -z "$newlogvol" ]
 then
     echo "Arrgh ... newlogvol not found from ..."
     $sudo ls -l /proc/$pmproxy_pid/fd/
     echo "pmproxy_pid=$pmproxy_pid"
-    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]ID|[p]mproxy'
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy( |$)'
     exit
 fi
 if [ `expr $curlogvol + 1` -ne $newlogvol ]
@@ -253,14 +253,14 @@ then
 else
     echo passed
 fi
-src/time_stamp $tmp.stamp 'found new volume #' >>$seq.full
+src/time_stamp $tmp.stamp 'found new volume #' >>$seq_full
 
 _full_log === checking pmproxy survives pmlogger restart
-_service pmlogger restart 2>&1 | _filter_pcp_start
-_wait_for_pmlogger
+if ! _service pmlogger restart 2>&1; then _exit 1; fi | _filter_pcp_start
+_wait_for_pmlogger || _exit 1
 $sudo [ ! -d /proc/$pmproxy_pid/fd/ ] && echo FAIL && exit
 echo passed
-src/time_stamp $tmp.stamp 'check pmproxxy survives' >>$seq.full
+src/time_stamp $tmp.stamp 'check pmproxy survives' >>$seq_full
 
 # success, all done
 status=0

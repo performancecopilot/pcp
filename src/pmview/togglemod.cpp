@@ -39,7 +39,7 @@ void
 ToggleMod::dump(QTextStream &os) const
 {
     os << "ToggleMod: \"" << _label << "\" has " << _list.size()
-       << " objects" << endl;
+       << " objects" << Qt::endl;
 }
 
 void
@@ -48,12 +48,12 @@ ToggleMod::selectAll()
     int		i;
 
     if (pmDebugOptions.appl2)
-	cerr << "ToggleMod::selectAll: \"" << _label << '"' << endl;
+	cerr << "ToggleMod::selectAll: \"" << _label << '"' << Qt::endl;
 
     for (i = 0; i < _list.size(); i++) {
 	if (pmDebugOptions.appl2)
 	    cerr << "ToggleMod::selectAll: Selecting [" << i << ']' 
-		 << endl;
+		 << Qt::endl;
 
     	_list[i]->selectAll();
     }
@@ -65,13 +65,13 @@ ToggleMod::select(SoPath *path)
     int		i;
 
     if (pmDebugOptions.appl2)
-	cerr << "ToggleMod::select: \"" << _label << '"' << endl;
+	cerr << "ToggleMod::select: \"" << _label << '"' << Qt::endl;
 
     theModList->selectAllOn();
 
     for (i = 0; i < _list.size(); i++) {
 	if (pmDebugOptions.appl2)
-	    cerr << "ToggleMod::select: Selecting [" << i << ']' << endl;
+	    cerr << "ToggleMod::select: Selecting [" << i << ']' << Qt::endl;
 
 	_list[i]->selectAll();
     }
@@ -87,7 +87,7 @@ int
 ToggleMod::remove(SoPath *)
 {
     if (pmDebugOptions.appl2)
-	cerr << "ToggleMod::remove: " << _label << endl;
+	cerr << "ToggleMod::remove: " << _label << Qt::endl;
     return 0;
 }
 

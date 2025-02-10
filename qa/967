@@ -11,7 +11,7 @@ echo "QA output created by $seq"
 # get standard environment, filters and checks
 . ./common.python
 . ./common.config
-echo "PCPQA_CLOSE_X_SERVER=$PCPQA_CLOSE_X_SERVER" >>$here/$seq.full
+echo "PCPQA_CLOSE_X_SERVER=$PCPQA_CLOSE_X_SERVER" >>$seq_full
 
 [ $PCP_PLATFORM = linux ] || _notrun "Test needs to run only on Linux"
 
@@ -24,16 +24,15 @@ else
 fi
 
 status=1       # failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 export PCP_STDERR=$tmp.err
-echo "DISPLAY=$DISPLAY" >>$here/$seq.full
-echo "PCPQA_CLOSE_X_SERVER=$PCPQA_CLOSE_X_SERVER" >>$here/$seq.full
+echo "DISPLAY=$DISPLAY" >>$seq_full
+echo "PCPQA_CLOSE_X_SERVER=$PCPQA_CLOSE_X_SERVER" >>$seq_full
 if [ -z "$DISPLAY" ]
 then
     export DISPLAY=$PCPQA_CLOSE_X_SERVER
-    echo "DISPLAY=$DISPLAY" >>$here/$seq.full
+    echo "DISPLAY=$DISPLAY" >>$seq_full
 fi
 
 # these may not be available if needed modules missing
@@ -115,20 +114,23 @@ _check_completion_zsh()
     pytool=$(awk "/common_python=/,/  \)/" $zsh_comp)
     pmda=$(awk "/common_pmda=/,/  \)/" $zsh_comp)
     version=V
-    comps=$(awk "/  $cmd\)/,/;;/" $zsh_comp | sed -e 's,equivalent to .*,,')
+    # Handle aliases
+    str="  $cmd"
+    [ "$cmd" = "pmlogdump" -o "$cmd" = "pmdumplog" ] && str="  pmlogdump|pmdumplog"
+    comps=$(awk "/$str\)/,/;;/" $zsh_comp | sed -e 's,equivalent to .*,,')
     # Need $tmp.err and PCP_STDERR for pmchart ...
     #
     rm -f $tmp.err
     touch $tmp.err
-    echo "=== zsh $cmd ===" >>$here/$seq.full
-    echo "comps=$comps" >>$here/$seq.full
+    echo "=== zsh $cmd ===" >>$seq_full
+    echo "comps=$comps" >>$seq_full
     $cmd --help >$tmp.out 2>&1
-    echo "--- stdout ---" >>$here/$seq.full
-    cat $tmp.out >>$here/$seq.full
-    echo "--- stderr ---" >>$here/$seq.full
-    cat $tmp.err >>$here/$seq.full
+    echo "--- stdout ---" >>$seq_full
+    cat $tmp.out >>$seq_full
+    echo "--- stderr ---" >>$seq_full
+    cat $tmp.err >>$seq_full
     opts=$(cat $tmp.out $tmp.err | sed -e 's,equivalent to .*,,' | grep -Eo -- ' -[^-].' | tr -d - | tr -d '?' | tr -d , | sort | uniq)
-    echo "opts=$opts" >>$here/$seq.full
+    echo "opts=$opts" >>$seq_full
 
     for opt in $opts; do
       echo $comps | grep -E -- '({-'$opt'|"-'$opt')' > /dev/null 2>&1

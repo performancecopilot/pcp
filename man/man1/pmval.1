@@ -159,7 +159,7 @@ The available command line options are:
 .TP 5
 \fB\-a\fR \fIarchive\fR, \fB\-\-archive\fR=\fIarchive\fR
 Performance metric values are retrieved from the set of Performance
-Co-Pilot (PCP) archive log files identified by the
+Co-Pilot (PCP) archive files identified by the
 .I archive
 argument, which is a comma-separated list of names,
 each of which may be the base name of an archive or the name of
@@ -476,7 +476,7 @@ reports the rate converted value):
 .TS
 box,center;
 cf(R) | cf(R)
-rf(CW) | lf(R).
+rf(CR) | lf(R).
 Format	Value Range
 _
 !	No values available
@@ -502,16 +502,19 @@ For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
 .BR PCPIntro (1),
 .BR pmcd (1),
 .BR pmchart (1),
-.BR pmdumplog (1),
 .BR pmdumptext (1),
 .BR pminfo (1),
+.BR pmlogdump (1),
 .BR pmlogger (1),
 .BR pmrep (1),
 .BR pmtime (1),
 .BR PMAPI (3),
-.BR pmStore (3),
 .BR pmSpecLocalPMDA (3),
+.BR pmStore (3),
 .BR pcp.conf (5),
 .BR pcp.env (5)
 and
 .BR PMNS (5).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ sp {from .sp in troff macro defn} thathost

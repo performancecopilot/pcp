@@ -42,7 +42,6 @@ _cleanup()
 }
 
 status=0	# success is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 needclean=true
@@ -50,7 +49,7 @@ hostname=`hostname | sed -e 's/\..*//'`
 
 _filter()
 {
-    tee -a $seq.full \
+    tee -a $seq_full \
     | sed \
 	-e '/ PPID /d' \
 	-e '/check .*-g pmlogger/d' \
@@ -109,8 +108,8 @@ done
 #
 pid_1=`pmlogctl status -c orphan localhost 2>&1 | awk '
 NF == 5 && $5 = "running"	{ print $4 }'`
-pmlogctl status -c orphan localhost >>$seq.full
-echo "pid_1=$pid_1" >>$seq.full
+pmlogctl status -c orphan localhost >>$seq_full
+echo "pid_1=$pid_1" >>$seq_full
 if [ -z "$pid_1" ]
 then
     echo "Arrgh, no PID from ..."
@@ -122,8 +121,8 @@ else
 fi
 pid_2=`pmlogctl status -c orphan $hostname 2>&1 | awk '
 NF == 5 && $5 = "running"	{ print $4 }'`
-pmlogctl status -c orphan $hostname >>$seq.full
-echo "pid_2=$pid_2" >>$seq.full
+pmlogctl status -c orphan $hostname >>$seq_full
+echo "pid_2=$pid_2" >>$seq_full
 if [ -z "$pid_2" ]
 then
     echo "Arrgh, no PID from ..."
@@ -137,12 +136,16 @@ do
     $sudo rm -f /etc/pcp/pmlogger/control.d/orphan-$host
 done
 
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]ID|[p]mlogger ' >>$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger ( |$)' >>$seq_full
 
 # now run the janitor ...
 #
-$sudo -u pcp $PCP_BINADM_DIR/pmlogger_janitor -l /var/tmp/janitor-$seq.log
-cat /var/tmp/janitor-$seq.log >>$seq.full
+# need to be a place the user $PCP_USER can cd to from pmlogger_janitor
+#
+cd /var/tmp
+$sudo -u $PCP_USER $PCP_BINADM_DIR/pmlogger_janitor -l /var/tmp/janitor-$seq.log
+cd $here
+cat /var/tmp/janitor-$seq.log >>$seq_full
 _filter </var/tmp/janitor-$seq.log >$tmp.tmp
 grep Killing <$tmp.tmp | LC_COLLATE=POSIX sort
 grep Compressing <$tmp.tmp | LC_COLLATE=POSIX sort

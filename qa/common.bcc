@@ -27,6 +27,19 @@ _pmdabcc_check()
     [ -f $PCP_PMDAS_DIR/bcc/pmdabcc.python ] || _notrun "bcc PMDA not installed"
 
     [ -d /lib/modules/$(uname -r) ] || _notrun "kernel headers for kernel $(uname -r) not found"
+
+    if $sudo [ ! -d /sys/kernel/debug/kprobes ]
+    then
+	# on vm13 x86_64  MX 23.4 (Libretto) circa Dec 2024 debugfs
+	# was mysteriously not mounted ... try to fix that
+	#
+	if $sudo mount -t debugfs none /sys/kernel/debug
+	then
+	    :
+	else
+	    _notrun "cannot mount debugfs"
+	fi
+    fi
 }
 
 _pmdabcc_require_kernel_version()
@@ -55,8 +68,8 @@ _pmdabcc_install()
     cd $PCP_PMDAS_DIR/bcc
     $sudo ./Remove >/dev/null 2>&1
 
-    echo "pmdabcc config:" >> $here/$seq.full
-    cat $tmp.config >> $here/$seq.full
+    echo "pmdabcc config:" >> $seq_full
+    cat $tmp.config >> $seq_full
 
     [ -f $PCP_PMDAS_DIR/bcc/bcc.conf ] && \
     $sudo cp $PCP_PMDAS_DIR/bcc/bcc.conf $PCP_PMDAS_DIR/bcc/bcc.conf.$seq
@@ -93,7 +106,7 @@ _pmdabcc_wait_for_metric()
         echo PMDA was not ready in $__canwait seconds, test failed
         exit
     fi
-    echo "=== _pmdabcc_wait_for_metric: after $__i secs, metrics should be available ===" >>$here/$seq.full
+    echo "=== _pmdabcc_wait_for_metric: after $__i secs, metrics should be available ===" >>$seq_full
     # "should" be available, but now wait up to 20 seconds for values
     # to be seen ...
     #
@@ -125,8 +138,8 @@ _pmdabcc_wait_for_metric()
 	then
 	    # goodness
 	    #
-	    echo "=== _pmdabcc_wait_for_metric: after another $__i secs, values are available ===" >>$here/$seq.full
-	    pminfo -f bcc >>$here/$seq.full
+	    echo "=== _pmdabcc_wait_for_metric: after another $__i secs, values are available ===" >>$seq_full
+	    pminfo -f bcc >>$seq_full
 	    return 0
 	fi
 	sleep 1
@@ -172,7 +185,7 @@ _pmdabcc_remove()
 
 _pmdabcc_cleanup()
 {
-    cat $PCP_LOG_DIR/pmcd/bcc.log >> $here/$seq.full
+    cat $PCP_LOG_DIR/pmcd/bcc.log >> $seq_full
     if [ -f $PCP_PMDAS_DIR/bcc/bcc.conf.$seq ]; then
         $sudo cp $PCP_PMDAS_DIR/bcc/bcc.conf.$seq $PCP_PMDAS_DIR/bcc/bcc.conf
         $sudo rm $PCP_PMDAS_DIR/bcc/bcc.conf.$seq
@@ -201,9 +214,9 @@ _java_check()
     __java_version=`java -version 2>&1 | awk '/version/ { print $3 }'`
     __java_version=`echo $__java_version | tr -d '"' | sed -e 's,_.*,,'`
     __java_major=`echo $__java_version   | sed -e 's,\..*,,g'`
-    echo "\$__java_machine=$__java_machine" >>$here/$seq.full
-    echo "\$__java_version=$__java_version" >>$here/$seq.full
-    echo "\$__java_major=$__java_major" >>$here/$seq.full
+    echo "\$__java_machine=$__java_machine" >>$seq_full
+    echo "\$__java_version=$__java_version" >>$seq_full
+    echo "\$__java_major=$__java_major" >>$seq_full
 
     __jvm_path=""
     for __path in \
@@ -211,20 +224,31 @@ _java_check()
 	/etc/alternatives/jre/lib/$__java_machine/server \
 	/usr/lib/jvm/java-${__java_major}-openjdk-$__java_machine/lib/server \
 	/usr/lib/jvm/java-${__java_version}-openjdk/jre/lib/$__java_machine/server \
-	/usr/lib/jvm/java-${__java_major}-openjdk-$__java_machine/jre/lib/$__java_machine/server
+	/usr/lib/jvm/java-${__java_major}-openjdk-$__java_machine/jre/lib/$__java_machine/server \
+	/usr/lib/jvm/jre/lib/server \
+	/usr/lib/jvm/jre-openjdk/lib/server \
+	/usr/lib/jvm/jre-${__java_major}/lib/server \
+	/usr/lib/jvm/jre-${__java_major}-openjdk/lib/server
     do
-        [ -f "$__path/libjvm.$DSO_SUFFIX" ] && __jvm_path="$__path/libjvm.$DSO_SUFFIX"
+        [ -f "$__path/libjvm.$DSO_SUFFIX" ] || continue
+	__jvm_path="$__path/libjvm.$DSO_SUFFIX"
+	echo "trying \$__jvm_path=$__jvm_path for USDT probes" >>$seq_full
+	for __tplistcmd in /usr/share/bcc/tools/tplist tplist-bpfcc tplist
+	do
+	    which $__tplistcmd >/dev/null 2>&1 && \
+		__probes=$($__tplistcmd -l $__jvm_path 2>/dev/null \
+		           | grep thread \
+			   | tee -a $seq_full \
+			   | grep thread__start)
+	    if [ -n "$__probes" ]
+	    then
+		echo "success with \$__jvm_path=$__jvm_path" >>$seq_full
+		return 0
+	    fi
+	done
     done
-
-    [ -z "$__jvm_path" ] && _notrun "libjvm.$DSO_SUFFIX not found"
-
-    for __tplistcmd in /usr/share/bcc/tools/tplist tplist-bpfcc tplist
-    do
-        which $__tplistcmd >/dev/null 2>&1 && \
-            __probes=$($__tplistcmd -l $__jvm_path 2>/dev/null | grep thread__start)
-        [ -n "$__probes" ] && return 0
-    done
-    _notrun "No Java USDT probes available"
+    [ -z "$__jvm_path" ] && _notrun "no libjvm.$DSO_SUFFIX not found"
+    _notrun "No Java USDT probes available in any libjvm.$DSO_SUFFIX"
 }
 
 _python_probe_check()
@@ -247,8 +271,8 @@ _mount_filesystem()
     __image=$tmp.loop.$__fs.img
     __mountpoint=$tmp.mount.$__fs
 
-    truncate -s 30M $__image
-    echo y | mkfs.$__fs $__image > /dev/null 2>&1
+    truncate -s 350M $__image
+    echo y | mkfs.$__fs $__image >>$seq_full 2>&1
     mkdir -p $__mountpoint
     $sudo mount -t $__fs $__image $__mountpoint
     $sudo chown $(id -u):$(id -g) $__mountpoint
@@ -319,6 +343,7 @@ _pmdabcc_try_compile()
 	# short-circuit ... this forces all the pmda.bcc tests to
 	# be run and skips any compilation checks
 	#
+	echo "PCPQA_RUN_PMADBCC=$PCPQA_RUN_PMDABCC, skip PMDA try compile+load" >>$seq_full
 	return
     fi
 
@@ -327,27 +352,34 @@ _pmdabcc_try_compile()
     then
 	echo "Oops: _pmdabcc_try_compile: $PCP_VAR_DIR/pmdas/bcc/pmdabcc.python not found"
     else
-	$sudo $PCP_VAR_DIR/pmdas/bcc/pmdabcc.python --trycompile=$tmp.conf >>$seq.full
+	$sudo $PCP_VAR_DIR/pmdas/bcc/pmdabcc.python --trycompile=$tmp.conf >>$seq_full
 	if grep 'Failed to compile BPF module' bcc.log >/dev/null
 	then
-	    cat bcc.log >>$here/$seq.full
+	    cat bcc.log >>$seq_full
 	    trap "rm -f $tmp.*" 0
-	    _notrun "Failed to compile bcc module, see $seq.full for details"
+	    _notrun "Failed to compile bcc module, see $seq_full for details"
 	    # NOTREACHED
-	fi
-	if grep 'Failed to load BPF program' bcc.log >/dev/null
+	elif grep 'Failed to load BPF program' bcc.log >/dev/null
 	then
-	    cat bcc.log >>$here/$seq.full
+	    cat bcc.log >>$seq_full
 	    trap "rm -f $tmp.*" 0
-	    _notrun "Failed to load bcc program, see $seq.full for details"
+	    _notrun "Failed to load bcc program, see $seq_full for details"
 	    # NOTREACHED
-	fi
-	if grep 'Failed to attach BPF program' bcc.log >/dev/null
+	elif grep 'Failed to attach BPF program' bcc.log >/dev/null
 	then
-	    cat bcc.log >>$here/$seq.full
+	    cat bcc.log >>$seq_full
 	    trap "rm -f $tmp.*" 0
-	    _notrun "Failed to attach bcc program, see $seq.full for details"
+	    _notrun "Failed to attach bcc program, see $seq_full for details"
 	    # NOTREACHED
+	elif grep '^LLVM ERROR:' bcc.log >/dev/null
+	then
+	    cat bcc.log >>$seq_full
+	    trap "rm -f $tmp.*" 0
+	    _notrun "LLVM error, see $seq_full for details"
+	    # NOTREACHED
+	else
+	    echo "No compile+load errors detected, but that does not guarantee all is well ..." >>$seq_full
+	    cat bcc.log >>$seq_full
 	fi
 	$sudo rm -f bcc.log
     fi

@@ -244,24 +244,24 @@ Performance metrics from host HOST
     ending     DATE
 
 Descriptions for Metrics in the Log ...
-PMID: 245.0.6 (my.metric.float)
-    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
-PMID: 245.0.4 (my.metric.double)
-    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
+PMID: 245.0.1 (my.metric.foo)
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Mbyte / sec
+PMID: 245.0.2 (my.metric.bar)
+    Data Type: 64-bit unsigned int  InDom: 245.1 0x3d400001
+    Semantics: instant  Units: Mbyte / sec
 PMID: 245.0.3 (my.metric.long)
     Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 245.0.4 (my.metric.double)
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 PMID: 245.0.5 (my.metric.string)
     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-PMID: 245.0.2 (my.metric.bar)
-    Data Type: 64-bit unsigned int  InDom: 245.1 0x3d400001
-    Semantics: instant  Units: Mbyte / sec
-PMID: 245.0.1 (my.metric.foo)
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: Mbyte / sec
+PMID: 245.0.6 (my.metric.float)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
 
 Instance Domains in the Log ...
 InDom: 245.1
@@ -727,24 +727,24 @@ Performance metrics from host HOST
     ending     DATE
 
 Descriptions for Metrics in the Log ...
-PMID: 245.0.6 (my.metric.float)
-    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
-PMID: 245.0.4 (my.metric.double)
-    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
+PMID: 245.0.1 (my.metric.foo)
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Mbyte / sec
+PMID: 245.0.2 (my.metric.bar)
+    Data Type: 64-bit unsigned int  InDom: 245.1 0x3d400001
+    Semantics: instant  Units: Mbyte / sec
 PMID: 245.0.3 (my.metric.long)
     Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 245.0.4 (my.metric.double)
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 PMID: 245.0.5 (my.metric.string)
     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-PMID: 245.0.2 (my.metric.bar)
-    Data Type: 64-bit unsigned int  InDom: 245.1 0x3d400001
-    Semantics: instant  Units: Mbyte / sec
-PMID: 245.0.1 (my.metric.foo)
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: Mbyte / sec
+PMID: 245.0.6 (my.metric.float)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
 
 Instance Domains in the Log ...
 InDom: 245.1

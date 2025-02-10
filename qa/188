@@ -56,7 +56,7 @@ if [ $PCP_PLATFORM = linux ] ; then
 	ln $seq.linux $seq.out
     elif [ -f /etc/os-release ]
     then
-	if grep 'openSUSE Leap 15.[0-4]' /etc/os-release >/dev/null
+	if grep 'openSUSE Leap 15\.' /etc/os-release >/dev/null
 	then
 	    ln $seq.linux $seq.out
 	fi
@@ -106,12 +106,34 @@ p
 	    exit 1
 	fi
     fi
-elif [ $PCP_PLATFORM = darwin -o $PCP_PLATFORM = freebsd -o $PCP_PLATFORM = netbsd -o $PCP_PLATFORM = openbsd ]
+elif [ $PCP_PLATFORM = darwin -o $PCP_PLATFORM = netbsd -o $PCP_PLATFORM = openbsd ]
 then
     ln $seq.darwin $seq.out
 elif [ $PCP_PLATFORM = solaris ]
 then
     ln $seq.solaris $seq.out
+elif [ $PCP_PLATFORM = freebsd ]
+then
+    version=`uname -rs | sed -e 's/FreeBSD //'`
+    case "$version"
+    in
+	12.*)
+	    ln $seq.linux $seq.out
+	    ;;
+	13.*)
+	    ln $seq.solaris $seq.out
+	    ;;
+	14.*)
+	    ln $seq.freebsd $seq.out
+	    ;;
+	*)
+	    echo "bozo! ... need FreeBSD rule for version $version"
+	    exit
+	    ;;
+    esac
+else
+    echo "bozo! no rule for $PCP_PLATFORM"
+    exit
 fi
 
 sts=0

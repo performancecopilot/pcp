@@ -34,9 +34,6 @@ import os
 from pcp import pmapi, pmconfig
 from cpmapi import PM_CONTEXT_ARCHIVE, PM_IN_NULL, PM_DEBUG_APPL1, PM_TIME_SEC
 
-if sys.version_info[0] >= 3:
-    long = int # pylint: disable=redefined-builtin
-
 # Default config
 DEFAULT_CONFIG = ["./pcp2XXX.conf", "$HOME/.pcp2XXX.conf", "$HOME/.pcp/pcp2XXX.conf", "$PCP_SYSCONF_DIR/pcp2XXX.conf"]
 
@@ -419,7 +416,6 @@ class PCP2XXX(object):
             #host = self.context.pmGetContextHostName()
             #timez = self.context.posix_tz_to_utc_offset(self.context.get_current_tz(self.opts))
 
-        # XXX Use get_sorted_results on PCP 4.3.1 and older
         # XXX Only retrieve non-valid results if needed
         results = self.pmconfig.get_ranked_results(valid_only=True)
 

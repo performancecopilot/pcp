@@ -4,6 +4,7 @@
 #
 # Copyright (c) 2021 Red Hat.
 #
+# check-group-exclude: pmrep pmpost
 
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -18,33 +19,37 @@ man pmrep | grep -q pmrep || _notrun "No man pages installed?"
 
 status=1        # failure is the default!
 hostname=`hostname`
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# need to check dpkg first, because if it is there, it is likely the
+# one, as opposed to rpm which may be present, even on Debian machines
+#
+rm -f $tmp.cmds.txt
+if which dpkg >/dev/null 2>&1
+then
+    dpkg -l 2>>$seq_full | $PCP_AWK_PROG '$1 = "ii" && $2 ~ /pcp/ { print $2 }' | xargs dpkg -L | grep bin/ | sort | uniq > $tmp.cmds.txt
+elif which rpm >/dev/null 2>&1
+then
+    rpm -qa 2>>$seq_full | grep pcp | xargs rpm -ql | grep bin/ | grep -v 'debug$' | sort > $tmp.cmds.txt
+fi
+if [ ! -s $tmp.cmds.txt ]
+then
+    _notrun "neither rpm nor dpkg seem to be your packaging command"
+fi
 
 # real QA test starts here
 echo "collecting commands"
 export LC_COLLATE=POSIX
-# need to check dpkg first, because if it is there, it is likely the
-# one, as opposed to rpm which may be present, even on Debian machines
-#
-if which dpkg >/dev/null 2>&1
-then
-    dpkg -l | $PCP_AWK_PROG '$1 = "ii" && $2 ~ /pcp/ { print $2 }' | xargs dpkg -L | grep bin/ | sort | uniq > $tmp.cmds.txt
-elif which rpm >/dev/null 2>&1
-then
-    rpm -qa | grep pcp | xargs rpm -ql | grep bin/ | grep -v 'debug$' | sort > $tmp.cmds.txt
-else
-    _notrun "no recipe for your packaging command"
-fi
 
 # don't bother for some commands, either they don't support --help
 # (e.g. no options to describe) and/or are not intended for general
-# use by a human end user
+# use by a human end user and/or are aliases for other commands
 #
 for cmd in pcp-htop pcp-python pcp2csv pcp2xlsx pmafm pmgenmap \
              pmie_dump_stats pmiestatus pmlock pmpause pmpython \
              pmsleep pmwtf telnet-probe pmpost pcp-kube-pods \
-	     pmie_farm pmlogger_farm pmlogger_janitor
+	     pmie_farm pmlogger_farm pmlogger_janitor \
+	     pcp-geolocate pcp-reboot-init pmcheck pmlogbasename
 do
   sed -i "/$cmd/d" $tmp.cmds.txt
 done
@@ -64,10 +69,10 @@ if [ -z "$PCPQA_CLOSE_X_SERVER" ]
 then
     X11=false
 fi
-which xdpyinfo >/dev/null 2>&1
-if [ $? -eq 0 ]
+export DISPLAY=$PCPQA_CLOSE_X_SERVER
+if which xdpyinfo >/dev/null 2>&1
 then
-    DISPLAY=$PCPQA_CLOSE_X_SERVER xdpyinfo >/dev/null 2>&1 || \
+    xdpyinfo >/dev/null 2>&1 || \
 	X11=false
 fi
 
@@ -111,8 +116,8 @@ for cmd in $(cat $tmp.cmds.txt); do
   if ! grep -q -- -- $tmp.test; then
     continue
   fi
-  echo "=== $cmd ===" >>$seq.full
-  cat $tmp.test >>$seq.full
+  echo "=== $cmd ===" >>$seq_full
+  cat $tmp.test >>$seq_full
   # run man(1) once, then grep away
   man $bn >$tmp.man 2>$tmp.err
   if [ -s $tmp.err ]
@@ -128,6 +133,9 @@ for cmd in $(cat $tmp.cmds.txt); do
 	pcp-atop)
 	    [ X"$opt" = X--pcp-flags ] && continue
 	    ;;
+	pcp-xsos)
+	    [ X"$opt" = X--start ] && continue
+	    ;;
 	pcp)
 	    # all these long options are documented in PCPIntro(1)
 	    # and pcp(1) points there, rather than repeating them
@@ -141,6 +149,10 @@ for cmd in $(cat $tmp.cmds.txt); do
 	    [ X"$opt" = X--samples ] && continue
 	    [ X"$opt" = X--start ] && continue
 	    [ X"$opt" = X--timezone ] && continue
+	    ;;
+	pmproxy)
+	    [ X"$opt" = X--redishost ] && continue
+	    [ X"$opt" = X--redisport ] && continue
 	    ;;
     esac
     grep -q -- "$opt" <$tmp.man || echo "$bn.1 missing $opt"

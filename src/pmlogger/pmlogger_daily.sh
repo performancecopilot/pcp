@@ -13,7 +13,7 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # 
-# Daily administrative script for PCP archive logs
+# Daily administrative script for PCP archives
 #
 
 . $PCP_DIR/etc/pcp.env
@@ -23,6 +23,10 @@
 # error messages should go to stderr, not the GUI notifiers
 #
 unset PCP_STDERR
+
+# want mode for mkdir below to reliably be rwxrwxr-x (775)
+#
+umask 022
 
 # constant setup
 #
@@ -173,18 +177,30 @@ _fmt()
 BEGIN		{ len = 0 }
 		{ for (i = 1; i <= NF; i++) {
 		    wlen = length($i)
-		    if (len + 1 + wlen > 75) {
-			printf "\n"
-			len = 0
-		    }
-		    if (len + 1 + wlen <= 75) {
-			if (len == 0) {
-			    printf "%s",$i
-			    len = wlen;
+		    if (wlen >= 75) {
+			# filename longer than notional max line length
+			# print partial line (if any), then this one
+			# on a line by itself
+			if (len > 0) {
+			    printf "\n"
+			    len = 0
 			}
-			else {
-			    printf " %s",$i
-			    len += 1 + wlen
+			print $i
+		    }
+		    else {
+			if (len + 1 + wlen > 75) {
+			    printf "\n"
+			    len = 0
+			}
+			if (len + 1 + wlen <= 75) {
+			    if (len == 0) {
+				printf "%s",$i
+				len = wlen;
+			    }
+			    else {
+				printf " %s",$i
+				len += 1 + wlen
+			    }
 			}
 		    }
 		  }
@@ -237,7 +253,7 @@ fi
 CONTROL=$PCP_PMLOGGERCONTROL_PATH
 CONTROLDIR=$PCP_PMLOGGERCONTROL_PATH.d
 
-# default number of days to keep archive logs
+# default number of days to keep archives
 #
 CULLAFTER=14
 
@@ -246,27 +262,32 @@ CULLAFTER=14
 # 
 COMPRESS=""
 COMPRESS_CMDLINE=""
-if which xz >/dev/null 2>&1
-then
-    if xz -0 --block-size=10MiB </dev/null >/dev/null 2>&1
-    then
-	# want minimal overheads, -0 is the same as --fast
-	COMPRESS_DEFAULT="xz -0 --block-size=10MiB"
-    else
-	COMPRESS_DEFAULT=xz
-    fi
-else
-    # overridden by $PCP_COMPRESS or if not set, no compression
-    COMPRESS_DEFAULT=""
-fi
+COMPRESS_DEFAULT=pmlogcompress
 COMPRESSAFTER_CMDLINE=""
-eval `pmconfig -L -s transparent_decompress`
-if $transparent_decompress
+
+# we will compress aggressively (COMPRESSAFTER_DEFAULT=0) if
+# (a) xstd(1) is available, or
+# (b) xz(1) is available and transparent_decompress=true (liblzma present)
+# Note:
+#	For PCP 7.0.0 (a) is new and has precedence, for prior releases
+#	only (b) was considered
+#
+if which zstd >/dev/null 2>&1
 then
     COMPRESSAFTER_DEFAULT=0
+elif which zx >/dev/null 2>&1
+then
+    eval `pmconfig -L -s transparent_decompress`
+    if $transparent_decompress
+    then
+	COMPRESSAFTER_DEFAULT=0
+    else
+	COMPRESSAFTER_DEFAULT="never"
+    fi
 else
     COMPRESSAFTER_DEFAULT="never"
 fi
+
 if [ -n "$PCP_COMPRESSAFTER" ]
 then
     $PCP_BINADM_DIR/find-filter </dev/null >/dev/null 2>&1 mtime "+$PCP_COMPRESSAFTER"
@@ -279,7 +300,7 @@ then
 fi
 COMPRESSREGEX=""
 COMPRESSREGEX_CMDLINE=""
-COMPRESSREGEX_DEFAULT="\.(index|Z|gz|bz2|zip|xz|lzma|lzo|lz4)$"
+COMPRESSREGEX_DEFAULT="\.(index|Z|gz|bz2|zip|xz|lzma|lzo|lz4|zst)$"
 
 # threshold size to roll $PCP_LOG_DIR/NOTICES
 #
@@ -541,27 +562,22 @@ done
 
 if $SHOWME
 then
+    # Exception is for -N where we want to see the output.
+    #
     :
 elif [ "$PROGLOG" = "/dev/tty" ]
 then
-    # special case for debugging ... no salt away previous, no chown, no exec
+    # special case for debugging ... no salt away previous
     #
     :
 else
     # Salt away previous log, if any ...
     #
-    PROGLOGDIR=`dirname "$PROGLOG"`
-    [ -d "$PROGLOGDIR" ] || mkdir_and_chown "$PROGLOGDIR" 755 $PCP_USER:$PCP_GROUP 2>/dev/null
     _save_prev_file "$PROGLOG"
     # After argument checking, everything must be logged to ensure no mail is
     # accidentally sent from cron.  Close stdout and stderr, then open stdout
-    # as our logfile and redirect stderr there too.  Create the log file with
-    # correct ownership first.
+    # as our logfile and redirect stderr there too.
     #
-    # Exception ($SHOWME, above) is for -N where we want to see the output.
-    #
-    touch "$MYPROGLOG"
-    chown $PCP_USER:$PCP_GROUP "$MYPROGLOG" >/dev/null 2>&1
     exec 1>"$MYPROGLOG" 2>&1
 fi
 
@@ -771,7 +787,7 @@ _lock()
 	delay=200	# tenths of a second
 	while [ $delay -gt 0 ]
 	do
-	    if pmlock -v "$1/lock" >>$tmp/out 2>&1
+	    if pmlock -i "$$ pmlogger_daily" -v "$1/lock" >>$tmp/out 2>&1
 	    then
 		echo "$1/lock" >$tmp/lock
 		break
@@ -784,6 +800,7 @@ _lock()
 		    then
 			_warning "removing lock file older than 30 minutes"
 			LC_TIME=POSIX ls -l "$1/lock"
+			[ -s "$1"/lock" ] && cat "$1"/lock"
 			rm -f "$1/lock"
 		    else
 			# there is a small timing window here where pmlock
@@ -806,6 +823,7 @@ _lock()
 	    then
 		_warning "is another PCP cron job running concurrently?"
 		LC_TIME=POSIX ls -l "$1/lock"
+		[ -s "$dir/lock" ] && cat "$dir/lock"
 	    else
 		echo "$prog: `cat $tmp/out`"
 	    fi
@@ -828,14 +846,14 @@ _unlock()
 # with a datestamp
 #
 # need to handle both the year 2000 and the old name formats, and
-# possible ./ prefix (from find .)
+# possible ./ prefix (from find(1))
 # 
 _filter_filename()
 {
     sed -n \
-	-e 's/^\.\///' \
-	-e '/^[12][0-9][0-9][0-9][0-1][0-9][0-3][0-9][-.]/p' \
-	-e '/^[0-9][0-9][0-1][0-9][0-3][0-9][-.]/p'
+	-e '/\/[12][0-9][0-9][0-9][0-1][0-9][0-3][0-9][-.]/p' \
+	-e '/\/[0-9][0-9][0-1][0-9][0-3][0-9][-.]/p' \
+    | sed -e 's@^\./@@'
 }
 
 _get_primary_logger_pid()
@@ -930,7 +948,6 @@ then
 	    echo "*** rotated by $prog: `date`" >>"$NOTICES"
 	    mv -f "$NOTICES" "$NOTICES.old"
 	    echo "Started by $prog: `date`" >"$NOTICES"
-	    chown $PCP_USER:$PCP_GROUP "$NOTICES" >/dev/null 2>&1
 	fi
     fi
 fi
@@ -939,31 +956,10 @@ fi
 # by pmlogger_check when it fails to obtain the lock should it be run
 # while pmlogger_daily is running
 #
-# For most packages, $PCP_RUN_DIR is included in the package,
-# but for Debian and cases where /var/run is a mounted filesystem
-# it may not exist, so create it here before it is used to create
-# any pid/lock files
-#
-# $PCP_RUN_DIR creation is also done in other daemons startup, but we
-# have no guarantee any other daemons are running on this system.
-#
-# Skip all of this if -N (showme)
-#
 if $SHOWME
 then
     :
 else
-    if [ ! -d "$PCP_RUN_DIR" ]
-    then
-	mkdir -p -m 775 "$PCP_RUN_DIR" 2>/dev/null
-	# might be running from cron as unprivileged user
-	[ $? -ne 0 -a "$PMLOGGER_CTL" = "off" ] && exit 0
-	chown $PCP_USER:$PCP_GROUP "$PCP_RUN_DIR" >/dev/null 2>&1
-	if which restorecon >/dev/null 2>&1
-	then
-	    restorecon -r "$PCP_RUN_DIR"
-	fi
-    fi
     echo $$ >"$PCP_RUN_DIR/pmlogger_daily.pid"
 fi
 
@@ -1025,6 +1021,102 @@ END				{ print m }'`
 	fi
     done
     echo "$pid"
+}
+
+# replace $(....) in $orig_dir by * ($orig_dir is on stdin)
+#
+_unshell()
+{
+    $PCP_AWK_PROG '
+BEGIN	{ seenslash = 0; lastc = ""; inshell = 0; nesting = 0; out = "" }
+	{ for (i = 1; i <= length($0); i++) {
+	    c = substr($0,i,1)
+	    if (!seenslash) {
+		if (c == "\\") {
+		    seenslash = 1
+		}
+		else {
+		    if (!inshell) {
+			if (c == "(" && lastc == "$") {
+			    # $( seen
+			    nesting = 1;
+			    inshell = 1
+			    # chop off previous $
+			    out = substr(out, 1, length(out)-1)
+			}
+		    }
+		    else {
+			if (!seenslash && c == "(") {
+			    # nested (
+			    nesting++
+			}
+			else if (!seenslash && c == ")") {
+			    nesting--
+			    if (nesting == 0) {
+				# closing ) after $(
+				c = "*"
+				inshell = 0
+			    }
+			}
+		    }
+		}
+		lastc = c
+	    }
+	    else {
+		seenslash = 0
+		lastc = ""
+	    }
+	    if (!inshell) {
+		if (out == "")
+		    out = c
+		else
+		    out = out c
+	    }
+	  }
+	}
+END	{ print out }'
+}
+
+# replace `....` in $orig_dir by * ($orig_dir is on stdin)
+#
+_unbackquote()
+{
+    $PCP_AWK_PROG '
+BEGIN	{ seenslash = 0; inshell = 0; out = "" }
+	{ for (i = 1; i <= length($0); i++) {
+	    c = substr($0,i,1)
+	    if (!seenslash) {
+		if (c == "\\") {
+		    seenslash = 1
+		}
+		else {
+		    if (!inshell) {
+			if (c == "`") {
+			    # leading ` seen
+			    inshell = 1
+			}
+		    }
+		    else {
+			if (!seenslash && c == "`") {
+			    # matching ` seen
+			    c = "*"
+			    inshell = 0
+			}
+		    }
+		}
+	    }
+	    else {
+		seenslash = 0
+	    }
+	    if (!inshell) {
+		if (out == "")
+		    out = c
+		else
+		    out = out c
+	    }
+	  }
+	}
+END	{ print out }'
 }
 
 _parse_control()
@@ -1223,6 +1315,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	# do shell expansion of $dir if needed
 	#
 	_do_dir_and_args
+	$VERY_VERBOSE && echo "After _do_dir_and_args: orig_dir=$orig_dir dir=$dir"
 
 	if [ -z "$primary" -o -z "$socks" -o -z "$dir" -o -z "$args" ]
 	then
@@ -1235,6 +1328,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	#
 	dirhostname=`hostname || echo localhost`
 	dir=`echo $dir | sed -e "s;LOCALHOSTNAME;$dirhostname;"`
+	orig_dir=`echo $orig_dir | sed -e "s;LOCALHOSTNAME;$dirhostname;"`
 	[ $primary = y -o "x$host" = xLOCALHOSTNAME ] && host=local:
 
 	if $VERBOSE
@@ -1261,7 +1355,11 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	#
 	if [ ! -d "$dir" ]
 	then
-	    mkdir_and_chown "$dir" 755 $PCP_USER:$PCP_GROUP >$tmp/tmp 2>&1
+	    # mode rwxrwxr-x is the default for pcp:pcp dirs
+	    umask 002
+	    mkdir -p -m 0775 "$dir" >$tmp/tmp 2>&1
+	    # reset the default mode to rw-rw-r- for files
+	    umask 022
 	    if [ ! -d "$dir" ]
 	    then
 		cat $tmp/tmp
@@ -1275,6 +1373,28 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	cd $dir
 	dir=`$PWDCMND`
 	$SHOWME && echo "+ cd $dir"
+	$VERY_VERBOSE && echo "Current dir: $dir"
+
+	# if $orig_dir contains embedded shell commands, like $(cmd ...)
+	# or `cmd ...` then previous archives may not be in $dir, e.g
+	# when cmd is "date +%Y-%m-%d"
+	# all we can do is replace the embedded shell commands with "*"
+	# and hope sh(1) does all the work
+	#
+        find_dirs="."
+	if echo "$orig_dir" | grep '\$(' >/dev/null
+	then
+	    if echo "$orig_dir" | grep '`' >/dev/null
+	    then
+		_warning "orig_dir ($orig_dir) contains both \$( and \`"
+	    fi
+	    find_dirs=`echo $orig_dir | _unshell`
+	    $VERBOSE && echo "Embedded \$(...): find_dirs=$find_dirs"
+	elif echo "$orig_dir" | grep '`' >/dev/null
+	then
+	    find_dirs=`echo $orig_dir | _unbackquote`
+	    $VERBOSE && echo "Embedded \`...\`: find_dirs=$find_dirs"
+	fi
 
 	if $SHOWME
 	then
@@ -1310,26 +1430,28 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	if $REWRITEALL
 	then
 	    # Do the pmlogrewrite -qi thing (using pmlogger_rewrite) for
-	    # all archives in this directory
+	    # all archives in directories that match $find_dirs
 	    #
 	    rewrite_args="$rewrite"
-	    if $VERBOSE
-	    then
-		echo "Info: pmlogrewrite all archives in $dir"
-		rewrite_args="$rewrite_args -V"
-	    fi
+	    $VERBOSE && rewrite_args="$rewrite_args -V"
 	    $VERY_VERBOSE && rewrite_args="$rewrite_args -V"
-	    if $SHOWME
-	    then
-		echo "+ $PCP_BINADM_DIR/pmlogger_rewrite $rewrite_args $dir"
-	    else
-		if eval $PCP_BINADM_DIR/pmlogger_rewrite $rewrite_args $dir
+	    for archdir in $find_dirs
+	    do
+		[ "$archdir" = "." ] && archdir="$dir"
+		[ -d "$archdir" ] || continue
+		$VERBOSE && echo "Info: pmlogrewrite all archives in $archdir"
+		if $SHOWME
 		then
-		    :
+		    echo "+ $PCP_BINADM_DIR/pmlogger_rewrite $rewrite_args $archdir"
 		else
-		    _error "pmlogger_rewrite failed in $dir"
+		    if eval $PCP_BINADM_DIR/pmlogger_rewrite $rewrite_args $archdir
+		    then
+			:
+		    else
+			_error "pmlogger_rewrite failed in $archdir"
+		    fi
 		fi
-	    fi
+	    done
 	fi
 
 	pid=''
@@ -1348,7 +1470,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 		then
 		    echo >&2 "primary pmlogger process PID not found"
 		    ls >&2 -l "$PCP_TMP_DIR/pmlogger"
-		    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E >&2 '[P]ID|[p]mlogger'
+		    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E >&2 '[P]ID|/[p]mlogger( |$)'
 		fi
 	    elif _get_pids_by_name pmlogger | grep "^$pid\$" >/dev/null
 	    then
@@ -1413,7 +1535,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	    if [ -f $tmp/reexec ]
 	    then
 		#
-		# send pmlogger a SIGUSR2 to "roll the archive logs"
+		# send pmlogger a SIGUSR2 to "roll the archives"
 		#
 		if $SHOWME
 		then
@@ -1478,13 +1600,13 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 		fi
 		if [ "$CULLDAYS" -gt 0 ]
 		then
-		    find . -type f -mtime +$CULLDAYS
+		    find $find_dirs -maxdepth 1 -type f -mtime +$CULLDAYS
 		else
-		    find . -type f
+		    find $find_dirs -maxdepth 1 -type f
 		fi \
 		| $PCP_BINADM_DIR/find-filter mtime +$CULLAFTER \
 		| _filter_filename \
-		| sort >$tmp/list
+		| LC_COLLATE=POSIX sort >$tmp/list
 		if [ -n "$pid" ]
 		then
 		    # pmlogger is running, make sure we don't cull the current
@@ -1519,7 +1641,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 		fi
 	    fi
 
-	    # Merge archive logs.
+	    # Merge archives.
 	    #
 	    # Will work for new style YYYYMMDD.HH.MM[-NN] archives and old style
 	    # YYMMDD.HH.MM[-NN] archives.
@@ -1537,28 +1659,38 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	    #
 	    TODAY=`date +%Y%m%d`
 
-	    find *.meta* \
-		 \( -name "*.[0-2][0-9].[0-5][0-9].meta*" \
-		    -o -name "*.[0-2][0-9].[0-5][0-9]-[0-9][0-9].meta*" \
-		 \) \
-		 -print 2>/dev/null \
-	    | sed \
-		-e "/^$TODAY\./d" \
-		-e 's/\.meta\..*//' \
-		-e 's/\.meta//' \
-	    | sort -n \
-	    | $PCP_AWK_PROG '
-	{ if (lastdate != "" && match($1, "^" lastdate "\\.") == 1) {
-	    # same date as previous one
-	    inlist = inlist " " $1
+	    # split archive pathname for .meta files into
+	    # <directory>|<date>|<time[-seq]>|<.meta...>
+	    # (use | as the field separator as it is less likely than a
+	    # space to be in the <directory> part)
+	    #
+	    # need to handle both the year 2000 and the old name format,
+	    # so YYYYMMDD.HH.MM.meta.* and YYMMDD.HH.MM.meta.*
+	    #
+	    find $find_dirs -maxdepth 1 -type f \
+	    | sed -n \
+		-e '/\(.*\)\/\([12][0-9][0-9][0-9][0-1][0-9][0-3][0-9]\)\(\.[0-2][0-9].[0-5][0-9]\)\(\.meta.*\)/s//\1|\2|\3|\4/p' \
+		-e '/\(.*\)\/\([12][0-9][0-9][0-9][0-1][0-9][0-3][0-9]\)\(\.[0-2][0-9].[0-5][0-9]-[0-9][0-9]\)\(\.meta.*\)/s//\1|\2|\3|\4/p' \
+		-e '/\(.*\)\/\([0-9][0-9][0-1][0-9][0-3][0-9]\)\(\.[0-2][0-9].[0-5][0-9]\)\(\.meta.*\)/s//\1|\2|\3|\4/p' \
+		-e '/\(.*\)\/\([0-9][0-9][0-1][0-9][0-3][0-9]\)\(\.[0-2][0-9].[0-5][0-9]-[0-9][0-9]\)\(\.meta.*\)/s//\1|\2|\3|\4/p' \
+	    | sed -e 's@^./@@' \
+	    | sort -t'|' -k 1,1 -n -k2,3 \
+	    | $PCP_AWK_PROG -F'|' '
+$2 == "'$TODAY'"	{ next }
+	{ if ($1 == ".")
+	    thisdate = $2
+	  else
+	    thisdate = $1 "/" $2
+	  if (lastdate != "" && lastdate == thisdate) {
+	    # same dir and date as previous one
+	    inlist = inlist " " thisdate $3
 	    next
 	  }
 	  else {
-	    # different date as previous one
+	    # different dir or date as previous one
 	    if (inlist != "") print lastdate,inlist
-	    inlist = $1
-	    lastdate = $1
-	    sub(/\..*/, "", lastdate)
+	    inlist = thisdate $3
+	    lastdate = thisdate
 	  }
 	}
 END	{ if (inlist != "") print lastdate,inlist }' >$tmp/list
@@ -1571,7 +1703,7 @@ END	{ if (inlist != "") print lastdate,inlist }' >$tmp/list
 		#
 		now_hr=`pmdate %H`
 		hr=`expr 12 + $now_hr`
-		grep "^[0-9]*`pmdate -${hr}H %y%m%d` " $tmp/list >$tmp/tmp
+		grep -E "(^|.*/)[0-9]*`pmdate -${hr}H %y%m%d` " $tmp/list >$tmp/tmp
 		mv $tmp/tmp $tmp/list
 	    fi
 
@@ -1683,7 +1815,15 @@ END	{ if (inlist != "") print lastdate,inlist }' >$tmp/list
 				# Do merge callbacks
 				#
 				$VERBOSE && echo "Merge callbacks ..."
-				mergefile="$dir/`cat $tmp/mergefile`"
+				mergefile="`cat $tmp/mergefile`"
+				case "$mergefile"
+				in
+				    /*)	# full pathname
+				        ;;
+				    *)	# relative pathname
+					mergefile="$dir/$mergefile"
+					;;
+				esac
 				cat $tmp/merge_callback \
 				| while read exec
 				do
@@ -1799,7 +1939,7 @@ p
 		    then
 			# compress all possible files immediately
 			#
-			find . -type f
+			find $find_dirs -maxdepth 1 -type f
 		    else
 			# compress files last modified more than $COMPRESSSAFTER
 			# days ago
@@ -1812,11 +1952,11 @@ p
 			else
 			    mtime=$COMPRESSAFTER
 			fi
-			find . -type f -mtime +$mtime
+			find $find_dirs -maxdepth 1 -type f -mtime +$mtime
 		    fi \
 		    | _filter_filename \
 		    | grep -E -v "$COMPRESSREGEX" \
-		    | sort >$tmp/list
+		    | LC_COLLATE=POSIX sort >$tmp/list
 		    if [ -s $tmp/list -a -n "$current_base" -a -n "$current_vol" ]
 		    then
 			# don't compress current volume (or later ones, if
@@ -1895,7 +2035,14 @@ p
 			    | uniq \
 			    | while read compressfile
 			    do
-				compressfile="$dir/$compressfile"
+				case "$compressfile"
+				in
+				    /*)	# full pathname
+				        ;;
+				    *)	# relative pathname
+					compressfile="$dir/$compressfile"
+					;;
+				esac
 				cat $tmp/compress_callback \
 				| while read exec
 				do
@@ -1959,7 +2106,11 @@ p
 			       -e s/LOCALHOSTNAME/$dirhostname/`"
 		if [ ! -d "$auto_dir" -a "$auto_dir" != "$last_mkdir" ]
 		then
-		    mkdir_and_chown "$auto_dir" 755 $PCP_USER:$PCP_GROUP >$tmp/tmp 2>&1
+		    # mode rwxrwxr-x is the default for pcp:pcp dirs
+		    umask 002
+		    mkdir -p -m 0775 "$auto_dir" >$tmp/tmp 2>&1
+		    # reset the default mode to rw-rw-r- for files
+		    umask 022
 		    if [ ! -d "$auto_dir" ]
 		    then
 			cat $tmp/tmp
@@ -1971,7 +2122,19 @@ p
 		    fi
 		    last_mkdir="$auto_dir"
 		fi
-		_autosave "$dir" "$savefile" "$auto_dir"
+		# $savefile may be a full pathname
+		#
+		case "$savefile"
+		in
+		    /*)
+			src_dir=`dirname "$savefile"`
+			savefile=`basename "$savefile"`
+			;;
+		    *)
+			src_dir="$dir"
+			;;
+		esac
+		_autosave "$src_dir" "$savefile" "$auto_dir"
 	    done
 	fi
 

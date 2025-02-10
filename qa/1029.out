@@ -2,6 +2,7 @@ QA output created by 1029
 *** Create a single fetch group ***
 
 *** Event metric ***
+QmcGroup::addMetric: string=sample.event.records
 QmcSource::getSource: Creating new source for HOST
 QmcSource::QmcSource: Created context 0 to host "HOST"
 QmcGroup::createLocalContext: Default context to host "HOST"
@@ -12,6 +13,7 @@ QmcContext::lookupInDom: Add indom for <indom for sample.event.records>
 HOST:sample.event.records["fungus", "bogus"] from host "HOST" with scale = 0 and units = none
 sample.event.records["fungus"]: 0 event records
 sample.event.records["bogus"]: 0 event records
+QmcGroup::addMetric: string=sample.seconds
 QmcGroup::use: Using current context 0 (handle = 0) for host "HOST"
 QmcContext::lookupDesc: Add descriptor for <pmid for sample.seconds>
 HOST:sample.seconds from host "HOST" with scale = 0 and units = sec / second
@@ -19,11 +21,11 @@ sample.seconds = Missing metric value(s)
 
 *** Group Fetch 0 ***
 QmcGroup::fetch: 1 contexts
+QmcContext::fetch: update=1
 QmcIndom::genProfile: indom = NN.NN, count = 2, numInsts = 2, active = 2, activeRef = 2: ALL ptr = 0x0
 QmcContext::fetch: fetching context host "HOST" has 2 metrics
 QmcContext::lookupDesc: Add descriptor for <pmid for sample.event.param_string>
 QmcContext::lookupDesc: Reusing descriptor <pmid for sample.event.param_string>
-QmcContext::fetch: Updating metrics
 QmcGroup::fetch: Done
 sample.event.records["fungus"]: 1 event records
   <timestamp> --- event record [0] flags 0x1 (point) ---
@@ -34,6 +36,7 @@ sample.seconds = Missing metric value(s)
 
 *** Group Fetch 1 ***
 QmcGroup::fetch: 1 contexts
+QmcContext::fetch: update=1
 QmcContext::fetch: fetching context host "HOST" has 2 metrics
 QmcContext::lookupDesc: Add descriptor for <pmid for sample.event.type>
 QmcContext::lookupDesc: Reusing descriptor <pmid for sample.event.type>
@@ -45,7 +48,6 @@ QmcContext::lookupDesc: Reusing descriptor <pmid for sample.event.param_64>
 QmcContext::lookupName: Matched id 29.0.134 to "sample.event.param_string"
 QmcContext::lookupDesc: Reusing descriptor <pmid for sample.event.param_string>
 QmcContext::lookupDesc: Reusing descriptor <pmid for sample.event.param_string>
-QmcContext::fetch: Updating metrics
 QmcGroup::fetch: Done
 sample.event.records["fungus"]: 2 event records
   <timestamp> --- event record [0] flags 0x1 (point) ---
@@ -60,6 +62,7 @@ sample.seconds = NUMBER sec / second
 
 *** Group Fetch 2 ***
 QmcGroup::fetch: 1 contexts
+QmcContext::fetch: update=1
 QmcContext::fetch: fetching context host "HOST" has 2 metrics
 QmcContext::lookupName: Matched id 29.0.127 to "sample.event.type"
 QmcContext::lookupDesc: Reusing descriptor <pmid for sample.event.type>
@@ -106,7 +109,6 @@ QmcContext::lookupDesc: Reusing descriptor <pmid for sample.event.param_string>
 QmcContext::lookupName: Matched id 29.0.134 to "sample.event.param_string"
 QmcContext::lookupDesc: Reusing descriptor <pmid for sample.event.param_string>
 QmcContext::lookupDesc: Reusing descriptor <pmid for sample.event.param_string>
-QmcContext::fetch: Updating metrics
 QmcGroup::fetch: Done
 sample.event.records["fungus"]: 5 event records
   <timestamp> --- event record [0] flags 0x1a (start,id,parent) ---
@@ -139,11 +141,11 @@ sample.seconds = NUMBER sec / second
 
 *** Group Fetch 3 ***
 QmcGroup::fetch: 1 contexts
+QmcContext::fetch: update=1
 QmcContext::fetch: fetching context host "HOST" has 2 metrics
 QmcContext::lookupName: Matched id 29.0.134 to "sample.event.param_string"
 QmcContext::lookupDesc: Reusing descriptor <pmid for sample.event.param_string>
 QmcContext::lookupDesc: Reusing descriptor <pmid for sample.event.param_string>
-QmcContext::fetch: Updating metrics
 QmcGroup::fetch: Done
 sample.event.records["fungus"]: 0 event records
 sample.event.records["bogus"]: 1 event records

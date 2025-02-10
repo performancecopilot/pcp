@@ -29,6 +29,9 @@ pmlc> log mandatory on 200 msec sample.bin
 pmlc> 
 
 Instance Domains in the Log ...
+InDom: 2.1
+TIMESTAMP 1 instances
+   LOGGER_PID or "LOGGER_PID"
 InDom: 29.2
 TIMESTAMP 9 instances
    100 or "bin-100"
@@ -40,9 +43,6 @@ TIMESTAMP 9 instances
    700 or "bin-700"
    800 or "bin-800"
    900 or "bin-900"
-InDom: 2.1
-TIMESTAMP 1 instances
-   LOGGER_PID or "LOGGER_PID"
 
 TIMESTAMP 5 metrics
     2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value "HOST"
@@ -179,6 +179,9 @@ pmlc> log mandatory on 200 msec sample.bin
 pmlc> 
 
 Instance Domains in the Log ...
+InDom: 2.1
+TIMESTAMP 1 instances
+   LOGGER_PID or "LOGGER_PID"
 InDom: 29.2
 TIMESTAMP 9 instances
    100 or "bin-100"
@@ -190,9 +193,6 @@ TIMESTAMP 9 instances
    700 or "bin-700"
    800 or "bin-800"
    900 or "bin-900"
-InDom: 2.1
-TIMESTAMP 1 instances
-   LOGGER_PID or "LOGGER_PID"
 
 TIMESTAMP 5 metrics
     2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value "HOST"

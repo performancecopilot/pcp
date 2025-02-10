@@ -52,14 +52,12 @@ echo "SPECIAL=pmlogcheck" >>$HOME/.pcp/pmafm/qa.$seq
 echo "Running pmlogcheck ... expect no errors"
 mkaf `pwd`/tmparch/foo.* >$tmp
 pmafm $tmp run pmlogcheck 2>&1 | _filter
-rm -f $tmp
 
 echo
 echo "Running pmclient ... expect error from pmclient once pmafm starts it"
 arch=archives/951127.23.01_v2
 mkaf `pwd`/$arch.* >$tmp
 pmafm $tmp run pmclient -n src/root_irix 2>&1 | _filter
-rm -f $tmp
 
 # success, all done
 status=0

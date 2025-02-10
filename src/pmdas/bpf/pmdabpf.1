@@ -31,7 +31,7 @@ See the eBPF, libbpf and BPF CO-RE documentation for detailed descriptions.
 .IP
 .PD 0
 .IP
-.I \f(CW$PCP_PMDAS_DIR\fP/bpf/bpf.conf
+.I \f(CR$PCP_PMDAS_DIR\fP/bpf/bpf.conf
 .PD
 .PP
 Each section of the file corresponds to one bpf PMDA module.
@@ -75,19 +75,19 @@ Some modules will start providing values only after having collected data
 from related system activity.
 .SH FILES
 .TP 5
-.I \f(CW$PCP_PMDAS_DIR\fP/bpf/bpf.conf
+.I \f(CR$PCP_PMDAS_DIR\fP/bpf/bpf.conf
 configuration file for the \fBpmdabpf\fP agent
 .TP
-.I \f(CW$PCP_PMDAS_DIR\fP/bpf/modules/*.{o,so}
+.I \f(CR$PCP_PMDAS_DIR\fP/bpf/modules/*.{o,so}
 bpf PMDA modules available for the \fBpmdabpf\fP agent
 .TP
-.I \f(CW$PCP_PMDAS_DIR\fP/bpf/Install
+.I \f(CR$PCP_PMDAS_DIR\fP/bpf/Install
 installation script for the \fBpmdabpf\fP agent
 .TP
-.I \f(CW$PCP_PMDAS_DIR\fP/bpf/Remove\fP
+.I \f(CR$PCP_PMDAS_DIR\fP/bpf/Remove\fP
 undo installation script for the \fBpmdabpf\fP agent
 .TP
-.I \f(CW$PCP_LOG_DIR\fP/pmcd/bpf.log
+.I \f(CR$PCP_LOG_DIR\fP/pmcd/bpf.log
 default log file for messages from the \fBpmdabpf\fP agent
 .PP
 Note that the usual/default value for \fB$PCP_PMDAS_DIR\fP is
@@ -107,3 +107,6 @@ configuration file, as described in \fBpcp.conf\fP(5).
 .BR bpf (1)
 and
 .BR pmcd (1).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ libbpf eBPF BPF BTF bpf CO {from CO-RE}

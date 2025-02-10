@@ -80,13 +80,13 @@ __pmhashtrunc(__pmHashTable *t)
     if (t == NULL || t->rows == NULL || t->entries <= 0)
 	return;
     else {
-	__pmHashEnt	*tmp, *e;
+	__pmHashEnt	*e;
 	int		i;
 
 	for (i = 0; i < PM_HASH_SIZE; i++) {
 	    e = t->rows[i];
 	    while (e != NULL) {
-		tmp = e;
+		__pmHashEnt	*tmp = e;
 		e = e->next;
 		if (tmp->ent != NULL) {
 		    t->del(tmp->ent);
@@ -94,7 +94,6 @@ __pmhashtrunc(__pmHashTable *t)
 		}
 		if (tmp) {
 		    free(tmp);
-		    tmp = NULL;
 		}
 	    }
 	    t->rows[i] = NULL;

@@ -2,304 +2,305 @@ QA output created by 566
 === directory traversal and file checks ===
 
 TMP/foo.index alone:
-Due to earlier errors, cannot continue ... bye
 Scanning for components of archive "TMP/foo"
-TMP/foo.0 (or similar): missing log file 
 TMP/foo.index: start pass0 ... found 4 records
 TMP/foo.meta: missing metadata file
+TMP/foo.0 (or similar): missing log file 
+Due to earlier errors, cannot continue ... bye
 
 TMP/foo.meta missing:
-Due to earlier errors, cannot continue ... bye
 Scanning for components of archive "TMP/foo"
-TMP/foo.0: start pass0 ... found 11 records
 TMP/foo.index: start pass0 ... found 4 records
+TMP/foo.0: start pass0 ... found 11 records
 TMP/foo.meta: missing metadata file
+Due to earlier errors, cannot continue ... bye
 
 TMP/foo.0 missing:
-Due to earlier errors, cannot continue ... bye
 Scanning for components of archive "TMP/foo"
-TMP/foo.0 (or similar): missing log file 
 TMP/foo.index: start pass0 ... found 4 records
-TMP/foo.meta: start pass0 ... found 34 records
+TMP/foo.meta: start pass0 ... found 36 records
+TMP/foo.0 (or similar): missing log file 
+Due to earlier errors, cannot continue ... bye
 
 TMP/foo.index missing:
-
 Note: timezone set to local timezone of host "HOST" from archive
-Processed 10 pmResult records
+
 Scanning for components of archive "TMP/foo"
+TMP/foo.meta: start pass0 ... found 36 records
 TMP/foo.0: start pass0 ... found 11 records
-TMP/foo.meta: start pass0 ... found 34 records
 TMP/foo: start pass1 (check temporal index)
+TMP/foo: warning temporal index is missing
 TMP/foo: start pass2
 TMP/foo: start pass3
-TMP/foo: warning temporal index is missing
+Processed 10 pmResult records
 
 TMP/bar:
 Scanning for components of archive "TMP/bar"
 pmlogcheck: no PCP archive files match "TMP/bar"
 
 TMP/foo:
-Due to earlier errors, cannot continue ... bye
 Scanning for components of archive "TMP/foo"
+TMP/foo.index: start pass0 ... found 4 records
+TMP/foo.meta: start pass0 ... found 36 records
 TMP/foo.0: start pass0 ... found 11 records
 TMP/foo.1: cannot open file: Permission denied
-TMP/foo.999: contains no PCP data
 TMP/foo.999: start pass0 ... 
-TMP/foo.index: start pass0 ... found 4 records
-TMP/foo.meta: start pass0 ... found 34 records
+TMP/foo.999: contains no PCP data
+Due to earlier errors, cannot continue ... bye
 
 foo:
-Due to earlier errors, cannot continue ... bye
 Scanning for components of archive "foo"
+foo.index: start pass0 ... found 4 records
+foo.meta: start pass0 ... found 36 records
 foo.0: start pass0 ... found 11 records
 foo.1: cannot open file: Permission denied
-foo.999: contains no PCP data
 foo.999: start pass0 ... 
-foo.index: start pass0 ... found 4 records
-foo.meta: start pass0 ... found 34 records
+foo.999: contains no PCP data
+Due to earlier errors, cannot continue ... bye
 
 foo.index:
-
 Note: timezone set to local timezone of host "HOST" from archive
-Processed 10 pmResult records
+
 Scanning for components of archive "foo.index"
-foo.0: start pass0 ... found 11 records
-foo.1: contains no PCP data
-foo.1: start pass0 ... 
-foo.999: contains no PCP data
-foo.999: start pass0 ... 
 foo.index: start pass0 ... found 4 records
-foo.meta: start pass0 ... found 34 records
+foo.meta: start pass0 ... found 36 records
+foo.0: start pass0 ... found 11 records
+foo.1: start pass0 ... 
+foo.1: contains no PCP data
+foo.999: start pass0 ... 
+foo.999: contains no PCP data
 foo: start pass1 (check temporal index)
 foo: start pass2
 foo: start pass3
+Processed 10 pmResult records
 
 archive-20150415.044829:
-
 Note: timezone set to local timezone of host "HOST" from archive
-Processed 10 pmResult records
+
 Scanning for components of archive "archive-20150415.044829"
-archive-20150415.044829.0: start pass0 ... found 11 records
 archive-20150415.044829.index: start pass0 ... found 4 records
-archive-20150415.044829.meta: start pass0 ... found 34 records
+archive-20150415.044829.meta: start pass0 ... found 36 records
+archive-20150415.044829.0: start pass0 ... found 11 records
 archive-20150415.044829: start pass1 (check temporal index)
 archive-20150415.044829: start pass2
 archive-20150415.044829: start pass3
+Processed 10 pmResult records
 
 === pass 0 failures ===
 
 badarchives/badlen-1.meta:
-Due to earlier errors, cannot continue ... bye
 Scanning for components of archive "badarchives/badlen-1.meta"
-badarchives/badlen-1.0: last valid record ends at offset 132
-badarchives/badlen-1.0: start pass0 ... 
-badarchives/badlen-1.0[record 1]: length mismatch: header 132 != trailer 128
 badarchives/badlen-1.index: start pass0 ... found 4 records
 badarchives/badlen-1.meta: start pass0 ... found 12 records
+badarchives/badlen-1.0: start pass0 ... 
+badarchives/badlen-1.0[record 1]: length mismatch: header 132 != trailer 128
+badarchives/badlen-1.0: last valid record ends at offset 132
+Due to earlier errors, cannot continue ... bye
 
 badarchives/badlen-10.meta:
-Due to earlier errors, cannot continue ... bye
 Scanning for components of archive "badarchives/badlen-10.meta"
-badarchives/badlen-10.0: start pass0 ... 
-badarchives/badlen-10.0: unexpected EOF in label record trailer, wanted 4, got 3 bytes
 badarchives/badlen-10.index: start pass0 ... found 4 records
 badarchives/badlen-10.meta: start pass0 ... found 12 records
+badarchives/badlen-10.0: start pass0 ... 
+badarchives/badlen-10.0: unexpected EOF in label record trailer, wanted 4, got 3 bytes
+Due to earlier errors, cannot continue ... bye
 
 badarchives/badlen-11.meta:
-Due to earlier errors, cannot continue ... bye
 Scanning for components of archive "badarchives/badlen-11.meta"
-badarchives/badlen-11.0: last valid record ends at offset 132
-badarchives/badlen-11.0: start pass0 ... 
-badarchives/badlen-11.0[record 1]: unexpected EOF in record header, wanted 4, got 1 bytes
 badarchives/badlen-11.index: start pass0 ... found 4 records
 badarchives/badlen-11.meta: start pass0 ... found 12 records
+badarchives/badlen-11.0: start pass0 ... 
+badarchives/badlen-11.0[record 1]: unexpected EOF in record header, wanted 4, got 1 bytes
+badarchives/badlen-11.0: last valid record ends at offset 132
+Due to earlier errors, cannot continue ... bye
 
 badarchives/badlen-2.meta:
-Due to earlier errors, cannot continue ... bye
 Scanning for components of archive "badarchives/badlen-2.meta"
-badarchives/badlen-2.0: last valid record ends at offset 132
-badarchives/badlen-2.0: start pass0 ... 
-badarchives/badlen-2.0[record 1]: unexpected EOF in record trailer, wanted 4, got 0 bytes
 badarchives/badlen-2.index: start pass0 ... found 4 records
 badarchives/badlen-2.meta: start pass0 ... found 12 records
+badarchives/badlen-2.0: start pass0 ... 
+badarchives/badlen-2.0[record 1]: unexpected EOF in record trailer, wanted 4, got 0 bytes
+badarchives/badlen-2.0: last valid record ends at offset 132
+Due to earlier errors, cannot continue ... bye
 
 badarchives/badlen-3.meta:
-Due to earlier errors, cannot continue ... bye
 Scanning for components of archive "badarchives/badlen-3.meta"
-badarchives/badlen-3.0: last valid record ends at offset 132
-badarchives/badlen-3.0: start pass0 ... 
-badarchives/badlen-3.0[record 1]: unexpected EOF in record body, wanted 124, got 116 bytes
 badarchives/badlen-3.index: start pass0 ... found 4 records
 badarchives/badlen-3.meta: start pass0 ... found 12 records
+badarchives/badlen-3.0: start pass0 ... 
+badarchives/badlen-3.0[record 1]: unexpected EOF in record body, wanted 124, got 116 bytes
+badarchives/badlen-3.0: last valid record ends at offset 132
+Due to earlier errors, cannot continue ... bye
 
 badarchives/badlen-4.meta:
-Due to earlier errors, cannot continue ... bye
 Scanning for components of archive "badarchives/badlen-4.meta"
-badarchives/badlen-4.0: start pass0 ... 
-badarchives/badlen-4.0[record 0]: unexpected EOF in record header, wanted 4, got 1 bytes
 badarchives/badlen-4.index: start pass0 ... found 4 records
 badarchives/badlen-4.meta: start pass0 ... found 12 records
+badarchives/badlen-4.0: start pass0 ... 
+badarchives/badlen-4.0[record 0]: unexpected EOF in record header, wanted 4, got 1 bytes
+Due to earlier errors, cannot continue ... bye
 
 badarchives/badlen-5.meta:
-Due to earlier errors, cannot continue ... bye
 Scanning for components of archive "badarchives/badlen-5.meta"
-badarchives/badlen-5.0: start pass0 ... 
-badarchives/badlen-5.0: unexpected EOF in label record body, wanted 124, got 38 bytes
 badarchives/badlen-5.index: start pass0 ... found 4 records
 badarchives/badlen-5.meta: start pass0 ... found 12 records
+badarchives/badlen-5.0: start pass0 ... 
+badarchives/badlen-5.0: unexpected EOF in label record body, wanted 124, got 38 bytes
+Due to earlier errors, cannot continue ... bye
 
 badarchives/badlen-6.meta:
-Due to earlier errors, cannot continue ... bye
 Scanning for components of archive "badarchives/badlen-6.meta"
-badarchives/badlen-6.0: illegal trailer record length (0) in label record
-badarchives/badlen-6.0: start pass0 ... 
 badarchives/badlen-6.index: start pass0 ... found 4 records
 badarchives/badlen-6.meta: start pass0 ... found 12 records
+badarchives/badlen-6.0: start pass0 ... 
+badarchives/badlen-6.0: illegal trailer record length (0) in label record
+Due to earlier errors, cannot continue ... bye
 
 badarchives/badlen-7.meta:
-Due to earlier errors, cannot continue ... bye
 Scanning for components of archive "badarchives/badlen-7.meta"
-badarchives/badlen-7.0: label record length mismatch: header 132 != trailer 64
-badarchives/badlen-7.0: start pass0 ... 
 badarchives/badlen-7.index: start pass0 ... found 4 records
 badarchives/badlen-7.meta: start pass0 ... found 12 records
+badarchives/badlen-7.0: start pass0 ... 
+badarchives/badlen-7.0: label record length mismatch: header 132 != trailer 64
+Due to earlier errors, cannot continue ... bye
 
 badarchives/badlen-9.meta:
-Due to earlier errors, cannot continue ... bye
 Scanning for components of archive "badarchives/badlen-9.meta"
-badarchives/badlen-9.0: start pass0 ... found 10 records
 badarchives/badlen-9.index: start pass0 ... found 4 records
-badarchives/badlen-9.meta: last valid record ends at offset 798
 badarchives/badlen-9.meta: start pass0 ... 
 badarchives/badlen-9.meta[record 11]: unexpected EOF in record body, wanted 46, got 38 bytes
+badarchives/badlen-9.meta: last valid record ends at offset 798
+badarchives/badlen-9.0: start pass0 ... found 10 records
+Due to earlier errors, cannot continue ... bye
 
 badarchives/badti-1:
-Due to earlier errors, cannot continue ... bye
 Scanning for components of archive "badarchives/badti-1"
-badarchives/badti-1.0: start pass0 ... found 10 records
 badarchives/badti-1.index: start pass0 ... 
 badarchives/badti-1.index[record 2]: unexpected EOF in index entry, wanted 20, got 10 bytes
 badarchives/badti-1.meta: start pass0 ... found 12 records
+badarchives/badti-1.0: start pass0 ... found 10 records
+Due to earlier errors, cannot continue ... bye
 
 badarchives/badlabel-1.meta:
-Checking abandoned.
 Scanning for components of archive "badarchives/badlabel-1.meta"
-badarchives/badlabel-1.0: start pass0 ... found 10 records
 badarchives/badlabel-1.index: start pass0 ... found 4 records
 badarchives/badlabel-1.meta: start pass0 ... badarchives/badlabel-1.meta: bad label magic number: 0xdeadbe00 not 0x50052600 as expected
 found 12 records
-pmlogcheck: cannot open archive "badarchives/badlabel-1.meta": Illegal label record at start of a PCP archive log file
+badarchives/badlabel-1.0: start pass0 ... found 10 records
+pmlogcheck: cannot open archive "badarchives/badlabel-1.meta": Illegal label record at start of a PCP archive file
+Checking abandoned.
 
 badarchives/badlabel-2.meta:
-Due to earlier errors, cannot continue ... bye
 Scanning for components of archive "badarchives/badlabel-2.meta"
-badarchives/badlabel-2.0: start pass0 ... found 10 records
-badarchives/badlabel-2.index: cannot load label record: Illegal label record at start of a PCP archive log file
 badarchives/badlabel-2.index: start pass0 ... badarchives/badlabel-2.index: bad label version: 0 not 2 or 3 as expected
+badarchives/badlabel-2.index: cannot load label record: Illegal label record at start of a PCP archive file
 badarchives/badlabel-2.meta: start pass0 ... found 12 records
+badarchives/badlabel-2.0: start pass0 ... found 10 records
+Due to earlier errors, cannot continue ... bye
 
 === pass 1 failures ===
 
 badarchives/badti-2.index:
-
 Note: timezone set to local timezone of host "HOST" from archive
-Processed 9 pmResult records
+
 Scanning for components of archive "badarchives/badti-2.index"
-badarchives/badti-2.0: start pass0 ... found 10 records
 badarchives/badti-2.index: start pass0 ... found 4 records
+badarchives/badti-2.meta: start pass0 ... found 12 records
+badarchives/badti-2.0: start pass0 ... found 10 records
+badarchives/badti-2: start pass1 (check temporal index)
 badarchives/badti-2.index[entry 1]: illegal negative volume number -1
 badarchives/badti-2.index[entry 2]: illegal timestamp nsec value (902428473 sec, 1000000000 nsec)
 badarchives/badti-2.index[entry 3]: illegal negative timestamp value (-2 sec, -4000 nsec)
 badarchives/badti-2.index[entry 3]: timestamp (-2.-00004000) less than log label timestamp (902428472.257504000)
 badarchives/badti-2.index[entry 3]: timestamp (-2.-00004000) went backwards in time (from 902428473.1000000000 at [entry 2])
-badarchives/badti-2.meta: start pass0 ... found 12 records
-badarchives/badti-2: start pass1 (check temporal index)
 badarchives/badti-2: start pass2
 badarchives/badti-2: start pass3
+Processed 9 pmResult records
 
 badarchives/badti-3.index:
-
 Note: timezone set to local timezone of host "HOST" from archive
-Processed 9 pmResult records
+
 Scanning for components of archive "badarchives/badti-3.index"
-badarchives/badti-3.0: start pass0 ... found 10 records
-badarchives/badti-3.2: file missing for log volume 2
 badarchives/badti-3.index: start pass0 ... found 4 records
-badarchives/badti-3.index[entry 3]: offset to log (1977) past end of file (1976)
-badarchives/badti-3.index[entry 3]: offset to metadata (852) past end of file (851)
-badarchives/badti-3.index[entry 3]: volume number (0) decreased (from 2 at [entry 2])
 badarchives/badti-3.meta: start pass0 ... found 12 records
+badarchives/badti-3.0: start pass0 ... found 10 records
 badarchives/badti-3: start pass1 (check temporal index)
+badarchives/badti-3.2: file missing for log volume 2
+badarchives/badti-3.index[entry 3]: offset to metadata (852) past end of file (851)
+badarchives/badti-3.index[entry 3]: offset to log (1977) past end of file (1976)
+badarchives/badti-3.index[entry 3]: volume number (0) decreased (from 2 at [entry 2])
 badarchives/badti-3: start pass2
 badarchives/badti-3: start pass3
+Processed 9 pmResult records
 
 badarchives/badti-4.index:
-
 Note: timezone set to local timezone of host "HOST" from archive
-Processed 9 pmResult records
+
 Scanning for components of archive "badarchives/badti-4.index"
-badarchives/badti-4.0: start pass0 ... found 10 records
 badarchives/badti-4.index: start pass0 ... found 4 records
-badarchives/badti-4.index[entry 1]: offset to log (1) before end of label record (132)
+badarchives/badti-4.meta: start pass0 ... found 12 records
+badarchives/badti-4.0: start pass0 ... found 10 records
+badarchives/badti-4: start pass1 (check temporal index)
 badarchives/badti-4.index[entry 1]: offset to metadata (131) before end of label record (132)
+badarchives/badti-4.index[entry 1]: offset to log (1) before end of label record (132)
 badarchives/badti-4.index[entry 2]: timestamp (800000000.248687000) less than log label timestamp (902428472.257504000)
 badarchives/badti-4.index[entry 2]: timestamp (800000000.248687000) went backwards in time (from 902428472.257504000 at [entry 1])
-badarchives/badti-4.meta: start pass0 ... found 12 records
-badarchives/badti-4: start pass1 (check temporal index)
 badarchives/badti-4: start pass2
 badarchives/badti-4: start pass3
+Processed 9 pmResult records
 
 === pass 3 failures ===
 
 badarchives/badlog-1.0:
-Due to earlier errors, cannot continue ... bye
 Scanning for components of archive "badarchives/badlog-1.0"
-badarchives/badlog-1.0: last valid record ends at offset 496
-badarchives/badlog-1.0: start pass0 ... 
-badarchives/badlog-1.0[record 3]: unexpected EOF in record body, wanted 204, got 200 bytes
 badarchives/badlog-1.index: start pass0 ... found 4 records
 badarchives/badlog-1.meta: start pass0 ... found 12 records
+badarchives/badlog-1.0: start pass0 ... 
+badarchives/badlog-1.0[record 3]: unexpected EOF in record body, wanted 204, got 200 bytes
+badarchives/badlog-1.0: last valid record ends at offset 496
+Due to earlier errors, cannot continue ... bye
 
 badarchives/badlog-2.0:
-
 Note: timezone set to local timezone of host "HOST" from archive
-	value 1 at 04:34:35.258
-	value 891 at 04:34:34.248
-Processed 9 pmResult records
+
 Scanning for components of archive "badarchives/badlog-2.0"
-badarchives/badlog-2.0: start pass0 ... found 10 records
-badarchives/badlog-2.0:[04:34:35.258]: sample.seconds: unsigned 32-bit wrap
 badarchives/badlog-2.index: start pass0 ... found 4 records
 badarchives/badlog-2.meta: start pass0 ... found 12 records
+badarchives/badlog-2.0: start pass0 ... found 10 records
 badarchives/badlog-2: start pass1 (check temporal index)
 badarchives/badlog-2: start pass2
 badarchives/badlog-2: start pass3
+badarchives/badlog-2.0:[04:34:35.258]: sample.seconds: unsigned 32-bit wrap
+	value 891 at 04:34:34.248
+	value 1 at 04:34:35.258
+	difference -890
+Processed 9 pmResult records
 
 badarchives/badlog-3.0:
-
 Note: timezone set to local timezone of host "HOST" from archive
-Processed 9 pmResult records
+
 Scanning for components of archive "badarchives/badlog-3.0"
-badarchives/badlog-3.0: start pass0 ... found 10 records
-badarchives/badlog-3.0:[16:13:20.248]: timestamp before label timestamp: 04:34:32.257
-badarchives/badlog-3.0:[16:13:20.248]: timestamp went backwards, prior timestamp: 04:34:33.248
 badarchives/badlog-3.index: start pass0 ... found 4 records
 badarchives/badlog-3.meta: start pass0 ... found 12 records
+badarchives/badlog-3.0: start pass0 ... found 10 records
 badarchives/badlog-3: start pass1 (check temporal index)
 badarchives/badlog-3: start pass2
 badarchives/badlog-3: start pass3
+badarchives/badlog-3.0:[16:13:20.248]: timestamp before label timestamp: 04:34:32.257
+badarchives/badlog-3.0:[16:13:20.248]: timestamp went backwards, prior timestamp: 04:34:33.248
+Processed 9 pmResult records
 
 badarchives/badlog-4.0:
-
 Note: timezone set to local timezone of host "HOST" from archive
-Processed 9 pmResult records
+
 Scanning for components of archive "badarchives/badlog-4.0"
-badarchives/badlog-4.0: start pass0 ... found 10 records
-badarchives/badlog-4.0:[04:34:32.257]: timestamp before label timestamp: 04:34:35.258
-badarchives/badlog-4.0:[04:34:33.248]: timestamp before label timestamp: 04:34:35.258
-badarchives/badlog-4.0:[04:34:34.248]: timestamp before label timestamp: 04:34:35.258
 badarchives/badlog-4.index: start pass0 ... found 2 records
 badarchives/badlog-4.meta: start pass0 ... found 12 records
+badarchives/badlog-4.0: start pass0 ... found 10 records
 badarchives/badlog-4: start pass1 (check temporal index)
 badarchives/badlog-4: start pass2
 badarchives/badlog-4: start pass3
+badarchives/badlog-4.0:[04:34:32.257]: timestamp before label timestamp: 04:34:35.258
+badarchives/badlog-4.0:[04:34:33.248]: timestamp before label timestamp: 04:34:35.258
+badarchives/badlog-4.0:[04:34:34.248]: timestamp before label timestamp: 04:34:35.258
+Processed 9 pmResult records

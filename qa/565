@@ -120,7 +120,7 @@ echo "=== default $iam agent installation ==="
 $sudo ./Remove >$tmp.out 2>&1
 $sudo ./Install </dev/null >>$tmp.out 2>&1
 
-# cp $tmp.out $here/$seq.full
+# cp $tmp.out $seq_full
 
 _filter <$tmp.out
 

@@ -140,7 +140,7 @@ PCP_ARCHIVE_DIR=@pcp_archive_dir@
 
 # default version for generating PCP archives
 # Possible versions: 2, 3 (3 requires PCP 6+)
-PCP_ARCHIVE_VERSION=2
+PCP_ARCHIVE_VERSION=3
 
 # directory for daily PCP activity reports
 # Standard path: /var/log/pcp/sa

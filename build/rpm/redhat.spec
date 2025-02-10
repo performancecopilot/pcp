@@ -1,12 +1,14 @@
 Name:    pcp
-Version: 6.1.0
+Version: 7.0.0
 Release: 1%{?dist}
 Summary: System-level performance monitoring and performance management
 License: GPL-2.0-or-later AND LGPL-2.1-or-later AND CC-BY-3.0
 URL:     https://pcp.io
 
-%global  artifactory https://performancecopilot.jfrog.io/artifactory
-Source0: %{artifactory}/pcp-source-release/pcp-%{version}.src.tar.gz
+Source0: https://github.com/performancecopilot/pcp/releases/pcp-%{version}.src.tar.gz
+%if 0%{?fedora} >= 40 || 0%{?rhel} >= 10
+ExcludeArch: %{ix86}
+%endif
 
 # The additional linker flags break out-of-tree PMDAs.
 # https://bugzilla.redhat.com/show_bug.cgi?id=2043092
@@ -18,11 +20,13 @@ Source0: %{artifactory}/pcp-source-release/pcp-%{version}.src.tar.gz
 %global __python2 python
 %endif
 
-# UsrMerge was completed in EL 7, however the latest 'hostname' package in EL 7 contains "Provides: /bin/hostname"
+# UsrMerge was completed in EL 7, however the latest 'hostname' package in EL 7 contains "Provides: /bin/hostname".  Likewise for /bin/ps from procps[-ng] packages.
 %if 0%{?rhel} >= 8 || 0%{?fedora} >= 17
 %global _hostname_executable /usr/bin/hostname
+%global _ps_executable /usr/bin/ps
 %else
 %global _hostname_executable /bin/hostname
+%global _ps_executable /bin/ps
 %endif
 
 %global disable_perl 0
@@ -46,11 +50,25 @@ Source0: %{artifactory}/pcp-source-release/pcp-%{version}.src.tar.gz
 %endif
 %endif
 
+# Resource Control kernel feature is on recent Intel/AMD processors only
+%ifarch x86_64
+%global disable_resctrl 0
+%else
+%global disable_resctrl 1
+%endif
+
 # libchan, libhdr_histogram and pmdastatsd
 %if 0%{?fedora} >= 29 || 0%{?rhel} > 7
 %global disable_statsd 0
 %else
 %global disable_statsd 1
+%endif
+
+# GFS2 filesystem no longer supported here
+%if 0%{?rhel} >= 10
+%global disable_gfs2 1
+%else
+%global disable_gfs2 0
 %endif
 
 %if 0%{?fedora} >= 30 || 0%{?rhel} > 7
@@ -134,7 +152,7 @@ Source0: %{artifactory}/pcp-source-release/pcp-%{version}.src.tar.gz
 
 # No mssql ODBC driver on non-x86 platforms
 %ifarch x86_64
-%if !%{disable_python2} || !%{disable_python3} || 0%{?fedora} < 39
+%if !%{disable_python2} || !%{disable_python3}
 %global disable_mssql 0
 %else
 %global disable_mssql 1
@@ -153,8 +171,8 @@ Source0: %{artifactory}/pcp-source-release/pcp-%{version}.src.tar.gz
 # Qt development and runtime environment missing components before el6
 %if 0%{?rhel} == 0 || 0%{?rhel} > 5
 %global disable_qt 0
-%if 0%{?fedora} != 0 || 0%{?rhel} > 7
-%global default_qt 5
+%if 0%{?fedora} != 0 || 0%{?rhel} > 9
+%global default_qt 6
 %endif
 %else
 %global disable_qt 1
@@ -194,10 +212,23 @@ Source0: %{artifactory}/pcp-source-release/pcp-%{version}.src.tar.gz
 %global disable_noarch 1
 %endif
 
+# build pcp2arrow (no python3-arrow on RHEL or 32-bit Fedora)
+%if 0%{?fedora} >= 40
+%global disable_arrow 0
+%else
+%global disable_arrow 1
+%endif
+
 %if 0%{?fedora} >= 24
 %global disable_xlsx 0
 %else
 %global disable_xlsx 1
+%endif
+
+%if 0%{?fedora} >= 40 || 0%{?rhel} >= 10
+%global disable_amdgpu 0
+%else
+%global disable_amdgpu 1
 %endif
 
 # prevent conflicting binary and man page install for pcp(1)
@@ -278,20 +309,24 @@ BuildRequires: perl(ExtUtils::MakeMaker) perl(LWP::UserAgent) perl(JSON)
 BuildRequires: perl(Time::HiRes) perl(Digest::MD5)
 BuildRequires: perl(XML::LibXML) perl(File::Slurp)
 BuildRequires: %{_hostname_executable}
+BuildRequires: %{_ps_executable}
 %if !%{disable_systemd}
 BuildRequires: systemd-devel
 %endif
 %if !%{disable_qt}
 BuildRequires: desktop-file-utils
-%if 0%{?default_qt} != 5
-BuildRequires: qt4-devel >= 4.4
+%if 0%{?default_qt} == 6
+BuildRequires: qt6-qtbase-devel
+BuildRequires: qt6-qtsvg-devel
 %else
 BuildRequires: qt5-qtbase-devel
 BuildRequires: qt5-qtsvg-devel
 %endif
 %endif
 
-Requires: bash xz gawk sed grep findutils which %{_hostname_executable}
+# Utilities used indirectly e.g. by scripts we install
+Requires: bash xz gawk sed grep coreutils diffutils findutils
+Requires: which %{_hostname_executable} %{_ps_executable}
 Requires: pcp-libs = %{version}-%{release}
 
 %if !%{disable_selinux}
@@ -354,6 +389,12 @@ Requires: pcp-selinux = %{version}-%{release}
 %global _with_perfevent --with-perfevent=no
 %else
 %global _with_perfevent --with-perfevent=yes
+%endif
+
+%if %{disable_gfs2}
+%global _with_gfs2 --with-pmdagfs2=no
+%else
+%global _with_gfs2 --with-pmdagfs2=yes
 %endif
 
 %if %{disable_statsd}
@@ -435,11 +476,12 @@ fi
 }
 
 %global run_pmieconf() %{expand:
-if [ -w "%1" ]
+if [ -d "%1" -a -w "%1" -a -w "%1/%2" ]
 then
-    pmieconf -c enable "%2"
+    pmieconf -f "%1/%2" -c enable "%3"
+    chown pcp:pcp "%1/%2" 2>/dev/null
 else
-    echo "WARNING: Cannot write to %1, skipping pmieconf enable of %2." >&2
+    echo "WARNING: Cannot write to %1/%2, skipping pmieconf enable of %3." >&2
 fi
 }
 
@@ -529,10 +571,13 @@ Requires: pcp-pmda-memcache pcp-pmda-mysql pcp-pmda-named pcp-pmda-netfilter pcp
 Requires: pcp-pmda-nginx pcp-pmda-nfsclient pcp-pmda-pdns pcp-pmda-postfix pcp-pmda-postgresql pcp-pmda-oracle
 Requires: pcp-pmda-samba pcp-pmda-slurm pcp-pmda-zimbra
 Requires: pcp-pmda-dm pcp-pmda-apache
-Requires: pcp-pmda-bash pcp-pmda-cisco pcp-pmda-gfs2 pcp-pmda-mailq pcp-pmda-mounts
-Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping pcp-pmda-smart
+Requires: pcp-pmda-bash pcp-pmda-cisco pcp-pmda-mailq pcp-pmda-mounts
+Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping pcp-pmda-smart pcp-pmda-farm
 Requires: pcp-pmda-hacluster pcp-pmda-lustrecomm pcp-pmda-logger pcp-pmda-denki pcp-pmda-docker pcp-pmda-bind2
 Requires: pcp-pmda-sockets pcp-pmda-podman
+%if !%{disable_gfs2}
+Requires: pcp-pmda-gfs2
+%endif
 %if !%{disable_statsd}
 Requires: pcp-pmda-statsd
 %endif
@@ -549,9 +594,11 @@ Requires: pcp-pmda-bpf
 Requires: pcp-pmda-bpftrace
 %endif
 %if !%{disable_python2} || !%{disable_python3}
+Requires: pcp-geolocate pcp-export-pcp2openmetrics pcp-export-pcp2json
+Requires: pcp-export-pcp2spark pcp-export-pcp2xml pcp-export-pcp2zabbix
 Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-mic
 Requires: pcp-pmda-libvirt pcp-pmda-lio pcp-pmda-openmetrics pcp-pmda-haproxy
-Requires: pcp-pmda-lmsensors pcp-pmda-netcheck pcp-pmda-rabbitmq
+Requires: pcp-pmda-lmsensors pcp-pmda-netcheck pcp-pmda-rabbitmq pcp-pmda-uwsgi
 Requires: pcp-pmda-openvswitch pcp-pmda-rocestat
 %endif
 %if !%{disable_mongodb}
@@ -566,7 +613,13 @@ Requires: pcp-pmda-snmp
 %if !%{disable_json}
 Requires: pcp-pmda-json
 %endif
+%if !%{disable_resctrl}
+Requires: pcp-pmda-resctrl
+%endif
 Requires: pcp-pmda-summary pcp-pmda-trace pcp-pmda-weblog
+%if !%{disable_amdgpu}
+Requires: pcp-pmda-amdgpu
+%endif
 Requires: pcp-system-tools
 %if !%{disable_qt}
 Requires: pcp-gui
@@ -740,6 +793,25 @@ Zabbix via the Zabbix agent - see zbxpcp(3) for further details.
 
 %if !%{disable_python2} || !%{disable_python3}
 #
+# pcp-geolocate
+#
+%package geolocate
+License: GPL-2.0-or-later
+Summary: Performance Co-Pilot geographical location metric labels
+URL: https://pcp.io
+Requires: pcp-libs >= %{version}-%{release}
+%if !%{disable_python3}
+Requires: python3-pcp = %{version}-%{release}
+%else
+Requires: %{__python2}-pcp = %{version}-%{release}
+%endif
+
+%description geolocate
+Performance Co-Pilot (PCP) tools that automatically apply metric labels
+containing latitude and longitude, based on IP-address-based lookups.
+Used with live maps to show metric values from different locations.
+
+#
 # pcp-export-pcp2elasticsearch
 #
 %package export-pcp2elasticsearch
@@ -818,6 +890,24 @@ Performance Co-Pilot (PCP) front-end tools for exporting metric values
 in JSON format.
 
 #
+# pcp-export-pcp2openmetrics
+#
+%package export-pcp2openmetrics
+License: GPL-2.0-or-later
+Summary: Performance Co-Pilot tools for exporting PCP metrics in OpenMetrics format
+URL: https://pcp.io
+Requires: pcp-libs >= %{version}-%{release}
+%if !%{disable_python3}
+Requires: python3-pcp = %{version}-%{release}
+%else
+Requires: %{__python2}-pcp = %{version}-%{release}
+%endif
+
+%description export-pcp2openmetrics
+Performance Co-Pilot (PCP) front-end tools for exporting metric values
+in OpenMetrics (https://openmetrics.io/) format.
+
+#
 # pcp-export-pcp2spark
 #
 %package export-pcp2spark
@@ -835,6 +925,30 @@ Requires: %{__python2}-pcp = %{version}-%{release}
 Performance Co-Pilot (PCP) front-end tools for exporting metric values
 in JSON format to Apache Spark. See https://spark.apache.org/ for
 further details on Apache Spark.
+
+#
+# pcp-export-pcp2arrow
+#
+%if !%{disable_arrow}
+%package export-pcp2arrow
+License: GPL-2.0-or-later
+Summary: Performance Co-Pilot tools for exporting PCP metrics to Apache Arrow
+URL: https://pcp.io
+Requires: pcp-libs >= %{version}-%{release}
+%if !%{disable_python3}
+Requires: python3-pcp = %{version}-%{release}
+Requires: python3-pyarrow
+BuildRequires: python3-pyarrow
+%else
+Requires: %{__python2}-pcp = %{version}-%{release}
+Requires: %{__python2}-pyarrow
+BuildRequires: %{__python2}-pyarrow
+%endif
+
+%description export-pcp2arrow
+Performance Co-Pilot (PCP) front-end tool for exporting metric values
+to Apache Arrow, which supports the columnar parquet data format.
+%endif
 
 #
 # pcp-export-pcp2xlsx
@@ -859,6 +973,7 @@ BuildRequires: %{__python2}-openpyxl
 Performance Co-Pilot (PCP) front-end tools for exporting metric values
 in Excel spreadsheet format.
 %endif
+
 #
 # pcp-export-pcp2xml
 #
@@ -1026,7 +1141,7 @@ Summary: Performance Co-Pilot (PCP) metrics for NutCracker (TwemCache)
 URL: https://pcp.io
 Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
 Requires: perl-PCP-PMDA = %{version}-%{release}
-Requires: perl(YAML::XS::LibYAML)
+Requires: perl(YAML::XS)
 Requires: perl(JSON)
 
 %description pmda-nutcracker
@@ -1467,7 +1582,7 @@ Summary: Performance Co-Pilot (PCP) metrics from eBPF ELF modules
 URL: https://pcp.io
 Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
 Requires: libbpf
-BuildRequires: libbpf-devel clang llvm bpftool
+BuildRequires: libbpf-devel clang llvm
 %description pmda-bpf
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 extracting performance metrics from eBPF ELF modules.
@@ -1708,6 +1823,24 @@ collecting metrics about RabbitMQ message queues.
 #end pcp-pmda-rabbitmq
 
 #
+# pcp-pmda-uwsgi
+#
+%package pmda-uwsgi
+License: GPL-2.0-or-later
+Summary: Performance Co-Pilot (PCP) metrics from uWSGI servers
+URL: https://pcp.io
+Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
+%if !%{disable_python3}
+Requires: python3-pcp
+%else
+Requires: %{__python2}-pcp
+%endif
+%description pmda-uwsgi
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting metrics from uWSGI servers.
+#end pcp-pmda-uwsgi
+
+#
 # pcp-pmda-lio
 #
 %package pmda-lio
@@ -1857,13 +1990,15 @@ URL: https://pcp.io
 Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
 %if !%{disable_python3}
 Requires: python3-pcp
-%if 0%{?rhel} == 0
+%if 0%{?rhel} == 0 || 0%{?rhel} >= 9
 Requires: python3-pyodbc
+BuildRequires: python3-pyodbc
 %endif
 %else
 Requires: %{__python2}-pcp
 %if 0%{?rhel} == 0
 Requires: %{__python2}-pyodbc
+BuildRequires: %{__python2}-pyodbc
 %endif
 %endif
 %description pmda-mssql
@@ -1950,6 +2085,23 @@ collecting metrics about Cisco routers.
 # end pcp-pmda-cisco
 
 #
+# pcp-pmda-farm
+#
+%package pmda-farm
+License: GPL-2.0-or-later
+Summary: Performance Co-Pilot (PCP) metrics for Seagate FARM Log metrics
+URL: https://pcp.io
+Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
+Requires: smartmontools
+%description pmda-farm
+This package contains the PCP Performance Metric Domain Agent (PMDA) for
+collecting metrics from Seagate Hard Drive vendor specific Field Accessible
+Reliability Metrics (FARM) Log making use of data from the smartmontools 
+package.
+#end pcp-pmda-farm
+
+%if !%{disable_gfs2}
+#
 # pcp-pmda-gfs2
 #
 %package pmda-gfs2
@@ -1961,6 +2113,20 @@ Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about the Global Filesystem v2.
 # end pcp-pmda-gfs2
+%endif
+
+#
+# pcp-pmda-hacluster
+#
+%package pmda-hacluster
+License: GPL-2.0-or-later
+Summary: Performance Co-Pilot (PCP) metrics for High Availability Clusters
+URL: https://pcp.io
+Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
+%description pmda-hacluster
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting metrics about linux High Availability (HA) Clusters.
+# end pcp-pmda-hacluster
 
 #
 # pcp-pmda-logger
@@ -2014,6 +2180,21 @@ Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about Nvidia GPUs.
 # end pcp-pmda-nvidia-gpu
+
+%if !%{disable_resctrl}
+#
+# pcp-pmda-resctrl
+#
+%package pmda-resctrl
+License: GPL-2.0-or-later
+Summary: Performance Co-Pilot (PCP) metrics from Linux resource control
+URL: https://pcp.io
+Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
+%description pmda-resctrl
+This package contains the PCP Performance Metric Domain Agent (PMDA) for
+collecting metrics from the Linux kernel resource control functionality.
+#end pcp-pmda-resctrl
+%endif
 
 #
 # pcp-pmda-roomtemp
@@ -2085,19 +2266,6 @@ collecting per-socket statistics, making use of utilities such as 'ss'.
 #end pcp-pmda-sockets
 
 #
-# pcp-pmda-hacluster
-#
-%package pmda-hacluster
-License: GPL-2.0-or-later
-Summary: Performance Co-Pilot (PCP) metrics for High Availability Clusters
-URL: https://pcp.io
-Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
-%description pmda-hacluster
-This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about linux High Availability (HA) Clusters.
-# end pcp-pmda-hacluster
-
-#
 # pcp-pmda-summary
 #
 %package pmda-summary
@@ -2151,6 +2319,23 @@ This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about web server logs.
 # end pcp-pmda-weblog
 # end C pmdas
+
+%if !%{disable_amdgpu}
+#
+# pcp-pmda-amdgpu
+#
+%package pmda-amdgpu
+License: GPL-2.0-or-later
+Summary: Performance Co-Pilot (PCP) metrics from AMD GPU devices
+URL: https://pcp.io
+Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
+Requires: libdrm
+BuildRequires: libdrm-devel
+%description pmda-amdgpu
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+extracting performance metrics from AMDGPU devices.
+# end pcp-pmda-amdgpu
+%endif
 
 %package zeroconf
 License: GPL-2.0-or-later
@@ -2306,7 +2491,7 @@ updated policy package.
 
 
 %prep
-%setup -q
+%autosetup -p1
 
 %build
 # the buildsubdir macro gets defined in %%setup and is apparently only available in the next step (i.e. the %%build step)
@@ -2319,7 +2504,7 @@ sed -i "/PACKAGE_BUILD/s/=[0-9]*/=$_build/" VERSION.pcp
 %if !%{disable_python2} && 0%{?default_python} != 3
 export PYTHON=python%{?default_python}
 %endif
-%configure %{?_with_initd} %{?_with_doc} %{?_with_dstat} %{?_with_ib} %{?_with_statsd} %{?_with_perfevent} %{?_with_bcc} %{?_with_bpf} %{?_with_bpftrace} %{?_with_json} %{?_with_mongodb} %{?_with_snmp} %{?_with_nutcracker} %{?_with_python2}
+%configure %{?_with_initd} %{?_with_doc} %{?_with_dstat} %{?_with_ib} %{?_with_gfs2} %{?_with_statsd} %{?_with_perfevent} %{?_with_bcc} %{?_with_bpf} %{?_with_bpftrace} %{?_with_json} %{?_with_mongodb} %{?_with_snmp} %{?_with_nutcracker} %{?_with_python2}
 make %{?_smp_mflags} default_pcp
 
 %install
@@ -2402,7 +2587,7 @@ sed -i '/.a$/d' pcp-devel-files
 sed -i '/\/man\//d' pcp-devel-files
 sed -i '/\/include\//d' pcp-devel-files
 
-%ifarch x86_64 ppc64 ppc64le aarch64 s390x
+%ifarch x86_64 ppc64 ppc64le aarch64 s390x riscv64
 sed -i -e 's/usr\/lib\//usr\/lib64\//' pcp-libs-files
 sed -i -e 's/usr\/lib\//usr\/lib64\//' pcp-devel-files
 sed -i -e 's/usr\/lib\//usr\/lib64\//' pcp-libs-devel-files
@@ -2417,7 +2602,7 @@ sed -i -e 's/usr\/lib\//usr\/lib64\//' pcp-libs-devel-files
 
 # some special cases for devel
 awk '{print $NF}' $DIST_MANIFEST |\
-grep -E 'pcp\/(examples|demos)|(etc/pcp|pcp/pmdas)\/(sample|simple|trivial|txmon)|bin/(pmdbg|pmclient|pmerr|genpmda)' | grep -E -v tutorials >>pcp-devel-files
+grep -E 'pcp/(examples|demos)|(etc/pcp|pcp/pmdas)/(sample|simple|trivial|txmon)|bin/(pmdbg|pmclient|pmerr|genpmda)' | grep -E -v tutorials >>pcp-devel-files
 
 # Patterns for files to be marked %%config(noreplace).
 # Note: /etc/pcp.{conf,env,sh} are %%config but not noreplace
@@ -2451,34 +2636,37 @@ basic_manifest() {
 # Likewise, for the pcp-pmda and pcp-testsuite subpackages.
 #
 total_manifest | keep 'tutorials|/html/|pcp-doc|man.*\.[1-9].*' | cull 'out' >pcp-doc-files
-total_manifest | keep 'testsuite|pcpqa|etc/systemd/system|libpcp_fault|pcp/fault.h' >pcp-testsuite-files
+total_manifest | keep 'testsuite|pcpqa|etc/systemd/system|libpcp_fault|pcp/fault.h|pmcheck/pmda-sample' >pcp-testsuite-files
 
 basic_manifest | keep "$PCP_GUI|pcp-gui|applications|pixmaps|hicolor" | cull 'pmtime.h' >pcp-gui-files
 basic_manifest | keep 'selinux' | cull 'tmp|testsuite' >pcp-selinux-files
-basic_manifest | keep 'zeroconf|daily[-_]report|/sa$' >pcp-zeroconf-files
+basic_manifest | keep 'zeroconf|daily[-_]report|/sa$' | cull 'pmcheck' >pcp-zeroconf-files
 basic_manifest | grep -E -e 'pmiostat|pmrep|dstat|htop|pcp2csv' \
-   -e 'pcp-atop|pcp-dmcache|pcp-dstat|pcp-free|pcp-htop' \
-   -e 'pcp-ipcs|pcp-iostat|pcp-lvmcache|pcp-mpstat' \
-   -e 'pcp-numastat|pcp-pidstat|pcp-shping|pcp-tapestat' \
-   -e 'pcp-uptime|pcp-verify|pcp-ss|pcp-ps|pcp-meminfo' | \
+   -e 'pcp-atop|pcp-dmcache|pcp-dstat|pcp-free' \
+   -e 'pcp-htop|pcp-ipcs|pcp-iostat|pcp-lvmcache|pcp-mpstat' \
+   -e 'pcp-numastat|pcp-pidstat|pcp-shping|pcp-ss' \
+   -e 'pcp-tapestat|pcp-uptime|pcp-verify|pcp-xsos' | \
    cull 'selinux|pmlogconf|pmieconf|pmrepconf' >pcp-system-tools-files
-
+basic_manifest | keep 'geolocate' >pcp-geolocate-files
 basic_manifest | keep 'sar2pcp' >pcp-import-sar2pcp-files
 basic_manifest | keep 'iostat2pcp' >pcp-import-iostat2pcp-files
 basic_manifest | keep 'sheet2pcp' >pcp-import-sheet2pcp-files
 basic_manifest | keep 'mrtg2pcp' >pcp-import-mrtg2pcp-files
 basic_manifest | keep 'ganglia2pcp' >pcp-import-ganglia2pcp-files
 basic_manifest | keep 'collectl2pcp' >pcp-import-collectl2pcp-files
+basic_manifest | keep 'pcp2arrow' >pcp-export-pcp2arrow-files
 basic_manifest | keep 'pcp2elasticsearch' >pcp-export-pcp2elasticsearch-files
 basic_manifest | keep 'pcp2influxdb' >pcp-export-pcp2influxdb-files
 basic_manifest | keep 'pcp2xlsx' >pcp-export-pcp2xlsx-files
 basic_manifest | keep 'pcp2graphite' >pcp-export-pcp2graphite-files
 basic_manifest | keep 'pcp2json' >pcp-export-pcp2json-files
+basic_manifest | keep 'pcp2openmetrics' >pcp-export-pcp2openmetrics-files
 basic_manifest | keep 'pcp2spark' >pcp-export-pcp2spark-files
 basic_manifest | keep 'pcp2xml' >pcp-export-pcp2xml-files
 basic_manifest | keep 'pcp2zabbix' >pcp-export-pcp2zabbix-files
 basic_manifest | keep 'zabbix|zbxpcp' | cull pcp2zabbix >pcp-export-zabbix-agent-files
 basic_manifest | keep '(etc/pcp|pmdas)/activemq(/|$)' >pcp-pmda-activemq-files
+basic_manifest | keep '(etc/pcp|pmdas)/amdgpu(/|$)' >pcp-pmda-amdgpu-files
 basic_manifest | keep '(etc/pcp|pmdas)/apache(/|$)' >pcp-pmda-apache-files
 basic_manifest | keep '(etc/pcp|pmdas)/bash(/|$)' >pcp-pmda-bash-files
 basic_manifest | keep '(etc/pcp|pmdas)/bcc(/|$)' >pcp-pmda-bcc-files
@@ -2495,6 +2683,7 @@ basic_manifest | keep '(etc/pcp|pmdas)/docker(/|$)' >pcp-pmda-docker-files
 basic_manifest | keep '(etc/pcp|pmdas)/ds389log(/|$)' >pcp-pmda-ds389log-files
 basic_manifest | keep '(etc/pcp|pmdas)/ds389(/|$)' >pcp-pmda-ds389-files
 basic_manifest | keep '(etc/pcp|pmdas)/elasticsearch(/|$)' >pcp-pmda-elasticsearch-files
+basic_manifest | keep '(etc/pcp|pmdas)/farm(/|$)' >pcp-pmda-farm-files
 basic_manifest | keep '(etc/pcp|pmdas)/gfs2(/|$)' >pcp-pmda-gfs2-files
 basic_manifest | keep '(etc/pcp|pmdas)/gluster(/|$)' >pcp-pmda-gluster-files
 basic_manifest | keep '(etc/pcp|pmdas)/gpfs(/|$)' >pcp-pmda-gpfs-files
@@ -2534,6 +2723,7 @@ basic_manifest | keep '(etc/pcp|pmdas)/postfix(/|$)' >pcp-pmda-postfix-files
 basic_manifest | keep '(etc/pcp|pmdas)/postgresql(/|$)' >pcp-pmda-postgresql-files
 basic_manifest | keep '(etc/pcp|pmdas)/rabbitmq(/|$)' >pcp-pmda-rabbitmq-files
 basic_manifest | keep '(etc/pcp|pmdas)/redis(/|$)' >pcp-pmda-redis-files
+basic_manifest | keep '(etc/pcp|pmdas)/resctrl(/|$)|sys-fs-resctrl' >pcp-pmda-resctrl-files
 basic_manifest | keep '(etc/pcp|pmdas)/rocestat(/|$)' >pcp-pmda-rocestat-files
 basic_manifest | keep '(etc/pcp|pmdas)/roomtemp(/|$)' >pcp-pmda-roomtemp-files
 basic_manifest | keep '(etc/pcp|pmdas)/rpm(/|$)' >pcp-pmda-rpm-files
@@ -2550,17 +2740,19 @@ basic_manifest | keep '(etc/pcp|pmdas)/summary(/|$)' >pcp-pmda-summary-files
 basic_manifest | keep '(etc/pcp|pmdas)/systemd(/|$)' >pcp-pmda-systemd-files
 basic_manifest | keep '(etc/pcp|pmdas)/trace(/|$)' >pcp-pmda-trace-files
 basic_manifest | keep '(etc/pcp|pmdas)/unbound(/|$)' >pcp-pmda-unbound-files
+basic_manifest | keep '(etc/pcp|pmdas)/uwsgi(/|$)' >pcp-pmda-uwsgi-files
 basic_manifest | keep '(etc/pcp|pmdas)/weblog(/|$)' >pcp-pmda-weblog-files
 basic_manifest | keep '(etc/pcp|pmdas)/zimbra(/|$)' >pcp-pmda-zimbra-files
 basic_manifest | keep '(etc/pcp|pmdas)/zswap(/|$)' >pcp-pmda-zswap-files
 
 rm -f packages.list
 for pmda_package in \
-    activemq apache \
+    activemq amdgpu apache \
     bash bcc bind2 bonding bpf bpftrace \
     cifs cisco \
     dbping denki docker dm ds389 ds389log \
     elasticsearch \
+    farm \
     gfs2 gluster gpfs gpsd \
     hacluster haproxy \
     infiniband \
@@ -2571,10 +2763,10 @@ for pmda_package in \
     nutcracker nvidia \
     openmetrics openvswitch oracle \
     pdns perfevent podman postfix postgresql \
-    rabbitmq redis rocestat roomtemp rpm rsyslog \
+    rabbitmq redis resctrl rocestat roomtemp rpm rsyslog \
     samba sendmail shping slurm smart snmp \
     sockets statsd summary systemd \
-    unbound \
+    unbound uwsgi \
     trace \
     weblog \
     zimbra zswap ; \
@@ -2589,15 +2781,15 @@ do \
 done
 
 for export_package in \
-    pcp2elasticsearch pcp2graphite pcp2influxdb pcp2json \
-    pcp2spark pcp2xlsx pcp2xml pcp2zabbix zabbix-agent ; \
+    pcp2arrow pcp2elasticsearch pcp2graphite pcp2influxdb pcp2json \
+    pcp2openmetrics pcp2spark pcp2xlsx pcp2xml pcp2zabbix zabbix-agent ; \
 do \
     export_packages="$export_packages pcp-export-$export_package"; \
 done
 
 for subpackage in \
     pcp-conf pcp-gui pcp-doc pcp-libs pcp-devel pcp-libs-devel \
-    pcp-selinux pcp-system-tools pcp-testsuite pcp-zeroconf \
+    pcp-geolocate pcp-selinux pcp-system-tools pcp-testsuite pcp-zeroconf \
     $pmda_packages $import_packages $export_packages ; \
 do \
     echo $subpackage >> packages.list; \
@@ -2724,8 +2916,8 @@ semodule -r pcpqa >/dev/null 2>&1 || true
 chown -R pcpqa:pcpqa %{_testsdir} 2>/dev/null
 %if 0%{?rhel}
 %if !%{disable_systemd}
-    systemctl restart pmcd pmlogger >/dev/null 2>&1
-    systemctl enable pmcd pmlogger >/dev/null 2>&1
+    systemctl restart pcp-reboot-init pmcd pmlogger >/dev/null 2>&1
+    systemctl enable pcp-reboot-init pmcd pmlogger >/dev/null 2>&1
 %else
     /sbin/chkconfig --add pmcd >/dev/null 2>&1
     /sbin/chkconfig --add pmlogger >/dev/null 2>&1
@@ -2802,6 +2994,9 @@ exit 0
 
 %preun pmda-rabbitmq
 %{pmda_remove "$1" "rabbitmq"}
+
+%preun pmda-uwsgi
+%{pmda_remove "$1" "uwsgi"}
 
 %if !%{disable_snmp}
 %preun pmda-snmp
@@ -2958,8 +3153,16 @@ exit 0
 %preun pmda-cisco
 %{pmda_remove "$1" "cisco"}
 
+%preun pmda-farm
+%{pmda_remove "$1" "farm"}
+
+%if !%{disable_gfs2}
 %preun pmda-gfs2
 %{pmda_remove "$1" "gfs2"}
+%endif
+
+%preun pmda-hacluster
+%{pmda_remove "$1" "hacluster"}
 
 %preun pmda-logger
 %{pmda_remove "$1" "logger"}
@@ -2972,6 +3175,11 @@ exit 0
 
 %preun pmda-nvidia-gpu
 %{pmda_remove "$1" "nvidia"}
+
+%if !%{disable_resctrl}
+%preun pmda-resctrl
+%{pmda_remove "$1" "resctrl"}
+%endif
 
 %preun pmda-roomtemp
 %{pmda_remove "$1" "roomtemp"}
@@ -2988,9 +3196,6 @@ exit 0
 %preun pmda-sockets
 %{pmda_remove "$1" "sockets"}
 
-%preun pmda-hacluster
-%{pmda_remove "$1" "hacluster"}
-
 %preun pmda-summary
 %{pmda_remove "$1" "summary"}
 
@@ -3000,14 +3205,19 @@ exit 0
 %preun pmda-weblog
 %{pmda_remove "$1" "weblog"}
 
+%if !%{disable_amdgpu}
+%preun pmda-amdgpu
+%{pmda_remove "$1" "amdgpu"}
+%endif
+
 %preun
 if [ "$1" -eq 0 ]
 then
     # stop daemons before erasing the package
     %if !%{disable_systemd}
-       %systemd_preun pmlogger_check.timer pmlogger_daily.timer pmlogger_farm_check.timer pmlogger_farm_check.service pmlogger_farm.service pmlogger.service pmie_check.timer pmie_daily.timer pmie_farm_check.timer pmie_farm_check.service pmie_farm.service pmie.service pmproxy.service pmfind.service pmcd.service
+       %systemd_preun pmlogger_check.timer pmlogger_daily.timer pmlogger_farm_check.timer pmlogger_farm_check.service pmlogger_farm.service pmlogger.service pmie_check.timer pmie_daily.timer pmie_farm_check.timer pmie_farm_check.service pmie_farm.service pmie.service pmproxy.service pmfind.service pmcd.service pcp-reboot-init.service
 
-       systemctl stop pmlogger.service pmie.service pmproxy.service pmfind.service pmcd.service >/dev/null 2>&1
+       systemctl stop pmlogger.service pmie.service pmproxy.service pmfind.service pmcd.service pcp-reboot-init.service >/dev/null 2>&1
     %else
        /sbin/service pmlogger stop >/dev/null 2>&1
        /sbin/service pmie stop >/dev/null 2>&1
@@ -3038,8 +3248,9 @@ for PMDA in dm nfsclient openmetrics ; do
     fi
 done
 # auto-enable these usually optional pmie rules
-%{run_pmieconf "$PCP_PMIECONFIG_DIR" dmthin}
-%if 0%{?rhel}
+%{run_pmieconf "$PCP_PMIECONFIG_DIR" config.default dmthin}
+# managed via /usr/lib/systemd/system-preset/90-default.preset nowadays:
+%if 0%{?rhel} > 0 && 0%{?rhel} < 10
 %if !%{disable_systemd}
     systemctl restart pmcd pmlogger pmie >/dev/null 2>&1
     systemctl enable pmcd pmlogger pmie >/dev/null 2>&1
@@ -3061,6 +3272,8 @@ PCP_LOG_DIR=%{_logsdir}
 %if !%{disable_systemd}
     # clean up any stale symlinks for deprecated pm*-poll services
     rm -f %{_sysconfdir}/systemd/system/pm*.requires/pm*-poll.* >/dev/null 2>&1 || true
+    systemctl restart pcp-reboot-init >/dev/null 2>&1
+    systemctl enable pcp-reboot-init >/dev/null 2>&1
 
     %systemd_postun_with_restart pmcd.service
     %systemd_post pmcd.service
@@ -3243,6 +3456,8 @@ fi
 %endif
 
 %if !%{disable_python2} || !%{disable_python3}
+%files geolocate -f pcp-geolocate-files.rpm
+
 %files pmda-gluster -f pcp-pmda-gluster-files.rpm
 
 %files pmda-zswap -f pcp-pmda-zswap-files.rpm
@@ -3273,9 +3488,13 @@ fi
 
 %files pmda-rocestat -f pcp-pmda-rocestat-files.rpm
 
+%files pmda-uwsgi -f pcp-pmda-uwsgi-files.rpm
+
 %files export-pcp2graphite -f pcp-export-pcp2graphite-files.rpm
 
 %files export-pcp2json -f pcp-export-pcp2json-files.rpm
+
+%files export-pcp2openmetrics -f pcp-export-pcp2openmetrics-files.rpm
 
 %files export-pcp2spark -f pcp-export-pcp2spark-files.rpm
 
@@ -3290,6 +3509,10 @@ fi
 
 %if !%{disable_python2} || !%{disable_python3}
 %files export-pcp2influxdb -f pcp-export-pcp2influxdb-files.rpm
+%endif
+
+%if !%{disable_arrow}
+%files export-pcp2arrow -f pcp-export-pcp2arrow-files.rpm
 %endif
 
 %if !%{disable_xlsx}
@@ -3310,6 +3533,10 @@ fi
 %files pmda-openmetrics -f pcp-pmda-openmetrics-files.rpm
 %endif
 
+%if !%{disable_amdgpu}
+%files pmda-amdgpu -f pcp-pmda-amdgpu-files.rpm
+%endif
+
 %files pmda-apache -f pcp-pmda-apache-files.rpm
 
 %files pmda-bash -f pcp-pmda-bash-files.rpm
@@ -3318,7 +3545,13 @@ fi
 
 %files pmda-cisco -f pcp-pmda-cisco-files.rpm
 
+%files pmda-farm -f pcp-pmda-farm-files.rpm
+
+%if !%{disable_gfs2}
 %files pmda-gfs2 -f pcp-pmda-gfs2-files.rpm
+%endif
+
+%files pmda-hacluster -f pcp-pmda-hacluster-files.rpm
 
 %files pmda-logger -f pcp-pmda-logger-files.rpm
 
@@ -3327,6 +3560,10 @@ fi
 %files pmda-mounts -f pcp-pmda-mounts-files.rpm
 
 %files pmda-nvidia-gpu -f pcp-pmda-nvidia-files.rpm
+
+%if !%{disable_resctrl}
+%files pmda-resctrl -f pcp-pmda-resctrl-files.rpm
+%endif
 
 %files pmda-roomtemp -f pcp-pmda-roomtemp-files.rpm
 
@@ -3337,8 +3574,6 @@ fi
 %files pmda-smart -f pcp-pmda-smart-files.rpm
 
 %files pmda-sockets -f pcp-pmda-sockets-files.rpm
-
-%files pmda-hacluster -f pcp-pmda-hacluster-files.rpm
 
 %files pmda-summary -f pcp-pmda-summary-files.rpm
 
@@ -3388,721 +3623,5 @@ fi
 %files zeroconf -f pcp-zeroconf-files.rpm
 
 %changelog
-* Thu Aug 31 2023 Nathan Scott <nathans@redhat.com> - 6.1.0-1
-- Update to latest PCP sources.
-
-* Mon Jun 26 2023 Nathan Scott <nathans@redhat.com> - 6.0.5-1
-- Ensure rotated pmie log files are pcp:pcp owned (BZ 2217209)
-- Update to latest PCP sources.
-
-* Mon May 15 2023 Nathan Scott <nathans@redhat.com> - 6.0.4-1
-- Rework LOCALHOSTNAME handling in control files (BZ 2172892)
-- Update to latest PCP sources.
-
-* Thu Feb 23 2023 Nathan Scott <nathans@redhat.com> - 6.0.3-1
-- Update to latest PCP sources.
-
-* Sun Feb 12 2023 Nathan Scott <nathans@redhat.com> - 6.0.2-1
-- Fix pcp-dstat swap device handling with -f (BZ 2168774)
-- Update to latest PCP sources.
-
-* Thu Oct 27 2022 Nathan Scott <nathans@redhat.com> - 6.0.1-1
-- Resolve a BPF module related build failure (BZ 2132998)
-- Update to latest PCP sources.
-
-* Wed Aug 31 2022 Nathan Scott <nathans@redhat.com> - 6.0.0-1
-- Add libpcp/postgresql-pgpool-II-devel conflict (BZ 2100185)
-- Remove an invalid path from pmie unit file (BZ 2079793)
-- Update to latest PCP sources.
-
-* Tue Apr 05 2022 Nathan Scott <nathans@redhat.com> - 5.3.7-1
-- Add disk.wwid aggregated multipath metrics (BZ 1293444)
-- Update to latest PCP sources.
-
-* Wed Feb 02 2022 Nathan Scott <nathans@redhat.com> - 5.3.6-1
-- Update to latest PCP sources.
-
-* Wed Nov 10 2021 Nathan Scott <nathans@redhat.com> - 5.3.5-1
-- Fix pmlogger services systemd killmode warning (BZ 1897945)
-- Fix python PMDA interface for python 3.10 (BZ 2020038)
-- Update to latest PCP sources.
-
-* Fri Oct 08 2021 Nathan Scott <nathans@redhat.com> - 5.3.4-1
-- Update to latest PCP sources.
-
-* Wed Sep 15 2021 Nathan Scott <nathans@redhat.com> - 5.3.3-1
-- Update to latest PCP sources.
-
-* Tue Sep 14 2021 Sahana Prasad <sahana@redhat.com> - 5.3.2-2
-- Rebuilt with OpenSSL 3.0.0
-
-* Fri Jul 30 2021 Mark Goodwin <mgoodwin@redhat.com> - 5.3.2-1
-- Update to latest PCP sources.
-
-* Fri Jun 04 2021 Nathan Scott <nathans@redhat.com> - 5.3.1-1
-- Fix selinux violations for pmdakvm on debugfs (BZ 1929259)
-- Update to latest PCP sources.
-
-* Fri Apr 16 2021 Nathan Scott <nathans@redhat.com> - 5.3.0-1
-- Added conditional lockdown policy access by pmdakvm (BZ 1929259)
-- Update to latest PCP sources.
-
-* Mon Feb 08 2021 Andreas Gerstmayr <agerstmayr@redhat.com> - 5.2.5-2
-- Fixed typo in specfile (pcp-testsuite requires pcp-pmda-hacluster
-  and pcp-pmda-sockets instead of pcp-pmdas-hacluster etc.)
-
-* Mon Feb 08 2021 Nathan Scott <nathans@redhat.com> - 5.2.5-1
-- Update to latest PCP sources.
-- Fix pcp-dstat(1) sample count being off-by-one (BZ 1922768)
-- Add dstat(1) symlink to pcp-dstat(1) in pcp-doc (BZ 1922771)
-
-* Tue Jan 26 2021 Fedora Release Engineering <releng@fedoraproject.org> - 5.2.3-2
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_34_Mass_Rebuild
-
-* Fri Dec 18 2020 Nathan Scott <nathans@redhat.com> - 5.2.3-1
-- Update to latest PCP sources.
-
-* Wed Nov 11 2020 Nathan Scott <nathans@redhat.com> - 5.2.2-1
-- Update to latest PCP sources.
-
-* Fri Sep 25 2020 Nathan Scott <nathans@redhat.com> - 5.2.1-1
-- Update to latest PCP sources.
-
-* Sat Aug 08 2020 Mark Goodwin <mgoodwin@redhat.com> - 5.2.0-1
-- FHS compliance in installed /var file locations (BZ 1827441)
-- pmproxy intermittently crashes at uv_timer_stop (BZ 1789312)
-- Update to latest PCP sources.
-- Re-enabled LTO.
-
-* Tue Jul 28 2020 Fedora Release Engineering <releng@fedoraproject.org> - 5.1.1-4
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_33_Mass_Rebuild
-
-* Wed Jul 01 2020 Jeff Law <law@redhat.com> - 5.1.1-3
-- Disable LTO
-
-* Tue Jun 23 2020 Jitka Plesnikova <jplesnik@redhat.com> - 5.1.1-2
-- Perl 5.32 rebuild
-
-* Fri May 29 2020 Mark Goodwin <mgoodwin@redhat.com> - 5.1.1-1
-- Update to latest PCP sources.
-- Rebuild to pick up changed HdrHistogram_c version (BZ 1831502)
-- pmdakvm: handle kernel lockdown in integrity mode (BZ 1824297)
-
-* Fri Apr 24 2020 Mark Goodwin <mgoodwin@redhat.com> - 5.1.0-1
-- pmdakvm: debugfs access is restricted (BZ 1824297)
-- Error starting pmlogger; pid file not owned by root (BZ 1761962)
-- Update to latest PCP sources.
-
-* Wed Mar 11 2020 Mark Goodwin <mgoodwin@redhat.com> - 5.0.3-3
-- Resolve pcp-selinux issues causing services failures - (BZ 1810458)
-
-* Mon Mar 02 2020 Mark Goodwin <mgoodwin@redhat.com> - 5.0.3-2
-- Fix typo in Requires: perl-Time-HiRes affecting pcp-pmda-bind2
-
-* Thu Feb 27 2020 Mark Goodwin <mgoodwin@redhat.com> - 5.0.3-1
-- Avoid python ctypes bitfield struct on-stack (BZ 1800685)
-- Add dstat support for DM/MD/part devices (BZ 1794273)
-- Fix compilation with gcc version 10 (BZ 1793495)
-- Fix dstat sub-sample averaging (BZ 1780039)
-- Update to latest PCP sources.
-
-* Wed Dec 11 2019 Nathan Scott <nathans@redhat.com> - 5.0.2-1
-- Resolve fresh install pmlogger timeout bug (BZ 1721223)
-- Fix dstat exception writing to a closed fd (BZ 1768619)
-- Fix chan lib dependency of pcp-pmda-statsd (BZ 1770815)
-- Update to latest PCP sources.
-
-* Mon Nov 04 2019 Nathan Scott <nathans@redhat.com> - 5.0.1-1
-- Resolve selinux policy issues in PCP tools (BZ 1743040)
-- Update to latest PCP sources.
-
-* Sun Oct 20 2019 Mark Goodwin <mgoodwin@redhat.com> - 5.0.0-2
-- Various spec fixes for pmdastatsd
-- Add patch1 to fix pmdastatsd build on rawhide
-
-* Fri Oct 11 2019 Mark Goodwin <mgoodwin@redhat.com> - 5.0.0-1
-- Update to latest PCP sources.
-
-* Fri Aug 16 2019 Nathan Scott <nathans@redhat.com> - 4.3.4-1
-- Resolve bootup issues with pmlogger service (BZ 1737091, BZ 1721223)
-- Resolve selinux policy issues in PCP tools (BZ 1721644, BZ 1711547)
-- Update to latest PCP sources.
-
-* Fri Jul 26 2019 Fedora Release Engineering <releng@fedoraproject.org> - 4.3.3-2
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_31_Mass_Rebuild
-
-* Fri Jun 28 2019 Mark Goodwin <mgoodwin@redhat.com> - 4.3.3-1
-- Resolve segv running pmchart with bogus timezone (BZ 1718948)
-- Resolve pmrep wait.formula for collectl-dm-sD and collectl-sD (BZ 1724288)
-- Update to latest PCP sources.
-
-* Mon Jun 10 22:13:21 CET 2019 Igor Gnatenko <ignatenkobrain@fedoraproject.org> - 4.3.2-4
-- Rebuild for RPM 4.15
-
-* Mon Jun 10 15:42:04 CET 2019 Igor Gnatenko <ignatenkobrain@fedoraproject.org> - 4.3.2-3
-- Rebuild for RPM 4.15
-
-* Fri May 31 2019 Jitka Plesnikova <jplesnik@redhat.com> - 4.3.2-2
-- Perl 5.30 rebuild
-
-* Fri Apr 26 2019 Mark Goodwin <mgoodwin@redhat.com> - 4.3.2-1
-- Resolve selinux policy issues for pmie daemon mode (BZ 1702589)
-- Resolve selinux policy issues for BPF permissions (BZ 1693332)
-- Further improvements to daily archive processing (BZ 1647390)
-- Update to latest PCP sources.
-
-* Wed Feb 27 2019 Mark Goodwin <mgoodwin@redhat.com> - 4.3.1-1
-- Fixes pcp-dstat in --full (all instances) mode (BZ 1661912)
-- Remove package dependencies on initscripts (BZ 1592380)
-- Set include directory for cppcheck use (BZ 1663372)
-- Update to latest PCP sources.
-
-* Fri Dec 21 2018 Nathan Scott <nathans@redhat.com> - 4.3.0-1
-- Add the dstat -f/--full option to expand instances (BZ 1651536)
-- Improve systemd interaction for local pmie (BZ 1650999)
-- SELinux is preventing ps from 'search' accesses on the directory
-  .config (BZ 1569697)
-- SELinux is preventing pmdalinux from 'search' accesses on
-  the directory /var/lib/libvirt/images (BZ 1579988)
-- SELinux is preventing pmdalinux from 'unix_read' accesses
-  on the semáforo Unknown (BZ 1607658)
-- SELinux is preventing pmdalinux from 'unix_read' accesses
-  on the shared memory Unknown (BZ 1618756, BZ 1619381, BZ 1601721)
-- Update to latest PCP sources.
-
-* Fri Nov 16 2018 Mark Goodwin <mgoodwin@redhat.com> - 4.2.0-1
-- Resolves dstat packaging issues (BZ 1640912)
-- Resolves dstat cursor positioning problem (BZ 1640913)
-- Resolve a signal handling issue in dstat shutdown (BZ 1648552)
-- Rename variable named await in python code (BZ 1633367)
-- New conditionally-built pcp-pmda-podman sub-package.
-- SELinux is preventing pmdalinux from 'unix_read' accesses on the shared memory labeled gpsd_t
-  (BZ 1626487)
-- SELinux is preventing ps from 'search' accesses on the directory .cache
-  (BZ 1634205, BZ 1635522)
-- SELinux is preventing ps from 'sys_ptrace' accesses on the cap_userns Unknown
-  (BZ 1635394)
-- PCP SELinux AVCs (BZ 1633211)
-- SELinux is preventing pmdalinux from 'search' accesses on the directory spider
-  (BZ 1647843)
-- Update to latest PCP sources.
-
-* Fri Sep 21 2018 Nathan Scott <nathans@redhat.com> - 4.1.3-1
-- Update to latest PCP sources.
-
-* Wed Aug 29 2018 Nathan Scott <nathans@redhat.com> - 4.1.1-3
-- Updated versions of Vector (1.3.1) and Blinkenlights (1.0.1) webapps
-
-* Fri Aug 03 2018 Dave Brolley <brolley@redhat.com> - 4.1.1-2
-- pcp.spec: Fix the _with_dstat reference in the %%configure command
-
-* Fri Aug 03 2018 Dave Brolley <brolley@redhat.com> - 4.1.1-1
-- SELinux is preventing pmdalinux from 'unix_read' accesses on the shared memory Unknown
-  (BZ 1592901)
-- SELinux is preventing pmdalinux from getattr, associate access on the shared memory Unknown
-  (BZ 1594991)
-- PCP BCC PMDA AVCs (BZ 1597978)
-- PCP BCC PMDA packaging issue (BZ 1597979)
-- pmdaproc only reads the first 1024 bytes of the /proc/*/status file resulting in lost metric
-  values(BZ 1600262)
-- Update to latest PCP sources.
-
-* Fri Jul 13 2018 Fedora Release Engineering <releng@fedoraproject.org> - 4.1.0-7
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_29_Mass_Rebuild
-
-* Tue Jul 03 2018 Petr Pisar <ppisar@redhat.com> - 4.1.0-6
-- Perl 5.28 rebuild
-
-* Fri Jun 29 2018 Miro Hrončok <mhroncok@redhat.com> - 4.1.0-5
-- Rebuilt for Python 3.7
-
-* Thu Jun 28 2018 Jitka Plesnikova <jplesnik@redhat.com> - 4.1.0-4
-- Perl 5.28 rebuild
-
-* Tue Jun 19 2018 Miro Hrončok <mhroncok@redhat.com> - 4.1.0-3
-- Rebuilt for Python 3.7
-
-* Fri Jun 15 2018 Nathan Scott <nathans@redhat.com> - 4.1.0-2
-- Rapid compression of PCP log data and metadata (BZ 1293471)
-- Added Perl package build dependencies.
-- Update to latest PCP sources.
-
-* Fri May 11 2018 Mark Goodwin <mgoodwin@redhat.com> - 4.0.2-1
-- Propogate build flags throughout PCP (BZ 1538187)
-- Further additions to selinux policy (BZ 1565158)
-- Update to Vector v1.2.2 in pcp-webapp-vector.
-- Update to latest PCP sources.
-
-* Thu Mar 29 2018 Mark Goodwin <mgoodwin@redhat.com> - 4.0.1-1
-- Fix selinux policy to allow pmdagluster to work (BZ 1558708)
-- pmcd binding only to localhost:44321 by default (BZ 1529915)
-- Update to latest PCP sources.
-
-* Thu Mar 01 2018 Iryna Shcherbina <ishcherb@redhat.com> - 4.0.0-3
-- Update Python 2 dependency declarations to new packaging standards
-  (See https://fedoraproject.org/wiki/FinalizingFedoraSwitchtoPython3)
-
-* Tue Feb 20 2018 Nathan Scott <nathans@redhat.com> - 4.0.0-2
-- Disable pmdabcc on architectures without BCC/eBPF support.
-
-* Fri Feb 16 2018 Nathan Scott <nathans@redhat.com> - 4.0.0-1
-- pcp-atopsar: robustness around missing data (BZ 1508028)
-- python pmcc method checking for missing metrics (BZ 1508026)
-- Fix generic -s and -T option handling in libpcp (BZ 1352461)
-- Resolve crash in local context mode in libpcp_pmda (BZ 1451475)
-- python api: fix timezone segv from incorrect free (BZ 1352465)
-- Remove section 1 and 5 man pages for pmview tool (BZ 1289126)
-- Update to latest PCP sources.
-
-* Thu Feb 08 2018 Nathan Scott <nathans@redhat.com> - 3.12.2-5
-- Update the Vector webapp to latest upstream (v1.2.1).
-
-* Wed Jan 10 2018 Lukas Berk <lberk@redhat.com> - 3.12.2-4
-- Remove Obsoletes line for pcp-gui-debuginfo
-- Update Python 2 dependency declarations to new packaging standards
-  (See https://fedoraproject.org/wiki/FinalizingFedoraSwitchtoPython3)
-
-* Tue Nov 07 2017 Igor Gnatenko <ignatenkobrain@fedoraproject.org> - 3.12.2-2
-- Remove old crufty coreutils requires
-
-* Wed Oct 18 2017 Lukas Berk <lberk@redhat.com> - 3.12.2-1
-- selinux: add pmlogger_exec_t rule from (BZ 1483320)
-- selinux: pmlc accessing tcp port 4330 (BZ 1447585)
-- selinux: pmnewlog.sh using ps to check pid's for pmloggers (BZ 1488116)
-- Update to latest PCP sources.
-
-* Mon Aug 28 2017 Nathan Scott <nathans@redhat.com> - 3.12.1-3
-- Disable infiniband and papi packages on armv7hl (BZ 1485692)
-
-* Fri Aug 25 2017 Lukas Berk <lberk@redhat.com> - 3.12.1-2
-- Rebuild for infiniband dep breakage.
-
-* Wed Aug 16 2017 Nathan Scott <nathans@redhat.com> - 3.12.1-1
-- Update to latest PCP sources.
-
-* Thu Jul 13 2017 Petr Pisar <ppisar@redhat.com> - 3.12.0-2
-- perl dependency renamed to perl-interpreter
-  <https://fedoraproject.org/wiki/Changes/perl_Package_to_Install_Core_Modules>
-
-* Fri Jun 30 2017 Lukas Berk <lberk@redhat.com> - 3.12.0-1
-- Fix pcp-atop failure in open-ended write mode (BZ 1431292)
-- Resolve additional selinux policy issues (BZ 1317515)
-- Improve poor pmlogconf performance (BZ1376857)
-- Update to latest PCP sources.
-
-* Mon Jun 05 2017 Jitka Plesnikova <jplesnik@redhat.com> - 3.11.10-3
-- Perl 5.26 rebuild
-
-* Fri Jun 2 2017 Lukas Berk <lberk@redhat.com> - 3.11.10-2
-- Correct subrpm inclusion of zeroconf config files (BZ 1456262)
-
-* Wed May 17 2017 Dave Brolley <brolley@redhat.com> - 3.11.10-1
-- python api: handle non-POSIXLY_CORRECT getopt cases (BZ 1289912)
-- Fix pmchart reaction to timezone changes from pmtime (BZ 968823)
-- Require Qt5 for Fedora.
-- Update to latest PCP sources.
-
-* Fri Mar 31 2017 Nathan Scott <nathans@redhat.com> - 3.11.9-1
-- Fix pmchart chart legends toggling behaviour (BZ 1359961)
-- Improve multiple local context attr handling (BZ 1430248)
-- Fix error during installation of pcp-selinux (BZ 1433271)
-- Update to latest PCP sources.
-
-* Fri Feb 17 2017 Lukas Berk <lberk@redhat.com> - 3.11.8-1
-- Support newer kernels /proc/vmstat file contents (BZ 1396148)
-- Added pcp-selinux policy (BZs 1214090, 1381127, 1337968, 1398147)
-
-* Wed Dec 21 2016 Dave Brolley <brolley@redhat.com> - 3.11.7-1
-- pmchart run-away mem leak replaying multi-archive when rewinding (BZ 1359975)
-
-* Fri Nov 11 2016 Mark Goodwin <mgoodwin@redhat.com> - 3.11.6-1
-- Optimize DSO lookups for local context mode startup (BZ 1275293)
-- Correct return code for derive metric help text (BZ 1336208)
-- Improve pmrep metrics collection via extend_indom (BZ 1377464)
-- Fix network.interface.speed value extraction (BZ 1379431)
-
-* Mon Sep 26 2016 Mark Goodwin <mgoodwin@redhat.com> - 3.11.5-1
-- Allow systemd-based auto-restart of all daemons (BZ 1365658)
-- Ensure pmieconf and pmlogconf handle empty files (BZ 1249123)
-- Ignore rpmsave and rpmnew suffixed control files (BZ 1375415)
-- Add new pcp-pmda-libvirt package for virtual machine metrics
-- Update to latest PCP sources.
-
-* Fri Aug 05 2016 Nathan Scott <nathans@redhat.com> - 3.11.4-1
-- Support inside-container metric values in python (BZ 1333702)
-- Fix pmdaproc handling of commands with whitespace (BZ 1350816)
-- Use persistent DM names for the filesystem metrics (BZ 1349932)
-- Add to the ds389{,log} RPM package dependencies (BZ 1354055)
-- Use "dirsrv" as default pmdads389log user account (BZ 1357607)
-- Make pmie(1) honour SIGINT while parsing rules (BZ 1327226)
-- Add pmlogconf support for pcp-pidstat and pcp-mpstat (BZ 1361943)
-- Update to latest PCP sources.
-
-* Fri Jun 17 2016 Nathan Scott <nathans@redhat.com> - 3.11.3-1
-- Fix memory leak in derived metrics error handling (BZ 1331973)
-- Correctly propogate indom in mixed derived metrics (BZ 1337212, BZ 1336130)
-- Disallow stopping pmie/pmlogger daemons from cron (BZ 1336792)
-- Fail fast for easily detected bad pmcd configuration (BZ 1336210)
-- Implement primary (local) pmie concept in rc pmie (BZ 1323851)
-- Update to latest PCP sources.
-
-* Mon May 16 2016 Jitka Plesnikova <jplesnik@redhat.com> - 3.11.2-2.1
-- Perl 5.24 rebuild
-
-* Fri Apr 29 2016 Lukas Berk <lberk@redhat.com> - 3.11.2-1
-- Negative nice values reported incorrectly (BZ 1328432)
-- Multithreaded clients with concurrent pmNewContext improvements (BZ 1325363)
-- PMCD agent auto-restart (BZ 1323521)
-- Segv in libpcp during discovery error processing (BZ 1319288)
-- Update to latest PCP sources.
-
-* Fri Mar 18 2016 Dave Brolley <brolley@redhat.com> - 3.11.1-1
-- Call Remove script when uninstalling individual PMDAs (BZ 1304722)
-- Restrict pmcd.services to checking known pcp services (BZ 1286361)
-- Support for multi-archive contexts, across all clients (BZ 1262723)
-- Remove the default shotgun approach to stopping daemons (BZ 1210976)
-- Add mechanism for automatic recovery from PMDA timeouts (BZ 1065803)
-- Update to latest PCP sources.
-
-* Fri Jan 29 2016 Mark Goodwin <mgoodwin@redhat.com> - 3.11.0-1
-- Significant speedups to elapsed time stopping pmcd (BZ 1292027)
-- Fix python derived metric exception handling issues (BZ 1299806)
-- incorrect interpolation across <mark> record in a merged archive (BZ 1296750)
-- pcp requires pcp-compat pulling in a lot of unneeded pcp-pmda-* packages (BZ 1293466)
-- Update to latest PCP sources.
-
-* Wed Dec 16 2015 Lukas Berk <lberk@redhat.com> - 3.10.9-1
-- Add -V/--version support to several more commands (BZ 1284411)
-- Resolve a pcp-iostat(1) transient device exception (BZ 1249572)
-- Provides pmdapipe, an output-capturing domain agent (BZ 1163413)
-- Python PMAPI pmSetMode allows None timeval parameter (BZ 1284417)
-- Python PMI pmiPutValue now supports singular metrics (BZ 1285371)
-- Fix python PMAPI pmRegisterDerived wrapper interface (BZ 1286733)
-- Fix pmstat SEGV when run with graphical time control (BZ 1287678)
-- Make pmNonOptionsFromList error message less cryptic (BZ 1287778)
-- Drop unimplemented pmdumptext options from usage, man page (BZ 1289909)
-- Stop creating configuration files in tmp_t locations (BZ 1256125)
-- Update to latest PCP sources.
-
-* Fri Oct 30 2015 Mark Goodwin <mgoodwin@redhat.com> - 3.10.8-1
-- Update pmlogger to log an immediate sample first (BZ 1269921)
-- Add pmOption host and archive setter python APIs (BZ 1270176)
-- Replace old pmatop(1) man page with pcp-atop(1) (BZ 1270761)
-- Update to latest PCP sources.
-
-* Wed Sep 16 2015 Nathan Scott <nathans@redhat.com> - 3.10.7-1
-- Resolved pmchart sigsegv opening view without context (BZ 1256708)
-- Fixed pmchart memory corruption restoring Saved Hosts (BZ 1257009)
-- Fix perl PMDA API double-free on socket error path (BZ 1258862)
-- Fix python API pmGetOption(3) alignment interface (BZ 1262722)
-- Added missing RPM dependencies to several PMDA sub-packages.
-- Update to latest stable Vector release for pcp-vector-webapp.
-- Update to latest PCP sources.
-
-* Sat Sep 05 2015 Kalev Lember <klember@redhat.com> - 3.10.6-2.1
-- Rebuilt for librpm soname bump
-
-* Thu Aug 06 2015 Lukas Berk <lberk@redhat.com> - 3.10.6-2
-- Fix SDT related build error (BZ 1250894)
-
-* Tue Aug 04 2015 Nathan Scott <nathans@redhat.com> - 3.10.6-1
-- Fix pcp2graphite write method invocation failure (BZ 1243123)
-- Reduce diagnostics in pmdaproc unknown state case (BZ 1224431)
-- Derived metrics via multiple files, directory expansion (BZ 1235556)
-- Update to latest PCP sources.
-
-* Mon Jun 15 2015 Mark Goodwin <mgoodwin@redhat.com> - 3.10.5-1
-- Provide and use non-exit(1)ing pmGetConfig(3) variant (BZ 1187588)
-- Resolve a pmdaproc.sh pmlogger restart regression (BZ 1229458)
-- Replacement of pmatop/pcp-atop(1) utility (BZ 1160811, BZ 1018575)
-- Reduced installation size for minimal applications (BZ 1182184)
-- Ensure pmlogger start scripts wait on pmcd startup (BZ 1185760)
-- Need to run pmcd at least once before pmval -L will work (BZ 185749)
-
-* Wed Apr 15 2015 Nathan Scott <nathans@redhat.com> - 3.10.4-1
-- Update to latest PCP, pcp-webjs and Vector sources.
-- Packaging improvements after re-review (BZ 1204467)
-- Start pmlogger/pmie independent of persistent state (BZ 1185755)
-- Fix cron error reports for disabled pmlogger service (BZ 1208699)
-- Incorporate Vector from Netflix (https://github.com/Netflix/vector)
-- Sub-packages for pcp-webjs allowing choice and reducing used space.
-
-* Wed Mar 04 2015 Dave Brolley <brolley@redhat.com> - 3.10.3-2
-- papi 5.4.1 rebuild
-
-* Mon Mar 02 2015 Dave Brolley <brolley@redhat.com> - 3.10.3-1
-- Update to latest PCP sources.
-- New sub-package for pcp-import-ganglia2pcp.
-- Python3 support, enabled by default in f22 onward (BZ 1194324)
-
-* Mon Feb 23 2015 Slavek Kabrda <bkabrda@redhat.com> - 3.10.2-3
-- Only use Python 3 in Fedora >= 23, more info at
-  https://bugzilla.redhat.com/show_bug.cgi?id=1194324#c4
-
-* Mon Feb 23 2015 Nathan Scott <nathans@redhat.com> - 3.10.2-2
-- Initial changes to support python3 as default (BZ 1194324)
-
-* Fri Jan 23 2015 Dave Brolley <brolley@redhat.com> - 3.10.2-1
-- Update to latest PCP sources.
-- Improve pmdaInit diagnostics for DSO helptext (BZ 1182949)
-- Tighten up PMDA termination on pmcd stop (BZ 1180109)
-- Correct units for cgroup memory metrics (BZ 1180351)
-- Add the pcp2graphite(1) export script (BZ 1163986)
-
-* Mon Dec 01 2014 Nathan Scott <nathans@redhat.com> - 3.10.1-1
-- New conditionally-built pcp-pmda-perfevent sub-package.
-- Update to latest PCP sources.
-
-* Tue Nov 18 2014 Dave Brolley <brolley@redhat.com> - 3.10.0-2
-- papi 5.4.0 rebuild
-
-* Fri Oct 31 2014 Nathan Scott <nathans@redhat.com> - 3.10.0-1
-- Create new sub-packages for pcp-webjs and python3-pcp.
-- Fix __pmDiscoverServicesWithOptions(1) codes (BZ 1139529)
-- Update to latest PCP sources.
-
-* Fri Sep 05 2014 Nathan Scott <nathans@redhat.com> - 3.9.10-1
-- Convert PCP init scripts to systemd services (BZ 996438)
-- Fix pmlogsummary -S/-T time window reporting (BZ 1132476)
-- Resolve pmdumptext segfault with invalid host (BZ 1131779)
-- Fix signedness in some service discovery codes (BZ 1136166)
-- New conditionally-built pcp-pmda-papi sub-package.
-- Update to latest PCP sources.
-
-* Tue Aug 26 2014 Jitka Plesnikova <jplesnik@redhat.com> - 3.9.9-1.2
-- Perl 5.20 rebuild
-
-* Sun Aug 17 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.9.9-1.1
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_21_22_Mass_Rebuild
-
-* Wed Aug 13 2014 Nathan Scott <nathans@redhat.com> - 3.9.9-1
-- Update to latest PCP sources.
-
-* Wed Jul 16 2014 Mark Goodwin <mgoodwin@redhat.com> - 3.9.7-1
-- Update to latest PCP sources.
-
-* Wed Jun 18 2014 Dave Brolley <brolley@redhat.com> - 3.9.5-1
-- Daemon signal handlers no longer use unsafe APIs (BZ 847343)
-- Handle /var/run setups on a temporary filesystem (BZ 656659)
-- Resolve pmlogcheck sigsegv for some archives (BZ 1077432)
-- Ensure pcp-gui-{testsuite,debuginfo} packages get replaced.
-- Revive support for EPEL5 builds, post pcp-gui merge.
-- Update to latest PCP sources.
-
-* Fri Jun 06 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.9.4-1.1
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_21_Mass_Rebuild
-
-* Thu May 15 2014 Nathan Scott <nathans@redhat.com> - 3.9.4-1
-- Merged pcp-gui and pcp-doc packages into core PCP.
-- Allow for conditional libmicrohttpd builds in spec file.
-- Adopt slow-start capability in systemd PMDA (BZ 1073658)
-- Resolve pmcollectl network/disk mis-reporting (BZ 1097095)
-- Update to latest PCP sources.
-
-* Tue Apr 15 2014 Dave Brolley <brolley@redhat.com> - 3.9.2-1
-- Improve pmdarpm(1) concurrency complications (BZ 1044297)
-- Fix pmconfig(1) shell output string quoting (BZ 1085401)
-- Update to latest PCP sources.
-
-* Wed Mar 19 2014 Nathan Scott <nathans@redhat.com> - 3.9.1-1
-- Update to latest PCP sources.
-
-* Thu Feb 20 2014 Nathan Scott <nathans@redhat.com> - 3.9.0-2
-- Workaround further PowerPC/tapset-related build fallout.
-
-* Wed Feb 19 2014 Nathan Scott <nathans@redhat.com> - 3.9.0-1
-- Create new sub-packages for pcp-webapi and pcp-manager
-- Split configuration from pcp-libs into pcp-conf (multilib)
-- Fix pmdagluster to handle more volumes, fileops (BZ 1066544)
-- Update to latest PCP sources.
-
-* Wed Jan 29 2014 Nathan Scott <nathans@redhat.com> - 3.8.12-1
-- Resolves SNMP procfs file ICMP line parse issue (BZ 1055818)
-- Update to latest PCP sources.
-
-* Wed Jan 15 2014 Nathan Scott <nathans@redhat.com> - 3.8.10-1
-- Update to latest PCP sources.
-
-* Thu Dec 12 2013 Nathan Scott <nathans@redhat.com> - 3.8.9-1
-- Reduce set of exported symbols from DSO PMDAs (BZ 1025694)
-- Symbol-versioning for PCP shared libraries (BZ 1037771)
-- Fix pmcd/Avahi interaction with multiple ports (BZ 1035513)
-- Update to latest PCP sources.
-
-* Sun Nov 03 2013 Nathan Scott <nathans@redhat.com> - 3.8.8-1
-- Update to latest PCP sources (simple build fixes only).
-
-* Fri Nov 01 2013 Nathan Scott <nathans@redhat.com> - 3.8.6-1
-- Update to latest PCP sources.
-- Rework pmpost test which confused virus checkers (BZ 1024850)
-- Tackle pmatop reporting issues via alternate metrics (BZ 998735)
-
-* Fri Oct 18 2013 Nathan Scott <nathans@redhat.com> - 3.8.5-1
-- Update to latest PCP sources.
-- Disable pcp-pmda-infiniband sub-package on RHEL5 (BZ 1016368)
-
-* Mon Sep 16 2013 Nathan Scott <nathans@redhat.com> - 3.8.4-2
-- Disable the pcp-pmda-infiniband sub-package on s390 platforms.
-
-* Sun Sep 15 2013 Nathan Scott <nathans@redhat.com> - 3.8.4-1
-- Very minor release containing mostly QA related changes.
-- Enables many more metrics to be logged for Linux hosts.
-
-* Wed Sep 11 2013 Stan Cox <scox@redhat.com> - 3.8.3-2
-- Disable pmcd.stp on el5 ppc.
-
-* Mon Sep 09 2013 Nathan Scott <nathans@redhat.com> - 3.8.3-1
-- Default to Unix domain socket (authenticated) local connections.
-- Introduces new pcp-pmda-infiniband sub-package.
-- Disable systemtap-sdt-devel usage on ppc.
-
-* Sat Aug 03 2013 Petr Pisar <ppisar@redhat.com> - 3.8.2-1.1
-- Perl 5.18 rebuild
-
-* Wed Jul 31 2013 Nathan Scott <nathans@redhat.com> - 3.8.2-1
-- Update to latest PCP sources.
-- Integrate gluster related stats with PCP (BZ 969348)
-- Fix for iostat2pcp not parsing iostat output (BZ 981545)
-- Start pmlogger with usable config by default (BZ 953759)
-- Fix pmatop failing to start, gives stacktrace (BZ 963085)
-
-* Wed Jun 19 2013 Nathan Scott <nathans@redhat.com> - 3.8.1-1
-- Update to latest PCP sources.
-- Fix log import silently dropping >1024 metrics (BZ 968210)
-- Move some commonly used tools on the usual PATH (BZ 967709)
-- Improve pmatop handling of missing proc metrics (BZ 963085)
-- Stop out-of-order records corrupting import logs (BZ 958745)
-
-* Tue May 14 2013 Nathan Scott <nathans@redhat.com> - 3.8.0-1
-- Update to latest PCP sources.
-- Validate metric names passed into pmiAddMetric (BZ 958019)
-- Install log directories with correct ownership (BZ 960858)
-
-* Fri Apr 19 2013 Nathan Scott <nathans@redhat.com> - 3.7.2-1
-- Update to latest PCP sources.
-- Ensure root namespace exists at the end of install (BZ 952977)
-
-* Wed Mar 20 2013 Nathan Scott <nathans@redhat.com> - 3.7.1-1
-- Update to latest PCP sources.
-- Migrate all tempfiles correctly to the new tempdir hierarchy.
-
-* Sun Mar 10 2013 Nathan Scott <nathans@redhat.com> - 3.7.0-1
-- Update to latest PCP sources.
-- Migrate all configuration files below the /etc/pcp hierarchy.
-
-* Thu Feb 14 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.6.10-2.1
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_19_Mass_Rebuild
-
-* Wed Nov 28 2012 Nathan Scott <nathans@redhat.com> - 3.6.10-2
-- Ensure tmpfile directories created in %%files section.
-- Resolve tmpfile create/teardown race conditions.
-
-* Mon Nov 19 2012 Nathan Scott <nathans@redhat.com> - 3.6.10-1
-- Update to latest PCP sources.
-- Resolve tmpfile security flaws: CVE-2012-5530
-- Introduces new "pcp" user account for all daemons to use.
-
-* Fri Oct 12 2012 Nathan Scott <nathans@redhat.com> - 3.6.9-1
-- Update to latest PCP sources.
-- Fix pmcd sigsegv in NUMA/CPU indom setup (BZ 858384)
-- Fix sar2pcp uninitialised perl variable warning (BZ 859117)
-- Fix pcp.py and pmcollectl with older python versions (BZ 852234)
-
-* Fri Sep 14 2012 Nathan Scott <nathans@redhat.com> - 3.6.8-1
-- Update to latest PCP sources.
-
-* Wed Sep 05 2012 Nathan Scott <nathans@redhat.com> - 3.6.6-1.1
-- Move configure step from prep to build section of spec (BZ 854128)
-
-* Tue Aug 28 2012 Mark Goodwin <mgoodwin@redhat.com> - 3.6.6-1
-- Update to latest PCP sources, see installed CHANGELOG for details.
-- Introduces new python-pcp and pcp-testsuite sub-packages.
-
-* Thu Aug 16 2012 Mark Goodwin <mgoodwin@redhat.com> - 3.6.5-1
-- Update to latest PCP sources, see installed CHANGELOG for details.
-- Fix security flaws: CVE-2012-3418 CVE-2012-3419 CVE-2012-3420 and CVE-2012-3421 (BZ 848629)
-
-* Thu Jul 19 2012 Mark Goodwin <mgoodwin@redhat.com>
-- pmcd and pmlogger services are not supposed to be enabled by default (BZ 840763) - 3.6.3-1.3
-
-* Thu Jun 21 2012 Mark Goodwin <mgoodwin@redhat.com>
-- remove pcp-import-sheet2pcp subpackage due to missing deps (BZ 830923) - 3.6.3-1.2
-
-* Fri May 18 2012 Dan Hork <dan[at]danny.cz> - 3.6.3-1.1
-- fix build on s390x
-
-* Mon Apr 30 2012 Mark Goodwin - 3.6.3-1
-- Update to latest PCP sources
-
-* Thu Apr 26 2012 Mark Goodwin - 3.6.2-1
-- Update to latest PCP sources
-
-* Thu Apr 12 2012 Mark Goodwin - 3.6.1-1
-- Update to latest PCP sources
-
-* Thu Mar 22 2012 Mark Goodwin - 3.6.0-1
-- use %%configure macro for correct libdir logic
-- update to latest PCP sources
-
-* Thu Dec 15 2011 Mark Goodwin - 3.5.11-2
-- patched configure.in for libdir=/usr/lib64 on ppc64
-
-* Thu Dec 01 2011 Mark Goodwin - 3.5.11-1
-- Update to latest PCP sources.
-
-* Fri Nov 04 2011 Mark Goodwin - 3.5.10-1
-- Update to latest PCP sources.
-
-* Mon Oct 24 2011 Mark Goodwin - 3.5.9-1
-- Update to latest PCP sources.
-
-* Mon Aug 08 2011 Mark Goodwin - 3.5.8-1
-- Update to latest PCP sources.
-
-* Fri Aug 05 2011 Mark Goodwin - 3.5.7-1
-- Update to latest PCP sources.
-
-* Fri Jul 22 2011 Mark Goodwin - 3.5.6-1
-- Update to latest PCP sources.
-
-* Tue Jul 19 2011 Mark Goodwin - 3.5.5-1
-- Update to latest PCP sources.
-
-* Thu Feb 03 2011 Mark Goodwin - 3.5.0-1
-- Update to latest PCP sources.
-
-* Thu Sep 30 2010 Mark Goodwin - 3.4.0-1
-- Update to latest PCP sources.
-
-* Fri Jul 16 2010 Mark Goodwin - 3.3.3-1
-- Update to latest PCP sources.
-
-* Sat Jul 10 2010 Mark Goodwin - 3.3.2-1
-- Update to latest PCP sources.
-
-* Tue Jun 29 2010 Mark Goodwin - 3.3.1-1
-- Update to latest PCP sources.
-
-* Fri Jun 25 2010 Mark Goodwin - 3.3.0-1
-- Update to latest PCP sources.
-
-* Thu Mar 18 2010 Mark Goodwin - 3.1.2-1
-- Update to latest PCP sources.
-
-* Wed Jan 27 2010 Mark Goodwin - 3.1.0-1
-- BuildRequires: initscripts for %%{_vendor} == redhat.
-
-* Thu Dec 10 2009 Mark Goodwin - 3.0.3-1
-- BuildRequires: initscripts for FC12.
-
-* Wed Dec 02 2009 Mark Goodwin - 3.0.2-1
-- Added sysfs.kernel metrics, rebased to minor community release.
-
-* Mon Oct 19 2009 Martin Hicks <mort@sgi.com> - 3.0.1-2
-- Remove IB dependencies.  The Infiniband PMDA is being moved to
-  a stand-alone package.
-- Move cluster PMDA to a stand-alone package.
-
-* Fri Oct 09 2009 Mark Goodwin <mgoodwin@redhat.com> - 3.0.0-9
-- This is the initial import for Fedora
-- See 3.0.0 details in CHANGELOG
+* Tue Jul 01 2025 Nathan Scott <nathans@redhat.com> - 7.0.0-1
+- Latest release.

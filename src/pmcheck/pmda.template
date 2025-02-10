@@ -1,0 +1,34 @@
+#!/bin/sh
+#
+# Generic PMDA "plugin" for pmcheck ...
+#
+
+. $PCP_DIR/etc/pcp.env || exit 1
+. $PCP_SHARE_DIR/lib/checkproc.sh
+
+_do_args "$@"
+
+# name of the PMDA comes from pmcheck
+#
+iam=`echo "$component" | sed -e 's/pmda-//'`
+
+if $lflag
+then
+    [ "$verbose" -gt 0 ] && echo "$iam PMDA"
+elif $sflag
+then
+    _ctl_pmda state $iam
+    status=$?
+    [ "$verbose" -gt 0 -a -s $tmp/out ] && cat /tmp/out
+elif $aflag
+then
+    _ctl_pmda activate $iam pmda$iam || status=1
+elif $dflag
+then
+    _ctl_pmda deactivate $iam || status=1
+else
+    [ $verbose -gt 0 ] && echo "botch sflag=$sflag aflag=$aflag dflag=$dflag show_me=$show_me verbose=$verbose"
+    status=99
+fi
+
+exit

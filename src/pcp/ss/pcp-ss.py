@@ -25,9 +25,6 @@ from pcp import pmapi
 from cpmapi import PM_CONTEXT_ARCHIVE, PM_CONTEXT_HOST
 from cpmapi import PM_ERR_EOL, PM_MODE_INTERP
 
-if sys.version >= '3':
-    long = int
-
 # pmns prefix for pmdasockets(1) metrics
 pmns = "network.persocket"
 
@@ -56,47 +53,41 @@ class SS(object):
         p = argparse.ArgumentParser()
         p.add_argument('-V', '--version', action='store_true', help='output version information')
         p.add_argument('-n', '--numeric', action='store_true', help='don\'t resolve service names or port names (currently always set)')
-        p.add_argument('-r', '--resolve', action='store_true', help='resolve host names (currently never set)')
-        p.add_argument('-a', '--all', action='store_true', help='display sockets in any state, not just listening')
-        p.add_argument('-l', '--listening', action='store_true', help='display only listening sockets')
+        #p.add_argument('-r', '--resolve', action='store_true', help='resolve host names (currently never set)')
+        p.add_argument('-a', '--all', action='store_true', help='display both listening and non-listening states')
+        p.add_argument('-l', '--listening', action='store_true', default=False, help='display only listening sockets')
         p.add_argument('-o', '--options', action='store_true', help='show timer information')
         p.add_argument('-e', '--extended', action='store_true', help='show detailed socket information')
         p.add_argument('-m', '--memory', action='store_true', help='show socket memory usage')
-        p.add_argument('-p', '--processes', action='store_true', help='show process using socket (not yet implemented)')
+        #p.add_argument('-p', '--processes', action='store_true', help='show process using socket (not yet implemented)')
         p.add_argument('-i', '--info', action='store_true', help='show internal TCP information')
-        p.add_argument('-s', '--summary', action='store_true', help='show socket usage summary (not yet implemented)')
-        p.add_argument('-b', '--bpf', action='store_true', help='show bpf filter socket information (not yet implemented)')
-        p.add_argument('-E', '--events', action='store_true', help='continually display sockets as they are destroyed (not implemented)')
-        p.add_argument('-Z', '--context', action='store_true', help='display process SELinux security contexts (not implemented)')
-        p.add_argument('-z', '--contexts', action='store_true', help='display process and socket SELinux security contexts (not implemented)')
-        p.add_argument('-N', '--net', action='store_true', help='switch to the specified network namespace name (not implemented)')
+        #p.add_argument('-s', '--summary', action='store_true', help='show socket usage summary (not yet implemented)')
+        #p.add_argument('-b', '--bpf', action='store_true', help='show bpf filter socket information (not yet implemented)')
+        #p.add_argument('-E', '--events', action='store_true', help='continually display sockets as they are destroyed (not implemented)')
+        #p.add_argument('-Z', '--context', action='store_true', help='display process SELinux security contexts (not implemented)')
+        #p.add_argument('-z', '--contexts', action='store_true', help='display process and socket SELinux security contexts (not implemented)')
+        #p.add_argument('-N', '--net', action='store_true', help='switch to the specified network namespace name (not implemented)')
         p.add_argument('-4', '--ipv4', action='store_true', help='display only IP version 4 sockets')
         p.add_argument('-6', '--ipv6', action='store_true', help='display only IP version 6 sockets')
-        p.add_argument('-0', '--packet', action='store_true', help='display PACKET sockets (not implemented)')
+        #p.add_argument('-0', '--packet', action='store_true', help='display PACKET sockets (not implemented)')
         p.add_argument('-t', '--tcp', action='store_true', help='display only TCP sockets')
-        p.add_argument('-M', '--mptcp', action='store_true', help='display only MPTCP sockets (not implemented)')
-        p.add_argument('-S', '--sctp', action='store_true', help='display only SCTP sockets (not implemented)')
+        #p.add_argument('-M', '--mptcp', action='store_true', help='display only MPTCP sockets (not implemented)')
+        #p.add_argument('-S', '--sctp', action='store_true', help='display only SCTP sockets (not implemented)')
         p.add_argument('-u', '--udp', action='store_true', help='display only UDP sockets')
-        p.add_argument('-d', '--dccp', action='store_true', help='display only DCCP sockets (not implemented)')
-        p.add_argument('-w', '--raw', action='store_true', help='display only RAW sockets (not implemented)')
-        p.add_argument('-x', '--unix', action='store_true', help='display only Unix domain sockets (not implemented)')
+        #p.add_argument('-d', '--dccp', action='store_true', help='display only DCCP sockets (not implemented)')
+        #p.add_argument('-w', '--raw', action='store_true', help='display only RAW sockets (not implemented)')
+        #p.add_argument('-x', '--unix', action='store_true', help='display only Unix domain sockets (not implemented)')
         p.add_argument('-H', '--noheader', action='store_true', help='Suppress header line')
         p.add_argument('-O', '--oneline', action='store_true', help='print each socket\'s data on a single line')
         args = p.parse_args()
 
         # special cases
-        if not (args.tcp or args.udp or args.mptcp or args.sctp or args.packet or args.dccp or args.raw or args.unix):
-            args.tcp = args.udp = args.mptcp = args.sctp = args.packet = args.dccp = args.raw = args.unix = True
+        if not (args.tcp or args.udp): # or args.mptcp or args.sctp or args.packet or args.dccp or args.raw or args.unix):
+            args.tcp = args.udp = True # args.mptcp = args.sctp = args.packet = args.dccp = args.raw = args.unix = True
 
         if not (args.ipv4 or args.ipv6):
             # default to both ipv4 and ipv6, subject to the prevailing filter
             args.ipv4 = args.ipv6 = True
-
-        if args.all:
-            args.listening = True
-
-        if args.events or args.context or args.contexts or args.net or args.summary or args.processes:
-            print("Warning: --events, --context --net, --summary and --processes options are not implemented")
 
         return args
 
@@ -260,11 +251,12 @@ class SS(object):
         if self.args.tcp and netid == "tcp":
             ret = True
         elif self.args.udp and netid == "udp":
-            ret = True
-        elif self.args.unix and netid == "unix":
-            ret = True
-        elif self.args.raw and netid == "raw":
-            ret = True
+            state = self.valuesD["state"][inst]
+            ret = bool(state != "UNCONN" or self.args.listening)
+        #elif self.args.unix and netid == "unix":
+        #    ret = True
+        #elif self.args.raw and netid == "raw":
+        #    ret = True
         return ret
 
     def filter_ipv46(self, inst):
@@ -283,12 +275,18 @@ class SS(object):
         return ret
 
     def filter_listening(self, inst):
-        """ filter on tcp state, return True if socket is listening """
+        """ filter on tcp socket listening state """
         if self.args.all:
             return True
         state = self.valuesD["state"][inst]
         if self.args.listening:
+            netid = self.valuesD["netid"][inst]
+            if state == "UNCONN" and netid == 'udp':
+                return True
             if state != "LISTEN":
+                return False
+        else:
+            if state == "LISTEN":
                 return False
         return True
 
@@ -307,8 +305,8 @@ class SS(object):
             out += self.strfield("%-9s", "state", inst, "-")
             out += self.strfield("%6u", "recvq", inst, 0)
             out += self.strfield("%6u", "sendq", inst, 0)
-            out += self.strfield("%26s ", "src", inst)
-            out += self.strfield("%-26s", "dst", inst)
+            out += self.strfield(" %25s", "src", inst)
+            out += self.strfield(" %-25s", "dst", inst)
 
             if self.args.options: # -o --options flag
                 m = self.valuesD["timer.str"][inst]

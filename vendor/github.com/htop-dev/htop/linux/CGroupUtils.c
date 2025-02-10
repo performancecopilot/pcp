@@ -1,14 +1,45 @@
 /*
-htop - CGroupUtils.h
+htop - CGroupUtils.c
 (C) 2021 htop dev team
 Released under the GNU GPLv2+, see the COPYING file
 in the source distribution for its full text.
 */
 
+#include "config.h" // IWYU pragma: keep
+
 #include "linux/CGroupUtils.h"
 
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include "Macros.h"
 #include "XUtils.h"
 
+
+static const char* str_slice_suffix = ".slice";
+static const char* str_system_slice = "system.slice";
+static const char* str_user_slice = "user.slice";
+static const char* str_machine_slice = "machine.slice";
+static const char* str_user_slice_prefix = "/user-";
+static const char* str_system_slice_prefix = "/system-";
+
+static const char* str_lxc_monitor_legacy = "lxc.monitor";
+static const char* str_lxc_payload_legacy = "lxc.payload";
+static const char* str_lxc_monitor_prefix = "lxc.monitor.";
+static const char* str_lxc_payload_prefix = "lxc.payload.";
+
+static const char* str_nspawn_scope_prefix = "machine-";
+static const char* str_nspawn_monitor_label = "/supervisor";
+static const char* str_nspawn_payload_label = "/payload";
+
+static const char* str_snap_scope_prefix = "snap.";
+static const char* str_pod_scope_prefix = "libpod-";
+static const char* str_docker_scope_prefix = "docker-";
+
+static const char* str_service_suffix = ".service";
+static const char* str_scope_suffix = ".scope";
 
 typedef struct StrBuf_state {
    char* buf;
@@ -61,27 +92,6 @@ static bool Label_checkSuffix(const char* labelStart, size_t labelLen, const cha
 }
 
 static bool CGroup_filterName_internal(const char* cgroup, StrBuf_state* s, StrBuf_putc_t w) {
-   const char* str_slice_suffix = ".slice";
-   const char* str_system_slice = "system.slice";
-   const char* str_user_slice = "user.slice";
-   const char* str_machine_slice = "machine.slice";
-   const char* str_user_slice_prefix = "/user-";
-   const char* str_system_slice_prefix = "/system-";
-
-   const char* str_lxc_monitor_legacy = "lxc.monitor";
-   const char* str_lxc_payload_legacy = "lxc.payload";
-   const char* str_lxc_monitor_prefix = "lxc.monitor.";
-   const char* str_lxc_payload_prefix = "lxc.payload.";
-
-   const char* str_nspawn_scope_prefix = "machine-";
-   const char* str_nspawn_monitor_label = "/supervisor";
-   const char* str_nspawn_payload_label = "/payload";
-
-   const char* str_snap_scope_prefix = "snap.";
-
-   const char* str_service_suffix = ".service";
-   const char* str_scope_suffix = ".scope";
-
    while (*cgroup) {
       if ('/' == *cgroup) {
          while ('/' == *cgroup)
@@ -94,7 +104,7 @@ static bool CGroup_filterName_internal(const char* cgroup, StrBuf_state* s, StrB
       }
 
       const char* labelStart = cgroup;
-      const char* nextSlash = strchrnul(labelStart, '/');
+      const char* nextSlash = String_strchrnul(labelStart, '/');
       const size_t labelLen = nextSlash - labelStart;
 
       if (Label_checkEqual(labelStart, labelLen, str_system_slice)) {
@@ -104,7 +114,7 @@ static bool CGroup_filterName_internal(const char* cgroup, StrBuf_state* s, StrB
             return false;
 
          if (String_startsWith(cgroup, str_system_slice_prefix)) {
-            cgroup = strchrnul(cgroup + 1, '/');
+            cgroup = String_strchrnul(cgroup + 1, '/');
             continue;
          }
 
@@ -129,7 +139,7 @@ static bool CGroup_filterName_internal(const char* cgroup, StrBuf_state* s, StrB
          if (!String_startsWith(cgroup, str_user_slice_prefix))
             continue;
 
-         const char* userSliceSlash = strchrnul(cgroup + strlen(str_user_slice_prefix), '/');
+         const char* userSliceSlash = String_strchrnul(cgroup + strlen(str_user_slice_prefix), '/');
          const char* sliceSpec = userSliceSlash - strlen(str_slice_suffix);
 
          if (!String_startsWith(sliceSpec, str_slice_suffix))
@@ -212,7 +222,7 @@ static bool CGroup_filterName_internal(const char* cgroup, StrBuf_state* s, StrB
          while (*labelStart == '/')
             labelStart++;
 
-         nextSlash = strchrnul(labelStart, '/');
+         nextSlash = String_strchrnul(labelStart, '/');
          if (nextSlash - labelStart > 0) {
             if (!StrBuf_putsz(s, w, isMonitor ? "[LXC:" : "[lxc:"))
                return false;
@@ -276,7 +286,7 @@ static bool CGroup_filterName_internal(const char* cgroup, StrBuf_state* s, StrB
 
             continue;
          } else if (Label_checkPrefix(labelStart, scopeNameLen, str_snap_scope_prefix)) {
-            const char* nextDot = strchrnul(labelStart + strlen(str_snap_scope_prefix), '.');
+            const char* nextDot = String_strchrnul(labelStart + strlen(str_snap_scope_prefix), '.');
 
             if (!StrBuf_putsz(s, w, "!snap:"))
                return false;
@@ -286,6 +296,40 @@ static bool CGroup_filterName_internal(const char* cgroup, StrBuf_state* s, StrB
             }
 
             if (!StrBuf_putsn(s, w, labelStart + strlen(str_snap_scope_prefix), nextDot - (labelStart + strlen(str_snap_scope_prefix))))
+               return false;
+
+            cgroup = nextSlash;
+
+            continue;
+         } else if (Label_checkPrefix(labelStart, scopeNameLen, str_pod_scope_prefix)) {
+            const char* nextDot = String_strchrnul(labelStart + strlen(str_pod_scope_prefix), '.');
+
+            if (!StrBuf_putsz(s, w, "!pod:"))
+               return false;
+
+            if (nextDot >= labelStart + scopeNameLen) {
+               nextDot = labelStart + scopeNameLen;
+            }
+
+            if (!StrBuf_putsn(s, w, labelStart + strlen(str_pod_scope_prefix),
+               MINIMUM( nextDot - (labelStart + strlen(str_pod_scope_prefix)), 12)))
+               return false;
+
+            cgroup = nextSlash;
+
+            continue;
+         } else if (Label_checkPrefix(labelStart, scopeNameLen, str_docker_scope_prefix)) {
+            const char* nextDot = String_strchrnul(labelStart + strlen(str_docker_scope_prefix), '.');
+
+            if (!StrBuf_putsz(s, w, "!docker:"))
+               return false;
+
+            if (nextDot >= labelStart + scopeNameLen) {
+               nextDot = labelStart + scopeNameLen;
+            }
+
+            if (!StrBuf_putsn(s, w, labelStart + strlen(str_docker_scope_prefix),
+               MINIMUM( nextDot - (labelStart + strlen(str_docker_scope_prefix)), 12)))
                return false;
 
             cgroup = nextSlash;
@@ -332,6 +376,153 @@ char* CGroup_filterName(const char* cgroup) {
    s.pos = 0;
 
    if (!CGroup_filterName_internal(cgroup, &s, StrBuf_putc_write)) {
+      free(s.buf);
+      return NULL;
+   }
+
+   s.buf[s.size] = '\0';
+   return s.buf;
+}
+
+static bool CGroup_filterContainer_internal(const char* cgroup, StrBuf_state* s, StrBuf_putc_t w) {
+   while (*cgroup) {
+      if ('/' == *cgroup) {
+         while ('/' == *cgroup)
+            cgroup++;
+
+         continue;
+      }
+
+      const char* labelStart = cgroup;
+      const char* nextSlash = String_strchrnul(labelStart, '/');
+      const size_t labelLen = nextSlash - labelStart;
+
+      if (Label_checkPrefix(labelStart, labelLen, str_lxc_payload_prefix)) {
+         const size_t cgroupNameLen = labelLen - strlen(str_lxc_payload_prefix);
+
+         if (!StrBuf_putsz(s, w, "/lxc:"))
+            return false;
+
+         if (!StrBuf_putsn(s, w, cgroup + strlen(str_lxc_payload_prefix), cgroupNameLen))
+            return false;
+
+         cgroup = nextSlash;
+
+         continue;
+      }
+
+      // LXC legacy cgroup naming
+      if (Label_checkEqual(labelStart, labelLen, str_lxc_payload_legacy)) {
+         labelStart = nextSlash;
+         while (*labelStart == '/')
+            labelStart++;
+
+         nextSlash = String_strchrnul(labelStart, '/');
+         if (nextSlash - labelStart > 0) {
+            if (!StrBuf_putsz(s, w, "/lxc:"))
+               return false;
+
+            if (!StrBuf_putsn(s, w, labelStart, nextSlash - labelStart))
+               return false;
+
+            cgroup = nextSlash;
+            continue;
+         }
+
+         labelStart = cgroup;
+         nextSlash = labelStart + labelLen;
+      }
+
+      if (Label_checkSuffix(labelStart, labelLen, str_scope_suffix)) {
+         const size_t scopeNameLen = labelLen - strlen(str_scope_suffix);
+
+         if (Label_checkPrefix(labelStart, scopeNameLen, str_nspawn_scope_prefix)) {
+            const size_t machineScopeNameLen = scopeNameLen - strlen(str_nspawn_scope_prefix);
+
+            const bool is_monitor = String_startsWith(nextSlash, str_nspawn_monitor_label);
+
+            if (!is_monitor) {
+               if (!StrBuf_putsz(s, w, "/snc:"))
+                  return false;
+
+               if (!StrBuf_putsn(s, w, cgroup + strlen(str_nspawn_scope_prefix), machineScopeNameLen))
+                  return false;
+            }
+
+            cgroup = nextSlash;
+            if (String_startsWith(nextSlash, str_nspawn_monitor_label))
+               cgroup += strlen(str_nspawn_monitor_label);
+            else if (String_startsWith(nextSlash, str_nspawn_payload_label))
+               cgroup += strlen(str_nspawn_payload_label);
+
+            continue;
+         } else if (Label_checkPrefix(labelStart, scopeNameLen, str_pod_scope_prefix)) {
+            const char* nextDot = String_strchrnul(labelStart + strlen(str_pod_scope_prefix), '.');
+
+            if (!StrBuf_putsz(s, w, "/pod:"))
+               return false;
+
+            if (nextDot >= labelStart + scopeNameLen) {
+               nextDot = labelStart + scopeNameLen;
+            }
+
+            if (!StrBuf_putsn(s, w, labelStart + strlen(str_pod_scope_prefix),
+               MINIMUM( nextDot - (labelStart + strlen(str_pod_scope_prefix)), 12)))
+               return false;
+
+            cgroup = nextSlash;
+
+            continue;
+         } else if (Label_checkPrefix(labelStart, scopeNameLen, str_docker_scope_prefix)) {
+            const char* nextDot = String_strchrnul(labelStart + strlen(str_docker_scope_prefix), '.');
+
+            if (!StrBuf_putsz(s, w, "!docker:"))
+               return false;
+
+            if (nextDot >= labelStart + scopeNameLen) {
+               nextDot = labelStart + scopeNameLen;
+            }
+
+            if (!StrBuf_putsn(s, w, labelStart + strlen(str_docker_scope_prefix),
+               MINIMUM( nextDot - (labelStart + strlen(str_docker_scope_prefix)), 12)))
+               return false;
+
+            cgroup = nextSlash;
+
+            continue;
+         }
+
+         cgroup = nextSlash;
+
+         continue;
+      }
+
+      cgroup = nextSlash;
+   }
+
+   return true;
+}
+
+char* CGroup_filterContainer(const char* cgroup) {
+   StrBuf_state s = {
+      .buf = NULL,
+      .size = 0,
+      .pos = 0,
+   };
+
+   if (!CGroup_filterContainer_internal(cgroup, &s, StrBuf_putc_count)) {
+      return NULL;
+   }
+
+   if (!s.pos) {
+      return xStrdup("/");
+   }
+
+   s.buf = xCalloc(s.pos + 1, sizeof(char));
+   s.size = s.pos;
+   s.pos = 0;
+
+   if (!CGroup_filterContainer_internal(cgroup, &s, StrBuf_putc_write)) {
       free(s.buf);
       return NULL;
    }

@@ -21,6 +21,7 @@ in the source distribution for its full text.
 
 #include "CommandLine.h"
 #include "ProvideCurses.h"
+#include "ProvideTerm.h"
 #include "XUtils.h"
 
 #if !defined(NDEBUG) && defined(HAVE_MEMFD_CREATE)
@@ -91,8 +92,7 @@ bool CRT_utf8 = false;
 
 const char* const* CRT_treeStr = CRT_treeStrAscii;
 
-static const Settings* CRT_crashSettings;
-static const int* CRT_delay;
+static const Settings* CRT_settings;
 
 const char* CRT_degreeSign;
 
@@ -198,6 +198,11 @@ static int CRT_colorSchemes[LAST_COLORSCHEME][LAST_COLORELEMENT] = {
       [CPU_SOFTIRQ] = ColorPair(Magenta, Black),
       [CPU_STEAL] = ColorPair(Cyan, Black),
       [CPU_GUEST] = ColorPair(Cyan, Black),
+      [GPU_ENGINE_1] = ColorPair(Green, Black),
+      [GPU_ENGINE_2] = ColorPair(Yellow, Black),
+      [GPU_ENGINE_3] = ColorPair(Red, Black),
+      [GPU_ENGINE_4] = A_BOLD | ColorPair(Blue, Black),
+      [GPU_RESIDUE] = ColorPair(Magenta, Black),
       [PANEL_EDIT] = ColorPair(White, Blue),
       [SCREENS_OTH_BORDER] = ColorPair(Blue, Blue),
       [SCREENS_OTH_TEXT] = ColorPair(Black, Blue),
@@ -215,7 +220,7 @@ static int CRT_colorSchemes[LAST_COLORSCHEME][LAST_COLORELEMENT] = {
       [ZFS_OTHER] = ColorPair(Magenta, Black),
       [ZFS_COMPRESSED] = A_BOLD | ColorPair(Blue, Black),
       [ZFS_RATIO] = ColorPair(Magenta, Black),
-      [ZRAM_COMPRESSED] = ColorPair(Blue, Black),
+      [ZRAM_COMPRESSED] = A_BOLD | ColorPair(Blue, Black),
       [ZRAM_UNCOMPRESSED] = ColorPair(Yellow, Black),
       [DYNAMIC_GRAY] = ColorPairGrayBlack,
       [DYNAMIC_DARKGRAY] = A_BOLD | ColorPairGrayBlack,
@@ -311,6 +316,11 @@ static int CRT_colorSchemes[LAST_COLORSCHEME][LAST_COLORELEMENT] = {
       [CPU_SOFTIRQ] = A_BOLD,
       [CPU_STEAL] = A_DIM,
       [CPU_GUEST] = A_DIM,
+      [GPU_ENGINE_1] = A_BOLD,
+      [GPU_ENGINE_2] = A_NORMAL,
+      [GPU_ENGINE_3] = A_REVERSE | A_BOLD,
+      [GPU_ENGINE_4] = A_REVERSE,
+      [GPU_RESIDUE] = A_BOLD,
       [PANEL_EDIT] = A_BOLD,
       [SCREENS_OTH_BORDER] = A_DIM,
       [SCREENS_OTH_TEXT] = A_DIM,
@@ -424,6 +434,11 @@ static int CRT_colorSchemes[LAST_COLORSCHEME][LAST_COLORELEMENT] = {
       [CPU_SOFTIRQ] = ColorPair(Blue, White),
       [CPU_STEAL] = ColorPair(Cyan, White),
       [CPU_GUEST] = ColorPair(Cyan, White),
+      [GPU_ENGINE_1] = ColorPair(Green, White),
+      [GPU_ENGINE_2] = ColorPair(Yellow, White),
+      [GPU_ENGINE_3] = ColorPair(Red, White),
+      [GPU_ENGINE_4] = ColorPair(Blue, White),
+      [GPU_RESIDUE] = ColorPair(Magenta, White),
       [PANEL_EDIT] = ColorPair(White, Blue),
       [SCREENS_OTH_BORDER] = A_BOLD | ColorPair(Black, White),
       [SCREENS_OTH_TEXT] = A_BOLD | ColorPair(Black, White),
@@ -537,6 +552,11 @@ static int CRT_colorSchemes[LAST_COLORSCHEME][LAST_COLORELEMENT] = {
       [CPU_SOFTIRQ] = ColorPair(Blue, Black),
       [CPU_STEAL] = ColorPair(Black, Black),
       [CPU_GUEST] = ColorPair(Black, Black),
+      [GPU_ENGINE_1] = ColorPair(Green, Black),
+      [GPU_ENGINE_2] = ColorPair(Yellow, Black),
+      [GPU_ENGINE_3] = ColorPair(Red, Black),
+      [GPU_ENGINE_4] = ColorPair(Blue, Black),
+      [GPU_RESIDUE] = ColorPair(Magenta, Black),
       [PANEL_EDIT] = ColorPair(White, Blue),
       [SCREENS_OTH_BORDER] = ColorPair(Blue, Black),
       [SCREENS_OTH_TEXT] = ColorPair(Blue, Black),
@@ -650,6 +670,11 @@ static int CRT_colorSchemes[LAST_COLORSCHEME][LAST_COLORELEMENT] = {
       [CPU_SOFTIRQ] = ColorPair(Black, Blue),
       [CPU_STEAL] = ColorPair(White, Blue),
       [CPU_GUEST] = ColorPair(White, Blue),
+      [GPU_ENGINE_1] = A_BOLD | ColorPair(Green, Blue),
+      [GPU_ENGINE_2] = A_BOLD | ColorPair(Yellow, Blue),
+      [GPU_ENGINE_3] = A_BOLD | ColorPair(Red, Blue),
+      [GPU_ENGINE_4] = A_BOLD | ColorPair(White, Blue),
+      [GPU_RESIDUE] = A_BOLD | ColorPair(Magenta, Blue),
       [PANEL_EDIT] = ColorPair(White, Blue),
       [SCREENS_OTH_BORDER] = A_BOLD | ColorPair(Yellow, Blue),
       [SCREENS_OTH_TEXT] = ColorPair(Cyan, Blue),
@@ -761,6 +786,11 @@ static int CRT_colorSchemes[LAST_COLORSCHEME][LAST_COLORELEMENT] = {
       [CPU_SOFTIRQ] = ColorPair(Blue, Black),
       [CPU_STEAL] = ColorPair(Cyan, Black),
       [CPU_GUEST] = ColorPair(Cyan, Black),
+      [GPU_ENGINE_1] = ColorPair(Green, Black),
+      [GPU_ENGINE_2] = ColorPair(Yellow, Black),
+      [GPU_ENGINE_3] = ColorPair(Red, Black),
+      [GPU_ENGINE_4] = ColorPair(Blue, Black),
+      [GPU_RESIDUE] = ColorPair(Magenta, Black),
       [PANEL_EDIT] = ColorPair(White, Cyan),
       [SCREENS_OTH_BORDER] = ColorPair(White, Black),
       [SCREENS_OTH_TEXT] = ColorPair(Cyan, Black),
@@ -793,6 +823,8 @@ static int CRT_colorSchemes[LAST_COLORSCHEME][LAST_COLORELEMENT] = {
    [COLORSCHEME_BROKENGRAY] = { 0 } // dynamically generated.
 };
 
+static bool CRT_retainScreenOnExit = false;
+
 int CRT_scrollHAmount = 5;
 
 int CRT_scrollWheelVAmount = 10;
@@ -800,8 +832,21 @@ int CRT_scrollWheelVAmount = 10;
 ColorScheme CRT_colorScheme = COLORSCHEME_DEFAULT;
 
 ATTR_NORETURN
-static void CRT_handleSIGTERM(ATTR_UNUSED int sgn) {
+static void CRT_handleSIGTERM(int sgn) {
    CRT_done();
+
+   if (!CRT_settings->changed)
+      _exit(0);
+
+   const char* signal_str = strsignal(sgn);
+   if (!signal_str)
+      signal_str = "unknown reason";
+
+   char err_buf[512];
+   snprintf(err_buf, sizeof(err_buf),
+           "A signal %d (%s) was received, exiting without persisting settings to htoprc.\n",
+           sgn, signal_str);
+   full_write_str(STDERR_FILENO, err_buf);
    _exit(0);
 }
 
@@ -868,7 +913,7 @@ static void dumpStderr(void) {
 
       if (res > 0) {
          if (!header) {
-            fprintf(stderr, ">>>>>>>>>> stderr output >>>>>>>>>>\n");
+            full_write_str(STDERR_FILENO, ">>>>>>>>>> stderr output >>>>>>>>>>\n");
             header = true;
          }
          full_write(STDERR_FILENO, buffer, res);
@@ -876,7 +921,7 @@ static void dumpStderr(void) {
    }
 
    if (header)
-      fprintf(stderr, "\n<<<<<<<<<< stderr output <<<<<<<<<<\n");
+      full_write_str(STDERR_FILENO, "\n<<<<<<<<<< stderr output <<<<<<<<<<\n");
 
    close(stderrRedirectNewFd);
    stderrRedirectNewFd = -1;
@@ -921,6 +966,8 @@ static void CRT_installSignalHandlers(void) {
    signal(SIGINT, CRT_handleSIGTERM);
    signal(SIGTERM, CRT_handleSIGTERM);
    signal(SIGQUIT, CRT_handleSIGTERM);
+   signal(SIGUSR1, SIG_IGN);
+   signal(SIGUSR2, SIG_IGN);
 }
 
 void CRT_resetSignalHandlers(void) {
@@ -935,6 +982,8 @@ void CRT_resetSignalHandlers(void) {
    signal(SIGINT, SIG_DFL);
    signal(SIGTERM, SIG_DFL);
    signal(SIGQUIT, SIG_DFL);
+   signal(SIGUSR1, SIG_DFL);
+   signal(SIGUSR2, SIG_DFL);
 }
 
 #ifdef HAVE_GETMOUSE
@@ -951,12 +1000,61 @@ void CRT_setMouse(bool enabled) {
 }
 #endif
 
-void CRT_init(const Settings* settings, bool allowUnicode) {
+static bool terminalSupportsDefinedKeys(const char* termType) {
+   if (!termType) {
+      return false;
+   }
+
+   switch (termType[0]) {
+   case 'a':
+      if (String_eq(termType, "alacritty")) {
+         return true;
+      }
+      break;
+   case 's':
+      if (termType[1] == 't' && (termType[2] == '-' || !termType[2])) {
+         return true;
+      }
+      if (String_eq(termType, "screen")) {
+         return true;
+      }
+      break;
+   case 't':
+      if (String_eq(termType, "tmux")) {
+         return true;
+      }
+      break;
+   case 'v':
+      if (String_eq(termType, "vt220")) {
+         return true;
+      }
+      break;
+   case 'x':
+      if (String_eq(termType, "xterm")) {
+         return true;
+      }
+      break;
+   }
+
+   return false;
+}
+
+void CRT_init(const Settings* settings, bool allowUnicode, bool retainScreenOnExit) {
    initscr();
+
+   if (retainScreenOnExit) {
+      CRT_retainScreenOnExit = true;
+      refresh();
+      tputs(exit_ca_mode, 0, putchar);
+      tputs(clear_screen, 0, putchar);
+      fflush(stdout);
+      enter_ca_mode = 0;
+      exit_ca_mode = 0;
+   }
+
    redirectStderr();
    noecho();
-   CRT_crashSettings = settings;
-   CRT_delay = &(settings->delay);
+   CRT_settings = settings;
    CRT_colors = CRT_colorSchemes[settings->colorScheme];
    CRT_colorScheme = settings->colorScheme;
 
@@ -965,7 +1063,7 @@ void CRT_init(const Settings* settings, bool allowUnicode) {
       CRT_colorSchemes[COLORSCHEME_BROKENGRAY][i] = color == (A_BOLD | ColorPairGrayBlack) ? ColorPair(White, Black) : color;
    }
 
-   halfdelay(*CRT_delay);
+   halfdelay(settings->delay);
    nonl();
    intrflush(stdscr, false);
    keypad(stdscr, true);
@@ -985,7 +1083,7 @@ void CRT_init(const Settings* settings, bool allowUnicode) {
       CRT_scrollHAmount = 5;
    }
 
-   if (termType && (String_startsWith(termType, "xterm") || String_eq(termType, "vt220"))) {
+   if (terminalSupportsDefinedKeys(termType)) {
 #ifdef HTOP_NETBSD
 #define define_key(s_, k_) define_key((char*)s_, k_)
 IGNORE_WCASTQUAL_BEGIN
@@ -1011,6 +1109,8 @@ IGNORE_WCASTQUAL_BEGIN
          sequence[1] = c;
          define_key(sequence, KEY_ALT('A' + (c - 'a')));
       }
+      define_key("\033[I", KEY_FOCUS_IN);
+      define_key("\033[O", KEY_FOCUS_OUT);
 #ifdef HTOP_NETBSD
 IGNORE_WCASTQUAL_END
 #undef define_key
@@ -1056,6 +1156,10 @@ void CRT_done(void) {
    attroff(resetColor);
    refresh();
 
+   if (CRT_retainScreenOnExit) {
+      mvcur(-1, -1, LINES - 1, 0);
+   }
+
    curs_set(1);
    endwin();
 
@@ -1074,7 +1178,7 @@ int CRT_readKey(void) {
    cbreak();
    nodelay(stdscr, FALSE);
    int ret = getch();
-   halfdelay(*CRT_delay);
+   halfdelay(CRT_settings->delay);
    return ret;
 }
 
@@ -1085,7 +1189,7 @@ void CRT_disableDelay(void) {
 }
 
 void CRT_enableDelay(void) {
-   halfdelay(*CRT_delay);
+   halfdelay(CRT_settings->delay);
 }
 
 void CRT_setColors(int colorScheme) {
@@ -1094,9 +1198,7 @@ void CRT_setColors(int colorScheme) {
    for (short int i = 0; i < 8; i++) {
       for (short int j = 0; j < 8; j++) {
          if (ColorIndex(i, j) != ColorIndexGrayBlack && ColorIndex(i, j) != ColorIndexWhiteDefault) {
-            short int bg = (colorScheme != COLORSCHEME_BLACKNIGHT)
-                     ? (j == 0 ? -1 : j)
-                     : j;
+            short int bg = (colorScheme != COLORSCHEME_BLACKNIGHT) && (j == 0) ? -1 : j;
             init_pair(ColorIndex(i, j), i, bg);
          }
       }
@@ -1121,6 +1223,8 @@ static void print_backtrace(void) {
    unw_init_local(&cursor, &context);
 
    unsigned int item = 0;
+
+   char err_buf[1024];
 
    while (unw_step(&cursor) > 0) {
       unw_word_t pc;
@@ -1147,17 +1251,23 @@ static void print_backtrace(void) {
          #endif
       }
 
-      const char* frame = "";
-      if (unw_is_signal_frame(&cursor) > 0)
-         frame = "{signal frame}";
+      const bool is_signal_frame = unw_is_signal_frame(&cursor) > 0;
+      const char* frame = is_signal_frame ? "  {signal frame}" : "";
 
-      fprintf(stderr, "%2u: %#14lx  %s  (%s+%#lx)  [%p]%s%s\n", item++, pc, fname, symbolName, offset, ptr, frame ? "  " : "", frame);
+      snprintf(err_buf, sizeof(err_buf), "%2u: %#14lx  %s  (%s+%#lx)  [%p]%s\n", item++, pc, fname, symbolName, offset, ptr, frame);
+      full_write_str(STDERR_FILENO, err_buf);
    }
 #elif defined(HAVE_EXECINFO_H)
    void* backtraceArray[256];
 
-   size_t size = backtrace(backtraceArray, ARRAYSIZE(backtraceArray));
-   backtrace_symbols_fd(backtraceArray, size, STDERR_FILENO);
+   int nptrs = backtrace(backtraceArray, ARRAYSIZE(backtraceArray));
+   if (nptrs > 0) {
+      backtrace_symbols_fd(backtraceArray, nptrs, STDERR_FILENO);
+   } else {
+      full_write_str(STDERR_FILENO,
+         "[No backtrace information available from libc]\n"
+      );
+   }
 #else
 #error No implementation for print_backtrace()!
 #endif
@@ -1167,7 +1277,9 @@ static void print_backtrace(void) {
 void CRT_handleSIGSEGV(int signal) {
    CRT_done();
 
-   fprintf(stderr, "\n\n"
+   char err_buf[512];
+
+   snprintf(err_buf, sizeof(err_buf), "\n\n"
       "FATAL PROGRAM ERROR DETECTED\n"
       "============================\n"
       "Please check at https://htop.dev/issues whether this issue has already been reported.\n"
@@ -1178,12 +1290,13 @@ void CRT_handleSIGSEGV(int signal) {
       "  - Likely steps to reproduce (How did it happen?)\n",
       program
    );
+   full_write_str(STDERR_FILENO, err_buf);
 
 #ifdef PRINT_BACKTRACE
-   fprintf(stderr, "  - Backtrace of the issue (see below)\n");
+   full_write_str(STDERR_FILENO, "  - Backtrace of the issue (see below)\n");
 #endif
 
-   fprintf(stderr,
+   full_write_str(STDERR_FILENO,
       "\n"
    );
 
@@ -1191,29 +1304,30 @@ void CRT_handleSIGSEGV(int signal) {
    if (!signal_str) {
       signal_str = "unknown reason";
    }
-   fprintf(stderr,
+   snprintf(err_buf, sizeof(err_buf),
       "Error information:\n"
       "------------------\n"
       "A signal %d (%s) was received.\n"
       "\n",
       signal, signal_str
    );
+   full_write_str(STDERR_FILENO, err_buf);
 
-   fprintf(stderr,
+   full_write_str(STDERR_FILENO,
       "Setting information:\n"
       "--------------------\n");
-   Settings_write(CRT_crashSettings, true);
-   fprintf(stderr, "\n\n");
+   Settings_write(CRT_settings, true);
+   full_write_str(STDERR_FILENO, "\n\n");
 
 #ifdef PRINT_BACKTRACE
-   fprintf(stderr,
+   full_write_str(STDERR_FILENO,
       "Backtrace information:\n"
       "----------------------\n"
    );
 
    print_backtrace();
 
-   fprintf(stderr,
+   snprintf(err_buf, sizeof(err_buf),
       "\n"
       "To make the above information more practical to work with, "
       "please also provide a disassembly of your %s binary. "
@@ -1221,31 +1335,34 @@ void CRT_handleSIGSEGV(int signal) {
       "\n",
       program
    );
+   full_write_str(STDERR_FILENO, err_buf);
 
 #ifdef HTOP_DARWIN
-   fprintf(stderr, "   otool -tvV `which %s` > ~/%s.otool\n", program, program);
+   snprintf(err_buf, sizeof(err_buf), "   otool -tvV `which %s` > ~/%s.otool\n", program, program);
 #else
-   fprintf(stderr, "   objdump -d -S -w `which %s` > ~/%s.objdump\n", program, program);
+   snprintf(err_buf, sizeof(err_buf), "   objdump -d -S -w `which %s` > ~/%s.objdump\n", program, program);
 #endif
+   full_write_str(STDERR_FILENO, err_buf);
 
-   fprintf(stderr,
+   full_write_str(STDERR_FILENO,
       "\n"
       "Please include the generated file in your report.\n"
    );
 #endif
 
-   fprintf(stderr,
+   snprintf(err_buf, sizeof(err_buf),
       "Running this program with debug symbols or inside a debugger may provide further insights.\n"
       "\n"
       "Thank you for helping to improve %s!\n"
       "\n",
       program
    );
+   full_write_str(STDERR_FILENO, err_buf);
 
    /* Call old sigsegv handler; may be default exit or third party one (e.g. ASAN) */
    if (sigaction(signal, &old_sig_handler[signal], NULL) < 0) {
       /* This avoids an infinite loop in case the handler could not be reset. */
-      fprintf(stderr,
+      full_write_str(STDERR_FILENO,
          "!!! Chained handler could not be restored. Forcing exit.\n"
       );
       _exit(1);
@@ -1255,7 +1372,7 @@ void CRT_handleSIGSEGV(int signal) {
    raise(signal);
 
    // Always terminate, even if installed handler returns
-   fprintf(stderr,
+   full_write_str(STDERR_FILENO,
       "!!! Chained handler did not exit. Forcing exit.\n"
    );
    _exit(1);

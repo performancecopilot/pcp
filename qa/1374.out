@@ -9,11 +9,11 @@ tmparch/sample-proc_v2.index:
   index: 300 bytes [69%, 15 entries]
   overhead: 132 bytes [31%]
 tmparch/sample-proc_v2.meta:
-  metrics: 383 bytes [6%, 8 records]
+  metrics: 383 bytes [4%, 8 records]
   indoms: NNNN bytes [NN%, 14 records]
-  labels: NNN bytes [N%, 4 records]
-  texts: 1086 bytes [16%, 8 records]
-  overhead: 404 bytes [6%]
+  labels: NNN bytes [N%, 17 records]
+  texts: 1086 bytes [12%, 8 records]
+  overhead: 508 bytes [6%]
 === filtered valgrind report ===
 Memcheck, a memory error detector
 Command: pmlogsize tmparch/sample-proc_v2
@@ -31,11 +31,11 @@ tmparch/sample-proc_v3.index:
   index: 480 bytes [37%, 15 entries]
   overhead: 808 bytes [63%]
 tmparch/sample-proc_v3.meta:
-  metrics: 383 bytes [9%, 8 records]
+  metrics: 383 bytes [6%, 8 records]
   indoms: NNNN bytes [NN%, 14 records]
-  labels: NNN bytes [N%, 4 records]
-  texts: 1086 bytes [26%, 8 records]
-  overhead: 1080 bytes [26%]
+  labels: NNN bytes [N%, 17 records]
+  texts: 1086 bytes [17%, 8 records]
+  overhead: 1184 bytes [18%]
 === filtered valgrind report ===
 Memcheck, a memory error detector
 Command: pmlogsize tmparch/sample-proc_v3

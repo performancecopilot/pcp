@@ -10,6 +10,7 @@ avahi
 avahi-libs
 bash
 bison
+cmocka
 cppcheck
 curl
 cyrus-sasl
@@ -20,6 +21,7 @@ git
 gmake
 gtar
 icu4c
+jq
 libmad
 libuv
 mariadb-client
@@ -40,6 +42,7 @@ p5-libwww
 pkglocatedb
 postgresql-client
 pstree
+python3
 py3-Pillow
 py3-defusedxml
 py3-elasticsearch
@@ -62,3 +65,4 @@ sqlite3
 unzip
 xz
 zabbix-agent
+zstd

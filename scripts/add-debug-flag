@@ -1,0 +1,128 @@
+#!/bin/sh
+#
+# Add a new debug flag
+#
+
+tmp=/var/tmp/add-debug-option-$$
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+name=$1
+shift
+desc="`echo $*`"
+if [ -z "$name" -o -z "$desc" ]
+then
+    echo "Usage: add-debug-flag flag-name flag description ..."
+    exit 1
+fi
+
+basedir=`pwd`
+while true
+do
+    if [ -d $basedir/.git ]
+    then
+	break
+    fi
+    basedir=`echo "$basedir" | sed -e 's@/[^/]*$@@'`
+    if [ -z "$basedir" ]
+    then
+	echo "Error: can't find base of PCP git tree from `pwd`"
+	exit 1
+    fi
+done
+
+#debug# echo "basedir=$basedir"
+# pick this block:
+# typedef struct {
+# ...
+# } pmdebugoptions_t;
+# from pmapi.h
+sed -n  <$basedir/src/include/pcp/pmapi.h >$tmp.struct  \
+    -e "`awk <$basedir/src/include/pcp/pmapi.h '
+/^typedef struct/	{ s = NR; next }
+/^} pmdebugoptions_t;/	{ print s "," NR "p"; exit }'`"
+
+if grep "int[ 	]*$name;" $tmp.struct
+then
+    echo "Error: $name already defined pmdebugoptions_t in pmapi.h"
+    exit 1
+fi
+
+awk <$basedir/src/include/pcp/pmapi.h >$tmp.tmp '
+/^} pmdebugoptions_t;/	{ print "    int	'"$name"';		/* '"$desc"' */" }
+			{ print }'
+#debug# diff -u $basedir/src/include/pcp/pmapi.h $tmp.tmp
+mv $tmp.tmp $basedir/src/include/pcp/pmapi.h
+
+echo "libpcp ..."
+cd $basedir/src/libpcp/src
+if make >$tmp.out 2>&1
+then
+    :
+else
+    tail -20 $tmp.out
+    echo "Arrgh! libpcp make failed"
+    exit 1
+fi
+sudo make install
+
+echo "pmdbg ..."
+cd ../../pmdbg
+make clean >/dev/null 2>&1
+if make >$tmp.out 2>&1
+then
+    :
+else
+    tail -20 $tmp.out
+    echo "Arrgh! pmdbg make failed"
+    exit 1
+fi
+if ./pmdbg -l | grep -q "^$name  *$desc$" 
+then
+    :
+else
+    echo "Error: error not found on pmdbg -l output"
+    exit 1
+fi
+sudo make install
+
+echo "dbpmda ..."
+cd ../dbpmda/src
+make clean >/dev/null 2>&1
+if make >$tmp.out 2>&1
+then
+    :
+else
+    tail -20 $tmp.out
+    echo "Arrgh! dbpma make failed"
+    exit 1
+fi
+cat <<End-of-File >$tmp.in
+debug none
+debug $name
+status
+debug pdu -$name
+status
+End-of-File
+if ./dbpmda <$tmp.in >$tmp.out 2>&1
+then
+    if sed -e 's/$/ /' <$tmp.out | grep -q " $name "
+    then
+	:
+    else
+	echo "Arrgh! $name not found in pmdbg status output"
+	exit 1
+    fi
+    if grep 'Error:' <$tmp.out
+    then
+	echo "Arrgh! Errors with debug -$name"
+	exit 1
+    fi
+else
+    echo "Error: dbpmda failed"
+    exit 1
+fi
+sudo make install
+
+echo "qa ... expect some .out changes here"
+cd ../../../qa
+./check -g pmdbg

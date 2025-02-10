@@ -3,15 +3,17 @@ QA output created by 036
 --- echo ---
 __pmProcessExec: argc=2 toss=0 "/bin/echo" "blah;trickme"
 __pmProcessExec: child pid=PID
-blah;trickme
 __pmProcessExec: child pid=PID wait_pid=PID exit=0
 __pmProcessExec -> 0
+blah;trickme
 --- /bin/sh -c ---
-__pmProcessExec: argc=3 toss=0 "/bin/sh" "-c" "echo >&2 'f o o'; sleep 1; kill -TERM $$; sleep 1; echo b\ a\ r"
++++ stderr +++
+__pmProcessExec: argc=3 toss=0 "/bin/sh" "-c" "( echo 'f o o'; sleep 1; kill -KILL $$; sleep 1; echo b\ a\ r )"
 __pmProcessExec: child pid=PID
+__pmProcessExec: child pid=PID wait_pid=PID signal=9
++++ stdout +++
 f o o
-__pmProcessExec: child pid=PID wait_pid=PID signal=15
-__pmProcessExec -> 1015 signal=15
+__pmProcessExec -> 1009 signal=9
 --- pipe in ---
 __pmProcessPipe: argc=3 type="r" toss=0 "echo" "hullo" "world"
 __pmProcessPipe: map[0 of 1] child pid=PID fp=ADDR

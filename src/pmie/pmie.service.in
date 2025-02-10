@@ -15,9 +15,11 @@ EnvironmentFile=-@PCP_SYSCONFIG_DIR@/pmie
 TimeoutStartSec=120
 TimeoutStopSec=120
 Restart=always
-ExecStart=@PCP_RC_DIR@/pmie start-systemd
-ExecStop=@PCP_RC_DIR@/pmie stop-systemd
+ExecStart=@PCP_SYSCONF_DIR@/pmie/rc start-systemd
+ExecStop=@PCP_SYSCONF_DIR@/pmie/rc stop-systemd
 PIDFile=@PCP_RUN_DIR@/pmie.pid
+Group=@PCP_GROUP@
+User=@PCP_USER@
 
 [Install]
 WantedBy=multi-user.target

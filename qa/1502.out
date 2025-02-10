@@ -1,0 +1,962 @@
+QA output created by 1502
+QA output created by 1501 --valgrind
+== -l archives/multi_mixed ==
+=== std out ===
+Note: timezone set to local timezone of host "bozo.localdomain" from archive
+
+Note: multi-archive context with 3 archives
+--- archive archives/multi_mixed/arch-0 ---
+Log Label (Log Format Version 3)
+Performance metrics from host bozo.localdomain
+    commencing Fri Mar 15 09:53:02.030787224 2024
+    ending     Fri Mar 15 09:53:10.051089301 2024
+--- archive archives/multi_mixed/arch-1 ---
+Log Label (Log Format Version 2)
+Performance metrics from host bozo.localdomain
+    commencing Fri Mar 15 09:53:10.064622000 2024
+    ending     Fri Mar 15 09:53:18.085189000 2024
+--- archive archives/multi_mixed/arch-2 ---
+Log Label (Log Format Version 3)
+Performance metrics from host bozo.localdomain
+    commencing Fri Mar 15 09:53:18.100471986 2024
+    ending     Fri Mar 15 09:53:26.120752212 2024
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmdumplog -zx -l archives/multi_mixed
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+== -L TMP/atop-sar ==
+=== std out ===
+Note: timezone set to local timezone of host "bozo.localdomain" from archive
+
+Note: multi-archive context with 2 archives
+--- archive TMP/atop-sar/20240306 ---
+Log Label (Log Format Version 3)
+Performance metrics from host bozo.localdomain
+    commencing Wed Mar  6 20:25:07.290868802 2024
+    ending     Thu Mar  7 00:10:07.270014627 2024
+Archive timezone: AEDT-11
+Archive zoneinfo: :Australia/Melbourne
+PID for pmlogger: 2618375
+--- archive TMP/atop-sar/20240307 ---
+Log Label (Log Format Version 3)
+Performance metrics from host bozo.localdomain
+    commencing Thu Mar  7 00:10:11.913207392 2024
+    ending     Thu Mar  7 00:14:51.796871449 2024
+Archive timezone: AEDT-11
+Archive zoneinfo: :Australia/Melbourne
+PID for pmlogger: 2618890
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmdumplog -zx -L TMP/atop-sar
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+== -d archives/multi_mixed ==
+=== std out ===
+Note: timezone set to local timezone of host "bozo.localdomain" from archive
+
+Note: multi-archive context with 3 archives
+
+Descriptions for Metrics in the Log ...
+PMID: 2.0.23 (pmcd.pid)
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+PMID: 2.0.24 (pmcd.seqnum)
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+PMID: 2.3.0 (pmcd.pmlogger.port)
+    Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+PMID: 2.3.2 (pmcd.pmlogger.archive)
+    Data Type: string  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+PMID: 2.3.3 (pmcd.pmlogger.host)
+    Data Type: string  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+PMID: 29.0.2 (sample.dupnames.two.seconds or sample.seconds)
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: sec
+PMID: 29.0.3 (sample.milliseconds)
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: millisec
+PMID: 29.0.12 (sample.long.hundred)
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 29.0.17 (sample.float.hundred)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 29.0.22 (sample.longlong.hundred)
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 29.0.27 (sample.double.hundred)
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 29.0.37 (sample.mirage)
+    Data Type: 32-bit int  InDom: 29.3 0x7400003
+    Semantics: instant  Units: Kbyte / sec
+PMID: 29.0.95 (sample.ulong.hundred)
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 29.0.100 (sample.ulonglong.hundred)
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 29.0.127 (sample.event.type)
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 29.0.128 (sample.event.param_32)
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 29.0.129 (sample.event.param_u32)
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 29.0.130 (sample.event.param_64)
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 29.0.131 (sample.event.param_u64)
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 29.0.132 (sample.event.param_float)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 29.0.133 (sample.event.param_double)
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 29.0.134 (sample.event.param_string)
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 29.0.135 (sample.event.param_aggregate)
+    Data Type: aggregate  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 29.0.136 (sample.event.records)
+    Data Type: event record array  InDom: 29.10 0x740000a
+    Semantics: instant  Units: none
+PMID: 29.0.156 (sample.proc.ordinal)
+    Data Type: 32-bit unsigned int  InDom: 29.12 0x740000c
+    Semantics: instant  Units: none
+PMID: 29.0.157 (sample.proc.exec)
+    Data Type: string  InDom: 29.12 0x740000c
+    Semantics: instant  Units: none
+PMID: 29.0.158 (sample.proc.time)
+    Data Type: 64-bit unsigned int  InDom: 29.12 0x740000c
+    Semantics: counter  Units: millisec
+PMID: 30.0.12 (sampledso.long.hundred)
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 30.0.22 (sampledso.longlong.hundred)
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 30.0.95 (sampledso.ulong.hundred)
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 30.0.100 (sampledso.ulonglong.hundred)
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 60.0.32 (hinv.ncpu)
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+PMID: 60.0.33 (hinv.ndisk)
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+PMID: 60.1.9 (hinv.physmem)
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: Mbyte
+PMID: 60.1.11 (hinv.pagesize)
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: byte
+PMID: 60.3.27 (hinv.ninterface)
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+PMID: 60.5.0 (hinv.nfilesys)
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: count
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmdumplog -zx -d archives/multi_mixed
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+== -h archives/multi_mixed ==
+=== std out ===
+Note: timezone set to local timezone of host "bozo.localdomain" from archive
+
+Note: multi-archive context with 3 archives
+
+Metric Help Text in the Log ...
+PMID: 29.0.2 [Elapsed time (seconds)]
+PMID: 29.0.2
+The elapsed time since the PMDA started, in seconds, i.e. as returned
+by time(2).
+PMID: 29.0.3 [Elapsed time (milliseconds)]
+PMID: 29.0.3
+The elapsed time since the PMDA started, in milliseconds, i.e. as
+returned by gettimeofday(2), and then adjusted from microseconds
+to milliseconds.
+PMID: 29.0.12 [100 as a 32-bit integer]
+PMID: 29.0.12
+
+PMID: 29.0.17 [100 as a 32-bit floating point value]
+PMID: 29.0.17
+
+PMID: 29.0.22 [100 as a 64-bit integer]
+PMID: 29.0.22
+
+PMID: 29.0.27 [100 as a 64-bit floating point value]
+PMID: 29.0.27
+
+PMID: 29.0.37 [Simple saw-tooth rate, but instances come and go]
+PMID: 29.0.37
+The metric is a rate (Kbytes/sec) that varies in a saw-tooth distribution
+over time.  Different instances of the metric have different baselines
+for the saw-tooth, but all have an max-to-min range of 100.
+
+What makes this metric interesting is that instances come and go although
+not more often than once every 10 seconds by default.  Use pmstore to
+change sample.controller.mirage and the frequency of instance domain
+changes can be varied.
+
+Instance 0 is always present, but the other instances 1 thru 49 come
+and go in a cyclic pattern with a large random component influencing
+when each instance appears and disappears.
+
+The underlying counter starts at 0 and is incremented once
+for each pmFetch() to this metric and/or sample.colour and/or
+sample.mirage_longlong.
+
+Use pmStore() to modify the underlying counter (independent of which
+instance or instances are used).
+PMID: 29.0.95 [100 as a 32-bit unsigned integer]
+PMID: 29.0.95
+
+PMID: 29.0.100 [100 as a 64-bit unsigned integer]
+PMID: 29.0.100
+
+PMID: 29.0.136 [Dummy event records]
+PMID: 29.0.136
+Dummy event records are generated in a fixed pattern to help QA.
+
+Once all setups have been returned, the cycle is repeated.
+
+See sample.event.reset to exert explicit control over the next batch of
+event records to be returned.
+PMID: 29.0.156 [sequence number for each "process"]
+PMID: 29.0.156
+A global counter starts at 1 and increases each time a new fake "process"
+is created.
+PMID: 29.0.157 ["executable" name]
+PMID: 29.0.157
+Path to an imaginary executable for the fake "process", randomly
+constructed from 3 sets of make believe directory names.
+PMID: 29.0.158 [time since the fake "process" was created]
+PMID: 29.0.158
+
+PMID: 30.0.12 [100 as a 32-bit integer]
+PMID: 30.0.12
+
+PMID: 30.0.22 [100 as a 64-bit integer]
+PMID: 30.0.22
+
+PMID: 30.0.95 [100 as a 32-bit unsigned integer]
+PMID: 30.0.95
+
+PMID: 30.0.100 [100 as a 64-bit unsigned integer]
+PMID: 30.0.100
+
+PMID: 60.0.32 [number of CPUs in the system]
+PMID: 60.0.32
+
+PMID: 60.0.33 [number of disks in the system]
+PMID: 60.0.33
+
+PMID: 60.1.9 [total system memory metric from /proc/meminfo]
+PMID: 60.1.9
+
+PMID: 60.1.11 [Memory page size]
+PMID: 60.1.11
+The memory page size of the running kernel in bytes.
+PMID: 60.3.27 [number of active (up) network interfaces]
+PMID: 60.3.27
+
+PMID: 60.5.0 [number of (local) file systems currently mounted]
+PMID: 60.5.0
+
+InDom: 29.3 [Instance domain "mirage" for sample PMDA]
+InDom: 29.3
+Random number of instances, that change with time.  Instance "m-00" (0)
+is always present, while the others are numbered 1 .. 49 and named "m-01"
+.. "m-99"
+InDom: 29.10 [Instance domain "events" for sample PMDA.]
+InDom: 29.10
+Instances "fungus" and "bogus" for testing event metrics indoms.
+InDom: 29.12 [Instance domain "procs" for sample PMDA]
+InDom: 29.12
+Simulated and small instance domain that mimics the behaviour of the
+process instance domain from the proc PMDA.
+
+The first 5 instances are fixed.  Then next 15 instances are variable
+such that each time an associated metric is fetched:
+- if an instance is currently defined, it may disappear with
+  probability 0.075
+- for each instance that is not defined, a new instance may
+  appear with probability 0.075
+
+The internal instance identifiers mimic PIDs and are monotonically
+increasing up to 1000, when they wrap (duplicates are obviously
+avoided).
+
+The external instance names are the instance number, space, then
+a random "executable" name.
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmdumplog -zx -h archives/multi_mixed
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+== -I archives/multi_mixed ==
+=== std out ===
+Note: timezone set to local timezone of host "bozo.localdomain" from archive
+
+Note: multi-archive context with 3 archives
+
+--- archive archives/multi_mixed/arch-0 ---
+Instance Domains on-disk ...
+Fri Mar 15 09:53:02.030787224 2024 InDom: 2.1 1 instances
+   3692363 or "3692363"
+Fri Mar 15 09:53:02.050538091 2024 InDom: 29.12 4 instances
+   1 or "0001 init"
+   2 or "0002 /etc/bozo"
+   3 or "0003 /usr/bin/bobo"
+   4 or "0004 /usr/local/jester"
+Fri Mar 15 09:53:02.050538091 2024 InDom: 29.3 16 instances
+   0 or "m-00"
+   21 or "m-21"
+   24 or "m-24"
+   26 or "m-26"
+   27 or "m-27"
+   29 or "m-29"
+   30 or "m-30"
+   35 or "m-35"
+   36 or "m-36"
+   37 or "m-37"
+   38 or "m-38"
+   39 or "m-39"
+   40 or "m-40"
+   41 or "m-41"
+   42 or "m-42"
+   43 or "m-43"
+Fri Mar 15 09:53:06.050712547 2024 InDom: 29.12 delta 3 instances
+   add 5 or "0005 /usr/opt/bin/loko"
+   add 6 or "0006 /etc/pierrot"
+   add 7 or "0007 /usr/bin/waldo"
+Fri Mar 15 09:53:07.050806315 2024 InDom: 29.12 delta 1 instances
+   add 8 or "0008 /usr/local/yobo"
+Fri Mar 15 09:53:08.050816175 2024 InDom: 29.12 delta 1 instances
+   add 9 or "0009 /usr/opt/bin/jojo"
+
+--- archive archives/multi_mixed/arch-1 ---
+Instance Domains on-disk ...
+Fri Mar 15 09:53:10.064622000 2024 InDom: 2.1 1 instances
+   3692375 or "3692375"
+Fri Mar 15 09:53:10.084432000 2024 InDom: 29.12 9 instances
+   1 or "0001 init"
+   2 or "0002 /etc/bozo"
+   3 or "0003 /usr/bin/bobo"
+   4 or "0004 /usr/local/jester"
+   5 or "0005 /usr/opt/bin/loko"
+   6 or "0006 /etc/pierrot"
+   7 or "0007 /usr/bin/waldo"
+   8 or "0008 /usr/local/yobo"
+   9 or "0009 /usr/opt/bin/jojo"
+Fri Mar 15 09:53:10.084432000 2024 InDom: 29.10 2 instances
+   0 or "fungus"
+   1 or "bogus"
+Fri Mar 15 09:53:10.084432000 2024 InDom: 29.3 16 instances
+   0 or "m-00"
+   21 or "m-21"
+   24 or "m-24"
+   26 or "m-26"
+   27 or "m-27"
+   29 or "m-29"
+   30 or "m-30"
+   35 or "m-35"
+   36 or "m-36"
+   37 or "m-37"
+   38 or "m-38"
+   39 or "m-39"
+   40 or "m-40"
+   41 or "m-41"
+   42 or "m-42"
+   43 or "m-43"
+Fri Mar 15 09:53:12.084628000 2024 InDom: 29.12 10 instances
+   1 or "0001 init"
+   2 or "0002 /etc/bozo"
+   3 or "0003 /usr/bin/bobo"
+   4 or "0004 /usr/local/jester"
+   5 or "0005 /usr/opt/bin/loko"
+   6 or "0006 /etc/pierrot"
+   7 or "0007 /usr/bin/waldo"
+   8 or "0008 /usr/local/yobo"
+   9 or "0009 /usr/opt/bin/jojo"
+   10 or "0010 /etc/koko"
+Fri Mar 15 09:53:12.084628000 2024 InDom: 29.3 10 instances
+   0 or "m-00"
+   26 or "m-26"
+   29 or "m-29"
+   35 or "m-35"
+   36 or "m-36"
+   38 or "m-38"
+   39 or "m-39"
+   40 or "m-40"
+   41 or "m-41"
+   44 or "m-44"
+Fri Mar 15 09:53:16.084641000 2024 InDom: 29.12 11 instances
+   1 or "0001 init"
+   2 or "0002 /etc/bozo"
+   3 or "0003 /usr/bin/bobo"
+   4 or "0004 /usr/local/jester"
+   5 or "0005 /usr/opt/bin/loko"
+   6 or "0006 /etc/pierrot"
+   8 or "0008 /usr/local/yobo"
+   9 or "0009 /usr/opt/bin/jojo"
+   10 or "0010 /etc/koko"
+   11 or "0011 /usr/bin/lala"
+   12 or "0012 /usr/local/bozo"
+Fri Mar 15 09:53:17.084617000 2024 InDom: 29.12 12 instances
+   1 or "0001 init"
+   2 or "0002 /etc/bozo"
+   3 or "0003 /usr/bin/bobo"
+   4 or "0004 /usr/local/jester"
+   5 or "0005 /usr/opt/bin/loko"
+   6 or "0006 /etc/pierrot"
+   8 or "0008 /usr/local/yobo"
+   9 or "0009 /usr/opt/bin/jojo"
+   10 or "0010 /etc/koko"
+   11 or "0011 /usr/bin/lala"
+   13 or "0013 /usr/opt/bin/bobo"
+   14 or "0014 /etc/jester"
+Fri Mar 15 09:53:18.084646000 2024 InDom: 29.12 12 instances
+   1 or "0001 init"
+   2 or "0002 /etc/bozo"
+   3 or "0003 /usr/bin/bobo"
+   4 or "0004 /usr/local/jester"
+   5 or "0005 /usr/opt/bin/loko"
+   6 or "0006 /etc/pierrot"
+   8 or "0008 /usr/local/yobo"
+   9 or "0009 /usr/opt/bin/jojo"
+   10 or "0010 /etc/koko"
+   13 or "0013 /usr/opt/bin/bobo"
+   14 or "0014 /etc/jester"
+   15 or "0015 /usr/bin/loko"
+
+--- archive archives/multi_mixed/arch-2 ---
+Instance Domains on-disk ...
+Fri Mar 15 09:53:18.100471986 2024 InDom: 2.1 1 instances
+   3692402 or "3692402"
+Fri Mar 15 09:53:18.120389385 2024 InDom: 29.12 14 instances
+   1 or "0001 init"
+   2 or "0002 /etc/bozo"
+   3 or "0003 /usr/bin/bobo"
+   4 or "0004 /usr/local/jester"
+   5 or "0005 /usr/opt/bin/loko"
+   6 or "0006 /etc/pierrot"
+   8 or "0008 /usr/local/yobo"
+   9 or "0009 /usr/opt/bin/jojo"
+   10 or "0010 /etc/koko"
+   13 or "0013 /usr/opt/bin/bobo"
+   14 or "0014 /etc/jester"
+   15 or "0015 /usr/bin/loko"
+   16 or "0016 /usr/local/pierrot"
+   17 or "0017 /usr/opt/bin/waldo"
+Fri Mar 15 09:53:19.120515982 2024 InDom: 29.12 delta 2 instances
+   del 6
+   add 18 or "0018 /etc/yobo"
+Fri Mar 15 09:53:20.120516403 2024 InDom: 29.12 delta 4 instances
+   del 13
+   del 17
+   add 19 or "0019 /usr/bin/jojo"
+   add 20 or "0020 /usr/local/koko"
+Fri Mar 15 09:53:21.120497187 2024 InDom: 29.12 delta 1 instances
+   del 10
+Fri Mar 15 09:53:22.120509729 2024 InDom: 29.12 delta 2 instances
+   del 16
+   del 18
+Fri Mar 15 09:53:23.120527156 2024 InDom: 29.12 delta 2 instances
+   del 19
+   add 21 or "0021 /usr/opt/bin/lala"
+Fri Mar 15 09:53:24.120495901 2024 InDom: 29.12 delta 1 instances
+   del 8
+Fri Mar 15 09:53:25.120516371 2024 InDom: 29.12 delta 1 instances
+   add 22 or "0022 /etc/bozo"
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmdumplog -zx -I archives/multi_mixed
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+== -i archives/multi_mixed ==
+=== std out ===
+Note: timezone set to local timezone of host "bozo.localdomain" from archive
+
+Note: multi-archive context with 3 archives
+
+Instance Domains in the Log ...
+InDom: 2.1
+Fri Mar 15 09:53:02.030787224 2024 1 instances
+   3692363 or "3692363"
+Fri Mar 15 09:53:10.064622000 2024 1 instances
+   3692375 or "3692375"
+Fri Mar 15 09:53:18.100471986 2024 1 instances
+   3692402 or "3692402"
+InDom: 29.3
+Fri Mar 15 09:53:02.050538091 2024 16 instances
+   0 or "m-00"
+   21 or "m-21"
+   24 or "m-24"
+   26 or "m-26"
+   27 or "m-27"
+   29 or "m-29"
+   30 or "m-30"
+   35 or "m-35"
+   36 or "m-36"
+   37 or "m-37"
+   38 or "m-38"
+   39 or "m-39"
+   40 or "m-40"
+   41 or "m-41"
+   42 or "m-42"
+   43 or "m-43"
+Fri Mar 15 09:53:10.084432000 2024 16 instances
+   0 or "m-00"
+   21 or "m-21"
+   24 or "m-24"
+   26 or "m-26"
+   27 or "m-27"
+   29 or "m-29"
+   30 or "m-30"
+   35 or "m-35"
+   36 or "m-36"
+   37 or "m-37"
+   38 or "m-38"
+   39 or "m-39"
+   40 or "m-40"
+   41 or "m-41"
+   42 or "m-42"
+   43 or "m-43"
+Fri Mar 15 09:53:12.084628000 2024 10 instances
+   0 or "m-00"
+   26 or "m-26"
+   29 or "m-29"
+   35 or "m-35"
+   36 or "m-36"
+   38 or "m-38"
+   39 or "m-39"
+   40 or "m-40"
+   41 or "m-41"
+   44 or "m-44"
+InDom: 29.10
+Fri Mar 15 09:53:10.084432000 2024 2 instances
+   0 or "fungus"
+   1 or "bogus"
+InDom: 29.12
+Fri Mar 15 09:53:02.050538091 2024 4 instances
+   1 or "0001 init"
+   2 or "0002 /etc/bozo"
+   3 or "0003 /usr/bin/bobo"
+   4 or "0004 /usr/local/jester"
+Fri Mar 15 09:53:06.050712547 2024 7 instances
+   1 or "0001 init"
+   2 or "0002 /etc/bozo"
+   3 or "0003 /usr/bin/bobo"
+   4 or "0004 /usr/local/jester"
+   5 or "0005 /usr/opt/bin/loko"
+   6 or "0006 /etc/pierrot"
+   7 or "0007 /usr/bin/waldo"
+Fri Mar 15 09:53:07.050806315 2024 8 instances
+   1 or "0001 init"
+   2 or "0002 /etc/bozo"
+   3 or "0003 /usr/bin/bobo"
+   4 or "0004 /usr/local/jester"
+   5 or "0005 /usr/opt/bin/loko"
+   6 or "0006 /etc/pierrot"
+   7 or "0007 /usr/bin/waldo"
+   8 or "0008 /usr/local/yobo"
+Fri Mar 15 09:53:08.050816175 2024 9 instances
+   1 or "0001 init"
+   2 or "0002 /etc/bozo"
+   3 or "0003 /usr/bin/bobo"
+   4 or "0004 /usr/local/jester"
+   5 or "0005 /usr/opt/bin/loko"
+   6 or "0006 /etc/pierrot"
+   7 or "0007 /usr/bin/waldo"
+   8 or "0008 /usr/local/yobo"
+   9 or "0009 /usr/opt/bin/jojo"
+Fri Mar 15 09:53:10.084432000 2024 9 instances
+   1 or "0001 init"
+   2 or "0002 /etc/bozo"
+   3 or "0003 /usr/bin/bobo"
+   4 or "0004 /usr/local/jester"
+   5 or "0005 /usr/opt/bin/loko"
+   6 or "0006 /etc/pierrot"
+   7 or "0007 /usr/bin/waldo"
+   8 or "0008 /usr/local/yobo"
+   9 or "0009 /usr/opt/bin/jojo"
+Fri Mar 15 09:53:12.084628000 2024 10 instances
+   1 or "0001 init"
+   2 or "0002 /etc/bozo"
+   3 or "0003 /usr/bin/bobo"
+   4 or "0004 /usr/local/jester"
+   5 or "0005 /usr/opt/bin/loko"
+   6 or "0006 /etc/pierrot"
+   7 or "0007 /usr/bin/waldo"
+   8 or "0008 /usr/local/yobo"
+   9 or "0009 /usr/opt/bin/jojo"
+   10 or "0010 /etc/koko"
+Fri Mar 15 09:53:16.084641000 2024 11 instances
+   1 or "0001 init"
+   2 or "0002 /etc/bozo"
+   3 or "0003 /usr/bin/bobo"
+   4 or "0004 /usr/local/jester"
+   5 or "0005 /usr/opt/bin/loko"
+   6 or "0006 /etc/pierrot"
+   8 or "0008 /usr/local/yobo"
+   9 or "0009 /usr/opt/bin/jojo"
+   10 or "0010 /etc/koko"
+   11 or "0011 /usr/bin/lala"
+   12 or "0012 /usr/local/bozo"
+Fri Mar 15 09:53:17.084617000 2024 12 instances
+   1 or "0001 init"
+   2 or "0002 /etc/bozo"
+   3 or "0003 /usr/bin/bobo"
+   4 or "0004 /usr/local/jester"
+   5 or "0005 /usr/opt/bin/loko"
+   6 or "0006 /etc/pierrot"
+   8 or "0008 /usr/local/yobo"
+   9 or "0009 /usr/opt/bin/jojo"
+   10 or "0010 /etc/koko"
+   11 or "0011 /usr/bin/lala"
+   13 or "0013 /usr/opt/bin/bobo"
+   14 or "0014 /etc/jester"
+Fri Mar 15 09:53:18.084646000 2024 12 instances
+   1 or "0001 init"
+   2 or "0002 /etc/bozo"
+   3 or "0003 /usr/bin/bobo"
+   4 or "0004 /usr/local/jester"
+   5 or "0005 /usr/opt/bin/loko"
+   6 or "0006 /etc/pierrot"
+   8 or "0008 /usr/local/yobo"
+   9 or "0009 /usr/opt/bin/jojo"
+   10 or "0010 /etc/koko"
+   13 or "0013 /usr/opt/bin/bobo"
+   14 or "0014 /etc/jester"
+   15 or "0015 /usr/bin/loko"
+Fri Mar 15 09:53:18.120389385 2024 14 instances
+   1 or "0001 init"
+   2 or "0002 /etc/bozo"
+   3 or "0003 /usr/bin/bobo"
+   4 or "0004 /usr/local/jester"
+   5 or "0005 /usr/opt/bin/loko"
+   6 or "0006 /etc/pierrot"
+   8 or "0008 /usr/local/yobo"
+   9 or "0009 /usr/opt/bin/jojo"
+   10 or "0010 /etc/koko"
+   13 or "0013 /usr/opt/bin/bobo"
+   14 or "0014 /etc/jester"
+   15 or "0015 /usr/bin/loko"
+   16 or "0016 /usr/local/pierrot"
+   17 or "0017 /usr/opt/bin/waldo"
+Fri Mar 15 09:53:19.120515982 2024 14 instances
+   1 or "0001 init"
+   2 or "0002 /etc/bozo"
+   3 or "0003 /usr/bin/bobo"
+   4 or "0004 /usr/local/jester"
+   5 or "0005 /usr/opt/bin/loko"
+   8 or "0008 /usr/local/yobo"
+   9 or "0009 /usr/opt/bin/jojo"
+   10 or "0010 /etc/koko"
+   13 or "0013 /usr/opt/bin/bobo"
+   14 or "0014 /etc/jester"
+   15 or "0015 /usr/bin/loko"
+   16 or "0016 /usr/local/pierrot"
+   17 or "0017 /usr/opt/bin/waldo"
+   18 or "0018 /etc/yobo"
+Fri Mar 15 09:53:20.120516403 2024 14 instances
+   1 or "0001 init"
+   2 or "0002 /etc/bozo"
+   3 or "0003 /usr/bin/bobo"
+   4 or "0004 /usr/local/jester"
+   5 or "0005 /usr/opt/bin/loko"
+   8 or "0008 /usr/local/yobo"
+   9 or "0009 /usr/opt/bin/jojo"
+   10 or "0010 /etc/koko"
+   14 or "0014 /etc/jester"
+   15 or "0015 /usr/bin/loko"
+   16 or "0016 /usr/local/pierrot"
+   18 or "0018 /etc/yobo"
+   19 or "0019 /usr/bin/jojo"
+   20 or "0020 /usr/local/koko"
+Fri Mar 15 09:53:21.120497187 2024 13 instances
+   1 or "0001 init"
+   2 or "0002 /etc/bozo"
+   3 or "0003 /usr/bin/bobo"
+   4 or "0004 /usr/local/jester"
+   5 or "0005 /usr/opt/bin/loko"
+   8 or "0008 /usr/local/yobo"
+   9 or "0009 /usr/opt/bin/jojo"
+   14 or "0014 /etc/jester"
+   15 or "0015 /usr/bin/loko"
+   16 or "0016 /usr/local/pierrot"
+   18 or "0018 /etc/yobo"
+   19 or "0019 /usr/bin/jojo"
+   20 or "0020 /usr/local/koko"
+Fri Mar 15 09:53:22.120509729 2024 11 instances
+   1 or "0001 init"
+   2 or "0002 /etc/bozo"
+   3 or "0003 /usr/bin/bobo"
+   4 or "0004 /usr/local/jester"
+   5 or "0005 /usr/opt/bin/loko"
+   8 or "0008 /usr/local/yobo"
+   9 or "0009 /usr/opt/bin/jojo"
+   14 or "0014 /etc/jester"
+   15 or "0015 /usr/bin/loko"
+   19 or "0019 /usr/bin/jojo"
+   20 or "0020 /usr/local/koko"
+Fri Mar 15 09:53:23.120527156 2024 11 instances
+   1 or "0001 init"
+   2 or "0002 /etc/bozo"
+   3 or "0003 /usr/bin/bobo"
+   4 or "0004 /usr/local/jester"
+   5 or "0005 /usr/opt/bin/loko"
+   8 or "0008 /usr/local/yobo"
+   9 or "0009 /usr/opt/bin/jojo"
+   14 or "0014 /etc/jester"
+   15 or "0015 /usr/bin/loko"
+   20 or "0020 /usr/local/koko"
+   21 or "0021 /usr/opt/bin/lala"
+Fri Mar 15 09:53:24.120495901 2024 10 instances
+   1 or "0001 init"
+   2 or "0002 /etc/bozo"
+   3 or "0003 /usr/bin/bobo"
+   4 or "0004 /usr/local/jester"
+   5 or "0005 /usr/opt/bin/loko"
+   9 or "0009 /usr/opt/bin/jojo"
+   14 or "0014 /etc/jester"
+   15 or "0015 /usr/bin/loko"
+   20 or "0020 /usr/local/koko"
+   21 or "0021 /usr/opt/bin/lala"
+Fri Mar 15 09:53:25.120516371 2024 11 instances
+   1 or "0001 init"
+   2 or "0002 /etc/bozo"
+   3 or "0003 /usr/bin/bobo"
+   4 or "0004 /usr/local/jester"
+   5 or "0005 /usr/opt/bin/loko"
+   9 or "0009 /usr/opt/bin/jojo"
+   14 or "0014 /etc/jester"
+   15 or "0015 /usr/bin/loko"
+   20 or "0020 /usr/local/koko"
+   21 or "0021 /usr/opt/bin/lala"
+   22 or "0022 /etc/bozo"
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmdumplog -zx -i archives/multi_mixed
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+== -e archives/multi_mixed ==
+=== std out ===
+Note: timezone set to local timezone of host "bozo.localdomain" from archive
+
+Note: multi-archive context with 3 archives
+
+Metric Labels in the Log ...
+Fri Mar 15 09:53:02.032514077 2024
+    Context labels (175 bytes): {"domainname":"localdomain","groupid":1000,"hostname":"bozo.localdomain","latitude":-37.8140,"longitude":144.9633,"machineid":"6c78e37f87514105b535e855a43de6ac","userid":1000}
+        [0] name(2,10) : value(14,13) [context]
+        [1] name(29,7) : value(38,4) [context,optional]
+        [2] name(44,8) : value(54,18) [context]
+        [3] name(74,8) : value(84,8) [context,compound,optional]
+        [4] name(94,9) : value(105,8) [context,compound,optional]
+        [5] name(115,9) : value(126,34) [context]
+        [6] name(162,6) : value(170,4) [context,optional]
+    Domain 60 labels (17 bytes): {"agent":"linux"}
+        [0] name(2,5) : value(9,7) [domain]
+Fri Mar 15 09:53:02.050538091 2024
+    Domain 29 labels (35 bytes): {"agent":"sample","role":"testing"}
+        [0] name(2,5) : value(9,8) [domain]
+        [1] name(19,4) : value(25,9) [domain]
+    Cluster 29.0 labels (18 bytes): {"cluster":"zero"}
+        [0] name(2,7) : value(11,6) [cluster]
+    InDom 29.3[0] labels (19 bytes): {"transient":false}
+        [0] name(2,9) : value(13,5) [instances]
+    InDom 29.3[21] labels (18 bytes): {"transient":true}
+        [0] name(2,9) : value(13,4) [instances]
+    InDom 29.3[24] labels (18 bytes): {"transient":true}
+        [0] name(2,9) : value(13,4) [instances]
+    InDom 29.3[26] labels (18 bytes): {"transient":true}
+        [0] name(2,9) : value(13,4) [instances]
+    InDom 29.3[27] labels (18 bytes): {"transient":true}
+        [0] name(2,9) : value(13,4) [instances]
+    InDom 29.3[29] labels (18 bytes): {"transient":true}
+        [0] name(2,9) : value(13,4) [instances]
+    InDom 29.3[30] labels (18 bytes): {"transient":true}
+        [0] name(2,9) : value(13,4) [instances]
+    InDom 29.3[35] labels (18 bytes): {"transient":true}
+        [0] name(2,9) : value(13,4) [instances]
+    InDom 29.3[36] labels (18 bytes): {"transient":true}
+        [0] name(2,9) : value(13,4) [instances]
+    InDom 29.3[37] labels (18 bytes): {"transient":true}
+        [0] name(2,9) : value(13,4) [instances]
+    InDom 29.3[38] labels (18 bytes): {"transient":true}
+        [0] name(2,9) : value(13,4) [instances]
+    InDom 29.3[39] labels (18 bytes): {"transient":true}
+        [0] name(2,9) : value(13,4) [instances]
+    InDom 29.3[40] labels (18 bytes): {"transient":true}
+        [0] name(2,9) : value(13,4) [instances]
+    InDom 29.3[41] labels (18 bytes): {"transient":true}
+        [0] name(2,9) : value(13,4) [instances]
+    InDom 29.3[42] labels (18 bytes): {"transient":true}
+        [0] name(2,9) : value(13,4) [instances]
+    InDom 29.3[43] labels (18 bytes): {"transient":true}
+        [0] name(2,9) : value(13,4) [instances]
+    InDom 29.12[1] labels (0 bytes): 
+    InDom 29.12[2] labels (0 bytes): 
+    InDom 29.12[3] labels (0 bytes): 
+    InDom 29.12[4] labels (0 bytes): 
+Fri Mar 15 09:53:10.084432000 2024
+    InDom 29.10[0] labels (0 bytes): 
+    InDom 29.10[1] labels (0 bytes): 
+    InDom 29.12[1] labels (0 bytes): 
+    InDom 29.12[2] labels (0 bytes): 
+    InDom 29.12[3] labels (0 bytes): 
+    InDom 29.12[4] labels (0 bytes): 
+    InDom 29.12[5] labels (0 bytes): 
+    InDom 29.12[6] labels (0 bytes): 
+    InDom 29.12[7] labels (0 bytes): 
+    InDom 29.12[8] labels (0 bytes): 
+    InDom 29.12[9] labels (0 bytes): 
+Fri Mar 15 09:53:18.120389385 2024
+    Domain 30 labels (35 bytes): {"agent":"sample","role":"testing"}
+        [0] name(2,5) : value(9,8) [domain]
+        [1] name(19,4) : value(25,9) [domain]
+    Cluster 30.0 labels (18 bytes): {"cluster":"zero"}
+        [0] name(2,7) : value(11,6) [cluster]
+    InDom 29.12[1] labels (0 bytes): 
+    InDom 29.12[2] labels (0 bytes): 
+    InDom 29.12[3] labels (0 bytes): 
+    InDom 29.12[4] labels (0 bytes): 
+    InDom 29.12[5] labels (0 bytes): 
+    InDom 29.12[6] labels (0 bytes): 
+    InDom 29.12[8] labels (0 bytes): 
+    InDom 29.12[9] labels (0 bytes): 
+    InDom 29.12[10] labels (0 bytes): 
+    InDom 29.12[13] labels (0 bytes): 
+    InDom 29.12[14] labels (0 bytes): 
+    InDom 29.12[15] labels (0 bytes): 
+    InDom 29.12[16] labels (0 bytes): 
+    InDom 29.12[17] labels (0 bytes): 
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmdumplog -zx -e archives/multi_mixed
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+== -t archives/multi_mixed ==
+=== std out ===
+Note: timezone set to local timezone of host "bozo.localdomain" from archive
+
+Note: multi-archive context with 3 archives
+
+--- archive archives/multi_mixed/arch-0 ---
+Temporal Index
+					Log Vol    end(meta)     end(log)
+Fri Mar 15 09:53:02.030787224 2024	      0          808          808
+Fri Mar 15 09:53:02.050538091 2024	      0         2004         1128
+Fri Mar 15 09:53:06.050712547 2024	      0         6615         3192
+Fri Mar 15 09:53:07.050806315 2024	      0         6732         3852
+Fri Mar 15 09:53:08.050816175 2024	      0         6793         4560
+Fri Mar 15 09:53:10.051089301 2024	      0         6856         6828
+
+--- archive archives/multi_mixed/arch-1 ---
+Temporal Index
+					Log Vol    end(meta)     end(log)
+Fri Mar 15 09:53:10.064622000 2024	      0          132          132
+Fri Mar 15 09:53:10.084432000 2024	      0         1618          484
+Fri Mar 15 09:53:12.084628000 2024	      0         7624         2388
+Fri Mar 15 09:53:16.084641000 2024	      0         8577         6508
+Fri Mar 15 09:53:17.084617000 2024	      0         8900         7556
+Fri Mar 15 09:53:18.084646000 2024	      0         9250         8900
+Fri Mar 15 09:53:18.085189000 2024	      0         9600         9924
+
+--- archive archives/multi_mixed/arch-2 ---
+Temporal Index
+					Log Vol    end(meta)     end(log)
+Fri Mar 15 09:53:18.100471986 2024	      0          808          808
+Fri Mar 15 09:53:18.120389385 2024	      0         2306         1168
+Fri Mar 15 09:53:19.120515982 2024	      0         5913         2120
+Fri Mar 15 09:53:20.120516403 2024	      0         5976         3072
+Fri Mar 15 09:53:21.120497187 2024	      0         6080         4024
+Fri Mar 15 09:53:22.120509729 2024	      0         6120         4928
+Fri Mar 15 09:53:23.120527156 2024	      0         6168         5736
+Fri Mar 15 09:53:24.120495901 2024	      0         6239         6544
+Fri Mar 15 09:53:25.120516371 2024	      0         6279         7304
+Fri Mar 15 09:53:26.120752212 2024	      0         6334         8920
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmdumplog -zx -t archives/multi_mixed
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+== -m TMP/atop-sar kernel.all.load ==
+Wed Mar  6 20:25:07.304106355 2024 1 metric
+    60.2.0 (kernel.all.load):
+        inst [1 or "1 minute"] value 0.91000003
+        inst [5 or "5 minute"] value 0.93000001
+        inst [15 or "15 minute"] value 1.08
+Wed Mar  6 20:25:17.303356053 2024 1 metric
+...
+Thu Mar  7 00:14:41.795810173 2024 1 metric
+    60.2.0 (kernel.all.load):
+        inst [1 or "1 minute"] value 0.44
+        inst [5 or "5 minute"] value 0.61000001
+        inst [15 or "15 minute"] value 0.46000001
+Thu Mar  7 00:14:51.796871449 2024 1 metric
+[1380 records]
+
+== -rm TMP/atop-sar kernel.all.load (reading in reverse order) ==
+Thu Mar  7 00:14:51.796871449 2024 1 metric
+    60.2.0 (kernel.all.load):
+        inst [1 or "1 minute"] value 0.37
+        inst [5 or "5 minute"] value 0.58999997
+        inst [15 or "15 minute"] value 0.44999999
+Thu Mar  7 00:14:41.795810173 2024 1 metric
+...
+Wed Mar  6 20:25:17.303356053 2024 1 metric
+    60.2.0 (kernel.all.load):
+        inst [1 or "1 minute"] value 0.92000002
+        inst [5 or "5 minute"] value 0.93000001
+        inst [15 or "15 minute"] value 1.08
+Wed Mar  6 20:25:07.304106355 2024 1 metric
+[1380 records]

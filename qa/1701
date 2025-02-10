@@ -11,7 +11,6 @@ echo "QA output created by $seq"
 _pmdabpftrace_check
 
 status=1       # failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 
 _prepare_pmda bpftrace
 trap "_pmdabpftrace_cleanup; exit \$status" 0 1 2 3 15
@@ -22,6 +21,27 @@ _script_id_filter()
 {
     sed -E -e 's/bpftrace.scripts.([a-z0-9]+).([a-z]+)/bpftrace.scripts.UUID.\2/g'
 }
+
+# probe to see if bpftrace works at all
+#
+if which bpftrace >/dev/null
+then
+    if $sudo bpftrace -e 'BEGIN { printf("foo\n"); exit() }' >$tmp.tmp
+    then
+	if grep '^foo$' $tmp.tmp >/dev/null
+	then
+	    echo "bpftrace: OK" >>$seq_full
+	else
+	    cat $tmp.tmp >>$seq_full
+	    echo "bpftrace: ran OK but no the expected output" >>$seq_full
+	fi
+    else
+	cat $tmp.tmp >>$seq_full
+	echo "bpftrace: failed" >>$seq_full
+    fi
+else
+    echo "bpftrace: not installed" >>$seq_full
+fi
 
 # real QA test starts here
 cat <<EOF | _pmdabpftrace_install

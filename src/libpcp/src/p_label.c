@@ -174,14 +174,24 @@ int
 __pmDecodeLabelReq(__pmPDU *pdubuf, int *ident, int *otype)
 {
     label_req_t	*pp;
-    char	*pduend;
     int		type;
 
     pp = (label_req_t *)pdubuf;
-    pduend = (char *)pdubuf + pp->hdr.len;
 
-    if (pduend - (char*)pp < sizeof(label_req_t))
+    if (pp->hdr.len < sizeof(label_req_t)) {
+	if (pmDebugOptions.pdu) {
+	    fprintf(stderr, "__pmDecodeLabelReq: PM_ERR_IPC: short PDU %d < min size %d\n",
+		pp->hdr.len, (int)sizeof(label_req_t));
+	}
 	return PM_ERR_IPC;
+    }
+    else if (pp->hdr.len > sizeof(label_req_t)) {
+	if (pmDebugOptions.pdu) {
+	    fprintf(stderr, "__pmDecodeLabelReq: PM_ERR_IPC: PDU too long %d > required size %d\n",
+			pp->hdr.len, (int)sizeof(label_req_t));
+	}
+	return PM_ERR_IPC;
+    }
 
     type = *otype = ntohl(pp->type);
     if (type & PM_LABEL_DOMAIN)
@@ -311,14 +321,30 @@ __pmRecvLabel(int fd, __pmContext *ctxp, int timeout,
 	sts = __pmDecodeLabel(pb, ident, type, sets, nsets);
 	if (sts >= 0) {
 	    /* verify response is for a matching request */
-	    if (oident != *ident || otype != *type)
+	    if (oident != *ident || otype != *type) {
+		if (pmDebugOptions.pdu) {
+		    fprintf(stderr, "__pmRecvLabel: PM_ERR_IPC: oident %d != *ident %d or  != *type %d\n",
+			oident, *ident, *type);
+		}
 		sts = PM_ERR_IPC;
+	    }
 	}
     }
     else if (sts == PDU_ERROR)
 	__pmDecodeError(pb, &sts);
-    else if (sts != PM_ERR_TIMEOUT)
+    else if (sts != PM_ERR_TIMEOUT) {
+	if (pmDebugOptions.pdu) {
+	    char	strbuf[20];
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    if (sts < 0)
+		fprintf(stderr, "__pmRecvLabel: PM_ERR_IPC: expecting PDU_LABEL but__pmGetPDU returns %d (%s)\n",
+		    sts, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	    else
+		fprintf(stderr, "__pmRecvLabel: PM_ERR_IPC: expecting PDU_LABEL but__pmGetPDU returns %d (type=%s)\n",
+		    sts, __pmPDUTypeStr_r(sts, strbuf, sizeof(strbuf)));
+	}
 	sts = PM_ERR_IPC;
+    }
 
     if (pinpdu > 0)
 	__pmUnpinPDUBuf(pb);
@@ -339,8 +365,8 @@ __pmDecodeLabel(__pmPDU *pdubuf, int *ident, int *type, pmLabelSet **setsp, int 
     char	*json;
     int		labeloff;
     int		labellen;
-    int		jsonlen;
-    int		jsonoff;
+    int		jsonlen = 0;
+    int		jsonoff = 0;
     int		nlabels;
     int		nsets;
     int		i, j;
@@ -349,16 +375,32 @@ __pmDecodeLabel(__pmPDU *pdubuf, int *ident, int *type, pmLabelSet **setsp, int 
     pdu_end = (char *)pdubuf + label_pdu->hdr.len;
     pdu_length = pdu_end - (char *)label_pdu;
 
-    if (pdu_length < sizeof(labels_t) - sizeof(labelset_t))
+    if (pdu_length < sizeof(labels_t) - sizeof(labelset_t)) {
+	if (pmDebugOptions.pdu) {
+	    fprintf(stderr, "__pmDecodeLabel: PM_ERR_IPC: short PDU %d < min size %d\n",
+		(int)pdu_length, (int)(sizeof(labels_t) - sizeof(labelset_t)));
+	}
 	return PM_ERR_IPC;
+    }
 
     *ident = ntohl(label_pdu->ident);
     *type = ntohl(label_pdu->type);
     nsets = ntohl(label_pdu->nsets);
-    if (nsets < 0 || (size_t)nsets >= LONG_MAX / sizeof(pmLabelSet))
+    if (nsets < 0) {
+	if (pmDebugOptions.pdu) {
+	    fprintf(stderr, "__pmDecodeLabel: PM_ERR_IPC: nsets %d < 0\n",
+		nsets);
+	}
 	return PM_ERR_IPC;
-
-    if (!nsets) {
+    }
+    else if (nsets > (label_pdu->hdr.len - sizeof(labelset_t)) / sizeof(labelset_t)) {
+	if (pmDebugOptions.pdu) {
+	    fprintf(stderr, "__pmDecodeLabel: PM_ERR_IPC: nsets %d > max %d for PDU len %d\n",
+		nsets, (int)((label_pdu->hdr.len - sizeof(labels_t)) / sizeof(labelset_t)), label_pdu->hdr.len);
+	}
+	return PM_ERR_IPC;
+    }
+    else if (nsets == 0) {
 	sets = NULL;
 	goto success;
     }
@@ -371,8 +413,13 @@ __pmDecodeLabel(__pmPDU *pdubuf, int *ident, int *type, pmLabelSet **setsp, int 
 
     for (i = 0; i < nsets; i++) {
 	lsp = (labelset_t *)((char *)label_pdu + labeloff);
-	if (pdu_length - ((char *)lsp - (char *)label_pdu) < sizeof(labelset_t))
+	if (pdu_end - (char *)lsp < sizeof(labelset_t)) {
+	    if (pmDebugOptions.pdu) {
+		fprintf(stderr, "__pmDecodeLabel: PM_ERR_IPC: labelset[%d] PDU too small remainder %d < required %d\n",
+		    i, (int)(pdu_end - (char *)lsp), (int)sizeof(labelset_t));
+	    }
 	    goto corrupt;
+	}
 
 	nlabels = ntohl(lsp->nlabels);
 	jsonlen = ntohl(lsp->jsonlen);
@@ -383,27 +430,50 @@ __pmDecodeLabel(__pmPDU *pdubuf, int *ident, int *type, pmLabelSet **setsp, int 
 	    labellen += nlabels * sizeof(pmLabel);
 
 	/* validity checks - these conditions should not happen */
-	if (nlabels >= PM_MAXLABELS)
+	if (nlabels >= PM_MAXLABELS) {
+	    if (pmDebugOptions.pdu) {
+		fprintf(stderr, "__pmDecodeLabel: PM_ERR_IPC: labelset[%d] nlabels %d >= PM_MAXLABELS %d\n",
+		    i, nlabels, PM_MAXLABELS);
+	    }
 	    goto corrupt;
-	if (jsonlen >= PM_MAXLABELJSONLEN)
+	}
+	if (jsonlen >= PM_MAXLABELJSONLEN) {
+	    if (pmDebugOptions.pdu) {
+		fprintf(stderr, "__pmDecodeLabel: PM_ERR_IPC: labelset[%d] jsonlen %d >= PM_MAXLABELJSONLEN %d\n",
+		    i, jsonlen, PM_MAXLABELJSONLEN);
+	    }
 	    goto corrupt;
+	}
 
 	/* check JSON content fits within the PDU bounds */
-	if (pdu_length < jsonoff + jsonlen)
+	if (pdu_length < jsonoff + jsonlen) {
+	    if (pmDebugOptions.pdu) {
+		fprintf(stderr, "__pmDecodeLabel: PM_ERR_IPC: labelset[%d] pdu_length %d < jsonoff %d + jsonlen %d\n",
+		    i, (int)pdu_length, jsonoff, jsonlen);
+	    }
 	    goto corrupt;
+	}
 
 	/* check label content fits within the PDU bounds */
-	if (pdu_length < labeloff + labellen)
+	if (pdu_length < labeloff + labellen) {
+	    if (pmDebugOptions.pdu) {
+		fprintf(stderr, "__pmDecodeLabel: PM_ERR_IPC: labelset[%d] pdu_length %d < labeloff %d + labellen %d\n",
+		    i, (int)pdu_length, labeloff, labellen);
+	    }
 	    goto corrupt;
+	}
 
 	sp = &sets[i];
 	sp->inst = ntohl(lsp->inst);
 	sp->nlabels = nlabels;
 	if (nlabels > 0) {
-	    if ((json = malloc(jsonlen + 1)) == NULL)
+	    if ((json = malloc(jsonlen + 1)) == NULL) {
+		pmNoMem("__pmDecodeLabel json", jsonlen + 1, PM_RECOV_ERR);
 		goto corrupt;
+	    }
 	    if ((lp = (pmLabel *)calloc(nlabels, sizeof(pmLabel))) == NULL) {
 		free(json);
+		pmNoMem("__pmDecodeLabel lp", nlabels * sizeof(pmLabel), PM_RECOV_ERR);
 		goto corrupt;
 	    }
 	    memcpy(json, (char *)label_pdu + jsonoff, jsonlen);
@@ -421,14 +491,33 @@ __pmDecodeLabel(__pmPDU *pdubuf, int *ident, int *type, pmLabelSet **setsp, int 
 		lp->value = ntohs(lsp->labels[j].value);
 		lp->valuelen = ntohs(lsp->labels[j].valuelen);
 
-		if (pdu_length < lp->name + lp->namelen)
+		if (jsonlen < lp->name + lp->namelen) {
+		    if (pmDebugOptions.pdu) {
+			fprintf(stderr, "__pmDecodeLabel: PM_ERR_IPC: labelset[%d] label[%d] PDU too short jsonlen %d < name %d + namelen %d\n",
+			    i, j, jsonlen, lp->name, lp->namelen);
+		    }
 		    goto corrupt;
-		if (pdu_length < lp->value + lp->valuelen)
+		}
+		if (jsonlen < lp->value + lp->valuelen) {
+		    if (pmDebugOptions.pdu) {
+			fprintf(stderr, "__pmDecodeLabel: PM_ERR_IPC: labelset[%d] label[%d] PDU too short jsonlen %d < value %d + valuelen %d\n",
+			    i, j, jsonlen, lp->value, lp->valuelen);
+		    }
 		    goto corrupt;
+		}
 	    }
 	    labeloff += nlabels * sizeof(pmLabel);
 	}
 	labeloff += sizeof(labelset_t);
+    }
+
+    /* and no extra junk at the end of the PDU after the last labelset */
+    if (pdu_length > PM_PDU_SIZE_BYTES(jsonoff + jsonlen)) {
+	if (pmDebugOptions.pdu) {
+	    fprintf(stderr, "__pmDecodeLabel: PM_ERR_IPC: PDU too long %d extra\n",
+		(int)(pdu_length - PM_PDU_SIZE_BYTES(jsonoff + jsonlen)));
+	}
+	goto corrupt;
     }
 
 success:

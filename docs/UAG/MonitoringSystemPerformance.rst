@@ -76,9 +76,9 @@ interrupt rate is normally at least HZ (the clock interrupt rate, and **kernel.a
 
 Percentage of CPU time spent executing user code (**us**), system and interrupt code (**sy**), idle loop (**id**).
 
-As with most PCP utilities, real-time metric, and archive logs are interchangeable.
+As with most PCP utilities, real-time metric, and archives are interchangeable.
 
-For example, the following command uses a local system PCP archive log *20170731* and the timezone of the host (**smash**) from which performance metrics 
+For example, the following command uses a local system PCP archive *20170731* and the timezone of the host (**smash**) from which performance metrics 
 in the archive were collected:
 
 .. sourcecode:: none
@@ -95,7 +95,7 @@ in the archive were collected:
      3.82  24640  4908m 244116  3147m    0    0    0   83  10K  18K   5   5  85
      3.38  24620  4860m 244116  3148m    0    0    0   83  10K  18K   5   4  85
      2.89  24600  4804m 244120  3149m    0    0    0   83  10K  18K   5   4  85
- pmFetch: End of PCP archive log
+ pmFetch: End of PCP archive
 
 For complete information on **pmstat** usage and command line options, see the **pmstat(1)** man page.
 

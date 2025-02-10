@@ -1,0 +1,122 @@
+#
+# pcp-htop(1) configuration file - see pcp-htop(5)
+#
+
+[disks]
+heading = Disks
+caption = Disk devices
+
+diskdev.heading = Device
+diskdev.metric = disk.dev.read
+diskdev.instances = true
+diskdev.format = device
+diskdev.width = -8
+
+total.heading = TPS
+total.metric = rate(disk.dev.read) + rate(disk.dev.write) + rate(disk.dev.discard)
+total.caption = Rate of read requests
+
+read.heading = RR/S
+read.metric = rate(disk.dev.read)
+read.caption = Rate of read requests
+
+read_bytes.heading = RRB/S
+read_bytes.metric = rate(disk.dev.read_bytes)
+read_bytes.caption = Read throughput from the device
+
+read_merge.heading = RRQM/S
+read_merge.metric = rate(disk.dev.read_merge)
+read_merge.caption = Rate reads merged before queued
+read_merge.default = false
+
+read_merge_pct.heading = RRQM%
+read_merge_pct.metric = 100 * rate(disk.dev.read_merge) / rate(disk.dev.read)
+read_merge_pct.caption = Percentage reads merged before queued
+read_merge_pct.format = percent
+
+read_await.heading = RAWAIT
+read_await.metric = delta(disk.dev.read_rawactive) / delta(disk.dev.read)
+read_await.caption = Average time read requests queued and serviced
+read_await.default = false
+
+read_avqsz.heading = RARQSZ
+read_avqsz.metric = rescale(delta(disk.dev.read_bytes), "kbyte") / delta(disk.dev.read)
+read_avqsz.caption = Average I/O request size for reads to the device
+read_avqsz.default = false
+
+write.heading = WR/S
+write.metric = rate(disk.dev.write)
+write.caption = Rate of write requests
+
+write_bytes.heading = WRB/S
+write_bytes.metric = rate(disk.dev.write_bytes)
+write_bytes.caption = Write throughput to the device
+
+write_merge.heading = WRQM/S
+write_merge.metric = rate(disk.dev.write_merge)
+write_merge.caption = Rate writes merged before queued
+write_merge.default = false
+
+write_merge_pct.heading = WRQM%
+write_merge_pct.metric = 100 * rate(disk.dev.write_merge)  / rate(disk.dev.write)
+write_merge_pct.caption = Percentage writes merged before queued
+write_merge_pct.format = percent
+
+write_await.heading = WAWAIT
+write_await.metric = delta(disk.dev.write_rawactive) / delta(disk.dev.write)
+write_await.caption = Average time write requests queued and serviced
+write_await.default = false
+
+write_avqsz.heading = WARQSZ
+write_avqsz.metric = rescale(delta(disk.dev.write_bytes), "kbyte") / delta(disk.dev.write)
+write_avqsz.caption = Average I/O request size for writes to the device
+write_avqsz.default = false
+
+discard.heading = DR/S
+discard.metric = rate(disk.dev.discard)
+discard.caption = Rate of discard requests
+
+discard_bytes.heading = DRB/S
+discard_bytes.metric = rate(disk.dev.discard_bytes)
+discard_bytes.caption = Discard request throughput
+discard_bytes.default = false
+
+discard_merge.heading = DRQM/S
+discard_merge.metric = rate(disk.dev.discard_merge)
+discard_merge.caption = Rate discards merged before queued
+discard_merge.default = false
+
+discard_merge_pct.heading = DRQM%
+discard_merge_pct.metric = 100 * rate(disk.dev.discard_merge)  / rate(disk.dev.discard)
+discard_merge_pct.caption = Percentage discards merged before queued
+discard_merge_pct.format = percent
+discard_merge_pct.default = false
+
+discard_await.heading = DAWAIT
+discard_await.metric = delta(disk.dev.discard_rawactive) / delta(disk.dev.discard)
+discard_await.caption = Average time discard requests queued and serviced
+discard_await.default = false
+
+discard_avqsz.heading = DARQSZ
+discard_avqsz.metric = rescale(delta(disk.dev.discard_bytes), "kbyte") / delta(disk.dev.discard)
+discard_avqsz.caption = Average I/O request size for discards to the device
+discard_avqsz.default = false
+
+flush.heading = F/S
+flush.metric = rate(disk.dev.flush)
+flush.default = false
+flush.caption = Flushes per second
+
+flush_await.heading = FAWAIT
+flush_await.metric = delta(disk.dev.flush_rawactive) / delta(disk.dev.flush)
+flush_await.caption = Average time that flush requests were queued and serviced
+flush_await.default = false
+
+qlen.heading = AQU-SZ
+qlen.metric = rate(disk.dev.read_rawactive) + rate(disk.dev.write_rawactive)
+qlen.caption = Average read and write I/O queue length to the device
+
+util.heading = UTIL%
+util.metric = 100 * rate(disk.dev.avactive)
+util.caption = Perentage of time device was busy processing requests
+util.format = percent

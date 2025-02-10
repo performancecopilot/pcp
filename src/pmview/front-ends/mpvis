@@ -69,6 +69,7 @@ cat <<End-of-File >>$tmp.conf
 	    _metrics (
 End-of-File
 $have_idle && echo "                kernel.percpu.cpu.idle[$rowlist]        $max_util \"idle\"" >>$tmp.conf
+$have_steal && echo "                kernel.percpu.cpu.steal[$rowlist]        $max_util \"steal\"" >>$tmp.conf
 $have_wait && echo "                kernel.percpu.cpu.wait.total[$rowlist]        $max_util \"wait\"" >>$tmp.conf
 $have_intr && echo "                kernel.percpu.cpu.intr[$rowlist]        $max_util \"intr\"" >>$tmp.conf
 $have_nice && echo "                kernel.percpu.cpu.nice[$rowlist]  $max_util \"nice\"" >>$tmp.conf
@@ -154,6 +155,7 @@ fi
 
 _pmview_cache_fetch -I kernel.percpu.cpu.user
 _pmview_cache_fetch -v kernel.percpu.cpu.idle \
+    kernel.percpu.cpu.steal \
     kernel.percpu.cpu.wait.total \
     kernel.percpu.cpu.intr \
     kernel.percpu.cpu.nice \
@@ -244,6 +246,13 @@ if _pmview_fetch_values kernel.percpu.cpu.idle
 then
   have_idle=true
   [ -z "$scale" ] && scale=`pminfo $namespace $msource -d kernel.percpu.cpu.idle| sed -n '/Semantics:/s/.*Units: //p'`
+fi
+
+have_steal=false
+if _pmview_fetch_values kernel.percpu.cpu.steal
+then
+  have_steal=true
+  [ -z "$scale" ] && scale=`pminfo $namespace $msource -d kernel.percpu.cpu.steal | sed -n '/Semantics:/s/.*Units: //p'`
 fi
 
 have_wait=false
@@ -387,13 +396,18 @@ done
 echo "_gridSpace $gridspace" >>$tmp.conf
 echo >>$tmp.conf
 
+# colors below match the colors in the pmchart CPU view
+# idle  #16d816 steal #fba2f5 wait  #00cdcd intr  #cdcd00
+# nice  #c2f3c2 sys   #e71717 user  #2d2de2
+#
 colorlist="_colorlist cpu ("
-$have_idle && colorlist="$colorlist green2"
-$have_wait && colorlist="$colorlist cyan2"
-$have_intr && colorlist="$colorlist yellow2"
-$have_nice && colorlist="$colorlist rgbi:0.6/1.0/0.7"
-$have_sys  && colorlist="$colorlist red2"
-$have_user && colorlist="$colorlist blue2"
+$have_idle  && colorlist="$colorlist \"#16d816\""
+$have_steal && colorlist="$colorlist \"#fba2f5\""
+$have_wait  && colorlist="$colorlist \"#00cdcd\""
+$have_intr  && colorlist="$colorlist \"#cdcd00\""
+$have_nice  && colorlist="$colorlist \"#c2f3c2\""
+$have_sys   && colorlist="$colorlist \"#e71717\""
+$have_user  && colorlist="$colorlist \"#2d2de2\""
 colorlist="$colorlist )"
 
 echo "$colorlist" >>$tmp.conf
@@ -447,6 +461,6 @@ fi
 
 $verbose && cat $tmp.conf
 
-eval $PMVIEW <$tmp.conf $args -title "'$titleArg'" -xrm "'*iconName:mpvis'"
+eval $PMVIEW <$tmp.conf $args -title "'$titleArg'"
 
 exit

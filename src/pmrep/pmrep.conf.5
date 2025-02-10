@@ -118,7 +118,7 @@ Indicates the source for metrics.
 Interpreted as a PCP archive if the value contains a slash (``/'').
 If set to the special character ``@'', local DSO PMDA context is used.
 Otherwise interpreted as a hostname.
-Corresponding command line paraters are \fB\-a\fP, \fB\-h\fP,
+Corresponding command line parameters are \fB\-a\fP, \fB\-h\fP,
 and \fB\-L\fP.
 Defaults to \fBlocal:\fP (see
 .BR PCPIntro (1)).
@@ -677,7 +677,7 @@ kernel.all.pswitch = cswch/s,,,,9
 .sp 1
 .SH FILES
 .TP
-.I \f(CW$PCP_SYSCONF_DIR\fP/pmrep/*.conf
+.I \f(CR$PCP_SYSCONF_DIR\fP/pmrep/*.conf
 system provided default \fBpmrep\fP configuration files
 .SH PCP ENVIRONMENT
 Environment variables with the prefix \fBPCP_\fP are used to parameterize
@@ -695,3 +695,14 @@ For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
 .BR pmRegisterDerived (3)
 and
 .BR pmSpecLocalPMDA (3).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ limit_filter_force count_scale_force space_scale_force
+.\" +ok+ time_scale_force overall_rank_alt separate_header ignore_incompat
+.\" +ok+ precision_force ignore_unknown include_labels dynamic_header
+.\" +ok+ repeat_header include_texts invert_filter names_change limit_filter
+.\" +ok+ fixed_header overall_rank metricspecs width_force live_filter
+.\" +ok+ sort_metric count_scale space_scale type_prefer metricsets
+.\" +ok+ metricspec time_scale postgresql metricset METRICSET omit_flat
+.\" +ok+ extheader cacheall allcache unitinfo instinfo timefmt
+.\" +ok+ colxrow pswitch bufmem extcsv cswch pre zsh db {from db1}

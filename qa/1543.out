@@ -928,16 +928,16 @@ Series checked (indom)
 # PCP5 sample.long.one 29.0.10 32 PM_INDOM_NULL instant none
 # HELP sample_long_one 1 as a 32-bit integer
 # TYPE sample_long_one gauge
-sample_long_one{hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME"} 1
+sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAINNAME",machineid="MACHINEID"} 1
 == scrape two metrics ==
 # PCP5 sample.long.one 29.0.10 32 PM_INDOM_NULL instant none
 # HELP sample_long_one 1 as a 32-bit integer
 # TYPE sample_long_one gauge
-sample_long_one{hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME"} 1
+sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAINNAME",machineid="MACHINEID"} 1
 # PCP5 sample.long.ten 29.0.11 32 PM_INDOM_NULL instant none
 # HELP sample_long_ten 10 as a 32-bit integer
 # TYPE sample_long_ten gauge
-sample_long_ten{hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME"} 10
+sample_long_ten{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAINNAME",machineid="MACHINEID"} 10
 == scrape bad metric name ==
 {
     "context": "CONTEXT"
@@ -948,72 +948,85 @@ sample_long_ten{hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME
 # PCP5 sample.long.one 29.0.10 32 PM_INDOM_NULL instant none
 # HELP sample_long_one 1 as a 32-bit integer
 # TYPE sample_long_one gauge
-sample_long_one{hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME"} 1
+sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAINNAME",machineid="MACHINEID"} 1
 # PCP5 sample.long.ten 29.0.11 32 PM_INDOM_NULL instant none
 # HELP sample_long_ten 10 as a 32-bit integer
 # TYPE sample_long_ten gauge
-sample_long_ten{hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME"} 10
+sample_long_ten{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAINNAME",machineid="MACHINEID"} 10
 # PCP5 sample.long.hundred 29.0.12 32 PM_INDOM_NULL instant none
 # HELP sample_long_hundred 100 as a 32-bit integer
 # TYPE sample_long_hundred gauge
-sample_long_hundred{hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME"} 100
+sample_long_hundred{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAINNAME",machineid="MACHINEID"} 100
 # PCP5 sample.long.million 29.0.13 32 PM_INDOM_NULL instant none
 # HELP sample_long_million 1000000 as a 32-bit integer
 # TYPE sample_long_million gauge
-sample_long_million{hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME"} 1000000
+sample_long_million{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAINNAME",machineid="MACHINEID"} 1000000
 # PCP5 sample.long.write_me 29.0.14 32 PM_INDOM_NULL instant none
 # HELP sample_long_write_me a 32-bit integer that can be modified
 # TYPE sample_long_write_me gauge
-sample_long_write_me{hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",changed="true"} 24
+sample_long_write_me{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAINNAME",machineid="MACHINEID",changed="true"} 24
 # PCP5 sample.dupnames.five.long_bin 29.0.103 32 29.2 instant none
 # HELP sample_dupnames_five_long_bin like sample.bin but type 32
 # TYPE sample_dupnames_five_long_bin gauge
-sample_dupnames_five_long_bin{hostname="HOSTNAME",instid="100",instname="bin-100",domainname="DOMAINNAME",machineid="MACHINEID",bin="100"} 100
-sample_dupnames_five_long_bin{hostname="HOSTNAME",instid="200",instname="bin-200",domainname="DOMAINNAME",machineid="MACHINEID",bin="200"} 200
-sample_dupnames_five_long_bin{hostname="HOSTNAME",instid="300",instname="bin-300",domainname="DOMAINNAME",machineid="MACHINEID",bin="300"} 300
-sample_dupnames_five_long_bin{hostname="HOSTNAME",instid="400",instname="bin-400",domainname="DOMAINNAME",machineid="MACHINEID",bin="400"} 400
-sample_dupnames_five_long_bin{hostname="HOSTNAME",instid="500",instname="bin-500",domainname="DOMAINNAME",machineid="MACHINEID",bin="500"} 500
-sample_dupnames_five_long_bin{hostname="HOSTNAME",instid="600",instname="bin-600",domainname="DOMAINNAME",machineid="MACHINEID",bin="600"} 600
-sample_dupnames_five_long_bin{hostname="HOSTNAME",instid="700",instname="bin-700",domainname="DOMAINNAME",machineid="MACHINEID",bin="700"} 700
-sample_dupnames_five_long_bin{hostname="HOSTNAME",instid="800",instname="bin-800",domainname="DOMAINNAME",machineid="MACHINEID",bin="800"} 800
-sample_dupnames_five_long_bin{hostname="HOSTNAME",instid="900",instname="bin-900",domainname="DOMAINNAME",machineid="MACHINEID",bin="900"} 900
+sample_dupnames_five_long_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-100",instid="100",domainname="DOMAINNAME",machineid="MACHINEID",bin="100"} 100
+sample_dupnames_five_long_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-200",instid="200",domainname="DOMAINNAME",machineid="MACHINEID",bin="200"} 200
+sample_dupnames_five_long_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-300",instid="300",domainname="DOMAINNAME",machineid="MACHINEID",bin="300"} 300
+sample_dupnames_five_long_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-400",instid="400",domainname="DOMAINNAME",machineid="MACHINEID",bin="400"} 400
+sample_dupnames_five_long_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-500",instid="500",domainname="DOMAINNAME",machineid="MACHINEID",bin="500"} 500
+sample_dupnames_five_long_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-600",instid="600",domainname="DOMAINNAME",machineid="MACHINEID",bin="600"} 600
+sample_dupnames_five_long_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-700",instid="700",domainname="DOMAINNAME",machineid="MACHINEID",bin="700"} 700
+sample_dupnames_five_long_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-800",instid="800",domainname="DOMAINNAME",machineid="MACHINEID",bin="800"} 800
+sample_dupnames_five_long_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-900",instid="900",domainname="DOMAINNAME",machineid="MACHINEID",bin="900"} 900
 # PCP5 sample.long.bin 29.0.103 32 29.2 instant none
 # HELP sample_long_bin like sample.bin but type 32
 # TYPE sample_long_bin gauge
-sample_long_bin{hostname="HOSTNAME",instid="100",instname="bin-100",domainname="DOMAINNAME",machineid="MACHINEID",bin="100"} 100
-sample_long_bin{hostname="HOSTNAME",instid="200",instname="bin-200",domainname="DOMAINNAME",machineid="MACHINEID",bin="200"} 200
-sample_long_bin{hostname="HOSTNAME",instid="300",instname="bin-300",domainname="DOMAINNAME",machineid="MACHINEID",bin="300"} 300
-sample_long_bin{hostname="HOSTNAME",instid="400",instname="bin-400",domainname="DOMAINNAME",machineid="MACHINEID",bin="400"} 400
-sample_long_bin{hostname="HOSTNAME",instid="500",instname="bin-500",domainname="DOMAINNAME",machineid="MACHINEID",bin="500"} 500
-sample_long_bin{hostname="HOSTNAME",instid="600",instname="bin-600",domainname="DOMAINNAME",machineid="MACHINEID",bin="600"} 600
-sample_long_bin{hostname="HOSTNAME",instid="700",instname="bin-700",domainname="DOMAINNAME",machineid="MACHINEID",bin="700"} 700
-sample_long_bin{hostname="HOSTNAME",instid="800",instname="bin-800",domainname="DOMAINNAME",machineid="MACHINEID",bin="800"} 800
-sample_long_bin{hostname="HOSTNAME",instid="900",instname="bin-900",domainname="DOMAINNAME",machineid="MACHINEID",bin="900"} 900
+sample_long_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-100",instid="100",domainname="DOMAINNAME",machineid="MACHINEID",bin="100"} 100
+sample_long_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-200",instid="200",domainname="DOMAINNAME",machineid="MACHINEID",bin="200"} 200
+sample_long_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-300",instid="300",domainname="DOMAINNAME",machineid="MACHINEID",bin="300"} 300
+sample_long_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-400",instid="400",domainname="DOMAINNAME",machineid="MACHINEID",bin="400"} 400
+sample_long_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-500",instid="500",domainname="DOMAINNAME",machineid="MACHINEID",bin="500"} 500
+sample_long_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-600",instid="600",domainname="DOMAINNAME",machineid="MACHINEID",bin="600"} 600
+sample_long_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-700",instid="700",domainname="DOMAINNAME",machineid="MACHINEID",bin="700"} 700
+sample_long_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-800",instid="800",domainname="DOMAINNAME",machineid="MACHINEID",bin="800"} 800
+sample_long_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-900",instid="900",domainname="DOMAINNAME",machineid="MACHINEID",bin="900"} 900
 # PCP5 sample.long.bin_ctr 29.0.104 32 29.2 counter Kbyte
 # HELP sample_long_bin_ctr like sample.bin but type 32, SEM_COUNTER and SPACE_KBYTE
 # TYPE sample_long_bin_ctr counter
-sample_long_bin_ctr{hostname="HOSTNAME",instid="100",instname="bin-100",domainname="DOMAINNAME",machineid="MACHINEID",bin="100"} 100
-sample_long_bin_ctr{hostname="HOSTNAME",instid="200",instname="bin-200",domainname="DOMAINNAME",machineid="MACHINEID",bin="200"} 200
-sample_long_bin_ctr{hostname="HOSTNAME",instid="300",instname="bin-300",domainname="DOMAINNAME",machineid="MACHINEID",bin="300"} 300
-sample_long_bin_ctr{hostname="HOSTNAME",instid="400",instname="bin-400",domainname="DOMAINNAME",machineid="MACHINEID",bin="400"} 400
-sample_long_bin_ctr{hostname="HOSTNAME",instid="500",instname="bin-500",domainname="DOMAINNAME",machineid="MACHINEID",bin="500"} 500
-sample_long_bin_ctr{hostname="HOSTNAME",instid="600",instname="bin-600",domainname="DOMAINNAME",machineid="MACHINEID",bin="600"} 600
-sample_long_bin_ctr{hostname="HOSTNAME",instid="700",instname="bin-700",domainname="DOMAINNAME",machineid="MACHINEID",bin="700"} 700
-sample_long_bin_ctr{hostname="HOSTNAME",instid="800",instname="bin-800",domainname="DOMAINNAME",machineid="MACHINEID",bin="800"} 800
-sample_long_bin_ctr{hostname="HOSTNAME",instid="900",instname="bin-900",domainname="DOMAINNAME",machineid="MACHINEID",bin="900"} 900
+sample_long_bin_ctr{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-100",instid="100",domainname="DOMAINNAME",machineid="MACHINEID",bin="100"} 100
+sample_long_bin_ctr{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-200",instid="200",domainname="DOMAINNAME",machineid="MACHINEID",bin="200"} 200
+sample_long_bin_ctr{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-300",instid="300",domainname="DOMAINNAME",machineid="MACHINEID",bin="300"} 300
+sample_long_bin_ctr{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-400",instid="400",domainname="DOMAINNAME",machineid="MACHINEID",bin="400"} 400
+sample_long_bin_ctr{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-500",instid="500",domainname="DOMAINNAME",machineid="MACHINEID",bin="500"} 500
+sample_long_bin_ctr{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-600",instid="600",domainname="DOMAINNAME",machineid="MACHINEID",bin="600"} 600
+sample_long_bin_ctr{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-700",instid="700",domainname="DOMAINNAME",machineid="MACHINEID",bin="700"} 700
+sample_long_bin_ctr{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-800",instid="800",domainname="DOMAINNAME",machineid="MACHINEID",bin="800"} 800
+sample_long_bin_ctr{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-900",instid="900",domainname="DOMAINNAME",machineid="MACHINEID",bin="900"} 900
 == scrape metric instances ==
 # PCP5 sample.dupnames.four.colour 29.0.5 32 29.1 instant none
 # HELP sample_dupnames_four_colour Metrics with a "saw-tooth" trend over time
 # TYPE sample_dupnames_four_colour gauge
-sample_dupnames_four_colour{model="RGB",hostname="HOSTNAME",instid="0",instname="red",domainname="DOMAINNAME",machineid="MACHINEID"} 143
-sample_dupnames_four_colour{model="RGB",hostname="HOSTNAME",instid="1",instname="green",domainname="DOMAINNAME",machineid="MACHINEID"} 244
-sample_dupnames_four_colour{model="RGB",hostname="HOSTNAME",instid="2",instname="blue",domainname="DOMAINNAME",machineid="MACHINEID"} 345
+sample_dupnames_four_colour{role="testing",agent="sample",model="RGB",cluster="zero",hostname="HOSTNAME",instname="red",instid="0",domainname="DOMAINNAME",machineid="MACHINEID"} 143
+sample_dupnames_four_colour{role="testing",agent="sample",model="RGB",cluster="zero",hostname="HOSTNAME",instname="green",instid="1",domainname="DOMAINNAME",machineid="MACHINEID"} 244
+sample_dupnames_four_colour{role="testing",agent="sample",model="RGB",cluster="zero",hostname="HOSTNAME",instname="blue",instid="2",domainname="DOMAINNAME",machineid="MACHINEID"} 345
 # PCP5 sample.colour 29.0.5 32 29.1 instant none
 # HELP sample_colour Metrics with a "saw-tooth" trend over time
 # TYPE sample_colour gauge
-sample_colour{model="RGB",hostname="HOSTNAME",instid="0",instname="red",domainname="DOMAINNAME",machineid="MACHINEID"} 143
-sample_colour{model="RGB",hostname="HOSTNAME",instid="1",instname="green",domainname="DOMAINNAME",machineid="MACHINEID"} 244
-sample_colour{model="RGB",hostname="HOSTNAME",instid="2",instname="blue",domainname="DOMAINNAME",machineid="MACHINEID"} 345
+sample_colour{role="testing",agent="sample",model="RGB",cluster="zero",hostname="HOSTNAME",instname="red",instid="0",domainname="DOMAINNAME",machineid="MACHINEID"} 143
+sample_colour{role="testing",agent="sample",model="RGB",cluster="zero",hostname="HOSTNAME",instname="green",instid="1",domainname="DOMAINNAME",machineid="MACHINEID"} 244
+sample_colour{role="testing",agent="sample",model="RGB",cluster="zero",hostname="HOSTNAME",instname="blue",instid="2",domainname="DOMAINNAME",machineid="MACHINEID"} 345
+== small curl compression command ==
+# PCP5 sample.long.one 29.0.10 32 PM_INDOM_NULL instant none
+# HELP sample_long_one 1 as a 32-bit integer
+# TYPE sample_long_one gauge
+sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAINNAME",machineid="MACHINEID"} 1
+== large curl compression command ==
+# PCP5 sample.control 29.0.0 32 PM_INDOM_NULL instant none
+# HELP sample_control A control variable for the "sample" PMDA
+# TYPE sample_control gauge
+sample_control{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAINNAME",machineid="MACHINEID"} 0
+# PCP5 sample.dupnames.pid_daemon 29.0.1 u32 PM_INDOM_NULL instant none
+# HELP sample_dupnames_pid_daemon Process id of PMDA daemon
+# TYPE sample_dupnames_pid_daemon gauge
 == scrape all metrics ==
 done full scrape
 == check pmproxy is running ==

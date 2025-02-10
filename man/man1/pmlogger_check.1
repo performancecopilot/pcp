@@ -15,7 +15,7 @@
 .\"
 .TH PMLOGGER_CHECK 1 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmlogger_check\f1 \- administration of Performance Co-Pilot archive log files
+\f3pmlogger_check\f1 \- administration of Performance Co-Pilot archive files
 .SH SYNOPSIS
 .B $PCP_BINADM_DIR/pmlogger_check
 [\f3\-CNPpqsTV?\f1]
@@ -217,7 +217,7 @@ to the
 .I /etc/sudoers
 configuration file as follows:
 .P
-.ft CW
+.ft CR
 .nf
 .in +0.5i
 Defaults requiretty
@@ -274,6 +274,23 @@ if the previous execution of
 produced any output it is saved here.
 The normal case is no output in which case the file does not exist.
 .TP 5
+.I $PCP_ARCHIVE_DIR/SaveLogs
+if this directory exists,
+then the log file from the
+.B \-l
+argument for
+.B pmlogger_check
+will be saved in this directory with the name of the format
+<date>-\fBpmlogger_check\fP.\fBlog\fP.<pid>
+This allows the log file to be inspected at a later time, even if
+several
+.BR pmlogger_check
+executions have been launched in the interim.
+Because the PCP archive management tools run under
+the $PCP_USER account ``pcp'',
+.I $PCP_ARCHIVE_DIR/SaveLogs
+typically needs to be owned by the user ``pcp''.
+.TP 6
 .I $PCP_ARCHIVE_DIR/<hostname>/SaveLogs
 if this directory exists,
 then the log file from the
@@ -283,7 +300,7 @@ of a newly launched
 .BR pmlogger (1)
 for
 .I hostname
-will be linked into this directory with the name
+will be saved in this directory with the name
 .IB archive .log
 where
 .I archive
@@ -338,3 +355,7 @@ disables the regeneration and checking.
 .BR pmlogger.control (5)
 and
 .BR cron (8).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ RC SaveLogs nologin prev {from .prev suffix} quickstart
+.\" +ok+ requiretty runlevel sudoers

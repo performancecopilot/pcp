@@ -69,14 +69,14 @@ Display all the process.
 .br
 .TS
 l l.
-PID	Process idenfier.
-TTY	The termianl assoicated with the prcoess.
+PID	Process identifier.
+TTY	The terminal associated with the process.
 TIME	T{
 .ad l
 .hy 0
 The  cumulated CPU time in [DD-]hh:mm:ss format (time=TIME).
 T}
-CMD	The command name of the task.
+CMD	The task name along with its complete arguments.	
 .TE
 .TP
 .B \-c [\fIcommand name\fR]
@@ -106,7 +106,7 @@ It is a single argument in the form of a blank-separated or comma-separated list
 The argument to -o are following:
 
 .TS
-lfB  lfB  lfB 
+lfB  lfB  lfB
 lfB  l    lx.
 COL	HEADER	DESCRIPTION
 _	_	_
@@ -118,8 +118,14 @@ physical memory on the machine expressed as a percentage
 T}
 start	START	time the command started
 time	TIME	accumulated cpu time, user + system
-cls	CLS	scheduling class of the process
-cmd	CMD	see \fBargs\fR.  (alias args, command).
+cls	CLS	scheduling class of the process.
+cmd	CMD	see \fBTask name\fR.  (alias args, command).
+args	COMMAND	T{
+.ad l
+.hy 0
+To display the full program name with its arguments (use at last
+position in -o list to view full command)
+T}
 pid	PID	The process ID
 ppid	PPID	Parent process ID
 pri	PRI	Priority of the process
@@ -129,7 +135,7 @@ rss	RSS	T{
 .hy 0
 the non-swapped physical memory that a task has used
 T}
-rtprio	RTPRIO	realtime priority
+rtprio	RTPRIO	real-time priority
 pname	Pname	Process name
 tty	TT	controlling tty (terminal)
 uid	UID	see \fBeuid\fR
@@ -151,7 +157,7 @@ For example:
 .B pcp-ps \-o pid,\:user,\:args
 
 .TS
-lfB  lfB  lfB 
+lfB  lfB  lfB
 lfB  l    lx.
 CODE	HEADER	DESCRIPTION
 _	_	_
@@ -286,3 +292,11 @@ For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
 .BR strftime (3)
 and
 .BR environ (7).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ SCHED_DEADLINE SCHED_BATCH SCHED_OTHER SCHED_FIFO SCHED_IDLE
+.\" +ok+ SCHED_ISO SCHED_RR cputime
+.\" +ok+ RTPRIO rtprio WCHAN PPIDs EUSER wchan Pname pname uname
+.\" +ok+ vsize euser PPID EUID ppid args euid IDL DLN CLS CMD COL PRI RSS
+.\" +ok+ VSZ cls cmd col pri vsz DD FF RR TT hh ss
+.\" +ok+ realtime {not real-time, from (cputime/realtime ratio)}

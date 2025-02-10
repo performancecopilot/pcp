@@ -15,7 +15,6 @@ echo "QA output created by $seq"
 . ./common.check
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 _filter()
@@ -39,7 +38,7 @@ log mandatory on default {
 End-of-File
 
 pmlogger -c $tmp.config -s 4 -l $tmp.log -t 1sec $tmp
-cat $tmp.log >>$seq.full
+cat $tmp.log >>$seq_full
 
 pmdumplog -d $tmp | _filter
 

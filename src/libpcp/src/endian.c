@@ -77,6 +77,7 @@ __ntohpmLabel(pmLabel * const label)
 }
 #endif
 
+#ifndef __htonpmValueBlock
 static void
 __htonpmTimespec(pmTimespec * const tsp)
 {
@@ -84,7 +85,6 @@ __htonpmTimespec(pmTimespec * const tsp)
     __htonll((char *)&tsp->tv_nsec);
 }
 
-#ifndef __htonpmValueBlock
 static void
 htonEventArray(pmValueBlock * const vb, int highres)
 {
@@ -275,13 +275,17 @@ ntohEventArray(pmValueBlock * const vb, int highres)
 }
 
 void
-__ntohpmValueBlock(pmValueBlock * const vb)
+__ntohpmValueBlock_hdr(pmValueBlock * const vb)
 {
     unsigned int	*ip = (unsigned int *)vb;
 
     /* Swab the first word, which contain vtype and vlen */
     *ip = ntohl(*ip);
+}
 
+void
+__ntohpmValueBlock_buf(pmValueBlock * const vb)
+{
     switch (vb->vtype) {
     case PM_TYPE_U64:
     case PM_TYPE_64:
@@ -304,6 +308,13 @@ __ntohpmValueBlock(pmValueBlock * const vb)
 	ntohEventArray(vb, 1);
 	break;
     }
+}
+
+void
+__ntohpmValueBlock(pmValueBlock * const vb)
+{
+    __ntohpmValueBlock_hdr(vb);
+    __ntohpmValueBlock_buf(vb);
 }
 #endif
 

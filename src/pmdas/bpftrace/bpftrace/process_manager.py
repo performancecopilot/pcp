@@ -81,14 +81,27 @@ class ProcessManager():
         process.send_signal(signal.SIGINT)
 
         # wait max. 5s for graceful termination of the bpftrace process
-        _done, pending = await asyncio.wait({process.wait()}, timeout=5)
-        if pending:
+        try:
+            # From https://stackoverflow.com/a/53247626/3702377 ...
+            # The create_task top-level function was added in Python 3.7.
+            # Prior to 3.7, create_task was only available as a method on
+            # the event loop, so ...
+            #
+            loop = asyncio.get_event_loop()
+            terminate = loop.create_task(process.wait())
+            await asyncio.wait_for(terminate, timeout=5)
+        except asyncio.TimeoutError:
             self.logger.info(f"stop: {script} is still running, sending SIGKILL...")
             process.kill()
 
             # wait again max. 5s until bpftrace process is terminated
-            _done, pending = await asyncio.wait({process.wait()}, timeout=5)
-            if pending:
+            try:
+                # see note above re. create_task()
+                #
+                loop = asyncio.get_event_loop()
+                terminate = loop.create_task(process.wait())
+                await asyncio.wait_for(terminate, timeout=5)
+            except asyncio.TimeoutError:
                 self.logger.info(f"stop: {script} is still running after sending SIGKILL...")
 
         # stopping state change in run_bpftrace task (script can also stop itself, without getting SIGINT)

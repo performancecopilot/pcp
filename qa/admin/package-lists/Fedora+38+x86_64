@@ -16,7 +16,6 @@ bc
 bcc-tools
 bind-utils
 bison
-bpftool
 bpftrace
 chan-devel
 clang
@@ -31,6 +30,7 @@ cyrus-sasl-md5
 cyrus-sasl-plain
 device-mapper-devel
 ed
+expect
 flex
 gawk
 gcc
@@ -44,7 +44,9 @@ iproute
 httpd
 initscripts
 java-latest-openjdk-headless
+jq
 kubernetes-client
+kubernetes-node
 libbpf
 libbpf-devel
 libcmocka-devel
@@ -95,18 +97,20 @@ postfix-perl-scripts
 postgresql
 psmisc
 pylint
+python3
 python3-bcc
 python3-devel
-# broken dependencies, see https://bugzilla.redhat.com/show_bug.cgi?id=2066462
-# python3-elasticsearch
+python3-elasticsearch
 python3-jsonpointer
 python3-libs
 python3-libvirt
 python3-lxml
 python3-openpyxl
+python3-pandas
 python3-pillow
 python3-prometheus_client
 python3-psycopg2
+python3-pyarrow
 python3-pylint
 python3-pymongo
 python3-pyodbc
@@ -135,6 +139,7 @@ sqlite
 sqlite-libs
 sysstat
 systemd-devel
+systemtap-devel
 systemtap-sdt-devel
 time
 valgrind

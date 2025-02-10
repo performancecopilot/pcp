@@ -15,7 +15,6 @@ echo "QA output created by $seq"
 
 status=1
 trap "rm -fr $tmp; exit \$status" 0 1 2 3 15
-rm -f $seq.full
 
 filter_paths()
 {
@@ -24,13 +23,15 @@ filter_paths()
 
 filter_debug()
 {
-    tee -a $here/$seq.full \
+    tee -a $seq_full \
     | sed \
+	-e '/^__pmLogFindOpen:/d' \
 	-e '/^__pmLogOpen:/d' \
 	-e '/^__pmLogChangeVol:/d' \
 	-e '/^__pmFopen(/d' \
 	-e '/^__pmLogChkLabel: .* \[magic=/d' \
 	-e '/fd=/s/fd=[0-9][0-9]*/fd=N/' \
+	-e "s,$tmp,<TMPPATH>,g" \
     # end
 }
 
@@ -68,31 +69,31 @@ do
     # Offsets: 4+20+64+40+4  (prefix+5*int+hostname+timezone+suffix)
 
     echo "*** bad prefix length ***"
-    echo 12 | dd of=$of $convert ibs=1 obs=1 seek=0 count=4 >>$here/$seq.full 2>&1
+    echo 12 | dd of=$of $convert ibs=1 obs=1 seek=0 count=4 >>$seq_full 2>&1
     test_and_repair -s
 
     echo "*** bad magic/version length ***"
-    echo 42 | dd of=$of $convert ibs=1 obs=1 seek=4 count=2 >>$here/$seq.full 2>&1
+    echo 42 | dd of=$of $convert ibs=1 obs=1 seek=4 count=2 >>$seq_full 2>&1
     test_and_repair -V 2
 
     echo "*** mismatched pid ***"
-    echo 01 | dd of=$of $convert ibs=1 obs=1 seek=8 count=2 >>$here/$seq.full 2>&1
+    echo 01 | dd of=$of $convert ibs=1 obs=1 seek=8 count=2 >>$seq_full 2>&1
     test_and_repair -p 12345
 
     echo "*** bad volume number ***"
-    echo 05 | dd of=$of $convert ibs=1 obs=1 seek=20 count=2 >>$here/$seq.full 2>&1
+    echo 05 | dd of=$of $convert ibs=1 obs=1 seek=20 count=2 >>$seq_full 2>&1
     test_and_repair -s
 
     echo "*** mismatched hostname ***"
-    echo HNAME | dd of=$of $convert ibs=1 obs=1 seek=24 count=5 >>$here/$seq.full 2>&1
+    echo HNAME | dd of=$of $convert ibs=1 obs=1 seek=24 count=5 >>$seq_full 2>&1
     test_and_repair -h gonzo.com
 
     echo "*** mismatched timezone ***"
-    echo BADTZ | dd of=$of $convert ibs=1 obs=1 seek=88 count=5 >>$here/$seq.full 2>&1
+    echo BADTZ | dd of=$of $convert ibs=1 obs=1 seek=88 count=5 >>$seq_full 2>&1
     test_and_repair -Z GMT
 
     echo "*** bad suffix length ***"
-    echo 21 | dd of=$of $convert ibs=1 obs=1 seek=128 count=4 >>$here/$seq.full 2>&1
+    echo 21 | dd of=$of $convert ibs=1 obs=1 seek=128 count=4 >>$seq_full 2>&1
     test_and_repair -s
 done
 

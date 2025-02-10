@@ -1,0 +1,132 @@
+#!/bin/sh
+#
+# remake the pcp-netstat archive ...
+# this archive is intended to be checked in and not remade, this script is
+# simply a record of how it was created
+#
+
+. /etc/pcp.env
+
+tmp=/var/tmp/$$
+rm -f $tmp.*
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+cat <<End-of-File >>$tmp.config
+log advisory on once{
+        kernel.uname.sysname
+        kernel.uname.release
+        kernel.uname.nodename
+        kernel.uname.machine
+        hinv.ncpu
+}
+
+log mandatory on 1 sec {
+    network.tcp.activeopens
+    network.tcp.passiveopens
+    network.tcp.attemptfails
+    network.tcp.estabresets
+    network.tcpconn.established
+    network.tcp.insegs
+    network.tcp.outsegs
+    network.tcp.retranssegs
+    network.tcp.inerrs
+    network.tcp.outrsts
+    network.tcp.delayedacks
+    network.tcp.delayedacklocked
+    network.tcp.hphits
+    network.tcp.hpacks
+    network.tcp.sackrecovery
+    network.tcp.sackreorder
+    network.tcp.dsackundo
+    network.tcp.lostretransmit
+    network.tcp.sackfailures
+    network.tcp.fastretrans
+    network.tcp.timeouts
+    network.tcp.lossprobes
+    network.tcp.lossproberecovery
+    network.tcp.tcpbacklogcoalesce
+    network.tcp.dsackoldsent
+    network.tcp.dsackofosent
+    network.tcp.dsackrecv
+    network.tcp.dsackoforecv
+    network.tcp.abortondata
+    network.tcp.abortonclose
+    network.tcp.abortontimeout
+    network.tcp.dsackignorednoundo
+    network.tcp.sackshifted
+    network.tcp.sackmerged
+    network.tcp.sackshiftfallback
+    network.tcp.iprpfilter
+    network.tcp.rcvcoalesce
+    network.tcp.ofoqueue
+    network.tcp.ofomerge
+    network.tcp.challengeack
+    network.tcp.synchallenge
+    network.tcp.spuriousrtxhostqueues
+    network.tcp.autocorking
+    network.tcp.synretrans
+    network.tcp.origdatasent
+    network.tcp.tcphystarttraindetect
+    network.tcp.tcphystarttraincwnd
+    network.tcp.tcphystartdelaydetect
+    network.tcp.tcphystartdelaycwnd
+    network.tcp.tcpackskippedseq
+    network.tcp.tcpkeepalive
+    network.tcp.tcpdelivered
+    network.tcp.tcpackcompressed
+    network.ip.forwarding
+    network.ip.inreceives
+    network.ip.inaddrerrors
+    network.ip.forwdatagrams
+    network.ip.indiscards
+    network.ip.indelivers
+    network.ip.outrequests
+    network.ip.outnoroutes
+    network.ip.inmcastpkts
+    network.ip.inbcastpkts
+    network.ip.inoctets
+    network.ip.outoctets
+    network.ip.inmcastoctets
+    network.ip.inbcastoctets
+    network.ip.noectpkts
+    network.icmp.inmsgs
+    network.icmp.inerrors
+    network.icmp.indestunreachs
+    network.icmp.outmsgs
+    network.icmp.outerrors
+    network.icmp.outdestunreachs
+    network.icmpmsg.intype
+    network.icmpmsg.outtype
+    network.udp.indatagrams
+    network.udp.noports
+    network.udp.inerrors
+    network.udp.outdatagrams
+    network.udp.recvbuferrors
+    network.udp.sndbuferrors
+    network.udplite.indatagrams
+    network.udplite.noports
+    network.udplite.inerrors
+    network.udplite.outdatagrams
+    network.udplite.recvbuferrors
+    network.udplite.sndbuferrors
+    network.udplite.incsumerrors
+    network.interface.mtu
+    network.interface.in.packets
+    network.interface.in.errors
+    network.interface.in.drops
+    network.interface.out.packets
+    network.interface.out.errors
+    network.interface.out.drops
+}
+End-of-File
+
+rm -f pcp-netstat.0 pcp-netstat.meta pcp-netstat.index
+
+if pmlogger -s 10 -c $tmp.config pcp-netstat
+then
+	xz pcp-netstat.0
+	xz pcp-netstat.meta
+else
+    echo "Argh: pmlogger failed ..."
+    cat pmlogger.log
+fi

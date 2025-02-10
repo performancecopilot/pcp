@@ -1,6 +1,7 @@
 # PCP required package list for Ubuntu 20.04 x86_64
 # created by kenj on bozo.localdomain Sun 11 Oct 2020 15:00:31 AEDT
 #
+Text::CSV_XS cpan
 apache2
 apache2-bin
 auditd not4ci
@@ -16,8 +17,8 @@ bpftrace
 bsd-mailx
 build-essential
 chrpath
+clang
 coreutils
-Text::CSV_XS cpan
 cppcheck
 cron
 curl
@@ -26,6 +27,7 @@ dh-python
 docker.io not4ci
 dpkg-dev
 ed
+expect
 flex
 g++
 gawk
@@ -37,6 +39,8 @@ grep
 iproute2
 jq
 libavahi-common-dev
+libbpf-dev
+libbpf0
 libclass-dbi-perl
 libcmocka-dev
 libcoin-dev
@@ -49,6 +53,7 @@ libgl1-mesa-dri
 libibmad-dev
 libibumad-dev
 libicu66
+libinih-dev
 libjson-perl
 liblist-moreutils-perl
 liblzma-dev
@@ -80,6 +85,8 @@ libvirt-daemon-system
 libxml-libxml-perl
 libxml-tokeparser-perl
 libyaml-libyaml-perl
+linux-headers-`uname -r` not4ci
+llvm
 lm-sensors
 make
 man-db
@@ -88,7 +95,7 @@ mariadb-client-core-10.3
 memcached
 net-tools
 nmap
-openjdk-11-jre-headless
+openjdk-21-jre-headless
 openssl
 perl
 perl-modules-5.30
@@ -96,7 +103,6 @@ pkg-config
 postgresql-client-common
 psmisc
 pylint
-python2-dev
 python3-all
 python3-all-dev
 python3-bpfcc
@@ -105,11 +111,13 @@ python3-elasticsearch
 python3-json-pointer
 python3-libvirt
 python3-lxml
+python3-minimal
 python3-openpyxl
 python3-pil
 python3-prometheus-client
 python3-psycopg2
 python3-pymongo
+python3-pyodbc
 python3-requests
 python3-setuptools
 python3-six
@@ -134,3 +142,4 @@ xkb-data
 zabbix-agent
 zfsutils-linux
 zlib1g-dev
+zstd

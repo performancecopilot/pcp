@@ -1,6 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 059
-# timestmaps in the archive logs
+# timestmaps in the archives
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -22,7 +22,7 @@ trap "rm -f $tmp.*; exit" 0 1 2 3 15
 #              Log Seq    end(meta)     end(log)
 # 12:24:10.723       0          368          204
 # 12:24:15.837       0          368         5172
-# 
+#
 # 12:24:10.723  253.0.6 (<noname>):  inst [100 or "bin-100"] value 100
 #               253.0.3 (<noname>): value 226608
 

@@ -323,6 +323,135 @@ __pmSendHighResResult(int fd, int from, const __pmResult *result)
     return __pmSendHighResResult_ctx(NULL, fd, from, result);
 }
 
+/* Check that a network encoded event array is within a given buffer size */
+int
+__pmEventArrayCheck(pmValueBlock * const vb, int highres, int pmid, int value, size_t check)
+{
+    char		*base;
+    int			r;	/* records */
+    int			p;	/* parameters in a record ... */
+    int			nrecords;
+    int			nparams;
+
+    if (highres) {
+	pmHighResEventArray *hreap = (pmHighResEventArray *)vb;
+	base = (char *)&hreap->ea_record[0];
+	if (base > (char *)vb + check) {
+	    if (pmDebugOptions.pdu)
+		fprintf(stderr, "__pmEventArrayCheck #1: PM_ERR_IPC: pmid[%d] value[%d] highres event records past end of PDU buffer\n",
+			pmid, value);
+	    return PM_ERR_IPC;
+	}
+	nrecords = ntohl(hreap->ea_nrecords);
+    }
+    else {
+	pmEventArray *eap = (pmEventArray *)vb;
+	base = (char *)&eap->ea_record[0];
+	if (base > (char *)vb + check) {
+	    if (pmDebugOptions.pdu)
+		fprintf(stderr, "__pmEventArrayCheck #2: PM_ERR_IPC: pmid[%d] value[%d] event records past end of PDU buffer\n",
+			pmid, value);
+	    return PM_ERR_IPC;
+	}
+	nrecords = ntohl(eap->ea_nrecords);
+    }
+
+    /* walk packed event record array */
+    for (r = 0; r < nrecords; r++) {
+	unsigned int flags, type;
+	size_t size, remaining;
+
+	remaining = check - (base - (char *)vb);
+	if (highres) {
+	    pmHighResEventRecord *hrerp = (pmHighResEventRecord *)base;
+	    size = sizeof(hrerp->er_timestamp) + sizeof(hrerp->er_flags) +
+		    sizeof(hrerp->er_nparams);
+	    if (size > remaining) {
+		if (pmDebugOptions.pdu)
+		    fprintf(stderr, "__pmEventArrayCheck #3: PM_ERR_IPC: pmid[%d] value[%d] record[%d] highres event record past end of PDU buffer\n",
+			    pmid, value, r);
+		return PM_ERR_IPC;
+	    }
+	    nparams = ntohl(hrerp->er_nparams);
+	    flags = ntohl(hrerp->er_flags);
+	}
+	else {
+	    pmEventRecord *erp = (pmEventRecord *)base;
+	    size = sizeof(erp->er_timestamp) + sizeof(erp->er_flags) +
+		    sizeof(erp->er_nparams);
+	    if (size > remaining) {
+		if (pmDebugOptions.pdu)
+		    fprintf(stderr, "__pmEventArrayCheck #4: PM_ERR_IPC: pmid[%d] value[%d] record[%d] event record past end of PDU buffer\n",
+			    pmid, value, r);
+		return PM_ERR_IPC;
+	    }
+	    nparams = ntohl(erp->er_nparams);
+	    flags = ntohl(erp->er_flags);
+	}
+
+	if (flags & PM_EVENT_FLAG_MISSED)
+	    nparams = 0;
+
+	base += size;
+	remaining = check - (base - (char *)vb);
+
+	for (p = 0; p < nparams; p++) {
+	    __uint32_t		*tp;	/* points to int holding vtype/vlen */
+	    pmEventParameter	*epp = (pmEventParameter *)base;
+
+	    if (sizeof(pmEventParameter) > remaining) {
+		if (pmDebugOptions.pdu)
+		    fprintf(stderr, "__pmEventArrayCheck #5: PM_ERR_IPC: pmid[%d] value[%d] record[%d] param[%d] event record past end of PDU buffer\n",
+			    pmid, value, r, p);
+		return PM_ERR_IPC;
+	    }
+
+	    tp = (__uint32_t *)&epp->ep_pmid;
+	    tp++;		/* now points to ep_type/ep_len */
+	    *tp = ntohl(*tp);
+	    type = epp->ep_type;
+	    size = epp->ep_len;
+	    *tp = htonl(*tp);	/* leave the buffer how we found it */
+
+	    if (sizeof(pmID) + size > remaining) {
+		if (pmDebugOptions.pdu)
+		    fprintf(stderr, "__pmEventArrayCheck #6: PM_ERR_IPC: pmid[%d] value[%d] record[%d] param[%d] event record past end of PDU buffer\n",
+			    pmid, value, r, p);
+		return PM_ERR_IPC;
+	    }
+
+	    base += sizeof(pmID) + PM_PDU_SIZE_BYTES(size);
+
+	    /*
+	     * final check for the types below, ep_len should be 4 or
+	     * 8, but a malformed PDU could have smaller ep_len values
+	     * and then unpacking these types risk going past the end
+	     * of the  PDU buffer
+	     */
+	    size = 0;
+	    switch (type) {
+		case PM_TYPE_32:
+		case PM_TYPE_U32:
+		case PM_TYPE_FLOAT:
+		    size = 4;	/* 32-bit types */
+		    break;
+		case PM_TYPE_64:
+		case PM_TYPE_U64:
+		case PM_TYPE_DOUBLE:
+		    size = 8;	/* 64-bit types */
+		    break;
+	    }
+	    if (size > 0 && sizeof(pmID) + size > remaining) {
+		if (pmDebugOptions.pdu)
+		    fprintf(stderr, "__pmEventArrayCheck #7: PM_ERR_IPC: pmid[%d] value[%d] record[%d] param[%d] event record past end of PDU buffer\n",
+			    pmid, value, r, p);
+		return PM_ERR_IPC;
+	    }
+	}
+    }
+    return 0;
+}
+
 #if defined(HAVE_64BIT_PTR)
 int
 __pmDecodeValueSet(__pmPDU *pdubuf, int pdulen, __pmPDU *data, char *pduend,
@@ -336,7 +465,7 @@ __pmDecodeValueSet(__pmPDU *pdubuf, int pdulen, __pmPDU *data, char *pduend,
     int		i, j;
 /*
  * Note: all sizes are in units of bytes ... beware that 'data' is in
- *	 units of __pmPDU
+ *	 units of __pmPDU (four bytes)
  */
     int		vsize;		/* size of vlist_t's in PDU buffer */
     int		nvsize;		/* size of pmValue's after decode */
@@ -354,9 +483,9 @@ __pmDecodeValueSet(__pmPDU *pdubuf, int pdulen, __pmPDU *data, char *pduend,
 
 	check = sizeof(*vlp) - sizeof(vlp->vlist) - sizeof(int);
 	if (check > (pduend - (char *)vlp)) {
-	    if (pmDebugOptions.pdu && pmDebugOptions.desperate)
-		fprintf(stderr, "%s: Bad: pmid[%d] outer vlp past end of "
-				"PDU buffer\n", "__pmDecodeValueSet", i);
+	    if (pmDebugOptions.pdu)
+		fprintf(stderr, "__pmDecodeValueSet: PM_ERR_IPC: pmid[%d] outer vlp past end of PDU buffer\n",
+		    i);
 	    return PM_ERR_IPC;
 	}
 
@@ -372,23 +501,23 @@ __pmDecodeValueSet(__pmPDU *pdubuf, int pdulen, __pmPDU *data, char *pduend,
 	}
 	/* numval may be negative - it holds an error code in that case */
 	if (numval > pdulen) {
-	    if (pmDebugOptions.pdu && pmDebugOptions.desperate)
-		fprintf(stderr, "%s: Bad: pmid[%d] numval=%d > len=%d\n",
-				"__pmDecodeValueSet", i, numval, pdulen);
+	    if (pmDebugOptions.pdu)
+		fprintf(stderr, "__pmDecodeValueSet: PM_ERR_IPC: pmid[%d] numval=%d > len=%d\n",
+		    i, numval, pdulen);
 	    return PM_ERR_IPC;
 	}
 	if (numval > 0) {
 	    if (sizeof(*vlp) - sizeof(vlp->vlist) > (pduend - (char *)vlp)) {
-		if (pmDebugOptions.pdu && pmDebugOptions.desperate)
-		    fprintf(stderr, "%s: Bad: pmid[%d] inner vlp past end of "
-				    "PDU buffer\n", "__pmDecodeValueSet", i);
+		if (pmDebugOptions.pdu)
+		    fprintf(stderr, "__pmDecodeValueSet: PM_ERR_IPC: pmid[%d] inner vlp past end of PDU buffer\n",
+			i);
 		return PM_ERR_IPC;
 	    }
 	    check = (INT_MAX - sizeof(*vlp)) / sizeof(__pmValue_PDU);
 	    if (numval >= check) {
-		if (pmDebugOptions.pdu && pmDebugOptions.desperate)
-		    fprintf(stderr, "%s: Bad: pmid[%d] numval=%d > max=%ld\n",
-				    "", i, numval, (long)check);
+		if (pmDebugOptions.pdu)
+		    fprintf(stderr, "__pmDecodeValueSet: PM_ERR_IPC: pmid[%d] numval=%d > max=%ld\n",
+			i, numval, (long)check);
 		return PM_ERR_IPC;
 	    }
 	    vsize += sizeof(vlp->valfmt) + numval * sizeof(__pmValue_PDU);
@@ -406,19 +535,16 @@ __pmDecodeValueSet(__pmPDU *pdubuf, int pdulen, __pmPDU *data, char *pduend,
 		    pduvp = &vlp->vlist[j];
 		    check = (size_t)(pduend - (char *)pduvp);
 		    if (sizeof(__pmValue_PDU) > check) {
-			if (pmDebugOptions.pdu && pmDebugOptions.desperate)
-			    fprintf(stderr, "%s: Bad: pmid[%d] value[%d] "
-					    "initial pduvp past end of "
-					    "PDU buffer\n",
-					    "__pmDecodeValueSet", i, j);
+			if (pmDebugOptions.pdu)
+			    fprintf(stderr, "__pmDecodeValueSet: PM_ERR_IPC: pmid[%d] value[%d] initial pduvp past end of PDU buffer\n",
+				i, j);
 			return PM_ERR_IPC;
 		    }
 		    vindex = ntohl(pduvp->value.lval);
-		    if (vindex < 0 || vindex > pdulen) {
-			if (pmDebugOptions.pdu && pmDebugOptions.desperate)
-			    fprintf(stderr, "%s: Bad: pmid[%d] value[%d] "
-					    "vindex=%d\n",
-					    "__pmDecodeValueSet", i, j, vindex);
+		    if (vindex < 0 || (char *)&pdubuf[vindex] >= pduend) {
+			if (pmDebugOptions.pdu)
+			    fprintf(stderr, "__pmDecodeValueSet: PM_ERR_IPC: pmid[%d] value[%d] vindex=%d (max=%ld)\n",
+				i, j, vindex, (long)((pduend-(char *)pdubuf) / sizeof(pdubuf[0])-1));
 			return PM_ERR_IPC;
 		    }
 		    pduvbp = (pmValueBlock *)&pdubuf[vindex];
@@ -426,30 +552,33 @@ __pmDecodeValueSet(__pmPDU *pdubuf, int pdulen, __pmPDU *data, char *pduend,
 			vsplit = (char *)pduvbp;
 		    check = (size_t)(pduend - (char *)pduvbp);
 		    if (sizeof(unsigned int) > check) {
-			if (pmDebugOptions.pdu && pmDebugOptions.desperate)
-			    fprintf(stderr, "%s: Bad: pmid[%d] value[%d] "
-					    "second pduvp past end of "
-					    "PDU buffer\n",
-					    "__pmDecodeValueSet", i, j);
+			if (pmDebugOptions.pdu)
+			    fprintf(stderr, "__pmDecodeValueSet: PM_ERR_IPC: pmid[%d] value[%d] second pduvp past end of PDU buffer\n",
+				i, j);
 			return PM_ERR_IPC;
 		    }
 
-		    __ntohpmValueBlock(pduvbp);
+		    __ntohpmValueBlock_hdr(pduvbp);
 		    if (pduvbp->vlen < PM_VAL_HDR_SIZE ||
 			pduvbp->vlen > pdulen) {
-			if (pmDebugOptions.pdu && pmDebugOptions.desperate)
-			    fprintf(stderr, "%s: Bad: pmid[%d] value[%d] "
-					    "vlen=%d\n", "__pmDecodeValueSet",
-					    i, j, pduvbp->vlen);
+			if (pmDebugOptions.pdu)
+			    fprintf(stderr, "__pmDecodeValueSet: PM_ERR_IPC: pmid[%d] value[%d] vlen=%d\n", 
+				i, j, pduvbp->vlen);
 			return PM_ERR_IPC;
 		    }
-		    if (pduvbp->vlen > (size_t)(pduend - (char *)pduvbp)) {
-			if (pmDebugOptions.pdu && pmDebugOptions.desperate)
-			    fprintf(stderr, "%s: Bad: pmid[%d] value[%d] "
-					    "pduvp past end of PDU buffer\n",
-					    "__pmDecodeValueSet", i, j);
+		    if (pduvbp->vlen > check) {
+			if (pmDebugOptions.pdu)
+			    fprintf(stderr, "__pmDecodeValueSet: PM_ERR_IPC: pmid[%d] value[%d] pduvp past end of PDU buffer\n",
+				i, j);
 			return PM_ERR_IPC;
 		    }
+		    if (pduvbp->vtype == PM_TYPE_HIGHRES_EVENT ||
+		        pduvbp->vtype == PM_TYPE_EVENT) {
+			vindex = (pduvbp->vtype == PM_TYPE_HIGHRES_EVENT);
+			if (__pmEventArrayCheck(pduvbp, vindex, i, j, check) < 0)
+			    return PM_ERR_IPC;
+		    }
+		    __ntohpmValueBlock_buf(pduvbp);
 		    vbsize += PM_PDU_SIZE_BYTES(pduvbp->vlen);
 		    if (pmDebugOptions.pdu && pmDebugOptions.desperate) {
 			fprintf(stderr, " len: %d type: %d",
@@ -467,9 +596,7 @@ __pmDecodeValueSet(__pmPDU *pdubuf, int pdulen, __pmPDU *data, char *pduend,
     offset = preamble + vsize;
 
     if (pmDebugOptions.pdu && pmDebugOptions.desperate) {
-	fprintf(stderr, "need: %d vsize: %d nvsize: %d vbsize: %d "
-			"offset: %d pdulen: %d pduend: %p vsplit: %p "
-			"(diff %d) pdubuf: %p (diff %d)\n",
+	fprintf(stderr, "need: %d vsize: %d nvsize: %d vbsize: %d offset: %d pdulen: %d pduend: %p vsplit: %p (diff %d) pdubuf: %p (diff %d)\n",
 			need, vsize, nvsize, vbsize, offset, pdulen, pduend,
 			vsplit, (int)(pduend-vsplit),
 			pdubuf, (int)(pduend-(char *)pdubuf));
@@ -480,27 +607,22 @@ __pmDecodeValueSet(__pmPDU *pdubuf, int pdulen, __pmPDU *data, char *pduend,
 	vbsize > INT_MAX / sizeof(pmValueBlock) ||
 	offset != pdulen - (pduend - vsplit) ||
 	offset + vbsize != pduend - (char *)pdubuf) {
-	if (pmDebugOptions.pdu && pmDebugOptions.desperate) {
+	if (pmDebugOptions.pdu) {
 	    if (need < 0)
-		fprintf(stderr, "%s: Bad: need (%d) < 0\n",
-				"__pmDecodeValueSet", need);
+		fprintf(stderr, "__pmDecodeValueSet: PM_ERR_IPC: need (%d) < 0\n",
+		    need);
 	    if (vsize > INT_MAX / sizeof(__pmPDU))
-		fprintf(stderr, "%s: Bad: vsize (%d) > %d\n",
-				"__pmDecodeValueSet", vsize,
-				(int)(INT_MAX / sizeof(__pmPDU)));
+		fprintf(stderr, "__pmDecodeValueSet: PM_ERR_IPC: vsize (%d) > %d\n",
+		    vsize, (int)(INT_MAX / sizeof(__pmPDU)));
 	    if (vbsize > INT_MAX / sizeof(pmValueBlock))
-		fprintf(stderr, "%s: Bad: vbsize (%d) > %d\n",
-				"__pmDecodeValueSet", vbsize,
-				(int)(INT_MAX / sizeof(pmValueBlock)));
+		fprintf(stderr, "__pmDecodeValueSet: PM_ERR_IPC: vbsize (%d) > %d\n",
+		    vbsize, (int)(INT_MAX / sizeof(pmValueBlock)));
 	    if (offset != pdulen - (pduend - vsplit))
-		fprintf(stderr, "%s: Bad: offset (%d) != %d\n",
-				"__pmDecodeValueSet", offset,
-				(int)(pdulen - (pduend - vsplit)));
+		fprintf(stderr, "__pmDecodeValueSet: PM_ERR_IPC: offset (%d) != %d\n",
+		    offset, (int)(pdulen - (pduend - vsplit)));
 	    if (offset + vbsize != pduend - (char *)pdubuf)
-		fprintf(stderr, "%s: Bad: offset+vbsize (%d) "
-				"!= pduend-pdubuf (%d)\n",
-				"__pmDecodeValueSet", (int)(offset + vbsize),
-				(int)(pduend - (char *)pdubuf));
+		fprintf(stderr, "__pmDecodeValueSet: PM_ERR_IPC: offset+vbsize (%d) != pduend-pdubuf (%d)\n",
+		    (int)(offset + vbsize), (int)(pduend - (char *)pdubuf));
 	}
 	return PM_ERR_IPC;
     }
@@ -591,8 +713,8 @@ __pmDecodeValueSet(__pmPDU *pdubuf, int pdulen, __pmPDU *data, char *pduend,
 		    }
 		}
 		else {
-		    if (pmDebugOptions.pdu && pmDebugOptions.desperate)
-			fprintf(stderr, " botch: valfmt=%d\n", nvsp->valfmt);
+		    if (pmDebugOptions.pdu)
+			fprintf(stderr, "botch: valfmt=%d\n", nvsp->valfmt);
 		    return PM_ERR_IPC;
 		}
 	    }
@@ -628,9 +750,9 @@ __pmDecodeValueSet(__pmPDU *pdubuf, int pdulen, __pmPDU *data, char *pduend,
     for (i = 0; i < numpmid; i++) {
 	check = sizeof(*vlp) - sizeof(vlp->vlist) - sizeof(int);
 	if (check > (pduend - (char *)vlp)) {
-	    if (pmDebugOptions.pdu && pmDebugOptions.desperate)
-		fprintf(stderr, "%s: Bad: pmid[%d] outer vlp past end of "
-				"__pmDecodeValueSet", "PDU buffer\n", i);
+	    if (pmDebugOptions.pdu)
+		fprintf(stderr, "__pmDecodeValueSet: PM_ERR_IPC: pmid[%d] outer vlp past end of PDU buffer\n",
+		    i);
 	    return PM_ERR_IPC;
 	}
 
@@ -639,26 +761,25 @@ __pmDecodeValueSet(__pmPDU *pdubuf, int pdulen, __pmPDU *data, char *pduend,
 	vsp->numval = ntohl(vsp->numval);
 	/* numval may be negative - it holds an error code in that case */
 	if (vsp->numval > pdulen) {
-	    if (pmDebugOptions.pdu && pmDebugOptions.desperate)
-		fprintf(stderr, "%s: Bad: pmid[%d] numval=%d > len=%d\n",
-				"__pmDecodeValueSet", i, vsp->numval, pdulen);
+	    if (pmDebugOptions.pdu)
+		fprintf(stderr, "__pmDecodeValueSet: PM_ERR_IPC: pmid[%d] numval=%d > len=%d\n",
+		    i, vsp->numval, pdulen);
 	    return PM_ERR_IPC;
 	}
 
 	vsize += sizeof(vsp->pmid) + sizeof(vsp->numval);
 	if (vsp->numval > 0) {
 	    if (sizeof(*vlp) - sizeof(vlp->vlist) > (pduend - (char *)vlp)) {
-		if (pmDebugOptions.pdu && pmDebugOptions.desperate)
-		    fprintf(stderr, "%s: Bad: pmid[%d] inner vlp past end of "
-				    "PDU buffer\n", "__pmDecodeValueSet", i);
+		if (pmDebugOptions.pdu)
+		    fprintf(stderr, "__pmDecodeValueSet: PM_ERR_IPC: pmid[%d] inner vlp past end of PDU buffer\n",
+			i);
 		return PM_ERR_IPC;
 	    }
 	    check = (INT_MAX - sizeof(*vlp)) / sizeof(__pmValue_PDU);
 	    if (vsp->numval >= check) {
-		if (pmDebugOptions.pdu && pmDebugOptions.desperate)
-		    fprintf(stderr, "%s: Bad: pmid[%d] numval=%d > max=%ld\n",
-				    "__pmDecodeValueSet",
-				    i, vsp->numval, (long)check);
+		if (pmDebugOptions.pdu)
+		    fprintf(stderr, "__pmDecodeValueSet: PM_ERR_IPC: pmid[%d] numval=%d > max=%ld\n",
+			i, vsp->numval, (long)check);
 		return PM_ERR_IPC;
 	    }
 	    vsp->valfmt = ntohl(vsp->valfmt);
@@ -669,10 +790,9 @@ __pmDecodeValueSet(__pmPDU *pdubuf, int pdulen, __pmPDU *data, char *pduend,
 
 		pduvp = &vsp->vlist[j];
 		if (sizeof(__pmValue_PDU) > (size_t)(pduend - (char *)pduvp)) {
-		    if (pmDebugOptions.pdu && pmDebugOptions.desperate)
-			fprintf(stderr, "%s: Bad: pmid[%d] value[%d] initial "
-					"pduvp past end of PDU buffer\n",
-					"__pmDecodeValueSet", i, j);
+		    if (pmDebugOptions.pdu)
+			fprintf(stderr, "__pmDecodeValueSet: PM_ERR_IPC: pmid[%d] value[%d] initial pduvp past end of PDU buffer\n",
+			    i, j);
 		    return PM_ERR_IPC;
 		}
 
@@ -682,11 +802,10 @@ __pmDecodeValueSet(__pmPDU *pdubuf, int pdulen, __pmPDU *data, char *pduend,
 		} else {
 		    /* salvage pmValueBlocks from end of PDU */
 		    vindex = ntohl(pduvp->value.lval);
-		    if (vindex < 0 || vindex > pdulen) {
-			if (pmDebugOptions.pdu && pmDebugOptions.desperate)
-			    fprintf(stderr, "%s: Bad: pmid[%d] value[%d] "
-					    "vindex=%d\n",
-					    "__pmDecodeValueSet", i, j, vindex);
+		    if (vindex < 0 || (char *)&pdubuf[vindex] >= pduend) {
+			if (pmDebugOptions.pdu)
+			    fprintf(stderr, "__pmDecodeValueSet: PM_ERR_IPC: pmid[%d] value[%d] vindex=%d (max=%ld)\n",
+				i, j, vindex, (long)((pduend-(char *)pdubuf) / sizeof(pdubuf[0])-1));
 			return PM_ERR_IPC;
 		    }
 		    pduvbp = (pmValueBlock *)&pdubuf[vindex];
@@ -694,29 +813,33 @@ __pmDecodeValueSet(__pmPDU *pdubuf, int pdulen, __pmPDU *data, char *pduend,
 			vsplit = (char *)pduvbp;
 		    check = (size_t)(pduend - (char *)pduvbp);
 		    if (sizeof(unsigned int) > check) {
-			if (pmDebugOptions.pdu && pmDebugOptions.desperate)
-			    fprintf(stderr, "%s: Bad: pmid[%d] value[%d] "
-					    "second pduvp past end of "
-					    "PDU buffer\n",
-					    "__pmDecodeValueSet", i, j);
+			if (pmDebugOptions.pdu)
+			    fprintf(stderr, "__pmDecodeValueSet: PM_ERR_IPC: pmid[%d] value[%d] second pduvp past end of PDU buffer\n",
+				i, j);
 			return PM_ERR_IPC;
 		    }
-		    __ntohpmValueBlock(pduvbp);
+
+		    __ntohpmValueBlock_hdr(pduvbp);
 		    if (pduvbp->vlen < PM_VAL_HDR_SIZE ||
 			pduvbp->vlen > pdulen) {
-			if (pmDebugOptions.pdu && pmDebugOptions.desperate)
-			    fprintf(stderr, "%s: Bad: pmid[%d] value[%d] "
-					    "vlen=%d\n", "__pmDecodeValueSet",
-					    i, j, pduvbp->vlen);
+			if (pmDebugOptions.pdu)
+			    fprintf(stderr, "__pmDecodeValueSet: PM_ERR_IPC: pmid[%d] value[%d] vlen=%d\n", 
+				i, j, pduvbp->vlen);
 			return PM_ERR_IPC;
 		    }
-		    if (pduvbp->vlen > (size_t)(pduend - (char *)pduvbp)) {
-			if (pmDebugOptions.pdu && pmDebugOptions.desperate)
-			    fprintf(stderr, "%s: Bad: pmid[%d] value[%d] "
-					    "pduvp past end of PDU buffer\n",
-					    "__pmDecodeValueSet", i, j);
+		    if (pduvbp->vlen > check) {
+			if (pmDebugOptions.pdu)
+			    fprintf(stderr, "__pmDecodeValueSet: PM_ERR_IPC: pmid[%d] value[%d] pduvp past end of PDU buffer\n",
+				i, j);
 			return PM_ERR_IPC;
 		    }
+		    if (pduvbp->vtype == PM_TYPE_HIGHRES_EVENT ||
+		        pduvbp->vtype == PM_TYPE_EVENT) {
+			vindex = (pduvbp->vtype == PM_TYPE_HIGHRES_EVENT);
+			if (__pmEventArrayCheck(pduvbp, vindex, i, j, check) < 0)
+			    return PM_ERR_IPC;
+		    }
+		    __ntohpmValueBlock_buf(pduvbp);
 		    pduvp->value.pval = pduvbp;
 		}
 	    }
@@ -731,9 +854,8 @@ __pmDecodeValueSet(__pmPDU *pdubuf, int pdulen, __pmPDU *data, char *pduend,
     if (numpmid > 0) {
 	check = preamble + vsize;
 	if (check != pdulen - (pduend - vsplit)) {
-	    if (pmDebugOptions.pdu && pmDebugOptions.desperate)
-		fprintf(stderr, "%s: Bad: vsplit past end of PDU buffer\n",
-				"__pmDecodeValueSet");
+	    if (pmDebugOptions.pdu)
+		fprintf(stderr, "__pmDecodeValueSet: PM_ERR_IPC: vsplit past end of PDU buffer\n");
 	    return PM_ERR_IPC;
 	}
 	/*
@@ -764,6 +886,7 @@ __pmDecodeResult_ctx(__pmContext *ctxp, __pmPDU *pdubuf, __pmResult **result)
     int			sts;
     int			numpmid;	/* number of metrics */
     int			len = pdubuf[0];
+    int			v3archive;
     __pmPDU		*vset;
     char		*pduend;	/* end pointer for incoming buffer */
     size_t		bytes, nopad;
@@ -774,50 +897,53 @@ __pmDecodeResult_ctx(__pmContext *ctxp, __pmPDU *pdubuf, __pmResult **result)
     if (ctxp != NULL)
 	PM_ASSERT_IS_LOCKED(ctxp->c_lock);
 
-    if (ctxp != NULL && ctxp->c_type == PM_CONTEXT_ARCHIVE && __pmLogVersion(ctxp->c_archctl->ac_log) == PM_LOG_VERS03) {
-	/*
-	 * V3 archive
-	 */
-	log_result_v3_t	*lrp = (log_result_v3_t *)pdubuf;
+    v3archive = (ctxp && ctxp->c_type == PM_CONTEXT_ARCHIVE &&
+		__pmLogVersion(ctxp->c_archctl->ac_log) == PM_LOG_VERS03);
+    if (v3archive) {
 	pduend = (char *)pdubuf + len;
 	bytes = sizeof(log_result_v3_t) - sizeof(__int32_t);
+    }
+    else {  /* over the wire PDU or V2 archive */
+	pduend = (char *)pdubuf + len;
+	bytes = sizeof(result_t) - sizeof(__pmPDU);
+    }
+
+    if (len < bytes) {
+	if (pmDebugOptions.pdu)
+	    fprintf(stderr, "__pmDecodeResult: PM_ERR_IPC: short PDU %d < min size %d\n",
+		len, (int)bytes);
+	return PM_ERR_IPC;
+    }
+
+    /* delayed until after buffer size check has been completed */
+    if (v3archive) {
+	log_result_v3_t	*lrp = (log_result_v3_t *)pdubuf;
+
 	nopad = bytes;
 	numpmid = ntohl(lrp->numpmid);
 	__pmLoadTimestamp((__int32_t *)&lrp->sec[0], &stamp);
 	vset = (__pmPDU *)lrp->data;
     }
     else {
-	/*
-	 * over the wire PDU or V2 archive
-	 */
 	result_t	*pp = (result_t *)pdubuf;
-	pduend = (char *)pdubuf + len;
-	bytes = sizeof(result_t) - sizeof(__pmPDU);
+
 	nopad = sizeof(pp->hdr) + sizeof(pp->timestamp) + sizeof(pp->numpmid);
 	numpmid = ntohl(pp->numpmid);
 	__pmLoadTimeval((__int32_t *)&pp->timestamp, &stamp);
 	vset = pp->data;
     }
 
-    if (pduend - (char *)pdubuf < bytes) {
-	if (pmDebugOptions.pdu && pmDebugOptions.desperate)
-	    fprintf(stderr, "%s: Bad: len=%d smaller than min %d\n",
-			    "__pmDecodeResult", len, (int)bytes);
-	return PM_ERR_IPC;
-    }
-
     if (numpmid < 0 || numpmid > len) {
-	if (pmDebugOptions.pdu && pmDebugOptions.desperate)
-	    fprintf(stderr, "%s: Bad: numpmid=%d negative or not smaller "
-			    "than PDU len %d\n", "__pmDecodeResult",
-			    numpmid, len);
+	if (pmDebugOptions.pdu)
+	    fprintf(stderr, "__pmDecodeResult: PM_ERR_IPC: numpmid=%d negative or not smaller than PDU len %d\n",
+		numpmid, len);
 	return PM_ERR_IPC;
     }
     maxnumpmid = (INT_MAX - sizeof(pmResult)) / sizeof(pmValueSet *);
     if (numpmid >= maxnumpmid) {
-	if (pmDebugOptions.pdu && pmDebugOptions.desperate)
-	    fprintf(stderr, "%s: Bad: numpmid=%d larger than max %ld\n",
-			    "__pmDecodeResult", numpmid, (long)maxnumpmid);
+	if (pmDebugOptions.pdu)
+	    fprintf(stderr, "__pmDecodeResult: PM_ERR_IPC: numpmid=%d larger than max %ld\n",
+		numpmid, (long)maxnumpmid);
 	return PM_ERR_IPC;
     }
 
@@ -874,25 +1000,24 @@ __pmDecodeHighResResult_ctx(__pmContext *ctxp, __pmPDU *pdubuf, __pmResult **res
     pduend = (char *)pdubuf + pp->hdr.len;
     bytes = sizeof(highres_result_t) - (sizeof(__pmPDU) * 2);
     if (pduend - (char *)pdubuf < bytes) {
-	if (pmDebugOptions.pdu && pmDebugOptions.desperate)
-	    fprintf(stderr, "%s: Bad: len=%d smaller than min %d\n",
-			    "__pmDecodeHighResResult", pp->hdr.len, (int)bytes);
+	if (pmDebugOptions.pdu)
+	    fprintf(stderr, "__pmDecodeHighResResult: PM_ERR_IPC: len=%d smaller than min %d\n",
+		pp->hdr.len, (int)bytes);
 	return PM_ERR_IPC;
     }
 
     numpmid = ntohl(pp->numpmid);
     if (numpmid < 0 || numpmid > pp->hdr.len) {
-	if (pmDebugOptions.pdu && pmDebugOptions.desperate)
-	    fprintf(stderr, "%s: Bad: numpmid=%d negative or not smaller "
-			    "than PDU len %d\n", "__pmDecodeHighResResult",
-			    numpmid, pp->hdr.len);
+	if (pmDebugOptions.pdu)
+	    fprintf(stderr, "__pmDecodeHighResResult: PM_ERR_IPC: numpmid=%d negative or not smaller than PDU len %d\n",
+		numpmid, pp->hdr.len);
 	return PM_ERR_IPC;
     }
     bytes = (INT_MAX - sizeof(pmHighResResult)) / sizeof(pmValueSet *);
     if (numpmid >= bytes) {
-	if (pmDebugOptions.pdu && pmDebugOptions.desperate)
-	    fprintf(stderr, "%s: Bad: numpmid=%d larger than max %ld\n",
-			    "__pmDecodeHighResResult", numpmid, (long)bytes);
+	if (pmDebugOptions.pdu)
+	    fprintf(stderr, "__pmDecodeHighResResult: PM_ERR_IPC: numpmid=%d larger than max %ld\n",
+		numpmid, (long)bytes);
 	return PM_ERR_IPC;
     }
 

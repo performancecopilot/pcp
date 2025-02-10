@@ -56,7 +56,7 @@ ScaleMod::ScaleMod(const char *str,
 
 	if (pmDebugOptions.appl2)
 	    cerr << "ScaleMod: Added " << str << " (Id = " 
-		 << _root->getName().getString() << ")" << endl;
+		 << _root->getName().getString() << ")" << Qt::endl;
     }
 
     // Invalid metric
@@ -75,7 +75,7 @@ ScaleMod::refresh(bool fetchFlag)
     if (fetchFlag)
         metric.update();
 
-    if (metric.error(0) <= 0) {
+    if (metric.error(0) < 0) {
         if (_state != Modulate::error) {
             _color->rgb.setValue(_errorColor.getValue());
             _scale->scaleFactor.setValue((_xScale==0.0f ? 1.0 : theMinScale),
@@ -161,7 +161,7 @@ int
 ScaleMod::select(SoPath *)
 {
     if (pmDebugOptions.appl2)
-	cerr << "ScaleMod::select: " << _metrics->metric(0) << endl;
+	cerr << "ScaleMod::select: " << _metrics->metric(0) << Qt::endl;
     return 1;
 }
 
@@ -169,6 +169,6 @@ int
 ScaleMod::remove(SoPath *)
 {
     if (pmDebugOptions.appl2)
-	cerr << "ScaleMod::remove: " << _metrics->metric(0) << endl;
+	cerr << "ScaleMod::remove: " << _metrics->metric(0) << Qt::endl;
     return 0;
 }

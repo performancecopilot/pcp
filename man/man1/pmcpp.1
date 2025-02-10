@@ -213,18 +213,25 @@ Changes the expected input style from C-like to shell-like
 This forces the following changes in
 .B pmcpp
 behaviour:
+.RS 5
 .PD 0
 .IP \(bu 3n
 The control prefix character changes from
 .B #
 to
 .BR % ,
-so
+so for example
 .B %include
-for example.
+instead of
+.BR #include ,
+and
+.B %ifdef
+instead of
+.BR #ifdef .
 .IP \(bu 3n
-No comment stripping is performed.
+No C-style comment stripping is performed.
 .PD
+.RE
 .TP
 \fB\-r\fR, \fB\-\-restrict\fR
 Provide finer control of macro expansion \- this
@@ -247,6 +254,9 @@ the macro
 .I name
 should appear alone with out the prefix character or the
 curly braces (refer to the EXAMPLES below).
+.TP
+\fB\-?\fR, \fB\-\-help\fR
+Display usage message and exit.
 .PP
 Important
 .BR cpp (1)
@@ -286,16 +296,13 @@ command line options like
 and
 .BR \-x .
 .PD
-.TP
-\fB\-?\fR, \fB\-\-help\fR
-Display usage message and exit.
 .SH EXAMPLES
 .\" man.1.in from src dir
 .TS
 box;
 lR s
 lB | lB
-lf(CW) | lf(CW).
+lf(CR) | lf(CR).
 Command: \fBpmcpp\fP
 _
 Input	Output
@@ -312,7 +319,7 @@ For the following examples, the file
 .I frequencies
 contains the lines:
 .nf
-.ft CW
+.ft CR
 .in +8n
 %define dk_freq 1minute
 %define cpu_freq '15 sec'
@@ -325,7 +332,7 @@ contains the lines:
 box;
 lR s
 lB | lB
-lf(CW) | lf(CW).
+lf(CR) | lf(CR).
 Command: \fBpmcpp -rs\fP
 _
 Input	Output
@@ -338,7 +345,7 @@ log mandatory on %dk_freq {	log mandatory on 1minute {
     disk.dev	   disk.dev
 }	}
 
-# note no % for want_cpu here	# note no % for want_cpu here
+# note no %want_cpu here	# note no %want_cpu here
 %ifdef want_cpu
 %define cpu_pfx 'kernel.all.cpu.'
 log mandatory on %cpu_freq {
@@ -352,8 +359,8 @@ log mandatory on %cpu_freq {
 box;
 lR s
 lB | lB
-lf(CW) | lf(CW).
-Command: \fBpmcpp -rs -Dwant_cpu\fP
+lf(CR) | lf(CR).
+Command: \fBpmcpp -rs -D want_cpu\fP
 _
 Input	Output
 _
@@ -361,11 +368,11 @@ _
 # e.g. dk_freq macro	# e.g. dk_freq macro
 %include "frequencies"
 
-log mandatory on %dk_freq {	log mandatory on 1minute {
+log mandatory on %dk_freq {	log mandatory on 1min {
     disk.dev	   disk.dev
 }	}
 
-# note no % for want_cpu here	# note no % for want_cpu here
+# note no %want_cpu here	# note no %want_cpu here
 %ifdef want_cpu
 %define cpu_pfx 'kernel.all.cpu.'
 log mandatory on %cpu_freq {	log mandatory on 15 sec {
@@ -391,3 +398,8 @@ For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
 .BR pcp.env (5)
 and
 .BR PMNS (5).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ MYDOMAIN cpu_freq cpu_pfx dk_freq infile linemarker
+.\" +ok+ lineno pre sys want_cpu
+

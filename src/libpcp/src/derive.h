@@ -22,6 +22,29 @@
  * Derived Metrics support
  */
 
+/*
+ * how to handle undefined metrics in bind_expr() and __dmbind() for
+ * N_QUEST (ternary operator) ...
+ * QUEST_BIND_NOW trips a error
+ * QUEST_BIND_LAZY may be ok, defer checking until check_expr()
+ */
+#define QUEST_BIND_NOW 	0	
+#define QUEST_BIND_LAZY 	1
+
+/*
+ * for <guard> ? <left-expr> : <right-expr> info.bind tells
+ * us if bind_expr() found a constant <guard> and based on that
+ * value, only explored the <left-expr> because <guard> was
+ * true (BIND_LEFT), or only explored the <right-expr> because
+ * <guard> was false (BIND_BOTH).
+ * When both <left-expr> and <right-expr> are in play, BIND_BOTH
+ * is used.
+ */
+#define QUEST_BIND_UNKNOWN	0
+#define QUEST_BIND_LEFT		1
+#define QUEST_BIND_RIGHT	2
+#define QUEST_BIND_BOTH		3
+
 typedef struct {		/* one value in the expression tree */
     int		inst;
     pmAtomValue	value;
@@ -39,6 +62,7 @@ typedef struct {		/* dynamic information for an expression node */
     int			last_numval;	/* length of last_ivlist[] */
     val_t		*last_ivlist;	/* values from previous fetch for delta() or rate() */
     struct timespec	last_stamp;	/* timestamp from previous fetch for rate() */
+    int			bind;		/* for N_COLON: BIND_LEFT, _RIGHT or _BOTH */
 } info_t;
 
 typedef struct {			/* for instance filtering */
@@ -65,6 +89,7 @@ typedef struct node {		/* expression tree node */
     struct node	*left;
     struct node	*right;
     char	*value;
+    int		flags;
     union {
 	info_t		*info;
 	pattern_t	*pattern;
@@ -143,6 +168,8 @@ typedef struct {
 #define N_FILTERINST	32
 #define N_PATTERN	33
 #define N_SCALAR	34
+#define N_NOVALUE	35
+#define N_META		36
 
 /* instance filtering types */
 #define F_REGEX		0		/* matchinst([!]pattern, expr) */
@@ -155,6 +182,7 @@ extern int __dmtraverse(__pmContext *, const char *, char ***) _PCP_HIDDEN;
 extern int __dmchildren(__pmContext *, int, const char *, char ***, int **) _PCP_HIDDEN;
 extern int __dmgetpmid(__pmContext *, int, const char *, pmID *) _PCP_HIDDEN;
 extern int __dmgetname(__pmContext *, pmID, char **) _PCP_HIDDEN;
+extern void __dmcheckname(__pmContext *, int, const char *, pmID) _PCP_HIDDEN;
 extern void __dmopencontext(__pmContext *) _PCP_HIDDEN;
 extern void __dmbind(int, __pmContext *, int, int) _PCP_HIDDEN;
 extern void __dmclosecontext(__pmContext *) _PCP_HIDDEN;

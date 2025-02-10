@@ -149,11 +149,13 @@ void QedTimeControl::addArchive(
     strncpy((char *)message->data, (const char *)tzstring.toLatin1(), tzlen+1);
     strncpy((char *)message->data + tzlen+1,
 				(const char *)tzlabel.toLatin1(), lablen+1);
-    if (my.archiveSocket->write((const char *)message, sz) < 0)
-	QMessageBox::warning(0,
+    if (my.archiveSocket->write((const char *)message, sz) < 0) {
+	QMessageBox error(QMessageBox::Warning,
 		QApplication::tr("Error"),
 		QApplication::tr("Cannot update pmtime boundaries."),
-		QApplication::tr("Quit") );
+		QMessageBox::Close);
+	error.exec();
+    }
     free(message);
 }
 
@@ -174,11 +176,13 @@ void QedTimeControl::showLiveTimeControl(void)
     my.livePacket->command = QmcTime::GUIShow;
     my.livePacket->length = sizeof(QmcTime::Packet);
     if (my.liveSocket->write((const char *)my.livePacket,
-					sizeof(QmcTime::Packet)) < 0)
-	QMessageBox::warning(0,
-                QApplication::tr("Error"),
-                QApplication::tr("Cannot get pmtime to show itself."),
-                QApplication::tr("Quit") );
+					sizeof(QmcTime::Packet)) < 0) {
+	QMessageBox error(QMessageBox::Warning,
+		QApplication::tr("Error"),
+		QApplication::tr("Cannot get pmtime to show itself."),
+		QMessageBox::Close);
+	error.exec();
+    }
 }
 
 void QedTimeControl::showArchiveTimeControl(void)
@@ -186,11 +190,13 @@ void QedTimeControl::showArchiveTimeControl(void)
     my.archivePacket->command = QmcTime::GUIShow;
     my.archivePacket->length = sizeof(QmcTime::Packet);
     if (my.archiveSocket->write((const char *)my.archivePacket,
-					sizeof(QmcTime::Packet)) < 0)
-	QMessageBox::warning(0,
-    		QApplication::tr("Error"),
-    		QApplication::tr("Cannot get pmtime to show itself."),
-    		QApplication::tr("Quit") );
+					sizeof(QmcTime::Packet)) < 0) {
+	QMessageBox error(QMessageBox::Warning,
+		QApplication::tr("Error"),
+		QApplication::tr("Cannot get pmtime to show itself."),
+		QMessageBox::Close);
+	error.exec();
+    }
 }
 
 void QedTimeControl::hideLiveTimeControl()
@@ -198,11 +204,13 @@ void QedTimeControl::hideLiveTimeControl()
     my.livePacket->command = QmcTime::GUIHide;
     my.livePacket->length = sizeof(QmcTime::Packet);
     if (my.liveSocket->write((const char *)my.livePacket,
-					sizeof(QmcTime::Packet)) < 0)
-	QMessageBox::warning(0,
+					sizeof(QmcTime::Packet)) < 0) {
+	QMessageBox error(QMessageBox::Warning,
 		QApplication::tr("Error"),
 		QApplication::tr("Cannot get pmtime to hide itself."),
-		QApplication::tr("Quit") );
+		QMessageBox::Close);
+	error.exec();
+    }
 }
 
 void QedTimeControl::hideArchiveTimeControl()
@@ -210,19 +218,22 @@ void QedTimeControl::hideArchiveTimeControl()
     my.archivePacket->command = QmcTime::GUIHide;
     my.archivePacket->length = sizeof(QmcTime::Packet);
     if (my.archiveSocket->write((const char *)my.archivePacket,
-					sizeof(QmcTime::Packet)) < 0)
-	QMessageBox::warning(0,
+					sizeof(QmcTime::Packet)) < 0) {
+	QMessageBox error(QMessageBox::Warning,
 		QApplication::tr("Error"),
 		QApplication::tr("Cannot get pmtime to hide itself."),
-		QApplication::tr("Quit") );
+		QMessageBox::Close);
+	error.exec();
+    }
 }
 
 void QedTimeControl::endTimeControl(void)
 {
-    QMessageBox::warning(0,
+    QMessageBox error(QMessageBox::Warning,
 		QApplication::tr("Error"),
 		QApplication::tr("Time Control process pmtime has exited."),
-		QApplication::tr("Quit") );
+		QMessageBox::Close);
+    error.exec();
     exit(-1);
 }
 
@@ -250,19 +261,21 @@ void QedTimeControl::liveSocketConnected()
 {
     if (my.liveSocket->write((const char *)my.livePacket,
 				sizeof(QmcTime::Packet)) < 0) {
-	QMessageBox::critical(0,
+	QMessageBox error(QMessageBox::Critical,
 		QApplication::tr("Fatal error"),
 		QApplication::tr(
 			"Failed socket write in live pmtime negotiation."),
-		QApplication::tr("Quit") );
+		QMessageBox::Close);
+        error.exec();
 	exit(1);
     }
     if (my.liveSocket->write((const char *)my.tzData, my.tzLength) < 0) {
-	QMessageBox::critical(0,
+	QMessageBox error(QMessageBox::Critical,
 		QApplication::tr("Fatal error"),
 		QApplication::tr(
 			"Failed to send timezone in live pmtime negotiation."),
-		QApplication::tr("Quit"));
+		QMessageBox::Close);
+        error.exec();
 	exit(1);
     }
     my.liveState = QedTimeControl::AwaitingACK;
@@ -272,19 +285,21 @@ void QedTimeControl::archiveSocketConnected()
 {
     if (my.archiveSocket->write((const char *)my.archivePacket,
 				sizeof(QmcTime::Packet)) < 0) {
-	QMessageBox::critical(0,
+	QMessageBox error(QMessageBox::Critical,
 		QApplication::tr("Fatal error"),
 		QApplication::tr(
 			"Failed socket write in archive pmtime negotiation."),
-		QApplication::tr("Quit") );
+		QMessageBox::Close);
+        error.exec();
 	exit(1);
     }
     if (my.archiveSocket->write((const char *)my.tzData, my.tzLength) < 0) {
-	QMessageBox::critical(0,
+	QMessageBox error(QMessageBox::Critical,
 		QApplication::tr("Fatal error"),
 		QApplication::tr(
 			"Failed timezone send in archive pmtime negotiation."),
-		QApplication::tr("Quit") );
+		QMessageBox::Close);
+        error.exec();
 	exit(1);
     }
     my.archiveState = QedTimeControl::AwaitingACK;
@@ -319,10 +334,11 @@ void QedTimeControl::readPortFromStdout(void)
 
     my.tcpPort = data.remove("port=").toInt(&ok, 10);
     if (!ok) {
-	QMessageBox::critical(0,
-    	QApplication::tr("Fatal error"),
-    	QApplication::tr("Bad port number from pmtime program."),
-    	QApplication::tr("Quit") );
+	QMessageBox error(QMessageBox::Critical,
+		QApplication::tr("Fatal error"),
+    		QApplication::tr("Bad port number from pmtime program."),
+		QMessageBox::Close);
+        error.exec();
 	exit(1);
     }
 
@@ -340,10 +356,11 @@ void QedTimeControl::protocolMessage(bool live,
     for (;;) {
 	sts = socket->read(my.buffer + offset, need);
 	if (sts < 0) {
-	    QMessageBox::critical(0,
+	    QMessageBox error(QMessageBox::Critical,
 		QApplication::tr("Fatal error"),
 		QApplication::tr("Failed socket read in pmtime transfer."),
-		QApplication::tr("Quit") );
+		QMessageBox::Close);
+	    error.exec();
 	    exit(1);
 	}
 	else if (sts != need) {
@@ -354,10 +371,11 @@ void QedTimeControl::protocolMessage(bool live,
 
 	msg = (QmcTime::Packet *)my.buffer;
 	if (msg->magic != QmcTime::Magic) {
-	    QMessageBox::critical(0,
+	    QMessageBox error(QMessageBox::Critical,
 		QApplication::tr("Fatal error"),
 		QApplication::tr("Bad client message magic number."),
-		QApplication::tr("Quit") );
+		QMessageBox::Close);
+	    error.exec();
 	    exit(1);
 	}
 	if (msg->length > my.bufferLength) {
@@ -382,17 +400,19 @@ void QedTimeControl::protocolMessage(bool live,
     switch (*state) {
     case QedTimeControl::AwaitingACK:
 	if (msg->command != QmcTime::ACK) {
-	    QMessageBox::critical(0,
+	    QMessageBox error(QMessageBox::Critical,
 		QApplication::tr("Fatal error"),
 		QApplication::tr("Initial ACK not received from pmtime."),
-		QApplication::tr("Quit") );
+		QMessageBox::Close);
+	    error.exec();
 	    exit(1);
 	}
 	if (msg->source != packet->source) {
-	    QMessageBox::critical(0,
+	    QMessageBox error(QMessageBox::Critical,
 		QApplication::tr("Fatal error"),
 		QApplication::tr("pmtime not serving same metric source."),
-		QApplication::tr("Quit") );
+		QMessageBox::Close);
+	    error.exec();
 	    exit(1);
 	}
 	*state = QedTimeControl::ClientReady;
@@ -420,10 +440,11 @@ void QedTimeControl::protocolMessage(bool live,
 	    msg->length = sizeof(QmcTime::Packet);
 	    sts = socket->write((const char *)msg, msg->length);
 	    if (sts < 0 || sts != (int)msg->length) {
-		QMessageBox::critical(0,
+		QMessageBox error(QMessageBox::Critical,
 			QApplication::tr("Fatal error"),
 			QApplication::tr("Failed pmtime write for STEP ACK."),
-			QApplication::tr("Quit") );
+			QMessageBox::Close);
+		error.exec();
 		exit(1);
 	    }
 	} else if (msg->command == QmcTime::VCRMode ||
@@ -439,11 +460,13 @@ void QedTimeControl::protocolMessage(bool live,
 	}
 	break;
 
-    default:
-	QMessageBox::critical(0,
+    default: {
+	QMessageBox error(QMessageBox::Critical,
 		QApplication::tr("Fatal error"),
 		QApplication::tr("Protocol error with pmtime."),
-		QApplication::tr("Quit") );
+		QMessageBox::Close);
+	error.exec();
+	}
 	// fall through
     case QedTimeControl::Disconnected:
 	exit(1);

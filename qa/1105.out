@@ -7,6 +7,7 @@ qa.ok
  pmcd.pmlogger.port +
                     ^
 Arithmetic expression expected to follow PLUS
+bind_expr: error: global derived metric qa.hide.semantic: operand: no.such.metric.ever.will.exist: Unknown metric name
 
 traverse PMNS below qa  ...
 qa.hide.ok
@@ -15,6 +16,7 @@ qa.ok
  pmcd.pmlogger.port +
                     ^
 Arithmetic expression expected to follow PLUS
+bind_expr: error: global derived metric qa.hide.semantic: operand: no.such.metric.ever.will.exist: Unknown metric name
 
 exact matches in PMNS  ...
 qa.hide.ok
@@ -24,6 +26,7 @@ qa.ok
                     ^
 Arithmetic expression expected to follow PLUS
 Error: qa.hide.syntax: Unknown metric name
+bind_expr: error: global derived metric qa.hide.semantic: operand: no.such.metric.ever.will.exist: Unknown metric name
 Error: qa.hide.semantic: Unknown metric name
 
 mismatches in PMNS  ...
@@ -42,6 +45,7 @@ qa.ok
  pmcd.pmlogger.port +
                     ^
 Arithmetic expression expected to follow PLUS
+bind_expr: error: global derived metric qa.hide.semantic: operand: no.such.metric.ever.will.exist: Unknown metric name
 
 traverse PMNS below qa -d ...
 qa.hide.ok
@@ -50,15 +54,23 @@ qa.ok
  pmcd.pmlogger.port +
                     ^
 Arithmetic expression expected to follow PLUS
+bind_expr: error: global derived metric qa.hide.semantic: operand: no.such.metric.ever.will.exist: Unknown metric name
 
 exact matches in PMNS -d ...
+
 qa.hide.ok
+    Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+
 qa.ok
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
 [TMP.derive:2] Error: pmRegisterDerived(qa.hide.syntax, ...) syntax error
  pmcd.pmlogger.port +
                     ^
 Arithmetic expression expected to follow PLUS
 Error: qa.hide.syntax: Unknown metric name
+bind_expr: error: global derived metric qa.hide.semantic: operand: no.such.metric.ever.will.exist: Unknown metric name
 Error: qa.hide.semantic: Unknown metric name
 
 mismatches in PMNS -d ...

@@ -12,7 +12,6 @@ echo "QA output created by $seq"
 _pmdabpftrace_check
 
 status=1       # failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 
 _prepare_pmda bpftrace
 trap "_pmdabpftrace_cleanup; exit \$status" 0 1 2 3 15
@@ -27,6 +26,8 @@ enabled = true
 EOF
 pmstore bpftrace.control.register "tracepoint:raw_syscalls:sys_enter { @c = count(); }"
 grep -o "permission denied" $PCP_LOG_DIR/pmcd/bpftrace.log
+grep bpftrace $PCP_LOG_DIR/pmcd/pmcd.log >>$seq_full
+cat $PCP_LOG_DIR/pmcd/bpftrace.log >>$seq_full
 echo
 
 echo "=== authentication enabled, user is not allowed ==="

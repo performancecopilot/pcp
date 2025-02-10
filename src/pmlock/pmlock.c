@@ -16,35 +16,82 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 
+static pmLongOptions longopts[] = {
+    { "ident", 1, 'i', "IDENT", "write identifying value into the lock file" },
+    { "verbose", 0, 'v', "", "increase verbosity" },
+    PMOPT_HELP,
+    PMAPI_OPTIONS_END
+};
+static pmOptions opts = {
+    .short_options = "i:v?",
+    .long_options = longopts,
+    .short_usage = "[-v] [-i ident] file",
+};
+
 int
 main(int argc, char **argv)
 {
     int		fd, verbose = 0;
+    int		c;
+    int		mode = 0;
+    char	*ident = NULL;
 
-    if (argc > 1 &&
-	(strcmp(argv[1], "-v") == 0 || strcmp(argv[1], "--verbose") == 0)) {
-	verbose = 1;
-	argc--;
-	argv++;
+    while ((c = pmgetopt_r(argc, argv, &opts)) != EOF) {
+	switch (c) {
+
+	case 'v':	/* verbose */
+	    verbose++;
+	    break;
+
+	case 'i':	/* ident */
+	    ident = opts.optarg;
+	    mode = 0444;
+	    break;
+
+	case '?':
+	    pmUsageMessage(&opts);
+	    exit(0);
+
+	default:
+	    opts.errors++;
+	    break;
+	}
     }
-    if (argc != 2 || (argc == 2 && strcmp(argv[1], "-?") == 0)) {
-	fprintf(stderr, "Usage: pmlock [-v,--verbose] file\n");
+
+    if (opts.errors || opts.optind != argc - 1) {
+	pmUsageMessage(&opts);
 	exit(1);
     }
-    if ((fd = open(argv[1], O_CREAT|O_EXCL|O_RDONLY, 0)) < 0) {
+
+    if ((fd = open(argv[opts.optind], O_CREAT|O_EXCL|O_WRONLY, mode)) < 0) {
 	if (verbose) {
 	    if (oserror() == EACCES) {
-		char	*p = dirname(argv[1]);
+		char	*p = dirname(argv[opts.optind]);
 		if (access(p, W_OK) == -1)
-		    printf("%s: Directory not writable\n", p);
+		    fprintf(stderr, "pmlock: %s: Directory not writable\n", p);
 		else
-		    printf("%s: %s\n", argv[1], strerror(EACCES));
+		    fprintf(stderr, "pmlock: %s: %s\n", argv[opts.optind], strerror(EACCES));
 	    }
 	    else
-		printf("%s: %s\n", argv[1], osstrerror());
+		fprintf(stderr, "pmlock: %s: %s\n", argv[opts.optind], osstrerror());
 	}
 	exit(1);
     }
+
+    if (ident != NULL) {
+	int	len = strlen(ident);
+	int	sts;
+
+	if ((sts = write(fd, ident, len)) != len) {
+	    fprintf(stderr, "pmlock: %s: Warning: failed to write ident (%s): %s\n",
+		argv[opts.optind], ident, osstrerror());
+	}
+	if ((sts = write(fd, "\n", 1)) != 1) {
+	    fprintf(stderr, "pmlock: %s: Warning: failed to append newline after ident (%s): %s\n",
+		argv[opts.optind], ident, osstrerror());
+	}
+    }
+
     close(fd);
     exit(0);
 }

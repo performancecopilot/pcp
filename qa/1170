@@ -25,13 +25,12 @@ target_ip=1.1.1.1
 
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
-$sudo rm -rf $tmp.* $seq.full
 
 # Some combinations of distro and kernel are known to be "bad"
 # for some BPF modules
 #
 kernel=`uname -r`
-echo "$kernel" >>$seq.full
+echo "$kernel" >>$seq_full
 case `admin/whatami`
 in
     *Fedora\ 32\ *)
@@ -78,43 +77,43 @@ _pmdabcc_install <$tmp.conf
 _pmdabcc_wait_for_metric
 
 # Generate system activity for the BCC tcptop module
-echo Started curl at $(date) >> $here/$seq.full
+echo Started curl at $(date) >> $seq_full
 curl -s http://${target_ip} > /dev/null
 
 # wait until PMDA refreshes BPF table containing curl
 _pmdabcc_wait_for_value bcc.proc.io.net.tcptop.daddr '"'${target_ip}'"'
 
 echo "=== report metric values for pid ==="
-pminfo -dfmtT bcc.proc.io.net.tcptop.pid 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bcc.proc.io.net.tcptop.pid 2>&1 | tee -a $seq_full \
 | _value_filter_nonzero
 
 # curl processes already exited, therefore command is not available (only PID is shown)
 echo "=== report metric values for comm ==="
-pminfo -dfmtT bcc.proc.io.net.tcptop.comm 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bcc.proc.io.net.tcptop.comm 2>&1 | tee -a $seq_full \
 | _value_filter_any
 
 echo "=== report metric values for laddr ==="
-pminfo -dfmtT bcc.proc.io.net.tcptop.laddr 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bcc.proc.io.net.tcptop.laddr 2>&1 | tee -a $seq_full \
 | _value_filter_any
 
 echo "=== report metric values for lport ==="
-pminfo -dfmtT bcc.proc.io.net.tcptop.lport 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bcc.proc.io.net.tcptop.lport 2>&1 | tee -a $seq_full \
 | _value_filter_nonzero
 
 echo "=== report metric values for daddr ==="
-pminfo -dfmtT bcc.proc.io.net.tcptop.daddr 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bcc.proc.io.net.tcptop.daddr 2>&1 | tee -a $seq_full \
 | _value_filter_exact '"'${target_ip}'"'
 
 echo "=== report metric values for dport ==="
-pminfo -dfmtT bcc.proc.io.net.tcptop.dport 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bcc.proc.io.net.tcptop.dport 2>&1 | tee -a $seq_full \
 | _value_filter_exact 80
 
 echo "=== report metric values for rx ==="
-pminfo -dfmtT bcc.proc.io.net.tcptop.rx 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bcc.proc.io.net.tcptop.rx 2>&1 | tee -a $seq_full \
 | _value_filter_nonzero
 
 echo "=== report metric values for tx ==="
-pminfo -dfmtT bcc.proc.io.net.tcptop.tx 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bcc.proc.io.net.tcptop.tx 2>&1 | tee -a $seq_full \
 | _value_filter_any
 
 _pmdabcc_remove

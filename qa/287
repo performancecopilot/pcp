@@ -16,11 +16,11 @@ echo "QA output created by $seq"
 which pmlogreduce >/dev/null 2>&1 || _notrun "No pmlogreduce binary installed"
 
 rm -f $seq.out
-size=`_get_word_size`
+_get_word_size >$tmp.tmp 2>&1 || _exit 1
+size=`cat $tmp.tmp`
 ln $seq.out.$size $seq.out || exit 1
 
 status=0	# success is the default!
-$sudo rm -rf $tmp.*
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
@@ -31,7 +31,6 @@ _filter()
 }
 
 status=0	# success is the default!
-$sudo rm -rf $tmp.*
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
@@ -39,7 +38,7 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 for interval in 2sec 5sec 15sec
 do
     echo
-    rm -f $tmp.*
+    rm -f $tmp.*		# refactor-ok
     pmlogreduce -t $interval archives/uwrap $tmp
     echo "-- raw reduce -t $interval --"
     pmval -z -r -w 15 -f 0 -t $interval -U $tmp sample.wrap.ulong 2>&1 \

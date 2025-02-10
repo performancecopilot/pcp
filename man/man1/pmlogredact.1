@@ -17,7 +17,7 @@
 .SH NAME
 \f3pmlogredact\f1 \- remove sensitive information from PCP archives
 .SH SYNOPSIS
-\f3$PCP_BINADM_DIR/pmlogredact\f1
+\f3pmlogredact\f1
 [\f3\-vx?\f1]
 [\f3\-c\f1 \f2config\f1]
 \f2inarch\f1 [\f2outarch\f1]
@@ -54,19 +54,23 @@ There are a default set of redaction rules in the
 files.
 These rules remove some metrics, rewrite the instance domains
 of some metrics and rewrite the values of some metrics.
+.hy 0
 The
 .B \-x
 (or
-.BR \-\-exclude-std )
+.BR \-\-exclude\-std )
 option may be used to
 .B not
 use the default set of rules.
 .PP
+.hy
 Additional (or alternative) configuration files may be specified with
 one or more
 .B \-c
 (or
+.hy 0
 .BR \-\-config )
+.hy
 options, where each
 .I config
 is either a file or a directory (implying all the files within that
@@ -100,3 +104,6 @@ configuration file, as described in \fBpcp.conf\fP(5).
 .BR pcp.conf (5)
 and
 .BR pcp.env (5).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ std

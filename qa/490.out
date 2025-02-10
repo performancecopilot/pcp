@@ -11,7 +11,7 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 pmdumplog diffs ...
 --- TMP.in
 +++ TMP.out
-@@ -1,18 +1,18 @@
+@@ -1,20 +1,11 @@
 -Note: timezone set to local timezone of host "rattle" from archive
 +Note: timezone set to local timezone of host "whizz-bang.engr.sgi.com" from archive
  
@@ -24,38 +24,47 @@ pmdumplog diffs ...
 +    ending     Sun May 18 14:23:12.021829 1997
  
  Descriptions for Metrics in the Log ...
--PMID: 1.18.3 (irix.kernel.all.load)
--    Data Type: float  InDom: 1.5 0x400005
-+PMID: 42.18.3 (load)
-+    Data Type: double  InDom: 42.10 0xa80000a
-     Semantics: instant  Units: none
 -PMID: 1.18.2 (hinv.ncpu)
 -    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+-    Semantics: discrete  Units: none
+-PMID: 1.18.3 (irix.kernel.all.load)
+-    Data Type: float  InDom: 1.5 0x400005
+-    Semantics: instant  Units: none
+-PMID: 1.26.7 (hinv.ndisk)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+-    Semantics: instant  Units: none
+ PMID: 2.3.0 (pmcd.pmlogger.port)
+     Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
+     Semantics: instant  Units: none
+@@ -24,140 +15,149 @@
+ PMID: 2.3.3 (pmcd.pmlogger.host)
+     Data Type: string  InDom: 2.1 0x800001
+     Semantics: instant  Units: none
 +PMID: 42.18.2 (hinv.number_of_cpus)
 +    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-     Semantics: discrete  Units: none
--PMID: 1.26.7 (hinv.ndisk)
++    Semantics: discrete  Units: none
++PMID: 42.18.3 (load)
++    Data Type: double  InDom: 42.10 0xa80000a
++    Semantics: instant  Units: none
 +PMID: 42.26.7 (hinv.ndisk)
-     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-     Semantics: instant  Units: none
- PMID: 2.3.2 (pmcd.pmlogger.archive)
-@@ -26,138 +26,138 @@
-     Semantics: instant  Units: none
++    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Semantics: instant  Units: none
  
  Instance Domains in the Log ...
 -InDom: 1.5
 -23:22:42.011766 3 instances
 -   1 or "1 minute"
-+InDom: 42.10
-+02:23:12.011766 3 instances
-+   1 or "1 minute is not very long unlike this string"
-    5 or "5 minute"
+-   5 or "5 minute"
 -   15 or "15 minute"
-+   9999 or "forever"
  InDom: 2.1
 -22:22:42.025955 1 instances
 +01:23:12.025955 1 instances
     19856 or "19856"
++InDom: 42.10
++02:23:12.011766 3 instances
++   1 or "1 minute is not very long unlike this string"
++   5 or "5 minute"
++   9999 or "forever"
  
  Temporal Index
  		Log Vol    end(meta)     end(log)
@@ -277,26 +286,26 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 pmdumplog diffs ...
 --- TMP.in
 +++ TMP.out
-@@ -37,7 +37,7 @@
-     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
-     Semantics: instant  Units: byte / hour
+@@ -19,7 +19,7 @@
+     Data Type: 32-bit int  InDom: 29.3 0x7400003
+     Semantics: instant  Units: Kbyte / sec
  PMID: 29.0.38 (sample.mirage_longlong)
 -    Data Type: 64-bit int  InDom: 29.3 0x7400003
 +    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
      Semantics: instant  Units: byte / millisec
- PMID: 29.0.68 (sample.scale_step.count_down)
+ PMID: 29.0.65 (sample.scale_step.bytes_up)
      Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-@@ -46,8 +46,8 @@
-     Data Type: string  InDom: 2.1 0x800001
-     Semantics: discrete  Units: none
+@@ -34,8 +34,8 @@
+     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: instant  Units: count
  PMID: 29.0.69 (sample.scale_step.time_up_secs)
 -    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
 -    Semantics: instant  Units: sec
 +    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
 +    Semantics: instant  Units: millisec
- PMID: 2.3.3 (pmcd.pmlogger.host)
-     Data Type: string  InDom: 2.1 0x800001
-     Semantics: discrete  Units: none
+ PMID: 29.0.70 (sample.scale_step.time_up_nanosecs)
+     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: instant  Units: nanosec
 @@ -74,7 +74,7 @@
  		Log Vol    end(meta)     end(log)
  21:58:59.005168	      0          132          132
@@ -488,10 +497,10 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 pmdumplog diffs ...
 --- TMP.in
 +++ TMP.out
-@@ -6,15 +6,12 @@
-     ending     Tue Feb 25 11:05:07.411966 1997
- 
- Descriptions for Metrics in the Log ...
+@@ -15,54 +15,42 @@
+ PMID: 2.3.3 (pmcd.pmlogger.host)
+     Data Type: string  InDom: 2.1 0x800001
+     Semantics: instant  Units: none
 -PMID: 29.0.6 (sample.bin)
 -    Data Type: 32-bit int  InDom: 29.2 0x7400002
 -    Semantics: instant  Units: none
@@ -505,12 +514,11 @@ pmdumplog diffs ...
 -    Semantics: instant  Units: Kbyte / sec
 +    Data Type: float  InDom: 29.3 0x7400003
 +    Semantics: instant  Units: Mbyte / hour
- PMID: 2.3.2 (pmcd.pmlogger.archive)
-     Data Type: string  InDom: 2.1 0x800001
-     Semantics: instant  Units: none
-@@ -27,39 +24,30 @@
  
  Instance Domains in the Log ...
+ InDom: 2.1
+ 10:45:08.440968 1 instances
+    24763 or "24763"
  InDom: 29.2
 -10:46:07.406806 9 instances
 -   100 or "bin-100"
@@ -553,7 +561,7 @@ pmdumplog diffs ...
     12 or "m-12"
     13 or "m-13"
     15 or "m-15"
-@@ -67,8 +55,7 @@
+@@ -70,8 +58,7 @@
     18 or "m-18"
     19 or "m-19"
     20 or "m-20"
@@ -563,7 +571,7 @@ pmdumplog diffs ...
     12 or "m-12"
     15 or "m-15"
     17 or "m-17"
-@@ -76,23 +63,20 @@
+@@ -79,23 +66,20 @@
     19 or "m-19"
     20 or "m-20"
     21 or "m-21"
@@ -590,7 +598,7 @@ pmdumplog diffs ...
     15 or "m-15"
     17 or "m-17"
     18 or "m-18"
-@@ -100,80 +84,67 @@
+@@ -103,171 +87,136 @@
     21 or "m-21"
     22 or "m-22"
     23 or "m-23"
@@ -679,10 +687,8 @@ pmdumplog diffs ...
     27 or "m-27"
     30 or "m-30"
 -   33 or "m-33"
- InDom: 2.1
- 10:45:08.440968 1 instances
-    24763 or "24763"
-@@ -182,92 +153,70 @@
+ 
+ Temporal Index
  		Log Vol    end(meta)     end(log)
  10:45:08.440968	      0          132          132
  10:46:07.406806	      0          351          288

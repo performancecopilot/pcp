@@ -4,6 +4,7 @@
 
 [mysql_io]
 caption = MySQL I/O
+description = MySQL throughput
 recv.metric = mysql.status.bytes_received
 recv.color = green
 sent.metric = mysql.status.bytes_sent
@@ -13,7 +14,7 @@ sent.color = blue
 caption = MySQL keys
 description = MySQL key status
 key_blocks_used.metric = mysql.status.key_blocks_used
-key_blocks_used.label = color
+key_blocks_used.color = yellow
 key_blocks_used.label = used
 key_reads.metric = mysql.status.key_reads
 key_reads.label = read
@@ -36,7 +37,7 @@ created.label = cr
 created.color = yellow
 read.metric = mysql.status.innodb_pages_read
 read.label = rd
-read.color = greed
+read.color = green
 written.metric = mysql.status.innodb_pages_written
 written.label = wr
 written.color = red

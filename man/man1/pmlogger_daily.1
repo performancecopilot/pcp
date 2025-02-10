@@ -15,7 +15,7 @@
 .\"
 .TH PMLOGGER_DAILY 1 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmlogger_daily\f1 \- administration of Performance Co-Pilot archive log files
+\f3pmlogger_daily\f1 \- administration of Performance Co-Pilot archive files
 .SH SYNOPSIS
 .B $PCP_BINADM_DIR/pmlogger_daily
 [\f3\-DEfKMNoprRVzZ?\f1]
@@ -129,7 +129,7 @@ flag to
 .BR pmlogger_merge (1)
 in order to expunge metrics with metadata inconsistencies and continue
 rather than fail.
-This is intended for automated daily log rotation where it is highly desirable
+This is intended for automated daily archive rotation where it is highly desirable
 for unattended daily archive merging, rewriting and compression to succeed.
 For further details, see
 .BR pmlogger_merge (1)
@@ -268,6 +268,27 @@ file has been edited and
 .B $PCP_COMPRESSAFTER
 has been set to a value greater than
 .BR 0 .
+.RS
+.PP
+The default value of
+.B $PCP_COMPRESSAFTER
+is
+.B 0
+if
+.BR zstd (1)
+is installed, or if
+.BR xz (1)
+is installed and the
+.I lzma
+library is available (as reported for the
+.B transparent_decompress
+option by
+.BR pmconfig (1)).
+Otherwise the default value of
+.B $PCP_COMPRESSAFTER
+is
+.BR never .
+.RE
 .TP 5
 \fB\-l\fR \fIfile\fR, \fB\-\-logfile\fR=\fIfile\fR
 In order to ensure that mail is not unintentionally sent when these
@@ -525,7 +546,7 @@ options (above).
 \fB\-X\fR \fIprogram\fR, \fB\-\-compressor\fR=\fIprogram\fR
 This option specifies the program to use for compression \- by default
 this is
-.BR xz (1).
+.BR pmlogcompress (1).
 The environment variable
 .B $PCP_COMPRESS
 may be used as an alternative mechanism to define
@@ -544,7 +565,11 @@ only the data file to be compressed, and also prevents the program from
 attempting to compress it more than once.
 The default
 .I regex
-is "\.(index|Z|gz|bz2|zip|xz|lzma|lzo|lz4)$" \- such files are
+is
+.br
+"\e.(index|Z|gz|bz2|zip|xz|lzma|lzo|lz4|zst)$"
+.br
+\- such files are
 filtered using the
 .B \-v
 option to
@@ -721,7 +746,7 @@ may appear literally in
 .BR $PCP_AUTOSAVE_DIR ,
 and will be substituted at execution time to generate the destination
 directory name.  For example:
-.ft CW
+.ft CR
 .in +6n
 $PCP_AUTOSAVE_DIR=/gpfs/LOCALHOSTNAME/DATEYYYY/DATEMM-DATEDD
 .br
@@ -820,7 +845,25 @@ if the previous execution of
 .B pmlogger_daily
 produced any output it is saved here.
 The normal case is no output in which case the file does not exist.
-.TP 5
+.TP 6
+.I $PCP_ARCHIVE_DIR/SaveLogs
+if this directory exists,
+then the log file from the
+.B \-l
+argument for
+.B pmlogger_daily
+will be saved in this directory with the name of the format
+<date>-\fBpmlogger_daily\fP.\fBlog\fP.<pid> or
+<date>-\fBpmlogger_daily-K\fP.\fBlog\fP.<pid>
+This allows the log file to be inspected at a later time, even if
+several
+.BR pmlogger_daily
+executions have been launched in the interim.
+Because the PCP archive management tools run under
+the $PCP_USER account ``pcp'',
+.I $PCP_ARCHIVE_DIR/SaveLogs
+typically needs to be owned by the user ``pcp''.
+.TP 7
 .I $PCP_ARCHIVE_DIR/<hostname>/SaveLogs
 if this directory exists,
 then the log file from the
@@ -830,7 +873,7 @@ of a newly launched
 .BR pmlogger (1)
 for
 .I hostname
-will be linked into this directory with the name
+will be saved in this directory with the name
 .IB archive .log
 where
 .I archive
@@ -847,7 +890,7 @@ Because the PCP archive management tools run under
 the uid of the user ``pcp'',
 .I $PCP_ARCHIVE_DIR/<hostname>/SaveLogs
 typically needs to be owned by the user ``pcp''.
-.TP 5
+.TP 8
 .I $PCP_LOG_DIR/pmlogger/.NeedRewrite
 if this file exists, then this is treated as equivalent to using
 .B \-R
@@ -882,11 +925,12 @@ which provides high precision intervals and semantics that are
 relative to the time of execution and are consistent across
 platforms.
 .SH SEE ALSO
+.BR PCPIntro (1),
 .BR egrep (1),
 .BR find-filter (1),
-.BR PCPIntro (1),
 .BR pmconfig (1),
 .BR pmlc (1),
+.BR pmlogcompress (1),
 .BR pmlogconf (1),
 .BR pmlogctl (1),
 .BR pmlogextract (1),
@@ -897,6 +941,15 @@ platforms.
 .BR pmlogmv (1),
 .BR pmlogrewrite (1),
 .BR systemd (1),
-.BR xz (1)
+.BR xz (1),
+.BR zstd (1)
 and
 .BR cron (8).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ DATEDD DATEMM DATEYYYY DD HH NeedRewrite
+.\" +ok+ SaveLogs VV
+.\" +ok+ YYYYMMDD autosave autosaved autosaving contol datestamp
+.\" +ok+ gpfs {from gpfs/LOCALHOSTNAME/DATEYYYY/DATEMM-DATEDD}
+.\" +ok+ lz lzma lzo {from compression suffixes}
+.\" +ok+ prev {from .prev suffix} transparent_decompress writeable zeroconf

@@ -36,10 +36,9 @@ acts as a protocol proxy,
 allowing Performance Co-Pilot (PCP) monitoring clients to connect to
 one or more
 .BR pmcd (1)
-and/or
-.BR redis-server (1)
-instances via
-.BR pmproxy .
+and/or key-value servers (such as \c
+.BR https://valkey.io/ )
+indirectly.
 .PP
 In its default mode of operation
 .B pmproxy
@@ -50,13 +49,12 @@ This includes provision of an Open Metrics -
 .I https://openmetrics.io
 - text interface for PCP metrics at
 .IR /metrics ,
-realtime access to PCP metrics through the
+real-time access to PCP metrics through the
 .I /pmapi
 interfaces,
 and access to the fast, scalable PCP time series query
-capabilities offered in conjunction with a
-.BR redis-server (1)
-(see
+capabilities offered in conjunction with a key-value
+server (see
 .BR pmseries (1)
 for details) via the
 .I /query
@@ -66,8 +64,8 @@ REST interfaces.
 can be deployed in a firewall domain, or on a cluster ``head'' node
 where the IP (Internet Protocol) address of the hosts where
 .B pmcd
-and/or
-.B redis-server
+and/or a key-value server (such as
+.BR https://valkey.io/ )
 are running may be unknown to the PCP monitoring clients, but where
 the IP address of the host running
 .B pmproxy
@@ -78,9 +76,7 @@ host where
 is running, while there is network connectivity from that host to the
 hosts of interest where
 .B pmcd
-and/or
-.B redis-server
-are running.
+and/or a key-value server are running.
 .PP
 The behaviour of the PCP monitoring clients is controlled by either the
 .B PMPROXY_HOST
@@ -99,9 +95,7 @@ where
 .B pmproxy
 is running, and the clients will connect to
 .B pmcd
-or
-.B redis-server
-indirectly through the protocol proxy services of
+or a key-value server indirectly through the protocol proxy services of
 .BR pmproxy.
 .SH OPTIONS
 The available command line options are:
@@ -154,7 +148,7 @@ in the foreground, but also does some housekeeping (like create a
 .B pmproxy
 is launched from
 .BR systemd (1)
-and the daemonizing has already been done by
+and the daemonising has already been done by
 .BR systemd (1)
 and does not need to be done again by
 .BR pmproxy ,
@@ -172,8 +166,8 @@ and
 may be specified.
 .RE
 .TP
-\f3\-h\f1 \f2host\f1, \f3\-\-redishost\f1=\f2host\f1
-Specify an alternate Redis
+\f3\-h\f1 \f2host\f1, \f3\-\-keyhost\f1=\f2host\f1
+Specify an alternate key-value server
 .I host
 to connect to for time series querying, overriding any configuration
 file settings.
@@ -235,8 +229,8 @@ Specify an alternate
 number to listen on for client connections.
 The default value is 44322.
 .TP
-\f3\-r\f1 \f2port\f1, \f3\-\-redisport\f1=\f2port\f1
-Specify an alternate Redis
+\f3\-r\f1 \f2port\f1, \f3\-\-keyport\f1=\f2port\f1
+Specify an alternate key-value server
 .I port
 number to connect to for time series querying, overriding any
 configuration file settings.
@@ -253,11 +247,11 @@ This option implies \f3pmproxy\f1 is running in \f3timeseries\f1 mode.
 Operate in automatic archive timeseries discovery mode.
 This mode of operation will enable the
 .BR PMWEBAPI (3)
-REST APIs, dynamiclly and automatically detect active system
+REST APIs, dynamically and automatically detect active system
 archives being written by
 .BR pmlogger (1)
-and import them into a
-.BR redis-server (1),
+and import them into a key-value server (such as
+.BR https://valkey.io/ ),
 for fast, scalable time series querying described in
 .BR pmseries (1).
 Note that in this mode of operation,
@@ -268,8 +262,7 @@ instances.
 When an archive is first discovered (usually but not limited to
 .B pmproxy
 startup),
-all metadata is loaded and sent to the configured
-.BR redis-server (1)
+all metadata is loaded and sent to the configured key-value server
 however note that only
 .B new
 archive metric value data from the tail end of each archive is ingested.
@@ -320,22 +313,19 @@ section can be used to explicitly enable or disable each of the
 different protocols.
 .PP
 The
-.I [redis]
+.I [keys]
 section allows connection information for one or more backing
-.B redis-server
-processes to be configured (hostnames and ports).
-Note to access multiple (scalable) Redis servers, the
+key-value server processes to be configured (hostnames and ports).
+Note to access multiple (scalable) key-value servers, the
 .I servers
 variable in this section can be a comma-separated list of
 hostname:port pairs.
-Alternatively, it can be a single
-.B redis-server
-host that will be queried using the "CLUSTER INFO" command to
-automatically configure multiple backing hosts, described at
-.BR https://redis.io/topics/cluster-spec .
+Alternatively, it can be a single key-value server host
+that will be queried using the "CLUSTER INFO" command to
+automatically configure multiple backing hosts.
 .PP
 In earlier versions of PCP (before 6) an alternative configuration
-setting section was used for this purpose \- Redis
+setting section was used for this purpose \- key-value
 .I servers
 were specified in the
 .I [pmseries]
@@ -351,7 +341,7 @@ Under certain circumstances it is necessary to start or stop
 manually.
 To do this one must become superuser and type
 .PP
-.ft CW
+.ft CR
 # $PCP_RC_DIR/pmproxy start
 .ft 1
 .PP
@@ -359,7 +349,7 @@ to start
 .BR pmproxy ,
 or
 .PP
-.ft CW
+.ft CR
 # $PCP_RC_DIR/pmproxy stop
 .ft 1
 .PP
@@ -534,10 +524,15 @@ For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
 .BR pmdbg (1),
 .BR pmlogger (1),
 .BR pmseries (1),
-.BR redis-server (1),
 .BR PMAPI (3),
 .BR PMWEBAPI (3),
 .BR pmGetOptions (3),
 .BR pcp.conf (5)
 and
 .BR pcp.env (5).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ Avahi OpenRequestSocket OpenSSL
+.\" +ok+ PMPROXY PMPROXY_VARIABLE
+.\" +ok+ SD {from DNS-SD} TIME_WAIT
+.\" +ok+ openssl pki

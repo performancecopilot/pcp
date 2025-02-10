@@ -62,8 +62,19 @@ __pmRecvFetchPDU(int fd, __pmContext *ctxp, int timeout, int pdutype,
 		/* PMCD state change protocol */
 		changed |= sts;
 	}
-	else if (sts != PM_ERR_TIMEOUT)
+	else if (sts != PM_ERR_TIMEOUT) {
+	    if (pmDebugOptions.pdu) {
+		char	strbuf[20];
+		char	errmsg[PM_MAXERRMSGLEN];
+		if (sts < 0)
+		    fprintf(stderr, "__pmRecvFetchPDU: PM_ERR_IPC: expecting PDU_RESULT or PDU_HIGHRES_FETCH but__pmGetPDU returns %d (%s)\n",
+			sts, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+		else
+		    fprintf(stderr, "__pmRecvFetchPDU: PM_ERR_IPC: expecting PDU_RESULT or PDU_HIGHRES_FETCH but__pmGetPDU returns %d (type=%s)\n",
+			sts, __pmPDUTypeStr_r(sts, strbuf, sizeof(strbuf)));
+	    }
 	    sts = PM_ERR_IPC;
+	}
 
 	if (pinpdu > 0)
 	    __pmUnpinPDUBuf(pb);
@@ -88,35 +99,34 @@ __pmFinishResult(__pmContext *ctxp, int count, __pmResult **resultp)
     return count;
 }
 
-static void
-dump_fetch_flags(int sts)
+void
+__pmDumpFetchFlags(FILE *f, int sts)
 {
     int flag = 0;
 
-    fprintf(stderr, "PMCD state changes: ");
+    fprintf(f, "PMCD state: ");
     if (sts & PMCD_AGENT_CHANGE) {
-	fprintf(stderr, "agent(s)");
-	if (sts & PMCD_ADD_AGENT) fprintf(stderr, " added");
-	if (sts & PMCD_RESTART_AGENT) fprintf(stderr, " restarted");
-	if (sts & PMCD_DROP_AGENT) fprintf(stderr, " dropped");
+	fprintf(f, "agent(s)");
+	if (sts & PMCD_ADD_AGENT) fprintf(f, " added");
+	if (sts & PMCD_RESTART_AGENT) fprintf(f, " restarted");
+	if (sts & PMCD_DROP_AGENT) fprintf(f, " dropped");
 	flag++;
     }
     if (sts & PMCD_LABEL_CHANGE) {
 	if (flag++)
-	    fprintf(stderr, ", ");
-	fprintf(stderr, "label change");
+	    fprintf(f, ", ");
+	fprintf(f, "label change");
     }
     if (sts & PMCD_NAMES_CHANGE) {
 	if (flag++)
-	    fprintf(stderr, ", ");
-	fprintf(stderr, "names change");
+	    fprintf(f, ", ");
+	fprintf(f, "names change");
     }
     if (sts & PMCD_HOSTNAME_CHANGE) {
 	if (flag++)
-	    fprintf(stderr, ", ");
-	fprintf(stderr, "hostname change");
+	    fprintf(f, ", ");
+	fprintf(f, "hostname change");
     }
-    fputc('\n', stderr);
 }
 
 static void
@@ -242,8 +252,10 @@ pmapi_return:
     if (pmDebugOptions.fetch) {
 	fprintf(stderr, "%s returns ...\n", "pmFetch");
 	if (sts >= 0) {
-	    if (sts > 0)
-		dump_fetch_flags(sts);
+	    if (sts > 0) {
+		__pmDumpFetchFlags(stderr, sts);
+		fputc('\n', stderr);
+	    }
 	    __pmPrintResult_ctx(ctxp, stderr, *result);
 	} else {
 	    char	errmsg[PM_MAXERRMSGLEN];

@@ -286,10 +286,10 @@ cat <<end-of-file >> $tmp.pmview
 _scale 1.2
 
 _colorList url_colors (
-	rgbi:1.0/0.5/0.0
-	rgbi:0.9/0.9/0.0
-	rgbi:0.0/0.9/0.9
-	rgbi:0.9/0.0/0.9
+	"#ff7f77"	# rgbi:1.0/0.5/0.0
+	"#e5e500"	# rgbi:0.9/0.9/0.0
+	"#00e5e5"	# rgbi:0.0/0.9/0.9
+	"#e500e5"	# rgbi:0.9/0.0/0.9
 )
 
 _grid _hide (
@@ -310,7 +310,7 @@ end-of-file
 fi
 
 cat <<end-of-file >>$tmp.pmview
-		_colorList ( rgbi:0.0/0.9/0.0 )
+		_colorList ( "#00e500" )	# rgbi:0.0/0.9/0.0
 	)
 
 	_bar 0 2 ne _col _groupbyinst (
@@ -366,7 +366,6 @@ end-of-file
 
 $verbose && cat $tmp.pmview
 
-#eval pmview <$tmp.pmview $args -title "'$titleArg'" -xrm "'*iconName: $prog'" -geometry 560x515
-eval pmview <$tmp.pmview $args -title "'$titleArg'" -xrm "'*iconName: $prog'"
+eval pmview <$tmp.pmview $args -title "'$titleArg'"
 
 exit

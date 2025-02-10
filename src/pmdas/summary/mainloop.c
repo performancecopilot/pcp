@@ -150,6 +150,11 @@ summaryMainLoop(char *pmdaname, int clientfd, pmdaInterface *dtp)
 			    __pmSendError(outfd, FROM_ANON, -ENOMEM);
 			else {
 			    int st, i;
+			    /*
+			     * force overloaded timestamp to be zero
+			     * (no state change from us going back to pmcd)
+			     */
+			    memset((void *)&rp->timestamp, 0, sizeof(rp->timestamp));
 			    rp->numpmid = result->numpmid;
 			    for (i = 0; i < rp->numpmid; i++)
 				rp->vset[i] = result->vset[i];

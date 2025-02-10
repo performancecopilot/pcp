@@ -1,12 +1,12 @@
 QA output created by 630
 === target is a directory ===
-_save_prev_filename: "target" exists and is not a file
+_save_prev_file: "target" exists and is not a file
 <ls output>
 returns: fail
 files: target
 
 === target is a symlink ===
-_save_prev_filename: "target" exists and is a symlink
+_save_prev_file: "target" exists and is a symlink
 <ls output>
 returns: fail
 files: target there

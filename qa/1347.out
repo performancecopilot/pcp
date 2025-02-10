@@ -4,7 +4,7 @@ QA output created by 1347
 
 
 ATOP - shard       2020/07/22  17:32:51       -----------------       4s elapsed
-PRC | sys    0.44s | user   1.00s | #proc    394 | #zombie    0 | no  procacct |
+PRC | sys    0.44s | user   1.00s | #proc    394 | #tidle    96 | no  procacct |
 CPU | sys      19% | user     49% | irq      34% | idle    698% | wait      1% |
 cpu | sys       4% | user     22% | irq       4% | idle     70% | cpu002 w  0% |
 cpu | sys       3% | user      6% | irq       4% | idle     87% | cpu004 w  1% |
@@ -15,8 +15,8 @@ cpu | sys       2% | user      3% | irq       4% | idle     91% | cpu003 w  0% |
 cpu | sys       1% | user      3% | irq       4% | idle     91% | cpu007 w  0% |
 cpu | sys       2% | user      2% | irq       4% | idle     93% | cpu005 w  0% |
 CPL | numcpu     8 | avg1    0.75 | avg5    0.99 | csw    45143 | intr   33919 |
-MEM | tot    15.3G | free  168.9M | cache   2.7G | buff  127.0M | slab  932.7M |
-MEM | numnode    0 | shmem   1.6G | shrss   0.0M | tcpsk   0.0M | zfarc   0.0M |
+MEM | tot    15.3G | free  168.9M | avail   0.0M | cache   2.7G | slab  932.7M |
+MEM | numnode    0 | shmem   1.6G | shswp   0.0M | pgtab   0.0M | zfarc   0.0M |
 SWP | tot     7.7G | free  657.6M | swcac   0.0M | vmcom  25.7G | vmlim  15.1G |
 LVM | a_shard-home | busy      0% | read       0 | write     33 | avio  0.0 ns |
 DSK |          sda | busy      0% | read       0 | write      3 | avio 1.33 ms |
@@ -69,11 +69,11 @@ NET | lo      ---- | pcki      30 | pcko      30 | si    4 Kbps | so    4 Kbps |
 
 
 ATOP - shard       2020/07/22  17:32:53       -----------------       2s elapsed
-PRC | sys    0.00s | user   0.00s | #proc    394 | #zombie    0 | no  procacct |
+PRC | sys    0.00s | user   0.00s | #proc    394 | #tidle     0 | no  procacct |
 CPU | sys       0% | user      0% | irq       0% | idle      0% | wait      0% |
 CPL | numcpu     8 | avg1   -1.00 | avg5   -1.00 | csw        0 | intr       0 |
-MEM | tot    15.3G | free    0.0M | cache   0.0M | buff    0.0M | slab    0.0M |
-MEM | numnode    0 | shmem   0.0M | shrss   0.0M | tcpsk   0.0M | zfarc   0.0M |
+MEM | tot    15.3G | free    0.0M | avail   0.0M | cache   0.0M | slab    0.0M |
+MEM | numnode    0 | shmem   0.0M | shswp   0.0M | pgtab   0.0M | zfarc   0.0M |
 SWP | tot     0.0M | free    0.0M | swcac   0.0M | vmcom   0.0M | vmlim   0.0M |
 NET | transport    | tcpi       ? | tcpo       ? | udpi       ? | udpo       ? |
 NET | network      | ipi        ? | ipo        ? | ipfrw      ? | deliv      ? |
@@ -481,7 +481,7 @@ NET | network      | ipi        ? | ipo        ? | ipfrw      ? | deliv      ? |
 
 
 ATOP - shard       2020/07/22  17:32:51       -------R---------       4s elapsed
-PRC | sys    0.44s | user   1.00s | #proc    394 | #zombie    0 | no  procacct |
+PRC | sys    0.44s | user   1.00s | #proc    394 | #tidle    96 | no  procacct |
 CPU | sys      19% | user     49% | irq      34% | idle    698% | wait      1% |
 cpu | sys       4% | user     22% | irq       4% | idle     70% | cpu002 w  0% |
 cpu | sys       3% | user      6% | irq       4% | idle     87% | cpu004 w  1% |
@@ -492,8 +492,8 @@ cpu | sys       2% | user      3% | irq       4% | idle     91% | cpu003 w  0% |
 cpu | sys       1% | user      3% | irq       4% | idle     91% | cpu007 w  0% |
 cpu | sys       2% | user      2% | irq       4% | idle     93% | cpu005 w  0% |
 CPL | numcpu     8 | avg1    0.75 | avg5    0.99 | csw    45143 | intr   33919 |
-MEM | tot    15.3G | free  168.9M | cache   2.7G | buff  127.0M | slab  932.7M |
-MEM | numnode    0 | shmem   1.6G | shrss   0.0M | tcpsk   0.0M | zfarc   0.0M |
+MEM | tot    15.3G | free  168.9M | avail   0.0M | cache   2.7G | slab  932.7M |
+MEM | numnode    0 | shmem   1.6G | shswp   0.0M | pgtab   0.0M | zfarc   0.0M |
 SWP | tot     7.7G | free  657.6M | swcac   0.0M | vmcom  25.7G | vmlim  15.1G |
 LVM | a_shard-home | busy      0% | read       0 | write     33 | avio  0.0 ns |
 DSK |          sda | busy      0% | read       0 | write      3 | avio 1.33 ms |
@@ -901,11 +901,11 @@ NET | lo      ---- | pcki      30 | pcko      30 | si    4 Kbps | so    4 Kbps |
 
 
 ATOP - shard       2020/07/22  17:32:53       -------R---------       2s elapsed
-PRC | sys    0.00s | user   0.00s | #proc    394 | #zombie    0 | no  procacct |
+PRC | sys    0.00s | user   0.00s | #proc    394 | #tidle     0 | no  procacct |
 CPU | sys       0% | user      0% | irq       0% | idle      0% | wait      0% |
 CPL | numcpu     8 | avg1   -1.00 | avg5   -1.00 | csw        0 | intr       0 |
-MEM | tot    15.3G | free    0.0M | cache   0.0M | buff    0.0M | slab    0.0M |
-MEM | numnode    0 | shmem   0.0M | shrss   0.0M | tcpsk   0.0M | zfarc   0.0M |
+MEM | tot    15.3G | free    0.0M | avail   0.0M | cache   0.0M | slab    0.0M |
+MEM | numnode    0 | shmem   0.0M | shswp   0.0M | pgtab   0.0M | zfarc   0.0M |
 SWP | tot     0.0M | free    0.0M | swcac   0.0M | vmcom   0.0M | vmlim   0.0M |
 NET | transport    | tcpi       ? | tcpo       ? | udpi       ? | udpo       ? |
 NET | network      | ipi        ? | ipo        ? | ipfrw      ? | deliv      ? |

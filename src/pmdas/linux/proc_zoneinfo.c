@@ -395,8 +395,6 @@ refresh_proc_zoneinfo(pmInDom indom, pmInDom protection_indom)
 
 	if (pernode) {
 	    pmdaCacheStore(indom, PMDA_CACHE_ADD, nodename, (void *)pernode);
-	    pernode = NULL;
-
 	    if (pmDebugOptions.libpmda)
 		fprintf(stderr, "%s: instance %s\n", __FUNCTION__, nodename);
 	}

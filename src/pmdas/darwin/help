@@ -199,6 +199,8 @@ boot time (subject to counter wrap), summed over all disk devices.
 @ rpc.client.biocache.readdir.misses
 @ rpc.client.direofcache.hits
 @ rpc.client.direofcache.misses
+@ rpc.client.pageins
+@ rpc.client.pageouts
 @ rpc.server.retfailed
 @ rpc.server.faults
 @ rpc.server.cache.inprog
@@ -206,5 +208,3 @@ boot time (subject to counter wrap), summed over all disk devices.
 @ rpc.server.cache.idem
 @ rpc.server.cache.misses
 @ rpc.server.vopwrites
-@ rpc.server.pageins
-@ rpc.server.pageouts

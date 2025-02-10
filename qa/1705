@@ -8,6 +8,13 @@ echo "QA output created by $seq"
 
 . ./common.bpftrace
 
+case `admin/whatami`
+in
+    *openSUSE\ Leap\ 15.*)
+	_notrun "this test does not work on openSUSE 15.x"
+	;;
+esac
+
 _pmdabpftrace_check
 echo "tracepoint:raw_syscalls:sys_enter" >$tmp.tmp
 _pmdabpftrace_check_probes $tmp.tmp
@@ -15,21 +22,45 @@ _pmdabpftrace_check_probes $tmp.tmp
 case `hostname -s`
 in
     bozo-vm)
-	    rm -f $tmp.*
 	    _notrun "cannot set bpftrace hz=999 on this VM"
 	    ;;
 esac
 
 status=1       # failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 
 _prepare_pmda bpftrace
 trap "_pmdabpftrace_cleanup; exit \$status" 0 1 2 3 15
 _stop_auto_restart pmcd
 
-# on vm04, the limit is 512 which is not enough; 600 seems enough
+_filter_exit_code()
+{
+    # some versions of bpftrace exit with different codes
+    sed -e 's/ value -6$/ value 1/g'
+}
+
+# names of first 512 d* kprobes are not deterministic ...
 #
-export BPFTRACE_MAX_PROBES=600
+# bpftrace.control.register old value="{}" new value="// name: test4
+# kprobe:d3cold_allowed_show { @c = count(); }
+# kprobe:d3cold_allowed_store { @c = count(); }
+# ...
+# kprobe:debugfs_write_file_bool { @c = count(); }
+# kprobe:debugfs_write_file_str { @c = count(); }"
+#
+_filter_kprobe()
+{
+    $PCP_AWK_PROG '
+!/^kprobe:/	{ print; next }
+		{ print "kprobe:... { @c = count(); }"
+		  print "..."
+		  print "kprobe:... { @c = count(); }\""
+		  exit
+		}'
+}
+
+# this shoud be the default, just to be sure, to be sure, ...
+#
+export BPFTRACE_MAX_PROBES=512
 
 # real QA test starts here
 cat <<EOF | _pmdabpftrace_install
@@ -43,7 +74,7 @@ auth_enabled = false
 max_throughput = 4096
 EOF
 
-echo "=== bpftrace script without variabes ==="
+echo "=== bpftrace script without variables ==="
 ./src/store_and_fetch bpftrace.control.register "// name: test1
 tracepoint:raw_syscalls:sys_enter { }" | grep -o '"error": "no bpftrace variables or printf statements found, please include at least one variable or printf statement in your script"'
 echo
@@ -53,30 +84,58 @@ pmstore bpftrace.control.register "// name: test2
 does_not_exist { @c = count(); }"
 _pmdabpftrace_wait_for_value bpftrace.scripts.test2.status '"error"'
 # error message changed between bpftrace versions
+pminfo -f bpftrace.scripts.test2.error >>$seq_full
 pminfo -f bpftrace.scripts.test2.error \
-    | grep -E -q "(Invalid provider: 'does_not_exist')|(Unrecognized probe type: does_not_exist)|(Invalid probe type made it to attachpoint parser)" \
+    | grep -E -q "(Invalid provider: 'does_not_exist')|(Unrecognized probe type: does_not_exist)|(Invalid probe type made it to attachpoint parser)|(Invalid probe type: does_not_exist)" \
     && echo "error message (invalid probe) found"
-pminfo -f bpftrace.scripts.test2.exit_code
+pminfo -f bpftrace.scripts.test2.exit_code | _filter_exit_code
 echo
 
 echo "=== syntax error ==="
 pmstore bpftrace.control.register "// name: test3
 tracepoint:raw_syscalls:sys_enter { @c = count(; }"
-_pmdabpftrace_wait_for_value bpftrace.scripts.test3.status '"error"'
+# 10sec (default) is not long enough on vm03
+#
+_pmdabpftrace_wait_for_value bpftrace.scripts.test3.status '"error"' 15
 pminfo -f bpftrace.scripts.test3.error
 pminfo -f bpftrace.scripts.test3.exit_code
 echo
-
 echo "=== too many attached tracepoints ==="
-pmstore bpftrace.control.register "// name: test4
-kprobe:* { @c = count(); }"
+# kprobe:d* matches between 4000 and 6000 tracepoints, so more than enough
+# ... pick the first 513 of 'em
+#
+# Note: we used to use kprobe:* here, but even though this matches
+# 	a bazillion tracepoints, on some systems it counted as only
+# 	1 probe, so we never saw the 512 max exceeded; so now we're
+# 	enumerating 513 explicit kprobes.
+#
+$sudo bpftrace -l "kprobe:d*" \
+| $PCP_AWK_PROG >$tmp.probe '
+BEGIN		{ print "// name: test4" }
+		{ print $0 " { @c = count(); }" }
+NR > 512	 { exit }'
+num_probes=`wc -l <$tmp.probe | sed -e 's/  *//g'`
+num_probes=`expr $num_probes - 1`
+if [ "$num_probes" -ne 513 ]
+then
+    echo "Arrgh: expecting 513 probes, got $num_probes.  See $seq.full"
+    echo "num_probes=$num_probes" >>$seq_full
+    cat $tmp.probe >>$seq_full
+fi
+pmstore bpftrace.control.register "`cat $tmp.probe`" 2>&1 \
+| _filter_kprobe
 _pmdabpftrace_wait_for_value bpftrace.scripts.test4.status '"error"'
 pminfo -f bpftrace.scripts.test4.error \
 | sed \
     -e 's/ [1-9][0-9]* / PROBES /g' \
     -e 's/"ERROR: /"/' \
-# end
-pminfo -f bpftrace.scripts.test4.exit_code
+    -e '/value "Error attaching probe: '"'"'kprobe:\*'"'"'"/{
+s/value ".*/value "Can'"'"'t attach to PROBES probes because it exceeds the current limit of PROBES probes.\
+You can increase the limit through the BPFTRACE_MAX_PROBES environment variable, but BE CAREFUL since a high number of probes attached can cause your system to crash."/
+}' \
+    # end
+pminfo -f bpftrace.scripts.test4.exit_code \
+| sed -e '/value/s/ 255$/ 1/'
 echo
 
 echo "=== too much output ==="

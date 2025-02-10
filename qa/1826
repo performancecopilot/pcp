@@ -25,6 +25,11 @@ if [ "$1" = "--valgrind" ]
 then
     _check_valgrind
     do_valgrind=true
+elif which valgrind >/dev/null 2>&1
+then
+    : note we want to run both variants for this test, as the
+    : valgrind variant filters away the functional checks and
+    : only reports memory issues
 fi
 
 which sha256sum >/dev/null 2>&1 || _notrun "sha256sum tool not found"
@@ -52,13 +57,14 @@ hostname=`hostname`
 machineid=`_machine_id`
 domainname=`_domain_name`
 sha256id=`echo -n $machineid | sha256sum | awk '{ print $1 }'`
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 need_restore=true
 
 _filter_pminfo()
 {
     sed \
+        -e 's/.agent.:.linux./"agent":"PLATFORM"/g' \
+        -e 's/.agent.:.freebsd./"agent":"PLATFORM"/g' \
         -e "s/.machineid_sha256.:.${sha256id}./\"machineid_sha256\":\"SHA256ID\"/g" \
         -e "s/.domainname.:.${domainname}./\"domainname\":\"DOMAIN\"/g" \
         -e "s/.machineid.:.${machineid}./\"machineid\":\"MACHINE\"/g" \
@@ -73,8 +79,8 @@ _save_config $PCP_ETC_DIR/pcp/labels
 $sudo rm -rf $PCP_ETC_DIR/pcp/labels/*
 _save_config $PCP_ETC_DIR/pcp/labels.conf
 
-echo machineid = $machineid >> $here/$seq.full
-echo sha256id = $sha256id >> $here/$seq.full
+echo machineid = $machineid >> $seq_full
+echo sha256id = $sha256id >> $seq_full
 
 cat >$tmp.empty <<EOF
 EOF
@@ -93,22 +99,22 @@ if $do_valgrind
 then
     for file in $tmp.empty $tmp.none $tmp.sha256
     do
-	echo; echo $file | sed -e 's/.*\.//g' | tee -a $here/$seq.full
+	echo; echo $file | sed -e 's/.*\.//g' | tee -a $seq_full
 	$sudo cp $file $PCP_SYSCONF_DIR/labels.conf
 	# use local context - for valgrind
-        _run_valgrind pminfo -Ll hinv.ncpu | tee -a $here/$seq.full
+        _run_valgrind pminfo -Ll hinv.ncpu | tee -a $seq_full
     done
 else
     for file in $tmp.empty $tmp.none $tmp.sha256
     do
 	name=`echo $file | sed -e 's/.*\.//g'`
-	echo; echo $name | tee -a $here/$seq.full
+	echo; echo $name | tee -a $seq_full
 	echo "{\"$name\":$seq}" > $tmp.braces
 	$sudo cp $tmp.braces $PCP_SYSCONF_DIR/labels/change
 	$sudo cp $file $PCP_SYSCONF_DIR/labels.conf
-        _sighup_pmcd
+        _sighup_pmcd || _exit 1
 	# use pmcd - output should be same
-	pminfo -l hinv.ncpu | tee -a $here/$seq.full
+	pminfo -l hinv.ncpu | tee -a $seq_full
     done
 fi \
 | _filter_pminfo

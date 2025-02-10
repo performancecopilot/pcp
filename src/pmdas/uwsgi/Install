@@ -1,0 +1,12 @@
+#!/bin/sh
+. $PCP_DIR/etc/pcp.env
+. $PCP_SHARE_DIR/lib/pmdaproc.sh
+
+iam=uwsgi
+domain=161
+python_opt=true
+daemon_opt=false
+
+pmdaSetup
+pmdaInstall
+exit

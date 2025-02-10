@@ -41,7 +41,7 @@ public slots:
     virtual void viewPushButton_clicked();
     virtual void folioPushButton_clicked();
     virtual void archivePushButton_clicked();
-    virtual void buttonOk_clicked();
+    virtual void accept();
 
 protected slots:
     virtual void languageChange();

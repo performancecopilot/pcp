@@ -14,16 +14,14 @@ echo "QA output created by $seq"
 . ./common.check
 
 status=0	# success is the default!
-$sudo rm -rf $tmp.*
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
-rm -f $seq.full
 
 # real QA test starts here
 
 echo "log mandatory on default { sample.bucket }" \
 | pmlogger -u -r -l $tmp.log -t 2sec -s 5 $tmp &
-_wait_for_pmlogger $! $tmp.log
+_wait_for_pmlogger $! $tmp.log || _exit 1
 pmsleep 0.1
 
 prev=0
@@ -33,9 +31,9 @@ do
     if [ -s $tmp.0 ]
     then
 	now=`wc -c <$tmp.0 | sed -e 's/ //g'`
-	date >> $seq.full
-	ls -l $tmp.0 >>$seq.full
-	echo "then=$prev now=$now" >>$seq.full
+	date >> $seq_full
+	ls -l $tmp.0 >>$seq_full
+	echo "then=$prev now=$now" >>$seq_full
 	if [ "$now" -ne "$prev" ]
 	then
 	    # expect this to happen 5 times.
@@ -43,7 +41,7 @@ do
 	    # that we will see the first samples and log header at once
 	    # (and then change will be observed only 4 times).
 	    #
-	    echo "size changed @"`date` >> $seq.full
+	    echo "size changed @"`date` >> $seq_full
 	    echo "size changed" >>$tmp.out
 	    prev=$now
 	fi
@@ -61,7 +59,7 @@ else
     status=1
 fi
 
-cat $tmp.log >>$seq.full
-pmdumplog -a $tmp >> $seq.full
+cat $tmp.log >>$seq_full
+pmdumplog -a $tmp >> $seq_full
 
 exit

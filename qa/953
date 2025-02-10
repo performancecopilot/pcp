@@ -3,6 +3,8 @@
 # non-valgrind version of 4751
 #
 # Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
+#
+# check-group-exclude: iostat
 
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -16,11 +18,11 @@ _get_libpcp_config
 $multi_threaded || _notrun "No libpcp threading support"
 
 status=0	# success is the default!
-$sudo rm -f $tmp.* /tmp/func?.out $seq.full
+$sudo rm -f /tmp/func?.out
 trap "rm -f $tmp.* /tmp/func?.out; exit \$status" 0 1 2 3 15
 
 # collect stderr as we go
-exec 2>> $seq.full
+exec 2>> $seq_full
 
 openfiles=`ulimit -n`
 if [ "$openfiles" -lt 1024 ]
@@ -30,7 +32,7 @@ fi
 
 _filter_ncpu()
 {
-  tee -a $seq.full | sed -e 's, [0-9]*$, NUMBER,'
+  tee -a $seq_full | sed -e 's, [0-9]*$, NUMBER,'
 }
 
 # depending on network setup, there is a race between ...
@@ -66,18 +68,18 @@ _filter_connect_fail()
 }
 
 # real QA test starts here
-echo "=== Only one context ===" | tee -a $seq.full
+echo "=== Only one context ===" | tee -a $seq_full
 src/multithread10 localhost \
 | _filter_ncpu 
 
-echo | tee -a $seq.full
-echo "=== A couple of localhosts ===" | tee -a $seq.full
+echo | tee -a $seq_full
+echo "=== A couple of localhosts ===" | tee -a $seq_full
 src/multithread10 localhost 127.0.0.1 localhost localhost local: local: localhost \
 | _filter_ncpu \
 | _filter_connect_fail
 
-echo | tee -a $seq.full
-echo "=== A couple of unreachable hosts ===" | tee -a $seq.full
+echo | tee -a $seq_full
+echo "=== A couple of unreachable hosts ===" | tee -a $seq_full
 ips=""
 for i in 1 2 3 4; do
     for j in 0 1 2 3 4 5 6 7 8 9; do
@@ -88,8 +90,8 @@ src/multithread10 $ips \
 | _filter_ncpu \
 | _filter_connect_fail
 
-echo | tee -a $seq.full
-echo "=== A mixture of archives and hosts and unreachable hosts ===" | tee -a $seq.full
+echo | tee -a $seq_full
+echo "=== A mixture of archives and hosts and unreachable hosts ===" | tee -a $seq_full
 ips="localhost local: localhost local: localhost local: 127.0.0.1 127.0.0.1 "
 for i in 1 2 1 2 ; do
     for j in 0 1 2 3 4 5 6 7 8 9; do

@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2018-2020,2022 Red Hat.
+.\" Copyright (c) 2018-2020,2022-2024 Red Hat.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -40,23 +40,24 @@
 .B pmseries
 displays various types of information about performance metrics
 available through the scalable timeseries facilities of the
-Performance Co-Pilot (PCP) and the Redis distributed data store.
+Performance Co-Pilot (PCP) and a distributed key-value data store
+such as
+.BR https://valkey/io/ ..
 .PP
 By default
 .B pmseries
-communicates with a local
-.BR redis-server (1),
+communicates with a local key-value server
 however the \fB\-h\fR and \fB\-p\fR options can be used to
-specify an alternate Redis instance.
-If this instance is a node of a Redis cluster, all
+specify an alternate key-value server.
+If this instance is a node within a cluster, all
 other instances in the cluster will be discovered
 and used automatically.
 .PP
 .B pmseries
 runs in several different modes \- either querying
 timeseries identifiers, metadata or values (already
-stored in Redis), or manually loading timeseries
-into Redis.
+stored in the key-value store), or manually loading
+timeseries.
 The latter mode is generally only used for loading
 previously collected (inactive) archives,
 since
@@ -690,7 +691,7 @@ reported with:
 Print names for timeseries sources.
 These names are either hostnames or fully qualified archive paths.
 .PP
-It is important to note that live and archived sources can and will
+It is important to note that live and archive sources can and will
 generate the same SHA-1 source identifier hash, provided that
 the context labels remain the same for that host (labels are stored
 in PCP archives and can also be fetched live from
@@ -721,6 +722,14 @@ then a short-hand form can be used:
 .SAMPLE
 $ pmseries --load $PCP_LOG_DIR/pmlogger/acme.0
 .ESAMPLE
+.PP
+NOTE: Timeseries loading is
+.B append-only
+(timestamp-wise) and if more than
+.B stream.maxlen
+entries (defined in
+.IR $PCP_SYSCONF_DIR/pmseries/pmseries.conf )
+are loaded for a given metric, the oldest entries are dropped.
 .SH OPTIONS
 The available command line options, in addition to timeseries
 metadata and sources options described above, are:
@@ -731,15 +740,15 @@ Specify the
 file to use.
 .TP
 \fB\-h\fR \fIhost\fR, \fB\-\-host\fR=\fIhost\fR
-Connect Redis server at
+Connect to the key-value server at
 .IR host ,
 rather than the one the localhost.
 .TP
 \fB\-L\fR, \fB\-\-load\fR
-Load timeseries metadata and data into the Redis cluster.
+Load timeseries metadata and data into the key-value cluster.
 .TP
 \fB\-p\fR \fIport\fR, \fB\-\-port\fR=\fIport\fR
-Connect Redis server at
+Connect to the key-value server at
 .IR port ,
 rather than the default \fB6379\fR.
 .TP
@@ -838,7 +847,6 @@ For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
 .BR pmcd (1),
 .BR pminfo (1),
 .BR pmproxy (1),
-.BR redis-server (1),
 .BR access (2),
 .BR PMAPI (3),
 .BR PMWEBAPI (3),
@@ -855,3 +863,16 @@ For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
 .BR glob (7)
 and
 .BR regex (7).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ Nov RESTAPI SHA TIMESERIES Timeseries arg
+.\" +ok+ abs avg_inst avg_sample avg {from synonym for avg_inst}
+.\" +ok+ [0-9a-f][0-9a-f]* {from SHA examples ...}
+.\" +ok+ deilms {from -deilms} domainname
+.\" +ok+ func globbed groupid hexdigit hostzone
+.\" +ok+ kbytes linux localdomain machineid max_inst max_sample
+.\" +ok+ maxlen mbytes min_inst min_sample nth_percentile_inst
+.\" +ok+ nth_percentile_sample percentile_value pswitch read_bytes
+.\" +ok+ stdev_inst stdev_sample sum_inst sum_sample timeseries
+.\" +ok+ topk_inst topk_sample userid
+.\" +ok+ toium {from example}

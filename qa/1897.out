@@ -132,8 +132,8 @@ ha_cluster.drbd.connections.all PMID: 155.18.0 [DRBD Peer disk information]
     Data Type: 32-bit unsigned int  InDom: 155.16 0x26c00010
     Semantics: instant  Units: count
 Help:
-Value is 1 if a drbd peer connection exists. The details of the corresponding DRBD peer
-connection is given as label metadata values for this metric.
+Value is 1 if a DRBD peer connection exists. Details of the corresponding
+DRBD peer connection are given as label metadata values for this metric.
     inst [0 or "drbd1:1"] value 1
 
 ha_cluster.drbd.connections.peer_disk_state PMID: 155.11.4 [Peer disk state]
@@ -238,8 +238,8 @@ ha_cluster.drbd.resources.all PMID: 155.17.0 [DRBD resource information]
     Data Type: 32-bit unsigned int  InDom: 155.15 0x26c0000f
     Semantics: instant  Units: count
 Help:
-Value is 1 if a drbd resource exists. The details of the corresponding drbd resource
-is given as label metadata values for this metric.
+Value is 1 if a DRBD resource exists. Details of the corresponding DRBD
+resource are given as label metadata values for this metric.
     inst [0 or "drbd1:0"] value 1
 
 ha_cluster.drbd.resources.disk_state PMID: 155.10.3 [Disk state]
@@ -819,8 +819,8 @@ ha_cluster.drbd.connections.all PMID: 155.18.0 [DRBD Peer disk information]
     Data Type: 32-bit unsigned int  InDom: 155.16 0x26c00010
     Semantics: instant  Units: count
 Help:
-Value is 1 if a drbd peer connection exists. The details of the corresponding DRBD peer
-connection is given as label metadata values for this metric.
+Value is 1 if a DRBD peer connection exists. Details of the corresponding
+DRBD peer connection are given as label metadata values for this metric.
 No value(s) available!
 
 ha_cluster.drbd.connections.peer_disk_state PMID: 155.11.4 [Peer disk state]
@@ -925,8 +925,8 @@ ha_cluster.drbd.resources.all PMID: 155.17.0 [DRBD resource information]
     Data Type: 32-bit unsigned int  InDom: 155.15 0x26c0000f
     Semantics: instant  Units: count
 Help:
-Value is 1 if a drbd resource exists. The details of the corresponding drbd resource
-is given as label metadata values for this metric.
+Value is 1 if a DRBD resource exists. Details of the corresponding DRBD
+resource are given as label metadata values for this metric.
 No value(s) available!
 
 ha_cluster.drbd.resources.disk_state PMID: 155.10.3 [Disk state]
@@ -1290,6 +1290,1280 @@ Help:
 The value threshold for watchdog timeouts for the given SBD device.
 No value(s) available!
 == Checking with valgrind - hacluster-root-002.tgz
+=== std out ===
+
+ha_cluster.pacemaker.config_last_change
+    value 1687428694
+
+ha_cluster.corosync.quorate
+    value 1
+
+ha_cluster.sbd.devices.path
+No value(s) available!
+
+ha_cluster.drbd.split_brain
+No value(s) available!
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -K clear -K add,155,PCP_PMDAS_DIR/hacluster/pmda_hacluster.so,hacluster_init -f ha_cluster.pacemaker.config_last_change ha_cluster.corosync.quorate ha_cluster.sbd.devices.path ha_cluster.drbd.split_brain
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+== done
+
+== Checking metric descriptors and values - hacluster-root-003.tgz
+
+ha_cluster.corosync.member_votes.local PMID: 155.6.1 [Votes that are local to this node]
+    Data Type: 32-bit unsigned int  InDom: 155.5 0x26c00005
+    Semantics: instant  Units: count
+Help:
+The quorum votes which are local to this node in the cluster.
+    inst [0 or "rhel9-node1"] value 1
+    inst [1 or "rhel9-node2"] value 0
+
+ha_cluster.corosync.member_votes.node_id PMID: 155.6.2 [Node ID]
+    Data Type: 64-bit unsigned int  InDom: 155.5 0x26c00005
+    Semantics: instant  Units: count
+Help:
+The full corosync ID for the nodes in the cluster. 
+    inst [0 or "rhel9-node1"] value 1
+    inst [1 or "rhel9-node2"] value 2
+
+ha_cluster.corosync.member_votes.votes PMID: 155.6.0 [Quorum votes per node]
+    Data Type: 32-bit unsigned int  InDom: 155.5 0x26c00005
+    Semantics: instant  Units: count
+Help:
+The number of quorum votes allocated to each node in the cluster.
+    inst [0 or "rhel9-node1"] value 1
+    inst [1 or "rhel9-node2"] value 1
+
+ha_cluster.corosync.quorate PMID: 155.7.0 [Value given for quorate]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+The value represents whether or not the cluster is quorate.
+    value 1
+
+ha_cluster.corosync.quorum_votes.expected_votes PMID: 155.7.1 [Expected vote count]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+The number of expected quorum votes for the cluster.
+    value 2
+
+ha_cluster.corosync.quorum_votes.highest_expected PMID: 155.7.2 [Highest expected vote count]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+The highest number of expected quorum votes for the cluster. 
+    value 2
+
+ha_cluster.corosync.quorum_votes.quorum PMID: 155.7.4 [Whether cluster is quorate]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+The value reported for the quorate for the cluster.
+    value 1
+
+ha_cluster.corosync.quorum_votes.total_votes PMID: 155.7.3 [Total number of votes]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+The total number of quorum votes for the cluster.
+    value 2
+
+ha_cluster.corosync.ring_errors PMID: 155.7.5 [Number of faulty rings]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+The total number of Corosync rings which are faulty.
+    value 0
+
+ha_cluster.corosync.rings.address PMID: 155.8.1 [IP Address for ring]
+    Data Type: string  InDom: 155.6 0x26c00006
+    Semantics: instant  Units: count
+Help:
+The IP address locally linked to this ring.
+    inst [0 or "0"] value "192.168.122.148"
+
+ha_cluster.corosync.rings.all PMID: 155.15.0 [Corosync rings information]
+    Data Type: 32-bit unsigned int  InDom: 155.13 0x26c0000d
+    Semantics: instant  Units: count
+Help:
+Value is 1 if a ring exists. The details of the corresponding ring
+is given as label metadata values for this metric.
+    inst [0 or "0"] value 1
+
+ha_cluster.corosync.rings.node_id PMID: 155.8.2 [ID of the local node]
+    Data Type: 64-bit unsigned int  InDom: 155.6 0x26c00006
+    Semantics: instant  Units: count
+Help:
+The internal Corosync node ID to the node matched to the ring.
+    inst [0 or "0"] value 1
+
+ha_cluster.corosync.rings.number PMID: 155.8.3 [Ring number]
+    Data Type: 32-bit unsigned int  InDom: 155.6 0x26c00006
+    Semantics: instant  Units: count
+Help:
+The number for the Corosync ring.
+    inst [0 or "0"] value 0
+
+ha_cluster.corosync.rings.ring_id PMID: 155.8.4 [Ring ID]
+    Data Type: string  InDom: 155.6 0x26c00006
+    Semantics: instant  Units: count
+Help:
+The internal Corosync ring ID, corresponds to the first node to join.
+    inst [0 or "0"] value "1.9"
+
+ha_cluster.corosync.rings.status PMID: 155.8.0 [Corosync ring status]
+    Data Type: 32-bit unsigned int  InDom: 155.6 0x26c00006
+    Semantics: instant  Units: count
+Help:
+The status for each Corosync ring in the cluster, a value of 1 is faulty and
+0 is healthy.
+    inst [0 or "0"] value 0
+
+ha_cluster.drbd.al_writes PMID: 155.10.6 [Writes to the activity log]
+    Data Type: 64-bit unsigned int  InDom: 155.8 0x26c00008
+    Semantics: instant  Units: count
+Help:
+Amount of writes to the activity log area of metadata by the DRBD
+resource:volume.
+No value(s) available!
+
+ha_cluster.drbd.bm_writes PMID: 155.10.7 [Writes to bitmap area]
+    Data Type: 64-bit unsigned int  InDom: 155.8 0x26c00008
+    Semantics: instant  Units: count
+Help:
+Amount of writes to the bitmap area of metadata by the DRBD resource:volume.
+No value(s) available!
+
+ha_cluster.drbd.connections.all PMID: 155.18.0 [DRBD Peer disk information]
+    Data Type: 32-bit unsigned int  InDom: 155.16 0x26c00010
+    Semantics: instant  Units: count
+Help:
+Value is 1 if a DRBD peer connection exists. Details of the corresponding
+DRBD peer connection are given as label metadata values for this metric.
+No value(s) available!
+
+ha_cluster.drbd.connections.peer_disk_state PMID: 155.11.4 [Peer disk state]
+    Data Type: string  InDom: 155.9 0x26c00009
+    Semantics: instant  Units: count
+Help:
+The reported peer disk state for the connection.
+No value(s) available!
+
+ha_cluster.drbd.connections.peer_node_id PMID: 155.11.1 [The ID the connection is for]
+    Data Type: string  InDom: 155.9 0x26c00009
+    Semantics: instant  Units: count
+Help:
+The given peer node ID for which the connection is for.
+No value(s) available!
+
+ha_cluster.drbd.connections.peer_role PMID: 155.11.2 [Role of the connection]
+    Data Type: string  InDom: 155.9 0x26c00009
+    Semantics: instant  Units: count
+Help:
+The reported role type for the connection.
+No value(s) available!
+
+ha_cluster.drbd.connections.resource PMID: 155.11.0 [Resource that the connection is for]
+    Data Type: string  InDom: 155.9 0x26c00009
+    Semantics: instant  Units: count
+Help:
+The given resource that the DRBD connection is for each resource:volume.
+No value(s) available!
+
+ha_cluster.drbd.connections.volume PMID: 155.11.3 [Volume number]
+    Data Type: 32-bit unsigned int  InDom: 155.9 0x26c00009
+    Semantics: instant  Units: count
+Help:
+The reported volume for the connection.
+No value(s) available!
+
+ha_cluster.drbd.connections_pending PMID: 155.11.8 [Number of connections pending]
+    Data Type: 32-bit unsigned int  InDom: 155.9 0x26c00009
+    Semantics: instant  Units: count
+Help:
+The number of requests sent which have not yet been received by DRBD for the
+resource:volume.
+No value(s) available!
+
+ha_cluster.drbd.connections_received PMID: 155.11.6 [Volume of data received]
+    Data Type: 64-bit unsigned int  InDom: 155.9 0x26c00009
+    Semantics: instant  Units: count
+Help:
+The volume of data received via the network connection in KiB by DRBD for the
+resource:volume.
+No value(s) available!
+
+ha_cluster.drbd.connections_sent PMID: 155.11.7 [Volume of data sent]
+    Data Type: 64-bit unsigned int  InDom: 155.9 0x26c00009
+    Semantics: instant  Units: count
+Help:
+The volume of data sent via the network connection in KiB by DRBD for the
+resource:volume.
+No value(s) available!
+
+ha_cluster.drbd.connections_sync PMID: 155.11.5 [Connections in sync]
+    Data Type: float  InDom: 155.9 0x26c00009
+    Semantics: instant  Units: count
+Help:
+The number of DRBD connections in sync for each resource:volume, this value is
+between 0 to 100.
+No value(s) available!
+
+ha_cluster.drbd.connections_unacked PMID: 155.11.9 [Number of connection not acknowledged]
+    Data Type: 32-bit unsigned int  InDom: 155.9 0x26c00009
+    Semantics: instant  Units: count
+Help:
+The number of requests sent which have not yet been acknowledged by DRBD for
+the resource:volume.
+No value(s) available!
+
+ha_cluster.drbd.lower_pending PMID: 155.10.9 [Number of open requests]
+    Data Type: 64-bit unsigned int  InDom: 155.8 0x26c00008
+    Semantics: instant  Units: count
+Help:
+The number of open requests to the local I/O subsystem by DRBD for the
+resource:volume.
+No value(s) available!
+
+ha_cluster.drbd.quorum PMID: 155.10.10 [Quorum status of DRBD resource:volume]
+    Data Type: 32-bit unsigned int  InDom: 155.8 0x26c00008
+    Semantics: instant  Units: count
+Help:
+The Quorum status of the DRBD resource according to resource:volume, 1 is
+quorate and 0 is non-quorate.
+No value(s) available!
+
+ha_cluster.drbd.read PMID: 155.10.5 [Amount read by DRBD resource]
+    Data Type: 32-bit unsigned int  InDom: 155.8 0x26c00008
+    Semantics: instant  Units: count
+Help:
+Amount in KiB read by the DRBD resource:volume.
+No value(s) available!
+
+ha_cluster.drbd.resources.all PMID: 155.17.0 [DRBD resource information]
+    Data Type: 32-bit unsigned int  InDom: 155.15 0x26c0000f
+    Semantics: instant  Units: count
+Help:
+Value is 1 if a DRBD resource exists. Details of the corresponding DRBD
+resource are given as label metadata values for this metric.
+No value(s) available!
+
+ha_cluster.drbd.resources.disk_state PMID: 155.10.3 [Disk state]
+    Data Type: string  InDom: 155.8 0x26c00008
+    Semantics: instant  Units: count
+Help:
+The current reported disk state of for the resource:volume.
+No value(s) available!
+
+ha_cluster.drbd.resources.resource PMID: 155.10.0 [Name of the resource]
+    Data Type: string  InDom: 155.8 0x26c00008
+    Semantics: instant  Units: count
+Help:
+The name given for the DRBD resource for each resource:volume.
+No value(s) available!
+
+ha_cluster.drbd.resources.role PMID: 155.10.1 [Role of the resource]
+    Data Type: string  InDom: 155.8 0x26c00008
+    Semantics: instant  Units: count
+Help:
+The reported role for the DRBD resource for each resource:volume.
+No value(s) available!
+
+ha_cluster.drbd.resources.volume PMID: 155.10.2 [Volume of the resource]
+    Data Type: string  InDom: 155.8 0x26c00008
+    Semantics: instant  Units: count
+Help:
+The volume number of the resource for each resource:volume.
+No value(s) available!
+
+ha_cluster.drbd.split_brain PMID: 155.10.11 [Signal for split brain detection.]
+    Data Type: 32-bit unsigned int  InDom: 155.8 0x26c00008
+    Semantics: instant  Units: count
+Help:
+This metric signals if there has been a split brain occurring in DRBD for the
+resource:volume, value is 1 is a split brain has been detected.
+No value(s) available!
+
+ha_cluster.drbd.upper_pending PMID: 155.10.8 [Block I/O requests pending]
+    Data Type: 64-bit unsigned int  InDom: 155.8 0x26c00008
+    Semantics: instant  Units: count
+Help:
+The number of the block I/O requests forwarded but not yet answered by DRBD
+for the resource:volume.
+No value(s) available!
+
+ha_cluster.drbd.written PMID: 155.10.4 [Amount written to DRBD resource]
+    Data Type: 32-bit unsigned int  InDom: 155.8 0x26c00008
+    Semantics: instant  Units: count
+Help:
+Amount in KiB written to the DRBD resource:volume.
+No value(s) available!
+
+ha_cluster.pacemaker.config_last_change PMID: 155.0.0 [Unix timestamp corresponding to last Pacemaker configuration change]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+Unix timestamp in seconds corresponding to the last time that the Pacemaker
+configuration was changed on the system.
+    value 1687428694
+
+ha_cluster.pacemaker.fail_count PMID: 155.1.0 [The number of fail count recorded]
+    Data Type: 64-bit unsigned int  InDom: 155.0 0x26c00000
+    Semantics: instant  Units: count
+Help:
+The number of fail count per node and resource ID, the actual maximum value
+depends on Pacemaker internals.
+    inst [0 or "rhel9-node1:VirtualIP"] value 0
+
+ha_cluster.pacemaker.location_constraints.all PMID: 155.12.0 [Location constraint information]
+    Data Type: 32-bit unsigned int  InDom: 155.10 0x26c0000a
+    Semantics: instant  Units: count
+Help:
+Value is 1 if a location constraint exists. The details of the location constraint
+is given as label metadata values for this metric.
+No value(s) available!
+
+ha_cluster.pacemaker.location_constraints.node PMID: 155.2.0 [Node of the location constraint]
+    Data Type: string  InDom: 155.1 0x26c00001
+    Semantics: instant  Units: count
+Help:
+The node that the location constraint applies to in the cluster.
+No value(s) available!
+
+ha_cluster.pacemaker.location_constraints.resource PMID: 155.2.1 [Resource of the location constraint]
+    Data Type: string  InDom: 155.1 0x26c00001
+    Semantics: instant  Units: count
+Help:
+The resource that the location constraint applies to in the cluster.
+No value(s) available!
+
+ha_cluster.pacemaker.location_constraints.role PMID: 155.2.2 [Resource role of the location constraint]
+    Data Type: string  InDom: 155.1 0x26c00001
+    Semantics: instant  Units: count
+Help:
+The resource role that the location constraint applies to, if any.
+No value(s) available!
+
+ha_cluster.pacemaker.location_constraints.score PMID: 155.2.3 [Score of the location constraint]
+    Data Type: string  InDom: 155.1 0x26c00001
+    Semantics: instant  Units: count
+Help:
+The score given to the location constraint by Pacemaker, the value depends on
+Pacemaker internals.
+No value(s) available!
+
+ha_cluster.pacemaker.migration_threshold PMID: 155.1.1 [Migration threshold per node and resource ID]
+    Data Type: 64-bit unsigned int  InDom: 155.0 0x26c00000
+    Semantics: instant  Units: count
+Help:
+The value for the migration threshold per node and resource ID set by the
+Pacemaker cluster.
+    inst [0 or "rhel9-node1:VirtualIP"] value 1000000
+
+ha_cluster.pacemaker.node_attributes PMID: 155.4.0 [Metadata used by Resource Agents]
+    Data Type: string  InDom: 155.3 0x26c00003
+    Semantics: instant  Units: count
+Help:
+The raw values for the cluster metadata attributes and their value per node as
+used by the Resource Agents.
+No value(s) available!
+
+ha_cluster.pacemaker.node_attributes_all PMID: 155.13.0 [Metadata information]
+    Data Type: 32-bit unsigned int  InDom: 155.11 0x26c0000b
+    Semantics: instant  Units: count
+Help:
+Value is 1 if a node metadata exists. The details of the node metadata
+is given as label metadata values for this metric.
+No value(s) available!
+
+ha_cluster.pacemaker.nodes.status.dc PMID: 155.3.8 [Whether the node status is given as the DC]
+    Data Type: 32-bit unsigned int  InDom: 155.2 0x26c00002
+    Semantics: instant  Units: count
+Help:
+Whether the DC status is reported by the node in the cluster, a
+value of 1 confirms the node status as the designated coordinator.
+    inst [0 or "rhel9-node1"] value 1
+    inst [1 or "rhel9-node2"] value 0
+
+ha_cluster.pacemaker.nodes.status.expected_up PMID: 155.3.7 [Whether the node status is given as expected_up]
+    Data Type: 32-bit unsigned int  InDom: 155.2 0x26c00002
+    Semantics: instant  Units: count
+Help:
+Whether the expected_up status is reported by the node in the cluster, a
+value of 1 confirms the node status as expected_up.
+    inst [0 or "rhel9-node1"] value 1
+    inst [1 or "rhel9-node2"] value 1
+
+ha_cluster.pacemaker.nodes.status.maintenance PMID: 155.3.3 [Whether the node status is given as maintenance]
+    Data Type: 32-bit unsigned int  InDom: 155.2 0x26c00002
+    Semantics: instant  Units: count
+Help:
+Whether the maintenance status is reported by the node in the cluster, a
+value of 1 confirms the node status as online.
+    inst [0 or "rhel9-node1"] value 0
+    inst [1 or "rhel9-node2"] value 0
+
+ha_cluster.pacemaker.nodes.status.online PMID: 155.3.0 [Whether the node status is given as online]
+    Data Type: 32-bit unsigned int  InDom: 155.2 0x26c00002
+    Semantics: instant  Units: count
+Help:
+Whether the online status is reported by the node in the cluster, a value of
+1 confirms the node status as online.
+    inst [0 or "rhel9-node1"] value 1
+    inst [1 or "rhel9-node2"] value 1
+
+ha_cluster.pacemaker.nodes.status.pending PMID: 155.3.4 [Whether the node status is given as pending]
+    Data Type: 32-bit unsigned int  InDom: 155.2 0x26c00002
+    Semantics: instant  Units: count
+Help:
+Whether the pending status is reported by the node in the cluster, a value of
+1 confirms the node status as pending.
+    inst [0 or "rhel9-node1"] value 0
+    inst [1 or "rhel9-node2"] value 0
+
+ha_cluster.pacemaker.nodes.status.shutdown PMID: 155.3.6 [Whether the node status is given as shutdown]
+    Data Type: 32-bit unsigned int  InDom: 155.2 0x26c00002
+    Semantics: instant  Units: count
+Help:
+Whether the shutdown status is reported by the node in the cluster, a value
+of 1 confirms the node status as shutdown.
+    inst [0 or "rhel9-node1"] value 0
+    inst [1 or "rhel9-node2"] value 0
+
+ha_cluster.pacemaker.nodes.status.standby PMID: 155.3.1 [Whether the node status is given as standby]
+    Data Type: 32-bit unsigned int  InDom: 155.2 0x26c00002
+    Semantics: instant  Units: count
+Help:
+Whether the standby status is reported by the node in the cluster, a value of
+1 confirms the node status as standby.
+    inst [0 or "rhel9-node1"] value 0
+    inst [1 or "rhel9-node2"] value 0
+
+ha_cluster.pacemaker.nodes.status.standby_on_fail PMID: 155.3.2 [Whether the node status is given as standby_on_fail]
+    Data Type: 32-bit unsigned int  InDom: 155.2 0x26c00002
+    Semantics: instant  Units: count
+Help:
+Whether the standby_on_fail status is reported by the node in the cluster,
+a value of 1 confirms the node status as standby_on_fail.
+    inst [0 or "rhel9-node1"] value 0
+    inst [1 or "rhel9-node2"] value 0
+
+ha_cluster.pacemaker.nodes.status.unclean PMID: 155.3.5 [Whether the node status is given as unclean]
+    Data Type: 32-bit unsigned int  InDom: 155.2 0x26c00002
+    Semantics: instant  Units: count
+Help:
+Whether the unclean status is reported by the node in the cluster, a value of
+1 confirms the node status as unclean.
+    inst [0 or "rhel9-node1"] value 0
+    inst [1 or "rhel9-node2"] value 0
+
+ha_cluster.pacemaker.nodes.type PMID: 155.3.9 [The type given to the node]
+    Data Type: string  InDom: 155.2 0x26c00002
+    Semantics: instant  Units: count
+Help:
+The membership type given to the node in the Pacemaker cluster.
+    inst [0 or "rhel9-node1"] value "member"
+    inst [1 or "rhel9-node2"] value "member"
+
+ha_cluster.pacemaker.resources.agent PMID: 155.5.0 [The name of the resource agent for this resource]
+    Data Type: string  InDom: 155.4 0x26c00004
+    Semantics: instant  Units: count
+Help:
+The name given for the resource agent for the given resource instance in the 
+cluster.
+    inst [0 or "VirtualIP:rhel9-node1"] value "ocf:heartbeat:IPaddr2"
+
+ha_cluster.pacemaker.resources.all PMID: 155.14.0 [Pacemaker resources information]
+    Data Type: 32-bit unsigned int  InDom: 155.12 0x26c0000c
+    Semantics: instant  Units: count
+Help:
+Value is 1 if a resources exists. The details of the resource
+is given as label metadata values for this metric.
+    inst [0 or "VirtualIP:rhel9-node1"] value 1
+
+ha_cluster.pacemaker.resources.clone PMID: 155.5.1 [The name of the clone given for this resource]
+    Data Type: string  InDom: 155.4 0x26c00004
+    Semantics: instant  Units: count
+Help:
+The name given for the clone for the given resource instance in the cluster,
+if any.
+    inst [0 or "VirtualIP:rhel9-node1"] value ""
+
+ha_cluster.pacemaker.resources.group PMID: 155.5.2 [The name of the group given for this resource]
+    Data Type: string  InDom: 155.4 0x26c00004
+    Semantics: instant  Units: count
+Help:
+The name given for the group for the given resource instance in the cluster,
+if any.
+    inst [0 or "VirtualIP:rhel9-node1"] value ""
+
+ha_cluster.pacemaker.resources.managed PMID: 155.5.3 [Value is either true or false]
+    Data Type: 32-bit unsigned int  InDom: 155.4 0x26c00004
+    Semantics: instant  Units: count
+Help:
+The value of whether the resource instance in the cluster is managed or not.
+    inst [0 or "VirtualIP:rhel9-node1"] value 1
+
+ha_cluster.pacemaker.resources.role PMID: 155.5.4 [The given role state]
+    Data Type: string  InDom: 155.4 0x26c00004
+    Semantics: instant  Units: count
+Help:
+The value of the given role state for the resource instance in the cluster.
+    inst [0 or "VirtualIP:rhel9-node1"] value "Started"
+
+ha_cluster.pacemaker.resources.status.active PMID: 155.5.5 [Whether the resources status is given as active]
+    Data Type: 32-bit unsigned int  InDom: 155.4 0x26c00004
+    Semantics: instant  Units: count
+Help:
+Whether the active status is reported by the resource in the cluster, a
+value of 1 confirms the resource status as active.
+    inst [0 or "VirtualIP:rhel9-node1"] value 1
+
+ha_cluster.pacemaker.resources.status.blocked PMID: 155.5.7 [Whether the resources status is given as blocked]
+    Data Type: 32-bit unsigned int  InDom: 155.4 0x26c00004
+    Semantics: instant  Units: count
+Help:
+Whether the blocked status is reported by the resource in the cluster, a
+value of 1 confirms the resource status as blocked.
+    inst [0 or "VirtualIP:rhel9-node1"] value 0
+
+ha_cluster.pacemaker.resources.status.failed PMID: 155.5.8 [Whether the resources status is given as failed]
+    Data Type: 32-bit unsigned int  InDom: 155.4 0x26c00004
+    Semantics: instant  Units: count
+Help:
+Whether the failed status is reported by the resource in the cluster, a 
+value of 1 confirms the resource status as failed.
+    inst [0 or "VirtualIP:rhel9-node1"] value 0
+
+ha_cluster.pacemaker.resources.status.failure_ignored PMID: 155.5.9 [Whether the resources status is given as failure_ignored]
+    Data Type: 32-bit unsigned int  InDom: 155.4 0x26c00004
+    Semantics: instant  Units: count
+Help:
+Whether the failure_ignored status is reported by the resource in the
+cluster, a value of 1 confirms the resource status as failure_ignored.
+    inst [0 or "VirtualIP:rhel9-node1"] value 0
+
+ha_cluster.pacemaker.resources.status.orphaned PMID: 155.5.6 [Whether the resources status is given as orphaned]
+    Data Type: 32-bit unsigned int  InDom: 155.4 0x26c00004
+    Semantics: instant  Units: count
+Help:
+Whether the orphaned status is reported by the resource in the cluster, a
+value of 1 confirms the resource status as orphaned.
+    inst [0 or "VirtualIP:rhel9-node1"] value 0
+
+ha_cluster.pacemaker.stonith_enabled PMID: 155.0.1 [Whether stonith is enabled in the cluster]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+Value returns as to whether stonith is enabled or disabled for the cluster.
+    value 0
+
+ha_cluster.sbd.all PMID: 155.16.0 [SBD device information]
+    Data Type: 32-bit unsigned int  InDom: 155.14 0x26c0000e
+    Semantics: instant  Units: count
+Help:
+Value is 1 if a sbd device exists. The details of the corresponding SBD device
+is given as label metadata values for this metric.
+No value(s) available!
+
+ha_cluster.sbd.devices.path PMID: 155.9.0 [Path of SBD device]
+    Data Type: string  InDom: 155.7 0x26c00007
+    Semantics: instant  Units: count
+Help:
+The full path given to each SBD device.
+No value(s) available!
+
+ha_cluster.sbd.devices.status PMID: 155.9.1 [Status of the SBD device]
+    Data Type: string  InDom: 155.7 0x26c00007
+    Semantics: instant  Units: count
+Help:
+The current status given for each of the SBD devices, the value is one of
+healthy or unhealthy.
+No value(s) available!
+
+ha_cluster.sbd.timeouts.allocate PMID: 155.9.3 [allocate timeout value]
+    Data Type: 32-bit unsigned int  InDom: 155.7 0x26c00007
+    Semantics: instant  Units: count
+Help:
+The value threshold for allocate timeouts for the given SBD device.
+No value(s) available!
+
+ha_cluster.sbd.timeouts.loop PMID: 155.9.4 [loop timeout value]
+    Data Type: 32-bit unsigned int  InDom: 155.7 0x26c00007
+    Semantics: instant  Units: count
+Help:
+The value threshold for loop timeouts for the given SBD device.
+No value(s) available!
+
+ha_cluster.sbd.timeouts.mgswait PMID: 155.9.2 [mgswait timeout value]
+    Data Type: 32-bit unsigned int  InDom: 155.7 0x26c00007
+    Semantics: instant  Units: count
+Help:
+The value threshold for msgwait timeouts for the given SBD device.
+No value(s) available!
+
+ha_cluster.sbd.timeouts.watchdog PMID: 155.9.5 [watchdog timeout value]
+    Data Type: 32-bit unsigned int  InDom: 155.7 0x26c00007
+    Semantics: instant  Units: count
+Help:
+The value threshold for watchdog timeouts for the given SBD device.
+No value(s) available!
+== Checking with valgrind - hacluster-root-003.tgz
+=== std out ===
+
+ha_cluster.pacemaker.config_last_change
+    value 1687428694
+
+ha_cluster.corosync.quorate
+    value 1
+
+ha_cluster.sbd.devices.path
+No value(s) available!
+
+ha_cluster.drbd.split_brain
+No value(s) available!
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -K clear -K add,155,PCP_PMDAS_DIR/hacluster/pmda_hacluster.so,hacluster_init -f ha_cluster.pacemaker.config_last_change ha_cluster.corosync.quorate ha_cluster.sbd.devices.path ha_cluster.drbd.split_brain
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+== done
+
+== Checking metric descriptors and values - hacluster-root-004.tgz
+
+ha_cluster.corosync.member_votes.local PMID: 155.6.1 [Votes that are local to this node]
+    Data Type: 32-bit unsigned int  InDom: 155.5 0x26c00005
+    Semantics: instant  Units: count
+Help:
+The quorum votes which are local to this node in the cluster.
+    inst [0 or "rhel9-node1"] value 1
+    inst [1 or "rhel9-node2"] value 0
+
+ha_cluster.corosync.member_votes.node_id PMID: 155.6.2 [Node ID]
+    Data Type: 64-bit unsigned int  InDom: 155.5 0x26c00005
+    Semantics: instant  Units: count
+Help:
+The full corosync ID for the nodes in the cluster. 
+    inst [0 or "rhel9-node1"] value 1
+    inst [1 or "rhel9-node2"] value 2
+
+ha_cluster.corosync.member_votes.votes PMID: 155.6.0 [Quorum votes per node]
+    Data Type: 32-bit unsigned int  InDom: 155.5 0x26c00005
+    Semantics: instant  Units: count
+Help:
+The number of quorum votes allocated to each node in the cluster.
+    inst [0 or "rhel9-node1"] value 1
+    inst [1 or "rhel9-node2"] value 1
+
+ha_cluster.corosync.quorate PMID: 155.7.0 [Value given for quorate]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+The value represents whether or not the cluster is quorate.
+    value 1
+
+ha_cluster.corosync.quorum_votes.expected_votes PMID: 155.7.1 [Expected vote count]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+The number of expected quorum votes for the cluster.
+    value 2
+
+ha_cluster.corosync.quorum_votes.highest_expected PMID: 155.7.2 [Highest expected vote count]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+The highest number of expected quorum votes for the cluster. 
+    value 2
+
+ha_cluster.corosync.quorum_votes.quorum PMID: 155.7.4 [Whether cluster is quorate]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+The value reported for the quorate for the cluster.
+    value 1
+
+ha_cluster.corosync.quorum_votes.total_votes PMID: 155.7.3 [Total number of votes]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+The total number of quorum votes for the cluster.
+    value 2
+
+ha_cluster.corosync.ring_errors PMID: 155.7.5 [Number of faulty rings]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+The total number of Corosync rings which are faulty.
+    value 0
+
+ha_cluster.corosync.rings.address PMID: 155.8.1 [IP Address for ring]
+    Data Type: string  InDom: 155.6 0x26c00006
+    Semantics: instant  Units: count
+Help:
+The IP address locally linked to this ring.
+    inst [0 or "0"] value "192.168.122.148"
+
+ha_cluster.corosync.rings.all PMID: 155.15.0 [Corosync rings information]
+    Data Type: 32-bit unsigned int  InDom: 155.13 0x26c0000d
+    Semantics: instant  Units: count
+Help:
+Value is 1 if a ring exists. The details of the corresponding ring
+is given as label metadata values for this metric.
+    inst [0 or "0"] value 1
+
+ha_cluster.corosync.rings.node_id PMID: 155.8.2 [ID of the local node]
+    Data Type: 64-bit unsigned int  InDom: 155.6 0x26c00006
+    Semantics: instant  Units: count
+Help:
+The internal Corosync node ID to the node matched to the ring.
+    inst [0 or "0"] value 1
+
+ha_cluster.corosync.rings.number PMID: 155.8.3 [Ring number]
+    Data Type: 32-bit unsigned int  InDom: 155.6 0x26c00006
+    Semantics: instant  Units: count
+Help:
+The number for the Corosync ring.
+    inst [0 or "0"] value 0
+
+ha_cluster.corosync.rings.ring_id PMID: 155.8.4 [Ring ID]
+    Data Type: string  InDom: 155.6 0x26c00006
+    Semantics: instant  Units: count
+Help:
+The internal Corosync ring ID, corresponds to the first node to join.
+    inst [0 or "0"] value "1.9"
+
+ha_cluster.corosync.rings.status PMID: 155.8.0 [Corosync ring status]
+    Data Type: 32-bit unsigned int  InDom: 155.6 0x26c00006
+    Semantics: instant  Units: count
+Help:
+The status for each Corosync ring in the cluster, a value of 1 is faulty and
+0 is healthy.
+    inst [0 or "0"] value 0
+
+ha_cluster.drbd.al_writes PMID: 155.10.6 [Writes to the activity log]
+    Data Type: 64-bit unsigned int  InDom: 155.8 0x26c00008
+    Semantics: instant  Units: count
+Help:
+Amount of writes to the activity log area of metadata by the DRBD
+resource:volume.
+No value(s) available!
+
+ha_cluster.drbd.bm_writes PMID: 155.10.7 [Writes to bitmap area]
+    Data Type: 64-bit unsigned int  InDom: 155.8 0x26c00008
+    Semantics: instant  Units: count
+Help:
+Amount of writes to the bitmap area of metadata by the DRBD resource:volume.
+No value(s) available!
+
+ha_cluster.drbd.connections.all PMID: 155.18.0 [DRBD Peer disk information]
+    Data Type: 32-bit unsigned int  InDom: 155.16 0x26c00010
+    Semantics: instant  Units: count
+Help:
+Value is 1 if a DRBD peer connection exists. Details of the corresponding
+DRBD peer connection are given as label metadata values for this metric.
+No value(s) available!
+
+ha_cluster.drbd.connections.peer_disk_state PMID: 155.11.4 [Peer disk state]
+    Data Type: string  InDom: 155.9 0x26c00009
+    Semantics: instant  Units: count
+Help:
+The reported peer disk state for the connection.
+No value(s) available!
+
+ha_cluster.drbd.connections.peer_node_id PMID: 155.11.1 [The ID the connection is for]
+    Data Type: string  InDom: 155.9 0x26c00009
+    Semantics: instant  Units: count
+Help:
+The given peer node ID for which the connection is for.
+No value(s) available!
+
+ha_cluster.drbd.connections.peer_role PMID: 155.11.2 [Role of the connection]
+    Data Type: string  InDom: 155.9 0x26c00009
+    Semantics: instant  Units: count
+Help:
+The reported role type for the connection.
+No value(s) available!
+
+ha_cluster.drbd.connections.resource PMID: 155.11.0 [Resource that the connection is for]
+    Data Type: string  InDom: 155.9 0x26c00009
+    Semantics: instant  Units: count
+Help:
+The given resource that the DRBD connection is for each resource:volume.
+No value(s) available!
+
+ha_cluster.drbd.connections.volume PMID: 155.11.3 [Volume number]
+    Data Type: 32-bit unsigned int  InDom: 155.9 0x26c00009
+    Semantics: instant  Units: count
+Help:
+The reported volume for the connection.
+No value(s) available!
+
+ha_cluster.drbd.connections_pending PMID: 155.11.8 [Number of connections pending]
+    Data Type: 32-bit unsigned int  InDom: 155.9 0x26c00009
+    Semantics: instant  Units: count
+Help:
+The number of requests sent which have not yet been received by DRBD for the
+resource:volume.
+No value(s) available!
+
+ha_cluster.drbd.connections_received PMID: 155.11.6 [Volume of data received]
+    Data Type: 64-bit unsigned int  InDom: 155.9 0x26c00009
+    Semantics: instant  Units: count
+Help:
+The volume of data received via the network connection in KiB by DRBD for the
+resource:volume.
+No value(s) available!
+
+ha_cluster.drbd.connections_sent PMID: 155.11.7 [Volume of data sent]
+    Data Type: 64-bit unsigned int  InDom: 155.9 0x26c00009
+    Semantics: instant  Units: count
+Help:
+The volume of data sent via the network connection in KiB by DRBD for the
+resource:volume.
+No value(s) available!
+
+ha_cluster.drbd.connections_sync PMID: 155.11.5 [Connections in sync]
+    Data Type: float  InDom: 155.9 0x26c00009
+    Semantics: instant  Units: count
+Help:
+The number of DRBD connections in sync for each resource:volume, this value is
+between 0 to 100.
+No value(s) available!
+
+ha_cluster.drbd.connections_unacked PMID: 155.11.9 [Number of connection not acknowledged]
+    Data Type: 32-bit unsigned int  InDom: 155.9 0x26c00009
+    Semantics: instant  Units: count
+Help:
+The number of requests sent which have not yet been acknowledged by DRBD for
+the resource:volume.
+No value(s) available!
+
+ha_cluster.drbd.lower_pending PMID: 155.10.9 [Number of open requests]
+    Data Type: 64-bit unsigned int  InDom: 155.8 0x26c00008
+    Semantics: instant  Units: count
+Help:
+The number of open requests to the local I/O subsystem by DRBD for the
+resource:volume.
+No value(s) available!
+
+ha_cluster.drbd.quorum PMID: 155.10.10 [Quorum status of DRBD resource:volume]
+    Data Type: 32-bit unsigned int  InDom: 155.8 0x26c00008
+    Semantics: instant  Units: count
+Help:
+The Quorum status of the DRBD resource according to resource:volume, 1 is
+quorate and 0 is non-quorate.
+No value(s) available!
+
+ha_cluster.drbd.read PMID: 155.10.5 [Amount read by DRBD resource]
+    Data Type: 32-bit unsigned int  InDom: 155.8 0x26c00008
+    Semantics: instant  Units: count
+Help:
+Amount in KiB read by the DRBD resource:volume.
+No value(s) available!
+
+ha_cluster.drbd.resources.all PMID: 155.17.0 [DRBD resource information]
+    Data Type: 32-bit unsigned int  InDom: 155.15 0x26c0000f
+    Semantics: instant  Units: count
+Help:
+Value is 1 if a DRBD resource exists. Details of the corresponding DRBD
+resource are given as label metadata values for this metric.
+No value(s) available!
+
+ha_cluster.drbd.resources.disk_state PMID: 155.10.3 [Disk state]
+    Data Type: string  InDom: 155.8 0x26c00008
+    Semantics: instant  Units: count
+Help:
+The current reported disk state of for the resource:volume.
+No value(s) available!
+
+ha_cluster.drbd.resources.resource PMID: 155.10.0 [Name of the resource]
+    Data Type: string  InDom: 155.8 0x26c00008
+    Semantics: instant  Units: count
+Help:
+The name given for the DRBD resource for each resource:volume.
+No value(s) available!
+
+ha_cluster.drbd.resources.role PMID: 155.10.1 [Role of the resource]
+    Data Type: string  InDom: 155.8 0x26c00008
+    Semantics: instant  Units: count
+Help:
+The reported role for the DRBD resource for each resource:volume.
+No value(s) available!
+
+ha_cluster.drbd.resources.volume PMID: 155.10.2 [Volume of the resource]
+    Data Type: string  InDom: 155.8 0x26c00008
+    Semantics: instant  Units: count
+Help:
+The volume number of the resource for each resource:volume.
+No value(s) available!
+
+ha_cluster.drbd.split_brain PMID: 155.10.11 [Signal for split brain detection.]
+    Data Type: 32-bit unsigned int  InDom: 155.8 0x26c00008
+    Semantics: instant  Units: count
+Help:
+This metric signals if there has been a split brain occurring in DRBD for the
+resource:volume, value is 1 is a split brain has been detected.
+No value(s) available!
+
+ha_cluster.drbd.upper_pending PMID: 155.10.8 [Block I/O requests pending]
+    Data Type: 64-bit unsigned int  InDom: 155.8 0x26c00008
+    Semantics: instant  Units: count
+Help:
+The number of the block I/O requests forwarded but not yet answered by DRBD
+for the resource:volume.
+No value(s) available!
+
+ha_cluster.drbd.written PMID: 155.10.4 [Amount written to DRBD resource]
+    Data Type: 32-bit unsigned int  InDom: 155.8 0x26c00008
+    Semantics: instant  Units: count
+Help:
+Amount in KiB written to the DRBD resource:volume.
+No value(s) available!
+
+ha_cluster.pacemaker.config_last_change PMID: 155.0.0 [Unix timestamp corresponding to last Pacemaker configuration change]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+Unix timestamp in seconds corresponding to the last time that the Pacemaker
+configuration was changed on the system.
+    value 1687428694
+
+ha_cluster.pacemaker.fail_count PMID: 155.1.0 [The number of fail count recorded]
+    Data Type: 64-bit unsigned int  InDom: 155.0 0x26c00000
+    Semantics: instant  Units: count
+Help:
+The number of fail count per node and resource ID, the actual maximum value
+depends on Pacemaker internals.
+    inst [0 or "rhel9-node1:VirtualIP"] value 0
+
+ha_cluster.pacemaker.location_constraints.all PMID: 155.12.0 [Location constraint information]
+    Data Type: 32-bit unsigned int  InDom: 155.10 0x26c0000a
+    Semantics: instant  Units: count
+Help:
+Value is 1 if a location constraint exists. The details of the location constraint
+is given as label metadata values for this metric.
+No value(s) available!
+
+ha_cluster.pacemaker.location_constraints.node PMID: 155.2.0 [Node of the location constraint]
+    Data Type: string  InDom: 155.1 0x26c00001
+    Semantics: instant  Units: count
+Help:
+The node that the location constraint applies to in the cluster.
+No value(s) available!
+
+ha_cluster.pacemaker.location_constraints.resource PMID: 155.2.1 [Resource of the location constraint]
+    Data Type: string  InDom: 155.1 0x26c00001
+    Semantics: instant  Units: count
+Help:
+The resource that the location constraint applies to in the cluster.
+No value(s) available!
+
+ha_cluster.pacemaker.location_constraints.role PMID: 155.2.2 [Resource role of the location constraint]
+    Data Type: string  InDom: 155.1 0x26c00001
+    Semantics: instant  Units: count
+Help:
+The resource role that the location constraint applies to, if any.
+No value(s) available!
+
+ha_cluster.pacemaker.location_constraints.score PMID: 155.2.3 [Score of the location constraint]
+    Data Type: string  InDom: 155.1 0x26c00001
+    Semantics: instant  Units: count
+Help:
+The score given to the location constraint by Pacemaker, the value depends on
+Pacemaker internals.
+No value(s) available!
+
+ha_cluster.pacemaker.migration_threshold PMID: 155.1.1 [Migration threshold per node and resource ID]
+    Data Type: 64-bit unsigned int  InDom: 155.0 0x26c00000
+    Semantics: instant  Units: count
+Help:
+The value for the migration threshold per node and resource ID set by the
+Pacemaker cluster.
+    inst [0 or "rhel9-node1:VirtualIP"] value 1000000
+
+ha_cluster.pacemaker.node_attributes PMID: 155.4.0 [Metadata used by Resource Agents]
+    Data Type: string  InDom: 155.3 0x26c00003
+    Semantics: instant  Units: count
+Help:
+The raw values for the cluster metadata attributes and their value per node as
+used by the Resource Agents.
+No value(s) available!
+
+ha_cluster.pacemaker.node_attributes_all PMID: 155.13.0 [Metadata information]
+    Data Type: 32-bit unsigned int  InDom: 155.11 0x26c0000b
+    Semantics: instant  Units: count
+Help:
+Value is 1 if a node metadata exists. The details of the node metadata
+is given as label metadata values for this metric.
+No value(s) available!
+
+ha_cluster.pacemaker.nodes.status.dc PMID: 155.3.8 [Whether the node status is given as the DC]
+    Data Type: 32-bit unsigned int  InDom: 155.2 0x26c00002
+    Semantics: instant  Units: count
+Help:
+Whether the DC status is reported by the node in the cluster, a
+value of 1 confirms the node status as the designated coordinator.
+    inst [0 or "rhel9-node1"] value 1
+    inst [1 or "rhel9-node2"] value 0
+
+ha_cluster.pacemaker.nodes.status.expected_up PMID: 155.3.7 [Whether the node status is given as expected_up]
+    Data Type: 32-bit unsigned int  InDom: 155.2 0x26c00002
+    Semantics: instant  Units: count
+Help:
+Whether the expected_up status is reported by the node in the cluster, a
+value of 1 confirms the node status as expected_up.
+    inst [0 or "rhel9-node1"] value 1
+    inst [1 or "rhel9-node2"] value 1
+
+ha_cluster.pacemaker.nodes.status.maintenance PMID: 155.3.3 [Whether the node status is given as maintenance]
+    Data Type: 32-bit unsigned int  InDom: 155.2 0x26c00002
+    Semantics: instant  Units: count
+Help:
+Whether the maintenance status is reported by the node in the cluster, a
+value of 1 confirms the node status as online.
+    inst [0 or "rhel9-node1"] value 0
+    inst [1 or "rhel9-node2"] value 0
+
+ha_cluster.pacemaker.nodes.status.online PMID: 155.3.0 [Whether the node status is given as online]
+    Data Type: 32-bit unsigned int  InDom: 155.2 0x26c00002
+    Semantics: instant  Units: count
+Help:
+Whether the online status is reported by the node in the cluster, a value of
+1 confirms the node status as online.
+    inst [0 or "rhel9-node1"] value 1
+    inst [1 or "rhel9-node2"] value 1
+
+ha_cluster.pacemaker.nodes.status.pending PMID: 155.3.4 [Whether the node status is given as pending]
+    Data Type: 32-bit unsigned int  InDom: 155.2 0x26c00002
+    Semantics: instant  Units: count
+Help:
+Whether the pending status is reported by the node in the cluster, a value of
+1 confirms the node status as pending.
+    inst [0 or "rhel9-node1"] value 0
+    inst [1 or "rhel9-node2"] value 0
+
+ha_cluster.pacemaker.nodes.status.shutdown PMID: 155.3.6 [Whether the node status is given as shutdown]
+    Data Type: 32-bit unsigned int  InDom: 155.2 0x26c00002
+    Semantics: instant  Units: count
+Help:
+Whether the shutdown status is reported by the node in the cluster, a value
+of 1 confirms the node status as shutdown.
+    inst [0 or "rhel9-node1"] value 0
+    inst [1 or "rhel9-node2"] value 0
+
+ha_cluster.pacemaker.nodes.status.standby PMID: 155.3.1 [Whether the node status is given as standby]
+    Data Type: 32-bit unsigned int  InDom: 155.2 0x26c00002
+    Semantics: instant  Units: count
+Help:
+Whether the standby status is reported by the node in the cluster, a value of
+1 confirms the node status as standby.
+    inst [0 or "rhel9-node1"] value 0
+    inst [1 or "rhel9-node2"] value 0
+
+ha_cluster.pacemaker.nodes.status.standby_on_fail PMID: 155.3.2 [Whether the node status is given as standby_on_fail]
+    Data Type: 32-bit unsigned int  InDom: 155.2 0x26c00002
+    Semantics: instant  Units: count
+Help:
+Whether the standby_on_fail status is reported by the node in the cluster,
+a value of 1 confirms the node status as standby_on_fail.
+    inst [0 or "rhel9-node1"] value 0
+    inst [1 or "rhel9-node2"] value 0
+
+ha_cluster.pacemaker.nodes.status.unclean PMID: 155.3.5 [Whether the node status is given as unclean]
+    Data Type: 32-bit unsigned int  InDom: 155.2 0x26c00002
+    Semantics: instant  Units: count
+Help:
+Whether the unclean status is reported by the node in the cluster, a value of
+1 confirms the node status as unclean.
+    inst [0 or "rhel9-node1"] value 0
+    inst [1 or "rhel9-node2"] value 0
+
+ha_cluster.pacemaker.nodes.type PMID: 155.3.9 [The type given to the node]
+    Data Type: string  InDom: 155.2 0x26c00002
+    Semantics: instant  Units: count
+Help:
+The membership type given to the node in the Pacemaker cluster.
+    inst [0 or "rhel9-node1"] value "member"
+    inst [1 or "rhel9-node2"] value "member"
+
+ha_cluster.pacemaker.resources.agent PMID: 155.5.0 [The name of the resource agent for this resource]
+    Data Type: string  InDom: 155.4 0x26c00004
+    Semantics: instant  Units: count
+Help:
+The name given for the resource agent for the given resource instance in the 
+cluster.
+    inst [2 or "SAPHana_HDB_00:rh9dhdb00l08b"] value "ocf:heartbeat:SAPHana"
+    inst [1 or "SAPHana_HDB_00:rh9dhdb00l18b"] value "ocf:heartbeat:SAPHana"
+    inst [0 or "VirtualIP:rhel9-node1"] value "ocf:heartbeat:IPaddr2"
+
+ha_cluster.pacemaker.resources.all PMID: 155.14.0 [Pacemaker resources information]
+    Data Type: 32-bit unsigned int  InDom: 155.12 0x26c0000c
+    Semantics: instant  Units: count
+Help:
+Value is 1 if a resources exists. The details of the resource
+is given as label metadata values for this metric.
+    inst [2 or "SAPHana_HDB_00:rh9dhdb00l08b"] value 1
+    inst [1 or "SAPHana_HDB_00:rh9dhdb00l18b"] value 1
+    inst [0 or "VirtualIP:rhel9-node1"] value 1
+
+ha_cluster.pacemaker.resources.clone PMID: 155.5.1 [The name of the clone given for this resource]
+    Data Type: string  InDom: 155.4 0x26c00004
+    Semantics: instant  Units: count
+Help:
+The name given for the clone for the given resource instance in the cluster,
+if any.
+    inst [2 or "SAPHana_HDB_00:rh9dhdb00l08b"] value "SAPHana_HDB_00-clone"
+    inst [1 or "SAPHana_HDB_00:rh9dhdb00l18b"] value "SAPHana_HDB_00-clone"
+    inst [0 or "VirtualIP:rhel9-node1"] value ""
+
+ha_cluster.pacemaker.resources.group PMID: 155.5.2 [The name of the group given for this resource]
+    Data Type: string  InDom: 155.4 0x26c00004
+    Semantics: instant  Units: count
+Help:
+The name given for the group for the given resource instance in the cluster,
+if any.
+    inst [2 or "SAPHana_HDB_00:rh9dhdb00l08b"] value ""
+    inst [1 or "SAPHana_HDB_00:rh9dhdb00l18b"] value ""
+    inst [0 or "VirtualIP:rhel9-node1"] value ""
+
+ha_cluster.pacemaker.resources.managed PMID: 155.5.3 [Value is either true or false]
+    Data Type: 32-bit unsigned int  InDom: 155.4 0x26c00004
+    Semantics: instant  Units: count
+Help:
+The value of whether the resource instance in the cluster is managed or not.
+    inst [2 or "SAPHana_HDB_00:rh9dhdb00l08b"] value 1
+    inst [1 or "SAPHana_HDB_00:rh9dhdb00l18b"] value 1
+    inst [0 or "VirtualIP:rhel9-node1"] value 1
+
+ha_cluster.pacemaker.resources.role PMID: 155.5.4 [The given role state]
+    Data Type: string  InDom: 155.4 0x26c00004
+    Semantics: instant  Units: count
+Help:
+The value of the given role state for the resource instance in the cluster.
+    inst [2 or "SAPHana_HDB_00:rh9dhdb00l08b"] value "Unpromoted"
+    inst [1 or "SAPHana_HDB_00:rh9dhdb00l18b"] value "Promoted"
+    inst [0 or "VirtualIP:rhel9-node1"] value "Started"
+
+ha_cluster.pacemaker.resources.status.active PMID: 155.5.5 [Whether the resources status is given as active]
+    Data Type: 32-bit unsigned int  InDom: 155.4 0x26c00004
+    Semantics: instant  Units: count
+Help:
+Whether the active status is reported by the resource in the cluster, a
+value of 1 confirms the resource status as active.
+    inst [2 or "SAPHana_HDB_00:rh9dhdb00l08b"] value 1
+    inst [1 or "SAPHana_HDB_00:rh9dhdb00l18b"] value 1
+    inst [0 or "VirtualIP:rhel9-node1"] value 1
+
+ha_cluster.pacemaker.resources.status.blocked PMID: 155.5.7 [Whether the resources status is given as blocked]
+    Data Type: 32-bit unsigned int  InDom: 155.4 0x26c00004
+    Semantics: instant  Units: count
+Help:
+Whether the blocked status is reported by the resource in the cluster, a
+value of 1 confirms the resource status as blocked.
+    inst [2 or "SAPHana_HDB_00:rh9dhdb00l08b"] value 0
+    inst [1 or "SAPHana_HDB_00:rh9dhdb00l18b"] value 0
+    inst [0 or "VirtualIP:rhel9-node1"] value 0
+
+ha_cluster.pacemaker.resources.status.failed PMID: 155.5.8 [Whether the resources status is given as failed]
+    Data Type: 32-bit unsigned int  InDom: 155.4 0x26c00004
+    Semantics: instant  Units: count
+Help:
+Whether the failed status is reported by the resource in the cluster, a 
+value of 1 confirms the resource status as failed.
+    inst [2 or "SAPHana_HDB_00:rh9dhdb00l08b"] value 0
+    inst [1 or "SAPHana_HDB_00:rh9dhdb00l18b"] value 0
+    inst [0 or "VirtualIP:rhel9-node1"] value 0
+
+ha_cluster.pacemaker.resources.status.failure_ignored PMID: 155.5.9 [Whether the resources status is given as failure_ignored]
+    Data Type: 32-bit unsigned int  InDom: 155.4 0x26c00004
+    Semantics: instant  Units: count
+Help:
+Whether the failure_ignored status is reported by the resource in the
+cluster, a value of 1 confirms the resource status as failure_ignored.
+    inst [2 or "SAPHana_HDB_00:rh9dhdb00l08b"] value 0
+    inst [1 or "SAPHana_HDB_00:rh9dhdb00l18b"] value 0
+    inst [0 or "VirtualIP:rhel9-node1"] value 0
+
+ha_cluster.pacemaker.resources.status.orphaned PMID: 155.5.6 [Whether the resources status is given as orphaned]
+    Data Type: 32-bit unsigned int  InDom: 155.4 0x26c00004
+    Semantics: instant  Units: count
+Help:
+Whether the orphaned status is reported by the resource in the cluster, a
+value of 1 confirms the resource status as orphaned.
+    inst [2 or "SAPHana_HDB_00:rh9dhdb00l08b"] value 0
+    inst [1 or "SAPHana_HDB_00:rh9dhdb00l18b"] value 0
+    inst [0 or "VirtualIP:rhel9-node1"] value 0
+
+ha_cluster.pacemaker.stonith_enabled PMID: 155.0.1 [Whether stonith is enabled in the cluster]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+Value returns as to whether stonith is enabled or disabled for the cluster.
+    value 0
+
+ha_cluster.sbd.all PMID: 155.16.0 [SBD device information]
+    Data Type: 32-bit unsigned int  InDom: 155.14 0x26c0000e
+    Semantics: instant  Units: count
+Help:
+Value is 1 if a sbd device exists. The details of the corresponding SBD device
+is given as label metadata values for this metric.
+No value(s) available!
+
+ha_cluster.sbd.devices.path PMID: 155.9.0 [Path of SBD device]
+    Data Type: string  InDom: 155.7 0x26c00007
+    Semantics: instant  Units: count
+Help:
+The full path given to each SBD device.
+No value(s) available!
+
+ha_cluster.sbd.devices.status PMID: 155.9.1 [Status of the SBD device]
+    Data Type: string  InDom: 155.7 0x26c00007
+    Semantics: instant  Units: count
+Help:
+The current status given for each of the SBD devices, the value is one of
+healthy or unhealthy.
+No value(s) available!
+
+ha_cluster.sbd.timeouts.allocate PMID: 155.9.3 [allocate timeout value]
+    Data Type: 32-bit unsigned int  InDom: 155.7 0x26c00007
+    Semantics: instant  Units: count
+Help:
+The value threshold for allocate timeouts for the given SBD device.
+No value(s) available!
+
+ha_cluster.sbd.timeouts.loop PMID: 155.9.4 [loop timeout value]
+    Data Type: 32-bit unsigned int  InDom: 155.7 0x26c00007
+    Semantics: instant  Units: count
+Help:
+The value threshold for loop timeouts for the given SBD device.
+No value(s) available!
+
+ha_cluster.sbd.timeouts.mgswait PMID: 155.9.2 [mgswait timeout value]
+    Data Type: 32-bit unsigned int  InDom: 155.7 0x26c00007
+    Semantics: instant  Units: count
+Help:
+The value threshold for msgwait timeouts for the given SBD device.
+No value(s) available!
+
+ha_cluster.sbd.timeouts.watchdog PMID: 155.9.5 [watchdog timeout value]
+    Data Type: 32-bit unsigned int  InDom: 155.7 0x26c00007
+    Semantics: instant  Units: count
+Help:
+The value threshold for watchdog timeouts for the given SBD device.
+No value(s) available!
+== Checking with valgrind - hacluster-root-004.tgz
 === std out ===
 
 ha_cluster.pacemaker.config_last_change

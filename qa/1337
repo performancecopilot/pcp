@@ -36,7 +36,6 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _query()
@@ -76,7 +75,7 @@ pmdamssql_install()
     echo
     echo "=== mssql agent installation ==="
     $sudo ./Install </dev/null >$tmp.out 2>&1
-    cat $tmp.out >>$here/$seq.full
+    cat $tmp.out >>$seq_full
     # Check mssql metrics have appeared ... X metrics and Y values
     _filter_pmda_install <$tmp.out \
     | sed \

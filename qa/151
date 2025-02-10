@@ -4,7 +4,7 @@
 # from longer ago than just yesterday.  Based on qa/532.
 #
 # Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
-# 
+#
 # check-group-include: pmlogextract
 #
 
@@ -32,7 +32,7 @@ fi
 
 _filter()
 {
-    tee -a $seq.full \
+    tee -a $seq_full \
     | sed -f $tmp/sed \
     | sed \
 	-e '/^Roll .*\/NOTICES/d' \
@@ -57,9 +57,8 @@ NEEDREWRITE=$PCP_LOG_DIR/pmlogger/.NeedRewrite
 
 _cleanup()
 {
+    cd $here
     $sudo rm -rf $tmp $tmp.*
-    [ -f $PCP_LOG_DIR/NOTICES.$seq ] \
-	&& $sudo mv $PCP_LOG_DIR/NOTICES.$seq $PCP_LOG_DIR/NOTICES
     [ -f $NEEDREWRITE.$seq ] && $sudo mv $NEEDREWRITE.$seq $NEEDREWRITE
 }
 
@@ -70,9 +69,6 @@ trap "cd $here; _cleanup; exit \$status" 0 1 2 3 15
 #
 umask 022
 
-$sudo mv $PCP_LOG_DIR/NOTICES $PCP_LOG_DIR/NOTICES.$seq
-rm -f $seq.full
-rm -rf $tmp $tmp.*
 mkdir $tmp
 mkdir $tmp/foo
 
@@ -169,16 +165,19 @@ $sudo chown $PCP_USER:$PCP_GROUP $tmp
 echo
 echo "Before ..."
 ls $tmp | sed -f $tmp/sed | LC_COLLATE=POSIX sort | tee $tmp.before
-echo "sed ..." >>$seq.full
-cat $tmp/sed >>$seq.full
-echo "before ..." >>$seq.full
-ls -l $tmp >>$seq.full
+echo "sed ..." >>$seq_full
+cat $tmp/sed >>$seq_full
+echo "before ..." >>$seq_full
+ls -l $tmp >>$seq_full
 
 # list of culled files is in directory order, hence the cut and sort
 # complexity at the end of this pipeline
 #
+# need to be a place the user $PCP_USER can cd to from pmlogger_daily
+#
+cd /var/tmp
 echo
-echo "pmlogger_daily -k 5 -x never -V ..." >>$seq.full
+echo "pmlogger_daily -k 5 -x never -V ..." >>$seq_full
 $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -D -c $tmp/control -k 5 -x never -V -l $tmp.log"
 $sudo cat $tmp.log \
 | _filter \
@@ -194,16 +193,16 @@ state == 2		{ print >"'$tmp.out.2'" }'
 [ -f $tmp.out.1 ] && LC_COLLATE=POSIX sort $tmp.out.1
 [ -f $tmp.out.2 ] && cat $tmp.out.2
 
-echo "out.0 ..." >>$seq.full
-[ -f $tmp.out.0 ] && cat $tmp.out.0 >>$seq.full
-echo "out.1 ..." >>$seq.full
-[ -f $tmp.out.1 ] && cat $tmp.out.1 >>$seq.full
+echo "out.0 ..." >>$seq_full
+[ -f $tmp.out.0 ] && cat $tmp.out.0 >>$seq_full
+echo "out.1 ..." >>$seq_full
+[ -f $tmp.out.1 ] && cat $tmp.out.1 >>$seq_full
 
 echo
 echo "After ..."
 ls $tmp | sed -f $tmp/sed | LC_COLLATE=POSIX sort | tee $tmp.after
-echo "after ..." >>$seq.full
-ls -l $tmp >>$seq.full
+echo "after ..." >>$seq_full
+ls -l $tmp >>$seq_full
 
 echo
 echo "Differences ..."

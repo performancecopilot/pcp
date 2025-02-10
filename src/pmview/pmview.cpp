@@ -11,6 +11,16 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
+ *
+ * Debug flags
+ * appl0	- scene construction
+ * appl1	- object selection and launch
+ * appl2	- fetching and 
+ * appl3	- object refreshing
+ * appl4	- UI objects (other than Inventor window)
+ * pmc		- metrics class operations (libpcp_qmc)
+ * timecontrol	- pmtime interactions
+ * qed		- libpcp_qed methods
  */
 #include <QUrl>
 #include <QTimer>
@@ -122,6 +132,8 @@ void PmView::init(void)
     pmview->addActiveView(view);
 
     my.statusBar->init();
+    connect(my.statusBar->timeButton(), SIGNAL(clicked()),
+    				this, SLOT(optionsTimeControl()));
 
     connect(pmtime, SIGNAL(step(bool, QmcTime::Packet *)),
 		this, SLOT(step(bool, QmcTime::Packet *)));
@@ -173,12 +185,12 @@ bool PmView::view(bool showAxis,
     if (pmDebugOptions.appl1)
 	cerr << "PmView::view: antialiasing set to smooth = "
 	     << (smooth == TRUE ? "true" : "false")
-	     << ", passes = " << passes << endl;
+	     << ", passes = " << passes << Qt::endl;
 
     if (passes > 1)
         viewer()->setAntialiasing(smooth, atoi(sval));
     if (pmDebugOptions.appl1)
-	cerr << "PmView::view: displaying window" << endl;
+	cerr << "PmView::view: displaying window" << Qt::endl;
 
     viewer()->viewAll();
 
@@ -199,6 +211,9 @@ bool PmView::view(bool showAxis,
 
 void PmView::render(RenderOptions options, time_t theTime)
 {
+    if (pmDebugOptions.appl3 && pmDebugOptions.desperate)
+	cerr << "PmView::render: options=" << options << " theTime=" << theTime << Qt::endl;
+
     viewer()->setAutoRedraw(false);
 
     if (options & PmView::metrics)
@@ -212,19 +227,18 @@ void PmView::render(RenderOptions options, time_t theTime)
 	if (my.text != my.prevText) {
 	    my.prevText = my.text;
 	    if (my.text.length() == 0)
-		// TODO: clear label string
-		;
+		// clear statusBar text
+		my.statusBar->clearValueText();
 	    else {
-		// TODO: set label string to my.text
-		if (pmDebugOptions.appl1)
-		    cerr << "PmView::render: metricLabel text \"" <<
-			my.text << "\"" << endl;
+		// set statusBar text with metric and current
+		// value
+		my.statusBar->setValueText(my.text);
 	    }
 	}
     }
 
     if (options & PmView::timeLabel)
-	setDateLabel(theTime, QString::null);	// TODO
+	setDateLabel(theTime, QString());	// TODO
 
     viewer()->setAutoRedraw(true);
 }
@@ -294,6 +308,8 @@ void PmView::updateToolbarOrientation(Qt::Orientation orientation)
 
 void PmView::setButtonState(QedTimeButton::State state)
 {
+    if (pmDebugOptions.appl4)
+	cerr << "PmView::setButtonState: state=" << state << Qt::endl;
     my.statusBar->timeButton()->setButtonState(state);
 }
 
@@ -301,7 +317,8 @@ void PmView::step(bool live, QmcTime::Packet *packet)
 {
     if (pmDebugOptions.timecontrol) {
 	console->post("pmView::step(live=%d)", live);
-	console->post("Packet: %s", QmcTime::packetStr(packet));
+	if (pmDebugOptions.desperate)
+	    console->post("Packet: %s", QmcTime::packetStr(packet));
     }
     if (live)
 	liveGroup->step(packet);
@@ -312,8 +329,9 @@ void PmView::step(bool live, QmcTime::Packet *packet)
 void PmView::VCRMode(bool live, QmcTime::Packet *packet, bool drag)
 {
     if (pmDebugOptions.timecontrol) {
-	console->post("pmView::VCRMode(live=%d, ..., drag=%d", live, drag);
-	console->post("Packet: %s", QmcTime::packetStr(packet));
+	console->post("pmView::VCRMode(live=%d, ..., drag=%d)", live, drag);
+	if (pmDebugOptions.desperate)
+	    console->post("Packet: %s", QmcTime::packetStr(packet));
     }
     if (live)
 	liveGroup->VCRMode(packet, drag);
@@ -325,7 +343,8 @@ void PmView::timeZone(bool live, QmcTime::Packet *packet, char *tzdata)
 {
     if (pmDebugOptions.timecontrol) {
 	console->post("pmView::timeZone(live=%d, ..., tzdata=%s)", live, tzdata);
-	console->post("Packet: %s", QmcTime::packetStr(packet));
+	if (pmDebugOptions.desperate)
+	    console->post("Packet: %s", QmcTime::packetStr(packet));
     }
     if (live)
 	liveGroup->setTimezone(packet, tzdata);
@@ -480,9 +499,11 @@ void PmView::setDateLabel(time_t seconds, QString tz)
     if (seconds) {
 	pmCtime(&seconds, datestring);
 	label = tr(datestring);
-	label.remove(10, 9);
-	label.replace(15, 1, " ");
-	label.append(tz);
+	label.remove(19, 6);	// strip YYYY\n
+	if (!tz.isEmpty()) {
+	    label.append(" ");
+	    label.append(tz);
+	}
     }
     else {
 	label = tr("");

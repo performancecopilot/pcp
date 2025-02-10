@@ -8,6 +8,13 @@ echo "QA output created by $seq"
 
 . ./common.bpftrace
 
+case `admin/whatami`
+in
+    *openSUSE\ Leap\ 15.*)
+	_notrun "this test does not work on openSUSE 15.x"
+	;;
+esac
+
 _pmdabpftrace_check
 
 case `hostname -s`
@@ -18,14 +25,13 @@ in
 esac
 
 status=1       # failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 
 _filter_test_duration()
 {
     sed -E -e "s/test(s?) in .+/test\1/g"
 }
 
-$sudo PYTHONPATH="$PCP_PMDAS_DIR/bpftrace" $python -Wi::DeprecationWarning -m unittest discover $here/bpftrace "*_tests.py" 2>&1 > $here/$seq.full | \
+$sudo PYTHONPATH="$PCP_PMDAS_DIR/bpftrace" $python -Wi::DeprecationWarning -m unittest discover $here/bpftrace "*_tests.py" 2>&1 > $seq_full | \
 _filter_test_duration
 
 

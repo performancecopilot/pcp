@@ -34,11 +34,11 @@ These interfaces are not part of the PCP APIs that are guaranteed to
 remain fixed across releases, and they may not work, or may provide
 different semantics at some point in the future.
 .SH DESCRIPTION
-.de CW
-.ie t \f(CW\\$1\fR\\$2
+.de CR
+.ie t \f(CR\\$1\fR\\$2
 .el \fI\\$1\fR\\$2
 ..
-Each instance of the Performance Co-Pilot (PCP) archive logger program
+Each instance of the Performance Co-Pilot (PCP) archive creation program
 .BR pmlogger (1)
 supports a control port on which
 .BR __pmControlLog (3)
@@ -58,7 +58,7 @@ on the host
 One special case is supported; for the reserved
 .I pid
 value of
-.B PM_LOG_CONTROL_PORT
+.B PM_LOG_PRIMARY_PORT
 the requested connection is to the
 control port for the ``primary'' logger, whatever its process
 id might be.
@@ -73,7 +73,7 @@ instance, e.g. for
 .PP
 As the control port to
 .BR pmlogger (1)
-is not mulitplexed, applications using
+is not multiplexed, applications using
 .B __pmConnectLogger
 should use
 .BR close (2)
@@ -101,7 +101,7 @@ instance
 the designated
 .BR pmlogger (1)
 instance does not exist
-.IP \f3\-EEADDRINUSE\f1
+.IP \f3\-EADDRINUSE\f1
 the requested control port is already in use
 .SH SEE ALSO
 .BR pmcd (1),

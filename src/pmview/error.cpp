@@ -14,34 +14,40 @@
  */
 #include "main.h"
 
+int warnCount;
 int errorCount;
 int lineNum;
 
 void
 yywarn(const char *s)
 {
-    const char * fmt =  theConfigName.length() ? "%s: warning - %s(%d): %s\n":
-					   "%s: warning - line %3$d: %4$s\n";
-    const char * config = (const char *)theConfigName.toLatin1();
+    const char *config;
 
-    pmprintf(fmt, pmGetProgname(), config, lineNum+1, s);
-    pmflush();
+    if (theConfigName.length() > 0)
+	config = (const char *)theConfigName.toLatin1();
+    else
+	config = "<stdin>";
+    pmprintf("%s: warning - %s[%d]: %s\n", pmGetProgname(), config, lineNum+1, s);
+    warnCount++;	/* used in main.cpp to call pmflush() */
 }
 
 void
 yyerror(const char *s)
 {
-    const char * fmt =  theConfigName.length() ? "%s: error - %s(%d): %s\n":
-					   "%s: error - line %3$d: %4$s\n";
-    const char * config = (const char *)theConfigName.toLatin1();
+    const char *config;
     const char badeof[] = "unexpected end of file";
+
+    if (theConfigName.length() > 0)
+	config = (const char *)theConfigName.toLatin1();
+    else
+	config = "<stdin>";
 
     markpos();
     if (!locateError())
 	s = (char *)badeof;
 	
-    pmprintf(fmt, pmGetProgname(), config, lineNum+1, s);
+    pmprintf("%s: error - %s[%d]: %s\n", pmGetProgname(), config, lineNum+1, s);
     pmflush();
-    errorCount++; /* It's used in pmview.cpp to abort the execution */
+    errorCount++;	/* used in main.cpp to abort the execution */
 }
 

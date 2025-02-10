@@ -1,0 +1,100 @@
+# This is really a full QA test for stress testing pmcd's protocol
+# handling ... set the shell variables
+# $pdu_data
+#	ascii pdu specifications suitable for src/pdu-gadget or binary
+#	protocol data stream, these typically contain malformed PDUs
+#	(see the qa/pdudata directory for examples) ... this needs
+#	to be a relative path
+# $grep_pattern
+#	a grep -E pattern for scanning pmcd.log once the test has been
+#	run
+# and then source this file
+
+[ -z "$pdu_data" ] && echo "Botch! \$pdu_data not set" && exit 1
+[ -z "$grep_pattern" ] && echo "Botch! \$grep_pattern not set" && exit 1
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ ! -f "$here/$pdu_data" ] && echo "Botch! PDU data file $here/$pdu_data not found" && exit 1
+
+
+which nc >/dev/null 2>&1 || _notrun "no nc executable installed"
+# Need nc option to terminate when EOF encountered on stdin,
+# but unfortunately there are multiple versions of nc(1) ...
+nc --help >$tmp.out 2>&1
+if grep -q '.-[^ ]*N' $tmp.out
+then
+    nc_opt=-N
+elif grep -q '.--send-only' $tmp.out
+then
+    nc_opt="--send-only"
+else
+    cat $tmp.out >>$seq_full
+    _notrun 'nc --help is not helping ... see $seq_full'
+fi
+_check_valgrind
+
+_cleanup()
+{
+    cat pmcd.log >>$seq_full
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e '/^Command: /d' \
+    # end
+}
+
+mkdir $tmp || exit 1
+cd $tmp
+grep sampledso $PCP_PMCDCONF_PATH >pmcd.conf
+$PCP_AWK_PROG <$PCP_PMCDCONF_PATH >>pmcd.conf '
+$1 == "[access]"	{ print ""; want = 1 }
+want == 1		{ print }'
+cat pmcd.conf >>$seq_full
+port=`_find_free_port`
+echo "port=$port" >>$seq_full
+
+# real QA test starts here
+valgrind --leak-check=full $PCP_BINADM_DIR/pmcd -f -Dpdu,appl3,attr -c ./pmcd.conf -s ./pmcd.socket -p $port  >out 2>err &
+valgrind_pid=$!
+sleep 2
+pmcd_pid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '[p]mcd -f -Dpdu' | $PCP_AWK_PROG '{ print $2 }'`
+echo "pmcd_pid=$pmcd_pid" >>$seq_full
+case "`file $here/$pdu_data`"
+in
+    *'ASCII text'*)
+	# assume ascii PDU specification as input to pdu-gadget
+	$here/src/pdu-gadget -p $port <$here/$pdu_data 2>$tmp.err
+	;;
+    *)
+	# assume binary data, e.g. SUSE reproducers
+	rm -f $tmp.err
+	nc $nc_opt <$here/$pdu_data localhost $port 2>&1 \
+	;;
+esac \
+| od -X >>$seq_full
+sleep 2
+kill -TERM $pmcd_pid
+wait
+
+[ -s $tmp.err ] && cat $tmp.err
+
+echo "expect error(s) to be logged ..."
+grep -E "$grep_pattern" pmcd.log
+
+echo
+echo "and no valgrind badness ..."
+cat out err | _filter_valgrind | _filter
+
+# success, all done
+exit

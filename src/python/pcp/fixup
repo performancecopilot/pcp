@@ -1,0 +1,50 @@
+#!/bin/sh
+#
+# configure-driven changes to Python code
+#
+
+tmp=/var/tmp/fixup-$$
+sts=1
+trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
+
+TOPDIR=../../..
+
+if [ ! -f $TOPDIR/src/include/pcp/config.h ]
+then
+    echo "fixup: Error:  $TOPDIR/src/include/pcp/config.h missing"
+    exit
+fi
+
+pad=`sed -n <$TOPDIR/src/include/pcp/config.h -e '/^#define PM_PAD_TIMESPEC/s/.* //p'`
+
+if [ -z "$pad" ]
+then
+    # no padding needed
+    #
+    cp pmapi.py.in pmapi.py
+elif [ "$pad" = 4 ]
+then
+    # one 32-bit word of padding needed
+    #
+    # class timespec(Structure):
+    #     _fields_ = [("tv_sec", c_time_t),
+    #                 ("tv_nsec", c_long)]
+    #                                    , <- change
+    #                 ("pad", c_int32)]	   <- add
+    #
+    awk <pmapi.py.in >pmapi.py '
+/^class timespec[(]Structure/	{ state = 1 }
+state == 1 && /tv_nsec/		{ sub(/]/, ",")
+				  print
+				  print "                (\"pad\", c_int32)]"
+				  state = 0
+				  next
+				}
+				{ print }'
+else
+    echo "fixup: Error: bad padding ($pad)"
+    exit
+fi
+
+sts=0
+exit

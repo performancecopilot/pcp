@@ -1,0 +1,50 @@
+#!/bin/sh
+#
+# Redis PMDA "plugin" for pmcheck
+#
+
+. $PCP_DIR/etc/pcp.env || exit 1
+. $PCP_SHARE_DIR/lib/checkproc.sh
+
+_do_args "$@"
+
+_check()
+{
+    test -n "$@" && echo "$@" >> $tmp/out
+    [ "$verbose" -gt 0 -a -s $tmp/out ] && cat $tmp/out
+    [ $status -eq 0 ] || exit
+}
+
+if $lflag
+then
+    [ "$verbose" -gt 0 ] && echo "Redis PMDA - metrics from redis-server(1)"
+elif $sflag
+then
+    status=0  # assume active until proven not to be
+    which redis-server >/dev/null 2>&1 || status=2
+    which redis-cli >/dev/null 2>&1 || status=2
+    _check "redis install status: $status"
+    info=`redis-cli INFO server 2>/dev/null | grep ^executable:`
+    test "$info" = "executable:/usr/bin/redis-server" || status=2
+    _check "redis cli INFO: $info"
+    svc=redis
+    test -f "$PCP_SYSTEMDUNIT_DIR/redis-server.service" && svc=redis-server
+    _ctl_svc state $svc || status=$?
+    _check "redis service status: $status"
+    pong=`redis-cli PING`
+    test "$pong" = "PONG" || status=2
+    _check "redis cli PING: $pong"
+    _ctl_pmda state redis || status=1
+    _check "redis PMDA status: $status"
+elif $aflag
+then
+    _ctl_pmda activate redis pmdaredis.pl || status=1
+elif $dflag
+then
+    _ctl_pmda deactivate redis || status=1
+else
+    [ $verbose -gt 0 ] && echo "botch sflag=$sflag aflag=$aflag dflag=$dflag show_me=$show_me verbose=$verbose"
+    status=99
+fi
+
+exit

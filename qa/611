@@ -73,7 +73,6 @@ $3 == "instances" { if ($1 == stamp) {
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 cat <<End-of-File >$tmp.config
@@ -88,12 +87,12 @@ i=1
 last_nrec=0
 while [ ! -f $tmp.done ]
 do
-    echo >>$here/$seq.full
-    echo "=== spawn iter $i `date` ===" >>$here/$seq.full
-    src/spawn 10000 >>$here/$seq.full 2>&1
+    echo >>$seq_full
+    echo "=== spawn iter $i `date` ===" >>$seq_full
+    src/spawn 10000 >>$seq_full 2>&1
     nrec=`pmdumplog $tmp | grep '^[0-9]' | wc -l | sed -e 's/ //g'`
-    ls -l $tmp.0 >>$here/$seq.full
-    echo "$nrec archive records" >>$here/$seq.full
+    ls -l $tmp.0 >>$seq_full
+    echo "$nrec archive records" >>$seq_full
     if [ $nrec -eq $last_nrec ]
     then
 	# dead hand timer ... no progress
@@ -102,20 +101,20 @@ do
 	echo "See $seq.full for details."
 	kill -TERM $pid
 	wait
-	pmdumplog -a $tmp >>$here/$seq.full
+	pmdumplog -a $tmp >>$seq_full
 	exit
     fi
     last_nrec=$nrec
     i=`expr $i + 1`
 done
 
-cat $tmp.log >>$here/$seq.full
+cat $tmp.log >>$seq_full
 
 echo
 echo "Expect no dups reported ..."
 
 pmdumplog -i $tmp \
-| tee -a $here/$seq.full \
+| tee -a $seq_full \
 | _filter
 
 status=0

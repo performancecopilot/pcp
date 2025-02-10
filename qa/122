@@ -5,7 +5,7 @@
 #	pmtrace -D ...
 #
 # Copyright (c) 2002 Silicon Graphics, Inc.  All Rights Reserved.
-# 
+#
 
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -16,10 +16,8 @@ echo "QA output created by $seq"
 . ./common.check
 
 status=0	# success is the default!
-$sudo rm -rf $tmp.*
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
-rm -f $seq.full
 
 # stolen from getpmcdhosts
 #
@@ -30,13 +28,13 @@ in
 	# little, want big
 	#
 	want=big
-	echo "I am little endian, looking for pmtrace PMDA on a big endian platform" >>$seq.full
+	echo "I am little endian, looking for pmtrace PMDA on a big endian platform" >>$seq_full
 	;;
     610a)
 	# big, want little
 	#
 	want=little
-	echo "I am big endian, looking for pmtrace PMDA on a little endian platform" >>$seq.full
+	echo "I am big endian, looking for pmtrace PMDA on a little endian platform" >>$seq_full
 	;;
     *)
 	echo "Arrgh ... od -x returned something odd ($check)"
@@ -54,7 +52,7 @@ then
     _notrun "Cannot find $want endian host running pmdatrace"
     # NOTREACHED
 fi
-echo "remote host: $host" >>$seq.full
+echo "remote host: $host" >>$seq_full
 
 # real QA test starts here
 for val in 42 1234.5678 -3.14132

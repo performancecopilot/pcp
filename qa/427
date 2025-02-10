@@ -28,7 +28,6 @@ needclean=true
 	PCP_PMLOGGERCONTROL_PATH="$PCP_SYSCONF_DIR/pmlogger/control"
 PCP_PMDAROOT_LOG="$PCP_LOG_DIR/pmcd/root.log"
 
-$sudo rm -f $tmp.* $seq.full
 trap "_cleanup" 0 1 2 3 15
 
 _cleanup()
@@ -95,15 +94,15 @@ END			{ if (flag == 0) printline(); }'
 $sudo cp $tmp.pmcd.new $PCP_PMCDCONF_PATH
 
 # restart pmcd
-_service pcp restart 2>&1 | _filter_pcp_start
-_wait_for_pmcd
+if ! _service pcp restart 2>&1; then _exit 1; fi | _filter_pcp_start
+_wait_for_pmcd || _exit 1
 
-echo == $PCP_PMCDCONF_PATH >> $seq.full
-cat $PCP_PMCDCONF_PATH >> $seq.full
-echo == $PCP_PMDAROOT_LOG >> $seq.full
-cat $PCP_PMDAROOT_LOG >> $seq.full
-echo == $PCP_PMCDLOG_PATH >> $seq.full
-cat $PCP_PMCDLOG_PATH >> $seq.full
+echo == $PCP_PMCDCONF_PATH >> $seq_full
+cat $PCP_PMCDCONF_PATH >> $seq_full
+echo == $PCP_PMDAROOT_LOG >> $seq_full
+cat $PCP_PMDAROOT_LOG >> $seq_full
+echo == $PCP_PMCDLOG_PATH >> $seq_full
+cat $PCP_PMCDLOG_PATH >> $seq_full
 
 # check that pmcd reported the agent as an error
 echo

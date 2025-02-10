@@ -1,0 +1,78 @@
+#!/bin/sh
+#
+# Open up local firewall to allow access to PCP ports, especially
+# for QA.
+#
+
+tmp=/var/tmp/smack-firewall-$$
+status=1
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+if [ "`sudo id -u`" != "0" ]
+then
+    echo "Error: cannot make sudo work for you"
+    exit
+fi
+
+if which firewall-cmd >/dev/null 2>&1
+then
+    # OK, firewalld is installed ... is it running?
+    #
+    case "`sudo firewall-cmd --state`"
+    in
+	running)
+	    echo "Smacking firewalld ..."
+	    zone="`sudo firewall-cmd --get-default-zone`"
+	    if [ -z "$zone" ] 
+	    then
+		sudo firewall-cmd --get-default-zone
+		echo "Hmm, cannot get zone, trying something else"
+	    else
+		sudo firewall-cmd --zone=$zone --add-service=pmcd --permanent
+		sudo firewall-cmd --zone=$zone --add-service=pmproxy --permanent
+		sudo firewall-cmd --zone=$zone --add-service=pmwebapi --permanent
+		sudo firewall-cmd --zone=$zone --add-service=pmwebapis --permanent
+		sudo firewall-cmd --zone=$zone --add-service=mdns --permanent
+		sudo firewall-cmd --zone=$zone --add-port=4320-4350/tcp --permanent
+		sudo systemctl restart firewalld
+		# check
+		sudo firewall-cmd --zone=$zone --list-services
+		sudo firewall-cmd --zone=$zone --list-ports
+		touch $tmp.done
+	    fi
+	    ;;
+	*)
+	    echo "Hmm, firewalld installed but not running, trying something else ..."
+	    ;;
+    esac
+fi
+
+[ -f $tmp.done ] && exit
+
+if which ufw >/dev/null 2>&1
+then
+    # OK, ufw installed ... is it active?
+    #
+    case "`sudo ufw status | sed -e 's/Status: //'`"
+    in
+	active)
+	    echo "Smacking ufw ..."
+	    sudo ufw allow 44321/tcp comment pmcd
+	    sudo ufw allow 44322/tcp comment pmproxy
+	    sudo ufw allow 44323/tcp comment pmwebapi
+	    sudo ufw allow 5353/udp comment mDNS
+	    for port in `seq 4320 4350`
+	    do
+		sudo ufw allow $port/tcp comment PCPQA
+	    done
+	    touch $tmp.done
+	    ;;
+	*)
+	    echo "Hmm, ufw installed but not active, trying something else ..."
+	    ;;
+    esac
+fi
+
+[ -f $tmp.done ] && exit
+
+echo "Sorry, I've run out of recipes, cannot smack firewall"

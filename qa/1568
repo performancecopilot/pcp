@@ -1,0 +1,75 @@
+#!/bin/sh
+# PCP QA Test No. 1568
+# pmlogbasename workout
+#
+# Copyright (c) 2024 [who are you?].  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+
+_filter()
+{
+    sed \
+	-e "s@$cwd@CWD@" \
+    # end
+}
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+mkdir $tmp
+cd $tmp
+cwd=`pwd`
+for base in foo ./foo $cwd/foo
+do
+    for part in '' .index .meta .0 .12345 .bozo
+    do
+	for suff in '' .xz .gz .z .bar
+	do
+	    echo "=== $base$part$suff ===" | _filter
+	    pmlogbasename $base$part$suff 2>&1 | _filter
+	done
+    done
+done
+
+echo
+echo "ambiguous cases potentially involving probing"
+pref=20241125.05.48
+for base in foo.123 foo.1x3 foo123
+do
+    echo "=== $base ===" | _filter
+    pmlogbasename -Dappl0,appl1 $base 2>&1 | _filter
+done
+echo "=== $pref, no .meta ===" | _filter
+pmlogbasename -Dappl0,appl1 $pref 2>&1 | _filter
+for suff in .meta .meta.xz .meta.zst .metafoo
+do
+    echo "=== $pref, with $suff ===" | _filter
+    touch $pref$suff
+    pmlogbasename -Dappl0,appl1 $pref 2>&1 | _filter
+    rm -f  $pref$suff
+done
+
+# success, all done
+exit

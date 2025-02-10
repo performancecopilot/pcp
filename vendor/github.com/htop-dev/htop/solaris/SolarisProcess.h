@@ -8,8 +8,6 @@ Released under the GNU GPLv2+, see the COPYING file
 in the source distribution for its full text.
 */
 
-#include "config.h" // IWYU pragma: keep
-
 #include <zone.h>
 #include <sys/proc.h>
 
@@ -22,6 +20,7 @@ in the source distribution for its full text.
 #define ERR (-1)
 
 #include "Machine.h"
+#include "Process.h"
 
 
 typedef struct SolarisProcess_ {

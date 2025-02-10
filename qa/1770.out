@@ -1,0 +1,99 @@
+QA output created by 1770
+Creating temporary sasldb, add user running QA to it
+Verify saslpasswd2 has successfully added a new user
+USER@HOST: userPassword
+Ensure pmcd can read the password file
+New pmdaproc config without any authentication
+New pmdaproc config with remote authentication
+New pmdaproc config with mapped authentication
+Start pmcd with this shiny new sasldb and no access
+Start pmproxy with mandatory authentication
+
+=== Establish context for an unauthenticated user ===
+{
+    "context": "CONTEXT"
+    "source": "SOURCE"
+    "hostspec": "HOSTSPEC"
+    "labels": {
+        "domainname": "DOMAINNAME"
+        "hostname": "HOSTNAME"
+        "machineid": "MACHINEID"
+    }
+}
+
+=== I/O metric access using unauthenticated context ===
+{
+    "context": "CONTEXT"
+    "timestamp": "TIMESTAMP"
+    "values": [
+        {
+            "pmid": "3.32.5",
+            "name": "proc.io.write_bytes",
+            "instances": [            ]
+        }
+    ]
+}
+NO VALUES
+
+Restart pmcd with this sasldb and remote auth mode
+
+=== Establish context for authenticated user ===
+{
+    "context": "CONTEXT"
+    "source": "SOURCE"
+    "hostspec": "HOSTSPEC"
+    "labels": {
+        "domainname": "DOMAINNAME"
+        "groupid": GID
+        "hostname": "HOSTNAME"
+        "machineid": "MACHINEID"
+        "userid": UID
+    }
+}
+
+=== I/O metric access using authenticated context ===
+{
+    "context": "CONTEXT"
+    "timestamp": "TIMESTAMP"
+    "values": [
+        {
+            "pmid": "3.32.5",
+            "name": "proc.io.write_bytes",
+            "instances": [  ...
+            ]
+        }
+    ]
+}
+GOOD VALUES
+
+Restart pmcd with this sasldb and mapped auth mode
+
+=== Establish context for authenticated user ===
+{
+    "context": "CONTEXT"
+    "source": "SOURCE"
+    "hostspec": "HOSTSPEC"
+    "labels": {
+        "domainname": "DOMAINNAME"
+        "groupid": GID
+        "hostname": "HOSTNAME"
+        "machineid": "MACHINEID"
+        "userid": UID
+    }
+}
+
+=== I/O metric access using mapped authentication ===
+{
+    "context": "CONTEXT"
+    "timestamp": "TIMESTAMP"
+    "values": [
+        {
+            "pmid": "3.32.5",
+            "name": "proc.io.write_bytes",
+            "instances": [  ...
+            ]
+        }
+    ]
+}
+GOOD VALUES
+

@@ -12,7 +12,6 @@ Spreadsheet::XLSX cpan
 Text::CSV_XS cpan
 XML::LibXML cpan
 XML::TokeParser cpan
-YAML::LibYAML cpan
 aaa_base
 apache2
 audit
@@ -20,10 +19,12 @@ autoconf
 avahi-utils
 bash
 bc
+bcc-tools
 bind-utils
 bison
 bpftrace
 ccache
+clang
 coreutils
 cppcheck
 cronie
@@ -35,6 +36,7 @@ cyrus-sasl-plain
 device-mapper-devel
 docker
 ed
+expect
 flex
 gawk
 gcc
@@ -46,9 +48,11 @@ git-core
 grep
 iproute2
 java-17-openjdk-headless
+jq
 kubernetes-client
 kubernetes-kubelet
 libavahi-devel
+libcmocka-devel
 libicu-devel
 libopenssl-devel
 libpfm-devel
@@ -59,6 +63,7 @@ libsqlite3-0
 libuv-devel
 libvirt-daemon
 libvirt-daemon-driver-qemu
+llvm
 mailx
 make
 mariadb
@@ -78,6 +83,7 @@ perl-JSON
 perl-List-MoreUtils
 perl-Net-SNMP
 perl-Spreadsheet-Read
+perl-Spreadsheet-ReadSXC
 perl-Spreadsheet-XLSX
 perl-Text-CSV_XS
 perl-TimeDate
@@ -89,6 +95,7 @@ perl-rrdtool
 pkg-config
 postgresql
 psmisc
+python3
 python3-Pillow
 python3-bcc
 python3-curses
@@ -101,6 +108,7 @@ python3-openpyxl
 python3-prometheus_client
 python3-psycopg2
 python3-pylint
+python3-pymongo
 python3-pyodbc
 python3-requests
 python3-rtslib-fb
@@ -118,7 +126,6 @@ sensors
 setools-console
 smartmontools
 socat
-sqlite3
 sysstat
 systemd-devel
 systemtap-sdt-devel
@@ -128,3 +135,4 @@ xfsprogs
 xkeyboard-config
 xz-devel
 zabbix-agent
+zstd

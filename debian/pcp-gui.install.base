@@ -43,6 +43,8 @@ usr/share/man/man1/pmmessage.1.gz
 usr/share/man/man1/pmquery.1.gz
 usr/share/man/man1/pmsnap.1.gz
 usr/share/man/man1/pmtime.1.gz
+usr/share/pcp-gui/pixmaps/pmchart.png
+usr/share/pcp-gui/pixmaps/pmtime.png
 var/lib/pcp/config/pmafm/pcp-gui
 var/lib/pcp/config/pmchart/ApacheServer
 var/lib/pcp/config/pmchart/BusyCPU

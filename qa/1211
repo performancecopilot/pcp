@@ -13,12 +13,13 @@ path=""
 . ./common.product
 . ./common.filter
 . ./common.check
+. ./common.keys
 
 _check_series
 
 _cleanup()
 {
-    [ -n "$options" ] && redis-cli $options shutdown
+    [ -n "$options" ] && $keys_cli $options shutdown
     _restore_config $PCP_SYSCONF_DIR/pmseries
     cd $here
     $sudo rm -rf $tmp $tmp.*
@@ -26,10 +27,9 @@ _cleanup()
 
 status=1	# failure is the default!
 hostname=`hostname`
-redisport=`_find_free_port`
-options="-p $redisport"
+key_server_port=`_find_free_port`
+options="-p $key_server_port"
 
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _filter_source()
@@ -53,13 +53,13 @@ _sort_context()
 _save_config $PCP_SYSCONF_DIR/pmseries
 $sudo rm -f $PCP_SYSCONF_DIR/pmseries/*
 
-echo "Start test Redis server ..."
-redis-server --port $redisport --save "" > $tmp.redis 2>&1 &
-_check_redis_ping "$redisport"
-_check_redis_server $redisport
+echo "Start test key server ..."
+$key_server --port $key_server_port --save "" > $tmp.keys 2>&1 &
+_check_key_server_ping "$key_server_port"
+_check_key_server $key_server_port
 echo
 
-_check_redis_server_version $redisport
+_check_key_server_version $key_server_port
 
 echo "Verify basic load from proc archive"
 pmseries $options --load "{source.path: \"$here/archives/proc\"}" | _filter_source

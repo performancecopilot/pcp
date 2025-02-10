@@ -111,7 +111,7 @@ operator<<(QTextStream &os, const DefaultObj &rhs)
     os << ", baseBorderZ=" << rhs._baseBorderZ;
     os << ", baseHeight=" << rhs._baseHeight;
     os << ", baseColor=" << rhs._baseColor[0] << ',' << rhs._baseColor[1]
-       << ',' << rhs._baseColor[2] << endl;
+       << ',' << rhs._baseColor[2] << Qt::endl;
     os << ", barSpaceX=" << rhs._barSpaceX;
     os << ", barSpaceZ=" << rhs._barSpaceZ;
     os << ", barSpaceLabel=" << rhs._barSpaceLabel;
@@ -119,7 +119,7 @@ operator<<(QTextStream &os, const DefaultObj &rhs)
     os << ", barHeight=" << rhs._barHeight;
     os << ", labelMargin=" << rhs._labelMargin;
     os << ", labelColor=" << rhs._labelColor[0] << ',' << rhs._labelColor[1]
-       << ',' << rhs._labelColor[2] << endl;
+       << ',' << rhs._labelColor[2] << Qt::endl;
     os << ", gridMinWidth=" << rhs._gridMinWidth;
     os << ", gridMinDepth=" << rhs._gridMinDepth;
     return os;
@@ -128,12 +128,12 @@ operator<<(QTextStream &os, const DefaultObj &rhs)
 static void
 getColorResource(const char *name, QString label, float &r, float &g, float &b)
 {
-    if (label != QString::null && label.compare("default") != 0) {
+    if (label != QString() && label.compare("default") != 0) {
 	const char *str = (const char *)label.toLatin1();
 	if (ColorList::findColor(str, r, g, b) == false) {
 	    pmprintf("%s: Unable to map color resource \"%s\" to \"%s\", "
-		     "using default color rgbi:%f/%f/%f\n",
-		     pmGetProgname(), name, str, r, g, b);
+		     "using default color #%02x%02x%02x\n",
+		     pmGetProgname(), name, str, (int)(r*255), (int)(g*255), (int)(b*255));
 	}
     }
 }
@@ -166,5 +166,5 @@ DefaultObj::getResources()
     resources.endGroup();
 
     if (pmDebugOptions.appl0)
-	cerr << "DefaultObj::getResources: " << *this << endl;
+	cerr << "DefaultObj::getResources: " << *this << Qt::endl;
 }

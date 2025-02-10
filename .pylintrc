@@ -158,6 +158,7 @@ disable=print-statement,
         consider-using-with,
         super-with-arguments,
         raise-missing-from,
+	possibly-used-before-assignment, # long() dropped in python 3
         consider-using-f-string,
         unspecified-encoding
 

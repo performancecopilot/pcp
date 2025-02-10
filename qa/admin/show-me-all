@@ -23,6 +23,7 @@ _usage()
     echo "  -g    path to base of PCP git tree [default: $HOME/src/pcp]"
     echo "  -l    run show-me -l"
     echo "  -m    gather unique .out.bad files and prepare email"
+    echo "  -t    report triaged tests (default is to skip 'em)"
     sts=1
     exit
 }
@@ -42,7 +43,8 @@ show_me_opts=''
 prepare_mail=false
 debug=false
 CI=false
-while getopts 'Cdfg:lm?' p
+triaged=false
+while getopts 'Cdfg:lmt?' p
 do
     case "$p"
     in
@@ -62,6 +64,9 @@ do
 		;;
 
 	m)	prepare_mail=true
+		;;
+
+	t)	triaged=true
 		;;
 
 	?)	_usage
@@ -134,7 +139,7 @@ do
 	fi
 	cd `dirname $bad`
 	$debug && echo >&2 "pwd=`/bin/pwd`"
-	rm -f $tmp.ok
+	rm -f $tmp.failed $tmp.triaged
 	for log in `ls -r ../????-??-?? test.log 2>/dev/null`
 	do
 	    if $CI
@@ -143,19 +148,30 @@ do
 	    else
 		[ "$log" = test.log ] && continue
 	    fi
-	    if grep '^Failures: ' $log >$tmp.fail
+	    if grep '^Failures: ' $log >$tmp.tmp
 	    then
 		# found a Failures: line ... is our test included in the
 		# last Failures: line?
 		#
-		if tail -1 $tmp.fail | grep " $seq" >/dev/null
+		if tail -1 $tmp.tmp | grep " $seq" >/dev/null
 		then
-		    touch $tmp.ok
+		    touch $tmp.failed
+		    break
 		fi
-		break
+	    fi
+	    if grep '^Triaged: ' $log >$tmp.tmp
+	    then
+		# found a Triaged: line ... is our test included in the
+		# last Triaged: line?
+		#
+		if tail -1 $tmp.tmp | grep " $seq" >/dev/null
+		then
+		    touch $tmp.triaged
+		    break
+		fi
 	    fi
 	done
-	if [ ! -f $tmp.ok ]
+	if [ ! -f $tmp.failed -a ! -f $tmp.triaged ]
 	then
 	    # cleanup because test was subsequently made to pass?
 	    #
@@ -167,6 +183,7 @@ do
 	    fi
 	    continue
 	fi
+	[ -f $tmp.triaged -a "$triaged" = false ] && continue
 	if grep " $sum" <$tmp.sum >/dev/null 2>&1
 	then
 	    match_host=`grep " $sum" <$tmp.sum | sed -e 's/ .*//' -e 1q`
@@ -187,6 +204,7 @@ do
 	    done
 	    [ ! -f $seq.out ] && ln -s $pcpdir/qa/$seq.out $seq.out
 	    echo -n "$host-"
+	    [ -f $tmp.triaged ] && echo -n "triaged-"
 	    [ -f qa/$seq.out.bad ] && cd qa
 	    show-me $show_me_opts $seq
 	    $full && [ -f $seq.full ] && less $seq.full </dev/tty

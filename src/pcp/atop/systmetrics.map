@@ -60,6 +60,8 @@ systmetrics {
 	mem.vmstat.allocstall			MEM_ALLOCSTALL
 	mem.vmstat.compact_stall		MEM_COMPACTSTALL
 	mem.vmstat.oom_kill			MEM_OOM_KILL
+	mem.vmstat.zswpin			MEM_ZSWPIN
+	mem.vmstat.zswpout			MEM_ZSWPOUT
 
 	# /proc/meminfo
 	mem.util.swapCached			MEM_SWAPCACHED
@@ -77,6 +79,10 @@ systmetrics {
 	mem.util.commitLimit			MEM_COMMITLIM
 	mem.util.hugepagesTotal			MEM_TOTHUGEPAGE
 	mem.util.hugepagesFree			MEM_FREEHUGEPAGE
+	mem.util.zswapped			MEM_ZSWAPPED
+	mem.util.zswap				MEM_ZSWAP
+	mem.util.available			MEM_AVAILABLE
+	mem.util.anonhugepages			MEM_ANONHUGEPAGE
 
 	hinv.hugepagesize			HUGEPAGESZ
 	hinv.map.cpu_node			MAP_CPU_NODE
@@ -92,6 +98,7 @@ systmetrics {
 	mem.numa.util.inactive			PERNODE_MEM_INACTIVE
 	mem.numa.util.shmem			PERNODE_MEM_SHMEM
 	mem.numa.util.hugepagesTotalBytes	PERNODE_MEM_HUGEPAGES
+	mem.numa.util.hugepagesFree		PERNODE_MEM_HUGEPAGESFREE
 
 	# /sys/kernel/debug/ksm
 	sysfs.kernel.debug.extfrag_unusable	PERNODE_MEM_EXTFRAG
@@ -340,6 +347,9 @@ systmetrics {
 	zswap.pool_total_size			ZSWAP_TOTALSIZE
 	zswap.stored_pages			ZSWAP_STOREDMEM
 
+	# /sys/module/zswap/parameters/enabled
+	sysfs.module.zswap.enabled		ZSWAP_STATE
+
 	# hardware events
 	perfevent.hwcounters.INSTRUCTION_RETIRED.value		PERCPU_PERF_INST1
 	perfevent.hwcounters.INSTRUCTIONS_RETIRED.value		PERCPU_PERF_INSTR
@@ -373,6 +383,11 @@ systmetrics {
 	nvidia.gpuutilaccum			GPU_GPUBUSY_ACCUM
 	nvidia.memutilaccum			GPU_MEMBUSY_ACCUM
 	nvidia.memusedaccum			GPU_MEMUSED_ACCUM
+
+	# LLC  Last-Level Cache of CPU info.
+	resctrl.llc.occupancy			LLC_OCCUPANCY
+	resctrl.llc.mbm_local			LLC_MBM_LOCAL
+	resctrl.llc.mbm_total			LLC_MBM_TOTAL
 
 	# end marker - provides count
 	.					SYST_NMETRICS

@@ -95,22 +95,10 @@ CONTROLDIR=$PCP_PMLOGGERCONTROL_PATH.d
 # 
 COMPRESS=""
 COMPRESS_CMDLINE=""
-if which xz >/dev/null 2>&1
-then
-    if xz -0 --block-size=10MiB </dev/null >/dev/null 2>&1
-    then
-	# want minimal overheads, -0 is the same as --fast
-	COMPRESS_DEFAULT="xz -0 --block-size=10MiB"
-    else
-	COMPRESS_DEFAULT=xz
-    fi
-else
-    # overridden by $PCP_COMPRESS or if not set, no compression
-    COMPRESS_DEFAULT=""
-fi
+COMPRESS_DEFAULT="pmlogcompress"
 COMPRESSREGEX=""
 COMPRESSREGEX_CMDLINE=""
-COMPRESSREGEX_DEFAULT="\.(index|Z|gz|bz2|zip|xz|lzma|lzo|lz4)$"
+COMPRESSREGEX_DEFAULT="\.(index|Z|gz|bz2|zip|xz|lzma|lzo|lz4|zst)$"
 
 # determine path for pwd command to override shell built-in
 PWDCMND=`which pwd 2>/dev/null | $PCP_AWK_PROG '
@@ -223,32 +211,22 @@ fi
 #
 if $SHOWME
 then
+    # Exception is for -N where we want to see the output.
+    #
     :
 elif [ "$PROGLOG" = "/dev/tty" ]
 then
-    # special case for debugging ... no salt away previous, no chown, no exec
+    # special case for debugging ... no salt away previous
     #
     :
 else
     # Salt away previous log, if any ...
     #
-    PROGLOGDIR=`dirname "$PROGLOG"`
-    [ -d "$PROGLOGDIR" ] || mkdir_and_chown "$PROGLOGDIR" 755 $PCP_USER:$PCP_GROUP 2>/dev/null
     _save_prev_file "$PROGLOG"
     # After argument checking, everything must be logged to ensure no mail is
     # accidentally sent from cron.  Close stdout and stderr, then open stdout
-    # as our logfile and redirect stderr there too.  Create the log file with
-    # correct ownership first.
+    # as our logfile and redirect stderr there too.
     #
-    # Exception ($SHOWME, above) is for -N where we want to see the output.
-    #
-    if touch "$MYPROGLOG" 2>/dev/null
-    then
-	:
-    else
-	MYPROGLOG=/var/tmp/pmlogger_janitor.$$
-    fi
-    chown $PCP_USER:$PCP_GROUP "$MYPROGLOG" >/dev/null 2>&1
     exec 3>&2 1>"$MYPROGLOG" 2>&1
 fi
 
@@ -491,7 +469,11 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	#
 	if [ ! -d "$dir" ]
 	then
-	    mkdir_and_chown "$dir" 755 $PCP_USER:$PCP_GROUP >$tmp/tmp 2>&1
+	    # mode rwxrwxr-x is the default for pcp:pcp dirs
+	    umask 002
+	    mkdir -p -m 0775 "$dir" >$tmp/tmp 2>&1
+	    # reset the default mode to rw-rw-r- for files
+	    umask 022
 	    if [ ! -d "$dir" ]
 	    then
 		cat $tmp/tmp
@@ -501,10 +483,6 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 		_warning "creating directory ($dir) for PCP archive files"
 	    fi
 	fi
-
-	# and the logfile is writeable, if it exists
-	#
-	[ -f "$logfile" ] && chown $PCP_USER:$PCP_GROUP "$logfile" >/dev/null 2>&1
 
 	if cd "$dir"
 	then
@@ -526,13 +504,14 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	    delay=200	# tenths of a second
 	    while [ $delay -gt 0 ]
 	    do
-		if pmlock -v "$dir/lock" >$tmp/out 2>&1
+		if pmlock -i "$$ pmlogger_janitor" -v "$dir/lock" >$tmp/out 2>&1
 		then
 		    echo "$dir/lock" >$tmp/lock
 		    if $VERY_VERBOSE
 		    then
 			echo "Acquired lock:"
-			ls -l $dir/lock
+			LC_TIME=POSIX ls -l "$dir/lock"
+			[ -s "$dir/lock" ] && cat "$dir/lock"
 		    fi
 		    break
 		else
@@ -543,7 +522,8 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 			if [ -f "$dir/lock" ]
 			then
 			    echo "$prog: Warning: removing lock file older than 30 minutes"
-			    LC_TIME=POSIX ls -l $dir/lock
+			    LC_TIME=POSIX ls -l "$dir/lock"
+			    [ -s "$dir"/lock" ] && cat "$dir"/lock"
 			    rm -f "$dir/lock"
 			else
 			    # there is a small timing window here where pmlock
@@ -585,7 +565,8 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 		if [ -f "$dir/lock" ]
 		then
 		    echo "$prog: Warning: is another PCP cron job running concurrently?"
-		    LC_TIME=POSIX ls -l $dir/lock
+		    LC_TIME=POSIX ls -l "$dir/lock"
+		    [ -s "$dir/lock" ] && cat "$dir/lock"
 		else
 		    echo "$prog: `cat $tmp/out`"
 		fi
@@ -617,10 +598,10 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 		elif _get_pids_by_name pmlogger | grep "^$pid\$" >/dev/null
 		then
 		    $VERY_VERBOSE && echo "primary pmlogger process $pid identified, OK"
-		    $VERY_VERY_VERBOSE && $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]ID|[p]mlogger '
+		    $VERY_VERY_VERBOSE && $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]ID|/[p]mlogger( |$)'
 		else
 		    $VERY_VERBOSE && echo "primary pmlogger process $pid not running"
-		    $VERY_VERY_VERBOSE && $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]ID|[p]mlogger '
+		    $VERY_VERY_VERBOSE && $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]ID|/[p]mlogger( |$)'
 		    pid=''
 		fi
 	    else
@@ -655,11 +636,11 @@ END				{ print m }'`
 		    if _get_pids_by_name pmlogger | grep "^$pid\$" >/dev/null
 		    then
 			$VERY_VERBOSE && echo "pmlogger process $pid identified, OK"
-			$VERY_VERY_VERBOSE && $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]ID|[p]mlogger '
+			$VERY_VERY_VERBOSE && $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]ID|/[p]mlogger( |$)'
 			break
 		    fi
 		    $VERY_VERBOSE && echo "pmlogger process $pid not running, skip"
-		    $VERY_VERY_VERBOSE && $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]ID|[p]mlogger '
+		    $VERY_VERY_VERBOSE && $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]ID|/[p]mlogger( |$)'
 		    pid=''
 		else
 		    $VERY_VERBOSE && echo "different directory, skip"
@@ -705,11 +686,12 @@ fi
 # Pass 2 - look in the ps(1) output for processes with -m "note" args
 # that suggests they were started by pmlogger_check and friends
 $PCP_PS_PROG $PCP_PS_ALL_FLAGS 2>&1 \
-| sed -n '/\/[p]mlogger /{
+| sed -n -e 's/$/ /' -e '/\/[p]mlogger /{
 /-m *pmlogger_check /bok
 /-m *reexec /bok
 b
 :ok
+s/ $//
 s/^[^ ]*  *//
 s/ .*//
 p
@@ -764,7 +746,7 @@ do
     #
     if [ ! -f $tmp/one-trip ]
     then
-	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]ID|[p]mlogger '
+	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]ID|/[p]mlogger( |$)'
 	touch $tmp/one-trip
     fi
     echo "Killing (TERM) pmlogger with PID $pid"

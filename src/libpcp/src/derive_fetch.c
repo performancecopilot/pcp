@@ -27,16 +27,22 @@
 
 extern const int promote[6][6];
 
+/*
+ * recursive descent to harvest names of valid metrics from
+ * an expression tree
+ */
 static void
 get_pmids(node_t *np, int *cnt, pmID **list)
 {
     assert(np != NULL);
+    if (np->type == N_NOVALUE || np->type == N_INTEGER || np->type == N_DOUBLE)
+	return;
     if (np->left != NULL) get_pmids(np->left, cnt, list);
     if (np->right != NULL) get_pmids(np->right, cnt, list);
-    if (np->type == N_NAME) {
+    if (np->type == N_NAME && np->data.info->pmid != PM_ID_NULL) {
 	(*cnt)++;
 	if ((*list = (pmID *)realloc(*list, (*cnt)*sizeof(pmID))) == NULL) {
-	    pmNoMem("__dmprefetch: realloc xtralist", (*cnt)*sizeof(pmID), PM_FATAL_ERR);
+	    pmNoMem("get_pmids: realloc xtralist", (*cnt)*sizeof(pmID), PM_FATAL_ERR);
 	    /*NOTREACHED*/
 	}
 	(*list)[*cnt-1] = np->data.info->pmid;
@@ -153,10 +159,44 @@ __dmprefetch(__pmContext *ctxp, int numpmid, const pmID *pmidlist, pmID **newlis
 }
 
 /*
- * Free the old ivlist[] (if any) ... may need to walk the list because
- * the pmAtomValues may have buffers attached in the type STRING,
- * type AGGREGATE* and type EVENT cases.
- * Includes logic to save one history sample (for delta() and rate()).
+* saving history for delta() or rate() ... release previous sample
+* last_ivlist[] and save this sample last_ivlist[] <- ivlist[]
+*/
+static void
+save_ivlist(node_t *np)
+{
+    if (np->save_last) {
+	if (np->type == N_INTEGER || np->type == N_DOUBLE) {
+	    /*
+	     * these will never change, so fake out the "last"
+	     * ones the first time through
+	     */
+	    if (np->data.info->ivlist != NULL &&
+	        np->data.info->last_ivlist == NULL) {
+		np->data.info->last_numval = np->data.info->numval;
+		np->data.info->last_ivlist = np->data.info->ivlist;
+	    }
+	}
+	else {
+	    if (np->data.info->last_ivlist != NULL) {
+		/*
+		 * no STRING, AGGREGATE or EVENT types for delta() or rate()
+		 * so simple free()
+		 */
+		free(np->data.info->last_ivlist);
+	    }
+	    np->data.info->last_numval = np->data.info->numval;
+	    np->data.info->last_ivlist = np->data.info->ivlist;
+	    np->data.info->ivlist = NULL;
+	}
+    }
+}
+
+/*
+ * Either call save_ivlist() to free last_ivlist[] and save one history
+ * sample (for delta() and rate()), or free ivlist[] (if any) ... may
+ * need to walk the list because the pmAtomValues may have buffers attached
+ * in the type STRING, type AGGREGATE* and type EVENT cases.
  */
 static void
 free_ivlist(node_t *np)
@@ -165,22 +205,8 @@ free_ivlist(node_t *np)
 
     assert(np->data.info != NULL);
 
-    if (np->save_last) {
-	/*
-	 * saving history for delta() or rate() ... release previous
-	 * sample, and save this sample
-	 */
-	if (np->data.info->last_ivlist != NULL) {
-	    /*
-	     * no STRING, AGGREGATE or EVENT types for delta() or rate()
-	     * so simple free()
-	     */
-	    free(np->data.info->last_ivlist);
-	}
-	np->data.info->last_numval = np->data.info->numval;
-	np->data.info->last_ivlist = np->data.info->ivlist;
-	np->data.info->ivlist = NULL;
-    }
+    if (np->save_last)
+	save_ivlist(np);
     else {
 	/* no history */
 	if (np->data.info->ivlist != NULL) {
@@ -675,6 +701,114 @@ regex_inst_gc(pattern_t *pp)
 }
 
 /*
+ * insert constant value into an element of ivlist[]
+ */
+static void
+stuff_constant(node_t *np, int i)
+{
+    /*
+     * don't need error checking, done in the lexical scanner
+     * but with the advent of mkconst() the type may not be as
+     * simple as PM_TYPE_U32 or PM_TYPE_DOUBLE
+     */
+    switch (np->desc.type) {
+	case PM_TYPE_32:
+	    np->data.info->ivlist[i].value.l = atoi(np->value);
+	    break;
+	case PM_TYPE_U32:
+	    np->data.info->ivlist[i].value.ul = atoi(np->value);
+	    break;
+	case PM_TYPE_64:
+	    np->data.info->ivlist[i].value.ll = strtoll(np->value, NULL, 10);
+	    break;
+	case PM_TYPE_U64:
+	    np->data.info->ivlist[i].value.ll = strtoull(np->value, NULL, 10);
+	    break;
+	case PM_TYPE_FLOAT:
+	    np->data.info->ivlist[i].value.f = atof(np->value);
+	    break;
+	case PM_TYPE_DOUBLE:
+	    np->data.info->ivlist[i].value.d = atof(np->value);
+	    break;
+    }
+}
+
+/*
+ * setup ivlist[] values for a constant value
+ */
+static void
+adjust_constant(__pmContext *ctxp, node_t *np)
+{
+    if (np->desc.indom == PM_INDOM_NULL) {
+	if (np->data.info->numval == 0) {
+	    /* initialize ivlist[] for singular instance first time through */
+	    np->data.info->numval = 1;
+	    if ((np->data.info->ivlist = (val_t *)malloc(sizeof(val_t))) == NULL) {
+		pmNoMem("adjust_constant: number ivlist singular", sizeof(val_t), PM_FATAL_ERR);
+		/*NOTREACHED*/
+	    }
+	    stuff_constant(np, 0);
+	    np->data.info->ivlist[0].inst = PM_INDOM_NULL;
+	    /* and ivlist[i].inst set by caller */
+	}
+    }
+    else {
+	/* refresh indom ... */
+	int	sts;
+	int	i;
+	int	*instlist;
+	char	**namelist;
+
+	sts = pmGetInDom_ctx(ctxp, np->desc.indom, &instlist, &namelist);
+	if (np->data.info->ivlist != NULL && sts > 0 && sts == np->data.info->numval) {
+	    /*
+	     * not the first time and same number of instances as last
+	     * time ... if instances (order and id) are identical, we're
+	     * done
+	     */
+	    for (i = 0; i < sts; i++) {
+		if (instlist[i] != np->data.info->ivlist[i].inst)
+		    break;
+	    }
+	    if (i == sts) {
+		free(instlist);
+		free(namelist);
+		return;
+	    }
+	}
+
+	/* rebuild ... */
+	if (np->data.info->ivlist != NULL) {
+	    free(np->data.info->ivlist);
+	    np->data.info->ivlist = NULL;
+	}
+
+	if (sts < 0) {
+	    /* pmGetInDom failed, we're doomed ... */
+	    np->data.info->numval = sts;
+	    return;
+	}
+	if ((np->data.info->ivlist = (val_t *)malloc(sts * sizeof(val_t))) == NULL) {
+	    pmNoMem("adjust_constant: number indom ivlist", sts * sizeof(val_t), PM_FATAL_ERR);
+	    /*NOTREACHED*/
+	}
+	np->data.info->numval = 0;
+	for (i = 0; i < sts; i++) {
+	    /* may need instance profile filtering ... */
+	    if (ctxp->c_instprof != NULL) {
+		if (!__pmInProfile(np->desc.indom, ctxp->c_instprof, instlist[i]))
+		    continue;
+	    }
+	    stuff_constant(np, np->data.info->numval);
+	    np->data.info->ivlist[np->data.info->numval].inst = instlist[i];
+	    np->data.info->numval++;
+	}
+	free(instlist);
+	free(namelist);
+    }
+}
+
+/*
  * Walk an expression tree, filling in operand values from the
  * pmResult at the leaf nodes and propagating the computed values
  * towards the root node of the tree.
@@ -691,7 +825,9 @@ eval_expr(__pmContext *ctxp, node_t *np, struct timespec *stamp, int numpmid,
     char	strbuf[20];
 
     assert(np != NULL);
-    if (np->left != NULL) {
+    if (np->left != NULL &&
+	np->type != N_NOVALUE && np->type != N_INTEGER && np->type != N_DOUBLE &&
+	(np->type != N_COLON || (np->data.info->bind & QUEST_BIND_LEFT))) {
 	sts = eval_expr(ctxp, np->left, stamp, numpmid, vset, level+1);
 	if (sts < 0) {
 	    if (np->type == N_COUNT) {
@@ -711,7 +847,8 @@ eval_expr(__pmContext *ctxp, node_t *np, struct timespec *stamp, int numpmid,
 	    return sts;
 	}
     }
-    if (np->right != NULL) {
+    if (np->right != NULL &&
+        (np->type != N_COLON || (np->data.info->bind & QUEST_BIND_RIGHT))) {
 	sts = eval_expr(ctxp, np->right, stamp, numpmid, vset, level+1);
 	if (sts < 0) return sts;
     }
@@ -720,47 +857,16 @@ eval_expr(__pmContext *ctxp, node_t *np, struct timespec *stamp, int numpmid,
     assert (np->type == N_INTEGER || np->type == N_DOUBLE ||
             np->type == N_NAME || np->type == N_SCALE ||
 	    np->type == N_FILTERINST || np->type == N_PATTERN ||
-	    np->type == N_DEFINED || np->left != NULL);
+	    np->type == N_DEFINED || np->type == N_NOVALUE ||
+	    np->left != NULL);
 
     switch (np->type) {
 
 	case N_INTEGER:
 	case N_DOUBLE:
-	    if (np->data.info->numval == 0) {
-		/* initialize ivlist[] for singular instance first time through */
-		np->data.info->numval = 1;
-		if ((np->data.info->ivlist = (val_t *)malloc(sizeof(val_t))) == NULL) {
-		    pmNoMem("eval_expr: number ivlist", sizeof(val_t), PM_FATAL_ERR);
-		    /*NOTREACHED*/
-		}
-		np->data.info->ivlist[0].inst = PM_INDOM_NULL;
-		/*
-		 * don't need error checking, done in the lexical scanner
-		 * but with the advent of mktemp() the type may not be as
-		 * simple as PM_TYPE_U32 or PM_TYPE_DOUBLE
-		 */
-		switch (np->desc.type) {
-		    case PM_TYPE_32:
-			np->data.info->ivlist[0].value.l = atoi(np->value);
-			break;
-		    case PM_TYPE_U32:
-			np->data.info->ivlist[0].value.ul = atoi(np->value);
-			break;
-		    case PM_TYPE_64:
-			np->data.info->ivlist[0].value.ll = strtoll(np->value, NULL, 10);
-			break;
-		    case PM_TYPE_U64:
-			np->data.info->ivlist[0].value.ll = strtoull(np->value, NULL, 10);
-			break;
-		    case PM_TYPE_FLOAT:
-			np->data.info->ivlist[0].value.f = atof(np->value);
-			break;
-		    case PM_TYPE_DOUBLE:
-			np->data.info->ivlist[0].value.d = atof(np->value);
-			break;
-		}
-	    }
-	    return 1;
+	    save_ivlist(np);
+	    adjust_constant(ctxp, np);
+	    return np->data.info->numval;
 
 	case N_DELTA:
 	case N_RATE:
@@ -847,7 +953,13 @@ eval_expr(__pmContext *ctxp, node_t *np, struct timespec *stamp, int numpmid,
 		    }
 		}
 		else {
-		    /* rate() conversion, type will be DOUBLE */
+		    /*
+		     * rate() conversion, type will be DOUBLE
+		     *
+		     * For COUNTER metrics, return "no value" if the counter is
+		     * NOT monotonic increasing ... this matches what pmval(1)
+		     * and pmie(1) do in the same circumstances.
+		     */
 		    struct timespec	stampdiff;
 
 		    stampdiff = np->data.info->stamp;
@@ -857,18 +969,33 @@ eval_expr(__pmContext *ctxp, node_t *np, struct timespec *stamp, int numpmid,
 			    np->data.info->ivlist[k].value.d = (double)(np->left->data.info->ivlist[i].value.l - np->left->data.info->last_ivlist[j].value.l);
 			    break;
 			case PM_TYPE_U32:
+			    if (np->left->desc.sem == PM_SEM_COUNTER &&
+				np->left->data.info->ivlist[i].value.ul < np->left->data.info->last_ivlist[j].value.ul)
+				continue;
 			    np->data.info->ivlist[k].value.d = (double)(np->left->data.info->ivlist[i].value.ul - np->left->data.info->last_ivlist[j].value.ul);
 			    break;
 			case PM_TYPE_64:
+			    if (np->left->desc.sem == PM_SEM_COUNTER &&
+				np->left->data.info->ivlist[i].value.ll < np->left->data.info->last_ivlist[j].value.ll)
+				continue;
 			    np->data.info->ivlist[k].value.d = (double)(np->left->data.info->ivlist[i].value.ll - np->left->data.info->last_ivlist[j].value.ll);
 			    break;
 			case PM_TYPE_U64:
+			    if (np->left->desc.sem == PM_SEM_COUNTER &&
+				np->left->data.info->ivlist[i].value.ull < np->left->data.info->last_ivlist[j].value.ull)
+				continue;
 			    np->data.info->ivlist[k].value.d = (double)(np->left->data.info->ivlist[i].value.ull - np->left->data.info->last_ivlist[j].value.ull);
 			    break;
 			case PM_TYPE_FLOAT:
+			    if (np->left->desc.sem == PM_SEM_COUNTER &&
+				np->left->data.info->ivlist[i].value.f < np->left->data.info->last_ivlist[j].value.f)
+				continue;
 			    np->data.info->ivlist[k].value.d = (double)(np->left->data.info->ivlist[i].value.f - np->left->data.info->last_ivlist[j].value.f);
 			    break;
 			case PM_TYPE_DOUBLE:
+			    if (np->left->desc.sem == PM_SEM_COUNTER &&
+				np->left->data.info->ivlist[i].value.d < np->left->data.info->last_ivlist[j].value.d)
+				continue;
 			    np->data.info->ivlist[k].value.d = np->left->data.info->ivlist[i].value.d - np->left->data.info->last_ivlist[j].value.d;
 			    break;
 			default:
@@ -1002,26 +1129,57 @@ eval_expr(__pmContext *ctxp, node_t *np, struct timespec *stamp, int numpmid,
 		/*
 		 * the ternary expression is only going to have well-behaved
 		 * semantics if we have value(s) for the guard and both the
-		 * truth/false expressions
+		 * truth/false expressions (unless the these are a novalue()
+		 * node or QUEST_BIND_LEFT or QUEST_BIND_RIGHT are in play)
 		 */
+		if (pmDebugOptions.derive && pmDebugOptions.appl2 && pmDebugOptions.desperate) {
+		    fprintf(stderr, "eval_expr: ? bind %d values: guard %d left %s %d",
+			np->right->data.info->bind, np->left->data.info->numval,
+			__dmnode_type_str(np->right->left->type),
+			np->right->left->data.info->numval);
+		    fprintf(stderr, " right %s %d\n",
+			__dmnode_type_str(np->right->right->type),
+			np->right->right->data.info->numval);
+		}
 		if (np->left->data.info->numval <= 0) {
 		    /* no guard expression values */
 		    np->data.info->numval = np->left->data.info->numval;
 		    return np->data.info->numval;
 		}
-		if (np->right->left->data.info->numval <= 0) {
+		if (np->right->left->data.info->numval <= 0 && np->right->left->type != N_NOVALUE && (np->right->data.info->bind & QUEST_BIND_LEFT)) {
 		    /* no true expression values */
 		    np->data.info->numval = np->right->left->data.info->numval;
 		    return np->data.info->numval;
 		}
-		if (np->right->right->data.info->numval <= 0) {
+		if (np->right->right->data.info->numval <= 0 && np->right->right->type != N_NOVALUE && (np->right->data.info->bind & QUEST_BIND_RIGHT)) {
 		    /* no false expression values */
 		    np->data.info->numval = np->right->right->data.info->numval;
 		    return np->data.info->numval;
 		}
-		numval = np->right->left->data.info->numval;
-		if (np->right->right->data.info->numval > numval)
+		if (np->right->data.info->bind == QUEST_BIND_LEFT) {
+		    /* only looking at <left-expr> */
+		    numval = np->right->left->data.info->numval;
+		    pick = np->right->left;
+		    pick_inst = np->right->left;
+		}
+		else if (np->right->data.info->bind == QUEST_BIND_RIGHT) {
+		    /* only looking at <right-expr> */
 		    numval = np->right->right->data.info->numval;
+		    pick = np->right->right;
+		    pick_inst = np->right->right;
+		}
+		else {
+		    /* maybe looking at <left-expr> and <right-expr> */
+		    numval = np->right->left->data.info->numval;
+		    if (np->right->right->data.info->numval > numval)
+			numval = np->right->right->data.info->numval;
+		    pick = NULL;
+		    /* default indom choice, use true operand */
+		    pick_inst = np->right->left;
+		    if (np->right->left->desc.indom == PM_INDOM_NULL && np->right->right->desc.indom != PM_INDOM_NULL)
+			/* use false operand */
+			pick_inst = np->right->right;
+		}
 		np->data.info->numval = numval;
 		if ((np->data.info->ivlist = (val_t *)malloc(numval*sizeof(val_t))) == NULL) {
 		    pmNoMem("eval_expr: N_QUEST ivlist", numval*sizeof(val_t), PM_FATAL_ERR);
@@ -1033,65 +1191,76 @@ eval_expr(__pmContext *ctxp, node_t *np, struct timespec *stamp, int numpmid,
 		 * indom ones to provide instances for the result ... note
 		 * we've previously established (at bind time) that at most
 		 * one indom is mentioned across all three operands.
+		 *
+		 * guard is left operand and value is arithmetic
 		 */
-		/* default choice, use true operand */
-		pick_inst = np->right->left;
-		if (np->right->left->desc.indom == PM_INDOM_NULL && np->right->right->desc.indom != PM_INDOM_NULL)
-		    /* use false operand */
-		    pick_inst = np->right->right;
-		/* guard is left operand and value is arithmetic */
-		pick = NULL;
 		for (i = 0; i < numval; i++) {
-		    if (i < np->left->data.info->numval) {
-			switch (np->left->desc.type) {
-			    case PM_TYPE_32:
-				if (np->left->data.info->ivlist[i].value.l != 0)
-				    pick = np->right->left;
-				else
-				    pick = np->right->right;
-				break;
-			    case PM_TYPE_U32:
-				if (np->left->data.info->ivlist[i].value.ul != 0)
-				    pick = np->right->left;
-				else
-				    pick = np->right->right;
-				break;
-			    case PM_TYPE_64:
-				if (np->left->data.info->ivlist[i].value.ll != 0)
-				    pick = np->right->left;
-				else
-				    pick = np->right->right;
-				break;
-			    case PM_TYPE_U64:
-				if (np->left->data.info->ivlist[i].value.ull != 0)
-				    pick = np->right->left;
-				else
-				    pick = np->right->right;
-				break;
-			    case PM_TYPE_FLOAT:
-				if (np->left->data.info->ivlist[i].value.f != 0)
-				    pick = np->right->left;
-				else
-				    pick = np->right->right;
-				break;
-			    case PM_TYPE_DOUBLE:
-				if (np->left->data.info->ivlist[i].value.d != 0)
-				    pick = np->right->left;
-				else
-				    pick = np->right->right;
-				break;
-			    default:
-				if (pmDebugOptions.derive) {
-				    fprintf(stderr, "eval_expr: botch: drived metric %s: guard has odd type (%d)\n", pmIDStr_r(np->data.info->pmid, strbuf, sizeof(strbuf)), np->left->desc.type);
-				}
-				return PM_ERR_TYPE;
+		    if (np->right->data.info->bind == QUEST_BIND_BOTH) {
+			/*
+			 * first-time for singular guard, else if guard
+			 * has indom evaluate the guard for each instance
+			 * and set pick (<left-epxr> or <right-expr>)
+			 */
+			if (i < np->left->data.info->numval) {
+			    switch (np->left->desc.type) {
+				case PM_TYPE_32:
+				    if (np->left->data.info->ivlist[i].value.l != 0)
+					pick = np->right->left;
+				    else
+					pick = np->right->right;
+				    break;
+				case PM_TYPE_U32:
+				    if (np->left->data.info->ivlist[i].value.ul != 0)
+					pick = np->right->left;
+				    else
+					pick = np->right->right;
+				    break;
+				case PM_TYPE_64:
+				    if (np->left->data.info->ivlist[i].value.ll != 0)
+					pick = np->right->left;
+				    else
+					pick = np->right->right;
+				    break;
+				case PM_TYPE_U64:
+				    if (np->left->data.info->ivlist[i].value.ull != 0)
+					pick = np->right->left;
+				    else
+					pick = np->right->right;
+				    break;
+				case PM_TYPE_FLOAT:
+				    if (np->left->data.info->ivlist[i].value.f != 0)
+					pick = np->right->left;
+				    else
+					pick = np->right->right;
+				    break;
+				case PM_TYPE_DOUBLE:
+				    if (np->left->data.info->ivlist[i].value.d != 0)
+					pick = np->right->left;
+				    else
+					pick = np->right->right;
+				    break;
+				default:
+				    if (pmDebugOptions.derive) {
+					fprintf(stderr, "eval_expr: botch: drived metric %s: guard has odd type (%d)\n", pmIDStr_r(np->data.info->pmid, strbuf, sizeof(strbuf)), np->left->desc.type);
+				    }
+				    return PM_ERR_TYPE;
+			    }
 			}
 		    }
+		    /* fallthrough for singular guard and use same pick */
 		    if (pick == NULL) {
 			fprintf(stderr, "eval_expr: botch: picked nothing\n"); 
 			__dmdumpexpr(np, 0);
 		    }
 		    assert(pick != NULL);
+		    if (pick->type == N_NOVALUE) {
+			np->data.info->numval--;
+			continue;
+		    }
+		    if (pmDebugOptions.derive && pmDebugOptions.appl2 && pmDebugOptions.desperate) {
+			fprintf(stderr, "pick inst[%d] %s numval=%d\n",
+			    i, __dmnode_type_str(pick->type), pick->data.info->numval);
+		    }
 		    switch (np->desc.type) {
 			case PM_TYPE_32:
 			    if (i < pick->data.info->numval)
@@ -1144,6 +1313,10 @@ eval_expr(__pmContext *ctxp, node_t *np, struct timespec *stamp, int numpmid,
 		    np->data.info->ivlist[i].inst = pick_inst->data.info->ivlist[i].inst;
 		}
 	    }
+	    if (np->data.info->numval == 0) {
+		free(np->data.info->ivlist);
+		np->data.info->ivlist = NULL;
+	    }
 	    return np->data.info->numval;
 
 	case N_RESCALE:
@@ -1175,6 +1348,7 @@ eval_expr(__pmContext *ctxp, node_t *np, struct timespec *stamp, int numpmid,
 	     * values are in the left expr
 	     */
 	    assert(np->left != NULL);
+	    save_ivlist(np);
 	    np->data.info->last_stamp = np->data.info->stamp;
 	    np->data.info->stamp = *stamp;
 	    np->data.info->numval = np->left->data.info->numval;
@@ -1188,6 +1362,7 @@ eval_expr(__pmContext *ctxp, node_t *np, struct timespec *stamp, int numpmid,
 	case N_MAX:
 	case N_MIN:
 	case N_SCALAR:
+	    save_ivlist(np);
 	    if (np->data.info->ivlist == NULL) {
 		/* initialize ivlist[] for singular instance first time through */
 		if ((np->data.info->ivlist = (val_t *)malloc(sizeof(val_t))) == NULL) {
@@ -1205,12 +1380,18 @@ eval_expr(__pmContext *ctxp, node_t *np, struct timespec *stamp, int numpmid,
 	    }
 	    else if (np->type == N_SCALAR) {
 		np->data.info->numval = np->left->data.info->numval;
-		if (np->data.info->numval > 1)
-		    /* pick first instance only */
-		    np->data.info->numval = 1;
-		np->data.info->ivlist[0].inst = PM_IN_NULL;
-		np->data.info->ivlist[0].value = np->left->data.info->ivlist[0].value;
-		np->data.info->ivlist[0].vlen = np->left->data.info->ivlist[0].vlen;
+		if (np->data.info->numval <= 0) {
+		    /* nothing to be done ... */
+		    ;
+		}
+		else {
+		    if (np->data.info->numval > 1)
+			/* pick first instance only */
+			np->data.info->numval = 1;
+		    np->data.info->ivlist[0].inst = PM_IN_NULL;
+		    np->data.info->ivlist[0].value = np->left->data.info->ivlist[0].value;
+		    np->data.info->ivlist[0].vlen = np->left->data.info->ivlist[0].vlen;
+		}
 	    }
 	    else {
 		np->data.info->numval = 1;
@@ -1387,13 +1568,17 @@ eval_expr(__pmContext *ctxp, node_t *np, struct timespec *stamp, int numpmid,
 	    return np->data.info->numval;
 
 	case N_NAME:
+	    /* fastpath for pmid == PM_ID_NULL case (from QUEST_BIND_LAZY) */
+	    if (np->data.info->pmid == PM_ID_NULL) {
+		return 0;
+	    }
+	    free_ivlist(np);
 	    /*
-	     * Extract instance-values from pmResult and store them in
-	     * ivlist[] as <int, pmAtomValue> pairs
+	     * otherwise extract instance-values from pmResult and store
+	     * them in ivlist[] as <int, pmAtomValue> pairs
 	     */
 	    for (j = 0; j < numpmid; j++) {
 		if (np->data.info->pmid == vset[j]->pmid) {
-		    free_ivlist(np);
 		    np->data.info->numval = vset[j]->numval;
 		    if (np->data.info->numval <= 0)
 			return np->data.info->numval;
@@ -1622,6 +1807,10 @@ eval_expr(__pmContext *ctxp, node_t *np, struct timespec *stamp, int numpmid,
 	    return np->data.info->numval;
 
 	case N_PATTERN:
+	    /* do nothing */
+	    return 0;
+
+	case N_NOVALUE:
 	    /* do nothing */
 	    return 0;
 
@@ -2053,6 +2242,11 @@ __dmpostfetch(__pmContext *ctxp, __pmResult **result)
     /* if needed, __dminit() called in __dmopencontext beforehand */
     if (cp == NULL || cp->fetch_has_dm == 0)
 	return;
+
+    if (pmDebugOptions.derive && pmDebugOptions.desperate) {
+	fprintf(stderr, "__dmpostfetch: from context before rewrite ...\n");
+	__pmPrintResult_ctx(ctxp, stderr, rp);
+    }
 
     if ((newrp = __pmAllocResult(cp->numpmid)) == NULL) {
 	pmNoMem("__dmpostfetch: newrp", sizeof(__pmResult) + (cp->numpmid - 1) * sizeof(pmValueSet *), PM_FATAL_ERR);

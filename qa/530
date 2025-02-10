@@ -2,7 +2,8 @@
 # PCP QA Test No. 530
 # pmlogger_daily ... do you work at all?
 #
-# OLD VERSION for YYDDMM style naming convention (see also 338)
+# OLD VERSION for YYDDMM style naming convention (see also 338
+# for the YYYYDDMM style naming convention)
 #
 # NOTE - THIS TEST WILL FAIL IF RUN IN THE FIRST 5 MINUTES AFTER
 # MIDNIGHT - c'est la vie, I'm afraid.
@@ -38,13 +39,12 @@ _cleanup()
 {
     cd $here
     $sudo rm -rf $tmp $tmp.*
-    $sudo mv $PCP_LOG_DIR/NOTICES.$seq $PCP_LOG_DIR/NOTICES
     [ -f $NEEDREWRITE.$seq ] && $sudo mv $NEEDREWRITE.$seq $NEEDREWRITE
 }
 
 _filter()
 {
-    tee -a $seq.full \
+    tee -a $seq_full \
     | $PCP_AWK_PROG '
 /^Archive files older than/	{ eatlines=1; longone="   "; print; next; }
 eatlines			{ if ( match ($0, "^    ") ) {
@@ -94,14 +94,12 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 #
 umask 022
 
-$sudo mv $PCP_LOG_DIR/NOTICES $PCP_LOG_DIR/NOTICES.$seq
-rm -f $seq.full
 
 # real QA test starts here
 unset verbose
 for loop in 1 2
 do
-    $sudo rm -rf $tmp
+    $sudo rm -rf $tmp		# refactor-ok
     mkdir $tmp
     echo >$tmp.sed
     for day in 0 1 2 3 4 5
@@ -133,7 +131,7 @@ do
 	    touch -t $stampb $tmp/$nameb.$ext
 	done
     done
-    ls -lt $tmp >>$seq.full
+    ls -lt $tmp >>$seq_full
     echo "s/NOW-0/TODAY/g" >>$tmp.sed
     echo "s/NOW-1/YESTERDAY/g" >>$tmp.sed
     echo "s/`pmdate %y%m%d`/TODAY/g" >>$tmp.sed
@@ -150,32 +148,40 @@ LOCALHOSTNAME	n   n	'"$tmp"'	-c ./config'
 
     echo
     echo "=== [${verbose+verbose}] regular show ==="
-    echo "=== [${verbose+verbose}] regular show ===" >>$seq.full
+    echo "=== [${verbose+verbose}] regular show ===" >>$seq_full
+    # need to be a place the user $PCP_USER can cd to from pmlogger_daily
+    #
+    cd /var/tmp
     $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -D -o -x never -c $tmp.control -k 4 $verbose -l $tmp.log"
+    cd $here
     $sudo cat $tmp.log | _filter
     ls $tmp | sed -f $tmp.sed | LC_COLLATE=POSIX sort
 
     echo
     echo "=== [${verbose+verbose}] nothing to do but cull some more ==="
-    echo "=== [${verbose+verbose}] nothing to do but cull some more ===" >>$seq.full
+    echo "=== [${verbose+verbose}] nothing to do but cull some more ===" >>$seq_full
     for ext in 0 index meta
     do
 	$sudo mv $tmp/$yesterday.$ext $tmp/save.$ext
     done
+    cd /var/tmp
     $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -D -o -x never -c $tmp.control -k 3 $verbose -l $tmp.log"
+    cd $here
     $sudo cat $tmp.log | _filter
     ls $tmp | sed -f $tmp.sed | LC_COLLATE=POSIX sort
 
     echo
     echo "=== [${verbose+verbose}] error, output already exists ==="
-    echo "=== [${verbose+verbose}] error, output already exists ===" >>$seq.full
+    echo "=== [${verbose+verbose}] error, output already exists ===" >>$seq_full
     for ext in 0 index meta
     do
 	$sudo cp archives/arch_a.$ext $tmp/$yesterday.17.18.$ext
 	$sudo chown $PCP_USER:$PCP_GROUP $tmp/$yesterday.17.18.$ext
 	$sudo mv $tmp/save.$ext $tmp/$yesterday.$ext
     done
+    cd /var/tmp
     $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -D -o -x never -c $tmp.control -k 3 $verbose -l $tmp.log"
+    cd $here
     $sudo cat $tmp.log | _filter
     ls $tmp | sed -f $tmp.sed | LC_COLLATE=POSIX sort
 

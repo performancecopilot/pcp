@@ -42,6 +42,7 @@ OTHER_SUBDIRS = \
 	pmcpp \
 	newhelp \
 	pmieconf \
+	pcp-reboot-init \
 	#
 
 # and all the rest ...
@@ -54,10 +55,12 @@ OTHER_SUBDIRS += \
 	dbpmda \
 	genpmda \
 	pcp \
+	pcp2arrow \
 	pcp2elasticsearch \
 	pcp2graphite \
 	pcp2influxdb \
 	pcp2json \
+	pcp2openmetrics \
 	pcp2spark \
 	pcp2xlsx \
 	pcp2xml \
@@ -130,6 +133,11 @@ OTHER_SUBDIRS += \
 	derived \
 	selinux \
 	find-filter \
+	runaspcp \
+	pmcheck \
+	indomcachectl \
+	pmlogbasename \
+	pmlogcompress \
 	#
 
 SUBDIRS = \

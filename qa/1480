@@ -29,7 +29,6 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 $python -c 'from pcp import pmda' 2>/dev/null
@@ -42,10 +41,10 @@ test $? -eq 0 || _notrun 'Python pcp pmda module is not installed'
 sensors -u 2>&1 | grep -q 'No sensors found' && _notrun "No sensors found, probably a VM"
 
 iam=lmsensors
-echo >$here/$seq.full
+echo >$seq_full
 
 # install the PMDA
-_prepare_pmda_install $iam
+_prepare_pmda_install $iam || _exit 1
 $sudo ./Remove > $tmp.out 2>&1
 $sudo ./Install </dev/null >/dev/null 2>&1
 # verify
@@ -62,10 +61,10 @@ if [ $PMDA -eq $SENS ]; then
 else
     echo -n "number of sensors from '/usr/bin/sensors -u' and from 'pminfo "
     echo "lmsensors' does not match."
-    echo "pminfo lmsensors|wc -l:" >>$here/$seq.full
-    pminfo lmsensors |wc -l >>$here/$seq.full
-    echo "/usr/bin/sensors -u|grep -E '_input: '|wc -l" >>$here/$seq.full
-    /usr/bin/sensors -u 2>/dev/null|grep -E '_input: '|wc -l >>$here/$seq.full
+    echo "pminfo lmsensors|wc -l:" >>$seq_full
+    pminfo lmsensors |wc -l >>$seq_full
+    echo "/usr/bin/sensors -u|grep -E '_input: '|wc -l" >>$seq_full
+    /usr/bin/sensors -u 2>/dev/null|grep -E '_input: '|wc -l >>$seq_full
 fi
 
 # Now, I can not check if the actual values for sensors are the same,
@@ -78,8 +77,8 @@ fi
 # Problem with current implementation: 
 # - this still fails for a fan tuning up suddenly, i.e. from 0 to 3k.
 
-echo "sensors -u output:" >> $here/$seq.full
-SENS=`sensors -u 2>/dev/null | tee -a $here/$seq.full | grep '_input: ' | \
+echo "sensors -u output:" >> $seq_full
+SENS=`sensors -u 2>/dev/null | tee -a $seq_full | grep '_input: ' | \
 # sanity checks below are really arbitrary
 # - temp < -1000 (was -127 which failed for Jason Koch on Ubuntu 22.04 where
 #   he observed -273.150 (!) for a temperature sensor)
@@ -91,9 +90,9 @@ $1 ~ /fan[0-9]/ && $2 < 0	{ next }
 				{ sum += $2 }
 END				{ print int(sum+0.5) }'`
 
-echo "pminfo -f lmsensors output:" >> $here/$seq.full
+echo "pminfo -f lmsensors output:" >> $seq_full
 
-PMDA=`pminfo -f lmsensors | tee -a $here/$seq.full | grep '^  *value ' | \
+PMDA=`pminfo -f lmsensors | tee -a $seq_full | grep '^  *value ' | \
 	awk '{ sum += $2 } END { print sum }'`
 
 if _within_tolerance "Expecting $SENS +- 10%" $PMDA $SENS 10%; then

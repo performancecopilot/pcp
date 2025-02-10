@@ -26,7 +26,6 @@ _cleanup()
 }
 
 status=0	# success is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
@@ -35,11 +34,11 @@ TERM=dumb LANG=POSIX LC_MESSAGES=POSIX man pmlogger >$tmp.out 2>$tmp.err
 sts=$?
 if [ $sts -ne 0 ] || [ ! -s $tmp.out ]
 then
-    echo "man exit status: $sts:" >>$seq.full
-    echo "---stderr ---" >>$seq.full
-    cat $tmp.err >>$seq.full
-    echo "---stdout ---" >>$seq.full
-    cat $tmp.out >>$seq.full
+    echo "man exit status: $sts:" >>$seq_full
+    echo "---stderr ---" >>$seq_full
+    cat $tmp.err >>$seq_full
+    echo "---stdout ---" >>$seq_full
+    cat $tmp.out >>$seq_full
     _notrun "pmlogger man page not installed"
 fi
 if grep 'system has been minimized by removing packages' $tmp.out >/dev/null
@@ -49,7 +48,7 @@ fi
 
 # for triage if the sed fails to find the text we're expecting
 #
-cat $tmp.out >>$seq.full
+cat $tmp.out >>$seq_full
 
 echo "=== should be in man page ==="
 sed -n <$tmp.out \

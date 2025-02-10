@@ -15,16 +15,17 @@
  */
 
 denki {
-	rapl
-	bat
+    rapl
+    bat
 }
 
 denki.rapl {
-    rate		DENKI:0:0
-    raw			DENKI:0:1
+    sysfs		DENKI:0:0
+    msr			DENKI:0:1
 }
+
 denki.bat {
-    energy_now_raw	DENKI:1:0
-    energy_now_rate	DENKI:1:1
-    power_now		DENKI:1:2
+    energy_now	DENKI:1:0
+    power_now	DENKI:1:1
+    capacity	DENKI:1:2
 }

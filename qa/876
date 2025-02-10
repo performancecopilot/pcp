@@ -16,14 +16,7 @@ echo "QA output created by $seq"
 which mkfs.xfs >/dev/null 2>&1 || _notrun "XFS utilities not installed"
 pmprobe -I pmcd.agent.type 2>&1 | grep '"xfs"' >/dev/null
 test $? -eq 0 || _notrun "XFS PMDA metrics not available"
-if $sudo modprobe xfs >$tmp.out 2>&1
-then
-    rm -f $tmp.out
-else
-    msg=`cat $tmp.out`
-    rm -f $tmp.out
-    _notrun "XFS module not present: $msg"
-fi
+$sudo modprobe xfs >/dev/null 2>&1
 cat /proc/filesystems | awk '{ print $1 }' | grep '^xfs$' >/dev/null
 test $? -eq 0 || _notrun "XFS kernel support unavailable"
 which xfs_quota >/dev/null || _notrun "xfs_quota not installed"
@@ -61,12 +54,11 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 echo "creating a filesystem"
-mkfs.xfs -dfile,size=256m,name=$tmp.xfsfile > /dev/null || exit 1
+mkfs.xfs -dfile,size=350m,name=$tmp.xfsfile > /dev/null || exit 1
 
 echo "creating a mount point"
 mkdir -p $tmp.xfsmount || exit 1
@@ -80,10 +72,10 @@ echo "mounting xfs filesystem"
 $sudo mount -t xfs -o loop,prjquota $tmp.xfsfile $tmp.xfsmount
 
 # stash a copy of metric values for debugging
-pminfo -f quota 2>&1 > $seq.full
+pminfo -f quota 2>&1 > $seq_full
 # ditto for xfs_quota
-echo "" >>$seq.full
-xfs_quota -c print $tmp.xfsmount >>$seq.full
+echo "" >>$seq_full
+xfs_quota -c print $tmp.xfsmount >>$seq_full
 
 echo "checking metric values"
 pmprobe -v quota > $tmp.out

@@ -42,7 +42,6 @@ _cleanup()
 
 status=1
 done_clean=false
-$sudo rm -rf $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # don't need to regenerate config.default with pmlogconf
@@ -51,15 +50,16 @@ export PMLOGGER_CHECK_SKIP_LOGCONF=yes
 
 qahost=`hostname`
 eval `./getpmcdhosts -L -n 2 2>$tmp.out | sed -e 's/^/other1=/' -e 's/ / other2=/'`
-echo "other1=$other1" >$seq.full
-echo "other2=$other2" >>$seq.full
-echo "qahost=$qahost" >>$seq.full
+echo "other1=$other1" >$seq_full
+echo "other2=$other2" >>$seq_full
+echo "qahost=$qahost" >>$seq_full
 [ -z "$other1" ] && _notrun "Cannot find first remote host running pmcd"
 [ -z "$other2" ] && _notrun "Cannot find second remote host running pmcd"
 
 # stop pmcd and pmlogger cleanly
 #
-_service pcp stop | _filter_pcp_stop
+if ! _service pcp stop; then _exit 1; fi \
+| _filter_pcp_stop
 
 # real QA test starts here
 home=$PCP_PMDAS_DIR
@@ -140,24 +140,24 @@ echo >>$tmp.tmp
 echo "# from qa/$seq" >>$tmp.tmp
 
 $sudo cp $tmp.tmp $PCP_PMCDCONF_PATH
-echo >>$seq.full
-echo "=== pmcd.conf ===" >>$seq.full
-cat $PCP_PMCDCONF_PATH >>$seq.full
+echo >>$seq_full
+echo "=== pmcd.conf ===" >>$seq_full
+cat $PCP_PMCDCONF_PATH >>$seq_full
 
-echo "=== pmcd restarting ===" >>$seq.full
+echo "=== pmcd restarting ===" >>$seq_full
 # Note: need to use $PCP_RC_DIR/* here, not _service pcp so that
 # systemd does not get a chance to have a look in and syphon off our
 # (expected) error messages.
 #
-$sudo $PCP_RC_DIR/pmcd restart 2>>$seq.full | _filter_pcp_start
-$sudo $PCP_RC_DIR/pmlogger restart 2>>$seq.full | _filter_pcp_start
-_wait_for_pmcd
-_wait_for_pmlogger
-echo "=== pmcd restarted ===" >>$seq.full
+$sudo $PCP_RC_DIR/pmcd restart 2>>$seq_full | _filter_pcp_start
+$sudo $PCP_RC_DIR/pmlogger restart 2>>$seq_full | _filter_pcp_start
+_wait_for_pmcd || _exit 1
+_wait_for_pmlogger || _exit 1
+echo "=== pmcd restarted ===" >>$seq_full
 
-cat $PCP_PMCDLOG_PATH >>$seq.full
-echo >>$seq.full
-echo "=== pmcd.log ===" >>$seq.full
+cat $PCP_PMCDLOG_PATH >>$seq_full
+echo >>$seq_full
+echo "=== pmcd.log ===" >>$seq_full
 _filter_pmcd_log <$PCP_PMCDLOG_PATH \
 | sed \
 -e '/^linux/{
@@ -188,6 +188,7 @@ s/  */ /g
 -e "s/$other1\$/OTHERHOST1/g" \
 -e "s/$other2\$/OTHERHOST2/g" \
 -e '/UNIX_DOMAIN_SOCKET/d' \
+-e '/ContactAgents: agent/d' \
 -e '/1 unix:$/d' \
 -e '/error sending Conn ACK PDU/d' \
 -e "s/[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]/<hexnum>/" \
@@ -200,24 +201,25 @@ $8 ~ /^[A-Z]+HOST[12]*$/ && $5 ~ /^[0-9a-f]/ {
 		{ print }'
 
 status=0
-echo "check pmcd is up and we can get local access" >>$seq.full
-if pmprobe hinv.ncpu >>$seq.full 2>&1
+echo "check pmcd is up and we can get local access" >>$seq_full
+if pmprobe hinv.ncpu >>$seq_full 2>&1
 then
     :
 else
     echo "pmcd check FAILED"
-    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep pmcd
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mcd( |$)'
     status=1
 fi
-echo "check primary pmlogger is running" >>$seq.full
+echo "check primary pmlogger is running" >>$seq_full
 pmlc -P </dev/null 2>&1 \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | if grep 'Connected to primary pmlogger' >/dev/null
 then
     :
 else
     echo "primary pmlogger check FAILED"
-    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep pmlogger
+    # Note: no ( |$) for egrep, want to find pmlogger_* as well
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger'
     status=1
 fi
 

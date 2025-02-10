@@ -160,7 +160,10 @@ __pmtimevalSleep(struct timeval delay)
 void
 pmtimevalNow(struct timeval *tv)
 {
-    gettimeofday(tv, NULL);
+    struct timespec	tspec;
+    clock_gettime(CLOCK_REALTIME, &tspec);
+    tv->tv_sec = tspec.tv_sec;
+    tv->tv_usec = tspec.tv_nsec / 1000;
 }
 #endif
 

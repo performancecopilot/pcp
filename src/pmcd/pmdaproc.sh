@@ -60,7 +60,7 @@ _setup_localhost()
 	# on our path
 	#
 	ping --help >$tmp/hlp 2>&1
-	if grep '.-c <*count>*' $tmp/hlp >/dev/null 2>&1 || grep '.-c <count>' $tmp/hlp >/dev/null 2>&1
+	if grep '.-c <*count>*' $tmp/hlp >/dev/null 2>&1
 	then
 	    __opt='-c 1 localhost'
 	elif grep '.-n <*count>*' $tmp/hlp >/dev/null 2>&1
@@ -1292,14 +1292,6 @@ _install()
     #
     echo "Terminate PMDA if already installed ..."
     __pmda_cull $iam $domain
-
-    # Rotate log files
-    #
-    if [ -f $PCP_LOG_DIR/pmcd/$iam.log ]
-    then
-	rm -f $PCP_LOG_DIR/pmcd/$iam.log.prev
-	mv -f $PCP_LOG_DIR/pmcd/$iam.log $PCP_LOG_DIR/pmcd/$iam.log.prev
-    fi
 
     # Add PMDA to pmcd's configuration file
     #

@@ -44,12 +44,14 @@ libcoin-dev
 libdbd-mysql-perl
 libdbd-pg-perl
 libdevmapper-dev
+libdrm-dev
 libextutils-autoinstall-perl
 libfile-slurp-perl
 libgl1-mesa-dri
 libibmad-dev
 libibumad-dev
 libicu67
+libinih-dev
 libjson-perl
 liblist-moreutils-perl
 liblzma-dev
@@ -91,7 +93,7 @@ mariadb-client-core-10.5
 memcached
 net-tools
 nmap
-openjdk-11-jre-headless
+openjdk-17-jre-headless
 openssl
 perl
 perl-modules-5.32
@@ -112,6 +114,7 @@ python3-pil
 python3-prometheus-client
 python3-psycopg2
 python3-pymongo
+python3-pyodbc
 python3-requests
 python3-setuptools
 python3-six
@@ -134,3 +137,4 @@ xfsprogs
 xkb-data
 zabbix-agent
 zlib1g-dev
+zstd

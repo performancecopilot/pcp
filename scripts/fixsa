@@ -1,0 +1,86 @@
+#!/bin/sh
+#
+# Sort entries in the .SH SEE ALSO section of a man page
+#
+# Typical usage is from vi(1), position cursor on .SH SEE ALSO line,
+# then !}fixsa<RETURN>
+#
+# Copyright (c) 1977-2024 Ken McDonell, Inc.  All Rights Reserved.
+#
+
+tmp=/tmp/fixsa-$$
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+
+quiet=false
+if [ $# -eq 0 ]
+then
+    cat >$tmp.in
+    set - $tmp.in
+    quiet=true
+fi
+
+for file
+do
+    $quiet || echo "$file:\c"
+    start=0
+    eval `awk <$file '
+/SEE ALSO/	{ state = 1
+		  print "start=" NR+1
+		  next
+		}
+state == 1 && ( $1 == ".SH" || $1 == ".PP" ) {
+		  print "end=" NR-1
+		  state = 0
+		}
+END		{ if (state) print "end=" NR }'`
+    if [ "X$start" = X0 ]
+    then
+	echo " cannot find \"SEE ALSO\" section"
+    else
+	$quiet || echo " split\c"
+	rm -f $tmp.pre $tmp.tmp $tmp.post
+	touch $tmp.pre $tmp.tmp $tmp.post
+	awk <$file '
+NR < '$start'		{ print >"'$tmp'.pre"; next }
+NR > '$end'		{ print >"'$tmp'.post"; next }
+			{ print >"'$tmp'.tmp"; next }'
+
+	$quiet || echo ", edit\c"
+	if grep 'pm.*(3)' $tmp.tmp >/dev/null 2>&1
+	then
+	    echo ".BR PMAPI (3)" >>$tmp.tmp
+	fi
+	sed -e '/^and/d' \
+	    -e 's/(\(.\)P)/(\1)/g' \
+	    -e 's/[.,]*$//' \
+	    -e 's/\([^ ]\)\(([0-9]\)/\1 \2/g' \
+		$tmp.tmp \
+	| LC_COLLATE=POSIX sort -u -t ' ' -k3.2,3n -k2,2 >$tmp.list
+
+	if grep -v "^\.BR" $tmp.list >$tmp.tmp 2>&1
+	then
+	    echo ", ... Error: lines not starting with .BR"
+	    sed -e 's/^/    /' $tmp.tmp
+	else
+	    ed -s $tmp.list <<'End-of-File'
+1,$s/$/,/
+$-1s/,$//
+$s/,$/./
+$i
+and
+.
+w
+q
+End-of-File
+	    $quiet || echo ", recombine\c"
+	    if $quiet
+	    then
+		cat $tmp.pre $tmp.list $tmp.post
+	    else
+		cat $tmp.pre $tmp.list $tmp.post >$file
+	    fi
+	    $quiet || echo ""
+	fi
+	
+    fi
+done

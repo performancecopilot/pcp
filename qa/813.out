@@ -262,11 +262,11 @@ Note: timezone set to local timezone of host "vm03.localdomain" from archive
     70.0.0 (mmv.control.reload): value 0
     70.0.1 (mmv.control.debug): value 0
     70.0.2 (mmv.control.files): value 0
+PMID: 70.0.0 (mmv.control.reload)
+PMID: 70.0.1 (mmv.control.debug)
 PMID: 70.0.2 (mmv.control.files)
+PMID: 70.1.2 (mmv.test.discrete)
+PMID: 70.1.3 (mmv.test.indom)
 PMID: 70.1.4 (mmv.test.interval)
 PMID: 70.1.5 (mmv.test.string)
 PMID: 70.1.6 (mmv.test.strings)
-PMID: 70.1.2 (mmv.test.discrete)
-PMID: 70.0.0 (mmv.control.reload)
-PMID: 70.0.1 (mmv.control.debug)
-PMID: 70.1.3 (mmv.test.indom)

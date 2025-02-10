@@ -6,7 +6,7 @@ log mandatory on %dk_freq {
     disk.dev
 }
 
-# note no % for want_cpu here
+# note no %want_cpu here
 %ifdef want_cpu
 %define cpu_pfx 'kernel.all.cpu.'
 log mandatory on %cpu_freq {

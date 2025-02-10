@@ -29,10 +29,10 @@ static int	leaf_chn[NMETRIC];
 static int	nonleaf_chn[NMETRIC];
 /*
  * values here come from
- * pminfo sample.secret | wc -lc => 9     273 => 264
- * pminfo pmcd.pmlogger | wc -lc => 4      84 => 80
+ * pminfo sample.secret | wc -lc => 23    568 => 545
+ * pminfo pmcd.pmlogger | wc -lc =>  4     84 => 80
  */
-static int	sum_traverse[NMETRIC] = { 264, 0, 0, 80 };
+static int	sum_traverse[NMETRIC] = { 545, 0, 0, 80 };
 
 static pthread_barrier_t barrier;
 

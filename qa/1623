@@ -24,7 +24,6 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 rm -f $seq.out
@@ -44,7 +43,7 @@ vols=`echo $tmp/onevol.[0-9]* | wc -w`
 echo checking temporal index
 pmlogcheck $tmp/onevol
 pmdumplog -t $tmp/onevol | sed -e 's/^[0-2][0-9]:[^ ]*/TIMESTAMP/'
-src/scandata -v $tmp/onevol.0 | grep '^\['
+src/scandata -o -v $tmp/onevol.0 | grep '^\['
 
 echo checking 4 volumes created with PCP_LOGIMPORT_MAXLOGSZ=250000
 PCP_LOGIMPORT_MAXLOGSZ=250000 collectl2pcp collectl/rhel6.raw.gz $tmp/manyvols
@@ -55,7 +54,7 @@ pmdumplog -t $tmp/manyvols | sed -e 's/^[0-2][0-9]:[^ ]*/TIMESTAMP/'
 pmlogcheck $tmp/manyvols
 for i in 0 1 2 3
 do
-    src/scandata -v $tmp/manyvols.$i | grep '^\['
+    src/scandata -o -v $tmp/manyvols.$i | grep '^\['
 done
 
 echo check they replay the same, expect no diff

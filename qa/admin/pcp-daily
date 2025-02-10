@@ -28,12 +28,8 @@ _usage()
     echo >&2 "  -q          run qa"
     echo >&2 "  -r          rerun qa for failing cases"
     echo >&2 "  -s          shutdown VM"
-    echo >&2 "  -S          single-thread, not parallel"
     echo >&2 "  -t          tree for pcp [default $pcp_tree]"
     echo >&2 "default: -pmiqhs"
-    echo >&2 "vmlist1: $list_1"
-    echo >&2 "vmlist2: $list_2"
-    echo >&2 "[both vmlists run in parallel for the default case without -S]"
 }
 
 # $1 is "daily" (for build/install) else "daily.qa" (for qa)
@@ -178,13 +174,14 @@ End-of-File
 
 _script_make()
 {
-    cat <<'End-of-File'
+    host="$1"
+    cat <<End-of-File
 if [ -f qa/admin/list-packages ]
 then
-    qa/admin/list-packages -m >$tmp.tmp
-    if [ -s $tmp.tmp ]
+    qa/admin/list-packages -m >\$tmp.tmp
+    if [ -s \$tmp.tmp ]
     then
-	echo "Info: list-packages reports missing: `cat $tmp.tmp`" | tee -a $HOME/daily.log
+	echo "Info: list-packages reports missing: \`cat \$tmp.tmp\`" | tee -a \$HOME/daily.log
     fi
 fi
 ok=false
@@ -193,8 +190,8 @@ if [ ! -f VERSION.pcp.daily ]
 then
     cp VERSION.pcp VERSION.pcp.daily
 else
-    diff VERSION.pcp VERSION.pcp.daily >$tmp.tmp
-    if grep -E 'PACKAGE_MAJOR|PACKAGE_MINOR|PACKAGE_REVISION' <$tmp.tmp >/dev/null
+    diff VERSION.pcp VERSION.pcp.daily >\$tmp.tmp
+    if grep -E 'PACKAGE_MAJOR|PACKAGE_MINOR|PACKAGE_REVISION' <\$tmp.tmp >/dev/null
     then
 	# different PCP release, do an initial build
 	cp VERSION.pcp VERSION.pcp.daily
@@ -202,10 +199,10 @@ else
 	# same PCP release, bump away
 	awk -F= <VERSION.pcp.daily '
 BEGIN	{ OFS = "=" }
-$1 == "PACKAGE_BUILD"	{ print "PACKAGE_BUILD",$2+1; next }
-			{ print }' \
-| sed -e 's/=$//' >$tmp.version
-	cp $tmp.version VERSION.pcp.daily
+\$1 == "PACKAGE_BUILD"	{ print "PACKAGE_BUILD",\$2+1; next }
+			{ print }' \\
+| sed -e 's/=\$//' >\$tmp.version
+	cp \$tmp.version VERSION.pcp.daily
     fi
 fi
 cp VERSION.pcp.daily VERSION.pcp
@@ -214,12 +211,12 @@ cp VERSION.pcp.daily VERSION.pcp
 # once the libraries are removed and the packages are being
 # built (and installed)
 #
-if which systemctl >/dev/null 2>&1
+if [ "$PCPQA_SYSTEMD" = yes ]
 then
-    echo "Info: stopping PCP services" | tee -a $HOME/daily.log
+    echo "Info: stopping PCP services" | tee -a \$HOME/daily.log
     for svc in pmie pmlogger pmproxy pmcd
     do
-	sudo systemctl stop $svc
+	sudo systemctl stop \$svc
     done
 fi
 # simulate a first-time build
@@ -227,20 +224,18 @@ sudo rm -rf /usr/include/pcp
 sudo rm -f /usr/lib*/libpcp[_.]*
 # clean up any build turds
 rm -f qa/qa_outfiles
-End-of-File
-    echo "if MAKE=\$MAKE ./Makepkgs --clean >>\$HOME/daily.log 2>&1"
-    cat <<'End-of-File'
+if MAKE=\$MAKE ./Makepkgs --clean >>\$HOME/daily.log 2>&1
 then
     ok=true
 else
     # for Debian/Ubuntu, it may just be the signing of the packages that
     # failed
     #
-    if tail -20 $HOME/daily.log | grep 'dpkg-buildpackage: warning: Failed to sign' >/dev/null
+    if tail -20 \$HOME/daily.log | grep 'dpkg-buildpackage: warning: Failed to sign' >/dev/null
     then
-	echo "Warning: Makepkgs failed to sign dpkg's" | tee -a $HOME/daily.log
+	echo "Warning: Makepkgs failed to sign dpkg's" | tee -a \$HOME/daily.log
     else
-	echo "Error: Makepkgs failed!" | tee -a $HOME/daily.log
+	echo "Error: Makepkgs failed!" | tee -a \$HOME/daily.log
 	# restore build number
 	rm -f VERSION.pcp
 	git checkout -- VERSION.pcp
@@ -260,46 +255,20 @@ git checkout -- VERSION.pcp
 #
 for log in Logs/*
 do
-    echo "--- $log ---" >>$HOME/daily.log
-    cat $log >>$HOME/daily.log
-    echo "--- end $log ---" >>$HOME/daily.log
+    echo "--- \$log ---" >>\$HOME/daily.log
+    cat \$log >>\$HOME/daily.log
+    echo "--- end \$log ---" >>\$HOME/daily.log
 done
-grep 'Permission denied' Logs/pcp >$tmp.err
-grep ' [Ee]rror: ' Logs/pcp \
-| sed >>$tmp.err \
-    -e '/^\/usr\/share\/selinux\/devel\/.* duplicate definition of /d' \
-    # end
-sed -e 's/^/ /' <Logs/pcp \
-| grep -i ' warning: ' \
-| sed >>$tmp.err \
-    -e 's/^ //' \
-    -e '/yyunput.* defined but not used/d' \
-    -e '/input.* defined but not used/d' \
-    -e '/jobserver unavailable: using -j1/d'\
-    -e '/^warning: File listed twice: .*python/d' \
-    -e '/Deprecated external dependency generator is used!/d' \
-    -e '/^dpkg-shlibdeps: warning: .*\/pmda_pmcd.so contains an unresolvable .* probably a plugin/d' \
-    -e '/^dpkg-shlibdeps: warning: package could avoid a useless dependency/d' \
-    -e '/^configure: WARNING: unrecognized options: --disable-dependency-tracking/d' \
-    -e '/QtCore\/qvector.h:.* memcpy(/d' \
-    -e '/libpython.* warning: warning: tmpnam() possibly used unsafely/d' \
-    -e '/libpython.* warning: warning: tempnam() possibly used unsafely/d' \
-    -e '/WARNING: missing directory entry for <.*pcp/s/WARNING/Warning/' \
-    -e '/WARNING: missing directory entry for </d' \
-    -e '/^Project WARNING: CONFIG-=import_qpa_plugin is deprecated./d' \
-    -e '/^Project MESSAGE: Warning: unknown QT: widgets/d' \
-    -e '/^Project MESSAGE: Warning: unknown QT: printsupport/d' \
-    -e '/ldconfig: Warning: ignoring configuration file that cannot be opened: .*pcp.*BUILDROOT/d' \
-    -e '/<stdout>:.* warning: comparison between signed and unsigned/d' \
-# end
-if [ -s $tmp.err ]
+scripts/cull-build-warnings $host <Logs/pcp >\$tmp.err
+if [ -s \$tmp.err ]
 then
-    echo "Warning: `wc -l <$tmp.err | sed -e 's/ //g'` build errors/warnings" | tee -a $HOME/daily.log
-    cat $tmp.err >>$HOME/daily.log
-    echo "--- end build errors/warnings ---" >>$HOME/daily.log
+    echo "--- start build errors/warnings (host=$host) ---" >>\$HOME/daily.log
+    cat \$tmp.err >>\$HOME/daily.log
+    echo "Warning: \`wc -l <\$tmp.err | sed -e 's/ //g'\` build errors/warnings" | tee -a \$HOME/daily.log
+    echo "--- end build errors/warnings ---" >>\$HOME/daily.log
     ok=false
 fi
-$ok && echo "Info: Makepkgs" | tee -a $HOME/daily.log
+\$ok && echo "Info: Makepkgs" | tee -a \$HOME/daily.log
 End-of-File
 }
 
@@ -355,7 +324,7 @@ s/ .*//p
 	    *)
 		# the old-school dpkg way
 		#
-		if yes Y | sudo dpkg -i --force-depends build/deb/*.deb >>$HOME/daily.log 2>&1
+		if yes Y | sudo dpkg -i --auto-deconfigure --force-depends build/deb/*.deb >>$HOME/daily.log 2>&1
 		then
 		    echo "Info: dpkg install" | tee -a $HOME/daily.log
 		else
@@ -559,7 +528,7 @@ fi
 # if we're using systemctl, then need to start enabled PCP
 # services so we leave things in a good state
 #
-if which systemctl >/dev/null 2>&1
+if [ "$PCPQA_SYSTEMD" = yes ]
 then
     systemctl list-unit-files >\$tmp.systemctl
     for svc in pmcd pmproxy pmie pmlogger_daily_report pmlogger
@@ -602,11 +571,14 @@ do
     nbad=\`expr \$nbad + 1\`
     seq=\`echo \$bad | sed -e 's/\.out\.bad//'\`
     [ -f \$seq.out ] && echo \$seq.out >>\$HOME/daily.harvest
-    if [ -f \$seq.full ]
-    then
-	echo \$seq.full >>\$HOME/daily.harvest
-	nfull=\`expr \$nfull + 1\`
-    fi
+    for full in \$seq.full*
+    do
+	if [ -f "\$full" ]
+	then
+	    echo "\$full" >>\$HOME/daily.harvest
+	    nfull=\`expr \$nfull + 1\`
+	fi
+    done
 done
 [ -s \$HOME/daily.harvest ] && cat \$HOME/daily.harvest >>\$HOME/daily.qa.log
 echo "Info: harvest \$nbad *.bad files, \$nfull *.full files" | tee -a \$HOME/daily.qa.log
@@ -619,9 +591,6 @@ End-of-File
 tmp=/var/tmp/$$
 sts=0
 trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
-
-list_1="vm03 vm01 vm04 vm07 vm12 vm14 vm16 vm18 vm20 vm22 vm24 vm26 vm28 vm30 vm32 vm34"
-list_2="bozo vm02 vm00 vm05 vm11 vm15 vm19 vm21 vm23 vm25 vm27 vm29 vm31 vm33 vm37 vm38"
 
 args="$*"
 pcp_branch=main
@@ -642,12 +611,11 @@ rflag=false
 what="-g sanity -g libpcp -g pdu -g pmda -g valgrind -g pmie"
 what=all
 sflag=false
-Sflag=false
 options=false
 work=false
 efile=''
 debug=false
-while getopts "ab:B:cde:fg:hilmpqrsSt:T:?" c
+while getopts "ab:B:cde:fg:hilmpqrst:T:?" c
 do
     case $c
     in
@@ -727,9 +695,6 @@ do
 	    options=true
 	    sflag=true
 	    ;;
-	S)
-	    Sflag=true
-	    ;;
 	t)
 	    pcp_tree="$OPTARG"
 	    build_dir=src/$pcp_tree
@@ -745,15 +710,9 @@ shift `expr $OPTIND - 1`
 
 if [ $# -eq 0 ]
 then
-    if $Sflag
-    then
-	# serial run
-	set -- $list_1 $list_2
-    else
-	# run in parallel
-	set -- $list_1
-	pcp-daily $args $list_2 &
-    fi
+    echo "Error: must specify at least one VM"
+    sts=1
+    exit
 fi
 
 if $options
@@ -783,6 +742,7 @@ in
     bozo)
 	echo "bozo" >>$tmp.hosts
 	echo "bozo-vm" >>$tmp.hosts
+	echo "oracle" >>$tmp.hosts
 	# and open up the X server
 	#
 	# Ubuntu up to 15.04
@@ -829,16 +789,34 @@ do
     echo "::: $host :::"
 
     check_what="$what"
+    valgrind_opt=''
     [ X"$what" = Xall ] && check_what=''
+
+    # hostname-based options setting
+    #
+    # Note: $check_what not set and at most one case block is executed
+    #       here, so assign values to $check_what
+    #
     case "$host"
     in
 
-	vm01)
-	    # 739 segv's sometimes deep inside Python
-	    # and 749 recently (Dec 2023) has been locking the whole VM
-	    # up
+	bozo|vm03)
+	    # run both the valgrind and the non-valgrind variants of tests
 	    #
-	    [ X"$what" = Xall ] && check_what='-X 739 -X 749'
+	    valgrind_opt='export PCPQA_VALGRIND=both'
+	    ;;
+
+	oracle)
+	    # just the sanity group ...
+	    [ X"$what" = Xall ] && check_what='-g sanity'
+	    ;;
+
+	vm01)
+	    # 749 recently (Dec 2023) has been locking the whole VM up
+	    # -- this test is using systemtap + pmcd static probes
+	    # fixed? [Jan 2024], but not fixed [Jan 2025]
+	    #
+	    [ X"$what" = Xall ] && check_what='-X 749'
 	    ;;
 
 	vm05)
@@ -846,33 +824,6 @@ do
 	    # moment
 	    #
 	    [ X"$what" = Xall ] && check_what='-x valgrind'
-	    ;;
-
-	vm06)
-	    # Only selected groups at this stage for FreeBSD 10.4
-	    #	sanity trace libpcp kernel pmrep threads
-	    #
-	    [ X"$what" = Xall ] && check_what='-g sanity -g trace -g libpcp -g kernel -g pmrep -g threads -x valgrind'
-	    ;;
-
-	vm09)
-	    # Only selected groups at this stage for NetBSD 6.1.5
-	    #	sanity trace libpcp kernel pmrep threads
-	    #
-	    [ X"$what" = Xall ] && check_what='-g sanity -g trace -g libpcp -g kernel -g pmrep -g threads -x valgrind'
-	    ;;
-
-	vm10)
-	    # Only selected groups at this stage for FreeBSD 10.4
-	    #	sanity trace libpcp kernel pmrep threads
-	    #
-	    [ X"$what" = Xall ] && check_what='-g sanity -g trace -g libpcp -g kernel -g pmrep -g threads -x valgrind'
-	    ;;
-
-	vm13)
-	    # Only -g sanity at this stage for OpenIndiana
-	    #
-	    [ X"$what" = Xall ] && check_what='-g sanity'
 	    ;;
 
 	vm15)
@@ -887,21 +838,10 @@ do
 	    [ X"$what" = Xall ] && check_what='-g remote'
 	    qa_user=pcpqa
 	    qa_dir=/var/lib/pcp/testsuite
-	    if $pflag
-	    then
-		echo "Info: skip -p for vm16"
-		pflag=false
-	    fi
-	    if $mflag
-	    then
-		echo "Info: skip -m for vm16"
-		mflag=false
-	    fi
-	    if $iflag
-	    then
-		echo "Info: skip -i for vm16"
-		iflag=false
-	    fi
+	    echo "Info: this PCP 4.0.0 inter-op testing ... no new PCP builds or installs"
+	    pflag=false
+	    mflag=false
+	    iflag=false
 	    if [ -n "$efile" ]
 	    then
 		echo "Info: no -e $efile for vm16"
@@ -917,7 +857,7 @@ do
 	    # 365 fails parsing a current /proc/net/netstat
 	    # 374 fails because down-rev pmlc can't talk to current pmlogger
 	    #
-	    [ X"$what" = Xall ] && check_what="$check_what -X 003 -X 066 -X 116 -X 257 -X 322 -X 365 -X 374"
+	    [ X"$what" = Xall ] && check_what='-X 003 -X 066 -X 116 -X 257 -X 322 -X 365 -X 374'
 	    ;;
 
 	vm20)
@@ -925,20 +865,6 @@ do
 	    #
 	    qa_dir=/var/lib/pcp/testsuite
 	    qa_user=pcpqa
-	    ;;
-
-	vm32)
-	    # Only selected groups at this stage for FreeBSD 11.1
-	    #	sanity trace libpcp kernel pmrep threads
-	    # and some tests are not working yet
-	    #
-	    [ X"$what" = Xall ] && check_what='-g sanity -g trace -g libpcp -g kernel -g pmrep -g threads -x valgrind -X 603'
-	    ;;
-
-	vm33)
-	    # Only selected groups at this stage for OpenBSD 7.1
-	    #
-	    [ X"$what" = Xall ] && check_what='-g sanity -g trace -g libpcp -g kernel -g pmcd -g pminfo -g pmlogger -g pmrep -g threads -g logutil -g dbpmda'
 	    ;;
 
 	vm35)
@@ -970,19 +896,70 @@ do
 	    fi
 	    ;;
 
-	vm37)
-	    # Only selected groups this stage for OpenBSD 7.2
-	    #
-	    [ X"$what" = Xall ] && check_what='-g sanity -g trace -g libpcp -g kernel -g pmcd -g pminfo -g pmlogger -g pmrep -g threads -g logutil -g dbpmda'
-	    ;;
-
-	vm38)
-	    # Only -g sanity at this stage for NetBSD 8.0
-	    #
-	    [ X"$what" = Xall ] && check_what='-g sanity'
-	    ;;
-
     esac
+
+    # distro-based options setting
+    #
+    if [ -f $HOME/whatami.out ]
+    then
+	# pick line (if any) from $HOME/whatami.out matching $host,
+	# e.g.
+	# vm14 7.0.0 x86_64 CentOS6.10 (Final) [kernel=2.6.32 py=none se=disabled]
+	# and set these variables that can be used to conditionally
+	# set (QA in particular) options:
+	# $what_host=vm14
+	# $pcp_ver=7.0.0
+	# $arch=x86_64
+	# $distro="CentOS6.10"
+	#
+	# Note: $check_what may have been set above, so need to append
+	#       values here, not assign values
+	#
+	eval `grep "^$host " $HOME/whatami.out \
+	      | sed \
+		-e 's/^/what_host=/' \
+		-e 's/  */|pcp_ver=/' \
+		-e 's/  */|arch=/' \
+		-e 's/  */|distro="/' \
+		-e 's/ \[.*//' \
+		-e 's/ (.*//' \
+		-e 's/$/"/' \
+		-e 's/|/ /g'`
+	if [ -n "$distro" ]
+	then
+	    case "$distro"
+	    in
+		CentOS6.*|'RHEL * 6.*')
+		    # CentOS 6 and RHEL 6 ... don't bother with valgrind here
+		    # exclude the valgrind group and force the non-valgrind
+		    # variants to be run
+		    #
+		    valgrind_opt='export PCPQA_VALGRIND=both'
+		    [ X"$what" = Xall ] && check_what="$check_what -x valgrind"
+		    echo "Exclude valgrind group for distro=$distro"
+		    ;;
+
+		FreeBSD*)
+		    # Only selected groups at this stage for FreeBSD
+		    #
+		    [ X"$what" = Xall ] && check_what="$check_what -g sanity -g trace -g libpcp -g kernel -g pmrep -g threads -g perl -x valgrind"
+		    ;;
+
+		OpenBSD*)
+		    # Only selected groups this stage for OpenBSD
+		    #
+		    [ X"$what" = Xall ] && check_what="$check_what -g sanity -g trace -g libpcp -g kernel -g pmcd -g pminfo -g pmlogger -g pmrep -g threads -g logutil -g dbpmda -g pmcheck -g pmlc"
+		    ;;
+
+		NetBSD*)
+		    # Only -g sanity at this stage for NetBSD
+		    #
+		    [ X"$what" = Xall ] && check_what="$check_what -g sanity"
+		    ;;
+
+	    esac
+	fi
+    fi
 
     if which virsh >/dev/null 2>&1
     then
@@ -1069,12 +1046,14 @@ do
 
 	if $mflag
 	then
-	    _script_make >>$tmp.script
+	    _script_make "$host" >>$tmp.script
 	fi
 
 	$iflag && _script_install >>$tmp.script
 
 	_script_header daily.qa >$tmp.script.qa
+
+	[ -n "$valgrind_opt" ] && echo "$valgrind_opt" >>$tmp.script.qa
 
 	cat >>$tmp.script.qa <<End-of-File
 
@@ -1134,7 +1113,7 @@ End-of-File
 	# actually do the remote work here
 	#
 	start=`date +%s`
-	ssh -t $build_user@$host sh -l -c ./daily.script
+	ssh -t $build_user@$host sh -c ./daily.script
 	scp -q $build_user@$host:daily.log $tmp.out
 	echo "=== build and install: `date` ===" >>$log
 	cat $tmp.out >>$log
@@ -1142,17 +1121,16 @@ End-of-File
 
 	if $qflag || $rflag || $hflag
 	then
-	    ssh -t $qa_user@$host sh -l -c ./daily.qa.script
+	    # -o LogLevel=FATAL to get rid of
+	    #     connect /tmp/.X11-unix/X0: No such file or directory
+	    # from local ssh client, as per suggestion at
+	    # https://stackoverflow.com/questions/56825547
+	    #
+	    ssh -o LogLevel=FATAL -t $qa_user@$host sh -c ./daily.qa.script
 	    scp -q $qa_user@$host:daily.qa.log $tmp.out
 	    echo "=== qa: `date` ===" >>$log
 	    cat $tmp.out >>$log
 	    echo "=== END ===" >>$log
-	fi
-
-	if $iflag || $qflag || $rflag || $hflag
-	then
-	    # run whatami on QA host
-	    ssh -t $qa_user@$host $qa_dir/admin/whatami >$HOME/Logs/by-vm/$host/whatami
 	fi
 
 	if $hflag
@@ -1200,6 +1178,14 @@ End-of-File
 		echo "No failures."
 	    fi
 	fi
+
+	if $iflag || $qflag || $rflag || $hflag
+	then
+	    # run whatami on QA host
+	    ssh -t $qa_user@$host $qa_dir/admin/whatami >$HOME/Logs/by-vm/$host/whatami
+	    echo "Info: `sed -e 's/[ 	][ 	]*/ /g' <$HOME/Logs/by-vm/$host/whatami`" | tee -a $HOME/daily.log
+	fi
+
 	end=`date +%s`
 	echo "$start $end" | awk >>$log '
     { delta = $2 - $1
@@ -1208,15 +1194,15 @@ End-of-File
       sec = delta % 60
       printf "Elapsed time: %d:%02d:%02d (%d secs)\n", hr, min, sec, delta
     }'
+
     fi
     
-
     if $sflag
     then
 	doit=false
 	case $host
 	in
-	    vm01|vm03|vm05|vm15|vm35|vm36)
+	    vm01|vm03|vm16|vm35|vm36)
 		# try to keep these VMs running, unless -f
 		$fflag && doit=true
 		;;

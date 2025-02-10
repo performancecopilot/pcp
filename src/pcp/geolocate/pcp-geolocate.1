@@ -1,0 +1,71 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2022-2023 Red Hat.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.\"
+.TH PCP-GEOLOCATE 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pcp-geolocate\f1 \- discover collector system geographical labels
+.SH SYNOPSIS
+\f3pcp\f1 \f3geolocate\f1
+.SH DESCRIPTION
+.B pcp-geolocate
+reports the latitude and longitude for the local Performance Co-Pilot
+collector host in JSON format.
+This geolocation information is sourced from the cache file
+.I $PCP_SYSCONF_DIR/labels/optional/geolocate
+if it exists, else an attempt is made to perform geolocation based
+on the host IP address, via several online sources (REST APIs).
+.PP
+The output from this command is suited for storing as metric labels by
+saving it to the cache file mentioned above.
+.PP
+The opt-in
+.BR systemd (1)
+service unit file for this command provides an automated location
+discovery for PCP metric labels.
+.SH METRIC LABELS
+The JSON output is the preferred format for storing geographical location
+as PCP metric labels.
+Every PCP metric available from this host will be tagged with the labels
+for latitude and longitude, enabling tools that make use of this such as
+the Grafana geomap panel.
+.PP
+For more information about metric labels refer to the
+.BR pmcd (1),
+.BR pminfo (1),
+.BR pmlogger (1)
+and
+.BR pmLookupLabels (3)
+manual entries.
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pmcd (1),
+.BR pminfo (1),
+.BR pmseries (1),
+.BR pmlogger (1),
+.BR systemd (1),
+.BR pmLookupLabels (3),
+.BR pcp.conf (5)
+and
+.BR pcp.env (5).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ Grafana geomap

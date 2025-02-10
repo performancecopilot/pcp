@@ -1,0 +1,45 @@
+Performance Co-Pilot PMDA for Field Accessible Reliability Metrics (FARM) Log Stats
+===========================================================================================
+
+This PMDA is capable of collecting Seagate vendor specific Field Accessible Reliability
+Metrics (FARM) logs from Seagate drives, statistics are collected from smartmontools version
+7.3+ and on modern Seagate drives that provide access to GP Log 0xA6.
+
+This PMDA collects its data through the smartctl utility and requires that the
+smartmontools package is installed in order to function.
+
+Metrics
+=======
+
+The file ./help contains descriptions for all of the metrics which are
+exposed by this PMDA.
+
+Once the PMDA has been installed, the following command will list all of
+the available metrics and their explanatory "help" text:
+
+    + # $ pminfo -fT farm
+
+Installation
+============
+
+    + # cd $PCP_PMDAS_DIR/farm
+
+    + Check that there is no clash in the Performance Metrics Domain
+      defined in ./domain.h and the other PMDA's currently in use (see
+      $PCP_PMCDCONF_PATH). If there is, edit ./domain.h to choose another
+      domain number.
+
+    + Then simply use
+
+        # ./Install
+
+ 	and choose both the “collector” and “monitor” installation
+        configuration options.
+
+De-Installation
+===============
+
+    + Simply use
+
+        # cd $PCP_PMDAS_DIR/farm
+        #./Remove

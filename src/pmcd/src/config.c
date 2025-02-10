@@ -1064,12 +1064,16 @@ ParseHosts(const char *source, int allow)
 	}
 	else
 	    ok = 1;
+	free(hostnames[i]);
+	hostnames[i] = NULL;
     }
     return ok;
 
 error:
-    for (i = 0; i < nhosts; i++)
-	free(hostnames[i]);
+    for (i = 0; i < nhosts; i++) {
+	if (hostnames[i] != NULL)
+	    free(hostnames[i]);
+    }
     return -1;
 }
 
@@ -1542,7 +1546,7 @@ AgentNegotiate(AgentInfo *aPtr)
     int		sts;
     __pmPDU	*ack;
 
-    sts = __pmGetPDU(aPtr->outFd, ANY_SIZE, _creds_timeout, &ack);
+    sts = __pmGetPDU(aPtr->outFd, ANY_SIZE, creds_timeout, &ack);
     if (sts == PDU_CREDS) {
 	if ((sts = DoAgentCreds(aPtr, ack)) < 0) {
 	    fprintf(stderr, "pmcd: version exchange failed "
@@ -2154,6 +2158,11 @@ ContactAgents(void)
 	    else
 		pmcd_trace(TR_ADD_AGENT, aPtr->pmDomainId, aPtr->inFd, aPtr->outFd);
 	    MarkStateChanges(PMCD_ADD_AGENT);
+	    if (pmDebugOptions.appl6) {
+		fprintf(stderr, "ContactAgents: agent %s (dom %d): set ", aPtr->pmDomainLabel, aPtr->pmDomainId);
+		__pmDumpFetchFlags(stderr, PMCD_ADD_AGENT);
+		fputc('\n', stderr);
+	    }
 	    pmcd_seqnum++;
 	    aPtr->status.notReady = aPtr->status.startNotReady;
 	}
@@ -2358,24 +2367,24 @@ AgentsDiffer(AgentInfo *a1, AgentInfo *a2)
     }
 
     else {
-	PipeInfo	*pipe1 = &a1->ipc.pipe;
-	PipeInfo	*pipe2 = &a2->ipc.pipe;
+	PipeInfo	*pipe_1 = &a1->ipc.pipe;
+	PipeInfo	*pipe_2 = &a2->ipc.pipe;
 
-	if (pipe1 == NULL || pipe2 == NULL)
+	if (pipe_1 == NULL || pipe_2 == NULL)
 		return 1;	/* should never happen */
-	if ((pipe1->commandLine == NULL && pipe2->commandLine != NULL) ||
-	    (pipe1->commandLine != NULL && pipe2->commandLine == NULL))
+	if ((pipe_1->commandLine == NULL && pipe_2->commandLine != NULL) ||
+	    (pipe_1->commandLine != NULL && pipe_2->commandLine == NULL))
 	    return 1;
-	if (pipe1->argv != NULL && pipe2->argv != NULL) {
+	if (pipe_1->argv != NULL && pipe_2->argv != NULL) {
 	    /* Don't just compare commandLines, changes may be cosmetic */
-	    for (i = 0; pipe1->argv[i] != NULL && pipe2->argv[i] != NULL; i++)
-		if (strcmp(pipe1->argv[i], pipe2->argv[i]))
+	    for (i = 0; pipe_1->argv[i] != NULL && pipe_2->argv[i] != NULL; i++)
+		if (strcmp(pipe_1->argv[i], pipe_2->argv[i]))
 		    return 1;
-	    if (pipe1->argv[i] != NULL || pipe2->argv[i] != NULL)
+	    if (pipe_1->argv[i] != NULL || pipe_2->argv[i] != NULL)
 		return 1;
 	}
-	else if ((pipe1->argv == NULL && pipe2->argv != NULL) ||
-		 (pipe1->argv != NULL && pipe2->argv == NULL))
+	else if ((pipe_1->argv == NULL && pipe_2->argv != NULL) ||
+		 (pipe_1->argv != NULL && pipe_2->argv == NULL))
 		    return 1;
     }
     return 0;
@@ -2550,6 +2559,11 @@ ParseRestartAgents(char *fileName)
 	    }
 
 	    MarkStateChanges(PMCD_RESTART_AGENT);
+	    if (pmDebugOptions.appl6) {
+		fprintf(stderr, "ParseRestartAgents: agent %s (dom %d): set ", agent[i].pmDomainLabel, agent[i].pmDomainId);
+		__pmDumpFetchFlags(stderr, PMCD_RESTART_AGENT);
+		fputc('\n', stderr);
+	    }
 	    pmcd_seqnum++;
 	}
 	PrintAgentInfo(stderr);

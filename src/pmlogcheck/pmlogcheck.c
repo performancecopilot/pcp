@@ -24,6 +24,7 @@
 char		sep;
 int		vflag;		/* verbose off by default */
 int		nowrap;		/* suppress wrap check */
+int		lflag;		/* no label by default */
 int		mflag;		/* check metadata only, suppress pass3 */
 int		index_state = STATE_MISSING;
 int		meta_state = STATE_MISSING;
@@ -31,7 +32,10 @@ int		log_state = STATE_MISSING;
 int		mark_count;
 int		result_count;
 
+static char	*archpathname;	/* from the command line */
 static char	*archbasename;	/* after basename() */
+static char	archname[MAXPATHLEN];	/* full pathname to base of archive name */
+static int	new_scandir;	/* one-trip each time scandir() is called */
 
 static pmLongOptions longopts[] = {
     PMAPI_OPTIONS_HEADER("Options"),
@@ -53,7 +57,7 @@ static pmOptions opts = {
     .flags = PM_OPTFLAG_DONE | PM_OPTFLAG_BOUNDARIES | PM_OPTFLAG_STDOUT_TZ,
     .short_options = "D:lmn:S:T:zvwZ:?",
     .long_options = longopts,
-    .short_usage = "[options] archive",
+    .short_usage = "[options] archive ...",
 };
 
 static void
@@ -101,11 +105,12 @@ dumpLabel(void)
 static int
 filter(const_dirent *dp)
 {
-    char logBase[MAXPATHLEN];
+    char	logBase[MAXPATHLEN];
     static int	len = -1;
 
-    if (len == -1) {
+    if (new_scandir || len < 0) {
 	len = strlen(archbasename);
+	new_scandir = 0;
 	if (vflag > 2) {
 	    fprintf(stderr, "archbasename=\"%s\" len=%d\n", archbasename, len);
 	}
@@ -113,7 +118,7 @@ filter(const_dirent *dp)
     if (vflag > 2)
 	fprintf(stderr, "d_name=\"%s\"? ", dp->d_name);
 
-    if (dp->d_name[len] != '.') {
+    if (strlen(dp->d_name) < len+1 || dp->d_name[len] != '.') {
 	if (vflag > 2)
 	    fprintf(stderr, "no (not expected extension after basename)\n");
 	return 0;
@@ -154,23 +159,277 @@ filter(const_dirent *dp)
     return 1;
 }
 
+/*
+ * sort order for archive components
+ * .index -2
+ * .meta  -1
+ * .N     N  (data volume)
+ * other  -3 (bad?)
+ */
+static int
+ordinal(const char *name)
+{
+    const char		*p = strrchr(name, '.');
+    const char		*q;
+    const char		*s;
+    static const char	*suff = NULL;
+
+    if (p == NULL)
+	return -3;
+
+    if (suff == NULL) {
+	suff = pmGetAPIConfig("compress_suffixes");
+	if (suff == NULL) {
+	    fprintf(stderr, "%s: pmGetAPIConfig() failed for \"compress_suffixes\"\n", pmGetProgname());
+	    exit(EXIT_FAILURE);
+	}
+    }
+
+    /* strip any compression suffixes */
+    for (q = p, s = suff; *s; ) {
+	if (*q == *s) {
+	    q++;
+	    s++;
+	    if (*s == '\0' || *s == ' ') {
+		/* compression suffix match, back up to previous '.' */
+		for (p--; p >= name && *p != '.'; )
+		    p--;
+		if (p < name)
+		    return -3;
+		break;
+	    }
+	    continue;
+	}
+	q = p;		/* reset at last part of name */
+	while (*s != '\0' && *s != ' ')
+	    s++;
+	if (*s == '\0')
+	    break;
+	s++;
+    }
+
+    /* now down to the PCP archive suffix p -> .{index,meta,N}[...] */
+    p++;
+    if (strncmp(p, "index", 5) == 0)
+	return -2;
+    if (strncmp(p, "meta", 4) == 0)
+	return -1;
+    return atoi(p);
+}
+
+/*
+ * sorts archive components into a deterministic and
+ * human-sensible order
+ */
+static int
+compar(const void *a, const void *b)
+{
+    struct dirent	*pa = *((struct dirent **)a);
+    struct dirent	*pb = *((struct dirent **)b);
+
+    return ordinal(pa->d_name) > ordinal(pb->d_name);
+}
+
+/*
+ * do all the work for one archive [archbasename]
+ * ... return STS_OK or STS_FATAL
+ */
+static int
+doit(void)
+{
+    char		*archdirname;	/* after dirname() */
+    char		*tmp = NULL;
+    int			sts = STS_OK;
+    int			nfile;
+    int			i;
+    int			n;
+    int			ctx = -1;
+    __pmContext		*ctxp;
+    struct dirent	**namelist;
+    struct timespec	then_real;
+    struct timespec	now_real;
+    struct timespec	then_cpu;
+    struct timespec	now_cpu;
+
+    tmp = strdup(archpathname);
+    archdirname = dirname(tmp);
+    if (vflag)
+	fprintf(stderr, "Scanning for components of archive \"%s\"\n", archpathname);
+    new_scandir = 1;
+    nfile = scandir(archdirname, &namelist, filter, NULL);
+    if (nfile < 1) {
+	fprintf(stderr, "%s: no PCP archive files match \"%s\"\n", pmGetProgname(), archpathname);
+	sts = STS_FATAL;
+	goto done;
+    }
+    qsort(namelist, nfile, sizeof(namelist[0]), compar);
+
+    /*
+     * Pass 0 for data, metadata and index files ... check physical
+     * archive record structure, then label record
+     */
+    for (i = 0; i < nfile; i++) {
+	char	path[MAXPATHLEN];
+	if (strcmp(archdirname, ".") == 0) {
+	    /* skip ./ prefix */
+	    strncpy(path, namelist[i]->d_name, sizeof(path));
+	}
+	else {
+	    pmsprintf(path, sizeof(path), "%s%c%s", archdirname, sep, namelist[i]->d_name);
+	}
+	if (pmDebugOptions.appl3) {
+	    clock_gettime(CLOCK_MONOTONIC, &then_real);
+	    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &then_cpu);
+	}
+	if (pass0(path) == STS_FATAL)
+	    /* unrepairable or unrepaired error */
+	    sts = STS_FATAL;
+	if (pmDebugOptions.appl3) {
+	    clock_gettime(CLOCK_MONOTONIC, &now_real);
+	    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &now_cpu);
+	    fprintf(stderr, "pass0(%s) elapsed %.3fs cpu %.6fs\n",
+		namelist[i]->d_name,
+		pmtimespecSub(&now_real, &then_real),
+		pmtimespecSub(&now_cpu, &then_cpu));
+	}
+	free(namelist[i]);
+    }
+    free(namelist);
+    if (meta_state == STATE_MISSING) {
+	fprintf(stderr, "%s%c%s.meta: missing metadata file\n", archdirname, sep, archbasename);
+	sts = STS_FATAL;
+    }
+    if (log_state == STATE_MISSING) {
+	fprintf(stderr, "%s%c%s.0 (or similar): missing log file \n", archdirname, sep, archbasename);
+	sts = STS_FATAL;
+    }
+
+    if (sts == STS_FATAL) {
+	if (vflag) fprintf(stderr, "Due to earlier errors, cannot continue ... bye\n");
+	sts = STS_FATAL;
+	goto done;
+    }
+
+    if ((sts = ctx = pmNewContext(PM_CONTEXT_ARCHIVE, archpathname)) < 0) {
+	fprintf(stderr, "%s: cannot open archive \"%s\": %s\n", pmGetProgname(), archpathname, pmErrStr(sts));
+	fprintf(stderr, "Checking abandoned.\n");
+	sts = STS_FATAL;
+	goto done;
+    }
+
+    if (pmGetContextOptions(ctx, &opts) < 0) {
+        pmflush();      /* runtime errors only at this stage */
+	sts = STS_FATAL;
+	goto done;
+    }
+
+    if (lflag)
+	dumpLabel();
+
+    if ((n = pmWhichContext()) >= 0) {
+	if ((ctxp = __pmHandleToPtr(n)) == NULL) {
+	    fprintf(stderr, "%s: botch: __pmHandleToPtr(%d) returns NULL!\n", pmGetProgname(), n);
+	    sts = STS_FATAL;
+	    goto done;
+	}
+    }
+    else {
+	fprintf(stderr, "%s: botch: %s!\n", pmGetProgname(), pmErrStr(PM_ERR_NOCONTEXT));
+	sts = STS_FATAL;
+	goto done;
+    }
+    /*
+     * Note: This application is single threaded, and once we have ctxp
+     *	     the associated __pmContext will not move and will only be
+     *	     accessed or modified synchronously either here or in libpcp.
+     *	     We unlock the context so that it can be locked as required
+     *	     within libpcp.
+     */
+    PM_UNLOCK(ctxp->c_lock);
+
+    if (strcmp(archdirname, ".") == 0)
+	/* skip ./ prefix */
+	strncpy(archname, archbasename, sizeof(archname) - 1);
+    else
+	pmsprintf(archname, sizeof(archname), "%s%c%s", archdirname, sep, archbasename);
+
+    if (pmDebugOptions.appl3) {
+	clock_gettime(CLOCK_MONOTONIC, &then_real);
+	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &then_cpu);
+    }
+    sts = pass1(ctxp, archname);
+    if (pmDebugOptions.appl3) {
+	clock_gettime(CLOCK_MONOTONIC, &now_real);
+	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &now_cpu);
+	fprintf(stderr, "pass1(%s) elapsed %.3fs cpu %.6fs\n",
+	    archbasename,
+	    pmtimespecSub(&now_real, &then_real),
+	    pmtimespecSub(&now_cpu, &then_cpu));
+    }
+
+    if (index_state == STATE_BAD) {
+	/* prevent subsequent use of bad temporal index */
+	ctxp->c_archctl->ac_log->numti = 0;
+    }
+
+    if (pmDebugOptions.appl3) {
+	clock_gettime(CLOCK_MONOTONIC, &then_real);
+	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &then_cpu);
+    }
+    sts = pass2(ctxp, archname);
+    if (pmDebugOptions.appl3) {
+	clock_gettime(CLOCK_MONOTONIC, &now_real);
+	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &now_cpu);
+	fprintf(stderr, "pass2(%s) elapsed %.3fs cpu %.6fs\n",
+	    archbasename,
+	    pmtimespecSub(&now_real, &then_real),
+	    pmtimespecSub(&now_cpu, &then_cpu));
+    }
+
+    if (!mflag) {
+	if (pmDebugOptions.appl3) {
+	    clock_gettime(CLOCK_MONOTONIC, &then_real);
+	    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &then_cpu);
+	}
+	sts = pass3(ctxp, archname, &opts);
+	if (pmDebugOptions.appl3) {
+	    clock_gettime(CLOCK_MONOTONIC, &now_real);
+	    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &now_cpu);
+	    fprintf(stderr, "pass3(%s) elapsed %.3fs cpu %.6fs\n",
+		archbasename,
+		pmtimespecSub(&now_real, &then_real),
+		pmtimespecSub(&now_cpu, &then_cpu));
+	}
+    }
+
+    if (vflag) {
+	if (result_count > 0)
+	    fprintf(stderr, "Processed %d pmResult records\n", result_count);
+	if (mark_count > 0)
+	    fprintf(stderr, "Processed %d <mark> records\n", mark_count);
+    }
+
+done:
+    if (tmp != NULL)
+	free(tmp);
+    if (ctx >= 0)
+	pmDestroyContext(ctx);
+    return sts;
+}
+
 int
 main(int argc, char *argv[])
 {
-    int			c;
-    int			sts;
-    int			ctx;
-    int			i;
-    int			lflag = 0;	/* no label by default */
-    int			nfile;
-    int			n;
-    char		*p;
-    struct dirent	**namelist;
-    __pmContext		*ctxp;
-    char		*archpathname;	/* from the command line */
-    char		*archdirname;	/* after dirname() */
-    char		archname[MAXPATHLEN];	/* full pathname to base of archive name */
-    char		*tmp;
+    int		c;
+    int		i;
+    int		j;
+    int		sts = STS_OK;
+    int		lsts;
+    char	*p;
+    char	*tmp;
+    int		done = 0;
+    char	**donebase = NULL;
+    char	**tmp_d;
 
     while ((c = pmGetOptions(argc, argv, &opts)) != EOF) {
 	switch (c) {
@@ -206,132 +465,70 @@ main(int argc, char *argv[])
     opts.flags &= ~PM_OPTFLAG_DONE;
     __pmEndOptions(&opts);
 
-    archpathname = argv[opts.optind];
-    archbasename = strdup(basename((tmp = strdup(archpathname))));
-    free(tmp);
-    /*
-     * treat foo.index, foo.meta, foo.NNN along with any supported
-     * compressed file suffixes as all equivalent
-     * to "foo"
-     */
-    p = strrchr(archbasename, '.');
-    if (p != NULL) {
-	char	*q = p + 1;
-	if (isdigit((int)*q)) {
-	    /*
-	     * foo.<digit> ... if archpathname does exist, then
-	     * safe to strip digits, else leave as is for the
-	     * case of, e.g. archive-20150415.041154
-	     */
-	    if (access(archpathname, F_OK) == 0)
+    for (i = opts.optind; i < argc; i++) {
+	archpathname = argv[i];
+	tmp = strdup(archpathname);
+	archbasename = strdup(basename(tmp));
+	free(tmp);
+	/*
+	 * treat foo.index, foo.meta, foo.NNN along with any supported
+	 * compressed file suffixes as all equivalent
+	 * to "foo"
+	 */
+	p = strrchr(archbasename, '.');
+	if (p != NULL) {
+	    char	*q = p + 1;
+	    if (isdigit((int)*q)) {
+		/*
+		 * foo.<digit> ... if archpathname does exist, then
+		 * safe to strip digits, else leave as is for the
+		 * case of, e.g. archive-20150415.041154
+		 */
+		if (access(archpathname, F_OK) == 0)
+		    __pmLogBaseName(archbasename);
+	    }
+	    else
 		__pmLogBaseName(archbasename);
 	}
-	else
-	    __pmLogBaseName(archbasename);
-    }
 
-    tmp = strdup(archpathname);
-    archdirname = dirname(tmp);
-    if (vflag)
-	fprintf(stderr, "Scanning for components of archive \"%s\"\n", archpathname);
-    nfile = scandir(archdirname, &namelist, filter, NULL);
-    if (nfile < 1) {
-	fprintf(stderr, "%s: no PCP archive files match \"%s\"\n", pmGetProgname(), archpathname);
-	exit(EXIT_FAILURE);
-    }
+	/*
+	 * only process each archive "basename" once ...
+	 */
+	for (j = 0; j < done; j++) {
+	    if (strcmp(archbasename, donebase[j]) == 0) {
+		if (vflag)
+		    fprintf(stderr, "%s: skip, already checked this archive\n", archpathname);
+		break;
+	    }
+	}
+	if (j < done) {
+	    free(archbasename);
+	    continue;
+	}
 
-    /*
-     * Pass 0 for data, metadata and index files ... check physical
-     * archive record structure, then label record
-     */
-    sts = STS_OK;
-    for (i = 0; i < nfile; i++) {
-	char	path[MAXPATHLEN];
-	if (strcmp(archdirname, ".") == 0) {
-	    /* skip ./ prefix */
-	    strncpy(path, namelist[i]->d_name, sizeof(path));
+	lsts = doit();
+	if (lsts == STS_FATAL)
+	    sts = STS_FATAL;
+
+	done++;
+	tmp_d = (char **)realloc(donebase, done*sizeof(donebase[0]));
+	if (tmp_d == NULL) {
+	    fprintf(stderr, "Warning: malloc: failure for done=%d\n", done);
+	    done = 0;
+	    donebase = NULL;
 	}
 	else {
-	    pmsprintf(path, sizeof(path), "%s%c%s", archdirname, sep, namelist[i]->d_name);
+	    donebase = tmp_d;
+	    donebase[done-1] = archbasename;
 	}
-	if (pass0(path) == STS_FATAL)
-	    /* unrepairable or unrepaired error */
-	    sts = STS_FATAL;
-	free(namelist[i]);
-    }
-    free(namelist);
-    if (meta_state == STATE_MISSING) {
-	fprintf(stderr, "%s%c%s.meta: missing metadata file\n", archdirname, sep, archbasename);
-	sts = STS_FATAL;
-    }
-    if (log_state == STATE_MISSING) {
-	fprintf(stderr, "%s%c%s.0 (or similar): missing log file \n", archdirname, sep, archbasename);
-	sts = STS_FATAL;
+
     }
 
-    if (sts == STS_FATAL) {
-	if (vflag) fprintf(stderr, "Due to earlier errors, cannot continue ... bye\n");
-	exit(EXIT_FAILURE);
+    if (donebase != NULL) {
+	for (j = 0; j < done; j++)
+	    free(donebase[j]);
+	free(donebase);
     }
 
-    if ((sts = ctx = pmNewContext(PM_CONTEXT_ARCHIVE, archpathname)) < 0) {
-	fprintf(stderr, "%s: cannot open archive \"%s\": %s\n", pmGetProgname(), archpathname, pmErrStr(sts));
-	fprintf(stderr, "Checking abandoned.\n");
-	exit(EXIT_FAILURE);
-    }
-
-    if (pmGetContextOptions(ctx, &opts) < 0) {
-        pmflush();      /* runtime errors only at this stage */
-        exit(EXIT_FAILURE);
-    }
-
-    if (lflag)
-	dumpLabel();
-
-    if ((n = pmWhichContext()) >= 0) {
-	if ((ctxp = __pmHandleToPtr(n)) == NULL) {
-	    fprintf(stderr, "%s: botch: __pmHandleToPtr(%d) returns NULL!\n", pmGetProgname(), n);
-	    exit(EXIT_FAILURE);
-	}
-    }
-    else {
-	fprintf(stderr, "%s: botch: %s!\n", pmGetProgname(), pmErrStr(PM_ERR_NOCONTEXT));
-	exit(EXIT_FAILURE);
-    }
-    /*
-     * Note: This application is single threaded, and once we have ctxp
-     *	     the associated __pmContext will not move and will only be
-     *	     accessed or modified synchronously either here or in libpcp.
-     *	     We unlock the context so that it can be locked as required
-     *	     within libpcp.
-     */
-    PM_UNLOCK(ctxp->c_lock);
-
-    if (strcmp(archdirname, ".") == 0)
-	/* skip ./ prefix */
-	strncpy(archname, archbasename, sizeof(archname) - 1);
-    else
-	pmsprintf(archname, sizeof(archname), "%s%c%s", archdirname, sep, archbasename);
-
-    sts = pass1(ctxp, archname);
-
-    if (index_state == STATE_BAD) {
-	/* prevent subsequent use of bad temporal index */
-	ctxp->c_archctl->ac_log->numti = 0;
-    }
-
-    sts = pass2(ctxp, archname);
-
-    if (!mflag)
-	sts = pass3(ctxp, archname, &opts);
-
-    if (vflag) {
-	if (result_count > 0)
-	    fprintf(stderr, "Processed %d pmResult records\n", result_count);
-	if (mark_count > 0)
-	    fprintf(stderr, "Processed %d <mark> records\n", mark_count);
-    }
-
-    free(tmp);
-    return 0;
+    return(sts == STS_OK ? 0 : 1);
 }

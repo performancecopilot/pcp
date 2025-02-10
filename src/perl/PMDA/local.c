@@ -313,14 +313,12 @@ local_reconnector(files_t *file)
 
 	if (fd < 0) {
 	    __pmSockAddrFree(myaddr);
-	    myaddr = NULL;
 	    continue; /* Try the next address */
 	}
 
 	__pmSockAddrSetPort(myaddr, files->me.sock.port);
 	sts = __pmConnect(fd, (void *)myaddr, __pmSockAddrSize());
 	__pmSockAddrFree(myaddr);
-	myaddr = NULL;
 	if (sts == 0) /* good connection */
 	    break;
 

@@ -7,6 +7,8 @@ Released under the GNU GPLv2+, see the COPYING file
 in the source distribution for its full text.
 */
 
+#include "config.h" // IWYU pragma: keep
+
 #include "solaris/Platform.h"
 
 #include <kstat.h>
@@ -34,6 +36,7 @@ in the source distribution for its full text.
 #include "HostnameMeter.h"
 #include "SysArchMeter.h"
 #include "UptimeMeter.h"
+#include "XUtils.h"
 
 #include "solaris/SolarisMachine.h"
 
@@ -174,7 +177,7 @@ void Platform_getLoadAverage(double* one, double* five, double* fifteen) {
    *fifteen = plat_loadavg[LOADAVG_15MIN];
 }
 
-int Platform_getMaxPid(void) {
+pid_t Platform_getMaxPid(void) {
    int vproc = 32778; // Reasonable Solaris default
 
    kstat_ctl_t* kc = kstat_open();
@@ -217,18 +220,17 @@ double Platform_setCPUValues(Meter* this, unsigned int cpu) {
 
    v[CPU_METER_NICE]   = cpuData->nicePercent;
    v[CPU_METER_NORMAL] = cpuData->userPercent;
-   if (super->settings->detailedCPUTime) {
+   if (host->settings->detailedCPUTime) {
       v[CPU_METER_KERNEL]  = cpuData->systemPercent;
       v[CPU_METER_IRQ]     = cpuData->irqPercent;
       this->curItems = 4;
-      percent = v[CPU_METER_NICE] + v[CPU_METER_NORMAL] + v[CPU_METER_KERNEL] + v[CPU_METER_IRQ];
    } else {
       v[CPU_METER_KERNEL] = cpuData->systemAllPercent;
       this->curItems = 3;
-      percent = v[CPU_METER_NICE] + v[CPU_METER_NORMAL] + v[CPU_METER_KERNEL];
    }
 
-   percent = isnan(percent) ? 0.0 : CLAMP(percent, 0.0, 100.0);
+   percent = sumPositiveValues(v, this->curItems);
+   percent = MINIMUM(percent, 100.0);
 
    v[CPU_METER_FREQUENCY] = cpuData->frequency;
    v[CPU_METER_TEMPERATURE] = NAN;
@@ -240,9 +242,9 @@ void Platform_setMemoryValues(Meter* this) {
    const Machine* host = this->host;
    this->total = host->totalMem;
    this->values[MEMORY_METER_USED] = host->usedMem;
-   this->values[MEMORY_METER_BUFFERS] = host->buffersMem;
    // this->values[MEMORY_METER_SHARED] = "shared memory, like tmpfs and shm"
    // this->values[MEMORY_METER_COMPRESSED] = "compressed memory, like zswap on linux"
+   this->values[MEMORY_METER_BUFFERS] = host->buffersMem;
    this->values[MEMORY_METER_CACHE] = host->cachedMem;
    // this->values[MEMORY_METER_AVAILABLE] = "available memory"
 }
@@ -256,13 +258,13 @@ void Platform_setSwapValues(Meter* this) {
 }
 
 void Platform_setZfsArcValues(Meter* this) {
-   const SolarisMachine* shost = (SolarisMachine*) this->host;
+   const SolarisMachine* shost = (const SolarisMachine*) this->host;
 
    ZfsArcMeter_readStats(this, &shost->zfs);
 }
 
 void Platform_setZfsCompressedArcValues(Meter* this) {
-   const SolarisMachine* shost = (SolarisMachine*) this->host;
+   const SolarisMachine* shost = (const SolarisMachine*) this->host;
 
    ZfsCompressedArcMeter_readStats(this, &shost->zfs);
 }

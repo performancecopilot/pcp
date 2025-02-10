@@ -111,7 +111,7 @@ LDIRT = *.debhelper *.substvars *.log pcp files pcp.postrm \
 	$(PCPIMPORTSAR) $(PCPIMPORTMRTG) $(PCPIMPORTSHEET) $(PCPIMPORTIOSTAT) \
 	$(PCPIMPORTCOLLECTL) $(PCPIMPORTGANGLIA)
 
-default: pcp.preinst pcp.postinst pcp.postrm control pcp-gui.install
+default: pcp.preinst pcp.postinst pcp.postrm control rules pcp-gui.install
 
 include $(BUILDRULES)
 
@@ -321,14 +321,19 @@ pcp.postrm:	pcp.postrm.head configversions pcp.postrm.tail cull_old_conffiles
 	rm -f $@
 	cat pcp.postrm.head configversions cull_old_conffiles pcp.postrm.tail > $@
 
-pcp-gui.install:	pcp-gui.install.base pcp-gui.install.hicolor
+pcp-gui.install:	pcp-gui.install.base pcp-gui.install.hicolor pcp-gui.install.pmview
 	rm -f pcp-gui.install
 	cat pcp-gui.install.base >pcp-gui.install
 ifeq ($(HAVE_HICOLOR_ICONS), true)
 	cat pcp-gui.install.hicolor >>pcp-gui.install
 endif
+ifeq "$(ENABLE_QT3D)" "true"
+	cat pcp-gui.install.pmview >>pcp-gui.install
+endif
 
-control:	control.pcp control.pcpgui fixcontrol
+control:	fixcontrol control.pcp control.python2 control.python3 \
+		control.pcpgui control.pcp2xlsx control.pcp2arrow \
+		control.pmdaib control.perl
 	./fixcontrol >control
 ifeq ($(ENABLE_PYTHON2), true)
 	cat control.python2 >>control
@@ -342,6 +347,16 @@ endif
 ifeq ($(HAVE_PYTHON_OPENPYXL), true)
 	cat control.pcp2xlsx >>control
 endif
+ifeq ($(HAVE_PYTHON_PYARROW), true)
+	cat control.pcp2arrow >>control
+endif
 ifeq ($(PMDA_INFINIBAND), true)
 	cat control.pmdaib >>control
 endif
+ifeq ($(HAVE_PERL), true)
+	cat control.perl >>control
+endif
+
+rules:	fixrules rules.pcp
+	./fixrules >rules
+	chmod 755 rules

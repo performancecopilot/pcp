@@ -23,13 +23,11 @@ _filter()
 
 # real QA test starts here
 
-rm -f $tmp.*
 echo
 echo "pmlogger with no -h"
 echo "log mandatory on 10msec hinv.ncpu" | pmlogger -s 1 $tmp >/dev/null 2>&1
 _filter
 
-rm -f $tmp.*
 echo
 echo "pmlogger -h localhost"
 echo "log mandatory on 10msec hinv.ncpu" | pmlogger -h localhost -s 1 $tmp >/dev/null 2>&1

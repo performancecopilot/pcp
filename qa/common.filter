@@ -161,10 +161,10 @@ _filter_pmproxy_log()
 	-e 's/pmproxy([1-9][0-9]*) Error:/pmproxy(PID) Error:/' \
 	-e '/^pmproxy: Signalled (signal[=][1-9][0-9]*).*/d' \
 	-e '/^pmproxy: disabled time series,.*(missing)/d' \
-	-e '/Error: unsupported redis server (got v/d' \
+	-e '/Error: .*unsupported key server (got v/d' \
 	-e '/Info: TLS configured in pmproxy.conf/d' \
 	-e '/Failed to create avahi client:/d' \
-	-e '/Info: connected to .*redis.*/d' \
+	-e '/Info: connected to .*key server.*/d' \
 	-e '/Info: .* setup$/d' \
 	-e '/Info: OpenSSL /d' \
 	-e '/Using cipher /d' \
@@ -261,12 +261,11 @@ _filter_dbg()
 	-e '/^__pmLogRead:/s/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]\.[0-9][0-9]*[0-9]/TIMESTAMP/g'
 }
 
-# cull the optional PMDA
+# cull the optional PMDAs
 #
 _filter_optional_pmdas()
 {
     sed \
-	-e '/pmdaroot/d' \
 	-e '/pmdaapache/d' \
 	-e '/pmdaarray/d' \
 	-e '/pmdaash/d' \
@@ -284,8 +283,8 @@ _filter_optional_pmdas()
 	-e '/pmdadmf/d' \
 	-e '/pmdadocker/d' \
 	-e '/pmdads389/d' \
-	-e '/pmda_environ/d' \
 	-e '/pmdaelasticsearch/d' \
+	-e '/pmda_environ/d' \
 	-e '/pmdaespping/d' \
 	-e '/pmdagfs2/d' \
 	-e '/pmdagluster/d' \
@@ -303,16 +302,16 @@ _filter_optional_pmdas()
 	-e '/pmdalab/d' \
 	-e '/pmdalibvirt/d' \
 	-e '/pmdalinux/d' \
-	-e '/pmdalogger/d' \
 	-e '/pmdalmsensors/d' \
 	-e '/pmdalockstat/d' \
+	-e '/pmdalogger/d' \
 	-e '/pmdalsf/d' \
 	-e '/pmdamaillog/d' \
 	-e '/pmdamailq/d' \
 	-e '/pmdamemcache/d' \
 	-e '/pmdammv/d' \
-	-e '/pmdamounts/d' \
 	-e '/pmdamongodb/d' \
+	-e '/pmdamounts/d' \
 	-e '/pmdampi/d' \
 	-e '/pmdamssql/d' \
 	-e '/pmdamysql/d' \
@@ -326,43 +325,44 @@ _filter_optional_pmdas()
 	-e '/pmdanginx/d' \
 	-e '/pmdanutcracker/d' \
 	-e '/pmdanvidia/d' \
-	-e '/pmdaperfevent/d' \
-	-e '/pmdapipe/d' \
-	-e '/pmdapodman/d' \
 	-e '/pmdaopenmetrics/d' \
 	-e '/pmdaoracle/d' \
 	-e '/pmdaoraping/d' \
 	-e '/pmdaoverhead/d' \
 	-e '/pmdapdns/d' \
+	-e '/pmdaperfevent/d' \
+	-e '/pmdapipe/d' \
 	-e '/pmdapmcd/d' \
+	-e '/pmdapodman/d' \
 	-e '/pmdaproc/d' \
 	-e '/pmdaprocess/d' \
 	-e '/pmdarabbitmq/d' \
+	-e '/pmdarabbitmq/d' \
 	-e '/pmdaredis/d' \
+	-e '/pmdaroomtemp/d' \
+	-e '/pmdaroot/d' \
 	-e '/pmdarpm/d' \
 	-e '/pmdarsyslog/d' \
-	-e '/pmdarabbitmq/d' \
-	-e '/pmdaroomtemp/d' \
 	-e '/pmdasamba/d' \
 	-e '/pmdasendmail/d' \
 	-e '/pmdashping/d' \
 	-e '/pmda_simple/d' \
 	-e '/pmdasimple/d' \
 	-e '/pmdasmart/d' \
-	-e '/pmdasockets/d' \
+	-e '/pmdasmart/d' \
 	-e '/pmdasnia/d' \
 	-e '/pmdasnmp/d' \
-	-e '/pmdasmart/d' \
+	-e '/pmdasockets/d' \
 	-e '/pmdassping/d' \
 	-e '/pmdastatsd/d' \
 	-e '/pmdasummary/d' \
-	-e '/pmdasystemd/d' \
-	-e '/pmdasystemtap/d' \
 	-e '/pmdasyb10/d' \
 	-e '/pmdasybping/d' \
+	-e '/pmdasystemd/d' \
 	-e '/pmdatrace/d' \
 	-e '/pmdatrivial/d' \
 	-e '/pmdatxmon/d' \
+	-e '/pmdauwsgi/d' \
 	-e '/pmdavmware/d' \
 	-e '/pmdawatch/d' \
 	-e '/pmdaweblog/d' \
@@ -373,7 +373,7 @@ _filter_optional_pmdas()
 	-e '/pmdazimbra/d' \
 	-e '/pmdazswap/d' \
 	-e '/weblog/d' \
-    #end
+    # end
 }
 
 # cull lines for pmcd.pmda instances that are non-default.
@@ -389,6 +389,7 @@ _filter_optional_pmda_instances()
 	-e '/inst \[19 or "shping"]/d' \
         -e '/inst \[22 or "weblog"]/d' \
 	-e '/inst \[24 or "redis"]/d' \
+        -e '/inst \[25 or "bind2"]/d' \
 	-e '/inst \[28 or "news"]/d' \
 	-e '/inst \[33 or "podman"]/d' \
 	-e '/inst \[35 or "mongodb"]/d' \
@@ -410,6 +411,7 @@ _filter_optional_pmda_instances()
         -e '/inst \[120 or "nvidia"]/d' \
         -e '/inst \[122 or "jbd2"]/d' \
 	-e '/inst \[123 or "rpm"]/d' \
+	-e '/inst \[125 or "zswap"]/d' \
 	-e '/inst \[127 or "perfevent"]/d' \
 	-e '/inst \[129 or "dm"]/d' \
 	-e '/inst \[139 or "openbsd"]/d' \
@@ -424,8 +426,8 @@ _filter_optional_pmda_instances()
         -e '/inst \[152 or "netcheck"]/d' \
 	-e '/inst \[154 or "sockets"]/d' \
 	-e '/inst \[157 or "bpf"]/d' \
+	-e '/inst \[161 or "uwsgi"]/d' \
 	-e '/inst \[250 or "trivial"]/d' \
-
     # end
 }
 
@@ -465,6 +467,7 @@ _filter_top_pmns()
 	-e '/^    gluster /d' \
 	-e '/^    hippi /d' \
 	-e '/^    hotproc /d' \
+	-e '/^    hyperv /d' \
 	-e '/^    hw /d' \
 	-e '/^    infmxping /d' \
 	-e '/^    informix /d' \
@@ -521,13 +524,12 @@ _filter_top_pmns()
 	-e '/^    summary /d' \
 	-e '/^    sybase /d' \
 	-e '/^    sybping /d' \
-	-e '/^    sysother /d' \
 	-e '/^    systemd /d' \
-	-e '/^    systemtap /d' \
 	-e '/^    trace /d' \
 	-e '/^    trivial /d' \
 	-e '/^    tty /d' \
 	-e '/^    txmon /d' \
+	-e '/^    uwsgi/d' \
 	-e '/^    vdo /d' \
 	-e '/^    vmware /d' \
 	-e '/^    web /d' \
@@ -651,6 +653,7 @@ s/Performance Co-Pilot starting archive loggers .../Starting pmlogger ... /
 	-e '/is not a native service, redirecting to .*chkconfig/d' \
 	-e '/^Executing .*chkconfig pm.* --level=5/d' \
 	-e '/Failed to create avahi client:/d' \
+	-e '/pmsignal.* kill: [0-9][0-9]*: No such process/d' \
     | _filter_pcp_start_distro \
     | _filter_init_distro
 }
@@ -690,6 +693,7 @@ _filter_pmie_start()
 	-e '/^Starting pmie/d' \
 	-e '/^Waiting for pmie/d' \
 	-e "s;$PCP_RC_DIR/pmie;\$PCP_RC_DIR/pmie;g" \
+	-e "s;$PCP_ETC_DIR/pcp/pmie;\$PCP_ETC_DIR/pcp/pmie;g" \
 	-e '/(pmie) is disabled/d' \
 	-e '/(pmie) not permanently enabled/d' \
 	-e '/To enable/d' \
@@ -744,6 +748,11 @@ _filter_pmproxy_stop()
     sed \
 	-e "s;$PCP_RC_DIR/pmproxy;\$PCP_RC_DIR/pmproxy;g" \
 	-e '/^Waiting for pmproxy/d' \
+	-e '/Warning: Forcing pmproxy to terminate!/d' \
+	-e '/^\.\.*$/d' \
+	-e '/^Process \.\.\./d' \
+	-e '/^UID/d' \
+	-e '/^pcp .*\/pmproxy/d' \
     | _filter_init_distro
 }
 
@@ -914,6 +923,11 @@ $1 == "inst" && $2 ~ /^\[/ {
    '
 }
 
+# for src/torture_api, filter out lines like:
+#     hostname             <s = 1>
+# for the top-level PMNS nodes that come from optionaly PMDAs
+# or are not present on every platform
+#
 _filter_torture_api()
 {
     sed \
@@ -941,6 +955,8 @@ _filter_torture_api()
 	-e '/^    engr /d' \
 	-e '/^    fchost /d' \
 	-e '/^    feature /d' \
+	-e '/^    ha_cluster /d' \
+	-e '/^    haproxy /d' \
 	-e '/^    idiot /d' \
 	-e '/^    idl /d' \
 	-e '/^    infiniband /d' \
@@ -965,6 +981,7 @@ _filter_torture_api()
 	-e '/^    p76 /d' \
 	-e '/^    process /d' \
 	-e '/^    quota /d' \
+	-e '/^    resctrl /d' \
 	-e '/^    roomtemp /d' \
 	-e '/^    rpm /d' \
 	-e '/^    rsyslog /d' \
@@ -1098,3 +1115,68 @@ skip == 1 && /^[^ ]/		{ skip = 0 }
 skip == 0			{ print }'
 }
 
+# some context labels in archives are optional ... our tests do not
+# expect them to be present but if they are in /etc/pcp/labels/optional
+# then we need to filter 'em out
+#
+_filter_optional_labels()
+{
+    if [ ! -f $tmp.filter.optional.labels ]
+    then
+	# one-trip set up for this QA test ...
+	#
+	touch $tmp.filter.optional.labels
+	find /etc/pcp/labels/optional -type f \
+	| while read f
+	do
+	    cat $f \
+	    | sed -e 's/^{//' -e 's/}$//' \
+	    | tr ',' '\012' \
+	    | while read label
+	    do
+		echo "s@${label},*@@g" >>$tmp.filter.optional.labels
+	    done
+	done
+	echo "=== optional context label filter ===" >>$seq_full
+	cat $tmp.filter.optional.labels >>$seq_full
+    fi
+
+    if [ -s $tmp.filter.optional.labels ]
+    then
+	sed -f $tmp.filter.optional.labels
+    else
+	cat
+    fi
+}
+
+# some versions of the C compiler are just plain wrong and emit warning
+# babble when re-compiling the sample PMDA
+#
+# For example in Fedora 40 (aka rawhide) circa Feb 2024 ...
+# sample.c: In function ‘sample_fetch’:
+# sample.c:1963:13: warning: array subscript ‘pmValueSet[0]’ is partly outside array bounds of ‘unsigned char[16]’ [-Warray-bounds=]
+#  1963 |         vset->pmid = pmidlist[i];
+#       |             ^~
+# sample.c:1954:49: note: object of size 16 allocated by ‘malloc’
+#  1954 |             res->vset[i] = vset = (pmValueSet *)malloc(sizeof(pmValueSet) -
+#       |                                                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+#  1955 |                                             sizeof(pmValue));
+#       |                                             ~~~~~~~~~~~~~~~~
+#
+_filter_compiler_babble()
+{
+    sed \
+	-e '/^sample.c: In function .sample_fetch.:/d' \
+	-e '/^sample.c:.* array subscript .pmValueSet.0.. is partly outside/d' \
+	-e '/^sample.c:.* note: object of size [0-9][0-9]* allocated by /d' \
+	-e '/^  *[0-9][0-9]*  *| /d' \
+	-e '/^  *| /d' \
+    # end
+}
+
+# remove repeated (duplicate) lines from input
+#
+_cull_dup_lines()
+{
+    $PCP_AWK_PROG 'NR == 1 || last != $0 { print; last = $0 }'
+}

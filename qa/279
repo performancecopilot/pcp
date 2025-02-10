@@ -15,12 +15,14 @@ echo "QA output created by $seq"
 . ./common.check
 
 status=1	# failure is the default!
-killer=`pwd`/src/killparent
 LOCALHOST=`hostname`
 LOGGING_DIR="$PCP_ARCHIVE_DIR"
 _needclean=true
 
-rm -f $seq.full
+# need PMDA executable someplace user $PCP_USER (pmcd) can read them
+#
+killer=$tmp.killparent
+cp src/killparent $killer
 
 _interrupt()
 {
@@ -64,6 +66,7 @@ skip == 0	{ print }
 	-e '/^See "systemctl  *status pmcd.service"/d' \
 	-e '/^pmcd.service: /d' \
 	-e '/^Job failed. See system journal/d' \
+	-e '/^Terminated$/d' \
     # end
 }
 
@@ -78,7 +81,7 @@ _filter_pmcd()
 }
 
 _save_config $PCP_PMCDCONF_PATH
-_disable_loggers
+_disable_loggers || _exit 1
 pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
 && $sudo sh $tmp.cmd
 
@@ -130,13 +133,13 @@ else
     echo "Arrgh ... need pmcd.conf for PCP_PLATFORM $PCP_PLATFORM"
     exit 1
 fi
-echo "=== initial pmcd.conf ===" >>$seq.full
-cat $tmp.conf >>$seq.full
-echo "=== ===" >>$seq.full
+echo "=== initial pmcd.conf ===" >>$seq_full
+cat $tmp.conf >>$seq_full
+echo "=== ===" >>$seq_full
 $sudo cp $tmp.conf $PCP_PMCDCONF_PATH
-_service pcp restart 2>&1 | _filter_pcp_start | _filter_pmcd
-_wait_for_pmcd
-_wait_for_pmlogger
+if ! _service pcp restart 2>&1; then _exit 1; fi | _filter_pcp_start | _filter_pmcd
+_wait_for_pmcd || _exit 1
+_wait_for_pmlogger || _exit 1
 
 cat <<End-of-File >$tmp.cmd
 rm -f $PCP_PMCDCONF_PATH.prev
@@ -147,17 +150,17 @@ End-of-File
 
 echo
 echo "__pmda_add test: expect this to fail and revert to the status quo ..."
-echo "__pmda_add test: expect this to fail and revert to the status quo ..." >>$seq.full
+echo "__pmda_add test: expect this to fail and revert to the status quo ..." >>$seq_full
 echo
 
 $sudo sh $tmp.cmd 2>&1 \
 | tee $tmp.out \
 | _filter
-cat $tmp.out >>$seq.full
+cat $tmp.out >>$seq_full
 
-echo "=== pmcd.conf after bogus install ===" >>$seq.full
-cat $PCP_PMCDCONF_PATH >>$seq.full
-echo "=== ===" >>$seq.full
+echo "=== pmcd.conf after bogus install ===" >>$seq_full
+cat $PCP_PMCDCONF_PATH >>$seq_full
+echo "=== ===" >>$seq_full
 
 echo "\$PCP_PMCDCONF_PATH should be put back the way it was ... diffs ..."
 diff $PCP_PMCDCONF_PATH $tmp.conf
@@ -172,24 +175,24 @@ End-of-File
 
 echo "bogus 111     pipe    binary          $killer" >>$tmp.conf
 echo "fungus 222     pipe    binary         $killer" >>$tmp.conf
-echo "=== next pmcd.conf ===" >>$seq.full
-cat $tmp.conf >>$seq.full
-echo "=== ===" >>$seq.full
+echo "=== next pmcd.conf ===" >>$seq_full
+cat $tmp.conf >>$seq_full
+echo "=== ===" >>$seq_full
 $sudo cp $tmp.conf $PCP_PMCDCONF_PATH
 
 echo
 echo "__pmda_cull test: expect this to fail and restoration to fail ..."
-echo "__pmda_cull test: expect this to fail and restoration to fail ..." >>$seq.full
+echo "__pmda_cull test: expect this to fail and restoration to fail ..." >>$seq_full
 echo
 
 $sudo sh $tmp.cmd 2>&1 \
 | tee $tmp.out \
 | _filter
-cat $tmp.out >>$seq.full
+cat $tmp.out >>$seq_full
 
-echo "=== pmcd.conf after fungus remove ===" >>$seq.full
-cat $PCP_PMCDCONF_PATH >>$seq.full
-echo "=== ===" >>$seq.full
+echo "=== pmcd.conf after fungus remove ===" >>$seq_full
+cat $PCP_PMCDCONF_PATH >>$seq_full
+echo "=== ===" >>$seq_full
 
 # success, all done
 status=0

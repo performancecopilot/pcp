@@ -1,0 +1,102 @@
+#!/bin/sh
+#
+# Recreate the atop-sar.tar.gz tarball
+#
+# This has enough metrics for the default pcp-atopsar report
+#
+
+. $PCP_DIR/etc/pcp.conf || exit 1
+
+tmp=/var/tmp/mk.atop-sar.$$
+
+trap "cd $here; rm -rf $tmp.* $tmp atop-sar; exit 0" 0 1 2 3 15
+
+# systmetrcics in particular has a truckload of metrics
+# that are not needed for the default pcp-atopsar reporting
+# ... network.interface.in.nbytes is not really needed (if
+# pcp-atopsar was smarter about minimal metrics needed) but
+# is retained to tickle this bug:
+# https://github.com/performancecopilot/pcp/issues/1911
+# similarly needed to keep pcp-atopsar happy, but not ever
+# reported:
+#    disk.dev.read 
+#
+for file in hostmetrics.h systmetrics.h
+do
+    if [ ! -f ../../src/pcp/atop/$file ]
+    then
+	echo >&2 "Botch: ../../src/pcp/atop/$file does not exist"
+	exit
+    fi
+    sed -n <../../src/pcp/atop/$file >$tmp.tmp \
+	-e '/"\."/d' \
+	-e '/",/{
+s/",.*//
+s/.*"//
+p
+}' \
+    # ones we need to keep (but are in the cull list below)
+    #
+    grep '^network\.interface\.in\.bytes$' <$tmp.tmp
+    grep '^disk\.dev\.read$' <$tmp.tmp
+
+    # now cull away ...
+    #
+    sed <$tmp.tmp \
+	-e '/^disk\./d' \
+	-e '/^ipc\./d' \
+	-e '/^kernel\.all\.intr\./d' \
+	-e '/^kernel\.all\.pressure\./d' \
+	-e '/^kernel\.pernode\./d' \
+	-e '/^mem\./d' \
+	-e '/^network\./d' \
+	-e '/^nfs/d' \
+	-e '/^rpc\./d' \
+	-e '/^swap\./d' \
+    # end
+done >$tmp.config
+
+rm -rf atop-sar
+mkdir atop-sar
+
+# use previous 2 days from the local system with these time
+# windows:
+# + 23:55 - end for first one
+# + start - 00:15 for the second one
+#
+touch $tmp.first
+ls $PCP_LOG_DIR/pmlogger/`hostname`/*meta* \
+| tail -3 \
+| head -2 \
+| sed -e 's/\.meta.*//' \
+| while read inarch
+do
+    outarch=atop-sar/`basename $inarch`
+    echo "$inarch -> $outarch"
+    if [ -f $tmp.first ]
+    then
+	# no bug
+	window="-S @21:25"
+	# bug
+	window="-S @20:55"
+	# ?
+	window="-S @20:25"
+	rm -f $tmp.first
+    else
+	window="-T @00:15"
+    fi
+    if pmlogextract -z $window -c $tmp.config $inarch $outarch >$tmp.out 2>&1
+    then
+	:
+    else
+	cat $tmp.out
+	echo "Botch: pmlogextract failed"
+	exit
+    fi
+    pmlogcheck -v $outarch
+    pminfo -a $outarch | wc -l
+    ls -l $outarch.*
+    pcp-atopsar -r $outarch 60 11
+done
+
+tar cJf atop-sar.tar.xz atop-sar

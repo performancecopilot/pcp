@@ -88,7 +88,7 @@ should always be available.
 If you do not use these metrics you can remove this PMDA, do the
 following as root:
 .PP
-.ft CW
+.ft CR
 .nf
 .in +0.5i
 # cd $PCP_PMDAS_DIR/jbd2
@@ -99,7 +99,7 @@ following as root:
 .PP
 If you want to enable the installation again, do the following as root:
 .PP
-.ft CW
+.ft CR
 .nf
 .in +0.5i
 # cd $PCP_PMDAS_DIR/jbd2
@@ -159,3 +159,7 @@ as described in
 .BR pcp.conf (5)
 and
 .BR pcp.env (5).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ pmdajbd procfs jbd fs {from /proc/fs/jbd2}
+.\" +ok+ JBD ext ocfs {all from JBD filesystems ext2, ... ocfs2}

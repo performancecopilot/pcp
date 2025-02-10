@@ -67,12 +67,12 @@ echo "status=$?"
 echo "pmie log file..."
 cat $tmp.pmielog | _filter_pmie_log
 
-echo "--- pmieconf input ---" >$seq.full
-cat $tmp.cmd >>$seq.full
-echo "--- pmie input ---" >>$seq.full
-cat $tmp.eek >>$seq.full
-echo "--- pmie output ---" >>$seq.full
-cat $tmp.pmielog >>$seq.full
+echo "--- pmieconf input ---" >$seq_full
+cat $tmp.cmd >>$seq_full
+echo "--- pmie input ---" >>$seq_full
+cat $tmp.eek >>$seq_full
+echo "--- pmie output ---" >>$seq_full
+cat $tmp.pmielog >>$seq_full
 
 # success, all done
 status=0

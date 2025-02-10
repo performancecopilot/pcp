@@ -7,13 +7,9 @@ Released under the GNU GPLv2+, see the COPYING file
 in the source distribution for its full text.
 */
 
-#include "config.h"
-
 #include <stdbool.h>
-#include <sys/types.h>
 
 #include "Machine.h"
-#include "UsersTable.h"
 #include "linux/ZramStats.h"
 #include "linux/ZswapStats.h"
 #include "zfs/ZfsArcStats.h"
@@ -57,13 +53,22 @@ typedef struct CPUData_ {
    bool online;
 } CPUData;
 
+typedef struct GPUEngineData_ {
+   unsigned long long int prevTime, curTime;  /* absolute GPU time in nano seconds */
+   char* key;                                 /* engine name */
+   struct GPUEngineData_* next;
+} GPUEngineData;
+
 typedef struct LinuxMachine_ {
    Machine super;
 
    long jiffies;
-   long long boottime;
    int pageSize;
    int pageSizeKB;
+
+   /* see Linux kernel source for further detail, fs/proc/stat.c */
+   unsigned int runningTasks;   /* procs_running from /proc/stat */
+   long long boottime;   /* btime field from /proc/stat */
 
    double period;
 
@@ -73,6 +78,9 @@ typedef struct LinuxMachine_ {
    memory_t usedHugePageMem[HTOP_HUGEPAGE_COUNT];
 
    memory_t availableMem;
+
+   unsigned long long int prevGpuTime, curGpuTime;  /* total absolute GPU time in nano seconds */
+   GPUEngineData* gpuEngineData;
 
    ZfsArcStats zfs;
    ZramStats zram;

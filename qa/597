@@ -17,6 +17,25 @@ echo "QA output created by $seq"
 [ -f $PCP_PMDAS_DIR/shping/pmdashping ] || _notrun "shping pmda not installed"
 which nslookup >/dev/null 2>&1 || _notrun "nslookup is not installed"
 
+# Some combinations of distro and Selinux are known to be "bad"
+# or at least ones we will crash and burn on, like this:
+# type=AVC ... avc:  denied  { sqpoll } for  pid=1190476 comm="nslookup" ...
+# and it is not worth working up a Selinux policy change to allow the
+# shping PMDA to run nslookup()
+#
+if which getenforce >/dev/null 2>&1
+then
+    if [ "`getenforce`" != Disabled ]
+    then
+	case `admin/whatami`
+	in
+	    *Fedora\ 39\ *)
+		_notrun "shping nslookup won't work with Selinux and Fedora 39"
+		;;
+	esac
+    fi
+fi
+
 _cleanup()
 {
     _restore_pmda_install $iam
@@ -38,7 +57,7 @@ status=1
 trap "_cleanup" 0 1 2 3 15
 
 # real QA test starts here
-_prepare_pmda_install $iam
+_prepare_pmda_install $iam || _exit 1
 
 echo
 echo "=== default $iam agent installation ==="

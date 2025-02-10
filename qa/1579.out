@@ -1,0 +1,182 @@
+QA output created by 1579
+QA output created by 1578 --valgrind
+lots of archive base names ...
+=== std out ===
+=== std err ===
+Scanning for components of archive "archives/all-ubuntu.22.04"
+archives/all-ubuntu.22.04.index: start pass0 ... found 14 records
+archives/all-ubuntu.22.04.meta.xz: start pass0 ... found 12303 records
+archives/all-ubuntu.22.04.0.xz: start pass0 ... found 20 records
+archives/all-ubuntu.22.04: start pass1 (check temporal index)
+archives/all-ubuntu.22.04: start pass2
+archives/all-ubuntu.22.04: start pass3
+Processed 19 pmResult records
+Scanning for components of archive "archives/moomba.client"
+archives/moomba.client.index: start pass0 ... found 4 records
+archives/moomba.client.meta: start pass0 ... found 13 records
+archives/moomba.client.0: start pass0 ... found 12 records
+archives/moomba.client: start pass1 (check temporal index)
+archives/moomba.client: start pass2
+archives/moomba.client: start pass3
+Processed 30 pmResult records
+Scanning for components of archive "archives/kenj-pc-2"
+archives/kenj-pc-2.index: start pass0 ... found 37 records
+archives/kenj-pc-2.meta: start pass0 ... found 58 records
+archives/kenj-pc-2.0: start pass0 ... found 102 records
+archives/kenj-pc-2: start pass1 (check temporal index)
+archives/kenj-pc-2: start pass2
+archives/kenj-pc-2: start pass3
+Processed 131 pmResult records
+Scanning for components of archive "archives/omnibus_v2"
+archives/omnibus_v2.index: start pass0 ... found 24 records
+archives/omnibus_v2.meta: start pass0 ... found 123 records
+archives/omnibus_v2.0: start pass0 ... found 39 records
+archives/omnibus_v2: start pass1 (check temporal index)
+archives/omnibus_v2: start pass2
+archives/omnibus_v2: start pass3
+Processed 169 pmResult records
+Processed 2 <mark> records
+Scanning for components of archive "archives/omnibus_v3"
+archives/omnibus_v3.index: start pass0 ... found 24 records
+archives/omnibus_v3.meta: start pass0 ... found 123 records
+archives/omnibus_v3.0: start pass0 ... found 39 records
+archives/omnibus_v3: start pass1 (check temporal index)
+archives/omnibus_v3: start pass2
+archives/omnibus_v3: start pass3
+Processed 207 pmResult records
+Processed 4 <mark> records
+Scanning for components of archive "archives/ok-mv-foo"
+archives/ok-mv-foo.index: start pass0 ... found 6 records
+archives/ok-mv-foo.meta: start pass0 ... found 12 records
+archives/ok-mv-foo.0: start pass0 ... found 5 records
+archives/ok-mv-foo.1: start pass0 ... found 4 records
+archives/ok-mv-foo.2: start pass0 ... found 3 records
+archives/ok-mv-foo: start pass1 (check temporal index)
+archives/ok-mv-foo: start pass2
+archives/ok-mv-foo: start pass3
+Processed 216 pmResult records
+Processed 4 <mark> records
+Scanning for components of archive "archives/small"
+archives/small.index: start pass0 ... found 20 records
+archives/small.meta: start pass0 ... found 128 records
+archives/small.0.xz: start pass0 ... found 841 records
+archives/small: start pass1 (check temporal index)
+archives/small: start pass2
+archives/small: start pass3
+Processed 1056 pmResult records
+Processed 4 <mark> records
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmlogcheck -w -v archives/all-ubuntu.22.04 archives/moomba.client archives/kenj-pc-2 archives/omnibus_v2 archives/omnibus_v3 archives/ok-mv-foo archives/small
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+lots of .meta names
+=== std out ===
+=== std err ===
+Scanning for components of archive "archives/all-ubuntu.22.04.meta.xz"
+archives/all-ubuntu.22.04.index: start pass0 ... found 14 records
+archives/all-ubuntu.22.04.meta.xz: start pass0 ... found 12303 records
+archives/all-ubuntu.22.04.0.xz: start pass0 ... found 20 records
+archives/all-ubuntu.22.04: start pass1 (check temporal index)
+archives/all-ubuntu.22.04: start pass2
+archives/all-ubuntu.22.04: start pass3
+Processed 19 pmResult records
+Scanning for components of archive "archives/moomba.client.meta"
+archives/moomba.client.index: start pass0 ... found 4 records
+archives/moomba.client.meta: start pass0 ... found 13 records
+archives/moomba.client.0: start pass0 ... found 12 records
+archives/moomba.client: start pass1 (check temporal index)
+archives/moomba.client: start pass2
+archives/moomba.client: start pass3
+Processed 30 pmResult records
+Scanning for components of archive "archives/kenj-pc-2.meta"
+archives/kenj-pc-2.index: start pass0 ... found 37 records
+archives/kenj-pc-2.meta: start pass0 ... found 58 records
+archives/kenj-pc-2.0: start pass0 ... found 102 records
+archives/kenj-pc-2: start pass1 (check temporal index)
+archives/kenj-pc-2: start pass2
+archives/kenj-pc-2: start pass3
+Processed 131 pmResult records
+Scanning for components of archive "archives/omnibus_v2.meta"
+archives/omnibus_v2.index: start pass0 ... found 24 records
+archives/omnibus_v2.meta: start pass0 ... found 123 records
+archives/omnibus_v2.0: start pass0 ... found 39 records
+archives/omnibus_v2: start pass1 (check temporal index)
+archives/omnibus_v2: start pass2
+archives/omnibus_v2: start pass3
+Processed 169 pmResult records
+Processed 2 <mark> records
+Scanning for components of archive "archives/omnibus_v3.meta"
+archives/omnibus_v3.index: start pass0 ... found 24 records
+archives/omnibus_v3.meta: start pass0 ... found 123 records
+archives/omnibus_v3.0: start pass0 ... found 39 records
+archives/omnibus_v3: start pass1 (check temporal index)
+archives/omnibus_v3: start pass2
+archives/omnibus_v3: start pass3
+Processed 207 pmResult records
+Processed 4 <mark> records
+Scanning for components of archive "archives/ok-mv-foo.meta"
+archives/ok-mv-foo.index: start pass0 ... found 6 records
+archives/ok-mv-foo.meta: start pass0 ... found 12 records
+archives/ok-mv-foo.0: start pass0 ... found 5 records
+archives/ok-mv-foo.1: start pass0 ... found 4 records
+archives/ok-mv-foo.2: start pass0 ... found 3 records
+archives/ok-mv-foo: start pass1 (check temporal index)
+archives/ok-mv-foo: start pass2
+archives/ok-mv-foo: start pass3
+Processed 216 pmResult records
+Processed 4 <mark> records
+Scanning for components of archive "archives/small.meta"
+archives/small.index: start pass0 ... found 20 records
+archives/small.meta: start pass0 ... found 128 records
+archives/small.0.xz: start pass0 ... found 841 records
+archives/small: start pass1 (check temporal index)
+archives/small: start pass2
+archives/small: start pass3
+Processed 1056 pmResult records
+Processed 4 <mark> records
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmlogcheck -w -v archives/all-ubuntu.22.04.meta.xz archives/moomba.client.meta archives/kenj-pc-2.meta archives/omnibus_v2.meta archives/omnibus_v3.meta archives/ok-mv-foo.meta archives/small.meta
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+lots of names for the same base names ...
+=== std out ===
+=== std err ===
+Scanning for components of archive "archives/all-ubuntu.22.04.0.xz"
+archives/all-ubuntu.22.04.index: start pass0 ... found 14 records
+archives/all-ubuntu.22.04.meta.xz: start pass0 ... found 12303 records
+archives/all-ubuntu.22.04.0.xz: start pass0 ... found 20 records
+archives/all-ubuntu.22.04: start pass1 (check temporal index)
+archives/all-ubuntu.22.04: start pass2
+archives/all-ubuntu.22.04: start pass3
+Processed 19 pmResult records
+archives/all-ubuntu.22.04.index: skip, already checked this archive
+archives/all-ubuntu.22.04.meta.xz: skip, already checked this archive
+Scanning for components of archive "archives/ok-mv-foo.0"
+archives/ok-mv-foo.index: start pass0 ... found 6 records
+archives/ok-mv-foo.meta: start pass0 ... found 12 records
+archives/ok-mv-foo.0: start pass0 ... found 5 records
+archives/ok-mv-foo.1: start pass0 ... found 4 records
+archives/ok-mv-foo.2: start pass0 ... found 3 records
+archives/ok-mv-foo: start pass1 (check temporal index)
+archives/ok-mv-foo: start pass2
+archives/ok-mv-foo: start pass3
+Processed 28 pmResult records
+archives/ok-mv-foo.1: skip, already checked this archive
+archives/ok-mv-foo.2: skip, already checked this archive
+archives/ok-mv-foo.index: skip, already checked this archive
+archives/ok-mv-foo.meta: skip, already checked this archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmlogcheck -w -v archives/all-ubuntu.22.04.0.xz archives/all-ubuntu.22.04.index archives/all-ubuntu.22.04.meta.xz archives/ok-mv-foo.0 archives/ok-mv-foo.1 archives/ok-mv-foo.2 archives/ok-mv-foo.index archives/ok-mv-foo.meta
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...

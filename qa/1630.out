@@ -1,5 +1,5 @@
 QA output created by 1630
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Instance Domain: 29.2
 Instance:	[100] "bin-100" -> [100] "100 [redacted]"
@@ -16,6 +16,8 @@ Metrics: sample.bin [sample.dupnames.two.bin sample.dupnames.three.bin sample.du
 Inst Changes:	<- InDom 29.2
 
 Instance Domains in the Log ...
+InDom: 2.1
+...
 InDom: 29.2
 TIMESTAMP 9 instances
    100 or "100 [redacted]"
@@ -47,7 +49,6 @@ TIMESTAMP 9 instances
    700 or "700 [redacted]"
    800 or "800 [redacted]"
    900 or "900 [redacted]"
-...
 
 TIMESTAMP 1 metric
     29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):

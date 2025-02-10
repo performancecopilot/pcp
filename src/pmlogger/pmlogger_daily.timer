@@ -1,5 +1,5 @@
 [Unit]
-Description=Daily processing of archive logs
+Description=Daily processing of archives
 
 [Timer]
 Persistent=true

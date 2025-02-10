@@ -1,0 +1,29 @@
+QA output created by 1482
+
+--- pmcd stopping ---
+--- pmcd stopped ---
+Checking for pmcd: stopped
+--- pmcd starting ---
+--- pmcd started ---
+Checking for pmcd: running
+
+--- pmlogger stopping ---
+--- pmlogger stopped ---
+Checking for pmlogger: stopped
+--- pmlogger starting ---
+--- pmlogger started ---
+Checking for pmlogger: running
+
+--- pmie stopping ---
+--- pmie stopped ---
+Checking for pmie: stopped
+--- pmie starting ---
+--- pmie started ---
+Checking for pmie: running
+
+--- pmproxy stopping ---
+--- pmproxy stopped ---
+Checking for pmproxy: stopped
+--- pmproxy starting ---
+--- pmproxy started ---
+Checking for pmproxy: running

@@ -1,0 +1,173 @@
+#!/bin/sh
+# PCP QA Test No. 1483
+# look for bad syslog entries
+#
+# Copyright (c) 2024 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+
+which journalctl >/dev/null 2>&1 || _notrun "no journalctl executable installed"
+[ "$PCPQA_SYSTEMD" = no ] && _notrun "we're not using systemd here, so journalctl not useful"
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# cull expected lines from journalctl
+#
+_filter()
+{
+    # the first block are lines that are OK for any service,
+    # then the case ... esac deals with the per-service
+    # culling
+    #
+    # and there is some undiagnosed issue when QA is running that
+    # dinks with /var/log/pcp/NOTICES ... triage has failed and
+    # the file always ends up with the correct permissions after
+    # QA is done
+    #
+    sed \
+	-e '/^-- Boot .* --$/d' \
+	-e '/^-- Reboot --$/d' \
+	-e '/^-- No entries --$/d' \
+	-e '/^-- Journal begins at /d' \
+	-e '/^-- Logs begin at /d' \
+	-e '/: End: /d' \
+	-e '/error while loading shared libraries: libpcp/d' \
+	-e '/rc\[[0-9]*]: .*pmpost:.* cannot open .*NOTICES/d' \
+	-e '/rc\[[0-9]*]: .*pmpost: unposted message:/d' \
+    | case "$1"
+    in
+
+	pmcd)
+	    sed \
+		-e '/ Installing .* PMDA /d' \
+		-e '/ Removing .* PMDA /d' \
+		-e '/ Rebuilding PMNS /d' \
+		-e '/pmcd\[[0-9]*]: .* pmdaopenmetrics([0-9]*) Info:/d' \
+		-e '/pmcd\[[0-9]*]: \.*$/d' \
+		-e '/pmcd\[[0-9]*]: .*\.\.done$/d' \
+		-e '/pmcd\[[0-9]*]: Terminated$/d' \
+		-e '/root\[[0-9]*]: pmcd_wait failed in /d' \
+		-e '/pmcd\[[0-9]*]: _pmda_setup: Interrupted!/d' \
+		-e '/pmcd\[[0-9]*]: _pmda_setup_cleanup: reset \.NeedInstall/d' \
+	    #end
+	    ;;
+
+	pmie*)
+	    # cull regular pmie rule firing ....
+	    # ... pcp-pmie[3330341]: Severe ...
+	    # and these lines from qa/115
+	    # ... rc[24566]: /etc/init.d/rc:
+	    # ... rc[24566]: Error: PCP inference engine control file $PCP_PMIECONTROL_PATH ("/etc/pcp/pmie/control")
+	    # ... rc[24566]:        is missing!  Cannot start any Performance Co-Pilot inference engine(s).
+	    # ... rc[96813]: /etc/pcp/pmie/rc: Warning: Performance Co-Pilot Inference Engine (pmie) not permanently enabled.
+	    # ... rc[96813]:     To enable pmie, run the following as root:
+	    # ... rc[96813]:     # /bin/systemctl enable pmie.service
+	    # and qa/575 seems capable of tripping this one
+	    # ... pmie_farm[3016551]: End:
+	    # and pmie_check will fail during PCP builds
+	    # and this strange one but only on vm03
+	    # ... vm03.localdomain pmiectl[1013253]: mount: write error
+	    #
+	    sed \
+		-e '/ pcp-pmie\[/d' \
+		-e '/rc\[[0-9]*]: .*\/rc:$/d' \
+		-e '/rc\[[0-9]*]: Error: .* \$PCP_PMIECONTROL_PATH/d' \
+		-e '/rc\[[0-9]*]: .*is missing!/d' \
+		-e '/rc\[[0-9]*]: .*not permanently enabled\./d' \
+		-e '/rc\[[0-9]*]: .*run the following as root:/d' \
+		-e '/rc\[[0-9]*]: .*systemctl enable pmie\.service/d' \
+		-e '/rc\[[0-9]*]: Terminated$/d' \
+		-e '/pmie_farm\[[0-9]*]: End:/d' \
+		-e '/pmie_check failed - see .*\/pmie_check.log/d' \
+		-e '/pmie_daily failed - see .*\/pmie_daily.log/d' \
+		-e '/pmiectl\[[0-9]*]: .* (localhost) defined multiple times,/d' \
+		-e '/ pmiectl\[[0-9]*]: mount: write error/d' \
+	    # end
+	    ;;
+
+	pmlogger*)
+	    # sudo babble
+	    # and pmlogger_check will fail during PCP builds
+	    # and pmlogger_daily will fail during PCP builds
+	    # and qa/1210 and qa/1213
+	    # and this strange one but only on bozo and vm03
+	    # ... bozo.localdomain pmlogctl[1013253]: mount: write error
+	    # and fallout from qa/1213 if pmlogger_farm_check goes off
+	    # concurrently
+	    #
+	    sed \
+		-e '/sudo\[[0-9]*]: /d' \
+		-e '/pmlogger_check failed - see .*\/pmlogger_check.log/d' \
+		-e '/pmlogger_daily failed - see .*\/pmlogger_daily.log/d' \
+		-e '/pmlogger_daily failed - see .*\/pmlogger_daily-K.log/d' \
+		-e '/pmlogctl\[[0-9]*]: .* failed to start for host no\.such\.host\.pcp\.io/d' \
+		-e '/pmlogctl\[[0-9]*]: .* is another pmlogctl job running concurrently?/d' \
+		-e '/pmlogctl\[[0-9]*]: .*\/pmlogger\/lock$/d' \
+		-e '/pmlogctl\[[0-9]*]: .* failed to acquire exclusive lock/d' \
+		-e '/pmlogctl\[[0-9]*]: Terminated$/d' \
+		-e '/ pmlogctl\[[0-9]*]: mount: write error/d' \
+		-e '/vm03 pmlogctl\[[0-9]*]: mount: write error/d' \
+		-e '/pmlogctl\[[0-9]*]: .* (localhost) defined multiple times,/d' \
+		-e '/rc\[[0-9]*]: Terminated$/d' \
+		-e '/rc\[[0-9]*]: .*not permanently enabled\./d' \
+		-e '/rc\[[0-9]*]: .*run the following as root:/d' \
+		-e '/rc\[[0-9]*]: .*systemctl enable pmlogger\.service/d' \
+		-e '/rc\[[0-9]*]: .*\/pmsignal: .* No such process/d' \
+	    # end
+	    ;;
+
+	*)
+	    cat
+	    ;;
+    esac
+}
+
+# real QA test starts here
+
+for svc in \
+    pmcd pmfind pmie pmie_check pmie_daily pmie_farm pmie_farm_check \
+    pmlogger pmlogger_check pmlogger_daily pmlogger_farm pmlogger_farm_check \
+    pmproxy
+do
+    echo
+    echo "=== $svc ==="
+    # want entries for the past 24 hours, but note we need "backwards"
+    # MM-DD USA date format
+    #
+    $sudo journalctl --no-pager --since="`pmdate -1d '%Y-%m-%d %H:%M:%S'`" _SYSTEMD_UNIT=$svc.service 2>&1 \
+    | _filter $svc
+done
+
+# additional diagnositics for stuff we don't understand!
+#
+# on ubuntu1804-container in CI
+# Mar 04 19:39:45 cd959fdf2242 pmcd[1179757]: /usr/lib/pcp/bin/pcp-reboot-init: 44: [: -ne: unexpected operator
+#
+which id >>$seq_full 2>&1
+id -u >>$seq_full 2>&1
+$sudo id -u >>$seq_full 2>&1
+
+# success, all done
+exit

@@ -10,13 +10,29 @@ echo "QA output created by $seq"
 
 . ./common.bpf
 
+physmem=`pmprobe -v hinv.physmem | $PCP_AWK_PROG '{print $3}'`
+if [ -z "$physmem" ]
+then
+    pminfo -f hinv.physmem
+    _notrun "No values for hinv.physmem?"
+elif [ "$physmem" -gt 4000 ]
+then
+    _notrun "Physical memory too large ($physmem)"
+fi
+
 _pmdabpf_check
 _pmdabpf_require_kernel_version 5 0
 _pmdabpf_require_libbpf_version 1 0
 
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
-$sudo rm -rf $tmp.* $seq.full
+
+cat <<EOF >$tmp.conf
+# Installed by PCP QA test $seq on `date`
+[oomkill.so]
+enabled=true
+EOF
+_pmdabpf_tryload $tmp.conf
 
 _cleanup()
 {
@@ -28,47 +44,43 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 _stop_auto_restart pmcd
 
 # real QA test starts here
-cat <<EOF | _pmdabpf_install
-# Installed by PCP QA test $seq on `date`
-[oomkill.so]
-enabled=true
-EOF
+_pmdabpf_install $tmp.conf
 _pmdabpf_wait_for_metric
 
 # Generate system activity for the CO-RE oomkill module
-$sudo systemd-run \
-    --wait \
-    --pipe \
-    --no-ask-password \
-    --uid=pcpqa --gid=pcpqa \
-    -p MemoryLimit=10M \
-    perl -e 'while (1) { $a .= "A" x 1024 }' >$tmp.oom.log 2>&1
+# ... this simple recipe comes from
+# https://askubuntu.com/questions/301057/testing-my-system-i-need-a-script-that-will-use-as-much-ram-and-swap-as-possibl/823798#comment1507361_823798
+# and is much more reliable than the former perl+ulimit solution
+# we were using here
+#
+tail /dev/zero >$tmp.oom.log 2>&1 &
+wait 2>>$seq_full
 
 echo "=== report metric values for fcomm ==="
-pminfo -dfmtT bpf.oomkill.fcomm 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bpf.oomkill.fcomm 2>&1 | tee -a $seq_full \
 | _value_filter_any
 
 echo "=== report metric values for fpid ==="
-pminfo -dfmtT bpf.oomkill.fpid 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bpf.oomkill.fpid 2>&1 | tee -a $seq_full \
 | _value_filter_nonzero
 
 echo "=== report metric values for tcomm ==="
-pminfo -dfmtT bpf.oomkill.tcomm 2>&1 | tee -a $here/$seq.full \
-| _value_filter_exact '"perl"'
+pminfo -dfmtT bpf.oomkill.tcomm 2>&1 | tee -a $seq_full \
+| _value_filter_exact '"tail"'
 
 echo "=== report metric values for tpid ==="
-pminfo -dfmtT bpf.oomkill.tpid 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bpf.oomkill.tpid 2>&1 | tee -a $seq_full \
 | _value_filter_nonzero
 
 echo "=== report metric values for pages ==="
-pminfo -dfmtT bpf.oomkill.pages 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bpf.oomkill.pages 2>&1 | tee -a $seq_full \
 | _value_filter_nonzero
 
 _pmdabpf_remove
 
-echo >>$here/$seq.full
-echo "=== oom log ===" >>$here/$seq.full
-cat $tmp.oom.log >>$here/$seq.full
+echo >>$seq_full
+echo "=== oom log ===" >>$seq_full
+cat $tmp.oom.log >>$seq_full
 
 
 status=0

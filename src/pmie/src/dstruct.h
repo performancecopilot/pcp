@@ -107,6 +107,7 @@ typedef struct expr {
     struct expr	    *arg1;	/* NULL || (Expr *) */
     struct expr     *arg2;	/* NULL || (Expr *) */
     struct expr	    *parent;	/* parent of this Expr */
+    void            *auxdata;	/* auxiliary data, if any */
 
     /* evaluator */
     Eval	    *eval;	/* evaluator function */

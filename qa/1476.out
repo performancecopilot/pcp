@@ -1,0 +1,35 @@
+QA output created by 1476
+=== no change ===
+=== std out ===
+=== std err ===
+Done, no rewriting required
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmlogrewrite -c PCP_VAR_DIR/config/pmlogrewrite -Dappl0,appl3 -q -i TMP
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+=== one type change ===
+
+sample.load
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+=== std out ===
+PCP Archive Rewrite Specifications Summary
+
+Metric: sample.load (29.0.4)
+Semantics:	instant -> discrete
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmlogrewrite -c TMP.config -v -q -i TMP
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+sample.load
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none

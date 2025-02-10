@@ -14,14 +14,17 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-_check_redis_server
 [ -d $PCP_PMDAS_DIR/redis ] || _notrun "Redis PMDA is not installed"
+which redis-server >/dev/null 2>&1 || _notrun "No redis-server binary found"
+redis_port=6379
+$PCP_BINADM_DIR/telnet-probe -c localhost $redis_port \
+        || _notrun "Noone home on default Redis port $redis_port"
 
 _cleanup()
 {
     if [ $reinstall -eq 1 ]; then
 	cd $PCP_PMDAS_DIR/redis
-	sudo ./Install >/dev/null 2>&1
+	$sudo ./Install >/dev/null 2>&1
 	reinstall=0
     fi
     cd $here
@@ -30,7 +33,6 @@ _cleanup()
 
 status=0	# success is the default!
 reinstall=0
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _filter()
@@ -56,22 +58,29 @@ EOF
 cd $PCP_PMDAS_DIR/redis
 pmprobe -v redis | grep -q 'Unknown metric name' 2>&1
 if [ $? -ne 0 ]; then
-    sudo ./Remove >/dev/null 2>&1
-    need_install=1
+    $sudo ./Remove >/dev/null 2>&1
+    reinstall=1
 fi
 
 echo; echo == create initial config
 pmlogconf -c -q -d $tmp.path $tmp.conf </dev/null | _filter 2>&1
 
-echo; echo == update config with redis metrics
-sudo ./Install >/dev/null 2>&1
+echo; echo == update config with redis metrics | tee -a $seq_full
+$sudo ./Install >>$seq_full 2>&1
+numval=`pmprobe -v redis.process_id | tee -a $seq_full | $PCP_AWK_PROG '{ print $2 }'`
+if [ -z "$numval" -o "$numval" -lt 0 ]; then
+    echo "Botch: redis PMDA install failed"
+    pminfo -f redis.process_id
+    status=1
+    exit
+fi
 pmlogconf -r -c -q -d $tmp.path $tmp.conf </dev/null | _filter 2>&1
 
 echo; echo == verify no subsequent change
 pmlogconf -r -c -q -d $tmp.path $tmp.conf </dev/null | _filter 2>&1
 
-echo; echo == update config without redis metrics
-sudo ./Remove >/dev/null 2>&1
+echo; echo == update config without redis metrics | tee -a $seq_full
+$sudo ./Remove >>$seq_full 2>&1
 pmlogconf -r -c -q -d $tmp.path $tmp.conf </dev/null | _filter 2>&1
 
 echo; echo == verify no subsequent change

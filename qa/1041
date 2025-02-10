@@ -33,10 +33,13 @@ $python -c "import libvirt" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python libvirt module not installed"
 $python -c "import lxml" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python lxml module not installed"
+
+# start libvirtd
+#
+if ! _service libvirtd start >$seq_full 2>&1; then _exit 1; fi
 [ -e /var/run/libvirt/libvirt-sock-ro ] || _notrun "no socket, libvirtd not running?"
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 
 pmdalibvirt_remove()
 {
@@ -54,12 +57,11 @@ pmdalibvirt_install()
 
     cat <<EOF >$tmp.config
 [pmda]
-#oldapi = False
 user = root
 uri = qemu:///system
 EOF
-    echo "pmdalibvirt config:" >> $here/$seq.full
-    cat $tmp.config >> $here/$seq.full
+    echo "pmdalibvirt config:" >> $seq_full
+    cat $tmp.config >> $seq_full
 
     [ -f $PCP_PMDAS_DIR/libvirt/libvirt.conf ] && \
     $sudo cp $PCP_PMDAS_DIR/libvirt/libvirt.conf $tmp.backup
@@ -69,7 +71,7 @@ EOF
     echo "=== libvirt agent installation ==="
     export PCPQA_CHECK_DELAY=10
     $sudo ./Install </dev/null >$tmp.out 2>&1
-    cat $tmp.out >>$here/$seq.full
+    cat $tmp.out >>$seq_full
     # Check metrics have appeared ... X metrics and Y values
     # skip lines like ...
     # [Fri Mar 29 21:09:33] pmdalibvirt(21564) Error: pmdaCacheOp: $PCP_VAR_DIR/config/pmda/140.0: empty file?
@@ -77,12 +79,26 @@ EOF
     | sed \
         -e '/^Waiting for pmcd/s/\.\.\.[. ]*$/DOTS/' \
 	-e "\\;Error: pmdaCacheOp: \$PCP_VAR_DIR/config/pmda/.*: empty file?;d" \
+    | tee $tmp.tmp \
     | $PCP_AWK_PROG '
 /warnings,/                            { print; next }
 /Check libvirt metrics have appeared/  { if ($7 >= 120) $7 = "X"
                                          if ($10 >= 4) $10 = "Y"
                                        }
                                        { print }'
+    # the PMDA install sometimes reports all the metrics as warnings
+    # and/or no values ... dig a bit deeper when this happens
+    #
+    if grep -E 'warnings,|and 0 values' $tmp.tmp >/dev/null
+    then
+	echo "Arrgh: Install failed, see $seq_full"
+	pminfo -f pmcd.agent.status >>$seq_full
+	pminfo -f libvirt >>$seq_full
+	echo "--- pmcd.log ---" >>$seq_full
+	cat $PCP_LOG_DIR/pmcd/pmcd.log >>$seq_full
+	echo "--- libvirt.log ---" >>$seq_full
+	cat $PCP_LOG_DIR/pmcd/libvirt.log >>$seq_full
+    fi
 }
 
 pmdalibvirt_cleanup()
@@ -95,6 +111,7 @@ pmdalibvirt_cleanup()
     fi
     # note: _restore_auto_restart pmcd done in _cleanup_pmda()
     _cleanup_pmda libvirt
+    [ -n "$timeout" ] && pmstore pmcd.control.timeout $timeout >>$seq_full 2>&1
 }
 
 _prepare_pmda libvirt
@@ -109,14 +126,20 @@ _filter()
     #end
 }
 
+# increase pmcd-PMDA timeout because this one is sometimes slow to
+# get going
+#
+timeout=`pmprobe -v pmcd.control.timeout | $PCP_AWK_PROG '{ print $3 }'`
+pmstore pmcd.control.timeout 20 >>$seq_full 2>&1
+
 # real QA test starts here
 pmdalibvirt_install
 
 echo
 echo "=== verify metric values ==="
-echo "from pminfo:" >>$here/$seq.full
+echo "from pminfo:" >>$seq_full
 pminfo -v libvirt 2>&1 \
-| tee -a $here/$seq.full \
+| tee -a $seq_full \
 | _filter
 
 pmdalibvirt_remove 2>&1 \

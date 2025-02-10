@@ -171,12 +171,12 @@ char *QmcTime::packetStr(QmcTime::Packet *packet)
     const char	*q;
 
     if (packet-> magic == Magic)
-	sprintf(p, "magic: TIME");
+	pmsprintf(buffer, 1024, "magic: TIME");
     else
-	sprintf(p, "magic: %d?", packet->magic);
+	pmsprintf(buffer, 1024, "magic: %d?", packet->magic);
     while (*p) p++;
 
-    sprintf(p, " length: %u", packet->length);
+    pmsprintf(p, 1024 - (p - buffer), " length: %u", packet->length);
     while (*p) p++;
 
     q = NULL;
@@ -210,9 +210,9 @@ char *QmcTime::packetStr(QmcTime::Packet *packet)
 	    break;
     }
     if (q == NULL)
-	sprintf(p, " command: %d bogus?", packet->command);
+	pmsprintf(p, 1024 - (p - buffer), " command: %d bogus?", packet->command);
     else
-	sprintf(p, " command: %s", q);
+	pmsprintf(p, 1024 - (p - buffer), " command: %s", q);
     while (*p) p++;
 
     q = NULL;
@@ -228,9 +228,9 @@ char *QmcTime::packetStr(QmcTime::Packet *packet)
 	    break;
     }
     if (q == NULL)
-	sprintf(p, " source: %d bogus?", packet->source);
+	pmsprintf(p, 1024 - (p - buffer), " source: %d bogus?", packet->source);
     else
-	sprintf(p, " source: %s", q);
+	pmsprintf(p, 1024 - (p - buffer), " source: %s", q);
     while (*p) p++;
 
     q = NULL;
@@ -246,9 +246,9 @@ char *QmcTime::packetStr(QmcTime::Packet *packet)
 	    break;
     }
     if (q == NULL)
-	sprintf(p, " state: %d bogus?", packet->state);
+	pmsprintf(p, 1024 - (p - buffer), " state: %d bogus?", packet->state);
     else
-	sprintf(p, " state: %s", q);
+	pmsprintf(p, 1024 - (p - buffer), " state: %s", q);
     while (*p) p++;
 
     q = NULL;
@@ -264,21 +264,21 @@ char *QmcTime::packetStr(QmcTime::Packet *packet)
 	    break;
     }
     if (q == NULL)
-	sprintf(p, " mode: %d bogus?", packet->mode);
+	pmsprintf(p, 1024 - (p - buffer), " mode: %d bogus?", packet->mode);
     else
-	sprintf(p, " mode: %s", q);
+	pmsprintf(p, 1024 - (p - buffer), " mode: %s", q);
     while (*p) p++;
 
-    sprintf(p, " delta: %ld.%06ld", (long)packet->delta.tv_sec, (long)packet->delta.tv_usec);
+    pmsprintf(p, 1024 - (p - buffer), " delta: %ld.%06ld", (long)packet->delta.tv_sec, (long)packet->delta.tv_usec);
     while (*p) p++;
 
-    sprintf(p, " position: %ld.%06ld", (long)packet->position.tv_sec, (long)packet->position.tv_usec);
+    pmsprintf(p, 1024 - (p - buffer), " position: %ld.%06ld", (long)packet->position.tv_sec, (long)packet->position.tv_usec);
     while (*p) p++;
 
-    sprintf(p, " start: %ld.%06ld", (long)packet->start.tv_sec, (long)packet->start.tv_usec);
+    pmsprintf(p, 1024 - (p - buffer), " start: %ld.%06ld", (long)packet->start.tv_sec, (long)packet->start.tv_usec);
     while (*p) p++;
 
-    sprintf(p, " data[]: %d bytes", (int)(sizeof(QmcTime::Packet) - packet->length));
+    pmsprintf(p, 1024 - (p - buffer), " data[]: %d bytes", (int)(sizeof(QmcTime::Packet) - packet->length));
     while (*p) p++;
 
     return buffer;

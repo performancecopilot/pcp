@@ -1,4 +1,6 @@
-/* src/include/pcp/config.h.in.  Generated from configure.ac by autoheader.  */
+/*
+ * This file is used by configure to create src/include/pcp/config.h
+ */
 
 /* Define to 1 if `TIOCGWINSZ' requires <sys/ioctl.h>. */
 #undef GWINSZ_IN_SYS_IOCTL
@@ -166,6 +168,9 @@
 /* Define to 1 if you have the `getpwuid_r' function. */
 #undef HAVE_GETPWUID_R
 
+/* Define to 1 if you have the `getresuid' function. */
+#undef HAVE_GETRESUID
+
 /* Define to 1 if you have the `getrusage' function. */
 #undef HAVE_GETRUSAGE
 
@@ -289,6 +294,15 @@
 /* Define to 1 if you have the <ncursesw/curses.h> header file. */
 #undef HAVE_NCURSESW_CURSES_H
 
+/* Define to 1 if you have the <ncursesw/term.h> header file. */
+#undef HAVE_NCURSESW_TERM_H
+
+/* Define to 1 if you have the <ncurses/term.h> header file. */
+#undef HAVE_NCURSES_TERM_H
+
+/* Define to 1 if you have the <term.h> header file. */
+#undef HAVE_TERM_H
+
 /* Define to 1 if you have the <ndir.h> header file, and it defines `DIR'. */
 #undef HAVE_NDIR_H
 
@@ -324,6 +338,9 @@
 
 /* Define to 1 if you have the `pipe2' function. */
 #undef HAVE_PIPE2
+
+/* Define to 1 if you have the `closefrom' function. */
+#undef HAVE_CLOSEFROM
 
 /* pma_query_via API */
 #undef HAVE_PMA_QUERY_VIA
@@ -648,10 +665,6 @@
 /* Define to 1 if you have the `vprintf' function. */
 #undef HAVE_VPRINTF
 
-/* Define to 1 if you have the `wait3' system call. Deprecated, you should no
-   longer depend upon `wait3'. */
-#undef HAVE_WAIT3
-
 /* Define to 1 if you have the `waitpid' function. */
 #undef HAVE_WAITPID
 
@@ -718,32 +731,11 @@
 /* Platform is Solaris */
 #undef IS_SOLARIS
 
-/* Define to the address where bug reports for this package should be sent. */
-#undef PACKAGE_BUGREPORT
-
-/* Define to the full name of this package. */
-#undef PACKAGE_NAME
-
-/* Define to the full name and version of this package. */
-#undef PACKAGE_STRING
-
-/* Define to the one symbol short name of this package. */
-#undef PACKAGE_TARNAME
-
-/* Define to the home page for this package. */
-#undef PACKAGE_URL
-
-/* Define to the version of this package. */
-#undef PACKAGE_VERSION
-
 /* Define as the return type of signal handlers (`int' or `void'). */
 #undef RETSIGTYPE
 
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS
-
-/* Define to 1 if you can safely include both <sys/time.h> and <time.h>. */
-#undef TIME_WITH_SYS_TIME
 
 /* Define to 1 if your <sys/time.h> declares `struct tm'. */
 #undef TM_IN_SYS_TIME
@@ -799,3 +791,19 @@
 #undef HAVE___ETEXT
 #undef HAVE__ETEXT
 #undef HAVE_ETEXT
+
+/* sizeof suseconds_t ... only ever going to exist on linux-like systems */
+#undef PM_SIZEOF_SUSECONDS_T
+
+/* sizeof time_t */
+#undef PM_SIZEOF_TIME_T
+
+#ifndef PM_SIZEOF_TIME_T
+#error Unknown time_t size
+#endif
+
+/* __pmResult padding */
+#undef PM_PAD_RESULT
+
+/* timespec padding */
+#undef PM_PAD_TIMESPEC

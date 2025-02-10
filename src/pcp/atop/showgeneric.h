@@ -61,7 +61,7 @@ struct pselection {
 	int	argnamesz;
 	regex_t	argregex;
 
-	char 	container[16];
+	char 	utsname[UTSLEN+1];
 
 	char 	states[16];
 };
@@ -146,6 +146,7 @@ struct sselection {
 
 #define COLORMEMFREE    WHITE_GREEN
 #define COLORMEMCACH    WHITE_ORANGE
+#define COLORMEMHUGE    WHITE_BLUE5
 #define COLORMEMUSED    WHITE_GREY
 #define COLORMEMSHM     WHITE_BROWN1
 #define COLORMEMTMP     WHITE_BLUE

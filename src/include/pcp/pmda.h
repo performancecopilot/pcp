@@ -729,6 +729,7 @@ PMDA_CALL extern int pmdaCacheResize(pmInDom, int);
 #define PMDA_CACHE_SYNC			18
 #define PMDA_CACHE_DUMP			19
 #define PMDA_CACHE_DUMP_ALL		20
+#define PMDA_CACHE_WRITE		21
 
 /*
  * Internal libpcp_pmda routines.

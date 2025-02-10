@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2021 Red Hat.
+.\" Copyright (c) 2021,2023 Red Hat.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -101,12 +101,12 @@ Note the literal \fB@\fP prefix is required for an absolute time, see
 .BR PCPIntro (1)
 for details.
 The archive must of course contain data for the requested time. You can use
-\fBpmdumplog \-l\fP \fIsomearchive\fP to examine the time bounds of \fIsomearchive\fP.
+\fBpmlogdump \-l\fP \fIsomearchive\fP to examine the time bounds of \fIsomearchive\fP.
 .TP 5
 \fBpcp \-a \fIsomearchive\fP \fB\-O\-0\fP ss \-noemitauO\fP
 As above, but with an offset of zero seconds (\fB\-O\-0\fP) before the current end of
 \fIsomearchive\fP, i.e. the most recently logged data. Note that \fIsomearchive\fP
-may be curently growing (i.e. being logged with
+may be currently growing (i.e. being logged with
 .BR pmlogger (1)).
 .SH OPTIONS
 Due to the large number of options supported by
@@ -146,7 +146,7 @@ In archive mode, use the timezone of the archive rather than the
 timezone on the local machine running
 .BR pcp-ss .
 The timezone, start and finish times of the archive may be examined using
-.BR pmdumplog (1)
+.BR pmlogdump (1)
 with the \fB\-L\fP option.
 .PP
 The above
@@ -168,10 +168,10 @@ show help message and exit
 output version information
 .TP 5
 \fB\-n\fP, \fB\-\-numeric\fP
-don't resolve service names
-.TP 5
-\fB\-r\fP, \fB\-\-resolve\fP
-resolve host names
+don't resolve service names (currently always set)
+'\" .TP 5
+'\" \fB\-r\fP, \fB\-\-resolve\fP
+'\" resolve host names (not yet implemented)
 .TP 5
 \fB\-a\fP, \fB\-\-all\fP
 display all sockets
@@ -187,60 +187,60 @@ show detailed socket information
 .TP 5
 \fB\-m\fP, \fB\-\-memory\fP
 show socket memory usage
-.TP 5
-\fB\-p\fP, \fB\-\-processes\fP
-show process using socket
+'\" .TP 5
+'\" \fB\-p\fP, \fB\-\-processes\fP
+'\" show process using socket
 .TP 5
 \fB\-i\fP, \fB\-\-info\fP
 show internal TCP information
-.TP 5
-\fB\-s\fP, \fB\-\-summary\fP
-show socket usage summary
-.TP 5
-\fB\-b\fP, \fB\-\-bpf\fP
-show bpf filter socket information
-.TP 5
-\fB\-E\fP, \fB\-\-events\fP
-continually display sockets as they are destroyed
-.TP 5
-\fB\-Z\fP, \fB\-\-context\fP
-display process SELinux security contexts
-.TP 5
-\fB\-z\fP, \fB\-\-contexts\fP
-display process and socket SELinux security contexts
-.TP 5
-\fB\-N\fP, \fB\-\-net\fP
-switch to the specified network namespace name
+'\" .TP 5
+'\" \fB\-s\fP, \fB\-\-summary\fP
+'\" show socket usage summary
+'\" .TP 5
+'\" \fB\-b\fP, \fB\-\-bpf\fP
+'\" show bpf filter socket information
+'\" .TP 5
+'\" \fB\-E\fP, \fB\-\-events\fP
+'\" continually display sockets as they are destroyed
+'\" .TP 5
+'\" \fB\-Z\fP, \fB\-\-context\fP
+'\" display process SELinux security contexts
+'\" .TP 5
+'\" \fB\-z\fP, \fB\-\-contexts\fP
+'\" display process and socket SELinux security contexts
+'\" .TP 5
+'\" \fB\-N\fP, \fB\-\-net\fP
+'\" switch to the specified network namespace name
 .TP 5
 \fB\-4\fP, \fB\-\-ipv4\fP
 display only IP version 4 sockets
 .TP 5
 \fB\-6\fP, \fB\-\-ipv6\fP
 display only IP version 6 sockets
-.TP 5
-\fB\-0\fP, \fB\-\-packet\fP
-display PACKET sockets
+'\" .TP 5
+'\" \fB\-0\fP, \fB\-\-packet\fP
+'\" display PACKET sockets
 .TP 5
 \fB\-t\fP, \fB\-\-tcp\fP
 display only TCP sockets
-.TP 5
-\fB\-M\fP, \fB\-\-mptcp\fP
-display only MPTCP sockets
-.TP 5
-\fB\-S\fP, \fB\-\-sctp\fP
-display only SCTP sockets
+'\" .TP 5
+'\" \fB\-M\fP, \fB\-\-mptcp\fP
+'\" display only MPTCP sockets
+'\" .TP 5
+'\" \fB\-S\fP, \fB\-\-sctp\fP
+'\" display only SCTP sockets
 .TP 5
 \fB\-u\fP, \fB\-\-udp\fP
 display only UDP sockets
-.TP 5
-\fB\-d\fP, \fB\-\-dccp\fP
-display only DCCP sockets
-.TP 5
-\fB\-w\fP, \fB\-\-raw\fP
-display only RAW sockets
-.TP 5
-\fB\-x\fP, \fB\-\-unix\fP
-display only Unix domain sockets
+'\" .TP 5
+'\" \fB\-d\fP, \fB\-\-dccp\fP
+'\" display only DCCP sockets
+'\" .TP 5
+'\" \fB\-w\fP, \fB\-\-raw\fP
+'\" display only RAW sockets
+'\" .TP 5
+'\" \fB\-x\fP, \fB\-\-unix\fP
+'\" display only Unix domain sockets
 .TP 5
 \fB\-H\fP, \fB\-\-noheader\fP
 Suppress header line
@@ -305,3 +305,7 @@ For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
 .BR pcp.conf (5)
 and
 .BR ss (8).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ somearchive commandline TIME_WAIT persocket
+.\" +ok+ noemitauO {from command line option} somehost ESTAB Netid Recv Jun

@@ -27,11 +27,11 @@ system is described in detail at
 .SH INSTALLATION
 Configure \fBpmdamemcache\fR to extract the values from set of hosts
 used in the memcache farm.  These hosts can be listed in the
-\&\f(CW$PCP_PMDAS_DIR\fR/memcache/memcache.conf file, in the format (i.e.
+\&\f(CR$PCP_PMDAS_DIR\fR/memcache/memcache.conf file, in the format (i.e.
 Perl array) described at the top of pmdamemcache.pl.  A custom
 refresh rate can also be configured using this mechanism.
 .PP
-.ft CW
+.ft CR
 .nf
 .in +0.5i
 # cd $PCP_PMDAS_DIR/memcache
@@ -43,7 +43,7 @@ refresh rate can also be configured using this mechanism.
 Once this is setup, you can access the names and values for the
 memcache performance metrics by doing the following as root:
 .PP
-.ft CW
+.ft CR
 .nf
 .in +0.5i
 # cd $PCP_PMDAS_DIR/memcache
@@ -54,7 +54,7 @@ memcache performance metrics by doing the following as root:
 .PP
 If you want to undo the installation, do the following as root:
 .PP
-.ft CW
+.ft CR
 .nf
 .in +0.5i
 # cd $PCP_PMDAS_DIR/memcache
@@ -85,3 +85,7 @@ configuration file, as described in \fIpcp.conf\fR(5).
 .BR PCPIntro (1)
 and
 .BR pmcd (1).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ pmdamemcache memcached memcache
+.\" +ok+ danga {from http://www.danga.com/memcached} pl {from pmdamemcache.pl}

@@ -12,7 +12,7 @@ PCP supports multiple deployment architectures, based on the scale of the PCP de
 Each of the available architectures is described below this table which provides guidance on which deployment architecture suits best based on the number of monitored hosts.
 
 +-------------+---------+------------+------------+---------------+-----------+-------------+
-| Number of   | pmcd    | pmlogger   | pmproxy    | Redis         | Redis     | Recommended |
+| Number of   | pmcd    | pmlogger   | pmproxy    | keyserver     | keyserver | Recommended |
 |             |         |            |            |               |           |             |
 | hosts (N)   | servers | servers    | servers    | servers       | cluster   | deployments |
 +=============+=========+============+============+===============+===========+=============+
@@ -34,9 +34,9 @@ Scaling beyond the individual node is not attempted and we are unable to make us
 B. Decentralized logging
 ------------------------
 
-With one configuration change to the localhost setup to centralize only the Redis service, we achieve a decentralized logging setup.
+With one configuration change to the localhost setup to centralize only the key server, we achieve a decentralized logging setup.
 In this model `pmlogger(1)`_ is run on each monitored host and retrieves metrics from a local `pmcd(1)`_ instance.
-A local `pmproxy(1)`_ daemon exports the performance metrics to a central `Redis`_ instance.
+A local `pmproxy(1)`_ daemon exports the performance metrics to a central key server.
 
 .. figure:: decentralized.svg
 
@@ -45,7 +45,7 @@ C. Centralized logging (pmlogger farm)
 
 In cases where the resource usage on the monitored hosts is constrained, another deployment option is a **pmlogger farm**.
 In this setup, a single logger host runs multiple `pmlogger(1)`_ processes, each configured to retrieve performance metrics from a different remote `pmcd(1)`_ host.
-The centralized logger host is also configured to run the `pmproxy(1)`_ daemon, which discovers the resulting PCP archives logs and loads the metric data into a `Redis`_ instance.
+The centralized logger host is also configured to run the `pmproxy(1)`_ daemon, which discovers the resulting PCP archives logs and loads the metric data into a key server.
 
 .. figure:: pmlogger-farm.svg
 
@@ -54,16 +54,16 @@ D. Federated setup (multiple pmlogger farms)
 
 For large scale deployments, we advise deploying multiple `pmlogger(1)`_ farms in a federated fashion.
 For example, one `pmlogger(1)`_ farm per rack or data center.
-Each pmlogger farm loads the metrics into a central `Redis`_ instance.
+Each pmlogger farm loads the metrics into a central key server.
 
 .. figure:: federated-pmlogger-farm.svg
 
-Redis deployment options
-------------------------
+Key server deployment options
+-----------------------------
 
-The default Redis deployment is standalone, localhost.
-However, Redis can optionally run in a highly-available and highly scalable *clustered* fashion, where data is sharded across multiple hosts (see `Redis Cluster <https://redis.io/topics/cluster-tutorial>`_ for more details).
-Another viable option is to deploy a Redis cluster in the cloud, or to utilize a managed Redis cluster from a cloud vendor.
+The default deployment is a standalone Valkey key server on the localhost.
+However, key servers can optionally run in a highly-available and highly scalable *clustered* fashion, where data is sharded across multiple hosts.
+Another option is to deploy a key server cluster in the cloud, or to utilize a managed cluster from a cloud vendor.
 
 .. note::
 
@@ -120,10 +120,10 @@ To control the logging interval, update the control file located at ``/etc/pcp/p
 To configure which metrics should be logged, run ``pmlogconf /var/lib/pcp/config/pmlogger/<configfile>``.
 To specify retention settings, i.e. when to purge old PCP archives, update the ``/etc/sysconfig/pmlogger_timers`` file and specify ``PMLOGGER_DAILY_PARAMS="-E -k X"``, where ``X`` is the amount of days to keep PCP archives.
 
-Redis
------
+Key Server
+----------
 
-The `pmproxy(1)`_ daemon sends logged metrics from `pmlogger(1)`_ to a Redis instance.
+The `pmproxy(1)`_ daemon sends logged metrics from `pmlogger(1)`_ to a key server such as `Valkey <https://valkey.io>`_.
 To update the logging interval or the logged metrics, see the section above.
 Two options are available to specify the retention settings in the pmproxy configuration file located at ``/etc/pcp/pmproxy/pmproxy.conf``:
 
@@ -139,13 +139,13 @@ Centralized logging (pmlogger farm)
 The following results were gathered on a :ref:`pmlogger farm<C. Centralized logging (pmlogger farm)>` deployment,
 with a default **pcp-zeroconf 5.3.2** installation (version 5.3.1-3 on RHEL), where each remote host is an identical container instance
 running `pmcd(1)`_ on a server with 64 CPU cores, 376 GB RAM and 1 disk attached (as mentioned above, 64 CPUs increases per-CPU metric volume).
-The Redis server is co-located on the same host as pmlogger and pmproxy, and ``proc`` metrics of remote nodes are *not* included.
+The key server is co-located on the same host as pmlogger and pmproxy, and ``proc`` metrics of remote nodes are *not* included.
 The memory values refer to the RSS (Resident Set Size) value.
 
 **10s logging interval:**
 
 +-----------+----------------+----------+------------------+---------+--------------+---------+-----------+-----------------+-------------+
-| Number of | PCP Archives   | pmlogger | pmlogger Network | pmproxy | Redis Memory | pmproxy | Disk IOPS | Disk Throughput | Disk        |
+| Number of | PCP Archives   | pmlogger | pmlogger Network | pmproxy | keys Memory  | pmproxy | Disk IOPS | Disk Throughput | Disk        |
 |           |                |          |                  |         |              |         |           |                 |             |
 | Hosts     | Storage p. Day | Memory   | per Day (In)     | Memory  | per Day      | CPU%    | (write)   | (write)         | Utilization |
 +===========+================+==========+==================+=========+==============+=========+===========+=================+=============+
@@ -157,7 +157,7 @@ The memory values refer to the RSS (Resident Set Size) value.
 **60s logging interval:**
 
 +-----------+----------------+----------+------------------+---------+--------------+
-| Number of | PCP Archives   | pmlogger | pmlogger Network | pmproxy | Redis Memory |
+| Number of | PCP Archives   | pmlogger | pmlogger Network | pmproxy | keys Memory  |
 |           |                |          |                  |         |              |
 | Hosts     | Storage p. Day | Memory   | per Day (In)     | Memory  | per Day      |
 +===========+================+==========+==================+=========+==============+
@@ -168,7 +168,7 @@ The memory values refer to the RSS (Resident Set Size) value.
 | 100       | 271 MB         | 1049 MB  | 3.48 MB          | 9 GB    | 5.3 GB       |
 +-----------+----------------+----------+------------------+---------+--------------+
 
-**Note:** pmproxy queues Redis requests and employs Redis pipelining to speed up Redis queries.
+**Note:** pmproxy queues key server requests and employs pipelining to speed up queries.
 This can result in bursts of high memory usage.
 There are plans to optimize memory usage in future versions of PCP (`#1341 <https://github.com/performancecopilot/pcp/issues/1341>`_).
 For further troubleshooting, please see the `High memory usage`_ section in the troubleshooting chapter.
@@ -179,19 +179,19 @@ Federated setup (multiple pmlogger farms)
 The following results were observed with a :ref:`federated setup<D. Federated setup (multiple pmlogger farms)>`
 consisting of three :ref:`pmlogger farms<C. Centralized logging (pmlogger farm)>`, where each pmlogger farm
 was monitoring 100 remote hosts, i.e. 300 hosts in total.
-The setup of the pmlogger farms was identical to the configuration above (60s logging interval), except that the Redis servers were operating in cluster mode.
+The setup of the pmlogger farms was identical to the configuration above (60s logging interval), except that the key servers were operating in cluster mode.
 
-+----------------+----------+-------------------+---------+--------------+
-| PCP Archives   | pmlogger | Network           | pmproxy | Redis Memory |
-|                |          |                   |         |              |
-| Storage p. Day | Memory   | per Day (In/Out)  | Memory  | per Day      |
-+================+==========+===================+=========+==============+
-| 277 MB         | 1058 MB  | 15.6 MB / 12.3 MB | 6-8 GB  | 5.5 GB       |
-+----------------+----------+-------------------+---------+--------------+
++----------------+----------+-------------------+---------+-------------+
+| PCP Archives   | pmlogger | Network           | pmproxy | keys Memory |
+|                |          |                   |         |             |
+| Storage p. Day | Memory   | per Day (In/Out)  | Memory  | per Day     |
++================+==========+===================+=========+=============+
+| 277 MB         | 1058 MB  | 15.6 MB / 12.3 MB | 6-8 GB  | 5.5 GB      |
++----------------+----------+-------------------+---------+-------------+
 
 **Note:** All values are per host.
 
-The network bandwidth is higher due to the inter-node communication of the Redis cluster.
+The network bandwidth is higher due to the inter-node communication of the key server cluster.
 
 Troubleshooting
 ***************
@@ -200,8 +200,8 @@ High memory usage
 -----------------
 
 To troubleshoot high memory usage, please run ``pmrep :pmproxy`` and observe the *inflight* column.
-This column shows how many Redis requests are in-flight, i.e. they are queued (or sent) and no reply was received so far.
-A high number indicates that a) the pmproxy process is busy processing new PCP archives and doesn't have spare CPU cycles to process Redis requests and responses or b) the Redis node (or cluster) is overloaded and cannot process incoming requests on time.
+This column shows how many key server requests are in-flight, i.e. they are queued (or sent) and no reply was received so far.
+A high number indicates that a) the pmproxy process is busy processing new PCP archives and doesn't have spare CPU cycles to process key server requests and responses or b) the key server (or cluster) is overloaded and cannot process incoming requests on time.
 
 .. note::
 

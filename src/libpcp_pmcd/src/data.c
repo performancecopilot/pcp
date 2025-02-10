@@ -23,20 +23,24 @@
 PMCD_DATA pid_t	pmcd_pid;		/* pmcd's pid */
 PMCD_DATA int	pmcd_seqnum = 1;	/* PMDA start/restart count */
 PMCD_DATA int	pmcd_hi_openfds = -1;   /* Highest open pmcd file descriptor */
-PMCD_DATA int	pmcd_done;		/* flag from pmcd pmda */
-PMCD_DATA int	pmcd_timeout = 5;	/* Timeout for hung agents */
+PMCD_DATA int	pmcd_done;		/* flag from pmcd PMDA */
+PMCD_DATA int	pmcd_timeout = 5;	/* Timeout for hung PMDA response */
+PMCD_DATA int	creds_timeout = 3;	/* Timeout initial PMDA credentials exchange */
 
-PMCD_DATA int	nAgents;		/* Number of active agents */
-PMCD_DATA AgentInfo *agent;		/* Array of agent info structs */
+PMCD_DATA int	nAgents;		/* Number of active PMDAs */
+PMCD_DATA AgentInfo *agent;		/* Array of PMDA info structs */
 
 PMCD_DATA char *pmcd_hostname;		/* Explicitly requested hostname */
 PMCD_DATA char *pmcd_labels;		/* Current set of context labels */
 
 PMCD_DATA unsigned pmcd_sighups;	/* Count of SIGHUPS responded to */
+PMCD_DATA unsigned maxinpdusize;	/* Max input PDU size (bytes) */
+PMCD_DATA unsigned maxmetrics = 32 * 1024;	/* Max number of PMIDs per pmFetch */
+PMCD_DATA unsigned maxctx = 64;		/* Max number of contexts per client */
 
 
 /*
- * Return a pointer to the agent that is responsible for the given domain.
+ * Return a pointer to the PMDA that is responsible for the given domain.
  */
 AgentInfo *
 pmcd_agent(int domain)

@@ -26,8 +26,6 @@ LFILES = lex.l
 YFILES = gram.y
 LDIRT = $(COMMAND) $(WRAPPER) $(XMLFILE) $(GENERATED) gram.h gram.c images
 
-MAN_PAGES = $(COMMAND).1 $(COMMAND).5
-
 SUBDIRS = front-ends
 
 default: build-me
@@ -66,9 +64,11 @@ $(WRAPPER): $(WRAPPER).IN
 $(XMLFILE): $(XMLFILE).in
 	$(SED) -e 's;PACKAGE_VERSION;$(PACKAGE_VERSION);g' < $< > $@
 
-# empty install target until porting is complete
-install: default
+install: default $(SUBDIRS)
+	$(SUBDIRS_MAKERULE)
+	$(INSTALL) -m 755 $(BINARY) $(PCP_BIN_DIR)/$(COMMAND)
 
+# skip this stuff for the moment
 futures: default
 	$(SUBDIRS_MAKERULE)
 ifeq ($(WINDOW),win)
@@ -107,6 +107,3 @@ images: $(ICNFILE)
 
 $(ICNFILE):
 	$(LN_S) $(TOPDIR)/images/$(ICNFILE) $(ICNFILE)
-
-check :: $(MAN_PAGES)
-	$(MANLINT) $^

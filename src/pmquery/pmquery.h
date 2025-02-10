@@ -37,7 +37,7 @@ class PmQuery : public QDialog
 {
     Q_OBJECT
 public:
-    PmQuery(bool inputflag, bool printflag, bool noframeflag,
+    PmQuery(QApplication&, bool inputflag, bool printflag, bool noframeflag,
 	    bool nosliderflag, bool usesliderflag, bool exclusiveflag);
     void setStatus(int status) { my.status = status; }
 

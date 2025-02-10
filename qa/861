@@ -18,7 +18,6 @@ pminfo pmcd.hostname >/dev/null || _notrun "No support for pmcd.hostname metric"
 
 signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _cleanup()
@@ -41,7 +40,7 @@ export PMCD_SOCKET=$tmp.pmcd.socket
 cat <<End-of-File >$tmp.conf
 pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.$DSO_SUFFIX
 End-of-File
-pmcd -H no.such.host.pcp.io -f -x $seq.full -l $tmp.log &
+pmcd -H no.such.host.pcp.io -f -x $seq_full -l $tmp.log &
 pid=$!
 pmcd_wait
 

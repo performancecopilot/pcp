@@ -213,7 +213,7 @@ writelabel(int do_rewind)
 	assert(old_offset >= 0);
 	__pmRewind(outarch.archctl.ac_mfp);
     }
-    outarch.logctl.label.vol = 0;
+    outarch.logctl.label.vol = outarch.archctl.ac_curvol;
     __pmLogWriteLabel(outarch.archctl.ac_mfp, &outarch.logctl.label);
     if (do_rewind)
 	__pmFseek(outarch.archctl.ac_mfp, (long)old_offset, SEEK_SET);
@@ -273,12 +273,8 @@ nextlog(void)
     return old_vol == acp->ac_curvol ? 0 : 1;
 }
 
-#ifdef IS_MINGW
-#define S_ISLINK(mode) 0	/* no symlink support */
-#else
-#ifndef S_ISLINK
-#define S_ISLINK(mode) ((mode & S_IFMT) == S_IFLNK)
-#endif
+#ifndef S_ISLNK
+#define S_ISLNK(mode) ((mode & S_IFMT) == S_IFLNK)
 #endif
 
 /*
@@ -303,7 +299,7 @@ parseargs(int argc, char *argv[])
 		opts.errors++;
 		break;
 	    }
-	    if (S_ISREG(sbuf.st_mode) || S_ISLINK(sbuf.st_mode)) {
+	    if (S_ISREG(sbuf.st_mode) || S_ISLNK(sbuf.st_mode)) {
 		if ((cp = (char **)realloc(conf, (nconf+1)*sizeof(conf[0]))) != NULL) {
 		    conf = cp;
 		    conf[nconf++] = opts.optarg;
@@ -326,7 +322,7 @@ parseargs(int argc, char *argv[])
 			pmprintf("%s: %s: %s\n", pmGetProgname(), path, osstrerror());
 			opts.errors++;
 		    }
-		    else if (S_ISREG(sbuf.st_mode) || S_ISLINK(sbuf.st_mode)) {
+		    else if (S_ISREG(sbuf.st_mode) || S_ISLNK(sbuf.st_mode)) {
 			if ((cp = (char **)realloc(conf, (nconf+1)*sizeof(conf[0]))) == NULL)
 			    break;
 			conf = cp;
@@ -527,7 +523,7 @@ reportconfig(void)
     int			change = 0;
     char		buf[64];
 
-    printf("PCP Archive Log Rewrite Specifications Summary\n");
+    printf("PCP Archive Rewrite Specifications Summary\n");
     change |= (global.flags != 0);
     // TODO WARN about no-ops for changes to V3 label fields in V2 output?
     if (global.flags & GLOBAL_CHANGE_HOSTNAME)
@@ -1574,43 +1570,26 @@ do_newlabelsets(void)
     }
 }
 
-int
-main(int argc, char **argv)
+void
+open_input(int flags)
 {
     int		sts;
-    int		stslog;			/* sts from nextlog() */
-    int		stsmeta = 0;		/* sts from nextmeta() */
-    int		i;
-    int		ti_idx;			/* next slot for input temporal index */
-    int		dir_fd = -1;		/* poinless initialization to humour gcc */
-    int		doneti = 0;
-    __pmTimestamp	tstamp = { 0, 0 };	/* for last log record */
-    off_t	old_log_offset = 0;	/* log offset before last log record */
-    off_t	old_meta_offset;
-    int		seen_event = 0;
-    metricspec_t	*mp;
 
-    /* process cmd line args */
-    if (parseargs(argc, argv) < 0) {
-	pmUsageMessage(&opts);
-	exit(1);
-    }
-
-    /* input archive ... inarch.name set in parseargs() */
     inarch.logrec = inarch.metarec = NULL;
     inarch.mark = 0;
     inarch.rp = NULL;
 
-    if ((inarch.ctx = pmNewContext(PM_CONTEXT_ARCHIVE, inarch.name)) < 0) {
+    if ((inarch.ctx = pmNewContext(PM_CONTEXT_ARCHIVE | flags, inarch.name)) < 0) {
 	if (inarch.ctx == PM_ERR_NODATA) {
 	    fprintf(stderr, "%s: Warning: empty archive \"%s\" will be skipped\n",
 		    pmGetProgname(), inarch.name);
 	    exit(0);
 	}
 	if (inarch.ctx == PM_ERR_FEATURE) {
+	    /* try w/out feature bits checking */
 	    fprintf(stderr, "%s: Warning: archive \"%s\": unsupported feature bits, other errors may follow ...\n",
 		    pmGetProgname(), inarch.name);
-	    inarch.ctx = pmNewContext(PM_CONTEXT_ARCHIVE | PM_CTXFLAG_NO_FEATURE_CHECK, inarch.name);
+	    inarch.ctx = pmNewContext(PM_CONTEXT_ARCHIVE | flags | PM_CTXFLAG_NO_FEATURE_CHECK, inarch.name);
 	}
 	if (inarch.ctx < 0) {
 	    fprintf(stderr, "%s: Error: cannot open archive \"%s\": %s\n",
@@ -1641,6 +1620,39 @@ main(int argc, char **argv)
 		pmGetProgname(), inarch.version, inarch.name);
 	exit(1);
     }
+}
+
+int
+main(int argc, char **argv)
+{
+    int		sts;
+    int		stslog;			/* sts from nextlog() */
+    int		stsmeta = 0;		/* sts from nextmeta() */
+    int		i;
+    int		ti_idx;			/* next slot for input temporal index */
+    int		dir_fd = -1;		/* poinless initialization to humour gcc */
+    int		doneti = 0;
+    int		in_vol_missing = 0;	/* == 1 if one or more input data volumes missing */
+    __pmTimestamp	tstamp = { 0, 0 };	/* for last log record */
+    off_t	old_log_offset = 0;	/* log offset before last log record */
+    off_t	old_meta_offset;
+    int		old_in_vol;		/* previous input data volume */
+    int		seen_event = 0;
+    metricspec_t	*mp;
+
+    /* process cmd line args */
+    if (parseargs(argc, argv) < 0) {
+	pmUsageMessage(&opts);
+	exit(1);
+    }
+
+    /* input archive ... inarch.name set in parseargs() */
+    if (qflag)
+	/* -q => "peek" only at metadata initially */
+	open_input(PM_CTXFLAG_METADATA_ONLY);
+    else
+	/* no -q => fully functional context needed */
+	open_input(0);
 
     if (outarch.version == 0)
 	outarch.version = inarch.version;
@@ -1790,9 +1802,22 @@ main(int argc, char **argv)
 	exit(0);
     }
 
-    /* create output log - must be done before writing label */
+    if (qflag) {
+	/*
+	 * rewriting is in the wind, so need a fully functional
+	 * context now
+	 */
+	pmDestroyContext(inarch.ctx);
+	open_input(0);
+    }
+
+    /*
+     * create output log - must be done before writing label
+     * ... and start at the same initial volume (volume 0, 1, ...
+     * may be missing)
+     */
     outarch.archctl.ac_log = &outarch.logctl;
-    if ((sts = __pmLogCreate("", outarch.name, outarch.version, &outarch.archctl)) < 0) {
+    if ((sts = __pmLogCreate("", outarch.name, outarch.version, &outarch.archctl, inarch.ctxp->c_archctl->ac_curvol)) < 0) {
 	fprintf(stderr, "%s: Error: __pmLogCreate(%s,v%d): %s\n",
 		pmGetProgname(), outarch.name, outarch.version, pmErrStr(sts));
 	/*
@@ -1801,6 +1826,11 @@ main(int argc, char **argv)
 	 */
 	exit(1);
 	/*NOTREACHED*/
+    }
+    outarch.archctl.ac_curvol = inarch.ctxp->c_archctl->ac_curvol;
+    if (outarch.archctl.ac_curvol != 0) {
+	/* volume 0 is missing */
+	in_vol_missing =  1;
     }
 
     /* initialize and write label records */
@@ -1956,6 +1986,7 @@ main(int argc, char **argv)
 	__pmFflush(outarch.logctl.mdfp);
 	old_meta_offset = __pmFtell(outarch.logctl.mdfp);
 	assert(old_meta_offset >= 0);
+	old_in_vol = inarch.ctxp->c_archctl->ac_curvol;
 
 	in_offset = __pmFtell(inarch.ctxp->c_archctl->ac_mfp);
 	stslog = nextlog();
@@ -1966,6 +1997,8 @@ main(int argc, char **argv)
 	}
 	if (stslog == 1) {
 	    /* volume change */
+	    if (inarch.ctxp->c_archctl->ac_curvol != old_in_vol + 1)
+		in_vol_missing = 1;
 	    if (inarch.ctxp->c_archctl->ac_curvol >= outarch.archctl.ac_curvol+1)
 		/* track input volume numbering */
 		newvolume(inarch.ctxp->c_archctl->ac_curvol);
@@ -1975,6 +2008,7 @@ main(int argc, char **argv)
 		 * rewriting has forced an earlier volume change
 		 */
 		newvolume(outarch.archctl.ac_curvol+1);
+	    needti = 1;
 	}
 	if (pmDebugOptions.appl0) {
 	    fprintf(stderr, "Log: read ");
@@ -2069,9 +2103,15 @@ main(int argc, char **argv)
 		 * pmDesc metadata until it is exhausted, or we find
 		 * a pmInDom metadata record with a timestamp after the
 		 * current pmResult.
+		 *
+		 * The other bad news case is when an input volume is
+		 * missing, and then we may have pmDesc metadata but no
+		 * corresponding pmResult, so if this happens all we
+		 * can do is push on until the timestamp in an indom
+		 * record stops us.
 		 */
 
-		if (!seen_event) {
+		if (!seen_event && !in_vol_missing) {
 		    if (type == PM_TYPE_EVENT || type == PM_TYPE_HIGHRES_EVENT)
 			seen_event = 1;
 		    else {

@@ -24,7 +24,7 @@ pixmap_DATA = htop.png
 appicondir = $(datadir)/icons/hicolor/scalable/apps
 appicon_DATA = htop.svg
 
-AM_CFLAGS += -pedantic -std=c99 -D_XOPEN_SOURCE_EXTENDED -DSYSCONFDIR="\"$(sysconfdir)\"" -I"$(top_srcdir)/$(my_htop_platform)"
+AM_CFLAGS += -D_XOPEN_SOURCE_EXTENDED -DSYSCONFDIR="\"$(sysconfdir)\"" -I"$(top_srcdir)/$(my_htop_platform)"
 AM_LDFLAGS =
 
 myhtopsources = \
@@ -49,6 +49,7 @@ myhtopsources = \
 	DisplayOptionsPanel.c \
 	DynamicColumn.c \
 	DynamicMeter.c \
+	DynamicScreen.c \
 	EnvScreen.c \
 	FileDescriptorMeter.c \
 	FunctionBar.c \
@@ -72,16 +73,19 @@ myhtopsources = \
 	OptionItem.c \
 	Panel.c \
 	Process.c \
-	ProcessList.c \
 	ProcessLocksScreen.c \
+	ProcessTable.c \
+	Row.c \
 	RichString.c \
 	Scheduling.c \
 	ScreenManager.c \
 	ScreensPanel.c \
+	ScreenTabsPanel.c \
 	Settings.c \
 	SignalsPanel.c \
 	SwapMeter.c \
 	SysArchMeter.c \
+	Table.c \
 	TasksMeter.c \
 	TraceScreen.c \
 	UptimeMeter.c \
@@ -111,6 +115,7 @@ myhtopheaders = \
 	DisplayOptionsPanel.h \
 	DynamicColumn.h \
 	DynamicMeter.h \
+	DynamicScreen.h \
 	EnvScreen.h \
 	FileDescriptorMeter.h \
 	FunctionBar.h \
@@ -129,6 +134,7 @@ myhtopheaders = \
 	MemoryMeter.h \
 	MemorySwapMeter.h \
 	Meter.h \
+	MeterMode.h \
 	MetersPanel.h \
 	NetworkIOMeter.h \
 	Object.h \
@@ -136,17 +142,22 @@ myhtopheaders = \
 	OptionItem.h \
 	Panel.h \
 	Process.h \
-	ProcessList.h \
 	ProcessLocksScreen.h \
+	ProcessTable.h \
 	ProvideCurses.h \
+	ProvideTerm.h \
 	RichString.h \
+	Row.h \
+	RowField.h \
 	Scheduling.h \
 	ScreenManager.h \
 	ScreensPanel.h \
+	ScreenTabsPanel.h \
 	Settings.h \
 	SignalsPanel.h \
 	SwapMeter.h \
 	SysArchMeter.h \
+	Table.h \
 	TasksMeter.h \
 	TraceScreen.h \
 	UptimeMeter.h \
@@ -162,13 +173,15 @@ linux_platform_headers = \
 	generic/hostname.h \
 	generic/uname.h \
 	linux/CGroupUtils.h \
+	linux/GPU.h \
+	linux/GPUMeter.h \
 	linux/HugePageMeter.h \
 	linux/IOPriority.h \
 	linux/IOPriorityPanel.h \
 	linux/LibSensors.h \
 	linux/LinuxMachine.h \
 	linux/LinuxProcess.h \
-	linux/LinuxProcessList.h \
+	linux/LinuxProcessTable.h \
 	linux/Platform.h \
 	linux/PressureStallMeter.h \
 	linux/ProcessField.h \
@@ -186,12 +199,14 @@ linux_platform_sources = \
 	generic/hostname.c \
 	generic/uname.c \
 	linux/CGroupUtils.c \
+	linux/GPU.c \
+	linux/GPUMeter.c \
 	linux/HugePageMeter.c \
 	linux/IOPriorityPanel.c \
 	linux/LibSensors.c \
 	linux/LinuxMachine.c \
 	linux/LinuxProcess.c \
-	linux/LinuxProcessList.c \
+	linux/LinuxProcessTable.c \
 	linux/Platform.c \
 	linux/PressureStallMeter.c \
 	linux/SELinuxMeter.c \
@@ -199,6 +214,11 @@ linux_platform_sources = \
 	linux/ZramMeter.c \
 	zfs/ZfsArcMeter.c \
 	zfs/ZfsCompressedArcMeter.c
+
+if HAVE_DELAYACCT
+linux_platform_headers += linux/LibNl.h
+linux_platform_sources += linux/LibNl.c
+endif
 
 if HTOP_LINUX
 AM_LDFLAGS += -rdynamic
@@ -211,7 +231,7 @@ endif
 
 freebsd_platform_headers = \
 	freebsd/FreeBSDMachine.h \
-	freebsd/FreeBSDProcessList.h \
+	freebsd/FreeBSDProcessTable.h \
 	freebsd/FreeBSDProcess.h \
 	freebsd/Platform.h \
 	freebsd/ProcessField.h \
@@ -227,7 +247,7 @@ freebsd_platform_headers = \
 freebsd_platform_sources = \
 	freebsd/Platform.c \
 	freebsd/FreeBSDMachine.c \
-	freebsd/FreeBSDProcessList.c \
+	freebsd/FreeBSDProcessTable.c \
 	freebsd/FreeBSDProcess.c \
 	generic/fdstat_sysctl.c \
 	generic/gettime.c \
@@ -247,7 +267,7 @@ endif
 
 dragonflybsd_platform_headers = \
 	dragonflybsd/DragonFlyBSDMachine.h \
-	dragonflybsd/DragonFlyBSDProcessList.h \
+	dragonflybsd/DragonFlyBSDProcessTable.h \
 	dragonflybsd/DragonFlyBSDProcess.h \
 	dragonflybsd/Platform.h \
 	dragonflybsd/ProcessField.h \
@@ -258,7 +278,7 @@ dragonflybsd_platform_headers = \
 
 dragonflybsd_platform_sources = \
 	dragonflybsd/DragonFlyBSDMachine.c \
-	dragonflybsd/DragonFlyBSDProcessList.c \
+	dragonflybsd/DragonFlyBSDProcessTable.c \
 	dragonflybsd/DragonFlyBSDProcess.c \
 	dragonflybsd/Platform.c \
 	generic/fdstat_sysctl.c \
@@ -283,7 +303,7 @@ netbsd_platform_headers = \
 	netbsd/ProcessField.h \
 	netbsd/NetBSDMachine.h \
 	netbsd/NetBSDProcess.h \
-	netbsd/NetBSDProcessList.h
+	netbsd/NetBSDProcessTable.h
 
 netbsd_platform_sources = \
 	generic/fdstat_sysctl.c \
@@ -293,7 +313,7 @@ netbsd_platform_sources = \
 	netbsd/Platform.c \
 	netbsd/NetBSDMachine.c \
 	netbsd/NetBSDProcess.c \
-	netbsd/NetBSDProcessList.c
+	netbsd/NetBSDProcessTable.c
 
 if HTOP_NETBSD
 myhtopplatheaders = $(netbsd_platform_headers)
@@ -308,7 +328,7 @@ openbsd_platform_headers = \
 	generic/hostname.h \
 	generic/uname.h \
 	openbsd/OpenBSDMachine.h \
-	openbsd/OpenBSDProcessList.h \
+	openbsd/OpenBSDProcessTable.h \
 	openbsd/OpenBSDProcess.h \
 	openbsd/Platform.h \
 	openbsd/ProcessField.h
@@ -318,7 +338,7 @@ openbsd_platform_sources = \
 	generic/hostname.c \
 	generic/uname.c \
 	openbsd/OpenBSDMachine.c \
-	openbsd/OpenBSDProcessList.c \
+	openbsd/OpenBSDProcessTable.c \
 	openbsd/OpenBSDProcess.c \
 	openbsd/Platform.c
 
@@ -333,7 +353,7 @@ endif
 darwin_platform_headers = \
 	darwin/DarwinMachine.h \
 	darwin/DarwinProcess.h \
-	darwin/DarwinProcessList.h \
+	darwin/DarwinProcessTable.h \
 	darwin/Platform.h \
 	darwin/PlatformHelpers.h \
 	darwin/ProcessField.h \
@@ -351,7 +371,7 @@ darwin_platform_sources = \
 	darwin/PlatformHelpers.c \
 	darwin/DarwinMachine.c \
 	darwin/DarwinProcess.c \
-	darwin/DarwinProcessList.c \
+	darwin/DarwinProcessTable.c \
 	generic/fdstat_sysctl.c \
 	generic/gettime.c \
 	generic/hostname.c \
@@ -377,7 +397,7 @@ solaris_platform_headers = \
 	solaris/Platform.h \
 	solaris/SolarisMachine.h \
 	solaris/SolarisProcess.h \
-	solaris/SolarisProcessList.h \
+	solaris/SolarisProcessTable.h \
 	zfs/ZfsArcMeter.h \
 	zfs/ZfsArcStats.h \
 	zfs/ZfsCompressedArcMeter.h
@@ -389,7 +409,7 @@ solaris_platform_sources = \
 	solaris/Platform.c \
 	solaris/SolarisMachine.c \
 	solaris/SolarisProcess.c \
-	solaris/SolarisProcessList.c \
+	solaris/SolarisProcessTable.c \
 	zfs/ZfsArcMeter.c \
 	zfs/ZfsCompressedArcMeter.c
 
@@ -402,31 +422,39 @@ endif
 # --------------------------
 
 pcp_platform_headers = \
+	linux/CGroupUtils.h \
 	linux/PressureStallMeter.h \
 	linux/ZramMeter.h \
 	linux/ZramStats.h \
-	pcp/PCPDynamicColumn.h \
-	pcp/PCPDynamicMeter.h \
-	pcp/PCPMachine.h \
-	pcp/PCPMetric.h \
-	pcp/PCPProcess.h \
-	pcp/PCPProcessList.h \
+	pcp/Instance.h \
+	pcp/InDomTable.h \
+	pcp/Metric.h \
 	pcp/Platform.h \
 	pcp/ProcessField.h \
+	pcp/PCPDynamicColumn.h \
+	pcp/PCPDynamicMeter.h \
+	pcp/PCPDynamicScreen.h \
+	pcp/PCPMachine.h \
+	pcp/PCPProcess.h \
+	pcp/PCPProcessTable.h \
 	zfs/ZfsArcMeter.h \
 	zfs/ZfsArcStats.h \
 	zfs/ZfsCompressedArcMeter.h
 
 pcp_platform_sources = \
+	linux/CGroupUtils.c \
 	linux/PressureStallMeter.c \
 	linux/ZramMeter.c \
+	pcp/Instance.c \
+	pcp/InDomTable.c \
+	pcp/Metric.c \
+	pcp/Platform.c \
 	pcp/PCPDynamicColumn.c \
 	pcp/PCPDynamicMeter.c \
+	pcp/PCPDynamicScreen.c \
 	pcp/PCPMachine.c \
-	pcp/PCPMetric.c \
 	pcp/PCPProcess.c \
-	pcp/PCPProcessList.c \
-	pcp/Platform.c \
+	pcp/PCPProcessTable.c \
 	zfs/ZfsArcMeter.c \
 	zfs/ZfsCompressedArcMeter.c
 
@@ -445,14 +473,14 @@ unsupported_platform_headers = \
 	unsupported/ProcessField.h \
 	unsupported/UnsupportedMachine.h \
 	unsupported/UnsupportedProcess.h \
-	unsupported/UnsupportedProcessList.h
+	unsupported/UnsupportedProcessTable.h
 
 unsupported_platform_sources = \
 	generic/gettime.c \
 	unsupported/Platform.c \
 	unsupported/UnsupportedMachine.c \
 	unsupported/UnsupportedProcess.c \
-	unsupported/UnsupportedProcessList.c
+	unsupported/UnsupportedProcessTable.c
 
 if HTOP_UNSUPPORTED
 myhtopplatsources = $(unsupported_platform_sources)
@@ -481,9 +509,12 @@ cppcheck:
 
 dist-hook: $(top_distdir)/configure
 	@if grep 'pkg_m4_absent' '$(top_distdir)/configure'; then \
-	   echo 'configure is generated without pkg.m4. Please supply pkg.m4 and run ./autogen.sh to rebuild the configure script.'>&2; \
+	   echo 'ERROR: configure is generated without pkg.m4. Please supply pkg.m4 and run ./autogen.sh to rebuild the configure script.'>&2; \
 	   (exit 1); \
 	else :; \
+	fi
+	@if grep 'PACKAGE_VERSION.*-g' '$(top_distdir)/configure'; then \
+	  echo 'WARNING: You are building a dist from a git version. Better run make dist outside of a .git repo on a tagged release.'>&2; \
 	fi
 
 .PHONY: lcov

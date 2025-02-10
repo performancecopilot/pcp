@@ -16,10 +16,15 @@ echo "QA output created by $seq"
 [ $PCP_PLATFORM = linux ] || _notrun "pmdalinux specific testing"
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 # create some data files for testing - from various kernels
+cat <<EOF > $tmp.el9
+001ab57c 00000000 000002d0 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000003 00000000 00000001 00000002
+00041adb 00000000 0000005b 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000003 00000001 00000003 00000000
+00045167 00000000 0000005f 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000002 00000000 00000000
+0003f85b 00000000 0000005b 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000003 00000000 00000000
+EOF
 cat <<EOF > $tmp.el7
 0010c333 00000002 00000003 00000001 00000001 00000001 00000001 00000001 00000004 00000005 00000006
 000ee8f7 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
@@ -48,17 +53,17 @@ pmda=$PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init
 metrics=`pminfo network.softnet | grep -v percpu | LC_COLLATE=POSIX sort`
 cd $here
 
-for file in el7 el6 el5
+for file in el9 el7 el6 el5
 do
     rm -fr $root
     mkdir -p $root/proc/net || _fail "root in use when preparing $file"
     cp $tmp.$file $root/proc/net/softnet_stat
     _make_proc_stat $root/proc/stat $LINUX_NCPUS
  
-    echo "== Checking metric values - $file" | tee -a $here/$seq.full
+    echo "== Checking metric values - $file" | tee -a $seq_full
     pminfo -L -K clear -K add,60,$pmda -f $metrics 2>&1 \
-    | tee -a $here/$seq.full
-    ( echo && echo "== done" && echo ) | tee -a $here/$seq.full
+    | tee -a $seq_full
+    ( echo && echo "== done" && echo ) | tee -a $seq_full
 done
 
 # success, all done

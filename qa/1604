@@ -12,6 +12,7 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 . ./common.check
+. ./common.keys
 
 _check_series
 which jq >/dev/null 2>&1 || _notrun "jq not installed"
@@ -20,7 +21,7 @@ _cleanup()
 {
     cd $here
     [ -n "$pmproxy_pid" ] && $signal -s TERM $pmproxy_pid
-    [ -n "$options" ] && redis-cli $options shutdown
+    [ -n "$options" ] && $keys_cli $options shutdown
     if $need_restore
     then
 	need_restore=false
@@ -39,7 +40,6 @@ machineid=`_machine_id`
 domainname=`_domain_name`
 
 need_restore=false
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _filter_source()
@@ -60,23 +60,23 @@ _save_config $PCP_SYSCONF_DIR/pmproxy
 $sudo rm -f $PCP_SYSCONF_DIR/pmproxy/*
 need_restore=true
 
-echo "Start test Redis server ..."
-redisport=`_find_free_port`
-options="-p $redisport"
-redis-server --port $redisport --save "" > $tmp.redis 2>&1 &
-_check_redis_ping $redisport
-_check_redis_server $redisport
+echo "Start test key server ..."
+key_server_port=`_find_free_port`
+options="-p $key_server_port"
+$key_server --port $key_server_port --save "" > $tmp.keys 2>&1 &
+_check_key_server_ping $key_server_port
+_check_key_server $key_server_port
 echo
 
-_check_redis_server_version $redisport
+_check_key_server_version $key_server_port
 
-# import some well-known test data into Redis
+# import some well-known test data into the key server
 pmseries $options --load "$here/archives/bozo-disk" | _filter_source
 
 # start pmproxy
 proxyport=`_find_free_port`
-proxyopts="-p $proxyport -r $redisport -t"  # -Dseries,http,af
-pmproxy -f -U $username -x $seq.full -l $tmp.pmproxy.log $proxyopts &
+proxyopts="-p $proxyport -r $key_server_port -t"  # -Dseries,http,af
+pmproxy -f -U $username -x $seq_full -l $tmp.pmproxy.log $proxyopts &
 pmproxy_pid=$!
 
 # check pmproxy has started and is available for requests
@@ -87,28 +87,28 @@ series1=`pmseries $options disk.all.read`
 echo "Using series $series1 for disk.all.read"
 
 
-echo "== no interval" | tee -a $seq.full
+echo "== no interval" | tee -a $seq_full
 url="http://localhost:$proxyport/series/values?series=$series1&start=1489620673&finish=1489620793"
-echo "$url" >> $seq.full
-curl --get --silent "$url" | tee -a $seq.full | _format_timestamps
+echo "$url" >> $seq_full
+curl --get --silent "$url" | tee -a $seq_full | _format_timestamps
 
-echo "== 10s interval" | tee -a $seq.full
+echo "== 10s interval" | tee -a $seq_full
 url="http://localhost:$proxyport/series/values?series=$series1&start=1489620673&finish=1489620793&interval=10"
-echo "$url" >> $seq.full
-curl --get --silent "$url" | tee -a $seq.full | _format_timestamps
+echo "$url" >> $seq_full
+curl --get --silent "$url" | tee -a $seq_full | _format_timestamps
 
-echo "== 20s interval" | tee -a $seq.full
+echo "== 20s interval" | tee -a $seq_full
 url="http://localhost:$proxyport/series/values?series=$series1&start=1489620673&finish=1489620793&interval=20"
-echo "$url" >> $seq.full
-curl --get --silent "$url" | tee -a $seq.full | _format_timestamps
-cat $tmp.pmproxy.log >> $seq.full
+echo "$url" >> $seq_full
+curl --get --silent "$url" | tee -a $seq_full | _format_timestamps
+cat $tmp.pmproxy.log >> $seq_full
 
-echo "== 20s interval, starting 2m before first sample in archive" | tee -a $seq.full
+echo "== 20s interval, starting 2m before first sample in archive" | tee -a $seq_full
 url="http://localhost:$proxyport/series/values?series=$series1&start=1489620553&finish=1489620793&interval=20"
-echo "$url" >> $seq.full
-curl --get --silent "$url" | tee -a $seq.full | _format_timestamps
+echo "$url" >> $seq_full
+curl --get --silent "$url" | tee -a $seq_full | _format_timestamps
 
 
-cat $tmp.pmproxy.log >> $seq.full
+cat $tmp.pmproxy.log >> $seq_full
 status=0
 exit

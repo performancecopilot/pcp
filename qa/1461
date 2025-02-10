@@ -22,7 +22,6 @@ fi
 . ./common.filter
 . ./common.check
 
-$sudo rm -rf $tmp $tmp.* $seq.full
 
 do_valgrind=false
 if [ "$1" = "--valgrind" ]
@@ -31,7 +30,8 @@ then
     do_valgrind=true
 elif which valgrind >/dev/null 2>&1
 then
-    _notrun "valgrind variant qa/1463 will be run"
+    [ $PCPQA_VALGRIND = both ] || \
+	_notrun "valgrind variant qa/1463 will be run"
 fi
 
 _cleanup()

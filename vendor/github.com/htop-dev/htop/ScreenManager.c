@@ -12,6 +12,7 @@ in the source distribution for its full text.
 #include <assert.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/time.h>
 
 #include "CRT.h"
@@ -20,8 +21,10 @@ in the source distribution for its full text.
 #include "Macros.h"
 #include "Object.h"
 #include "Platform.h"
-#include "ProcessList.h"
+#include "Process.h"
 #include "ProvideCurses.h"
+#include "Settings.h"
+#include "Table.h"
 #include "XUtils.h"
 
 
@@ -133,13 +136,14 @@ static void checkRecalculation(ScreenManager* this, double* oldTime, int* sortTi
       *oldTime = newTime;
       int oldUidDigits = Process_uidDigits;
       if (!this->state->pauseUpdate && (*sortTimeout == 0 || host->settings->ss->treeView)) {
-         host->pl->needsSort = true;
+         host->activeTable->needsSort = true;
          *sortTimeout = 1;
       }
       // sample current values for system metrics and processes if not paused
       Machine_scan(host);
       if (!this->state->pauseUpdate)
-         ProcessList_scan(host->pl);
+         Machine_scanTables(host);
+
       // always update header, especially to avoid gaps in graph meters
       Header_updateData(this->header);
       // force redraw if the number of UID digits was changed
@@ -149,7 +153,7 @@ static void checkRecalculation(ScreenManager* this, double* oldTime, int* sortTi
       *redraw = true;
    }
    if (*redraw) {
-      ProcessList_rebuildPanel(host->pl);
+      Table_rebuildPanel(host->activeTable);
       if (!this->state->hideMeters)
          Header_draw(this->header);
    }
@@ -192,7 +196,7 @@ static void ScreenManager_drawScreenTabs(ScreenManager* this) {
    }
 
    for (int s = 0; screens[s]; s++) {
-      bool ok = drawTab(&y, &x, l, screens[s]->name, s == cur);
+      bool ok = drawTab(&y, &x, l, screens[s]->heading, s == cur);
       if (!ok) {
          break;
       }
@@ -246,6 +250,12 @@ void ScreenManager_run(ScreenManager* this, Panel** lastFocus, int* lastKey, con
       if (redraw || force_redraw) {
          ScreenManager_drawPanels(this, focus, force_redraw);
          force_redraw = false;
+         if (this->host->iterationsRemaining != -1) {
+            if (!--this->host->iterationsRemaining) {
+               quit = true;
+               continue;
+            }
+         }
       }
 
       int prevCh = ch;
@@ -311,12 +321,14 @@ void ScreenManager_run(ScreenManager* this, Panel** lastFocus, int* lastKey, con
          redraw = false;
          continue;
       }
+
       switch (ch) {
          case KEY_ALT('H'): ch = KEY_LEFT; break;
          case KEY_ALT('J'): ch = KEY_DOWN; break;
          case KEY_ALT('K'): ch = KEY_UP; break;
          case KEY_ALT('L'): ch = KEY_RIGHT; break;
       }
+
       redraw = true;
       if (Panel_eventHandlerFn(panelFocus)) {
          result = Panel_eventHandler(panelFocus, ch);
@@ -351,6 +363,9 @@ void ScreenManager_run(ScreenManager* this, Panel** lastFocus, int* lastKey, con
          ScreenManager_resize(this);
          continue;
       }
+      case KEY_FOCUS_IN:
+      case KEY_FOCUS_OUT:
+         break;
       case KEY_LEFT:
       case KEY_CTRL('B'):
          if (this->panelCount < 2) {

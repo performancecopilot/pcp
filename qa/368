@@ -19,7 +19,6 @@ postgres=`pmprobe postgresql.stat.all_tables.seq_scan | awk '{ print $2 }'`
 [ "$postgres" -ge 0 ] && _notrun "Test $seq sensitive to local postgres install"
 
 status=0	# success is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 mkdir $tmp
 

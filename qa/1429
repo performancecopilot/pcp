@@ -6,7 +6,7 @@
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 # Copyright (c) 2022 Ken McDonell.  All Rights Reserved.
 #
-# check-group-include: pmlogrewrite pmlogextract
+# check-group-include: pmlogrewrite pmlogextract pmdumplog
 #
 
 if [ $# -eq 0 ]
@@ -28,11 +28,11 @@ _cleanup()
 {
     cd $here
     $sudo rm -rf $tmp $tmp.*
-    $sudo mv $PCP_LOG_DIR/NOTICES.$seq $PCP_LOG_DIR/NOTICES
+    _service pcp restart >>$seq_full 2>&1
+    _wait_for_pmlogger
 }
 
 status=0	# success is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # Note:
@@ -53,7 +53,7 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 #
 _filter()
 {
-    tee -a $seq.full \
+    tee -a $seq_full \
     | sed -f $tmp.sed \
     | sed \
 	-e '/^Roll .*\/NOTICES/d' \
@@ -77,8 +77,6 @@ _filter()
 # take explicit control of the umask
 #
 umask 022
-
-$sudo mv $PCP_LOG_DIR/NOTICES $PCP_LOG_DIR/NOTICES.$seq
 
 # create files for pmlogger_daily to munch on ...
 #
@@ -171,16 +169,16 @@ _setup()
 }
 
 _setup
-echo "=== now `date` ===" >>$here/$seq.full
-echo "=== tmp.sed ===" >>$here/$seq.full
-cat $tmp.sed >>$here/$seq.full
-echo >>$here/$seq.full
+echo "=== now `date` ===" >>$seq_full
+echo "=== tmp.sed ===" >>$seq_full
+cat $tmp.sed >>$seq_full
+echo >>$seq_full
 
 # real QA test starts here
 
-echo | tee -a $here/$seq.full
-echo "=== autosave tests ===" | tee -a $here/$seq.full
-echo "--- destdir dir does not exist ---" | tee -a $here/$seq.full
+echo | tee -a $seq_full
+echo "=== autosave tests ===" | tee -a $seq_full
+echo "--- destdir dir does not exist ---" | tee -a $seq_full
 
 cat <<End-of-File >$tmp.control
 \$version=1.1
@@ -188,11 +186,15 @@ cat <<End-of-File >$tmp.control
 LOCALHOSTNAME	n   n	$tmp	-c ./config
 End-of-File
 
+# need to be a place the user $PCP_USER can cd to from pmlogger_daily
+#
+cd /var/tmp
 $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; PCP_AUTOSAVE_DIR=/no/such/dir $PCP_BINADM_DIR/pmlogger_daily -D -c $tmp.control -k 3 -x never -l $tmp.log"
+cd $here
 if [ -f $tmp.log ]
 then
     $sudo cat $tmp.log \
-    | tee -a $seq.full \
+    | tee -a $seq_full \
     | _filter
 else
     echo "No log file?"
@@ -200,7 +202,7 @@ fi
 echo "daily dir ..."
 ls $tmp | _filter | grep -E '.(index|meta|0)$' | grep -v TODAY
 
-echo "--- cannot write in dest dir ---" | tee -a $here/$seq.full
+echo "--- cannot write in dest dir ---" | tee -a $seq_full
 
 cat <<End-of-File >$tmp.control
 \$version=1.1
@@ -214,11 +216,13 @@ chmod 555 $tmp.nowrite
 
 _setup
 
+cd /var/tmp
 $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; PCP_AUTOSAVE_DIR=/no/such/file $PCP_BINADM_DIR/pmlogger_daily -D -c $tmp.control -k 3 -x never -l $tmp.log"
+cd $here
 if [ -f $tmp.log ]
 then
     $sudo cat $tmp.log \
-    | tee -a $seq.full \
+    | tee -a $seq_full \
     | _filter
 else
     echo "No log file?"
@@ -228,7 +232,7 @@ ls $tmp | _filter | grep -E '.(index|meta|0)$' | grep -v TODAY
 echo "autosave dir ..."
 ls $tmp.nowrite | _filter | grep -E '.(index|meta|0)$'
 
-echo "--- dest dir ok ---" | tee -a $here/$seq.full
+echo "--- dest dir ok ---" | tee -a $seq_full
 
 cat <<End-of-File >$tmp.control
 \$version=1.1
@@ -243,11 +247,13 @@ $sudo chmod 775 $tmp.ok
 
 _setup
 
+cd /var/tmp
 $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -D -c $tmp.control -k 3 -x never -l $tmp.log"
+cd $here
 if [ -f $tmp.log ]
 then
     $sudo cat $tmp.log \
-    | tee -a $seq.full \
+    | tee -a $seq_full \
     | _filter
 else
     echo "No log file?"
@@ -257,7 +263,7 @@ ls $tmp | _filter | grep -E '.(index|meta|0)$' | grep -v TODAY
 echo "autosave dir ..."
 ls $tmp.ok | _filter | grep -E '.(index|meta|0)$'
 
-echo "--- dest dir with DATEXX components does not exist ---" | tee -a $here/$seq.full
+echo "--- dest dir with DATEXX components does not exist ---" | tee -a $seq_full
 
 cat <<End-of-File >$tmp.control
 \$version=1.1
@@ -267,7 +273,7 @@ LOCALHOSTNAME	n   n	$tmp	-c ./config
 End-of-File
 
 $sudo rm -rf $tmp.ok
-for dir in $tmp.ok $tmp.ok/`pmdate -${day}d %Y`
+for dir in $tmp.ok $tmp.ok/`pmdate %Y` $tmp.ok/`pmdate -1d %Y` $tmp.ok/`pmdate -2d %Y`
 do
     if [ ! -d $dir ]
     then
@@ -278,16 +284,24 @@ do
 done
 # make YYYY dir unwriteable
 #
-$sudo chmod 555 $tmp.ok/`pmdate -${day}d %Y`
-
+for day in 0 1 2
+do
+    if [ -d $tmp.ok/`pmdate -${day}d %Y` ]
+    then
+	$sudo chmod 555 $tmp.ok/`pmdate -${day}d %Y`
+	ls -l $tmp.ok >>$seq_full
+    fi
+done
 
 _setup
 
+cd /var/tmp
 $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -D -c $tmp.control -k 3 -x never -l $tmp.log"
+cd $here
 if [ -f $tmp.log ]
 then
     $sudo cat $tmp.log \
-    | tee -a $seq.full \
+    | tee -a $seq_full \
     | _filter
 else
     echo "No log file?"
@@ -302,7 +316,7 @@ ls -R $tmp.ok | _filter | grep -E '.(index|meta|0)$' \
     -e "s/-`date +%d`/-DD/" \
 # end
 
-echo "--- dest dir ok and with DATEXX components ---" | tee -a $here/$seq.full
+echo "--- dest dir ok and with DATEXX components ---" | tee -a $seq_full
 
 cat <<End-of-File >$tmp.control
 \$version=1.1
@@ -327,11 +341,13 @@ done
 
 _setup
 
+cd /var/tmp
 $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -D -c $tmp.control -k 3 -x never -l $tmp.log"
+cd $here
 if [ -f $tmp.log ]
 then
     $sudo cat $tmp.log \
-    | tee -a $seq.full \
+    | tee -a $seq_full \
     | _filter
 else
     echo "No log file?"
@@ -341,8 +357,8 @@ ls $tmp | _filter | grep -E '.(index|meta|0)$' | grep -v TODAY
 echo "autosave dir ..."
 ls -R $tmp.ok | _filter
 
-echo | tee -a $here/$seq.full
-echo "=== merge callback tests ===" | tee -a $here/$seq.full
+echo | tee -a $seq_full
+echo "=== merge callback tests ===" | tee -a $seq_full
 cat <<'End-of-File' >$tmp.merge
 #!/bin/sh
 echo
@@ -369,18 +385,20 @@ End-of-File
 
 _setup
 
+cd /var/tmp
 $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; PCP_MERGE_CALLBACK=$tmp.merge $PCP_BINADM_DIR/pmlogger_daily -D -c $tmp.control -x never -k 3 -l $tmp.log"
+cd $here
 if [ -f $tmp.log ]
 then
     $sudo cat $tmp.log \
-    | tee -a $seq.full \
+    | tee -a $seq_full \
     | _filter
 else
     echo "No log file?"
 fi
 
-echo | tee -a $here/$seq.full
-echo "=== compress callback tests ===" | tee -a $here/$seq.full
+echo | tee -a $seq_full
+echo "=== compress callback tests ===" | tee -a $seq_full
 
 cat <<'End-of-File' >$tmp.compress
 #!/bin/sh
@@ -408,17 +426,19 @@ End-of-File
 
 _setup
 
-# need current pmlogger instance for this one ...
-#
+cd /var/tmp
 $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_check -c $tmp.control -l $tmp.log"
-[ -f $tmp.log ] && $sudo cat $tmp.log >>$seq.full
-pmlogctl status >>$seq.full
+cd $here
+[ -f $tmp.log ] && $sudo cat $tmp.log >>$seq_full
+pmlogctl status >>$seq_full
 
+cd /var/tmp
 $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; PCP_COMPRESS_CALLBACK=$tmp.compress $PCP_BINADM_DIR/pmlogger_daily -D -c $tmp.control -k 3 -x 0 -l $tmp.log"
+cd $here
 if [ -f $tmp.log ]
 then
     $sudo cat $tmp.log \
-    | tee -a $seq.full \
+    | tee -a $seq_full \
     | _filter
 else
     echo "No log file?"

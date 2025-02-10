@@ -1,0 +1,23 @@
+import socket
+import cpmapi as api
+from pcp import pmapi
+
+address = 'localhost'
+port = 44321
+
+c = []
+for i in range(0, 1234):
+    print('context', i)
+    ctx = pmapi.pmContext(api.PM_CONTEXT_HOST, "local:")
+    print('created', i)
+    c.append(ctx)
+
+s = []
+for i in range(0, 1234):
+    sock = socket.socket()
+    print('socket', i)
+    sock.connect((address, port))
+    print('connect', i)
+    sock.send(b"abba\r")  # -- gives a too-large PDU
+    print('send', i)
+    # s.append(sock)  # -- exercise pduread: timeout

@@ -31,9 +31,9 @@ fi
 
 status=0
 signal=$PCP_BINADM_DIR/pmsignal
-trap "_interrupt; rm -f $tmp.*; exit \$status" 0 1 2 3 15
+trap "_cleanup; rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
-_interrupt()
+_cleanup()
 {
     [ "X$KILLER" != "X" ] && $signal -s TERM $KILLER
 }
@@ -67,8 +67,7 @@ SOCKS_DEBUG=
 PMCD_CONNECT_TIMEOUT=120
 PMCD_REQUEST_TIMEOUT=120
 export SOCKS_SERVER SOCKS_NS SOCKS_DEBUG PMCD_CONNECT_TIMEOUT PMCD_REQUEST_TIMEOUT
-rm -f $seq.full
-touch $seq.full
+touch $seq_full
 
 KILLER=""
 for host in www.sgi.com.au $otherhost localhost
@@ -89,7 +88,7 @@ do
     for i in 1 2
     do
 	pid=`echo $KILLER | $PCP_AWK_PROG '{ x='"$p"'; print $x }'`
-	_wait_for_pmlogger $pid $tmp.${host}_$i.log 120
+	_wait_for_pmlogger $pid $tmp.${host}_$i.log 120 || _exit 1
 	p=`expr $p + 1`
     done
 done
@@ -102,13 +101,13 @@ do
 	if [ $host = $otherhost ]
 	then
 	    echo "=== pmlogger for OTHERHOST #$i connection ==="
-	    echo "=== pmlogger for OTHERHOST #$i connection ===" >>$seq.full
+	    echo "=== pmlogger for OTHERHOST #$i connection ===" >>$seq_full
 	else
 	    echo "=== pmlogger for $host #$i connection ==="
-	    echo "=== pmlogger for $host #$i connection ===" >>$seq.full
+	    echo "=== pmlogger for $host #$i connection ===" >>$seq_full
 	fi
 	cat $tmp.${host}_$i.err $tmp.${host}_$i.log | _filter
-	cat $tmp.${host}_$i.err $tmp.${host}_$i.log >> $seq.full
+	cat $tmp.${host}_$i.err $tmp.${host}_$i.log >> $seq_full
 	pmdumplog -l $tmp.${host}_$i | _filter_pmdumplog
     done
 done
@@ -121,15 +120,15 @@ KILLER=
 
 echo
 echo "=== localhost pmval connection ==="
-echo "=== localhost pmval connection ===" >>$seq.full
+echo "=== localhost pmval connection ===" >>$seq_full
 pmsocks pmval -s1 -t 0.1 pmcd.control.debug 2>&1 \
-	| tee -a $seq.full | _filter
+	| tee -a $seq_full | _filter
 
 echo
 echo "=== hostname local pmval connection ==="
-echo "=== hostname local pmval connection ===" >>$seq.full
+echo "=== hostname local pmval connection ===" >>$seq_full
 pmsocks pmval -s1 -t 0.1 -h `hostname` pmcd.control.debug 2>&1 \
-	| tee -a $seq.full | _filter
+	| tee -a $seq_full | _filter
 
 for host in $otherhost www.sgi.com.au
 do
@@ -137,13 +136,13 @@ do
     if [ $host = $otherhost ]
     then
 	echo "=== host OTHERHOST pmval connection ==="
-	echo "=== host OTHERHOST pmval connection ===" >>$seq.full
+	echo "=== host OTHERHOST pmval connection ===" >>$seq_full
     else
 	echo "=== host $host pmval connection ==="
-	echo "=== host $host pmval connection ===" >>$seq.full
+	echo "=== host $host pmval connection ===" >>$seq_full
     fi
     pmsocks pmval -s1 -t 0.1 -h $host pmcd.control.debug 2>&1 \
-	| tee -a $seq.full | _filter
+	| tee -a $seq_full | _filter
 done
 
 # optional stuff if your test has verbose output to help resolve problems

@@ -1,0 +1,84 @@
+#!/bin/sh
+# PCP QA Test No. 1595
+# Exercise Linux kernel virtual machine memory metrics.
+#
+# Copyright (c) 2024 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_check_valgrind
+[ $PCP_PLATFORM = linux ] || _notrun "Tests Linux kernel memory metrics"
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s,$PCP_PMDAS_DIR,PCP_PMDAS_DIR,g" \
+    #end
+}
+
+# There is NO uninitialized value use at line 161 or 163 of
+# sysfs_kernel.c ...
+# valgrind on vm20 (x86_64 Ubuntu 20.04) complains circa
+# 11 Sep 2024, but ONLY when the linux PMDA is compiled
+# -O2, not -O0
+#
+cat <<'End-of-File' >$tmp.suppress
+{
+   botch
+   Memcheck:Cond
+   fun:refresh_sysfs_kernel
+   fun:linux_refresh.isra.0
+   fun:linux_fetch
+   ...
+   fun:__pmFetchLocal
+   fun:__pmFetch
+   ...
+}
+End-of-File
+grind_extra="--suppressions=$tmp.suppress"
+
+# real QA test starts here
+root=$tmp.root
+export LINUX_STATSPATH=$root
+export LINUX_PAGESIZE=4096
+pmda="60,$PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init"
+
+memmetrics=`pminfo mem.vmmemctl hyperv.balloon | LC_COLLATE=POSIX sort`
+
+for mem in $here/linux/sysfs-*-???
+do
+    base=`basename $mem`
+    file=`echo $base | sed -e 's/^sysfs-//g' -e 's/-...$//g'`
+
+    rm -fr $root
+    mkdir -p $root/sys/kernel/debug || _fail "root in use when processing $mem"
+    cp $mem $root/sys/kernel/debug/$file
+    cd $root
+
+    echo "== Valgrind checking $file metric values and metadata - $base"
+    _run_valgrind pminfo -L -K clear -K add,$pmda -dfmtT $memmetrics 2>&1 \
+    | _filter
+
+    echo && echo "== done" && echo
+    cd $here
+done
+
+# success, all done
+status=0
+exit

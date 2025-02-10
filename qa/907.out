@@ -24,47 +24,50 @@ Performance metrics from host bozo
     ending     Sun Jan  4 11:12:08.983131 2015
 
 Descriptions for Metrics in the Log ...
-PMID: 29.0.100 (sample.ulonglong.hundred)
-    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
-PMID: 241.0.2 (schizo.fumble)
-    Data Type: string  InDom: 241.0 0x3c400000
+PMID: 2.3.0 (pmcd.pmlogger.port)
+    Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
     Semantics: discrete  Units: none
-PMID: 241.1.4 (schizo.data4)
-    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: byte
+PMID: 2.3.2 (pmcd.pmlogger.archive)
+    Data Type: string  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+PMID: 2.3.3 (pmcd.pmlogger.host)
+    Data Type: string  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
 PMID: 29.0.6 (sample.bin)
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
 PMID: 29.0.12 (sample.long.hundred)
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-PMID: 2.3.0 (pmcd.pmlogger.port)
-    Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
+PMID: 29.0.100 (sample.ulonglong.hundred)
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 241.0.0 (schizo.version)
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+PMID: 241.0.1 (schizo.foo)
+    Data Type: string  InDom: 241.0 0x3c400000
+    Semantics: discrete  Units: none
+PMID: 241.0.2 (schizo.fumble)
+    Data Type: string  InDom: 241.0 0x3c400000
     Semantics: discrete  Units: none
 PMID: 241.1.1 (schizo.data1)
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
-PMID: 241.0.0 (schizo.version)
-    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
-PMID: 2.3.2 (pmcd.pmlogger.archive)
-    Data Type: string  InDom: 2.1 0x800001
-    Semantics: discrete  Units: none
 PMID: 241.1.2 (schizo.data2)
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: byte
-PMID: 241.0.1 (schizo.foo)
-    Data Type: string  InDom: 241.0 0x3c400000
-    Semantics: discrete  Units: none
-PMID: 2.3.3 (pmcd.pmlogger.host)
-    Data Type: string  InDom: 2.1 0x800001
-    Semantics: discrete  Units: none
 PMID: 241.1.3 (schizo.data3)
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: sec
+PMID: 241.1.4 (schizo.data4)
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: byte
 
 Instance Domains in the Log ...
+InDom: 2.1
+11:11:41.369490 1 instances
+   19426 or "19426"
 InDom: 29.2
 11:11:43.370807 9 instances
    100 or "bin-100"
@@ -89,9 +92,6 @@ InDom: 29.2
 InDom: 241.0
 11:11:43.370807 1 instances
    0 or "zero"
-InDom: 2.1
-11:11:41.369490 1 instances
-   19426 or "19426"
 
 Temporal Index
 		Log Vol    end(meta)     end(log)
@@ -156,47 +156,50 @@ Performance metrics from host bozo
     ending     Sun Jan  4 11:12:08.983131 2015
 
 Descriptions for Metrics in the Log ...
-PMID: 29.0.100 (sample.ulonglong.hundred)
-    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
-PMID: 241.0.2 (schizo.fumble)
-    Data Type: string  InDom: 241.0 0x3c400000
+PMID: 2.3.0 (pmcd.pmlogger.port)
+    Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
     Semantics: discrete  Units: none
-PMID: 241.1.4 (schizo.data4)
-    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: byte
+PMID: 2.3.2 (pmcd.pmlogger.archive)
+    Data Type: string  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+PMID: 2.3.3 (pmcd.pmlogger.host)
+    Data Type: string  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
 PMID: 29.0.6 (sample.bin)
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
 PMID: 29.0.12 (sample.long.hundred)
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-PMID: 2.3.0 (pmcd.pmlogger.port)
-    Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
+PMID: 29.0.100 (sample.ulonglong.hundred)
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 241.0.0 (schizo.version)
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+PMID: 241.0.1 (schizo.foo)
+    Data Type: string  InDom: 241.0 0x3c400000
+    Semantics: discrete  Units: none
+PMID: 241.0.2 (schizo.fumble)
+    Data Type: string  InDom: 241.0 0x3c400000
     Semantics: discrete  Units: none
 PMID: 241.1.1 (schizo.data1)
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
-PMID: 241.0.0 (schizo.version)
-    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
-PMID: 2.3.2 (pmcd.pmlogger.archive)
-    Data Type: string  InDom: 2.1 0x800001
-    Semantics: discrete  Units: none
 PMID: 241.1.2 (schizo.data2)
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: byte
-PMID: 241.0.1 (schizo.foo)
-    Data Type: string  InDom: 241.0 0x3c400000
-    Semantics: discrete  Units: none
-PMID: 2.3.3 (pmcd.pmlogger.host)
-    Data Type: string  InDom: 2.1 0x800001
-    Semantics: discrete  Units: none
 PMID: 241.1.3 (schizo.data3)
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: sec
+PMID: 241.1.4 (schizo.data4)
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: byte
 
 Instance Domains in the Log ...
+InDom: 2.1
+11:11:41.369490 1 instances
+   19426 or "19426"
 InDom: 29.2
 11:11:43.370807 9 instances
    100 or "bin-100"
@@ -211,9 +214,6 @@ InDom: 29.2
 InDom: 241.0
 11:11:43.370807 1 instances
    0 or "zero"
-InDom: 2.1
-11:11:41.369490 1 instances
-   19426 or "19426"
 
 Temporal Index
 		Log Vol    end(meta)     end(log)
@@ -277,47 +277,50 @@ Performance metrics from host bozo
     ending     Sun Jan  4 11:12:08.983131 2015
 
 Descriptions for Metrics in the Log ...
-PMID: 29.0.100 (sample.ulonglong.hundred)
-    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
-PMID: 241.0.2 (schizo.fumble)
-    Data Type: string  InDom: 241.0 0x3c400000
+PMID: 2.3.0 (pmcd.pmlogger.port)
+    Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
     Semantics: discrete  Units: none
-PMID: 241.1.4 (schizo.data4)
-    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: byte
+PMID: 2.3.2 (pmcd.pmlogger.archive)
+    Data Type: string  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+PMID: 2.3.3 (pmcd.pmlogger.host)
+    Data Type: string  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
 PMID: 29.0.6 (sample.bin)
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
 PMID: 29.0.12 (sample.long.hundred)
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-PMID: 2.3.0 (pmcd.pmlogger.port)
-    Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
+PMID: 29.0.100 (sample.ulonglong.hundred)
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 241.0.0 (schizo.version)
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+PMID: 241.0.1 (schizo.foo)
+    Data Type: string  InDom: 241.0 0x3c400000
+    Semantics: discrete  Units: none
+PMID: 241.0.2 (schizo.fumble)
+    Data Type: string  InDom: 241.0 0x3c400000
     Semantics: discrete  Units: none
 PMID: 241.1.1 (schizo.data1)
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
-PMID: 241.0.0 (schizo.version)
-    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
-PMID: 2.3.2 (pmcd.pmlogger.archive)
-    Data Type: string  InDom: 2.1 0x800001
-    Semantics: discrete  Units: none
 PMID: 241.1.2 (schizo.data2)
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: byte
-PMID: 241.0.1 (schizo.foo)
-    Data Type: string  InDom: 241.0 0x3c400000
-    Semantics: discrete  Units: none
-PMID: 2.3.3 (pmcd.pmlogger.host)
-    Data Type: string  InDom: 2.1 0x800001
-    Semantics: discrete  Units: none
 PMID: 241.1.3 (schizo.data3)
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: sec
+PMID: 241.1.4 (schizo.data4)
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: byte
 
 Instance Domains in the Log ...
+InDom: 2.1
+11:11:41.369490 1 instances
+   19426 or "19426"
 InDom: 29.2
 11:11:43.370807 9 instances
    100 or "bin-100"
@@ -332,9 +335,6 @@ InDom: 29.2
 InDom: 241.0
 11:11:43.370807 1 instances
    0 or "zero"
-InDom: 2.1
-11:11:41.369490 1 instances
-   19426 or "19426"
 
 Temporal Index
 		Log Vol    end(meta)     end(log)
@@ -398,47 +398,50 @@ Performance metrics from host bozo
     ending     Sun Jan  4 11:12:08.983131 2015
 
 Descriptions for Metrics in the Log ...
-PMID: 29.0.100 (sample.ulonglong.hundred)
-    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
-PMID: 241.0.2 (schizo.fumble)
-    Data Type: string  InDom: 241.0 0x3c400000
+PMID: 2.3.0 (pmcd.pmlogger.port)
+    Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
     Semantics: discrete  Units: none
-PMID: 241.1.4 (schizo.data4)
-    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: byte
+PMID: 2.3.2 (pmcd.pmlogger.archive)
+    Data Type: string  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+PMID: 2.3.3 (pmcd.pmlogger.host)
+    Data Type: string  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
 PMID: 29.0.6 (sample.bin)
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
 PMID: 29.0.12 (sample.long.hundred)
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-PMID: 2.3.0 (pmcd.pmlogger.port)
-    Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
+PMID: 29.0.100 (sample.ulonglong.hundred)
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 241.0.0 (schizo.version)
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+PMID: 241.0.1 (schizo.foo)
+    Data Type: string  InDom: 241.0 0x3c400000
+    Semantics: discrete  Units: none
+PMID: 241.0.2 (schizo.fumble)
+    Data Type: string  InDom: 241.0 0x3c400000
     Semantics: discrete  Units: none
 PMID: 241.1.1 (schizo.data1)
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
-PMID: 241.0.0 (schizo.version)
-    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
-PMID: 2.3.2 (pmcd.pmlogger.archive)
-    Data Type: string  InDom: 2.1 0x800001
-    Semantics: discrete  Units: none
 PMID: 241.1.2 (schizo.data2)
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: byte
-PMID: 241.0.1 (schizo.foo)
-    Data Type: string  InDom: 241.0 0x3c400000
-    Semantics: discrete  Units: none
-PMID: 2.3.3 (pmcd.pmlogger.host)
-    Data Type: string  InDom: 2.1 0x800001
-    Semantics: discrete  Units: none
 PMID: 241.1.3 (schizo.data3)
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: sec
+PMID: 241.1.4 (schizo.data4)
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: byte
 
 Instance Domains in the Log ...
+InDom: 2.1
+11:11:41.369490 1 instances
+   19426 or "19426"
 InDom: 29.2
 11:11:43.370807 9 instances
    100 or "bin-100"
@@ -453,9 +456,6 @@ InDom: 29.2
 InDom: 241.0
 11:11:43.370807 1 instances
    0 or "zero"
-InDom: 2.1
-11:11:41.369490 1 instances
-   19426 or "19426"
 
 Temporal Index
 		Log Vol    end(meta)     end(log)

@@ -60,6 +60,8 @@ extern int __pmGetDate(struct timespec *, char const *, struct timespec const *)
 #define __ntohpmLabel(a)	/* noop */
 #define __htonpmValueBlock(a)	/* noop */
 #define __ntohpmValueBlock(a)	/* noop */
+#define __ntohpmValueBlock_hdr(a)	/* noop */
+#define __ntohpmValueBlock_buf(a)	/* noop */
 #define __htonf(a)		/* noop */
 #define __ntohf(a)		/* noop */
 #define __htond(a)		/* noop */
@@ -90,6 +92,8 @@ extern void __htonpmLabel(pmLabel * const) _PCP_HIDDEN;
 extern void __ntohpmLabel(pmLabel * const) _PCP_HIDDEN;
 extern void __htonpmValueBlock(pmValueBlock * const) _PCP_HIDDEN;
 extern void __ntohpmValueBlock(pmValueBlock * const) _PCP_HIDDEN;
+extern void __ntohpmValueBlock_hdr(pmValueBlock * const) _PCP_HIDDEN;
+extern void __ntohpmValueBlock_buf(pmValueBlock * const) _PCP_HIDDEN;
 extern void __htonf(char *) _PCP_HIDDEN;	/* float */
 #define __ntohf(v) __htonf(v)
 #define __htond(v) __htonll(v)			/* double */
@@ -162,12 +166,14 @@ extern int __pmIsErrLock(void *) _PCP_HIDDEN;
 extern int __pmIsLockLock(void *) _PCP_HIDDEN;
 extern int __pmIsLogutilLock(void *) _PCP_HIDDEN;
 extern int __pmIsPmnsLock(void *) _PCP_HIDDEN;
+extern int __pmIsPmnsFixLock(void *) _PCP_HIDDEN;
 extern int __pmIsAFLock(void *) _PCP_HIDDEN;
 extern int __pmIsresultLock(void *) _PCP_HIDDEN;
 extern int __pmIsSecureclientLock(void *) _PCP_HIDDEN;
 extern int __pmIsSecureserverLock(void *) _PCP_HIDDEN;
 extern int __pmIsConnectLock(void *) _PCP_HIDDEN;
 extern int __pmIsExecLock(void *) _PCP_HIDDEN;
+extern int __pmIsThrottleLock(void *) _PCP_HIDDEN;
 #endif
 
 /*
@@ -327,6 +333,7 @@ extern int pmNameAll_ctx(__pmContext *, pmID, char ***) _PCP_HIDDEN;
 extern int pmLookupDesc_ctx(__pmContext *, int, pmID, pmDesc *) _PCP_HIDDEN;
 extern int pmNameInDom_ctx(__pmContext *, pmInDom, int, char **) _PCP_HIDDEN;
 extern int pmLookupInDom_ctx(__pmContext *, pmInDom, const char *) _PCP_HIDDEN;
+extern int pmGetInDom_ctx(__pmContext *, pmInDom, int **, char ***) _PCP_HIDDEN;
 extern int pmGetInDomArchive_ctx(__pmContext *, pmInDom, int **, char ***) _PCP_HIDDEN;
 extern int pmFetch_ctx(__pmContext *, int, pmID *, __pmResult **) _PCP_HIDDEN;
 extern int pmStore_ctx(__pmContext *, const __pmResult *) _PCP_HIDDEN;
@@ -372,8 +379,6 @@ extern int __pmIsLocked(void *) _PCP_HIDDEN;
 extern void __pmCheckIsUnlocked(void *, char *, int) _PCP_HIDDEN;
 #endif /* BUILD_WITH_LOCK_ASSERTS */
 
-extern int __pmGetPDUCeiling(void) _PCP_HIDDEN;
-
 extern int __pmSetFeaturesIPC(int, int, int) _PCP_HIDDEN;
 extern int __pmSetDataIPC(int, void *) _PCP_HIDDEN;
 extern int __pmDataIPCSize(void) _PCP_HIDDEN;
@@ -405,7 +410,6 @@ extern __pmTimestamp *__pmLogStartTime(__pmArchCtl *) _PCP_HIDDEN;
 extern int __pmLogSetTime(__pmContext *) _PCP_HIDDEN;
 extern void __pmLogResetInterp(__pmContext *) _PCP_HIDDEN;
 extern void __pmArchCtlFree(__pmArchCtl *) _PCP_HIDDEN;
-extern int __pmLogChangeArchive(__pmContext *, int) _PCP_HIDDEN;
 extern int __pmLogChangeToNextArchive(__pmLogCtl **) _PCP_HIDDEN;
 extern int __pmLogChangeToPreviousArchive(__pmLogCtl **) _PCP_HIDDEN;
 

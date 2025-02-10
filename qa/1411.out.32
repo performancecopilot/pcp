@@ -9,73 +9,73 @@ Performance metrics from host gangliatest.32
     ending     Wed Feb 11 17:21:00.000000000 2015
 
 Descriptions for Metrics in the Log ...
-PMID: 60.1.8 (swap.free)
-    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: byte
-PMID: 60.1.2 (mem.util.free)
-    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: Kbyte
-PMID: 60.3.0 (network.interface.in.bytes)
-    Data Type: 64-bit unsigned int  InDom: 60.3 0xf000003
-    Semantics: counter  Units: byte
-PMID: 60.18.0 (hinv.cpu.clock)
-    Data Type: float  InDom: 60.0 0xf000000
-    Semantics: discrete  Units: none
-PMID: 60.3.1 (network.interface.in.packets)
-    Data Type: 64-bit unsigned int  InDom: 60.3 0xf000003
-    Semantics: counter  Units: count
-PMID: 60.1.9 (hinv.physmem)
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: Mbyte
-PMID: 60.1.4 (mem.util.bufmem)
-    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: Kbyte
-PMID: 60.2.0 (kernel.all.load)
-    Data Type: float  InDom: 60.2 0xf000002
-    Semantics: instant  Units: none
 PMID: 60.0.20 (kernel.all.cpu.user)
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: millisec
-PMID: 60.26.0 (kernel.all.uptime)
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: sec
-PMID: 60.3.8 (network.interface.out.bytes)
-    Data Type: 64-bit unsigned int  InDom: 60.3 0xf000003
-    Semantics: counter  Units: byte
-PMID: 60.0.32 (hinv.ncpu)
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
-PMID: 60.3.9 (network.interface.out.packets)
-    Data Type: 64-bit unsigned int  InDom: 60.3 0xf000003
-    Semantics: counter  Units: count
-PMID: 60.1.5 (mem.util.cached)
-    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: Kbyte
 PMID: 60.0.21 (kernel.all.cpu.nice)
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: millisec
-PMID: 60.1.6 (swap.length)
-    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: byte
 PMID: 60.0.22 (kernel.all.cpu.sys)
-    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: millisec
-PMID: 60.0.35 (kernel.all.cpu.wait.total)
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: millisec
 PMID: 60.0.23 (kernel.all.cpu.idle)
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: millisec
+PMID: 60.0.32 (hinv.ncpu)
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+PMID: 60.0.35 (kernel.all.cpu.wait.total)
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: millisec
+PMID: 60.1.2 (mem.util.free)
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+PMID: 60.1.4 (mem.util.bufmem)
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+PMID: 60.1.5 (mem.util.cached)
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+PMID: 60.1.6 (swap.length)
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: byte
+PMID: 60.1.8 (swap.free)
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: byte
+PMID: 60.1.9 (hinv.physmem)
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: Mbyte
+PMID: 60.2.0 (kernel.all.load)
+    Data Type: float  InDom: 60.2 0xf000002
+    Semantics: instant  Units: none
+PMID: 60.3.0 (network.interface.in.bytes)
+    Data Type: 64-bit unsigned int  InDom: 60.3 0xf000003
+    Semantics: counter  Units: byte
+PMID: 60.3.1 (network.interface.in.packets)
+    Data Type: 64-bit unsigned int  InDom: 60.3 0xf000003
+    Semantics: counter  Units: count
+PMID: 60.3.8 (network.interface.out.bytes)
+    Data Type: 64-bit unsigned int  InDom: 60.3 0xf000003
+    Semantics: counter  Units: byte
+PMID: 60.3.9 (network.interface.out.packets)
+    Data Type: 64-bit unsigned int  InDom: 60.3 0xf000003
+    Semantics: counter  Units: count
+PMID: 60.18.0 (hinv.cpu.clock)
+    Data Type: float  InDom: 60.0 0xf000000
+    Semantics: discrete  Units: none
+PMID: 60.26.0 (kernel.all.uptime)
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: sec
 
 Instance Domains in the Log ...
+InDom: 60.0
+17:02:00.000000000 1 instances
+   0 or "cpu0"
 InDom: 60.2
 17:02:00.000000000 3 instances
    1 or "1 minute"
    5 or "5 minute"
    15 or "15 minute"
-InDom: 60.0
-17:02:00.000000000 1 instances
-   0 or "cpu0"
 InDom: 60.3
 17:02:00.000000000 1 instances
    1000 or "total"

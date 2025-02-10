@@ -27,11 +27,13 @@ install: $(SUBDIRS)
 	$(INSTALL) -m 755 -d $(PCP_SYSCONF_DIR)/pmproxy
 	$(INSTALL) -m 644 pmproxy.conf pmproxy.options $(PCP_SYSCONF_DIR)/pmproxy
 	$(INSTALL) -m 644 pmproxy.defaults $(PCP_SYSCONFIG_DIR)/pmproxy
-	$(INSTALL) -m 755 rc_pmproxy $(PCP_RC_DIR)/pmproxy
+	$(INSTALL) -m 755 rc_wrapper $(PCP_RC_DIR)/pmproxy
+	$(INSTALL) -m 755 rc_pmproxy $(PCP_SYSCONF_DIR)/pmproxy/rc
 ifeq ($(ENABLE_SYSTEMD),true)
 	$(INSTALL) -m 644 pmproxy.service $(PCP_SYSTEMDUNIT_DIR)/pmproxy.service
 endif
-	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_USER) -d $(PCP_LOG_DIR)/pmproxy
+	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_LOG_DIR)/pmproxy
+	$(INSTALL) -m 755 pmproxy.pmcheck $(PCP_SHARE_DIR)/lib/pmcheck/pmproxy
 
 include $(BUILDRULES)
 
@@ -41,6 +43,8 @@ install_pcp : install
 
 pmproxy.service: pmproxy.service.in
 	$(SED) <$< >$@ \
-	    -e 's;@PCP_RC_DIR@;'$(PCP_RC_DIR)';' \
+	    -e 's;@PCP_SYSCONF_DIR@;'$(PCP_SYSCONF_DIR)';' \
 	    -e 's;@PCP_RUN_DIR@;'$(PCP_RUN_DIR)';' \
+	    -e 's;@PCP_GROUP@;'$(PCP_GROUP)';' \
+	    -e 's;@PCP_USER@;'$(PCP_USER)';' \
 	# END
