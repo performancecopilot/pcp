@@ -491,9 +491,6 @@ dump_values2(void *addr, size_t size, int idx, long base, __uint64_t offset, __i
 		return 1;
 	    }
 	    string = (mmv_disk_string_t *)((char *)addr + name);
-	    //pmstrncpy(buf, sizeof(buf), string->payload);
-	    //buf[sizeof(buf)-1] = '\0';
-	    //printf("[%d or \"%s\"]", instance->internal, buf);
 	    printf("[%d or \"%s\"]", instance->internal, string->payload);
 	}
 	dump_value(addr, size, vals, i, idx, metric->type);
