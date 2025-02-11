@@ -87,6 +87,12 @@ then
 else
     diff -u  $tmp.ref $tmp.xtract >>$seq_full
     ls -l tmparch/foo.* $tmp.* >>$seq_full
+    echo "=== metadata for .ref ===" >>$seq_full
+    src/scanmeta -a tmparch/foo.meta 2>&1 | tee -a $seq_full >$tmp.ref.meta
+    echo "=== metadata for .xtract ===" >>$seq_full
+    src/scanmeta -a $tmp.meta 2>&1 | tee -a $seq_full >$tmp.xtract.meta
+    echo "=== diffs ===" >>$seq_full
+    diff -u  $tmp.ref.meta $tmp.xtract.meta >>$seq_full
 fi
 
 echo
