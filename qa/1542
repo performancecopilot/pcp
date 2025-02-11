@@ -43,7 +43,12 @@ pmlogrewrite -c $PCP_VAR_DIR/config/pmlogrewrite/bind2.conf archives/bind2-9.18 
 export PCP_DERIVED_CONFIG=0
 
 pminfo -a archives/bind2-9.18+ -m >$tmp.new
+echo "=== original PMIDs from archives/bind2-9.18+ ..." >>$seq_full
+cat $tmp.new >>$seq.full
+
+echo "=== rewritten PMIDs ..." >>$seq_full
 pminfo -a $tmp -m \
+| tee -a $seq_full \
 | while read name pad pmid
 do
     if grep -q "$name $pad $pmid" <$tmp.new
@@ -53,7 +58,7 @@ do
 	echo "ok: $name"
     else
 	echo "rewrite: $name $pad $pmid"
-	echo "new: `grep "^$name "`"
+	echo "new: `grep "^$name "` <$tmp.new"
     fi
 done
 
