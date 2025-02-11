@@ -12,7 +12,7 @@ rule	dmthin.metadata_high_util
         > $threshold$
     )
 )"
-	enabled = no
+	enabled = yes
 	version = 1
 	help	=
 "Device Mapper thin pool metadata utilization percent exceeded
