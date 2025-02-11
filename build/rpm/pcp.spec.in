@@ -304,7 +304,102 @@ Requires: pcp = @package_version@
 Requires: pcp-libs = @package_version@
 Requires: pcp-libs-devel = @package_version@
 Requires: pcp-devel = @package_version@
-Requires: bc gcc gzip bzip2
+Obsoletes: pcp-gui-testsuite < 3.9.5
+# The following are inherited from pcp-collector and pcp-monitor,
+# both of which are now obsoleted by the base pcp package
+%if "@have_perl@" == "true"
+Requires: pcp-pmda-bonding pcp-pmda-dbping pcp-pmda-ds389 pcp-pmda-ds389log
+Requires: pcp-pmda-gpfs pcp-pmda-gpsd pcp-pmda-lustre pcp-pmda-pdns
+Requires: pcp-pmda-memcache pcp-pmda-named pcp-pmda-netfilter pcp-pmda-news
+Requires: pcp-pmda-redis pcp-pmda-samba pcp-pmda-slurm pcp-pmda-zimbra
+%endif
+Requires: pcp-pmda-apache pcp-pmda-bash pcp-pmda-cisco pcp-pmda-dm
+Requires: pcp-pmda-logger pcp-pmda-mailq pcp-pmda-mounts
+Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping
+Requires: pcp-pmda-lustrecomm pcp-pmda-docker pcp-pmda-smart pcp-pmda-farm
+Requires: pcp-pmda-hacluster pcp-pmda-sockets pcp-pmda-podman
+%if "@have_python@" == "true"
+Requires: pcp-geolocate pcp-export-pcp2openmetrics pcp-export-pcp2json
+Requires: pcp-export-pcp2spark pcp-export-pcp2xml pcp-export-pcp2zabbix
+Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-mic
+Requires: pcp-pmda-haproxy pcp-pmda-nfsclient pcp-pmda-lmsensors
+Requires: pcp-pmda-netcheck pcp-pmda-rabbitmq pcp-pmda-uwsgi
+Requires: pcp-pmda-openvswitch pcp-pmda-rocestat
+%endif
+%if "@pmda_gfs2@" == "true"
+Requires: pcp-pmda-gfs2
+%endif
+%if "@pmda_statsd@" == "true"
+Requires: pcp-pmda-statsd
+%endif
+%if "@pmda_bcc@" == "true"
+Requires: pcp-pmda-bcc
+%endif
+%if "@pmda_bpf@" == "true"
+Requires: pcp-pmda-bpf
+%endif
+%if "@pmda_bpftrace@" == "true"
+Requires: pcp-pmda-bpftrace
+%endif
+%if "@pmda_json@" == "true"
+Requires: pcp-pmda-json
+%endif
+%if "@pmda_libvirt@" == "true"
+Requires: pcp-pmda-libvirt
+%endif
+%if "@pmda_lio@" == "true"
+Requires: pcp-pmda-lio
+%endif
+%if "@pmda_openmetrics@" == "true"
+Requires: pcp-pmda-openmetrics
+%endif
+%if "@pmda_snmp@" == "true"
+Requires: pcp-pmda-snmp
+%endif
+%if "@pmda_mssql@" == "true"
+Requires: pcp-pmda-mssql
+%endif
+%if "@pmda_mysql@" == "true"
+Requires: pcp-pmda-mysql
+%endif
+%if "@pmda_oracle@" == "true"
+Requires: pcp-pmda-oracle
+%endif
+%if "@pmda_mongodb@" == "true"
+Requires: pcp-pmda-mongodb
+%endif
+%if "@pmda_postgresql@" == "true"
+Requires: pcp-pmda-postgresql
+%endif
+%if "@pmda_nginx@" == "true"
+Requires: pcp-pmda-nginx
+%endif
+%if "@pmda_activemq@" == "true"
+Requires: pcp-pmda-activemq
+%endif
+%if "@pmda_bind2@" == "true"
+Requires: pcp-pmda-bind2
+%endif
+%if "@pmda_nutcracker@" == "true"
+Requires: pcp-pmda-nutcracker
+%endif
+%if "@pmda_elasticsearch@" == "true"
+Requires: pcp-pmda-elasticsearch
+%endif
+%if "@pmda_postfix@" == "true"
+Requires: pcp-pmda-postfix
+%endif
+%if "@pmda_resctrl@" == "true"
+Requires: pcp-pmda-resctrl
+%endif
+%if "@pmda_amdgpu@" == "true"
+Requires: pcp-pmda-amdgpu
+%endif
+Requires: pcp-system-tools
+%if "@enable_qt@" == "true"
+Requires: pcp-gui
+%endif
+Requires: gcc bc bzip2 gzip
 %if "@enable_selinux@" == "true"
 Requires: selinux-policy-devel
 Requires: selinux-policy-targeted
@@ -1571,6 +1666,24 @@ collecting metrics from simple network checks.
 # end pcp-pmda-netcheck
 
 #
+# pcp-pmda-rocestat
+#
+%package pmda-rocestat
+License: GPL-2.0-or-later
+Summary: Performance Co-Pilot (PCP) metrics for simple network checks
+URL: https://pcp.io
+Requires: pcp = @package_version@ pcp-libs = @package_version@
+%if "@enable_python3@" == "true"
+Requires: python3-pcp
+%else
+Requires: %{__python2}-pcp
+%endif
+%description pmda-rocestat
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting statistics for RDMA over Converged Ethernet (RoCE) devices.
+# end pcp-pmda-rocestat
+
+#
 # pcp-pmda-openvswitch
 #
 %package pmda-openvswitch
@@ -2242,6 +2355,7 @@ basic_manifest | keep '(etc/pcp|pmdas)/postgresql(/|$)' >pcp-pmda-postgresql-fil
 basic_manifest | keep '(etc/pcp|pmdas)/rabbitmq(/|$)' >pcp-pmda-rabbitmq-files
 basic_manifest | keep '(etc/pcp|pmdas)/redis(/|$)' >pcp-pmda-redis-files
 basic_manifest | keep '(etc/pcp|pmdas)/resctrl(/|$)|sys-fs-resctrl' >pcp-pmda-resctrl-files
+basic_manifest | keep '(etc/pcp|pmdas)/rocestat(/|$)' >pcp-pmda-rocestat-files
 basic_manifest | keep '(etc/pcp|pmdas)/roomtemp(/|$)' >pcp-pmda-roomtemp-files
 basic_manifest | keep '(etc/pcp|pmdas)/rsyslog(/|$)' >pcp-pmda-rsyslog-files
 basic_manifest | keep '(etc/pcp|pmdas)/samba(/|$)' >pcp-pmda-samba-files
@@ -2279,7 +2393,7 @@ for pmda_package in \
     nutcracker nvidia \
     openmetrics openvswitch oracle \
     pdns perfevent podman postfix postgresql \
-    rabbitmq redis resctrl roomtemp rsyslog \
+    rabbitmq redis resctrl rocestat roomtemp rsyslog \
     samba sendmail shping slurm smart snmp \
     sockets statsd summary systemd \
     unbound uwsgi \
@@ -2696,6 +2810,9 @@ done
 %preun pmda-rabbitmq
 %{pmda_remove "$1" "rabbitmq"}
 
+%preun pmda-rocestat
+%{pmda_remove "$1" "rocestat"}
+
 %preun pmda-uwsgi
 %{pmda_remove "$1" "uwsgi"}
 %endif
@@ -3019,6 +3136,8 @@ fi
 %files pmda-openvswitch -f pcp-pmda-openvswitch-files.rpm
 
 %files pmda-rabbitmq -f pcp-pmda-rabbitmq-files.rpm
+
+%files pmda-rocestat -f pcp-pmda-rocestat-files.rpm
 
 %files pmda-uwsgi -f pcp-pmda-uwsgi-files.rpm
 
