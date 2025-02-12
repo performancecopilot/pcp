@@ -219,16 +219,6 @@ else
 fi
 }
 
-%global run_pmieconf() %{expand:
-if [ -d "%1" -a -w "%1" -a -w "%1/%2" ]
-then
-    pmieconf -f "%1/%2" -c enable "%3"
-    chown pcp:pcp "%1/%2" 2>/dev/null
-else
-    echo "WARNING: Cannot write to %1/%2, skipping pmieconf enable of %3." >&2
-fi
-}
-
 %if "@enable_selinux@" == "true"
 # rpm boolean dependencies are supported since RHEL 8, but not reliably
 # across all platforms, so be conservative here
@@ -2733,7 +2723,6 @@ exit 0
 PCP_PMDAS_DIR=@pcp_pmdas_dir@
 PCP_SYSCONFIG_DIR=@pcp_sysconfig_dir@
 PCP_PMCDCONF_PATH=@pcp_pmcdconf_path@
-PCP_PMIECONFIG_DIR=@pcp_var_dir@/config/pmie
 # auto-install important PMDAs for RH Support (if not present already)
 needinstall='dm'
 %if "@have_python@" == "true"
@@ -2748,8 +2737,6 @@ for PMDA in $needinstall ; do
 	%{install_file "$PCP_PMDAS_DIR/$PMDA" .NeedInstall}
     fi
 done
-# auto-enable these usually optional pmie rules
-%{run_pmieconf "$PCP_PMIECONFIG_DIR" config.default dmthin}
 # managed via /usr/lib/systemd/system-preset/90-default.preset nowadays:
 %if 0%{?rhel} > 0 && 0%{?rhel} < 10
 %if "@enable_systemd@" == "true"

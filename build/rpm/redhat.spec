@@ -346,7 +346,6 @@ Requires: pcp-selinux = %{version}-%{release}
 %global _pmdasdir       %{_localstatedir}/lib/pcp/pmdas
 %global _pmdasexecdir   %{_libexecdir}/pcp/pmdas
 %global _testsdir       %{_localstatedir}/lib/pcp/testsuite
-%global _ieconfigdir    %{_localstatedir}/lib/pcp/config/pmie
 %global _ieconfdir      %{_localstatedir}/lib/pcp/config/pmieconf
 %global _selinuxdir     %{_datadir}/selinux/packages/targeted
 
@@ -472,16 +471,6 @@ then
     (cd "%1" && ./Rebuild -s && rm -f "%2")
 else
     echo "WARNING: Cannot write to %1, skipping namespace rebuild." >&2
-fi
-}
-
-%global run_pmieconf() %{expand:
-if [ -d "%1" -a -w "%1" -a -w "%1/%2" ]
-then
-    pmieconf -f "%1/%2" -c enable "%3"
-    chown pcp:pcp "%1/%2" 2>/dev/null
-else
-    echo "WARNING: Cannot write to %1/%2, skipping pmieconf enable of %3." >&2
 fi
 }
 
@@ -3215,7 +3204,6 @@ fi
 PCP_PMDAS_DIR=%{_pmdasdir}
 PCP_SYSCONFIG_DIR=%{_sysconfdir}/sysconfig
 PCP_PMCDCONF_PATH=%{_confdir}/pmcd/pmcd.conf
-PCP_PMIECONFIG_DIR=%{_ieconfigdir}
 # auto-install important PMDAs for RH Support (if not present already)
 for PMDA in dm nfsclient openmetrics ; do
     if ! grep -q "$PMDA/pmda$PMDA" "$PCP_PMCDCONF_PATH"
@@ -3223,8 +3211,6 @@ for PMDA in dm nfsclient openmetrics ; do
         %{install_file "$PCP_PMDAS_DIR/$PMDA" .NeedInstall}
     fi
 done
-# auto-enable these usually optional pmie rules
-%{run_pmieconf "$PCP_PMIECONFIG_DIR" config.default dmthin}
 # managed via /usr/lib/systemd/system-preset/90-default.preset nowadays:
 %if 0%{?rhel} > 0 && 0%{?rhel} < 10
 %if !%{disable_systemd}

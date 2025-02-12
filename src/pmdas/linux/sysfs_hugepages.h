@@ -1,7 +1,7 @@
 /*
- * Linux /sys/kernel/mm/hugepages cluster
+ * Linux /sys/{kernel/mm,devices/system/node/nodeN}/hugepages clusters
  *
- * Copyright (c) 2024, Red Hat.
+ * Copyright (c) 2024-2025, Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -31,10 +31,20 @@ enum {
     HUGEPAGES_METRIC_COUNT
 };
 
-typedef struct hugepages {
-    uint64_t	values[HUGEPAGES_METRIC_COUNT];
-} hugepages_t;
+enum {
+    /* direct indexed NUMA pagesize metric */
+    PAGESIZE_NUMA_HUGEPAGES = 0,
+
+    /* direct indexed NUMA counter metrics */
+    FREE_NUMA_HUGEPAGES,
+    SURPLUS_NUMA_HUGEPAGES,
+    TOTALSIZE_NUMA_HUGEPAGES,
+
+    /* number of direct indexed counters */
+    NUMA_HUGEPAGES_METRIC_COUNT
+};
 
 extern int refresh_sysfs_hugepages(pmInDom);
+extern int refresh_sysfs_numa_hugepages(pmInDom);
 
 #endif /* SYSFS_HUGEPAGES_H */

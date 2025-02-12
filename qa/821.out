@@ -137,6 +137,18 @@ mem.numa.alloc.miss
 mem.numa.alloc.other_node
     inst [0 or "node0"] value 0
 
+mem.numa.hugepages.free
+No value(s) available!
+
+mem.numa.hugepages.pagesize
+No value(s) available!
+
+mem.numa.hugepages.surplus
+No value(s) available!
+
+mem.numa.hugepages.totalsize
+No value(s) available!
+
 mem.numa.max_bandwidth
 No value(s) available!
 
@@ -2932,6 +2944,18 @@ mem.numa.alloc.miss
 mem.numa.alloc.other_node
     inst [0 or "node0"] value 11838
     inst [1 or "node1"] value 53630
+
+mem.numa.hugepages.free
+No value(s) available!
+
+mem.numa.hugepages.pagesize
+No value(s) available!
+
+mem.numa.hugepages.surplus
+No value(s) available!
+
+mem.numa.hugepages.totalsize
+No value(s) available!
 
 mem.numa.max_bandwidth
 No value(s) available!
@@ -5738,6 +5762,18 @@ mem.numa.alloc.other_node
     inst [0 or "node0"] value 11838
     inst [1 or "node1"] value 53630
 
+mem.numa.hugepages.free
+No value(s) available!
+
+mem.numa.hugepages.pagesize
+No value(s) available!
+
+mem.numa.hugepages.surplus
+No value(s) available!
+
+mem.numa.hugepages.totalsize
+No value(s) available!
+
 mem.numa.max_bandwidth
 No value(s) available!
 
@@ -8537,6 +8573,18 @@ mem.numa.alloc.miss
 mem.numa.alloc.other_node
     inst [0 or "node0"] value 0
 
+mem.numa.hugepages.free
+No value(s) available!
+
+mem.numa.hugepages.pagesize
+No value(s) available!
+
+mem.numa.hugepages.surplus
+No value(s) available!
+
+mem.numa.hugepages.totalsize
+No value(s) available!
+
 mem.numa.max_bandwidth
 No value(s) available!
 
@@ -11072,6 +11120,18 @@ mem.numa.alloc.miss
 
 mem.numa.alloc.other_node
     inst [0 or "node0"] value 0
+
+mem.numa.hugepages.free
+No value(s) available!
+
+mem.numa.hugepages.pagesize
+No value(s) available!
+
+mem.numa.hugepages.surplus
+No value(s) available!
+
+mem.numa.hugepages.totalsize
+No value(s) available!
 
 mem.numa.max_bandwidth
 No value(s) available!
@@ -13673,6 +13733,18 @@ mem.numa.alloc.miss
 mem.numa.alloc.other_node
     inst [0 or "node0"] value 0
 
+mem.numa.hugepages.free
+No value(s) available!
+
+mem.numa.hugepages.pagesize
+No value(s) available!
+
+mem.numa.hugepages.surplus
+No value(s) available!
+
+mem.numa.hugepages.totalsize
+No value(s) available!
+
 mem.numa.max_bandwidth
 No value(s) available!
 
@@ -15550,6 +15622,18 @@ mem.numa.alloc.miss
 mem.numa.alloc.other_node
     inst [0 or "node0"] value 847
     inst [1 or "node1"] value 492232
+
+mem.numa.hugepages.free
+No value(s) available!
+
+mem.numa.hugepages.pagesize
+No value(s) available!
+
+mem.numa.hugepages.surplus
+No value(s) available!
+
+mem.numa.hugepages.totalsize
+No value(s) available!
 
 mem.numa.max_bandwidth
 No value(s) available!
