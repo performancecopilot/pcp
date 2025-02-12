@@ -156,6 +156,7 @@ class ContainerRunner:
         subprocess.run(
             [*self.sudo, "podman", "cp", f"{pcp_path}/", f"{self.container_name}:/home/pcpbuild/pcp"], check=True
         )
+        self.exec("sudo adduser --disabled-password --comment pcp-builder pcpbuild");
         self.exec("sudo chown -R pcpbuild:pcpbuild .")
         self.exec("mkdir -p ../artifacts/build ../artifacts/test")
 
