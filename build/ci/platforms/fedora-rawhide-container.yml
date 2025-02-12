@@ -3,7 +3,7 @@ type: container
 container:
   containerfile: |
     FROM registry.fedoraproject.org/fedora:rawhide
-    RUN dnf install -y --allowerasing systemd
+    RUN dnf install -y --allowerasing systemd gawk
     # dbus.socket requires dbus.service; dbus-broker.service is an alias for dbus.service, but it only gets considered if it is enabled
     RUN systemctl enable dbus-broker
     RUN useradd --create-home pcpbuild
