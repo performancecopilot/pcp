@@ -10,6 +10,11 @@ container:
     RUN dnf install -y systemd
     RUN useradd --create-home pcpbuild
     RUN echo 'pcpbuild ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/pcpbuild
+    RUN grep pcpbuild /etc/passwd || true
+    RUN grep pcpbuild /etc/group || true
+    RUN touch /home/pcpbuild/foo || true
+    RUN chown pcpbuild.pcpbuild /home/pcpbuild/foo || true
+    RUN ls -la /home/pcpbuild
     CMD ["/usr/sbin/init"]
 
 tasks:
