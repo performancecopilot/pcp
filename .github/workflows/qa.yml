@@ -34,12 +34,12 @@ jobs:
           - {platform: ubuntu2404,                os: ubuntu-latest, experimental: false}
           - {platform: fedora38-container,        os: ubuntu-latest, experimental: false}
           - {platform: fedora39-container,        os: ubuntu-latest, experimental: false}
-          - {platform: fedora40-container,        os: ubuntu-latest, experimental: false}
+          - {platform: fedora40-container,        os: ubuntu-22.04, experimental: false}
           - {platform: fedora-rawhide-container,  os: ubuntu-latest, experimental: true }
           - {platform: centos6-container,         os: ubuntu-latest, experimental: false}
           - {platform: centos7-container,         os: ubuntu-latest, experimental: false}
           - {platform: centos-stream8-container,  os: ubuntu-latest, experimental: false}
-          - {platform: centos-stream9-container,  os: ubuntu-latest, experimental: false}
+          - {platform: centos-stream9-container,  os: ubuntu-22.04, experimental: false}
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4
