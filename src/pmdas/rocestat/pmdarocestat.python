@@ -377,12 +377,7 @@ class MLNXCOUNTERS():
 
 class ROCESTATPMDA(PMDA):
     """
-    A ROCE Performance Metrics Domain Agent.
-    Install it and make basic use of it, as follows:
-
-    # $PCP_PMDAS_DIR/rocestat/Install
-    [select python option]
-    $ pminfo -fmdtT rocestat
+    A ROCESTAT Performance Metrics Domain Agent.
     """
 
     # Cluster definitions
@@ -397,9 +392,7 @@ class ROCESTATPMDA(PMDA):
         pm_type_32 = c_api.PM_TYPE_U32
         pm_type_64 = c_api.PM_TYPE_U64
         pm_type_double = c_api.PM_TYPE_DOUBLE
-        pm_type_str = c_api.PM_TYPE_STRING
 
-        null_indom = c_api.PM_INDOM_NULL
         inst_sem = c_api.PM_SEM_INSTANT
         count_sem = c_api.PM_SEM_COUNTER
 
@@ -595,14 +588,6 @@ class ROCESTATPMDA(PMDA):
 
         return [c_api.PM_ERR_PMID, 0]
 
-
-    def roce_store_callback(self, cluster, item, inst, val):
-        """
-        Store callback, executed when a request to write to a metric happens
-        """
-        self.log("storing values\n")
-
-
     def __init__(self, name, domain, user, logfile):
 
         super().__init__(name, domain, logfile)
@@ -615,9 +600,7 @@ class ROCESTATPMDA(PMDA):
 
         self.register_metrics(name)
         self.set_fetch(self.roce_stat_fetch)
-
         self.set_fetch_callback(self.roce_fetch_callback)
-        self.set_store_callback(self.roce_store_callback)
 
     @staticmethod
     def log(message):
@@ -636,7 +619,7 @@ if __name__ == "__main__":
     # This PMDA starts up in the "notready" state, see the Install script where
     # the IPC protocol is ipc_prot="binary notready". See also pmcd(1) man page.
     # The "binary notready" setting can also be manually configured in pmcd.conf.
-    pmda = ROCESTATPMDA(name='rocestat', domain=257, user="root", logfile='rocestat.log')
+    pmda = ROCESTATPMDA(name='rocestat', domain=254, user="root", logfile='rocestat.log')
 
     pmda.pmda_ready()
     if not pmda.in_pmda_setup():

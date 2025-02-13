@@ -1799,7 +1799,7 @@ collecting metrics from simple network checks.
 #
 %package pmda-rocestat
 License: GPL-2.0-or-later
-Summary: Performance Co-Pilot (PCP) metrics for simple network checks
+Summary: Performance Co-Pilot (PCP) metrics for nVidia RoCE devices
 URL: https://pcp.io
 Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
 %if !%{disable_python3}
@@ -1809,7 +1809,7 @@ Requires: %{__python2}-pcp
 %endif
 %description pmda-rocestat
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting statistics for RDMA over Converged Ethernet (RoCE) devices.
+collecting statistics for nVidia RDMA over Converged Ethernet (RoCE) devices.
 # end pcp-pmda-rocestat
 %endif
 
