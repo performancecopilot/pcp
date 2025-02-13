@@ -1574,7 +1574,7 @@ pmcd.pdu
 1093 pmcpp local
 1094 other local
 1095 derive local kernel
-1096:retired libpcp threads pmmgr local
+1096:retired libpcp threads pmmgr local threads
 1097 pmlogconf local
 1098 python local pmstore sanity
 1099 archive iostat local pmie pcp python
@@ -1794,7 +1794,7 @@ pmcd.pdu
 1313 libpcp local
 1314 libpcp valgrind local
 1315 sanity local
-1316 libpcp local
+1316 libpcp local threads
 1317 libpcp local valgrind
 1318 pmprobe local kernel
 1319 libpcp local valgrind helgrind
