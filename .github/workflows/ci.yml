@@ -26,7 +26,7 @@ jobs:
           - {platform: ubuntu2204-container,      os: ubuntu-latest, experimental: false}
           - {platform: ubuntu2404-container,      os: ubuntu-latest, experimental: false}
           - {platform: fedora39-container,        os: ubuntu-latest, experimental: false}
-          - {platform: fedora40-container,        os: ubuntu-22.04, experimental: false}
+          - {platform: fedora40-container,        os: ubuntu-latest, experimental: false}
           - {platform: centos-stream8-container,  os: ubuntu-latest, experimental: false}
           - {platform: centos-stream9-container,  os: ubuntu-22.04, experimental: false}
 # other platforms that may be used for testing in developer repos
@@ -64,7 +64,7 @@ jobs:
           # https://github.com/kubernetes-sigs/kind/pull/3527
           curl -sLo /tmp/crun https://github.com/containers/crun/releases/download/1.14.3/crun-1.14.3-linux-amd64
           chmod +x /tmp/crun
-          sudo cp /tmp/crun /usr/bin/crun
+	  sudo cp /tmp/crun /usr/bin/crun
 
           build/ci/ci-run.py ${{ matrix.platform }} setup
 

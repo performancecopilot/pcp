@@ -156,6 +156,9 @@ class ContainerRunner:
         subprocess.run(
             [*self.sudo, "podman", "cp", f"{pcp_path}/", f"{self.container_name}:/home/pcpbuild/pcp"], check=True
         )
+        self.exec("id")
+        self.exec("pwd")
+        self.exec("ls -lR")
         self.exec("sudo chown -R pcpbuild:pcpbuild .")
         self.exec("mkdir -p ../artifacts/build ../artifacts/test")
 
