@@ -74,6 +74,7 @@ devices all share the same statistics in the kernel as the st devices.
 @ 60.41 per-processor soft IRQs
 @ 60.42 scsi devices identified by unique WWID
 @ 60.43 set of hugepage sizes
+@ 60.44 set of hugepage sizes for each NUMA node
 
 @ kernel.uname.release release level of the running kernel
 Release level of the running kernel as reported via the release[]
