@@ -165,17 +165,20 @@ proc_ctx_attrs(int ctx, int attr, const char *value, int length, pmdaExt *pmda)
 static char *
 proc_ctx_add_username(char *value)
 {
-    size_t length, count, bytes = strlen(value);
+    size_t length, offset, count, bytes = strlen(value);
     char **p = NULL, **q;
 
     if (!bytes)
 	return value;
 
-    if (!ctxusers)
+    if (!ctxusers) {
 	count = 1;
-    else
+	offset = 0;
+    } else {
 	for (count = 1, p = ctxusers; *p; p++)
 	    count++;
+	offset = (p - ctxusers);
+    }
 
     length = (count + 1) * sizeof(char *);
     if ((q = realloc(ctxusers, length)) == NULL) {
@@ -184,7 +187,7 @@ proc_ctx_add_username(char *value)
     }
 
     if (ctxusers)
-	p = q + (p - ctxusers);
+	p = q + offset;
     else
 	p = q;
 

@@ -1,7 +1,7 @@
 /*
  * Linux PMDA
  *
- * Copyright (c) 2012-2024 Red Hat.
+ * Copyright (c) 2012-2025 Red Hat.
  * Copyright (c) 2016-2017 Fujitsu.
  * Copyright (c) 2007-2011 Aconex.  All Rights Reserved.
  * Copyright (c) 2002 International Business Machines Corp.
@@ -378,6 +378,7 @@ static pmdaIndom indomtab[] = {
     { SOFTIRQ_CPU_INDOM, 0, NULL },
     { WWID_INDOM, 0, NULL },
     { HUGEPAGES_INDOM, 0, NULL },
+    { NUMA_HUGEPAGES_INDOM, 0, NULL },
 };
 
 
@@ -7467,6 +7468,22 @@ static pmdaMetric metrictab[] = {
     /* mem.hugepages.overcommit */
     { NULL, { PMDA_PMID(CLUSTER_HUGEPAGES, OVERCOMMIT_HUGEPAGES), PM_TYPE_U64,
 	HUGEPAGES_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/*
+ * NUMA hugepages (fixed sizes) metrics cluster
+ */
+    /* mem.numa.hugepages.pagesize */
+    { NULL, { PMDA_PMID(CLUSTER_NUMA_HUGEPAGES, PAGESIZE_NUMA_HUGEPAGES), PM_TYPE_U64,
+	NUMA_HUGEPAGES_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+    /* mem.numa.hugepages.free */
+    { NULL, { PMDA_PMID(CLUSTER_NUMA_HUGEPAGES, FREE_NUMA_HUGEPAGES), PM_TYPE_U64,
+	NUMA_HUGEPAGES_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+    /* mem.numa.hugepages.surplus */
+    { NULL, { PMDA_PMID(CLUSTER_NUMA_HUGEPAGES, SURPLUS_NUMA_HUGEPAGES), PM_TYPE_U64,
+	NUMA_HUGEPAGES_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+    /* mem.numa.hugepages.totalsize */
+    { NULL, { PMDA_PMID(CLUSTER_NUMA_HUGEPAGES, TOTALSIZE_NUMA_HUGEPAGES), PM_TYPE_U64,
+	NUMA_HUGEPAGES_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 };
 
 typedef struct {
@@ -7836,6 +7853,8 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
 
     if (need_refresh[CLUSTER_HUGEPAGES])
 	refresh_sysfs_hugepages(INDOM(HUGEPAGES_INDOM));
+    if (need_refresh[CLUSTER_NUMA_HUGEPAGES])
+	refresh_sysfs_numa_hugepages(INDOM(NUMA_HUGEPAGES_INDOM));
 
 done:
     container_close(cp, ns_fds);
@@ -7965,7 +7984,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     net_addr_t		*addrp;
     net_interface_t	*netip;
     scsi_entry_t	*scsi_entry;
-    hugepages_t		*hugepages;
+    uint64_t		*values;
     char		*name;
 
     if (mdesc->m_user != NULL) {
@@ -10197,15 +10216,32 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	 */
 	if (item >= HUGEPAGES_METRIC_COUNT)
 	    return PM_ERR_PMID;
-	hugepages = NULL;
-	sts = pmdaCacheLookup(INDOM(HUGEPAGES_INDOM), inst, NULL, (void **)&hugepages);
+	values = NULL;
+	sts = pmdaCacheLookup(INDOM(HUGEPAGES_INDOM), inst, NULL, (void **)&values);
 	if (sts < 0)
 	    return sts;
-	if (sts != PMDA_CACHE_ACTIVE || hugepages == NULL)
+	if (sts != PMDA_CACHE_ACTIVE || values == NULL)
 	    return PM_ERR_INST;
-	atom->ull = hugepages->values[item];
+	atom->ull = values[item];
 	if (item != PAGESIZE_HUGEPAGES) /* convert to kB */
-	    atom->ull *= hugepages->values[PAGESIZE_HUGEPAGES];
+	    atom->ull *= values[PAGESIZE_HUGEPAGES];
+	break;
+
+    case CLUSTER_NUMA_HUGEPAGES:
+	/*
+	 * mem.numa.hugepages.* metrics are direct indexed by item, see sysfs_hugepages.h
+	 */
+	if (item >= NUMA_HUGEPAGES_METRIC_COUNT)
+	    return PM_ERR_PMID;
+	values = NULL;
+	sts = pmdaCacheLookup(INDOM(NUMA_HUGEPAGES_INDOM), inst, NULL, (void **)&values);
+	if (sts < 0)
+	    return sts;
+	if (sts != PMDA_CACHE_ACTIVE || values == NULL)
+	    return PM_ERR_INST;
+	atom->ull = values[item];
+	if (item != PAGESIZE_NUMA_HUGEPAGES) /* convert to kB */
+	    atom->ull *= values[PAGESIZE_NUMA_HUGEPAGES];
 	break;
 
     default: /* unknown cluster */

@@ -58,9 +58,13 @@ QColor ColorScheme::colorSpec(QString name)
     QColor color;
     QString rgbi = name;
 
-    if (rgbi.left(5) != "rgbi:")
+    if (rgbi.left(5) != "rgbi:") {
+#if QT_VERSION >= 0x060000
+	color.fromString(name);
+#else
 	color.setNamedColor(name);
-    else {
+#endif
+    } else {
 	float fr, fg, fb;
 	if (sscanf((const char *)rgbi.toLatin1(), "rgbi:%f/%f/%f", &fr, &fg, &fb) == 3)
 	    color.setRgb(hexval(fr), hexval(fg), hexval(fb));

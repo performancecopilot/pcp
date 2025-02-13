@@ -37,6 +37,18 @@ mem.hugepages.totalsize
     inst [N or "32768kB"] value 327680
     inst [N or "64kB"] value 6400
 
+mem.numa.hugepages.free
+No value(s) available!
+
+mem.numa.hugepages.pagesize
+No value(s) available!
+
+mem.numa.hugepages.surplus
+No value(s) available!
+
+mem.numa.hugepages.totalsize
+No value(s) available!
+
 == done
 
 == Checking hugepages metric values - sysfs-hugepages-002.tgz
@@ -64,6 +76,82 @@ mem.hugepages.surplus
 mem.hugepages.totalsize
     inst [N or "1048576kB"] value 104857600
     inst [N or "2048kB"] value 4096000
+
+mem.numa.hugepages.free
+No value(s) available!
+
+mem.numa.hugepages.pagesize
+No value(s) available!
+
+mem.numa.hugepages.surplus
+No value(s) available!
+
+mem.numa.hugepages.totalsize
+No value(s) available!
+
+== done
+
+== Checking hugepages metric values - sysfs-hugepages-003.tgz
+
+mem.hugepages.free
+    inst [N or "1048576kB"] value 104857600
+    inst [N or "2048kB"] value 4096000
+    inst [N or "32768kB"] value 0
+    inst [N or "64kB"] value 0
+
+mem.hugepages.overcommit
+    inst [N or "1048576kB"] value 0
+    inst [N or "2048kB"] value 0
+    inst [N or "32768kB"] value 0
+    inst [N or "64kB"] value 0
+
+mem.hugepages.pagesize
+    inst [N or "1048576kB"] value 1048576
+    inst [N or "2048kB"] value 2048
+    inst [N or "32768kB"] value 32768
+    inst [N or "64kB"] value 64
+
+mem.hugepages.reserved
+    inst [N or "1048576kB"] value 0
+    inst [N or "2048kB"] value 16384
+    inst [N or "32768kB"] value 0
+    inst [N or "64kB"] value 0
+
+mem.hugepages.surplus
+    inst [N or "1048576kB"] value 0
+    inst [N or "2048kB"] value 8192
+    inst [N or "32768kB"] value 0
+    inst [N or "64kB"] value 0
+
+mem.hugepages.totalsize
+    inst [N or "1048576kB"] value 104857600
+    inst [N or "2048kB"] value 4096000
+    inst [N or "32768kB"] value 0
+    inst [N or "64kB"] value 0
+
+mem.numa.hugepages.free
+    inst [N or "node0::1048576kB"] value 104857600
+    inst [N or "node0::2048kB"] value 4096000
+    inst [N or "node0::32768kB"] value 0
+    inst [N or "node0::64kB"] value 0
+
+mem.numa.hugepages.pagesize
+    inst [N or "node0::1048576kB"] value 1048576
+    inst [N or "node0::2048kB"] value 2048
+    inst [N or "node0::32768kB"] value 32768
+    inst [N or "node0::64kB"] value 64
+
+mem.numa.hugepages.surplus
+    inst [N or "node0::1048576kB"] value 0
+    inst [N or "node0::2048kB"] value 8192
+    inst [N or "node0::32768kB"] value 0
+    inst [N or "node0::64kB"] value 0
+
+mem.numa.hugepages.totalsize
+    inst [N or "node0::1048576kB"] value 104857600
+    inst [N or "node0::2048kB"] value 4096000
+    inst [N or "node0::32768kB"] value 0
+    inst [N or "node0::64kB"] value 0
 
 == done
 
