@@ -289,9 +289,10 @@ _service()
 			# as a by-product of start pmlogger, but is not stopped
 			# by stop pmlogger (there is a long and complicated
 			# good reason for this)
-			# ditto for pmlogger_daily and pmlogger_daily-poll
+			# ditto for pmlogger_daily, pmlogger_farm and
+			# pmlogger_farm_check
 			#
-			for __svc in pmlogger_check pmlogger_daily pmlogger_farm_check pmlogger_daily-poll
+			for __svc in pmlogger_check pmlogger_daily pmlogger_farm pmlogger_farm_check
 			do
 			    if systemctl show --property=ActiveState $__svc.timer 2>&1 \
 			      | grep '=active$' >/dev/null
@@ -340,9 +341,10 @@ _service()
 		if [ "$1" = pmlogger -a "$2" = stop ]
 		then
 		    # ensure pmlogger_check, pmlogger_daily and
-		    # pmlogger_daily-poll are stopped ... see note above
+		    # pmlogger_farm and pmlogger_farm_check are stopped
+		    # ... see note above
 		    #
-		    for __svc in pmlogger_check pmlogger_daily pmlogger_daily-poll
+		    for __svc in pmlogger_check pmlogger_daily pmlogger_farm pmlogger_farm_check
 		    do
 			if systemctl show --property=ActiveState $__svc.timer 2>&1 \
 			  | grep '=active$' >/dev/null
