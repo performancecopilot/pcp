@@ -10,7 +10,7 @@ container:
     RUN dnf install -y systemd
     RUN useradd --create-home pcpbuild
     RUN echo 'pcpbuild ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/pcpbuild
-    RUN id
+
     CMD ["/usr/sbin/init"]
 
 tasks:
