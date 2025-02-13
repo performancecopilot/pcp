@@ -12,6 +12,13 @@ pmproxy.control.files PMID: 4.0.2 [Memory mapped file count]
 Help:
 Count of currently mapped and exported statistics files.
 
+pmproxy.control.metrics PMID: 4.0.3 [Memory mapped metric count]
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Help:
+Count of currently mapped and exported metrics.
+Excludes the mmv.control.* metrics.
+
 pmproxy.control.reload PMID: 4.0.0 [Control maps reloading]
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none

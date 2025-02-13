@@ -12,7 +12,7 @@ rule	dmthin.data_high_util
         > $threshold$
     )
 )"
-	enabled = no
+	enabled = yes
 	version = 1
 	help	=
 "Device Mapper thin pool data utilization percent exceeded

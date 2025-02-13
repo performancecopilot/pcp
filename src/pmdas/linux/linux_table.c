@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2012,2025 Red Hat.
  * Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -46,16 +46,17 @@ linux_table_clone(struct linux_table *table)
 {
     struct linux_table *ret;
     struct linux_table *t;
-    int len;
+    size_t len, bytes;
 
     if (!table)
 	return NULL;
     for (len=1, t=table; t->field; t++)
     	len++;
-    ret = (struct linux_table *)malloc(len * sizeof(struct linux_table));
+    bytes = len * sizeof(struct linux_table);
+    ret = (struct linux_table *)malloc(bytes);
     if (!ret)
 	return NULL;
-    memcpy(ret, table, len * sizeof(struct linux_table));
+    memcpy(ret, table, bytes);
 
     /* Initialize the table */
     for (t=ret; t && t->field; t++) {
@@ -75,7 +76,7 @@ linux_table_scan(FILE *fp, struct linux_table *table)
     char buf[1024];
     int ret = 0;
 
-    while(fgets(buf, sizeof(buf), fp) != NULL) {
+    while (fgets(buf, sizeof(buf), fp) != NULL) {
 	for (t=table; t && t->field; t++) {
 	    if ((p = strstr(buf, t->field)) != NULL) {
 		/* first digit after the matched field */
@@ -95,7 +96,7 @@ linux_table_scan(FILE *fp, struct linux_table *table)
 
     /* calculate current value, accounting for counter wrap */
     for (t=table; t && t->field; t++) {
-    	if (t->maxval == 0)
+	if (t->maxval == 0)
 	    /* instantaneous value */
 	    t->val = t->this;
 	else {

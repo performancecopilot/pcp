@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018,2020-2022 Red Hat.
+ * Copyright (c) 2013-2018,2020-2025 Red Hat.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  *
  * This library is free software; you can redistribute it and/or modify it
@@ -356,8 +356,8 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":13", PM_FAULT_ALLOC);
 }
 
 /* Return 1 (true) if the sets are the same, 0 (false) otherwise */
-static int
-samelabelset(const pmLabelSet *set1, const pmLabelSet *set2)
+int
+__pmEqualLabelSet(const pmLabelSet *set1, const pmLabelSet *set2)
 {
     int			n1, n2;
     const pmLabel	*l1, *l2;
@@ -429,7 +429,7 @@ discard_dup_labelsets(__pmLogLabelSet *idp, const __pmLogLabelSet *idp_next)
 	if (idp->nsets != idp_next->nsets)
 	    return;
 	for (i = 0; i < idp->nsets; ++i) {
-	    if (samelabelset(&idp->labelsets[i], &idp_next->labelsets[i]))
+	    if (__pmEqualLabelSet(&idp->labelsets[i], &idp_next->labelsets[i]))
 		continue;
 	    return;
 	}
@@ -437,7 +437,7 @@ discard_dup_labelsets(__pmLogLabelSet *idp, const __pmLogLabelSet *idp_next)
 
     for (i = 0; i < idp->nsets; ++i) {
 	for (j = 0; j < idp_next->nsets; ++j) {
-	    if (samelabelset(&idp->labelsets[i], &idp_next->labelsets[j])) {
+	    if (__pmEqualLabelSet(&idp->labelsets[i], &idp_next->labelsets[j])) {
 		/* We found a duplicate. Discard the one within idp. */
 		if (idp->labelsets[i].nlabels > 0)
 		    free(idp->labelsets[i].labels);

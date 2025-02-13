@@ -10,7 +10,3 @@ for PMDA in dm nfsclient openmetrics ; do
         fi
     fi
 done
-
-# auto-enable these usually optional pmie rules
-pmieconf -f /var/lib/pcp/config/pmie/config.default -c enable dmthin
-chown pcp:pcp /var/lib/pcp/config/pmie/config.default
