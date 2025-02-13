@@ -36,8 +36,16 @@ inlist == 1		{ print }' \
     -e 's/,//g' \
     -e 's/^  */metric /' \
     -e 's/[ 	][ 	]*\([0-9][0-9]*\)/ { pmid -> BIND2.0.\1 }/' \
-) \
-| ../../pmcpp/pmcpp.static -P >>rewrite.conf
+) >$tmp.tmp
+
+if PCP_CONF=../../include/pcp.conf ../../pmcpp/pmcpp.static -P <$tmp.tmp >>rewrite.conf
+then
+    :
+else
+    echo "Error: pmcpp failed"
+    status=1
+    exit
+fi
 
 cat <<'End-of-File' >>rewrite.conf
 
