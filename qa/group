@@ -1678,7 +1678,7 @@ pmcd.pdu
 1194 pmlogrewrite local
 1195 pmlogrewrite local pmlogdump
 1196 pmcd local
-1197 pmlogextract local pmlogdump
+1197 pmlogextract labels local pmlogdump
 1198 pmlogrewrite pmda.linux local pmlogdump
 1199 libpcp pmcd local pmda.sample
 1200 logutil local pmlc
@@ -1854,21 +1854,21 @@ pmcd.pdu
 1370 man local pmlock
 1371 archive_v3 pmlogdump local valgrind
 1372 pmie local
-1373 pmlogsize archive_v3 local
-1374 pmlogsize archive_v3 local valgrind
-1375 pmlogextract pmlogdump archive_v3 local
-1376 pmlogextract pmlogdump archive_v3 local valgrind
-1377 pmlogextract pmlogdump local
-1378 pmlogextract pmlogdump archive_v3 local
+1373 pmlogsize labels archive_v3 local
+1374 pmlogsize labels archive_v3 local valgrind
+1375 pmlogextract labels pmlogdump archive_v3 local
+1376 pmlogextract labels pmlogdump archive_v3 local valgrind
+1377 pmlogextract labels pmlogdump local
+1378 pmlogextract labels pmlogdump archive_v3 local
 1379 pmproxy local
 1380 pmlogextract pmlogdump archive_v3 local valgrind
 1381 pmlogcheck local
 1382 pmlogcheck local valgrind
 1383 pmlogrewrite labels pmlogdump local
-1384 pmlogrewrite pmlogdump archive_v3 local
+1384 pmlogrewrite labels pmlogdump archive_v3 local
 1385 pmda.openmetrics local python
-1386 pmlogrewrite pmlogdump archive_v3 local valgrind
-1387 pmlogrewrite pmlogdump archive_v3 local
+1386 pmlogrewrite labels pmlogdump archive_v3 local valgrind
+1387 pmlogrewrite labels pmlogdump archive_v3 local
 1388 pmproxy local secure
 1389:retired pmwebd local
 1390 atop pcp local atopsar

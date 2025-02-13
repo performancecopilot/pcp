@@ -7,7 +7,7 @@
  *	remain fixed across releases, and they may not work, or may
  *	provide different semantics at some point in the future.
  *
- * Copyright (c) 2012-2022 Red Hat.
+ * Copyright (c) 2012-2025 Red Hat.
  * Copyright (c) 2008-2009 Aconex.  All Rights Reserved.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  *
@@ -652,6 +652,7 @@ pmlabel_intrinsic(pmLabel *lp)
 PCP_CALL extern int __pmAddLabels(pmLabelSet **, const char *, int);
 PCP_CALL extern pmLabelSet *__pmDupLabelSets(pmLabelSet *, int);
 PCP_CALL extern int __pmParseLabelSet(const char *, int, int, pmLabelSet **);
+PCP_CALL extern int __pmEqualLabelSet(const pmLabelSet *, const pmLabelSet *);
 PCP_CALL extern int __pmGetContextLabels(pmLabelSet **);
 PCP_CALL extern int __pmGetDomainLabels(int, const char *, pmLabelSet **);
 

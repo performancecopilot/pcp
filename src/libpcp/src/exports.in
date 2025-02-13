@@ -875,4 +875,5 @@ PCP_3.42 {
 
 PCP_3.43 {
     __pmDumpFetchFlags;
+    __pmEqualLabelSet;
 } PCP_3.42;
