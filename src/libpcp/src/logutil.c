@@ -202,9 +202,11 @@ __pmLogChangeVol(__pmArchCtl *acp, int vol)
     }
     PM_UNLOCK(logutil_lock);
 
-    if ((sts = __pmLogChkLabel(acp, acp->ac_mfp, &lcp->label, vol)) < 0) {
+    PM_LOCK(lcp->lc_lock);
+    sts = __pmLogChkLabel(acp, acp->ac_mfp, &lcp->label, vol);
+    PM_UNLOCK(lcp->lc_lock);
+    if (sts < 0)
 	return sts;
-    }
     acp->ac_curvol = vol;
 
     if (pmDebugOptions.log)
