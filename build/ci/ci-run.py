@@ -116,14 +116,15 @@ class ContainerRunner:
         # also don't run as root in general on Github actions,
         # otherwise the direct runner would run everything as root
         self.sudo = []
-        self.security_opts = []
+        self.security_opts = ["--privileged"]
         with open("/etc/os-release", encoding="utf-8") as f:
             for line in f:
                 k, v = line.rstrip().split("=")
                 if k == "NAME":
                     if v == '"Ubuntu"':
                         self.sudo = ["sudo", "-E", "XDG_RUNTIME_DIR="]
-                        self.security_opts = ["--security-opt", "label=disable"]
+                        self.security_opts = ["--security-opt", "label=disable", "--security-opt", "no-new-privileges=false"]
+                        print("ci-run.py: Info: podman options:",*self.security_opts)
                     break
 
     def setup(self, pcp_path):
@@ -146,7 +147,6 @@ class ContainerRunner:
                 "-dt",
                 "--name",
                 self.container_name,
-                "--privileged",
                 *self.security_opts,
                 self.image_name,
             ],
