@@ -446,6 +446,7 @@ then
     # in $tmp.installed and a list of all available packages in $tmp.allpkgs
     #
     rm -f $tmp.installed $tmp.allpkgs
+    rm -f $tmp.debug
     case "$distro"
     in
 	Ubuntu|Debian|LinuxMint|MX)
@@ -470,7 +471,9 @@ then
 		#
 		for dnf_args in "-C" ""
 		do
+		    echo "=== dnf $dnf_args list" >>$tmp.debug
 		    sudo dnf $dnf_args list 2>&1 \
+		    | tee -a $tmp.debug \
 		    | sed >$tmp.allpkgs \
 			-e '1,/^[^ ]* [pP]ackages/d' \
 			-e 's/ .*//' \
@@ -570,6 +573,7 @@ p
 	sort <$tmp.allpkgs | uniq >$tmp.tmp
 	mv $tmp.tmp $tmp.allpkgs
     else
+	[ -s $tmp.debug ] && cat >&2 $tmp.debug
 	ls -l $tmp.allpkgs >&2
 	echo >&2 "Botch: can't generate tmp.allpkgs for $distro"
 	exit
