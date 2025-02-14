@@ -999,7 +999,7 @@ append_labelsetreclist(int i, int type)
     __pmHashNode	*hp;
     __pmHashCtl		*hash2;
     __pmTimestamp	stamp;
-    reclist_t		*rec;
+    reclist_t		*rec, *curr;
     int			sts;
     int			ltype;		/* label type */
     int			id;
@@ -1050,18 +1050,26 @@ append_labelsetreclist(int i, int type)
 	hash2 = (__pmHashCtl *)hp->data;
 
     /*
-     * Add the new label set record, even if one with the same type and id
-     * already exists.
+     * Add the new label set record, appending to an existing reclist
+     * if one with the same type and id is already present.
      */
     id = ntoh_pmID(iap->pb[META][k++]);
-    sts = __pmHashAdd(id, (void *)rec, hash2);
-    if (sts < 0) {
-	fprintf(stderr, "%s: Error: cannot add label set record.\n",
-		pmGetProgname());
-	abandon_extract();
-	/*NOTREACHED*/
+    if ((hp = __pmHashSearch(id, hash2)) == NULL) {
+	sts = __pmHashAdd(id, (void *)rec, hash2);
+	if (sts < 0) {
+	    fprintf(stderr, "%s: Error: cannot add label set record.\n",
+		    pmGetProgname());
+	    abandon_extract();
+	    /*NOTREACHED*/
+	}
+    } else {
+	/* do NOT discard previous record; append new record */
+	curr = (reclist_t *)hp->data;
+	curr->recs = add_reclist_t(curr);
+	curr->recs[curr->nrecs] = *rec;		/* struct assignment */
+	curr->nrecs++;
+	free(rec);
     }
-
     iap->pb[META] = NULL;
 }
 
@@ -1408,6 +1416,30 @@ write_rec(reclist_t *rec)
 }
 
 /*
+ * Helper routine for write_priorlabelset, writing from a reclist of
+ * labelsets where timestamp is suitable and an associated PDU exists.
+ */
+static void
+write_priorlabelset_pdu(reclist_t *labelset, const __pmTimestamp *now)
+{
+    if (labelset->stamp.sec < now->sec ||
+	(labelset->stamp.sec == now->sec &&
+	 labelset->stamp.nsec <= now->nsec)) {
+
+	/* Write the chosen record, if it has not already been written. */
+	if (labelset->pdu != NULL &&
+	    labelset->written != WRITTEN) {
+	    labelset->written = MARK_FOR_WRITE;
+	    if (outarchvers == PM_LOG_VERS03)
+		__pmPutTimestamp(now, &labelset->pdu[2]);
+	    else
+		__pmPutTimeval(now, &labelset->pdu[2]);
+	    write_rec(labelset);
+	}
+    }
+}
+
+/*
  * Write out the label set record associated with this indom or pmid
  * at the given time.
  */
@@ -1416,7 +1448,7 @@ write_priorlabelset(int type, int ident, const __pmTimestamp *now)
 {
     __pmHashNode	*hp;
     reclist_t		*curr_labelset;	/* current labelset record */
-    reclist_t   	*other_labelset;/* other labelset record */
+    int			i;
 
     /* Find the label sets of this type. */
     if ((hp = __pmHashSearch(type, &rlabelset)) == NULL) {
@@ -1424,7 +1456,7 @@ write_priorlabelset(int type, int ident, const __pmTimestamp *now)
 	return;
     }
 
-    switch(type) {
+    switch (type) {
     case PM_LABEL_DOMAIN:
 	/* ident is the full pmid, but we only want the domain. */
 	ident = pmID_domain(ident);
@@ -1445,42 +1477,16 @@ write_priorlabelset(int type, int ident, const __pmTimestamp *now)
 
     /*
      * There may be more than one record.
-     *	- we can safely ignore all labet sets after the current timestamp
-     *	- we want the latest label set at, or before the current timestamp
+     *	- consider all relevant labelsets up until the current timestamp
+     *	- write out not-yet-written labelsets up to the current timestamp
      */
-    other_labelset = NULL;
     curr_labelset = (reclist_t *)hp->data;
     while (curr_labelset != NULL) {
-	if (curr_labelset->stamp.sec < now->sec ||
-	    (curr_labelset->stamp.sec == now->sec &&
-	     curr_labelset->stamp.nsec <= now->nsec)) {
-	    /*
-	     * labelset is in list, labelset has pdu
-	     * and timestamp in pdu suits us
-	     */
-	    if (other_labelset == NULL ||
-		other_labelset->stamp.sec < curr_labelset->stamp.sec ||
-		(other_labelset->stamp.sec == curr_labelset->stamp.sec &&
-		 other_labelset->stamp.nsec <= curr_labelset->stamp.nsec)){
-		/*
-		 * We already have a perfectly good labelset,
-		 * but curr_labelset has a better timestamp
-		 */
-		other_labelset = curr_labelset;
-	    }
-	}
+	if (curr_labelset->nrecs == 0)
+	    write_priorlabelset_pdu(curr_labelset, now);
+	for (i = 0; i < curr_labelset->nrecs; i++)
+	    write_priorlabelset_pdu(&curr_labelset->recs[i], now);
 	curr_labelset = curr_labelset->next;
-    }
-
-    /* Write the chosen record, if it has not already been written. */
-    if (other_labelset != NULL && other_labelset->pdu != NULL &&
-	other_labelset->written != WRITTEN) {
-	other_labelset->written = MARK_FOR_WRITE;
-	if (outarchvers == PM_LOG_VERS03)
-	    __pmPutTimestamp(now, &other_labelset->pdu[2]);
-	else
-	    __pmPutTimeval(now, &other_labelset->pdu[2]);
-	write_rec(other_labelset);
     }
 }
 
