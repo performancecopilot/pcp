@@ -687,6 +687,8 @@ exerlock:	exerlock.c
 ifeq ($(HAVE_64), 1)
 pv64: pv.c
 	$(CCF) $(CDEFS) -o $@ pv.c $(LDLIBS)
+else
+pv64:
 endif
 
 # -- archives
@@ -750,6 +752,9 @@ test_encodings:	test_encodings.c
 test_hostspec:	test_hostspec.c
 	rm -f $@
 	$(CCF) $(CMOCKACFLAGS) $(CDEFS) -o $@ $^ $(LDLIBS) $(LIB_FOR_CMOCKA)
+else
+test_encodings:
+test_hostspec:
 endif
 
 # --- need libpcp_archive
