@@ -11,6 +11,7 @@ echo "QA output created by $seq"
 . ./common.containers
 
 [ -f $PCP_PMDAS_DIR/podman/pmdapodman ] || _notrun "podman pmda not installed"
+[ -f $PCP_PMDAS_DIR/podman/root ] || _notrun "podman pmns not installed"
 [ "$PCPQA_SYSTEMD" = yes ] || _notrun "systemctl not installed or not active"
 _check_valgrind
 _check_containers
@@ -45,6 +46,8 @@ _filter()
     sed \
 	-e "s,$PCP_PMDAS_DIR,PCP_PMDAS_DIR,g" \
 	-e "s,$PCP_VAR_DIR,PCP_VAR_DIR,g" \
+	-e "s,$tmp,TMP,g" \
+	-e '/Unable to open help text/d' \
     #end
 }
 
@@ -60,8 +63,12 @@ echo "== container: $container" >> $here/$seq.full
 #echo "== pod: $pod" >> $here/$seq.full
 #[ -z "$pod" ] && _fail "Failed to create pod"
 
+# build temp PMNS from PMDA's fragment of PMNS
+#
+pmcpp -I $PCP_PMDAS_DIR/podman -P $PCP_PMDAS_DIR/podman/root >$tmp.pmns
+pmns=$tmp.pmns
+
 pmda=$PCP_PMDAS_DIR/podman/pmda_podman.so,podman_init
-pmns=$PCP_VAR_DIR/pmns/root_podman
 args="-L -K clear -K add,33,$pmda -v -n $pmns"
 
 _run_valgrind --sudo pminfo $args podman.container 2>&1 | _filter
