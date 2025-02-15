@@ -1,0 +1,22 @@
+#!/bin/sh
+#
+# find QA tests that use a QA application ($1)
+#
+
+tmp=/var/tmp/find-app-$$
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+grep "src/$1" [0-9]*[0-9][0-9] \
+| sed \
+    -e '/^[ 	]*#/d' \
+    -e 's/:.*//' \
+| sort -n \
+| uniq \
+| fmt >$tmp.out
+
+if [ -s $tmp.out ]
+then
+    cat $tmp.out
+else
+    echo "$1-not-used-in-any-test"
+fi
