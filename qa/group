@@ -433,6 +433,9 @@ pmlogcompress
 # pmlock
 pmlock
 
+# pmjson
+pmjson
+
 # pcp2... pcp2xxx is generic
 pcp2xxx
 pcp2elasticsearch
@@ -1571,7 +1574,7 @@ pmcd.pdu
 1087 pmda.bind2 local
 1088:retired pmmgr local pmloglabel
 1089 atop local folio
-1090 pmproxy local context
+1090 pmproxy local context pmjson
 1091 pmns libpcp context local kernel
 1092 libpcp local
 1093 pmcpp local
@@ -1611,11 +1614,11 @@ pmcd.pdu
 1127 pmda.bcc local python
 1128 pmie local
 1129 derive local kernel
-1130 pcp2elasticsearch python pcp2xxx local
+1130 pcp2elasticsearch python pcp2xxx local pmjson
 1131 pcp2json python pcp2xxx local
 1132 pcp2xlsx python pcp2xxx local kernel
 1133 pcp2xml python pcp2xxx local
-1134 pmrep pcp2json pcp2xml python pcp2xxx local python kernel
+1134 pmrep pcp2json pcp2xml python pcp2xxx local python kernel pmjson
 1135 pmrep python pmda.sample archive local kernel
 1136 pmrep python pmda.sample local kernel
 1137 derive pmrep local python kernel
@@ -1715,7 +1718,7 @@ pmcd.pdu
 1231 pmlogrewrite labels help pmlogdump local pmlogextract
 1232 logutil pmlogctl local
 1233 derive local
-1234 libpcp_web local
+1234 libpcp_web local pmjson
 1235 derive local valgrind
 1236 derive local
 1237 derive local valgrind
@@ -1860,7 +1863,7 @@ pmcd.pdu
 1376 pmlogextract labels pmlogdump archive_v3 local valgrind
 1377 pmlogextract labels pmlogdump local
 1378 pmlogextract labels pmlogdump archive_v3 local
-1379 pmproxy local
+1379 pmproxy local pmjson
 1380 pmlogextract pmlogdump archive_v3 local valgrind
 1381 pmlogcheck local
 1382 pmlogcheck local valgrind
@@ -1869,10 +1872,10 @@ pmcd.pdu
 1385 pmda.openmetrics local python
 1386 pmlogrewrite labels pmlogdump archive_v3 local valgrind
 1387 pmlogrewrite labels pmlogdump archive_v3 local
-1388 pmproxy local secure
+1388 pmproxy local secure pmjson
 1389:retired pmwebd local
 1390 atop pcp local atopsar
-1391 pmproxy local secure
+1391 pmproxy local secure pmjson
 1392 pmlogrewrite pmlogdump archive_v3 local valgrind
 1393 pmda.linux local
 1394 pmlogrewrite pmlogextract archive pmlogdump archive_v3 local
@@ -1938,8 +1941,8 @@ pmcd.pdu
 1454 pmlogrewrite local pmlogdump
 1455 pmlogrewrite labels pmlogdump local
 1456 pmlogrewrite local pmlogdump
-1457 pmproxy libpcp_web threads secure local valgrind
-1458 pmproxy libpcp_web threads local valgrind
+1457 pmproxy libpcp_web threads secure local valgrind pmjson
+1458 pmproxy libpcp_web threads local valgrind pmjson
 1459 pmlogrewrite local valgrind pmlogdump
 1460 pmlogrewrite local pmlogdump valgrind
 1461 pmlogrewrite pmlogdump local
@@ -2024,8 +2027,8 @@ pmcd.pdu
 1540 pmda.farm local valgrind
 1541 other local
 1542 pmlogrewrite pmda.bind2 local
-1543 pmproxy local help
-1544 pmproxy python local
+1543 pmproxy local help pmjson
+1544 pmproxy python local pmjson
 1545 pcp2xml python pcp2xxx local
 1546 pcp2xml pcp2xxx python local
 1547 pmrep python local pmda.mmv
@@ -2063,7 +2066,7 @@ pmcd.pdu
 1598 pmda.statsd local
 1599 pmda.statsd local
 1600 pmseries pmcd pmproxy pmlogger local
-1601 pmseries pmproxy local
+1601 pmseries pmproxy local pmjson
 1602 pmproxy local
 1603 pmproxy local
 1604 pmseries pmproxy local
@@ -2102,8 +2105,8 @@ pmcd.pdu
 1694 pidstat local python pcp pmlogextract
 1695 pmproxy valgrind local
 1696 pmproxy valgrind local
-1697 pmproxy valgrind local
-1700 pmda.bpftrace local python
+1697 pmproxy valgrind local pmjson
+1700 pmda.bpftrace local python pmjson
 1701 pmda.bpftrace local python
 1702 pmda.bpftrace local python
 1703 pmda.bpftrace local python
@@ -2138,18 +2141,18 @@ pmcd.pdu
 1763 pmlogctl local
 1768 pmfind local
 1769 pmda.linux local
-1770 pmda.proc pmcd pmproxy local
+1770 pmda.proc pmcd pmproxy local pmjson
 1772 pmda.amdgpu local
-1773 pmseries pmproxy libpcp_web local
+1773 pmseries pmproxy libpcp_web local pmjson
 1774 pmlogctl pmlogger logutil
 1775 pmdumptext archive local
 1784 pmlogconf local
 1788 pmda.linux local
-1793 pmrep pcp2xxx python local pmlogdump
+1793 pmrep pcp2xxx python local pmlogdump pmjson
 1794 pcp2arrow local
 1795 pmda.bpf local
 1801 dstat python pcp local derive
-1803 python geolocate labels local
+1803 python geolocate labels local pmjson
 1805 pmda.linux kernel local
 1810 pmda.bpf local
 1813 python labels local pmrep
@@ -2175,8 +2178,8 @@ pmcd.pdu
 1855 pmda.rabbitmq local
 1856 dstat python local derive
 1871 pmsearch local
-1872 pmproxy local
-1874 pmseries pmproxy local
+1872 pmproxy local pmjson
+1874 pmseries pmproxy local pmjson
 1875 pmseries pmproxy libpcp_web local
 1876 pmcd secure local
 1877 pmproxy libpcp_web local
