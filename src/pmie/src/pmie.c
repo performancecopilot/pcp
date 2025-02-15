@@ -395,12 +395,10 @@ startmonitor(void)
     close(fd);
 
     path = (logfile[0] == '\0') ? "<none>" : logfile;
-    strncpy(perf->logfile, path, sizeof(perf->logfile));
-    perf->logfile[sizeof(perf->logfile)-1] = '\0';
+    pmstrncpy(perf->logfile, sizeof(perf->logfile), path);
     /* Don't try to improvise a current fdqn for "the" pmcd. 
        It'll be filled in periodically by newContext(). */
-    strncpy(perf->defaultfqdn, "(uninitialized)", sizeof(perf->defaultfqdn));
-    perf->defaultfqdn[sizeof(perf->defaultfqdn)-1] = '\0';
+    pmstrncpy(perf->defaultfqdn, sizeof(perf->defaultfqdn), "(uninitialized)");
 
     perf->version = 1;
 }

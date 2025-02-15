@@ -82,8 +82,7 @@ filter(
      * __pmLogBaseName will strip the suffix by modifying the data
      * in place. The suffix can still be found after the base name.
      */
-    strncpy(logBase, dp->d_name, sizeof(logBase));
-    logBase[sizeof(logBase)-1] = '\0';
+    pmstrncpy(logBase, sizeof(logBase), dp->d_name);
     if (__pmLogBaseName(logBase) == NULL ) {
 	if (vflag > 2)
 	    fprintf(stderr, "no (not expected extension after basename)\n");
@@ -251,7 +250,7 @@ main(int argc, char *argv[])
 	    for (i = 0; i < nfile; i++) {
 		if (strcmp(argdirname, ".") == 0) {
 		    /* skip ./ prefix */
-		    strncpy(path, filelist[i]->d_name, sizeof(path));
+		    pmstrncpy(path, sizeof(path), filelist[i]->d_name);
 		}
 		else {
 		    pmsprintf(path, sizeof(path), "%s%c%s", argdirname, sep, filelist[i]->d_name);

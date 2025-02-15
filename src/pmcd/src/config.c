@@ -106,7 +106,7 @@ CopyToken(void)
     int		len = (int)(tokenend - token);
     char	*copy = (char *)malloc(len + 1);
     if (copy != NULL) {
-	strncpy(copy, token, len);
+	memcpy(copy, token, len);
 	copy[len] = '\0';
     }
     return copy;

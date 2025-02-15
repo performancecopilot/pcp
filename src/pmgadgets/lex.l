@@ -126,7 +126,7 @@ dostring(void)
 
     szResult = yyleng - 1; /* ignore 1st '"', 2nd clobbered by '\0' */
     result = (char*)malloc(szResult);
-    strncpy(result, yytext + 1, szResult - 1);
+    memcpy(result, yytext + 1, szResult - 1);
     result[szResult - 1] = '\0';
     tokenStringVal = result;
     return TOK_STRING;

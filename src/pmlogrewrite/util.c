@@ -107,15 +107,13 @@ _pmLogRename(const char *old, const char *new)
     struct dirent	*dp;
     struct stat		stbuf;
 
-    strncpy(path, old, sizeof(path));
-    path[sizeof(path)-1] = '\0';
+    pmstrncpy(path, sizeof(path), old);
     dname = dirname(path);
 
     if ((dirp = opendir(dname)) == NULL)
 	return -oserror();
 
-    strncpy(path, old, sizeof(path));
-    path[sizeof(path)-1] = '\0';
+    pmstrncpy(path, sizeof(path), old);
     obase = basename(path);
 
     for ( ; ; ) {
@@ -127,8 +125,7 @@ _pmLogRename(const char *old, const char *new)
 	 * __pmLogBaseName modifies the buffer which is passed to it
 	 * so we need a copy.
 	 */
-	strncpy(logbase, dp->d_name, sizeof(logbase));
-	logbase[sizeof(logbase)-1] = '0';
+	pmstrncpy(logbase, sizeof(logbase), dp->d_name);
 	if (__pmLogBaseName(logbase) == NULL)
 	    continue; /* not an archive file */
 
@@ -218,8 +215,7 @@ _pmLogRemove(const char *name, int upto)
     const char		*p;
     struct dirent	*dp;
 
-    strncpy(path, name, sizeof(path));
-    path[sizeof(path)-1] = '\0';
+    pmstrncpy(path, sizeof(path), name);
     dname = strdup(dirname(path));
     if (dname == NULL) {
 	pmNoMem("__pmLogRemove: dirname strdup", strlen(dirname(path))+1, PM_RECOV_ERR);
@@ -232,8 +228,7 @@ _pmLogRemove(const char *name, int upto)
 	return -oserror();
     }
 
-    strncpy(path, name, sizeof(path));
-    path[sizeof(path)-1] = '\0';
+    pmstrncpy(path, sizeof(path), name);
     base = strdup(basename(path));
     if (base == NULL) {
 	pmNoMem("__pmLogRemove: basename strdup", strlen(basename(path))+1, PM_RECOV_ERR);
@@ -250,8 +245,7 @@ _pmLogRemove(const char *name, int upto)
 	 * __pmLogBaseName modifies the buffer which is passed to it
 	 * so we need a copy.
 	 */
-	strncpy(logbase, dp->d_name, sizeof(logbase));
-	logbase[sizeof(logbase)-1] = '0';
+	pmstrncpy(logbase, sizeof(logbase), dp->d_name);
 	if (__pmLogBaseName(logbase) == NULL)
 	    continue; /* not an archive file */
 

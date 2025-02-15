@@ -1691,10 +1691,8 @@ main(int argc, char **argv)
 	int	sep = pmPathSeparator();
 
 #if HAVE_MKSTEMP
-	strncpy(path, argv[argc-1], sizeof(path));
-	path[sizeof(path)-1] = '\0';
-	strncpy(dname, dirname(path), sizeof(dname));
-	dname[sizeof(dname)-1] = '\0';
+	pmstrncpy(path, sizeof(path), argv[argc-1]);
+	pmstrncpy(dname, sizeof(dname), dirname(path));
 	if ((dir_fd = open(dname, O_RDONLY)) < 0) {
 	    fprintf(stderr, "%s: Error: cannot open directory \"%s\" for reading: %s\n", pmGetProgname(), dname, strerror(errno));
 	    abandon();
@@ -1718,12 +1716,9 @@ main(int argc, char **argv)
 	char	fname[MAXPATHLEN+1];
 	char	*s;
 
-	strncpy(path, argv[argc-1], sizeof(path));
-	path[sizeof(path)-1] = '\0';
-	strncpy(fname, basename(path), sizeof(fname));
-	fname[sizeof(fname)-1] = '\0';
-	strncpy(dname, dirname(path), sizeof(dname));
-	dname[sizeof(dname)-1] = '\0';
+	pmstrncpy(path, sizeof(path), argv[argc-1]);
+	pmstrncpy(fname, sizeof(fname), basename(path));
+	pmstrncpy(dname, sizeof(dname), dirname(path));
 
 	if ((s = tempnam(dname, fname)) == NULL) {
 	    fprintf(stderr, "%s: Error: first tempnam() failed: %s\n", pmGetProgname(), strerror(errno));

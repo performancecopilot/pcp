@@ -1388,7 +1388,7 @@ indomopt	: TOK_INDOM TOK_ASSIGN duplicateopt indom_int
 			    fprintf(stderr, "compiling iname regex /%s/\n", vc.pat);
 			if ((sts = regcomp(&vc.regex, vc.pat, REG_EXTENDED)) != 0) {
 			    size_t	pfx;
-			    strncat(mess, "regcomp error: ", sizeof(mess)-1);
+			    pmstrncat(mess, sizeof(mess), "regcomp error: ");
 			    pfx = strlen(mess);
 			    regerror(sts, &vc.regex, &mess[pfx], sizeof(mess)-pfx-1);
 			    yyerror(mess);
@@ -1896,7 +1896,7 @@ metricopt	: TOK_PMID TOK_ASSIGN pmid_int
 				fprintf(stderr, "compiling value regex /%s/\n", vcp->pat);
 			    if ((sts = regcomp(&vcp->regex, vcp->pat, REG_EXTENDED)) != 0) {
 				size_t	pfx;
-				strncat(mess, "regcomp error: ", sizeof(mess)-1);
+				pmstrncat(mess, sizeof(mess), "regcomp error: ");
 				pfx = strlen(mess);
 				regerror(sts, &vcp->regex, &mess[pfx], sizeof(mess)-pfx-1);
 				yyerror(mess);

@@ -141,8 +141,7 @@ pass0(char *fname)
 	goto done;
     }
     
-    strncpy(logBase, fname, sizeof(logBase));
-    logBase[sizeof(logBase)-1] = '\0';
+    pmstrncpy(logBase, sizeof(logBase), fname);
     if (__pmLogBaseName(logBase) != NULL) {
 	/* A valid archive suffix was found */
 	p = logBase + strlen(logBase) + 1;

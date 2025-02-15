@@ -161,7 +161,7 @@ watch		{ BEGIN FNAME; return WATCH; }
 
 \"[^\"\n][^\"\n]*\"	{
 	    yylval.y_str = (char *)malloc(yyleng-1);
-	    strncpy(yylval.y_str, &yytext[1], yyleng-2);
+	    memcpy(yylval.y_str, &yytext[1], yyleng-2);
 	    yylval.y_str[yyleng-2] = '\0';
 	    gc_add(yylval.y_str);
 	    return STRING;
@@ -173,7 +173,7 @@ watch		{ BEGIN FNAME; return WATCH; }
 
 \'[^\'\n][^\'\n]*\'	{
 	    yylval.y_str = (char *)malloc(yyleng-1);
-	    strncpy(yylval.y_str, &yytext[1], yyleng-2);
+	    memcpy(yylval.y_str, &yytext[1], yyleng-2);
 	    yylval.y_str[yyleng-2] = '\0';
 	    gc_add(yylval.y_str);
 	    return STRING;

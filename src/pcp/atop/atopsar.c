@@ -115,7 +115,8 @@ saroptions(void)
 	/*
 	** add generic flags
 	*/
-	return strncat(allflags, sarflags, pricnt+32 - 1);
+	pmstrncat(allflags, pricnt+32, sarflags);
+	return allflags;
 }
 
 int

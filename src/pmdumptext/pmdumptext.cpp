@@ -360,8 +360,7 @@ dumpTime(struct timeval const &curPos)
 		 (const char *)(timeFormat.toLatin1()), localtime(&curTime));
     else {
 	// Use ctime as we have put the timezone into the environment
-	strncpy(p, ctime(&curTime), 20);
-	p[19] = '\0';
+	pmstrncpy(p, 20, ctime(&curTime));
     }
     return buffer;
 }
@@ -442,7 +441,7 @@ dumpHeader()
 	for (m = 0, v = 1; m < metrics.size(); m++) {
 	    metric = metrics[m];
 	    QString const& str = metric->context()->source().host();
-	    strncpy(buffer, (const char *)str.toLatin1(), width);
+	    memcpy(buffer, (const char *)str.toLatin1(), width);
 	    buffer[width] = '\0';
 	    for (i = 0; i < metric->numValues(); i++) {
 		cout << qSetFieldWidth(width) << buffer << qSetFieldWidth(0);
@@ -529,7 +528,7 @@ dumpHeader()
 	    for (i = 0; i < metric->numValues(); i++) {
 	    	if (metric->hasInstances()) {
 		    QString const &str = metric->instName(i);
-		    strncpy(buffer, (const char *)str.toLatin1(), width);
+		    memcpy(buffer, (const char *)str.toLatin1(), width);
 		    buffer[width] = '\0';
 		    cout << qSetFieldWidth(width) << buffer
 			 << qSetFieldWidth(0);
@@ -1206,7 +1205,7 @@ main(int argc, char *argv[])
 		    buffer[0] = '\"';
 		    if (niceFlag) {
 			if (l > width - 2) {
-			    strncpy(buffer+1, (const char *)metric->stringValue(i).toLatin1(), 
+			    memcpy(buffer+1, (const char *)metric->stringValue(i).toLatin1(), 
 				    width - 2);
 			    buffer[width - 1] = '\"';
 			    buffer[width] = '\0';
@@ -1222,7 +1221,7 @@ main(int argc, char *argv[])
 		    }
 		    else if (widthFlag) {
 			if (l > width - 2 && width > 5) {
-			    strncpy(buffer+1, (const char *)metric->stringValue(i).toLatin1(),
+			    memcpy(buffer+1, (const char *)metric->stringValue(i).toLatin1(),
 				    width - 5);
 			    strcpy(buffer + width - 4, "...\"");
 			    buffer[width] = '\0';
@@ -1230,7 +1229,7 @@ main(int argc, char *argv[])
 				 << qSetFieldWidth(0);
 			}
 			else {
-			    strncpy(buffer+1, (const char *)metric->stringValue(i).toLatin1(),
+			    memcpy(buffer+1, (const char *)metric->stringValue(i).toLatin1(),
 				    width - 2);
 			    buffer[width - 1] = '\"';
 			    buffer[width] = '\0';

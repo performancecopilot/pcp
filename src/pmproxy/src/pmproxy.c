@@ -376,7 +376,7 @@ main(int argc, char *argv[])
 	 * the logfile name, just before the last ., so pmproxy.log
 	 * will become pmproxy.<pid>.log
 	 */
-	char	newlogfile[MAXPATHLEN];
+	static char	newlogfile[MAXPATHLEN];
 	char	pbuf[11];	/* enough for a 32-bit pid */
 	char	*pend = NULL;
 
@@ -384,8 +384,8 @@ main(int argc, char *argv[])
 	pend = rindex(logfile, '.');
 	if (pend == NULL) {
 	    /* no '.', so append .<pid> */
-	    strncpy(newlogfile, logfile, MAXPATHLEN-1);
-	    strcat(newlogfile, pbuf);
+	    pmstrncpy(newlogfile, MAXPATHLEN, logfile);
+	    pmstrncat(newlogfile, MAXPATHLEN, pbuf);
 	}
 	else {
 	    /* stitch name together ... <pre>.<post> -> <pre>.<pid>.<post> */
@@ -402,6 +402,7 @@ main(int argc, char *argv[])
 	    *q = '\0';
 	}
 	pmOpenLog(pmGetProgname(), newlogfile, stderr, &sts);
+	logfile = newlogfile;
     }
     else
 	pmOpenLog(pmGetProgname(), logfile, stderr, &sts);

@@ -114,8 +114,7 @@ main(int argc, char **argv)
     __pmSetInternalState(PM_STATE_PMCS);
 
     if ((p = getenv("PMNS_DEFAULT")) != NULL) {
-	strncpy(pmnsfile, p, MAXPATHLEN);
-        pmnsfile[MAXPATHLEN-1]= '\0';
+	pmstrncpy(pmnsfile, MAXPATHLEN, p);
 
     } else {
 	pmsprintf(pmnsfile, sizeof(pmnsfile), "%s%c" "pmns" "%c" "root",
@@ -138,8 +137,7 @@ main(int argc, char **argv)
 	    break;
 
 	case 'n':	/* alternative name space file */
-	    strncpy(pmnsfile, opts.optarg, MAXPATHLEN);
-	    pmnsfile[MAXPATHLEN-1]= '\0';
+	    pmstrncpy(pmnsfile, MAXPATHLEN, opts.optarg);
 	    break;
 
 	case '?':

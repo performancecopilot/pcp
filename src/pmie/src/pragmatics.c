@@ -116,8 +116,7 @@ newContext(Symbol *host, const char *hconn, int is_temp)
        have different host-domain metrics evaluated at different
        times. */ 
     if (*host && perf) {
-        strncpy(perf->defaultfqdn, symName(*host), sizeof(perf->defaultfqdn));
-        perf->defaultfqdn[sizeof(perf->defaultfqdn)-1] = '\0';
+        pmstrncpy(perf->defaultfqdn, sizeof(perf->defaultfqdn), symName(*host));
     }
 
     return sts;

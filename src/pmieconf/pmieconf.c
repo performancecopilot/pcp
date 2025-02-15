@@ -797,8 +797,7 @@ main(int argc, char **argv)
     }
 
     for (c = 0; opts.optind < argc && c <= MAXARGS; c++) {
-	strncpy(inbuf[c], argv[opts.optind++], MAXBUFLEN);
-	inbuf[c][MAXBUFLEN] = '\0';
+	pmstrncpy(inbuf[c], MAXBUFLEN, argv[opts.optind++]);
 	interactive = 0;
     }
     if (opts.optind < argc) {
