@@ -112,8 +112,8 @@ void QedTimeControl::init(int port, bool live,
 	my.livePacket->start = now;
 	my.livePacket->end = now;
     }
-    strncpy(my.tzData, (const char *)tzstring.toLatin1(), tzlen+1);
-    strncpy(my.tzData + tzlen+1, (const char *)tzlabel.toLatin1(), lablen+1);
+    memcpy(my.tzData, (const char *)tzstring.toLatin1(), tzlen+1);
+    memcpy(my.tzData + tzlen+1, (const char *)tzlabel.toLatin1(), lablen+1);
 
     console->post("QedTimeControl::init: port=%d", port);
     if (port < 0) {
@@ -146,8 +146,8 @@ void QedTimeControl::addArchive(
     message->length = sz;
     message->start = starttime;
     message->end = endtime;
-    strncpy((char *)message->data, (const char *)tzstring.toLatin1(), tzlen+1);
-    strncpy((char *)message->data + tzlen+1,
+    memcpy((char *)message->data, (const char *)tzstring.toLatin1(), tzlen+1);
+    memcpy((char *)message->data + tzlen+1,
 				(const char *)tzlabel.toLatin1(), lablen+1);
     if (my.archiveSocket->write((const char *)message, sz) < 0) {
 	QMessageBox error(QMessageBox::Warning,

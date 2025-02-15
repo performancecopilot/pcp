@@ -85,7 +85,7 @@ jsmnint(const char *js, jsmntok_t *tok, int *value)
     if (tok->type != JSMN_PRIMITIVE)
 	return -1;
     length = tok->end - tok->start;
-    strncpy(buffer, js + tok->start, length);
+    memcpy(buffer, js + tok->start, length);
     buffer[length] = '\0';
     *value = (int)strtol(buffer, &endptr, 0);
     if (*endptr == '\0')
@@ -103,7 +103,7 @@ jsmnuint(const char *js, jsmntok_t *tok, unsigned int *value)
     if (tok->type != JSMN_PRIMITIVE)
 	return -1;
     length = tok->end - tok->start;
-    strncpy(buffer, js + tok->start, length);
+    memcpy(buffer, js + tok->start, length);
     buffer[length] = '\0';
     *value = (unsigned int)strtoul(buffer, &endptr, 0);
     if (*endptr == '\0')
@@ -121,7 +121,7 @@ jsmnlong(const char *js, jsmntok_t *tok, __int64_t *value)
     if (tok->type != JSMN_PRIMITIVE)
 	return -1;
     length = tok->end - tok->start;
-    strncpy(buffer, js + tok->start, length);
+    memcpy(buffer, js + tok->start, length);
     buffer[length] = '\0';
     *value = strtoll(buffer, &endptr, 0);
     if (*endptr == '\0')
@@ -139,7 +139,7 @@ jsmnulong(const char *js, jsmntok_t *tok, __uint64_t *value)
     if (tok->type != JSMN_PRIMITIVE)
 	return -1;
     length = tok->end - tok->start;
-    strncpy(buffer, js + tok->start, length);
+    memcpy(buffer, js + tok->start, length);
     buffer[length] = '\0';
     *value = strtoull(buffer, &endptr, 0);
     if (*endptr == '\0')
@@ -157,7 +157,7 @@ jsmnfloat(const char *js, jsmntok_t *tok, float *value)
     if (tok->type != JSMN_PRIMITIVE)
 	return -1;
     length = tok->end - tok->start;
-    strncpy(buffer, js + tok->start, length);
+    memcpy(buffer, js + tok->start, length);
     buffer[length] = '\0';
     *value = strtof(buffer, &endptr);
     if (*endptr == '\0')
@@ -175,7 +175,7 @@ jsmndouble(const char *js, jsmntok_t *tok, double *value)
     if (tok->type != JSMN_PRIMITIVE)
 	return -1;
     length = tok->end - tok->start;
-    strncpy(buffer, js + tok->start, length);
+    memcpy(buffer, js + tok->start, length);
     buffer[length] = '\0';
     *value = strtod(buffer, &endptr);
     if (*endptr == '\0')
@@ -433,7 +433,7 @@ pmjsonGet(json_metric_desc *json_metrics, int nmetrics, pmInDom indom,
 	    goto finished;
 	}
 	json = jp;
-	strncpy(json + json_length, buffer, bytes);
+	memcpy(json + json_length, buffer, bytes);
 	json_length = json_length + bytes;
 
 parsing:
@@ -623,7 +623,7 @@ pmjsonPrint(FILE *fp, json_flags flags, const char *pointer,
 	    sts = -ENOMEM;
 	    goto finished;
 	}
-	strncpy(json + json_length, buffer, bytes);
+	memcpy(json + json_length, buffer, bytes);
 	json_length = json_length + bytes;
 
 parsing:

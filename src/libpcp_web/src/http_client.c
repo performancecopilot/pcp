@@ -250,7 +250,7 @@ http_client_connect(http_client *cp)
 	    return -1;
 	}
 	length = up->field_data[UF_HOST].len;
-	strncpy(host, url + up->field_data[UF_HOST].off, length);
+	memcpy(host, url + up->field_data[UF_HOST].off, length);
 	host[length] = '\0';
 	port = up->port ? up->port : HTTP_PORT;
 
@@ -319,12 +319,12 @@ http_client_get(http_client *cp)
 	path = "/";	/* assume root-level request */
     }
     hostlen = up->field_data[UF_HOST].len;
-    strncpy(host, url + up->field_data[UF_HOST].off, hostlen);
+    memcpy(host, url + up->field_data[UF_HOST].off, hostlen);
     host[hostlen] = '\0';
 #if 0
-    //    strncpy(host, "localhost", sizeof("localhost"));
+    //    memcpy(host, "localhost", sizeof("localhost"));
     //    host[sizeof("localhost")] = '\0';
-    //    strncpy(path, "/containers/8d70f8a47a6b6e515fb8e40d31da7928de70e883c235ba16b132e6a3b4f8267d/json", sizeof("/containers/8d70f8a47a6b6e515fb8e40d31da7928de70e883c235ba16b132e6a3b4f8267d/json"));
+    //    memcpy(path, "/containers/8d70f8a47a6b6e515fb8e40d31da7928de70e883c235ba16b132e6a3b4f8267d/json", sizeof("/containers/8d70f8a47a6b6e515fb8e40d31da7928de70e883c235ba16b132e6a3b4f8267d/json"));
     //    pmNotifyErr(LOG_DEBUG, "hit here: %s", cp->type_buffer);
 #endif
     
@@ -431,11 +431,11 @@ reset_url_location(const char *tourl, size_t tolen, http_parser_url *top,
 	size = bytes + length + 2;	/* separator + terminator */
 	if ((url = malloc(size)) == NULL)
 	    return -ENOMEM;
-	strncpy(url, curl, bytes);
+	memcpy(url, curl, bytes);
 	str = url + bytes;
 	if (*suffix != '/')
 	    *str++ = '/';
-	strncat(str, suffix, length);
+	memcpy(str, suffix, length);
 	url[size - 1] = '\0';
 	http_parser_parse_url(url, size, 0, fromp);
 
@@ -504,7 +504,7 @@ on_header_value(http_parser *pp, const char *offset, size_t length)
 		    fprintf(stderr, "on_header_value: Setting error E2BIG\n");
 		return 1;
 	    }
-	    strncpy(cp->type_buffer, offset, length);
+	    memcpy(cp->type_buffer, offset, length);
 	    cp->type_buffer[length] = '\0';
 	}
     }
@@ -526,7 +526,7 @@ on_body(http_parser *pp, const char *offset, size_t length)
 	    fprintf(stderr, "on_body: Setting error E2BIG\n");
 	return 1;
     }
-    strncpy(cp->body_buffer + cp->offset, offset, length);
+    memcpy(cp->body_buffer + cp->offset, offset, length);
     cp->offset += length;
     return 0;
 }

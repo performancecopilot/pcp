@@ -568,7 +568,7 @@ pmDiscoverFlagsStr(pmDiscover *p)
     pmsprintf(buf, sizeof(buf), "flags: 0x%04x |", p->flags);
     for (i=0; flags_str[i].name; i++) {
     	if (p->flags & flags_str[i].flag)
-	    strncat(buf, flags_str[i].name, sizeof(buf)-1);
+	    pmstrncat(buf, sizeof(buf), flags_str[i].name);
     }
     return buf;
 }
@@ -1192,7 +1192,7 @@ archive_dir_lock_path(pmDiscover *p)
     char	path[MAXNAMELEN], lockpath[MAXNAMELEN];
     int		sep = pmPathSeparator();
 
-    strncpy(path, p->context.name, sizeof(path)-1);
+    pmstrncpy(path, sizeof(path), p->context.name);
     pmsprintf(lockpath, sizeof(lockpath), "%s%c%s", dirname(path), sep, "lock");
     return strndup(lockpath, sizeof(lockpath));
 }
@@ -1909,7 +1909,7 @@ pmDiscoverDecodeMetaDesc(uint32_t *buf, int buflen, pmDesc *p_desc, int *p_numna
 	    free(names);
 	    return -ENOMEM;
 	}
-	strncpy(names[i], cp, len);
+	memcpy(names[i], cp, len);
 	names[i][len] = '\0';
 	cp += len;
     }
