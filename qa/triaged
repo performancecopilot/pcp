@@ -145,24 +145,3 @@
 556	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
 585	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
 634	FreeBSD 14.0	https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=276281
-# perl issue on CentOS Stream9
-369	CentOS Stream9	Perl SEGV in munmap_chunk()
-372	CentOS Stream9	Perl SEGV in munmap_chunk()
-373	CentOS Stream9	Perl SEGV in munmap_chunk()
-511	CentOS Stream9	Perl SEGV in munmap_chunk()
-527	CentOS Stream9	Perl SEGV in munmap_chunk()
-528	CentOS Stream9	Perl SEGV in munmap_chunk()
-537	CentOS Stream9	Perl SEGV in munmap_chunk()
-711	CentOS Stream9	Perl SEGV in munmap_chunk()
-846	CentOS Stream9	Perl SEGV in munmap_chunk()
-926	CentOS Stream9	Perl SEGV in munmap_chunk()
-975	CentOS Stream9	Perl SEGV in munmap_chunk()
-985	CentOS Stream9	Perl SEGV in munmap_chunk()
-1070	CentOS Stream9	Perl SEGV in munmap_chunk()
-1406	CentOS Stream9	Perl SEGV in munmap_chunk()
-1409	CentOS Stream9	Perl SEGV in munmap_chunk()
-1410	CentOS Stream9	Perl SEGV in munmap_chunk()
-1411	CentOS Stream9	Perl SEGV in munmap_chunk()
-1412	CentOS Stream9	Perl SEGV in munmap_chunk()
-1417	CentOS Stream9	Perl SEGV in munmap_chunk()
-1418	CentOS Stream9	Perl SEGV in munmap_chunk()
