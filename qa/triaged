@@ -66,6 +66,7 @@
 1490	Fedora 39	mem leak appears to be from the pile of steaming stuff
 			know as Python, not the PCP labelsets code
 1490	Fedora 40	ditto
+1595	vm20	valgrind issue goes away when linux PMDA compiled -O0
 1574	.*	valgrind-reported issue in libpcp_web pmseries functions
 1662	.*	valgrind-reported issue in libpcp_web archive discovery
 		handling of sources
