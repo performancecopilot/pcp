@@ -37,7 +37,7 @@ jobs:
 #          - {platform: ubuntu1804-container,      os: ubuntu-latest, experimental: false}
 #          - {platform: ubuntu2004,                os: ubuntu-latest, experimental: false}
 #          - {platform: ubuntu2204,                os: ubuntu-latest, experimental: false}
-#          - {platform: fedora-rawhide-container,  os: ubuntu-latest, experimental: true }
+#          - {platform: fedora-rawhide-container,  os: ubuntu-22.04, experimental: true }
 #          - {platform: centos7-container,         os: ubuntu-latest, experimental: false}
     steps:
       - name: Checkout sources
