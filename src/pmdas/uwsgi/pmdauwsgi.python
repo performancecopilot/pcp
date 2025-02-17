@@ -14,8 +14,8 @@
 # for more details.
 #
 
-# pylint: disable=line-too-long, too-many-arguments
-# pylint: disable=broad-except, too-many-lines
+# pylint: disable=too-many-arguments, too-many-positional-arguments
+# pylint: disable=line-too-long, broad-except, too-many-lines
 
 """ Performance Metrics Domain Agent exporting uwsgi metrics. """
 

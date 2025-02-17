@@ -17,7 +17,8 @@
 #
 # See pmdasimple.py for an example use of this module.
 """
-# pylint: disable=too-many-arguments,consider-using-dict-items,no-member
+# pylint: disable=consider-using-dict-items,no-member
+# pylint: disable=too-many-arguments,too-many-positional-arguments
 
 import os
 import sys
