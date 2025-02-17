@@ -205,7 +205,7 @@ gfs2_extract_trace_values(char *buffer, pmInDom gfs_fs_indom)
     }
 
     temp.dev_id = makedev(major, minor);
-    strncpy(temp.data, data, sizeof(temp.data)-1);
+    pmstrncpy(temp.data, sizeof(temp.data), data);
 
     /* Assign data in the array and update counters */
     ftrace_data = temp;

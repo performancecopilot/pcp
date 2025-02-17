@@ -591,15 +591,13 @@ hotproc_eval_procs(void)
 		len--;
 	    }
 
-	    strncpy(vars.fname, cmd, sizeof(vars.fname)-1);
+	    pmstrncpy(vars.fname, sizeof(vars.fname), cmd);
 	    if (len < sizeof(vars.fname) && parens && cmd[len-1] == ')')
 		vars.fname[len-1] = '\0'; /* skip closing parenthesis */
-	    vars.fname[sizeof(vars.fname) - 1] = '\0';
 	}
 
 	/* PS Args */
-	strncpy(vars.psargs, entry->name+7, sizeof(vars.psargs));
-	vars.psargs[sizeof(vars.psargs)-1]='\0';
+	pmstrncpy(vars.psargs, sizeof(vars.psargs), entry->name+7);
 
 	/* UID and GID */
 	vars.uid = entry->status.uid;
@@ -607,14 +605,12 @@ hotproc_eval_procs(void)
 
 	/* uname and gname */
 	if ((name = proc_uidname_lookup(vars.uid)) != NULL) {
-	    strncpy(vars.uname, name, sizeof(vars.uname));
-	    vars.uname[sizeof(vars.uname)-1] = '\0';
+	    pmstrncpy(vars.uname, sizeof(vars.uname), name);
 	} else {
 	    strcpy(vars.uname, "UNKNOWN");
 	}
 	if ((name = proc_gidname_lookup(vars.gid)) != NULL) {
-	    strncpy(vars.gname, name, sizeof(vars.gname));
-	    vars.gname[sizeof(vars.gname)-1] = '\0';
+	    pmstrncpy(vars.gname, sizeof(vars.gname), name);
 	} else {
 	    strcpy(vars.gname, "UNKNOWN");
 	}
@@ -893,8 +889,7 @@ refresh_proc_pidlist(proc_pid_t *proc_pid, proc_pid_list_t *pids, proc_runq_t *r
 		    if (len > PROC_PID_STAT_CMD_MAXLEN)
 			len = PROC_PID_STAT_CMD_MAXLEN;
 	            ep->instname = (char *)malloc(len+1);
-	            strncpy(ep->instname, ep->name, len);
-	            ep->instname[len] = '\0';
+	            pmstrncpy(ep->instname, len+1, ep->name);
 	        }
 	    }
 	    if (ep->instname == NULL) /* no spaces found, so use the full name */
@@ -2039,8 +2034,10 @@ proc_cgroup_reformat(char *buf, int buflen, char *fmt, int fmtlen, char *cid, in
 	    s = p + 1;
 	if (*p != '\n' || !s)	/* find end of this line */
 	    continue;
-	if (target != fmt)      /* not the first cgroup? */
-	    strncat(target, ";", 2);
+	if (target != fmt) {    /* not the first cgroup? */
+	    memcpy(target, ";", 2);
+	    target++;
+	}
 	/* have a complete cgroup line now, copy it over */
 	/* (but first try out container name heuristics) */
 	off = target - fmt;
@@ -2049,8 +2046,9 @@ proc_cgroup_reformat(char *buf, int buflen, char *fmt, int fmtlen, char *cid, in
 	    break;
 	if (!c)
 	    c = proc_container_search(s, len, cid, cidlen);
-	strncat(target, s, len);
+	memcpy(target, s, len);
 	target += len;
+	*target = '\0';
 	s = NULL;		/* reset it for new line */
     }
 }
@@ -2321,7 +2319,8 @@ parse_proc_fdinfo(proc_pid_fdinfo_t *fdinfo, size_t buflen, char *buf)
 	      if (n && (n - c <= size))
 		size = n - c;
 
-	      strncpy(fdinfo->drm_driver, c, size);
+	      memcpy(fdinfo->drm_driver, c, size);
+	      fdinfo->drm_driver[size] = '\0';
 	  }
 	  else if (strncmp(curline, "drm-client-id:", 14) == 0)
 	      fdinfo->drm_client_id = strtoull(curline + 14, &curline, 0);
@@ -2335,7 +2334,8 @@ parse_proc_fdinfo(proc_pid_fdinfo_t *fdinfo, size_t buflen, char *buf)
 	      if (n && (n - c <= size))
 		size = n - c;
 
-	      strncpy(fdinfo->drm_pdev, c, size);
+	      memcpy(fdinfo->drm_pdev, c, size);
+	      fdinfo->drm_pdev[size] = '\0';
 	  }
 	  else if (strncmp(curline, "drm-memory-vram:", 16) == 0)
 	      fdinfo->drm_memory_vram = strtoull(curline + 16, &curline, 0);

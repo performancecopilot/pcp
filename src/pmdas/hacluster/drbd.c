@@ -219,10 +219,8 @@ hacluster_refresh_drbd_resource(const char *resource_name, struct resource *reso
 
 		/* Start collecting our metrics */
 		if ( found_node && (nesting == DRBD_JSON_NODE)) {
-			strncpy(resource->resource, node, sizeof resource->resource);
-			resource->resource[sizeof resource->resource - 1] = '\0';
-			strncpy(resource->volume, volume, sizeof resource->volume);
-			resource->volume[sizeof resource->volume - 1] = '\0';
+			pmstrncpy(resource->resource, sizeof resource->resource, node);
+			pmstrncpy(resource->volume, sizeof resource->volume, volume);
 
 			if (strstr(buffer_ptr, "\"role\":"))
 				sscanf(buffer_ptr, "\"role\": \"%[^\",]", resource->role);
@@ -337,10 +335,8 @@ hacluster_refresh_drbd_peer_device(const char *peer_name, struct peer_device *pe
 
 		/* Start collecting our metrics */
 		if ( found_node && found_peer_node ) {
-			strncpy(peer_device->resource, node, sizeof peer_device->resource);
-			peer_device->resource[sizeof peer_device->resource - 1] = '\0';
-			strncpy(peer_device->peer_node_id, peer_node_id, sizeof peer_device->peer_node_id);
-			peer_device->peer_node_id[sizeof peer_device->peer_node_id - 1] = '\0';
+			pmstrncpy(peer_device->resource, sizeof peer_device->resource, node);
+			pmstrncpy(peer_device->peer_node_id, sizeof peer_device->peer_node_id, peer_node_id);
 
 			if (strstr(buffer_ptr, "\"peer-role\":"))
 				sscanf(buffer_ptr, "\"peer-role\": \"%[^\",]", peer_device->peer_role);

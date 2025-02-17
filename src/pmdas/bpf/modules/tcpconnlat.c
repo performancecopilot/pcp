@@ -285,7 +285,7 @@ static void handle_event(void *ctx, int cpu, void *data, __u32 data_sz)
     elm->event.lport = event->lport;
     elm->event.dport = event->dport;
     elm->event.delta_us = event->delta_us;
-    strncpy(elm->event.comm, event->comm, sizeof(event->comm));
+    pmstrncpy(elm->event.comm, sizeof(elm->event.comm), event->comm);
 
     push(elm);
 }

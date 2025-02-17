@@ -321,11 +321,11 @@ mounts_refresh_mounts(void)
 	    mp = &mount_list[item];
 	    if (strcmp(path, mounts[item].i_name) != 0)
 		continue;
-	    strncpy(mp->type, type, MAXFSTYPE-1);
+	    pmstrncpy(mp->type, MAXFSTYPE, type);
 	    /* don't resolve dm symlinks - we want the persistent device name, not the dm-* name */
 	    if (strncmp(device, "/dev/mapper", 11) == 0 || realpath(device, mp->device) == NULL)
-		strncpy(mp->device, device, MAXPATHLEN-1);
-	    strncpy(mp->options, options, MAXOPTSTR-1);
+		pmstrncpy(mp->device, MAXPATHLEN, device);
+	    pmstrncpy(mp->options, MAXOPTSTR, options);
 	    mp->flags = MOUNTS_FLAG_UP;
 	    if (statvfs(path, &vfs) < 0)
 		continue;

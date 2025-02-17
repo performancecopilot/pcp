@@ -43,8 +43,7 @@ extract_str(char *s, size_t end, const char *field, size_t length, char *value, 
     p = s + length;
     while (*p != ',' && *p != '\0' && !isspace((int)*p))
 	p++;
-    *p = '\0';
-    strncpy(value, s + length, vsz);
+    pmstrncpy(value, vsz, s + length);
     return p - s + 1;
 }
 
@@ -78,7 +77,6 @@ extract_cmd(char *s, size_t end, const char *field, size_t length, char *value, 
 	len = vsz - 1;
 
     /* copy it over to "value" */
-    start[len] = '\0';
-    strncpy(value, start, len + 1);
+    pmstrncpy(value, len, start);
     return len;
 }

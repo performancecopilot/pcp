@@ -155,27 +155,10 @@ refresh_proc_buddyinfo(proc_buddyinfo_t *proc_buddyinfo)
             proc_buddyinfo->buddys = (buddyinfo_t *)realloc(proc_buddyinfo->buddys, proc_buddyinfo->nbuddys * sizeof(buddyinfo_t));
             for (j=0; j < MAX_ORDER; j++) {
                 proc_buddyinfo->buddys[i+j].id = next_id++;
-#ifdef __GNUC__
-#if __GNUC__ >= 8
-		/*
-		 * gcc 8 on Fedora 30 emits warnings for these two
-		 * strncpy() calls ... both are safe
-		 */
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wstringop-truncation"
-#endif
-#endif
-                strncpy(proc_buddyinfo->buddys[i+j].node_name, node_name,
-			sizeof(proc_buddyinfo->buddys[i+j].node_name)-1);
-		proc_buddyinfo->buddys[i+j].node_name[sizeof(proc_buddyinfo->buddys[i+j].node_name)-1] = '\0';	/* data overrun guard */
-                strncpy(proc_buddyinfo->buddys[i+j].zone_name, zone_name,
-			sizeof(proc_buddyinfo->buddys[i+j].zone_name)-1);
-		proc_buddyinfo->buddys[i+j].zone_name[sizeof(proc_buddyinfo->buddys[i+j].zone_name)-1] = '\0';        /* data overrun guard */
-#ifdef __GNUC__
-#if __GNUC__ >= 8
-#pragma GCC diagnostic pop
-#endif
-#endif
+                pmstrncpy(proc_buddyinfo->buddys[i+j].node_name,
+		          sizeof(proc_buddyinfo->buddys[i+j].node_name), node_name);
+                pmstrncpy(proc_buddyinfo->buddys[i+j].zone_name,
+		          sizeof(proc_buddyinfo->buddys[i+j].zone_name), zone_name);
                 pmsprintf(proc_buddyinfo->buddys[i+j].id_name,
 			 sizeof(proc_buddyinfo->buddys[i+j].id_name),
 			 "%s::order%u::%s", zone_name, j, node_name);

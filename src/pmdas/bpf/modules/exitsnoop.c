@@ -288,7 +288,7 @@ static void handle_event(void *ctx, int cpu, void *data, __u32 data_sz)
     elm->event.ppid        =  event->ppid;
     elm->event.sig         =  event->sig;
     elm->event.exit_code   =  event->exit_code;
-    strncpy(elm->event.comm, event->comm, sizeof(event->comm));
+    pmstrncpy(elm->event.comm, sizeof(elm->event.comm), event->comm);
 
     push(elm);
 }

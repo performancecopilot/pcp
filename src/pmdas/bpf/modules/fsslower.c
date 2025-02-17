@@ -418,8 +418,8 @@ static void handle_event(void *ctx, int cpu, void *data, __u32 data_sz)
     elm->event.size = event->size;
     elm->event.pid = event->pid;
     elm->event.op = event->op;
-    strncpy(elm->event.file, event->file, sizeof(event->file));
-    strncpy(elm->event.task, event->task, sizeof(event->task));
+    pmstrncpy(elm->event.file, sizeof(elm->event.file), event->file);
+    pmstrncpy(elm->event.task, sizeof(elm->event.task), event->task);
 
     push(elm);
 }
