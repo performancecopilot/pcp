@@ -833,7 +833,10 @@ do
 	    # this is PCP 4.0.0
 	    # no -p or -m or -i flags and no -e processing
 	    # group "remote" should be enough to exercise interoperability
-	    [ X"$what" = Xall ] && check_what='-g remote'
+	    # need to exclude pmlc here talking to pmcd in a current PCP
+	    # version (LOG_PDU_VERSION3 vs LOG_PDU_VERSION2 issue)
+	    #
+	    [ X"$what" = Xall ] && check_what='-g remote -X 381'
 	    qa_user=pcpqa
 	    qa_dir=/var/lib/pcp/testsuite
 	    echo "Info: this PCP 4.0.0 inter-op testing ... no new PCP builds or installs"
