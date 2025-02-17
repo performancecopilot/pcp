@@ -360,8 +360,7 @@ scan_filesys_options(const char *options, const char *option)
     static char buffer[MAXMNTOPTSLEN];
     char *s;
 
-    strncpy(buffer, options, sizeof(buffer));
-    buffer[sizeof(buffer)-1] = '\0';
+    pmstrncpy(buffer, sizeof(buffer), options);
 
     s = strtok(buffer, ",");
     while (s) {
@@ -384,8 +383,7 @@ cgroup_find_subsys(pmInDom indom, filesys_t *fs)
 	return dunno;
 
     memset(opts, 0, sizeof(opts));
-    strncpy(buffer, fs->options, sizeof(buffer));
-    buffer[sizeof(buffer)-1] = '\0';
+    pmstrncpy(buffer, sizeof(buffer), fs->options);
 
     s = strtok(buffer, ",");
     while (s) {
@@ -436,12 +434,12 @@ cgroup_container_search(const char *cgroup, char *cid, int cidlen)
 	p += 8;
 	if ((end = strchr(p, '.')) != NULL &&
 	    ((len = end - p) < cidlen) && len == SHA256CIDLEN) {
-	    strncpy(cid, p, len);
+	    memcpy(cid, p, len);
 	    cid[len] = '\0';
 	    return cid;
 	}
     } else if ((len = (endp - p) - 2) == SHA256CIDLEN) {
-	strncpy(cid, p + 1, len);
+	memcpy(cid, p + 1, len);
 	cid[len] = '\0';
 	return cid;
     }
@@ -603,22 +601,8 @@ read_pressure(FILE *fp, const char *type, cgroup_pressure_t *pp)
     static char fmt[] = "TYPE avg10=%f avg60=%f avg300=%f total=%llu\n";
     int		count;
 
-#ifdef __GNUC__
-#if __GNUC__ >= 10
-    /*
-     * gcc 10 on Fedora 32 and Debian unstable falsely report a problem
-     * with this strncpy() ... it is safe
-     */
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wstringop-truncation"
-#endif
-#endif
-    strncpy(fmt, type, 4);
-#ifdef __GNUC__
-#if __GNUC__ >= 10
-#pragma GCC diagnostic pop
-#endif
-#endif
+    memcpy(fmt, type, 4);	/* replace TYPE @ start of fmt[] */
+
     count = fscanf(fp, fmt, &pp->avg10sec, &pp->avg1min, &pp->avg5min,
 		    (unsigned long long *)&pp->total);
     pp->updated = (count == 4);

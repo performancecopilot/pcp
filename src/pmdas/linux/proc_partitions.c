@@ -388,8 +388,7 @@ persistent_dm_name(char *namebuf, int namelen, int devmajor, int devminor)
 	    path[sizeof(path)-1] = '\0';
 	    if ((p = strchr(path, '\n')) != NULL)
 	    	*p = '\0';
-	    strncpy(namebuf, path, namelen-1);
-	    namebuf[namelen-1] = '\0';	/* buffer overrun guard */
+	    pmstrncpy(namebuf, namelen, path);
 	    found = 1;
 	}
     	close(fd);
@@ -408,8 +407,7 @@ persistent_dm_name(char *namebuf, int namelen, int devmajor, int devminor)
 		if (stat(path, &sb) != 0 || !S_ISBLK(sb.st_mode))
 		    continue; /* only interested in block devices */
 		if (devmajor == major(sb.st_rdev) && devminor == minor(sb.st_rdev)) {
-		    strncpy(namebuf, dentry->d_name, namelen-1);
-		    namebuf[namelen-1] = '\0';	/* buffer overrun guard */
+		    pmstrncpy(namebuf, namelen, dentry->d_name);
 		    found = 1;
 		    break;
 		}
@@ -449,7 +447,7 @@ persistent_md_name(char *namebuf, int namelen)
 		continue;
 	    name[size] = '\0';
 	    if (strcmp(basename(name), namebuf) == 0) {
-		strncpy(namebuf, dentry->d_name, namelen);
+		pmstrncpy(namebuf, namelen, dentry->d_name);
 		found = 1;
 		break;
 	    }
@@ -1780,7 +1778,7 @@ proc_partitions_fetch(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    case 3: /* disk.wwid.scsi_paths */
 		if ((len = strlen(scsi_paths)) > 0)
 		    strcat(scsi_paths, " ");
-		strncat(scsi_paths, p->namebuf, sizeof(scsi_paths)-len-1);
+		pmstrncat(scsi_paths, sizeof(scsi_paths), p->namebuf);
 		atom->cp = scsi_paths;
 	    	break;
 	    case 4: /* disk.wwid.read */

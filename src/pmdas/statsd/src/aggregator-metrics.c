@@ -302,7 +302,7 @@ create_metric(struct agent_config* config, struct statsd_datagram* datagram, str
     size_t len = strlen(datagram->name) + 1;
     (*out)->name = (char*) malloc(len);
     ALLOC_CHECK((*out)->name, "Unable to allocate memory for copy of metric name.");
-    strncpy((*out)->name, datagram->name, len);
+    memcpy((*out)->name, datagram->name, len);
     (*out)->meta = create_metric_meta(datagram);
     (*out)->children = NULL;
     (*out)->committed = 0;

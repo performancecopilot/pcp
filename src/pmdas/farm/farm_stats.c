@@ -844,7 +844,7 @@ farm_ata_refresh_data(const char *name, struct farm_ata_log_stats *farm_ata_log_
 		scanresult = sscanf(buffer, "%*s%*s %s", model_number);
       
 		if (scanresult == 1) {
-			strncpy(farm_ata_log_stats->model_number, model_number, sizeof(farm_ata_log_stats->model_number));
+			pmstrncpy(farm_ata_log_stats->model_number, sizeof(farm_ata_log_stats->model_number), model_number);
 		} else {
 			farm_ata_log_stats->model_number[0] = '\0';
 		}
@@ -860,7 +860,7 @@ farm_ata_refresh_data(const char *name, struct farm_ata_log_stats *farm_ata_log_
 		scanresult = sscanf(buffer, "%*s%*s%*s %s", assembly_date);
 
 		if (scanresult == 1) {
-			strncpy(farm_ata_log_stats->assembly_date, assembly_date, sizeof(farm_ata_log_stats->assembly_date));
+			pmstrncpy(farm_ata_log_stats->assembly_date, sizeof(farm_ata_log_stats->assembly_date), assembly_date);
 		} else {
 			farm_ata_log_stats->assembly_date[0] = '\0';
 		}

@@ -709,7 +709,7 @@ main(int argc, char **argv)
 	exit(1);
     }
     if (argc > 1)
-	strncpy(file, argv[1], MAXPATHLEN);
+	pmstrncpy(file, MAXPATHLEN, argv[1]);
     else
 	pmsprintf(file, MAXPATHLEN, "%s%cmmv%ctest",
 		pmGetConfig("PCP_TMP_DIR"),

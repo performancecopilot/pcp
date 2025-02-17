@@ -1306,8 +1306,7 @@ zfs_init(pmdaInterface *dp)
     envpath = getenv("ZFS_PATH");
     if (envpath == NULL || *envpath == '\0')
 	envpath = ZFS_DEFAULT_PATH;
-    strncpy(zfs_path, envpath, MAXPATHLEN);
-    zfs_path[MAXPATHLEN-1] = '\0';
+    pmstrncpy(zfs_path, MAXPATHLEN, envpath);
 
     if (_isDSO) {
         pmsprintf(helppath, sizeof(helppath), "%s%c" "zfs" "%c" "help",

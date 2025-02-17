@@ -178,8 +178,7 @@ get_ttyname(dev_t dev, char *devpath)
 	}
 	else if (S_ISCHR(statbuf.st_mode) && dev == statbuf.st_rdev) {
 	   /* note - this depends on all paths being /dev prefixed */
-	   strncpy(ttyname, &fullpath[5], sizeof(ttyname));
-	   ttyname[sizeof(ttyname)-1] = '\0';
+	   pmstrncpy(ttyname, sizeof(ttyname), &fullpath[5]);
 	   break;
 	}
     }

@@ -42,8 +42,7 @@ lxc_setup(container_engine_t *dp)
 	lxc = lxc_default;
      if (lxc_cmd)
 	lxc_info = lxc_cmd;
-     strncpy(path, lxc, sizeof(path));
-     path[sizeof(path)-1] = '\0';
+     pmstrncpy(path, sizeof(path), lxc);
      dp->path = strdup(path);
 
     if (pmDebugOptions.attr)
