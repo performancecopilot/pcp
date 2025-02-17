@@ -18,7 +18,8 @@
 # pylint: disable=bad-continuation, line-too-long, too-many-lines
 # pylint: disable=too-many-nested-blocks, too-many-return-statements
 # pylint: disable=broad-except, bare-except, missing-docstring
-# pylint: disable=expression-not-assigned, too-many-arguments
+# pylint: disable=too-many-arguments, too-many-positional-arguments
+# pylint: disable=expression-not-assigned
 
 import os
 import re

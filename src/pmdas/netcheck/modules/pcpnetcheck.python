@@ -13,6 +13,8 @@
 #
 """PCP netcheck PMDA module base class"""
 
+# pylint: disable=too-many-arguments,too-many-positional-arguments
+
 try:
     from time import sleep, perf_counter as time
 except ImportError:
