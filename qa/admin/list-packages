@@ -479,7 +479,7 @@ then
 			-e 's/ .*//' \
 			-e 's/\.[^.]*$//' \
 		    # end
-		    [ -s $tmp.allpkgs ] || break
+		    [ -s $tmp.allpkgs ] && break
 		done
 	    elif which yum >/dev/null 2>&1
 	    then
