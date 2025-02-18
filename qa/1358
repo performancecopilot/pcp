@@ -41,9 +41,13 @@ pmdapodman_install()
                                         { print }'
 }
 
+# Note:
+#	a couple of the metrics have floating point values, but
+#	if the fraction part is zero, they look like integer
+#	values ... the awk at the end fixes this
+#
 _filter()
 {
-    #grep -E "^podman|$pod1|$pod2|$container1|$container2" | \
     grep -E "^podman|$container1|$container2" | \
     sed \
 	-e "s/$container1/CONTAINER/g" \
@@ -53,9 +57,15 @@ _filter()
 	-e 's/ value [0-9]\+/ value INTEGER/g' \
 	-e 's/ value ".*"/ value STRING/g' \
 	-e 's/inst \[[[0-9]\+ or/ inst [NNN or/g' \
-	#-e "s/$pod1/POD/g" \
-	#-e "s/$pod2/POD/g" \
-    #end
+    | $PCP_AWK_PROG '
+$1 == "podman.container.stats.cpu" || $1 == "podman.container.stats.mem_perc" {
+			  print
+			  xpect_float = 1
+			  next
+			}
+$1 ~ /^podman\./	{ xpect_float = 0 }
+xpect_float == 1	{ sub(/INTEGER/, "FLOAT") }
+			{ print }'
 }
 
 _cleanup()

@@ -16,15 +16,15 @@ podman.container.command
 podman.container.status
      inst [NNN or "CONTAINER"] value STRING
      inst [NNN or "CONTAINER"] value STRING
-podman.container.rwsize
-     inst [NNN or "CONTAINER"] value INTEGER
-     inst [NNN or "CONTAINER"] value INTEGER
-podman.container.rootfssize
-     inst [NNN or "CONTAINER"] value INTEGER
-     inst [NNN or "CONTAINER"] value INTEGER
 podman.container.running
      inst [NNN or "CONTAINER"] value INTEGER
      inst [NNN or "CONTAINER"] value INTEGER
+podman.container.image
+     inst [NNN or "CONTAINER"] value STRING
+     inst [NNN or "CONTAINER"] value STRING
+podman.container.pod
+     inst [NNN or "CONTAINER"] value STRING
+     inst [NNN or "CONTAINER"] value STRING
 podman.container.stats.net_input
      inst [NNN or "CONTAINER"] value INTEGER
      inst [NNN or "CONTAINER"] value INTEGER
