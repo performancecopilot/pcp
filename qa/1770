@@ -142,10 +142,11 @@ $sudo chown pcp:pcp $PCP_SASLCONF_DIR/pmcd.conf
 ls -l $PCP_SASLCONF_DIR/pmcd.conf >>$seq_full
 $sudo -u pcp cat $PCP_SASLCONF_DIR/pmcd.conf >>$seq_full
 
-echo "Creating temporary sasldb, add user running QA to it" | tee -a $seq_full
+echo "Creating temporary sasldb, add some usernames to it" | tee -a $seq_full
 echo y | saslpasswd2 -p -a pmcd -f $tmp.passwd.db $username
+echo y | saslpasswd2 -p -a pmcd -f $tmp.passwd.db remoteuser
 
-echo "Verify saslpasswd2 has successfully added a new user" | tee -a $seq_full
+echo "Verify saslpasswd2 has successfully added new users" | tee -a $seq_full
 sasldblistusers2 -f $tmp.passwd.db \
 | tee -a $seq_full \
 | _filter_listusers2
@@ -157,20 +158,20 @@ $sudo -u pcp od -c $tmp.passwd.db >>$seq_full
 
 echo "New pmdaproc config without any authentication" | tee -a $seq_full
 cat >$tmp.nobody <<EOF
-allowed = nobody
-mapped = false
+allowed: nobody
+mapped: false
 EOF
 
 echo "New pmdaproc config with remote authentication" | tee -a $seq_full
 cat >$tmp.remote <<EOF
-allowed = bob, $username, root
-mapped = false
+allowed: remoteuser, $username, root
+mapped: false
 EOF
 
 echo "New pmdaproc config with mapped authentication" | tee -a $seq_full
 cat >$tmp.mapped <<EOF
-allowed = $username
-mapped = true
+allowed: $username
+mapped: true
 EOF
 
 echo "Start pmcd with this shiny new sasldb and no access"
@@ -198,13 +199,22 @@ $sudo cp $tmp.remote $PCP_SYSCONF_DIR/proc/access.conf
 if ! _service pmcd restart 2>&1; then _exit 1; fi | tee -a $seq_full >$tmp.out
 _wait_for_pmcd || _exit 1
 
-_test_log "Establish context for authenticated user"
+_test_log "Establish context for authenticated local user"
 response=$(curl -s --user $username:y "http://localhost:44322/pmapi/context")
 echo "${response}" | pmjson | _filter_json | _filter_credentials
 ctx_authenticated=$(echo "${response}" | pmpython -c 'import sys,json; print(json.load(sys.stdin)["context"])')
 
-_test_log "I/O metric access using authenticated context"
+_test_log "I/O metric local user access using authenticated context"
 curl -s --user $username:y "http://localhost:44322/pmapi/$ctx_authenticated/fetch?names=proc.io.write_bytes" | _json_log | _filter_values
+echo
+
+_test_log "Establish context for authenticated remote user"
+response=$(curl -s --user remoteuser:y "http://localhost:44322/pmapi/context")
+echo "${response}" | pmjson | _filter_json | _filter_credentials
+ctx_authenticated=$(echo "${response}" | pmpython -c 'import sys,json; print(json.load(sys.stdin)["context"])')
+
+_test_log "I/O metric remote user access using authenticated context"
+curl -s --user remoteuser:y "http://localhost:44322/pmapi/$ctx_authenticated/fetch?names=proc.io.write_bytes" | _json_log | _filter_values
 echo
 
 echo "Restart pmcd with this sasldb and mapped auth mode"
