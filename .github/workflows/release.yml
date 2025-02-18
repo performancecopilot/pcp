@@ -33,7 +33,7 @@ jobs:
           - {platform: fedora40-container,        os: ubuntu-22.04}
           - {platform: fedora41-container,        os: ubuntu-22.04}
           - {platform: centos6-container,         os: ubuntu-latest}
-          - {platform: centos7-container,         os: ubuntu-latest}
+          - {platform: centos7-container,         os: ubuntu-22.04}
           - {platform: centos-stream8-container,  os: ubuntu-latest}
           - {platform: centos-stream9-container,  os: ubuntu-22.04}
     steps:
