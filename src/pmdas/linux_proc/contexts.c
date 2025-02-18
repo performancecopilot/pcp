@@ -75,9 +75,9 @@ proc_ctx_set_userid(int ctx, const char *value)
 static int
 proc_ctx_allow_username(const char *value)
 {
-   char *username;
+    char *username;
 
-   if (!ctxusers)
+    if (!ctxusers)
 	return 0; /* no allowed usernames, denied */
     for (username = *ctxusers; username; username++)
 	if (strcmp(username, value) == 0)
@@ -296,6 +296,8 @@ proc_ctx_access(int ctx)
     if (pp->state == CTX_INACTIVE)
 	return accessible;
 
+    if (pp->state & CTX_USERNAME)
+	return 1;
     if (pp->state & CTX_GROUPID) {
 	accessible++;
 	if (basegid != pp->gid) {
@@ -316,8 +318,6 @@ proc_ctx_access(int ctx)
 	    }
 	}
     }
-    if (pp->state & CTX_USERNAME)
-	return 1;
     return (accessible > 1);
 }
 
@@ -330,6 +330,8 @@ proc_ctx_revert(int ctx)
 	return 0;
     pp = &ctxtab[ctx];
     if (pp->state == CTX_INACTIVE)
+	return 0;
+    if (pp->state & CTX_USERNAME)
 	return 0;
 
     if ((pp->state & CTX_USERID) && baseuid != pp->uid) {

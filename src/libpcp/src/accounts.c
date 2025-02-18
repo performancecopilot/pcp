@@ -623,15 +623,17 @@ __pmGetUserIdentity(const char *username, uid_t *uid, gid_t *gid, int mode)
 
     sts = getpwnam_r(username, &pwd, buf, sizeof(buf), &pw);
     if (sts < 0) {
-	pmNotifyErr(LOG_CRIT, "getpwnam_r(%s) failed: %s\n",
-		username, pmErrStr_r(sts, buf, sizeof(buf)));
+	if (mode == PM_FATAL_ERR || pmDebugOptions.access)
+	    pmNotifyErr(LOG_CRIT, "getpwnam_r(%s) failed: %s\n",
+		    username, pmErrStr_r(sts, buf, sizeof(buf)));
 	if (mode == PM_FATAL_ERR)
 	    exit(1);
 	return -ENOENT;
     }
     else if (pw == NULL) {
-	pmNotifyErr(LOG_CRIT,
-		"cannot find the %s user to switch to\n", username);
+	if (mode == PM_FATAL_ERR || pmDebugOptions.access)
+	    pmNotifyErr(LOG_CRIT,
+		    "cannot find the %s user to switch to\n", username);
 	if (mode == PM_FATAL_ERR)
 	    exit(1);
 	return -ENOENT;
@@ -653,16 +655,18 @@ __pmGetUserIdentity(const char *username, uid_t *uid, gid_t *gid, int mode)
     pw = getpwnam(username);		/* THREADSAFE */
     if (pw == NULL) {
 	PM_UNLOCK(__pmLock_extcall);
-	pmNotifyErr(LOG_CRIT,
-		"cannot find the %s user to switch to\n", username);
+	if (mode == PM_FATAL_ERR || pmDebugOptions.access)
+	    pmNotifyErr(LOG_INFO,
+		    "cannot find the %s user to switch to\n", username);
 	if (mode == PM_FATAL_ERR)
 	    exit(1);
 	return -ENOENT;
     }
     else if (oserror() != 0) {
 	PM_UNLOCK(__pmLock_extcall);
-	pmNotifyErr(LOG_CRIT, "getpwnam(%s) failed: %s\n",
-		username, pmErrStr_r(oserror(), errmsg, sizeof(errmsg)));
+	if (mode == PM_FATAL_ERR || pmDebugOptions.access)
+	     pmNotifyErr(LOG_CRIT, "getpwnam(%s) failed: %s\n",
+		    username, pmErrStr_r(oserror(), errmsg, sizeof(errmsg)));
 	if (mode == PM_FATAL_ERR)
 	    exit(1);
 	return -ENOENT;
