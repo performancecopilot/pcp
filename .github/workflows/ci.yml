@@ -38,7 +38,7 @@ jobs:
 #          - {platform: ubuntu2004,                os: ubuntu-latest, experimental: false}
 #          - {platform: ubuntu2204,                os: ubuntu-latest, experimental: false}
 #          - {platform: fedora-rawhide-container,  os: ubuntu-22.04, experimental: true }
-#          - {platform: centos7-container,         os: ubuntu-22.04, experimental: false}
+#          - {platform: centos7-container,         os: ubuntu-20.04, experimental: false}
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4
