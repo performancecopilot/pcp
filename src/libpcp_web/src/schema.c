@@ -1063,7 +1063,7 @@ keys_series_stream(keySlots *slots, sds stamp, metric_t *metric,
 {
     seriesLoadBaton		*load = (seriesLoadBaton *)arg;
     keyStreamBaton		*baton;
-    unsigned int		count;
+    unsigned int		count, updated;
     int				i, sts, type;
     sds				cmd, key, name, stream = sdsempty();
 
@@ -1085,27 +1085,33 @@ keys_series_stream(keySlots *slots, sds stamp, metric_t *metric,
 	sdsfree(minus1);
 	count += 2;
     } else {
+	updated = 0;
 	name = sdsempty();
 	type = metric->desc.type;
 	if (metric->desc.indom == PM_INDOM_NULL || metric->u.vlist == NULL) {
 	    stream = series_stream_value(stream, name, type, &metric->u.atom);
 	    count += 2;
-	} else if (metric->u.vlist->listcount <= 0) {
-	    sds zero = sdsnew("0");
-	    stream = series_stream_append(stream, zero, sdsnew("0"));
-	    sdsfree(zero);
-	    count += 2;
+	    updated = 1;
 	} else {
 	    for (i = 0; i < metric->u.vlist->listcount; i++) {
 		instance_t	*inst;
 		value_t		*v = &metric->u.vlist->value[i];
 
+		if (v->updated == 0)
+		    continue;
 		if ((inst = dictFetchValue(metric->indom->insts, &v->inst)) == NULL)
 		    continue;
 		name = sdscpylen(name, (const char *)inst->name.hash, sizeof(inst->name.hash));
 		stream = series_stream_value(stream, name, type, &v->atom);
 		count += 2;
+		updated = 1;
 	    }
+	}
+	if (!updated) {
+	    sds zero = sdsnewlen("0", 1);
+	    stream = series_stream_append(stream, zero, sdsnew("0"));
+	    sdsfree(zero);
+	    count += 2;
 	}
 	sdsfree(name);
     }
