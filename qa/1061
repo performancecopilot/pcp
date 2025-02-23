@@ -29,6 +29,7 @@ pmdalio_filter()
 {
     sed \
 	-e "s/Ran 5 tests in [0-9]\.[0-9][0-9]*[0-9]s/Ran 5 tests in 0.XXXs/" \
+	-e "s/\.ISCSITests\..*) /.ISCSITests) /g" \
 	-e "/^$/d" \
     # end
 }
