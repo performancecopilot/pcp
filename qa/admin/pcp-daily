@@ -224,7 +224,11 @@ sudo rm -rf /usr/include/pcp
 sudo rm -f /usr/lib*/libpcp[_.]*
 # clean up any build turds
 rm -f qa/qa_outfiles
-if MAKE=\$MAKE ./Makepkgs --clean >>\$HOME/daily.log 2>&1
+# want to run "make check" after the build for Fedora platforms
+# - this mimics the CI behaviour
+check=''
+[ -f /etc/fedora-release ] && check='--check'
+if MAKE=\$MAKE ./Makepkgs --clean \$check >>\$HOME/daily.log 2>&1
 then
     ok=true
 else
