@@ -149,8 +149,9 @@ echo y | saslpasswd2 -p -a pmcd -f $tmp.passwd.db remoteuser
 
 echo "Verify saslpasswd2 has successfully added new users" | tee -a $seq_full
 sasldblistusers2 -f $tmp.passwd.db \
-| tee -a $seq.full \
-| _filter_listusers2
+| tee -a $seq_full \
+| _filter_listusers2 \
+| LC_COLLATE=POSIX sort
 
 echo "Ensure pmcd can read the password file" | tee -a $seq.full
 $sudo chown pcp:pcp $tmp.passwd.db
