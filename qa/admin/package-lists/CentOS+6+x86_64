@@ -93,6 +93,7 @@ smartmontools
 sqlite
 sysstat
 systemtap-sdt-devel
+targetcli
 time
 valgrind
 xfsprogs

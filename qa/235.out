@@ -5,6 +5,7 @@ QA output created by 235
 Usage: pmnsmerge [options] infile [...] outfile
 
 Options:
+  -D DBG, --debug=DBG   set debug options, see pmdbg(1)
   -a                    process files in order, ignoring embedded _DATESTAMP control lines
   -d, --dupok           duplicate names for the same PMID are allowed [default]
   -f, --force           force overwriting of the output file if it exists
@@ -16,6 +17,7 @@ Options:
 Usage: pmnsmerge [options] infile [...] outfile
 
 Options:
+  -D DBG, --debug=DBG   set debug options, see pmdbg(1)
   -a                    process files in order, ignoring embedded _DATESTAMP control lines
   -d, --dupok           duplicate names for the same PMID are allowed [default]
   -f, --force           force overwriting of the output file if it exists

@@ -116,6 +116,7 @@ sysstat
 systemd-devel
 systemtap-devel
 systemtap-sdt-devel
+targetcli-fb
 time
 valgrind
 xfsprogs

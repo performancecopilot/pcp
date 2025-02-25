@@ -887,11 +887,7 @@ PCP_CALL extern int pmGetVersion(void);
 			"metrics source is a PCP archive" }
 #define PMLONGOPT_DEBUG		"debug"
 #define PMOPT_DEBUG	{ PMLONGOPT_DEBUG,	1, 'D',	"DBG", \
-			NULL }
-#if 0
-// to expose -D in *all* Usage messages
 			"set debug options, see pmdbg(1)" }
-#endif
 #define PMLONGOPT_GUIMODE	"guimode"
 #define PMOPT_GUIMODE	{ PMLONGOPT_GUIMODE,	0, 'g',	0, \
 			"start in GUI mode with new time control" }

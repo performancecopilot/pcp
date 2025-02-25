@@ -1,3 +1,4 @@
+'\"! tbl | mmdoc
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
@@ -21,6 +22,7 @@
 \f3pmlogger\f1
 [\f3\-CLNoPruy?\f1]
 [\f3\-c\f1 \f2conffile\f1]
+[\f3\-D\f1 \f2debug\f1]
 [\f3\-d\f1 \f2directory\f1]
 [\f3\-h\f1 \f2host\f1]
 [\f3\-H\f1 \f2hostname\f1]
@@ -1286,6 +1288,89 @@ On each installation, the
 file \fI/etc/pcp.conf\fP contains the local values for these variables.
 The \fB$PCP_CONF\fP variable may be used to specify an alternative
 configuration file, as described in \fBpcp.conf\fP(5).
+.SH DEBUGGING OPTIONS
+The
+.B \-D
+or
+.B \-\-debug
+option enables the output of additional diagnostics on
+.I stderr
+to help triage problems, although the information is sometimes cryptic and
+primarily intended to provide guidance for developers rather end-users.
+.I debug
+is a comma separated list of debugging options, see
+.BR pmdbg (1)
+for a description of these options.
+.PP
+Debugging options specific to
+.B pmlogger
+are as follows:
+.TS
+box;
+lf(B) | lf(B)
+lf(B) | lxf(R) .
+Option	Descripton
+_
+appl0	T{
+.fi
+.ad l
+control request PDUs to and from
+.BR pmlc (1)
+T}
+_
+appl1	T{
+.fi
+.ad l
+credentials exchange
+T}
+_
+appl2	T{
+.fi
+.ad l
+alarm (timing) loop diagnostics, callback work and record control
+mode messages
+T}
+_
+appl3	T{
+.fi
+.ad l
+signal callbacks and exit logging
+T}
+_
+appl4	T{
+.fi
+.ad l
+record timestamps in
+.I logfile
+as milestones are reached
+T}
+_
+appl5	T{
+.fi
+.ad l
+PDU stats after
+.I conffile
+file processed
+T}
+_
+appl6	T{
+.fi
+.ad l
+building the metadata cache from
+.I conffile
+to boost start-up performance,
+.IR pass0 ()
+work
+T}
+_
+appl7	T{
+.fi
+.ad l
+suppress building of the metadata cache,
+.IR pass0 ()
+becomes a no-op
+T}
+.TE
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pmcd (1),

@@ -134,6 +134,7 @@ sysstat
 systemtap
 systemtap-runtime
 systemtap-sdt-dev
+targetcli-fb
 time
 unbound
 valgrind
