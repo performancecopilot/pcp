@@ -2862,7 +2862,8 @@ done
 %if !%{disable_selinux}
 %selinux_relabel_pre -s targeted
 %endif
-%if 0%{?fedora} >= 32 || 0%{?rhel} >= 9
+%if 0%{?fedora} >= 42
+%elif %{?fedora} >= 32 || 0%{?rhel} >= 9
 echo u pcpqa - \"PCP Quality Assurance\" %{_testsdir} /bin/bash | \
   systemd-sysusers --replace=/usr/lib/sysusers.d/pcp-testsuite.conf -
 %else
@@ -2905,7 +2906,8 @@ fi
 %endif
 
 %pre
-%if 0%{?fedora} >= 32 || 0%{?rhel} >= 9
+%if 0%{?fedora} >= 42
+%elif 0%{?fedora} >= 32 || 0%{?rhel} >= 9
 echo u pcp - \"Performance Co-Pilot\" %{_localstatedir}/lib/pcp | \
   systemd-sysusers --replace=/usr/lib/sysusers.d/pcp.conf -
 %else
