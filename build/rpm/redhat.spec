@@ -101,7 +101,7 @@ ExcludeArch: %{ix86}
 
 # support for pmdabcc, check bcc.spec for supported architectures of bcc
 %if 0%{?fedora} >= 25 || 0%{?rhel} > 6
-%ifarch x86_64 %{power64} aarch64 s390x
+%ifarch x86_64 %{power64} aarch64 s390x riscv64
 %global disable_bcc 0
 %else
 %global disable_bcc 1
@@ -112,7 +112,7 @@ ExcludeArch: %{ix86}
 
 # support for pmdabpf, check bcc.spec for supported architectures of libbpf-tools
 %if 0%{?fedora} >= 37 || 0%{?rhel} > 8
-%ifarch x86_64 %{power64} aarch64 s390x
+%ifarch x86_64 %{power64} aarch64 s390x riscv64
 %global disable_bpf 0
 %else
 %global disable_bpf 1
@@ -123,7 +123,7 @@ ExcludeArch: %{ix86}
 
 # support for pmdabpftrace, check bpftrace.spec for supported architectures of bpftrace
 %if 0%{?fedora} >= 30 || 0%{?rhel} > 7
-%ifarch x86_64 %{power64} aarch64 s390x
+%ifarch x86_64 %{power64} aarch64 s390x riscv64
 %global disable_bpftrace 0
 %else
 %global disable_bpftrace 1
@@ -2862,7 +2862,8 @@ done
 %if !%{disable_selinux}
 %selinux_relabel_pre -s targeted
 %endif
-%if 0%{?fedora} >= 32 || 0%{?rhel} >= 9
+%if 0%{?fedora} >= 42
+%elif %{?fedora} >= 32 || 0%{?rhel} >= 9
 echo u pcpqa - \"PCP Quality Assurance\" %{_testsdir} /bin/bash | \
   systemd-sysusers --replace=/usr/lib/sysusers.d/pcp-testsuite.conf -
 %else
@@ -2904,7 +2905,8 @@ fi
 %endif
 
 %pre
-%if 0%{?fedora} >= 32 || 0%{?rhel} >= 9
+%if 0%{?fedora} >= 42
+%elif 0%{?fedora} >= 32 || 0%{?rhel} >= 9
 echo u pcp - \"Performance Co-Pilot\" %{_localstatedir}/lib/pcp | \
   systemd-sysusers --replace=/usr/lib/sysusers.d/pcp.conf -
 %else
