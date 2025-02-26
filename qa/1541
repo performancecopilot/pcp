@@ -21,6 +21,22 @@ fi
 . ./common.filter
 . ./common.check
 
+# ./refactor needs 4-arg version of split() added to gawk in version 4.0
+#
+which gawk >/dev/null 2>&1 || _notrun "gawk is not installed"
+gawk_ver=`gawk --version | sed -n -e '1{
+s/GNU //
+s/[Aa]wk //
+p
+q
+}'`
+case "$gawk_ver"
+in
+	[123].*)
+		_notrun "gawk version $gawk_ver < 4.0"
+		;;
+esac
+
 _cleanup()
 {
     cd $here
