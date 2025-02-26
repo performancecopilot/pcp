@@ -13,64 +13,64 @@ _pcp_complete()
     # Register arguments
     case $cmd in
     pcp2arrow)
-        all_args="ahLKcCVASTOstrijJ89nZzo"
-        arg_regex="-[ahKcCSstiJ89o]"
+        all_args="ahLKcCDVASTOstrRijJ89nZzo"
+        arg_regex="-[ahKcCDASTOstiJ89Zo]"
     ;;
     pcp2elasticsearch)
-        all_args="ahLKcCeVHGASTmOstRrIijJ4589nNvP0qQbByYgXxp"
-        arg_regex="-[ahKceASTOstZiJ489NP0qQbByYgXxp]"
+	all_args="ahLKcCeDVHGASTOstrRIijJ4589nNvmP0qbyQBYgxXp"
+	arg_regex="-[ahKceDASTOstiJ489NP0qbyQBYgxXp]"
     ;;
     pcp2graphite)
-        all_args="ahLKcCeVHGASTOstRrIijJ4589nNvP0qQbByYgpXEx"
-        arg_regex="-[ahKceASTOstZiJ489NP0qQbByYgpXEx]"
+	all_args="ahLKcCeDVHGASTOstrRIijJ4589nNvP0qbyQBYgpXEx"
+	arg_regex="-[ahKceDASTOstiJ489NP0qbyQBYgpXEx]"
     ;;
     pcp2influxdb)
-        all_args="ahLKcCeVHGASTOstRrIijJ4589nNvP0qQbByYgxUEX"
-        arg_regex="-[ahKceASTOstZiJ489NP0qQbByYgxUEX]"
+	all_args="ahLKcCeDVHGASTOstrRIijJ4589nNvP0qbyQBYgxUEX"
+	arg_regex="-[ahKceDASTOstiJ489NP0qbyQBYgxUEX]"
     ;;
     pcp2json)
-        all_args="ahLKcCeVHGASTmOstRrZzrIijJ4589nNvP0qQbByYFfxXEopuU"
-        arg_regex="-[ahKceASTOstZiJ489NP0qQbByYFfopuU]"
+	all_args="ahLKcCeDVHGASTOstrRIijJ4589nNvmP0qbyQBYFfZzxXEopUu"
+	arg_regex="-[ahKceDASTOstiJ489NP0qbyQBYFfZopUu]"
     ;;
     pcp2spark)
-        all_args="ahLKcCeVHGASTOstRrZzrIijJ4589nNvP0qQbByYgp"
-        arg_regex="-[ahKceASTOstZiJ489NP0qQbByYgp]"
+	all_args="ahLKcCeDVHGASTOstrRIijJ4589nNvmP0qbyQBYgp"
+	arg_regex="-[ahKceDASTOstiJ489NP0qbyQBYgp]"
     ;;
     pcp2xlsx)
-        all_args="ahLKcCeVHGASTmOstRrZzrIivP045qQbByYFf"
-        arg_regex="-[ahKceASTOstZiP04qQbByYgFf]"
+	all_args="ahLKcCeDVHGASTOstrRIi45vmP0qbyQBYFfZz"
+	arg_regex="-[ahKceDASTOsti4P0qbyQBYFfZ]"
     ;;
     pcp2xml)
-        all_args="ahLKcCeVHGASTOstRrZzrIijJ4589mnNvP0qQbByYFfXx"
-        arg_regex="-[ahKceASTOstZiJ489NP0qQbByYgFf]"
+	all_args="ahLKcCeDVHGASTOstrRIijJ4589nNvmP0qbyQBYFfZzxX"
+	arg_regex="-[ahKceDASTOstiJ489NP0qbyQBYFfZ]"
     ;;
     pcp2zabbix)
-        all_args="ahLKcCeVHGASTOstRrIijJ4589nNvP0qQbByYgpXExl"
-        arg_regex="-[ahKceASTOstiJ489NP0qQbByYgpXEx]"
+	all_args="ahLKcCeDVHGASTOstrRIijJ4589nNvP0qbyQBYgpXExl"
+	arg_regex="-[ahKceDASTOstiJ489NP0qbyQBYgpXEx]"
     ;;
     pmclient)
-        all_args="AahnOPSsTtVZz"
-        arg_regex="-[AahnOSsTtZz]"
+	all_args="AaDhnOSsTtZzVP"
+	arg_regex="-[AaDhnOSsTtZ]"
     ;;
     pmlogdump|pmdumplog)
-        all_args="adehIiLlMmnrSsTtVvxZz"
-        arg_regex="-[nSTvZ]"
+	all_args="aDdehIilLmMnrSsTtVvxZz"
+	arg_regex="-[DnSTvZ]"
     ;;
     pmdumptext)
-        all_args="AaCcdFfGHhilMmNnOoPRrSstTUuVXwZz"
-        arg_regex="-[AacdfhnOPRSsTtUwZ]"
+	all_args="AaDhnOSsTtVZzcCdfFGHilmMNoPrRuUVwX"
+	arg_regex="-[AaDhnOSsTtZcdfPRUw]"
     ;;
     pmevent)
-        all_args="AadfghiKLnOprSsTtUVvwXxZz"
-        arg_regex="-[AafhiKnOpSsTtUwxZ]"
+	all_args="AaDghnOpSsTtVZzdfiKLrUvwxX"
+	arg_regex="-[AaDhnOpSsTtZfiKUwx]"
     ;;
     pmfind)
-        all_args="CmqrSstV"
-        arg_regex="-[mst]"
+	all_args="CDmrsStqV"
+	arg_regex="-[Dmst]"
     ;;
     pmie)
-        all_args="AabCcdeFfhjlmnOoPqSTtUVvWXxZz"
-        arg_regex="-[AachljnOSTtUZ]"
+	all_args="aAbcCdDefFhjlmnoOPqStTUvVWXxzZ"
+	arg_regex="-[aAcDhjlmnoOStTUZ]"
     ;;
     pmie2col)
         all_args="dpw"
@@ -81,76 +81,76 @@ _pcp_complete()
         arg_regex="-[Ccip]"
     ;;
     pminfo)
-        all_args="abcdFfhIKLlMmNnOrsTtVvxZz"
-        arg_regex="-[abchKNnOrZ]"
+	all_args="abcdDFfhIKlLMmNnOrstTvVxzZ"
+	arg_regex="-[abcDhKNnOrZ]"
     ;;
     pmjson)
-        all_args="imopqyV"
-        arg_regex="-[io]"
+	all_args="DmiopqyV"
+	arg_regex="-[Dio]"
     ;;
     pmlc)
-        all_args="ehinPpZz"
-        arg_regex="-[hnpZ]"
+	all_args="DehinPpzZ"
+	arg_regex="-[DhnpZ]"
     ;;
     pmlogcheck)
-        all_args="lmnSTvwZz"
-        arg_regex="-[nSTZ]"
+	all_args="DlmnSTzvwZ"
+	arg_regex="-[DnSTZ]"
     ;;
     pmlogctl)
         all_args="aCcfimNpV"
         arg_regex="-[Ccip]"
     ;;
     pmlogextract)
-        all_args="cdfmSsTVvwxZz"
-        arg_regex="-[cSsTVvZ]"
+	all_args="cDdfmSsTVvwxZz"
+	arg_regex="-[cDSsTVvZ]"
     ;;
     pmlogger)
-        all_args="CcdHIhKLlmNnoPprsTtUuVvxy"
-        arg_regex="-[cdHIhKlmnpsTtUVvx]"
+	all_args="cCdDhHIlKLmNnopPrsTtuUvVxy"
+	arg_regex="-[cdDhHIlKmnpsTtUvVx]"
     ;;
     pmloglabel)
-        all_args="hLlpsVvZ"
-        arg_regex="-[hpVZ]"
+	all_args="DhlLpsvVZ"
+	arg_regex="-[DhpVZ]"
     ;;
     pmlogpaste)
         all_args="fhlmot"
         arg_regex="-[fhlmot]"
     ;;
     pmlogreduce)
-        all_args="ASsTtvZz"
-        arg_regex="-[ASsTtZ]"
+	all_args="ADSsTtvZz"
+	arg_regex="-[ADSsTtvZ]"
     ;;
     pmlogsize)
-        all_args="drvx"
-        arg_regex="-[x]"
+	all_args="dDrvx"
+	arg_regex="-[Dx]"
     ;;
     pmlogsummary)
-        all_args="aBbFfHIilMmNnpSsTVvxyZz"
-        arg_regex="-[BnpSTZ]"
+	all_args="abBDfFHiIlmMNnpsSTvVxyzZ"
+	arg_regex="-[BDnpSTZ]"
     ;;
     pmprobe)
-        all_args="abdfFhIiKLnOVvZz"
-        arg_regex="-[abhKnOZ]"
+	all_args="abDdfhIiKLnFOVvZz"
+	arg_regex="-[abDhKnOZ]"
     ;;
     pmrep)
-        all_args="0123456789AaBbCcdEeFfGgHhIiJjKkLlmNnOoPpQqRrSsTtUuVvWwXxYyZz"
-        arg_regex="-[04689ABabcEeFfhiJKlNOoPQqSsTtWwXYyZ]"
+	all_args="ahLKcCoFeDVHUGpASTOstZzdrRIijJ2345789nN6vmXWwP0lkxE1gfuqbyQBY"
+	arg_regex="-[ahKcoFeDASTOstZiJ489N6XWwP0lEfqbyQBY]"
     ;;
     pmseries)
-        all_args="acdFghIiLlMmnpqSstVvwZ"
-        arg_regex="-[cghpwZ]"
+	all_args="acdDFghiIlLmMnqpsStvVwZ"
+	arg_regex="-[cDghpwZ]"
     ;;
     pmstat)
-        all_args="AagHhLlnOPpSsTtVxZz"
-        arg_regex="-[AaHhnOpSsTtZ]"
+	all_args="AaDghnOpSsTtVZzHLlPx"
+	arg_regex="-[AaDhnOpSsTtZH]"
     ;;
     pmstore)
-        all_args="FfhiKLnV"
-        arg_regex="-[hiKn]"
+	all_args="DFfhKLinV"
+	arg_regex="-[DhKin]"
     ;;
     pmval)
-        all_args="AadfghiKLnOprSsTtUVvwXxZz"
-        arg_regex="-[AafhiKnOpSsTtUwxZ]"
+	all_args="AaDghnOpSsTtVZzdfiKLrUvwxX"
+	arg_regex="-[AaDhnOpSsTtZfiKUwx]"
     ;;
     esac
 

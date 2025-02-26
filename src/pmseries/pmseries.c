@@ -1257,7 +1257,7 @@ static pmLongOptions longopts[] = {
 
 static pmOptions opts = {
     .flags = PM_OPTFLAG_BOUNDARIES,
-    .short_options = "ac:dD:eFg:h:iIlLmMnqp:sStvVw:Z:?",
+    .short_options = "ac:dD:Fg:h:iIlLmMnqp:sStvVw:Z:?",
     .long_options = longopts,
     .short_usage = "[options] [query ... | labels ... | series ... | source ...]",
     .override = pmseries_overrides,

@@ -42,6 +42,7 @@ pmID pmid_seqnum;
 static pmLongOptions longopts[] = {
     PMAPI_OPTIONS_HEADER("Options"),
     { "config", 1, 'c', "FILE", "file to load configuration from" },
+    PMOPT_DEBUG,
     { "desperate", 0, 'd', 0, "desperate, save output after fatal error" },
     { "first", 0, 'f', 0, "use timezone from first archive [default is last]" },
     { "mark", 0, 'm', 0, "ignore prologue/epilogue records and <mark> between archives" },

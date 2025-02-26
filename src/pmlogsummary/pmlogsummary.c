@@ -52,7 +52,7 @@ static pmLongOptions longopts[] = {
 static int override(int, pmOptions *);
 static pmOptions opts = {
     .flags = PM_OPTFLAG_DONE | PM_OPTFLAG_BOUNDARIES | PM_OPTFLAG_STDOUT_TZ,
-    .short_options = "abB:D:fFHiIlmMNn:p:rsS:T:vVxyzZ:?",
+    .short_options = "abB:D:fFHiIlmMNn:p:sS:T:vVxyzZ:?",
     .long_options = longopts,
     .short_usage = "[options] archive [metricname ...]",
     .override = override,

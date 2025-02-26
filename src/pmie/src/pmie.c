@@ -125,7 +125,7 @@ static pmLongOptions longopts[] = {
 
 static pmOptions opts = {
     .flags = PM_OPTFLAG_STDOUT_TZ,
-    .short_options = "a:A:bc:CdD:efFHh:j:l:m:n:o:O:PqS:t:T:U:vVWXxzZ:?",
+    .short_options = "a:A:bc:CdD:efFh:j:l:m:n:o:O:PqS:t:T:U:vVWXxzZ:?",
     .long_options = longopts,
     .short_usage = "[options] [filename ...]",
     .override = override,

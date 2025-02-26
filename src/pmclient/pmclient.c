@@ -42,7 +42,7 @@ pmLongOptions longopts[] = {
 
 pmOptions opts = {
     .flags = PM_OPTFLAG_STDOUT_TZ | PM_OPTFLAG_BOUNDARIES,
-    .short_options = PMAPI_OPTIONS "P",
+    .short_options = "A:a:D:h:n:O:S:s:T:t:Z:zV?" "P",
     .long_options = longopts,
 };
 

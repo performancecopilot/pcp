@@ -488,7 +488,7 @@ static pmLongOptions longopts[] = {
 };
 
 static pmOptions opts = {
-    .short_options = "c:Cd:D:fh:H:I:l:K:Lm:Nn:op:Prs:T:t:uU:v:V:x:y?",
+    .short_options = "c:Cd:D:h:H:I:l:K:Lm:Nn:op:Prs:T:t:uU:v:V:x:y?",
     .long_options = longopts,
     .short_usage = "[options] archive",
 };

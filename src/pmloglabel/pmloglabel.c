@@ -101,6 +101,7 @@ compare_golden(__pmFILE *f, const char *file, int sts, int warnings)
 
 static pmLongOptions longopts[] = {
     PMAPI_OPTIONS_HEADER("Options"),
+    PMOPT_DEBUG,
     { "host", 1, 'h', "HOSTNAME", "set the hostname for all files in archive" },
     { "label", 0, 'l', 0, "dump the archive label" },
     { "", 0, 'L', 0, "more verbose form of label dump" },
