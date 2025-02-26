@@ -117,7 +117,8 @@ resolve_symbols(void)
     if (nvml_dso != NULL)
 	return 0;
     if ((nvml_dso = dlopen("libnvidia-ml." DSOSUFFIX, RTLD_NOW)) == NULL)
-	return NVML_ERROR_LIBRARY_NOT_FOUND;
+        if ((nvml_dso = dlopen("libnvidia-ml." DSOSUFFIX ".1", RTLD_NOW)) == NULL)
+	    return NVML_ERROR_LIBRARY_NOT_FOUND;
     pmNotifyErr(LOG_INFO, "Successfully loaded NVIDIA NVML library");
     for (i = 0; i < NVML_SYMBOL_COUNT; i++)
 	nvml_symtab[i].handle = dlsym(nvml_dso, nvml_symtab[i].symbol);
