@@ -18,6 +18,7 @@
 \f3dbpmda\f1 \- debugger for Performance Co-Pilot PMDAs
 .SH SYNOPSIS
 \f3dbpmda\f1
+[\f3\-D\f1 \f2debug\f1]
 [\f3\-efiv?\f1]
 [\f3\-n\f1 \f2pmnsfile\f1]
 [\f3\-q\f1 \f2timeout\f1]
@@ -592,6 +593,22 @@ The \fB$PCP_CONF\fP variable may be used to specify an alternative
 configuration file, as described in \fBpcp.conf\fP(5).
 .PP
 For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
+.SH DEBUGGING OPTIONS
+The
+.B \-D
+or
+.B \-\-debug
+option enables the output of additional diagnostics on
+.I stderr
+to help triage problems, although the information is sometimes cryptic and
+primarily intended to provide guidance for developers rather end-users.
+.I debug
+is a comma separated list of debugging options; use
+.BR pmdbg (1)
+with the
+.B \-l
+option to obtain
+a list of the available debugging options and their meaning.
 .SH SEE ALSO
 .BR gdb (1),
 .BR pmcd (1),

@@ -20,16 +20,31 @@
 .SH SYNOPSIS
 Interactive Usage:
 .P
-\f3pcp\f1 [\f2pcp\ options\f1] \f3atop\f1 [\f3\-aABcCdDfFgGHmMnNopRsuvxyY1\f1] [\f3\-L\f1 \f2linelen\f1] [\f3\-P\f1\f2label\f1[,\f2label\f1]... [\f3\-Z\f1]] [\f2interval\f1 [\f2samples\f1]]
+\f3pcp\f1 [\f2pcp\ options\f1] \f3atop\f1
+[\f3\-aABcCdDfFgGHmMnNopRsuvxyY1\f1]
+[\f3\-D\f1 \f2debug\f1]
+[\f3\-L\f1 \f2linelen\f1]
+[\f3\-P\f1\f2label\f1[,\f2label\f1]... [\f3\-Z\f1]]
+[\f2interval\f1 [\f2samples\f1]]
 .P
 Writing and reading PCP archive folios:
 .P
 .B pcp\ atop
 \f3\-w\f1 \f2folio\f1
-[\f3\-a\f1] [\f3\-S\f1] [\f2interval\f1 [\f2samples\f1]]
+[\f3\-a\f1]
+[\f3\-D\f1 \f2debug\f1]
+[\f3\-S\f1]
+[\f2interval\f1 [\f2samples\f1]]
 .br
 .B pcp\ atop
-\f3\-r\f1 \f2folio\f1 [\f3\-AcCdDfFgGmMnNopRsuvxy1\f1] [\f3\-b\f1 [\f2yy-mm-dd\f1] \f2hh:mm\f1] [\f3\-e\f1 \f2yy-mm-dd\f1] \f2hh:mm\f1] [\f3\-L\f1 \f2linelen\f1] [\f3\-P\f1\f2label\f1[,\f2label\f1]... [\f3\-Z\f1]] [\f2interval\f1 [\f2samples\f1]]
+\f3\-r\f1 \f2folio\f1
+[\f3\-AcCdDfFgGmMnNopRsuvxy1\f1]
+[\f3\-b\f1 [\f2yy-mm-dd\f1] \f2hh:mm\f1]
+[\f3\-D\f1 \f2debug\f1]
+[\f3\-e\f1 \f2yy-mm-dd\f1] \f2hh:mm\f1]
+[\f3\-L\f1 \f2linelen\f1]
+[\f3\-P\f1\f2label\f1[,\f2label\f1]... [\f3\-Z\f1]]
+[\f2interval\f1 [\f2samples\f1]]
 .SH DESCRIPTION
 The program
 .B pcp-atop
@@ -2605,6 +2620,22 @@ The \fB$PCP_CONF\fP variable may be used to specify an alternative
 configuration file, as described in \fBpcp.conf\fP(5).
 .PP
 For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
+.SH DEBUGGING OPTIONS
+The
+.B \-D
+or
+.B \-\-debug
+option enables the output of additional diagnostics on
+.I stderr
+to help triage problems, although the information is sometimes cryptic and
+primarily intended to provide guidance for developers rather end-users.
+.I debug
+is a comma separated list of debugging options; use
+.BR pmdbg (1)
+with the
+.B \-l
+option to obtain
+a list of the available debugging options and their meaning.
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pcp (1),

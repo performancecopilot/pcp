@@ -24,6 +24,7 @@
 [\f3\-a\f1 \f2archive\f1]
 [\f3\-A\f1 \f2align\f1]
 [\f3\-c\f1 \f2filename\f1]
+[\f3\-D\f1 \f2debug\f1]
 [\f3\-h\f1 \f2host\f1]
 [\f3\-l\f1 \f2logfile\f1]
 [\f3\-m\f1 \f2note\f1]
@@ -1517,6 +1518,22 @@ a cross-platform dialog box.
 .BR logger (1).
 .SH WINDOWS SEE ALSO
 .BR pcp-eventlog (1).
+.SH DEBUGGING OPTIONS
+The
+.B \-D
+or
+.B \-\-debug
+option enables the output of additional diagnostics on
+.I stderr
+to help triage problems, although the information is sometimes cryptic and
+primarily intended to provide guidance for developers rather end-users.
+.I debug
+is a comma separated list of debugging options; use
+.BR pmdbg (1)
+with the
+.B \-l
+option to obtain
+a list of the available debugging options and their meaning.
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pmcd (1),

@@ -19,6 +19,7 @@
 .SH SYNOPSIS
 \f3pmlogsize\f1
 [\f3\-drv?\f1]
+[\f3\-D\f1 \f2debug\f1]
 [\f3\-x\f1 \f2threshold\f1]
 \f2archive\f1
 [...]
@@ -87,6 +88,22 @@ This option can be provided more than once for additional verbosity.
 .TP
 \fB\-?\fR, \fB\-\-help\fR
 Display usage message and exit.
+.SH DEBUGGING OPTIONS
+The
+.B \-D
+or
+.B \-\-debug
+option enables the output of additional diagnostics on
+.I stderr
+to help triage problems, although the information is sometimes cryptic and
+primarily intended to provide guidance for developers rather end-users.
+.I debug
+is a comma separated list of debugging options; use
+.BR pmdbg (1)
+with the
+.B \-l
+option to obtain
+a list of the available debugging options and their meaning.
 .SH PCP ENVIRONMENT
 Environment variables with the prefix \fBPCP_\fP are used to parameterize
 the file and directory names used by PCP.

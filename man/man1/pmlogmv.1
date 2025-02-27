@@ -19,11 +19,13 @@
 .SH SYNOPSIS
 \f3pmlogmv\f1
 [\f3\-cfNV?\f1]
+[\f3\-D\f1 \f2debug\f1]
 \f2srcname\f1
 \f2dstname\f1
 .br
 \f3pmlogcp\f1
 [\f3\-cfNV?\f1]
+[\f3\-D\f1 \f2debug\f1]
 \f2srcname\f1
 \f2dstname\f1
 .SH DESCRIPTION
@@ -150,6 +152,22 @@ Display usage message and exit.
 .SH DIAGNOSTICS
 All error and warning messages are intended to be easily understood and
 errors produce a non-zero exit status.
+.SH DEBUGGING OPTIONS
+The
+.B \-D
+or
+.B \-\-debug
+option enables the output of additional diagnostics on
+.I stderr
+to help triage problems, although the information is sometimes cryptic and
+primarily intended to provide guidance for developers rather end-users.
+.I debug
+is a comma separated list of debugging options; use
+.BR pmdbg (1)
+with the
+.B \-l
+option to obtain
+a list of the available debugging options and their meaning.
 .SH SEE ALSO
 .BR cp (1),
 .BR ln (1),
