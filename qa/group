@@ -2027,6 +2027,7 @@ pmcd.pdu
 1547 pmrep python local
 1548 pmrep python local
 1549 pmrep python local
+1553 archive local
 1560 libpcp pdu local
 1561 pmcd libpcp pmcd.pdu suse local
 1562 pminfo local

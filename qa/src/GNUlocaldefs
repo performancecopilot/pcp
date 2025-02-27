@@ -54,6 +54,7 @@ CFILES = disk_test.c exercise.c context_test.c chkoptfetch.c \
 	stampconv.c time_stamp.c archend.c scandata.c wait_for_values.c \
 	dumpstack.c usergroup.c derived_help.c ready-or-not.c cleanmapdir.c \
 	throttle.c throttle_timeout.c y2038.c bigpmcdpmids.c pdu-gadget.c
+	newcontext.c
 
 ifeq ($(shell test -f ../localconfig && echo 1), 1)
 include ../localconfig
@@ -433,6 +434,10 @@ y2038:	y2038.c
 pdu-gadget:	pdu-gadget.c myprintresult.o
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $< myprintresult.o $(LDLIBS)
+
+newcontext:	newcontext.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
 
 # --- need libpcp but also PM_CONTEXT_LOCAL
 #
