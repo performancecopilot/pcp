@@ -1,0 +1,33 @@
+QA output created by 1553
+
+===  -a archives/ok-mv-bigbin ===
+__pmFopen("archives/ok-mv-bigbin.index", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.meta", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.0", "r"): no decompress
+
+=== -f0 -a archives/ok-mv-bigbin ===
+__pmFopen("archives/ok-mv-bigbin.meta", "r"): no decompress
+
+=== -f1 -a archives/ok-mv-bigbin ===
+__pmFopen("archives/ok-mv-bigbin.index", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.meta", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.9", "r"): no decompress
+
+=== -f0 -f1 -a archives/ok-mv-bigbin ===
+__pmFopen("archives/ok-mv-bigbin.meta", "r"): no decompress
+
+===  -a TMP/20180416.10.00 ===
+__pmFopen("TMP/20180416.10.00.index", "r"): no decompress
+__pmFopen("TMP/20180416.10.00.meta.xz", "r"): decompress: xz (on-the-fly)
+__pmFopen("TMP/20180416.10.00.0", "r"): decompress: xz (on-the-fly)
+
+=== -f0 -a TMP/20180416.10.00 ===
+__pmFopen("TMP/20180416.10.00.meta.xz", "r"): decompress: xz (on-the-fly)
+
+=== -f1 -a TMP/20180416.10.00 ===
+__pmFopen("TMP/20180416.10.00.index", "r"): no decompress
+__pmFopen("TMP/20180416.10.00.meta.xz", "r"): decompress: xz (on-the-fly)
+__pmFopen("TMP/20180416.10.00.3", "r"): no decompress
+
+=== -f0 -f1 -a TMP/20180416.10.00 ===
+__pmFopen("TMP/20180416.10.00.meta.xz", "r"): decompress: xz (on-the-fly)

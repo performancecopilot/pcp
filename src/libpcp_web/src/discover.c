@@ -1564,8 +1564,15 @@ pmDiscoverInvokeCallBacks(pmDiscover *p)
 	    struct timespec	after = {0, 1};
 	    struct timespec	tp;
 
-	    /* create the PMAPI context (once off) */
-	    if ((sts = pmNewContext(p->context.type, p->context.name)) < 0) {
+	    /*
+	     * create the PMAPI context (once off) ...
+	     * position at last volume (a) to reduce the need for
+	     * possible decompression in the case of an active
+	     * archive being concurrently written while earlier volumes
+	     * have been compressed, and (b) we're interested in the
+	     * last timestamp => the last volume
+	     */
+	    if ((sts = pmNewContext(p->context.type | PM_CTXFLAG_LAST_VOLUME, p->context.name)) < 0) {
 		if (sts == -ENOENT) {
 		    /* newly deleted archive */
 		    p->flags |= PM_DISCOVER_FLAGS_DELETED;
