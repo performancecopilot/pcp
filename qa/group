@@ -2028,6 +2028,8 @@ pmcd.pdu
 1548 pmrep python local
 1549 pmrep python local
 1553 archive local
+1554:reserved pmstat local
+1555 archive local valgrind
 1560 libpcp pdu local
 1561 pmcd libpcp pmcd.pdu suse local
 1562 pminfo local

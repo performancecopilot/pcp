@@ -3,6 +3,8 @@
 # exercise PM_CTXFLAG_METADATA_ONLY and PM_CTXFLAG_LAST_VOLUME
 # flags to pmNewContext()
 #
+# non-valgrind variant, see qa/1555 for the valgrind variant
+#
 # Copyright (c) 2025 Ken McDonell.  All Rights Reserved.
 #
 
@@ -26,6 +28,10 @@ if [ "$1" = "--valgrind" ]
 then
     _check_valgrind
     do_valgrind=true
+elif which valgrind >/dev/null 2>&1
+then
+    [ "$PCPQA_VALGRIND" = both ] || \
+        _notrun "valgrind variant qa/1555 will be run"
 fi
 
 _cleanup()
@@ -62,11 +68,14 @@ do
 	echo "=== $flags -a $arch ===" | tee -a $seq_full | sed -e "s@$tmp@TMP@g"
 	if $do_valgrind
 	then
-	    _run_valgrind ...your test goes here...
+	    _run_valgrind --save-output src/newcontext $flags -a $arch -D log 2>&1 \
+	    | sed -e "s@$tmp@TMP@g"
+	    cat $tmp.out
+	    _filter <$tmp.err
 	else
-	    src/newcontext $flags -a $arch -D log 2>&1
-	fi \
-	| _filter
+	    src/newcontext $flags -a $arch -D log 2>&1 \
+	    | _filter
+	fi
     done
 done
 
