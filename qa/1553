@@ -42,6 +42,7 @@ _filter()
     tee -a $seq_full \
     | grep '^__pmFopen' \
     | sed -e "s@$tmp@TMP@g" \
+    | LC_COLLATE=POSIX sort \
     # end
 }
 
