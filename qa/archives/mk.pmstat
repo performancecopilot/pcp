@@ -1,0 +1,31 @@
+#!/bin/sh
+#
+# Recreate pmstat-one archive (data for pmstat(1) but only 1 sample)
+# and pmstat-two archive (data for pmstat(1) but only 2 samples)
+#
+# these archives are intended to be checked in and not remade, this script is
+# simply a record of how they were created
+#
+
+. /etc/pcp.conf
+
+tmp=/var/tmp/$$
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+rm -f pmstat-one.index pmstat-one.meta pmstat-one.0
+if pmlogger -c $PCP_VAR_DIR/config/pmlogger/config.pmstat -s 1 pmstat-one
+then
+    :
+else
+    echo "Argh: pmlogger failed for pmstat-one ..."
+    cat pmlogger.log
+fi
+
+rm -f pmstat-two.index pmstat-two.meta pmstat-two.0
+if pmlogger -c $PCP_VAR_DIR/config/pmlogger/config.pmstat -s 2 pmstat-two
+then
+    :
+else
+    echo "Argh: pmlogger failed for pmstat-two ..."
+    cat pmlogger.log
+fi

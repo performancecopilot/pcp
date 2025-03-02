@@ -1,0 +1,30 @@
+QA output created by 1554
+
+=== archives/pmstat-one ===
+Note: timezone set to local timezone of host "bozo-vm.localdomain" from archive
+
+@ Sat Mar  1 06:52:21 2025
+ loadavg                      memory      swap        io    system         cpu
+   1 min   swpd   free   buff  cache   pi   po   bi   bo   in   cs  us  sy  id
+ No data in the archive
+ pmFetchGroup: End of PCP archive
+
+=== archives/pmstat-two ===
+Note: timezone set to local timezone of host "bozo-vm.localdomain" from archive
+
+@ Sat Mar  1 06:52:21 2025
+ loadavg                      memory      swap        io    system         cpu
+   1 min   swpd   free   buff  cache   pi   po   bi   bo   in   cs  us  sy  id
+    0.01   1036  1429m 259604  3343m    ?    ?    ?    ?    ?    ?   ?   ?   ?
+    0.01   1036  1429m 259604  3343m    0    0    0 5939  349  184   0   0  99
+    0.01   1036  1429m 259604  3343m    0    0    0 5939  349  184   0   0  99
+    0.01   1036  1429m 259604  3343m    0    0    0 5939  349  185   0   0  99
+    0.01   1036  1429m 259604  3343m    0    0    0 5939  349  184   0   0  99
+    0.01   1036  1429m 259604  3343m    0    0    0 5939  349  184   0   0  99
+    0.00   1036  1432m 259644  3344m    0    0    0 5939  349  185   0   0  99
+    0.00   1036  1432m 259644  3344m    0    0    0 5939  349  184   0   0  99
+    0.00   1036  1432m 259644  3344m    0    0    0 5939  349  184   0   0  99
+    0.00   1036  1432m 259644  3344m    0    0    0 5939  349  185   0   0  99
+    0.00   1036  1432m 259644  3344m    0    0    0 5939  349  184   0   0  99
+    0.00   1036  1432m 259644  3344m    0    0    0 5939  349  184   0   0  99
+ pmFetchGroup: End of PCP archive
