@@ -69,6 +69,7 @@ struct statsrc {
 
 pmLongOptions longopts[] = {
     PMAPI_GENERAL_OPTIONS,
+    PMOPT_DEBUG,
     PMAPI_OPTIONS_HEADER("Alternate sources"),
     PMOPT_HOSTSFILE,
     PMOPT_LOCALPMDA,
@@ -590,10 +591,12 @@ main(int argc, char *argv[])
 		} else if ((opts.context == PM_CONTEXT_ARCHIVE) &&
 			 (sts == PM_ERR_EOL) && (!s->fetched)) {
 		    /*
-		     * We are yet to see something from this archive - so
-		     * don't discard it just yet.
+		     * We are yet to see something from this archive and
+		     * we're at the end of the archive.
 		     */
 		    puts(" No data in the archive");
+		    printf(" pmFetchGroup: %s\n", pmErrStr(sts));
+		    exit(0);
 		} else {
 		    printf(" pmFetchGroup: %s\n", pmErrStr(sts));
 
