@@ -325,6 +325,28 @@ with the
 .B \-l
 option to obtain
 a list of the available debugging options and their meaning.
+.PP
+Debugging options specific to
+.B pminfo
+are as follows:
+.TS
+box;
+lf(B) | lf(B)
+lf(B) | lxf(R) .
+Option	Description
+_
+appl4	T{
+.ad l
+report batch downsizing if 
+.I batchsize
+would exceed maximum PDU size
+T}
+_
+appl5	T{
+.ad l
+dump PDU stats at end if context is a host
+T}
+.TE
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pmcd (1),

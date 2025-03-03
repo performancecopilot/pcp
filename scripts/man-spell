@@ -2318,6 +2318,7 @@ Posix
 Tbyte
 UAG		# from https://pcp.readthedocs.io/en/latest/UAG/...
 ascii
+appl		# debug flags, stripped of 0-9
 com		# from www.sgi.com
 conf		# from pcp.conf and other *.conf files
 config

@@ -264,12 +264,12 @@ duptextstr(char *s, int strip_quotes)
 			    if (mystate == LEX_GLOBAL) BEGIN(glob);
 			    if (mystate == LEX_INDOM) BEGIN(indom);
 			    if (mystate == LEX_METRIC) BEGIN(metric);
-    if (pmDebugOptions.appl0 && pmDebugOptions.appl1)
+    if (pmDebugOptions.appl6)
 	fprintf(stderr, "lex: [%d] { begin state=%d\n", lineno, mystate);
 			    return TOK_LBRACE;
 			}
 "}"			{
-    if (pmDebugOptions.appl0 && pmDebugOptions.appl1)
+    if (pmDebugOptions.appl6)
 	fprintf(stderr, "lex: [%d] } end state=%d\n", lineno, mystate);
 			    mystate = LEX_NONE;
 			    BEGIN(INITIAL); return TOK_RBRACE;

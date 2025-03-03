@@ -264,6 +264,38 @@ with the
 .B \-l
 option to obtain
 a list of the available debugging options and their meaning.
+.PP
+Debugging options specific to
+.B pmlogcheck
+are as follows:
+.TS
+box;
+lf(B) | lf(B)
+lf(B) | lxf(R) .
+Option	Description
+_
+appl0	T{
+.ad l
+dump each
+.B pmResult
+processed
+T}
+_
+appl1	T{
+.ad l
+report each time a new metric-instance pair is seen
+T}
+_
+appl2	T{
+.ad l
+report counter values as part of wrap detection
+T}
+_
+appl3	T{
+.ad l
+report elapsed and cpu time for each pass
+T}
+.TE
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pmlogdump (1),

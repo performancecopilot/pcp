@@ -22,25 +22,22 @@ Interactive Usage:
 .P
 \f3pcp\f1 [\f2pcp\ options\f1] \f3atop\f1
 [\f3\-aABcCdDfFgGHmMnNopRsuvxyY1\f1]
-[\f3\-D\f1 \f2debug\f1]
 [\f3\-L\f1 \f2linelen\f1]
 [\f3\-P\f1\f2label\f1[,\f2label\f1]... [\f3\-Z\f1]]
 [\f2interval\f1 [\f2samples\f1]]
 .P
 Writing and reading PCP archive folios:
 .P
-.B pcp\ atop
+\f3pcp\f1 [\f2pcp\ options\f1] \f3atop\f1
 \f3\-w\f1 \f2folio\f1
 [\f3\-a\f1]
-[\f3\-D\f1 \f2debug\f1]
 [\f3\-S\f1]
 [\f2interval\f1 [\f2samples\f1]]
 .br
-.B pcp\ atop
+\f3pcp\f1 [\f2pcp\ options\f1] \f3atop\f1
 \f3\-r\f1 \f2folio\f1
 [\f3\-AcCdDfFgGmMnNopRsuvxy1\f1]
 [\f3\-b\f1 [\f2yy-mm-dd\f1] \f2hh:mm\f1]
-[\f3\-D\f1 \f2debug\f1]
 [\f3\-e\f1 \f2yy-mm-dd\f1] \f2hh:mm\f1]
 [\f3\-L\f1 \f2linelen\f1]
 [\f3\-P\f1\f2label\f1[,\f2label\f1]... [\f3\-Z\f1]]
@@ -2625,7 +2622,7 @@ The
 .B \-D
 or
 .B \-\-debug
-option enables the output of additional diagnostics on
+pcp option enables the output of additional diagnostics on
 .I stderr
 to help triage problems, although the information is sometimes cryptic and
 primarily intended to provide guidance for developers rather end-users.
@@ -2636,6 +2633,20 @@ with the
 .B \-l
 option to obtain
 a list of the available debugging options and their meaning.
+.PP
+Debugging options specific to
+.B pcp-atop
+are as follows:
+.TS
+box;
+lf(B) | lf(B)
+lf(B) | lf(R) .
+Option	Description
+_
+appl0	general diagnostics
+_
+appl1	metric and instance domain retrievals
+.TE
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pcp (1),
@@ -2659,7 +2670,8 @@ and
 .\" +ok+ cpufreq_stats brendangregg
 .\" +ok+ SCHED_OTHER tcp_recvmsg tcp_sendmsg udp_recvmsg udp_sendmsg
 .\" +ok+ allocstalls cpucritperc dskcritperc ownprocline SCHED_FIFO ZFSonlinux
-.\" +ok+ pagetables scrollable whereafter clockticks InfiniBand is_process
+.\" +ok+ pagetables scrollable whereafter clockticks is_process
+.\" +ok+ InfiniBand Infiniband
 .\" +ok+ overcommit Langeveld langeveld unflushed PARSABLE SCHED_RR
 .\" +ok+ YYYYMMDD mba_MBps Realtime realtime vmware's
 .\" +ok+ uncached modprobe VolGroup oomkills procacct atoptool Runqueue

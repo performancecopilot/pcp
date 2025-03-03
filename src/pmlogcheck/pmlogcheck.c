@@ -12,6 +12,12 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
+ *
+ * Debugging options
+ * -Dappl0	dump each pmResult processed
+ * -Dappl1	report each time a new metric-instance pair is seen
+ * -Dappl2	report counter values as part of wrap detection
+ * -Dappl3	report elapsed and cpu time for each pass
  */
 
 #include <limits.h>

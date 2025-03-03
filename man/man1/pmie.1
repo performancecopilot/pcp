@@ -23,7 +23,7 @@
 [\f3\-bCdeFfPqvVWxXz?\f1]
 [\f3\-a\f1 \f2archive\f1]
 [\f3\-A\f1 \f2align\f1]
-[\f3\-c\f1 \f2filename\f1]
+[\f3\-c\f1 \f2config\f1]
 [\f3\-D\f1 \f2debug\f1]
 [\f3\-h\f1 \f2host\f1]
 [\f3\-l\f1 \f2logfile\f1]
@@ -1534,6 +1534,36 @@ with the
 .B \-l
 option to obtain
 a list of the available debugging options and their meaning.
+.PP
+Debugging options specific to
+.B pmie
+are as follows:
+.TS
+box;
+lf(B) | lf(B)
+lf(B) | lxf(R) .
+Option	Description
+_
+appl0	T{
+.ad l
+lexical scanning during parsing of the configuration file
+T}
+_
+appl1	T{
+.ad l
+configuration file parsing and expression tree construction
+T}
+_
+appl2	T{
+.ad l
+expression evaluation
+T}
+_
+appl3	T{
+.ad l
+status file operations
+T}
+.TE
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pmcd (1),

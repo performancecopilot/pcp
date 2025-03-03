@@ -535,6 +535,42 @@ with the
 .B \-l
 option to obtain
 a list of the available debugging options and their meaning.
+.PP
+Debugging options specific to
+.B pmproxy
+are as follows:
+.TS
+box;
+lf(B) | lf(B)
+lf(B) | lxf(R) .
+Option	Description
+_
+appl0	T{
+.ad l
+client connections and disconnections
+T}
+_
+appl1	T{
+.ad l
+desperate logging mode, where a period followed by the PID of
+.B pmproxy
+
+is inserted in
+.IR logfile
+before the last period, so for example pmproxy.log
+becomes pmproxy.<pid>.log
+T}
+_
+appl2	T{
+.ad l
+log incoming HTTP URLs (this is also enabled by the
+.B http
+debugging option, but the latter has broader scope because it
+turns on debugging in the libraries that
+.B pmproxy
+uses)
+T}
+.TE
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pmcd (1),
@@ -552,4 +588,4 @@ and
 .\" +ok+ Avahi OpenRequestSocket OpenSSL
 .\" +ok+ PMPROXY PMPROXY_VARIABLE
 .\" +ok+ SD {from DNS-SD} TIME_WAIT
-.\" +ok+ openssl pki
+.\" +ok+ openssl pki valkey

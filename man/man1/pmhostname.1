@@ -79,6 +79,23 @@ with the
 .B \-l
 option to obtain
 a list of the available debugging options and their meaning.
+.PP
+Debugging options specific to
+.B pmhostname
+are as follows:
+.TS
+box;
+lf(B) | lf(B)
+lf(B) | lxf(R) .
+Option	Description
+_
+appl0	T{
+.ad l
+detailed diagnostics, e.g. result from calling
+.BR gethostname (2)
+and PMAPI routines
+T}
+.TE
 .SH SEE ALSO
 .BR nslookup (1),
 .BR gethostname (2),
