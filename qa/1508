@@ -56,6 +56,7 @@ _filter()
     tee -a $seq.full \
     | sed \
 	-e "/Command:/s@ /bin/pmrep@ /usr/bin/pmrep@" \
+	-e "/Command:/s@ /usr/sbin/pmrep@ /usr/bin/pmrep@" \
 	-e 's/=0x0 /=(nil) /g' \
 	-e 's/=0x[0-9a-f[0-9a-f]*/=<addr>/g' \
 	-e 's/node 0x[0-9a-f[0-9a-f]*/node <addr>/g' \

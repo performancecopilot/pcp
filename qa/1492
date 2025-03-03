@@ -61,6 +61,7 @@ _filter()
 	-e "s@$tmp@TMP@g" \
 	-e "s@^\(  *\)20[0-9][0-9]/[0-9][0-9]/[0-9][0-9]@\1<date>@" \
 	-e '/Warning: invalid file descriptor -1 in syscall/d' \
+	-e '/Command: /s@/usr/sbin/@/bin/@' \
 	-e '/Command: /s@/usr/bin/@/bin/@' \
     # end
 }
