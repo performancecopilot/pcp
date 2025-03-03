@@ -59,7 +59,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Install Dependencies
-      run: sudo apt-get install --no-install-recommends libncursesw5-dev libhwloc-dev libnl-3-dev libnl-genl-3-dev libsensors4-dev libcap-dev
+      run: sudo apt-get install --no-install-recommends libncursesw5-dev libhwloc-dev libnl-3-dev libnl-genl-3-dev libsensors-dev libcap-dev
     - name: Bootstrap
       run: ./autogen.sh
     - name: Configure
@@ -81,7 +81,7 @@ jobs:
         sudo add-apt-repository 'deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-18 main' -y
         sudo apt-get update -q
     - name: Install Dependencies
-      run: sudo apt-get install --no-install-recommends clang-18 libncursesw5-dev libhwloc-dev libnl-3-dev libnl-genl-3-dev libsensors4-dev libcap-dev
+      run: sudo apt-get install --no-install-recommends clang-18 libncursesw5-dev libhwloc-dev libnl-3-dev libnl-genl-3-dev libsensors-dev libcap-dev
     - name: Bootstrap
       run: ./autogen.sh
     - name: Configure
@@ -100,7 +100,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Install Dependencies
-      run: sudo apt-get install --no-install-recommends libncursesw5-dev libtinfo-dev libgpm-dev libsensors4-dev libcap-dev
+      run: sudo apt-get install --no-install-recommends libncursesw5-dev libtinfo-dev libgpm-dev libsensors-dev libcap-dev
     - name: Bootstrap
       run: ./autogen.sh
     - name: Configure
@@ -136,7 +136,7 @@ jobs:
         sudo add-apt-repository 'deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-18 main' -y
         sudo apt-get update -q
     - name: Install Dependencies
-      run: sudo apt-get install --no-install-recommends clang-18 clang-tools-18 libncursesw5-dev libnl-3-dev libnl-genl-3-dev libsensors4-dev libcap-dev
+      run: sudo apt-get install --no-install-recommends clang-18 clang-tools-18 libncursesw5-dev libnl-3-dev libnl-genl-3-dev libsensors-dev libcap-dev
     - name: Bootstrap
       run: ./autogen.sh
     - name: Configure
@@ -164,7 +164,7 @@ jobs:
     - name: Install LLVM Toolchain
       run: sudo apt-get install --no-install-recommends clang-18 libclang-rt-18-dev llvm-18
     - name: Install Dependencies
-      run: sudo apt-get install --no-install-recommends libncursesw5-dev libhwloc-dev libnl-3-dev libnl-genl-3-dev libsensors4-dev libcap-dev
+      run: sudo apt-get install --no-install-recommends libncursesw5-dev libhwloc-dev libnl-3-dev libnl-genl-3-dev libsensors-dev libcap-dev
     - name: Bootstrap
       run: ./autogen.sh
     - name: Configure
@@ -230,10 +230,10 @@ jobs:
         - name: Compile
           uses: vmactions/freebsd-vm@v1
           with:
-            release: '14.1'
+            release: '14.2'
             usesh: true
             prepare: |
-              pkg install -y gmake autoconf automake git
+              pkg install -y gmake autoconf automake pkgconf git
               git config --global --add safe.directory /home/runner/work/htop/htop
             run: |
               set -e
@@ -251,11 +251,11 @@ jobs:
         - name: Compile
           uses: vmactions/netbsd-vm@v1
           with:
-            release: '10.0'
+            release: '10.1'
             usesh: true
             prepare: |
               PATH="/usr/pkg/sbin:/usr/pkg/bin:$PATH"
-              PKG_PATH="https://ftp.netbsd.org/pub/pkgsrc/packages/NetBSD/amd64/10.0/All/"
+              PKG_PATH="https://ftp.netbsd.org/pub/pkgsrc/packages/NetBSD/amd64/10.1/All/"
               export PATH PKG_PATH
               /usr/sbin/pkg_add pkgin
               pkgin -y install autoconf automake libtool ncurses pkg-config gmake git
@@ -263,7 +263,7 @@ jobs:
             run: |
               set -e
               ./autogen.sh
-              CPPFLAGS=$(pkg-config --cflags ncurses) LDFLAGS=$(pkg-config --libs ncurses) ./configure --enable-unicode --enable-werror
+              ./configure --enable-unicode --enable-werror
               gmake -k
 
   build-openbsd-latest-clang:
@@ -276,7 +276,7 @@ jobs:
         - name: Compile
           uses: vmactions/openbsd-vm@v1
           with:
-            release: '7.4'
+            release: '7.6'
             usesh: true
             prepare: |
               pkg_add gmake git

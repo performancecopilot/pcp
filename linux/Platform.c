@@ -464,7 +464,7 @@ char* Platform_getProcessEnv(pid_t pid) {
       size += bytes;
       capacity += 4096;
       env = xRealloc(env, capacity);
-   } while ((bytes = fread(env + size, 1, capacity - size, fp)) > 0);
+   } while (!ferror(fp) && !feof(fp) && (bytes = fread(env + size, 1, capacity - size, fp)) > 0);
 
    fclose(fp);
 
@@ -580,7 +580,7 @@ void Platform_getPressureStall(const char* file, bool some, double* ten, double*
       return;
    }
    int total = fscanf(fp, "some avg10=%32lf avg60=%32lf avg300=%32lf total=%*f ", ten, sixty, threehundred);
-   if (!some) {
+   if (total != EOF && !some) {
       total = fscanf(fp, "full avg10=%32lf avg60=%32lf avg300=%32lf total=%*f ", ten, sixty, threehundred);
    }
    (void) total;
@@ -613,7 +613,9 @@ bool Platform_getDiskIO(DiskIOData* data) {
 
    char lastTopDisk[32] = { '\0' };
 
-   unsigned long long int read_sum = 0, write_sum = 0, timeSpend_sum = 0;
+   uint64_t read_sum = 0, write_sum = 0, timeSpend_sum = 0;
+   uint64_t numDisks = 0;
+
    char lineBuffer[256];
    while (fgets(lineBuffer, sizeof(lineBuffer), fp)) {
       char diskname[32];
@@ -635,6 +637,7 @@ bool Platform_getDiskIO(DiskIOData* data) {
          read_sum += read_tmp;
          write_sum += write_tmp;
          timeSpend_sum += timeSpend_tmp;
+         numDisks++;
       }
    }
    fclose(fp);
@@ -642,6 +645,7 @@ bool Platform_getDiskIO(DiskIOData* data) {
    data->totalBytesRead = 512 * read_sum;
    data->totalBytesWritten = 512 * write_sum;
    data->totalMsTimeSpend = timeSpend_sum;
+   data->numDisks = numDisks;
    return true;
 }
 
@@ -785,7 +789,7 @@ static void Platform_Battery_getSysData(double* percent, ACPresence* isOnAC) {
       const char* entryName = dirEntry->d_name;
 
 #ifdef HAVE_OPENAT
-      int entryFd = openat(dirfd(dir), entryName, O_DIRECTORY | O_PATH);
+      int entryFd = openat(xDirfd(dir), entryName, O_DIRECTORY | O_PATH);
       if (entryFd < 0)
          continue;
 #else
