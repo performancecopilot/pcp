@@ -9,9 +9,9 @@ LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
+__pmFopen("archives/ok-mv-bigbin.0", "r"): no decompress
 __pmFopen("archives/ok-mv-bigbin.index", "r"): no decompress
 __pmFopen("archives/ok-mv-bigbin.meta", "r"): no decompress
-__pmFopen("archives/ok-mv-bigbin.0", "r"): no decompress
 
 === -f0 -a archives/ok-mv-bigbin ===
 === filtered valgrind report ===
@@ -31,9 +31,9 @@ LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
+__pmFopen("archives/ok-mv-bigbin.9", "r"): no decompress
 __pmFopen("archives/ok-mv-bigbin.index", "r"): no decompress
 __pmFopen("archives/ok-mv-bigbin.meta", "r"): no decompress
-__pmFopen("archives/ok-mv-bigbin.9", "r"): no decompress
 
 === -f0 -f1 -a archives/ok-mv-bigbin ===
 === filtered valgrind report ===
@@ -53,9 +53,9 @@ LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
+__pmFopen("TMP/20180416.10.00.0", "r"): decompress: xz (on-the-fly)
 __pmFopen("TMP/20180416.10.00.index", "r"): no decompress
 __pmFopen("TMP/20180416.10.00.meta.xz", "r"): decompress: xz (on-the-fly)
-__pmFopen("TMP/20180416.10.00.0", "r"): decompress: xz (on-the-fly)
 
 === -f0 -a TMP/20180416.10.00 ===
 === filtered valgrind report ===
@@ -75,9 +75,9 @@ LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
+__pmFopen("TMP/20180416.10.00.3", "r"): no decompress
 __pmFopen("TMP/20180416.10.00.index", "r"): no decompress
 __pmFopen("TMP/20180416.10.00.meta.xz", "r"): decompress: xz (on-the-fly)
-__pmFopen("TMP/20180416.10.00.3", "r"): no decompress
 
 === -f0 -f1 -a TMP/20180416.10.00 ===
 === filtered valgrind report ===
