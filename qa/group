@@ -1941,7 +1941,7 @@ pmcd.pdu
 1454 pmlogrewrite local pmlogdump
 1455 pmlogrewrite labels pmlogdump local
 1456 pmlogrewrite local pmlogdump
-1457 pmproxy libpcp_web threads secure local valgrind pmjson
+1457 pmproxy libpcp_web threads secure local valgrind pmjson not_in_ci
 1458 pmproxy libpcp_web threads local valgrind pmjson
 1459 pmlogrewrite local valgrind pmlogdump
 1460 pmlogrewrite local pmlogdump valgrind

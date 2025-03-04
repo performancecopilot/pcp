@@ -13,6 +13,12 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
+ *
+ * Debugging options
+ * appl0	initialization, configfile parsing and log file
+ * 		processing
+ * appl1	timer operations, log file probing
+ * appl2	IPC with worker processes, log lines processed
  */
 
 #include "weblog.h"
@@ -100,6 +106,7 @@ usage(void)
 \n\
 Options\n\
   -C            check configuration and exit\n\
+  -D debug      set debug options, see pmdbg(1)\n\
   -d domain	PMDA domain number\n\
   -h helpfile   get help text from helpfile rather than default path\n\
   -i port	expect PMCD to connect on given inet port (number or name)\n\

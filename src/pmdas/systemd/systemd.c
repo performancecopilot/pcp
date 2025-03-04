@@ -705,6 +705,7 @@ usage(void)
     fprintf(stderr,
             "Usage: %s [options]\n\n"
             "Options:\n"
+	    "  -D debug     set debug options, see pmdbg(1)\n"
             "  -d domain    use domain (numeric) for metrics domain of PMDA\n"
             "  -l logfile   write log into logfile rather than using default log name\n"
             "  -m memory    maximum memory used per queue (default %ld bytes)\n"

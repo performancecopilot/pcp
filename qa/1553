@@ -71,7 +71,8 @@ do
 	then
 	    _run_valgrind --save-output src/newcontext $flags -a $arch -D log 2>&1 \
 	    | sed -e "s@$tmp@TMP@g"
-	    cat $tmp.out
+	    grep -v '^__pmFopen' $tmp.out
+	    grep '^__pmFopen' $tmp.out | LC_COLLATE=POSIX sort
 	    _filter <$tmp.err
 	else
 	    src/newcontext $flags -a $arch -D log 2>&1 \

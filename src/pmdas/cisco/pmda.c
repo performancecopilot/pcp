@@ -150,6 +150,7 @@ main(int argc, char **argv)
 	    "Usage: %s [options] host:{a|B|E|e|f|h|s}N[/M[.I]] [...]\n\n", 
 	    pmGetProgname());
 	fputs("Options:\n"
+	      "  -D debug     set debug options, see pmdbg(1)\n"
 	      "  -d domain    use domain (numeric) for metrics domain of PMDA\n"
 	      "  -i port      expect PMCD to connect on given inet port (number or name)\n"
 	      "  -l logfile   redirect diagnostics and trace output to logfile\n"

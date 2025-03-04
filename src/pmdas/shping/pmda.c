@@ -81,6 +81,7 @@ usage(void)
 "Usage: %s [options] configfile\n\n\
 Options:\n\
   -C           parse configuration file and exit\n\
+  -D debug     set debug options, see pmdbg(1)\n\
   -d domain    use domain (numeric) for metrics domain of PMDA\n\
   -I interval  cycle time in seconds between subsequent executions of each\n\
                command [default 120 seconds]\n\
