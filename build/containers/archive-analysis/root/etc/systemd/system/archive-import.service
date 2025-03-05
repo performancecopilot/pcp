@@ -1,7 +1,7 @@
 [Unit]
 Description=PCP archives import
-Requires=redis.service
-After=redis.service
+Requires=valkey.service
+After=valkey.service
 
 [Service]
 Type=exec
