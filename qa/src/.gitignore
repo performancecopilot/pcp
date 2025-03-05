@@ -226,6 +226,7 @@ scale
 scandata
 scanmeta
 semstr
+sha1ext2int
 sha1int2ext
 sizeof
 slow_af
