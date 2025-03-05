@@ -4,7 +4,7 @@
    "annotations": {
       "list": [ ]
    },
-   "editable": true,
+   "editable": false,
    "gnetId": null,
    "graphTooltip": 0,
    "hideControls": false,
@@ -2249,26 +2249,26 @@
          ]
       }
    ],
-   "refresh": "",
-   "revision": 2,
+   "refresh": "10s",
+   "revision": 3,
    "rows": [ ],
    "schemaVersion": 14,
    "style": "dark",
    "tags": [
-      "pcp-redis"
+      "pcp-valkey"
    ],
    "templating": {
       "list": [
          {
             "current": {
-               "text": "PCP Redis",
-               "value": "PCP Redis"
+               "text": "PCP Valkey",
+               "value": "PCP Valkey"
             },
             "hide": 0,
             "label": null,
             "name": "datasource",
             "options": [ ],
-            "query": "pcp-redis-datasource",
+            "query": "performancecopilot-valkey-datasource",
             "refresh": 1,
             "regex": "",
             "type": "datasource"
@@ -2326,6 +2326,5 @@
    },
    "timezone": "browser",
    "title": "PCP Archive Analysis",
-   "uid": "pcp-archive-analysis",
    "version": 0
 }

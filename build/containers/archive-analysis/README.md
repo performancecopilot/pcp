@@ -1,5 +1,5 @@
 # Ad-hoc archive analysis container
-This container bundles Performance Co-Pilot, Redis, Grafana and grafana-pcp.
+This container bundles Performance Co-Pilot, Valkey, Grafana and grafana-pcp.
 All services are preconfigured and PCP archives mounted at `/archives` will be imported at startup and on every change.
 
 ## Usage
@@ -13,7 +13,7 @@ $ podman run \
     quay.io/performancecopilot/archive-analysis
 ```
 
-This command starts the container, which runs Redis and Grafana (inside the container) and loads all PCP archives of the selected directory on the host into Redis. You can point your browser to `http://localhost:3000/d/pcp-archive-analysis/pcp-archive-analysis` and can start inspecting the archives using Grafana. 
+This command starts the container, which runs Valkey and Grafana (inside the container) and loads all PCP archives of the selected directory on the host into Valkey. You can point your browser to `http://localhost:3000/dashboards` and can start inspecting the archives using Grafana. 
 
 To stop the container, run `podman rm -f pcp-archive-analysis`.
 
