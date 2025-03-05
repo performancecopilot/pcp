@@ -407,7 +407,7 @@ do_sysctl(mib_t *mp, size_t xpect)
      * Note zero trip if mp->m_data and mp->m_datalen are already valid
      * and current
      */
-    if (pmDebugOptions.appl0 && pmDebugOptions.desperate) {
+    if (pmDebugOptions.appl0) {
 	fprintf(stderr, "do_sysctl(%s, %d) m_data=%p m_datalen=%d m_fetched=%d\n", 
 	    mp->m_name, (int)xpect, mp->m_data, (int)mp->m_datalen, mp->m_fetched);
     }

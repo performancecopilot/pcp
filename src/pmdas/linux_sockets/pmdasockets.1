@@ -16,6 +16,10 @@
 .TH PMDASOCKETS 1 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pmdasockets\f1 \- sockets statistics PMDA
+.ds ia sockets
+.SH SYNOPSIS
+\f3$PCP_PMDAS_DIR/\*(ia/pmda\*(ia\f1
+[\f3\-D\f1 \f2debug\f1]
 .SH DESCRIPTION
 .B pmdasockets
 is a Performance Metrics Domain Agent (PMDA) which exports
@@ -142,6 +146,45 @@ the file and directory names used by \fBPCP\fR. On each installation, the
 file \fB/etc/pcp.conf\fR contains the local values for these variables.
 The \fB$PCP_CONF\fR variable may be used to specify an alternative
 configuration file, as described in \fIpcp.conf\fR(5).
+.SH DEBUGGING OPTIONS
+The
+.B \-D
+or
+.B \-\-debug
+option enables the output of additional diagnostics on
+.I stderr
+to help triage problems, although the information is sometimes cryptic and
+primarily intended to provide guidance for developers rather end-users.
+.I debug
+is a comma separated list of debugging options; use
+.BR pmdbg (1)
+with the
+.B \-l
+option to obtain
+a list of the available debugging options and their meaning.
+.PP
+Debugging options specific to
+.B pmdasockets
+are as follows:
+.TS
+box;
+lf(B) | lf(B)
+lf(B) | lxf(R) .
+Option	Description
+_
+appl0	T{
+.ad l
+loading socket state filter from
+.B $PCP_SYSCONF_DIR/filter.conf
+and
+source of data
+T}
+_
+appl1	T{
+.ad l
+parsing output from data source
+T}
+.TE
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pmcd (1),

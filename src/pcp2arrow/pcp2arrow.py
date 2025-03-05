@@ -135,6 +135,7 @@ class PCP2ARROW(object):
         opts.pmSetLongOptionTimeZone()     # -Z/--timezone
         opts.pmSetLongOptionHostZone()     # -z/--hostzone
         opts.pmSetLongOption("raw", 0, "r", "", "output raw counter values (no rate conversion)")
+        opts.pmSetLongOption("raw-prefer", 0, "R", "", "prefer output raw counter values (no rate conversion)")
         #opts.pmSetLongOption("names-change", 1, "4", "ACTION", "update/ignore/abort on PMNS change (default: ignore)")
         opts.pmSetLongOption("instances", 1, "i", "STR", "instances to report (default: all current)")
         opts.pmSetLongOption("live-filter", 0, "j", "", "perform instance live filtering")

@@ -76,8 +76,7 @@ sysinfo_init(int first)
     hz = (int)sysconf(_SC_CLK_TCK);
     pagesize = sysconf(_SC_PAGESIZE);
 
-    if (pmDebugOptions.appl0 && pmDebugOptions.appl2) {
-	/* desperate */
+    if (pmDebugOptions.appl0) {
 	fprintf(stderr, "sysinfo: ncpu=%d hz=%d\n", ncpu, hz);
     }
 }
@@ -106,8 +105,7 @@ sysinfo_derived(pmdaMetric *mdesc, int inst)
 	    break;
     }
 
-    if (pmDebugOptions.appl0 && pmDebugOptions.appl2) {
-	/* desperate */
+    if (pmDebugOptions.appl0) {
 	fprintf(stderr, "cpu_derived: pmid %s inst %d val %d\n",
 	    pmIDStr(mdesc->m_desc.pmid), inst, val);
     }
@@ -343,8 +341,7 @@ sysinfo_fetch(pmdaMetric *mdesc, int inst, pmAtomValue *atom)
 		__uint32_t		*ulp;
 		ulp = (__uint32_t *)&((char *)&ctl[i].cpustat)[offset];
 		ull += *ulp;
-		if (pmDebugOptions.appl0 && pmDebugOptions.appl2) {
-		    /* desperate */
+		if (pmDebugOptions.appl0) {
 		    fprintf(stderr, "sysinfo_fetch: pmid %s inst %d val %u\n",
 			pmIDStr(mdesc->m_desc.pmid), i, *ulp);
 		}

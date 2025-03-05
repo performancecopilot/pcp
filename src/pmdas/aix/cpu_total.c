@@ -52,8 +52,7 @@ cpu_total_derived(pmdaMetric *mdesc, int inst)
 	    break;
     }
 
-    if (pmDebugOptions.appl0 && pmDebugOptions.desperate) {
-	/* desperate */
+    if (pmDebugOptions.appl0) {
 	fprintf(stderr, "cpu_total_derived: pmid %s inst %d val %llu\n",
 		    pmIDStr(mdesc->m_desc.pmid), inst, val);
     }
@@ -97,8 +96,7 @@ cpu_total_fetch(pmdaMetric *mdesc, int inst, pmAtomValue *atom)
 	    /* assumed to be CPU time */
 	    atom->ull *= 1000 / HZ;
 	}
-	if (pmDebugOptions.appl0 && pmDebugOptions.desperate) {
-	    /* desperate */
+	if (pmDebugOptions.appl0) {
 	    fprintf(stderr, "cpu_total_fetch: pmid %s inst %d val %llu\n",
 		    pmIDStr(mdesc->m_desc.pmid), inst, atom->ull);
 	}
@@ -115,8 +113,7 @@ cpu_total_fetch(pmdaMetric *mdesc, int inst, pmAtomValue *atom)
 	    /* assumed to be CPU time */
 	    atom->ul *= 1000 / HZ;
 	}
-	if (pmDebugOptions.appl0 && pmDebugOptions.desperate) {
-	    /* desperate */
+	if (pmDebugOptions.appl0) {
 	    fprintf(stderr, "cpu_total_fetch: pmid %s inst %d val %lu\n",
 		    pmIDStr(mdesc->m_desc.pmid), inst, atom->ul);
 	}
