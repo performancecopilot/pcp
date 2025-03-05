@@ -2296,7 +2296,7 @@
       ]
    },
    "time": {
-      "from": "now-6h",
+      "from": "now-1y",
       "to": "now"
    },
    "timepicker": {
