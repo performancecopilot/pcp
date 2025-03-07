@@ -1,10 +1,10 @@
 apiVersion: 1
 
 providers:
-- name: PCP Redis Dashboards
+- name: PCP Valkey Dashboards
   type: file
   options:
-    path: /var/lib/grafana/plugins/performancecopilot-pcp-app/datasources/redis/dashboards/
+    path: /var/lib/grafana/plugins/performancecopilot-pcp-app/datasources/valkey/dashboards/
 
 - name: Additional dashboards
   type: file
