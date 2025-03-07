@@ -62,9 +62,17 @@ if [ $i -ge 10 ]; then
     echo "Server didn't open tcp/1234 in time, test failed"
     exit 1
 fi
+echo "Server threads for $server_pid:" >> "$seq_full"
+ls /proc/$server_pid/task >> "$seq_full"
 
 $PCP_PYTHON_PROG $here/src/bcc_netproc.py client >> "$seq.full" &
 client_pid=$!
+for i in 1 2 3 4; do  # give time for client to start
+    test -d /proc/$client_pid/task && break
+    pmsleep 0.25
+done
+echo "Client threads for $client_pid:" >> "$seq_full"
+ls /proc/$client_pid/task >> "$seq_full"
 
 wait ${client_pid}
 wait ${server_pid}
