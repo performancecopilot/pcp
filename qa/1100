@@ -59,12 +59,12 @@ else
 fi
 
 # these may not be installed on all platforms
-skip_pmdumptext=false
 which pmchart > /dev/null 2>&1
 if [ $? -ne 0 ]
 then
     skip_pmchart=true
 fi
+skip_pmdumptext=false
 which pmdumptext > /dev/null 2>&1
 if [ $? -ne 0 ]
 then
