@@ -28,6 +28,8 @@ default: build-me
 
 include $(TOPDIR)/src/include/buildrules
 
+# need BSD-based systems for this to work ...
+#
 ifneq "$(findstring $(PCP_PLATFORM),darwin freebsd netbsd openbsd)" ""
 build-me: $(CMDTARGET)
 
@@ -45,3 +47,7 @@ install_pcp : install
 
 check :: $(MAN_PAGES)
 	$(MANLINT) $^
+
+bozo:
+	@echo PCP_PLATFORM=$(PCP_PLATFORM)
+	@echo ifeq: $(findstring $(PCP_PLATFORM),darwin freebsd netbsd openbsd)
