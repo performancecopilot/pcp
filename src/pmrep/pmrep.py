@@ -489,8 +489,8 @@ class PMReporter(object):
         """ Fetch and report """
         # Debug
         if self.context.pmDebug(PM_DEBUG_APPL1):
-            sys.stdout.write("Known config file keywords: " + str(self.keys) + "\n")
-            sys.stdout.write("Known metric spec keywords: " + str(self.pmconfig.metricspec) + "\n")
+            sys.stderr.write("Known config file keywords: " + str(self.keys) + "\n")
+            sys.stderr.write("Known metric spec keywords: " + str(self.pmconfig.metricspec) + "\n")
 
         # Set delay mode, interpolation
         if self.context.type != PM_CONTEXT_ARCHIVE:
