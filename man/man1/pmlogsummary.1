@@ -351,6 +351,32 @@ with the
 .B \-l
 option to obtain
 a list of the available debugging options and their meaning.
+.PP
+Debugging options specific to
+.B pmlogsummary
+are as follows:
+.TS
+box;
+lf(B) | lf(B)
+lf(B) | lxf(R) .
+Option	Description
+_
+appl0	T{
+.ad l
+report metrics in archive, metrics selected, metric-instance values,
+mark records, start of second iteration
+T}
+_
+appl1	T{
+.ad l
+counter wrap details, raw data for extrema and averages
+T}
+_
+appl2	T{
+.ad l
+tracking maximum and minimum values
+T}
+.TE
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pmchart (1),
