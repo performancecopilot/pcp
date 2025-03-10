@@ -72,6 +72,8 @@ for i in 1 2 3 4; do  # give time for client to start
 done
 echo "Client threads for $client_pid:" >> "$seq_full"
 ls /proc/$client_pid/task >> "$seq_full"
+echo "Full client+server PID listing:" >> "$seq_full"
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS >> "$seq_full"
 
 wait ${client_pid}
 wait ${server_pid}
