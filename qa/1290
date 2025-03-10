@@ -265,6 +265,60 @@ then
 else
     echo "Warning: no extra suppressions found for valgrind version $__version" >>$seq_full
 fi
+# skip valgrind errors in upstream non-PCP code, like hiredis ...
+# (seen on vm11 Debian 10.13)
+# ... same suppressions as for qa/1662
+#
+cat <<'End-of-File' >$tmp.suppress
+{
+   sds.c: % operator: v seems well defined, so maybe valgrind botch
+   Memcheck:Cond
+   fun:__umoddi3
+   fun:sdsll2str
+   fun:sdscatfmt
+   fun:keys_series_label
+   fun:keys_series_labelset
+   fun:keys_series_metadata
+   fun:keys_series_metric
+   ...
+}
+{
+   sds.c: / operator: ditto
+   Memcheck:Cond
+   fun:__udivdi3
+   fun:sdsll2str
+   fun:sdscatfmt
+   fun:keys_series_label
+   fun:keys_series_labelset
+   fun:keys_series_metadata
+   fun:keys_series_metric
+   ...
+}
+{
+   sds.c: conditional: value and v seems well defined, so maybe valgrind botch
+   Memcheck:Cond
+   fun:sdsll2str
+   fun:sdscatfmt
+   fun:keys_series_label
+   fun:keys_series_labelset
+   fun:keys_series_metadata
+   fun:keys_series_metric
+   ...
+}
+{
+   net.c: uninitialized buffer on async i/o path
+   Memcheck:Param
+   socketcall.send(msg)
+   fun:send
+   fun:redisNetWrite
+   fun:redisBufferWrite
+   fun:redisAsyncWrite
+   fun:redisAsyncHandleWrite
+   fun:redisLibuvPoll
+   ...
+}
+End-of-File
+__extra="$__extra --suppressions=$tmp.suppress"
 valgrind \
     --trace-children=yes \
     --leak-check=full --read-var-info=yes --gen-suppressions=all \
