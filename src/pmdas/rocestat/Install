@@ -25,12 +25,16 @@ iam=rocestat
 python_opt=true
 daemon_opt=false
 
-# See pmcd(1) man page. PMDA starts up in the "not ready" state.
-# When it has finished starting up, it sends a PM_ERR_PMDAREADY
-# error PDU to PMCD to indicate it's ready to start processing
-# requests.
+if [[ ! -d /sys/class/infiniband ]]; then
+    if ! lsmod | grep -q '^ib_core'; then
+        echo "IB kernel modules are not loaded" >&2
+    else
+        echo "No IB devices detected" >&2
+    fi
+    status=1
+    exit
+fi
 
-ipc_prot="binary notready"
 pmdaSetup
 pmdaInstall
 exit

@@ -21,25 +21,11 @@
 """
 Python implementation of the "rocestat" Performance Metrics Domain Agent.
 """
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import division
-
-import subprocess, os, re, datetime, time, copy
-from time import sleep
-import argparse
-
-import os
-import re
-import subprocess
-import sys
-import socket as sk
-from collections import OrderedDict
+import subprocess, os, re
 import cpmapi as c_api
 from pcp.pmda import PMDA, pmdaMetric, pmdaIndom
 from pcp.pmapi import pmUnits
-from cpmda import PMDA_FETCH_NOVALUES
-from ctypes import c_int, c_ulonglong, c_float, c_double, POINTER, cast, Structure, c_byte
+from ctypes import c_int, c_ulonglong, POINTER, cast, Structure
 
 lane_mapping = {
     0: 'Default(TCP) - 0',
@@ -51,19 +37,6 @@ lane_mapping = {
     6: 'Unused       - 6',
     7: 'CNP          - 7',
 }
-
-CLUSTER_HW = 1
-CLUSTER_HW_XMIT = 2
-CLUSTER_HW_RCV = 3
-CLUSTER_HW_UCAST = 4
-CLUSTER_HW_MCAST = 5
-CLUSTER_HW_REQ = 6
-CLUSTER_HW_RESP = 7
-CLUSTER_HW_RNR = 8
-CLUSTER_HW_LINK = 9
-
-CLUSTER_NIC = 10
-deltat = 5
 
 RoceStatHW = [
         ("symbol_error", c_ulonglong),
@@ -149,10 +122,7 @@ class NicStats(Structure):
     _fields_ = [
         ("tx_bytes", c_ulonglong),
         ("rx_bytes", c_ulonglong),
-        ("tx_bytes_bw", c_double),
-        ("rx_bytes_bw", c_double),
         ("rx_pause", c_ulonglong),
-        ("rx_pause_delta", c_double),
     ]
 
 class NICSTATS:
@@ -166,7 +136,6 @@ class NICSTATS:
         output, error = result.communicate()
 
         if result.returncode != 0:
-            # print(f"Error: {error}")
             return []
 
         # Regular expression to find interfaces and their status
@@ -180,7 +149,6 @@ class NICSTATS:
         output, error = result.communicate()
 
         if result.returncode != 0:
-            # print(f"Error: {error}")
             return {}
 
         # Filter the stats to include only those with 'prio' in their names
@@ -208,8 +176,6 @@ class NICSTATS:
                 direction, lane, key = match.groups()
 
                 lane = "lane" + str(lane)
-                # if lane not in lanes:
-                #     lanes[lane] = {}
                 if (direction =='rx' and key.endswith("pause")) or key.endswith("bytes"):
                     lanes[lane][f'{direction}_{key}'] = value
 
@@ -236,7 +202,6 @@ class NICSTATS:
                 for key2, value in sub_dict.items():
                     new_key = f"{key1}_{key2}"
                     output_dict[new_key] = value
-        # output_dict['time'] = time.time()
         return output_dict
 
 class MLNXCOUNTERS():
@@ -297,7 +262,6 @@ class MLNXCOUNTERS():
                 with open(os.path.join(port_dir, "phys_state"), 'r') as f:
                     phys_state = f.read().strip()
                     if phys_state.__contains__("LinkUp"):
-                        # print(phys_state)
                         return True
             else:
                 return False
@@ -369,8 +333,6 @@ class MLNXCOUNTERS():
 
         self.init_hw_counter(active_device)
 
-        sleep(1)
-
         self.hw_counter_hash = self.get_hw_counters(self.hw_counter_path, self.hw_counter_hash)
         return self.convert_dict(self.hw_counter_hash)
 
@@ -381,6 +343,17 @@ class ROCESTATPMDA(PMDA):
     """
 
     # Cluster definitions
+    CLUSTER_HW = 1
+    CLUSTER_HW_XMIT = 2
+    CLUSTER_HW_RCV = 3
+    CLUSTER_HW_UCAST = 4
+    CLUSTER_HW_MCAST = 5
+    CLUSTER_HW_REQ = 6
+    CLUSTER_HW_RESP = 7
+    CLUSTER_HW_RNR = 8
+    CLUSTER_HW_LINK = 9
+
+    CLUSTER_NIC = 10
 
     mlnx_counters = {}
     nic_stats = {}
@@ -391,39 +364,42 @@ class ROCESTATPMDA(PMDA):
         """
         pm_type_32 = c_api.PM_TYPE_U32
         pm_type_64 = c_api.PM_TYPE_U64
-        pm_type_double = c_api.PM_TYPE_DOUBLE
 
         inst_sem = c_api.PM_SEM_INSTANT
-        count_sem = c_api.PM_SEM_COUNTER
 
-        pm_units = pmUnits(0, 0, 0, 0, 0, 0)
+        pm_units = pmUnits(0,0,0,0,0,0)
+        byte_units = pmUnits(1,0,0,c_api.PM_SPACE_BYTE,0,0)
+        count_units = pmUnits(0,0,1,0,0,0)
 
         # Registering MLNX HW Counters
         self.mlnx_indom = self.indom(0)
         self.add_indom(pmdaIndom(self.mlnx_indom, self.mlnx_counters))
 
-        hw_metric = [(f"{name}.hw.{dev_attr[0]}", CLUSTER_HW, dev_attr[1]) for dev_attr in RoceStatHW]
-        hw_metric += [(f"{name}.hw.xmit.{dev_attr[0]}", CLUSTER_HW_XMIT, dev_attr[1]) for dev_attr in RoceStatXmit]
-        hw_metric += [(f"{name}.hw.rcv.{dev_attr[0]}", CLUSTER_HW_RCV, dev_attr[1]) for dev_attr in RoceStatRcv]
-        hw_metric += [(f"{name}.hw.ucast.{dev_attr[0]}", CLUSTER_HW_UCAST, dev_attr[1]) for dev_attr in RoceStatUcast]
-        hw_metric += [(f"{name}.hw.mcast.{dev_attr[0]}", CLUSTER_HW_MCAST, dev_attr[1]) for dev_attr in RoceStatMcast]
-        hw_metric += [(f"{name}.hw.req.{dev_attr[0]}", CLUSTER_HW_REQ, dev_attr[1]) for dev_attr in RoceStatReq]
-        hw_metric += [(f"{name}.hw.resp.{dev_attr[0]}", CLUSTER_HW_RESP, dev_attr[1]) for dev_attr in RoceStatResp]
-        hw_metric += [(f"{name}.hw.rnr.{dev_attr[0]}", CLUSTER_HW_RNR, dev_attr[1]) for dev_attr in RoceStatRnr]
-        hw_metric += [(f"{name}.hw.link.{dev_attr[0]}", CLUSTER_HW_LINK, dev_attr[1]) for dev_attr in RoceStatLink]
+        hw_metrics = [(f"{name}.hw.{dev_attr[0]}", self.CLUSTER_HW, dev_attr[1]) for dev_attr in RoceStatHW]
+        hw_metrics += [(f"{name}.hw.xmit.{dev_attr[0]}", self.CLUSTER_HW_XMIT, dev_attr[1]) for dev_attr in RoceStatXmit]
+        hw_metrics += [(f"{name}.hw.rcv.{dev_attr[0]}", self.CLUSTER_HW_RCV, dev_attr[1]) for dev_attr in RoceStatRcv]
+        hw_metrics += [(f"{name}.hw.ucast.{dev_attr[0]}", self.CLUSTER_HW_UCAST, dev_attr[1]) for dev_attr in RoceStatUcast]
+        hw_metrics += [(f"{name}.hw.mcast.{dev_attr[0]}", self.CLUSTER_HW_MCAST, dev_attr[1]) for dev_attr in RoceStatMcast]
+        hw_metrics += [(f"{name}.hw.req.{dev_attr[0]}", self.CLUSTER_HW_REQ, dev_attr[1]) for dev_attr in RoceStatReq]
+        hw_metrics += [(f"{name}.hw.resp.{dev_attr[0]}", self.CLUSTER_HW_RESP, dev_attr[1]) for dev_attr in RoceStatResp]
+        hw_metrics += [(f"{name}.hw.rnr.{dev_attr[0]}", self.CLUSTER_HW_RNR, dev_attr[1]) for dev_attr in RoceStatRnr]
+        hw_metrics += [(f"{name}.hw.link.{dev_attr[0]}", self.CLUSTER_HW_LINK, dev_attr[1]) for dev_attr in RoceStatLink]
 
-        idx = 0
-        for m_name, m_cluster, m_type in hw_metric:
-            if m_type == c_int:
-                m_type = pm_type_32
-            elif m_type == c_ulonglong:
-                m_type = pm_type_64
+        for idx, (metric_name, metric_cluster, metric_type) in enumerate(hw_metrics, 0):
+            if metric_type == c_int:
+                metric_type = pm_type_32
+            elif metric_type == c_ulonglong:
+                metric_type = pm_type_64
 
-            self.add_metric(m_name,
-                            pmdaMetric(self.pmid(m_cluster, idx),
-                            m_type,
+            if "data" in  metric_name:
+                pm_units = byte_units
+            else:
+                pm_units = count_units
+
+            self.add_metric(metric_name,
+                            pmdaMetric(self.pmid(metric_cluster, idx),
+                            metric_type,
                             self.mlnx_indom, inst_sem, pm_units))
-            idx += 1
 
         # Register Per Lane NIC stats
         self.nic_indom = self.indom(1)
@@ -431,14 +407,16 @@ class ROCESTATPMDA(PMDA):
 
         nic_metric = [f"{name}.lane.{dev_attr[0]}" for dev_attr in NicStats._fields_]
 
-        idx = 0
-        for m_name in nic_metric:
-            self.add_metric(m_name,
-                            pmdaMetric(self.pmid(CLUSTER_NIC, idx),
-                            pm_type_double if m_name.endswith("bw") or m_name.endswith("delta") else pm_type_64,
+        for idx, metric_name in enumerate(nic_metric, 0):
+            if "bytes" in  metric_name:
+                pm_units = byte_units
+            else:
+                pm_units = count_units
+
+            self.add_metric(metric_name,
+                            pmdaMetric(self.pmid(self.CLUSTER_NIC, idx),
+                            pm_type_64,
                             self.nic_indom, inst_sem, pm_units))
-            idx += 1
-        self.first_query = True
 
     def rocestat_fetch_mlnx_counters(self, item, inst):
 
@@ -480,39 +458,7 @@ class ROCESTATPMDA(PMDA):
         except:
             self.log("failed to fetch mlnx counters")
 
-        cached_mlnx_counters = {}
-        if bool(self.mlnx_counters):
-            for dev_name, subdict in self.mlnx_counters.items():
-                if not dev_name.endswith('delta'):
-                    prev_values = {}
-                    for counter_tuple in RoceDev._fields_:
-                        prev_values[counter_tuple[0]] = getattr(subdict, counter_tuple[0])
-
-                    cached_mlnx_counters[dev_name] = prev_values
-        else:
-            self.log("No counters in the cache")
-
-        hw_cnts_diff = {k: v for k, v in hw_cnts.items() if not k.endswith('delta')}
-
-        # if there are mlnx counters cached then calculate the delta
-        if bool(cached_mlnx_counters):
-            for key, subdict in cached_mlnx_counters.items():
-                hw_cnts_diff[f"{key}_delta"] = {}
-
-                temp = {}
-                for sub_key, value in subdict.items():
-                    temp[sub_key] = hw_cnts[key][sub_key] - cached_mlnx_counters[key][sub_key]
-
-                hw_cnts_diff[f"{key}_delta"] = temp
-        # If this is the first query then there wouldn't be cached counters
-        else:
-            for dev, subdict in hw_cnts.items():
-                temp = {k:0 for k in subdict}
-                hw_cnts_diff[dev+"_delta"] = temp
-
-        hw_cnts_diff = {k: dict(v.items()) for k, v in sorted(hw_cnts_diff.items())}
-
-        for device, dict_counters in hw_cnts_diff.items():
+        for device, dict_counters in hw_cnts.items():
             dev = RoceDev()
             for k,v in dict_counters.items():
                 setattr(dev, k, v)
@@ -525,32 +471,6 @@ class ROCESTATPMDA(PMDA):
             nic_stats = collector.collect_stats()
         except:
             self.log("failed to fetch nic stats")
-
-        cached_nic_stats = {}
-        if bool(self.nic_stats):
-            for dev_lane, subdict in self.nic_stats.items():
-                if not dev_lane.endswith('delta'):
-                    prev_values = {}
-                    for stat_tuple in NicStats._fields_:
-                        prev_values[stat_tuple[0]] = getattr(subdict, stat_tuple[0])
-
-                    cached_nic_stats[dev_lane] = prev_values
-        else:
-            self.log("No per lane stats in the cache")
-
-        bw = lambda x,y: float("%0.2f" % ((float(y)-float(x))*8.0e-9/deltat))
-        per_sec = lambda x,y: (int(x)-int(y))/deltat if deltat > 0 else (int(x)-int(y))
-
-        if bool(cached_nic_stats):
-            for key in nic_stats.keys():
-                nic_stats[key]['tx_bytes_bw'] = bw(cached_nic_stats[key]['tx_bytes'], nic_stats[key]['tx_bytes'])
-                nic_stats[key]['rx_bytes_bw'] = bw(cached_nic_stats[key]['rx_bytes'], nic_stats[key]['rx_bytes'])
-                nic_stats[key]['rx_pause_delta'] = per_sec(nic_stats[key]['rx_pause'], cached_nic_stats[key]['rx_pause'])
-        else:
-            for key in nic_stats.keys():
-                nic_stats[key]['tx_bytes_bw'] = 0
-                nic_stats[key]['rx_bytes_bw'] = 0
-                nic_stats[key]['rx_pause_delta'] = 0
 
         for nic_lane, dict_stats in nic_stats.items():
             nic = NicStats()
@@ -580,10 +500,10 @@ class ROCESTATPMDA(PMDA):
         Main fetch callback
         """
 
-        if CLUSTER_HW <= cluster <= CLUSTER_HW_LINK:
+        if self.CLUSTER_HW <= cluster <= self.CLUSTER_HW_LINK:
             return self.rocestat_fetch_mlnx_counters(item, inst)
 
-        if cluster == CLUSTER_NIC:
+        if cluster == self.CLUSTER_NIC:
             return self.rocestat_fetch_nic_stats(item, inst)
 
         return [c_api.PM_ERR_PMID, 0]
@@ -602,28 +522,13 @@ class ROCESTATPMDA(PMDA):
         self.set_fetch(self.roce_stat_fetch)
         self.set_fetch_callback(self.roce_fetch_callback)
 
-    @staticmethod
-    def log(message):
-        PMDA.log(str(message))
-
-    @staticmethod
-    def err(message):
-        PMDA.err(message)
-
     @classmethod
     def in_pmda_setup(cls):
         """Check if PMDA is in setup state"""
         return os.environ.get('PCP_PYTHON_DOMAIN') or os.environ.get('PCP_PYTHON_PMNS')
 
 if __name__ == "__main__":
-    # This PMDA starts up in the "notready" state, see the Install script where
-    # the IPC protocol is ipc_prot="binary notready". See also pmcd(1) man page.
-    # The "binary notready" setting can also be manually configured in pmcd.conf.
     pmda = ROCESTATPMDA(name='rocestat', domain=254, user="root", logfile='rocestat.log')
-
-    pmda.pmda_ready()
-    if not pmda.in_pmda_setup():
-        pmda.log("Ready to process requests.")
 
     # Now enter the main loop
     pmda.run()
