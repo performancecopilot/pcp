@@ -1879,16 +1879,25 @@ typedef struct webscrape {
     pmID		*pmidlist;
     int			numfilters;	/* current count of filters */
     sds			*filters;
+    enum matches	match;		/* type of matching to use for filters */
+    regex_t		*regex;		/* for filter compiled regular expressions */
     void		*arg;
 } webscrape_t;
 
 static int
-filtered(struct webscrape *filter_info, char *name)
+filtered(struct webscrape *filter_info, const char *name)
 {
     int i;
-    for (i = 0; i<filter_info->numfilters; ++i) {
-	/* Currently just have wildcard matching, but would like extend to use regex. */
-	if (fnmatch(filter_info->filters[i], name, 0) == 0) return 1;
+    for (i = 0; i < filter_info->numfilters; i++) {
+	if (filter_info->match == MATCH_EXACT &&
+	    strcmp(filter_info->filters[i], name) == 0)
+	    return 1;
+	if (filter_info->match == MATCH_REGEX &&
+	    regexec(&(filter_info->regex[i]), name, 0, NULL, 0) == 0)
+	    return 1;
+	if (filter_info->match == MATCH_GLOB &&
+	    fnmatch(filter_info->filters[i], name, 0) == 0)
+	    return 1;
     }
     return 0;
 }
@@ -1925,7 +1934,7 @@ webgroup_scrape_batch(const char *name, void *arg)
 	scrape->numnames = 0;
     }
 
-    if(!filtered(scrape, name)) {
+    if (!filtered(scrape, name)) {
 	scrape->names[scrape->numnames] = sdsnew(name);
 	scrape->numnames++;
     }
@@ -1999,18 +2008,37 @@ pmWebGroupScrape(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
     scrape.context = cp;
     scrape.msg = &msg;
     scrape.arg = arg;
+    scrape.numfilters = 0;
+    scrape.match = MATCH_GLOB; /* default filtering is globbing match */
 
     /* Add filtering information to scrape */
     if (params) {
+	sds match = dictFetchValue(params, PARAM_MATCH);
 	sds filter = dictFetchValue(params, PARAM_FILTER);
 	scrape.numfilters = 0;
+
+	if (match != NULL) {
+	    if (strcmp(match, "regex") == 0) {
+		scrape.match = MATCH_REGEX;
+	    } else if (strcmp(match, "exact") == 0)
+		scrape.match = MATCH_GLOB;
+	    else if (strcmp(match, "glob") != 0) {
+		infofmt(msg, "%s - invalid 'match' parameter value", match);
+		sts = -EINVAL;
+		goto done;
+	    }
+	}
+
 	if (filter != NULL) {
 	    length = sdslen(filter);
 	    scrape.filters = sdssplitlen(filter, length, ",", 1, &scrape.numfilters);
 	}
+
+	if (scrape.match == MATCH_REGEX)
+	    scrape.regex = name_match_setup(scrape.match, scrape.numfilters, scrape.filters);
     }
 
-    /* handle scrape via metric name list traversal (else entire namespace) */
+    /* Handle scrape via metric name list traversal (else entire namespace) */
     if (metrics && sdslen(metrics)) {
 	length = sdslen(metrics);
 	if ((names = sdssplitlen(metrics, length, ",", 1, &numnames)) == NULL)
@@ -2029,6 +2057,7 @@ pmWebGroupScrape(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
     }
 
     sdsfreesplitres(scrape.filters, scrape.numfilters);
+    name_match_free(scrape.regex, scrape.numfilters);
 
 done:
     settings->callbacks.on_done(id, sts, msg, arg);
