@@ -63,8 +63,7 @@ refresh_net_dev_ioctl(char *name, net_interface_t *netip,
     if (need_refresh[REFRESH_NET_MTU]) {
 	ecmd.cmd = ETHTOOL_GSET;
 	ifr.ifr_data = (caddr_t)&ecmd;
-	strncpy(ifr.ifr_name, name, IF_NAMESIZE);
-	ifr.ifr_name[IF_NAMESIZE-1] = '\0';
+	pmstrncpy(ifr.ifr_name, IF_NAMESIZE, name);
 	if (!(ioctl(fd, SIOCGIFMTU, &ifr) < 0))
 	    netip->ioc.mtu = ifr.ifr_mtu;
     }
@@ -73,8 +72,7 @@ refresh_net_dev_ioctl(char *name, net_interface_t *netip,
 	need_refresh[REFRESH_NET_RUNNING]) {
 	ecmd.cmd = ETHTOOL_GSET;
 	ifr.ifr_data = (caddr_t)&ecmd;
-	strncpy(ifr.ifr_name, name, IF_NAMESIZE);
-	ifr.ifr_name[IF_NAMESIZE-1] = '\0';
+	pmstrncpy(ifr.ifr_name, IF_NAMESIZE, name);
 	if (!(ioctl(fd, SIOCGIFFLAGS, &ifr) < 0)) {
 	    netip->ioc.linkup = !!(ifr.ifr_flags & IFF_UP);
 	    netip->ioc.running = !!(ifr.ifr_flags & IFF_RUNNING);
@@ -88,11 +86,9 @@ refresh_net_dev_ioctl(char *name, net_interface_t *netip,
 	/* ETHTOOL ioctl -> non-root permissions issues for old kernels */
 	ecmd.cmd = ETHTOOL_GSET;
 	ifr.ifr_data = (caddr_t)&ecmd;
-	strncpy(ifr.ifr_name, name, IF_NAMESIZE);
-	ifr.ifr_name[IF_NAMESIZE-1] = '\0';
+	pmstrncpy(ifr.ifr_name, IF_NAMESIZE, name);
 	/* GIWRATE ioctl -> wireless interface bitrate access method */
-	strncpy(iwreq.ifr_ifrn.ifrn_name, name, IF_NAMESIZE);
-	iwreq.ifr_ifrn.ifrn_name[IF_NAMESIZE-1] = '\0';
+	pmstrncpy(iwreq.ifr_ifrn.ifrn_name, IF_NAMESIZE, name);
 
 	if (!(ioctl(fd, SIOCETHTOOL, &ifr) < 0)) {
 	    /*
@@ -126,8 +122,7 @@ refresh_net_ipv4_addr(char *name, net_addr_t *addr, linux_container_t *cp)
 
     if ((fd = refresh_inet_socket(cp)) < 0)
 	return;
-    strncpy(ifr.ifr_name, name, IF_NAMESIZE);
-    ifr.ifr_name[IF_NAMESIZE-1] = '\0';
+    pmstrncpy(ifr.ifr_name, IF_NAMESIZE, name);
     ifr.ifr_addr.sa_family = AF_INET;
     if (ioctl(fd, SIOCGIFADDR, &ifr) >= 0) {
 	struct sockaddr_in *sin = (struct sockaddr_in *)&ifr.ifr_addr;
@@ -247,8 +242,7 @@ refresh_net_hw_addr(char *name, net_addr_t *netip)
     value = read_oneline(path, line);
     if (value) {
 	netip->has_hw = 1;
-	strncpy(netip->hw_addr, value, sizeof(netip->hw_addr));
-	netip->hw_addr[sizeof(netip->hw_addr)-1] = '\0';
+	pmstrncpy(netip->hw_addr, sizeof(netip->hw_addr), value);
     } else {
 	netip->hw_addr[0] = '\0';
     }

@@ -997,7 +997,21 @@ AC_PATH_PROGS(PYTHON, [/usr/bin/python2 python2 python2.7 python])
 AC_SUBST(PYTHON)
 
 dnl check if python3 available for the build and runtime
-AC_PATH_PROGS(PYTHON3, [/usr/bin/python3 python3 python3.9])
+AC_PATH_PROGS(PYTHON3, [/usr/bin/python3 python3])
+if test -z "$PYTHON3"
+then
+    dnl no python3 executable, so look for latest python3.x, if any
+    AC_MSG_CHECKING([for python3.N executable])
+    PYTHON3=`ls /usr/bin/python3.*[[0-9]] /usr/local/bin/python3.*[[0-9]] 2>/dev/null \
+	     | sort -nr -t. -k2 \
+	     | sed -e 1q`
+    if test -z "$PYTHON3"
+    then
+	AC_MSG_RESULT(no)
+    else
+	AC_MSG_RESULT([$PYTHON3])
+    fi
+fi
 AC_SUBST(PYTHON3)
 
 dnl check availability of Python header files
@@ -1007,7 +1021,7 @@ AC_DEFUN([PCP_CHECK_PYTHON_HEADER],
   [ PY_MAJOR="$1"
     PY_MINOR="$2"
     PY_VERSION="python$PY_MAJOR.$PY_MINOR"
-    PY_INCLUDE_DIRS="-I/usr/include/${PY_VERSION}m -I/usr/include/${PY_VERSION}"
+    PY_INCLUDE_DIRS="-I/usr/include/${PY_VERSION}m -I/usr/include/${PY_VERSION} -I/usr/local/include/${PY_VERSION}"
     saved_CFLAGS="$CFLAGS"
     saved_CPPFLAGS="$CPPFLAGS"
     CFLAGS="$CFLAGS $PY_INCLUDE_DIRS"

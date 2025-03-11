@@ -17,7 +17,8 @@
 # pylint: disable=too-many-boolean-expressions, too-many-statements
 # pylint: disable=too-many-instance-attributes, too-many-locals
 # pylint: disable=too-many-branches, too-many-nested-blocks
-# pylint: disable=broad-except, too-many-arguments
+# pylint: disable=too-many-arguments, too-many-positional-arguments
+# pylint: disable=broad-except
 
 """ PCP to XML Bridge """
 

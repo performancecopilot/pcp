@@ -284,8 +284,10 @@ __pmSetUserGroupAttributes(const char *username, __pmHashCtl *attrs)
 	    return -ENOMEM;
 	return 0;
     }
-    pmNotifyErr(LOG_ERR, "Authenticated user %s not found\n", username);
-    return -ESRCH;
+
+    if (pmDebugOptions.auth)
+        pmNotifyErr(LOG_INFO, "Authenticated user %s not local\n", username);
+    return 0;
 }
 
 static int
@@ -426,10 +428,10 @@ __pmAuthServerNegotiation(int fd, int ssf, __pmHashCtl *attrs)
 	    char	strbuf[20];
 	    char	errmsg[PM_MAXERRMSGLEN];
 	    if (sts < 0)
-		fprintf(stderr, "__pmSecureClientHandshake: PM_ERR_IPC: expecting PDU_AUTH but__pmGetPDU returns %d (%s)\n",
+		fprintf(stderr, "__pmSecureClientHandshake: PM_ERR_IPC: expecting PDU_AUTH but __pmGetPDU returns %d (%s)\n",
 		    sts, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	    else
-		fprintf(stderr, "__pmSecureClientHandshake: PM_ERR_IPC: expecting PDU_AUTH but__pmGetPDU returns %d (type=%s)\n",
+		fprintf(stderr, "__pmSecureClientHandshake: PM_ERR_IPC: expecting PDU_AUTH but __pmGetPDU returns %d (type=%s)\n",
 		    sts, __pmPDUTypeStr_r(sts, strbuf, sizeof(strbuf)));
 	}
 	sts = PM_ERR_IPC;
@@ -479,10 +481,10 @@ __pmAuthServerNegotiation(int fd, int ssf, __pmHashCtl *attrs)
 		char	strbuf[20];
 		char	errmsg[PM_MAXERRMSGLEN];
 		if (sts < 0)
-		    fprintf(stderr, "__pmAuthServerNegotiation: PM_ERR_IPC: expecting PDU_AUTH but__pmGetPDU returns %d (%s)\n",
+		    fprintf(stderr, "__pmAuthServerNegotiation: PM_ERR_IPC: expecting PDU_AUTH but __pmGetPDU returns %d (%s)\n",
 			sts, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 		else
-		    fprintf(stderr, "__pmAuthServerNegotiation: PM_ERR_IPC: expecting PDU_AUTH but__pmGetPDU returns %d (type=%s)\n",
+		    fprintf(stderr, "__pmAuthServerNegotiation: PM_ERR_IPC: expecting PDU_AUTH but __pmGetPDU returns %d (type=%s)\n",
 			sts, __pmPDUTypeStr_r(sts, strbuf, sizeof(strbuf)));
 	    }
 	    sts = PM_ERR_IPC;

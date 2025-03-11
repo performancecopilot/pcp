@@ -24,6 +24,7 @@ fi
 _usage()
 {
     echo "Usage: $0 [options]"
+    echo "  -p           do (old) packaging tests"
     echo "  -v           verbose (debugging)"
     exit 1
 }
@@ -38,13 +39,13 @@ p
 }'`
     if [ -z "$ipaddr" ]
     then
-	echo "No /etc/hosts entry for $1"
+	echo "Error: no /etc/hosts entry for $1"
 	return
     fi
 
     if [ `echo "$ipaddr" | wc -l | sed -e 's/  *//g'` -gt 1 ]
     then
-	echo "Multiple /etc/hosts entries for $1"
+	echo "Error: multiple /etc/hosts entries for $1"
 	return
     fi
 
@@ -70,14 +71,14 @@ p
 	#     inet 192.168.1.100/24 brd 192.168.1.255 scope global br0
 	#     ...
     else
-	echo >&2 "Neither ifconfig(1) nor ip(1)? Not sure how to get primary ip addr"
+	echo "Error: neither ifconfig(1) nor ip(1)? Not sure how to get primary ip addr"
 	return
     fi
     sed <$tmp.tmp \
 	-e 's/^[0-9][0-9]*: //' \
 	-e 's/: / /g' \
 	-e '/ inet /s/\/.*/ /' \
-    | awk >&2 '
+    | awk '
 /^[^ 	]/	{ iface = $1; next }
 /inet addr:'$ipaddr' / || /inet '$ipaddr'[ \/]/ {
 			  if (iface == "lo")
@@ -110,10 +111,14 @@ fi
 
 verbose=false
 very_verbose=false
-while getopts 'v?' p
+packages=false
+while getopts 'pv?' p
 do
     case "$p"
     in
+	p)	packages=true
+		;;
+
 	v)	if $verbose
 		then
 		    very_verbose=true
@@ -138,21 +143,30 @@ else
 fi
 rm -f $tmp.*
 
-# any required packages not installed?
-#
-$home/list-packages -m >$tmp.tmp
-if [ -s $tmp.tmp ]
+if $packages
 then
-    echo "Missing packages ..."
-    fmt -78 <$tmp.tmp
-else
-    $verbose && echo "No missing packages."
+    # any required packages not installed?
+    #
+    $home/list-packages -m >$tmp.tmp
+    if [ -s $tmp.tmp ]
+    then
+	echo "Missing packages ..."
+	fmt -78 <$tmp.tmp
+    else
+	$verbose && echo "No missing packages."
+    fi
 fi
 
 # pmhostname sanity check
 #
 host=`hostname`
-_check_host $host
+_check_host $host >$tmp.out
+if [ -s $tmp.out ]
+then
+    cat >&2 $tmp.out
+else
+    $verbose && echo "/etc/hosts for $host looks ok"
+fi
 if which pmhostname >/dev/null 2>&1
 then
     pmhost=`pmhostname`
@@ -168,8 +182,19 @@ then
 		    echo >&2 "Warning: hostname ($host) is not a prefix of pmhostname ($pmhost)"
 		    ;;
 	esac
-	_check_host $pmhost
+	if [ "$pmhost" != "$host" ]
+	then
+	    _check_host $pmhost >$tmp.out
+	    if [ -s $tmp.out ]
+	    then
+		cat >&2 $tmp.out
+	    else
+		$verbose && echo "/etc/hosts for $pmhost looks ok"
+	    fi
+	fi
     fi
+else
+    echo >&2 'Error: executable pmhostname not found'
 fi
 
 if [ -n "$PCP_VAR_DIR" ]
@@ -184,7 +209,7 @@ then
 	then
 	    if grep -q "^allow $network" $PCP_VAR_DIR/config/pmlogger/config.default
 	    then
-		:
+		$verbose && echo "primary pmlogger [access] set up ok"
 	    else
 		echo "Missing: \"allow $network : all;\" [access] in $PCP_VAR_DIR/config/pmlogger/config.default"
 		echo "Use \"$ sudo -E .../qa/admin/allow-pmlc-access\" to fix this."
@@ -204,7 +229,14 @@ if sudo -u pcp id >/dev/null
 then
     # pcp user appears to exist ...
     #
-    sudo -u pcp [ -x $HOME ] || echo "Error: $HOME is not searchable by user \"pcp\""
+    if sudo -u pcp [ -x $HOME ]
+    then
+	$verbose && echo "user pcp looks ok"
+    else
+	echo "Error: $HOME is not searchable by user \"pcp\""
+    fi
+else
+    echo "Error: cannot su to user \"pcp\""
 fi
 
 # now some platform-specific tests

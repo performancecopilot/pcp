@@ -1,0 +1,89 @@
+#!/bin/sh
+#
+# Extract all_args (all command line flags and options) and arg_regex
+# (options with a non-metric parameter) initializers from a file
+#
+
+verbose=false
+if [ $# -gt 1 -a X"$1" = X-v ]
+then
+verbose=true
+shift
+fi
+
+if [ $# -lt 1 ]
+then
+echo "Usage: $0 source-file ..."
+exit 1
+fi
+
+tmp=/var/tmp/bashrc-getargs-$$
+status=1
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+for file
+do
+    case "$file"
+    in
+    *.py)
+	grep 'pmSetShortOptions(' "$file" >>$tmp.work
+	;;
+    *.c|*.cpp)
+	sed -n <"$file" \
+	    -e '/\.short_options *=/{
+:more
+s/\([;,]\)[ 	]*$/\1/
+t done
+N
+s/\n/ /
+b more
+:done
+p
+}' \
+	| sed >>$tmp.work \
+	    -e 's/PMAPI_OPTIONS/"A:a:D:gh:n:O:p:S:s:T:t:VZ:z?"/' \
+	    -e 's/"[ 	]*"//g' \
+	# end
+	;;
+    *)
+	echo "Arrgh: need rules for source files like $1"
+	exit
+	;;
+    esac
+done
+
+$verbose && ( echo "+ source lines"; cat $tmp.work )
+if [ ! -s $tmp.work ]
+then
+    echo "Error: no pmSetShortOptions call or .short_options assignment, nothing to work with"
+elif [ `wc -l <$tmp.work | sed -e 's/ //g'` -gt 1 ]
+then
+    cat $tmp.work
+    echo "Error: more than one pmSetShortOptions call or .short_options assignment, I am confused"
+else
+    sed <$tmp.work >$tmp.args \
+	-e 's/.*pmSetShortOptions("\([^"]*\)").*/\1/' \
+	-e 's/.*\.short_options *= *"\([^"]*\)".*/\1/' \
+    # end
+fi
+$verbose && ( echo "+ flags+options"; cat $tmp.args )
+
+sed <$tmp.args \
+    -e 's/?//' \
+    -e 's/://g' \
+    -e 's/^/	all_args="/' \
+    -e 's/$/"/' \
+# end
+sed <$tmp.args \
+    -e 's/?//' \
+    -e 's/.:/{&}/g' \
+    -e 's/^[^{]*{/{/' \
+    -e 's/}[^{]*{/}{/g' \
+    -e 's/}[^}]*$/}/' \
+    -e 's/[{}]//g' \
+    -e 's/://g' \
+    -e 's/^/	arg_regex="-[/' \
+    -e 's/$/]"/' \
+# end
+
+status=0

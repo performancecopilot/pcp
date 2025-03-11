@@ -150,7 +150,7 @@ ParseOptions(int argc, char *argv[], int *nports)
     int		val;
 
     endptr = pmGetConfig("PCP_PMCDCONF_PATH");
-    strncpy(configFileName, endptr, sizeof(configFileName)-1);
+    pmstrncpy(configFileName, sizeof(configFileName), endptr);
 
     while ((c = pmgetopt_r(argc, argv, &opts)) != EOF) {
 	switch (c) {
@@ -174,7 +174,7 @@ ParseOptions(int argc, char *argv[], int *nports)
 		break;
 
 	    case 'c':	/* configuration file */
-		strncpy(configFileName, opts.optarg, sizeof(configFileName)-1);
+		pmstrncpy(configFileName, sizeof(configFileName), opts.optarg);
 		break;
 
 	    case 'D':	/* debug options */

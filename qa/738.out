@@ -3,6 +3,7 @@ QA output created by 738
 Usage: pmlogmv [options] srcname dstname
 
 Options:
+  -D DBG, --debug=DBG   set debug options, see pmdbg(1)
   -c, --checksum        checksum all source and destintion files when copying
   -f, --force           force changes, even if they look unsafe
   -N, --showme          perform a dry run, showing what would be done
@@ -12,6 +13,7 @@ exit status 1
 Usage: pmlogmv [options] srcname dstname
 
 Options:
+  -D DBG, --debug=DBG   set debug options, see pmdbg(1)
   -c, --checksum        checksum all source and destintion files when copying
   -f, --force           force changes, even if they look unsafe
   -N, --showme          perform a dry run, showing what would be done

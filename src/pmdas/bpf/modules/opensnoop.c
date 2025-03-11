@@ -277,8 +277,8 @@ static void handle_event(void *ctx, int cpu, void *data, __u32 data_sz)
     elm->event.uid = event->uid;
     elm->event.ret = event->ret;
     elm->event.flags = event->flags;
-    strncpy(elm->event.comm, event->comm, sizeof(event->comm));
-    strncpy(elm->event.fname, event->fname, sizeof(event->fname));
+    pmstrncpy(elm->event.comm, sizeof(elm->event.comm), event->comm);
+    pmstrncpy(elm->event.fname, sizeof(elm->event.fname), event->fname);
 
     push(elm);
 }

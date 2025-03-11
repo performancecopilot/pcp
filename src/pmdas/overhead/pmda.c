@@ -41,6 +41,7 @@ usage(void)
 Options:\n\
   -C             parse configuration file(s) and exit\n\
   -c configfile  explicit configuration file\n\
+  -D debug       set debug options, see pmdbg(1)\n\
   -d domain      use domain (numeric) for metrics domain of PMDA\n\
   -l logfile     write log into logfile rather than using the default log\n\
   -R interval    refresh time in seconds [default 60]\n",

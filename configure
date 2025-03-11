@@ -8463,7 +8463,7 @@ done
 
 
 
-for ac_prog in /usr/bin/python3 python3 python3.9
+for ac_prog in /usr/bin/python3 python3
 do
   # Extract the first word of "$ac_prog", so it can be a program name with args.
 set dummy $ac_prog; ac_word=$2
@@ -8513,6 +8513,22 @@ fi
   test -n "$PYTHON3" && break
 done
 
+if test -z "$PYTHON3"
+then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for python3.N executable" >&5
+printf %s "checking for python3.N executable... " >&6; }
+    PYTHON3=`ls /usr/bin/python3.*[0-9] /usr/local/bin/python3.*[0-9] 2>/dev/null \
+	     | sort -nr -t. -k2 \
+	     | sed -e 1q`
+    if test -z "$PYTHON3"
+    then
+	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+    else
+	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $PYTHON3" >&5
+printf "%s\n" "$PYTHON3" >&6; }
+    fi
+fi
 
 
 
@@ -8543,7 +8559,7 @@ printf "%s\n" "$PY_MAJOR.$PY_MINOR.$PY_POINT" >&6; }
 		 PY_MAJOR="$PY_MAJOR"
     PY_MINOR="$PY_MINOR"
     PY_VERSION="python$PY_MAJOR.$PY_MINOR"
-    PY_INCLUDE_DIRS="-I/usr/include/${PY_VERSION}m -I/usr/include/${PY_VERSION}"
+    PY_INCLUDE_DIRS="-I/usr/include/${PY_VERSION}m -I/usr/include/${PY_VERSION} -I/usr/local/include/${PY_VERSION}"
     saved_CFLAGS="$CFLAGS"
     saved_CPPFLAGS="$CPPFLAGS"
     CFLAGS="$CFLAGS $PY_INCLUDE_DIRS"
@@ -8662,7 +8678,7 @@ printf "%s\n" "$PY_MAJOR.$PY_MINOR.$PY_POINT" >&6; }
 		 PY_MAJOR="$PY_MAJOR"
     PY_MINOR="$PY_MINOR"
     PY_VERSION="python$PY_MAJOR.$PY_MINOR"
-    PY_INCLUDE_DIRS="-I/usr/include/${PY_VERSION}m -I/usr/include/${PY_VERSION}"
+    PY_INCLUDE_DIRS="-I/usr/include/${PY_VERSION}m -I/usr/include/${PY_VERSION} -I/usr/local/include/${PY_VERSION}"
     saved_CFLAGS="$CFLAGS"
     saved_CPPFLAGS="$CPPFLAGS"
     CFLAGS="$CFLAGS $PY_INCLUDE_DIRS"

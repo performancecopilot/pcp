@@ -50,10 +50,10 @@ main(int argc, char **argv)
 	    exit(1);
 	}
 	if (c == opts.optind) {
-	    strncpy(json, argv[c], PM_MAXLABELJSONLEN-1);
+	    pmstrncpy(json, PM_MAXLABELJSONLEN, argv[c]);
 	} else {
-	    strncat(json, " ", PM_MAXLABELJSONLEN-1);
-	    strncat(json, argv[c], PM_MAXLABELJSONLEN-1-strlen(json));
+	    pmstrncat(json, PM_MAXLABELJSONLEN, " ");
+	    pmstrncat(json, PM_MAXLABELJSONLEN, argv[c]);
 	}
     }
 

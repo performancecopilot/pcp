@@ -293,8 +293,7 @@ pmiErrStr_r(int code, char *buf, int buflen)
 	default:
 	    return pmErrStr_r(code, buf, buflen);
     }
-    strncpy(buf, msg, buflen);
-    buf[buflen-1] = '\0';
+    pmstrncpy(buf, buflen, msg);
     return buf;
 }
 

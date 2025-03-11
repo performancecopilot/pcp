@@ -123,6 +123,8 @@ _pcp () {
       "(-9 --limit-filter-force -8 --limit-filter $exargs)"{-9+,--limit-filter-force=}'[set forced limit filter]:limit:' \
       "(-n --invert-filter $exargs)"{-n,--invert-filter}'[perform ranking before live filtering]' \
       "(-o --output-file $exargs)"{-o+,--output-file=}'[specify output file]:file:_files' \
+      "(-z --hostzone -Z --timezone $exargs)"{-z,--hostzone}'[use metrics source timezone]' \
+      "(-Z --timezone -z --hostzone $exargs)"{-Z+,--timezone=}'[set reporting timezone]:timezone:_time_zone' \
       '*:metric:->metrics' \
       && return 0
   ;;

@@ -138,6 +138,7 @@ socat
 sysstat
 systemtap
 systemtap-sdt-dev
+targetcli-fb
 time
 unbound
 valgrind

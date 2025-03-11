@@ -560,7 +560,7 @@ init_pacct_system_file(void)
 	    tmppath = *path;
 	if (access(tmppath, F_OK) == 0) {
 	    /* file exists, pick me! */
-	    strncpy(pacct_system_file, tmppath, sizeof(pacct_system_file)-1);
+	    pmstrncpy(pacct_system_file, sizeof(pacct_system_file), tmppath);
 	    break;
 	}
     }

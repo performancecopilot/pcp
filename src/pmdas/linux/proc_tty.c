@@ -37,7 +37,7 @@ refresh_tty(pmInDom tty_indom)
     pmdaCacheOp(tty_indom, PMDA_CACHE_INACTIVE);
     while (fgets(buf, sizeof(buf), fp) != NULL) {
 	if (((p = strstr(buf, ":")) != NULL) && ((u = strstr(buf, "uart:")) != NULL)) {
-	    strncpy(port, buf, (int)(p - buf));
+	    memcpy(port, buf, (int)(p - buf));
 	    port[(int)(p - buf)] = '\0';
 	    errno = 0;
 	    port_result = (int)strtol(port, NULL, 10);

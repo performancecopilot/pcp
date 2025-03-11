@@ -124,6 +124,7 @@ sqlite-libs
 sysstat
 systemd-devel
 systemtap-sdt-devel
+targetcli
 time
 valgrind
 xfsprogs

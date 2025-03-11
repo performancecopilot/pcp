@@ -543,7 +543,7 @@ _j(void)
 
     fprintf(stderr, "\nPopulate the instance domain ...\n");
     for (i = 0; i < 20; i++) {
-	strncpy(nbuf, xxx, ncount+3);
+	memcpy(nbuf, xxx, ncount+3);
 	pmsprintf(nbuf, sizeof(nbuf), "%03d", ncount);
 	ncount++;
         inst = pmdaCacheStore(indom, PMDA_CACHE_ADD, nbuf, (void *)((__psint_t)(0xbeef0000+ncount)));

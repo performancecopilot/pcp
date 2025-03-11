@@ -41,8 +41,7 @@ list_to_metric(SV *list, mmv_metric_t *metric)
     for (i = 0; i < len; i++)
 	entry[i] = av_fetch(mlist, i, 0);
 
-    strncpy(metric->name, SvPV_nolen(*entry[0]), MMV_NAMEMAX);
-    metric->name[MMV_NAMEMAX-1] = '\0';
+    pmstrncpy(metric->name, MMV_NAMEMAX, SvPV_nolen(*entry[0]));
     metric->item = SvIV(*entry[1]);
     metric->type = SvIV(*entry[2]);
     metric->indom = SvIV(*entry[3]);
@@ -87,8 +86,7 @@ list_to_instances(SV *list, mmv_instances_t **insts)
 	SV **id = av_fetch(inlist, i*2, 0);
 	SV **name = av_fetch(inlist, i*2+1, 0);
 	instances[i].internal = SvIV(*id);
-	strncpy(instances[i].external, SvPV_nolen(*name), MMV_NAMEMAX);
-	instances[i].external[MMV_NAMEMAX-1] = '\0';
+	pmstrncpy(instances[i].external, MMV_NAMEMAX, SvPV_nolen(*name));
     }
     *insts = instances;
     return len;

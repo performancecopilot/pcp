@@ -3,7 +3,7 @@ QA output created by 1357
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: pminfo -L -K clear -K add,33,PCP_PMDAS_DIR/podman/pmda_podman.so,podman_init -v -n PCP_VAR_DIR/pmns/root_podman podman.container
+Command: pminfo -L -K clear -K add,33,PCP_PMDAS_DIR/podman/pmda_podman.so,podman_init -v -n TMP.pmns podman.container
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks

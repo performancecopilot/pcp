@@ -16,6 +16,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <pcp/pmapi.h>
 
 #if defined(HAVE_DLFCN_H)
 #include <dlfcn.h>
@@ -166,7 +167,7 @@ void releaseAMDDevice(amdgpu_device_handle amd_dev, int fd)
 int DRMDeviceGetName(amdgpu_device_handle device, void *out)
 {
   char *name = (char *)out;
-  strncpy(name, amdgpu_get_marketing_name(device), 63);
+  pmstrncpy(name, 63, amdgpu_get_marketing_name(device));
 
   return DRM_SUCCESS;
 }

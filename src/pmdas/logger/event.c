@@ -56,7 +56,7 @@ event_init(pmID pmid)
 	    }
 	}
 	else {
-	    strncpy(cmd, logfiles[i].pathname, sizeof(cmd));
+	    pmstrncpy(cmd, sizeof(cmd), logfiles[i].pathname);
 	    cmd[pathlen - 1] = '\0';	/* get rid of the '|' */
 	    rstrip(cmd);	/* Remove all trailing whitespace. */
 	    fd = start_cmd(cmd, &logfiles[i].pid);
@@ -239,10 +239,8 @@ event_config(const char *fname)
 	logfile = &logfiles[numlogfiles];
 	memset(logfile, 0, sizeof(*logfile));
 	logfile->noaccess = (noaccess[0] == 'y' || noaccess[0] == 'Y');
-	strncpy(logfile->pmnsname, name, sizeof(logfile->pmnsname));
-	logfile->pmnsname[sizeof(logfile->pmnsname)-1] = '\0';
-	strncpy(logfile->pathname, ptr, sizeof(logfile->pathname));
-	logfile->pathname[sizeof(logfile->pathname)-1] = '\0';
+	pmstrncpy(logfile->pmnsname, sizeof(logfile->pmnsname), name);
+	pmstrncpy(logfile->pathname, sizeof(logfile->pathname), ptr);
 	/* remaining fields filled in after pmdaInit() is called. */
 	numlogfiles++;
 

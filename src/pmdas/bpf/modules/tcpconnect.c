@@ -274,7 +274,7 @@ static void handle_event(void *ctx, int cpu, void *data, __u32 data_sz)
     elm->event.dport = event->dport;
     elm->event.saddr_v4 = event->saddr_v4;
     elm->event.daddr_v4 = event->daddr_v4;
-    strncpy(elm->event.task, event->task, sizeof(event->task));
+    pmstrncpy(elm->event.task, sizeof(elm->event.task), event->task);
 
     push(elm);
 }

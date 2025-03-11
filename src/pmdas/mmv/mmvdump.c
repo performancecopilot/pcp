@@ -522,7 +522,7 @@ dump_strings(void *addr, size_t size, int idx, long base, __uint64_t offset, __i
 	__uint64_t off = offset + i * sizeof(mmv_disk_value_t);
 
 	if (size < off + sizeof(mmv_disk_string_t)) {
-	    printf("Bad file size: toc[%d] string[%d] size %" FMT_SIZE " < off %" FMT_SIZE " + %" FMT_SIZE "\n", idx, i, size, off, sizeof(mmv_disk_string_t));
+	    printf("Bad file size: toc[%d] string[%d] size %" FMT_SIZE " < off %" FMT_UINT64 " + %" FMT_SIZE "\n", idx, i, size, off, sizeof(mmv_disk_string_t));
 	    return 1;
 	}
 	printf("  [%u/%"PRIu64"] %s\n",

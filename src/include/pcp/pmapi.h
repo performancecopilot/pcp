@@ -365,6 +365,7 @@ PCP_CALL extern int pmNewContext(int, const char *);
 					/* don't check V3 archive features */
 #define PM_CTXFLAG_NO_FEATURE_CHECK	(1U<<15) /* don't check features in label record */
 #define PM_CTXFLAG_METADATA_ONLY	(1U<<16) /* only open .meta file of archive */
+#define PM_CTXFLAG_LAST_VOLUME	(1U<<17) /* open archive at start of last volume */
 
 /*
  * Duplicate current context -- returns handle to new one for pmUseContext()
@@ -887,7 +888,7 @@ PCP_CALL extern int pmGetVersion(void);
 			"metrics source is a PCP archive" }
 #define PMLONGOPT_DEBUG		"debug"
 #define PMOPT_DEBUG	{ PMLONGOPT_DEBUG,	1, 'D',	"DBG", \
-			NULL }
+			"set debug options, see pmdbg(1)" }
 #define PMLONGOPT_GUIMODE	"guimode"
 #define PMOPT_GUIMODE	{ PMLONGOPT_GUIMODE,	0, 'g',	0, \
 			"start in GUI mode with new time control" }

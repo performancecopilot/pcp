@@ -56,8 +56,8 @@ char *catoption(char *prefix, char *option, int total)
 {
     prefix = (char *)realloc(prefix, total);
     if (prefix) {
-	strncat(prefix, " ", 2);
-	strncat(prefix, option, total);
+	strcat(prefix, " ");
+	strcat(prefix, option);
     }
     return prefix;
 }
@@ -65,23 +65,8 @@ char *catoption(char *prefix, char *option, int total)
 char *getoptions(int argc, char **argv, char *arg)
 {
     int length = strlen(arg) + 1;
-    char *string = (char *)malloc(length);
-#ifdef __GNUC__
-#if __GNUC__ >= 8
-    /*
-     * gcc 8 on Fedora 30 emits warnings for this strncpy() call
-     * ... it is clearly safe
-     */
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wstringop-overflow"
-#endif
-#endif
-    strncpy(string, arg, length);
-#ifdef __GNUC__
-#if __GNUC__ >= 8
-#pragma GCC diagnostic pop
-#endif
-#endif
+    char *string = strdup(arg);
+
     while (string && (arg = getoption(argc, argv)) != NULL) {
 	length += 1 + strlen(arg) + 1;
 	string = catoption(string, arg, length);

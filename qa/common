@@ -862,6 +862,7 @@ then
     then
 	echo "Is pmcd running on localhost?  Simple test produces ..."
 	echo "$__x"
+	_triage_pmcd
 	exit 1
     fi
     # now try -h localhostname

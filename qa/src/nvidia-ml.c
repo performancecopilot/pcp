@@ -192,8 +192,7 @@ nvmlDeviceGetName(nvmlDevice_t device, char *buffer, unsigned int length)
     if (pmDebugOptions.appl0)
 	fprintf(stderr, "qa-nvidia-ml: nvmlDeviceGetName\n");
     CHECK_DEVICE(dev);
-    strncpy(buffer, dev->name, length);
-    buffer[length-1] = '\0';
+    pmstrncpy(buffer, length, dev->name);
     return NVML_SUCCESS;
 }
 

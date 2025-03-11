@@ -453,11 +453,11 @@ static int handle_event(void *ctx, void *data, size_t len)
     elm->event.mnt_ns = event->mnt_ns;
     elm->event.ret = event->ret;
     elm->event.op = event->op;
-    strncpy(elm->event.comm, event->comm, sizeof(event->comm));
-    strncpy(elm->event.fs, event->fs, sizeof(event->fs));
-    strncpy(elm->event.src, event->src, sizeof(event->src));
-    strncpy(elm->event.dest, event->dest, sizeof(event->dest));
-    strncpy(elm->event.data, event->data, sizeof(event->data));
+    pmstrncpy(elm->event.comm, sizeof(elm->event.comm), event->comm);
+    pmstrncpy(elm->event.fs, sizeof(elm->event.fs), event->fs);
+    pmstrncpy(elm->event.src, sizeof(elm->event.src), event->src);
+    pmstrncpy(elm->event.dest, sizeof(elm->event.dest), event->dest);
+    pmstrncpy(elm->event.data, sizeof(elm->event.data), event->data);
 
     push(elm);
     return 0;

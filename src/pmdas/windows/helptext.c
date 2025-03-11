@@ -72,13 +72,15 @@ windows_help(int ident, int type, char **buf, pmdaExt *pmda)
     if (type & PM_TEXT_ONELINE) {
 	if (metricdesc[i].pat[0] == '\0')
 	    return pmdaText(ident, type, buf, pmda);
-	*buf = windows_fmt(strncpy(texts, &metricdesc[i].pat[0], sizeof(texts)));
+	pmstrncpy(texts, sizeof(texts), &metricdesc[i].pat[0]));
+	*buf = windows_fmt(texts);
     } else {
 	text = NULL;
 	windows_visit_metric(&metricdesc[i], windows_helptext_callback);
 	if (!text)
 	    return pmdaText(ident, type, buf, pmda);
-	*buf = windows_fmt(strncpy(texts, text, sizeof(texts)));
+	pmstrncpy(texts, sizeof(texts), text);
+	*buf = windows_fmt(texts);
     }
     return 0;
 }

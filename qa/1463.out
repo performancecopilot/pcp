@@ -162,6 +162,7 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
     Domain 2 labels (16 bytes): {"agent":"pmcd"}
     Domain 29 labels (32 bytes): {"foo":"sample","foo":"testing"}
     Domain 60 labels (17 bytes): {"agent":"linux"}
+    Domain 29 labels (32 bytes): {"foo":"sample","foo":"testing"}
 
 === label domain 29 "role" { value -> "foo" } ===
 === std out ===

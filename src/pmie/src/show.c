@@ -309,22 +309,22 @@ showBoolean(Expr *x, int nth, size_t length, char **string)
 	}
 
 	if (x->valid == 0) {
-	    strncpy(dog, "unknown", BOOLEAN_SPACE);
+	    pmstrncpy(dog, BOOLEAN_SPACE, "unknown");
 	    dog += strlen("unknown");
 	    continue;
 	}
 
 	val = *((char *)x->smpls[smpl].ptr + nth);
 	if (val == B_FALSE) {
-	    strncpy(dog, "false", BOOLEAN_SPACE);
+	    pmstrncpy(dog, BOOLEAN_SPACE, "false");
 	    dog += strlen("false");
 	}
 	else if (val == B_TRUE) {
-	    strncpy(dog, "true", BOOLEAN_SPACE);
+	    pmstrncpy(dog, BOOLEAN_SPACE, "true");
 	    dog += strlen("true");
 	}
 	else if (val == B_UNKNOWN) {
-	    strncpy(dog, "unknown", BOOLEAN_SPACE);
+	    pmstrncpy(dog, BOOLEAN_SPACE, "unknown");
 	    dog += strlen("unknown");
 	}
 	else {

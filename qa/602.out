@@ -3,6 +3,7 @@ QA output created by 602
 Usage: pmdatrace [options]
 
 Options:
+  -D debug    set debug options, see pmdbg(1)
   -d domain   use domain (numeric) for metrics domain of PMDA
   -l logfile  write log into logfile rather than using default file
   -A access   host based access control
@@ -17,6 +18,7 @@ pmdatrace: token parse error in string "1,1,1"
 Usage: pmdatrace [options]
 
 Options:
+  -D debug    set debug options, see pmdbg(1)
   -d domain   use domain (numeric) for metrics domain of PMDA
   -l logfile  write log into logfile rather than using default file
   -A access   host based access control
@@ -31,6 +33,7 @@ pmdatrace: token parse error in string "1,,1,1,1,1"
 Usage: pmdatrace [options]
 
 Options:
+  -D debug    set debug options, see pmdbg(1)
   -d domain   use domain (numeric) for metrics domain of PMDA
   -l logfile  write log into logfile rather than using default file
   -A access   host based access control
@@ -45,6 +48,7 @@ pmdatrace: integer parse error for substring "foo"
 Usage: pmdatrace [options]
 
 Options:
+  -D debug    set debug options, see pmdbg(1)
   -d domain   use domain (numeric) for metrics domain of PMDA
   -l logfile  write log into logfile rather than using default file
   -A access   host based access control

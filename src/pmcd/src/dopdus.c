@@ -1527,7 +1527,8 @@ DoCreds(ClientInfo *cp, __pmPDU *pb)
      * account authentication successful (if needed) and/or other attributes
      * have been given - in these cases, we need to inform interested PMDAs.
      */
-    else if (sts > 0 || (flags & PDU_FLAG_CONTAINER)) {
+    else if (sts > 0 ||
+	    (sts == 0 && (flags & (PDU_FLAG_CONTAINER|PDU_FLAG_AUTH)))) {
 	sts = AgentsAttributes(cp - client);
 	if (sts < 0 && (pmDebugOptions.auth || pmDebugOptions.attr))
 	    fprintf(stderr, "DoCreds: AgentsAttributes returns %d: %s\n",

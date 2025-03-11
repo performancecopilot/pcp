@@ -57,7 +57,7 @@ get_distro_info(void)
     }
     if (fd != -1) {
 	if (r == DEB_VERSION) {	/* Debian, needs a prefix */
-	    strncpy(prefix, "Debian ", sizeof(prefix));
+	    pmstrncpy(prefix, sizeof(prefix), "Debian ");
 	    len = 7;
 	}
 	/*
@@ -67,8 +67,7 @@ get_distro_info(void)
 	distro_name = (char *)malloc(len + (int)sbuf.st_size + 1);
 	if (distro_name != NULL) {
 	    if (len) {
-		strncpy(distro_name, prefix, len + sbuf.st_size);
-		distro_name[len + sbuf.st_size] = '\0';	/* buffer overrun guard */
+		pmstrncpy(distro_name, len + sbuf.st_size, prefix);
 	    }
 	    sts = read(fd, distro_name + len, (int)sbuf.st_size);
 	    if (sts <= 0) {

@@ -18,6 +18,7 @@
 \f3pmpost\f1 \- append messages to the Performance Co-Pilot notice board
 .SH SYNOPSIS
 .B $PCP_BINADM_DIR/pmpost
+[\f3\-D\f1 \f2debug\f1]
 .I message
 .SH DESCRIPTION
 .B pmpost
@@ -70,6 +71,22 @@ contains the local values for PCP_ variables.
 .BR logger (1).
 .SH WINDOWS SEE ALSO
 .BR pcp-eventlog (1).
+.SH DEBUGGING OPTIONS
+The
+.B \-D
+or
+.B \-\-debug
+option enables the output of additional diagnostics on
+.I stderr
+to help triage problems, although the information is sometimes cryptic and
+primarily intended to provide guidance for developers rather end-users.
+.I debug
+is a comma separated list of debugging options; use
+.BR pmdbg (1)
+with the
+.B \-l
+option to obtain
+a list of the available debugging options and their meaning.
 .SH SEE ALSO
 .BR pmie (1),
 .BR pcp.conf (5)

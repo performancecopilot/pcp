@@ -90,7 +90,7 @@ false		{ return FALSE; }
 		pmsprintf(emsg, sizeof(emsg), "malloc failed: %s", osstrerror());
 		yyerror(emsg);
 	    }
-	    strncpy(yylval.y_str, &yytext[1], yyleng-2);
+	    memcpy(yylval.y_str, &yytext[1], yyleng-2);
 	    yylval.y_str[yyleng-2] = '\0';
 	    if ((str = re_comp(yylval.y_str)) != 0) {
 	        yyerror(str);
@@ -104,7 +104,7 @@ false		{ return FALSE; }
 		pmsprintf(emsg, sizeof(emsg), "malloc failed: %s", osstrerror());
 		yyerror(emsg);
 	    }
-	    strncpy(yylval.y_str, &yytext[1], yyleng-2);
+	    memcpy(yylval.y_str, &yytext[1], yyleng-2);
 	    yylval.y_str[yyleng-2] = '\0';
 	    return STRING;
 	}

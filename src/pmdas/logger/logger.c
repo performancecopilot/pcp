@@ -525,6 +525,7 @@ usage(void)
     fprintf(stderr,
 	"Usage: %s [options] configfile\n\n"
 	"Options:\n"
+	"  -D debug     set debug options, see pmdbg(1)\n"
 	"  -d domain    use domain (numeric) for metrics domain of PMDA\n"
 	"  -l logfile   write log into logfile rather than the default\n"
 	"  -m memory    maximum memory used per logfile (default %ld bytes)\n"

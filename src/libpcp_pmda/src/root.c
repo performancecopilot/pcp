@@ -46,8 +46,7 @@ pmdaRootConnect(const char *path)
 	pmsprintf(socketpath, sizeof(socketpath),
 			"%s/pmcd/root.socket", tmpdir);
     } else {
-	strncpy(socketpath, path, sizeof(socketpath));
-	socketpath[sizeof(socketpath)-1] = '\0';
+	pmstrncpy(socketpath, sizeof(socketpath), path);
     }
 
     __pmSockAddrSetFamily(addr, AF_UNIX);

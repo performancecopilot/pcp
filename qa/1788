@@ -19,8 +19,8 @@ _cleanup()
 {
     cd $here
     $sudo rm -f $PCP_VAR_DIR/config/pmda/60.{43,44}
-    _restore_config $PCP_VAR_DIR/config/pmda/60.43
-    _restore_config $PCP_VAR_DIR/config/pmda/60.44
+    [ -f $PCP_VAR_DIR/config/pmda/60.43.$seq ] && _restore_config $PCP_VAR_DIR/config/pmda/60.43
+    [ -f $PCP_VAR_DIR/config/pmda/60.44.$seq ] && _restore_config $PCP_VAR_DIR/config/pmda/60.44
     $sudo rm -rf $tmp $tmp.*
 }
 
@@ -28,8 +28,8 @@ status=1	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # deterministic output - move aside any existing indom caches
-_save_config $PCP_VAR_DIR/config/pmda/60.43
-_save_config $PCP_VAR_DIR/config/pmda/60.44
+[ -f $PCP_VAR_DIR/config/pmda/60.43 ] && _save_config $PCP_VAR_DIR/config/pmda/60.43
+[ -f $PCP_VAR_DIR/config/pmda/60.44 ] && _save_config $PCP_VAR_DIR/config/pmda/60.44
 
 _filter_instances()
 {

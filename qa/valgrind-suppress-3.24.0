@@ -1,0 +1,27 @@
+# from qa/1467 on vm14 (CentOS Stream10)
+# Invalid read of size 32
+# at 0x40242D9: bcmp (memcmp-avx2-movbe.S:415)
+# by 0x40069BD: fillin_rpath.isra.0 (dl-load.c:510)
+# by 0x4006C6A: decompose_rpath (dl-load.c:654)
+# by 0x4009375: _dl_map_object (dl-load.c:2040)
+# by 0x4002934: openaux (dl-deps.c:64)
+# by 0x40014E0: _dl_catch_exception (dl-catch.c:237)
+# by 0x4002D97: _dl_map_object_deps (dl-deps.c:232)
+# by 0x400CB70: dl_open_worker_begin (dl-open.c:613)
+# by 0x40014E0: _dl_catch_exception (dl-catch.c:237)
+# by 0x400C256: dl_open_worker (dl-open.c:778)
+# by 0x40014E0: _dl_catch_exception (dl-catch.c:237)
+# by 0x400C6B0: _dl_open (dl-open.c:880)
+# ...
+{
+   _dl_open botch
+   Memcheck:Addr32
+   fun:bcmp
+   ...
+   fun:decompose_rpath
+   fun:_dl_map_object
+   fun:openaux
+   fun:_dl_catch_exception
+   ...
+   fun:_dl_open
+}

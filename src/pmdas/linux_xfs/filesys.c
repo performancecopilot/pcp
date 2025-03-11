@@ -100,8 +100,7 @@ scan_filesys_options(const char *options, const char *option)
     static char buffer[128];
     char *s;
 
-    strncpy(buffer, options, sizeof(buffer));
-    buffer[sizeof(buffer)-1] = '\0';
+    pmstrncpy(buffer, sizeof(buffer), options);
 
     s = strtok(buffer, ",");
     while (s) {

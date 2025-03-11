@@ -83,23 +83,7 @@ refresh_sysfs_tapestats(pmInDom tape_indom)
 		return sts;
 	    }
 	    memset(device, 0, sizeof(tapedev_t));
-#ifdef __GNUC__
-#if __GNUC__ >= 8
-	    /*
-	     * gcc 8 on Fedora 30 emits warnings for this strncpy() calls
-	     * ... but it is safe
-	     */
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wstringop-truncation"
-#endif
-#endif
-	    strncpy(device->devname, sysdev, sizeof(device->devname)-1);
-	    device->devname[sizeof(device->devname)-1] = '\0';	/* buffer overrun guard */
-#ifdef __GNUC__
-#if __GNUC__ >= 8
-#pragma GCC diagnostic pop
-#endif
-#endif
+	    pmstrncpy(device->devname, sizeof(device->devname), sysdev);
 	    if (pmDebugOptions.libpmda)
 		fprintf(stderr, "refresh_sysfs_tapestats: added new tape device \"%s\"\n", sysdev);
 	}

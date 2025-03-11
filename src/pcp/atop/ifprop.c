@@ -111,8 +111,7 @@ initifprop(void)
 	{
 		struct ifprop	*ip = &ifprops[i];
 
-		strncpy(ip->name, insts[i], MAXINTNM-1);
-		ip->name[MAXINTNM-1] = '\0';
+		pmstrncpy(ip->name, MAXINTNM, insts[i]);
 
 		/* extract duplex/speed from result for given inst id */
 		speed = extract_count_t_inst(result, descs, IF_SPEED, ids[i], i);

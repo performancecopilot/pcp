@@ -1,0 +1,10 @@
+apiVersion: 1
+
+datasources:
+- name: PCP Valkey
+  type: performancecopilot-valkey-datasource
+  access: proxy
+  orgId: 1
+  url: http://127.0.0.1:44322
+  editable: false
+  isDefault: true

@@ -206,7 +206,7 @@ gfs2_extract_latency(unsigned int major, unsigned int minor, int tracepoint, cha
 {
     latency_data.dev_id = makedev(major, minor);
     latency_data.tracepoint = tracepoint;
-    strncpy(latency_data.data, buffer, sizeof(latency_data.data)-1);
+    pmstrncpy(latency_data.data, sizeof(latency_data.data), buffer);
 
     int i, sts;
     struct gfs2_fs *fs;

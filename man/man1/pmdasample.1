@@ -19,6 +19,7 @@
 \f3pmdasample\f1 \- sample performance metrics domain agent (PMDA)
 .SH SYNOPSIS
 \f3$PCP_PMDAS_DIR/pmdasample\f1
+[\f3\-D\f1 \f2debug\f1]
 [\f3\-d\f1 \f2domain\f1]
 [\f3\-i\f1 \f2port\f1]
 [\f3\-l\f1 \f2logfile\f1]
@@ -171,6 +172,36 @@ variable may be used to specify an alternative
 configuration file,
 as described in
 .BR pcp.conf (5).
+.SH DEBUGGING OPTIONS
+The
+.B \-D
+or
+.B \-\-debug
+option enables the output of additional diagnostics on
+.I stderr
+to help triage problems, although the information is sometimes cryptic and
+primarily intended to provide guidance for developers rather end-users.
+.I debug
+is a comma separated list of debugging options; use
+.BR pmdbg (1)
+with the
+.B \-l
+option to obtain
+a list of the available debugging options and their meaning.
+.PP
+Debugging options specific to
+.B pmdasample
+are as follows:
+.TS
+box;
+lf(B) | lf(B)
+lf(B) | lxf(R) .
+Option	Description
+_
+appl0	T{
+verbose diagnostics for dynamic instance domains and metric mapping
+T}
+.TE
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pmcd (1),

@@ -1,4 +1,4 @@
-# pylint: disable=C0103
+# pylint: disable=invalid-name,too-many-positional-arguments
 """Wrapper module for libpcp_mmv - PCP Memory Mapped Values library
 #
 # Copyright (C) 2013-2016,2019 Red Hat.

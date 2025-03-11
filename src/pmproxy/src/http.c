@@ -871,7 +871,7 @@ servlet_lookup(struct client *client, const char *offset, size_t length)
     struct servlet	*servlet;
     sds			url;
 
-    if (pmDebugOptions.http || pmDebugOptions.appl0)
+    if (pmDebugOptions.http || pmDebugOptions.appl2)
 	fprintf(stderr, "HTTP %s %.*s\n",
 			http_method_str(client->u.http.parser.method),
 			(int)length, offset);

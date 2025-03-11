@@ -239,8 +239,8 @@ static int handle_event(void *ctx, void *data, size_t len)
     elm->data_t.fpid = data_t->fpid;
     elm->data_t.tpid = data_t->tpid;
     elm->data_t.pages = data_t->pages;
-    strncpy(elm->data_t.fcomm, data_t->fcomm, sizeof(data_t->fcomm));
-    strncpy(elm->data_t.tcomm, data_t->tcomm, sizeof(data_t->tcomm));
+    pmstrncpy(elm->data_t.fcomm, sizeof(elm->data_t.fcomm), data_t->fcomm);
+    pmstrncpy(elm->data_t.tcomm, sizeof(elm->data_t.tcomm), data_t->tcomm);
 
     push(elm);
     return 0;

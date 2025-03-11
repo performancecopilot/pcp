@@ -86,14 +86,13 @@ hacluster_refresh_sbd_device(const char *sbd_dev, struct sbd *sbd)
 	if ((pf = popen(buffer, "r")) == NULL)
 		return oserror();
 
-	strncpy(sbd->path, sbd_dev, sizeof(sbd->path));
-	sbd->path[sizeof(sbd->path)-1] = '\0';
+	pmstrncpy(sbd->path, sizeof(sbd->path), sbd_dev);
 
 	while(fgets(buffer, sizeof(buffer)-1, pf) != NULL) {
 		if (strstr(buffer, "failed")){
-			strncpy(sbd->status, sbd_status_unhealthy, sizeof(sbd->status)-1);
+			pmstrncpy(sbd->status, sizeof(sbd->status), sbd_status_unhealthy);
 		} else {
-			strncpy(sbd->status, sbd_status_healthy, sizeof(sbd->status)-1);
+			pmstrncpy(sbd->status, sizeof(sbd->status), sbd_status_healthy);
 		}
 		
 		if (strncmp(buffer, "Timeout (watchdog)", 18) == 0)

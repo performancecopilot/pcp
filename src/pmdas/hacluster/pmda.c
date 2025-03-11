@@ -770,7 +770,7 @@ hacluster_corosync_node_instance_refresh(void)
 			
 			if (node_id == 0) {
 				memset(node_name, '\0', sizeof(node_name));
-				strncpy(node_name, "Qdevice", 9);
+				memcpy(node_name, "Qdevice", strlen("Qdevice"));
 			}
 			
 			/* 
@@ -905,7 +905,7 @@ hacluster_sbd_device_instance_refresh(void)
 					 * At this point token contains our device name this will be used to
 					 * map stats to node instances 
 					 */
-					strncpy(dev_name, token, sizeof(dev_name)-1);	
+					pmstrncpy(dev_name, sizeof(dev_name), token);	
 			
 					struct  sbd_device *sbd;
 

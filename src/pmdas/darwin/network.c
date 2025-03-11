@@ -130,7 +130,7 @@ refresh_network(struct netstats *stats, pmdaIndom *indom)
 
 	    sdl = (struct sockaddr_dl *)(ifm + 1);
 	    n = sdl->sdl_nlen < IFNAMEMAX ? sdl->sdl_nlen : IFNAMEMAX;
-	    strncpy( stats->interfaces[i].name, sdl->sdl_data, n );
+	    memcpy( stats->interfaces[i].name, sdl->sdl_data, n );
 	    stats->interfaces[i].name[n] = 0;
 
 	    stats->interfaces[i].mtu = ifm->ifm_data.ifi_mtu;

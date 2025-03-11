@@ -108,8 +108,13 @@ echo "=== too many attached tracepoints ==="
 # 	a bazillion tracepoints, on some systems it counted as only
 # 	1 probe, so we never saw the 512 max exceeded; so now we're
 # 	enumerating 513 explicit kprobes.
+# Note: on vm20 (Ubuntu 20.04) this sort of tracepoint
+#	kprobe:dyn_constraint.isra.0
+#	causes bpftrace to choke at the .0 (not expecting an integer!)
+#	skip any tracepoints that match \.[0-9]
 #
 $sudo bpftrace -l "kprobe:d*" \
+| sed -e '/\.[0-9]/d' \
 | $PCP_AWK_PROG >$tmp.probe '
 BEGIN		{ print "// name: test4" }
 		{ print $0 " { @c = count(); }" }

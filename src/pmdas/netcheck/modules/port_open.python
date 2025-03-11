@@ -13,6 +13,7 @@
 #
 """PCP netcheck PMDA open ports module"""
 
+# pylint: disable=too-many-arguments,too-many-positional-arguments
 # pylint: disable=invalid-name
 
 try:

@@ -74,7 +74,6 @@ scan_sysfs_hugepages_dir(const char *sysname, DIR *sysdir, pmInDom indom,
 	    /* new hugepage size */
 	    if (!(hugepage = (uint64_t *)calloc(count, sizeof(uint64_t)))) {
 		sts = -oserror();
-		closedir(sysdir);
 		return sts;
 	    }
 	    if (pmDebugOptions.libpmda)

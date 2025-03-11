@@ -47,6 +47,7 @@
 
         del log
 """
+# pylint: disable=too-many-arguments,too-many-positional-arguments
 
 from pcp.pmapi import pmID, pmInDom, pmUnits, pmHighResResult, pmResult
 from cpmi import pmiErrSymDict, PMI_MAXERRMSGLEN
@@ -271,13 +272,11 @@ class pmiLogImport(object):
     @staticmethod
     def pmiUnits(dim_space, dim_time, dim_count,
                  scale_space, scale_time, scale_count):
-        # pylint: disable=R0913
         """PMI - construct a pmiUnits data structure (helper routine) """
         return LIBPCP_IMPORT.pmiUnits(dim_space, dim_time, dim_count,
                                       scale_space, scale_time, scale_count)
 
     def pmiAddMetric(self, name, pmid, typed, indom, sem, units):
-        # pylint: disable=R0913
         """PMI - add a new metric definition to a Log Import context """
         status = LIBPCP_IMPORT.pmiUseContext(self._ctx)
         if status < 0:
@@ -423,7 +422,6 @@ class pmiLogImport(object):
         return status
 
     def pmiPutLabel(self, typ, ident, inst, name, content):
-        # pylint: disable=R0913
         """PMI - add a label record to a Log Import archive """
         status = LIBPCP_IMPORT.pmiUseContext(self._ctx)
         if status < 0:

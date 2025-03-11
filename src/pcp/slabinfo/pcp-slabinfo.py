@@ -13,7 +13,8 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
-# pylint: disable=bad-whitespace,too-many-arguments,too-many-lines, bad-continuation
+# pylint: disable=bad-whitespace,too-many-lines,bad-continuation
+# pylint: disable=too-many-arguments,too-many-positional-arguments
 # pylint: disable=redefined-outer-name,unnecessary-lambda
 #
 import signal

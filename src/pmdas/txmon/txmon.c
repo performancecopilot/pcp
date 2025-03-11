@@ -345,8 +345,7 @@ main(int argc, char **argv)
 	 */
 	control->index[n] = p - (char *)control;
 	sp = (stat_t *)p;
-	strncpy(sp->type, argv[opts.optind++], MAXNAMESIZE);
-	sp->type[MAXNAMESIZE-1] = '\0';		/* ensure null terminated */
+	pmstrncpy(sp->type, MAXNAMESIZE, argv[opts.optind++]);
 	sp->reset_count = 0;
 	sp->count = 0;
 	sp->max_time = -1.0;

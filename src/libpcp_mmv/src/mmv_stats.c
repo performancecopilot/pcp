@@ -289,7 +289,7 @@ mmv_init(const char *fname, int version,
      */
 
     hdr = (mmv_disk_header_t *) addr;
-    strncpy(hdr->magic, "MMV", 4);
+    pmstrncpy(hdr->magic, 4, "MMV");
     hdr->version = version;
     hdr->g1 = mmv_generation();
     hdr->g2 = 0;
@@ -365,7 +365,7 @@ mmv_init(const char *fname, int version,
 	    inlist1->indom = indoms_offset + (i * sizeof(mmv_disk_indom_t));
 	    inlist1->padding = 0;
 	    inlist1->internal = insts[j].internal;
-	    strncpy(inlist1->external, insts[j].external, MMV_NAMEMAX);
+	    pmstrncpy(inlist1->external, MMV_NAMEMAX, insts[j].external);
 	    inlist1->external[MMV_NAMEMAX-1] = '\0';
 	    inlist1++;
 	}
@@ -378,7 +378,7 @@ mmv_init(const char *fname, int version,
 		inlist1->indom = indoms_offset + (i * sizeof(mmv_disk_indom_t));
 		inlist1->padding = 0;
 		inlist1->internal = insts[j].internal;
-		strncpy(inlist1->external, insts[j].external, MMV_NAMEMAX);
+		pmstrncpy(inlist1->external, MMV_NAMEMAX, insts[j].external);
 		inlist1->external[MMV_NAMEMAX-1] = '\0';
 		inlist1++;
 	    }
@@ -398,7 +398,7 @@ mmv_init(const char *fname, int version,
     mlist1 = (mmv_disk_metric_t *)((char *)addr + metrics_offset);
     mlist2 = (mmv_disk_metric2_t *)((char *)addr + metrics_offset);
     for (i = 0; i < nmetric1; i++) {
-	strncpy(mlist1[i].name, st1[i].name, MMV_NAMEMAX);
+	pmstrncpy(mlist1[i].name, MMV_NAMEMAX, st1[i].name);
 	mlist1[i].name[MMV_NAMEMAX-1] = '\0';
 	mlist1[i].item = st1[i].item;
 	mlist1[i].type = st1[i].type;
@@ -411,7 +411,7 @@ mmv_init(const char *fname, int version,
     }
     for (i = 0; i < nmetric2; i++) {
 	if (version == MMV_VERSION1) {
-	    strncpy(mlist1[i].name, st2[i].name, MMV_NAMEMAX);
+	    pmstrncpy(mlist1[i].name, MMV_NAMEMAX, st2[i].name);
 	    mlist1[i].name[MMV_NAMEMAX-1] = '\0';
 	    mlist1[i].item = st2[i].item;
 	    mlist1[i].type = st2[i].type;
@@ -502,7 +502,7 @@ mmv_init(const char *fname, int version,
 		inlist2->external = strings_offset +
 				(stridx * sizeof(mmv_disk_string_t));
 		inlist2++;
-		strncpy(slist[stridx].payload, insts[k].external, MMV_STRINGMAX);
+		pmstrncpy(slist[stridx].payload, MMV_STRINGMAX, insts[k].external);
 		slist[stridx].payload[MMV_STRINGMAX-1] = '\0';
 		stridx++;
 	    }
@@ -512,7 +512,7 @@ mmv_init(const char *fname, int version,
 	    mlist2->name = strings_offset +
 				(stridx * sizeof(mmv_disk_string_t));
 	    mlist2++;
-	    strncpy(slist[stridx].payload, st2[i].name, MMV_STRINGMAX);
+	    pmstrncpy(slist[stridx].payload, MMV_STRINGMAX, st2[i].name);
 	    slist[stridx].payload[MMV_STRINGMAX-1] = '\0';
 	    stridx++;
 	}
@@ -540,14 +540,14 @@ mmv_init(const char *fname, int version,
 	if (st1[i].shorttext) {
 	    mlist1[i].shorttext = strings_offset +
 				(stridx * sizeof(mmv_disk_string_t));
-	    strncpy(slist[stridx].payload, st1[i].shorttext, MMV_STRINGMAX);
+	    pmstrncpy(slist[stridx].payload, MMV_STRINGMAX, st1[i].shorttext);
 	    slist[stridx].payload[MMV_STRINGMAX-1] = '\0';
 	    stridx++;
 	}
 	if (st1[i].helptext) {
 	    mlist1[i].helptext = strings_offset +
 				(stridx * sizeof(mmv_disk_string_t));
-	    strncpy(slist[stridx].payload, st1[i].helptext, MMV_STRINGMAX);
+	    pmstrncpy(slist[stridx].payload, MMV_STRINGMAX, st1[i].helptext);
 	    slist[stridx].payload[MMV_STRINGMAX-1] = '\0';
 	    stridx++;
 	}
@@ -560,7 +560,7 @@ mmv_init(const char *fname, int version,
 		mlist1[i].shorttext = offset;
 	    else
 		mlist2[i].shorttext = offset;
-	    strncpy(slist[stridx].payload, st2[i].shorttext, MMV_STRINGMAX);
+	    pmstrncpy(slist[stridx].payload, MMV_STRINGMAX, st2[i].shorttext);
 	    slist[stridx].payload[MMV_STRINGMAX-1] = '\0';
 	    stridx++;
 	}
@@ -570,7 +570,7 @@ mmv_init(const char *fname, int version,
 		mlist1[i].helptext = offset;
 	    else
 		mlist2[i].helptext = offset;
-	    strncpy(slist[stridx].payload, st2[i].helptext, MMV_STRINGMAX);
+	    pmstrncpy(slist[stridx].payload, MMV_STRINGMAX, st2[i].helptext);
 	    slist[stridx].payload[MMV_STRINGMAX-1] = '\0';
 	    stridx++;
 	}
@@ -579,14 +579,14 @@ mmv_init(const char *fname, int version,
 	if (in1[i].shorttext) {
 	    domlist[i].shorttext = strings_offset +
 				(stridx * sizeof(mmv_disk_string_t));
-	    strncpy(slist[stridx].payload, in1[i].shorttext, MMV_STRINGMAX);
+	    pmstrncpy(slist[stridx].payload, MMV_STRINGMAX, in1[i].shorttext);
 	    slist[stridx].payload[MMV_STRINGMAX-1] = '\0';
 	    stridx++;
 	}
 	if (in1[i].helptext) {
 	    domlist[i].helptext = strings_offset +
 				(stridx * sizeof(mmv_disk_string_t));
-	    strncpy(slist[stridx].payload, in1[i].helptext, MMV_STRINGMAX);
+	    pmstrncpy(slist[stridx].payload, MMV_STRINGMAX, in1[i].helptext);
 	    slist[stridx].payload[MMV_STRINGMAX-1] = '\0';
 	    stridx++;
 	}
@@ -595,14 +595,14 @@ mmv_init(const char *fname, int version,
 	if (in2[i].shorttext) {
 	    domlist[i].shorttext = strings_offset +
 				(stridx * sizeof(mmv_disk_string_t));
-	    strncpy(slist[stridx].payload, in2[i].shorttext, MMV_STRINGMAX);
+	    pmstrncpy(slist[stridx].payload, MMV_STRINGMAX, in2[i].shorttext);
 	    slist[stridx].payload[MMV_STRINGMAX-1] = '\0';
 	    stridx++;
 	}
 	if (in2[i].helptext) {
 	    domlist[i].helptext = strings_offset +
 				(stridx * sizeof(mmv_disk_string_t));
-	    strncpy(slist[stridx].payload, in2[i].helptext, MMV_STRINGMAX);
+	    pmstrncpy(slist[stridx].payload, MMV_STRINGMAX, in2[i].helptext);
 	    slist[stridx].payload[MMV_STRINGMAX-1] = '\0';
 	    stridx++;
 	}
@@ -1574,7 +1574,7 @@ mmv_set_string(void *addr, pmAtomValue *av, const char *string, int size)
 	    /* clear original contents, preparing for overwriting */
 	    memset(s->payload, 0, sizeof(s->payload));
 	    /* swap in new value (note: value.l is cosmetic only) */
-	    strncpy(s->payload, string, size);
+	    memcpy(s->payload, string, size);
 	    s->payload[size] = '\0';
 	    v->value.l = size;
 	}

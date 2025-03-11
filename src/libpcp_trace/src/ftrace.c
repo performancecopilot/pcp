@@ -26,7 +26,7 @@ pmtracebegin_(const char *tag, int tag_len)
 
     if ((tmp = malloc(tag_len + 1)) == NULL)
 	return -oserror();
-    strncpy(tmp, tag, tag_len);
+    memcpy(tmp, tag, tag_len);
     tmp[tag_len] = '\0';
     sts = pmtracebegin(tmp);
     free(tmp);
@@ -41,7 +41,7 @@ pmtraceend_(const char *tag, int tag_len)
 
     if ((tmp = malloc(tag_len + 1)) == NULL)
 	return -oserror();
-    strncpy(tmp, tag, tag_len);
+    memcpy(tmp, tag, tag_len);
     tmp[tag_len] = '\0';
     sts = pmtraceend(tmp);
     free(tmp);
@@ -56,7 +56,7 @@ pmtraceabort_(const char *tag, int tag_len)
 
     if ((tmp = malloc(tag_len + 1)) == NULL)
 	return -oserror();
-    strncpy(tmp, tag, tag_len);
+    memcpy(tmp, tag, tag_len);
     tmp[tag_len] = '\0';
     sts = pmtraceabort(tmp);
     free(tmp);
@@ -71,7 +71,7 @@ pmtracepoint_(const char *tag, int tag_len)
 
     if ((tmp = malloc(tag_len + 1)) == NULL)
 	return -oserror();
-    strncpy(tmp, tag, tag_len);
+    memcpy(tmp, tag, tag_len);
     tmp[tag_len] = '\0';
     sts = pmtracepoint(tmp);
     free(tmp);
@@ -86,7 +86,7 @@ pmtracecounter_(const char *tag, double *value, int tag_len)
 
     if ((tmp = malloc(tag_len + 1)) == NULL)
 	return -oserror();
-    strncpy(tmp, tag, tag_len);
+    memcpy(tmp, tag, tag_len);
     tmp[tag_len] = '\0';
     sts = pmtracecounter(tmp, *value);
     free(tmp);
@@ -105,7 +105,7 @@ pmtraceobs_(const char *tag, double *value, int tag_len)
 
     if ((tmp = malloc(tag_len + 1)) == NULL)
 	return -oserror();
-    strncpy(tmp, tag, tag_len);
+    memcpy(tmp, tag, tag_len);
     tmp[tag_len] = '\0';
     sts = pmtraceobs(tmp, *value);
     free(tmp);
@@ -122,7 +122,7 @@ pmtraceerrstr_(int *code, char *msg, int msg_len)
     len = (int)strlen(tmp);
     len = (len < msg_len) ? len : msg_len;
 
-    strncpy(msg, tmp, msg_len);
+    memcpy(msg, tmp, msg_len);
     for (; len < msg_len; len++)	/* blank fill */
 	msg[len] = ' ';
 }

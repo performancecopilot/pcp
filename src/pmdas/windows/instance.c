@@ -83,7 +83,7 @@ windows_lookup_instance(char *path, pdh_metric_t *mp)
 		    if (q != NULL) {
 			name = (char *)malloc(q - p + 1);
 			if (name != NULL) {
-			    strncpy(name, p, q - p);
+			    memcpy(name, p, q - p);
 			    name[q - p] = '\0';
 			    ok = 1;
 			}
@@ -167,7 +167,7 @@ windows_lookup_instance(char *path, pdh_metric_t *mp)
 		if (q != NULL) {
 		    name = (char *)malloc(q - p + 1);
 		    if (name != NULL) {
-			strncpy(name, p, q - p);
+			memcpy(name, p, q - p);
 			name[q - p] = '\0';
 			ok = 1;
 		    }
@@ -222,7 +222,7 @@ windows_lookup_instance(char *path, pdh_metric_t *mp)
 		if (q != NULL) {
 		    name = (char *)malloc(q - p + 1);
 		    if (name != NULL) {
-			strncpy(name, p, q - p);
+			memcpy(name, p, q - p);
 			name[q - p] = '\0';
 			ok = 1;
 		    }
@@ -272,7 +272,7 @@ windows_lookup_instance(char *path, pdh_metric_t *mp)
 		if (q != NULL) {
 		    name = (char *)malloc(q - p + 1);
 		    if (name != NULL) {
-			strncpy(name, p, q - p);
+			memcpy(name, p, q - p);
 			name[q - p] = '\0';
 			ok = 1;
 		    }
@@ -332,7 +332,7 @@ windows_lookup_instance(char *path, pdh_metric_t *mp)
 		if (q != NULL) {
 		    name = (char *)malloc(q - p + 1);
 		    if (name != NULL) {
-			strncpy(name, p, q - p);
+			memcpy(name, p, q - p);
 			name[q - p] = '\0';
 			ok = 1;
 		    }

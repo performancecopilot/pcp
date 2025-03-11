@@ -14,9 +14,10 @@
 # for more details.
 #
 # pylint: disable=missing-docstring,multiple-imports,invalid-name
-# pylint: disable=too-many-lines,too-many-arguments,too-many-nested-blocks
-# pylint: disable=line-too-long,bad-continuation,broad-except,bare-except
+# pylint: disable=too-many-arguments,too-many-positional-arguments
+# pylint: disable=too-many-lines,too-many-nested-blocks,line-too-long
 # pylint: disable=global-variable-undefined,global-at-module-level
+# pylint: disable=bad-continuation,broad-except,bare-except
 
 # Common imports
 from collections import OrderedDict

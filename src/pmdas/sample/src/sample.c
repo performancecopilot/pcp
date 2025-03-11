@@ -1333,7 +1333,7 @@ init_tables(int dom)
     /* local hacks */
     allocsz = roundup(strlen("13")+1, 8);
     _string = (char *)calloc(1, allocsz);
-    strncpy(_string, "13", strlen("13")+1);
+    memcpy(_string, "13", 3);
     allocsz = roundup(PM_VAL_HDR_SIZE, 8);
     _aggr33 = (pmValueBlock *)malloc(allocsz);
     _aggr33->vlen = PM_VAL_HDR_SIZE + 0;
@@ -1676,7 +1676,7 @@ sample_children(const char *name, int traverse, char ***offspring, int **status,
 		    j = -oserror();
 		    goto fail;
 		}
-		strncpy(chn[nmatch-1], &q[namelen+1], tlen);
+		memcpy(chn[nmatch-1], &q[namelen+1], tlen);
 		chn[nmatch-1][tlen] = '\0';
 		if (*qend == '.')
 		    sts[nmatch-1] = PMNS_NONLEAF_STATUS;
@@ -1693,7 +1693,7 @@ sample_children(const char *name, int traverse, char ***offspring, int **status,
 		    j = -oserror();
 		    goto fail;
 		}
-		strncpy(chn[nmatch-1], name, pfxlen);
+		memcpy(chn[nmatch-1], name, pfxlen);
 		chn[nmatch-1][pfxlen] = '.';
 		chn[nmatch-1][pfxlen+1] = '\0';
 		strcat(chn[nmatch-1], dynamic_ones[i].name);
@@ -2160,7 +2160,7 @@ doit:
 #endif
 #else
 			dummy = (char *)sivb->vbuf;	/* pander to clang 10.0.1 */
-			strncpy(dummy, si.dummy, sizeof(struct sysinfo));
+			pmstrncpy(dummy, sizeof(struct sysinfo), si.dummy);
 #endif
 			atom.vbp = sivb;
 

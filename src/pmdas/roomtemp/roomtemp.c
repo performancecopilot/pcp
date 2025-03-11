@@ -163,6 +163,7 @@ usage(void)
     fprintf(stderr, "Usage: %s [options] tty ...\n\n", pmGetProgname());
     fputs("Options:\n"
 	  "  -d domain    use domain (numeric) for metrics domain of PMDA\n"
+	  "  -D debug     set debug options, see pmdbg(1)\n"
 	  "  -l logfile   write log into logfile rather than using default log name\n"
 	  "\nExactly one of the following options may appear:\n"
 	  "  -i port      expect PMCD to connect on given inet port (number or name)\n"

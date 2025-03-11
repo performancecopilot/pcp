@@ -2,5 +2,6 @@
   perl -MPCP::PMDA -e 'print $INC{"PCP/PMDA.pm"} . "\n"'
 
 + developer install (new/updated bits over the top of an existing PCP
-  Perl installation)
-  $ sudo make pure_perl_install
+  Perl installation) ... in each subdir, e.g. MMV
+  $ make
+  $ sudo make -f Makefile pure_perl_install

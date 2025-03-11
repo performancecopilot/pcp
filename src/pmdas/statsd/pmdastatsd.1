@@ -18,6 +18,7 @@
 \f3pmdastatsd\f1 \- \f3StatsD\f1 protocol performance metric domain agent (PMDA)
 .SH SYNOPSIS
 \f3$PCP_PMDAS_DIR/statsd/pmdastatsd\f1
+[\f3\-D\f1 \f2debug\f1]
 [\f3\-Z\f1 \f2maximum udp packet size\f1]
 [\f3\-P\f1 \f2port\f1]
 [\f3\-v\f1]
@@ -590,6 +591,22 @@ variable may be used to specify an alternative
 configuration file,
 as described in
 .BR pcp.conf (5).
+.SH DEBUGGING OPTIONS
+The
+.B \-D
+or
+.B \-\-debug
+option enables the output of additional diagnostics on
+.I stderr
+to help triage problems, although the information is sometimes cryptic and
+primarily intended to provide guidance for developers rather end-users.
+.I debug
+is a comma separated list of debugging options; use
+.BR pmdbg (1)
+with the
+.B \-l
+option to obtain
+a list of the available debugging options and their meaning.
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pmcd (1),

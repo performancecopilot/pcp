@@ -328,7 +328,7 @@ directive(void)
 	    pmNoMem("pmcpp: name", namelen+1, PM_FATAL_ERR);
 	    /*NOTREACHED*/
 	}
-	strncpy(macro[nmacro].name, name, namelen);
+	memcpy(macro[nmacro].name, name, namelen);
 	macro[nmacro].name[namelen] = '\0';
 	macro[nmacro].valuelen = valuelen;
 	macro[nmacro].value = (char *)malloc(valuelen+1);
@@ -337,7 +337,7 @@ directive(void)
 	    /*NOTREACHED*/
 	}
 	if (value && valuelen)
-	    strncpy(macro[nmacro].value, value, valuelen);
+	    memcpy(macro[nmacro].value, value, valuelen);
 	macro[nmacro].value[valuelen] = '\0';
 	nmacro++;
 	return 0;
@@ -494,7 +494,7 @@ do_macro(void)
 		    }
 		}
 		if (match == 0 && sub > 0) {
-		    strncpy(op, tp, len);
+		    memcpy(op, tp, len);
 		    op += len;
 		}
 	    }

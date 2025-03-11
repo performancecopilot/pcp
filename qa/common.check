@@ -709,8 +709,79 @@ _systemctl_status()
     
     if [ "$PCPQA_SYSTEMD" = yes ]
     then
-	$sudo systemctl status "$1.service"
+	echo "--- start systemctl status for $1.service ---"
+	LC_CTYPE=C SYSTEMD_COLORS=false systemctl --no-pager -l status "$1.service"
+	echo "--- end systemctl status for $1.service ---"
     fi
+}
+
+# who's listening on a port ($1)
+#
+_ps_tcp_port()
+{
+    if which lsof >/dev/null 2>&1
+    then
+	echo "--- IP port $1 user(s) ---"
+	sudo lsof -i :$1
+    elif which fuser >/dev/null 2>&1
+    then
+	echo "--- IPv4 port $1 user(s) ---"
+	sudo fuser -4 $1/tcp
+	echo "--- IPv6 port $1 user(s) ---"
+	sudo fuser -6 $1/tcp
+    else
+	echo "_ps_tcp_port: no lsof(1) or fuser(1)?"
+    fi
+}
+
+# local pmcd not running or not responding, see what we can find
+# out
+#
+_triage_pmcd()
+{
+    echo "=== triage for pmcd ==="
+    for log in pmcd.log.prev pmcd.log
+    do
+	if [ -f $PCP_LOG_DIR/pmcd/$log ]
+	then
+	    echo "--- start $log ---"
+	    cat $PCP_LOG_DIR/pmcd/$log
+	    echo "--- end $log ---"
+	else
+	    echo "--- $log is missing"
+	fi
+    done
+
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID]|/[p]mcd( |$)' >$tmp.triage 2>&1
+    if [ -s $tmp.triage ]
+    then
+	echo "--- likely looking processes ..."
+	cat $tmp.triage
+    else
+	echo "--- there are no likely looking processes!"
+    fi
+
+    if [ -f $PCP_RUN_DIR/pmcd.pid ]
+    then
+	echo "--- $PCP_RUN_DIR/pmcd.pid => `cat $PCP_RUN_DIR/pmcd.pid`"
+    else
+	echo "--- $PCP_RUN_DIR/pmcd.pid is missing"
+    fi
+
+    if [ -S $PCP_RUN_DIR/pmcd.socket ]
+    then
+	echo "--- UNIX doman socket $PCP_RUN_DIR/pmcd.socket exists"
+    elif [ -e $PCP_RUN_DIR/pmcd.socket ]
+    then
+	echo "--- $PCP_RUN_DIR/pmcd.socket is not a UNIX domain socket"
+	ls -l $PCP_RUN_DIR/pmcd.socket
+    else
+	echo "--- UNIX doman socket is missing"
+    fi
+
+    _ps_tcp_port 44321
+
+    _systemctl_status pmcd
 }
 
 # wait_for_pmcd [maxdelay [host]]
@@ -766,11 +837,7 @@ _wait_for_pmcd()
 	    localhost|unix:|local:|`hostname`)
 		# these are all local PMCD's
 		#
-		echo "=== pmcd.log ==="
-		cat $PCP_LOG_DIR/pmcd/pmcd.log
-
-		echo "likely looking processes ..."
-		$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID]|/[p]mcd( |$)'
+		_triage_pmcd
 		;;
 	    *)
 		# assume a remote PMCD
@@ -778,7 +845,6 @@ _wait_for_pmcd()
 		ssh pcpqa@$__host "sh -c '. \$PCP_DIR/etc/pcp.env; echo; echo "=== pmcd.log ==="; [ -f \$PCP_LOG_DIR/pmcd/pmcd.log ] && cat \$PCP_LOG_DIR/pmcd/pmcd.log; [ -f \$PCP_LOG_DIR/pmcd.log ] && cat \$PCP_LOG_DIR/pmcd.log; echo; echo likely looking processes ...; ( \$PCP_PS_PROG \$PCP_PS_ALL_FLAGS | grep -E \"[P]PID|/[p]mcd( |\\\$)\" )'" </dev/null
 		;;
 	esac
-	_systemctl_status pmcd
 	rm -f $tmp._wait_for_pmcd.err $tmp._wait_for_pmcd.out
 	return 1
     fi

@@ -14,6 +14,7 @@ in the source distribution for its full text.
 #error "Must have #include \"config.h\" line at the top of the file that includes these XUtils helper functions"
 #endif
 
+#include <dirent.h>
 #include <stdbool.h>
 #include <stddef.h> // IWYU pragma: keep
 #include <stdio.h>
@@ -140,6 +141,11 @@ int compareRealNumbers(double a, double b);
 ATTR_NONNULL ATTR_ACCESS3_R(1, 2)
 double sumPositiveValues(const double* array, size_t count);
 
+/* Counts the number of digits needed to print "n" with a given base.
+   If "n" is zero, returns 1. This function expects small numbers to
+   appear often, hence it uses a O(log(n)) time algorithm. */
+size_t countDigits(size_t n, size_t base);
+
 /* Returns the number of trailing zero bits */
 #if defined(HAVE_BUILTIN_CTZ)
 static inline unsigned int countTrailingZeros(unsigned int x) {
@@ -151,5 +157,21 @@ unsigned int countTrailingZeros(unsigned int x);
 
 /* IEC unit prefixes */
 static const char unitPrefixes[] = { 'K', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y', 'R', 'Q' };
+
+static inline bool skipEndOfLine(FILE* fp) {
+   char buffer[1024];
+   while (fgets(buffer, sizeof(buffer), fp)) {
+      if (strchr(buffer, '\n')) {
+         return true;
+      }
+   }
+   return false;
+}
+
+static inline int xDirfd(DIR* dirp) {
+   int r = dirfd(dirp);
+   assert(r >= 0);
+   return r;
+}
 
 #endif

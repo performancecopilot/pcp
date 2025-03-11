@@ -38,6 +38,7 @@ Usage: pminfo [options] [metricname | pmid | indom]...
 General options:
   -a FILE, --archive=FILE
                         metrics source is a PCP archive
+  -D DBG, --debug=DBG   set debug options, see pmdbg(1)
   -h HOST, --host=HOST  metrics source is PMCD on host
   --container=NAME      specify an individual container to be queried
   -L, --local-PMDA      metrics source is local connection to a PMDA
@@ -81,6 +82,7 @@ Usage: pminfo [options] [metricname | pmid | indom]...
 General options:
   -a FILE, --archive=FILE
                         metrics source is a PCP archive
+  -D DBG, --debug=DBG   set debug options, see pmdbg(1)
   -h HOST, --host=HOST  metrics source is PMCD on host
   --container=NAME      specify an individual container to be queried
   -L, --local-PMDA      metrics source is local connection to a PMDA
@@ -124,6 +126,7 @@ Usage: pminfo [options] [metricname | pmid | indom]...
 General options:
   -a FILE, --archive=FILE
                         metrics source is a PCP archive
+  -D DBG, --debug=DBG   set debug options, see pmdbg(1)
   -h HOST, --host=HOST  metrics source is PMCD on host
   --container=NAME      specify an individual container to be queried
   -L, --local-PMDA      metrics source is local connection to a PMDA
@@ -167,6 +170,7 @@ Usage: pminfo [options] [metricname | pmid | indom]...
 General options:
   -a FILE, --archive=FILE
                         metrics source is a PCP archive
+  -D DBG, --debug=DBG   set debug options, see pmdbg(1)
   -h HOST, --host=HOST  metrics source is PMCD on host
   --container=NAME      specify an individual container to be queried
   -L, --local-PMDA      metrics source is local connection to a PMDA
@@ -210,6 +214,7 @@ Usage: pminfo [options] [metricname | pmid | indom]...
 General options:
   -a FILE, --archive=FILE
                         metrics source is a PCP archive
+  -D DBG, --debug=DBG   set debug options, see pmdbg(1)
   -h HOST, --host=HOST  metrics source is PMCD on host
   --container=NAME      specify an individual container to be queried
   -L, --local-PMDA      metrics source is local connection to a PMDA
@@ -253,6 +258,7 @@ Usage: pminfo [options] [metricname | pmid | indom]...
 General options:
   -a FILE, --archive=FILE
                         metrics source is a PCP archive
+  -D DBG, --debug=DBG   set debug options, see pmdbg(1)
   -h HOST, --host=HOST  metrics source is PMCD on host
   --container=NAME      specify an individual container to be queried
   -L, --local-PMDA      metrics source is local connection to a PMDA
@@ -296,6 +302,7 @@ Usage: pminfo [options] [metricname | pmid | indom]...
 General options:
   -a FILE, --archive=FILE
                         metrics source is a PCP archive
+  -D DBG, --debug=DBG   set debug options, see pmdbg(1)
   -h HOST, --host=HOST  metrics source is PMCD on host
   --container=NAME      specify an individual container to be queried
   -L, --local-PMDA      metrics source is local connection to a PMDA
@@ -339,6 +346,7 @@ Usage: pminfo [options] [metricname | pmid | indom]...
 General options:
   -a FILE, --archive=FILE
                         metrics source is a PCP archive
+  -D DBG, --debug=DBG   set debug options, see pmdbg(1)
   -h HOST, --host=HOST  metrics source is PMCD on host
   --container=NAME      specify an individual container to be queried
   -L, --local-PMDA      metrics source is local connection to a PMDA
@@ -382,6 +390,7 @@ Usage: pminfo [options] [metricname | pmid | indom]...
 General options:
   -a FILE, --archive=FILE
                         metrics source is a PCP archive
+  -D DBG, --debug=DBG   set debug options, see pmdbg(1)
   -h HOST, --host=HOST  metrics source is PMCD on host
   --container=NAME      specify an individual container to be queried
   -L, --local-PMDA      metrics source is local connection to a PMDA
@@ -425,6 +434,7 @@ Usage: pminfo [options] [metricname | pmid | indom]...
 General options:
   -a FILE, --archive=FILE
                         metrics source is a PCP archive
+  -D DBG, --debug=DBG   set debug options, see pmdbg(1)
   -h HOST, --host=HOST  metrics source is PMCD on host
   --container=NAME      specify an individual container to be queried
   -L, --local-PMDA      metrics source is local connection to a PMDA
@@ -468,6 +478,7 @@ Usage: pminfo [options] [metricname | pmid | indom]...
 General options:
   -a FILE, --archive=FILE
                         metrics source is a PCP archive
+  -D DBG, --debug=DBG   set debug options, see pmdbg(1)
   -h HOST, --host=HOST  metrics source is PMCD on host
   --container=NAME      specify an individual container to be queried
   -L, --local-PMDA      metrics source is local connection to a PMDA
@@ -511,6 +522,7 @@ Usage: pminfo [options] [metricname | pmid | indom]...
 General options:
   -a FILE, --archive=FILE
                         metrics source is a PCP archive
+  -D DBG, --debug=DBG   set debug options, see pmdbg(1)
   -h HOST, --host=HOST  metrics source is PMCD on host
   --container=NAME      specify an individual container to be queried
   -L, --local-PMDA      metrics source is local connection to a PMDA
@@ -554,6 +566,7 @@ Usage: pminfo [options] [metricname | pmid | indom]...
 General options:
   -a FILE, --archive=FILE
                         metrics source is a PCP archive
+  -D DBG, --debug=DBG   set debug options, see pmdbg(1)
   -h HOST, --host=HOST  metrics source is PMCD on host
   --container=NAME      specify an individual container to be queried
   -L, --local-PMDA      metrics source is local connection to a PMDA
@@ -597,6 +610,7 @@ Usage: pminfo [options] [metricname | pmid | indom]...
 General options:
   -a FILE, --archive=FILE
                         metrics source is a PCP archive
+  -D DBG, --debug=DBG   set debug options, see pmdbg(1)
   -h HOST, --host=HOST  metrics source is PMCD on host
   --container=NAME      specify an individual container to be queried
   -L, --local-PMDA      metrics source is local connection to a PMDA
@@ -640,6 +654,7 @@ Usage: pminfo [options] [metricname | pmid | indom]...
 General options:
   -a FILE, --archive=FILE
                         metrics source is a PCP archive
+  -D DBG, --debug=DBG   set debug options, see pmdbg(1)
   -h HOST, --host=HOST  metrics source is PMCD on host
   --container=NAME      specify an individual container to be queried
   -L, --local-PMDA      metrics source is local connection to a PMDA
@@ -683,6 +698,7 @@ Usage: pminfo [options] [metricname | pmid | indom]...
 General options:
   -a FILE, --archive=FILE
                         metrics source is a PCP archive
+  -D DBG, --debug=DBG   set debug options, see pmdbg(1)
   -h HOST, --host=HOST  metrics source is PMCD on host
   --container=NAME      specify an individual container to be queried
   -L, --local-PMDA      metrics source is local connection to a PMDA
@@ -737,6 +753,7 @@ Usage: pminfo [options] [metricname | pmid | indom]...
 General options:
   -a FILE, --archive=FILE
                         metrics source is a PCP archive
+  -D DBG, --debug=DBG   set debug options, see pmdbg(1)
   -h HOST, --host=HOST  metrics source is PMCD on host
   --container=NAME      specify an individual container to be queried
   -L, --local-PMDA      metrics source is local connection to a PMDA
@@ -780,6 +797,7 @@ Usage: pminfo [options] [metricname | pmid | indom]...
 General options:
   -a FILE, --archive=FILE
                         metrics source is a PCP archive
+  -D DBG, --debug=DBG   set debug options, see pmdbg(1)
   -h HOST, --host=HOST  metrics source is PMCD on host
   --container=NAME      specify an individual container to be queried
   -L, --local-PMDA      metrics source is local connection to a PMDA
@@ -835,6 +853,7 @@ Usage: pminfo [options] [metricname | pmid | indom]...
 General options:
   -a FILE, --archive=FILE
                         metrics source is a PCP archive
+  -D DBG, --debug=DBG   set debug options, see pmdbg(1)
   -h HOST, --host=HOST  metrics source is PMCD on host
   --container=NAME      specify an individual container to be queried
   -L, --local-PMDA      metrics source is local connection to a PMDA
@@ -888,6 +907,7 @@ Usage: pminfo [options] [metricname | pmid | indom]...
 General options:
   -a FILE, --archive=FILE
                         metrics source is a PCP archive
+  -D DBG, --debug=DBG   set debug options, see pmdbg(1)
   -h HOST, --host=HOST  metrics source is PMCD on host
   --container=NAME      specify an individual container to be queried
   -L, --local-PMDA      metrics source is local connection to a PMDA
@@ -931,6 +951,7 @@ Usage: pminfo [options] [metricname | pmid | indom]...
 General options:
   -a FILE, --archive=FILE
                         metrics source is a PCP archive
+  -D DBG, --debug=DBG   set debug options, see pmdbg(1)
   -h HOST, --host=HOST  metrics source is PMCD on host
   --container=NAME      specify an individual container to be queried
   -L, --local-PMDA      metrics source is local connection to a PMDA
@@ -974,6 +995,7 @@ Usage: pminfo [options] [metricname | pmid | indom]...
 General options:
   -a FILE, --archive=FILE
                         metrics source is a PCP archive
+  -D DBG, --debug=DBG   set debug options, see pmdbg(1)
   -h HOST, --host=HOST  metrics source is PMCD on host
   --container=NAME      specify an individual container to be queried
   -L, --local-PMDA      metrics source is local connection to a PMDA

@@ -323,7 +323,7 @@ static void handle_event(void *ctx, int cpu, void *data, __u32 data_sz)
     elm->event.pid = event->pid;
     elm->event.cmd_flags = event->cmd_flags;
     elm->event.dev = event->dev;
-    strncpy(elm->event.comm, event->comm, sizeof(event->comm));
+    pmstrncpy(elm->event.comm, sizeof(elm->event.comm), event->comm);
 
     push(elm);
 }

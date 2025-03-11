@@ -285,8 +285,8 @@ static void handle_event(void *ctx, int cpu, void *data, __u32 data_sz)
     elm->event.retval = event->retval;
     elm->event.args_count = event->args_count;
     elm->event.args_size = event->args_size;
-    strncpy(elm->event.comm, event->comm, sizeof(event->comm));
-    strncpy(elm->event.args, arg_val, sizeof(arg_val));
+    pmstrncpy(elm->event.comm, sizeof(elm->event.comm), event->comm);
+    pmstrncpy(elm->event.args, sizeof(elm->event.args), arg_val);
 
     /* TODO: use pcre lib */
     if (env.name && strstr(elm->event.comm, env.name) == NULL) {

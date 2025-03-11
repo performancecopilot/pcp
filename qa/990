@@ -40,6 +40,13 @@ $sudo chown $username ${MMV_STATS_DIR}
 # from mmv.log ...
 # [Wed Feb  5 14:23:47] pminfo(2011651) Error: mmv: header-1: size 8 too small, expecting 40
 #
+# These 2 are "equivalent"
+# 64-bit platforms
+#    Error: mmv: indoms_4: indom[0] offset: 184 < 343597383704
+# 32-bit platforms
+#    Error: mmv: indoms_4: indom[0] offset: 184 < 4294967320
+
+#
 _filter()
 {
     sed \
@@ -47,6 +54,7 @@ _filter()
 	-e "s,$PCP_PMDAS_DIR,PCP_PMDAS_DIR,g" \
 	-e 's/\[[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]]/[DATESTAMP]/' \
 	-e 's/pminfo([0-9][0-9]*)/pminfo(PID)/' \
+	-e '/indoms_4/s/184 < 4294967320/184 < 343597383704/' \
     #end
 }
 

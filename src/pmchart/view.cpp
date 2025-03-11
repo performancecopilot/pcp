@@ -170,7 +170,7 @@ eol:
 	*p = '\0';
 
 done:
-    if (pmDebugOptions.appl0 && pmDebugOptions.appl2) {
+    if (pmDebugOptions.appl3) {
 	if (buf[0] == '\n')
 	    fprintf(stderr, "openView getwd=EOL\n");
 	else

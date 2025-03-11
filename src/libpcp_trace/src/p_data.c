@@ -166,7 +166,7 @@ __pmtracedecodedata(__pmTracePDU *pdubuf, char **tag, int *taglenp,
     cp += sizeof(double);
     if ((*tag = (char *)malloc(taglen+1)) == NULL)
 	return -oserror();
-    strncpy(*tag, cp, taglen);
+    memcpy(*tag, cp, taglen);
     (*tag)[taglen] = '\0';
 
 #ifdef PMTRACE_DEBUG

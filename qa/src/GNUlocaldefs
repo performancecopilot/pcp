@@ -54,7 +54,7 @@ CFILES = disk_test.c exercise.c context_test.c chkoptfetch.c \
 	stampconv.c time_stamp.c archend.c scandata.c wait_for_values.c \
 	dumpstack.c usergroup.c derived_help.c ready-or-not.c cleanmapdir.c \
 	throttle.c throttle_timeout.c y2038.c bigpmcdpmids.c pdu-gadget.c \
-	strnfoo.c mmv_ondisk.c
+	strnfoo.c mmv_ondisk.c newcontext.c
 
 ifeq ($(shell test -f ../localconfig && echo 1), 1)
 include ../localconfig
@@ -443,6 +443,10 @@ mmv_ondisk:	mmv_ondisk.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
 
+newcontext:	newcontext.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+
 # --- need libpcp but also PM_CONTEXT_LOCAL
 #
 
@@ -696,6 +700,8 @@ exerlock:	exerlock.c
 ifeq ($(HAVE_64), 1)
 pv64: pv.c
 	$(CCF) $(CDEFS) -o $@ pv.c $(LDLIBS)
+else
+pv64:
 endif
 
 # -- archives
@@ -759,6 +765,9 @@ test_encodings:	test_encodings.c
 test_hostspec:	test_hostspec.c
 	rm -f $@
 	$(CCF) $(CMOCKACFLAGS) $(CDEFS) -o $@ $^ $(LDLIBS) $(LIB_FOR_CMOCKA)
+else
+test_encodings:
+test_hostspec:
 endif
 
 # --- need libpcp_archive

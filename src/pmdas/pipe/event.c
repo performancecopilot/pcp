@@ -185,16 +185,16 @@ setup_cmdline(pipe_client *pc, pipe_command *cmd, char *params)
 	    }
 	    /* copy into the buffer and adjust our position */
 	    if (n)
-		strncat(q, paramtab[n-1], paramlen);
+		pmstrncat(q, MAXPATHLEN, paramtab[n-1]);
 	    else {	/* expand $0 */
 		paramlen = 0;
 		for (j = 0; j < nparams; j++) {
 		    if (j != 0) {
-			strncat(q, " ", 2);
+			pmstrncat(q, MAXPATHLEN, " ");
 			paramlen++;
 		    }
 		    len = strlen(paramtab[j]);
-		    strncat(q, paramtab[j], MAXPATHLEN - (q - buffer) -1);
+		    pmstrncat(q, MAXPATHLEN, paramtab[j]);
 		    paramlen += len;
 		}
 		assert(paramlen == total);

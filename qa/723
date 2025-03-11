@@ -31,9 +31,11 @@ syslabel=`cat /proc/$pid/attr/current | tr '\0' '\n'`
 echo "SYS Label for process $pid is: $syslabel" >> $seq_full
 
 pminfo -f proc.psinfo.labels > $tmp.labels
+# label might be more than one word, e.g. "crun (unconfined)"
+# in CI
+#
 pcplabel=`grep "^    inst \[$pid or " $tmp.labels \
-	| $PCP_AWK_PROG '{ print $NF }' \
-	| sed -e 's/^"//' -e 's/"$//'`
+	| sed -e 's/"[ 	]*$//' -e 's/.*"//'`
 echo "PCP Label for process $pid is: $pcplabel" >> $seq_full
 echo "Extracted from list:" >> $seq_full
 cat $tmp.labels >> $seq_full

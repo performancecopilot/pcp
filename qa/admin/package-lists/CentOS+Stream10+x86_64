@@ -130,6 +130,7 @@ systemd-devel
 systemtap-devel
 systemtap-sdt-devel
 systemtap-runtime
+targetcli
 time
 valkey
 valgrind

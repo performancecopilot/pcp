@@ -237,8 +237,8 @@ static void handle_event(void *ctx, int cpu, void *data, __u32 data_sz)
 
     elm->event.pid = event->pid;
     elm->event.ret = event->ret;
-    strncpy(elm->event.comm, event->comm, sizeof(event->comm));
-    strncpy(elm->event.pathname, event->pathname, sizeof(event->pathname));
+    pmstrncpy(elm->event.comm, sizeof(elm->event.comm), event->comm);
+    pmstrncpy(elm->event.pathname, sizeof(elm->event.pathname), event->pathname);
 
     push(elm);
 }

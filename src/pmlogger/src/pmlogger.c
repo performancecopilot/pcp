@@ -420,7 +420,7 @@ do_dialog(char cmd)
 failed:
 	    fprintf(stderr, "Dialog:\n");
 	    fputs(p, stderr);
-	    strncpy(lbuf, "Yes", 4);
+	    memcpy(lbuf, "Yes", 4);
 	}
 	else {
 	    /* strip at first newline */
@@ -437,7 +437,7 @@ failed:
     else {
 	fprintf(stderr, "Error: failed to create recording session dialog message!\n");
 	fprintf(stderr, "Reason? %s\n", osstrerror());
-	strncpy(lbuf, "Yes", 4);
+	memcpy(lbuf, "Yes", 4);
     }
 
     free(p);
@@ -488,7 +488,7 @@ static pmLongOptions longopts[] = {
 };
 
 static pmOptions opts = {
-    .short_options = "c:Cd:D:fh:H:I:l:K:Lm:Nn:op:Prs:T:t:uU:v:V:x:y?",
+    .short_options = "c:Cd:D:h:H:I:l:K:Lm:Nn:op:Prs:T:t:uU:v:V:x:y?",
     .long_options = longopts,
     .short_usage = "[options] archive",
 };
