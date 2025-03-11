@@ -163,10 +163,7 @@ _check_completion_zsh()
         fi
       fi
       if [ $not_found -ne 0 ]; then
-	# skip -D, no real support there in zshrc as yet
-	#
-	[ "$opt" != D ] && \
-	    echo "$opt missing for $cmd zsh completions"
+        echo "$opt missing for $cmd zsh completions"
       fi
     done
 
