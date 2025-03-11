@@ -360,6 +360,6 @@ endif
 # always remake rules from rules.pcp
 #
 .PHONY:	myrules
-myrules:
+myrules rules:
 	./fixrules >rules
 	chmod 755 rules
