@@ -1667,7 +1667,7 @@ pmDiscoverInvokeCallBacks(pmDiscover *p)
     }
 
     if ((p->flags & PM_DISCOVER_FLAGS_META_IN_PROGRESS) == 0) {
-	/* no metdata read in progress, so process new datavol data, if any */
+	/* no metadata read in progress, so process new datavol data, if any */
 	process_logvol(p);
     }
 }
