@@ -1,3 +1,9 @@
+pcp (6.3.4-1) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Thu, 13 Mar 2025 12:09:42 +1100
+
 pcp (6.3.3-1) unstable; urgency=low
 
   * 6.3.2 release plus fixes for Debian build issues

@@ -1,3 +1,25 @@
+pcp-6.3.4 (13 March 2025)
+    - libpcp: fix endian issue in big-endian __pmTimestamp writing
+    - pcp-xsos: fine-tune error handling on bad command line options
+    - pcp-xsos: single-line pmPrintValue/pminfo values, escape shell chars
+    - pcp-atop: correct BPF per-process network metric names
+    - pmcd, pmdaproc: allow non-local username connection attributes
+    - pmlogger, libpcp: fix handling of dynamic instance domain labels
+    - pmrep: use BPF instead of BCC for proc networking metrics
+    - pmlogconf: use libbpf over BCC for networking metrics
+    - pmlogextract: fix logic around instances labels, allowing set updates
+    - pmdalinux: mem.numa.hugepages metrics (per node, per hugepage size)
+    - pmdabpftrace: fix for some python3 versions async IO create_task
+    - pmdanvidia: if present use dso from the libnvidia-ml runtime package
+    - pmdadm, pmieconf: default to enabling the dmthin pmie rules
+    - configure.ac: fix autoreconf, add AC_DEFINE_UNQUOTED descriptions
+    - rpm builds: enable bpf, bpftrace, bcc on riscv64 builds
+    - rpm builds: drop user creation scriptlets for rpm builds
+    - deb build: force debian/rules to be recreated each time
+    - containers: updates to the archive-analysis container
+    - selinux: several policy updates for new AVC denials
+    - docs: improve SSL/TLS diagnostic in pcp-verify script
+
 pcp-6.3.3 (29 January 2025)
     - Debian build changes - see debian/changelog for details
 
