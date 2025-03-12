@@ -95,7 +95,8 @@ lf(CR) | l | l.
 Parameters	Type	Explanation
 _
 names	string	Comma-separated list of metric names
-filter	string	Comma-separated list of excluded metric names
+filter	string	Comma-separated list of excluded metric names (default glob matching)
+match	string	Pattern matching style (exact, glob or regex)
 times	boolean	Append sample times (milliseconds since epoch)
 _
 hostspec	string	Host specification as described in \f(CBPCPIntro\fR(1)
