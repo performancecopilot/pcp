@@ -407,6 +407,16 @@ else
     echo "pmproxy check failed"
 fi
 
+# Filtering options
+curl -s "http://localhost:$port/metrics?name=sample.long.one,sample.long.ten&filter=*ten" \
+	| _filter_text "good filter globbing"
+curl -s "http://localhost:$port/metrics?name=sample.long.one,sample.long.ten&filter=*ten&match=exact" \
+	| _filter_text "good filter exact match"
+curl -s "http://localhost:$port/metrics?name=sample.long.one,sample.long.ten&filter=ten&match=regex" \
+	| _filter_text "good filter regex"
+curl -s "http://localhost:$port/metrics?name=sample.long.one,sample.long.ten&filter=ten&match=dummy" \
+	| _filter_text "bad filter match param"
+
 # No clue why or how, but on vm21 (Debian 11) this sleep makes the test
 # reliably pass, rather than 
 #	Invalid JSON: on failed: No data available
