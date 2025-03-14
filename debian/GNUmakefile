@@ -111,7 +111,7 @@ LDIRT = *.debhelper *.substvars *.log pcp files pcp.postrm \
 	$(PCPIMPORTSAR) $(PCPIMPORTMRTG) $(PCPIMPORTSHEET) $(PCPIMPORTIOSTAT) \
 	$(PCPIMPORTCOLLECTL) $(PCPIMPORTGANGLIA)
 
-default: pcp.preinst pcp.postinst pcp.postrm control myrules pcp-gui.install
+default: pcp.preinst pcp.postinst pcp.postrm mycontrol myrules pcp-gui.install
 
 include $(BUILDRULES)
 
@@ -331,9 +331,10 @@ ifeq "$(ENABLE_QT3D)" "true"
 	cat pcp-gui.install.pmview >>pcp-gui.install
 endif
 
-control:	fixcontrol control.pcp control.python2 control.python3 \
-		control.pcpgui control.pcp2xlsx control.pcp2arrow \
-		control.pmdaib control.perl
+# always remake control from control.* pieces
+#
+.PHONY:	mycontrol
+mycontrol control:
 	./fixcontrol >control
 ifeq ($(ENABLE_PYTHON2), true)
 	cat control.python2 >>control
