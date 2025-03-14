@@ -1,6 +1,5 @@
-# PCP required package list for CentOS Stream9 x86_64
-# from the CentOS8 version created by kenj on
-# vm04.localdomain Mon Oct 12 23:16:58 EDT 2020
+# PCP required package list for CentOS Stream10 x86_64
+# from the CentOS Stream9 version created by nathans.
 #
 Spreadsheet::Read cpan
 389-ds-base
@@ -19,7 +18,7 @@ clang
 # conflicts with coreutils
 coreutils not4ci
 cronie
-curl
+curl-minimal | curl
 cyrus-sasl
 cyrus-sasl-devel
 cyrus-sasl-lib
@@ -40,7 +39,7 @@ httpd
 inih-devel
 initscripts
 iproute
-java-21-openjdk-headless
+# java-latest-openjdk-headless
 jq
 libbpf
 libbpf-devel
@@ -57,6 +56,7 @@ llvm-devel
 lm_sensors
 make
 man-db
+# mandoc
 mariadb
 memcached
 mesa-dri-drivers
@@ -94,27 +94,24 @@ psmisc
 python3
 python3-bcc
 python3-devel
-python3-jsonpointer
+# python3-elasticsearch
 python3-libs
 python3-libvirt
 python3-lxml
-python3-pandas
+python3-openpyxl
 python3-pillow
 python3-psycopg2
-python3-pyarrow
+python3-pylint
+# python3-pymongo
 python3-pyodbc
 python3-requests
 python3-rtslib
 python3-setuptools
+python3-setuptools
 python3-six
-qt5-qtbase-devel
-qt5-qtsvg-devel
 rdma-core-devel
 readline-devel
 rpm-build
-rrdtool
-rrdtool-perl
-s-nail
 sed
 selinux-policy
 selinux-policy-devel
@@ -124,18 +121,13 @@ smartmontools
 socat
 sqlite
 sqlite-libs
-sudo
 sysstat
 systemd-devel
-systemtap-devel
-systemtap-sdt-devel
-systemtap-runtime
 targetcli
 time
 valkey
 valgrind
 xfsprogs
-xkeyboard-config
 xz-devel
-zabbix7.0-agent
+zabbix-agent
 zstd

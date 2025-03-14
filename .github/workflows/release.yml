@@ -29,13 +29,13 @@ jobs:
           - {platform: ubuntu2004-container,      os: ubuntu-latest}
           - {platform: ubuntu2204-container,      os: ubuntu-latest}
           - {platform: ubuntu2404-container,      os: ubuntu-latest}
-          - {platform: fedora39-container,        os: ubuntu-latest}
           - {platform: fedora40-container,        os: ubuntu-22.04}
           - {platform: fedora41-container,        os: ubuntu-22.04}
           - {platform: centos6-container,         os: ubuntu-latest}
           - {platform: centos7-container,         os: ubuntu-20.04}
           - {platform: centos-stream8-container,  os: ubuntu-latest}
           - {platform: centos-stream9-container,  os: ubuntu-22.04}
+          - {platform: centos-stream10-container, os: ubuntu-22.04}
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4

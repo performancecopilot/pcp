@@ -2,20 +2,21 @@ type: container
 
 artifactory:
   package_type: rpm
-  deploy_path: /fedora/38/x86_64/pcp
+  deploy_path: /fedora/42/x86_64/pcp
 
 container:
   containerfile: |
-    FROM registry.fedoraproject.org/fedora:38
+    FROM registry.fedoraproject.org/fedora:42
     RUN dnf install -y systemd
     RUN useradd --create-home pcpbuild
     RUN echo 'pcpbuild ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/pcpbuild
+
     CMD ["/usr/sbin/init"]
 
 tasks:
   setup: |
     sudo dnf install -y which hostname
-    sudo dnf -y -b install $(qa/admin/list-packages -m -v -x cpan -x pip3 -x not4ci)
+    sudo dnf -y install $(qa/admin/list-packages -m -v -x cpan -x pip3 -x not4ci)
   build: |
     ./Makepkgs --verbose --check
     rpm -qp --requires $(echo pcp-*/build/rpm/pcp-*.src.rpm | sed 's/src/x86_64/') | grep -q libuv.so
@@ -25,7 +26,7 @@ tasks:
     sudo rpm -Uv pcp-*/build/rpm/*.rpm
     echo 'pcpqa ALL=(ALL) NOPASSWD: ALL' | sudo tee /etc/sudoers.d/pcpqa
   init_qa: |
-    sudo systemctl start redis
+    sudo systemctl start valkey
     sudo -i -u pcpqa ./check 002
   qa_sanity: |
     set -o pipefail
