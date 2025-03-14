@@ -56,6 +56,9 @@ cat $PCP_PMCDLOG_PATH >>$seq_full
 # pmcd may receive more PDU's from other clients before
 # we disable the debug flags in _cleanup ... the awk
 # at the end chops any trailing babble off
+# Also the pmproxy PMDA (really the mmv PMDA) may complain
+# abour owning processes that have vanished ... this has
+# nothing to do with this test
 #
 _filter_pmcd_log <$PCP_PMCDLOG_PATH \
 | sed \
@@ -64,6 +67,7 @@ _filter_pmcd_log <$PCP_PMCDLOG_PATH \
     -e '/pmXmitPDU: ERROR/d' \
     -e '/pmGetPDU: TYPE/d' \
     -e '/^000:/d' \
+    -e '/pmproxy: .*: owning process PID .* vanished/d' \
     -e 's/fd=[0-9][0-9]*/fd=N/' \
     -e '/HandleClientInput/s/client\[[0-9][0-9]*]/client[N]/' \
     -e 's/len=-1: Connection reset by peer.*/END-OF-FILE/' \
