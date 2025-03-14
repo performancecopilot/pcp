@@ -98,6 +98,16 @@ paths:
         description: Comma-separated list of metric names
         schema:
           type: string
+      - name: filter
+        in: query
+        description: Comma-separated list of filters
+        schema:
+          type: string
+      - name: match
+        in: query
+        description: Pattern matching style (exact, glob or regex)
+        schema:
+          type: string
       - name: times
         in: query
         description: Append sample times (milliseconds since epoch)
