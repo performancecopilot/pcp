@@ -34,7 +34,7 @@ groupid=`id -g`
 hostname=`hostname`
 machineid=`_machine_id`
 domainname=`_domain_name`
-rm -f $seq_full
+rm -f $seq.full
 
 status=0	# success is the default!
 need_restore=true
@@ -81,11 +81,11 @@ done
 
 # ensure pmlogger has completed (from use of the -T option)
 wait $pid
-cat $tmp.log | tee $seq_full | _filter_pmlogger_log
+cat $tmp.log | tee $seq.full | _filter_pmlogger_log
 
 # reading from the archive end, expect labels for three instances
-pmdumplog -ae $tmp.archive >> $seq_full
-#pminfo -fl simple.now >> $seq_full
+pmdumplog -ae $tmp.archive >> $seq.full
+#pminfo -fl simple.now >> $seq.full
 pminfo -l -O 6sec -a $tmp.archive simple.now | _filter_labels
 
 # success, all done
