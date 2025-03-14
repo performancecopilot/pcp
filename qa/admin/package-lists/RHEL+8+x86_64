@@ -126,7 +126,7 @@ systemd-devel
 systemtap
 systemtap-devel
 systemtap-sdt-devel
-targetcli-fb
+targetcli
 time
 valkey
 valgrind

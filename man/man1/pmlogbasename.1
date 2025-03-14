@@ -17,6 +17,7 @@
 \f3pmlogbasename\f1 \- basename of a PCP archive
 .SH SYNOPSIS
 \f3pmlogbasename\f1
+[\f3\-D\f1 \f2debug\f1]
 \f2name\f1
 .SH DESCRIPTION
 .B pmlogbasename
@@ -75,6 +76,47 @@ In the former case, the file \fIname\fB.meta\fR (or one of the
 compressed versions of this) should exist and
 .I pmlogbasename
 probes the filesystem to determine if such a file exists.
+.SH DEBUGGING OPTIONS
+The
+.B \-D
+or
+.B \-\-debug
+option enables the output of additional diagnostics on
+.I stderr
+to help triage problems, although the information is sometimes cryptic and
+primarily intended to provide guidance for developers rather end-users.
+.I debug
+is a comma separated list of debugging options; use
+.BR pmdbg (1)
+with the
+.B \-l
+option to obtain
+a list of the available debugging options and their meaning.
+.PP
+Debugging options specific to
+.B pmlogbasename
+are as follows:
+.TS
+box;
+lf(B) | lf(B)
+lf(B) | lxf(R) .
+Option	Description
+_
+appl0	T{
+.ad l
+report the name of each file that exists and potentially matches
+.I name
+T}
+_
+appl1	T{
+.ad l
+report the name of each file that does
+.B not
+exist but was probed looking
+for matches with
+.I name
+T}
+.TE
 .SH SEE ALSO
 .BR PCPIntro (1)
 and

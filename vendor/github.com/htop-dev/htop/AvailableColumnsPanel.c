@@ -30,9 +30,8 @@ in the source distribution for its full text.
 static const char* const AvailableColumnsFunctions[] = {"      ", "      ", "      ", "      ", "Add   ", "      ", "      ", "      ", "      ", "Done  ", NULL};
 
 static void AvailableColumnsPanel_delete(Object* object) {
-   Panel* super = (Panel*) object;
    AvailableColumnsPanel* this = (AvailableColumnsPanel*) object;
-   Panel_done(super);
+   Panel_done(&this->super);
    free(this);
 }
 
@@ -104,7 +103,7 @@ static void AvailableColumnsPanel_addDynamicColumns(AvailableColumnsPanel* this,
 // Handle remaining Platform Meter entries in the AvailableColumnsPanel
 static void AvailableColumnsPanel_addPlatformColumns(AvailableColumnsPanel* this) {
    for (int i = 1; i < LAST_PROCESSFIELD; i++) {
-      if (i != COMM && Process_fields[i].description) {
+      if (Process_fields[i].description) {
          char description[256];
          xSnprintf(description, sizeof(description), "%s - %s", Process_fields[i].name, Process_fields[i].description);
          Panel_add(&this->super, (Object*) ListItem_new(description, i));
@@ -118,8 +117,7 @@ static void AvailableColumnsPanel_addDynamicScreens(AvailableColumnsPanel* this,
 }
 
 void AvailableColumnsPanel_fill(AvailableColumnsPanel* this, const char* dynamicScreen, Hashtable* dynamicColumns) {
-   Panel* super = (Panel*) this;
-   Panel_prune(super);
+   Panel_prune(&this->super);
    if (dynamicScreen) {
       AvailableColumnsPanel_addDynamicScreens(this, dynamicScreen);
    } else {
@@ -130,7 +128,8 @@ void AvailableColumnsPanel_fill(AvailableColumnsPanel* this, const char* dynamic
 
 AvailableColumnsPanel* AvailableColumnsPanel_new(Panel* columns, Hashtable* dynamicColumns) {
    AvailableColumnsPanel* this = AllocThis(AvailableColumnsPanel);
-   Panel* super = (Panel*) this;
+   Panel* super = &this->super;
+
    FunctionBar* fuBar = FunctionBar_new(AvailableColumnsFunctions, NULL, NULL);
    Panel_init(super, 1, 1, 1, 1, Class(ListItem), true, fuBar);
    Panel_setHeader(super, "Available Columns");

@@ -38,10 +38,6 @@ See
 .BR "CONFIG FILE"
 for more information.
 .TP
-.B -D
-A debug values, as specified by
-.B pmdbg (1)
-.TP
 .B \-d
 Specify an alternate performance metrics
 .I domain
@@ -106,6 +102,22 @@ GUID.  E.g., to monitor port 13 of a remote switch which is connected to the fab
 on the first port of the second HCA:
 .PP
 switch13 0xfeeffeefabcdabcd 13 via mthca1:1
+.SH DEBUGGING OPTIONS
+The
+.B \-D
+or
+.B \-\-debug
+option enables the output of additional diagnostics on
+.I stderr
+to help triage problems, although the information is sometimes cryptic and
+primarily intended to provide guidance for developers rather end-users.
+.I debug
+is a comma separated list of debugging options; use
+.BR pmdbg (1)
+with the
+.B \-l
+option to obtain
+a list of the available debugging options and their meaning.
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pmcd (1),
@@ -115,5 +127,5 @@ and
 
 .\" control lines for scripts/man-spell
 .\" +ok+ ibnetdiscover localPortName
-.\" +ok+ localPortNum infiniband instName portGUID
+.\" +ok+ localPortNum Infiniband infiniband instName portGUID
 .\" +ok+ portNum CONFIG pmdaib myPort GUIDs mthca HCAs GUID HCA ib

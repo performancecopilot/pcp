@@ -22,6 +22,10 @@ $python -c "import rtslib_fb" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python rtslib_fb module not installed"
 
 which targetcli >/dev/null 2>&1 || _notrun "targetcli not installed"
+
+$sudo modprobe target_core_mod >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "target_core_mod kernel module unavailable"
+
 status=1	# failure is the default!
 trap "_cleanup_pmda lio; exit \$status" 0 1 2 3 15
 

@@ -31,18 +31,20 @@ here=`pwd`
 sed -e '/^#/d' <<End-of-File | while read dir prep target
 # dir			prep	target
 #			<- make $prep first unless $prep = "-"
+# libs
+src/libpcp_web/src	-	default
 # executables
 src/pmfind		-	pmfind
 src/pmjson		-	pmjson
-src/pmproxy/src		-	pmproxy
+src/pmproxy/src		clean	pmproxy
 src/pmsearch		-	pmsearch
 src/pmseries		-	pmseries
 # PMDAs
-src/pmdas/apache	-	apache
+src/pmdas/apache	-	default
 src/pmdas/bpf		clean	default
-src/pmdas/docker	-	pmdadocker
-src/pmdas/podman	-	pmdapodman
-src/pmdas/root		-	pmdaroot
+src/pmdas/docker	-	default
+src/pmdas/podman	-	default
+src/pmdas/root		-	default
 src/pmdas/statsd/src	clean	default
 # QA apps
 qa/src			-	httpfetch

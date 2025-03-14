@@ -46,10 +46,13 @@ List of build-time dependencies:
 > This is also something that is reflected in the package name on Debian/Ubuntu (via the additional 'w' - 'w'ide character support).
 
 List of additional build-time dependencies (based on feature flags):
+*  `pkg-config`
 *  `sensors`
 *  `hwloc`
 *  `libcap` (v2.21 or later)
 *  `libnl-3` and `libnl-genl-3`
+
+`pkg-config` is optional but recommended. The configure script of `htop` might utilize `pkg-config` to obtain the compiler and linker flags required for a library. Some OS distributions provide `pkg-config` functionalities through an alternative implementation such as `pkgconf`. Look for both names in your package manager.
 
 Install these and other required packages for C development from your package manager.
 
@@ -154,6 +157,7 @@ To install on the local system run `make install`. By default `make install` ins
 * `libsensors`, readout of temperatures and CPU speeds, is optional even when `--enable-sensors` was used to configure `htop`.
 * `libsystemd` is optional when `--enable-static` was not used to configure `htop`. If building statically and `libsystemd` is not found by `configure`, support for the systemd meter is disabled entirely.
 * `libnl-3` and `libnl-genl-3`, if `htop` was configured with `--enable-delayacct` and delay accounting process fields are active.
+* I/O counters are available when the kernel is compiled with `CONFIG_TASK_IO_ACCOUNTING=Y`.
 
 `htop` checks for the availability of the actual runtime libraries as `htop` runs.
 

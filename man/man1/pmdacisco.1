@@ -19,6 +19,7 @@
 \f3pmdacisco\f1 \- Cisco router performance metrics domain agent (PMDA)
 .SH SYNOPSIS
 \f3$PCP_PMDAS_DIR/cisco/pmdacisco\f1
+[\f3\-D\f1 \f2debug\f1]
 [\f3\-d\f1 \f2domain\f1]
 [\f3\-l\f1 \f2logfile\f1]
 [\f3\-U\f1 \f2username\f1]
@@ -34,6 +35,7 @@
 \f2host:interface-spec\f1 [...]
 .br
 \f3$PCP_PMDAS_DIR/cisco/probe\f1
+[\f3\-D\f1 \f2debug\f1]
 [\f3\-P\f1 \f2password\f1]
 [\f3\-s\f1 \f2prompt\f1]
 [\f3\-U\f1 \f2username\f1]
@@ -338,6 +340,47 @@ variable may be used to specify an alternative
 configuration file,
 as described in
 .BR pcp.conf (5).
+.SH DEBUGGING OPTIONS
+The
+.B \-D
+or
+.B \-\-debug
+option enables the output of additional diagnostics on
+.I stderr
+to help triage problems, although the information is sometimes cryptic and
+primarily intended to provide guidance for developers rather end-users.
+.I debug
+is a comma separated list of debugging options; use
+.BR pmdbg (1)
+with the
+.B \-l
+option to obtain
+a list of the available debugging options and their meaning.
+.PP
+Debugging options specific to
+.B pmdacisco
+are as follows:
+.TS
+box;
+lf(B) | lf(B)
+lf(B) | lxf(R) .
+Option	Description
+_
+appl0	T{
+.ad l
+initialization, worker process details, data refresh, timeouts
+T}
+_
+appl1	T{
+.ad l
+requests sent to Cisco device
+T}
+_
+appl2	T{
+.ad l
+lexical scanner and parser for output from Cisco device
+T}
+.TE
 .SH SEE ALSO
 .BR pmcd (1),
 .BR pcp.conf (5)

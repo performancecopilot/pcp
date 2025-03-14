@@ -15,7 +15,7 @@
  * Debug flags
  * appl0	- scene construction
  * appl1	- object selection and launch
- * appl2	- fetching and 
+ * appl2	- fetching and object modulation
  * appl3	- object refreshing
  * appl4	- UI objects (other than Inventor window)
  * pmc		- metrics class operations (libpcp_qmc)

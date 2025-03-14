@@ -38,6 +38,29 @@
 # - _service
 #
 
+# script needs 4-arg version of split() added to gawk in version 4.0
+#
+if which gawk >/dev/null 2>&1
+then
+    :
+else
+    echo >&2 "Error: gawk is not installed"
+    exit 1
+fi
+gawk_ver=`gawk --version | sed -n -e '1{
+s/GNU //
+s/[Aa]wk //
+p
+q
+}'`
+case "$gawk_ver"
+in
+	[123].*)
+		echo >&2 "Error: gawk version $gawk_ver < 4.0"
+		exit 1
+		;;
+esac
+
 tmp=/var/tmp/refactor-$$
 trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 

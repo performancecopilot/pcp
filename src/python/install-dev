@@ -10,9 +10,11 @@ tmp=/var/tmp/install-dev-$$
 sts=1
 trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 
-make clean
-make
-sudo make install
+. /etc/pcp.conf
+
+$PCP_MAKE_PROG clean
+$PCP_MAKE_PROG
+sudo $PCP_MAKE_PROG install
 
 packing_list=../../python3-pcp.list
 if [ ! -f "$packing_list" ]
@@ -59,7 +61,7 @@ do
     if [ -z "$src" ]
     then
 	echo "Arrgh: $base in packing list but not found below build dir, you lose."
-	echo "Need to run \"sudo make clean; sudo make install\""
+	echo "Need to run \"sudo $PCP_MAKE_PROG clean; sudo $PCP_MAKE_PROG install\""
 	exit
     fi
 

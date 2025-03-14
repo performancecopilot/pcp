@@ -95,8 +95,62 @@ enabled = true
 path = $dir
 EOF
 src/time_stamp $tmp.stamp 'pmproxy start' >>$seq_full
-#grind_extra="--track-origins=yes --read-var-info=yes --read-inline-info=yes"
-_run_valgrind $PCP_BINADM_DIR/pmproxy \
+grind_extra="--track-origins=yes --read-var-info=yes --read-inline-info=yes"
+# skip valgrind errors in upstream non-PCP code, like hiredis ...
+# (seen on vm11 Debian 10.13)
+# ... same suppressions as for qa/1290
+#
+cat <<'End-of-File' >$tmp.suppress
+{
+   sds.c: % operator: v seems well defined, so maybe valgrind botch
+   Memcheck:Cond
+   fun:__umoddi3
+   fun:sdsll2str
+   fun:sdscatfmt
+   fun:keys_series_label
+   fun:keys_series_labelset
+   fun:keys_series_metadata
+   fun:keys_series_metric
+   ...
+}
+{
+   sds.c: / operator: ditto
+   Memcheck:Cond
+   fun:__udivdi3
+   fun:sdsll2str
+   fun:sdscatfmt
+   fun:keys_series_label
+   fun:keys_series_labelset
+   fun:keys_series_metadata
+   fun:keys_series_metric
+   ...
+}
+{
+   sds.c: conditional: value and v seems well defined, so maybe valgrind botch
+   Memcheck:Cond
+   fun:sdsll2str
+   fun:sdscatfmt
+   fun:keys_series_label
+   fun:keys_series_labelset
+   fun:keys_series_metadata
+   fun:keys_series_metric
+   ...
+}
+{
+   net.c: uninitialized buffer on async i/o path
+   Memcheck:Param
+   socketcall.send(msg)
+   fun:send
+   fun:redisNetWrite
+   fun:redisBufferWrite
+   fun:redisAsyncWrite
+   fun:redisAsyncHandleWrite
+   fun:redisLibuvPoll
+   ...
+}
+End-of-File
+grind_extra="$grind_extra --suppressions=$tmp.suppress"
+_run_valgrind $PCP_BINADM_DIR/pmproxy -Ddev0,discovery \
 	-f -t -A -c $tmp.conf -U $username -T 10sec -l $tmp.pmproxy \
 	-r $key_server_port -p $PROXYPORT -s $PROXYSOCK \
 	| _filter

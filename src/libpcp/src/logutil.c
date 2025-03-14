@@ -816,15 +816,25 @@ __pmLogOpen(const char *name, __pmContext *ctxp)
 
     acp->ac_curvol = -1;
     if (! (acp->ac_flags & PM_CTXFLAG_METADATA_ONLY)) {
-	if ((sts = __pmLogChangeVol(acp, lcp->minvol)) < 0) {
-	    if (pmDebugOptions.log) {
-		char	errmsg[PM_MAXERRMSGLEN];
-		fprintf(stderr, "__pmLogOpen(..., %s, ...): __pmLogChangeVol: %s\n",
-		    name, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
-	    }
-	    goto cleanup;
+	if (acp->ac_flags & PM_CTXFLAG_LAST_VOLUME) {
+	    /*
+	     * special for pmproxy discovery service ... open last
+	     * available volume which is the least likely to trigger
+	     * decompression
+	     */
+	    sts = __pmLogChangeVol(acp, lcp->maxvol);
 	}
-	else
+	else {
+	    /* default is to position at the first available volume */
+	    sts = __pmLogChangeVol(acp, lcp->minvol);
+	}
+	if (sts < 0) {
+	    if (pmDebugOptions.log) {
+		char	errmsg[PM_MAXERRMSGLEN]; fprintf(stderr,
+		"__pmLogOpen(..., %s, ...): __pmLogChangeVol: %s\n",
+		    name, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	    } goto cleanup;
+	} else
 	    version = sts;
 
 	ctxp->c_origin = lcp->label.start;

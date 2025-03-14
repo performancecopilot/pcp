@@ -63,7 +63,7 @@ overrides(int opt, pmOptions *opts)
 
 static pmOptions opts = {
     .flags = PM_OPTFLAG_STDOUT_TZ,
-    .short_options = "a:b:D:efh:IiK:Ln:FO:VvZ:z?",
+    .short_options = "a:b:D:dfh:IiK:Ln:FO:VvZ:z?",
     .long_options = longopts,
     .short_usage = "[options] [metricname ...]",
     .override = overrides,

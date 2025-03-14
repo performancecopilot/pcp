@@ -5,6 +5,7 @@ Usage: pmlogsize [options] archive
 
 Options:
   -d, --detail          detailed output (per metric and per indom)
+  -D DBG, --debug=DBG   set debug options, see pmdbg(1)
   -r, --replication     report replicated metric values and instances
   -v, --verbose         verbose output
   -x thres, --threshold=thres

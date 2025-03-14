@@ -68,6 +68,18 @@ then
     $sudo rm -f nvidia.log*
 fi
 
+echo
+echo "== Testing behaviour with alternate library filename" | tee -a $seq_full
+mv $here/src/libnvidia-ml.so $here/src/libnvidia-ml.so.1
+pminfo -L -K clear -K add,120,$pmda -dfmtT -n $pmns nvidia 2>&1 | _filter
+mv $here/src/libnvidia-ml.so.1 $here/src/libnvidia-ml.so
+
+if [ -f nvidia.log ]
+then
+    $sudo cat nvidia.log >>$seq_full
+    $sudo rm -f nvidia.log*
+fi
+
 # success, all done
 status=0
 exit

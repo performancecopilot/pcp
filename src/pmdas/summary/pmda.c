@@ -91,6 +91,7 @@ main(int argc, char **argv)
 		pmGetProgname());
 	fputs("Options:\n"
 	      "  -h helpfile    help text file\n"
+	      "  -D debug       set debug options, see pmdbg(1)\n"
 	      "  -d domain      use domain (numeric) for metrics domain of PMDA\n"
 	      "  -l logfile     write log into logfile rather than using default log name\n"
 	      "  -U username    user account to run under (default \"pcp\")\n",

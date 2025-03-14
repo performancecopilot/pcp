@@ -1,4 +1,4 @@
 #pmlogconf-setup 2.0
 ident	per-process network statistics [Linux]
-probe	bcc.proc.net.tcp.recv.bytes values ? include : exclude
-	bcc.proc.net
+probe	bpf.proc.net.tcp.recv.bytes values ? include : exclude
+	bpf.proc.net

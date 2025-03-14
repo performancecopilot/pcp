@@ -111,7 +111,7 @@ LDIRT = *.debhelper *.substvars *.log pcp files pcp.postrm \
 	$(PCPIMPORTSAR) $(PCPIMPORTMRTG) $(PCPIMPORTSHEET) $(PCPIMPORTIOSTAT) \
 	$(PCPIMPORTCOLLECTL) $(PCPIMPORTGANGLIA)
 
-default: pcp.preinst pcp.postinst pcp.postrm control rules pcp-gui.install
+default: pcp.preinst pcp.postinst pcp.postrm control myrules pcp-gui.install
 
 include $(BUILDRULES)
 
@@ -357,6 +357,9 @@ ifeq ($(HAVE_PERL), true)
 	cat control.perl >>control
 endif
 
-rules:	fixrules rules.pcp
+# always remake rules from rules.pcp
+#
+.PHONY:	myrules
+myrules rules:
 	./fixrules >rules
 	chmod 755 rules

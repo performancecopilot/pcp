@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2022,2024 Red Hat.
+ * Copyright (c) 2017-2025 Red Hat.
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -352,7 +352,7 @@ keys_series_instance(keySlots *slots, metric_t *metric, instance_t *instance, vo
     int				i;
 
     seriesBatonCheckMagic(baton, MAGIC_LOAD, "keys_series_instance");
-    seriesBatonReferences(baton, 2, "keys_series_instance");
+    seriesBatonReferences(baton, 1 + metric->numnames, "keys_series_instance");
 
     assert(instance->name.sds);
     pmwebapi_hash_str(instance->name.id, hashbuf, sizeof(hashbuf));
@@ -375,7 +375,6 @@ keys_series_instance(keySlots *slots, metric_t *metric, instance_t *instance, vo
     sdsfree(cmd);
 
     for (i = 0; i < metric->numnames; i++) {
-	seriesBatonReference(baton, "keys_series_instance");
 	pmwebapi_hash_str(metric->names[i].hash, hashbuf, sizeof(hashbuf));
 	key = sdscatfmt(sdsempty(), "pcp:instances:series:%s", hashbuf);
 	cmd = resp_command(3);
@@ -387,22 +386,25 @@ keys_series_instance(keySlots *slots, metric_t *metric, instance_t *instance, vo
 	sdsfree(cmd);
     }
 
-    pmwebapi_hash_str(instance->name.hash, hashbuf, sizeof(hashbuf));
-    val = sdscatfmt(sdsempty(), "%i", instance->inst);
-    key = sdscatfmt(sdsempty(), "pcp:inst:series:%s", hashbuf);
-    cmd = resp_command(8);
-    cmd = resp_param_str(cmd, HMSET, HMSET_LEN);
-    cmd = resp_param_sds(cmd, key);
-    cmd = resp_param_str(cmd, "inst", sizeof("inst")-1);
-    cmd = resp_param_sds(cmd, val);
-    cmd = resp_param_str(cmd, "name", sizeof("name")-1);
-    cmd = resp_param_sha(cmd, instance->name.id);
-    cmd = resp_param_str(cmd, "source", sizeof("series")-1);
-    cmd = resp_param_sha(cmd, metric->indom->domain->context->name.hash);
-    sdsfree(val);
-    sdsfree(key);
-    keySlotsRequest(slots, cmd, keys_series_inst_callback, arg);
-    sdsfree(cmd);
+    if (instance->cached == 0) {
+	seriesBatonReference(baton, "keys_series_instance");
+	pmwebapi_hash_str(instance->name.hash, hashbuf, sizeof(hashbuf));
+	val = sdscatfmt(sdsempty(), "%i", instance->inst);
+	key = sdscatfmt(sdsempty(), "pcp:inst:series:%s", hashbuf);
+	cmd = resp_command(8);
+	cmd = resp_param_str(cmd, HMSET, HMSET_LEN);
+	cmd = resp_param_sds(cmd, key);
+	cmd = resp_param_str(cmd, "inst", sizeof("inst")-1);
+	cmd = resp_param_sds(cmd, val);
+	cmd = resp_param_str(cmd, "name", sizeof("name")-1);
+	cmd = resp_param_sha(cmd, instance->name.id);
+	cmd = resp_param_str(cmd, "source", sizeof("series")-1);
+	cmd = resp_param_sha(cmd, metric->indom->domain->context->name.hash);
+	sdsfree(val);
+	sdsfree(key);
+	keySlotsRequest(slots, cmd, keys_series_inst_callback, arg);
+	sdsfree(cmd);
+    }
 }
 
 static void
@@ -909,17 +911,21 @@ check_instances:
 	    value = &metric->u.vlist->value[i];
 	    if ((instance = dictFetchValue(metric->indom->insts, &value->inst)) == NULL)
 		continue;
-	    if (instance->cached == 0 || metric->cached == 0) {
-		keys_series_instance(slots, metric, instance, baton);
+	    keys_series_instance(slots, metric, instance, baton);
+	    if (metric->cached == 0 || instance->cached == 0)
 		keys_series_labelset(slots, metric, instance, baton);
-
-		if ((baton->flags & PM_SERIES_FLAG_TEXT) && slots->search) {
-		    if (indom == NULL)
-			indom = pmwebapi_indom_str(metric, ibuf, sizeof(ibuf));
-		    keys_search_text_add(slots, PM_SEARCH_TYPE_INST,
-				instance->name.sds, indom, NULL, NULL, baton);
-		}
+	    if (metric->cached == 0 &&
+	        (slots->search && (baton->flags & PM_SERIES_FLAG_TEXT))) {
+		if (indom == NULL)
+		    indom = pmwebapi_indom_str(metric, ibuf, sizeof(ibuf));
+		keys_search_text_add(slots, PM_SEARCH_TYPE_INST,
+			    instance->name.sds, indom, NULL, NULL, baton);
 	    }
+	}
+	for (i = 0; i < metric->u.vlist->listcount; i++) {
+	    value = &metric->u.vlist->value[i];
+	    if ((instance = dictFetchValue(metric->indom->insts, &value->inst)) == NULL)
+		continue;
 	    instance->cached = 1;
 	}
 	metric->cached = 1;

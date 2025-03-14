@@ -19,7 +19,11 @@
 \f3pcp-atopsar\f1 \- Advanced System Activity Report (pcp-atop related)
 .SH SYNOPSIS
 \f3pcp\f1 [\f2pcp\ options\f1] \f3atopsar\f1 [\f2atop\ options\f1]
-[\-r \f2file|date\f1] [\-h \f2host\f1] [\-R \f2cnt\f1] [\-b [\f2YYYMMDD\f1]\f2hh:mm\f1[\f2ss\f1]] [\-e [\f2YYYMMDD\f1]\f2hh:mm\f1[\f2ss\f1]]
+[\-r \f2file|date\f1]
+[\-h \f2host\f1]
+[\-R \f2cnt\f1]
+[\-b [\f2YYYMMDD\f1]\f2hh:mm\f1[\f2ss\f1]]
+[\-e [\f2YYYMMDD\f1]\f2hh:mm\f1[\f2ss\f1]]
 .br
 \f3pcp\f1 [\f2pcp\ options\f1] \f3atopsar\f1 [\f2atop\ options\f1] \f2interval\f1 [\f2samples\f1]
 .SH DESCRIPTION
@@ -1312,6 +1316,22 @@ The \fB$PCP_CONF\fP variable may be used to specify an alternative
 configuration file, as described in \fBpcp.conf\fP(5).
 .PP
 For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
+.SH DEBUGGING OPTIONS
+The
+.B \-D
+or
+.B \-\-debug
+pcp option enables the output of additional diagnostics on
+.I stderr
+to help triage problems, although the information is sometimes cryptic and
+primarily intended to provide guidance for developers rather end-users.
+.I debug
+is a comma separated list of debugging options; use
+.BR pmdbg (1)
+with the
+.B \-l
+option to obtain
+a list of the available debugging options and their meaning.
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pcp (1),

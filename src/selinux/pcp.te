@@ -682,9 +682,12 @@ optional_policy(`
     }
     # type=AVC msg=audit(N): avc:  denied  { write } for  pid=PID comm="pmie_check" path="/var/tmp/pmie_rc.FTTTXkNr6/pmie" dev="dm-0" ino=755982 scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:object_r:init_tmp_t:s0 tclass=file permissive=0
     # type=AVC msg=audit(N): avc:  denied  { write } for  pid=PID comm="pmlogger_check" path="/var/tmp/pmlogger_rc_start.mbj4oP4Vg/pmcheck.out" dev="dm-0" ino=51322314 scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:object_r:init_tmp_t:s0 tclass=file permissive=0
+    # type=AVC msg=audit(N): avc:  denied  { unlink } for  pid=3012 comm="rm" name="pmie_check.log" dev="dm-0" ino=59069480 scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:object_r:init_tmp_t:s0 tclass=file permissive=0
+    # type=AVC msg=audit(N): avc:  denied  { unlink } for  pid=3778 comm="rm" name="pmlogger_check.log" dev="dm-0" ino=100870703 scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:object_r:init_tmp_t:s0 tclass=file permissive=0
+    #
 
-    allow pcp_pmie_t init_tmp_t:file write;
-    allow pcp_pmlogger_t init_tmp_t:file write; 
+    allow pcp_pmie_t init_tmp_t:file { write unlink };
+    allow pcp_pmlogger_t init_tmp_t:file { write unlink }; 
 ')
 
 optional_policy(`

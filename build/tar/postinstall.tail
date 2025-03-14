@@ -479,7 +479,8 @@ fi
 # but that have gone away or moved somewhere else
 #
 for file in "$PCP_VAR_DIR"/config/pmieconf/pcp/pmda_status \
-	    "$PCP_BINADM_DIR/pmmgr" "$PCP_RC_DIR/pmmgr" /etc/init.d/pmmgr
+	    "$PCP_BINADM_DIR/pmmgr" "$PCP_RC_DIR/pmmgr" /etc/init.d/pmmgr \
+	    "$PCP_SYSCONF_DIR/pmrep/pmrep.conf"
 do
     [ -f "$file" ] && $RM -f "$file"
 done

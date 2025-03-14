@@ -116,8 +116,12 @@ date >>$seq_full
 $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy( |$)' >>$seq_full
 echo "pmproxy_pid=$pmproxy_pid" >>$seq_full
 
-#debug# echo "sudo gdb -p $pmproxy_pid"
-#debug# read x
+# uncomment these next 2 lines to attach gdb to the new pmproxy
+# after 'c' to gdb, enter RETURN for shell running this script
+#
+#debug# echo "sudo gdb -p $pmproxy_pid $PCP_BINADM_DIR/pmproxy"
+#debug# read x </dev/tty
+
 src/time_stamp $tmp.stamp 'restart pmproxy' >>$seq_full
 
 _full_log === creating archive in new archive directory 

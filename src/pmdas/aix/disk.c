@@ -60,8 +60,7 @@ disk_init(int first)
 	indomtab[DISK_INDOM].it_set[i].i_name = strdup(diskstat[i].name);
     }
 
-    if (pmDebugOptions.appl0 && pmDebugOptions.desperate) {
-	/* desperate */
+    if (pmDebugOptions.appl0) {
 	fprintf(stderr, "disk_init: ndisk=%d\n", ndisk);
     }
 }
@@ -96,8 +95,7 @@ disk_derived(pmdaMetric *mdesc, int inst)
 	    break;
     }
 
-    if (pmDebugOptions.appl0 && pmDebugOptions.desperate) {
-	/* desperate */
+    if (pmDebugOptions.appl0) {
 	fprintf(stderr, "disk_derived: pmid %s inst %d val %llu\n",
 		    pmIDStr(mdesc->m_desc.pmid), inst, val);
     }
@@ -151,8 +149,7 @@ disk_fetch(pmdaMetric *mdesc, int inst, pmAtomValue *atom)
 	    /* assumed to be CPU time */
 	    atom->ull *= 1000 / HZ;
 	}
-	if (pmDebugOptions.appl0 && pmDebugOptions.desperate) {
-	    /* desperate */
+	if (pmDebugOptions.appl0) {
 	    fprintf(stderr, "disk_fetch: pmid %s inst %d val %llu\n",
 		    pmIDStr(mdesc->m_desc.pmid), inst, atom->ull);
 	}
@@ -169,8 +166,7 @@ disk_fetch(pmdaMetric *mdesc, int inst, pmAtomValue *atom)
 	    /* assumed to be CPU time */
 	    atom->ul *= 1000 / HZ;
 	}
-	if (pmDebugOptions.appl0 && pmDebugOptions.desperate) {
-	    /* desperate */
+	if (pmDebugOptions.appl0) {
 	    fprintf(stderr, "disk_fetch: pmid %s inst %d val %lu\n",
 		    pmIDStr(mdesc->m_desc.pmid), inst, atom->ul);
 	}

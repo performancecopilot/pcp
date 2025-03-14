@@ -60,8 +60,7 @@ netif_init(int first)
 	indomtab[NETIF_INDOM].it_set[i].i_name = strdup(netifstat[i].name);
     }
 
-    if (pmDebugOptions.appl0 && pmDebugOptions.desperate) {
-	/* desperate */
+    if (pmDebugOptions.appl0) {
 	fprintf(stderr, "netif_init: nnetif=%d\n", nnetif);
     }
 }
@@ -104,8 +103,7 @@ netif_derived(pmdaMetric *mdesc, int inst)
 	    break;
     }
 
-    if (pmDebugOptions.appl0 && pmDebugOptions.desperate) {
-	/* desperate */
+    if (pmDebugOptions.appl0) {
 	fprintf(stderr, "netif_derived: pmid %s inst %d val %llu\n",
 		    pmIDStr(mdesc->m_desc.pmid), inst, val);
     }
@@ -156,8 +154,7 @@ netif_fetch(pmdaMetric *mdesc, int inst, pmAtomValue *atom)
 	    ullp = (__uint64_t *)&((char *)&netifstat[inst])[offset];
 	    atom->ull = *ullp;
 	}
-	if (pmDebugOptions.appl0 && pmDebugOptions.desperate) {
-	    /* desperate */
+	if (pmDebugOptions.appl0) {
 	    fprintf(stderr, "netif_fetch: pmid %s inst %d val %llu\n",
 		    pmIDStr(mdesc->m_desc.pmid), inst, atom->ull);
 	}
@@ -170,8 +167,7 @@ netif_fetch(pmdaMetric *mdesc, int inst, pmAtomValue *atom)
 	    ulp = (__uint32_t *)&((char *)&netifstat[inst])[offset];
 	    atom->ul = *ulp;
 	}
-	if (pmDebugOptions.appl0 && pmDebugOptions.desperate) {
-	    /* desperate */
+	if (pmDebugOptions.appl0) {
 	    fprintf(stderr, "netif_fetch: pmid %s inst %d val %lu\n",
 		    pmIDStr(mdesc->m_desc.pmid), inst, atom->ul);
 	}

@@ -100,7 +100,7 @@ socat
 sqlite
 sysstat
 systemtap-sdt-devel
-targetcli-fb
+targetcli
 time
 valgrind
 xkeyboard-config

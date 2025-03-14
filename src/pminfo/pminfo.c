@@ -63,7 +63,7 @@ static pmLongOptions longopts[] = {
 
 static pmOptions opts = {
     .flags = PM_OPTFLAG_STDOUT_TZ,
-    .short_options = "a:b:c:CdD:Ffh:IK:lLMmN:n:O:r:stTvVxzZ:?",
+    .short_options = "a:b:c:dD:Ffh:IK:lLMmN:n:O:r:stTvVxzZ:?",
     .long_options = longopts,
     .short_usage = "[options] [metricname | pmid | indom]...",
     .override = myoverrides,

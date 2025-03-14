@@ -19,6 +19,7 @@
 \f3$PCP_PMDAS_DIR/overhead/pmdaoverhead\f1
 [\f3\-C\f1]
 [\f3\-c\f1 \f2config\f1]
+[\f3\-D\f1 \f2debug\f1]
 [\f3\-d\f1 \f2domain\f1]
 [\f3\-l\f1 \f2logfile\f1]
 [\f3\-R\f1 \f2interval\f1]
@@ -263,6 +264,38 @@ variable may be used to specify an alternative
 configuration file,
 as described in
 .BR pcp.conf (5).
+.SH DEBUGGING OPTIONS
+The
+.B \-D
+or
+.B \-\-debug
+option enables the output of additional diagnostics on
+.I stderr
+to help triage problems, although the information is sometimes cryptic and
+primarily intended to provide guidance for developers rather end-users.
+.I debug
+is a comma separated list of debugging options; use
+.BR pmdbg (1)
+with the
+.B \-l
+option to obtain
+a list of the available debugging options and their meaning.
+.PP
+Debugging options specific to
+.B pmdaoverhead
+are as follows:
+.TS
+box;
+lf(B) | lf(B)
+lf(B) | lf(R) .
+Option	Description
+_
+appl0	\fIconfigfile\fP parsing
+_
+appl1	refresh() start-end timestamps
+_
+appl2	/proc selection in refresh()
+.TE
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pmcd (1),

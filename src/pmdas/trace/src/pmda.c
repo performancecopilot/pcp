@@ -13,6 +13,11 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
+ *
+ * Debugging options
+ * appl0	authentication parsing, client changes, IPC,
+ * 		metric data and metadata refreshes
+ * appl1	raw data for rate metrics
  */
 
 #include <ctype.h>
@@ -51,6 +56,7 @@ usage(void)
 "Usage: %s [options]\n\
 \n\
 Options:\n\
+  -D debug    set debug options, see pmdbg(1)\n\
   -d domain   use domain (numeric) for metrics domain of PMDA\n\
   -l logfile  write log into logfile rather than using default file\n\
   -A access   host based access control\n\

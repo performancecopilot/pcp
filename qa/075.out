@@ -36,6 +36,7 @@ $ pmstore -i bin-300 bin-400 bin-500 sample.bin 400
 Usage: pmstore [options] metricname value
 
 General options:
+  -D DBG, --debug=DBG   set debug options, see pmdbg(1)
   -h HOST, --host=HOST  metrics source is PMCD on host
   -L, --local-PMDA      metrics source is local connection to a PMDA
   -K SPEC, --spec-local=SPEC
@@ -58,6 +59,7 @@ $ pmstore -i bin-300,bin-400,bin-500 sample.bin
 Usage: pmstore [options] metricname value
 
 General options:
+  -D DBG, --debug=DBG   set debug options, see pmdbg(1)
   -h HOST, --host=HOST  metrics source is PMCD on host
   -L, --local-PMDA      metrics source is local connection to a PMDA
   -K SPEC, --spec-local=SPEC
@@ -164,6 +166,7 @@ General options:
   -A TIME, --align=TIME align sample times on natural boundaries
   -a FILE, --archive=FILE
                         metrics source is a PCP archive
+  -D DBG, --debug=DBG   set debug options, see pmdbg(1)
   -g, --guimode         start in GUI mode with new time control
   -h HOST, --host=HOST  metrics source is PMCD on host
   -n FILE, --namespace=FILE

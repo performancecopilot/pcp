@@ -4,6 +4,7 @@ pmlogrewrite: invalid option -- 'x'
 Usage: pmlogrewrite [options] input-archive [output-archive]
 
 Options:
+  -D DBG, --debug=DBG   set debug options, see pmdbg(1)
   -c PATH, --config=PATH
                         file or directory to load rules from
   -C, --check           parse config file(s) and quit (verbose warnings also)
@@ -21,6 +22,7 @@ output-archive is required unless -C or -i is specified
 Usage: pmlogrewrite [options] input-archive [output-archive]
 
 Options:
+  -D DBG, --debug=DBG   set debug options, see pmdbg(1)
   -c PATH, --config=PATH
                         file or directory to load rules from
   -C, --check           parse config file(s) and quit (verbose warnings also)
@@ -39,6 +41,7 @@ pmlogrewrite: stat(no.such.file) failed: No such file or directory
 Usage: pmlogrewrite [options] input-archive [output-archive]
 
 Options:
+  -D DBG, --debug=DBG   set debug options, see pmdbg(1)
   -c PATH, --config=PATH
                         file or directory to load rules from
   -C, --check           parse config file(s) and quit (verbose warnings also)
@@ -57,6 +60,7 @@ pmlogrewrite: Error: -c config /dev/tty is not a file or directory
 Usage: pmlogrewrite [options] input-archive [output-archive]
 
 Options:
+  -D DBG, --debug=DBG   set debug options, see pmdbg(1)
   -c PATH, --config=PATH
                         file or directory to load rules from
   -C, --check           parse config file(s) and quit (verbose warnings also)
@@ -77,6 +81,7 @@ pmlogrewrite: opendir(TMP.forbiddendir) failed: Permission denied
 Usage: pmlogrewrite [options] input-archive [output-archive]
 
 Options:
+  -D DBG, --debug=DBG   set debug options, see pmdbg(1)
   -c PATH, --config=PATH
                         file or directory to load rules from
   -C, --check           parse config file(s) and quit (verbose warnings also)
@@ -95,6 +100,7 @@ pmlogrewrite: stat(TMP.forbiddendir/blah) failed: Permission denied
 Usage: pmlogrewrite [options] input-archive [output-archive]
 
 Options:
+  -D DBG, --debug=DBG   set debug options, see pmdbg(1)
   -c PATH, --config=PATH
                         file or directory to load rules from
   -C, --check           parse config file(s) and quit (verbose warnings also)

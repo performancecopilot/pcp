@@ -16,12 +16,15 @@
  * for more details.
  *
  * Debug flags
- * appl0	I/O
- * appl1	metdata changes
- * appl2	pmResult changes
- * appl3	-q and reason for not taking quick exit
+ * appl0	archive reads and writes for data and metadata
+ * appl1	metadata changes (metric descriptors, instance domains,
+ *              help text, metric labels)
+ * appl2	metric value (pmResult) changes
+ * appl3	-q handling and explanation of required changes that
+ *		are the reason for not taking a quick exit
  * appl4	config parser
  * appl5	regexp matching for metric value changes and iname changes
+ * appl6	lexical scanner
  */
 
 #include <math.h>

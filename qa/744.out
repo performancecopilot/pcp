@@ -823,3 +823,439 @@ nvidia.proc.graphics.ngpus PMID: 120.4.8 [Count of GPUs used for graphics by eac
 Help:
 Count of GPUs used for graphics by each process
 No value(s) available!
+
+== Testing behaviour with alternate library filename
+pminfo[PID] Info: Successfully loaded NVIDIA NVML library
+
+nvidia.numcards PMID: 120.0.0 [Number of Graphics Cards]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Help:
+The number of NVIDIA Graphics cards installed in this system
+    value 2
+
+nvidia.gpuid PMID: 120.0.1 [GPU ID]
+    Data Type: 32-bit unsigned int  InDom: 120.0 0x1e000000
+    Semantics: discrete  Units: none
+Help:
+Zero indexed id of this NVIDIA card
+    inst [0 or "gpu0"] value 0
+    inst [1 or "gpu1"] value 1
+
+nvidia.cardname PMID: 120.0.2 [GPU Name]
+    Data Type: string  InDom: 120.0 0x1e000000
+    Semantics: discrete  Units: none
+Help:
+The name of the graphics card
+    inst [0 or "gpu0"] value "GeForce 100M Series"
+    inst [1 or "gpu1"] value "Quadro FX 200M Series"
+
+nvidia.busid PMID: 120.0.3 [Card Bus ID]
+    Data Type: string  InDom: 120.0 0x1e000000
+    Semantics: discrete  Units: none
+Help:
+The Bus ID as reported by the NVIDIA tools, not lspci
+    inst [0 or "gpu0"] value "0:1:0x2:3:4"
+    inst [1 or "gpu1"] value "20:21:0x2:23:24"
+
+nvidia.temperature PMID: 120.0.4 [The temperature of the card]
+    Data Type: 32-bit unsigned int  InDom: 120.0 0x1e000000
+    Semantics: instant  Units: none
+Help:
+The temperature of the GPU on the NVIDIA card in degrees celsius.
+    inst [0 or "gpu0"] value 6
+    inst [1 or "gpu1"] value 26
+
+nvidia.fanspeed PMID: 120.0.5 [Fanspeed]
+    Data Type: 32-bit unsigned int  InDom: 120.0 0x1e000000
+    Semantics: instant  Units: none
+Help:
+Speed of the GPU fan as a percentage of the maximum
+    inst [0 or "gpu0"] value 5
+    inst [1 or "gpu1"] value 25
+
+nvidia.perfstate PMID: 120.0.6 [NVIDIA performance state]
+    Data Type: 32-bit unsigned int  InDom: 120.0 0x1e000000
+    Semantics: instant  Units: none
+Help:
+The PX performance state as reported from NVML.  Value is an integer
+which should range from 0 (maximum performance) to 15 (minimum).  If
+the state is unknown the reported value will be 32, however.
+    inst [0 or "gpu0"] value 9
+    inst [1 or "gpu1"] value 29
+
+nvidia.gpuactive PMID: 120.0.7 [Percentage of GPU utilization]
+    Data Type: 32-bit unsigned int  InDom: 120.0 0x1e000000
+    Semantics: instant  Units: none
+Help:
+Percentage of time over the past sample period during which one or more
+kernels was executing on the GPU.
+    inst [0 or "gpu0"] value 7
+    inst [1 or "gpu1"] value 27
+
+nvidia.memactive PMID: 120.0.8 [Percentage of time spent accessing memory]
+    Data Type: 32-bit unsigned int  InDom: 120.0 0x1e000000
+    Semantics: instant  Units: none
+Help:
+Percent of time over the past sample period during which global (device)
+memory was being read or written.  This metric shows if the memory is
+actively being accessed, and is not correlated to storage amount used.
+    inst [0 or "gpu0"] value 8
+    inst [1 or "gpu1"] value 28
+
+nvidia.memused PMID: 120.0.9 [Allocated frame buffer memory]
+    Data Type: 64-bit unsigned int  InDom: 120.0 0x1e000000
+    Semantics: instant  Units: byte
+Help:
+Amount of GPU FB memory that has currently been allocated, in bytes.
+Note that the driver/GPU always sets aside a small amount of memory
+for bookkeeping. 
+    inst [0 or "gpu0"] value 104857600
+    inst [1 or "gpu1"] value 6442450944
+
+nvidia.memtotal PMID: 120.0.10 [Total frame buffer memory available]
+    Data Type: 64-bit unsigned int  InDom: 120.0 0x1e000000
+    Semantics: discrete  Units: byte
+Help:
+The total amount of GPU FB memory available on the card, in bytes.
+    inst [0 or "gpu0"] value 268435456
+    inst [1 or "gpu1"] value 8589934592
+
+nvidia.memfree PMID: 120.0.11 [Unallocated frame buffer memory]
+    Data Type: 64-bit unsigned int  InDom: 120.0 0x1e000000
+    Semantics: instant  Units: byte
+Help:
+Amount of GPU FB memory that is not currently allocated, in bytes.
+    inst [0 or "gpu0"] value 163577856
+    inst [1 or "gpu1"] value 2147483648
+
+nvidia.carduuid PMID: 120.0.19 [GPU Universally Unique ID]
+    Data Type: string  InDom: 120.0 0x1e000000
+    Semantics: discrete  Units: none
+Help:
+The Universally Unique ID of the graphics card
+Error: Missing metric value(s)
+
+nvidia.energy PMID: 120.0.20 [Total GPU energy consumption ]
+    Data Type: 64-bit unsigned int  InDom: 120.0 0x1e000000
+    Semantics: instant  Units: none
+Help:
+Total energy consumption for each GPU, in millijoules (mJ).
+Error: Metric not supported by this version of monitored application
+
+nvidia.power PMID: 120.0.21 [Total GPU power consumption ]
+    Data Type: 32-bit unsigned int  InDom: 120.0 0x1e000000
+    Semantics: instant  Units: none
+Help:
+Current power usage for this GPU and its associated circuitry, in milliwatts.
+Error: Metric not supported by this version of monitored application
+
+nvidia.nprocs PMID: 120.0.22 [Count of processes using each GPU]
+    Data Type: 32-bit unsigned int  InDom: 120.0 0x1e000000
+    Semantics: instant  Units: none
+Help:
+Count of processes using each GPU
+    inst [0 or "gpu0"] value 1
+    inst [1 or "gpu1"] value 2
+
+nvidia.samples PMID: 120.0.23 [Count of value refreshes for each GPU]
+    Data Type: 64-bit unsigned int  InDom: 120.0 0x1e000000
+    Semantics: counter  Units: none
+Help:
+Count of value refreshes for each GPU
+    inst [0 or "gpu0"] value 1
+    inst [1 or "gpu1"] value 1
+
+nvidia.gpuutilaccum PMID: 120.0.24 [Cumulative counter of GPU utilization for each GPU]
+    Data Type: 64-bit unsigned int  InDom: 120.0 0x1e000000
+    Semantics: counter  Units: none
+Help:
+Cumulative counter of GPU utilization for each GPU
+    inst [0 or "gpu0"] value 7
+    inst [1 or "gpu1"] value 27
+
+nvidia.memutilaccum PMID: 120.0.25 [Cumulative counter of memory utilization for each GPU]
+    Data Type: 64-bit unsigned int  InDom: 120.0 0x1e000000
+    Semantics: counter  Units: none
+Help:
+Cumulative counter of memory utilization for each GPU
+    inst [0 or "gpu0"] value 8
+    inst [1 or "gpu1"] value 28
+
+nvidia.memusedaccum PMID: 120.0.26 [Cumulative counter of used memory for each GPU]
+    Data Type: 64-bit unsigned int  InDom: 120.0 0x1e000000
+    Semantics: counter  Units: byte
+Help:
+Cumulative counter of used memory for each GPU
+    inst [0 or "gpu0"] value 104857600
+    inst [1 or "gpu1"] value 6442450944
+
+nvidia.proc.samples PMID: 120.1.12 [Number of times process stats have been sampled]
+    Data Type: 64-bit unsigned int  InDom: 120.1 0x1e000001
+    Semantics: counter  Units: count
+Help:
+Number of times process stats have been sampled
+    inst [0 or "gpuN::PID"] value 1
+    inst [1 or "gpuN::PID"] value 1
+    inst [2 or "gpuN::PID"] value 1
+
+nvidia.proc.memused PMID: 120.1.13 [Memory in use by each process accessing each card]
+    Data Type: 64-bit unsigned int  InDom: 120.1 0x1e000001
+    Semantics: instant  Units: byte
+Help:
+Memory in use by each process accessing each card
+    inst [0 or "gpuN::PID"] value 104857600
+    inst [1 or "gpuN::PID"] value 2147483648
+    inst [2 or "gpuN::PID"] value 4294967296
+
+nvidia.proc.memaccum PMID: 120.1.14 [Accumulated memory used by processes accessing each card]
+    Data Type: 64-bit unsigned int  InDom: 120.1 0x1e000001
+    Semantics: counter  Units: byte
+Help:
+Accumulated memory used by processes accessing each card
+    inst [0 or "gpuN::PID"] value 104857600
+    inst [1 or "gpuN::PID"] value 2147483648
+    inst [2 or "gpuN::PID"] value 4294967296
+
+nvidia.proc.gpuactive PMID: 120.1.15 [Graphics card utilization by processes accessing each card]
+    Data Type: 32-bit unsigned int  InDom: 120.1 0x1e000001
+    Semantics: instant  Units: none
+Help:
+Graphics card utilization by processes accessing each card
+    inst [0 or "gpuN::PID"] value 20
+    inst [1 or "gpuN::PID"] value 40
+    inst [2 or "gpuN::PID"] value 60
+
+nvidia.proc.memactive PMID: 120.1.16 [Memory access utilization by processes accessing each card]
+    Data Type: 32-bit unsigned int  InDom: 120.1 0x1e000001
+    Semantics: instant  Units: none
+Help:
+Memory access utilization by processes accessing each card
+    inst [0 or "gpuN::PID"] value 12
+    inst [1 or "gpuN::PID"] value 25
+    inst [2 or "gpuN::PID"] value 50
+
+nvidia.proc.time PMID: 120.1.17 [Milliseconds spent by processes accessing each graphics card]
+    Data Type: 64-bit unsigned int  InDom: 120.1 0x1e000001
+    Semantics: counter  Units: millisec
+Help:
+Milliseconds spent by processes accessing each graphics card
+    inst [0 or "gpuN::PID"] value 0
+    inst [1 or "gpuN::PID"] value 0
+    inst [2 or "gpuN::PID"] value 0
+
+nvidia.proc.running PMID: 120.1.18 [Indicates whether each process accessing each card is still running]
+    Data Type: 32-bit unsigned int  InDom: 120.1 0x1e000001
+    Semantics: instant  Units: none
+Help:
+Indicates whether each process accessing each card is still running
+    inst [0 or "gpuN::PID"] value 1
+    inst [1 or "gpuN::PID"] value 1
+    inst [2 or "gpuN::PID"] value 1
+
+nvidia.proc.all.samples PMID: 120.2.0 [Number of times process stats across all cards have been sampled]
+    Data Type: 64-bit unsigned int  InDom: 120.2 0x1e000002
+    Semantics: counter  Units: count
+Help:
+Number of times process stats across all cards have been sampled
+    inst [PID or "PID"] value 1
+    inst [PID or "PID"] value 2
+
+nvidia.proc.all.memused PMID: 120.2.1 [Memory in use by each process across all cards]
+    Data Type: 64-bit unsigned int  InDom: 120.2 0x1e000002
+    Semantics: instant  Units: byte
+Help:
+Memory in use by each process across all cards
+    inst [PID or "PID"] value 4294967296
+    inst [PID or "PID"] value 2147483648
+
+nvidia.proc.all.memaccum PMID: 120.2.2 [Cumulative count of memory used by each process across all GPUs]
+    Data Type: 64-bit unsigned int  InDom: 120.2 0x1e000002
+    Semantics: counter  Units: byte
+Help:
+Cumulative count of memory used by each process across all GPUs
+    inst [PID or "PID"] value 4294967296
+    inst [PID or "PID"] value 2252341248
+
+nvidia.proc.all.gpuactive PMID: 120.2.3 [Graphics card utilization by processes accessing all cards]
+    Data Type: 64-bit unsigned int  InDom: 120.2 0x1e000002
+    Semantics: instant  Units: none
+Help:
+Graphics card utilization by processes accessing all cards
+    inst [PID or "PID"] value 60
+    inst [PID or "PID"] value 40
+
+nvidia.proc.all.memactive PMID: 120.2.4 [Memory utilization by processes accessing all cards]
+    Data Type: 32-bit unsigned int  InDom: 120.2 0x1e000002
+    Semantics: instant  Units: none
+Help:
+Memory utilization by processes accessing all cards
+    inst [PID or "PID"] value 50
+    inst [PID or "PID"] value 25
+
+nvidia.proc.all.time PMID: 120.2.5 [Milliseconds spent by processes accessing all graphics cards]
+    Data Type: 64-bit unsigned int  InDom: 120.2 0x1e000002
+    Semantics: counter  Units: millisec
+Help:
+Milliseconds spent by processes accessing all graphics cards
+    inst [PID or "PID"] value 0
+    inst [PID or "PID"] value 0
+
+nvidia.proc.all.running PMID: 120.2.6 [Indicates whether each process is still running]
+    Data Type: 32-bit unsigned int  InDom: 120.2 0x1e000002
+    Semantics: counter  Units: none
+Help:
+Indicates whether each process is still running
+    inst [PID or "PID"] value 1
+    inst [PID or "PID"] value 1
+
+nvidia.proc.all.gpulist PMID: 120.2.7 [Bitmask of GPUs used by each process]
+    Data Type: 32-bit unsigned int  InDom: 120.2 0x1e000002
+    Semantics: instant  Units: none
+Help:
+Bitmask of GPUs used by each process
+    inst [PID or "PID"] value 2
+    inst [PID or "PID"] value 3
+
+nvidia.proc.all.ngpus PMID: 120.2.8 [Count of GPUs used by each process]
+    Data Type: 32-bit unsigned int  InDom: 120.2 0x1e000002
+    Semantics: instant  Units: none
+Help:
+Count of GPUs used by each process
+    inst [PID or "PID"] value 1
+    inst [PID or "PID"] value 2
+
+nvidia.proc.compute.samples PMID: 120.3.0 [Number of metric refreshes for processes using compute across all cards]
+    Data Type: 64-bit unsigned int  InDom: 120.2 0x1e000002
+    Semantics: counter  Units: count
+Help:
+Number of metric refreshes for processes using compute across all cards
+    inst [PID or "PID"] value 1
+    inst [PID or "PID"] value 2
+
+nvidia.proc.compute.memused PMID: 120.3.1 [Compute memory in use by processes across all cards]
+    Data Type: 64-bit unsigned int  InDom: 120.2 0x1e000002
+    Semantics: instant  Units: byte
+Help:
+Compute memory in use by processes across all cards
+    inst [PID or "PID"] value 4294967296
+    inst [PID or "PID"] value 2147483648
+
+nvidia.proc.compute.memaccum PMID: 120.3.2 [Cumulative count of compute memory used by each process across all GPUs]
+    Data Type: 64-bit unsigned int  InDom: 120.2 0x1e000002
+    Semantics: counter  Units: byte
+Help:
+Cumulative count of compute memory used by each process across all GPUs
+    inst [PID or "PID"] value 4294967296
+    inst [PID or "PID"] value 2252341248
+
+nvidia.proc.compute.gpuactive PMID: 120.3.3 [Compute GPU utilization by processes accessing all cards]
+    Data Type: 64-bit unsigned int  InDom: 120.2 0x1e000002
+    Semantics: instant  Units: none
+Help:
+Compute GPU utilization by processes accessing all cards
+    inst [PID or "PID"] value 60
+    inst [PID or "PID"] value 40
+
+nvidia.proc.compute.memactive PMID: 120.3.4 [Compute memory utilization by processes accessing all cards]
+    Data Type: 32-bit unsigned int  InDom: 120.2 0x1e000002
+    Semantics: instant  Units: none
+Help:
+Compute memory utilization by processes accessing all cards
+    inst [PID or "PID"] value 50
+    inst [PID or "PID"] value 25
+
+nvidia.proc.compute.time PMID: 120.3.5 [Compute time spent by processes accessing all cards]
+    Data Type: 64-bit unsigned int  InDom: 120.2 0x1e000002
+    Semantics: counter  Units: millisec
+Help:
+Compute time spent by processes accessing all cards
+    inst [PID or "PID"] value 0
+    inst [PID or "PID"] value 0
+
+nvidia.proc.compute.running PMID: 120.3.6 [Indicates whether each process using compute is still running]
+    Data Type: 32-bit unsigned int  InDom: 120.2 0x1e000002
+    Semantics: counter  Units: none
+Help:
+Indicates whether each process using compute is still running
+    inst [PID or "PID"] value 1
+    inst [PID or "PID"] value 1
+
+nvidia.proc.compute.gpulist PMID: 120.3.7 [Bitmask of GPUs used for compute by each process]
+    Data Type: 32-bit unsigned int  InDom: 120.2 0x1e000002
+    Semantics: instant  Units: none
+Help:
+Bitmask of GPUs used for compute by each process
+    inst [PID or "PID"] value 2
+    inst [PID or "PID"] value 3
+
+nvidia.proc.compute.ngpus PMID: 120.3.8 [Count of GPUs used for compute by each process]
+    Data Type: 32-bit unsigned int  InDom: 120.2 0x1e000002
+    Semantics: instant  Units: none
+Help:
+Count of GPUs used for compute by each process
+    inst [PID or "PID"] value 1
+    inst [PID or "PID"] value 2
+
+nvidia.proc.graphics.samples PMID: 120.4.0 [Number of metric refreshes for processes using graphics across all cards]
+    Data Type: 64-bit unsigned int  InDom: 120.2 0x1e000002
+    Semantics: counter  Units: count
+Help:
+Number of metric refreshes for processes using graphics across all cards
+No value(s) available!
+
+nvidia.proc.graphics.memused PMID: 120.4.1 [Graphics memory in use by processes across all cards]
+    Data Type: 64-bit unsigned int  InDom: 120.2 0x1e000002
+    Semantics: instant  Units: byte
+Help:
+Graphics memory in use by processes across all cards
+No value(s) available!
+
+nvidia.proc.graphics.memaccum PMID: 120.4.2 [Cumulative count of graphics memory used by each process across all GPUs]
+    Data Type: 64-bit unsigned int  InDom: 120.2 0x1e000002
+    Semantics: counter  Units: byte
+Help:
+Cumulative count of graphics memory used by each process across all GPUs
+No value(s) available!
+
+nvidia.proc.graphics.gpuactive PMID: 120.4.3 [Graphics GPU utilization by processes accessing all cards]
+    Data Type: 64-bit unsigned int  InDom: 120.2 0x1e000002
+    Semantics: instant  Units: none
+Help:
+Graphics GPU utilization by processes accessing all cards
+No value(s) available!
+
+nvidia.proc.graphics.memactive PMID: 120.4.4 [Graphics memory utilization by processes accessing all cards]
+    Data Type: 32-bit unsigned int  InDom: 120.2 0x1e000002
+    Semantics: instant  Units: none
+Help:
+Graphics memory utilization by processes accessing all cards
+No value(s) available!
+
+nvidia.proc.graphics.time PMID: 120.4.5 [Graphics time spent by processes accessing all cards]
+    Data Type: 64-bit unsigned int  InDom: 120.2 0x1e000002
+    Semantics: counter  Units: millisec
+Help:
+Graphics time spent by processes accessing all cards
+No value(s) available!
+
+nvidia.proc.graphics.running PMID: 120.4.6 [Indicates whether each process using graphics is still running]
+    Data Type: 32-bit unsigned int  InDom: 120.2 0x1e000002
+    Semantics: counter  Units: none
+Help:
+Indicates whether each process using graphics is still running
+No value(s) available!
+
+nvidia.proc.graphics.gpulist PMID: 120.4.7 [Bitmask of GPUs used for graphics by each process]
+    Data Type: 32-bit unsigned int  InDom: 120.2 0x1e000002
+    Semantics: instant  Units: none
+Help:
+Bitmask of GPUs used for graphics by each process
+No value(s) available!
+
+nvidia.proc.graphics.ngpus PMID: 120.4.8 [Count of GPUs used for graphics by each process]
+    Data Type: 32-bit unsigned int  InDom: 120.2 0x1e000002
+    Semantics: instant  Units: none
+Help:
+Count of GPUs used for graphics by each process
+No value(s) available!
