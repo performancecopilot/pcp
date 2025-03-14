@@ -1,0 +1,94 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2025 Oracle and/or its affiliates.
+.\" DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.\"
+.TH PMDAROCESTAT 1 "PCP" "Performance Co-Pilot" "General Commands Manual"
+.SH NAME
+.B pmdarocestat 
+\- Performance Metrics Domain Agent (PMDA) for RoCE devices
+
+.SH DESCRIPTION
+The 
+.B Rocestat PMDA 
+(Performance Metrics Domain Agent) is a Performance Co-Pilot (PCP) module that collects 
+and exports performance statistics for RDMA over Converged Ethernet (RoCE) devices. It provides insights into 
+network performance, error conditions, and congestion events, aiding in the diagnosis and monitoring of RoCE-based 
+communication.
+
+This PMDA reports software-aggregated InfiniBand port statistics, including received/transmitted bytes and 
+packets, link errors, and congestion-related drops, helping to identify potential bottlenecks and failures. 
+Additionally, it includes hardware-level counters, which track low-level transmission metrics, duplicate requests, 
+NAKs, and physical/constraint errors, offering a deeper view into the underlying transport reliability and efficiency.
+
+Furthermore, Rocestat PMDA collects priority-based lane metrics from ethtool -S <interface>, filtering 
+statistics related to priority lanes in RoCE traffic. These metrics provide visibility into traffic distribution 
+across lanes, helping diagnose congestion hotspots and optimize workload balancing across different lanes
+
+By integrating Rocestat PMDA into a PCP monitoring environment, users can efficiently analyze RoCE 
+network behavior, detect performance anomalies, and optimize high-speed RDMA workloads in data center and HPC 
+environments.
+
+.SH INSTALLATION
+To install the Rocestat PMDA, follow these steps:
+.RS
+.nf
+# cd $PCP_PMDAS_DIR/rocestat
+# ./Install
+.fi
+.RE
+
+To verify that the PMDA is running:
+.RS
+.nf
+$ pminfo -t rocestat
+.fi
+.RE
+
+.SH USAGE
+To query Rocestat metrics, use the following command:
+.RS
+.nf
+$ pminfo rocestat
+.fi
+.RE
+To retrieve specific metric values:
+.RS
+.nf
+$ pmval rocestat.hw.rcv.port_rcv_packets
+.fi
+.RE
+
+.SH FILES
+.TP
+.I $PCP_PMDAS_DIR/rocestat/Install
+Installation script for Rocestat PMDA.
+.TP
+.I $PCP_PMDAS_DIR/rocestat/Remove
+Uninstallation script.
+.TP
+.I $PCP_LOG_DIR/pmcd/rocestat.log
+Log file for Rocestat PMDA events and errors.
+
+.SH PCP ENVIRONMENT
+Environment variables with the prefix PCP_ are used to parameterize the file and
+directory names used by PCP. On each installation, the file /etc/pcp.conf contains
+the local values for these variables. The $PCP_CONF variable may be used to specify
+an alternative configuration file, as described in pcp.conf(5).
+
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pmcd (1)
+.BR PMDA (3),
+.BR pminfo (1),
