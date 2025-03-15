@@ -7,7 +7,7 @@ artifactory:
 container:
   containerfile: |
     FROM registry.fedoraproject.org/fedora:42
-    RUN dnf install -y systemd
+    RUN dnf install -y systemd gawk
     RUN useradd --create-home pcpbuild
     RUN echo 'pcpbuild ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/pcpbuild
 
