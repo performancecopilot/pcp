@@ -1,3 +1,9 @@
+pcp (6.3.5-1) unstable; urgency=low
+
+  * Updates toward a clean Debian build on i386 platform.
+
+ -- Nathan Scott <nathans@debian.org>  Sat, 15 Mar 2025 12:12:09 +1100
+
 pcp (6.3.4-1) unstable; urgency=low
 
   * New release (full details in CHANGELOG).

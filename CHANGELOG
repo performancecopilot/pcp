@@ -1,3 +1,6 @@
+pcp-6.3.5 (15 March 2025)
+    - Debian build changes - see debian/changelog for details
+
 pcp-6.3.4 (13 March 2025)
     - libpcp: fix endian issue in big-endian __pmTimestamp writing
     - pcp-xsos: fine-tune error handling on bad command line options
