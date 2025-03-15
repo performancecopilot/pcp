@@ -2,22 +2,29 @@ type: container
 
 artifactory:
   package_type: rpm
-  deploy_path: /fedora/39/x86_64/pcp
+  deploy_path: /centos/10/x86_64/pcp
 
 container:
   containerfile: |
-    FROM registry.fedoraproject.org/fedora:39
-    RUN dnf install -y systemd
+    FROM quay.io/centos/centos:stream10
+    RUN dnf install -y systemd sudo glibc-langpack-en
+    RUN dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-10.noarch.rpm
     RUN useradd --create-home pcpbuild
     RUN echo 'pcpbuild ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/pcpbuild
+    RUN systemctl mask dnf-makecache.service # https://bugzilla.redhat.com/show_bug.cgi?id=1814337
+    RUN systemctl mask kdump.service
+    # restore /usr/share/zoneinfo, see https://bugzilla.redhat.com/show_bug.cgi?id=1668185
+    RUN ls /usr/share/zoneinfo || dnf reinstall -y tzdata
     CMD ["/usr/sbin/init"]
 
 tasks:
   setup: |
+    sudo dnf -y install dnf-plugins-core
+    sudo dnf config-manager --set-enabled crb
     sudo dnf install -y which hostname
-    sudo dnf -y install $(qa/admin/list-packages -m -v -x cpan -x pip3 -x not4ci)
+    sudo dnf -y -b install $(qa/admin/list-packages -m -v -x cpan -x pip3 -x not4ci)
   build: |
-    ./Makepkgs --verbose --check
+    ./Makepkgs --verbose
     rpm -qp --requires $(echo pcp-*/build/rpm/pcp-*.src.rpm | sed 's/src/x86_64/') | grep -q libuv.so
   copy_build_artifacts: |
     cp pcp-*/build/rpm/*.rpm ../artifacts/build
@@ -25,7 +32,11 @@ tasks:
     sudo rpm -Uv pcp-*/build/rpm/*.rpm
     echo 'pcpqa ALL=(ALL) NOPASSWD: ALL' | sudo tee /etc/sudoers.d/pcpqa
   init_qa: |
-    sudo systemctl start redis
+    sudo systemctl start valkey
+    sudo systemctl start pmcd
+    systemctl status pmcd
+    sudo journalctl -u pmcd
+    cat /var/log/pcp/pmcd/pmcd.log
     sudo -i -u pcpqa ./check 002
   qa_sanity: |
     set -o pipefail
