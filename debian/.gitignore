@@ -6,4 +6,3 @@ pcp.postinst.head
 pcp.postrm
 pcp-gui.install
 control
-rules
