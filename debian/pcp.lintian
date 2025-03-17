@@ -4,3 +4,14 @@ pcp: FSSTND-dir-in-manual-page
 # /etc/init.d/pcp is a legacy script and should not be registered
 # with update-rc.d
 pcp: script-in-etc-init.d-not-registered-via-update-rc.d etc/init.d/pcp
+
+# /etc/init.d/pcp is a legacy script and should not have a systemd
+# equivalent
+pcp: omitted-systemd-service-for-init.d-script etc/init.d/pcp
+
+# some /etc/init.d/pm* scripts are wrappers, with the real work being
+# done elsewhere, e.g. /etc/init.d/pmie calls /etc/pcp/pmie/rc and
+# support for the force-reload and restart options is included in the latter
+pcp: init.d-script-does-not-implement-required-option etc/init.d/pmie
+pcp: init.d-script-does-not-implement-required-option etc/init.d/pmlogger
+pcp: init.d-script-does-not-implement-required-option etc/init.d/pmproxy
