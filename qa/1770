@@ -143,13 +143,13 @@ $sudo chown pcp:pcp $PCP_SASLCONF_DIR/pmcd.conf
 ls -l $PCP_SASLCONF_DIR/pmcd.conf >>$seq.full
 $sudo -u pcp cat $PCP_SASLCONF_DIR/pmcd.conf >>$seq.full
 
-echo "Creating temporary sasldb, add some usernames to it" | tee -a $seq_full
+echo "Creating temporary sasldb, add some usernames to it" | tee -a $seq.full
 echo y | saslpasswd2 -p -a pmcd -f $tmp.passwd.db $username
 echo y | saslpasswd2 -p -a pmcd -f $tmp.passwd.db remoteuser
 
-echo "Verify saslpasswd2 has successfully added new users" | tee -a $seq_full
+echo "Verify saslpasswd2 has successfully added new users" | tee -a $seq.full
 sasldblistusers2 -f $tmp.passwd.db \
-| tee -a $seq_full \
+| tee -a $seq.full \
 | _filter_listusers2 \
 | LC_COLLATE=POSIX sort
 
