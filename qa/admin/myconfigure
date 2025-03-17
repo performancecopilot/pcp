@@ -81,23 +81,23 @@ fi
 
 if $dodeb
 then
-    # needs to match configure_paths in debian/rules.pcp ... so just get the
+    # needs to match configure_paths in debian/rules ... so just get the
     # magic setting from there
     #
-    if [ ! -f debian/rules.pcp ]
+    if [ ! -f debian/rules ]
     then
-	echo "Botch: cannot find debian/rules.pcp"
+	echo "Botch: cannot find debian/rules"
 	exit 1
     fi
-    configopts=`sed -n <debian/rules.pcp -e '/^configure_paths/s/^[^=]*= *//p'`
+    configopts=`sed -n <debian/rules -e '/^configure_paths/s/^[^=]*= *//p'`
     if [ -z "$configopts" ]
     then
-	echo "Botch: cannot get configopts from configure_paths in debian/rules.pcp"
+	echo "Botch: cannot get configopts from configure_paths in debian/rules"
 	exit 1
     fi
-    # and optionally configure_tools from debian/rules.pcp also ...
+    # and optionally configure_tools from debian/rules also ...
     #
-    configtools=`sed -n <debian/rules.pcp -e '/^configure_tools/s/^[^=]*= *//p'`
+    configtools=`sed -n <debian/rules -e '/^configure_tools/s/^[^=]*= *//p'`
     echo configtools=$configtools
 elif $dorpm
 then
