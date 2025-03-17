@@ -1,0 +1,74 @@
+#!/bin/sh
+# PCP QA Test No. 1556
+# pmlogconf "force" clause
+#
+# Copyright (c) 2025 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+do_valgrind=false
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+    do_valgrind=true
+fi
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+    # end
+}
+
+# real QA test starts here
+mkdir $tmp || exit
+
+cat <<End-of-File >$tmp/$seq
+#pmlogconf-setup 2.0
+ident	generic filesystem size, fullness and mount information
+probe	filesys.avail exists ? available : exclude
+#probe	filesys.foobar exists ? include : available
+#probe	filesys.foobar exists ? include : exclude
+#probe	filesys.avail exists ? include : exclude
+# force	available
+	filesys
+End-of-File
+
+if $do_valgrind
+then
+    _run_valgrind ...your test goes here...
+else
+    pmlogconf -D appl0,appl1,appl2 -d $tmp $tmp.conf 2>&1
+fi \
+| _filter
+
+cat $tmp.conf
+
+pmlogconf -D appl0,appl1,appl2 -d $tmp $tmp.conf </dev/tty
+cat $tmp.conf
+
+# success, all done
+exit
