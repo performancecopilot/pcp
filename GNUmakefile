@@ -78,11 +78,11 @@ ifneq "$(findstring $(TARGET_OS),darwin mingw)" ""
 	$(INSTALL) -m 755 -d $(PCP_MAN_DIR)/man5
 endif
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_TMP_DIR)
-	# this works if PCP_RUN_DIR is persistent
-	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_RUN_DIR)
+ifeq "$(ENABLE_SYSTEMD)" "true"
 	# this works if PCP_RUN_DIR (and friends) are within a tmpfs that
 	# is mounted empty on re-boot and managed by systemd-tmpfiles(8)
 	$(INSTALL) -m 644 tmpfiles.init.setup /usr/lib/tmpfiles.d/pcp-reboot-init.conf
+endif
 	$(INSTALL) -m 755 -d $(PCP_SYSCONFIG_DIR)
 	$(INSTALL) -m 755 -d $(PCP_SYSCONF_DIR)
 	$(INSTALL) -m 755 -d $(PCP_SYSCONF_DIR)/labels
