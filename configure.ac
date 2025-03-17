@@ -3616,7 +3616,7 @@ inkscape=$INKSCAPE
 AC_SUBST(inkscape)
 
 have_hicolor_icons=false
-if test -d /usr/share/icons/hicolor -a -n "$INKSCAPE"
+if test -d /usr/share/icons/hicolor
 then
     AC_MSG_NOTICE([adding hicolor desktop icons to the build])
     have_hicolor_icons=true
