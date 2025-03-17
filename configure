@@ -17191,7 +17191,7 @@ inkscape=$INKSCAPE
 
 
 have_hicolor_icons=false
-if test -d /usr/share/icons/hicolor -a -n "$INKSCAPE"
+if test -d /usr/share/icons/hicolor
 then
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: adding hicolor desktop icons to the build" >&5
 printf "%s\n" "$as_me: adding hicolor desktop icons to the build" >&6;}
