@@ -15,6 +15,7 @@ Recommends: libpcp-pmda-perl
 Conflicts: pgpool2, dstat, pcp-webapi, pcp-manager
 Suggests: pcp-gui, libpcp-import-perl, ?{bpftrace}, ?{python3-bpfcc}, redis-server, zstd
 Provides: dstat, pcp-webapi, pcp-manager
+Breaks: pcp-doc (<< 7.0.0)
 Replaces: dstat, pcp-webapi, pcp-manager
 Architecture: any
 Description: System level performance monitoring and performance management
@@ -367,8 +368,8 @@ Description: Module for exporting PCP metrics to Zabbix agent
 Package: pcp-doc
 Section: doc
 Depends: ${misc:Depends}
-Breaks: pcp (<< 5.3.0), pcp-gui (<< 1.5.13)
-Replaces: pcp (<< 5.3.0), pcp-gui (<< 1.5.13)
+Breaks: pcp (<< 7.0.0), pcp-gui (<< 1.5.13)
+Replaces: pcp (<< 7.0.0), pcp-gui (<< 1.5.13)
 Suggests: pcp, pcp-gui
 Architecture: all
 Description: Documentation and tutorial for the Performance Co-Pilot
