@@ -99,7 +99,7 @@ DEVWEB_FILES = libpcp-web1-dev.dirs libpcp-web1-dev.install
 LIBWEB_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-web1
 DEVWEB_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-web1-dev
 
-SUBDIRS = source
+SUBDIRS =
 LDIRT = *.debhelper *.substvars *.log pcp files pcp.postrm \
 	pcp.preinst pcp.preinst.head pcp.postinst pcp.postinst.head \
 	pcp-gui.install \
