@@ -1,9 +1,4 @@
 
-if dpkg-maintscript-helper supports mv_conffile
-then
-    _version_configs "$@"
-fi
-
 getent group pcp >/dev/null || groupadd -r pcp
 getent passwd pcp >/dev/null || \
 useradd -c "Performance Co-Pilot" -g pcp -d /var/lib/pcp -M -r -s /usr/sbin/nologin pcp

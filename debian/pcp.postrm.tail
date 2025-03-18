@@ -1,9 +1,4 @@
 
-if dpkg-maintscript-helper supports mv_conffile
-then
-    _version_configs "$@"
-fi
-
 # figure out what sort if init|systemctl|... we're using to
 # launch daemons and services
 do_systemctl=false
