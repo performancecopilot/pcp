@@ -64,9 +64,19 @@ do
 	# + .PP  after .SH
 	#
 	awk <$f >>$tmp.err '
+BEGIN				{ tbl = 0 }
+NR == 1 && /^'"'"'\\" t/	{ tbl = 1 }
 $1 == ".SH"			{ seenSH = 1; next }
 seenSH == 1 && $1 == ".PP"	{ printf "%6d\t[.PP after .SH]\n",NR }
-				{ seenSH = 0 }'
+$1 == ".TS"			{ if (tbl == 0)
+				    printf "%6d\t[.TS without '"'"'\\\" t at line 1]\n",NR
+				  else
+				    tbl++
+				}
+				{ seenSH = 0 }
+END				{ if (tbl == 1)
+				    printf "%6d\t['"'"'\\\" t at line 1 without .TS later]\n",NR
+				}'
 	# \\f(xx for some invalid font ... only want BI (Times Bold-Italic),
 	# CR, CB, CI (Courier Roman, Bold or Italic)
 	#
