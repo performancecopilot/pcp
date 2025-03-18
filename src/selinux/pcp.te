@@ -119,6 +119,7 @@ kernel_read_network_state(pcp_pmcd_t)
 kernel_read_system_state(pcp_pmcd_t)
 kernel_read_state(pcp_pmcd_t)
 kernel_read_fs_sysctls(pcp_pmcd_t)
+kernel_read_vm_sysctls(pcp_pmcd_t)
 kernel_read_rpc_sysctls(pcp_pmcd_t)
 kernel_search_network_sysctl(pcp_pmcd_t)
 kernel_read_net_sysctls(pcp_pmcd_t)
@@ -424,7 +425,6 @@ require {
 	type var_run_t;
 	type virt_image_t;
 	type websm_port_t; # pmda.openmetrics
-	type xserver_misc_device_t;
 
 	class blk_file { ioctl open read };
 	class capability { net_raw }; # pmda.netcheck
@@ -989,17 +989,18 @@ allow pcp_pmcd_t fixed_disk_device_t:blk_file { open read ioctl };
 
 #============= pmda-nvidia ==============
 # type=AVC msg=audit(N): avc: denied { execute } for pid=PID comm="pmdanvidia" path="/usr/lib64/libnvidia-ml.so" dev="dm-2" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=unconfined_u:object_r:default_t:s0 tclass=file permissive=0
-allow pcp_pmcd_t default_t:file { execute };
-
-# type=AVC msg=audit(N): avc: denied { read write } for pid=PID comm="pmdanvidia" name="nvidiactl" dev="devtmpfs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:xserver_misc_device_t:s0 tclass=chr_file permissive=0
-allow pcp_pmcd_t xserver_misc_device_t:chr_file { open read write ioctl };
-
 # type=AVC msg=audit(N): avc: denied { read } for pid=PID comm="pmdanvidia" name="nvidia-cap2" dev="devtmpfs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=unconfined_u:object_r:device_t:s0 tclass=chr_file permissive=0
-allow pcp_pmcd_t device_t:chr_file { open read };
+#RHEL-83594
+allow pcp_pmcd_t default_t:file { execute };
+allow pcp_pmcd_t device_t:chr_file { create open read setattr write };
+allow pcp_pmcd_t device_t:dir { add_name remove_name write };
+allow pcp_pmcd_t device_t:lnk_file { create unlink };
+allow pcp_pmcd_t self:capability mknod;
 
 # type=AVC msg=audit(N): avc: denied { sys_rawio } for pid=PID comm="pmdaX" name="/" dev="tracefs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:pcp_pmcd_t:s0 tclass=capability permissive=0
 allow pcp_pmcd_t self:capability sys_rawio;
 
+#============= pmda-openvswitch  ==============
 optional_policy(`
     require {
         type openvswitch_exec_t;
