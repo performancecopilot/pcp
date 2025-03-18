@@ -1,6 +1,6 @@
 Source: pcp
 Section: utils
-Priority: extra
+Priority: optional
 Homepage: https://pcp.io
 Maintainer: PCP Development Team <pcp@groups.io>
 Uploaders: Nathan Scott <nathans@debian.org>, Ken McDonell <kenj@kenj.id.au>
