@@ -16,7 +16,7 @@
 .\"
 .TH PMREP 1 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmrep\f1 \- performance metrics reporter
+\f3pmrep\f1, \f3pcp2csv\f1 \- performance metrics reporter
 .SH SYNOPSIS
 \fBpmrep\fP
 [\fB\-12357CdgGHIjkLmnprRuUvVxz?\fP]
@@ -263,6 +263,10 @@ Configuration file options override the corresponding
 environment variables (if any).
 Command line options override the corresponding configuration
 file options (if any).
+.PP
+.B pcp2csv
+is an alias for
+.BR pmrep .
 .SH OPTIONS
 The available command line options are:
 .TP 5
