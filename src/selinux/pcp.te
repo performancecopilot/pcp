@@ -818,6 +818,10 @@ allow pcp_pmcd_t haproxy_var_lib_t:sock_file write;
 #RHBZ1505888
 allow pcp_pmcd_t sysctl_fs_t:file write;
 
+# type=AVC msg=audit(N): avc: denied { quotaget } for pid=PID comm="pmdaxfs" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:fs_t:s0 tclass=filesystem permissive=0
+allow pcp_pmcd_t fs_t:filesystem quotaget;
+
+
 #RHBZ1545245
 # type=AVC msg=audit(N): avc: denied { write } for pid=PID comm="pmdaX" name="/" dev="tracefs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:sysfs_t:s0 tclass=dir permissive=0
 allow pcp_pmcd_t sysfs_t:dir write;
@@ -944,19 +948,19 @@ allow pcp_pmie_t sysfs_t:lnk_file read;
 
 #============= pmda-lio ==============
 # type=AVC msg=audit(N): avc: denied { open read search write } for  pid=PID comm="pmdaX" name="/" dev="tracefs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:configfs_t:s0 tclass=dir permissive=0
-allow pcp_pmcd_t configfs_t:dir { open read search write };
+allow pcp_pmcd_t configfs_t:dir { add_name open read search write };
 
 # type=AVC msg=audit(N): avc: denied { getattr ioctl open read } for pid=PID comm="pmdaX" name="/" dev="tracefs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:configfs_t:s0 tclass=file permissive=0
-allow pcp_pmcd_t configfs_t:file { getattr ioctl open read };
+allow pcp_pmcd_t configfs_t:file { create getattr ioctl open read write };
 
 # type=AVC msg=audit(N): avc: denied { getattr read } for pid=PID comm="pmdaX" name="/" dev="tracefs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:configfs_t:s0 tclass=lnk_file permissive=0
 allow pcp_pmcd_t configfs_t:lnk_file { getattr read };
 
+# type=AVC msg=audit(N): avc: denied { module_load } for pid=PID comm="pmdaX" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=system permissive=0
+allow pcp_pmcd_t self:system module_load;
+
 # type=AVC msg=audit(N): avc: denied { execute execute_no_trans getattr open read } for pid=PID comm="pmdaX" name="/" dev="tracefs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:ldconfig_exec_t:s0 tclass=file permissive=0
 allow pcp_pmcd_t ldconfig_exec_t:file { execute execute_no_trans getattr open read };
-
-# type=AVC msg=audit(N): avc: denied { quotaget } for pid=PID comm="pmdaxfs" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:fs_t:s0 tclass=filesystem permissive=0
-allow pcp_pmcd_t fs_t:filesystem quotaget;
 
 #============= pcp_pmproxy_t ==============
 # type=AVC msg=audit(N) : avc: denied { net_admin } for pid=PID comm=pmproxy capability=net_admin scontext=system_u:system_r:pcp_pmproxy_t:s0 tcontext=system_u:system_r:pcp_pmproxy_t:s0 tclass=capability
