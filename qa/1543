@@ -90,6 +90,7 @@ _filter_text()
 	-e "s/hostname=\"$hostname\"/hostname=\"HOSTNAME\"/g" \
 	-e "s/machineid=\"$machineid\"/machineid=\"MACHINEID\"/g" \
 	-e "s/domainname=\"$domainname\"/domainname=\"DOMAINNAME\"/g" \
+	-e "s/\"context\":[0-9][0-9]*/\"context\":CONTEXT/g" \
     #end
 }
 
@@ -406,6 +407,16 @@ if [ $? -eq 0 ]; then
 else
     echo "pmproxy check failed"
 fi
+
+# Filtering options
+curl -s "http://localhost:$port/metrics?name=sample.long.one,sample.long.ten&filter=*ten" \
+	| _filter_text "good filter globbing"
+curl -s "http://localhost:$port/metrics?name=sample.long.one,sample.long.ten&filter=*ten&match=exact" \
+	| _filter_text "good filter exact match"
+curl -s "http://localhost:$port/metrics?name=sample.long.one,sample.long.ten&filter=ten&match=regex" \
+	| _filter_text "good filter regex"
+curl -s "http://localhost:$port/metrics?name=sample.long.one,sample.long.ten&filter=ten&match=dummy" \
+	| _filter_text "bad filter match param"
 
 # No clue why or how, but on vm21 (Debian 11) this sleep makes the test
 # reliably pass, rather than 

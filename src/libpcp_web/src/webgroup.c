@@ -36,7 +36,8 @@ static unsigned int default_batchsize;	/* for groups of metrics */
 static sds PARAM_HOSTNAME, PARAM_HOSTSPEC, PARAM_CTXNUM, PARAM_CTXID,
            PARAM_POLLTIME, PARAM_PREFIX, PARAM_MNAME, PARAM_MNAMES,
            PARAM_PMIDS, PARAM_PMID, PARAM_INDOM, PARAM_INSTANCE,
-           PARAM_INAME, PARAM_MVALUE, PARAM_TARGET, PARAM_EXPR, PARAM_MATCH;
+           PARAM_INAME, PARAM_MVALUE, PARAM_TARGET, PARAM_EXPR, PARAM_MATCH,
+           PARAM_FILTER;
 static sds AUTH_USERNAME, AUTH_PASSWORD;
 static sds EMPTYSTRING, LOCALHOST, WORK_TIMER, POLL_TIMEOUT, BATCHSIZE;
 
@@ -1867,6 +1868,40 @@ webgroup_scrape(pmWebGroupSettings *settings, context_t *cp,
     return sts < 0 ? sts : 0;
 }
 
+typedef struct webscrape {
+    pmWebGroupSettings	*settings;
+    struct context	*context;
+    sds			*msg;
+    int			status;
+    unsigned int	numnames;	/* current count of metric names */
+    sds			*names;		/* metric names for batched up scrape */
+    struct metric	**mplist;
+    pmID		*pmidlist;
+    int			numfilters;	/* current count of filters */
+    sds			*filters;
+    enum matches	match;		/* type of matching to use for filters */
+    regex_t		*regex;		/* for filter compiled regular expressions */
+    void		*arg;
+} webscrape_t;
+
+static int
+filtered(struct webscrape *filter_info, const char *name)
+{
+    int i;
+    for (i = 0; i < filter_info->numfilters; i++) {
+	if (filter_info->match == MATCH_EXACT &&
+	    strcmp(filter_info->filters[i], name) == 0)
+	    return 1;
+	if (filter_info->match == MATCH_REGEX &&
+	    regexec(&(filter_info->regex[i]), name, 0, NULL, 0) == 0)
+	    return 1;
+	if (filter_info->match == MATCH_GLOB &&
+	    fnmatch(filter_info->filters[i], name, 0) == 0)
+	    return 1;
+    }
+    return 0;
+}
+
 static int
 webgroup_scrape_names(pmWebGroupSettings *settings, context_t *cp,
 	int numnames, sds *names, struct metric **mplist, pmID *pmidlist,
@@ -1885,18 +1920,6 @@ webgroup_scrape_names(pmWebGroupSettings *settings, context_t *cp,
     return webgroup_scrape(settings, cp, numnames, mplist, pmidlist, msg, arg);
 }
 
-typedef struct webscrape {
-    pmWebGroupSettings	*settings;
-    struct context	*context;
-    sds			*msg;
-    int			status;
-    unsigned int	numnames;	/* current count of metric names */
-    sds			*names;		/* metric names for batched up scrape */
-    struct metric	**mplist;
-    pmID		*pmidlist;
-    void		*arg;
-} webscrape_t;
-
 /* Metric namespace traversal callback for use with pmTraversePMNS_r(3) */
 static void
 webgroup_scrape_batch(const char *name, void *arg)
@@ -1911,8 +1934,10 @@ webgroup_scrape_batch(const char *name, void *arg)
 	scrape->numnames = 0;
     }
 
-    scrape->names[scrape->numnames] = sdsnew(name);
-    scrape->numnames++;
+    if (!filtered(scrape, name)) {
+	scrape->names[scrape->numnames] = sdsnew(name);
+	scrape->numnames++;
+    }
 
     if (scrape->numnames == DEFAULT_BATCHSIZE) {
 	sts = webgroup_scrape_names(scrape->settings, scrape->context,
@@ -1983,8 +2008,37 @@ pmWebGroupScrape(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
     scrape.context = cp;
     scrape.msg = &msg;
     scrape.arg = arg;
+    scrape.numfilters = 0;
+    scrape.match = MATCH_GLOB; /* default filtering is globbing match */
 
-    /* handle scrape via metric name list traversal (else entire namespace) */
+    /* Add filtering information to scrape */
+    if (params) {
+	sds match = dictFetchValue(params, PARAM_MATCH);
+	sds filter = dictFetchValue(params, PARAM_FILTER);
+	scrape.numfilters = 0;
+
+	if (match != NULL) {
+	    if (strcmp(match, "regex") == 0) {
+		scrape.match = MATCH_REGEX;
+	    } else if (strcmp(match, "exact") == 0)
+		scrape.match = MATCH_GLOB;
+	    else if (strcmp(match, "glob") != 0) {
+		infofmt(msg, "%s - invalid 'match' parameter value", match);
+		sts = -EINVAL;
+		goto done;
+	    }
+	}
+
+	if (filter != NULL) {
+	    length = sdslen(filter);
+	    scrape.filters = sdssplitlen(filter, length, ",", 1, &scrape.numfilters);
+	}
+
+	if (scrape.match == MATCH_REGEX)
+	    scrape.regex = name_match_setup(scrape.match, scrape.numfilters, scrape.filters);
+    }
+
+    /* Handle scrape via metric name list traversal (else entire namespace) */
     if (metrics && sdslen(metrics)) {
 	length = sdslen(metrics);
 	if ((names = sdssplitlen(metrics, length, ",", 1, &numnames)) == NULL)
@@ -2001,6 +2055,9 @@ pmWebGroupScrape(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
 	free(scrape.mplist);
 	free(scrape.pmidlist);
     }
+
+    sdsfreesplitres(scrape.filters, scrape.numfilters);
+    name_match_free(scrape.regex, scrape.numfilters);
 
 done:
     settings->callbacks.on_done(id, sts, msg, arg);
@@ -2281,6 +2338,7 @@ pmWebGroupSetup(pmWebGroupModule *module)
     PARAM_TARGET = sdsnew("target");
     PARAM_EXPR = sdsnew("expr");
     PARAM_MATCH = sdsnew("match");
+    PARAM_FILTER = sdsnew("filter");
 
     /* generally needed strings, error messages */
     EMPTYSTRING = sdsnew("");
@@ -2431,6 +2489,7 @@ pmWebGroupClose(pmWebGroupModule *module)
     sdsfree(PARAM_TARGET);
     sdsfree(PARAM_EXPR);
     sdsfree(PARAM_MATCH);
+    sdsfree(PARAM_FILTER);
 
     /* generally needed strings, error messages */
     sdsfree(EMPTYSTRING);
