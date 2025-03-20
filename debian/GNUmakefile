@@ -7,7 +7,7 @@ LINTIAN = source.lintian-overrides
 LINTDIR = $(PCP_SHARE_DIR)/../lintian/overrides
 
 PCP_FILES = pcp.preinst pcp.prerm pcp.postinst pcp.postrm pcp.conffiles
-PCP_LINT = pcp.lintian
+PCP_LINT = $(shell echo *.lintian)
 
 PCPDOC = pcp-doc
 PCPDOC_FILES = pcp-doc.dirs pcp-doc.install
@@ -122,7 +122,7 @@ ifeq ($(ENABLE_SYSTEMD),true)
 endif
 ifeq ($(PACKAGE_DISTRIBUTION), debian)
 	$(INSTALL) -m 755 -d $(LINTDIR)
-	$(INSTALL) -m 644 $(PCP_LINT) $(LINTDIR)/pcp
+	for dst in $(PCP_LINT:.lintian=); do $(INSTALL) -m 644 $$dst.lintian $(LINTDIR)/$$dst; done
 endif
 
 default_pcp : default

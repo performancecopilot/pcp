@@ -1,0 +1,2 @@
+# pmpython is an OK wrapper for python in PCPland
+pcp-doc: unusual-interpreter pmpython [usr/share/pcp/examples/pcp2spark/PCP2SparkStreamCollector.python]

@@ -130,19 +130,19 @@ man page.
 The
 .B mpvis
 specific options are:
-.IP \f3\-b\f1 n
+.IP \f3\-b\f1 4n
 Use a ratio for row:column of 1:8.  This option is best for large
 numbers of CPUs.  If the row length is not a factor of the number of CPUs,
 then the last row will be shorter than all other rows.  This option
 ignores the maximum row length.
 .IP \f3\-i\f1
 Label each CPU column with the CPU number.
-.IP \f3\-r\f1 n
+.IP \f3\-r\f1
 Split the view into a number of rows, where each row has a maximum
 length of \f2n\f1 CPUs.  This is a soft limit.  The actual row
 length is calculated by an algorithm (see above) which prduces
 a balanced view with no more than \f2n\f1 CPUs per row.
-.IP \f3\-R\f1 n
+.IP \f3\-R\f1
 Split the view into a number of rows, where each row has a length of
 \f2n\f1 CPUs.  This is a hard limit.  If the row length is not a
 factor of the number of CPUs, then the last row will be shorter

@@ -1,3 +1,4 @@
 usr/bin/pcp2xml
 usr/share/bash-completion/completions/pcp2xml
+usr/share/lintian/overrides/pcp-export-pcp2xml
 usr/share/man/man1/pcp2xml.1.gz

@@ -151,7 +151,8 @@ uninstall = cat debian/*.install | sed -e "s,^,$(dirpcp)/," | xargs rm -f
 uninstallpy = cat python*-pcp.list | sed -e "s,^,$(dirpcp)/," | xargs rm -fr
 uninstallpydir = ls -d $(dirpcp)/usr/lib*/python* | xargs rm -fr
 uninstalltest = cat $(dirpcp_testsuite).dirs | sed -e "s,^,debian/$(pcp)/," | xargs rm -fr
-uninstalldirs = rmdir $(dirpcp)/usr/include/pcp $(dirpcp)/usr/include $(dirpcp)/usr/share/man/man3 $(dirpcp)/usr/lib/pkgconfig
+uninstalldirs = rmdir $(dirpcp)/usr/include/pcp $(dirpcp)/usr/include $(dirpcp)/usr/share/man/man3
+uninstallpkgconfig = rm -f $(dirpcp)/usr/lib/*/pkgconfig/*
 uninstallib = cat $(dirpcp_pmda_infiniband).dirs | sed -e "s,^,$(dirpcp)/," | xargs rm -fr
 uninstallarrow = cat $(dirdoc).dirs | sed -e "s,^,$(dirpcp_export_arrow)/," | xargs rm -fr
 uninstallspark = cat $(dirdoc).dirs | sed -e "s,^,$(dirpcp_export_spark)/," | xargs rm -fr
@@ -276,6 +277,7 @@ binary-arch: checkroot build-stamp
 	@$(uninstallib)
 	@$(uninstallgui)
 	@$(uninstalldirs)
+	@$(uninstallpkgconfig)
 	@$(uninstalltest)
 	@$(uninstallpydir)
 	@$(uninstallarrow)
