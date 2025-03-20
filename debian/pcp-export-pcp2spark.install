@@ -1,3 +1,4 @@
 usr/bin/pcp2spark
 usr/share/bash-completion/completions/pcp2spark
+usr/share/lintian/overrides/pcp-export-pcp2spark
 usr/share/man/man1/pcp2spark.1.gz

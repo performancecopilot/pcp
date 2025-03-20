@@ -1,3 +1,4 @@
 usr/bin/pcp2arrow
 usr/share/bash-completion/completions/pcp2arrow
+usr/share/lintian/overrides/pcp-export-pcp2arrow
 usr/share/man/man1/pcp2arrow.1.gz

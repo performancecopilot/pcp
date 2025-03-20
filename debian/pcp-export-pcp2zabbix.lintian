@@ -1,0 +1,2 @@
+# pmpython is an OK wrapper for python in PCPland
+pcp-export-pcp2zabbix: unusual-interpreter pmpython [usr/bin/pcp2zabbix]

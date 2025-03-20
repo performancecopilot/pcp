@@ -1,0 +1,14 @@
+# pmpython is an OK wrapper for python in PCPland
+pcp-testsuite: unusual-interpreter pmpython [*]
+
+# this is used in a QA test and it is DELIBERATELY not executable
+pcp-testsuite: script-not-executable [var/lib/pcp/testsuite/openmetrics/scripts/script_not_executable.sh]
+
+# libpcp_fault.so is a fault injection version of libpcp.so and so
+# it needs the soname of libpcp.so in order that LD_PRELOAD works
+# and libpcp_fault is used in place of libpcp in QA testing
+pcp-testsuite: package-name-doesnt-match-sonames libpcp-fault3
+
+# similar to above, libpcp_fault.so belongs in pcp-testsuite as it
+# is ONLY used for QA as a fault injection version of libpcp.so
+pcp-testsuite: link-to-shared-library-in-wrong-package usr/lib/libpcp_fault.so.3 [usr/lib/libpcp_fault.so]

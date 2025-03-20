@@ -1,0 +1,6 @@
+# these Python wrappers do not use any other DSOs, so they look statically
+# linked according to ldd(1), which confuses lintian
+python3-pcp: shared-library-lacks-prerequisites [usr/lib/python3/dist-packages/cmmv.cpython-*.so]
+python3-pcp: shared-library-lacks-prerequisites [usr/lib/python3/dist-packages/cpmgui.cpython-*.so]
+python3-pcp: shared-library-lacks-prerequisites [usr/lib/python3/dist-packages/cpmi.cpython-*.so]
+

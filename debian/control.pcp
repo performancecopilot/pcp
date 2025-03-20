@@ -389,7 +389,7 @@ Description: Performance Co-Pilot (PCP) Zeroconf Package
  diagnosis, alerting and self-healing for the localhost.
 
 Package: pcp-testsuite
-Depends: ${misc:Depends}, ${shlibs:Depends}, time, pcp (= ${binary:Version})
+Depends: ${misc:Depends}, ${shlibs:Depends}, time, pcp (= ${binary:Version}), python3
 Architecture: any
 Suggests: valgrind
 Provides: pcpqa, pcp-gui-testsuite
