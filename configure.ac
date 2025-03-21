@@ -163,6 +163,11 @@ AC_ARG_WITH([pmdamongodb],
     [do_pmdamongodb=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdamongodb=$withval"],
     [do_pmdamongodb=check])
 
+AC_ARG_WITH([pmdamysql],
+    [AS_HELP_STRING([--with-pmdamysql],[enable MySQL pmda (default is on)])],
+    [do_pmdamysql=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdamysql=$withval"],
+    [do_pmdamysql=check])
+
 AC_ARG_WITH([pmdanutcracker],
     [AS_HELP_STRING([--with-pmdanutcracker],[enable nutcracker pmda (default is on)])],
     [do_pmdanutcracker=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdanutcracker=$withval"],
@@ -1455,17 +1460,20 @@ if $pmda_snmp; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
 AC_MSG_CHECKING([if the mysql PMDA should be included])
 pmda_mysql=false
-if test "$have_perl" = true
-then
-    dnl rpm build for mysql PMDA needs Perl DBI and DBD::mysql
-    if $pcp_perl_prog -e "use DBI" >/dev/null 2>&1
+AS_IF([test "x$do_pmdamysql" = "xyes"], [pmda_mysql=true])
+AS_IF([test "x$do_pmdamysql" = "xcheck"], [
+    if test "$have_perl" = true
     then
-	if $pcp_perl_prog -e "use DBD::mysql" >/dev/null 2>&1
-	then
-	    pmda_mysql=true
-	fi
+        dnl rpm build for mysql PMDA needs Perl DBI and DBD::mysql
+        if $pcp_perl_prog -e "use DBI" >/dev/null 2>&1
+        then
+	    if $pcp_perl_prog -e "use DBD::mysql" >/dev/null 2>&1
+	    then
+	        pmda_mysql=true
+	    fi
+        fi
     fi
-fi
+])
 AC_SUBST(PMDA_MYSQL, $pmda_mysql)
 if $pmda_mysql; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
