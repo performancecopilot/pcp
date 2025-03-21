@@ -161,6 +161,16 @@ ExcludeArch: %{ix86}
 %global disable_mssql 1
 %endif
 
+# No mysql support on 32-bit x86 platforms from el9 and later
+%ifarch %{ix86}
+%if 0%{?rhel} >= 9
+%global disable_mysql 1
+%else
+%global disable_mysql 0
+%else
+%global disable_mysql 0
+%endif
+
 # support for pmdanutcracker (perl deps missing on rhel)
 %if 0%{?rhel} == 0
 %global disable_nutcracker 0
@@ -432,6 +442,12 @@ Requires: pcp-selinux = %{version}-%{release}
 %global _with_mongodb --with-pmdamongodb=yes
 %endif
 
+%if %{disable_mysql}
+%global _with_mysql --with-pmdamysql=no
+%else
+%global _with_mysql --with-pmdamysql=yes
+%endif
+
 %if %{disable_nutcracker}
 %global _with_nutcracker --with-pmdanutcracker=no
 %else
@@ -556,7 +572,7 @@ Obsoletes: pcp-gui-testsuite < 3.9.5
 # both of which are now obsoleted by the base pcp package
 Requires: pcp-pmda-activemq pcp-pmda-bonding pcp-pmda-dbping pcp-pmda-ds389 pcp-pmda-ds389log
 Requires: pcp-pmda-elasticsearch pcp-pmda-gpfs pcp-pmda-gpsd pcp-pmda-lustre
-Requires: pcp-pmda-memcache pcp-pmda-mysql pcp-pmda-named pcp-pmda-netfilter pcp-pmda-news
+Requires: pcp-pmda-memcache pcp-pmda-named pcp-pmda-netfilter pcp-pmda-news
 Requires: pcp-pmda-nginx pcp-pmda-nfsclient pcp-pmda-pdns pcp-pmda-postfix pcp-pmda-postgresql pcp-pmda-oracle
 Requires: pcp-pmda-samba pcp-pmda-slurm pcp-pmda-zimbra
 Requires: pcp-pmda-dm pcp-pmda-apache
@@ -595,6 +611,9 @@ Requires: pcp-pmda-mongodb
 %endif
 %if !%{disable_mssql}
 Requires: pcp-pmda-mssql 
+%endif
+%if !%{disable_mysql}
+Requires: pcp-pmda-mysql 
 %endif
 %if !%{disable_snmp}
 Requires: pcp-pmda-snmp
@@ -1309,6 +1328,7 @@ This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about Memcached.
 #end pcp-pmda-memcache
 
+%if !%{disable_mysql}
 #
 # pcp-pmda-mysql
 #
@@ -1325,6 +1345,7 @@ BuildRequires: perl(DBI) perl(DBD::mysql)
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about the MySQL database.
 #end pcp-pmda-mysql
+%endif
 
 #
 # pcp-pmda-named
@@ -2473,7 +2494,7 @@ sed -i "/PACKAGE_BUILD/s/=[0-9]*/=$_build/" VERSION.pcp
 %if !%{disable_python2} && 0%{?default_python} != 3
 export PYTHON=python%{?default_python}
 %endif
-%configure %{?_with_initd} %{?_with_doc} %{?_with_dstat} %{?_with_ib} %{?_with_gfs2} %{?_with_statsd} %{?_with_perfevent} %{?_with_bcc} %{?_with_bpf} %{?_with_bpftrace} %{?_with_json} %{?_with_mongodb} %{?_with_snmp} %{?_with_nutcracker} %{?_with_python2}
+%configure %{?_with_initd} %{?_with_doc} %{?_with_dstat} %{?_with_ib} %{?_with_gfs2} %{?_with_statsd} %{?_with_perfevent} %{?_with_bcc} %{?_with_bpf} %{?_with_bpftrace} %{?_with_json} %{?_with_mongodb} %{?_with_mysql} %{?_with_snmp} %{?_with_nutcracker} %{?_with_python2}
 make %{?_smp_mflags} default_pcp
 
 %install
@@ -2973,8 +2994,10 @@ exit 0
 %{pmda_remove "$1" "snmp"}
 %endif
 
+%if !%{disable_mysql}
 %preun pmda-mysql
 %{pmda_remove "$1" "mysql"}
+%endif
 
 %preun pmda-activemq
 %{pmda_remove "$1" "activemq"}
@@ -3383,7 +3406,7 @@ fi
 
 %files pmda-lustrecomm -f pcp-pmda-lustrecomm-files.rpm
 
-%if !%{disable_perl}
+%if !%{disable_mysql}
 %files pmda-mysql -f pcp-pmda-mysql-files.rpm
 %endif
 
