@@ -60,7 +60,7 @@ QColor ColorScheme::colorSpec(QString name)
 
     if (rgbi.left(5) != "rgbi:") {
 #if QT_VERSION >= 0x060000
-	color.fromString(name);
+	color = QColor::fromString(name);
 #else
 	color.setNamedColor(name);
 #endif
