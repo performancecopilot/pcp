@@ -306,6 +306,15 @@ cat <<'End-of-File' >$tmp.suppress
    ...
 }
 {
+   sds.c: same as above when we don't have symbols
+   Memcheck:Cond
+   ...
+   fun:sdscatfmt
+   ...
+   fun:pmSeriesDiscoverValues
+   ...
+}
+{
    net.c: uninitialized buffer on async i/o path
    Memcheck:Param
    socketcall.send(msg)
@@ -315,6 +324,16 @@ cat <<'End-of-File' >$tmp.suppress
    fun:redisAsyncWrite
    fun:redisAsyncHandleWrite
    fun:redisLibuvPoll
+   ...
+}
+{
+   net.c: same as above when we don't have symbols
+   Memcheck:Param
+   socketcall.send(msg)
+   fun:send
+   ...
+   fun:uv__io_poll
+   fun:uv_run
    ...
 }
 End-of-File
