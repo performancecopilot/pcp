@@ -206,7 +206,7 @@ CentOS Stream
     15 Dec 2024: 9, 10
     [old CentOS]
     https://en.wikipedia.org/wiki/CentOS#CentOS_releases
-    25 Sep 2018: 6.*, 7.1-7.5
+    25 Sep 2018: 6.*, 7.1-7.9
     # everything the same as RedHat
     # only sane upgrade plan is fresh install!, then
     # sudo dnf install epel-release -y
