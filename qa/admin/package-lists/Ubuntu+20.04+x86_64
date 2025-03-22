@@ -47,6 +47,7 @@ libcoin-dev
 libdbd-mysql-perl
 libdbd-pg-perl
 libdevmapper-dev
+libdrm-dev
 libextutils-autoinstall-perl
 libfile-slurp-perl
 libgl1-mesa-dri
@@ -131,8 +132,10 @@ sasl2-bin
 sed
 smartmontools
 socat
+sudo
 sysstat
 systemtap
+systemtap-runtime
 systemtap-sdt-dev
 targetcli-fb
 time
