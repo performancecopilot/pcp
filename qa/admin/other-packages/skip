@@ -171,7 +171,7 @@ Ubuntu       16\.04   -       mariadb-client-core mariadb-client-core-[0-9][0-9.
 # preferences where check-vm -a lists all options ... from list-packages
 # analysis
 #
-RHEL         8\.       -      ccache coreutils-single perl
+RHEL         8\.       -      ccache coreutils-single perl python3-pandas
 RHEL         7\.       -      389-ds ccache python2-requests python2-six
 RHEL         6\.       -      389-ds ccache perl-interpreter python2-requests python2-setuptools python2-six zabbix22-agent
 CentOS       7\.       -      389-ds
