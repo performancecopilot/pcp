@@ -255,6 +255,16 @@ END		{ exit sts }'
 	    fmt -72 <$tmp.no-manifest | sed -e 's/^/    /'
 	fi
     fi
+
+    # any duplicates in the packing list are also a problem
+    #
+    sort $tmp.list | uniq -c \
+    | sed -e '/^ *1 /d' -e 's/^ *[0-9][0-9]* //' >$tmp.tmp
+    if [ -s $tmp.tmp ]
+    then
+	echo "Duplicated in packing list ..."
+	fmt -72 <$tmp.tmp | sed -e 's/^/    /'
+    fi
 }
 
 export LC_COLLATE=POSIX
