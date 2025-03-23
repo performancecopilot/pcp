@@ -120,11 +120,14 @@ RHEL         8\.2     -       {.*}-python2 python2-{.*} python2[0-9]-{.*} python
 RHEL         8\.[0-1] -       cpan(Net::LDAP) cpan(Spreadsheet::XLSX) cpan(Text::CSV_XS) cpan(XML::LibXML) cpan(XML::TokeParser) perl-autodie perl-Date-Manip perl-DBD-MySQL perl-LDAP perl-Net-SNMP perl-Spreadsheet-WriteExcel perl-Spreadsheet-XLSX perl-Text-CSV_XS perl-XML-LibXML perl-XML-TokeParser {.*}-python2 python2-{.*} system-python-libs
 # broken dependencies - perl-Parse-RecDescent and/or perl-Crypt-DES
 RHEL         7\.9     -       perl-Spreadsheet-WriteExcel perl-Spreadsheet-XLSX perl-Net-SNMP
-RHEL         7\.[5-9] -       {.*}-python3 python3-{.*} python3{[0-9]-.*} 
-RHEL         6\.10    -       {.*}-python3 python3-{.*} python3{[0-9]-.*}
+# Python3 is incomplete
+RHEL         7\.[5-9] -       python3 {.*}-python3 python3-{.*} python36-{.*} 
+# Qt4
+RHEL         7\.      -       qt-devel SoQt-devel
 # for RHEL 7, no way to get infiniband/mad.h installed, so rdma-core-devel
 # is collateral damage, and libibumad-devel is obsoleted
 RHEL         7\.       -       infiniband-diags-devel libibmad-devel rdma-core-devel libibumad-devel
+RHEL         6\.10    -       {.*}-python3 python3-{.*} python3{[0-9]-.*}
 # need non-standard repo for msssql-* pkgs
 RHEL         -        -       mssql-server mssql-tools
 # these ones are SuSE packages, not in the RH ecosystem
@@ -171,7 +174,7 @@ Ubuntu       16\.04   -       mariadb-client-core mariadb-client-core-[0-9][0-9.
 # preferences where check-vm -a lists all options ... from list-packages
 # analysis
 #
-RHEL         8\.       -      ccache coreutils-single perl python3-pandas
+RHEL         8\.       -      ccache coreutils-single perl
 RHEL         7\.       -      389-ds ccache python2-requests python2-six
 RHEL         6\.       -      389-ds ccache perl-interpreter python2-requests python2-setuptools python2-six zabbix22-agent
 CentOS       7\.       -      389-ds
