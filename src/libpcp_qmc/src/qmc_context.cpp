@@ -29,6 +29,8 @@ QmcContext::QmcContext(QmcSource* source)
     my.context = -1;
     my.source = source;
     my.needReconnect = false;
+    memset(&my.currentTime, 0, sizeof(my.currentTime));
+    memset(&my.previousTime, 0, sizeof(my.previousTime));
 
     if (my.source->status() >= 0)
 	my.context = my.source->dupContext();
