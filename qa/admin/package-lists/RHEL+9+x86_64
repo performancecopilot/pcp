@@ -93,7 +93,6 @@ postfix-perl-scripts
 postgresql
 psmisc
 pylint
-Coin4-devel
 python3
 python3-devel
 python3-bcc
@@ -134,8 +133,10 @@ socat
 sqlite
 sqlite-libs
 sysstat
+sudo
 systemd-devel
 systemtap-devel
+systemtap-runtime
 systemtap-sdt-devel
 targetcli
 time
