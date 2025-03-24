@@ -54,6 +54,7 @@ kubernetes-kubelet
 libavahi-devel
 libbpf-devel
 libcmocka-devel
+libdrm-devel
 libicu-devel
 libinih-devel
 libopenssl-devel
@@ -129,8 +130,11 @@ sensors
 setools-console
 smartmontools
 socat
+sudo
 sysstat
 systemd-devel
+systemtap
+systemtap-runtime
 systemtap-sdt-devel
 time
 valgrind
