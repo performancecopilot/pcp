@@ -3517,7 +3517,7 @@ if test ${with_python+y}
 then :
   withval=$with_python; do_python=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-python=$withval"
 else $as_nop
-  do_python=check
+  do_python=no
 fi
 
 
