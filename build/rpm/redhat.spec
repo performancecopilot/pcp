@@ -167,6 +167,7 @@ ExcludeArch: %{ix86}
 %global disable_mysql 1
 %else
 %global disable_mysql 0
+%endif
 %else
 %global disable_mysql 0
 %endif
