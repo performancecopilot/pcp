@@ -84,6 +84,7 @@ _filter_html()
 
 _filter_text()
 {
+    CR=$(printf '\r')
     echo "== $@ ==" | tee -a $seq_full
     tee -a $seq_full | \
     sed \
@@ -91,6 +92,7 @@ _filter_text()
 	-e "s/machineid=\"$machineid\"/machineid=\"MACHINEID\"/g" \
 	-e "s/domainname=\"$domainname\"/domainname=\"DOMAINNAME\"/g" \
 	-e "s/\"context\":[0-9][0-9]*/\"context\":CONTEXT/g" \
+	-e "s/$CR//g" \
     #end
 }
 
