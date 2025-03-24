@@ -24,6 +24,9 @@
 # we're using python3
 ArchLinux    -        -       python2-{.*} {.*}-python2
 #-- Centos
+# all available but dnf cannot install 'em due to missing or down-rev
+# dependencies
+CentOS       Stream8  -       389-ds-base perl-Net-SNMP perl-Spreadsheet-WriteExcel perl-Spreadsheet-XLSX python3-pandas 
 # we're using python3
 # As of 8.2.2004 ...
 # mysql conflicst with mariadb
