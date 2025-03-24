@@ -146,6 +146,8 @@ openSUSE     -        -       mssql-server mssql-tools
 #-- Ubuntu
 # Python2 retired from PCP builds as of Ubunutu version 20.04
 Ubuntu       2.\.     -       python-{.*} python libpython-dev libpython2-dev libpython-stdlib libpython2-stdlib
+# bpfcc-tools won't install here
+Ubuntu       18\.04   -       bpfcc-tools
 Ubuntu       1[89]\.. -       python-{.*}
 Ubuntu       1[67]\.. -       python-{.*} python2-dev
 # we're using python3 from 14.04 on
