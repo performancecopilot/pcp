@@ -264,7 +264,7 @@ slackpkg?	pkg-config	[pkg-config]
 pacman?		pkg-config	[core/pkgconf]
 brew?		pkg-config	[pkg-config]
 # -- python
-dpkg?		python3		[python3-minimal]
+dpkg?		python3		[python3-minimal or python3-all]
 rpm?		python3		[python3]
 emerge?		python3		[?]
 pkgin?		python3		[?]
