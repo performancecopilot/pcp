@@ -111,7 +111,7 @@ AC_ARG_WITH([perl],
 AC_ARG_WITH([python],
     [AS_HELP_STRING([--with-python],[enable support for tools requiring Python (default is on)])],
     [do_python=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-python=$withval"],
-    [do_python=no])
+    [do_python=check])
 
 AC_ARG_WITH([python3],
     [AS_HELP_STRING([--with-python3],[enable support for tools requiring Python3 (default is on)])],
