@@ -207,7 +207,16 @@ END		{ exit sts }'
 			    then
 				echo "manifest:$lineno $pkg: not in packing list, but available?"
 			    else
-				echo "manifest:$lineno $pkg: not in packing list, but $avail available?"
+				navail=`echo "$avail" | wc -w | sed -e 's/ //g'`
+				if [ "$navail" -eq 1 ]
+				then
+				    echo "manifest:$lineno $pkg: not in packing list, but $avail available?"
+				elif [ "$navail" -le 2 ]
+				then
+				    echo "manifest:$lineno $pkg: not in packing list, but `echo "$avail" | tr '\012' ' ' | sed -e 's/ $//' -e 's/ / and /'` available?"
+				else
+				    echo "manifest:$lineno $pkg: not in packing list, but `echo "$avail" | tr '\012' ' ' | sed -e 's/ .* \([^ ][^ ]*\) / ... \1/'` available?"
+				fi
 			    fi
 			fi
 		    fi
