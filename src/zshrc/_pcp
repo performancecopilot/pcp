@@ -239,6 +239,7 @@ _pcp () {
       "$common_help[@]" \
       "$common_pmda[@]" \
       "$common_python[@]" \
+      "(-D --debug $exargs)"{-D,--debug}'[set debug options]:options:->debug_opts' \
       "(-f --timestamp-format $exargs)"{-f+,--timestamp-format=}'[set time format string]:format:' \
       "(-F --output-file $exargs)"{-F+,--output-file=}'[specify output file]:file:_files' \
       "(-m --include-labels -m --include-labels $exargs)"{-m,--include-labels}'[include labels]' \

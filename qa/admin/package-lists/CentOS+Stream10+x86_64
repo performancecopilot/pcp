@@ -39,7 +39,7 @@ httpd
 inih-devel
 initscripts
 iproute
-# java-latest-openjdk-headless
+java-21-openjdk-headless
 jq
 libbpf
 libbpf-devel
@@ -95,23 +95,29 @@ python3
 python3-bcc
 python3-devel
 # python3-elasticsearch
+python3-jsonpointer
 python3-libs
 python3-libvirt
 python3-lxml
 python3-openpyxl
+python3-pandas
 python3-pillow
 python3-psycopg2
+python3-pyarrow
 python3-pylint
 # python3-pymongo
 python3-pyodbc
 python3-requests
 python3-rtslib
 python3-setuptools
-python3-setuptools
 python3-six
+qt5-qtbase-devel
+qt5-qtsvg-devel
 rdma-core-devel
 readline-devel
 rpm-build
+rrdtool-perl
+s-nail
 sed
 selinux-policy
 selinux-policy-devel
@@ -121,13 +127,18 @@ smartmontools
 socat
 sqlite
 sqlite-libs
+sudo
 sysstat
 systemd-devel
+systemtap-devel
+systemtap-runtime
+systemtap-sdt-devel
 targetcli
 time
 valkey
 valgrind
 xfsprogs
+xkeyboard-config
 xz-devel
-zabbix-agent
+zabbix7.0-agent
 zstd

@@ -51,6 +51,11 @@ _check_requests_json()
     esac
 }
 
+_check_python3()
+{
+    $python -c "import sys; sys.exit(0 if sys.version_info >= (3, 0) else 1)" || _notrun "python 3+ is required"
+}
+
 _check_python36()
 {
     $python -c "import sys; sys.exit(0 if sys.version_info >= (3, 6) else 1)" || _notrun "python 3.6+ is required"

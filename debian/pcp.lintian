@@ -22,3 +22,37 @@ pcp: init.d-script-does-not-implement-required-option restart [etc/init.d/pmprox
 # /usr/share/doc/pcp-doc/html/index.html is in pcp package, but referenced
 # from /usr/share/doc-base/pcp.pcp-doc ... this is OK
 pcp: doc-base-file-references-missing-file /usr/share/doc/pcp-doc/html/index.html [usr/share/doc-base/pcp.pcp-doc:*]
+
+# PCP's init.d scripts are wrappers and we do not need the
+# /lib/lsb/init-functions.d/40-systemd functions to redirect to systemd
+# ... this is handled by PCP elsewhere
+pcp: init.d-script-does-not-source-init-functions [etc/init.d/pcp]
+pcp: init.d-script-does-not-source-init-functions [etc/init.d/pmcd]
+pcp: init.d-script-does-not-source-init-functions [etc/init.d/pmie]
+pcp: init.d-script-does-not-source-init-functions [etc/init.d/pmlogger]
+pcp: init.d-script-does-not-source-init-functions [etc/init.d/pmproxy]
+
+# PCP's pmcd init.d script is a wrapper (not a conventional init script)
+# and the real work is done elsewhere
+pcp: systemd-service-file-wraps-init-script ExecStart [usr/lib/systemd/system/pmcd.service]
+pcp: systemd-service-file-wraps-init-script ExecStop [usr/lib/systemd/system/pmcd.service]
+
+# the PCP pre* and post* scripts handle both systemctl and invoke-rc.d
+# so the use of systemctl is guarded here and only used when systemd
+# is in play
+pcp: maintainer-script-calls-systemctl [postinst:*]
+pcp: maintainer-script-calls-systemctl [postrm:*]
+pcp: maintainer-script-calls-systemctl [prerm:*]
+
+# the dir /var/lib/pcp/pmcd is security sensitive and needs to be mode 0700
+pcp: non-standard-dir-perm 0700 != 0755 [var/lib/pcp/pmcd/]
+
+# PCP uses user $(PCP_USER) and group $(PCP_GROUP) to control write access
+# to private directories for temporary files, hence mode 0755
+pcp: non-standard-dir-perm 0775 != 0755 [var/lib/pcp/tmp/]
+pcp: non-standard-dir-perm 0775 != 0755 [var/lib/pcp/tmp/bash/]
+pcp: non-standard-dir-perm 0775 != 0755 [var/lib/pcp/tmp/json/]
+pcp: non-standard-dir-perm 0775 != 0755 [var/lib/pcp/tmp/mmv/]
+pcp: non-standard-dir-perm 0775 != 0755 [var/lib/pcp/tmp/pmie/]
+pcp: non-standard-dir-perm 0775 != 0755 [var/lib/pcp/tmp/pmlogger/]
+pcp: non-standard-dir-perm 0775 != 0755 [var/lib/pcp/tmp/pmproxy/]

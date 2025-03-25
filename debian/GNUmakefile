@@ -7,7 +7,7 @@ LINTIAN = source.lintian-overrides
 LINTDIR = $(PCP_SHARE_DIR)/../lintian/overrides
 
 PCP_FILES = pcp.preinst pcp.prerm pcp.postinst pcp.postrm pcp.conffiles
-PCP_LINT = pcp.lintian 
+PCP_LINT = $(shell echo *.lintian)
 
 PCPDOC = pcp-doc
 PCPDOC_FILES = pcp-doc.dirs pcp-doc.install
@@ -122,7 +122,7 @@ ifeq ($(ENABLE_SYSTEMD),true)
 endif
 ifeq ($(PACKAGE_DISTRIBUTION), debian)
 	$(INSTALL) -m 755 -d $(LINTDIR)
-	$(INSTALL) -m 644 $(PCP_LINT) $(LINTDIR)/pcp
+	for dst in $(PCP_LINT:.lintian=); do $(INSTALL) -m 644 $$dst.lintian $(LINTDIR)/$$dst; done
 endif
 
 default_pcp : default
@@ -309,17 +309,17 @@ ifeq ($(PACKAGE_DISTRIBUTION), debian)
 endif
 endif
 
-pcp.preinst:	pcp.preinst.head $(SCRIPTS)/cleanconfigs configversions pcp.preinst.tail cull_old_conffiles
+pcp.preinst:	pcp.preinst.head $(SCRIPTS)/cleanconfigs pcp.preinst.tail
 	rm -f $@
-	cat pcp.preinst.head $(SCRIPTS)/cleanconfigs configversions cull_old_conffiles pcp.preinst.tail > $@
+	cat pcp.preinst.head $(SCRIPTS)/cleanconfigs pcp.preinst.tail > $@
 
-pcp.postinst:	pcp.postinst.head configversions pcp.postinst.tail cull_old_conffiles
+pcp.postinst:	pcp.postinst.head pcp.postinst.tail
 	rm -f $@
-	cat pcp.postinst.head configversions cull_old_conffiles pcp.postinst.tail > $@
+	cat pcp.postinst.head pcp.postinst.tail > $@
 
-pcp.postrm:	pcp.postrm.head configversions pcp.postrm.tail cull_old_conffiles
+pcp.postrm:	pcp.postrm.head pcp.postrm.tail
 	rm -f $@
-	cat pcp.postrm.head configversions cull_old_conffiles pcp.postrm.tail > $@
+	cat pcp.postrm.head pcp.postrm.tail > $@
 
 pcp-gui.install:	pcp-gui.install.base pcp-gui.install.hicolor pcp-gui.install.pmview
 	rm -f pcp-gui.install

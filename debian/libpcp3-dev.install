@@ -17,7 +17,7 @@ usr/include/pcp/sds.h
 usr/lib/libpcp.a
 usr/lib/libpcp.so
 usr/lib/pcp/bin/install-sh
-usr/lib/pkgconfig/libpcp.pc
+usr/lib/*/pkgconfig/libpcp.pc
 usr/share/man/man3/LOGIMPORT.3.gz
 usr/share/man/man3/PCPIntro.3.gz
 usr/share/man/man3/PMAPI.3.gz

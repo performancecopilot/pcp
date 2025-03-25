@@ -2,7 +2,7 @@ usr/include/pcp/pmda.h
 usr/include/pcp/pmdaroot.h
 usr/lib/libpcp_pmda.a
 usr/lib/libpcp_pmda.so
-usr/lib/pkgconfig/libpcp_pmda.pc
+usr/lib/*/pkgconfig/libpcp_pmda.pc
 usr/share/man/man3/PMDA.3.gz
 usr/share/man/man3/pmdaAttribute.3.gz
 usr/share/man/man3/pmdaCacheLookup.3.gz

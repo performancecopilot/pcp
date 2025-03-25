@@ -9,11 +9,10 @@ seq=`basename $0`
 echo "QA output created by $seq"
 
 # get standard environment, filters and checks
-. ./common.product
-. ./common.filter
-. ./common.check
+. ./common.python
 . ./common.keys
 
+_check_python3		# needed by ./src/key_server_proxy.py
 _check_key_server_version_offline
 
 _cleanup()

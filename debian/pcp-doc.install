@@ -119,3 +119,4 @@ usr/share/pcp/examples/pmie/WEBREPORT
 usr/share/pcp/examples/pmie/README
 usr/share/pcp/examples/pcp2spark/PCP2SparkStreamCollector.python
 usr/share/pcp/examples/pcp2spark/README.md
+usr/share/lintian/overrides/pcp-doc

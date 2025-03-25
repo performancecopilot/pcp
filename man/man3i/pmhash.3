@@ -244,7 +244,7 @@ mycallback(const __pmHashNode *hp, void *cp)
     return PM_HASH_WALK_NEXT;
 }
 
-...
+\&...
     __pmHashWalkCB(mycallback, NULL, &hash);
     __pmHashFree(&hash);
 }
@@ -289,7 +289,7 @@ mycallback(const __pmHashNode *hp, void *cp)
     return PM_HASH_DELETE_NEXT;
 }
 
-...
+\&...
     __pmHashWalkCB(mycallback, NULL, &hash);
     __pmHashClear(&hash);
 }

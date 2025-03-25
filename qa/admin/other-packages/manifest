@@ -264,7 +264,7 @@ slackpkg?	pkg-config	[pkg-config]
 pacman?		pkg-config	[core/pkgconf]
 brew?		pkg-config	[pkg-config]
 # -- python
-dpkg?		python3		[python3-minimal]
+dpkg?		python3		[python3-minimal or python3-all]
 rpm?		python3		[python3]
 emerge?		python3		[?]
 pkgin?		python3		[?]
@@ -1457,9 +1457,9 @@ slackpkg?	libdevmapper.h		[N/A (build optional)]
 pacman?	/usr/include/libdevmapper.h	[core/device-mapper (build optional)]
 brew?		libdevmapper.h		[N/A (build optional)]
 # -- devel packages for pmdastatsd
-rpm?	/usr/include/chan/chan.h	[chan-devel (build optional)]
-rpm?	/usr/include/hdr/hdr_thread.h	[HdrHistogram_c-devel (build optional)]
-
+rpm?	/usr/include/chan/chan.h	[chan-devel or chan (build optional)]
+rpm?	/usr/include/hdr/hdr_thread.h	[HdrHistogram_c-devel or HdrHistogram_c (build optional)]
+ or HdrHistogram_c
 # -- pstree and fuser (for QA)
 #
 dpkg?		pstree		[psmisc (QA optional)]
@@ -1588,7 +1588,7 @@ pkg_add?	/usr/include/ini.h		[inih (build optional)]
 F_pkg?		/usr/include/ini.h		[inih (build optional)]
 S_pkg?		/usr/include/ini.h		[? (build optional)]
 slackpkg?	/usr/include/ini.h		[inih (build optional)]
-pacman?		/usr/include/ini.h		[libinih (build optional)]
+pacman?		/usr/include/ini.h		[core/libinih (build optional)]
 brew?		/usr/include/ini.h		[? (build optional)]
 
 # -- jq (for pmproxy/pmseries QA)

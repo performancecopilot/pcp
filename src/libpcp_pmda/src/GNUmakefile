@@ -65,7 +65,11 @@ include $(BUILDRULES)
 install: default
 ifneq ($(LIBTARGET),)
 	$(INSTALL) -m 755 $(LIBTARGET) $(PCP_LIB_DIR)/$(LIBTARGET)
+ifneq ($(DEB_HOST_MULTIARCH),)
+	$(INSTALL) -m 644 $(LIBCONFIG) $(PCP_LIB_DIR)/$(DEB_HOST_MULTIARCH)/pkgconfig/$(LIBCONFIG)
+else
 	$(INSTALL) -m 644 $(LIBCONFIG) $(PCP_LIB_DIR)/pkgconfig/$(LIBCONFIG)
+endif
 endif
 ifneq ($(SYMTARGET),)
 	for tt in $(SYMTARGET); do \
