@@ -159,14 +159,14 @@ Ubuntu       1[45]\.. -       python-{.*}
 # libsoqt-dev, libsoqt-dev-common and libcoin-dev are all for Qt4, but we're
 # using Qt5 for the other bits we need for pmview
 Ubuntu       18\.10   -       libcoin-dev libsoqt-dev libsoqt-dev-common libsoqt4-dev
-Ubuntu       18\.04   -       libcoin-dev libsoqt-dev libsoqt-dev-common libsoqt4-dev
+Ubuntu       18\.04   -       libcoin-dev libsoqt-dev libsoqt-dev-common libsoqt4-dev libqt4-dev
 # observed on vm01
 # python3-bpfcc : Depends: libbpfcc (>= 0.5.0-5ubuntu1) but it is not installable
 Ubuntu       18\.04   i.86    python3-bpfcc
 # observed on vm27
 # libsoqt-dev, libsoqt-dev-common and libcoin-dev are all for Qt4, but we're
 # using Qt5 for the other bits we need for pmview
-Ubuntu       16\.04   -       libcoin-dev libsoqt-dev libsoqt-dev-common libsoqt4-dev
+Ubuntu       16\.04   -       libcoin-dev libsoqt-dev libsoqt-dev-common libsoqt4-dev libqt4-dev
 # prefer mariadb over mysql for the more recent versions
 #
 Ubuntu       20\.04   -       mysql-client-core mysql-client-core-[0-9][0-9.]*
