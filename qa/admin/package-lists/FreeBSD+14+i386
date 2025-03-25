@@ -33,15 +33,12 @@ inih
 jq
 kubectl
 libuv
-mandoc
-mariadb105-client
+mariadb114-client
 memcached
 ncurses
 nmap
 openssl
 p5-Archive-Zip
-p5-Class-DBI-mysql
-p5-DBD-mysql
 p5-File-Slurp
 p5-JSON
 p5-List-MoreUtils
@@ -67,7 +64,6 @@ py311-lxml
 py311-openpyxl
 py311-pillow
 py311-prometheus-client
-py311-psycopg2
 py311-requests
 py311-rtslib-fb
 py311-setuptools

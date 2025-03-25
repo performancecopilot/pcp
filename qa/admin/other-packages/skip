@@ -196,6 +196,9 @@ Fedora       -         -      ccache
 #
 OpenMandriva 4\.[0-2] -       cpan(Net::LDAP) cpan(Spreadsheet::XLSX) cpan(Text::CSV_XS) cpan(XML::LibXML) cpan(XML::TokeParser) perl(autodie) perl(Date::Manip) perl(DBD::mysql) perl(Net::LDAP) perl(Net::SNMP) perl-Net-SNMP perl(Spreadsheet::WriteExcel) perl-Spreadsheet-WriteExcel perl(Spreadsheet::XLSX) perl(Text::CSV_XS) perl(XML::LibXML) perl(XML::TokeParser) .*-python2 python2-.* system-python-libs
 #-- FreeBSD
+# mandoc breaks groff
+FreeBSD      14\.     -       mandoc
 # we need mariadb105-client, but this is incompatible with these Perl
-# packages
-FreeBSD      12\..*   -       p5-Class-DBI-mysql p5-DBD-mysql
+# and Python packages
+FreeBSD      14\.     -       p5-Class-DBI-mysql p5-DBD-mysql py3[0-9]*-psycopg2
+FreeBSD      12\.     -       p5-Class-DBI-mysql p5-DBD-mysql
