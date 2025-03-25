@@ -2536,6 +2536,18 @@ series_dumpexpr(node_t *np, int level)
     series_dumpexpr(np->right, level+1);
 }
 
+static void
+series_freenode(node_t *np)
+{
+    if (np == NULL)
+	return;
+
+    series_freenode(np->left);
+    series_freenode(np->right);
+    sdsfree(np->value);
+    free(np);
+}
+
 int
 series_parse(sds query, series_t *sp, sds *err)
 {
@@ -2600,6 +2612,7 @@ pmSeriesLoad(pmSeriesSettings *settings, sds source, pmSeriesFlags flags, void *
 
     sts = series_load(settings, sp.expr, &sp.time, flags, arg);
     series_freetime(&sp.time);
+    series_freenode(sp.expr);
     return sts;
 }
 
