@@ -46,6 +46,7 @@ httpd
 initscripts
 java-latest-openjdk-headless
 jq
+kubernetes
 kubernetes-client
 libbpf
 libbpf-devel
@@ -138,9 +139,11 @@ smartmontools
 socat
 sqlite
 sqlite-libs
+sudo
 sysstat
 systemd-devel
 systemtap-devel
+systemtap-runtime
 systemtap-sdt-devel
 targetcli
 time
