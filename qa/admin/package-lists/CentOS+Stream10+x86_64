@@ -2,6 +2,7 @@
 # from the CentOS8 version created by kenj on
 # vm04.localdomain Mon Oct 12 23:16:58 EDT 2020
 #
+HdrHistogram_c
 Spreadsheet::Read cpan
 389-ds-base
 avahi-devel
@@ -14,6 +15,7 @@ bcc-tools
 bind-utils
 bison
 bpftrace
+chan
 clang
 # in CI CentOS container already has coreutils-single installed and this
 # conflicts with coreutils
