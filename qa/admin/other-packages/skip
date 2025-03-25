@@ -111,6 +111,9 @@ NetBSD       8\.0     -       py27-{.*} dtrace
 # we're using python3
 OpenBSD      6\.[3-7] -       qtbase qtsvg valgrind python-{.*} {.*}-python cpan(XML::TokeParser)
 #-- RedHat
+# available but dnf cannot install 'em due to missing or down-rev
+# dependencies
+RHEL         8\.      -       python3-pandas
 # we're using python2
 # As of 8.2 ...
 # mysql conflicst with mariadb
