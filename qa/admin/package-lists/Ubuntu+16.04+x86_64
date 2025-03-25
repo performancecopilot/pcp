@@ -42,6 +42,7 @@ libcmocka-dev
 libdbd-mysql-perl
 libdbd-pg-perl
 libdevmapper-dev
+libdrm-dev
 libextutils-autoinstall-perl
 libfile-slurp-perl
 libgl1-mesa-dri
@@ -57,7 +58,6 @@ libperl5.22
 libpfm4-dev
 libpython3-dev
 libpython3-stdlib
-libqt4-dev
 libqt5svg5-dev
 libreadline-dev
 libreadline6-dev
@@ -76,6 +76,7 @@ libuv1-dev
 libxml-libxml-perl
 libxml-tokeparser-perl
 libyaml-libyaml-perl
+linux-headers-`uname -r` not4ci
 llvm
 lm-sensors
 make
@@ -84,6 +85,7 @@ memcached
 mysql-client-core-5.7
 net-tools
 nmap
+openjdk-9-jre-headless
 openssl
 perl
 perl-modules-5.22
@@ -119,10 +121,11 @@ sasl2-bin
 sed
 smartmontools
 socat
+sudo
 sysstat
 systemtap
+systemtap-runtime
 systemtap-sdt-dev
-targetcli-fb
 time
 unbound
 valgrind
