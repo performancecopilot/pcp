@@ -71,6 +71,10 @@ Debian       1.\..    -       libcoin80-dev libcoin-dev libqt4-dev libsoqt4-dev 
 # python3-bpfcc : Depends: libbpfcc (>= 0.8.0-4) but it is not installable
 Debian       10\.     -       python3-bpfcc
 #-- Fedora
+# Qt4
+Fedora       40       -       qt-devel SoQt-devel
+# redis stuff
+Fedora       .*       -       redis RediSearch
 # kubernetes-node pulls in moby-engine which is really bad for podman-docker
 # - expect Fedora to clean this up in at a later release when moby-engine is
 #   dropped
