@@ -4,16 +4,30 @@ import time
 import argparse
 import os
 import sys
-from datetime import datetime
 import subprocess
+import cpmapi as api
+from pcp import pmapi
 from pathlib import Path
+from datetime import datetime, UTC
 
 POLL_INTERVAL_SEC = 10
 IMPORT_TIMEOUT_SEC = 10 * 60  # 10 minutes
+
 imported_archives = {}
+minimum_start_time = 0.0
+maximum_finish_time = 0.0
+
+
+def format_time(seconds):
+    # From a floating point number of seconds since the epoch,
+    # produce a time string in the format Grafana is expecting.
+    string = datetime.fromtimestamp(seconds, UTC).isoformat()
+    return string.replace('+00:00', 'Z')
 
 
 def import_archive(path: Path, i: int, count: int):
+    global imported_archives, minimum_start_time, maximum_finish_time
+
     archive_mod_time = os.path.getmtime(path)
     archive_path = str(path.with_suffix(""))  # strip .meta from path
 
@@ -21,6 +35,24 @@ def import_archive(path: Path, i: int, count: int):
     if prev_mod_time and prev_mod_time == archive_mod_time:
         logging.info("Skipping archive %s (no changes) [%d/%d]", archive_path, i, count)
         return
+
+    ctx = pmapi.pmContext(api.PM_CONTEXT_ARCHIVE, archive_path)
+    ctx.pmNewZone('UTC')
+
+    try:
+        label = ctx.pmGetHighResArchiveLabel()
+    except pmapi.pmErr:
+        logging.info("Skipping archive %s (no context) [%d/%d]", archive_path, i, count)
+        return # .meta exists, but not a PCP archive metadata file
+    start = float(label.start)
+    if minimum_start_time == 0.0 or start < minimum_start_time:
+        minimum_start_time = start
+        logging.info("Updated start: %s" % format_time(minimum_start_time))
+
+    finish = float(ctx.pmGetHighResArchiveEnd())
+    if finish > maximum_finish_time:
+        maximum_finish_time = finish
+        logging.info("Updated finish: %s" % format_time(maximum_finish_time))
 
     start_dt = datetime.now()
     try:
@@ -64,15 +96,21 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--archives", default="/archives")
     args = parser.parse_args()
-
+    dash = 'http://localhost:3000/d/pcp-archive-analysis/pcp-archive-analysis'
     logging.basicConfig(level=logging.INFO, format="%(message)s")
     logging.info("Starting Performance Co-Pilot archive import...")
-    logging.info("Dashboard: http://localhost:3000/d/pcp-archive-analysis/pcp-archive-analysis (when using default instructions)")
+    logging.info("Dashboard: %s (when using default instructions)" % dash)
 
-    while True:
-        poll(args.archives)
-        time.sleep(POLL_INTERVAL_SEC)
+    # ensure archive timestamps for Grafana handled in UTC
+    os.environ['TZ'] = 'UTC'
+    time.tzset()
 
+    try:
+        while True:
+            poll(args.archives)
+            time.sleep(POLL_INTERVAL_SEC)
+    except KeyboardInterrupt:
+        pass  # debugging
 
 if __name__ == "__main__":
     main()
