@@ -560,8 +560,9 @@ server_cache_update_done(void *arg)
 }
 
 typedef struct {
-    uv_work_t	work; /* must be first field, for cast (freeing) */
-    uv_timer_t	timer;
+    /* NB: 'work' must be first field for casting (during free) */
+    uv_work_t	work;	/* thread-queue work, for archive fetch */
+    uv_timer_t	timer;	/* adaptive delay for request balancing */
 } load_throttle_t;
 
 /* this function runs in a worker thread */
@@ -625,8 +626,8 @@ fetch_archive_timer(uv_timer_t *arg)
     load_throttle_t *req = (load_throttle_t *)arg->data;
     uv_loop_t *loop = uv_default_loop();
 
-    uv_queue_work(loop, &req->work, fetch_archive, fetch_archive_done);
     uv_close((uv_handle_t *)&req->timer, NULL);
+    uv_queue_work(loop, &req->work, fetch_archive, fetch_archive_done);
 }
 #endif
 
@@ -664,7 +665,7 @@ server_cache_window(void *arg)
     req->work.data = baton;
 
     uv_timer_init(uv_default_loop(), &req->timer);
-    uint64_t msec = baton->header.refcount / 256; /* time to delay new work */
+    uint64_t msec = baton->header.refcount / 512; /* time to delay new work */
     if (msec < 32)	/* however, avoid many small and ineffective delays */
 	msec = 0;
     uv_timer_start(&req->timer, fetch_archive_timer, msec, 0);
