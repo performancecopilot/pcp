@@ -292,8 +292,8 @@ files_manage_generic_tmp_files(pcp_pmie_t)
 # pcp_pmlogger local  policy
 #
 
-allow pcp_pmlogger_t self:capability { dac_read_search dac_override chown fowner sys_ptrace };
-allow pcp_pmlogger_t self:process setpgid;
+allow pcp_pmlogger_t self:capability { dac_read_search dac_override chown fowner sys_admin sys_ptrace };
+allow pcp_pmlogger_t self:process { getattr setpgid };
 allow pcp_pmlogger_t self:netlink_route_socket {create_socket_perms nlmsg_read };
 
 allow pcp_pmlogger_t pcp_pmcd_t:unix_stream_socket connectto;
@@ -428,7 +428,7 @@ require {
 
 	class blk_file { ioctl open read };
 	class capability { net_raw }; # pmda.netcheck
-	class capability { kill dac_override sys_ptrace sys_pacct net_admin chown sys_chroot ipc_lock ipc_owner sys_resource fowner sys_rawio fsetid };
+	class capability { kill dac_override sys_admin sys_ptrace sys_pacct net_admin chown sys_chroot ipc_lock ipc_owner sys_resource fowner sys_rawio fsetid };
 	class chr_file { open read write };
 	class dbus { send_msg };
 	class dir { add_name open read search write getattr lock ioctl };
@@ -904,6 +904,9 @@ allow pcp_pmlogger_t etc_t:dir { add_name read remove_name write };
 allow pcp_pmlogger_t etc_t:file { create unlink write };
 allow pcp_pmlogger_t cgroup_t:file { getattr read open append write };
 
+# type=AVC msg=audit(N) : avc: denied { getattr } for pid=PID comm=pstree scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:system_r:init_t:s0 tclass=process permissive=0 
+allow pcp_pmlogger_t init_t:process getattr;
+
 # type=AVC msg=audit(N) : avc:  denied  { getattr } for  pid=PID comm=mount path=/dev/dm-0 dev="devtmpfs" ino=INO scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:object_r:fixed_disk_device_t:s0 tclass=blk_file permissive=0
 allow pcp_pmlogger_t fixed_disk_device_t:blk_file getattr;
 allow pcp_pmlogger_t sysfs_t:lnk_file read;
@@ -945,6 +948,11 @@ allow pcp_pmie_t cgroup_t:file { getattr read open append write };
 # type=AVC msg=audit(N) : avc:  denied  { getattr } for  pid=PID comm=mount path=/dev/dm-0 dev="devtmpfs" ino=INO scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:object_r:fixed_disk_device_t:s0 tclass=blk_file permissive=0 
 allow pcp_pmie_t fixed_disk_device_t:blk_file getattr;
 allow pcp_pmie_t sysfs_t:lnk_file read;
+allow pcp_pmie_t sysfs_t:file read;
+allow pcp_pmie_t sysfs_t:dir read;
+
+# type=AVC msg=audit(N): avc:  denied  { search } for  pid=PID comm="ps" name="homedir" dev="device" ino=INO scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=unconfined_u:object_r:user_home_dir_t:s0 tclass=dir permissive=0
+allow pcp_pmie_t user_home_t:dir { open read search };
 
 #============= pmda-lio ==============
 # type=AVC msg=audit(N): avc: denied { open read search write } for  pid=PID comm="pmdaX" name="/" dev="tracefs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:configfs_t:s0 tclass=dir permissive=0

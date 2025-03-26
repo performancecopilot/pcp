@@ -182,7 +182,7 @@ keyGetMap(keySlots *slots, keyMap *mapping, unsigned char *hash, sds mapStr,
 {
     keyMapBaton	*baton;
     keyMapEntry	*entry;
-    sds			mapKey;
+    sds		mapKey;
 
     pmwebapi_string_hash(hash, mapStr, sdslen(mapStr));
     mapKey = sdsnewlen(hash, 20);

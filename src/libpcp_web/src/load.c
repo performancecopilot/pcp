@@ -559,6 +559,12 @@ server_cache_update_done(void *arg)
     server_cache_window(baton);
 }
 
+typedef struct {
+    /* NB: 'work' must be first field for casting (during free) */
+    uv_work_t	work;	/* thread-queue work, for archive fetch */
+    uv_timer_t	timer;	/* adaptive delay for request balancing */
+} load_throttle_t;
+
 /* this function runs in a worker thread */
 static void
 fetch_archive(uv_work_t *req)
@@ -612,6 +618,17 @@ fetch_archive_done(uv_work_t *req, int status)
 
     doneSeriesLoadBaton(baton, "fetch_archive_done");
 }
+
+/* this function is the adaptive throttle timer callback */
+static void
+fetch_archive_timer(uv_timer_t *arg)
+{
+    load_throttle_t *req = (load_throttle_t *)arg->data;
+    uv_loop_t *loop = uv_default_loop();
+
+    uv_close((uv_handle_t *)&req->timer, NULL);
+    uv_queue_work(loop, &req->work, fetch_archive, fetch_archive_done);
+}
 #endif
 
 void
@@ -634,11 +651,24 @@ server_cache_window(void *arg)
 
     /*
      * We must perform pmFetchArchive(3) in a worker thread
-     * because it contains blocking (synchronous) I/O calls
+     * because it contains blocking (synchronous) I/O calls.
+     * We also wish to avoid swamping the key server with too
+     * many requests at once, which can cause memory blowouts
+     * on the client side.  Use a timer (adaptively-resized)
+     * to introduce a delay (dynamic, depending on load) that
+     * throttles new client requests.  The reference count on
+     * the load baton is an indicator of server busy-ness and
+     * hence amount of time we will delay so it can catch up.
      */
-    uv_work_t *req = malloc(sizeof(uv_work_t));
-    req->data = baton;
-    uv_queue_work(uv_default_loop(), req, fetch_archive, fetch_archive_done);
+    load_throttle_t *req = calloc(1, sizeof(load_throttle_t));
+    req->timer.data = req;
+    req->work.data = baton;
+
+    uv_timer_init(uv_default_loop(), &req->timer);
+    uint64_t msec = baton->header.refcount / 512; /* time to delay new work */
+    if (msec < 32)	/* however, avoid many small and ineffective delays */
+	msec = 0;
+    uv_timer_start(&req->timer, fetch_archive_timer, msec, 0);
 #else
     baton->error = -ENOTSUP;
     server_cache_series_finished(arg);
