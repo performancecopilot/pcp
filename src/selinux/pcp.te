@@ -292,7 +292,7 @@ files_manage_generic_tmp_files(pcp_pmie_t)
 # pcp_pmlogger local  policy
 #
 
-allow pcp_pmlogger_t self:capability { dac_read_search dac_override chown fowner sys_ptrace };
+allow pcp_pmlogger_t self:capability { dac_read_search dac_override chown fowner sys_admin sys_ptrace };
 allow pcp_pmlogger_t self:process setpgid;
 allow pcp_pmlogger_t self:netlink_route_socket {create_socket_perms nlmsg_read };
 
@@ -428,7 +428,7 @@ require {
 
 	class blk_file { ioctl open read };
 	class capability { net_raw }; # pmda.netcheck
-	class capability { kill dac_override sys_ptrace sys_pacct net_admin chown sys_chroot ipc_lock ipc_owner sys_resource fowner sys_rawio fsetid };
+	class capability { kill dac_override sys_admin sys_ptrace sys_pacct net_admin chown sys_chroot ipc_lock ipc_owner sys_resource fowner sys_rawio fsetid };
 	class chr_file { open read write };
 	class dbus { send_msg };
 	class dir { add_name open read search write getattr lock ioctl };
