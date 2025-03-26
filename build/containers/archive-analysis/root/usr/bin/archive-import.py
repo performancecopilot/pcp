@@ -15,7 +15,7 @@ imported_archives = {}
 
 def import_archive(path: Path, i: int, count: int):
     archive_mod_time = os.path.getmtime(path)
-    archive_path = str(path.with_suffix(""))  # strip .index from path
+    archive_path = str(path.with_suffix(""))  # strip .meta from path
 
     prev_mod_time = imported_archives.get(archive_path)
     if prev_mod_time and prev_mod_time == archive_mod_time:
@@ -52,7 +52,7 @@ def poll(archives_path: str):
         logging.error("Please use '--security-opt label=disable' when starting the container.")
         return
 
-    archive_paths = list(Path(archives_path).rglob("*.index"))
+    archive_paths = list(Path(archives_path).rglob("*.meta"))
     if not archive_paths:
         logging.warning("No archives found.")
     else:
