@@ -61,6 +61,12 @@ _cleanup()
 	    echo "... does not exist" >>$seq_full
 	fi
     done
+    if $restart_redis
+    then
+	_service redis-server start
+	echo "Restarting redis-server ..." >>$seq_full
+	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID]|/[r]edis-server( |$)' >>$seq_full
+    fi
     $sudo rm -rf $tmp $tmp.*
 }
 
@@ -68,6 +74,34 @@ status=1	# failure is the default!
 need_restore=false
 username=`id -u -n`
 trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# if redis-server is installed and running, it needs to be at least
+# version 5 ... otherwise stop redis-server and restart when this
+# test is done
+# redis-server --version output looks like
+# Redis server v=3.0.6 sha=00000000:0 malloc=jemalloc-3.6.0 bits=64 build=c15f5256d258cb6b
+#
+restart_redis=false
+if which redis-server >/dev/null 2>&1
+then
+    redis_vers=`redis-server --version | sed -e 's/.* v=//' -e 's/ .*//'`
+    echo "redis_vers=$redis_vers" >>$seq_full
+    case "$redis_vers"
+    in
+	1.*|2.*|3.*|4.*)
+	    # too old for pmproxy
+	    #
+	    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID]|/[r]edis-server( |$)' >>$seq_full
+	    redis_pid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '[r]edis-server ' | $PCP_AWK_PROG '{print $2}'`
+	    echo "redis_pid=$redis_pid" >>$seq_full
+	    if [ -n "$redis_pid" ]
+	    then
+		_service redis-server stop
+		restart_redis=true
+	    fi
+	    ;;
+    esac
+fi
 
 _check_empty()
 {
@@ -124,7 +158,7 @@ _sighup_pmcd || _exit 1
 openssl req \
 	-new -newkey rsa:4096 -days 365 -nodes -x509 \
 	-subj "/C=US/ST=Denial/L=Springfield/O=Dis/CN=www.pcpqa.com" \
-	-keyout $tmp.key -out $tmp.cert >$seq_full 2>&1
+	-keyout $tmp.key -out $tmp.cert >>$seq_full 2>&1
 # creates a self-signed (insecure) certificate, so for testing only
 
 echo "[keys]" >> $tmp.conf
