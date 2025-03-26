@@ -945,6 +945,11 @@ allow pcp_pmie_t cgroup_t:file { getattr read open append write };
 # type=AVC msg=audit(N) : avc:  denied  { getattr } for  pid=PID comm=mount path=/dev/dm-0 dev="devtmpfs" ino=INO scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:object_r:fixed_disk_device_t:s0 tclass=blk_file permissive=0 
 allow pcp_pmie_t fixed_disk_device_t:blk_file getattr;
 allow pcp_pmie_t sysfs_t:lnk_file read;
+allow pcp_pmie_t sysfs_t:file read;
+allow pcp_pmie_t sysfs_t:dir read;
+
+# type=AVC msg=audit(N): avc:  denied  { search } for  pid=PID comm="ps" name="homedir" dev="device" ino=INO scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=unconfined_u:object_r:user_home_dir_t:s0 tclass=dir permissive=0
+allow pcp_pmie_t user_home_t:dir { open read search };
 
 #============= pmda-lio ==============
 # type=AVC msg=audit(N): avc: denied { open read search write } for  pid=PID comm="pmdaX" name="/" dev="tracefs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:configfs_t:s0 tclass=dir permissive=0
