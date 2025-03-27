@@ -9,9 +9,7 @@ seq=`basename $0`
 echo "QA output created by $seq"
 
 # get standard environment, filters and checks
-. ./common.product
-. ./common.filter
-. ./common.check
+. ./common.python
 
 [ -d $PCP_PMDAS_DIR/postgresql ] || _notrun "postgresql PMDA is not installed"
 
