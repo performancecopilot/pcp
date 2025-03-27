@@ -22,7 +22,7 @@ CMDTARGET1 = pmclient$(EXECSUFFIX)
 CMDTARGET2 = pmclient_fg$(EXECSUFFIX)
 TARGETS = $(CMDTARGET1) $(CMDTARGET2)
 LLDLIBS	= $(PCPLIB)
-LDIRT	= pmnsmap.h mylog.* runme.sh *.o $(TARGETS)
+LDIRT	= pmnsmap.h mylog.* pmgenmap.sh *.o $(TARGETS)
 CONFIGS	= pmnsmap.spec pmlogger.config
 DEMODIR	= $(PCP_DEMOS_DIR)/pmclient
 
