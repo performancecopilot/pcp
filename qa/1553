@@ -45,7 +45,7 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _filter()
 {
-    tee -a $seq_full \
+    tee -a $seq.full \
     | grep '^__pmFopen' \
     | sed -e "s@$tmp@TMP@g" \
     | LC_COLLATE=POSIX sort \
@@ -66,7 +66,7 @@ do
     for flags in '' '-f0' '-f1' '-f0 -f1'
     do
 	echo
-	echo "=== $flags -a $arch ===" | tee -a $seq_full | sed -e "s@$tmp@TMP@g"
+	echo "=== $flags -a $arch ===" | tee -a $seq.full | sed -e "s@$tmp@TMP@g"
 	if $do_valgrind
 	then
 	    _run_valgrind --save-output src/newcontext $flags -a $arch -D log 2>&1 \
