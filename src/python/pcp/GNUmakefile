@@ -15,7 +15,9 @@
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-PYCODE	= $(shell echo *.py)
+PYCODE = $(shell echo *.py)
+
+LDIRT = pmapi.py
 
 default default_pcp: pmapi.py
 
