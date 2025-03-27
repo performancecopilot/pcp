@@ -72,7 +72,6 @@ ifneq "$(HAVE_LIBINIH)" "true"
 LCFLAGS += -Iinih
 endif
 
-LDIRT = $(XFILES) $(YFILES:%.y=%.tab.?) query_parser.y
 LCFLAGS += $(C99_CFLAGS) -DJSMN_PARENT_LINKS=1 -DJSMN_STRICT=1 -DHTTP_PARSER_STRICT=0 -Ideps
 
 ifeq "$(HAVE_LIBUV)" "true"
@@ -114,7 +113,7 @@ SYMTARGET =
 endif
 
 VERSION_SCRIPT = exports
-LDIRT = $(XFILES) $(HIREDIS_XFILES) $(HIREDIS_CLUSTER_XFILES) $(SYMTARGET) $(YFILES:%.y=%.tab.?)
+LDIRT = $(XFILES) $(YFILES) $(HIREDIS_XFILES) $(HIREDIS_CLUSTER_XFILES) $(SYMTARGET) $(YFILES:%.y=%.tab.?)
 ifneq "$(HAVE_LIBINIH)" "true"
 	LDIRT += $(INIH_XFILES)
 endif
