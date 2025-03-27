@@ -34,7 +34,7 @@ MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
 
 LLDFLAGS = -L$(TOPDIR)/src/libpcp/src
 LLDLIBS = $(PCPLIB)
-LDIRT	= domain.h $(IAM).log acme_json
+LDIRT	= domain.h $(IAM).log acme_json config.json
 
 default_pcp default:	build-me
 
