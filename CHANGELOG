@@ -1,5 +1,21 @@
-pcp-6.3.6 (17 March 2025)
-    - Debian build changes - see debian/changelog for details
+pcp-6.3.7 (27 March 2025)
+    - pmdadenki: RAPL MSR support
+    - pmdabind2: updates for more recent bind versions
+    - pmdalinux: additrional mptcp networking metrics
+    - pcp2elasticsearch: support dynamic mapping
+    - pmstat: avoid a corner-case infinite loop
+    - libpcp: additional locking in __pmLogChangeVol
+    - libpcp, pmproxy: PM_CTXFLAG_LAST_VOLUME pmNewContext flag
+    - libpcp_web, pmseries: dynamic --load request rate adjusting
+    - libpcp_web, pmseries: fix small memleak on archive load
+    - pmproxy: REST API metric filtering for scrape requests
+    - build: configure provides a manual pmdamysql override
+    - build: configure always packages desktop icons in pcp-gui
+    - build: debian packaging fixes and lintian improvements
+    - build: fix unreliable configure.ac tests on scandir/dirent
+    - build: use the vendor-supplied libinih package if available
+    - selinux: several policy updates
+    - docs: fix dup section in pmdaredis(1) man page
 
 pcp-6.3.4 (13 March 2025)
     - libpcp: fix endian issue in big-endian __pmTimestamp writing
