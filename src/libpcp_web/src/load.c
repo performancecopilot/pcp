@@ -559,12 +559,6 @@ server_cache_update_done(void *arg)
     server_cache_window(baton);
 }
 
-typedef struct {
-    /* NB: 'work' must be first field for casting (during free) */
-    uv_work_t	work;	/* thread-queue work, for archive fetch */
-    uv_timer_t	timer;	/* adaptive delay for request balancing */
-} load_throttle_t;
-
 /* this function runs in a worker thread */
 static void
 fetch_archive(uv_work_t *req)
@@ -591,6 +585,7 @@ fetch_archive_done(uv_work_t *req, int status)
     int 		sts = context->error;
 
     free(req);
+
     if (context->loaded) {
 	assert(context->result == NULL);
         doneSeriesGetContext(context, "fetch_archive_done");
@@ -619,15 +614,31 @@ fetch_archive_done(uv_work_t *req, int status)
     doneSeriesLoadBaton(baton, "fetch_archive_done");
 }
 
+static void
+free_handle(uv_handle_t *handle)
+{
+    free(handle);
+}
+
 /* this function is the adaptive throttle timer callback */
 static void
 fetch_archive_timer(uv_timer_t *arg)
 {
-    load_throttle_t *req = (load_throttle_t *)arg->data;
-    uv_loop_t *loop = uv_default_loop();
+    seriesLoadBaton	*baton = (seriesLoadBaton *)arg->data;
+    uv_handle_t		*handle = (uv_handle_t *)arg;
+    uv_loop_t		*loop = uv_default_loop();
+    uv_work_t		*work; /* thread-queue work, for archive fetch */
 
-    uv_close((uv_handle_t *)&req->timer, NULL);
-    uv_queue_work(loop, &req->work, fetch_archive, fetch_archive_done);
+    uv_timer_stop(arg);
+    uv_close(handle, free_handle);
+
+    if ((work = calloc(1, sizeof(uv_work_t))) == NULL) {
+	baton->error = -ENOMEM;
+	server_cache_series_finished(baton);
+    } else {
+	work->data = baton;
+	uv_queue_work(loop, work, fetch_archive, fetch_archive_done);
+    }
 }
 #endif
 
@@ -636,6 +647,8 @@ server_cache_window(void *arg)
 {
     seriesLoadBaton	*baton = (seriesLoadBaton *)arg;
     seriesGetContext	*context = &baton->pmapi;
+    uv_timer_t		*timer; /* adaptive delay for request balancing */
+    uint64_t		msecs;
 
     seriesBatonCheckMagic(baton, MAGIC_LOAD, "server_cache_window");
     seriesBatonCheckCount(context, "server_cache_window");
@@ -660,15 +673,18 @@ server_cache_window(void *arg)
      * the load baton is an indicator of server busy-ness and
      * hence amount of time we will delay so it can catch up.
      */
-    load_throttle_t *req = calloc(1, sizeof(load_throttle_t));
-    req->timer.data = req;
-    req->work.data = baton;
+    msecs = baton->header.refcount / 512; /* time to defer new work */
+    if (msecs < 32)	/* however, avoid many small and ineffective delays */
+	msecs = 0;
 
-    uv_timer_init(uv_default_loop(), &req->timer);
-    uint64_t msec = baton->header.refcount / 512; /* time to delay new work */
-    if (msec < 32)	/* however, avoid many small and ineffective delays */
-	msec = 0;
-    uv_timer_start(&req->timer, fetch_archive_timer, msec, 0);
+    if ((timer = calloc(1, sizeof(uv_timer_t))) == NULL) {
+	baton->error = -ENOMEM;
+	server_cache_series_finished(arg);
+    } else {
+	timer->data = baton;
+	uv_timer_init(uv_default_loop(), timer);
+	uv_timer_start(timer, fetch_archive_timer, msecs, 0);
+    }
 #else
     baton->error = -ENOTSUP;
     server_cache_series_finished(arg);
