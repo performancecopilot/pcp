@@ -26,6 +26,7 @@ debhelper
 dh-python
 dpkg-dev
 ed
+expect
 flex
 g++
 gawk
@@ -35,6 +36,7 @@ gfs2-utils
 git
 grep
 iproute2
+jq
 libavahi-common-dev
 libbpf0
 libbpf-dev
@@ -128,7 +130,10 @@ sasl2-bin
 sed
 smartmontools
 socat
+sudo
 sysstat
+systemtap
+systemtap-runtime
 systemtap-sdt-dev
 targetcli-fb
 time

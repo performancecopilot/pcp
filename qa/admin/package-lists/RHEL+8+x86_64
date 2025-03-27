@@ -1,6 +1,7 @@
 # PCP required package list for RHEL 8 x86_64
 # created by kenj on vm39.localdomain Wed Oct 14 08:11:02 AEDT 2020
 #
+HdrHistogram_c
 List::MoreUtils cpan
 Net::SNMP cpan
 Spreadsheet::Read cpan
@@ -13,6 +14,7 @@ bcc-tools
 bind-utils
 bison
 bpftrace
+chan
 clang
 coreutils
 cronie
@@ -84,7 +86,6 @@ postfix-perl-scripts
 postgresql
 psmisc
 pylint
-python2-devel
 python3-bcc
 python3-elasticsearch
 python3-jsonpointer

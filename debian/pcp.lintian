@@ -34,8 +34,8 @@ pcp: init.d-script-does-not-source-init-functions [etc/init.d/pmproxy]
 
 # PCP's pmcd init.d script is a wrapper (not a conventional init script)
 # and the real work is done elsewhere
-pcp: systemd-service-file-wraps-init-script ExecStart [usr/lib/systemd/system/pmcd.service]
-pcp: systemd-service-file-wraps-init-script ExecStop [usr/lib/systemd/system/pmcd.service]
+pcp: systemd-service-file-wraps-init-script ExecStart [*]
+pcp: systemd-service-file-wraps-init-script ExecStop [*]
 
 # the PCP pre* and post* scripts handle both systemctl and invoke-rc.d
 # so the use of systemctl is guarded here and only used when systemd
@@ -56,3 +56,9 @@ pcp: non-standard-dir-perm 0775 != 0755 [var/lib/pcp/tmp/mmv/]
 pcp: non-standard-dir-perm 0775 != 0755 [var/lib/pcp/tmp/pmie/]
 pcp: non-standard-dir-perm 0775 != 0755 [var/lib/pcp/tmp/pmlogger/]
 pcp: non-standard-dir-perm 0775 != 0755 [var/lib/pcp/tmp/pmproxy/]
+
+# this is OK, env(1) ensures we can find perl provided it is on $PATH
+pcp: incorrect-path-for-interpreter /usr/bin/env perl != /usr/bin/perl [*]
+
+# really, who cares if they are identical?
+pcp: duplicate-changelog-files usr/share/doc/pcp-*/CHANGELOG.gz usr/share/doc/pcp/changelog.gz

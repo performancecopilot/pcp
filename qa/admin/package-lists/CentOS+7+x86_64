@@ -37,6 +37,7 @@ gdb
 gfs2-utils
 git
 grep
+inih-devel
 iproute
 httpd
 infiniband-diags-devel
@@ -48,6 +49,8 @@ kubernetes-node
 libcmocka-devel
 libicu-devel
 libpfm-devel
+libdrm-devel
+libselinux-devel
 libuv-devel
 libvirt-daemon
 libvirt-daemon-driver-qemu
@@ -132,14 +135,18 @@ setools-console
 smartmontools
 socat
 sqlite
+sudo
 sysstat
 systemd-devel
 systemtap-devel
+systemtap-runtime
 systemtap-sdt-devel
 time
 valgrind
+valkey
 xfsprogs
 xkeyboard-config
 xz-devel
 zabbix6.0-agent
 zstd
+

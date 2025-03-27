@@ -50,6 +50,17 @@ _cleanup()
 	_restore_config $PCP_SYSCONF_DIR/labels
 	_sighup_pmcd
     fi
+    date >>$seq_full
+    for suff in '' .prev
+    do
+	echo "--- $PCP_LOG_DIR/pmproxy/pmproxy.log$suff ---" >>$seq_full
+	if [ -f $PCP_LOG_DIR/pmproxy/pmproxy.log$suff ]
+	then
+	    cat $PCP_LOG_DIR/pmproxy/pmproxy.log$suff >>$seq_full
+	else
+	    echo "... does not exist" >>$seq_full
+	fi
+    done
     $sudo rm -rf $tmp $tmp.*
 }
 
@@ -136,6 +147,7 @@ echo "valgrind pid: $pid" >>$seq_full
 echo "pmproxy port: $port" >>$seq_full
 
 # valgrind takes awhile to fire up
+date >>$seq_full
 i=0
 while [ $i -lt 40 ]
 do
@@ -147,7 +159,19 @@ if $PCP_BINADM_DIR/telnet-probe -c localhost $port
 then
     echo "Startup took $i secs" >>$seq_full
 else
-    echo "Arrgh: valgrind failed start pmproxy and get port $port ready after 30 secs"
+    echo "Arrgh: valgrind failed start pmproxy and get port $port ready after 40 secs"
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID]|/[p]mproxy( |$)|[v]algrind ' >$tmp.triage 2>&1
+    if [ -s $tmp.triage ]
+    then
+	echo "--- likely looking processes ..." >>$seq_full
+	cat $tmp.triage >>$seq_full
+    else
+	echo "--- there are no likely looking processes!" >>$seq_full
+    fi
+    echo "--- valgrind stdout ---" >>$seq_full
+    cat $tmp.valout >>$seq_full
+    echo "--- valgrind stderr ---" >>$seq_full
+    cat $tmp.valerr >>$seq_full
     exit
 fi
 

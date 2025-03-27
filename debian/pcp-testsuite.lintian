@@ -12,3 +12,6 @@ pcp-testsuite: package-name-doesnt-match-sonames libpcp-fault3
 # similar to above, libpcp_fault.so belongs in pcp-testsuite as it
 # is ONLY used for QA as a fault injection version of libpcp.so
 pcp-testsuite: link-to-shared-library-in-wrong-package usr/lib/libpcp_fault.so.3 [usr/lib/libpcp_fault.so]
+
+# this is OK, env(1) ensures we can find perl provided it is on $PATH
+pcp-testsuite: incorrect-path-for-interpreter /usr/bin/env perl != /usr/bin/perl [*]
