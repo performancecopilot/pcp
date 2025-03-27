@@ -72,7 +72,7 @@ SCRIPTS = mk.localconfig mk.pcpversion mk.qa_hosts mk.variant getpmcdhosts \
 	  new check recheck remake findmetric group-stats \
 	  check-gitignore check-group chk.setup show-me disk-work 008.helper \
 	  xlate_2_new_pmns common setup.051 mk.logfarm check.callback.sample \
-	  daily-cleanup refactor
+	  daily-cleanup
 
 COMMON_SCRIPTS = common.install.cisco common.pcpweb
 COMMON = common.check common.config common.filter \
