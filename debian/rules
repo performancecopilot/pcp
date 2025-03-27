@@ -188,7 +188,9 @@ clean:
 	-rm -f build-stamp .census
 	$(MAKE) realclean
 	-rm -rf $(alldir)
-	-rm -f debian/*substvars debian/files* debian/*.debhelper qa/localconfig
+	-rm -f src/include/builddefs.install src/include/pcp.conf.install
+	-rm -f debian/*substvars debian/files* debian/*.debhelper
+	-rm -f configure qa/localconfig
 	if `which dh_update_autotools_config` >/dev/null; \
 	then :;\
 	else dh_autotools-dev_restoreconfig; \
