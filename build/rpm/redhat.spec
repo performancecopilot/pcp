@@ -236,7 +236,7 @@ ExcludeArch: %{ix86}
 %global disable_xlsx 1
 %endif
 
-%if 0%{?fedora} >= 40 || 0%{?rhel} >= 10
+%if 0%{?fedora} >= 40 || 0%{?rhel} >= 9
 %global disable_amdgpu 0
 %else
 %global disable_amdgpu 1
