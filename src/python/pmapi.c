@@ -1574,6 +1574,11 @@ MOD_INIT(cpmapi)
     dict_add(dict, "HAVE_BITFIELDS_LTOR", 0);
     dict_add(dict, "HAVE_BITFIELDS_RTOL", 1);
 #endif
+#ifndef PM_PAD_TIMESPEC
+    dict_add(dict, "PM_PAD_TIMESPEC", 0);
+#else
+    dict_add(dict, "PM_PAD_TIMESPEC", PM_PAD_TIMESPEC);
+#endif
 #ifdef PM_SIZEOF_SUSECONDS_T
     dict_add(dict, "PM_SIZEOF_SUSECONDS_T", PM_SIZEOF_SUSECONDS_T);
 #endif

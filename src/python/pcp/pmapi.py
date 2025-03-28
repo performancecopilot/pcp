@@ -88,7 +88,8 @@
         print("%s : %s" % (ts, line()))
 """
 # pylint: disable=missing-docstring,line-too-long,broad-except,no-member
-# pylint: disable=too-many-lines,too-many-arguments,too-many-nested-blocks
+# pylint: disable=too-many-arguments,too-many-positional-arguments
+# pylint: disable=too-many-lines,too-many-nested-blocks
 
 import os
 import sys
@@ -279,8 +280,13 @@ class timeval(Structure):
         time.sleep(float(self))
 
 class timespec(Structure):
-    _fields_ = [("tv_sec", c_time_t),
-                ("tv_nsec", c_long)]
+    if c_api.PM_PAD_TIMESPEC == 4:
+        _fields_ = [("tv_sec", c_time_t),
+                    ("tv_nsec", c_long),
+                    ("pad", c_int32)]
+    else:
+        _fields_ = [("tv_sec", c_time_t),
+                    ("tv_nsec", c_long)]
 
     def __init__(self, sec=0, nsec=None):
         Structure.__init__(self)
