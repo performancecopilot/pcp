@@ -998,11 +998,11 @@ AC_CHECK_PROGS(PYLINT, pylint, /bin/true)
 AC_SUBST(PYLINT)
 
 dnl check if python available for the build and runtime
-AC_PATH_PROGS(PYTHON, [/usr/bin/python2 python2 python2.7 python])
+AC_PATH_PROGS(PYTHON, [python2 python2.7 python])
 AC_SUBST(PYTHON)
 
 dnl check if python3 available for the build and runtime
-AC_PATH_PROGS(PYTHON3, [/usr/bin/python3 python3])
+AC_PATH_PROGS(PYTHON3, [python3])
 if test -z "$PYTHON3"
 then
     dnl no python3 executable, so look for latest python3.x, if any
@@ -1075,6 +1075,7 @@ AC_SUBST(enable_python3)
 dnl check if python tools/packages wanted (need python >= 2.7)
 enable_python2=false
 AS_IF([test "x$do_python" != "xno"], [
+    AC_MSG_WARN("Doing Python2 configuration: do_python=$do_python")
     enable_python2=true
 
     if test "$do_python" = "check" -a -f /etc/os-release
@@ -4004,6 +4005,12 @@ dnl   Build definitions for use in packaging
     build/mac/uninstall-pcp
 )
 AC_OUTPUT
+
+dnl debugging for build conditionals
+dnl
+echo "+++ start buildefs conditionals"
+grep -E '^(ENABLE_|HAVE_|PMDA_)' src/include/builddefs
+echo "+++ end buildefs conditionals"
 
 dnl verbose diagnostics
 dnl

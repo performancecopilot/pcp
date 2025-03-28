@@ -8423,7 +8423,7 @@ test -n "$PYLINT" || PYLINT="/bin/true"
 
 
 
-for ac_prog in /usr/bin/python2 python2 python2.7 python
+for ac_prog in python2 python2.7 python
 do
   # Extract the first word of "$ac_prog", so it can be a program name with args.
 set dummy $ac_prog; ac_word=$2
@@ -8475,7 +8475,7 @@ done
 
 
 
-for ac_prog in /usr/bin/python3 python3
+for ac_prog in python3
 do
   # Extract the first word of "$ac_prog", so it can be a program name with args.
 set dummy $ac_prog; ac_word=$2
@@ -8611,6 +8611,8 @@ enable_python2=false
 if test "x$do_python" != "xno"
 then :
 
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: \"Doing Python2 configuration: do_python=$do_python\"" >&5
+printf "%s\n" "$as_me: WARNING: \"Doing Python2 configuration: do_python=$do_python\"" >&2;}
     enable_python2=true
 
     if test "$do_python" = "check" -a -f /etc/os-release
@@ -19758,5 +19760,9 @@ if test -n "$ac_unrecognized_opts" && test "$enable_option_checking" != no; then
 printf "%s\n" "$as_me: WARNING: unrecognized options: $ac_unrecognized_opts" >&2;}
 fi
 
+
+echo "+++ start buildefs conditionals"
+grep -E '^(ENABLE_|HAVE_|PMDA_)' src/include/builddefs
+echo "+++ end buildefs conditionals"
 
 
