@@ -88,7 +88,8 @@
         print("%s : %s" % (ts, line()))
 """
 # pylint: disable=missing-docstring,line-too-long,broad-except,no-member
-# pylint: disable=too-many-lines,too-many-arguments,too-many-nested-blocks
+# pylint: disable=too-many-arguments,too-many-positional-arguments
+# pylint: disable=too-many-lines,too-many-nested-blocks
 
 import os
 import sys
