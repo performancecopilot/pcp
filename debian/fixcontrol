@@ -2,7 +2,7 @@
 #
 # generate control preamble from control.pcp
 #
-tmp=/var/tmp/$$
+tmp=/var/tmp/fixcontrol-$$
 trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 
 
@@ -286,4 +286,6 @@ else
 fi
 
 echo 's/ $//' >>$tmp.sed
-sed -f $tmp.sed <control.pcp
+sed -f $tmp.sed <control.pcp >$tmp.out
+diff -u control.pcp $tmp.out >&2
+cat $tmp.out
