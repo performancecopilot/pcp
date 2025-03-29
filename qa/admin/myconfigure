@@ -116,12 +116,12 @@ then
 	    configopts="$configopts --with-selinux=no --with-qt=no"
 	fi
     fi
-    # for RHEL 7 Python3 is incomplete, so we're force to still use
-    # Python2
+    # for RHEL 7 Python3 is incomplete, so we're forced to still use
+    # Python2 if available
     #
     if [ -f /etc/system-release ]
     then
-	if grep -E '((Red Hat)|CentOS).* release 7\.' /etc/system-release >/dev/null
+	if grep 'Red Hat.* release 7\.' /etc/system-release >/dev/null
 	then
 	    configopts="$configopts --with-python=check"
 	fi
