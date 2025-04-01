@@ -11,7 +11,7 @@ info:
     ```bash
     /api/endpoint?parameter1=value1&parameter2=value2
     ```
-    Examples in all following sections use the [curl](https://man7.org/linux/man-pages/man1/curl.1.html)(1) command line utility with a local [pmproxy](https://pcp.io/man/man1/pmproxy.1.html)(1) server listening on port 44322 (default port). The [pmjson](https://pcp.io/man/man1/pmjson.1.html)(1) utility is used to neatly format any JSON output, as opposed to the compact (minimal whitespace) form provided by default. The examples in the scalable time series section use historical data recorded by the [pmlogger](https://pcp.io/man/man1/pmlogger.1.html)(1) service, in conjunction with a local key-value server](https://valkey.io/).
+    Examples in all following sections use the [curl](https://man7.org/linux/man-pages/man1/curl.1.html)(1) command line utility with a local [pmproxy](https://man7.org/linux/man-pages/man1/pmproxy.1.html)(1) server listening on port 44322 (default port). The [pmjson](https://man7.org/linux/man-pages/man1/pmjson.1.html)(1) utility is used to neatly format any JSON output, as opposed to the compact (minimal whitespace) form provided by default. The examples in the scalable time series section use historical data recorded by the [pmlogger](https://man7.org/linux/man-pages/man1/pmlogger.1.html)(1) service, in conjunction with a local key-value server](https://valkey.io/).
   version: ""
 servers:
 - url: http://localhost:44322/
@@ -21,17 +21,17 @@ tags:
     Exporting of live performance metrics in an Open Metrics compatible format (as described at https://openmetrics.io and popularized by the https://prometheus.io project) is available.
 - name: SCALABLE TIME SERIES
   description: |
-    The fast, scalable time series query capabilities provided by the [pmseries](https://pcp.io/man/man1/pmseries.1.html)(1) command are also available through a REST API. These queries provide access to performance data (metric metadata and values) from multiple hosts simultaneously, and in a fashion suited to efficient retrieval by any number of web applications.
+    The fast, scalable time series query capabilities provided by the [pmseries](https://man7.org/linux/man-pages/man1/pmseries.1.html)(1) command are also available through a REST API. These queries provide access to performance data (metric metadata and values) from multiple hosts simultaneously, and in a fashion suited to efficient retrieval by any number of web applications.
 
     All requests in this group can be accompanied by an optional *client* parameter. The value passed in the request will be sent back in the response - all responses will be in JSON object form in this case, with top level "client" and "result" fields.
 - name: FULL TEXT SEARCH
   description: |
-    The full text search capabilities provided by the [pmsearch](https://pcp.io/man/man1/pmsearch.1.html)(1) command are also available through a REST API. These queries provide access to an index over performance metric names, instances, instance domains and help text, suitable for a metric search engine, and in a fashion suited to efficient querying by any number of web applications.
+    The full text search capabilities provided by the [pmsearch](https://man7.org/linux/man-pages/man1/pmsearch.1.html)(1) command are also available through a REST API. These queries provide access to an index over performance metric names, instances, instance domains and help text, suitable for a metric search engine, and in a fashion suited to efficient querying by any number of web applications.
 
     In order to use this functionality, the optional *ValkeySearch* module must be loaded in the **valkey-server** at the time **pmproxy** is started, such that metrics, instances and help text it discovers can be automatically indexed.
 - name: PMAPI HOST SERVICES
   description: |
-    The live performance collection facilities available from [pmcd](https://pcp.io/man/man1/pmcd.1.html)(1) can also be accessed through a REST API.
+    The live performance collection facilities available from [pmcd](https://man7.org/linux/man-pages/man1/pmcd.1.html)(1) can also be accessed through a REST API.
 
     All requests are performed on the web server host by default, unless either a *hostspec* or *context* parameter is provided. *hostname* can be used in place of *hostspec*.
 
@@ -62,11 +62,11 @@ paths:
         For all numeric metrics with the given NAME prefixes, create an Open Metrics (Prometheus) text export format giving their current value and related metadata.
         
         The response has plain text type rather than JSON commonly used elsewhere in the REST API. This format can be injested by many open source monitoring tools, 
-        including Prometheus and [pmdaopenmetrics](https://pcp.io/man/man1/pmdaopenmetrics.1.html)(1).
+        including Prometheus and [pmdaopenmetrics](https://man7.org/linux/man-pages/man1/pmdaopenmetrics.1.html)(1).
         
         The native PCP metric metadata (metric name, type, indom, semantics and units) is first output for each metric with **\# PCP** prefix. The metadata reported 
-        is of the form described on [pmTypeStr](https://pcp.io/man/man3/pmtypestr.3.html)(3), [pmInDomStr](https://pcp.io/man/man3/pmindomstr.3.html)(3), 
-        [pmSemStr](https://pcp.io/man/man3/pmsemstr.3.html)(3) and [pmUnitsStr](https://pcp.io/man/man3/pmunitsstr.3.html)(3) respectively. If the [pmUnitsStr](https://pcp.io/man/man3/pmunitsstr.3.html)(3) 
+        is of the form described on [pmTypeStr](https://man7.org/linux/man-pages/man3/pmtypestr.3.html)(3), [pmInDomStr](https://man7.org/linux/man-pages/man3/pmindomstr.3.html)(3), 
+        [pmSemStr](https://man7.org/linux/man-pages/man3/pmsemstr.3.html)(3) and [pmUnitsStr](https://man7.org/linux/man-pages/man3/pmunitsstr.3.html)(3) respectively. If the [pmUnitsStr](https://man7.org/linux/man-pages/man3/pmunitsstr.3.html)(3) 
         units string is empty, then **none** is output. The units metadata string may contain spaces and extends to the end of the line.
         
         PCP metric names are mapped so that the **.** separators are exchanged with **_** (':' in back-compatibility mode, where "# PCP" is the identifying line suffix). 
@@ -79,7 +79,7 @@ paths:
           # PCP5 proc.nprocs 3.8.99 u32 PM_INDOM_NULL instant none
           # HELP proc_nprocs instantaneous number of processes
           # TYPE proc_nprocs gauge
-          proc_nprocs {hostname="app1"} 7
+          proc_nprocs{hostname="app1"} 7
 
           # PCP5 kernel.pernode.cpu.intr 60.0.66 u64 60.19 counter millisec
           # HELP kernel_pernode_cpu_intr total interrupt CPU [...]
@@ -120,7 +120,7 @@ paths:
       - SCALABLE TIME SERIES
       summary: Performs a time series query
       description: |
-        The query is in the format described in [pmseries](https://pcp.io/man/man1/pmseries.1.html)(1) and is passed to the server via either the *expr* parameter (HTTP GET) or via the message body (HTTP POST).
+        The query is in the format described in [pmseries](https://man7.org/linux/man-pages/man1/pmseries.1.html)(1) and is passed to the server via either the *expr* parameter (HTTP GET) or via the message body (HTTP POST).
 
         When querying for time series matches only, no time window options are specified and matching series identifiers are returned in a JSON array.
         ```bash
@@ -135,7 +135,7 @@ paths:
       parameters:
       - name: expr
         in: query
-        description: Query string in [pmseries](https://pcp.io/man/man1/pmseries.1.html)(1) format
+        description: Query string in [pmseries](https://man7.org/linux/man-pages/man1/pmseries.1.html)(1) format
         schema:
           type: string
       - name: client
@@ -159,7 +159,7 @@ paths:
       - SCALABLE TIME SERIES
       summary: Performs values retrievals for one or more time series identifiers
       description: |
-        The JSON response contains the same information as the **pmseries - q /-- query** option using any of the time window parameters described on [pmseries](https://pcp.io/man/man1/pmseries.1.html)(1). If no time window parameters are specified, the single most recent value observed is retrieved.
+        The JSON response contains the same information as the **pmseries - q /-- query** option using any of the time window parameters described on [pmseries](https://man7.org/linux/man-pages/man1/pmseries.1.html)(1). If no time window parameters are specified, the single most recent value observed is retrieved.
         ```bash
         $ curl -s http://localhost:44322/series/values?series=605fc77742cd0317597291329561ac4e50c0dd12 | pmjson
         ```
@@ -498,7 +498,7 @@ paths:
       parameters:
       - name: expr
         in: query
-        description: Source load string in [pmseries](https://pcp.io/man/man1/pmseries.1.html)(1) format
+        description: Source load string in [pmseries](https://man7.org/linux/man-pages/man1/pmseries.1.html)(1) format
         schema:
           type: string
       - name: client
@@ -527,7 +527,7 @@ paths:
       description: | 
         It performs a text search query across metrics and instance domains - all forms of names and help texts.
         
-        The mandatory search string is further described in [pmsearch](https://pcp.io/man/man1/pmsearch.1.html)(1) and is passed to the server via the *query* parameter (HTTP GET).
+        The mandatory search string is further described in [pmsearch](https://man7.org/linux/man-pages/man1/pmsearch.1.html)(1) and is passed to the server via the *query* parameter (HTTP GET).
         ```bash
         $ curl -s http://localhost:44322/search/text?query=halt | pmjson
         ```
@@ -541,7 +541,7 @@ paths:
       parameters:
       - name: query
         in: query
-        description: Query string in [pmsearch](https://pcp.io/man/man1/pmsearch.1.html)(1) format
+        description: Query string in [pmsearch](https://man7.org/linux/man-pages/man1/pmsearch.1.html)(1) format
         schema:
           type: string
       - name: highlight
@@ -627,7 +627,7 @@ paths:
       - FULL TEXT SEARCH
       summary: Provides search query suggestions, that is, metric and instance names
       description: | 
-        The mandatory search string is further described in [pmsearch](https://pcp.io/man/man1/pmsearch.1.html)(1) and is passed to the server via the *query* parameter (HTTP GET).
+        The mandatory search string is further described in [pmsearch](https://man7.org/linux/man-pages/man1/pmsearch.1.html)(1) and is passed to the server via the *query* parameter (HTTP GET).
         ```bash
         $ curl -s http://localhost:44322/search/suggest?query=disk&limit=4 | pmjson
         ```
@@ -768,7 +768,7 @@ paths:
       parameters:
       - name: hostspec
         in: query
-        description: Host specification as described in [PCPIntro](https://pcp.io/man/man1/pcpintro.1.html)(1)
+        description: Host specification as described in [PCPIntro](https://man7.org/linux/man-pages/man1/pcpintro.1.html)(1)
         schema:
           type: string
       - name: polltimeout
@@ -838,7 +838,7 @@ paths:
         $ curl -s http://localhost:44322/pmapi/metric?names=kernel.all.load,disk.all.read | pmjson
         ```
         Most of the fields are directly transcribed from the PMAPI calls for metric descriptors, labels and help text mentioned above and are exactly as 
-        would be observed using the [pminfo](https://pcp.io/man/man1/pminfo.1.html)(1) command with the - **dlmstT** options.
+        would be observed using the [pminfo](https://man7.org/linux/man-pages/man1/pminfo.1.html)(1) command with the - **dlmstT** options.
         
         The semantics, type and units fields are as returned by [pmTypeStr](https://man7.org/linux/man-pages/man3/pmTypeStr.3.html)(3), 
         [pmUnitsStr](https://man7.org/linux/man-pages/man3/pmUnitsStr.3.html)(3) and [pmSemStr](https://man7.org/linux/man-pages/man3/pmSemStr.3.html)(3).
@@ -876,7 +876,7 @@ paths:
           type: string
       - name: hostspec
         in: query
-        description: Host specification as described in [PCPIntro](https://pcp.io/man/man1/pcpintro.1.html)(1)
+        description: Host specification as described in [PCPIntro](https://man7.org/linux/man-pages/man1/pcpintro.1.html)(1)
         schema:
           type: string
       - name: context
@@ -1034,7 +1034,7 @@ paths:
           type: string
       - name: hostspec
         in: query
-        description: Host specification as described in [PCPIntro](https://pcp.io/man/man1/pcpintro.1.html)(1)
+        description: Host specification as described in [PCPIntro](https://man7.org/linux/man-pages/man1/pcpintro.1.html)(1)
         schema:
           type: string
       - name: context
@@ -1126,7 +1126,7 @@ paths:
           type: string
       - name: hostspec
         in: query
-        description: Host specification as described in [PCPIntro](https://pcp.io/man/man1/pcpintro.1.html)(1)
+        description: Host specification as described in [PCPIntro](https://man7.org/linux/man-pages/man1/pcpintro.1.html)(1)
         schema:
           type: string
       - name: context
@@ -1230,7 +1230,7 @@ paths:
           type: string
       - name: hostspec
         in: query
-        description: Host specification as described in [PCPIntro](https://pcp.io/man/man1/pcpintro.1.html)(1)
+        description: Host specification as described in [PCPIntro](https://man7.org/linux/man-pages/man1/pcpintro.1.html)(1)
         schema:
           type: string
       - name: context
@@ -1349,7 +1349,7 @@ paths:
           type: string
       - name: hostspec
         in: query
-        description: Host specification as described in [PCPIntro](https://pcp.io/man/man1/pcpintro.1.html)(1)
+        description: Host specification as described in [PCPIntro](https://man7.org/linux/man-pages/man1/pcpintro.1.html)(1)
         schema:
           type: string
       - name: context
@@ -1424,7 +1424,7 @@ paths:
           type: (any)
       - name: hostspec
         in: query
-        description: Host specification as described in [PCPIntro](https://pcp.io/man/man1/pcpintro.1.html)(1)
+        description: Host specification as described in [PCPIntro](https://man7.org/linux/man-pages/man1/pcpintro.1.html)(1)
         schema:
           type: string
       - name: context
@@ -1489,7 +1489,7 @@ paths:
           type: string
       - name: hostspec
         in: query
-        description: Host specification as described in [PCPIntro](https://pcp.io/man/man1/pcpintro.1.html)(1)
+        description: Host specification as described in [PCPIntro](https://man7.org/linux/man-pages/man1/pcpintro.1.html)(1)
         schema:
           type: string
       - name: context
@@ -1548,7 +1548,7 @@ paths:
           type: number
       - name: hostspec
         in: query
-        description: Host specification as described in [PCPIntro](https://pcp.io/man/man1/pcpintro.1.html)(1)
+        description: Host specification as described in [PCPIntro](https://man7.org/linux/man-pages/man1/pcpintro.1.html)(1)
         schema:
           type: string
       - name: polltimeout

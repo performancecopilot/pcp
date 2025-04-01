@@ -70,15 +70,21 @@ APPS_BPF = \
 APPS_BPF_2 = \
 	netatop.bpf.c
 
-default_pcp default:	$(PMDABPF_MODULES)
+default: build-me
 
 include $(BUILDRULES)
+
+ifeq "$(PMDA_BPF)" "true"
+build-me:	$(PMDABPF_MODULES)
 
 install_pcp install:	default
 	$(INSTALL) -m 755 -d $(MODULEDIR)
 	$(INSTALL) -m 755 -d $(MODULETMP)
 	$(INSTALL) -m 644 -t $(MODULETMP) $(PMDABPF_MODULES) $(MODULEDIR)
-
+else
+build-me:
+install:
+endif
 
 # Use the clang pipeline to emit LLVM to LLD and emit BPF straight to an ELF .o.
 # The GCC pipeline has parts of this but not completely, and in any case, likely
