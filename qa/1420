@@ -113,7 +113,7 @@ echo "Mostly silence is golden ..."
 for vers in 2 3
 do
     echo
-    echo "=== Version $vers ==="
+    echo "=== Version $vers ===" | tee -a $seq_full
     echo
 
     # remove problematic metrics, like event records
@@ -121,7 +121,7 @@ do
     rm -f $tmp.x.0 $tmp.x.meta $tmp.x.index
     pmlogextract -c $tmp.config archives/omnibus-nomark_v$vers $tmp.x
 
-    _scanmeta $tmp.x >$tmp.in.meta
+    _scanmeta $tmp.x | tee -a $seq_full >$tmp.in.meta
 
     rm -f $tmp.0 $tmp.meta $tmp.index
     if $do_valgrind
@@ -132,7 +132,7 @@ do
     fi \
     | sed -e "s@$tmp@TMP@g"
 
-    _scanmeta $tmp >$tmp.out.meta
+    _scanmeta $tmp | tee -a $seq_full >$tmp.out.meta
     if diff $tmp.in.meta $tmp.out.meta >$tmp.diff
     then
 	:
@@ -144,8 +144,10 @@ do
     sed -e '/^#/d' <$tmp.config \
     | while read metric
     do
-	pmval -a $tmp.x -z -w 12 -t 1sec $metric | _filter >$tmp.in
-	pmval -a $tmp   -z -w 12 -t 1sec $metric | _filter >$tmp.out
+	pmdumplog $tmp.x $metric >>$seq_full
+	pmval -XX -a $tmp.x -z -w 12 -t 1sec $metric | tee -a $seq_full | _filter >$tmp.in
+	pmdumplog $tmp $metric >>$seq_full
+	pmval -XX -a $tmp   -z -w 12 -t 1sec $metric | tee -a $seq_full | _filter >$tmp.out
 	if diff $tmp.in $tmp.out >$tmp.diff
 	then
 	    :
@@ -153,10 +155,6 @@ do
 	    echo "--- $metric ---"
 	    cat $tmp.diff
 	fi
-	# mv $tmp.in tmp.in
-	# mv $tmp.out tmp.out
-	# pmdumplog -a $tmp.x >>$seq_full
-	# pmdumplog -a $tmp >>$seq_full
     done
 
 done

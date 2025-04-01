@@ -1449,7 +1449,12 @@ main(int argc, char **argv)
 	    if (logctl.label.timezone)
 		free(logctl.label.timezone);
 	    logctl.label.timezone = strdup(vp->vlist[0].value.pval->vbuf);
-	    /* prefer to use remote time to avoid clock drift problems */
+	    /*
+	     * prefer to use remote time to avoid clock drift problems
+	     * ... this is the old logic and fallback, the epoch will
+	     * be reset using the timestamp in the first valid pmResult
+	     * (after the prologue) written to the archive
+	     */
 	    epoch.sec = resp->timestamp.tv_sec;
 	    epoch.nsec = resp->timestamp.tv_nsec;
 	    if (! use_localtime)
@@ -1533,9 +1538,11 @@ main(int argc, char **argv)
 	__pmFD_SET(rsc_fd, &fds);
     numfds = maxfd() + 1;
 
+#if 0
     if ((sts = do_prologue()) < 0)
 	fprintf(stderr, "Warning: problem writing archive prologue: %s\n",
 	    pmErrStr(sts));
+#endif
 
     sts = 0;		/* default exit status */
 

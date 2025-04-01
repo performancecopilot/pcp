@@ -30,6 +30,11 @@ __pmTimestamp	last_stamp;
 __pmHashCtl	hist_hash;
 
 /*
+ * one-trip guard for first pmResult
+ */
+static int first_result = 1;
+
+/*
  * These structures allow us to keep track of the _last_ fetch
  * for each fetch in each AF group ... needed to track changes in
  * instance availability.
@@ -732,6 +737,29 @@ do_work(task_t *tp)
 	    }
 	    continue;
 	}
+
+	if (first_result) {
+	    int		lsts;
+	    /*
+	     * delayed preamble until we have first fetch
+	     */
+	    if (pmDebugOptions.dev0) {
+		fprintf(stderr, "Note: epoch reset from ");
+		__pmPrintTimestamp(stderr, &epoch);
+		fprintf(stderr, " to ");
+		__pmPrintTimestamp(stderr, &resp->timestamp);
+		fputc('\n', stderr);
+	    }
+	    epoch = resp->timestamp;	/* struct assignment */
+	    first_result = 0;
+
+#if 1
+	    if ((lsts = do_prologue()) < 0)
+		fprintf(stderr, "Warning: problem writing archive prologue: %s\n",
+		    pmErrStr(lsts));
+#endif
+	}
+
 	pdu_payload = pduresultbytes(resp);
 
 	if (pmDebugOptions.appl2)

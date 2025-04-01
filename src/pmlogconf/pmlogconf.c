@@ -14,6 +14,7 @@
  * Debug flags:
  * appl0	group file operations
  * appl1	probe operations
+ * appl2	dump group data at each stage
  */
 #include "pmlogconf.h"
 
@@ -349,6 +350,90 @@ cullv1(const_dirent *dep)
     return strcmp("v1.0", dep->d_name);
 }
 
+static char *
+probestr(int style)
+{
+    if (style == 0) return "none";
+    else if (style == PROBE_EXISTS) return "exists";
+    else if (style == PROBE_VALUES) return "values";
+    else if (style == PROBE_EQ) return "==";
+    else if (style == PROBE_NEQ) return "!=";
+    else if (style == PROBE_GT) return ">";
+    else if (style == PROBE_GE) return ">=";
+    else if (style == PROBE_LT) return "<";
+    else if (style == PROBE_LE) return "<=";
+    else if (style == PROBE_RE) return "~";
+    else if (style == PROBE_NRE) return "!~";
+    else return "???";
+}
+
+static char *
+statestr(int state)
+{
+    if (state == 0) return "none";
+    else if (state == STATE_AVAILABLE) return "available";
+    else if (state == STATE_INCLUDE) return "include";
+    else if (state == STATE_EXCLUDE) return "exclude";
+    else return "???";
+}
+
+static void
+dump_group(struct group *gp, char *from)
+{
+    char	c = ':';
+    fprintf(stderr, "Dump group tag=%s [from %s]\n", gp->tag, from);
+    if (gp->ident != NULL)
+	fprintf(stderr, "  ident=%s\n", gp->ident);
+    if (gp->delta != NULL)
+	fprintf(stderr, "  delta=%s\n", gp->delta);
+    if (gp->metric != NULL)
+	fprintf(stderr, "  metric=%s PMID=%s (for probing)\n", gp->metric, pmIDStr(gp->pmid));
+    fprintf(stderr, "  flags");
+    if (gp->valid) {
+	fprintf(stderr, "%c parsed", c);
+	c = ',';
+    }
+    if (gp->success) {
+	fprintf(stderr, "%c probed", c);
+	c = ',';
+    }
+    fprintf(stderr, "%c log_%s", c, loggingstr(gp->logging));
+    c = ',';
+    if (gp->pmlogger) fprintf(stderr, ", in_pmlogger_config");
+    if (gp->pmlogconf) fprintf(stderr, ", in_pmlogconf_config");
+    if (gp->pmrep) fprintf(stderr, ", in_pmrep_config");
+    fputc('\n', stderr);
+    if (gp->force != NULL)
+	fprintf(stderr, "  force=%s\n", gp->force);
+    if (gp->probe != NULL) {
+	fprintf(stderr, "  probe=%s", gp->probe);
+	if (gp->value != NULL)
+	fprintf(stderr, " condition=%s", gp->value);
+	fputc('\n', stderr);
+    }
+    if (gp->probe_style + gp->true_state + gp->false_state != 0) {
+	fprintf(stderr, "  parse state:");
+	fprintf(stderr, " probe=%s", probestr(gp->probe_style));
+	fprintf(stderr, " true=%s", statestr(gp->true_state));
+	fprintf(stderr, " false=%s", statestr(gp->false_state));
+	fputc('\n', stderr);
+    }
+    fprintf(stderr, "  metrics: [%d]", gp->nmetrics);
+    if (gp->nmetrics > 0) {
+	fprintf(stderr, " %s", gp->metrics[0]);
+	if (gp->nmetrics > 1) {
+	    fprintf(stderr, "...%s", gp->metrics[gp->nmetrics-1]);
+	}
+    }
+    fputc('\n', stderr);
+    if (gp->saved_delta != NULL)
+	fprintf(stderr, "  saved_delta=%s\n", gp->saved_delta);
+    if (gp->saved_state != 0)
+	fprintf(stderr, "  saved_state=%s\n", statestr(gp->saved_state));
+    if (gp->probe_state != 0)
+	fprintf(stderr, "  probe_state=%s\n", statestr(gp->probe_state));
+}
+
 int
 parse_groupfile(FILE *file, const char *tag)
 {
@@ -408,6 +493,9 @@ parse_groupfile(FILE *file, const char *tag)
     if (pmDebugOptions.appl0)
 	fprintf(stderr, "Parsed group with tag %s valid=%u metric=%s\n",
 			tag, group.valid, group.metric? group.metric : "");
+    if (pmDebugOptions.appl2)
+	dump_group(&group, "parse_groupfile");
+
     return 0;
 }
 
@@ -501,6 +589,15 @@ fetch_groups(void)
 	if (!groups[i].valid || groups[i].metric == NULL)
 	    continue;
 	names[n++] = (const char *)groups[i].metric;
+    }
+    if (n == 0) {
+	/*
+	 * no metrics in guards for any group, nothing to be done
+	 */
+	free(descs);
+	free(names);
+	free(pmids);
+	return 0;
     }
     count = n;
 
@@ -735,6 +832,10 @@ parse_group(group_t *group)
 	    return -EINVAL;
 	}
     }
+
+    if (pmDebugOptions.appl2)
+	dump_group(group, "parse_group");
+
     return 0;
 }
 
@@ -985,6 +1086,10 @@ evaluate_group(group_t *group)
     default:
 	break;
     }
+
+    if (pmDebugOptions.appl2)
+	dump_group(group, "evaluate_group");
+
     return group->pmid != PM_ID_NULL;
 }
 

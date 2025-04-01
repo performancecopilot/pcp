@@ -57,7 +57,7 @@ __pmTimestamp	goldenstart;
  * Checks here mimic those in __pmLogChkLabel().
  */
 static int
-checklabel(__pmFILE *f, char *fname, int len)
+checklabel(__pmFILE *f, char *fname, int len, int *eol)
 {
     __pmLogLabel	label;
     size_t		bytes;
@@ -68,20 +68,26 @@ checklabel(__pmFILE *f, char *fname, int len)
     /* first read the magic number for sanity and version checking */
     __pmFseek(f, sizeof(__int32_t), SEEK_SET);
     if ((bytes = __pmFread(&magic, 1, sizeof(magic), f)) != sizeof(magic)) {
+	if (*eol == 0) fputc('\n', stderr);
 	fprintf(stderr, "checklabel(...,%s): botch: magic read returns %zu not %zu as expected\n", fname, bytes, sizeof(magic));
+	*eol = 1;
 	sts = STS_FATAL;
     }
 
     magic = ntohl(magic);
     if ((magic & 0xffffff00) != PM_LOG_MAGIC) {
+	if (*eol == 0) fputc('\n', stderr);
 	fprintf(stderr, "%s: bad label magic number: 0x%x not 0x%x as expected\n",
 	    fname, magic & 0xffffff00, PM_LOG_MAGIC);
+	*eol = 1;
 	sts = STS_FATAL;
     }
     if ((magic & 0xff) != PM_LOG_VERS02 &&
         (magic & 0xff) != PM_LOG_VERS03) {
+	if (*eol == 0) fputc('\n', stderr);
 	fprintf(stderr, "%s: bad label version: %d not %d or %d as expected\n",
 	    fname, magic & 0xff, PM_LOG_VERS02, PM_LOG_VERS03);
+	*eol = 1;
 	sts = STS_FATAL;
     }
 
@@ -89,11 +95,36 @@ checklabel(__pmFILE *f, char *fname, int len)
     memset((void *)&label, 0, sizeof(label));
     if ((sts = __pmLogLoadLabel(f, &label)) < 0) {
 	/* don't report again if error already reported above */
-	if (sts != STS_FATAL)
+	if (sts != STS_FATAL) {
+	    if (*eol == 0) fputc('\n', stderr);
 	    fprintf(stderr, "%s: cannot load label record: %s\n", fname, pmErrStr(sts));
+	    *eol = 1;
+	}
 	sts = STS_FATAL;
     }
     else {
+	if (vflag) {
+	    if (*eol == 0) fputc('\n', stderr);
+	    fprintf(stderr, "%s: label record [magic=0x%08x version=%d vol=%d pid=%d start=",
+                fname, label.magic, label.magic & 0xff, label.vol, label.pid);
+	    __pmPrintTimestamp(stderr, &label.start);
+	    if (label.features != 0) {
+		char        *bits = __pmLogFeaturesStr(label.features);
+		if (bits != NULL) {
+		    fprintf(stderr, " features=0x%x \"%s\"", label.features, bits);
+		    free(bits);
+		}
+		else
+		    fprintf(stderr, " features=0x%x \"???\"", label.features);
+	    }
+	    fprintf(stderr, " host=%s", label.hostname);
+	    if (label.timezone)
+		fprintf(stderr, " tz=%s", label.timezone);
+	    if (label.zoneinfo)
+		fprintf(stderr, " zoneinfo=%s", label.zoneinfo);
+	    fprintf(stderr, "]\n");
+	    *eol = 1;
+	}
 	if (goldenmagic == 0) {
 	    if (sts == STS_OK) {
 		/* first good label */
@@ -102,8 +133,10 @@ checklabel(__pmFILE *f, char *fname, int len)
 		goldenstart = label.start;
 	    }
 	} else if ((magic & 0xff) != (goldenmagic & 0xff)) {
+	    if (*eol == 0) fputc('\n', stderr);
 	    fprintf(stderr, "%s: mismatched label version: %d not %d as expected from %s\n",
 				fname, magic & 0xff, magic & 0xff, goldenfname);
+	    *eol = 1;
 	    sts = STS_FATAL;
 	}
 	__pmLogFreeLabel(&label);
@@ -249,7 +282,7 @@ pass0(char *fname)
 
 	if (nrec == 0) {
 	    int		xsts;
-	    xsts = checklabel(f, fname, len - 2 * sizeof(len));
+	    xsts = checklabel(f, fname, len - 2 * sizeof(len), &eol);
 	    if (label_ok == STS_OK)
 		/* just remember first not OK status */
 		label_ok = xsts;

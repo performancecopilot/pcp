@@ -24,8 +24,8 @@ Note: timezone set to local timezone of host "gonzo" from archive
 metric:    sample.colour
 archive:   archives/ok-foo
 host:      gonzo
-start:     Fri Aug  7 04:34:32 1998
-end:       Fri Aug  7 04:34:40 1998
+start:     Fri Aug  7 04:34:32.257504 1998
+end:       Fri Aug  7 04:34:40.258477 1998
 semantics: instantaneous value
 units:     none
 samples:   all

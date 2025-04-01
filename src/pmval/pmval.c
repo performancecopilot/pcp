@@ -412,11 +412,25 @@ printhdr(Context *x)
 	time_t		time;
 	printf("archive:   %s\n", source);
 	printf("host:      %s\n", x->hostname);
-	time = opts.origin.tv_sec;
-	printf("start:     %s", pmCtime(&time, tbfr));
+	printf("start:     ");
+	if (Xflag == 0) {
+	    time = opts.origin.tv_sec;
+	    printf("%s", pmCtime(&time, tbfr));
+	}
+	else {
+	    mytimestamp(&opts.origin);
+	    putchar('\n');
+	}
 	if (opts.finish.tv_sec != PM_MAX_TIME_T) {
-	    time = opts.finish.tv_sec;
-	    printf("end:       %s", pmCtime(&time, tbfr));
+	    printf("end:       ");
+	    if (Xflag == 0) {
+		time = opts.finish.tv_sec;
+		printf("%s", pmCtime(&time, tbfr));
+	    }
+	    else {
+		mytimestamp(&opts.finish);
+		putchar('\n');
+	    }
 	}
     }
 
@@ -1236,11 +1250,7 @@ main(int argc, char *argv[])
 	opts.guiflag = 1;	/* we're using pmtime control from here on */
     }
     else if (opts.context == PM_CONTEXT_ARCHIVE) { /* no time control, go it alone */
-	struct timeval interval, origin;
-
-	timespec2val(&opts.interval, &interval);
-	timespec2val(&opts.origin, &origin);
-	pmTimeStateMode(amode, interval, &origin);
+	pmSetModeHighRes(amode, &opts.origin, &opts.interval);
     }
 
     forever = (opts.samples < 0 || opts.guiflag);

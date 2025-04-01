@@ -54,6 +54,33 @@ typedef struct {
     char	zoneinfo[PM_MAX_ZONEINFOLEN];  /* local platform $TZ */
 } __pmLabel_v3;
 
+static void
+dumplabel(const __pmLogLabel *lp)
+{
+    fprintf(stderr, " magic=0x%08x version=%d vol=%d",
+	    lp->magic, lp->magic & 0xff, lp->vol);
+    if (lp->vol == PM_LOG_VOL_TI)
+	fprintf(stderr, " (index)");
+    else if (lp->vol == PM_LOG_VOL_META)
+	fprintf(stderr, " (meta)");
+    fprintf(stderr, " pid=%d start=", lp->pid);
+    __pmPrintTimestamp(stderr, &lp->start);
+    if (lp->features != 0) {
+	char	*bits = __pmLogFeaturesStr(lp->features);
+	if (bits != NULL) {
+	    fprintf(stderr, " features=0x%x \"%s\"", lp->features, bits);
+	    free(bits);
+	}
+	else
+	    fprintf(stderr, " features=0x%x \"???\"", lp->features);
+    }
+    fprintf(stderr, " host=%s", lp->hostname);
+    if (lp->timezone)
+	fprintf(stderr, " tz=%s", lp->timezone);
+    if (lp->zoneinfo)
+	fprintf(stderr, " zoneinfo=%s", lp->zoneinfo);
+}
+
 /*
  * Return the size of the log label record on disk ... other records
  * start immediately after this
@@ -171,7 +198,13 @@ __pmLogWriteLabel(__pmFILE *f, const __pmLogLabel *lp)
 	pmflush();
 	return -oserror();
     }
-    
+
+    if (pmDebugOptions.log) {
+	fprintf(stderr, "__pmLogWriteLabel:");
+	dumplabel(lp);
+	fputc('\n', stderr);
+    }
+
     return 0;
 }
 
@@ -396,23 +429,8 @@ __pmLogChkLabel(__pmArchCtl *acp, __pmFILE *f, __pmLogLabel *lp, int vol)
     }
 
     if (pmDebugOptions.log) {
-	fprintf(stderr, " [magic=0x%08x version=%d vol=%d pid=%d start=",
-		lp->magic, version, lp->vol, lp->pid);
-	__pmPrintTimestamp(stderr, &lp->start);
-	if (lp->features != 0) {
-	    char	*bits = __pmLogFeaturesStr(lp->features);
-	    if (bits != NULL) {
-		fprintf(stderr, " features=0x%x \"%s\"", lp->features, bits);
-		free(bits);
-	    }
-	    else
-		fprintf(stderr, " features=0x%x \"???\"", lp->features);
-	}
-	fprintf(stderr, " host=%s", lp->hostname);
-	if (lp->timezone)
-	    fprintf(stderr, " tz=%s", lp->timezone);
-	if (lp->zoneinfo)
-	    fprintf(stderr, " zoneinfo=%s", lp->zoneinfo);
+	fputc('[', stderr);
+	dumplabel(lp);
 	fputc(']', stderr);
     }
 
