@@ -15,6 +15,7 @@ RUN mkdir /build && \
       pcp-$release.x86_64.rpm \
       pcp-conf-$release.x86_64.rpm \
       pcp-libs-$release.x86_64.rpm \
+      python3-pcp-$release.x86_64.rpm \
       /build
 
 ## Deploy
