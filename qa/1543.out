@@ -1041,6 +1041,10 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
 # HELP sample_long_one 1 as a 32-bit integer
 # TYPE sample_long_one gauge
 sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAINNAME",machineid="MACHINEID"} 1
+# PCP5 sample.long.ten 29.0.11 32 PM_INDOM_NULL instant none
+# HELP sample_long_ten 10 as a 32-bit integer
+# TYPE sample_long_ten gauge
+sample_long_ten{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAINNAME",machineid="MACHINEID"} 10
 == good filter regex ==
 # PCP5 sample.long.one 29.0.10 32 PM_INDOM_NULL instant none
 # HELP sample_long_one 1 as a 32-bit integer
