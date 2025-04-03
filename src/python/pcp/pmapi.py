@@ -3000,8 +3000,8 @@ LIBPCP.pmExtendFetchGroup_timeval.restype = c_int
 LIBPCP.pmExtendFetchGroup_timeval.argtypes = [c_void_p, POINTER(timeval)]
 LIBPCP.pmExtendFetchGroup_timespec.restype = c_int
 LIBPCP.pmExtendFetchGroup_timespec.argtypes = [c_void_p, POINTER(timespec)]
-LIBPCP.pmFetchGroup.restype = c_int
-LIBPCP.pmFetchGroup.argtypes = [c_void_p]
+LIBPCP.pmFetchGroup_p.restype = c_int
+LIBPCP.pmFetchGroup_p.argtypes = [c_void_p, c_int]
 
 
 class fetchgroup(object):
@@ -3330,9 +3330,9 @@ class fetchgroup(object):
         self.items.append(vv) # keep registered pmAtomValue/etc. alive
         return vv
 
-    def fetch(self):
+    def fetch(self, preserve_discrete=1):
         """Fetch all the metrics in this fetchgroup and update all values."""
-        sts = LIBPCP.pmFetchGroup(self.pmfg)
+        sts = LIBPCP.pmFetchGroup_p(self.pmfg, preserve_discrete)
         if sts < 0:
             raise pmErr(sts)
         return sts  # propogate any pmFetch(3) state flags to caller

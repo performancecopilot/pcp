@@ -1199,6 +1199,7 @@ PCP_CALL extern int pmExtendFetchGroup_event(pmFG, const char *, const char *,
 			unsigned int, unsigned int *, int *);
 PCP_CALL extern int pmExtendFetchGroup_timestamp(pmFG, struct timeval *);
 PCP_CALL extern int pmFetchGroup(pmFG);
+PCP_CALL extern int pmFetchGroup_p(pmFG, int);
 PCP_CALL extern int pmDestroyFetchGroup(pmFG);
 
 /* libpcp debug/tracing */
