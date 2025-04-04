@@ -1,7 +1,7 @@
 /*
  * GFS2 glock file statistics.
  *
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013 - 2025 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -53,6 +53,10 @@ enum {
 	HOLDERS_FLAGS_TRY = 32,
 	HOLDERS_FLAGS_TRY_1CB = 33,
 	HOLDERS_FLAGS_WAIT = 34,
+	GLOCKS_FLAGS_INSTANTIATE_NEEDED = 35,
+	GLOCKS_FLAGS_INSTANTIATE_IN_PROG = 36,
+	GLOCKS_FLAGS_TRY_TO_EVICT = 37,
+	GLOCKS_FLAGS_VERIFY_DELETE = 38,
 	NUM_GLOCKS_STATS 
 };
 

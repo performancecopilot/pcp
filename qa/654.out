@@ -276,6 +276,24 @@ on parsing /sys/kernel/debug/gfs2/<bdev>/glocks entries with flag field
 (f:) value "I".
     inst [0 or "loop0"] value 0
 
+gfs2.glocks.flags.instantiate_in_prog PMID: 115.0.36 [GFS2 global locks with the instantiate progress flag]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Count of incore GFS2 glock data structures with the instantiate in progress
+flag set, based on parsing /sys/kernel/debug/gfs2/<bdev>/glocks entries with 
+flag field (f:) value "N".
+    inst [0 or "loop0"] value 2
+
+gfs2.glocks.flags.instantiate_needed PMID: 115.0.35 [GFS2 global locks with the instantiate needed flag]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Count of incore GFS2 glock data structures with the instantiate needed flag 
+set, based on parsing /sys/kernel/debug/gfs2/<bdev>/glocks entries with flag
+field (f:) value "n".
+    inst [0 or "loop0"] value 1
+
 gfs2.glocks.flags.invalidate PMID: 115.0.11 [GFS2 global locks with the invalidate flag]
     Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
     Semantics: instant  Units: count
@@ -339,13 +357,31 @@ based on parsing /sys/kernel/debug/gfs2/<bdev>/glocks entries with flag
 field (f:) value "r".
     inst [0 or "loop0"] value 0
 
+gfs2.glocks.flags.try_to_evict PMID: 115.0.37 [GFS2 global locks with the try to evict flag]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Count of incore GFS2 glock data structures with the try to evict flag set, 
+based on parsing /sys/kernel/debug/gfs2/<bdev>/glocks entries with flag field
+(f:) value "e".
+    inst [0 or "loop0"] value 1
+
+gfs2.glocks.flags.verify_delete PMID: 115.0.38 [GFS2 global locks with the verify delete flag]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Count of incore GFS2 glock data structures with the verify delete flag set, 
+based on parsing /sys/kernel/debug/gfs2/<bdev>/glocks entries with flag field 
+(f:) value "E".
+    inst [0 or "loop0"] value 1
+
 gfs2.glocks.shared PMID: 115.0.1 [GFS2 global locks in shared state]
     Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
     Semantics: instant  Units: count
 Help:
 Count of incore GFS2 glock data structures in shared state, based on parsing
 /sys/kernel/debug/gfs2/<bdev>/glocks entries with state field (s:) value "SH".
-    inst [0 or "loop0"] value 18
+    inst [0 or "loop0"] value 22
 
 gfs2.glocks.total PMID: 115.0.0 [Count of total observed incore GFS2 global locks]
     Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
@@ -353,7 +389,7 @@ gfs2.glocks.total PMID: 115.0.0 [Count of total observed incore GFS2 global lock
 Help:
 Count of total incore GFS2 glock data structures based on parsing the contents
 of the /sys/kernel/debug/gfs2/<bdev>/glocks files.
-    inst [0 or "loop0"] value 29
+    inst [0 or "loop0"] value 33
 
 gfs2.glocks.unlocked PMID: 115.0.2 [GFS2 global locks in unlocked state]
     Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
@@ -2609,7 +2645,7 @@ No value(s) available!
 === std out ===
 
 gfs2.glocks.total
-    inst [0 or "loop0"] value 29
+    inst [0 or "loop0"] value 33
 
 gfs2.sbstats.journal.queue
     inst [0 or "loop0"] value 1

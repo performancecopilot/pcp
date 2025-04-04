@@ -1,7 +1,7 @@
 /*
  * Global Filesystem v2 (GFS2) PMDA
  *
- * Copyright (c) 2013 - 2014 Red Hat.
+ * Copyright (c) 2013 - 2025 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -115,6 +115,22 @@ pmdaMetric metrictable[] = {
 	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
     { .m_desc = {
 	PMDA_PMID(CLUSTER_GLOCKS, GLOCKS_FLAGS_LRU),
+	PM_TYPE_U64, GFS_FS_INDOM, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+    { .m_desc = {
+	PMDA_PMID(CLUSTER_GLOCKS, GLOCKS_FLAGS_INSTANTIATE_NEEDED),
+	PM_TYPE_U64, GFS_FS_INDOM, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+    { .m_desc = {
+	PMDA_PMID(CLUSTER_GLOCKS, GLOCKS_FLAGS_INSTANTIATE_IN_PROG),
+	PM_TYPE_U64, GFS_FS_INDOM, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+    { .m_desc = {
+	PMDA_PMID(CLUSTER_GLOCKS, GLOCKS_FLAGS_TRY_TO_EVICT),
+	PM_TYPE_U64, GFS_FS_INDOM, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+    { .m_desc = {
+	PMDA_PMID(CLUSTER_GLOCKS, GLOCKS_FLAGS_VERIFY_DELETE),
 	PM_TYPE_U64, GFS_FS_INDOM, PM_SEM_INSTANT,
 	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
     { .m_desc = {

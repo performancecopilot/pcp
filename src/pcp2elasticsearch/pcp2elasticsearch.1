@@ -616,14 +616,12 @@ sends this type definition to Elasticsearch:
 .IP
  {
      "mappings": {
-         "pcp-metric": {
-             "properties": {
-                 "@timestamp": {
-                     "type": "date"
-                 },
-                 "host-id": {
-                     "type": "string"
-                 }
+         "properties": {
+             "@timestamp": {
+            	"type": "long"
+             },
+             "host-id": {
+             "type": "text"
              }
          }
      }
@@ -633,13 +631,13 @@ The actual metrics data document is similar to this example:
 .IP
  {
      "@host-id": "bozo",
+     "@timestamp": 1507637520,
      "mem": {
          "util": {
              "used": 4525820,
              "free": 3344000
          }
      },
-     "@timestamp": 1507637520,
      "disk": {
          "partitions": {
              "@instances": [

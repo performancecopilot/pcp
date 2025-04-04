@@ -394,6 +394,22 @@ value of 1 confirms the node status as expected_up.
     inst [0 or "node-1"] value 1
     inst [1 or "node-2"] value 1
 
+ha_cluster.pacemaker.nodes.status.feature_set PMID: 155.3.11 [The feature set version for the node.]
+    Data Type: string  InDom: 155.2 0x26c00002
+    Semantics: instant  Units: count
+Help:
+The feature set version for the node.
+    inst [0 or "node-1"] value ""
+    inst [1 or "node-2"] value ""
+
+ha_cluster.pacemaker.nodes.status.health PMID: 155.3.10 [The health color reported for the node.]
+    Data Type: string  InDom: 155.2 0x26c00002
+    Semantics: instant  Units: count
+Help:
+The health color reported for the node.
+    inst [0 or "node-1"] value ""
+    inst [1 or "node-2"] value ""
+
 ha_cluster.pacemaker.nodes.status.maintenance PMID: 155.3.3 [Whether the node status is given as maintenance]
     Data Type: 32-bit unsigned int  InDom: 155.2 0x26c00002
     Semantics: instant  Units: count
@@ -1075,6 +1091,22 @@ value of 1 confirms the node status as expected_up.
     inst [0 or "rhel9-node1"] value 1
     inst [1 or "rhel9-node2"] value 1
 
+ha_cluster.pacemaker.nodes.status.feature_set PMID: 155.3.11 [The feature set version for the node.]
+    Data Type: string  InDom: 155.2 0x26c00002
+    Semantics: instant  Units: count
+Help:
+The feature set version for the node.
+    inst [0 or "rhel9-node1"] value "3.16.2"
+    inst [1 or "rhel9-node2"] value "3.16.2"
+
+ha_cluster.pacemaker.nodes.status.health PMID: 155.3.10 [The health color reported for the node.]
+    Data Type: string  InDom: 155.2 0x26c00002
+    Semantics: instant  Units: count
+Help:
+The health color reported for the node.
+    inst [0 or "rhel9-node1"] value "green"
+    inst [1 or "rhel9-node2"] value "green"
+
 ha_cluster.pacemaker.nodes.status.maintenance PMID: 155.3.3 [Whether the node status is given as maintenance]
     Data Type: 32-bit unsigned int  InDom: 155.2 0x26c00002
     Semantics: instant  Units: count
@@ -1701,6 +1733,22 @@ value of 1 confirms the node status as expected_up.
     inst [0 or "rhel9-node1"] value 1
     inst [1 or "rhel9-node2"] value 1
 
+ha_cluster.pacemaker.nodes.status.feature_set PMID: 155.3.11 [The feature set version for the node.]
+    Data Type: string  InDom: 155.2 0x26c00002
+    Semantics: instant  Units: count
+Help:
+The feature set version for the node.
+    inst [0 or "rhel9-node1"] value "3.19.0"
+    inst [1 or "rhel9-node2"] value "3.19.0"
+
+ha_cluster.pacemaker.nodes.status.health PMID: 155.3.10 [The health color reported for the node.]
+    Data Type: string  InDom: 155.2 0x26c00002
+    Semantics: instant  Units: count
+Help:
+The health color reported for the node.
+    inst [0 or "rhel9-node1"] value "green"
+    inst [1 or "rhel9-node2"] value "green"
+
 ha_cluster.pacemaker.nodes.status.maintenance PMID: 155.3.3 [Whether the node status is given as maintenance]
     Data Type: 32-bit unsigned int  InDom: 155.2 0x26c00002
     Semantics: instant  Units: count
@@ -2326,6 +2374,22 @@ Whether the expected_up status is reported by the node in the cluster, a
 value of 1 confirms the node status as expected_up.
     inst [0 or "rhel9-node1"] value 1
     inst [1 or "rhel9-node2"] value 1
+
+ha_cluster.pacemaker.nodes.status.feature_set PMID: 155.3.11 [The feature set version for the node.]
+    Data Type: string  InDom: 155.2 0x26c00002
+    Semantics: instant  Units: count
+Help:
+The feature set version for the node.
+    inst [0 or "rhel9-node1"] value "3.19.0"
+    inst [1 or "rhel9-node2"] value "3.19.0"
+
+ha_cluster.pacemaker.nodes.status.health PMID: 155.3.10 [The health color reported for the node.]
+    Data Type: string  InDom: 155.2 0x26c00002
+    Semantics: instant  Units: count
+Help:
+The health color reported for the node.
+    inst [0 or "rhel9-node1"] value "green"
+    inst [1 or "rhel9-node2"] value "green"
 
 ha_cluster.pacemaker.nodes.status.maintenance PMID: 155.3.3 [Whether the node status is given as maintenance]
     Data Type: 32-bit unsigned int  InDom: 155.2 0x26c00002

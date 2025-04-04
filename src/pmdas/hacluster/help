@@ -107,6 +107,10 @@ value of 1 confirms the node status as expected_up.
 Whether the DC status is reported by the node in the cluster, a
 value of 1 confirms the node status as the designated coordinator.
 
+@ ha_cluster.pacemaker.nodes.status.health The health color reported for the node.
+
+@ha_cluster.pacemaker.nodes.status.feature_set The feature set version for the node.
+
 @ ha_cluster.pacemaker.resources.agent The name of the resource agent for this resource
 The name given for the resource agent for the given resource instance in the 
 cluster.

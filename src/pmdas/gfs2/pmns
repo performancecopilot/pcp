@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 - 2018 Red Hat.
+ * Copyright (c) 2013 - 2025 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -51,6 +51,10 @@ gfs2.glocks.flags {
     object_attached	GFS2:0:16
     blocking_request	GFS2:0:17
     lru			GFS2:0:18
+    instantiate_needed  GFS2:0:35
+    instantiate_in_prog GFS2:0:36
+    try_to_evict        GFS2:0:37
+    verify_delete       GFS2:0:38
 }
 
 gfs2.holders {
