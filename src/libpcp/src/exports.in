@@ -876,4 +876,5 @@ PCP_3.42 {
 PCP_3.43 {
     __pmDumpFetchFlags;
     __pmEqualLabelSet;
+    pmFetchGroup_p;
 } PCP_3.42;

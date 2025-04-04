@@ -807,7 +807,7 @@ pmfg_extract_convert_item(pmFG pmfg, pmID metric_pmid, int metric_inst,
 }
 
 static void
-pmfg_fetch_item(pmFG pmfg, pmFGI item, pmHighResResult *newResult)
+pmfg_fetch_item(pmFG pmfg, pmFGI item, pmHighResResult *newResult, int preserve)
 {
     int sts;
     pmAtomValue v;
@@ -821,7 +821,7 @@ pmfg_fetch_item(pmFG pmfg, pmFGI item, pmHighResResult *newResult)
      * If we have some values, then DISCRETE preserved values should
      * be cleared now.
      */
-    if (item->u.item.metric_desc.sem == PM_SEM_DISCRETE) {
+    if (item->u.item.metric_desc.sem == PM_SEM_DISCRETE && preserve) {
 	for (i = 0; i < newResult->numpmid; i++) {
 	    if (newResult->vset[i]->pmid == item->u.item.metric_pmid) {
 		if (newResult->vset[i]->numval > 0) {
@@ -888,7 +888,7 @@ pmfg_fetch_timeval(pmFG pmfg, pmFGI item, pmHighResResult *newResult)
 }
 
 static void
-pmfg_fetch_indom(pmFG pmfg, pmFGI item, pmHighResResult *newResult)
+pmfg_fetch_indom(pmFG pmfg, pmFGI item, pmHighResResult *newResult, int preserve)
 {
     int i, sts = 0;
     unsigned int j, k;
@@ -925,7 +925,7 @@ pmfg_fetch_indom(pmFG pmfg, pmFGI item, pmHighResResult *newResult)
      * If we have some values, the DISCRETE preserved values should be
      * cleared now.
      */
-    if (item->u.indom.metric_desc.sem == PM_SEM_DISCRETE) {
+    if (item->u.indom.metric_desc.sem == PM_SEM_DISCRETE && preserve) {
 	if (iv->numval > 0)
 	    pmfg_reinit_indom(item);
 	else /* = 0 */
@@ -1656,12 +1656,20 @@ out:
     return sts;
 }
 
-/*
- * Call pmFetch() for the whole group.	Unpack/convert/store results
- * and error codes for all items that requested it.
- */
+/* See below for description */
 int
 pmFetchGroup(pmFG pmfg)
+{
+    return pmFetchGroup_p(pmfg, 1);
+}
+
+/*
+ * Call pmFetch() for the whole group.	Unpack/convert/store results
+ * and error codes for all items that requested it. Optionally preserve
+ * DISCRETE values.
+ */
+int
+pmFetchGroup_p(pmFG pmfg, int preserve)
 {
     int sts;
     pmFGI item;
@@ -1683,11 +1691,11 @@ pmFetchGroup(pmFG pmfg)
 		pmfg_reinit_timeval(item);
 		break;
 	    case pmfg_item:
-		if (item->u.item.metric_desc.sem != PM_SEM_DISCRETE)
+		if (item->u.item.metric_desc.sem != PM_SEM_DISCRETE || !preserve)
 		    pmfg_reinit_item(item); /* preserve DISCRETE */
 		break;
 	    case pmfg_indom:
-		if (item->u.indom.metric_desc.sem != PM_SEM_DISCRETE)
+		if (item->u.indom.metric_desc.sem != PM_SEM_DISCRETE || !preserve)
 		    pmfg_reinit_indom(item); /* preserve DISCRETE */
 		break;
 	    case pmfg_event:
@@ -1728,10 +1736,10 @@ pmFetchGroup(pmFG pmfg)
 		pmfg_fetch_timespec(pmfg, item, newResult);
 		break;
 	    case pmfg_item:
-		pmfg_fetch_item(pmfg, item, newResult);
+		pmfg_fetch_item(pmfg, item, newResult, preserve);
 		break;
 	    case pmfg_indom:
-		pmfg_fetch_indom(pmfg, item, newResult);
+		pmfg_fetch_indom(pmfg, item, newResult, preserve);
 		break;
 	    case pmfg_event:
 		pmfg_fetch_event(pmfg, item, newResult);

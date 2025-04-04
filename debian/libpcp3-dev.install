@@ -128,6 +128,7 @@ usr/share/man/man3/pmExtractValue.3.gz
 usr/share/man/man3/pmFetch.3.gz
 usr/share/man/man3/pmFetchArchive.3.gz
 usr/share/man/man3/pmFetchGroup.3.gz
+usr/share/man/man3/pmFetchGroup_p.3.gz
 usr/share/man/man3/pmFetchHighRes.3.gz
 usr/share/man/man3/pmFetchHighResArchive.3.gz
 usr/share/man/man3/pmFreeEventResult.3.gz
