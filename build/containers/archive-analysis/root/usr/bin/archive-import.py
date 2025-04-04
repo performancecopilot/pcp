@@ -4,6 +4,7 @@ import time
 import argparse
 import os
 import subprocess
+import json
 from pathlib import Path
 from datetime import datetime, UTC
 
@@ -43,8 +44,34 @@ def format_time(seconds: float):
     string = datetime.fromtimestamp(seconds, UTC).isoformat()
     return string.replace('+00:00', 'Z')
 
+def update_dashboard_time_window(begin: str, end: str, json_path: str, no_op: bool):
+    # Update the dashboard json to use the archive start and end time
+    begin = format_time(begin)
+    end = format_time(end)
 
-def setup_grafana(path: Path, i: int, count: int):
+    # Open and load the json file into a dictionary
+    try:
+        with open(json_path, "r", encoding="utf-8") as file:
+            data = json.load(file)
+    except (json.JSONDecodeError, FileNotFoundError) as e:
+        logging.error(f"Error reading JSON file: {e}")
+        return
+    
+    # Update the from and to fields
+    data["time"]["from"] = begin
+    data["time"]["to"] = end
+
+    if no_op:
+        logging.info("Would update the dashboard: %s", json_path)
+    else:
+        # Write the modified json back into the dashboard json file
+        with open(json_path, "w", encoding="utf-8") as file:
+            json.dump(data, file, indent=4)
+
+        logging.info("Successfully updated the dashboard: %s", json_path)
+
+
+def setup_grafana(path: Path, i: int, count: int, dashboard_path: str, no_op: bool):
     global minimum_start_time, maximum_finish_time
 
     archive_path = base_archive_path(path)
@@ -71,8 +98,10 @@ def setup_grafana(path: Path, i: int, count: int):
                      format_time(maximum_finish_time), archive_path, i, count)
         maximum_finish_time = finish
 
+    # update the time window of the grafana dashboard with the archive start and end time
+    update_dashboard_time_window(minimum_start_time, maximum_finish_time, dashboard_path, no_op)
 
-def import_archive(path: Path, i: int, count: int):
+def import_archive(path: Path, i: int, count: int, no_op: bool):
     archive_path = base_archive_path(path)
     archive_mod_time = os.path.getmtime(path)
     if archive_unchanged(archive_path, archive_mod_time, i, count):
@@ -81,14 +110,20 @@ def import_archive(path: Path, i: int, count: int):
     start_dt = datetime.now()
     try:
         logging.info("Importing archive %s... [%d/%d]", archive_path, i, count)
-        subprocess.run(
-            ["pmseries", "--load", archive_path],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            check=True,
-            text=True,
-            timeout=IMPORT_TIMEOUT_SEC,
-        )
+        # mainly for testing
+        # if --noop option is set, skip the importing of the archives
+        if no_op:
+            logging.info("Would run pmseries --load archive %s... [%d/%d]", archive_path, i, count)
+        else:
+            logging.info("Importing archive %s... [%d/%d]", archive_path, i, count)
+            subprocess.run(
+                ["pmseries", "--load", archive_path],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                check=True,
+                text=True,
+                timeout=IMPORT_TIMEOUT_SEC,
+            )
     except subprocess.CalledProcessError as e:
         logging.error("Error: %s", e.stdout)
     except subprocess.TimeoutExpired:
@@ -100,7 +135,7 @@ def import_archive(path: Path, i: int, count: int):
         imported_archives[archive_path] = archive_mod_time
 
 
-def poll(archives_path: str):
+def poll(archives_path: str, dashboard_path: str, no_op: bool):
     logging.info("Searching for new or updated archives...")
 
     if not os.access(archives_path, os.R_OK):
@@ -115,14 +150,16 @@ def poll(archives_path: str):
         # prepare the dashboard with an initial (quick) pass over all archives
         # because the import_archive process may be loading large data volumes
         for i, path in enumerate(archive_paths, start=1):
-            setup_grafana(path, i, len(archive_paths))
+            setup_grafana(path, i, len(archive_paths), dashboard_path, no_op)
         for i, path in enumerate(archive_paths, start=1):
-            import_archive(path, i, len(archive_paths))
+            import_archive(path, i, len(archive_paths), no_op)
 
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--archives", default="/archives")
+    parser.add_argument("--dashboard", default="/usr/local/var/lib/grafana/dashboards/pcp-archive-analysis.json")
+    parser.add_argument("--noop", action="store_true")
     args = parser.parse_args()
     dash = 'http://localhost:3000/d/pcp-archive-analysis/pcp-archive-analysis'
     logging.basicConfig(level=logging.INFO, format="%(message)s")
@@ -135,7 +172,7 @@ def main():
 
     try:
         while True:
-            poll(args.archives)
+            poll(args.archives, args.dashboard, args.noop)
             time.sleep(POLL_INTERVAL_SEC)
     except KeyboardInterrupt:
         pass  # debugging

@@ -1,0 +1,24 @@
+FROM quay.io/centos/centos:stream10-minimal
+
+COPY build/containers/archive-analysis/root /
+
+RUN microdnf install -y --setopt=install_weak_deps=0 --setopt=tsflags=nodocs \
+        pcp python3-pcp procps-ng gettext valkey grafana grafana-pcp && \
+    microdnf clean all && \
+    systemctl mask systemd-remount-fs.service dev-hugepages.mount \
+        sys-fs-fuse-connections.mount systemd-logind.service getty.target \
+        console-getty.service systemd-udev-trigger.service systemd-udevd.service \
+        systemd-random-seed.service systemd-machine-id-commit.service \
+        systemd-oomd systemd-resolved \
+        systemd-udevd-control.socket systemd-udevd-kernel.socket && \
+    systemctl disable pmcd pmlogger pmie && \
+    systemctl enable pmproxy valkey grafana-server archive-import && \
+    sed -i 's/pcp-valkey-datasource/performancecopilot-valkey-datasource/g' \
+        /etc/grafana/grafana.ini && \
+    chown -R grafana:grafana /etc/grafana
+
+VOLUME ["/archives"]
+EXPOSE 3000
+
+CMD ["/usr/sbin/init"]
+STOPSIGNAL SIGRTMIN+3
