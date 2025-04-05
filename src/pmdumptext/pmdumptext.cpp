@@ -715,6 +715,10 @@ main(int argc, char *argv[])
     QString tzLabel;
     QString tzString;
     struct timeval logEndTime;
+    struct timeval opts_start = { 0, 0 };
+    struct timeval opts_finish = { 0, 0 };
+    struct timeval opts_origin = { 0, 0 };
+    struct timeval opts_interval = { 0, 0 };
     double endTime;
     double delay;
     double pos;
@@ -927,8 +931,10 @@ main(int argc, char *argv[])
     }
 
     // Default update interval is 1 second
-    if (opts.interval.tv_sec == 0 && opts.interval.tv_usec == 0)
-	opts.interval.tv_sec = 1;
+    opts_interval.tv_sec = opts.interval.tv_sec;
+    opts_interval.tv_usec = opts.interval.tv_nsec / 1000;
+    if (opts_interval.tv_sec == 0 && opts_interval.tv_usec == 0)
+	opts_interval.tv_sec = 1;
 
     if (headerFlag)
 	metricFlag = unitFlag = sourceFlag = normFlag = true;
@@ -1103,23 +1109,23 @@ main(int argc, char *argv[])
 
     sts = pmParseTimeWindow(opts.start_optarg, opts.finish_optarg,
 			    opts.align_optarg, opts.origin_optarg,
-			    &logStartTime, &logEndTime, &opts.start,
-			    &opts.finish, &opts.origin, &endnum);
+			    &logStartTime, &logEndTime, &opts_start,
+			    &opts_finish, &opts_origin, &endnum);
     if (sts < 0) {
 	pmprintf("%s\n", endnum);
 	pmUsageMessage(&opts);
 	exit(1);
     }
 
-    pos = pmtimevalToReal(&opts.origin);
-    endTime = pmtimevalToReal(&opts.finish);
-    delay = (int)(pmtimevalToReal(&opts.interval) * 1000.0);
+    pos = pmtimevalToReal(&opts_origin);
+    endTime = pmtimevalToReal(&opts_finish);
+    delay = (int)(pmtimevalToReal(&opts_interval) * 1000.0);
 
     if (endTime < pos && opts.finish_optarg == NULL)
 	endTime = DBL_MAX;
 
     if (pmDebugOptions.appl0) {
-	cerr << "main: realStartTime = " << pmtimevalToReal(&opts.start)
+	cerr << "main: realStartTime = " << pmtimevalToReal(&opts_start)
 	     << ", endTime = " << endTime << ", pos = " << pos 
 	     << ", delay = " << delay << Qt::endl;
     }
@@ -1136,8 +1142,8 @@ main(int argc, char *argv[])
 
     if (!isLive) {
 	int tmp_mode = PM_MODE_INTERP;
-	int tmp_delay = getXTBintervalFromTimeval(&tmp_mode, &opts.interval);
-	group->setArchiveMode(tmp_mode, &opts.origin, tmp_delay);
+	int tmp_delay = getXTBintervalFromTimeval(&tmp_mode, &opts_interval);
+	group->setArchiveMode(tmp_mode, &opts_origin, tmp_delay);
     }
 
     if (shortFlag) {
@@ -1156,7 +1162,7 @@ main(int argc, char *argv[])
 	sampleCount++;
 
 	if (timeFlag)
-	    cout << dumpTime(opts.origin) << delimiter;
+	    cout << dumpTime(opts_origin) << delimiter;
 
 	for (m = 0, v = 1; m < metrics.size(); m++) {
 	    metric = metrics[m];
@@ -1253,12 +1259,12 @@ main(int argc, char *argv[])
 //	if (opts.samples > 0 && sampleCount == opts.samples)
 //	    continue;	/* do not sleep needlessly */
 
-	opts.origin = tadd(opts.origin, opts.interval);
+	opts_origin = tadd(opts_origin, opts_interval);
 
 	if (isLive)
-	    sleeptill(opts.origin);
+	    sleeptill(opts_origin);
 
-	pos = pmtimevalToReal(&opts.origin);
+	pos = pmtimevalToReal(&opts_origin);
 	lines++;
 	if (repeatLines > 0 && repeatLines == lines) {
 	    cout << Qt::endl;

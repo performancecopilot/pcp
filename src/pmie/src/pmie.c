@@ -701,8 +701,8 @@ getargs(int argc, char *argv[])
 
     hostZone = opts.tzflag;
     timeZone = opts.timezone;
-    if (opts.interval.tv_sec || opts.interval.tv_usec)
-	dfltDelta = pmtimevalToReal(&opts.interval);
+    if (opts.interval.tv_sec || opts.interval.tv_nsec)
+	dfltDelta = pmtimespecToReal(&opts.interval);
 
     if (archives || interactive)
 	perf = &instrument;

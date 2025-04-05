@@ -73,7 +73,7 @@ Got -g
 pmNewContext(1, "127.0.0.1") <::> returns 0
 
 === -t 1min2sec3msec ===
-Got -t 62.003000 (secs)
+Got -t 62.003000000 (secs)
 
 === -H TMP.hosts -Dpmapi ===
 pmNewContext(1, "127.0.0.1") <::> returns 0
@@ -87,34 +87,34 @@ Got -Z "UTC-13"
 === -z -S +13hr -a archives/conn20070309 ===
 Note: timezone set to local timezone of host "app1" from archive
 
-Start time: 13:10:47.856
-Origin time: 13:10:47.856
-Finish time: 00:10:17.859
+Start time: 13:10:47.856414000
+Origin time: 13:10:47.856414000
+Finish time: 00:10:17.859436000
 Got -z
 
 === -z -O @01:02:03 -a archives/conn20070309 ===
 Note: timezone set to local timezone of host "app1" from archive
 
-Start time: 00:10:47.856
-Origin time: 01:02:03.000
-Finish time: 00:10:17.859
+Start time: 00:10:47.856414000
+Origin time: 01:02:03.000000000
+Finish time: 00:10:17.859436000
 Got -z
 
 === -z -T -1hr -a archives/conn20070309 ===
 Note: timezone set to local timezone of host "app1" from archive
 
-Start time: 00:10:47.856
-Origin time: 00:10:47.856
-Finish time: 23:10:17.859
+Start time: 00:10:47.856414000
+Origin time: 00:10:47.856414000
+Finish time: 23:10:17.859436000
 Got -z
 
 === -Z UTC -A 2hr -a archives/conn20070309 ===
 Note: timezone set to "TZ=UTC"
 
 Got -A "2hr"
-Start time: 14:00:00.000
-Origin time: 14:00:00.000
-Finish time: 13:10:17.859
+Start time: 14:00:00.000000000
+Origin time: 14:00:00.000000000
+Finish time: 13:10:17.859436000
 Got -Z "UTC"
 
 === -V ===

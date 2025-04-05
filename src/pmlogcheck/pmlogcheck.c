@@ -103,7 +103,7 @@ dumpLabel(void)
         ddmm[10] = '\0';
         yr = &ddmm[20];
         fprintf(stderr, "  ending     %s ", ddmm);
-        pmPrintStamp(stderr, &opts.finish);
+        pmPrintHighResStamp(stderr, &opts.finish);
         fprintf(stderr, " %4.4s\n", yr);
     }
 }

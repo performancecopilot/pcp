@@ -160,7 +160,7 @@ pmGetContextOptions(int ctxid, pmOptions *opts)
 
 	if (__pmBoundaryOptions(opts, &first_boundary, &last_boundary) < 0)
 	    opts->errors++;
-	else if (opts->version >= PMAPI_VERSION_3)
+	else if (opts->version == 0 || opts->version >= PMAPI_VERSION_3)
 	    __pmParseTimeWindow3(opts, &first_boundary, &last_boundary);
 	else
 	    __pmParseTimeWindow2(opts, &first_boundary, &last_boundary);
@@ -760,7 +760,7 @@ __pmSetSampleCount(pmOptions *opts, char *arg)
 static void
 __pmSetSampleInterval(pmOptions *opts, char *arg)
 {
-    if (opts->version >= PMAPI_VERSION_3)
+    if (opts->version == 0 || opts->version >= PMAPI_VERSION_3)
 	__pmSetSampleInterval3(opts, arg);
     else
 	__pmSetSampleInterval2(opts, arg);

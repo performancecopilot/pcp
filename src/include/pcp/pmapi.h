@@ -57,7 +57,7 @@ extern "C" {
 #define PMAPI_VERSION_2	2	/* traditional PMAPI */
 #define PMAPI_VERSION_3	3	/* nanosec precision */
 #ifndef PMAPI_VERSION
-#define PMAPI_VERSION	PMAPI_VERSION_2   /* default */
+#define PMAPI_VERSION	PMAPI_VERSION_3   /* default */
 #endif
 
 /*
@@ -1198,6 +1198,7 @@ PCP_CALL extern int pmExtendFetchGroup_event(pmFG, const char *, const char *,
 			struct timespec[], pmAtomValue[], int, int[],
 			unsigned int, unsigned int *, int *);
 PCP_CALL extern int pmExtendFetchGroup_timestamp(pmFG, struct timeval *);
+PCP_CALL extern int pmExtendFetchGroup_timespec(pmFG, struct timespec *);
 PCP_CALL extern int pmFetchGroup(pmFG);
 PCP_CALL extern int pmDestroyFetchGroup(pmFG);
 

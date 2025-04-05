@@ -60,7 +60,7 @@ enum {
 struct statsrc {
     pmFG		pmfg;
     char		*sname;
-    struct timeval	timestamp;
+    struct timespec	timestamp;
     int			fetched;
 
     pmAtomValue		val[num_items];
@@ -113,7 +113,7 @@ getNewContext(int type, char *host, int quiet)
     }
 
     /* Register metrics with desired conversions/types; some with fallbacks. */
-    pmExtendFetchGroup_timestamp(s->pmfg, &s->timestamp);
+    pmExtendFetchGroup_timespec(s->pmfg, &s->timestamp);
     s->sts[load_avg] = pmExtendFetchGroup_item(s->pmfg,
 			"kernel.all.load", "1 minute", NULL,
 			&s->val[load_avg], PM_TYPE_FLOAT, &s->sts[load_avg]);
@@ -288,7 +288,8 @@ static void
 timeinterval(struct timeval delta)
 {
     defaultcontrols.interval(delta);
-    opts.interval = delta;
+    opts.interval.tv_sec = delta.tv_sec;
+    opts.interval.tv_nsec = delta.tv_usec * 1000;
     period = (delta.tv_sec * 1.0e6 + delta.tv_usec) / 1e6;
     header = 1;
 }
@@ -404,7 +405,7 @@ main(int argc, char *argv[])
 	exit(1);
     }
 
-    if (opts.interval.tv_sec == 0 && opts.interval.tv_usec == 0)
+    if (opts.interval.tv_sec == 0 && opts.interval.tv_nsec == 0)
 	opts.interval.tv_sec = 5;	/* 5 sec default sampling */
 
     if (opts.context == PM_CONTEXT_ARCHIVE) {
@@ -463,11 +464,11 @@ main(int argc, char *argv[])
 #endif
 
     /* calculate the number of samples needed, if given an end time */
-    period = (opts.interval.tv_sec * 1.0e6 + opts.interval.tv_usec) / 1e6;
-    now = (time_t)(opts.start.tv_sec + 0.5 + opts.start.tv_usec / 1.0e6);
+    period = (opts.interval.tv_sec * 1.0e6 + opts.interval.tv_nsec) / 1e9;
+    now = (time_t)(opts.start.tv_sec + 0.5 + opts.start.tv_nsec / 1.0e9);
     if (opts.finish_optarg) {
 	double win = opts.finish.tv_sec - opts.origin.tv_sec +
-		    (opts.finish.tv_usec - opts.origin.tv_usec) / 1e6;
+		    (opts.finish.tv_nsec - opts.origin.tv_nsec) / 1e9;
 	win /= period;
 	if (win > opts.samples)
 	    opts.samples = (int)win;
@@ -479,9 +480,21 @@ main(int argc, char *argv[])
 	pmWhichZone(&tz);
 	if (!opts.guiport)
 	    opts.guiport = -1;
+#ifdef PMTIME_FIXED
 	pmtime = pmTimeStateSetup(&controls, opts.context,
 			opts.guiport, opts.interval, opts.origin,
 			opts.start, opts.finish, tz, tzlabel);
+#else
+	{
+	    struct timeval	interval_tv = { opts.interval.tv_sec, opts.interval.tv_nsec / 1000 };
+	    struct timeval	origin_tv = { opts.origin.tv_sec, opts.origin.tv_nsec / 1000 };
+	    struct timeval	start_tv = { opts.start.tv_sec, opts.start.tv_nsec / 1000 };
+	    struct timeval	finish_tv = { opts.finish.tv_sec, opts.finish.tv_nsec / 1000 };
+	    pmtime = pmTimeStateSetup(&controls, opts.context,
+			opts.guiport, interval_tv, origin_tv,
+			start_tv, finish_tv, tz, tzlabel);
+	}
+#endif
 
 	/* keep pointers to some default time control functions */
 	defaultcontrols = controls;
@@ -500,8 +513,11 @@ main(int argc, char *argv[])
 	pd = ctxList[j];
 
 	pmUseContext(pmGetFetchGroupContext(pd->pmfg));
-	if (!opts.guiflag && opts.context == PM_CONTEXT_ARCHIVE)
-	    pmTimeStateMode(PM_MODE_INTERP, opts.interval, &opts.origin);
+	if (!opts.guiflag && opts.context == PM_CONTEXT_ARCHIVE) {
+	    struct timeval	interval_tv = { opts.interval.tv_sec, opts.interval.tv_nsec / 1000 };
+	    struct timeval	origin_tv = { opts.origin.tv_sec, opts.origin.tv_nsec / 1000 };
+	    pmTimeStateMode(PM_MODE_INTERP, interval_tv, &origin_tv);
+	}
 
 	pmFetchGroup(pd->pmfg);
     }
@@ -514,7 +530,7 @@ main(int argc, char *argv[])
 	    char tbuf[26];
 
 	    now = (time_t)(ctxList[0]->timestamp.tv_sec + 0.5 +
-			   ctxList[0]->timestamp.tv_usec / 1.0e6);
+			   ctxList[0]->timestamp.tv_nsec / 1.0e9);
 	    printf("@ %s", pmCtime(&now, tbuf));
 
 	    if (ctxCount > 1) {
@@ -549,7 +565,7 @@ main(int argc, char *argv[])
 	if (opts.guiflag)
 	    pmTimeStateVector(&controls, pmtime);
 	else if (opts.context != PM_CONTEXT_ARCHIVE || pauseFlag)
-	    __pmtimevalSleep(opts.interval);
+	    __pmtimespecSleep(opts.interval);
 	if (header)
 	    goto next;
 
