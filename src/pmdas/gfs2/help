@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013 - 2014 Red Hat.
+# Copyright (c) 2013 - 2025 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -117,6 +117,26 @@ field (f:) value "b".
 Count of incore GFS2 glock data structures with the LRU list flag set, based on
 parsing /sys/kernel/debug/gfs2/<bdev>/glocks entries with flag field (f:) 
 value "L".
+
+@gfs2.glocks.flags.instantiate_needed GFS2 global locks with the instantiate needed flag
+Count of incore GFS2 glock data structures with the instantiate needed flag 
+set, based on parsing /sys/kernel/debug/gfs2/<bdev>/glocks entries with flag
+field (f:) value "n".
+
+@gfs2.glocks.flags.instantiate_in_prog GFS2 global locks with the instantiate progress flag
+Count of incore GFS2 glock data structures with the instantiate in progress
+flag set, based on parsing /sys/kernel/debug/gfs2/<bdev>/glocks entries with 
+flag field (f:) value "N".
+
+@gfs2.glocks.flags.try_to_evict GFS2 global locks with the try to evict flag
+Count of incore GFS2 glock data structures with the try to evict flag set, 
+based on parsing /sys/kernel/debug/gfs2/<bdev>/glocks entries with flag field
+(f:) value "e".
+
+@gfs2.glocks.flags.verify_delete GFS2 global locks with the verify delete flag
+Count of incore GFS2 glock data structures with the verify delete flag set, 
+based on parsing /sys/kernel/debug/gfs2/<bdev>/glocks entries with flag field 
+(f:) value "E".
 
 @gfs2.holders.total Count of total observed incore GFS2 global locks holders
 Count of total incore GFS2 glock holder structures based on parsing the contents
