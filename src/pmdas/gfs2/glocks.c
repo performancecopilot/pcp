@@ -117,9 +117,9 @@ gfs2_refresh_glocks(const char *sysfs, const char *name, struct glocks *glocks)
 			        glocks->values[GLOCKS_FLAGS_INSTANTIATE_NEEDED]++;
 			if (strpbrk(flags, "N"))
 			        glocks->values[GLOCKS_FLAGS_INSTANTIATE_IN_PROG]++;
-			if(strpbrk(flags, "e"))
+			if (strpbrk(flags, "e"))
 			        glocks->values[GLOCKS_FLAGS_TRY_TO_EVICT]++;
-			if(strpbrk(flags, "E"))
+			if (strpbrk(flags, "E"))
 			        glocks->values[GLOCKS_FLAGS_VERIFY_DELETE]++;
 		}
 
