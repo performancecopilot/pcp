@@ -993,9 +993,10 @@ corruption of the call stack, allowing the kernel to react to such an
 attach in an appropriate fashion.  Shadow stacks are often maintained
 by the processor hardware and require additional stack memory.
 @ mem.util.percpu amount of per CPU allocator memory
-@ mem.util.kreclaimable Kbytes in kernel reclaimable memory, from /proc/meminfo
-Kernel allocations that the kernel will attempt to reclaim under memory pressure.
-@ mem.util.hugetlb the total amount of memory (in kB), consumed by huge pages of all sizes.
+@ mem.util.kreclaimable kernel reclaimable memory, from /proc/meminfo
+Kernel memory that the kernel will attempt to reclaim when under memory
+pressure.
+@ mem.util.hugetlb total memory consumed by huge pages of all sizes
 
 @ mem.numa.util.total per-node total memory
 @ mem.numa.util.free per-node free memory
