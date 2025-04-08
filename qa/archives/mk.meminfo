@@ -72,6 +72,8 @@ log mandatory on 1 sec {
     mem.util.filehugepages
     mem.util.filepmdmapped
     mem.util.cmatotal
+    mem.util.kreclaimable
+    mem.util.hugetlb
 }
 End-of-File
 
