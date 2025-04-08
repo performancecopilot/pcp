@@ -42,6 +42,7 @@ struct __pmInDomCache {
 struct __pmFetchGroup {
     int	ctx;			/* our pcp context */
     int wrap;			/* wrap-handling flag, set at fg-create-time */
+    int no_preserve;		/* do not preserve discrete values, set at fg-create-time */
     pmHighResResult *prevResult;
     struct __pmFetchGroupItem *items;
     struct __pmInDomCache *unique_indoms;
@@ -821,7 +822,7 @@ pmfg_fetch_item(pmFG pmfg, pmFGI item, pmHighResResult *newResult)
      * If we have some values, then DISCRETE preserved values should
      * be cleared now.
      */
-    if (item->u.item.metric_desc.sem == PM_SEM_DISCRETE) {
+    if (item->u.item.metric_desc.sem == PM_SEM_DISCRETE && !pmfg->no_preserve) {
 	for (i = 0; i < newResult->numpmid; i++) {
 	    if (newResult->vset[i]->pmid == item->u.item.metric_pmid) {
 		if (newResult->vset[i]->numval > 0) {
@@ -925,7 +926,7 @@ pmfg_fetch_indom(pmFG pmfg, pmFGI item, pmHighResResult *newResult)
      * If we have some values, the DISCRETE preserved values should be
      * cleared now.
      */
-    if (item->u.indom.metric_desc.sem == PM_SEM_DISCRETE) {
+    if (item->u.indom.metric_desc.sem == PM_SEM_DISCRETE && !pmfg->no_preserve) {
 	if (iv->numval > 0)
 	    pmfg_reinit_indom(item);
 	else /* = 0 */
@@ -1291,6 +1292,8 @@ pmCreateFetchGroup(pmFG *ptr, int type, const char *name)
     PM_LOCK(__pmLock_extcall);
     if (getenv("PCP_COUNTER_WRAP") != NULL)
 	pmfg->wrap = 1;
+    if (getenv("PCP_PMFG_NO_PRESERVE") != NULL)
+	pmfg->no_preserve = 1;
     PM_UNLOCK(__pmLock_extcall);
 
     pmfg_clear_profile(pmfg);
@@ -1683,11 +1686,11 @@ pmFetchGroup(pmFG pmfg)
 		pmfg_reinit_timeval(item);
 		break;
 	    case pmfg_item:
-		if (item->u.item.metric_desc.sem != PM_SEM_DISCRETE)
+		if (item->u.item.metric_desc.sem != PM_SEM_DISCRETE || pmfg->no_preserve)
 		    pmfg_reinit_item(item); /* preserve DISCRETE */
 		break;
 	    case pmfg_indom:
-		if (item->u.indom.metric_desc.sem != PM_SEM_DISCRETE)
+		if (item->u.indom.metric_desc.sem != PM_SEM_DISCRETE || pmfg->no_preserve)
 		    pmfg_reinit_indom(item); /* preserve DISCRETE */
 		break;
 	    case pmfg_event:
