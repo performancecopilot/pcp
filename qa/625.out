@@ -90,6 +90,7 @@ Context options:
   --archive-folio=FILE  read metric source archives from a folio
 
 Testing options:
+  -w, --window          do time window parsing
   -x, --extra           an extra option, for testing
   -X ARG, --eXtra=ARG   an extra option with an argument
   -y                    a short-option-only without argument
@@ -160,6 +161,7 @@ Context options:
   --archive-folio=FILE  read metric source archives from a folio
 
 Testing options:
+  -w, --window          do time window parsing
   -x, --extra           an extra option, for testing
   -X ARG, --eXtra=ARG   an extra option with an argument
   -y                    a short-option-only without argument

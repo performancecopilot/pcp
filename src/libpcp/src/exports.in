@@ -877,3 +877,11 @@ PCP_3.43 {
     __pmDumpFetchFlags;
     __pmEqualLabelSet;
 } PCP_3.42;
+
+PCP_3.44 {
+    pmgetopt_r_v2;
+    pmGetOptions_v2;
+    pmGetContextOptions_v2;
+    pmUsageMessage_v2;
+    pmFreeOptions_v2;
+} PCP_3.43;

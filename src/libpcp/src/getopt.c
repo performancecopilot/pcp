@@ -115,6 +115,24 @@ __pmBoundaryOptions(pmOptions *opts, struct timespec *begin, struct timespec *en
     return sts;
 }
 
+static void
+__pmParseTimeWindow(pmOptions *opts,
+	struct timespec *first_boundary, struct timespec *last_boundary)
+{
+    char *msg = NULL;
+
+    if (pmParseHighResTimeWindow(
+			opts->start_optarg, opts->finish_optarg,
+			opts->align_optarg, opts->origin_optarg,
+			first_boundary, last_boundary,
+			&opts->start, &opts->finish, &opts->origin, &msg) < 0) {
+	pmprintf("%s: invalid time window.\n%s\n", pmGetProgname(), msg);
+	opts->errors++;
+    }
+    if (msg)
+	free(msg);
+}
+
 /*
  * Final stages of argument parsing, anything that needs to wait
  * until after we have a context - e.g. timezones, time windows.
@@ -160,10 +178,7 @@ pmGetContextOptions(int ctxid, pmOptions *opts)
 
 	if (__pmBoundaryOptions(opts, &first_boundary, &last_boundary) < 0)
 	    opts->errors++;
-	else if (opts->version == 0 || opts->version >= PMAPI_VERSION_3)
-	    __pmParseTimeWindow3(opts, &first_boundary, &last_boundary);
-	else
-	    __pmParseTimeWindow2(opts, &first_boundary, &last_boundary);
+	__pmParseTimeWindow(opts, &first_boundary, &last_boundary);
     }
 
     if (opts->errors) {
@@ -173,6 +188,116 @@ pmGetContextOptions(int ctxid, pmOptions *opts)
     }
 
     return 0;
+}
+
+/*
+ * Add an archive name to the list. Ensure that there are no duplicates.
+ */
+static void
+addArchive(pmOptions *opts, char *arg)
+{
+    char	**archives = opts->archives;
+    char	*found;
+    size_t	size;
+    int		i;
+
+    if ((opts->flags & PM_OPTFLAG_MULTI)) {
+	/*
+	 * Multiple contexts for multiple archives. See pmstat(1).
+	 * We will maintain an array of archive names.
+	 */
+	char	**tmp_archives;
+	for (i = 0; i < opts->narchives; ++i) {
+	    if (strcmp(arg, archives[i]) == 0)
+		return; /* duplicate */
+	}
+	size = sizeof(char *) * (opts->narchives + 1);
+	if ((tmp_archives = realloc(archives, size)) == NULL)
+	    goto noMem;
+	archives = tmp_archives;
+	if ((archives[opts->narchives] = strdup(arg)) == NULL)
+	    goto noMem;
+	opts->narchives++;
+    }
+    else {
+	/*
+	 * One context for multiple archives. We will maintain a single,
+	 * comma-separated list of archive names.
+	 */
+	if (archives == NULL) {
+	    /* The initial name. */
+	    size = sizeof(*archives);
+	    if ((archives = malloc(size)) == NULL)
+		goto noMem;
+	    size = strlen(arg); /* for noMem below */
+	    if ((*archives = strdup(arg)) == NULL)
+		goto noMem;
+	    opts->narchives = 1;
+	}
+	else {
+	    char	*tmp_archives;
+	    if ((found = strstr(*archives, arg)) != NULL &&
+		(found == *archives || *(found - 1) == ',')) {
+		size = strlen(arg);
+		if (found[size] == ',' || found[size] == '\0')
+		    return; /* duplicate */
+	    }
+	    /* Add a comma plus the additional name. */
+	    size = strlen (*archives) + 1 + strlen(arg) + 1;
+	    if ((tmp_archives = realloc(*archives, size)) == NULL)
+		goto noMem;
+	    *archives = tmp_archives;
+	    strcat(*archives, ",");
+	    strcat(*archives, arg);
+	}
+    }
+
+    opts->archives = archives;
+    return;
+
+ noMem:
+    pmNoMem("pmGetOptions(archive)", size, PM_FATAL_ERR);
+    /*NOTREACHED*/
+}
+
+/*
+ * Add a path to the default archive location for localhost,
+ * as an archive argument.  Used when -O/--origin given but
+ * no explicit path to archives is passed in, automatically
+ * provides a best-effort guess.
+ */
+void
+__pmAddOptArchivePath(pmOptions *opts)
+{
+    const char	fallback[] = "/var/log/pcp/pmlogger";
+    const char	*logdir = pmGetOptionalConfig("PCP_ARCHIVE_DIR");
+    char	hostname[MAXHOSTNAMELEN];
+    char	sep = pmPathSeparator();
+    char	dir[MAXPATHLEN];
+
+    if (!logdir)
+	logdir = fallback;
+    if (gethostname(hostname, sizeof(hostname)) < 0)
+	pmsprintf(hostname, sizeof(hostname), "localhost");
+
+    pmsprintf(dir, sizeof(dir), "%s%c%s", logdir, sep, hostname);
+    if (access(dir, F_OK) == 0) {
+	addArchive(opts, dir);
+    } else {
+	pmsprintf(dir, sizeof(dir), "%s%c%s", logdir, sep, hostname);
+	addArchive(opts, dir);
+    }
+}
+
+void
+__pmAddOptArchive(pmOptions *opts, char *arg)
+{
+    if (opts->nhosts && !(opts->flags & PM_OPTFLAG_MIXED)) {
+	pmprintf("%s: only one host or archive allowed\n", pmGetProgname());
+	opts->errors++;
+    } else {
+	addArchive(opts, arg);
+    }
 }
 
 /*
@@ -285,116 +410,6 @@ __pmSetGuiPort(pmOptions *opts, char *arg)
 	opts->guiport = (int)strtol(arg, &endnum, 10);
 	if (*endnum != '\0' || opts->guiport < 0)
 	    opts->guiport = 0;
-    }
-}
-
-/*
- * Add an archive name to the list. Ensure that there are no duplicates.
- */
-static void
-addArchive(pmOptions *opts, char *arg)
-{
-    char	**archives = opts->archives;
-    char	*found;
-    size_t	size;
-    int		i;
-
-    if ((opts->flags & PM_OPTFLAG_MULTI)) {
-	/*
-	 * Multiple contexts for multiple archives. See pmstat(1).
-	 * We will maintain an array of archive names.
-	 */
-	char	**tmp_archives;
-	for (i = 0; i < opts->narchives; ++i) {
-	    if (strcmp(arg, archives[i]) == 0)
-		return; /* duplicate */
-	}
-	size = sizeof(char *) * (opts->narchives + 1);
-	if ((tmp_archives = realloc(archives, size)) == NULL)
-	    goto noMem;
-	archives = tmp_archives;
-	if ((archives[opts->narchives] = strdup(arg)) == NULL)
-	    goto noMem;
-	opts->narchives++;
-    }
-    else {
-	/*
-	 * One context for multiple archives. We will maintain a single,
-	 * comma-separated list of archive names.
-	 */
-	if (archives == NULL) {
-	    /* The initial name. */
-	    size = sizeof(*archives);
-	    if ((archives = malloc(size)) == NULL)
-		goto noMem;
-	    size = strlen(arg); /* for noMem below */
-	    if ((*archives = strdup(arg)) == NULL)
-		goto noMem;
-	    opts->narchives = 1;
-	}
-	else {
-	    char	*tmp_archives;
-	    if ((found = strstr(*archives, arg)) != NULL &&
-		(found == *archives || *(found - 1) == ',')) {
-		size = strlen(arg);
-		if (found[size] == ',' || found[size] == '\0')
-		    return; /* duplicate */
-	    }
-	    /* Add a comma plus the additional name. */
-	    size = strlen (*archives) + 1 + strlen(arg) + 1;
-	    if ((tmp_archives = realloc(*archives, size)) == NULL)
-		goto noMem;
-	    *archives = tmp_archives;
-	    strcat(*archives, ",");
-	    strcat(*archives, arg);
-	}
-    }
-
-    opts->archives = archives;
-    return;
-
- noMem:
-    pmNoMem("pmGetOptions(archive)", size, PM_FATAL_ERR);
-    /*NOTREACHED*/
-}
-
-/*
- * Add a path to the default archive location for localhost,
- * as an archive argument.  Used when -O/--origin given but
- * no explicit path to archives is passed in, automatically
- * provides a best-effort guess.
- */
-void
-__pmAddOptArchivePath(pmOptions *opts)
-{
-    const char	fallback[] = "/var/log/pcp/pmlogger";
-    const char	*logdir = pmGetOptionalConfig("PCP_ARCHIVE_DIR");
-    char	hostname[MAXHOSTNAMELEN];
-    char	sep = pmPathSeparator();
-    char	dir[MAXPATHLEN];
-
-    if (!logdir)
-	logdir = fallback;
-    if (gethostname(hostname, sizeof(hostname)) < 0)
-	pmsprintf(hostname, sizeof(hostname), "localhost");
-
-    pmsprintf(dir, sizeof(dir), "%s%c%s", logdir, sep, hostname);
-    if (access(dir, F_OK) == 0) {
-	addArchive(opts, dir);
-    } else {
-	pmsprintf(dir, sizeof(dir), "%s%c%s", logdir, sep, hostname);
-	addArchive(opts, dir);
-    }
-}
-
-void
-__pmAddOptArchive(pmOptions *opts, char *arg)
-{
-    if (opts->nhosts && !(opts->flags & PM_OPTFLAG_MIXED)) {
-	pmprintf("%s: only one host or archive allowed\n", pmGetProgname());
-	opts->errors++;
-    } else {
-	addArchive(opts, arg);
     }
 }
 
@@ -760,10 +775,16 @@ __pmSetSampleCount(pmOptions *opts, char *arg)
 static void
 __pmSetSampleInterval(pmOptions *opts, char *arg)
 {
-    if (opts->version == 0 || opts->version >= PMAPI_VERSION_3)
-	__pmSetSampleInterval3(opts, arg);
-    else
-	__pmSetSampleInterval2(opts, arg);
+    char *endnum;
+    int sts;
+
+    if ((sts = pmParseHighResInterval(arg, &opts->interval, &endnum)) < 0) {
+	pmprintf("%s: -t argument not in %s(3) format:\n",
+		pmGetProgname(), "pmParseHighResInterval");
+	pmprintf("%s\n", endnum);
+	opts->errors++;
+	free(endnum);
+    }
 }
 
 static void

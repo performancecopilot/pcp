@@ -61,6 +61,7 @@ Context options:
   --archive-folio=FILE  read metric source archives from a folio
 
 Testing options:
+  -w, --window          do time window parsing
   -x, --extra           an extra option, for testing
   -X ARG, --eXtra=ARG   an extra option with an argument
   -y                    a short-option-only without argument
@@ -127,6 +128,7 @@ Context options:
   --archive-folio=FILE  read metric source archives from a folio
 
 Testing options:
+  -w, --window          do time window parsing
   -x, --extra           an extra option, for testing
   -X ARG, --eXtra=ARG   an extra option with an argument
   -y                    a short-option-only without argument
@@ -184,9 +186,9 @@ Options structure dump:
     guiflag: 0
     tzflag: 0
     Lflag: 0
-Got option: x index=25 [errors=0]
+Got option: x index=26 [errors=0]
  -> x option has no argument
-Got option: X index=26 [errors=0]
+Got option: X index=27 [errors=0]
  -> X option argument was: 'goodness'
 End of option processing
 Options structure dump:
@@ -240,10 +242,10 @@ Options structure dump:
     tzflag: 0
     Lflag: 0
 == Arguments: own long-only options
-Got option: - index=29 [errors=0]
- -> long-only option index=29
 Got option: - index=30 [errors=0]
  -> long-only option index=30
+Got option: - index=31 [errors=0]
+ -> long-only option index=31
 End of option processing
 Options structure dump:
     version: 3
@@ -329,7 +331,7 @@ Options structure dump:
     start: -
     finish: -
     origin: -
-    interval: 00:01.000
+    interval: 1.000000000
     align_optarg: -
     start_optarg: -
     finish_optarg: -
@@ -353,7 +355,7 @@ Options structure dump:
     start: -
     finish: -
     origin: -
-    interval: 00:01.000
+    interval: 1.000000000
     align_optarg: -
     start_optarg: -
     finish_optarg: -
@@ -403,7 +405,7 @@ Options structure dump:
     start: -
     finish: -
     origin: -
-    interval: 00:02.000
+    interval: 2.000000000
     align_optarg: -
     start_optarg: -
     finish_optarg: -
@@ -454,6 +456,7 @@ Context options:
   --archive-folio=FILE  read metric source archives from a folio
 
 Testing options:
+  -w, --window          do time window parsing
   -x, --extra           an extra option, for testing
   -X ARG, --eXtra=ARG   an extra option with an argument
   -y                    a short-option-only without argument
@@ -622,6 +625,7 @@ Context options:
   --archive-folio=FILE  read metric source archives from a folio
 
 Testing options:
+  -w, --window          do time window parsing
   -x, --extra           an extra option, for testing
   -X ARG, --eXtra=ARG   an extra option with an argument
   -y                    a short-option-only without argument

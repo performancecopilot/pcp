@@ -108,9 +108,10 @@ endif
 
 ifeq ($(shell test $(PCP_VER) -ge 3901 && echo 1), 1)
 CFILES += getoptions.c
+XTRATARGETS += getoptions_v2
 else
 MYFILES += getoptions.c
-LDIRT += getoptions
+LDIRT += getoptions getoptions_v2
 endif
 
 ifeq ($(shell test -f /usr/include/pcp/fault.h && echo 1), 1)
@@ -186,8 +187,8 @@ PSCRIPTS = $(PERLFILES) $(PYTHONFILES)
 CFILES_TARGETS = $(CFILES)
 
 TARGETS = $(subst broken_pmda,,$(basename $(patsubst %.c,%,$(CFILES_TARGETS)))) \
-	chkctx2_lite template \
-	fetchrate_lite pv
+	chkctx2_lite template fetchrate_lite pv \
+	$(XTRATARGETS)
 
 ifeq "$(TARGET_OS)" "linux"
 TARGETS += qa_shmctl.$(DSOSUFFIX) qa_sem_msg_ctl.$(DSOSUFFIX) \
@@ -446,6 +447,10 @@ mmv_ondisk:	mmv_ondisk.c
 newcontext:	newcontext.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+
+getoptions_v2:	getoptions.c
+	rm -f $@
+	$(CCF) $(CDEFS) -DPMAPI_VERSION=2 -o $@ $< $(LDLIBS)
 
 # --- need libpcp but also PM_CONTEXT_LOCAL
 #

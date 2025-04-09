@@ -993,6 +993,9 @@ PCP_CALL extern int pmGetVersion(void);
 #define PM_OPTFLAG_NOFLUSH	(1<<12)	/* caller issues pmflush */
 #define PM_OPTFLAG_QUIET	(1<<13)	/* silence getopt errors */
 
+struct pmOptions_v2;
+typedef int (*pmOptionOverride_v2)(int, struct pmOptions_v2 *);
+
 struct pmOptions;
 typedef int (*pmOptionOverride)(int, struct pmOptions *);
 
@@ -1003,6 +1006,62 @@ typedef struct pmLongOptions {
     const char *	argname;
     const char *	message;
 } pmLongOptions;
+
+typedef struct pmOptions_v2 {
+    int			version;
+    int			flags;
+
+    /* in: define set of all options */
+    const char *	short_options;
+    pmLongOptions *	long_options;
+    const char *	short_usage;
+
+    /* in: method for general override */
+    pmOptionOverride_v2	override;
+
+    /* out: usual getopt information */
+    int			index;
+    int			optind;
+    int			opterr;
+    int			optopt;
+    char		*optarg;
+
+    /* internals; do not ever access */
+    int			__initialized;
+    char *		__nextchar;
+    int			__ordering;
+    int			__posixly_correct;
+    int			__first_nonopt;
+    int			__last_nonopt;
+
+    /* out: error count */
+    int 		errors;
+
+    /* out: PMAPI options and values */
+    int			context;	/* PM_CONTEXT_{HOST,ARCHIVE,LOCAL} */
+    int			nhosts;
+    int			narchives;
+    char **		hosts;
+    char **		archives;
+    struct timeval	start;
+    struct timeval	finish;
+    struct timeval	origin;
+    struct timeval	interval;
+    char *		align_optarg;
+    char *		start_optarg;
+    char *		finish_optarg;
+    char *		origin_optarg;
+    char *		guiport_optarg;
+    char *		timezone;
+    int			samples;
+    int			guiport;
+    int			padding;
+    unsigned int	guiflag : 1;
+    unsigned int	tzflag  : 1;
+    unsigned int	nsflag  : 1;
+    unsigned int	Lflag   : 1;
+    unsigned int	zeroes  : 28;
+} pmOptions_v2;
 
 typedef struct pmOptions {
     int			version;
@@ -1040,14 +1099,10 @@ typedef struct pmOptions {
     int			narchives;
     char **		hosts;
     char **		archives;
-#if PMAPI_VERSION == PMAPI_VERSION_3
-    struct timeval	unused[4];
-#else
-    struct timeval	start;
-    struct timeval	finish;
-    struct timeval	origin;
-    struct timeval	interval;
-#endif
+    struct timespec	start;
+    struct timespec	finish;
+    struct timespec	origin;
+    struct timespec	interval;
     char *		align_optarg;
     char *		start_optarg;
     char *		finish_optarg;
@@ -1062,19 +1117,28 @@ typedef struct pmOptions {
     unsigned int	nsflag  : 1;
     unsigned int	Lflag   : 1;
     unsigned int	zeroes  : 28;
-#if PMAPI_VERSION == PMAPI_VERSION_3
-    struct timespec	start;
-    struct timespec	finish;
-    struct timespec	origin;
-    struct timespec	interval;
-#endif
 } pmOptions;
 
+PCP_CALL extern int pmgetopt_r_v2(int, char *const *, pmOptions_v2 *);
+PCP_CALL extern int pmGetOptions_v2(int, char *const *, pmOptions_v2 *);
+PCP_CALL extern int pmGetContextOptions_v2(int, pmOptions_v2 *);
+PCP_CALL extern void pmUsageMessage_v2(pmOptions_v2 *);
+PCP_CALL extern void pmFreeOptions_v2(pmOptions_v2 *);
 PCP_CALL extern int pmgetopt_r(int, char *const *, pmOptions *);
 PCP_CALL extern int pmGetOptions(int, char *const *, pmOptions *);
 PCP_CALL extern int pmGetContextOptions(int, pmOptions *);
 PCP_CALL extern void pmUsageMessage(pmOptions *);
 PCP_CALL extern void pmFreeOptions(pmOptions *);
+
+#if PMAPI_VERSION == PMAPI_VERSION_2
+#define pmOptionOverride pmOptionOverride_v2
+#define pmOptions pmOptions_v2
+#define pmgetopt_r pmgetopt_r_v2
+#define pmGetOptions pmGetOptions_v2
+#define pmGetContextOptions pmGetContextOptions_v2
+#define pmUsageMessage pmUsageMessage_v2
+#define pmFreeOptions pmFreeOptions_v2
+#endif
 
 /*
  * Derived Metrics support

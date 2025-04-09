@@ -86,13 +86,29 @@ contextstr(pmOptions *opts)
     return "-";
 }
 
+#if PMAPI_VERSION == PMAPI_VERSION_2
 char *
-timevalstr(struct timeval *tp)
+timestr(struct timeval *tp)
 {
     struct tm   tmp;
     time_t      then;
-    int         msecs = tp->tv_usec / 1000;
-    int         len;
+    static char tv[128];
+
+    if (tp->tv_sec == 0)
+	return "-";
+    then = (time_t)tp->tv_sec;
+    pmLocaltime(&then, &tmp);
+    pmsprintf(tv, sizeof(tv), "%02d/%02d/%04d %02d:%02d:%02d.%06d",
+	tmp.tm_mday, tmp.tm_mon+1, tmp.tm_year+1900,
+	tmp.tm_hour, tmp.tm_min, tmp.tm_sec, (int)tp->tv_usec);
+    return tv;
+}
+#else
+char *
+timestr(struct timespec *tp)
+{
+    struct tm   tmp;
+    time_t      then;
     static char tv[128];
 
     if (tp->tv_sec == 0)
@@ -100,27 +116,36 @@ timevalstr(struct timeval *tp)
     memset(tv, 0, sizeof(tv));
     then = (time_t)tp->tv_sec;
     pmLocaltime(&then, &tmp);
-    len = pmsprintf(tv, sizeof(tv), "%s", asctime(&tmp));
-    pmsprintf(&tv[len-1], sizeof(tv) - len," [msec=%d]", msecs);
+    pmsprintf(tv, sizeof(tv), "%02d/%02d/%04d %02d:%02d:%02d.%09d",
+	tmp.tm_mday, tmp.tm_mon+1, tmp.tm_year+1900,
+	tmp.tm_hour, tmp.tm_min, tmp.tm_sec, (int)tp->tv_nsec);
     return tv;
 }
+#endif
 
+#if PMAPI_VERSION == PMAPI_VERSION_2
 char *
-intervalstr(struct timeval *tp)
+interstr(struct timeval *tp)
 {
-    struct tm   tmp;
-    time_t      then;
-    int         msecs = tp->tv_usec / 1000;
     static char it[128];
 
     if (tp->tv_sec == 0)
 	return "-";
-    memset(it, 0, sizeof(it));
-    then = (time_t)tp->tv_sec;
-    pmLocaltime(&then, &tmp);
-    pmsprintf(it, sizeof(it), "%02d:%02d.%03d", tmp.tm_min, tmp.tm_sec, msecs);
+    pmsprintf(it, sizeof(it), "%0d.%06d", (int)tp->tv_sec, (int)tp->tv_usec);
     return it;
 }
+#else
+char *
+interstr(struct timespec *tp)
+{
+    static char it[128];
+
+    if (tp->tv_sec == 0)
+	return "-";
+    pmsprintf(it, sizeof(it), "%0d.%09d", (int)tp->tv_sec, (int)tp->tv_nsec);
+    return it;
+}
+#endif
 
 char *
 isempty(char *string)
@@ -154,10 +179,10 @@ dumpall(pmOptions *opts)
 	    printf(",%s", opts->archives[i]);
 	printf("\n");
     }
-    printf("    start: %s\n", timevalstr(&opts->start));
-    printf("    finish: %s\n", timevalstr(&opts->finish));
-    printf("    origin: %s\n", timevalstr(&opts->finish));
-    printf("    interval: %s\n", intervalstr(&opts->interval));
+    printf("    start: %s\n", timestr(&opts->start));
+    printf("    finish: %s\n", timestr(&opts->finish));
+    printf("    origin: %s\n", timestr(&opts->finish));
+    printf("    interval: %s\n", interstr(&opts->interval));
     printf("    align_optarg: %s\n", isempty(opts->align_optarg));
     printf("    start_optarg: %s\n", isempty(opts->start_optarg));
     printf("    finish_optarg: %s\n", isempty(opts->finish_optarg));
@@ -184,6 +209,7 @@ main(int argc, char *argv[])
 	PMOPT_ARCHIVE_LIST,
 	PMOPT_ARCHIVE_FOLIO,
 	PMAPI_OPTIONS_HEADER("Testing options"),
+	{ "window", 0, 'w', 0, "do time window parsing" },
 	{ "extra", 0, 'x', 0, "an extra option, for testing" },
 	{ "eXtra", 1, 'X', "ARG", "an extra option with an argument" },
 	{ "", 0, 'y', 0, "a short-option-only without argument" },
@@ -193,17 +219,23 @@ main(int argc, char *argv[])
 	PMAPI_OPTIONS_END
     };
     pmOptions opts = {
-	.short_options = PMAPI_OPTIONS "H:K:L" "XxYy",
+	.short_options = PMAPI_OPTIONS "H:K:L" "wXxYy",
 	.long_options = longopts,
     };
+    int sts;
     char *tz;
+    int ctx = -1;
     int c;
+    int wflag = 0;
 
     opts.version = getversion();
     opts.flags = getflags();
     while ((c = pmGetOptions(argc, argv, &opts)) != EOF) {
 	printf("Got option: %c index=%d [errors=%d]\n", c? c: '-', opts.index, opts.errors);
 	switch(c) {
+	case 'w':
+	    wflag++;
+	    break;
 	case 'x':
 	    printf(" -> x option has no argument\n");
 	    break;
@@ -249,6 +281,22 @@ main(int argc, char *argv[])
     if ((c = pmNewZone(tz)) < 0)
 	fprintf(stderr, "Warning: TZ failure - %s: %s\n",
 			opts.timezone, pmErrStr(c));
+
+    if (wflag && opts.errors == 0) {
+	if (opts.nhosts == 0 && opts.narchives == 0)
+	    ctx = pmNewContext(PM_CONTEXT_HOST, "local:");
+	else if (opts.nhosts > 0)
+	    ctx = pmNewContext(PM_CONTEXT_HOST, opts.hosts[0]);
+	else if (opts.narchives > 0)
+	    ctx = pmNewContext(PM_CONTEXT_ARCHIVE, opts.archives[0]);
+	if (ctx >= 0) {
+	    if ((sts = pmGetContextOptions(ctx, &opts)) < 0)
+		fprintf(stderr, "Warning: pmGetContextOptions failed: %s\n", pmErrStr(sts));
+	}
+	else {
+	    fprintf(stderr, "Error: failed to establish a PMAPI context: %s\n", pmErrStr(ctx));
+	}
+    }
 
     dumpall(&opts);
 
