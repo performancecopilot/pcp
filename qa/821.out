@@ -383,6 +383,9 @@ mem.util.hugepagesTotal
 mem.util.hugepagesTotalBytes
     value 0
 
+mem.util.hugetlb
+No value(s) available!
+
 mem.util.inactive
     value 3659244
 
@@ -394,6 +397,9 @@ mem.util.inactive_file
 
 mem.util.kernelStack
     value 13152
+
+mem.util.kreclaimable
+No value(s) available!
 
 mem.util.lowFree
 No value(s) available!
@@ -3222,6 +3228,9 @@ mem.util.hugepagesTotal
 mem.util.hugepagesTotalBytes
     value 0
 
+mem.util.hugetlb
+No value(s) available!
+
 mem.util.inactive
     value 17315560
 
@@ -3233,6 +3242,9 @@ mem.util.inactive_file
 
 mem.util.kernelStack
     value 12352
+
+mem.util.kreclaimable
+No value(s) available!
 
 mem.util.lowFree
 No value(s) available!
@@ -6039,6 +6051,9 @@ mem.util.hugepagesTotal
 mem.util.hugepagesTotalBytes
     value 419430400
 
+mem.util.hugetlb
+No value(s) available!
+
 mem.util.inactive
     value 17315560
 
@@ -6050,6 +6065,9 @@ mem.util.inactive_file
 
 mem.util.kernelStack
     value 12352
+
+mem.util.kreclaimable
+No value(s) available!
 
 mem.util.lowFree
 No value(s) available!
@@ -8819,6 +8837,9 @@ mem.util.hugepagesTotal
 mem.util.hugepagesTotalBytes
     value 0
 
+mem.util.hugetlb
+No value(s) available!
+
 mem.util.inactive
     value 215716
 
@@ -8830,6 +8851,9 @@ mem.util.inactive_file
 
 mem.util.kernelStack
     value 4992
+
+mem.util.kreclaimable
+No value(s) available!
 
 mem.util.lowFree
 No value(s) available!
@@ -11367,6 +11391,9 @@ mem.util.hugepagesTotal
 mem.util.hugepagesTotalBytes
     value 0
 
+mem.util.hugetlb
+No value(s) available!
+
 mem.util.inactive
     value 2182108
 
@@ -11378,6 +11405,9 @@ mem.util.inactive_file
 
 mem.util.kernelStack
     value 19076
+
+mem.util.kreclaimable
+No value(s) available!
 
 mem.util.lowFree
 No value(s) available!
@@ -13979,6 +14009,9 @@ mem.util.hugepagesTotal
 mem.util.hugepagesTotalBytes
     value 0
 
+mem.util.hugetlb
+    value 0
+
 mem.util.inactive
     value 330176
 
@@ -13990,6 +14023,9 @@ mem.util.inactive_file
 
 mem.util.kernelStack
     value 2192
+
+mem.util.kreclaimable
+No value(s) available!
 
 mem.util.lowFree
 No value(s) available!
@@ -15900,6 +15936,9 @@ mem.util.hugepagesTotal
 mem.util.hugepagesTotalBytes
     value 0
 
+mem.util.hugetlb
+    value 0
+
 mem.util.inactive
     value 2682032
 
@@ -15911,6 +15950,9 @@ mem.util.inactive_file
 
 mem.util.kernelStack
     value 14512
+
+mem.util.kreclaimable
+    value 133744
 
 mem.util.lowFree
 No value(s) available!

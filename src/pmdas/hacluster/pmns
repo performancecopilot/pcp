@@ -20,15 +20,15 @@ ha_cluster {
 }
 
 ha_cluster.pacemaker {
-	config_last_change		HACLUSTER:0:0
+	config_last_change			HACLUSTER:0:0
 	fail_count				HACLUSTER:1:0
 	location_constraints
-	migration_threshold		HACLUSTER:1:1
+	migration_threshold			HACLUSTER:1:1
 	nodes
-	node_attributes			HACLUSTER:4:0
-	node_attributes_all		HACLUSTER:13:0
+	node_attributes				HACLUSTER:4:0
+	node_attributes_all			HACLUSTER:13:0
 	resources
-	stonith_enabled			HACLUSTER:0:1
+	stonith_enabled				HACLUSTER:0:1
 }
 
 ha_cluster.pacemaker.location_constraints {
@@ -36,7 +36,7 @@ ha_cluster.pacemaker.location_constraints {
 	resource				HACLUSTER:2:1
 	role					HACLUSTER:2:2
 	score					HACLUSTER:2:3
-	all						HACLUSTER:12:0
+	all					HACLUSTER:12:0
 }
 
 ha_cluster.pacemaker.nodes {
@@ -47,13 +47,15 @@ ha_cluster.pacemaker.nodes {
 ha_cluster.pacemaker.nodes.status {
 	online					HACLUSTER:3:0
 	standby					HACLUSTER:3:1
-	standby_on_fail			HACLUSTER:3:2
+	standby_on_fail				HACLUSTER:3:2
 	maintenance				HACLUSTER:3:3
 	pending					HACLUSTER:3:4
 	unclean					HACLUSTER:3:5
 	shutdown				HACLUSTER:3:6
 	expected_up				HACLUSTER:3:7
-	dc						HACLUSTER:3:8
+	dc					HACLUSTER:3:8
+	health					HACLUSTER:3:10
+	feature_set				HACLUSTER:3:11
 }
 
 ha_cluster.pacemaker.resources {
@@ -63,7 +65,7 @@ ha_cluster.pacemaker.resources {
 	managed					HACLUSTER:5:3
 	role					HACLUSTER:5:4
 	status
-	all						HACLUSTER:14:0
+	all					HACLUSTER:14:0
 }
 
 ha_cluster.pacemaker.resources.status {
@@ -71,7 +73,7 @@ ha_cluster.pacemaker.resources.status {
 	orphaned				HACLUSTER:5:6
 	blocked					HACLUSTER:5:7
 	failed					HACLUSTER:5:8
-	failure_ignored			HACLUSTER:5:9
+	failure_ignored				HACLUSTER:5:9
 }
 
 ha_cluster.corosync {
@@ -89,8 +91,8 @@ ha_cluster.corosync.member_votes {
 }
 
 ha_cluster.corosync.quorum_votes {
-	expected_votes			HACLUSTER:7:1
-	highest_expected		HACLUSTER:7:2
+	expected_votes				HACLUSTER:7:1
+	highest_expected			HACLUSTER:7:2
 	total_votes				HACLUSTER:7:3
 	quorum					HACLUSTER:7:4
 }
@@ -101,13 +103,13 @@ ha_cluster.corosync.rings {
 	node_id					HACLUSTER:8:2
 	number					HACLUSTER:8:3
 	ring_id					HACLUSTER:8:4
-	all						HACLUSTER:15:0
+	all					HACLUSTER:15:0
 }
 
 ha_cluster.sbd {
 	devices
 	timeouts
-	all						HACLUSTER:16:0
+	all					HACLUSTER:16:0
 }
 
 ha_cluster.sbd.devices {
@@ -128,15 +130,15 @@ ha_cluster.drbd {
 	read					HACLUSTER:10:5
 	al_writes				HACLUSTER:10:6
 	bm_writes				HACLUSTER:10:7
-	upper_pending			HACLUSTER:10:8
-	lower_pending			HACLUSTER:10:9
+	upper_pending				HACLUSTER:10:8
+	lower_pending				HACLUSTER:10:9
 	quorum					HACLUSTER:10:10
 	connections
-	connections_sync		HACLUSTER:11:5
-	connections_received	HACLUSTER:11:6
-	connections_sent		HACLUSTER:11:7
-	connections_pending		HACLUSTER:11:8
-	connections_unacked		HACLUSTER:11:9
+	connections_sync			HACLUSTER:11:5
+	connections_received			HACLUSTER:11:6
+	connections_sent			HACLUSTER:11:7
+	connections_pending			HACLUSTER:11:8
+	connections_unacked			HACLUSTER:11:9
 	split_brain				HACLUSTER:10:11
 }
 
@@ -145,14 +147,14 @@ ha_cluster.drbd.resources {
 	role					HACLUSTER:10:1
 	volume					HACLUSTER:10:2
 	disk_state				HACLUSTER:10:3
-	all						HACLUSTER:17:0
+	all					HACLUSTER:17:0
 }
 
 ha_cluster.drbd.connections {
 	resource				HACLUSTER:11:0
-	peer_node_id			HACLUSTER:11:1
+	peer_node_id				HACLUSTER:11:1
 	peer_role				HACLUSTER:11:2
 	volume					HACLUSTER:11:3
-	peer_disk_state			HACLUSTER:11:4
-	all						HACLUSTER:18:0
+	peer_disk_state				HACLUSTER:11:4
+	all					HACLUSTER:18:0
 }
