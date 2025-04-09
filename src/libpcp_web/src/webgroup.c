@@ -2018,10 +2018,10 @@ pmWebGroupScrape(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
 	scrape.numfilters = 0;
 
 	if (match != NULL) {
-	    if (strcmp(match, "regex") == 0) {
+	    if (strcmp(match, "regex") == 0)
 		scrape.match = MATCH_REGEX;
-	    } else if (strcmp(match, "exact") == 0)
-		scrape.match = MATCH_GLOB;
+	    else if (strcmp(match, "exact") == 0)
+		scrape.match = MATCH_EXACT;
 	    else if (strcmp(match, "glob") != 0) {
 		infofmt(msg, "%s - invalid 'match' parameter value", match);
 		sts = -EINVAL;
