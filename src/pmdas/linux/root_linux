@@ -746,6 +746,8 @@ mem.util {
     zswapped		60:1:72
     shadowcallstack	60:1:73
     percpu		60:1:74
+    kreclaimable	60:1:75
+    hugetlb		60:1:76
 }
 
 mem.numa {

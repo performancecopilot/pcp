@@ -1,7 +1,7 @@
 /*
  * GFS2 glocks sysfs file statistics.
  *
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013 - 2025 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -113,6 +113,14 @@ gfs2_refresh_glocks(const char *sysfs, const char *name, struct glocks *glocks)
 				glocks->values[GLOCKS_FLAGS_BLOCKING_REQUEST]++;
 			if (strpbrk(flags, "L"))
 				glocks->values[GLOCKS_FLAGS_LRU]++;
+			if (strpbrk(flags, "n"))
+			        glocks->values[GLOCKS_FLAGS_INSTANTIATE_NEEDED]++;
+			if (strpbrk(flags, "N"))
+			        glocks->values[GLOCKS_FLAGS_INSTANTIATE_IN_PROG]++;
+			if (strpbrk(flags, "e"))
+			        glocks->values[GLOCKS_FLAGS_TRY_TO_EVICT]++;
+			if (strpbrk(flags, "E"))
+			        glocks->values[GLOCKS_FLAGS_VERIFY_DELETE]++;
 		}
 
 		if (strncmp(buffer, " H:", 3) == 0) {

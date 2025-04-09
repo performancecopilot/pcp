@@ -31,7 +31,7 @@ struct __pmInDomCache {
    int		*codes;	/* saved from pmGetInDom */
    char		**names;
    unsigned int	size;
-   int		refreshed;
+   unsigned int	refreshed;
 };
 
 /*
@@ -40,8 +40,9 @@ struct __pmInDomCache {
  * opaque to the PMAPI client.
  */
 struct __pmFetchGroup {
-    int	ctx;			/* our pcp context */
-    int wrap;			/* wrap-handling flag, set at fg-create-time */
+    int	ctx;			/* the PMAPI context */
+    unsigned int wrap : 1;	/* counter wrap handling */
+    unsigned int preserve : 1;	/* discrete value preserving */
     pmHighResResult *prevResult;
     struct __pmFetchGroupItem *items;
     struct __pmInDomCache *unique_indoms;
@@ -821,7 +822,7 @@ pmfg_fetch_item(pmFG pmfg, pmFGI item, pmHighResResult *newResult)
      * If we have some values, then DISCRETE preserved values should
      * be cleared now.
      */
-    if (item->u.item.metric_desc.sem == PM_SEM_DISCRETE) {
+    if (item->u.item.metric_desc.sem == PM_SEM_DISCRETE && pmfg->preserve) {
 	for (i = 0; i < newResult->numpmid; i++) {
 	    if (newResult->vset[i]->pmid == item->u.item.metric_pmid) {
 		if (newResult->vset[i]->numval > 0) {
@@ -925,7 +926,7 @@ pmfg_fetch_indom(pmFG pmfg, pmFGI item, pmHighResResult *newResult)
      * If we have some values, the DISCRETE preserved values should be
      * cleared now.
      */
-    if (item->u.indom.metric_desc.sem == PM_SEM_DISCRETE) {
+    if (item->u.indom.metric_desc.sem == PM_SEM_DISCRETE && pmfg->preserve) {
 	if (iv->numval > 0)
 	    pmfg_reinit_indom(item);
 	else /* = 0 */
@@ -1291,6 +1292,10 @@ pmCreateFetchGroup(pmFG *ptr, int type, const char *name)
     PM_LOCK(__pmLock_extcall);
     if (getenv("PCP_COUNTER_WRAP") != NULL)
 	pmfg->wrap = 1;
+    if (getenv("PCP_DISCRETE_ONCE") != NULL)
+	pmfg->preserve = 0;
+    else
+	pmfg->preserve = 1;
     PM_UNLOCK(__pmLock_extcall);
 
     pmfg_clear_profile(pmfg);
@@ -1683,11 +1688,11 @@ pmFetchGroup(pmFG pmfg)
 		pmfg_reinit_timeval(item);
 		break;
 	    case pmfg_item:
-		if (item->u.item.metric_desc.sem != PM_SEM_DISCRETE)
+		if (item->u.item.metric_desc.sem != PM_SEM_DISCRETE || !pmfg->preserve)
 		    pmfg_reinit_item(item); /* preserve DISCRETE */
 		break;
 	    case pmfg_indom:
-		if (item->u.indom.metric_desc.sem != PM_SEM_DISCRETE)
+		if (item->u.indom.metric_desc.sem != PM_SEM_DISCRETE || !pmfg->preserve)
 		    pmfg_reinit_indom(item); /* preserve DISCRETE */
 		break;
 	    case pmfg_event:
