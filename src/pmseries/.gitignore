@@ -1,4 +1,6 @@
 pmseries
+pmseries-import.py
+pmseries-import.service
 jsmn.c
 jsmn.h
 sha1.h
