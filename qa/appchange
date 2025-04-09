@@ -1,0 +1,53 @@
+#!/bin/sh
+#
+# recheck all QA tests that appear to use the test application src/$1
+# or src/$2 or src/$3 or ...
+#
+# /var/tmp/appcache is a cache of mappings between <seqno> and src/
+# uses ... built if not already there, use -c to clear and rebuild the
+# cache
+#
+
+cache=/var/tmp/appcache
+tmp=/var/tmp/appchange-$$
+status=1
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+if [ $# -gt 1 -a "X$1" = X-c ]
+then
+    rm -f $cache
+    shift
+fi
+
+if [ ! -f $cache ]
+then
+    echo "Rebuilding cache of app usage ..."
+    grep src/ [0-9]*[0-9][0-9] >$cache
+fi
+
+for app
+do
+    cd src
+    rm -f $app $app.o
+    if make $app
+    then
+	:
+    else
+	echo "Error: failed to remake src/$app"
+	exit
+    fi
+    cd ..
+    grep -E "src/$app( |$)" <$cache | sed -e 's/:.*//' >$tmp.tmp
+    if [ -s $tmp.tmp ]
+    then
+	cat $tmp.tmp >$tmp.list
+    else
+	echo "Warning: no QA tests use \"$app\""
+    fi
+done
+
+if ./check `sort -n <$tmp.list | uniq`
+then
+    echo OK
+    status=0
+fi
