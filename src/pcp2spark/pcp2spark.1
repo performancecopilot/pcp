@@ -632,6 +632,11 @@ The \fB$PCP_CONF\fP variable may be used to specify an alternative
 configuration file, as described in \fBpcp.conf\fP(5).
 .PP
 For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
+.PP
+Of particular note,
+.B PCP_DISCRETE_ONCE
+can be set to ensure that discrete metric values are reported only once,
+unless they change at some point.
 .SH DEBUGGING OPTIONS
 The
 .B \-D
