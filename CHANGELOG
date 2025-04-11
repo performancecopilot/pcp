@@ -1,3 +1,11 @@
+pcp-6.3.8 (11 April 2025)
+    - libpcp_web: fix selection and testing of exact match filtering
+    - pmproxy: add After:valkey to the pmproxy systemd unit file
+    - build: only regenerate debian/rules for Makepkgs builds
+    - build: use the conditional build-me makefile target for pmdabpf
+    - docs: update output format in pcp2elasticsearch man page
+    - docs: fix webapi man page links, no longer hosted on pcp.io
+
 pcp-6.3.7 (27 March 2025)
     - pmdadenki: RAPL MSR support
     - pmdabind2: updates for more recent bind versions

@@ -1,3 +1,9 @@
+pcp (6.3.8-1) unstable; urgency=low
+
+  * Do not re-generate debian/rules during the build (closes: #1102289)
+
+ -- Nathan Scott <nathans@debian.org>  Fri, 11 Apr 2025 11:24:57 +1000
+
 pcp (6.3.7-1) unstable; urgency=low
 
   * Updates toward a clean Debian build on i386 platform.
