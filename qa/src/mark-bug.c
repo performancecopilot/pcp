@@ -10,8 +10,8 @@
 
 const char *namelist[2] = {"hinv.ncpu", "irix.kernel.all.cpu.idle"};
 pmID pmidlist[2];
-pmResult *result;
-struct timeval curpos;
+pmHighResResult *result;
+struct timespec curpos;
 static void check_result(char *);
 
 static char timebuf[26];
@@ -33,20 +33,21 @@ main(int argc, char **argv)
     char	*align = NULL;
     char	*offset = NULL;
     char 	*logfile = NULL;
-    pmLogLabel	label;				/* get hostname for archives */
+    pmHighResLogLabel	label;				/* get hostname for archives */
     int		zflag = 0;			/* for -z */
     char 	*tz = NULL;			/* for -Z timezone */
     int		tzh;				/* initial timezone handle */
     char	local[MAXHOSTNAMELEN];
     char	*pmnsfile = PM_NS_DEFAULT;
     int		samples = -1;
-    double	delta = 1.0;
+    double	delta_f = 1.0;
+    struct timespec delta;
     char	*endnum;
-    struct timeval startTime;
-    struct timeval endTime;
-    struct timeval appStart;
-    struct timeval appEnd;
-    struct timeval appOffset;
+    struct timespec startTime;
+    struct timespec endTime;
+    struct timespec appStart;
+    struct timespec appEnd;
+    struct timespec appOffset;
     time_t	clock;
 
     pmSetProgname(argv[0]);
@@ -129,8 +130,8 @@ main(int argc, char **argv)
 	    break;
 
 	case 't':	/* delta seconds (double) */
-	    delta = strtod(optarg, &endnum);
-	    if (*endnum != '\0' || delta <= 0.0) {
+	    delta_f = strtod(optarg, &endnum);
+	    if (*endnum != '\0' || delta_f <= 0.0) {
 		fprintf(stderr, "%s: -t requires floating point argument\n", pmGetProgname());
 		errflag++;
 	    }
@@ -237,18 +238,18 @@ Options\n\
     }
 
     if (type == PM_CONTEXT_ARCHIVE) {
-	if ((sts = pmGetArchiveLabel(&label)) < 0) {
+	if ((sts = pmGetHighResArchiveLabel(&label)) < 0) {
 	    fprintf(stderr, "%s: Cannot get archive label record: %s\n",
 		pmGetProgname(), pmErrStr(sts));
 	    exit(1);
 	}
 	if (mode != PM_MODE_INTERP) {
-	    if ((sts = pmSetMode(mode, &label.ll_start, 0)) < 0) {
+	    if ((sts = pmSetModeHighRes(mode, &label.start, NULL)) < 0) {
 		fprintf(stderr, "%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 		exit(1);
 	    }
 	}
-  	startTime = label.ll_start;
+  	startTime = label.start;
 	sts = pmGetArchiveEnd(&endTime);
 	if (sts < 0) {
 	    fprintf(stderr, "%s: pmGetArchiveEnd: %s\n", pmGetProgname(),
@@ -257,7 +258,10 @@ Options\n\
 	}
     }
     else {
-	gettimeofday(&startTime, NULL);
+	struct timeval temp_tv;
+	gettimeofday(&temp_tv, NULL);
+	startTime.tv_sec = temp_tv.tv_sec;
+	startTime.tv_nsec = temp_tv.tv_usec * 1000;
 	endTime.tv_sec = PM_MAX_TIME_T;
     }
 
@@ -269,7 +273,7 @@ Options\n\
 	}
 	if (type == PM_CONTEXT_ARCHIVE)
 	    printf("Note: timezone set to local timezone of host \"%s\" from archive\n\n",
-		label.ll_hostname);
+		label.hostname);
 	else
 	    printf("Note: timezone set to local timezone of host \"%s\"\n\n", host);
     }
@@ -296,7 +300,7 @@ Options\n\
 	align = NULL;
     }
 
-    sts = pmParseTimeWindow(start, finish, align, offset, &startTime,
+    sts = pmParseHighResTimeWindow(start, finish, align, offset, &startTime,
 			    &endTime, &appStart, &appEnd, &appOffset,
 			    &endnum);
 
@@ -311,45 +315,46 @@ Options\n\
     }
 
     /* goto the start */
-    if ((sts = pmSetMode(PM_MODE_INTERP, &appStart, (int)(delta * 1000))) < 0) {
+    pmtimespecFromReal(delta_f, &delta);
+    if ((sts = pmSetModeHighRes(PM_MODE_INTERP, &appStart, &delta)) < 0) {
 	fprintf(stderr, "%s: pmSetMode failed: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
 
     clock = (time_t)appStart.tv_sec;
     pmCtime(&clock, timebuf);
-    printf("archive %s\nstartTime: %19.19s.%06d\n",
-	    host, timebuf, (int)appStart.tv_usec);
+    printf("archive %s\nstartTime: %19.19s.%09d\n",
+	    host, timebuf, (int)appStart.tv_nsec);
     clock = (time_t)appEnd.tv_sec;
     pmCtime(&clock, timebuf);
-    printf("endTime  : %19.19s.%06d\nsamples=%d delta=%dms\n",
-	    timebuf, (int)appEnd.tv_usec, samples, (int)(delta * 1000));
+    printf("endTime  : %19.19s.%09d\nsamples=%d delta=%dms\n",
+	    timebuf, (int)appEnd.tv_nsec, samples, (int)(delta_f * 1000));
 
     /* play forwards over the mark */
     for (i=0; i < samples; i++) {
-	if ((sts = pmFetch(2, pmidlist, &result)) < 0) {
+	if ((sts = pmFetchHighRes(2, pmidlist, &result)) < 0) {
 	    fprintf(stderr, "%s: pmFetch failed: %s\n", pmGetProgname(), pmErrStr(sts));
 	    exit(1);
 	}
 	check_result("forwards ");
 	curpos = result->timestamp; /* struct cpy */
-	pmFreeResult(result);
+	pmFreeHighResResult(result);
     }
 
     /* rewind back over the mark */
-    if ((sts = pmSetMode(PM_MODE_INTERP, &curpos, (int)(delta * -1000))) < 0) {
+    if ((sts = pmSetModeHighRes(PM_MODE_INTERP, &curpos, &delta)) < 0) {
 	fprintf(stderr, "%s: pmSetMode failed: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
 
     for (i=0; i < samples; i++) {
-	if ((sts = pmFetch(2, pmidlist, &result)) < 0) {
+	if ((sts = pmFetchHighRes(2, pmidlist, &result)) < 0) {
 	    fprintf(stderr, "%s: pmFetch failed: %s\n", pmGetProgname(), pmErrStr(sts));
 	    exit(1);
 	}
 
 	check_result("rewinding");
-	pmFreeResult(result);
+	pmFreeHighResResult(result);
     }
 
 
@@ -363,25 +368,25 @@ check_result(char *title)
     time_t	clock = (time_t)result->timestamp.tv_sec;
     if (result->numpmid != 2) {
 	pmCtime(&clock, timebuf);
-	printf("%s @ %19.19s.%06d numpmid=%d\n", title,
-		timebuf, (int)result->timestamp.tv_usec, result->numpmid);
+	printf("%s @ %19.19s.%09d numpmid=%d\n", title,
+		timebuf, (int)result->timestamp.tv_nsec, result->numpmid);
 	err++;
     }
     if (result->numpmid >= 1 && result->vset[0]->numval != 1) {
 	pmCtime(&clock, timebuf);
-	printf("%s @ %19.19s.%06d vset[0]->numval=%d\n", title,
-		timebuf, (int)result->timestamp.tv_usec, result->vset[0]->numval);
+	printf("%s @ %19.19s.%09d vset[0]->numval=%d\n", title,
+		timebuf, (int)result->timestamp.tv_nsec, result->vset[0]->numval);
 	err++;
     }
     if (result->numpmid >= 2 && result->vset[1]->numval != 1) {
 	pmCtime(&clock, timebuf);
-	printf("%s @ %19.19s.%06d vset[1]->numval=%d\n", title,
-		timebuf, (int)result->timestamp.tv_usec, result->vset[1]->numval);
+	printf("%s @ %19.19s.%09d vset[1]->numval=%d\n", title,
+		timebuf, (int)result->timestamp.tv_nsec, result->vset[1]->numval);
 	err++;
     }
     if (err == 0) {
 	pmCtime(&clock, timebuf);
-	printf("fetch OK %s @ %19.19s.%06d\n", title,
-		timebuf, (int)result->timestamp.tv_usec);
+	printf("fetch OK %s @ %19.19s.%09d\n", title,
+		timebuf, (int)result->timestamp.tv_nsec);
     }
 }

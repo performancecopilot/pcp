@@ -113,12 +113,12 @@ Options\n\
 	}
     }
 
-    sts = pmGetHighResArchiveEnd(&end);
+    sts = pmGetArchiveEnd(&end);
     if (sts < 0) {
-	printf("pmGetHighResArchiveEnd: %s\n", pmErrStr(sts));
+	printf("pmGetArchiveEnd: %s\n", pmErrStr(sts));
     }
     else {
-	printf("pmGetHighResArchiveEnd time: ");
+	printf("pmGetArchiveEnd time: ");
 	printstamp(&end);
 	printf("\n");
     }

@@ -693,9 +693,9 @@ typedef struct pmHighResLogLabel {
  * when the archive ends
  */
 PCP_CALL extern int pmGetHighResArchiveLabel(pmHighResLogLabel *);
-PCP_CALL extern int pmGetHighResArchiveEnd(struct timespec *);
 PCP_CALL extern int pmGetArchiveLabel(pmLogLabel *);
-PCP_CALL extern int pmGetArchiveEnd(struct timeval *);
+PCP_CALL extern int pmGetArchiveEnd(struct timespec *);
+PCP_CALL extern int pmGetArchiveEnd_v2(struct timeval *);
 
 /* Free result buffer */
 PCP_CALL extern void pmFreeHighResResult(pmHighResResult *);
@@ -1130,16 +1130,6 @@ PCP_CALL extern int pmGetContextOptions(int, pmOptions *);
 PCP_CALL extern void pmUsageMessage(pmOptions *);
 PCP_CALL extern void pmFreeOptions(pmOptions *);
 
-#if PMAPI_VERSION == PMAPI_VERSION_2
-#define pmOptionOverride pmOptionOverride_v2
-#define pmOptions pmOptions_v2
-#define pmgetopt_r pmgetopt_r_v2
-#define pmGetOptions pmGetOptions_v2
-#define pmGetContextOptions pmGetContextOptions_v2
-#define pmUsageMessage pmUsageMessage_v2
-#define pmFreeOptions pmFreeOptions_v2
-#endif
-
 /*
  * Derived Metrics support
  */
@@ -1430,6 +1420,27 @@ PCP_CALL extern int pmGetUsername(char **);
 
 /* DSO PMDA helpers */
 PCP_CALL extern char *pmSpecLocalPMDA(const char *);
+
+#if PMAPI_VERSION == PMAPI_VERSION_2
+/*
+ * old names with API changes mapped to _v2 variants
+ */
+#define pmOptionOverride pmOptionOverride_v2
+#define pmOptions pmOptions_v2
+#define pmgetopt_r pmgetopt_r_v2
+#define pmGetOptions pmGetOptions_v2
+#define pmGetContextOptions pmGetContextOptions_v2
+#define pmUsageMessage pmUsageMessage_v2
+#define pmFreeOptions pmFreeOptions_v2
+#define pmGetArchiveEnd pmGetArchiveEnd_v2
+#endif
+
+#if PMAPI_VERSION >= PMAPI_VERSION_3
+/*
+ * retire HighRes interfaces
+ */
+#define pmGetHighResArchiveEnd pmGetArchiveEnd
+#endif
 
 #ifdef __cplusplus
 }

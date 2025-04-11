@@ -514,7 +514,7 @@ int
 initArchive(Archive *a)
 {
     pmLogLabel	    label;
-    struct timeval  tv;
+    struct timespec ts;
     int		    sts;
     int		    handle;
     Archive	    *b;
@@ -547,14 +547,14 @@ initArchive(Archive *a)
 	return 0;
     }
     a->first = pmtimevalToReal(&label.ll_start);
-    if ((sts = pmGetArchiveEnd(&tv)) < 0) {
+    if ((sts = pmGetArchiveEnd(&ts)) < 0) {
 	fprintf(stderr, "%s: archive %s is corrupted\n"
 		"pmGetArchiveEnd failed: %s\n",
 		pmGetProgname(), a->fname, pmErrStr(sts));
 	pmDestroyContext(handle);
 	return 0;
     }
-    a->last = pmtimevalToReal(&tv);
+    a->last = pmtimespecToReal(&ts);
 
     /* check for duplicate host */
     b = archives;

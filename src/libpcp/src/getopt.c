@@ -45,7 +45,7 @@ __pmUpdateBounds(pmOptions *opts, int index, struct timespec *begin, struct time
 		pmGetProgname(), opts->archives[index], pmErrStr(sts));
 	return sts;
     }
-    if ((sts = pmGetHighResArchiveEnd(&logend)) < 0) {
+    if ((sts = pmGetArchiveEnd(&logend)) < 0) {
 	logend.tv_sec = PM_MAX_TIME_T;
 	logend.tv_nsec = 0;
 	fflush(stdout);

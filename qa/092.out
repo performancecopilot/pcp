@@ -1,6 +1,6 @@
 QA output created by 092
 small archive
-pmGetHighResArchiveEnd time: MY-EOL-TIMESTAMP
+pmGetArchiveEnd time: MY-EOL-TIMESTAMP
 required 1 log reads
 
 last result time (direct): MY-EOL-TIMESTAMP
@@ -14,7 +14,7 @@ last result time (serial): MY-EOL-TIMESTAMP
 required 10 log reads
 
 large archive
-pmGetHighResArchiveEnd time: MY-EOL-TIMESTAMP
+pmGetArchiveEnd time: MY-EOL-TIMESTAMP
 required 1 log reads
 
 last result time (direct): MY-EOL-TIMESTAMP
@@ -28,7 +28,7 @@ last result time (serial): MY-EOL-TIMESTAMP
 required 1002 log reads
 
 truncated archive
-pmGetHighResArchiveEnd time: MY-EOL-TIMESTAMP
+pmGetArchiveEnd time: MY-EOL-TIMESTAMP
 required >=8 and <=13 log reads
 
 last result time (direct): MY-EOL-TIMESTAMP
@@ -43,10 +43,10 @@ required 416 log reads
 
 empty archive
 eol: Cannot open archive "tmparch/null": Empty archive file
-pmGetHighResArchiveEnd failed!
+pmGetArchiveEnd failed!
 
 small multi-volume archive
-pmGetHighResArchiveEnd time: MY-EOL-TIMESTAMP
+pmGetArchiveEnd time: MY-EOL-TIMESTAMP
 required 1 log reads
 
 last result time (direct): MY-EOL-TIMESTAMP
@@ -60,7 +60,7 @@ last result time (serial): MY-EOL-TIMESTAMP
 required 10 log reads
 
 large multi-volume archive
-pmGetHighResArchiveEnd time: MY-EOL-TIMESTAMP
+pmGetArchiveEnd time: MY-EOL-TIMESTAMP
 required 1 log reads
 
 last result time (direct): MY-EOL-TIMESTAMP
@@ -74,7 +74,7 @@ last result time (serial): MY-EOL-TIMESTAMP
 required 1002 log reads
 
 large no index archive
-pmGetHighResArchiveEnd time: MY-EOL-TIMESTAMP
+pmGetArchiveEnd time: MY-EOL-TIMESTAMP
 required 1 log reads
 
 last result time (direct): MY-EOL-TIMESTAMP

@@ -16,7 +16,7 @@ __pmLogPutResult2: 5 metrics @14:49:53.067305985 ...
 __pmLogPutResult2: 6 metrics @14:49:54.067305985 ...
 pmaPutMark: @14:49:54.567305985
 pmaPutMark: @14:49:55.067305985
-pmGetArchiveEnd time: 14:49:55.067305
+pmGetArchiveEnd time: 14:49:55.067305000
 [0] len=132 magic=0x50052602 (version=2) @ offset=0
 [1] len=40 @ offset=132
 Timestamp: 14:49:49.067305000 numpmid: 1
@@ -102,7 +102,7 @@ __pmLogPutResult3: 5 metrics @14:49:53.067305985 ...
 __pmLogPutResult3: 6 metrics @14:49:54.067305985 ...
 pmaPutMark: @14:49:54.567305985
 pmaPutMark: @14:49:55.067305985
-pmGetArchiveEnd time: 14:49:55.067305
+pmGetArchiveEnd time: 14:49:55.067305985
 [0] len=808 magic=0x50052603 (version=3) @ offset=0
 [1] len=44 @ offset=808
 Timestamp: 14:49:49.067305985

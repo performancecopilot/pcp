@@ -2804,7 +2804,7 @@ __pmGetArchiveEnd(__pmArchCtl *acp, __pmTimestamp *tsp)
 
 /* Get the end time of the final archive in the context. */
 int
-pmGetArchiveEnd(struct timeval *tp)
+pmGetArchiveEnd_v2(struct timeval *tp)
 {
     __pmTimestamp	stamp;
     int			sts;
@@ -2817,7 +2817,7 @@ pmGetArchiveEnd(struct timeval *tp)
 
 /* Get the high resolution end time of the final archive in the context. */
 int
-pmGetHighResArchiveEnd(struct timespec *ts)
+pmGetArchiveEnd(struct timespec *ts)
 {
     __pmTimestamp	stamp;
     int			sts;

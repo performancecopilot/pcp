@@ -16,16 +16,13 @@
 .\"
 .TH PMGETARCHIVEEND 3 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmGetArchiveEnd\f1,
-\f3pmGetHighResArchiveEnd\f1 \- locate logical end of file for a set of archives
+\f3pmGetArchiveEnd\f1 \- locate logical end of file for a set of archives
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
 .sp
 .nf
-int pmGetArchiveEnd(struct timeval *\fItp\fP);
-.br
-int pmGetHighResArchiveEnd(struct timespec *\fItp\fP);
+int pmGetArchiveEnd(struct spec *\fItp\fP);
 .fi
 .sp
 cc ... \-lpcp
@@ -34,8 +31,6 @@ cc ... \-lpcp
 Assuming the current PMAPI context
 is associated with a set of archives,
 .B pmGetArchiveEnd
-and
-.B pmGetHighResArchiveEnd
 will attempt to find the logical end of file (after
 the last complete record in the set of archives),
 and return the last recorded timestamp via
@@ -58,8 +53,6 @@ due to write buffering that is not aligned with the logical record
 boundaries.
 .PP
 .B pmGetArchiveEnd
-and
-.B pmGetHighResArchiveEnd
 return an error less than zero if the context is neither valid,
 nor associated with a set of archives, or the set of archives is
 seriously corrupted.
@@ -72,11 +65,25 @@ In the absence of an error, the result returned via
 is well-defined.
 .PP
 Both
-.BR pmGetArchiveEnd
-and
-.BR pmGetHighResArchiveEnd
+.B pmGetArchiveEnd
 preserve the positioning state of the archive file prior to
 this function call.
+.SH COMPATIBILITY
+Prior to PCP 7.0 the
+.I tp
+argument was a \f(CRstruct timeval\f(CR.
+To support PMAPI transition, the old interface and semantics can be
+used if applications are recompiled with
+.BR \-DPMAPI_VERSION=2 .
+.PP
+For a time in PCP 6.x there was a
+routine with the same semantics as the current
+.B pmGetArchiveEnd
+called
+.BR pmGetHighResArchiveEnd ,
+although this is now deprecated and compile-time support for
+.B pmGetHighResArchiveEnd
+will be removed in a future release.
 .SH DIAGNOSTICS
 .IP \f3PM_ERR_NOCONTEXT\f1
 the current PMAPI context

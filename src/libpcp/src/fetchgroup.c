@@ -1363,7 +1363,7 @@ pmExtendFetchGroup_item(pmFG pmfg,
 	    saved_delta.tv_nsec = ctxp->c_delta.nsec;
 	    saved_direction = ctxp->c_direction;
 	    PM_UNLOCK(ctxp->c_lock);
-	    sts = pmGetHighResArchiveEnd(&archive_end);
+	    sts = pmGetArchiveEnd(&archive_end);
 	    if (sts < 0)
 		goto out;
 	    sts = pmSetModeHighRes(PM_MODE_BACK, &archive_end, NULL);
@@ -1583,7 +1583,7 @@ pmExtendFetchGroup_event(pmFG pmfg,
 	    saved_delta.tv_nsec = ctxp->c_delta.nsec;
 	    saved_direction = ctxp->c_direction;
 	    PM_UNLOCK(ctxp->c_lock);
-	    sts = pmGetHighResArchiveEnd(&archive_end);
+	    sts = pmGetArchiveEnd(&archive_end);
 	    if (sts < 0)
 		goto out;
 	    sts = pmSetModeHighRes(PM_MODE_BACK, &archive_end, NULL);

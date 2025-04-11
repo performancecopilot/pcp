@@ -471,11 +471,11 @@ def test_pcp(self):
 
         # pmGetArchiveEnd
         try:
-            tval = ctx.pmGetHighResArchiveEnd()
-            print("pmGetHighResArchiveEnd: ", tval)
+            tval = ctx.pmGetArchiveEnd()
+            print("pmGetArchiveEnd: ", tval)
             self.assertTrue(True)
         except pmapi.pmErr as error:
-            print("pmGetHighResArchiveEnd: ", error)
+            print("pmGetArchiveEnd: ", error)
             self.assertTrue(False)
 
     # pmPrintValue

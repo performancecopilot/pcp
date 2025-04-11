@@ -212,6 +212,7 @@ main(int argc, char **argv)
     __pmResult	*orp;		/* output pmResult */
     __pmPDU	*pb;		/* pdu buffer */
     struct timeval	unused;
+    struct timespec	temp_ts;
     struct timespec	start;
     __uint64_t		max_offset;
     unsigned long	peek_offset;
@@ -256,11 +257,13 @@ main(int argc, char **argv)
     logstart_tval.tv_usec = ilabel.ll_start.tv_usec;
 
     /* end time */
-    if ((sts = pmGetArchiveEnd(&logend_tval)) < 0) {
+    if ((sts = pmGetArchiveEnd(&temp_ts)) < 0) {
 	fprintf(stderr, "%s: Error: cannot get end of archive (%s): %s\n",
 		pmGetProgname(), iname, pmErrStr(sts));
 	exit(1);
     }
+    logend_tval.tv_sec = temp_ts.tv_sec;
+    logend_tval.tv_usec = temp_ts.tv_nsec / 1000;
 
     if (zarg) {
 	/* use TZ from metrics source (input-archive) */
