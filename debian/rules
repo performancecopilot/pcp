@@ -2,8 +2,8 @@
 
 pcp = pcp
 pcpcfg = pcp-conf
-libpcp = libpcp3
-libpcpdev = libpcp3-dev
+libpcp = libpcp4
+libpcpdev = libpcp4-dev
 libpcp_pmda = libpcp-pmda3
 libpcp_pmdadev = libpcp-pmda3-dev
 libpcp_pmda_perl = libpcp-pmda-perl

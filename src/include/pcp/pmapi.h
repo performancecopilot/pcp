@@ -54,10 +54,30 @@
 extern "C" {
 #endif
 
+/*
+ * Historical note:
+ *
+ * PMAPI_VERSION 1 only lasted for a short time in 1993-1998 (the
+ * initial development and the PCP 1.1 release in April 1995).
+ * PMAPI_VERSION 2 was part of the PCP 2.1 release in May 1998 and was the
+ * long-standing version that evolved over the next 25+ years largely with
+ * backwards compatibility.
+ * Changes to make PCP Y2038-safe involved moving to 64-bit precision for
+ * all timestamps (and for consistency, time intervals), and these
+ * changes could not be done in a manner that was backwards compatibible,
+ * so the PMAPI_VERSION had to move forwards.  But at some point (the
+ * reasons are lost in the mists of time), the libpcp DSO had moved from
+ * version 2 to version 3.  To align these two, the new PMAPI_VERSION is
+ * 4.
+ * Like the Travelling Wilbury's Volume 2, PCP's PMAPI_VERSION 3 never
+ * existed.
+ */
+
 #define PMAPI_VERSION_2	2	/* traditional PMAPI */
-#define PMAPI_VERSION_3	3	/* nanosec precision */
+#define PMAPI_VERSION_3	3	/* never existed */
+#define PMAPI_VERSION_4	4	/* timeval -> timespec */
 #ifndef PMAPI_VERSION
-#define PMAPI_VERSION	PMAPI_VERSION_3   /* default */
+#define PMAPI_VERSION	PMAPI_VERSION_4   /* current default */
 #endif
 
 /*
@@ -1435,7 +1455,7 @@ PCP_CALL extern char *pmSpecLocalPMDA(const char *);
 #define pmGetArchiveEnd pmGetArchiveEnd_v2
 #endif
 
-#if PMAPI_VERSION >= PMAPI_VERSION_3
+#if PMAPI_VERSION >= PMAPI_VERSION_4
 /*
  * retire HighRes interfaces
  */

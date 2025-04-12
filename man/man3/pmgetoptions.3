@@ -118,14 +118,10 @@ typedef struct {
     int                 narchives;
     char **             hosts;
     char **             archives;
-#if PMAPI_VERSION == PMAPI_VERSION_3
-    struct timeval      unused[4];
-#else
-    struct timeval      start;
-    struct timeval      finish;
-    struct timeval      origin;
-    struct timeval      interval;
-#endif
+    struct timespec     start;
+    struct timespec     finish;
+    struct timespec     origin;
+    struct timespec     interval;
     char *              align_optarg;
     char *              start_optarg;
     char *              finish_optarg;
@@ -140,12 +136,6 @@ typedef struct {
     unsigned int        nsflag  : 1;
     unsigned int        Lflag   : 1;
     unsigned int        zeroes  : 28;
-#if PMAPI_VERSION == PMAPI_VERSION_3
-    struct timespec     start;
-    struct timespec     finish;
-    struct timespec     origin;
-    struct timespec     interval;
-#endif
 } pmOptions;
 .in -0.25i
 .fi
@@ -585,6 +575,20 @@ $PCP_HOSTZONE	\-z	--hostzone	T{
 set reporting timezone to local time of metrics source
 T}
 .TE
+.SH COMPATIBILITY
+Prior to PCP 7.0 the
+.IR start ,
+.IR finish ,
+.I origin
+and
+.I interval
+members of the
+.I pmOptions
+struct were 
+\f(CRstruct timeval\f(CRs.
+To support PMAPI transition, the old interfaces and semantics can be
+used if applications are recompiled with
+.BR \-DPMAPI_VERSION=2 .
 .SH "RETURN VALUE"
 The
 .B pmGetOptions

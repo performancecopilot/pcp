@@ -10,7 +10,7 @@ Standards-Version: 4.7.2
 X-Python3-Version: >= 3.5
 
 Package: pcp
-Depends: ${shlibs:Depends}, ${misc:Depends}, gawk, procps, ?{python-pcp}, ?{python}, libpcp-pmda3 (= ${binary:Version}), libpcp-mmv1 (= ${binary:Version}), libpcp-web1 (= ${binary:Version}), libpcp-archive1 (= ${binary:Version}), libpcp3 (= ${binary:Version}), pcp-conf (= ${binary:Version})
+Depends: ${shlibs:Depends}, ${misc:Depends}, gawk, procps, ?{python-pcp}, ?{python}, libpcp-pmda3 (= ${binary:Version}), libpcp-mmv1 (= ${binary:Version}), libpcp-web1 (= ${binary:Version}), libpcp-archive1 (= ${binary:Version}), libpcp4 (= ${binary:Version}), pcp-conf (= ${binary:Version})
 Recommends: libpcp-pmda-perl
 Conflicts: pgpool2, dstat, pcp-webapi, pcp-manager
 Suggests: pcp-gui, libpcp-import-perl, ?{bpftrace}, ?{python3-bpfcc}, redis-server, zstd
@@ -43,9 +43,9 @@ Description: Performance Co-Pilot runtime configuration
  client applications to easily retrieve and process any subset of
  that data.
 
-Package: libpcp3-dev
+Package: libpcp4-dev
 Section: libdevel
-Depends: ${misc:Depends}, libpcp3 (= ${binary:Version}), libc6-dev | libc-dev
+Depends: ${misc:Depends}, libpcp4 (= ${binary:Version}), libc6-dev | libc-dev
 Breaks: pcp (<< 4.3.4), libpcp-gui2-dev (<< 3.11.10~), pcp-webapi (<< 5.0.0), pcp-manager (<< 5.2.0)
 Replaces: libpcp-gui2-dev (<< 3.11.10~), pcp-webapi (<< 5.0.0), pcp-manager (<< 5.2.0)
 Architecture: any
@@ -59,7 +59,15 @@ Description: Performance Co-Pilot library and headers
  client applications to easily retrieve and process any subset of
  that data.
 
-Package: libpcp3
+Package: libpcp3-dev
+Depends: libpcp4-dev, ${misc:Depends}
+Architecture: any
+Priority: optional
+Section: oldlibs
+Description: transitional package
+ This is a transitional package. It can safely be removed.
+
+Package: libpcp4
 Depends: ${shlibs:Depends}, ${misc:Depends}, pcp-conf (= ${binary:Version})
 Conflicts: pgpool2
 Breaks: pcp (<< 2.8.0), libpcp3-dev (<< 2.8.5), libpcp3t64 (<< 6.3.2)
@@ -75,9 +83,17 @@ Description: Performance Co-Pilot library
  client applications to easily retrieve and process any subset of
  that data.
 
+Package: libpcp3
+Depends: libpcp4, ${misc:Depends}
+Architecture: any
+Priority: optional
+Section: oldlibs
+Description: transitional package
+ This is a transitional package. It can safely be removed.
+
 Package: libpcp-gui2-dev
 Section: libdevel
-Depends: ${misc:Depends}, libpcp-gui2 (= ${binary:Version}), libpcp3 (= ${binary:Version})
+Depends: ${misc:Depends}, libpcp-gui2 (= ${binary:Version}), libpcp4 (= ${binary:Version})
 Conflicts: libpcp-gui1-dev
 Architecture: any
 Description: Performance Co-Pilot graphical client tools library and headers
@@ -107,7 +123,7 @@ Description: Performance Co-Pilot graphical client tools library
 
 Package: libpcp-mmv1-dev
 Section: libdevel
-Depends: ${misc:Depends}, libpcp-mmv1 (= ${binary:Version}), libpcp3 (= ${binary:Version})
+Depends: ${misc:Depends}, libpcp-mmv1 (= ${binary:Version}), libpcp4 (= ${binary:Version})
 Architecture: any
 Description: Performance Co-Pilot Memory Mapped Value library and headers
  The libpcp-mmv-dev package contains the Performance Co-Pilot (PCP)
@@ -137,7 +153,7 @@ Description: Performance Co-Pilot Memory Mapped Value client library
 
 Package: libpcp-pmda3-dev
 Section: libdevel
-Depends: ${misc:Depends}, libpcp-pmda3 (= ${binary:Version}), libpcp3 (= ${binary:Version})
+Depends: ${misc:Depends}, libpcp-pmda3 (= ${binary:Version}), libpcp4 (= ${binary:Version})
 Breaks: pcp (<< 2.8.0), libpcp3-dev (<< 3.11.10~)
 Replaces: libpcp3-dev (<< 3.11.10~)
 Architecture: any
@@ -167,7 +183,7 @@ Description: Performance Co-Pilot Domain Agent library
 
 Package: libpcp-trace2-dev
 Section: libdevel
-Depends: ${misc:Depends}, libpcp-trace2 (= ${binary:Version}), libpcp3 (= ${binary:Version})
+Depends: ${misc:Depends}, libpcp-trace2 (= ${binary:Version}), libpcp4 (= ${binary:Version})
 Breaks: pcp (<< 2.8.0)
 Architecture: any
 Description: Performance Co-Pilot application tracing library and headers
@@ -199,7 +215,7 @@ Description: Performance Co-Pilot application tracing library
 
 Package: libpcp-import1-dev
 Section: libdevel
-Depends: ${misc:Depends}, libpcp-import1 (= ${binary:Version}), libpcp3-dev
+Depends: ${misc:Depends}, libpcp-import1 (= ${binary:Version}), libpcp4-dev
 Architecture: any
 Description: Performance Co-Pilot data import library and headers
  The libpcp-import-dev package contains the library and header files
@@ -231,7 +247,7 @@ Description: Performance Co-Pilot data import library
  
 Package: libpcp-web1-dev
 Section: libdevel
-Depends: ${misc:Depends}, libpcp-web1 (= ${binary:Version}), libpcp3-dev
+Depends: ${misc:Depends}, libpcp-web1 (= ${binary:Version}), libpcp4-dev
 Architecture: any
 Description: Performance Co-Pilot web tooling
  The libpcp-web-dev package contains the library and header files
@@ -260,7 +276,7 @@ Description: Performance Co-Pilot data import library
 
 Package: libpcp-archive1-dev
 Section: libdevel
-Depends: ${misc:Depends}, libpcp-archive1 (= ${binary:Version}), libpcp3-dev
+Depends: ${misc:Depends}, libpcp-archive1 (= ${binary:Version}), libpcp4-dev
 Architecture: any
 Description: Performance Co-Pilot archive writing library and headers
  The libpcp-archive-dev package contains the library and header files

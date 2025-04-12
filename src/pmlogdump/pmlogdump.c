@@ -64,7 +64,6 @@ static pmLongOptions longopts[] = {
 
 static int overrides(int, pmOptions *);
 static pmOptions opts = {
-    .version = PMAPI_VERSION_3,
     .flags = PM_OPTFLAG_DONE | PM_OPTFLAG_STDOUT_TZ | PM_OPTFLAG_BOUNDARIES,
     .short_options = "aD:dehIilLmMn:rS:sT:tVv:xZ:z?",
     .long_options = longopts,

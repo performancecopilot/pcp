@@ -315,7 +315,7 @@ __pmEndOptions(pmOptions *opts)
 	return;
 
     /* inform caller of the struct version used */
-    if (opts->version != PMAPI_VERSION_2 && opts->version != PMAPI_VERSION_3)
+    if (opts->version != PMAPI_VERSION_2 && opts->version != PMAPI_VERSION_4)
 	opts->version = PMAPI_VERSION;
 
     if (!opts->context) {
