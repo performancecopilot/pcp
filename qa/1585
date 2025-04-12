@@ -1,0 +1,41 @@
+#!/bin/sh
+# PCP QA Test No. 1585
+# Exercise PMFG discrete handling with pcp2xml.
+#
+# Copyright (c) 2025 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.python
+
+$python -c "from pcp import pmapi" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python pcp pmapi module not installed"
+$python -c "from collections import OrderedDict" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python collections OrderedDict module not installed"
+
+which pcp2xml >/dev/null 2>&1 || _notrun "pcp2xml not installed"
+
+status=1       # failure is the default!
+signal=$PCP_BINADM_DIR/pmsignal
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+A="archives/pcp-atop"
+
+_filter()
+{
+    LC_COLLATE=POSIX sort | \
+    sed -e "s,$A,ARCHIVE_PATH,g"
+}
+
+# real QA test starts here
+echo "---"
+pcp2xml -a $A -H -I -z mem.util.cached hinv.ncpu | _filter | grep hinv | wc -l
+echo "---"
+PCP_DISCRETE_ONCE=1 pcp2xml -a $A -H -I -z mem.util.cached hinv.ncpu | _filter | grep hinv | wc -l
+echo "---"
+
+# success, all done
+status=0
+exit
