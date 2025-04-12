@@ -19,8 +19,6 @@ cat <<End-of-File >rewrite.conf
 # Rewriting rules for bind2 PMDA metrics to ensure consistent
 # PMIDs across Bind versions
 #
-# Generated: `date`
-#
 
 End-of-File
 ( grep BIND2 <../../pmns/stdpmid ;
