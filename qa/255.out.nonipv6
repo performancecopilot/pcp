@@ -91,8 +91,8 @@ Log for pmcd on HOST started DATE
 
 active agent dom   pid  in out ver protocol parameters
 ============ === ===== === === === ======== ==========
-[OS]          ??                 3 dso i:?  lib=[OS]pmda.$DSO_SUFFIX entry=[OS]_init
-pmcd           2                 3 dso i:?  lib=...pmda_pmcd.$DSO_SUFFIX entry=pmcd_init
+[OS]          ??                 4 dso i:?  lib=[OS]pmda.$DSO_SUFFIX entry=[OS]_init
+pmcd           2                 4 dso i:?  lib=...pmda_pmcd.$DSO_SUFFIX entry=pmcd_init
 
 Host access list empty: access control turned off
 
@@ -114,8 +114,8 @@ Current PMCD clients ...
 
 active agent dom   pid  in out ver protocol parameters
 ============ === ===== === === === ======== ==========
-[OS]          ??                 3 dso i:?  lib=[OS]pmda.$DSO_SUFFIX entry=[OS]_init
-pmcd           2                 3 dso i:?  lib=...pmda_pmcd.$DSO_SUFFIX entry=pmcd_init
+[OS]          ??                 4 dso i:?  lib=[OS]pmda.$DSO_SUFFIX entry=[OS]_init
+pmcd           2                 4 dso i:?  lib=...pmda_pmcd.$DSO_SUFFIX entry=pmcd_init
 simple       SIMPLE PID FD FD   2 bin pipe cmd=PCP_PMDAS_DIR/simple/pmdasimple -d 253 -l TMP.simple.log
 
 Host access list empty: access control turned off
@@ -134,8 +134,8 @@ Cleanup "simple" agent (dom 253): unconfigured, exit(0)
 
 active agent dom   pid  in out ver protocol parameters
 ============ === ===== === === === ======== ==========
-[OS]          ??                 3 dso i:?  lib=[OS]pmda.$DSO_SUFFIX entry=[OS]_init
-pmcd           2                 3 dso i:?  lib=...pmda_pmcd.$DSO_SUFFIX entry=pmcd_init
+[OS]          ??                 4 dso i:?  lib=[OS]pmda.$DSO_SUFFIX entry=[OS]_init
+pmcd           2                 4 dso i:?  lib=...pmda_pmcd.$DSO_SUFFIX entry=pmcd_init
 
 Host access list empty: access control turned off
 
@@ -152,9 +152,9 @@ Current PMCD clients ...
 
 active agent dom   pid  in out ver protocol parameters
 ============ === ===== === === === ======== ==========
-[OS]          ??                 3 dso i:?  lib=[OS]pmda.$DSO_SUFFIX entry=[OS]_init
-pmcd           2                 3 dso i:?  lib=...pmda_pmcd.$DSO_SUFFIX entry=pmcd_init
-simple       SIMPLE                 3 dso i:?  lib=PCP_PMDAS_DIR/simple/pmda_simple.$DSO_SUFFIX entry=simple_init
+[OS]          ??                 4 dso i:?  lib=[OS]pmda.$DSO_SUFFIX entry=[OS]_init
+pmcd           2                 4 dso i:?  lib=...pmda_pmcd.$DSO_SUFFIX entry=pmcd_init
+simple       SIMPLE                 4 dso i:?  lib=PCP_PMDAS_DIR/simple/pmda_simple.$DSO_SUFFIX entry=simple_init
 
 Host access list empty: access control turned off
 
@@ -172,8 +172,8 @@ Cleanup "simple" agent (dom 253): unconfigured, exit(0)
 
 active agent dom   pid  in out ver protocol parameters
 ============ === ===== === === === ======== ==========
-[OS]          ??                 3 dso i:?  lib=[OS]pmda.$DSO_SUFFIX entry=[OS]_init
-pmcd           2                 3 dso i:?  lib=...pmda_pmcd.$DSO_SUFFIX entry=pmcd_init
+[OS]          ??                 4 dso i:?  lib=[OS]pmda.$DSO_SUFFIX entry=[OS]_init
+pmcd           2                 4 dso i:?  lib=...pmda_pmcd.$DSO_SUFFIX entry=pmcd_init
 
 Host access list empty: access control turned off
 
@@ -190,8 +190,8 @@ Current PMCD clients ...
 
 active agent dom   pid  in out ver protocol parameters
 ============ === ===== === === === ======== ==========
-[OS]          ??                 3 dso i:?  lib=[OS]pmda.$DSO_SUFFIX entry=[OS]_init
-pmcd           2                 3 dso i:?  lib=...pmda_pmcd.$DSO_SUFFIX entry=pmcd_init
+[OS]          ??                 4 dso i:?  lib=[OS]pmda.$DSO_SUFFIX entry=[OS]_init
+pmcd           2                 4 dso i:?  lib=...pmda_pmcd.$DSO_SUFFIX entry=pmcd_init
 broken       BROKEN PID FD FD   2 bin pipe cmd=broken_pmda_2_0 -d 249 -l broken.log
 
 Host access list empty: access control turned off
@@ -210,8 +210,8 @@ Cleanup "broken" agent (dom 249): unconfigured, exit(0)
 
 active agent dom   pid  in out ver protocol parameters
 ============ === ===== === === === ======== ==========
-[OS]          ??                 3 dso i:?  lib=[OS]pmda.$DSO_SUFFIX entry=[OS]_init
-pmcd           2                 3 dso i:?  lib=...pmda_pmcd.$DSO_SUFFIX entry=pmcd_init
+[OS]          ??                 4 dso i:?  lib=[OS]pmda.$DSO_SUFFIX entry=[OS]_init
+pmcd           2                 4 dso i:?  lib=...pmda_pmcd.$DSO_SUFFIX entry=pmcd_init
 
 Host access list empty: access control turned off
 
@@ -231,8 +231,8 @@ Restarting any deceased agents:
 
 active agent dom   pid  in out ver protocol parameters
 ============ === ===== === === === ======== ==========
-[OS]          ??                 3 dso i:?  lib=[OS]pmda.$DSO_SUFFIX entry=[OS]_init
-pmcd           2                 3 dso i:?  lib=...pmda_pmcd.$DSO_SUFFIX entry=pmcd_init
+[OS]          ??                 4 dso i:?  lib=[OS]pmda.$DSO_SUFFIX entry=[OS]_init
+pmcd           2                 4 dso i:?  lib=...pmda_pmcd.$DSO_SUFFIX entry=pmcd_init
 
 Host access list empty: access control turned off
 

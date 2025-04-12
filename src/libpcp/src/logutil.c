@@ -2608,6 +2608,10 @@ __pmGetArchiveEnd_ctx(__pmContext *ctxp, __pmTimestamp *tsp)
     size_t	logend;
     size_t	physend = 0;
 
+    if (pmDebugOptions.pmapi) {
+	fprintf(stderr, "pmGetArchiveEnd() <:");
+    }
+
     PM_ASSERT_IS_LOCKED(ctxp->c_lock);
 
     /*
@@ -2777,6 +2781,19 @@ prior_vol:
 	 * after an initial paranoidLogRead() success
 	 */
 	__pmFreeResult(rp);
+    }
+
+    if (pmDebugOptions.pmapi) {
+	fprintf(stderr, ":> returns ");
+	if (sts >= 0) {
+	    fprintf(stderr, "%d end=", sts);
+	    __pmPrintTimestamp(stderr, tsp);
+	    fputc('\n', stderr);
+	}
+	else {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "%s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
     }
 
     return sts;

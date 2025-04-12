@@ -89,7 +89,7 @@ ifeq "$(LIB_FOR_BASENAME)" "-lpcp"
 LIB_FOR_BASENAME =
 endif
 
-DSOVERSION = 3
+DSOVERSION = 4
 STATICLIBTARGET = libpcp_fault.a
 LIBTARGET = libpcp_fault.$(DSOSUFFIX).$(DSOVERSION)
 SYMTARGET = libpcp_fault.$(DSOSUFFIX)
