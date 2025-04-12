@@ -349,11 +349,9 @@ bool Platform_init(void) {
 
    if (opts.context == PM_CONTEXT_ARCHIVE) {
       gettimeofday(&pcp->offset, NULL);
-#if PMAPI_VERSION >= PMAPI_VERSION_3
-    {
-      struct timeval temp_tv = { opts.start.tv_sec, opts.start.tv_nsec / 1000 };
-      pmtimevalDec(&pcp->offset, &temp_tv);
-    }
+#if PMAPI_VERSION >= 3
+      struct timeval start = { opts.start.tv_sec, opts.start.tv_nsec / 1000 };
+      pmtimevalDec(&pcp->offset, &start);
 #else
       pmtimevalDec(&pcp->offset, &opts.start);
 #endif
@@ -768,8 +766,6 @@ bool Platform_getDiskIO(DiskIOData* data) {
 }
 
 bool Platform_getNetworkIO(NetworkIOData* data) {
-   memset(data, 0, sizeof(*data));
-
    pmAtomValue value;
    if (Metric_values(PCP_NET_RECVB, &value, 1, PM_TYPE_U64) != NULL)
       data->bytesReceived = value.ull;
