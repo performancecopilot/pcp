@@ -2,7 +2,7 @@ QA output created by 728
 == Arguments: none
 End of option processing
 Options structure dump:
-    version: 3
+    version: 4
     flags: 0x3 (init,done)
     errors: 0
     context: 0x0 (-)
@@ -70,7 +70,7 @@ Testing options:
   --foobar=N            a long-option-only with an argument
 End of option processing
 Options structure dump:
-    version: 3
+    version: 4
     flags: 0xb (init,done,usage_err)
     errors: 1
     context: 0x0 (-)
@@ -137,7 +137,7 @@ Testing options:
   --foobar=N            a long-option-only with an argument
 End of option processing
 Options structure dump:
-    version: 3
+    version: 4
     flags: 0xb (init,done,usage_err)
     errors: 1
     context: 0x0 (-)
@@ -165,7 +165,7 @@ Got option: X index=0 [errors=0]
  -> X option argument was: '(null)'
 End of option processing
 Options structure dump:
-    version: 3
+    version: 4
     flags: 0x3 (init,done)
     errors: 0
     context: 0x0 (-)
@@ -192,7 +192,7 @@ Got option: X index=27 [errors=0]
  -> X option argument was: 'goodness'
 End of option processing
 Options structure dump:
-    version: 3
+    version: 4
     flags: 0x3 (init,done)
     errors: 0
     context: 0x0 (-)
@@ -220,7 +220,7 @@ Got option: Y index=0 [errors=0]
  -> Y option argument was: '(null)'
 End of option processing
 Options structure dump:
-    version: 3
+    version: 4
     flags: 0x3 (init,done)
     errors: 0
     context: 0x0 (-)
@@ -248,7 +248,7 @@ Got option: - index=31 [errors=0]
  -> long-only option index=31
 End of option processing
 Options structure dump:
-    version: 3
+    version: 4
     flags: 0x3 (init,done)
     errors: 0
     context: 0x0 (-)
@@ -272,7 +272,7 @@ Options structure dump:
 == Arguments: one archive, all time options (x2)
 End of option processing
 Options structure dump:
-    version: 3
+    version: 4
     flags: 0x3 (init,done)
     errors: 0
     context: 0x2 (archive)
@@ -296,7 +296,7 @@ Options structure dump:
     Lflag: 0
 End of option processing
 Options structure dump:
-    version: 3
+    version: 4
     flags: 0x3 (init,done)
     errors: 0
     context: 0x2 (archive)
@@ -321,7 +321,7 @@ Options structure dump:
 == Arguments: one host (x2)
 End of option processing
 Options structure dump:
-    version: 3
+    version: 4
     flags: 0x3 (init,done)
     errors: 0
     context: 0x1 (host)
@@ -345,7 +345,7 @@ Options structure dump:
     Lflag: 0
 End of option processing
 Options structure dump:
-    version: 3
+    version: 4
     flags: 0x3 (init,done)
     errors: 0
     context: 0x1 (host)
@@ -370,7 +370,7 @@ Options structure dump:
 == Arguments: environment variables only
 End of option processing
 Options structure dump:
-    version: 3
+    version: 4
     flags: 0x103 (init,done,env_only)
     errors: 0
     context: 0x1 (host)
@@ -395,7 +395,7 @@ Options structure dump:
 == Arguments: host, interval and samples env vars
 End of option processing
 Options structure dump:
-    version: 3
+    version: 4
     flags: 0x3 (init,done)
     errors: 0
     context: 0x1 (host)
@@ -465,7 +465,7 @@ Testing options:
   --foobar=N            a long-option-only with an argument
 End of option processing
 Options structure dump:
-    version: 3
+    version: 4
     flags: 0xb (init,done,usage_err)
     errors: 1
     context: 0x1 (host)
@@ -490,7 +490,7 @@ Options structure dump:
 == Arguments: archive, time window env vars
 End of option processing
 Options structure dump:
-    version: 3
+    version: 4
     flags: 0x3 (init,done)
     errors: 0
     context: 0x2 (archive)
@@ -515,7 +515,7 @@ Options structure dump:
 == Arguments: archive list env var
 End of option processing
 Options structure dump:
-    version: 3
+    version: 4
     flags: 0x3 (init,done)
     errors: 0
     context: 0x2 (archive)
@@ -540,7 +540,7 @@ Options structure dump:
 == Arguments: one archive env var
 End of option processing
 Options structure dump:
-    version: 3
+    version: 4
     flags: 0x3 (init,done)
     errors: 0
     context: 0x2 (archive)
@@ -565,7 +565,7 @@ Options structure dump:
 == Arguments: timezone env var
 End of option processing
 Options structure dump:
-    version: 3
+    version: 4
     flags: 0x3 (init,done)
     errors: 0
     context: 0x0 (-)
@@ -634,7 +634,7 @@ Testing options:
   --foobar=N            a long-option-only with an argument
 End of option processing
 Options structure dump:
-    version: 3
+    version: 4
     flags: 0xb (init,done,usage_err)
     errors: 1
     context: 0x0 (-)
@@ -658,7 +658,7 @@ Options structure dump:
 == Arguments: gui port env var (x2)
 End of option processing
 Options structure dump:
-    version: 3
+    version: 4
     flags: 0x3 (init,done)
     errors: 0
     context: 0x0 (-)
@@ -681,7 +681,7 @@ Options structure dump:
     Lflag: 0
 End of option processing
 Options structure dump:
-    version: 3
+    version: 4
     flags: 0x3 (init,done)
     errors: 0
     context: 0x0 (-)
@@ -705,7 +705,7 @@ Options structure dump:
 == Arguments: gui mode env var
 End of option processing
 Options structure dump:
-    version: 3
+    version: 4
     flags: 0x3 (init,done)
     errors: 0
     context: 0x0 (-)
@@ -729,7 +729,7 @@ Options structure dump:
 == Arguments: allow mixed hosts and archives
 End of option processing
 Options structure dump:
-    version: 3
+    version: 4
     flags: 0x83 (init,done,mixed)
     errors: 0
     context: 0x0 (-)
@@ -755,7 +755,7 @@ Options structure dump:
 == Arguments: hosts file
 End of option processing
 Options structure dump:
-    version: 3
+    version: 4
     flags: 0x7 (init,done,multi)
     errors: 0
     context: 0x1 (host)

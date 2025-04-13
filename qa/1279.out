@@ -548,7 +548,7 @@ Namespace:              (default)
 PMDA:                   PMDADSO
 Connection:             dso
 DSO Interface Version:  N
-PMDA PMAPI Version:     3
+PMDA PMAPI Version:     4
 Debug options:          (none)
 Timer:                  off
 Getdesc:                on

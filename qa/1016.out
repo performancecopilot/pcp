@@ -6,7 +6,7 @@ QmcSource::dupContext: Using original context for archive "oview-short"
 Context 0 has 0 metric names for source:
   sts = 0, type = 2, source = oview-short
   host = snort, timezone = TZ, tz hndl = HANDLE
-  start = Thu Sep 11 16:57:06.414 1997, end = Thu Sep 11 16:57:06.630898 1997, dupFlag = true
+  start = Thu Sep 11 16:57:06.414 1997, end = Thu Sep 11 16:57:06.630 1997, dupFlag = true
   1 contexts: 0 
 
 *** Cacheing of descriptors and indoms ***
@@ -24,7 +24,7 @@ QmcContext::lookupPMID: Matched "hinv.ncpu" to id 1.18.2
 Context 0 has 3 metric names for source:
   sts = 0, type = 2, source = oview-short
   host = snort, timezone = TZ, tz hndl = HANDLE
-  start = Thu Sep 11 16:57:06.414 1997, end = Thu Sep 11 16:57:06.630898 1997, dupFlag = true
+  start = Thu Sep 11 16:57:06.414 1997, end = Thu Sep 11 16:57:06.630 1997, dupFlag = true
   1 contexts: 0 
 
 *** Bad Context ***

@@ -2,7 +2,7 @@ QA output created by 899
 == Host list (multi) ==
 End of option processing
 Options structure dump:
-    version: 3
+    version: 4
     flags: 0x7 (init,done,multi)
     errors: 0
     context: 0x1 (host)
@@ -27,7 +27,7 @@ Options structure dump:
 == Host list (single) ==
 End of option processing
 Options structure dump:
-    version: 3
+    version: 4
     flags: 0x7 (init,done,multi)
     errors: 0
     context: 0x1 (host)
@@ -52,7 +52,7 @@ Options structure dump:
 == Archive list (multi) ==
 End of option processing
 Options structure dump:
-    version: 3
+    version: 4
     flags: 0x7 (init,done,multi)
     errors: 0
     context: 0x2 (archive)
@@ -77,7 +77,7 @@ Options structure dump:
 == Archive list (single) ==
 End of option processing
 Options structure dump:
-    version: 3
+    version: 4
     flags: 0x7 (init,done,multi)
     errors: 0
     context: 0x2 (archive)
@@ -102,7 +102,7 @@ Options structure dump:
 == Archive Folio (single) ==
 End of option processing
 Options structure dump:
-    version: 3
+    version: 4
     flags: 0x7 (init,done,multi)
     errors: 0
     context: 0x2 (archive)
@@ -127,7 +127,7 @@ Options structure dump:
 == Archive Folio (multi) ==
 End of option processing
 Options structure dump:
-    version: 3
+    version: 4
     flags: 0x7 (init,done,multi)
     errors: 0
     context: 0x2 (archive)
@@ -154,7 +154,7 @@ Warning: runtime error detected
 getoptions: archive folio BAD has bad magic
 End of option processing
 Options structure dump:
-    version: 3
+    version: 4
     flags: 0x17 (init,done,multi,runtime_err)
     errors: 1
     context: 0x0 (-)
@@ -180,7 +180,7 @@ Warning: runtime error detected
 getoptions: archive folio TMP.badmagic has bad magic
 End of option processing
 Options structure dump:
-    version: 3
+    version: 4
     flags: 0x17 (init,done,multi,runtime_err)
     errors: 1
     context: 0x0 (-)
@@ -206,7 +206,7 @@ Warning: runtime error detected
 getoptions: unknown version archive folio TMP.version2
 End of option processing
 Options structure dump:
-    version: 3
+    version: 4
     flags: 0x17 (init,done,multi,runtime_err)
     errors: 1
     context: 0x0 (-)
@@ -232,7 +232,7 @@ Warning: runtime error detected
 getoptions: missing path on archive folio line 3
 End of option processing
 Options structure dump:
-    version: 3
+    version: 4
     flags: 0x17 (init,done,multi,runtime_err)
     errors: 1
     context: 0x0 (-)
@@ -256,7 +256,7 @@ Options structure dump:
 == Archive Folio (empty) ==
 End of option processing
 Options structure dump:
-    version: 3
+    version: 4
     flags: 0x7 (init,done,multi)
     errors: 0
     context: 0x0 (-)

@@ -65,6 +65,7 @@ Got -s "13"
 
 === -a tmparch/foo -Dpmapi ===
 pmNewContext(2, "tmparch/foo") <::> returns 0
+pmGetArchiveEnd() <::> returns 0 end=TIMESTAMP
 
 === -g ===
 Got -g

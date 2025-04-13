@@ -147,7 +147,7 @@ Expecting ... 3 records, nested event type @ 2nd parameter of 2nd record
 pmUnpackHighResEventRecords: Unknown or illegal metric type
 Expecting ... all good
 pmUnpackHighResEventRecords returns ...
-pmResult[0]
+pmHighResResult[0]
 pmResult dump from ADDR timestamp: TIMESTAMPS numpmid: 10
   29.0.127 (<noname>): numval: 1 valfmt: 0 vlist[]:
    value 22 3.0828566e-44 0x16
