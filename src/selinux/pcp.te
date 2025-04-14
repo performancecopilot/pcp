@@ -123,6 +123,7 @@ kernel_read_vm_sysctls(pcp_pmcd_t)
 kernel_read_rpc_sysctls(pcp_pmcd_t)
 kernel_search_network_sysctl(pcp_pmcd_t)
 kernel_read_net_sysctls(pcp_pmcd_t)
+kernel_read_psi(pcp_pmcd_t)
 
 corecmd_exec_bin(pcp_pmcd_t)
 corecmd_exec_shell(pcp_pmcd_t)
