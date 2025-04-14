@@ -65,3 +65,6 @@ $(CMDIMPORT).service: $(CMDIMPORT).service.in
 	    -e 's;@PCP_BINADM_DIR@;'$(PCP_BINADM_DIR)';' \
 	    -e 's;@PCP_RUN_DIR@;'$(PCP_RUN_DIR)';' \
 	# END
+
+check :: $(CMDIMPORT).py
+	$(PYLINT) $^
