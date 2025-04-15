@@ -11,9 +11,6 @@ from datetime import datetime, UTC
 import cpmapi as api
 from pcp import pmapi
 
-POLL_INTERVAL_SEC = 10
-IMPORT_TIMEOUT_SEC = 10 * 60  # 10 minutes
-
 imported_archives = {}
 minimum_start_time = 0.0
 maximum_finish_time = 0.0
@@ -54,9 +51,9 @@ def update_dashboard_time_window(begin: str, end: str, json_path: str, no_op: bo
         with open(json_path, "r", encoding="utf-8") as file:
             data = json.load(file)
     except (json.JSONDecodeError, FileNotFoundError) as e:
-        logging.error(f"Error reading JSON file: {e}")
+        logging.error("Error reading JSON file: %s", e)
         return
-    
+
     # Update the from and to fields
     data["time"]["from"] = begin
     data["time"]["to"] = end
@@ -101,7 +98,8 @@ def setup_grafana(path: Path, i: int, count: int, dashboard_path: str, no_op: bo
     # update the time window of the grafana dashboard with the archive start and end time
     update_dashboard_time_window(minimum_start_time, maximum_finish_time, dashboard_path, no_op)
 
-def import_archive(path: Path, i: int, count: int, no_op: bool):
+def import_archive(path: Path, i: int, count: int, no_op: bool, import_timeout: int, port: str,
+                   time_zone: str):
     archive_path = base_archive_path(path)
     archive_mod_time = os.path.getmtime(path)
     if archive_unchanged(archive_path, archive_mod_time, i, count):
@@ -109,21 +107,36 @@ def import_archive(path: Path, i: int, count: int, no_op: bool):
 
     start_dt = datetime.now()
     try:
-        logging.info("Importing archive %s... [%d/%d]", archive_path, i, count)
         # mainly for testing
         # if --noop option is set, skip the importing of the archives
         if no_op:
             logging.info("Would run pmseries --load archive %s... [%d/%d]", archive_path, i, count)
         else:
-            logging.info("Importing archive %s... [%d/%d]", archive_path, i, count)
+            # initialize the pmseries --load command and extend it with command line
+            # options if they are set
+            command_line = ["pmseries", "--load", archive_path]
+            if port is None and time_zone is None:
+                logging.info("Importing archive %s... [%d/%d]", archive_path, i, count)
+            elif time_zone is None:
+                logging.info("Importing archive %s... [%d/%d] from port %s", archive_path, i,
+                             count, port)
+                command_line.extend(["-p", port])
+            elif port is None:
+                logging.info("Importing archive %s... [%d/%d] with timezone %s", archive_path, i,
+                             count, time_zone)
+                command_line.extend(["-Z", time_zone])
+            else:
+                logging.info("Importing archive %s... [%d/%d] from port %s with timezone %s",
+                             archive_path, i, count, port, time_zone)
+                command_line.extend(["-p", port, "-Z", time_zone])
             subprocess.run(
-                ["pmseries", "--load", archive_path],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT,
-                check=True,
-                text=True,
-                timeout=IMPORT_TIMEOUT_SEC,
-            )
+                    command_line,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                    check=True,
+                    text=True,
+                    timeout=import_timeout,
+                )
     except subprocess.CalledProcessError as e:
         logging.error("Error: %s", e.stdout)
     except subprocess.TimeoutExpired:
@@ -135,7 +148,8 @@ def import_archive(path: Path, i: int, count: int, no_op: bool):
         imported_archives[archive_path] = archive_mod_time
 
 
-def poll(archives_path: str, dashboard_path: str, no_op: bool):
+def poll(archives_path: str, dashboard_path: str, no_op: bool, import_timeout: int, port: str,
+         time_zone: str):
     logging.info("Searching for new or updated archives...")
 
     if not os.access(archives_path, os.R_OK):
@@ -152,14 +166,19 @@ def poll(archives_path: str, dashboard_path: str, no_op: bool):
         for i, path in enumerate(archive_paths, start=1):
             setup_grafana(path, i, len(archive_paths), dashboard_path, no_op)
         for i, path in enumerate(archive_paths, start=1):
-            import_archive(path, i, len(archive_paths), no_op)
+            import_archive(path, i, len(archive_paths), no_op, import_timeout, port, time_zone)
 
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--archives", default="/archives")
-    parser.add_argument("--dashboard", default="/usr/local/var/lib/grafana/dashboards/pcp-archive-analysis.json")
+    parser.add_argument("--dashboard",
+                        default="/usr/local/var/lib/grafana/dashboards/pcp-archive-analysis.json")
     parser.add_argument("--noop", action="store_true")
+    parser.add_argument("--poll-interval", type=int, default=10)
+    parser.add_argument("--import-timeout", type=int, default=600)
+    parser.add_argument("--port", type=str)
+    parser.add_argument("--timezone", type=str)
     args = parser.parse_args()
     dash = 'http://localhost:3000/d/pcp-archive-analysis/pcp-archive-analysis'
     logging.basicConfig(level=logging.INFO, format="%(message)s")
@@ -172,8 +191,11 @@ def main():
 
     try:
         while True:
-            poll(args.archives, args.dashboard, args.noop)
-            time.sleep(POLL_INTERVAL_SEC)
+            logging.info("Poll interval: %d", args.poll_interval)
+            logging.info("Import timeout: %d", args.import_timeout)
+            poll(args.archives, args.dashboard, args.noop, args.import_timeout, args.port,
+                 args.timezone)
+            time.sleep(args.poll_interval)
     except KeyboardInterrupt:
         pass  # debugging
 
