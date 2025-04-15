@@ -754,7 +754,7 @@ class PMReporter(object):
                 duration = max(0, duration)
         endtime = origin + duration
 
-        instances = sum([len(x[0]) for x in self.pmconfig.insts])
+        instances = sum(len(x[0]) for x in self.pmconfig.insts)
         insts_txt = "instances" if instances != 1 else "instance"
         if not self.static_header:
             if self.context.type == PM_CONTEXT_ARCHIVE:
@@ -810,12 +810,12 @@ class PMReporter(object):
         """ Helper to get number of instances of current results """
         if self.static_header:
             if self.colxrow is None:
-                c = len(str(sum([len(i[0]) for i in self.pmconfig.insts])))
+                c = len(str(sum(len(i[0]) for i in self.pmconfig.insts)))
             else:
                 c = len(str(len(self.metrics)))
         else:
             if self.colxrow is None:
-                c = len(str(sum([len(results[i]) for i in results])))
+                c = len(str(sum(len(results[i]) for i in results)))
             else:
                 c = len(str(len(results)))
         return c
