@@ -17,7 +17,7 @@
 # pylint: disable=too-many-boolean-expressions, too-many-statements
 # pylint: disable=too-many-instance-attributes, too-many-locals
 # pylint: disable=too-many-branches, too-many-nested-blocks
-# pylint: disable=broad-except, too-many-arguments
+# pylint: disable=broad-except, too-many-arguments, too-many-positional-arguments
 # pylint: disable=too-many-lines, too-many-public-methods
 
 """ Performance Metrics Reporter """
@@ -413,9 +413,7 @@ class PMReporter(object):
 
         self.pmconfig.validate_common_options()
 
-        if self.output != OUTPUT_ARCHIVE and \
-           self.output != OUTPUT_CSV and \
-           self.output != OUTPUT_STDOUT:
+        if self.output not in (OUTPUT_ARCHIVE, OUTPUT_CSV, OUTPUT_STDOUT):
             sys.stderr.write("Error while parsing options: Invalid output target specified.\n")
             sys.exit(1)
 
@@ -756,7 +754,7 @@ class PMReporter(object):
                 duration = max(0, duration)
         endtime = origin + duration
 
-        instances = sum([len(x[0]) for x in self.pmconfig.insts])
+        instances = sum(len(x[0]) for x in self.pmconfig.insts)
         insts_txt = "instances" if instances != 1 else "instance"
         if not self.static_header:
             if self.context.type == PM_CONTEXT_ARCHIVE:
@@ -812,12 +810,12 @@ class PMReporter(object):
         """ Helper to get number of instances of current results """
         if self.static_header:
             if self.colxrow is None:
-                c = len(str(sum([len(i[0]) for i in self.pmconfig.insts])))
+                c = len(str(sum(len(i[0]) for i in self.pmconfig.insts)))
             else:
                 c = len(str(len(self.metrics)))
         else:
             if self.colxrow is None:
-                c = len(str(sum([len(results[i]) for i in results])))
+                c = len(str(sum(len(results[i]) for i in results)))
             else:
                 c = len(str(len(results)))
         return c
@@ -1132,7 +1130,7 @@ class PMReporter(object):
                         continue
                 try:
                     self.pmi.pmiPutValue(metric, name, str(value))
-                except pmi.pmiErr as pmierror:
+                except pmi.pmiErr:
                     pass
                 data = 1
         self.prev_res = results # pylint: disable=attribute-defined-outside-init
@@ -1542,7 +1540,7 @@ class PMReporter(object):
                 self.writer.flush()
             except IOError as ioerror:
                 if ioerror.errno != errno.EPIPE:
-                    raise error
+                    raise ioerror
             try:
                 self.writer.close()
             except Exception:
