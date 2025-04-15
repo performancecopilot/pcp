@@ -2159,6 +2159,7 @@ pmcd.pdu
 1801 dstat python pcp local derive
 1803 python geolocate labels local pmjson
 1805 pmda.linux kernel local
+1807 pmseries local
 1810 pmda.bpf local
 1813 python labels local pmrep
 1814 pmda.linux local
