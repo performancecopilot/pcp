@@ -14,12 +14,6 @@ ExcludeArch: %{ix86}
 # https://bugzilla.redhat.com/show_bug.cgi?id=2043092
 %undefine _package_note_flags
 
-%if 0%{?fedora} >= 26 || 0%{?rhel} > 7
-%global __python2 python2
-%else
-%global __python2 python
-%endif
-
 # UsrMerge was completed in EL 7, however the latest 'hostname' package in EL 7 contains "Provides: /bin/hostname".  Likewise for /bin/ps from procps[-ng] packages.
 %if 0%{?rhel} >= 8 || 0%{?fedora} >= 17
 %global _hostname_executable /usr/bin/hostname
@@ -71,17 +65,6 @@ ExcludeArch: %{ix86}
 %global disable_gfs2 0
 %endif
 
-%if 0%{?fedora} >= 30 || 0%{?rhel} > 7
-%global _with_python2 --with-python=no
-%global disable_python2 1
-%else
-%global disable_python2 0
-%endif
-
-# Default for epel5 is python24, so use the (optional) python26 packages
-%if 0%{?rhel} == 5
-%global default_python 26
-%endif
 # No python3 development environment before el8
 %if 0%{?rhel} == 0 || 0%{?rhel} > 7
 %global disable_python3 0
@@ -134,7 +117,7 @@ ExcludeArch: %{ix86}
 
 # support for pmdajson
 %if 0%{?rhel} == 0 || 0%{?rhel} > 6
-%if !%{disable_python2} || !%{disable_python3}
+%if !%{disable_python3}
 %global disable_json 0
 %else
 %global disable_json 1
@@ -144,7 +127,7 @@ ExcludeArch: %{ix86}
 %endif
 
 # support for pmdamongodb
-%if !%{disable_python2} || !%{disable_python3}
+%if !%{disable_python3}
 %global disable_mongodb 0
 %else
 %global disable_mongodb 1
@@ -152,7 +135,7 @@ ExcludeArch: %{ix86}
 
 # No mssql ODBC driver on non-x86 platforms
 %ifarch x86_64
-%if !%{disable_python2} || !%{disable_python3}
+%if !%{disable_python3}
 %global disable_mssql 0
 %else
 %global disable_mssql 1
@@ -279,13 +262,6 @@ BuildRequires: procps autoconf bison flex
 BuildRequires: avahi-devel
 BuildRequires: xz-devel
 BuildRequires: zlib-devel
-%if !%{disable_python2}
-%if 0%{?default_python} != 3
-BuildRequires: python%{?default_python}-devel
-%else
-BuildRequires: %{__python2}-devel
-%endif
-%endif
 %if !%{disable_python3}
 BuildRequires: python3-devel
 BuildRequires: python3-setuptools
@@ -731,7 +707,7 @@ Requires: pcp-libs = %{version}-%{release}
 Performance Co-Pilot (PCP) module for exporting metrics from PCP to
 Zabbix via the Zabbix agent - see zbxpcp(3) for further details.
 
-%if !%{disable_python2} || !%{disable_python3}
+%if !%{disable_python3}
 #
 # pcp-geolocate
 #
@@ -740,11 +716,7 @@ License: GPL-2.0-or-later
 Summary: Performance Co-Pilot geographical location metric labels
 URL: https://pcp.io
 Requires: pcp-libs >= %{version}-%{release}
-%if !%{disable_python3}
 Requires: python3-pcp = %{version}-%{release}
-%else
-Requires: %{__python2}-pcp = %{version}-%{release}
-%endif
 
 %description geolocate
 Performance Co-Pilot (PCP) tools that automatically apply metric labels
@@ -759,15 +731,9 @@ License: GPL-2.0-or-later
 Summary: Performance Co-Pilot tools for exporting PCP metrics to ElasticSearch
 URL: https://pcp.io
 Requires: pcp-libs >= %{version}-%{release}
-%if !%{disable_python3}
 Requires: python3-pcp = %{version}-%{release}
 Requires: python3-requests
 BuildRequires: python3-requests
-%else
-Requires: %{__python2}-pcp = %{version}-%{release}
-Requires: %{__python2}-requests
-BuildRequires: %{__python2}-requests
-%endif
 
 %description export-pcp2elasticsearch
 Performance Co-Pilot (PCP) front-end tools for exporting metric values
@@ -782,11 +748,7 @@ License: GPL-2.0-or-later
 Summary: Performance Co-Pilot tools for exporting PCP metrics to Graphite
 URL: https://pcp.io
 Requires: pcp-libs >= %{version}-%{release}
-%if !%{disable_python3}
 Requires: python3-pcp = %{version}-%{release}
-%else
-Requires: %{__python2}-pcp = %{version}-%{release}
-%endif
 
 %description export-pcp2graphite
 Performance Co-Pilot (PCP) front-end tools for exporting metric values
@@ -799,13 +761,8 @@ License: GPL-2.0-or-later
 Summary: Performance Co-Pilot tools for exporting PCP metrics to InfluxDB
 URL: https://pcp.io
 Requires: pcp-libs >= %{version}-%{release}
-%if !%{disable_python3}
 Requires: python3-pcp = %{version}-%{release}
 Requires: python3-requests
-%else
-Requires: %{__python2}-pcp = %{version}-%{release}
-Requires: %{__python2}-requests
-%endif
 
 %description export-pcp2influxdb
 Performance Co-Pilot (PCP) front-end tools for exporting metric values
@@ -819,11 +776,7 @@ License: GPL-2.0-or-later
 Summary: Performance Co-Pilot tools for exporting PCP metrics in JSON format
 URL: https://pcp.io
 Requires: pcp-libs >= %{version}-%{release}
-%if !%{disable_python3}
 Requires: python3-pcp = %{version}-%{release}
-%else
-Requires: %{__python2}-pcp = %{version}-%{release}
-%endif
 
 %description export-pcp2json
 Performance Co-Pilot (PCP) front-end tools for exporting metric values
@@ -837,11 +790,7 @@ License: GPL-2.0-or-later
 Summary: Performance Co-Pilot tools for exporting PCP metrics in OpenMetrics format
 URL: https://pcp.io
 Requires: pcp-libs >= %{version}-%{release}
-%if !%{disable_python3}
 Requires: python3-pcp = %{version}-%{release}
-%else
-Requires: %{__python2}-pcp = %{version}-%{release}
-%endif
 
 %description export-pcp2openmetrics
 Performance Co-Pilot (PCP) front-end tools for exporting metric values
@@ -855,11 +804,7 @@ License: GPL-2.0-or-later
 Summary: Performance Co-Pilot tools for exporting PCP metrics to Apache Spark
 URL: https://pcp.io
 Requires: pcp-libs >= %{version}-%{release}
-%if !%{disable_python3}
 Requires: python3-pcp = %{version}-%{release}
-%else
-Requires: %{__python2}-pcp = %{version}-%{release}
-%endif
 
 %description export-pcp2spark
 Performance Co-Pilot (PCP) front-end tools for exporting metric values
@@ -875,15 +820,9 @@ License: GPL-2.0-or-later
 Summary: Performance Co-Pilot tools for exporting PCP metrics to Apache Arrow
 URL: https://pcp.io
 Requires: pcp-libs >= %{version}-%{release}
-%if !%{disable_python3}
 Requires: python3-pcp = %{version}-%{release}
 Requires: python3-pyarrow
 BuildRequires: python3-pyarrow
-%else
-Requires: %{__python2}-pcp = %{version}-%{release}
-Requires: %{__python2}-pyarrow
-BuildRequires: %{__python2}-pyarrow
-%endif
 
 %description export-pcp2arrow
 Performance Co-Pilot (PCP) front-end tool for exporting metric values
@@ -899,15 +838,9 @@ License: GPL-2.0-or-later
 Summary: Performance Co-Pilot tools for exporting PCP metrics to Excel
 URL: https://pcp.io
 Requires: pcp-libs >= %{version}-%{release}
-%if !%{disable_python3}
 Requires: python3-pcp = %{version}-%{release}
 Requires: python3-openpyxl
 BuildRequires: python3-openpyxl
-%else
-Requires: %{__python2}-pcp = %{version}-%{release}
-Requires: %{__python2}-openpyxl
-BuildRequires: %{__python2}-openpyxl
-%endif
 
 %description export-pcp2xlsx
 Performance Co-Pilot (PCP) front-end tools for exporting metric values
@@ -922,11 +855,7 @@ License: GPL-2.0-or-later
 Summary: Performance Co-Pilot tools for exporting PCP metrics in XML format
 URL: https://pcp.io
 Requires: pcp-libs >= %{version}-%{release}
-%if !%{disable_python3}
 Requires: python3-pcp = %{version}-%{release}
-%else
-Requires: %{__python2}-pcp = %{version}-%{release}
-%endif
 
 %description export-pcp2xml
 Performance Co-Pilot (PCP) front-end tools for exporting metric values
@@ -940,11 +869,7 @@ License: GPL-2.0-or-later
 Summary: Performance Co-Pilot tools for exporting PCP metrics to Zabbix
 URL: https://pcp.io
 Requires: pcp-libs >= %{version}-%{release}
-%if !%{disable_python3}
 Requires: python3-pcp = %{version}-%{release}
-%else
-Requires: %{__python2}-pcp = %{version}-%{release}
-%endif
 
 %description export-pcp2zabbix
 Performance Co-Pilot (PCP) front-end tools for exporting metric values
@@ -1549,7 +1474,7 @@ extracting performance metrics from bpftrace scripts.
 # end pcp-pmda-bpftrace
 %endif
 
-%if !%{disable_python2} || !%{disable_python3}
+%if !%{disable_python3}
 #
 # pcp-pmda-gluster
 #
@@ -1558,11 +1483,7 @@ License: GPL-2.0-or-later
 Summary: Performance Co-Pilot (PCP) metrics for the Gluster filesystem
 URL: https://pcp.io
 Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
-%if !%{disable_python3}
 Requires: python3-pcp
-%else
-Requires: %{__python2}-pcp
-%endif
 %description pmda-gluster
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about the gluster filesystem.
@@ -1576,11 +1497,7 @@ License: GPL-2.0-or-later
 Summary: Performance Co-Pilot (PCP) metrics for NFS Clients
 URL: https://pcp.io
 Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
-%if !%{disable_python3}
 Requires: python3-pcp
-%else
-Requires: %{__python2}-pcp
-%endif
 %description pmda-nfsclient
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics for NFS Clients.
@@ -1594,15 +1511,9 @@ License: GPL-2.0-or-later
 Summary: Performance Co-Pilot (PCP) metrics for PostgreSQL
 URL: https://pcp.io
 Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
-%if !%{disable_python3}
 Requires: python3-pcp
 Requires: python3-psycopg2
 BuildRequires: python3-psycopg2
-%else
-Requires: %{__python2}-pcp
-Requires: %{__python2}-psycopg2
-BuildRequires: %{__python2}-psycopg2
-%endif
 %description pmda-postgresql
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about the PostgreSQL database.
@@ -1616,11 +1527,7 @@ License: GPL-2.0-or-later
 Summary: Performance Co-Pilot (PCP) metrics for compressed swap
 URL: https://pcp.io
 Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
-%if !%{disable_python3}
 Requires: python3-pcp
-%else
-Requires: %{__python2}-pcp
-%endif
 %description pmda-zswap
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about compressed swap.
@@ -1634,11 +1541,7 @@ License: GPL-2.0-or-later
 Summary: Performance Co-Pilot (PCP) metrics for the Unbound DNS Resolver
 URL: https://pcp.io
 Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
-%if !%{disable_python3}
 Requires: python3-pcp
-%else
-Requires: %{__python2}-pcp
-%endif
 %description pmda-unbound
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about the Unbound DNS Resolver.
@@ -1652,11 +1555,7 @@ License: GPL-2.0-or-later
 Summary: Performance Co-Pilot (PCP) metrics for Intel MIC cards
 URL: https://pcp.io
 Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
-%if !%{disable_python3}
 Requires: python3-pcp
-%else
-Requires: %{__python2}-pcp
-%endif
 %description pmda-mic
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about Intel MIC cards.
@@ -1670,11 +1569,7 @@ License: GPL-2.0-or-later
 Summary: Performance Co-Pilot (PCP) metrics for HAProxy
 URL: https://pcp.io
 Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
-%if !%{disable_python3}
 Requires: python3-pcp
-%else
-Requires: %{__python2}-pcp
-%endif
 %description pmda-haproxy
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 extracting performance metrics from HAProxy over the HAProxy stats socket.
@@ -1688,22 +1583,9 @@ License: GPL-2.0-or-later
 Summary: Performance Co-Pilot (PCP) metrics from virtual machines
 URL: https://pcp.io
 Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
-%if !%{disable_python3}
 Requires: python3-pcp
 Requires: libvirt-python3 python3-lxml
 BuildRequires: libvirt-python3 python3-lxml
-%else
-%if 0%{?rhel} == 0 || 0%{?fedora} >= 27
-Requires: %{__python2}-pcp
-Requires: %{__python2}-libvirt %{__python2}-lxml
-BuildRequires: %{__python2}-libvirt %{__python2}-lxml
-%endif
-%if 0%{?rhel} > 5
-Requires: %{__python2}-pcp
-Requires: libvirt-%{__python2} %{__python2}-lxml
-BuildRequires: libvirt-%{__python2} %{__python2}-lxml
-%endif
-%endif
 %description pmda-libvirt
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 extracting virtualisation statistics from libvirt about behaviour of guest
@@ -1718,11 +1600,7 @@ License: GPL-2.0-or-later
 Summary: Performance Co-Pilot (PCP) metrics for Elasticsearch
 URL: https://pcp.io
 Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
-%if !%{disable_python3}
 Requires: python3-pcp
-%else
-Requires: %{__python2}-pcp
-%endif
 %description pmda-elasticsearch
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about Elasticsearch.
@@ -1736,11 +1614,7 @@ License: GPL-2.0-or-later
 Summary: Performance Co-Pilot (PCP) metrics for Open vSwitch
 URL: https://pcp.io
 Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
-%if !%{disable_python3}
 Requires: python3-pcp
-%else
-Requires: %{__python2}-pcp
-%endif
 %description pmda-openvswitch
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics from Open vSwitch.
@@ -1754,11 +1628,7 @@ License: GPL-2.0-or-later
 Summary: Performance Co-Pilot (PCP) metrics for RabbitMQ queues
 URL: https://pcp.io
 Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
-%if !%{disable_python3}
 Requires: python3-pcp
-%else
-Requires: %{__python2}-pcp
-%endif
 %description pmda-rabbitmq
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about RabbitMQ message queues.
@@ -1772,11 +1642,7 @@ License: GPL-2.0-or-later
 Summary: Performance Co-Pilot (PCP) metrics from uWSGI servers
 URL: https://pcp.io
 Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
-%if !%{disable_python3}
 Requires: python3-pcp
-%else
-Requires: %{__python2}-pcp
-%endif
 %description pmda-uwsgi
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics from uWSGI servers.
@@ -1790,15 +1656,9 @@ License: GPL-2.0-or-later
 Summary: Performance Co-Pilot (PCP) metrics for the LIO subsystem
 URL: https://pcp.io
 Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
-%if !%{disable_python3}
 Requires: python3-pcp
 Requires: python3-rtslib
 BuildRequires: python3-rtslib
-%else
-Requires: %{__python2}-pcp
-Requires: %{__python2}-rtslib
-BuildRequires: %{__python2}-rtslib
-%endif
 %description pmda-lio
 This package provides a PMDA to gather performance metrics from the kernels
 iSCSI target interface (LIO). The metrics are stored by LIO within the Linux
@@ -1815,19 +1675,9 @@ License: GPL-2.0-or-later
 Summary: Performance Co-Pilot (PCP) metrics from OpenMetrics endpoints
 URL: https://pcp.io
 Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
-%if !%{disable_python3}
 Requires: python3-pcp
 Requires: python3-requests
 BuildRequires: python3-requests
-%else
-Requires: %{__python2}-pcp
-Requires: %{__python2}-requests
-BuildRequires: %{__python2}-requests
-%endif
-Obsoletes: pcp-pmda-prometheus < 5.0.0
-Provides: pcp-pmda-prometheus < 5.0.0
-Obsoletes: pcp-pmda-vmware < 5.3.5
-
 %description pmda-openmetrics
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 extracting metrics from OpenMetrics (https://openmetrics.io/) endpoints.
@@ -1842,11 +1692,7 @@ Summary: Performance Co-Pilot (PCP) metrics for hardware sensors
 URL: https://pcp.io
 Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
 Requires: lm_sensors
-%if !%{disable_python3}
 Requires: python3-pcp
-%else
-Requires: %{__python2}-pcp
-%endif
 # rewritten in python, so there is no longer a debuginfo package
 Obsoletes: pcp-pmda-lmsensors-debuginfo < 4.2.0
 %description pmda-lmsensors
@@ -1862,11 +1708,7 @@ License: GPL-2.0-or-later
 Summary: Performance Co-Pilot (PCP) metrics for simple network checks
 URL: https://pcp.io
 Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
-%if !%{disable_python3}
 Requires: python3-pcp
-%else
-Requires: %{__python2}-pcp
-%endif
 %description pmda-netcheck
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics from simple network checks.
@@ -1882,18 +1724,10 @@ License: GPL-2.0-or-later
 Summary: Performance Co-Pilot (PCP) metrics for MongoDB
 URL: https://pcp.io
 Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
-%if !%{disable_python3}
 Requires: python3-pcp
 %if 0%{?rhel} == 0
 Requires: python3-pymongo
 BuildRequires: python3-pymongo
-%endif
-%else
-Requires: %{__python2}-pcp
-%if 0%{?rhel} == 0
-Requires: %{__python2}-pymongo
-BuildRequires: %{__python2}-pymongo
-%endif
 %endif
 %description pmda-mongodb
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -1910,18 +1744,10 @@ License: GPL-2.0-or-later
 Summary: Performance Co-Pilot (PCP) metrics for Microsoft SQL Server
 URL: https://pcp.io
 Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
-%if !%{disable_python3}
 Requires: python3-pcp
 %if 0%{?rhel} == 0 || 0%{?rhel} >= 9
 Requires: python3-pyodbc
 BuildRequires: python3-pyodbc
-%endif
-%else
-Requires: %{__python2}-pcp
-%if 0%{?rhel} == 0
-Requires: %{__python2}-pyodbc
-BuildRequires: %{__python2}-pyodbc
-%endif
 %endif
 %description pmda-mssql
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -1938,15 +1764,9 @@ License: GPL-2.0-or-later
 Summary: Performance Co-Pilot (PCP) metrics for JSON data
 URL: https://pcp.io
 Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
-%if !%{disable_python3}
 Requires: python3-pcp
 Requires: python3-jsonpointer python3-six
 BuildRequires: python3-jsonpointer python3-six
-%else
-Requires: %{__python2}-pcp
-Requires: %{__python2}-jsonpointer %{__python2}-six
-BuildRequires: %{__python2}-jsonpointer %{__python2}-six
-%endif
 %description pmda-json
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics output in JSON.
@@ -2267,7 +2087,7 @@ Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
 Requires: pcp-system-tools = %{version}-%{release}
 Requires: pcp-doc = %{version}-%{release}
 Requires: pcp-pmda-dm = %{version}-%{release}
-%if !%{disable_python2} || !%{disable_python3}
+%if !%{disable_python3}
 Requires: pcp-pmda-nfsclient = %{version}-%{release}
 Requires: pcp-pmda-openmetrics = %{version}-%{release}
 %endif
@@ -2275,31 +2095,6 @@ Requires: pcp-pmda-openmetrics = %{version}-%{release}
 This package contains configuration tweaks and files to increase metrics
 gathering frequency, several extended pmlogger configurations, as well as
 automated pmie diagnosis, alerting and self-healing for the localhost.
-
-%if !%{disable_python2}
-#
-# python2-pcp. This is the PCP library bindings for python.
-#
-%package -n %{__python2}-pcp
-License: GPL-2.0-or-later
-Summary: Performance Co-Pilot (PCP) Python bindings and documentation
-URL: https://pcp.io
-Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
-%if 0%{?fedora} >= 26 || 0%{?rhel} > 7
-# on these platforms, python2-pcp replaces python-pcp
-Obsoletes: python-pcp < %{version}
-%endif
-%if 0%{?rhel} == 5
-Requires: python%{default_python}
-%else
-Requires: %{__python2}
-%endif
-
-%description -n %{__python2}-pcp
-This python PCP module contains the language bindings for
-Performance Metric API (PMAPI) monitor tools and Performance
-Metric Domain Agent (PMDA) collector tools written in Python.
-%endif
 
 %if !%{disable_python3}
 #
@@ -2326,12 +2121,8 @@ License: GPL-2.0-or-later
 Summary: Performance Co-Pilot (PCP) System and Monitoring Tools
 URL: https://pcp.io
 Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
-%if !%{disable_python2} || !%{disable_python3}
 %if !%{disable_python3}
 Requires: python3-pcp = %{version}-%{release}
-%else
-Requires: %{__python2}-pcp = %{version}-%{release}
-%endif
 %if !%{disable_dstat}
 # https://fedoraproject.org/wiki/Packaging:Guidelines "Renaming/Replacing Existing Packages"
 Provides: dstat = %{version}-%{release}
@@ -2423,10 +2214,7 @@ updated policy package.
 _build=`echo %{release} | sed -e 's/\..*$//'`
 sed -i "/PACKAGE_BUILD/s/=[0-9]*/=$_build/" VERSION.pcp
 
-%if !%{disable_python2} && 0%{?default_python} != 3
-export PYTHON=python%{?default_python}
-%endif
-%configure %{?_with_initd} %{?_with_doc} %{?_with_dstat} %{?_with_ib} %{?_with_gfs2} %{?_with_statsd} %{?_with_perfevent} %{?_with_bcc} %{?_with_bpf} %{?_with_bpftrace} %{?_with_json} %{?_with_mongodb} %{?_with_mysql} %{?_with_snmp} %{?_with_nutcracker} %{?_with_python2}
+%configure %{?_with_initd} %{?_with_doc} %{?_with_dstat} %{?_with_ib} %{?_with_gfs2} %{?_with_statsd} %{?_with_perfevent} %{?_with_bcc} %{?_with_bpf} %{?_with_bpftrace} %{?_with_json} %{?_with_mongodb} %{?_with_mysql} %{?_with_snmp} %{?_with_nutcracker}
 make %{?_smp_mflags} default_pcp
 
 %install
@@ -3026,7 +2814,7 @@ exit 0
 %{pmda_remove "$1" "bpftrace"}
 %endif
 
-%if !%{disable_python2} || !%{disable_python3}
+%if !%{disable_python3}
 %preun pmda-gluster
 %{pmda_remove "$1" "gluster"}
 
@@ -3292,7 +3080,7 @@ fi
 %files pmda-nutcracker -f pcp-pmda-nutcracker-files.rpm
 %endif
 
-%if !%{disable_python2} || !%{disable_python3}
+%if !%{disable_python3}
 %files pmda-elasticsearch -f pcp-pmda-elasticsearch-files.rpm
 %endif
 
@@ -3348,7 +3136,7 @@ fi
 %files pmda-postfix -f pcp-pmda-postfix-files.rpm
 %endif
 
-%if !%{disable_python2} || !%{disable_python3}
+%if !%{disable_python3}
 %files pmda-postgresql -f pcp-pmda-postgresql-files.rpm
 %endif
 
@@ -3374,7 +3162,7 @@ fi
 %files pmda-bpftrace -f pcp-pmda-bpftrace-files.rpm
 %endif
 
-%if !%{disable_python2} || !%{disable_python3}
+%if !%{disable_python3}
 %files geolocate -f pcp-geolocate-files.rpm
 
 %files pmda-gluster -f pcp-pmda-gluster-files.rpm
@@ -3420,11 +3208,11 @@ fi
 %files export-pcp2zabbix -f pcp-export-pcp2zabbix-files.rpm
 %endif
 
-%if !%{disable_python2} || !%{disable_python3}
+%if !%{disable_python3}
 %files export-pcp2elasticsearch -f pcp-export-pcp2elasticsearch-files.rpm
 %endif
 
-%if !%{disable_python2} || !%{disable_python3}
+%if !%{disable_python3}
 %files export-pcp2influxdb -f pcp-export-pcp2influxdb-files.rpm
 %endif
 
@@ -3442,7 +3230,7 @@ fi
 %files pmda-json -f pcp-pmda-json-files.rpm
 %endif
 
-%if !%{disable_python2} || !%{disable_python3}
+%if !%{disable_python3}
 %files pmda-libvirt -f pcp-pmda-libvirt-files.rpm
 
 %files pmda-lio -f pcp-pmda-lio-files.rpm
@@ -3525,10 +3313,6 @@ fi
 %files -n perl-PCP-LogImport -f perl-pcp-logimport.list
 
 %files -n perl-PCP-LogSummary -f perl-pcp-logsummary.list
-%endif
-
-%if !%{disable_python2}
-%files -n %{__python2}-pcp -f python-pcp.list.rpm
 %endif
 
 %if !%{disable_python3}

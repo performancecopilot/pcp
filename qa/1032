@@ -13,8 +13,6 @@ echo "QA output created by $seq"
 
 _check_series
 _check_requests
-_check_requests_json
-
 _check_containers
 _check_docker_binary
 _check_docker_images busybox

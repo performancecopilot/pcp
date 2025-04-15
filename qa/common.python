@@ -1,6 +1,6 @@
 #
 # Common shell routines for testing python modules
-# Copyright (c) 2012-2016 Red Hat.
+# Copyright (c) 2012-2016,2025 Red Hat.
 #
 
 # get standard environment, filters and checks
@@ -40,23 +40,13 @@ _check_requests()
     $python -c "import requests" >/dev/null 2>&1 || _notrun "$python requests package is not installed"
 }
 
-_check_requests_json()
+_check_python36()
 {
-    __version=`$python --version 2>&1 | sed -e 's/Python //'`
-    case "$__version"
-    in
-	2.7.3|2.7.4)
-	    _notrun "requests.json() broken in Python $__version"
-	    ;;
-    esac
+    $python -c "import sys; sys.exit(0 if sys.version_info >= (3, 6) else 1)" || _notrun "python 3+ is required"
 }
 
 _check_python3()
 {
-    $python -c "import sys; sys.exit(0 if sys.version_info >= (3, 0) else 1)" || _notrun "python 3+ is required"
-}
-
-_check_python36()
-{
-    $python -c "import sys; sys.exit(0 if sys.version_info >= (3, 6) else 1)" || _notrun "python 3.6+ is required"
+    # python 3.6 is now the minimum accepted version
+    _check_python36
 }

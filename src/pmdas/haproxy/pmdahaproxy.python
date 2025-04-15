@@ -44,9 +44,6 @@ from cpmapi import PM_SEM_COUNTER, PM_SEM_INSTANT, PM_SEM_DISCRETE
 from cpmapi import PM_COUNT_ONE, PM_SPACE_BYTE, PM_SPACE_MBYTE, PM_TIME_MSEC, PM_TIME_SEC
 from cpmapi import PM_ERR_AGAIN, PM_ERR_PMID, PM_ERR_APPVERSION
 
-if sys.version_info[0] >= 3:
-    long = int # pylint: disable=redefined-builtin
-
 DEFAULT_USER   = 'root'
 DEFAULT_SOCKET = '/var/lib/haproxy/stats'
 
@@ -265,11 +262,7 @@ class HAProxyPMDA(PMDA):
         conffile += '/' + self.read_name() + '/' + self.read_name() + '.conf'
 
         # Silently ignore missing file/section
-        # Python < 3.2 compat
-        if sys.version_info[0] >= 3 and sys.version_info[1] >= 2:
-            config = ConfigParser.ConfigParser()
-        else:
-            config = ConfigParser.SafeConfigParser()
+        config = ConfigParser.ConfigParser()
         config.read(conffile)
         if config.has_section('pmda'):
             for opt in config.options('pmda'):
@@ -368,7 +361,7 @@ class HAProxyPMDA(PMDA):
                 if self.info_metrics[item][1] == PM_TYPE_STRING:
                     return [self.info[self.info_metrics[item][4]], 1]
                 else:
-                    return [long(self.info[self.info_metrics[item][4]]), 1]
+                    return [int(self.info[self.info_metrics[item][4]]), 1]
             except Exception:
                 return [PM_ERR_APPVERSION, 0]
 
@@ -380,7 +373,7 @@ class HAProxyPMDA(PMDA):
                 if self.stat_metrics[item][1] == PM_TYPE_STRING:
                     return [self.stat[name][item], 1]
                 else:
-                    return [long(self.stat[name][item]), 1]
+                    return [int(self.stat[name][item]), 1]
             except Exception:
                 return [PM_ERR_APPVERSION, 0]
 

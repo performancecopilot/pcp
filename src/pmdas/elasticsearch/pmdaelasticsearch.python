@@ -21,7 +21,6 @@
 """ Performance Metrics Domain Agent exporting Elasticsearch metrics. """
 
 import os
-import sys
 import json
 try:
     import ConfigParser
@@ -482,11 +481,7 @@ class ElasticsearchPMDA(PMDA):
         configfile = configdir + '/' + 'es.conf'
         if not os.path.exists(configfile):
             configfile = configdir + '/' + 'elasticsearch.conf'
-        # Python < 3.2 compat
-        if sys.version_info[0] >= 3 and sys.version_info[1] >= 2:
-            config = ConfigParser.ConfigParser()
-        else:
-            config = ConfigParser.SafeConfigParser()
+        config = ConfigParser.ConfigParser()
         config.read(configfile)
         if config.has_section('pmda'):
             for opt in config.options('pmda'):

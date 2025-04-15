@@ -37,9 +37,6 @@ except Exception:
 from pcp import pmapi, pmconfig
 from cpmapi import PM_CONTEXT_ARCHIVE, PM_IN_NULL, PM_DEBUG_APPL1, PM_TIME_MSEC
 
-if sys.version_info[0] >= 3:
-    long = int # pylint: disable=redefined-builtin
-
 # Default config
 DEFAULT_CONFIG = ["./pcp2elasticsearch.conf", "$HOME/.pcp2elasticsearch.conf", "$HOME/.pcp/pcp2elasticsearch.conf", "$PCP_SYSCONF_DIR/pcp2elasticsearch.conf"]
 
@@ -431,7 +428,7 @@ class pcp2elasticsearch(object):
 
         # Assemble all metrics into a single document
         # Use @-prefixed keys for metadata not coming in from PCP metrics
-        es_doc = {'@host-id': self.es_hostid, '@timestamp': long(ts)}
+        es_doc = {'@host-id': self.es_hostid, '@timestamp': int(ts)}
 
         insts_key = "@instances"
         inst_key = "@id"
@@ -455,7 +452,7 @@ class pcp2elasticsearch(object):
                 labels = None
                 if self.include_labels:
                     labels = self.pmconfig.get_labels_str(metric, inst)
-                if isinstance(value, long):
+                if isinstance(value, int):
                     if value > (self.maxlong - 1) or value < (-self.maxlong):
                         value = round(float(value), self.metrics[metric][6])
                 if isinstance(value, float):

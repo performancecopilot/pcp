@@ -1033,11 +1033,7 @@ class POSTGRESQLPMDA(PMDA):
 
     def config(self, filename='pmdapostgresql.conf', section='authentication'):
         """ parse config file """
-        # Python < 3.2 compat
-        if sys.version_info[0] >= 3 and sys.version_info[1] >= 2:
-            parser = configparser.ConfigParser()
-        else:
-            parser = configparser.SafeConfigParser() # pylint: disable=deprecated-class
+        parser = configparser.ConfigParser()
         parser.read(filename)
 
         # get section, default to postgresql
