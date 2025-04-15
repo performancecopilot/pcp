@@ -260,6 +260,7 @@ pmda.postgresql
 pmda.proc
 pmda.redis
 pmda.resctrl
+pmda.rocestat
 pmda.root
 #pmda.rpm		# note this group has been retired
 pmda.rsyslog
@@ -2228,4 +2229,5 @@ pmcd.pdu
 1990 pcp buddyinfo python local
 1991 pcp netstat python local
 1992 pmda.uwsgi local
+1993 pmda.rocestat local python
 4751 libpcp threads valgrind local pcp helgrind
