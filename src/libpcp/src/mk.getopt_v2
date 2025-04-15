@@ -37,6 +37,7 @@ state == 1 && NF == 0	{ state = 2
     -e 's/pmUsageMessage(/pmUsageMessage_v2(/' \
     -e 's/pmFreeOptions(/pmFreeOptions_v2(/' \
     -e 's/pmGetArchiveEnd(/pmGetArchiveEnd_v2(/' \
+    -e 's/pmParseTimeWindow(/pmParseTimeWindow_v2(/' \
     -e 's/__pmEndOptions(/__pmEndOptions_v2(/' \
     -e 's/__pmStartOptions(/__pmStartOptions_v2(/' \
     -e 's/__pmGetLongOptions(/__pmGetLongOptions_v2(/' \

@@ -72,12 +72,12 @@ int		exit_status;
 int		ictx_a;
 char		*oname;			/* name of output archive */
 pmLogLabel	olabel;			/* output archive label */
-struct timeval	winstart_tval;		/* window start tval*/
+struct timespec	winstart_ts;		/* window start tval*/
 
 /* time window stuff */
-static struct timeval logstart_tval;	/* reduced log start */
-static struct timeval logend_tval;	/* reduced log end */
-static struct timeval winend_tval;	/* window end tval */
+static struct timespec logstart_ts;	/* reduced log start */
+static struct timespec logend_ts;	/* reduced log end */
+static struct timespec winend_ts;	/* window end tval */
 
 /* cmd line args that could exist, but don't (needed for pmParseTimeWin) */
 static char	*Oarg;			/* -O arg - non-existent */
@@ -211,8 +211,7 @@ main(int argc, char **argv)
     __pmResult	*irp;		/* input pmResult */
     __pmResult	*orp;		/* output pmResult */
     __pmPDU	*pb;		/* pdu buffer */
-    struct timeval	unused;
-    struct timespec	temp_ts;
+    struct timespec	unused;
     struct timespec	start;
     __uint64_t		max_offset;
     unsigned long	peek_offset;
@@ -253,17 +252,15 @@ main(int argc, char **argv)
     }
 
     /* start time */
-    logstart_tval.tv_sec = ilabel.ll_start.tv_sec;
-    logstart_tval.tv_usec = ilabel.ll_start.tv_usec;
+    logstart_ts.tv_sec = ilabel.ll_start.tv_sec;
+    logstart_ts.tv_nsec = ilabel.ll_start.tv_usec * 1000;
 
     /* end time */
-    if ((sts = pmGetArchiveEnd(&temp_ts)) < 0) {
+    if ((sts = pmGetArchiveEnd(&logend_ts)) < 0) {
 	fprintf(stderr, "%s: Error: cannot get end of archive (%s): %s\n",
 		pmGetProgname(), iname, pmErrStr(sts));
 	exit(1);
     }
-    logend_tval.tv_sec = temp_ts.tv_sec;
-    logend_tval.tv_usec = temp_ts.tv_nsec / 1000;
 
     if (zarg) {
 	/* use TZ from metrics source (input-archive) */
@@ -293,9 +290,9 @@ main(int argc, char **argv)
     }
 
     /* set winstart and winend timevals */
-    sts = pmParseTimeWindow(Sarg, Targ, Aarg, Oarg,
-			    &logstart_tval, &logend_tval,
-			    &winstart_tval, &winend_tval, &unused, &msg);
+    sts = pmParseHighResTimeWindow(Sarg, Targ, Aarg, Oarg,
+			    &logstart_ts, &logend_ts,
+			    &winstart_ts, &winend_ts, &unused, &msg);
     if (sts < 0) {
 	fprintf(stderr, "%s: Invalid time window specified: %s\n",
 		pmGetProgname(), msg);
@@ -304,16 +301,16 @@ main(int argc, char **argv)
     if (pmDebugOptions.appl0) {
 	char	buf[26];
 	time_t	time;
-	time = winstart_tval.tv_sec;
+	time = winstart_ts.tv_sec;
 	pmCtime(&time, buf);
 	fprintf(stderr, "Start time: %s", buf);
-	time = winend_tval.tv_sec;
+	time = winend_ts.tv_sec;
 	pmCtime(&time, buf);
 	fprintf(stderr, "End time: %s", buf);
     }
 
-    start.tv_sec = winstart_tval.tv_sec;
-    start.tv_nsec = winstart_tval.tv_usec * 1000;
+    start.tv_sec = winstart_ts.tv_sec;
+    start.tv_nsec = winstart_ts.tv_nsec;
     if ((sts = pmSetModeHighRes(PM_MODE_INTERP, &start, &targ)) < 0) {
 	fprintf(stderr, "%s: pmSetModeHighRes(PM_MODE_INTERP ...) failed: %s\n",
 		pmGetProgname(), pmErrStr(sts));
@@ -336,8 +333,8 @@ main(int argc, char **argv)
      *		- write labels
      */
     newlabel();
-    current.sec = logctl.label.start.sec = winstart_tval.tv_sec;
-    current.nsec = logctl.label.start.nsec = winstart_tval.tv_usec * 1000;
+    current.sec = logctl.label.start.sec = winstart_ts.tv_sec;
+    current.nsec = logctl.label.start.nsec = winstart_ts.tv_nsec;
     /* write label record */
     writelabel();
     /*
@@ -377,9 +374,9 @@ main(int argc, char **argv)
 		"%s: Error: pmFetch failed: %s\n", pmGetProgname(), pmErrStr(sts));
 	    exit(1);
 	}
-	if (irp->timestamp.sec > winend_tval.tv_sec ||
-	    (irp->timestamp.sec == winend_tval.tv_sec &&
-	     irp->timestamp.nsec > winend_tval.tv_usec * 1000)) {
+	if (irp->timestamp.sec > winend_ts.tv_sec ||
+	    (irp->timestamp.sec == winend_ts.tv_sec &&
+	     irp->timestamp.nsec > winend_ts.tv_nsec)) {
 	    /* past end time as per -T */
 	    break;
 	}

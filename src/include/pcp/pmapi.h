@@ -715,7 +715,6 @@ typedef struct pmHighResLogLabel {
 PCP_CALL extern int pmGetHighResArchiveLabel(pmHighResLogLabel *);
 PCP_CALL extern int pmGetArchiveLabel(pmLogLabel *);
 PCP_CALL extern int pmGetArchiveEnd(struct timespec *);
-PCP_CALL extern int pmGetArchiveEnd_v2(struct timeval *);
 
 /* Free result buffer */
 PCP_CALL extern void pmFreeHighResResult(pmHighResResult *);
@@ -793,10 +792,6 @@ PCP_CALL extern char *pmEventFlagsStr_r(int, char *, int);
 PCP_CALL extern int pmParseInterval(const char *, struct timeval *, char **);
 PCP_CALL extern int pmParseHighResInterval(const char *, struct timespec *, char **);
 PCP_CALL extern int pmParseTimeWindow(
-      const char *, const char *, const char *, const char *,
-      const struct timeval *, const struct timeval *,
-      struct timeval *, struct timeval *, struct timeval *, char **);
-PCP_CALL extern int pmParseHighResTimeWindow(
       const char *, const char *, const char *, const char *,
       const struct timespec *, const struct timespec *,
       struct timespec *, struct timespec *, struct timespec *, char **);
@@ -1013,9 +1008,6 @@ PCP_CALL extern int pmGetVersion(void);
 #define PM_OPTFLAG_NOFLUSH	(1<<12)	/* caller issues pmflush */
 #define PM_OPTFLAG_QUIET	(1<<13)	/* silence getopt errors */
 
-struct pmOptions_v2;
-typedef int (*pmOptionOverride_v2)(int, struct pmOptions_v2 *);
-
 struct pmOptions;
 typedef int (*pmOptionOverride)(int, struct pmOptions *);
 
@@ -1026,62 +1018,6 @@ typedef struct pmLongOptions {
     const char *	argname;
     const char *	message;
 } pmLongOptions;
-
-typedef struct pmOptions_v2 {
-    int			version;
-    int			flags;
-
-    /* in: define set of all options */
-    const char *	short_options;
-    pmLongOptions *	long_options;
-    const char *	short_usage;
-
-    /* in: method for general override */
-    pmOptionOverride_v2	override;
-
-    /* out: usual getopt information */
-    int			index;
-    int			optind;
-    int			opterr;
-    int			optopt;
-    char		*optarg;
-
-    /* internals; do not ever access */
-    int			__initialized;
-    char *		__nextchar;
-    int			__ordering;
-    int			__posixly_correct;
-    int			__first_nonopt;
-    int			__last_nonopt;
-
-    /* out: error count */
-    int 		errors;
-
-    /* out: PMAPI options and values */
-    int			context;	/* PM_CONTEXT_{HOST,ARCHIVE,LOCAL} */
-    int			nhosts;
-    int			narchives;
-    char **		hosts;
-    char **		archives;
-    struct timeval	start;
-    struct timeval	finish;
-    struct timeval	origin;
-    struct timeval	interval;
-    char *		align_optarg;
-    char *		start_optarg;
-    char *		finish_optarg;
-    char *		origin_optarg;
-    char *		guiport_optarg;
-    char *		timezone;
-    int			samples;
-    int			guiport;
-    int			padding;
-    unsigned int	guiflag : 1;
-    unsigned int	tzflag  : 1;
-    unsigned int	nsflag  : 1;
-    unsigned int	Lflag   : 1;
-    unsigned int	zeroes  : 28;
-} pmOptions_v2;
 
 typedef struct pmOptions {
     int			version;
@@ -1139,11 +1075,6 @@ typedef struct pmOptions {
     unsigned int	zeroes  : 28;
 } pmOptions;
 
-PCP_CALL extern int pmgetopt_r_v2(int, char *const *, pmOptions_v2 *);
-PCP_CALL extern int pmGetOptions_v2(int, char *const *, pmOptions_v2 *);
-PCP_CALL extern int pmGetContextOptions_v2(int, pmOptions_v2 *);
-PCP_CALL extern void pmUsageMessage_v2(pmOptions_v2 *);
-PCP_CALL extern void pmFreeOptions_v2(pmOptions_v2 *);
 PCP_CALL extern int pmgetopt_r(int, char *const *, pmOptions *);
 PCP_CALL extern int pmGetOptions(int, char *const *, pmOptions *);
 PCP_CALL extern int pmGetContextOptions(int, pmOptions *);
@@ -1441,10 +1372,86 @@ PCP_CALL extern int pmGetUsername(char **);
 /* DSO PMDA helpers */
 PCP_CALL extern char *pmSpecLocalPMDA(const char *);
 
+/*
+ * PMAPI_VERSION_2 interfaces
+ */
+PCP_CALL extern int pmGetArchiveEnd_v2(struct timeval *);
+
+struct pmOptions_v2;
+typedef int (*pmOptionOverride_v2)(int, struct pmOptions_v2 *);
+
+typedef struct pmOptions_v2 {
+    int			version;
+    int			flags;
+
+    /* in: define set of all options */
+    const char *	short_options;
+    pmLongOptions *	long_options;
+    const char *	short_usage;
+
+    /* in: method for general override */
+    pmOptionOverride_v2	override;
+
+    /* out: usual getopt information */
+    int			index;
+    int			optind;
+    int			opterr;
+    int			optopt;
+    char		*optarg;
+
+    /* internals; do not ever access */
+    int			__initialized;
+    char *		__nextchar;
+    int			__ordering;
+    int			__posixly_correct;
+    int			__first_nonopt;
+    int			__last_nonopt;
+
+    /* out: error count */
+    int 		errors;
+
+    /* out: PMAPI options and values */
+    int			context;	/* PM_CONTEXT_{HOST,ARCHIVE,LOCAL} */
+    int			nhosts;
+    int			narchives;
+    char **		hosts;
+    char **		archives;
+    struct timeval	start;
+    struct timeval	finish;
+    struct timeval	origin;
+    struct timeval	interval;
+    char *		align_optarg;
+    char *		start_optarg;
+    char *		finish_optarg;
+    char *		origin_optarg;
+    char *		guiport_optarg;
+    char *		timezone;
+    int			samples;
+    int			guiport;
+    int			padding;
+    unsigned int	guiflag : 1;
+    unsigned int	tzflag  : 1;
+    unsigned int	nsflag  : 1;
+    unsigned int	Lflag   : 1;
+    unsigned int	zeroes  : 28;
+} pmOptions_v2;
+
+PCP_CALL extern int pmgetopt_r_v2(int, char *const *, pmOptions_v2 *);
+PCP_CALL extern int pmGetOptions_v2(int, char *const *, pmOptions_v2 *);
+PCP_CALL extern int pmGetContextOptions_v2(int, pmOptions_v2 *);
+PCP_CALL extern void pmUsageMessage_v2(pmOptions_v2 *);
+PCP_CALL extern void pmFreeOptions_v2(pmOptions_v2 *);
+
+PCP_CALL extern int pmParseTimeWindow_v2(
+      const char *, const char *, const char *, const char *,
+      const struct timeval *, const struct timeval *,
+      struct timeval *, struct timeval *, struct timeval *, char **);
+
 #if PMAPI_VERSION == PMAPI_VERSION_2
 /*
  * old names with API changes mapped to _v2 variants
  */
+#define pmGetArchiveEnd pmGetArchiveEnd_v2
 #define pmOptionOverride pmOptionOverride_v2
 #define pmOptions pmOptions_v2
 #define pmgetopt_r pmgetopt_r_v2
@@ -1452,7 +1459,7 @@ PCP_CALL extern char *pmSpecLocalPMDA(const char *);
 #define pmGetContextOptions pmGetContextOptions_v2
 #define pmUsageMessage pmUsageMessage_v2
 #define pmFreeOptions pmFreeOptions_v2
-#define pmGetArchiveEnd pmGetArchiveEnd_v2
+#define pmParseTimeWindow pmParseTimeWindow_v2
 #endif
 
 #if PMAPI_VERSION >= PMAPI_VERSION_4
@@ -1460,6 +1467,7 @@ PCP_CALL extern char *pmSpecLocalPMDA(const char *);
  * retire HighRes interfaces
  */
 #define pmGetHighResArchiveEnd pmGetArchiveEnd
+#define pmParseHighResTimeWindow pmParseTimeWindow
 #endif
 
 #ifdef __cplusplus

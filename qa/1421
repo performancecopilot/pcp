@@ -1,11 +1,11 @@
 #!/bin/sh
 # PCP QA Test No. 1421
-# [what am I here for?]
+# comparing input archive and pmlogreduce output archive in terms
+# of metadata and metric values, for both V2 and V3 archives
 #
 # valgrind variant, see qa/1420 for the non-valgrind variant
 #
-#
-# Copyright (c) 2022 [who are you?].  All Rights Reserved.
+# Copyright (c) 2022 Ken McDonell.  All Rights Reserved.
 #
 # check-group-include: pmdumplog
 

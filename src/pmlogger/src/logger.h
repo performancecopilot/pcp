@@ -232,6 +232,6 @@ extern int	qa_case;
  * parse -v arg
  */
 extern int
-ParseSize(char *, int *, __int64_t *, struct timeval *);
+ParseSize(char *, int *, __int64_t *, struct timespec *);
 
 #endif /* _LOGGER_H */

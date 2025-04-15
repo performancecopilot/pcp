@@ -43,7 +43,7 @@ tolower_str(char *str)
  */
 int
 ParseSize(char *size_arg, int *sample_counter, __int64_t *byte_size, 
-          struct timeval *time_delta)
+          struct timespec *time_delta)
 {
     long x = 0; /* the size number */
     char *ptr = NULL;
@@ -52,7 +52,7 @@ ParseSize(char *size_arg, int *sample_counter, __int64_t *byte_size,
     *sample_counter = -1;
     *byte_size = -1;
     time_delta->tv_sec = -1;
-    time_delta->tv_usec = -1;
+    time_delta->tv_nsec = -1;
   
     x = strtol(size_arg, &ptr, 10);
 
@@ -120,7 +120,7 @@ ParseSize(char *size_arg, int *sample_counter, __int64_t *byte_size,
     }
 
     /* Doesn't fit pattern above, try a time interval */
-    if (pmParseInterval(size_arg, time_delta, &interval_err) >= 0)
+    if (pmParseHighResInterval(size_arg, time_delta, &interval_err) >= 0)
         return 1;
     /* error message not used here */
     free(interval_err);

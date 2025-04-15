@@ -130,10 +130,10 @@ static __pmTimestamp	curlog;		/* most recent timestamp in log */
 static __pmTimestamp	current;	/* most recent timestamp overall */
 
 /* time window stuff */
-static struct timeval logstart_tv;	/* extracted log start */
-static struct timeval logend_tv;	/* extracted log end */
-static struct timeval winstart_tv;	/* window start tval*/
-static struct timeval winend_tv;	/* window end tval*/
+static struct timespec logstart_ts;	/* extracted log start */
+static struct timespec logend_ts;	/* extracted log end */
+static struct timespec winstart_ts;	/* window start tval*/
+static struct timespec winend_ts;	/* window end tval*/
 
 static __pmTimestamp	logstart;		/* real earliest start time */
 static __pmTimestamp	logend;
@@ -153,7 +153,7 @@ int	xarg;				/* -x arg - skip metrics with mismatched metadata */
 int	zarg;				/* -z arg - use archive timezone */
 char	*tz;				/* -Z arg - use timezone from user */
 
-/* cmd line args that could exist, but don't (needed for pmParseTimeWin) */
+/* cmd line args that could exist, but don't (needed for pmParseHighResTimeWindow) */
 char	*Aarg;				/* -A arg - non-existent */
 char	*Oarg;				/* -O arg - non-existent */
 
@@ -2324,7 +2324,7 @@ parseargs(int argc, char *argv[])
     int			sts;
     char		*endnum;
     struct stat		sbuf;
-    struct timeval	switch_time;
+    struct timespec	switch_time;
 
     while ((c = pmgetopt_r(argc, argv, &opts)) != EOF) {
 	switch (c) {
@@ -2394,8 +2394,8 @@ parseargs(int argc, char *argv[])
 			pmGetProgname(), opts.optarg);
 		opts.errors++;
 	    }
-	    if (switch_time.tv_sec != -1 && switch_time.tv_usec != -1)
-		vol_switch_time = pmtimevalToReal(&switch_time);
+	    if (switch_time.tv_sec != -1 && switch_time.tv_nsec != -1)
+		vol_switch_time = pmtimespecToReal(&switch_time);
 	    else
 		vol_switch_time = -1;
 	    break;
@@ -2836,7 +2836,7 @@ main(int argc, char **argv)
     inarch_t		*iap;		/* ptr to archive control */
     rlist_t		*rlready = NULL;	/* results ready for writing */
 
-    struct timeval	unused;
+    struct timespec	unused;
     __pmTimestamp	end;
 
     __pmHashInit(&rdesc);	/* hash of meta desc records to write */
@@ -2956,12 +2956,12 @@ main(int argc, char **argv)
 	if (indx == 0) {
 	    /* start time */
 	    logstart = iap->label.start;	/* struct assignment */
-	    logstart_tv.tv_sec = iap->label.start.sec;
-	    logstart_tv.tv_usec = iap->label.start.nsec / 1000;
+	    logstart_ts.tv_sec = iap->label.start.sec;
+	    logstart_ts.tv_nsec = iap->label.start.nsec;
 	    /* end time */
 	    logend = end;			/* struct assignment */
-	    logend_tv.tv_sec = end.sec;
-	    logend_tv.tv_usec = end.nsec / 1000;
+	    logend_ts.tv_sec = end.sec;
+	    logend_ts.tv_nsec = end.nsec;
 	    if (pmDebugOptions.appl2) {
 		fprintf(stderr, "[%d] intial set log* ", indx);
 		__pmPrintTimestamp(stderr, &logstart);
@@ -3071,9 +3071,9 @@ main(int argc, char **argv)
 
 
     /* set winstart and winend timevals */
-    sts = pmParseTimeWindow(Sarg, Targ, Aarg, Oarg,
-			    &logstart_tv, &logend_tv,
-			    &winstart_tv, &winend_tv, &unused, &msg);
+    sts = pmParseHighResTimeWindow(Sarg, Targ, Aarg, Oarg,
+			    &logstart_ts, &logend_ts,
+			    &winstart_ts, &winend_ts, &unused, &msg);
     if (sts < 0) {
 	fprintf(stderr, "%s: Invalid time window specified: %s\n",
 		pmGetProgname(), msg);
@@ -3081,30 +3081,30 @@ main(int argc, char **argv)
 	/*NOTREACHED*/
     }
     if (pmDebugOptions.appl2) {
-	fprintf(stderr, "pmParseTimeWindow -> %d win*_tv ", sts);
-	pmPrintStamp(stderr, &winstart_tv);
+	fprintf(stderr, "pmParseHighResTimeWindow -> %d win*_ts ", sts);
+	pmPrintHighResStamp(stderr, &winstart_ts);
 	fprintf(stderr, " ... ");
-	pmPrintStamp(stderr, &winend_tv);
-	fprintf(stderr, " log*_tv ");
-	pmPrintStamp(stderr, &logstart_tv);
+	pmPrintHighResStamp(stderr, &winend_ts);
+	fprintf(stderr, " log*_ts ");
+	pmPrintHighResStamp(stderr, &logstart_ts);
 	fprintf(stderr, " ... ");
-	pmPrintStamp(stderr, &logend_tv);
+	pmPrintHighResStamp(stderr, &logend_ts);
 	fputc('\n', stderr);
     }
     if (Sarg != NULL || Aarg != NULL || Oarg != NULL) {
-	winstart.sec = winstart_tv.tv_sec;
-	winstart.nsec = winstart_tv.tv_usec * 1000;
+	winstart.sec = winstart_ts.tv_sec;
+	winstart.nsec = winstart_ts.tv_nsec;
     }
     if (Targ != NULL || Aarg != NULL) {
-	winend.sec = winend_tv.tv_sec;
-	winend.nsec = winend_tv.tv_usec * 1000;
-	/*
-	 * add 1 to winend.sec to dodge truncation in the conversion
-	 * from usec to nsec ... without this we risk missing the very
-	 * the last input data record and (less likely) the last indom
-	 * metadata record
-	 */
-	winend.sec++;
+	winend.sec = winend_ts.tv_sec;
+	winend.nsec = winend_ts.tv_nsec;
+	///*
+	 //* add 1 to winend.sec to dodge truncation in the conversion
+	 //* from usec to nsec ... without this we risk missing the very
+	 //* the last input data record and (less likely) the last indom
+	 //* metadata record
+	 //*/
+	//winend.sec++;
     }
     if (pmDebugOptions.appl2) {
 	fprintf(stderr, "after arg processing: win* ");
