@@ -1,0 +1,62 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2025 Red Hat.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.TH PMSERIES_IMPORT 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmseries_import\f1 \- import PCP archive files for historical time series querying
+.SH SYNOPSIS
+.B $PCP_BINADM_DIR/pmseries_import
+[\f3\--archives\f1 \f2path\f1]
+.SH DESCRIPTION
+.B pmseries_import
+monitors a given \f2path\f1 for PCP archives, and automatically
+loads the contents into a key server (such as Valkey or Redis).
+This is then suitable for fast time series querying using the
+.BR pmseries (1)
+language, as provided by the command line tool and PCP REST API
+services of
+.BR pmproxy (1).
+.PP
+.B pmseries_import
+uses a simple polling technique, checking the archives directory
+for new archive files every 10 seconds.
+.PP
+This utility is most commonly used within a container providing
+an automated Grafana dashboard setup for arbitrary PCP archives.
+This approach provides an environment containing a
+.BR systemd (1)
+server to enable this archive monitoring utility, pre-configured
+.BR grafana-server (1),
+.BR valkey-server (1),
+and
+.BR pmproxy (1)
+REST API services.
+.SH OPTIONS
+.TP 5
+\fB\--archives\fR=\fIpath\fR
+Specifies an alternate
+.I path
+to poll for new PCP archives.
+Default value is
+.IR /archives .
+.SH SEE ALSO
+.BR grafana-server (1),
+.BR systemd (1),
+.BR valkey-server (1),
+.BR pmproxy (1)
+and
+.BR pmseries (1).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ grafana Grafana pre valkey Valkey
