@@ -185,7 +185,6 @@ GIT	= @GIT@
 # man-lint should not break the build (-f)
 MANLINT	= $(TOPDIR)/scripts/man-lint -f
 PYLINT	= @PYLINT@ --rcfile=$(TOPDIR)/.pylintrc --output-format=colorized
-PYTHON	= @PYTHON@
 PYTHON3	= @PYTHON3@
 DTRACE  = @DTRACE@
 ifeq "$(TARGET_OS)" "freebsd"
@@ -266,7 +265,6 @@ ENABLE_AVAHI = @enable_avahi@
 ENABLE_DSTAT = @enable_dstat@
 ENABLE_QT = @enable_qt@
 ENABLE_QT3D = @enable_qt3d@
-ENABLE_PYTHON2 = @enable_python2@
 ENABLE_PYTHON3 = @enable_python3@
 ENABLE_SYSTEMD = @enable_systemd@
 ENABLE_SELINUX = @enable_selinux@
@@ -276,7 +274,7 @@ ENABLE_LZMA = @enable_lzma@
 # for code supporting any modern version of perl
 HAVE_PERL = @have_perl@
 
-# for code supporting both/either python2 and/or python3
+# for code supporting any modern version of python3
 HAVE_PYTHON = @have_python@
 
 # python dependent bits
@@ -697,7 +695,8 @@ endif
 #
 # Python platform-specific installation quirks
 PYTHON_PREFIX=@python_prefix@
-SETUP_PY_BUILD_OPTIONS = --include-dirs=$(TOPDIR)/src/include:$(TOPDIR)/src/include/pcp$(EXTRA_PY_INCLUDES)
+SETUP_PY_BUILD_OPTIONS = -DENABLE_PYTHON3
+SETUP_PY_BUILD_OPTIONS += --include-dirs=$(TOPDIR)/src/include:$(TOPDIR)/src/include/pcp$(EXTRA_PY_INCLUDES)
 SETUP_PY_BUILD_OPTIONS += --library-dirs=$(TOPDIR)/src/libpcp/src:$(TOPDIR)/src/libpcp_pmda/src:$(TOPDIR)/src/libpcp_gui/src:$(TOPDIR)/src/libpcp_import/src:$(TOPDIR)/src/libpcp_mmv/src
 SETUP_PY_INSTALL_OPTIONS = --skip-build
 SETUP_PY_INSTALL_OPTIONS += --root="$${DIST_ROOT:-/}"
@@ -708,22 +707,10 @@ endif
 else
 SETUP_PY_INSTALL_OPTIONS += --prefix=$(PYTHON_PREFIX)
 endif
-ifeq "$(ENABLE_PYTHON3)" "true"
-SETUP_PY_BUILD_OPTIONS += -DENABLE_PYTHON3
-endif
 # RPM byte-compiles and installs results in our DIST_ROOT, cater for this:
 ifeq "$(shell [ '$(TARGET_OS)' = linux -a '$(PACKAGE_DISTRIBUTION)' != gentoo \
 	      ] && echo 1)" "1"
 # Linux and not Gentoo (which needs tarball packaging)
-PYTHON_INSTALL = \
-	cat $(TOPDIR)/python-pcp.list | while read f; do \
-	    dirname $$f | $(SED) -e '/.*packages$$/d'; \
-	done | $(PCP_SORT_PROG) -u > $(TOPDIR)/python-pcp.list.rpm; \
-	$(AWK) '{print} /\.pyc$$/ {sub(/\.pyc$$/,".pyo"); print}' \
-	    < $(TOPDIR)/python-pcp.list >> $(TOPDIR)/python-pcp.list.rpm; \
-	cat $(TOPDIR)/python-pcp.list.rpm | while read f; do \
-	    touch "$${DIST_ROOT-/}$$f"; \
-	done
 PYTHON3_INSTALL = \
 	cat $(TOPDIR)/python3-pcp.list | while read f; do \
 	    dirname $$f | $(SED) -e '/.*packages$$/d'; \
@@ -743,27 +730,8 @@ ifeq "$(shell [ '$(PACKAGE_DISTRIBUTION)' = cocoa \
                 -o '$(PACKAGE_DISTRIBUTION)' = freebsd \
 	      ] && echo 1)" "1"
 # Gather installed Python files before packaging
-# Lines in python-pcp.list are like this
-# /usr/lib/python2.7/site-packages/pcp.py
-# /usr/lib/python2.7/site-packages/pcp.pyc
-# /usr/lib/python2.7/site-packages/pmapi.so
-# /usr/lib/python2.7/site-packages/pcp-0.2-py2.7.egg-info
-#
 # Matching build artifacts are below src/python/build
 #
-PYTHON_INSTALL = \
-	if [ -n "$(DIST_MANIFEST)" ]; then \
-	    cat $(TOPDIR)/python-pcp.list \
-	    | while read f; do \
-		bn=`basename $$f`; \
-		dn=`dirname $$f`; \
-		pydir="$(TOPDIR)/src/python"; \
-		$(INSTALL) -d $$dn || exit 1; \
-		for src in `find $$pydir/build $$pydir/pcp.egg-info -name $$bn`; do \
-		    $(INSTALL) $$src $$f || exit 1; \
-	        done; \
-	    done; \
-	fi
 PYTHON3_INSTALL = \
 	if [ -n "$(DIST_MANIFEST)" ]; then \
 	    cat $(TOPDIR)/python3-pcp.list \
@@ -782,17 +750,6 @@ ifeq "$(shell [ '$(PACKAGE_DISTRIBUTION)' = openbsd \
 	      ] && echo 1)" "1"
 # similar to above, but files already installed in DIST_ROOT so
 # just append to the manifest
-PYTHON_INSTALL = \
-	if [ -n "$(DIST_MANIFEST)" ]; then \
-	    cat $(TOPDIR)/python-pcp.list \
-	    | while read f; do \
-		bn=`basename $$f`; \
-		dn=`dirname $$f`; \
-		$(INSTALL) -d $$dn || exit 1; \
-		src=`find "$(DIST_ROOT)/usr/lib" -name $$bn`; \
-		$(INSTALL) $$src $$f || exit 1; \
-	    done; \
-	fi
 PYTHON3_INSTALL = \
 	if [ -n "$(DIST_MANIFEST)" ]; then \
 	    cat $(TOPDIR)/python3-pcp.list \
@@ -804,9 +761,6 @@ PYTHON3_INSTALL = \
 		$(INSTALL) $$src $$f || exit 1; \
 	    done; \
 	fi
-else
-# default case if all of the above tests fail
-PYTHON_INSTALL =
 endif	# openbsd if
 endif	# cocoa ... freebsd if
 endif	# linux && !gentoo if

@@ -46,9 +46,6 @@ from cpmapi import PM_LABEL_INDOM, PM_LABEL_INSTANCES
 from cpmapi import PM_LABEL_DOMAIN, PM_LABEL_CLUSTER, PM_LABEL_ITEM
 from cpmi import PMI_ERR_DUPINSTNAME, PMI_ERR_DUPTEXT
 
-if sys.version_info[0] >= 3:
-    long = int # pylint: disable=redefined-builtin
-
 # Default config
 DEFAULT_CONFIG = ["./pmrep.conf", "$HOME/.pmrep.conf", "$HOME/.pcp/pmrep.conf", "$PCP_SYSCONF_DIR/pmrep/pmrep.conf", "$PCP_SYSCONF_DIR/pmrep"]
 
@@ -1253,7 +1250,7 @@ class PMReporter(object):
 
     def format_stdout_value(self, value, width, precision, fmt, k):
         """ Format value for stdout output """
-        if isinstance(value, (int, long)):
+        if isinstance(value, int):
             if len(str(value)) > width:
                 value = pmconfig.TRUNC
             else:

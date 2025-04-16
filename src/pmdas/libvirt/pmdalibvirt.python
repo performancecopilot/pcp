@@ -49,9 +49,6 @@ from cpmapi import PM_COUNT_ONE, PM_SPACE_BYTE, PM_SPACE_KBYTE, PM_TIME_SEC, PM_
 from cpmapi import PM_ERR_INST, PM_ERR_NYI, PM_ERR_PMID
 from cpmda import PMDA_FETCH_NOVALUES
 
-if sys.version_info[0] >= 3:
-    long = int # pylint: disable=redefined-builtin
-
 DEFAULT_USER = 'root'
 DEFAULT_URI = 'qemu:///system'
 
@@ -385,11 +382,7 @@ class LibvirtPMDA(PMDA):
         conffile += '/' + self.read_name() + '/' + self.read_name() + '.conf'
 
         # Silently ignore missing file/section
-        # Python < 3.2 compat
-        if sys.version_info[0] >= 3 and sys.version_info[1] >= 2:
-            config = ConfigParser.ConfigParser()
-        else:
-            config = ConfigParser.SafeConfigParser()
+        config = ConfigParser.ConfigParser()
         config.read(conffile)
         if config.has_section('pmda'):
             for opt in config.options('pmda'):
@@ -425,7 +418,7 @@ class LibvirtPMDA(PMDA):
         """ Convert value """
         # No float/double in use
         if mtype != PM_TYPE_STRING:
-            value = long(value)
+            value = int(value)
         return value
 
     def scale_to_kib(self, value, unit):

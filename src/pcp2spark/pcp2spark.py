@@ -37,9 +37,6 @@ from pcp import pmapi, pmconfig
 from cpmapi import PM_CONTEXT_ARCHIVE, PM_IN_NULL, PM_DEBUG_APPL0, PM_DEBUG_APPL1
 from cpmapi import PM_TIME_MSEC
 
-if sys.version_info[0] >= 3:
-    long = int # pylint: disable=redefined-builtin
-
 # Default config
 DEFAULT_CONFIG = ["./pcp2spark.conf", "$HOME/.pcp2spark.conf", "$HOME/.pcp/pcp2spark.conf", "$PCP_SYSCONF_DIR/pcp2spark.conf"]
 
@@ -407,7 +404,7 @@ class PCP2Spark(object):
         # Assemble all metrics into a single document
         # Use @-prefixed keys for metadata not coming in from PCP metrics
         host = self.context.pmGetContextHostName()
-        data = {'@host-id': host, '@timestamp': long(ts)}
+        data = {'@host-id': host, '@timestamp': int(ts)}
 
         insts_key = "@instances"
         inst_key = "@id"
