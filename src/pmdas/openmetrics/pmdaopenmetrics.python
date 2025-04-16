@@ -127,15 +127,9 @@ class Metric(object):
             (name, pmContext.pmIDStr(self.pmid), self.mtype, self.msem, self.singular, self.mindom, self.labels))
 
         self.obj = pmdaMetric(self.pmid, self.mtype, self.mindom, self.msem, self.munits)
+        self.source.pmda.all_metrics[self.mname] = self.obj
 
-        if helpline: # it could be None!
-            unescaped = helpline.replace('\\\\', '\\').replace('\\n', '\n')
-            split = unescaped.split('\n')
-            help_oneline = split[0] # must have at least one entry
-            help_text = '\n'.join(split[1:]) # may have other entries
-        else:
-            help_oneline = ''
-            help_text = ''
+        help_text, help_oneline = self.source.helptext(helpline)
 
         try:
             self.source.pmda.add_metric(self.mname, self.obj, help_oneline, help_text)
@@ -588,6 +582,16 @@ class Source(object):
         self.metrics_by_name = {} # name -> Metric
         self.metrics_by_num = {} # number (last component of pmid) -> Metric
 
+    def helptext(self, helpline):
+        if helpline: # it could be None!
+            unescaped = helpline.replace('\\\\', '\\').replace('\\n', '\n')
+            split = unescaped.split('\n')
+            help_oneline = split[0] # must have at least one entry
+            help_text = '\n'.join(split[1:]) # may have other entries
+        else:
+            help_oneline = ''
+            help_text = ''
+        return help_text, help_oneline
 
     def old_enough_for_refresh(self):
         '''But what is "old"?  If it is empty (no metrics), then it
@@ -685,6 +689,23 @@ class Source(object):
             self.pmda.debug("included_labels '%s'" % (included_labels)) if self.pmda.dbg else None
             self.pmda.debug("optional_labels '%s'" % (optional_labels)) if self.pmda.dbg else None
             if sp.name in self.metrics_by_name:
+                if ("openmetrics.%s.%s" % (self.name, sp.name)) not in self.pmda.all_metrics and self.name in self.pmda.re_add_list:
+                    # re-add metric to namespace
+                    if pcpline:
+                        split = pcpline.split(" ")
+                        fullname = "openmetrics.%s.%s" % (self.name, split[1])
+                    else:
+                        fullname = "openmetrics.%s.%s" % (self.name, sp.name.replace(":", "."))
+                    help_oneline, help_text = self.helptext(helpline)
+                    try:
+                        obj = self.pmda.removed_metrics[fullname]
+                        self.pmda.add_metric(fullname, obj, help_oneline, help_text)
+                        self.pmda.debug("re-adding metric: %s to namespace" % fullname) if self.pmda.dbg else None
+                        self.pmda.all_metrics[fullname] = obj
+                        del self.pmda.removed_metrics[fullname]
+                        self.pmda.set_need_refresh()
+                    except Exception as e:
+                        self.pmda.debug("Can't re-add metric: %s, see error: %s" % (fullname, e)) if self.pmda.dbg else None
                 m = self.metrics_by_name[sp.name]
                 assert self.metrics_by_num[m.metricnum] == m
                 if m.singular:
@@ -693,6 +714,7 @@ class Source(object):
                 else:
                     m.store_inst(naming_labels, sp.value)
                     self.pmda.debug("naming_labels '%s'" % (naming_labels)) if self.pmda.dbg else None
+            # new metric case
             else:
                 # check metric is not excluded by filters
                 fullname = "openmetrics.%s.%s" % (self.name, sp.name)
@@ -1014,6 +1036,10 @@ class OpenMetricsPMDA(PMDA):
         reserved_cluster = self.cluster_table.intern_lookup_value("control")
         assert reserved_cluster == 0
         self.source_by_cluster = {}
+        # all metrics added, to be used for removal
+        self.all_metrics = {}
+        # keep track of removed metrics, in case of re-addition
+        self.removed_metrics = {}
 
         # compiled regex cache
         self.regex_cache = {}
@@ -1148,8 +1174,40 @@ class OpenMetricsPMDA(PMDA):
 
         self.log("Config change detected, traversed %d config entries in %.04fs, rescanning ..." % (len(conf_filelist), traverse_time))
         nickname_regexp = self.lookup_regex(r"^[A-Za-z][A-Za-z0-9_.]*$")
+        self.re_add_list = []
 
-        # TODO: maybe nuke sources related to removed files
+        # calculate config entry nicknames
+        nicknames = []
+        for file in conf_filelist:
+            file_split = os.path.splitext(file)
+            name = file_split[0].replace(self.config_dir + "/", "").replace("/", ".")
+            nicknames.append(name)
+
+        # check if config change adds a previously removed source
+        for key in self.removed_metrics:
+            split_name = key.split(".")
+            if split_name[1] in nicknames:
+                self.re_add_list.append(split_name[1])
+
+        # if source is not in config directory, remove the metric
+        for key, value in self.all_metrics.items():
+            split_name = key.split(".")
+            if split_name[1] in nicknames:
+                continue
+            try:
+                remove_name = key
+                remove_obj = value
+                self.remove_metric(remove_name, remove_obj)
+                self.removed_metrics[remove_name] = remove_obj
+                self.debug("removed metric name: %s" % remove_name) if self.dbg else None
+                self.set_need_refresh()
+            except Exception as e:
+                self.debug("can't remove metric: %s, see error: %s" % (key, e)) if self.dbg else None
+
+        for key in self.removed_metrics:
+            if key in self.all_metrics:
+                del self.all_metrics[key]
+
         save_cluster_table = False
         if sort_conf_list:
             # sorted for indom cluster consistency
@@ -1177,6 +1235,16 @@ class OpenMetricsPMDA(PMDA):
             if name in self.source_by_name:
                 # this source is already known
                 self.assert_source_invariants(name=name)
+                s = self.source_by_name[name]
+                cluster_for_refresh = []
+                cluster_for_refresh_names = []
+                if name in self.re_add_list:
+                    for key,value in self.source_by_cluster.items():
+                        if value == s:
+                            cluster_for_refresh.append(key)
+                            cluster_for_refresh_names.append(name)
+                    self.debug("refreshing cluster list: %s" % cluster_for_refresh_names) if self.dbg else None
+                    self.refresh_some_clusters_for_fetch(cluster_for_refresh)
             else:
                 try:
                     path = file

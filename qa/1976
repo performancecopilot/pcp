@@ -1,0 +1,90 @@
+#!/bin/sh
+# PCP QA Test No. 1976
+# test pmdaopenmetrics metric removal
+#
+# Copyright (c) 2017, 2025 Red Hat.  All Rights Reserved.
+#
+# Note: if anything gets added or changed in qa/openmetrics/samples directory,
+# then this test (and all tests in group pmda.openmetrics) will need to be remade.
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.openmetrics
+
+_pmdaopenmetrics_check || _notrun "openmetrics pmda not installed"
+
+status=1        # failure is the default!
+
+_cleanup()
+{
+    cd $here
+    _pmdaopenmetrics_cleanup
+    $sudo rm -rf $tmp $tmp.*
+}
+
+_prepare_pmda openmetrics
+trap "_cleanup; exit \$status" 0 1 2 3 15
+_stop_auto_restart pmcd
+
+_pmdaopenmetrics_save_config
+
+# add all the sample text files as urls.
+# need to be a place the user $PCP_USER (pmcd) can read
+#
+( cd $here/openmetrics/samples; ls -1 *.txt ) | sort | while read file
+do
+    cp $here/openmetrics/samples/$file $tmp.$file
+    urlbase=`basename "$file" .txt | tr .- _`
+    echo 'file://'$tmp.$file >$tmp.tmp
+    $sudo cp $tmp.tmp $PCP_PMDAS_DIR/openmetrics/config.d/$urlbase.url
+done
+ls -l $PCP_PMDAS_DIR/openmetrics/config.d >>$seq_full
+
+# add all the sample scripts
+cp -a $here/openmetrics/scripts/* $PCP_PMDAS_DIR/openmetrics/config.d
+find $PCP_PMDAS_DIR/openmetrics/config.d -name GNU\* -exec rm -f {} ";"
+
+_pmdaopenmetrics_install
+
+if ! _pmdaopenmetrics_wait_for_metric openmetrics.thermostat
+then
+    status=1
+    exit
+fi
+
+echo "-- metric removal of new source/metric --"
+$sudo rm $PCP_PMDAS_DIR/openmetrics/config.d/simple_metric.url
+if pminfo openmetrics | grep openmetrics.simple_metric
+then
+	echo "metric removal failed..exiting"
+	status=1
+	exit
+else
+	echo "metric removal success"
+fi
+echo
+
+echo "-- source re-addition --"
+path=$here/openmetrics/samples/simple_metric.txt
+echo 'file:///'$path > $PCP_PMDAS_DIR/openmetrics/config.d/simple_metric.url
+pminfo openmetrics.simple_metric
+echo
+
+echo "-- metric removal of recognized source/metric --"
+$sudo rm $PCP_PMDAS_DIR/openmetrics/config.d/simple_metric.url
+if pminfo openmetrics | grep openmetrics.simple_metric
+then
+        echo "metric removal failed..exiting"
+        status=1
+        exit
+else
+        echo "metric removal success"
+fi
+
+_pmdaopenmetrics_remove >/dev/null 2>&1
+
+# success, all done
+status=0
+exit
