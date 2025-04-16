@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012-2022 Red Hat.
+# Copyright (c) 2012-2022,2025 Red Hat.
 # Copyright (c) 2000,2003 Silicon Graphics, Inc.  All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -32,7 +32,7 @@ LDIRT = config.cache config.status config.log files.rpm \
 	autom4te.cache install.manifest install.tmpfiles \
 	debug*.list devel_files libs_files conf_files \
 	base_files.rpm libs_files.rpm devel_files.rpm \
-	perl-pcp*.list* python-pcp*.list* python3-pcp*.list* \
+	perl-pcp*.list* python3-pcp*.list* \
 	tmpfiles.init.setup
 LDIRDIRT = pcp-[0-9]*.[0-9]*.[0-9]*  pcp-*-[0-9]*.[0-9]*.[0-9]*
 

@@ -535,3 +535,23 @@ ifndef(`userdom_manage_tmp_files',`
         ')
     ')
 ')
+
+########################################
+## <summary>
+##      Dummy kernel_read_psi().
+##      Allow caller to set up pressure stall information (PSI),
+##      but if you don't have actual kernel_read_psi() interface
+##      nothing needs to be done.
+## <param name="domain">
+##      <summary>
+##      Domain allowed access.
+##      </summary>
+## </summary> 
+#
+ifndef(`kernel_read_psi',`
+    interface(`kernel_read_psi',`
+        gen_require(`
+            type $1;
+        ')
+    ')
+')

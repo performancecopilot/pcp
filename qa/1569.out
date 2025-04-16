@@ -139,20 +139,20 @@ pmlogcompress: -f [bzip] not allowed when compressing with -o
 exit status 1
 
 === some decompress success cases ===
-pcp-meminfo.0.xz 884
+pcp-meminfo.0.xz 928
 pcp-meminfo.index 192
-pcp-meminfo.meta.xz 3392
+pcp-meminfo.meta.xz 3620
 --- pmlogdecompress -N pcp-meminfo ---
 stderr ...
 + xz --decompress pcp-meminfo.0.xz
 + xz --decompress pcp-meminfo.meta.xz
-pcp-meminfo.0.xz 884
+pcp-meminfo.0.xz 928
 pcp-meminfo.index 192
-pcp-meminfo.meta.xz 3392
+pcp-meminfo.meta.xz 3620
 --- pmlogdecompress pcp-meminfo ---
-pcp-meminfo.0 14288
+pcp-meminfo.0 16048
 pcp-meminfo.index 192
-pcp-meminfo.meta 11444
+pcp-meminfo.meta 12518
 --- pmlogdecompress -V -t tmp archives/pcp-meminfo ---
 stderr ...
 archbase=archives/pcp-meminfo
@@ -160,9 +160,9 @@ archbase=archives/pcp-meminfo
 tmp/pcp-meminfo.0: decompressed
 tmp/pcp-meminfo.index: copied
 tmp/pcp-meminfo.meta: decompressed
-tmp/pcp-meminfo.0 14288
+tmp/pcp-meminfo.0 16048
 tmp/pcp-meminfo.index 192
-tmp/pcp-meminfo.meta 11444
+tmp/pcp-meminfo.meta 12518
 --- pmlogdecompress -t . HERE/archives/pcp-meminfo ---
 +++ lzma +++
 --- pmlogdecompress -V pcp-meminfo ---
@@ -170,9 +170,9 @@ stderr ...
 archbase=pcp-meminfo
 1 of 3 files in the archive are compressed
 pcp-meminfo.0: decompressed
-pcp-meminfo.0 14288
+pcp-meminfo.0 16048
 pcp-meminfo.index 192
-pcp-meminfo.meta 11444
+pcp-meminfo.meta 12518
 +++ bz2 +++
 --- pmlogdecompress -V pcp-meminfo ---
 stderr ...
@@ -181,18 +181,18 @@ archbase=pcp-meminfo
 pcp-meminfo.0: decompressed
 pcp-meminfo.index: decompressed
 pcp-meminfo.meta: decompressed
-pcp-meminfo.0 14288
+pcp-meminfo.0 16048
 pcp-meminfo.index 192
-pcp-meminfo.meta 11444
+pcp-meminfo.meta 12518
 +++ bz +++
 --- pmlogdecompress -V pcp-meminfo ---
 stderr ...
 archbase=pcp-meminfo
 1 of 3 files in the archive are compressed
 pcp-meminfo.0: decompressed
-pcp-meminfo.0 14288
+pcp-meminfo.0 16048
 pcp-meminfo.index 192
-pcp-meminfo.meta 11444
+pcp-meminfo.meta 12518
 +++ gz +++
 --- pmlogdecompress -V pcp-meminfo ---
 stderr ...
@@ -200,18 +200,18 @@ archbase=pcp-meminfo
 2 of 3 files in the archive are compressed
 pcp-meminfo.0: decompressed
 pcp-meminfo.meta: decompressed
-pcp-meminfo.0 14288
+pcp-meminfo.0 16048
 pcp-meminfo.index 192
-pcp-meminfo.meta 11444
+pcp-meminfo.meta 12518
 +++ z +++
 --- pmlogdecompress -V pcp-meminfo ---
 stderr ...
 archbase=pcp-meminfo
 1 of 3 files in the archive are compressed
 pcp-meminfo.0: decompressed
-pcp-meminfo.0 14288
+pcp-meminfo.0 16048
 pcp-meminfo.index 192
-pcp-meminfo.meta 11444
+pcp-meminfo.meta 12518
 
 === some compress (and decompress) success cases ===
 foo+.0 9272
@@ -266,26 +266,26 @@ stderr ...
 archbase=pcp-meminfo
 pcp-meminfo.0.xz: skipped, already compressed
 pcp-meminfo.meta.xz: skipped, already compressed
-pcp-meminfo.0.xz 892
+pcp-meminfo.0.xz 956
 pcp-meminfo.index 192
-pcp-meminfo.meta.xz 3640
+pcp-meminfo.meta.xz 3892
 --- pmlogdecompress pcp-meminfo.meta.xz ---
-pcp-meminfo.0.xz 892
+pcp-meminfo.0.xz 956
 pcp-meminfo.index 192
-pcp-meminfo.meta 11444
+pcp-meminfo.meta 12518
 --- pmlogdecompress pcp-meminfo.0.xz blah ---
 stderr ...
 pmlogdecompress: Warning: no PCP archive files match "blah"
-pcp-meminfo.0 14288
+pcp-meminfo.0 16048
 pcp-meminfo.index 192
-pcp-meminfo.meta 11444
+pcp-meminfo.meta 12518
 --- pmlogcompress -l0 -f xz pcp-meminfo.meta ---
-pcp-meminfo.0 14288
+pcp-meminfo.0 16048
 pcp-meminfo.index 192
-pcp-meminfo.meta.xz 3640
+pcp-meminfo.meta.xz 3892
 --- pmlogcompress -l0 -f xz pcp-meminfo.0 blah ---
 stderr ...
 pmlogcompress: Warning: no PCP archive files match "blah"
-pcp-meminfo.0.xz 892
+pcp-meminfo.0.xz 956
 pcp-meminfo.index 192
-pcp-meminfo.meta.xz 3640
+pcp-meminfo.meta.xz 3892

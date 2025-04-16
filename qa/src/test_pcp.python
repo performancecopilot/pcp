@@ -335,10 +335,7 @@ def test_pcp(self):
         self.assertTrue(False)
 
     try:
-        if sys.version_info[0] < 3:
-            (units,mult) = ctx.pmParseUnitsStr("5 mb/4 seconds")
-        else:
-            (units,mult) = ctx.pmParseUnitsStr(u"5 mb/4 seconds")
+        (units,mult) = ctx.pmParseUnitsStr(u"5 mb/4 seconds")
         print("pmParseUnitsStr[unicode]:", units, mult)
         self.assertTrue(True)
     except pmapi.pmErr as error:

@@ -10,7 +10,6 @@ echo "QA output created by $seq"
 . ./common.python
 
 _check_series
-_check_requests_json
 
 signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!

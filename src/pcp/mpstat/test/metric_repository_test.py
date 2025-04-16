@@ -15,12 +15,8 @@
 
 import sys
 import unittest
-if sys.version_info[0] < 3:
-    from mock import Mock
-    import mock
-else:
-    from unittest.mock import Mock
-    import unittest.mock as mock
+from unittest.mock import Mock
+import unittest.mock as mock
 from pcp_mpstat import MetricRepository
 
 class MetricRepositoryTest(unittest.TestCase):
