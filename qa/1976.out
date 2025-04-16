@@ -2,10 +2,12 @@ QA output created by 1976
 
 === openmetrics agent installation ===
 -- metric removal of new source/metric --
-metric removal success
+Error: openmetrics.simple_metric: Unknown metric name
 
 -- source re-addition --
+openmetrics.simple_metric.metric2
 openmetrics.simple_metric.metric1
 
 -- metric removal of recognized source/metric --
-metric removal success
+Error: openmetrics.simple_metric: Unknown metric name
+
