@@ -6,25 +6,10 @@
 # DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
 #
 
-if [ $# -eq 0 ]
-then
-    seq=`basename $0`
-    echo "QA output created by $seq"
-else
-    # use $seq from caller, unless not set
-    [ -n "$seq" ] || seq=`basename $0`
-    echo "QA output created by `basename $0` $*"
-fi
+seq=`basename $0`
+echo "QA output created by $seq"
 
-# get standard environment, filters and checks
 . ./common.python
-
-__version=`$python --version 2>&1 | sed -e 's/Python //'`
-case "$__version"
-in
-    2.7.5)	_notrun "Python $__version reports start seconds off-by one for some processes"
-    		;;
-esac
 
 status=1        # failure is the default!
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
