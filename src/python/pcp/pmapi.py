@@ -123,30 +123,6 @@ LIBC = CDLL(find_library(libc_name))
 
 ##############################################################################
 #
-# python version information and compatibility
-#
-
-if sys.version >= '3':
-    integer_types = (int,)
-    long = int
-    text_type = str
-else:
-    integer_types = (int, long,)
-    text_type = unicode # pylint: disable=undefined-variable
-
-def pyFileToCFile(fileObj):
-    if sys.version >= '3':
-        ctypes.pythonapi.PyObject_AsFileDescriptor.restype = c_int
-        ctypes.pythonapi.PyObject_AsFileDescriptor.argtypes = [ctypes.py_object]
-        return os.fdopen(ctypes.pythonapi.PyObject_AsFileDescriptor(fileObj), "r", closefd=False)
-    else:
-        ctypes.pythonapi.PyFile_AsFile.restype = c_void_p
-        ctypes.pythonapi.PyFile_AsFile.argtypes = [ctypes.py_object]
-        return ctypes.pythonapi.PyFile_AsFile(fileObj)
-
-
-##############################################################################
-#
 # definition of exception classes
 #
 
@@ -270,7 +246,7 @@ class timeval(Structure):
         return int(self.tv_sec)
 
     def __long__(self):
-        return long(self.tv_sec)
+        return int(self.tv_sec)
 
     def __int__(self):
         return int(self.tv_sec)
@@ -328,7 +304,7 @@ class timespec(Structure):
         return int(self.tv_sec)
 
     def __long__(self):
-        return long(self.tv_sec)
+        return int(self.tv_sec)
 
     def __int__(self):
         return int(self.tv_sec)
@@ -373,8 +349,8 @@ class tm(Structure):
         second = c_api.pmMktime(self.tm_sec, self.tm_min, self.tm_hour,
                                 self.tm_mday, self.tm_mon, self.tm_year,
                                 self.tm_wday, self.tm_yday, self.tm_isdst,
-                                long(self.tm_gmtoff), str(self.tm_zone))
-        timetp = c_long(long(second))
+                                int(self.tm_gmtoff), str(self.tm_zone))
+        timetp = c_long(int(second))
         LIBPCP.pmCtime(byref(timetp), result)
         return str(result.value.decode()).rstrip()
 
@@ -1837,7 +1813,7 @@ class pmContext(object):
         if status < 0:
             raise pmErr(status)
 
-        if isinstance(pmids_p, integer_types):
+        if isinstance(pmids_p, int):
             pmids = (c_uint * 1)()
             pmids[0] = pmids_p
         else:
@@ -2165,7 +2141,7 @@ class pmContext(object):
         if status < 0:
             raise pmErr(status)
         result = (tm)()
-        timetp = c_long(long(seconds))
+        timetp = c_long(int(seconds))
         LIBPCP.pmLocaltime(byref(timetp), byref(result))
         return result
 
@@ -2175,7 +2151,7 @@ class pmContext(object):
         if status < 0:
             raise pmErr(status)
         result = ctypes.create_string_buffer(32)
-        timetp = c_long(long(seconds))
+        timetp = c_long(int(seconds))
         LIBPCP.pmCtime(byref(timetp), result)
         return str(result.value.decode())
 
@@ -2781,6 +2757,11 @@ class pmContext(object):
         """PMAPI - Print the value of a metric
         pmPrintValue(file, value, pmdesc, vset_index, vlist_index, min_width)
         """
+        def pyFileToCFile(fileObj):
+            ctypes.pythonapi.PyObject_AsFileDescriptor.restype = c_int
+            ctypes.pythonapi.PyObject_AsFileDescriptor.argtypes = [ctypes.py_object]
+            pyFileDescriptor = ctypes.pythonapi.PyObject_AsFileDescriptor(fileObj)
+            return os.fdopen(pyFileDescriptor, "r", closefd=False)
         LIBPCP.pmPrintValue(pyFileToCFile(fileObj),
                             c_int(result.contents.vset[vset_idx].contents.valfmt),
                             c_int(ptype.contents.type),
@@ -2835,7 +2816,7 @@ class pmContext(object):
 
     @staticmethod
     def pmParseUnitsStr(string):
-        if not isinstance(string, (bytes, text_type)):
+        if not isinstance(string, (bytes, str)):
             raise pmErr(c_api.PM_ERR_CONV, str(string))
         if not isinstance(string, bytes):
             string = string.encode('utf-8')

@@ -118,12 +118,7 @@ class BCCPMDA(PMDA):
             self.err("Configuration file %s not found, aborting." % conffile)
             sys.exit(1)
 
-        # Python < 3.2 compat
-        if sys.version_info[0] >= 3 and sys.version_info[1] >= 2:
-            config = configparser.ConfigParser()
-        else:
-            config = configparser.SafeConfigParser() # pylint: disable=deprecated-class
-
+        config = configparser.ConfigParser()
         try:
             config.read(conffile)
         except Exception as error: # pylint: disable=broad-except

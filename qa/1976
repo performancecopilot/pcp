@@ -1,12 +1,9 @@
 #!/bin/sh
-# PCP QA Test No. 1191
-# pmdaopenmetrics sample exporter snapshot ingestion
+# PCP QA Test No. 1976
+# Test pmdaopenmetrics metric removal
 #
-# Copyright (c) 2017 Red Hat.  All Rights Reserved.
+# Copyright (c) 2017, 2025 Red Hat.  All Rights Reserved.
 #
-# Note: if anything gets added or changed in qa/openmetrics/samples directory,
-# then this test (and all tests in group pmda.openmetrics) will need to be remade.
-
 seq=`basename $0`
 echo "QA output created by $seq"
 
@@ -15,7 +12,7 @@ echo "QA output created by $seq"
 
 _pmdaopenmetrics_check || _notrun "openmetrics pmda not installed"
 
-status=1	# failure is the default!
+status=1        # failure is the default!
 
 _cleanup()
 {
@@ -54,14 +51,21 @@ then
     exit
 fi
 
-if pminfo -dtTf `pminfo openmetrics | grep -F -v openmetrics.control | LC_COLLATE=POSIX sort` > $tmp.info 2> $tmp.err
-then
-    :
-else
-    echo "... failed! ... here is the Install log ..."
-    cat $tmp.out
-fi
-cat $tmp.info $tmp.err
+echo "-- metric removal of new source/metric --"
+$sudo rm $PCP_PMDAS_DIR/openmetrics/config.d/simple_metric.url
+pminfo openmetrics.simple_metric
+echo
+
+echo "-- source re-addition --"
+path=$here/openmetrics/samples/simple_metric.txt
+echo 'file:///'$path > $PCP_PMDAS_DIR/openmetrics/config.d/simple_metric.url
+pminfo openmetrics.simple_metric
+echo
+
+echo "-- metric removal of recognized source/metric --"
+$sudo rm $PCP_PMDAS_DIR/openmetrics/config.d/simple_metric.url
+pminfo openmetrics.simple_metric
+echo
 
 _pmdaopenmetrics_remove >/dev/null 2>&1
 

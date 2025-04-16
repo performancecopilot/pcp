@@ -38,17 +38,12 @@ arch.pmiPutValue("sample.float.one", None, "%f" % 1234567.0)
 arch.pmiPutValue("kernel.uname.release", None, "1.2.3")
 arch.pmiWrite(start + batch, 0)
 
-if sys.version_info[0] >= 3:
-    int_max = sys.maxsize
-else:
-    int_max = sys.maxint
-
 # Integer tests
 batch += 1
-arch.pmiPutValue("kernel.all.uptime", None, "%d" % (int_max+1))
+arch.pmiPutValue("kernel.all.uptime", None, "%d" % (sys.maxsize+1))
 arch.pmiWrite(start + batch, 0)
 batch += 1
-arch.pmiPutValue("kernel.all.uptime", None, "%d" % int_max)
+arch.pmiPutValue("kernel.all.uptime", None, "%d" % sys.maxsize)
 arch.pmiWrite(start + batch, 0)
 batch += 1
 arch.pmiPutValue("kernel.all.uptime", None, "%d" % 1)
@@ -60,10 +55,10 @@ batch += 1
 arch.pmiPutValue("kernel.all.uptime", None, "%d" % -1)
 arch.pmiWrite(start + batch, 0)
 batch += 1
-arch.pmiPutValue("kernel.all.uptime", None, "%d" % -int_max)
+arch.pmiPutValue("kernel.all.uptime", None, "%d" % -sys.maxsize)
 arch.pmiWrite(start + batch, 0)
 batch += 1
-arch.pmiPutValue("kernel.all.uptime", None, "%d" % (-int_max-1))
+arch.pmiPutValue("kernel.all.uptime", None, "%d" % (-sys.maxsize-1))
 arch.pmiWrite(start + batch, 0)
 
 # Floating point tests
@@ -74,10 +69,10 @@ batch += 1
 arch.pmiPutValue("sample.float.one", None, "%f" % float("inf"))
 arch.pmiWrite(start + batch, 0)
 batch += 1
-arch.pmiPutValue("sample.float.one", None, "%f" % (int_max+1))
+arch.pmiPutValue("sample.float.one", None, "%f" % (sys.maxsize+1))
 arch.pmiWrite(start + batch, 0)
 batch += 1
-arch.pmiPutValue("sample.float.one", None, "%f" % int_max)
+arch.pmiPutValue("sample.float.one", None, "%f" % sys.maxsize)
 arch.pmiWrite(start + batch, 0)
 batch += 1
 arch.pmiPutValue("sample.float.one", None, "%f" % 1)
@@ -89,10 +84,10 @@ batch += 1
 arch.pmiPutValue("sample.float.one", None, "%f" % -1)
 arch.pmiWrite(start + batch, 0)
 batch += 1
-arch.pmiPutValue("sample.float.one", None, "%f" % -int_max)
+arch.pmiPutValue("sample.float.one", None, "%f" % -sys.maxsize)
 arch.pmiWrite(start + batch, 0)
 batch += 1
-arch.pmiPutValue("sample.float.one", None, "%f" % (-int_max-1))
+arch.pmiPutValue("sample.float.one", None, "%f" % (-sys.maxsize-1))
 arch.pmiWrite(start + batch, 0)
 batch += 1
 arch.pmiPutValue("sample.float.one", None, "%f" % float("-inf"))

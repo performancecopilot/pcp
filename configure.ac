@@ -108,11 +108,6 @@ AC_ARG_WITH([perl],
     [do_perl=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-perl=$withval"],
     [do_perl=check])
 
-AC_ARG_WITH([python],
-    [AS_HELP_STRING([--with-python],[enable support for tools requiring Python (default is on)])],
-    [do_python=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-python=$withval"],
-    [do_python=no])
-
 AC_ARG_WITH([python3],
     [AS_HELP_STRING([--with-python3],[enable support for tools requiring Python3 (default is on)])],
     [do_python3=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-python3=$withval"],
@@ -997,10 +992,6 @@ AC_SUBST(GIT)
 AC_CHECK_PROGS(PYLINT, pylint, /bin/true)
 AC_SUBST(PYLINT)
 
-dnl check if python available for the build and runtime
-AC_PATH_PROGS(PYTHON, [python2 python2.7 python])
-AC_SUBST(PYTHON)
-
 dnl check if python3 available for the build and runtime
 AC_PATH_PROGS(PYTHON3, [python3])
 if test -z "$PYTHON3"
@@ -1040,7 +1031,7 @@ AC_DEFUN([PCP_CHECK_PYTHON_HEADER],
     CFLAGS="$saved_CFLAGS"
   ])
 
-dnl check if python3 tools/packages wanted (need python >= 3.3)
+dnl check if python3 tools/packages wanted (need python >= 3.6)
 enable_python3=false
 AS_IF([test "x$do_python3" != "xno"], [
     enable_python3=true
@@ -1052,12 +1043,12 @@ AS_IF([test "x$do_python3" != "xno"], [
 	eval `$PYTHON3 -V 2>&1 | awk '/^Python/ { ver=2; print $ver }' | awk -F. '{ major=1; minor=2; point=3; printf "export PY_MAJOR=%d PY_MINOR=%d PY_POINT=%d\n",$major,$minor,$point }'`
 	AC_MSG_RESULT([$PY_MAJOR.$PY_MINOR.$PY_POINT])
 	if test "$PY_MAJOR" -lt 3; then
-	    echo WARNING: Python version 3.3 or later does not seem to be installed.
+	    echo WARNING: Python version 3.6 or later does not seem to be installed.
 	    enable_python3=false
 	else
-	    if test "$PY_MAJOR" -eq 3 -a "$PY_MINOR" -lt 3 ; then
+	    if test "$PY_MAJOR" -eq 3 -a "$PY_MINOR" -lt 6 ; then
 		echo WARNING: Python version 3.$PY_MINOR is too old.
-		echo Python version 3.3 or later is required for Python builds.
+		echo Python version 3.6 or later is required for Python builds.
 		enable_python3=false
 	    else
 		PCP_CHECK_PYTHON_HEADER([$PY_MAJOR], [$PY_MINOR])
@@ -1072,108 +1063,12 @@ AS_IF([test "x$do_python3" != "xno"], [
 ])
 AC_SUBST(enable_python3)
 
-dnl check if python tools/packages wanted (need python >= 2.7)
-enable_python2=false
-AS_IF([test "x$do_python" != "xno"], [
-    AC_MSG_WARN("Doing Python2 configuration: do_python=$do_python")
-    enable_python2=true
-
-    if test "$do_python" = "check" -a -f /etc/os-release
-    then
-    (
-	dnl just don't bother with Python2 for more recent distros
-
-	. /etc/os-release
-	case "$ID"
-	in
-	    debian)
-		if test -z "$VERSION_ID" -o "$VERSION_ID" -ge 11; then
-		    touch config.python2_eol
-		fi
-		;;
-	    ubuntu)
-		VERSION_NO=`echo "$VERSION_ID" | sed 's/[[^0-9]]//'`
-		dnl debug echo "VERSION_ID=$VERSION_ID VERSION_NO=$VERSION_NO"
-		if test "$VERSION_NO" -ge 2004; then
-		    touch config.python2_eol
-		fi
-		;;
-	    fedora)
-		if test -z "$VERSION_ID" -o "$VERSION_ID" -ge 35; then
-		    touch config.python2_eol
-		fi
-		;;
-	    rhel)
-		VERSION_NO=`echo "$VERSION_ID" | sed 's/[[^0-9]]//'`
-		dnl debug echo "VERSION_ID=$VERSION_ID VERSION_NO=$VERSION_NO"
-		if test "$VERSION_NO" -ge 90; then
-		    touch config.python2_eol
-		fi
-		;;
-	    opensuse-leap)
-		dnl map leap version 15.4 => 1504, for example
-		VERSION_NO=`echo "$VERSION_ID" | sed -e '[s/\.\([0-9]\)$]/[\.0\1]/' -e '[s/\.//]'`
-		dnl debug echo "VERSION_ID=$VERSION_ID VERSION_NO=$VERSION_NO"
-		if test "$VERSION_NO" -ge 1504; then
-		    touch config.python2_eol
-		fi
-		;;
-	    centos)
-		if test "$VERSION_ID" -ge 9; then
-		    touch config.python2_eol
-		fi
-		;;
-	esac
-    )
-    fi
-
-    if test -f config.python2_eol
-    then
-	rm config.python2_eol
-	if test $enable_python3 = false; then
-	    dnl be silent if python3 is already enabled
-	    echo "WARNING: Python 2 is not supported anymore (EOL since 2020), please use Python 3 instead."
-	fi
-	enable_python2=false
-    fi
-
-    if test "$enable_python2" = "true" -a -z "$PYTHON"
-    then
-	enable_python2=false
-    fi
-
-    if $enable_python2
-    then
-	AC_MSG_CHECKING([Python2 version])
-	eval `$PYTHON -V 2>&1 | awk '/^Python/ { ver=2; print $ver }' | awk -F. '{ major=1; minor=2; point=3; printf "export PY_MAJOR=%d PY_MINOR=%d PY_POINT=%d\n",$major,$minor,$point }'`
-	AC_MSG_RESULT([$PY_MAJOR.$PY_MINOR.$PY_POINT])
-	if test "$PY_MAJOR" -lt 2; then
-	    echo WARNING: Python version 2.7 or later does not seem to be installed.
-	    enable_python2=false
-	else
-	    if test "$PY_MAJOR" -eq 2 -a "$PY_MINOR" -lt 7 ; then
-		echo WARNING: Python version 2.$PY_MINOR is too old.
-		echo Python version 2.7 or later is required for Python builds.
-		enable_python2=false
-	    else
-		PCP_CHECK_PYTHON_HEADER([$PY_MAJOR], [$PY_MINOR])
-	    fi
-	fi
-    fi
-
-    if test "$do_python" != "check" -a "$enable_python2" != "true"
-    then
-	AC_MSG_ERROR([cannot enable Python - no supported version found])
-    fi
-])
-AC_SUBST(enable_python2)
-
 dnl convenience macro to determine if either python is available
 AC_MSG_CHECKING([for any python version])
 if test "$cross_compiling" = "yes"; then
     ans=$have_python
     echo "cross-compile -> \"$ans\"" >&5
-elif test "$enable_python2" = "true" -o "$enable_python3" = "true"
+elif "$enable_python3" = "true"
 then
     have_python=true
 else
@@ -1182,13 +1077,10 @@ fi
 AC_SUBST(have_python)
 if $have_python; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
-dnl choose the prefered python executable (py2 -> py3 transtion)
+dnl choose the prefered python executable
 if test "$enable_python3" = "true"
 then
     pcp_python_prog=$PYTHON3
-elif test "$enable_python2" = "true"
-then
-    pcp_python_prog=$PYTHON
 else
     pcp_python_prog=""
 fi
@@ -1280,9 +1172,8 @@ AC_MSG_CHECKING([if the bcc PMDA should be included])
 pmda_bcc=false
 AS_IF([test "x$do_pmdabcc" = "xyes"], [pmda_bcc=true])
 AS_IF([test "x$do_pmdabcc" = "xcheck"], [
-    dnl BCC PMDA needs python3, and OrderedDict and BPF Python modules
-    $enable_python3 && $have_python_BPF && \
-	$have_python_OrderedDict && pmda_bcc=true
+    dnl BCC PMDA needs OrderedDict and BPF Python modules
+    $have_python_BPF && $have_python_OrderedDict && pmda_bcc=true
 ])
 AC_SUBST(PMDA_BCC, $pmda_bcc)
 if $pmda_bcc; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
@@ -1367,8 +1258,7 @@ AC_MSG_CHECKING([if the bpftrace PMDA should be included])
 pmda_bpftrace=false
 AS_IF([test "x$do_pmdabpftrace" = "xyes"], [pmda_bpftrace=true])
 AS_IF([test "x$do_pmdabpftrace" = "xcheck"], [
-    dnl bpftrace PMDA needs bpftrace executable, python 3.6+ and bpftrace
-    dnl with JSON support
+    dnl needs bpftrace executable and bpftrace with JSON support
     have_bpftrace=false
     if which bpftrace >/dev/null 2>&1
     then
@@ -1376,7 +1266,6 @@ AS_IF([test "x$do_pmdabpftrace" = "xcheck"], [
 	    have_bpftrace=true
 	fi
     fi
-    $enable_python3 && test "$PY_MAJOR" -eq 3 -a "$PY_MINOR" -ge 6 && \
     $have_bpftrace && pmda_bpftrace=true
 ])
 AC_SUBST(PMDA_BPFTRACE, $pmda_bpftrace)

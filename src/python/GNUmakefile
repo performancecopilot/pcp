@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012-2016 Red Hat.
+# Copyright (c) 2012-2016,2025 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -18,7 +18,7 @@ include $(TOPDIR)/src/include/builddefs
 SUBDIRS = pcp
 CFILES = pmapi.c pmda.c pmgui.c pmi.c mmv.c
 LDIRDIRT = build dist pcp.egginfo pcp.egg-info
-LDIRT = build_python2 build_python3 MANIFEST
+LDIRT = build_python3 MANIFEST
 
 ifneq ($(CFLAGS_ABI),)
 ENV = CFLAGS=$(CFLAGS_ABI)
@@ -40,23 +40,7 @@ else
 SETUP_PY = distutils-setup.py
 endif
 
-default default_pcp: pre_build build_python2 build_python3
-
-ifeq "$(ENABLE_PYTHON2)" "true"
-PY_BUILD_OPTS = $(SETUP_PY_BUILD_OPTIONS)
-PY_INSTALL_OPTS = $(SETUP_PY_INSTALL_OPTIONS) --record=$(TOPDIR)/python-pcp.list
-build_python2: $(SETUP_PY) $(CFILES)
-	export $(ENV); $(PYTHON) $(SETUP_PY) build_ext $(PY_BUILD_OPTS)
-	export $(ENV); $(PYTHON) $(SETUP_PY) build
-	touch build_python2
-
-install_python2: build_python2
-	export $(ENV); $(PYTHON) $(SETUP_PY) install $(PY_INSTALL_OPTS)
-	export $(ENV); $(PYTHON_INSTALL)
-else
-build_python2:
-install_python2:
-endif
+default default_pcp: pre_build build_python3
 
 ifeq "$(ENABLE_PYTHON3)" "true"
 PY3_BUILD_OPTS = $(SETUP_PY_BUILD_OPTIONS)
@@ -76,12 +60,12 @@ endif
 
 include $(BUILDRULES)
 
-install_pcp install: install_python2 install_python3
+install_pcp install: install_python3
 
 test:
 	pmpython -m unittest discover -s test -p '*_test.py'
 
-build_python2 build_python3:	$(TOPDIR)/src/include/pcp/libpcp.h
+build_python3:	$(TOPDIR)/src/include/pcp/libpcp.h
 
 # deal with any configurable Python source, e.g. pmapi.py.in
 #

@@ -132,43 +132,13 @@ else
     echo 's/?{libsystemd-dev}, //' >>$tmp.sed
 fi
 
-if $ENABLE_PYTHON2
-then
-    echo 's/?{python-all}, /python-all, /' >>$tmp.sed
-    (
-	. /etc/os-release
-	case "$ID"
-	in
-	    debian)
-		if [ -z "$VERSION_ID" ] || [ "$VERSION_ID" -ge 11 ]; then
-		    echo 's/?{python-dev}, /python2-dev, /' >>$tmp.sed
-		else
-		    echo 's/?{python-dev}, /python-dev, /' >>$tmp.sed
-		fi
-		;;
-	    ubuntu)
-		VERSION_NO=$(echo "$VERSION_ID" | sed 's/[^0-9]//')
-		if [ "$VERSION_NO" -ge 2004 ]; then
-		    echo 's/?{python-dev}, /python2-dev, /' >>$tmp.sed
-		else
-		    echo 's/?{python-dev}, /python-dev, /' >>$tmp.sed
-		fi
-		;;
-	esac
-    )
-else
-    echo 's/?{python-dev}, //' >>$tmp.sed
-    echo 's/?{python-all}, //' >>$tmp.sed
-fi
+echo 's/?{python-dev}, //' >>$tmp.sed
+echo 's/?{python-all}, //' >>$tmp.sed
 
 if $ENABLE_PYTHON3
 then
     echo 's/?{python-pcp}, /python3-pcp, /' >>$tmp.sed
     echo 's/?{python}, /python3, /' >>$tmp.sed
-elif $ENABLE_PYTHON2
-then
-    echo 's/?{python-pcp}, /python-pcp, /' >>$tmp.sed
-    echo 's/?{python}, /python, /' >>$tmp.sed
 else
     echo 's/?{python-pcp}, //' >>$tmp.sed
     echo 's/?{python}, //' >>$tmp.sed
@@ -176,48 +146,28 @@ fi
 
 if $HAVE_PYTHON_JSONPOINTER
 then
-    if $ENABLE_PYTHON3
-    then
-	echo 's/?{python-json-pointer}, /python3-json-pointer, /' >>$tmp.sed
-    else
-	echo 's/?{python-json-pointer}, /python-json-pointer, /' >>$tmp.sed
-    fi
+    echo 's/?{python-json-pointer}, /python3-json-pointer, /' >>$tmp.sed
 else
     echo 's/?{python-json-pointer}, //' >>$tmp.sed
 fi
 
 if $HAVE_PYTHON_OPENPYXL
 then
-    if $ENABLE_PYTHON3
-    then
-	echo 's/?{python-openpyxl}, /python3-openpyxl, /' >>$tmp.sed
-    else
-	echo 's/?{python-openpyxl}, /python-openpyxl, /' >>$tmp.sed
-    fi
+    echo 's/?{python-openpyxl}, /python3-openpyxl, /' >>$tmp.sed
 else
     echo 's/?{python-openpyxl}, //' >>$tmp.sed
 fi
 
 if $HAVE_PYTHON_REQUESTS
 then
-    if $ENABLE_PYTHON3
-    then
-	echo 's/?{python-requests}, /python3-requests, /' >>$tmp.sed
-    else
-	echo 's/?{python-requests}, /python-requests, /' >>$tmp.sed
-    fi
+    echo 's/?{python-requests}, /python3-requests, /' >>$tmp.sed
 else
     echo 's/?{python-requests}, //' >>$tmp.sed
 fi
 
 if $HAVE_PYTHON_SIX
 then
-    if $ENABLE_PYTHON3
-    then
-	echo 's/?{python-six}, /python3-six, /' >>$tmp.sed
-    else
-	echo 's/?{python-six}, /python3-six, /' >>$tmp.sed
-    fi
+    echo 's/?{python-six}, /python3-six, /' >>$tmp.sed
 else
     echo 's/?{python-six}, //' >>$tmp.sed
 fi
