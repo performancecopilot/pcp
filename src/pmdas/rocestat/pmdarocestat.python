@@ -157,7 +157,7 @@ class NICSTATS:
         prio_stats = {}
         for line in output.splitlines():
             if 'prio' in line:
-                if line.__contains__('bytes') or line.__contains__('pause'):
+                if 'bytes' in line or 'pause' in line:
                     key, value = line.strip().split(':', 1)
                     value = int(value)
                     if value > 0:
@@ -263,7 +263,7 @@ class MLNXCOUNTERS():
             if os.path.isfile(os.path.join(port_dir, "phys_state")):
                 with open(os.path.join(port_dir, "phys_state"), 'r') as f:
                     phys_state = f.read().strip()
-                    if phys_state.__contains__("LinkUp"):
+                    if "LinkUp" in phys_state:
                         return True
 
         return False
