@@ -983,7 +983,9 @@ AC_SUBST(pm_version_current)
 
 dnl output header files with cpp defs HAVE_*, etc
 AC_CONFIG_HEADERS(src/include/pcp/config.h src/include/pcp/configsz.h)
+AC_CONFIG_HEADERS(src/libpcp3/src/include/pcp/config.h src/libpcp3/src/include/pcp/configsz.h)
 AC_CONFIG_FILES([src/include/pcp/platform_defs.h src/include/pcp/platformsz.h])
+AC_CONFIG_FILES([src/libpcp3/src/include/pcp/platform_defs.h src/libpcp3/src/include/pcp/platformsz.h])
 AC_OUTPUT
 
 AC_CHECK_PROGS(GIT, git)
