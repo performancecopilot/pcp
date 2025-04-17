@@ -21,7 +21,9 @@
 """
 Python implementation of the "rocestat" Performance Metrics Domain Agent.
 """
-import subprocess, os, re
+import subprocess
+import os
+import re
 import cpmapi as c_api
 from pcp.pmda import PMDA, pmdaMetric, pmdaIndom
 from pcp.pmapi import pmUnits
@@ -133,7 +135,7 @@ class NICSTATS:
     def get_up_interfaces(self):
         """Get the names of all interfaces that are in the Up state."""
         result = subprocess.Popen(['/usr/bin/ibdev2netdev'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
-        output, error = result.communicate()
+        output, _ = result.communicate()
 
         if result.returncode != 0:
             return []
@@ -146,7 +148,7 @@ class NICSTATS:
     def get_ethtool_stats(self, interface):
         """Get the ethtool -S output for the specified interface and filter stats containing 'prio'."""
         result = subprocess.Popen(['ethtool', '-S', interface], stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
-        output, error = result.communicate()
+        output, _ = result.communicate()
 
         if result.returncode != 0:
             return {}
@@ -198,7 +200,7 @@ class NICSTATS:
     def convert_dict(self, input_dict):
         output_dict = {}
         for key1, sub_dict in input_dict.items():
-            if(type(sub_dict) == dict):
+            if isinstance(sub_dict, dict):
                 for key2, value in sub_dict.items():
                     new_key = f"{key1}_{key2}"
                     output_dict[new_key] = value
@@ -263,8 +265,8 @@ class MLNXCOUNTERS():
                     phys_state = f.read().strip()
                     if phys_state.__contains__("LinkUp"):
                         return True
-            else:
-                return False
+
+        return False
 
     def get_active_devices(self):
 
@@ -273,11 +275,11 @@ class MLNXCOUNTERS():
 
         for path in self.hw_counter:
             token = path.split('/')
-            if (len(token) > 8):
+            if len(token) > 8:
                 mlx = token[4]
                 if mlx not in visit:
                     status = self.find_device_status(mlx)
-                    if status == True:
+                    if status is True:
                         active_devices.append(mlx)
                         self.hw_counter_path.append(path.strip())
                 visit.add(mlx)
@@ -292,7 +294,7 @@ class MLNXCOUNTERS():
         port_keys['2'] = 0
         for i in self.hw_counter:
             token = i.split('/')
-            if (len(token) > 8):
+            if len(token) > 8:
                 mlx = token[4]
                 port = token[6]
                 if mlx not in active_devices:
@@ -321,7 +323,7 @@ class MLNXCOUNTERS():
     def convert_dict(self, input_dict):
         output_dict = {}
         for key1, sub_dict in input_dict.items():
-            if(type(sub_dict) == dict):
+            if isinstance(sub_dict, dict):
                 for key2, value in sub_dict.items():
                     new_key = f"{key1}_{key2}"
                     output_dict[new_key] = value
