@@ -417,7 +417,7 @@ Options:\n\
 	align = NULL;
     }
 
-    sts = pmParseHighResTimeWindow(start, finish, align, offset, &startTime,
+    sts = pmParseTimeWindow(start, finish, align, offset, &startTime,
 			    &endTime, &appStart, &appEnd, &appOffset,
 			    &endnum);
     if (sts < 0) {

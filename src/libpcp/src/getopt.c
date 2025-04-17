@@ -121,7 +121,7 @@ __pmParseTimeWindow(pmOptions *opts,
 {
     char *msg = NULL;
 
-    if (pmParseHighResTimeWindow(
+    if (pmParseTimeWindow(
 			opts->start_optarg, opts->finish_optarg,
 			opts->align_optarg, opts->origin_optarg,
 			first_boundary, last_boundary,

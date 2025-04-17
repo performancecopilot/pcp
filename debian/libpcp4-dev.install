@@ -204,7 +204,6 @@ usr/share/man/man3/pmNumberStr_r.3.gz
 usr/share/man/man3/pmOpenLog.3.gz
 usr/share/man/man3/pmParseDebug.3.gz
 usr/share/man/man3/pmParseHighResInterval.3.gz
-usr/share/man/man3/pmParseHighResTimeWindow.3.gz
 usr/share/man/man3/pmParseInterval.3.gz
 usr/share/man/man3/pmParseMetricSpec.3.gz
 usr/share/man/man3/pmParseTimeWindow.3.gz

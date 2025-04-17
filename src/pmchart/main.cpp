@@ -495,6 +495,12 @@ main(int argc, char ** argv)
     struct timeval	opts_finish;
     struct timeval	opts_interval;
 
+    struct timespec	logstart_ts;
+    struct timespec	logend_ts;
+    struct timespec	origin_ts;
+    struct timespec	start_ts;
+    struct timespec	finish_ts;
+
     memset(&opts, 0, sizeof(opts));
     pmtimevalNow(&opts_origin);
     pmSetProgname(argv[0]);
@@ -674,15 +680,23 @@ main(int argc, char ** argv)
 	archiveGroup->updateBounds();
 	logStartTime = archiveGroup->logStart();
 	logEndTime = archiveGroup->logEnd();
+	TSfromTV(logstart_ts, logStartTime);
+	TSfromTV(logend_ts, logEndTime);
+	TSfromTV(origin_ts, opts_origin);
 	if ((sts = pmParseTimeWindow(opts.start_optarg, opts.finish_optarg,
 					opts.align_optarg, opts.origin_optarg,
-					&logStartTime, &logEndTime, &opts_start,
-					&opts_finish, &opts_origin, &endnum)) < 0) {
+					&logstart_ts, &logend_ts, &start_ts,
+					&finish_ts, &origin_ts, &endnum)) < 0) {
 	    pmprintf("Cannot parse archive time window\n%s\n", endnum);
 	    pmUsageMessage(&opts);
 	    free(endnum);
 	    exit(1);
 	}
+	TVfromTS(logStartTime, logstart_ts);
+	TVfromTS(logStartTime, logend_ts);
+	TVfromTS(opts_start, start_ts);
+	TVfromTS(opts_finish, finish_ts);
+	TVfromTS(opts_origin, origin_ts);
 	// move position to account for initial visible points
 	if (tcmp(&opts_origin, &opts_start) <= 0)
 	    for (c = 0; c < globalSettings.visibleHistory - 2; c++)
@@ -695,15 +709,23 @@ main(int argc, char ** argv)
 	pmtimevalNow(&logStartTime);
 	logEndTime.tv_sec = PM_MAX_TIME_T;
 	logEndTime.tv_usec = 0;
+	TSfromTV(logstart_ts, logStartTime);
+	TSfromTV(logend_ts, logEndTime);
+	TSfromTV(origin_ts, opts_origin);
 	if ((sts = pmParseTimeWindow(opts.start_optarg, opts.finish_optarg,
 					opts.align_optarg, opts.origin_optarg,
-					&logStartTime, &logEndTime, &opts_start,
-					&opts_finish, &opts_origin, &endnum)) < 0) {
+					&logstart_ts, &logend_ts, &start_ts,
+					&finish_ts, &origin_ts, &endnum)) < 0) {
 	    pmprintf("Cannot parse live time window\n%s\n", endnum);
 	    pmUsageMessage(&opts);
 	    free(endnum);
 	    exit(1);
 	}
+	TVfromTS(logStartTime, logstart_ts);
+	TVfromTS(logStartTime, logend_ts);
+	TVfromTS(opts_start, start_ts);
+	TVfromTS(opts_finish, finish_ts);
+	TVfromTS(opts_origin, origin_ts);
     }
     console->post("Timezones and time window setup complete");
 

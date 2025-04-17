@@ -290,7 +290,7 @@ main(int argc, char **argv)
     }
 
     /* set winstart and winend timevals */
-    sts = pmParseHighResTimeWindow(Sarg, Targ, Aarg, Oarg,
+    sts = pmParseTimeWindow(Sarg, Targ, Aarg, Oarg,
 			    &logstart_ts, &logend_ts,
 			    &winstart_ts, &winend_ts, &unused, &msg);
     if (sts < 0) {

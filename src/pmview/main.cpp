@@ -307,6 +307,11 @@ main(int argc, char **argv)
     int			c, sts;
     int			errflg = 0;
     char		*msg;
+    struct timespec	start_ts;
+    struct timespec	end_ts;
+    struct timespec	real_start_ts;
+    struct timespec	real_end_ts;
+    struct timespec	position_ts;
 
     QedApp a(argc, argv);
     readSettings();
@@ -424,9 +429,9 @@ main(int argc, char **argv)
 	a.my.logEndTime = archiveGroup->logEnd();
 	if ((sts = pmParseTimeWindow(a.my.Sflag, a.my.Tflag,
 				     a.my.Aflag, a.my.Oflag,
-				     &a.my.logStartTime, &a.my.logEndTime,
-				     &a.my.realStartTime, &a.my.realEndTime,
-				     &a.my.position, &msg)) < 0) {
+				     &start_ts, &end_ts,
+				     &real_start_ts, &real_end_ts,
+				     &position_ts, &msg)) < 0) {
 	    pmprintf("Cannot parse archive time window\n%s\n", msg);
 	    free(msg);
 	    usage();
@@ -440,14 +445,24 @@ main(int argc, char **argv)
 	a.my.logEndTime.tv_usec = 0;
 	if ((sts = pmParseTimeWindow(a.my.Sflag, a.my.Tflag,
 					a.my.Aflag, a.my.Oflag,
-					&a.my.logStartTime, &a.my.logEndTime,
-					&a.my.realStartTime, &a.my.realEndTime,
-					&a.my.position, &msg)) < 0) {
+					&start_ts, &end_ts,
+					&real_start_ts, &real_end_ts,
+					&position_ts, &msg)) < 0) {
 	    pmprintf("Cannot parse live time window\n%s\n", msg);
 	    free(msg);
 	    usage();
 	}
     }
+    a.my.logStartTime.tv_sec = start_ts.tv_sec;
+    a.my.logStartTime.tv_usec = start_ts.tv_nsec / 1000;
+    a.my.logEndTime.tv_sec = end_ts.tv_sec;
+    a.my.logEndTime.tv_usec = end_ts.tv_nsec / 1000;
+    a.my.realStartTime.tv_sec = real_start_ts.tv_sec;
+    a.my.realStartTime.tv_usec = real_start_ts.tv_nsec / 1000;
+    a.my.realEndTime.tv_sec = real_end_ts.tv_sec;
+    a.my.realEndTime.tv_usec = real_end_ts.tv_nsec / 1000;
+    a.my.position.tv_sec = position_ts.tv_sec;
+    a.my.position.tv_usec = position_ts.tv_nsec / 1000;
     console->post("Timezones and time window setup complete");
 
     pmview = new PmView;

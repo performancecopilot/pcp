@@ -153,7 +153,7 @@ int	xarg;				/* -x arg - skip metrics with mismatched metadata */
 int	zarg;				/* -z arg - use archive timezone */
 char	*tz;				/* -Z arg - use timezone from user */
 
-/* cmd line args that could exist, but don't (needed for pmParseHighResTimeWindow) */
+/* cmd line args that could exist, but don't (needed for pmParseTimeWindow) */
 char	*Aarg;				/* -A arg - non-existent */
 char	*Oarg;				/* -O arg - non-existent */
 
@@ -3071,7 +3071,7 @@ main(int argc, char **argv)
 
 
     /* set winstart and winend timevals */
-    sts = pmParseHighResTimeWindow(Sarg, Targ, Aarg, Oarg,
+    sts = pmParseTimeWindow(Sarg, Targ, Aarg, Oarg,
 			    &logstart_ts, &logend_ts,
 			    &winstart_ts, &winend_ts, &unused, &msg);
     if (sts < 0) {
@@ -3081,7 +3081,7 @@ main(int argc, char **argv)
 	/*NOTREACHED*/
     }
     if (pmDebugOptions.appl2) {
-	fprintf(stderr, "pmParseHighResTimeWindow -> %d win*_ts ", sts);
+	fprintf(stderr, "pmParseTimeWindow -> %d win*_ts ", sts);
 	pmPrintHighResStamp(stderr, &winstart_ts);
 	fprintf(stderr, " ... ");
 	pmPrintHighResStamp(stderr, &winend_ts);

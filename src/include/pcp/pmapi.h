@@ -1470,6 +1470,10 @@ PCP_CALL extern int pmParseTimeWindow_v2(
 #define pmParseHighResTimeWindow pmParseTimeWindow
 #endif
 
+/* transitional macros ... will go away when timeval -> timespec all done */
+#define TSfromTV(a,b) { a.tv_sec = b.tv_sec; a.tv_nsec = b.tv_usec * 1000; }
+#define TVfromTS(a,b) { a.tv_sec = b.tv_sec; a.tv_usec = b.tv_nsec / 1000; }
+
 #ifdef __cplusplus
 }
 #endif

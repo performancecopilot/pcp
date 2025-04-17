@@ -122,7 +122,7 @@ Options:\n\
 		    pmGetProgname(), pmErrStr(tzh));
 		exit(1);
 	    }
-	    sts = pmParseHighResTimeWindow(NULL, NULL, NULL, offset, &startTime,
+	    sts = pmParseTimeWindow(NULL, NULL, NULL, offset, &startTime,
 			    &endTime, &appStart, &appEnd, &appOffset,
 			    &endnum);
 	    if (sts < 0) {

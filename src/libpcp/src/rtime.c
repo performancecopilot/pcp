@@ -751,7 +751,7 @@ pmParseTimeWindow_v2(
     logend.tv_sec = logEnd->tv_sec;
     logend.tv_nsec = logEnd->tv_usec * 1000;
 
-    if ((sts = pmParseHighResTimeWindow(swStart, swEnd, swAlign, swOffset,
+    if ((sts = pmParseTimeWindow(swStart, swEnd, swAlign, swOffset,
 			&logstart, &logend, &start, &end, &offset, errMsg)) < 0)
 	return sts;
 

@@ -1105,7 +1105,7 @@ main(int argc, char *argv[])
              << Qt::endl;
     }
 
-    sts = pmParseHighResTimeWindow(opts.start_optarg, opts.finish_optarg,
+    sts = pmParseTimeWindow(opts.start_optarg, opts.finish_optarg,
 			    opts.align_optarg, opts.origin_optarg,
 			    &logStartTime, &logEndTime, &opts_start,
 			    &opts_finish, &opts_origin, &endnum);
