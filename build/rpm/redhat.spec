@@ -709,6 +709,20 @@ Zabbix via the Zabbix agent - see zbxpcp(3) for further details.
 
 %if !%{disable_python3}
 #
+# pcp-import-pmseries
+#
+%package import-pmseries
+License: LGPL-2.1-or-later
+Summary: Performance Co-Pilot tools importing PCP archives for pmseries queries
+URL: https://pcp.io
+Requires: pcp-libs = @package_version@
+Requires: python3-pcp = @package_version@
+
+%description import-pmseries
+Performance Co-Pilot (PCP) tools for importing PCP archives into Valkey
+or Redis for fast, scalable time series access via pmseries(1) queries.
+
+#
 # pcp-geolocate
 #
 %package geolocate
@@ -2358,6 +2372,7 @@ basic_manifest | grep -E -e 'pmiostat|pmrep|dstat|htop|pcp2csv' \
    -e 'pcp-tapestat|pcp-uptime|pcp-verify|pcp-xsos' | \
    cull 'selinux|pmlogconf|pmieconf|pmrepconf' >pcp-system-tools-files
 basic_manifest | keep 'geolocate' >pcp-geolocate-files
+basic_manifest | keep 'pmseries_import' >pcp-import-pmseries-files
 basic_manifest | keep 'sar2pcp' >pcp-import-sar2pcp-files
 basic_manifest | keep 'iostat2pcp' >pcp-import-iostat2pcp-files
 basic_manifest | keep 'sheet2pcp' >pcp-import-sheet2pcp-files
@@ -2484,6 +2499,7 @@ do \
 done
 
 for import_package in \
+    pmseries \
     collectl2pcp iostat2pcp ganglia2pcp mrtg2pcp sar2pcp sheet2pcp ; \
 do \
     import_packages="$import_packages pcp-import-$import_package"; \
@@ -3289,6 +3305,10 @@ fi
 %files pmda-trace -f pcp-pmda-trace-files.rpm
 
 %files pmda-weblog -f pcp-pmda-weblog-files.rpm
+
+%if !%{disable_python3}
+%files import-pmseries -f pcp-import-pmseries-files.rpm
+%endif
 
 %if !%{disable_perl}
 %files import-sar2pcp -f pcp-import-sar2pcp-files.rpm

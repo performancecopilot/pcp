@@ -1,4 +1,20 @@
-#!/usr/bin/env python3
+#!/usr/bin/env pmpython
+#
+# Copyright (C) 2025 Red Hat.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+
+# pylint: disable=too-many-arguments,too-many-positional-arguments
+# pylint: disable=global-statement
+
 import logging
 import time
 import argparse
@@ -42,8 +58,8 @@ def format_time(seconds: float):
     return string.replace('+00:00', 'Z')
 
 
-def update_dashboard_time_window(begin: str, end: str, json_path: str, no_op: bool):
-    # Update the dashboard json to use the archive start and end time
+def update_time_window(begin: str, end: str, json_path: str, no_op: bool):
+    # Update the JSON file to use the archive start and end time
     begin = format_time(begin)
     end = format_time(end)
 
@@ -56,20 +72,23 @@ def update_dashboard_time_window(begin: str, end: str, json_path: str, no_op: bo
         return
 
     # Update the from and to fields
-    data["time"]["from"] = begin
-    data["time"]["to"] = end
+    try:
+        data["time"]["from"] = begin
+        data["time"]["to"] = end
+    except KeyError:
+        return # no update required
 
     if no_op:
-        logging.info("Would update the dashboard: %s", json_path)
+        logging.info("Would update the JSON file: %s", json_path)
     else:
-        # Write the modified json back into the dashboard json file
+        # Write the modified json back into the json file
         with open(json_path, "w", encoding="utf-8") as file:
             json.dump(data, file, indent=4)
 
-        logging.info("Successfully updated the dashboard: %s", json_path)
+        logging.info("Successfully updated the JSON file: %s", json_path)
 
 
-def setup_grafana(path: Path, i: int, count: int, dashboard_path: str, no_op: bool):
+def setup_time_window(path: Path, i: int, count: int, json_path: str, no_op: bool):
     global minimum_start_time, maximum_finish_time
 
     archive_path = base_archive_path(path)
@@ -87,17 +106,17 @@ def setup_grafana(path: Path, i: int, count: int, dashboard_path: str, no_op: bo
     start = float(label.start)
     if minimum_start_time == 0.0 or start < minimum_start_time:
         logging.info("Updating start to %s from %s [%d/%d]",
-                     format_time(minimum_start_time), archive_path, i, count)
+                     format_time(start), archive_path, i, count)
         minimum_start_time = start
 
     finish = float(ctx.pmGetHighResArchiveEnd())
     if finish > maximum_finish_time:
         logging.info("Updating finish to %s from %s [%d/%d]",
-                     format_time(maximum_finish_time), archive_path, i, count)
+                     format_time(finish), archive_path, i, count)
         maximum_finish_time = finish
 
-    # update the time window of the grafana dashboard with the archive start and end time
-    update_dashboard_time_window(minimum_start_time, maximum_finish_time, dashboard_path, no_op)
+    # update the time window in the JSON file with archive start and end times
+    update_time_window(minimum_start_time, maximum_finish_time, json_path, no_op)
 
 
 def import_archive(path: Path, i: int, count: int, no_op: bool, import_timeout: int, port: str, time_zone: str):
@@ -139,7 +158,7 @@ def import_archive(path: Path, i: int, count: int, no_op: bool, import_timeout: 
         imported_archives[archive_path] = archive_mod_time
 
 
-def poll(archives_path: str, dashboard_path: str, no_op: bool, import_timeout: int, port: str, time_zone: str):
+def poll(archives_path: str, jsonfile_path: str, no_op: bool, import_timeout: int, port: str, time_zone: str):
     logging.info("Searching for new or updated archives...")
 
     if not os.access(archives_path, os.R_OK):
@@ -154,7 +173,7 @@ def poll(archives_path: str, dashboard_path: str, no_op: bool, import_timeout: i
         # prepare the dashboard with an initial (quick) pass over all archives
         # because the import_archive process may be loading large data volumes
         for i, path in enumerate(archive_paths, start=1):
-            setup_grafana(path, i, len(archive_paths), dashboard_path, no_op)
+            setup_time_window(path, i, len(archive_paths), jsonfile_path, no_op)
         for i, path in enumerate(archive_paths, start=1):
             import_archive(path, i, len(archive_paths), no_op, import_timeout, port, time_zone)
 
@@ -162,13 +181,13 @@ def poll(archives_path: str, dashboard_path: str, no_op: bool, import_timeout: i
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--archives", default="/archives")
-    parser.add_argument("--dashboard",
+    parser.add_argument("--jsonfile",
                         default="/usr/local/var/lib/grafana/dashboards/pcp-archive-analysis.json")
     parser.add_argument("--noop", action="store_true")
     parser.add_argument("--poll-interval", type=int, default=10)
     parser.add_argument("--import-timeout", type=int, default=600)
-    parser.add_argument("--port", type=str)
-    parser.add_argument("--timezone", type=str)
+    parser.add_argument('-p', "--port", type=str)
+    parser.add_argument('-Z', "--timezone", type=str)
     args = parser.parse_args()
     dash = 'http://localhost:3000/d/pcp-archive-analysis/pcp-archive-analysis'
     logging.basicConfig(level=logging.INFO, format="%(message)s")
@@ -183,7 +202,7 @@ def main():
         while True:
             logging.info("Poll interval: %d", args.poll_interval)
             logging.info("Import timeout: %d", args.import_timeout)
-            poll(args.archives, args.dashboard, args.noop, args.import_timeout, args.port,
+            poll(args.archives, args.jsonfile, args.noop, args.import_timeout, args.port,
                  args.timezone)
             time.sleep(args.poll_interval)
     except KeyboardInterrupt:
