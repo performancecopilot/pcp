@@ -715,8 +715,8 @@ Zabbix via the Zabbix agent - see zbxpcp(3) for further details.
 License: LGPL-2.1-or-later
 Summary: Performance Co-Pilot tools importing PCP archives for pmseries queries
 URL: https://pcp.io
-Requires: pcp-libs = @package_version@
-Requires: python3-pcp = @package_version@
+Requires: pcp-libs >= %{version}-%{release}
+Requires: python3-pcp = %{version}-%{release}
 
 %description import-pmseries
 Performance Co-Pilot (PCP) tools for importing PCP archives into Valkey
