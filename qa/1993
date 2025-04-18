@@ -1,0 +1,87 @@
+#!/bin/sh
+# PCP QA Test No. 1993
+# Testing PCP Rocestat PMDA - install, remove and values.
+#
+# Copyright (c) 2025 Oracle and/or its affiliates.
+# DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.python
+
+pmda_path="$PCP_PMDAS_DIR/rocestat"
+pmda_script="$pmda_path/pmdarocestat.python"
+test_script="rocestat/rocestat_test.python"
+
+[ -d $pmda_path ] || _notrun "ROCESTAT PMDA is not installed"
+
+$python -c "from pcp import pmda" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python pcp pmda module not installed"
+
+if [ ! -d /sys/class/infiniband ]; then
+    # Check if Infiniband kernel module is loaded
+    lsmod | grep -q '^ib_core' || _notrun "IB kernel modules are not loaded"
+    _notrun "No RoCE devices detected"
+fi
+
+status=1	# failure is the default!
+trap "_cleanup_pmda rocestat; exit \$status" 0 1 2 3 15
+
+pmdarocestat_filter()
+{
+    sed \
+        -e "s/Ran [0-9]* tests in [0-9]*\.[0-9][0-9]*s/Ran X tests in YYYs/" \
+        -e "s/FAILED (failures=[0-9]*)/FAILED (failures=X)/" \
+        -e "/^$/d"
+}
+
+pmdarocestat_remove()
+{
+    cd $pmda_path
+    echo
+    echo "=== Removing ROCESTAT agent ==="
+    $sudo ./Remove >$tmp.out 2>&1
+}
+
+pmdarocestat_install()
+{
+    cd $pmda_path
+    $sudo ./Remove >/dev/null 2>&1
+
+    echo
+    echo "=== Installing ROCESTAT agent ==="
+    $sudo ./Install </dev/null >$tmp.out 2>&1
+    cd $here
+}
+
+run_rocestat_test()
+{
+    echo
+    echo "=== Running ROCESTAT test script ==="
+    $sudo $python $test_script 2>&1 | LC_COLLATE=POSIX sort | pmdarocestat_filter
+}
+
+# Real QA test starts here
+_prepare_pmda rocestat
+
+pmdarocestat_install
+
+run_rocestat_test
+
+pmdarocestat_remove
+
+# Success, all done
+status=0
+exit

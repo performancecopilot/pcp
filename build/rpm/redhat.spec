@@ -1729,6 +1729,25 @@ collecting metrics from simple network checks.
 # end pcp-pmda-netcheck
 %endif
 
+#
+# pcp-pmda-rocestat
+#
+%package pmda-rocestat
+License: GPL-2.0-or-later
+Summary: Performance Co-Pilot (PCP) metrics for nVidia RoCE devices
+URL: https://pcp.io
+Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
+%if !%{disable_python3}
+Requires: python3-pcp
+%else
+Requires: %{__python2}-pcp
+%endif
+%description pmda-rocestat
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting statistics for nVidia RDMA over Converged Ethernet (RoCE) devices.
+# end pcp-pmda-rocestat
+%endif
+
 %if !%{disable_mongodb}
 #
 # pcp-pmda-mongodb
@@ -2449,6 +2468,7 @@ basic_manifest | keep '(etc/pcp|pmdas)/postgresql(/|$)' >pcp-pmda-postgresql-fil
 basic_manifest | keep '(etc/pcp|pmdas)/rabbitmq(/|$)' >pcp-pmda-rabbitmq-files
 basic_manifest | keep '(etc/pcp|pmdas)/redis(/|$)' >pcp-pmda-redis-files
 basic_manifest | keep '(etc/pcp|pmdas)/resctrl(/|$)|sys-fs-resctrl' >pcp-pmda-resctrl-files
+basic_manifest | keep '(etc/pcp|pmdas)/rocestat(/|$)' >pcp-pmda-rocestat-files
 basic_manifest | keep '(etc/pcp|pmdas)/roomtemp(/|$)' >pcp-pmda-roomtemp-files
 basic_manifest | keep '(etc/pcp|pmdas)/rpm(/|$)' >pcp-pmda-rpm-files
 basic_manifest | keep '(etc/pcp|pmdas)/rsyslog(/|$)' >pcp-pmda-rsyslog-files
@@ -2487,7 +2507,7 @@ for pmda_package in \
     nutcracker nvidia \
     openmetrics openvswitch oracle \
     pdns perfevent podman postfix postgresql \
-    rabbitmq redis resctrl roomtemp rpm rsyslog \
+    rabbitmq redis resctrl rocestat roomtemp rpm rsyslog \
     samba sendmail shping slurm smart snmp \
     sockets statsd summary systemd \
     unbound uwsgi \
@@ -2865,6 +2885,9 @@ exit 0
 %preun pmda-netcheck
 %{pmda_remove "$1" "netcheck"}
 
+%preun pmda-rocestat
+%{pmda_remove "$1" "rocestat"}
+
 %endif
 
 %preun pmda-apache
@@ -3208,6 +3231,8 @@ fi
 %files pmda-openvswitch -f pcp-pmda-openvswitch-files.rpm
 
 %files pmda-rabbitmq -f pcp-pmda-rabbitmq-files.rpm
+
+%files pmda-rocestat -f pcp-pmda-rocestat-files.rpm
 
 %files pmda-uwsgi -f pcp-pmda-uwsgi-files.rpm
 

@@ -1,0 +1,123 @@
+#!/usr/bin/env pmpython
+
+import os
+import json
+from pcp import pmapi
+import cpmapi as c_api
+import unittest
+import ctypes
+
+
+def load_metrics_from_file(filepath):
+    """Load metrics from a file and organize them by cluster."""
+    clusters = {}
+    with open(filepath, 'r') as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith('#'):
+                continue
+            cluster, metric = line.split('.', 1)
+            clusters.setdefault(cluster, []).append(metric)
+    return clusters
+
+
+def fetch_metric_data(ctx, cluster, metric):
+    """Fetch metric data for a given cluster and metric."""
+    # print(f"Fetching data for metric: {cluster}.{metric}")
+    pmid = ctx.pmLookupName([f"{cluster}.{metric}"])[0]
+    desc = ctx.pmLookupDescs([pmid])[0]
+
+    pmid_array = (ctypes.c_uint * 1)(pmid)
+    results = ctx.pmFetch(pmid_array)
+
+    # Handle instance domains
+    if desc.contents.indom == c_api.PM_INDOM_NULL:
+        print(f"No instances for metric: {cluster}.{metric}")
+        return {}  # No instances for this metric
+
+    instances = ctx.pmGetInDom(desc)[1]
+    metric_data = {}
+    for i, instance in enumerate(instances):
+        atom = ctx.pmExtractValue(
+            results.contents.get_valfmt(0),
+            results.contents.get_vlist(0, i),
+            desc.contents.type,
+            c_api.PM_TYPE_U64
+        )
+        metric_data[instance] = atom.ul
+        # print(f"Metric: {cluster}.{metric}, Instance: {instance}, Value: {atom.ul}")
+
+    return metric_data
+
+
+class RocestatTests(unittest.TestCase):
+    """Unit tests for Rocestat PMDA metrics."""
+
+    @classmethod
+    def setUpClass(cls):
+        """Set up the test environment and fetch all metrics."""
+        print("\nFetching Rocestat PMDA metrics\n")
+        cls.ctx = pmapi.pmContext()
+        cls.cluster_data = {}
+
+        for cluster, metrics in metric_clusters.items():
+            cls.cluster_data[cluster] = {
+                metric: fetch_metric_data(cls.ctx, cluster, metric)
+                for metric in metrics
+            }
+
+    def _test_cluster_metrics(self, cluster):
+        """Test all metrics in a given cluster."""
+        metrics = self.cluster_data.get(cluster, {})
+
+        for metric, instances in metrics.items():
+            self.assertTrue(instances, f"No instances found for metric: {metric} in cluster: {cluster}")
+            for instance, value in instances.items():
+                with self.subTest(cluster=cluster, metric=metric, instance=instance):
+                    expected_value = expected_values.get(cluster, {}).get(metric, {}).get(instance)
+                    self.assertIsNotNone(expected_value, f"Expected value for {metric} (instance {instance}) in {cluster} is missing")
+                    self.assertEqual(value, expected_value, f"{metric} (instance {instance}) in {cluster} does not match expected value")
+
+    def test_hw_metrics(self):
+        self._test_cluster_metrics("hw")
+
+    def test_hw_xmit_metrics(self):
+        self._test_cluster_metrics("hw_xmit")
+
+    def test_hw_rcv_metrics(self):
+        self._test_cluster_metrics("hw_rcv")
+
+    def test_hw_ucast_metrics(self):
+        self._test_cluster_metrics("hw_ucast")
+
+    def test_hw_mcast_metrics(self):
+        self._test_cluster_metrics("hw_mcast")
+
+    def test_hw_req_metrics(self):
+        self._test_cluster_metrics("hw_req")
+
+    def test_hw_resp_metrics(self):
+        self._test_cluster_metrics("hw_resp")
+
+    def test_hw_rnr_metrics(self):
+        self._test_cluster_metrics("hw_rnr")
+
+    def test_hw_link_metrics(self):
+        self._test_cluster_metrics("hw_link")
+
+    def test_nic_metrics(self):
+        self._test_cluster_metrics("nic")
+
+
+if __name__ == '__main__':
+    # Load metrics and expected values
+    script_dir = os.path.dirname(__file__)
+    metrics_file = os.path.join(script_dir, "metrics.list")
+    expected_values_file = os.path.join(script_dir, "rocestat.json")
+
+    metric_clusters = load_metrics_from_file(metrics_file)
+    with open(expected_values_file, 'r') as f:
+        expected_values = json.load(f)
+
+    # Run tests
+    unittest.TextTestRunner(verbosity=2).run(unittest.TestLoader().loadTestsFromTestCase(RocestatTests))
