@@ -78,13 +78,13 @@ CFILES += win32.c
 endif
 
 DSOVERSION = 3
-STATICLIBTARGET = libpcp.a
+STATICLIBTARGET =
 LIBTARGET = libpcp.$(DSOSUFFIX).$(DSOVERSION)
-SYMTARGET = libpcp.$(DSOSUFFIX)
+SYMTARGET = 
 
 ifeq "$(TARGET_OS)" "darwin"
 LIBTARGET = libpcp.$(DSOVERSION).$(DSOSUFFIX)
-SYMTARGET = libpcp.$(DSOSUFFIX)
+SYMTARGET =
 endif
 ifeq "$(TARGET_OS)" "mingw"
 STATICLIBTARGET =
@@ -148,11 +148,6 @@ endif
 install : default
 ifneq ($(LIBTARGET),)
 	$(INSTALL) -m 755 $(LIBTARGET) $(PCP_LIB_DIR)/$(LIBTARGET)
-ifneq ($(DEB_HOST_MULTIARCH),)
-	$(INSTALL) -m 644 $(LIBCONFIG) $(PCP_LIB_DIR)/$(DEB_HOST_MULTIARCH)/pkgconfig/$(LIBCONFIG)
-else
-	$(INSTALL) -m 644 $(LIBCONFIG) $(PCP_LIB_DIR)/pkgconfig/$(LIBCONFIG)
-endif
 endif
 ifneq ($(SYMTARGET),)
 	for tt in $(SYMTARGET); do \

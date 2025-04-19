@@ -50,7 +50,7 @@ Breaks: pcp (<< 4.3.4), libpcp-gui2-dev (<< 3.11.10~), pcp-webapi (<< 5.0.0), pc
 Replaces: libpcp-gui2-dev (<< 3.11.10~), pcp-webapi (<< 5.0.0), pcp-manager (<< 5.2.0)
 Architecture: any
 Description: Performance Co-Pilot library and headers
- The libpcp-dev package contains the base Performance Co-Pilot (PCP)
+ The libpcp4-dev package contains the base Performance Co-Pilot (PCP)
  library and header files needed to develop collector and monitor
  programs which make use of PCP services.
  .
@@ -75,7 +75,7 @@ Replaces: libpcp3t64 (<< 6.3.2)
 Section: libs
 Architecture: any
 Description: Performance Co-Pilot library
- The libpcp package contains the runtime environment required by
+ The libpcp4 package contains the runtime environment required by
  programs that make use of Performance Co-Pilot (PCP) services.
  .
  The Performance Co-Pilot provides a unifying abstraction for
@@ -97,7 +97,7 @@ Depends: ${misc:Depends}, libpcp-gui2 (= ${binary:Version}), libpcp4 (= ${binary
 Conflicts: libpcp-gui1-dev
 Architecture: any
 Description: Performance Co-Pilot graphical client tools library and headers
- The libpcp-gui-dev package contains the Performance Co-Pilot (PCP)
+ The libpcp-gui2-dev package contains the Performance Co-Pilot (PCP)
  library and header files needed to incorporate graphical time control
  (pmtime) into a monitoring application.
  .
@@ -113,7 +113,7 @@ Replaces: libpcp-gui2t64 (<< 6.3.2)
 Section: libs
 Architecture: any
 Description: Performance Co-Pilot graphical client tools library
- The libpcp-gui package contains the runtime environment required by any
+ The libpcp-gui2 package contains the runtime environment required by any
  monitoring tool that makes use of the time control services of pmtime(1).
  .
  The Performance Co-Pilot provides a unifying abstraction for
@@ -126,7 +126,7 @@ Section: libdevel
 Depends: ${misc:Depends}, libpcp-mmv1 (= ${binary:Version}), libpcp4 (= ${binary:Version})
 Architecture: any
 Description: Performance Co-Pilot Memory Mapped Value library and headers
- The libpcp-mmv-dev package contains the Performance Co-Pilot (PCP)
+ The libpcp-mmv1-dev package contains the Performance Co-Pilot (PCP)
  library and header files needed to utilise memory mapped value
  instrumentation into a monitored application.
  .
@@ -142,7 +142,7 @@ Replaces: libpcp-mmv1t64 (<< 6.3.2)
 Section: libs
 Architecture: any
 Description: Performance Co-Pilot Memory Mapped Value client library
- The libpcp-mmv package contains the runtime environment required by an
+ The libpcp-mmv1 package contains the runtime environment required by an
  application that utilises Memory Mapped Value instrumentation to export
  runtime instrumentation into the Performance Co-Pilot infrastructure.
  .
@@ -158,7 +158,7 @@ Breaks: pcp (<< 2.8.0), libpcp3-dev (<< 3.11.10~)
 Replaces: libpcp3-dev (<< 3.11.10~)
 Architecture: any
 Description: Performance Co-Pilot Domain Agent library and headers
- The libpcp-pmda-dev package contains the Performance Co-Pilot (PCP)
+ The libpcp-pmda3-dev package contains the Performance Co-Pilot (PCP)
  library and header files needed to develop Performance Metric Domain
  Agents (PMDAs).  Each PMDA exports performance data for one domain;
  for example the operating system kernel, Cisco routers, a database,
@@ -176,7 +176,7 @@ Replaces: libpcp-pmda3t64 (<< 6.3.2)
 Section: libs
 Architecture: any
 Description: Performance Co-Pilot Domain Agent library
- The libpcp-pmda package contains the runtime environment required by
+ The libpcp3-pmda package contains the runtime environment required by
  a Performance Metric Domain Agent (PMDA).  A PMDA exports performance
  data for one specific domain, for example the operating system kernel,
  DNS, SMTP, Cisco router, a database, an application, etc.
@@ -187,7 +187,7 @@ Depends: ${misc:Depends}, libpcp-trace2 (= ${binary:Version}), libpcp4 (= ${bina
 Breaks: pcp (<< 2.8.0)
 Architecture: any
 Description: Performance Co-Pilot application tracing library and headers
- The libpcp-trace-dev package contains the Performance Co-Pilot (PCP)
+ The libpcp-trace2-dev package contains the Performance Co-Pilot (PCP)
  library and header files needed to directly instrument an application
  for event and value tracking by the pmdatrace(1) PCP Trace Performance
  Metric Domain Agent.
@@ -204,7 +204,7 @@ Replaces: libpcp-trace2t64 (<< 6.3.2)
 Section: libs
 Architecture: any
 Description: Performance Co-Pilot application tracing library
- The libpcp-trace package contains the runtime environment required by
+ The libpcp-trace2 package contains the runtime environment required by
  an application that is directly instrumented for event and value
  tracking by pmdatrace(3), the Trace Performance Metric Domain Agent.
  .
@@ -218,7 +218,7 @@ Section: libdevel
 Depends: ${misc:Depends}, libpcp-import1 (= ${binary:Version}), libpcp4-dev
 Architecture: any
 Description: Performance Co-Pilot data import library and headers
- The libpcp-import-dev package contains the library and header files
+ The libpcp-import1-dev package contains the library and header files
  needed to build an application that imports performance data from
  a file or real-time source and creates a Performance Co-Pilot (PCP)
  archive suitable for use with the PCP tools.
@@ -235,7 +235,7 @@ Replaces: libpcp-import1t64 (<< 6.3.2)
 Section: libs
 Architecture: any
 Description: Performance Co-Pilot data import library
- The libpcp-import package contains the runtime environment required
+ The libpcp-import1 package contains the runtime environment required
  by an application that imports performance data from a file or
  real-time source and creates a Performance Co-Pilot (PCP) archive
  suitable for use with the PCP tools.
@@ -250,7 +250,7 @@ Section: libdevel
 Depends: ${misc:Depends}, libpcp-web1 (= ${binary:Version}), libpcp4-dev
 Architecture: any
 Description: Performance Co-Pilot web tooling
- The libpcp-web-dev package contains the library and header files
+ The libpcp-web1-dev package contains the library and header files
  needed to build a PMDA which parses and extracts metric data from
  a JSON file.
  .
@@ -266,7 +266,7 @@ Replaces: libpcp-web1t64 (<< 6.3.2)
 Section: libs
 Architecture: any
 Description: Performance Co-Pilot data import library
- The libpcp-web package contains the runtime environment required
+ The libpcp-web1 package contains the runtime environment required
  by a PMDA to parse and extract metric data from a JSON file.
  .
  The Performance Co-Pilot provides a unifying abstraction for
@@ -279,7 +279,7 @@ Section: libdevel
 Depends: ${misc:Depends}, libpcp-archive1 (= ${binary:Version}), libpcp4-dev
 Architecture: any
 Description: Performance Co-Pilot archive writing library and headers
- The libpcp-archive-dev package contains the library and header files
+ The libpcp-archive1-dev package contains the library and header files
  needed to build an application that creates a Performance Co-Pilot
  (PCP) archive suitable for use with the PCP tools.
  .
@@ -295,7 +295,7 @@ Replaces: libpcp-archive1t64 (<< 6.3.2)
 Section: libs
 Architecture: any
 Description: Performance Co-Pilot archive writing library
- The libpcp-archive package contains the runtime environment required
+ The libpcp-archive1 package contains the runtime environment required
  by an application that creates a Performance Co-Pilot (PCP) archive
  suitable for use with the PCP tools.
  .

@@ -3,6 +3,7 @@
 pcp = pcp
 pcpcfg = pcp-conf
 libpcp = libpcp4
+libpcp3 = libpcp3
 libpcpdev = libpcp4-dev
 libpcp_pmda = libpcp-pmda3
 libpcp_pmdadev = libpcp-pmda3-dev
@@ -46,6 +47,7 @@ pcpdoc = pcp-doc
 dirpcp = debian/$(pcp)
 dirpcpcfg = debian/$(pcpcfg)
 dirlibpcp = debian/$(libpcp)
+dirlibpcp3 = debian/$(libpcp3)
 dirlibpcpdev = debian/$(libpcpdev)
 dirlibpcp_pmda = debian/$(libpcp_pmda)
 dirlibpcp_pmdadev = debian/$(libpcp_pmdadev)
@@ -88,7 +90,7 @@ dirdoc = debian/$(pcpdoc)
 allperldir = $(dirlibpcp_pmda_perl) $(dirlibpcp_import_perl) \
 		$(dirpcp_logsummary_perl) $(dirlibpcp_mmv_perl)
 alldir = $(dirpcp) $(dirpcpcfg) \
-		$(dirlibpcp) $(dirlibpcpdev) \
+		$(dirlibpcp) $(dirlibpcp3) $(dirlibpcpdev) \
 		$(dirlibpcp_pmda) $(dirlibpcp_pmdadev) \
 		$(dirlibpcp_trace) $(dirlibpcp_tracedev) \
 		$(dirlibpcp_gui) $(dirlibpcp_guidev) \
@@ -107,6 +109,7 @@ pkgpcpgui = $(zip) DIST_ROOT="`pwd`"/$(dirgui);
 pkgpcpdoc = $(zip) DIST_ROOT="`pwd`"/$(dirdoc);
 pkgpcpcfg = $(zip) DIST_ROOT="`pwd`"/$(dirpcpcfg);
 pkglibpcp = $(zip) DIST_ROOT="`pwd`"/$(dirlibpcp);
+pkglibpcp3 = $(zip) DIST_ROOT="`pwd`"/$(dirlibpcp3);
 pkglibpcp_gui = $(zip) DIST_ROOT="`pwd`"/$(dirlibpcp_gui);
 pkglibpcp_mmv = $(zip) DIST_ROOT="`pwd`"/$(dirlibpcp_mmv);
 pkglibpcp_pmda = $(zip) DIST_ROOT="`pwd`"/$(dirlibpcp_pmda);
@@ -288,6 +291,8 @@ binary-arch: checkroot build-stamp
 	@$(unrpathperl)
 	dh_makeshlibs -a -N $(libpcp)
 	dh_makeshlibs -a --package $(libpcp)
+	dh_makeshlibs -a -N $(libpcp3)
+	dh_makeshlibs -a --package $(libpcp3)
 	dh_makeshlibs -a -N $(libpcp_pmda)
 	dh_makeshlibs -a --package $(libpcp_pmda)
 	dh_makeshlibs -a -N $(libpcp_trace)

@@ -2,7 +2,3 @@ platform_defs.h
 platformsz.h
 configsz.h
 config.h
-dict.h
-sds.h
-sdsalloc.h
-ini.h

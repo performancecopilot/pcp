@@ -35,6 +35,10 @@ LIBS_SUBDIRS = \
 	libpcp_fault \
 	#
 
+# ABI compatibility (libpcp.so.3)
+#
+LIBS_SUBDIRS += libpcp3
+
 # ones that generate .static executables and may be used later on
 # in the build
 #
