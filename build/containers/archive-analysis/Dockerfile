@@ -1,4 +1,5 @@
 ## Build
+## NB: this Dockerfile will be superceded by the Containerfile for PCP v7
 FROM quay.io/fedora/fedora:latest AS build
 COPY . /usr/src/pcp
 
