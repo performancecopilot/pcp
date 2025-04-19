@@ -1,0 +1,15 @@
+[Unit]
+Description=Performance Co-Pilot time series importing
+Documentation=man:pmseries_import(1)
+After=valkey.service redis.service
+
+[Service]
+Type=exec
+Restart=on-failure
+StandardOutput=journal+console
+Environment=PYTHONUNBUFFERED=1
+ExecStart=@PCP_BINADM_DIR@/pmseries_import
+SyslogIdentifier=pmseries
+
+[Install]
+WantedBy=multi-user.target

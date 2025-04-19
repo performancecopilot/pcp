@@ -709,6 +709,20 @@ Zabbix via the Zabbix agent - see zbxpcp(3) for further details.
 
 %if !%{disable_python3}
 #
+# pcp-import-pmseries
+#
+%package import-pmseries
+License: LGPL-2.1-or-later
+Summary: Performance Co-Pilot tools importing PCP archives for pmseries queries
+URL: https://pcp.io
+Requires: pcp-libs >= %{version}-%{release}
+Requires: python3-pcp = %{version}-%{release}
+
+%description import-pmseries
+Performance Co-Pilot (PCP) tools for importing PCP archives into Valkey
+or Redis for fast, scalable time series access via pmseries(1) queries.
+
+#
 # pcp-geolocate
 #
 %package geolocate
@@ -1713,6 +1727,20 @@ Requires: python3-pcp
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics from simple network checks.
 # end pcp-pmda-netcheck
+
+#
+# pcp-pmda-rocestat
+#
+%package pmda-rocestat
+License: GPL-2.0-or-later
+Summary: Performance Co-Pilot (PCP) metrics for nVidia RoCE devices
+URL: https://pcp.io
+Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
+Requires: python3-pcp
+%description pmda-rocestat
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting statistics for nVidia RDMA over Converged Ethernet (RoCE) devices.
+# end pcp-pmda-rocestat
 %endif
 
 %if !%{disable_mongodb}
@@ -2358,6 +2386,7 @@ basic_manifest | grep -E -e 'pmiostat|pmrep|dstat|htop|pcp2csv' \
    -e 'pcp-tapestat|pcp-uptime|pcp-verify|pcp-xsos' | \
    cull 'selinux|pmlogconf|pmieconf|pmrepconf' >pcp-system-tools-files
 basic_manifest | keep 'geolocate' >pcp-geolocate-files
+basic_manifest | keep 'pmseries_import' >pcp-import-pmseries-files
 basic_manifest | keep 'sar2pcp' >pcp-import-sar2pcp-files
 basic_manifest | keep 'iostat2pcp' >pcp-import-iostat2pcp-files
 basic_manifest | keep 'sheet2pcp' >pcp-import-sheet2pcp-files
@@ -2434,6 +2463,7 @@ basic_manifest | keep '(etc/pcp|pmdas)/postgresql(/|$)' >pcp-pmda-postgresql-fil
 basic_manifest | keep '(etc/pcp|pmdas)/rabbitmq(/|$)' >pcp-pmda-rabbitmq-files
 basic_manifest | keep '(etc/pcp|pmdas)/redis(/|$)' >pcp-pmda-redis-files
 basic_manifest | keep '(etc/pcp|pmdas)/resctrl(/|$)|sys-fs-resctrl' >pcp-pmda-resctrl-files
+basic_manifest | keep '(etc/pcp|pmdas)/rocestat(/|$)' >pcp-pmda-rocestat-files
 basic_manifest | keep '(etc/pcp|pmdas)/roomtemp(/|$)' >pcp-pmda-roomtemp-files
 basic_manifest | keep '(etc/pcp|pmdas)/rpm(/|$)' >pcp-pmda-rpm-files
 basic_manifest | keep '(etc/pcp|pmdas)/rsyslog(/|$)' >pcp-pmda-rsyslog-files
@@ -2472,7 +2502,7 @@ for pmda_package in \
     nutcracker nvidia \
     openmetrics openvswitch oracle \
     pdns perfevent podman postfix postgresql \
-    rabbitmq redis resctrl roomtemp rpm rsyslog \
+    rabbitmq redis resctrl rocestat roomtemp rpm rsyslog \
     samba sendmail shping slurm smart snmp \
     sockets statsd summary systemd \
     unbound uwsgi \
@@ -2484,6 +2514,7 @@ do \
 done
 
 for import_package in \
+    pmseries \
     collectl2pcp iostat2pcp ganglia2pcp mrtg2pcp sar2pcp sheet2pcp ; \
 do \
     import_packages="$import_packages pcp-import-$import_package"; \
@@ -2849,6 +2880,9 @@ exit 0
 %preun pmda-netcheck
 %{pmda_remove "$1" "netcheck"}
 
+%preun pmda-rocestat
+%{pmda_remove "$1" "rocestat"}
+
 %endif
 
 %preun pmda-apache
@@ -3193,6 +3227,8 @@ fi
 
 %files pmda-rabbitmq -f pcp-pmda-rabbitmq-files.rpm
 
+%files pmda-rocestat -f pcp-pmda-rocestat-files.rpm
+
 %files pmda-uwsgi -f pcp-pmda-uwsgi-files.rpm
 
 %files export-pcp2graphite -f pcp-export-pcp2graphite-files.rpm
@@ -3289,6 +3325,10 @@ fi
 %files pmda-trace -f pcp-pmda-trace-files.rpm
 
 %files pmda-weblog -f pcp-pmda-weblog-files.rpm
+
+%if !%{disable_python3}
+%files import-pmseries -f pcp-import-pmseries-files.rpm
+%endif
 
 %if !%{disable_perl}
 %files import-sar2pcp -f pcp-import-sar2pcp-files.rpm
