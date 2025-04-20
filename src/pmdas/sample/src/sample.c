@@ -1578,9 +1578,9 @@ sample_name(pmID pmid, char ***nameset, pmdaExt *pmda)
 		    (pmID_item(pmid) == 1009 || pmID_item(pmid) == 1010 || pmID_item(pmid) == 1011))
 		    continue;
 		list[nmatch++] = p;
-		strcpy(p, pfx);
+		memcpy(p, pfx, strlen(pfx));
 		p += strlen(pfx);
-		strcpy(p, dynamic_ones[i].name);
+		memcpy(p, dynamic_ones[i].name, strlen(dynamic_ones[i].name));
 		p += strlen(dynamic_ones[i].name);
 		*p++ = '\0';
 	    }
@@ -1696,7 +1696,7 @@ sample_children(const char *name, int traverse, char ***offspring, int **status,
 		memcpy(chn[nmatch-1], name, pfxlen);
 		chn[nmatch-1][pfxlen] = '.';
 		chn[nmatch-1][pfxlen+1] = '\0';
-		strcat(chn[nmatch-1], dynamic_ones[i].name);
+		pmstrncat(chn[nmatch-1], tlen, dynamic_ones[i].name);
 		sts[nmatch-1] = PMNS_LEAF_STATUS;
 	    }
 	    len += tlen + 1;
@@ -1713,10 +1713,12 @@ sample_children(const char *name, int traverse, char ***offspring, int **status,
 	}
 	q = (char *)&chn[nmatch];
 	for (j = 0; j < nmatch; j++) {
-	    strcpy(q, chn[j]);
+	    len = strlen(chn[j]);
+	    memcpy(q, chn[j], len);
 	    free(chn[j]);
 	    chn[j] = q;
-	    q += strlen(chn[j])+1;
+	    q += len;
+	    *q++ = '\0';
 	}
 	*offspring = chn;
 	*status = sts;
