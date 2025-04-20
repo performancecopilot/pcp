@@ -1,0 +1,40 @@
+#!/bin/sh
+# __author__ = "Mohith Kumar Thummaluru"
+# __email__ = "mohith.k.kumar.thummaluru@oracle.com"
+#
+# Copyright (c) 2025 Oracle and/or its affiliates.
+# DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+# Install the Rocestat PMDA
+#
+
+. $PCP_DIR/etc/pcp.env
+. $PCP_SHARE_DIR/lib/pmdaproc.sh
+
+iam=rocestat
+python_opt=true
+daemon_opt=false
+
+if [[ ! -d /sys/class/infiniband ]]; then
+    if ! lsmod | grep -q '^ib_core'; then
+        echo "IB kernel modules are not loaded" >&2
+    else
+        echo "No IB devices detected" >&2
+    fi
+    status=1
+    exit
+fi
+
+pmdaSetup
+pmdaInstall
+exit

@@ -1,0 +1,29 @@
+Pre-Requisites
+--------------
+In order to perform the tests, we'll make some assumptions:
+
+- The `pcp` Python module is installed and accessible.
+- The `rocestat` PMDA has been installed successfully.
+- The system has RoCE devices available and the required kernel modules (`ib_core`) are loaded.
+- You are able to run the test as the root user (required for PMDA installation and removal).
+
+What the Test Does
+------------------
+The test validates the functionality of the `rocestat` PMDA by performing the following steps:
+
+1. Installs the `rocestat` PMDA.
+2. Fetches metrics defined in `metrics.list` and validates their values against the expected values in `rocestat.json`.
+3. Runs unit tests for each metric cluster (e.g., `hw`, `hw_xmit`, `hw_rcv`) to ensure the PMDA is reporting correct values.
+4. Removes the `rocestat` PMDA after the tests are complete.
+
+If any of the above checks fail, an exception will be raised, and the test will terminate.
+
+How to Test
+-----------
+1. Make sure the pre-requisites are in place.
+2. Run the rocestat_test.python script
+
+Issues
+------
+- None known at this time
+
