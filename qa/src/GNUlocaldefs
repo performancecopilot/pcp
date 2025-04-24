@@ -54,7 +54,7 @@ CFILES = disk_test.c exercise.c context_test.c chkoptfetch.c \
 	stampconv.c time_stamp.c archend.c scandata.c wait_for_values.c \
 	dumpstack.c usergroup.c derived_help.c ready-or-not.c cleanmapdir.c \
 	throttle.c throttle_timeout.c y2038.c bigpmcdpmids.c pdu-gadget.c \
-	strnfoo.c mmv_ondisk.c newcontext.c
+	strnfoo.c mmv_ondisk.c newcontext.c api_abi.c
 
 ifeq ($(shell test -f ../localconfig && echo 1), 1)
 include ../localconfig
@@ -124,6 +124,13 @@ endif
 MYFILES += check_fault_injection.c exercise_fault.c
 LDIRT += check_fault_injection exercise_fault
 
+XTRATARGETS += api_abi_v2
+ifeq ($(shell test -f ../../src/libpcp3/src/include/pcp/pmapi.h -a ../../src/libpcp3/src/libpcp.so.3 && echo 1), 1)
+# in a build tree with libpcp3 present
+#
+XTRATARGETS += api_abi_compat
+endif
+
 # POSIXFILES and TRACEFILES are ones we don't even try to build on
 # non-Posix platforms like Windows
 #
@@ -187,7 +194,7 @@ PSCRIPTS = $(PERLFILES) $(PYTHONFILES)
 CFILES_TARGETS = $(CFILES)
 
 TARGETS = $(subst broken_pmda,,$(basename $(patsubst %.c,%,$(CFILES_TARGETS)))) \
-	chkctx2_lite template fetchrate_lite pv \
+	chkctx2_lite template fetchrate_lite pv api_abi_v2 \
 	$(XTRATARGETS)
 
 ifeq "$(TARGET_OS)" "linux"
@@ -448,9 +455,21 @@ newcontext:	newcontext.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
 
+# --- need libpcp but different versions of PMAPI_VERSION and/or
+#     libpcp.so
+#
+
 getoptions_v2:	getoptions.c
 	rm -f $@
 	$(CCF) $(CDEFS) -DPMAPI_VERSION=2 -o $@ $< $(LDLIBS)
+
+api_abi_v2:	api_abi.c
+	rm -f $@
+	$(CCF) $(CDEFS) -DPMAPI_VERSION=2 -o $@ $< $(LDLIBS)
+
+api_abi_compat:	api_abi.c
+	rm -f $@
+	$(CC) -I../../src/libpcp3/src/include -I../../src/libpcp3/src/include/pcp $(CFLAGS) $(CDEFS) -o $@ $< ../../src/libpcp3/src/libpcp.so.3
 
 # --- need libpcp but also PM_CONTEXT_LOCAL
 #

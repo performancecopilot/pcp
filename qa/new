@@ -23,12 +23,13 @@ _usage()
     echo >&2 "Usage: new [options] [starting-seq-no [group ...]]"
     echo >&2
     echo >&2 "Options:"
-    echo >&2 "-n   show-me, change nothing"
-    echo >&2 "-q   quiet|quick (no editing of skeletal test)"
-    echo >&2 "-r   reserve (and skeletal test added)"
-    echo >&2 "-s   pick smallest unallocated test number"
-    echo >&2 "     [default and preferred is to choose at random]"
-    echo >&2 "-v   verbose"
+    echo >&2 "-n         show-me, change nothing"
+    echo >&2 "-q         quiet|quick (no editing of skeletal test)"
+    echo >&2 "-r         reserve (and skeletal test added)"
+    echo >&2 "-R seq-no  use previously reserved seq-no"
+    echo >&2 "-s         pick smallest unallocated test number"
+    echo >&2 "           [default and preferred is to choose at random]"
+    echo >&2 "-v         verbose"
     echo >&2
     echo >&2 "starting-seq-no changes where search starts, but maybe - to ignore"
     echo >&2 "if group(s) specified on the command line"
@@ -42,7 +43,9 @@ reserve=false
 verbose=false
 smallest=false
 random=true
-while getopts 'nqrsv?' p
+unreserve=false
+id=''
+while getopts 'nqrR:sv?' p
 do
     case "$p"
     in
@@ -51,6 +54,33 @@ do
 	q)	quick=true
 		;;
 	r)	reserve=true
+		if [ -n "$id" ]
+		then
+		    echo "Error: cannot have -r after -R $id"
+		    exit 1
+		fi
+		;;
+	R)	id="$OPTARG"
+		if grep -q "^$id:reserved" group
+		then
+		    for suff in '' .out
+		    do
+			if [ -f $id$suff ]
+			then
+			    echo "Error: $id$suff already exists"
+			    exit 1
+			fi
+		    done
+		else
+		    echo "Error: $id not reserved in group file"
+		    exit 1
+		fi
+		if $reserve
+		then
+		    echo "Error: cannot have -R $id after -r"
+		    exit 1
+		fi
+		unreserve=true
 		;;
 	s)	smallest=true
 		random=false
@@ -140,69 +170,72 @@ then
     echo "Warning: ${MAKE:-make} failed -- some tests may be missing"
 fi
 
-try=""
-if $smallest
+if [ -z "$id" ]
 then
-    :
-else
-    if [ $# -gt 0 ]
-    then
-	if [ x"$1" != x- ]
-	then
-	    try=`printf "%03d\n" $1`
-	    random=false
-	fi
-	shift
-    fi
-fi
-
-if [ -z "$try" ]
-then
+    try=""
     if $smallest
     then
-	# see above ...
-	#
-	try=$min
+	:
     else
-	# random in the range $min-$max based on user name convered from alpha
-	# to numeric, prefixed by current clock seconds
-	#
-	seed="`date +%S``echo $USER | tr 'a-z' '0-90-90-9'`"
-	try=`awk 'BEGIN { srand('"$seed"'); printf "%03d\n",int('$min'+rand()*('$max'-'$min')) }' </dev/null`
-    fi
-fi
-
-# first $try, then keep randomly (no -s) or serially (with -s) probing
-# the min-max space
-#
-$verbose && echo >&2 "Info: start probing at $try"
-probe=0
-while [ $probe -lt $max_probes ]
-do
-    if grep "^$try[ :]" <group >/dev/null
-    then
-	# already allocated ... try again
-	#
-	seed=$try
-	if $random
+	if [ $# -gt 0 ]
 	then
-	    try=`awk 'BEGIN { srand('"$seed"'); printf "%03d\n",int('$min'+rand()*('$max'-'$min')) }' </dev/null`
-	    probe=`expr $probe + 1`
-	else
-	    try=`expr $try + 1`
-	    try=`printf "%03d\n" $try`
+	    if [ x"$1" != x- ]
+	    then
+		try=`printf "%03d\n" $1`
+		random=false
+	    fi
+	    shift
 	fi
-	$verbose && echo >&2 "Info: try $try"
-    else
-	id=$try
-	break
     fi
-done
 
-if [ $probe -eq $max_probes ]
-then
-    echo >&2 "Error: after $max_probes attempts, no unassigned tests in the range $min ... $max.  Time to increase \$max"
-    exit 1
+    if [ -z "$try" ]
+    then
+	if $smallest
+	then
+	    # see above ...
+	    #
+	    try=$min
+	else
+	    # random in the range $min-$max based on user name convered from alpha
+	    # to numeric, prefixed by current clock seconds
+	    #
+	    seed="`date +%S``echo $USER | tr 'a-z' '0-90-90-9'`"
+	    try=`awk 'BEGIN { srand('"$seed"'); printf "%03d\n",int('$min'+rand()*('$max'-'$min')) }' </dev/null`
+	fi
+    fi
+
+    # first $try, then keep randomly (no -s) or serially (with -s) probing
+    # the min-max space
+    #
+    $verbose && echo >&2 "Info: start probing at $try"
+    probe=0
+    while [ $probe -lt $max_probes ]
+    do
+	if grep "^$try[ :]" <group >/dev/null
+	then
+	    # already allocated ... try again
+	    #
+	    seed=$try
+	    if $random
+	    then
+		try=`awk 'BEGIN { srand('"$seed"'); printf "%03d\n",int('$min'+rand()*('$max'-'$min')) }' </dev/null`
+		probe=`expr $probe + 1`
+	    else
+		try=`expr $try + 1`
+		try=`printf "%03d\n" $try`
+	    fi
+	    $verbose && echo >&2 "Info: try $try"
+	else
+	    id=$try
+	    break
+	fi
+    done
+
+    if [ $probe -eq $max_probes ]
+    then
+	echo >&2 "Error: after $max_probes attempts, no unassigned tests in the range $min ... $max.  Time to increase \$max"
+	exit 1
+    fi
 fi
 
 if $showme
@@ -354,6 +387,11 @@ else
     ans="$*"
 fi
 
+if $unreserve
+then
+    echo "Removing :reserved tag for $id in group index"
+    sed -e "/^$id:reserved/s/:reserved//" -i group
+fi
 echo "Adding $id to group index"
 echo "$id$tag $ans" >>group
 

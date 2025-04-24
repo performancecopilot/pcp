@@ -93,7 +93,7 @@ _do_option()
 
 echo "pmOptions et al tests ..." | tee -a $seq_full
 for arg in '--help' '--interval 42 -T 10m' \
-    '--archive archives/20041125.0 --hostzone --align "1 minute" --origin "@10:10:10" --start "@10:15" --finish "@10:30"'
+    '--archive archives/20041125.0 --hostzone --align "1 minute" --start "@10:15" --finish "@10:30" --origin "@10:20"'
 do
     _do_option "$arg"
 done

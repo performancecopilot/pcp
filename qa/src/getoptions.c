@@ -96,6 +96,8 @@ timestr(struct timeval *tp)
 
     if (tp->tv_sec == 0)
 	return "-";
+    if (tp->tv_sec == PM_MAX_TIME_T)
+	return "PM_MAX_TIME_T";
     then = (time_t)tp->tv_sec;
     pmLocaltime(&then, &tmp);
     pmsprintf(tv, sizeof(tv), "%02d/%02d/%04d %02d:%02d:%02d.%06d",
@@ -113,6 +115,8 @@ timestr(struct timespec *tp)
 
     if (tp->tv_sec == 0)
 	return "-";
+    if (tp->tv_sec == PM_MAX_TIME_T)
+	return "PM_MAX_TIME_T";
     memset(tv, 0, sizeof(tv));
     then = (time_t)tp->tv_sec;
     pmLocaltime(&then, &tmp);
@@ -181,7 +185,7 @@ dumpall(pmOptions *opts)
     }
     printf("    start: %s\n", timestr(&opts->start));
     printf("    finish: %s\n", timestr(&opts->finish));
-    printf("    origin: %s\n", timestr(&opts->finish));
+    printf("    origin: %s\n", timestr(&opts->origin));
     printf("    interval: %s\n", interstr(&opts->interval));
     printf("    align_optarg: %s\n", isempty(opts->align_optarg));
     printf("    start_optarg: %s\n", isempty(opts->start_optarg));
@@ -219,6 +223,7 @@ main(int argc, char *argv[])
 	PMAPI_OPTIONS_END
     };
     pmOptions opts = {
+	.flags = PM_OPTFLAG_BOUNDARIES | PM_OPTFLAG_STDOUT_TZ,
 	.short_options = PMAPI_OPTIONS "H:K:L" "wXxYy",
 	.long_options = longopts,
     };

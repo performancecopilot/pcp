@@ -559,6 +559,7 @@ PCP_4.0 {
     pmFreeResult;
     pmGetAPIConfig;
     pmGetArchiveEnd;
+    pmGetArchiveEnd_v2;
     pmGetArchiveLabel;
     pmGetChildren;
     pmGetChildrenStatus;
