@@ -130,8 +130,8 @@ QmcSource::retryConnect(int type, QString &source)
 		goto done;
 	    }
 	    else {
-		my.host = lp.ll_hostname;
-		my.start = lp.ll_start;
+		my.host = lp.hostname;
+		TVfromTS(my.start, lp.start);
 	    }
 	    sts = pmGetArchiveEnd(&tmp_ts);
 	    my.end.tv_sec = tmp_ts.tv_sec;

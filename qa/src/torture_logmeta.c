@@ -15,7 +15,7 @@ main(int argc, char **argv)
     int		fault = 0;
     int		errflag = 0;
     char	*offset = NULL;
-    pmHighResLogLabel	label;				/* get hostname for archives */
+    pmLogLabel	label;				/* get hostname for archives */
     int		tzh;				/* initial timezone handle */
     char	local[MAXHOSTNAMELEN];
     char	*endnum;
@@ -106,7 +106,7 @@ Options:\n\
 	fprintf(stderr, "\n=== iteration %d context %d ===\n", c, sts);
 
 	if (c == 2) {
-	    if ((sts = pmGetHighResArchiveLabel(&label)) < 0) {
+	    if ((sts = pmGetArchiveLabel(&label)) < 0) {
 		fprintf(stderr, "%s: Cannot get archive label record: %s\n",
 		    pmGetProgname(), pmErrStr(sts));
 		exit(1);

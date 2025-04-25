@@ -42,7 +42,7 @@ main(int argc, char **argv)
     char	*host = NULL;		/* pander to gcc */
     char 	*configfile = (char *)0;
     char 	*logfile = (char *)0;
-    pmHighResLogLabel	label;				/* get hostname for archives */
+    pmLogLabel	label;				/* get hostname for archives */
     int		zflag = 0;			/* for -z */
     char 	*tz = (char *)0;		/* for -Z timezone */
     int		tzh;				/* initial timezone handle */
@@ -210,7 +210,7 @@ Options\n\
     }
 
     if (type == PM_CONTEXT_ARCHIVE) {
-	if ((sts = pmGetHighResArchiveLabel(&label)) < 0) {
+	if ((sts = pmGetArchiveLabel(&label)) < 0) {
 	    fprintf(stderr, "%s: Cannot get archive label record: %s\n",
 		pmGetProgname(), pmErrStr(sts));
 	    exit(1);

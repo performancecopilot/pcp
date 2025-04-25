@@ -2462,9 +2462,9 @@ __pmLogSetTime(__pmContext *ctxp)
 typedef int (*pmgetlabel_t)(__pmLogCtl *, void *);
 
 static int
-__pmGetOriginalArchiveLabel(__pmLogCtl *lcp, void *userdata)
+__pmGetArchiveLabel_v2(__pmLogCtl *lcp, void *userdata)
 {
-    pmLogLabel		*lp = (pmLogLabel *)userdata;
+    pmLogLabel_v2	*lp = (pmLogLabel_v2 *)userdata;
     __pmLogLabel	*rlp = &lcp->label;
     size_t		bytes;
 
@@ -2482,9 +2482,9 @@ __pmGetOriginalArchiveLabel(__pmLogCtl *lcp, void *userdata)
 }
 
 static int
-__pmGetHighResArchiveLabel(__pmLogCtl *lcp, void *userdata)
+__pmGetArchiveLabel(__pmLogCtl *lcp, void *userdata)
 {
-    pmHighResLogLabel	*lp = (pmHighResLogLabel *)userdata;
+    pmLogLabel		*lp = (pmLogLabel *)userdata;
     __pmLogLabel	*rlp = &lcp->label;
     size_t		bytes;
 
@@ -2508,7 +2508,7 @@ __pmGetHighResArchiveLabel(__pmLogCtl *lcp, void *userdata)
 
 /* Read the label of the first archive in the context. */
 static int
-__pmGetArchiveLabel(pmgetlabel_t getlabel, void *userdata)
+__pmGetArchiveLabel_work(pmgetlabel_t getlabel, void *userdata)
 {
     int		save_arch = 0;		/* pander to gcc */
     int		save_vol = 0;		/* pander to gcc */
@@ -2567,18 +2567,18 @@ __pmGetArchiveLabel(pmgetlabel_t getlabel, void *userdata)
     return 0;
 }
 
-/* Pass back the label in the original label format. */
+/* Pass back the label in the old label format. */
+int
+pmGetArchiveLabel_v2(pmLogLabel_v2 *lp)
+{
+    return __pmGetArchiveLabel_work(__pmGetArchiveLabel_v2, (void *)lp);
+}
+
+/* Pass back the label in the new high resolution (default) label format. */
 int
 pmGetArchiveLabel(pmLogLabel *lp)
 {
-    return __pmGetArchiveLabel(__pmGetOriginalArchiveLabel, (void *)lp);
-}
-
-/* Pass back the label in the high resolution label format. */
-int
-pmGetHighResArchiveLabel(pmHighResLogLabel *lp)
-{
-    return __pmGetArchiveLabel(__pmGetHighResArchiveLabel, (void *)lp);
+    return __pmGetArchiveLabel_work(__pmGetArchiveLabel, (void *)lp);
 }
 
 /*

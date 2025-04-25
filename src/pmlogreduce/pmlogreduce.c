@@ -252,8 +252,8 @@ main(int argc, char **argv)
     }
 
     /* start time */
-    logstart_ts.tv_sec = ilabel.ll_start.tv_sec;
-    logstart_ts.tv_nsec = ilabel.ll_start.tv_usec * 1000;
+    logstart_ts.tv_sec = ilabel.start.tv_sec;
+    logstart_ts.tv_nsec = ilabel.start.tv_nsec;
 
     /* end time */
     if ((sts = pmGetArchiveEnd(&logend_ts)) < 0) {
@@ -264,12 +264,12 @@ main(int argc, char **argv)
 
     if (zarg) {
 	/* use TZ from metrics source (input-archive) */
-	if ((sts = pmNewZone(ilabel.ll_tz)) < 0) {
+	if ((sts = pmNewZone(ilabel.timezone)) < 0) {
 	    fprintf(stderr, "%s: Cannot set context timezone: %s\n",
 		    pmGetProgname(), pmErrStr(sts));
             exit(1);
 	}
-	printf("Note: timezone set to local timezone of host \"%s\" from archive\n\n", ilabel.ll_hostname);
+	printf("Note: timezone set to local timezone of host \"%s\" from archive\n\n", ilabel.hostname);
     }
     else if (tz != NULL) {
 	/* use TZ as specified by user */
@@ -319,7 +319,7 @@ main(int argc, char **argv)
 
     /* create output log - must be done before writing label */
     archctl.ac_log = &logctl;
-    vers = ilabel.ll_magic & 0xff;
+    vers = ilabel.magic & 0xff;
     if ((sts = __pmLogCreate("", oname, vers, &archctl, 0)) < 0) {
 	fprintf(stderr, "%s: Error: __pmLogCreate: %s\n",
 		pmGetProgname(), pmErrStr(sts));

@@ -561,6 +561,7 @@ PCP_4.0 {
     pmGetArchiveEnd;
     pmGetArchiveEnd_v2;
     pmGetArchiveLabel;
+    pmGetArchiveLabel_v2;
     pmGetChildren;
     pmGetChildrenStatus;
     pmGetClusterLabels;
@@ -573,7 +574,6 @@ PCP_4.0 {
     pmGetDerivedControl;
     pmGetDomainLabels;
     pmGetFetchGroupContext;
-    pmGetHighResArchiveLabel;
     pmGetHostName;
     pmGetInDom;
     pmGetInDomArchive;

@@ -97,7 +97,7 @@ endif
 LDIRT += $(SYMTARGET) $(YFILES:%.y=%.tab.?) $(XFILES) $(LIBCONFIG) \
 	getdate.h getdate.y derive_parser.y check.done $(GENERATED_HFILES) exports \
 	$(JSONSL_XFILES) \
-	getopt_v2.c
+	getopt_v2.c getopt2.o getopt3.o libpcp.so.3
 
 base default : $(XFILES) $(JSONSL_XFILES) \
 	$(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET) \

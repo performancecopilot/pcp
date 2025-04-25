@@ -3883,6 +3883,7 @@ dnl   Build definitions for use in Makefiles
     src/include/builddefs
 dnl   PCP paths and other defs
     src/include/pcp.conf
+    src/libpcp3/src/include/pcp.conf
 dnl   Linux Software Map entry
     pcp.lsm
 dnl   Preamble for deb install scripts

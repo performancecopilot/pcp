@@ -209,13 +209,13 @@ printmsecstamp(struct timespec *stamp, int delim)
 static void
 printlabel(void)
 {
-    pmHighResLogLabel  label;
+    pmLogLabel  label;
     char        *ddmm;
     char        *yr;
     int         sts;
     time_t	time;
 
-    if ((sts = pmGetHighResArchiveLabel(&label)) < 0) {
+    if ((sts = pmGetArchiveLabel(&label)) < 0) {
 	fprintf(stderr, "%s: Cannot get archive label record: %s\n",
 		pmGetProgname(), pmErrStr(sts));
 	exit(1);

@@ -91,8 +91,8 @@ main(int argc, char **argv)
     char	*namespace = PM_NS_DEFAULT;
     static char	*usage = "[-D debugspec] [-a archive] [-n namespace] [-v]";
     struct timespec	delta = { 0, 5000000 };	/* 5 msec */
-    pmHighResLogLabel	loglabel;
-    pmHighResLogLabel	duplabel;
+    pmLogLabel	loglabel;
+    pmLogLabel	duplabel;
 
     pmSetProgname(argv[0]);
 
@@ -141,7 +141,7 @@ main(int argc, char **argv)
 	printf("%s: Cannot connect to archive \"%s\": %s\n", pmGetProgname(), archive, pmErrStr(ctx[0]));
 	exit(1);
     }
-    if ((sts = pmGetHighResArchiveLabel(&loglabel)) < 0) {
+    if ((sts = pmGetArchiveLabel(&loglabel)) < 0) {
 	printf("%s: pmGetHighResArchiveLabel(%d): %s\n", pmGetProgname(), ctx[0], pmErrStr(sts));
 	exit(1);
     }
@@ -153,7 +153,7 @@ main(int argc, char **argv)
 	printf("%s: Cannot dup context: %s\n", pmGetProgname(), pmErrStr(ctx[1]));
 	exit(1);
     }
-    if ((sts = pmGetHighResArchiveLabel(&duplabel)) < 0) {
+    if ((sts = pmGetArchiveLabel(&duplabel)) < 0) {
 	printf("%s: pmGetHighResArchiveLabel(%d): %s\n", pmGetProgname(), ctx[1], pmErrStr(sts));
 	exit(1);
     }

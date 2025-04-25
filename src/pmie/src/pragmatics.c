@@ -546,7 +546,7 @@ initArchive(Archive *a)
 	pmDestroyContext(handle);
 	return 0;
     }
-    a->first = pmtimevalToReal(&label.ll_start);
+    a->first = pmtimespecToReal(&label.start);
     if ((sts = pmGetArchiveEnd(&ts)) < 0) {
 	fprintf(stderr, "%s: archive %s is corrupted\n"
 		"pmGetArchiveEnd failed: %s\n",

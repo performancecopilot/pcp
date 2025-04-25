@@ -27,7 +27,7 @@ main(int argc, char **argv)
     int		errflag = 0;
     int		ahtype = 0;
     char	*host = NULL;			/* pander to gcc */
-    pmHighResLogLabel	label;			/* get hostname for archives */
+    pmLogLabel	label;			/* get hostname for archives */
     char	*namespace = PM_NS_DEFAULT;
     pmHighResResult	*result;
     pmHighResResult	*prev;
@@ -96,7 +96,7 @@ Options\n\
 	exit(1);
     }
 
-    if ((sts = pmGetHighResArchiveLabel(&label)) < 0) {
+    if ((sts = pmGetArchiveLabel(&label)) < 0) {
 	fprintf(stderr, "%s: Cannot get archive label record: %s\n",
 	    pmGetProgname(), pmErrStr(sts));
 	exit(1);

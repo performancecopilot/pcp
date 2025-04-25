@@ -36,11 +36,11 @@ enum {
 static int
 __pmUpdateBounds(pmOptions *opts, int index, struct timespec *begin, struct timespec *end)
 {
-    struct pmHighResLogLabel label;
+    struct pmLogLabel label;
     struct timespec logend;
     int sts;
 
-    if ((sts = pmGetHighResArchiveLabel(&label)) < 0) {
+    if ((sts = pmGetArchiveLabel(&label)) < 0) {
 	pmprintf("%s: Cannot get archive %s label record: %s\n",
 		pmGetProgname(), opts->archives[index], pmErrStr(sts));
 	return sts;

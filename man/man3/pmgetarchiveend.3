@@ -69,11 +69,15 @@ Both
 preserve the positioning state of the archive file prior to
 this function call.
 .SH COMPATIBILITY
-Prior to PCP 7.0 the
+Prior to PCP 7.0 and
+.I libpcp.so.4
+the
 .I tp
 argument was a \f(CRstruct timeval\f(CR.
 To support PMAPI transition, the old interface and semantics can be
-used if applications are recompiled with
+used if applications are linked with
+.I libpcp.so.3
+or recompiled with
 .BR \-DPMAPI_VERSION=2 .
 .PP
 For a time in PCP 6.x there was a

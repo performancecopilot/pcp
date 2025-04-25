@@ -18295,7 +18295,7 @@ pcp_prefix=`eval echo $prefix`
 
 
 
-ac_config_files="$ac_config_files src/include/builddefs src/include/pcp.conf pcp.lsm debian/pcp.preinst.head debian/pcp.postinst.head build/tar/preinstall.head build/tar/postinstall.head build/GNUlocaldefs build/mac/uninstall-pcp"
+ac_config_files="$ac_config_files src/include/builddefs src/include/pcp.conf src/libpcp3/src/include/pcp.conf pcp.lsm debian/pcp.preinst.head debian/pcp.postinst.head build/tar/preinstall.head build/tar/postinstall.head build/GNUlocaldefs build/mac/uninstall-pcp"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -18991,6 +18991,7 @@ do
     "src/libpcp3/src/include/pcp/platformsz.h") CONFIG_FILES="$CONFIG_FILES src/libpcp3/src/include/pcp/platformsz.h" ;;
     "src/include/builddefs") CONFIG_FILES="$CONFIG_FILES src/include/builddefs" ;;
     "src/include/pcp.conf") CONFIG_FILES="$CONFIG_FILES src/include/pcp.conf" ;;
+    "src/libpcp3/src/include/pcp.conf") CONFIG_FILES="$CONFIG_FILES src/libpcp3/src/include/pcp.conf" ;;
     "pcp.lsm") CONFIG_FILES="$CONFIG_FILES pcp.lsm" ;;
     "debian/pcp.preinst.head") CONFIG_FILES="$CONFIG_FILES debian/pcp.preinst.head" ;;
     "debian/pcp.postinst.head") CONFIG_FILES="$CONFIG_FILES debian/pcp.postinst.head" ;;

@@ -53,7 +53,7 @@
 #    - and remake/fix any other QA failures
 #
 
-INCDIR=../../include
+INCDIR=include
 
 if [ -f $INCDIR/pcp.conf ]
 then

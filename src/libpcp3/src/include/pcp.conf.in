@@ -1,0 +1,238 @@
+#
+# Copyright (c) 2013-2015,2019-2020,2022 Red Hat.
+# Copyright (c) 2000-2001,2003 Silicon Graphics, Inc.  All Rights Reserved.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+# This file defines the directories and paths used by PCP
+# and is installed as the file /etc/pcp.conf for use at run-time.
+#
+# Note:	the syntax of this file must allow processing to generate
+#	correct variable assignments for both sh and make,
+#	hence there should be no spaces immediately before or after
+#	the equals in each assignment, no quoting on the right of the
+#	equals although the value may contain embedded spaces.
+#
+# Shell scripts should never source this file directly, rather they
+# should use this file indirectly by sourcing /etc/pcp.env, i.e.
+#   . $PCP_DIR/etc/pcp.env
+# this will handle the quoting and white space issues and set all
+# "variables" beginning with PCP_ in this file into the environment.
+# The defaults may be over-ridden by setting $PCP_CONF in the environment
+# as the full path to an alternate version of this file.
+#
+# The "standard paths" reflect the directory structure that is used by
+# default on the platform on which this file is installed.
+#
+
+# directory for _this_ file ... useful in the build
+# Standard path: /etc
+PCP_ETC_DIR=@pcp_etc_dir@
+
+# directory for PCP configuration files
+# Standard path: /etc/pcp
+PCP_SYSCONF_DIR=@pcp_sysconf_dir@
+
+# directory for rc/startup scripts
+# Standard path: /etc/init.d
+PCP_RC_DIR=@pcp_rc_dir@
+
+# directory for sysconfig controls
+# Standard path: /etc/sysconfig (empty if no sysconfig support)
+PCP_SYSCONFIG_DIR=@pcp_sysconfig_dir@
+
+# directory for public binaries
+# Standard path: /usr/bin
+PCP_BIN_DIR=@pcp_bin_dir@
+
+# directory for private PCP binaries (not run directly by users)
+# Standard path is platform dependent, but generally one of
+# /usr/libexec/pcp/bin or /usr/lib/pcp/bin or /usr/share/pcp/bin
+PCP_BINADM_DIR=@pcp_binadm_dir@
+
+# directory for private PCP libraries (not used directly by users)
+# Standard path is platform dependent, but generally one of
+# /usr/libexec/pcp/lib or /usr/lib/pcp/lib or /usr/share/pcp/lib
+PCP_LIBADM_DIR=@pcp_libadm_dir@
+
+# directory for runtime shared libraries, libpcp.so, etc.
+# Standard path: /usr/lib
+PCP_LIB_DIR=@pcp_lib_dir@
+PCP_LIB32_DIR=@pcp_lib32_dir@
+
+# directory for shared PCP files (shareable for diskless)
+# Standard path: /usr/share/pcp
+# Subdirectories: bin lib
+PCP_SHARE_DIR=@pcp_share_dir@
+
+# directory for headers
+# Standard path: /usr/include/pcp
+PCP_INC_DIR=@pcp_inc_dir@
+
+# parent directory of man pages
+# Standard path: /usr/man
+# Subdirectories: man1 man3 man5
+PCP_MAN_DIR=@pcp_man_dir@
+
+# runtime directory for non-shared (i.e. system local) PCP files
+# Standard path: /var/lib/pcp
+# Subdirectories: config pmns (note see $PCP_PMDAS_DIR) for pmdas
+PCP_VAR_DIR=@pcp_var_dir@
+
+# path to pmcd config file
+# Standard path: $PCP_SYSCONF_DIR/pmcd/pmcd.conf
+PCP_PMCDCONF_PATH=@pcp_pmcdconf_path@
+
+# path to pmcd options file
+# Standard path: $PCP_SYSCONF_DIR/pmcd/pmcd.options
+PCP_PMCDOPTIONS_PATH=@pcp_pmcdoptions_path@
+
+# path to site-local pmcd startup script
+# Standard path: $PCP_SYSCONF_DIR/pmcd/rc.local
+PCP_PMCDRCLOCAL_PATH=@pcp_pmcdrclocal_path@
+
+# path to pmproxy options file
+# Standard path: $PCP_SYSCONF_DIR/pmproxy/pmproxy.options
+PCP_PMPROXYOPTIONS_PATH=@pcp_pmproxyoptions_path@
+
+# path to pmie control file
+# Standard path: $PCP_SYSCONF_DIR/pmie/control
+PCP_PMIECONTROL_PATH=@pcp_pmiecontrol_path@
+
+# path to pmsnap control file
+# Standard path: $PCP_SYSCONF_DIR/pmsnap/control
+PCP_PMSNAPCONTROL_PATH=@pcp_pmsnapcontrol_path@
+
+# path to pmlogger control file
+# Standard path: $PCP_SYSCONF_DIR/pmlogger/control
+PCP_PMLOGGERCONTROL_PATH=@pcp_pmloggercontrol_path@
+
+# runtime directory for PCP PMDA files
+# Standard path: /var/lib/pcp/pmdas
+# Subdirectories: one per PMDA
+PCP_PMDAS_DIR=@pcp_pmdas_dir@
+
+# installed files directory for PCP PMDA files
+# Standard path: /usr/libexec/pcp/pmdas or /usr/lib/pcp/pmdas
+# Subdirectories: one per PMDA
+PCP_PMDASADM_DIR=@pcp_pmdasadm_dir@
+
+# directory for PCP pid files
+# Standard path: /var/run/pcp
+PCP_RUN_DIR=@pcp_run_dir@
+
+# directory for PCP daemon log files
+# Standard path: /var/log/pcp
+# Subdirectories: pmcd pmlogger pmie
+PCP_LOG_DIR=@pcp_log_dir@
+
+# parent directory of PCP archive directories
+# Standard path: /var/log/pcp/pmlogger
+PCP_ARCHIVE_DIR=@pcp_archive_dir@
+
+# default version for generating PCP archives
+# Possible versions: 2, 3 (3 requires PCP 6+)
+PCP_ARCHIVE_VERSION=3
+
+# directory for daily PCP activity reports
+# Standard path: /var/log/pcp/sa
+PCP_SA_DIR=@pcp_sa_dir@
+
+# path to system-wide process accounting file
+# Standard path: /var/account/pacct
+PCP_PACCT_SYSTEM_PATH=@pcp_pacct_system_path@
+
+# directory for PCP temp status files
+# Standard path: /var/lib/pcp/tmp
+# Subdirectories: pmie pmlogger
+PCP_TMP_DIR=@pcp_tmp_dir@
+
+# directory for PCP temp work files
+# Standard path: /var/tmp
+PCP_TMPFILE_DIR=@pcp_tmpfile_dir@
+
+# directory for PCP documentation
+# Standard path: /usr/share/doc/pcp
+PCP_DOC_DIR=@pcp_doc_dir@
+PCP_HTML_DIR=@pcp_html_dir@
+
+# directory for PCP demos and examples
+# Standard path: /usr/share/pcp/demos
+PCP_DEMOS_DIR=@pcp_demos_dir@
+
+# path to PCP TLS configuration file
+# Standard path: /etc/pcp/tls.conf
+PCP_TLSCONF_PATH=@pcp_sysconf_dir@/tls.conf
+
+# awk
+PCP_AWK_PROG="@awk@"
+
+# unix-like sort
+PCP_SORT_PROG=@sort@
+
+# tools needed to rebuild things on the target platform
+PCP_MAKE_PROG=@make@
+PCP_CC_PROG="@cc@ @cflags_abi@"
+
+# echo
+# for lines without newline, use
+#	$PCP_ECHO_PROG $PCP_ECHO_N "string""$PCP_ECHO_C"
+PCP_ECHO_PROG=@echo@
+PCP_ECHO_N=@echo_n@
+PCP_ECHO_C=@echo_c@
+
+# write to the system log
+PCP_SYSLOG_PROG=@pcp_syslog_prog@
+
+# running process list
+PCP_PS_PROG=@pcp_ps_prog@
+PCP_PS_ALL_FLAGS="@pcp_ps_all_flags@"
+
+# preferred python executable
+# Standard program: python3 (or empty)
+PCP_PYTHON_PROG=@pcp_python_prog@
+
+# preferred perl executable
+# Standard program: perl (or empty)
+PCP_PERL_PROG=@pcp_perl_prog@
+
+# locate executables
+PCP_WHICH_PROG=@which@
+
+# host operating system
+PCP_PLATFORM=@target_os@
+PCP_PLATFORM_PATHS=@pcp_platform_paths@
+
+# PCP version
+PCP_VERSION=@PACKAGE_VERSION@
+
+# confirmation dialog
+PCP_XCONFIRM_PROG=@ac_xconfirm_prog@
+
+# default account for running daemons (preferably unprivileged)
+# Standard user: "pcp" and group: "pcp"
+PCP_USER=@pcp_user@
+PCP_GROUP=@pcp_group@
+
+# directory for SASL configuration files
+# Standard path: /etc/sasl2
+PCP_SASLCONF_DIR=@pcp_saslconf_dir@
+
+# directory for systemd unit files, sysusers and tmpfiles specifications
+# Standard path: /usr/lib/systemd/systemd, /usr/lib/{sysusers,tmpfiles}.d
+PCP_SYSTEMDUNIT_DIR=@pcp_systemdunit_dir@
+PCP_SYSTEMDSYSUSERS_DIR=@pcp_systemdsysusers_dir@
+PCP_SYSTEMDTMPFILES_DIR=@pcp_systemdtmpfiles_dir@
+
+# verbose logging of PCP "rc" scripts launched from init, cron or systemd
+# ... logging goes to $PCP_LOG_DIR/NOTICES
+# expect this to be changed manually (to true) if required
+PCP_LOG_RC_SCRIPTS=false

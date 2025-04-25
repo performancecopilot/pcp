@@ -692,27 +692,18 @@ typedef struct pmTimespec {
 #define PM_LOG_FEATURES		(PM_LOG_FEATURE_NONE | PM_LOG_FEATURE_QA)
 
 typedef struct pmLogLabel {
-    int		ll_magic;	/* PM_LOG_MAGIC | archive format version no. */
-    pid_t	ll_pid;				/* PID of logger */
-    struct timeval	ll_start;		/* start of this archive */
-    char	ll_hostname[PM_LOG_MAXHOSTLEN];	/* name of collection host */
-    char	ll_tz[PM_TZ_MAXLEN];		/* $TZ at collection host */
-} pmLogLabel;
-
-typedef struct pmHighResLogLabel {
     int		magic;	/* PM_LOG_MAGIC | archive format version no. */
     pid_t	pid;		/* PID of logger */
     struct timespec start;	/* start of this archive */
     char	hostname[PM_MAX_HOSTNAMELEN];	/* collection host full name */
     char	timezone[PM_MAX_TIMEZONELEN];	/* generic, squashed $TZ */
     char	zoneinfo[PM_MAX_ZONEINFOLEN];	/* local platform $TZ */
-} pmHighResLogLabel;
+} pmLogLabel;
 
 /*
  * Get the label record from the current archive context, and discover
  * when the archive ends
  */
-PCP_CALL extern int pmGetHighResArchiveLabel(pmHighResLogLabel *);
 PCP_CALL extern int pmGetArchiveLabel(pmLogLabel *);
 PCP_CALL extern int pmGetArchiveEnd(struct timespec *);
 
@@ -1448,6 +1439,17 @@ PCP_CALL extern int pmParseTimeWindow_v2(
       const struct timeval *, const struct timeval *,
       struct timeval *, struct timeval *, struct timeval *, char **);
 
+
+typedef struct pmLogLabel_v2 {
+    int		ll_magic;	/* PM_LOG_MAGIC | archive format version no. */
+    pid_t	ll_pid;				/* PID of logger */
+    struct timeval	ll_start;		/* start of this archive */
+    char	ll_hostname[PM_LOG_MAXHOSTLEN];	/* name of collection host */
+    char	ll_tz[PM_TZ_MAXLEN];		/* $TZ at collection host */
+} pmLogLabel_v2;
+
+PCP_CALL extern int pmGetArchiveLabel_v2(pmLogLabel_v2 *);
+
 #if PMAPI_VERSION == PMAPI_VERSION_2
 /*
  * old names with API changes mapped to _v2 variants
@@ -1461,6 +1463,8 @@ PCP_CALL extern int pmParseTimeWindow_v2(
 #define pmUsageMessage pmUsageMessage_v2
 #define pmFreeOptions pmFreeOptions_v2
 #define pmParseTimeWindow pmParseTimeWindow_v2
+#define pmLogLabel pmLogLabel_v2
+#define pmGetArchiveLabel pmGetArchiveLabel_v2
 #endif
 
 #if PMAPI_VERSION >= PMAPI_VERSION_4
@@ -1469,6 +1473,7 @@ PCP_CALL extern int pmParseTimeWindow_v2(
  */
 #define pmGetHighResArchiveEnd pmGetArchiveEnd
 #define pmParseHighResTimeWindow pmParseTimeWindow
+#define pmGetHighResArchiveLabel pmGetArchiveLabel
 #endif
 
 /* transitional macros ... will go away when timeval -> timespec all done */

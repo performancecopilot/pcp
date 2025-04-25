@@ -170,7 +170,7 @@ install_pcp : install
 $(TOPDIR)/src/pmns/stdpmid:
 	cd $(@D); $(MAKE) $(@F)
 
-pmdbg.h : ../../include/pcp/pmapi.h mk.pmdbg
+pmdbg.h : include/pcp/pmapi.h mk.pmdbg
 	./mk.pmdbg
 
 exports:	exports.in mk.exports
