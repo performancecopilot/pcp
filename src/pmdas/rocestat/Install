@@ -25,7 +25,7 @@ iam=rocestat
 python_opt=true
 daemon_opt=false
 
-if [[ ! -d /sys/class/infiniband ]]; then
+if [ ! -d /sys/class/infiniband ]; then
     if ! lsmod | grep -q '^ib_core'; then
         echo "IB kernel modules are not loaded" >&2
     else

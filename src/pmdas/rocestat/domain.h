@@ -1,2 +1,0 @@
-#define ROCESTAT 254
-
