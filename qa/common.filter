@@ -341,6 +341,7 @@ _filter_optional_pmdas()
 	-e '/pmdaredis/d' \
 	-e '/pmdaroomtemp/d' \
 	-e '/pmdaroot/d' \
+	-e '/pmdarocestat/d' \
 	-e '/pmdarpm/d' \
 	-e '/pmdarsyslog/d' \
 	-e '/pmdasamba/d' \
@@ -510,6 +511,7 @@ _filter_top_pmns()
 	-e '/^    proc /d' \
 	-e '/^    rabbitmq /d' \
 	-e '/^    redis /d' \
+	-e '/^    rocestat /d' \
 	-e '/^    rpm /d' \
 	-e '/^    rsyslog /d' \
 	-e '/^    samba /d' \
