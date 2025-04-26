@@ -19,6 +19,8 @@ include $(TOPDIR)/src/include/builddefs
 
 SUBDIRS = pcp
 
+LDIRT = pcp.conf
+
 default :: default_pcp
 
 default_pcp : $(SUBDIRS)

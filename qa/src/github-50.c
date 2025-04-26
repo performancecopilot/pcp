@@ -117,7 +117,7 @@ Options:\n\
 	    pmGetProgname(), pmErrStr(sts));
     else
 	fprintf(stderr, "%s: archive label record: magic=%x host=%s\n",
-	    pmGetProgname(), label.ll_magic, label.ll_hostname);
+	    pmGetProgname(), label.magic, label.hostname);
 
     ctxp = __pmHandleToPtr(pmWhichContext());
     if (ctxp == NULL) {

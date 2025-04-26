@@ -916,8 +916,8 @@ LIBPCP.pmGetArchiveLabel.argtypes = [POINTER(pmLogLabel)]
 LIBPCP.pmGetArchiveEnd.restype = c_int
 LIBPCP.pmGetArchiveEnd.argtypes = [POINTER(timespec)]
 
-LIBPCP.pmGetHighResArchiveLabel.restype = c_int
-LIBPCP.pmGetHighResArchiveLabel.argtypes = [POINTER(pmHighResLogLabel)]
+LIBPCP.pmGetArchiveLabel.restype = c_int
+LIBPCP.pmGetArchiveLabel.argtypes = [POINTER(pmLogLabel)]
 
 LIBPCP.pmGetInDomArchive.restype = c_int
 LIBPCP.pmGetInDomArchive.argtypes = [c_uint, POINTER(POINTER(c_int)),
@@ -2254,15 +2254,15 @@ class pmContext(object):
             raise pmErr(status)
         return loglabel
 
-    def pmGetHighResArchiveLabel(self):
+    def pmGetArchiveLabel(self):
         """PMAPI - Get the label record from the archive
-        loglabel = pmGetHighResArchiveLabel()
+        loglabel = pmGetArchiveLabel()
         """
         loglabel = pmHighResLogLabel()
         status = LIBPCP.pmUseContext(self.ctx)
         if status < 0:
             raise pmErr(status)
-        status = LIBPCP.pmGetHighResArchiveLabel(byref(loglabel))
+        status = LIBPCP.pmGetArchiveLabel(byref(loglabel))
         if status < 0:
             raise pmErr(status)
         return loglabel

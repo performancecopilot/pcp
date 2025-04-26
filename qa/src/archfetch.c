@@ -113,7 +113,7 @@ Options:\n\
 	exit(1);
     }
 
-    if ((sts = pmSetMode(mode, &label.ll_start, 0)) < 0) {
+    if ((sts = pmSetModeHighRes(mode, &label.start, NULL)) < 0) {
 	fprintf(stderr, "%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
@@ -125,7 +125,7 @@ Options:\n\
 	    exit(1);
 	}
 	printf("Note: timezone set to local timezone of host \"%s\" from archive\n\n",
-	    label.ll_hostname);
+	    label.hostname);
     }
     else if (tz != NULL) {
 	if ((tzh = pmNewZone(tz)) < 0) {
@@ -168,7 +168,7 @@ Options:\n\
 	}
     }
 
-    if ((sts = pmSetMode(mode, &label.ll_start, 0)) < 0) {
+    if ((sts = pmSetModeHighRes(mode, &label.start, NULL)) < 0) {
 	fprintf(stderr, "%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }

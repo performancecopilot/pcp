@@ -14,20 +14,21 @@ static int	tflag;
 static int	numpmid;
 static pmID	pmidlist[20];
 static const char *namelist[20];
-static double	delta = 500;
+static struct timespec	delta = { 0, 500000000 };
+static struct timespec	minus_delta = { 0, -500000000 };
 
 static void
-cmpres(int n, pmResult *e, pmResult *g)
+cmpres(int n, pmHighResResult *e, pmHighResResult *g)
 {
     int		i;
     int		j;
     int		err = 0;
 
     if (e->timestamp.tv_sec != g->timestamp.tv_sec ||
-	e->timestamp.tv_usec != g->timestamp.tv_usec) {
-	printf("[sample %d] pmResult.timestamp: expected %ld.%06ld, got %ld.%06ld\n",
-	    n, (long)e->timestamp.tv_sec, (long)e->timestamp.tv_usec,
-	    (long)g->timestamp.tv_sec, (long)g->timestamp.tv_usec);
+	e->timestamp.tv_nsec != g->timestamp.tv_nsec) {
+	printf("[sample %d] pmResult.timestamp: expected %ld.%09ld, got %ld.%09ld\n",
+	    n, (long)e->timestamp.tv_sec, (long)e->timestamp.tv_nsec,
+	    (long)g->timestamp.tv_sec, (long)g->timestamp.tv_nsec);
 	goto FAILED;
     }
     if (e->numpmid != g->numpmid) {
@@ -76,9 +77,9 @@ cmpres(int n, pmResult *e, pmResult *g)
 
 FAILED:
     printf("Expected ...\n");
-    __pmDumpResult(stdout, e);
+    __pmDumpHighResResult(stdout, e);
     printf("Got ...\n");
-    __pmDumpResult(stdout, g);
+    __pmDumpHighResResult(stdout, g);
 }
 
 int
@@ -94,10 +95,10 @@ main(int argc, char **argv)
     int		i;
     int		n;
     pmLogLabel	loglabel;
-    pmResult	*resp;
-    pmResult	**resvec = malloc(0);
+    pmHighResResult	*resp;
+    pmHighResResult	**resvec = malloc(0);
     int		resnum = 0;
-    struct timeval	when;
+    struct timespec	when;
 
     pmSetProgname(argv[0]);
 
@@ -130,7 +131,13 @@ main(int argc, char **argv)
 	    break;
 
 	case 't':	/* sample interval */
-	    delta = 1000 * atof(optarg);
+	    pmtimespecFromReal(atof(optarg), &delta);
+	    if (delta.tv_sec > 0) {
+		minus_delta.tv_sec = -delta.tv_sec;
+		minus_delta.tv_nsec = delta.tv_nsec;
+	    }
+	    else
+		minus_delta.tv_nsec = -delta.tv_nsec;
 	    break;
 
 	case '?':
@@ -159,8 +166,8 @@ main(int argc, char **argv)
 	exit(1);
     }
 
-    when = loglabel.ll_start;
-    if ((sts = pmSetMode(PM_MODE_INTERP, &when, delta)) < 0) {
+    when = loglabel.start;
+    if ((sts = pmSetModeHighRes(PM_MODE_INTERP, &when, &delta)) < 0) {
 	printf("%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
@@ -187,16 +194,16 @@ main(int argc, char **argv)
     printf("\nPass 1: forward scan\n");
     fflush(stdout);
     for (;;) {
-	if ((sts = pmFetch(numpmid, pmidlist, &resp)) < 0) {
+	if ((sts = pmFetchHighRes(numpmid, pmidlist, &resp)) < 0) {
 	    if (sts != PM_ERR_EOL)
 		printf("%s: pmFetch: %s\n", pmGetProgname(), pmErrStr(sts));
 	    break;
 	}
 	resnum++;
-	resvec = (pmResult **)realloc(resvec, resnum * sizeof(resvec[0]));
+	resvec = (pmHighResResult **)realloc(resvec, resnum * sizeof(resvec[0]));
 	resvec[resnum - 1] = resp;
 	if (vflag)
-	    __pmDumpResult(stdout, resp);
+	    __pmDumpHighResResult(stdout, resp);
 	when = resp->timestamp;
     }
     fflush(stderr);
@@ -205,26 +212,22 @@ main(int argc, char **argv)
     printf("\nPass 1.1: forwards past EOL\n");
     fflush(stdout);
     for (i = 0; i < 10; i++) {
-	if ((sts = pmFetch(numpmid, pmidlist, &resp)) < 0) {
+	if ((sts = pmFetchHighRes(numpmid, pmidlist, &resp)) < 0) {
 	    if (sts != PM_ERR_EOL)
 		printf("%s: pmFetch: %s\n", pmGetProgname(), pmErrStr(sts));
 	}
-	when.tv_usec += delta * 1000;
-	if (when.tv_usec > 1000000) {
-	    when.tv_sec++;
-	    when.tv_usec -= 1000000;
-	}
+	pmtimespecInc(&when, &delta);
     }
     fflush(stderr);
 
     printf("\nPass 1.2: backwards past EOL\n");
     fflush(stdout);
-    if ((sts = pmSetMode(PM_MODE_INTERP, &when, -delta)) < 0) {
+    if ((sts = pmSetModeHighRes(PM_MODE_INTERP, &when, &minus_delta)) < 0) {
         printf("%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
         exit(1);
     }
     for (i = 0; i < 10; i++) {
-	if ((sts = pmFetch(numpmid, pmidlist, &resp)) < 0) {
+	if ((sts = pmFetchHighRes(numpmid, pmidlist, &resp)) < 0) {
 	    if (sts != PM_ERR_EOL)
 		printf("%s: pmFetch: %s\n", pmGetProgname(), pmErrStr(sts));
 	}
@@ -235,7 +238,7 @@ main(int argc, char **argv)
     fflush(stdout);
     n = 0;
     for (;;) {
-	if ((sts = pmFetch(numpmid, pmidlist, &resp)) < 0) {
+	if ((sts = pmFetchHighRes(numpmid, pmidlist, &resp)) < 0) {
 	    if (sts != PM_ERR_EOL)
 		printf("%s: pmFetch: %s\n", pmGetProgname(), pmErrStr(sts));
 	    break;
@@ -243,7 +246,7 @@ main(int argc, char **argv)
 	n++;
 	cmpres(n, resvec[resnum - n], resp);
 	when = resp->timestamp;
-	pmFreeResult(resp);
+	pmFreeHighResResult(resp);
     }
     fflush(stderr);
     printf("Found %d samples\n", n);
@@ -251,28 +254,24 @@ main(int argc, char **argv)
     printf("\nPass 2.1: backwards prior to SOL\n");
     fflush(stdout);
     for (i = 0; i < 10; i++) {
-	if ((sts = pmFetch(numpmid, pmidlist, &resp)) < 0) {
+	if ((sts = pmFetchHighRes(numpmid, pmidlist, &resp)) < 0) {
 	    if (sts != PM_ERR_EOL)
 		printf("%s: pmFetch: %s\n", pmGetProgname(), pmErrStr(sts));
 	} else {
-	    pmFreeResult(resp);
+	    pmFreeHighResResult(resp);
 	}
-	when.tv_usec -= delta * 1000;
-	if (when.tv_usec < 0) {
-	    when.tv_sec--;
-	    when.tv_usec += 1000000;
-	}
+	pmtimespecDec(&when, &delta);
     }
     fflush(stderr);
 
     printf("\nPass 2.2: forwards prior to SOL\n");
     fflush(stdout);
-    if ((sts = pmSetMode(PM_MODE_INTERP, &when, delta)) < 0) {
+    if ((sts = pmSetModeHighRes(PM_MODE_INTERP, &when, &delta)) < 0) {
         printf("%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
         exit(1);
     }
     for (i = 0; i < 10; i++) {
-	if ((sts = pmFetch(numpmid, pmidlist, &resp)) < 0) {
+	if ((sts = pmFetchHighRes(numpmid, pmidlist, &resp)) < 0) {
 	    if (sts != PM_ERR_EOL)
 		printf("%s: pmFetch: %s\n", pmGetProgname(), pmErrStr(sts));
 	}
@@ -282,15 +281,15 @@ main(int argc, char **argv)
     printf("\nPass 3: forwards scan\n");
     fflush(stdout);
     for (n = 0;; n++) {
-	if ((sts = pmFetch(numpmid, pmidlist, &resp)) < 0) {
+	if ((sts = pmFetchHighRes(numpmid, pmidlist, &resp)) < 0) {
 	    if (sts != PM_ERR_EOL)
 		printf("%s: pmFetch: %s\n", pmGetProgname(), pmErrStr(sts));
 	    break;
 	}
 	cmpres(n, resvec[n], resp);
-	pmFreeResult(resvec[n]);
+	pmFreeHighResResult(resvec[n]);
 	resvec[n] = NULL;
-	pmFreeResult(resp);
+	pmFreeHighResResult(resp);
     }
     fflush(stderr);
     printf("Found %d samples\n", n);
@@ -298,7 +297,7 @@ main(int argc, char **argv)
     if (resvec != NULL) {
 	for (i = 0; i < resnum; i++) {
 	    if (resvec[i] != NULL) 
-		pmFreeResult(resvec[i]);
+		pmFreeHighResResult(resvec[i]);
 	}
 	free(resvec);
     }

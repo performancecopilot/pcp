@@ -17,7 +17,8 @@
  * PMAPI_VERSION_2 interfaces ... ones marked [y] are tested explicity by
  * this QA application, ones marked [i] are tested implicity because they
  * are called unconditionally from at least one of the interfaces marked
- * [y]
+ * [y], ones marked [x] are excluded (mostly the "HighRes" variants, and
+ * ones marked [ ] are TBD
  *
  * [ ] pmAddDerived
  * [ ] pmAddDerivedMetric
@@ -72,8 +73,8 @@
  * [ ] pmGetDerivedControl
  * [ ] pmGetDomainLabels
  * [ ] pmGetFetchGroupContext
- * [ ] pmGetHighResArchiveEnd
- * [ ] pmGetHighResArchiveLabel
+ * [x] pmGetHighResArchiveEnd
+ * [x] pmGetHighResArchiveLabel
  * [ ] pmGetHostName
  * [y] pmGetInDom
  * [y] pmGetInDomArchive
@@ -470,12 +471,17 @@ main(int argc, char *argv[])
 		printf("pmGetArchiveLabel: Fail: %s\n", pmErrStr(sts));
 		exit(1);
 	    }
-	    else
+	    else {
+#if PMAPI_VERSION < 4
 		printf("pmGetArchiveLabel: OK: hostname=%s\n", label.ll_hostname);
+#else
+		printf("pmGetArchiveLabel: OK: hostname=%s\n", label.hostname);
+#endif
+	    }
 #if PMAPI_VERSION < 4
 	    start = label.ll_start;
 #else
-	    TSfromTV(start, label.ll_start);
+	    start = label.start;
 #endif
 	    if ((sts = pmGetArchiveEnd(&end)) < 0) {
 		end.tv_sec = PM_MAX_TIME_T;

@@ -84,7 +84,7 @@ Description: Performance Co-Pilot library
  that data.
 
 Package: libpcp3
-Depends: libpcp4, ${misc:Depends}
+Depends: libpcp4, ${shlibs:Depends}, ${misc:Depends}
 Architecture: any
 Priority: optional
 Section: oldlibs

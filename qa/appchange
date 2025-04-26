@@ -28,26 +28,34 @@ fi
 for app
 do
     cd src
-    rm -f $app $app.o
-    if make $app
+    if git ls-files --error-unmatch $app >/dev/null 2>&1
     then
-	:
+	: file checked into git, no need to remake it
     else
-	echo "Error: failed to remake src/$app"
-	exit
+	rm -f $app $app.o
+	if make $app
+	then
+	    :
+	else
+	    echo "Error: failed to remake src/$app"
+	    exit
+	fi
     fi
     cd ..
     grep -E "src/$app( |$)" <$cache | sed -e 's/:.*//' >$tmp.tmp
     if [ -s $tmp.tmp ]
     then
-	cat $tmp.tmp >$tmp.list
+	    cat $tmp.tmp >>$tmp.list
     else
 	echo "Warning: no QA tests use \"$app\""
     fi
 done
 
-if ./check `sort -n <$tmp.list | uniq`
+if [ -s $tmp.list ]
 then
-    echo OK
-    status=0
+    if ./check `sort -n -u <$tmp.list | uniq`
+    then
+	echo OK
+	status=0
+    fi
 fi

@@ -353,4 +353,3 @@ endif
 ifeq ($(HAVE_PERL), true)
 	cat control.perl >>control
 endif
-	chmod u-w control

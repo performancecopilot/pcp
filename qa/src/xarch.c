@@ -154,7 +154,7 @@ main(int argc, char **argv)
 	exit(1);
     }
     if ((sts = pmGetArchiveLabel(&loglabel)) < 0) {
-	printf("%s: pmGetHighResArchiveLabel(%d): %s\n", pmGetProgname(), ctx[0], pmErrStr(sts));
+	printf("%s: pmGetArchiveLabel(%d): %s\n", pmGetProgname(), ctx[0], pmErrStr(sts));
 	exit(1);
     }
 

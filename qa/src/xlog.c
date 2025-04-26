@@ -142,7 +142,7 @@ main(int argc, char **argv)
 	exit(1);
     }
     if ((sts = pmGetArchiveLabel(&loglabel)) < 0) {
-	printf("%s: pmGetHighResArchiveLabel(%d): %s\n", pmGetProgname(), ctx[0], pmErrStr(sts));
+	printf("%s: pmGetArchiveLabel(%d): %s\n", pmGetProgname(), ctx[0], pmErrStr(sts));
 	exit(1);
     }
     if ((sts = pmSetModeHighRes(PM_MODE_INTERP, &loglabel.start, &delta)) < 0) {
@@ -154,7 +154,7 @@ main(int argc, char **argv)
 	exit(1);
     }
     if ((sts = pmGetArchiveLabel(&duplabel)) < 0) {
-	printf("%s: pmGetHighResArchiveLabel(%d): %s\n", pmGetProgname(), ctx[1], pmErrStr(sts));
+	printf("%s: pmGetArchiveLabel(%d): %s\n", pmGetProgname(), ctx[1], pmErrStr(sts));
 	exit(1);
     }
     if (loglabel.magic != duplabel.magic ||
