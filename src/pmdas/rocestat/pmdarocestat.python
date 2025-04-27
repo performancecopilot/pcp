@@ -531,7 +531,7 @@ class ROCESTATPMDA(PMDA):
         return os.environ.get('PCP_PYTHON_DOMAIN') or os.environ.get('PCP_PYTHON_PMNS')
 
 if __name__ == "__main__":
-    pmda = ROCESTATPMDA(name='rocestat', domain=254, user="root", logfile='rocestat.log')
+    pmda = ROCESTATPMDA(name='rocestat', domain=163, user="root", logfile='rocestat.log')
 
     # Now enter the main loop
     pmda.run()
