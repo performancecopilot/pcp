@@ -55,4 +55,45 @@ then
     fi
 fi
 
+# the $(INSTALL_MAN) gmake macro has some quirks ...
+# "man" page basename comes from
+# - .ds xM name (no other check needed)
+# - text after .SH NAME that is assumed to be \f3name\f1 ... or
+#   \f3\*(foo\f1 ... (if a .ds foo name was seen previously) or
+#   one or more of these constructs before the first \\- or -,
+#   e.g.
+#	\f3pmRegisterDerived\f1,
+#	\f3pmRegisterDerivedMetric\f1  \- register a global ...
+#
+# Check for these.
+#
+for file
+do
+    awk <$file >$tmp/out '
+BEGIN				{ state = 0 }
+$1 == ".ds" && $3 = "xM"	{ print $3; exit }
+$1 == ".ds"			{ ds["\\\\*("$2] = $3 }
+$1 == ".SH" && $2 == "NAME"	{ state = 1; next }
+state == 1			{ print >"'$tmp/tmp'" }
+$1 == ".SH" && state = 1		{ exit }
+/^\./				{ next }
+state == 1	{ for (i = 1; i <= NF; i++) {
+		    if ($i == "\\-" || $i == "-") exit
+		    gsub("\\f3", "", $i);
+		    gsub("\\f1.*", "", $i);
+		    for (d in ds)
+			sub(d, ds[d], $i)
+		    print $i
+		  }
+		}'
+
+    if [ ! -s $tmp/out ]
+    then
+	echo "$file: Error: .SH NAME not in format required by \$(INSTALL_MAN)"
+	echo "Scanned .SH NAME text ..."
+	cat $tmp/tmp
+	$exit_sts && sts=1
+    fi
+done
+
 exit
