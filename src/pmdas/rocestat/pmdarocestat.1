@@ -16,28 +16,28 @@
 .\"
 .TH PMDAROCESTAT 1 "PCP" "Performance Co-Pilot" "General Commands Manual"
 .SH NAME
-.B pmdarocestat 
-\- Performance Metrics Domain Agent (PMDA) for RoCE devices
-
+\f3pmdarocestat\f1 \- Performance Metrics Domain Agent (PMDA) for RoCE devices
+.SH SYNOPSIS
+\f3$PCP_PMDAS_DIR/rocestat/pmdarocestat\f1
 .SH DESCRIPTION
-The 
-.B Rocestat PMDA 
-(Performance Metrics Domain Agent) is a Performance Co-Pilot (PCP) module that collects 
-and exports performance statistics for RDMA over Converged Ethernet (RoCE) devices. It provides insights into 
-network performance, error conditions, and congestion events, aiding in the diagnosis and monitoring of RoCE-based 
+The
+.B Rocestat PMDA
+(Performance Metrics Domain Agent) is a Performance Co-Pilot (PCP) module that collects
+and exports performance statistics for RDMA over Converged Ethernet (RoCE) devices. It provides insights into
+network performance, error conditions, and congestion events, aiding in the diagnosis and monitoring of RoCE-based
 communication.
 
-This PMDA reports software-aggregated InfiniBand port statistics, including received/transmitted bytes and 
-packets, link errors, and congestion-related drops, helping to identify potential bottlenecks and failures. 
-Additionally, it includes hardware-level counters, which track low-level transmission metrics, duplicate requests, 
+This PMDA reports software-aggregated InfiniBand port statistics, including received/transmitted bytes and
+packets, link errors, and congestion-related drops, helping to identify potential bottlenecks and failures.
+Additionally, it includes hardware-level counters, which track low-level transmission metrics, duplicate requests,
 NAKs, and physical/constraint errors, offering a deeper view into the underlying transport reliability and efficiency.
 
-Furthermore, Rocestat PMDA collects priority-based lane metrics from ethtool -S <interface>, filtering 
-statistics related to priority lanes in RoCE traffic. These metrics provide visibility into traffic distribution 
+Furthermore, Rocestat PMDA collects priority-based lane metrics from ethtool -S <interface>, filtering
+statistics related to priority lanes in RoCE traffic. These metrics provide visibility into traffic distribution
 across lanes, helping diagnose congestion hotspots and optimize workload balancing across different lanes
 
-By integrating Rocestat PMDA into a PCP monitoring environment, users can efficiently analyze RoCE 
-network behavior, detect performance anomalies, and optimize high-speed RDMA workloads in data center and HPC 
+By integrating Rocestat PMDA into a PCP monitoring environment, users can efficiently analyze RoCE
+network behavior, detect performance anomalies, and optimize high-speed RDMA workloads in data center and HPC
 environments.
 
 .SH INSTALLATION
@@ -89,6 +89,7 @@ an alternative configuration file, as described in pcp.conf(5).
 
 .SH SEE ALSO
 .BR PCPIntro (1),
-.BR pmcd (1)
-.BR PMDA (3),
-.BR pminfo (1),
+.BR pmcd (1),
+.BR pminfo (1)
+and
+.BR PMDA (3).

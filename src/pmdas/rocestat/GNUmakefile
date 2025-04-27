@@ -4,7 +4,7 @@ include $(TOPDIR)/src/include/builddefs
 IAM	= rocestat
 PYSCRIPT = pmda$(IAM).python
 LDIRT	= domain.h root pmns $(IAM).log
-DOMAIN	= GLUSTER
+DOMAIN	= $(IAM)
 
 PMDAADMDIR	= $(PCP_PMDASADM_DIR)/$(IAM)
 PMDATMPDIR	= $(PCP_PMDAS_DIR)/$(IAM)
