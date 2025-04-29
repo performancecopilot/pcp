@@ -142,6 +142,13 @@ For example it is common to exclude loopback devices from the
 network interface reports, this is achieved using this option.
 Default is to report on all instances (no culling).
 .RE
+.PP
+filtertype (string)
+.RS 4
+Used for plugin metrics that want to use instance grouping.
+The value of the filtertype entry should match the name of
+the plugin.
+.RE
 .SS The [plugin] metrics
 Each plugin must have at least one metric associated with it.
 Any key that is not one of the above global plugin options is
