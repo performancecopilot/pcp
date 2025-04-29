@@ -3,6 +3,7 @@
 #
 
 [cpu]
+filtertype = cpu
 label = %I usage
 width = 3
 precision = 0
@@ -16,6 +17,7 @@ wai = 100 * rate(kernel.percpu.cpu.wait.total)
 stl = 100 * rate(kernel.percpu.cpu.steal)
 
 [cpu-adv]
+filtertype = cpu
 width = 3
 label = total cpu usage
 precision = 0
@@ -30,6 +32,7 @@ siq = 100 * rate(kernel.all.cpu.irq.soft) / hinv.ncpu
 stl = 100 * rate(kernel.all.cpu.steal) / hinv.ncpu
 
 [cpu-use]
+filtertype = cpu
 width = 3
 label = per cpu usage
 printtype = p

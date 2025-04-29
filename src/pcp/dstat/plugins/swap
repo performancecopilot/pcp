@@ -3,6 +3,7 @@
 #
 
 [swap]
+filtertype = swap
 label = %I
 used = swapdev.length - swapdev.free
 free = swapdev.free
