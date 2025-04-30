@@ -32,10 +32,14 @@ def fetch_metric_data(ctx, cluster, metric):
 
     # Handle instance domains
     if desc.contents.indom == c_api.PM_INDOM_NULL:
+        print(f"No instance domain for metric: {cluster}.{metric}")
+        return {}  # No instance domain for this metric
+
+    instances = ctx.pmGetInDom(desc)[1]
+    if instances is None:
         print(f"No instances for metric: {cluster}.{metric}")
         return {}  # No instances for this metric
 
-    instances = ctx.pmGetInDom(desc)[1]
     metric_data = {}
     for i, instance in enumerate(instances):
         atom = ctx.pmExtractValue(
