@@ -5,7 +5,6 @@
 tmp=/var/tmp/fixcontrol-$$
 trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 
-
 # dh-python not always available ... this is not checked for in configure
 # so have to base it on the platform type and version
 #
@@ -81,9 +80,9 @@ fi
 
 if $PMDA_BCC
 then
-    echo 's/?{python3-bpfcc}, /python3-bpfcc [amd64 arm64 armhf ppc64el s390x ppc64], /' >>$tmp.sed
+    echo 's/?{python-bpfcc}, /python3-bpfcc [amd64 arm64 armhf ppc64el s390x ppc64], /' >>$tmp.sed
 else
-    echo 's/?{python3-bpfcc}, //' >>$tmp.sed
+    echo 's/?{python-bpfcc}, //' >>$tmp.sed
 fi
 
 if $PMDA_BPFTRACE
@@ -233,6 +232,165 @@ else
     echo 's/?{libnet-snmp-perl}, //' >>$tmp.sed
     echo '/^Recommends: libpcp-pmda-perl/d' >>$tmp.sed
     echo '/^Suggests: pcp-gui, libpcp-import-perl, /s/libpcp-import-perl, //' >>$tmp.sed
+fi
+
+# build needs postfix for postfix PMDA (closes: #929368)
+#
+if $PMDA_POSTFIX
+then
+    echo 's/?{postfix}, /postfix, /' >>$tmp.sed
+else
+    echo 's/?{postfix}, //' >>$tmp.sed
+fi
+
+# build needs libxml-libxml-perl and libfile-slurp-perl for bind2 PMDA (closes: #929376)
+#
+if $PMDA_BIND2
+then
+    echo 's/?{libxml-libxml-perl}, /libxml-libxml-perl, /' >>$tmp.sed
+    echo 's/?{libfile-slurp-perl}, /libfile-slurp-perl, /' >>$tmp.sed
+else
+    echo 's/?{libxml-libxml-perl}, //' >>$tmp.sed
+    echo 's/?{libfile-slurp-perl}, //' >>$tmp.sed
+fi
+
+# build needs libyaml-libyaml-perl and libjson-perl for nutcracker PMDA (closes: #929377)
+# - libjson-perl done above for $HAVE_PERL
+#
+if $PMDA_NUTCRACKER
+then
+    echo 's/?{libyaml-libyaml-perl}, /libyaml-libyaml-perl, /' >>$tmp.sed
+else
+    echo 's/?{libyaml-libyaml-perl}, //' >>$tmp.sed
+fi
+
+# build needs libjson-perl for activemq PMDA
+#
+if $PMDA_ACTIVEMQ
+then
+    echo 's/?{libjson-perl}, /libjson-perl, /' >>$tmp.sed
+else
+    echo 's/?{libjson-perl}, //' >>$tmp.sed
+fi
+
+# build needs python3-rtslib-fb for lio PMDA (closes: #929378)
+#
+if $PMDA_LIO
+then
+    echo 's/?{python-rtslib-fb}, /python3-rtslib-fb, /' >>$tmp.sed
+else
+    echo 's/?{python-rtslib-fb}, //' >>$tmp.sed
+fi
+
+# build needs python3-libvirt and python3-lxml for libvirt PMDA (closes: #929379)
+#
+if $PMDA_LIBVIRT
+then
+    echo 's/?{python-libvirt}, /python3-libvirt, /' >>$tmp.sed
+    echo 's/?{python-lxml}, /python3-lxml, /' >>$tmp.sed
+else
+    echo 's/?{python-libvirt}, //' >>$tmp.sed
+    echo 's/?{python-lxml}, //' >>$tmp.sed
+fi
+
+# build needs libdrm-dev for amdgpu PMDA
+#
+if $PMDA_AMDGPU
+then
+    echo 's/?{libdrm-dev}, /libdrm-dev, /' >>$tmp.sed
+else
+    echo 's/?{libdrm-dev}, //' >>$tmp.sed
+fi
+
+# build needs python3-pymongo for mongodb PMDA
+#
+if $PMDA_MONGODB
+then
+    echo 's/?{python-pymongo}, /python3-pymongo, /' >>$tmp.sed
+else
+    echo 's/?{python-pymongo}, //' >>$tmp.sed
+fi
+
+# build needs python3-urllib3 for elasticsearch PMDA
+#
+if $PMDA_ELASTICSEARCH
+then
+    echo 's/?{python-urllib3}, /python3-urllib3, /' >>$tmp.sed
+else
+    echo 's/?{python-urllib3}, //' >>$tmp.sed
+fi
+
+# build needs python3-six and python3-json-pointer and
+# OrderedDict module (from libpython that will be there)
+# for json PMDA
+# - python3-six done above for $HAVE_PYTHON_SIX
+# - python3-json-pointer done above for $HAVE_PYTHON_JSONPOINTER
+#
+if $PMDA_JSON
+then
+    :
+fi
+
+# build needs libdbi-perl and libdbd-mysql-perl for mysql and
+# oracle PMDA
+# -libdbd-mysql-perl done above for $HAVE_PERL
+#
+if $PMDA_MYSQL || $PMDA_ORACLE
+then
+    echo 's/?{libdbi-perl}, /libdbi-perl, /' >>$tmp.sed
+else
+    echo 's/?{libdbi-perl}, //' >>$tmp.sed
+fi
+
+# build needs python3-pyodbc for mssql PMDA
+#
+if $PMDA_MSSQL
+then
+    echo 's/?{python-pyodbc}, /python3-pyodbc, /' >>$tmp.sed
+else
+    echo 's/?{python-pyodbc}, //' >>$tmp.sed
+fi
+
+# build needs python3-requests and OrderedDict module (from libpython
+# that will be there) for openmetrics PMDA
+# - python3-requests done above for $HAVE_PYTHON_REQUESTS
+#
+if $PMDA_OPENMETRICS
+then
+    :
+fi
+
+# build needs libnet-snmp-perl for snmp PMDA
+# - libnet-snmp-perl done above for $HAVE_PERL
+#
+if $PMDA_SNMP
+then
+    :
+fi
+
+# these PMDAs are optional in the build, but have no additional
+# Build-Depends: requirements (added here for completeness)
+#
+if $PMDA_GFS2 || $PMDA_NGINX || $PMDA_RESCTRL
+then
+    :
+fi
+
+# these PMDAs are optional in the build but NEVER build for
+# Debian-based platforms, so nothing to add in Build-Depends:
+#
+if $PMDA_STATSD
+then
+    :
+fi
+
+# build needs libsystemd-dev for systemd PMDA (closes: #929372)
+#
+if $PMDA_SYSTEMD
+then
+    echo 's/?{libsystemd-dev}, /libsystemd-dev, /' >>$tmp.sed
+else
+    echo 's/?{libsystemd-dev}, //' >>$tmp.sed
 fi
 
 echo 's/ $//' >>$tmp.sed

@@ -1,0 +1,125 @@
+#!/bin/sh
+# PCP QA Test No. 1580
+# Check debian build conditionals
+#
+# Copyright (c) 2025 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -f ../src/pmdas/apache/GNUmakefile ] || _notrun "no source for PMDAs here"
+[ -f ../debian/fixcontrol ] || _notrun "no debian build files here"
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+echo "Silence is golden ..."
+
+# optionally built PMDAs should have optional stanza in
+# debian/fixcontrol for Build-Depends:
+#
+
+grep '^ifeq .*$(PMDA_' ../src/pmdas/*/GNUmakefile \
+| sed -e 's/.*(//' -e 's/).*//' \
+| sort \
+| uniq \
+| while read guard
+do
+    if grep -q -E '^if \$'"$guard"'($| )' ../debian/fixcontrol
+    then
+	:
+    else
+	if grep -q -E '^if .* \|\| \$'"$guard"'($| )' ../debian/fixcontrol
+	then
+	    :
+	else
+	    echo "$guard: optional PMDA guard is missing in fixcontrol"
+	fi
+    fi
+done
+
+# each ?{foo} should only appear once in the Build-Depends clause
+#
+grep '^Build-Depends:' ../debian/control.pcp \
+| tr ',' '\012' \
+| grep '?{' \
+| sort \
+| uniq -c \
+| while read n macro
+do
+    if [ $n -gt 1 ]
+    then
+	echo "control.pcp: $macro apprears $n times (should be once) in Build-Depends:"
+    fi
+done
+
+# each unique ?{foo} in all control.* files should have ONE matching
+# s/?{foo}, // to exclude and ONE matching s/?{foo}, /something,/
+# to include in fixcontrol
+# 
+cat ../debian/control.* \
+| grep '?{' \
+| tr ',' '\012' \
+| sed -n -e '/?{/s/.*?{/?{/p' \
+| sort \
+| uniq \
+| tee $tmp.control \
+| while read macro
+do
+    # some are not fixcontrol cookies and some are special cases
+    #
+    case "$macro"
+    in
+	\?{perl\ \(*|\?{python-all}|\?{python-dev})
+		continue
+		;;
+    esac
+    if ! grep -q 's/'"$macro"', //' ../debian/fixcontrol
+    then
+	echo "fixcontrol: $macro no sed to exclude"
+    fi
+    if ! grep -q 's/'"$macro"', /[^ ].*, /' ../debian/fixcontrol
+    then
+	echo "fixcontrol: $macro no sed to include"
+    fi
+done
+
+# and each ${foo} mentioned in fixcontrol should appear at least
+# ONCE in some control.* file
+#
+grep 's/?{.*//' ../debian/fixcontrol \
+| sed \
+    -e "s/.*echo 's.//" \
+    -e 's/},.*/}/' \
+| while read macro
+do
+    if grep -q "$macro" ../debian/control.*
+    then
+	:
+    else
+	echo "fixcontrol: $macro not used in any control.* file"
+    fi
+done
+
+# success, all done
+exit
