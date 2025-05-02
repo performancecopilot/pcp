@@ -727,7 +727,7 @@ __pmParseTime(
 }
 
 int    /* 1 -> ok, 0 -> warning, -1 -> error */
-pmParseTimeWindow(
+pmParseTimeWindow_v2(
     const char      *swStart,   /* argument of -S switch, may be NULL */
     const char      *swEnd,     /* argument of -T switch, may be NULL */
     const char      *swAlign,   /* argument of -A switch, may be NULL */
@@ -751,7 +751,7 @@ pmParseTimeWindow(
     logend.tv_sec = logEnd->tv_sec;
     logend.tv_nsec = logEnd->tv_usec * 1000;
 
-    if ((sts = pmParseHighResTimeWindow(swStart, swEnd, swAlign, swOffset,
+    if ((sts = pmParseTimeWindow(swStart, swEnd, swAlign, swOffset,
 			&logstart, &logend, &start, &end, &offset, errMsg)) < 0)
 	return sts;
 
@@ -770,7 +770,7 @@ pmParseTimeWindow(
  * client tools.
  */
 int    /* 1 -> ok, 0 -> warning, -1 -> error */
-pmParseHighResTimeWindow(
+pmParseTimeWindow(
     const char      *swStart,   /* argument of -S switch, may be NULL */
     const char      *swEnd,     /* argument of -T switch, may be NULL */
     const char      *swAlign,   /* argument of -A switch, may be NULL */

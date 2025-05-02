@@ -151,8 +151,6 @@ usr/share/man/man3/pmGetContextOptions.3.gz
 usr/share/man/man3/pmGetDerivedControl.3.gz
 usr/share/man/man3/pmGetDomainLabels.3.gz
 usr/share/man/man3/pmGetFetchGroupContext.3.gz
-usr/share/man/man3/pmGetHighResArchiveEnd.3.gz
-usr/share/man/man3/pmGetHighResArchiveLabel.3.gz
 usr/share/man/man3/pmGetHostName.3.gz
 usr/share/man/man3/pmGetInDom.3.gz
 usr/share/man/man3/pmGetInDomArchive.3.gz
@@ -205,7 +203,6 @@ usr/share/man/man3/pmNumberStr_r.3.gz
 usr/share/man/man3/pmOpenLog.3.gz
 usr/share/man/man3/pmParseDebug.3.gz
 usr/share/man/man3/pmParseHighResInterval.3.gz
-usr/share/man/man3/pmParseHighResTimeWindow.3.gz
 usr/share/man/man3/pmParseInterval.3.gz
 usr/share/man/man3/pmParseMetricSpec.3.gz
 usr/share/man/man3/pmParseTimeWindow.3.gz

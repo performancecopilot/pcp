@@ -254,16 +254,21 @@ parse_args(int argc, char **argv)
 void
 load_namespace(char *path)
 {
-    struct timeval	now, then;
+    struct timespec	now, then;
     int sts;
+    struct timeval	temp_tv;
 
-    gettimeofday(&then, (struct timezone *)0);
+    gettimeofday(&temp_tv, (struct timezone *)0);
+    then.tv_sec = temp_tv.tv_sec;
+    then.tv_nsec = temp_tv.tv_usec * 10000;
     if ((sts = pmLoadASCIINameSpace(path, 1)) < 0) {
 	printf("%s: Cannot load namespace from \"%s\": %s\n", pmGetProgname(), path, pmErrStr(sts));
 	exit(1);
     }
-    gettimeofday(&now, (struct timezone *)0);
-    printf("Name space load: %.2f msec\n", pmtimevalSub(&now, &then)*1000);
+    gettimeofday(&temp_tv, (struct timezone *)0);
+    now.tv_sec = temp_tv.tv_sec;
+    now.tv_nsec = temp_tv.tv_usec * 10000;
+    printf("Name space load: %.2f msec\n", pmtimespecSub(&now, &then)*1000);
 }
 
 void 
@@ -276,8 +281,9 @@ test_api(void)
     char		**allnames;
     int			n;
     char		*back;
-    pmResult		*resp;
+    pmHighResResult		*resp;
     pmDesc		desc;
+    struct timespec	delta = { 1, 0 };
     
     if (context_type != -1) {
 	if (context_type == 0) {
@@ -322,12 +328,12 @@ test_api(void)
      * have one yet.
      */
     if (context_type == PM_CONTEXT_ARCHIVE) {
-	struct timeval	when;
+	struct timespec	when;
 
 	n = pmGetArchiveEnd(&when);
 	REPORT("pmGetArchiveEnd", n);
 
-	n = pmSetMode(PM_MODE_BACK, &when, 1000);
+	n = pmSetModeHighRes(PM_MODE_BACK, &when, &delta);
 	REPORT("pmSetMode", n);
     }
 
@@ -426,48 +432,48 @@ test_api(void)
     }
 
     if (context_type == PM_CONTEXT_ARCHIVE) {
-	struct timeval	when;
+	struct timespec	when;
 
         when.tv_sec = 0;
-	when.tv_usec = 0;
+	when.tv_nsec = 0;
 
 	if (vflag) 
 	    printf("\nArchive result ...\n");
         for (i = 0; i < numpmid; i++) {
 	    if (midlist[i] == PM_ID_NULL)
 		continue; 
-	    if ((n = pmSetMode(PM_MODE_FORW, &when, 0)) < 0) {
+	    if ((n = pmSetModeHighRes(PM_MODE_FORW, &when, NULL)) < 0) {
 		printf("pmSetMode(PM_MODE_FORW): %s\n", pmErrStr(n));
 	    }
 	    else {
                 if (vflag)
                     printf("Fetch of %s:\n", namelist[i]);
-		if ((n = pmFetch(1, &midlist[i], &resp)) < 0) {
+		if ((n = pmFetchHighRes(1, &midlist[i], &resp)) < 0) {
 		    printf("Archive pmFetch: %s\n", pmErrStr(n));
 		}
 		else {
 		    if (vflag)
-			__pmDumpResult(stdout, resp);
-		    pmFreeResult(resp);
+			__pmDumpHighResResult(stdout, resp);
+		    pmFreeHighResResult(resp);
 		}
 	    }
   	}/*for*/
     }
 
     else if (context_type == PM_CONTEXT_HOST) {
-	if ((n = pmSetMode(PM_MODE_LIVE, (struct timeval *)0, 0)) < 0) {
+	if ((n = pmSetModeHighRes(PM_MODE_LIVE, (struct timespec *)0, NULL)) < 0) {
 	    printf("pmSetMode(PM_MODE_LIVE): %s\n", pmErrStr(n));
 	}
 	else {
-	    if ((n = pmFetch(numpmid, midlist, &resp)) < 0) {
+	    if ((n = pmFetchHighRes(numpmid, midlist, &resp)) < 0) {
 		printf("real-time pmFetch: %s\n", pmErrStr(n));
 	    }
 	    else {
 		if (vflag) {
 		    printf("\nReal-time result ...\n");
-		    __pmDumpResult(stdout, resp);
+		    __pmDumpHighResResult(stdout, resp);
 		}
-		pmFreeResult(resp);
+		pmFreeHighResResult(resp);
 	    }
 	}
     }

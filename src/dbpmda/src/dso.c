@@ -100,7 +100,7 @@ opendso(char *dso, char *init, int domain)
 		    dlclose(handle);
 		}
 		if (dispatch.comm.pmapi_version != PMAPI_VERSION_2 &&
-		    dispatch.comm.pmapi_version != PMAPI_VERSION_3) {
+		    dispatch.comm.pmapi_version != PMAPI_VERSION_4) {
 		    printf("Error: Unsupported PMAPI version %d returned by DSO \"%s\"\n",
 			   dispatch.comm.pmapi_version, dso);
 		    dispatch.status = -1;

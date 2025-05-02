@@ -914,13 +914,10 @@ LIBPCP.pmGetArchiveLabel.restype = c_int
 LIBPCP.pmGetArchiveLabel.argtypes = [POINTER(pmLogLabel)]
 
 LIBPCP.pmGetArchiveEnd.restype = c_int
-LIBPCP.pmGetArchiveEnd.argtypes = [POINTER(timeval)]
+LIBPCP.pmGetArchiveEnd.argtypes = [POINTER(timespec)]
 
-LIBPCP.pmGetHighResArchiveLabel.restype = c_int
-LIBPCP.pmGetHighResArchiveLabel.argtypes = [POINTER(pmHighResLogLabel)]
-
-LIBPCP.pmGetHighResArchiveEnd.restype = c_int
-LIBPCP.pmGetHighResArchiveEnd.argtypes = [POINTER(timespec)]
+LIBPCP.pmGetArchiveLabel.restype = c_int
+LIBPCP.pmGetArchiveLabel.argtypes = [POINTER(pmLogLabel)]
 
 LIBPCP.pmGetInDomArchive.restype = c_int
 LIBPCP.pmGetInDomArchive.argtypes = [c_uint, POINTER(POINTER(c_int)),
@@ -2257,15 +2254,15 @@ class pmContext(object):
             raise pmErr(status)
         return loglabel
 
-    def pmGetHighResArchiveLabel(self):
+    def pmGetArchiveLabel(self):
         """PMAPI - Get the label record from the archive
-        loglabel = pmGetHighResArchiveLabel()
+        loglabel = pmGetArchiveLabel()
         """
         loglabel = pmHighResLogLabel()
         status = LIBPCP.pmUseContext(self.ctx)
         if status < 0:
             raise pmErr(status)
-        status = LIBPCP.pmGetHighResArchiveLabel(byref(loglabel))
+        status = LIBPCP.pmGetArchiveLabel(byref(loglabel))
         if status < 0:
             raise pmErr(status)
         return loglabel
@@ -2273,23 +2270,11 @@ class pmContext(object):
     def pmGetArchiveEnd(self):
         """PMAPI - Get the last recorded timestamp from the archive
         """
-        tvp = timeval()
-        status = LIBPCP.pmUseContext(self.ctx)
-        if status < 0:
-            raise pmErr(status)
-        status = LIBPCP.pmGetArchiveEnd(byref(tvp))
-        if status < 0:
-            raise pmErr(status)
-        return tvp
-
-    def pmGetHighResArchiveEnd(self):
-        """PMAPI - Get the last recorded timestamp from the archive
-        """
         spec = timespec()
         status = LIBPCP.pmUseContext(self.ctx)
         if status < 0:
             raise pmErr(status)
-        status = LIBPCP.pmGetHighResArchiveEnd(byref(spec))
+        status = LIBPCP.pmGetArchiveEnd(byref(spec))
         if status < 0:
             raise pmErr(status)
         return spec

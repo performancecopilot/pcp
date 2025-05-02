@@ -9,13 +9,13 @@
 #include "libpcp.h"
 
 static void
-printstamp(struct timeval *tp)
+printstamp(struct timespec *tp)
 {
     static struct tm	*tmp;
     time_t		clock = (time_t)tp->tv_sec;
 
     tmp = localtime(&clock);
-    printf("%02d:%02d:%02d.%06d", tmp->tm_hour, tmp->tm_min, tmp->tm_sec, (int)tp->tv_usec);
+    printf("%02d:%02d:%02d.%09d", tmp->tm_hour, tmp->tm_min, tmp->tm_sec, (int)tp->tv_nsec);
 }
 
 int
@@ -24,7 +24,7 @@ main(int argc, char **argv)
     int			c;
     int			sts;
     int			errflag = 0;
-    struct timeval	end;
+    struct timespec	end;
 
     pmSetProgname(argv[0]);
 

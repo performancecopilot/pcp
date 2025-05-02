@@ -36,10 +36,10 @@ __pmArchCtl	archctl;
 int		exit_samples = -1;       /* number of samples 'til exit */
 __int64_t	exit_bytes = -1;         /* number of bytes 'til exit */
 __int64_t	vol_bytes;		 /* total in earlier volumes */
-struct timeval  exit_time;               /* time interval 'til exit */
+struct timespec exit_time;               /* time interval 'til exit */
 int		vol_switch_samples = -1; /* number of samples 'til vol switch */
 __int64_t	vol_switch_bytes = -1;   /* number of bytes 'til vol switch */
-struct timeval	vol_switch_time;         /* time interval 'til vol switch */
+struct timespec	vol_switch_time;         /* time interval 'til vol switch */
 int		vol_samples_counter;     /* Counts samples - reset for new vol*/
 int		vol_switch_afid = -1;    /* afid of event for vol switch */
 int		vol_switch_flag;         /* sighup received - switch vol now */
@@ -1546,11 +1546,17 @@ main(int argc, char **argv)
     if (isdaemon)
 	updateLatestFolio(pmcd_host, archName);
 
-    if (vol_switch_time.tv_sec > 0)
-	vol_switch_afid = __pmAFregister(&vol_switch_time, NULL, 
+    if (vol_switch_time.tv_sec > 0) {
+	struct timeval temp;
+	TVfromTS(temp, vol_switch_time);
+	vol_switch_afid = __pmAFregister(&temp, NULL, 
 					 vol_switch_callback);
-    if (exit_time.tv_sec > 0)
-	__pmAFregister(&exit_time, NULL, run_done_callback);
+    }
+    if (exit_time.tv_sec > 0) {
+	struct timeval temp;
+	TVfromTS(temp, exit_time);
+	__pmAFregister(&temp, NULL, run_done_callback);
+    }
 
     for ( ; ; ) {
 	int		nready;
@@ -1739,8 +1745,10 @@ newvolume(int vol_switch_type)
      * volume switch event.
      */
     if (vol_switch_afid >= 0 && vol_switch_type != VOL_SW_TIME) {
+	struct timeval temp;
+	TVfromTS(temp, vol_switch_time);
       __pmAFunregister(vol_switch_afid);
-      vol_switch_afid = __pmAFregister(&vol_switch_time, NULL,
+      vol_switch_afid = __pmAFregister(&temp, NULL,
                                    vol_switch_callback);
     }
 

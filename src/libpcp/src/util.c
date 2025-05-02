@@ -872,8 +872,8 @@ __pmDumpHighResResult_ctx(__pmContext *ctxp, FILE *f, const pmHighResResult *hre
 	PM_ASSERT_IS_LOCKED(ctxp->c_lock);
 
     __pmCtlDebug(PM_CTL_DEBUG_SAVE);
-    fprintf(f, "%s dump from " PRINTF_P_PFX "%p timestamp: %lld.%09lld ",
-	    "pmHighResResult", hresp,
+    fprintf(f, "pmResult dump from " PRINTF_P_PFX "%p timestamp: %lld.%09lld ",
+	    hresp,
 	    (long long)hresp->timestamp.tv_sec,
 	    (long long)hresp->timestamp.tv_nsec);
     pmPrintHighResStamp(f, &hresp->timestamp);

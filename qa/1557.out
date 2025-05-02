@@ -1,2 +1,39 @@
 QA output created by 1557
-[skeleton from qa/new, replace me]
+pmOptions et al tests ...
+
+--- --help ---
+diffs ...
+2c2
+< Usage: getoptions_v2 [options]
+---
+> Usage: getoptions [options]
+48c48
+<     version: 2
+---
+>     version: 4
+
+--- --interval 42 -T 10m ---
+diffs ...
+4c4
+<     version: 2
+---
+>     version: 4
+13c13
+<     interval: 42.000000
+---
+>     interval: 42.000000000
+
+--- --archive archives/20041125.0 --hostzone --align "1 minute" --origin "@10:10:10" --start "@10:15" --finish "@10:30" ---
+diffs ...
+4c4
+<     version: 2
+---
+>     version: 4
+11,13c11,13
+<     start: 25/11/2004 10:15:00.000000
+<     finish: 25/11/2004 10:30:00.000000
+<     origin: 25/11/2004 10:10:10.000000
+---
+>     start: 25/11/2004 10:15:00.000000000
+>     finish: 25/11/2004 10:30:00.000000000
+>     origin: 25/11/2004 10:10:10.000000000

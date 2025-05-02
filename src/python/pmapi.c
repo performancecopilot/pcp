@@ -52,7 +52,7 @@ PCP_CALL extern time_t __pmMktime(struct tm *);
           PyModuleDef_HEAD_INIT, name, doc, -1, methods, }; \
         ob = PyModule_Create(&moduledef);
 
-static pmOptions options = { .version = PMAPI_VERSION_3 };
+static pmOptions options;
 static char **argVector;
 static int argCount;
 static int longOptionsCount;
@@ -446,7 +446,6 @@ resetAllOptions(PyObject *self, PyObject *args)
 {
     pmFreeOptions(&options);
     memset(&options, 0, sizeof(options));
-    options.version = PMAPI_VERSION_3;
     longOptionsCount = 0;
     Py_INCREF(Py_None);
     return Py_None;
@@ -1531,7 +1530,7 @@ MOD_INIT(cpmapi)
     PyModule_AddObject(module, "pmErrSymDict", edict);
 
     dict_add(dict, "PMAPI_VERSION_2", PMAPI_VERSION_2);
-    dict_add(dict, "PMAPI_VERSION_3", PMAPI_VERSION_3);
+    dict_add(dict, "PMAPI_VERSION_4", PMAPI_VERSION_4);
     dict_add(dict, "PMAPI_VERSION", PMAPI_VERSION);
 
     dict_add_unsigned(dict, "PM_ID_NULL", PM_ID_NULL);

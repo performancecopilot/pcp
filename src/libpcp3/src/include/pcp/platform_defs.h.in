@@ -1,0 +1,460 @@
+/*
+ * @configure_input@
+ */
+#ifndef PCP_PLATFORM_DEFS_H
+#define PCP_PLATFORM_DEFS_H
+
+#include <stdlib.h>
+#include <stdio.h>
+#include <errno.h>
+#include <unistd.h>
+#include <inttypes.h>
+#include <string.h>
+#include <fcntl.h>
+#include <sys/types.h>
+#include <sys/param.h>
+#include <sys/time.h>
+#include <time.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include "config.h"
+
+/* build version macros */
+#define PM_VERSION(a,b,c) (((a)<<16)|((b)<<8)|(c))
+#define PM_VERSION_CURRENT @pm_version_current@
+
+#ifdef HAVE_PRINTF_P_PFX
+#define PRINTF_P_PFX ""
+#else
+#define PRINTF_P_PFX "0x"
+#endif
+
+/* printf candy ... */
+#define FMT_PID "@fmt_pid@"
+#define FMT_PTHREAD "@fmt_pthread@"
+
+#ifdef HAVE_BITS_WORDSIZE_H
+#include <bits/wordsize.h>
+#if __WORDSIZE == 32
+#include "config32.h"
+#include "platform32.h"
+#elif __WORDSIZE == 64
+#include "config64.h"
+#include "platform64.h"
+#else
+#error "Unknown word size"
+#endif
+#else
+#include "configsz.h"
+#include "platformsz.h"
+#endif
+
+#if defined(HAVE_STDDEF_H)
+#include <stddef.h>
+#endif
+#if defined(HAVE_STDINT_H)
+#include <stdint.h>
+#endif
+#if defined(HAVE_SYSLOG_H)
+#include <syslog.h>
+#endif
+#if defined(HAVE_WINSOCK2_H)
+#include <winsock2.h>
+#endif
+#if defined(HAVE_WINDOWS_H)
+#include <windows.h>
+#endif
+#if defined(HAVE_WS2TCPIP_H)
+#include <ws2tcpip.h>
+#endif
+
+#if defined(HAVE_ENDIAN_H)
+#include <endian.h>
+#elif defined(HAVE_SYS_ENDIAN_H)
+#include <sys/endian.h>
+#elif defined(HAVE_MACHINE_ENDIAN_H)
+#include <machine/endian.h>
+#endif
+#if defined(HAVE_ENDIAN_H) || defined(HAVE_SYS_ENDIAN_H) || defined(HAVE_MACHINE_ENDIAN_H)
+#if defined(BYTE_ORDER) && BYTE_ORDER == BIG_ENDIAN
+#define HAVE_NETWORK_BYTEORDER
+#endif
+#endif
+
+#if defined(HAVE_SYS_BYTEORDER_H)
+#include <sys/byteorder.h>
+#if defined(_BIG_ENDIAN)
+#define HAVE_NETWORK_BYTEORDER
+#endif
+#endif
+
+#if defined(HAVE_SYS_MACHINE_H)
+#include <sys/machine.h>
+#if defined(BYTE_ORDER) && BYTE_ORDER == BIG_ENDIAN
+#define HAVE_NETWORK_BYTEORDER
+#endif
+#endif
+
+/* if termio signals are supported */
+#ifdef HAVE_TERMIOS_H
+#ifdef HAVE_TCGETATTR
+#define HAVE_TERMIO_SIGNALS
+#endif
+#endif
+
+#ifndef ULONGLONG_MAX
+#define ULONGLONG_MAX 18446744073709551615ULL
+#endif
+
+#ifndef LONGLONG_MAX
+#define LONGLONG_MAX 9223372036854775807LL
+#endif
+
+/* Check if __psint_t is set to something meaningful */
+#ifndef HAVE___PSINT_T
+#ifdef HAVE_32BIT_PTR
+typedef int __psint_t;
+#elif defined HAVE_64BIT_PTR
+#ifdef HAVE_64BIT_LONG
+typedef long __psint_t;
+#else
+/*
+ * This is a very strange architecture, which has 64 bit pointers but
+ * not 64 bit longs. So we just punt here and assume long long is OK.
+ */
+typedef long long __psint_t;
+#endif
+#else
+#error Unknown pointer size - not 32 and not 64
+#endif
+#endif
+
+/* Check if ptrdiff_t type is available */
+#ifndef HAVE_PTRDIFF_T
+#define ptrdiff_t long
+#endif
+
+/* User and group accounts - POSIX uid_t/gid_t combo or Win32 SID */
+#if defined(HAVE_UID_T) && defined(HAVE_GID_T)
+typedef uid_t __pmUserID;
+typedef gid_t __pmGroupID;
+#elif defined(HAVE_SID)
+typedef SID __pmUserID;
+typedef SID __pmGroupID;
+#else
+bozo! unclear how to represent users and groups for this platform
+#endif
+
+/* socklen_t is not always defined, so use __pmSockLen abstraction */
+#ifdef HAVE_SOCKLEN_T
+#include <sys/socket.h>
+typedef socklen_t __pmSockLen;
+#else
+typedef int __pmSockLen;
+#endif
+
+/* MAXNAMELEN hides in may places and may have alias names ... */
+#ifndef MAXNAMELEN
+#if defined(FILENAME_MAX)
+/* POSIX version of the BSD MAXNAMELEN macro */
+#define MAXNAMELEN FILENAME_MAX
+#endif
+#endif
+#ifndef MAXNAMELEN
+bozo! need to find where MAXNAMELEN is defined for this platform
+#endif
+
+/* MAXPATHLEN hides in many places and may have alias names ... */
+#ifndef MAXPATHLEN
+#ifdef HAVE_LIMITS_H
+#include <limits.h>
+#endif
+#if !defined(MAXPATHLEN) && defined(PATH_MAX)
+/* POSIX version of the BSD MAXPATHLEN macro */
+#define MAXPATHLEN PATH_MAX
+#endif
+#endif
+#ifndef MAXPATHLEN
+/* bozo! need to find where MAXPATHLEN is defined for this platform */
+#define PATH_MAX 4096
+#define MAXPATHLEN PATH_MAX
+#endif
+
+/* MAXHOSTNAMELEN hides in many places and may also have aliases ... */
+#ifndef MAXHOSTNAMELEN
+#ifdef HAVE_LIMITS_H
+#include <limits.h>
+#endif
+#endif
+#ifndef MAXHOSTNAMELEN
+#ifdef HAVE_NETDB_H
+#include <netdb.h>
+#endif
+#endif
+#ifndef MAXHOSTNAMELEN
+#ifdef HAVE_IPTYPES_H
+#include <iptypes.h>
+#define MAXHOSTNAMELEN MAX_HOSTNAME_LEN
+#endif
+#endif
+#ifndef MAXHOSTNAMELEN
+/* bozo! need to find where MAXHOSTNAMELEN is defined for this platform*/
+#define MAXHOSTNAMELEN 4096
+#endif
+
+#ifndef MAXDOMAINNAMELEN
+#define MAXDOMAINNAMELEN 64
+#endif
+
+#ifndef MAXMACHINEIDLEN
+#define MAXMACHINEIDLEN 256
+#endif
+
+#ifndef HAVE_FLOG10
+#if !defined(flog10)
+#define flog10(x) (float)log10((double)x)
+#endif
+#endif
+
+#if !defined(WORD_BIT)
+#define WORD_BIT 32
+#endif
+
+#ifndef RETSIGTYPE
+#define RETSIGTYPE void
+#endif
+
+#ifndef HAVE_SIGPF
+/* The return type of signal() */
+typedef void (*SIG_PF) (int);
+#endif
+
+#ifndef HAVE_WAIT_INCLUDES_SIGNAL
+#include <signal.h>
+#endif
+
+#ifdef HAVE_LIBGEN_H
+#include <libgen.h>
+#endif
+
+#if !defined(HAVE_FNDELAY)
+/* Only Solaris is known to need this so far */
+#ifndef FNDELAY
+#define FNDELAY O_NDELAY
+#endif
+#endif
+
+#ifndef HAVE_VALLOC
+#define valloc(x) malloc(x)
+#endif
+
+#ifdef IS_OPENBSD
+/* was not defined for some older versions, but is now ... */
+#ifndef EPROTO
+#define EPROTO          ENOPROTOOPT
+#endif
+#endif
+
+#ifdef IS_DARWIN
+#define DLOPEN_NO_WARN
+#define st_atim st_atimespec    /* workaround */
+#define st_mtim st_mtimespec    /* workaround */
+#define st_ctim st_ctimespec    /* workaround */
+#endif
+
+/* Determine if we are on Windows with MinGW compiler */
+#ifdef IS_MINGW
+
+#ifdef PCP_STATIC
+#define PCP_DATA
+#define PCP_CALL
+#else
+
+#ifdef PCP_INTERNAL
+#define PCP_DATA        __declspec(dllexport)
+#define PCP_CALL        __declspec(dllexport)
+#else
+#define PCP_DATA        __declspec(dllimport)
+#define PCP_CALL        __declspec(dllimport)
+#endif
+
+#endif
+
+#ifdef PCP_VERSION		/* used to reduce namespace pollution */
+#define EHOSTDOWN	WSAEHOSTDOWN
+#ifndef ENODATA
+#define ENODATA		WSANO_DATA
+#endif
+extern const char *wsastrerror(int);
+
+#define HAVE_PIPE1
+#define HAVE_MKDIR2
+#define HAVE_CLOSEFROM
+#define HAVE_RENAME2
+#define HAVE_DLOPEN
+#define HAVE_FNDELAY
+
+#define SHUT_RDWR	SD_BOTH
+#define MAP_FAILED	NULL
+#define O_NDELAY	0
+#define SIGHUP		(NSIG+1)
+#define SIGUSR1		(NSIG+2)
+#define SIGBUS		(NSIG+3)
+#ifndef S_IRGRP
+#define S_IRGRP		0
+#define S_IWGRP		0
+#define S_IROTH		0
+#define S_IWOTH		0
+#define S_IRWXG		0
+#define S_IRWXO		0
+#endif
+#define S_ISVTX		0
+#define S_ISLNK(mode)	0	/* no symlink support */
+
+#define fcntl(f, cmd, ...) 0
+#define mkdir2(path, mode) mkdir(path)
+#define rename2(a, b) (unlink(b), rename(a,b))
+#define realpath(path, pp) strcpy(pp, path)
+#define pipe1(fds) _pipe(fds, 4096, O_BINARY)
+
+PCP_CALL extern int fsync(int);
+PCP_CALL extern int symlink(const char *, const char *);
+PCP_CALL extern int readlink(const char *, char *, size_t);
+PCP_CALL extern void setlinebuf(FILE *);
+PCP_CALL extern char *index(const char *, int);
+PCP_CALL extern char *rindex(const char *, int);
+PCP_CALL extern char *strcasestr(const char *, const char *);
+PCP_CALL extern char *strsep(char **, const char *);
+PCP_CALL extern long int lrand48(void);
+PCP_CALL extern void srand48(long int);
+PCP_CALL extern long int random(void);
+PCP_CALL extern void srandom(unsigned int);
+
+#ifdef HAVE_STRUCT_TIMESPEC
+/*
+ * This is a bit odd ... but for MinGW, struct timespec is not in
+ * <time.h> but _is_ in <pthread.h> ... the structure (sec, nanosec)
+ * is what we want, so include <pthread.h>
+ */
+#include <pthread.h>
+#endif
+
+PCP_CALL extern int nanosleep(const struct timespec *, struct timespec *);
+PCP_CALL extern unsigned int sleep(unsigned int);
+PCP_CALL extern char *ctime_r(const time_t *, char *);
+PCP_CALL extern struct tm *gmtime_r(const time_t *, struct tm *);
+
+enum { RTLD_NOW, RTLD_LAZY };
+PCP_CALL extern void *dlopen(const char *, int);
+PCP_CALL extern char *dlerror(void);
+PCP_CALL extern void *dlsym(void *, const char *);
+PCP_CALL extern int dlclose(void *);
+
+PCP_CALL extern void openlog(const char *, int, int);
+PCP_CALL extern void syslog(int, const char *, ...);
+PCP_CALL extern void closelog(void);
+#endif
+enum { LOG_EMERG, LOG_ALERT, LOG_CRIT, LOG_ERR,
+       LOG_WARNING, LOG_NOTICE, LOG_INFO, LOG_DEBUG,
+       LOG_PID, LOG_CONS, LOG_DAEMON };
+
+#define setoserror(n)	(errno = (n))	/* not SetLastError() */
+#define oserror()	errno		/* not GetLastError() */
+#define neterror()	WSAGetLastError()
+#define hosterror()	WSAGetLastError()
+#define osstrerror()		strerror(GetLastError())
+#define osstrerror_r(buf, len)	pmErrStr_r(-GetLastError(), buf, len)
+#define netstrerror()		strerror(WSAGetLastError())
+#define netstrerror_r(buf, len)	pmErrStr_r(-WSAGetLastError(), buf, len)
+#define hoststrerror()	strerror(WSAGetLastError())
+
+PCP_CALL extern int setenv(const char *, const char *, int);
+PCP_CALL extern int unsetenv(const char *);
+
+PCP_CALL extern int win32_inet_pton(int, const char *, void *);
+PCP_CALL extern const char *win32_inet_ntop(int, void *, char *, socklen_t);
+
+#else /*!MINGW*/
+#define PCP_DATA
+#define PCP_CALL
+
+#define setoserror(n)	(errno = (n))
+#define oserror()	errno
+#define neterror()	errno
+#define hosterror()	h_errno
+#define osstrerror()		strerror(errno)
+#define osstrerror_r(buf, len)	pmErrStr_r(-errno, buf, len)
+#define netstrerror()		strerror(errno)
+#define netstrerror_r(buf, len)	pmErrStr_r(-errno, buf, len)
+#define hoststrerror()	hstrerror(h_errno)
+#endif
+
+#ifndef O_CLOEXEC
+#define O_CLOEXEC	0
+#endif
+
+#ifndef FD_CLOEXEC
+#define FD_CLOEXEC	0
+#endif
+
+/*
+ * run-time environment that is in libc for most platforms, but for some
+ * we need to provide our own implementation
+ */
+#ifndef HAVE_DIRNAME
+PCP_CALL extern char *dirname(char *);
+#endif
+#ifndef HAVE_BASENAME
+PCP_CALL extern char *basename(char *);
+#endif
+#ifndef HAVE_STRNDUP
+PCP_CALL extern char *strndup(const char *, size_t);
+#endif
+#ifndef HAVE_STRCHRNUL
+PCP_CALL extern char *strchrnul(const char *, int);
+#endif
+#ifndef HAVE_STRCHRNUL
+PCP_CALL extern char *strchrnul(const char *, int);
+#endif
+
+#ifndef HAVE_GETDOMAINNAME
+PCP_CALL extern int getdomainname(char *, size_t);
+#endif
+#ifndef HAVE_GETMACHINEID
+PCP_CALL extern int getmachineid(char *, size_t);
+#endif
+
+#ifdef HAVE_CONST_DIRENT
+#define const_dirent const struct dirent
+#else
+#define const_dirent struct dirent
+#endif
+
+#ifndef HAVE_SCANDIR
+struct dirent;
+PCP_CALL extern int scandir(const char *, struct dirent ***,
+                            int(*filter)(const_dirent *),
+                            int(*compare)(const_dirent **, const_dirent **));
+PCP_CALL extern int alphasort(const_dirent **, const_dirent **);
+#endif
+
+#ifndef HAVE_MKDIR2
+#define mkdir2(path,mode) mkdir(path,mode)
+#endif
+
+#ifndef HAVE_RENAME2
+#define rename2(path,target) rename(path,target)
+#endif
+
+#ifndef HAVE_PIPE1
+#define pipe1(fds) pipe(fds)
+#endif
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* PCP_PLATFORM_DEFS_H */

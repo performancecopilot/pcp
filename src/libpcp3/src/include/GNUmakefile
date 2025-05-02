@@ -1,3 +1,7 @@
+#
+# Copyright (c) 2022 Red Hat.
+# Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
+#
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 2 of the License, or (at your
@@ -7,32 +11,23 @@
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
-#
+# 
 
-TOPDIR = ../../..
+TOPDIR = ../../../..
 include $(TOPDIR)/src/include/builddefs
-include localdefs
+-include ./GNUlocaldefs
 
-WORKDIR	:= $(shell pwd)
-GROUP	:= $(shell basename $(WORKDIR))
-GROUPETC = $(PCP_SYSCONF_DIR)/pmlogconf
-GROUPVAR = $(PCP_VAR_DIR)/config/pmlogconf
+SUBDIRS = pcp
 
-LDIRT	= GNUmakefile
+LDIRT = pcp.conf
 
-DEFAULT	= $(FILES)
+default :: default_pcp
 
-CONFIGS	= $(subst "./","",$(DEFAULT))
-
-default_pcp: $(DEFAULT)
-
-install_pcp: install
-
-install: default_pcp
-	$(INSTALL) -d $(GROUPETC)/$(GROUP)
-	$(INSTALL) -d $(GROUPVAR)/$(GROUP)
-	@for f in $(CONFIGS); do \
-	    $(INSTALL) -m 644 -t $(GROUPVAR)/$(GROUP)/$$f $$f $(GROUPETC)/$(GROUP)/$$f; \
-	done
+default_pcp : $(SUBDIRS)
+	$(SUBDIRS_MAKERULE)
 
 include $(BUILDRULES)
+
+install :: default_pcp install_pcp
+
+install_pcp : $(SUBDIRS) default_pcp

@@ -18,10 +18,10 @@ trap "rm -f $tmp.*; exit" 0 1 2 3 15
 _filter()
 {
     cat >$tmp.out
-    STAMP=`sed <$tmp.out -n -e '/pmGetHighResArchiveEnd time:/s/.* //p'`
+    STAMP=`sed <$tmp.out -n -e '/pmGetArchiveEnd time:/s/.* //p'`
     if [ "X$STAMP" = X ]
     then
-	echo "pmGetHighResArchiveEnd failed!"
+	echo "pmGetArchiveEnd failed!"
 	cat $tmp.out
     else
 	sed -e "s/$STAMP/MY-EOL-TIMESTAMP/g" <$tmp.out

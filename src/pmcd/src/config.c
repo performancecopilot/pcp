@@ -2089,7 +2089,7 @@ GetAgentDso(AgentInfo *aPtr)
 	return -1;
     }
 
-    if (dso->dispatch.comm.pmapi_version == PMAPI_VERSION_2)
+    if (dso->dispatch.comm.pmapi_version >= PMAPI_VERSION_2)
 	aPtr->pduVersion = PDU_VERSION2;
     else {
 	pmNotifyErr(LOG_ERR,

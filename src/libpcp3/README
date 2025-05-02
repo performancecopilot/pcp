@@ -1,0 +1,7 @@
+This is libpcp and the associated "include" files from PCP 6.3.8.
+
+This was the last version to include active development of libpcp.so.3
+(aka PMAPI_VERSION_2).
+
+After this (PCP 7.0 and later) the PMAPI changed to libpcp.so.4
+(aka PMAPI_VERSION_4).

@@ -180,13 +180,10 @@ get_sample(void)
 }
 
 void
-timeval_sleep(struct timeval delay)
+timespec_sleep(struct timespec delay)
 {
-    struct timespec	interval;
     struct timespec	remaining;
-
-    interval.tv_sec = delay.tv_sec;
-    interval.tv_nsec = delay.tv_usec * 1000;
+    struct timespec	interval = delay;
 
     /* loop to catch early wakeup by nanosleep */
     for (;;) {
@@ -264,11 +261,11 @@ main(int argc, char **argv)
     host = pmGetContextHostName(c);
 
     /* set a default sampling interval if none has been requested */
-    if (opts.interval.tv_sec == 0 && opts.interval.tv_usec == 0)
+    if (opts.interval.tv_sec == 0 && opts.interval.tv_nsec == 0)
 	opts.interval.tv_sec = 5;
 
     if (opts.context == PM_CONTEXT_ARCHIVE) {
-	if ((sts = pmSetMode(PM_MODE_INTERP, &opts.start, (int)(opts.interval.tv_sec*1000 + opts.interval.tv_usec/1000))) < 0) {
+	if ((sts = pmSetModeHighRes(PM_MODE_INTERP, &opts.start, &opts.interval)) < 0) {
 	    fprintf(stderr, "%s: pmSetMode failed: %s\n",
 		    pmGetProgname(), pmErrStr(sts));
 	    exit(1);
@@ -305,7 +302,7 @@ X.XXX   XXX   X.XXX XXXXX.XXX XXXXXX  XXXX.XX XXXX.XX
 	    printf("  (Mbytes)   IOPS    1 Min  15 Min\n");
 	}
 	if (opts.context != PM_CONTEXT_ARCHIVE || pauseFlag)
-	    timeval_sleep(opts.interval);
+	    timespec_sleep(opts.interval);
 	get_sample();
 	printf("%5.2f", info.cpu_util);
 	if (info.ncpu.l > 1)

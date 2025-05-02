@@ -1,0 +1,8 @@
+# example QA build for libpcp ... to enable
+#	$ make clean
+# 	$ ln GNUlocaldefs.debug GNUlocaldefs
+#	$ make
+#	$ sudo make install
+# this one turns optimization off and debug info on and lock assertions on
+#
+CFLAGS_OPT = -O0 -g -DPM_MULTI_THREAD_DEBUG

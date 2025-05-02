@@ -2042,8 +2042,8 @@ pmcd.pdu
 1554 pmstat local
 1555 archive local valgrind
 1556:reserved pmlogconf local
-1557:reserved libpcp local
-1558:reserved libpcp local
+1557 libpcp local
+1558 libpcp local
 1559:reserved libpcp local
 1560 libpcp pdu local
 1561 pmcd libpcp pmcd.pdu suse local
