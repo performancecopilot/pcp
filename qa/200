@@ -41,7 +41,7 @@ _wait_for_pmcd_exit()
     _dead=false
     while [ $_i -lt $_can_wait ]
     do
-	if netstat -t -n -l | grep :44321 >/dev/null
+	if netstat -n -l | grep '[:.]44321 .*LISTEN' >/dev/null
 	then
 	    sleep 1
 	    _i=`expr $_i + 1`

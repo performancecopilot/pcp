@@ -27,7 +27,6 @@ debug*.list
 gram*.tab.c
 pcp-[0-9]*.[0-9]*.[0-9]*
 perl-pcp*.list*
-python-pcp*.list*
 python3-pcp*.list*
 ui_*.h
 moc_*.h

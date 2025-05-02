@@ -57,7 +57,7 @@ static void usage(void)
 "  -c configfile initial view to load\n"
 "  -C            with -c, parse config, report any errors and exit\n"
 "  -CC           like -C, but also connect to pmcd to check semantics\n"
-"  -D debug      set debug options, see pmdbg(1)\n",
+"  -D debug      set debug options, see pmdbg(1)\n"
 "  -g geometry   image geometry Width x Height (WxH)\n"
 "  -h host       add host to list of live metrics sources\n"
 "  -L            directly fetch metrics from localhost, PMCD is not used\n"

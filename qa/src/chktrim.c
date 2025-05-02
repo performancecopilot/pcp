@@ -20,9 +20,7 @@ dometric(const char *name)
 }
 
 int
-main(argc, argv)
-int argc;
-char *argv[];
+main(int argc, char **argv)
 {
     int		c;
     int		sts;
@@ -105,7 +103,7 @@ char *argv[];
 	}
     }
     else {
-	printf("Error: pmTrimeNameSpace: %s\n", pmErrStr(sts));
+	printf("Error: pmTrimNameSpace: %s\n", pmErrStr(sts));
     }
 
     if (ctx == -1) {
@@ -126,7 +124,7 @@ char *argv[];
 	}
     }
     else {
-	printf("Error: pmTrimeNameSpace: %s\n", pmErrStr(sts));
+	printf("Error: pmTrimNameSpace: %s\n", pmErrStr(sts));
     }
 
     exit(0);

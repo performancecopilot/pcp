@@ -17,7 +17,6 @@ do
     # some examples...
     #	artifacts/build-fedora31-container
     #	artifacts/build-centos-stream9-container
-    #	artifacts/build-centos6-container
     #	artifacts/build-debian11-container
     #	artifacts/build-ubuntu2204-container
 

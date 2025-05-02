@@ -42,9 +42,6 @@ from pcp import pmapi, pmconfig
 from cpmapi import PM_CONTEXT_ARCHIVE, PM_DEBUG_APPL0, PM_DEBUG_APPL1
 from cpmapi import PM_TIME_SEC
 
-if sys.version_info[0] >= 3:
-    long = int # pylint: disable=redefined-builtin
-
 # Default config
 DEFAULT_CONFIG = ["./pcp2graphite.conf", "$HOME/.pcp2graphite.conf", "$HOME/.pcp/pcp2graphite.conf", "$PCP_SYSCONF_DIR/pcp2graphite.conf"]
 
@@ -434,7 +431,7 @@ class PCP2Graphite(object):
             if self.pickle:
                 pickled_input = []
                 for metric, value in miv_tuples:
-                    pickled_input.append((metric, (long(ts), value)))
+                    pickled_input.append((metric, (int(ts), value)))
                 pickled_output = pickle.dumps(pickled_input, protocol=self.pickle_protocol)
                 header = struct.pack("!L", len(pickled_output))
                 msg = header + pickled_output
@@ -443,7 +440,7 @@ class PCP2Graphite(object):
                 self.socket.send(msg) # pylint: disable=no-member
             else:
                 for metric, value in miv_tuples:
-                    message = "%s %s %s\n" % (metric, value, long(ts))
+                    message = "%s %s %s\n" % (metric, value, int(ts))
                     msg = message.encode()
                     if self.context.pmDebug(PM_DEBUG_APPL0):
                         print("Sending %s: %s" % (timestamp, msg.rstrip().decode()))

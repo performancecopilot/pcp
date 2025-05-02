@@ -15,10 +15,7 @@
 
 import sys
 import unittest
-if sys.version_info[0] < 3:
-    from mock import Mock
-else:
-    from unittest.mock import Mock
+from unittest.mock import Mock
 from pcp_mpstat import HardInterruptUsage
 
 class TestHardInterruptUsage(unittest.TestCase):

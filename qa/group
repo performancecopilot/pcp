@@ -260,6 +260,7 @@ pmda.postgresql
 pmda.proc
 pmda.redis
 pmda.resctrl
+pmda.rocestat
 pmda.root
 #pmda.rpm		# note this group has been retired
 pmda.rsyslog
@@ -2041,6 +2042,9 @@ pmcd.pdu
 1554 pmstat local
 1555 archive local valgrind
 1556:reserved pmlogconf local
+1557:reserved libpcp local
+1558:reserved libpcp local
+1559:reserved libpcp local
 1560 libpcp pdu local
 1561 pmcd libpcp pmcd.pdu suse local
 1562 pminfo local
@@ -2061,6 +2065,7 @@ pmcd.pdu
 1577 pmda.bpf local
 1578 pmlogcheck local
 1579 pmlogcheck local valgrind
+1580 other local
 1584 pmda.mongodb local
 1585 pcp2xml python pcp2xxx local
 1588 python iostat local
@@ -2159,6 +2164,7 @@ pmcd.pdu
 1801 dstat python pcp local derive
 1803 python geolocate labels local pmjson
 1805 pmda.linux kernel local
+1807 pmseries local
 1810 pmda.bpf local
 1813 python labels local pmrep
 1814 pmda.linux local
@@ -2216,6 +2222,7 @@ pmcd.pdu
 1963 pmda.linux local
 1970 pmda.bpf local
 1973 pcp zoneinfo python local
+1976 pmdaopenmetrics python local
 1978 atop local pmlogrewrite
 1984 pmlogconf pmda.redis local
 1985 pmfind local valgrind
@@ -2226,4 +2233,5 @@ pmcd.pdu
 1990 pcp buddyinfo python local
 1991 pcp netstat python local
 1992 pmda.uwsgi local
+1993 pmda.rocestat local python
 4751 libpcp threads valgrind local pcp helgrind

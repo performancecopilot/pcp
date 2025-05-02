@@ -1268,6 +1268,7 @@ typedef struct {
     int	tls;		/* Transport Layer Security operations */
     int	misc;		/* Miscellaneous odds and sods */
     int	qed;		/* Methods in libpcp_qed */
+    int getopt;		/* Processing of command-line arguments */
 } pmdebugoptions_t;
 
 PCP_DATA extern pmdebugoptions_t	pmDebugOptions;

@@ -196,7 +196,7 @@ PMID: 30.0.3 (sampledso.milliseconds)
 2 sampledso.write_me
 2 sampledso.xmit_pdu
 Error: pmTraversePMNS: PMNS not accessible
-Error: pmTrimeNameSpace: PMNS not accessible
+Error: pmTrimNameSpace: PMNS not accessible
 
 === current archive context ===
 0 Initial NameSpace below sampledso ...
@@ -1459,7 +1459,7 @@ sampledso.humus PMID: 4.5.6
 2 sampledso.dupnames.two.mould
 2 sampledso.fungus.bogus
 2 sampledso.humus
-Error: pmTrimeNameSpace: Attempt to use an illegal context
+Error: pmTrimNameSpace: Attempt to use an illegal context
 
 === current archive context ===
 0 Initial NameSpace below sampledso ...

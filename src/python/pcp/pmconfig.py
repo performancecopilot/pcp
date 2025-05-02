@@ -212,11 +212,7 @@ class pmConfig(object):
 
     def read_options(self):
         """ Read options from configuration file """
-        # Python < 3.2 compat
-        if sys.version_info[0] >= 3 and sys.version_info[1] >= 2:
-            config = ConfigParser.ConfigParser()
-        else:
-            config = ConfigParser.SafeConfigParser()
+        config = ConfigParser.ConfigParser()
         config.optionxform = str
         for conf in self._get_conf_files():
             try:
@@ -363,13 +359,8 @@ class pmConfig(object):
         sources = OrderedDict()
 
         # Read config
-        # Python < 3.2 compat
-        if sys.version_info[0] >= 3 and sys.version_info[1] >= 2:
-            config = ConfigParser.ConfigParser()
-            all_sets = ConfigParser.ConfigParser()
-        else:
-            config = ConfigParser.SafeConfigParser()
-            all_sets = ConfigParser.SafeConfigParser()
+        config = ConfigParser.ConfigParser()
+        all_sets = ConfigParser.ConfigParser()
         all_sets.optionxform = str
         config.optionxform = str
         for conf in self._get_conf_files():

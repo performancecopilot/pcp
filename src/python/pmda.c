@@ -30,7 +30,6 @@
 /* libpcp internal routines used by this module */
 PCP_CALL extern int __pmAddLabels(pmLabelSet **, const char *, int);
 
-#if PY_MAJOR_VERSION >= 3
 #define MOD_ERROR_VAL NULL
 #define MOD_SUCCESS_VAL(val) val
 #define MOD_INIT(name) PyMODINIT_FUNC PyInit_##name(void)
@@ -38,13 +37,6 @@ PCP_CALL extern int __pmAddLabels(pmLabelSet **, const char *, int);
 	static struct PyModuleDef moduledef = { \
 	  PyModuleDef_HEAD_INIT, name, doc, -1, methods, }; \
 	ob = PyModule_Create(&moduledef);
-#else
-#define MOD_ERROR_VAL
-#define MOD_SUCCESS_VAL(val)
-#define MOD_INIT(name) void init##name(void)
-#define MOD_DEF(ob, name, doc, methods) \
-	ob = Py_InitModule3(name, methods, doc);
-#endif
 
 static pmdaInterface dispatch;
 static pmdaNameSpace *pmns;
@@ -78,10 +70,6 @@ static Py_ssize_t nindoms;
 static pmdaIndom *indom_buffer;
 static Py_ssize_t nmetrics;
 static pmdaMetric *metric_buffer;
-
-#if PY_MAJOR_VERSION == 2 && PY_MINOR_VERSION <= 5
-typedef int Py_ssize_t;
-#endif
 
 static void pmns_refresh(void);
 static void pmda_refresh_metrics(void);
@@ -146,11 +134,7 @@ pmns_refresh(void)
 	long pmid;
 
 	pmid = PyLong_AsLong(key);
-#if PY_MAJOR_VERSION >= 3
 	name = PyUnicode_AsUTF8(value);
-#else
-	name = PyString_AsString(value);
-#endif
 	if (pmDebugOptions.libpmda)
 	    fprintf(stderr, "pmns_refresh: adding metric %s(%s)\n",
 		    name, pmIDStr(pmid));
@@ -877,11 +861,7 @@ text(int ident, int type, char **buffer, pmdaExt *pmda)
     Py_DECREF(key);
     if (value == NULL)
 	return PM_ERR_TEXT;
-#if PY_MAJOR_VERSION >= 3
     *buffer = (char *)PyUnicode_AsUTF8(value);
-#else
-    *buffer = (char *)PyString_AsString(value);
-#endif
     /* "value" is a borrowed reference, do not decrement */
     return 0;
 }
@@ -1691,11 +1671,7 @@ static PyMethodDef methods[] = {
 static void
 pmda_dict_add(PyObject *dict, char *sym, long val)
 {
-#if PY_MAJOR_VERSION >= 3
     PyObject *pyVal = PyLong_FromLong(val);
-#else
-    PyObject *pyVal = PyInt_FromLong(val);
-#endif
 
     PyDict_SetItemString(dict, sym, pyVal);
     Py_XDECREF(pyVal);

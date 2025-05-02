@@ -32,11 +32,7 @@ user = 'root'
 uri = 'qemu:///system'
 backing = False
 
-# Python < 3.2 compat
-if sys.version_info[0] >= 3 and sys.version_info[1] >= 2:
-    config = ConfigParser.ConfigParser()
-else:
-    config = ConfigParser.SafeConfigParser()
+config = ConfigParser.ConfigParser()
 config.read(conffile)
 if config.has_section('pmda'):
     for opt in config.options('pmda'):

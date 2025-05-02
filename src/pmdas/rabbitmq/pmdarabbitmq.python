@@ -17,7 +17,6 @@
 
 """ Performance Metrics Domain Agent exporting rabbitmq metrics. """
 
-import sys
 from pcp.pmda import PMDA, pmdaMetric, pmdaIndom, pmdaInstid
 from pcp.pmapi import pmUnits
 from pcp.pmapi import pmContext as PCP
@@ -139,11 +138,7 @@ class RabbitmqPMDA(PMDA):
         configfile = PCP.pmGetConfig('PCP_PMDAS_DIR')
         configfile += '/rabbitmq/rabbitmq.conf'
 
-        # Python < 3.2 compatible
-        if sys.version_info[0] >=3 and sys.version_info[1] >= 2:
-            config = ConfigParser.ConfigParser()
-        else:
-            config = ConfigParser.SafeConfigParser()
+        config = ConfigParser.ConfigParser()
 
         # Read the config file
         if config.has_section('pmda'):

@@ -116,6 +116,16 @@ then
 	    configopts="$configopts --with-selinux=no --with-qt=no"
 	fi
     fi
+    # for RHEL 7 Python3 is incomplete, so we're forced to still use
+    # Python2 if available
+    #
+    if [ -f /etc/system-release ]
+    then
+	if grep 'Red Hat.* release 7\.' /etc/system-release >/dev/null
+	then
+	    configopts="$configopts --with-python=check"
+	fi
+    fi
 elif [ $target = darwin ]
 then
     # On Mac OS X platforms, we're using brew ...

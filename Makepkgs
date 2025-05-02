@@ -256,12 +256,22 @@ then
 	    configopts="$configopts --with-selinux=no --with-qt=no"
 	fi
     fi
+    # for RHEL 7 Python3 is incomplete, so we're forced to still use
+    # Python2 if available
+    #
+    if [ -f /etc/system-release ]
+    then
+	if grep 'Red Hat.* release 7\.' /etc/system-release >/dev/null
+	then
+	    configopts="$configopts --with-python=check"
+	fi
+    fi
 elif [ $target = darwin ]
 then
     # On Mac OS X platforms, we install away from /usr/bin, /usr/lib
     # and so on because of security requirements in recent versions.
     #
-    configopts="--sysconfdir=/etc --localstatedir=/var --prefix=/usr/local"
+configopts="--sysconfdir=/etc --localstatedir=/var --prefix=/usr/local"
 elif [ $target = netbsd ]
 then
     # Try to mimic where pkgsrc/pkgin places things
