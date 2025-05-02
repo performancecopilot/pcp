@@ -99,7 +99,7 @@ def setup_time_window(path: Path, i: int, count: int, json_path: str, no_op: boo
     try:
         ctx = pmapi.pmContext(api.PM_CONTEXT_ARCHIVE, archive_path)
         ctx.pmNewZone('UTC')
-        label = ctx.pmGetHighResArchiveLabel()
+        label = ctx.pmGetArchiveLabel()
     except pmapi.pmErr:
         logging.info("Skipping archive %s (no context) [%d/%d]", archive_path, i, count)
         return # .meta exists, but not a PCP archive metadata file
@@ -109,7 +109,7 @@ def setup_time_window(path: Path, i: int, count: int, json_path: str, no_op: boo
                      format_time(start), archive_path, i, count)
         minimum_start_time = start
 
-    finish = float(ctx.pmGetHighResArchiveEnd())
+    finish = float(ctx.pmGetArchiveEnd())
     if finish > maximum_finish_time:
         logging.info("Updating finish to %s from %s [%d/%d]",
                      format_time(finish), archive_path, i, count)
