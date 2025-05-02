@@ -90,7 +90,7 @@ for dir in src/include src/libpcp src/libpcp_static src/libpcp_pmda \
 	src/newhelp \
 	src/libpcp_pmcd src/libpcp_gui \
 	src/libpcp_mmv src/libpcp_web src/libpcp_import src/libpcp_trace \
-	src/libpcp_qmc src/libpcp_fault
+	src/libpcp_qmc src/libpcp_fault src/libpcp3
 do
     if [ ! -d "$dir" ]
     then
