@@ -428,6 +428,7 @@ _filter_optional_pmda_instances()
 	-e '/inst \[154 or "sockets"]/d' \
 	-e '/inst \[157 or "bpf"]/d' \
 	-e '/inst \[161 or "uwsgi"]/d' \
+        -e '/inst \[163 or "rocestat"]/d' \
 	-e '/inst \[250 or "trivial"]/d' \
     # end
 }
