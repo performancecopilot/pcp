@@ -681,23 +681,7 @@ class pmMetricSpec(Structure):
         return result
 
 class pmLogLabel(Structure):
-    """Label record at the start of every (v2) log file """
-    _fields_ = [("magic", c_int),
-                ("pid_t", c_int),
-                ("start", timeval),
-                ("hostname", c_char * c_api.PM_LOG_MAXHOSTLEN),
-                ("tz", c_char * c_api.PM_TZ_MAXLEN)]
-
-    def get_hostname(self):
-        """ Return the hostname from the structure as native str """
-        return str(self.hostname.decode())
-
-    def get_timezone(self):
-        """ Return the timezone from the structure as native str """
-        return str(self.tz.decode())
-
-class pmHighResLogLabel(Structure):
-    """Label record at the start of every (v3) log file """
+    """Label record at the start of every log file """
     _fields_ = [("magic", c_int),
                 ("pid_t", c_int),
                 ("start", timespec),
@@ -2246,19 +2230,6 @@ class pmContext(object):
         loglabel = pmGetArchiveLabel()
         """
         loglabel = pmLogLabel()
-        status = LIBPCP.pmUseContext(self.ctx)
-        if status < 0:
-            raise pmErr(status)
-        status = LIBPCP.pmGetArchiveLabel(byref(loglabel))
-        if status < 0:
-            raise pmErr(status)
-        return loglabel
-
-    def pmGetArchiveLabel(self):
-        """PMAPI - Get the label record from the archive
-        loglabel = pmGetArchiveLabel()
-        """
-        loglabel = pmHighResLogLabel()
         status = LIBPCP.pmUseContext(self.ctx)
         if status < 0:
             raise pmErr(status)
