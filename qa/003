@@ -264,6 +264,7 @@ do
 	    -e "/mem\.util\.other: $unavailable/d" \
 	    -e "/mem\.util\.percpu: $unavailable/d" \
 	    -e "/mem\.util\.quicklists: $unavailable/d" \
+	    -e "/mem\.util\.kreclaimable: $unavailable/d" \
 	    -e "/mem\.util\.reverseMaps: $unavailable/d" \
 	    -e "/mem\.util\.shadowcallstack: $unavailable/d" \
 	    -e "/mem\.util\.shared: $unavailable/d" \
