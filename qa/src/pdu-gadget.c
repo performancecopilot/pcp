@@ -230,7 +230,7 @@ main(int argc, char **argv)
     unsigned long	uvalue;
     int		seen_pdu_auth;
     int		calc_len;
-    int		save_len;
+    int		save_len = -1;
     int		len;
     int		type;
     int		out;
