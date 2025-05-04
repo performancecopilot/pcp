@@ -210,6 +210,7 @@ binary-indep: checkroot build-stamp
 	$(pkgpcp_import_mrtg) $(MAKE) -C src/mrtg2pcp install
 	$(pkgpcp_import_sheet) $(MAKE) -C src/sheet2pcp install
 	$(pkgpcp_import_iostat) $(MAKE) -C src/iostat2pcp install
+	$(pkgpcp_export_spark) $(MAKE) -C src/pcp2spark install
 	dh_installdocs -i
 	dh_installchangelogs -i
 	dh_link -i
