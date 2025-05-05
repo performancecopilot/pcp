@@ -802,21 +802,45 @@ pmParseTimeWindow(
 
     /* parse -S argument and adjust start accordingly */
     if (swStart) {
-	if (__pmParseHighResTime(swStart, &start, &end, &start, errMsg) < 0)
+	if (__pmParseHighResTime(swStart, &start, &end, &start, errMsg) < 0) {
+	    if (pmDebugOptions.getopt) {
+		fprintf(stderr, "pmParseTimeWindow: -S %s => %s\n", swStart, *errMsg);
+	    }
 	    return -1;
+	}
+	else if (pmDebugOptions.getopt) {
+	    fprintf(stderr, "pmParseTimeWindow: -S %s => logstart=", swStart);
+	    pmPrintHighResStamp(stderr, logStart);
+	    fprintf(stderr, " start=");
+	    pmPrintHighResStamp(stderr, &start);
+	    fprintf(stderr, " logend=");
+	    pmPrintHighResStamp(stderr, logEnd);
+	    fputc('\n', stderr);
+	}
     }
 
     /* sanity check -S */
     if (tscmp(start, *logStart) < 0) {
 	/* move start forwards to the beginning of the archive */
+	if (pmDebugOptions.getopt) {
+	    fprintf(stderr, "pmParseTimeWindow: -S %s start ", swStart);
+	    pmPrintHighResStamp(stderr, &start);
+	    fprintf(stderr, " before logstart ");
+	    pmPrintHighResStamp(stderr, logStart);
+	    fprintf(stderr, " advance to logstart\n");
+	}
 	start = *logStart;
     }
 
     /* parse -A argument and adjust start accordingly */
     if (swAlign) {
 	scan = swAlign;
-	if (pmParseHighResInterval(scan, &tspec, errMsg) < 0)
+	if (pmParseHighResInterval(scan, &tspec, errMsg) < 0) {
+	    if (pmDebugOptions.getopt) {
+		fprintf(stderr, "pmParseTimeWindow: -A %s => %s\n", swAlign, *errMsg);
+	    }
 	    return -1;
+	}
 	if (tspec.tv_sec == 0 && tspec.tv_nsec == 0) {
 	    parseError(swAlign, swAlign, alignmsg, errMsg);
 	    return -1;
@@ -830,8 +854,17 @@ pmParseTimeWindow(
 	astart.tv_nsec = (int)(blign % 1000000000);
 
 	/* sanity check -S after alignment */
-	if (tscmp(astart, *logStart) >= 0 && tscmp(astart, *logEnd) <= 0)
+	if (tscmp(astart, *logStart) >= 0 && tscmp(astart, *logEnd) <= 0) {
+	    if (pmDebugOptions.getopt) {
+		fprintf(stderr, "pmParseTimeWindow: -A %s", swAlign);
+		fprintf(stderr, " advance start from ");
+		pmPrintHighResStamp(stderr, &start);
+		fprintf(stderr, " to ");
+		pmPrintHighResStamp(stderr, &astart);
+		fputc('\n', stderr);
+	    }
 	    start = astart;
+	}
 	else {
 	    parseError(swAlign, swAlign, alignmsg, errMsg);
 	    sts = 0;
@@ -840,26 +873,67 @@ pmParseTimeWindow(
 
     /* parse -T argument and adjust end accordingly */
     if (swEnd) {
-	if (__pmParseHighResTime(swEnd, &start, &end, &end, errMsg) < 0)
+	if (__pmParseHighResTime(swEnd, &start, &end, &end, errMsg) < 0) {
+	    if (pmDebugOptions.getopt) {
+		fprintf(stderr, "pmParseTimeWindow: -T %s => %s\n", swEnd, *errMsg);
+	    }
 	    return -1;
+	}
+	else if (pmDebugOptions.getopt) {
+	    fprintf(stderr, "pmParseTimeWindow: -T %s => logstart=", swStart);
+	    pmPrintHighResStamp(stderr, logStart);
+	    fprintf(stderr, " end=");
+	    pmPrintHighResStamp(stderr, &end);
+	    fprintf(stderr, " logend=");
+	    pmPrintHighResStamp(stderr, logEnd);
+	    fputc('\n', stderr);
+	}
     }
 
     /* sanity check -T */
-    if (tscmp(end, *logEnd) > 0)
+    if (tscmp(end, *logEnd) > 0) {
 	/* move end backwards to the end of the archive */
+	if (pmDebugOptions.getopt) {
+	    fprintf(stderr, "pmParseTimeWindow: -T %s start ", swEnd);
+	    pmPrintHighResStamp(stderr, &end);
+	    fprintf(stderr, " after logend ");
+	    pmPrintHighResStamp(stderr, logEnd);
+	    fprintf(stderr, " trim to logend\n");
+	}
 	end = *logEnd;
+    }
 
     /* parse -O argument and align if required */
     offset = start;
     if (swOffset) {
-	if (__pmParseHighResTime(swOffset, &start, &end, &offset, errMsg) < 0)
+	if (__pmParseHighResTime(swOffset, &start, &end, &offset, errMsg) < 0) {
+	    if (pmDebugOptions.getopt) {
+		fprintf(stderr, "pmParseTimeWindow: -O %s => %s\n", swOffset, *errMsg);
+	    }
 	    return -1;
+	}
 
 	/* sanity check -O */
-	if (tscmp(offset, start) < 0)
+	if (tscmp(offset, start) < 0) {
+	    if (pmDebugOptions.getopt) {
+		fprintf(stderr, "pmParseTimeWindow: -O %s offset ", swOffset);
+		pmPrintHighResStamp(stderr, &offset);
+		fprintf(stderr, " before start ");
+		pmPrintHighResStamp(stderr, &start);
+		fprintf(stderr, " advance to start\n");
+	    }
 	    offset = start;
-	else if (tscmp(offset, end) > 0)
+	}
+	else if (tscmp(offset, end) > 0) {
+	    if (pmDebugOptions.getopt) {
+		fprintf(stderr, "pmParseTimeWindow: -O %s offset ", swOffset);
+		pmPrintHighResStamp(stderr, &offset);
+		fprintf(stderr, " after end ");
+		pmPrintHighResStamp(stderr, &end);
+		fprintf(stderr, " trim to end\n");
+	    }
 	    offset = end;
+	}
 
 	if (swAlign) {
 	    align = offset.tv_nsec + 1000000000 * (__int64_t)offset.tv_sec;
@@ -873,8 +947,17 @@ pmParseTimeWindow(
 	    aoffset.tv_nsec = (int)(blign % 1000000000);
 
 	    /* sanity check -O after alignment */
-	    if (tscmp(aoffset, start) >= 0 && tscmp(aoffset, end) <= 0)
+	    if (tscmp(aoffset, start) >= 0 && tscmp(aoffset, end) <= 0) {
+		if (pmDebugOptions.getopt) {
+		    fprintf(stderr, "pmParseTimeWindow: -A %s", swAlign);
+		    fprintf(stderr, " advance offset from ");
+		    pmPrintHighResStamp(stderr, &offset);
+		    fprintf(stderr, " to ");
+		    pmPrintHighResStamp(stderr, &aoffset);
+		    fputc('\n', stderr);
+		}
 		offset = aoffset;
+	    }
 	    else {
 		parseError(swAlign, swAlign, alignmsg, errMsg);
 		sts = 0;

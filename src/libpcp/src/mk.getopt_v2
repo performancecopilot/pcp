@@ -54,6 +54,8 @@ state == 1 && NF == 0	{ state = 2
     -e 's/__pmSetLocalContextFlag(/__pmSetLocalContextFlag_v2(/' \
     -e 's/^void$/static void/' \
     -e 's/opts->version = PMAPI_VERSION/&_2/' \
+    -e '/logstart /s/%09d/%06d/' \
+    -e '/logend /s/%09d/%06d/' \
 | sed >>getopt_v2.c \
     -e '/static void/{
 N

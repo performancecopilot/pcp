@@ -175,10 +175,35 @@ pmGetContextOptions(int ctxid, pmOptions *opts)
     /* time window setup */
     if (!opts->errors && window) {
 	struct timespec first_boundary, last_boundary;
+	int		sts;
 
-	if (__pmBoundaryOptions(opts, &first_boundary, &last_boundary) < 0)
+	if ((sts = __pmBoundaryOptions(opts, &first_boundary, &last_boundary)) < 0) {
+	    if (pmDebugOptions.getopt) {
+		char	errmsg[PM_MAXERRMSGLEN];
+		fprintf(stderr, "__pmBoundaryOptions: Error: %s\n",
+				pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	    }
 	    opts->errors++;
-	__pmParseTimeWindow(opts, &first_boundary, &last_boundary);
+	}
+	else {
+	    if (pmDebugOptions.getopt) {
+		time_t		secs;
+		struct tm	tmp;
+		fprintf(stderr, "__pmBoundaryOptions:");
+		secs = first_boundary.tv_sec;
+		pmLocaltime(&secs, &tmp);
+		fprintf(stderr, " logstart %04d/%02d/%02d %02d:%02d:%02d.%09d",
+		    tmp.tm_year+1900, tmp.tm_mon+1, tmp.tm_mday,
+		    tmp.tm_hour, tmp.tm_min, tmp.tm_sec, (int)first_boundary.tv_nsec);
+		secs = last_boundary.tv_sec;
+		pmLocaltime(&secs, &tmp);
+		fprintf(stderr, " logend %04d/%02d/%02d %02d:%02d:%02d.%09d",
+		    tmp.tm_year+1900, tmp.tm_mon+1, tmp.tm_mday,
+		    tmp.tm_hour, tmp.tm_min, tmp.tm_sec, (int)last_boundary.tv_nsec);
+		fputc('\n', stderr);
+	    }
+	    __pmParseTimeWindow(opts, &first_boundary, &last_boundary);
+	}
     }
 
     if (opts->errors) {
