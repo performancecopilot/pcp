@@ -1048,9 +1048,9 @@ AS_IF([test "x$do_python3" != "xno"], [
 	    echo WARNING: Python version 3.6 or later does not seem to be installed.
 	    enable_python3=false
 	else
-	    if test "$PY_MAJOR" -eq 3 -a "$PY_MINOR" -lt 5 ; then
+	    if test "$PY_MAJOR" -eq 3 -a "$PY_MINOR" -lt 6 ; then
 		echo WARNING: Python version 3.$PY_MINOR is too old.
-		echo Python version 3.5 or later is required for Python builds.
+		echo Python version 3.6 or later is required for Python builds.
 		enable_python3=false
 	    else
 		PCP_CHECK_PYTHON_HEADER([$PY_MAJOR], [$PY_MINOR])
