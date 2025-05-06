@@ -72,12 +72,12 @@ int		exit_status;
 int		ictx_a;
 char		*oname;			/* name of output archive */
 pmLogLabel	olabel;			/* output archive label */
-struct timespec	winstart_ts;		/* window start tval*/
+struct timespec	winstart_ts;		/* window start timespec */
 
 /* time window stuff */
 static struct timespec logstart_ts;	/* reduced log start */
 static struct timespec logend_ts;	/* reduced log end */
-static struct timespec winend_ts;	/* window end tval */
+static struct timespec winend_ts;	/* window end timespec */
 
 /* cmd line args that could exist, but don't (needed for pmParseTimeWin) */
 static char	*Oarg;			/* -O arg - non-existent */
@@ -110,7 +110,6 @@ parseargs(int argc, char *argv[])
     int			sts;
     char		*endnum;
     char		*msg;
-    struct timeval	interval;
 
     while ((c = pmgetopt_r(argc, argv, &opts)) != EOF) {
 	switch (c) {
@@ -146,14 +145,10 @@ parseargs(int argc, char *argv[])
 	    break;
 
 	case 't':	/* output sample interval */
-	    if (pmParseInterval(opts.optarg, &interval, &msg) < 0) {
+	    if (pmParseHighResInterval(opts.optarg, &targ, &msg) < 0) {
 		pmprintf("%s", msg);
 		free(msg);
 		opts.errors++;
-	    }
-	    else {
-		targ.tv_sec = interval.tv_sec;
-		targ.tv_nsec = interval.tv_usec * 1000;
 	    }
 	    break;
 
@@ -252,8 +247,7 @@ main(int argc, char **argv)
     }
 
     /* start time */
-    logstart_ts.tv_sec = ilabel.start.tv_sec;
-    logstart_ts.tv_nsec = ilabel.start.tv_nsec;
+    logstart_ts = ilabel.start;
 
     /* end time */
     if ((sts = pmGetArchiveEnd(&logend_ts)) < 0) {
@@ -289,7 +283,7 @@ main(int argc, char **argv)
 	}
     }
 
-    /* set winstart and winend timevals */
+    /* set winstart and winend timespecs */
     sts = pmParseTimeWindow(Sarg, Targ, Aarg, Oarg,
 			    &logstart_ts, &logend_ts,
 			    &winstart_ts, &winend_ts, &unused, &msg);
@@ -309,8 +303,7 @@ main(int argc, char **argv)
 	fprintf(stderr, "End time: %s", buf);
     }
 
-    start.tv_sec = winstart_ts.tv_sec;
-    start.tv_nsec = winstart_ts.tv_nsec;
+    start = winstart_ts;
     if ((sts = pmSetModeHighRes(PM_MODE_INTERP, &start, &targ)) < 0) {
 	fprintf(stderr, "%s: pmSetModeHighRes(PM_MODE_INTERP ...) failed: %s\n",
 		pmGetProgname(), pmErrStr(sts));
@@ -333,10 +326,12 @@ main(int argc, char **argv)
      *		- write labels
      */
     newlabel();
-    current.sec = logctl.label.start.sec = winstart_ts.tv_sec;
-    current.nsec = logctl.label.start.nsec = winstart_ts.tv_nsec;
+    logctl.label.start.sec = winstart_ts.tv_sec;
+    logctl.label.start.nsec = winstart_ts.tv_nsec;
     /* write label record */
     writelabel();
+    current = logctl.label.start;
+
     /*
      * Suppress any automatic label creation in libpcp at the first
      * pmResult write.
