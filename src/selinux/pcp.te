@@ -247,7 +247,7 @@ optional_policy(`
 #
 # pcp_pmie local  policy
 #
-allow pcp_pmie_t self:capability { chown fsetid sys_ptrace };
+allow pcp_pmie_t self:capability { chown fsetid sys_admin sys_ptrace };
 allow pcp_pmie_t self:cap_userns sys_ptrace;
 allow pcp_pmie_t self:netlink_route_socket { create_socket_perms nlmsg_read };
 allow pcp_pmie_t self:unix_dgram_socket { create_socket_perms sendto };
