@@ -5,9 +5,6 @@
 # Copyright (c) 2025 Ken McDonell.  All Rights Reserved.
 #
 
-# TODO, this is a placeholder for the moment while development
-# happens in the timespec branch
-
 if [ $# -eq 0 ]
 then
     seq=`basename $0`
@@ -46,15 +43,61 @@ _filter()
     # end
 }
 
+# filter out date + time stamps like ...
+#    start: 08/04/2025 20:50:05.444086
+#
+_filter_datestamp()
+{
+    sed \
+	-e 's@[0-3][0-9]/../.... ..:..:..\.[0-9]*@DATESTAMP@' \
+    # end
+}
+
+_do_option()
+{
+    echo
+    echo "--- $* ---" | tee -a $seq_full
+    echo "+++ v2 +++" >>$seq_full
+    if $do_valgrind
+    then
+	eval _run_valgrind --save-output src/getoptions_v2 -w $@
+	_filter <$tmp.err
+	cat $tmp.out | tee -a $seq_full >$tmp.v2
+    else
+	eval src/getoptions_v2 -w $@ 2>&1 | tee -a $seq_full >$tmp.v2
+    fi
+    if grep -q 'narchives: 0' <$tmp.v2
+    then
+	_filter_datestamp <$tmp.v2 >$tmp.tmp
+	mv $tmp.tmp $tmp.v2
+    fi
+    echo "+++ v3 +++" >>$seq_full
+    if $do_valgrind
+    then
+	eval _run_valgrind --save-output src/getoptions -w $@
+	_filter <$tmp.err
+	cat $tmp.out | tee -a $seq_full >$tmp.v3
+    else
+	eval src/getoptions -w $@ 2>&1 | tee -a $seq_full >$tmp.v3
+    fi
+    if grep -q 'narchives: 0' <$tmp.v3
+    then
+	_filter_datestamp <$tmp.v3 >$tmp.tmp
+	mv $tmp.tmp $tmp.v3
+    fi
+    echo "diffs ..."
+    diff $tmp.v2 $tmp.v3
+}
+
 # real QA test starts here
 
-if $do_valgrind
-then
-    _run_valgrind ...your test goes here...
-else
-    ...your test goes here... 2>&1
-fi \
-| _filter
+echo "pmOptions et al tests ..." | tee -a $seq_full
+for arg in '--help' '--interval 42 -T 10m' \
+    '--archive archives/20041125.0 --hostzone --align "15 sec" --start "@00:10:10" --finish "@00:11:30" --origin "@00:10:20" -Dgetopt' \
+    '-a archives/20041125.0 -z -A "15" -S "@00:10:10" -T "@00:11:30" -O "@00:10:20" -Dgetopt'
+do
+    _do_option "$arg"
+done
 
 # success, all done
 exit

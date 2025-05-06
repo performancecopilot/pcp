@@ -899,7 +899,7 @@ report(void)
 
     if (p_value || p_label || verify) {
 	if (opts.context == PM_CONTEXT_ARCHIVE) {
-	    if ((sts = pmSetMode(PM_MODE_FORW, &opts.origin, 0)) < 0) {
+	    if ((sts = pmSetModeHighRes(PM_MODE_FORW, &opts.origin, NULL)) < 0) {
 		fprintf(stderr, "%s: pmSetMode failed: %s\n", pmGetProgname(), pmErrStr(sts));
 		exit(1);
 	    }
@@ -981,7 +981,7 @@ report(void)
 			free(all_inst);
 			free(all_names);
 			if (opts.context == PM_CONTEXT_ARCHIVE) {
-			    if ((sts = pmSetMode(PM_MODE_FORW, &opts.origin, 0)) < 0) {
+			    if ((sts = pmSetModeHighRes(PM_MODE_FORW, &opts.origin, NULL)) < 0) {
 				fprintf(stderr, "%s: pmSetMode failed: %s\n", pmGetProgname(), pmErrStr(sts));
 				exit(1);
 			    }

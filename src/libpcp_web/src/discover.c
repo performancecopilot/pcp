@@ -1595,10 +1595,10 @@ pmDiscoverInvokeCallBacks(pmDiscover *p)
 	    mmv_inc(data->map, data->metrics[DISCOVER_LOGVOL_NEW_CONTEXTS]);
 	    p->ctx = sts;
 
-	    if ((sts = pmGetHighResArchiveEnd(&tp)) < 0) {
+	    if ((sts = pmGetArchiveEnd(&tp)) < 0) {
 		mmv_inc(data->map, data->metrics[DISCOVER_ARCHIVE_END_FAILED]);
 		/* Less likely, but could still be too early (as above) */
-		infofmt(msg, "pmGetHighResArchiveEnd failed for %s: %s\n",
+		infofmt(msg, "pmGetArchiveEnd failed for %s: %s\n",
 				p->context.name, pmErrStr(sts));
 		moduleinfo(p->module, PMLOG_ERROR, msg, p->data);
 		pmDestroyContext(p->ctx);

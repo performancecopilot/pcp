@@ -16,16 +16,13 @@
 .\"
 .TH PMGETARCHIVELABEL 3 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmGetArchiveLabel\f1,
-\f3pmGetHighResArchiveLabel\f1 \- fetch the label record from a set of performance metrics archives
+\f3pmGetArchiveLabel\f1 \- fetch the label record from a set of performance metrics archives
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
 .sp
 .nf
 int pmGetArchiveLabel(pmLogLabel *\fIlp\fP);
-.br
-int pmGetHighResArchiveLabel(pmHighResLogLabel *\fIlp\fP);
 .fi
 .sp
 cc ... \-lpcp
@@ -45,8 +42,6 @@ programming interface.
 .PP
 The routines
 .B pmGetArchiveLabel
-and
-.B pmGetHighResArchiveLabel
 may be used to fetch the label record from a set of archives
 that has already been opened using
 .BR pmNewContext (3),
@@ -56,13 +51,10 @@ and thereby associated with the current
 Performance Metrics Application Programming Interface (PMAPI)
 context.
 .PP
-It is recommended that new applications use the high resolution API
-and existing applications transition to this interface over time.
-.PP
 The result returned via the pointer
 .I lp
 is a structure that must be pre-allocated by the caller
-and has one of the following two formats (defined in
+and has the following format (defined in
 .BR pmapi.h ).
 .PP
 .in +0.2i
@@ -75,28 +67,24 @@ typedef struct {
   char       hostname[PM_MAX_HOSTNAMELEN];   /* collection host full name */
   char       timezone[PM_MAX_TIMEZONELEN];   /* generic, squashed $TZ */
   char       zoneinfo[PM_MAX_ZONEINFOLEN];   /* local platform $TZ */
-} pmHighResLogLabel;
-
-typedef struct {
-  int        ll_magic;    /* PM_LOG_MAGIC | archive format version no. */
-  pid_t      ll_pid;      /* PID of logger */
-  struct timeval ll_start;/* start of this archive */
-  char       ll_hostname[PM_LOG_MAXHOSTLEN]; /* name of collection host */
-  char       ll_tz[40];   /* $TZ at collection host */
 } pmLogLabel;
 .fi
 .ft 1
 .in
 .PP
-Both forms can be used with either version 2 or version 3 archives.
-However, the pmHighResLogLabel structure provides the higher resolution
-start time stored in the newer format, as well as the full timezone and
-extended length host name fields.
+.B pmGetArchiveLabel
+can be used with either version 2 or version 3 archives,
+however some mapping may be required with the older version 2
+archives, e.g. the
+.I start
+time only has microsecond resolution and the
+.I zoneinfo
+field is not present.
 For detailed information about the archive on-disk format, refer to
 .BR LOGARCHIVE (5).
 .PP
 For an application using
-.BR pmGetHighResArchiveLabel ,
+.BR pmGetArchiveLabel ,
 the most useful information from the archive label
 is likely to be in the fields
 .CR start ,
@@ -137,11 +125,34 @@ on some platforms.
 These semantics are necessary to retain backwards compatibility with
 the PCP archive file format.
 .PP
-Both
 .B pmGetArchiveLabel
-and
-.B pmGetHighResArchiveLabel
 return zero for success.
+.SH COMPATIBILITY
+Prior to PCP 7.0 and
+.I libpcp.so.4
+the
+.I pmLogLabel
+structure was somewhat different.
+To support PMAPI transition, the old interface and semantics can be
+used if applications are linked with
+.I libpcp.so.3
+or recompiled with
+.BR \-DPMAPI_VERSION=2 .
+.PP
+For a time in PCP 6.x there was a
+routine with the same semantics as the current
+.B pmGetArchiveLabel
+called
+.B pmGetHighArchiveLabel
+and a structure with same definition as
+.I pmLogLabel
+called
+.I pmHighResLogLabel
+although these are now deprecated and compile-time support for
+.B pmGetHighArchiveLabel
+and
+.I pmHighResLogLabel
+will be removed in a future release.
 .SH DIAGNOSTICS
 .IP \f3PM_ERR_NOCONTEXT\f1
 the current PMAPI context

@@ -38,7 +38,7 @@ CFILES = connect.c context.c desc.c err.c fetch.c fetchgroup.c result.c \
 	stuffvalue.c endian.c config.c auxconnect.c auxserver.c discovery.c \
 	p_lcontrol.c p_lrequest.c p_lstatus.c logconnect.c logcontrol.c \
 	connectlocal.c derive_fetch.c events.c lock.c hash.c \
-	fault.c access.c getopt.c getopt2.c getopt3.c \
+	fault.c access.c getopt.c getopt_v2.c \
 	io.c io_stdio.c exec.c sha256.c strings.c \
 	shellprobe.c subnetprobe.c deprecated.c equivindom.c \
 	e_loglabel.c e_index.c e_indom.c e_labels.c throttle.c \
@@ -75,7 +75,7 @@ else
 CFILES += win32.c
 endif
 
-DSOVERSION = 3
+DSOVERSION = 4
 STATICLIBTARGET = libpcp.a
 LIBTARGET = libpcp.$(DSOSUFFIX).$(DSOVERSION)
 SYMTARGET = libpcp.$(DSOSUFFIX)
@@ -96,7 +96,8 @@ endif
 
 LDIRT += $(SYMTARGET) $(YFILES:%.y=%.tab.?) $(XFILES) $(LIBCONFIG) \
 	getdate.h getdate.y derive_parser.y check.done $(GENERATED_HFILES) exports \
-	$(JSONSL_XFILES)
+	$(JSONSL_XFILES) \
+	getopt_v2.c getopt2.o getopt3.o libpcp.so.3
 
 base default : $(XFILES) $(JSONSL_XFILES) \
 	$(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET) \
@@ -174,6 +175,9 @@ $(TOPDIR)/src/pmns/stdpmid:
 
 pmdbg.h : ../../include/pcp/pmapi.h mk.pmdbg
 	./mk.pmdbg
+
+getopt_v2.c:	getopt.c mk.getopt_v2
+	./mk.getopt_v2
 
 exports:	exports.in mk.exports
 	./mk.exports

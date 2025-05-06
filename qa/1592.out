@@ -26,7 +26,7 @@ definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
 === std out ===
-pmGetArchiveEnd time: 14:49:55.067305
+pmGetArchiveEnd time: 14:49:55.067305000
 === filtered valgrind report ===
 Memcheck, a memory error detector
 Command: src/archend TMP_v2
@@ -136,7 +136,7 @@ definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
 === std out ===
-pmGetArchiveEnd time: 14:49:55.067305
+pmGetArchiveEnd time: 14:49:55.067305985
 === filtered valgrind report ===
 Memcheck, a memory error detector
 Command: src/archend TMP_v3

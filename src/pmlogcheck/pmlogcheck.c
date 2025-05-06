@@ -82,15 +82,15 @@ dumpLabel(void)
 	exit(EXIT_FAILURE);
     }
 
-    fprintf(stderr, "Log Label (Log Format Version %d)\n", label.ll_magic & 0xff);
-    fprintf(stderr, "Performance metrics from host %s\n", label.ll_hostname);
+    fprintf(stderr, "Log Label (Log Format Version %d)\n", label.magic & 0xff);
+    fprintf(stderr, "Performance metrics from host %s\n", label.hostname);
 
-    time = label.ll_start.tv_sec;
+    time = label.start.tv_sec;
     ddmm = pmCtime(&time, timebuf);
     ddmm[10] = '\0';
     yr = &ddmm[20];
     fprintf(stderr, "  commencing %s ", ddmm);
-    pmPrintStamp(stderr, &label.ll_start);
+    pmPrintHighResStamp(stderr, &label.start);
     fprintf(stderr, " %4.4s\n", yr);
 
     if (opts.finish.tv_sec == PM_MAX_TIME_T) {
@@ -103,7 +103,7 @@ dumpLabel(void)
         ddmm[10] = '\0';
         yr = &ddmm[20];
         fprintf(stderr, "  ending     %s ", ddmm);
-        pmPrintStamp(stderr, &opts.finish);
+        pmPrintHighResStamp(stderr, &opts.finish);
         fprintf(stderr, " %4.4s\n", yr);
     }
 }

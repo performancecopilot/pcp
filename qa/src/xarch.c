@@ -97,7 +97,7 @@ main(int argc, char **argv)
     int		n;
     int		done;
     int		resnum = 0;
-    pmHighResLogLabel	loglabel;
+    pmLogLabel	loglabel;
     pmHighResResult	*resp;
     pmHighResResult	**resvec = NULL;
     struct timespec	when;
@@ -153,8 +153,8 @@ main(int argc, char **argv)
 	printf("%s: Cannot connect to archive \"%s\": %s\n", pmGetProgname(), archive, pmErrStr(ctx[0]));
 	exit(1);
     }
-    if ((sts = pmGetHighResArchiveLabel(&loglabel)) < 0) {
-	printf("%s: pmGetHighResArchiveLabel(%d): %s\n", pmGetProgname(), ctx[0], pmErrStr(sts));
+    if ((sts = pmGetArchiveLabel(&loglabel)) < 0) {
+	printf("%s: pmGetArchiveLabel(%d): %s\n", pmGetProgname(), ctx[0], pmErrStr(sts));
 	exit(1);
     }
 

@@ -5,8 +5,8 @@ Note: timezone set to local timezone of host "brolley-t530" from archive
 
 Log Label (Log Format Version 3)
 Performance metrics from host brolley-t530
-  commencing Fri May  8 11:44:04.631 2015
-  ending     Fri May  8 11:59:54.528 2015
+  commencing Fri May  8 11:44:04.631443000 2015
+  ending     Fri May  8 11:59:54.528286000 2015
 proc.nprocs  253.071 253.400 250.000 255.000 14 none
 proc.runq.runnable  8.929 9.300 8.000 11.000 14 count
 proc.runq.blocked  0.000 0.000 0.000 0.000 14 count
@@ -619,8 +619,8 @@ Note: timezone set to local timezone of host "brolley-t530" from archive
 
 Log Label (Log Format Version 3)
 Performance metrics from host brolley-t530
-  commencing Fri May  8 11:44:04.631 2015
-  ending     Fri May  8 11:59:54.528 2015
+  commencing Fri May  8 11:44:04.631443000 2015
+  ending     Fri May  8 11:59:54.528286000 2015
 proc.nprocs  253.071 253.400 250.000 255.000 14 none
 proc.runq.runnable  8.929 9.300 8.000 11.000 14 count
 proc.runq.blocked  0.000 0.000 0.000 0.000 14 count
@@ -1234,8 +1234,8 @@ Note: timezone set to local timezone of host "brolley-t530" from archive
 
 Log Label (Log Format Version 3)
 Performance metrics from host brolley-t530
-  commencing Fri May  8 11:44:04.631 2015
-  ending     Fri May  8 11:59:54.528 2015
+  commencing Fri May  8 11:44:04.631443000 2015
+  ending     Fri May  8 11:59:54.528286000 2015
 proc.nprocs  253.071 253.400 250.000 255.000 14 none
 proc.runq.runnable  8.929 9.300 8.000 11.000 14 count
 proc.runq.blocked  0.000 0.000 0.000 0.000 14 count

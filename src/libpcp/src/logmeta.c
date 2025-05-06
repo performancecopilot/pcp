@@ -1525,27 +1525,38 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":14", PM_FAULT_ALLOC);
 int
 pmLookupInDomArchive(pmInDom indom, const char *name)
 {
-    int			n;
     int			j;
     __pmHashNode	*hp;
     __pmLogInDom	*idp;
     __pmContext		*ctxp;
+    int			sts;
 
-    if (indom == PM_INDOM_NULL)
-	return PM_ERR_INDOM;
+    if (pmDebugOptions.pmapi) {
+	char    dbgbuf[20];
+	fprintf(stderr, "pmLookupInDomArchive(%s, %s) <:", pmInDomStr_r(indom, dbgbuf, sizeof(dbgbuf)), name);
+    }
 
-    if ((n = pmWhichContext()) >= 0) {
-	ctxp = __pmHandleToPtr(n);
-	if (ctxp == NULL)
-	    return PM_ERR_NOCONTEXT;
+    if (indom == PM_INDOM_NULL) {
+	sts = PM_ERR_INDOM;
+	goto pmapi_return;
+    }
+
+    if ((sts = pmWhichContext()) >= 0) {
+	ctxp = __pmHandleToPtr(sts);
+	if (ctxp == NULL) {
+	    sts = PM_ERR_NOCONTEXT;
+	    goto pmapi_return;
+	}
 	if (ctxp->c_type != PM_CONTEXT_ARCHIVE) {
 	    PM_UNLOCK(ctxp->c_lock);
-	    return PM_ERR_NOTARCHIVE;
+	    sts = PM_ERR_NOTARCHIVE;
+	    goto pmapi_return;
 	}
 
 	if ((hp = __pmHashSearch((unsigned int)indom, &ctxp->c_archctl->ac_log->hashindom)) == NULL) {
 	    PM_UNLOCK(ctxp->c_lock);
-	    return PM_ERR_INDOM_LOG;
+	    sts = PM_ERR_INDOM_LOG;
+	    goto pmapi_return;
 	}
 
 	for (idp = (__pmLogInDom *)hp->data; idp != NULL; idp = idp->next) {
@@ -1557,7 +1568,8 @@ pmLookupInDomArchive(pmInDom indom, const char *name)
 	    for (j = 0; j < idp->numinst; j++) {
 		if (strcmp(name, idp->namelist[j]) == 0) {
 		    PM_UNLOCK(ctxp->c_lock);
-		    return idp->instlist[j];
+		    sts = idp->instlist[j];
+		    goto pmapi_return;
 		}
 	    }
 	    /* half-baked match to first space */
@@ -1568,42 +1580,66 @@ pmLookupInDomArchive(pmInDom indom, const char *name)
 		if (*p == ' ') {
 		    if (strncmp(name, idp->namelist[j], p - idp->namelist[j]) == 0) {
 			PM_UNLOCK(ctxp->c_lock);
-			return idp->instlist[j];
+			sts = idp->instlist[j];
+			goto pmapi_return;
 		    }
 		}
 	    }
 	}
-	n = PM_ERR_INST_LOG;
+	sts = PM_ERR_INST_LOG;
 	PM_UNLOCK(ctxp->c_lock);
     }
 
-    return n;
+pmapi_return:
+
+    if (pmDebugOptions.pmapi) {
+	fprintf(stderr, ":> returns ");
+	if (sts >= 0)
+	    fprintf(stderr, "%d\n", sts);
+	else {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "%s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
+    }
+
+    return sts;
 }
 
 int
 pmNameInDomArchive(pmInDom indom, int inst, char **name)
 {
-    int			n;
+    int			sts;
     int			j;
     __pmHashNode	*hp;
     __pmLogInDom	*idp;
     __pmContext		*ctxp;
 
-    if (indom == PM_INDOM_NULL)
-	return PM_ERR_INDOM;
+    if (pmDebugOptions.pmapi) {
+	char    dbgbuf[20];
+	fprintf(stderr, "pmNameInDomArchive(%s, %d, ...) <:", pmInDomStr_r(indom, dbgbuf, sizeof(dbgbuf)), inst);
+    }
 
-    if ((n = pmWhichContext()) >= 0) {
-	ctxp = __pmHandleToPtr(n);
-	if (ctxp == NULL)
-	    return PM_ERR_NOCONTEXT;
+    if (indom == PM_INDOM_NULL) {
+	sts = PM_ERR_INDOM;
+	goto pmapi_return;
+    }
+
+    if ((sts = pmWhichContext()) >= 0) {
+	ctxp = __pmHandleToPtr(sts);
+	if (ctxp == NULL) {
+	    sts = PM_ERR_NOCONTEXT;
+	    goto pmapi_return;
+	}
 	if (ctxp->c_type != PM_CONTEXT_ARCHIVE) {
 	    PM_UNLOCK(ctxp->c_lock);
-	    return PM_ERR_NOTARCHIVE;
+	    sts = PM_ERR_NOTARCHIVE;
+	    goto pmapi_return;
 	}
 
 	if ((hp = __pmHashSearch((unsigned int)indom, &ctxp->c_archctl->ac_log->hashindom)) == NULL) {
 	    PM_UNLOCK(ctxp->c_lock);
-	    return PM_ERR_INDOM_LOG;
+	    sts = PM_ERR_INDOM_LOG;
+	    goto pmapi_return;
 	}
 
 	for (idp = (__pmLogInDom *)hp->data; idp != NULL; idp = idp->next) {
@@ -1614,19 +1650,31 @@ pmNameInDomArchive(pmInDom indom, int inst, char **name)
 	    for (j = 0; j < idp->numinst; j++) {
 		if (idp->instlist[j] == inst) {
 		    if ((*name = strdup(idp->namelist[j])) == NULL)
-			n = -oserror();
+			sts = -oserror();
 		    else
-			n = 0;
+			sts = 0;
 		    PM_UNLOCK(ctxp->c_lock);
-		    return n;
+		    goto pmapi_return;
 		}
 	    }
 	}
-	n = PM_ERR_INST_LOG;
+	sts = PM_ERR_INST_LOG;
 	PM_UNLOCK(ctxp->c_lock);
     }
 
-    return n;
+pmapi_return:
+
+    if (pmDebugOptions.pmapi) {
+	fprintf(stderr, ":> returns ");
+	if (sts >= 0)
+	    fprintf(stderr, "%d (name %s)\n", sts, *name);
+	else {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "%s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
+    }
+
+    return sts;
 }
 
 /*

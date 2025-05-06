@@ -19,18 +19,18 @@ Expecting ... No records
 Array contains 0 records and 0 missed records
 Expecting ... 1 record, no params
 Array contains 1 records and 0 missed records
-pmHighResResult[0]
-pmHighResResult dump from ADDR timestamp: TIMESTAMPS numpmid: 0
+pmResult[0]
+pmResult dump from ADDR timestamp: TIMESTAMPS numpmid: 0
 Expecting ... 1 record, u32 param = 1
 Array contains 1 records and 0 missed records
-pmHighResResult[0]
-pmHighResResult dump from ADDR timestamp: TIMESTAMPS numpmid: 1
+pmResult[0]
+pmResult dump from ADDR timestamp: TIMESTAMPS numpmid: 1
   29.0.127 (<noname>): numval: 1 valfmt: 0 vlist[]:
    value 1 1.4012985e-45 0x1
 Expecting ... 1 record, u32 param = 2, u64 param = -3
 Array contains 1 records and 0 missed records
-pmHighResResult[0]
-pmHighResResult dump from ADDR timestamp: TIMESTAMPS numpmid: 3
+pmResult[0]
+pmResult dump from ADDR timestamp: TIMESTAMPS numpmid: 3
   511.0.1 (event.flags): numval: 1 valfmt: 0 vlist[]:
    value 1 1.4012985e-45 0x1
   29.0.127 (<noname>): numval: 1 valfmt: 0 vlist[]:
@@ -47,30 +47,30 @@ Event Record [0] flags=1 with 2 parameters
 pmUnpackHighResEventRecords: Result size exceeded
 Expecting ... 6 records, 7 missed [u32=4 u64=5 str="6"][u32=7 d=8 d=-9][u32=10 u64=11 str="twelve" str="thirteen" 32=-14 u32=15][u32=16 f=-17 aggr=...]
 Array contains 6 records and 7 missed records
-pmHighResResult[0]
-pmHighResResult dump from ADDR timestamp: TIMESTAMPS numpmid: 2
+pmResult[0]
+pmResult dump from ADDR timestamp: TIMESTAMPS numpmid: 2
   511.0.1 (event.flags): numval: 1 valfmt: 0 vlist[]:
    value 2147483648 -0 0x80000000
   511.0.2 (event.missed): numval: 1 valfmt: 0 vlist[]:
    value 3 4.2038954e-45 0x3
-pmHighResResult[1]
-pmHighResResult dump from ADDR timestamp: TIMESTAMPS numpmid: 3
+pmResult[1]
+pmResult dump from ADDR timestamp: TIMESTAMPS numpmid: 3
   29.0.127 (<noname>): numval: 1 valfmt: 0 vlist[]:
    value 4 5.6051939e-45 0x4
   29.0.131 (<noname>): numval: 1 valfmt: 1 vlist[]:
    value 5
   29.0.134 (<noname>): numval: 1 valfmt: 1 vlist[]:
    value "6"
-pmHighResResult[2]
-pmHighResResult dump from ADDR timestamp: TIMESTAMPS numpmid: 3
+pmResult[2]
+pmResult dump from ADDR timestamp: TIMESTAMPS numpmid: 3
   29.0.127 (<noname>): numval: 1 valfmt: 0 vlist[]:
    value 7 9.8090893e-45 0x7
   29.0.133 (<noname>): numval: 1 valfmt: 1 vlist[]:
    value 8
   29.0.133 (<noname>): numval: 1 valfmt: 1 vlist[]:
    value -9
-pmHighResResult[3]
-pmHighResResult dump from ADDR timestamp: TIMESTAMPS numpmid: 7
+pmResult[3]
+pmResult dump from ADDR timestamp: TIMESTAMPS numpmid: 7
   511.0.1 (event.flags): numval: 1 valfmt: 0 vlist[]:
    value 2 2.8025969e-45 0x2
   29.0.127 (<noname>): numval: 1 valfmt: 0 vlist[]:
@@ -85,14 +85,14 @@ pmHighResResult dump from ADDR timestamp: TIMESTAMPS numpmid: 7
    value 14 1.9618179e-44 0xe
   29.0.129 (<noname>): numval: 1 valfmt: 0 vlist[]:
    value 15 2.1019477e-44 0xf
-pmHighResResult[4]
-pmHighResResult dump from ADDR timestamp: TIMESTAMPS numpmid: 2
+pmResult[4]
+pmResult dump from ADDR timestamp: TIMESTAMPS numpmid: 2
   511.0.1 (event.flags): numval: 1 valfmt: 0 vlist[]:
    value 2147483648 -0 0x80000000
   511.0.2 (event.missed): numval: 1 valfmt: 0 vlist[]:
    value 4 5.6051939e-45 0x4
-pmHighResResult[5]
-pmHighResResult dump from ADDR timestamp: TIMESTAMPS numpmid: 3
+pmResult[5]
+pmResult dump from ADDR timestamp: TIMESTAMPS numpmid: 3
   29.0.127 (<noname>): numval: 1 valfmt: 0 vlist[]:
    value 16 2.2420775e-44 0x10
   29.0.132 (<noname>): numval: 1 valfmt: 1 vlist[]:
@@ -137,8 +137,8 @@ pmUnpackHighResEventRecords: Impossible value or scale conversion
 Expecting ... odd instance
 [instance 42]
 Array contains 1 records and 0 missed records
-pmHighResResult[0]
-pmHighResResult dump from ADDR timestamp: TIMESTAMPS numpmid: 1
+pmResult[0]
+pmResult dump from ADDR timestamp: TIMESTAMPS numpmid: 1
   29.0.127 (<noname>): numval: 1 valfmt: 0 vlist[]:
    value 1 1.4012985e-45 0x1
 Expecting ... 1 record, nested event type @ 1st parameter
@@ -148,7 +148,7 @@ pmUnpackHighResEventRecords: Unknown or illegal metric type
 Expecting ... all good
 pmUnpackHighResEventRecords returns ...
 pmHighResResult[0]
-pmHighResResult dump from ADDR timestamp: TIMESTAMPS numpmid: 10
+pmResult dump from ADDR timestamp: TIMESTAMPS numpmid: 10
   29.0.127 (<noname>): numval: 1 valfmt: 0 vlist[]:
    value 22 3.0828566e-44 0x16
   29.0.129 (<noname>): numval: 1 valfmt: 0 vlist[]:
@@ -170,8 +170,8 @@ pmHighResResult dump from ADDR timestamp: TIMESTAMPS numpmid: 10
   29.0.128 (<noname>): numval: 1 valfmt: 0 vlist[]:
    value 29 4.0637655e-44 0x1d
 Array contains 1 records and 0 missed records
-pmHighResResult[0]
-pmHighResResult dump from ADDR timestamp: TIMESTAMPS numpmid: 10
+pmResult[0]
+pmResult dump from ADDR timestamp: TIMESTAMPS numpmid: 10
   29.0.127 (<noname>): numval: 1 valfmt: 0 vlist[]:
    value 22 3.0828566e-44 0x16
   29.0.129 (<noname>): numval: 1 valfmt: 0 vlist[]:

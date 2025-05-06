@@ -379,8 +379,7 @@ getdate.tab.o
 getopt.o
     ?paths                	# const, may be optimized away
     ?fallback                	# const, may be optimized away
-getopt2.o
-getopt3.o
+getopt_v2.o
 hash.o
 help.o
 instance.o

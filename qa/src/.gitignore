@@ -4,6 +4,9 @@
 *.dylib
 *.py
 779246
+api_abi
+api_abi_compat
+api_abi_v2
 addlabels
 agenttimeout
 aggrstore

@@ -415,7 +415,7 @@ main(int argc, char *argv[])
 			char	*endnum, *arg;
 
 			arg = argv[opts.optind++];
-			if (pmParseInterval(arg, &opts.interval, &endnum) < 0)
+			if (pmParseHighResInterval(arg, &opts.interval, &endnum) < 0)
 			{
 				pmprintf(
 			"%s: %s option not in pmParseInterval(3) format:\n%s\n",
@@ -446,8 +446,10 @@ main(int argc, char *argv[])
 	if (opts.samples)
 		nsamples = opts.samples;
 
-	if (opts.interval.tv_sec || opts.interval.tv_usec)
-		interval = opts.interval;
+	if (opts.interval.tv_sec || opts.interval.tv_nsec) {
+		interval.tv_sec = opts.interval.tv_sec;
+		interval.tv_usec = opts.interval.tv_nsec / 1000;
+	}
 
 	/*
 	** find local host details (no privileged access required)

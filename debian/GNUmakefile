@@ -57,11 +57,11 @@ PCPCFG = pcp-conf
 PCPCFG_FILES = pcp-conf.dirs pcp-conf.install
 PCPCFG_DOC_DIR = $(PCP_DOC_DIR)/../pcp-conf
 
-LIBPCPPCP = libpcp3
-LIBPCP_FILES = libpcp3.dirs libpcp3.install
-DEVPCP_FILES = libpcp3-dev.dirs libpcp3-dev.install
-LIBPCP_DOC_DIR = $(PCP_DOC_DIR)/../libpcp3
-DEVPCP_DOC_DIR = $(PCP_DOC_DIR)/../libpcp3-dev
+LIBPCPPCP = libpcp4
+LIBPCP_FILES = libpcp4.dirs libpcp4.install
+DEVPCP_FILES = libpcp4-dev.dirs libpcp4-dev.install
+LIBPCP_DOC_DIR = $(PCP_DOC_DIR)/../libpcp4
+DEVPCP_DOC_DIR = $(PCP_DOC_DIR)/../libpcp4-dev
 
 LIBGUIPCP = libpcp-gui2
 LIBGUI_FILES = libpcp-gui2.install

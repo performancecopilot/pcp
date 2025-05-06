@@ -453,7 +453,7 @@ static const char *disabled(void) { return "false"; }
 
 #define STRINGIFY(s)		#s
 #define TO_STRING(s)		STRINGIFY(s)
-static const char *pmapi_version(void) { return TO_STRING(PMAPI_VERSION_3); }
+static const char *pmapi_version(void) { return TO_STRING(PMAPI_VERSION); }
 static const char *pcp_version(void) { return PCP_VERSION; }
 #if defined(HAVE_SECURE_SOCKETS)
 #include <openssl/opensslv.h>

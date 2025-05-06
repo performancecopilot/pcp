@@ -205,7 +205,7 @@ Options\n\
 	    exit(1);
 	}
 	if (mode != PM_MODE_INTERP) {
-	    if ((sts = pmSetMode(mode, &label.ll_start, 0)) < 0) {
+	    if ((sts = pmSetModeHighRes(mode, &label.start, NULL)) < 0) {
 		fprintf(stderr, "%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 		exit(1);
 	    }
@@ -221,7 +221,7 @@ Options\n\
 	}
 	if (type == PM_CONTEXT_ARCHIVE)
 	    printf("Note: timezone set to local timezone of host \"%s\" from archive\n\n",
-		label.ll_hostname);
+		label.hostname);
 	else
 	    printf("Note: timezone set to local timezone of host \"%s\"\n\n", host);
     }
@@ -263,7 +263,7 @@ checkMetric(const char *metric)
     const char *nameList[] = { NULL };
     pmID pmidList[] = { PM_IN_NULL };
     pmDesc desc;
-    pmResult *result;
+    pmHighResResult *result;
 
     /* pmLookupName will not modify this string */
     nameList[0] = (char *)metric;
@@ -281,7 +281,7 @@ checkMetric(const char *metric)
     if (desc.type == PM_TYPE_NOSUPPORT)
 	return;
     
-    if ((sts = pmFetch(1, pmidList, &result)) < 0) {
+    if ((sts = pmFetchHighRes(1, pmidList, &result)) < 0) {
 	fprintf(stderr, "%s: pmfetch: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
@@ -306,5 +306,5 @@ checkMetric(const char *metric)
     }
 
 
-    pmFreeResult(result);
+    pmFreeHighResResult(result);
 }

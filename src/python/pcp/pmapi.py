@@ -681,23 +681,7 @@ class pmMetricSpec(Structure):
         return result
 
 class pmLogLabel(Structure):
-    """Label record at the start of every (v2) log file """
-    _fields_ = [("magic", c_int),
-                ("pid_t", c_int),
-                ("start", timeval),
-                ("hostname", c_char * c_api.PM_LOG_MAXHOSTLEN),
-                ("tz", c_char * c_api.PM_TZ_MAXLEN)]
-
-    def get_hostname(self):
-        """ Return the hostname from the structure as native str """
-        return str(self.hostname.decode())
-
-    def get_timezone(self):
-        """ Return the timezone from the structure as native str """
-        return str(self.tz.decode())
-
-class pmHighResLogLabel(Structure):
-    """Label record at the start of every (v3) log file """
+    """Label record at the start of every log file """
     _fields_ = [("magic", c_int),
                 ("pid_t", c_int),
                 ("start", timespec),
@@ -914,13 +898,10 @@ LIBPCP.pmGetArchiveLabel.restype = c_int
 LIBPCP.pmGetArchiveLabel.argtypes = [POINTER(pmLogLabel)]
 
 LIBPCP.pmGetArchiveEnd.restype = c_int
-LIBPCP.pmGetArchiveEnd.argtypes = [POINTER(timeval)]
+LIBPCP.pmGetArchiveEnd.argtypes = [POINTER(timespec)]
 
-LIBPCP.pmGetHighResArchiveLabel.restype = c_int
-LIBPCP.pmGetHighResArchiveLabel.argtypes = [POINTER(pmHighResLogLabel)]
-
-LIBPCP.pmGetHighResArchiveEnd.restype = c_int
-LIBPCP.pmGetHighResArchiveEnd.argtypes = [POINTER(timespec)]
+LIBPCP.pmGetArchiveLabel.restype = c_int
+LIBPCP.pmGetArchiveLabel.argtypes = [POINTER(pmLogLabel)]
 
 LIBPCP.pmGetInDomArchive.restype = c_int
 LIBPCP.pmGetInDomArchive.argtypes = [c_uint, POINTER(POINTER(c_int)),
@@ -2257,39 +2238,14 @@ class pmContext(object):
             raise pmErr(status)
         return loglabel
 
-    def pmGetHighResArchiveLabel(self):
-        """PMAPI - Get the label record from the archive
-        loglabel = pmGetHighResArchiveLabel()
-        """
-        loglabel = pmHighResLogLabel()
-        status = LIBPCP.pmUseContext(self.ctx)
-        if status < 0:
-            raise pmErr(status)
-        status = LIBPCP.pmGetHighResArchiveLabel(byref(loglabel))
-        if status < 0:
-            raise pmErr(status)
-        return loglabel
-
     def pmGetArchiveEnd(self):
-        """PMAPI - Get the last recorded timestamp from the archive
-        """
-        tvp = timeval()
-        status = LIBPCP.pmUseContext(self.ctx)
-        if status < 0:
-            raise pmErr(status)
-        status = LIBPCP.pmGetArchiveEnd(byref(tvp))
-        if status < 0:
-            raise pmErr(status)
-        return tvp
-
-    def pmGetHighResArchiveEnd(self):
         """PMAPI - Get the last recorded timestamp from the archive
         """
         spec = timespec()
         status = LIBPCP.pmUseContext(self.ctx)
         if status < 0:
             raise pmErr(status)
-        status = LIBPCP.pmGetHighResArchiveEnd(byref(spec))
+        status = LIBPCP.pmGetArchiveEnd(byref(spec))
         if status < 0:
             raise pmErr(status)
         return spec
