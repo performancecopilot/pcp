@@ -22,7 +22,7 @@ import os
 import subprocess
 import json
 from pathlib import Path
-from datetime import datetime, timezone
+from datetime import datetime, UTC
 
 import cpmapi as api
 from pcp import pmapi
@@ -30,7 +30,6 @@ from pcp import pmapi
 imported_archives = {}
 minimum_start_time = 0.0
 maximum_finish_time = 0.0
-UTC = timezone.utc
 
 
 def base_archive_path(path: Path):
