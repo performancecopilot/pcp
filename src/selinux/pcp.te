@@ -207,6 +207,10 @@ optional_policy(`
     raid_access_check_mdadm(pcp_pmcd_t)
 ')
 
+optional_policy(`
+    libs_delete_lib_symlinks(pcp_pmcd_t)
+')
+
 tunable_policy(`pcp_read_generic_logs',`
     logging_read_generic_logs(pcp_pmcd_t)
 
@@ -1077,6 +1081,7 @@ optional_policy(`
 allow syslogd_t pcp_log_t:fifo_file { open read write };
 
 #============= pcp_pmcd_t ==============
+#
 #
 ##============= pcp_pmie_t ==============
 #files_manage_generic_tmp_dirs(pcp_pmie_t)
