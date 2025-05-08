@@ -1,4 +1,5 @@
 QA output created by 289
+mark-bug: pmFetch failed: End of PCP archive
 Note: timezone set to local timezone of host "sandpit" from archive
 
 archive archives/mark-bug
@@ -79,8 +80,7 @@ fetch OK rewinding @ Wed Jul  9 12:11:22.933192000
 fetch OK rewinding @ Wed Jul  9 12:11:24.933192000
 fetch OK rewinding @ Wed Jul  9 12:11:26.933192000
 fetch OK rewinding @ Wed Jul  9 12:11:28.933192000
-fetch OK rewimark-bug: pmFetch failed: End of PCP archive
-nding @ Wed Jul  9 12:11:30.933192000
+fetch OK rewinding @ Wed Jul  9 12:11:30.933192000
 fetch OK rewinding @ Wed Jul  9 12:11:32.933192000
 fetch OK rewinding @ Wed Jul  9 12:11:34.933192000
 fetch OK rewinding @ Wed Jul  9 12:11:36.933192000
