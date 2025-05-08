@@ -21,6 +21,8 @@ fi
 . ./common.filter
 . ./common.check
 
+test -f src/api_abi_compat || _notrun "src/api_abi_compat is not present"
+
 do_valgrind=false
 if [ "$1" = "--valgrind" ]
 then
