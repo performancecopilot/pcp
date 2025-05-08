@@ -1,0 +1,12 @@
+#!/bin/sh
+. $PCP_DIR/etc/pcp.env
+. $PCP_SHARE_DIR/lib/pmdaproc.sh
+
+iam=hdb
+domain=158
+python_opt=true
+daemon_opt=false
+
+pmdaSetup
+pmdaInstall
+exit
