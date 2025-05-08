@@ -33,6 +33,7 @@ SUBDIRS = \
 	pidstat \
 	ps \
 	python \
+	rocestat \
 	shping \
 	slabinfo \
 	ss \
