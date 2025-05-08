@@ -2066,6 +2066,7 @@ pmcd.pdu
 1578 pmlogcheck local
 1579 pmlogcheck local valgrind
 1580 other local
+1581 libpcp local
 1584 pmda.mongodb local
 1585 pcp2xml python pcp2xxx local
 1588 python iostat local

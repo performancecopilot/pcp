@@ -1,4 +1,4 @@
-QA output created by 1558
+QA output created by 1581
 
 === -h local: -t 123.456 -Z UTC ===
 --- PMAPI_VERSION_2 ---
@@ -42,10 +42,7 @@ timeval functions ...
 pmtimeval*: OK
 timespec functions ...
 pmtimespec*: OK
---- PMAPI_VERSION_4 ---
-<     version: 2
----
->     version: 4
+--- compat ---
 
 === -a archives/omnibus_v3 -z -S +2msec -O +3msec -t 0.1 -T 5sec ===
 --- PMAPI_VERSION_2 ---
@@ -89,7 +86,11 @@ pmLookupName: OK: sample.colour -> 29.0.5
 pmID_*: OK 29.0.5
 pmInDom_*: OK 29.1
 pm*InDomArchive*: OK
---- PMAPI_VERSION_4 ---
-<     version: 2
----
->     version: 4
+--- compat ---
+2d1
+< pmGetArchiveEnd() <::> returns 0 end=16:51:04.732225623
+4d2
+< pmGetArchiveEnd() <::> returns 0 end=16:51:04.732225623
+9,10d6
+< pmLookupInDomArchive(29.1, blue) <::> returns 2
+< pmNameInDomArchive(29.1, 2, ...) <::> returns 0 (name blue)
