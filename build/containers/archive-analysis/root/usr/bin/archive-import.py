@@ -22,7 +22,7 @@ import os
 import subprocess
 import json
 from pathlib import Path
-from datetime import datetime, UTC
+from datetime import datetime, timezone
 
 import cpmapi as api
 from pcp import pmapi
@@ -54,7 +54,7 @@ def archive_unchanged(archive_path: str, archive_time: float, i: int, count: int
 def format_time(seconds: float):
     # From a floating point number of seconds since the epoch,
     # produce a time string in the format Grafana is expecting.
-    string = datetime.fromtimestamp(seconds, UTC).isoformat()
+    string = datetime.fromtimestamp(seconds, timezone.utc).isoformat()
     return string.replace('+00:00', 'Z')
 
 
