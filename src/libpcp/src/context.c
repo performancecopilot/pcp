@@ -652,7 +652,7 @@ __pmFindOrOpenArchive(__pmContext *ctxp, const char *name, int multi_arch)
 		free(lcp);
 	    }
 	    ++lcp2->refcnt;
-	    acp->ac_log = lcp2;
+	    __pmLogWriterInit(acp, lcp2);
 	    PM_UNLOCK(acp2->ac_log->lc_lock);
 	    PM_UNLOCK(contexts_lock);
 	    /*
@@ -688,7 +688,7 @@ __pmFindOrOpenArchive(__pmContext *ctxp, const char *name, int multi_arch)
 	__pmInitMutex(&lcp->lc_lock);
 #endif
 	lcp->multi = multi_arch;
-	acp->ac_log = lcp;
+	__pmLogWriterInit(acp, lcp);
     }
     sts = __pmLogOpen(name, ctxp);
     if (sts < 0) {
@@ -879,19 +879,14 @@ initarchive(__pmContext	*ctxp, const char *name)
 	return PM_ERR_LOGFILE;
 
     /* Allocate the structure for overal control of the archive(s). */
-    if ((ctxp->c_archctl = (__pmArchCtl *)malloc(sizeof(__pmArchCtl))) == NULL) {
+    if ((acp = (__pmArchCtl *)calloc(1, sizeof(__pmArchCtl))) == NULL) {
 	pmNoMem("initarchive", sizeof(__pmArchCtl), PM_FATAL_ERR);
 	/* NOTREACHED */
     }
-    acp = ctxp->c_archctl;
-    acp->ac_mfp = NULL;
+    __pmLogWriterInit(acp, NULL);
+    ctxp->c_archctl = acp;
     acp->ac_curvol = -1;
-    acp->ac_num_logs = 0;
-    acp->ac_log_list = NULL;
-    acp->ac_log = NULL;
-    acp->ac_mark_done = 0;
     acp->ac_flags = ctxp->c_flags;
-    acp->ac_meta_loaded = 0;
 
     /*
      * The list of names may contain one or more directories. Examine the
@@ -907,7 +902,6 @@ initarchive(__pmContext	*ctxp, const char *name)
      * sort them in order of start time and check for overlaps. Keep the final
      * archive open.
      */
-    acp->ac_log_list = NULL;
     current = namelist;
     while (*current) {
 	/* Find the end of the current archive name. */
@@ -1066,13 +1060,6 @@ initarchive(__pmContext	*ctxp, const char *name)
     ctxp->c_mode = PM_MODE_FORW;
     acp->ac_offset = __pmLogLabelSize(acp->ac_log);
     acp->ac_vol = acp->ac_curvol;
-    acp->ac_serial = 0;		/* not serial access, yet */
-    acp->ac_pmid_hc.nodes = 0;	/* empty hash list */
-    acp->ac_pmid_hc.hsize = 0;
-    acp->ac_end = 0.0;
-    acp->ac_want = NULL;
-    acp->ac_unbound = NULL;
-    acp->ac_cache = NULL;
 
     return 0; /* success */
 

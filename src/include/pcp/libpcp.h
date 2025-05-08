@@ -841,15 +841,24 @@ typedef struct {
 } __pmMultiLogCtl;
 
 /*
+ * Callback routines for log writer abstraction (allows remote archive write)
+ */
+struct __pmArchCtl;
+typedef int (*pmLogWriteCallBack)(const struct __pmArchCtl *, int, void *, size_t, const char *);
+typedef int (*pmLogFlushCallBack)(const struct __pmArchCtl *, int, const char *);
+typedef void (*pmLogResetCallBack)(const struct __pmArchCtl *, int, long, const char *);
+typedef long (*pmLogTellCallBack)(const struct __pmArchCtl *, int, const char *);
+
+/*
  * Per-context controls for archives and logs
  */
-typedef struct {
+typedef struct __pmArchCtl {
     __pmLogCtl		*ac_log;	/* Current global logging and archive
 					   control */
     __pmFILE		*ac_mfp;	/* current metrics volume */
     int			ac_curvol;	/* current metrics volume no. */
-    long		ac_offset;	/* fseek ptr for archives */
     int			ac_vol;		/* volume for ac_offset */
+    long		ac_offset;	/* fseek ptr for archives */
     int			ac_serial;	/* serial access pattern for archives */
     int			ac_flags;	/* copy of context's c_flags */
     __pmHashCtl		ac_pmid_hc;	/* per PMID controls for INTERP */
@@ -859,7 +868,7 @@ typedef struct {
     void		*ac_cache;	/* used in interp.c */
     int			ac_cache_idx;	/* used in interp.c */
     /*
-     * These were added to the ABI in order to support multiple archives
+     * Added to the ABI in order to support multiple archives
      * in a single context (for archive reading, not writing)
      */
     int			ac_meta_loaded;	/* metadata has been loaded */
@@ -868,7 +877,19 @@ typedef struct {
     int			ac_num_logs;	/* The number of archives */
     int			ac_cur_log;	/* The currently open archive */
     __pmMultiLogCtl	**ac_log_list;	/* Current set of archives */
+    /*
+     * Added to the ABI in order to support multiple writers,
+     * in particular non-POSIX-compliant writers (pmlogpush).
+     * Defaults provide POSIX-compliant (__pmFile) behaviour.
+     */
+    pmLogWriteCallBack	ac_label_cb;	/* (f)write log label (ondisk) */
+    pmLogWriteCallBack	ac_write_cb;	/* (f)write given binary data */
+    pmLogFlushCallBack	ac_flush_cb;	/* (f)flush stream requested */
+    pmLogResetCallBack	ac_reset_cb;	/* (f)seek to file position */
+    pmLogTellCallBack	ac_tell_cb;	/* (f)tell latest position */
 } __pmArchCtl;
+
+PCP_CALL extern __pmArchCtl *__pmLogWriterInit(__pmArchCtl *, __pmLogCtl *);
 
 /*
  * Instance trimming control structures for archive replay ...
@@ -928,7 +949,10 @@ typedef struct {
 /* internal archive routines */
 PCP_CALL extern int __pmLogVersion(const __pmLogCtl *);
 PCP_CALL extern size_t __pmLogLabelSize(const __pmLogCtl *);
+PCP_CALL extern int __pmLogDecodeLabel(const char *, size_t, __pmLogLabel *);
+PCP_CALL extern int __pmLogEncodeLabel(const __pmLogLabel *, void **, size_t *);
 PCP_CALL extern int __pmLogChkLabel(__pmArchCtl *, __pmFILE *, __pmLogLabel *, int);
+PCP_CALL extern int __pmLogCreateLabel(const char *, int, __pmLogCtl *);
 PCP_CALL extern int __pmLogCreate(const char *, const char *, int, __pmArchCtl *, int);
 PCP_CALL extern __pmFILE *__pmLogNewFile(const char *, int);
 PCP_CALL extern void __pmLogClose(__pmArchCtl *);

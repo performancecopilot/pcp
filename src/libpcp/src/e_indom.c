@@ -177,23 +177,17 @@ __pmLogPutInDom(__pmArchCtl *acp, int type, const __pmLogInDom * const lidp)
     int			sts;
     __int32_t		*buf;
     size_t		len;
-    char		strbuf[20];
 
     sts = __pmLogEncodeInDom(lcp, type, lidp, &buf);
     if (sts < 0)
 	return sts;
 
     len = ntohl(buf[0]);
-    if ((sts = __pmFwrite(buf, 1, len, lcp->mdfp)) != len) {
-	char	errmsg[PM_MAXERRMSGLEN];
-	pmprintf("__pmLogPutInDom(...,indom=%s,numinst=%d): write failed: returned %d expecting %zd: %s\n",
-	    pmInDomStr_r(lidp->indom, strbuf, sizeof(strbuf)), lidp->numinst, sts, len,
-	    osstrerror_r(errmsg, sizeof(errmsg)));
-	pmflush();
-	free(buf);
-	return -oserror();
-    }
+
+    sts = acp->ac_write_cb(acp, PM_LOG_VOL_META, buf, len, __FUNCTION__);
     free(buf);
+    if (sts < 0)
+	return sts;
 
     /*
      * Update the indom's hash data structures ...

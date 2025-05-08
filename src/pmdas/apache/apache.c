@@ -203,19 +203,21 @@ static void dumpData(void)
  */
 static int refreshData(void)
 {
-    char	res[BUFSIZ * 4];
-    int		len;
-    char	*s,*s2,*s3;
+    static char		*res;
+    static size_t	length;
+    char		*s,*s2,*s3;
+    int			sts;
 
     if (pmDebugOptions.appl0)
-	fprintf(stderr, "Doing pmhttpClientFetch(%s)\n", url);
+	fprintf(stderr, "Doing pmhttpClientGet(%s)\n", url);
 
-    len = pmhttpClientFetch(http_client, url, res, sizeof(res), NULL, 0);
-    if (len < 0) {
-	if (pmDebugOptions.appl1)
-	    pmNotifyErr(LOG_ERR, "HTTP fetch (stats) failed\n");
+    sts = pmhttpClientGet(http_client, url, NULL, &res, &length, NULL, NULL);
+    if (sts < 0 || length < 1) {
+	if (pmDebugOptions.appl1 || pmDebugOptions.http)
+	    pmNotifyErr(LOG_ERR, "HTTP GET (stats) failed\n");
 	return 0; /* failed */
     }
+    res[length-1] = '\0';
 
     memset(&data, 0, sizeof(data));
 
