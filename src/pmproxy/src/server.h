@@ -44,6 +44,7 @@ typedef enum proxy_registry {
     METRICS_SERIES,
     METRICS_WEBGROUP,
     METRICS_SEARCH,
+    METRICS_LOGGROUP,
     NUM_REGISTRY
 } proxy_registry_t;
 

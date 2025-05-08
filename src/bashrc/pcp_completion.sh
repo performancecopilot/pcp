@@ -105,8 +105,8 @@ _pcp_complete()
 	arg_regex="-[cDSsTVvZ]"
     ;;
     pmlogger)
-	all_args="cCdDhHIlKLmNnopPrsTtuUvVxy"
-	arg_regex="-[cdDhHIlKmnpsTtUvVx]"
+	all_args="cCdDhHIlKLmNnopPrRsTtuUvVxy"
+	arg_regex="-[cdDhHIlKmnpRsTtUvVx]"
     ;;
     pmloglabel)
 	all_args="DhlLpsvVZ"

@@ -1,7 +1,7 @@
 '\" t
 .\"
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
-.\" Copyright (c) 2014-2020 Red Hat.
+.\" Copyright (c) 2014-2020,2025 Red Hat.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -31,6 +31,7 @@
 [\f3\-m\f1 \f2note\f1]
 [\f3\-n\f1 \f2pmnsfile\f1]
 [\f3\-p\f1 \f2pid\f1]
+[\f3\-R\f1 \f2remote\f1]
 [\f3\-s\f1 \f2endsize\f1]
 [\f3\-t\f1 \f2interval\f1]
 [\f3\-T\f1 \f2endtime\f1]
@@ -38,7 +39,7 @@
 [\f3\-v\f1 \f2volsize\f1]
 [\f3\-V\f1 \f2version\f1]
 [\f3\-x\f1 \f2fd\f1]
-\f2archive\f1
+[\f2archive\f1]
 .SH DESCRIPTION
 .B pmlogger
 creates the archives of performance metric values
@@ -48,10 +49,13 @@ tools.
 These logs form the basis of the VCR paradigm and retrospective
 performance analysis services common to the PCP toolkit.
 .PP
-The mandatory argument
+The argument
 .I archive
 is the base name for the physical files that constitute
-an archive.
+an archive on the local filesystem.
+This argument is mandatory unless the
+.B \-R
+option is used, as described below.
 The
 .I archive
 argument may contain
@@ -931,7 +935,7 @@ See also
 .BR \-K .
 .TP
 \fB\-p\fR \fIPID\fR, \fB\-\-PID\fR=\fIPID\fR
-Log specified metrics for the lifetime of the pid
+Log specified metrics for the lifetime of the process identified by
 .IR PID .
 .TP
 \fB\-P\fR, \fB\-\-primary\fR
@@ -940,6 +944,27 @@ See above for more detailed description of this.
 .TP
 \fB\-r\fR, \fB\-\-report\fR
 Report record sizes and archive growth rate.
+.TP
+\fB\-R\fR \fIurl, \fB\-\-remote\fR=\fIurl\fR
+Remote (HTTP webhook) mode, push the components of the archive to the
+.BR pmproxy (1)
+server, as it is being generated.
+The
+.I url
+specifies the location of the pmproxy server, such as
+.IR http://example.com:44322 .
+If the
+.I archive
+command line argument is present, then the archive is stored
+both locally and on the remote server.
+Without an
+.I archive
+name, the archive will be stored on the remote server only.
+In either case, the remote
+.B pmproxy
+server will select an archive name based on the start time, in a
+similar fashion to the model used by default in
+.BR pmlogger_check (1).
 .TP
 \fB\-s\fR \fIendsize\fR, \fB\-\-size\fR=\fIendsize\fR
 Terminate after archive size exceeds
@@ -1372,6 +1397,7 @@ T}
 .BR pmlogdump (1),
 .BR pmlogger_check (1),
 .BR pmlogger_daily (1),
+.BR pmproxy (1),
 .BR systemctl (1),
 .BR systemd (1),
 .BR PMAPI (3),

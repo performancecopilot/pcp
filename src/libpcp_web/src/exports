@@ -265,3 +265,19 @@ PCP_WEB_1.21 {
     keySlotsSetupMetrics;
     keySlotsSetMetricRegistry;
 } PCP_WEB_1.20;
+
+PCP_WEB_1.22 {
+    pmhttpClientGet;
+    pmhttpClientPost;
+
+    pmLogGroupLabel;
+    pmLogGroupMeta;
+    pmLogGroupIndex;
+    pmLogGroupVolume;
+
+    pmLogGroupClose;
+    pmLogGroupSetup;
+    pmLogGroupSetConfiguration;
+    pmLogGroupSetEventLoop;
+    pmLogGroupSetMetricRegistry;
+} PCP_WEB_1.21;

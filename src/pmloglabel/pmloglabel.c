@@ -209,7 +209,7 @@ main(int argc, char *argv[])
     archive = opts.narchives > 0? opts.archives[0] : argv[opts.optind];
     warnings = (readonly || verbose);
 
-    archctl.ac_log = &logctl;
+    __pmLogWriterInit(&archctl, &logctl);
 
     if (verbose)
 	printf("Scanning for components of archive \"%s\"\n", archive);
