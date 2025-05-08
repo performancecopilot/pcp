@@ -444,7 +444,7 @@ class DstatTool(object):
 
         ### Add additional dstat metric specifiers
         dspec = (None, 'printtype', 'colorstep', 'grouptype', 'cullinsts',
-                'plugin', 'valuesets')
+                'plugin', 'valuesets', 'filter')
         mspec = self.pmconfig.metricspec + dspec
         self.pmconfig.metricspec = mspec
 
@@ -686,25 +686,25 @@ class DstatTool(object):
                                 lib.parse_verbose_metric_info(metrics, name, 'label', mkey)
                         lib.parse_verbose_metric_info(metrics, name, spec, value)
 
-                # Instance logic for -C/-D/-L/-M/-P/-I/-N/-S options
-                if section == 'cpu':
-                    plugin.prepare_grouptype(self.cpulist, self.full)
-                elif section in ['disk', 'disk-tps']:
-                    plugin.prepare_grouptype(self.disklist, self.full)
-                elif section in ['dm', 'dm-tps']:
-                    plugin.prepare_grouptype(self.dmlist, self.full)
-                elif section in ['md', 'md-tps']:
-                    plugin.prepare_grouptype(self.mdlist, self.full)
-                elif section in ['part', 'part-tps']:
-                    plugin.prepare_grouptype(self.partlist, self.full)
-                elif section == 'int':
-                    plugin.prepare_grouptype(self.intlist, self.full)
-                elif section == 'net':
-                    plugin.prepare_grouptype(self.netlist, self.full)
-                elif section == 'net-packets':
-                    plugin.prepare_grouptype(self.netpacketlist, self.full)
-                elif section == 'swap':
-                    plugin.prepare_grouptype(self.swaplist, self.full)
+                    if key in ['filter']:
+                        if value == 'cpu':
+                            plugin.prepare_grouptype(self.cpulist, self.full)
+                        elif value == 'disk':
+                            plugin.prepare_grouptype(self.disklist, self.full)
+                        elif value == 'dm':
+                            plugin.prepare_grouptype(self.dmlist, self.full)
+                        elif value == 'md':
+                            plugin.prepare_grouptype(self.mdlist, self.full)
+                        elif value == 'part':
+                            plugin.prepare_grouptype(self.partlist, self.full)
+                        elif value == 'int':
+                            plugin.prepare_grouptype(self.intlist, self.full)
+                        elif value == 'net':
+                            plugin.prepare_grouptype(self.netlist, self.full)
+                        elif value == 'net-packets':
+                            plugin.prepare_grouptype(self.netpacketlist, self.full)
+                        elif value == 'swap':
+                            plugin.prepare_grouptype(self.swaplist, self.full)
 
             for metric in metrics:
                 name = metrics[metric][0]
