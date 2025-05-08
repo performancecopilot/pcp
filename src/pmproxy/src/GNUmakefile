@@ -33,7 +33,7 @@ PCPLIB_LDFLAGS += \
 
 ifeq "$(HAVE_LIBUV)" "true"
 LCFLAGS += $(LIBUVCFLAGS) -DHAVE_LIBUV=1
-SERVLETS = search.c series.c webapi.c
+SERVLETS = search.c series.c webapi.c logger.c
 CFILES += openmetrics.c server.c http.c pcp.c uv_callback.c keys.c $(SERVLETS)
 HFILES += openmetrics.h server.h http.h pcp.h uv_callback.h
 ifeq "$(HAVE_OPENSSL)" "true"

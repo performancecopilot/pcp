@@ -94,6 +94,7 @@ typedef struct servlet {
     httpReleaseCallBack	on_release;
 } servlet_t;
 
+extern struct servlet pmlogger_servlet;
 extern struct servlet pmsearch_servlet;
 extern struct servlet pmseries_servlet;
 extern struct servlet pmwebapi_servlet;

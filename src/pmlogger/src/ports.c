@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2015,2018,2021 Red Hat.
+ * Copyright (c) 2012-2015,2018,2021,2025 Red Hat.
  * Copyright (c) 1995-2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -501,18 +501,22 @@ GetPorts(char *file)
 	/* then the PMCD host (but don't bother try DNS-canonicalize) */
 	fprintf(mapstream, "%s\n", pmcd_host);
 
-	/* then the full pathname to the archive base */
-	/* THREADSAFE - no locks acquired in __pmNativePath() */
-	archName = __pmNativePath(archName);
-	if (__pmAbsolutePath(archName))
-	    fprintf(mapstream, "%s\n", archName);
+	/* then remote connection string or full pathname to the archive base */
+	if (remote.only)
+	    fprintf(mapstream, "%s\n", remote.conn);
 	else {
-	    char		path[MAXPATHLEN];
+	    /* THREADSAFE - no locks acquired in __pmNativePath() */
+	    archName = __pmNativePath(archName);
+	    if (__pmAbsolutePath(archName))
+		fprintf(mapstream, "%s\n", archName);
+	    else {
+		char	path[MAXPATHLEN];
 
-	    if (getcwd(path, MAXPATHLEN) == NULL)
-		fprintf(mapstream, "\n");
-	    else
-		fprintf(mapstream, "%s%c%s\n", path, pmPathSeparator(), archName);
+		if (getcwd(path, MAXPATHLEN) == NULL)
+		    fprintf(mapstream, "\n");
+		else
+		    fprintf(mapstream, "%s%c%s\n", path, pmPathSeparator(), archName);
+	    }
 	}
 
 	/* and finally, the annotation from -m or -x */

@@ -329,6 +329,8 @@ derive_parser.tab.o
     ?pmRegisterDerivedMetric.fmt	# static string (FreeBSD 10.2 gcc)
 desc.o
 e_index.o
+    ?__pmLogPutIndex_v2.caller	# const
+    ?__pmLogPutIndex_v3.caller	# const
 e_indom.o
 e_labels.o
 e_loglabel.o
@@ -346,7 +348,7 @@ events.o
     pmid_flags			# no unsafe side-effects
     pmid_missed			# no unsafe side-effects
     ?caller                     # const
-    ?pmUnpackEventRecords.caller		# const
+    ?pmUnpackEventRecords.caller	# const
     ?pmUnpackHighResEventRecords.caller	# const
 exec.o
     exec_lock			# local mutex

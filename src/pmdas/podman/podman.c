@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Red Hat.
+ * Copyright (c) 2021,2025 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,6 +17,8 @@
 #include "pmhttp.h"
 #include "http_client.h"
 #include "http_parser.h"
+
+static const char version[] = "v3.0.0"; /* podman API */
 
 typedef struct {
     uint32_t		id;
@@ -640,27 +642,6 @@ podman_http_parse(struct http_client *cp,
     }
 }
 
-static char *
-podman_buffer(char *buffer, size_t *buflen)
-{
-    size_t		length = *buflen;
-    char		*p;
-
-    if (length == 0)
-	length = 256;
-    if (length >= UINT_MAX / 256)
-	return NULL;
-
-    length *= 2;
-    if ((p = realloc(buffer, length)) != NULL) {
-	*buflen = length;
-    } else {
-	free(buffer);
-	*buflen = 0;
-    }
-    return p;
-}
-
 static int
 podman_validate_socket(const char *path)
 {
@@ -677,29 +658,21 @@ static void
 podman_http_fetch(const char *url, const char *query, jsonsl_t parser)
 {
     struct http_client	*client;
-    static size_t	jsonlen;
-    static char		*json;
-    char		type[64];
-    int			sts, len;
+    size_t		length = 0;
+    char		*json = NULL;
+    char		loc[64];
+    int			sts;
 
-    if ((json == NULL) &&
-	(json = podman_buffer(json, &jsonlen)) == NULL)
-	return;
-
-    if ((client = pmhttpNewClient()) == NULL)
-	return;
-
-retry:
-    len = pmsprintf(type, sizeof(type), "/v3.0.0/libpod/%s", query);
-    if ((sts = pmhttpClientFetch(client, url, json, jsonlen, type, len)) > 0) {
-	if (pmDebugOptions.attr)
-	    fprintf(stderr, "podman_http_fetch: %.*s\n", sts, json);
-	podman_http_parse(client, parser, json, sts);
-    } else if (sts == -E2BIG) {
-	json = podman_buffer(json, &jsonlen);
-	goto retry;
+    if ((client = pmhttpNewClient()) != NULL) {
+	pmsprintf(loc, sizeof(loc), "/%s/libpod/%s", version, query);
+	sts = pmhttpClientGet(client, url, loc, &json, &length, NULL, NULL);
+	if (sts >= 0) {
+	    if (pmDebugOptions.attr || pmDebugOptions.http)
+		fprintf(stderr, "%s: %.*s\n", __FUNCTION__, (int)length, json);
+	    podman_http_parse(client, parser, json, length);
+	}
+	pmhttpFreeClient(client);
     }
-    pmhttpFreeClient(client);
 }
 
 #define PODQUERY "pods/json"
