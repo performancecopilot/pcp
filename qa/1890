@@ -1,0 +1,99 @@
+#!/bin/sh
+# PCP QA Test No. 1890
+# Test duplicate instname labels in /metrics webapi when a context
+# level label such as "hostname" is explicitly specified.
+# Test invalid OpenTelemetry metric names also.
+#
+# Copyright (c) 2025 Red Hat.  All Rights Reserved.
+#
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.opentelemetry
+
+_check_series   # ensure pmproxy makes a REST API available
+_pmdaopentelemetry_check || _notrun "opentelemetry pmda not installed"
+which curl >/dev/null 2>&1 || _notrun curl not installed
+
+status=1        # failure is the default!
+
+# only stop pmproxy if it was not running before the QA test starts
+if [ -n "`_get_pids_by_name pmproxy`" ]
+then
+    pmproxy_was_running=true
+else
+    pmproxy_was_running=false
+    if ! _service pmproxy start >>$seq_full 2>&1; then _exit 1; fi
+fi
+echo "pmproxy_was_running=$pmproxy_was_running" >>$seq_full
+
+_cleanup()
+{
+    cd $here
+    if $need_restore
+    then
+        $sudo rm -rf $PCP_ETC_DIR/pcp/labels/*
+        _restore_config $PCP_ETC_DIR/pcp/labels
+        $pmproxy_was_running || _service pmproxy stop >>$seq_full 2>&1
+        need_restore=false
+    fi
+    _pmdaopentelemetry_cleanup
+    $sudo rm -rf $tmp $tmp.*
+}
+
+_filter_opentelemetry_labels()
+{
+    sed \
+    -e "s;$PCP_PMDAS_DIR;PCP_PMDAS_DIR;g" \
+    -e 's;machineid="[a-z0-9]*";machineid=MACHINEID;g' \
+    -e 's;hostname="[a-zA-Z0-9_\.\-]*";hostname=HOSTNAME;g' \
+    -e 's;hostname:[a-zA-Z0-9_\.\-]*";hostname:HOSTNAME";g' \
+    -e 's;domainname="[a-zA-Z0-9_\.\-]*";domainname=DOMAINNAME;g' \
+    -e 's;144\.[0-9]*\.[0-9]*;NUMERIC_PMID;g' \
+    -e 's;144\.[0-9]*;NUMERIC_INDOM;g' \
+    # end
+}
+
+need_restore=true
+_prepare_pmda opentelemetry
+trap "_cleanup; exit \$status" 0 1 2 3 15
+_stop_auto_restart pmcd
+
+# real QA test starts here
+_pmdaopentelemetry_save_config
+_save_config $PCP_ETC_DIR/pcp/labels
+$sudo rm -rf $PCP_ETC_DIR/pcp/labels/*
+
+# set up a scripted config
+MYHOST=`hostname`
+
+file_path=$here/opentelemetry/samples/duplicate.txt
+urlbase=`basename "$file_path" .txt | tr .- _`
+echo 'file:///'$file_path > $tmp.tmp
+$sudo cp $tmp.tmp $PCP_PMDAS_DIR/opentelemetry/config.d/$urlbase.url
+
+_pmdaopentelemetry_install
+if ! _pmdaopentelemetry_wait_for_metric opentelemetry.control.calls
+then
+    status=1
+    exit
+fi
+
+echo; echo === /metrics webapi listing. The instname label should appear only once.
+curl -Gs 'http://localhost:44322/metrics?names=opentelemetry.duplicate.somemetric' \
+| _filter_opentelemetry_labels
+
+echo; echo === verify metric name validity using pminfo
+pminfo -v opentelemetry
+
+# squash errors for a clean uninstall
+$sudo rm $PCP_PMDAS_DIR/opentelemetry/config.d/duplicate.url
+# capture opentelemetry log for posterity
+cat $PCP_LOG_DIR/pmcd/opentelemetry.log >> $seq_full
+
+_pmdaopentelemetry_remove
+
+# success, all done
+status=0
+exit
