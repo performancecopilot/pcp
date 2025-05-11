@@ -138,7 +138,8 @@ Debian
 
 Fedora
     https://fedoraproject.org/wiki/Releases
-    13 Dec 2024: 40 & 41
+    11 May 2025: 42 & 41
+    13 Dec 2024: 41 & 40
     # which packages are installed
     $ rpm -qa --qf '%{NAME}\n'
     # package search recipe (name and info or description)

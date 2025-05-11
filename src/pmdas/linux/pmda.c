@@ -4734,6 +4734,11 @@ static pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_NET_NETSTAT,216), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
+/* network.tcp.pawsoldack */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_PAWSOLDACK],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,230), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
 /* network.mptcp.mpfailtx */
   { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPFAILTX],
     { PMDA_PMID(CLUSTER_NET_NETSTAT,190), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,

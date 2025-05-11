@@ -683,3 +683,6 @@ network.tcp.tcpaogood
 
 network.tcp.tcpaodroppedicmps
     value 127
+
+network.tcp.pawsoldack
+    value 142
