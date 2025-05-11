@@ -144,7 +144,7 @@ def import_archive(path: Path, i: int, count: int, no_op: bool, import_timeout: 
                     stdout=subprocess.PIPE,
                     stderr=subprocess.STDOUT,
                     check=True,
-                    text=True,
+                    universal_newlines=True,
                     timeout=import_timeout,
                 )
     except subprocess.CalledProcessError as e:
