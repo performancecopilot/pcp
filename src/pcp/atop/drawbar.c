@@ -1777,7 +1777,7 @@ drawmemory(struct perwindow *w, struct sstat *sstat, double nsecs,
 	cachemem	= (sstat->mem.cachemem + sstat->mem.buffermem -
 			   sstat->mem.shmem)  * 1024;
 
-	shmemrss	=  sstat->mem.shmrss  * 1024;
+	shmemrss	=  sstat->mem.shmrss; // in bytes!
 
 	slabmem		=  sstat->mem.slabmem * 1024;
 
@@ -1788,7 +1788,7 @@ drawmemory(struct perwindow *w, struct sstat *sstat, double nsecs,
 
 	totalswp	=  sstat->mem.totswap * 1024;
 
-	shmemswp	=  sstat->mem.shmswp  * 1024;
+	shmemswp	=  sstat->mem.shmswp; // in bytes!
 
 	freeswp		=  sstat->mem.freeswap* 1024;
 
@@ -1800,12 +1800,12 @@ drawmemory(struct perwindow *w, struct sstat *sstat, double nsecs,
 			  (sstat->mem.ltothugepage - sstat->mem.lfreehugepage)
 							* 1024;
 							
-	shmrssreal	= (sstat->mem.shmrss * pagesize) - hugeused;	// in bytes!
+	shmrssreal	= sstat->mem.shmrss - hugeused;	// in bytes!
 
 	if (shmrssreal < 0)	// (partly) wrong assumption about static huge pages
 		shmrssreal = 0;
 
-	tmpfsmem	= (sstat->mem.shmem - sstat->mem.shmswp) * pagesize - shmrssreal / pagesize;
+	tmpfsmem	= (sstat->mem.shmem * 1024) - shmemswp - shmrssreal;
 
 	// determine severity for pagescans, swapouts and oomkills
 	// 'n' - normal,

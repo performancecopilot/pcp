@@ -113,6 +113,7 @@ static __pmnsNode *locate(const char *, __pmnsNode *);
 
 #ifdef PM_MULTI_THREAD
 static pthread_mutex_t	pmns_lock;
+static pthread_mutex_t	pmns_fix_lock;
 #else
 void			*pmns_lock;
 #endif
@@ -126,6 +127,14 @@ __pmIsPmnsLock(void *lock)
 {
     return lock == (void *)&pmns_lock;
 }
+/*
+ * return true if lock == pmns_fix_lock
+ */
+int
+__pmIsPmnsFixLock(void *lock)
+{
+    return lock == (void *)&pmns_fix_lock;
+}
 #endif
 
 void
@@ -133,6 +142,7 @@ init_pmns_lock(void)
 {
 #ifdef PM_MULTI_THREAD
     __pmInitMutex(&pmns_lock);
+    __pmInitMutex(&pmns_fix_lock);
 #endif
 }
 
@@ -1058,7 +1068,8 @@ __pmNewPMNS(__pmnsTree **pmns)
  * we are also called from __pmLogLoadMeta with the current context
  * locked ... and in the later case we don't need the pmns_lock.
  *
- * So no lock/unlock operations here.
+ * But, we're also called from initarchive() and this one can
+ * race ... so we have a local lock _just_ for this method.
  */
 int
 __pmFixPMNSHashTab(__pmnsTree *tree, int numpmid, int dupok)
@@ -1066,6 +1077,7 @@ __pmFixPMNSHashTab(__pmnsTree *tree, int numpmid, int dupok)
     int		sts;
     int		htabsize = numpmid/5;
 
+    PM_LOCK(pmns_fix_lock);
     /*
      * make the average hash list no longer than 5, and the number
      * of hash table entries not a multiple of 2, 3 or 5
@@ -1090,6 +1102,7 @@ __pmFixPMNSHashTab(__pmnsTree *tree, int numpmid, int dupok)
     sts = 0;
 
 pmapi_return:
+    PM_UNLOCK(pmns_fix_lock);
 
     return sts;
 }
@@ -1138,8 +1151,7 @@ AddPMNSNode(__pmnsNode *root, int pmid, const char *name)
 		free(np);
 		return -oserror();
 	    }
-	    strncpy(np->name, name_p, nch);
-	    np->name[nch] = '\0';
+	    pmstrncpy(np->name, nch+1, name_p);
 
 	    /* fixup some links */
 	    np->first = np->hash = np->next = NULL;
@@ -1496,8 +1508,7 @@ load(const char *filename, int dupok, int use_cpp)
 
     if ((f = getfname(filename)) == NULL)
 	return PM_ERR_GENERIC;
-    strncpy(fname, f, sizeof(fname));
-    fname[sizeof(fname)-1] = '\0';
+    pmstrncpy(fname, sizeof(fname), f);
  
     if (pmDebugOptions.pmns)
 	fprintf(stderr, "load(name=%s, dupok=%d, use_cpp=%d) lic case=%d fname=%s\n",
@@ -1705,6 +1716,8 @@ pmLookupName_ctx(__pmContext *ctxp, int derive_locked, int numpmid, const char *
     int		i;
     int		nfail = 0;
     ctx_ctl_t	ctx_ctl = { NULL, 0, 0 };
+    char	strbuf[20];
+    char	errmsg[PM_MAXERRMSGLEN];
 
     lock_ctx_and_pmns(ctxp, &ctx_ctl);
     ctxp = ctx_ctl.ctxp;
@@ -1853,7 +1866,6 @@ pmLookupName_ctx(__pmContext *ctxp, int derive_locked, int numpmid, const char *
     	sts = (sts == 0 ? numpmid - nfail : sts);
 
 	if (pmDebugOptions.pmns) {
-	    char	strbuf[20];
 	    fprintf(stderr, "pmLookupName(%d, ...) using local PMNS returns %d and ...\n",
 		numpmid, sts);
 	    for (i = 0; i < numpmid; i++) {
@@ -1952,8 +1964,17 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_CALL);
 		}
 		else if (sts == PDU_ERROR)
 		    __pmDecodeError(pb, &sts);
-		else if (sts != PM_ERR_TIMEOUT)
+		else if (sts != PM_ERR_TIMEOUT) {
+		    if (pmDebugOptions.pdu) {
+			if (sts < 0)
+			    fprintf(stderr, "pmLookupName: PM_ERR_IPC: expecting PDU_PMNS_IDS but__pmGetPDU returns %d (%s)\n",
+				sts, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+			else
+			    fprintf(stderr, "pmLookupName: PM_ERR_IPC: expecting PDU_PMNS_IDS but__pmGetPDU returns %d (type=%s)\n",
+				sts, __pmPDUTypeStr_r(sts, strbuf, sizeof(strbuf)));
+		    }
 		    sts = PM_ERR_IPC;
+		}
 
 		if (pinpdu > 0)
 		    __pmUnpinPDUBuf(pb);
@@ -1967,8 +1988,6 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_CALL);
 	if (sts >= 0)
 	    nfail = numpmid - num_ok;
 	if (pmDebugOptions.pmns) {
-	    char	strbuf[20];
-	    char	errmsg[PM_MAXERRMSGLEN];
 	    fprintf(stderr, "pmLookupName: receive_names <-");
 	    if (sts >= 0) {
 		for (i = 0; i < numpmid; i++)
@@ -2005,8 +2024,6 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_CALL);
 		    nfail++;
 		}
 		if (pmDebugOptions.derive) {
-		    char	strbuf[20];
-		    char	errmsg[PM_MAXERRMSGLEN];
 		    fprintf(stderr, "__dmgetpmid: metric \"%s\" -> ", namelist[i]);
 		    if (lsts < 0)
 			fprintf(stderr, "%s\n", pmErrStr_r(lsts, errmsg, sizeof(errmsg)));
@@ -2017,6 +2034,20 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_CALL);
 	}
 	if (nfail == 0)
 	    sts = numpmid;
+    }
+
+    /*
+     * There are multiple levels of name masking that may be in play
+     * with derived metrics in an archive (PMID mapped), derived metrics,
+     * and real metrics from the current context.
+     *
+     * If -Dderive, then go check and report.
+     */
+    if (pmDebugOptions.derive) {
+	for (i = 0; i < numpmid; i++) {
+	    if (pmidlist[i] != PM_ID_NULL)
+		__dmcheckname(ctxp, derive_locked, namelist[i], pmidlist[i]);
+	}
     }
 
     /*
@@ -2043,7 +2074,6 @@ pmapi_return:
 	    fprintf(stderr, ")\n");
 	}
 	else {
-	    char	errmsg[PM_MAXERRMSGLEN];
 	    fprintf(stderr, "%s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	}
     }
@@ -2051,7 +2081,6 @@ pmapi_return:
     if (pmDebugOptions.pmns) {
 	fprintf(stderr, "pmLookupName(%d, ...) -> ", numpmid);
 	if (sts < 0) {
-	    char	errmsg[PM_MAXERRMSGLEN];
 	    fprintf(stderr, "%s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	}
 	else
@@ -2094,8 +2123,19 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_CALL);
 	}
 	else if (n == PDU_ERROR)
 	    __pmDecodeError(pb, &n);
-	else if (n != PM_ERR_TIMEOUT)
+	else if (n != PM_ERR_TIMEOUT) {
+	    if (pmDebugOptions.pdu) {
+		char	strbuf[20];
+		char	errmsg[PM_MAXERRMSGLEN];
+		if (n < 0)
+		    fprintf(stderr, "GetChildrenStatusRemote: PM_ERR_IPC: expecting PDU_PMNS_NAMES but__pmGetPDU returns %d (%s)\n",
+			n, pmErrStr_r(n, errmsg, sizeof(errmsg)));
+		else
+		    fprintf(stderr, "GetChildrenStatusRemote: PM_ERR_IPC: expecting PDU_PMNS_NAMES but__pmGetPDU returns %d (type=%s)\n",
+			n, __pmPDUTypeStr_r(n, strbuf, sizeof(strbuf)));
+	    }
 	    n = PM_ERR_IPC;
+	}
 
 	if (pinpdu > 0)
 	    __pmUnpinPDUBuf(pb);
@@ -2544,8 +2584,19 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_CALL);
     }
     else if (n == PDU_ERROR)
 	__pmDecodeError(pb, &n);
-    else if (n != PM_ERR_TIMEOUT)
+    else if (n != PM_ERR_TIMEOUT) {
+	if (pmDebugOptions.pdu) {
+	    char	strbuf[20];
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    if (n < 0)
+		fprintf(stderr, "receive_namesbyid: PM_ERR_IPC: expecting PDU_PMNS_NAMES but__pmGetPDU returns %d (%s)\n",
+		    n, pmErrStr_r(n, errmsg, sizeof(errmsg)));
+	    else
+		fprintf(stderr, "receive_namesbyid: PM_ERR_IPC: expecting PDU_PMNS_NAMES but__pmGetPDU returns %d (type=%s)\n",
+		    n, __pmPDUTypeStr_r(n, strbuf, sizeof(strbuf)));
+	}
 	n = PM_ERR_IPC;
+    }
 
     if (pinpdu > 0)
 	__pmUnpinPDUBuf(pb);
@@ -3096,8 +3147,19 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_CALL);
 	    else {
 		if (pinpdu > 0)
 		    __pmUnpinPDUBuf(pb);
-		if (sts != PM_ERR_TIMEOUT)
+		if (sts != PM_ERR_TIMEOUT) {
+		    if (pmDebugOptions.pdu) {
+			char	strbuf[20];
+			char	errmsg[PM_MAXERRMSGLEN];
+			if (sts < 0)
+			    fprintf(stderr, "TraversePMNS: PM_ERR_IPC: expecting PDU_PMNS_NAMES but__pmGetPDU returns %d (%s)\n",
+				sts, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+			else
+			    fprintf(stderr, "TraversePMNS: PM_ERR_IPC: expecting PDU_PMNS_NAMES but__pmGetPDU returns %d (type=%s)\n",
+				sts, __pmPDUTypeStr_r(sts, strbuf, sizeof(strbuf)));
+		    }
 		    sts = PM_ERR_IPC;
+		}
 		goto pmapi_return;
 	    }
 

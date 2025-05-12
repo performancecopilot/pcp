@@ -71,8 +71,7 @@ _pmview_usage()
   -display      display-string
   -geometry     geometry-string
   -name         name-string
-  -title        title-string
-  -xrm          resource'
+  -title        title-string'
 }
 
 # Most front-end scripts can handle input from only one source, and

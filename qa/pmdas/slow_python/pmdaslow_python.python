@@ -1,4 +1,3 @@
-#!/usr/bin/env pmpython
 '''
 Python implementation of the "slow_python" Performance Metrics Domain Agent.
 '''

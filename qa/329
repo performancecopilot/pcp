@@ -29,7 +29,7 @@ status=1	# failure is the default!
 trap "cd $here; rm -rf $tmp; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-_setup_purify src/interp0
+_setup_purify src/interp0 || _exit 1
 
 for delta in 1 4 5 8 10
 do

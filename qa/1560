@@ -1,0 +1,90 @@
+#!/bin/sh
+# PCP QA Test No. 1560
+# Exercise PDU __pmDecodeFoo() routines
+#
+# Copyright (c) 2024 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+
+do_valgrind=false
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+    do_valgrind=true
+fi
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    cat >$tmp.tmp
+    sed -n <$tmp.tmp >>$seq_full \
+	-e '/pmXmitPDU:/p' \
+	-e '/pmGetPDU:/p' \
+	-e '/^[0-9][0-9][0-9]:/p' \
+    # end
+    sed <$tmp.tmp \
+	-e '/pmXmitPDU:/d' \
+	-e '/pmGetPDU:/d' \
+	-e '/^[0-9][0-9][0-9]:/d' \
+	-e "s@$tmp@TMP@g" \
+    | case "$1"
+    in
+	pdudata/result-event)
+	    # need to skip __pmResult dump from -Dpdu but keep the
+	    # dump from myprintresult()
+	    #
+	    $PCP_AWK_PROG '
+/__pmResult dump from 0x/	{ skip = 1; next }
+skip == 1 && /^ /		{ next }
+skip == 1			{ skip = 0 }
+				{ print }'
+	    ;;
+
+	*)
+	    cat
+	    ;;
+    esac
+}
+
+# real QA test starts here
+export TZ=UTC
+
+for data in pdudata/*
+do
+    head -1 $data | grep -q '^# PDU specifications' || continue
+    echo | tee -a $seq_full
+    echo "=== $data ===" | tee -a $seq_full
+    if $do_valgrind
+    then
+	_run_valgrind ...your test goes here...
+    else
+	src/pdu-gadget -Dpdu -x <$data 2>&1
+    fi \
+    | _filter $data
+done
+
+# success, all done
+exit

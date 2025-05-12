@@ -14,7 +14,6 @@ echo "QA output created by $seq"
 . ./common.check
 
 status=1
-rm -f $seq.full
 
 trap _cleanup 0 1 2 3 15
 
@@ -42,7 +41,7 @@ _wait_for_pmcd_exit()
     _dead=false
     while [ $_i -lt $_can_wait ]
     do
-	if netstat -t -n -l | grep :44321 >/dev/null
+	if netstat -n -l | grep '[:.]44321 .*LISTEN' >/dev/null
 	then
 	    sleep 1
 	    _i=`expr $_i + 1`
@@ -66,12 +65,12 @@ _wait_for_pmcd_exit()
 		cat $PCP_LOG_DIR/pmcd/pmcd.log
 
 		echo "likely looking processes ..."
-		ps "$PCP_PS_ALL_FLAGS" | grep -E "[p]m|[P]ID"
+		ps "$PCP_PS_ALL_FLAGS" | grep -E "[p]m|[P]PID"
 		;;
 	    *)
 		# assume a remote PMCD
 		#
-		ssh pcpqa@$_host "sh -c '. \$PCP_DIR/etc/pcp.env; echo; echo "=== pmcd.log ==="; [ -f \$PCP_LOG_DIR/pmcd/pmcd.log ] && cat \$PCP_LOG_DIR/pmcd/pmcd.log; [ -f \$PCP_LOG_DIR/pmcd.log ] && cat \$PCP_LOG_DIR/pmcd.log; echo; echo likely looking processes ...; ( ps \$PCP_PS_ALL_FLAGS | grep -E \"[p]m|[P]ID\" )'" </dev/null
+		ssh pcpqa@$_host "sh -c '. \$PCP_DIR/etc/pcp.env; echo; echo "=== pmcd.log ==="; [ -f \$PCP_LOG_DIR/pmcd/pmcd.log ] && cat \$PCP_LOG_DIR/pmcd/pmcd.log; [ -f \$PCP_LOG_DIR/pmcd.log ] && cat \$PCP_LOG_DIR/pmcd.log; echo; echo likely looking processes ...; ( ps \$PCP_PS_ALL_FLAGS | grep -E \"[p]m|[P]PID\" )'" </dev/null
 		;;
 	esac
 	status=2
@@ -125,7 +124,7 @@ cat >$tmp.new <<End-of-File
 #
 # Name	Id	IPC	IPC Params 	File/Cmd
 pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.$DSO_SUFFIX
-sample	29	pipe	binary 		$PCP_PMDAS_DIR/sample/pmdasample -d 29 
+sample	29	pipe	binary 		$PCP_PMDAS_DIR/sample/pmdasample -d 29
 End-of-File
 
 # copy the pmcd config file to restore state later.
@@ -135,10 +134,10 @@ $sudo cp $tmp.new $PCP_PMCDCONF_PATH
 # ensure we have pmcd ready for the first iteration.
 # just doing a start may race and find the pmcd socket busy,
 # so stop, wait a little, and start
-_service pcp stop >/dev/null 2>&1
+if ! _service pcp stop >/dev/null 2>&1; then _exit 1; fi
 _wait_for_pmcd_exit
-_service pmcd start >/dev/null 2>&1
-_wait_for_pmcd
+if ! _service pmcd start >/dev/null 2>&1; then _exit 1; fi
+_wait_for_pmcd || _exit 1
 
 # real QA test starts here
 for xxx in "" "1,1,2,2" "2" "1-2" "1,2,foo"
@@ -153,27 +152,28 @@ do
 
     echo
     echo "PMCD_RECONNECT_TIMEOUT=\"$PMCD_RECONNECT_TIMEOUT\""
-    echo "start PMCD_RECONNECT_TIMEOUT=$PMCD_RECONNECT_TIMEOUT" >>$seq.full
-    echo "start `date`" >>$seq.full
+    echo "start PMCD_RECONNECT_TIMEOUT=$PMCD_RECONNECT_TIMEOUT" >>$seq_full
+    echo "start `date`" >>$seq_full
 
     DEBUG=
     DEBUG=-Dcontext
     src/recon $DEBUG >$tmp.out 2>&1 &
 
     pmsleep 1.1
-    echo "begin stop pmcd `date`" >>$seq.full
-    _service pmcd stop | _filter_pcp_stop
-    echo "end stop pmcd `date`" >>$seq.full
+    echo "begin stop pmcd `date`" >>$seq_full
+    if ! _service pmcd stop; then _exit 1; fi \
+    | _filter_pcp_stop
+    echo "end stop pmcd `date`" >>$seq_full
     _wait_for_pmcd_exit
     pmsleep 1.1
-    echo "begin start pmcd `date`" >>$seq.full
-    _service pmcd start 2>&1 \
+    echo "begin start pmcd `date`" >>$seq_full
+    if ! _service pmcd start 2>&1; then _exit 1; fi \
     | _filter_pcp_start
-    echo "end start pmcd `date`" >>$seq.full
+    echo "end start pmcd `date`" >>$seq_full
 
     wait
     _filter <$tmp.out
-    cat $tmp.out >>$seq.full
+    cat $tmp.out >>$seq_full
 done
 
 status=0

@@ -1,5 +1,13 @@
 QA output created by 1004
 === Cisco ===
+Console available
+Global settings setup complete
+Metric group setup complete (0 hosts, 0 archives)
+Timezones and time window setup complete
+QedTimeButton::QedTimeButton: Time button resources loaded
+Phase1 user interface constructors complete
+PmChart::setActiveTab index=0 r=1
+Phase2 user interface setup complete
 Load View: PCP_VAR_DIR/config/pmchart/Schemes
 Load View: stdin
 openView: new chart: style=Line autoscale=yes legend=yes
@@ -8,6 +16,14 @@ openView: new chart: style=Line autoscale=yes legend=yes
 openView: new plot color=#-cycle metric=cisco.rate_out
 
 === Disk ===
+Console available
+Global settings setup complete
+Metric group setup complete (0 hosts, 0 archives)
+Timezones and time window setup complete
+QedTimeButton::QedTimeButton: Time button resources loaded
+Phase1 user interface constructors complete
+PmChart::setActiveTab index=0 r=1
+Phase2 user interface setup complete
 Load View: PCP_VAR_DIR/config/pmchart/Schemes
 Load View: stdin
 openView: new chart: style=Stack title="Disk Activity" autoscale=yes legend=yes
@@ -15,6 +31,14 @@ openView: new plot color=yellow metric=disk.all.read
 openView: new plot color=violet metric=disk.all.write
 
 === CPU ===
+Console available
+Global settings setup complete
+Metric group setup complete (0 hosts, 0 archives)
+Timezones and time window setup complete
+QedTimeButton::QedTimeButton: Time button resources loaded
+Phase1 user interface constructors complete
+PmChart::setActiveTab index=0 r=1
+Phase2 user interface setup complete
 Load View: PCP_VAR_DIR/config/pmchart/Schemes
 Load View: stdin
 openView: new chart: style=Util title="CPU Utilization" autoscale=yes legend=yes
@@ -27,6 +51,14 @@ openView: new optional-plot color=rgbi:0.0/0.8/0.8 metric=kernel.all.cpu.wait.to
 openView: new plot color=#16e116 metric=kernel.all.cpu.idle
 
 === Loadavg ===
+Console available
+Global settings setup complete
+Metric group setup complete (0 hosts, 0 archives)
+Timezones and time window setup complete
+QedTimeButton::QedTimeButton: Time button resources loaded
+Phase1 user interface constructors complete
+PmChart::setActiveTab index=0 r=1
+Phase2 user interface setup complete
 Load View: PCP_VAR_DIR/config/pmchart/Schemes
 Load View: stdin
 openView: new chart: style=Line title="Average Load" autoscale=yes legend=yes
@@ -35,6 +67,14 @@ openView: new plot legend="5 min" metric=kernel.all.load inst=5 minute match=ins
 openView: new plot legend="15 min" metric=kernel.all.load inst=15 minute match=instance
 
 === Net.bytes ===
+Console available
+Global settings setup complete
+Metric group setup complete (0 hosts, 0 archives)
+Timezones and time window setup complete
+QedTimeButton::QedTimeButton: Time button resources loaded
+Phase1 user interface constructors complete
+PmChart::setActiveTab index=0 r=1
+Phase2 user interface setup complete
 Load View: PCP_VAR_DIR/config/pmchart/Schemes
 Load View: stdin
 openView: new chart: style=Stack title="Network Interface Activity" autoscale=yes legend=yes
@@ -42,6 +82,14 @@ openView: new plot metric=network.interface.in.bytes inst=^lo|^sl|^ppp match=not
 openView: new plot metric=network.interface.out.bytes inst=^lo|^sl|^ppp match=not-matching
 
 === PMCD ===
+Console available
+Global settings setup complete
+Metric group setup complete (0 hosts, 0 archives)
+Timezones and time window setup complete
+QedTimeButton::QedTimeButton: Time button resources loaded
+Phase1 user interface constructors complete
+PmChart::setActiveTab index=0 r=1
+Phase2 user interface setup complete
 Load View: PCP_VAR_DIR/config/pmchart/Schemes
 Load View: stdin
 openView: new chart: style=Stack title="PDUs In and Out for PMCD" autoscale=yes legend=yes

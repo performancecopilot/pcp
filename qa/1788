@@ -2,7 +2,7 @@
 # PCP QA Test No. 1788
 # Exercise Linux kernel hugepage sysfs metrics.
 #
-# Copyright (c) 2024 Red Hat.  All Rights Reserved.
+# Copyright (c) 2024-2025 Red Hat.  All Rights Reserved.
 #
 
 seq=`basename $0`
@@ -18,17 +18,18 @@ echo "QA output created by $seq"
 _cleanup()
 {
     cd $here
-    $sudo rm -f $PCP_VAR_DIR/config/pmda/60.43
-    _restore_config $PCP_VAR_DIR/config/pmda/60.43
+    $sudo rm -f $PCP_VAR_DIR/config/pmda/60.{43,44}
+    [ -f $PCP_VAR_DIR/config/pmda/60.43.$seq ] && _restore_config $PCP_VAR_DIR/config/pmda/60.43
+    [ -f $PCP_VAR_DIR/config/pmda/60.44.$seq ] && _restore_config $PCP_VAR_DIR/config/pmda/60.44
     $sudo rm -rf $tmp $tmp.*
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
-# deterministic output - move aside any existing indom cache
-_save_config $PCP_VAR_DIR/config/pmda/60.43
+# deterministic output - move aside any existing indom caches
+[ -f $PCP_VAR_DIR/config/pmda/60.43 ] && _save_config $PCP_VAR_DIR/config/pmda/60.43
+[ -f $PCP_VAR_DIR/config/pmda/60.44 ] && _save_config $PCP_VAR_DIR/config/pmda/60.44
 
 _filter_instances()
 {
@@ -41,7 +42,7 @@ export LINUX_STATSPATH=$root
 pmda=$PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init
 local="-L -K clear -K add,60,$pmda"
 
-metrics=`pminfo $local mem.hugepages | LC_COLLATE=POSIX sort`
+metrics=`pminfo $local mem.hugepages mem.numa.hugepages | LC_COLLATE=POSIX sort`
 for tgz in $here/linux/sysfs-hugepages-*.tgz
 do
     rm -fr $root

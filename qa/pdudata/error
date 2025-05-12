@@ -1,0 +1,20 @@
+# PDU specifications, used by ../src/pdu-gadget to produce a
+# binary PDU stream for QA
+#
+# PDU_ERROR test cases
+#
+
+# credentials: len type from ncred cred[0]
+? PDU_CREDS 42 1 0x01020000
+
+# error: len type from error
+# OK
+? PDU_ERROR 42 -21344
+
+# xtenderror: len type from error datum
+# OK
+? PDU_ERROR 42 -21344 0xdeadbeef
+
+# error: len type from error
+# BAD, too short
+? PDU_ERROR 42

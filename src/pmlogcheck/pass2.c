@@ -58,7 +58,11 @@ pass2(__pmContext *ctxp, char *archname)
 		archname, name == NULL ? "unknown" : name, pmIDStr(dp->pmid),
 		dp->type);
 	}
+	/*
+	 * Note: dynamic metrics are special when logged in an archive and
+         */
 	if (dp->indom != PM_INDOM_NULL &&
+	    !IS_DERIVED_LOGGED(dp->pmid) &&
 	    pmID_domain(dp->pmid) != pmInDom_domain(dp->indom)) {
 	    fprintf(stderr, "%s.meta: %s [%s]: domain of pmid (%d) != domain of indom (%d)\n",
 		archname, name == NULL ? "unknown" : name, pmIDStr(dp->pmid),

@@ -20,7 +20,6 @@ which pcp2openmetrics >/dev/null 2>&1 || _notrun "pcp2openmetrics not installed"
 
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 A="$here/archives/rep"
@@ -40,7 +39,7 @@ _value_filter()
 
 _filter_pcp2openmetrics()
 {
-    tee -a $here/$seq.full \
+    tee -a $seq_full \
     | col -b \
     | sed \
     -e '/domainname=/s/'$domainid'/DOMAINID/' \
@@ -81,7 +80,8 @@ pcp2openmetrics -s1 -z hinv.ncpu | _filter_pcp2openmetrics
 echo "---"
 pcp2opentelemetry -s1 -H -z hinv.ncpu | _filter_pcp2opentelemetry
 echo "---"
-
+pcp2openmetrics -s2 -x hinv.ncpu | _filter_pcp2openmetrics
+echo "---"
 
 cat $tmp.outfile | _archive_filter
 which json_verify > /dev/null 2>&1

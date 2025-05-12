@@ -36,9 +36,8 @@ static bool PCPDynamicColumn_addMetric(PCPDynamicColumns* columns, PCPDynamicCol
    if (!column->super.name[0])
       return false;
 
-   size_t bytes = 16 + strlen(column->super.name);
-   char* metricName = xMalloc(bytes);
-   xSnprintf(metricName, bytes, "htop.column.%s", column->super.name);
+   char* metricName = NULL;
+   xAsprintf(&metricName, "htop.column.%s", column->super.name);
 
    column->metricName = metricName;
    column->id = columns->offset + columns->cursor;
@@ -230,7 +229,7 @@ void PCPDynamicColumns_init(PCPDynamicColumns* columns) {
    if (xdgConfigHome)
       path = String_cat(xdgConfigHome, "/htop/columns/");
    else if (home)
-      path = String_cat(home, "/.config/htop/columns/");
+      path = String_cat(home, CONFIGDIR "/htop/columns/");
    else
       path = NULL;
    if (path) {

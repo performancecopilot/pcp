@@ -24,7 +24,6 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # assorted metrics may not be there, plus this ripper ...
@@ -40,7 +39,7 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 #
 _filter()
 {
-    tee -a $here/$seq.full \
+    tee -a $seq_full \
     | sed \
 	-e "s,$PCP_PMDAS_DIR,PCP_PMDAS_DIR,g" \
 	-e '/^proc\.autogroup\.id: No value(s) available/d' \
@@ -58,6 +57,8 @@ _filter()
 	-e '/^proc\.id\.container: Missing metric value(s)/d' \
 	-e '/^proc\.psinfo\.labels: No value(s) available/d' \
 	-e '/^proc\.psinfo\.ngid: Metric not supported by this version/d' \
+	-e '/^proc\.fdinfo\..*: Metric not supported/d' \
+	-e '/^proc\.fdinfo\..*: No value(s) available/d' \
 	-e '/pmdaFetch: Fetch callback error from metric PMID 3\.11\.0\[.*]: No data available/d' \
 	-e '/proc\.psinfo\.tty_pgrp: No value(s) available/d' \
 	-e '/ acct: existing pacct file did not grow /d' \
@@ -105,6 +106,7 @@ NF == 0 && seen == 1		{ if (numval == 1) print metric ": 1 value"
 	-e '/^proc\.psinfo\.ngid:/d' \
 	-e '/^proc\.psinfo\.tty_pgrp:/d' \
 	-e '/^proc\.smaps\./d' \
+	-e '/^proc\.fdinfo\./d' \
 	-e '/^Command: /s/,proc_init .*/,proc_init ... metrics .../' \
 	-e '/ERROR SUMMARY/q' \
     # end
@@ -120,11 +122,11 @@ export PROC_ACCESS=1
 
 # order of proc metrics is non-deterministic ... take control
 #
-pminfo -L -Kclear -Kadd,60,$linux_pmda -Kadd,3,$proc_pmda proc 2>>$here/$seq.full \
+pminfo -L -Kclear -Kadd,60,$linux_pmda -Kadd,3,$proc_pmda proc 2>>$seq_full \
 | LC_COLLATE=POSIX sort >$tmp.metrics
-echo "=== metrics ===" >>$here/$seq.full
-cat $tmp.metrics >>$here/$seq.full
-echo "=== end metrics ===" >>$here/$seq.full
+echo "=== metrics ===" >>$seq_full
+cat $tmp.metrics >>$seq_full
+echo "=== end metrics ===" >>$seq_full
 
 echo "=== check for errors, silence is golden ==="
 _run_valgrind --sudo pminfo -vL -Kclear -Kadd,60,$linux_pmda -Kadd,3,$proc_pmda `cat $tmp.metrics` 2>&1 \

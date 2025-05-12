@@ -19,7 +19,6 @@ which pmrep >/dev/null 2>&1 || _notrun "pmrep not installed"
 
 status=1        # failure is the default!
 hostname=`hostname`
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 _msg_filter()

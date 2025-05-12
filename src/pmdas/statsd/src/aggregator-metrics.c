@@ -132,11 +132,11 @@ process_metric(struct agent_config* config, struct pmda_metrics_container* conta
                     if (!label_success) {
                         remove_metric(container, metric_key);
                     } else {
-                        mark_metric_as_pernament(container, item);
+                        mark_metric_as_committed(container, item);
                         status = 1;
                     }
                 } else {
-                    mark_metric_as_pernament(container, item);
+                    mark_metric_as_committed(container, item);
                 }
             } else {
                 METRIC_PROCESSING_ERR_LOG("%s %s, REASON: semantically incorrect values.", throwing_away_msg, datagram->name);
@@ -292,7 +292,7 @@ find_metric_by_name(struct pmda_metrics_container* container, char* key, struct 
  * @arg config - Agent config
  * @arg datagram - Datagram with data that should populate new metric
  * @arg out - Placeholder metric
- * @return 1 on success, 0 on fail - fails before allocating anything to "out"
+ * @return 1 on success, 0 on fail
  */
 int
 create_metric(struct agent_config* config, struct statsd_datagram* datagram, struct metric** out) {
@@ -302,11 +302,11 @@ create_metric(struct agent_config* config, struct statsd_datagram* datagram, str
     size_t len = strlen(datagram->name) + 1;
     (*out)->name = (char*) malloc(len);
     ALLOC_CHECK((*out)->name, "Unable to allocate memory for copy of metric name.");
-    strncpy((*out)->name, datagram->name, len);
+    memcpy((*out)->name, datagram->name, len);
     (*out)->meta = create_metric_meta(datagram);
     (*out)->children = NULL;
+    (*out)->committed = 0;
     int status = 0; 
-    (*out)->type = datagram->type;
     (*out)->value = NULL;
     // this metric doesn't have root value
     if (datagram->tags != NULL) {
@@ -327,7 +327,9 @@ create_metric(struct agent_config* config, struct statsd_datagram* datagram, str
                 status = 0;
         }
     }
-    if (!status) {
+    if (status) {
+        (*out)->type = datagram->type;
+    } else {
         free_metric(config, item);
     }
     return status;
@@ -514,8 +516,8 @@ free_metric_metadata(struct metric_metadata* meta) {
  * Synchronized by mutex on pmda_metrics_container struct
  */
 void
-mark_metric_as_pernament(struct pmda_metrics_container* container, struct metric* item) {
+mark_metric_as_committed(struct pmda_metrics_container* container, struct metric* item) {
     pthread_mutex_lock(&container->mutex);
-    item->pernament = 1;
+    item->committed = 1;
     pthread_mutex_unlock(&container->mutex);
 }

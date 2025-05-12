@@ -79,6 +79,7 @@ main(int argc, char **argv)
 
 	if (pmRegisterDerivedMetric(name, expr, &errmsg) < 0) {
 	    fprintf(stderr, "%s: %s", pmGetProgname(), errmsg);
+	    free(errmsg);
 	}
 	else {
 	    printf("%s: registered \"%s\" as: \"%s\"\n", pmGetProgname(), name, expr);

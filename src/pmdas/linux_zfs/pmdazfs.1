@@ -1,4 +1,4 @@
-'\"macro stdmacro
+'\" t
 .\"
 .\" Copyright (c) 2021 Red Hat.
 .\"
@@ -17,6 +17,7 @@
 \f3pmdazfs\f1 \- ZFS filesystem performance metrics domain agent (PMDA) for Linux
 .SH SYNOPSIS
 \f3$PCP_PMDAS_DIR/linux_zfs/pmdazfs\f1
+[\f3\-D\f1 \f2debug\f1]
 [\f3\-d\f1 \f2domain\f1]
 [\f3\-l\f1 \f2logfile\f1]
 .SH DESCRIPTION
@@ -76,6 +77,34 @@ To remove PMDA use the Remove script:
 .in
 .fi
 .ft 1
+.SH DEBUGGING OPTIONS
+The
+.B \-D
+or
+.B \-\-debug
+option enables the output of additional diagnostics on
+.I stderr
+to help triage problems, although the information is sometimes cryptic and
+primarily intended to provide guidance for developers rather end-users.
+.I debug
+is a comma separated list of debugging options; use
+.BR pmdbg (1)
+with the
+.B \-l
+option to obtain
+a list of the available debugging options and their meaning.
+.PP
+Debugging options specific to
+.B pmdazfs
+are as follows:
+.TS
+box;
+lf(B) | lf(B)
+lf(B) | lf(R) .
+Option	Description
+_
+appl0	warn if any of the ZFS stats files cannot be found
+.TE
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pmcd (1),

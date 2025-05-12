@@ -19,10 +19,10 @@ _cleanup()
     then
 	_restore_auto_restart pmie
 	[ "$pmie_state" = on ] && _change_config pmie on
-	_service pmie start >>$here/$seq.full 2>&1
+	_service pmie start >>$seq_full 2>&1
     else
-	_service pmie stop >>$here/$seq.full 2>&1
-	$sudo $PCP_BINADM_DIR/pmsignal -a -s TERM pmie >>$here/$seq.full 2>&1
+	_service pmie stop >>$seq_full 2>&1
+	$sudo $PCP_BINADM_DIR/pmsignal -a -s TERM pmie >>$seq_full 2>&1
 	_wait_pmie_end
 	[ "$pmie_state" = on ] || _change_config pmie off
     fi
@@ -33,34 +33,38 @@ signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
-pmie_state=`_get_config pmie`
+_get_config pmie >$tmp.tmp || _exit 1
+pmie_state=`cat $tmp.tmp`
+rm -f $tmp.tmp
 pmie_was_running=false
 if [ -f $PCP_RUN_DIR/pmie.pid ]
 then
     pmie_was_running=true
-    echo "Found pmie PID `cat $PCP_RUN_DIR/pmie.pid` running @ start" >>$here/$seq.full
+    echo "Found pmie PID `cat $PCP_RUN_DIR/pmie.pid` running @ start" >>$seq_full
     _stop_auto_restart pmie
-    _service pmie stop >>$here/$seq.full 2>&1
+    if ! _service pmie stop >>$seq_full 2>&1; then _exit 1; fi
 fi
 $sudo $signal -a pmie >/dev/null 2>&1
-_wait_pmie_end
+_wait_pmie_end || _exit 1
 
 # real QA test starts here
 
-_change_config pmie on
+_change_config pmie on || _exit 1
 # The "pmie not running" message does not appear when systemd is in
 # control, as the "stop" is a no-op if the service is not already
 # running
 # And the "Waiting for pmie process(es) to terminate ..." message
 # depends on the platform and the state of the system.
 #
-_service pmie stop | _filter_pmie_stop \
+if ! _service pmie stop; then _exit 1; fi \
+| _filter_pmie_stop \
 | sed \
     -e '/pmie not running/d' \
     -e '/Waiting for pmie process/d' \
 # end
 
-_service pmie start | _filter_pmie_start
+if ! _service pmie start; then _exit 1; fi \
+| _filter_pmie_start
 
 # success, all done
 status=0

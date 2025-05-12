@@ -1,9 +1,4 @@
 
-if dpkg-maintscript-helper supports mv_conffile
-then
-    _version_configs "$@"
-fi
-
 getent group pcp >/dev/null || groupadd -r pcp
 getent passwd pcp >/dev/null || \
 useradd -c "Performance Co-Pilot" -g pcp -d /var/lib/pcp -M -r -s /usr/sbin/nologin pcp
@@ -29,8 +24,8 @@ chown pcp:pcp /var/lib/pcp/tmp
 chmod 775 /var/lib/pcp/tmp
 chown pcp:pcp /var/log/pcp
 chmod 775 /var/log/pcp
-chown pcp:pcp /var/run/pcp
-chmod 775 /var/run/pcp
+# we used to dink with /var/run/pcp here, but that is done more
+# safely in pcp-reboot-init now
 
 # must match src/pmdas/{json,bash,mmv}/GNUmakefile
 #

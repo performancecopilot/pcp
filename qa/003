@@ -24,7 +24,6 @@ in
 esac
 
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
-rm -f $seq.full
 
 # Expected error messages
 #
@@ -140,27 +139,27 @@ for root in \
 	nfs nfs3 resource rpc stream swap swapdev vnodes xfs \
 	pmcd
 do
-    echo "$root: `date`" >>$seq.full
+    echo "$root: `date`" >>$seq_full
     src/exercise -i 5 $root 2>&1 \
     | LC_COLLATE=POSIX sort \
     | derived_filter \
     | sample_filter \
     | pmie_filter \
     | count_filter >$tmp.tmp
-    
-    if grep 'IPC protocol failure' $tmp.tmp >>$seq.full
+
+    if grep 'IPC protocol failure' $tmp.tmp >>$seq_full
     then
 	# we killed pmcd, that's not good!
 	#
-	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]ID|[p]mcd' >>$seq.full
+	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mcd( |$)' >>$seq_full
 	for log in pmcd sample linux darwin solaris openbsd freebsd netbsd
 	do
 	    for suff in "" ".prev"
 	    do
 		if [ -f "$PCP_LOG_DIR/pmcd/$log.log$suff" ]
 		then
-		    echo "=== $PCP_LOG_DIR/pmcd/$log.log$suff ===" >>$seq.full
-		    cat "$PCP_LOG_DIR/pmcd/$log.log$suff" >>$seq.full
+		    echo "=== $PCP_LOG_DIR/pmcd/$log.log$suff ===" >>$seq_full
+		    cat "$PCP_LOG_DIR/pmcd/$log.log$suff" >>$seq_full
 		fi
 	    done
 	done
@@ -184,6 +183,7 @@ do
 	    -e "/disk\.xvm\..*: $unavailable/d" \
 	    -e "/filesys\.readonly: $unknown/d" \
 	    -e "/hinv\.cpu\..*: $unavailable/d" \
+	    -e "/hinv\.disk\..*: $unavailable/d" \
 	    -e "/hinv\.hugepagesize: $unavailable/d" \
 	    -e "/hinv\.interconnect: $unavailable/d" \
 	    -e "/hinv\.map\.cpu: $unavailable/d" \
@@ -264,6 +264,7 @@ do
 	    -e "/mem\.util\.other: $unavailable/d" \
 	    -e "/mem\.util\.percpu: $unavailable/d" \
 	    -e "/mem\.util\.quicklists: $unavailable/d" \
+	    -e "/mem\.util\.kreclaimable: $unavailable/d" \
 	    -e "/mem\.util\.reverseMaps: $unavailable/d" \
 	    -e "/mem\.util\.shadowcallstack: $unavailable/d" \
 	    -e "/mem\.util\.shared: $unavailable/d" \

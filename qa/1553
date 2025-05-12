@@ -1,0 +1,86 @@
+#!/bin/sh
+# PCP QA Test No. 1553
+# exercise PM_CTXFLAG_METADATA_ONLY and PM_CTXFLAG_LAST_VOLUME
+# flags to pmNewContext()
+#
+# non-valgrind variant, see qa/1555 for the valgrind variant
+#
+# Copyright (c) 2025 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+do_valgrind=false
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+    do_valgrind=true
+elif which valgrind >/dev/null 2>&1
+then
+    [ "$PCPQA_VALGRIND" = both ] || \
+        _notrun "valgrind variant qa/1555 will be run"
+fi
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    tee -a $seq_full \
+    | grep '^__pmFopen' \
+    | sed -e "s@$tmp@TMP@g" \
+    | sed -e "s/xz (on-the-fly)/xz/g" \
+    | LC_COLLATE=POSIX sort \
+    # end
+}
+
+mkdir $tmp || exit
+cd $tmp
+ln -s $here/archives/20180416.10.00* .
+xzcat <20180416.10.00.3.xz >vol.3
+mv vol.3 20180416.10.00.3
+cd $here
+
+# real QA test starts here
+
+for arch in archives/ok-mv-bigbin $tmp/20180416.10.00
+do
+    for flags in '' '-f0' '-f1' '-f0 -f1'
+    do
+	echo
+	echo "=== $flags -a $arch ===" | tee -a $seq_full | sed -e "s@$tmp@TMP@g"
+	if $do_valgrind
+	then
+	    _run_valgrind --save-output src/newcontext $flags -a $arch -D log 2>&1 \
+	    | sed -e "s@$tmp@TMP@g"
+	    grep -v '^__pmFopen' $tmp.out
+	    grep '^__pmFopen' $tmp.out | LC_COLLATE=POSIX sort
+	    _filter <$tmp.err
+	else
+	    src/newcontext $flags -a $arch -D log 2>&1 \
+	    | _filter
+	fi
+    done
+done
+
+# success, all done
+exit

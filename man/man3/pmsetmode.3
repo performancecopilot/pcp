@@ -17,7 +17,7 @@
 .TH PMSETMODE 3 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pmSetMode\f1,
-\f3pmSetModeHighRes\f1 \- set collection time parameters for the current PMAPI context
+\f3pmSetModeHighRes\f1 \- set collection time and mode parameters for the current PMAPI context
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
@@ -39,18 +39,32 @@ cc ... \-lpcp
 and
 .B pmSetModeHighRes
 are used to define the collection time and/or mode for accessing
-performance metrics and meta-data in the current
+performance metrics and metadata in the current
 Performance Metrics Application Programming Interface (PMAPI)
 context.
 This mode affects the semantics of subsequent calls to the following
 PMAPI routines:
 .BR pmFetch (3),
+.BR pmFetchHighRes (3),
 .BR pmFetchArchive (3),
 .BR pmLookupDesc (3),
 .BR pmGetInDom (3),
-.BR pmLookupInDom (3)
+.BR pmLookupInDom (3),
+.BR pmLookupLabels (3)
 and
 .BR pmNameInDom (3).
+.PP
+Intended mainly for retrospective analyis of performance metrics
+from a PCP archive, the
+options described below allow an application to implement seeking to an arbitrary
+time within the archive, playback, fast forward, reverse,
+etc. by alternating calls
+to
+.B pmSetMode
+and
+.BR pmFetch (3)
+or
+.BR pmFetchHighRes (3).
 .PP
 If
 .I mode
@@ -59,110 +73,89 @@ is
 then all information is returned from the active pool of performance metrics
 as of the time that the PMAPI call is made, and the other two parameters to
 .B pmSetMode
+(\c
+.I when
+and
+.IR delta )
 are ignored.
 .B PM_MODE_LIVE
-is the default mode when a new PMAPI context of type
+is the default mode when a new PMAPI context is created with type
 .B PM_CONTEXT_HOST
-is created.
-.PP
-If the
-.I mode
-is not
-.BR PM_MODE_LIVE ,
-then the
-.I when
-parameter defines a time origin, and all requests for meta-data (metric
-descriptions and instance identifiers from the instance domains) will be
-processed to reflect the state of the meta-data as of the time origin, i.e. we
-use the last state of this information at, or before, the time origin.
-.PP
-If the
-.I mode
-is
-.B PM_MODE_INTERP
-then, in the case of
-.BR pmFetch (3),
-the underlying code will use an interpolation scheme to compute the values of
-the metrics from the values recorded for times in the proximity of the time
-origin.
-A
-.I mode
-of
-.B PM_MODE_INTERP
-may only be used with an archive context.
-.PP
-If the
-.I mode
-is
-.B PM_MODE_FORW
-then, in the case of
-.BR pmFetch (3),
-the collection of recorded metric values will be scanned in a forwards
-direction in time, until values for at least one of the requested metrics is
-located after the time origin, and then all requested metrics stored in the
-set of archives at that time will be returned with the corresponding timestamp.
-A
-.I mode
-of
-.B PM_MODE_FORW
-may only be used with an archive context.
-.PP
-If the
-.I mode
-is
-.B PM_MODE_BACK
-then, the situation is the same as for
-.BR PM_MODE_FORW ,
-except a
-.BR pmFetch (3)
-will be serviced by scanning the collection of recorded metrics in a backwards
-direction in time for metrics before the time origin.
-A
-.I mode
-of
-.B PM_MODE_BACK
-may only be used with an archive context.
-.PP
-If the
-.I mode
-is
-.B PM_MODE_FORW
+(i.e. fetching metrics from
+.B pmcd (1))
 or
-.BR PM_MODE_BACK ,
-and no qualifying metrics can be found in the requested direction of searching
-before the end or start of the set of archives is found, then
-.BR pmFetch (3)
-returns the special error indicator,
-.BR PM_ERR_EOL .
-.PP
-For
-.IR mode s
-other than
-.BR PM_MODE_LIVE ,
-after each successful
-.BR pmFetch (3),
-the time origin is reset to the timestamp returned via the
-.CR pmResult
-structure from
-.BR pmFetch (3).
-.PP
-The
+.BR PM_CONTEXT_LOCAL ,
+and this
+.I mode
+is rarely used in calls to
 .B pmSetMode
-parameter
+or
+.BR pmSetModeHighRes .
+.PP
+The other values of
+.I mode
+are used with PCP archives where the associated PMAPI context must be of type
+.B PM_CONTEXT_ARCHIVE
+(when it was created
+with
+.BR pmNewContext (3))
+and the
+.I when
+parameter defines the current time within the archive.
+All requests for metric values and metadata (metric
+descriptions and instance identifiers from the instance domains) will be
+processed to reflect the state in the archive as of the current time.
+.PP
+When selecting a value for
+.IR when ,
+the time at the start of the archive can be established from
+the
+.CR ll_start
+field in the structure returned from a call to
+.BR pmGetArchiveLabel (3)
+or
+the
+.CR start
+field in the structure returned from a call to
+.BR pmGetArchiveLabel (3),
+and the time at the end of the archive can be established by calling
+.BR pmGetArchiveEnd (3)
+.PP
+As a special case, if
+.I when
+is
+.B NULL
+then the
+.I mode
+and
 .I delta
-defines an additional number of time units that should be used to adjust the
-time origin (forwards or backwards), after the new time origin from the
-.CR pmResult
-has been determined.
-This automatic adjustment of the time origin only occurs when the
+arguments are used as described below, but the current time in the archive
+is not altered.
+.SH "TIME-DRIVEN ARCHIVE MODE"
+If
 .I mode
 is
-.BR PM_MODE_INTERP ,
-and the adjustment is applied, even if the
+.B PM_MODE_INTERP
+then as metric values are retrieved from the archive with
 .BR pmFetch (3)
-fails because the time origin is outside the range defined by
-the records in a set of archives, i.e. returns
-.BR PM_ERR_EOL .
+or
+.BR pmFetchHighRes (3)
+the current time is returned as the timestamp in the
+.CR pmResult
+structure and
+the current time moves on; if
+.I delta
+is positive, the current time moves forwards, else the current
+time moves backwards.
+The adjustment to the current time is applied even if the
+.BR pmFetch (3)
+or
+.BR pmFetchHighRes (3)
+fails to return values for any metrics or returns an error,
+e.g. \c
+.B PM_ERR_EOL
+because the current time is outside the range defined by
+the records in the archive.
 .PP
 By default the
 .I delta
@@ -176,63 +169,137 @@ In the
 variant of this interface, the
 .I delta
 parameter is a
-.I struct timespec
-so can directly represent any interval.
+.CR "struct timespec"
+so this can directly represent any interval.
 .PP
-Using these
+When metric values are being requested via
+.BR pmFetch (3)
+or
+.BR pmFetchHighRes (3)
+the current time may
+not exactly match the times at which values have been recorded in the
+archive, so the returned metric values
+are computed from the observed metric values
+in the archive (usually at times close to the current time).
+.PP
+For metrics with semantics of
+.BR PM_SEM_COUNTER ,
+the computed value is based
+on linear interpolation between the last observation before
+the current time and the first
+observation after the current time.
+.PP
+For metrics with semantics of
+.B PM_SEM_INSTANT
+or
+.BR PM_SEM_DISCRETE ,
+the computed value is based on values in the neighbourhood of the current time.
+.PP
+The algorithms used in these computations depend on the semantics
+of the metrics and the time series of observed values in the archive; a fuller
+explanation may be found in the white paper
+.I "Explaining Value Interpolation with PCP Archives"
+found at
+.BR https://pcp.io/papers/archive-interpolation.pdf .
+.SH "RECORD-DRIVEN ARCHIVE MODES"
+If
 .I mode
-options, an application can implement replay, playback, fast forward, reverse,
-etc. for performance metric values held in the set of archives by alternating calls
-to
-.B pmSetMode
-and
-.BR pmFetch (3).
-.PP
-As a special case, if
-.I when
 is
-.B NULL
-then the
-.I mode
-and
+.B PM_MODE_FORW
+or
+.B PM_MODE_BACK
+then when metric values are being requested via
+.BR pmFetch (3)
+or
+.BR pmFetchHighRes (3)
+the archive will be scanned in a forwards (\c
+.BR PM_MODE_FORW )
+or backwards (\c
+.BR PM_MODE_BACK )
+direction in time, until an archive record is
+encountered with values for
+.B "at least one"
+of the requested metrics.
+This archive record is used to provide as many of
+the requested metrics as possible and these are
+returned with the timestamp if the record in the archive, which becomes the
+new current time.
+.PP
+Note that any metrics requested via
+.BR pmFetch (3)
+or
+.BR pmFetchHighRes (3)
+that do
+.B not
+have a value in the archive record at the
+new current time will return no values, and so this mode is most useful for
+archives where all of the metrics of interest have been logged regularly
+at the same time in the archive.
+Otherwise, each
+.BR pmFetch (3)
+or
+.BR pmFetchHighRes (3)
+will contain only the subset of the requested metrics and any associated
+instances found in the
+qualifying archive record.
+.PP
+The
 .I delta
-arguments are used as described above, but the current time in the archive
-is not altered.
+parameter is ignored, because the current time is driven by the
+timestamp in the matching archive record.
+So there is no concept
+of stepping through the archive in regular time with this mode,
+although if the requested metrics appear at regular intervals
+in the archive the current time may advance by regular intervals,
+but this is serendipitous.
+.PP
+If no qualifying metrics can be found in the requested direction of searching
+before the end or start of the archive is encountered, then
+.BR pmFetch (3)
+or
+.BR pmFetchHighRes (3)
+returns the special error indicator,
+.BR PM_ERR_EOL .
+.SH RECOMMENDATIONS
+When processing PCP archives,
+.B PM_MODE_INTERP
+is preferred because:
+.IP \(bu 2n
+This maximizes the information that will be returned
+in each
+.BR pmFetch (3)
+or
+.BR pmFetchHighRes (3).
+.IP \(bu 2n
+This returns values at regular intervals of the current time, independent
+of the logging frequency for requested metrics in the archive.
+.IP \(bu 2n
+This works with
+.B any
+PCP archive, as opposed to the record-driven modes which may work
+acceptably for archives with regular logging of all requested metrics,
+but may fail to report complete or useful results for other archives.
+.IP \(bu 2n
+This mode provides the closest semantic match to
+.B PM_MODE_LIVE
+and leads to the least user surprise when moving between real-time
+monitoring and retrospective analysis.
 .SH EXAMPLES
-The following code fragment may be used to dump just those values
-recorded in an archive in correct temporal sequence, for a selected set of
-performance metrics; this uses the default collection time mechanisms.
-.PP
-.ft CR
-.nf
-.in +0.5i
-pmNewContext(PM_CONTEXT_ARCHIVE, "myarchive");
-while (pmFetch(npmid, pmidlist, &result) != PM_ERR_EOL) {
-    /*
-     * process real metric values as of result->timestamp
-     */
-    \&. . .
-    pmFreeResult(result);
-}
-.in
-.fi
-.ft 1
-.PP
-Alternatively, to replay interpolated metrics from the archive in reverse
-chronological order, at 10 second intervals (of recorded time), the following
-code fragment could be used.
+To replay interpolated metrics from an archive at 10 second intervals,
+the following code fragment could be used:
 .PP
 .ft CR
 .nf
 .in +0.5i
 struct timeval mytime;
+int mydelta = 10 * 1000;      /* msec */
+pmLogLabel label;
+pmResult result;
 
-mytime.tv_sec = PM_MAX_TIME_T; /* or use pmGetArchiveEnd(&mtime) */
-pmSetMode(PM_MODE_BACK, &mytime, 0);
-pmFetchArchive(&result);
-mytime = result->timestamp;
-pmFreeResult(result);
-pmSetMode(PM_MODE_INTERP | PM_XTB_SET(PM_TIME_SEC), &mytime, \-10);
+pmNewContext(PM_CONTEXT_ARCHIVE, "myarchive");
+pmGetArchiveLabel(&label);
+mytime = label.ll_start;
+pmSetMode(PM_MODE_INTERP, &mytime, mydelta)
 
 while (pmFetch(numpmid, pmidlist, &result) != PM_ERR_EOL) {
     /*
@@ -246,32 +313,30 @@ while (pmFetch(numpmid, pmidlist, &result) != PM_ERR_EOL) {
 .fi
 .ft 1
 .PP
-To perform the same operations, using high resolution time:
+The following code fragment may be used to dump values
+for selected metrics in an
+archive in reverse temporal sequence.
 .PP
 .ft CR
 .nf
 .in +0.5i
-struct timespec mytime, mydelta = { -10, 0 };
+struct timeval mytime;
+pmResult result;
 
-mytime.tv_sec = PM_MAX_TIME_T; /* or use pmGetHighResArchiveEnd(&mtime) */
-pmSetModeHighRes(PM_MODE_BACK, &mytime, NULL);
-pmFetchHighResArchive(&result);
-mytime = result->timestamp;
-pmFreeHighResResult(result);
-pmSetModeHighRes(PM_MODE_INTERP, &mytime, &mydelta);
+pmNewContext(PM_CONTEXT_ARCHIVE, "myarchive");
+pmGetArchiveEnd(&mytime);
+pmSetMode(PM_MODE_BACK, &mytime, 0);
 
-while (pmFetchHighRes(numpmid, pmidlist, &result) != PM_ERR_EOL) {
+while (pmFetch(npmid, pmidlist, &result) != PM_ERR_EOL) {
     /*
-     * process interpolated metric values as of
-     * result->timestamp
+     * process logged metric values as of result->timestamp
      */
     \&. . .
-    pmFreeHighResResult(result);
+    pmFreeResult(result);
 }
 .in
-.fi
 .ft 1
-.SH LARGE DELTA VALUES
+.SH "LARGE DELTA VALUES"
 The simplest mechanism to set large values for
 .I delta
 is to use the
@@ -355,14 +420,20 @@ The
 .I mode
 parameter is invalid
 .SH "SEE ALSO"
+.BR pmcd (1),
 .BR PMAPI (3),
 .BR pmFetch (3),
 .BR pmFetchArchive (3),
+.BR pmFetchHighRes (3),
+.BR pmGetArchiveEnd (3),
+.BR pmGetArchiveLabel (3),
 .BR pmGetInDom (3),
 .BR pmLookupDesc (3),
-.BR pmLookupInDom (3)
+.BR pmLookupInDom (3),
+.BR pmLookupLabels (3),
+.BR pmNameInDom (3)
 and
-.BR pmNameInDom (3).
+.BR pmNewContext (3).
 
 .\" control lines for scripts/man-spell
 .\" +ok+ PM_TIME_XXXX

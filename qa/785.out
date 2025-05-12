@@ -58,9 +58,9 @@ HOST-SUMMARY-LINE
 -------------------------- analysis date: 2015/09/25 --------------------------
 
 11:03:21  memtotal memfree buffers cached dirty slabmem  swptotal swpfree _mem_
-11:03:21     3849M    196M    275M  1553M    0M    357M    13661M  13652M
+11:03:21     3849M    195M    275M  1553M    0M    358M    13661M  13652M
 11:03:22     3849M    195M    275M  1553M    0M    358M    13661M  13652M
-11:03:23     3849M    195M    275M  1553M    0M    358M    13661M  13652M
+11:03:23     3849M    195M    275M  1554M    0M    358M    13661M  13652M
 
 == Top3 processes by processor
 
@@ -92,7 +92,7 @@ HOST-SUMMARY-LINE
 -------------------------- analysis date: 2015/09/25 --------------------------
 
 11:03:21  memtotal memfree buffers cached dirty slabmem  swptotal swpfree _mem_
-11:03:21     3849M    196M    275M  1553M    0M    357M    13661M  13652M
+11:03:21     3849M    195M    275M  1553M    0M    358M    13661M  13652M
 
 == Check handling of missing values
 pcp-atopsar: no per-processor values available

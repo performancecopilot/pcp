@@ -13,10 +13,8 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-rm -f $seq.full
 LIST="archives/951127.23.01_v2.0 archives/960624.08.17_v2.0 archives/ace_v2.0 tmparch/bar.0 archives/bigace_v2.0 tmparch/bigbin.0 archives/bug_v2.0 tmparch/dodgey-all.0 tmparch/dodgey-mixed.0 tmparch/dodgey-some.0 tmparch/foo.0 tmparch/interp.0 archives/mirage.0 tmparch/mv-bar.0 tmparch/mv-bigbin.0 tmparch/mv-foo.0 tmparch/mv-interp.0 tmparch/truncbin.0"
 
-$sudo rm -rf $tmp $tmp.*
 
 status=0
 trap "rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
@@ -24,7 +22,7 @@ trap "rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 _filter()
 {
     host=`hostname`
-    tee -a $here/$seq.full \
+    tee -a $seq_full \
     | sed \
 	-e '/^Created:/{
 s/'"$host"'/HOSTNAME/
@@ -59,9 +57,9 @@ do
     cp $pat $tmp/src
 done
 cd $tmp
-echo "tmp=$tmp" >>$here/$seq.full
-echo "pwd: `pwd`" >>$here/$seq.full
-( echo "src dir ..."; ls src ) >>$here/$seq.full
+echo "tmp=$tmp" >>$seq_full
+echo "pwd: `pwd`" >>$seq_full
+( echo "src dir ..."; ls src ) >>$seq_full
 
 HERE=`pwd`
 ABSLIST=""

@@ -36,7 +36,8 @@ static unsigned int default_batchsize;	/* for groups of metrics */
 static sds PARAM_HOSTNAME, PARAM_HOSTSPEC, PARAM_CTXNUM, PARAM_CTXID,
            PARAM_POLLTIME, PARAM_PREFIX, PARAM_MNAME, PARAM_MNAMES,
            PARAM_PMIDS, PARAM_PMID, PARAM_INDOM, PARAM_INSTANCE,
-           PARAM_INAME, PARAM_MVALUE, PARAM_TARGET, PARAM_EXPR, PARAM_MATCH;
+           PARAM_INAME, PARAM_MVALUE, PARAM_TARGET, PARAM_EXPR, PARAM_MATCH,
+           PARAM_FILTER;
 static sds AUTH_USERNAME, AUTH_PASSWORD;
 static sds EMPTYSTRING, LOCALHOST, WORK_TIMER, POLL_TIMEOUT, BATCHSIZE;
 
@@ -134,9 +135,18 @@ webgroup_timeout_context(uv_timer_t *arg)
      * is returned to zero by the caller, or background cleanup
      * finds this context and cleans it.
      */
-    if (cp->refcount == 0 && cp->garbage == 0) {
-	cp->garbage = 1;
-	uv_timer_stop(&cp->timer);
+    if (cp->refcount == 0) {
+	if (cp->garbage == 0) {
+	    cp->garbage = 1;
+	    uv_timer_stop(&cp->timer);
+	}
+    } else {
+	/*
+	 * Context timed out but still referenced, must wait
+	 * until the caller releases its reference (shortly)
+	 * before beginning garbage collection process.
+	 */
+	cp->inactive = 1;
     }
 }
 
@@ -298,20 +308,28 @@ webgroup_garbage_collect(struct webgroups *groups)
     dictIterator        *iterator;
     dictEntry           *entry;
     context_t		*cp;
-    unsigned int	count = 0, drops = 0;
+    unsigned int	count = 0, drops = 0, garbageset = 0, inactiveset = 0;
 
     if (pmDebugOptions.http || pmDebugOptions.libweb)
-	fprintf(stderr, "%s: started\n", "webgroup_garbage_collect");
+	fprintf(stderr, "%s: started for groups %p\n",
+			"webgroup_garbage_collect", groups);
 
     /* do context GC if we get the lock (else don't block here) */
     if (uv_mutex_trylock(&groups->mutex) == 0) {
 	iterator = dictGetSafeIterator(groups->contexts);
 	for (entry = dictNext(iterator); entry;) {
 	    cp = (context_t *)dictGetVal(entry);
+	    if (cp->privdata != groups)
+		continue;
 	    entry = dictNext(iterator);
-	    if (cp->garbage && cp->privdata == groups) {
+	    if (cp->garbage)
+		garbageset++;
+	    if (cp->inactive && cp->refcount == 0)
+		inactiveset++;
+	    if (cp->garbage || (cp->inactive && cp->refcount == 0)) {
 		if (pmDebugOptions.http || pmDebugOptions.libweb)
-		    fprintf(stderr, "GC context %u (%p)\n", cp->randomid, cp);
+		    fprintf(stderr, "GC dropping context %u (%p)\n",
+				    cp->randomid, cp);
 		uv_mutex_unlock(&groups->mutex);
 		webgroup_drop_context(cp, groups);
 		uv_mutex_lock(&groups->mutex);
@@ -324,7 +342,8 @@ webgroup_garbage_collect(struct webgroups *groups)
 	/* if dropping the last remaining context, do cleanup */
 	if (groups->active && drops == count) {
 	    if (pmDebugOptions.http || pmDebugOptions.libweb)
-		fprintf(stderr, "%s: freezing\n", "webgroup_garbage_collect");
+		fprintf(stderr, "%s: freezing groups %p\n",
+				"webgroup_garbage_collect", groups);
 	    webgroup_timers_stop(groups);
 	}
 	uv_mutex_unlock(&groups->mutex);
@@ -334,8 +353,10 @@ webgroup_garbage_collect(struct webgroups *groups)
     mmv_set(groups->map, groups->metrics[WEBGROUP_GC_COUNT], &count);
 
     if (pmDebugOptions.http || pmDebugOptions.libweb)
-	fprintf(stderr, "%s: finished [%u drops from %u entries]\n",
-			"webgroup_garbage_collect", drops, count);
+	fprintf(stderr, "%s: finished [%u drops from %u entries,"
+			" %u garbageset, %u inactiveset]\n",
+			"webgroup_garbage_collect", drops, count,
+			garbageset, inactiveset);
 }
 
 static void
@@ -354,7 +375,7 @@ webgroup_use_context(struct context *cp, int *status, sds *message, void *arg)
     int			sts;
     struct webgroups    *gp = (struct webgroups *)cp->privdata;
 
-    if (cp->garbage == 0) {
+    if (cp->garbage == 0 && cp->inactive == 0) {
 	if (cp->setup == 0) {
 	    if ((sts = pmReconnectContext(cp->context)) < 0) {
 		infofmt(*message, "cannot reconnect context: %s",
@@ -424,7 +445,7 @@ webgroup_lookup_context(pmWebGroupSettings *sp, sds *id, dict *params,
 	    *status = -ENOTCONN;
 	    return NULL;
 	}
-	if (cp->garbage == 0) {
+	if (cp->garbage == 0 && cp->inactive == 0) {
 	    access.username = cp->username;
 	    access.password = cp->password;
 	    access.realm = cp->realm;
@@ -1847,6 +1868,40 @@ webgroup_scrape(pmWebGroupSettings *settings, context_t *cp,
     return sts < 0 ? sts : 0;
 }
 
+typedef struct webscrape {
+    pmWebGroupSettings	*settings;
+    struct context	*context;
+    sds			*msg;
+    int			status;
+    unsigned int	numnames;	/* current count of metric names */
+    sds			*names;		/* metric names for batched up scrape */
+    struct metric	**mplist;
+    pmID		*pmidlist;
+    int			numfilters;	/* current count of filters */
+    sds			*filters;
+    enum matches	match;		/* type of matching to use for filters */
+    regex_t		*regex;		/* for filter compiled regular expressions */
+    void		*arg;
+} webscrape_t;
+
+static int
+filtered(struct webscrape *filter_info, const char *name)
+{
+    int i;
+    for (i = 0; i < filter_info->numfilters; i++) {
+	if (filter_info->match == MATCH_EXACT &&
+	    strcmp(filter_info->filters[i], name) == 0)
+	    return 1;
+	if (filter_info->match == MATCH_REGEX &&
+	    regexec(&(filter_info->regex[i]), name, 0, NULL, 0) == 0)
+	    return 1;
+	if (filter_info->match == MATCH_GLOB &&
+	    fnmatch(filter_info->filters[i], name, 0) == 0)
+	    return 1;
+    }
+    return 0;
+}
+
 static int
 webgroup_scrape_names(pmWebGroupSettings *settings, context_t *cp,
 	int numnames, sds *names, struct metric **mplist, pmID *pmidlist,
@@ -1865,18 +1920,6 @@ webgroup_scrape_names(pmWebGroupSettings *settings, context_t *cp,
     return webgroup_scrape(settings, cp, numnames, mplist, pmidlist, msg, arg);
 }
 
-typedef struct webscrape {
-    pmWebGroupSettings	*settings;
-    struct context	*context;
-    sds			*msg;
-    int			status;
-    unsigned int	numnames;	/* current count of metric names */
-    sds			*names;		/* metric names for batched up scrape */
-    struct metric	**mplist;
-    pmID		*pmidlist;
-    void		*arg;
-} webscrape_t;
-
 /* Metric namespace traversal callback for use with pmTraversePMNS_r(3) */
 static void
 webgroup_scrape_batch(const char *name, void *arg)
@@ -1891,8 +1934,10 @@ webgroup_scrape_batch(const char *name, void *arg)
 	scrape->numnames = 0;
     }
 
-    scrape->names[scrape->numnames] = sdsnew(name);
-    scrape->numnames++;
+    if (!filtered(scrape, name)) {
+	scrape->names[scrape->numnames] = sdsnew(name);
+	scrape->numnames++;
+    }
 
     if (scrape->numnames == DEFAULT_BATCHSIZE) {
 	sts = webgroup_scrape_names(scrape->settings, scrape->context,
@@ -1963,8 +2008,37 @@ pmWebGroupScrape(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
     scrape.context = cp;
     scrape.msg = &msg;
     scrape.arg = arg;
+    scrape.numfilters = 0;
+    scrape.match = MATCH_GLOB; /* default filtering is globbing match */
 
-    /* handle scrape via metric name list traversal (else entire namespace) */
+    /* Add filtering information to scrape */
+    if (params) {
+	sds match = dictFetchValue(params, PARAM_MATCH);
+	sds filter = dictFetchValue(params, PARAM_FILTER);
+	scrape.numfilters = 0;
+
+	if (match != NULL) {
+	    if (strcmp(match, "regex") == 0)
+		scrape.match = MATCH_REGEX;
+	    else if (strcmp(match, "exact") == 0)
+		scrape.match = MATCH_EXACT;
+	    else if (strcmp(match, "glob") != 0) {
+		infofmt(msg, "%s - invalid 'match' parameter value", match);
+		sts = -EINVAL;
+		goto done;
+	    }
+	}
+
+	if (filter != NULL) {
+	    length = sdslen(filter);
+	    scrape.filters = sdssplitlen(filter, length, ",", 1, &scrape.numfilters);
+	}
+
+	if (scrape.match == MATCH_REGEX)
+	    scrape.regex = name_match_setup(scrape.match, scrape.numfilters, scrape.filters);
+    }
+
+    /* Handle scrape via metric name list traversal (else entire namespace) */
     if (metrics && sdslen(metrics)) {
 	length = sdslen(metrics);
 	if ((names = sdssplitlen(metrics, length, ",", 1, &numnames)) == NULL)
@@ -1981,6 +2055,9 @@ pmWebGroupScrape(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
 	free(scrape.mplist);
 	free(scrape.pmidlist);
     }
+
+    sdsfreesplitres(scrape.filters, scrape.numfilters);
+    name_match_free(scrape.regex, scrape.numfilters);
 
 done:
     settings->callbacks.on_done(id, sts, msg, arg);
@@ -2215,6 +2292,7 @@ pmWebGroupStore(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
     } else {
 	infofmt(msg, "bad parameters passed");
 	sts = -EINVAL;
+	mp = NULL;
     }
 
     if ((sts >= 0) &&
@@ -2260,6 +2338,7 @@ pmWebGroupSetup(pmWebGroupModule *module)
     PARAM_TARGET = sdsnew("target");
     PARAM_EXPR = sdsnew("expr");
     PARAM_MATCH = sdsnew("match");
+    PARAM_FILTER = sdsnew("filter");
 
     /* generally needed strings, error messages */
     EMPTYSTRING = sdsnew("");
@@ -2410,6 +2489,7 @@ pmWebGroupClose(pmWebGroupModule *module)
     sdsfree(PARAM_TARGET);
     sdsfree(PARAM_EXPR);
     sdsfree(PARAM_MATCH);
+    sdsfree(PARAM_FILTER);
 
     /* generally needed strings, error messages */
     sdsfree(EMPTYSTRING);

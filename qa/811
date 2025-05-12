@@ -15,7 +15,6 @@ echo "QA output created by $seq"
 . ./common.check
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 cat <<End-of-File >$tmp.common
@@ -36,7 +35,7 @@ End-of-File
 echo "=== _cpu defined, config from -c ==="
 ( echo "%define _cpu"; cat $tmp.common ) >$tmp.config
 pmlogger -c $tmp.config -l $tmp.log $tmp -s 1 &
-_wait_pmlogger_end $!
+_wait_pmlogger_end $! || _exit 1
 _filter_pmlogger_log <$tmp.log
 pminfo -a $tmp | LC_COLLATE=POSIX sort
 rm -f $tmp.0 $tmp.meta $tmp.index
@@ -45,7 +44,7 @@ echo
 echo "=== _cpu defined, config from stdin ==="
 ( echo "%define _cpu"; cat $tmp.common ) >$tmp.tmp
 pmlogger -c $tmp.tmp -l $tmp.log $tmp -s 1 &
-_wait_pmlogger_end $!
+_wait_pmlogger_end $! || _exit 1
 _filter_pmlogger_log <$tmp.log
 pminfo -a $tmp | LC_COLLATE=POSIX sort
 rm -f $tmp.0 $tmp.meta $tmp.index
@@ -53,7 +52,7 @@ rm -f $tmp.0 $tmp.meta $tmp.index
 echo
 echo "=== _cpu not defined, config from stdin ==="
 pmlogger -c $tmp.common -l $tmp.log $tmp -s 1 &
-_wait_pmlogger_end $!
+_wait_pmlogger_end $! || _exit 1
 _filter_pmlogger_log <$tmp.log
 pminfo -a $tmp | LC_COLLATE=POSIX sort
 rm -f $tmp.0 $tmp.meta $tmp.index

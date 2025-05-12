@@ -388,8 +388,8 @@ do_config(char *configfile)
 	    fprintf(stderr, "do_config: Arrgh: cannot get \"$PCP_SYSCONF_DIR\"\n");
 	    exit(1);
 	}
-	strncpy(path, p, MAXPATHLEN - 1);
-	strncat(path, "/overhead/conf.d", MAXPATHLEN - strlen(path) - 1);
+	pmstrncpy(path, MAXPATHLEN, p);
+	pmstrncat(path, MAXPATHLEN, "/overhead/conf.d");
 	pathname = path;
     }
     else
@@ -410,7 +410,7 @@ do_config(char *configfile)
 	strcpy(path, pathname);
 	pathname = path;
     }
-    strncat(pathname, "/", MAXPATHLEN - strlen(path) - 1);
+    pmstrncat(pathname, MAXPATHLEN, "/");
     p = &pathname[strlen(pathname)];
 
     if ((dirp = opendir(pathname)) == NULL) {
@@ -424,7 +424,7 @@ do_config(char *configfile)
 	if (strcmp(dp->d_name, ".") == 0 || strcmp(dp->d_name, "..") == 0)
 	    continue;
 	*p = '\0';
-	strncat(p, dp->d_name, MAXPATHLEN - strlen(p) - 1);
+	pmstrncat(p, MAXPATHLEN, dp->d_name);
 	if ((sts = stat(pathname, &sbuf)) < 0) {
 	    fprintf(stderr, "do_config: Warning: cannot stat \"%s\": %s\n", pathname, pmErrStr(-oserror()));
 	    continue;

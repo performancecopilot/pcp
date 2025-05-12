@@ -106,7 +106,7 @@ CopyToken(void)
     int		len = (int)(tokenend - token);
     char	*copy = (char *)malloc(len + 1);
     if (copy != NULL) {
-	strncpy(copy, token, len);
+	memcpy(copy, token, len);
 	copy[len] = '\0';
     }
     return copy;
@@ -1064,12 +1064,16 @@ ParseHosts(const char *source, int allow)
 	}
 	else
 	    ok = 1;
+	free(hostnames[i]);
+	hostnames[i] = NULL;
     }
     return ok;
 
 error:
-    for (i = 0; i < nhosts; i++)
-	free(hostnames[i]);
+    for (i = 0; i < nhosts; i++) {
+	if (hostnames[i] != NULL)
+	    free(hostnames[i]);
+    }
     return -1;
 }
 
@@ -1542,7 +1546,7 @@ AgentNegotiate(AgentInfo *aPtr)
     int		sts;
     __pmPDU	*ack;
 
-    sts = __pmGetPDU(aPtr->outFd, ANY_SIZE, _creds_timeout, &ack);
+    sts = __pmGetPDU(aPtr->outFd, ANY_SIZE, creds_timeout, &ack);
     if (sts == PDU_CREDS) {
 	if ((sts = DoAgentCreds(aPtr, ack)) < 0) {
 	    fprintf(stderr, "pmcd: version exchange failed "
@@ -2085,7 +2089,7 @@ GetAgentDso(AgentInfo *aPtr)
 	return -1;
     }
 
-    if (dso->dispatch.comm.pmapi_version == PMAPI_VERSION_2)
+    if (dso->dispatch.comm.pmapi_version >= PMAPI_VERSION_2)
 	aPtr->pduVersion = PDU_VERSION2;
     else {
 	pmNotifyErr(LOG_ERR,
@@ -2154,6 +2158,11 @@ ContactAgents(void)
 	    else
 		pmcd_trace(TR_ADD_AGENT, aPtr->pmDomainId, aPtr->inFd, aPtr->outFd);
 	    MarkStateChanges(PMCD_ADD_AGENT);
+	    if (pmDebugOptions.appl6) {
+		fprintf(stderr, "ContactAgents: agent %s (dom %d): set ", aPtr->pmDomainLabel, aPtr->pmDomainId);
+		__pmDumpFetchFlags(stderr, PMCD_ADD_AGENT);
+		fputc('\n', stderr);
+	    }
 	    pmcd_seqnum++;
 	    aPtr->status.notReady = aPtr->status.startNotReady;
 	}
@@ -2550,6 +2559,11 @@ ParseRestartAgents(char *fileName)
 	    }
 
 	    MarkStateChanges(PMCD_RESTART_AGENT);
+	    if (pmDebugOptions.appl6) {
+		fprintf(stderr, "ParseRestartAgents: agent %s (dom %d): set ", agent[i].pmDomainLabel, agent[i].pmDomainId);
+		__pmDumpFetchFlags(stderr, PMCD_RESTART_AGENT);
+		fputc('\n', stderr);
+	    }
 	    pmcd_seqnum++;
 	}
 	PrintAgentInfo(stderr);

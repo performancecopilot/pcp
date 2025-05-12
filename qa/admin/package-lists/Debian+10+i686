@@ -39,10 +39,12 @@ iproute2
 jq
 libavahi-common-dev
 libbpf-dev 
+libcoin-dev
 libclass-dbi-perl
 libcmocka-dev
 libdbd-mysql-perl
 libdbd-pg-perl
+libdrm-dev
 libdevmapper-dev
 libextutils-autoinstall-perl
 libfile-slurp-perl
@@ -50,6 +52,7 @@ libgl1-mesa-dri
 libibmad-dev
 libibumad-dev
 libicu63
+libinih-dev
 libjson-perl
 liblist-moreutils-perl
 liblzma-dev
@@ -80,6 +83,7 @@ libvirt-daemon-system
 libxml-libxml-perl
 libxml-tokeparser-perl
 libyaml-libyaml-perl
+linux-headers-`uname -r` not4ci
 llvm 
 lm-sensors
 make
@@ -115,7 +119,6 @@ python3-pyodbc
 python3-requests
 python3-setuptools
 python3-six
-qt4-qmake
 qtbase5-dev
 qtbase5-dev-tools
 qtchooser
@@ -126,9 +129,12 @@ sasl2-bin
 sed
 smartmontools
 socat
+sudo
 sysstat
 systemtap
+systemtap-runtime
 systemtap-sdt-dev
+targetcli-fb
 time
 unbound
 valgrind
@@ -136,3 +142,4 @@ xfsprogs
 xkb-data
 zabbix-agent
 zlib1g-dev
+zstd

@@ -10,10 +10,12 @@
 int
 main(int argc, char **argv)
 {
-    char	dest[100];
+    char	dest[101];
     size_t	destlen;
     int		sts;
     int		i;
+    int		a;
+    size_t	len;
 
     pmSetProgname(argv[0]);
 
@@ -28,19 +30,25 @@ main(int argc, char **argv)
 	exit(1);
     }
 
-    dest[99] = '\01';
+    memset(dest, '\01', sizeof(dest));
 
     sts = pmstrncpy(dest, destlen, argv[2]);
     printf("pmstrncpy(..., %d, \"%s\") -> %d dest=\"%s\"\n", (int)destlen, argv[2], sts, dest);
-    if (dest[99] != '\01')
-	printf("Warning: dest[99] over-written (%c)\n", dest[99]);
+    len = strlen(argv[2]);
+    for (i = len+1; i < sizeof(dest); i++) {
+	if (dest[i] != '\01')
+	    printf("Warning: dest[%d] over-written (%c \\0%o)\n", i, dest[i], dest[i]);
+    }
 
-    for (i = 3; i < argc; i++) {
-	printf("pmstrncat(\"%s\", %d, \"%s\") -> ", dest, (int)destlen, argv[i]);
-	sts = pmstrncat(dest, destlen, argv[i]);
+    for (a = 3; a < argc; a++) {
+	printf("pmstrncat(\"%s\", %d, \"%s\") -> ", dest, (int)destlen, argv[a]);
+	sts = pmstrncat(dest, destlen, argv[a]);
 	printf("%d dest=\"%s\"\n", sts, dest);
-	if (dest[99] != '\01')
-	    printf("Warning: dest[99] over-written (%c)\n", dest[99]);
+	len += strlen(argv[a]);
+	for (i = len+1; i < sizeof(dest); i++) {
+	    if (dest[i] != '\01')
+		printf("Warning: dest[%d] over-written (%c \\0%o)\n", i, dest[i], dest[i]);
+	}
     }
 
     exit(0);

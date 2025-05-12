@@ -1,6 +1,15 @@
 QA output created by 1256
 QA output created by 1254 --valgrind
-=== std out ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/ctx_derive -Dderive -P testme.big testme.lights testme.bad
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+bind_expr: error: global derived metric testme.bad: operand: sample.no.such.metric: Unknown metric name
+bind_expr: error: global derived metric testme.bad: operand: sample.no.such.metric: Unknown metric name
+bind_expr: error: global derived metric testme.bad: operand: sample.no.such.metric: Unknown metric name
 name[0] testme.one
 name[1] testme.two
 name[2] testme.sub.two
@@ -294,11 +303,3 @@ ctx[1]: pmUseContext: Attempt to use an illegal context, skip work
 === State 8 ===
 ctx[0]: pmUseContext: Attempt to use an illegal context, skip work
 ctx[1]: pmUseContext: Attempt to use an illegal context, skip work
-=== std err ===
-=== filtered valgrind report ===
-Memcheck, a memory error detector
-Command: src/ctx_derive -P testme.big testme.lights testme.bad
-LEAK SUMMARY:
-definitely lost: 0 bytes in 0 blocks
-indirectly lost: 0 bytes in 0 blocks
-ERROR SUMMARY: 0 errors from 0 contexts ...

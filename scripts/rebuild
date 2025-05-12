@@ -1,15 +1,16 @@
 #!/bin/sh
 #
 # Rebuild core libraries and QA apps in a git tree ...
-# - run configure the same way Makepkgs does
+# - run configure the same way Makepkgs does [not with -q]
 # - turn off gcc optimization so gdb has a better chance
 #   (be aware that this may hide gcc optimizations in the real
 #   package builds)
+# - make clean [not with -q]
 # - make and install libraries over the installed libraries
 #   (if any)
 # - build enough libraries so "make" in the qa directory works
 # - using gdb for apps outside the qa directory should work well
-#   once thos apps are rebuilt
+#   once those apps are rebuilt
 #
 
 tmp=/var/tmp/$$
@@ -22,10 +23,40 @@ then
     exit
 fi
 
-# -q so we don't build after configure ... all the building is prescriptive
-# in this script in the following sections
+quick=false
+while [ $# -gt 0 ]
+do
+    case "$1"
+    in
+	-q)
+		quick=true
+		shift
+		;;
+	*)
+		echo "Error: no clue about arg \"$1\""
+		exit
+		;;
+    esac
+done
+
+# configure unless -q
 #
-qa/admin/myconfigure -q
+if $quick
+then
+    :
+else
+    # -q here so we don't build after configure ... all the building
+    # is prescriptive in this script in the following sections
+    #
+    if qa/admin/myconfigure -q
+    then
+	:
+    else
+	echo "Error: myconfigure -q failed"
+	exit
+    fi
+fi
+
 if [ -f src/include/pcp.conf ]
 then
     . src/include/pcp.conf
@@ -54,10 +85,13 @@ fi
 #
 
 here=`pwd`
-for dir in src/libpcp src/libpcp_pmda src/libpcp_pmcd src/libpcp_gui \
+for dir in src/include src/libpcp src/libpcp_static src/libpcp_pmda \
+	src/pmcpp src/pmns \
+	src/newhelp \
+	src/libpcp_pmcd src/libpcp_gui \
 	src/libpcp_mmv src/libpcp_web src/libpcp_import src/libpcp_trace \
-	src/libpcp_qmc src/libpcp_fault src/libpcp_static \
-	src/newhelp src/pmcpp src/pmproxy
+	src/libpcp_qmc src/libpcp_fault src/libpcp3 \
+	qa/pmdas qa/perfevent qa/qt qa/src
 do
     if [ ! -d "$dir" ]
     then
@@ -67,14 +101,44 @@ do
     echo "=== $dir ==="
     cd $dir
     [ -d src ] && cd src
-    $PCP_MAKE_PROG clean
+
+    # make clean except for -q
+    #
+    if $quick
+    then
+	:
+    else
+	case "$dir"
+	in
+	    src/include|src/pmns)
+		    ;;
+	    *)
+		    $PCP_MAKE_PROG clean
+		    ;;
+	esac
+    fi
+
+    # make, then for libs sudo make install
+    #
     if $PCP_MAKE_PROG
     then
-	sudo $PCP_MAKE_PROG install
+	case "$dir"
+	in
+	    src/lib*)
+		    if sudo $PCP_MAKE_PROG install
+		    then
+			:
+		    else
+			echo "Error: sudo make install failed in `pwd`!"
+			exit
+		    fi
+		    ;;
+	esac
     else
 	echo "Error: make failed in `pwd`!"
 	exit
     fi
+
     cd $here
 done
 

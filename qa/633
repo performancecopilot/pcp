@@ -1044,7 +1044,7 @@ log mandatory on once {
 End-of-File
 
 _filter <$tmp.log
-cp $tmp.log $seq.full
+cp $tmp.log $seq_full
 
 # success, all done
 exit

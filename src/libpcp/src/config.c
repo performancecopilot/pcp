@@ -179,6 +179,7 @@ char *__pmNativePath(char *path)
      */
     char	*p;
     char	*new_path;
+    size_t	path_len;
     char	*start;
     static char *pcp_dir;
     static int	init = 1;
@@ -208,16 +209,17 @@ char *__pmNativePath(char *path)
     else
 	start = path;
 
-    new_path = (char *)malloc(strlen(pcp_dir) + strlen(start) + 1);
+    path_len = strlen(pcp_dir) + strlen(start) + 1;
+    new_path = (char *)malloc(path_len);
     if (new_path == NULL) {
-	pmNoMem("__pmNativePath", strlen(pcp_dir) + strlen(start) + 1, PM_FATAL_ERR);
+	pmNoMem("__pmNativePath", path_len, PM_FATAL_ERR);
 	/* NOTREACHED */
     }
-    strncpy(new_path, pcp_dir, strlen(pcp_dir) + 1);
+    pmstrncpy(new_path, path_len, pcp_dir);
     for (p = new_path; *p; p++) {
 	if (*p == '\\') *p = '/';
     }
-    strncat(new_path, start, strlen(start) + 1);
+    pmstrncat(new_path, path_len, start);
     if (pmDebugOptions.config && pmDebugOptions.desperate)
 	fprintf(stderr, "__pmNativePath: \"%s\" start @ [%d] -> \"%s\"\n", path, (int)(start - path), new_path);
 
@@ -451,7 +453,7 @@ static const char *disabled(void) { return "false"; }
 
 #define STRINGIFY(s)		#s
 #define TO_STRING(s)		STRINGIFY(s)
-static const char *pmapi_version(void) { return TO_STRING(PMAPI_VERSION_3); }
+static const char *pmapi_version(void) { return TO_STRING(PMAPI_VERSION); }
 static const char *pcp_version(void) { return PCP_VERSION; }
 #if defined(HAVE_SECURE_SOCKETS)
 #include <openssl/opensslv.h>
@@ -562,6 +564,11 @@ extern const char *compress_suffix_list(void);
 #else
 #define TRANSPARENT_DECOMPRESS	disabled
 #endif
+#if PM_SIZEOF_TIME_T == 8
+#define Y2038_SAFE	enabled
+#else
+#define Y2038_SAFE	disabled
+#endif
 
 typedef const char *(*feature_detector)(void);
 static struct {
@@ -590,6 +597,7 @@ static struct {
 	{ "compress_suffixes",	compress_suffix_list },		/* from pcp-4.0.1 */
 	{ "v3_archives",	enabled },			/* from pcp-6.0.0 */
 	{ "archive_features",	myfeatures },			/* from pcp-6.0.0 */
+	{ "y2038_safe",		Y2038_SAFE },			/* from pcp-6.3.0 */
 };
 
 void

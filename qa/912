@@ -33,12 +33,11 @@ _cleanup()
 
 iam=nutcracker
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup" 0 1 2 3 15
 
 # real QA test starts here
 _save_config $PCP_PMDAS_DIR/nutcracker/nutcracker.conf
-_prepare_pmda_install $iam
+_prepare_pmda_install $iam || _exit 1
 
 echo
 echo "=== $iam agent installation ==="

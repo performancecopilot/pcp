@@ -178,6 +178,7 @@ pmLoadNameSpace: min -> 29.0.166
 pmLoadNameSpace: mirage -> 29.0.155
 pmLoadNameSpace: mirage -> 29.0.37
 pmLoadNameSpace: mirage_longlong -> 29.0.38
+pmLoadNameSpace: mode -> 29.0.170
 pmLoadNameSpace: needprofile -> 29.0.49
 pmLoadNameSpace: no_indom_records -> 29.0.137
 pmLoadNameSpace: noinst -> 29.0.9
@@ -217,6 +218,7 @@ pmLoadNameSpace: recv_pdu -> 29.0.44
 pmLoadNameSpace: repeat -> 29.0.165
 pmLoadNameSpace: reset -> 29.0.126
 pmLoadNameSpace: reset -> 29.0.159
+pmLoadNameSpace: reset -> 29.0.171
 pmLoadNameSpace: reset_highres -> 29.0.140
 pmLoadNameSpace: seconds -> 29.0.2
 pmLoadNameSpace: seconds -> 29.0.2

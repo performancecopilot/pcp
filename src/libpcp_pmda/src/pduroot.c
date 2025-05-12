@@ -88,7 +88,7 @@ __pmdaSendRootPDUContainer(int fd, int pdutype,
     pdu.namelen = len;
     memset(pdu.name, 0, sizeof(pdu.name));
     if (len > 0)
-	strncpy(pdu.name, name, len);
+	pmstrncpy(pdu.name, sizeof(pdu.name), name);
 
     __pmIgnoreSignalPIPE();
     return send(fd, (const char *)&pdu, length, MSG_NOSIGNAL);
@@ -136,7 +136,7 @@ __pmdaDecodeRootPDUContainer(void *buf, int blen, int *pid, char *name, int nlen
     if (length) {
 	if (length >= nlen)
 	    return -E2BIG;
-	strncpy(name, pdu->name, length);
+	memcpy(name, pdu->name, length);
 	name[length] = '\0';
     }
     return length;
@@ -164,10 +164,10 @@ __pmdaSendRootPDUStartReq(int fd, int ipctype,
     pdu.ipctype = ipctype;
     pdu.namelen = namelen;
     if (namelen > 0)
-	strncpy(pdu.name, name, namelen);
+	pmstrncpy(pdu.name, sizeof(pdu.name), name);
     pdu.argslen = argslen;
     if (argslen > 0)
-	strncpy(pdu.args, args, argslen);
+	pmstrncpy(pdu.args, sizeof(pdu.args), args);
 
     __pmIgnoreSignalPIPE();
     return send(fd, (const char *)&pdu, length, MSG_NOSIGNAL);
@@ -233,7 +233,7 @@ __pmdaSendRootPDUStart(int fd, int pid, int infd, int outfd,
      */
     pdu.namelen = namelen;
     if (namelen > 0)
-	strncpy(pdu.name, name, namelen);
+	pmstrncpy(pdu.name, sizeof(pdu.name), name);
 
     memset(&msgh, 0, sizeof(msgh));
     msgh.msg_iov = &iov;
@@ -367,11 +367,11 @@ __pmdaDecodeRootPDUStart(void *buf, int blen, int *pid, int *infd, int *outfd,
     if (ipctype)
 	*ipctype = pdu->ipctype;
     if (namelen) {
-	strncpy(name, pdu->name, pdu->namelen);
+	memcpy(name, pdu->name, pdu->namelen);
 	name[pdu->namelen] = '\0';
     }
     if (argslen) {
-	strncpy(args, pdu->args, pdu->argslen);
+	memcpy(args, pdu->args, pdu->argslen);
 	args[pdu->argslen] = '\0';
     }
     return 0;

@@ -1,0 +1,20 @@
+#!/bin/sh
+# PCP QA Test No. 1518
+# SUSE Issue A)
+#	__pmDecodeValueSet() Miscalculates Available Buffer Space
+#	Leading to a Possible Heap Corruption
+#
+# Copyright (c) 2024 Ken McDonell.  All Rights Reserved.
+# Copyright (c) 2024 Matthias Gerstner.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+pdu_data=pdudata/decode-value-set-out-of-bound-write
+pdu_data=pdudata/result.vsoobw
+grep_pattern=__pmDecodeValueSet
+
+# this is one of the generic pmcd PDU exerciser tests ...
+#
+. ./common.pmcd.pdu

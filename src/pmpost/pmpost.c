@@ -86,10 +86,22 @@ mkdir_r(char *path)
 #define LAST_UNDEFINED	-1
 #define LAST_NEWFILE	-2
 
+static pmLongOptions longopts[] = {
+    PMOPT_DEBUG,
+    PMAPI_OPTIONS_END
+};
+
+static pmOptions opts = {
+    .short_options = "D:?",
+    .long_options = longopts,
+    .short_usage = "message",
+};
+
 int
 main(int argc, char **argv)
 {
     int		i;
+    int		c;
     int		fd;
     FILE	*np;
     char	*dir;
@@ -112,6 +124,17 @@ main(int argc, char **argv)
 	{ NULL, NULL,      NULL,       NULL };
 
     /*
+     * only possible command line option is -D
+     */
+    while ((c = pmGetOptions(argc, argv, &opts)) != EOF) {
+	;
+    }
+    if (opts.errors || (opts.flags & PM_OPTFLAG_EXIT) || opts.optind == argc) {
+	pmUsageMessage(&opts);
+	exit(1);
+    }
+
+    /*
      * Fix for bug #827972, do not trust the environment.
      * See also below.
      */
@@ -128,11 +151,6 @@ main(int argc, char **argv)
 #endif
     umask(0002);
 
-    if ((argc == 1) || (argc == 2 && strcmp(argv[1], "-?") == 0)) {
-	fprintf(stderr, "Usage: pmpost message\n");
-	exit(1);
-    }
-
     pmsprintf(notices, sizeof(notices), "%s%c" "NOTICES",
 		pmGetConfig("PCP_LOG_DIR"), pmPathSeparator());
 
@@ -144,10 +162,29 @@ main(int argc, char **argv)
 	goto oops;
     }
 
-    if ((fd = open(notices, O_WRONLY|O_APPEND, 0)) < 0) {
-	if ((fd = open(notices, O_WRONLY|O_CREAT|O_APPEND, 0664)) < 0) {
+    if ((fd = open(notices, O_WRONLY|O_APPEND|O_NOFOLLOW, 0)) < 0) {
+	if (oserror() == ELOOP) {
+	    /* last component is symlink => attack? ... bail! */
+	    goto oops;
+	}
+	if ((fd = open(notices, O_WRONLY|O_CREAT|O_APPEND|O_NOFOLLOW, 0664)) < 0) {
 	    fprintf(stderr, "pmpost: cannot open or create file \"%s\": %s\n",
 		notices, osstrerror());
+	    if (pmDebugOptions.dev2) {
+		char	shellcmd[2*MAXPATHLEN];
+		int	lsts;
+		/*
+		 * -Ddev2 (set via $PCP_DEBUG)
+		 * we need some more info to triage this ...
+		 */
+		fprintf(stderr, "pmpost: PCP id %d:%d, my id %d:%d\n", uid, gid, geteuid(), getegid());
+		pmsprintf(shellcmd, sizeof(shellcmd), "[ -x /bin/ls ] && /bin/ls -ld %s >&2", dir);
+		if ((lsts = system(shellcmd)) != 0)
+		    fprintf(stderr, "command exit=%d?\n", lsts);
+		pmsprintf(shellcmd, sizeof(shellcmd), "[ -x /bin/ls ] && /bin/ls -l %s >&2", notices);
+		if ((lsts = system(shellcmd)) != 0)
+		    fprintf(stderr, "command exit=%d?\n", lsts);
+	    }
 	    goto oops;
 	}
 #ifndef IS_MINGW
@@ -222,7 +259,7 @@ main(int argc, char **argv)
     if (fprintf(np, "%02d:%02d:%02d.%03d", tmp->tm_hour, tmp->tm_min, tmp->tm_sec, (int)(now.tv_usec/1000)) < 0)
 	sts = oserror();
 
-    for (i = 1; i < argc; i++) {
+    for (i = opts.optind; i < argc; i++) {
 	if (fprintf(np, " %s", argv[i]) < 0)
 	    sts = oserror();
     }
@@ -246,7 +283,7 @@ oops:
     for (p = ctime(&now.tv_sec); *p != '\n'; p++)
 	fputc(*p, stderr);
     fputc(']', stderr);
-    for (i = 1; i < argc; i++) {
+    for (i = opts.optind; i < argc; i++) {
 	fprintf(stderr, " %s", argv[i]);
     }
     fputc('\n', stderr);

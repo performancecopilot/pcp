@@ -1,4 +1,4 @@
-'\"macro stdmacro
+'\" t
 .\"
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
 .\"
@@ -17,6 +17,7 @@
 \f3pmtime\f1 \- time control server for Performance Co-Pilot
 .SH SYNOPSIS
 \f3pmtime\f1
+[\f3\-D\f1 \f2debug\f1]
 [\f3\-V?\f1]
 [\f3\-p\f1 \f2port\f1]
 .SH DESCRIPTION
@@ -79,6 +80,40 @@ probing will commence when
 is searching for a port number to use.
 .PP
 The default starting port number is \fB43334\fP.
+.SH DEBUGGING OPTIONS
+The
+.B \-D
+or
+.B \-\-debug
+option enables the output of additional diagnostics on
+.I stderr
+to help triage problems, although the information is sometimes cryptic and
+primarily intended to provide guidance for developers rather end-users.
+.I debug
+is a comma separated list of debugging options; use
+.BR pmdbg (1)
+with the
+.B \-l
+option to obtain
+a list of the available debugging options and their meaning.
+.PP
+Debugging options specific to
+.B pmtime
+are as follows:
+.TS
+box;
+lf(B) | lf(B)
+lf(B) | lxf(R) .
+Option	Description
+_
+appl0	T{
+.ad l
+enable internal diagnostics that report all
+.B pmtime
+events, e.g. setting timezone, state changes, interval changes,
+timescale changes, etc.
+T}
+.TE
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pmchart (1),

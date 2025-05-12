@@ -1797,23 +1797,23 @@ refresh(WebSproc* proc)
                             }
                 
                             line[pmatch[wl_regexTable[accessFile->format].methodPos].rm_eo] = '\0';
-                            strncpy(proc->methodStr, &line[pmatch[wl_regexTable[accessFile->format].methodPos].rm_so],
+                            memcpy(proc->methodStr, &line[pmatch[wl_regexTable[accessFile->format].methodPos].rm_so],
                                 (pmatch[wl_regexTable[accessFile->format].methodPos].rm_eo -
                                  pmatch[wl_regexTable[accessFile->format].methodPos].rm_so) + 1);
                 
                             line[pmatch[wl_regexTable[accessFile->format].sizePos].rm_eo] = '\0';
-                            strncpy(proc->sizeStr, &line[pmatch[wl_regexTable[accessFile->format].sizePos].rm_so],
+                            memcpy(proc->sizeStr, &line[pmatch[wl_regexTable[accessFile->format].sizePos].rm_so],
                                 (pmatch[wl_regexTable[accessFile->format].sizePos].rm_eo -
                                  pmatch[wl_regexTable[accessFile->format].sizePos].rm_so) + 1);
                 
                             if(server->counts.extendedp) {
 				line[pmatch[wl_regexTable[accessFile->format].c_statusPos].rm_eo] = '\0';
-				strncpy(proc->c_statusStr, &line[pmatch[wl_regexTable[accessFile->format].c_statusPos].rm_so],
+				memcpy(proc->c_statusStr, &line[pmatch[wl_regexTable[accessFile->format].c_statusPos].rm_so],
 				    (pmatch[wl_regexTable[accessFile->format].c_statusPos].rm_eo -
 				     pmatch[wl_regexTable[accessFile->format].c_statusPos].rm_so) + 1);
 		    
 				line[pmatch[wl_regexTable[accessFile->format].s_statusPos].rm_eo] = '\0';
-				strncpy(proc->s_statusStr, &line[pmatch[wl_regexTable[accessFile->format].s_statusPos].rm_so],
+				memcpy(proc->s_statusStr, &line[pmatch[wl_regexTable[accessFile->format].s_statusPos].rm_so],
 				    (pmatch[wl_regexTable[accessFile->format].s_statusPos].rm_eo -
 				     pmatch[wl_regexTable[accessFile->format].s_statusPos].rm_so) + 1);
                             } else {

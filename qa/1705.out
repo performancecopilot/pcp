@@ -34,7 +34,9 @@ bpftrace.scripts.test3.exit_code
 
 === too many attached tracepoints ===
 bpftrace.control.register old value="{}" new value="// name: test4
-kprobe:* { @c = count(); }"
+kprobe:... { @c = count(); }
+...
+kprobe:... { @c = count(); }"
 found metric bpftrace.scripts.test4.status with matching value "error"
 
 bpftrace.scripts.test4.error

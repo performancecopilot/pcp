@@ -19,7 +19,6 @@ _cleanup()
 
 
 status=1       # failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 
 _prepare_pmda bpftrace
 trap "_cleanup; exit \$status" 0 1 2 3 15

@@ -864,8 +864,7 @@ main(int argc, char **argv)
     while ((c = pmdaGetOptions(argc, argv, &opts, &dispatch)) != EOF) {
 	switch (c) {
 	case 's':
-	    strncpy(socket_path, opts.optarg, sizeof(socket_path));
-	    socket_path[sizeof(socket_path)-1] = '\0';
+	    pmstrncpy(socket_path, sizeof(socket_path), opts.optarg);
 	    break;
 	}
     }

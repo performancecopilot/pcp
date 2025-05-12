@@ -2,7 +2,7 @@ QA output created by 728
 == Arguments: none
 End of option processing
 Options structure dump:
-    version: 2
+    version: 4
     flags: 0x3 (init,done)
     errors: 0
     context: 0x0 (-)
@@ -31,6 +31,7 @@ General options:
   -A TIME, --align=TIME align sample times on natural boundaries
   -a FILE, --archive=FILE
                         metrics source is a PCP archive
+  -D DBG, --debug=DBG   set debug options, see pmdbg(1)
   -g, --guimode         start in GUI mode with new time control
   -h HOST, --host=HOST  metrics source is PMCD on host
   -n FILE, --namespace=FILE
@@ -60,6 +61,7 @@ Context options:
   --archive-folio=FILE  read metric source archives from a folio
 
 Testing options:
+  -w, --window          do time window parsing
   -x, --extra           an extra option, for testing
   -X ARG, --eXtra=ARG   an extra option with an argument
   -y                    a short-option-only without argument
@@ -68,7 +70,7 @@ Testing options:
   --foobar=N            a long-option-only with an argument
 End of option processing
 Options structure dump:
-    version: 2
+    version: 4
     flags: 0xb (init,done,usage_err)
     errors: 1
     context: 0x0 (-)
@@ -96,6 +98,7 @@ General options:
   -A TIME, --align=TIME align sample times on natural boundaries
   -a FILE, --archive=FILE
                         metrics source is a PCP archive
+  -D DBG, --debug=DBG   set debug options, see pmdbg(1)
   -g, --guimode         start in GUI mode with new time control
   -h HOST, --host=HOST  metrics source is PMCD on host
   -n FILE, --namespace=FILE
@@ -125,6 +128,7 @@ Context options:
   --archive-folio=FILE  read metric source archives from a folio
 
 Testing options:
+  -w, --window          do time window parsing
   -x, --extra           an extra option, for testing
   -X ARG, --eXtra=ARG   an extra option with an argument
   -y                    a short-option-only without argument
@@ -133,7 +137,7 @@ Testing options:
   --foobar=N            a long-option-only with an argument
 End of option processing
 Options structure dump:
-    version: 2
+    version: 4
     flags: 0xb (init,done,usage_err)
     errors: 1
     context: 0x0 (-)
@@ -161,7 +165,7 @@ Got option: X index=0 [errors=0]
  -> X option argument was: '(null)'
 End of option processing
 Options structure dump:
-    version: 2
+    version: 4
     flags: 0x3 (init,done)
     errors: 0
     context: 0x0 (-)
@@ -182,13 +186,13 @@ Options structure dump:
     guiflag: 0
     tzflag: 0
     Lflag: 0
-Got option: x index=25 [errors=0]
+Got option: x index=26 [errors=0]
  -> x option has no argument
-Got option: X index=26 [errors=0]
+Got option: X index=27 [errors=0]
  -> X option argument was: 'goodness'
 End of option processing
 Options structure dump:
-    version: 2
+    version: 4
     flags: 0x3 (init,done)
     errors: 0
     context: 0x0 (-)
@@ -216,7 +220,7 @@ Got option: Y index=0 [errors=0]
  -> Y option argument was: '(null)'
 End of option processing
 Options structure dump:
-    version: 2
+    version: 4
     flags: 0x3 (init,done)
     errors: 0
     context: 0x0 (-)
@@ -238,13 +242,13 @@ Options structure dump:
     tzflag: 0
     Lflag: 0
 == Arguments: own long-only options
-Got option: - index=29 [errors=0]
- -> long-only option index=29
 Got option: - index=30 [errors=0]
  -> long-only option index=30
+Got option: - index=31 [errors=0]
+ -> long-only option index=31
 End of option processing
 Options structure dump:
-    version: 2
+    version: 4
     flags: 0x3 (init,done)
     errors: 0
     context: 0x0 (-)
@@ -268,7 +272,7 @@ Options structure dump:
 == Arguments: one archive, all time options (x2)
 End of option processing
 Options structure dump:
-    version: 2
+    version: 4
     flags: 0x3 (init,done)
     errors: 0
     context: 0x2 (archive)
@@ -292,7 +296,7 @@ Options structure dump:
     Lflag: 0
 End of option processing
 Options structure dump:
-    version: 2
+    version: 4
     flags: 0x3 (init,done)
     errors: 0
     context: 0x2 (archive)
@@ -317,7 +321,7 @@ Options structure dump:
 == Arguments: one host (x2)
 End of option processing
 Options structure dump:
-    version: 2
+    version: 4
     flags: 0x3 (init,done)
     errors: 0
     context: 0x1 (host)
@@ -327,7 +331,7 @@ Options structure dump:
     start: -
     finish: -
     origin: -
-    interval: 00:01.000
+    interval: 1.000000000
     align_optarg: -
     start_optarg: -
     finish_optarg: -
@@ -341,7 +345,7 @@ Options structure dump:
     Lflag: 0
 End of option processing
 Options structure dump:
-    version: 2
+    version: 4
     flags: 0x3 (init,done)
     errors: 0
     context: 0x1 (host)
@@ -351,7 +355,7 @@ Options structure dump:
     start: -
     finish: -
     origin: -
-    interval: 00:01.000
+    interval: 1.000000000
     align_optarg: -
     start_optarg: -
     finish_optarg: -
@@ -366,7 +370,7 @@ Options structure dump:
 == Arguments: environment variables only
 End of option processing
 Options structure dump:
-    version: 2
+    version: 4
     flags: 0x103 (init,done,env_only)
     errors: 0
     context: 0x1 (host)
@@ -391,7 +395,7 @@ Options structure dump:
 == Arguments: host, interval and samples env vars
 End of option processing
 Options structure dump:
-    version: 2
+    version: 4
     flags: 0x3 (init,done)
     errors: 0
     context: 0x1 (host)
@@ -401,7 +405,7 @@ Options structure dump:
     start: -
     finish: -
     origin: -
-    interval: 00:02.000
+    interval: 2.000000000
     align_optarg: -
     start_optarg: -
     finish_optarg: -
@@ -422,6 +426,7 @@ General options:
   -A TIME, --align=TIME align sample times on natural boundaries
   -a FILE, --archive=FILE
                         metrics source is a PCP archive
+  -D DBG, --debug=DBG   set debug options, see pmdbg(1)
   -g, --guimode         start in GUI mode with new time control
   -h HOST, --host=HOST  metrics source is PMCD on host
   -n FILE, --namespace=FILE
@@ -451,6 +456,7 @@ Context options:
   --archive-folio=FILE  read metric source archives from a folio
 
 Testing options:
+  -w, --window          do time window parsing
   -x, --extra           an extra option, for testing
   -X ARG, --eXtra=ARG   an extra option with an argument
   -y                    a short-option-only without argument
@@ -459,7 +465,7 @@ Testing options:
   --foobar=N            a long-option-only with an argument
 End of option processing
 Options structure dump:
-    version: 2
+    version: 4
     flags: 0xb (init,done,usage_err)
     errors: 1
     context: 0x1 (host)
@@ -484,7 +490,7 @@ Options structure dump:
 == Arguments: archive, time window env vars
 End of option processing
 Options structure dump:
-    version: 2
+    version: 4
     flags: 0x3 (init,done)
     errors: 0
     context: 0x2 (archive)
@@ -509,7 +515,7 @@ Options structure dump:
 == Arguments: archive list env var
 End of option processing
 Options structure dump:
-    version: 2
+    version: 4
     flags: 0x3 (init,done)
     errors: 0
     context: 0x2 (archive)
@@ -534,7 +540,7 @@ Options structure dump:
 == Arguments: one archive env var
 End of option processing
 Options structure dump:
-    version: 2
+    version: 4
     flags: 0x3 (init,done)
     errors: 0
     context: 0x2 (archive)
@@ -559,7 +565,7 @@ Options structure dump:
 == Arguments: timezone env var
 End of option processing
 Options structure dump:
-    version: 2
+    version: 4
     flags: 0x3 (init,done)
     errors: 0
     context: 0x0 (-)
@@ -589,6 +595,7 @@ General options:
   -A TIME, --align=TIME align sample times on natural boundaries
   -a FILE, --archive=FILE
                         metrics source is a PCP archive
+  -D DBG, --debug=DBG   set debug options, see pmdbg(1)
   -g, --guimode         start in GUI mode with new time control
   -h HOST, --host=HOST  metrics source is PMCD on host
   -n FILE, --namespace=FILE
@@ -618,6 +625,7 @@ Context options:
   --archive-folio=FILE  read metric source archives from a folio
 
 Testing options:
+  -w, --window          do time window parsing
   -x, --extra           an extra option, for testing
   -X ARG, --eXtra=ARG   an extra option with an argument
   -y                    a short-option-only without argument
@@ -626,7 +634,7 @@ Testing options:
   --foobar=N            a long-option-only with an argument
 End of option processing
 Options structure dump:
-    version: 2
+    version: 4
     flags: 0xb (init,done,usage_err)
     errors: 1
     context: 0x0 (-)
@@ -650,7 +658,7 @@ Options structure dump:
 == Arguments: gui port env var (x2)
 End of option processing
 Options structure dump:
-    version: 2
+    version: 4
     flags: 0x3 (init,done)
     errors: 0
     context: 0x0 (-)
@@ -673,7 +681,7 @@ Options structure dump:
     Lflag: 0
 End of option processing
 Options structure dump:
-    version: 2
+    version: 4
     flags: 0x3 (init,done)
     errors: 0
     context: 0x0 (-)
@@ -697,7 +705,7 @@ Options structure dump:
 == Arguments: gui mode env var
 End of option processing
 Options structure dump:
-    version: 2
+    version: 4
     flags: 0x3 (init,done)
     errors: 0
     context: 0x0 (-)
@@ -721,7 +729,7 @@ Options structure dump:
 == Arguments: allow mixed hosts and archives
 End of option processing
 Options structure dump:
-    version: 2
+    version: 4
     flags: 0x83 (init,done,mixed)
     errors: 0
     context: 0x0 (-)
@@ -747,7 +755,7 @@ Options structure dump:
 == Arguments: hosts file
 End of option processing
 Options structure dump:
-    version: 2
+    version: 4
     flags: 0x7 (init,done,multi)
     errors: 0
     context: 0x1 (host)

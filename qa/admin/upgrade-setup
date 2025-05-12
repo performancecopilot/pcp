@@ -1,0 +1,229 @@
+#!/bin/sh
+#
+# Upgrade testing setup
+# - ensure <distro> packages are in place
+# - ensure <previous> developer packages are in place
+#
+# then it should be safe to run upgrade-test
+#
+# Copyright (c) 2024 Ken McDonell, Inc.  All Rights Reserved.
+#
+
+_usage()
+{
+    echo >&2 "Usage: $0 [options]"
+    echo >&2 
+    echo >&2 "  -i           interactive"
+    echo >&2 "  -n           show me, don't do it"
+    echo >&2 "  -v           verbose (debugging)"
+    exit 1
+}
+
+export LC_COLLATE=POSIX
+
+interactive=false
+verbose=false
+very_verbose=false
+showme=false
+while getopts 'inv?' p
+do
+    case "$p"
+    in
+	i)	interactive=true
+		;;
+
+	n)	showme=true
+		;;
+
+	v)	if $verbose
+		then
+		    very_verbose=true
+		else
+		    verbose=true
+		fi
+		;;
+
+	?)	_usage
+		# NOTREACHED
+    esac
+done
+shift `expr $OPTIND - 1`
+[ $# -eq 0 ] || _usage
+
+status=1		# failure is the default
+if $very_verbose
+then
+    tmp=tmp
+else
+    tmp=/var/tmp/$$
+    trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+fi
+rm -f $tmp.*
+
+# Need directory where this script is located so we can find the other
+# bits and bob
+#
+home=`pwd`
+while [ "$home" != "/" ]
+do
+    [ -d "$home/build/rpm" ] && break
+    home=`cd "$home"/..; /bin/pwd`
+done
+if [ ! -d $home/build/rpm ]
+then
+    echo >&2 "Botch: no build/rpm dir above here (`pwd`)"
+    exit 1
+fi
+
+_have_latest_deb()
+{
+    ndeb=`( [ -d $home/build/deb ] && ls $home/build/deb/*.deb 2>/dev/null ) | wc -l | sed -e 's/ //g'`
+    if [ -n "$ndeb" -a "$ndeb" -ge 40 ]
+    then
+	return 0
+    else
+	echo "Error: expecting at least 40 .debs, found $ndeb"
+	return 1
+    fi
+}
+
+_have_latest_rpm()
+{
+    nrpm=`( [ -d $home/pcp-$thisver/build/rpm ] && ls $home/pcp-$thisver/build/rpm/*.rpm 2>/dev/null ) | grep -v '.-debuginfo-' | wc -l | sed -e 's/ //g'`
+    if [ -n "$nrpm" -a "$nrpm" -ge 100 ]
+    then
+	return 0
+    else
+	echo "Error: expecting at least 100 .rpms, found $nrpm"
+	return 1
+    fi
+}
+
+_ask()
+{
+    ans=''
+    while [ -z "$ans" ]
+    do
+	echo -n "Do $1? yes|no|abort [y] "
+	read </dev/tty ans
+	case "$ans"
+	in
+	    ''|y|yes)	return 0
+	    		;;
+	    n|no)	return 1
+	    		;;
+	    a|bort)	exit
+	    		;;
+	    *)		echo "Answer the question, bozo!"
+	    		ans=''
+			;;
+	esac
+    done
+}
+
+# construct <distro> from whatami output
+# vm24                6.3.1    x86_64  Ubuntu 24.04 (noble) [kernel=6.8.0 py=3.12.3 se=none]
+#                                          $4-$5
+#
+distro=`$home/qa/admin/whatami | awk '{ print $4 "-" $5 }'`
+$verbose && echo >&2 distro=$distro
+thisver=`sed -n <$home/debian/changelog \
+	  -e '/^pcp /{
+s/-[0-9][0-9]*).*//
+s/.*(//
+p
+q
+}'`
+$verbose && echo >&2 thisver=$thisver
+lastver=`sed -n <$home/debian/changelog \
+	  -e 1d \
+	  -e '/^pcp /{
+s/-[0-9][0-9]*).*//
+s/.*(//
+p
+q
+}'`
+$verbose && echo >&2 lastver=$lastver
+
+case $distro
+in
+    Debian-*|Ubuntu-*|MX-*)
+	    type=deb
+	    ;;
+
+    Fedora-*|RHEL-*)
+	    type=rpm
+	    ;;
+
+    *)
+	    echo "Oops, no recipe for distro $distro as yet"
+	    exit
+	    ;;
+esac
+
+if _have_latest_$type
+then
+    :
+else
+    # no point going on
+    exit
+fi
+
+case "$type"
+in
+    deb)
+	lastpkgdir=build/$type-$lastver
+	;;
+    rpm)
+	lastpkgdir=build/$type-$lastver
+	;;
+    *)
+	echo >&2 "Botch: don't know where to find current $type packages"
+	exit
+	;;
+esac
+
+if [ ! -d $home/build/$distro ]
+then
+    if _ask "get $distro packages?"
+    then
+	if $showme
+	then
+	    echo "+ $home/build/get-distro-packages"
+	else
+	    $home/build/get-distro-packages >$tmp.out 2>&1
+	    if [ -d $home/build/$distro ]
+	    then
+		cat $tmp.out
+		echo >&2 "Botch: that did not work!"
+		exit
+	    fi
+	fi
+    fi
+else
+    $verbose && echo "Info: $home/build/$distro is present"
+fi
+
+if [ ! -d $home/$lastpkgdir ]
+then
+    if _ask "make $lastver packages?"
+    then
+	if $showme
+	then
+	    echo "+ cd $home"
+	    echo "+ git checkout $lastver"
+	    echo "+ ./Makepkgs"
+	    echo "+ _gather_$type"
+	    echo "+ git checkout main"
+	else
+	    echo TODO
+	fi
+    fi
+else
+    $verbose && echo "Info: $home/$lastpkgdir is present"
+fi
+
+status=0
+
+exit
+

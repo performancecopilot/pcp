@@ -14,7 +14,7 @@ All connections made to the PCP metrics collector daemon (*pmcd*) are made using
 
 Both the *pmcd* and *pmproxy* daemons are capable of simultaneous TLS and non-TLS communications on a single port (by default, port 44321 for *pmcd* and 44322 for *pmproxy*). This means that you do not have to choose between TLS or non-TLS communications for your PCP Collector systems; both can be used at the same time.
 
-PCP installations using the scalable timeseries querying capabilities use Redis server(s). The process of configuring Redis and PCP is purposefully very similar, for convenience, however Redis configuration is not specifically covered here.
+PCP installations using the scalable timeseries querying capabilities use distributed key server(s).  The process of configuring a key server and PCP is purposefully very similar, for convenience, however this configuration is not specifically covered here.
 
 The cryptographic services used to augment the PCP and HTTP protocols are provided by OpenSSL, a library implementing Transport Layer Security (TLS) and base cryptographic functions. Check local PCP collector installation is built with TLS support::
 

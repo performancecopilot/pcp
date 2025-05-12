@@ -86,7 +86,17 @@ ColorList::findColor(const char *color, float &red, float &green, float &blue)
 {
     QColor col;
 
-    col.setNamedColor(color);
+    if (color[0] == '#') {
+	// #rrggbb color
+	unsigned int	r, g, b;
+	int		sts;
+	sts = sscanf(&color[1], "%2x%2x%2x", &r, &g, &b);
+	if (sts != 3)
+	    return false;
+	col.setRgb(r, g, b);
+    }
+    else
+	col.setNamedColor(color);
     if (!col.isValid())
 	return false;
 
@@ -101,7 +111,17 @@ ColorList::findColor(const char *color)
 {
     QColor col;
 
-    col.setNamedColor(color);
+    if (color[0] == '#') {
+	// #rrggbb color
+	unsigned int	r, g, b;
+	int		sts;
+	sts = sscanf(&color[1], "%2x%2x%2x", &r, &g, &b);
+	if (sts != 3)
+	    return false;
+	col.setRgb(r, g, b);
+    }
+    else
+	col.setNamedColor(color);
     if (!col.isValid())
 	return false;
 

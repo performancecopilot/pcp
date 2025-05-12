@@ -8,6 +8,7 @@ Released under the GNU GPLv2+, see the COPYING file
 in the source distribution for its full text.
 */
 
+#include <limits.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <sys/types.h>
@@ -23,6 +24,9 @@ in the source distribution for its full text.
 #define PROCESS_FLAG_SCHEDPOL        0x00000004
 
 #define DEFAULT_HIGHLIGHT_SECS 5
+
+/* Sentinel value for an unknown niceness in Process.nice */
+#define PROCESS_NICE_UNKNOWN (-LONG_MAX)
 
 typedef enum Tristate_ {
    TRI_INITIAL = 0,
@@ -226,9 +230,9 @@ typedef struct ProcessFieldData_ {
 typedef int32_t ProcessField;  /* see ReservedField list in RowField.h */
 
 // Implemented in platform-specific code:
-void Process_writeField(const Process* row, RichString* str, ProcessField field);
+void Process_writeField(const Process* this, RichString* str, ProcessField field);
 int Process_compare(const void* v1, const void* v2);
-int Process_compareByParent(const Row* r1, const Row* v2);
+int Process_compareByParent(const Row* r1, const Row* r2);
 void Process_delete(Object* cast);
 extern const ProcessFieldData Process_fields[LAST_PROCESSFIELD];
 #define Process_pidDigits Row_pidDigits
@@ -302,8 +306,6 @@ extern const ProcessClass Process_class;
 void Process_init(Process* this, const struct Machine_* host);
 
 const char* Process_rowGetSortKey(Row* super);
-
-bool Process_rowSetPriority(Row* super, int priority);
 
 bool Process_rowChangePriorityBy(Row* super, Arg delta);
 

@@ -22,7 +22,6 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _filter()
@@ -42,13 +41,13 @@ _report_tags()
     reallymiatags="reallymia/terry reallymia/cathy reallymia/emma"
     for tag in $miatags $reallymiatags
     do
-	echo checking tag $tag | tee -a $here/$seq.full
-	pmlogconf -q -g $tag $file 2>> $seq.full
+	echo checking tag $tag | tee -a $seq_full
+	pmlogconf -q -g $tag $file 2>> $seq_full
     done
 }
 
 rm -f $tmp.tmp
-pmlogconf -q $tmp.tmp >>$here/$seq.full </dev/null 2>&1
+pmlogconf -q $tmp.tmp >>$seq_full </dev/null 2>&1
 
 $PCP_AWK_PROG <$tmp.tmp '
 BEGIN					{ state = 0 }
@@ -98,7 +97,7 @@ cat $tmp.3 >>$tmp.base
 # real QA test starts here
 echo "default behaviour ... "
 cp $tmp.base $tmp.in
-pmlogconf -r -q $tmp.in </dev/null 2>$tmp.err >>$here/$seq.full
+pmlogconf -r -q $tmp.in </dev/null 2>$tmp.err >>$seq_full
 _filter <$tmp.err
 # expect no differences, but groups are now sorted (so cant use diff)
 # instead use the --group option to pmlogconf to verify group exists.
@@ -108,7 +107,7 @@ _report_tags $tmp.in
 echo
 echo "new behaviour with -c ..."
 cp $tmp.base $tmp.in
-pmlogconf -r -c -q $tmp.in </dev/null 2>$tmp.err >>$here/$seq.full
+pmlogconf -r -c -q $tmp.in </dev/null 2>$tmp.err >>$seq_full
 _filter <$tmp.err
 echo "expect mia and reallymia templates to be gone"
 #diff $tmp.base $tmp.in | sed -e '/^[0-9]/s/[0-9][0-9]*/N/g'

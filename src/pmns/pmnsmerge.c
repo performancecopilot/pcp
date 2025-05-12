@@ -151,7 +151,7 @@ addpmns(__pmnsNode *base, char *name, __pmnsNode *p)
 	np->first = np->next = NULL;
 	np->hash = NULL;		/* we do not need this here */
 	np->name = (char *)malloc(nch+1);
-	strncpy(np->name, name, nch);
+	memcpy(np->name, name, nch);
 	np->name[nch] = '\0';
 	if (*tail == '\0') {
 	    np->pmid = p->pmid;

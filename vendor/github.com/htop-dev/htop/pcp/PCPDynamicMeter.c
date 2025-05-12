@@ -30,9 +30,8 @@ in the source distribution for its full text.
 
 
 static PCPDynamicMetric* PCPDynamicMeter_lookupMetric(PCPDynamicMeters* meters, PCPDynamicMeter* meter, const char* name) {
-   size_t bytes = 16 + strlen(meter->super.name) + strlen(name);
-   char* metricName = xMalloc(bytes);
-   xSnprintf(metricName, bytes, "htop.meter.%s.%s", meter->super.name, name);
+   char* metricName = NULL;
+   xAsprintf(&metricName, "htop.meter.%s.%s", meter->super.name, name);
 
    PCPDynamicMetric* metric;
    for (size_t i = 0; i < meter->totalMetrics; i++) {
@@ -198,17 +197,19 @@ static void PCPDynamicMeter_parseFile(PCPDynamicMeters* meters, const char* path
          if (ok)
             meter = PCPDynamicMeter_new(meters, key + 1);
       } else if (!ok) {
-         ;  /* skip this one, we're looking for a new header */
-      } else if (value && meter && String_eq(key, "caption")) {
+         /* skip this one, we're looking for a new header */
+      } else if (!value || !meter) {
+         /* skip this one as we always need value strings */
+      } else if (String_eq(key, "caption")) {
          char* caption = String_cat(value, ": ");
          if (caption) {
             free_and_xStrdup(&meter->super.caption, caption);
             free(caption);
             caption = NULL;
          }
-      } else if (value && meter && String_eq(key, "description")) {
+      } else if (String_eq(key, "description")) {
          free_and_xStrdup(&meter->super.description, value);
-      } else if (value && meter && String_eq(key, "type")) {
+      } else if (String_eq(key, "type")) {
          if (String_eq(config[1], "bar"))
             meter->super.type = BAR_METERMODE;
          else if (String_eq(config[1], "text"))
@@ -217,9 +218,9 @@ static void PCPDynamicMeter_parseFile(PCPDynamicMeters* meters, const char* path
             meter->super.type = GRAPH_METERMODE;
          else if (String_eq(config[1], "led"))
             meter->super.type = LED_METERMODE;
-      } else if (value && meter && String_eq(key, "maximum")) {
+      } else if (String_eq(key, "maximum")) {
          meter->super.maximum = strtod(value, NULL);
-      } else if (value && meter) {
+      } else {
          PCPDynamicMeter_parseMetric(meters, meter, path, lineno, key, value);
       }
       String_freeArray(config);
@@ -273,7 +274,7 @@ void PCPDynamicMeters_init(PCPDynamicMeters* meters) {
    if (xdgConfigHome)
       path = String_cat(xdgConfigHome, "/htop/meters/");
    else if (home)
-      path = String_cat(home, "/.config/htop/meters/");
+      path = String_cat(home, CONFIGDIR "/htop/meters/");
    else
       path = NULL;
    if (path) {

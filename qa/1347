@@ -24,7 +24,6 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _logs()
@@ -46,11 +45,11 @@ pcp_options="pcp -z --origin=+0.1 --archive $here/archives/pcp-atop-boot"
 # so these will be reported numerically rather than from the QA host.
 #
 
-echo "=== -v option:" | tee -a $here/$seq.full
+echo "=== -v option:" | tee -a $seq_full
 $pcp_options atop -v 2 3 >$tmp.out 2>$tmp.err
-_logs | tee -a $here/$seq.full
+_logs | tee -a $seq_full
 
-echo "=== -m option:" | tee -a $here/$seq.full
+echo "=== -m option:" | tee -a $seq_full
 $pcp_options atop -R -m 2 3 >$tmp.out 2>$tmp.err
 _logs
 

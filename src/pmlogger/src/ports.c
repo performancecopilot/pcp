@@ -928,7 +928,7 @@ control_req(int ctlfd)
     }
     else {
 	/* this is safe, due to strlen() test above */
-	strcpy(pmlc_host, hostName);
+	pmstrncpy(pmlc_host, sizeof(pmlc_host), hostName);
     }
     if (hostName != NULL)
 	free(hostName);

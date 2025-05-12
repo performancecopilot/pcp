@@ -38,12 +38,12 @@ _cleanup()
 _filter()
 {
     sed \
+	-e '/pmlogcp: Cannot open archive .*: Illegal label record/d' \
 	-e "s@$tmp@TMP@g" \
     # end
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # setup the log farm
@@ -93,7 +93,7 @@ $PCP_BINADM_DIR/pmlogger_rewrite -N -VV foo | sort -r
 echo
 echo "--- populated foo ---"
 base=0
-for suff in xz lzma bz2 bz gz Z z
+for suff in xz lzma bz2 bz gz Z z zst
 do
     touch foo/$base.meta.$suff
     touch foo/$base.0.$suff

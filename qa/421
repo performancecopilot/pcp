@@ -47,7 +47,7 @@ _filter_trace_install()
 
 cd $PCP_PMDAS_DIR/trace
 $sudo ./Install -R / </dev/null 2>&1 | _filter_trace_install
-_wait_for_pmcd
+_wait_for_pmcd || _exit 1
 
 # real QA test starts here
 pminfo -f trace.transact.count

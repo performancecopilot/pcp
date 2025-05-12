@@ -36,7 +36,6 @@ _cleanup()
 }
 
 status=0	# success is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # Note status command output order is non-deterministic, hence the sort
@@ -44,7 +43,7 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 #
 _filter_status()
 {
-    tee -a $seq.full \
+    tee -a $seq_full \
     | $PCP_AWK_PROG -f $tmp.awk \
     | sed >$tmp.tmp \
 	-e "/^`hostname` .* primary /d" \
@@ -89,10 +88,10 @@ $sudo cp $tmp.ctl $PCP_ETC_DIR/pcp/pmlogger/control.d/$seq
 $sudo -u $PCP_USER -g $PCP_GROUP $PCP_BINADM_DIR/pmlogger_check
 
 echo "Expect installed and running ..."
-pmlogctl -V status | _filter_status
+pmlogctl -V status 2>&1 | _filter_status
 $sudo pmlogctl -f -c $seq destroy
 echo "Expect no longer present ..."
-pmlogctl -V status | _filter_status
+pmlogctl -V status 2>&1 | _filter_status
 
 # hostname(1)
 #
@@ -108,10 +107,10 @@ $sudo cp $tmp.ctl $PCP_ETC_DIR/pcp/pmlogger/control.d/$seq
 $sudo -u $PCP_USER -g $PCP_GROUP $PCP_BINADM_DIR/pmlogger_check
 
 echo "Expect installed and running ..."
-pmlogctl -V status | _filter_status
+pmlogctl -V status 2>&1 | _filter_status
 $sudo pmlogctl -f -c $seq destroy
 echo "Expect no longer present ..."
-pmlogctl -V status | _filter_status
+pmlogctl -V status 2>&1 | _filter_status
 
 # success, all done
 exit

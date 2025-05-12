@@ -47,17 +47,18 @@ some_host
 End-of-File
 
 sleep 3
-_service pcp stop | _filter_pcp_stop
+if ! _service pcp stop; then _exit 1; fi \
+| _filter_pcp_stop
 
 sleep 10
-_service pcp start 2>&1 | _filter_pcp_start
+if ! _service pcp start 2>&1; then _exit 1; fi | _filter_pcp_start
 pmcd_wait
 sleep 12
 $signal -s TERM $!
 wait
-_wait_for_pmlogger
+_wait_for_pmlogger || _exit 1
 
-cp $tmp.log $seq.full
+cp $tmp.log $seq_full
 
 # Especially on slow VMs (like bozo-vm) we may need to dodge warnings
 # from pmie's rule scheduler around pmcd reconnection ... the second

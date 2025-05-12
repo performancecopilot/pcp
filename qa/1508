@@ -7,6 +7,8 @@
 # - \ continuation @ end of line
 # - meta= for novalue() and mkconst()
 #
+# non-valgrind variant, see qa/1514 for the valgrind variant
+#
 # Copyright (c) 2024 Ken McDonell.  All Rights Reserved.
 #
 
@@ -27,13 +29,16 @@ fi
 
 which pmrep > /dev/null 2>&1 || _notrun "pmrep not installed"
 
-$sudo rm -rf $tmp $tmp.* $seq.full
 
 do_valgrind=false
 if [ "$1" = "--valgrind" ]
 then
     _check_valgrind
     do_valgrind=true
+elif which valgrind >/dev/null 2>&1
+then
+    [ "$PCPQA_VALGRIND" = both ] || \
+        _notrun "valgrind variant qa/1514 will be run"
 fi
 
 _cleanup()
@@ -47,14 +52,17 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _filter()
 {
-    cat $tmp.out >>$seq.full
-    sed <$tmp.out \
+    tee -a $seq_full \
+    | sed \
+	-e "/Command:/s@ /bin/pmrep@ /usr/bin/pmrep@" \
+	-e "/Command:/s@ /usr/sbin/pmrep@ /usr/bin/pmrep@" \
 	-e 's/=0x0 /=(nil) /g' \
 	-e 's/=0x[0-9a-f[0-9a-f]*/=<addr>/g' \
 	-e 's/node 0x[0-9a-f[0-9a-f]*/node <addr>/g' \
 	-e 's/from 0x[0-9a-f[0-9a-f]*/from <addr>/g' \
 	-e '/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/s/[^ ]*.*numpmid/TIMESTAMP ... numpmid/' \
-	-e "s;$tmp;TMP;"
+	-e "s;$PCP_BIN_DIR;PCP_BIN_DIR;" \
+	-e "s;$tmp;TMP;" \
 # -e 's/ val=[0-9][0-9]*/ val=<number>/g'
 }
 
@@ -123,11 +131,12 @@ export PCP_DERIVED_CONFIG=$tmp.config
 
 if $do_valgrind
 then
-    _run_valgrind ...your test goes here...
+    _run_valgrind --save-output pminfo -Dderive -Dappl1 -df qa
+    cat $tmp.err $tmp.out
 else
     pminfo -Dderive -Dappl1 -df qa 2>&1
-fi >$tmp.out
-_filter <$tmp.out
+fi \
+| _filter
 
 echo
 echo "=== Marko's nested defn case ==="
@@ -140,11 +149,12 @@ End-of-File
 
 if $do_valgrind
 then
-    _run_valgrind ...your test goes here...
+    _run_valgrind --save-output pmrep -s 2 baz bah
+    cat $tmp.err $tmp.out
 else
     pmrep -s 2 baz bah 2>&1
-fi >$tmp.out
-_filter <$tmp.out
+fi \
+| _filter
 
 # success, all done
 exit

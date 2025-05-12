@@ -2,7 +2,7 @@
  * Copyright (c) 2000,2004,2007-2008 SGI. All Rights Reserved.
  * Copyright (c) 2002 International Business Machines Corp.
  * Copyright (c) 2007-2009 Aconex.  All Rights Reserved.
- * Copyright (c) 2013-2021,2023-2024 Red Hat.
+ * Copyright (c) 2013-2021,2023-2025 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -37,6 +37,7 @@ root {
     tty
     zram
     fchost
+    hyperv
 }
 
 hinv {
@@ -54,6 +55,7 @@ hinv {
     hugepagesize	60:1:59
     ntape		60:71:16
     nfchost		60:91:16
+    disk
 }
 
 hinv.map {
@@ -104,6 +106,11 @@ hinv.cpu.frequency_scaling {
     time		60:55:7
     max			60:55:8
     min			60:55:9
+}
+
+hinv.disk {
+    ctlr		60:0:105
+    model		60:0:106
 }
 
 kernel {
@@ -639,6 +646,7 @@ mem {
     hugepages
     vmmemctl
 }
+
 mem.vmmemctl {
     current		60:35:4
     target		60:35:5
@@ -738,12 +746,15 @@ mem.util {
     zswapped		60:1:72
     shadowcallstack	60:1:73
     percpu		60:1:74
+    kreclaimable	60:1:75
+    hugetlb		60:1:76
 }
 
 mem.numa {
     util
     alloc
     max_bandwidth	60:36:38
+    hugepages
 }
 
 mem.numa.util {
@@ -791,6 +802,13 @@ mem.numa.alloc {
     interleave_hit	60:36:35
     local_node		60:36:36
     other_node		60:36:37
+}
+
+mem.numa.hugepages {
+    pagesize		60:95:0
+    free		60:95:1
+    surplus		60:95:2
+    totalsize		60:95:3
 }
 
 mem.zoneinfo {
@@ -1330,6 +1348,18 @@ network.mptcp {
     rmaddrtx		60:53:210
     rmaddrtxdrop		60:53:211
     mpcurrestab		60:53:217
+    mpjoinsynbackuprx		60:53:218
+    mpjoinsynackbackuprx		60:53:219
+    mpcapableendpattempt		60:53:220
+    dsscorruptionfallback		60:53:221
+    dsscorruptionreset		60:53:222
+    mpcapablesyntxdrop		60:53:223
+    mpcapablesyntxdisabled		60:53:224
+    mpjoinsyntx		60:53:225
+    mpjoinsyntxcreatskerr		60:53:226
+    mpjoinsyntxbinderr		60:53:227
+    mpjoinsyntxconnecterr		60:53:228
+    blackhole		60:53:229
 }
 
 network.udp {
@@ -1558,6 +1588,19 @@ fchost.in {
 fchost.out {
     frames		60:91:1
     bytes		60:91:3
+}
+
+hyperv {
+    balloon 
+}
+
+hyperv.balloon {
+    state		60:35:6
+    pagesize		60:35:7
+    added		60:35:9
+    onlined		60:35:8
+    ballooned		60:35:10
+    total_committed	60:35:11
 }
 
 filesys {

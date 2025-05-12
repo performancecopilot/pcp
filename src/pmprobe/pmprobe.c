@@ -63,7 +63,7 @@ overrides(int opt, pmOptions *opts)
 
 static pmOptions opts = {
     .flags = PM_OPTFLAG_STDOUT_TZ,
-    .short_options = "a:b:D:efh:IiK:Ln:FO:VvZ:z?",
+    .short_options = "a:b:D:dfh:IiK:Ln:FO:VvZ:z?",
     .long_options = longopts,
     .short_usage = "[options] [metricname ...]",
     .override = overrides,
@@ -330,7 +330,7 @@ main(int argc, char **argv)
 	     * merics from archives are fetched one at a time, otherwise
 	     * get them in batches of at most batchsize.
 	     */
-	    if ((sts = pmSetMode(PM_MODE_FORW, &opts.origin, 0)) < 0) {
+	    if ((sts = pmSetModeHighRes(PM_MODE_FORW, &opts.origin, NULL)) < 0) {
 		printf("%d %s (pmSetMode)\n", sts, pmErrStr(sts));
 		continue;
 	    }

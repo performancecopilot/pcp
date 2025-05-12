@@ -36,7 +36,6 @@ do
 done
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
@@ -44,8 +43,8 @@ trap "cd $here; rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 echo '== testing pmiostat --samples and -s options to ensure sufficientl samples'
 
 pmiostat -t 0.01 -s 1 >$tmp.out
-echo "=== -s 1 case ===" >>$here/$seq.full
-cat $tmp.out >>$here/$seq.full
+echo "=== -s 1 case ===" >>$seq_full
+cat $tmp.out >>$seq_full
 # expect 1 stats line for _each_ device
 #
 touch $tmp.ok
@@ -64,8 +63,8 @@ done
 [ -f $tmp.ok ] && echo "OK"
 
 pmiostat -t 0.01 --samples 2 >$tmp.out
-echo "=== --samples 2 case ===" >>$here/$seq.full
-cat $tmp.out >>$here/$seq.full
+echo "=== --samples 2 case ===" >>$seq_full
+cat $tmp.out >>$seq_full
 # expect 2 stats line for _each_ device
 #
 touch $tmp.ok

@@ -27,11 +27,20 @@ _cleanup()
 {
     if [ ! -f $tmp.cleanup ]
     then
-	$signal -a -s TERM pmlogger >/dev/null 2>&1
-	$sudo $PCP_BINADM_DIR/pmlogger_check
-	_wait_for_pmlogger
+	_kill_my_pmloggers
 	touch $tmp.cleanup
     fi
+}
+
+_kill_my_pmloggers()
+{
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS \
+    | grep '/[p]mlogger .*-c ./config' \
+    | $PCP_AWK_PROG '{ print $2 }' \
+    | while read pid
+    do
+	sudo kill -TERM $pid
+    done
 }
 
 signal="$sudo $PCP_BINADM_DIR/pmsignal"
@@ -40,15 +49,14 @@ trap "_cleanup; cd $here; $sudo rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 
 debug=`pmprobe -v pmcd.control.debug | $PCP_AWK_PROG '{ print $3 }'`
 
-rm -rf $tmp $seq.full
-mkdir $tmp
+mkdir $tmp || _exit 1
 chmod ugo+w $tmp
 cd $tmp
 
 echo >control '# PCP archive logging configuration/control - for qa/'$seq'
 #
 $version=1.1
-LOCALHOSTNAME	n   n	'`pwd`'	-c ./config'
+LOCALHOSTNAME	n   n	'`pwd`'	-s 1 -c ./config'
 
 echo "log mandatory on once pmcd.control.debug" >config
 
@@ -56,20 +64,44 @@ touch pmcheck.log
 chmod ugo+w pmcheck.log
 
 # real QA test starts here
+_kill_my_pmloggers
 echo "start pmlogger ..."
 $sudo $PCP_BINADM_DIR/pmlogger_check -V -c control >>pmcheck.log 2>&1
 
-for i in 1 2 3 4
+for i in 0 1 2 3 4
 do
-    echo "kill and restart pmlogger ..."
-    $signal -a -s TERM pmlogger
+    rm -f $tmp.done $tmp.wait_log
+    wait=0
+    while [ $wait -lt 20 ]
+    do
+	check=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '/[p]mlogger .*-c ./config'`
+	echo "$i:$wait:$check" >>$tmp.wait_log
+	if [ -z "$check" ]
+	then
+	    echo $wait >$tmp.done
+	    break
+	fi
+	pmsleep 0.05
+	wait=`expr $wait + 1`
+    done
+    if [ ! -f $tmp.done ]
+    then
+	cat $tmp.wait_log
+	ls -l
+	[ -f pmcheck.log ] && cat pmcheck.log
+	[ -f pmlogger.log.prev ] && cat pmlogger.log.prev
+	[ -f pmlogger.log ] && cat pmlogger.log
+	echo "Arrgh: failed to see pmlogger exit at iteration $i"
+	status=1
+	exit
+    fi
+    echo "iter $i: pmlogger exited after `cat $tmp.done` pmsleep delays" >>$seq_full
+    [ $i -eq 4 ] && break
+    echo "restart pmlogger ..."
+    _kill_my_pmloggers
     $sudo $PCP_BINADM_DIR/pmlogger_check -V -c control >>pmcheck.log 2>&1
-    # back-to-back signals may confuse $signal (killing by name)
-    # so delay a little ...
-    #
-    pmsleep 0.5
 done
-$signal -a -s TERM pmlogger
+_kill_my_pmloggers
 
 echo
 echo "Checking ..."
@@ -97,10 +129,10 @@ fi
 
 echo
 echo "merge 'em together ..."
-ls -l >>$here/$seq.full
+ls -l >>$seq_full
 $sudo $PCP_BINADM_DIR/pmlogextract *.meta* out
 pmval -U out pmcd.control.debug \
-| tee -a $here/$seq.full \
+| tee -a $seq_full \
 | _filter
 
 exit

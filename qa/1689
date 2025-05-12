@@ -12,16 +12,12 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-# need both redis and pmproxy running for this test
-_check_redis_server
-[ -x $PCP_BINADM_DIR/pmproxy ] || \
-    _notrun "need $PCP_BINADM_DIR/pmproxy"
-
-pgrep pmproxy >/dev/null 2>&1 || \
-    _notrun "pmproxy not running"
+# need both a key server and pmproxy running for this test
+[ -x $PCP_BINADM_DIR/pmproxy ] || _notrun "need $PCP_BINADM_DIR/pmproxy"
+pgrep pmproxy >/dev/null 2>&1 || _notrun "pmproxy not running"
+_check_key_server
 
 status=0	# success is the default!
-$sudo rm -rf $tmp.*
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _cleanup()

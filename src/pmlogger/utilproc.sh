@@ -218,6 +218,8 @@ _is_archive()
 	    			;;
 	    *.gz|*.Z|*.z)	gzip -dc "$1"
 	    			;;
+	    *.zst)		zstd -dc --quiet "$1"
+	    			;;
 	    *)			cat "$1"
 	    			;;
 	esac 2>/dev/null \

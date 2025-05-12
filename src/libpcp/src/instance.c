@@ -67,8 +67,19 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_CALL);
 		}
 		else if (sts == PDU_ERROR)
 		    __pmDecodeError(pb, &sts);
-		else if (sts != PM_ERR_TIMEOUT)
+		else if (sts != PM_ERR_TIMEOUT) {
+		    if (pmDebugOptions.pdu) {
+			char	strbuf[20];
+			char	errmsg[PM_MAXERRMSGLEN];
+			if (sts < 0)
+			    fprintf(stderr, "pmLookupInDom_ctx: PM_ERR_IPC: expecting PDU_INSTANCE but__pmGetPDU returns %d (%s)\n",
+				sts, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+			else
+			    fprintf(stderr, "pmLookupInDom_ctx: PM_ERR_IPC: expecting PDU_INSTANCE but__pmGetPDU returns %d (type=%s)\n",
+				sts, __pmPDUTypeStr_r(sts, strbuf, sizeof(strbuf)));
+		    }
 		    sts = PM_ERR_IPC;
+		}
 
 		if (pinpdu > 0)
 		    __pmUnpinPDUBuf(pb);
@@ -181,8 +192,19 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_CALL);
 		}
 		else if (sts == PDU_ERROR)
 		    __pmDecodeError(pb, &sts);
-		else if (sts != PM_ERR_TIMEOUT)
+		else if (sts != PM_ERR_TIMEOUT) {
+		    if (pmDebugOptions.pdu) {
+			char	strbuf[20];
+			char	errmsg[PM_MAXERRMSGLEN];
+			if (sts < 0)
+			    fprintf(stderr, "pmNameInDom_ctx: PM_ERR_IPC: expecting PDU_INSTANCE but__pmGetPDU returns %d (%s)\n",
+				sts, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+			else
+			    fprintf(stderr, "pmNameInDom_ctx: PM_ERR_IPC: expecting PDU_INSTANCE but__pmGetPDU returns %d (type=%s)\n",
+				sts, __pmPDUTypeStr_r(sts, strbuf, sizeof(strbuf)));
+		    }
 		    sts = PM_ERR_IPC;
+		}
 
 		if (pinpdu > 0)
 		    __pmUnpinPDUBuf(pb);
@@ -282,7 +304,7 @@ inresult_to_lists(pmInResult *result, int **instlist, char ***namelist)
 	int len = result->namelist[i] ? strlen(result->namelist[i]) : 0;
 	ilist[i] = result->instlist[i];
 	/* name could be NULL or zero length string, see above */
-	strncpy(p, len ? result->namelist[i] : "\0", len+1);
+	pmstrncpy(p, len+1, len ? result->namelist[i] : "\0");
 	nlist[i] = p;
 	p += len + 1;
     }
@@ -354,8 +376,19 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_CALL);
 		}
 		else if (sts == PDU_ERROR)
 		    __pmDecodeError(pb, &sts);
-		else if (sts != PM_ERR_TIMEOUT)
+		else if (sts != PM_ERR_TIMEOUT) {
+		    if (pmDebugOptions.pdu) {
+			char	strbuf[20];
+			char	errmsg[PM_MAXERRMSGLEN];
+			if (sts < 0)
+			    fprintf(stderr, "pmGetInDom_ctx: PM_ERR_IPC: expecting PDU_INSTANCE but__pmGetPDU returns %d (%s)\n",
+				sts, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+			else
+			    fprintf(stderr, "pmGetInDom_ctx: PM_ERR_IPC: expecting PDU_INSTANCE but__pmGetPDU returns %d (type=%s)\n",
+				sts, __pmPDUTypeStr_r(sts, strbuf, sizeof(strbuf)));
+		    }
 		    sts = PM_ERR_IPC;
+		}
 
 		if (pinpdu > 0)
 		    __pmUnpinPDUBuf(pb);

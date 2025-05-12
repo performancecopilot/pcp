@@ -16,7 +16,6 @@ echo "QA output created by $seq"
 which pmlogrewrite >/dev/null 2>&1 || _notrun "pmlogrewrite not installed"
 
 status=0	# success is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 _filter()
@@ -38,8 +37,8 @@ _cmp()
 	echo "Arrgh ... cannot find $2.0" | _filter
 	return
     fi
-    pmdumplog -z -dilmst $1 | tee -a $seq.full >$tmp.in
-    pmdumplog -z -dilmst $2 | tee -a $seq.full >$tmp.out
+    pmdumplog -z -dilmst $1 | tee -a $seq_full >$tmp.in
+    pmdumplog -z -dilmst $2 | tee -a $seq_full >$tmp.out
     echo "pmdumplog diffs ..."
     diff -u $tmp.in $tmp.out | _filter
 }
@@ -60,8 +59,8 @@ _cmp2()
     pminfo -d -a $1 $3
     echo "--- output metadata ---"
     pminfo -d -a $2 $3
-    pmval $TIMEZONE -r -f 1 -w 12 -U $1 $3 | tee -a $seq.full >$tmp.in
-    pmval $TIMEZONE -r -f 1 -w 12 -U $2 $3 | tee -a $seq.full >$tmp.out
+    pmval $TIMEZONE -r -f 1 -w 12 -U $1 $3 | tee -a $seq_full >$tmp.in
+    pmval $TIMEZONE -r -f 1 -w 12 -U $2 $3 | tee -a $seq_full >$tmp.out
     echo "pmval diffs ..."
     diff -u $tmp.in $tmp.out | _filter
 }
@@ -81,9 +80,9 @@ archives/rewrite		indom 29.* { indom -> 109.* } metric sample.bin { indom -> 123
 archives/proc		indom 60.2 { inst 1 -> 60 iname "1 minute" -> "60 second" inst 5 -> 300 iname "5 minute" -> "300 second" inst 15 -> 900 iname "15 minute" -> "900 second" }
 End-of-File
 do
-    echo | tee -a $seq.full
+    echo | tee -a $seq_full
     echo "$spec" >$tmp.config
-    echo "=== `cat $tmp.config` ===" | tee -a $seq.full
+    echo "=== `cat $tmp.config` ===" | tee -a $seq_full
     rm -f $tmp.new.*
     pmlogrewrite -ws -c $tmp.config `echo $arch_args | sed -e 's/|/ /g'` $tmp.new 2>&1 | _filter
     _cmp `echo $arch_args | sed -e 's/|.*//'` $tmp.new
@@ -96,11 +95,11 @@ sed -e '/^#/d' <<End-of-File | while read arch_args spec
 archives/babylon.pmview_v2		metric disk.dev.read { type -> U64 } metric disk.dev.write { type -> U64 } metric disk.dev.total { type -> U64 }|disk.dev.read disk.dev.write disk.dev.total
 End-of-File
 do
-    echo | tee -a $seq.full
+    echo | tee -a $seq_full
     metrics=`echo "$spec" | sed -e 's/.*|//'`
     spec=`echo "$spec" | sed -e 's/|.*//'`
     echo "$spec" >$tmp.config
-    echo "=== `cat $tmp.config` ===" | tee -a $seq.full
+    echo "=== `cat $tmp.config` ===" | tee -a $seq_full
     rm -f $tmp.new.*
     pmlogrewrite -ws -c $tmp.config `echo $arch_args | sed -e 's/|/ /g'` $tmp.new 2>&1 | _filter
     for m in $metrics
@@ -110,8 +109,8 @@ do
 done
 
 TIMEZONE=-z
-echo | tee -a $seq.full
-echo "=== proc metrics migration ===" | tee -a $seq.full
+echo | tee -a $seq_full
+echo "=== proc metrics migration ===" | tee -a $seq_full
 cat <<End-of-File >$tmp.config
 # proc metrics are all in 7 clusters
 metric 60.8.* { pmid -> 123.*.* }

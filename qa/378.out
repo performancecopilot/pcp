@@ -1,20 +1,25 @@
 QA output created by 378
 just one archive (kenj-pc-1) ...
 pmie: timezone set to local timezone from archives/kenj-pc-1
-print Sun Feb  8 13:02:00 2004: kenj-pc: 1.51
-print Sun Feb  8 13:05:00 2004: kenj-pc: 1.71
-print Sun Feb  8 13:23:00 2004: kenj-pc: 2.23
-print Sun Feb  8 13:24:00 2004: kenj-pc: 2.17
-print Sun Feb  8 13:25:00 2004: kenj-pc: 1.68
-print Sun Feb  8 13:39:00 2004: kenj-pc: 2.08
-print Sun Feb  8 14:47:00 2004: kenj-pc: 1.71
-print Sun Feb  8 14:48:00 2004: kenj-pc: 1.52
-print Sun Feb  8 14:49:00 2004: kenj-pc: 1.81
-print Sun Feb  8 14:50:00 2004: kenj-pc: 1.55
-print Sun Feb  8 14:52:00 2004: kenj-pc: 1.81
-print Sun Feb  8 15:15:00 2004: kenj-pc: 1.85
-print Sun Feb  8 15:16:00 2004: kenj-pc: 1.56
-print Sun Feb  8 15:17:00 2004: kenj-pc: 1.53
+print Sun Feb  8 12:54:00 2004: kenj-pc: 1.57
+print Sun Feb  8 13:03:00 2004: kenj-pc: 1.53
+print Sun Feb  8 13:05:00 2004: kenj-pc: 1.77
+print Sun Feb  8 13:22:00 2004: kenj-pc: 1.58
+print Sun Feb  8 13:23:00 2004: kenj-pc: 2.18
+print Sun Feb  8 13:24:00 2004: kenj-pc: 1.99
+print Sun Feb  8 13:25:00 2004: kenj-pc: 1.53
+print Sun Feb  8 13:39:00 2004: kenj-pc: 1.91
+print Sun Feb  8 14:45:00 2004: kenj-pc: 1.66
+print Sun Feb  8 14:46:00 2004: kenj-pc: 1.58
+print Sun Feb  8 14:47:00 2004: kenj-pc: 1.77
+print Sun Feb  8 14:48:00 2004: kenj-pc: 1.62
+print Sun Feb  8 14:49:00 2004: kenj-pc: 1.85
+print Sun Feb  8 14:50:00 2004: kenj-pc: 1.73
+print Sun Feb  8 14:51:00 2004: kenj-pc: 1.61
+print Sun Feb  8 14:52:00 2004: kenj-pc: 1.85
+print Sun Feb  8 15:13:00 2004: kenj-pc: 1.66
+print Sun Feb  8 15:15:00 2004: kenj-pc: 1.88
+print Sun Feb  8 15:16:00 2004: kenj-pc: 1.78
 
 expect error as same host ...
 pmie: Error: archive archives/kenj-pc-2 not legal - archive archives/kenj-pc-1 is already open for host kenj-pc
@@ -30,20 +35,25 @@ print Thu Apr  8 16:17:00 2004: snort: 2.11
 
 and now together kenj-pc-1 first ...
 pmie: timezone set to local timezone from archives/kenj-pc-1
-print Sun Feb  8 13:02:00 2004: kenj-pc: 1.51
-print Sun Feb  8 13:05:00 2004: kenj-pc: 1.71
-print Sun Feb  8 13:23:00 2004: kenj-pc: 2.23
-print Sun Feb  8 13:24:00 2004: kenj-pc: 2.17
-print Sun Feb  8 13:25:00 2004: kenj-pc: 1.68
-print Sun Feb  8 13:39:00 2004: kenj-pc: 2.08
-print Sun Feb  8 14:47:00 2004: kenj-pc: 1.71
-print Sun Feb  8 14:48:00 2004: kenj-pc: 1.52
-print Sun Feb  8 14:49:00 2004: kenj-pc: 1.81
-print Sun Feb  8 14:50:00 2004: kenj-pc: 1.55
-print Sun Feb  8 14:52:00 2004: kenj-pc: 1.81
-print Sun Feb  8 15:15:00 2004: kenj-pc: 1.85
-print Sun Feb  8 15:16:00 2004: kenj-pc: 1.56
-print Sun Feb  8 15:17:00 2004: kenj-pc: 1.53
+print Sun Feb  8 12:54:00 2004: kenj-pc: 1.57
+print Sun Feb  8 13:03:00 2004: kenj-pc: 1.53
+print Sun Feb  8 13:05:00 2004: kenj-pc: 1.77
+print Sun Feb  8 13:22:00 2004: kenj-pc: 1.58
+print Sun Feb  8 13:23:00 2004: kenj-pc: 2.18
+print Sun Feb  8 13:24:00 2004: kenj-pc: 1.99
+print Sun Feb  8 13:25:00 2004: kenj-pc: 1.53
+print Sun Feb  8 13:39:00 2004: kenj-pc: 1.91
+print Sun Feb  8 14:45:00 2004: kenj-pc: 1.66
+print Sun Feb  8 14:46:00 2004: kenj-pc: 1.58
+print Sun Feb  8 14:47:00 2004: kenj-pc: 1.77
+print Sun Feb  8 14:48:00 2004: kenj-pc: 1.62
+print Sun Feb  8 14:49:00 2004: kenj-pc: 1.85
+print Sun Feb  8 14:50:00 2004: kenj-pc: 1.73
+print Sun Feb  8 14:51:00 2004: kenj-pc: 1.61
+print Sun Feb  8 14:52:00 2004: kenj-pc: 1.85
+print Sun Feb  8 15:13:00 2004: kenj-pc: 1.66
+print Sun Feb  8 15:15:00 2004: kenj-pc: 1.88
+print Sun Feb  8 15:16:00 2004: kenj-pc: 1.78
 
 and now together naslog first ...
 pmie: timezone set to local timezone from archives/naslog
@@ -56,20 +66,25 @@ print Thu Apr  8 16:17:00 2004: snort: 2.11
 
 two rules, host-specific (naslog first) ...
 pmie: timezone set to local timezone from archives/naslog
-print Sun Feb  8 13:02:00 2004: kenj-pc: 1.51
-print Sun Feb  8 13:05:00 2004: kenj-pc: 1.71
-print Sun Feb  8 13:23:00 2004: kenj-pc: 2.23
-print Sun Feb  8 13:24:00 2004: kenj-pc: 2.17
-print Sun Feb  8 13:25:00 2004: kenj-pc: 1.68
-print Sun Feb  8 13:39:00 2004: kenj-pc: 2.08
-print Sun Feb  8 14:47:00 2004: kenj-pc: 1.71
-print Sun Feb  8 14:48:00 2004: kenj-pc: 1.52
-print Sun Feb  8 14:49:00 2004: kenj-pc: 1.81
-print Sun Feb  8 14:50:00 2004: kenj-pc: 1.55
-print Sun Feb  8 14:52:00 2004: kenj-pc: 1.81
-print Sun Feb  8 15:15:00 2004: kenj-pc: 1.85
-print Sun Feb  8 15:16:00 2004: kenj-pc: 1.56
-print Sun Feb  8 15:17:00 2004: kenj-pc: 1.53
+print Sun Feb  8 12:54:00 2004: kenj-pc: 1.57
+print Sun Feb  8 13:03:00 2004: kenj-pc: 1.53
+print Sun Feb  8 13:05:00 2004: kenj-pc: 1.77
+print Sun Feb  8 13:22:00 2004: kenj-pc: 1.58
+print Sun Feb  8 13:23:00 2004: kenj-pc: 2.18
+print Sun Feb  8 13:24:00 2004: kenj-pc: 1.99
+print Sun Feb  8 13:25:00 2004: kenj-pc: 1.53
+print Sun Feb  8 13:39:00 2004: kenj-pc: 1.91
+print Sun Feb  8 14:45:00 2004: kenj-pc: 1.66
+print Sun Feb  8 14:46:00 2004: kenj-pc: 1.58
+print Sun Feb  8 14:47:00 2004: kenj-pc: 1.77
+print Sun Feb  8 14:48:00 2004: kenj-pc: 1.62
+print Sun Feb  8 14:49:00 2004: kenj-pc: 1.85
+print Sun Feb  8 14:50:00 2004: kenj-pc: 1.73
+print Sun Feb  8 14:51:00 2004: kenj-pc: 1.61
+print Sun Feb  8 14:52:00 2004: kenj-pc: 1.85
+print Sun Feb  8 15:13:00 2004: kenj-pc: 1.66
+print Sun Feb  8 15:15:00 2004: kenj-pc: 1.88
+print Sun Feb  8 15:16:00 2004: kenj-pc: 1.78
 print Thu Apr  8 16:12:00 2004: snort: 3.27
 print Thu Apr  8 16:13:00 2004: snort: 2.87
 print Thu Apr  8 16:14:00 2004: snort: 3.17

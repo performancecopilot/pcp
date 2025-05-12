@@ -68,7 +68,6 @@ _setup()
 {
     _stop_loggers
     cd
-    rm -rf $tmp
     mkdir $tmp
 }
 

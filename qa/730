@@ -16,7 +16,6 @@ echo "QA output created by $seq"
 [ $PCP_PLATFORM = linux ] || _notrun "cgroups test, only works with Linux"
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "cd $here; $sudo rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 _filter()
@@ -64,7 +63,7 @@ do
 	name=`pminfo cgroup.$tree | sed 1q`
 	echo "== Checking out multi-sample monitor tool - $base"
 	pmval -L -K clear -K add,3,$pmda -s 2048 -t 0.00001 $name >/dev/null
-	echo "checked cgroup tree $tree via metric $metric" >> $seq.full
+	echo "checked cgroup tree $tree via metric $metric" >> $seq_full
     done
 
     echo && echo "== done" && echo

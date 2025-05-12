@@ -14,7 +14,7 @@
 #include "pmwebapi.h"
 #include "libpcp.h"
 #include "util.h"
-#include <inih/ini.h>
+#include <ini.h>
 #include <ctype.h>
 
 int

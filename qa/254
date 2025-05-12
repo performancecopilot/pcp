@@ -17,12 +17,11 @@ signal=$PCP_BINADM_DIR/pmsignal
 _needclean=true
 pmns="nameall.pmns"
 
-rm -rf $tmp
 mkdir $tmp
 chmod ugo+rwx $tmp
 cd $tmp
 
-cleanup()
+_cleanup()
 {
     cd $here
     if $_needclean
@@ -36,11 +35,11 @@ cleanup()
 	# QA test, so filter it away - kenj Dec 2021
 	#
 	_filter_pcp_start <$tmp.err \
-	| tee -a $here/$seq.full \
+	| tee -a $seq_full \
 	| sed \
 	    -e '/__pmBind: Address already in use/d' \
 	# end
-	cat $tmp.log >>$here/$seq.full
+	cat $tmp.log >>$seq_full
         echo "Restart and ping pmcd ..."
 	# make sure pmcd's socket is torn down (failure on vm33, BSD 6.8)
 	#
@@ -56,17 +55,17 @@ cleanup()
 _hunt_pmcd_socket()
 {
     rm -f $tmp.tmp
-    echo "hunting for pmcd socket ..." >>$here/$seq.full
-    netstat -a | grep ':44321' >>$here/$seq.full
+    echo "hunting for pmcd socket ..." >>$seq_full
+    netstat -a | grep ':44321' >>$seq_full
     if which fstat >/dev/null 2>&1
     then
-	fstat | grep -E '([P]ID)|(:[4]4321)' >$tmp.out 2>>$here/$seq.full
+	fstat | grep -E '[P]PID|:[4]4321' >$tmp.out 2>>$seq_full
 	# fstat output ...
 	# pcp      pmcd       81043    0* internet stream tcp 0x0 *:44321
 	$PCP_AWK_PROG <$tmp.out '{ print $3 }' \
 	| sed -e '/PID/d' \
 	| LC_COLLATE=POSIX sort \
-	| uniq >$tmp.tmp 
+	| uniq >$tmp.tmp
     elif which fuser >/dev/null 2>&1
     then
 	# fuser output is mixed on stderr and stdout!
@@ -75,9 +74,9 @@ _hunt_pmcd_socket()
 	# 44321/tcp:           624280
 	$PCP_AWK_PROG <$tmp.out '{ print $2 }' \
 	| LC_COLLATE=POSIX sort \
-	| uniq >$tmp.tmp 
+	| uniq >$tmp.tmp
     fi
-    cat $tmp.out >>$here/$seq.full
+    cat $tmp.out >>$seq_full
     if which pstree >/dev/null 2>&1
     then
 	if pstree --help 2>&1 | grep '.--show-parents' >/dev/null
@@ -89,19 +88,19 @@ _hunt_pmcd_socket()
 	cat $tmp.tmp \
 	| while read pid
 	do
-	    echo "pid=$pid" >>$here/$seq.full
+	    echo "pid=$pid" >>$seq_full
 	    if $_gnu_pstree
 	    then
-		pstree --show-parents --show-pids $pid >>$here/$seq.full
+		pstree --show-parents --show-pids $pid >>$seq_full
 	    else
 		# BSD-style
-		pstree -p $pid >>$here/$seq.full
+		pstree -p $pid >>$seq_full
 	    fi
 	done
     fi
 }
 
-trap "cleanup; exit \$status" 0 1 2 3 15
+trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _stop_auto_restart pmcd
 
@@ -124,8 +123,9 @@ yet.another {
 }
 End-of-File
 
-_service pcp stop | _filter_pcp_stop
-_wait_pmcd_end
+if ! _service pcp stop; then _exit 1; fi \
+| _filter_pcp_stop
+_wait_pmcd_end || _exit 1
 # make sure pmcd's socket is torn down (failure on vm33, BSD 6.8)
 sleep 1
 
@@ -135,7 +135,7 @@ export PMCD_SOCKET=$tmp/pmcd.socket
 _hunt_pmcd_socket
 $PCP_PMCD_PROG -f -n $pmns -l $tmp.log 2>$tmp.err &
 pmcd=$!
-_wait_for_pmcd
+_wait_for_pmcd || _exit 1
 _hunt_pmcd_socket
 
 cd $here

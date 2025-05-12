@@ -24,15 +24,15 @@ esac
 
 _cleanup()
 {
-    echo "at end ..." >>$seq.full
-    pid=`ps $PCP_PS_ALL_FLAGS | grep -E '[p]mconfirm' | tee -a $seq.full | $PCP_AWK_PROG '{print $2}'`
-    echo "[p]mconfirm pid: $pid" >>$seq.full
+    echo "at end ..." >>$seq_full
+    pid=`ps $PCP_PS_ALL_FLAGS | grep -E '[p]mconfirm' | tee -a $seq_full | $PCP_AWK_PROG '{print $2}'`
+    echo "[p]mconfirm pid: $pid" >>$seq_full
     [ -n "$pid" ] && $signal -s KILL $pid >/dev/null 2>&1
-    pid=`ps $PCP_PS_ALL_FLAGS | grep -E '[p]mprintf' | tee -a $seq.full | $PCP_AWK_PROG '{print $2}'`
-    echo "[p]mprintf pid: $pid" >>$seq.full
+    pid=`ps $PCP_PS_ALL_FLAGS | grep -E '[p]mprintf' | tee -a $seq_full | $PCP_AWK_PROG '{print $2}'`
+    echo "[p]mprintf pid: $pid" >>$seq_full
     [ -n "$pid" ] && $signal -s KILL $pid >/dev/null 2>&1
-    pid=`ps $PCP_PS_ALL_FLAGS | grep -E '[p]mquery' | tee -a $seq.full | $PCP_AWK_PROG '{print $2}'`
-    echo "[p]mquery pid: $pid" >>$seq.full >/dev/null 2>&1
+    pid=`ps $PCP_PS_ALL_FLAGS | grep -E '[p]mquery' | tee -a $seq_full | $PCP_AWK_PROG '{print $2}'`
+    echo "[p]mquery pid: $pid" >>$seq_full >/dev/null 2>&1
     [ -n "$pid" ] && $signal -s KILL $pid
     _clean_display
     rm -rf $tmp $tmp.*
@@ -49,7 +49,7 @@ _countem()
 {
     $PCP_PS_PROG $PCP_PS_ALL_FLAGS \
 	| grep '[p]mquery' \
-	| tee -a $seq.full \
+	| tee -a $seq_full \
 	> $tmp.count
     cat $tmp.count | wc -l | tr -d ' '
 }
@@ -57,11 +57,10 @@ _countem()
 signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
-rm -f $seq.full
 
 # real QA test starts here
 
-echo "initially ..." >$seq.full
+echo "initially ..." >$seq_full
 OLDXCONFIRMCNT=`_countem`
 
 # Expect something on stderr
@@ -69,7 +68,7 @@ unset PCP_STDERR
 src/pmprintf foo bee doo
 
 # Expect something in an xconfirm
-echo "DISPLAY=$DISPLAY" >>$seq.full
+echo "DISPLAY=$DISPLAY" >>$seq_full
 export PCP_STDERR=DISPLAY
 if [ -z "$PCP_XCONFIRM_PROG" ]
 then
@@ -81,7 +80,7 @@ fi
 # wait for dialog to fire up
 sleep 3
 rm -f $tmp.out
-echo "after start up ..." >>$seq.full
+echo "after start up ..." >>$seq_full
 XCONFIRMCNT=`_countem`
 
 if [ $XCONFIRMCNT -gt $OLDXCONFIRMCNT ]

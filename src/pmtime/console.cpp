@@ -23,8 +23,8 @@ Console::Console() : QDialog()
 {
     my.level = 0;
     if (pmDebugOptions.appl0)
-	my.level |= PmTime::DebugApp;	// pmtime apps internals
-    if (pmDebugOptions.appl1)
+	my.level |= PmTime::DebugApp;		// pmtime apps internals
+    if (pmDebugOptions.timecontrol)
 	my.level |= PmTime::DebugProtocol;	// trace pmtime protocol
     setupUi(this);
 }

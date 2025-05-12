@@ -15,7 +15,6 @@ echo "QA output created by $seq"
 status=0
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
-rm -f $seq.full
 
 stocave=0
 noncountstocave=0
@@ -48,7 +47,7 @@ _xtract()
     # Usage: _xtract metric
     #
     pmdumplog -Dpdu $tmp.merge $1 2>&1 \
-    | tee -a $here/$seq.full \
+    | tee -a $seq_full \
     | $PCP_AWK_PROG '
 $1 == "__pmResult"		{ state=1; time=$7; stamp=$6; next }
 state == 1 && /\('"$1"'\)/	{ state=2; next }
@@ -81,9 +80,9 @@ _check_counter_stocave()
 {
     from_summary=`pmlogsummary -x $tmp.merge $1 \
 		  | $PCP_AWK_PROG '$1 == "'$1'" { print $2 }'`
-    
-    echo "_check_counter_stocave" >>$seq.full
-    from_qa=`_xtract $1 | tee -a $seq.full | $PCP_AWK_PROG '
+
+    echo "_check_counter_stocave" >>$seq_full
+    from_qa=`_xtract $1 | tee -a $seq_full | $PCP_AWK_PROG '
 	{
 	  if (count > 0) {
 	      avg += ($3 - prevval)/($2 - prevtime)
@@ -104,7 +103,7 @@ _check_noncounter_stocave()
 {
     from_summary=`pmlogsummary -x $tmp.merge $1 \
 		  | $PCP_AWK_PROG '$1 == "'$1'" { print $2 }'`
-    
+
     from_qa=`pmdumplog -m $tmp.merge $1 \
 	     | sed \
 		-e '/^[0-9]/{
@@ -125,7 +124,7 @@ _check_counter_timeave()
 {
     from_summary=`pmlogsummary $tmp.merge $1 \
 		  | $PCP_AWK_PROG '$1 == "'$1'" { print $2 }'`
-    
+
     from_qa=`_xtract $1 | $PCP_AWK_PROG '
 	{
 	  if (count > 0) avg += ($3 - prevval)
@@ -293,10 +292,10 @@ $sudo rm -f $tmp.b.0 $tmp.b.meta $tmp.b.index
 pmlogger -c $tmp.a.config -l $tmp.a.log -s 3 $tmp.a >$tmp.a.err 2>&1
 pmlogger -c $tmp.b.config -l $tmp.b.log -s 5 $tmp.b >$tmp.b.err 2>&1
 
-echo "=== tmp.a ===" >>$seq.full
-pmdumplog $tmp.a >>$seq.full
-echo "=== tmp.b ===" >>$seq.full
-pmdumplog $tmp.b >>$seq.full
+echo "=== tmp.a ===" >>$seq_full
+pmdumplog $tmp.a >>$seq_full
+echo "=== tmp.b ===" >>$seq_full
+pmdumplog $tmp.b >>$seq_full
 
 wait
 echo "Filtering ..."
@@ -307,8 +306,8 @@ echo "Merging ..."
 rm -f $tmp.merge.*
 pmlogextract $tmp.a $tmp.b $tmp.merge
 
-echo "=== tmp.merge ===" >>$seq.full
-pmdumplog $tmp.merge >>$seq.full
+echo "=== tmp.merge ===" >>$seq_full
+pmdumplog $tmp.merge >>$seq_full
 
 echo
 echo "Checking non-counter stochastic average (sample.drift) ..."

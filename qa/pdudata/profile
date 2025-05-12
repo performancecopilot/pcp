@@ -1,0 +1,45 @@
+# PDU specifications, used by ../src/pdu-gadget to produce a
+# binary PDU stream for QA
+#
+# PDU_PROFILE test cases
+#
+
+# credentials: len type from ncred cred[0]
+? PDU_CREDS 42 1 0x01020000
+
+# profile: len type from ctxid gstate numprof pad (unused) <prof>[] <inst>[]
+# <prof>: indom state numinst pad
+# <inst>: inst ...
+# OK want everything (what we seem to send)
+? PDU_PROFILE 42 0 0 0 0 0
+# OK seems adequate (trailing 0 0 not needed)
+? PDU_PROFILE 42 0 0 0
+# OK one indom, include 3 instance
+? PDU_PROFILE 42 0 0 1 0xdeadbeef indom(30.2) 0 3 0xdeadbeef 100 500 900
+# OK two indoms, exclude 1 and 4 instances
+? PDU_PROFILE 42 0 0 2 0xdeadbeef indom(30.1) 1 1 0xdeadbeef indom(30.2) 1 4 0xdeadbeef 1 100 200 300 400
+
+# BAD too short
+? PDU_PROFILE 42 0 0
+
+# BAD ctxid < 0
+? PDU_PROFILE 42 -1 0 0
+
+# BAD numprof < 0
+? PDU_PROFILE 42 0 0 -1
+
+# BAD numprof too large
+? PDU_PROFILE 42 0 0 3 0xdeadbeef indom(30.2) 0 5 0xdeadbeef 100 300 500 700 900
+
+# BAD numprof wrong => PDU too short (eats <inst>[0] as part of bogus
+# <prof>[1])
+? PDU_PROFILE 42 0 0 2 0xdeadbeef indom(30.2) 0 5 0xdeadbeef 100 300 500 700 900
+
+# BAD numinst too large => buffer overrun
+? PDU_PROFILE 42 0 0 2 0xdeadbeef indom(30.1) 1 2 0xdeadbeef indom(30.2) 1 5 0xdeadbeef 1 100 200 300 400
+
+# BAD numinst < 0
+? PDU_PROFILE 42 0 0 1 0xdeadbeef indom(30.2) 0 -1 0xdeadbeef 100 300 500 700 900
+
+# BAD PDU too long
+? PDU_PROFILE 42 0 0 1 0xdeadbeef indom(30.2) 0 3 0xdeadbeef 100 500 900 0xdeadbeef

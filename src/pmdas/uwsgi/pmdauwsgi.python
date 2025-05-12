@@ -14,8 +14,8 @@
 # for more details.
 #
 
-# pylint: disable=line-too-long, too-many-arguments
-# pylint: disable=broad-except, too-many-lines
+# pylint: disable=too-many-arguments, too-many-positional-arguments
+# pylint: disable=line-too-long, broad-except, too-many-lines
 
 """ Performance Metrics Domain Agent exporting uwsgi metrics. """
 
@@ -229,11 +229,7 @@ class UwsgiPMDA(PMDA):
         conffile += '/' + self.read_name() + '/' + self.read_name() + '.conf'
 
         # Silently ignore missing file/section
-        # Python < 3.2 compat
-        if sys.version_info[0] >= 3 and sys.version_info[1] >= 2:
-            config = ConfigParser.ConfigParser()
-        else:
-            config = ConfigParser.SafeConfigParser()
+        config = ConfigParser.ConfigParser()
         config.read(conffile)
         if config.has_section('pmda'):
             for opt in config.options('pmda'):

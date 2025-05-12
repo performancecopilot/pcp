@@ -137,32 +137,8 @@ myFetch(int numpmid, pmID pmidlist[], __pmResult **result)
 		if (pmDebugOptions.fetch) {
 		    fprintf(stderr, "myFetch returns ...\n");
 		    if (n == PDU_ERROR) {
-			int		flag = 0;
-
 			__pmDecodeError(pb, &sts);
-			fprintf(stderr, "PMCD state changes: ");
-			if (sts & PMCD_AGENT_CHANGE) {
-			    fprintf(stderr, "agent(s)");
-			    if (sts & PMCD_ADD_AGENT) fprintf(stderr, " added");
-			    if (sts & PMCD_RESTART_AGENT) fprintf(stderr, " restarted");
-			    if (sts & PMCD_DROP_AGENT) fprintf(stderr, " dropped");
-			    flag++;
-			}
-			if (sts & PMCD_LABEL_CHANGE) {
-			    if (flag++)
-				fprintf(stderr, ", ");
-			    fprintf(stderr, "label change");
-			}
-			if (sts & PMCD_NAMES_CHANGE) {
-			    if (flag++)
-				fprintf(stderr, ", ");
-			    fprintf(stderr, "names change");
-			}
-			if (sts & PMCD_HOSTNAME_CHANGE) {
-			    if (flag++)
-				fprintf(stderr, ", ");
-			    fprintf(stderr, "hostname change");
-			}
+			__pmDumpFetchFlags(stderr, sts);
 			fputc('\n', stderr);
 		    }
 		    else if (n == PDU_HIGHRES_RESULT && !highres)

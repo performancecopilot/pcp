@@ -128,12 +128,12 @@ do
     rm -f $PMCD_LOG_DIR/core*
     if [ $1 -eq 1 ]
     then
-	_service pcp start 2>&1 | _filter_pcp_start
+	if ! _service pcp start 2>&1; then _exit 1; fi | _filter_pcp_start
     else
-	_service pcp restart 2>&1 | _filter_pcp_start
+	if ! _service pcp restart 2>&1; then _exit 1; fi | _filter_pcp_start
     fi
-    _wait_for_pmcd
-    _wait_for_pmlogger
+    _wait_for_pmcd || _exit 1
+    _wait_for_pmlogger || _exit 1
     [ "`echo $PMCD_LOG_DIR/core*`" != "$PMCD_LOG_DIR/core*" ] && _cleanup
 done
 
@@ -141,16 +141,17 @@ echo
 echo "stop pmcd ..."
 for i in 1 2 3
 do
-    _service pcp start 2>&1 | _filter_pcp_start
-    _wait_for_pmcd
-    _wait_for_pmlogger
+    if ! _service pcp start 2>&1; then _exit 1; fi | _filter_pcp_start
+    _wait_for_pmcd || _exit 1
+    _wait_for_pmlogger || _exit 1
     rm -f $PMCD_LOG_DIR/core*
-    _service pcp stop | _filter_pcp_stop
+    if ! _service pcp stop; then _exit 1; fi \
+    | _filter_pcp_stop
     [ "`echo $PMCD_LOG_DIR/core*`" != "$PMCD_LOG_DIR/core*" ] && _cleanup
 done
-_service pcp start 2>&1 | _filter_pcp_start
-_wait_for_pmcd
-_wait_for_pmlogger
+if ! _service pcp start 2>&1; then _exit 1; fi | _filter_pcp_start
+_wait_for_pmcd || _exit 1
+_wait_for_pmlogger || _exit 1
 
 echo
 for i in 1 2 3
@@ -161,9 +162,9 @@ g/^#$seq#.*pmdacisco/s/^#$seq#//
 w!
 q
 End-of-File
-    _service pcp restart 2>&1 | _filter_pcp_start
-    _wait_for_pmcd
-    _wait_for_pmlogger
+    if ! _service pcp restart 2>&1; then _exit 1; fi | _filter_pcp_start
+    _wait_for_pmcd || _exit 1
+    _wait_for_pmlogger || _exit 1
 
     echo "[pass $i] unconfigure pmdacisco and notify pmcd ..."
     $sudo ex - $PCP_PMCDCONF_PATH <<End-of-File

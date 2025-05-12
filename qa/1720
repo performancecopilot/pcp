@@ -26,15 +26,25 @@ _cleanup()
     find $here/statsd/output -type f -print \
     | while read f
     do
-	echo "--- $f ---" >>$here/$seq.full
-	$sudo cat "$f" >>$here/$seq.full
-	echo >>$here/$seq.full
+	echo "--- $f ---" >>$seq_full
+	$sudo cat "$f" >>$seq_full
+	echo >>$seq_full
 	rm -f "$f"
     done
 }
 
+_filter()
+{
+    # diagnostics first ...
+    #
+    grep '^+++' <$tmp.out >>$seq_full
+    # and the other lines
+    #
+    grep -v '^+++' <$tmp.out
+}
+
+
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 $sudo rm -f $here/statsd/output/*
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
@@ -45,7 +55,8 @@ _stop_auto_restart pmcd
 
 cd $here/statsd/src
 test -d $here/statsd/output || mkdir $here/statsd/output
-$sudo $python cases/15.py $here/statsd/output
+$sudo $python cases/15.py $here/statsd/output >$tmp.out 2>&1
+_filter
 
 cd $here
 status=0

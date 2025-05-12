@@ -15,6 +15,7 @@ exit=0
 <timestamp>: QedTimeButton::QedTimeButton: Time button resources loaded
 <timestamp>: Phase1 user interface constructors complete
 <timestamp>: PmChart::setActiveTab index=0 r=1
+<timestamp>: QedTimeButton::setButtonState: state=2 my.state=1
 <timestamp>: Phase2 user interface setup complete
 <timestamp>: Chart::ctor complete(<addr>)
 <timestamp>: Chart::setCurrent(<addr>) true
@@ -43,6 +44,7 @@ exit=0
 <timestamp>: QedTimeButton::QedTimeButton: Time button resources loaded
 <timestamp>: Phase1 user interface constructors complete
 <timestamp>: PmChart::setActiveTab index=0 r=1
+<timestamp>: QedTimeButton::setButtonState: state=2 my.state=1
 <timestamp>: Phase2 user interface setup complete
 <timestamp>: Chart::ctor complete(<addr>)
 <timestamp>: Chart::setCurrent(<addr>) true
@@ -71,6 +73,7 @@ exit=1
 <timestamp>: QedTimeButton::QedTimeButton: Time button resources loaded
 <timestamp>: Phase1 user interface constructors complete
 <timestamp>: PmChart::setActiveTab index=0 r=1
+<timestamp>: QedTimeButton::setButtonState: state=2 my.state=1
 <timestamp>: Phase2 user interface setup complete
 <timestamp>: Chart::ctor complete(<addr>)
 <timestamp>: Chart::setCurrent(<addr>) true
@@ -113,6 +116,7 @@ exit=0
 <timestamp>: QedTimeButton::QedTimeButton: Time button resources loaded
 <timestamp>: Phase1 user interface constructors complete
 <timestamp>: PmChart::setActiveTab index=0 r=1
+<timestamp>: QedTimeButton::setButtonState: state=2 my.state=1
 <timestamp>: Phase2 user interface setup complete
 <timestamp>: Chart::ctor complete(<addr>)
 <timestamp>: Chart::setCurrent(<addr>) true
@@ -169,6 +173,7 @@ exit=1
 <timestamp>: QedTimeButton::QedTimeButton: Time button resources loaded
 <timestamp>: Phase1 user interface constructors complete
 <timestamp>: PmChart::setActiveTab index=0 r=1
+<timestamp>: QedTimeButton::setButtonState: state=2 my.state=1
 <timestamp>: Phase2 user interface setup complete
 <timestamp>: Chart::ctor complete(<addr>)
 <timestamp>: Chart::setCurrent(<addr>) true

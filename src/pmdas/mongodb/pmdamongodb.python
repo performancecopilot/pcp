@@ -19,7 +19,6 @@
 # pylint: disable=bare-except,broad-except
 
 import os
-import sys
 import pymongo
 try:
     import configparser
@@ -299,11 +298,7 @@ class MONGODBPMDA(PMDA):
 
     def config(self, filename, sections):
         """ parse config file """
-        # Python < 3.2 compat
-        if sys.version_info[0] >= 3 and sys.version_info[1] >= 2:
-            parser = configparser.ConfigParser()
-        else:
-            parser = configparser.SafeConfigParser() # pylint: disable=deprecated-class
+        parser = configparser.ConfigParser()
         parser.read(filename)
 
         # get each requested section

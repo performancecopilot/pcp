@@ -16,7 +16,6 @@ echo "QA output created by $seq"
 which pmlogrewrite >/dev/null 2>&1 || _notrun "pmlogrewrite not installed"
 
 status=0	# success is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 _filter()
@@ -40,8 +39,8 @@ _cmp()
 	echo "Arrgh ... $2.0 missing" | _filter
 	return
     fi
-    pmdumplog -z -dilmst $1 | tee -a $seq.full >$tmp.in
-    pmdumplog -z -dilmst $2 | tee -a $seq.full >$tmp.out
+    pmdumplog -z -dilmst $1 | tee -a $seq_full >$tmp.in
+    pmdumplog -z -dilmst $2 | tee -a $seq_full >$tmp.out
     diff -u $tmp.in $tmp.out | _filter
 }
 

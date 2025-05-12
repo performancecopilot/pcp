@@ -16,7 +16,6 @@ echo "QA output created by $seq"
 . ./common.check
 
 status=0	# success is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "rm -f $tmp $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
@@ -47,7 +46,7 @@ _num_recs()
   num_recs=`$pmdumplog $tmp | grep -E -c '^[0-9][0-9]:[0-9][0-9]:'`
   # subtract 1 for the prologue and 1 for the epilogue
   num_recs=`expr $num_recs - 2`
-  echo "found $num_recs samples after the prologue+epilogue" >>$seq.full
+  echo "found $num_recs samples after the prologue+epilogue" >>$seq_full
 }
 
 _test_sample_size()
@@ -55,34 +54,34 @@ _test_sample_size()
   vol_arg=$1
   size_arg=$2
   num_vol=$3	# volumes expected
-  echo "_test_sample_size $@" >>$seq.full
+  echo "_test_sample_size $@" >>$seq_full
   $pmlogger -v $vol_arg -s $size_arg -c $tmp.config -l $tmp.log $tmp 
-  cat $tmp.log >>$seq.full
-  ls -l $tmp.* >>$seq.full
+  cat $tmp.log >>$seq_full
+  ls -l $tmp.* >>$seq_full
   if [ -f $tmp.0 ]
   then
     vol=`ls $tmp.[0-9]* | wc -l | sed -e 's/ //g'`
   else
     vol=0
   fi
-  echo "vol=$vol num_vol=$num_vol" >>$seq.full
+  echo "vol=$vol num_vol=$num_vol" >>$seq_full
   if [ "$vol" != "$num_vol" ]
   then
-    echo "Error: Number of volumes is $vol, expected $num_vol" | tee -a $seq.full
+    echo "Error: Number of volumes is $vol, expected $num_vol" | tee -a $seq_full
     ls -l $tmp.[0-9]*
     cat $tmp.log
-    $pmdumplog -dilmst $tmp >>$seq.full
+    $pmdumplog -dilmst $tmp >>$seq_full
   fi
 
   _num_recs
   if [ "$size_arg" = "$num_recs" ]
   then
-    echo "Log size for $size_arg and volume size for $vol_arg is correct" | tee -a $seq.full
+    echo "Log size for $size_arg and volume size for $vol_arg is correct" | tee -a $seq_full
   else
-    echo "Error: Log contains $num_recs samples, expected $size_arg" | tee -a $seq.full
+    echo "Error: Log contains $num_recs samples, expected $size_arg" | tee -a $seq_full
     ls -l $tmp.*
     cat $tmp.log
-    $pmdumplog -dilmst $tmp >>$seq.full
+    $pmdumplog -dilmst $tmp >>$seq_full
   fi
   _clean_archive
 }
@@ -95,10 +94,10 @@ _test_file_size()
   size_arg=$2
   num_vol=$3	# volumes expected
   num_bytes=$4	# bytes expected
-  echo "_test_file_size $@" >>$seq.full
+  echo "_test_file_size $@" >>$seq_full
   $pmlogger -v $vol_arg -s $size_arg -c $tmp.config -l $tmp.log $tmp 
-  cat $tmp.log >>$seq.full
-  ls -l $tmp.* >>$seq.full
+  cat $tmp.log >>$seq_full
+  ls -l $tmp.* >>$seq_full
   if [ -f $tmp.0 ]
   then
     vol=`ls $tmp.[0-9]* | wc -l | sed -e 's/ //g'`
@@ -107,25 +106,25 @@ _test_file_size()
     vol=0
     bigger_size=-1
   fi
-  echo "bigger_size=$bigger_size" >>$seq.full
-  echo "vol=$vol num_vol=$num_vol" >>$seq.full
+  echo "bigger_size=$bigger_size" >>$seq_full
+  echo "vol=$vol num_vol=$num_vol" >>$seq_full
   if [ "$vol" != "$num_vol" ]
   then
-    echo "Error: Number of volumes is $vol, expected $num_vol" | tee -a $seq.full
+    echo "Error: Number of volumes is $vol, expected $num_vol" | tee -a $seq_full
     ls -l $tmp.[0-9]*
     cat $tmp.log
-    $pmdumplog -dilmst $tmp >>$seq.full
+    $pmdumplog -dilmst $tmp >>$seq_full
   fi
   _num_recs
-  echo "num_recs=$num_recs" >>$seq.full
+  echo "num_recs=$num_recs" >>$seq_full
   # -1 for prologue and -1 for epilogue
   num_recs=`expr $num_recs - 2`
   if [ $num_recs -gt 0 ]
   then
     _clean_archive
     $pmlogger -v $vol_arg -s $num_recs -c $tmp.config -l $tmp.log $tmp 
-    cat $tmp.log >>$seq.full
-    ls -l $tmp.* >>$seq.full
+    cat $tmp.log >>$seq_full
+    ls -l $tmp.* >>$seq_full
     if [ -f $tmp.0 ]
     then
       smaller_size=`ls -l $tmp.[0-9]* | $PCP_AWK_PROG ' {t += $5} END {print t}'`
@@ -135,15 +134,15 @@ _test_file_size()
   else
     smaller_size=-1
   fi
-  echo "smaller_size=$smaller_size" >>$seq.full
+  echo "smaller_size=$smaller_size" >>$seq_full
   if [ $smaller_size -le $num_bytes -a $num_bytes -le $bigger_size ]
   then
-    echo "Log size for $size_arg and volume size for $vol_arg is correct" | tee -a $seq.full
+    echo "Log size for $size_arg and volume size for $vol_arg is correct" | tee -a $seq_full
   else
-    echo "Error: Log size $num_bytes is not within range $smaller_size - $bigger_size" | tee -a $seq.full
+    echo "Error: Log size $num_bytes is not within range $smaller_size - $bigger_size" | tee -a $seq_full
     ls -l $tmp.*
     cat $tmp.log
-    $pmdumplog -dilmst $tmp >>$seq.full
+    $pmdumplog -dilmst $tmp >>$seq_full
   fi
   _clean_archive
 }
@@ -179,33 +178,33 @@ _test_time_size()
   size_arg=$2
   num_vol=$3	# volumes expected
   num_sec=$4	# elapsed seconds expected
-  echo "_test_time_size $@" >>$seq.full
+  echo "_test_time_size $@" >>$seq_full
   time=`_time_me $pmlogger -v $vol_arg -s $size_arg -c $tmp.config -l $tmp.log $tmp`
   [ -z "$time" ] && time=-1
-  [ -f "$tmp.log" ] && cat "$tmp.log" >>$seq.full
-  ls -l $tmp.* >>$seq.full
+  [ -f "$tmp.log" ] && cat "$tmp.log" >>$seq_full
+  ls -l $tmp.* >>$seq_full
   if [ -f $tmp.0 ]
   then
     vol=`ls $tmp.[0-9]* | wc -l | sed -e 's/ //g'`
   else
     vol=0
   fi
-  echo "vol=$vol num_vol=$num_vol" >>$seq.full
+  echo "vol=$vol num_vol=$num_vol" >>$seq_full
   if [ "$vol" != "$num_vol" ]
   then
-    echo "Error: Number of volumes is $vol, expected $num_vol" | tee -a $seq.full
+    echo "Error: Number of volumes is $vol, expected $num_vol" | tee -a $seq_full
     ls -l $tmp.[0-9]*
     cat $tmp.log
-    $pmdumplog -dilmst $tmp >>$seq.full
+    $pmdumplog -dilmst $tmp >>$seq_full
   fi
   if _tolerance $num_sec $time $SECS_TOL
   then
-    echo "Log time for $num_sec and volume time for $vol_arg is correct" | tee -a $seq.full
+    echo "Log time for $num_sec and volume time for $vol_arg is correct" | tee -a $seq_full
   else
-    echo "Error: Log time $time, expected $num_sec +/- $SECS_TOL" | tee -a $seq.full
+    echo "Error: Log time $time, expected $num_sec +/- $SECS_TOL" | tee -a $seq_full
     ls -l $tmp.*
     cat $tmp.log
-    $pmdumplog -dilmst $tmp >>$seq.full
+    $pmdumplog -dilmst $tmp >>$seq_full
   fi
  _clean_archive
 }

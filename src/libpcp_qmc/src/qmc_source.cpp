@@ -119,6 +119,7 @@ QmcSource::retryConnect(int type, QString &source)
 
 	if (my.type == PM_CONTEXT_ARCHIVE) {
 	    pmLogLabel lp;
+	    struct timespec	tmp_ts;
 	    sts = pmGetArchiveLabel(&lp);
 	    if (sts < 0) {
 		pmprintf("%s: Unable to obtain log label for \"%s\": %s\n",
@@ -129,10 +130,12 @@ QmcSource::retryConnect(int type, QString &source)
 		goto done;
 	    }
 	    else {
-		my.host = lp.ll_hostname;
-		my.start = lp.ll_start;
+		my.host = lp.hostname;
+		TVfromTS(my.start, lp.start);
 	    }
-	    sts = pmGetArchiveEnd(&my.end);
+	    sts = pmGetArchiveEnd(&tmp_ts);
+	    my.end.tv_sec = tmp_ts.tv_sec;
+	    my.end.tv_usec = tmp_ts.tv_nsec / 1000;
 	    if (sts < 0) {
 		pmprintf("%s: Unable to determine end of \"%s\": %s\n",
 			 pmGetProgname(), (const char *)my.desc.toLatin1(),

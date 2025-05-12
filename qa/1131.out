@@ -2418,6 +2418,12 @@ QA output created by 1131
 # TYPE hinv_ncpu gauge
 hinv_ncpu{domainname="DOMAINID",groupid="GROUPID",hostname="HOST",machineid="MACHINEID",userid="USERID",agent="linux"} NCPU
 ---
+# EOF
+# HELP hinv_ncpu number of CPUs in the system
+# TYPE hinv_ncpu gauge
+hinv_ncpu{domainname="DOMAINID",groupid="GROUPID",hostname="HOST",machineid="MACHINEID",userid="USERID",agent="linux"} NCPU
+hinv_ncpu{domainname="DOMAINID",groupid="GROUPID",hostname="HOST",machineid="MACHINEID",userid="USERID",agent="linux"} NCPU
+---
 {
   "resourceMetrics": [
     {

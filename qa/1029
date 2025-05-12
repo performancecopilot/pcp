@@ -41,8 +41,7 @@ _filter()
 
 # real QA test starts here
 
-rm -f $seq.full
-pmstore sample.event.reset 1 >$seq.full
+pmstore sample.event.reset 1 >$seq_full
 $here/qt/qmc_event/qmc_event -DPMC,OPTFETCH 2>&1 | _filter
 
 # success, all done

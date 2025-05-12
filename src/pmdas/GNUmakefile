@@ -27,7 +27,7 @@ CPMDAS = root pmcd \
 	gfs2 jbd2 cifs nvidia resctrl perfevent \
 	dm pipe openbsd docker smart podman statsd \
 	hacluster linux_sockets denki bpf overhead \
-	farm
+	farm amdgpu
 
 PLPMDAS = bonding netfilter zimbra postgresql \
 	dbping memcache mysql oracle kvm \
@@ -39,7 +39,7 @@ PLPMDAS = bonding netfilter zimbra postgresql \
 PYPMDAS = bcc gluster zswap unbound mic haproxy \
 	json libvirt lio openmetrics elasticsearch \
 	bpftrace mssql netcheck rabbitmq openvswitch \
-	nfsclient mongodb uwsgi
+	nfsclient mongodb uwsgi rocestat
 
 SUBDIRS = $(CPMDAS) $(PLPMDAS) $(PYPMDAS)
 LDIRT = pmcd.conf

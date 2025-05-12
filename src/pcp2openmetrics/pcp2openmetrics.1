@@ -28,6 +28,7 @@
 [\fB\-b\fP|\fB\-B\fP \fIspace-scale\fP]
 [\fB\-c\fP \fIconfig\fP]
 [\fB\-\-container\fP \fIcontainer\fP]
+[\f3\-D\f1 \f2debug\f1]
 [\fB\-\-daemonize\fP]
 [\fB\-e\fP \fIderived\fP]
 [\fB\-f\fP \fIformat\fP]
@@ -181,6 +182,13 @@ Maximum time (in seconds) when sending a HTTP POST.
 Corresponding command line option is \fB\-o\fP.
 Defaults to \fB2.5\fP seconds.
 .RE
+.PP
+no-comment (boolean)
+.RS 4
+Omit # PCP5 comment line. Omits header for some metric
+data such as type, instance domain, and semantics.
+Corresponding command line option is \fB\-x\fP.
+Defaults to \fBno\fP.
 .SH OPTIONS
 The available command line options are:
 .TP 5
@@ -312,6 +320,15 @@ and
 Alternatively, using
 .BR pmrep.conf (5)
 configuration syntax allows defining derived metrics as part of metricsets.
+.RS
+.PP
+In case of issues with derived metrics, review the aforementioned manual
+pages in detail and ensure all the required metrics are available,
+especially when using archives.
+Use
+.B -Dderive
+to see additional debug information about parsing derived metrics.
+.RE
 .TP
 \fB\-E\fR, \fB\-\-exact\-types\fR
 Write numbers as number data types, not as strings, potentially
@@ -342,9 +359,6 @@ Fetch performance metrics from
 on
 .IR host ,
 rather than from the default localhost.
-.TP
-\fB\-H\fR, \fB\-\-no\-header\fR
-Do not print any headers.
 .TP
 \fB\-i\fR \fIinstances\fR, \fB\-\-instances\fR=\fIinstances\fR
 Retrieve and report only the specified metric
@@ -605,8 +619,8 @@ and
 \fB\-V\fR, \fB\-\-version\fR
 Display version number and exit.
 .TP
-\fB\-x\fR, \fB\-\-with\-extended\fR
-Write extended information.
+\fB\-x\fR, \fB\-\-no\-comment\fR
+Omit # PCP5 comment line
 .TP
 \fB\-X\fR, \fB\-\-with\-everything\fR
 Write everything known about metrics, including PCP internal IDs.
@@ -673,6 +687,27 @@ The \fB$PCP_CONF\fP variable may be used to specify an alternative
 configuration file, as described in \fBpcp.conf\fP(5).
 .PP
 For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
+.PP
+Of particular note,
+.B PCP_DISCRETE_ONCE
+can be set to ensure that discrete metric values are reported only once,
+unless they change at some point.
+.SH DEBUGGING OPTIONS
+The
+.B \-D
+or
+.B \-\-debug
+option enables the output of additional diagnostics on
+.I stderr
+to help triage problems, although the information is sometimes cryptic and
+primarily intended to provide guidance for developers rather end-users.
+.I debug
+is a comma separated list of debugging options; use
+.BR pmdbg (1)
+with the
+.B \-l
+option to obtain
+a list of the available debugging options and their meaning.
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR mkaf (1),

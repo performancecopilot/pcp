@@ -1,12 +1,12 @@
 /*
  * Copyright (c) 2013-2016 Red Hat.
  * Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -51,6 +51,8 @@ enum {
     cpu_idle,
     cpu_wait,
     cpu_steal,
+    cpu_guest,
+    cpu_guest_nice,
 
     num_items
 };
@@ -58,7 +60,7 @@ enum {
 struct statsrc {
     pmFG		pmfg;
     char		*sname;
-    struct timeval	timestamp;
+    struct timespec	timestamp;
     int			fetched;
 
     pmAtomValue		val[num_items];
@@ -67,6 +69,7 @@ struct statsrc {
 
 pmLongOptions longopts[] = {
     PMAPI_GENERAL_OPTIONS,
+    PMOPT_DEBUG,
     PMAPI_OPTIONS_HEADER("Alternate sources"),
     PMOPT_HOSTSFILE,
     PMOPT_LOCALPMDA,
@@ -110,7 +113,7 @@ getNewContext(int type, char *host, int quiet)
     }
 
     /* Register metrics with desired conversions/types; some with fallbacks. */
-    pmExtendFetchGroup_timestamp(s->pmfg, &s->timestamp);
+    pmExtendFetchGroup_timespec(s->pmfg, &s->timestamp);
     s->sts[load_avg] = pmExtendFetchGroup_item(s->pmfg,
 			"kernel.all.load", "1 minute", NULL,
 			&s->val[load_avg], PM_TYPE_FLOAT, &s->sts[load_avg]);
@@ -192,6 +195,12 @@ getNewContext(int type, char *host, int quiet)
     s->sts[cpu_steal] = pmExtendFetchGroup_item(s->pmfg,
 			"kernel.all.cpu.steal", NULL, NULL,
 			&s->val[cpu_steal], PM_TYPE_U64, &s->sts[cpu_steal]);
+    s->sts[cpu_guest] = pmExtendFetchGroup_item(s->pmfg,
+			"kernel.all.cpu.guest", NULL, NULL,
+			&s->val[cpu_guest], PM_TYPE_U64, &s->sts[cpu_guest]);
+    s->sts[cpu_guest_nice] = pmExtendFetchGroup_item(s->pmfg,
+			"kernel.all.cpu.guest_nice", NULL, NULL,
+			&s->val[cpu_guest_nice], PM_TYPE_U64, &s->sts[cpu_guest_nice]);
 
     /* Let's mandate at least one metric having been resolved. */
     for (i = 0; i < num_items; i++)
@@ -279,7 +288,8 @@ static void
 timeinterval(struct timeval delta)
 {
     defaultcontrols.interval(delta);
-    opts.interval = delta;
+    opts.interval.tv_sec = delta.tv_sec;
+    opts.interval.tv_nsec = delta.tv_usec * 1000;
     period = (delta.tv_sec * 1.0e6 + delta.tv_usec) / 1e6;
     header = 1;
 }
@@ -395,7 +405,7 @@ main(int argc, char *argv[])
 	exit(1);
     }
 
-    if (opts.interval.tv_sec == 0 && opts.interval.tv_usec == 0)
+    if (opts.interval.tv_sec == 0 && opts.interval.tv_nsec == 0)
 	opts.interval.tv_sec = 5;	/* 5 sec default sampling */
 
     if (opts.context == PM_CONTEXT_ARCHIVE) {
@@ -427,7 +437,7 @@ main(int argc, char *argv[])
 	}
     } else {
 	/*
-	 * Read metrics from the local host.  Note that context can be 
+	 * Read metrics from the local host.  Note that context can be
 	 * either LOCAL or HOST, but not ARCHIVE here.  If we fail to
 	 * talk to pmcd we fallback to local context mode automagically.
 	 */
@@ -454,11 +464,11 @@ main(int argc, char *argv[])
 #endif
 
     /* calculate the number of samples needed, if given an end time */
-    period = (opts.interval.tv_sec * 1.0e6 + opts.interval.tv_usec) / 1e6;
-    now = (time_t)(opts.start.tv_sec + 0.5 + opts.start.tv_usec / 1.0e6);
+    period = (opts.interval.tv_sec * 1.0e6 + opts.interval.tv_nsec) / 1e9;
+    now = (time_t)(opts.start.tv_sec + 0.5 + opts.start.tv_nsec / 1.0e9);
     if (opts.finish_optarg) {
-	double win = opts.finish.tv_sec - opts.origin.tv_sec + 
-		    (opts.finish.tv_usec - opts.origin.tv_usec) / 1e6;
+	double win = opts.finish.tv_sec - opts.origin.tv_sec +
+		    (opts.finish.tv_nsec - opts.origin.tv_nsec) / 1e9;
 	win /= period;
 	if (win > opts.samples)
 	    opts.samples = (int)win;
@@ -470,9 +480,21 @@ main(int argc, char *argv[])
 	pmWhichZone(&tz);
 	if (!opts.guiport)
 	    opts.guiport = -1;
+#ifdef PMTIME_FIXED
 	pmtime = pmTimeStateSetup(&controls, opts.context,
 			opts.guiport, opts.interval, opts.origin,
 			opts.start, opts.finish, tz, tzlabel);
+#else
+	{
+	    struct timeval	interval_tv = { opts.interval.tv_sec, opts.interval.tv_nsec / 1000 };
+	    struct timeval	origin_tv = { opts.origin.tv_sec, opts.origin.tv_nsec / 1000 };
+	    struct timeval	start_tv = { opts.start.tv_sec, opts.start.tv_nsec / 1000 };
+	    struct timeval	finish_tv = { opts.finish.tv_sec, opts.finish.tv_nsec / 1000 };
+	    pmtime = pmTimeStateSetup(&controls, opts.context,
+			opts.guiport, interval_tv, origin_tv,
+			start_tv, finish_tv, tz, tzlabel);
+	}
+#endif
 
 	/* keep pointers to some default time control functions */
 	defaultcontrols = controls;
@@ -491,8 +513,11 @@ main(int argc, char *argv[])
 	pd = ctxList[j];
 
 	pmUseContext(pmGetFetchGroupContext(pd->pmfg));
-	if (!opts.guiflag && opts.context == PM_CONTEXT_ARCHIVE)
-	    pmTimeStateMode(PM_MODE_INTERP, opts.interval, &opts.origin);
+	if (!opts.guiflag && opts.context == PM_CONTEXT_ARCHIVE) {
+	    struct timeval	interval_tv = { opts.interval.tv_sec, opts.interval.tv_nsec / 1000 };
+	    struct timeval	origin_tv = { opts.origin.tv_sec, opts.origin.tv_nsec / 1000 };
+	    pmTimeStateMode(PM_MODE_INTERP, interval_tv, &origin_tv);
+	}
 
 	pmFetchGroup(pd->pmfg);
     }
@@ -505,17 +530,17 @@ main(int argc, char *argv[])
 	    char tbuf[26];
 
 	    now = (time_t)(ctxList[0]->timestamp.tv_sec + 0.5 +
-			   ctxList[0]->timestamp.tv_usec / 1.0e6);
+			   ctxList[0]->timestamp.tv_nsec / 1.0e9);
 	    printf("@ %s", pmCtime(&now, tbuf));
 
 	    if (ctxCount > 1) {
 		printf("%-7s%8s%21s%10s%10s%10s%*s\n",
 			"node", "loadavg","memory","swap","io","system",
-			extraCpuStats ? 20 : 12, "cpu");
+			extraCpuStats ? 24 : 12, "cpu");
 		if (extraCpuStats)
-		    printf("%8s%7s %6s %6s %6s   %c%1s   %c%1s %4s %4s %4s %4s %3s %3s %3s %3s %3s\n",
+		    printf("%8s%7s %6s %6s %6s   %c%1s   %c%1s %4s %4s %4s %4s %3s %3s %3s %3s %3s %3s\n",
 			"", "1 min","swpd","buff","cache", swapOp,"i",swapOp,"o","bi","bo",
-			"in","cs","us","sy","id","wa","st");
+			"in","cs","us","sy","id","wa","st","gu");
 		else
 		    printf("%8s%7s %6s %6s %6s   %c%1s   %c%1s %4s %4s %4s %4s %3s %3s %3s\n",
 			"", "1 min","swpd","buff","cache", swapOp,"i",swapOp,"o","bi","bo",
@@ -524,11 +549,11 @@ main(int argc, char *argv[])
 	    } else {
 		printf("%8s%28s%10s%10s%10s%*s\n",
 		       "loadavg","memory","swap","io","system",
-			extraCpuStats ? 20 : 12, "cpu");
+			extraCpuStats ? 24 : 12, "cpu");
 		if (extraCpuStats)
-		    printf(" %7s %6s %6s %6s %6s   %c%1s   %c%1s %4s %4s %4s %4s %3s %3s %3s %3s %3s\n",
+		    printf(" %7s %6s %6s %6s %6s   %c%1s   %c%1s %4s %4s %4s %4s %3s %3s %3s %3s %3s %3s\n",
 			"1 min","swpd","free","buff","cache", swapOp,"i",swapOp,"o","bi","bo",
-			"in","cs","us","sy","id","wa","st");
+			"in","cs","us","sy","id","wa","st","gu");
 		else
 		    printf(" %7s %6s %6s %6s %6s   %c%1s   %c%1s %4s %4s %4s %4s %3s %3s %3s\n",
 			"1 min","swpd","free","buff","cache", swapOp,"i",swapOp,"o","bi","bo",
@@ -540,7 +565,7 @@ main(int argc, char *argv[])
 	if (opts.guiflag)
 	    pmTimeStateVector(&controls, pmtime);
 	else if (opts.context != PM_CONTEXT_ARCHIVE || pauseFlag)
-	    __pmtimevalSleep(opts.interval);
+	    __pmtimespecSleep(opts.interval);
 	if (header)
 	    goto next;
 
@@ -582,10 +607,12 @@ main(int argc, char *argv[])
 		} else if ((opts.context == PM_CONTEXT_ARCHIVE) &&
 			 (sts == PM_ERR_EOL) && (!s->fetched)) {
 		    /*
-		     * We are yet to see something from this archive - so
-		     * don't discard it just yet.
+		     * We are yet to see something from this archive and
+		     * we're at the end of the archive.
 		     */
 		    puts(" No data in the archive");
+		    printf(" pmFetchGroup: %s\n", pmErrStr(sts));
+		    exit(0);
 		} else {
 		    printf(" pmFetchGroup: %s\n", pmErrStr(sts));
 
@@ -653,30 +680,36 @@ check:
 		    s->val[cpu_wait].ull = 0;
 		if (s->sts[cpu_steal])	/* optional */
 		    s->val[cpu_steal].ull = 0;
+		if (s->sts[cpu_guest])	/* optional */
+		    s->val[cpu_guest].ull = 0;
+		if (s->sts[cpu_guest_nice])	/* optional */
+		    s->val[cpu_guest_nice].ull = 0;
 
 		if (!failed)
-		    for (i = cpu_nice; i <= cpu_steal; i++)
+		    for (i = cpu_nice; i <= cpu_guest_nice; i++)
 			dtot += s->val[i].ull;
 
 		if (extraCpuStats) {
-		    if (failed) { 
-			printf(" %3.3s %3.3s %3.3s %3.3s %3.3s",
-			       "?", "?", "?", "?", "?");
+		    if (failed) {
+			printf(" %3.3s %3.3s %3.3s %3.3s %3.3s %3.3s",
+			       "?", "?", "?", "?", "?", "?");
 		    } else {
 			unsigned long long fill = dtot / 2;
-			unsigned long long user, kernel, idle, iowait, steal;
+			unsigned long long user, kernel, idle, iowait, steal, guest;
 
 			user = s->val[cpu_nice].ull + s->val[cpu_user].ull;
 			kernel = s->val[cpu_intr].ull + s->val[cpu_sys].ull;
 			idle = s->val[cpu_idle].ull;
 			iowait = s->val[cpu_wait].ull;
 			steal = s->val[cpu_steal].ull;
-			printf(" %3u %3u %3u %3u %3u",
+			guest = s->val[cpu_guest_nice].ull + s->val[cpu_guest].ull;
+			printf(" %3u %3u %3u %3u %3u %3u",
 			       (unsigned int)((100 * user + fill) / dtot),
 			       (unsigned int)((100 * kernel + fill) / dtot),
 			       (unsigned int)((100 * idle + fill) / dtot),
 			       (unsigned int)((100 * iowait + fill) / dtot),
-			       (unsigned int)((100 * steal + fill) / dtot));
+			       (unsigned int)((100 * steal + fill) / dtot),
+			       (unsigned int)((100 * guest + fill) / dtot));
 		    }
 		} else if (failed) {
 		    printf(" %3.3s %3.3s %3.3s", "?", "?", "?");

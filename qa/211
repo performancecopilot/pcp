@@ -24,9 +24,7 @@ else
 fi
 
 status=0	# success is the default!
-$sudo rm -rf $tmp.*
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
-rm -f $seq.full
 
 _filter_probe()
 {
@@ -45,7 +43,7 @@ _do() {
     echo
     echo "== $* =="
     pminfo $* | LC_COLLATE=POSIX sort
-    pmprobe -v $* | _filter_probe | LC_COLLATE=POSIX sort 
+    pmprobe -v $* | _filter_probe | LC_COLLATE=POSIX sort
 }
 
 # real QA test starts here
@@ -82,9 +80,9 @@ log mandatory on 100 msec {
 }
 End-of-File
 pmlogger -s 3 -c $tmp.config -l $tmp.log $tmp
-cat $tmp.log >>$seq.full
+cat $tmp.log >>$seq_full
 pmdumplog $tmp 2>&1 \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | _filter_pmdumplog \
 | sed -e '/pmcd\./d'
 

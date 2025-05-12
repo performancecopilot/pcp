@@ -41,6 +41,7 @@ SUBDIRS = \
 	uptime \
 	verify \
 	vmstat \
+	xsos \
 	zoneinfo
 
 default :: default_pcp

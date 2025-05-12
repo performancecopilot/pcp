@@ -34,7 +34,6 @@ perl -e "use Text::CSV_XS" 2>/dev/null || \
 	_notrun "Perl Text::CSV_XS module is not installed"
 
 status=1        # failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 _path_filter()

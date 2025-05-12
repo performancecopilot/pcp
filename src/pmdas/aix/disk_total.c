@@ -54,8 +54,7 @@ disk_total_derived(pmdaMetric *mdesc, int inst)
 	    break;
     }
 
-    if (pmDebugOptions.appl0 && pmDebugOptions.desperate) {
-	/* desperate */
+    if (pmDebugOptions.appl0) {
 	fprintf(stderr, "disk_total_derived: pmid %s inst %d val %llu\n",
 		    pmIDStr(mdesc->m_desc.pmid), inst, val);
     }
@@ -95,8 +94,7 @@ disk_total_fetch(pmdaMetric *mdesc, int inst, pmAtomValue *atom)
 	    ullp = (__uint64_t *)&((char *)&diskstat)[offset];
 	    atom->ull = *ullp;
 	}
-	if (pmDebugOptions.appl0 && pmDebugOptions.desperate) {
-	    /* desperate */
+	if (pmDebugOptions.appl0) {
 	    fprintf(stderr, "disk_total_fetch: pmid %s inst %d val %llu\n",
 		    pmIDStr(mdesc->m_desc.pmid), inst, atom->ull);
 	}
@@ -109,8 +107,7 @@ disk_total_fetch(pmdaMetric *mdesc, int inst, pmAtomValue *atom)
 	    ulp = (__uint32_t *)&((char *)&diskstat)[offset];
 	    atom->ul = *ulp;
 	}
-	if (pmDebugOptions.appl0 && pmDebugOptions.desperate) {
-	    /* desperate */
+	if (pmDebugOptions.appl0) {
 	    fprintf(stderr, "disk_total_fetch: pmid %s inst %d val %lu\n",
 		    pmIDStr(mdesc->m_desc.pmid), inst, atom->ul);
 	}

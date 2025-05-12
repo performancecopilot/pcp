@@ -21,7 +21,6 @@ fi
 . ./common.filter
 . ./common.check
 
-$sudo rm -rf $tmp $tmp.* $seq.full
 
 do_valgrind=false
 if [ "$1" = "--valgrind" ]
@@ -50,21 +49,21 @@ _doit()
 {
     cmd=$1
     shift
-    echo | tee -a $here/$seq.full
-    echo "=== cmd=$cmd $* ===" | tee -a $here/$seq.full
+    echo | tee -a $seq_full
+    echo "=== cmd=$cmd $* ===" | tee -a $seq_full
     [ -d $tmp ] || mkdir $tmp
     cd $tmp
-    rm -f out.*
-    cp $here/archives/ok-mv-bar.* .
+    rm -f out.* ok-mv-bar.*
+    pmlogcp $here/archives/ok-mv-bar .
     for cull
     do
 	rm ok-mv-bar.$cull
     done
     echo ok-mv-bar.*
-    ls -l ok-mv-bar.* >>$here/$seq.full
+    ls -l ok-mv-bar.* >>$seq_full
     pmlogcheck -v ok-mv-bar 2>&1 | LC_COLLATE=POSIX sort
     pmlogdump -dehiIlmMtz ok-mv-bar >$tmp.ok-mv-bar
-    pmdumplog -tz ok-mv-bar >>$here/$seq.full
+    pmdumplog -tz ok-mv-bar >>$seq_full
 
     if $do_valgrind
     then
@@ -74,8 +73,8 @@ _doit()
     fi \
     | _filter
     echo out.*
-    ls -l out.* >>$here/$seq.full
-    pmdumplog -tz out >>$here/$seq.full
+    ls -l out.* >>$seq_full
+    pmdumplog -tz out >>$seq_full
 
     for in in ok-mv-bar.*
     do

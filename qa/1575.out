@@ -1,0 +1,74 @@
+QA output created by 1575
+simple cmd args
+Warning: skipping log rotation because we don't know which pmlogger to signal
+TMP/DATE.0.zst
+TMP/DATE.1.zst
+TMP/DATE.2.zst
+TMP/DATE.3.zst
+TMP/DATE.4.zst
+TMP/DATE.5.zst
+TMP/DATE.6.zst
+TMP/DATE.7.zst
+TMP/DATE.8.zst
+TMP/DATE.9.zst
+TMP/DATE.index
+TMP/DATE.meta.zst
+
+simple env vars
+Warning: skipping log rotation because we don't know which pmlogger to signal
+TMP/DATE.0.zst
+TMP/DATE.1.zst
+TMP/DATE.2.zst
+TMP/DATE.3.zst
+TMP/DATE.4.zst
+TMP/DATE.5.zst
+TMP/DATE.6.zst
+TMP/DATE.7.zst
+TMP/DATE.8.zst
+TMP/DATE.9.zst
+TMP/DATE.index
+TMP/DATE.meta.zst
+
+some error cases
+Error: -x value (bozo) must be number, time, "forever" or "never"
+Error: $PCP_COMPRESSAFTER value (bozo) must be number, time, "forever" or "never"
+Warning: skipping log rotation because we don't know which pmlogger to signal
+Error: no-such-compression-tool: compression program not found
+Warning: skipping log rotation because we don't know which pmlogger to signal
+Error: no-such-compression-tool: compression program not found
+Error: $PCP_COMPRESSAFTER value (bozo) must be number, time, "forever" or "never"
+Warning: skipping log rotation because we don't know which pmlogger to signal
+
+some warning cases
+Warning: -X value (no-such-compression-tool) ignored because $PCP_COMPRESS (zstd --rm --quiet) set in environment
+Warning: -x value (7) ignored because $PCP_COMPRESSAFTER (1) set in environment
+Warning: -Y value (xyz) ignored because $PCP_COMPRESSREGEX (\.index$) set in environment
+Warning: skipping log rotation because we don't know which pmlogger to signal
+TMP/DATE.0.zst
+TMP/DATE.1.zst
+TMP/DATE.2.zst
+TMP/DATE.3.zst
+TMP/DATE.4.zst
+TMP/DATE.5.zst
+TMP/DATE.6.zst
+TMP/DATE.7.zst
+TMP/DATE.8.zst
+TMP/DATE.9.zst
+TMP/DATE.index
+TMP/DATE.meta.zst
+Warning: $PCP_COMPRESS (zstd --rm --quiet) reset from control file, previous value (foo) ignored
+Warning: $PCP_COMPRESSAFTER (1) reset from control file, previous value (42) ignored
+Warning: $PCP_COMPRESSREGEX (.(index|meta)$) reset from control file, previous value (\.bar$) ignored
+Warning: skipping log rotation because we don't know which pmlogger to signal
+TMP/DATE.0.zst
+TMP/DATE.1.zst
+TMP/DATE.2.zst
+TMP/DATE.3.zst
+TMP/DATE.4.zst
+TMP/DATE.5.zst
+TMP/DATE.6.zst
+TMP/DATE.7.zst
+TMP/DATE.8.zst
+TMP/DATE.9.zst
+TMP/DATE.index
+TMP/DATE.meta

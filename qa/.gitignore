@@ -2,6 +2,7 @@
 # cleaned up in "make clobber" should also be mentioned here ...
 #
 .rnd
+.findmetric/
 /*.full
 /*.notrun
 /*.full.ok
@@ -66,11 +67,11 @@ sudo
 250.out
 255.out
 262.out
-276.out
 287.out
 294.out
 298.out
 338.out
+344.out
 365.out
 367.out
 370.out

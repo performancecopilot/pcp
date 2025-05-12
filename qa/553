@@ -18,12 +18,11 @@ $python -c "from pcp import pmda" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python pcp pmda module not installed"
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; $sudo rm -f gluster.log*; exit \$status" 0 1 2 3 15
 
 _filter()
 {
-    tee -a $seq.full | \
+    tee -a $seq_full | \
     sed \
 	-e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;" \
         -e '/pmResult/s/ .* numpmid/ ... numpmid/' \
@@ -32,7 +31,7 @@ _filter()
 	-e "s;$python_basename;python;" \
     #end
 
-    test -f gluster.log && cat gluster.log >> $seq.full
+    test -f gluster.log && cat gluster.log >> $seq_full
 }
 
 _filter_result()
@@ -51,15 +50,15 @@ export GLUSTER_VOL_START="$test/test.sh start %s $seq $tmp.start"
 # real QA test starts here
 PCP_PYTHON_PMNS=root $python "$pmda_script" > $tmp.root
 
-echo "== Testing volume instance domain" | tee -a $seq.full
+echo "== Testing volume instance domain" | tee -a $seq_full
 $sudo TERM=ansi dbpmda -n $tmp.root -ie <<End-of-File 2>&1 | _filter
 open pipe $python_path $pmda_script
 instance $domain.0
 End-of-File
 
-cat gluster.log >>$here/$seq.full
+cat gluster.log >>$seq_full
 
-echo "== Testing volume information metrics" | tee -a $seq.full
+echo "== Testing volume information metrics" | tee -a $seq_full
 $sudo TERM=ansi dbpmda -n $tmp.root -ie <<End-of-File 2>&1 | _filter
 open pipe $python_path $pmda_script
 getdesc on
@@ -71,9 +70,9 @@ fetch gluster.volume.stripe.count
 fetch gluster.volume.replica.count
 End-of-File
 
-cat gluster.log >>$here/$seq.full
+cat gluster.log >>$seq_full
 
-echo "== Testing volume control metric store" | tee -a $seq.full
+echo "== Testing volume control metric store" | tee -a $seq_full
 $sudo rm -f $tmp.start $tmp.stop
 $sudo TERM=ansi dbpmda -n $tmp.root -ie <<End-of-File 2>&1 | _filter
 open pipe $python_path $pmda_script
@@ -87,17 +86,17 @@ End-of-File
 cat $tmp.start $tmp.stop
 $sudo rm -f $tmp.start $tmp.stop
 
-cat gluster.log >>$here/$seq.full
+cat gluster.log >>$seq_full
 
-echo "== Testing brick instance domain" | tee -a $seq.full
+echo "== Testing brick instance domain" | tee -a $seq_full
 $sudo TERM=ansi dbpmda -n $tmp.root -ie <<End-of-File 2>&1 | _filter
 open pipe $python_path $pmda_script
 instance $domain.1
 End-of-File
 
-cat gluster.log >>$here/$seq.full
+cat gluster.log >>$seq_full
 
-echo "== Testing brick throughput metrics" | tee -a $seq.full
+echo "== Testing brick throughput metrics" | tee -a $seq_full
 $sudo TERM=ansi dbpmda -n $tmp.root -ie <<End-of-File 2>&1 | _filter
 open pipe $python_path $pmda_script
 getdesc on
@@ -107,9 +106,9 @@ desc gluster.brick.write_bytes
 fetch gluster.brick.write_bytes
 End-of-File
 
-cat gluster.log >>$here/$seq.full
+cat gluster.log >>$seq_full
 
-echo "== Testing brick file operation latency metrics" | tee -a $seq.full
+echo "== Testing brick file operation latency metrics" | tee -a $seq_full
 $sudo TERM=ansi dbpmda -n $tmp.root -ie <<End-of-File 2>&1 | _filter
 open pipe $python_path $pmda_script
 getdesc on
@@ -123,7 +122,7 @@ fetch gluster.brick.latency.getxattr.max
 fetch gluster.brick.latency.getxattr.count
 End-of-File
 
-cat gluster.log >>$here/$seq.full
+cat gluster.log >>$seq_full
 
 status=0
 exit

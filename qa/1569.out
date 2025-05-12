@@ -1,0 +1,291 @@
+QA output created by 1569
+=== some error cases ===
+--- pmlogcompress -x TMP archives/pcp-meminfo ---
+stderr ...
+pmlogcompress: invalid option -- 'x'
+Usage: pmlogcompress [options] archive ...
+
+Options:
+  -A ARG, --arg=ARG     argument for compression program
+  -c PROGLIST, --command=PROGLIST
+                        candidate compression program(s)
+  -f PROG, --use=PROG   use this compression program
+  -l LIMIT, --lower-limit=LIMIT
+                        do no compress files smaller than LIMIT
+  -N, --show-me         do nothing, but show me
+  -o TYPE, --optimize=TYPE
+                        choose program to optimize compression
+  -V, --verbose         increase verbosity
+  -Z MIN, --min-zstd-size=MIN
+                        minimum file size for compression with zstd
+  -?, --help            show this usage message and exit
+
+More than one -A option is allowed, and more than one -c option is allowed.
+
+PROGLIST may be one command, or multiple commands separated by colons,
+[default zstd:xz:bzip2:gzip].
+
+Compression program (without -o or -f) depends on installed programs and
+file size (use -N to see what would be used, use -f to force a particular
+compression program to be used).
+
+Decompression program is selected based on file extension.
+
+LIMIT is in bytes [default 4096]; use 0 to force compression. similarly
+for zstd mimimum file size MIN [default 52428800].
+
+Compression optimization TYPE may be time or space.
+--- pmlogdecompress -t TMP archives/pcp-meminfo ---
+stderr ...
+pmlogdecompress: -t: TMP is not an existing directory
+exit status 1
+--- pmlogcompress -NV no-such-archive ---
+stderr ...
+archbase=no-such-archive
+pmlogcompress: Warning: no PCP archive files match "no-such-archive"
+--- pmlogdecompress -t TMP archives/pcp-meminfo ---
+stderr ...
+pmlogdecompress: TMP/pcp-meminfo.0 exists and will not be clobbered
+--- pmlogdecompress -V TMP/pcp-meminfo ---
+stderr ...
+archbase=TMP/pcp-meminfo
+0 of 3 files in the archive are compressed
+--- pmlogdecompress -c foocompress foobar ---
+stderr ...
+pmlogdecompress: invalid option -- 'c'
+Usage: pmlogdecompress [options] archive ...
+
+Options:
+  -N, --show-me         do nothing, but show me
+  -t DIR, --dir=DIR     decompress into directory DIR
+  -V, --verbose         increase verbosity
+  -?, --help            show this usage message and exit
+
+Decompression program is selected based on file extension.
+--- pmlogdecompress -A arg1 -A arg2 -A arg3 and arg4 foobar ---
+stderr ...
+pmlogdecompress: invalid option -- 'A'
+Usage: pmlogdecompress [options] archive ...
+
+Options:
+  -N, --show-me         do nothing, but show me
+  -t DIR, --dir=DIR     decompress into directory DIR
+  -V, --verbose         increase verbosity
+  -?, --help            show this usage message and exit
+
+Decompression program is selected based on file extension.
+--- pmlogdecompress -f gzip foobar ---
+stderr ...
+pmlogdecompress: invalid option -- 'f'
+Usage: pmlogdecompress [options] archive ...
+
+Options:
+  -N, --show-me         do nothing, but show me
+  -t DIR, --dir=DIR     decompress into directory DIR
+  -V, --verbose         increase verbosity
+  -?, --help            show this usage message and exit
+
+Decompression program is selected based on file extension.
+--- pmlogdecompress -l 0 foobar ---
+stderr ...
+pmlogdecompress: invalid option -- 'l'
+Usage: pmlogdecompress [options] archive ...
+
+Options:
+  -N, --show-me         do nothing, but show me
+  -t DIR, --dir=DIR     decompress into directory DIR
+  -V, --verbose         increase verbosity
+  -?, --help            show this usage message and exit
+
+Decompression program is selected based on file extension.
+--- pmlogdecompress -o space foobar ---
+stderr ...
+pmlogdecompress: invalid option -- 'o'
+Usage: pmlogdecompress [options] archive ...
+
+Options:
+  -N, --show-me         do nothing, but show me
+  -t DIR, --dir=DIR     decompress into directory DIR
+  -V, --verbose         increase verbosity
+  -?, --help            show this usage message and exit
+
+Decompression program is selected based on file extension.
+--- pmlogcompress -o foo foobar ---
+stderr ...
+pmlogcompress: -o option must be space or time
+exit status 1
+--- pmlogcompress -l 0 -c no-such-prog TMP/foo+ ---
+stderr ...
+Warning: no clue how to deal with "compression" program no-such-prog
+pmlogcompress: cannot find a compression program (tried no-such-prog)
+exit status 1
+--- pmlogcompress -l 0 -f no-such-prog TMP/foo+ ---
+stderr ...
+pmlogcompress: cannot find a compression program (no-such-prog)
+exit status 1
+--- pmlogcompress -l 0 -c no-such-prog:even-less-likely-prog TMP/foo+ ---
+stderr ...
+Warning: no clue how to deal with "compression" program no-such-prog
+Warning: no clue how to deal with "compression" program even-less-likely-prog
+pmlogcompress: cannot find a compression program (tried no-such-prog:even-less-likely-prog)
+exit status 1
+--- pmlogcompress -f xz -o space foobar ---
+stderr ...
+pmlogcompress: -f [xz] not allowed when compressing with -o
+exit status 1
+--- pmlogcompress -o time -f bzip foobar ---
+stderr ...
+pmlogcompress: -f [bzip] not allowed when compressing with -o
+exit status 1
+
+=== some decompress success cases ===
+pcp-meminfo.0.xz 928
+pcp-meminfo.index 192
+pcp-meminfo.meta.xz 3620
+--- pmlogdecompress -N pcp-meminfo ---
+stderr ...
++ xz --decompress pcp-meminfo.0.xz
++ xz --decompress pcp-meminfo.meta.xz
+pcp-meminfo.0.xz 928
+pcp-meminfo.index 192
+pcp-meminfo.meta.xz 3620
+--- pmlogdecompress pcp-meminfo ---
+pcp-meminfo.0 16048
+pcp-meminfo.index 192
+pcp-meminfo.meta 12518
+--- pmlogdecompress -V -t tmp archives/pcp-meminfo ---
+stderr ...
+archbase=archives/pcp-meminfo
+2 of 3 files in the archive are compressed
+tmp/pcp-meminfo.0: decompressed
+tmp/pcp-meminfo.index: copied
+tmp/pcp-meminfo.meta: decompressed
+tmp/pcp-meminfo.0 16048
+tmp/pcp-meminfo.index 192
+tmp/pcp-meminfo.meta 12518
+--- pmlogdecompress -t . HERE/archives/pcp-meminfo ---
++++ lzma +++
+--- pmlogdecompress -V pcp-meminfo ---
+stderr ...
+archbase=pcp-meminfo
+1 of 3 files in the archive are compressed
+pcp-meminfo.0: decompressed
+pcp-meminfo.0 16048
+pcp-meminfo.index 192
+pcp-meminfo.meta 12518
++++ bz2 +++
+--- pmlogdecompress -V pcp-meminfo ---
+stderr ...
+archbase=pcp-meminfo
+3 of 3 files in the archive are compressed
+pcp-meminfo.0: decompressed
+pcp-meminfo.index: decompressed
+pcp-meminfo.meta: decompressed
+pcp-meminfo.0 16048
+pcp-meminfo.index 192
+pcp-meminfo.meta 12518
++++ bz +++
+--- pmlogdecompress -V pcp-meminfo ---
+stderr ...
+archbase=pcp-meminfo
+1 of 3 files in the archive are compressed
+pcp-meminfo.0: decompressed
+pcp-meminfo.0 16048
+pcp-meminfo.index 192
+pcp-meminfo.meta 12518
++++ gz +++
+--- pmlogdecompress -V pcp-meminfo ---
+stderr ...
+archbase=pcp-meminfo
+2 of 3 files in the archive are compressed
+pcp-meminfo.0: decompressed
+pcp-meminfo.meta: decompressed
+pcp-meminfo.0 16048
+pcp-meminfo.index 192
+pcp-meminfo.meta 12518
++++ z +++
+--- pmlogdecompress -V pcp-meminfo ---
+stderr ...
+archbase=pcp-meminfo
+1 of 3 files in the archive are compressed
+pcp-meminfo.0: decompressed
+pcp-meminfo.0 16048
+pcp-meminfo.index 192
+pcp-meminfo.meta 12518
+
+=== some compress (and decompress) success cases ===
+foo+.0 9272
+foo+.index 212
+foo+.meta 2584
+--- pmlogcompress -NV -l10240 foo+ ---
+stderr ...
+archbase=foo+
+foo+.0: skipped, size 9272 < limit 10240
+foo+.meta: skipped, size 2584 < limit 10240
+--- pmlogcompress --lower-limit=0 --show-me --verbose foo+ ---
+stderr ...
+archbase=foo+
+foo+.0: size 9272 too small for zstd
++ xz -0 --block-size=10MiB foo+.0
+foo+.meta: size 2584 too small for zstd
++ xz -0 --block-size=10MiB foo+.meta
+--- pmlogcompress -l 0 -V -c gzip foo+ ---
+stderr ...
+archbase=foo+
+foo+.0: compressed with gzip
+foo+.meta: compressed with gzip
+foo+.0.gz 1927
+foo+.index 212
+foo+.meta.gz 815
+--- pmlogdecompress foo+ ---
+foo+.0 9272
+foo+.index 212
+foo+.meta 2584
+--- pmlogcompress -l0 -c no-such-prog -c gzip -c bzip2 -V foo+ ---
+stderr ...
+Warning: no clue how to deal with "compression" program no-such-prog
+archbase=foo+
+foo+.0: Botch: no compression recipe for no-such-prog program
+foo+.0: compressed with gzip
+foo+.meta: Botch: no compression recipe for no-such-prog program
+foo+.meta: compressed with gzip
+foo+.0.gz 1927
+foo+.index 212
+foo+.meta.gz 815
+--- pmlogdecompress foo+ ---
+foo+.0 9272
+foo+.index 212
+foo+.meta 2584
+--- pmlogcompress -l0 -A foo -A --bar -A --fumble -f xz -N foo+ ---
+stderr ...
++ xz foo --bar --fumble foo+.0
++ xz foo --bar --fumble foo+.meta
+--- pmlogcompress -l0 -f xz pcp-meminfo ---
+--- pmlogcompress -l0 -f xz -V pcp-meminfo ---
+stderr ...
+archbase=pcp-meminfo
+pcp-meminfo.0.xz: skipped, already compressed
+pcp-meminfo.meta.xz: skipped, already compressed
+pcp-meminfo.0.xz 956
+pcp-meminfo.index 192
+pcp-meminfo.meta.xz 3892
+--- pmlogdecompress pcp-meminfo.meta.xz ---
+pcp-meminfo.0.xz 956
+pcp-meminfo.index 192
+pcp-meminfo.meta 12518
+--- pmlogdecompress pcp-meminfo.0.xz blah ---
+stderr ...
+pmlogdecompress: Warning: no PCP archive files match "blah"
+pcp-meminfo.0 16048
+pcp-meminfo.index 192
+pcp-meminfo.meta 12518
+--- pmlogcompress -l0 -f xz pcp-meminfo.meta ---
+pcp-meminfo.0 16048
+pcp-meminfo.index 192
+pcp-meminfo.meta.xz 3892
+--- pmlogcompress -l0 -f xz pcp-meminfo.0 blah ---
+stderr ...
+pmlogcompress: Warning: no PCP archive files match "blah"
+pcp-meminfo.0.xz 956
+pcp-meminfo.index 192
+pcp-meminfo.meta.xz 3892

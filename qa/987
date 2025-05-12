@@ -16,7 +16,6 @@ echo "QA output created by $seq"
 [ $PCP_PLATFORM = linux ] || _notrun "XFS PMDA is Linux-specific (uses procfs)"
 
 status=1
-$sudo rm -rf $tmp.* $seq.full
 trap "cd $here; $sudo rm -rf $tmp.*; rm -f xfs.log*; exit \$status" 0 1 2 3 15
 
 _filter()

@@ -42,12 +42,12 @@ pmLongOptions longopts[] = {
 
 pmOptions opts = {
     .flags = PM_OPTFLAG_STDOUT_TZ | PM_OPTFLAG_BOUNDARIES,
-    .short_options = PMAPI_OPTIONS "P",
+    .short_options = "A:a:D:h:n:O:S:s:T:t:Z:zV?" "P",
     .long_options = longopts,
 };
 
 typedef struct {
-    struct timeval	timestamp;	/* last fetched time */
+    struct timespec	timestamp;	/* last fetched time */
     float		cpu_util;	/* aggregate CPU utilization, usr+sys */
     int			peak_cpu;	/* most utilized CPU, if > 1 CPU */
     float		peak_cpu_util;	/* utilization for most utilized CPU */
@@ -65,7 +65,7 @@ get_ncpu(void)
     /* there is only one metric in the pmclient_init group */
     pmID	pmidlist[1];
     pmDesc	desclist[1];
-    pmResult	*rp;
+    pmHighResResult	*rp;
     pmAtomValue	atom;
     int		sts;
 
@@ -80,7 +80,7 @@ get_ncpu(void)
 		pmGetProgname(), pmclient_init[0], pmIDStr(pmidlist[0]), pmErrStr(sts));
 	exit(1);
     }
-    if ((sts = pmFetch(1, pmidlist, &rp)) < 0) {
+    if ((sts = pmFetchHighRes(1, pmidlist, &rp)) < 0) {
 	fprintf(stderr, "%s: pmFetch: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
@@ -88,7 +88,7 @@ get_ncpu(void)
     /* the thing we want is known to be the first value */
     pmExtractValue(rp->vset[0]->valfmt, rp->vset[0]->vlist, desclist[0].type,
 		   &atom, PM_TYPE_U32);
-    pmFreeResult(rp);
+    pmFreeHighResResult(rp);
 
     return atom.ul ? atom.ul : 1;
 }
@@ -96,8 +96,8 @@ get_ncpu(void)
 static void
 get_sample(info_t *ip)
 {
-    static pmResult	*crp = NULL;	/* current */
-    static pmResult	*prp = NULL;	/* prior */
+    static pmHighResResult	*crp = NULL;	/* current */
+    static pmHighResResult	*prp = NULL;	/* prior */
     static int		first = 1;
     static int		numpmid;
     static pmID		*pmidlist;
@@ -145,7 +145,7 @@ get_sample(info_t *ip)
     }
 
     /* fetch the current metrics */
-    if ((sts = pmFetch(numpmid, pmidlist, &crp)) < 0) {
+    if ((sts = pmFetchHighRes(numpmid, pmidlist, &crp)) < 0) {
 	fprintf(stderr, "%s: pmFetch: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
@@ -181,7 +181,7 @@ get_sample(info_t *ip)
     /* if the second or later sample, pick the results apart */
     if (prp !=  NULL) {
 
-	dt = pmtimevalSub(&crp->timestamp, &prp->timestamp);
+	dt = pmtimespecSub(&crp->timestamp, &prp->timestamp);
 
 	/*
 	 * But first ... is all the data present?
@@ -280,7 +280,7 @@ get_sample(info_t *ip)
 	}
 
 	/* free very old result */
-	pmFreeResult(prp);
+	pmFreeHighResResult(prp);
     }
     ip->timestamp = crp->timestamp;
 
@@ -289,13 +289,10 @@ get_sample(info_t *ip)
 }
 
 void
-timeval_sleep(struct timeval delay)
+timespec_sleep(struct timespec delay)
 {
-    struct timespec	interval;
     struct timespec	remaining;
-
-    interval.tv_sec = delay.tv_sec;
-    interval.tv_nsec = delay.tv_usec * 1000;
+    struct timespec	interval = delay;
 
     /* loop to catch early wakeup by nanosleep */
     for (;;) {
@@ -373,11 +370,11 @@ main(int argc, char **argv)
     ncpu = get_ncpu();
 
     /* set a default sampling interval if none has been requested */
-    if (opts.interval.tv_sec == 0 && opts.interval.tv_usec == 0)
+    if (opts.interval.tv_sec == 0 && opts.interval.tv_nsec == 0)
 	opts.interval.tv_sec = 5;
 
     if (opts.context == PM_CONTEXT_ARCHIVE) {
-	if ((sts = pmSetMode(PM_MODE_INTERP, &opts.start, (int)(opts.interval.tv_sec*1000 + opts.interval.tv_usec/1000))) < 0) {
+	if ((sts = pmSetModeHighRes(PM_MODE_INTERP, &opts.start, &opts.interval)) < 0) {
 	    fprintf(stderr, "%s: pmSetMode failed: %s\n",
 		    pmGetProgname(), pmErrStr(sts));
 	    exit(1);
@@ -419,7 +416,7 @@ X.XXX   XXX   X.XXX XXXXX.XXX XXXXXX  XXXX.XX XXXX.XX
 	    printf("  (Mbytes)   IOPS    1 Min  15 Min\n");
 	}
 	if (opts.context != PM_CONTEXT_ARCHIVE || pauseFlag)
-	    timeval_sleep(opts.interval);
+	    timespec_sleep(opts.interval);
 	get_sample(&info);
 	if (info.cpu_util >= 0)
 	    printf("%5.2f", info.cpu_util);

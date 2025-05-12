@@ -15,7 +15,6 @@ echo "QA output created by $seq"
 . ./common.check
 
 status=0	# success is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 cat <<End-of-File >$tmp.derive
@@ -75,20 +74,20 @@ unset PCP_DERIVED_CONFIG
 echo "Expect this to fail as derived metrics not defined ..."
 rm -f $tmp.0 $tmp.meta $tmp.index $tmp.log
 pmlogger -c $tmp.config -l $tmp.log -s 2 $tmp
-cat $tmp.log >>$seq.full
+cat $tmp.log >>$seq_full
 _filter_pmlogger_log <$tmp.log | _filter
-pmdumplog -mh $tmp | tee -a $seq.full | _filter_pmdumplog | _filter
+pmdumplog -mh $tmp | tee -a $seq_full | _filter_pmdumplog | _filter
 
-echo | tee -a $seq.full
-echo "Now with derived metrics defined ..." | tee -a $seq.full
+echo | tee -a $seq_full
+echo "Now with derived metrics defined ..." | tee -a $seq_full
 export PCP_DERIVED_CONFIG=$tmp.derive
 pminfo -f  `grep sample $tmp.config`
 rm -f $tmp.0 $tmp.meta $tmp.index $tmp.log
 pmlogger -c $tmp.config -l $tmp.log -s 3 $tmp
-cat $tmp.log >>$seq.full
+cat $tmp.log >>$seq_full
 _filter_pmlogger_log <$tmp.log | _filter
 unset PCP_DERIVED_CONFIG
-pmdumplog -mh $tmp | tee -a $seq.full | _filter_pmdumplog | _filter
+pmdumplog -mh $tmp | tee -a $seq_full | _filter_pmdumplog | _filter
 
 # pmval -a $tmp -t 0.1sec sample.long.nine
 pminfo -ftTl -a $tmp -O 0.05 sample.long \

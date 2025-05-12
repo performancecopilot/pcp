@@ -42,7 +42,7 @@ _filter_ps()
     pid=$1
     uid=$2
 
-    tee -a $seq.full | \
+    tee -a $seq_full | \
     $PCP_AWK_PROG '
 NR == 1	{ if ($2 != "PID") {
 	    print "PID not in field 2 of ps output!"
@@ -75,14 +75,13 @@ END	{ exit(1) }'
 status=1	# failure is the default!
 username=`id -u -n`	# me, myself & I
 trap "_cleanup" 0 1 2 3 15
-$sudo rm -f $tmp.* $seq.full
 
 # make sure the shell babble after username is terminated goes elsewhere
 #
 exec 2>$tmp.err
 
 # real QA test starts here
-echo "== failing case, should error out" | tee -a $seq.full
+echo "== failing case, should error out" | tee -a $seq_full
 $here/src/username nosuchuser >$tmp.out 2>&1 &
 pid=$!
 sleep 1	# give it a chance to start
@@ -91,7 +90,7 @@ $sudo $PCP_BINADM_DIR/pmsignal -a username
 wait $pid
 [ -s $tmp.out ] && cat $tmp.out | _filter_err $pid
 
-echo "== passing case, should be local user" | tee -a $seq.full
+echo "== passing case, should be local user" | tee -a $seq_full
 $here/src/username $username &
 pid=$!
 sleep 1	# give it a chance to start
@@ -100,9 +99,9 @@ $sudo $PCP_BINADM_DIR/pmsignal -a username
 wait $pid
 [ -s $tmp.out ] && cat $tmp.out | _filter_out $username
 
-echo >>$here/$seq.full
-echo "==== shell's stderr ===========" >>$seq.full
-cat $tmp.err >>$seq.full
+echo >>$seq_full
+echo "==== shell's stderr ===========" >>$seq_full
+cat $tmp.err >>$seq_full
 
 status=0
 exit

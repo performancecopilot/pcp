@@ -103,6 +103,13 @@ void ProcessTable_goThroughEntries(ProcessTable* super) {
       DarwinProcess_setFromKInfoProc(&proc->super, &ps[i], preExisting);
       DarwinProcess_setFromLibprocPidinfo(proc, dpt, time_interval_ns);
 
+      // Deduce further process states not covered in the libproc call above
+      if (ps[i].kp_proc.p_stat == SZOMB) {
+         proc->super.state = ZOMBIE;
+      } else if (ps[i].kp_proc.p_stat == SSTOP) {
+         proc->super.state = STOPPED;
+      }
+
       if (proc->super.st_uid != ps[i].kp_eproc.e_ucred.cr_uid) {
          proc->super.st_uid = ps[i].kp_eproc.e_ucred.cr_uid;
          proc->super.user = UsersTable_getRef(host->usersTable, proc->super.st_uid);
@@ -112,7 +119,7 @@ void ProcessTable_goThroughEntries(ProcessTable* super) {
       bool isScanThreadSupported = !Platform_KernelVersionIsBetween((KernelVersion) {17, 0, 0}, (KernelVersion) {17, 5, 0});
 
       if (isScanThreadSupported) {
-         DarwinProcess_scanThreads(proc);
+         DarwinProcess_scanThreads(proc, dpt);
       }
 
       super->totalTasks += 1;

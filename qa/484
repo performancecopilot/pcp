@@ -17,7 +17,6 @@ echo "QA output created by $seq"
 which pmlogrewrite >/dev/null 2>&1 || _notrun "pmlogrewrite not installed"
 
 status=0	# success is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 _filter()
@@ -31,10 +30,10 @@ _cmp()
 {
     for file in $1.*
     do
-	ls -l $file $2`echo $file | sed -e "s;$1;;"` >>$seq.full
+	ls -l $file $2`echo $file | sed -e "s;$1;;"` >>$seq_full
     done
-    pmdumplog -z -dilmst $1 | tee -a $seq.full >$tmp.in
-    pmdumplog -z -dilmst $2 | tee -a $seq.full >$tmp.out
+    pmdumplog -z -dilmst $1 | tee -a $seq_full >$tmp.in
+    pmdumplog -z -dilmst $2 | tee -a $seq_full >$tmp.out
     echo "pmdumplog diffs ..."
     diff -u $tmp.in $tmp.out | _filter
 }
@@ -49,11 +48,11 @@ for arch in archives/ok-foo archives/541380_v2 archives/mirage tmparch/bigbin \
 	archives/ok-mv-foo archives/mirage-1 archives/mirage-2 tmparch/gap \
 	tmparch/gap2 '-Dall archives/ok-foo'
 do
-    echo | tee -a $seq.full
-    echo "=== $arch ===" | tee -a $seq.full
+    echo | tee -a $seq_full
+    echo "=== $arch ===" | tee -a $seq_full
     rm -f $tmp.new.*
     pmlogrewrite -w -Dappl0,log $arch $tmp.new 2>$tmp.err | _filter
-    cat $tmp.err >>$seq.full
+    cat $tmp.err >>$seq_full
     # strip any command line options preceding the archive basename
     arch=`echo $arch | sed -e 's/.* //'`
     _cmp $arch $tmp.new

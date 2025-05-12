@@ -22,10 +22,10 @@ Note: timezone set to local timezone of host "app1" from archive
     129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 0
 
 08:30:47.856414 1 metric
-    129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 3
+    129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 2
 
 08:50:47.856414 1 metric
-    129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 4
+    129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 1
 
 09:10:47.856414 1 metric
     129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 1
@@ -43,10 +43,10 @@ Note: timezone set to local timezone of host "app1" from archive
     129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 3
 
 10:50:47.856414 1 metric
-    129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 4
+    129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 0
 
 11:10:47.856414 1 metric
-    129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 7
+    129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 6
 
 ==============================================
 -A 15m -S +8h -T +2h -t 15min ... expect 9 results
@@ -68,31 +68,31 @@ Note: timezone set to local timezone of host "app1" from archive
 
 
 08:15:00.000000 1 metric
-    129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 1
+    129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 4
 
 08:30:00.000000 1 metric
-    129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 2
+    129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 3
 
 08:45:00.000000 1 metric
-    129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 1
+    129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 2
 
 09:00:00.000000 1 metric
-    129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 7
+    129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 3
 
 09:15:00.000000 1 metric
     129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 3
 
 09:30:00.000000 1 metric
-    129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 2
-
-09:45:00.000000 1 metric
-    129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 7
-
-10:00:00.000000 1 metric
     129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 6
 
+09:45:00.000000 1 metric
+    129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 2
+
+10:00:00.000000 1 metric
+    129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 5
+
 10:15:00.000000 1 metric
-    129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 3
+    129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 2
 
 ==============================================
 -Z UTC -S @16:00:00 -T +2h -t 15min ... expect 9 results
@@ -114,7 +114,7 @@ Note: timezone set to "TZ=GMT"
 
 
 16:00:00.000000 1 metric
-    129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 0
+    129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 2
 
 16:15:00.000000 1 metric
     129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 0
@@ -126,7 +126,7 @@ Note: timezone set to "TZ=GMT"
     129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 0
 
 17:00:00.000000 1 metric
-    129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 0
+    129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 1
 
 17:15:00.000000 1 metric
     129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 0
@@ -153,13 +153,13 @@ Note: timezone set to local timezone of host "app1" from archive
     129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 1
 
 00:30:47.856414 1 metric
-    129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 2
+    129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 1
 
 00:40:47.856414 1 metric
     129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 1
 
 00:50:47.856414 1 metric
-    129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 1
+    129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 0
 
 01:00:47.856414 1 metric
     129.0.12 (aconex.connections.inuse): inst [0 or "mel"] value 0

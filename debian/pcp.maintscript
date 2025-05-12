@@ -1,0 +1,87 @@
+# == was previously in configversions ==
+
+# pmcd: config, options and rc.local
+#
+mv_conffile /var/lib/pcp/config/pmcd/pmcd.conf /etc/pcp/pmcd/pmcd.conf 3.7.0~ pcp
+mv_conffile /etc/pmcd/pmcd.conf /etc/pcp/pmcd/pmcd.conf 3.6.1~ pcp
+mv_conffile /var/lib/pcp/config/pmcd/pmcd.options /etc/pcp/pmcd/pmcd.options 3.7.0~ pcp
+mv_conffile /etc/pmcd/pmcd.options /etc/pcp/pmcd/pmcd.options 3.6.1~ pcp
+mv_conffile /var/lib/pcp/config/pmcd/rc.local /etc/pcp/pmcd/rc.local 3.7.0~ pcp
+mv_conffile /etc/pmcd/rc.local /etc/pcp/pmcd/FILE 3.6.1~ pcp
+
+# pmie: control
+#
+mv_conffile /var/lib/pcp/config/pmie/control /etc/pcp/pmie/control 3.7.0~ pcp
+mv_conffile /etc/pmie/control /etc/pcp/pmie/control 3.6.1~ pcp
+
+# pmproxy: options
+#
+mv_conffile /var/lib/pcp/config/pmproxy/pmproxy.options /etc/pcp/pmproxy/pmproxy.options 3.7.0~ pcp
+mv_conffile /etc/pmproxy/pmproxy.options /etc/pcp/pmproxy/pmproxy.options 3.6.1~ pcp
+
+# pmlogger: control
+#
+mv_conffile /var/lib/pcp/config/pmlogger/control /etc/pcp/pmlogger/control 3.7.0~ pcp
+mv_conffile /etc/pmlogger/control /etc/pcp/pmlogger/control 3.6.1~ pcp
+
+# == was previously in cull_old_conffiles ==
+rm_conffile /etc/bash_completion.d/pcp
+rm_conffile /etc/cron.d/pcp-pmie
+rm_conffile /etc/cron.d/pcp-pmlogger
+rm_conffile /etc/cron.d/pcp-pmlogger-daily-report
+rm_conffile /etc/pcp.sh
+rm_conffile /etc/pcp/htop/columns/container
+rm_conffile /etc/pcp/htop/columns/delayacct
+rm_conffile /etc/pcp/htop/columns/fdcount
+rm_conffile /etc/pcp/htop/columns/guest
+rm_conffile /etc/pcp/htop/columns/memory
+rm_conffile /etc/pcp/htop/columns/sched
+rm_conffile /etc/pcp/htop/columns/swap
+rm_conffile /etc/pcp/htop/columns/tcp
+rm_conffile /etc/pcp/htop/columns/udp
+rm_conffile /etc/pcp/htop/columns/wchan
+rm_conffile /etc/pcp/htop/meters/entropy
+rm_conffile /etc/pcp/htop/meters/freespace
+rm_conffile /etc/pcp/htop/meters/ipc
+rm_conffile /etc/pcp/htop/meters/locks
+rm_conffile /etc/pcp/htop/meters/memcache
+rm_conffile /etc/pcp/htop/meters/mysql
+rm_conffile /etc/pcp/htop/meters/postfix
+rm_conffile /etc/pcp/htop/meters/redis
+rm_conffile /etc/pcp/htop/meters/tcp
+rm_conffile /etc/pcp/openmetrics/config.d/collectd.url
+rm_conffile /etc/pcp/openmetrics/config.d/etcd.url
+rm_conffile /etc/pcp/openmetrics/config.d/grafana.url
+rm_conffile /etc/pcp/pmlogconf/kernel/interrupts-irix
+rm_conffile /etc/pcp/pmlogconf/kernel/memory-irix
+rm_conffile /etc/pcp/pmlogconf/kernel/queues-irix
+rm_conffile /etc/pcp/pmlogconf/kernel/syscalls-irix
+rm_conffile /etc/pcp/pmlogconf/kernel/syscalls-percpu-irix
+rm_conffile /etc/pcp/pmlogconf/memory/tlb-irix
+rm_conffile /etc/pcp/pmlogconf/networking/socket-irix
+rm_conffile /etc/pcp/pmlogconf/networking/tcp-activity-irix
+rm_conffile /etc/pcp/pmlogconf/networking/udp-packets-irix
+rm_conffile /etc/pcp/pmlogconf/sgi/cpu-evctr
+rm_conffile /etc/pcp/pmlogconf/sgi/craylink
+rm_conffile /etc/pcp/pmlogconf/sgi/efs
+rm_conffile /etc/pcp/pmlogconf/sgi/hub
+rm_conffile /etc/pcp/pmlogconf/sgi/kaio
+rm_conffile /etc/pcp/pmlogconf/sgi/node-memory
+rm_conffile /etc/pcp/pmlogconf/sgi/numa
+rm_conffile /etc/pcp/pmlogconf/sgi/numa-summary
+rm_conffile /etc/pcp/pmlogconf/sgi/xbow
+rm_conffile /etc/pcp/pmlogconf/sgi/xlv-activity
+rm_conffile /etc/pcp/pmlogconf/sgi/xlv-stripe-io
+rm_conffile /etc/pcp/pmlogconf/sgi/xvm-all
+rm_conffile /etc/pcp/pmlogconf/sgi/xvm-ops
+rm_conffile /etc/pcp/pmlogconf/sgi/xvm-stats
+rm_conffile /etc/pcp/pmlogconf/v1.0/C2
+rm_conffile /etc/pcp/pmlogconf/v1.0/C3
+rm_conffile /etc/pcp/pmlogconf/v1.0/D3
+rm_conffile /etc/pcp/pmlogconf/v1.0/K0
+rm_conffile /etc/pcp/pmlogconf/v1.0/S0
+rm_conffile /etc/pcp/pmlogconf/v1.0/S1
+rm_conffile /etc/pcp/pmproxy/pmproxy.defaults
+rm_conffile /etc/pcp/pmrep/iostat_v12_3.conf
+rm_conffile /etc/pcp/pmrep/pmrep.conf
+rm_conffile /etc/pcp/pmrep/sar-old-kernel.conf

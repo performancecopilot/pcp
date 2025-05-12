@@ -115,7 +115,8 @@ saroptions(void)
 	/*
 	** add generic flags
 	*/
-	return strncat(allflags, sarflags, pricnt+32 - 1);
+	pmstrncat(allflags, pricnt+32, sarflags);
+	return allflags;
 }
 
 int
@@ -247,7 +248,7 @@ atopsar(int argc, char *argv[])
 			char	*endnum, *arg;
 
 			arg = argv[opts.optind++];
-			if (pmParseInterval(arg, &opts.interval, &endnum) < 0)
+			if (pmParseHighResInterval(arg, &opts.interval, &endnum) < 0)
 			{
 				pmprintf(
 			"%s: %s option not in pmParseInterval(3) format:\n%s\n",
@@ -287,8 +288,10 @@ atopsar(int argc, char *argv[])
 	if (opts.samples > 0)
 		nsamples = opts.samples + 1;
 
-	if (opts.interval.tv_sec || opts.interval.tv_usec)
-		interval = opts.interval;
+	if (opts.interval.tv_sec || opts.interval.tv_nsec) {
+		interval.tv_sec = opts.interval.tv_sec;
+		interval.tv_usec = opts.interval.tv_nsec / 1000;
+	}
 
 	/*
 	** if no report-flags have been specified, take the first

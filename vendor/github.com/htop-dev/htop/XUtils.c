@@ -63,7 +63,7 @@ void* xCalloc(size_t nmemb, size_t size) {
 
 void* xRealloc(void* ptr, size_t size) {
    assert(size > 0);
-   void* data = size ? realloc(ptr, size) : NULL; // deepcode ignore MemoryLeakOnRealloc: this goes to fail()
+   void* data = realloc(ptr, size);
    if (!data) {
       /* free'ing ptr here causes an indirect memory leak if pointers
        * are held as part of an potential array referenced in ptr.
@@ -186,13 +186,13 @@ void String_freeArray(char** s) {
    free(s);
 }
 
-char* String_readLine(FILE* fd) {
+char* String_readLine(FILE* fp) {
    const size_t step = 1024;
    size_t bufSize = step;
    char* buffer = xMalloc(step + 1);
    char* at = buffer;
    for (;;) {
-      const char* ok = fgets(at, step + 1, fd);
+      const char* ok = fgets(at, step + 1, fp);
       if (!ok) {
          free(buffer);
          return NULL;
@@ -202,7 +202,7 @@ char* String_readLine(FILE* fd) {
          *newLine = '\0';
          return buffer;
       } else {
-         if (feof(fd)) {
+         if (feof(fp)) {
             return buffer;
          }
       }
@@ -238,6 +238,8 @@ int xAsprintf(char** strp, const char* fmt, ...) {
 }
 
 int xSnprintf(char* buf, size_t len, const char* fmt, ...) {
+   assert(len > 0);
+
    va_list vl;
    va_start(vl, fmt);
    int n = vsnprintf(buf, len, fmt, vl);
@@ -371,3 +373,32 @@ double sumPositiveValues(const double* array, size_t count) {
    }
    return sum;
 }
+
+/* Counts the number of digits needed to print "n" with a given base.
+   If "n" is zero, returns 1. This function expects small numbers to
+   appear often, hence it uses a O(log(n)) time algorithm. */
+size_t countDigits(size_t n, size_t base) {
+   assert(base > 1);
+   size_t res = 1;
+   for (size_t limit = base; n >= limit; limit *= base) {
+      res++;
+      if (base && limit > SIZE_MAX / base) {
+         break;
+      }
+   }
+   return res;
+}
+
+#if !defined(HAVE_BUILTIN_CTZ)
+// map a bit value mod 37 to its position
+static const uint8_t mod37BitPosition[] = {
+  32, 0, 1, 26, 2, 23, 27, 0, 3, 16, 24, 30, 28, 11, 0, 13, 4,
+  7, 17, 0, 25, 22, 31, 15, 29, 10, 12, 6, 0, 21, 14, 9, 5,
+  20, 8, 19, 18
+};
+
+/* Returns the number of trailing zero bits */
+unsigned int countTrailingZeros(unsigned int x) {
+   return mod37BitPosition[(-x & x) % 37];
+}
+#endif

@@ -340,6 +340,10 @@ PMID 29.0.168 sample.updown.control.step: increment or decrement value for sampl
 
 PMID 29.0.169 sample.not_ready_msec: interval (in milliseconds) during which PMDA does not respond to PDUs
 
+PMID 29.0.170 sample.updown.control.mode: up-down mode for sample.updown.obs
+
+PMID 29.0.171 sample.updown.control.reset: reset all controls for sample.updown.obs
+
 PMID 29.0.1000: dynamic sample.secret.bar metric
 
 PMID 29.0.1001: dynamic sample.secret.foo.one metric

@@ -85,7 +85,7 @@ CULLAFTER=14
 #
 COMPRESS=xz
 COMPRESSAFTER=""
-COMPRESSREGEX="\.(meta|index|Z|gz|bz2|zip|xz|lzma|lzo|lz4)$"
+COMPRESSREGEX="\.(meta|index|Z|gz|bz2|zip|xz|lzma|lzo|lz4|zst)$"
 
 # mail addresses to send daily logfile summary to
 #
@@ -448,7 +448,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	    rm -f $tmp/stamp
 	    for try in 1 2 3 4
 	    do
-		if pmlock -v lock >$tmp/out
+		if pmlock -i "$$ pmie_daily" -v lock >$tmp/out 2>&1
 		then
 		    echo $dir/lock >$tmp/lock
 		    fail=false
@@ -478,6 +478,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 		then
 		    echo "$prog: Warning: is another PCP cron job running concurrently?"
 		    LC_TIME=POSIX ls -l $dir/lock
+		    [ -s $logfile.lock ] && cat $logfile.lock
 		else
 		    echo "$prog: `cat $tmp/out`"
 		fi

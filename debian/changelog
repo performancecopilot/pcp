@@ -1,6 +1,57 @@
+pcp (7.0.0-1) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+  * build needs postfix for postfix PMDA (closes: #929368)
+  * build needs libsystemd-dev for systemd PMDA (closes: #929372)
+  * build needs libxml-libxml-perl and libfile-slurp-perl for bind2 PMDA (closes: #929376)
+  * build needs libyaml-libyaml-perl and libjson-perl for nutcracker PMDA (closes: #929377)
+  * build needs python3-rtslib-fb for lio PMDA (closes: #929378)
+  * build needs python3-libvirt and python3-lxml for libvirt PMDA (closes: #929379)
+  * build needs python3-bpfcc for bcc PMDA [fixed earlier] (closes: #929371)
+  * pmda postgresql not installed [fixed earlier] (closes: #985966)
+  * build needs libdrm-dev for amdgpu PMDA
+  * build needs python3-pymongo for mongodb PMDA
+  * build needs libjson-perl for activemq PMDA
+  * build needs python3-urllib3 for elasticsearch PMDA
+  * build needs libdbi-perl and libdbd-mysql-perl for mysql and oracle PMDA
+  * build needs python3-pyodbc for mssql PMDA
+  * build needs python3-requests for openmetrics PMDA
+  * build needs libnet-snmp-perl for snmp PMDA
+
+ -- Nathan Scott <nathans@debian.org>  Tue, 01 Jul 2025 07:39:11 +1000
+
+pcp (6.3.3-1) unstable; urgency=low
+
+  * 6.3.2 release plus fixes for Debian build issues
+  * don't dink with /var/run/pcp in pcp.postinst (closes: #1071103)
+  * avoid dangling systemd symlinks on purge (closes: #986074)
+  * change to allow Rules-Requires-Root: no in build (closes: #1089409)
+
+ -- Nathan Scott <nathans@debian.org>  Wed, 29 Jan 2025 09:25:03 +1100
+
+pcp (6.3.2-1) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Wed, 06 Nov 2024 09:26:47 +1100
+
+pcp (6.3.1-1) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+  * Fix build dependency on python3-setuptools (closes: #1080703)
+
+ -- Nathan Scott <nathans@debian.org>  Tue, 17 Sep 2024 10:27:34 +1000
+
+pcp (6.3.0-1) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Tue, 30 Jul 2024 09:18:12 +1000
+
 pcp (6.2.2-1) unstable; urgency=low
 
   * New release (full details in CHANGELOG).
+  * Fix build dependency on [lib]systemd-dev (closes: #1060493)
   * Relocate pmcheck to resolve a Perl conflict (closes: #1071010)
 
  -- Nathan Scott <nathans@debian.org>  Wed, 15 May 2024 06:22:01 +1000

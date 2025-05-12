@@ -277,6 +277,14 @@ hacluster_pacemaker_nodes_fetch(int item, struct nodes *nodes, pmAtomValue *atom
 			atom->cp = nodes->type;
 			return PMDA_FETCH_STATIC;
 
+		case PACEMAKER_NODES_HEALTH:
+			atom->cp = nodes->health;
+			return PMDA_FETCH_STATIC;
+
+		case PACEMAKER_NODES_FEATURE_SET:
+			atom->cp = nodes->feature_set;
+			return PMDA_FETCH_STATIC;
+
 		default:
 			return PM_ERR_PMID;
 
@@ -535,13 +543,15 @@ hacluster_refresh_pacemaker_nodes(const char *node_name, struct nodes *nodes)
 		/* Collect our node names */
 		if (found_nodes && strstr(buffer, node_name)) {
 		        if(strstr(buffer, "feature_set")) {
-		                sscanf(buffer, "%*s %*s %*s online=\"%9[^\"]\" standby=\"%9[^\"]\" standby_onfail=\"%9[^\"]\" maintenance=\"%9[^\"]\" pending=\"%9[^\"]\" unclean=\"%9[^\"]\" %*s %*s shutdown=\"%9[^\"]\" expected_up=\"%9[^\"]\" is_dc =\"%9[^\"]\" %*s type=\"%9[^\"]\"",
+		                sscanf(buffer, "%*s %*s %*s online=\"%9[^\"]\" standby=\"%9[^\"]\" standby_onfail=\"%9[^\"]\" maintenance=\"%9[^\"]\" pending=\"%9[^\"]\" unclean=\"%9[^\"]\" health=\"%9[^\"]\" feature_set =\"%9[^\"]\" shutdown=\"%9[^\"]\" expected_up=\"%9[^\"]\" is_dc =\"%9[^\"]\" %*s type=\"%9[^\"]\"",
 				        online,
 				        standby,
 				        standby_on_fail,
 				        maintenance,
 				        pending,
 				        unclean,
+				        nodes->health,
+				        nodes->feature_set,
 				        shutdown,
 				        expected_up,
 				        dc,
@@ -707,6 +717,7 @@ hacluster_refresh_pacemaker_resources(const char *instance_name, struct resource
 			/* Collect our metrics */
 			if (strstr(buffer, "resource id=") && strstr(buffer, resource_id)) {
 
+                                /* Pacemaker v2.14 and prior crm_mon format */
 				if (strstr(buffer, "target_role")) { 
 					sscanf(buffer, "%*s %*s resource_agent=\"%[^\"]\" role=\"%[^\"]\" %*s active=\"%7[^\"]\" orphaned=\"%7[^\"]\" blocked=\"%7[^\"]\" managed=\"%7[^\"]\" failed=\"%7[^\"]\" failure_ignored=\"%7[^\"]\"",
 						resources->agent,
@@ -718,6 +729,21 @@ hacluster_refresh_pacemaker_resources(const char *instance_name, struct resource
 						failed,
 						failure_ignored
 					);
+
+                                /* Pacemaker v2.16+ crm_mon format */
+                                } else if (strstr(buffer, "maintenance")) {
+					sscanf(buffer, "%*s %*s resource_agent=\"%[^\"]\" role=\"%[^\"]\" active=\"%7[^\"]\" orphaned=\"%7[^\"]\" blocked=\"%7[^\"]\" %*s managed=\"%7[^\"]\" failed=\"%7[^\"]\" failure_ignored=\"%7[^\"]\"",
+						resources->agent,
+						resources->role,
+						active,
+						orphaned,
+						blocked,
+						managed,
+						failed,
+						failure_ignored
+					);
+
+				/* Pacemaker v2.15 crm_mon format */
 				} else {
 					sscanf(buffer, "%*s %*s resource_agent=\"%[^\"]\" role=\"%[^\"]\" active=\"%7[^\"]\" orphaned=\"%7[^\"]\" blocked=\"%7[^\"]\" managed=\"%7[^\"]\" failed=\"%7[^\"]\" failure_ignored=\"%7[^\"]\"",
 						resources->agent,

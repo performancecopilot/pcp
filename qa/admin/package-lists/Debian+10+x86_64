@@ -40,12 +40,14 @@ libcmocka-dev
 libdbd-mysql-perl
 libdbd-pg-perl
 libdevmapper-dev
+libdrm-dev
 libextutils-autoinstall-perl
 libfile-slurp-perl
 libgl1-mesa-dri
 libibmad-dev
 libibumad-dev
 libicu63
+libinih-dev
 libjson-perl
 liblist-moreutils-perl
 liblzma-dev
@@ -128,6 +130,7 @@ smartmontools
 socat
 sysstat
 systemtap-sdt-dev
+targetcli-fb
 time
 unbound
 valgrind
@@ -135,3 +138,4 @@ xfsprogs
 xkb-data
 zabbix-agent
 zlib1g-dev
+zstd

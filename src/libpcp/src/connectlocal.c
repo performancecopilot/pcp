@@ -88,8 +88,7 @@ build_dsotab(void)
 	return PM_ERR_GENERIC;
     if ((config = pmGetOptionalConfig("PCP_PMCDCONF_PATH")) == NULL)
 	return PM_ERR_GENERIC;
-    strncpy(configFileName, config, sizeof(configFileName));
-    configFileName[sizeof(configFileName) - 1] = '\0';
+    pmstrncpy(configFileName, sizeof(configFileName), config);
     if (pmDebugOptions.context) {
 	fprintf(stderr, "build_dsotab: parsing %s\n", configFileName);
     }
@@ -124,6 +123,19 @@ build_dsotab(void)
 	     * pmcd process, so we skip this one
 	     */
 	    goto eatline;
+	}
+	if (strncmp(p, "proc", 4) == 0) {
+	    /*
+	     * the proc PMDA is an exception now too ... we run it as root
+	     * (daemon) but we still want to make the DSO available for any
+	     * local context users.  We add this explicitly below.
+	     */
+	    domain = 3;
+	    init = "proc_init";
+	    pmsprintf(pathbuf, sizeof(pathbuf), "%s/proc/pmda_proc.so", pmdas);
+	    name = pathbuf;
+	    peekc = *p;
+	    goto dsoload;
 	}
 	if (strncmp(p, "linux", 5) == 0) {
 	    /*
@@ -464,7 +476,7 @@ connected:
 		dp->domain = -1;
 	    }
 	    else if (dp->dispatch.comm.pmapi_version != PMAPI_VERSION_2 &&
-		     dp->dispatch.comm.pmapi_version != PMAPI_VERSION_3) {
+		     dp->dispatch.comm.pmapi_version != PMAPI_VERSION_4) {
 		pmprintf("__pmConnectLocal: Error: Unknown PMAPI version %d "
 			 "in \"%s\" DSO\n",
 			 dp->dispatch.comm.pmapi_version, dp->name);

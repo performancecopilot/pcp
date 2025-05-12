@@ -1,4 +1,4 @@
-'\"macro stdmacro
+'\" t
 .\"
 .\" Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
 .\" Copyright (c) 2008, Aconex.  All Rights Reserved.
@@ -24,6 +24,7 @@
 [\f3\-A\f1 \f2align\f1]
 [\fB\-\-archive\-folio\fP \fIfolio\fP]
 [\f3\-c\f1 \f2configfile\f1]
+[\f3\-D\f1 \f2debug\f1]
 [\f3\-f\f1 \f2fontfamily\f1]
 [\f3\-F\f1 \f2fontsize\f1]
 [\f3\-g\f1 \f2geometry\f1]
@@ -731,6 +732,36 @@ area of Recording) maintain a consistent look-and-feel with the
 rest of the
 .B pmchart
 application.
+.SH DEBUGGING OPTIONS
+The
+.B \-D
+or
+.B \-\-debug
+option enables the output of additional diagnostics on
+.I stderr
+to help triage problems, although the information is sometimes cryptic and
+primarily intended to provide guidance for developers rather end-users.
+.I debug
+is a comma separated list of debugging options; use
+.BR pmdbg (1)
+with the
+.B \-l
+option to obtain
+a list of the available debugging options and their meaning.
+.PP
+Debugging options specific to
+.B pmchart
+are as follows:
+.TS
+box;
+lf(B) | lf(B)
+lf(B) | lf(R) .
+Option	Description
+_
+appl2	view parsing and loading
+_
+appl3	lexical scanner from view parsing
+.TE
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pmafm (1),

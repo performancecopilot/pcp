@@ -1,0 +1,9 @@
+#pmlogconf-setup 2.0
+ident   Hyper-V virtual machine memory ballooning metrics
+probe	hyperv.balloon.state > 0 ? include : exclude
+delta	once
+
+	hyperv.balloon.added
+	hyperv.balloon.onlined
+	hyperv.balloon.pagesize
+	hyperv.balloon.state

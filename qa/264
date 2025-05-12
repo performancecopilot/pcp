@@ -17,14 +17,9 @@ status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-
 src/pmnsinarchives >$tmp.out 2>$tmp.err
 cat $tmp.err
 cat $tmp.out
-
-# optional stuff if your test has verbose output to help resolve problems
-#echo
-#echo "If failure, check $seq.full (this) and $seq.full.ok (reference)"
 
 # success, all done
 status=0

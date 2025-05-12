@@ -36,7 +36,7 @@ _cleanup()
 	# reinstall the sample PMDA ... the PMNS will have been trashed
 	#
 	cd $PCP_VAR_DIR/pmdas/sample
-	$sudo ./Install </dev/null >>$here/$seq.full
+	$sudo ./Install </dev/null >>$seq_full
 	done_clean=true
     fi
     cd $here
@@ -47,12 +47,12 @@ _cleanup()
 _fixup()
 {
     $sudo cp $PCP_PMCDCONF_PATH.$seq $PCP_PMCDCONF_PATH
-    _service pmcd restart 2>&1 | _filter_pcp_start
-    _wait_for_pmcd
+    if ! _service pmcd restart 2>&1; then _exit 1; fi | _filter_pcp_start
+    _wait_for_pmcd || _exit 1
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full $here/$seq.dir
+$sudo rm -rf $here/$seq.dir
 trap "_cleanup; exit \$status" 0 1 2 3 15
 done_clean=false
 _save_config $PCP_PMCDCONF_PATH
@@ -104,7 +104,7 @@ fi
 #
 if [ ! -x $PCP_VAR_DIR/pmdas/trivial/pmdatrivial ]
 then
-    ( cd $PCP_VAR_DIR/pmdas/trivial; $sudo $PCP_MAKE_PROG pmdatrivial ) >>$here/$seq.full
+    ( cd $PCP_VAR_DIR/pmdas/trivial; $sudo $PCP_MAKE_PROG pmdatrivial ) >>$seq_full
     if [ ! -x $PCP_VAR_DIR/pmdas/trivial/pmdatrivial ]
     then
 	echo "Arrgh: cannot make $PCP_VAR_DIR/pmdas/pmdatrivial"
@@ -123,28 +123,28 @@ cp $PCP_VAR_DIR/pmdas/trivial/pmdatrivial pmdawhacko
 #
 echo '#define WHACKO 241' >domain.h
 
-( echo "--- initial state"; cat $PCP_PMCDCONF_PATH ) >>$here/$seq.full
+( echo "--- initial state"; cat $PCP_PMCDCONF_PATH ) >>$seq_full
 
-echo "=== no-error case ===" | tee -a $here/$seq.full
+echo "=== no-error case ===" | tee -a $seq_full
 $sudo ./Install </dev/null 2>&1 | _filter_cull
-( echo "--- after Install"; cat $PCP_PMCDCONF_PATH ) >>$here/$seq.full
+( echo "--- after Install"; cat $PCP_PMCDCONF_PATH ) >>$seq_full
 pminfo -mf whacko | _filter
 pminfo -f pmcd.agent.status | grep -E 'whacko|sample'
 $sudo ./Remove 2>&1 | _filter_cull
-( echo "--- after Remove"; cat $PCP_PMCDCONF_PATH ) >>$here/$seq.full
+( echo "--- after Remove"; cat $PCP_PMCDCONF_PATH ) >>$seq_full
 pminfo -mf whacko | _filter
 pminfo -f pmcd.agent.status | grep -E 'whacko|sample'
 
-echo | tee -a $here/$seq.full
-echo "=== domain number clash case ... will clobber and remove sample PMDA ===" | tee -a $here/$seq.full
+echo | tee -a $seq_full
+echo "=== domain number clash case ... will clobber and remove sample PMDA ===" | tee -a $seq_full
 # borrow sample PMDA's domain
 echo '#define WHACKO 29' >domain.h
 $sudo ./Install </dev/null 2>&1 | _filter_cull
-( echo "--- after Install"; cat $PCP_PMCDCONF_PATH ) >>$here/$seq.full
+( echo "--- after Install"; cat $PCP_PMCDCONF_PATH ) >>$seq_full
 pminfo -mf whacko | _filter
 pminfo -f pmcd.agent.status | grep -E 'whacko|sample'
 $sudo ./Remove 2>&1 | _filter_cull
-( echo "--- after Remove"; cat $PCP_PMCDCONF_PATH ) >>$here/$seq.full
+( echo "--- after Remove"; cat $PCP_PMCDCONF_PATH ) >>$seq_full
 pminfo -mf whacko | _filter
 pminfo -f pmcd.agent.status | grep -E 'whacko|sample'
 
@@ -153,8 +153,8 @@ pminfo -f pmcd.agent.status | grep -E 'whacko|sample'
 # Note we have to do this again after the next test (before exiting)
 # in _cleanup()
 #
-_fixup >>$here/$seq.full
-( cd $PCP_VAR_DIR/pmdas/sample; $sudo ./Install </dev/null ) >>$here/$seq.full
+_fixup >>$seq_full
+( cd $PCP_VAR_DIR/pmdas/sample; $sudo ./Install </dev/null ) >>$seq_full
 
 # for this one, we need the parent directory to be called sample, not
 # whacko to dodge a check in pmdaproc.sh
@@ -162,17 +162,17 @@ _fixup >>$here/$seq.full
 cd ..
 mv whacko sample
 cd sample
-echo | tee -a $here/$seq.full
-echo "=== domain name clash case ... will clobber and remove sample PMDA ===" | tee -a $here/$seq.full
+echo | tee -a $seq_full
+echo "=== domain name clash case ... will clobber and remove sample PMDA ===" | tee -a $seq_full
 # borrow ../schizo's domain again
 #
 echo '#define WHACKO 241' >domain.h
 $sudo sh -c "iam=sample ./Install" </dev/null 2>&1 | _filter_cull
-( echo "--- after Install"; cat $PCP_PMCDCONF_PATH ) >>$here/$seq.full
+( echo "--- after Install"; cat $PCP_PMCDCONF_PATH ) >>$seq_full
 pminfo -mf whacko | _filter
 pminfo -f pmcd.agent.status | grep -E 'whacko|sample'
 $sudo sh -c "iam=sample ./Remove" 2>&1 | _filter_cull
-( echo "--- after Remove"; cat $PCP_PMCDCONF_PATH ) >>$here/$seq.full
+( echo "--- after Remove"; cat $PCP_PMCDCONF_PATH ) >>$seq_full
 pminfo -mf whacko | _filter
 pminfo -f pmcd.agent.status | grep -E 'whacko|sample'
 

@@ -310,6 +310,37 @@ End-of-File
 
 }
 
+_setpmcdlimits()
+{
+    __check=`pmprobe -h $QA_HOST -v pmcd.limits.contexts | $PCP_AWK_PROG 'NF == 3 && $2 == 1 { print $3 }'`
+    if [ -n "$__check" -a $__check != 512 ]
+    then
+	pminfo -h $QA_HOST -f pmcd.limits.contexts
+	echo "PMCD connection limits not 512 as required"
+	echo "fix options, and restart PMCD"
+	[ -z "PCP_PMCDOPTIONS_PATH" ] && \
+	      PCP_PMCDOPTIONS_PATH="$PCP_SYSCONF_DIR/pmcd/pmcd.options"
+	PCPQA_PMCDOPTIONS="$PCP_PMCDOPTIONS_PATH"
+	sed <$PCPQA_PMCDOPTIONS >$tmp.tmp -e '/^-C/s/^/#/'
+	cat >>$tmp.tmp <<End-of-File
+
+# Installed by PCP QA common on `date`
+-C 512
+End-of-File
+	$sudo cp $tmp.tmp $PCPQA_PMCDOPTIONS
+	__grp=root
+	case $PCP_PLATFORM
+	in
+	    freebsd|netbsd|openbsd)
+		    __grp=wheel
+		    ;;
+	esac
+	$sudo chown root:$__grp $PCPQA_PMCDOPTIONS
+	_service pmcd restart
+	_wait_for_pmcd
+    fi
+}
+
 _setenvironment
 
 __check=${__check-true}
@@ -831,6 +862,7 @@ then
     then
 	echo "Is pmcd running on localhost?  Simple test produces ..."
 	echo "$__x"
+	_triage_pmcd
 	exit 1
     fi
     # now try -h localhostname
@@ -897,6 +929,7 @@ else
     $OPTION_LOGGER && _havelogger
     $OPTION_REMOTE && _haveremote
     $OPTION_PMCD_TRACE && _havepmcdtrace
+    $OPTION_PMCD_LIMITS && _setpmcdlimits
 
     if [ -f GNUmakefile.install ]
     then
@@ -937,10 +970,10 @@ else
 	__prot=`ls -ldL "$__x" | sed -e 's/[ 	].*//'`
 	case $__prot
 	in
-	    dr?xr?xr?[xt]*)
+	    dr?x*)
 		;;
 	    *)
-		echo "Warning: parent directory $__x (mode:$__prot) not world readable and searchable"
+		echo "Warning: parent directory $__x (mode:$__prot) not owner readable and searchable"
 		;;
 	esac
 	__x=`dirname $__x`

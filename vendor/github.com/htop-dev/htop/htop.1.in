@@ -1,4 +1,4 @@
-.TH "HTOP" "1" "2024" "@PACKAGE_STRING@" "User Commands"
+.TH "HTOP" "1" "2025" "@PACKAGE_STRING@" "User Commands"
 .SH "NAME"
 htop, pcp-htop \- interactive process viewer
 .SH "SYNOPSIS"
@@ -62,9 +62,10 @@ Show only the given PIDs
 \fB\-s \-\-sort\-key COLUMN\fR
 Sort by this column (use \-\-sort\-key help for a column list).
 This will force a list view unless you specify -t at the same time.
+Sorting in tree mode applies to the direct children of each process.
 .TP
-\fB\-u \-\-user=USERNAME|UID\fR
-Show only the processes of a given user
+\fB\-u \-\-user[=USERNAME|UID]\fR
+Show only the processes of a given user, or self if omitted
 .TP
 \fB\-U \-\-no-unicode\fR
 Do not use unicode but ASCII characters for graph meters
@@ -85,13 +86,14 @@ requesting a sort order with -s.
 \fB\-H \-\-highlight-changes=DELAY\fR
 Highlight new and old processes
 .TP
-\fB   \-\-drop-capabilities[=off|basic|strict]\fR
-Linux only; requires libcap support.
+\fB\-\-drop-capabilities[=off|basic|strict]\fR
+Linux only; this option needs to have been enabled at compile-time and
+requires libcap support at runtime.
 .br
 Drop unneeded Linux capabilities.
-In strict mode features like killing, changing process priorities, and reading
-process delay accounting information will not work, due to less capabilities
-held.
+In strict mode features like killing, changing process priorities and reading
+process delay accounting information will not work due to fewer capabilities
+being held.
 .SH "INTERACTIVE COMMANDS"
 The following commands are supported while in
 .BR htop :
@@ -297,6 +299,9 @@ is active, the executable path (/proc/[pid]/exe) and the command name
 
 The program basename is highlighted if set in the configuration. Additional
 highlighting can be configured for stale executables (cf. EXE column below).
+
+The Command column should be the last column in each screen as can get very long
+and profits from being able to extend its length dynamically.
 .TP
 .B COMM
 The command name of the process obtained from /proc/[pid]/comm, if readable.
@@ -619,12 +624,23 @@ The
 .B pcp-htop
 utility makes use of
 .I htoprc
-in exactly the same way.
-In addition, it supports additional configuration files allowing
-new meters and columns to be added to the display via the usual
-Setup function, which will display additional Available Meters
-and Available Column entries for each runtime configured meter
-or column.
+in a similar way.
+However,
+.B pcp-htop
+reads its configuration from a path more conventionally used by
+Performance Co-Pilot tools,
+.IR ~/.pcp/htop/htoprc ,
+in order to provide separate configuration when both
+.B htop
+and
+.B pcp-htop
+are installed and in use.
+.B pcp-htop
+supports additional configuration files below the same directory
+allowing new meters, columns and screen tabs to be added via the
+Setup screen (F2).
+This displays additional Available Meters, Available Column and
+Screen Tabs for each meter, column or screen configuration file.
 .LP
 These
 .B pcp-htop
@@ -687,7 +703,7 @@ communities, and forms part of the Performance Co-Pilot suite of tools.
 .SH "COPYRIGHT"
 Copyright \(co 2004-2019 Hisham Muhammad.
 .br
-Copyright \(co 2020-2024 htop dev team.
+Copyright \(co 2020-2025 htop dev team.
 .LP
 License GPLv2+: GNU General Public License version 2 or, at your option, any later version.
 .LP

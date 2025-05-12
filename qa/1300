@@ -27,11 +27,15 @@ _cleanup()
 }
 
 status=0	# success is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-src/pmstrn 2 "" "" "" "" ""
+src/pmstrn 1 "a"
+src/pmstrn 1 "a" "b"
+
+echo
+src/pmstrn 2 "abc"
+src/pmstrn 2 "" "" "x" "y" "z"
 
 echo
 for i in 1 2 3 4 5 6 7 8 9
@@ -41,6 +45,9 @@ done
 
 echo 
 src/pmstrn 80 llan fair pwll gwyngyll gogerych wyrnd robwllll antysilio gogogoch
+
+echo 
+src/pmstrn 100 llan fair pwll gwyngyll gogerych wyrnd robwllll antysilio gogogoch "foo bar mumble fumble too much text here but do we trash the end of the buffer?"
 
 # success, all done
 exit

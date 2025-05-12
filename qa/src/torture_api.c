@@ -321,9 +321,9 @@ test_api(void)
 	struct timespec	when, delta = { 1, 0 };
 
 	_op++;
-	if ((n = pmGetHighResArchiveEnd(&when)) < 0) {
+	if ((n = pmGetArchiveEnd(&when)) < 0) {
 	    _err++;
-	    printf("pmGetHighResArchiveEnd: %s\n", pmErrStr(n));
+	    printf("pmGetArchiveEnd: %s\n", pmErrStr(n));
 	}
 
 	_op++;

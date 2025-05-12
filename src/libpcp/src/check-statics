@@ -47,9 +47,13 @@ _nm()
 	# 00000000000000a0 b xconfirm
 	# 0000000000000000 B pmProgname
 	#
+	# but skip lines like
+	# 73: 0000000000000000    16 OBJECT  LOCAL  DEFAULT   10 reltable.__pmDumpContext
+	#
 	readelf --wide --symbols "$1" 2>/dev/null \
 	| awk '
 $4 != "OBJECT"			{ next }
+$8 ~ /^reltable\./		{ next }
 $8 ~ /__FUNCTION__.*/		{ next }
 $8 ~ /__PRETTY_FUNCTION__.*/	{ next }
 $8 ~ /__func__\.[0-9].*/	{ next }
@@ -185,6 +189,7 @@ AF.o
     afid			# single-threaded PM_SCOPE_AF
     block			# single-threaded PM_SCOPE_AF
     root			# single-threaded PM_SCOPE_AF
+    gc				# single-threaded PM_SCOPE_AF
     ?afblock			# guarded by AF_lock mutex
     ?afsetup			# guarded by AF_lock mutex
     ?aftimer			# guarded by AF_lock mutex
@@ -238,8 +243,8 @@ connect.o
     proxy			# guarded by connect_lock mutex
 context.o
     contexts_lock		# local mutex
-    _mode			# const
-    being_initialized           # const
+    ?_mode			# const
+    ?being_initialized          # const
     def_backoff			# guarded by contexts_lock mutex
     backoff			# guarded by contexts_lock mutex
     n_backoff			# guarded by contexts_lock mutex
@@ -374,8 +379,7 @@ getdate.tab.o
 getopt.o
     ?paths                	# const, may be optimized away
     ?fallback                	# const, may be optimized away
-getopt2.o
-getopt3.o
+getopt_v2.o
 hash.o
 help.o
 instance.o
@@ -487,6 +491,7 @@ pdu.o
     tracenext			# guarded by pdu_lock mutex
 pmns.o
     pmns_lock			# local mutex
+    pmns_fix_lock		# local mutex
     lineno			# guarded by pmns_lock mutex
     export			# guarded by pmns_lock mutex
     fin				# guarded by pmns_lock mutex
@@ -579,6 +584,8 @@ util.o
     msgbuf			# guarded by util_lock mutex
     msgbuflen			# guarded by util_lock mutex
     msgsize			# guarded by util_lock mutex
+    squashed			# guarded by __pmLock_extcall mutex when set
+    				# in a one-trip initialization
     filename			# guarded by __pmLock_extcall mutex when set
     				# in a one-trip initialization
     ?base			# no unsafe side-effects, see notes in util.c

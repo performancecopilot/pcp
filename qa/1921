@@ -24,7 +24,6 @@ _cleanup()
 }
 
 status=0	# success is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 
 pmdasockets_install()
 {
@@ -35,7 +34,7 @@ pmdasockets_install()
     echo
     echo "=== sockets agent installation ==="
     $sudo ./Install </dev/null >$tmp.out 2>&1
-    cat $tmp.out >>$here/$seq.full
+    cat $tmp.out >>$seq_full
     # Check sockets metrics have appeared ... X metrics and Y values
     _filter_pmda_install <$tmp.out \
     | sed \
@@ -73,7 +72,7 @@ then
     exit
 else
     echo Passed LISTEN check
-    cat $tmp.out >> $here/$seq.full
+    cat $tmp.out >> $seq_full
 fi
 
 pcp ss -u > $tmp.out 2>&1
@@ -85,7 +84,7 @@ then
     exit
 else
     echo Passed UDP UNCONN check
-    cat $tmp.out >> $here/$seq.full
+    cat $tmp.out >> $seq_full
 fi
 
 pmdasockets_remove

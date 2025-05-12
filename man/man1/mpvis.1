@@ -1,0 +1,203 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 1997 Silicon Graphics, Inc.  All Rights Reserved.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.TH MPVIS 1 "" "Performance Co-Pilot"
+.SH NAME
+\f3mpvis\f1 \- visualize cpu utilization/performance
+.\" literals use .B or \f3
+.\" arguments use .I or \f2
+.SH SYNOPSIS
+\f3mpvis\f1
+[\f3\-biV\f1]
+[\f3\-r\f1 \f2rowlength\f1]
+[\f3\-R\f1 \f2rowlength\f1]
+[\f2pmview options\f1]
+[\f2cpuid ...\f1]
+.SH DESCRIPTION
+.B mpvis
+displays a three dimensional bar chart of CPU utilization.
+The display is updated with new values retrieved from the target
+.I host
+or
+.I archive
+every
+.I interval
+seconds (default is 2 seconds).
+.PP
+The height of the bars is proportional to the CPU utilization in each of
+the modes
+.B idle
+(with no I/O pending),
+.B wait
+(idle, but waiting for I/O - only visible in IRIX),
+.B intr
+(interrupt processing - only visible in IRIX),
+.B nice
+(nice state - only visible in Linux),
+.B sys
+(in the kernel) and
+.BR user .
+.PP
+The number of CPUs per row in the scene is governed by
+the default maximum row length, and the options \f3\-b\f1, \f3\-r\f1
+and \f3\-R\f1.  If none of these flags are specified, \f3mpvis\f1
+uses the default maximum row length to calculate the actual number
+of rows and columns in the view, according to:
+
+.nf
+	nrows = (ncpus + maxrowlen - 1) / maxrowlen
+	ncols = (ncpus + nrows - 1) / nrows.
+.fi
+
+The \f3\-r\f1 option uses the above algorithm, but allows the user
+to override the maximum row length.
+.PP
+The CPUs are sorted in ascending order.  They are displayed from
+left to right, and front to back (in the case where there is more
+than one row of CPUs).
+.PP
+The user can specify a list of CPUs as \f2cpuid\f1 arguments
+using the naming scheme reported by
+.sp 0.5v
+.ft CW
+.ti 1i
+$ pminfo -f kernel.percpu.cpu.user
+.sp 0.5v
+.ft R
+i.e. \c
+.BI cpu N
+or
+.BI cpu A : B
+depending on the operating system version and platform.
+Alternatively, if the
+.I cpuid
+argument contains one of the characters
+.B ^
+or
+.B .
+or
+.B [
+then
+.I cpuid
+will be treated as a regular expression in the style of
+.BR egrep (1)
+and the matching set of CPU names will be used instead of
+.IR cpuid .
+.PP
+If one or more
+.I cpuid
+arguments is specified,
+then only the CPUs in this list are
+displayed in the view.  The list of CPUs is sorted into
+ascending CPU number and
+they are displayed from left to right, and front to back
+(in the case where there is more than one row of CPUs).
+.PP
+.B mpvis
+generates a
+.BR pmview (1)
+configuration file, and passes most command line options to
+.BR pmview (1).
+Therefore, the command line options
+.BR \-A ,
+.BR \-a ,
+.BR \-C ,
+.BR \-h ,
+.BR \-n ,
+.BR \-O ,
+.BR \-p ,
+.BR \-S ,
+.BR \-t ,
+.BR \-T ,
+.BR \-Z
+and
+.BR \-z ,
+and the user interface are described in the
+.BR pmview (1)
+man page.
+.SH COMMAND LINE OPTIONS
+The
+.B mpvis
+specific options are:
+.IP \f3\-b\f1 4n
+Use a ratio for row:column of 1:8.  This option is best for large
+numbers of CPUs.  If the row length is not a factor of the number of CPUs,
+then the last row will be shorter than all other rows.  This option
+ignores the maximum row length.
+.IP \f3\-i\f1
+Label each CPU column with the CPU number.
+.IP \f3\-r\f1
+Split the view into a number of rows, where each row has a maximum
+length of \f2n\f1 CPUs.  This is a soft limit.  The actual row
+length is calculated by an algorithm (see above) which prduces
+a balanced view with no more than \f2n\f1 CPUs per row.
+.IP \f3\-R\f1
+Split the view into a number of rows, where each row has a length of
+\f2n\f1 CPUs.  This is a hard limit.  If the row length is not a
+factor of the number of CPUs, then the last row will be shorter
+than all other rows.
+.IP \f3\-V\f1
+Verbose mode \- output the generated
+.BR pmview (1)
+configuration file.
+.SH LAUNCH
+The behavior of
+.BR pmchart (1)
+when launched from
+.B mpvis
+is dependent on the number of CPUs in each row.  If there are more than 6 CPUs
+in a row then each chart will contain a separate metric, otherwise each
+chart will contain a separate CPU instance.
+.SH FILES
+.PD 0
+.TP 10
+.BI $PCP_VAR_DIR/config/pmlogger/config.mpvis
+A
+.BR pmlogger (1)
+configuration file for
+.B mpvis
+metrics.
+.TP
+.B $PCP_SHARE_DIR/lib/pmview-args
+Shell procedures for parsing
+.BR pmview (1)
+command line options.
+.PD
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (4).
+.SH SEE ALSO
+.BR dkvis (1),
+.BR nfsvis (1),
+.BR pmcd (1),
+.BR pmchart (1),
+.BR pmlogger (1)
+and
+.BR pmview (1).
+.P
+The
+.B CPU
+view for
+.BR pmchart (1).

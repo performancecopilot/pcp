@@ -1,6 +1,8 @@
 
 Package: pcp-gui
 Depends: ${shlibs:Depends}, ${misc:Depends}
+Breaks: pcp (<< 6.3.0)
+Replaces: pcp (<< 6.3.0)
 Suggests: pcp, pcp-doc, xvfb
 Architecture: any
 Description: Visualisation tools for the Performance Co-Pilot toolkit

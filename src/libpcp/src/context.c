@@ -35,6 +35,7 @@
 #include "internal.h"
 #include <string.h>
 #include <assert.h>
+#include <ctype.h>
 
 static __pmContext	**contexts;		/* array of context ptrs */
 static int		contexts_len;		/* number of contexts */
@@ -277,7 +278,7 @@ pmGetHostName(int handle, char *buf, int buflen)
 		if (resp->vset[0]->numval > 0 &&
 		    (resp->vset[0]->valfmt == PM_VAL_DPTR || resp->vset[0]->valfmt == PM_VAL_SPTR)) {
 		    /* pmcd.hostname present */
-		    strncpy(buf, resp->vset[0]->vlist[0].value.pval->vbuf, buflen);
+		    pmstrncpy(buf, buflen, resp->vset[0]->vlist[0].value.pval->vbuf);
 		    __pmFreeResult(resp);
 		    break;
 		}
@@ -296,7 +297,7 @@ pmGetHostName(int handle, char *buf, int buflen)
 		(strncmp(name, "localhost", 9) == 0)) /* localhost[46] */
 		gethostname(buf, buflen);
 	    else
-		strncpy(buf, name, buflen-1);
+		pmstrncpy(buf, buflen, name);
 	    break;
 
 	case PM_CONTEXT_LOCAL:
@@ -304,11 +305,10 @@ pmGetHostName(int handle, char *buf, int buflen)
 	    break;
 
 	case PM_CONTEXT_ARCHIVE:
-	    strncpy(buf, ctxp->c_archctl->ac_log->label.hostname, buflen-1);
+	    pmstrncpy(buf, buflen, ctxp->c_archctl->ac_log->label.hostname);
 	    break;
 	}
 
-	buf[buflen-1] = '\0';
 	PM_UNLOCK(ctxp->c_lock);
     }
 
@@ -398,6 +398,76 @@ initcontextlock(pthread_mutex_t *lock)
 #define initcontextlock(x)	do { } while (0)
 #endif
 
+int
+__pmCheckAttribute(__pmAttrKey attr, const char *name)
+{
+    const char *p;
+
+    switch (attr) {
+    case PCP_ATTR_CONTAINER:
+	/*
+	 * Container names are parsed later as part of JSONB labelsets,
+	 * ensure the name is drawn from a limited character set that
+	 * is not going to result in conflicts with any other uses.
+	 */
+	for (p = name; *p; p++) {
+	    if (isalnum(*p) || *p == '.' || *p == '-' || *p == '_')
+		continue;
+	    return -EINVAL;
+	}
+	if (p == name)
+	    return -EINVAL;
+	break;
+
+    case PCP_ATTR_USERNAME:
+	/*
+	 * Check for POSIX user names - alphabetics, digits, period,
+	 * underscore, and hyphen, with the further restriction that
+	 * hyphen is not allowed as first character of a user name.
+	 */
+	if (name[0] == '-' || name[0] == '\0')
+	    return -EINVAL;
+	for (p = name; *p; p++) {
+	    if (isalnum(*p) || *p == '.' || *p == '-' || *p == '_')
+		continue;
+	    return -EINVAL;
+	}
+	break;
+
+    case PCP_ATTR_USERID:
+    case PCP_ATTR_GROUPID:
+    case PCP_ATTR_PROCESSID:
+	/*
+	 * PID, UID or GID must contain numeric characters only.
+	 */
+	for (p = name; *p; p++) {
+	    if (isdigit(*p))
+		continue;
+	    return -EINVAL;
+	}
+	if (p == name)
+	    return -EINVAL;
+	break;
+
+    case PCP_ATTR_PROTOCOL:
+    case PCP_ATTR_SECURE:
+    case PCP_ATTR_COMPRESS:
+    case PCP_ATTR_USERAUTH:
+    case PCP_ATTR_AUTHNAME:
+    case PCP_ATTR_PASSWORD:
+    case PCP_ATTR_METHOD:
+    case PCP_ATTR_REALM:
+    case PCP_ATTR_UNIXSOCK:
+    case PCP_ATTR_LOCAL:
+    case PCP_ATTR_EXCLUSIVE:
+	break;
+
+    default:
+	return -EINVAL;
+    }
+    return 0;
+}
+
 static int
 ctxlocal(__pmHashCtl *attrs)
 {
@@ -407,6 +477,10 @@ ctxlocal(__pmHashCtl *attrs)
 
     PM_LOCK(__pmLock_extcall);
     if ((container = getenv("PCP_CONTAINER")) != NULL) {	/* THREADSAFE */
+	if ((sts = __pmCheckAttribute(PCP_ATTR_CONTAINER, container)) < 0) {
+	    PM_UNLOCK(__pmLock_extcall);
+	    return sts;
+	}
 	if ((name = strdup(container)) == NULL) {
 	    PM_UNLOCK(__pmLock_extcall);
 	    return -ENOMEM;
@@ -471,6 +545,10 @@ ctxflags(__pmHashCtl *attrs, int *flags)
 	PM_LOCK(__pmLock_extcall);
 	container = getenv("PCP_CONTAINER");		/* THREADSAFE */
 	if (container != NULL) {
+	    if ((sts = __pmCheckAttribute(PCP_ATTR_CONTAINER, container)) < 0) {
+		PM_UNLOCK(__pmLock_extcall);
+		return sts;
+	    }
 	    if ((name = strdup(container)) == NULL) {
 		PM_UNLOCK(__pmLock_extcall);
 		return -ENOMEM;
@@ -1568,8 +1646,7 @@ pmDupContext(void)
 	__pmUnparseHostSpec(oldcon->c_pmcd->pc_hosts,
 			oldcon->c_pmcd->pc_nhosts, hostspec, sizeof(hostspec));
     else if (old_c_type == PM_CONTEXT_ARCHIVE) {
-	strncpy(archivename, oldcon->c_archctl->ac_log->name, MAXPATHLEN-1);
-	archivename[MAXPATHLEN-1] = '\0';
+	pmstrncpy(archivename, MAXPATHLEN, oldcon->c_archctl->ac_log->name);
     }
 
     /*
@@ -1975,7 +2052,7 @@ __pmIsLogCtlLock(void *lock)
 		    pmNoMem("__pmIsLogCtlLock: malloc", reslen, PM_FATAL_ERR);
 		    /* NOTREACHED */
 		}
-		strncpy(result, number, numlen + 1);
+		pmstrncpy(result, reslen, number);
 	    }
 	    else {
 		reslen += 1 + numlen + 1;
@@ -1984,8 +2061,8 @@ __pmIsLogCtlLock(void *lock)
 		    /* NOTREACHED */
 		}
 		result = result_new;
-		strncat(result, ",", 2);
-		strncat(result, number, numlen + 1);
+		pmstrncat(result, reslen, ",");
+		pmstrncat(result, reslen, number);
 	    }
 	}
     }

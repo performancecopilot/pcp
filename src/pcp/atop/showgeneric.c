@@ -548,7 +548,7 @@ text_samp(double sampletime, double nsecs,
 					attron(COLOR_PAIR(FGCOLORINFO));
 			}
 
-			printg(statmsg);
+			printg("%s", statmsg);
 
 			if (screen)
 			{
@@ -589,7 +589,7 @@ text_samp(double sampletime, double nsecs,
 					attron(A_BLINK);
 				}
 
-       				printg(initmsg);
+       				printg("%s", initmsg);
 
 				if (screen)
 				{
@@ -616,7 +616,7 @@ text_samp(double sampletime, double nsecs,
 					attron(A_BLINK);
 				}
 
-       				printg(viewmsg);
+       				printg("%s", viewmsg);
 
 				if (screen)
 				{
@@ -3408,8 +3408,7 @@ do_username(char *name, char *val)
 {
 	struct passwd	*pwd;
 
-	strncpy(procsel.username, val, sizeof procsel.username -1);
-	procsel.username[sizeof procsel.username -1] = 0;
+	pmstrncpy(procsel.username, sizeof(procsel.username), val);
 
 	if (procsel.username[0])
 	{
@@ -3467,7 +3466,7 @@ do_username(char *name, char *val)
 void
 do_procname(char *name, char *val)
 {
-	strncpy(procsel.progname, val, sizeof procsel.progname -1);
+	pmstrncpy(procsel.progname, sizeof(procsel.progname), val);
 	procsel.prognamesz = strlen(procsel.progname);
 
 	if (procsel.prognamesz)

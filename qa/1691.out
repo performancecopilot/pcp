@@ -1,5 +1,5 @@
 QA output created by 1691
-Start test Redis server ...
+Start test key server ...
 PING
 PONG
 
@@ -26,7 +26,7 @@ f0983eec7e7c01361317266c4259467d35e0ec3e
 e7aa0bd3dc7afc149badec1808fa4fa5c63a7fa3
     Metric: kernel.all.cpu.user
 
-Clear Redis DB
+Clear key server DB
 OK
 
 Load archive using: exclude.metrics = kernel.all.cpu.i*, kernel.all.cpu.user

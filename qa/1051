@@ -68,26 +68,26 @@ _filter()
 	-e '/Unknown metric name/d'
 }
 
-$sudo rm -f core* $seq.core* $seq.full
+$sudo rm -f core* $seq.core*
 
 # real QA test starts here
 
 pmieconf -f $tmp.conf m global syslog_prefix '$bogus_macro_name$' 2>&1 \
-| tee $seq.full \
+| tee $seq_full \
 | _filter
 
-echo >>$seq.full
-echo "=== configured rules ===" >>$seq.full
-cat $tmp.conf >>$seq.full
-echo >>$seq.full
-echo "=== pmie output ===" >>$seq.full
+echo >>$seq_full
+echo "=== configured rules ===" >>$seq_full
+cat $tmp.conf >>$seq_full
+echo >>$seq_full
+echo "=== pmie output ===" >>$seq_full
 
 _check_core
 
 if [ $status = 0 ]
 then
     pmie -C $tmp.conf 2>&1 \
-    | tee -a $seq.full \
+    | tee -a $seq_full \
     | _filter
 fi
 

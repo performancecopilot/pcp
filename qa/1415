@@ -25,7 +25,7 @@ _cleanup()
     rm -f $tmp.*
 }
 
-$sudo rm -rf $tmp.* $seq.full $files1 $files2 $files3
+$sudo rm -rf $files1 $files2 $files3
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _filter_mmvdump()
@@ -59,7 +59,7 @@ _filter_mmvdump()
 # real QA test starts here
 _prepare_pmda_mmv
 
-echo $$ > $seq.full
+echo $$ > $seq_full
 
 src/mmv_simple simple-$$ &
 pid1=$!

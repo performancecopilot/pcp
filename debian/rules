@@ -2,8 +2,9 @@
 
 pcp = pcp
 pcpcfg = pcp-conf
-libpcp = libpcp3
-libpcpdev = libpcp3-dev
+libpcp = libpcp4
+libpcp3 = libpcp3
+libpcpdev = libpcp4-dev
 libpcp_pmda = libpcp-pmda3
 libpcp_pmdadev = libpcp-pmda3-dev
 libpcp_pmda_perl = libpcp-pmda-perl
@@ -46,6 +47,7 @@ pcpdoc = pcp-doc
 dirpcp = debian/$(pcp)
 dirpcpcfg = debian/$(pcpcfg)
 dirlibpcp = debian/$(libpcp)
+dirlibpcp3 = debian/$(libpcp3)
 dirlibpcpdev = debian/$(libpcpdev)
 dirlibpcp_pmda = debian/$(libpcp_pmda)
 dirlibpcp_pmdadev = debian/$(libpcp_pmdadev)
@@ -88,7 +90,7 @@ dirdoc = debian/$(pcpdoc)
 allperldir = $(dirlibpcp_pmda_perl) $(dirlibpcp_import_perl) \
 		$(dirpcp_logsummary_perl) $(dirlibpcp_mmv_perl)
 alldir = $(dirpcp) $(dirpcpcfg) \
-		$(dirlibpcp) $(dirlibpcpdev) \
+		$(dirlibpcp) $(dirlibpcp3) $(dirlibpcpdev) \
 		$(dirlibpcp_pmda) $(dirlibpcp_pmdadev) \
 		$(dirlibpcp_trace) $(dirlibpcp_tracedev) \
 		$(dirlibpcp_gui) $(dirlibpcp_guidev) \
@@ -107,6 +109,7 @@ pkgpcpgui = $(zip) DIST_ROOT="`pwd`"/$(dirgui);
 pkgpcpdoc = $(zip) DIST_ROOT="`pwd`"/$(dirdoc);
 pkgpcpcfg = $(zip) DIST_ROOT="`pwd`"/$(dirpcpcfg);
 pkglibpcp = $(zip) DIST_ROOT="`pwd`"/$(dirlibpcp);
+pkglibpcp3 = $(zip) DIST_ROOT="`pwd`"/$(dirlibpcp3);
 pkglibpcp_gui = $(zip) DIST_ROOT="`pwd`"/$(dirlibpcp_gui);
 pkglibpcp_mmv = $(zip) DIST_ROOT="`pwd`"/$(dirlibpcp_mmv);
 pkglibpcp_pmda = $(zip) DIST_ROOT="`pwd`"/$(dirlibpcp_pmda);
@@ -151,7 +154,8 @@ uninstall = cat debian/*.install | sed -e "s,^,$(dirpcp)/," | xargs rm -f
 uninstallpy = cat python*-pcp.list | sed -e "s,^,$(dirpcp)/," | xargs rm -fr
 uninstallpydir = ls -d $(dirpcp)/usr/lib*/python* | xargs rm -fr
 uninstalltest = cat $(dirpcp_testsuite).dirs | sed -e "s,^,debian/$(pcp)/," | xargs rm -fr
-uninstalldirs = rmdir $(dirpcp)/usr/include/pcp $(dirpcp)/usr/include $(dirpcp)/usr/share/man/man3 $(dirpcp)/usr/lib/pkgconfig
+uninstalldirs = rmdir $(dirpcp)/usr/include/pcp $(dirpcp)/usr/include $(dirpcp)/usr/share/man/man3
+uninstallpkgconfig = rm -f $(dirpcp)/usr/lib/*/pkgconfig/*
 uninstallib = cat $(dirpcp_pmda_infiniband).dirs | sed -e "s,^,$(dirpcp)/," | xargs rm -fr
 uninstallarrow = cat $(dirdoc).dirs | sed -e "s,^,$(dirpcp_export_arrow)/," | xargs rm -fr
 uninstallspark = cat $(dirdoc).dirs | sed -e "s,^,$(dirpcp_export_spark)/," | xargs rm -fr
@@ -187,7 +191,9 @@ clean:
 	-rm -f build-stamp .census
 	$(MAKE) realclean
 	-rm -rf $(alldir)
-	-rm -f debian/*substvars debian/files* debian/*.debhelper qa/localconfig
+	-rm -f src/include/builddefs.install src/include/pcp.conf.install
+	-rm -f debian/*substvars debian/files* debian/*.debhelper
+	-rm -f configure qa/localconfig
 	if `which dh_update_autotools_config` >/dev/null; \
 	then :;\
 	else dh_autotools-dev_restoreconfig; \
@@ -196,6 +202,7 @@ clean:
 
 binary-indep: checkroot build-stamp
 	@echo "== dpkg-buildpackage: binary-indep" 1>&2
+	debian/checkconf -v HAVE_PERL || true
 	$(checkdir)
 	$(pkgpcp) $(MAKE) -C . install
 	$(pkgpcp_import_sar) $(MAKE) -C src/sar2pcp install
@@ -203,17 +210,19 @@ binary-indep: checkroot build-stamp
 	$(pkgpcp_import_mrtg) $(MAKE) -C src/mrtg2pcp install
 	$(pkgpcp_import_sheet) $(MAKE) -C src/sheet2pcp install
 	$(pkgpcp_import_iostat) $(MAKE) -C src/iostat2pcp install
+	$(pkgpcp_export_spark) $(MAKE) -C src/pcp2spark install
 	dh_installdocs -i
 	dh_installchangelogs -i
 	dh_link -i
+	dh_fixperms -i
 	dh_compress -i
 	dh_installdirs -i
 	dh_install -i --sourcedir=debian/$(pcp)
-	dh_perl -i -p $(pcp_import_sar)
-	dh_perl -i -p $(pcp_import_ganglia)
-	dh_perl -i -p $(pcp_import_mrtg)
-	dh_perl -i -p $(pcp_import_sheet)
-	dh_perl -i -p $(pcp_import_iostat)
+	if debian/checkconf HAVE_PERL; then dh_perl -i -p $(pcp_import_sar); else true; fi
+	if debian/checkconf HAVE_PERL; then dh_perl -i -p $(pcp_import_ganglia); else true; fi
+	if debian/checkconf HAVE_PERL; then dh_perl -i -p $(pcp_import_mrtg); else true; fi
+	if debian/checkconf HAVE_PERL; then dh_perl -i -p $(pcp_import_sheet); else true; fi
+	if debian/checkconf HAVE_PERL; then dh_perl -i -p $(pcp_import_iostat); else true; fi
 	dh_installdeb -i
 	dh_gencontrol -i $(SUBSTVARS)
 	dh_md5sums -i
@@ -225,10 +234,10 @@ binary-arch: checkroot build-stamp
 	-rm -rf $(alldir)
 	$(pkgpcp) $(MAKE) -C . install
 	$(pkgpcp_testsuite) $(MAKE) -C qa install
-	$(pkglibpcp_mmv_perl) $(MAKE) -C src/perl/MMV install_perl
-	$(pkglibpcp_pmda_perl) $(MAKE) -C src/perl/PMDA install_perl
-	$(pkglibpcp_import_perl) $(MAKE) -C src/perl/LogImport install_perl
-	$(pkgpcp_logsummary_perl) $(MAKE) -C src/perl/LogSummary install_perl
+	if debian/checkconf HAVE_PERL; then $(pkglibpcp_mmv_perl) $(MAKE) -C src/perl/MMV install_perl; else true; fi
+	if debian/checkconf HAVE_PERL; then $(pkglibpcp_pmda_perl) $(MAKE) -C src/perl/PMDA install_perl; else true; fi
+	if debian/checkconf HAVE_PERL; then $(pkglibpcp_import_perl) $(MAKE) -C src/perl/LogImport install_perl; else true; fi
+	if debian/checkconf HAVE_PERL; then $(pkgpcp_logsummary_perl) $(MAKE) -C src/perl/LogSummary install_perl; else true; fi
 	$(pkgpcp_import_collectl) $(MAKE) -C src/collectl2pcp install
 	$(pkgpcp_export_elasticsearch) $(MAKE) -C src/pcp2elasticsearch install
 	$(pkgpcp_export_graphite) $(MAKE) -C src/pcp2graphite install
@@ -240,17 +249,27 @@ binary-arch: checkroot build-stamp
 	$(pkgpcp_export_xml) $(MAKE) -C src/pcp2xml install
 	$(pkgpcp_export_zabbix) $(MAKE) -C src/pcp2zabbix install
 	$(pkgpcp_export_zabbix_agent) $(MAKE) -C src/zabbix-agent install
-	$(pkgpcp_pmda_infiniband) $(MAKE) -C src/pmdas/infiniband install
+	if debian/checkconf PMDA_INFINIBAND; then $(pkgpcp_pmda_infiniband) $(MAKE) -C src/pmdas/infiniband install; else true; fi
 	# need the make clean when more than one version of Python installed
 	# to ensure make install after the first version works
 	for V in $(shell py3versions -vr); do \
 	    $(MAKE) -C src/python clean; \
 	    $(pkgpcp_python3) $(MAKE) PYTHON=python$$V -C src/python install_python3; \
 	done
-
 	dh_installdocs -a
 	dh_installchangelogs -a
 	dh_link -a
+	# pmcd.stp added to dh_fixperms because on Ubuntu 16.04
+	# $(PCP_SHARE_DIR)/../systemtap/tapset/pmcd.stp was getting an
+	# unwanted mode change from 444 to 644
+	# Note:	with the change to
+	#		Rules-Requires-Root: no
+	#	in the control file, in response to addressing
+	#		https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1089409
+	#	(which is a change in Debian build process, not a PCP bug)
+	#	dh_fixperms needs to come *before* dh_strip
+	#	- thanks to Niels Thykier <niels at thykier.net> for this tip
+	dh_fixperms -a -Xvar/lib/pcp/tmp -Xvar/lib/pcp/pmcd -Xpmcd.stp
 	# Note: --no-automatic-dbgsym not defined for all releases up to
 	# 	and including Debian 8 (jessie), but defined after that
 	# 	... expect a warning on older releases, but no other ill
@@ -258,16 +277,13 @@ binary-arch: checkroot build-stamp
 	# 	aborting on Ubuntu 14.04 (vm00) on 23 Nov 2017
 	if dh_strip -a --no-automatic-dbgsym; then :; else dh_strip -a; fi
 	dh_compress -a
-	# pmcd.stp added to dh_fixperms because on Ubuntu 16.04
-	# $(PCP_SHARE_DIR)/../systemtap/tapset/pmcd.stp was getting an
-	# unwanted mode change from 444 to 644
-	dh_fixperms -a -Xvar/lib/pcp/tmp -Xvar/lib/pcp/pmcd -Xpmcd.stp
 	dh_installdirs -a
 	dh_install -a --sourcedir=debian/$(pcp)
 	@$(uninstall)
 	@$(uninstallib)
 	@$(uninstallgui)
 	@$(uninstalldirs)
+	@$(uninstallpkgconfig)
 	@$(uninstalltest)
 	@$(uninstallpydir)
 	@$(uninstallarrow)
@@ -276,6 +292,8 @@ binary-arch: checkroot build-stamp
 	@$(unrpathperl)
 	dh_makeshlibs -a -N $(libpcp)
 	dh_makeshlibs -a --package $(libpcp)
+	dh_makeshlibs -a -N $(libpcp3)
+	dh_makeshlibs -a --package $(libpcp3)
 	dh_makeshlibs -a -N $(libpcp_pmda)
 	dh_makeshlibs -a --package $(libpcp_pmda)
 	dh_makeshlibs -a -N $(libpcp_trace)
@@ -289,10 +307,10 @@ binary-arch: checkroot build-stamp
 	dh_makeshlibs -a -N $(libpcp_mmv)
 	dh_makeshlibs -a --package $(libpcp_mmv)
 	dh_python3 -a --package $(pcp_python3)
-	dh_perl -a -p $(libpcp_mmv_perl)
-	dh_perl -a -p $(libpcp_pmda_perl)
-	dh_perl -a -p $(libpcp_import_perl)
-	dh_perl -a -p $(pcp_logsummary_perl)
+	if debian/checkconf HAVE_PERL; then dh_perl -a -p $(libpcp_mmv_perl); else true; fi
+	if debian/checkconf HAVE_PERL; then dh_perl -a -p $(libpcp_pmda_perl); else true; fi
+	if debian/checkconf HAVE_PERL; then dh_perl -a -p $(libpcp_import_perl); else true; fi
+	if debian/checkconf HAVE_PERL; then dh_perl -a -p $(pcp_logsummary_perl); else true; fi
 	dh_installdeb -a
 	# VirtualBox may install a libGL.so that has no dependency
 	# information ... this kills the packaging, so this hack
@@ -305,6 +323,14 @@ binary-arch: checkroot build-stamp
 binary: binary-indep binary-arch
 
 checkroot:
-	test 0 -eq `id -u`
+# removed as per Debian bug https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1089409
+#	test 0 -eq `id -u`
+#
+	dh_testroot
 
-.PHONY: binary binary-arch binary-indep clean checkroot
+.PHONY: binary binary-arch binary-indep clean checkroot foo
+
+# debugging
+foo:
+	@echo "HAVE_PERL=$(HAVE_PERL)"
+	@echo "PMDA_INFINIBAND=$(PMDA_INFINIBAND)"

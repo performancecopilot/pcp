@@ -22,7 +22,6 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
@@ -39,11 +38,11 @@ do
     tar xzf $tgz
     base=`basename $tgz`
 
-    echo "== Checking metric values - $base" | tee -a $here/$seq.full
+    echo "== Checking metric values - $base" | tee -a $seq_full
     pminfo -L -K clear -K add,60,$pmda -f $metrics 2>&1 \
-    | tee -a $here/$seq.full \
+    | tee -a $seq_full \
     | $here/src/sortinst
-    ( echo && echo "== done" && echo ) | tee -a $here/$seq.full
+    ( echo && echo "== done" && echo ) | tee -a $seq_full
     cd $here
 done
 

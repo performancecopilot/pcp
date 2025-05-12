@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2022 Red Hat.
+ * Copyright (c) 2017-2022,2024 Red Hat.
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,7 +17,7 @@
 #include <pmapi.h>
 #include <mmv_stats.h>
 #include "load.h"
-#include "redis.h"
+#include "keys.h"
 #include "private.h"
 #include "discover.h"
 #include "search.h"
@@ -71,23 +71,23 @@
 #define XREVRANGE	"XREVRANGE"
 #define XREVRANGE_LEN	(sizeof(XREVRANGE)-1)
 
-/* create a Redis protocol command (e.g. XADD, SMEMBER) */
+/* create a RESP command (e.g. XADD, SMEMBER) */
 static inline sds
-redis_command(unsigned int count)
+resp_command(unsigned int count)
 {
     return sdscatfmt(sdsempty(), "*%u\r\n", count);
 }
 
-/* append a string parameter to a Redis protocol command */
+/* append a string parameter to a RESP command */
 static inline sds
-redis_param_str(sds cmd, const char *param, unsigned int length)
+resp_param_str(sds cmd, const char *param, unsigned int length)
 {
     return sdscatfmt(cmd, "$%u\r\n%s\r\n", length, param);
 }
 
-/* append a SHA1 hash parameter to a Redis protocol command */
+/* append a SHA1 hash parameter to a RESP command */
 static inline sds
-redis_param_sha(sds cmd, const unsigned char *sha)
+resp_param_sha(sds cmd, const unsigned char *sha)
 {
     int offset = sdslen(cmd);
     cmd = sdscatfmt(cmd, "$20\r\n01234567890123456789\r\n");
@@ -95,26 +95,26 @@ redis_param_sha(sds cmd, const unsigned char *sha)
     return cmd;
 }
 
-/* append an sds parameter to a Redis protocol command */
+/* append an sds parameter to a RESP command */
 static inline sds
-redis_param_sds(sds cmd, sds param)
+resp_param_sds(sds cmd, sds param)
 {
     return sdscatfmt(cmd, "$%u\r\n%S\r\n", sdslen(param), param);
 }
 
-/* directly append (wire-format) to Redis protocol command */
+/* directly append (wire-format) to RESP command */
 static inline sds
-redis_param_raw(sds cmd, sds param)
+resp_param_raw(sds cmd, sds param)
 {
     return sdscatfmt(cmd, "%S\r\n", param);
 }
 
-extern void redisGlobalsInit(struct dict *);
-extern void redisGlobalsClose(void);
+extern void keysGlobalsInit(struct dict *);
+extern void keysGlobalsClose(void);
 
-extern void redis_series_source(redisSlots *, void *);
-extern void redis_series_mark(redisSlots *, sds, int, void *);
-extern void redis_series_metric(redisSlots *, metric_t *, sds, int, int, void *);
+extern void keys_series_source(keySlots *, void *);
+extern void keys_series_mark(keySlots *, sds, int, void *);
+extern void keys_series_metric(keySlots *, metric_t *, sds, int, int, void *);
 
 /*
  * Asynchronous schema load baton structures
@@ -130,7 +130,7 @@ typedef struct seriesGetContext {
     int			loaded;		/* end of archive data reached */
     int			error;		/* PMAPI error code from fetch */
 
-    redisDoneCallBack	done;
+    keysDoneCallBack	done;
 
     void		*baton;
 } seriesGetContext;
@@ -142,7 +142,7 @@ typedef struct seriesLoadBaton {
     seriesBatonPhase	phases[LOAD_PHASES];
 
     seriesGetContext	pmapi;		/* PMAPI context info */
-    redisSlots		*slots;		/* Redis server slots */
+    keySlots		*slots;		/* Key server slots */
     void		*module;
     pmSeriesFlags	flags;
     pmSeriesDoneCallBack done;
@@ -187,7 +187,7 @@ typedef struct seriesModuleData {
     struct dict		*config;
     uv_loop_t		*events;
 
-    redisSlots		*slots;
+    keySlots		*slots;
     unsigned int	shareslots;
     unsigned int	search;
 } seriesModuleData;
@@ -196,7 +196,7 @@ extern seriesModuleData *getSeriesModuleData(pmSeriesModule *);
 extern void pmSeriesStatsAdd(pmSeriesModule *, const char *, const char *, double);
 extern void pmSeriesStatsSet(pmSeriesModule *, const char *, const char *, double);
 
-extern void redisSchemaLoad(redisSlots *, redisSlotsFlags, redisInfoCallBack,
-	redisDoneCallBack, void *, void *, void *);
+extern void keysSchemaLoad(keySlots *, keySlotsFlags, keysInfoCallBack,
+	keysDoneCallBack, void *, void *, void *);
 
 #endif	/* SERIES_SCHEMA_H */

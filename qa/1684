@@ -10,7 +10,6 @@ echo "QA output created by $seq"
 
 . ./common.python
 
-$sudo rm -rf $tmp $tmp.* $seq.full
 
 _cleanup()
 {
@@ -22,7 +21,6 @@ status=0	# success is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # quoting, brackets and commas is a Python version thing (yuk)
-# seen on vm29 (RHEL 7.9 and Python 2.7.5)
 # ('Loading derived metrics from', 'no-such-file')
 # ('Failed to load:', 'No such file or directory')
 # ('Successfully loaded', 2, 'derived metrics')

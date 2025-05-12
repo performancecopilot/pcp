@@ -19,8 +19,8 @@ bpftrace-dbgsym not4ci
 bsd-mailx
 build-essential
 chrpath
+clang
 coreutils
-Text::CSV_XS cpan
 cppcheck
 cron
 curl
@@ -41,18 +41,22 @@ grep
 iproute2
 jq
 libavahi-common-dev
+libbpf-dev
+libbpf0
 libclass-dbi-perl
 libcmocka-dev
 libcoin-dev
 libdbd-mysql-perl
 libdbd-pg-perl
 libdevmapper-dev
+libdrm-dev
 libextutils-autoinstall-perl
 libfile-slurp-perl
 libgl1-mesa-dri
 libibmad-dev
 libibumad-dev
 libicu70
+libinih-dev
 libjson-perl
 liblist-moreutils-perl
 liblzma-dev
@@ -84,6 +88,7 @@ libxml-libxml-perl
 libxml-tokeparser-perl
 libyaml-libyaml-perl
 linux-headers-`uname -r` not4ci
+llvm
 lm-sensors
 make
 man-db
@@ -92,7 +97,7 @@ mariadb-client-core-10.6
 memcached
 net-tools
 nmap
-openjdk-11-jre-headless
+openjdk-21-jre-headless
 openssl
 perl
 perl-modules-5.34
@@ -131,6 +136,7 @@ socat
 sysstat
 systemtap
 systemtap-sdt-dev
+targetcli-fb
 time
 unbound
 valgrind
@@ -139,7 +145,4 @@ xkb-data
 zabbix-agent
 zfsutils-linux
 zlib1g-dev
-libbpf0
-libbpf-dev
-clang
-llvm
+zstd

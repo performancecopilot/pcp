@@ -85,27 +85,27 @@ chmod u+x $tmp.workload
 $tmp.workload >/dev/null 2>&1
 sleep 2
 
-rm -f $tmp.info $tmp.stat $tmp.join $seq.full $tmp.info2 $tmp.stat2
+rm -f $tmp.info $tmp.stat $tmp.join $tmp.info2 $tmp.stat2
 
-echo | tee -a $seq.full
-echo "fetching nfsstat values..." | tee -a $seq.full
-get_nfsstat 2>$tmp.err | tee -a $seq.full >$tmp.stat 
+echo | tee -a $seq_full
+echo "fetching nfsstat values..." | tee -a $seq_full
+get_nfsstat 2>$tmp.err | tee -a $seq_full >$tmp.stat
 LC_COLLATE=POSIX sort -d < $tmp.stat > $tmp.stat2
-( echo "stderr from get_nfsstat ..."; cat $tmp.err ) >>$seq.full
+( echo "stderr from get_nfsstat ..."; cat $tmp.err ) >>$seq_full
 
-echo | tee -a $seq.full
-echo "fetching pminfo values..." | tee -a $seq.full
-get_pminfo nfs.server.reqs nfs2_server_reqs  | tee -a $seq.full >$tmp.info
-get_pminfo nfs3.server.reqs nfs3_server_reqs | tee -a $seq.full >>$tmp.info
-get_pminfo nfs.client.reqs nfs2_client_reqs  | tee -a $seq.full >>$tmp.info
-get_pminfo nfs3.client.reqs nfs3_client_reqs | tee -a $seq.full >>$tmp.info
+echo | tee -a $seq_full
+echo "fetching pminfo values..." | tee -a $seq_full
+get_pminfo nfs.server.reqs nfs2_server_reqs  | tee -a $seq_full >$tmp.info
+get_pminfo nfs3.server.reqs nfs3_server_reqs | tee -a $seq_full >>$tmp.info
+get_pminfo nfs.client.reqs nfs2_client_reqs  | tee -a $seq_full >>$tmp.info
+get_pminfo nfs3.client.reqs nfs3_client_reqs | tee -a $seq_full >>$tmp.info
 LC_COLLATE=POSIX sort -d < $tmp.info > $tmp.info2
 
-echo | tee -a $seq.full
-echo "comparing all values... (details in $seq.full)" | tee -a $seq.full
+echo | tee -a $seq_full
+echo "comparing all values... (see $seq.full for details)" | tee -a $seq_full
 LC_COLLATE=POSIX join $tmp.info2 $tmp.stat2 | while read metric nfsvalue pmvalue
 do
-	_within_tolerance $metric $nfsvalue $pmvalue 2% -v >>$seq.full
+	_within_tolerance $metric $nfsvalue $pmvalue 2% -v >>$seq_full
 	[ $? -eq 1 ] && echo failed cross check on $metric: $nfsvalue $pmvalue
 done
 echo done

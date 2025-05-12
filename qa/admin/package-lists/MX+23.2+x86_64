@@ -54,6 +54,7 @@ libgl1-mesa-dri
 libibmad-dev
 libibumad-dev
 libicu72
+libinih-dev
 libjson-perl
 liblist-moreutils-perl
 liblzma-dev
@@ -141,3 +142,4 @@ xfsprogs
 xkb-data
 zabbix-agent
 zlib1g-dev
+zstd

@@ -116,6 +116,16 @@ then
 	    configopts="$configopts --with-selinux=no --with-qt=no"
 	fi
     fi
+    # for RHEL 7 Python3 is incomplete, so we're forced to still use
+    # Python2 if available
+    #
+    if [ -f /etc/system-release ]
+    then
+	if grep 'Red Hat.* release 7\.' /etc/system-release >/dev/null
+	then
+	    configopts="$configopts --with-python=check"
+	fi
+    fi
 elif [ $target = darwin ]
 then
     # On Mac OS X platforms, we're using brew ...
@@ -149,10 +159,15 @@ then
 		#
 		configopts="--sysconfdir=/etc --localstatedir=/var --with-python=no --with-static-probes=no --prefix=/usr"
 		;;
-	13.*|14.*)
+	13.*)
 		# Bog-standard, just without python2 and qt and static-probes
 		#
 		configopts="--sysconfdir=/etc --localstatedir=/var --with-python=no --with-qt=no --with-static-probes=no --prefix=/usr"
+		;;
+	14.*)
+		# Bog-standard, just without python2 and static-probes
+		#
+		configopts="--sysconfdir=/etc --localstatedir=/var --with-python=no --with-static-probes=no --prefix=/usr"
 		;;
 	*)
 		# default case, as below ...

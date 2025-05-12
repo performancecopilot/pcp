@@ -21,20 +21,20 @@ fi
 . ./common.filter
 . ./common.check
 
-$sudo rm -rf $tmp $tmp.* $seq.full
 
-pmlogctl status 2>&1 | tee -a $seq.full >$tmp.tmp
+pmlogctl status 2>&1 | tee -a $seq_full >$tmp.tmp
 nloggers=`sed -e 1d <$tmp.tmp | wc -l | sed -e 's/  *//g'`
+rm -f $tmp.tmp
 [ "$nloggers" -gt 1 ] && _notrun "more than one pmlogger already running"
 
 _cleanup()
 {
     cd $here
-    _service pmlogger stop >>$seq.full 2>&1
+    _service pmlogger stop >>$seq_full 2>&1
     $sudo rm -f $PCP_ETC_DIR/pcp/pmlogger/control.d/$seq
     $sudo rm -rf $PCP_ARCHIVE_DIR/$seq
     sleep 1
-    _service pmlogger start >>$seq.full 2>&1
+    _service pmlogger start >>$seq_full 2>&1
     _wait_for_pmlogger
     $sudo rm -rf $tmp $tmp.*
 }
@@ -71,6 +71,7 @@ End-of-File
 _filter()
 {
     sed \
+	-e '/[0-9][0-9]* running/s//PID running/' \
 	-e "s/`date +%Y`-`date +%m`-`date +%d`/YYYY-MM-DD/" \
 	-e "s/\([^0-9]\)`date +%Y`/\1YYYY/g" \
 	-e "s/YYYY`date +%m`/YYYYMM/g" \
@@ -80,7 +81,6 @@ _filter()
 	-e 's/\.[0-2][0-9]\.[0-5][0-9]/.TIME/g' \
 	-e 's/TIME-[0-9][0-9]*/TIME/' \
 	-e "s/`hostname`/LOCALHOST/" \
-	-e '/running/s/[0-9][0-9]*/PID/' \
 	-e '/\/lock$/d' \
 	-e 's/  */ /g' \
     # end
@@ -88,7 +88,7 @@ _filter()
 
 # real QA test starts here
 $sudo cp $tmp.control $PCP_ETC_DIR/pcp/pmlogger/control.d/$seq
-cat $PCP_ETC_DIR/pcp/pmlogger/control.d/$seq >>$seq.full
+cat $PCP_ETC_DIR/pcp/pmlogger/control.d/$seq >>$seq_full
 
 _service pmlogger restart \
 | _filter_pcp_start
@@ -120,7 +120,7 @@ do
     # don't care about log file, and can't tell which pmlogger
     # is which at this stage
     #
-    _wait_for_pmlogger $pid /dev/null
+    _wait_for_pmlogger $pid /dev/null || _exit 1
 done
 
 pmlogctl status \
@@ -128,7 +128,7 @@ pmlogctl status \
 | LC_COLLATE=POSIX sort
 
 find $PCP_ARCHIVE_DIR/$seq \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | _filter \
 | LC_COLLATE=POSIX sort
 

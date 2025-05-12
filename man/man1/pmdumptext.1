@@ -1,4 +1,4 @@
-'\"macro stdmacro
+'\" t
 .\"
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
 .\"
@@ -12,7 +12,7 @@
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
 .\"
-.TH PMDUMPTEXT 1 "SGI" "Performance Co-Pilot"
+.TH PMDUMPTEXT 1 "" "Performance Co-Pilot"
 .SH NAME
 \f3pmdumptext\f1 \- dump performance metrics to an ASCII table
 .SH SYNOPSIS
@@ -22,6 +22,7 @@
 [\f3\-A\f1 \f2align\f1]
 [\f3\-c\f1 \f2config\f1]
 [\f3\-d\f1 \f2delimiter\f1]
+[\f3\-D\f1 \f2debug\f1]
 [\f3\-f\f1 \f2format\f1]
 [\f3\-h\f1 \f2host\f1]
 [\f3\-n\f1 \f2pmnsfile\f1]
@@ -522,6 +523,39 @@ The \fB$PCP_CONF\fP variable may be used to specify an alternative
 configuration file, as described in \fBpcp.conf\fP(5).
 .PP
 For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
+.SH DEBUGGING OPTIONS
+The
+.B \-D
+or
+.B \-\-debug
+option enables the output of additional diagnostics on
+.I stderr
+to help triage problems, although the information is sometimes cryptic and
+primarily intended to provide guidance for developers rather end-users.
+.I debug
+is a comma separated list of debugging options; use
+.BR pmdbg (1)
+with the
+.B \-l
+option to obtain
+a list of the available debugging options and their meaning.
+.PP
+Debugging options specific to
+.B pmdumptext
+are as follows:
+.TS
+box;
+lf(B) | lf(B)
+lf(B) | lxf(R) .
+Option	Description
+_
+appl0	T{
+.ad l
+detailed diagnostics
+for metrics, their source and timezone, metadata,
+units normalization, output format, etc.
+T}
+.TE
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pmcd (1),

@@ -34,7 +34,6 @@ _cleanup()
 }
 
 status=0	# success is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _filter()
@@ -62,10 +61,10 @@ else
 fi \
 | _filter
 
-echo "== pmie config ==" >> $here/$seq.full
-cat $tmp.conf >> $here/$seq.full
-echo "== pmie log ==" >> $here/$seq.full
-cat $tmp.log >> $here/$seq.full
+echo "== pmie config ==" >> $seq_full
+cat $tmp.conf >> $seq_full
+echo "== pmie log ==" >> $seq_full
+cat $tmp.log >> $seq_full
 
 # success, all done
 exit

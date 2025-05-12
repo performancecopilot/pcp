@@ -14,10 +14,9 @@ echo "QA output created by $seq"
 . ./common.check
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf testarchive.* $tmp.*; exit \$status" 0 1 2 3 15
 
-which collectl2pcp >$seq.full 2>&1 || _notrun collectl2pcp not installed
+which collectl2pcp >$seq_full 2>&1 || _notrun collectl2pcp not installed
 
 # real QA test starts here
 
@@ -276,13 +275,13 @@ $1 == "proc:'"$inst"'" && $2 == "'"$idx"':"	{ print }' \
 		fi
 	    fi
 	fi
-	echo "$metric[$inst]: pcp=\"$__pcp\" collectl=\"$__collectl\"" >>$seq.full
+	echo "$metric[$inst]: pcp=\"$__pcp\" collectl=\"$__collectl\"" >>$seq_full
     done
 }
 
 # real QA test starts here
 
-echo '## Testing RHEL6.4 inst/value extraction:' | tee -a $seq.full
+echo '## Testing RHEL6.4 inst/value extraction:' | tee -a $seq_full
 collectl2pcp -F $C/rhel6.raw.gz $TA
 _checksums
 
@@ -309,8 +308,8 @@ End-of-File
 zcat <$C/rhel6.raw.gz >$tmp.raw
 _value_checker
 
-echo | tee -a $seq.full
-echo '## Testing Debian inst/value extraction:' | tee -a $seq.full
+echo | tee -a $seq_full
+echo '## Testing Debian inst/value extraction:' | tee -a $seq_full
 collectl2pcp -F $C/debian_sid_detailed.raw.gz $TA
 _checksums
 

@@ -21,12 +21,11 @@ which pmdumptext >/dev/null 2>&1 || _notrun "No installed pmdumptext binary"
 signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
 username=`id -u -n`
-$sudo rm -rf $tmp.* $seq.full
 trap "_cleanup; $sudo rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 pmproxy_was_running=false
 [ -f $PCP_RUN_DIR/pmproxy.pid ] && pmproxy_was_running=true
-echo "pmproxy_was_running=$pmproxy_was_running" >>$here/$seq.full
+echo "pmproxy_was_running=$pmproxy_was_running" >>$seq_full
 
 rm -f $seq.out
 case $PCP_PLATFORM
@@ -43,16 +42,16 @@ _cleanup()
 {
     # kill off the pmproxy we started
     #
-    $sudo $signal -a pmproxy >>$here/$seq.full 2>&1
+    $sudo $signal -a pmproxy >>$seq_full 2>&1
 
     if $pmproxy_was_running
     then
-	echo "Restart pmproxy ..." >>$here/$seq.full
-	_service pmproxy restart >>$here/$seq.full 2>&1
+	echo "Restart pmproxy ..." >>$seq_full
+	_service pmproxy restart >>$seq_full 2>&1
 	_wait_for_pmproxy
     else
-	echo "Stopping pmproxy ..." >>$here/$seq.full
-	_service pmproxy stop >>$here/$seq.full 2>&1
+	echo "Stopping pmproxy ..." >>$seq_full
+	_service pmproxy stop >>$seq_full 2>&1
     fi
 }
 
@@ -131,10 +130,10 @@ _filter_pmproxy()
 _do()
 {
     echo
-    echo "+++ $* +++" | tee -a $seq.full | _filter_me
+    echo "+++ $* +++" | tee -a $seq_full | _filter_me
     if which $1 >/dev/null 2>&1
     then
-	eval $* 2>&1 | tee -a $seq.full | _filter
+	eval $* 2>&1 | tee -a $seq_full | _filter
 	connects=`grep AcceptNewClient $tmp.log | wc -l | sed -e 's/  *//g'`
 	disconnects=`grep DeleteClient $tmp.log | wc -l | sed -e 's/  *//g'`
 	difference=$(($connects - $disconnects))
@@ -169,27 +168,27 @@ log advisory on default {
 End-of-File
 }
 
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|[p]mproxy' >>$here/$seq.full
-$sudo netstat -t -l -4 -p | grep '4432[23]' >>$here/$seq.full
-_service pmproxy stop >/dev/null 2>&1
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy( |$)' >>$seq_full
+$sudo netstat -t -l -4 -p | grep '4432[23]' >>$seq_full
+if ! _service pmproxy stop >/dev/null 2>&1; then _exit 1; fi
 $sudo $signal -a pmproxy >/dev/null 2>&1
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|[p]mproxy' >>$here/$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy( |$)' >>$seq_full
 # give any running pmproxy a chance to shutdown cleanly
 #
 sleep 2
-$sudo netstat -t -l -4 -p | grep '4432[23]' >>$here/$seq.full
+$sudo netstat -t -l -4 -p | grep '4432[23]' >>$seq_full
 
 mkdir -p $tmp.rundir
 export PCP_RUN_DIR=$tmp.rundir
 proxyargs="-Dcontext -U $username"
 $PCP_BINADM_DIR/pmproxy $proxyargs -l $tmp.log 2>&1 | _filter_pmproxy
-_wait_for_pmproxy
-$sudo netstat -t -l -4 -p | grep '4432[23]' >>$here/$seq.full
+_wait_for_pmproxy || _exit 1
+$sudo netstat -t -l -4 -p | grep '4432[23]' >>$seq_full
 
 export PMPROXY_HOST=localhost
 $PCP_BINADM_DIR/pmcd_wait -t 5sec -h localhost@localhost
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|[p]mproxy' >>$here/$seq.full
-cat $tmp.log >> $here/$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy( |$)' >>$seq_full
+cat $tmp.log >> $seq_full
 
 # real QA test starts here
 _do pminfo -h $PMPROXY_HOST -d pmcd.agent
@@ -198,9 +197,9 @@ _do pmprobe -v -h localhost hinv.ncpu
 _do pmval -h `hostname` -t 0.5 -s 3 sample.bin
 
 echo "kernel.all.load;" >$tmp.in
-_do pmie -h $PMPROXY_HOST -c $tmp.in -v -t 0.5 -T 1.75 
+_do pmie -h $PMPROXY_HOST -c $tmp.in -v -t 0.5 -T 1.75
 echo "kernel.all.cpu.user :localhost;" >$tmp.in
-_do pmie -h $PMPROXY_HOST -c $tmp.in -v -t 0.5 -T 1.75 
+_do pmie -h $PMPROXY_HOST -c $tmp.in -v -t 0.5 -T 1.75
 _do pmdumptext -h `hostname` -t 0.5 -s 2 sample.string.hullo
 _do pmdumptext -t 0.5 -s 2 localhost:sample.string.hullo
 _do pmdumptext -t 0.5 -s 2 `hostname`:kernel.all.load
@@ -210,12 +209,12 @@ _do pmdumptext -t 0.5 -s 2 `hostname`:kernel.all.load
 # produce no values for some columns.
 
 _do pmstat -h $PMPROXY_HOST -t 0.5 -s 2
-_do_config 
+_do_config
 _do pmlogger -h localhost -c $tmp.config -t 0.5sec -s 6 -l $tmp.logger.log $tmp.arch
 _do pmstat -S +1sec -t 0.5sec -s 1 -a $tmp.arch -z
 
-( echo ""; echo "=== pmproxy.log ===" ) >>$seq.full
-cat $tmp.log >>$seq.full
+( echo ""; echo "=== pmproxy.log ===" ) >>$seq_full
+cat $tmp.log >>$seq_full
 
 # success, all done
 status=0

@@ -1,0 +1,51 @@
+#!/bin/sh
+# PCP QA Test No. 1526
+# QA environment prober ...
+#
+# Normally this does nothing and says nothing.  But it provides a hook
+# for exploring the environment where QA is run, especially useful for
+# VMs and containers in github's CI infrastructure.
+#
+# If the "hook" is being used, it _must_ generate something on stdout
+# and then $seq.out and/or $seq_full may be used to deliver the probe's
+# payload.
+#
+# Copyright (c) 2024 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+echo "QA environment probing ... this is NOT a qa/$seq failure"
+echo "=== env ==="
+env
+for dir in /sys /sys/block
+do
+    echo "=== $dir ==="
+    if [ -d "$dir" ]
+    then
+	ls -l "$dir"
+    else
+	echo "Not a directory!"
+    fi
+done
+
+# all done
+exit

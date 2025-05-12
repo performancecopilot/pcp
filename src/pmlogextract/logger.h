@@ -128,5 +128,10 @@ extern void abandon_extract(void);
 /* command line args needed across source files */
 extern int	xarg;
 
+/*
+ * parse -v arg
+ */
+extern int
+ParseSize(char *, int *, __int64_t *, struct timespec *);
 
 #endif /* PCP_LOGGER_H */

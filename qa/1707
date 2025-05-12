@@ -13,7 +13,6 @@ echo "tracepoint:syscalls:sys_enter_openat" >$tmp.tmp
 _pmdabpftrace_check_probes $tmp.tmp
 
 status=1       # failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 
 _prepare_pmda bpftrace
 trap "_pmdabpftrace_cleanup; exit \$status" 0 1 2 3 15

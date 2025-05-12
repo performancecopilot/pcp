@@ -18,7 +18,6 @@ echo "QA output created by $seq"
 
 status=1	# failure is the default!
 done_clean=false
-$sudo rm -rf $tmp.* $seq.full
 
 # for QA the default install for jbd2 PMDA is as dso not a daemon
 #

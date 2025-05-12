@@ -786,6 +786,10 @@ Fri Mar 15 09:53:02.050538091 2024
 Fri Mar 15 09:53:10.084432000 2024
     InDom 29.10[0] labels (0 bytes): 
     InDom 29.10[1] labels (0 bytes): 
+    InDom 29.12[1] labels (0 bytes): 
+    InDom 29.12[2] labels (0 bytes): 
+    InDom 29.12[3] labels (0 bytes): 
+    InDom 29.12[4] labels (0 bytes): 
     InDom 29.12[5] labels (0 bytes): 
     InDom 29.12[6] labels (0 bytes): 
     InDom 29.12[7] labels (0 bytes): 
@@ -797,6 +801,14 @@ Fri Mar 15 09:53:18.120389385 2024
         [1] name(19,4) : value(25,9) [domain]
     Cluster 30.0 labels (18 bytes): {"cluster":"zero"}
         [0] name(2,7) : value(11,6) [cluster]
+    InDom 29.12[1] labels (0 bytes): 
+    InDom 29.12[2] labels (0 bytes): 
+    InDom 29.12[3] labels (0 bytes): 
+    InDom 29.12[4] labels (0 bytes): 
+    InDom 29.12[5] labels (0 bytes): 
+    InDom 29.12[6] labels (0 bytes): 
+    InDom 29.12[8] labels (0 bytes): 
+    InDom 29.12[9] labels (0 bytes): 
     InDom 29.12[10] labels (0 bytes): 
     InDom 29.12[13] labels (0 bytes): 
     InDom 29.12[14] labels (0 bytes): 

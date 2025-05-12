@@ -248,7 +248,7 @@ pipe_opts	: PIPE_LENGTH INT
 			go->defs()->pipeLength() = $2;
 		    } 
 		    else
-			yyerror ("cannot change pipe length - not a grid");
+			yyerror("cannot change pipe length - not a grid");
 		}
 		;
 
@@ -263,7 +263,7 @@ mod_opts	: BAR_HEIGHT INT
 			go->defs()->barHeight() = $2;
 		    }
 		    else
-			yyerror ("cannot change bar height - not a grid");
+			yyerror("cannot change bar height - not a grid");
 		}
 		| BAR_LENGTH INT 
 		{
@@ -276,7 +276,7 @@ mod_opts	: BAR_HEIGHT INT
 			go->defs()->barLength() = $2;
 		    }
 		    else 
-			yyerror ("cannot change bar length - not a grid");
+			yyerror("cannot change bar length - not a grid");
 		}
 		;
 
@@ -304,7 +304,7 @@ base_opts	: MARGIN_WIDTH INT
  			go->defs()->baseBorderZ() = $2;
 		    }
 		    else
-			yyerror ("cannot change depth margin - not a grid");
+			yyerror("cannot change depth margin - not a grid");
 		}
 		| BASE_HEIGHT INT 
 		{
@@ -317,7 +317,7 @@ base_opts	: MARGIN_WIDTH INT
 			go->defs()->baseHeight() = $2;
 		    }
 		    else 
-			yyerror ("cannot change base height - not a grid");
+			yyerror("cannot change base height - not a grid");
 		}
 		| BASE_COLOR symname
 		{
@@ -417,7 +417,7 @@ bar_opts	: GAP_WIDTH INT
 			go->defs()->barSpaceX() = $2;
 		    }
 		    else
-			yyerror ("Cannot change bar width - not a grid");
+			yyerror("Cannot change bar width - not a grid");
 		}
 		| GAP_DEPTH INT
 		{
@@ -430,7 +430,7 @@ bar_opts	: GAP_WIDTH INT
 			go->defs()->barSpaceZ() = $2;
 		    }
 		    else
-			yyerror ("Cannot change bar depth - not a grid");
+			yyerror("Cannot change bar depth - not a grid");
 		}
 		| GAP_LABEL INT 
 		{
@@ -443,7 +443,7 @@ bar_opts	: GAP_WIDTH INT
 			go->defs()->barSpaceLabel() = $2;
 		    }
 		    else
-			yyerror ("Cannot change label space - not a grid");
+			yyerror("Cannot change label space - not a grid");
 		}
 		;
 
@@ -458,7 +458,7 @@ label_opts	: LABEL_MARGIN INT
 			go->defs()->labelMargin() = $2;
 		    }
 		    else
-			yyerror ("Cannot change label margin - not a grid");
+			yyerror("Cannot change label margin - not a grid");
 		}
 		| LABEL_COLOR symname
 		{
@@ -497,7 +497,7 @@ label_opts	: LABEL_MARGIN INT
 			    go->defs()->labelColor($2, $3, $4);
 			}
 			else
-			    yyerror ("Cannot change label color - not a grid");
+			    yyerror("Cannot change label color - not a grid");
 		    }
 		}
 		;
@@ -669,7 +669,7 @@ alignment	: ALIGN { theAlignment = $1; };
 baselabelspec	: BASE_LABEL symname
 		{ 
 		    if ( objstack.empty () ) {
-			yyerror ("Syntax error - no object to label");
+			yyerror("Syntax error - no object to label");
 		    } else if(objstack.top()->objbits() & ViewObj::BASEOBJ){
 			BaseObj * bo = static_cast<BaseObj *>(objstack.top());
 			int i;
@@ -692,7 +692,7 @@ baselabelspec	: BASE_LABEL symname
     
 			bo->label() = str;
 		    } else {
-			yyerror ("Syntax error - wrong object");
+			yyerror("Syntax error - wrong object");
 		    }
 		}
 		;
@@ -728,11 +728,11 @@ scenefile_decl	: SCENE_FILE pos STRING
 			    objstack.push (so);
 			}
 			else 
-			    yyerror (
+			    yyerror(
 				"Cannot create a scene file object - out of memory");
 		    }
 		    else
-			yyerror (
+			yyerror(
 			    "Syntax error - Scene File inside simple object!"); 
 		}
 		;
@@ -749,7 +749,7 @@ pipe		: pipedecl OPENB pipespec CLOSEB
 pipedecl	: PIPE pos
 		{
 		    if ( theNumRows > 1 && theNumCols > 1 ) {
-			yyerror ("Diagonal pipes are not supported");
+			yyerror("Diagonal pipes are not supported");
 			objstack.push (0); // So that we would pop grid up
 		    } else {
 			const DefaultObj * dob = 0;
@@ -770,10 +770,10 @@ pipedecl	: PIPE pos
 							     theAlignment) )
 				objstack.push (po);
 			    else 
-				yyerror (
+				yyerror(
 				    "Cannot create a pipe - out of memory");
 			else
-			    yyerror (
+			    yyerror(
 				"Syntax error - Pipe inside simple object"); 
 		    }
 		}
@@ -793,7 +793,7 @@ pipetag		: PIPETAG symname
 		{
 		    if (objstack.empty () ||
 			((objstack.top()->objbits() & ViewObj::PIPEOBJ) == 0)) { 
-			yyerror ("No pipe to attach tag to");
+			yyerror("No pipe to attach tag to");
 		    } else {
 			PipeObj * p = static_cast<PipeObj*>(objstack.top());
 			p->setTag($2);
@@ -825,10 +825,10 @@ link		: GR_LINK pos linktag
 			    l->finishedAdd ();
 			    $$ = l;
 			} else {
-			    yyerror ("Cannot create a link - out of memory");
+			    yyerror("Cannot create a link - out of memory");
 			}
 		    else
-			yyerror ("Syntax error - link inside simple object"); 
+			yyerror("Syntax error - link inside simple object"); 
 		}
 		;
 
@@ -845,7 +845,7 @@ grid_object	: object
 				static_cast<GridObj *>(objstack.top());
 			    go->addObj ($1 , $1->col(), $1->row());
 			} else {
-			    yyerror ("Syntax error - no gird to add to"); 
+			    yyerror("Syntax error - no gird to add to"); 
 			}
 		    }
 		}
@@ -884,10 +884,10 @@ griddecl	: GRID pos hide_or_show OPENB
 						       theAlignment)) {
 			    objstack.push (go);
 			} else {
-			    yyerror ("Cannot create new grid - out of memory");
+			    yyerror("Cannot create new grid - out of memory");
 			}
 		    else
-			yyerror ("Syntax error - grid inside a simple object");
+			yyerror("Syntax error - grid inside a simple object");
 		}
 		;
 
@@ -928,7 +928,7 @@ labeldecl	: LABEL pos
 			dob = parent->defs();
 		    }
 		    else
-			yyerror ("Syntax error - label inside simple object");
+			yyerror("Syntax error - label inside simple object");
 
 
 		    if ( dob ) {
@@ -939,7 +939,7 @@ labeldecl	: LABEL pos
 							 theAlignment))
 			    objstack.push (lo);
 			else {
-			    yyerror ("Cannot create label - out of memory");
+			    yyerror("Cannot create label - out of memory");
 			    objstack.push (NULL);
 			}
 		    }
@@ -962,38 +962,38 @@ label_stuff	: label_item
 label_item	: DIRECTION DIRVAL
 		{
 		    if ( objstack.empty () )
-			yyerror ("cannot change direction - no label");
+			yyerror("cannot change direction - no label");
 		    else if (objstack.top()->objbits() & ViewObj::LABELOBJ) {
 			LabelObj * lo =
 			    static_cast<LabelObj*>(objstack.top());
 			lo->dir() = $2;
 		    }
 		    else
-			yyerror ("Syntax error - not a label");
+			yyerror("Syntax error - not a label");
 		}
 		| SIZE SIZ
 		{
 		    if ( objstack.empty () )
-			yyerror ("cannot set label size");
+			yyerror("cannot set label size");
 		    else if (objstack.top()->objbits() & ViewObj::LABELOBJ) {
 			LabelObj * lo =
 			    static_cast<LabelObj*>(objstack.top());
 			lo->size() = $2;
 		    }
 		    else
-			yyerror ("Syntax error - not a label");
+			yyerror("Syntax error - not a label");
 		}
 		| TEXT symname
 		{
 		    if ( objstack.empty () )
-			yyerror ("cannot set label text");
+			yyerror("cannot set label text");
 		    else if (objstack.top()->objbits() & ViewObj::LABELOBJ) {
 			LabelObj * lo =
 			    static_cast<LabelObj*>(objstack.top());
 			lo->str() = $2;
 		    }
 		    else
-			yyerror ("Syntax error - not a label");
+			yyerror("Syntax error - not a label");
 		}
 		;
 
@@ -1028,7 +1028,7 @@ bardecl		: BAR pos col_or_row show_or_hide bar_type shape_type bar_group history
 					theNumCols, theNumRows, theAlignment);
 		    }
 		    else
-			yyerror ("Syntax error - bar inside simple object");
+			yyerror("Syntax error - bar inside simple object");
 		
 		    if ( bo ) {
 		    	bo->setHistory(theHistory);
@@ -1080,13 +1080,13 @@ labelled_metric	: metric
 		| metricname real STRING
 		{
 		    if ( objstack.empty() )
-			yyerror ("No object to add metrics to");
+			yyerror("No object to add metrics to");
 		    else if (objstack.top()->objbits() & ViewObj::BAROBJ) {
 			BarObj * bo =
 			    static_cast<BarObj *>(objstack.top());
 			bo->addMetric($1, $2, $3);
 		    } else {
-			yyerror ("Syntax error - not a bar object");
+			yyerror("Syntax error - not a bar object");
 		    }
 		}
 		;
@@ -1181,13 +1181,13 @@ metric_labels	: metriclabeldecl
 metriclabeldecl	: METRICLABEL away_or_towards 
 		{
 		    if ( objstack.empty () )
-			yyerror ("No object to add metric labels to");
+			yyerror("No object to add metric labels to");
 		    else if (objstack.top()->objbits() & ViewObj::BAROBJ) {
 			BarObj * bo = static_cast<BarObj *>(objstack.top());
 			bo->metricLabelDir() = $2;
 		    }
 		    else
-			yyerror ("Syntax error - not a bar object");
+			yyerror("Syntax error - not a bar object");
 		}
 		;
 
@@ -1198,13 +1198,13 @@ metric_name_list: metric_name
 metric_name	: nameval
 		{
 		    if ( objstack.empty() )
-			yyerror ("No object to add metric names to");
+			yyerror("No object to add metric names to");
 		    else if (objstack.top()->objbits() & ViewObj::BAROBJ) {
 			BarObj * bo = static_cast<BarObj *>(objstack.top());
 			bo->addMetricLabel($1);
 		    }
 		    else
-			yyerror ("Syntax error - not a bar object");
+			yyerror("Syntax error - not a bar object");
 		    free ($1);
 		}
 		;
@@ -1219,13 +1219,13 @@ nameval		: symname { $$ = strdup ($1); }
 inst_labels	: INSTLABEL away_or_towards OPENB inst_name_list CLOSEB
 		{
 		    if ( objstack.empty () )
-			yyerror ("No object to add instance labels to");
+			yyerror("No object to add instance labels to");
 		    else if (objstack.top()->objbits() & ViewObj::BAROBJ) {
 			BarObj * bo = static_cast<BarObj *>(objstack.top());
 			bo->instLabelDir() = $2;
 		    }
 		    else
-			yyerror ("Syntax error - not a bar object");
+			yyerror("Syntax error - not a bar object");
 
 		}
 		;
@@ -1237,13 +1237,13 @@ inst_name_list	: inst_name
 inst_name	: nameval 
 		{
 		    if ( objstack.empty() )
-			yyerror ("No object to add instance labels to");
+			yyerror("No object to add instance labels to");
 		    else if (objstack.top()->objbits() & ViewObj::BAROBJ) {
 			BarObj * bo = static_cast<BarObj *>(objstack.top());
 			bo->addInstLabel($1);
 		    }
 		    else
-			yyerror ("Syntax error - not a bar object");
+			yyerror("Syntax error - not a bar object");
 		    free ($1);
 		}
 		;
@@ -1273,7 +1273,7 @@ stackdecl	: STACK pos show_or_hide stack_type shape_type history OPENB
 					  theAlignment);
 		    }
 		    else
-			yyerror ("Syntax error - stack inside simple object");
+			yyerror("Syntax error - stack inside simple object");
 		
 		    if ( so ) {
 			so->setHistory(theHistory);
@@ -1300,7 +1300,7 @@ stackdecl	: STACK pos show_or_hide stack_type shape_type history OPENB
 					  theAlignment);
 		    }
 		    else
-			yyerror ("Syntax error - stack inside simple object");
+			yyerror("Syntax error - stack inside simple object");
 		
 		    if ( so ) {
 			objstack.push (so);
@@ -1323,7 +1323,7 @@ stack_item	: metric_list
 		| STACK_LABEL symname 
 		{
 		    if ( objstack.empty() ) {
-			yyerror ("Syntax error - no stack to label");
+			yyerror("Syntax error - no stack to label");
 		    } else if (objstack.top()->objbits() & ViewObj::STACKOBJ) {
 			StackObj * so = static_cast<StackObj*>(objstack.top());
 
@@ -1350,7 +1350,7 @@ stack_item	: metric_list
 				    "filled stacks");
 			}
 		    } else {
-			yyerror ("Syntax error - not a stack");
+			yyerror("Syntax error - not a stack");
 		    }
 		}
 		;
@@ -1364,13 +1364,13 @@ metrics 	: metric
 metric		: metricname real 
 		{ 
 		    if ( objstack.empty () ) 
-			yyerror ("Syntax error - no object");
+			yyerror("Syntax error - no object");
 		    else if (objstack.top()->objbits() & ViewObj::MODOBJ) {
 			ModObj * mo = static_cast<ModObj *>(objstack.top());
 			mo->addMetric($1, $2);
 		    }
 		    else
-			yyerror ("The object has no metrics");
+			yyerror("The object has no metrics");
 		}
 		;
 
@@ -1387,7 +1387,7 @@ xing		: GR_XING INT INT INT INT ALIGN ALIGN ALIGN ALIGN
 			dob = parent->defs();
 		    }
 		    else
-			yyerror ("Syntax error - label inside simple object");
+			yyerror("Syntax error - label inside simple object");
 
 		    if ( Xing * xo = new Xing (*dob, $2, $3, $4, $5, c) ) {
 			xo->finishedAdd ();

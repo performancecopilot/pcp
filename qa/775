@@ -29,41 +29,40 @@ esac
 
 status=1	# failure is the default!
 service=pmcd
-$sudo rm -rf $tmp.* $seq.full
 trap "_cleanup_avahi_service; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 _control_avahi_service
 
-echo "No arguments" | tee -a $here/$seq.full
+echo "No arguments" | tee -a $seq_full
 pmfind | _filter_discovery_unresolved
 echo "Exit status: $?"
 
-echo "-s pmcd -r" | tee -a $here/$seq.full
+echo "-s pmcd -r" | tee -a $seq_full
 pmfind -s pmcd -r | _filter_discovery_resolved
 echo "Exit status: $?"
 
-echo "-m all" | tee -a $here/$seq.full
+echo "-m all" | tee -a $seq_full
 pmfind -m all | _filter_discovery_unresolved
 echo "Exit status: $?"
 
-echo "-s pmcd -m all --resolve" | tee -a $here/$seq.full
+echo "-s pmcd -m all --resolve" | tee -a $seq_full
 pmfind -s pmcd -m all --resolve | _filter_discovery_resolved
 echo "Exit status: $?"
 
-echo "-q" | tee -a $here/$seq.full
+echo "-q" | tee -a $seq_full
 pmfind -q
 echo "Exit status: $?"
 
-echo "-q -s pmcd" | tee -a $here/$seq.full
+echo "-q -s pmcd" | tee -a $seq_full
 pmfind -q -s pmcd
 echo "Exit status: $?"
 
-echo "-q -m all" | tee -a $here/$seq.full
+echo "-q -m all" | tee -a $seq_full
 pmfind -q -m all
 echo "Exit status: $?"
 
-echo "-q -s pmcd -m all" | tee -a $here/$seq.full
+echo "-q -s pmcd -m all" | tee -a $seq_full
 pmfind -q -s pmcd -m all
 echo "Exit status: $?"
 

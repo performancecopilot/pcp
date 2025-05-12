@@ -1,0 +1,132 @@
+#!/bin/sh
+# PCP QA Test No. 1558
+# compatibility testing for libpcp.so.3 and PMAPI_VERSION_2 and
+# PMAPI_VERSION_4
+#
+# Copyright (c) 2025 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+test -f src/api_abi_compat || _notrun "src/api_abi_compat is not present"
+
+do_valgrind=false
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+    do_valgrind=true
+fi
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter_err()
+{
+    sed -i $tmp.err \
+	-e "s@$tmp@TMP@g" \
+    # end
+}
+
+# for host contexts ...
+#   nhosts: 1
+#   start: 23/04/2025 19:53:53.512169		<-- not deterministic
+#   origin: 23/04/2025 19:53:53.512169		<-- not deterministic
+#
+_filter_out()
+{
+    sed <$tmp.out \
+	-e "s@$tmp@TMP@g" \
+    | $PCP_AWK_PROG >$tmp.tmp '
+/nhosts: 1/	{ filter = 1 }
+filter == 1 && / start: /	{ $2 = "NOW"; $3 = "" }
+filter == 1 && / origin: /	{ $2 = "NOW"; $3 = "" }
+		{ print }'
+    mv $tmp.tmp $tmp.out
+}
+
+_filter_diff()
+{
+    sed \
+	-e '/^[0-9][0-9]*[ac][0-9][0-9]*$/d' \
+	-e '/^[0-9][0-9]*,[0-9][0-9]*[ac][0-9][0-9]*$/d' \
+	-e '/^[0-9][0-9]*[ac][0-9][0-9]*,[0-9][0-9]*$/d' \
+    # end
+}
+
+# run PMAPI_VERSION_4 and generate output as baseline, then
+# run other versions and diff outputs
+#
+_do_work()
+{
+    echo | tee -a $seq_full
+    echo "=== $@ ===" | tee -a $seq_full
+
+    echo "--- compat ---"
+    if $do_valgrind
+    then
+	_run_valgrind --save-output src/api_abi_compat -Dpmapi "$@"
+    else
+	src/api_abi_compat -Dpmapi "$@" 2>$tmp.err >$tmp.out
+    fi
+    _filter_err
+    cat $tmp.err | tee -a $seq_full
+    mv $tmp.err $tmp.err.base
+    _filter_out
+    cat $tmp.out | tee -a $seq_full
+    mv $tmp.out $tmp.out.base
+
+    echo "--- PMAPI_VERSION_2 ---"
+    if $do_valgrind
+    then
+	_run_valgrind --save-output src/api_abi_v2 -Dpmapi "$@"
+    else
+	src/api_abi_v2 -Dpmapi "$@" 2>$tmp.err >$tmp.out
+    fi
+    _filter_err
+    cat $tmp.err >>$seq_full
+    diff $tmp.err.base $tmp.err | _filter_diff
+    _filter_out
+    cat $tmp.out >>$seq_full
+    diff $tmp.out.base $tmp.out | _filter_diff
+
+    echo "--- PMAPI_VERSION_4 ---"
+    if $do_valgrind
+    then
+	_run_valgrind --save-output src/api_abi -Dpmapi "$@"
+    else
+	src/api_abi -Dpmapi "$@" 2>$tmp.err >$tmp.out
+    fi
+    _filter_err
+    cat $tmp.err >>$seq_full
+    diff $tmp.err.base $tmp.err | _filter_diff
+    _filter_out
+    cat $tmp.out >>$seq_full
+    diff $tmp.out.base $tmp.out | _filter_diff
+}
+
+# real QA test starts here
+
+_do_work -h local: -t 123.456 -Z UTC
+_do_work -a archives/omnibus_v3 -z -S +2msec -O +3msec -t 0.1 -T 5sec
+
+# success, all done
+exit

@@ -16,7 +16,6 @@ _pmdabcc_check_tracepoint random:urandom_read
 
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
-$sudo rm -rf $tmp.* $seq.full
 
 _value_filter()
 {
@@ -49,7 +48,7 @@ _pmdabcc_wait_for_metric
 for i in 0 1 2 3 4 5 6 7 8 9 ; do mktemp -u > /dev/null ; done
 
 echo "=== report metric values ==="
-pminfo -dfmtT bcc.tracepoint.hits 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bcc.tracepoint.hits 2>&1 | tee -a $seq_full \
 | _value_filter
 
 _pmdabcc_remove

@@ -38,6 +38,7 @@ sample.long.bin_ctr
     inst [900 or "bin-900"] value 900
 
 Now with the derived metrics ...
+bind_expr: error: global derived metric sample.long.lots: operand: sample.million: Unknown metric name
 
 sample.long.one
     value 1

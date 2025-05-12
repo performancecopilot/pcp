@@ -17,7 +17,6 @@ echo "QA output created by $seq"
 
 signal=$PCP_BINADM_DIR/pmsignal
 status=0	# success is the default!
-$sudo rm -rf $tmp.*
 done_clean=false
 
 install_on_cleanup=false

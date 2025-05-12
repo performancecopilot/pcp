@@ -2,14 +2,19 @@ FILES = \
 	atop-proc \
 	disk \
 	filesystem \
+	hugepages \
+	hv-balloon \
+	hv-balloon-summary \
 	interrupts \
 	nfsclient \
 	numa \
+	numahugepages \
 	numastat \
 	pidstat \
 	pidstat-summary \
 	rpc \
 	tapestat \
 	tty \
+	vmmemctl \
 	xfs-perdev \
 # END

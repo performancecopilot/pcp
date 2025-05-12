@@ -1,4 +1,4 @@
-'\"macro stdmacro
+'\" t
 .\"
 .\" Copyright (c) 2014 Red Hat.
 .\"
@@ -20,41 +20,55 @@
 \f3pmdafreebsd\f1,
 \f3pmdalinux\f1,
 \f3pmdanetbsd\f1,
+\f3pmdaopenbsd\f1,
 \f3pmdasolaris\f1,
 \f3pmdawindows\f1 \- operating system kernel performance metrics domain agents
 .SH SYNOPSIS
 \f3$PCP_PMDAS_DIR/aix/pmdaaix\f1
+[\f3\-D\f1 \f2debug\f1]
 [\f3\-d\f1 \f2domain\f1]
 [\f3\-l\f1 \f2logfile\f1]
 [\f3\-U\f1 \f2username\f1]
 .br
 \f3$PCP_PMDAS_DIR/darwin/pmdadarwin\f1
+[\f3\-D\f1 \f2debug\f1]
 [\f3\-d\f1 \f2domain\f1]
 [\f3\-l\f1 \f2logfile\f1]
 [\f3\-U\f1 \f2username\f1]
 .br
 \f3$PCP_PMDAS_DIR/freebsd/pmdafreebsd\f1
+[\f3\-D\f1 \f2debug\f1]
 [\f3\-d\f1 \f2domain\f1]
 [\f3\-l\f1 \f2logfile\f1]
 [\f3\-U\f1 \f2username\f1]
 .br
 \f3$PCP_PMDAS_DIR/linux/pmdalinux\f1
 [\f3\-A\f1]
+[\f3\-D\f1 \f2debug\f1]
 [\f3\-d\f1 \f2domain\f1]
 [\f3\-l\f1 \f2logfile\f1]
 [\f3\-U\f1 \f2username\f1]
 .br
 \f3$PCP_PMDAS_DIR/netbsd/pmdanetbsd\f1
+[\f3\-D\f1 \f2debug\f1]
+[\f3\-d\f1 \f2domain\f1]
+[\f3\-l\f1 \f2logfile\f1]
+[\f3\-U\f1 \f2username\f1]
+.br
+\f3$PCP_PMDAS_DIR/netbsd/pmdaopenbsd\f1
+[\f3\-D\f1 \f2debug\f1]
 [\f3\-d\f1 \f2domain\f1]
 [\f3\-l\f1 \f2logfile\f1]
 [\f3\-U\f1 \f2username\f1]
 .br
 \f3$PCP_PMDAS_DIR/solaris/pmdasolaris\f1
+[\f3\-D\f1 \f2debug\f1]
 [\f3\-d\f1 \f2domain\f1]
 [\f3\-l\f1 \f2logfile\f1]
 [\f3\-U\f1 \f2username\f1]
 .br
 \f3$PCP_PMDAS_DIR/windows/pmdawindows\f1
+[\f3\-D\f1 \f2debug\f1]
 [\f3\-d\f1 \f2domain\f1]
 [\f3\-l\f1 \f2logfile\f1]
 [\f3\-U\f1 \f2username\f1]
@@ -164,6 +178,53 @@ variable may be used to specify an alternative
 configuration file,
 as described in
 .BR pcp.conf (5).
+.SH DEBUGGING OPTIONS
+The
+.B \-D
+or
+.B \-\-debug
+option enables the output of additional diagnostics on
+.I stderr
+to help triage problems, although the information is sometimes cryptic and
+primarily intended to provide guidance for developers rather end-users.
+.I debug
+is a comma separated list of debugging options; use
+.BR pmdbg (1)
+with the
+.B \-l
+option to obtain
+a list of the available debugging options and their meaning.
+.PP
+Debugging options specific to
+\fBpmdaaix\fP,
+\fBpmdafreebsd\fP,
+\fBpmdanetbsd\fP,
+\fBpmdaopenbsd\fP and
+\fBpmdasolaris\fP
+are as follows:
+.TS
+box;
+lf(B) | lf(B)
+lf(B) | lf(R) .
+Option	Description
+_
+appl0	verbose diagnostics
+.TE
+.PP
+Debugging options specific to
+.B pmdalinux
+are as follows:
+.TS
+box;
+lf(B) | lf(B)
+lf(B) | lf(R) .
+Option	Description
+_
+appl1	disk-related metrics
+_
+appl8	filesys metrics
+.TE
+.SH SYNOPSIS
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR dbpmda (1),
@@ -175,4 +236,4 @@ and
 .\" control lines for scripts/man-spell
 .\" +ok+ CVE KERNEL_PMDAS aix darwin filesys freebsd hinv linux netbsd
 .\" +ok+ platfrom pmdaaix pmdadarwin pmdafreebsd pmdalinux pmdanetbsd
-.\" +ok+ pmdasolaris pmdawindows procfs solaris sysfs
+.\" +ok+ pmdaopenbsd pmdasolaris pmdawindows procfs solaris sysfs

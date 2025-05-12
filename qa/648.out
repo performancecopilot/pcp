@@ -5,7 +5,7 @@ Updating the Performance Metrics Name Space (PMNS) ...
 Terminate PMDA if already installed ...
 [...install files, make output...]
 Updating the PMCD control file, and notifying PMCD ...
-Check mmv metrics have appeared ... 3 metrics and 3 values
+Check mmv metrics have appeared ... 4 metrics and 4 values
 
 === validate values ===
 
@@ -44,6 +44,14 @@ mmv.control.debug PMID: 70.0.1 [Debug flag]
 Count of currently mapped and exported statistics files.
 Help:
 mmv.control.files PMID: 70.0.2 [Memory mapped file count]
+
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+    value 2
+Count of currently mapped and exported metrics.
+Excludes the mmv.control.* metrics.
+Help:
+mmv.control.metrics PMID: 70.0.3 [Memory mapped metric count]
 
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none

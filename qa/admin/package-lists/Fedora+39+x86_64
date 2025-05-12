@@ -40,6 +40,7 @@ gfs2-utils
 git
 git-core
 grep
+inih-devel
 iproute
 httpd
 initscripts
@@ -142,6 +143,7 @@ sysstat
 systemd-devel
 systemtap-devel
 systemtap-sdt-devel
+targetcli
 time
 valgrind
 xfsprogs

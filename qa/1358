@@ -18,7 +18,6 @@ _check_podman_images busybox
 
 iam=podman
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 
 pmdapodman_install()
 {
@@ -29,7 +28,7 @@ pmdapodman_install()
     echo
     echo "=== podman agent installation ==="
     $sudo ./Install </dev/null >$tmp.out 2>&1
-    cat $tmp.out >>$here/$seq.full
+    cat $tmp.out >>$seq_full
     # Check podman metrics have appeared ... X metrics and Y values
     _filter_pmda_install <$tmp.out \
     | sed \
@@ -41,9 +40,13 @@ pmdapodman_install()
                                         { print }'
 }
 
+# Note:
+#	a couple of the metrics have floating point values, but
+#	if the fraction part is zero, they look like integer
+#	values ... the awk at the end fixes this
+#
 _filter()
 {
-    #grep -E "^podman|$pod1|$pod2|$container1|$container2" | \
     grep -E "^podman|$container1|$container2" | \
     sed \
 	-e "s/$container1/CONTAINER/g" \
@@ -53,23 +56,29 @@ _filter()
 	-e 's/ value [0-9]\+/ value INTEGER/g' \
 	-e 's/ value ".*"/ value STRING/g' \
 	-e 's/inst \[[[0-9]\+ or/ inst [NNN or/g' \
-	#-e "s/$pod1/POD/g" \
-	#-e "s/$pod2/POD/g" \
-    #end
+    | $PCP_AWK_PROG '
+$1 == "podman.container.stats.cpu" || $1 == "podman.container.stats.mem_perc" {
+			  print
+			  xpect_float = 1
+			  next
+			}
+$1 ~ /^podman\./	{ xpect_float = 0 }
+xpect_float == 1	{ sub(/INTEGER/, "FLOAT") }
+			{ print }'
 }
 
 _cleanup()
 {
     if [ -n "$container1" -o -n "$container2" ]
     then
-        echo "== removing containers" | tee -a $here/$seq.full
+        echo "== removing containers" | tee -a $seq_full
         _remove_podman_containers $container1 $container2
         container2=""
         container1=""
     fi
     if [ -n "$pod1" -o -n "$pod2" ]
     then
-        echo "== removing pods" | tee -a $here/$seq.full
+        echo "== removing pods" | tee -a $seq_full
         _remove_podman_pods $pod1 $pod2
         pod2=""
         pod1=""
@@ -88,22 +97,22 @@ pmdapodman_install
 
 # create some new podman containers
 container1=`$podman run -d busybox sleep 10`
-echo "== container1: $container1" >> $here/$seq.full
+echo "== container1: $container1" >> $seq_full
 container2=`$podman run -d busybox sleep 10`
-echo "== container2: $container2" >> $here/$seq.full
+echo "== container2: $container2" >> $seq_full
 [ -z "$container1" -o -z "$container2" ] && _fail "Failed to create containers"
 
 # RHBZ #1958732
 # create some new podman pods
 #pod1=`$podman pod create`
-#echo "== pod1: $pod1" >> $here/$seq.full
+#echo "== pod1: $pod1" >> $seq_full
 #pod2=`$podman pod create`
-#echo "== pod2: $pod2" >> $here/$seq.full
+#echo "== pod2: $pod2" >> $seq_full
 #[ -z "$pod1" -o -z "$pod2" ] && _fail "Failed to create PODs"
 
 # fetch new state, check for new containers and pods
 echo "=== podman metric verification ==="
-pminfo --fetch podman.container | tee -a $here/$seq.full | _filter
+pminfo --fetch podman.container | tee -a $seq_full | _filter
 
 echo
 echo "=== remove $iam agent ==="

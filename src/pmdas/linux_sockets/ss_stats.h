@@ -11,14 +11,15 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
+#define SZ_ADDR_PORT	64	/* max size of an address + port */
 typedef struct ss_stats {
     int			instid;
     char		netid[16];	/* protocol identifer */
     char		state[16];	/* socket state */
     __int32_t		recvq;
     __int32_t		sendq;
-    char		src[32];	/* source address and port */
-    char		dst[32];	/* dest address and port */
+    char		src[SZ_ADDR_PORT];	/* source address and port */
+    char		dst[SZ_ADDR_PORT];	/* dest address and port */
     __int64_t 		inode;		/* socket inode in VFS */
     char		timer_str[64];
     char		timer_name[16];	/* e.g. "keepalive" */

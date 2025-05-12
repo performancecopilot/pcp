@@ -4,6 +4,9 @@
 *.dylib
 *.py
 779246
+api_abi
+api_abi_compat
+api_abi_v2
 addlabels
 agenttimeout
 aggrstore
@@ -13,6 +16,7 @@ archend
 archfetch
 archinst
 arch_maxfd
+args
 atomstr
 badUnitsStr_r
 badloglabel
@@ -21,7 +25,9 @@ badpmcdpmid
 badpmda
 batch_import.pl
 bcc_profile
+bigpmcdpmids
 chain
+check_attribute
 check_fault_injection
 check_import
 check_import_name
@@ -171,6 +177,7 @@ mv-bigbin.9
 mv-interp.1
 mv-interp.2
 nameall
+newcontext
 nullinst
 numberstr
 obs
@@ -185,6 +192,7 @@ pcp_lite_crash
 pdubufbounds
 pducheck
 pducrash
+pdu-gadget
 pdu-server
 permfetch
 pmcdgone
@@ -221,6 +229,7 @@ scale
 scandata
 scanmeta
 semstr
+sha1ext2int
 sha1int2ext
 sizeof
 slow_af
@@ -234,6 +243,7 @@ storepdu
 storepmcd
 store_and_fetch
 stripmark
+strnfoo
 sum16
 tabort
 template
@@ -269,3 +279,4 @@ xlog
 xmktime
 xval
 xxx
+y2038

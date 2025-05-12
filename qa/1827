@@ -27,7 +27,6 @@ cpus=`pmprobe -v hinv.ncpu | awk '{print $3}'`
 hostname=`hostname`
 machineid=`_machine_id`
 domainid=`_domain_name`
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 MYUID=`id -u`
@@ -35,7 +34,7 @@ MYGID=`id -g`
 
 _filter_pcp2openmetrics_http()
 {
-    tee -a $here/$seq.full \
+    tee -a $seq_full \
     | col -b \
     | sed \
         -e '/domainname=/s/domainname="*'$domainid'"*/domainname="DOMAINID"/' \
@@ -53,12 +52,20 @@ $PCP_PYTHON_PROG $here/src/pythonserver.py $port >$tmp.python.out 2>&1 &
 pid=$!
 sleep 2 # let server start up
 
-echo "pcp2openmetrics invocation" | tee -a $here/$seq.full
+echo "---" 
+echo "pcp2openmetrics invocation" | tee -a $seq_full
 pcp2openmetrics -s1 -u http://localhost:$port hinv.ncpu >$tmp.openmetrics.out 2>$tmp.openmetrics.err
 
 echo "pcp2openmetrics HTTP POST (sorted):"
 _filter_pcp2openmetrics_http <$tmp.python.out
 _check_http_filter <$tmp.python2.out
+
+cat /dev/null > $tmp.python.out
+
+echo "---"
+echo "testing -x option" | tee -a $seq_full
+pcp2openmetrics -s1 -x -u http://localhost:$port hinv.ncpu >$tmp.openmetrics2.out 2>$tmp.openmetrics2.err
+_filter_pcp2openmetrics_http <$tmp.python.out
 
 # terminate pythonserver.py now
 pmsignal $pid >/dev/null 2>&1 

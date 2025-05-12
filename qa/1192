@@ -18,7 +18,7 @@ _cleanup()
 {
     if [ -n "$container" ]
     then
-        echo "== removing container" | tee -a $seq.full
+        echo "== removing container" | tee -a $seq_full
         _remove_podman_containers $container
         container=""
     fi 
@@ -26,13 +26,12 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _filter_pminfo()
 {
     # filter ip_vti tunnel type connections that may exist on (some) machines
-    tee -a $here/$seq.full >$tmp.tmp
+    tee -a $seq_full >$tmp.tmp
     sed <$tmp.tmp \
 	-e '/ip_vti/d' \
 	-e '2q' \
@@ -48,9 +47,9 @@ _filter_pminfo()
 
 # real QA test starts here
 container=`$sudo $podman run -d busybox sleep 15`
-echo "== container: $container" >> $seq.full
+echo "== container: $container" >> $seq_full
 
-echo "== kernel PMDA" | tee -a $seq.full
+echo "== kernel PMDA" | tee -a $seq_full
 # expect 2 interfaces (lo/eth0) # mounts different.
 metrics="network.interface.in.bytes" # filesys.used
 for m in $metrics
@@ -59,7 +58,7 @@ do
 done
 echo
 
-echo "== procfs PMDA" | tee -a $seq.full
+echo "== procfs PMDA" | tee -a $seq_full
 # expect values for a single process (sleep) and one cgroup
 metrics="proc.memory.rss cgroup.memory.stat.pgfault"
 for m in $metrics
@@ -68,16 +67,16 @@ do
 done
 echo
 
-echo "== pmcd PMDA" | tee -a $seq.full
+echo "== pmcd PMDA" | tee -a $seq_full
 # expect a different hostname to local hostname
 pmprobe --values --container=$container pmcd.hostname > $tmp.chost
 pmprobe --values pmcd.hostname > $tmp.host
 container_hostname=`awk '{ print $3 }' $tmp.chost`
 localhost_hostname=`awk '{ print $3 }' $tmp.host`
 
-cat $tmp.chost $tmp.host >> $seq.full
-echo container hostname: $container_hostname >> $seq.full
-echo localhost hostname: $localhost_hostname >> $seq.full
+cat $tmp.chost $tmp.host >> $seq_full
+echo container hostname: $container_hostname >> $seq_full
+echo localhost hostname: $localhost_hostname >> $seq_full
 
 if [ $container_hostname != $localhost_hostname ]
 then

@@ -210,7 +210,7 @@ double Platform_setCPUValues(Meter* this, unsigned int cpu) {
       this->curItems = 4;
       percent = v[CPU_METER_NICE] + v[CPU_METER_NORMAL] + v[CPU_METER_KERNEL] + v[CPU_METER_IRQ];
    } else {
-      v[CPU_METER_NORMAL] = cpuData->systemAllPercent;
+      v[CPU_METER_KERNEL] = cpuData->systemAllPercent;
       this->curItems = 3;
       percent = v[CPU_METER_NICE] + v[CPU_METER_NORMAL] + v[CPU_METER_KERNEL];
    }
@@ -312,7 +312,8 @@ bool Platform_getDiskIO(DiskIOData* data) {
 
    int count = current.dinfo->numdevs;
 
-   unsigned long long int bytesReadSum = 0, bytesWriteSum = 0, timeSpendSum = 0;
+   uint64_t bytesReadSum = 0, bytesWriteSum = 0, timeSpendSum = 0;
+   uint64_t numDisks = 0;
 
    // get data
    for (int i = 0; i < count; i++) {
@@ -330,11 +331,13 @@ bool Platform_getDiskIO(DiskIOData* data) {
       bytesReadSum += bytes_read;
       bytesWriteSum += bytes_write;
       timeSpendSum += 1000 * busy_time;
+      numDisks++;
    }
 
    data->totalBytesRead = bytesReadSum;
    data->totalBytesWritten = bytesWriteSum;
    data->totalMsTimeSpend = timeSpendSum;
+   data->numDisks = numDisks;
    return true;
 }
 
@@ -348,7 +351,6 @@ bool Platform_getNetworkIO(NetworkIOData* data) {
    if (r < 0)
       return false;
 
-   memset(data, 0, sizeof(NetworkIOData));
    for (int i = 1; i <= count; i++) {
       struct ifmibdata ifmd;
       size_t ifmdLen = sizeof(ifmd);

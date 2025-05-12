@@ -30,27 +30,28 @@ _cleanup()
 
 iam=bind2
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup" 0 1 2 3 15
 
 # real QA test starts here
 _save_config $PCP_PMDAS_DIR/bind2/bind2.conf
-_prepare_pmda_install $iam
+_prepare_pmda_install $iam || _exit 1
 
 $sudo ./Remove >/dev/null 2>&1
 
+# put the QA test config file in place
+echo "test=$tmp.xml" > $tmp.conf
+$sudo cp $tmp.conf $PCP_PMDAS_DIR/bind2/bind2.conf
+
 rm -f $tmp.out
-xmlfiles=`ls $here/named/bind-*.xml | LC_COLLATE=POSIX sort`
+xmlfiles=`( cd $here/named; ls bind-*.xml ) | LC_COLLATE=POSIX sort`
 for xml in $xmlfiles
 do
-    base=`basename $xml`
+    # XML files need to be a place the user $PCP_USER (pmcd) can read
+    #
+    cp $here/named/$xml $tmp.xml
 
     echo
-    echo "=== $iam agent installation with test=$base ==="
-
-    # put the test config file in place
-    echo "test=$xml" > $tmp.conf
-    $sudo cp $tmp.conf $PCP_PMDAS_DIR/bind2/bind2.conf
+    echo "=== $iam agent installation with test=$xml ==="
 
     $sudo ./Install </dev/null >>$tmp.out 2>&1
     _filter_pmda_install <$tmp.out \

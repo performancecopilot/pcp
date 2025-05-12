@@ -24,7 +24,6 @@ _cleanup()
 }
 
 status=0	# success is the default!
-$sudo rm -rf $tmp.*
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # don't need to regenerate config.default with pmlogconf
@@ -34,10 +33,10 @@ export PMLOGGER_CHECK_SKIP_LOGCONF=yes
 # force sample PMDA back to a sane state
 _reset()
 {
-    _service pmcd stop >/dev/null 2>&1
-    _service pmcd start >/dev/null 2>&1
-    _wait_for_pmcd
-    _wait_for_pmlogger
+    if ! _service pmcd stop >/dev/null 2>&1; then _exit 1; fi
+    if ! _service pmcd start >/dev/null 2>&1; then _exit 1; fi
+    _wait_for_pmcd || _exit 1
+    _wait_for_pmlogger || _exit 1
 }
 
 _filter()

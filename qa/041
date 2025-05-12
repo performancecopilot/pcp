@@ -1,6 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 041
-# Test $PCP_RC_DIR/pcp start 
+# Test $PCP_RC_DIR/pcp start
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -17,7 +17,7 @@ echo "QA output created by $seq"
 
 _filter()
 {
-    tee -a $seq.full \
+    tee -a $seq_full \
     | _filter_pmcd_log \
     | sed \
 	-e '/^ *$/d' \
@@ -35,16 +35,15 @@ _filter()
 
 _expect()
 {
-    echo "" | tee -a $seq.full
-    echo "### Expect: $* ###" | tee -a $seq.full
-    echo "" | tee -a $seq.full
+    echo "" | tee -a $seq_full
+    echo "### Expect: $* ###" | tee -a $seq_full
+    echo "" | tee -a $seq_full
 }
 
 status=1
 _needclean=true
 TAG=000666000magic
 LOGGING_DIR="$PCP_ARCHIVE_DIR"
-rm -f $seq.full
 trap "_cleanup" 0 1 2 3 15
 
 _stop_auto_restart pmcd
@@ -84,8 +83,8 @@ $sudo cp $tmp.tmp $PCP_PMLOGGERCONTROL_PATH
 # I have no idea why this is required, but this test run
 # after 040 sometimes produces garbled messages unless
 # this is done!
-_service pcp stop >$tmp.out 2>$tmp.err
-cat $tmp.out >>$seq.full
+if ! _service pcp stop >$tmp.out 2>$tmp.err; then _exit 1; fi
+cat $tmp.out >>$seq_full
 _filter_pcp_stop <$tmp.out
 cat $tmp.err
 
@@ -98,8 +97,8 @@ _expect "connection refused"
 pminfo -f sample.long.million 2>&1 | _filter
 
 ( _service pmcd restart; _service pmlogger restart ) >$tmp.one 2>&1
-_wait_for_pmcd
-_wait_for_pmlogger
+_wait_for_pmcd || _exit 1
+_wait_for_pmlogger || _exit 1
 
 _expect "one million retrieved OK from sample.long.million"
 pminfo -f sample.long.million
@@ -117,8 +116,8 @@ then
     cat $PCP_LOG_DIR/pmcd/pmcd.log.prev
     exit
 fi
-echo "pmcd pid=$pid" >>$seq.full
-ps $PCP_PS_ALL_FLAGS | grep -E "PID|$pid" >>$seq.full
+echo "pmcd pid=$pid" >>$seq_full
+ps $PCP_PS_ALL_FLAGS | grep -E "PID|$pid" >>$seq_full
 
 $sudo kill -STOP $pid
 
@@ -132,10 +131,10 @@ export PMCD_CONNECT_TIMEOUT
 pminfo -f sample.long.million >$tmp.tmp 2>&1 &
 
 _expect "Forcing termination"
-ps $PCP_PS_ALL_FLAGS | grep -E "PID|$pid" >>$seq.full
+ps $PCP_PS_ALL_FLAGS | grep -E "PID|$pid" >>$seq_full
 ( $sudo $PCP_RC_DIR/pmcd restart; $sudo $PCP_RC_DIR/pmlogger restart ) >$tmp.two 2>&1
-_wait_for_pmcd
-_wait_for_pmlogger
+_wait_for_pmcd || _exit 1
+_wait_for_pmlogger || _exit 1
 wait
 
 _filter_pcp_start <$tmp.one | _filter

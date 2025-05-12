@@ -24,13 +24,13 @@ static pmID pmid_a[N_PMID_A];
 static pmID pmid_b[N_PMID_B];
 
 static void
-printstamp(struct timeval *tp)
+printstamp(struct timespec *tp)
 {
     static struct tm    tmp;
     time_t		clock = (time_t)tp->tv_sec;
 
     pmLocaltime(&clock, &tmp);
-    printf("%02d:%02d:%02d.%03d", tmp.tm_hour, tmp.tm_min, tmp.tm_sec, (int)(tp->tv_usec/1000));
+    printf("%02d:%02d:%02d.%03d", tmp.tm_hour, tmp.tm_min, tmp.tm_sec, (int)(tp->tv_nsec/1000000));
 }
 
 
@@ -54,10 +54,10 @@ main(int argc, char **argv)
     char	*namespace = PM_NS_DEFAULT;
     int		samples = -1;
     int		sample;
-    struct timeval start;
-    double	delta = 1.0;
+    struct timespec start;
+    struct timespec delta = { 1, 0 };
     char	*endnum;
-    pmResult	*result;
+    pmHighResResult	*result;
     int		i;
     int		status = 0;
 
@@ -122,8 +122,8 @@ main(int argc, char **argv)
 	    break;
 
 	case 't':	/* delta seconds (double) */
-	    delta = strtod(optarg, &endnum);
-	    if (*endnum != '\0' || delta <= 0.0) {
+	    pmtimespecFromReal(strtod(optarg, &endnum), &delta);
+	    if (*endnum != '\0' || delta.tv_sec <= 0.0 || delta.tv_nsec < 0) {
 		fprintf(stderr, "%s: -t requires floating point argument\n", pmGetProgname());
 		errflag++;
 	    }
@@ -225,7 +225,7 @@ Options\n\
 	}
 	if (type == PM_CONTEXT_ARCHIVE)
 	    printf("Note: timezone set to local timezone of host \"%s\" from archive\n\n",
-		label.ll_hostname);
+		label.hostname);
 	else
 	    printf("Note: timezone set to local timezone of host \"%s\"\n\n", host);
     }
@@ -271,7 +271,7 @@ Options\n\
     }
 
     /* skip the first two seconds, due to staggered start in log */
-    start = label.ll_start;
+    start = label.start;
     start.tv_sec += 2;
 
     printf("Start at: ");
@@ -279,13 +279,13 @@ Options\n\
     printf("\n\n");
 
     printf("Pass One: rewind and fetch metrics_a until end of log\n");
-    if ((sts = pmSetMode(PM_MODE_INTERP, &start, (int)(delta * 1000))) < 0) {
+    if ((sts = pmSetModeHighRes(PM_MODE_INTERP, &start, &delta)) < 0) {
 	fprintf(stderr, "%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
 
     for (sample=0; ; sample++) {
-	if ((sts = pmFetch(N_PMID_A, pmid_a, &result)) < 0) {
+	if ((sts = pmFetchHighRes(N_PMID_A, pmid_a, &result)) < 0) {
 	    if (sts != PM_ERR_EOL) {
 		fprintf(stderr, "%s: pmFetch: %s\n", pmGetProgname(), pmErrStr(sts));
 		status = 1;
@@ -304,23 +304,23 @@ Options\n\
 	else {
 	    if (result->vset[0]->vlist[0].value.lval != 1) {
 		printf("expected value=1, got value=%d\n", result->vset[0]->vlist[0].value.lval);
-		__pmDumpResult(stdout, result);
+		__pmDumpHighResResult(stdout, result);
 		status = 1;
 	    }
 	    else
 		printf("correct result\n");
 	}
-	pmFreeResult(result);
+	pmFreeHighResResult(result);
     }
 
     printf("Pass Two: rewind and fetch metrics_b until end of log\n");
-    if ((sts = pmSetMode(PM_MODE_INTERP, &start, (int)(delta * 1000))) < 0) {
+    if ((sts = pmSetModeHighRes(PM_MODE_INTERP, &start, &delta)) < 0) {
 	fprintf(stderr, "%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
 
     for (sample=0; ; sample++) {
-	if ((sts = pmFetch(N_PMID_B, pmid_b, &result)) < 0) {
+	if ((sts = pmFetchHighRes(N_PMID_B, pmid_b, &result)) < 0) {
 	    if (sts != PM_ERR_EOL) {
 		fprintf(stderr, "%s: pmFetch: %s\n", pmGetProgname(), pmErrStr(sts));
 		status = 1;
@@ -340,12 +340,12 @@ Options\n\
 	    if (result->vset[0]->vlist[0].value.lval != 1) {
 		printf("expected value=1, got value=%d\n", result->vset[0]->vlist[0].value.lval);
 		status = 1;
-		__pmDumpResult(stdout, result);
+		__pmDumpHighResResult(stdout, result);
 	    }
 	    else
 		printf("correct result\n");
 	}
-	pmFreeResult(result);
+	pmFreeHighResResult(result);
     }
 
     exit(status);

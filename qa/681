@@ -31,7 +31,7 @@ _cleanup()
 #
 _filter()
 {
-    tee -a $here/$seq.full \
+    tee -a $seq_full \
     | sed \
 	-e 's/pid=[0-9][0-9]*/pid=PID/g' \
 	-e 's/fp=[^ ]*/fp=ADDR/' \
@@ -57,7 +57,6 @@ _od_filter()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
@@ -93,6 +92,18 @@ _run_valgrind src/exectest -Dexec -p $tmp.sh 'blah;trickme|foo' cat and dog 2>&1
 
 echo
 echo "=== error and failure cases ==="
+# plug leak in test program, sometimes (probably in child that fails
+# execvp()
+#
+cat <<'End-of-File' >$tmp.suppress
+{
+   foo
+   Memcheck:Leak
+   fun:malloc
+   fun:main
+}
+End-of-File
+grind_extra="--suppressions=$tmp.suppress"
 _run_valgrind src/exectest -Dexec -- /a/b/c -f oo bar 2>&1 | _filter
 
 # success, all done

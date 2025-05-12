@@ -1,5 +1,5 @@
 QA output created by 1603
-== Start a Redis cluster
+== Start a key server cluster
 == Start node 1
 PONG
 OK
@@ -10,7 +10,7 @@ OK
 PONG
 OK
 
-== Create Redis cluster
+== Create key server cluster
 [OK] All nodes agree about slots configuration.
 [OK] All 16384 slots covered.
 

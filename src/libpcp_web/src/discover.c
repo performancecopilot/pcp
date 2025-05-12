@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2022 Red Hat.
+ * Copyright (c) 2018-2022,2024 Red Hat.
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -568,7 +568,7 @@ pmDiscoverFlagsStr(pmDiscover *p)
     pmsprintf(buf, sizeof(buf), "flags: 0x%04x |", p->flags);
     for (i=0; flags_str[i].name; i++) {
     	if (p->flags & flags_str[i].flag)
-	    strncat(buf, flags_str[i].name, sizeof(buf)-1);
+	    pmstrncat(buf, sizeof(buf), flags_str[i].name);
     }
     return buf;
 }
@@ -1192,7 +1192,7 @@ archive_dir_lock_path(pmDiscover *p)
     char	path[MAXNAMELEN], lockpath[MAXNAMELEN];
     int		sep = pmPathSeparator();
 
-    strncpy(path, p->context.name, sizeof(path)-1);
+    pmstrncpy(path, sizeof(path), p->context.name);
     pmsprintf(lockpath, sizeof(lockpath), "%s%c%s", dirname(path), sep, "lock");
     return strndup(lockpath, sizeof(lockpath));
 }
@@ -1564,8 +1564,15 @@ pmDiscoverInvokeCallBacks(pmDiscover *p)
 	    struct timespec	after = {0, 1};
 	    struct timespec	tp;
 
-	    /* create the PMAPI context (once off) */
-	    if ((sts = pmNewContext(p->context.type, p->context.name)) < 0) {
+	    /*
+	     * create the PMAPI context (once off) ...
+	     * position at last volume (a) to reduce the need for
+	     * possible decompression in the case of an active
+	     * archive being concurrently written while earlier volumes
+	     * have been compressed, and (b) we're interested in the
+	     * last timestamp => the last volume
+	     */
+	    if ((sts = pmNewContext(p->context.type | PM_CTXFLAG_LAST_VOLUME, p->context.name)) < 0) {
 		if (sts == -ENOENT) {
 		    /* newly deleted archive */
 		    p->flags |= PM_DISCOVER_FLAGS_DELETED;
@@ -1588,10 +1595,10 @@ pmDiscoverInvokeCallBacks(pmDiscover *p)
 	    mmv_inc(data->map, data->metrics[DISCOVER_LOGVOL_NEW_CONTEXTS]);
 	    p->ctx = sts;
 
-	    if ((sts = pmGetHighResArchiveEnd(&tp)) < 0) {
+	    if ((sts = pmGetArchiveEnd(&tp)) < 0) {
 		mmv_inc(data->map, data->metrics[DISCOVER_ARCHIVE_END_FAILED]);
 		/* Less likely, but could still be too early (as above) */
-		infofmt(msg, "pmGetHighResArchiveEnd failed for %s: %s\n",
+		infofmt(msg, "pmGetArchiveEnd failed for %s: %s\n",
 				p->context.name, pmErrStr(sts));
 		moduleinfo(p->module, PMLOG_ERROR, msg, p->data);
 		pmDestroyContext(p->ctx);
@@ -1660,7 +1667,7 @@ pmDiscoverInvokeCallBacks(pmDiscover *p)
     }
 
     if ((p->flags & PM_DISCOVER_FLAGS_META_IN_PROGRESS) == 0) {
-	/* no metdata read in progress, so process new datavol data, if any */
+	/* no metadata read in progress, so process new datavol data, if any */
 	process_logvol(p);
     }
 }
@@ -1727,7 +1734,7 @@ changed_callback(pmDiscover *p)
     time(&now);
     if ((p->flags & PM_DISCOVER_FLAGS_NEW) == 0) {
 	if (now - p->lastcb < throttle ||
-	    redisSlotsInflightRequests(data->slots) > 1000000) {
+	    keySlotsInflightRequests(data->slots) > 1000000) {
 	    mmv_inc(data->map, data->metrics[DISCOVER_THROTTLE_CALLBACKS]);
 	    return; /* throttled */
 	}
@@ -1909,7 +1916,7 @@ pmDiscoverDecodeMetaDesc(uint32_t *buf, int buflen, pmDesc *p_desc, int *p_numna
 	    free(names);
 	    return -ENOMEM;
 	}
-	strncpy(names[i], cp, len);
+	memcpy(names[i], cp, len);
 	names[i][len] = '\0';
 	cp += len;
     }

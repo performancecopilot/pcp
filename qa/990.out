@@ -1,95 +1,94 @@
 QA output created by 990
 
 == generating bad header data files ==
--- dump header-1
+-- dump header_1
 Bad file size: too small for a header
 
--- dump header-2
+-- dump header_2
 Bad magic: MMv
 
--- dump header-3
+-- dump header_3
 Version 9999 not supported
 
--- dump header-4
-MMV file   = MMV_STATS_DIR/header-4
+-- dump header_4
+MMV file   = MMV_STATS_DIR/header_4
 Version    = 1
-Generated  = 0
+Generated  = 1
 TOC count  = 2
 Cluster    = 67108864
 Bad cluster: 67108864 is not a valid cluster ID
 
--- dump header-5
-MMV file   = MMV_STATS_DIR/header-5
+-- dump header_5
+MMV file   = MMV_STATS_DIR/header_5
 Version    = 1
-Generated  = 0
+Generated  = 1
 TOC count  = 0
 Bad tocs: invalid table of contents count (0)
 
--- dump header-6
-MMV file   = MMV_STATS_DIR/header-6
+-- dump header_6
+MMV file   = MMV_STATS_DIR/header_6
 Version    = 1
-Generated  = 0
+Generated  = 1
 TOC count  = 4294967295
 Bad tocs: invalid table of contents count (-1)
 
 
 == generating bad contents data files ==
--- dump contents-1
-MMV file   = MMV_STATS_DIR/contents-1
+-- dump contents_1
+MMV file   = MMV_STATS_DIR/contents_1
 Version    = 1
-Generated  = 0
+Generated  = 1
 TOC count  = 2
 Cluster    = 0
 Process    = 0
 Flags      = 0x0 (none)
 Bad file size: too small for 2 TOC entries
 
--- dump contents-2
-MMV file   = MMV_STATS_DIR/contents-2
+-- dump contents_2
+MMV file   = MMV_STATS_DIR/contents_2
 Version    = 1
-Generated  = 0
+Generated  = 1
 TOC count  = 2
 Cluster    = 0
 Process    = 0
 Flags      = 0x0 (none)
 Unrecognised TOC[0] type: 0x270f
 
-TOC[1]: offset 56, values offset 0 (1 entries)
-  [0/0] MMV = 5655885
+TOC[1]: offset 56, string offset 72 (1 entries)
+  [1/72] 
 
--- dump contents-3
-MMV file   = MMV_STATS_DIR/contents-3
+-- dump contents_3
+MMV file   = MMV_STATS_DIR/contents_3
 Version    = 1
-Generated  = 0
+Generated  = 1
 TOC count  = 2
 Cluster    = 0
 Process    = 0
 Flags      = 0x0 (none)
 Bad TOC[0]: invalid entry count 0
 
-TOC[1]: offset 56, values offset 0 (1 entries)
-  [0/0] MMV = 5655885
+TOC[1]: offset 56, string offset 72 (1 entries)
+  [1/72] 
 
--- dump contents-4
-MMV file   = MMV_STATS_DIR/contents-4
+-- dump contents_4
+MMV file   = MMV_STATS_DIR/contents_4
 Version    = 1
-Generated  = 0
+Generated  = 1
 TOC count  = 2
 Cluster    = 0
 Process    = 0
 Flags      = 0x0 (none)
+Bad TOC[0]: invalid entry count -1
 
-TOC[0]: toc offset 40, metrics offset 0 (-1 entries)
-
-TOC[1]: offset 56, values offset 0 (1 entries)
-  [0/0] MMV = 5655885
+TOC[1]: offset 56, string offset 72 (1 entries)
+  [1/72] 
 
 
 == generating bad indoms data files ==
--- dump indoms-1
-MMV file   = MMV_STATS_DIR/indoms-1
+-- dump indoms_1
+MMV file   = MMV_STATS_DIR/indoms_1
 Version    = 1
-Generated  = 0
+Generated  = 1
 TOC count  = 2
 Cluster    = 0
 Process    = 0
@@ -102,10 +101,10 @@ TOC[1]: offset 56, instances offset 104 (1 entries)
 
 Bad file size: too small for toc[1] inst[0]
 
--- dump indoms-2
-MMV file   = MMV_STATS_DIR/indoms-2
+-- dump indoms_2
+MMV file   = MMV_STATS_DIR/indoms_2
 Version    = 1
-Generated  = 0
+Generated  = 1
 TOC count  = 2
 Cluster    = 0
 Process    = 0
@@ -120,10 +119,10 @@ TOC[1]: offset 56, instances offset 104 (1 entries)
 
 Bad file size: too small for toc[1] inst[0]
 
--- dump indoms-3
-MMV file   = MMV_STATS_DIR/indoms-3
+-- dump indoms_3
+MMV file   = MMV_STATS_DIR/indoms_3
 Version    = 1
-Generated  = 0
+Generated  = 1
 TOC count  = 2
 Cluster    = 0
 Process    = 0
@@ -137,10 +136,10 @@ TOC[0]: offset 40, indoms offset 72 (1 entries)
 TOC[1]: offset 56, instances offset 104 (1 entries)
   [2/104] instance = [1 or "ii"]
 
--- dump indoms-4
-MMV file   = MMV_STATS_DIR/indoms-4
+-- dump indoms_4
+MMV file   = MMV_STATS_DIR/indoms_4
 Version    = 1
-Generated  = 0
+Generated  = 1
 TOC count  = 2
 Cluster    = 0
 Process    = 0
@@ -154,10 +153,10 @@ TOC[0]: offset 40, indoms offset 72 (1 entries)
 TOC[1]: offset 56, instances offset 104 (1 entries)
   [3/104] instance = [1 or "ii"]
 
--- dump indoms-5
-MMV file   = MMV_STATS_DIR/indoms-5
+-- dump indoms_5
+MMV file   = MMV_STATS_DIR/indoms_5
 Version    = 1
-Generated  = 0
+Generated  = 1
 TOC count  = 3
 Cluster    = 0
 Process    = 0
@@ -173,12 +172,12 @@ TOC[1]: offset 56, instances offset 120 (1 entries)
 Bad file size: too small for toc[1] inst[0]
 
 TOC[2]: offset 72, string offset 200 (1 entries)
-Bad file size: toc[2] string[0]
+Bad file size: toc[2] string[0] size 185 < off 200 + 256
 
--- dump indoms-6
-MMV file   = MMV_STATS_DIR/indoms-6
+-- dump indoms_6
+MMV file   = MMV_STATS_DIR/indoms_6
 Version    = 1
-Generated  = 0
+Generated  = 1
 TOC count  = 3
 Cluster    = 0
 Process    = 0
@@ -193,12 +192,12 @@ TOC[1]: offset 56, instances offset 120 (1 entries)
 Bad file size: too small for toc[1] inst[0]
 
 TOC[2]: offset 72, string offset 200 (1 entries)
-Bad file size: toc[2] string[0]
+Bad file size: toc[2] string[0] size 185 < off 200 + 256
 
 
 == generating bad metrics data files ==
--- dump metrics-1
-MMV file   = MMV_STATS_DIR/metrics-1
+-- dump metrics_1
+MMV file   = MMV_STATS_DIR/metrics_1
 Version    = 1
 Generated  = 0
 TOC count  = 2
@@ -212,19 +211,19 @@ Bad file size: too small for toc[0] metric[0]
 TOC[1]: offset 56, values offset 176 (1 entries)
 Bad file size: too small for toc[1] value[0]
 
--- dump metrics-2
-MMV file   = MMV_STATS_DIR/metrics-2
+-- dump metrics_2
+MMV file   = MMV_STATS_DIR/metrics_2
 Version    = 1
-Generated  = 0
+Generated  = 1
 TOC count  = 2
 Cluster    = 0
 Process    = 0
 Flags      = 0x0 (none)
 
 TOC[0]: toc offset 40, metrics offset 72 (1 entries)
-  [1/72] mm.vv
+  [1/72] badmmv
        type=32-bit unsigned int (0x1), sem=instant (0x3), pad=0x0
-       units=
+       units=count
        (no indom)
        (no shorttext)
        (no helptext)
@@ -232,19 +231,19 @@ TOC[0]: toc offset 40, metrics offset 72 (1 entries)
 TOC[1]: offset 56, values offset 176 (1 entries)
 Bad file size: too small for toc[1] value[0]
 
--- dump metrics-3
-MMV file   = MMV_STATS_DIR/metrics-3
+-- dump metrics_3
+MMV file   = MMV_STATS_DIR/metrics_3
 Version    = 1
-Generated  = 0
+Generated  = 1
 TOC count  = 2
 Cluster    = 0
 Process    = 0
 Flags      = 0x0 (none)
 
 TOC[0]: toc offset 40, metrics offset 72 (1 entries)
-  [2/72] mm.vv
+  [2/72] badmmv
        type=32-bit unsigned int (0x1), sem=instant (0x3), pad=0x0
-       units=
+       units=count
        (no indom)
        (no shorttext)
        (no helptext)
@@ -252,43 +251,43 @@ TOC[0]: toc offset 40, metrics offset 72 (1 entries)
 TOC[1]: offset 56, values offset 176 (1 entries)
 Bad file size: toc[1] value[0] metric offset
 
--- dump metrics-4
-MMV file   = MMV_STATS_DIR/metrics-4
+-- dump metrics_4
+MMV file   = MMV_STATS_DIR/metrics_4
 Version    = 1
-Generated  = 0
+Generated  = 1
 TOC count  = 3
 Cluster    = 0
 Process    = 0
 Flags      = 0x0 (none)
 
 TOC[0]: toc offset 40, metrics offset 88 (1 entries)
-  [3/88] mm.vv
+  [3/88] badmmv
        type=string (0x6), sem=instant (0x3), pad=0x0
-       units=
+       units=count
        (no indom)
        (no shorttext)
        (no helptext)
 
 TOC[1]: offset 56, values offset 192 (1 entries)
-  [3/192] mm.vv = ?
+  [3/192] badmmv = ?
 Bad file size: toc[1] str value[0] extra
 
 TOC[2]: offset 72, string offset 224 (1 entries)
-Bad file size: toc[2] string[0]
+Bad file size: toc[2] string[0] size 225 < off 224 + 256
 
--- dump metrics-5
-MMV file   = MMV_STATS_DIR/metrics-5
+-- dump metrics_5
+MMV file   = MMV_STATS_DIR/metrics_5
 Version    = 1
-Generated  = 0
+Generated  = 1
 TOC count  = 3
 Cluster    = 0
 Process    = 0
 Flags      = 0x0 (none)
 
 TOC[0]: toc offset 40, metrics offset 88 (1 entries)
-  [4/88] mm.vv
+  [4/88] badmmv
        type=32-bit unsigned int (0x1), sem=instant (0x3), pad=0x0
-       units=
+       units=count
        (no indom)
        (no shorttext)
 Bad file size: too small for toc[0] metric[0] help
@@ -297,21 +296,21 @@ TOC[1]: offset 56, values offset 192 (1 entries)
 Bad file size: too small for toc[1] value[0]
 
 TOC[2]: offset 72, string offset 224 (1 entries)
-Bad file size: toc[2] string[0]
+Bad file size: toc[2] string[0] size 209 < off 224 + 256
 
--- dump metrics-6
-MMV file   = MMV_STATS_DIR/metrics-6
+-- dump metrics_6
+MMV file   = MMV_STATS_DIR/metrics_6
 Version    = 1
-Generated  = 0
+Generated  = 1
 TOC count  = 3
 Cluster    = 0
 Process    = 0
 Flags      = 0x0 (none)
 
 TOC[0]: toc offset 40, metrics offset 88 (1 entries)
-  [5/88] mm.vv
+  [5/88] badmmv
        type=32-bit unsigned int (0x1), sem=instant (0x3), pad=0x0
-       units=
+       units=count
        (no indom)
 Bad file size: too small for toc[0] metric[0] oneline
 
@@ -319,13 +318,11 @@ TOC[1]: offset 56, values offset 192 (1 entries)
 Bad file size: too small for toc[1] value[0]
 
 TOC[2]: offset 72, string offset 224 (1 entries)
-Bad file size: toc[2] string[0]
+Bad file size: toc[2] string[0] size 209 < off 224 + 256
 
 
 == generating bad header data files ==
 -- verify header data files
-=== std out ===
-=== std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
 Command: pminfo -L -Kclear -Kadd,70,PCP_PMDAS_DIR/mmv/pmda_mmv,mmv_init -v mmv
@@ -333,14 +330,32 @@ LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
+[DATESTAMP] pminfo(PID) Error: mmv: header_1: size 8 too small, expecting at least 40
+[DATESTAMP] pminfo(PID) Error: mmv: header_2: magic "MMv" not "MMV" as expected
+[DATESTAMP] pminfo(PID) Error: mmv: header_3 version 9999 unsupported (current is 1)
+[DATESTAMP] pminfo(PID) Error: mmv: header_4: bad total size 40, expecting 72
+[DATESTAMP] pminfo(PID) Error: mmv: header_5: bad header.doc 0, expecting at least 2
+[DATESTAMP] pminfo(PID) Error: mmv: header_6: bad header.doc -1, expecting at least 2
+[DATESTAMP] pminfo(PID) Debug: mmv: create_client_stat: header_1, MMV_STATS_DIR/header_1
+[DATESTAMP] pminfo(PID) Debug: mmv: create_client_stat: header_2, MMV_STATS_DIR/header_2
+[DATESTAMP] pminfo(PID) Debug: mmv: create_client_stat: header_3, MMV_STATS_DIR/header_3
+[DATESTAMP] pminfo(PID) Debug: mmv: create_client_stat: header_4, MMV_STATS_DIR/header_4
+[DATESTAMP] pminfo(PID) Debug: mmv: create_client_stat: header_5, MMV_STATS_DIR/header_5
+[DATESTAMP] pminfo(PID) Debug: mmv: create_client_stat: header_6, MMV_STATS_DIR/header_6
+[DATESTAMP] pminfo(PID) Debug: reloading
+[DATESTAMP] pminfo(PID) Error: mmv: header_1: size 8 too small, expecting at least 40
+[DATESTAMP] pminfo(PID) Error: mmv: header_2: magic "MMv" not "MMV" as expected
+[DATESTAMP] pminfo(PID) Error: mmv: header_3 version 9999 unsupported (current is 1)
+[DATESTAMP] pminfo(PID) Error: mmv: header_4: bad total size 40, expecting 72
+[DATESTAMP] pminfo(PID) Error: mmv: header_5: bad header.doc 0, expecting at least 2
+[DATESTAMP] pminfo(PID) Error: mmv: header_6: bad header.doc -1, expecting at least 2
+[DATESTAMP] pminfo(PID) Info: pminfo: 4 metrics and 0 indoms after reload
 
-mmv.control.files
+mmv.control.metrics
     value 0
 
 == generating bad contents data files ==
 -- verify contents data files
-=== std out ===
-=== std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
 Command: pminfo -L -Kclear -Kadd,70,PCP_PMDAS_DIR/mmv/pmda_mmv,mmv_init -v mmv
@@ -348,14 +363,46 @@ LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
+[DATESTAMP] pminfo(PID) Error: mmv: contents_1: bad total size 48, expecting 72
+[DATESTAMP] pminfo(PID) Error: mmv: contents_2: bad TOC type (270f)
+[DATESTAMP] pminfo(PID) Error: mmv: contents_4: metrics count: 4294967295 > 1023
+[DATESTAMP] pminfo(PID) Error: mmv: header_1: size 8 too small, expecting at least 40
+[DATESTAMP] pminfo(PID) Error: mmv: header_2: magic "MMv" not "MMV" as expected
+[DATESTAMP] pminfo(PID) Error: mmv: header_3 version 9999 unsupported (current is 1)
+[DATESTAMP] pminfo(PID) Error: mmv: header_4: bad total size 40, expecting 72
+[DATESTAMP] pminfo(PID) Error: mmv: header_5: bad header.doc 0, expecting at least 2
+[DATESTAMP] pminfo(PID) Error: mmv: header_6: bad header.doc -1, expecting at least 2
+[DATESTAMP] pminfo(PID) Debug: mmv: contents_2: loading client cluster=1 for PMIDs from MMV_STATS_DIR/contents_2
+[DATESTAMP] pminfo(PID) Debug: mmv: contents_3: loading client cluster=2 for PMIDs from MMV_STATS_DIR/contents_3
+[DATESTAMP] pminfo(PID) Debug: mmv: contents_4: loading client cluster=3 for PMIDs from MMV_STATS_DIR/contents_4
+[DATESTAMP] pminfo(PID) Debug: mmv: create_client_stat: contents_1, MMV_STATS_DIR/contents_1
+[DATESTAMP] pminfo(PID) Debug: mmv: create_client_stat: contents_2, MMV_STATS_DIR/contents_2
+[DATESTAMP] pminfo(PID) Debug: mmv: create_client_stat: contents_3, MMV_STATS_DIR/contents_3
+[DATESTAMP] pminfo(PID) Debug: mmv: create_client_stat: contents_4, MMV_STATS_DIR/contents_4
+[DATESTAMP] pminfo(PID) Debug: mmv: create_client_stat: header_1, MMV_STATS_DIR/header_1
+[DATESTAMP] pminfo(PID) Debug: mmv: create_client_stat: header_2, MMV_STATS_DIR/header_2
+[DATESTAMP] pminfo(PID) Debug: mmv: create_client_stat: header_3, MMV_STATS_DIR/header_3
+[DATESTAMP] pminfo(PID) Debug: mmv: create_client_stat: header_4, MMV_STATS_DIR/header_4
+[DATESTAMP] pminfo(PID) Debug: mmv: create_client_stat: header_5, MMV_STATS_DIR/header_5
+[DATESTAMP] pminfo(PID) Debug: mmv: create_client_stat: header_6, MMV_STATS_DIR/header_6
+[DATESTAMP] pminfo(PID) Debug: reloading
+[DATESTAMP] pminfo(PID) Error: mmv: contents_1: bad total size 48, expecting 72
+[DATESTAMP] pminfo(PID) Error: mmv: contents_2: bad TOC type (270f)
+[DATESTAMP] pminfo(PID) Error: mmv: contents_4: metrics count: 4294967295 > 1023
+[DATESTAMP] pminfo(PID) Error: mmv: header_1: size 8 too small, expecting at least 40
+[DATESTAMP] pminfo(PID) Error: mmv: header_2: magic "MMv" not "MMV" as expected
+[DATESTAMP] pminfo(PID) Error: mmv: header_3 version 9999 unsupported (current is 1)
+[DATESTAMP] pminfo(PID) Error: mmv: header_4: bad total size 40, expecting 72
+[DATESTAMP] pminfo(PID) Error: mmv: header_5: bad header.doc 0, expecting at least 2
+[DATESTAMP] pminfo(PID) Error: mmv: header_6: bad header.doc -1, expecting at least 2
+[DATESTAMP] pminfo(PID) Info: pminfo: 4 metrics and 0 indoms after reload
+[DATESTAMP] pminfo(PID) Warning: mmv: contents_3: metrics count: 0
 
-mmv.control.files
+mmv.control.metrics
     value 0
 
 == generating bad indoms data files ==
 -- verify indoms data files
-=== std out ===
-=== std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
 Command: pminfo -L -Kclear -Kadd,70,PCP_PMDAS_DIR/mmv/pmda_mmv,mmv_init -v mmv
@@ -363,14 +410,71 @@ LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
+[DATESTAMP] pminfo(PID) Error: mmv: contents_1: bad total size 48, expecting 72
+[DATESTAMP] pminfo(PID) Error: mmv: contents_2: bad TOC type (270f)
+[DATESTAMP] pminfo(PID) Error: mmv: contents_4: metrics count: 4294967295 > 1023
+[DATESTAMP] pminfo(PID) Error: mmv: header_1: size 8 too small, expecting at least 40
+[DATESTAMP] pminfo(PID) Error: mmv: header_2: magic "MMv" not "MMV" as expected
+[DATESTAMP] pminfo(PID) Error: mmv: header_3 version 9999 unsupported (current is 1)
+[DATESTAMP] pminfo(PID) Error: mmv: header_4: bad total size 40, expecting 72
+[DATESTAMP] pminfo(PID) Error: mmv: header_5: bad header.doc 0, expecting at least 2
+[DATESTAMP] pminfo(PID) Error: mmv: header_6: bad header.doc -1, expecting at least 2
+[DATESTAMP] pminfo(PID) Error: mmv: indoms_1: indoms offset: 73 < 104
+[DATESTAMP] pminfo(PID) Error: mmv: indoms_2: indom[0] offset: 105 < 184
+[DATESTAMP] pminfo(PID) Error: mmv: indoms_4: indom[0] offset: 184 < 343597383704
+[DATESTAMP] pminfo(PID) Error: mmv: indoms_5: indom[0] offset: 185 < 200
+[DATESTAMP] pminfo(PID) Error: mmv: indoms_6: indom[0] offset: 185 < 200
+[DATESTAMP] pminfo(PID) Debug: mmv: contents_2: loading client cluster=1 for PMIDs from MMV_STATS_DIR/contents_2
+[DATESTAMP] pminfo(PID) Debug: mmv: contents_3: loading client cluster=2 for PMIDs from MMV_STATS_DIR/contents_3
+[DATESTAMP] pminfo(PID) Debug: mmv: contents_4: loading client cluster=3 for PMIDs from MMV_STATS_DIR/contents_4
+[DATESTAMP] pminfo(PID) Debug: mmv: create_client_stat: contents_1, MMV_STATS_DIR/contents_1
+[DATESTAMP] pminfo(PID) Debug: mmv: create_client_stat: contents_2, MMV_STATS_DIR/contents_2
+[DATESTAMP] pminfo(PID) Debug: mmv: create_client_stat: contents_3, MMV_STATS_DIR/contents_3
+[DATESTAMP] pminfo(PID) Debug: mmv: create_client_stat: contents_4, MMV_STATS_DIR/contents_4
+[DATESTAMP] pminfo(PID) Debug: mmv: create_client_stat: header_1, MMV_STATS_DIR/header_1
+[DATESTAMP] pminfo(PID) Debug: mmv: create_client_stat: header_2, MMV_STATS_DIR/header_2
+[DATESTAMP] pminfo(PID) Debug: mmv: create_client_stat: header_3, MMV_STATS_DIR/header_3
+[DATESTAMP] pminfo(PID) Debug: mmv: create_client_stat: header_4, MMV_STATS_DIR/header_4
+[DATESTAMP] pminfo(PID) Debug: mmv: create_client_stat: header_5, MMV_STATS_DIR/header_5
+[DATESTAMP] pminfo(PID) Debug: mmv: create_client_stat: header_6, MMV_STATS_DIR/header_6
+[DATESTAMP] pminfo(PID) Debug: mmv: create_client_stat: indoms_1, MMV_STATS_DIR/indoms_1
+[DATESTAMP] pminfo(PID) Debug: mmv: create_client_stat: indoms_2, MMV_STATS_DIR/indoms_2
+[DATESTAMP] pminfo(PID) Debug: mmv: create_client_stat: indoms_3, MMV_STATS_DIR/indoms_3
+[DATESTAMP] pminfo(PID) Debug: mmv: create_client_stat: indoms_4, MMV_STATS_DIR/indoms_4
+[DATESTAMP] pminfo(PID) Debug: mmv: create_client_stat: indoms_5, MMV_STATS_DIR/indoms_5
+[DATESTAMP] pminfo(PID) Debug: mmv: create_client_stat: indoms_6, MMV_STATS_DIR/indoms_6
+[DATESTAMP] pminfo(PID) Debug: mmv: indoms_1: loading client cluster=4 for PMIDs from MMV_STATS_DIR/indoms_1
+[DATESTAMP] pminfo(PID) Debug: mmv: indoms_2: loading client cluster=5 for PMIDs from MMV_STATS_DIR/indoms_2
+[DATESTAMP] pminfo(PID) Debug: mmv: indoms_3: create_indom: serial=2
+[DATESTAMP] pminfo(PID) Debug: mmv: indoms_3: loading client cluster=6 for PMIDs from MMV_STATS_DIR/indoms_3
+[DATESTAMP] pminfo(PID) Debug: mmv: indoms_4: loading client cluster=7 for PMIDs from MMV_STATS_DIR/indoms_4
+[DATESTAMP] pminfo(PID) Debug: mmv: indoms_5: loading client cluster=8 for PMIDs from MMV_STATS_DIR/indoms_5
+[DATESTAMP] pminfo(PID) Debug: mmv: indoms_6: loading client cluster=9 for PMIDs from MMV_STATS_DIR/indoms_6
+[DATESTAMP] pminfo(PID) Debug: reloading
+[DATESTAMP] pminfo(PID) Debug: verify_indom_serial: indoms_3: serial=2
+[DATESTAMP] pminfo(PID) Error: mmv: contents_1: bad total size 48, expecting 72
+[DATESTAMP] pminfo(PID) Error: mmv: contents_2: bad TOC type (270f)
+[DATESTAMP] pminfo(PID) Error: mmv: contents_4: metrics count: 4294967295 > 1023
+[DATESTAMP] pminfo(PID) Error: mmv: header_1: size 8 too small, expecting at least 40
+[DATESTAMP] pminfo(PID) Error: mmv: header_2: magic "MMv" not "MMV" as expected
+[DATESTAMP] pminfo(PID) Error: mmv: header_3 version 9999 unsupported (current is 1)
+[DATESTAMP] pminfo(PID) Error: mmv: header_4: bad total size 40, expecting 72
+[DATESTAMP] pminfo(PID) Error: mmv: header_5: bad header.doc 0, expecting at least 2
+[DATESTAMP] pminfo(PID) Error: mmv: header_6: bad header.doc -1, expecting at least 2
+[DATESTAMP] pminfo(PID) Error: mmv: indoms_1: indoms offset: 73 < 104
+[DATESTAMP] pminfo(PID) Error: mmv: indoms_2: indom[0] offset: 105 < 184
+[DATESTAMP] pminfo(PID) Error: mmv: indoms_4: indom[0] offset: 184 < 343597383704
+[DATESTAMP] pminfo(PID) Error: mmv: indoms_5: indom[0] offset: 185 < 200
+[DATESTAMP] pminfo(PID) Error: mmv: indoms_6: indom[0] offset: 185 < 200
+[DATESTAMP] pminfo(PID) Info: pminfo: 4 metrics and 1 indoms after reload
+[DATESTAMP] pminfo(PID) Warning: mmv: contents_3: metrics count: 0
+[DATESTAMP] pminfo(PID) Warning: mmv: indoms_3: indom serial=2 has no instances
 
-mmv.control.files
+mmv.control.metrics
     value 0
 
 == generating bad metrics data files ==
 -- verify metrics data files
-=== std out ===
-=== std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
 Command: pminfo -L -Kclear -Kadd,70,PCP_PMDAS_DIR/mmv/pmda_mmv,mmv_init -v mmv
@@ -378,6 +482,114 @@ LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
+[DATESTAMP] pminfo(PID) Error: mmv: contents_1: bad total size 48, expecting 72
+[DATESTAMP] pminfo(PID) Error: mmv: contents_2: bad TOC type (270f)
+[DATESTAMP] pminfo(PID) Error: mmv: contents_4: metrics count: 4294967295 > 1023
+[DATESTAMP] pminfo(PID) Error: mmv: header_1: size 8 too small, expecting at least 40
+[DATESTAMP] pminfo(PID) Error: mmv: header_2: magic "MMv" not "MMV" as expected
+[DATESTAMP] pminfo(PID) Error: mmv: header_3 version 9999 unsupported (current is 1)
+[DATESTAMP] pminfo(PID) Error: mmv: header_4: bad total size 40, expecting 72
+[DATESTAMP] pminfo(PID) Error: mmv: header_5: bad header.doc 0, expecting at least 2
+[DATESTAMP] pminfo(PID) Error: mmv: header_6: bad header.doc -1, expecting at least 2
+[DATESTAMP] pminfo(PID) Error: mmv: indoms_1: indoms offset: 73 < 104
+[DATESTAMP] pminfo(PID) Error: mmv: indoms_2: indom[0] offset: 105 < 184
+[DATESTAMP] pminfo(PID) Error: mmv: indoms_4: indom[0] offset: 184 < 343597383704
+[DATESTAMP] pminfo(PID) Error: mmv: indoms_5: indom[0] offset: 185 < 200
+[DATESTAMP] pminfo(PID) Error: mmv: indoms_6: indom[0] offset: 185 < 200
+[DATESTAMP] pminfo(PID) Error: mmv: metrics_2: values offset: 177 < 208
+[DATESTAMP] pminfo(PID) Error: mmv: metrics_4: bad string value offset: 225 < 228
+[DATESTAMP] pminfo(PID) Error: mmv: metrics_5: values offset: 209 < 224
+[DATESTAMP] pminfo(PID) Error: mmv: metrics_6: values offset: 209 < 224
+[DATESTAMP] pminfo(PID) Error: pmdaFetch: Fetch callback error from metric PMID 70.12.3[-1]: Generic error, already reported above
+[DATESTAMP] pminfo(PID) Warning: pmdaFetch: Instance -1 of PMID 70.10.1 not handled by fetch callback
+[DATESTAMP] pminfo(PID) Warning: pmdaFetch: Instance -1 of PMID 70.11.2 not handled by fetch callback
+[DATESTAMP] pminfo(PID) Warning: pmdaFetch: Instance -1 of PMID 70.13.4 not handled by fetch callback
+[DATESTAMP] pminfo(PID) Warning: pmdaFetch: Instance -1 of PMID 70.14.5 not handled by fetch callback
+mmv.metrics_6.badmmv: Unknown or illegal instance identifier
+mmv.metrics_5.badmmv: Unknown or illegal instance identifier
+mmv.metrics_4.badmmv: Generic error, already reported above
+mmv.metrics_3.badmmv: Unknown or illegal instance identifier
+mmv.metrics_2.badmmv: Unknown or illegal instance identifier
+[DATESTAMP] pminfo(PID) Debug: create_metric: name=mmv.metrics_2.badmmv PMID=70.10.1
+[DATESTAMP] pminfo(PID) Debug: create_metric: name=mmv.metrics_3.badmmv PMID=70.11.2
+[DATESTAMP] pminfo(PID) Debug: create_metric: name=mmv.metrics_4.badmmv PMID=70.12.3
+[DATESTAMP] pminfo(PID) Debug: create_metric: name=mmv.metrics_5.badmmv PMID=70.13.4
+[DATESTAMP] pminfo(PID) Debug: create_metric: name=mmv.metrics_6.badmmv PMID=70.14.5
+[DATESTAMP] pminfo(PID) Debug: map_stats adding metric[4] name=mmv.metrics_2.badmmv PMID=70.10.1 from metrics_2
+[DATESTAMP] pminfo(PID) Debug: map_stats adding metric[5] name=mmv.metrics_3.badmmv PMID=70.11.2 from metrics_3
+[DATESTAMP] pminfo(PID) Debug: map_stats adding metric[6] name=mmv.metrics_4.badmmv PMID=70.12.3 from metrics_4
+[DATESTAMP] pminfo(PID) Debug: map_stats adding metric[7] name=mmv.metrics_5.badmmv PMID=70.13.4 from metrics_5
+[DATESTAMP] pminfo(PID) Debug: map_stats adding metric[8] name=mmv.metrics_6.badmmv PMID=70.14.5 from metrics_6
+[DATESTAMP] pminfo(PID) Debug: mmv: contents_2: loading client cluster=1 for PMIDs from MMV_STATS_DIR/contents_2
+[DATESTAMP] pminfo(PID) Debug: mmv: contents_3: loading client cluster=2 for PMIDs from MMV_STATS_DIR/contents_3
+[DATESTAMP] pminfo(PID) Debug: mmv: contents_4: loading client cluster=3 for PMIDs from MMV_STATS_DIR/contents_4
+[DATESTAMP] pminfo(PID) Debug: mmv: create_client_stat: contents_1, MMV_STATS_DIR/contents_1
+[DATESTAMP] pminfo(PID) Debug: mmv: create_client_stat: contents_2, MMV_STATS_DIR/contents_2
+[DATESTAMP] pminfo(PID) Debug: mmv: create_client_stat: contents_3, MMV_STATS_DIR/contents_3
+[DATESTAMP] pminfo(PID) Debug: mmv: create_client_stat: contents_4, MMV_STATS_DIR/contents_4
+[DATESTAMP] pminfo(PID) Debug: mmv: create_client_stat: header_1, MMV_STATS_DIR/header_1
+[DATESTAMP] pminfo(PID) Debug: mmv: create_client_stat: header_2, MMV_STATS_DIR/header_2
+[DATESTAMP] pminfo(PID) Debug: mmv: create_client_stat: header_3, MMV_STATS_DIR/header_3
+[DATESTAMP] pminfo(PID) Debug: mmv: create_client_stat: header_4, MMV_STATS_DIR/header_4
+[DATESTAMP] pminfo(PID) Debug: mmv: create_client_stat: header_5, MMV_STATS_DIR/header_5
+[DATESTAMP] pminfo(PID) Debug: mmv: create_client_stat: header_6, MMV_STATS_DIR/header_6
+[DATESTAMP] pminfo(PID) Debug: mmv: create_client_stat: indoms_1, MMV_STATS_DIR/indoms_1
+[DATESTAMP] pminfo(PID) Debug: mmv: create_client_stat: indoms_2, MMV_STATS_DIR/indoms_2
+[DATESTAMP] pminfo(PID) Debug: mmv: create_client_stat: indoms_3, MMV_STATS_DIR/indoms_3
+[DATESTAMP] pminfo(PID) Debug: mmv: create_client_stat: indoms_4, MMV_STATS_DIR/indoms_4
+[DATESTAMP] pminfo(PID) Debug: mmv: create_client_stat: indoms_5, MMV_STATS_DIR/indoms_5
+[DATESTAMP] pminfo(PID) Debug: mmv: create_client_stat: indoms_6, MMV_STATS_DIR/indoms_6
+[DATESTAMP] pminfo(PID) Debug: mmv: create_client_stat: metrics_1, MMV_STATS_DIR/metrics_1
+[DATESTAMP] pminfo(PID) Debug: mmv: create_client_stat: metrics_2, MMV_STATS_DIR/metrics_2
+[DATESTAMP] pminfo(PID) Debug: mmv: create_client_stat: metrics_3, MMV_STATS_DIR/metrics_3
+[DATESTAMP] pminfo(PID) Debug: mmv: create_client_stat: metrics_4, MMV_STATS_DIR/metrics_4
+[DATESTAMP] pminfo(PID) Debug: mmv: create_client_stat: metrics_5, MMV_STATS_DIR/metrics_5
+[DATESTAMP] pminfo(PID) Debug: mmv: create_client_stat: metrics_6, MMV_STATS_DIR/metrics_6
+[DATESTAMP] pminfo(PID) Debug: mmv: indoms_1: loading client cluster=4 for PMIDs from MMV_STATS_DIR/indoms_1
+[DATESTAMP] pminfo(PID) Debug: mmv: indoms_2: loading client cluster=5 for PMIDs from MMV_STATS_DIR/indoms_2
+[DATESTAMP] pminfo(PID) Debug: mmv: indoms_3: create_indom: serial=2
+[DATESTAMP] pminfo(PID) Debug: mmv: indoms_3: loading client cluster=6 for PMIDs from MMV_STATS_DIR/indoms_3
+[DATESTAMP] pminfo(PID) Debug: mmv: indoms_4: loading client cluster=7 for PMIDs from MMV_STATS_DIR/indoms_4
+[DATESTAMP] pminfo(PID) Debug: mmv: indoms_5: loading client cluster=8 for PMIDs from MMV_STATS_DIR/indoms_5
+[DATESTAMP] pminfo(PID) Debug: mmv: indoms_6: loading client cluster=9 for PMIDs from MMV_STATS_DIR/indoms_6
+[DATESTAMP] pminfo(PID) Debug: mmv: metrics_1: generation 0, no data yet
+[DATESTAMP] pminfo(PID) Debug: mmv: metrics_2: loading client cluster=10 for PMIDs from MMV_STATS_DIR/metrics_2
+[DATESTAMP] pminfo(PID) Debug: mmv: metrics_3: loading client cluster=11 for PMIDs from MMV_STATS_DIR/metrics_3
+[DATESTAMP] pminfo(PID) Debug: mmv: metrics_4: loading client cluster=12 for PMIDs from MMV_STATS_DIR/metrics_4
+[DATESTAMP] pminfo(PID) Debug: mmv: metrics_5: loading client cluster=13 for PMIDs from MMV_STATS_DIR/metrics_5
+[DATESTAMP] pminfo(PID) Debug: mmv: metrics_6: loading client cluster=14 for PMIDs from MMV_STATS_DIR/metrics_6
+[DATESTAMP] pminfo(PID) Debug: reloading
+[DATESTAMP] pminfo(PID) Debug: verify_indom_serial: indoms_3: serial=2
+[DATESTAMP] pminfo(PID) Debug: verify_metric_item: item=1 name=mmv.metrics_2.badmmv
+[DATESTAMP] pminfo(PID) Debug: verify_metric_item: item=2 name=mmv.metrics_3.badmmv
+[DATESTAMP] pminfo(PID) Debug: verify_metric_item: item=3 name=mmv.metrics_4.badmmv
+[DATESTAMP] pminfo(PID) Debug: verify_metric_item: item=4 name=mmv.metrics_5.badmmv
+[DATESTAMP] pminfo(PID) Debug: verify_metric_item: item=5 name=mmv.metrics_6.badmmv
+[DATESTAMP] pminfo(PID) Debug: verify_metric_name: mmv.metrics_2.badmmv
+[DATESTAMP] pminfo(PID) Debug: verify_metric_name: mmv.metrics_3.badmmv
+[DATESTAMP] pminfo(PID) Debug: verify_metric_name: mmv.metrics_4.badmmv
+[DATESTAMP] pminfo(PID) Debug: verify_metric_name: mmv.metrics_5.badmmv
+[DATESTAMP] pminfo(PID) Debug: verify_metric_name: mmv.metrics_6.badmmv
+[DATESTAMP] pminfo(PID) Error: mmv: contents_1: bad total size 48, expecting 72
+[DATESTAMP] pminfo(PID) Error: mmv: contents_2: bad TOC type (270f)
+[DATESTAMP] pminfo(PID) Error: mmv: contents_4: metrics count: 4294967295 > 1023
+[DATESTAMP] pminfo(PID) Error: mmv: header_1: size 8 too small, expecting at least 40
+[DATESTAMP] pminfo(PID) Error: mmv: header_2: magic "MMv" not "MMV" as expected
+[DATESTAMP] pminfo(PID) Error: mmv: header_3 version 9999 unsupported (current is 1)
+[DATESTAMP] pminfo(PID) Error: mmv: header_4: bad total size 40, expecting 72
+[DATESTAMP] pminfo(PID) Error: mmv: header_5: bad header.doc 0, expecting at least 2
+[DATESTAMP] pminfo(PID) Error: mmv: header_6: bad header.doc -1, expecting at least 2
+[DATESTAMP] pminfo(PID) Error: mmv: indoms_1: indoms offset: 73 < 104
+[DATESTAMP] pminfo(PID) Error: mmv: indoms_2: indom[0] offset: 105 < 184
+[DATESTAMP] pminfo(PID) Error: mmv: indoms_4: indom[0] offset: 184 < 343597383704
+[DATESTAMP] pminfo(PID) Error: mmv: indoms_5: indom[0] offset: 185 < 200
+[DATESTAMP] pminfo(PID) Error: mmv: indoms_6: indom[0] offset: 185 < 200
+[DATESTAMP] pminfo(PID) Error: mmv: metrics_2: values offset: 177 < 208
+[DATESTAMP] pminfo(PID) Error: mmv: metrics_5: values offset: 209 < 224
+[DATESTAMP] pminfo(PID) Error: mmv: metrics_6: values offset: 209 < 224
+[DATESTAMP] pminfo(PID) Info: pminfo: 9 metrics and 1 indoms after reload
+[DATESTAMP] pminfo(PID) Warning: mmv: contents_3: metrics count: 0
+[DATESTAMP] pminfo(PID) Warning: mmv: indoms_3: indom serial=2 has no instances
 
-mmv.control.files
-    value 0
+mmv.control.metrics
+    value 5

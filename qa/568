@@ -20,10 +20,9 @@ hostname=`hostname`
 machineid=`_machine_id`
 domainname=`_domain_name`
 need_restore=true
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
-echo "domainname=$domainname" >>$here/$seq.full
+echo "domainname=$domainname" >>$seq_full
 
 _cleanup()
 {
@@ -54,7 +53,7 @@ _save_config $PCP_ETC_DIR/pcp/labels
 $sudo rm -rf $PCP_ETC_DIR/pcp/labels/*
 echo '{"pcpqa":"labels"}' > $tmp.labels
 $sudo cp $tmp.labels $PCP_ETC_DIR/pcp/labels/pcpqa.json
-_sighup_pmcd
+_sighup_pmcd || _exit 1
 
 $here/src/labels \
 	sample.bin \

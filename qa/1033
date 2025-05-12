@@ -18,7 +18,6 @@ perl -e "use PCP::PMDA" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "perl PCP::PMDA module not installed"
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 
 _cleanup()
 {
@@ -50,7 +49,7 @@ $1 == "Metric:"			{ state = 1 }'
 
 _filter_pmda_log()
 {
-    tee -a $here/$seq.full \
+    tee -a $seq_full \
     | sed \
         -e 's/^\(Log for pmda[^ ]* on\) .*/\1 HOST .../' \
         -e 's/^\(Log finished\) .*/\1 .../' \

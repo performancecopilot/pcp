@@ -15,13 +15,12 @@ echo "QA output created by $seq"
 
 status=0	# success is the default!
 host=`hostname`
-$sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 pmstore sample.event.reset 0 >/dev/null 2>&1
 pmevent -Dpdu,derive -t 10msec -s 20 sample.event.records >$tmp.out 2>&1
-cat $tmp.out >>$seq.full
+cat $tmp.out >>$seq_full
 
 # Need to make this not host specific ...
 #  2.6.0 (pmcd.client.whoami): numval: 1 valfmt: 2 vlist[]:

@@ -25,7 +25,6 @@ domainname=`_domain_name`
 pipeargs=""
 id pcp >/dev/null 2>&1 && pipeargs="-U $username"
 need_restore=true
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _cleanup()
@@ -82,7 +81,7 @@ _dbpipe_labels()
 open pipe $PCP_PMDAS_DIR/sample/pmdasample $pipeargs 29 -l $tmp.log
 label $one $two
 End-of-File
-    cat $tmp.log >>$here/$seq.full
+    cat $tmp.log >>$seq_full
 }
 
 _dbdso_labels()
@@ -103,7 +102,7 @@ $sudo rm -rf $PCP_ETC_DIR/pcp/labels/*
 echo "{\"QA\":$seq}" > $tmp.$seq
 $sudo mkdir $PCP_ETC_DIR/pcp/labels 2>/dev/null
 $sudo cp $tmp.$seq $PCP_ETC_DIR/pcp/labels/$seq.json
-_sighup_pmcd
+_sighup_pmcd || _exit 1
 
 echo == PMCD labels
 _pmcd_labels metric sample.colour	| _filter_labels

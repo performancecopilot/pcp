@@ -46,14 +46,15 @@ CFILES = disk_test.c exercise.c context_test.c chkoptfetch.c \
 	loadderived.c sum16.c badmmv.c multictx.c mmv_simple.c \
 	httpfetch.c json_test.c check_pmiend_fdleak.c check_pmi_errconv.c \
 	archctl_segfault.c debug.c int2pmid.c int2indom.c exectest.c \
-	unpickargs.c hanoi.c progname.c countmark.c \
-	indom2int.c pmid2int.c scanmeta.c traverse_return_codes.c \
-	timeshift.c checkstructs.c bcc_profile.c sha1int2ext.c \
+	unpickargs.c hanoi.c progname.c countmark.c check_attribute.c \
+	indom2int.c pmid2int.c scanmeta.c traverse_return_codes.c args.c \
+	timeshift.c checkstructs.c bcc_profile.c sha1int2ext.c sha1ext2int.c \
 	getdomainname.c profilecrash.c store_and_fetch.c test_service_notify.c \
 	ctx_derive.c pmstrn.c pmfstring.c pmfg-derived.c mmv_help.c sizeof.c \
 	stampconv.c time_stamp.c archend.c scandata.c wait_for_values.c \
 	dumpstack.c usergroup.c derived_help.c ready-or-not.c cleanmapdir.c \
-	throttle.c throttle_timeout.c
+	throttle.c throttle_timeout.c y2038.c bigpmcdpmids.c pdu-gadget.c \
+	strnfoo.c mmv_ondisk.c newcontext.c api_abi.c
 
 ifeq ($(shell test -f ../localconfig && echo 1), 1)
 include ../localconfig
@@ -107,9 +108,10 @@ endif
 
 ifeq ($(shell test $(PCP_VER) -ge 3901 && echo 1), 1)
 CFILES += getoptions.c
+XTRATARGETS += getoptions_v2
 else
 MYFILES += getoptions.c
-LDIRT += getoptions
+LDIRT += getoptions getoptions_v2
 endif
 
 ifeq ($(shell test -f /usr/include/pcp/fault.h && echo 1), 1)
@@ -121,6 +123,13 @@ XTRATARGETS += check_fault_injection exercise_fault
 endif
 MYFILES += check_fault_injection.c exercise_fault.c
 LDIRT += check_fault_injection exercise_fault
+
+XTRATARGETS += api_abi_v2
+ifeq ($(shell test -f ../../src/libpcp3/src/include/pcp/pmapi.h -a ../../src/libpcp3/src/libpcp.so.3 && echo 1), 1)
+# in a build tree with libpcp3 present
+#
+XTRATARGETS += api_abi_compat
+endif
 
 # POSIXFILES and TRACEFILES are ones we don't even try to build on
 # non-Posix platforms like Windows
@@ -153,7 +162,7 @@ PYTHONFILES = \
 	mergelabels.python mergelabelsets.python \
 	bcc_version_check.python sort_xml.python labelsets.python \
 	labelsets_memleak.python labels_changing.python \
-	bcc_netproc.python redis_proxy.python pythonserver.python
+	bcc_netproc.python key_server_proxy.python pythonserver.python
 # not installed:
 PYFILES = $(shell echo $(PYTHONFILES) | sed -e 's/\.python/.py/g')
 else
@@ -174,8 +183,8 @@ MYFILES += \
 	permslist \
 	qa_shmctl.c qa_sem_msg_ctl.c \
 	qa_shmctl_stat.c qa_msgctl_stat.c qa_semctl_stat.c \
-	qa_libpcp_compat.c addctxdm.c
-LDIRT += addctxdm.o
+	qa_libpcp_compat.c addctxdm.c myprintresult.c
+LDIRT += addctxdm.o myprintresult.o
 
 MYSCRIPTS = grind-tools show-args fixhosts mkpermslist \
 	memcachestats.pl indomdelta pmjson_array_sort
@@ -185,8 +194,8 @@ PSCRIPTS = $(PERLFILES) $(PYTHONFILES)
 CFILES_TARGETS = $(CFILES)
 
 TARGETS = $(subst broken_pmda,,$(basename $(patsubst %.c,%,$(CFILES_TARGETS)))) \
-	chkctx2_lite template \
-	fetchrate_lite pv
+	chkctx2_lite template fetchrate_lite pv api_abi_v2 \
+	$(XTRATARGETS)
 
 ifeq "$(TARGET_OS)" "linux"
 TARGETS += qa_shmctl.$(DSOSUFFIX) qa_sem_msg_ctl.$(DSOSUFFIX) \
@@ -234,7 +243,7 @@ default default_pcp: \
 	$(SRCARCHPART) \
 	$(PLFILES) $(PYFILES)
 
-setup: default $(XTRATARGETS)
+setup: libpcp.h default $(XTRATARGETS)
 
 $(TARGETS):
 
@@ -426,6 +435,42 @@ throttle_timeout:	throttle_timeout.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
 
+y2038:	y2038.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+
+pdu-gadget:	pdu-gadget.c myprintresult.o
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< myprintresult.o $(LDLIBS)
+
+strnfoo:	strnfoo.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+
+mmv_ondisk:	mmv_ondisk.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+
+newcontext:	newcontext.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+
+# --- need libpcp but different versions of PMAPI_VERSION and/or
+#     libpcp.so
+#
+
+getoptions_v2:	getoptions.c
+	rm -f $@
+	$(CCF) $(CDEFS) -DPMAPI_VERSION=2 -o $@ $< $(LDLIBS)
+
+api_abi_v2:	api_abi.c
+	rm -f $@
+	$(CCF) $(CDEFS) -DPMAPI_VERSION=2 -o $@ $< $(LDLIBS)
+
+api_abi_compat:	api_abi.c
+	rm -f $@
+	$(CC) -I../../src/libpcp3/src/include -I../../src/libpcp3/src/include/pcp $(CFLAGS) $(CDEFS) -o $@ $< ../../src/libpcp3/src/libpcp.so.3
+
 # --- need libpcp but also PM_CONTEXT_LOCAL
 #
 
@@ -589,6 +634,9 @@ json_test:	json_test.c
 sha1int2ext:	sha1int2ext.o
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS) -lpcp_pmda -lpcp_web -lpcp_mmv
+sha1ext2int:	sha1ext2int.o
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS) -lpcp_pmda -lpcp_web -lpcp_mmv
 
 # --- need libpcp_fault
 #
@@ -679,6 +727,8 @@ exerlock:	exerlock.c
 ifeq ($(HAVE_64), 1)
 pv64: pv.c
 	$(CCF) $(CDEFS) -o $@ pv.c $(LDLIBS)
+else
+pv64:
 endif
 
 # -- archives
@@ -742,6 +792,9 @@ test_encodings:	test_encodings.c
 test_hostspec:	test_hostspec.c
 	rm -f $@
 	$(CCF) $(CMOCKACFLAGS) $(CDEFS) -o $@ $^ $(LDLIBS) $(LIB_FOR_CMOCKA)
+else
+test_encodings:
+test_hostspec:
 endif
 
 # --- need libpcp_archive
@@ -775,6 +828,7 @@ chkacc2.o:	libpcp.h
 chkacc3.o:	libpcp.h
 chkacc4.o:	libpcp.h
 chkhelp.o:	libpcp.h
+chkctx2.o:	libpcp.h
 chk_memleak.o:	libpcp.h
 chknumval.o:	libpcp.h
 chkoptfetch.o:	libpcp.h
@@ -856,6 +910,7 @@ xarch.o:	libpcp.h
 xlog.o:	libpcp.h
 xmktime.o:	libpcp.h
 xxx.o:	libpcp.h
+y2038.o:	libpcp.h
 
 bozo:
 	@echo CFILES_TARGETS=$(CFILES_TARGETS)

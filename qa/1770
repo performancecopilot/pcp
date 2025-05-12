@@ -1,0 +1,245 @@
+#!/bin/sh
+# PCP QA Test No. 1770
+# Exercise different pmdaproc access control settings.
+#
+# Copyright (c) 2024 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.secure
+
+_get_libpcp_config
+$authentication || _notrun "No authentication support available"
+
+sasl_notrun_checks saslpasswd2 sasldblistusers2
+$pluginviewer -a | grep 'Plugin "sasldb"' >/dev/null
+test $? -eq 0 || _notrun "SASL sasldb auxprop plugin unavailable"
+$pluginviewer -c | grep 'Plugin "plain"' >/dev/null 2>&1
+test $? -eq 0 || _notrun 'No client support for plain authentication'
+$pluginviewer -s | grep 'Plugin "plain"' >/dev/null 2>&1
+test $? -eq 0 || _notrun 'No server support for plain authentication'
+
+
+signal=$PCP_BINADM_DIR/pmsignal
+status=1        # failure is the default!
+need_restore=false
+groupid=`id -g`
+userid=`id -u`
+
+_cleanup()
+{
+    cd $here
+
+    # restore any modified pmcd and pmproxy configuration files
+    if $need_restore 
+    then
+        need_restore=false
+        _restore_config $PCP_SYSCONF_DIR/proc
+        _restore_config $PCP_SYSCONF_DIR/labels
+        _restore_config $PCP_SYSCONF_DIR/pmproxy
+        _restore_config $PCP_SASLCONF_DIR/pmcd.conf
+    fi
+
+    _service pmcd stop >>$seq_full 2>&1
+    _service pmcd start >>$seq_full 2>&1
+    _wait_for_pmcd
+
+    if $pmproxy_was_running
+    then
+        echo "Restart pmproxy ..." >>$seq_full
+        _service pmproxy restart >>$seq_full 2>&1
+        _wait_for_pmproxy
+    else
+        echo "Stopping pmproxy ..." >>$seq_full
+        _service pmproxy stop >>$seq_full 2>&1
+    fi
+
+    $sudo rm -rf $tmp $tmp.*
+}
+
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+full_hostname=`hostname --fqdn`
+
+pmproxy_was_running=false
+[ -f $PCP_RUN_DIR/pmproxy.pid ] && pmproxy_was_running=true
+echo "pmproxy_was_running=$pmproxy_was_running" >>$seq_full
+
+_filter_credentials()
+{
+    sed \
+        -e 's/"groupid": '$groupid',/"groupid": GID/g' \
+        -e 's/"userid": '$userid'/"userid": UID/g' \
+    #end
+}
+
+_filter_username()
+{
+    sed -e "s/user $username/user USER/"
+}
+
+_filter_listusers2()
+{
+    sed \
+        -e "s/^$username/USER/" \
+        -e "s/@$full_hostname:/@HOST:/" \
+        -e "s/@$hostname:/@HOST:/" \
+    #end
+}
+
+_filter_json()
+{
+    tee -a $seq_full | \
+    sed -e 's,"machineid": .*,"machineid": "MACHINEID",g' \
+        -e 's,"context": .*,"context": "CONTEXT",g' \
+        -e 's,"hostname": .*,"hostname": "HOSTNAME",g' \
+        -e 's,"domainname": .*,"domainname": "DOMAINNAME",g' \
+        -e 's,"source": .*,"source": "SOURCE",g' \
+        -e 's,"hostspec": .*,"hostspec": "HOSTSPEC",g' \
+        -e 's,"timestamp": .*,"timestamp": "TIMESTAMP",g' \
+    # end
+}
+
+_filter_values()
+{
+    _filter_json | \
+    $PCP_AWK_PROG '
+BEGIN { instances=0; count=0 }
+/"instances": \[$/    { instances=1; print $0, " ..." }
+/\]/                  { instances=0 }
+                      { if (instances != 1) { print } else { count++ } }
+END { if (count > 1) { print "GOOD VALUES"} else { print "NO VALUES" } }'
+}
+
+_test_log()
+{
+    echo && echo "=== $@ ===" | tee -a $seq_full
+}
+
+_json_log()
+{
+    pmjson | tee -a $seq_full
+}
+
+echo "hostname=$hostname" >>$seq_full
+echo "full_hostname=$full_hostname" >>$seq_full
+
+# real QA test starts here
+_save_config $PCP_SYSCONF_DIR/proc
+_save_config $PCP_SYSCONF_DIR/labels
+_save_config $PCP_SYSCONF_DIR/pmproxy
+_save_config $PCP_SASLCONF_DIR/pmcd.conf
+need_restore=true
+$sudo rm -rf $PCP_SYSCONF_DIR/labels/* $PCP_SYSCONF_DIR/proc/*
+
+# start pmcd in sasldb authenticating mode
+echo 'mech_list: plain' >$tmp.sasl
+echo "sasldb_path: $tmp.passwd.db" >>$tmp.sasl
+$sudo cp $tmp.sasl $PCP_SASLCONF_DIR/pmcd.conf
+$sudo chown pcp:pcp $PCP_SASLCONF_DIR/pmcd.conf
+ls -l $PCP_SASLCONF_DIR/pmcd.conf >>$seq_full
+$sudo -u pcp cat $PCP_SASLCONF_DIR/pmcd.conf >>$seq_full
+
+echo "Creating temporary sasldb, add some usernames to it" | tee -a $seq_full
+echo y | saslpasswd2 -p -a pmcd -f $tmp.passwd.db $username
+echo y | saslpasswd2 -p -a pmcd -f $tmp.passwd.db remoteuser
+
+echo "Verify saslpasswd2 has successfully added new users" | tee -a $seq_full
+sasldblistusers2 -f $tmp.passwd.db \
+| tee -a $seq_full \
+| _filter_listusers2 \
+| LC_COLLATE=POSIX sort
+
+echo "Ensure pmcd can read the password file" | tee -a $seq_full
+$sudo chown pcp:pcp $tmp.passwd.db
+ls -l $tmp.passwd.db >>$seq_full
+$sudo -u pcp od -c $tmp.passwd.db >>$seq_full
+
+echo "New pmdaproc config without any authentication" | tee -a $seq_full
+cat >$tmp.nobody <<EOF
+allowed: nobody
+mapped: false
+EOF
+
+echo "New pmdaproc config with remote authentication" | tee -a $seq_full
+cat >$tmp.remote <<EOF
+allowed: remoteuser, $username, root
+mapped: false
+EOF
+
+echo "New pmdaproc config with mapped authentication" | tee -a $seq_full
+cat >$tmp.mapped <<EOF
+allowed: $username
+mapped: true
+EOF
+
+echo "Start pmcd with this shiny new sasldb and no access"
+$sudo cp $tmp.nobody $PCP_SYSCONF_DIR/proc/access.conf
+if ! _service pmcd restart 2>&1; then _exit 1; fi | tee -a $seq_full >$tmp.out
+_wait_for_pmcd || _exit 1
+
+echo "Start pmproxy with mandatory authentication"
+if ! _service pmproxy stop >/dev/null; then _exit 1; fi
+if ! _service pmproxy start >>$seq_full 2>&1; then _exit 1; fi
+
+test "$PCPQA_SYSTEMD" = yes && $sudo systemctl daemon-reload
+
+_test_log "Establish context for an unauthenticated user"
+response=$(curl -s "http://localhost:44322/pmapi/context")
+echo "${response}" | pmjson | _filter_json | _filter_credentials
+ctx_unauthenticated=$(echo "${response}" | pmpython -c 'import sys,json; print(json.load(sys.stdin)["context"])')
+
+_test_log "I/O metric access using unauthenticated context"
+curl -s "http://localhost:44322/pmapi/$ctx_unauthenticated/fetch?names=proc.io.write_bytes" | _json_log | _filter_values
+echo
+
+echo "Restart pmcd with this sasldb and remote auth mode"
+$sudo cp $tmp.remote $PCP_SYSCONF_DIR/proc/access.conf
+if ! _service pmcd restart 2>&1; then _exit 1; fi | tee -a $seq_full >$tmp.out
+_wait_for_pmcd || _exit 1
+
+_test_log "Establish context for authenticated local user"
+response=$(curl -s --user $username:y "http://localhost:44322/pmapi/context")
+echo "${response}" | pmjson | _filter_json | _filter_credentials
+ctx_authenticated=$(echo "${response}" | pmpython -c 'import sys,json; print(json.load(sys.stdin)["context"])')
+
+_test_log "I/O metric local user access using authenticated context"
+curl -s --user $username:y "http://localhost:44322/pmapi/$ctx_authenticated/fetch?names=proc.io.write_bytes" | _json_log | _filter_values
+echo
+
+_test_log "Establish context for authenticated remote user"
+response=$(curl -s --user remoteuser:y "http://localhost:44322/pmapi/context")
+echo "${response}" | pmjson | _filter_json | _filter_credentials
+ctx_authenticated=$(echo "${response}" | pmpython -c 'import sys,json; print(json.load(sys.stdin)["context"])')
+
+_test_log "I/O metric remote user access using authenticated context"
+curl -s --user remoteuser:y "http://localhost:44322/pmapi/$ctx_authenticated/fetch?names=proc.io.write_bytes" | _json_log | _filter_values
+echo
+
+echo "Restart pmcd with this sasldb and mapped auth mode"
+$sudo cp $tmp.mapped $PCP_SYSCONF_DIR/proc/access.conf
+if ! _service pmcd restart 2>&1; then _exit 1; fi | tee -a $seq_full >$tmp.out
+_wait_for_pmcd || _exit 1
+
+_test_log "Establish context for authenticated user"
+response=$(curl -s --user $username:y "http://localhost:44322/pmapi/context")
+echo "${response}" | pmjson | _filter_json | _filter_credentials
+ctx_authenticated=$(echo "${response}" | pmpython -c 'import sys,json; print(json.load(sys.stdin)["context"])')
+
+_test_log "I/O metric access using mapped authentication"
+curl -s --user $username:y "http://localhost:44322/pmapi/$ctx_authenticated/fetch?names=proc.io.write_bytes" | _json_log | _filter_values
+echo
+
+echo >>$seq_full
+echo "=== pmcd log ===" >>$seq_full
+cat $PCP_LOG_DIR/pmcd/pmcd.log >>$seq_full
+echo "=== pmproxy log ===" >>$seq_full
+cat $PCP_LOG_DIR/pmproxy/pmproxy.log >>$seq_full
+echo "=== proc PMDA log ===" >>$seq_full
+cat $PCP_LOG_DIR/pmcd/proc.log >>$seq_full
+
+# success, all done
+status=0
+exit

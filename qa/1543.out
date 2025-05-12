@@ -1031,6 +1031,27 @@ sample_control{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",
 done full scrape
 == check pmproxy is running ==
 pmproxy check passed
+== good filter globbing ==
+# PCP5 sample.long.one 29.0.10 32 PM_INDOM_NULL instant none
+# HELP sample_long_one 1 as a 32-bit integer
+# TYPE sample_long_one gauge
+sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAINNAME",machineid="MACHINEID"} 1
+== good filter exact match ==
+# PCP5 sample.long.one 29.0.10 32 PM_INDOM_NULL instant none
+# HELP sample_long_one 1 as a 32-bit integer
+# TYPE sample_long_one gauge
+sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAINNAME",machineid="MACHINEID"} 1
+# PCP5 sample.long.ten 29.0.11 32 PM_INDOM_NULL instant none
+# HELP sample_long_ten 10 as a 32-bit integer
+# TYPE sample_long_ten gauge
+sample_long_ten{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAINNAME",machineid="MACHINEID"} 10
+== good filter regex ==
+# PCP5 sample.long.one 29.0.10 32 PM_INDOM_NULL instant none
+# HELP sample_long_one 1 as a 32-bit integer
+# TYPE sample_long_one gauge
+sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAINNAME",machineid="MACHINEID"} 1
+== bad filter match param ==
+{"context":CONTEXT,"message":"dummy - invalid 'match' parameter value","success":false}
 
 *****   GET and POST /pmapi/derive   *****
 

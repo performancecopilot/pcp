@@ -99,16 +99,20 @@ Dump Instance Profile state=INCLUDE, 0 profiles
 pmUseContext(1) -> contexts[1]
 pmDestroyContext(1) -> 0, curr_handle=-1
 pmUseContext(0) -> contexts[0]
+NotifyEndLocalContext: DSO PMDA $PCP_PMDAS_DIR/proc/pmda_proc.$DSO_SUFFIX (3) notified of context 0 close
 NotifyEndLocalContext: DSO PMDA $PCP_PMDAS_DIR/sample/pmda_sample.$DSO_SUFFIX (30) notified of context 0 close
 
 sorted stripped lines ...
+ADDR [N] domain=3 name=$PCP_PMDAS_DIR/proc/pmda_proc.$DSO_SUFFIX init=proc_init handle=(nil)
 ADDR [N] domain=30 name=$PCP_PMDAS_DIR/sample/pmda_sample.$DSO_SUFFIX init=sample_init handle=(nil)
 ADDR [N] domain=70 name=$PCP_PMDAS_DIR/mmv/pmda_mmv.$DSO_SUFFIX init=mmv_init handle=(nil)
 ADDR [N] domain=N name=OS_PMDA, ...
 Local Context PMDA Table
+[N] domain=3, name=$PCP_PMDAS_DIR/proc/pmda_proc.$DSO_SUFFIX, init=proc_init
 [N] domain=30, name=$PCP_PMDAS_DIR/sample/pmda_sample.$DSO_SUFFIX, init=sample_init
 [N] domain=70, name=$PCP_PMDAS_DIR/mmv/pmda_mmv.$DSO_SUFFIX, init=mmv_init
 [N] domain=N, name=OS_PMDA, ...
+__pmLocalPMDA(op=ADD, domain=3, name=$PCP_PMDAS_DIR/proc/pmda_proc.$DSO_SUFFIX, init=proc_init)
 __pmLocalPMDA(op=ADD, domain=30, name=$PCP_PMDAS_DIR/sample/pmda_sample.$DSO_SUFFIX, init=sample_init)
 __pmLocalPMDA(op=ADD, domain=70, name=$PCP_PMDAS_DIR/mmv/pmda_mmv.$DSO_SUFFIX, init=mmv_init)
 __pmLocalPMDA(op=ADD, domain=N, name=OS_PMDA, ...)

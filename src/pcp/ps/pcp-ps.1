@@ -1,5 +1,4 @@
-'\"! tbl | mmdoc
-'\"macro stdmacro
+'\" t
 .\"
 .\" Copyright (c) 2022 Oracle and/or its affiliates.
 .\" DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
@@ -76,7 +75,7 @@ TIME	T{
 .hy 0
 The  cumulated CPU time in [DD-]hh:mm:ss format (time=TIME).
 T}
-CMD	The command name of the task.
+CMD	The task name along with its complete arguments.	
 .TE
 .TP
 .B \-c [\fIcommand name\fR]
@@ -118,8 +117,14 @@ physical memory on the machine expressed as a percentage
 T}
 start	START	time the command started
 time	TIME	accumulated cpu time, user + system
-cls	CLS	scheduling class of the process
-cmd	CMD	see \fBargs\fR.  (alias args, command).
+cls	CLS	scheduling class of the process.
+cmd	CMD	see \fBTask name\fR.  (alias args, command).
+args	COMMAND	T{
+.ad l
+.hy 0
+To display the full program name with its arguments (use at last
+position in -o list to view full command)
+T}
 pid	PID	The process ID
 ppid	PPID	Parent process ID
 pri	PRI	Priority of the process

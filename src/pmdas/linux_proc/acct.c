@@ -560,7 +560,7 @@ init_pacct_system_file(void)
 	    tmppath = *path;
 	if (access(tmppath, F_OK) == 0) {
 	    /* file exists, pick me! */
-	    strncpy(pacct_system_file, tmppath, sizeof(pacct_system_file)-1);
+	    pmstrncpy(pacct_system_file, sizeof(pacct_system_file), tmppath);
 	    break;
 	}
     }
@@ -593,9 +593,15 @@ init_pacct_private_file(void)
     }
 }
 
+/*
+ * one-trip initialization of accounting subsystem
+ * -
+ */
 void
 acct_init(proc_acct_t *proc_acct)
 {
+    proc_acct->init_done = 1;
+
     init_pacct_system_file();
     init_pacct_private_file();
 
@@ -620,6 +626,9 @@ refresh_acct(proc_acct_t *proc_acct)
     int i, records, i_inst, need_update = 0;
     time_t process_end_time;
     acct_ringbuf_entry_t ringbuf_entry;
+
+    if (proc_acct->init_done == 0)
+	acct_init(proc_acct);
 
     proc_acct->now = time(NULL);	/* timestamp for current sample */
 
@@ -746,10 +755,14 @@ acct_fetchCallBack(int i_inst, int item, proc_acct_t *proc_acct, pmAtomValue *at
 }
 
 int
-acct_store(pmResult *result, pmdaExt *pmda, pmValueSet *vsp)
+acct_store(pmResult *result, pmdaExt *pmda, pmValueSet *vsp, proc_acct_t *proc_acct)
 {
     int sts = 0;
     pmAtomValue av;
+
+    if (proc_acct->init_done == 0)
+	acct_init(proc_acct);
+
     switch (pmID_item(vsp->pmid)) {
     case CONTROL_OPEN_RETRY_INTERVAL: /* acct.control.open_retry_interval */
 	if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],

@@ -35,9 +35,9 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 
 [ -f $control ] && $sudo mv $control $control.$seq
 
-_service pcp restart 2>&1 | _filter_pcp_start
-_wait_for_pmcd
-_wait_for_pmlogger
+if ! _service pcp restart 2>&1; then _exit 1; fi | _filter_pcp_start
+_wait_for_pmcd || _exit 1
+_wait_for_pmlogger || _exit 1
 
 # prime the sample PMDA to refresh the dynamic indom
 #
@@ -77,7 +77,7 @@ wait
 
 echo
 echo "filtered pmie output ..."
-cat $tmp.out >>$seq.full
+cat $tmp.out >>$seq_full
 # Especially on slow VMs (like bozo-vm) we may need to dodge warnings
 # from pmie's rule scheduler around pmcd reconnection ... the second
 # awk script does this.

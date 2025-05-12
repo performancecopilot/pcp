@@ -14,6 +14,9 @@ in the source distribution for its full text.
 #include "Settings.h"
 
 
+#define SCREEN_TAB_MARGIN_LEFT 2
+#define SCREEN_TAB_COLUMN_GAP  1
+
 typedef enum TreeStr_ {
    TREE_STR_VERT,
    TREE_STR_RTEE,
@@ -175,6 +178,7 @@ void CRT_handleSIGSEGV(int signal) ATTR_NORETURN;
 #define KEY_ALT(x)    (KEY_F(64 - 26) + ((x) - 'A'))
 #define KEY_FOCUS_IN  (KEY_MAX + 'I')
 #define KEY_FOCUS_OUT (KEY_MAX + 'O')
+#define KEY_DEL_MAC   127
 
 extern const char* CRT_degreeSign;
 
@@ -213,6 +217,10 @@ int CRT_readKey(void);
 void CRT_disableDelay(void);
 
 void CRT_enableDelay(void);
+
+static inline void CRT_updateDelay(void) {
+   CRT_enableDelay(); // pushes new delay setting into halfdelay(3X)
+}
 
 void CRT_setColors(int colorScheme);
 

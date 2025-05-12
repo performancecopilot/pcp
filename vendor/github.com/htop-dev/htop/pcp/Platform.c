@@ -81,7 +81,6 @@ const unsigned int Platform_numberOfSignals = ARRAYSIZE(Platform_signals);
 
 const MeterClass* const Platform_meterTypes[] = {
    &CPUMeter_class,
-   &DynamicMeter_class,
    &ClockMeter_class,
    &DateMeter_class,
    &DateTimeMeter_class,
@@ -106,7 +105,6 @@ const MeterClass* const Platform_meterTypes[] = {
    &RightCPUs4Meter_class,
    &LeftCPUs8Meter_class,
    &RightCPUs8Meter_class,
-   &BlankMeter_class,
    &PressureStallCPUSomeMeter_class,
    &PressureStallIOSomeMeter_class,
    &PressureStallIOFullMeter_class,
@@ -120,6 +118,8 @@ const MeterClass* const Platform_meterTypes[] = {
    &NetworkIOMeter_class,
    &SysArchMeter_class,
    &FileDescriptorMeter_class,
+   &BlankMeter_class,
+   &DynamicMeter_class,
    NULL
 };
 
@@ -127,6 +127,7 @@ static const char* Platform_metricNames[] = {
    [PCP_CONTROL_THREADS] = "proc.control.perclient.threads",
 
    [PCP_HINV_NCPU] = "hinv.ncpu",
+   [PCP_HINV_NDISK] = "hinv.ndisk",
    [PCP_HINV_CPUCLOCK] = "hinv.cpu.clock",
    [PCP_UNAME_SYSNAME] = "kernel.uname.sysname",
    [PCP_UNAME_RELEASE] = "kernel.uname.release",
@@ -348,7 +349,12 @@ bool Platform_init(void) {
 
    if (opts.context == PM_CONTEXT_ARCHIVE) {
       gettimeofday(&pcp->offset, NULL);
+#if PMAPI_VERSION >= 3
+      struct timeval start = { opts.start.tv_sec, opts.start.tv_nsec / 1000 };
+      pmtimevalDec(&pcp->offset, &start);
+#else
       pmtimevalDec(&pcp->offset, &opts.start);
+#endif
    }
 
    for (unsigned int i = 0; i < PCP_METRIC_COUNT; i++)
@@ -385,6 +391,7 @@ bool Platform_init(void) {
    Metric_enable(PCP_PID_MAX, true);
    Metric_enable(PCP_BOOTTIME, true);
    Metric_enable(PCP_HINV_NCPU, true);
+   Metric_enable(PCP_HINV_NDISK, true);
    Metric_enable(PCP_PERCPU_SYSTEM, true);
    Metric_enable(PCP_UNAME_SYSNAME, true);
    Metric_enable(PCP_UNAME_RELEASE, true);
@@ -753,12 +760,12 @@ bool Platform_getDiskIO(DiskIOData* data) {
       data->totalBytesWritten = value.ull;
    if (Metric_values(PCP_DISK_ACTIVE, &value, 1, PM_TYPE_U64) != NULL)
       data->totalMsTimeSpend = value.ull;
+   if (Metric_values(PCP_HINV_NDISK, &value, 1, PM_TYPE_U64) != NULL)
+      data->numDisks = value.ull;
    return true;
 }
 
 bool Platform_getNetworkIO(NetworkIOData* data) {
-   memset(data, 0, sizeof(*data));
-
    pmAtomValue value;
    if (Metric_values(PCP_NET_RECVB, &value, 1, PM_TYPE_U64) != NULL)
       data->bytesReceived = value.ull;

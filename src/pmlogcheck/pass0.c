@@ -129,14 +129,19 @@ pass0(char *fname)
     char	logBase[MAXPATHLEN];
     long	offset = 0;
 
+    goldenmagic = 0;		/* force new label record each time thru' */
+    if (goldenfname != NULL) {
+	free(goldenfname);
+	goldenfname = NULL;
+    }
+
     if ((f = __pmFopen(fname, "r")) == NULL) {
 	fprintf(stderr, "%s: cannot open file: %s\n", fname, osstrerror());
 	sts = STS_FATAL;
 	goto done;
     }
     
-    strncpy(logBase, fname, sizeof(logBase));
-    logBase[sizeof(logBase)-1] = '\0';
+    pmstrncpy(logBase, sizeof(logBase), fname);
     if (__pmLogBaseName(logBase) != NULL) {
 	/* A valid archive suffix was found */
 	p = logBase + strlen(logBase) + 1;

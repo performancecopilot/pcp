@@ -143,7 +143,7 @@ _pmUnpackDesc(__int32_t *recbuf, pmDesc *desc, int *numnames, char ***names)
 	    abandon();
 	    /*NOTREACHED*/
 	}
-	strncpy((*names)[i], p, slen);
+	memcpy((*names)[i], p, slen);
 	(*names)[i][slen] = '\0';
 	p += slen;
     }

@@ -128,11 +128,12 @@ pmfstring(FILE *f, char **str)
 }
 
 /*
- * Safe version of strncpy() that guards against buffer over-run
- * and guarantees the dest[] is null-byte terminated.
+ * Safe version of strncpy() that guards against buffer overrun
+ * and guarantees the dest[] is null-byte terminated, but does not
+ * pad the remainder of the dest[] beyond the terminator null-byte.
  *
- * Note that unlike strncpy(), destlen is the (maximum) length of
- * dest[] not src[].
+ * Notes:
+ * 1) size and dest args swapped compared to strcpy()
  *
  * Returns 0/-1 for success/truncation (of src in dest)
  */
@@ -143,7 +144,8 @@ pmstrncpy(char *dest, size_t destlen, const char *src)
     const char	*s = src;
 
     for ( ; *s && d < &dest[destlen-1]; ) {
-	*d++ = *s++;
+	*d++ = *s;
+	if (*s != '\0') s++;
     }
     *d = '\0';
 
@@ -151,11 +153,13 @@ pmstrncpy(char *dest, size_t destlen, const char *src)
 }
 
 /*
- * Safe version of strncat() that guards against buffer over-run
- * and guarantees the dest[] is null-byte terminated.
+ * Safe version of strncat() that guards against buffer overrun
+ * and guarantees the dest[] is null-byte terminated, but does not
+ * pad the remainder of the dest[] beyond the terminator null-byte.
  *
- * Note that unlike strncat(), destlen is the (maximum) length of
- * dest[] not src[].
+ * Notes:
+ * 1) size and dest args swapped compared to strcat()
+ * 2) destlen is total size of dest[], not max # chars to copy
  *
  * Returns 0/-1 for success/truncation (of src in dest)
  */
@@ -166,7 +170,8 @@ pmstrncat(char *dest, size_t destlen, const char *src)
     const char	*s = src;
 
     for ( ; *s && d < &dest[destlen-1]; ) {
-	*d++ = *s++;
+	*d++ = *s;
+	if (*s != '\0') s++;
     }
     *d = '\0';
 

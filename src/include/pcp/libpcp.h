@@ -7,7 +7,7 @@
  *	remain fixed across releases, and they may not work, or may
  *	provide different semantics at some point in the future.
  *
- * Copyright (c) 2012-2022 Red Hat.
+ * Copyright (c) 2012-2025 Red Hat.
  * Copyright (c) 2008-2009 Aconex.  All Rights Reserved.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  *
@@ -310,6 +310,11 @@ typedef struct {
 /* Internal version of a pmResult */
 typedef struct __pmResult {
     __pmTimestamp	timestamp;	/* time stamped by collector */
+#ifdef PM_PAD_RESULT
+    __int32_t		pad;		/* move numpmid down a bit so numpmid */
+    					/* offset is >= offset for pmResult */
+					/* and pmHighResResult */
+#endif
     int                 numpmid;	/* number of PMIDs */
     pmValueSet		*vset[1];	/* set of value sets, one per PMID */
 } __pmResult;
@@ -647,6 +652,7 @@ pmlabel_intrinsic(pmLabel *lp)
 PCP_CALL extern int __pmAddLabels(pmLabelSet **, const char *, int);
 PCP_CALL extern pmLabelSet *__pmDupLabelSets(pmLabelSet *, int);
 PCP_CALL extern int __pmParseLabelSet(const char *, int, int, pmLabelSet **);
+PCP_CALL extern int __pmEqualLabelSet(const pmLabelSet *, const pmLabelSet *);
 PCP_CALL extern int __pmGetContextLabels(pmLabelSet **);
 PCP_CALL extern int __pmGetDomainLabels(int, const char *, pmLabelSet **);
 
@@ -1174,7 +1180,7 @@ PCP_CALL extern void __pmOptFetchDump(FILE *, const fetchctl_t *);
 PCP_CALL extern void __pmOptFetchGetParams(optcost_t *);
 PCP_CALL extern void __pmOptFetchPutParams(optcost_t *);
 
-/* __pmProcessExec and friends ... replacementes for system(3) and popen(3) */
+/* __pmProcessExec and friends ... replacements for system(3) and popen(3) */
 typedef struct __pmExecCtl __pmExecCtl_t;		/* opaque handle */
 PCP_CALL extern int __pmProcessAddArg(__pmExecCtl_t **, const char *);
 PCP_CALL extern int __pmProcessUnpickArgs(__pmExecCtl_t **, const char *);
@@ -1469,6 +1475,9 @@ PCP_CALL extern void __pmFreeResult(__pmResult *);
 /* diagnostics for formatting or printing miscellaneous data structures */
 PCP_CALL extern void __pmDumpContext(FILE *, int, pmInDom);
 PCP_CALL extern void __pmDumpDebug(FILE *);
+#define PM_CTL_DEBUG_SAVE 1
+#define PM_CTL_DEBUG_RESTORE 2
+PCP_CALL extern void __pmCtlDebug(int);
 PCP_CALL extern void __pmDumpErrTab(FILE *);
 PCP_CALL extern void __pmDumpEventRecords(FILE *, pmValueSet *, int);
 PCP_CALL extern void __pmDumpHighResEventRecords(FILE *, pmValueSet *, int);
@@ -1559,6 +1568,12 @@ PCP_CALL extern void __pmCheckDupLabels(const __pmArchCtl *);
 /* diagnostic output throttling */
 PCP_CALL extern int __pmNotifyThrottle(const char *, int);
 PCP_CALL extern int __pmResetNotifyThrottle(const char *, int, int);
+
+/* client attribute value check */
+PCP_CALL extern int __pmCheckAttribute(__pmAttrKey, const char *);
+
+/* dump status change flags from pmcd */
+PCP_CALL extern void __pmDumpFetchFlags(FILE *, int);
 
 #ifdef __cplusplus
 }

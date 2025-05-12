@@ -1,0 +1,53 @@
+#!/bin/sh
+# PCP QA Test No. 1535
+# pmcd -C maxctx testing
+#
+# Copyright (c) 2024 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+
+_cleanup()
+{
+    cd $here
+    [ -n "$pmcd_pid" ] && kill -TERM $pmcd_pid
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e 's/a/a/' \
+    # done
+}
+
+# real QA test starts here
+pmcd_args='-C 10'
+_private_pmcd || _exit 1
+
+for c in 10 11
+do
+    echo
+    echo "with $c contexts ..."
+    src/chkctx2 -c $c 2>&1 \
+    | _filter
+done
+
+echo
+echo "interesting diagnostic lines ..."
+cat $tmp/pmcd.log >>$seq_full
+[ -s $tmp/pmcd.out ] && cat $tmp/pmcd.out
+[ -s $tmp/pmcd.err ] && cat $tmp/pmcd.err
+
+# success, all done
+exit

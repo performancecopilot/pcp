@@ -54,3 +54,4 @@ smartmontools
 sqlite3
 xz
 zabbix-agent
+zstd

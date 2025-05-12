@@ -18,7 +18,7 @@ include $(TOPDIR)/src/include/builddefs
 TARGET = pmrep
 SCRIPT = $(TARGET).py
 LNKTARGET = pcp2csv
-MAN_PAGES = pcp2csv.1 pmrep.1 pmrep.conf.5
+MAN_PAGES = pmrep.1 pmrep.conf.5
 BASHDIR = $(PCP_BASHSHARE_DIR)/completions
 
 SUBDIRS = conf
@@ -41,8 +41,8 @@ default_pcp: default
 
 install_pcp: install
 
-#check :: $(SCRIPT)
-#	$(PYLINT) $^
+check :: $(SCRIPT)
+	$(PYLINT) $^
 
 check :: pmrep.1 pmrep.conf.5
 	$(MANLINT) $^

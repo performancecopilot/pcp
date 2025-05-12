@@ -15,7 +15,6 @@ test $? -eq 0 || _notrun "Python MMV module not available"
 
 status=1
 _needclean=true
-$sudo rm -f $tmp.* $seq.full
 MMV_STATS_DIR="$PCP_TMP_DIR/mmv"
 
 _cleanup()
@@ -43,7 +42,7 @@ _filter()
 
 _filter_pminfo()
 {
-    tee -a $here/$seq.full | sed \
+    tee -a $seq_full | sed \
         -e 's/value [0-9][0-9]*/value NUMBER/'
 }
 
@@ -56,9 +55,9 @@ _stop_auto_restart pmcd
 $sudo rm -rf $MMV_STATS_DIR
 $sudo mkdir $MMV_STATS_DIR
 $sudo chmod 1777 $MMV_STATS_DIR
-_service pcp restart 2>&1 | _filter_pcp_start
-_wait_for_pmcd
-_wait_for_pmlogger
+if ! _service pcp restart 2>&1; then _exit 1; fi | _filter_pcp_start
+_wait_for_pmcd || _exit 1
+_wait_for_pmlogger || _exit 1
 _check_agent mmv >/dev/null || _notrun "MMV agent should be setup but is not"
 
 echo "Running python test program"

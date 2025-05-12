@@ -22,7 +22,6 @@ fi
 . ./common.filter
 . ./common.check
 
-$sudo rm -rf $tmp $tmp.* $seq.full
 
 do_valgrind=false
 if [ "$1" = "--valgrind" ]
@@ -51,7 +50,7 @@ _doit()
     else
 	src/cleanmapdir -Dmisc $* 2>&1
     fi \
-    | tee -a $here/$seq.full \
+    | tee -a $seq_full \
     | _filter \
     | LC_COLLATE=POSIX sort
 }
@@ -79,31 +78,31 @@ _filter()
 
 date >/dev/null 2>&1 &
 DEAD1=$!
-echo "DEAD1=$DEAD1" >>$here/$seq.full
+echo "DEAD1=$DEAD1" >>$seq_full
 date >/dev/null 2>&1 &
 DEAD2=$!
-echo "DEAD2=$DEAD2" >>$here/$seq.full
+echo "DEAD2=$DEAD2" >>$seq_full
 
 # real QA test starts here
 
 echo
-echo "+++ dirname does not exist ..." | tee -a $here/$seq.full
+echo "+++ dirname does not exist ..." | tee -a $seq_full
 _doit $tmp
 
 echo
-echo "+++ dirname is a symlink not a dir ..." | tee -a $here/$seq.full
+echo "+++ dirname is a symlink not a dir ..." | tee -a $seq_full
 ln -s /tmp $tmp
 _doit $tmp
-rm -f $tmp
+rm -f $tmp		# refactor-ok
 
 echo
-echo "+++ dirname is a regular file not a dir ..." | tee -a $here/$seq.full
+echo "+++ dirname is a regular file not a dir ..." | tee -a $seq_full
 touch $tmp
 _doit $tmp
-rm -rf $tmp
+rm -rf $tmp		# refactor-ok
 
 echo
-echo "+++ no permission to read dirname ..." | tee -a $here/$seq.full
+echo "+++ no permission to read dirname ..." | tee -a $seq_full
 mkdir $tmp
 $sudo chgrp `id -gn` $tmp
 chmod 333 $tmp
@@ -111,21 +110,21 @@ _doit $tmp
 chmod 755 $tmp
 
 echo
-echo "+++ wrong user for dirname ..." | tee -a $here/$seq.full
+echo "+++ wrong user for dirname ..." | tee -a $seq_full
 $sudo chown pcp $tmp
-ls -ld $tmp >>$seq.full
+ls -ld $tmp >>$seq_full
 _doit $tmp
 $sudo chown `id -un` $tmp
 
 echo
-echo "+++ wrong group for dirname ..." | tee -a $here/$seq.full
+echo "+++ wrong group for dirname ..." | tee -a $seq_full
 $sudo chgrp pcp $tmp
-ls -ld $tmp >>$seq.full
+ls -ld $tmp >>$seq_full
 _doit $tmp
 $sudo chgrp `id -gn` $tmp
 
 echo
-echo "+++ bad 'PID' file names and CANNOT unlink ..." | tee -a $here/$seq.full
+echo "+++ bad 'PID' file names and CANNOT unlink ..." | tee -a $seq_full
 touch $tmp/-1
 touch $tmp/0
 touch $tmp/foo-bar
@@ -139,13 +138,13 @@ ls $tmp | _filter | LC_COLLATE=POSIX sort
 chmod 755 $tmp
 
 echo
-echo "+++ bad 'PID' file names and CAN unlink ..." | tee -a $here/$seq.full
+echo "+++ bad 'PID' file names and CAN unlink ..." | tee -a $seq_full
 _doit $tmp -C primary
 ls $tmp | _filter | LC_COLLATE=POSIX sort
-rm -f $tmp/*
+rm -f $tmp/*		# refactor-ok
 
 echo
-echo "+++ PIDs -> no process ..." | tee -a $here/$seq.full
+echo "+++ PIDs -> no process ..." | tee -a $seq_full
 touch $tmp/$DEAD1
 touch $tmp/$DEAD2
 touch $tmp/$$
@@ -154,16 +153,16 @@ _doit $tmp -C primary
 ls $tmp | _filter | LC_COLLATE=POSIX sort
 
 echo
-echo "+++ special not a symlink ..." | tee -a $here/$seq.full
-rm -f $tmp/primary
+echo "+++ special not a symlink ..." | tee -a $seq_full
+rm -f $tmp/primary		# refactor-ok
 touch $tmp/primary
 _doit $tmp -C primary
 ls $tmp | _filter | LC_COLLATE=POSIX sort
 (cd $tmp; rm -f primary; ln -s $$ primary)
 
 echo
-echo "+++ special points to a bad 'PID' ..." | tee -a $here/$seq.full
-rm -f $tmp/primary $tmp/$$
+echo "+++ special points to a bad 'PID' ..." | tee -a $seq_full
+rm -f $tmp/primary $tmp/$$		# refactor-ok
 (cd $tmp; rm -f bad; ln -s -- -1 bad)
 _doit $tmp -C bad
 (cd $tmp; rm -f bad; ln -s 0 bad)
@@ -183,8 +182,8 @@ touch $tmp/$$
 (cd $tmp; rm -f bad)
 
 echo
-echo "+++ special points somewhere else ..." | tee -a $here/$seq.full
-rm -f $tmp/primary
+echo "+++ special points somewhere else ..." | tee -a $seq_full
+rm -f $tmp/primary		# refactor-ok
 echo "--- primary -> /etc/passwd"
 (cd $tmp; rm -f primary; ln -s /etc/passwd primary)
 _doit $tmp -C primary
@@ -205,7 +204,7 @@ ls $tmp | _filter | LC_COLLATE=POSIX sort
 (cd $tmp; rm -f foo bar)
 
 echo
-echo "+++ special -> no process ..." | tee -a $here/$seq.full
+echo "+++ special -> no process ..." | tee -a $seq_full
 (cd $tmp; rm -f primary; ln -s $DEAD1 primary)
 _doit $tmp -C primary
 ls $tmp | _filter | LC_COLLATE=POSIX sort

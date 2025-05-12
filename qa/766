@@ -13,7 +13,6 @@ echo "QA output created by $seq"
 . ./common.discovery
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 _sought_filter()
@@ -75,62 +74,62 @@ addr=`host $(hostname) \
 	  -e '/has address/s/.* address //p'`
 if [ -z "$addr" ]
 then
-    host $(hostname) >>$seq.full 2>&1
+    host $(hostname) >>$seq_full 2>&1
     _notrun "no primary network interface?"
     #NOTREACHED
 fi
 numaddr=`echo "$addr" | wc -w | sed -e 's/  *//g'`
 if [ $numaddr -gt 1 ]
 then
-    echo "Warning: $(hostname) has multiple network interfaces!" >>$seq.full
-    echo "Culling: extras from addr=$addr" >>$seq.full
+    echo "Warning: $(hostname) has multiple network interfaces!" >>$seq_full
+    echo "Culling: extras from addr=$addr" >>$seq_full
     addr=`echo "$addr" | sed -e 's/ .*//' -e 1q`
 fi
-echo "addr=$addr" >>$seq.full
+echo "addr=$addr" >>$seq_full
 
 # Probe the obtained network.
 # Test various combinations of service queries and subnet sizes. Keep the
 # subnet size small -- say max 4 bits.
-echo "-m probe=$addr/32" >> $seq.full
+echo "-m probe=$addr/32" >> $seq_full
 echo "-m probe=INET_ADDR/32"
 pmfind -m probe=$addr/32 | _unresolved_filter
-echo "Exit status: $?" | tee -a $seq.full
+echo "Exit status: $?" | tee -a $seq_full
 
 # for this one, we should not be surprised to find peer VMs
 # in the QA Farm ... there is no DNS to support the reverse
 # lookup, so they will be IP addr on the same Class C subnet
 #
 subnet=`echo $addr | sed -e 's/\.[^.]*$/./' -e 's/\./\\\\./g'`
-echo "subnet=$subnet" >>$seq.full
-echo "-s pmcd -m probe=$addr/31" -r >> $seq.full
+echo "subnet=$subnet" >>$seq_full
+echo "-s pmcd -m probe=$addr/31" -r >> $seq_full
 echo "-s pmcd -m probe=INET_ADDR/31 -r"
 pmfind -s pmcd -m probe=$addr/31 -r \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | _resolved_filter \
 | grep -v "pcp://$subnet"
-echo "Exit status: $?" | tee -a $seq.full
+echo "Exit status: $?" | tee -a $seq_full
 
-echo "-q -m probe=$addr/30" >> $seq.full
+echo "-q -m probe=$addr/30" >> $seq_full
 echo "-q -m probe=INET_ADDR/30"
 pmfind -q -m probe=$addr/30 | _unresolved_filter
-echo "Exit status: $?" | tee -a $seq.full
+echo "Exit status: $?" | tee -a $seq_full
 
-echo "-q -s pmcd -m probe=$addr/29 --resolve" >> $seq.full
+echo "-q -s pmcd -m probe=$addr/29 --resolve" >> $seq_full
 echo "-q -s pmcd -m probe=INET_ADDR/29 --resolve"
 pmfind -q -s pmcd -m probe=$addr/29 --resolve | _resolved_filter
-echo "Exit status: $?" | tee -a $seq.full
+echo "Exit status: $?" | tee -a $seq_full
 
-echo "-q -s pmcd -m probe=$addr/28,maxThreads=8" >> $seq.full
+echo "-q -s pmcd -m probe=$addr/28,maxThreads=8" >> $seq_full
 echo "-q -s pmcd -m probe=INET_ADDR/28,maxThreads=8"
 pmfind -q -s pmcd -m probe=$addr/28,maxThreads=8 | _unresolved_filter
-echo "Exit status: $?" | tee -a $seq.full
+echo "Exit status: $?" | tee -a $seq_full
 
 # Try to cause errors; check pmprintf path doesn't blow stack
 # pmfind just needs to survive to its result message
-echo "ulimit -n 10" >> $seq.full
+echo "ulimit -n 10" >> $seq_full
 echo "ulimit -n 10"
-bash -c "ulimit -n 10; pmfind -s pmcd -m probe=127.0.0.1/24,maxThreads=64" 2>&1 | tee -a $seq.full | _error_tolerance_filter
-echo "Exit status: $?" | tee -a $seq.full
+bash -c "ulimit -n 10; pmfind -s pmcd -m probe=127.0.0.1/24,maxThreads=64" 2>&1 | tee -a $seq_full | _error_tolerance_filter
+echo "Exit status: $?" | tee -a $seq_full
 
 # success, all done
 status=0

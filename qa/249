@@ -22,25 +22,24 @@ else
     # NOTREACHED
 fi
 
-# For this test, don't load any global derived metric configs by default. 
+# For this test, don't load any global derived metric configs by default.
 # So the PCP_DERIVED_CONFIG environment variable is set to an empty string.
 export PCP_DERIVED_CONFIG=""
 
 status=0	# success is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # Derived metric expr dump from 0x8513a48...
 # expr node 0x867eb68 type=PLUS left=0x867eb98 right=0x867ed28
 _filter()
 {
-    cat $tmp.out >>$seq.full
+    cat $tmp.out >>$seq_full
     awk <$tmp.out >$tmp.sed '
 BEGIN				{ n = 0 }
 $1 == "expr" && $2 == "node" && $3 ~ /^0x/	{ print "s/" $3 "/<addr-" n ">/"; n++ }
 				{ next }'
-    echo "=== sed ===" >>$seq.full
-    cat $tmp.sed >>$seq.full
+    echo "=== sed ===" >>$seq_full
+    cat $tmp.sed >>$seq_full
     sed -f $tmp.sed <$tmp.out \
     | sed \
 	-e '/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/s/[^ ]*.*numpmid/TIMESTAMP ... numpmid/' \
@@ -88,14 +87,14 @@ want == 1 && $3 == "val"	{
 	  }
     }
 $1 == "expr"		{ want = 0 }'
-    echo "=== sed2 ===" >>$seq.full
-    cat $tmp.sed2 >>$seq.full
+    echo "=== sed2 ===" >>$seq_full
+    cat $tmp.sed2 >>$seq_full
     sed -f $tmp.sed2
 }
 
 # real QA test starts here
 
-echo "No errors here ..." | tee -a $seq.full
+echo "No errors here ..." | tee -a $seq_full
 cat <<End-of-File >$tmp.config
 # simple constant, no arithmetic
 myname.const = 123456
@@ -127,14 +126,14 @@ for args in myname.const myname.a myname "myname.a sample.long" \
 	"sample.long myname.a" "sample.longlong myname.a myname.b sample.long" \
 	"sample.string myname.f sample.bin myname"
 do
-    echo | tee -a $seq.full
-    echo "=== $args ===" | tee -a $seq.full
+    echo | tee -a $seq_full
+    echo "=== $args ===" | tee -a $seq_full
     pminfo -c $tmp.config -Dfetch,derive,appl2 -f $args >$tmp.out 2>&1
     _filter
 done
 
-echo | tee -a $seq.full
-echo "All the arithmetic operators and operand types ..." | tee -a $seq.full
+echo | tee -a $seq_full
+echo "All the arithmetic operators and operand types ..." | tee -a $seq_full
 cat <<End-of-File >$tmp.config
 arith.l = sample.load - sample.load + sample.load / sample.load * sample.load - sample.load
 arith.ul = sample.daemon_pid - sample.daemon_pid + sample.daemon_pid / sample.daemon_pid * sample.daemon_pid - sample.daemon_pid
@@ -168,11 +167,11 @@ End-of-File
 echo
 cat $tmp.config
 
-pminfo -c $tmp.config -Dderive,appl2 -f arith >$tmp.out 2>&1 
+pminfo -c $tmp.config -Dderive,appl2 -f arith >$tmp.out 2>&1
 _filter <$tmp.out | _filter2
 
-echo | tee -a $seq.full
-echo "Errors and empty results here ..." | tee -a $seq.full
+echo | tee -a $seq_full
+echo "Errors and empty results here ..." | tee -a $seq_full
 cat <<End-of-File >$tmp.config
 myname.a = sample.needprofile
 myname.b = 100 + sample.long.hundred * ( 2 - sample.needprofile )
@@ -186,8 +185,8 @@ cat $tmp.config
 
 for args in myname
 do
-    echo | tee -a $seq.full
-    echo "=== $args ===" | tee -a $seq.full
+    echo | tee -a $seq_full
+    echo "=== $args ===" | tee -a $seq_full
     pminfo -c $tmp.config -Dfetch,derive,appl0,appl2 -f $args >$tmp.out 2>&1
     _filter
 done

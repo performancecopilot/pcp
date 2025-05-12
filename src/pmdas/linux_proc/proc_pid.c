@@ -19,9 +19,12 @@
 #include "pmapi.h"
 #include "libpcp.h"
 #include "pmda.h"
+#include <stdio.h>
+#include <string.h>
 #include <ctype.h>
 #include <dirent.h>
 #include <sys/stat.h>
+#include <sys/syslog.h>
 #include <sys/types.h>
 #include <pwd.h>
 #include <grp.h>
@@ -588,15 +591,13 @@ hotproc_eval_procs(void)
 		len--;
 	    }
 
-	    strncpy(vars.fname, cmd, sizeof(vars.fname)-1);
+	    pmstrncpy(vars.fname, sizeof(vars.fname), cmd);
 	    if (len < sizeof(vars.fname) && parens && cmd[len-1] == ')')
 		vars.fname[len-1] = '\0'; /* skip closing parenthesis */
-	    vars.fname[sizeof(vars.fname) - 1] = '\0';
 	}
 
 	/* PS Args */
-	strncpy(vars.psargs, entry->name+7, sizeof(vars.psargs));
-	vars.psargs[sizeof(vars.psargs)-1]='\0';
+	pmstrncpy(vars.psargs, sizeof(vars.psargs), entry->name+7);
 
 	/* UID and GID */
 	vars.uid = entry->status.uid;
@@ -604,14 +605,12 @@ hotproc_eval_procs(void)
 
 	/* uname and gname */
 	if ((name = proc_uidname_lookup(vars.uid)) != NULL) {
-	    strncpy(vars.uname, name, sizeof(vars.uname));
-	    vars.uname[sizeof(vars.uname)-1] = '\0';
+	    pmstrncpy(vars.uname, sizeof(vars.uname), name);
 	} else {
 	    strcpy(vars.uname, "UNKNOWN");
 	}
 	if ((name = proc_gidname_lookup(vars.gid)) != NULL) {
-	    strncpy(vars.gname, name, sizeof(vars.gname));
-	    vars.gname[sizeof(vars.gname)-1] = '\0';
+	    pmstrncpy(vars.gname, sizeof(vars.gname), name);
 	} else {
 	    strcpy(vars.gname, "UNKNOWN");
 	}
@@ -890,8 +889,7 @@ refresh_proc_pidlist(proc_pid_t *proc_pid, proc_pid_list_t *pids, proc_runq_t *r
 		    if (len > PROC_PID_STAT_CMD_MAXLEN)
 			len = PROC_PID_STAT_CMD_MAXLEN;
 	            ep->instname = (char *)malloc(len+1);
-	            strncpy(ep->instname, ep->name, len);
-	            ep->instname[len] = '\0';
+	            pmstrncpy(ep->instname, len+1, ep->name);
 	        }
 	    }
 	    if (ep->instname == NULL) /* no spaces found, so use the full name */
@@ -1119,7 +1117,7 @@ proc_readlink(const char *base, proc_pid_entry_t *ep, size_t *lenp, char **bufp)
 
 /*
  * error mapping for fetch routines ...
- * EACCESS, EINVAL => no values (don't disclose anything else)
+ * EACCES, EINVAL => no values (don't disclose anything else)
  * ENOENT => PM_ERR_APPVERSION
  */
 static int
@@ -2036,8 +2034,10 @@ proc_cgroup_reformat(char *buf, int buflen, char *fmt, int fmtlen, char *cid, in
 	    s = p + 1;
 	if (*p != '\n' || !s)	/* find end of this line */
 	    continue;
-	if (target != fmt)      /* not the first cgroup? */
-	    strncat(target, ";", 2);
+	if (target != fmt) {    /* not the first cgroup? */
+	    memcpy(target, ";", 2);
+	    target++;
+	}
 	/* have a complete cgroup line now, copy it over */
 	/* (but first try out container name heuristics) */
 	off = target - fmt;
@@ -2046,8 +2046,9 @@ proc_cgroup_reformat(char *buf, int buflen, char *fmt, int fmtlen, char *cid, in
 	    break;
 	if (!c)
 	    c = proc_container_search(s, len, cid, cidlen);
-	strncat(target, s, len);
+	memcpy(target, s, len);
 	target += len;
+	*target = '\0';
 	s = NULL;		/* reset it for new line */
     }
 }
@@ -2289,5 +2290,243 @@ fetch_proc_pid_autogroup(int id, proc_pid_t *proc_pid, int *sts)
 	*sts = refresh_proc_pid_autogroup(ep);
 	ep->fetched |= PROC_PID_FLAG_AUTOGROUP;
     }
+    return (*sts < 0) ? NULL : ep;
+}
+
+static void
+parse_proc_fdinfo(proc_pid_fdinfo_t *fdinfo, size_t buflen, char *buf)
+{
+    char		*curline = buf;
+
+    /*
+    * drm-driver:	amdgpu
+    * drm-client-id:	422
+    * drm-pdev:	0000:0c:00.0
+    * drm-memory-vram:	0 KiB
+    * [...]
+    * amd-requested-gtt:	2048 KiB
+    */
+    while (curline) {
+	switch (curline[0]) {
+	case 'd':
+	  if (strncmp(curline, "drm-driver:", 11) == 0) {
+	      char *c = curline + 11;
+	      char const *n = index(curline, '\n');
+	      size_t size = sizeof(fdinfo->drm_driver) - 1;
+
+	      while (isspace(*c))
+		++c;
+	      if (n && (n - c <= size))
+		size = n - c;
+
+	      memcpy(fdinfo->drm_driver, c, size);
+	      fdinfo->drm_driver[size] = '\0';
+	  }
+	  else if (strncmp(curline, "drm-client-id:", 14) == 0)
+	      fdinfo->drm_client_id = strtoull(curline + 14, &curline, 0);
+	  else if (strncmp(curline, "drm-pdev:", 9) == 0) {
+	      char *c = curline + 9;
+	      char const *n = index(curline, '\n');
+	      size_t size = sizeof(fdinfo->drm_driver) - 1;
+
+	      while (isspace(*c))
+		++c;
+	      if (n && (n - c <= size))
+		size = n - c;
+
+	      memcpy(fdinfo->drm_pdev, c, size);
+	      fdinfo->drm_pdev[size] = '\0';
+	  }
+	  else if (strncmp(curline, "drm-memory-vram:", 16) == 0)
+	      fdinfo->drm_memory_vram = strtoull(curline + 16, &curline, 0);
+	  else if (strncmp(curline, "drm-memory-gtt:", 15) == 0)
+	      fdinfo->drm_memory_gtt = strtoull(curline + 15, &curline, 0);
+	  else if (strncmp(curline, "drm-memory-cpu:", 15) == 0)
+	      fdinfo->drm_memory_cpu = strtoull(curline + 15, &curline, 0);
+	  else
+	      goto nomatch;
+	  break;
+	case 'a':
+	  if (strncmp(curline, "amd-memory-visible-vram:", 24) == 0)
+	    fdinfo->amd_memory_visible_vram = strtoull(curline + 24, &curline, 0);
+	  else if (strncmp(curline, "amd-evicted-vram:", 17) == 0)
+	    fdinfo->amd_evicted_vram = strtoull(curline + 17, &curline, 0);
+	  else if (strncmp(curline, "amd-evicted-visible-vram:", 25) == 0)
+	    fdinfo->amd_evicted_visible_vram = strtoull(curline + 25, &curline, 0);
+	  else if (strncmp(curline, "amd-requested-vram:", 19) == 0)
+	    fdinfo->amd_requested_vram = strtoull(curline + 19, &curline, 0);
+	  else if (strncmp(curline, "amd-requested-visible-vram:", 27) == 0)
+	    fdinfo->amd_requested_visible_vram = strtoull(curline + 27, &curline, 0);
+	  else if (strncmp(curline, "amd-requested-gtt:", 18) == 0)
+	    fdinfo->amd_requested_gtt = strtoull(curline + 18,&curline, 0);
+	  else
+	      goto nomatch;
+	  break;
+	default:
+	nomatch:
+	    if (pmDebugOptions.appl1 && pmDebugOptions.desperate) {
+		char	*p;
+		fprintf(stderr, "%s: skip ", "fetch_proc_pid_fdinfo.");
+		for (p = curline; *p && *p != '\n'; p++)
+		    fputc(*p, stderr);
+		fputc('\n', stderr);
+	    }
+	}
+	curline = index(curline, '\n');	/* skips any kiB suffix */
+	if (curline != NULL) curline++;
+    }
+}
+
+static void
+accumulate_proc_fdinfo(proc_pid_entry_t *ep, proc_pid_fdinfo_t const *fdinfo)
+{
+    /* Generic DRM data */
+    ep->fdinfo.drm_memory_cpu += fdinfo->drm_memory_cpu;
+    ep->fdinfo.drm_memory_gtt += fdinfo->drm_memory_gtt;
+    ep->fdinfo.drm_memory_vram += fdinfo->drm_memory_vram;
+    ep->fdinfo.drm_shared_cpu += fdinfo->drm_shared_cpu;
+    ep->fdinfo.drm_shared_gtt += fdinfo->drm_shared_gtt;
+    ep->fdinfo.drm_shared_vram += fdinfo->drm_shared_vram;
+    /* AMD GPU specific data */
+    ep->fdinfo.amd_evicted_visible_vram += fdinfo->amd_evicted_visible_vram;
+    ep->fdinfo.amd_evicted_vram += fdinfo->amd_evicted_vram;
+    ep->fdinfo.amd_memory_visible_vram += fdinfo->amd_memory_visible_vram;
+    ep->fdinfo.amd_requested_gtt += fdinfo->amd_requested_gtt;
+    ep->fdinfo.amd_requested_visible_vram += fdinfo->amd_requested_visible_vram;
+    ep->fdinfo.amd_requested_vram += fdinfo->amd_requested_vram;
+}
+
+static int
+refresh_proc_pid_fdinfo(proc_pid_entry_t *ep)
+{
+    DIR			*dirp;
+    struct dirent const	*dp;
+    int			sts = 0;
+    int			lsts;
+    proc_pid_fdinfo_t	*fdinfos;
+    int			fd_count = 0;
+    int			fd_it = 0;
+
+    if (ep->success & PROC_PID_FLAG_FDINFO)
+	return 0;
+
+    if ((dirp = proc_opendir("fdinfo", ep)) == NULL) {
+	/*
+	 * for kernel threads this fails with EACCES
+	 * that maperr() turns into 0
+	 */
+	return maperr();
+    }
+
+    while ((dp = readdir(dirp)) != NULL) {
+	if (!isdigit((int)dp->d_name[0]))
+	    continue;
+	fd_count++;
+    }
+
+    if (!fd_count) {
+	if (pmDebugOptions.appl1)
+	    fprintf(stderr, "refresh_proc_pid_fdinfo(pid=%d): /proc/.../fdinfo empty\n", ep->id);
+	closedir(dirp);
+	return 0;
+    }
+
+    fdinfos = calloc(fd_count, sizeof(*fdinfos));
+    if (!fdinfos) {
+	if (pmDebugOptions.appl1)
+	    pmNoMem("refresh_proc_pid_fdinfo", fd_count*sizeof(*fdinfos), PM_RECOV_ERR);
+	closedir(dirp);
+	return maperr();
+    }
+
+    rewinddir(dirp);
+
+    while ((dp = readdir(dirp)) != NULL) {
+	int fd = -1;
+	int duplicate = 0;
+	proc_pid_fdinfo_t fdinfo = { 0 };
+	char fname[] = "fdinfo/xxxxx";
+
+	if (!isdigit((int)dp->d_name[0]))
+	    continue;
+
+	pmsprintf(fname, sizeof(fname), "fdinfo/%s", dp->d_name);
+
+	if ((fd = proc_open(fname, ep)) < 0) {
+	    if (pmDebugOptions.appl1)
+		fprintf(stderr, "refresh_proc_pid_fdinfo(pid=%d): proc_open(.../fdinfo/%s,...) -> %d\n", ep->id, fname, fd);
+	    free(fdinfos);
+	    closedir(dirp);
+	    return maperr();
+	}
+
+	if ((lsts = read_proc_entry(fd, &procbuflen, &procbuf)) >= 0)
+	    parse_proc_fdinfo(&fdinfo, procbuflen, procbuf);
+	else {
+	    if (sts == 0) {
+		/*
+		 * return first found error from read_proc_entry()
+		 */
+		sts = lsts;
+	    }
+	    if (pmDebugOptions.appl1)
+		fprintf(stderr, "refresh_proc_pid_fdinfo(pid=%d): read_proc_entry(.../fdinfo/%s) -> %d\n", ep->id, fname, sts);
+	}
+
+	close(fd);
+
+	/* We only support AMD GPUs for now */
+	if (!fdinfo.drm_driver[0] ||
+	    strncmp(fdinfo.drm_driver, "amdgpu", 6) ||
+	    !fdinfo.drm_client_id)
+	    continue;
+
+	/* Skip duplicate data */
+	for (int i = 0; i < fd_it; i++) {
+	    if (fdinfo.drm_client_id == fdinfos[i].drm_client_id) {
+		duplicate = 1;
+		break;
+	    }
+	}
+
+	if (!duplicate)
+	    fdinfos[fd_it++] = fdinfo;
+    }
+
+    /* Reset any previous data, before accumulation.
+     * If we wanted to keep all infos separated, we could simply
+     * attach fdinfos there.
+     */
+    memset(&ep->fdinfo, 0, sizeof(ep->fdinfo));
+
+    for (int i = 0; i < fd_it; i++)
+	accumulate_proc_fdinfo(ep, &fdinfos[i]);
+
+    ep->success |= PROC_PID_FLAG_FDINFO;
+    free(fdinfos);
+    closedir(dirp);
+
+    if (sts < 0 && pmDebugOptions.appl1)
+	fprintf(stderr, "refresh_proc_pid_fdinfo(pid=%d) -> %d\n", ep->id, sts);
+    return sts;
+}
+
+/*
+ * fetch data from proc/<pid>/fdinfo/ entries for pid
+ */
+proc_pid_entry_t *
+fetch_proc_pid_fdinfo(int id, proc_pid_t *proc_pid, int *sts)
+{
+    proc_pid_entry_t	*ep = proc_pid_entry_lookup(id, proc_pid);
+
+    *sts = 0;
+    if (!ep)
+	return NULL;
+
+    if (!(ep->fetched & PROC_PID_FLAG_FDINFO)) {
+	*sts = refresh_proc_pid_fdinfo(ep);
+	ep->fetched |= PROC_PID_FLAG_FDINFO;
+    }
+
     return (*sts < 0) ? NULL : ep;
 }

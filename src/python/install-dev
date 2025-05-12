@@ -1,0 +1,77 @@
+#!/bin/sh
+#
+# Helper script for developer install of PCP Python bits over
+# the top of an existing installation.
+#
+# We assume you know what you're doing!
+#
+
+tmp=/var/tmp/install-dev-$$
+sts=1
+trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
+
+. /etc/pcp.conf
+
+$PCP_MAKE_PROG clean
+$PCP_MAKE_PROG
+sudo $PCP_MAKE_PROG install
+
+packing_list=../../python3-pcp.list
+if [ ! -f "$packing_list" ]
+then
+    echo "Arrgh: $packing_list does not exist, you lose."
+    exit
+fi
+
+if [ ! -d build ]
+then
+    echo "Arrgh: build dir does not exist, you lose."
+    exit
+fi
+
+if [ ! -d pcp.egg-info ]
+then
+    echo "Arrgh: pcp.egg-info dir does not exist, you lose."
+    exit
+fi
+
+find build pcp.egg-info -type f -print >$tmp.build
+
+# sanity check
+#
+cat "$packing_list" \
+| while read dst
+do
+    case "$dst"
+    in
+	*/pcp/__pycache__/*)
+	    # blow these ones away
+	    sudo rm -f "/$dst"
+	    continue
+	    ;;
+    esac
+
+    if [ ! -f "/$dst" ]
+    then
+	echo "Arrgh: $dst in packing list but not installed, you lose."
+	exit 1
+    fi
+    base=`basename $dst`
+    src=`grep "/$base\$" <$tmp.build`
+    if [ -z "$src" ]
+    then
+	echo "Arrgh: $base in packing list but not found below build dir, you lose."
+	echo "Need to run \"sudo $PCP_MAKE_PROG clean; sudo $PCP_MAKE_PROG install\""
+	exit
+    fi
+
+    if cmp "/$dst" "$src" >/dev/null 2>&1
+    then
+	: echo "$base: no change"
+    else
+	echo "$base: updating"
+	sudo cp "$src" "/$dst"
+    fi
+done
+
+sts=0

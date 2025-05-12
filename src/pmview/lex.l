@@ -218,7 +218,7 @@ _group[bB]y[iI]nst	{ yylval.y_barGroup = BarMod::groupByInst; RETURN(GROUP); }
 
 \"[^\"\n][^\"\n]*\"	{
 	    yylval.y_str = (char *)malloc(yyleng-1);
-	    strncpy(yylval.y_str, &yytext[1], yyleng-2);
+	    memcpy(yylval.y_str, &yytext[1], yyleng-2);
 	    yylval.y_str[yyleng-2] = '\0';
 	    RETURN(STRING);
 	}

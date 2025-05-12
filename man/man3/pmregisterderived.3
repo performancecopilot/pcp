@@ -1,5 +1,4 @@
-'\"! tbl | mmdoc
-'\"macro stdmacro
+'\" t
 .\"
 .\" Copyright (c) 2009 Ken McDonell.  All Rights Reserved.
 .\"
@@ -144,13 +143,13 @@ my.summary.disk.avgsz\c
 The expression
 .I expr
 follows these syntactic rules:
-.IP * 2n
+.IP \(bu 2n
 Terminal elements are either names of existing metrics or numeric constants.
 Recursive definitions are not allowed, so only the names of regular
 metrics (not other derived metrics) may be used. Numeric constants are
 either integers constrained to the precision of 32-bit unsigned integers
 or double precision floating point numbers.
-.IP * 2n
+.IP \(bu 2n
 The usual binary arithmetic operators are supported, namely addition (``+''),
 subtraction (``-''), multiplication (``*'') and division (``/'') with
 the normal precedence rules where multiplication and division have
@@ -163,13 +162,13 @@ is evaluated as
 a+(b*c)\c
 .ft R
 \&.
-.IP * 2n
+.IP \(bu 2n
 Unary negation may be used, e.g.
 .ft CR
 -3*some.metric\c
 .ft R
 \&.
-.IP * 2n
+.IP \(bu 2n
 C-style relational operators are supported, namely ``<'', ``<='', ``=='',
 \&``>='', ``>'' and ``!=''.
 Relational expressions return a value as a 32-bit unsigned number being
@@ -195,7 +194,7 @@ is evaluated as
 (a>b)!=c\c
 .ft R
 \&.
-.IP * 2n
+.IP \(bu 2n
 C-style boolean operators are supported, namely and (``&&'') and or (``||'').
 Boolean expressions return a value as a 32-bit unsigned number being
 0 for false and 1 for true.
@@ -220,7 +219,7 @@ is evaluated as
 (((a>=b)||(b>c))&&(d!=e))||(f>g)\c
 .ft R
 \&.
-.IP * 2n
+.IP \(bu 2n
 Additionally, the ``!'' operator may be used to negate a boolean or
 relational expression, returning a value as a 32-bit unsigned number being
 0 for false and 1 for true.
@@ -245,7 +244,7 @@ is evaluated as
 !(a<(b+c))\c
 .ft R
 \&.
-.IP * 2n
+.IP \(bu 2n
 C-style ternary conditional expressions are supported. In general terms
 the expression
 .ft CR
@@ -289,11 +288,13 @@ evaluation of the ``guard'', then the result is a set of values
 (all the same) with instance enumeration being taken from the other
 operand expression. For example in the expression:
 .ft CR
-foo ? scalar : set\c
+check ? foo : bar\c
 .ft R
-\&, if \f(CRfoo\fP is true, then the result is a set of values
-(all having the same value, \f(CRscalar\fP) over
-the instance domain of \f(CRset\fP.
+\&, if \f(CRfoo\fP is an expression with a singular value and
+\f(CRbar\fP is a set-valued expression, then if \f(CRcheck\fP is true,
+then the result is a set of values
+(all having the same value, \f(CRfoo\fP) over
+the instance domain of \f(CRbar\fP.
 .IP (h) 4n
 As a special case, either (but not both) of the
 expressions
@@ -350,7 +351,7 @@ fumble = defined(new.metric) ? new.metric : old.metric
 which is valid when \f(CRnew.metric\fP is defined
 .B and
 when \f(CRnew.metric\fP is
-.I not
+.B not
 defined, although this does mean rules (b) and (c) are relaxed
 in this case, which further means \f(CRnovalue()\fP may have no
 peer operand to provide metadata.
@@ -369,7 +370,7 @@ bar = !defined(a) || !defined(b) ? novalue() : a + b
 .RS -4n
 .PD
 .RS -2n
-.IP * 2n
+.IP \(bu 2n
 Selection of a single instance can be specified by the
 construct ``[\fIinstance_name\fR]'' which may be appended to
 a metric name or a parenthesized expression.
@@ -400,7 +401,7 @@ any spurious white space.
 A backslash may be used as an escape prefix
 in the (unlikely) event that the external instance name contains a ``]''.
 .RE
-.IP * 2n
+.IP \(bu 2n
 Numeric constants can also be specified using the
 .ft CR
 mkconst()
@@ -418,8 +419,8 @@ and
 are as follows:
 .TS
 box,center;
-cf(I) | cf(I)w(4.5i)
-lf(CR) | lf(R).
+cf(I) | cf(I)
+lf(CR) | lf(R)x.
 tag	value
 _
 type	T{
@@ -466,12 +467,12 @@ type and/or semantics and/or units for operands, e.g.
 idle = mem.util.free > mkconst(10485760, units=Kbyte)
 .br
 avg_io_size = delta(disk.dev.total) == 0 ? \e
-    -mkconst(1.0, semantics=instant, units="kbyte / count") : \e
+    mkconst(1.0, semantics=instant, units="kbyte / count") : \e
     delta(disk.dev.total_bytes) / delta(disk.dev.total)
 .ft R
 .in
 .RE
-.IP * 2n
+.IP \(bu 2n
 Expressions may be rescaled using the
 .ft CR
 rescale
@@ -492,28 +493,25 @@ rescale(network.interface.total.bytes, "Mbytes/hour")
 The expression and the desired units must both have the same dimension,
 e.g Space=1, Time=\-1 and Count=0 in the example above.
 .RE
-.IP * 2n
+.IP \(bu 2n
 The following unary functions operate on a single performance metric
 and return one or more values.
 For all functions (except
 .ft CR
-count()\c
-.ft R
-,
-.ft CR
-defined()
+count()
 .ft R
 and
 .ft CR
-instant()\c
+defined()\c
+.ft R
 .ft R
 ), the type of the operand metric must be arithmetic
 (integer of various sizes and signedness, float or
 double).
 .TS
 box,center;
-cf(R) | cf(R)w(4.5i)
-lf(CR) | lf(R).
+cf(R) | cf(R)
+lf(CR) | lf(R)x.
 Function	Value
 _
 avg(x)	T{
@@ -523,10 +521,7 @@ _
 count(x)	T{
 A singular instance being the count of the number of instances for the metric x.
 As a special case, if fetching the metric x returns an error, then
-.ft CR
-count(x)
-.ft R
-will be 0.
+\f(CRcount(x)\fP will be 0.
 T}
 _
 defined(x)	T{
@@ -545,57 +540,6 @@ context has been established will not change the value
 of this function in the expression evaluation.
 T}
 _
-delta(x)	T{
-Returns the difference in values for the metric x between
-one call to
-.BR pmFetch (3)
-and the next. There is one value in the result
-for each instance that appears in both the current and the previous
-sample.
-If the metric x is unsigned, then the type of the result is
-converted to ensure as much precision as possible can be retained,
-so if the metric x has type PM_TYPE_U32 then the result is of type PM_TYPE_64, else
-if the metric x has type PM_TYPE_U64 then the result is of type PM_TYPE_DOUBLE.
-Otherwise the type of the result is the same as the type of the
-metric x.
-T}
-_
-rate(x)	T{
-Returns the difference in values for the metric x between
-one call to
-.BR pmFetch (3)
-and the next divided by the elapsed time between the calls to
-.BR pmFetch (3).
-The semantics of the derived metric are based on the semantics of the
-metric x with the dimension in the
-.B time
-domain decreased by one and scaling if required in the time utilization case
-where the operand is in units of time, and the derived metric is unitless.
-There is one value in the result
-for each instance that appears in both the current and the previous
-sample, except in the case where the metric x has
-the semantics of a counter, i.e. PM_SEM_COUNTER, and
-current value of an instance is smaller than the previous value
-of the same instance then no value is
-returned for this instance (this corresponds to a ``counter wrap'' or a ``counter reset'').
-These rules
-mimic the rate conversion applied to counter metrics by tools
-such as
-.BR pmval (1),
-.BR pmie (1)
-and
-.BR pmchart (1).
-T}
-_
-instant(x)	T{
-Returns the current value of the metric x, even it has
-the semantics of a counter, i.e. PM_SEM_COUNTER.
-The semantics of the derived metric are based on the semantics of the
-metric x; if x has semantics PM_SEM_COUNTER, the semantics of
-instant(x) is PM_SEM_INSTANT, otherwise the semantics of the derived metric
-is the same as the semantics of the metric x.
-T}
-_
 max(x)	T{
 A singular instance being the maximum value across all instances for the metric x.
 T}
@@ -608,7 +552,90 @@ sum(x)	T{
 A singular instance being the sum of the values across all instances for the metric x.
 T}
 .TE
-.IP * 2n
+.IP \(bu 2n
+The following unary function returns the instantaneous value of an
+expression, not the rate-converted value that is the default
+for expressions with the semantics of PM_SEM_COUNTER.
+.TS
+box,center;
+cf(R) | cf(R)
+lf(CR) | lf(R)x.
+Function	Value
+_
+instant(expr)	T{
+Returns the current value of the expression, even it has
+the semantics of a counter, i.e. PM_SEM_COUNTER.
+The semantics of the derived metric are based on the semantics of the
+expression \f(CRexpr\fR; if \f(CRexpr\fR has semantics PM_SEM_COUNTER, the semantics of
+\f(CRinstant(expr)\fR is PM_SEM_INSTANT, otherwise the semantics of the derived metric
+is the same as the semantics of \f(CRexpr\fR.
+T}
+.TE
+.IP \(bu 2n
+The following unary functions return values computed from
+the value of an expression on consecutive samples, or
+.BR pmFetch (3)
+calls.
+The expression (\f(CRexpr\fR below) may involve one or more metrics
+but must have an arithmetic value
+(integer of various sizes and signedness, float or double) for all
+instances.
+.RS 2n
+.PP
+If \f(CRexpr\fP is a set-valued expression then only those instances
+that appear in
+.B both
+samples will appear in the result.
+.TS
+box,center;
+cf(R) | cf(R)
+lf(CR) | lf(R)x.
+Function	Value
+_
+delta(expr)	T{
+Returns the difference in values for the expression between
+one call to
+.BR pmFetch (3)
+and the next. There is one value in the result
+for each instance that appears in both the current and the previous
+sample.
+If the expression is unsigned, then the type of the result is
+converted to ensure as much precision as possible can be retained,
+so if the expression has type PM_TYPE_U32 then the result is of type PM_TYPE_64, else
+if the expression has type PM_TYPE_U64 then the result is of type PM_TYPE_DOUBLE.
+Otherwise the type of the result is the same as the type of the
+expression.
+T}
+_
+rate(expr)	T{
+Returns the difference in values for the expression between
+one call to
+.BR pmFetch (3)
+and the next divided by the elapsed time between the calls to
+.BR pmFetch (3).
+The semantics of the derived metric are based on the semantics of the
+expression with the dimension in the
+.B time
+domain decreased by one and scaling if required in the time utilization case
+where the operand is in units of time, and the derived metric is unitless.
+There is one value in the result
+for each instance that appears in both the current and the previous
+sample, except in the case where the expression has
+the semantics of a counter, i.e. PM_SEM_COUNTER, and
+current value of an instance is smaller than the previous value
+of the same instance then no value is
+returned for this instance (this corresponds to a ``counter wrap'' or a ``counter reset'').
+These rules
+mimic the rate conversion applied to counter metrics by tools
+such as
+.BR pmval (1),
+.BR pmie (1)
+and
+.BR pmchart (1).
+T}
+.TE
+.RE
+.IP \(bu 2n
 The \f(CRmatchinst\fR function may be used to select a subset of the instances from
 an instance domain for a metric or expression.
 The function takes two arguments:
@@ -620,7 +647,7 @@ by a regular expression delimited by ``/'' characters.
 The regular expression follows the
 POSIX Extended Regular Expression syntax as described in
 .BR regex (3).
-Backslashes may be used as escape prefixes, but double backslash is required to
+A single backslash may be used to escape the regular expression delimiter ``/'', but double backslashes are required to
 escape any regular expression special characters, e.g. for the (extremely unlikely)
 case of wanting to match instance names like ``some*text/other[text]'' a
 regular expression of the form \f(CR/some\e\e*text\e/other\e\e[text]/\fR
@@ -646,7 +673,7 @@ matchinst(!/^(lo)|(vbir)/, network.interface.in.bytes)
 .in
 .br
 .RE
-.IP * 2n
+.IP \(bu 2n
 The \f(CRscalar\fR function may be used convert a metric or expression
 defined over an instance domain into a scalar value that can be used
 in other expressions.
@@ -672,15 +699,15 @@ or expressions that are expected to contain zero or one instances, e.g.
 the construct ``[\fIinstance_name\fR]'' or the \f(CRmatchinst\fR function
 with a pattern that matches at most one instance.
 .RE
-.IP * 2n
+.IP \(bu 2n
 Parenthesis may be used for explicit grouping.
-.IP * 2n
+.IP \(bu 2n
 A line ending with ``\e'' is treated as ``to be continued'' and the
 following line is appended after stripping the ``\e'' and the
 embedded newline.
-.IP * 2n
+.IP \(bu 2n
 Lines beginning with ``#'' are treated as comments and ignored.
-.IP * 2n
+.IP \(bu 2n
 White space is ignored.
 .SH "SEMANTIC CHECKS AND RULES"
 There are a number of conversions required to determine the
@@ -715,25 +742,25 @@ a result that is not a counter, either or both operands of a relational expressi
 may be counters.
 .PP
 The mapping of the pmUnits of the metadata uses the following rules:
-.IP * 2n
+.IP \(bu 2n
 If both operands have a dimension of Count and the scales are not
 the same, use the larger scale and convert the values of the operand
 with the smaller scale.
-.IP * 2n
+.IP \(bu 2n
 If both operands have a dimension of Time and the scales are not
 the same, use the larger scale and convert the values of the operand
 with the smaller scale.
-.IP * 2n
+.IP \(bu 2n
 If both operands have a dimension of Space and the scales are not
 the same, use the larger scale and convert the values of the operand
 with the smaller scale.
-.IP * 2n
+.IP \(bu 2n
 For addition and subtraction all dimensions for each of the operands
 and result are identical.
-.IP * 2n
+.IP \(bu 2n
 For multiplication, the dimensions of the result are the sum of the
 dimensions of the operands.
-.IP * 2n
+.IP \(bu 2n
 For division, the dimensions of the result are the difference of the
 dimensions of the operands.
 .PP
@@ -894,7 +921,7 @@ Metrics with counter semantics may be added or subtracted, but <op>
 .TP
 Semantic error: derived metric <name>: operand <bname>: Unknown metric for ternary expression
 When a new context was established, the metric <bname> was not in the
-PMNS of the new context and <bname> is a required operand in the defintion of
+PMNS of the new context and <bname> is a required operand in the definition of
 the derived metric <name>.
 .SH "EXPRESSION EVALUATION"
 For the binary arithmetic operators,
@@ -925,6 +952,121 @@ T{
 otherwise (both are PM_TYPE_32)
 T}	any	PM_TYPE_32
 .TE
+.SH PMIDs AND MASKING
+Within PCP each metric is assigned a
+unique Performance Metric Identifier (PMID) and
+internally a PMID is constructed from 3 fields: the domain number
+(of the associated Performance Metrics Domain Agent, or PMDA),
+the cluster number and the item number.
+Derived metrics use the reserved domain number 511 and
+special PMIDs as described in the following table, where
+the PMID is shown as domain.cluster.item:
+.TS
+box,center;
+cf(R) | cf(R) | cf(R)
+lf(R) | lf(R) | lf(R)x.
+Derived Metric	Starting PMID	Description
+_
+global	511.0.1	T{
+.ad l
+.hy 0
+Metrics are assigned
+.I ascending
+PMIDs as they are registered via
+.BR pmRegisterDerived ,
+.BR pmRegisterDerivedMetric
+or
+.BR pmLoadDerivedConfig (3).
+T}
+_
+per-context	511.2047.1023	T{
+.ad l
+.hy 0
+Metrics are assigned
+.I descending
+PMIDs as they are registered via
+.BR pmAddDerived (3)
+or
+.BR pmAddDerivedMetric (3).
+T}
+_
+remapped	511.c.i	T{
+.ad l
+.hy 0
+When a derived metric is recorded in a PCP archive by
+.BR pmlogger (1)
+or one of the related archive creation tools, the PMID of the
+derived metric is remapped in the archive so that \fIc\fP is the cluster of
+derived metric plus 2048, and i is the item of the derived metric.
+For example, a derived metric with PMID 511.0.13 will have the
+remapped PMID 511.2048.13 in an archive.
+See
+.BR pmlogger (1)
+for a discussion about adding derived metrics to a PCP archive.
+T}
+.TE
+.PP
+For base metrics from a host or archive context, there is a
+requirement that each metric name is unique.
+But derived metrics require this restriction to be relaxed, so that
+the same metric name could associated with a base metric, and/or
+a per-context derived metric, and/or a global metric.
+This means that one or more of the metrics with the same name may be
+masked by other metrics of the same name.
+The following table describes which metric will be used when one
+of these multiply-defined names is presented to the PMAPI.
+.TS
+box,center;
+cf(R) | cf(R)   s       s     | cf(R)
+^     | cf(R) | cf(R) | cf(R) | ^
+lf(R) | lf(R) | lf(R) | lf(R) | lf(R)x.
+base metric	derived metric	chosen metric
+_
+	remapped	per-context	global	
+_
+no	no	no	no	T{
+.ad l
+.hy 0
+none; the metric is undefined
+T}
+_
+no	no	no	yes	global derived
+_
+no	no	yes	no	per-context derived
+_
+no	no	yes	yes	per-context derived
+_
+no	yes	no	no	remapped
+_
+no	yes	no	yes	remapped
+_
+no	yes	yes	no	remapped
+_
+no	yes	yes	yes	remapped
+_
+yes	no	no	no	base metric
+_
+yes	no	no	yes	base metric
+_
+yes	no	yes	no	base metric
+_
+yes	no	yes	yes	base metric
+_
+yes	yes	-	-	T{
+.ad l
+.hy 0
+cannot happen; for any name there can be at most one of a base metric or
+a remapped metric
+T}
+.TE
+.PP
+When masking happens, it is done silently.
+Most PCP applications support
+.B \-Dderive
+on the command line and this
+.BR pmdbg (1)
+debug option will report derived metric operations (including masking)
+on stderr.
 .SH CAVEATS
 Derived metrics are not available when using
 .BR pmFetchArchive (3)
@@ -985,22 +1127,25 @@ Error: pmRegisterDerivedMetric("my.disk.rates", ...) syntax error
 The position indicator line may be followed by an additional
 diagnostic line describing the nature of the error, when available.
 .PP
-In the case of an error, the caller is responsible for calling
+In the case of an error, the
+.B pmRegisterDerivedMetric
+caller is responsible for calling
 .BR free (3)
 to release the space allocated for
 .IR errmsg .
 .SH SEE ALSO
 .BR PCPIntro (1),
+.BR pmlogger (1),
+.BR PMAPI (3),
 .BR free (3),
 .BR pmAddDerived (3),
 .BR pmAddDerivedMetric (3),
-.BR PMAPI (3),
 .BR pmDerivedErrStr (3),
 .BR pmFetch (3),
 .BR pmLoadDerivedConfig (3),
 .BR pmNewContext (3),
-.BR pmprintf (3),
-.BR pmReconnectContext (3)
+.BR pmReconnectContext (3),
+.BR pmprintf (3)
 and
 .BR PMNS (5).
 
@@ -1011,3 +1156,6 @@ and
 .\" +ok+ fw {from fw.bytes}
 .\" +ok+ sensical {from non-sensical}
 .\" +ok+ abc def {both from abc.def}
+.\" +ok+ bname {from operand <bname>}
+.\" +ok+ dname {from operand <dname>}
+.\" +ok+ Dderive {from -Dderive}

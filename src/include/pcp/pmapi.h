@@ -54,10 +54,30 @@
 extern "C" {
 #endif
 
+/*
+ * Historical note:
+ *
+ * PMAPI_VERSION 1 only lasted for a short time in 1993-1998 (the
+ * initial development and the PCP 1.1 release in April 1995).
+ * PMAPI_VERSION 2 was part of the PCP 2.1 release in May 1998 and was the
+ * long-standing version that evolved over the next 25+ years largely with
+ * backwards compatibility.
+ * Changes to make PCP Y2038-safe involved moving to 64-bit precision for
+ * all timestamps (and for consistency, time intervals), and these
+ * changes could not be done in a manner that was backwards compatibible,
+ * so the PMAPI_VERSION had to move forwards.  But at some point (the
+ * reasons are lost in the mists of time), the libpcp DSO had moved from
+ * version 2 to version 3.  To align these two, the new PMAPI_VERSION is
+ * 4.
+ * Like the Travelling Wilbury's Volume 2, PCP's PMAPI_VERSION 3 never
+ * existed.
+ */
+
 #define PMAPI_VERSION_2	2	/* traditional PMAPI */
-#define PMAPI_VERSION_3	3	/* nanosec precision */
+#define PMAPI_VERSION_3	3	/* never existed */
+#define PMAPI_VERSION_4	4	/* timeval -> timespec */
 #ifndef PMAPI_VERSION
-#define PMAPI_VERSION	PMAPI_VERSION_2   /* default */
+#define PMAPI_VERSION	PMAPI_VERSION_4   /* current default */
 #endif
 
 /*
@@ -365,6 +385,7 @@ PCP_CALL extern int pmNewContext(int, const char *);
 					/* don't check V3 archive features */
 #define PM_CTXFLAG_NO_FEATURE_CHECK	(1U<<15) /* don't check features in label record */
 #define PM_CTXFLAG_METADATA_ONLY	(1U<<16) /* only open .meta file of archive */
+#define PM_CTXFLAG_LAST_VOLUME	(1U<<17) /* open archive at start of last volume */
 
 /*
  * Duplicate current context -- returns handle to new one for pmUseContext()
@@ -535,7 +556,7 @@ typedef union {
  *
  * The value sets returned are in the same order as the metrics argument,
  * and the number of value sets returned is guaranteed to be the same as
- * the number of metrics in the agument.  
+ * the number of metrics in the argument.  
  */
 PCP_CALL extern int pmFetch(int, pmID *, pmResult **);
 PCP_CALL extern int pmFetchHighRes(int, pmID *, pmHighResResult **);
@@ -671,30 +692,20 @@ typedef struct pmTimespec {
 #define PM_LOG_FEATURES		(PM_LOG_FEATURE_NONE | PM_LOG_FEATURE_QA)
 
 typedef struct pmLogLabel {
-    int		ll_magic;	/* PM_LOG_MAGIC | archive format version no. */
-    pid_t	ll_pid;				/* PID of logger */
-    struct timeval	ll_start;		/* start of this archive */
-    char	ll_hostname[PM_LOG_MAXHOSTLEN];	/* name of collection host */
-    char	ll_tz[PM_TZ_MAXLEN];		/* $TZ at collection host */
-} pmLogLabel;
-
-typedef struct pmHighResLogLabel {
     int		magic;	/* PM_LOG_MAGIC | archive format version no. */
     pid_t	pid;		/* PID of logger */
     struct timespec start;	/* start of this archive */
     char	hostname[PM_MAX_HOSTNAMELEN];	/* collection host full name */
     char	timezone[PM_MAX_TIMEZONELEN];	/* generic, squashed $TZ */
     char	zoneinfo[PM_MAX_ZONEINFOLEN];	/* local platform $TZ */
-} pmHighResLogLabel;
+} pmLogLabel;
 
 /*
  * Get the label record from the current archive context, and discover
  * when the archive ends
  */
-PCP_CALL extern int pmGetHighResArchiveLabel(pmHighResLogLabel *);
-PCP_CALL extern int pmGetHighResArchiveEnd(struct timespec *);
 PCP_CALL extern int pmGetArchiveLabel(pmLogLabel *);
-PCP_CALL extern int pmGetArchiveEnd(struct timeval *);
+PCP_CALL extern int pmGetArchiveEnd(struct timespec *);
 
 /* Free result buffer */
 PCP_CALL extern void pmFreeHighResResult(pmHighResResult *);
@@ -772,10 +783,6 @@ PCP_CALL extern char *pmEventFlagsStr_r(int, char *, int);
 PCP_CALL extern int pmParseInterval(const char *, struct timeval *, char **);
 PCP_CALL extern int pmParseHighResInterval(const char *, struct timespec *, char **);
 PCP_CALL extern int pmParseTimeWindow(
-      const char *, const char *, const char *, const char *,
-      const struct timeval *, const struct timeval *,
-      struct timeval *, struct timeval *, struct timeval *, char **);
-PCP_CALL extern int pmParseHighResTimeWindow(
       const char *, const char *, const char *, const char *,
       const struct timespec *, const struct timespec *,
       struct timespec *, struct timespec *, struct timespec *, char **);
@@ -887,7 +894,7 @@ PCP_CALL extern int pmGetVersion(void);
 			"metrics source is a PCP archive" }
 #define PMLONGOPT_DEBUG		"debug"
 #define PMOPT_DEBUG	{ PMLONGOPT_DEBUG,	1, 'D',	"DBG", \
-			NULL }
+			"set debug options, see pmdbg(1)" }
 #define PMLONGOPT_GUIMODE	"guimode"
 #define PMOPT_GUIMODE	{ PMLONGOPT_GUIMODE,	0, 'g',	0, \
 			"start in GUI mode with new time control" }
@@ -1039,14 +1046,10 @@ typedef struct pmOptions {
     int			narchives;
     char **		hosts;
     char **		archives;
-#if PMAPI_VERSION == PMAPI_VERSION_3
-    struct timeval	unused[4];
-#else
-    struct timeval	start;
-    struct timeval	finish;
-    struct timeval	origin;
-    struct timeval	interval;
-#endif
+    struct timespec	start;
+    struct timespec	finish;
+    struct timespec	origin;
+    struct timespec	interval;
     char *		align_optarg;
     char *		start_optarg;
     char *		finish_optarg;
@@ -1061,12 +1064,6 @@ typedef struct pmOptions {
     unsigned int	nsflag  : 1;
     unsigned int	Lflag   : 1;
     unsigned int	zeroes  : 28;
-#if PMAPI_VERSION == PMAPI_VERSION_3
-    struct timespec	start;
-    struct timespec	finish;
-    struct timespec	origin;
-    struct timespec	interval;
-#endif
 } pmOptions;
 
 PCP_CALL extern int pmgetopt_r(int, char *const *, pmOptions *);
@@ -1197,6 +1194,7 @@ PCP_CALL extern int pmExtendFetchGroup_event(pmFG, const char *, const char *,
 			struct timespec[], pmAtomValue[], int, int[],
 			unsigned int, unsigned int *, int *);
 PCP_CALL extern int pmExtendFetchGroup_timestamp(pmFG, struct timeval *);
+PCP_CALL extern int pmExtendFetchGroup_timespec(pmFG, struct timespec *);
 PCP_CALL extern int pmFetchGroup(pmFG);
 PCP_CALL extern int pmDestroyFetchGroup(pmFG);
 
@@ -1266,6 +1264,8 @@ typedef struct {
     int	appl9;		/* Application-specific flag 9 */
     int	tls;		/* Transport Layer Security operations */
     int	misc;		/* Miscellaneous odds and sods */
+    int	qed;		/* Methods in libpcp_qed */
+    int getopt;		/* Processing of command-line arguments */
 } pmdebugoptions_t;
 
 PCP_DATA extern pmdebugoptions_t	pmDebugOptions;
@@ -1291,7 +1291,8 @@ PCP_CALL extern char *pmGetProgname(void);
  */
 #define DYNAMIC_PMID	511
 #define IS_DYNAMIC_ROOT(x) (pmID_domain(x) == DYNAMIC_PMID && pmID_item(x) == 0)
-#define IS_DERIVED(x) (pmID_domain(x) == DYNAMIC_PMID && (pmID_cluster(x) & 2048) == 0 && pmID_item(x) != 0)
+#define IS_DERIVED(x) (pmID_domain(x) == DYNAMIC_PMID && (pmID_cluster(x) & 2048) != 2048 && pmID_item(x) != 0)
+#define IS_DERIVED_LOGGED(x) (pmID_domain(x) == DYNAMIC_PMID && (pmID_cluster(x) & 2048) == 2048 && pmID_item(x) != 0)
 
 /*
  * pmID helper functions
@@ -1362,6 +1363,122 @@ PCP_CALL extern int pmGetUsername(char **);
 
 /* DSO PMDA helpers */
 PCP_CALL extern char *pmSpecLocalPMDA(const char *);
+
+/*
+ * PMAPI_VERSION_2 interfaces
+ */
+PCP_CALL extern int pmGetArchiveEnd_v2(struct timeval *);
+
+struct pmOptions_v2;
+typedef int (*pmOptionOverride_v2)(int, struct pmOptions_v2 *);
+
+typedef struct pmOptions_v2 {
+    int			version;
+    int			flags;
+
+    /* in: define set of all options */
+    const char *	short_options;
+    pmLongOptions *	long_options;
+    const char *	short_usage;
+
+    /* in: method for general override */
+    pmOptionOverride_v2	override;
+
+    /* out: usual getopt information */
+    int			index;
+    int			optind;
+    int			opterr;
+    int			optopt;
+    char		*optarg;
+
+    /* internals; do not ever access */
+    int			__initialized;
+    char *		__nextchar;
+    int			__ordering;
+    int			__posixly_correct;
+    int			__first_nonopt;
+    int			__last_nonopt;
+
+    /* out: error count */
+    int 		errors;
+
+    /* out: PMAPI options and values */
+    int			context;	/* PM_CONTEXT_{HOST,ARCHIVE,LOCAL} */
+    int			nhosts;
+    int			narchives;
+    char **		hosts;
+    char **		archives;
+    struct timeval	start;
+    struct timeval	finish;
+    struct timeval	origin;
+    struct timeval	interval;
+    char *		align_optarg;
+    char *		start_optarg;
+    char *		finish_optarg;
+    char *		origin_optarg;
+    char *		guiport_optarg;
+    char *		timezone;
+    int			samples;
+    int			guiport;
+    int			padding;
+    unsigned int	guiflag : 1;
+    unsigned int	tzflag  : 1;
+    unsigned int	nsflag  : 1;
+    unsigned int	Lflag   : 1;
+    unsigned int	zeroes  : 28;
+} pmOptions_v2;
+
+PCP_CALL extern int pmgetopt_r_v2(int, char *const *, pmOptions_v2 *);
+PCP_CALL extern int pmGetOptions_v2(int, char *const *, pmOptions_v2 *);
+PCP_CALL extern int pmGetContextOptions_v2(int, pmOptions_v2 *);
+PCP_CALL extern void pmUsageMessage_v2(pmOptions_v2 *);
+PCP_CALL extern void pmFreeOptions_v2(pmOptions_v2 *);
+
+PCP_CALL extern int pmParseTimeWindow_v2(
+      const char *, const char *, const char *, const char *,
+      const struct timeval *, const struct timeval *,
+      struct timeval *, struct timeval *, struct timeval *, char **);
+
+
+typedef struct pmLogLabel_v2 {
+    int		ll_magic;	/* PM_LOG_MAGIC | archive format version no. */
+    pid_t	ll_pid;				/* PID of logger */
+    struct timeval	ll_start;		/* start of this archive */
+    char	ll_hostname[PM_LOG_MAXHOSTLEN];	/* name of collection host */
+    char	ll_tz[PM_TZ_MAXLEN];		/* $TZ at collection host */
+} pmLogLabel_v2;
+
+PCP_CALL extern int pmGetArchiveLabel_v2(pmLogLabel_v2 *);
+
+#if PMAPI_VERSION == PMAPI_VERSION_2
+/*
+ * old names with API changes mapped to _v2 variants
+ */
+#define pmGetArchiveEnd pmGetArchiveEnd_v2
+#define pmOptionOverride pmOptionOverride_v2
+#define pmOptions pmOptions_v2
+#define pmgetopt_r pmgetopt_r_v2
+#define pmGetOptions pmGetOptions_v2
+#define pmGetContextOptions pmGetContextOptions_v2
+#define pmUsageMessage pmUsageMessage_v2
+#define pmFreeOptions pmFreeOptions_v2
+#define pmParseTimeWindow pmParseTimeWindow_v2
+#define pmLogLabel pmLogLabel_v2
+#define pmGetArchiveLabel pmGetArchiveLabel_v2
+#endif
+
+#if PMAPI_VERSION >= PMAPI_VERSION_4
+/*
+ * retire HighRes interfaces
+ */
+#define pmGetHighResArchiveEnd pmGetArchiveEnd
+#define pmParseHighResTimeWindow pmParseTimeWindow
+#define pmGetHighResArchiveLabel pmGetArchiveLabel
+#endif
+
+/* transitional macros ... will go away when timeval -> timespec all done */
+#define TSfromTV(a,b) { a.tv_sec = b.tv_sec; a.tv_nsec = b.tv_usec * 1000; }
+#define TVfromTS(a,b) { a.tv_sec = b.tv_sec; a.tv_usec = b.tv_nsec / 1000; }
 
 #ifdef __cplusplus
 }

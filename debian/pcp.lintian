@@ -3,4 +3,62 @@ pcp: FSSTND-dir-in-manual-page
 
 # /etc/init.d/pcp is a legacy script and should not be registered
 # with update-rc.d
-pcp: script-in-etc-init.d-not-registered-via-update-rc.d etc/init.d/pcp
+pcp: script-in-etc-init.d-not-registered-via-update-rc.d [etc/init.d/pcp]
+
+# /etc/init.d/pcp is a legacy script and should not have a systemd
+# equivalent
+pcp: omitted-systemd-service-for-init.d-script pcp [etc/init.d/pcp]
+
+# some /etc/init.d/pm* scripts are wrappers, with the real work being
+# done elsewhere, e.g. /etc/init.d/pmie calls /etc/pcp/pmie/rc and
+# support for the force-reload and restart options is included in the latter
+pcp: init.d-script-does-not-implement-required-option force-reload [etc/init.d/pmie]
+pcp: init.d-script-does-not-implement-required-option force-reload [etc/init.d/pmlogger]
+pcp: init.d-script-does-not-implement-required-option force-reload [etc/init.d/pmproxy]
+pcp: init.d-script-does-not-implement-required-option restart [etc/init.d/pmie]
+pcp: init.d-script-does-not-implement-required-option restart [etc/init.d/pmlogger]
+pcp: init.d-script-does-not-implement-required-option restart [etc/init.d/pmproxy]
+
+# /usr/share/doc/pcp-doc/html/index.html is in pcp package, but referenced
+# from /usr/share/doc-base/pcp.pcp-doc ... this is OK
+pcp: doc-base-file-references-missing-file /usr/share/doc/pcp-doc/html/index.html [usr/share/doc-base/pcp.pcp-doc:*]
+
+# PCP's init.d scripts are wrappers and we do not need the
+# /lib/lsb/init-functions.d/40-systemd functions to redirect to systemd
+# ... this is handled by PCP elsewhere
+pcp: init.d-script-does-not-source-init-functions [etc/init.d/pcp]
+pcp: init.d-script-does-not-source-init-functions [etc/init.d/pmcd]
+pcp: init.d-script-does-not-source-init-functions [etc/init.d/pmie]
+pcp: init.d-script-does-not-source-init-functions [etc/init.d/pmlogger]
+pcp: init.d-script-does-not-source-init-functions [etc/init.d/pmproxy]
+
+# PCP's pmcd init.d script is a wrapper (not a conventional init script)
+# and the real work is done elsewhere
+pcp: systemd-service-file-wraps-init-script ExecStart [*]
+pcp: systemd-service-file-wraps-init-script ExecStop [*]
+
+# the PCP pre* and post* scripts handle both systemctl and invoke-rc.d
+# so the use of systemctl is guarded here and only used when systemd
+# is in play
+pcp: maintainer-script-calls-systemctl [postinst:*]
+pcp: maintainer-script-calls-systemctl [postrm:*]
+pcp: maintainer-script-calls-systemctl [prerm:*]
+
+# the dir /var/lib/pcp/pmcd is security sensitive and needs to be mode 0700
+pcp: non-standard-dir-perm 0700 != 0755 [var/lib/pcp/pmcd/]
+
+# PCP uses user $(PCP_USER) and group $(PCP_GROUP) to control write access
+# to private directories for temporary files, hence mode 0755
+pcp: non-standard-dir-perm 0775 != 0755 [var/lib/pcp/tmp/]
+pcp: non-standard-dir-perm 0775 != 0755 [var/lib/pcp/tmp/bash/]
+pcp: non-standard-dir-perm 0775 != 0755 [var/lib/pcp/tmp/json/]
+pcp: non-standard-dir-perm 0775 != 0755 [var/lib/pcp/tmp/mmv/]
+pcp: non-standard-dir-perm 0775 != 0755 [var/lib/pcp/tmp/pmie/]
+pcp: non-standard-dir-perm 0775 != 0755 [var/lib/pcp/tmp/pmlogger/]
+pcp: non-standard-dir-perm 0775 != 0755 [var/lib/pcp/tmp/pmproxy/]
+
+# this is OK, env(1) ensures we can find perl provided it is on $PATH
+pcp: incorrect-path-for-interpreter /usr/bin/env perl != /usr/bin/perl [*]
+
+# really, who cares if they are identical?
+pcp: duplicate-changelog-files usr/share/doc/pcp-*/CHANGELOG.gz usr/share/doc/pcp/changelog.gz

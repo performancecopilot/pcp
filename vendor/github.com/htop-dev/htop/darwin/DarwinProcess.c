@@ -23,7 +23,7 @@ in the source distribution for its full text.
 const ProcessFieldData Process_fields[LAST_PROCESSFIELD] = {
    [0] = { .name = "", .title = NULL, .description = NULL, .flags = 0, },
    [PID] = { .name = "PID", .title = "PID", .description = "Process/thread ID", .flags = 0, .pidColumn = true, },
-   [COMM] = { .name = "Command", .title = "Command ", .description = "Command line", .flags = 0, },
+   [COMM] = { .name = "Command", .title = "Command ", .description = "Command line (insert as last column only)", .flags = 0, },
    [STATE] = { .name = "STATE", .title = "S ", .description = "Process state (S sleeping, R running, D disk, Z zombie, T traced, W paging)", .flags = 0, },
    [PPID] = { .name = "PPID", .title = "PPID", .description = "Parent process ID", .flags = 0, .pidColumn = true, },
    [PGRP] = { .name = "PGRP", .title = "PGRP", .description = "Process group ID", .flags = 0, .pidColumn = true, },
@@ -61,8 +61,9 @@ Process* DarwinProcess_new(const Machine* host) {
    this->stime = 0;
    this->taskAccess = true;
    this->translated = false;
+   this->super.state = UNKNOWN;
 
-   return &this->super;
+   return (Process*)this;
 }
 
 void Process_delete(Object* cast) {
@@ -274,13 +275,6 @@ ERROR_A:
    Process_updateCmdline(proc, k->kp_proc.p_comm, 0, strlen(k->kp_proc.p_comm));
 }
 
-// Converts nanoseconds to hundredths of a second (centiseconds) as needed by the "time" field of the Process struct.
-static long long int nanosecondsToCentiseconds(uint64_t nanoseconds) {
-   const uint64_t centiseconds_per_second = 100;
-   const uint64_t nanoseconds_per_second = 1e9;
-   return nanoseconds / nanoseconds_per_second * centiseconds_per_second;
-}
-
 static char* DarwinProcess_getDevname(dev_t dev) {
    if (dev == NODEV) {
       return NULL;
@@ -368,40 +362,42 @@ void DarwinProcess_setFromKInfoProc(Process* proc, const struct kinfo_proc* ps, 
 void DarwinProcess_setFromLibprocPidinfo(DarwinProcess* proc, DarwinProcessTable* dpt, double timeIntervalNS) {
    struct proc_taskinfo pti;
 
-   if (sizeof(pti) == proc_pidinfo(Process_getPid(&proc->super), PROC_PIDTASKINFO, 0, &pti, sizeof(pti))) {
-      const DarwinMachine* dhost = (const DarwinMachine*) proc->super.super.host;
-
-      uint64_t total_existing_time_ns = proc->stime + proc->utime;
-
-      uint64_t user_time_ns = Platform_machTicksToNanoseconds(pti.pti_total_user);
-      uint64_t system_time_ns = Platform_machTicksToNanoseconds(pti.pti_total_system);
-
-      uint64_t total_current_time_ns = user_time_ns + system_time_ns;
-
-      if (total_existing_time_ns && 1E-6 < timeIntervalNS) {
-         uint64_t total_time_diff_ns = total_current_time_ns - total_existing_time_ns;
-         proc->super.percent_cpu = ((double)total_time_diff_ns / timeIntervalNS) * 100.0;
-      } else {
-         proc->super.percent_cpu = 0.0;
-      }
-      Process_updateCPUFieldWidths(proc->super.percent_cpu);
-
-      proc->super.time = nanosecondsToCentiseconds(total_current_time_ns);
-      proc->super.nlwp = pti.pti_threadnum;
-      proc->super.m_virt = pti.pti_virtual_size / ONE_K;
-      proc->super.m_resident = pti.pti_resident_size / ONE_K;
-      proc->super.majflt = pti.pti_faults;
-      proc->super.percent_mem = (double)pti.pti_resident_size * 100.0
-                              / (double)dhost->host_info.max_mem;
-
-      proc->stime = system_time_ns;
-      proc->utime = user_time_ns;
-
-      dpt->super.kernelThreads += 0; /*pti.pti_threads_system;*/
-      dpt->super.userlandThreads += pti.pti_threadnum; /*pti.pti_threads_user;*/
-      dpt->super.totalTasks += pti.pti_threadnum;
-      dpt->super.runningTasks += pti.pti_numrunning;
+   if (PROC_PIDTASKINFO_SIZE != proc_pidinfo(Process_getPid(&proc->super), PROC_PIDTASKINFO, 0, &pti, PROC_PIDTASKINFO_SIZE)) {
+      proc->taskAccess = false;
+      return;
    }
+
+   const DarwinMachine* dhost = (const DarwinMachine*) proc->super.super.host;
+
+   uint64_t total_existing_time_ns = proc->stime + proc->utime;
+   uint64_t user_time_ns = pti.pti_total_user;
+   uint64_t system_time_ns = pti.pti_total_system;
+   uint64_t total_current_time_ns = user_time_ns + system_time_ns;
+
+   if (total_existing_time_ns < total_current_time_ns) {
+      const uint64_t total_time_diff_ns = total_current_time_ns - total_existing_time_ns;
+      proc->super.percent_cpu = ((double)total_time_diff_ns / timeIntervalNS) * 100.0;
+   } else {
+      proc->super.percent_cpu = 0.0;
+   }
+   Process_updateCPUFieldWidths(proc->super.percent_cpu);
+
+   proc->super.state = pti.pti_numrunning > 0 ? RUNNING : SLEEPING;
+   // Convert from nanoseconds to hundredths of seconds
+   proc->super.time = total_current_time_ns / 10000000ULL;
+   proc->super.nlwp = pti.pti_threadnum;
+   proc->super.m_virt = pti.pti_virtual_size / ONE_K;
+   proc->super.m_resident = pti.pti_resident_size / ONE_K;
+   proc->super.majflt = pti.pti_faults;
+   proc->super.percent_mem = (double)pti.pti_resident_size * 100.0 / (double)dhost->host_info.max_mem;
+
+   proc->stime = system_time_ns;
+   proc->utime = user_time_ns;
+
+   dpt->super.kernelThreads += 0; /*pti.pti_threads_system;*/
+   dpt->super.userlandThreads += pti.pti_threadnum; /*pti.pti_threads_user;*/
+   dpt->super.totalTasks += pti.pti_threadnum;
+   dpt->super.runningTasks += pti.pti_numrunning;
 }
 
 /*
@@ -409,7 +405,7 @@ void DarwinProcess_setFromLibprocPidinfo(DarwinProcess* proc, DarwinProcessTable
  * Based on: http://stackoverflow.com/questions/6788274/ios-mac-cpu-usage-for-thread
  * and       https://github.com/max-horvath/htop-osx/blob/e86692e869e30b0bc7264b3675d2a4014866ef46/ProcessList.c
  */
-void DarwinProcess_scanThreads(DarwinProcess* dp) {
+void DarwinProcess_scanThreads(DarwinProcess* dp, DarwinProcessTable* dpt) {
    Process* proc = (Process*) dp;
    kern_return_t ret;
 
@@ -421,55 +417,99 @@ void DarwinProcess_scanThreads(DarwinProcess* dp) {
       return;
    }
 
-   task_t port;
-   ret = task_for_pid(mach_task_self(), Process_getPid(proc), &port);
-   if (ret != KERN_SUCCESS) {
-      dp->taskAccess = false;
-      return;
-   }
+   pid_t pid = Process_getPid(proc);
 
-   task_info_data_t tinfo;
-   mach_msg_type_number_t task_info_count = TASK_INFO_MAX;
-   ret = task_info(port, TASK_BASIC_INFO, (task_info_t) tinfo, &task_info_count);
+   task_t task;
+   ret = task_for_pid(mach_task_self(), pid, &task);
    if (ret != KERN_SUCCESS) {
+      // TODO: workaround for modern MacOS limits on task_for_pid()
+      if (ret != KERN_FAILURE)
+         CRT_debug("task_for_pid(%d) failed: %s", pid, mach_error_string(ret));
       dp->taskAccess = false;
       return;
    }
 
    thread_array_t thread_list;
    mach_msg_type_number_t thread_count;
-   ret = task_threads(port, &thread_list, &thread_count);
+   ret = task_threads(task, &thread_list, &thread_count);
    if (ret != KERN_SUCCESS) {
+      CRT_debug("task_threads(%d) failed: %s", pid, mach_error_string(ret));
       dp->taskAccess = false;
-      mach_port_deallocate(mach_task_self(), port);
+      mach_port_deallocate(mach_task_self(), task);
       return;
    }
 
-   integer_t run_state = 999;
-   for (unsigned int i = 0; i < thread_count; i++) {
-      thread_info_data_t thinfo;
-      mach_msg_type_number_t thread_info_count = THREAD_BASIC_INFO_COUNT;
-      ret = thread_info(thread_list[i], THREAD_BASIC_INFO, (thread_info_t)thinfo, &thread_info_count);
-      if (ret == KERN_SUCCESS) {
-         thread_basic_info_t basic_info_th = (thread_basic_info_t) thinfo;
-         if (basic_info_th->run_state < run_state) {
-            run_state = basic_info_th->run_state;
-         }
-         mach_port_deallocate(mach_task_self(), thread_list[i]);
-      }
-   }
-   vm_deallocate(mach_task_self(), (vm_address_t) thread_list, sizeof(thread_port_array_t) * thread_count);
-   mach_port_deallocate(mach_task_self(), port);
+   const bool hideUserlandThreads = dpt->super.super.host->settings->hideUserlandThreads;
+   bool isProcessStuck = false;
 
-   /* Taken from: https://github.com/apple/darwin-xnu/blob/2ff845c2e033bd0ff64b5b6aa6063a1f8f65aa32/osfmk/mach/thread_info.h#L129 */
-   switch (run_state) {
-      case TH_STATE_RUNNING: proc->state = RUNNING; break;
-      case TH_STATE_STOPPED: proc->state = STOPPED; break;
-      case TH_STATE_WAITING: proc->state = WAITING; break;
-      case TH_STATE_UNINTERRUPTIBLE: proc->state = UNINTERRUPTIBLE_WAIT; break;
-      case TH_STATE_HALTED: proc->state = BLOCKED; break;
-      default: proc->state = UNKNOWN;
+   for (mach_msg_type_number_t i = 0; i < thread_count; i++) {
+
+      thread_identifier_info_data_t identifer_info;
+      mach_msg_type_number_t identifer_info_count = THREAD_IDENTIFIER_INFO_COUNT;
+      ret = thread_info(thread_list[i], THREAD_IDENTIFIER_INFO, (thread_info_t) &identifer_info, &identifer_info_count);
+      if (ret != KERN_SUCCESS) {
+         CRT_debug("thread_info(%d:%d) for identifier failed: %s", pid, i, mach_error_string(ret));
+         continue;
+      }
+
+      uint64_t tid = identifer_info.thread_id;
+
+      bool preExisting;
+      Process *tprocess = ProcessTable_getProcess(&dpt->super, tid, &preExisting, DarwinProcess_new);
+      tprocess->super.updated = true;
+      dpt->super.totalTasks++;
+
+      if (hideUserlandThreads) {
+         tprocess->super.show = false;
+         continue;
+      }
+
+      pid_t tprocessPid = Process_getPid(tprocess);
+      assert(tprocessPid >= 0);
+      assert((uint64_t)tprocessPid == tid);
+      (void)tprocessPid;
+
+      Process_setParent(tprocess, pid);
+      Process_setThreadGroup(tprocess, pid);
+      tprocess->super.show       = true;
+      tprocess->isUserlandThread = true;
+      tprocess->st_uid           = proc->st_uid;
+      tprocess->user             = proc->user;
+
+      thread_extended_info_data_t extended_info;
+      mach_msg_type_number_t extended_info_count = THREAD_EXTENDED_INFO_COUNT;
+      ret = thread_info(thread_list[i], THREAD_EXTENDED_INFO, (thread_info_t) &extended_info, &extended_info_count);
+      if (ret != KERN_SUCCESS) {
+         CRT_debug("thread_info(%d:%d) for extended failed: %s", pid, i, mach_error_string(ret));
+         continue;
+      }
+
+      DarwinProcess* tdproc     = (DarwinProcess*)tprocess;
+      tdproc->super.percent_cpu = extended_info.pth_cpu_usage / 10.0;
+      tdproc->stime             = extended_info.pth_system_time;
+      tdproc->utime             = extended_info.pth_user_time;
+      tdproc->super.time        = (extended_info.pth_system_time + extended_info.pth_user_time) / 10000000;
+      tdproc->super.priority    = extended_info.pth_curpri;
+
+      if (extended_info.pth_run_state == TH_STATE_UNINTERRUPTIBLE) {
+         isProcessStuck |= true;
+         tdproc->super.state = UNINTERRUPTIBLE_WAIT;
+      }
+
+      // TODO: depend on setting
+      const char* name = extended_info.pth_name[0] != '\0' ? extended_info.pth_name : proc->procComm;
+      Process_updateCmdline(tprocess, name, 0, strlen(name));
+
+      if (!preExisting)
+         ProcessTable_add(&dpt->super, tprocess);
    }
+
+   if (isProcessStuck) {
+      dp->super.state = UNINTERRUPTIBLE_WAIT;
+   }
+
+   vm_deallocate(mach_task_self(), (vm_address_t) thread_list, sizeof(thread_port_array_t) * thread_count);
+   mach_port_deallocate(mach_task_self(), task);
 }
 
 

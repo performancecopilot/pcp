@@ -36,9 +36,6 @@ import requests
 from pcp import pmapi, pmconfig
 from cpmapi import PM_CONTEXT_ARCHIVE, PM_DEBUG_APPL1, PM_TIME_NSEC
 
-if sys.version_info[0] >= 3:
-    long = int # pylint: disable=redefined-builtin
-
 # Default config
 DEFAULT_CONFIG = ["./pcp2influxdb.conf", "$HOME/.pcp2influxdb.conf", "$HOME/.pcp/pcp2influxdb.conf", "$PCP_SYSCONF_DIR/pcp2influxdb.conf"]
 
@@ -524,7 +521,7 @@ class PCP2InfluxDB(object):
 
         for metric in metrics:
             metric.set_tag_string(self.influx_tags)
-            metric.set_timestamp(long(ts))
+            metric.set_timestamp(int(ts))
             body.add(metric)
 
         url = self.influx_server + '/write'

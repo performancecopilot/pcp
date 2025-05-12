@@ -18,20 +18,41 @@
 \f3pmlock\f1 \- simple file-based mutex
 .SH SYNOPSIS
 .B $PCP_BINADM_DIR/pmlock
+[\fB\-i\fR \fIident\fR]
 [\fB\-v\fR]
 .I file
 .SH DESCRIPTION
 .B pmlock
-attempts to acquire an exclusive lock by creating
+attempts to acquire an exclusive lock by creating a zero-sized
 .I file
 with a mode of 0.
 .PP
+The
+.I \-i
+option changes the behaviour to write
+.I ident
+into
+.IR file ,
+followed by a newline and the file mode is 0444.
+.I ident
+is an arbitrary string, but by convention it is the
+process id of the locker followed by the name or identification
+of the locker command or script.
+.PP
 The exit status is 0 for success, 1 for failure.
 .PP
-To release the lock, unlink
-.IR file .
+To release the lock, remove
+.I file
+with
+.BR rm (1)
+or
+.BR unlink (2).
 .PP
 In the event of a failure, the
 .B \-v
 option produces an explanatory message on
-.IR stdout .
+.IR stderr .
+.SH SEE ALSO
+.BR rm (1)
+and
+.BR unlink (2).

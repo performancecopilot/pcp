@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012-2013,2019 Red Hat.
+# Copyright (c) 2012-2013,2019,2025 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -15,7 +15,7 @@
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-PYCODE	= $(shell echo *.py)
+PYCODE = $(shell echo *.py)
 
 default default_pcp:
 

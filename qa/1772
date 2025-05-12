@@ -1,0 +1,101 @@
+#!/bin/sh
+# PCP QA Test No. 1772
+# Exercise the AMD GPU pmda install/remove
+#
+# Copyright (c) 2024 Red Hat.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+
+test -d $PCP_PMDAS_DIR/amdgpu || _notrun No support for AMD GPU metrics
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter_amdgpu()
+{
+    # cull message resulting from no running httpd
+    # or no activity
+    #
+    grep -v 'Information not currently available' \
+    | grep -v 'No value(s) available'
+}
+
+pmdaamdgpu_remove()
+{
+    echo
+    echo "=== remove amdgpu agent ==="
+    $sudo ./Remove >$tmp.out 2>&1
+    _filter_pmda_remove <$tmp.out
+}
+
+pmdaamdgpu_install()
+{
+    # start from known starting points
+    cd $PCP_PMDAS_DIR/amdgpu
+    $sudo ./Remove >/dev/null 2>&1
+
+    echo
+    echo "=== amdgpu agent installation ==="
+    $sudo ./Install </dev/null >$tmp.out 2>&1
+    cat $tmp.out >>$seq_full
+    # Check amdgpu metrics have appeared ... X metrics and Y values
+    _filter_pmda_install <$tmp.out \
+    | sed \
+        -e 's/[0-9][0-9]* warnings, //' \
+    | $PCP_AWK_PROG '
+/Check amdgpu metrics have appeared/    { if ($7 >= 10 && $7 <= 80) $7 = "X"
+                                          if ($10 >= 0 && $10 <= 80) $10 = "Y"
+                                        }
+                                        { print }'
+}
+
+_prepare_pmda amdgpu
+# note: _restore_auto_restart pmcd done in _cleanup_pmda()
+trap "_cleanup_pmda amdgpu; exit \$status" 0 1 2 3 15
+
+# don't need to regenerate config.default with pmlogconf
+#
+export PMLOGGER_CHECK_SKIP_LOGCONF=yes
+
+_stop_auto_restart pmcd
+
+# real QA test starts here
+pmdaamdgpu_install
+
+# there may be a race if the pmda has a bit of a slow start ... pause
+pmsleep 0.5
+
+# pmcd should have been started by the Install process - check
+if pminfo -v amdgpu > $tmp.info 2> $tmp.err
+then
+    :
+else
+    echo "... failed! ... here is the Install log ..."
+    cat $tmp.out
+fi
+cat $tmp.info $tmp.err | _filter_amdgpu
+
+pmdaamdgpu_remove
+status=0
+exit

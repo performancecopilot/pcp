@@ -36,16 +36,16 @@ enum {
 static int
 __pmUpdateBounds(pmOptions *opts, int index, struct timespec *begin, struct timespec *end)
 {
-    struct pmHighResLogLabel label;
+    struct pmLogLabel label;
     struct timespec logend;
     int sts;
 
-    if ((sts = pmGetHighResArchiveLabel(&label)) < 0) {
+    if ((sts = pmGetArchiveLabel(&label)) < 0) {
 	pmprintf("%s: Cannot get archive %s label record: %s\n",
 		pmGetProgname(), opts->archives[index], pmErrStr(sts));
 	return sts;
     }
-    if ((sts = pmGetHighResArchiveEnd(&logend)) < 0) {
+    if ((sts = pmGetArchiveEnd(&logend)) < 0) {
 	logend.tv_sec = PM_MAX_TIME_T;
 	logend.tv_nsec = 0;
 	fflush(stdout);
@@ -115,6 +115,24 @@ __pmBoundaryOptions(pmOptions *opts, struct timespec *begin, struct timespec *en
     return sts;
 }
 
+static void
+__pmParseTimeWindow(pmOptions *opts,
+	struct timespec *first_boundary, struct timespec *last_boundary)
+{
+    char *msg = NULL;
+
+    if (pmParseTimeWindow(
+			opts->start_optarg, opts->finish_optarg,
+			opts->align_optarg, opts->origin_optarg,
+			first_boundary, last_boundary,
+			&opts->start, &opts->finish, &opts->origin, &msg) < 0) {
+	pmprintf("%s: invalid time window.\n%s\n", pmGetProgname(), msg);
+	opts->errors++;
+    }
+    if (msg)
+	free(msg);
+}
+
 /*
  * Final stages of argument parsing, anything that needs to wait
  * until after we have a context - e.g. timezones, time windows.
@@ -157,13 +175,35 @@ pmGetContextOptions(int ctxid, pmOptions *opts)
     /* time window setup */
     if (!opts->errors && window) {
 	struct timespec first_boundary, last_boundary;
+	int		sts;
 
-	if (__pmBoundaryOptions(opts, &first_boundary, &last_boundary) < 0)
+	if ((sts = __pmBoundaryOptions(opts, &first_boundary, &last_boundary)) < 0) {
+	    if (pmDebugOptions.getopt) {
+		char	errmsg[PM_MAXERRMSGLEN];
+		fprintf(stderr, "__pmBoundaryOptions: Error: %s\n",
+				pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	    }
 	    opts->errors++;
-	else if (opts->version >= PMAPI_VERSION_3)
-	    __pmParseTimeWindow3(opts, &first_boundary, &last_boundary);
-	else
-	    __pmParseTimeWindow2(opts, &first_boundary, &last_boundary);
+	}
+	else {
+	    if (pmDebugOptions.getopt) {
+		time_t		secs;
+		struct tm	tmp;
+		fprintf(stderr, "__pmBoundaryOptions:");
+		secs = first_boundary.tv_sec;
+		pmLocaltime(&secs, &tmp);
+		fprintf(stderr, " logstart %04d/%02d/%02d %02d:%02d:%02d.%09d",
+		    tmp.tm_year+1900, tmp.tm_mon+1, tmp.tm_mday,
+		    tmp.tm_hour, tmp.tm_min, tmp.tm_sec, (int)first_boundary.tv_nsec);
+		secs = last_boundary.tv_sec;
+		pmLocaltime(&secs, &tmp);
+		fprintf(stderr, " logend %04d/%02d/%02d %02d:%02d:%02d.%09d",
+		    tmp.tm_year+1900, tmp.tm_mon+1, tmp.tm_mday,
+		    tmp.tm_hour, tmp.tm_min, tmp.tm_sec, (int)last_boundary.tv_nsec);
+		fputc('\n', stderr);
+	    }
+	    __pmParseTimeWindow(opts, &first_boundary, &last_boundary);
+	}
     }
 
     if (opts->errors) {
@@ -173,119 +213,6 @@ pmGetContextOptions(int ctxid, pmOptions *opts)
     }
 
     return 0;
-}
-
-/*
- * All arguments have been parsed at this point (both internal and external).
- * We can now perform any final processing that could not be done earlier.
- *
- * Note that some end processing requires a context (in particular, the
- * "time window" processing, which may require timezone setup, and so on).
- * Such processing is deferred to pmGetContextOptions().
- */
-void
-__pmEndOptions(pmOptions *opts)
-{
-    if (opts->flags & PM_OPTFLAG_DONE)
-	return;
-
-    /* inform caller of the struct version used */
-    if (opts->version != PMAPI_VERSION_2 && opts->version != PMAPI_VERSION_3)
-	opts->version = PMAPI_VERSION;
-
-    if (!opts->context) {
-	if (opts->Lflag)
-	    opts->context = PM_CONTEXT_LOCAL;
-	else if (opts->nhosts && !opts->narchives)
-	    opts->context = PM_CONTEXT_HOST;
-	else if (opts->narchives && !opts->nhosts)
-	    opts->context = PM_CONTEXT_ARCHIVE;
-	else if (opts->origin_optarg) {
-	    opts->context = PM_CONTEXT_ARCHIVE;
-	    __pmAddOptArchivePath(opts);
-	}
-    }
-
-    if ((opts->start_optarg || opts->align_optarg || opts->origin_optarg) &&
-	 opts->context != PM_CONTEXT_ARCHIVE) {
-	pmprintf("%s: time window options are supported for archives only\n",
-		 pmGetProgname());
-	opts->errors++;
-    }
-
-    if (opts->tzflag && opts->context != PM_CONTEXT_ARCHIVE &&
-	opts->context != PM_CONTEXT_HOST) {
-	pmprintf("%s: use of timezone from metric source requires a source\n",
-		 pmGetProgname());
-	opts->errors++;
-    }
-
-    if (opts->errors && !(opts->flags & PM_OPTFLAG_RUNTIME_ERR))
-	opts->flags |= PM_OPTFLAG_USAGE_ERR;
-    opts->flags |= PM_OPTFLAG_DONE;
-}
-
-static void
-__pmSetAlignment(pmOptions *opts, char *arg)
-{
-    opts->align_optarg = arg;
-}
-
-static void
-__pmSetOrigin(pmOptions *opts, char *arg)
-{
-    opts->origin_optarg = arg;
-}
-
-static void
-__pmSetStartTime(pmOptions *opts, char *arg)
-{
-    opts->start_optarg = arg;
-}
-
-static void
-__pmSetFinishTime(pmOptions *opts, char *arg)
-{
-    opts->finish_optarg = arg;
-}
-
-static void
-__pmSetDebugFlag(pmOptions *opts, char *arg)
-{
-    int sts;
-
-    if ((sts = pmSetDebug(arg)) < 0) {
-	pmprintf("%s: unrecognized debug options specification (%s)\n",
-		pmGetProgname(), arg);
-	opts->errors++;
-    }
-}
-
-static void
-__pmSetGuiModeFlag(pmOptions *opts)
-{
-    if (opts->guiport_optarg) {
-	pmprintf("%s: at most one of -g and -p allowed\n", pmGetProgname());
-	opts->errors++;
-    } else {
-	opts->guiflag = 1;
-    }
-}
-
-static void
-__pmSetGuiPort(pmOptions *opts, char *arg)
-{
-    char *endnum;
-
-    if (opts->guiflag) {
-	pmprintf("%s: at most one of -g and -p allowed\n", pmGetProgname());
-	opts->errors++;
-    } else {
-	opts->guiport_optarg = arg;
-	opts->guiport = (int)strtol(arg, &endnum, 10);
-	if (*endnum != '\0' || opts->guiport < 0)
-	    opts->guiport = 0;
-    }
 }
 
 /*
@@ -395,6 +322,119 @@ __pmAddOptArchive(pmOptions *opts, char *arg)
 	opts->errors++;
     } else {
 	addArchive(opts, arg);
+    }
+}
+
+/*
+ * All arguments have been parsed at this point (both internal and external).
+ * We can now perform any final processing that could not be done earlier.
+ *
+ * Note that some end processing requires a context (in particular, the
+ * "time window" processing, which may require timezone setup, and so on).
+ * Such processing is deferred to pmGetContextOptions().
+ */
+void
+__pmEndOptions(pmOptions *opts)
+{
+    if (opts->flags & PM_OPTFLAG_DONE)
+	return;
+
+    /* inform caller of the struct version used */
+    if (opts->version != PMAPI_VERSION_2 && opts->version != PMAPI_VERSION_4)
+	opts->version = PMAPI_VERSION;
+
+    if (!opts->context) {
+	if (opts->Lflag)
+	    opts->context = PM_CONTEXT_LOCAL;
+	else if (opts->nhosts && !opts->narchives)
+	    opts->context = PM_CONTEXT_HOST;
+	else if (opts->narchives && !opts->nhosts)
+	    opts->context = PM_CONTEXT_ARCHIVE;
+	else if (opts->origin_optarg) {
+	    opts->context = PM_CONTEXT_ARCHIVE;
+	    __pmAddOptArchivePath(opts);
+	}
+    }
+
+    if ((opts->start_optarg || opts->align_optarg || opts->origin_optarg) &&
+	 opts->context != PM_CONTEXT_ARCHIVE) {
+	pmprintf("%s: time window options are supported for archives only\n",
+		 pmGetProgname());
+	opts->errors++;
+    }
+
+    if (opts->tzflag && opts->context != PM_CONTEXT_ARCHIVE &&
+	opts->context != PM_CONTEXT_HOST) {
+	pmprintf("%s: use of timezone from metric source requires a source\n",
+		 pmGetProgname());
+	opts->errors++;
+    }
+
+    if (opts->errors && !(opts->flags & PM_OPTFLAG_RUNTIME_ERR))
+	opts->flags |= PM_OPTFLAG_USAGE_ERR;
+    opts->flags |= PM_OPTFLAG_DONE;
+}
+
+static void
+__pmSetAlignment(pmOptions *opts, char *arg)
+{
+    opts->align_optarg = arg;
+}
+
+static void
+__pmSetOrigin(pmOptions *opts, char *arg)
+{
+    opts->origin_optarg = arg;
+}
+
+static void
+__pmSetStartTime(pmOptions *opts, char *arg)
+{
+    opts->start_optarg = arg;
+}
+
+static void
+__pmSetFinishTime(pmOptions *opts, char *arg)
+{
+    opts->finish_optarg = arg;
+}
+
+static void
+__pmSetDebugFlag(pmOptions *opts, char *arg)
+{
+    int sts;
+
+    if ((sts = pmSetDebug(arg)) < 0) {
+	pmprintf("%s: unrecognized debug options specification (%s)\n",
+		pmGetProgname(), arg);
+	opts->errors++;
+    }
+}
+
+static void
+__pmSetGuiModeFlag(pmOptions *opts)
+{
+    if (opts->guiport_optarg) {
+	pmprintf("%s: at most one of -g and -p allowed\n", pmGetProgname());
+	opts->errors++;
+    } else {
+	opts->guiflag = 1;
+    }
+}
+
+static void
+__pmSetGuiPort(pmOptions *opts, char *arg)
+{
+    char *endnum;
+
+    if (opts->guiflag) {
+	pmprintf("%s: at most one of -g and -p allowed\n", pmGetProgname());
+	opts->errors++;
+    } else {
+	opts->guiport_optarg = arg;
+	opts->guiport = (int)strtol(arg, &endnum, 10);
+	if (*endnum != '\0' || opts->guiport < 0)
+	    opts->guiport = 0;
     }
 }
 
@@ -760,10 +800,16 @@ __pmSetSampleCount(pmOptions *opts, char *arg)
 static void
 __pmSetSampleInterval(pmOptions *opts, char *arg)
 {
-    if (opts->version >= PMAPI_VERSION_3)
-	__pmSetSampleInterval3(opts, arg);
-    else
-	__pmSetSampleInterval2(opts, arg);
+    char *endnum;
+    int sts;
+
+    if ((sts = pmParseHighResInterval(arg, &opts->interval, &endnum)) < 0) {
+	pmprintf("%s: -t argument not in %s(3) format:\n",
+		pmGetProgname(), "pmParseHighResInterval");
+	pmprintf("%s\n", endnum);
+	opts->errors++;
+	free(endnum);
+    }
 }
 
 static void

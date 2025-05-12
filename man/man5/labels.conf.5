@@ -35,8 +35,8 @@ respectively providing the labels in real-time and then
 discovering recorded (archive) labels and indexing these
 for
 .BR pmseries (1)
-queries using a
-.BR redis-server (1).
+queries using a distributed key-value service such as
+.BR https://valkey.io/ .
 .PP
 The
 .IR /etc/pcp/labels.conf
@@ -66,7 +66,6 @@ hash of the file.
 .BR pmcd (1),
 .BR pmproxy (1),
 .BR pmseries (1),
-.BR redis-server (1),
 .BR PMAPI (3),
 .BR pmLookupLabels (3)
 and

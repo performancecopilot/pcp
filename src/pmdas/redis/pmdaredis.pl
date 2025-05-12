@@ -1,4 +1,3 @@
-#!/usr/bin/env perl
 #
 # Copyright (c) 2016 Lukas Oliva (plhu@seznam.cz)
 # Copyright (c) 2012 Red Hat.

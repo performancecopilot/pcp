@@ -18,7 +18,7 @@ pmclient="$python $pyclient"
 
 _filter()
 {
-    tee -a $seq.full \
+    tee -a $seq_full \
     | $PCP_AWK_PROG '
 /^Archive: /		{ print "... title ..."; next }
 /^[0-9. 	]*$/	{ print "... " NF " numbers ..."; next }
@@ -26,7 +26,7 @@ _filter()
 }
 
 trap "rm -f $tmp $tmp.*; exit" 0 1 2 3 15
-rm -f $here/$seq.full
+rm -f $seq_full
 
 # real QA test starts here
 cat >$tmp.config <<End-of-File
@@ -43,9 +43,9 @@ log mandatory on 5 secs {
 End-of-File
 pmlogger -c $tmp.config -l $tmp.log -s 4 $tmp
 _filter_pmlogger_log <$tmp.log
-cat $tmp.log >>$here/$seq.full
+cat $tmp.log >>$seq_full
 
-pmdumplog $tmp >>$here/$seq.full
+pmdumplog $tmp >>$seq_full
 
 ncpu=`pmprobe -v hinv.ncpu 2>&1 \
 | $PCP_AWK_PROG '
@@ -58,7 +58,7 @@ NF == 3 && $2 == 1	{ print $3; exit }
 #
 if [ "$ncpu" -eq 1 ]
 then
-    echo "real SP case" >>$here/$seq.full
+    echo "real SP case" >>$seq_full
     $pmclient -a $tmp | _filter
     echo "..."
     # fake MP output
@@ -81,6 +81,6 @@ pmclient_fg.python: End of PCP archive
 ... 5 numbers ...
 End-of-File
     echo "..."
-    echo "real MP case" >>$here/$seq.full
+    echo "real MP case" >>$seq_full
     $pmclient -a $tmp | _filter
 fi

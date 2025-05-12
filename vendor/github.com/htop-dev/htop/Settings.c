@@ -11,8 +11,10 @@ in the source distribution for its full text.
 
 #include <ctype.h>
 #include <errno.h>
+#include <fcntl.h>
 #include <limits.h>
 #include <pwd.h>
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -30,89 +32,59 @@ in the source distribution for its full text.
 #include "XUtils.h"
 
 
-/*
-
-static char** readQuotedList(char* line) {
-   int n = 0;
-   char** list = xCalloc(sizeof(char*), 1);
-   int start = 0;
-   for (;;) {
-      while (line[start] && line[start] == ' ') {
-         start++;
-      }
-      if (line[start] != '"') {
-         break;
-      }
-      start++;
-      int close = start;
-      while (line[close] && line[close] != '"') {
-         close++;
-      }
-      int len = close - start;
-      char* item = xMalloc(len + 1);
-      strncpy(item, line + start, len);
-      item[len] = '\0';
-      list[n] = item;
-      n++;
-      list = xRealloc(list, sizeof(char*) * (n + 1));
-      start = close + 1;
-   }
-   list[n] = NULL;
-   return list;
-}
-
-static void writeQuotedList(FILE* fd, char** list) {
-   const char* sep = "";
-   for (int i = 0; list[i]; i++) {
-      fprintf(fd, "%s\"%s\"", sep, list[i]);
-      sep = " ";
-   }
-   fprintf(fd, "\n");
-}
-
-*/
-
-void Settings_delete(Settings* this) {
-   free(this->filename);
-   free(this->initialFilename);
-   for (unsigned int i = 0; i < HeaderLayout_getColumns(this->hLayout); i++) {
+static void Settings_deleteColumns(Settings* this) {
+   for (size_t i = 0; i < HeaderLayout_getColumns(this->hLayout); i++) {
       String_freeArray(this->hColumns[i].names);
       free(this->hColumns[i].modes);
    }
    free(this->hColumns);
+}
+
+static void Settings_deleteScreens(Settings* this) {
    if (this->screens) {
-      for (unsigned int i = 0; this->screens[i]; i++) {
+      for (size_t i = 0; this->screens[i]; i++)
          ScreenSettings_delete(this->screens[i]);
-      }
       free(this->screens);
    }
+}
+
+void Settings_delete(Settings* this) {
+   free(this->filename);
+   free(this->initialFilename);
+   Settings_deleteColumns(this);
+   Settings_deleteScreens(this);
    free(this);
 }
 
-static void Settings_readMeters(Settings* this, const char* line, unsigned int column) {
+static char** Settings_splitLineToIDs(const char* line) {
    char* trim = String_trim(line);
    char** ids = String_split(trim, ' ', NULL);
    free(trim);
-   column = MINIMUM(column, HeaderLayout_getColumns(this->hLayout) - 1);
-   this->hColumns[column].names = ids;
+   return ids;
 }
 
-static void Settings_readMeterModes(Settings* this, const char* line, unsigned int column) {
-   char* trim = String_trim(line);
-   char** ids = String_split(trim, ' ', NULL);
-   free(trim);
-   int len = 0;
-   for (int i = 0; ids[i]; i++) {
+static void Settings_readMeters(Settings* this, const char* line, size_t column) {
+   column = MINIMUM(column, HeaderLayout_getColumns(this->hLayout) - 1);
+   this->hColumns[column].names = Settings_splitLineToIDs(line);
+}
+
+static void Settings_readMeterModes(Settings* this, const char* line, size_t column) {
+   char** ids = Settings_splitLineToIDs(line);
+
+   size_t len = 0;
+   for (size_t i = 0; ids[i]; i++) {
       len++;
    }
+
    column = MINIMUM(column, HeaderLayout_getColumns(this->hLayout) - 1);
    this->hColumns[column].len = len;
-   int* modes = len ? xCalloc(len, sizeof(int)) : NULL;
-   for (int i = 0; i < len; i++) {
-      modes[i] = atoi(ids[i]);
+   MeterModeId* modes = len ? xCalloc(len, sizeof(MeterModeId)) : NULL;
+   for (size_t i = 0; i < len; i++) {
+      modes[i] = (MeterModeId) atoi(ids[i]);
    }
-   String_freeArray(ids);
    this->hColumns[column].modes = modes;
+
+   String_freeArray(ids);
 }
 
 static bool Settings_validateMeters(Settings* this) {
@@ -122,7 +94,7 @@ static bool Settings_validateMeters(Settings* this) {
 
    for (size_t column = 0; column < colCount; column++) {
       char** names = this->hColumns[column].names;
-      const int* modes = this->hColumns[column].modes;
+      const MeterModeId* modes = this->hColumns[column].modes;
       const size_t len = this->hColumns[column].len;
 
       if (!len)
@@ -145,25 +117,22 @@ static bool Settings_validateMeters(Settings* this) {
    return anyMeter;
 }
 
-static void Settings_defaultMeters(Settings* this, unsigned int initialCpuCount) {
-   int sizes[] = { 3, 3 };
+static void Settings_defaultMeters(Settings* this, const Machine* host) {
+   unsigned int initialCpuCount = host->activeCPUs;
+   size_t sizes[] = { 3, 3 };
 
    if (initialCpuCount > 4 && initialCpuCount <= 128) {
       sizes[1]++;
    }
 
    // Release any previously allocated memory
-   for (size_t i = 0; i < HeaderLayout_getColumns(this->hLayout); i++) {
-      String_freeArray(this->hColumns[i].names);
-      free(this->hColumns[i].modes);
-   }
-   free(this->hColumns);
+   Settings_deleteColumns(this);
 
    this->hLayout = HF_TWO_50_50;
    this->hColumns = xCalloc(HeaderLayout_getColumns(this->hLayout), sizeof(MeterColumnSetting));
    for (size_t i = 0; i < 2; i++) {
-      this->hColumns[i].names = xCalloc(sizes[i] + 1, sizeof(char*));
-      this->hColumns[i].modes = xCalloc(sizes[i], sizeof(int));
+      this->hColumns[i].names = xCalloc(sizes[i] + 1, sizeof(*this->hColumns[0].names));
+      this->hColumns[i].modes = xCalloc(sizes[i], sizeof(*this->hColumns[0].modes));
       this->hColumns[i].len = sizes[i];
    }
 
@@ -217,14 +186,9 @@ static const char* toFieldName(Hashtable* columns, int id, bool* enabled) {
    }
    if (id >= ROW_DYNAMIC_FIELDS) {
       const DynamicColumn* column = DynamicColumn_lookup(columns, id);
-      if (!column) {
-         if (enabled)
-            *enabled = false;
-         return NULL;
-      }
       if (enabled)
-         *enabled = column->enabled;
-      return column->name;
+         *enabled = column ? column->enabled : false;
+      return column ? column->name : NULL;
    }
    if (enabled)
       *enabled = true;
@@ -232,7 +196,7 @@ static const char* toFieldName(Hashtable* columns, int id, bool* enabled) {
 }
 
 static int toFieldIndex(Hashtable* columns, const char* str) {
-   if (isdigit(str[0])) {
+   if (isdigit((unsigned char)str[0])) {
       // This "+1" is for compatibility with the older enum format.
       int id = atoi(str) + 1;
       if (toFieldName(columns, id, NULL)) {
@@ -353,16 +317,50 @@ static ScreenSettings* Settings_defaultScreens(Settings* this) {
    return this->screens[0];
 }
 
-static bool Settings_read(Settings* this, const char* fileName, unsigned int initialCpuCount) {
-   FILE* fd = fopen(fileName, "r");
-   if (!fd)
+static bool Settings_read(Settings* this, const char* fileName, const Machine* host, bool checkWritability) {
+   int fd = -1;
+   const char* fopen_mode = "r+";
+   if (checkWritability) {
+      do {
+         fd = open(fileName, O_RDWR | O_NOCTTY | O_NOFOLLOW);
+      } while (fd < 0 && errno == EINTR);
+
+      if (fd < 0) {
+         this->writeConfig = (errno == ENOENT);
+         if (errno != EACCES && errno != EPERM && errno != EROFS) {
+            return false;
+         }
+      } else {
+         // Check if this is a regular file
+         struct stat sb;
+         int err = fstat(fd, &sb);
+         this->writeConfig = !err && S_ISREG(sb.st_mode);
+      }
+   }
+
+   // If opening for read & write is not needed or fails, open for read only.
+   // There is no risk of following symlink in this case.
+   if (fd < 0) {
+      fopen_mode = "r";
+      do {
+         fd = open(fileName, O_RDONLY | O_NOCTTY);
+      } while (fd < 0 && errno == EINTR);
+   }
+
+   if (fd < 0)
       return false;
+
+   FILE* fp = fdopen(fd, fopen_mode);
+   if (!fp) {
+      close(fd);
+      return false;
+   }
 
    ScreenSettings* screen = NULL;
    bool didReadMeters = false;
    bool didReadAny = false;
    for (;;) {
-      char* line = String_readLine(fd);
+      char* line = String_readLine(fp);
       if (!line) {
          break;
       }
@@ -382,7 +380,7 @@ static bool Settings_read(Settings* this, const char* fileName, unsigned int ini
             fprintf(stderr, "         version v%d, but this %s binary only supports up to version v%d.\n", this->config_version, PACKAGE, CONFIG_READER_MIN_VERSION);
             fprintf(stderr, "         The configuration file will be downgraded to v%d when %s exits.\n", CONFIG_READER_MIN_VERSION, PACKAGE);
             String_freeArray(option);
-            fclose(fd);
+            fclose(fp);
             return false;
          }
       } else if (String_eq(option[0], "fields") && this->config_version <= 2) {
@@ -469,6 +467,8 @@ static bool Settings_read(Settings* this, const char* fileName, unsigned int ini
          this->showCPUUsage = atoi(option[1]);
       } else if (String_eq(option[0], "show_cpu_frequency")) {
          this->showCPUFrequency = atoi(option[1]);
+      } else if (String_eq(option[0], "show_cached_memory")) {
+         this->showCachedMemory = atoi(option[1]);
       #ifdef BUILD_WITH_CPU_TEMP
       } else if (String_eq(option[0], "show_cpu_temperature")) {
          this->showCPUTemperature = atoi(option[1]);
@@ -555,99 +555,129 @@ static bool Settings_read(Settings* this, const char* fileName, unsigned int ini
       }
       String_freeArray(option);
    }
-   fclose(fd);
+   fclose(fp);
    if (!didReadMeters || !Settings_validateMeters(this))
-      Settings_defaultMeters(this, initialCpuCount);
+      Settings_defaultMeters(this, host);
    if (!this->nScreens)
       Settings_defaultScreens(this);
    return didReadAny;
 }
 
-static void writeFields(FILE* fd, const ProcessField* fields, Hashtable* columns, bool byName, char separator) {
+typedef ATTR_FORMAT(printf, 2, 3) int (*OutputFunc)(FILE*, const char*,...);
+
+static void writeFields(OutputFunc of, FILE* fp,
+                        const ProcessField* fields, Hashtable* columns,
+                        bool byName, char separator) {
    const char* sep = "";
    for (unsigned int i = 0; fields[i]; i++) {
       if (fields[i] < LAST_PROCESSFIELD && byName) {
          const char* pName = toFieldName(columns, fields[i], NULL);
-         fprintf(fd, "%s%s", sep, pName);
+         of(fp, "%s%s", sep, pName);
       } else if (fields[i] >= LAST_PROCESSFIELD && byName) {
          bool enabled;
          const char* pName = toFieldName(columns, fields[i], &enabled);
          if (enabled)
-            fprintf(fd, "%sDynamic(%s)", sep, pName);
+            of(fp, "%sDynamic(%s)", sep, pName);
       } else {
          // This "-1" is for compatibility with the older enum format.
-         fprintf(fd, "%s%d", sep, (int) fields[i] - 1);
+         of(fp, "%s%d", sep, (int) fields[i] - 1);
       }
       sep = " ";
    }
-   fputc(separator, fd);
+   of(fp, "%c", separator);
 }
 
-static void writeList(FILE* fd, char** list, int len, char separator) {
+static void writeList(OutputFunc of, FILE* fp,
+                      char** list, int len, char separator) {
    const char* sep = "";
    for (int i = 0; i < len; i++) {
-      fprintf(fd, "%s%s", sep, list[i]);
+      of(fp, "%s%s", sep, list[i]);
       sep = " ";
    }
-   fputc(separator, fd);
+   of(fp, "%c", separator);
 }
 
-static void writeMeters(const Settings* this, FILE* fd, char separator, unsigned int column) {
+static void writeMeters(const Settings* this, OutputFunc of,
+                        FILE* fp, char separator, unsigned int column) {
    if (this->hColumns[column].len) {
-      writeList(fd, this->hColumns[column].names, this->hColumns[column].len, separator);
+      writeList(of, fp, this->hColumns[column].names, this->hColumns[column].len, separator);
    } else {
-      fputc('!', fd);
-      fputc(separator, fd);
+      of(fp, "!%c", separator);
    }
 }
 
-static void writeMeterModes(const Settings* this, FILE* fd, char separator, unsigned int column) {
+static void writeMeterModes(const Settings* this, OutputFunc of,
+                            FILE* fp, char separator, unsigned int column) {
    if (this->hColumns[column].len) {
       const char* sep = "";
       for (size_t i = 0; i < this->hColumns[column].len; i++) {
-         fprintf(fd, "%s%d", sep, this->hColumns[column].modes[i]);
+         of(fp, "%s%u", sep, this->hColumns[column].modes[i]);
          sep = " ";
       }
    } else {
-      fputc('!', fd);
+      of(fp, "!");
    }
 
-   fputc(separator, fd);
+   of(fp, "%c", separator);
+}
+
+ATTR_FORMAT(printf, 2, 3)
+static int signal_safe_fprintf(FILE* stream, const char* fmt, ...) {
+   char buf[2048];
+
+   va_list vl;
+   va_start(vl, fmt);
+   int n = vsnprintf(buf, sizeof(buf), fmt, vl);
+   va_end(vl);
+
+   if (n <= 0)
+      return n;
+
+   return full_write_str(fileno(stream), buf);
 }
 
 int Settings_write(const Settings* this, bool onCrash) {
-   FILE* fd;
+   FILE* fp;
    char separator;
    char* tmpFilename = NULL;
+   OutputFunc of;
    if (onCrash) {
-      fd = stderr;
+      fp = stderr;
       separator = ';';
+      of = signal_safe_fprintf;
+   } else if (!this->writeConfig) {
+      return 0;
    } else {
       /* create tempfile with mode 0600 */
       mode_t cur_umask = umask(S_IXUSR | S_IRWXG | S_IRWXO);
       xAsprintf(&tmpFilename, "%s.tmp.XXXXXX", this->filename);
       int fdtmp = mkstemp(tmpFilename);
       umask(cur_umask);
-      if (fdtmp == -1)
+      if (fdtmp == -1) {
+         free(tmpFilename);
          return -errno;
-      fd = fdopen(fdtmp, "w");
-      if (fd == NULL)
+      }
+      fp = fdopen(fdtmp, "w");
+      if (!fp) {
+         free(tmpFilename);
          return -errno;
+      }
       separator = '\n';
+      of = fprintf;
    }
 
    #define printSettingInteger(setting_, value_) \
-      fprintf(fd, setting_ "=%d%c", (int) (value_), separator)
+      of(fp, setting_ "=%d%c", (int) (value_), separator)
    #define printSettingString(setting_, value_) \
-      fprintf(fd, setting_ "=%s%c", value_, separator)
+      of(fp, setting_ "=%s%c", value_, separator)
 
    if (!onCrash) {
-      fprintf(fd, "# Beware! This file is rewritten by htop when settings are changed in the interface.\n");
-      fprintf(fd, "# The parser is also very primitive, and not human-friendly.\n");
+      of(fp, "# Beware! This file is rewritten by htop when settings are changed in the interface.\n");
+      of(fp, "# The parser is also very primitive, and not human-friendly.\n");
    }
    printSettingString("htop_version", VERSION);
    printSettingInteger("config_reader_min_version", CONFIG_READER_MIN_VERSION);
-   fprintf(fd, "fields="); writeFields(fd, this->screens[0]->fields, this->dynamicColumns, false, separator);
+   of(fp, "fields="); writeFields(of, fp, this->screens[0]->fields, this->dynamicColumns, false, separator);
    printSettingInteger("hide_kernel_threads", this->hideKernelThreads);
    printSettingInteger("hide_userland_threads", this->hideUserlandThreads);
    printSettingInteger("hide_running_in_container", this->hideRunningInContainer);
@@ -674,6 +704,7 @@ int Settings_write(const Settings* this, bool onCrash) {
    printSettingInteger("show_cpu_temperature", this->showCPUTemperature);
    printSettingInteger("degree_fahrenheit", this->degreeFahrenheit);
    #endif
+   printSettingInteger("show_cached_memory", this->showCachedMemory);
    printSettingInteger("update_process_names", this->updateProcessNames);
    printSettingInteger("account_guest_in_cpu_meter", this->accountGuestInCPUMeter);
    printSettingInteger("color_scheme", this->colorScheme);
@@ -688,10 +719,10 @@ int Settings_write(const Settings* this, bool onCrash) {
 
    printSettingString("header_layout", HeaderLayout_getName(this->hLayout));
    for (unsigned int i = 0; i < HeaderLayout_getColumns(this->hLayout); i++) {
-      fprintf(fd, "column_meters_%u=", i);
-      writeMeters(this, fd, separator, i);
-      fprintf(fd, "column_meter_modes_%u=", i);
-      writeMeterModes(this, fd, separator, i);
+      of(fp, "column_meters_%u=", i);
+      writeMeters(this, of, fp, separator, i);
+      of(fp, "column_meter_modes_%u=", i);
+      writeMeterModes(this, of, fp, separator, i);
    }
 
    // Legacy compatibility with older versions of htop
@@ -709,14 +740,14 @@ int Settings_write(const Settings* this, bool onCrash) {
       const char* sortKey = toFieldName(this->dynamicColumns, ss->sortKey, NULL);
       const char* treeSortKey = toFieldName(this->dynamicColumns, ss->treeSortKey, NULL);
 
-      fprintf(fd, "screen:%s=", ss->heading);
-      writeFields(fd, ss->fields, this->dynamicColumns, true, separator);
+      of(fp, "screen:%s=", ss->heading);
+      writeFields(of, fp, ss->fields, this->dynamicColumns, true, separator);
       if (ss->dynamic) {
          printSettingString(".dynamic", ss->dynamic);
          if (ss->sortKey && ss->sortKey != PID)
-            fprintf(fd, "%s=Dynamic(%s)%c", ".sort_key", sortKey, separator);
+            of(fp, "%s=Dynamic(%s)%c", ".sort_key", sortKey, separator);
          if (ss->treeSortKey && ss->treeSortKey != PID)
-            fprintf(fd, "%s=Dynamic(%s)%c", ".tree_sort_key", treeSortKey, separator);
+            of(fp, "%s=Dynamic(%s)%c", ".tree_sort_key", treeSortKey, separator);
       } else {
          printSettingString(".sort_key", sortKey);
          printSettingString(".tree_sort_key", treeSortKey);
@@ -736,10 +767,10 @@ int Settings_write(const Settings* this, bool onCrash) {
 
    int r = 0;
 
-   if (ferror(fd) != 0)
+   if (ferror(fp) != 0)
       r = (errno != 0) ? -errno : -EBADF;
 
-   if (fclose(fd) != 0)
+   if (fclose(fp) != 0)
       r = r ? r : -errno;
 
    if (r == 0)
@@ -750,8 +781,10 @@ int Settings_write(const Settings* this, bool onCrash) {
    return r;
 }
 
-Settings* Settings_new(unsigned int initialCpuCount, Hashtable* dynamicMeters, Hashtable* dynamicColumns, Hashtable* dynamicScreens) {
+Settings* Settings_new(const Machine* host, Hashtable* dynamicMeters, Hashtable* dynamicColumns, Hashtable* dynamicScreens) {
    Settings* this = xCalloc(1, sizeof(Settings));
+
+   this->writeConfig = true;
 
    this->dynamicScreens = dynamicScreens;
    this->dynamicColumns = dynamicColumns;
@@ -776,6 +809,7 @@ Settings* Settings_new(unsigned int initialCpuCount, Hashtable* dynamicMeters, H
    this->showCPUTemperature = false;
    this->degreeFahrenheit = false;
    #endif
+   this->showCachedMemory = true;
    this->updateProcessNames = false;
    this->showProgramPath = true;
    this->highlightThreads = true;
@@ -811,21 +845,16 @@ Settings* Settings_new(unsigned int initialCpuCount, Hashtable* dynamicMeters, H
          configDir = xStrdup(xdgConfigHome);
          htopDir = String_cat(xdgConfigHome, "/htop");
       } else {
-         this->initialFilename = String_cat(home, "/.config/htop/htoprc");
-         configDir = String_cat(home, "/.config");
-         htopDir = String_cat(home, "/.config/htop");
+         this->initialFilename = String_cat(home, CONFIGDIR "/htop/htoprc");
+         configDir = String_cat(home, CONFIGDIR);
+         htopDir = String_cat(home, CONFIGDIR "/htop");
       }
-      legacyDotfile = String_cat(home, "/.htoprc");
       (void) mkdir(configDir, 0700);
       (void) mkdir(htopDir, 0700);
       free(htopDir);
       free(configDir);
-      struct stat st;
-      int err = lstat(legacyDotfile, &st);
-      if (err || S_ISLNK(st.st_mode)) {
-         free(legacyDotfile);
-         legacyDotfile = NULL;
-      }
+
+      legacyDotfile = String_cat(home, "/.htoprc");
    }
 
    this->filename = xMalloc(PATH_MAX);
@@ -838,24 +867,25 @@ Settings* Settings_new(unsigned int initialCpuCount, Hashtable* dynamicMeters, H
 #endif
    this->changed = false;
    this->delay = DEFAULT_DELAY;
-   bool ok = Settings_read(this, this->filename, initialCpuCount);
+
+   bool ok = Settings_read(this, this->filename, host, /*checkWritability*/true);
    if (!ok && legacyDotfile) {
-      ok = Settings_read(this, legacyDotfile, initialCpuCount);
-      if (ok) {
+      ok = Settings_read(this, legacyDotfile, host, this->writeConfig);
+      if (ok && this->writeConfig) {
          // Transition to new location and delete old configuration file
          if (Settings_write(this, false) == 0) {
             unlink(legacyDotfile);
          }
       }
-      free(legacyDotfile);
    }
    if (!ok) {
       this->screenTabs = true;
       this->changed = true;
-      ok = Settings_read(this, SYSCONFDIR "/htoprc", initialCpuCount);
+
+      ok = Settings_read(this, SYSCONFDIR "/htoprc", host, /*checkWritability*/false);
    }
    if (!ok) {
-      Settings_defaultMeters(this, initialCpuCount);
+      Settings_defaultMeters(this, host);
       Settings_defaultScreens(this);
    }
 
@@ -863,6 +893,8 @@ Settings* Settings_new(unsigned int initialCpuCount, Hashtable* dynamicMeters, H
    this->ss = this->screens[this->ssIndex];
 
    this->lastUpdate = 1;
+
+   free(legacyDotfile);
 
    return this;
 }

@@ -1,7 +1,7 @@
 /*
  * Linux PMDA
  *
- * Copyright (c) 2012-2024 Red Hat.
+ * Copyright (c) 2012-2025 Red Hat.
  * Copyright (c) 2016-2017 Fujitsu.
  * Copyright (c) 2007-2011 Aconex.  All Rights Reserved.
  * Copyright (c) 2002 International Business Machines Corp.
@@ -18,6 +18,7 @@
  * for more details.
  *
  * pmDebugOption:
+ *   appl1	disk-related metrics
  *   appl8	filesys metrics
  *   libpmda	historic "everything else" diagnostics
  */
@@ -377,6 +378,7 @@ static pmdaIndom indomtab[] = {
     { SOFTIRQ_CPU_INDOM, 0, NULL },
     { WWID_INDOM, 0, NULL },
     { HUGEPAGES_INDOM, 0, NULL },
+    { NUMA_HUGEPAGES_INDOM, 0, NULL },
 };
 
 
@@ -1192,6 +1194,16 @@ static pmdaMetric metrictab[] = {
 /* mem.util.percpu */
     { NULL,
       { PMDA_PMID(CLUSTER_MEMINFO,74), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.util.kreclaimable */
+    { NULL,
+      { PMDA_PMID(CLUSTER_MEMINFO,75), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.util.hugetlb */
+    { NULL,
+      { PMDA_PMID(CLUSTER_MEMINFO,76), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
       PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 
 /* mem.numa.util.total */
@@ -2595,6 +2607,16 @@ static pmdaMetric metrictab[] = {
 /* disk.all.inflight */
     { NULL, 
       { PMDA_PMID(CLUSTER_STAT,104), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT, 
+      PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+/* hinv.disk.ctlr */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_STAT,105), PM_TYPE_STRING, DISK_INDOM, PM_SEM_DISCRETE, 
+      PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+/* hinv.disk.model */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_STAT,106), PM_TYPE_STRING, DISK_INDOM, PM_SEM_DISCRETE, 
       PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
 /*
@@ -4822,6 +4844,66 @@ static pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_NET_NETSTAT,217), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
+/* network.mptcp.mpjoinsynbackuprx */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPJOINSYNBACKUPRX],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,218), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.mptcp.mpjoinsynackbackuprx */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPJOINSYNACKBACKUPRX],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,219), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.mptcp.mpcapableendpattempt */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPCAPABLEENDPATTEMPT],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,220), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.mptcp.dsscorruptionfallback */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_DSSCORRUPTIONFALLBACK],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,221), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.mptcp.dsscorruptionreset */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_DSSCORRUPTIONRESET],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,222), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.mptcp.mpcapablesyntxdrop */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPCAPABLESYNTXDROP],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,223), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.mptcp.mpcapablesyntxdisabled */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPCAPABLESYNTXDISABLED],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,224), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.mptcp.mpjoinsyntx */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPJOINSYNTX],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,225), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.mptcp.mpjoinsyntxcreatskerr */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPJOINSYNTXCREATSKERR],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,226), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.mptcp.mpjoinsyntxbinderr */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPJOINSYNTXBINDERR],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,227), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.mptcp.mpjoinsyntxconnecterr */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPJOINSYNTXCONNECTERR],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,228), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.mptcp.blackhole */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_BLACKHOLE],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,229), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
 /* hinv.map.scsi */
     { NULL, 
       { PMDA_PMID(CLUSTER_SCSI,0), PM_TYPE_STRING, SCSI_INDOM, PM_SEM_DISCRETE, 
@@ -6728,6 +6810,36 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_SYSFS_KERNEL,5), PM_TYPE_U64, PM_INDOM_NULL,
 	PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
 
+    /* hyperv.balloon.state */
+    { &sysfs_kernel.hv_balloon_state,
+      { PMDA_PMID(CLUSTER_SYSFS_KERNEL,6), PM_TYPE_U32, PM_INDOM_NULL,
+	PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+    /* hyperv.balloon.pagesize */
+    { &sysfs_kernel.hv_balloon_pagesize,
+      { PMDA_PMID(CLUSTER_SYSFS_KERNEL,7), PM_TYPE_U32, PM_INDOM_NULL,
+	PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
+
+    /* hyperv.balloon.added */
+    { &sysfs_kernel.hv_balloon_added,
+      { PMDA_PMID(CLUSTER_SYSFS_KERNEL,8), PM_TYPE_U64, PM_INDOM_NULL,
+	PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
+
+    /* hyperv.balloon.onlined */
+    { &sysfs_kernel.hv_balloon_onlined,
+      { PMDA_PMID(CLUSTER_SYSFS_KERNEL,9), PM_TYPE_U64, PM_INDOM_NULL,
+	PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
+
+    /* hyperv.balloon.ballooned */
+    { &sysfs_kernel.hv_balloon_ballooned,
+      { PMDA_PMID(CLUSTER_SYSFS_KERNEL,10), PM_TYPE_U64, PM_INDOM_NULL,
+	PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
+
+    /* hyperv.balloon.total_committed */
+    { &sysfs_kernel.hv_balloon_total_committed,
+      { PMDA_PMID(CLUSTER_SYSFS_KERNEL,11), PM_TYPE_U64, PM_INDOM_NULL,
+	PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
+
 /*
  * /proc/interrupts clusters
  */
@@ -7366,6 +7478,22 @@ static pmdaMetric metrictab[] = {
     /* mem.hugepages.overcommit */
     { NULL, { PMDA_PMID(CLUSTER_HUGEPAGES, OVERCOMMIT_HUGEPAGES), PM_TYPE_U64,
 	HUGEPAGES_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/*
+ * NUMA hugepages (fixed sizes) metrics cluster
+ */
+    /* mem.numa.hugepages.pagesize */
+    { NULL, { PMDA_PMID(CLUSTER_NUMA_HUGEPAGES, PAGESIZE_NUMA_HUGEPAGES), PM_TYPE_U64,
+	NUMA_HUGEPAGES_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+    /* mem.numa.hugepages.free */
+    { NULL, { PMDA_PMID(CLUSTER_NUMA_HUGEPAGES, FREE_NUMA_HUGEPAGES), PM_TYPE_U64,
+	NUMA_HUGEPAGES_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+    /* mem.numa.hugepages.surplus */
+    { NULL, { PMDA_PMID(CLUSTER_NUMA_HUGEPAGES, SURPLUS_NUMA_HUGEPAGES), PM_TYPE_U64,
+	NUMA_HUGEPAGES_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+    /* mem.numa.hugepages.totalsize */
+    { NULL, { PMDA_PMID(CLUSTER_NUMA_HUGEPAGES, TOTALSIZE_NUMA_HUGEPAGES), PM_TYPE_U64,
+	NUMA_HUGEPAGES_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 };
 
 typedef struct {
@@ -7735,6 +7863,8 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
 
     if (need_refresh[CLUSTER_HUGEPAGES])
 	refresh_sysfs_hugepages(INDOM(HUGEPAGES_INDOM));
+    if (need_refresh[CLUSTER_NUMA_HUGEPAGES])
+	refresh_sysfs_numa_hugepages(INDOM(NUMA_HUGEPAGES_INDOM));
 
 done:
     container_close(cp, ns_fds);
@@ -7864,7 +7994,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     net_addr_t		*addrp;
     net_interface_t	*netip;
     scsi_entry_t	*scsi_entry;
-    hugepages_t		*hugepages;
+    uint64_t		*values;
     char		*name;
 
     if (mdesc->m_user != NULL) {
@@ -8635,6 +8765,16 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		return 0; /* no values available */
 	   atom->ull = proc_meminfo.Percpu;
 	   break;
+  case 75: /* mem.util.kreclaimable (in kbytes) */
+      if (!MEMINFO_VALID_VALUE(proc_meminfo.KReclaimable))
+    return 0; /* no values available */
+      atom->ull = proc_meminfo.KReclaimable;
+      break;	
+  case 76: /* mem.util.hugetlb (in kbytes) */
+      if (!MEMINFO_VALID_VALUE(proc_meminfo.Hugetlb))
+    return 0; /* no values available */
+      atom->ull = proc_meminfo.Hugetlb;
+      break;
 	default:
 	    return PM_ERR_PMID;
 	}
@@ -8826,8 +8966,10 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		break;
 	    case 8: /* filesys.full */
 		used = (__uint64_t)(sbuf->f_blocks - sbuf->f_bfree);
-		ull = used + (__uint64_t)sbuf->f_bavail;
-		atom->d = (100.0 * (double)used) / (double)ull;
+		if ((ull = used + (__uint64_t)sbuf->f_bavail) == 0)
+		    atom->d = 0;  /* protect against divide-by-zero */
+		else
+		    atom->d = (100.0 * (double)used) / (double)ull;
 		break;
 	    case 9: /* filesys.blocksize -- added by Mike Mason <mmlnx@us.ibm.com> */
 		atom->ul = sbuf->f_bsize;
@@ -8898,8 +9040,10 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		break;
 	    case 7: /* tmpfs.full */
 		used = (__uint64_t)(sbuf->f_blocks - sbuf->f_bfree);
-		ull = used + (__uint64_t)sbuf->f_bavail;
-		atom->d = (100.0 * (double)used) / (double)ull;
+		if ((ull = used + (__uint64_t)sbuf->f_bavail) == 0)
+		    atom->d = 0;  /* protect against divide-by-zero */
+		else
+		    atom->d = (100.0 * (double)used) / (double)ull;
 		break;
 	    default:
 		return PM_ERR_PMID;
@@ -9106,8 +9250,17 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    return PM_ERR_INST;
 	switch (item) {
 	case 0: /* hinv.cpu.clock */
-	    if (cp->info.clock == 0.0)
-		return 0;
+	    if (cp->info.clock == 0.0) {
+		/* fallback from procfs cpuinfo to sysfs cpufreq */
+		sts = pmdaCacheLookup(INDOM(CPU_INDOM), inst, &name, (void **)&cp);
+		if (sts < 0)
+		    return 0;
+		if (refresh_sysfs_frequency_scaling_cur_freq(name, item, cp) < 0 ||
+		    (!(cp->freq.flags & CPUFREQ_SCALE)) || cp->freq.scale == 0.0)
+		    return 0;
+		atom->f = cp->freq.scale;
+		break;
+	    }
 	    atom->f = cp->info.clock;
 	    break;
 	case 1: /* hinv.cpu.vendor */
@@ -10083,15 +10236,32 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	 */
 	if (item >= HUGEPAGES_METRIC_COUNT)
 	    return PM_ERR_PMID;
-	hugepages = NULL;
-	sts = pmdaCacheLookup(INDOM(HUGEPAGES_INDOM), inst, NULL, (void **)&hugepages);
+	values = NULL;
+	sts = pmdaCacheLookup(INDOM(HUGEPAGES_INDOM), inst, NULL, (void **)&values);
 	if (sts < 0)
 	    return sts;
-	if (sts != PMDA_CACHE_ACTIVE || hugepages == NULL)
+	if (sts != PMDA_CACHE_ACTIVE || values == NULL)
 	    return PM_ERR_INST;
-	atom->ull = hugepages->values[item];
+	atom->ull = values[item];
 	if (item != PAGESIZE_HUGEPAGES) /* convert to kB */
-	    atom->ull *= hugepages->values[PAGESIZE_HUGEPAGES];
+	    atom->ull *= values[PAGESIZE_HUGEPAGES];
+	break;
+
+    case CLUSTER_NUMA_HUGEPAGES:
+	/*
+	 * mem.numa.hugepages.* metrics are direct indexed by item, see sysfs_hugepages.h
+	 */
+	if (item >= NUMA_HUGEPAGES_METRIC_COUNT)
+	    return PM_ERR_PMID;
+	values = NULL;
+	sts = pmdaCacheLookup(INDOM(NUMA_HUGEPAGES_INDOM), inst, NULL, (void **)&values);
+	if (sts < 0)
+	    return sts;
+	if (sts != PMDA_CACHE_ACTIVE || values == NULL)
+	    return PM_ERR_INST;
+	atom->ull = values[item];
+	if (item != PAGESIZE_NUMA_HUGEPAGES) /* convert to kB */
+	    atom->ull *= values[PAGESIZE_NUMA_HUGEPAGES];
 	break;
 
     default: /* unknown cluster */
@@ -10164,6 +10334,8 @@ linux_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	case CLUSTER_SOFTIRQS:
 	case CLUSTER_SYSFS_DEVICES:
 	case CLUSTER_NET_SOFTNET:
+	    if (item == 0 && cluster == CLUSTER_CPUINFO) /* clock */
+		need_refresh[CLUSTER_SYSFS_DEVICES]++;
 	    need_refresh[cluster]++;
 	    need_refresh[CLUSTER_STAT]++;
 	    break;
@@ -10240,6 +10412,14 @@ linux_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	    case 4:	/* mem.vmmemctl.current */
 	    case 5:	/* mem.vmmemctl.target */
 		need_refresh[REFRESH_SYSFS_KERNEL_VMMEMCTL]++;
+		break;
+	    case 6:	/* hyperv.balloon.state */
+	    case 7:	/* hyperv.balloon.pagesize */
+	    case 8:	/* hyperv.balloon.added */
+	    case 9:	/* hyperv.balloon.onlined */
+	    case 10:	/* hyperv.balloon.ballooned */
+	    case 11:	/* hyperv.balloon.total_committed */
+		need_refresh[REFRESH_SYSFS_KERNEL_HVBALLOON]++;
 		break;
 	    }
 	    break;
@@ -10589,6 +10769,8 @@ linux_init(pmdaInterface *dp)
 	hz = atoi(envpath);
     } else
 	hz = sysconf(_SC_CLK_TCK);
+    if (hz == 0)	/* protect against divide-by-zero */
+	hz = 1;
     if ((envpath = getenv("LINUX_NCPUS")) != NULL) {
 	/*
 	 * If $LINUX_NCPUS is set, this is a QA setting that

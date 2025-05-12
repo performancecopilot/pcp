@@ -65,3 +65,4 @@ sqlite3
 unzip
 xz
 zabbix-agent
+zstd

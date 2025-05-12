@@ -1,5 +1,5 @@
 QA output created by 1871
-=== Start test Redis server ===
+=== Start test key server ===
 PING
 PONG
 

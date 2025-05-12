@@ -155,4 +155,18 @@ help_text_t  help_text[] = {
 { .name = "autogroup.enabled",    .shorthelp = "Scheduling autogroup feature for CFS is enabled in the kernel",   .longhelp = "Contents of /proc/sys/kernel/sched_autogroup_enabled as described in sched(7)." },
 { .name = "autogroup.id",    .shorthelp = "Process autogroup identifier from /proc/<pid>/autogroup",   .longhelp = "Process scheduling autogroup identifier as described in sched(7)." },
 { .name = "autogroup.nice",    .shorthelp = "Process autogroup nice level from /proc/<pid>/autogroup",   .longhelp = "Process scheduling autogroup nice level as described in sched(7)." },
+
+{ .name = "fdinfo.drm_memory_cpu",    .shorthelp = "Accumulation of the drm-memory-cpu field from /proc/<pid>/fdinfo/* file descriptors",   .longhelp = "CPU memory which can be used by the GPU to store buffer objects." },
+{ .name = "fdinfo.drm_memory_gtt",    .shorthelp = "Accumulation of the drm-memory-gtt field from /proc/<pid>/fdinfo/* file descriptors",   .longhelp = "GTT memory which can be used by the GPU to store buffer objects." },
+{ .name = "fdinfo.drm_memory_vram",    .shorthelp = "Accumulation of the drm-memory-vram field from /proc/<pid>/fdinfo/* file descriptors",   .longhelp = "VRAM memory which can be used by the GPU to store buffer objects." },
+{ .name = "fdinfo.drm_shared_cpu",    .shorthelp = "Accumulation of the drm-shared-cpu field from /proc/<pid>/fdinfo/* file descriptors",   .longhelp = "CPU memory which can be used by the GPU to store buffer objects, and is\nshared with another file." },
+{ .name = "fdinfo.drm_shared_gtt",    .shorthelp = "Accumulation of the drm-shared-gtt field from /proc/<pid>/fdinfo/* file descriptors",   .longhelp = "GTT memory which can be used by the GPU to store buffer objects, and is\nshared with another file." },
+{ .name = "fdinfo.drm_shared_vram",    .shorthelp = "Accumulation of the drm-shared-vram field from /proc/<pid>/fdinfo/* file descriptors",   .longhelp = "VRAM memory which can be used by the GPU to store buffer objects, and is\nshared with another file." },
+
+{ .name = "fdinfo.amd_evicted_visible_vram",  .shorthelp = "Accumulation of the amd-evicted-visible-vram field from /proc/<pid>/fdinfo/* file descriptors",  .longhelp = "Sum of evicted buffers due to CPU access." },
+{ .name = "fdinfo.amd_evicted_vram",  .shorthelp = "Accumulation of the amd-evicted-vram field from /proc/<pid>/fdinfo/* file descriptors",  .longhelp = "Sum of evicted buffers, includes visible VRAM" },
+{ .name = "fdinfo.amd_memory_visible_vram",  .shorthelp = "Accumulation of the amd-memory-visible-vram field from /proc/<pid>/fdinfo/* file descriptors",  .longhelp = "Current visible VRAM usage" },
+{ .name = "fdinfo.amd_requested_gtt",  .shorthelp = "Accumulation of the amd-requested-gtt field from /proc/<pid>/fdinfo/* file descriptors",  .longhelp = "How much GTT memory userspace asked for" },
+{ .name = "fdinfo.amd_requested_visible_vram",  .shorthelp = "Accumulation of the amd-requested-visible-vram field from /proc/<pid>/fdinfo/* file descriptors",  .longhelp = "How much visible VRAM userspace asked for" },
+{ .name = "fdinfo.amd_requested_vram",  .shorthelp = "Accumulation of the amd-requested-vram field from /proc/<pid>/fdinfo/* file descriptors",  .longhelp = "How much VRAM userspace asked for, includes visible VRAM" },
 };

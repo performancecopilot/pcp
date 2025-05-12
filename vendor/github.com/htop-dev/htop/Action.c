@@ -402,19 +402,19 @@ static Htop_Reaction actionPrevScreen(State* st) {
 
 Htop_Reaction Action_setScreenTab(State* st, int x) {
    Settings* settings = st->host->settings;
-   int s = 2;
+   int s = SCREEN_TAB_MARGIN_LEFT;
    for (unsigned int i = 0; i < settings->nScreens; i++) {
       if (x < s) {
          return 0;
       }
       const char* tab = settings->screens[i]->heading;
       int len = strlen(tab);
-      if (x <= s + len + 1) {
+      if (x < s + len + 2) {
          settings->ssIndex = i;
          setActiveScreen(settings, st, i);
          return HTOP_UPDATE_PANELHDR | HTOP_REFRESH | HTOP_REDRAW_BAR;
       }
-      s += len + 3;
+      s += len + 2 + SCREEN_TAB_COLUMN_GAP;
    }
    return 0;
 }
@@ -634,7 +634,7 @@ static Htop_Reaction actionRedraw(ATTR_UNUSED State* st) {
 
 static Htop_Reaction actionTogglePauseUpdate(State* st) {
    st->pauseUpdate = !st->pauseUpdate;
-   return HTOP_REFRESH | HTOP_REDRAW_BAR;
+   return HTOP_REFRESH | HTOP_REDRAW_BAR | HTOP_KEEP_FOLLOWING;
 }
 
 static const struct {
@@ -734,7 +734,7 @@ static Htop_Reaction actionHelp(State* st) {
       addbartext(CRT_colors[BAR_SHADOW], " ", "used%");
    } else {
       addbartext(CRT_colors[CPU_GUEST], "/", "guest");
-      addbartext(CRT_colors[BAR_SHADOW], "                  ", "used%");
+      addbartext(CRT_colors[BAR_SHADOW], "                            ", "used%");
    }
    addattrstr(CRT_colors[BAR_BORDER], "]");
 
@@ -744,9 +744,13 @@ static Htop_Reaction actionHelp(State* st) {
    addbartext(CRT_colors[MEMORY_USED], "", "used");
    addbartext(CRT_colors[MEMORY_SHARED], "/", "shared");
    addbartext(CRT_colors[MEMORY_COMPRESSED], "/", "compressed");
-   addbartext(CRT_colors[MEMORY_BUFFERS_TEXT], "/", "buffers");
-   addbartext(CRT_colors[MEMORY_CACHE], "/", "cache");
-   addbartext(CRT_colors[BAR_SHADOW], "          ", "used");
+   if (st->host->settings->showCachedMemory) {
+      addbartext(CRT_colors[MEMORY_BUFFERS_TEXT], "/", "buffers");
+      addbartext(CRT_colors[MEMORY_CACHE], "/", "cache");
+      addbartext(CRT_colors[BAR_SHADOW], "          ", "used");
+   } else {
+      addbartext(CRT_colors[BAR_SHADOW], "                        ", "used");
+   }
    addbartext(CRT_colors[BAR_SHADOW], "/", "total");
    addattrstr(CRT_colors[BAR_BORDER], "]");
 
@@ -758,7 +762,7 @@ static Htop_Reaction actionHelp(State* st) {
    addbartext(CRT_colors[SWAP_CACHE], "/", "cache");
    addbartext(CRT_colors[SWAP_FRONTSWAP], "/", "frontswap");
 #else
-   addbartext(CRT_colors[SWAP_CACHE], "      ", "");
+   addbartext(CRT_colors[BAR_SHADOW], "                ", "");
 #endif
    addbartext(CRT_colors[BAR_SHADOW], "                          ", "used");
    addbartext(CRT_colors[BAR_SHADOW], "/", "total");

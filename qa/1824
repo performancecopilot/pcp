@@ -18,7 +18,7 @@ fi
 . ./common.filter
 . ./common.check
 
-_check_redis_server
+_check_key_server
 
 _cleanup()
 {
@@ -29,14 +29,13 @@ _cleanup()
 
 status=1	# failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 username=`id -u -n`
 proxyport=`_find_free_port`
 proxyopts="-p $proxyport -c /dev/null"
-pmproxy -f -t -U $username -x $seq.full -l $tmp.pmproxy.log $proxyopts &
+pmproxy -f -t -U $username -x $seq_full -l $tmp.pmproxy.log $proxyopts &
 pmproxy_pid=$!
 
 # check pmproxy has started and is available for requests

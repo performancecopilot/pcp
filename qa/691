@@ -31,7 +31,6 @@ p
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
@@ -50,11 +49,11 @@ fi
 pmval -t 20msec -a archives/mirage-3 -Dderive,appl2,logmeta qa.a >$tmp.out 2>$tmp.err
 echo "Diffs b/n sample.mirage and (derived) qa.a ..."
 diff $tmp.out.base $tmp.out
-echo >>$here/$seq.full
-cat $tmp.out >>$here/$seq.full
+echo >>$seq_full
+cat $tmp.out >>$seq_full
 
 echo
-cat $tmp.err >>$here/$seq.full
+cat $tmp.err >>$seq_full
 _filter <$tmp.err
 
 # success, all done

@@ -88,3 +88,4 @@ unbound
 valgrind
 xkeyboard-config
 zabbix6-agent
+zstd

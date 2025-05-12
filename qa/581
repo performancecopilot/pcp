@@ -96,10 +96,11 @@ $sudo rm -f $control
 $sudo cp $tmp.indom $control
 _stop_auto_restart pmcd
 _stop_auto_restart pmlogger
-_disable_loggers
-_service pmlogger stop | _filter_pcp_stop
-_service pmcd restart 2>&1 | _filter_pcp_start
-_wait_for_pmcd
+_disable_loggers || _exit 1
+if ! _service pmlogger stop; then _exit 1; fi \
+| _filter_pcp_stop
+if ! _service pmcd restart 2>&1; then _exit 1; fi | _filter_pcp_start
+_wait_for_pmcd || _exit 1
 pminfo -f sample.dynamic.instant | _filter
 echo
 
@@ -116,17 +117,19 @@ sleep_stop=5
 # and again with the same instances
 #
 sleep $sleep_stop
-_service pmcd stop | _filter_pcp_stop
+if ! _service pmcd stop; then _exit 1; fi \
+| _filter_pcp_stop
 sleep $sleep_start
-_service pmcd start 2>&1 | _filter_pcp_start
-_wait_for_pmcd
+if ! _service pmcd start 2>&1; then _exit 1; fi | _filter_pcp_start
+_wait_for_pmcd || _exit 1
 pminfo -f sample.dynamic.instant |_filter
 echo
 
 # instances - mk II
 #
 sleep $sleep_stop
-_service pmcd stop | _filter_pcp_stop
+if ! _service pmcd stop; then _exit 1; fi \
+| _filter_pcp_stop
 cat >$tmp.indom <<End-of-File
 20 twenty
 25 twenty-five
@@ -139,15 +142,16 @@ cat >$tmp.indom <<End-of-File
 End-of-File
 $sudo cp $tmp.indom $control
 sleep $sleep_start
-_service pmcd start 2>&1 | _filter_pcp_start
-_wait_for_pmcd
+if ! _service pmcd start 2>&1; then _exit 1; fi | _filter_pcp_start
+_wait_for_pmcd || _exit 1
 pminfo -f sample.dynamic.instant |_filter
 echo
 
 # instances - mk III
 #
 sleep $sleep_stop
-_service pmcd stop | _filter_pcp_stop
+if ! _service pmcd stop; then _exit 1; fi \
+| _filter_pcp_stop
 cat >$tmp.indom <<End-of-File
 07 seven
 08 eight
@@ -158,21 +162,22 @@ cat >$tmp.indom <<End-of-File
 End-of-File
 $sudo cp $tmp.indom $control
 sleep $sleep_start
-_service pmcd start 2>&1 | _filter_pcp_start
-_wait_for_pmcd
+if ! _service pmcd start 2>&1; then _exit 1; fi | _filter_pcp_start
+_wait_for_pmcd || _exit 1
 pminfo -f sample.dynamic.instant |_filter
 echo
 
 # instances - mk IV
 #
 sleep $sleep_stop
-_service pmcd stop | _filter_pcp_stop
+if ! _service pmcd stop; then _exit 1; fi \
+| _filter_pcp_stop
 cat >$tmp.indom <<End-of-File
 End-of-File
 $sudo cp $tmp.indom $control
 sleep $sleep_start
-_service pmcd start 2>&1 | _filter_pcp_start
-_wait_for_pmcd
+if ! _service pmcd start 2>&1; then _exit 1; fi | _filter_pcp_start
+_wait_for_pmcd || _exit 1
 pminfo -f sample.dynamic.instant |_filter
 echo
 
@@ -180,7 +185,7 @@ sleep $sleep_stop
 $signal -s TERM $pid_pmie
 wait
 
-cp $tmp.out $seq.full
+cp $tmp.out $seq_full
 
 echo
 echo "Expect only connection lost/re-established and DYN_* lines ..."
@@ -280,6 +285,7 @@ _filter_pmie_log <$tmp.out \
     -e '/^NETWORK vde[0-9][0-9]*$/d' \
     -e '/^NETWORK veth[a-f0-9][a-f0-9]*$/d' \
     -e '/^NETWORK vnet[0-9][0-9]*$/d' \
+    -e '/^NETWORK vio[0-9][0-9]*$/d' \
     -e '/^NETWORK virbr[0-9][0-9]*$/d' \
     -e '/^NETWORK virbr[0-9][0-9]*-nic$/d' \
     -e '/^NETWORK wlan[0-9][0-9]*$/d' \

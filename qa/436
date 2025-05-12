@@ -14,7 +14,6 @@ echo "QA output created by $seq"
 which bzip2 >/dev/null 2>&1 || _notrun No bzip2 binary installed
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here

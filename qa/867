@@ -22,17 +22,16 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "cd $here; _cleanup; exit \$status" 0 1 2 3 15
 
 unset http_proxy
 unset HTTP_PROXY
 
 # real QA test starts here
-_service pmproxy restart >/dev/null 2>&1
+if ! _service pmproxy restart >/dev/null 2>&1; then _exit 1; fi
 
-echo "== Check simple HTTP fetch" | tee -a $seq.full
-$here/src/httpfetch "http://localhost:44323/series/ping" >> $seq.full 2>&1
+echo "== Check simple HTTP fetch" | tee -a $seq_full
+$here/src/httpfetch "http://localhost:44323/series/ping" >> $seq_full 2>&1
 [ $? -eq 0 ] && echo OK
 
 # success, all done

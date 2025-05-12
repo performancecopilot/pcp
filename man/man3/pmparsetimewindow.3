@@ -16,8 +16,7 @@
 .\"
 .TH PMPARSETIMEWINDOW 3 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmParseTimeWindow\f1,
-\f3pmParseHighResTimeWindow\f1 \- parse time window command line arguments
+\f3pmParseTimeWindow\f1 \- parse time window command line arguments
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
@@ -26,20 +25,15 @@
 .hy 0
 .in +8n
 .ti -8n
-int pmParseTimeWindow(const char *\fIswStart\fP, const\ char\ *\fIswEnd\fP, const\ char\ *\fIswAlign\fP, const\ char\ *\fIswOffset\fP, const\ struct\ timeval\ *\fIlogStart\fP, const\ struct\ timeval\ *\fIlogEnd\fP, struct\ timeval\ *\fIrsltStart\fP, struct\ timeval\ *\fIrsltEnd\fP, struct\ timeval\ *\fIrsltOffset\fP, char\ **\fIerrMsg\fP);
-.br
-.ti -8n
-int pmParseHighResTimeWindow(const char *\fIswStart\fP, const\ char\ *\fIswEnd\fP, const\ char\ *\fIswAlign\fP, const\ char\ *\fIswOffset\fP, const\ struct\ timespec\ *\fIlogStart\fP, const\ struct\ timespec\ *\fIlogEnd\fP, struct\ timespec\ *\fIrsltStart\fP, struct\ timespec\ *\fIrsltEnd\fP, struct\ timespec\ *\fIrsltOffset\fP, char\ **\fIerrMsg\fP);
-.sp
+int pmParseTimeWindow(const char *\fIswStart\fP, const\ char\ *\fIswEnd\fP, const\ char\ *\fIswAlign\fP, const\ char\ *\fIswOffset\fP, const\ struct\ timespec\ *\fIlogStart\fP, const\ struct\ timespec\ *\fIlogEnd\fP, struct\ timespec\ *\fIrsltStart\fP, struct\ timespec\ *\fIrsltEnd\fP, struct\ timespec\ *\fIrsltOffset\fP, char\ **\fIerrMsg\fP);
 .in
+.sp
 .hy
 .ad
 cc ... \-lpcp
 .ft 1
 .SH DESCRIPTION
 .B pmParseTimeWindow
-and
-.B pmParseHighResTimeWindow
 are designed to encapsulate the interpretation of the
 .BR \-S ,
 .BR \-T ,
@@ -64,8 +58,6 @@ is described in
 .BR PCPIntro (1).
 .SH USAGE
 .B pmParseTimeWindow
-and
-.B pmParseHighResTimeWindow
 expect to be called with the argument of the
 .B \-S
 option as
@@ -119,9 +111,7 @@ The
 and
 .B rsltOffset
 structures must be allocated before calling
-.B pmParseTimeWindow
-or
-.BR pmParseHighResTimeWindow .
+.BR pmParseTimeWindow .
 .P
 You also need to set the current PCP reporting time zone to correctly
 reflect the
@@ -135,8 +125,6 @@ and friends for information on how this is done.
 .SH DIAGNOSTICS
 If the conversion is successful,
 .B pmParseTimeWindow
-and
-.B pmParseHighResTimeWindow
 return 1 and fill in
 .BR rsltStart ,
 .B rsltEnd
@@ -148,8 +136,6 @@ The
 .B errMsg
 parameter is not changed when either
 .BR pmParseTimeWindow
-or
-.BR pmParseHighResTimeWindow
 returns 1.
 .P
 If the conversion is successful, but the requested alignment could not be
@@ -160,9 +146,7 @@ ignored,
 and
 .B rsltOffset
 are filled in and
-.BR pmParseTimeWindow
-and
-.BR pmParseHighResTimeWindow
+.B pmParseTimeWindow
 return 0.
 In this case,
 .B errMsg
@@ -172,8 +156,6 @@ The caller is responsible for releasing the buffer by calling
 .P
 If the argument strings could not be parsed,
 .B pmParseTimeWindow
-and
-.B pmParseHighResTimeWindow
 return \-1.
 In this case,
 .BR errMsg
@@ -181,6 +163,26 @@ will point to an error message
 in a dynamically allocated buffer.
 The caller is responsible for releasing the buffer by calling
 .BR free (3).
+.SH COMPATIBILITY
+Prior to PCP 7.0 and
+.I libpcp.so.4
+the
+\fIlogStart\fP, \fIlogEnd\fP, \fIrsltStart\fP, \fIrsltEnd\fP and \fIrsltOffset\fP
+arguments were \f(CRstruct timeval\f(CR.
+To support PMAPI transition, the old interface and semantics can be
+used if applications are linked with
+.I libpcp.so.3
+or recompiled with
+.BR \-DPMAPI_VERSION=2 .
+.PP
+For a time in PCP 6.x there was a
+routine with the same semantics as the current
+.B pmParseTimeWindow
+called
+.B pmParseHighResTimeWindow
+although this is now deprecated and compile-time support for
+.B pmParseHighResTimeWindow
+will be removed in a future release.
 .SH SEE ALSO
 .BR free (3),
 .BR PMAPI (3),

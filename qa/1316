@@ -26,8 +26,6 @@ do_valgrind=false
 do_helgrind=false
 if [ "$1" = "--valgrind" ]
 then
-    [ $PCPQA_VALGRIND = both ] || \
-	_notrun "valgrind variant qa/1317 will be run instead of non-valgrind variant"
     _check_valgrind
     do_valgrind=true
 elif [ "$1" = "--helgrind" ]
@@ -37,6 +35,9 @@ then
     _check_valgrind
     _check_helgrind
     do_helgrind=true
+else
+    [ $PCPQA_VALGRIND = both ] || \
+	_notrun "valgrind variant qa/1317 will be run instead of non-valgrind variant"
 fi
 
 _cleanup()
@@ -46,7 +47,6 @@ _cleanup()
 }
 
 status=0	# success is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _filter()
@@ -56,6 +56,7 @@ _filter()
 	-e '/^indirectly lost:/d' \
 	-e '/^LEAK SUMMARY:/d' \
 	-e '/^ERROR SUMMARY: 0 errors from 0 contexts \.\.\./d' \
+	-e '/__pmProcessPipe: child pid=[0-9]* execvp(\/no\/such\/executable, ...) failed/d' \
     # end
 }
 
@@ -193,13 +194,17 @@ then
    fun:clone
 }
 End-of-File
-    __extra="--suppressions=$tmp.suppress"
+    grind_extra="--suppressions=$tmp.suppress"
     _run_valgrind src/multithread14 -i 12 -n 9 $tmp \
     | _filter
     if [ -s $tmp._valgrind.err ]
     then
-	echo "Errors from valgrind ..."
-	cat $tmp._valgrind.err
+	_filter <$tmp._valgrind.err >$tmp.err
+	if [ -s $tmp.err ]
+	then
+	    echo "Errors from valgrind ..."
+	    cat $tmp._valgrind.err
+	fi
     fi
 elif $do_helgrind
 then
@@ -229,17 +234,22 @@ then
    fun:clone
 }
 End-of-File
-    __extra="--suppressions=$tmp.suppress"
-    _run_helgrind src/multithread14 -i 12 -n 9 $tmp
+    grind_extra="--suppressions=$tmp.suppress"
+    _run_helgrind src/multithread14 -i 12 -n 9 $tmp 2>$tmp.err
 else
-    src/multithread14 -i 12 -n 9 $tmp
+    src/multithread14 -i 12 -n 9 $tmp 2>$tmp.err
+fi
+
+if [ -s $tmp.err ]
+then
+    _filter <$tmp.err
 fi
 
 for tid in 0 1 2 3 4 5 6 7 8
 do
     echo
     echo "--- output for thread $tid ---"
-    cat $tmp.$tid
+    _filter <$tmp.$tid
 done
 
 # success, all done

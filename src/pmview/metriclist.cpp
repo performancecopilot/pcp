@@ -37,17 +37,21 @@ MetricList::MetricList()
 void
 MetricList::toString(const SbColor &color, QString &str)
 {
-    char buf[48];
+    char buf[8];
 
     const float *values = color.getValue();
-    pmsprintf(buf, sizeof(buf), "rgbi:%f/%f/%f", values[0], values[1], values[2]);
+    pmsprintf(buf, sizeof(buf), "#%02x%02x%02x",
+	 (int)(values[0]*255), (int)(values[1]*255), (int)(values[2]*255));
     str = buf;
 }
 
 int
 MetricList::add(char const* metric, double scale)
 {
-    QmcMetric *ptr = new QmcMetric(activeGroup, metric, scale);
+    QmcMetric *ptr = activeGroup->addMetric(metric, scale);
+
+    if (pmDebugOptions.appl1)
+	cerr << "MetricList::add(const *" << metric << ", " << scale << "):QmcMetric() -> " << ptr->status() << Qt::endl;
 
     if (ptr->status() >= 0) {
 	_metrics.append(ptr);
@@ -60,7 +64,10 @@ MetricList::add(char const* metric, double scale)
 int
 MetricList::add(char const* metric, double scale, int history)
 {
-    QmcMetric *ptr = new QmcMetric(activeGroup, metric, scale, history);
+    QmcMetric *ptr = activeGroup->addMetric(metric, scale, history);
+
+    if (pmDebugOptions.appl1)
+	cerr << "MetricList::add(const *" << metric << ", " << scale << ", " << history << "):QmcMetric() -> " << ptr->status() << Qt::endl;
 
     if (ptr->status() >= 0) {
 	_metrics.append(ptr);
@@ -73,7 +80,10 @@ MetricList::add(char const* metric, double scale, int history)
 int
 MetricList::add(pmMetricSpec *metric, double scale)
 {
-    QmcMetric *ptr = new QmcMetric(activeGroup, metric, scale);
+    QmcMetric *ptr = activeGroup->addMetric(metric, scale);
+
+    if (pmDebugOptions.appl1)
+	cerr << "MetricList::add(pmMetricSpec *" << metric << ", " << scale << "):QmcMetric() -> " << ptr->status() << Qt::endl;
 
     if (ptr->status() >= 0) {
 	_metrics.append(ptr);
@@ -86,7 +96,10 @@ MetricList::add(pmMetricSpec *metric, double scale)
 int
 MetricList::add(pmMetricSpec *metric, double scale, int history)
 {
-    QmcMetric *ptr = new QmcMetric(activeGroup, metric, scale, history);
+    QmcMetric *ptr = activeGroup->addMetric(metric, scale, history);
+
+    if (pmDebugOptions.appl1)
+	cerr << "MetricList::add(pmMetricSpec *" << metric << ", " << scale << ", " << history << "):QmcMetric() -> " << ptr->status() << Qt::endl;
 
     if (ptr->status() >= 0) {
 	_metrics.append(ptr);
@@ -101,6 +114,9 @@ MetricList::add(SbColor const& color)
 {
     SbColor *ptr = new SbColor;
 
+    if (pmDebugOptions.appl1)
+	cerr << "MetricList::add(SbColor " << color.getPackedValue() << ")" << Qt::endl;
+
     ptr->setValue(color.getValue());
     _colors.append(ptr);
 }
@@ -110,6 +126,9 @@ MetricList::add(int packedcol)
 {
     float	tran = 0.0;
     SbColor	*ptr = new SbColor;
+
+    if (pmDebugOptions.appl1)
+	cerr << "MetricList::add(int" << packedcol << Qt::endl;
 
     ptr->setPackedValue(packedcol, tran);
     _colors.append(ptr);

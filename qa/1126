@@ -18,7 +18,6 @@ out_file=$tmp.mount.ext4/tmpfile
 
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
-$sudo rm -rf $tmp.* $seq.full
 
 cat <<EOF >$tmp.conf
 # Installed by PCP QA test $seq on `date`
@@ -49,19 +48,19 @@ dd if=/dev/zero of=${out_file} bs=${write_size} count=1 conv=fsync 2>/dev/null
 dd if=${out_file} of=/dev/null bs=${write_size} count=1 2>/dev/null
 
 echo "=== report metric values for open ==="
-pminfo -dfmtT bcc.fs.ext4.latency.open 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bcc.fs.ext4.latency.open 2>&1 | tee -a $seq_full \
 | _instances_filter_nonzero
 
 echo "=== report metric values for read ==="
-pminfo -dfmtT bcc.fs.ext4.latency.read 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bcc.fs.ext4.latency.read 2>&1 | tee -a $seq_full \
 | _instances_filter_nonzero
 
 echo "=== report metric values for write ==="
-pminfo -dfmtT bcc.fs.ext4.latency.write 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bcc.fs.ext4.latency.write 2>&1 | tee -a $seq_full \
 | _instances_filter_nonzero
 
 echo "=== report metric values for fsync ==="
-pminfo -dfmtT bcc.fs.ext4.latency.fsync 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bcc.fs.ext4.latency.fsync 2>&1 | tee -a $seq_full \
 | _instances_filter_nonzero
 
 _pmdabcc_remove

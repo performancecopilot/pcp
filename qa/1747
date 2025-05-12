@@ -1,0 +1,92 @@
+#!/bin/sh
+# PCP QA Test No. 1747
+# Exercise pmlogger labels handling for dynamic instance domains.
+#
+# Copyright (c) 2025 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -d $PCP_PMDAS_DIR/simple ] || _notrun "simple PMDA directory is not installed"
+
+_cleanup()
+{
+    cd $here
+    if $need_restore
+    then
+        need_restore=false
+        $sudo rm -rf $PCP_ETC_DIR/pcp/labels/*
+        _restore_config $PCP_ETC_DIR/pcp/labels
+        _restore_config $PCP_PMDAS_DIR/simple/simple.conf
+        _sighup_pmcd
+    fi
+    $sudo rm -rf $tmp $tmp.*
+}
+
+userid=`id -u`
+groupid=`id -g`
+hostname=`hostname`
+machineid=`_machine_id`
+domainname=`_domain_name`
+rm -f $seq.full
+
+status=0	# success is the default!
+need_restore=true
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter_labels()
+{
+    sed \
+        -e "s/.domainname.:.${domainname}./\"domainname\":\"DOMAIN\"/g" \
+        -e "s/.machineid.:.${machineid}./\"machineid\":\"MACHINE\"/g" \
+        -e "s/.hostname.:.${hostname}./\"hostname\":\"HOSTNAME\"/g" \
+        -e "s/.groupid.:$groupid/\"groupid\":GID/g" \
+        -e "s/.userid.:$userid/\"userid\":UID/g" \
+    #end
+}
+
+# real QA test starts here
+_save_config $PCP_ETC_DIR/pcp/labels
+$sudo rm -rf $PCP_ETC_DIR/pcp/labels/*
+_sighup_pmcd || _exit 1
+
+_save_config "$PCP_PMDAS_DIR/simple/simple.conf"
+conf="sec"
+echo $conf > "$tmp.simple.conf"
+$sudo cp "$tmp.simple.conf" "$PCP_PMDAS_DIR/simple/simple.conf"
+
+cat > $tmp.config <<EOF
+log mandatory on default { simple }
+EOF
+
+pmlogger -c $tmp.config -l $tmp.log -t 1sec -T 8sec $tmp.archive &
+pid=$!
+
+# delay for pmlogger startup
+pmsleep 0.5
+
+# inject changes to instances and labels
+for insts in "sec,min" "sec,min,hour"
+do
+    pmsleep 1.5
+    echo $insts > "$tmp.simple.conf"
+    $sudo cp "$tmp.simple.conf" "$PCP_PMDAS_DIR/simple/simple.conf"
+done
+
+# ensure pmlogger has completed (from use of the -T option)
+wait $pid
+cat $tmp.log | tee $seq.full | _filter_pmlogger_log
+
+# reading from the archive end, expect labels for three instances
+pmdumplog -ae $tmp.archive >> $seq.full
+#pminfo -fl simple.now >> $seq.full
+pminfo -l -O 6sec -a $tmp.archive simple.now | _filter_labels
+
+# success, all done
+exit

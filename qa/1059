@@ -14,7 +14,6 @@ echo "QA output created by $seq"
 . ./common.check
 
 status=0	# success is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "cd $here; $sudo rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 
 error=false
@@ -36,7 +35,7 @@ else
     if [ "`wc -l <$tmp.pid | sed -e 's/ //g'`" -gt 1 ]
     then
 	echo "Error: multiple pmcd processes running"
-	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|pmcd'
+	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mcd( |$)'
 	error=true
     fi
     if [ -d $PCP_RUN_DIR ]

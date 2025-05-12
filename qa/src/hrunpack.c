@@ -188,7 +188,7 @@ dump(char *xpect)
 	    continue;
 
 	for (r = 0; r < nrecords; r++) {
-	    fprintf(stderr, "pmHighResResult[%d]\n", r);
+	    fprintf(stderr, "pmResult[%d]\n", r);
 	    __pmDumpHighResResult(stderr, res[r]);
 	}
 	pmFreeHighResEventResult(res);

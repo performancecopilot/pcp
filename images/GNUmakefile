@@ -2,9 +2,9 @@ TOPDIR = ..
 include $(TOPDIR)/src/include/builddefs
 
 ifeq "$(ENABLE_QT)" "true"
-DESKTOP_ICONS = pmchart.png pmtime.png
+DESKTOP_ICONS = pmchart.png pmtime.png pmview.png
 endif
-HTMLDOC_ICONS = pcpicon.png pmcharticon.png pmtimeicon.png
+HTMLDOC_ICONS = pcpicon.png pmcharticon.png pmtimeicon.png pmviewicon.png
 
 SVGFILES = $(shell echo *.svg)
 PNGFILES = $(shell echo *.svg | sed -e 's/\.svg/.png/g')
@@ -15,26 +15,33 @@ APPFILES = $(shell echo $(DESKTOP_ICONS) | sed -e 's/\.png//g')
 APPSIZES = 16 22 24 32 48 64 128 256
 HICOLORDIR = $(shell echo $(PCP_SHARE_DIR) | sed -e 's;/pcp$$;;')/icons/hicolor
 
-LDIRT = hicolor.done
+LDIRT =
 
 # use checked in files by default, so no default build rule
 default:
 
 .NOTPARALLEL:
+.PHONEY:	hicolor.done rebuild_icons
 hicolor.done:	$(DESKTOP_ICONS)
-ifeq ($(HAVE_HICOLOR_ICONS),true)
+
+# rebuild desktop icons ... requires inkscape to be installed
+#
+rebuild_icons:
+ifneq ($(INKSCAPE),)
 	@rm -f hicolor-*
 	for sz in $(APPSIZES); do \
 	    for app in $(APPFILES); do \
-		$(INKSCAPE) -e hicolor-$${sz}x$${sz}-$${app}.png -w $${sz} $${app}.svg; \
+		$(INKSCAPE) -o hicolor-$${sz}x$${sz}-$${app}.png -w $${sz} $${app}.svg; \
 	    done; \
 	done
+else
+	@echo "Error: need to install inkscape to rebuild desktop icons"
+	false
 endif
-	touch hicolor.done
 
 #%.png:	%.svg
 %.png:	
-	$(INKSCAPE) -z -e $@ $<
+	$(INKSCAPE) -z -o $@ $<
 
 include $(BUILDRULES)
 

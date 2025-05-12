@@ -25,6 +25,7 @@
 [\fB\-\-archive\-folio\fP \fIfolio\fP]
 [\fB\-c\fP \fIconfig\fP]
 [\fB\-\-container\fP \fIcontainer\fP]
+[\f3\-D\f1 \f2debug\f1]
 [\fB\-h\fP \fIhost\fP]
 [\fB\-i\fP \fIinstances\fP]
 [\fB\-J\fP \fIrank\fP]
@@ -418,6 +419,27 @@ The \fB$PCP_CONF\fP variable may be used to specify an alternative
 configuration file, as described in \fBpcp.conf\fP(5).
 .PP
 For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
+.PP
+Of particular note,
+.B PCP_DISCRETE_ONCE
+can be set to ensure that discrete metric values are reported only once,
+unless they change at some point.
+.SH DEBUGGING OPTIONS
+The
+.B \-D
+or
+.B \-\-debug
+option enables the output of additional diagnostics on
+.I stderr
+to help triage problems, although the information is sometimes cryptic and
+primarily intended to provide guidance for developers rather end-users.
+.I debug
+is a comma separated list of debugging options; use
+.BR pmdbg (1)
+with the
+.B \-l
+option to obtain
+a list of the available debugging options and their meaning.
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR mkaf (1),

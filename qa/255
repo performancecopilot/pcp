@@ -33,12 +33,11 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _stop_auto_restart pmcd
 
-$sudo rm -f $seq.full $tmp.*
-echo "=== I am PID $$" >>$seq.full
-echo "=== /tmp files" >>$seq.full
-$sudo ls -l /tmp/[0-9][0-9]*.* >>$seq.full 2>&1
-echo "=== config files" >>$seq.full
-ls -l $PCP_PMCDCONF_PATH $PCP_PMCDOPTIONS_PATH >>$seq.full
+echo "=== I am PID $$" >>$seq_full
+echo "=== /tmp files" >>$seq_full
+$sudo ls -l /tmp/[0-9][0-9]*.* >>$seq_full 2>&1
+echo "=== config files" >>$seq_full
+ls -l $PCP_PMCDCONF_PATH $PCP_PMCDOPTIONS_PATH >>$seq_full
 
 unset ROOT MAKEFLAGS
 
@@ -85,6 +84,7 @@ _filter_pmcd()
 	-e '/UNIX_DOMAIN_SOCKET/d' \
 	-e 's/ i:[0-9]/ i:?/' \
 	-e '/SIGTERM from unknown process/s//SIGTERM from pid=N uid=N/' \
+	-e "s@$tmp.broken@broken@g" \
 	-e "s@$tmp@TMP@g" \
     | $PCP_AWK_PROG '
 BEGIN				{ skip = 0 }
@@ -124,22 +124,22 @@ _cleanup()
     then
 	echo "=== Filter pmcd.log ==="
 	cat $tmp.log | _filter_pmcd
-	echo '=== pmcd log' >>$seq.full
-	cat $tmp.log >>$seq.full
+	echo '=== pmcd log' >>$seq_full
+	cat $tmp.log >>$seq_full
     fi
     for f in $tmp.*.log
     do
-	echo '=== $f' >>$seq.full
-	cat $f>>$seq.full
+	echo '=== $f' >>$seq_full
+	cat $f>>$seq_full
     done
     echo "=== Restoring crontab ==="
     _restore_job_scheduler $tmp.cron $tmp.systemd $sudo
     [ -f $PCP_PMDAS_DIR/simple/simple.conf.$seq ] && _restore_config $PCP_PMDAS_DIR/simple/simple.conf
 
-    echo "=== /tmp files" >>$seq.full
-    $sudo ls -l /tmp/[0-9][0-9]*.* >>$seq.full 2>&1
-    echo "=== config files" >>$seq.full
-    ls -l $PCP_PMCDCONF_PATH $PCP_PMCDOPTIONS_PATH >>$seq.full
+    echo "=== /tmp files" >>$seq_full
+    $sudo ls -l /tmp/[0-9][0-9]*.* >>$seq_full 2>&1
+    echo "=== config files" >>$seq_full
+    ls -l $PCP_PMCDCONF_PATH $PCP_PMCDOPTIONS_PATH >>$seq_full
 
     $sudo rm -rf $tmp.*
 }
@@ -162,7 +162,7 @@ else
 fi
 $sudo cp $tmp.pmns $PCP_VAR_DIR/pmns/root
 $sudo $signal -a -s HUP pmcd >/dev/null 2>&1
-_wait_for_pmcd
+_wait_for_pmcd || _exit 1
 echo "=== Broken PMNS ==="
 if pminfo broken
 then
@@ -219,7 +219,7 @@ _renew_pmcd()
 	$sudo cp $tmp.newconf $PCP_PMCDCONF_PATH
 	$sudo $signal -a -s HUP pmcd >/dev/null 2>&1
 	sleep 4
-	_wait_for_pmcd
+	_wait_for_pmcd || _exit 1
     else
 	echo caller - $1 - has not created $tmp.newconf !!!
     fi
@@ -252,7 +252,7 @@ end-of-file
     $sudo cp $tmp.latest $PCP_PMCDCONF_PATH
     $sudo $signal -a -s HUP pmcd >/dev/null 2>&1
     sleep 4
-    _wait_for_pmcd
+    _wait_for_pmcd || _exit 1
 
     if _check_agent $agent
     then
@@ -290,16 +290,19 @@ _broken_install()
 
     echo "=== Installing $agent ==="
     cp $tmp.newconf $tmp.latest
+    # need PMDA executable someplace user $PCP_USER (pmcd) can read it
+    #
+    cp $here/pmdas/broken/$agent $tmp.$agent
     cat << end-of-file >> $tmp.latest
 # Installed by PCP QA test $seq on `date`
-broken	$broken_domain	pipe	binary	$here/pmdas/broken/$agent -d $broken_domain -l $tmp.broken.log
+broken	$broken_domain	pipe	binary	$tmp.$agent -d $broken_domain -l $tmp.broken.log
 end-of-file
 
     $sudo cp $tmp.latest $PCP_PMCDCONF_PATH
     $sudo $signal -a -s HUP pmcd >/dev/null 2>&1
     sleep 4
-    _wait_for_pmcd
-    
+    _wait_for_pmcd || _exit 1
+
     if _check_agent broken
     then
     	echo "$agent is alive and well...hang on there should be some warnings"
@@ -367,9 +370,10 @@ _renew_pmcd main
 # Start with a fresh pmcd log
 #
 $sudo $signal -a pmgadgets pmchart pmview >/dev/null 2>&1
-_service pcp restart | _filter_init 2>&1
-_wait_for_pmcd
-_wait_for_pmlogger
+if ! _service pcp restart; then _exit 1; fi \
+| _filter_init 2>&1
+_wait_for_pmcd || _exit 1
+_wait_for_pmlogger || _exit 1
 
 # Test 2.0 PMDA first
 #

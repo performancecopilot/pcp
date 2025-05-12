@@ -56,11 +56,7 @@ QFont *QedApp::globalFont()
 
 int QedApp::globalFontSize()
 {
-#ifdef IS_DARWIN
     return 9;
-#else
-    return 7;
-#endif
 }
 
 int QedApp::getopts(const char *options)

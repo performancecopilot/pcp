@@ -135,6 +135,14 @@ pmdaMetric metrictable[] = {
 		PM_TYPE_STRING, PACEMAKER_NODES_INDOM, PM_SEM_INSTANT,
 		PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 	{ .m_desc = {
+		PMDA_PMID(CLUSTER_PACEMAKER_NODES, PACEMAKER_NODES_HEALTH),
+		PM_TYPE_STRING, PACEMAKER_NODES_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_PACEMAKER_NODES, PACEMAKER_NODES_FEATURE_SET),
+		PM_TYPE_STRING, PACEMAKER_NODES_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+	{ .m_desc = {
 		PMDA_PMID(CLUSTER_PACEMAKER_NODE_ATTRIB, PACEMAKER_NODES_ATTRIB_VALUE),
 		PM_TYPE_STRING, PACEMAKER_NODE_ATTRIB_INDOM, PM_SEM_INSTANT,
 		PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
@@ -770,7 +778,7 @@ hacluster_corosync_node_instance_refresh(void)
 			
 			if (node_id == 0) {
 				memset(node_name, '\0', sizeof(node_name));
-				strncpy(node_name, "Qdevice", 9);
+				memcpy(node_name, "Qdevice", strlen("Qdevice"));
 			}
 			
 			/* 
@@ -905,7 +913,7 @@ hacluster_sbd_device_instance_refresh(void)
 					 * At this point token contains our device name this will be used to
 					 * map stats to node instances 
 					 */
-					strncpy(dev_name, token, sizeof(dev_name)-1);	
+					pmstrncpy(dev_name, sizeof(dev_name), token);	
 			
 					struct  sbd_device *sbd;
 

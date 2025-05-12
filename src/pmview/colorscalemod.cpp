@@ -82,7 +82,7 @@ ColorScaleMod::refresh(bool fetchFlag)
     if (fetchFlag)
 	metric.update();
 
-    if (metric.error(0) <= 0) {
+    if (metric.error(0) < 0) {
 	if (_state != Modulate::error) {
 	    _color->rgb.setValue(_errorColor.getValue());
             _scale->scaleFactor.setValue((_xScale==0.0f ? 1.0 : theMinScale),

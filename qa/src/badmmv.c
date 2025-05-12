@@ -32,6 +32,9 @@ static pmOptions opts = {
     .long_options = longopts,
 };
 
+static int serial = 0;
+static int item = 0;
+
 typedef int (*corruptor_t)(void);
 corruptor_t corrupt;
 
@@ -42,7 +45,7 @@ create_mapping(const char *fname, int testcase, size_t size)
     void *mapping = NULL;
     int fd, sep = pmPathSeparator();
 
-    pmsprintf(path, sizeof(path), "%s%c" "mmv" "%c%s-%d",
+    pmsprintf(path, sizeof(path), "%s%c" "mmv" "%c%s_%d",
 		pmGetConfig("PCP_TMP_DIR"), sep, sep, fname, testcase);
 
     if ((fd = open(path, O_RDWR | O_CREAT | O_EXCL, 0644)) < 0) {
@@ -73,9 +76,10 @@ create_header(void *mapping, int tocs)
     mmv_disk_header_t *header = (mmv_disk_header_t *)mapping;
 
     memset(mapping, 0, sizeof(*header));
-    strncpy(header->magic, "MMV", 4);
+    memcpy(header->magic, "MMV", 4);
     header->version = MMV_VERSION;
     header->tocs = tocs;
+    header->g1 = header->g2 = 1;
     return header;
 }
 
@@ -91,6 +95,22 @@ create_toc_entry(void *mapping, int index, int type, int count, size_t offset)
     return toc;
 }
 
+static mmv_disk_metric_t *
+create_metric(void *mapping, char *name, int indom, size_t offset)
+{
+    mmv_disk_metric_t *metric = (mmv_disk_metric_t *)((char *)mapping + offset);
+    pmUnits dimension = MMV_UNITS(0,0,1,0,0,PM_COUNT_ONE);
+
+    memset(metric, 0, sizeof(*metric));
+    strcpy(metric->name, name);
+    metric->item = ++item;
+    metric->type = MMV_TYPE_U32;
+    metric->semantics = MMV_SEM_INSTANT;
+    metric->indom = indom;
+    metric->dimension = dimension;
+    return metric;
+}
+
 static int
 corrupt_header(void)
 {
@@ -104,7 +124,7 @@ corrupt_header(void)
     length = sizeof(unsigned long long);
     mapping = create_mapping(section, test++, length);
     header = (mmv_disk_header_t *)mapping;
-    strncpy(header->magic, "MMV", 4);
+    memcpy(header->magic, "MMV", 4);
     header->version = MMV_VERSION;
     /* all other fields beyond EOF */
     finish_mapping(mapping, length);
@@ -115,7 +135,7 @@ corrupt_header(void)
     /* Case #2 - bad magic */
     mapping = create_mapping(section, test++, length);
     header = create_header(mapping, 2);
-    strncpy(header->magic, "MMv", 4);
+    memcpy(header->magic, "MMv", 4);
     finish_mapping(mapping, length);
 
     /* Case #3 - bad version */
@@ -151,6 +171,7 @@ corrupt_contents(void)
     size_t length;
     void *mapping;
     int test = 1;
+    size_t string_offset;
 
     /* Case #1 - file size smaller than TOC struct */
     length = sizeof(mmv_disk_header_t) + sizeof(unsigned long long);
@@ -165,26 +186,29 @@ corrupt_contents(void)
     /* (setup a valid length for remaining test cases) */
     length = sizeof(mmv_disk_header_t) + 2 * sizeof(mmv_disk_toc_t);
     length += sizeof(mmv_disk_metric_t) + sizeof(mmv_disk_value_t);
+    /* no metrics and 1 empty string entry */
+    string_offset = sizeof(mmv_disk_header_t) + 2 * sizeof(mmv_disk_toc_t);
+    length += sizeof(mmv_disk_string_t);
 
     /* Case #2 - invalid type */
     mapping = create_mapping(section, test++, length);
     create_header(mapping, 2);
     create_toc_entry(mapping, 0, 0x270f, 1, 0);
-    create_toc_entry(mapping, 1, MMV_TOC_VALUES, 1, 0);
+    create_toc_entry(mapping, 1, MMV_TOC_STRINGS, 1, string_offset);
     finish_mapping(mapping, length);
 
     /* Case #3 - zero entry count */
     mapping = create_mapping(section, test++, length);
     create_header(mapping, 2);
     create_toc_entry(mapping, 0, MMV_TOC_METRICS, 0, 0);
-    create_toc_entry(mapping, 1, MMV_TOC_VALUES, 1, 0);
+    create_toc_entry(mapping, 1, MMV_TOC_STRINGS, 1, string_offset);
     finish_mapping(mapping, length);
 
     /* Case #4 - negative entry count */
     mapping = create_mapping(section, test++, length);
     create_header(mapping, 2);
     create_toc_entry(mapping, 0, MMV_TOC_METRICS, -1, 0);
-    create_toc_entry(mapping, 1, MMV_TOC_VALUES, 1, 0);
+    create_toc_entry(mapping, 1, MMV_TOC_STRINGS, 1, string_offset);
     finish_mapping(mapping, length);
 
     return 0;
@@ -194,7 +218,6 @@ static mmv_disk_indom_t *
 create_indoms(void *mapping, size_t offset, int count, size_t instances)
 {
     mmv_disk_indom_t *indom = (mmv_disk_indom_t *)((char *)mapping + offset);
-    static int serial;
 
     memset(indom, 0, sizeof(*indom));
     indom->serial = ++serial;
@@ -305,21 +328,6 @@ corrupt_indoms(void)
     return 0;
 }
 
-static mmv_disk_metric_t *
-create_metric(void *mapping, char *name, int indom, size_t offset)
-{
-    mmv_disk_metric_t *metric = (mmv_disk_metric_t *)((char *)mapping + offset);
-    static int item;
-
-    memset(metric, 0, sizeof(*metric));
-    strcpy(metric->name, name);
-    metric->item = ++item;
-    metric->type = MMV_TYPE_U32;
-    metric->semantics = MMV_SEM_INSTANT;
-    metric->indom = indom;
-    return metric;
-}
-
 static mmv_disk_value_t *
 create_value(void *mapping, size_t offset, size_t metric_offset, size_t inst_offset)
 {
@@ -350,6 +358,8 @@ corrupt_metrics(void)
     length += sizeof(char);
     mapping = create_mapping(section, test++, length);
     create_header(mapping, 2);
+    ((mmv_disk_header_t *)mapping)->g1 = 0;
+    ((mmv_disk_header_t *)mapping)->g2 = 0;
     create_toc_entry(mapping, 0, MMV_TOC_METRICS, 1, metric_offset);
     create_toc_entry(mapping, 1, MMV_TOC_VALUES, 1, values_offset);
     finish_mapping(mapping, length);
@@ -361,7 +371,7 @@ corrupt_metrics(void)
     create_header(mapping, 2);
     create_toc_entry(mapping, 0, MMV_TOC_METRICS, 1, metric_offset);
     create_toc_entry(mapping, 1, MMV_TOC_VALUES, 1, values_offset);
-    create_metric(mapping, "mm.vv", PM_INDOM_NULL, metric_offset);
+    create_metric(mapping, "badmmv", PM_INDOM_NULL, metric_offset);
     finish_mapping(mapping, length);
 
     /* Case #3 - bad metric back pointer */
@@ -371,7 +381,7 @@ corrupt_metrics(void)
     create_header(mapping, 2);
     create_toc_entry(mapping, 0, MMV_TOC_METRICS, 1, metric_offset);
     create_toc_entry(mapping, 1, MMV_TOC_VALUES, 1, values_offset);
-    metric = create_metric(mapping, "mm.vv", PM_INDOM_NULL, metric_offset);
+    metric = create_metric(mapping, "badmmv", PM_INDOM_NULL, metric_offset);
     value = create_value(mapping, values_offset, metric_offset, 0);
     value->metric = length + sizeof(char);
     finish_mapping(mapping, length);
@@ -390,7 +400,7 @@ corrupt_metrics(void)
     create_toc_entry(mapping, 0, MMV_TOC_METRICS, 1, metric_offset);
     create_toc_entry(mapping, 1, MMV_TOC_VALUES, 1, values_offset);
     create_toc_entry(mapping, 2, MMV_TOC_STRINGS, 1, text_offset);
-    metric = create_metric(mapping, "mm.vv", PM_INDOM_NULL, metric_offset);
+    metric = create_metric(mapping, "badmmv", PM_INDOM_NULL, metric_offset);
     metric->type = MMV_TYPE_STRING;
     value = create_value(mapping, values_offset, metric_offset, 0);
     value->extra = text_offset;
@@ -405,7 +415,7 @@ corrupt_metrics(void)
     create_toc_entry(mapping, 0, MMV_TOC_METRICS, 1, metric_offset);
     create_toc_entry(mapping, 1, MMV_TOC_VALUES, 1, values_offset);
     create_toc_entry(mapping, 2, MMV_TOC_STRINGS, 1, text_offset);
-    metric = create_metric(mapping, "mm.vv", PM_INDOM_NULL, metric_offset);
+    metric = create_metric(mapping, "badmmv", PM_INDOM_NULL, metric_offset);
     metric->helptext = text_offset;
     create_value(mapping, values_offset, metric_offset, 0);
     finish_mapping(mapping, length);
@@ -419,7 +429,7 @@ corrupt_metrics(void)
     create_toc_entry(mapping, 0, MMV_TOC_METRICS, 1, metric_offset);
     create_toc_entry(mapping, 1, MMV_TOC_VALUES, 1, values_offset);
     create_toc_entry(mapping, 2, MMV_TOC_STRINGS, 1, text_offset);
-    metric = create_metric(mapping, "mm.vv", PM_INDOM_NULL, metric_offset);
+    metric = create_metric(mapping, "badmmv", PM_INDOM_NULL, metric_offset);
     metric->shorttext = text_offset;
     create_value(mapping, values_offset, metric_offset, 0);
 

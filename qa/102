@@ -27,7 +27,6 @@ _cleanup()
 }
 
 status=1
-rm -f $seq.full
 trap "_cleanup" 0 1 2 3 15
 
 _stop_auto_restart pmcd
@@ -69,13 +68,13 @@ signal=$PCP_BINADM_DIR/pmsignal
 _save_config $PCP_SYSCONFIG_DIR/pmcd
 _writable_primary_logger
 _disable_agent_restart
-ls -l $PCP_VAR_DIR/config/pmlogger/config.default >>$seq.full
-cat $PCP_VAR_DIR/config/pmlogger/config.default >>$seq.full
-pmlc -P </dev/null 2>&1 >>$seq.full
-_service pcp restart 2>&1 | _filter_pcp_start
-_wait_for_pmcd
-_wait_for_pmlogger
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '([P]ID)|([p]mlogger)' >>$here/$seq.full
+ls -l $PCP_VAR_DIR/config/pmlogger/config.default >>$seq_full
+cat $PCP_VAR_DIR/config/pmlogger/config.default >>$seq_full
+pmlc -P </dev/null 2>&1 >>$seq_full
+if ! _service pcp restart 2>&1; then _exit 1; fi | _filter_pcp_start
+_wait_for_pmcd || _exit 1
+_wait_for_pmlogger || _exit 1
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger( |$)' >>$seq_full
 
 cat <<End-of-File >$tmp.pmlc
 # not connected
@@ -85,7 +84,7 @@ advisory on 1 hour sample.drift
 connect primary
 # incomplete - syntax error
 query sample.bin [
-query { 
+query {
 sample.drift
 # eat input
 # up to
@@ -103,11 +102,11 @@ _filter_pmlc <$tmp.out
 
 for delta in "-1 msec" "75 hours" "599 hours" "1200 hours"
 do
-    $sudo rm -f $tmp.*
+    $sudo rm -f $tmp.*		# refactor-ok
     cat <<End-of-File >$tmp.config
 log advisory on $delta sample.bin [100]
 End-of-File
-    $sudo rm -f $tmp.*
+    $sudo rm -f $tmp.*		# refactor-ok
     _start_up_pmlogger -L -c /dev/null -l $tmp.log -T 6 $tmp
     pmsleep 1.5
     cat <<End-of-File >$tmp.pmlc
@@ -118,7 +117,7 @@ End-of-File
     _filter_pmlc <$tmp.err
     _filter_pmlc <$tmp.out
     $sudo $signal -s TERM $pid
-    _wait_pmlogger_end $pid
+    _wait_pmlogger_end $pid || _exit 1
     _filter_pmlogger_log <$tmp.log | _my_logger_filter
 done
 pmsleep 1

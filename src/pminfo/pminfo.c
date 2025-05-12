@@ -54,7 +54,8 @@ static pmLongOptions longopts[] = {
     { "oneline",  0, 't', 0, "get and display (terse) oneline text" },
     { "helptext", 0, 'T', 0, "get and display (verbose) help text" },
     PMAPI_OPTIONS_HEADER("Metrics options"),
-    { "derived",  1, 'c', "FILE", "load derived metric definitions from FILE(s)" },
+    { "derived",  1, 'c', "FILE", "load global derived metric definitions from FILE(s)" },
+    { "register", 1, 'r', "name=expr", "register a per-context derived metric" },
     { "events",   0, 'x', 0, "unpack and report on any fetched event records" },
     { "verify",   0, 'v', 0, "verify mode, be quiet and only report errors" },
     PMAPI_OPTIONS_END
@@ -62,7 +63,7 @@ static pmLongOptions longopts[] = {
 
 static pmOptions opts = {
     .flags = PM_OPTFLAG_STDOUT_TZ,
-    .short_options = "a:b:c:CdD:Ffh:IK:lLMmN:n:O:stTvVxzZ:?",
+    .short_options = "a:b:c:dD:Ffh:IK:lLMmN:n:O:r:stTvVxzZ:?",
     .long_options = longopts,
     .short_usage = "[options] [metricname | pmid | indom]...",
     .override = myoverrides,
@@ -93,6 +94,8 @@ static int	verify;		/* Only print error messages */
 static int	events;		/* Decode event metrics */
 static pmID	pmid_flags;
 static pmID	pmid_missed;
+static int	num_reg;	/* count of the number of -r arguments */
+static char	**reg;		/* the -r arguments */
 
 /*
  * InDom cache (icache) state - multiple accessors, so no longer using
@@ -141,11 +144,11 @@ lookup_instance_name(pmInDom indom, int inst)
 }
 
 static int
-lookup_instance_inum(pmInDom indom, int index)
+lookup_instance_inum(pmInDom indom, int idx)
 {
     icache_update_name(indom);
-    if (index >= 0 && index < icache_numinst)
-	return icache_instlist[index];
+    if (idx >= 0 && idx < icache_numinst)
+	return icache_instlist[idx];
     return PM_IN_NULL;
 }
 
@@ -169,11 +172,11 @@ lookup_instance_nlabelset(pmInDom indom)
 }
 
 static pmLabelSet *
-lookup_instance_labels(pmInDom indom, int index)
+lookup_instance_labels(pmInDom indom, int idx)
 {
     icache_update_label(indom);
-    if (index >= 0 && index < icache_nlabelset)
-	return &icache_labelset[index];
+    if (idx >= 0 && idx < icache_nlabelset)
+	return &icache_labelset[idx];
     return NULL;
 }
 
@@ -400,14 +403,14 @@ dump_nparams(int numpmid)
 }
 
 static void
-dump_parameter(pmValueSet *xvsp, int index, int *flagsp)
+dump_parameter(pmValueSet *xvsp, int idx, int *flagsp)
 {
     int		sts, flags = *flagsp;
     pmDesc	desc;
     char	**names;
 
     if ((sts = pmNameAll(xvsp->pmid, &names)) >= 0) {
-	if (index == 0) {
+	if (idx == 0) {
 	    if (xvsp->pmid == pmid_flags) {
 		flags = *flagsp = xvsp->vlist[0].value.lval;
 		printf(" flags 0x%x", flags);
@@ -419,7 +422,7 @@ dump_parameter(pmValueSet *xvsp, int index, int *flagsp)
 		printf(" ---\n");
 	}
 	if ((flags & PM_EVENT_FLAG_MISSED) &&
-	    (index == 1) &&
+	    (idx == 1) &&
 	    (xvsp->pmid == pmid_missed)) {
 	    printf("        ==> %d missed event records\n",
 			xvsp->vlist[0].value.lval);
@@ -803,6 +806,12 @@ mydesc(pmDesc *desc)
     const char          *units;
     char                strbuf[60];
 
+    if (desc->pmid == PM_ID_NULL) {
+	/* no metadata, reason reported earlier */
+	printf("    Metadata unavailable\n");
+	return;
+    }
+
     printf("    Data Type: %s", (type = mytypestr(desc->type)));
     if (strcmp(type, "???") == 0)
 	printf(" (%d)", desc->type);
@@ -833,55 +842,117 @@ report(void)
     int		all_count;
     int		*all_inst;
     char	**all_names;
+    int		batch = batchidx;
 
     if (batchidx == 0)
 	return;
 
     /* Lookup names. 
      * Cull out names that were unsuccessfully looked up. 
-     * However, it is unlikely to fail because names come from a traverse PMNS. 
+     * However, it is unlikely to fail because names come from a
+     * traverse PMNS, however dynamic metrics can mean the non-leaf
+     * name is in the PMNS, but there are no descendent names.
      */
     if (need_pmid) {
+	int	j;
+	int	lsts;
         if ((sts = pmLookupName(batchidx, (const char **)namelist, pmidlist)) < 0) {
-	    int j = 0;
-	    for (i = 0; i < batchidx; i++) {
-		if (pmidlist[i] == PM_ID_NULL) {
-		    printf("%s: pmLookupName: %s\n", namelist[i], pmErrStr(sts));
-		    free(namelist[i]);
-		}
-		else {
-		    /* assert(j <= i); */
-		    pmidlist[j] = pmidlist[i];
-		    namelist[j] = namelist[i];
-		    j++;
+	    if (batchidx > 1)
+		printf("%s...%s: pmLookupName: %s\n", namelist[0], namelist[batchidx-1], pmErrStr(sts));
+	    else
+		printf("%s: pmLookupName: %s\n", namelist[0], pmErrStr(sts));
+	}
+
+	/*
+	 * cull any names with no PMID
+	 */
+	j = 0;
+	for (i = 0; i < batchidx; i++) {
+	    if (pmidlist[i] == PM_ID_NULL) {
+		if (sts >= 0)  {
+		    /*
+		     * not reported above, get the real reason for this one
+		     * not having a valid PMID
+		     */
+		    lsts = pmLookupName(1, (const char **)&namelist[i], &pmidlist[i]);
+		    printf("%s: pmLookupName: %s\n", namelist[i], pmErrStr(lsts));
 		}
 	    }
-	    batchidx = j;
+	    else {
+		/* assert(j <= i); */
+		if (j != i) {
+		    /*
+		     * swap names, so that free() works at the end
+		     * and shuffle PMIDs
+		     */
+		    char	*tmp;
+		    tmp = namelist[j];
+		    namelist[j] = namelist[i];
+		    namelist[i] = tmp;
+		    pmidlist[j] = pmidlist[i];
+		}
+		j++;
+	    }
 	}
+	batch = j;
     }
 
     if (p_value || p_label || verify) {
 	if (opts.context == PM_CONTEXT_ARCHIVE) {
-	    if ((sts = pmSetMode(PM_MODE_FORW, &opts.origin, 0)) < 0) {
+	    if ((sts = pmSetModeHighRes(PM_MODE_FORW, &opts.origin, NULL)) < 0) {
 		fprintf(stderr, "%s: pmSetMode failed: %s\n", pmGetProgname(), pmErrStr(sts));
 		exit(1);
 	    }
 	}
-	if ((sts = pmFetch(batchidx, pmidlist, &result)) < 0) {
-	    for (i = 0; i < batchidx; i++)
+	if ((sts = pmFetch(batch, pmidlist, &result)) < 0) {
+	    for (i = 0; i < batch; i++)
 		printf("%s: pmFetch: %s\n", namelist[i], pmErrStr(sts));
 	    goto done;
 	}
     }
 
     if (p_desc || p_value || p_label || p_series || verify) {
-	if (batchidx > 1) {
-	    if ((sts = pmLookupDescs(batchidx, pmidlist, desclist)) < 0) {
-		printf("%s...%s: pmLookupDescs: %s\n", namelist[0], namelist[batchidx-1], pmErrStr(sts));
+	if (batch > 1) {
+	    int		j;
+	    int		lsts;
+	    if ((sts = pmLookupDescs(batch, pmidlist, desclist)) < 0) {
+		printf("%s...%s: pmLookupDescs: %s\n", namelist[0], namelist[batch-1], pmErrStr(sts));
 		goto done;
+	    }
+	    /*
+	     * optionally report any metrics with no metadata and remove
+	     * them from the list ... for -f and -v reporting will be
+	     * done after pmFetch() with error codes per metric
+	     */
+	    if (!p_value && !verify) {
+		j = 0;
+		for (i = 0; i < batch; i++) {
+		    if (pmidlist[i] != PM_ID_NULL && desclist[i].pmid == PM_ID_NULL) {
+			/* no metadata, find out why ...  */
+			lsts = pmLookupDesc(pmidlist[i], &desclist[i]);
+			printf("%s: pmLookupDesc: %s\n", namelist[i], pmErrStr(lsts));
+			/* assert(j <= i); */
+			if (j != i) {
+			    /*
+			     * swap names, so that free() works at the end
+			     * and shuffle PMIDs
+			     */
+			    char	*tmp;
+			    tmp = namelist[j];
+			    namelist[j] = namelist[i];
+			    namelist[i] = tmp;
+			    pmidlist[j] = pmidlist[i];
+			}
+		    }
+		    else
+			j++;
+		}
+		batch = j;
 	    }
 	}
 	else {
+	    if (pmidlist[0] == PM_ID_NULL)
+		goto done;
 	    if ((sts = pmLookupDesc(pmidlist[0], &desclist[0])) < 0) {
 		printf("%s: pmLookupDesc: %s\n", namelist[0], pmErrStr(sts));
 		goto done;
@@ -889,12 +960,11 @@ report(void)
 	}
     }
 
-    for (i = 0; i < batchidx; i++) {
+    for (i = 0; i < batch; i++) {
 
 	if (p_desc || p_help || p_value || p_label)
 	    /* Not doing verify, output separator  */
 	    putchar('\n');
-
 
 	if (p_value || verify) {
 	    vsp = result->vset[i];
@@ -911,7 +981,7 @@ report(void)
 			free(all_inst);
 			free(all_names);
 			if (opts.context == PM_CONTEXT_ARCHIVE) {
-			    if ((sts = pmSetMode(PM_MODE_FORW, &opts.origin, 0)) < 0) {
+			    if ((sts = pmSetModeHighRes(PM_MODE_FORW, &opts.origin, NULL)) < 0) {
 				fprintf(stderr, "%s: pmSetMode failed: %s\n", pmGetProgname(), pmErrStr(sts));
 				exit(1);
 			    }
@@ -1096,7 +1166,7 @@ main(int argc, char **argv)
 		}
 		break;
 
-	    case 'c':		/* derived metrics config file */
+	    case 'c':		/* global derived metrics config file */
 		sts = pmLoadDerivedConfig(opts.optarg);
 		if (sts < 0) {
 		    fprintf(stderr, "%s: derived configuration(s) error: %s\n",
@@ -1146,6 +1216,16 @@ main(int argc, char **argv)
 	    case 'm':
 		p_mid = 1;
 		need_pmid = 1;
+		break;
+
+	    case 'r':		/* per-context derived metric */
+		num_reg++;
+		if ((reg = (char **)realloc(reg, num_reg * sizeof(reg[0]))) == NULL) {
+		    fprintf(stderr, "%s: reg[] realloc: %s\n", pmGetProgname(), osstrerror());
+		    exit(1);
+		}
+		reg[num_reg-1] = opts.optarg;
+		need_context = 1;
 		break;
 
 	    case 's':
@@ -1267,6 +1347,52 @@ main(int argc, char **argv)
 		pmflush();
 		exit(1);
 	    }
+	}
+
+	/*
+	 * do any -r args now we have a PMAPI context
+	 */
+	if (num_reg > 0) {
+	    int		i;
+	    char	*errmsg;
+	    char	*name;
+	    char	*expr;
+	    int		bad = 0;
+	    int		seen_eq = 0;
+
+	    for (i = 0; i < num_reg; i++) {
+		expr = name = reg[i];
+		while (*expr && *expr != '=' && *expr != ' ' && *expr != '\t')
+		    expr++;
+		if (*expr == '=')
+		    seen_eq = 1;
+		*expr++ = '\0';
+		if (seen_eq == 0) {
+		    while (*expr && (*expr == ' ' || *expr == '\t'))
+			expr++;
+		    if (*expr != '=') {
+			fprintf(stderr, "%s: bad register string, no =\n", pmGetProgname());
+			bad++;
+			continue;
+		    }
+		    expr++;
+		}
+		while (*expr && (*expr == ' ' || *expr == '\t'))
+		    expr++;
+		if (*expr == '\0') {
+		    fprintf(stderr, "%s: bad register string, no expr after =\n", pmGetProgname());
+		    bad++;
+		    continue;
+		}
+		if ((sts = pmAddDerivedMetric(name, expr, &errmsg)) < 0) {
+		    fprintf(stderr, "%s: per-context derived metric registration error:\n%s",
+			    pmGetProgname(), errmsg);
+		    bad++;
+		    free(errmsg);
+		}
+	    }
+	    if (bad)
+		exit(1);
 	}
     }
 

@@ -47,12 +47,14 @@ libcoin-dev
 libdbd-mysql-perl
 libdbd-pg-perl
 libdevmapper-dev
+libdrm-dev
 libextutils-autoinstall-perl
 libfile-slurp-perl
 libgl1-mesa-dri
 libibmad-dev
 libibumad-dev
 libicu66
+libinih-dev
 libjson-perl
 liblist-moreutils-perl
 liblzma-dev
@@ -94,7 +96,7 @@ mariadb-client-core-10.3
 memcached
 net-tools
 nmap
-openjdk-11-jre-headless
+openjdk-21-jre-headless
 openssl
 perl
 perl-modules-5.30
@@ -130,9 +132,12 @@ sasl2-bin
 sed
 smartmontools
 socat
+sudo
 sysstat
 systemtap
+systemtap-runtime
 systemtap-sdt-dev
+targetcli-fb
 time
 unbound
 valgrind
@@ -141,3 +146,4 @@ xkb-data
 zabbix-agent
 zfsutils-linux
 zlib1g-dev
+zstd

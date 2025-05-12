@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2018,2021-2022 Red Hat.
+ * Copyright (c) 2014-2018,2021-2025 Red Hat.
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,6 @@
 
 int	last_log_offset;
 
-#define IS_DERIVED_LOGGED(x) (pmID_domain(x) == DYNAMIC_PMID && (pmID_cluster(x) & 2048) == 2048 && pmID_item(x) != 0)
 #define SET_DERIVED_LOGGED(x) pmID_build(pmID_domain(x), 2048 | pmID_cluster(x), pmID_item(x))
 #define CLEAR_DERIVED_LOGGED(x) pmID_build(pmID_domain(x), ~2048 & pmID_cluster(x), pmID_item(x))
 
@@ -315,10 +314,25 @@ check_inst(pmValueSet *vsp, int hint, __pmResult *lrp)
     return 0;
 }
 
+/* Return 1 (true) if the sets are the same, 0 (false) otherwise */
 static int
-putlabels(unsigned int type, unsigned int ident, const __pmTimestamp *tsp)
+samelabels(int na, const pmLabelSet *a, int nb, const pmLabelSet *b)
 {
-    int		len;
+    int	i;
+
+    if (na != nb)
+	return 0;
+    for (i = 0; i < na; i++) {
+	if (!__pmEqualLabelSet(&a[i], &b[i]))            
+	    break;
+    }
+    return i == na;
+}
+
+static int
+putlabels(unsigned int type, unsigned int ident, const __pmTimestamp *tsp, int np, pmLabelSet *prior)
+{
+    int		len, sts;
     pmLabelSet	*label;
 
     if (type == PM_LABEL_CONTEXT)
@@ -331,24 +345,28 @@ putlabels(unsigned int type, unsigned int ident, const __pmTimestamp *tsp)
 	len = pmGetInDomLabels(ident, &label);
     else if (type == PM_LABEL_ITEM)
 	len = pmGetItemLabels(ident, &label);
-    else if (type == PM_LABEL_INSTANCES)
+    else if (type == PM_LABEL_INSTANCES) {
 	len = pmGetInstancesLabels(ident, &label);
+	/* do not log exactly the same instance sets as previously written */
+	if (len > 0 && np > 0 && samelabels(np, prior, len, label)) {
+	    pmFreeLabelSets(label, len);
+	    return 0;
+	}
+    }
     else
 	len = 0;
 
-    if (len > 0) {
-	int	sts;
-	sts = __pmLogPutLabels(&archctl, type, ident, len, label, tsp);
-	if (sts < 0)
-	    /*
-	     * on success, labels are stashed by __pmLogPutLabels(), otherwise
-	     * we need to free labels
-	     */
-	    pmFreeLabelSets(label, len);
-	return sts;
-    }
+    if (len <= 0)
+	return 0;
 
-    return 0;
+    if ((sts = __pmLogPutLabels(&archctl, type, ident, len, label, tsp)) < 0)
+	/*
+	 * on success, labels are stashed by __pmLogPutLabels();
+	 * on failure, we need to free labels.
+	 */
+	pmFreeLabelSets(label, len);
+
+    return sts;
 }
 
 static int
@@ -389,11 +407,17 @@ manageLabels(pmDesc *desc, const __pmTimestamp *tsp, int only_instances)
 	else
 	    ident = PM_IN_NULL;
 
-	/* Lookup returns >= 0 when the key exists */
-	if (__pmLogLookupLabel(&archctl, type, ident, &label, tsp) >= 0)
+	/*
+	 * Lookup returns >= 0 when the key exists
+	 *
+	 * In the instance-domain-is-changing scenario we can skip this
+	 * (as we must log label metadata in that special case) - unless
+	 * the labelsets are all exactly the same as those already logged.
+	 */
+	if ((sts = __pmLogLookupLabel(&archctl, type, ident, &label, tsp)) >= 0
+	    && !only_instances)
 	    continue;
-
-	if ((sts = putlabels(type, ident, tsp)) < 0)
+	if ((sts = putlabels(type, ident, tsp, sts, label)) < 0)
 	    break;
     }
     return sts;
@@ -768,7 +792,7 @@ do_work(task_t *tp)
 	    /*
 	     * Change to the context labels associated with logged host
 	     */
-	    putlabels(PM_LABEL_CONTEXT, PM_IN_NULL, &resp->timestamp);
+	    putlabels(PM_LABEL_CONTEXT, PM_IN_NULL, &resp->timestamp, 0, NULL);
 	}
 
 	needti = 0;

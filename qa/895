@@ -16,7 +16,6 @@ echo "QA output created by $seq"
 . ./common.check
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "cd $here; $sudo rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 
 cat <<End-of-File >$tmp.config
@@ -99,7 +98,7 @@ esac
 _filter()
 {
     cat \
-    | tee -a $here/$seq.full \
+    | tee -a $seq_full \
     | sed \
 	-e '/re-established connection/d' \
 	-e '/pduread: .* Interrupted system call/d' \
@@ -132,7 +131,7 @@ wait
 
 _filter <$tmp.log
 
-N=`grep '^  Fetch group' $tmp.log | tee -a $here/$seq.full | wc -l | sed -e 's/ //g'`
+N=`grep '^  Fetch group' $tmp.log | tee -a $seq_full | wc -l | sed -e 's/ //g'`
 
 # pmlogger ends up using N fetch groups 
 # without timeouts, expect 6000msec * N fetch groups / 100msec = 60*N records
@@ -147,24 +146,24 @@ N=`grep '^  Fetch group' $tmp.log | tee -a $here/$seq.full | wc -l | sed -e 's/ 
 #
 max_nrec=`expr $N \* 61 + 2`
 min_nrec=`expr \( $N \) \* 30 + 2`
-echo "N(fetch groups)=$N max_nrec=$max_nrec min_nrec=$min_nrec" >>$here/$seq.full
+echo "N(fetch groups)=$N max_nrec=$max_nrec min_nrec=$min_nrec" >>$seq_full
 nrec=`pmdumplog $tmp | grep '^[0-9]' | grep -v '<mark>' | wc -l | sed -e 's/ //g'`
-echo "nrec=$nrec log records" >>$here/$seq.full
-echo "log record frequency by fetch group size ..." >>$here/$seq.full
+echo "nrec=$nrec log records" >>$seq_full
+echo "log record frequency by fetch group size ..." >>$seq_full
 pmdumplog $tmp \
 | grep '^[0-9]' \
 | grep -v '<mark>' \
 | sed -e 's/^[^ ][^ ]* //' \
 | sort \
 | uniq -c \
-| sed -e 's/\([0-9]\) \([0-9]\)/\1 x \2/' >>$here/$seq.full
+| sed -e 's/\([0-9]\) \([0-9]\)/\1 x \2/' >>$seq_full
 
 if [ "$nrec" -ge $min_nrec -a "$nrec" -le $max_nrec ]
 then
     echo "OK, found expected number of archive records"
 else
     echo "oops, $nrec archive records not between the expected range of $min_nrec and $max_nrec"
-    pmdumplog $tmp | grep '^[0-9]' | grep -v '<mark>' >>$here/$seq.full
+    pmdumplog $tmp | grep '^[0-9]' | grep -v '<mark>' >>$seq_full
 fi
 
 # success, all done

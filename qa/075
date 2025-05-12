@@ -1,6 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 075
-# tests for proper handling of white spaces in pmval and pmstore 
+# tests for proper handling of white spaces in pmval and pmstore
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -68,7 +68,14 @@ _restore_sample_bin()
     done
 }
 
-trap "_restore_sample_bin; rm -f $tmp.*; exit" 0 1 2 3 15
+_cleanup()
+{
+    _restore_sample_bin
+    rm -f $tmp.*
+}
+
+status=0
+trap "_cleanup; exit \$status" 0 1 2 3 15
 
 PMCD_CONNECT_TIMEOUT=30
 PMCD_REQUEST_TIMEOUT=30
@@ -93,11 +100,11 @@ _cmd pmstore -i 'bin-300,bin-400,bin-500' sample.bin 500
 _cmd pmstore -i bin-300 bin-400 bin-500 sample.bin 400
 _cmd pmstore -i bin-300.bin-400.bin-500 sample.bin 400
 _cmd pmstore -i 'bin-300,bin-400,bin-500' sample.bin
-_cmd pmstore -i 'bin-300,bin-400,bin-500' -h $remote sample.bin 500 
+_cmd pmstore -i 'bin-300,bin-400,bin-500' -h $remote sample.bin 500
 
 _restore_sample_bin
 
-_cmd pmval -s 2 -i bin-300,bin-400,bin-500 sample.bin 
+_cmd pmval -s 2 -i bin-300,bin-400,bin-500 sample.bin
 _cmd pmval -i bin-300,bin-400,bin-500 -s 2 sample.bin
 _cmd pmval -t 0.2 -s 2 -i "bin-300 bin-400 bin-500" sample.bin
 _cmd pmval -t 0.2 -s 2 -i 'bin-300

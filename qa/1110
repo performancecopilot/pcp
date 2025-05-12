@@ -23,7 +23,6 @@ eval `$PCP_PYTHON_PROG $PCP_PMDAS_DIR/haproxy/connect --config`
 
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
-$sudo rm -rf $tmp.* $seq.full
 
 # cull these "first time ever run" warnings ...
 # [Wed Oct  9 09:07:50] pmdahaproxy(29369) Error: pmdaCacheOp: $PCP_VAR_DIR/config/pmda/145.0: empty file?
@@ -61,8 +60,8 @@ pmda_install()
 user = $user
 socket = $socket
 EOF
-    echo "pmdahaproxy config:" >> $here/$seq.full
-    cat $tmp.config >> $here/$seq.full
+    echo "pmdahaproxy config:" >> $seq_full
+    cat $tmp.config >> $seq_full
 
     [ -f $PCP_PMDAS_DIR/haproxy/haproxy.conf ] && \
     $sudo cp $PCP_PMDAS_DIR/haproxy/haproxy.conf $tmp.backup
@@ -98,13 +97,13 @@ $sudo mkdir -p $(dirname $socket)
 $sudo chmod 0755 $(dirname $socket)
 $sudo $python $here/haproxy/haproxy_stats_server.python $socket &
 spid=$($sudo $PCP_PS_PROG $PCP_PS_ALL_FLAGS 2>/dev/null \
-       | grep '[p]ython' \
+       | grep '/[p]ython' \
        | $PCP_AWK_PROG '/\/haproxy\// {print $2}'
       )
 disown > /dev/null 2>&1 || :
 pmsleep 0.5	# give server a chance to start
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]ID|[p]ython.*/haproxy/' >>$here/$seq.full
-echo "haproxy_stats_server pid: $spid" >>$here/$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]ython.*/haproxy/' >>$seq_full
+echo "haproxy_stats_server pid: $spid" >>$seq_full
 $sudo chcon system_u:object_r:haproxy_var_lib_t:s0 $(dirname $socket) $socket >/dev/null 2>&1 || :
 pmda_install
 echo
@@ -112,11 +111,11 @@ echo
 echo "=== report metric values ==="
 metrics=`pminfo haproxy | LC_COLLATE=POSIX sort`
 pminfo -dfmtT $metrics 2>&1 \
-| $here/src/sortinst | pmda_filter | tee -a $here/$seq.full
+| $here/src/sortinst | pmda_filter | tee -a $seq_full
 
 echo "=== verify metric values ==="
 pminfo -v haproxy 2>&1 \
-| $here/src/sortinst | pmda_filter | tee -a $here/$seq.full
+| $here/src/sortinst | pmda_filter | tee -a $seq_full
 
 pmda_remove
 status=0

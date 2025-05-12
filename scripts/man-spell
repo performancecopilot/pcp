@@ -21,7 +21,11 @@
 # Copyright (c) 2024 Ken McDonell, Inc.  All Rights Reserved.
 #
 
-usage="Usage: man-spell [-dex] filename"
+usage='Usage: man-spell [-de] filename ...
+
+Options:
+ -d	debug
+ -e	emit .\" +ok+  control lines'
 
 export LC_COLATE=POSIX
 
@@ -54,7 +58,6 @@ _istroff()
 
 debug=0
 emit=false
-check=false
 while getopts "de?" c
 do
     case $c
@@ -62,8 +65,6 @@ do
 	d)	debug=`expr $debug + 1`
 		;;
 	e)	emit=true
-		;;
-	x)	check=true
 		;;
 	?)	echo >&2 "$usage"
 		exit
@@ -330,9 +331,13 @@ pmiostat
 pmjson
 pmlc
 pmlock
+pmlogbasename
 pmlogcheck
+pmlogcompress
 pmlogconf
+pmlogcp
 pmlogctl
+pmlogdecompress
 pmlogdump
 pmlogextract
 pmlogger
@@ -731,13 +736,14 @@ PM_CONTEXT_LOCAL
 ! PM_CONTEXT_TYPEMASK
 ! PM_CONTEXT_UNDEF
 PM_COUNT_ONE
-! PM_CTXFLAG_AUTH
-! PM_CTXFLAG_COMPRESS
-! PM_CTXFLAG_CONTAINER
+PM_CTXFLAG_AUTH
+PM_CTXFLAG_COMPRESS
+PM_CTXFLAG_CONTAINER
 PM_CTXFLAG_EXCLUSIVE
+PM_CTXFLAG_LAST_VOLUME
 PM_CTXFLAG_METADATA_ONLY
 PM_CTXFLAG_NO_FEATURE_CHECK
-! PM_CTXFLAG_RELAXED
+PM_CTXFLAG_RELAXED
 PM_CTXFLAG_SECURE
 PM_CTXFLAG_SHALLOW
 PM_ERR_			# from PM_ERR_*
@@ -824,6 +830,11 @@ PM_EXEC_TOSS_STDOUT
 PM_EXEC_WAIT
 PM_FATAL_ERR
 ! PM_FDSET_SIZE
+PM_HASH_DELETE_NEXT
+PM_HASH_DELETE_STOP
+PM_HASH_WALK_NEXT
+PM_HASH_WALK_START
+PM_HASH_WALK_STOP
 ! PM_HOST_SPEC_NPORTS_LOCAL
 ! PM_HOST_SPEC_NPORTS_UNIX
 PM_ID_NULL
@@ -1053,11 +1064,12 @@ __pmAccSaveHosts
 ! __pmAddPMNSNode
 __pmAllocResult
 __pmArchCtl
-! __pmAttrKey
+__pmAttrKey
 ! __pmAttrKeyStr_r
 ! __pmAttrStr_r
 ! __pmAuxConnectPMCDPort
 ! __pmBind
+__pmCheckAttribute
 ! __pmCheckDupLabels
 ! __pmCheckEventRecords
 __pmCleanMapDir
@@ -1211,18 +1223,19 @@ __pmGetPDU
 ! __pmGetTimestamp
 ! __pmHandleToPtr
 ! __pmHasPMNSFileChanged
-! __pmHashAdd
-! __pmHashClear
+__pmHashAdd
+__pmHashClear
 __pmHashCtl
-! __pmHashDel
-! __pmHashFree
-! __pmHashInit
+__pmHashDel
+__pmHashFree
+__pmHashInit
 __pmHashNode
-! __pmHashPreAlloc
-! __pmHashSearch
+__pmHashPreAlloc
+__pmHashSearch
 __pmHashWalk
+__pmHashWalkCallback
 __pmHashWalkCB
-! __pmHashWalkState
+__pmHashWalkState
 ! __pmHostEntFree
 ! __pmHostEntGetName
 ! __pmHostEntGetSockAddr
@@ -2305,6 +2318,7 @@ Posix
 Tbyte
 UAG		# from https://pcp.readthedocs.io/en/latest/UAG/...
 ascii
+appl		# debug flags, stripped of 0-9
 com		# from www.sgi.com
 conf		# from pcp.conf and other *.conf files
 config

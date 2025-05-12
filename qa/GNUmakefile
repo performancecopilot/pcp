@@ -17,7 +17,7 @@ TESTS	= $(shell sed -n -e '/^[0-9][0-9]*:retired/d' -e '/^[0-9][0-9]*:reserved/d
 SUBDIRS = src pmdas cisco gluster pconf sadist collectl nfsclient named \
 	  archives badarchives views qt linux unbound cifs gpfs lustre ganglia \
 	  java mmv postfix perl json slurm tmparch sheet smart admin hacluster \
-	  sockets denki gfs2 farm
+	  sockets denki gfs2 farm pdudata rocestat
 
 ifeq "$(PMDA_PERFEVENT)" "true"
 SUBDIRS += perfevent
@@ -58,7 +58,8 @@ LDIRT += 051.work 134.full.* \
 	 *.bak *.bad *.core *.full *.notrun *.raw *.o core a.out core.* \
 	 *.log *.log.prev eek* urk* so_locations tmp.* gmon.out oss.qa.tar.gz \
 	 *.full.ok *.new rc_cron_check.clean \
-	 make.out qa_hosts qa_outfiles stap_*.ko localconfig check.time
+	 make.out qa_hosts qa_outfiles stap_*.ko localconfig check.time \
+	 .findmetric
 
 # these ones are links to the real files created when the associated
 # test is run
@@ -71,16 +72,16 @@ SCRIPTS = mk.localconfig mk.pcpversion mk.qa_hosts mk.variant getpmcdhosts \
 	  new check recheck remake findmetric group-stats \
 	  check-gitignore check-group chk.setup show-me disk-work 008.helper \
 	  xlate_2_new_pmns common setup.051 mk.logfarm check.callback.sample \
-	  daily-cleanup
+	  daily-cleanup refactor
 
 COMMON_SCRIPTS = common.install.cisco common.pcpweb
 COMMON = common.check common.config common.filter \
 	 common.product common.rc common.setup \
-	 common.secure \
+	 common.secure common.pmcd.pdu \
 	 common.qt common.containers \
 	 common.discovery common.compress \
 	 common.python common.openmetrics \
-	 common.bcc common.bpf common.bpftrace common.redis
+	 common.bcc common.bpf common.bpftrace common.keys
 
 OTHERS = group triaged qa_hosts.primary README sanity.coverage \
 	 $(shell echo valgrind-suppress* helgrind-suppress*)

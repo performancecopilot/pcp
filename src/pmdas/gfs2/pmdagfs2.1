@@ -1,4 +1,4 @@
-'\"macro stdmacro
+'\" t
 .\"
 .\" Copyright (c) 2013 Red Hat.
 .\"
@@ -16,6 +16,9 @@
 .TH PMDAGFS2 1 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pmdagfs2\f1 \- Global Filesystem v2 (GFS2) PMDA
+.SH SYNOPSIS
+\f3$PCP_PMDAS_DIR/gfs2/pmdagfs2\f1
+[\f3\-D\f1 \f2debug\f1]
 .SH DESCRIPTION
 .B pmdagfs2
 is a Performance Metrics Domain Agent (PMDA) which exports
@@ -89,6 +92,38 @@ the file and directory names used by \fBPCP\fR. On each installation, the
 file \fB/etc/pcp.conf\fR contains the local values for these variables.
 The \fB$PCP_CONF\fR variable may be used to specify an alternative
 configuration file, as described in \fIpcp.conf\fR(5).
+[\f3\-D\f1 \f2debug\f1]
+.SH DEBUGGING OPTIONS
+The
+.B \-D
+or
+.B \-\-debug
+option enables the output of additional diagnostics on
+.I stderr
+to help triage problems, although the information is sometimes cryptic and
+primarily intended to provide guidance for developers rather end-users.
+.I debug
+is a comma separated list of debugging options; use
+.BR pmdbg (1)
+with the
+.B \-l
+option to obtain
+a list of the available debugging options and their meaning.
+.PP
+Debugging options specific to
+.B pmdagfs2
+are as follows:
+.TS
+box;
+lf(B) | lf(B)
+lf(B) | lxf(R) .
+Option	Description
+_
+appl0	T{
+.ad l
+details of sbstats and worst_glock fetching and refreshing
+T}
+.TE
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pmcd (1),
@@ -97,4 +132,4 @@ and
 .BR gfs2 (5).
 
 .\" control lines for scripts/man-spell
-.\" +ok+ debugfs pmdagfs GFS DLM gfs
+.\" +ok+ debugfs pmdagfs GFS DLM gfs sbstats worst_glock

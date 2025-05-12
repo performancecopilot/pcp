@@ -21,7 +21,6 @@ fi
 . ./common.filter
 . ./common.check
 
-$sudo rm -rf $tmp $tmp.* $seq.full
 
 do_valgrind=false
 if [ "$1" = "--valgrind" ]
@@ -85,7 +84,7 @@ do
     else
 	pmval -Dfetch -t 0.1sec -s 2 -i "bin-300" $metric >$tmp.out 2>$tmp.err
     fi
-    cat $tmp.out >>$here/$seq.full
+    cat $tmp.out >>$seq_full
     _filter <$tmp.err
 
     # two instances
@@ -96,7 +95,7 @@ do
     else
 	pmval -Dfetch -t 0.1sec -s 2 -i "bin-200,bin-400" $metric >$tmp.out 2>$tmp.err
     fi
-    cat $tmp.out >>$here/$seq.full
+    cat $tmp.out >>$seq_full
     _filter <$tmp.err
 
     # all instances
@@ -108,7 +107,7 @@ do
 	pmval -Dfetch -t 0.1sec -s 2 $metric >$tmp.out 2>$tmp.err
     fi
     _filter <$tmp.out
-    cat $tmp.out >>$here/$seq.full
+    cat $tmp.out >>$seq_full
     _filter <$tmp.err
 
 done

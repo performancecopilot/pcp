@@ -10,7 +10,6 @@ echo "QA output created by $seq"
 
 . ./common.python
 
-$sudo rm -rf $tmp $tmp.* $seq.full
 
 test -x $PCP_BIN_DIR/pcp2arrow || _notrun "pcp2arrow(1) is not installed"
 $python -c "import pandas" >/dev/null 2>&1 || _notrun "pandas is not installed"
@@ -28,6 +27,8 @@ _filter()
 {
     sed \
 	-e "s@$tmp@TMP@g" \
+	-e "s@0.0[0-9][0-9]*@SMALLNUM@g" \
+	-e "s@0.0@ZERONUM@g" \
     # end
 }
 
@@ -36,17 +37,22 @@ for archive in viewqa1 viewqa2 viewqa3 moomba.client proc
 do
     echo
     echo === pcp2arrow $archive
-    pcp2arrow -o $tmp.$archive -a archives/$archive
-    find $tmp.$archive >> $here/$seq.full
+    pcp2arrow -t 10 -o $tmp.$archive -a archives/$archive
+    find $tmp.$archive >> $seq_full
     $python -c "
 import pandas
 df = pandas.read_parquet('$tmp.$archive')
 if (len(df.columns) < 42):
     print('Columns:', sorted(df.columns))
+    # exercise bug in extracting instance values
+    if 'kernel.all.load[1 minute]' in df.columns:
+        print('1 and 15 minute load averages')
+        ldf = df[['kernel.all.load[1 minute]', 'kernel.all.load[15 minute]']]
+        print(ldf.head())
 else:
     print('Columns:', len(df.columns))
 print('Shape:', df.shape)
-"
+" | _filter
 done
 
 # success, all done

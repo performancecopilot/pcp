@@ -40,7 +40,7 @@ pmlc>
 pmlc> connect primary
 pmlc> # incomplete - syntax error
 pmlc> query sample.bin [
-pmlc> query { 
+pmlc> query {
 ? sample.drift
 ? # eat input
 ? # up to

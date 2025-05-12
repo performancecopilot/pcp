@@ -50,12 +50,11 @@ d
 signal=$PCP_BINADM_DIR/pmsignal
 _needclean=true
 
-rm -rf $tmp $seq.full
 mkdir $tmp
 chmod ugo+rwx $tmp
 cd $tmp
 
-cleanup()
+_cleanup()
 {
     cd $here
     if $_needclean
@@ -75,12 +74,13 @@ cleanup()
 }
 
 status=1
-trap "cleanup; exit \$status" 0 1 2 3 15
+trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _stop_auto_restart pmcd
 
 # real QA test starts here
-_service pcp stop | _filter_pcp_stop
+if ! _service pcp stop; then _exit 1; fi \
+| _filter_pcp_stop
 
 # Note: start pmcd with -f so that its PID stays the same (no daemon)
 #
@@ -88,7 +88,7 @@ export PMCD_SOCKET=$tmp/pmcd.socket
 $PCP_PMCD_PROG -f -x err1 &
 my_pmcd_pid=$!
 
-_wait_for_pmcd
+_wait_for_pmcd || _exit 1
 
 echo "Checking for startup errors ..."
 [ -f err1 ] && _filter_err <err1
@@ -108,7 +108,7 @@ then
     _filter_info < pmcd.log > pmcd.log1.$$
 else
     echo "No pmcd.log, pmcd failed to start?"
-    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]ID|[p]mcd'
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mcd( |$)'
     exit
 fi
 
@@ -125,17 +125,17 @@ $PCP_PMCD_PROG -f -x err2 -l $tmp.log 2>&1 | _filter_err &
 # wait a little longer ...
 pmsleep 3.5
 
-ls -l err2 >>$here/$seq.full 2>&1
+ls -l err2 >>$seq_full 2>&1
 echo "Checking for startup errors ..."
 if [ -f err2 ]
 then
-    echo "+++ err for second pmcd +++" >>$here/$seq.full
-    cat err2 >>$here/$seq.full 2>&1
+    echo "+++ err for second pmcd +++" >>$seq_full
+    cat err2 >>$seq_full 2>&1
     _filter_err <err2
 fi
-ls -l $tmp.log >>$here/$seq.full 2>&1
-echo "+++ log file for second pmcd +++" >>$here/$seq.full
-cat $tmp.log >>$here/$seq.full 2>&1
+ls -l $tmp.log >>$seq_full 2>&1
+echo "+++ log file for second pmcd +++" >>$seq_full
+cat $tmp.log >>$seq_full 2>&1
 
 # Make sure that there are no changes to the pmcd log file
 #
@@ -145,8 +145,8 @@ if diff pmcd.log2.$$ pmcd.log1.$$
 then
     status=0
 else
-    echo "+++ log file for first pmcd (1) +++" >>$here/$seq.full
-    cat pmcd.log2.$$ >>$here/$seq.full
-    echo "+++ log file for first pmcd (2) +++" >>$here/$seq.full
-    cat pmcd.log1.$$ >>$here/$seq.full
+    echo "+++ log file for first pmcd (1) +++" >>$seq_full
+    cat pmcd.log2.$$ >>$seq_full
+    echo "+++ log file for first pmcd (2) +++" >>$seq_full
+    cat pmcd.log1.$$ >>$seq_full
 fi

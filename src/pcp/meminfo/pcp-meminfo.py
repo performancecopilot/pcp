@@ -44,6 +44,7 @@ METRICS = ["mem.physmem",
             "mem.util.anonpages",
             "mem.util.mapped",
             "mem.util.shared",
+            "mem.util.kreclaimable",
             "mem.util.slab",
             "mem.util.slabReclaimable",
             "mem.util.slabUnreclaimable",
@@ -57,16 +58,21 @@ METRICS = ["mem.physmem",
             "mem.util.vmallocTotal",
             "mem.util.vmallocUsed",
             "mem.util.vmallocChunk",
+            "mem.util.percpu",
             "mem.util.corrupthardware",
             "mem.util.anonhugepages",
             "mem.vmstat.nr_shmem_hugepages",
             "mem.vmstat.nr_shmem_pmdmapped",
+            "mem.util.filehugepages",
+            "mem.util.filepmdmapped",
+            "mem.util.cmatotal",
             "mem.zoneinfo.nr_free_cma",
             "mem.util.hugepagesTotal",
             "mem.util.hugepagesFree",
             "mem.util.hugepagesRsvd",
             "mem.util.hugepagesSurp",
             "hinv.hugepagesize",
+            "mem.util.hugetlb",
             "mem.util.directMap4k",
             "mem.util.directMap2M",
             "mem.util.directMap1G"]
@@ -92,6 +98,7 @@ METRICS_DESC = ["MemTotal",
                 "AnonPages",
                 "Mapped",
                 "Shmem",
+                "KReclaimable",
                 "Slab",
                 "SReclaimable",
                 "SUnreclaim",
@@ -105,16 +112,21 @@ METRICS_DESC = ["MemTotal",
                 "VmallocTotal",
                 "VmallocUsed",
                 "VmallocChunk",
+                "Percpu",
                 "HardwareCorrupted",
                 "AnonHugePages",
                 "ShmemHugePages",
                 "ShmemPmdMapped",
+                "FileHugePages",
+                "FilePmdMapped",
+                "CmaTotal",
                 "CmaFree",
                 "HugePages_Total_NO_kb",
                 "HugePages_Free_NO_kb",
                 "HugePages_Rsvd_NO_kb",
                 "HugePages_Surp_NO_kb",
                 "Hugepagesize",
+                "Hugetlb",
                 "DirectMap4k",
                 "DirectMap2M",
                 "DirectMap1G"]
@@ -177,7 +189,7 @@ class MeminfoReport(pmcc.MetricGroupPrinter):
 
         t_s = group.contextCache.pmLocaltime(int(group.timestamp))
         time_string = time.strftime(MeminfoOptions.timefmt, t_s.struct_time())
-        print(time_string)
+        print("Timestamp".ljust(18) + ": " + time_string)
 
         idx = 0
         for metric in METRICS:
@@ -201,7 +213,7 @@ class MeminfoReport(pmcc.MetricGroupPrinter):
 
 class MeminfoOptions(pmapi.pmOptions):
     context = None
-    timefmt = "%H:%M:%S"
+    timefmt = "%m/%d/%Y %H:%M:%S"
 
     def __init__(self):
         pmapi.pmOptions.__init__(self, "a:s:S:T:z:A:t:")

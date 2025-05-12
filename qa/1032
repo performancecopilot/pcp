@@ -13,13 +13,10 @@ echo "QA output created by $seq"
 
 _check_series
 _check_requests
-_check_requests_json
-
 _check_containers
 _check_docker_binary
 _check_docker_images busybox
 
-$sudo rm -rf $tmp $tmp.* $seq.full
 
 pyscript=src/test_webcontainers.py
 signal=$PCP_BINADM_DIR/pmsignal
@@ -32,7 +29,7 @@ _cleanup()
 {
     if [ -n "$container" ]
     then
-        echo "== removing container" | tee -a $seq.full
+        echo "== removing container" | tee -a $seq_full
         _remove_docker_containers $container
         container=""
     fi
@@ -59,19 +56,19 @@ _filter()
 # real QA test starts here
 $PCP_BINADM_DIR/pmproxy $webargs -p $webport -l $tmp.out &
 webpid=$!
-echo "pid=$webpid" >>$seq.full
+echo "pid=$webpid" >>$seq_full
 
 container=`$docker run -d busybox sleep 15`
-echo "container=$container" >> $seq.full
+echo "container=$container" >> $seq_full
 
 pmprobe --values --container=$container pmcd.hostname > $tmp.cont
 pmprobe --values pmcd.hostname > $tmp.host
 eval container_hostname=`awk '{ print $3 }' $tmp.cont`
 eval localhost_hostname=`awk '{ print $3 }' $tmp.host`
-echo "localhost_hostname=$localhost_hostname" >> $seq.full
-echo "container_hostname=$container_hostname" >> $seq.full
+echo "localhost_hostname=$localhost_hostname" >> $seq_full
+echo "container_hostname=$container_hostname" >> $seq_full
 
-_wait_for_pmproxy $webport
+_wait_for_pmproxy $webport || _exit 1
 $python $pyscript --port $webport $container | _filter
 
 # success, all done

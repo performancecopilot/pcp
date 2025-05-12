@@ -14,7 +14,6 @@ echo "QA output created by $seq"
 . ./common.check
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 _filter()
@@ -70,14 +69,14 @@ p
 
 _check_1()
 {
-    echo "=== check_1 input ===" >>$seq.full
-    ( echo "--- tmp.1 ---" ; cat $tmp.1 ) >>$seq.full
-    ( echo "--- tmp.2 ---" ; cat $tmp.2 ) >>$seq.full
+    echo "=== check_1 input ===" >>$seq_full
+    ( echo "--- tmp.1 ---" ; cat $tmp.1 ) >>$seq_full
+    ( echo "--- tmp.2 ---" ; cat $tmp.2 ) >>$seq_full
     _fix_pmie $tmp.1
     _fix_pmval $tmp.2
-    echo "=== check_1 pre-join ===" >>$seq.full
-    ( echo "--- tmp.1 ---" ; cat $tmp.1 ) >>$seq.full
-    ( echo "--- tmp.2 ---" ; cat $tmp.2 ) >>$seq.full
+    echo "=== check_1 pre-join ===" >>$seq_full
+    ( echo "--- tmp.1 ---" ; cat $tmp.1 ) >>$seq_full
+    ( echo "--- tmp.2 ---" ; cat $tmp.2 ) >>$seq_full
     join -1 1 -2 1  -a1 -a2 $tmp.1 $tmp.2 \
     | $PCP_AWK_PROG '
 	{ nval = (NF-1)/2
@@ -99,14 +98,14 @@ _check_1()
 #
 _check_2()
 {
-    echo "=== check_2 input ===" >>$seq.full
-    ( echo "--- tmp.1 ---" ; cat $tmp.1 ) >>$seq.full
-    ( echo "--- tmp.2 ---" ; cat $tmp.2 ) >>$seq.full
+    echo "=== check_2 input ===" >>$seq_full
+    ( echo "--- tmp.1 ---" ; cat $tmp.1 ) >>$seq_full
+    ( echo "--- tmp.2 ---" ; cat $tmp.2 ) >>$seq_full
     _fix_pmie $tmp.1
     _fix_pmval $tmp.2
-    echo "=== check_2 pre-join ===" >>$seq.full
-    ( echo "--- tmp.1 ---" ; cat $tmp.1 ) >>$seq.full
-    ( echo "--- tmp.2 ---" ; cat $tmp.2 ) >>$seq.full
+    echo "=== check_2 pre-join ===" >>$seq_full
+    ( echo "--- tmp.1 ---" ; cat $tmp.1 ) >>$seq_full
+    ( echo "--- tmp.2 ---" ; cat $tmp.2 ) >>$seq_full
     join -1 1 -2 1 -a1 -a2 $tmp.2 $tmp.1 \
     | sed -e 's/)://g' \
     | $PCP_AWK_PROG '
@@ -144,7 +143,6 @@ _check_1
 #
 echo
 echo "=== disk.dev.total(PM_SEM_INSTANT) ==="
-echo "(expect slightly smaller values than the case above)"
 echo "disk.dev.total;" \
 | pmie -z -v -t 1sec -a archives/instant-1 >$tmp.1 2>&1
 # check
@@ -216,8 +214,8 @@ End-of-File
 pmie -z -c $tmp.config -t 1sec -a archives/instant-1 2>&1 \
 | _filter
 
-echo | tee -a $seq.full
-echo "=== live pmcd cases ===" | tee -a $seq.full
+echo | tee -a $seq_full
+echo "=== live pmcd cases ===" | tee -a $seq_full
 cat <<End-of-File >$tmp.config
 instant sum_inst disk.dev.total;
 sum_inst instant disk.dev.total;
@@ -248,7 +246,7 @@ ruleset
 End-of-File
 
 pmie -v -c $tmp.config -t 0.5sec -T 2sec >$tmp.out 2>&1
-grep expr $tmp.out >>$seq.full
+grep expr $tmp.out >>$seq_full
 grep -v expr $tmp.out | _filter
 
 now=`pmprobe -v pmcd.pdu_in.text_req | cut -d ' ' -f 3`
@@ -256,7 +254,7 @@ limit=`expr $now + 4`
 
 echo
 echo "=== man page example ==="
-cat <<End-of-File | pmie -t 0.25 -T 2 2>&1 | tee -a $seq.full | _filter | LC_COLLATE=POSIX sort | uniq
+cat <<End-of-File | pmie -t 0.25 -T 2 2>&1 | tee -a $seq_full | _filter | LC_COLLATE=POSIX sort | uniq
 pmcd.pdu_in.text_req > 3;
 instant pmcd.pdu_in.text_req < $limit;
 pmcd.pdu_in.text_req > 3 && instant pmcd.pdu_in.text_req < $limit;

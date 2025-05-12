@@ -31,7 +31,7 @@ $PCP_BINADM_DIR/pmcd_wait -h $farhost -v 2>&1 | grep -E -q 'No route to host'
 [ $? -ne 0 ] || _notrun "Cannot connect to far away host \"$farhost\""
 
 echo "Expect: Connection timed out"
-echo "The far host is $farhost" >$seq.full
+echo "The far host is $farhost" >$seq_full
 pminfo -f -h $farhost pmcd 2>&1 \
 | sed \
     -e "s/$farhost/HOST/g" \

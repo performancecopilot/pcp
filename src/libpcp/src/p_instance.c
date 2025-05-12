@@ -73,32 +73,65 @@ int
 __pmDecodeInstanceReq(__pmPDU *pdubuf, pmInDom *indom, int *inst, char **name)
 {
     instance_req_t	*pp;
-    char		*np, *pdu_end;
+    char		*np;
     int			namelen;
+    int			need;
 
     pp = (instance_req_t *)pdubuf;
-    pdu_end = (char *)pdubuf + pp->hdr.len;
 
-    if (pdu_end - (char *)pp < sizeof(instance_req_t) - sizeof(pp->name))
+    need = (int)(sizeof(instance_req_t) - sizeof(pp->name));
+    if (pp->hdr.len < need) {
+	if (pmDebugOptions.pdu) {
+	    fprintf(stderr, "__pmDecodeInstanceReq: PM_ERR_IPC: short PDU %d < min size %d\n",
+		pp->hdr.len, need);
+	}
 	return PM_ERR_IPC;
+    }
 
     *indom = __ntohpmInDom(pp->indom);
     *inst = ntohl(pp->inst);
     namelen = ntohl(pp->namelen);
     if (namelen > 0) {
-	if (namelen >= INT_MAX - 1 || namelen > pp->hdr.len)
+	if (namelen > pp->hdr.len - sizeof(instance_req_t) + sizeof(pp->name)) {
+	    if (pmDebugOptions.pdu) {
+		fprintf(stderr, "__pmDecodeInstanceReq: PM_ERR_IPC: namelen %d > max %d for PDU len %d\n",
+		    namelen, (int)(pp->hdr.len - sizeof(instance_req_t) + sizeof(pp->name) - 1), pp->hdr.len);
+	    }
 	    return PM_ERR_IPC;
-	if (pdu_end - (char *)pp < sizeof(instance_req_t) - sizeof(pp->name) + namelen)
+	}
+	/* name[] is rounded to a PDU boundary */
+	need = (int)(sizeof(instance_req_t) - sizeof(pp->name) + PM_PDU_SIZE_BYTES(namelen));
+	if (pp->hdr.len != need) {
+	    if (pmDebugOptions.pdu) {
+		char	*what;
+		char	op;
+		if (pp->hdr.len > need) {
+		    what = "long";
+		    op = '>';
+		}
+		else {
+		    /* cannot happen because of namelen check above */
+		    what = "short";
+		    op = '<';
+		}
+		fprintf(stderr, "__pmDecodeInstanceReq: PM_ERR_IPC: PDU too %s %d %c required size %d\n",
+			what, pp->hdr.len, op, need);
+	    }
 	    return PM_ERR_IPC;
+	}
 	if ((np = (char *)malloc(namelen+1)) == NULL)
 	    return -oserror();
-	strncpy(np, pp->name, namelen);
-	np[namelen] = '\0';
+	pmstrncpy(np, namelen+1, pp->name);
 	*name = np;
     }
     else if (namelen < 0) {
+	if (pmDebugOptions.pdu) {
+	    fprintf(stderr, "__pmDecodeInstanceReq: PM_ERR_IPC: namelen %d < 0\n",
+		namelen);
+	}
 	return PM_ERR_IPC;
-    } else {
+    }
+    else {
 	*name = NULL;
     }
     return 0;
@@ -185,31 +218,55 @@ __pmDecodeInstance(__pmPDU *pdubuf, pmInResult **result)
 {
     int			i;
     int			j;
-    instance_t		*rp;
+    int			need;
+    instance_t		*pp;
     instlist_t		*ip;
     pmInResult	*res;
     int			sts;
     char		*p;
     char		*pdu_end;
+    char		*pdu_used;
     int			keep_instlist;
     int			keep_namelist;
 
-    rp = (instance_t *)pdubuf;
-    pdu_end = (char *)pdubuf + rp->hdr.len;
+    pp = (instance_t *)pdubuf;
+    pdu_end = (char *)pdubuf + pp->hdr.len;
 
-    if (pdu_end - (char *)pdubuf < sizeof(instance_t) - sizeof(__pmPDU))
+    need = (int)(sizeof(instance_t) - sizeof(pp->rest));
+    if (pp->hdr.len < need) {
+	if (pmDebugOptions.pdu) {
+	    fprintf(stderr, "__pmDecodeInstance: PM_ERR_IPC: short PDU %d < min size %d\n",
+		pp->hdr.len, need);
+	}
 	return PM_ERR_IPC;
+    }
 
     if ((res = (pmInResult *)malloc(sizeof(*res))) == NULL)
 	return -oserror();
     res->instlist = NULL;
     res->namelist = NULL;
-    res->indom = __ntohpmInDom(rp->indom);
-    res->numinst = ntohl(rp->numinst);
+    res->indom = __ntohpmInDom(pp->indom);
+    res->numinst = ntohl(pp->numinst);
 
-    if (res->numinst >= (INT_MAX / sizeof(res->instlist[0])) ||
-	res->numinst >= (INT_MAX / sizeof(res->namelist[0])) ||
-	res->numinst >= rp->hdr.len) {
+    if (res->numinst < 0) {
+	if (pmDebugOptions.pdu) {
+	    fprintf(stderr, "__pmDecodeInstance: PM_ERR_IPC: numinst %d < 0\n",
+		res->numinst);
+	}
+	sts = PM_ERR_IPC;
+	goto badsts;
+    }
+
+    /*
+     * need at least inst + namelen for each instance in the PDU,
+     * so this placs an absolute cap on numinst
+     */
+    need = (int)((pp->hdr.len - sizeof(instance_t) + sizeof(pp->rest)) / (2 * sizeof(__pmPDU)));
+    if (res->numinst > need) {
+	if (pmDebugOptions.pdu) {
+	    fprintf(stderr, "__pmDecodeInstance: PM_ERR_IPC: numinst %d > max %d for PDU len %d\n",
+		res->numinst, need, pp->hdr.len);
+	}
 	sts = PM_ERR_IPC;
 	goto badsts;
     }
@@ -229,12 +286,18 @@ __pmDecodeInstance(__pmPDU *pdubuf, pmInResult **result)
     else
 	keep_instlist = keep_namelist = 1;
 
+    pdu_used = (char *)&pp->rest[0];
     for (i = j = 0; i < res->numinst; i++) {
-	ip = (instlist_t *)&rp->rest[j/sizeof(__pmPDU)];
+	ip = (instlist_t *)&pp->rest[j/sizeof(__pmPDU)];
 	if (sizeof(instlist_t) - sizeof(ip->name) > (size_t)(pdu_end - (char *)ip)) {
+	    if (pmDebugOptions.pdu) {
+		fprintf(stderr, "__pmDecodeInstance: PM_ERR_IPC: sizeof(instlist_t) %d - sizeof(name) %d > remainder %d\n",
+		    (int)sizeof(instlist_t), (int)sizeof(ip->name), (int)(pdu_end - (char*)ip));
+	    }
 	    sts = PM_ERR_IPC;
 	    goto badsts;
 	}
+	pdu_used += sizeof(instlist_t) - sizeof(ip->name);
 
 	res->instlist[i] = ntohl(ip->inst);
 	if (res->instlist[i] != PM_IN_NULL)
@@ -243,13 +306,23 @@ __pmDecodeInstance(__pmPDU *pdubuf, pmInResult **result)
 	if (ip->namelen > 0)
 	    keep_namelist = 1;
 	if (ip->namelen < 0) {
+	    if (pmDebugOptions.pdu) {
+		fprintf(stderr, "__pmDecodeInstance: PM_ERR_IPC: inst[%d] namelen %d < 0\n",
+		    i, ip->namelen);
+	    }
 	    sts = PM_ERR_IPC;
 	    goto badsts;
 	}
 	if (sizeof(instlist_t) - sizeof(int) + ip->namelen > (size_t)(pdu_end - (char *)ip)) {
+	    if (pmDebugOptions.pdu) {
+		fprintf(stderr, "__pmDecodeInstance: PM_ERR_IPC: PDU too short inst[%d] %d > remainder %d\n",
+		    i, (int)(sizeof(instlist_t) - sizeof(int) + ip->namelen),
+		    (int)(pdu_end - (char*)ip));
+	    }
 	    sts = PM_ERR_IPC;
 	    goto badsts;
 	}
+	pdu_used += PM_PDU_SIZE_BYTES(ip->namelen);
 	if ((p = (char *)malloc(ip->namelen + 1)) == NULL) {
 	    sts = -oserror();
 	    goto badsts;
@@ -259,6 +332,15 @@ __pmDecodeInstance(__pmPDU *pdubuf, pmInResult **result)
 	res->namelist[i] = p;
 	j += sizeof(*ip) - sizeof(ip->name) + PM_PDU_SIZE_BYTES(ip->namelen);
     }
+    if (pdu_end - pdu_used > 0) {
+	if (pmDebugOptions.pdu) {
+	    fprintf(stderr, "__pmDecodeInstance: PM_ERR_IPC: PDU too long, remainder %d\n",
+		    (int)(pdu_end - pdu_used));
+	}
+	sts = PM_ERR_IPC;
+	goto badsts;
+    }
+
     if (keep_instlist == 0) {
 	free(res->instlist);
 	res->instlist = NULL;

@@ -22,15 +22,14 @@ echo "QA output created by $seq"
 
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
-$sudo rm -f $seq.full
 
 [ -z "$PCPQA_HYPHEN_HOST" ] && _notrun 'PCPQA_HYPHEN_HOST is not set in ./common.config'
-echo "PCPQA_HYPHEN_HOST=$PCPQA_HYPHEN_HOST" >>$seq.full
-if ping -w 2 $PCPQA_HYPHEN_HOST >>$seq.full 2>&1
+echo "PCPQA_HYPHEN_HOST=$PCPQA_HYPHEN_HOST" >>$seq_full
+if ping -w 2 $PCPQA_HYPHEN_HOST >>$seq_full 2>&1
 then
     # seems to be alive, check if pmcd is responding
     #
-    if pminfo -h $PCPQA_HYPHEN_HOST -f pmda.version >>$seq.full 2>&1
+    if pminfo -h $PCPQA_HYPHEN_HOST -f pmda.version >>$seq_full 2>&1
     then
 	# OK
 	:
@@ -59,7 +58,7 @@ EOF
 mkPMIEConfig
 pcpqa_hyphen_host_no_domain=`echo "$PCPQA_HYPHEN_HOST" | sed -e 's/\..*//'`
 pmie -D APPL0 -C -c $tmp.rule 2>&1 \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | sed \
     -e "s;$tmp;TMP;g" \
     -e '/pmLookupName failed: /d' \

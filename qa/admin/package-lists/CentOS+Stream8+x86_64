@@ -1,11 +1,13 @@
 # PCP required package list for CentOS 8.2.2004 x86_64
 # created by kenj on vm04.localdomain Mon Oct 12 23:16:58 EDT 2020
 #
+HdrHistogram_c
 List::MoreUtils cpan
 Net::SNMP cpan
 Spreadsheet::Read cpan
 Spreadsheet::XLSX cpan
 audit
+avahi-tools
 autoconf
 bash
 bc
@@ -13,6 +15,8 @@ bcc-tools
 bind-utils
 bison
 bpftrace
+chan
+clang
 # in CI centos8-container already has coreutils-single installed and this
 # conflicts with coreutils
 coreutils not4ci
@@ -24,6 +28,7 @@ cyrus-sasl-lib
 cyrus-sasl-md5
 cyrus-sasl-plain
 ed
+expect
 flex
 gawk
 gcc
@@ -33,13 +38,18 @@ gfs2-utils
 git
 git-core
 grep
+inih-devel
 iproute
+jq
 httpd
 initscripts
-java-latest-openjdk-headless
+# -latest- (aka 22) and -21- don't have USDT support, so go with -17-
+java-17-openjdk-headless
 libbpf
+libdrm-devel
 libicu-devel
 libpfm-devel
+libselinux-devel
 libuv-devel
 libvirt-daemon
 libvirt-daemon-driver-qemu
@@ -51,6 +61,7 @@ make
 man-db
 mandoc
 mariadb
+mesa-dri-drivers
 memcached
 ncurses-devel
 net-tools
@@ -65,9 +76,6 @@ perl-ExtUtils-MakeMaker
 perl-File-Slurp
 perl-JSON
 perl-LDAP
-#perl-Net-SNMP			! dnf will not install this one
-#perl-Spreadsheet-WriteExcel	! dnf will not install this one
-#perl-Spreadsheet-XLSX		! dnf will not install this one
 perl-Text-CSV_XS
 perl-Time-HiRes
 perl-TimeDate
@@ -96,6 +104,7 @@ python3-pillow
 python3-prometheus_client
 python3-psycopg2
 python3-pylint
+python3-pymongo
 python3-pyodbc
 python3-requests
 python3-rtslib
@@ -120,11 +129,19 @@ smartmontools
 socat
 sqlite
 sqlite-libs
+sudo
 sysstat
 systemd-devel
+systemtap
+systemtap-devel
+systemtap-runtime
 systemtap-sdt-devel
+targetcli
 time
 valgrind
+valkey
 xfsprogs
 xkeyboard-config
 xz-devel
+zabbix6.0-agent
+zstd

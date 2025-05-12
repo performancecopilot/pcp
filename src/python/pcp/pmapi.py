@@ -1,6 +1,6 @@
 """ Wrapper module for LIBPCP - the core Performace Co-Pilot API
 #
-# Copyright (C) 2012-2022 Red Hat
+# Copyright (C) 2012-2024 Red Hat
 # Copyright (C) 2009-2012 Michael T. Werner
 #
 # This file is part of the "pcp" module, the python interfaces for the
@@ -88,14 +88,17 @@
         print("%s : %s" % (ts, line()))
 """
 # pylint: disable=missing-docstring,line-too-long,broad-except,no-member
-# pylint: disable=too-many-lines,too-many-arguments,too-many-nested-blocks
+# pylint: disable=too-many-arguments,too-many-positional-arguments
+# pylint: disable=too-many-lines,too-many-nested-blocks
 
 import os
 import sys
 import time
 import errno
-import datetime
 import json
+
+from datetime import datetime
+from math import modf
 
 # constants adapted from C header file <pcp/pmapi.h>
 import cpmapi as c_api
@@ -116,30 +119,6 @@ from ctypes.util import find_library
 LIBPCP = CDLL(find_library("pcp"))
 libc_name = "c" if sys.platform != "win32" else "msvcrt"
 LIBC = CDLL(find_library(libc_name))
-
-
-##############################################################################
-#
-# python version information and compatibility
-#
-
-if sys.version >= '3':
-    integer_types = (int,)
-    long = int
-    text_type = str
-else:
-    integer_types = (int, long,)
-    text_type = unicode # pylint: disable=undefined-variable
-
-def pyFileToCFile(fileObj):
-    if sys.version >= '3':
-        ctypes.pythonapi.PyObject_AsFileDescriptor.restype = c_int
-        ctypes.pythonapi.PyObject_AsFileDescriptor.argtypes = [ctypes.py_object]
-        return os.fdopen(ctypes.pythonapi.PyObject_AsFileDescriptor(fileObj), "r", closefd=False)
-    else:
-        ctypes.pythonapi.PyFile_AsFile.restype = c_void_p
-        ctypes.pythonapi.PyFile_AsFile.argtypes = [ctypes.py_object]
-        return ctypes.pythonapi.PyFile_AsFile(fileObj)
 
 
 ##############################################################################
@@ -227,10 +206,20 @@ class timeval(Structure):
     _fields_ = [("tv_sec", c_time_t),
                 ("tv_usec", c_suseconds_t)]
 
-    def __init__(self, sec=0, usec=0):
+    def __init__(self, sec=0, usec=None):
         Structure.__init__(self)
-        self.tv_sec = sec
-        self.tv_usec = usec
+        if usec is None:
+            if isinstance(sec, datetime):
+                epoch = datetime.utcfromtimestamp(0)
+                sec = float((sec - epoch).total_seconds())
+            if isinstance(sec, float):
+                ts = modf(sec)
+                sec = ts[1]
+                usec = ts[0] * 1000000
+            else:
+                usec = 0
+        self.tv_sec = int(sec)
+        self.tv_usec = int(usec)
 
     @classmethod
     def fromInterval(cls, interval):
@@ -257,7 +246,7 @@ class timeval(Structure):
         return int(self.tv_sec)
 
     def __long__(self):
-        return long(self.tv_sec)
+        return int(self.tv_sec)
 
     def __int__(self):
         return int(self.tv_sec)
@@ -267,11 +256,26 @@ class timeval(Structure):
         time.sleep(float(self))
 
 class timespec(Structure):
-    _fields_ = [("tv_sec", c_time_t),
-                ("tv_nsec", c_long)]
+    if c_api.PM_PAD_TIMESPEC == 4:
+        _fields_ = [("tv_sec", c_time_t),
+                    ("tv_nsec", c_long),
+                    ("pad", c_int32)]
+    else:
+        _fields_ = [("tv_sec", c_time_t),
+                    ("tv_nsec", c_long)]
 
-    def __init__(self, sec=0, nsec=0):
+    def __init__(self, sec=0, nsec=None):
         Structure.__init__(self)
+        if nsec is None:
+            if isinstance(sec, datetime):
+                epoch = datetime.utcfromtimestamp(0)
+                sec = float((sec - epoch).total_seconds())
+            if isinstance(sec, float):
+                ts = modf(sec)
+                sec = int(ts[1])
+                nsec = int(ts[0] * 1000000000)
+            else:
+                nsec = 0
         self.tv_sec = sec
         self.tv_nsec = nsec
 
@@ -300,7 +304,7 @@ class timespec(Structure):
         return int(self.tv_sec)
 
     def __long__(self):
-        return long(self.tv_sec)
+        return int(self.tv_sec)
 
     def __int__(self):
         return int(self.tv_sec)
@@ -345,8 +349,8 @@ class tm(Structure):
         second = c_api.pmMktime(self.tm_sec, self.tm_min, self.tm_hour,
                                 self.tm_mday, self.tm_mon, self.tm_year,
                                 self.tm_wday, self.tm_yday, self.tm_isdst,
-                                long(self.tm_gmtoff), str(self.tm_zone))
-        timetp = c_long(long(second))
+                                int(self.tm_gmtoff), str(self.tm_zone))
+        timetp = c_long(int(second))
         LIBPCP.pmCtime(byref(timetp), result)
         return str(result.value.decode()).rstrip()
 
@@ -565,6 +569,18 @@ class pmHighResResult(Structure):
         vstr = str([" %s" % str(self.vset[i].contents) for i in vals])
         return "pmHighResResult@%#lx id#=%d " % (addressof(self), self.numpmid) + vstr
 
+    def get_sec(self):
+        """ Return the sec part of the timestamp """
+        return self.timestamp.tv_sec
+
+    def get_nsec(self):
+        """ Return the nsec part of the timestamp """
+        return self.timestamp.tv_nsec
+
+    def get_numpmid(self):
+        """ Return the number of pmids """
+        return self.numpmid
+
     def get_pmid(self, vset_idx):
         """ Return the pmid of vset[vset_idx] """
         vsetptr = cast(self.vset, POINTER(pmValueSetPtr))
@@ -665,23 +681,7 @@ class pmMetricSpec(Structure):
         return result
 
 class pmLogLabel(Structure):
-    """Label record at the start of every (v2) log file """
-    _fields_ = [("magic", c_int),
-                ("pid_t", c_int),
-                ("start", timeval),
-                ("hostname", c_char * c_api.PM_LOG_MAXHOSTLEN),
-                ("tz", c_char * c_api.PM_TZ_MAXLEN)]
-
-    def get_hostname(self):
-        """ Return the hostname from the structure as native str """
-        return str(self.hostname.decode())
-
-    def get_timezone(self):
-        """ Return the timezone from the structure as native str """
-        return str(self.tz.decode())
-
-class pmHighResLogLabel(Structure):
-    """Label record at the start of every (v3) log file """
+    """Label record at the start of every log file """
     _fields_ = [("magic", c_int),
                 ("pid_t", c_int),
                 ("start", timespec),
@@ -898,13 +898,10 @@ LIBPCP.pmGetArchiveLabel.restype = c_int
 LIBPCP.pmGetArchiveLabel.argtypes = [POINTER(pmLogLabel)]
 
 LIBPCP.pmGetArchiveEnd.restype = c_int
-LIBPCP.pmGetArchiveEnd.argtypes = [POINTER(timeval)]
+LIBPCP.pmGetArchiveEnd.argtypes = [POINTER(timespec)]
 
-LIBPCP.pmGetHighResArchiveLabel.restype = c_int
-LIBPCP.pmGetHighResArchiveLabel.argtypes = [POINTER(pmHighResLogLabel)]
-
-LIBPCP.pmGetHighResArchiveEnd.restype = c_int
-LIBPCP.pmGetHighResArchiveEnd.argtypes = [POINTER(timespec)]
+LIBPCP.pmGetArchiveLabel.restype = c_int
+LIBPCP.pmGetArchiveLabel.argtypes = [POINTER(pmLogLabel)]
 
 LIBPCP.pmGetInDomArchive.restype = c_int
 LIBPCP.pmGetInDomArchive.argtypes = [c_uint, POINTER(POINTER(c_int)),
@@ -1797,7 +1794,7 @@ class pmContext(object):
         if status < 0:
             raise pmErr(status)
 
-        if isinstance(pmids_p, integer_types):
+        if isinstance(pmids_p, int):
             pmids = (c_uint * 1)()
             pmids[0] = pmids_p
         else:
@@ -2125,7 +2122,7 @@ class pmContext(object):
         if status < 0:
             raise pmErr(status)
         result = (tm)()
-        timetp = c_long(long(seconds))
+        timetp = c_long(int(seconds))
         LIBPCP.pmLocaltime(byref(timetp), byref(result))
         return result
 
@@ -2135,7 +2132,7 @@ class pmContext(object):
         if status < 0:
             raise pmErr(status)
         result = ctypes.create_string_buffer(32)
-        timetp = c_long(long(seconds))
+        timetp = c_long(int(seconds))
         LIBPCP.pmCtime(byref(timetp), result)
         return str(result.value.decode())
 
@@ -2241,39 +2238,14 @@ class pmContext(object):
             raise pmErr(status)
         return loglabel
 
-    def pmGetHighResArchiveLabel(self):
-        """PMAPI - Get the label record from the archive
-        loglabel = pmGetHighResArchiveLabel()
-        """
-        loglabel = pmHighResLogLabel()
-        status = LIBPCP.pmUseContext(self.ctx)
-        if status < 0:
-            raise pmErr(status)
-        status = LIBPCP.pmGetHighResArchiveLabel(byref(loglabel))
-        if status < 0:
-            raise pmErr(status)
-        return loglabel
-
     def pmGetArchiveEnd(self):
-        """PMAPI - Get the last recorded timestamp from the archive
-        """
-        tvp = timeval()
-        status = LIBPCP.pmUseContext(self.ctx)
-        if status < 0:
-            raise pmErr(status)
-        status = LIBPCP.pmGetArchiveEnd(byref(tvp))
-        if status < 0:
-            raise pmErr(status)
-        return tvp
-
-    def pmGetHighResArchiveEnd(self):
         """PMAPI - Get the last recorded timestamp from the archive
         """
         spec = timespec()
         status = LIBPCP.pmUseContext(self.ctx)
         if status < 0:
             raise pmErr(status)
-        status = LIBPCP.pmGetHighResArchiveEnd(byref(spec))
+        status = LIBPCP.pmGetArchiveEnd(byref(spec))
         if status < 0:
             raise pmErr(status)
         return spec
@@ -2741,6 +2713,11 @@ class pmContext(object):
         """PMAPI - Print the value of a metric
         pmPrintValue(file, value, pmdesc, vset_index, vlist_index, min_width)
         """
+        def pyFileToCFile(fileObj):
+            ctypes.pythonapi.PyObject_AsFileDescriptor.restype = c_int
+            ctypes.pythonapi.PyObject_AsFileDescriptor.argtypes = [ctypes.py_object]
+            pyFileDescriptor = ctypes.pythonapi.PyObject_AsFileDescriptor(fileObj)
+            return os.fdopen(pyFileDescriptor, "r", closefd=False)
         LIBPCP.pmPrintValue(pyFileToCFile(fileObj),
                             c_int(result.contents.vset[vset_idx].contents.valfmt),
                             c_int(ptype.contents.type),
@@ -2795,7 +2772,7 @@ class pmContext(object):
 
     @staticmethod
     def pmParseUnitsStr(string):
-        if not isinstance(string, (bytes, text_type)):
+        if not isinstance(string, (bytes, str)):
             raise pmErr(c_api.PM_ERR_CONV, str(string))
         if not isinstance(string, bytes):
             string = string.encode('utf-8')
@@ -2888,7 +2865,7 @@ class pmContext(object):
     @staticmethod
     def datetime_to_secs(value, precision=c_api.PM_TIME_SEC):
         """ Convert datetime value to seconds of given precision """
-        tdt = value - datetime.datetime.fromtimestamp(0)
+        tdt = value - datetime.fromtimestamp(0)
         if precision == c_api.PM_TIME_SEC:
             tst = (tdt.microseconds + (tdt.seconds + tdt.days * 24.0 * 3600.0) * 10.0**6) / 10.0**6
         elif precision == c_api.PM_TIME_MSEC:
@@ -3018,8 +2995,8 @@ class fetchgroup(object):
             """
             ts = self.ctx.pmLocaltime(self.value.tv_sec)
             us = int(self.value.tv_nsec) // 1000
-            dt = datetime.datetime(ts.tm_year+1900, ts.tm_mon+1, ts.tm_mday,
-                                   ts.tm_hour, ts.tm_min, ts.tm_sec, us, None)
+            dt = datetime(ts.tm_year+1900, ts.tm_mon+1, ts.tm_mday,
+                          ts.tm_hour, ts.tm_min, ts.tm_sec, us, None)
             return dt
 
     class fetchgroup_timeval(object):
@@ -3042,8 +3019,8 @@ class fetchgroup(object):
             """
             ts = self.ctx.pmLocaltime(self.value.tv_sec)
             us = int(self.value.tv_usec)
-            dt = datetime.datetime(ts.tm_year+1900, ts.tm_mon+1, ts.tm_mday,
-                                   ts.tm_hour, ts.tm_min, ts.tm_sec, us, None)
+            dt = datetime(ts.tm_year+1900, ts.tm_mon+1, ts.tm_mday,
+                          ts.tm_hour, ts.tm_min, ts.tm_sec, us, None)
             return dt
 
     # create the backward compatibility alias
@@ -3128,8 +3105,8 @@ class fetchgroup(object):
 
                 ts = self.ctx.pmLocaltime(self.times[i].tv_sec)
                 us = int(self.times[i].tv_nsec) // 1000
-                dt = datetime.datetime(ts.tm_year+1900, ts.tm_mon+1, ts.tm_mday,
-                                       ts.tm_hour, ts.tm_min, ts.tm_sec, us, None)
+                dt = datetime(ts.tm_year+1900, ts.tm_mon+1, ts.tm_mday,
+                              ts.tm_hour, ts.tm_min, ts.tm_sec, us, None)
                 # nested lambda for proper i capture
                 # pylint: disable=cell-var-from-loop,unnecessary-direct-lambda-call
                 vv.append((dt,

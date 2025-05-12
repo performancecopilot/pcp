@@ -23,9 +23,10 @@ include $(BUILDRULES)
 
 install : default
 	$(INSTALL) -m 755 pmlogctl.sh $(PCP_BIN_DIR)/pmlogctl$(SHELLSUFFIX)
+	# not installed as a symlink so that selinux file context applies
+	$(INSTALL) -m 755 pmlogctl.sh $(PCP_BIN_DIR)/pmiectl$(SHELLSUFFIX)
 	$(INSTALL) -m 755 -d $(PCP_ETC_DIR)/pcp/pmlogger/class.d
 	$(INSTALL) -m 644 pmlogger-pmfind.class $(PCP_ETC_DIR)/pcp/pmlogger/class.d/pmfind
-	$(INSTALL) -S $(PCP_BIN_DIR)/pmlogctl$(SHELLSUFFIX) $(PCP_BIN_DIR)/pmiectl$(SHELLSUFFIX)
 	$(INSTALL) -m 755 -d $(PCP_ETC_DIR)/pcp/pmie/class.d
 	$(INSTALL) -m 644 pmie-pmfind.class $(PCP_ETC_DIR)/pcp/pmie/class.d/pmfind
 

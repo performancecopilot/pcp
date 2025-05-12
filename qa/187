@@ -29,7 +29,6 @@ _stop_auto_restart pmcd
 
 signal=$PCP_BINADM_DIR/pmsignal
 
-rm -f $seq.full
 
 _burn_pids()
 {
@@ -82,7 +81,7 @@ _check()
 
 otherhost=`./getpmcdhosts -L -n 1`
 [ -z "$otherhost" ] && _notrun "Cannot find a remote host running pmcd"
-echo "otherhost=$otherhost" >>$seq.full
+echo "otherhost=$otherhost" >>$seq_full
 otherip=`_host_to_ipaddr $otherhost`
 if [ -z "$otherip" ]
 then
@@ -90,13 +89,13 @@ then
     sts=1
     exit
 fi
-echo "otherip=$otherip" >>$seq.full
+echo "otherip=$otherip" >>$seq_full
 
 # real QA test starts here
 _start_up_pmlogger -L -c /dev/null -l $tmp.log1 -s1 $tmp.this >/dev/null 2>&1
 this_pid=$pid
-echo "this logger pid=$this_pid" >>$seq.full
-_wait_for_pmlogger $this_pid $tmp.log1
+echo "this logger pid=$this_pid" >>$seq_full
+_wait_for_pmlogger $this_pid $tmp.log1 || _exit 1
 $sudo mv $tmp.log1 $tmp.$this_pid
 
 trap "$sudo $signal \$this_pid \$other_pid \$otherfqdn_pid >/dev/null 2>&1; wait; $sudo rm -fr $tmp.*; _cleanup; exit \$sts" 0 1 2 3 15
@@ -105,39 +104,39 @@ _burn_pids
 
 _start_up_pmlogger -h $otherhost -L -c /dev/null -l $tmp.log2 -s1 $tmp.other >/dev/null 2>&1
 other_pid=$pid
-echo "other host=$otherhost logger pid=$other_pid" >>$seq.full
-_wait_for_pmlogger $other_pid $tmp.log2
+echo "other host=$otherhost logger pid=$other_pid" >>$seq_full
+_wait_for_pmlogger $other_pid $tmp.log2 || _exit 1
 $sudo mv $tmp.log2 $tmp.$other_pid
 
 _burn_pids
 
 _start_up_pmlogger -h $otherip -L -c /dev/null -l $tmp.log3 -s1 $tmp.other.fqdn >/dev/null 2>&1
 otherfqdn_pid=$pid
-echo "other fqdnhost=$otherip logger pid=$otherfqdn_pid" >>$seq.full
-_wait_for_pmlogger $otherfqdn_pid $tmp.log3
+echo "other fqdnhost=$otherip logger pid=$otherfqdn_pid" >>$seq_full
+_wait_for_pmlogger $otherfqdn_pid $tmp.log3 || _exit 1
 $sudo mv $tmp.log3 $tmp.$otherfqdn_pid
 
 # check entries
 _check
 
-_service pcp restart 2>&1 | _filter_pcp_start
-_wait_for_pmcd
-_wait_for_pmlogger
+if ! _service pcp restart 2>&1; then _exit 1; fi | _filter_pcp_start
+_wait_for_pmcd || _exit 1
+_wait_for_pmlogger || _exit 1 || _exit 1
 
 # check again
 _check
 
-echo >>$seq.full
-echo "=== this log ===" >>$seq.full
-cat $tmp.$this_pid >>$seq.full
+echo >>$seq_full
+echo "=== this log ===" >>$seq_full
+cat $tmp.$this_pid >>$seq_full
 
 
-echo >>$seq.full
-echo "=== other log ===" >>$seq.full
-cat $tmp.$other_pid >>$seq.full
+echo >>$seq_full
+echo "=== other log ===" >>$seq_full
+cat $tmp.$other_pid >>$seq_full
 
 
-echo >>$seq.full
-echo "=== otherfqdn log ===" >>$seq.full
-cat $tmp.$otherfqdn_pid >>$seq.full
+echo >>$seq_full
+echo "=== otherfqdn log ===" >>$seq_full
+cat $tmp.$otherfqdn_pid >>$seq_full
 

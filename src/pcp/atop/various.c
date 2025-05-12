@@ -861,12 +861,17 @@ setup_origin(pmOptions *opts)
 {
 	int		sts = 0;
 
-	start = opts->start;
-	finish = opts->finish;
-	curtime = origin = opts->origin;
+	start.tv_sec = opts->start.tv_sec;
+	start.tv_usec = opts->start.tv_nsec / 1000;
+	finish.tv_sec = opts->finish.tv_sec;
+	finish.tv_usec = opts->finish.tv_nsec / 1000;
+	curtime.tv_sec = origin.tv_sec = opts->origin.tv_sec;
+	curtime.tv_usec = origin.tv_usec = opts->origin.tv_nsec / 1000;
 
-	if (opts->interval.tv_sec || opts->interval.tv_usec)
-		interval = opts->interval;
+	if (opts->interval.tv_sec || opts->interval.tv_nsec) {
+		interval.tv_sec = opts->interval.tv_sec;
+		interval.tv_usec = opts->interval.tv_nsec / 1000;
+	}
 
 	/* initial archive mode, position and delta */
 	if (opts->context == PM_CONTEXT_ARCHIVE)
@@ -1224,10 +1229,16 @@ extract_string_index(pmResult *result, pmDesc *descs, int value, char *buffer, i
 
 	pmExtractValue(values->valfmt, &values->vlist[i],
 			descs[value].type, &atom, PM_TYPE_STRING);
-	strncpy(buffer, atom.cp, buflen);
+	if (buflen == 1) {
+	    /*
+	     * might be a single character - e.g. process state
+	     * and in this case buffer[] is NOT null-byte terminated
+	     */
+	    buffer[0] = atom.cp[0];
+	}
+	else
+	    pmstrncpy(buffer, buflen, atom.cp);
 	free(atom.cp);
-	if (buflen > 1)	/* might be a single character - e.g. process state */
-	    buffer[buflen-1] = '\0';
 	return buffer;
 }
 
@@ -1264,10 +1275,16 @@ extract_string_inst(pmResult *result, pmDesc *descs, int value, char *buffer, in
 	if (values->numval == i)
 		return NULL;
 copyout:
-	strncpy(buffer, atom.cp, buflen);
+	if (buflen == 1) {
+	    /*
+	     * might be a single character - e.g. process state
+	     * and in this case buffer[] is NOT null-byte terminated
+	     */
+	    buffer[0] = atom.cp[0];
+	}
+	else
+	    pmstrncpy(buffer, buflen, atom.cp);
 	free(atom.cp);
-	if (buflen > 1)	/* might be a single character - e.g. process state */
-	    buffer[buflen-1] = '\0';
 	return buffer;
 }
 
@@ -1549,8 +1566,7 @@ rawarchive(pmOptions *opts, const char *name)
 	}
 
 	/* see if a valid folio exists as specified */
-	strncpy(tmp, name, sizeof tmp);
-	tmp[sizeof tmp-1] = '\0';
+	pmstrncpy(tmp, sizeof(tmp), name);
 	if (access(tmp, R_OK) == 0)
 	{
 		__pmAddOptArchiveFolio(opts, tmp);

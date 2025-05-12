@@ -1,0 +1,54 @@
+Comparison of xz vs zstd compression performance in terms of compressed
+file size for 1328 unique archives I have on bozo.
+
+Larger than 100MiB
+    49 files
+    zstd better for 38 files, but for the remaining 11 the differences
+    are typically small or the archive is atypical (e.g. QA archives
+    with few metrics and little difference in metric values).
+    Note: the default pmlogger.daily setup runs pmlogger with -v 100mb
+          so these data volumes are all in this range
+
+Smaller than 100MiB but larger than 50 MiB
+    21 files (wish we had more in this range)
+    zstd better for only 2 files, but the other 19 are typically V2
+    archives from 10 to 20 years ago with NO proc metrics
+
+Smaller than 50MiB
+    1256 files
+    zstd better for only 9 files, and of these 8 are QA archives from
+    qa/archives or qa/badarchives that I suspect have been carefully
+    crafted for some QA corner case and may not be representative of
+    production archives (but this is an unscientific guess).
+
+So the default in pmlogcompress for the minimum size for choosing zstd
+over xz (when both are available) of 500MiB seems to be well justified.
+
+To measure the effects of compression on archive replay, I used two of
+the daily archives from bozo ... these are close to a zeroconf setup
+logged from a moderate sized workstation.
+
+20241113 has a single data volume spanning one day.
+20241116 has 24 data volumes spanning one day.
+
+Uncompressed both archives require 4.8G of disk space, the xz version
+requires 231M and the zstd version requires 157M.
+
+The timing test was "pmdumplog <archive> pmcd.seqnum" which reports very
+little but forces every record in every file to be read (and hence each
+file needs to be decompressed as well).  xz decompression is done on the
+fly, zstd decompression needs to be done up front as each file is opened.
+Times reported are the average total CPU time for 3 repetitioms of
+each test.
+
+	      20241113  20241116
+uncompressed	 1.19s     1.22s
+xz              10.98s    11.76s
+zstd             8.64s     7.75s
+
+So, based on this very small sample. it looks like zstd not only produces
+smaller PCP archive files (in the uncompressed 500MiB+ range) but is
+also uses less CPU time to decompress the archive on replay despite
+the lack of an on-the-fly library (of course we do need significantly
+more temporary disk storage in the xstd case as we need to store the
+uncompressed .meta file and uncompressed current data volume file).

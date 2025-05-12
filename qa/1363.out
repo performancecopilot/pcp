@@ -6,14 +6,14 @@ QA output created by 1361 --valgrind
 + Mode: PDU_BINARY Pass 0 +
 +++++++++++++++++++++++++++
 __pmDumpPDUTrace: recent PDUs ...
-[60] xmit fd=5 type=LOG_CONTROL len=NNN
-[61] recv fd=4 type=LOG_CONTROL len=NNN
-[62] xmit fd=5 type=LOG_STATUS len=NNN
-[63] recv fd=4 type=LOG_STATUS len=NNN
-[64] xmit fd=5 type=LOG_STATUS_V2 len=NNN
-[65] recv fd=4 type=LOG_STATUS_V2 len=NNN
-[66] xmit fd=5 type=LOG_REQUEST len=NNN
-[67] recv fd=4 type=LOG_REQUEST len=NNN
+[60] xmit fd=N type=LOG_CONTROL len=NNN
+[61] recv fd=N type=LOG_CONTROL len=NNN
+[62] xmit fd=N type=LOG_STATUS len=NNN
+[63] recv fd=N type=LOG_STATUS len=NNN
+[64] xmit fd=N type=LOG_STATUS_V2 len=NNN
+[65] recv fd=N type=LOG_STATUS_V2 len=NNN
+[66] xmit fd=N type=LOG_REQUEST len=NNN
+[67] recv fd=N type=LOG_REQUEST len=NNN
 === filtered valgrind report ===
 Memcheck, a memory error detector
 Command: src/pducheck -i 1 -Dappl1

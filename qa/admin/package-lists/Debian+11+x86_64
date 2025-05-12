@@ -26,6 +26,7 @@ debhelper
 dh-python
 dpkg-dev
 ed
+expect
 flex
 g++
 gawk
@@ -35,6 +36,7 @@ gfs2-utils
 git
 grep
 iproute2
+jq
 libavahi-common-dev
 libbpf0
 libbpf-dev
@@ -44,12 +46,14 @@ libcoin-dev
 libdbd-mysql-perl
 libdbd-pg-perl
 libdevmapper-dev
+libdrm-dev
 libextutils-autoinstall-perl
 libfile-slurp-perl
 libgl1-mesa-dri
 libibmad-dev
 libibumad-dev
 libicu67
+libinih-dev
 libjson-perl
 liblist-moreutils-perl
 liblzma-dev
@@ -91,7 +95,7 @@ mariadb-client-core-10.5
 memcached
 net-tools
 nmap
-openjdk-11-jre-headless
+openjdk-17-jre-headless
 openssl
 perl
 perl-modules-5.32
@@ -126,8 +130,12 @@ sasl2-bin
 sed
 smartmontools
 socat
+sudo
 sysstat
+systemtap
+systemtap-runtime
 systemtap-sdt-dev
+targetcli-fb
 time
 unbound
 valgrind
@@ -135,3 +143,4 @@ xfsprogs
 xkb-data
 zabbix-agent
 zlib1g-dev
+zstd

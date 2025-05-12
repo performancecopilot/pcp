@@ -25,10 +25,19 @@ signal=$PCP_BINADM_DIR/pmsignal
 # Note3 - check_local_creds lines are timing sensitive and have
 # nothing much to do with logging state changes, so nuke 'em
 #
+# Note3 - lines like ...
+# logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
+# __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
+# from the pmlogger preamble writes are in a potential race with the
+# pmlc connection, and the ordering of these lines may become
+# non-deterministic ... since they are not key to the success of the
+# test, cull 'em
 _filter_pmlogger()
 {
     _filter_pmlogger_log \
     | sed >$tmp.tmp \
+	-e '/^logputresult: /d' \
+	-e '/^__pmLogPutIndex: /d' \
 	-e "s;$tmp;TMP;g" \
 	-e '/[Ss]ignalled (signal=.*), exiting/d' \
 	-e '/Warning: AF event queue is empty, nothing /d' \
@@ -104,7 +113,7 @@ do
 	    do
 		[ "$req_ctl $req_state" = "advisory maybe" ] && continue
 		echo ""
-		echo "$ctl $state -> $req_ctl $req_state" | tee -a $seq.full
+		echo "$ctl $state -> $req_ctl $req_state" | tee -a $seq_full
 		cat >$tmp.config <<End-of-File
 log $ctl $state {
     sample.colour [ "blue" ]
@@ -117,14 +126,18 @@ End-of-File
 		$sudo rm -f $tmp.0 $tmp.meta $tmp.index
 		_start_up_pmlogger -L -D log,optfetch,pmlc -c $tmp.config -l $tmp.out $tmp >$tmp.err 2>&1
 		logger_pid=$pid
-		_wait_for_pmlogger $logger_pid $tmp.out
+		_wait_for_pmlogger $logger_pid $tmp.out || _exit 1
 		src/logcontrol -p $logger_pid enquire sample.colour
 		# give pmlogger a chance to run the request before killing it
 		#
 		pmsleep 0.5sec
 		$sudo $signal -s TERM $logger_pid
-		_wait_pmlogger_end $logger_pid
-		cat $tmp.out >>$seq.full
+		_wait_pmlogger_end $logger_pid || _exit 1
+		echo "--- tmp.out ---" >>$seq_full
+		cat $tmp.out >>$seq_full
+		echo "--- tmp.err ---" >>$seq_full
+		cat $tmp.err >>$seq_full
+		echo "--- end" >>$seq_full
 		cat $tmp.err $tmp.out | _filter_pmlogger
 		if [ -s $tmp.0 ]
 		then

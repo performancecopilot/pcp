@@ -254,3 +254,14 @@ PCP_WEB_1.20 {
   global:
     pmSeriesWindow;
 } PCP_WEB_1.19;
+
+PCP_WEB_1.21 {
+  global:
+    keySlotsConnect;
+    keySlotsFree;
+    keySlotsProxyConnect;
+    keySlotsProxyFree;
+    keySlotsReconnect;
+    keySlotsSetupMetrics;
+    keySlotsSetMetricRegistry;
+} PCP_WEB_1.20;

@@ -46,7 +46,7 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 _netstat_i_1()
 {
     netstat -ai \
-    | tee -a $seq.full \
+    | tee -a $seq_full \
     | sed -e 's/\*/ /' \
     | $PCP_AWK_PROG '
 BEGIN	{ iface = -1; mtu = -1; hdr = 0 }
@@ -78,7 +78,7 @@ hdr==1	{ print $iface, $mtu }'
 _netstat_i_2()
 {
     netstat -ai \
-    tee -a $seq.full \
+    tee -a $seq_full \
     | sed \
 	-e 's/\*/ /' \
     | $PCP_AWK_PROG '
@@ -109,7 +109,7 @@ hdr==1	{ print $rx, $rx_err, $rx_drp, $rx_ovr, $tx, $tx_err, $tx_drp, $tx_ovr }'
 }
 
 # real QA test starts here
-echo >$seq.full
+echo >$seq_full
 
 # Get the list of network interfaces from ifconfig or ip.
 # Need uniq because may have one interface appearing more than once
@@ -160,10 +160,10 @@ then
 else
     echo "Instance domains for network.interface.total.drops are different:"
     diff -u $tmp.pcp.indom $tmp.net.indom
-    echo "PCP instance domain ..." >>$seq.full
-    cat $tmp.pcp.indom >>$seq.full
-    echo "netstat instance domain ..." >>$seq.full
-    cat $tmp.net.indom >>$seq.full
+    echo "PCP instance domain ..." >>$seq_full
+    cat $tmp.pcp.indom >>$seq_full
+    echo "netstat instance domain ..." >>$seq_full
+    cat $tmp.net.indom >>$seq_full
     status=1
 fi
 
@@ -182,17 +182,17 @@ out.drops
 out.fifo
 END
 
-echo >>$seq.full
-echo "=== netstat for first i/f name and mtu ===" >>$seq.full
+echo >>$seq_full
+echo "=== netstat for first i/f name and mtu ===" >>$seq_full
 _netstat_i_1 > $tmp.net.1a
-echo "===" >>$seq.full
-cat $tmp.net.1a >>$seq.full
+echo "===" >>$seq_full
+cat $tmp.net.1a >>$seq_full
 
-echo >>$seq.full
-echo "=== netstat for first counts ===" >>$seq.full
+echo >>$seq_full
+echo "=== netstat for first counts ===" >>$seq_full
 _netstat_i_2 > $tmp.net.1b
-echo "===" >>$seq.full
-cat $tmp.net.1b >>$seq.full
+echo "===" >>$seq_full
+cat $tmp.net.1b >>$seq_full
 
 # and stick 'em together (just lick and press)
 #
@@ -202,12 +202,12 @@ paste $tmp.net.1a $tmp.net.1b \
 
 # Now get the metrics
 #
-echo >>$seq.full
-echo "=== pminfo ==" >>$seq.full
+echo >>$seq_full
+echo "=== pminfo ==" >>$seq_full
 for m in `cat $tmp.metrics`
 do
     pminfo -f network.interface.$m \
-    | tee -a $seq.full \
+    | tee -a $seq_full \
     | $PCP_AWK_PROG '
 	/ inst /	{ print $4, $6 }
 			{ next } ' \
@@ -249,20 +249,20 @@ done
 
 # Grab another batch of netstat statistics.  Get name and mtu:
 #
-echo >>$seq.full
-echo "=== netstat for second i/f name and mtu ===" >>$seq.full
+echo >>$seq_full
+echo "=== netstat for second i/f name and mtu ===" >>$seq_full
 _netstat_i_1 > $tmp.net.2a
-echo "===" >>$seq.full
-cat $tmp.net.2a >>$seq.full
+echo "===" >>$seq_full
+cat $tmp.net.2a >>$seq_full
 
 # Then recv packets, recv errors, recv drops, xmit packets, xmit errors
 # and xmit drops.
 #
-echo >>$seq.full
-echo "=== netstat for second counts ===" >>$seq.full
+echo >>$seq_full
+echo "=== netstat for second counts ===" >>$seq_full
 _netstat_i_2 > $tmp.net.2b
-echo "===" >>$seq.full
-cat $tmp.net.2b >>$seq.full
+echo "===" >>$seq_full
+cat $tmp.net.2b >>$seq_full
 
 # and stick 'em together (just lick and press)
 #
@@ -301,18 +301,18 @@ for m in `cat $tmp.metrics`
 do
     [ ! -f $tmp.net.$m.1 ] && continue
 
-    echo "--- $tmp.net.$m.1 ---" >>$seq.full
-    cat $tmp.net.$m.1 >>$seq.full
-    echo "--- $tmp.net.$m.2 ---" >>$seq.full
-    cat $tmp.net.$m.2 >>$seq.full
-    echo "---" >>$seq.full
+    echo "--- $tmp.net.$m.1 ---" >>$seq_full
+    cat $tmp.net.$m.1 >>$seq_full
+    echo "--- $tmp.net.$m.2 ---" >>$seq_full
+    cat $tmp.net.$m.2 >>$seq_full
+    echo "---" >>$seq_full
     paste $tmp.net.$m.1 $tmp.net.$m.2 > $tmp.net
 
-    echo '' >>$seq.full
-    echo "=== $m pminfo ===" >>$seq.full
-    cat $tmp.vals.$m.2 >>$seq.full
-    echo "--- $m netstat ---" >>$seq.full
-    cat $tmp.net >>$seq.full
+    echo '' >>$seq_full
+    echo "=== $m pminfo ===" >>$seq_full
+    cat $tmp.vals.$m.2 >>$seq_full
+    echo "--- $m netstat ---" >>$seq_full
+    cat $tmp.net >>$seq_full
     LC_COLLATE=POSIX join -1 1 -2 1 -o 1.1,2.2,1.2,2.3 $tmp.vals.$m.2 $tmp.net >$tmp.all
 
     while read inst nv1 pcp nv2

@@ -108,11 +108,6 @@ AC_ARG_WITH([perl],
     [do_perl=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-perl=$withval"],
     [do_perl=check])
 
-AC_ARG_WITH([python],
-    [AS_HELP_STRING([--with-python],[enable support for tools requiring Python (default is on)])],
-    [do_python=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-python=$withval"],
-    [do_python=check])
-
 AC_ARG_WITH([python3],
     [AS_HELP_STRING([--with-python3],[enable support for tools requiring Python3 (default is on)])],
     [do_python3=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-python3=$withval"],
@@ -127,6 +122,11 @@ AC_ARG_WITH([perfevent],
     [AS_HELP_STRING([--with-perfevent],[enable perfevent pmda (default is on)])],
     [do_perfevent=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-perfevent=$withval"],
     [do_perfevent=check])
+
+AC_ARG_WITH([pmdagfs2],
+    [AS_HELP_STRING([--with-pmdagfs2],[enable GFS2 pmda (default is on)])],
+    [do_pmdagfs2=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdagfs2=$withval"],
+    [do_pmdagfs2=check])
 
 AC_ARG_WITH([pmdastatsd],
     [AS_HELP_STRING([--with-pmdastatsd],[enable statds pmda (default is on)])],
@@ -157,6 +157,11 @@ AC_ARG_WITH([pmdamongodb],
     [AS_HELP_STRING([--with-pmdamongodb],[enable MongoDB pmda (default is on)])],
     [do_pmdamongodb=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdamongodb=$withval"],
     [do_pmdamongodb=check])
+
+AC_ARG_WITH([pmdamysql],
+    [AS_HELP_STRING([--with-pmdamysql],[enable MySQL pmda (default is on)])],
+    [do_pmdamysql=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdamysql=$withval"],
+    [do_pmdamysql=check])
 
 AC_ARG_WITH([pmdanutcracker],
     [AS_HELP_STRING([--with-pmdanutcracker],[enable nutcracker pmda (default is on)])],
@@ -438,9 +443,11 @@ if ! echo "$CFLAGS" | grep -- -Wno-array-bounds >/dev/null
 then
     AS_IF([test "x$cc_is_gcc" = xyes ],[PCFLAGS="$PCFLAGS -Wno-array-bounds"])
 fi
+
+force_time_t=false
 dnl we also need to worry about time_t ... we need it to be 64-bits for Y2038;
 dnl _FILE_OFFSET_BITS and _TIME_BITS must be set together for the 32-bit case.
-AC_MSG_CHECKING([sizeof time_t])
+AC_MSG_CHECKING([default sizeof time_t])
 cat <<End-of-File >conftest.c
 #include <stdio.h>
 #include <sys/time.h>
@@ -450,16 +457,35 @@ End-of-File
 (eval $ac_link) 2>&5
 ans=`./conftest`
 echo "./conftest -> \"$ans\"" >&5
-rm -rf conftest conftest.*
-AC_MSG_RESULT($ans)
+AC_MSG_RESULT([$ans])
+rm -f conftest.done
 if test "$ans" = 4; then
-    PCFLAGS="$PCFLAGS -D_FILE_OFFSET_BITS=64 -D_TIME_BITS=64"
-else
+    dnl well that's disappointing the default time_t won't survive
+    dnl Y2038 ... let's see if -D_TIME_BIT64 makes any difference
+    AC_MSG_CHECKING([sizeof time_t with -D_TIME_BITS=64])
+    save_CFLAGS="$CFLAGS"
+    CFLAGS="$CFLAGS -D_FILE_OFFSET_BITS=64 -D_TIME_BITS=64"
+    (eval $ac_compile) 2>&5
+    (eval $ac_link) 2>&5
+    CFLAGS="$save_CFLAGS"
+    ans=`./conftest`
+    echo "./conftest -D_TIME_BITS=64 -> \"$ans\"" >&5
+    if test "$ans" = 8; then
+	PCFLAGS="$PCFLAGS -D_FILE_OFFSET_BITS=64 -D_TIME_BITS=64"
+	AC_MSG_RESULT([$ans => -D_TIME_BITS=64])
+	touch conftest.done
+	force_time_t=true
+    else
+	AC_MSG_RESULT([$ans => no way to make this Y2038 safe])
+    fi
+fi
+if test ! -f conftest.done; then
     dnl we may need to check off_t ... we need it to be 64-bits for V3 archives
     dnl this check is optional only because it may be set already (just prior).
-    AC_MSG_CHECKING([sizeof off_t])
+    AC_MSG_CHECKING([default sizeof off_t])
     cat <<End-of-File >conftest.c
 #include <stdio.h>
+#include <unistd.h>
 #include <sys/types.h>
 int main() { printf("%d", (int)sizeof(off_t)); return 0; }
 End-of-File
@@ -468,13 +494,89 @@ End-of-File
     ans=`./conftest`
     echo "./conftest -> \"$ans\"" >&5
     rm -rf conftest conftest.*
-    AC_MSG_RESULT($ans)
     if test "$ans" = 4; then
         PCFLAGS="$PCFLAGS -D_FILE_OFFSET_BITS=64"
+	AC_MSG_RESULT([$ans => -D_FILE_OFFSET_BITS=64])
+    else
+	AC_MSG_RESULT($ans)
     fi
 fi
+rm -rf conftest conftest.*
 AC_SUBST(PCFLAGS)
 AC_SUBST(PLDFLAGS)
+
+dnl we have some constraints around the packing of pmResults of various
+dnl flavours and Python modules handling of pmHighResResult
+dnl 1) we need the offset of the numpmid field in __pmResult to be at least as
+dnl    big as the offset of the numpmid field in pmResult _and_ pmHighResResult
+dnl    (for the tricky games in libpcp to minimize copying)
+dnl 2) we need to know if the compiler is adding padding between the timestamp
+dnl    and the numpmid fields of pmHighResResult (for Python packing and
+dnl    unpacking)
+cat <<End-of-File >conftest.c
+#include <stdint.h>
+#include <stddef.h>
+#include <stdio.h>
+#include <sys/time.h>
+typedef struct {
+    int64_t sec;
+    int32_t nsec;
+} __pmTimestamp;
+typedef struct {
+    __pmTimestamp stamp;
+    int numpmid;
+} __pmResult;
+typedef struct {
+    struct timeval stamp;
+    int numpmid;
+} pmResult;
+typedef struct {
+    struct timespec stamp;
+    int numpmid;
+} pmHighResResult;
+void
+main(void)
+{
+    __pmResult __rp;
+    pmResult rp;
+    pmHighResResult hrp;
+    int nb;
+
+    nb = (int)offsetof(pmResult,numpmid);
+    if (nb < (int)offsetof(pmHighResResult,numpmid))
+	nb = (int)offsetof(pmHighResResult,numpmid);
+    if (nb > (int)offsetof(__pmResult,numpmid))
+	printf("__pmResult pad %d\n", nb - (int)offsetof(__pmResult,numpmid));
+
+    nb = (int)(sizeof(hrp.stamp) - sizeof(hrp.stamp.tv_sec) - sizeof(hrp.stamp.tv_nsec));
+    if (nb > 0)
+	printf("timespec pad %d\n", nb);
+}
+End-of-File
+save_CFLAGS="$CFLAGS"
+CFLAGS="$PCFLAGS"
+(eval $ac_compile) 2>&5
+(eval $ac_link) 2>&5
+./conftest >conftest.out
+CFLAGS="$save_CFLAGS"
+AC_MSG_CHECKING([__pmResult padding])
+ans=`sed <conftest.out -n -e '/__pmResult pad/s/.* //p'`
+if test -n "$ans"
+then
+    AC_DEFINE_UNQUOTED(PM_PAD_RESULT, $ans, [__pmResult padding])
+    AC_MSG_RESULT($ans)
+else
+    AC_MSG_RESULT([no])
+fi
+AC_MSG_CHECKING([timespec padding])
+ans=`sed <conftest.out -n -e '/timespec pad/s/.* //p'`
+if test -n "$ans"
+then
+    AC_DEFINE_UNQUOTED(PM_PAD_TIMESPEC, $ans, [timespec padding])
+    AC_MSG_RESULT($ans)
+else
+    AC_MSG_RESULT([no])
+fi
 
 dnl Check for even more security-related gcc/linker flags, useful for daemons
 AC_ARG_ENABLE([pie],
@@ -881,7 +983,9 @@ AC_SUBST(pm_version_current)
 
 dnl output header files with cpp defs HAVE_*, etc
 AC_CONFIG_HEADERS(src/include/pcp/config.h src/include/pcp/configsz.h)
+AC_CONFIG_HEADERS(src/libpcp3/src/include/pcp/config.h src/libpcp3/src/include/pcp/configsz.h)
 AC_CONFIG_FILES([src/include/pcp/platform_defs.h src/include/pcp/platformsz.h])
+AC_CONFIG_FILES([src/libpcp3/src/include/pcp/platform_defs.h src/libpcp3/src/include/pcp/platformsz.h])
 AC_OUTPUT
 
 AC_CHECK_PROGS(GIT, git)
@@ -890,12 +994,22 @@ AC_SUBST(GIT)
 AC_CHECK_PROGS(PYLINT, pylint, /bin/true)
 AC_SUBST(PYLINT)
 
-dnl check if python available for the build and runtime
-AC_PATH_PROGS(PYTHON, [/usr/bin/python2 python2 python2.7 python])
-AC_SUBST(PYTHON)
-
 dnl check if python3 available for the build and runtime
-AC_PATH_PROGS(PYTHON3, [/usr/bin/python3 python3 python3.9])
+AC_PATH_PROGS(PYTHON3, [python3])
+if test -z "$PYTHON3"
+then
+    dnl no python3 executable, so look for latest python3.x, if any
+    AC_MSG_CHECKING([for python3.N executable])
+    PYTHON3=`ls /usr/bin/python3.*[[0-9]] /usr/local/bin/python3.*[[0-9]] 2>/dev/null \
+	     | sort -nr -t. -k2 \
+	     | sed -e 1q`
+    if test -z "$PYTHON3"
+    then
+	AC_MSG_RESULT(no)
+    else
+	AC_MSG_RESULT([$PYTHON3])
+    fi
+fi
 AC_SUBST(PYTHON3)
 
 dnl check availability of Python header files
@@ -905,7 +1019,7 @@ AC_DEFUN([PCP_CHECK_PYTHON_HEADER],
   [ PY_MAJOR="$1"
     PY_MINOR="$2"
     PY_VERSION="python$PY_MAJOR.$PY_MINOR"
-    PY_INCLUDE_DIRS="-I/usr/include/${PY_VERSION}m -I/usr/include/${PY_VERSION}"
+    PY_INCLUDE_DIRS="-I/usr/include/${PY_VERSION}m -I/usr/include/${PY_VERSION} -I/usr/local/include/${PY_VERSION}"
     saved_CFLAGS="$CFLAGS"
     saved_CPPFLAGS="$CPPFLAGS"
     CFLAGS="$CFLAGS $PY_INCLUDE_DIRS"
@@ -919,7 +1033,7 @@ AC_DEFUN([PCP_CHECK_PYTHON_HEADER],
     CFLAGS="$saved_CFLAGS"
   ])
 
-dnl check if python3 tools/packages wanted (need python >= 3.3)
+dnl check if python3 tools/packages wanted (need python >= 3.6)
 enable_python3=false
 AS_IF([test "x$do_python3" != "xno"], [
     enable_python3=true
@@ -931,12 +1045,12 @@ AS_IF([test "x$do_python3" != "xno"], [
 	eval `$PYTHON3 -V 2>&1 | awk '/^Python/ { ver=2; print $ver }' | awk -F. '{ major=1; minor=2; point=3; printf "export PY_MAJOR=%d PY_MINOR=%d PY_POINT=%d\n",$major,$minor,$point }'`
 	AC_MSG_RESULT([$PY_MAJOR.$PY_MINOR.$PY_POINT])
 	if test "$PY_MAJOR" -lt 3; then
-	    echo WARNING: Python version 3.3 or later does not seem to be installed.
+	    echo WARNING: Python version 3.6 or later does not seem to be installed.
 	    enable_python3=false
 	else
-	    if test "$PY_MAJOR" -eq 3 -a "$PY_MINOR" -lt 3 ; then
+	    if test "$PY_MAJOR" -eq 3 -a "$PY_MINOR" -lt 6 ; then
 		echo WARNING: Python version 3.$PY_MINOR is too old.
-		echo Python version 3.3 or later is required for Python builds.
+		echo Python version 3.6 or later is required for Python builds.
 		enable_python3=false
 	    else
 		PCP_CHECK_PYTHON_HEADER([$PY_MAJOR], [$PY_MINOR])
@@ -951,107 +1065,12 @@ AS_IF([test "x$do_python3" != "xno"], [
 ])
 AC_SUBST(enable_python3)
 
-dnl check if python tools/packages wanted (need python >= 2.7)
-enable_python2=false
-AS_IF([test "x$do_python" != "xno"], [
-    enable_python2=true
-
-    if test "$do_python" = "check" -a -f /etc/os-release
-    then
-    (
-	dnl just don't bother with Python2 for more recent distros
-
-	. /etc/os-release
-	case "$ID"
-	in
-	    debian)
-		if test -z "$VERSION_ID" -o "$VERSION_ID" -ge 11; then
-		    touch config.python2_eol
-		fi
-		;;
-	    ubuntu)
-		VERSION_NO=`echo "$VERSION_ID" | sed 's/[[^0-9]]//'`
-		dnl debug echo "VERSION_ID=$VERSION_ID VERSION_NO=$VERSION_NO"
-		if test "$VERSION_NO" -ge 2004; then
-		    touch config.python2_eol
-		fi
-		;;
-	    fedora)
-		if test -z "$VERSION_ID" -o "$VERSION_ID" -ge 35; then
-		    touch config.python2_eol
-		fi
-		;;
-	    rhel)
-		VERSION_NO=`echo "$VERSION_ID" | sed 's/[[^0-9]]//'`
-		dnl debug echo "VERSION_ID=$VERSION_ID VERSION_NO=$VERSION_NO"
-		if test "$VERSION_NO" -ge 90; then
-		    touch config.python2_eol
-		fi
-		;;
-	    opensuse-leap)
-		dnl map leap version 15.4 => 1504, for example
-		VERSION_NO=`echo "$VERSION_ID" | sed -e '[s/\.\([0-9]\)$]/[\.0\1]/' -e '[s/\.//]'`
-		dnl debug echo "VERSION_ID=$VERSION_ID VERSION_NO=$VERSION_NO"
-		if test "$VERSION_NO" -ge 1504; then
-		    touch config.python2_eol
-		fi
-		;;
-	    centos)
-		if test "$VERSION_ID" -ge 9; then
-		    touch config.python2_eol
-		fi
-		;;
-	esac
-    )
-    fi
-
-    if test -f config.python2_eol
-    then
-	rm config.python2_eol
-	if test $enable_python3 = false; then
-	    dnl be silent if python3 is already enabled
-	    echo "WARNING: Python 2 is not supported anymore (EOL since 2020), please use Python 3 instead."
-	fi
-	enable_python2=false
-    fi
-
-    if test "$enable_python2" = "true" -a -z "$PYTHON"
-    then
-	enable_python2=false
-    fi
-
-    if $enable_python2
-    then
-	AC_MSG_CHECKING([Python2 version])
-	eval `$PYTHON -V 2>&1 | awk '/^Python/ { ver=2; print $ver }' | awk -F. '{ major=1; minor=2; point=3; printf "export PY_MAJOR=%d PY_MINOR=%d PY_POINT=%d\n",$major,$minor,$point }'`
-	AC_MSG_RESULT([$PY_MAJOR.$PY_MINOR.$PY_POINT])
-	if test "$PY_MAJOR" -lt 2; then
-	    echo WARNING: Python version 2.7 or later does not seem to be installed.
-	    enable_python2=false
-	else
-	    if test "$PY_MAJOR" -eq 2 -a "$PY_MINOR" -lt 7 ; then
-		echo WARNING: Python version 2.$PY_MINOR is too old.
-		echo Python version 2.7 or later is required for Python builds.
-		enable_python2=false
-	    else
-		PCP_CHECK_PYTHON_HEADER([$PY_MAJOR], [$PY_MINOR])
-	    fi
-	fi
-    fi
-
-    if test "$do_python" != "check" -a "$enable_python2" != "true"
-    then
-	AC_MSG_ERROR([cannot enable Python - no supported version found])
-    fi
-])
-AC_SUBST(enable_python2)
-
 dnl convenience macro to determine if either python is available
 AC_MSG_CHECKING([for any python version])
 if test "$cross_compiling" = "yes"; then
     ans=$have_python
     echo "cross-compile -> \"$ans\"" >&5
-elif test "$enable_python2" = "true" -o "$enable_python3" = "true"
+elif "$enable_python3" = "true"
 then
     have_python=true
 else
@@ -1060,13 +1079,10 @@ fi
 AC_SUBST(have_python)
 if $have_python; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
-dnl choose the prefered python executable (py2 -> py3 transtion)
+dnl choose the prefered python executable
 if test "$enable_python3" = "true"
 then
     pcp_python_prog=$PYTHON3
-elif test "$enable_python2" = "true"
-then
-    pcp_python_prog=$PYTHON
 else
     pcp_python_prog=""
 fi
@@ -1158,9 +1174,8 @@ AC_MSG_CHECKING([if the bcc PMDA should be included])
 pmda_bcc=false
 AS_IF([test "x$do_pmdabcc" = "xyes"], [pmda_bcc=true])
 AS_IF([test "x$do_pmdabcc" = "xcheck"], [
-    dnl BCC PMDA needs python3, and OrderedDict and BPF Python modules
-    $enable_python3 && $have_python_BPF && \
-	$have_python_OrderedDict && pmda_bcc=true
+    dnl BCC PMDA needs OrderedDict and BPF Python modules
+    $have_python_BPF && $have_python_OrderedDict && pmda_bcc=true
 ])
 AC_SUBST(PMDA_BCC, $pmda_bcc)
 if $pmda_bcc; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
@@ -1245,8 +1260,7 @@ AC_MSG_CHECKING([if the bpftrace PMDA should be included])
 pmda_bpftrace=false
 AS_IF([test "x$do_pmdabpftrace" = "xyes"], [pmda_bpftrace=true])
 AS_IF([test "x$do_pmdabpftrace" = "xcheck"], [
-    dnl bpftrace PMDA needs bpftrace executable, python 3.6+ and bpftrace
-    dnl with JSON support
+    dnl needs bpftrace executable and bpftrace with JSON support
     have_bpftrace=false
     if which bpftrace >/dev/null 2>&1
     then
@@ -1254,7 +1268,6 @@ AS_IF([test "x$do_pmdabpftrace" = "xcheck"], [
 	    have_bpftrace=true
 	fi
     fi
-    $enable_python3 && test "$PY_MAJOR" -eq 3 -a "$PY_MINOR" -ge 6 && \
     $have_bpftrace && pmda_bpftrace=true
 ])
 AC_SUBST(PMDA_BPFTRACE, $pmda_bpftrace)
@@ -1284,11 +1297,36 @@ AS_IF([test "x$do_perl" != "xno"], [
     then
         AC_MSG_CHECKING([if ExtUtils::MakeMaker is installed])
         $pcp_perl_prog -e "use ExtUtils::MakeMaker" 2>/dev/null
-        if test $? -eq 0
-        then
-	    AC_MSG_RESULT([ yes])
+        if test $? -eq 0; then
+	    AC_MSG_RESULT([yes])
+	    if $force_time_t; then
+		dnl forcing -D_TIME_BITS=64 for PCP libs, but need to check
+		dnl that installed Perl is built for _TIME_BITS=64, else
+		dnl we cannot build compatibile PCP Perl components
+		AC_MSG_CHECKING([if Perl is Y2038-safe])
+		$pcp_perl_prog -MConfig -e 'print "$Config{sGMTIME_max}\n";' >conftest.out
+		case `cat conftest.out`
+		in
+		    2147483647)
+			    # definitely 32-bit time_t for Perl build, we
+			    # can't play in this sandpit
+			    #
+			    AC_MSG_RESULT([no])
+			    have_perl=false
+			    ;;
+		    67768036191676799)
+			    # all good
+			    #
+			    AC_MSG_RESULT([yes])
+			    ;;
+		    *)
+			    echo >&2 "Warning: Perl config sGMTIME_max=`cat conftest.out` unexpected"
+			    AC_MSG_RESULT([yes])
+			    ;;
+		esac
+	    fi
         else
-	    AC_MSG_RESULT([ no])
+	    AC_MSG_RESULT([no])
 	    have_perl=false
         fi
     fi
@@ -1314,17 +1352,20 @@ if $pmda_snmp; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
 AC_MSG_CHECKING([if the mysql PMDA should be included])
 pmda_mysql=false
-if test "$have_perl" = true
-then
-    dnl rpm build for mysql PMDA needs Perl DBI and DBD::mysql
-    if $pcp_perl_prog -e "use DBI" >/dev/null 2>&1
+AS_IF([test "x$do_pmdamysql" = "xyes"], [pmda_mysql=true])
+AS_IF([test "x$do_pmdamysql" = "xcheck"], [
+    if test "$have_perl" = true
     then
-	if $pcp_perl_prog -e "use DBD::mysql" >/dev/null 2>&1
-	then
-	    pmda_mysql=true
-	fi
+        dnl rpm build for mysql PMDA needs Perl DBI and DBD::mysql
+        if $pcp_perl_prog -e "use DBI" >/dev/null 2>&1
+        then
+	    if $pcp_perl_prog -e "use DBD::mysql" >/dev/null 2>&1
+	    then
+	        pmda_mysql=true
+	    fi
+        fi
     fi
-fi
+])
 AC_SUBST(PMDA_MYSQL, $pmda_mysql)
 if $pmda_mysql; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
@@ -1965,12 +2006,33 @@ then
 fi
 AC_SUBST(enable_secure)
 
+PKG_CHECK_MODULES([libdrm], [libdrm >= 2.4.77], [have_drm=true], [have_drm=false])
+if $have_drm
+then
+	PKG_CHECK_MODULES([libdrm_amdgpu], [libdrm_amdgpu >= 1], [have_amdgpu=true], [have_amdgpu=false])
+else
+	have_amdgpu=false
+fi
+AC_SUBST(PMDA_AMDGPU, [$have_amdgpu])
+
 PKG_CHECK_MODULES([libuv], [libuv >= 1.0], [have_libuv=true], [have_libuv=false])
 AC_SUBST(HAVE_LIBUV, [$have_libuv])
 AC_CHECK_LIB(uv, uv_pipe_chmod,
 	     AC_DEFINE(HAVE_UV_PIPE_CHMOD, [1], [uv_pipe_chmod API.])
 	     have_uv_pipe_chmod=true,
 	     have_uv_pipe_chmod=false)
+
+dnl PKG_CHECK_MODULES() does not work for libinih
+AC_CHECK_LIB(inih, ini_parse,
+       [ have_libinih=true
+	 lib_for_inih="-linih"
+       ],
+       [ have_libinih=false
+         lib_for_inih=""
+       ]
+)
+AC_SUBST(HAVE_LIBINIH, [$have_libinih])
+AC_SUBST(lib_for_inih)
 
 PKG_CHECK_MODULES([ncurses], [ncurses], [have_ncurses=true], [have_ncurses=false])
 AC_SUBST(HAVE_NCURSES, [$have_ncurses])
@@ -2091,6 +2153,17 @@ AC_SUBST(lib_for_hdr_histogram)
 AC_CHECK_LIB(chan, chan_init, [lib_for_chan="-lchan"])
 AC_SUBST(lib_for_chan)
 
+dnl Do you want GFS2 metrics (no longer supported in some Linux distros)
+AC_MSG_CHECKING([if the GFS2 PMDA should be included])
+pmda_gfs2=false
+AS_IF([test "x$do_pmdagfs2" = "xyes"], [pmda_gfs2=true])
+AS_IF([test "x$do_pmdagfs2" = "xcheck"], [
+       if test $target_os = linux; then
+	pmda_gfs2=true
+       fi])
+AC_SUBST(PMDA_GFS2, $pmda_gfs2)
+if $pmda_gfs2; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
+
 dnl Do you have ragel, hdr_histogram and chan libraries for pmdastatsd?
 AC_MSG_CHECKING([if the statsd PMDA should be included])
 pmda_statsd=false
@@ -2141,7 +2214,7 @@ AC_CHECK_FUNCS(mktime nanosleep usleep unsetenv getrusage)
 AC_CHECK_FUNCS(select socket syslog sendmsg recvmsg setns)
 AC_CHECK_FUNCS(getuid getgid getpeerucred getpeereid getresuid)
 AC_CHECK_FUNCS(uname gethostname getdomainname getmachineid)
-AC_CHECK_FUNCS(__clone pipe2 fcntl ioctl)
+AC_CHECK_FUNCS(__clone pipe2 closefrom fcntl ioctl)
 AC_CHECK_FUNCS(prctl setlinebuf waitpid atexit kill)
 AC_CHECK_FUNCS(chown fchmod fchown getcwd scandir mkstemp)
 AC_CHECK_FUNCS(brk sbrk posix_memalign memalign valloc)
@@ -2350,6 +2423,11 @@ AC_SUBST([rdynamic_flag])
 
 dnl check if argument to user's select() method in scandir call is const
 AC_MSG_CHECKING([whether const arg for scandir() select method])
+save_CFLAGS="$CFLAGS"
+dnl Using -Werror to make the compiler fail on purpose if scandir()
+dnl on this system does not support `const struct dirent *' for
+dnl callbacks.
+CFLAGS="-Werror"
 cat <<End-of-File >conftest.c
 #include <stdlib.h>
 #include <unistd.h>
@@ -2359,14 +2437,16 @@ my_select(const struct dirent *foo) { return 0; }
 int main() { struct dirent **list; return scandir(".", &list, my_select, NULL); }
 End-of-File
 (eval $ac_compile) 2>conftest.out
+_ret=$?
 cat conftest.out >&5
-if test -s conftest.out
+if test $_ret != 0
 then
     AC_MSG_RESULT(no)
 else
     AC_DEFINE(HAVE_CONST_DIRENT, [1], [const arg for scandir() select method])
     AC_MSG_RESULT(yes)
 fi
+CFLAGS="$save_CFLAGS"
 rm -f conftest.*
 
 dnl check if struct dirent has a d_off (directory offset) field
@@ -2378,8 +2458,9 @@ cat <<End-of-File >conftest.c
 int main() { struct dirent d; d.d_off = 0; }
 End-of-File
 (eval $ac_compile) 2>conftest.out
+_ret=$?
 cat conftest.out >&5
-if test -s conftest.out
+if test $_ret != 0
 then
     AC_MSG_RESULT(no)
 else
@@ -2549,6 +2630,24 @@ End-of-File
 fi
 AC_MSG_RESULT($fmt_pid)
 AC_SUBST(fmt_pid)
+rm -rf conftest.c conftest.debug
+
+dnl printf type for size_t
+AC_MSG_CHECKING([printf type for size_t])
+if test "$cross_compiling" = "yes"; then
+    ans=$printf_fmt_size
+    echo "cross-compile -> \"$ans\"" >&5
+    fmt_size=$ans
+else
+    cat <<End-of-File >conftest.c
+#include <sys/types.h>
+size_t bozo;
+End-of-File
+    _do_type
+    fmt_size=$_fmt
+fi
+AC_MSG_RESULT($fmt_size)
+AC_SUBST(fmt_size)
 rm -rf conftest.c conftest.debug
 
 dnl printf type for int64_t
@@ -2808,13 +2907,16 @@ else
     cat <<End-of-File >conftest.c
 #include <stdio.h>
 #include <sys/time.h>
-int main() { printf("%d", (int)sizeof(suseconds_t)); return 0; }
+int main() { struct timeval tv; printf("%d", (int)sizeof(tv.tv_usec)); return 0; }
 End-of-File
+    save_CFLAGS="$CFLAGS"
+    CFLAGS="$PCFLAGS"
     (eval $ac_compile) 2>&5
     (eval $ac_link) 2>&5
     ans=`./conftest`
     echo "./conftest -> \"$ans\"" >&5
     rm -rf conftest conftest.*
+    CFLAGS="$save_CFLAGS"
 fi
 AC_MSG_RESULT($ans)
 if test -n "$ans"; then
@@ -2831,11 +2933,14 @@ else
 #include <sys/time.h>
 int main() { printf("%d", (int)sizeof(time_t)); return 0; }
 End-of-File
+    save_CFLAGS="$CFLAGS"
+    CFLAGS="$PCFLAGS"
     (eval $ac_compile) 2>&5
     (eval $ac_link) 2>&5
     ans=`./conftest`
     echo "./conftest -> \"$ans\"" >&5
     rm -rf conftest conftest.*
+    CFLAGS="$save_CFLAGS"
 fi
 AC_MSG_RESULT($ans)
 if test -n "$ans"; then
@@ -3312,7 +3417,7 @@ pcp_x11_pre=$X_PRE_LIBS
 AC_SUBST(pcp_x11_pre)
 
 dnl man pages (source)
-AC_MSG_CHECKING([if man pages should packaged])
+AC_MSG_CHECKING([if man pages should be packaged])
 have_manpages=false
 have_gzipped_manpages=false
 have_bzip2ed_manpages=false
@@ -3443,7 +3548,7 @@ inkscape=$INKSCAPE
 AC_SUBST(inkscape)
 
 have_hicolor_icons=false
-if test -d /usr/share/icons/hicolor -a -n "$INKSCAPE"
+if test -d /usr/share/icons/hicolor
 then
     AC_MSG_NOTICE([adding hicolor desktop icons to the build])
     have_hicolor_icons=true
@@ -3751,11 +3856,18 @@ dnl on FreeBSD by appending
 dnl #define off_t long int
 dnl to conftest.h which causes unrelated compilation failures
 AC_C_CONST
-AC_TYPE_OFF_T
-AC_TYPE_PID_T
-AC_TYPE_SIZE_T
 AC_STRUCT_TM
 AC_C_INLINE
+if test $target_os = linux
+then
+    dnl the tests below fail miserably on some Linux hosts,
+    dnl e.g. Debian 12.5, Ubuntu 22.04, ...
+    :
+else
+    AC_TYPE_OFF_T
+    AC_TYPE_PID_T
+    AC_TYPE_SIZE_T
+fi
 
 dnl Capture special options passed to configure
 pcp_prefix=`eval echo $prefix`
@@ -3771,6 +3883,7 @@ dnl   Build definitions for use in Makefiles
     src/include/builddefs
 dnl   PCP paths and other defs
     src/include/pcp.conf
+    src/libpcp3/src/include/pcp.conf
 dnl   Linux Software Map entry
     pcp.lsm
 dnl   Preamble for deb install scripts
@@ -3784,6 +3897,12 @@ dnl   Build definitions for use in packaging
     build/mac/uninstall-pcp
 )
 AC_OUTPUT
+
+dnl debugging for build conditionals
+dnl
+echo "+++ start buildefs conditionals"
+grep -E '^(ENABLE_|HAVE_|PMDA_)' src/include/builddefs
+echo "+++ end buildefs conditionals"
 
 dnl verbose diagnostics
 dnl

@@ -15,12 +15,8 @@
 
 import sys
 import unittest
-if sys.version_info[0] < 3:
-    from mock import Mock
-    from mock import call
-else:
-    from unittest.mock import Mock
-    from unittest.mock import call
+from unittest.mock import Mock
+from unittest.mock import call
 from pcp_mpstat import CpuUtilReporter
 
 class TestCpuUtilReporter(unittest.TestCase):

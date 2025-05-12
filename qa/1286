@@ -16,13 +16,12 @@ which ss >/dev/null 2>&1 || _notrun "No ss binary installed"
 
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
-$sudo rm -rf $tmp.* $seq.full
 
 # Some combinations of distro and kernel are known to be "bad"
 # for some BPF modules
 #
 kernel=`uname -r`
-echo "$kernel" >>$seq.full
+echo "$kernel" >>$seq_full
 case `admin/whatami`
 in
     *Fedora\ 32\ *)
@@ -53,14 +52,14 @@ cat <<'End-of-File' >$tmp.py
 import bcc
 print(bcc.__version__)
 End-of-File
-echo "bcc version ..." >>$seq.full
-version=`pmpython $tmp.py 2>>$seq.full`
-echo "$version" >>$seq.full
+echo "bcc version ..." >>$seq_full
+version=`pmpython $tmp.py 2>>$seq_full`
+echo "$version" >>$seq_full
 case "$version"
 in
     '')
-	    # failed to extract version ($seq.full may help) ... but punt
-	    # on running the test
+	    # failed to extract version (see $seq.full for more info) ...
+	    # but punt on running the test
 	    ;;
 
     0.0.*|0.1[0-1].*)
@@ -99,7 +98,7 @@ _pmdabcc_install <$tmp.conf
 _pmdabcc_wait_for_metric
 
 # Generate system activity for the BCC netproc module
-$python src/bcc_netproc.py server >> "$seq.full" &
+$python src/bcc_netproc.py server >> "$seq_full" &
 server_pid=$!
 
 # wait for server to listen on specified port
@@ -109,13 +108,13 @@ if [ $i -ge 10 ]; then
     exit 1
 fi
 
-$python src/bcc_netproc.py client >> "$seq.full" &
+$python src/bcc_netproc.py client >> "$seq_full" &
 client_pid=$!
 
 wait ${client_pid}
 wait ${server_pid}
-echo "server PID: ${server_pid}" >> "$seq.full"
-echo "client PID: ${client_pid}" >> "$seq.full"
+echo "server PID: ${server_pid}" >> "$seq_full"
+echo "client PID: ${client_pid}" >> "$seq_full"
 
 for metric in bcc.proc.net.tcp.send.calls \
               bcc.proc.net.tcp.send.bytes \
@@ -127,7 +126,7 @@ for metric in bcc.proc.net.tcp.send.calls \
               bcc.proc.net.udp.recv.bytes
 do
     echo && echo && echo "=== report metric values for $metric ==="
-    pminfo -dfmtT $metric 2>&1 | tee -a $seq.full \
+    pminfo -dfmtT $metric 2>&1 | tee -a $seq_full \
     | _pid_filter ${server_pid} ${client_pid} \
     | sort # sort to fix the non deterministic instance order
 

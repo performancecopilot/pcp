@@ -141,6 +141,8 @@ command_to_execute = [
     'echo "fetch statsd.stat_cpu_wait"',
     'echo "fetch statsd.stat_cpu_busy"',
     'echo "fetch statsd.stat_tagged_counter_b"'
+    'echo "close"'
+    'echo "quit"'
 ]
 # delay between commands <1 was returning "bad metric name"
 composed_command = '; sleep 0.1; '.join(command_to_execute)
@@ -154,15 +156,17 @@ testconfigs = [basic_parser_config, ragel_parser_config, duration_aggregation_ba
 
 def run_test():
     utils.pmdastatsd_remove()
-    utils.setup_dbpmdarc()    
-    command = '(sleep 8;' + composed_command + '; cat) | sudo valgrind --trace-children=yes --leak-check=full --log-file=' + valgrind_out_path + ' dbpmda -e -q 60 -i 2>&1 >>' + dbpmda_out_path;
+    utils.setup_dbpmdarc()
+    command = '(sleep 8;' + composed_command + ') | sudo valgrind --trace-children=yes --leak-check=full --log-file=' + valgrind_out_path + ' dbpmda -e -q 60 -i 2>&1 >>' + dbpmda_out_path;
     for config in testconfigs:
         utils.print_test_section_separator()
         utils.set_config(config)
         p = Popen(command, cwd=utils.pmdastatsd_dir, stdout=PIPE, stdin=PIPE, bufsize=1, text=True, close_fds=ON_POSIX, shell=True)
+        print('+++ pipe pid ' + str(p.pid)) #debug#
         time.sleep(4)
         # get pmdastatsdpid
         pmdastatsd_pid = utils.get_pmdastatsd_pids_ran_by_dbpmda()[0]
+        print('+++ pmdastatsd pid ' + str(pmdastatsd_pid)) #debug#
         # send payloads
         for payload in payloads:
            sock.sendto(payload.encode("utf-8"), (ip, port))
@@ -170,9 +174,17 @@ def run_test():
         time.sleep(8)
         # trigger cleanup in agent by sending SIGINT
         utils.send_INT_to_pid(pmdastatsd_pid)
+        valgrind_pmdastatsd_output = valgrind_out_path.replace("%p", pmdastatsd_pid)
+        print('+++ ' + valgrind_pmdastatsd_output) #debug#
+        print('+++ initial log size ' + str(os.path.getsize(valgrind_pmdastatsd_output))) #debug#
         # again, wait for cleanup
         time.sleep(5)
-        valgrind_pmdastatsd_output = valgrind_out_path.replace("%p", pmdastatsd_pid)
+        # safe bet that pstree and echo -n are OK on any system where
+        # the statsd PMDA is working
+        os.system('echo -n "+++ "; pstree -l -p ' + str(p.pid)) #debug#
+        # sometimes agent hangs due to dbpmda exit probably? Doesn't happen when its './Remove'd
+        p.kill()
+        print('+++ final log size ' + str(os.path.getsize(valgrind_pmdastatsd_output))) #debug#
         f = open(valgrind_pmdastatsd_output, "r")
         show_next_line = 0
         for line in f:
@@ -182,11 +194,10 @@ def run_test():
             elif show_next_line:
                 sys.stdout.write(line.replace("=={}==".format(pmdastatsd_pid), ""))
                 show_next_line = 0        
-        # sometimes agent hangs due to dbpmda exit probably? Doesn't happen when its './Remove'd
-        p.kill()
+         
         # don't clean up valgrind output files ... leave that to the
         # QA test so we have a a chance to triage in the event of failure
-
+         
         utils.restore_config()
 
 run_test()

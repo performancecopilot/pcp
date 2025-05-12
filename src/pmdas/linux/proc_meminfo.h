@@ -51,6 +51,7 @@ typedef struct {
     int64_t Writeback;
     int64_t Mapped;
     int64_t Shmem;
+    int64_t KReclaimable;
     int64_t Slab;
     int64_t SlabReclaimable;
     int64_t SlabUnreclaimable;
@@ -84,6 +85,7 @@ typedef struct {
     int64_t HugepagesRsvd;
     int64_t HugepagesSurp;
     int64_t Hugepagesize;
+    int64_t Hugetlb;
     int64_t directMap4k;
     int64_t directMap2M;
     int64_t directMap1G;

@@ -10,6 +10,7 @@ force	include
 	kernel.pernode.cpu.irq.hard
 	kernel.pernode.cpu.irq.soft
 	kernel.pernode.cpu.nice
+	kernel.pernode.cpu.vnice
 	kernel.pernode.cpu.steal
 	kernel.pernode.cpu.sys
 	kernel.pernode.cpu.vuser

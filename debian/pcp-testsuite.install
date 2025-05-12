@@ -1,6 +1,7 @@
 usr/include/pcp/fault.h
 usr/lib/libpcp_fault.a
 usr/lib/libpcp_fault.so
-usr/lib/libpcp_fault.so.3
+usr/lib/libpcp_fault.so.4
 usr/lib/sysusers.d/pcp-testsuite.conf
+usr/share/lintian/overrides/pcp-testsuite
 usr/share/pcp/lib/pmcheck/pmda-sample

@@ -5,6 +5,7 @@ QA output created by 245
 Usage: pmnsdel [options] metricpath [...]
 
 Options:
+  -D DBG, --debug=DBG   set debug options, see pmdbg(1)
   -n FILE, --namespace=FILE
                         use an alternative PMNS
   -?, --help            show this usage message and exit

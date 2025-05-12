@@ -14,7 +14,6 @@ echo "QA output created by $seq"
 . ./common.check
 
 trap "$sudo rm -f $tmp.*; exit" 0 1 2 3 15
-rm -f $seq.full
 
 if ps l -p 1 2>/dev/null | sed -e 1q | grep RSS >/dev/null
 then
@@ -47,8 +46,8 @@ NR == 1	{ for (i = 1; i <= NF; i++) {
 	  }
 	  exit
 	}'`
-echo "rss_field=$rss_field pid_field=$pid_field" >>$seq.full
-ps $ps_arg -p 1 >>$seq.full
+echo "rss_field=$rss_field pid_field=$pid_field" >>$seq_full
+ps $ps_arg -p 1 >>$seq_full
 
 _fail()
 {
@@ -64,9 +63,17 @@ _fail()
     cat $tmp.log
 }
 
+# and NO malloc() hardening ...
+#
+case $PCP_PLATFORM
+in
+    openbsd)
+    	unset MALLOC_OPTIONS
+	;;
+esac
+
 # real QA test starts here
 
-rm -f $tmp.*
 cat <<End-of-File >$tmp.config
 log mandatory on 20 msec {
     pmcd.control
@@ -76,7 +83,7 @@ End-of-File
 #debug# _start_up_pmlogger -c $tmp.config -Daf,appl2,desperate -l $tmp.log -s 1000 $tmp
 _start_up_pmlogger -c $tmp.config -l $tmp.log -s 1000 $tmp
 mylogger=$pid
-_wait_for_pmlogger $mylogger $tmp.log
+_wait_for_pmlogger $mylogger $tmp.log || _exit 1
 
 seen=0
 for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
@@ -103,7 +110,7 @@ then
 fi
 min="`LC_COLLATE=POSIX sort -n <$tmp.tmp | head -1`"
 max="`LC_COLLATE=POSIX sort -nr <$tmp.tmp | head -1`"
-echo "min rss $min, max rss $max" >>$seq.full
+echo "min rss $min, max rss $max" >>$seq_full
 if [ "`expr $max \* 100`" -ge "`expr $min \* 105`" ]
 then
     _fail "rss max ($max) more than 1.05 times rss min ($min)"
@@ -132,12 +139,12 @@ fi
 #
 sleep 5
 
-_wait_pmlogger_end $mylogger
-cat $tmp.log >>$seq.full
+_wait_pmlogger_end $mylogger || _exit 1
+cat $tmp.log >>$seq_full
 echo
 echo "pmlogger log"
 _filter_pmlogger_log <$tmp.log
 
-echo "pmResults in archive ... `pmdumplog $tmp | grep '^[0-2]' | wc -l | sed -e 's/ //g'`" >>$seq.full
+echo "pmResults in archive ... `pmdumplog $tmp | grep '^[0-2]' | wc -l | sed -e 's/ //g'`" >>$seq_full
 
 exit 0

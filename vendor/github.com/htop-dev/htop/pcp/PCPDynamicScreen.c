@@ -71,13 +71,11 @@ static void PCPDynamicScreens_appendDynamicColumns(PCPDynamicScreens* screens, P
 
 static PCPDynamicColumn* PCPDynamicScreen_lookupMetric(PCPDynamicScreen* screen, const char* name) {
    PCPDynamicColumn* column = NULL;
-   size_t bytes = strlen(name) + strlen(screen->super.name) + 1; /* colon */
-   if (bytes >= sizeof(column->super.name))
+   if ((strlen(name) + strlen(screen->super.name) + 1) >= sizeof(column->super.name)) /* colon */
       return NULL;
 
-   bytes += 16; /* prefix, dots and terminator */
-   char* metricName = xMalloc(bytes);
-   xSnprintf(metricName, bytes, "htop.screen.%s.%s", screen->super.name, name);
+   char* metricName = NULL;
+   xAsprintf(&metricName, "htop.screen.%s.%s", screen->super.name, name);
 
    for (size_t i = 0; i < screen->totalColumns; i++) {
       column = screen->columns[i];
@@ -103,33 +101,40 @@ static PCPDynamicColumn* PCPDynamicScreen_lookupMetric(PCPDynamicScreen* screen,
 }
 
 static void PCPDynamicScreen_parseColumn(PCPDynamicScreen* screen, const char* path, unsigned int line, char* key, char* value) {
-   PCPDynamicColumn* column;
-   char* p;
-
-   if ((p = strchr(key, '.')) == NULL)
+   char* p = strchr(key, '.');
+   if (!p) {
       return;
+   }
+
    *p++ = '\0'; /* end the name, p is now the attribute, e.g. 'label' */
 
    /* lookup a dynamic column with this name, else create */
-   column = PCPDynamicScreen_lookupMetric(screen, key);
+   PCPDynamicColumn* column = PCPDynamicScreen_lookupMetric(screen, key);
+   if (!column) {
+      return;
+   }
 
    if (String_eq(p, "metric")) {
-      char* error;
+      char* error = NULL;
       if (pmRegisterDerivedMetric(column->metricName, value, &error) < 0) {
-         char* note;
-         xAsprintf(&note,
-                   "%s: failed to parse expression in %s at line %u\n%s\n",
-                   pmGetProgname(), path, line, error);
-         free(error);
+         char* note = NULL;
+         xAsprintf(
+            &note,
+            "%s: failed to parse expression in %s at line %u\n%s\n",
+            pmGetProgname(), path, line, error
+         );
+
          errno = EINVAL;
          CRT_fatalError(note);
          free(note);
+
+         free(error);
       }
 
       /* pmLookupText - add optional metric help text */
-      if (!column->super.description && !column->instances)
+      if (!column->super.description && !column->instances) {
          Metric_lookupText(value, &column->super.description);
-
+      }
    } else {
       /* this is a property of a dynamic column - the column expression */
       /* may not have been observed yet; i.e. we allow for any ordering */
@@ -145,12 +150,16 @@ static void PCPDynamicScreen_parseColumn(PCPDynamicScreen* screen, const char* p
       } else if (String_eq(p, "format")) {
          free_and_xStrdup(&column->format, value);
       } else if (String_eq(p, "instances")) {
-         if (String_eq(value, "True") || String_eq(value, "true"))
+         column->instances = false;
+         if (String_eq(value, "True") || String_eq(value, "true")) {
             column->instances = true;
+         }
          free_and_xStrdup(&column->super.description, screen->super.caption);
       } else if (String_eq(p, "default")) { /* displayed by default */
-         if (String_eq(value, "False") || String_eq(value, "false"))
+         column->defaultEnabled = column->super.enabled = true;
+         if (String_eq(value, "False") || String_eq(value, "false")) {
             column->defaultEnabled = column->super.enabled = false;
+         }
       }
    }
 }
@@ -243,9 +252,9 @@ static void PCPDynamicScreen_parseFile(PCPDynamicScreens* screens, const char* p
          if (pmDebugOptions.appl0)
             fprintf(stderr, "[%s] screen: %s\n", path, key + 1);
       } else if (!ok) {
-         ;  /* skip this one, we're looking for a new header */
+         /* skip this one, we're looking for a new header */
       } else if (!value || !screen) {
-         ;  /* skip this one as we always need value strings */
+         /* skip this one as we always need value strings */
       } else if (String_eq(key, "heading")) {
          free_and_xStrdup(&screen->super.heading, value);
       } else if (String_eq(key, "caption")) {
@@ -307,7 +316,7 @@ void PCPDynamicScreens_init(PCPDynamicScreens* screens, PCPDynamicColumns* colum
    if (xdgConfigHome)
       path = String_cat(xdgConfigHome, "/htop/screens/");
    else if (home)
-      path = String_cat(home, "/.config/htop/screens/");
+      path = String_cat(home, CONFIGDIR "/htop/screens/");
    else
       path = NULL;
    if (path) {
@@ -390,7 +399,7 @@ void PCPDynamicScreens_addAvailableColumns(Panel* availableColumns, Hashtable* s
       return;
 
    PCPDynamicScreen* dynamicScreen = Hashtable_get(screens, key);
-   if (!screen)
+   if (!dynamicScreen)
       return;
 
    for (unsigned int j = 0; j < dynamicScreen->totalColumns; j++) {

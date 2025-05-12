@@ -1,4 +1,4 @@
-# pylint: disable=C0103
+# pylint: disable=invalid-name,too-many-positional-arguments
 """Wrapper module for libpcp_mmv - PCP Memory Mapped Values library
 #
 # Copyright (C) 2013-2016,2019 Red Hat.
@@ -71,7 +71,7 @@
 """
 
 from pcp.pmapi import pmUnits, pmAtomValue
-from cmmv import MMV_NAMEMAX
+from cmmv import MMV_NAMEMAX, MMV_INDOM_NULL
 
 import ctypes
 from ctypes import Structure, POINTER
@@ -121,7 +121,7 @@ class mmv_indom(Structure):
         if shorttext is not None and not isinstance(shorttext, bytes):
             shorttext = shorttext.encode('utf-8')
         self.shorttext = shorttext
-        self.helptext = shorttext
+        self.helptext = helptext
         self.serial = serial
 
     def set_instances(self, instances):
@@ -146,20 +146,21 @@ class mmv_metric(Structure):
                 ("shorttext", c_char_p),
                 ("helptext", c_char_p)]
 
-    def __init__(self, name, item, typeof, semantics, dimension, indom=0, shorttext='', helptext=''): # pylint: disable=R0913
+    def __init__(self, name, item, typeof, semantics, dimension, indom=MMV_INDOM_NULL, shorttext='', helptext=''): # pylint: disable=R0913
         Structure.__init__(self)
         if not isinstance(name, bytes):
             name = name.encode('utf-8')
+        self.name = name
         if helptext is not None and not isinstance(helptext, bytes):
             helptext = helptext.encode('utf-8')
+        self.helptext = helptext
         if shorttext is not None and not isinstance(shorttext, bytes):
             shorttext = shorttext.encode('utf-8')
         self.shorttext = shorttext
-        self.helptext = shorttext
+        self.semantics = semantics
         self.typeof = typeof
         self.indom = indom
         self.item = item
-        self.name = name
 
 ##
 # PCP Memory Mapped Value Services
@@ -248,11 +249,11 @@ class MemoryMappedValues(object):
             On completion of this call, we're all visible to pmdammv.
         """
         count_metrics = len(self._metrics)
-        metrics = (mmv_metric * count_metrics)()
+        metrics = (mmv_metric * count_metrics)() if count_metrics > 0 else None
         for i in range(count_metrics):
             metrics[i] = self._metrics[i]
         count_indoms = len(self._indoms)
-        indoms = (mmv_indom * count_indoms)()
+        indoms = (mmv_indom * count_indoms)() if count_indoms > 0 else None
         for i in range(count_indoms):
             indoms[i] = self._indoms[i]
         self._handle = LIBPCP_MMV.mmv_stats_init(self._name, self._cluster,

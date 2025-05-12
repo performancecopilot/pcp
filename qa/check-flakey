@@ -58,7 +58,22 @@ tc=""
 tp=""
 tt=""
 
-if [ $# -eq 0 ]
+# all args except -t are seq no's
+#
+triaged=false
+list=''
+while [ $# -gt 0 ]
+do
+    if [ "X$1" = "X-t" ]
+    then
+	triaged=true
+    else
+	list="$list $1"
+    fi
+    shift
+done
+
+if [ -z "$list" ]
 then
     list=`echo *.out.bad \
 	  | sed -e 's/.out.bad//g' \
@@ -81,9 +96,15 @@ do
 	echo "$seq: no .out.bad file, so nothing to compare!"
 	continue
     fi
-    if grep '^\[triaged]$' $seq.out.bad >/dev/null
+    if grep -q '^\[triaged]$' $seq.out.bad
     then
-	s1='T'
+	if $triaged
+	then
+	    s1='T'
+	else
+	    echo "$seq: not rechecked [triaged]"
+	    continue
+	fi
     elif grep '^+++ check.callback output +++' $seq.out.bad >/dev/null
     then
 	s1='C'

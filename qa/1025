@@ -11,7 +11,6 @@ status=1	# failure is the default!
 trap "_cleanup_qt; exit \$status" 0 1 2 3 15
 
 which pmdumptext >/dev/null 2>&1 || _notrun "pmdumptext not installed"
-rm -f $seq.full
 
 # real QA test starts here
 
@@ -23,10 +22,10 @@ log mandatory on 1 sec {
 EOF
 
 pmlogger -V2 -s1 -c $tmp.config -l $tmp.log $tmp.arch 1>$tmp.out 2>&1
-cat $tmp.log >> $seq.full
+cat $tmp.log >> $seq_full
 
 bighostname="abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcde"
-pmloglabel -h $bighostname $tmp.arch >> $seq.full
+pmloglabel -h $bighostname $tmp.arch >> $seq_full
 
 pmdumplog -l $tmp.arch \
 | sed \

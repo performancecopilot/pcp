@@ -31,10 +31,6 @@ __pmFopen("TMP.index", "w"): no decompress
 __pmFopen("TMP.meta", "w"): no decompress
 __pmFopen("TMP.0", "w"): no decompress
 Archive basename: ARCHIVE
-logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
-__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
-logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
-__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 do_creds: pmlc PDU version=3
 __pmDecodeLogRequest: got PDU (type=2, version=3)
 __pmSendLogStatus: sending PDU (version=3)
@@ -49,9 +45,7 @@ __pmResult dump from ADDR timestamp: 0.000000000 TIME numpmid: 1
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
-logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 [DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
-__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 ...
@@ -108,8 +102,6 @@ __pmFopen("TMP.index", "w"): no decompress
 __pmFopen("TMP.meta", "w"): no decompress
 __pmFopen("TMP.0", "w"): no decompress
 Archive basename: ARCHIVE
-logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
-__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 do_creds: pmlc PDU version=3
 __pmDecodeLogRequest: got PDU (type=2, version=3)
 __pmSendLogStatus: sending PDU (version=3)
@@ -124,9 +116,7 @@ __pmResult dump from ADDR timestamp: 0.000000000 TIME numpmid: 1
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
-logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 [DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
-__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 ...
@@ -180,8 +170,6 @@ __pmFopen("TMP.index", "w"): no decompress
 __pmFopen("TMP.meta", "w"): no decompress
 __pmFopen("TMP.0", "w"): no decompress
 Archive basename: ARCHIVE
-logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
-__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 do_creds: pmlc PDU version=3
 __pmDecodeLogRequest: got PDU (type=2, version=3)
 __pmSendLogStatus: sending PDU (version=3)
@@ -196,9 +184,7 @@ __pmResult dump from ADDR timestamp: 0.000000000 TIME numpmid: 1
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
-logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 [DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
-__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 ...
@@ -256,10 +242,6 @@ __pmFopen("TMP.index", "w"): no decompress
 __pmFopen("TMP.meta", "w"): no decompress
 __pmFopen("TMP.0", "w"): no decompress
 Archive basename: ARCHIVE
-logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
-__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
-logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
-__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 do_creds: pmlc PDU version=3
 __pmDecodeLogRequest: got PDU (type=2, version=3)
 __pmSendLogStatus: sending PDU (version=3)
@@ -274,9 +256,7 @@ __pmResult dump from ADDR timestamp: 0.000000000 TIME numpmid: 1
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
-logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 [DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
-__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 ...
@@ -337,10 +317,6 @@ __pmFopen("TMP.index", "w"): no decompress
 __pmFopen("TMP.meta", "w"): no decompress
 __pmFopen("TMP.0", "w"): no decompress
 Archive basename: ARCHIVE
-logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
-__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
-logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
-__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 do_creds: pmlc PDU version=3
 __pmDecodeLogRequest: got PDU (type=2, version=3)
 __pmSendLogStatus: sending PDU (version=3)
@@ -355,9 +331,7 @@ __pmResult dump from ADDR timestamp: 0.000000000 TIME numpmid: 1
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
-logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 [DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
-__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 ...
@@ -414,10 +388,6 @@ __pmFopen("TMP.index", "w"): no decompress
 __pmFopen("TMP.meta", "w"): no decompress
 __pmFopen("TMP.0", "w"): no decompress
 Archive basename: ARCHIVE
-logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
-__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
-logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
-__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 do_creds: pmlc PDU version=3
 __pmDecodeLogRequest: got PDU (type=2, version=3)
 __pmSendLogStatus: sending PDU (version=3)
@@ -432,9 +402,7 @@ __pmResult dump from ADDR timestamp: 0.000000000 TIME numpmid: 1
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
-logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 [DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
-__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 ...
@@ -489,8 +457,6 @@ __pmFopen("TMP.index", "w"): no decompress
 __pmFopen("TMP.meta", "w"): no decompress
 __pmFopen("TMP.0", "w"): no decompress
 Archive basename: ARCHIVE
-logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
-__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 do_creds: pmlc PDU version=3
 __pmDecodeLogRequest: got PDU (type=2, version=3)
 __pmSendLogStatus: sending PDU (version=3)
@@ -505,9 +471,7 @@ __pmResult dump from ADDR timestamp: 0.000000000 TIME numpmid: 1
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
-logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 [DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
-__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 ...
@@ -561,8 +525,6 @@ __pmFopen("TMP.index", "w"): no decompress
 __pmFopen("TMP.meta", "w"): no decompress
 __pmFopen("TMP.0", "w"): no decompress
 Archive basename: ARCHIVE
-logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
-__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 do_creds: pmlc PDU version=3
 __pmDecodeLogRequest: got PDU (type=2, version=3)
 __pmSendLogStatus: sending PDU (version=3)
@@ -577,9 +539,7 @@ __pmResult dump from ADDR timestamp: 0.000000000 TIME numpmid: 1
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
-logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 [DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
-__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 ...
@@ -633,10 +593,6 @@ __pmFopen("TMP.index", "w"): no decompress
 __pmFopen("TMP.meta", "w"): no decompress
 __pmFopen("TMP.0", "w"): no decompress
 Archive basename: ARCHIVE
-logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
-__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
-logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
-__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 do_creds: pmlc PDU version=3
 __pmDecodeLogRequest: got PDU (type=2, version=3)
 __pmSendLogStatus: sending PDU (version=3)
@@ -651,9 +607,7 @@ __pmResult dump from ADDR timestamp: 0.000000000 TIME numpmid: 1
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
-logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 [DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
-__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 ...
@@ -710,8 +664,6 @@ __pmFopen("TMP.index", "w"): no decompress
 __pmFopen("TMP.meta", "w"): no decompress
 __pmFopen("TMP.0", "w"): no decompress
 Archive basename: ARCHIVE
-logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
-__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 do_creds: pmlc PDU version=3
 __pmDecodeLogRequest: got PDU (type=2, version=3)
 __pmSendLogStatus: sending PDU (version=3)
@@ -726,9 +678,7 @@ __pmResult dump from ADDR timestamp: 0.000000000 TIME numpmid: 1
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
-logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 [DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
-__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 ...
@@ -782,10 +732,6 @@ __pmFopen("TMP.index", "w"): no decompress
 __pmFopen("TMP.meta", "w"): no decompress
 __pmFopen("TMP.0", "w"): no decompress
 Archive basename: ARCHIVE
-logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
-__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
-logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
-__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 do_creds: pmlc PDU version=3
 __pmDecodeLogRequest: got PDU (type=2, version=3)
 __pmSendLogStatus: sending PDU (version=3)
@@ -800,9 +746,7 @@ __pmResult dump from ADDR timestamp: 0.000000000 TIME numpmid: 1
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
-logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 [DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
-__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 ...
@@ -859,8 +803,6 @@ __pmFopen("TMP.index", "w"): no decompress
 __pmFopen("TMP.meta", "w"): no decompress
 __pmFopen("TMP.0", "w"): no decompress
 Archive basename: ARCHIVE
-logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
-__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 do_creds: pmlc PDU version=3
 __pmDecodeLogRequest: got PDU (type=2, version=3)
 __pmSendLogStatus: sending PDU (version=3)
@@ -875,9 +817,7 @@ __pmResult dump from ADDR timestamp: 0.000000000 TIME numpmid: 1
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
-logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 [DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
-__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 ...
@@ -929,8 +869,6 @@ __pmFopen("TMP.index", "w"): no decompress
 __pmFopen("TMP.meta", "w"): no decompress
 __pmFopen("TMP.0", "w"): no decompress
 Archive basename: ARCHIVE
-logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
-__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 do_creds: pmlc PDU version=3
 __pmDecodeLogRequest: got PDU (type=2, version=3)
 __pmSendLogStatus: sending PDU (version=3)
@@ -945,9 +883,7 @@ __pmResult dump from ADDR timestamp: 0.000000000 TIME numpmid: 1
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
-logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 [DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
-__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 ...
@@ -1005,8 +941,6 @@ __pmFopen("TMP.index", "w"): no decompress
 __pmFopen("TMP.meta", "w"): no decompress
 __pmFopen("TMP.0", "w"): no decompress
 Archive basename: ARCHIVE
-logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
-__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 do_creds: pmlc PDU version=3
 __pmDecodeLogRequest: got PDU (type=2, version=3)
 __pmSendLogStatus: sending PDU (version=3)
@@ -1021,9 +955,7 @@ __pmResult dump from ADDR timestamp: 0.000000000 TIME numpmid: 1
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
-logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 [DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
-__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 ...
@@ -1081,8 +1013,6 @@ __pmFopen("TMP.index", "w"): no decompress
 __pmFopen("TMP.meta", "w"): no decompress
 __pmFopen("TMP.0", "w"): no decompress
 Archive basename: ARCHIVE
-logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
-__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 do_creds: pmlc PDU version=3
 __pmDecodeLogRequest: got PDU (type=2, version=3)
 __pmSendLogStatus: sending PDU (version=3)
@@ -1097,9 +1027,7 @@ __pmResult dump from ADDR timestamp: 0.000000000 TIME numpmid: 1
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
-logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 [DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
-__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 ...
@@ -1153,10 +1081,6 @@ __pmFopen("TMP.index", "w"): no decompress
 __pmFopen("TMP.meta", "w"): no decompress
 __pmFopen("TMP.0", "w"): no decompress
 Archive basename: ARCHIVE
-logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
-__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
-logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
-__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 do_creds: pmlc PDU version=3
 __pmDecodeLogRequest: got PDU (type=2, version=3)
 __pmSendLogStatus: sending PDU (version=3)
@@ -1171,9 +1095,7 @@ __pmResult dump from ADDR timestamp: 0.000000000 TIME numpmid: 1
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
-logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 [DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
-__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 ...
@@ -1230,8 +1152,6 @@ __pmFopen("TMP.index", "w"): no decompress
 __pmFopen("TMP.meta", "w"): no decompress
 __pmFopen("TMP.0", "w"): no decompress
 Archive basename: ARCHIVE
-logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
-__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 do_creds: pmlc PDU version=3
 __pmDecodeLogRequest: got PDU (type=2, version=3)
 __pmSendLogStatus: sending PDU (version=3)
@@ -1246,9 +1166,7 @@ __pmResult dump from ADDR timestamp: 0.000000000 TIME numpmid: 1
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
-logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 [DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
-__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 ...
@@ -1302,8 +1220,6 @@ __pmFopen("TMP.index", "w"): no decompress
 __pmFopen("TMP.meta", "w"): no decompress
 __pmFopen("TMP.0", "w"): no decompress
 Archive basename: ARCHIVE
-logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
-__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 do_creds: pmlc PDU version=3
 __pmDecodeLogRequest: got PDU (type=2, version=3)
 __pmSendLogStatus: sending PDU (version=3)
@@ -1318,9 +1234,7 @@ __pmResult dump from ADDR timestamp: 0.000000000 TIME numpmid: 1
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
-logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 [DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
-__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 ...
@@ -1372,10 +1286,6 @@ __pmFopen("TMP.index", "w"): no decompress
 __pmFopen("TMP.meta", "w"): no decompress
 __pmFopen("TMP.0", "w"): no decompress
 Archive basename: ARCHIVE
-logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
-__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
-logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
-__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 do_creds: pmlc PDU version=3
 __pmDecodeLogRequest: got PDU (type=2, version=3)
 __pmSendLogStatus: sending PDU (version=3)
@@ -1390,9 +1300,7 @@ __pmResult dump from ADDR timestamp: 0.000000000 TIME numpmid: 1
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
-logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 [DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
-__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 ...
@@ -1449,8 +1357,6 @@ __pmFopen("TMP.index", "w"): no decompress
 __pmFopen("TMP.meta", "w"): no decompress
 __pmFopen("TMP.0", "w"): no decompress
 Archive basename: ARCHIVE
-logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
-__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 do_creds: pmlc PDU version=3
 __pmDecodeLogRequest: got PDU (type=2, version=3)
 __pmSendLogStatus: sending PDU (version=3)
@@ -1465,9 +1371,7 @@ __pmResult dump from ADDR timestamp: 0.000000000 TIME numpmid: 1
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
-logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 [DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
-__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 ...
@@ -1521,10 +1425,6 @@ __pmFopen("TMP.index", "w"): no decompress
 __pmFopen("TMP.meta", "w"): no decompress
 __pmFopen("TMP.0", "w"): no decompress
 Archive basename: ARCHIVE
-logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
-__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
-logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
-__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 do_creds: pmlc PDU version=3
 __pmDecodeLogRequest: got PDU (type=2, version=3)
 __pmSendLogStatus: sending PDU (version=3)
@@ -1539,9 +1439,7 @@ __pmResult dump from ADDR timestamp: 0.000000000 TIME numpmid: 1
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
-logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 [DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
-__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 ...
@@ -1598,8 +1496,6 @@ __pmFopen("TMP.index", "w"): no decompress
 __pmFopen("TMP.meta", "w"): no decompress
 __pmFopen("TMP.0", "w"): no decompress
 Archive basename: ARCHIVE
-logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
-__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 do_creds: pmlc PDU version=3
 __pmDecodeLogRequest: got PDU (type=2, version=3)
 __pmSendLogStatus: sending PDU (version=3)
@@ -1614,9 +1510,7 @@ __pmResult dump from ADDR timestamp: 0.000000000 TIME numpmid: 1
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
-logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 [DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
-__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 ...
@@ -1670,8 +1564,6 @@ __pmFopen("TMP.index", "w"): no decompress
 __pmFopen("TMP.meta", "w"): no decompress
 __pmFopen("TMP.0", "w"): no decompress
 Archive basename: ARCHIVE
-logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
-__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 do_creds: pmlc PDU version=3
 __pmDecodeLogRequest: got PDU (type=2, version=3)
 __pmSendLogStatus: sending PDU (version=3)
@@ -1686,9 +1578,7 @@ __pmResult dump from ADDR timestamp: 0.000000000 TIME numpmid: 1
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
-logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 [DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
-__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 ...
@@ -1742,10 +1632,6 @@ __pmFopen("TMP.index", "w"): no decompress
 __pmFopen("TMP.meta", "w"): no decompress
 __pmFopen("TMP.0", "w"): no decompress
 Archive basename: ARCHIVE
-logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
-__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
-logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
-__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 do_creds: pmlc PDU version=3
 __pmDecodeLogRequest: got PDU (type=2, version=3)
 __pmSendLogStatus: sending PDU (version=3)
@@ -1760,9 +1646,7 @@ __pmResult dump from ADDR timestamp: 0.000000000 TIME numpmid: 1
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
-logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 [DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
-__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 ...
@@ -1817,8 +1701,6 @@ __pmFopen("TMP.index", "w"): no decompress
 __pmFopen("TMP.meta", "w"): no decompress
 __pmFopen("TMP.0", "w"): no decompress
 Archive basename: ARCHIVE
-logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
-__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 do_creds: pmlc PDU version=3
 __pmDecodeLogRequest: got PDU (type=2, version=3)
 __pmSendLogStatus: sending PDU (version=3)
@@ -1833,9 +1715,7 @@ __pmResult dump from ADDR timestamp: 0.000000000 TIME numpmid: 1
     inst [0 or "red"] value INT
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
-logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 [DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
-__pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 ...

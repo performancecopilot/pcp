@@ -24,13 +24,10 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
-if [ -z "$DISPLAY" ]
-then
-    export DISPLAY=$PCPQA_CLOSE_X_SERVER
-fi
+export DISPLAY=$PCPQA_CLOSE_X_SERVER
+_check_display
 
 _filter()
 {

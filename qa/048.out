@@ -3,7 +3,7 @@ QA output created by 048
 === archive tmparch/foo ===
 
 Pass 1: forward scan
-pmHighResResult ... numpmid: 6
+pmResult ... numpmid: 6
   29.0.2 (sample.dupnames.two.seconds, sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
   29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
@@ -16,7 +16,7 @@ pmHighResResult ... numpmid: 6
    value STRING
   30.0.3 (sampledso.milliseconds): No values returned!
   30.0.6 (sampledso.dupnames.five.bin, sampledso.dupnames.four.bin, sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin): No values returned!
-pmHighResResult ... numpmid: 6
+pmResult ... numpmid: 6
   29.0.2 (sample.dupnames.two.seconds, sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
   29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
@@ -29,7 +29,7 @@ pmHighResResult ... numpmid: 6
    value STRING
   30.0.3 (sampledso.milliseconds): No values returned!
   30.0.6 (sampledso.dupnames.five.bin, sampledso.dupnames.four.bin, sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin): No values returned!
-pmHighResResult ... numpmid: 6
+pmResult ... numpmid: 6
   29.0.2 (sample.dupnames.two.seconds, sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
   29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
@@ -42,7 +42,7 @@ pmHighResResult ... numpmid: 6
    value STRING
   30.0.3 (sampledso.milliseconds): No values returned!
   30.0.6 (sampledso.dupnames.five.bin, sampledso.dupnames.four.bin, sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin): No values returned!
-pmHighResResult ... numpmid: 6
+pmResult ... numpmid: 6
   29.0.2 (sample.dupnames.two.seconds, sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
   29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
@@ -55,7 +55,7 @@ pmHighResResult ... numpmid: 6
    value STRING
   30.0.3 (sampledso.milliseconds): No values returned!
   30.0.6 (sampledso.dupnames.five.bin, sampledso.dupnames.four.bin, sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin): No values returned!
-pmHighResResult ... numpmid: 6
+pmResult ... numpmid: 6
   29.0.2 (sample.dupnames.two.seconds, sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
   29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
@@ -68,7 +68,7 @@ pmHighResResult ... numpmid: 6
    value STRING
   30.0.3 (sampledso.milliseconds): No values returned!
   30.0.6 (sampledso.dupnames.five.bin, sampledso.dupnames.four.bin, sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin): No values returned!
-pmHighResResult ... numpmid: 6
+pmResult ... numpmid: 6
   29.0.2 (sample.dupnames.two.seconds, sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
   29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
@@ -81,7 +81,7 @@ pmHighResResult ... numpmid: 6
    value STRING
   30.0.3 (sampledso.milliseconds): No values returned!
   30.0.6 (sampledso.dupnames.five.bin, sampledso.dupnames.four.bin, sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin): No values returned!
-pmHighResResult ... numpmid: 6
+pmResult ... numpmid: 6
   29.0.2 (sample.dupnames.two.seconds, sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
   29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
@@ -94,7 +94,7 @@ pmHighResResult ... numpmid: 6
    value STRING
   30.0.3 (sampledso.milliseconds): No values returned!
   30.0.6 (sampledso.dupnames.five.bin, sampledso.dupnames.four.bin, sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin): No values returned!
-pmHighResResult ... numpmid: 6
+pmResult ... numpmid: 6
   29.0.2 (sample.dupnames.two.seconds, sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
   29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
@@ -134,7 +134,7 @@ Pass 6: EOL tests, forwards and backwards
 === archive tmparch/mv-foo ===
 
 Pass 1: forward scan
-pmHighResResult ... numpmid: 6
+pmResult ... numpmid: 6
   29.0.2 (sample.dupnames.two.seconds, sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
   29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
@@ -147,7 +147,7 @@ pmHighResResult ... numpmid: 6
    value STRING
   30.0.3 (sampledso.milliseconds): No values returned!
   30.0.6 (sampledso.dupnames.five.bin, sampledso.dupnames.four.bin, sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin): No values returned!
-pmHighResResult ... numpmid: 6
+pmResult ... numpmid: 6
   29.0.2 (sample.dupnames.two.seconds, sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
   29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
@@ -160,7 +160,7 @@ pmHighResResult ... numpmid: 6
    value STRING
   30.0.3 (sampledso.milliseconds): No values returned!
   30.0.6 (sampledso.dupnames.five.bin, sampledso.dupnames.four.bin, sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin): No values returned!
-pmHighResResult ... numpmid: 6
+pmResult ... numpmid: 6
   29.0.2 (sample.dupnames.two.seconds, sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
   29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
@@ -173,7 +173,7 @@ pmHighResResult ... numpmid: 6
    value STRING
   30.0.3 (sampledso.milliseconds): No values returned!
   30.0.6 (sampledso.dupnames.five.bin, sampledso.dupnames.four.bin, sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin): No values returned!
-pmHighResResult ... numpmid: 6
+pmResult ... numpmid: 6
   29.0.2 (sample.dupnames.two.seconds, sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
   29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
@@ -186,7 +186,7 @@ pmHighResResult ... numpmid: 6
    value STRING
   30.0.3 (sampledso.milliseconds): No values returned!
   30.0.6 (sampledso.dupnames.five.bin, sampledso.dupnames.four.bin, sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin): No values returned!
-pmHighResResult ... numpmid: 6
+pmResult ... numpmid: 6
   29.0.2 (sample.dupnames.two.seconds, sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
   29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
@@ -199,7 +199,7 @@ pmHighResResult ... numpmid: 6
    value STRING
   30.0.3 (sampledso.milliseconds): No values returned!
   30.0.6 (sampledso.dupnames.five.bin, sampledso.dupnames.four.bin, sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin): No values returned!
-pmHighResResult ... numpmid: 6
+pmResult ... numpmid: 6
   29.0.2 (sample.dupnames.two.seconds, sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
   29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
@@ -212,7 +212,7 @@ pmHighResResult ... numpmid: 6
    value STRING
   30.0.3 (sampledso.milliseconds): No values returned!
   30.0.6 (sampledso.dupnames.five.bin, sampledso.dupnames.four.bin, sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin): No values returned!
-pmHighResResult ... numpmid: 6
+pmResult ... numpmid: 6
   29.0.2 (sample.dupnames.two.seconds, sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
   29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
@@ -225,7 +225,7 @@ pmHighResResult ... numpmid: 6
    value STRING
   30.0.3 (sampledso.milliseconds): No values returned!
   30.0.6 (sampledso.dupnames.five.bin, sampledso.dupnames.four.bin, sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin): No values returned!
-pmHighResResult ... numpmid: 6
+pmResult ... numpmid: 6
   29.0.2 (sample.dupnames.two.seconds, sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
   29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
@@ -265,7 +265,7 @@ Pass 6: EOL tests, forwards and backwards
 === archive tmparch/noti-foo ===
 
 Pass 1: forward scan
-pmHighResResult ... numpmid: 6
+pmResult ... numpmid: 6
   29.0.2 (sample.dupnames.two.seconds, sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
   29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
@@ -278,7 +278,7 @@ pmHighResResult ... numpmid: 6
    value STRING
   30.0.3 (sampledso.milliseconds): No values returned!
   30.0.6 (sampledso.dupnames.five.bin, sampledso.dupnames.four.bin, sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin): No values returned!
-pmHighResResult ... numpmid: 6
+pmResult ... numpmid: 6
   29.0.2 (sample.dupnames.two.seconds, sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
   29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
@@ -291,7 +291,7 @@ pmHighResResult ... numpmid: 6
    value STRING
   30.0.3 (sampledso.milliseconds): No values returned!
   30.0.6 (sampledso.dupnames.five.bin, sampledso.dupnames.four.bin, sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin): No values returned!
-pmHighResResult ... numpmid: 6
+pmResult ... numpmid: 6
   29.0.2 (sample.dupnames.two.seconds, sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
   29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
@@ -304,7 +304,7 @@ pmHighResResult ... numpmid: 6
    value STRING
   30.0.3 (sampledso.milliseconds): No values returned!
   30.0.6 (sampledso.dupnames.five.bin, sampledso.dupnames.four.bin, sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin): No values returned!
-pmHighResResult ... numpmid: 6
+pmResult ... numpmid: 6
   29.0.2 (sample.dupnames.two.seconds, sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
   29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
@@ -317,7 +317,7 @@ pmHighResResult ... numpmid: 6
    value STRING
   30.0.3 (sampledso.milliseconds): No values returned!
   30.0.6 (sampledso.dupnames.five.bin, sampledso.dupnames.four.bin, sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin): No values returned!
-pmHighResResult ... numpmid: 6
+pmResult ... numpmid: 6
   29.0.2 (sample.dupnames.two.seconds, sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
   29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
@@ -330,7 +330,7 @@ pmHighResResult ... numpmid: 6
    value STRING
   30.0.3 (sampledso.milliseconds): No values returned!
   30.0.6 (sampledso.dupnames.five.bin, sampledso.dupnames.four.bin, sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin): No values returned!
-pmHighResResult ... numpmid: 6
+pmResult ... numpmid: 6
   29.0.2 (sample.dupnames.two.seconds, sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
   29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
@@ -343,7 +343,7 @@ pmHighResResult ... numpmid: 6
    value STRING
   30.0.3 (sampledso.milliseconds): No values returned!
   30.0.6 (sampledso.dupnames.five.bin, sampledso.dupnames.four.bin, sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin): No values returned!
-pmHighResResult ... numpmid: 6
+pmResult ... numpmid: 6
   29.0.2 (sample.dupnames.two.seconds, sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
   29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
@@ -356,7 +356,7 @@ pmHighResResult ... numpmid: 6
    value STRING
   30.0.3 (sampledso.milliseconds): No values returned!
   30.0.6 (sampledso.dupnames.five.bin, sampledso.dupnames.four.bin, sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin): No values returned!
-pmHighResResult ... numpmid: 6
+pmResult ... numpmid: 6
   29.0.2 (sample.dupnames.two.seconds, sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
   29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:

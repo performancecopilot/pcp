@@ -47,12 +47,11 @@ status=1	# failure is the default!
 hostname=`hostname`
 hostip=`_host_to_ipaddr $hostname`
 localip=`_host_to_ipaddr localhost`
-$sudo rm -rf $tmp $tmp.* $seq.full 
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _filter()
 {
-    tee -a $here/$seq.full \
+    tee -a $seq_full \
     | sed \
 	-e "s,$tmp.discover,DISCOVER_DIR,g" \
 	-e "s,\[::1\],IP_ADDRESS,g" \
@@ -112,24 +111,24 @@ chmod 755 $tmp.kubectl.sh
 
 export PCP_KUBECTL_PROG=$tmp.kubectl.sh
 
-echo "== discovery directory" >> $seq.full
-find $tmp.discover >> $seq.full
-echo "== localhost.sh" >> $seq.full
-$tmp.discover/localhost.sh >> $seq.full
-echo "== hostnames.sh" >> $seq.full
-$tmp.discover/hostnames.sh >> $seq.full
+echo "== discovery directory" >> $seq_full
+find $tmp.discover >> $seq_full
+echo "== localhost.sh" >> $seq_full
+$tmp.discover/localhost.sh >> $seq_full
+echo "== hostnames.sh" >> $seq_full
+$tmp.discover/hostnames.sh >> $seq_full
 
-echo "== checking pcp-kube-pods argument handling" | tee -a $seq.full
+echo "== checking pcp-kube-pods argument handling" | tee -a $seq_full
 $PCP_BINADM_DIR/discover/pcp-kube-pods
-cat $tmp.kubectl.args | tee -a $seq.full
+cat $tmp.kubectl.args | tee -a $seq_full
 
 # handy pmfind debugging option: -Ddiscovery
-echo "== checking pmfind results and memory access" | tee -a $seq.full
+echo "== checking pmfind results and memory access" | tee -a $seq_full
 _run_valgrind pmfind -m shell,path=$tmp.discover,maxThreads=1 -s pmcd \
 	| _filter \
 	| _fix_pmcds_found
 
-echo "== checking pmfind results and thread locks" | tee -a $seq.full
+echo "== checking pmfind results and thread locks" | tee -a $seq_full
 _run_helgrind pmfind -m shell,path=$tmp.discover,maxThreads=4 -s pmcd \
 	| _filter
 

@@ -1,0 +1,67 @@
+#!/bin/sh
+# PCP QA Test No. 1551
+# Comparing strncmp() vs pmstrncmp() and strncat() vs pmstrncat()
+#
+# Copyright (c) 2025 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+do_valgrind=false
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+    do_valgrind=true
+fi
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+cat <<End-of-File | sed -e '/^#/d' | while read len src
+# len == exact src size
+4 foo
+# len larger than strlen(src)
+10 foobar
+# len == strlen(src)
+6 mumble
+# len < strlen(src)
+14  fox-in-socks-are-really-cool
+# src will _just_ fit
+15  fox-in-socks-are-really-cool
+# src => overrun
+16 fox-in-socks-are-really-cool
+End-of-File
+do
+    echo
+    echo "=== len=$len src=\"$src\" ==="
+    if $do_valgrind
+    then
+	_run_valgrind ...your test goes here...
+    else
+	src/strnfoo $len $src 2>&1
+    fi
+done
+
+# success, all done
+exit

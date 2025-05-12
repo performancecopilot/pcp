@@ -18,6 +18,11 @@ proc.fd.count
     Semantics: instant  Units: count
 Error: Metric not supported by this version of monitored application
 
+proc.fdinfo.amd_evicted_visible_vram
+    Data Type: 64-bit unsigned int  InDom: 3.9 0xc00009
+    Semantics: instant  Units: Kbyte
+Error: Metric not supported by this version of monitored application
+
 proc.id.egid
     Data Type: 32-bit unsigned int  InDom: 3.9 0xc00009
     Semantics: discrete  Units: none
@@ -692,6 +697,11 @@ proc.control.all.threads
 proc.fd.count
     Data Type: 32-bit unsigned int  InDom: 3.9 0xc00009
     Semantics: instant  Units: count
+Error: Metric not supported by this version of monitored application
+
+proc.fdinfo.amd_evicted_visible_vram
+    Data Type: 64-bit unsigned int  InDom: 3.9 0xc00009
+    Semantics: instant  Units: Kbyte
 Error: Metric not supported by this version of monitored application
 
 proc.id.egid
@@ -1421,6 +1431,11 @@ proc.fd.count
     Semantics: instant  Units: count
 Error: Metric not supported by this version of monitored application
 
+proc.fdinfo.amd_evicted_visible_vram
+    Data Type: 64-bit unsigned int  InDom: 3.9 0xc00009
+    Semantics: instant  Units: Kbyte
+Error: Metric not supported by this version of monitored application
+
 proc.id.egid
     Data Type: 32-bit unsigned int  InDom: 3.9 0xc00009
     Semantics: discrete  Units: none
@@ -1974,6 +1989,11 @@ proc.fd.count
     Semantics: instant  Units: count
 Error: Metric not supported by this version of monitored application
 
+proc.fdinfo.amd_evicted_visible_vram
+    Data Type: 64-bit unsigned int  InDom: 3.9 0xc00009
+    Semantics: instant  Units: Kbyte
+Error: Metric not supported by this version of monitored application
+
 proc.id.egid
     Data Type: 32-bit unsigned int  InDom: 3.9 0xc00009
     Semantics: discrete  Units: none
@@ -2047,6 +2067,11 @@ proc.fd.count
     Semantics: instant  Units: count
 Error: Metric not supported by this version of monitored application
 
+proc.fdinfo.amd_evicted_visible_vram
+    Data Type: 64-bit unsigned int  InDom: 3.9 0xc00009
+    Semantics: instant  Units: Kbyte
+Error: Metric not supported by this version of monitored application
+
 proc.id.egid
     Data Type: 32-bit unsigned int  InDom: 3.9 0xc00009
     Semantics: discrete  Units: none
@@ -2116,6 +2141,11 @@ proc.control.all.threads
 proc.fd.count
     Data Type: 32-bit unsigned int  InDom: 3.9 0xc00009
     Semantics: instant  Units: count
+Error: Metric not supported by this version of monitored application
+
+proc.fdinfo.amd_evicted_visible_vram
+    Data Type: 64-bit unsigned int  InDom: 3.9 0xc00009
+    Semantics: instant  Units: Kbyte
 Error: Metric not supported by this version of monitored application
 
 proc.id.egid
@@ -2501,6 +2531,11 @@ proc.control.all.threads
 proc.fd.count
     Data Type: 32-bit unsigned int  InDom: 3.9 0xc00009
     Semantics: instant  Units: count
+Error: Metric not supported by this version of monitored application
+
+proc.fdinfo.amd_evicted_visible_vram
+    Data Type: 64-bit unsigned int  InDom: 3.9 0xc00009
+    Semantics: instant  Units: Kbyte
 Error: Metric not supported by this version of monitored application
 
 proc.id.egid

@@ -1,5 +1,4 @@
-'\"! tbl | mmdoc
-'\"macro stdmacro
+'\" t
 .\"
 .\" Copyright (c) 2023 Oracle and/or its affiliates.
 .\" DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
@@ -16,11 +15,12 @@
 .\"
 .TH PCP-ZONEINFO 1 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pcp-zoneinfo\f1 \- Report statistics for System Zoneinfo.
+\f3pcp-zoneinfo\f1 \- Report NUMA zone statistics
 .SH SYNOPSIS
 \f3pcp\f1
 [\f2pcp\ options\f1]
 \f3zoneinfo\f1
+[\f3\-Vz?\f1]
 [\f3\-s\f1 \f2samples\f1]
 [\f3\-a\f1 \f2archive\f1]
 [\f3\-S\f1 \f2start_time\f1]
@@ -29,10 +29,11 @@
 .SH DESCRIPTION
 The
 .B pcp-zoneinfo
-command is used for viewing the different kinds of stats related to numa nodes.
+command is used for viewing the different kinds of stats related to NUMA nodes.
 Using various options it helps a user to analyze useful information related to
-the zone availability for different numa nodes.This file display information about memory zones.
-This is useful for analyzing virtual memory behavior.By default
+the zone availability for different NUMA nodes.
+This is useful for analyzing virtual memory behavior.
+By default
 .B pcp-zoneinfo
 reports live data for the local host.
 
@@ -173,8 +174,7 @@ Display usage message and exit.
 .SH NOTES
 .B pcp-zoneinfo
 collects information from
-.BR /proc/zoneinfo
-and aims to be command line and output compatible with it.
+.IR /proc/zoneinfo .
 .SH PCP ENVIRONMENT
 Environment variables with the prefix \fBPCP_\fP are used to parameterize
 the file and directory names used by PCP.

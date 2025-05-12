@@ -86,6 +86,30 @@ to
 on the host
 .IR firewall.example.com .
 .PP
+Alternatively, for a
+.I type
+of
+.BR PM_CONTEXT_HOST ,
+.I name
+may be
+.B unix:
+for an authenticated Unix domain socket connection to
+.BR pmcd (1)
+on the localhost
+or
+.B local:
+for an authenticated connection to
+.BR pmcd (1)
+on the localhost via a Unix domain socket if available, else
+via an internet socket connection to
+.BR localhost .
+.B local:
+is the default choice for most applications when calling
+.B pmNewContext
+to establish a context for
+.BR pmcd (1)
+on the local host.
+.PP
 For a
 .I type
 of
@@ -197,8 +221,11 @@ Alternate DSO PMDAs can be used, refer to
 .PP
 In the case where \f2type\fP is \f3PM_CONTEXT_HOST\fP, additional flags can
 be added to the \f2type\fP to indicate if the connection to \f3pmcd\fP(1)
-should be encrypted (\f3PM_CTXFLAG_SECURE\fP), deferred (\f3PM_CTXFLAG_SHALLOW\fP)
-and if the file descriptor used to communicate with \f3pmcd\fP(1), should not be
+should be encrypted (\f3PM_CTXFLAG_SECURE\fP), should be encrypted
+if possible (\f3PM_CTXFLAG_RELAXED\fP), is deferred (\f3PM_CTXFLAG_SHALLOW\fP),
+should use authentication (\f3PM_CTXFLAG_AUTH\fP), should be a connection to
+a container (\f3PM_CTXFLAG_CONTAINER\fP),
+or if the file descriptor used to communicate with \f3pmcd\fP(1), should not be
 shared across contexts (\f3PM_CTXFLAG_EXCLUSIVE\fP).
 Both the \f3PM_CTXFLAG_SHALLOW\fP and \f3PM_CTXFLAG_EXCLUSIVE\fP flags are
 now deprecated and ignored.
@@ -213,14 +240,26 @@ be added to the
 for restricted handling of the archive suited to applications that are aware
 of the structure of PCP archives, namely
 .B PM_CTXFLAG_NO_FEATURE_CHECK
-(do not check feature compatibility for archive label records)
-and
+(do not check feature compatibility for archive label records),
 .B PM_CTXFLAG_METADATA_ONLY
-(open only the metadata, not the data volume(s) nor the index).
-Currently these additional flags are only used by
-.BR pmlogrewrite (1)
+(open only the metadata, not the data volume(s) nor the index)
 and
-.BR pmlogdump (1).
+.B PM_CTXFLAG_LAST_VOLUME
+(open the archive at the start of the
+.I last
+data volume, instead of the default start of the
+.I first
+data volume).
+.PP
+Multiple flags can be specified by bit-wise ``or-ing'' of the
+.B PM_CTXFLAG
+macros, but not all combinations make sense, e.g. if
+.B PM_CTXFLAG_METADATA_ONLY
+and
+.B PM_CTXFLAG_LAST_VOLUME
+are specified,
+.B PM_CTXFLAG_METADATA_ONLY
+takes precedence.
 .PP
 The initial instance
 profile is set up to select all instances in all instance domains.
@@ -383,7 +422,7 @@ and
 .BR pcp.env (5).
 
 .\" control lines for scripts/man-spell
-.\" +ok+ myarchive
+.\" +ok+ myarchive PM_CTXFLAG
 .\" +ok+ hostent {from struct hostent}
 .\" +ok+ app {from app23:14321,4321@firewall.example.com:11111}
-.\" +ok+ {from ``ib'' PMDA}
+.\" +ok+ ing {from ``or-ing'' }

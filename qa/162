@@ -86,7 +86,7 @@ do
     instdir=$PCP_PMDAS_DIR/$pmda
     echo
     echo "=== Install -n for $pmda ==="
-    if [ -f $instdir/Install ] 
+    if [ -f $instdir/Install ]
     then
 	cd $instdir
 	# used to be -N here

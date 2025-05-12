@@ -11,7 +11,6 @@ echo "QA output created by $seq"
 . ./common.python
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 pcp_free="$PCP_BINADM_DIR/pcp-free"
@@ -20,9 +19,9 @@ pcp_free="$python $pcp_free"
 
 # real QA test starts here
 echo && echo === free output, at first sample
-PCP_ARCHIVE="archives/pcp-free" PCP_HOSTZONE=1 PCP_ORIGIN=1 $pcp_free
+PCP_ARCHIVE="archives/pcp-free" PCP_HOSTZONE=1 PCP_ORIGIN_TIME=0.25s $pcp_free
 
-archive_first="-a archives/pcp-free -z -O +1"
+archive_first="-a archives/pcp-free -z -O 0.25s"
 archive_last="-a archives/pcp-free -z -O -0"
 
 echo && echo === free output, at last sample

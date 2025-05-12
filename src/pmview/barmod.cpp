@@ -23,7 +23,7 @@
 #include "launch.h"
 
 //
-// Use debug flag LIBPMDA to trace Bar refreshes
+// Use debug flag -Dappl3 to trace Bar refreshes
 //
 
 const char BarMod::theBarId = 'b';
@@ -89,6 +89,9 @@ BarMod::generate(SoNode *obj, float xSpace, float zSpace)
     char	buf[32];
     int		m, i, v;
 
+    if (pmDebugOptions.appl2)
+	cerr << "BarMod::generate() called" << Qt::endl;
+
     _root = new SoSeparator;
 
     if (numValues > 0) {
@@ -151,6 +154,9 @@ BarMod::refresh(bool fetchFlag)
 {
     int m, i, v;
 
+    if (pmDebugOptions.appl3)
+	cerr << "BarMod::refresh() called fetchlag=" << fetchFlag << " numMetrics=" << _metrics->numMetrics() << Qt::endl;
+
     if (status() < 0)
 	return;
 
@@ -164,7 +170,10 @@ BarMod::refresh(bool fetchFlag)
 
 	    BarBlock &block = _blocks[v];
 
-	    if (metric.error(i) <= 0) {
+	    if (metric.error(i) < 0) {
+
+		if (pmDebugOptions.appl3)
+		    cerr << "BarMod::refresh() " << &metric << " metric[" << i << "] error=" << metric.error(i) << Qt::endl;
 
 		if (block._state != Modulate::error) {
 		    block._color->rgb.setValue(_errorColor.getValue());
@@ -178,6 +187,11 @@ BarMod::refresh(bool fetchFlag)
 	    else {
 		double  unscaled    = metric.value(i);
 		double  value       = unscaled * theScale;
+
+		if (pmDebugOptions.appl3) {
+		    cerr << "BarMod::refresh() " << &metric << " theNormError=" << theNormError << " metric[" << i << "] value=";
+		    metric.dump(cerr, false, i);
+		}
                 
 		if (value > theNormError) {
 		    if (block._state != Modulate::saturated) {
@@ -517,6 +531,9 @@ BarMod::regenerate(float xScale, float zScale, float xSpace, float zSpace)
     int		m, i, v;
     float	halfX = xScale / 2.0;
     float	halfZ = zScale / 2.0;
+
+    if (pmDebugOptions.appl2)
+	cerr << "BarMod::regenerate() called" << Qt::endl;
 
     if (status() < 0)
 	return;

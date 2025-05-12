@@ -186,8 +186,7 @@ __pmSockAddrSetPath(__pmSockAddr *addr, const char *path)
 #if defined(HAVE_STRUCT_SOCKADDR_UN)
     if (addr->sockaddr.raw.sa_family == AF_UNIX) {
 	int buflen = sizeof(addr->sockaddr.local.sun_path);
-	strncpy(addr->sockaddr.local.sun_path, path, buflen);
-	addr->sockaddr.local.sun_path[buflen-1] = '\0';
+	pmstrncpy(addr->sockaddr.local.sun_path, buflen, path);
     } else {
 	pmNotifyErr(LOG_ERR,
 		"%s:__pmSockAddrSetPath: Invalid address family: %d\n",
@@ -335,8 +334,7 @@ __pmStringToSockAddr(const char *cp)
 		    if ((cp1 = malloc(size + 1)) == NULL)
 			sts = -1;
 		    else {
-			strncpy(cp1, cp, size);
-			cp1[size] = '\0';
+			pmstrncpy(cp1, size+1, cp);
 		    }
 		    cp = cp1;
 		}

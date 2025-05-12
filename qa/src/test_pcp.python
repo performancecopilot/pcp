@@ -121,6 +121,9 @@ def test_pcp(self):
         self.assertTrue(False)
 
     # pmExtractValue
+    print("tv_sec", results.contents.get_sec())
+    print("tv_nsec", results.contents.get_nsec())
+    print("numpmid", results.contents.get_numpmid())
     atom = ctx.pmExtractValue(results.contents.get_valfmt(0),
                               results.contents.get_vlist(0, 0),
                               descs[0].contents.type,
@@ -332,10 +335,7 @@ def test_pcp(self):
         self.assertTrue(False)
 
     try:
-        if sys.version_info[0] < 3:
-            (units,mult) = ctx.pmParseUnitsStr("5 mb/4 seconds")
-        else:
-            (units,mult) = ctx.pmParseUnitsStr(u"5 mb/4 seconds")
+        (units,mult) = ctx.pmParseUnitsStr(u"5 mb/4 seconds")
         print("pmParseUnitsStr[unicode]:", units, mult)
         self.assertTrue(True)
     except pmapi.pmErr as error:
@@ -459,20 +459,20 @@ def test_pcp(self):
 
         # pmGetArchiveLabel
         try:
-            loglabel = ctx.pmGetHighResArchiveLabel()
-            print("pmGetHighResArchiveLabel: ok")
+            loglabel = ctx.pmGetArchiveLabel()
+            print("pmGetArchiveLabel: ok")
             self.assertTrue(True)
         except pmapi.pmErr as error:
-            print("pmGetHighResArchiveLabel: ", error)
+            print("pmGetArchiveLabel: ", error)
             self.assertTrue(False)
 
         # pmGetArchiveEnd
         try:
-            tval = ctx.pmGetHighResArchiveEnd()
-            print("pmGetHighResArchiveEnd: ", tval)
+            tval = ctx.pmGetArchiveEnd()
+            print("pmGetArchiveEnd: ", tval)
             self.assertTrue(True)
         except pmapi.pmErr as error:
-            print("pmGetHighResArchiveEnd: ", error)
+            print("pmGetArchiveEnd: ", error)
             self.assertTrue(False)
 
     # pmPrintValue

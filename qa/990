@@ -28,7 +28,6 @@ _cleanup()
     rm -rf $tmp $tmp.*
 }
 
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # move the MMV directory to restore contents later.
@@ -38,11 +37,24 @@ $sudo rm -rf ${MMV_STATS_DIR}
 $sudo mkdir -m 755 ${MMV_STATS_DIR}
 $sudo chown $username ${MMV_STATS_DIR}
 
+# from mmv.log ...
+# [Wed Feb  5 14:23:47] pminfo(2011651) Error: mmv: header-1: size 8 too small, expecting 40
+#
+# These 2 are "equivalent"
+# 64-bit platforms
+#    Error: mmv: indoms_4: indom[0] offset: 184 < 343597383704
+# 32-bit platforms
+#    Error: mmv: indoms_4: indom[0] offset: 184 < 4294967320
+
+#
 _filter()
 {
     sed \
 	-e "s,$MMV_STATS_DIR,MMV_STATS_DIR,g" \
 	-e "s,$PCP_PMDAS_DIR,PCP_PMDAS_DIR,g" \
+	-e 's/\[[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]]/[DATESTAMP]/' \
+	-e 's/pminfo([0-9][0-9]*)/pminfo(PID)/' \
+	-e '/indoms_4/s/184 < 4294967320/184 < 343597383704/' \
     #end
 }
 
@@ -54,7 +66,7 @@ _dump()
     echo "== generating bad $section data files =="
     $here/src/badmmv --$section
 
-    files=`ls -1 ${MMV_STATS_DIR}/${section}-* | LC_COLLATE=POSIX sort`
+    files=`ls -1 ${MMV_STATS_DIR}/${section}_* | LC_COLLATE=POSIX sort`
     for file in $files
     do
 	echo -- dump `basename $file`
@@ -73,12 +85,22 @@ _verify()
     $here/src/badmmv --$section
 
     # run valgrind once for all files in section (its slow to start)
-    echo -- verify $section data files | tee -a $seq.full
-    _run_valgrind pminfo -L -Kclear -Kadd,70,$pmda -v mmv \
-		| _filter
+    echo -- verify $section data files | tee -a $seq_full
+    _run_valgrind --save-output pminfo -L -Kclear -Kadd,70,$pmda -v mmv 2>&1 \
+    | _filter
+    _filter <$tmp.err \
+    | LC_COLLATE=POSIX sort \
+    | uniq
+    cat $tmp.out
 
     # this should always show zero (all badmmv generated files are invalid)
-    pminfo -L -Kclear -Kadd,70,$pmda -f mmv.control.files
+    # -Dappl0 to get warnings and info and debug from PMDA
+    #
+    pminfo -L -Kclear -Kadd,70,$pmda -Dappl0 -f mmv.control.metrics 2>$tmp.err >$tmp.out
+    _filter <$tmp.err \
+    | LC_COLLATE=POSIX sort \
+    | uniq
+    cat $tmp.out
 
     # cleanup 
     rm -f ${MMV_STATS_DIR}/${section}-*

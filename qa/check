@@ -435,7 +435,6 @@ do
     else
 	# really going to try and run this one
 	#
-	rm -f $seq.full
 	lasttime=`sed -n -e "/^$seq /s/.* //p" <check.time`
 	[ "X$lasttime" != X ] && $PCP_ECHO_PROG $PCP_ECHO_N " ${lasttime}s ...""$PCP_ECHO_C"
 	rm -f core $seq.notrun

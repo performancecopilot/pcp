@@ -10,15 +10,6 @@ echo "QA output created by $seq"
 
 . ./common.python
 
-__version=`$python --version 2>&1 | sed -e 's/Python //'`
-case "$__version"
-in
-    2.*|3.[0-4]*)	_notrun "pcp-geolocate does not work with older Python $__version" 
-			;;
-esac
-
-$sudo rm -rf $tmp $tmp.* $seq.full
-
 _cleanup()
 {
     cd $here

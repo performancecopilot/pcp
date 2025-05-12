@@ -33,20 +33,20 @@ then
 	    *.timer)
 		    ;;
 	    *)
-		    $sudo systemctl disable $svc >>$seq.full 2>&1
+		    $sudo systemctl disable $svc >>$seq_full 2>&1
 		    ;;
 	esac
-	$sudo systemctl stop $svc >>$seq.full 2>&1
-	echo "+ after stop $svc ..." >>$seq.full
-	_get_pids_by_name pmlogger >>$seq.full 2>&1
-	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '[p]mlogger' >>$seq.full
+	$sudo systemctl stop $svc >>$seq_full 2>&1
+	echo "+ after stop $svc ..." >>$seq_full
+	_get_pids_by_name pmlogger >>$seq_full 2>&1
+	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '[P]PID|/[p]mlogger( |$)' >>$seq_full
     done
     # and now get a clean pmlogger without the other hangers-on
     #
     $sudo systemctl restart pmlogger
-    _wait_for_pmlogger
+    _wait_for_pmlogger || _exit 1
 fi
-echo "Using system? \"$use_systemd\" (-s => yes)" >>$seq.full
+echo "Using system? \"$use_systemd\" (-s => yes)" >>$seq_full
 
 _cleanup()
 {
@@ -59,8 +59,8 @@ _cleanup()
 	    pmlogger_daily.service \
 	    pmlogger_daily-poll.service
 	do
-	    $sudo systemctl enable $svc >>$seq.full 2>&1
-	    $sudo systemctl start $svc >>$seq.full 2>&1
+	    $sudo systemctl enable $svc >>$seq_full 2>&1
+	    $sudo systemctl start $svc >>$seq_full 2>&1
 	done
     fi
    # these come from src/pmcdgone running _wait_for_pmlogger w/out $tmp
@@ -69,12 +69,13 @@ _cleanup()
    rm -f ._wait_for_pmlogger.host ._wait_for_pmlogger.pmlc
    # don't exit until pmlogger is running
    #
-    _wait_for_pmlogger
+   _wait_for_pmlogger
 }
 
 # real QA test starts here
+export tmp seq seq_full
 $sudo src/pmcdgone $use_systemd 2>&1 \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | sed \
     -e '/^+ /d' \
     -e '/__pmGetPDU: fd=3 BINARY hdr: Broken pipe/d' \

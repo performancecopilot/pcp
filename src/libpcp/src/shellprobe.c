@@ -468,8 +468,7 @@ parseFile(const char *option, char *buffer, int buflen)
 {
     char		*end;
 
-    strncpy(buffer, option, buflen);
-    buffer[buflen-1] = '\0';
+    pmstrncpy(buffer, buflen, option);
 
     /* Remove back-slash escaped comma characters, if any. */
     for (end = buffer; *end != '\0' && *end != ','; end++) {

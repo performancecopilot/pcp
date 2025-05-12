@@ -180,7 +180,7 @@ cat << End-of-File >> $tmp.conf
 #
 # nfsvis
 #
-_colorlist colors (red1 green1 blue1)
+_colorlist colors (red green blue)
 _grid hide (
 	_label 2 0 _down _large "Client"
 	_bar 0 0 _east _groupByMetric (
@@ -239,6 +239,6 @@ End-of-File
 
 $verbose && cat $tmp.conf
 
-eval $PMVIEW <$tmp.conf $args -title "'$titleArg'" -xrm "'*iconName:nfsvis'"
+eval $PMVIEW <$tmp.conf $args -title "'$titleArg'"
 
 exit

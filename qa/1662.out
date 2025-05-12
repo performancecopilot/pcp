@@ -5,7 +5,7 @@ PONG
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: PCP_BINADM_DIR/pmproxy -f -t -A -c CONFFILE -U USERNAME -T 10sec -l LOGFILE -r REDISPORT -p PROXYPORT -s PROXYSOCK
+Command: PCP_BINADM_DIR/pmproxy -Ddev0,discovery -f -t -A -c CONFFILE -U USERNAME -T 10sec -l LOGFILE -r KEYSPORT -p PROXYPORT -s PROXYSOCK
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks

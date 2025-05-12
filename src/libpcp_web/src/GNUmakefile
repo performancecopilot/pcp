@@ -18,9 +18,13 @@ include $(TOPDIR)/src/include/builddefs
 REWRITEDIR	= $(PCP_SYSCONF_DIR)/pmlogrewrite
 REWRITEVARDIR	= $(PCP_VAR_DIR)/config/pmlogrewrite
 
+ifneq "$(HAVE_LIBINIH)" "true"
 INIH_HFILES = $(addprefix deps/inih/, ini.h)
 INIH_CFILES = $(addprefix deps/inih/, ini.c)
 INIH_XFILES = $(INIH_HFILES) $(INIH_CFILES)
+else
+INIH_XFILES =
+endif
 
 HIREDIS_HFILES = $(addprefix deps/hiredis/, \
 	alloc.h async.h async_private.h fmacros.h hiredis.h net.h \
@@ -38,14 +42,20 @@ HIREDIS_CLUSTER_XFILES = $(HIREDIS_CLUSTER_HFILES) $(HIREDIS_CLUSTER_CFILES)
 
 CFILES = jsmn.c http_client.c http_parser.c siphash.c \
 	 query.c schema.c load.c sha1.c util.c slots.c \
-	 redis.c dict.c maps.c batons.c encoding.c \
+	 keys.c dict.c maps.c batons.c encoding.c \
 	 search.c json_helpers.c config.c \
-	 $(HIREDIS_CFILES) $(HIREDIS_CLUSTER_CFILES) $(INIH_CFILES)
+	 $(HIREDIS_CFILES) $(HIREDIS_CLUSTER_CFILES)
+ifneq "$(HAVE_LIBINIH)" "true"
+	 CFILES += $(INIH_CFILES)
+endif
 HFILES = jsmn.h http_client.h http_parser.h zmalloc.h \
 	 query.h schema.h load.h sha1.h util.h slots.h \
-	 redis.h dict.h maps.h batons.h encoding.h \
+	 keys.h dict.h maps.h batons.h encoding.h \
 	 search.h discover.h private.h \
-	 $(HIREDIS_HFILES) $(HIREDIS_CLUSTER_HFILES) $(INIH_HFILES)
+	 $(HIREDIS_HFILES) $(HIREDIS_CLUSTER_HFILES)
+ifneq "$(HAVE_LIBINIH)" "true"
+	 HFILES += $(INIH_HFILES)
+endif
 YFILES = query_parser.y
 XFILES = jsmn.c jsmn.h http_parser.c http_parser.h \
 	 sha1.c sha1.h siphash.c dict.c dict.h
@@ -58,8 +68,10 @@ HFILES += fnmatch.h
 XFILES += fnmatch.c fnmatch.h
 LCFLAGS += -I.
 endif
+ifneq "$(HAVE_LIBINIH)" "true"
+LCFLAGS += -Iinih
+endif
 
-LDIRT = $(XFILES) $(YFILES:%.y=%.tab.?) query_parser.y
 LCFLAGS += $(C99_CFLAGS) -DJSMN_PARENT_LINKS=1 -DJSMN_STRICT=1 -DHTTP_PARSER_STRICT=0 -Ideps
 
 ifeq "$(HAVE_LIBUV)" "true"
@@ -68,6 +80,10 @@ LCFLAGS += $(LIBUVCFLAGS) -DHAVE_LIBUV=1
 LLDLIBS += $(LIB_FOR_LIBUV)
 else
 CFILES += nodiscover.c nowebgroup.c notimer.c
+endif
+
+ifeq "$(HAVE_LIBINIH)" "true"
+LLDLIBS += $(LIB_FOR_INIH)
 endif
 
 ifeq "$(HAVE_OPENSSL)" "true"
@@ -97,7 +113,10 @@ SYMTARGET =
 endif
 
 VERSION_SCRIPT = exports
-LDIRT = $(XFILES) $(HIREDIS_XFILES) $(HIREDIS_CLUSTER_XFILES) $(INIH_XFILES) $(SYMTARGET) $(YFILES:%.y=%.tab.?)
+LDIRT = $(XFILES) $(YFILES) $(HIREDIS_XFILES) $(HIREDIS_CLUSTER_XFILES) $(SYMTARGET) $(YFILES:%.y=%.tab.?)
+ifneq "$(HAVE_LIBINIH)" "true"
+	LDIRT += $(INIH_XFILES)
+endif
 
 default: $(XFILES) $(HIREDIS_XFILES) $(HIREDIS_CLUSTER_XFILES) $(INIH_XFILES) $(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET)
 
@@ -124,9 +143,11 @@ endif
 
 $(XFILES):
 	$(LN_S) -f $(TOPDIR)/src/external/$@ $@
+ifneq ($(INIH_XFILES),)
 $(INIH_XFILES):
 	mkdir -p deps/inih
 	$(LN_S) -f $(realpath $(TOPDIR))/vendor/github.com/benhoyt/$(@:deps/%=%) $@
+endif
 $(HIREDIS_XFILES):
 	mkdir -p deps/hiredis/adapters
 	$(LN_S) -f $(realpath $(TOPDIR))/vendor/github.com/redis/$(@:deps/%=%) $@
@@ -154,3 +175,8 @@ discover.o:	discover.h discover.c
 http_parser.o:	http_parser.c http_parser.h
 query.o:	query.h query.c query_parser.y
 http_client.o load.o query.o:	$(TOPDIR)/src/include/pcp/libpcp.h
+
+debug:
+	@echo TARGET_OS=$(TARGET_OS)
+	@echo HAVE_LIBINIH=$(HAVE_LIBINIH)
+	@echo LLDLIBS=$(LLDLIBS)

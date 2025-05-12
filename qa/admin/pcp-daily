@@ -224,7 +224,11 @@ sudo rm -rf /usr/include/pcp
 sudo rm -f /usr/lib*/libpcp[_.]*
 # clean up any build turds
 rm -f qa/qa_outfiles
-if MAKE=\$MAKE ./Makepkgs --clean >>\$HOME/daily.log 2>&1
+# want to run "make check" after the build for Fedora platforms
+# - this mimics the CI behaviour
+check=''
+[ -f /etc/fedora-release ] && check='--check'
+if MAKE=\$MAKE ./Makepkgs --clean \$check >>\$HOME/daily.log 2>&1
 then
     ok=true
 else
@@ -324,7 +328,7 @@ s/ .*//p
 	    *)
 		# the old-school dpkg way
 		#
-		if yes Y | sudo dpkg -i --force-depends build/deb/*.deb >>$HOME/daily.log 2>&1
+		if yes Y | sudo dpkg -i --auto-deconfigure --force-depends build/deb/*.deb >>$HOME/daily.log 2>&1
 		then
 		    echo "Info: dpkg install" | tee -a $HOME/daily.log
 		else
@@ -791,6 +795,12 @@ do
     check_what="$what"
     valgrind_opt=''
     [ X"$what" = Xall ] && check_what=''
+
+    # hostname-based options setting
+    #
+    # Note: $check_what not set and at most one case block is executed
+    #       here, so assign values to $check_what
+    #
     case "$host"
     in
 
@@ -806,12 +816,11 @@ do
 	    ;;
 
 	vm01)
-	    # 739 segv's sometimes deep inside Python
-	    # and 749 recently (Dec 2023) has been locking the whole VM
-	    # up
-	    # fixed? [Jan 2024]
+	    # 749 recently (Dec 2023) has been locking the whole VM up
+	    # -- this test is using systemtap + pmcd static probes
+	    # fixed? [Jan 2024], but not fixed [Jan 2025]
 	    #
-	    #[ X"$what" = Xall ] && check_what='-X 739 -X 749'
+	    [ X"$what" = Xall ] && check_what='-X 749'
 	    ;;
 
 	vm05)
@@ -819,26 +828,6 @@ do
 	    # moment
 	    #
 	    [ X"$what" = Xall ] && check_what='-x valgrind'
-	    ;;
-
-	vm06)
-	    # Only selected groups at this stage for FreeBSD
-	    #	sanity trace libpcp kernel pmrep threads
-	    #
-	    [ X"$what" = Xall ] && check_what='-g sanity -g trace -g libpcp -g kernel -g pmrep -g threads -g perl -x valgrind'
-	    ;;
-
-	vm09)
-	    # Only selected groups at this stage for NetBSD
-	    #	sanity trace libpcp kernel pmrep threads
-	    #
-	    [ X"$what" = Xall ] && check_what='-g sanity -g trace -g libpcp -g kernel -g pmrep -g threads -x valgrind'
-	    ;;
-
-	vm10)
-	    # Only selected groups at this stage for FreeBSD ...
-	    #
-	    [ X"$what" = Xall ] && check_what='-g sanity -g trace -g libpcp -g kernel -g pmrep -g threads -g perl -x valgrind'
 	    ;;
 
 	vm15)
@@ -850,7 +839,10 @@ do
 	    # this is PCP 4.0.0
 	    # no -p or -m or -i flags and no -e processing
 	    # group "remote" should be enough to exercise interoperability
-	    [ X"$what" = Xall ] && check_what='-g remote'
+	    # need to exclude pmlc here talking to pmcd in a current PCP
+	    # version (LOG_PDU_VERSION3 vs LOG_PDU_VERSION2 issue)
+	    #
+	    [ X"$what" = Xall ] && check_what='-g remote -X 381'
 	    qa_user=pcpqa
 	    qa_dir=/var/lib/pcp/testsuite
 	    echo "Info: this PCP 4.0.0 inter-op testing ... no new PCP builds or installs"
@@ -882,18 +874,6 @@ do
 	    qa_user=pcpqa
 	    ;;
 
-	vm32)
-	    # Only selected groups at this stage for FreeBSD ...
-	    #
-	    [ X"$what" = Xall ] && check_what='-g sanity -g trace -g libpcp -g kernel -g pmrep -g threads -x valgrind -X 603'
-	    ;;
-
-	vm33)
-	    # Only selected groups at this stage for OpenBSD
-	    #
-	    [ X"$what" = Xall ] && check_what='-g sanity -g trace -g libpcp -g kernel -g pmcd -g pminfo -g pmlogger -g pmrep -g threads -g logutil -g dbpmda -g pmcheck'
-	    ;;
-
 	vm35)
 	    # this is PCP 2.7.8, need to run as user pcpqa and just
 	    # the sanity group and no -p or -m or -i flags
@@ -923,19 +903,70 @@ do
 	    fi
 	    ;;
 
-	vm37)
-	    # Only selected groups this stage for OpenBSD
-	    #
-	    [ X"$what" = Xall ] && check_what='-g sanity -g trace -g libpcp -g kernel -g pmcd -g pminfo -g pmlogger -g pmrep -g threads -g logutil -g dbpmda -g pmcheck'
-	    ;;
-
-	vm38)
-	    # Only -g sanity at this stage for NetBSD
-	    #
-	    [ X"$what" = Xall ] && check_what='-g sanity'
-	    ;;
-
     esac
+
+    # distro-based options setting
+    #
+    if [ -f $HOME/whatami.out ]
+    then
+	# pick line (if any) from $HOME/whatami.out matching $host,
+	# e.g.
+	# vm14 7.0.0 x86_64 CentOS6.10 (Final) [kernel=2.6.32 py=none se=disabled]
+	# and set these variables that can be used to conditionally
+	# set (QA in particular) options:
+	# $what_host=vm14
+	# $pcp_ver=7.0.0
+	# $arch=x86_64
+	# $distro="CentOS6.10"
+	#
+	# Note: $check_what may have been set above, so need to append
+	#       values here, not assign values
+	#
+	eval `grep "^$host " $HOME/whatami.out \
+	      | sed \
+		-e 's/^/what_host=/' \
+		-e 's/  */|pcp_ver=/' \
+		-e 's/  */|arch=/' \
+		-e 's/  */|distro="/' \
+		-e 's/ \[.*//' \
+		-e 's/ (.*//' \
+		-e 's/$/"/' \
+		-e 's/|/ /g'`
+	if [ -n "$distro" ]
+	then
+	    case "$distro"
+	    in
+		CentOS6.*|'RHEL * 6.*')
+		    # CentOS 6 and RHEL 6 ... don't bother with valgrind here
+		    # exclude the valgrind group and force the non-valgrind
+		    # variants to be run
+		    #
+		    valgrind_opt='export PCPQA_VALGRIND=both'
+		    [ X"$what" = Xall ] && check_what="$check_what -x valgrind"
+		    echo "Exclude valgrind group for distro=$distro"
+		    ;;
+
+		FreeBSD*)
+		    # Only selected groups at this stage for FreeBSD
+		    #
+		    [ X"$what" = Xall ] && check_what="$check_what -g sanity -g trace -g libpcp -g kernel -g pmrep -g threads -g perl -x valgrind"
+		    ;;
+
+		OpenBSD*)
+		    # Only selected groups this stage for OpenBSD
+		    #
+		    [ X"$what" = Xall ] && check_what="$check_what -g sanity -g trace -g libpcp -g kernel -g pmcd -g pminfo -g pmlogger -g pmrep -g threads -g logutil -g dbpmda -g pmcheck -g pmlc"
+		    ;;
+
+		NetBSD*)
+		    # Only -g sanity at this stage for NetBSD
+		    #
+		    [ X"$what" = Xall ] && check_what="$check_what -g sanity"
+		    ;;
+
+	    esac
+	fi
+    fi
 
     if which virsh >/dev/null 2>&1
     then
@@ -1097,7 +1128,12 @@ End-of-File
 
 	if $qflag || $rflag || $hflag
 	then
-	    ssh -t $qa_user@$host sh -c ./daily.qa.script
+	    # -o LogLevel=FATAL to get rid of
+	    #     connect /tmp/.X11-unix/X0: No such file or directory
+	    # from local ssh client, as per suggestion at
+	    # https://stackoverflow.com/questions/56825547
+	    #
+	    ssh -o LogLevel=FATAL -t $qa_user@$host sh -c ./daily.qa.script
 	    scp -q $qa_user@$host:daily.qa.log $tmp.out
 	    echo "=== qa: `date` ===" >>$log
 	    cat $tmp.out >>$log

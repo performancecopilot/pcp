@@ -2,7 +2,7 @@
 # PCP QA Test No. 1130
 # checks basic pcp2elasticsearch functionality
 #
-# Copyright (c) 2017-2019 Red Hat.
+# Copyright (c) 2017-2025 Red Hat.
 #
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -12,20 +12,8 @@ echo "QA output created by $seq"
 $python -c "from pcp import pmapi" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python pcp pmapi module not installed"
 
-# From Andreas 27 Jul 2022 ...
-# [pcp2elasticsearch] now uses a method='PUT' argument, but this is
-# not available in Python versions before 3.3
-#
-__version=`$python --version 2>&1 | sed -e 's/Python //'`
-case "$__version"
-in
-    2.*|3.1.*|3.2.*)
-	_notrun "pcp2elasticsearch does not work with Python $__version"
-	;;
-esac
-
 which socat >/dev/null 2>&1 || _notrun "socat binary not installed"
-which pcp2elasticsearch >$seq.full 2>&1 || _notrun "pcp2elasticsearch not installed"
+which pcp2elasticsearch >$seq_full 2>&1 || _notrun "pcp2elasticsearch not installed"
 
 $python -c "import requests" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python requests module not installed"
@@ -34,7 +22,6 @@ port=9200
 $PCP_BINADM_DIR/telnet-probe -c localhost $port
 [ $? -eq 1 ] || _notrun "Elasticsearch port $port is already in use"
 
-$sudo rm -rf $seq.full $tmp.*
 signal=$PCP_BINADM_DIR/pmsignal
 status=1       # failure is the default!
 
@@ -59,41 +46,59 @@ _filter_prec()
 
 _full_stash()
 {
-    echo "--- pcp2elasticsearch stdout --" >>$seq.full
-    cat $tmp.p2e.out >>$seq.full
-    echo "--- pcp2elasticsearch stderr --" >>$seq.full
-    cat $tmp.p2e.err >>$seq.full
-    echo "--- socket cat stdout --" >>$seq.full
-    cat $tmp.socat.out >>$seq.full
-    echo "--- socket cat stderr --" >>$seq.full
-    cat $tmp.socat.err >>$seq.full
-    echo "--- socket cat logfile --" >>$seq.full
-    cat $tmp.socat.log >>$seq.full
+    echo "--- pcp2elasticsearch stdout --" >>$seq_full
+    cat $tmp.p2e.out >>$seq_full
+    echo "--- pcp2elasticsearch stderr --" >>$seq_full
+    cat $tmp.p2e.err >>$seq_full
+    echo "--- socket cat stdout --" >>$seq_full
+    cat $tmp.socat.out >>$seq_full
+    echo "--- socket cat stderr --" >>$seq_full
+    cat $tmp.socat.err >>$seq_full
+    echo "--- socket cat logfile --" >>$seq_full
+    cat $tmp.socat.log >>$seq_full
     rm -f $tmp.p2e.out $tmp.p2e.err $tmp.socat.out $tmp.socat.err $tmp.socat.log
 }
 
 ncpu=`pmprobe -v hinv.ncpu | awk '{print $3}'`
 pcp2elasticsearch="$python `which pcp2elasticsearch`"
 
-echo | tee -a $seq.full
-echo "=== 1. pcp2elasticsearch one-shot one-metric ===" | tee -a $seq.full
-echo start socat `date '+%H:%M:%S.%N'` >>$seq.full
+echo | tee -a $seq_full
+echo "=== 1. pcp2elasticsearch one-shot one-metric ===" | tee -a $seq_full
+echo start socat `date '+%H:%M:%S.%N'` >>$seq_full
 socat -lf $tmp.socat.log -v -t 0.000001 tcp-listen:$port,reuseaddr,fork system:"echo HTTP/1.1 201 Created" >$tmp.socat.out 2>$tmp.socat.err &
 pid=$!
 sleep 2
-echo start pcp2elasticsearch `date '+%H:%M:%S.%N'` >>$seq.full
+echo start pcp2elasticsearch `date '+%H:%M:%S.%N'` >>$seq_full
 $pcp2elasticsearch -t 1 -s 1 hinv.ncpu >$tmp.p2e.out 2>$tmp.p2e.err
 sleep 5
-echo kill pcp2elasticsearch `date '+%H:%M:%S.%N'` >>$seq.full
+echo kill pcp2elasticsearch `date '+%H:%M:%S.%N'` >>$seq_full
 $signal $pid 2>/dev/null
 wait
-grep -E -q '^PUT /+pcp HTTP/' $tmp.socat.err
+# some fatal errors in socat.err, some in socat.log ...
+#
+grep -q 'socat.* Remote end closed connection without response' $tmp.socat.err && \
+	_notrun "socat on this platform is not behaving as expected [closed conn]"
+
+# From Paul 13 Jan 2025 ...
+# Getting reset connection messages with socat even though exporter works
+# correctly meaning the test is not being run. Happens with prior upstream
+# exporter version also:
+#     ... socat[957217] E read(6, 0x558187c97000, 8192): Connection reset by peer
+#
+# Commenting out the check and allowing QA test to run
+#
+#grep -q 'socat.* Connection reset by peer' $tmp.socat.log && \
+#	_notrun "socat on this platform is not behaving as expected [reset conn]"
+
+grep -q 'socat.* Broken pipe' $tmp.socat.log && \
+	_notrun "socat on this platform is not behaving as expected [broken pipe]"
+grep -E -q '^POST /+pcp/_doc HTTP/' $tmp.socat.err
 [ $? -eq 0 ] && echo "Found correct index in output"
 grep -E -q '"hinv": {"ncpu": '$ncpu'}' $tmp.socat.err
 [ $? -eq 0 ] && echo "Found correct value in output"
 _full_stash
 
-echo "=== 2. pcp2elasticsearch non-default targets ===" | tee -a $seq.full
+echo "=== 2. pcp2elasticsearch non-default targets ===" | tee -a $seq_full
 socat -lf $tmp.socat.log -s -v -t 0.000001 tcp-listen:$port,reuseaddr,fork system:"echo HTTP/1.1 201 Created" >$tmp.socat.out 2>$tmp.socat.err &
 pid=$!
 sleep 2
@@ -101,13 +106,13 @@ $pcp2elasticsearch -t 1 -s 1 -X QAHOST -x INDEX hinv.ncpu >$tmp.p2e.out 2>$tmp.p
 sleep 2
 $signal $pid 2>/dev/null
 wait
-grep -E -q '^PUT /+INDEX HTTP/' $tmp.socat.err
+grep -E -q '^POST /+INDEX/_doc HTTP/' $tmp.socat.err
 [ $? -eq 0 ] && echo "Found correct index in output"
 grep -E -q '"@host-id": "QAHOST"' $tmp.socat.err
 [ $? -eq 0 ] && echo "Found proper hostid in output"
 _full_stash
 
-echo "=== 3. pcp2elasticsearch full-blown archive replay session ===" | tee -a $seq.full
+echo "=== 3. pcp2elasticsearch full-blown archive replay session ===" | tee -a $seq_full
 socat -lf $tmp.socat.log -s -v -t 0.000001 tcp-listen:$port,reuseaddr,fork system:"echo HTTP/1.1 201 Created" >$tmp.socat.out 2>$tmp.socat.err &
 pid=$!
 sleep 2
@@ -116,7 +121,7 @@ sleep 2
 $signal $pid 2>/dev/null
 wait
 echo "--- Start of received data ---"
-grep -E '(mappings|slack)' $tmp.socat.err | sed -e 's,< [1-9].*,,g' >$tmp.archive.data
+grep -E '(slack)' $tmp.socat.err | sed -e 's,< [1-9].*,,g' >$tmp.archive.data
 while read -r line
 do
   echo $line | _filter_prec | pmjson | LC_COLLATE=POSIX sort | tr -d ,
@@ -124,7 +129,7 @@ done < $tmp.archive.data
 echo "--- End of received data ---"
 _full_stash
 
-echo "=== 4. pcp2elasticsearch with custom --es-search-type ===" | tee -a $seq.full
+echo "=== 4. pcp2elasticsearch with custom --es-search-type ===" | tee -a $seq_full
 socat -lf $tmp.socat.log -s -v -t 0.000001 tcp-listen:$port,reuseaddr,fork system:"echo HTTP/1.1 201 Created" >$tmp.socat.out 2>$tmp.socat.err &
 pid=$!
 sleep 2

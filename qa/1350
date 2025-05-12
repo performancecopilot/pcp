@@ -23,20 +23,21 @@ _cleanup()
 [ $PCP_PLATFORM = linux ] || _notrun "Linux proc test, only works with Linux"
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-echo "=> $$" >> $seq.full
+echo "=> $$" >> $seq_full
 # pminfo line looks like ...
 #     inst [1092164 or "1092164 -bash"] value 518
 #
-nvctxw=`pminfo -f proc.psinfo.vctxsw | tee -a $seq.full | awk '$2 == "['$$'" {print $NF}'`
-echo "=> $nvctxw" >> $seq.full
+nvctxw=`pminfo -f proc.psinfo.vctxsw | tee -a $seq_full | awk '$2 == "['$$'" {print $NF}'`
+echo "=> $nvctxw" >> $seq_full
 if [ -z "$nvctxw" ]
 then
-    echo "Botch: awk failed on ..."
+    echo "Botch: awk failed on proc.psinfo.vctxsw for PID $$ ..."
     pminfo -f proc.psinfo.vctxsw | grep "$$ "
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E "[P]PID| $$ "
+    exit
 fi
 [ "$nvctxw" -eq 0 ] || status=0
 if [ $status -eq 1 ]

@@ -19,7 +19,6 @@ target="-h localhost"
 $unix_domain_sockets && target="-h unix:"
 
 status=0	# success is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 _filter_solaris()
@@ -288,6 +287,7 @@ _filter_linux()
 {
     # pcp-atop uses metrics not supported on some kernels
     # proc.smaps.* metrics are not present for older kernels
+    # proc.fdinfo.* metrics neither
     #
     if [ $PCP_PLATFORM != linux ]
     then
@@ -310,6 +310,7 @@ _filter_linux()
 	    -e '/^proc\.psinfo\.cgroups -12351 Missing metric value(s)/d' \
 	    -e '/^proc\.namespaces\.envid -12350 Metric not supported/d' \
 	    -e '/^hotproc\.namespaces\.envid -12350 Metric not supported/d' \
+	    -e '/^proc\.fdinfo\..* Metric not supported/d' \
 	# linux
     fi
 }
@@ -347,17 +348,17 @@ _filter()
 
 # real QA test starts here
 pmlogconf $tmp.conf >$tmp.out 2>&1
-cat $tmp.out >$seq.full
+cat $tmp.out >$seq_full
 
 sed -e 's/:n:/:y:/' <$tmp.conf >$tmp.tmp
 mv $tmp.tmp $tmp.conf
 
 yes '' | pmlogconf $tmp.conf >$tmp.out
-( echo && echo "== TMP.OUT" ) >>$seq.full
-cat $tmp.out >>$seq.full
-( echo && echo "== TMP.CONF") >>$seq.full
-cat $tmp.conf >>$seq.full
-( echo && echo "== FILTERED") >>$seq.full
+( echo && echo "== TMP.OUT" ) >>$seq_full
+cat $tmp.out >>$seq_full
+( echo && echo "== TMP.CONF") >>$seq_full
+cat $tmp.conf >>$seq_full
+( echo && echo "== FILTERED") >>$seq_full
 
 sed -n <$tmp.conf \
     -e '/^[ 	]/{
@@ -368,7 +369,7 @@ p
 }' \
 | LC_COLLATE=POSIX sort \
 | uniq \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | xargs pmprobe $target \
 | _filter \
 | $PCP_AWK_PROG '

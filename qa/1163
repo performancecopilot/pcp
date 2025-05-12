@@ -22,7 +22,6 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _filter()
@@ -97,10 +96,10 @@ EOF
 
 # Run pmlogrewrite(1)
 rm -f $tmp.rewritten*
-pmlogrewrite -vvvv -c $tmp.config archives/20180415.09.16 $tmp.rewritten 2>&1 | _filter | tee $seq.full
+pmlogrewrite -vvvv -c $tmp.config archives/20180415.09.16 $tmp.rewritten 2>&1 | _filter | tee $seq_full
 
 # Now dump the rewritten archive
-pmdumplog -h $tmp.rewritten 2>&1 | tee -a $seq.full
+pmdumplog -h $tmp.rewritten 2>&1 | tee -a $seq_full
 
 # A few more tests
 cat > $tmp.config <<EOF
@@ -120,10 +119,10 @@ EOF
 
 # Run pmlogrewrite(1)
 rm -f $tmp.rewritten*
-pmlogrewrite -vvvv -c $tmp.config archives/20180415.09.16 $tmp.rewritten 2>&1 | _filter | tee $seq.full
+pmlogrewrite -vvvv -c $tmp.config archives/20180415.09.16 $tmp.rewritten 2>&1 | _filter | tee $seq_full
 
 # Now dump the rewritten archive
-pmdumplog -h $tmp.rewritten 2>&1 | tee -a $seq.full
+pmdumplog -h $tmp.rewritten 2>&1 | tee -a $seq_full
 
 # success, all done
 status=0

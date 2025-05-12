@@ -57,6 +57,7 @@ static void usage(void)
 "  -c configfile initial view to load\n"
 "  -C            with -c, parse config, report any errors and exit\n"
 "  -CC           like -C, but also connect to pmcd to check semantics\n"
+"  -D debug      set debug options, see pmdbg(1)\n"
 "  -g geometry   image geometry Width x Height (WxH)\n"
 "  -h host       add host to list of live metrics sources\n"
 "  -L            directly fetch metrics from localhost, PMCD is not used\n"
@@ -171,7 +172,7 @@ void readSettings(void)
 
     globalSettings.gridBackgroundModified = false;
     globalSettings.gridBackgroundName = userSettings.value(
-		"gridBackgroundColor", "rgbi:0.15/0.15/0.15").toString();
+		"gridBackgroundColor", "#262626").toString(); // rgbi:0.15/0.15/0.15
     globalSettings.gridBackground = QColor(globalSettings.gridBackgroundName);
 
     //
@@ -234,9 +235,10 @@ genInventor(void)
 	if (fd < 0) goto fail;
 	if (!(theAltConfig = fdopen(fd, "a")))
 fail:
-            pmprintf("%s: Warning: Unable to save configuration for"
+	    pmprintf("%s: Warning: Unable to save configuration for"
 	             "recording to \"%s\": %s\n",
-		    pmGetProgname(), configfile, strerror(errno));
+		    pmGetProgname(), configfile == NULL ? "???" : configfile,
+		    strerror(errno));
 	else if (pmDebugOptions.appl0)
 	    cerr << "genInventor: Copy of configuration saved to "
 		 << configfile << Qt::endl;
@@ -253,6 +255,9 @@ fail:
 	cerr << pmGetProgname() << ": " << errorCount << " errors detected in "
 	     << theConfigName << Qt::endl;
     }
+
+    if (warnCount > 0)
+	pmflush();
 
     sts = -errorCount;
 
@@ -302,6 +307,11 @@ main(int argc, char **argv)
     int			c, sts;
     int			errflg = 0;
     char		*msg;
+    struct timespec	start_ts;
+    struct timespec	end_ts;
+    struct timespec	real_start_ts;
+    struct timespec	real_end_ts;
+    struct timespec	position_ts;
 
     QedApp a(argc, argv);
     readSettings();
@@ -341,6 +351,7 @@ main(int argc, char **argv)
     }
 
     a.startconsole();
+    console->setWindowTitle(QCoreApplication::translate("Console", "pmview Console", nullptr));
 
     if (a.my.archives.size() > 0)
 	while (optind < argc)
@@ -418,9 +429,9 @@ main(int argc, char **argv)
 	a.my.logEndTime = archiveGroup->logEnd();
 	if ((sts = pmParseTimeWindow(a.my.Sflag, a.my.Tflag,
 				     a.my.Aflag, a.my.Oflag,
-				     &a.my.logStartTime, &a.my.logEndTime,
-				     &a.my.realStartTime, &a.my.realEndTime,
-				     &a.my.position, &msg)) < 0) {
+				     &start_ts, &end_ts,
+				     &real_start_ts, &real_end_ts,
+				     &position_ts, &msg)) < 0) {
 	    pmprintf("Cannot parse archive time window\n%s\n", msg);
 	    free(msg);
 	    usage();
@@ -434,14 +445,24 @@ main(int argc, char **argv)
 	a.my.logEndTime.tv_usec = 0;
 	if ((sts = pmParseTimeWindow(a.my.Sflag, a.my.Tflag,
 					a.my.Aflag, a.my.Oflag,
-					&a.my.logStartTime, &a.my.logEndTime,
-					&a.my.realStartTime, &a.my.realEndTime,
-					&a.my.position, &msg)) < 0) {
+					&start_ts, &end_ts,
+					&real_start_ts, &real_end_ts,
+					&position_ts, &msg)) < 0) {
 	    pmprintf("Cannot parse live time window\n%s\n", msg);
 	    free(msg);
 	    usage();
 	}
     }
+    a.my.logStartTime.tv_sec = start_ts.tv_sec;
+    a.my.logStartTime.tv_usec = start_ts.tv_nsec / 1000;
+    a.my.logEndTime.tv_sec = end_ts.tv_sec;
+    a.my.logEndTime.tv_usec = end_ts.tv_nsec / 1000;
+    a.my.realStartTime.tv_sec = real_start_ts.tv_sec;
+    a.my.realStartTime.tv_usec = real_start_ts.tv_nsec / 1000;
+    a.my.realEndTime.tv_sec = real_end_ts.tv_sec;
+    a.my.realEndTime.tv_usec = real_end_ts.tv_nsec / 1000;
+    a.my.position.tv_sec = position_ts.tv_sec;
+    a.my.position.tv_usec = position_ts.tv_nsec / 1000;
     console->post("Timezones and time window setup complete");
 
     pmview = new PmView;

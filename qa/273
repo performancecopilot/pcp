@@ -24,7 +24,6 @@ _cleanup()
 }
 
 status=1
-$sudo rm -rf $tmp.* $seq.full 
 trap "_cleanup" 0 1 2 3 15
 
 # don't need to regenerate config.default with pmlogconf
@@ -109,12 +108,12 @@ then
 fi
 
 # real QA test starts here
-_change_config pmcd on
-_change_config pmlogger on
+_change_config pmcd on || _exit 1
+_change_config pmlogger on || _exit 1
 _writable_primary_logger
-_service pcp restart >/dev/null 2>&1
-_wait_for_pmcd
-_wait_for_pmlogger
+if ! _service pcp restart >/dev/null 2>&1; then _exit 1; fi
+_wait_for_pmcd || _exit 1
+_wait_for_pmlogger || _exit 1
 
 # help.c
 #
@@ -267,7 +266,7 @@ src/grind_conv 3 4096 1:0:0:5:0:0 1:0:0:7:0:0
 echo "--- units.c error case 45 ---"
 src/grind_conv 3 3600 0:1:0:0:6:0 0:1:0:0:4:0
 echo "--- units.c error case 46 ---"
-src/grind_conv -Dvalue 3 3600 0:1:0:0:4:0 0:1:0:0:6:0 
+src/grind_conv -Dvalue 3 3600 0:1:0:0:4:0 0:1:0:0:6:0
 # dimensions not the same
 echo "--- units.c error case 47 ---"
 src/grind_conv 3 0 0:1:0:0:1:0 0:2:0:0:1:0

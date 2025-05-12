@@ -383,6 +383,12 @@ ExtractState(int i, void *timestamp)
 	byte = new_byte;
     }
 
+    if (byte != 0 && pmDebugOptions.appl6) {
+	fprintf(stderr, "ExtractState: %s agent (dom %d) set ", agent[i].pmDomainLabel, agent[i].pmDomainId);
+	__pmDumpFetchFlags(stderr, byte);
+	fputc('\n', stderr);
+    }
+
     return (int)byte;
 }
 
@@ -451,6 +457,11 @@ HandleFetch(ClientInfo *cip, __pmPDU* pb, int pdutype)
 	else
 	    pmNotifyErr(LOG_ERR, "DoFetch: no profile for ctxnum=%d\n", ctxnum);
 	return PM_ERR_NOPROFILE;
+    }
+
+    if (nPmids > maxmetrics) {
+	__pmUnpinPDUBuf(pb);
+	return PM_ERR_TOOBIG;
     }
 
     if (nPmids > maxnpmids) {
@@ -629,6 +640,11 @@ HandleFetch(ClientInfo *cip, __pmPDU* pb, int pdutype)
     sts = 0;
     if (cip->status.changes) {
 	/* notify client of PMCD state change */
+	if (pmDebugOptions.appl6) {
+	    fprintf(stderr, "HandleFetch: client[%d] (fd %d) sent ", (int)(cip - client), cip->fd);
+	    __pmDumpFetchFlags(stderr, cip->status.changes);
+	    fputc('\n', stderr);
+	}
 	sts = __pmSendError(cip->fd, FROM_ANON, (int)cip->status.changes);
 	if (sts > 0)
 	    sts = 0;

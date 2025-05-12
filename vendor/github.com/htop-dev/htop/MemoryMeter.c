@@ -33,12 +33,17 @@ static void MemoryMeter_updateValues(Meter* this) {
    size_t size = sizeof(this->txtBuffer);
    int written;
 
+   Settings *settings = this->host->settings;
+
    /* shared, compressed and available memory are not supported on all platforms */
    this->values[MEMORY_METER_SHARED] = NAN;
    this->values[MEMORY_METER_COMPRESSED] = NAN;
    this->values[MEMORY_METER_AVAILABLE] = NAN;
    Platform_setMemoryValues(this);
-
+   if ((this->mode == GRAPH_METERMODE || this->mode == BAR_METERMODE) && !settings->showCachedMemory) {
+      this->values[MEMORY_METER_BUFFERS] = 0;
+      this->values[MEMORY_METER_CACHE] = 0;
+   }
    /* Do not print available memory in bar mode */
    static_assert(MEMORY_METER_AVAILABLE + 1 == MEMORY_METER_ITEMCOUNT,
       "MEMORY_METER_AVAILABLE is not the last item in MemoryMeterValues");
@@ -62,6 +67,7 @@ static void MemoryMeter_updateValues(Meter* this) {
 static void MemoryMeter_display(const Object* cast, RichString* out) {
    char buffer[50];
    const Meter* this = (const Meter*)cast;
+   const Settings* settings = this->host->settings;
 
    RichString_writeAscii(out, CRT_colors[METER_TEXT], ":");
    Meter_humanUnit(buffer, this->total, sizeof(buffer));
@@ -86,12 +92,12 @@ static void MemoryMeter_display(const Object* cast, RichString* out) {
    }
 
    Meter_humanUnit(buffer, this->values[MEMORY_METER_BUFFERS], sizeof(buffer));
-   RichString_appendAscii(out, CRT_colors[METER_TEXT], " buffers:");
-   RichString_appendAscii(out, CRT_colors[MEMORY_BUFFERS_TEXT], buffer);
+   RichString_appendAscii(out, settings->showCachedMemory ? CRT_colors[METER_TEXT] : CRT_colors[METER_SHADOW], " buffers:");
+   RichString_appendAscii(out, settings->showCachedMemory ? CRT_colors[MEMORY_BUFFERS_TEXT] : CRT_colors[METER_SHADOW], buffer);
 
    Meter_humanUnit(buffer, this->values[MEMORY_METER_CACHE], sizeof(buffer));
-   RichString_appendAscii(out, CRT_colors[METER_TEXT], " cache:");
-   RichString_appendAscii(out, CRT_colors[MEMORY_CACHE], buffer);
+   RichString_appendAscii(out, settings->showCachedMemory ? CRT_colors[METER_TEXT] : CRT_colors[METER_SHADOW], " cache:");
+   RichString_appendAscii(out, settings->showCachedMemory ? CRT_colors[MEMORY_CACHE] : CRT_colors[METER_SHADOW], buffer);
 
    /* available memory is not supported on all platforms */
    if (isNonnegative(this->values[MEMORY_METER_AVAILABLE])) {
@@ -109,6 +115,7 @@ const MeterClass MemoryMeter_class = {
    },
    .updateValues = MemoryMeter_updateValues,
    .defaultMode = BAR_METERMODE,
+   .supportedModes = METERMODE_DEFAULT_SUPPORTED,
    .maxItems = MEMORY_METER_ITEMCOUNT,
    .total = 100.0,
    .attributes = MemoryMeter_attributes,

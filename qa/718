@@ -52,7 +52,7 @@ instance $domain.0
 text indom $domain.1
 End-of-File
 
-cat $PCP_PMDAS_DIR/simple/simple.log >>$here/$seq.full
+cat $PCP_PMDAS_DIR/simple/simple.log >>$seq_full
 
 status=0
 exit

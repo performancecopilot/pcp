@@ -19,11 +19,11 @@ main(int argc, char **argv)
     int		tzh;				/* initial timezone handle */
     char	local[MAXHOSTNAMELEN];
     char	*endnum;
-    struct timeval startTime;
-    struct timeval endTime;
-    struct timeval appStart;
-    struct timeval appEnd;
-    struct timeval appOffset;
+    struct timespec startTime;
+    struct timespec endTime;
+    struct timespec appStart;
+    struct timespec appEnd;
+    struct timespec appOffset;
     int		*instlist;
     char	**namelist;
     char	*name;
@@ -111,7 +111,7 @@ Options:\n\
 		    pmGetProgname(), pmErrStr(sts));
 		exit(1);
 	    }
-	    startTime = label.ll_start;
+	    startTime = label.start;
 	    if ((sts = pmGetArchiveEnd(&endTime)) < 0) {
 		fprintf(stderr, "%s: Cannot locate end of archive: %s\n",
 		    pmGetProgname(), pmErrStr(sts));
@@ -130,7 +130,7 @@ Options:\n\
 		    pmGetProgname(), endnum);
 		exit(1);
 	    }
-	    if ((sts = pmSetMode(PM_MODE_FORW, &appOffset, 0)) < 0) {
+	    if ((sts = pmSetModeHighRes(PM_MODE_FORW, &appOffset, NULL)) < 0) {
 		fprintf(stderr, "%s: pmSetMode: %s\n",
 		    pmGetProgname(), pmErrStr(sts));
 		exit(1);
@@ -279,7 +279,7 @@ Options:\n\
 			continue;
 		     if (iter == 0) {
 			now.sec = appOffset.tv_sec;
-			now.nsec = appOffset.tv_usec * 1000;
+			now.nsec = appOffset.tv_nsec;
 		     }
 		     else {
 			/*
@@ -288,7 +288,7 @@ Options:\n\
 			 * tv_sec + tv_sec => overflow
 			 */
 			now.sec = ((__int64_t)appOffset.tv_sec+(__int64_t)appEnd.tv_sec)/2;
-			now.nsec = (((__int64_t)appOffset.tv_usec+(__int64_t)appEnd.tv_usec)/2) * 1000;
+			now.nsec = (((__int64_t)appOffset.tv_nsec+(__int64_t)appEnd.tv_nsec)/2) * 1000;
 		     }
 		    if ((sts = __pmLogGetInDom(acp, indom[i], &now, &instlist, &namelist)) < 0) {
 			fprintf(stderr, "__pmLogGetInDom(%s) -> ", pmInDomStr(indom[i]));

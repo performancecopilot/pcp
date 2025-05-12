@@ -1,0 +1,168 @@
+#!/bin/sh
+# PCP QA Test No. 1521
+# derived metrics ... delta(expr), rate(expr) and
+# instant(expr) extensions
+#
+# non-valgrind variant, see qa/1522 for the valgrind variant
+#
+# Copyright (c) 2024 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+
+do_valgrind=false
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+    do_valgrind=true
+elif which valgrind >/dev/null 2>&1
+then
+    [ "$PCPQA_VALGRIND" = both ] || \
+        _notrun "valgrind variant qa/1522 will be run"
+fi
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+    # put things back the way they were for sample.updown.*
+    #
+    pmstore sample.updown.control.reset 0 >>$seq_full 2>&1
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+host=`hostname`
+echo "host=$host" >>$seq_full
+
+# need "now" to be > 20 to avoid ambiguous filtering
+# ... only an issue of the sample PMDA was recently restarted
+#
+for i in 1 2 3 4 5 6 7 8 9 10
+do
+    now=`PCP_DERIVED_CONFIG=/dev/null pmprobe -v sample.seconds | cut -d' ' -f3`
+    [ -n "$now" -a "$now" -gt 20 ] && break
+    sleep 2
+done
+echo "now=$now" >>$seq_full
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+	-e "/^host:/s/$host/HOST/" \
+	-e 's/0xffffffff/0x.../g' \
+	-e 's/0x[0-9a-f][0-9a-f]*/<addr>/g' \
+    | $PCP_AWK_PROG '
+NF == 1 && $1 >= 0.6 && $1 <= 1.25	{ print "   close to 1.000"; next }
+NF == 1 && $1 >= 6 && $1 <= 12.5	{ print "   close to 10.000"; next }
+					{ print }'
+    # end
+}
+
+_filter_now()
+{
+    now=`PCP_DERIVED_CONFIG=/dev/null pmprobe -v sample.seconds | cut -d' ' -f3`
+    $PCP_AWK_PROG '
+NF == 1 && $1 >= '$now'-20 && $1 <= '$now'	{ print "   close to <now>"; next }
+					{ print }'
+}
+
+export PCP_DERIVED_CONFIG=$tmp.config
+
+# real QA test starts here
+
+echo "Syntax/semantic errors ..."
+cat <<'End-of-File' >$tmp.tmp
+# string-valued expr
+qa.bad.b01 = delta("foo")
+# unknown metric (sample mis-spelled)
+qa.bad.b02 = rate(samples.string.hullo)
+# cannot get pmDesc
+qa.bad.b03 = delta(sample.bad.unknown)
+# type == string
+qa.bad.b04 = rate(sample.string.hullo)
+# type == event record
+qa.bad.b05 = delta(sample.event.records)
+# type == aggregate
+qa.bad.b06 = rate(sampledso.sysinfo)
+End-of-File
+sed <$tmp.tmp -e '/^#/d' \
+| while read defn
+do
+    echo "--- $defn"
+    echo "$defn" >$tmp.config
+    if $do_valgrind
+    then
+	_run_valgrind --save-output pminfo -Dderive -f qa.bad
+    else
+	pminfo -Dderive -f qa.bad >$tmp.out 2>$tmp.err
+    fi
+    _filter <$tmp.err \
+    | grep -v '^pmRegisterDerived' \
+    | grep -v '^Derived metric initialization ' \
+    | grep -v '^pmLoadDerivedConfig' \
+    | grep -v '^__dmgetpmid:' \
+    | grep -v '^__dmtraverse:' \
+    # end
+    _filter <$tmp.out
+done
+
+pmstore sample.updown.control.reset 0 >>$seq_full 2>&1
+pmstore sample.updown.control.step 1 >>$seq_full 2>&1
+pmstore sample.updown.control.repeat 1 >>$seq_full 2>&1
+pmstore sample.updown.obs 42 >>$seq_full 2>&1
+
+echo
+echo "Evaluations ..."
+cat <<'End-of-File' >$tmp.tmp
+qa.g01 = delta(42)
+qa.g02 = rate(1 * 100 + 2*10 + 3 + 4/10 + 5/100 + 6/1000)
+qa.g03 = delta(sample.updown.obs)
+qa.g04 = delta(sample.long.hundred * sample.updown.obs)
+qa.g05 = rate(max(sample.proc.time))
+qa.g06 = delta(defined(sample.updown.obs) ? sample.updown.obs : 13)
+qa.g07 = rate(defined(sample.updown.no.metric) ? 13 : sample.updown.obs)
+qa.g08 = instant(1950 + 5/12 + 26/365)
+qa.g09 = instant(2 * sample.seconds - sample.seconds)
+End-of-File
+debug=-Dderive,appl2
+sed <$tmp.tmp -e '/^#/d' \
+| while read defn
+do
+    echo "--- $defn"
+    echo "$defn" >$tmp.config
+    metric=`echo "$defn" | sed -e 's/ .*//'`
+    if $do_valgrind
+    then
+	_run_valgrind --save-output pmval $debug -f4 -w9 -s 3 -t 0.1sec $metric
+    else
+	pmval $debug -f4 -w9 -s 3 -t 0.1sec $metric >$tmp.out 2>$tmp.err
+    fi
+    _filter <$tmp.err
+    if [ $metric = qa.g09 ]
+    then
+	_filter <$tmp.out | _filter_now
+    else
+	_filter <$tmp.out
+    fi
+    debug=''	# one-trip for debugging
+done
+
+# success, all done
+exit

@@ -1,9 +1,11 @@
 TOPDIR = ../../..
-include $(TOPDIR)/src/include/builddefs
 
 COMMAND = qmc_hosts
 PROJECT = $(COMMAND).pro
 SOURCES = $(COMMAND).cpp
+
+include $(TOPDIR)/src/include/builddefs
+
 TESTDIR = $(PCP_VAR_DIR)/testsuite/qt/$(COMMAND)
 
 LSRCFILES = $(PROJECT) $(SOURCES)

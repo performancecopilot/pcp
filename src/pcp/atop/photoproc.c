@@ -86,8 +86,7 @@ proccmd(struct tstat *task, int pid, char *name, pmResult *rp, pmDesc *dp, int o
 		}
 	}
 
-	strncpy(task->gen.cmdline, pc, CMDLEN-env_len);
-	task->gen.cmdline[CMDLEN] = '\0';
+	pmstrncpy(task->gen.cmdline, CMDLEN-env_len, pc);
 }
 
 /*
@@ -127,8 +126,7 @@ update_task(struct tstat *task, int pid, char *name, pmResult *rp, pmDesc *dp, i
 			    sizeof cgname, pid, offset);
 	if (cgname[0] == ':')
 	{
-		strncpy(task->gen.cgpath, &cgname[1], sizeof task->gen.cgpath);
-		task->gen.cgpath[sizeof task->gen.cgpath - 1] = '\0';
+		pmstrncpy(task->gen.cgpath, sizeof(task->gen.cgpath), &cgname[1]);
 		supportflags |= CGROUPV2;
 	}
 

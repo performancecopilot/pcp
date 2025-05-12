@@ -28,9 +28,8 @@ in the source distribution for its full text.
 static const char* const ColumnsFunctions[] = {"      ", "      ", "      ", "      ", "      ", "      ", "MoveUp", "MoveDn", "Remove", "Done  ", NULL};
 
 static void ColumnsPanel_delete(Object* object) {
-   Panel* super = (Panel*) object;
    ColumnsPanel* this = (ColumnsPanel*) object;
-   Panel_done(super);
+   Panel_done(&this->super);
    free(this);
 }
 
@@ -47,7 +46,7 @@ static HandlerResult ColumnsPanel_eventHandler(Panel* super, int ch) {
       case KEY_ENTER:
       case KEY_MOUSE:
       case KEY_RECLICK:
-         if (selected < size - 1) {
+         if (selected < size) {
             this->moving = !(this->moving);
             Panel_setSelectionColor(super, this->moving ? PANEL_SELECTION_FOLLOW : PANEL_SELECTION_FOCUS);
             ListItem* selectedItem = (ListItem*) Panel_getSelected(super);
@@ -63,7 +62,7 @@ static HandlerResult ColumnsPanel_eventHandler(Panel* super, int ch) {
       case KEY_F(7):
       case '[':
       case '-':
-         if (selected < size - 1)
+         if (selected < size)
             Panel_moveSelectedUp(super);
          result = HANDLED;
          break;
@@ -74,13 +73,14 @@ static HandlerResult ColumnsPanel_eventHandler(Panel* super, int ch) {
       case KEY_F(8):
       case ']':
       case '+':
-         if (selected < size - 2)
+         if (selected < size - 1)
             Panel_moveSelectedDown(super);
          result = HANDLED;
          break;
       case KEY_F(9):
       case KEY_DC:
-         if (selected < size - 1)
+      case KEY_DEL_MAC:
+         if (size > 1 && selected < size)
             Panel_remove(super, selected);
          result = HANDLED;
          break;
@@ -126,7 +126,7 @@ static void ColumnsPanel_add(Panel* super, unsigned int key, Hashtable* columns)
 }
 
 void ColumnsPanel_fill(ColumnsPanel* this, ScreenSettings* ss, Hashtable* columns) {
-   Panel* super = (Panel*) this;
+   Panel* super = &this->super;
    Panel_prune(super);
    for (const RowField* fields = ss->fields; *fields; fields++)
       ColumnsPanel_add(super, *fields, columns);
@@ -135,7 +135,8 @@ void ColumnsPanel_fill(ColumnsPanel* this, ScreenSettings* ss, Hashtable* column
 
 ColumnsPanel* ColumnsPanel_new(ScreenSettings* ss, Hashtable* columns, bool* changed) {
    ColumnsPanel* this = AllocThis(ColumnsPanel);
-   Panel* super = (Panel*) this;
+   Panel* super = &this->super;
+
    FunctionBar* fuBar = FunctionBar_new(ColumnsFunctions, NULL, NULL);
    Panel_init(super, 1, 1, 1, 1, Class(ListItem), true, fuBar);
 

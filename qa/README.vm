@@ -10,12 +10,34 @@ These notes should be read in conjunction with the README notes.
     as per the DNS configured on bozo (other VMs need to be able to find
     you, and my local DHCP is not hooked into the DNS)
 (e) if the install was done with a user different to the one you're going
-    to run QA with, you need to set up the QA
+    to run QA with, you need to set up the QA user
 (f) make sure the user you're going to run QA with can sudo without
     a password
-(g) make sure there is no firewall, or if there is one the ports mentioned
+    For the QA Farm
+      $ su - root
+      # which sudo || apt install sudo
+      # EDITOR=vi visudo
+      add NOPASSWD: tag before last ALL in %sudo (or similar line), e.g.
+      %sudo   ALL=(ALL:ALL) NOPASSWD:ALL
+      # vi /etc/group and make sure kenj and pcpqa are in the sudo:x:... line
+      if /etc/group needed changing, logout and login again, then
+      $ sudo id
+      should not prompt for a password and return uid=0 and gid=0
+(g) git clone the PCP tree
+    For the QA Farm
+      $ cd
+      $ sudo apt install git
+      $ [ -d src ] || mkdir src
+      $ cd src
+      $ git clone bozo:git-mirror/pcp.git
+      $ cd pcp
+(h) make sure there is no firewall, or if there is one the ports mentioned
     in qa/README (pmcd, pmlogger control, pmproxy, etc) are open
-    In the simples case with ufw(1) in play, the following should suffice:
+    Use the scripts/smack-firewall script, or ...
+    In the simplest case with ufw(1) in play, the following should suffice:
+      # see if it is Active
+      $ sudo ufw status
+      # and if so, ...
       $ sudo ufw allow 44321/tcp comment pmcd
       $ sudo ufw allow 44322/tcp comment pmproxy
       $ sudo ufw allow 44323/tcp comment pmwebapi
@@ -23,8 +45,22 @@ These notes should be read in conjunction with the README notes.
       $ for port in `seq 4320 4350`
           do sudo ufw allow $port/tcp comment PCPQA
 	done
-(h) git clone the PCP tree
-(i) cd qa/admin and run list-packages -p until you're tired ...
+    If firewalld(1) is in charge, this should work:
+      $ sudo firewall-cmd --get-default-zone
+      # save this one for use below
+      zone=....
+      $ sudo firewall-cmd --zone=$zone --add-service=pmcd --permanent
+      $ sudo firewall-cmd --zone=$zone --add-service=pmproxy --permanent
+      $ sudo firewall-cmd --zone=$zone --add-service=pmwebapi --permanent
+      # and for https://...
+      $ sudo firewall-cmd --zone=$zone --add-service=pmwebapis --permanent
+      $ sudo firewall-cmd --zone=$zone --add-service=mdns --permanent
+      $ sudo firewall-cmd --zone=$zone --add-port=4320-4350/tcp --permanent
+      $ sudo systemctl restart firewalld
+      # check
+      $ sudo firewall-cmd --zone=$zone --list-services
+      $ sudo firewall-cmd --zone=$zone --list-ports
+(i) cd qa/admin and run list-packages -m until you're tired ...
     - the files in qa/admin/package-lists are the inventories for each
       distribution, version and architecture we know about ... see the
       README in that directory if you need to create a new package-list
@@ -50,13 +86,9 @@ rpm
 
 Ubuntu
     https://wiki.ubuntu.com/Releases
-    20 Nov 2022: 22.10 (Kinetic) 22.04.1 LTS (Jammy), 20.04.5 LTS (Focal),
-    		 18.04.6 LTS (Bionic), 16.04.7 LTS (Xenial), 14.04.6
-		 (Trusty)
-    13 Sep 2021: 20.04 LTS (Focal), 18.04 (Bionic) 16.04 LTS (Xenial),
-    		 14.04 LTS (Trusty)
-    04 Jun 2018: 18.04 (Bionic) 17.10 (Artful), 16.04 LTS (Xenial),
-		 14.04.3 LTS (Trusty),
+    [just the LTS releases]
+    13 Dec 2024: 24.04.1 (Noble), 22.04.5 (Jammy), 20.04.6 (Focal),
+		 18.04.6 (Bionic), 16.04.7 (Xenial), 14.04.6 (Trusty)
     # which packages are installed
     $ dpkg-query -W -f '${package}\n'
     # package search recipe (name and info or description)
@@ -76,10 +108,7 @@ Ubuntu
 
 Debian
     https://wiki.debian.org/DebianReleases
-    16 Oct 2023: 10 (Buster), 11 (Bullseye) and 12 (Bookworm)
-    15 Sep 2021: 10 (Buster) and 11 (Bullseye)
-    04 May 2016: 7.0 (Wheezy), 8.0 (Jessie) and 9.0 (Stretch)
-    17 Nov 2015: 6.0 (squeeze), 7.0 (wheezy) and 8.0 (jessie)
+    13 Dec 2024: 10 (Buster), 11 (Bullseye) and 12 (Bookworm)
     # see Ubuntu for most notes
     #
     # release upgrade reciple
@@ -109,12 +138,7 @@ Debian
 
 Fedora
     https://fedoraproject.org/wiki/Releases
-    29 Apr 2024: 39 & 40
-    27 Aug 2023: 38 & 39
-    22 May 2023: 37 & 38
-    12 Dec 2022: 35, 36 & 37
-    07 Sep 2021: 33 & 34
-    23 Aug 2020: 31 & 32
+    13 Dec 2024: 40 & 41
     # which packages are installed
     $ rpm -qa --qf '%{NAME}\n'
     # package search recipe (name and info or description)
@@ -151,8 +175,8 @@ Fedora
 
 RedHat
     https://access.redhat.com/articles/3078
-    17 Nov 2015: 5.0-5.11, 6.0-6.7, 7.0-7.1
-    23 Aug 2017: 5.0-5.11, 6.0-6.9, 7.0-7.4
+    Full Support versions (5 years from release)
+    14 Dec 2024: 7.9, 8.10, 9.5
     # which packages are installed
     $ rpm -qa --qf '%{NAME}\n'
     # package search recipe (name and info or description)
@@ -181,21 +205,24 @@ RedHat
     # rpm -q libuv-devel
     libuv-devel-1.23.1-2.module_el8+8698+518af944.x86_64
 
-CentOS
+CentOS Stream
+    https://en.wikipedia.org/wiki/CentOS_Stream
+    15 Dec 2024: 9, 10
+    [old CentOS]
     https://en.wikipedia.org/wiki/CentOS#CentOS_releases
-    17 Nov 2015: 5.0-5.11, 6.0-6.7, 7.0 and 7.1
-    19 Apr 2017: 6.0-6.7, 7.0-7.3
-    25 Sep 2018: 6.*, 7.1-7.5
+    25 Sep 2018: 6.*, 7.1-7.9
     # everything the same as RedHat
-    # promising CentOS 7 -> CentOS 8 upgrade recipe at
-      https://www.tecmint.com/upgrade-centos-7-to-centos-8/
-      but it does not work ... CentOS 8 needs to be a reinstall
-      then
+    # only sane upgrade plan is fresh install!, then
     # sudo dnf install epel-release -y
 
-    # special notes for CentOS Stream 9
+    # special notes for CentOS Stream X
+    # - need to register with entitlement server
+    $ sudo subscription-manager register
+    ... details from Enpass
     # - need CRB repo enabled (it is not enabled by default)
     $ sudo dnf config-manager --set-enabled crb
+    # - need EPEL repo enabled
+    $ sudo dnf install epel-release
 
 openSUSE
     https://en.opensuse.org/Lifetime
@@ -384,9 +411,10 @@ Slackware
     # package install recipe
     $ sudo slackpkg install <package>
     # update all packages recipe
-    $ sudo slackpkg update; sudo slackpkg install-new
-    # release upgrade recipe
-    $ sudo slackpkg upgrade-all; sudo slackpkg clean-system
+    $ sudo slackpkg -batch=on update; sudo slackpkg -batch=on -default_answer=y install-new
+    # release upgrade recipe: update all packages as above, then ...
+    $ sudo slackpkg -batch=on -default_answer=y upgrade-all; sudo slackpkg clean-system
+    # then reconcile any .new files in /etc
 
 Arch Linux
     https://www.archlinux.org/releng/releases/
@@ -447,6 +475,7 @@ OpenIndiana
 
 OpenBSD
     https://en.wikipedia.org/wiki/OpenBSD_version_history
+    20 Apr 2025: 7.6, 7.7
     07 Nov 2023: 7.3, 7.4
     08 Dec 2021: 6.9, 7.0
     13 Sep 2021: 6.8, 6.9
@@ -514,15 +543,20 @@ Extending a root LVM with device-mapper by adding a partition
     Assume device-mapper vgname fedora-server
     Assume partiton to add is partiton 1 of /dev/vdb
     $ disk=/dev/vdb
-    $ sudo cfdisk $disk		<- make 1 partition, all of the disk
-    $ sudo pvcreate ${disk}1	<- initialize partition for use with LVM
+    $ part=1
+    $ sudo cfdisk $disk		<- make $part partition, all of the disk
+    				<- gpt, new, write, quit
+    $ sudo pvcreate $disk$part	<- initialize partition for use with LVM
     $ sudo vgdisplay		<- get volume group name
     $ vg=<name>			<- from above will be "fedora-server" or
     				   "centos" or similar
-    $ sudo vgextend /dev/$vg ${disk}1	<- extend the volume group
-    $ sudo lvextend -l +100%FREE /dev/$vg/root	<- extend LVM
+    $ sudo vgextend /dev/$vg $disk$part	<- extend the volume group
+    # get pathname for base volume
+    $ ls /dev/$vg
+    $ root=...
+    $ sudo lvextend -l +100%FREE /dev/$vg/$root	<- extend LVM
     # for ext2
-    $ sudo resize2fs /dev/$vg/root		<- extend filesystem
+    $ sudo resize2fs /dev/$vg/$root		<- extend filesystem
     # for xfs
     $ sudo xfs_growfs /				<- extend filesytem
 
@@ -533,6 +567,18 @@ Extending a root btrfs filesystem by adding a partition
 
     Assume partiton to add is partiton 1 of /dev/vdb
     $ disk=/dev/vdb
-    $ sudo cfdisk $disk		<- make 1 partition, all of the disk
-    $ sudo btrfs -f device add ${disk}1 /
+    $ part=1
+    $ sudo cfdisk $disk		<- make $part partition, all of the disk
+    $ sudo btrfs -f device add $disk$part /
 
+Recreate the mirror disk on vm03
+
+    $ sudo mkdir /silver
+    # make sure kernel auto-detected RAID1 md volume /dev/md127 with
+    # parts /dev/sda1 and /dev/sdb1
+    $ sudo mdadm --query --detail /dev/md127
+    $ sudo lsblk -o +UUID /dev/md127
+    # append this line to /etc/fstab
+UUID=8f865731-443c-4b84-ade7-31e6ff94ee7c /silver ext2 defaults 0 0
+    $ sudo systemctl daemon-reload
+    $ sudo mount -a

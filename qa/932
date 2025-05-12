@@ -43,7 +43,6 @@ _cleanup()
     exit $status
 }
 
-$sudo rm -rf $tmp.* $seq.full 
 trap "_cleanup" 0 1 2 3 15
 
 # real QA test starts here
@@ -55,7 +54,7 @@ cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
 # start from a known starting point
 _stop_auto_restart pmcd
 _stop_auto_restart pmlogger
-_service pcp stop >/dev/null 2>&1
+if ! _service pcp stop >/dev/null 2>&1; then _exit 1; fi
 
 cat <<End-of-File >$tmp.tmp
 # Installed by PCP QA test $seq on `date`
@@ -66,9 +65,9 @@ End-of-File
 $sudo cp $tmp.tmp $PCP_PMCDCONF_PATH
 
 _writable_primary_logger
-_service pcp restart 2>&1 | _filter_pcp_start
-_wait_for_pmcd
-_wait_for_pmlogger
+if ! _service pcp restart 2>&1; then _exit 1; fi | _filter_pcp_start
+_wait_for_pmcd || _exit 1
+_wait_for_pmlogger || _exit 1
 
 # be prepared to retry ...
 #
@@ -85,12 +84,12 @@ _talk_to_pmlogger()
 	fi
 	if grep 'Error' $tmp.out >/dev/null
 	then
-	    echo "_talk_to_pmlogger \"$1\" \"$2\" \"$3\": failed @ iter $_i" >>$seq.full
-	    cat $tmp.out >>$seq.full
+	    echo "_talk_to_pmlogger \"$1\" \"$2\" \"$3\": failed @ iter $_i" >>$seq_full
+	    cat $tmp.out >>$seq_full
 	    pmsleep 0.1
 	    _i=`expr $_i + 1`
 	else
-	    echo "_talk_to_pmlogger \"$1\" \"$2\" \"$3\": success @ iter $_i" >>$seq.full
+	    echo "_talk_to_pmlogger \"$1\" \"$2\" \"$3\": success @ iter $_i" >>$seq_full
 	    break
 	fi
     done
@@ -138,9 +137,9 @@ _talk_to_pmlogger 'connect primary' \
 		'log mandatory off { sample.dynamic.meta.metric }' \
 		'flush'
 
-echo >>$seq.full
-echo "pmlogger log ..." >>$seq.full
-cat $LOGGING_DIR/$LOCALHOST/pmlogger.log >>$seq.full
+echo >>$seq_full
+echo "pmlogger log ..." >>$seq_full
+cat $LOGGING_DIR/$LOCALHOST/pmlogger.log >>$seq_full
 
 status=0
 exit

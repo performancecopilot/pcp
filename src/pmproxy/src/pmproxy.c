@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2012-2021 Red Hat.
+ * Copyright (c) 2012-2021,2024 Red Hat.
  * Copyright (c) 2002 Silicon Graphics, Inc.  All Rights Reserved.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
  * by the Free Software Foundation; either version 2.1 of the License, or
@@ -83,8 +83,10 @@ static pmLongOptions longopts[] = {
     { "interface", 1, 'i', "ADDR", "accept connections on this IP address" },
     { "port", 1, 'p', "PORT", "accept connections on this port" },
     { "socket", 1, 's', "PATH", "Unix domain socket file [default $PCP_RUN_DIR/pmproxy.socket]" },
-    { "redisport", 1, 'r', "PORT", "Connect to Redis instance on this TCP/IP port (implies --timeseries)" },
-    { "redishost", 1, 'h', "HOST", "Connect to Redis instance on this host name (implies --timeseries)" },
+    { "keyport", 1, 'r', "PORT", "Connect to key server on this TCP/IP port (implies --timeseries)" },
+    { "keyhost", 1, 'h', "HOST", "Connect to key server on this host name (implies --timeseries)" },
+    { "redisport", 1, 'r', "PORT", "Backwards-compatibility option, do not use" },
+    { "redishost", 1, 'h', "HOST", "Backwards-compatibility option, do not use" },
     PMAPI_OPTIONS_HEADER("Diagnostic options"),
     { "", 1, 'T', "TIME", "terminate after an elapsed time interval" },
     { "log", 1, 'l', "PATH", "redirect diagnostics and trace output" },
@@ -104,10 +106,10 @@ ParseOptions(int argc, char *argv[], int *nports, int *maxpending)
     int		sts;
     int		usage = 0;
     int		timeseries = 1;
-    int		redis_port = 6379;
-    char	*redis_host = NULL;
-    char	*endnum;
+    int		keys_port = 6379;
+    char	*keys_host = NULL;
     const char	*inifile = NULL;
+    char	*endnum;
     sds		option;
 
     while ((c = pmgetopt_r(argc, argv, &opts)) != EOF) {
@@ -154,8 +156,8 @@ ParseOptions(int argc, char *argv[], int *nports, int *maxpending)
 		run_mode = RUN_FOREGROUND;
 	    break;
 
-	case 'h':	/* Redis host name */
-	    redis_host = opts.optarg;
+	case 'h':	/* key server host name */
+	    keys_host = opts.optarg;
 	    timeseries = 1;
 	    break;
 
@@ -174,7 +176,7 @@ ParseOptions(int argc, char *argv[], int *nports, int *maxpending)
 		pmprintf("%s: -L requires a positive value\n", pmGetProgname());
 		opts.errors++;
 	    } else {
-		__pmSetPDUCeiling(sts);
+		pmNotifyErr(LOG_INFO, "-L from command line: max incoming PDU size changed from %d to %d", __pmSetPDUCeiling(sts), sts);
 	    }
 	    break;
 
@@ -192,9 +194,9 @@ ParseOptions(int argc, char *argv[], int *nports, int *maxpending)
 	    __pmServerSetFeature(PM_SERVER_FEATURE_CERT_REQD);
 	    break;
 
-	case 'r':	/* Redis port number */
-	    redis_port = (int)strtol(opts.optarg, NULL, 0);
-	    if (redis_port <= 0) {
+	case 'r':	/* key server port number */
+	    keys_port = (int)strtol(opts.optarg, NULL, 0);
+	    if (keys_port <= 0) {
 		pmprintf("%s: -r requires a positive value\n", pmGetProgname());
 		opts.errors++;
 	    }
@@ -214,7 +216,7 @@ ParseOptions(int argc, char *argv[], int *nports, int *maxpending)
 	    break;
 
 	case 'T':	/* terminate after given time has elapsed */
-	    sts = pmParseInterval(opts.optarg, &opts.finish, &endnum);
+	    sts = pmParseHighResInterval(opts.optarg, &opts.finish, &endnum);
 	    if (sts < 0) {
 		pmprintf("%s: bad -T interval format:\n", pmGetProgname());
 		opts.errors++;
@@ -253,8 +255,6 @@ ParseOptions(int argc, char *argv[], int *nports, int *maxpending)
 			pmGetProgname(), inifile? inifile : "pmproxy.conf");
 	opts.errors++;
     } else {
-	int	fallback = 0;
-
 	/* Extract pmproxy configuration information needed immediately */
 	if ((option = pmIniFileLookup(config, "pmproxy", "maxpending")))
 	    *maxpending = atoi(option);
@@ -263,17 +263,14 @@ ParseOptions(int argc, char *argv[], int *nports, int *maxpending)
 	 * Push command line options into the configuration, and ensure
 	 * we have some default for attemping Redis server connections.
 	 */
-	if ((option = pmIniFileLookup(config, "redis", "servers")) == NULL) {
-	    if ((option = pmIniFileLookup(config, "pmseries", "servers")))
-	        fallback = 1;
+	if ((option = pmIniFileLookup(config, "keys", "servers")) == NULL) {
+	    if ((option = pmIniFileLookup(config, "redis", "servers")) == NULL)
+		option = pmIniFileLookup(config, "pmseries", "servers");
 	}
-	if (option == NULL || redis_host != NULL || redis_port != 6379) {
+	if (option == NULL || keys_host != NULL || keys_port != 6379) {
 	    option = sdscatfmt(sdsempty(), "%s:%u",
-		    redis_host? redis_host : "localhost", redis_port);
-	    if (!fallback)
-		pmIniFileUpdate(config, "redis", "servers", option);
-	    else
-		pmIniFileUpdate(config, "pmseries", "servers", option);
+				keys_host? keys_host : "localhost", keys_port);
+	    pmIniFileUpdate(config, "keys", "servers", option);
 	}
     }
 
@@ -351,6 +348,7 @@ main(int argc, char *argv[])
     int		timeseries;
     char	*envstr;
     pid_t	mainpid;
+    struct timeval	finish;
 
     umask(022);
     set_rlimit_maxfiles();
@@ -379,7 +377,7 @@ main(int argc, char *argv[])
 	 * the logfile name, just before the last ., so pmproxy.log
 	 * will become pmproxy.<pid>.log
 	 */
-	char	newlogfile[MAXPATHLEN];
+	static char	newlogfile[MAXPATHLEN];
 	char	pbuf[11];	/* enough for a 32-bit pid */
 	char	*pend = NULL;
 
@@ -387,8 +385,8 @@ main(int argc, char *argv[])
 	pend = rindex(logfile, '.');
 	if (pend == NULL) {
 	    /* no '.', so append .<pid> */
-	    strncpy(newlogfile, logfile, MAXPATHLEN-1);
-	    strcat(newlogfile, pbuf);
+	    pmstrncpy(newlogfile, MAXPATHLEN, logfile);
+	    pmstrncat(newlogfile, MAXPATHLEN, pbuf);
 	}
 	else {
 	    /* stitch name together ... <pre>.<post> -> <pre>.<pid>.<post> */
@@ -405,6 +403,7 @@ main(int argc, char *argv[])
 	    *q = '\0';
 	}
 	pmOpenLog(pmGetProgname(), newlogfile, stderr, &sts);
+	logfile = newlogfile;
     }
     else
 	pmOpenLog(pmGetProgname(), logfile, stderr, &sts);
@@ -465,7 +464,11 @@ main(int argc, char *argv[])
     fflush(stderr);
 
     /* Loop processing client connections and server responses */
-    server->loop(info, opts.finish_optarg? &opts.finish : NULL);
+    if (opts.finish_optarg) {
+	finish.tv_sec = opts.finish.tv_sec;
+	finish.tv_usec = opts.finish.tv_nsec / 1000;
+    }
+    server->loop(info, opts.finish_optarg? &finish : NULL);
 
     /* inform service manager and shutdown cleanly */
     __pmServerNotifyServiceManagerStopping(mainpid);

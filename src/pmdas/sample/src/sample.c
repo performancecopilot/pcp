@@ -400,6 +400,10 @@ static pmDesc	desctab[] = {
     { PMDA_PMID(0,168), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* not_ready_msec */
     { PMDA_PMID(0,169), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_TIME_MSEC,0,0) },
+/* updown.control.mode */
+    { PMDA_PMID(0,170), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* updown.control.reset */
+    { PMDA_PMID(0,171), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 
 /*
  * dynamic PMNS ones
@@ -1329,7 +1333,7 @@ init_tables(int dom)
     /* local hacks */
     allocsz = roundup(strlen("13")+1, 8);
     _string = (char *)calloc(1, allocsz);
-    strncpy(_string, "13", strlen("13")+1);
+    memcpy(_string, "13", 3);
     allocsz = roundup(PM_VAL_HDR_SIZE, 8);
     _aggr33 = (pmValueBlock *)malloc(allocsz);
     _aggr33->vlen = PM_VAL_HDR_SIZE + 0;
@@ -1574,9 +1578,9 @@ sample_name(pmID pmid, char ***nameset, pmdaExt *pmda)
 		    (pmID_item(pmid) == 1009 || pmID_item(pmid) == 1010 || pmID_item(pmid) == 1011))
 		    continue;
 		list[nmatch++] = p;
-		strcpy(p, pfx);
+		memcpy(p, pfx, strlen(pfx));
 		p += strlen(pfx);
-		strcpy(p, dynamic_ones[i].name);
+		memcpy(p, dynamic_ones[i].name, strlen(dynamic_ones[i].name));
 		p += strlen(dynamic_ones[i].name);
 		*p++ = '\0';
 	    }
@@ -1672,7 +1676,7 @@ sample_children(const char *name, int traverse, char ***offspring, int **status,
 		    j = -oserror();
 		    goto fail;
 		}
-		strncpy(chn[nmatch-1], &q[namelen+1], tlen);
+		memcpy(chn[nmatch-1], &q[namelen+1], tlen);
 		chn[nmatch-1][tlen] = '\0';
 		if (*qend == '.')
 		    sts[nmatch-1] = PMNS_NONLEAF_STATUS;
@@ -1689,10 +1693,10 @@ sample_children(const char *name, int traverse, char ***offspring, int **status,
 		    j = -oserror();
 		    goto fail;
 		}
-		strncpy(chn[nmatch-1], name, pfxlen);
+		memcpy(chn[nmatch-1], name, pfxlen);
 		chn[nmatch-1][pfxlen] = '.';
 		chn[nmatch-1][pfxlen+1] = '\0';
-		strcat(chn[nmatch-1], dynamic_ones[i].name);
+		pmstrncat(chn[nmatch-1], tlen, dynamic_ones[i].name);
 		sts[nmatch-1] = PMNS_LEAF_STATUS;
 	    }
 	    len += tlen + 1;
@@ -1709,10 +1713,12 @@ sample_children(const char *name, int traverse, char ***offspring, int **status,
 	}
 	q = (char *)&chn[nmatch];
 	for (j = 0; j < nmatch; j++) {
-	    strcpy(q, chn[j]);
+	    len = strlen(chn[j]);
+	    memcpy(q, chn[j], len);
 	    free(chn[j]);
 	    chn[j] = q;
-	    q += strlen(chn[j])+1;
+	    q += len;
+	    *q++ = '\0';
 	}
 	*offspring = chn;
 	*status = sts;
@@ -2156,7 +2162,7 @@ doit:
 #endif
 #else
 			dummy = (char *)sivb->vbuf;	/* pander to clang 10.0.1 */
-			strncpy(dummy, si.dummy, sizeof(struct sysinfo));
+			pmstrncpy(dummy, sizeof(struct sysinfo), si.dummy);
 #endif
 			atom.vbp = sivb;
 
@@ -2694,6 +2700,14 @@ doit:
 			atom.l = not_ready;
 			break;
 
+		    case 170:	/* updown.control.mode */
+			atom.l = updown_dir;
+			break;
+
+		    case 171:	/* updown.control.reset */
+			atom.ul = 0;
+			break;
+
 		    case 1000:	/* secret.bar */
 			atom.cp = "foo";
 			break;
@@ -2981,11 +2995,14 @@ sample_store(pmResult *result, pmdaExt *ep)
 	    case 149:	/* negative.discrete.m_32 */
 	    case 155:	/* controller.mirage */
 	    case 159:	/* proc.reset */
+	    case 164:	/* updown.obs */
 	    case 165:	/* updown.control.repeat */
 	    case 166:	/* updown.control.min */
 	    case 167:	/* updown.control.max */
 	    case 168:	/* updown.control.step */
 	    case 169:	/* not_ready_msec */
+	    case 170:	/* updown.control.mode */
+	    case 171:	/* updown.control.reset */
 	    case 1008:	/* ghosts.visible */
 		if (vsp->numval != 1 || vsp->valfmt != PM_VAL_INSITU)
 		    sts = PM_ERR_BADSTORE;
@@ -3228,11 +3245,15 @@ sample_store(pmResult *result, pmdaExt *ep)
 	    case 159:	/* proc.reset */
 		proc_reset(&indomtab[PROC_INDOM]);
 		break;
+	    case 164:	/* updown.obs */
+		updown = av.l;
+		break;
 	    case 165:	/* updown.control.repeat */
 		if (av.l < 0)
 		    sts = PM_ERR_SIGN;
-		else
-		    updown_repeat = av.ul;
+		else {
+		    updown_click = updown_repeat = av.ul;
+		}
 		break;
 	    case 166:	/* updown.control.min */
 		updown_min = av.l;
@@ -3248,6 +3269,21 @@ sample_store(pmResult *result, pmdaExt *ep)
 		break;
 	    case 169:	/* not_ready_msec */
 		not_ready = av.l;
+		break;
+	    case 170:	/* updown.control.mode */
+		if (av.l == -1 || av.l == 1)
+		    updown_dir = av.l;
+		else
+		    sts = PM_ERR_BADSTORE;
+		break;
+	    case 171:	/* updown.control.reset */
+		updown = 0;
+		updown_dir = 1;
+		updown_click = 5;
+		updown_repeat = 5;
+		updown_min = 0;
+		updown_max = 200;
+		updown_step = 10;
 		break;
 	    case 1008:	/* ghosts.visible */
 		visible_ghosts = av.l;

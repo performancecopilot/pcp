@@ -3,7 +3,7 @@
 # Portions Copyright (c) International Business Machines Corp., 2002
 # Portions Copyright (c) 2007-2009 Aconex.  All Rights Reserved.
 # Portions Copyright (c) 2016-2017 Fujitsu.
-# Portions Copyright (c) 2013-2021,2023-2024 Red Hat.
+# Portions Copyright (c) 2013-2021,2023-2025 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -74,6 +74,7 @@ devices all share the same statistics in the kernel as the st devices.
 @ 60.41 per-processor soft IRQs
 @ 60.42 scsi devices identified by unique WWID
 @ 60.43 set of hugepage sizes
+@ 60.44 set of hugepage sizes for each NUMA node
 
 @ kernel.uname.release release level of the running kernel
 Release level of the running kernel as reported via the release[]
@@ -210,6 +211,13 @@ statistics to each physical device and to determine the proportion
 of traffic over different paths. See also multipathd(1), where the
 same ID strings (WWID) are used to identify different paths to each
 physical device.
+
+@ hinv.disk.ctlr physical disk device controller
+The disk controller is extracted from /sys/devices/pci0000:00/0000:<ctlr>.
+Multiple disks may share the same controller.
+
+@ hinv.disk.model physical disk device model
+The disk model is extracted from /sys/devices/.../model.
 
 @ disk.dev.avactive per-disk count of active time
 Counts the number of milliseconds for which at least one I/O is in
@@ -985,6 +993,10 @@ corruption of the call stack, allowing the kernel to react to such an
 attach in an appropriate fashion.  Shadow stacks are often maintained
 by the processor hardware and require additional stack memory.
 @ mem.util.percpu amount of per CPU allocator memory
+@ mem.util.kreclaimable kernel reclaimable memory, from /proc/meminfo
+Kernel memory that the kernel will attempt to reclaim when under memory
+pressure.
+@ mem.util.hugetlb total memory consumed by huge pages of all sizes
 
 @ mem.numa.util.total per-node total memory
 @ mem.numa.util.free per-node free memory
@@ -1034,6 +1046,11 @@ filled up manually after running some bandwidth saturation benchmark tools.
 @ mem.numa.util.hugepagesTotalBytes per-node total amount of hugepages memory
 @ mem.numa.util.hugepagesFreeBytes per-node amount of free hugepages memory
 @ mem.numa.util.hugepagesSurpBytes per-node amount of surplus hugepages memory
+@ mem.numa.hugepages.pagesize per-node available huge page sizes
+@ mem.numa.hugepages.free per-node huge page space not yet allocated
+@ mem.numa.hugepages.surplus per-node huge page space in the pool above total size
+@ mem.numa.hugepages.totalsize per-node memory consumed by each huge page size
+
 @ mem.vmstat.nr_dirty number of pages in dirty state
 Instantaneous number of pages in dirty state, from /proc/vmstat
 @ mem.vmstat.nr_dirty_background_threshold background writeback threshold
@@ -2189,6 +2206,13 @@ it may not persist in future kernel versions.
 @ sysfs.module.zswap.max_pool_percent percentage of memory compressed pool can use
 @ sysfs.module.zswap.enabled kernel string indicating zswap module state
 
+@ hyperv.balloon.state State of Hyper-V memory ballooning
+@ hyperv.balloon.pagesize Hyper-V balloon memory page size in bytes
+@ hyperv.balloon.added Hyper-V balloon memory pages added in bytes
+@ hyperv.balloon.onlined Hyper-V balloon memory onlined after hot adding
+@ hyperv.balloon.ballooned Hyper-V balloon memory given back to host
+@ hyperv.balloon.total_committed Total committed Hyper-V balloon memory
+
 @ hinv.ntape number of Linux scsi tape devices
 @ tape.dev.in_flight number of I/Os currently outstanding to this tape device
 @ tape.dev.io_ns cumulative amount of time spent waiting for all I/O to complete to tape device
@@ -2676,6 +2700,18 @@ Multipath TCP incoming RM_ADDR drops.
 @ network.mptcp.rmaddrtx the RmAddrTx field of the MPTcp line from /proc/net/netstat
 @ network.mptcp.rmaddrtxdrop the RmAddrTxDrop field of the MPTcp line from /proc/net/netstat
 @ network.mptcp.mpcurrestab the MPCurrEstab field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.mpjoinsynbackuprx the MPJoinSynBackupRx field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.mpjoinsynackbackuprx the MPJoinSynAckBackupRx field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.mpcapableendpattempt the MPCapableEndpAttempt field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.dsscorruptionfallback the DSSCorruptionFallback field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.dsscorruptionreset the DSSCorruptionReset field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.mpcapablesyntxdrop the MPCapableSYNTXDrop field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.mpcapablesyntxdisabled the MPCapableSYNTXDisabled field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.mpjoinsyntx the MPJoinSynTx field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.mpjoinsyntxcreatskerr the MPJoinSynTxCreatSkErr field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.mpjoinsyntxbinderr the MPJoinSynTxBindErr field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.mpjoinsyntxconnecterr the MPJoinSynTxConnectErr field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.blackhole the Blackhole field of the MPTcp line from /proc/net/netstat
 
 @ disk.wwid.scsi_paths per-device/wwid scsi paths to same physical device
 The value of this string typed metric is the sd paths to the same physical

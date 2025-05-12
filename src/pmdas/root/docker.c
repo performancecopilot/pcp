@@ -119,7 +119,7 @@ docker_cgroup_find(char *name, int namelen, char *path, int pathlen)
 	    child += sizeof("docker-")-1;
 	childlen = pathlen;
 	path[childlen++] = '/';
-	strncpy(path + childlen, base, bytes + 1);
+	memcpy(path + childlen, base, bytes + 1);
 	if (strncmp(child, name, namelen) == 0) {
 	    found = 1;
 	    break;

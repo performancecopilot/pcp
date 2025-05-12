@@ -20,10 +20,10 @@ fi
 
 _cleanup()
 {
-    echo "_cleanup: ..." >>$seq.full
+    echo "_cleanup: ..." >>$seq_full
     cd $here
-    $sudo pmlogctl -f -c default destroy localhost >>$seq.full 2>&1
-    $sudo pmlogctl -af -c $seq -p $tmp.policy destroy >>$seq.full 2>&1
+    $sudo pmlogctl -f -c default destroy localhost >>$seq_full 2>&1
+    $sudo pmlogctl -af -c $seq -p $tmp.policy destroy >>$seq_full 2>&1
     $sudo rm -rf $tmp $tmp.*
     for dir in $seq-localhost $seq-LOCALHOSTNAME localhost $seq-`hostname`
     do
@@ -32,14 +32,13 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 localhost=`hostname`
 
 _filter()
 {
-    tee -a $seq.full \
+    tee -a $seq_full \
     | sed \
 	-e '/^# created by pmlogctl/s/ on .*/ on DATE/' \
 	-e "s;$tmp\.;TMP.;g" \
@@ -68,7 +67,7 @@ END	{ print "{ print }" }'
 #
 _filter_status()
 {
-    tee -a $seq.full \
+    tee -a $seq_full \
     | $PCP_AWK_PROG -f $tmp.awk \
     | sed >$tmp.tmp \
 	-e "s;$PCP_ETC_DIR/pcp;PCP_ETC_DIR/pcp;g" \
@@ -118,24 +117,24 @@ _setup
 pmlogctl status | _filter_status
 
 # exercise all the variants for "destroy"
-echo '== -a destroy localhost' | tee -a $seq.full
+echo '== -a destroy localhost' | tee -a $seq_full
 $sudo pmlogctl -a destroy localhost | _filter
 pmlogctl status | _filter_status
 _setup
-echo '== -a destroy localhost `hostname`' | tee -a $seq.full
+echo '== -a destroy localhost `hostname`' | tee -a $seq_full
 $sudo pmlogctl -a destroy localhost `hostname` 2>$tmp.err | _filter_status
 _filter <$tmp.err
 pmlogctl status | _filter_status
 _setup
-echo '== -a -c -p destroy' | tee -a $seq.full
+echo '== -a -c -p destroy' | tee -a $seq_full
 $sudo pmlogctl -a -c $seq -p $tmp.policy destroy | _filter_status
 pmlogctl status | _filter_status
 _setup
-echo '== -a -c -p destroy localhost' | tee -a $seq.full
+echo '== -a -c -p destroy localhost' | tee -a $seq_full
 $sudo pmlogctl -a -c $seq -p $tmp.policy destroy localhost | _filter_status
 pmlogctl status | _filter_status
 _setup
-echo '== -a -c -p destroy localhost `hostname`' | tee -a $seq.full
+echo '== -a -c -p destroy localhost `hostname`' | tee -a $seq_full
 $sudo pmlogctl -a -c $seq -p $tmp.policy destroy localhost `hostname` | _filter_status
 pmlogctl status | _filter_status
 

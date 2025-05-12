@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018,2020-2022 Red Hat.
+ * Copyright (c) 2013-2018,2020-2025 Red Hat.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  *
  * This library is free software; you can redistribute it and/or modify it
@@ -356,8 +356,8 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":13", PM_FAULT_ALLOC);
 }
 
 /* Return 1 (true) if the sets are the same, 0 (false) otherwise */
-static int
-samelabelset(const pmLabelSet *set1, const pmLabelSet *set2)
+int
+__pmEqualLabelSet(const pmLabelSet *set1, const pmLabelSet *set2)
 {
     int			n1, n2;
     const pmLabel	*l1, *l2;
@@ -409,22 +409,35 @@ samelabelset(const pmLabelSet *set1, const pmLabelSet *set2)
 	if (n2 == set2->nlabels)
 	    return 0; /* not the same */
     }
-		
+
     /* All of the labels in set1 are in set2 with the same values. */
     return 1; /* the same */
 }
 
 /*
  * Discard any label sets within idp which are also within idp_next.
+ * Instance labels are a special case which cannot be reduced unless
+ * both complete sets match exactly, due to the potentially dynamic
+ * nature of the associated instance domain.
  */
 static void
 discard_dup_labelsets(__pmLogLabelSet *idp, const __pmLogLabelSet *idp_next)
 {
     int			i, j;
 
+    if (idp->type & PM_LABEL_INSTANCES) {
+	if (idp->nsets != idp_next->nsets)
+	    return;
+	for (i = 0; i < idp->nsets; ++i) {
+	    if (__pmEqualLabelSet(&idp->labelsets[i], &idp_next->labelsets[i]))
+		continue;
+	    return;
+	}
+    }
+
     for (i = 0; i < idp->nsets; ++i) {
 	for (j = 0; j < idp_next->nsets; ++j) {
-	    if (samelabelset(&idp->labelsets[i], &idp_next->labelsets[j])) {
+	    if (__pmEqualLabelSet(&idp->labelsets[i], &idp_next->labelsets[j])) {
 		/* We found a duplicate. Discard the one within idp. */
 		if (idp->labelsets[i].nlabels > 0)
 		    free(idp->labelsets[i].labels);
@@ -1512,27 +1525,38 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":14", PM_FAULT_ALLOC);
 int
 pmLookupInDomArchive(pmInDom indom, const char *name)
 {
-    int			n;
     int			j;
     __pmHashNode	*hp;
     __pmLogInDom	*idp;
     __pmContext		*ctxp;
+    int			sts;
 
-    if (indom == PM_INDOM_NULL)
-	return PM_ERR_INDOM;
+    if (pmDebugOptions.pmapi) {
+	char    dbgbuf[20];
+	fprintf(stderr, "pmLookupInDomArchive(%s, %s) <:", pmInDomStr_r(indom, dbgbuf, sizeof(dbgbuf)), name);
+    }
 
-    if ((n = pmWhichContext()) >= 0) {
-	ctxp = __pmHandleToPtr(n);
-	if (ctxp == NULL)
-	    return PM_ERR_NOCONTEXT;
+    if (indom == PM_INDOM_NULL) {
+	sts = PM_ERR_INDOM;
+	goto pmapi_return;
+    }
+
+    if ((sts = pmWhichContext()) >= 0) {
+	ctxp = __pmHandleToPtr(sts);
+	if (ctxp == NULL) {
+	    sts = PM_ERR_NOCONTEXT;
+	    goto pmapi_return;
+	}
 	if (ctxp->c_type != PM_CONTEXT_ARCHIVE) {
 	    PM_UNLOCK(ctxp->c_lock);
-	    return PM_ERR_NOTARCHIVE;
+	    sts = PM_ERR_NOTARCHIVE;
+	    goto pmapi_return;
 	}
 
 	if ((hp = __pmHashSearch((unsigned int)indom, &ctxp->c_archctl->ac_log->hashindom)) == NULL) {
 	    PM_UNLOCK(ctxp->c_lock);
-	    return PM_ERR_INDOM_LOG;
+	    sts = PM_ERR_INDOM_LOG;
+	    goto pmapi_return;
 	}
 
 	for (idp = (__pmLogInDom *)hp->data; idp != NULL; idp = idp->next) {
@@ -1544,7 +1568,8 @@ pmLookupInDomArchive(pmInDom indom, const char *name)
 	    for (j = 0; j < idp->numinst; j++) {
 		if (strcmp(name, idp->namelist[j]) == 0) {
 		    PM_UNLOCK(ctxp->c_lock);
-		    return idp->instlist[j];
+		    sts = idp->instlist[j];
+		    goto pmapi_return;
 		}
 	    }
 	    /* half-baked match to first space */
@@ -1555,42 +1580,66 @@ pmLookupInDomArchive(pmInDom indom, const char *name)
 		if (*p == ' ') {
 		    if (strncmp(name, idp->namelist[j], p - idp->namelist[j]) == 0) {
 			PM_UNLOCK(ctxp->c_lock);
-			return idp->instlist[j];
+			sts = idp->instlist[j];
+			goto pmapi_return;
 		    }
 		}
 	    }
 	}
-	n = PM_ERR_INST_LOG;
+	sts = PM_ERR_INST_LOG;
 	PM_UNLOCK(ctxp->c_lock);
     }
 
-    return n;
+pmapi_return:
+
+    if (pmDebugOptions.pmapi) {
+	fprintf(stderr, ":> returns ");
+	if (sts >= 0)
+	    fprintf(stderr, "%d\n", sts);
+	else {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "%s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
+    }
+
+    return sts;
 }
 
 int
 pmNameInDomArchive(pmInDom indom, int inst, char **name)
 {
-    int			n;
+    int			sts;
     int			j;
     __pmHashNode	*hp;
     __pmLogInDom	*idp;
     __pmContext		*ctxp;
 
-    if (indom == PM_INDOM_NULL)
-	return PM_ERR_INDOM;
+    if (pmDebugOptions.pmapi) {
+	char    dbgbuf[20];
+	fprintf(stderr, "pmNameInDomArchive(%s, %d, ...) <:", pmInDomStr_r(indom, dbgbuf, sizeof(dbgbuf)), inst);
+    }
 
-    if ((n = pmWhichContext()) >= 0) {
-	ctxp = __pmHandleToPtr(n);
-	if (ctxp == NULL)
-	    return PM_ERR_NOCONTEXT;
+    if (indom == PM_INDOM_NULL) {
+	sts = PM_ERR_INDOM;
+	goto pmapi_return;
+    }
+
+    if ((sts = pmWhichContext()) >= 0) {
+	ctxp = __pmHandleToPtr(sts);
+	if (ctxp == NULL) {
+	    sts = PM_ERR_NOCONTEXT;
+	    goto pmapi_return;
+	}
 	if (ctxp->c_type != PM_CONTEXT_ARCHIVE) {
 	    PM_UNLOCK(ctxp->c_lock);
-	    return PM_ERR_NOTARCHIVE;
+	    sts = PM_ERR_NOTARCHIVE;
+	    goto pmapi_return;
 	}
 
 	if ((hp = __pmHashSearch((unsigned int)indom, &ctxp->c_archctl->ac_log->hashindom)) == NULL) {
 	    PM_UNLOCK(ctxp->c_lock);
-	    return PM_ERR_INDOM_LOG;
+	    sts = PM_ERR_INDOM_LOG;
+	    goto pmapi_return;
 	}
 
 	for (idp = (__pmLogInDom *)hp->data; idp != NULL; idp = idp->next) {
@@ -1601,19 +1650,31 @@ pmNameInDomArchive(pmInDom indom, int inst, char **name)
 	    for (j = 0; j < idp->numinst; j++) {
 		if (idp->instlist[j] == inst) {
 		    if ((*name = strdup(idp->namelist[j])) == NULL)
-			n = -oserror();
+			sts = -oserror();
 		    else
-			n = 0;
+			sts = 0;
 		    PM_UNLOCK(ctxp->c_lock);
-		    return n;
+		    goto pmapi_return;
 		}
 	    }
 	}
-	n = PM_ERR_INST_LOG;
+	sts = PM_ERR_INST_LOG;
 	PM_UNLOCK(ctxp->c_lock);
     }
 
-    return n;
+pmapi_return:
+
+    if (pmDebugOptions.pmapi) {
+	fprintf(stderr, ":> returns ");
+	if (sts >= 0)
+	    fprintf(stderr, "%d (name %s)\n", sts, *name);
+	else {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "%s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
+    }
+
+    return sts;
 }
 
 /*
@@ -1809,27 +1870,16 @@ pmGetInDomArchive(pmInDom indom, int **instlist, char ***namelist)
 void
 __pmLoadTimestamp(const __int32_t *buf, __pmTimestamp *tsp)
 {
-    /*
-     * need to dodge endian issues here ... want the MSB 32-bits of sec
-     * from buf[0] and the LSB 32 bits of sec from buf[1]
-     */
+#if __BYTE_ORDER == __LITTLE_ENDIAN
     tsp->sec = ((((__int64_t)buf[0]) << 32) & 0xffffffff00000000LL) | (buf[1] & 0xffffffff);
+#else
+    tsp->sec = ((((__int64_t)buf[1]) << 32) & 0xffffffff00000000LL) | (buf[0] & 0xffffffff);
+#endif
     tsp->nsec = buf[2];
     __ntohll((char *)&tsp->sec);
     tsp->nsec = ntohl(tsp->nsec);
     if (pmDebugOptions.logmeta && pmDebugOptions.desperate) {
 	fprintf(stderr, "__pmLoadTimestamp: network(%08x%08x %08x nsec)", buf[0], buf[1], buf[2]);
-	fprintf(stderr, " -> %" FMT_INT64 ".%09d (%llx %x nsec)\n", tsp->sec, tsp->nsec, (long long)tsp->sec, tsp->nsec);
-    }
-}
-
-void
-__pmLoadTimeval(const __int32_t *buf, __pmTimestamp *tsp)
-{
-    tsp->sec = (__int32_t)ntohl(buf[0]);
-    tsp->nsec = ntohl(buf[1]) * 1000;
-    if (pmDebugOptions.logmeta && pmDebugOptions.desperate) {
-	fprintf(stderr, "__pmLoadTimeval: network(%08x %08x usec)", buf[0], buf[1]);
 	fprintf(stderr, " -> %" FMT_INT64 ".%09d (%llx %x nsec)\n", tsp->sec, tsp->nsec, (long long)tsp->sec, tsp->nsec);
     }
 }
@@ -1845,12 +1895,28 @@ __pmPutTimestamp(const __pmTimestamp *tsp, __int32_t *buf)
      * need to dodge endian issues here ... want the MSB 32-bits of sec
      * in buf[0] and the LSB 32 bits of sec in buf[1]
      */
-    buf[0] = (stamp.sec >> 32) & 0xffffffff;
-    buf[1] = stamp.sec & 0xffffffff;
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+    buf[0] = (__int32_t)((__int64_t)(stamp.sec >> 32));
+    buf[1] = (__int32_t)((__int64_t)(stamp.sec & 0x00000000ffffffffLL));
+#else
+    buf[1] = (__int32_t)((__int64_t)(stamp.sec >> 32));
+    buf[0] = (__int32_t)((__int64_t)(stamp.sec & 0x00000000ffffffffLL));
+#endif
     buf[2] = stamp.nsec;
     if (pmDebugOptions.logmeta && pmDebugOptions.desperate) {
 	fprintf(stderr, "__pmPutTimestamp: %" FMT_INT64 ".%09d (%llx %x nsec)", tsp->sec, tsp->nsec, (long long)tsp->sec, tsp->nsec);
 	fprintf(stderr, " -> network(%08x%08x %08x nsec)\n", buf[0], buf[1], buf[2]);
+    }
+}
+
+void
+__pmLoadTimeval(const __int32_t *buf, __pmTimestamp *tsp)
+{
+    tsp->sec = (__int32_t)ntohl(buf[0]);
+    tsp->nsec = ntohl(buf[1]) * 1000;
+    if (pmDebugOptions.logmeta && pmDebugOptions.desperate) {
+	fprintf(stderr, "__pmLoadTimeval: network(%08x %08x usec)", buf[0], buf[1]);
+	fprintf(stderr, " -> %" FMT_INT64 ".%09d (%llx %x nsec)\n", tsp->sec, tsp->nsec, (long long)tsp->sec, tsp->nsec);
     }
 }
 

@@ -1,0 +1,32 @@
+QA output created by 1807
+Start test key server ...
+PING
+PONG
+
+== Auto-load metric data into this key server instance
+Starting Performance Co-Pilot archive import...
+Poll interval: 30
+Import timeout: 60
+Searching for new or updated archives...
+Updating start to 2025-04-08T11:24:46.255634Z from TMP.archives/pcp-meminfo [1/1]
+Updating finish to 2025-04-08T11:24:54.278194Z from TMP.archives/pcp-meminfo [1/1]
+Successfully updated the JSON file: TMP.jsonfile
+Importing archive TMP.archives/pcp-meminfo... [1/1]
+Successfully imported archive in TIME.
+
+== Verify archive data has been loaded into key server
+
+d7380575f392a624b7754984d57bd777433eec85
+    [Tue Apr  8 11:24:54.277376000 2025] 6197992
+    [Tue Apr  8 11:24:53.282902000 2025] 6197992
+    [Tue Apr  8 11:24:52.276177000 2025] 6198164
+    [Tue Apr  8 11:24:51.278202000 2025] 6198740
+    [Tue Apr  8 11:24:50.279130000 2025] 6198740
+
+== Verify JSON time window has been updated
+{
+    "time": {
+        "from": "2025-04-08T11:24:46.255634Z",
+        "to": "2025-04-08T11:24:54.278194Z"
+    }
+}

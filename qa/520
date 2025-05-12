@@ -16,7 +16,6 @@ echo "QA output created by $seq"
 . ./common.check
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 _filter()
@@ -91,14 +90,14 @@ in
     ;;
 esac
 
-echo >>$seq.full
-echo "pmie PID $!" >>$seq.full
-echo >>$seq.full
-echo "=== pmie output ===" >>$seq.full
-cat $tmp.out >>$seq.full
-echo >>$seq.full
-echo "=== pmie errors ===" >>$seq.full
-cat $tmp.err >>$seq.full
+echo >>$seq_full
+echo "pmie PID $!" >>$seq_full
+echo >>$seq_full
+echo "=== pmie output ===" >>$seq_full
+cat $tmp.out >>$seq_full
+echo >>$seq_full
+echo "=== pmie errors ===" >>$seq_full
+cat $tmp.err >>$seq_full
 
 _filter2 <$tmp.err | _filter
 _filter <$tmp.out

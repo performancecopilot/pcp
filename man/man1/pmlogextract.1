@@ -1,4 +1,4 @@
-'\"macro stdmacro
+'\" t
 .\"
 .\" Copyright (c) 2016 Red Hat.  All Rights Reserved.
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
@@ -22,11 +22,12 @@ and merge Performance Co-Pilot archives
 \f3pmlogextract\f1
 [\f3\-dfmwxz?\f1]
 [\f3\-c\f1 \f2configfile\f1]
+[\f3\-D\f1 \f2debug\f1]
 [\f3\-S\f1 \f2starttime\f1]
 [\f3\-s\f1 \f2samples\f1]
 [\f3\-T\f1 \f2endtime\f1]
 [\f3\-V\f1 \f2version\f1]
-[\f3\-v\f1 \f2volsamples\f1]
+[\f3\-v\f1 \f2volsize\f1]
 [\f3\-Z\f1 \f2timezone\f1]
 \f2input\f1 [...] \f2output\f1
 .SH DESCRIPTION
@@ -236,7 +237,7 @@ archive from
 archives that could be a mixture of version 2 and/or version 3.
 .RE
 .TP
-\fB\-v\fR \fIvolsamples\fR
+\fB\-v\fR \fIvolsize\fR
 The
 .I output
 archive is potentially a multi-volume data set, and the
@@ -244,9 +245,71 @@ archive is potentially a multi-volume data set, and the
 option causes
 .B pmlogextract
 to start a new volume after
-.I volsamples
-records have been written to the archive.
+reaching an archive volume size of
+.IR volsize .
+If
+.IR volsize
+is an integer then at most
+.IR volsize
+records will be written to each volume.
+If
+.IR volsize
+is an integer suffixed by
+.B b
+or
+.B bytes
+then at most
+.IR volsize
+bytes will be written out to each volume.
+Other viable file size units include:
+.BR K ,
+.BR Kb ,
+.BR KiB ,
+.BR Kbyte ,
+.BR Kilobyte
+for kilobytes and
+.BR M ,
+.BR Mb ,
+.BR MiB ,
+.BR Mbyte ,
+.BR Megabyte
+for megabytes and
+.BR G ,
+.BR Gb ,
+.BR GiB ,
+.BR Gbyte ,
+.BR Gigabyte
+for gigabytes.
+These units may be optionally suffixed by an
+.B s
+and may be of mixed case.
+Alternatively
+.IR volsize
+may be an integer or a floating point number suffixed using a time unit
+as described in
+.BR PCPIntro (1)
+for the
+.I interval
+argument (to the standard PCP
+.BR \-t
+command line option).
+.nf
+Some examples of different formats:
+.in +1i
+.B \-s 100
+.B \-s 100bytes
+.B \-s 100K
+.B \-s 100Mb
+.B \-s 10Gbyte
+.B \-s 10mins
+.B \-s 1.5hours
+.in
+.fi
 .RS
+.PP
+The default is for
+.B pmlogextract
+to produce as few volumes as possible.
 .PP
 Independent of any
 .B \-v
@@ -617,6 +680,68 @@ The \fB$PCP_CONF\fP variable may be used to specify an alternative
 configuration file, as described in \fBpcp.conf\fP(5).
 .PP
 For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
+.SH DEBUGGING OPTIONS
+The
+.B \-D
+or
+.B \-\-debug
+option enables the output of additional diagnostics on
+.I stderr
+to help triage problems, although the information is sometimes cryptic and
+primarily intended to provide guidance for developers rather end-users.
+.I debug
+is a comma separated list of debugging options; use
+.BR pmdbg (1)
+with the
+.B \-l
+option to obtain
+a list of the available debugging options and their meaning.
+.PP
+Debugging options specific to
+.B pmlogger
+are as follows:
+.TS
+box;
+lf(B) | lf(B)
+lf(B) | lxf(R) .
+Option	Description
+_
+appl0	T{
+.ad l
+parser diagnostics for
+.I configfile
+if
+.B \-c
+specified
+T}
+_
+appl1	T{
+.ad l
+memory allocations and
+.B reclist
+operations
+T}
+_
+appl2	T{
+.ad l
+time window and end-of-file tests
+T}
+_
+appl3	T{
+.ad l
+input and output archive version decisions
+T}
+_
+appl4	T{
+.ad l
+instance domain juggling
+T}
+_
+appl5	T{
+.ad l
+output volume switching
+T}
+.TE
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pmlc (1),
@@ -630,4 +755,4 @@ and
 .BR PMNS (5).
 
 .\" control lines for scripts/man-spell
-.\" +ok+ dks {from disk names in example} sys timezones
+.\" +ok+ dks {from disk names in example} sys timezones reclist

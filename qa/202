@@ -14,12 +14,11 @@ echo "QA output created by $seq"
 
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 #debug# tmp=`pwd`/tmp
-rm -f $tmp.* $seq.full
 
 _filter()
 {
     pmdumplog $1 \
-    | tee -a $seq.full \
+    | tee -a $seq_full \
     | $PCP_AWK_PROG '
 /<mark>/	{ mark++; next }
 /^[0-9][0-9]:[0-9][0-9]:[0-9][0-9]\./	{ rec++ }
@@ -36,22 +35,22 @@ END		{ printf "%d records",rec
 # real QA test starts here
 rm -f $tmp.A.*
 echo "log mandatory on 40 msec sample.milliseconds" \
-| pmlogger -s 4 -l $tmp.log $tmp.A >>$seq.full 2>&1
+| pmlogger -s 4 -l $tmp.log $tmp.A >>$seq_full 2>&1
 echo
 echo log.A
-cat $tmp.log >>$seq.full
-ls -l $tmp.A.* >>$seq.full
-pmdumplog -l $tmp.A >>$seq.full
+cat $tmp.log >>$seq_full
+ls -l $tmp.A.* >>$seq_full
+pmdumplog -l $tmp.A >>$seq_full
 _filter $tmp.A
 
 rm -f $tmp.B.*
 echo "log mandatory on 50 msec sample.milliseconds" \
-| pmlogger -s 6 -l $tmp.log $tmp.B >>$seq.full 2>&1
+| pmlogger -s 6 -l $tmp.log $tmp.B >>$seq_full 2>&1
 echo
 echo log.B
-cat $tmp.log >>$seq.full
-ls -l $tmp.B.* >>$seq.full
-pmdumplog -l $tmp.A >>$seq.full
+cat $tmp.log >>$seq_full
+ls -l $tmp.B.* >>$seq_full
+pmdumplog -l $tmp.A >>$seq_full
 _filter $tmp.B
 
 for arg in -m ""
@@ -71,7 +70,7 @@ do
     echo
     echo "pmval [no interpolate] ..."
     pmval -U $tmp.C sample.milliseconds 2>&1 \
-    | tee -a $seq.full \
+    | tee -a $seq_full \
     | $PCP_AWK_PROG '
     /suspended/				{ mark++; next }
     /^[0-9][0-9]:[0-9][0-9]:[0-9][0-9]\./   { rec++ }

@@ -228,4 +228,10 @@ extern int	qa_case;
 #define STATIC_FUNC static
 #endif
 
+/*
+ * parse -v arg
+ */
+extern int
+ParseSize(char *, int *, __int64_t *, struct timespec *);
+
 #endif /* _LOGGER_H */

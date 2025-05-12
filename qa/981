@@ -55,7 +55,7 @@ End-of-File
 echo === Testing precanned gpfs files
 $sudo TERM=ansi dbpmda -n $tmp.root -ie < $tmp.cmds 2>&1 | _filter
 
-cat gpfs.log >>$here/$seq.full
+cat gpfs.log >>$seq_full
 
 status=0
 exit

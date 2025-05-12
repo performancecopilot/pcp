@@ -313,15 +313,23 @@ The following tools provide the principal services for the PCP end-user with an 
 
 **pcp-atop**
 
-Full-screen monitor of the load on a system from a kernel, hardware and processes point of view. It is modeled on the Linux **atop(1)** tool (`home page <https://www.atoptool.nl/>`_) and provides a showcase for the variety of data available using PCP services and the Python scripting interfaces.
+Full-screen monitor of the load on a system from a kernel, hardware and processes point of view. It is modeled on the Linux **atop(1)** tool (`home page <https://www.atoptool.nl/>`_) and supports both live and historical analysis.
+
+**pcp-dstat**
+
+Line-based analysis tool, showing arbitrary metrics through a configurable plugin system. This tool was created to continue the original **dstat(1)** utility (`home page <http://dag.wiee.rs/home-made/dstat/>`_) and provides a showcase for the variety of data available using PCP services and the Python scripting interfaces.  It also supports both live and historical analysis.
+
+**pcp-htop**
+
+Beautiful, classic, live monitor of system activity. It is part of the **htop(1)** ecosystem (`home page <https://htop.dev/>`_) and allows any PCP metric to be displayed through a configurable system of plugins.
 
 **pmchart**
 
 Strip chart tool for arbitrary performance metrics. Interactive graphical utility that can display multiple charts simultaneously, from multiple hosts or set of archives, aligned on a unified time axis (X-axis), or on multiple tabs.  
 
-**pcp-collectl**
+**pmcheck**
 
-Statistics collection tool with good coverage of a number of Linux kernel subsystems, with the everything-in-one-tool approach pioneered by **sar(1)**. It is modeled on the Linux **collectl(1)** utility (`home page <http://collectl.sourceforge.net/>`_) and provides another example of use of the Python scripting interfaces to build more complex functionality with relative ease, with PCP as a foundation.
+Probe a system and report on possible missing configuration that could improve the analysis capabilities. For example, if a local database metric agent exists (but is not installed) and the database is actively running, it informs the user.
 
 **pmrep**
 
@@ -350,6 +358,10 @@ Calculates and reports various statistical summaries of the performance metric v
 **pmprobe**
 
 Probes for performance metric availability, values, and instances.
+
+**pmseries**
+
+Scalable, multi-host time series querying utility. Command line interface to the same query language available in grafana-pcp.
 
 **pmstat**
 
@@ -480,10 +492,6 @@ Extracts performance metrics from the systemd and journald services.
 
 Exports transaction performance metrics from application processes that use the **pcp_trace** library.
 
-**pmdavmware**
-
-Extracts performance metrics from a VMWare virtualization host.
-
 **pmdaweblog**
 
 Scans Web-server logs to extract metrics characterizing.
@@ -492,7 +500,7 @@ Scans Web-server logs to extract metrics characterizing.
 
 Extracts performance metrics from the Linux kernel XFS filesystem implementation.
 
-**pmdumplog**
+**pmlogdump**
 
 Displays selected state information, control data, and metric values from a set of PCP archives created by **pmlogger**.
 
@@ -518,11 +526,7 @@ Creates PCP archives of performance metrics over time. Many tools accept these P
 
 **pmproxy**
 
-Provides REST APIs, archive discovery, and both PCP and Redis protocol proxying when executing PCP or Redis client tools through a network firewall system.
-
-**pmtrace**
-
-Provides a simple command line interface to the trace PMDA and its associated **pcp_trace** library.
+Provides REST APIs, archive discovery, and both PCP and RESP proxying when executing PCP or key server (e.g. Valkey) tools through a network firewall system.
 
 Operational and Infrastructure Support
 =======================================

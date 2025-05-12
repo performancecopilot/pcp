@@ -742,6 +742,7 @@ fmt_pthread
 lib_for_pthreads
 fmt_uint64
 fmt_int64
+fmt_size
 fmt_pid
 rdynamic_flag
 lib_for_backtrace
@@ -749,6 +750,7 @@ enable_selinux
 PMDA_POSTFIX
 QSHAPE
 PMDA_STATSD
+PMDA_GFS2
 lib_for_chan
 lib_for_hdr_histogram
 PMDA_PERFEVENT
@@ -767,9 +769,16 @@ ncursesw_CFLAGS
 HAVE_NCURSES
 ncurses_LIBS
 ncurses_CFLAGS
+lib_for_inih
+HAVE_LIBINIH
 HAVE_LIBUV
 libuv_LIBS
 libuv_CFLAGS
+PMDA_AMDGPU
+libdrm_amdgpu_LIBS
+libdrm_amdgpu_CFLAGS
+libdrm_LIBS
+libdrm_CFLAGS
 enable_secure
 HAVE_SASL
 libsasl2_LIBS
@@ -881,10 +890,8 @@ have_python_BPF
 enable_dstat
 pcp_python_prog
 have_python
-enable_python2
 enable_python3
 PYTHON3
-PYTHON
 PYLINT
 GIT
 LTLIBOBJS
@@ -1040,16 +1047,17 @@ with_selinux
 with_qt
 with_qt3d
 with_perl
-with_python
 with_python3
 with_dstat_symlink
 with_perfevent
+with_pmdagfs2
 with_pmdastatsd
 with_pmdabcc
 with_pmdabpf
 with_pmdabpftrace
 with_pmdajson
 with_pmdamongodb
+with_pmdamysql
 with_pmdanutcracker
 with_pmdasnmp
 with_make
@@ -1104,6 +1112,10 @@ openssl_CFLAGS
 openssl_LIBS
 libsasl2_CFLAGS
 libsasl2_LIBS
+libdrm_CFLAGS
+libdrm_LIBS
+libdrm_amdgpu_CFLAGS
+libdrm_amdgpu_LIBS
 libuv_CFLAGS
 libuv_LIBS
 ncurses_CFLAGS
@@ -1778,19 +1790,19 @@ Optional Packages:
                           on)
   --with-perl             enable support for tools requiring Perl (default is
                           on)
-  --with-python           enable support for tools requiring Python (default
-                          is on)
   --with-python3          enable support for tools requiring Python3 (default
                           is on)
   --with-dstat-symlink    enable support for /usr/bin/dstat symlink (default
                           is on)
   --with-perfevent        enable perfevent pmda (default is on)
+  --with-pmdagfs2         enable GFS2 pmda (default is on)
   --with-pmdastatsd       enable statds pmda (default is on)
   --with-pmdabcc          enable BCC pmda (default is on)
   --with-pmdabpf          enable BPF pmda (default is on)
   --with-pmdabpftrace     enable bpftrace pmda (default is on)
   --with-pmdajson         enable JSON pmda (default is on)
   --with-pmdamongodb      enable MongoDB pmda (default is on)
+  --with-pmdamysql        enable MySQL pmda (default is on)
   --with-pmdanutcracker   enable nutcracker pmda (default is on)
   --with-pmdasnmp         enable SNMP pmda (default is on)
   --with-make             path to GNU compatible make(1) (default is empty for
@@ -1864,6 +1876,13 @@ Some influential environment variables:
               C compiler flags for libsasl2, overriding pkg-config
   libsasl2_LIBS
               linker flags for libsasl2, overriding pkg-config
+  libdrm_CFLAGS
+              C compiler flags for libdrm, overriding pkg-config
+  libdrm_LIBS linker flags for libdrm, overriding pkg-config
+  libdrm_amdgpu_CFLAGS
+              C compiler flags for libdrm_amdgpu, overriding pkg-config
+  libdrm_amdgpu_LIBS
+              linker flags for libdrm_amdgpu, overriding pkg-config
   libuv_CFLAGS
               C compiler flags for libuv, overriding pkg-config
   libuv_LIBS  linker flags for libuv, overriding pkg-config
@@ -3490,16 +3509,6 @@ fi
 
 
 
-# Check whether --with-python was given.
-if test ${with_python+y}
-then :
-  withval=$with_python; do_python=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-python=$withval"
-else $as_nop
-  do_python=check
-fi
-
-
-
 # Check whether --with-python3 was given.
 if test ${with_python3+y}
 then :
@@ -3526,6 +3535,16 @@ then :
   withval=$with_perfevent; do_perfevent=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-perfevent=$withval"
 else $as_nop
   do_perfevent=check
+fi
+
+
+
+# Check whether --with-pmdagfs2 was given.
+if test ${with_pmdagfs2+y}
+then :
+  withval=$with_pmdagfs2; do_pmdagfs2=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdagfs2=$withval"
+else $as_nop
+  do_pmdagfs2=check
 fi
 
 
@@ -3586,6 +3605,16 @@ then :
   withval=$with_pmdamongodb; do_pmdamongodb=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdamongodb=$withval"
 else $as_nop
   do_pmdamongodb=check
+fi
+
+
+
+# Check whether --with-pmdamysql was given.
+if test ${with_pmdamysql+y}
+then :
+  withval=$with_pmdamysql; do_pmdamysql=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdamysql=$withval"
+else $as_nop
+  do_pmdamysql=check
 fi
 
 
@@ -4885,8 +4914,10 @@ then :
   PCFLAGS="$PCFLAGS -Wno-array-bounds"
 fi
 fi
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking sizeof time_t" >&5
-printf %s "checking sizeof time_t... " >&6; }
+
+force_time_t=false
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking default sizeof time_t" >&5
+printf %s "checking default sizeof time_t... " >&6; }
 cat <<End-of-File >conftest.c
 #include <stdio.h>
 #include <sys/time.h>
@@ -4896,16 +4927,36 @@ End-of-File
 (eval $ac_link) 2>&5
 ans=`./conftest`
 echo "./conftest -> \"$ans\"" >&5
-rm -rf conftest conftest.*
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ans" >&5
 printf "%s\n" "$ans" >&6; }
+rm -f conftest.done
 if test "$ans" = 4; then
-    PCFLAGS="$PCFLAGS -D_FILE_OFFSET_BITS=64 -D_TIME_BITS=64"
-else
-            { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking sizeof off_t" >&5
-printf %s "checking sizeof off_t... " >&6; }
+            { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking sizeof time_t with -D_TIME_BITS=64" >&5
+printf %s "checking sizeof time_t with -D_TIME_BITS=64... " >&6; }
+    save_CFLAGS="$CFLAGS"
+    CFLAGS="$CFLAGS -D_FILE_OFFSET_BITS=64 -D_TIME_BITS=64"
+    (eval $ac_compile) 2>&5
+    (eval $ac_link) 2>&5
+    CFLAGS="$save_CFLAGS"
+    ans=`./conftest`
+    echo "./conftest -D_TIME_BITS=64 -> \"$ans\"" >&5
+    if test "$ans" = 8; then
+	PCFLAGS="$PCFLAGS -D_FILE_OFFSET_BITS=64 -D_TIME_BITS=64"
+	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ans => -D_TIME_BITS=64" >&5
+printf "%s\n" "$ans => -D_TIME_BITS=64" >&6; }
+	touch conftest.done
+	force_time_t=true
+    else
+	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ans => no way to make this Y2038 safe" >&5
+printf "%s\n" "$ans => no way to make this Y2038 safe" >&6; }
+    fi
+fi
+if test ! -f conftest.done; then
+            { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking default sizeof off_t" >&5
+printf %s "checking default sizeof off_t... " >&6; }
     cat <<End-of-File >conftest.c
 #include <stdio.h>
+#include <unistd.h>
 #include <sys/types.h>
 int main() { printf("%d", (int)sizeof(off_t)); return 0; }
 End-of-File
@@ -4914,14 +4965,93 @@ End-of-File
     ans=`./conftest`
     echo "./conftest -> \"$ans\"" >&5
     rm -rf conftest conftest.*
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ans" >&5
-printf "%s\n" "$ans" >&6; }
     if test "$ans" = 4; then
         PCFLAGS="$PCFLAGS -D_FILE_OFFSET_BITS=64"
+	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ans => -D_FILE_OFFSET_BITS=64" >&5
+printf "%s\n" "$ans => -D_FILE_OFFSET_BITS=64" >&6; }
+    else
+	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ans" >&5
+printf "%s\n" "$ans" >&6; }
     fi
 fi
+rm -rf conftest conftest.*
 
 
+
+cat <<End-of-File >conftest.c
+#include <stdint.h>
+#include <stddef.h>
+#include <stdio.h>
+#include <sys/time.h>
+typedef struct {
+    int64_t sec;
+    int32_t nsec;
+} __pmTimestamp;
+typedef struct {
+    __pmTimestamp stamp;
+    int numpmid;
+} __pmResult;
+typedef struct {
+    struct timeval stamp;
+    int numpmid;
+} pmResult;
+typedef struct {
+    struct timespec stamp;
+    int numpmid;
+} pmHighResResult;
+void
+main(void)
+{
+    __pmResult __rp;
+    pmResult rp;
+    pmHighResResult hrp;
+    int nb;
+
+    nb = (int)offsetof(pmResult,numpmid);
+    if (nb < (int)offsetof(pmHighResResult,numpmid))
+	nb = (int)offsetof(pmHighResResult,numpmid);
+    if (nb > (int)offsetof(__pmResult,numpmid))
+	printf("__pmResult pad %d\n", nb - (int)offsetof(__pmResult,numpmid));
+
+    nb = (int)(sizeof(hrp.stamp) - sizeof(hrp.stamp.tv_sec) - sizeof(hrp.stamp.tv_nsec));
+    if (nb > 0)
+	printf("timespec pad %d\n", nb);
+}
+End-of-File
+save_CFLAGS="$CFLAGS"
+CFLAGS="$PCFLAGS"
+(eval $ac_compile) 2>&5
+(eval $ac_link) 2>&5
+./conftest >conftest.out
+CFLAGS="$save_CFLAGS"
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking __pmResult padding" >&5
+printf %s "checking __pmResult padding... " >&6; }
+ans=`sed <conftest.out -n -e '/__pmResult pad/s/.* //p'`
+if test -n "$ans"
+then
+
+printf "%s\n" "#define PM_PAD_RESULT $ans" >>confdefs.h
+
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ans" >&5
+printf "%s\n" "$ans" >&6; }
+else
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking timespec padding" >&5
+printf %s "checking timespec padding... " >&6; }
+ans=`sed <conftest.out -n -e '/timespec pad/s/.* //p'`
+if test -n "$ans"
+then
+
+printf "%s\n" "#define PM_PAD_TIMESPEC $ans" >>confdefs.h
+
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ans" >&5
+printf "%s\n" "$ans" >&6; }
+else
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+fi
 
 # Check whether --enable-pie was given.
 if test ${enable_pie+y}
@@ -6475,8 +6605,8 @@ then :
 
 
 pkg_failed=no
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for gperftools" >&5
-printf %s "checking for gperftools... " >&6; }
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libprofiler, libtcmalloc" >&5
+printf %s "checking for libprofiler, libtcmalloc... " >&6; }
 
 if test -n "$gperftools_CFLAGS"; then
     pkg_cv_gperftools_CFLAGS="$gperftools_CFLAGS"
@@ -6516,7 +6646,7 @@ fi
 
 
 if test $pkg_failed = yes; then
-   	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
 
 if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
@@ -6525,14 +6655,14 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        gperftools_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libprofiler, libtcmalloc" 2>&1`
+                gperftools_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libprofiler, libtcmalloc" 2>&1`
         else
-	        gperftools_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libprofiler, libtcmalloc" 2>&1`
+                gperftools_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libprofiler, libtcmalloc" 2>&1`
         fi
-	# Put the nasty error message in config.log where it belongs
-	echo "$gperftools_PKG_ERRORS" >&5
+        # Put the nasty error message in config.log where it belongs
+        echo "$gperftools_PKG_ERRORS" >&5
 
-	as_fn_error $? "Package requirements (libprofiler, libtcmalloc) were not met:
+        as_fn_error $? "Package requirements (libprofiler, libtcmalloc) were not met:
 
 $gperftools_PKG_ERRORS
 
@@ -6543,9 +6673,9 @@ Alternatively, you may set the environment variables gperftools_CFLAGS
 and gperftools_LIBS to avoid the need to call pkg-config.
 See the pkg-config man page for more details." "$LINENO" 5
 elif test $pkg_failed = untried; then
-     	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
-	{ { printf "%s\n" "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+        { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
 printf "%s\n" "$as_me: error: in \`$ac_pwd':" >&2;}
 as_fn_error $? "The pkg-config script could not be found or is too old.  Make sure it
 is in your PATH or set the PKG_CONFIG environment variable to the full
@@ -6558,8 +6688,8 @@ See the pkg-config man page for more details.
 To get pkg-config, see <http://pkg-config.freedesktop.org/>.
 See \`config.log' for more details" "$LINENO" 5; }
 else
-	gperftools_CFLAGS=$pkg_cv_gperftools_CFLAGS
-	gperftools_LIBS=$pkg_cv_gperftools_LIBS
+        gperftools_CFLAGS=$pkg_cv_gperftools_CFLAGS
+        gperftools_LIBS=$pkg_cv_gperftools_LIBS
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }
 
@@ -6582,8 +6712,8 @@ then :
     enable_avahi=true
 
 pkg_failed=no
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for avahi" >&5
-printf %s "checking for avahi... " >&6; }
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for avahi-client" >&5
+printf %s "checking for avahi-client... " >&6; }
 
 if test -n "$avahi_CFLAGS"; then
     pkg_cv_avahi_CFLAGS="$avahi_CFLAGS"
@@ -6623,7 +6753,7 @@ fi
 
 
 if test $pkg_failed = yes; then
-   	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
 
 if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
@@ -6632,24 +6762,24 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        avahi_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "avahi-client" 2>&1`
+                avahi_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "avahi-client" 2>&1`
         else
-	        avahi_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "avahi-client" 2>&1`
+                avahi_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "avahi-client" 2>&1`
         fi
-	# Put the nasty error message in config.log where it belongs
-	echo "$avahi_PKG_ERRORS" >&5
+        # Put the nasty error message in config.log where it belongs
+        echo "$avahi_PKG_ERRORS" >&5
 
-	enable_avahi=false
+        enable_avahi=false
 elif test $pkg_failed = untried; then
-     	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
-	enable_avahi=false
+        enable_avahi=false
 else
-	avahi_CFLAGS=$pkg_cv_avahi_CFLAGS
-	avahi_LIBS=$pkg_cv_avahi_LIBS
+        avahi_CFLAGS=$pkg_cv_avahi_CFLAGS
+        avahi_LIBS=$pkg_cv_avahi_LIBS
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }
-	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for avahi_client_new in -lavahi-client" >&5
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for avahi_client_new in -lavahi-client" >&5
 printf %s "checking for avahi_client_new in -lavahi-client... " >&6; }
 if test ${ac_cv_lib_avahi_client_avahi_client_new+y}
 then :
@@ -6907,7 +7037,11 @@ pm_version_current=`awk </dev/null "BEGIN { print (${PACKAGE_MAJOR}*256+${PACKAG
 
 ac_config_headers="$ac_config_headers src/include/pcp/config.h src/include/pcp/configsz.h"
 
+ac_config_headers="$ac_config_headers src/libpcp3/src/include/pcp/config.h src/libpcp3/src/include/pcp/configsz.h"
+
 ac_config_files="$ac_config_files src/include/pcp/platform_defs.h src/include/pcp/platformsz.h"
+
+ac_config_files="$ac_config_files src/libpcp3/src/include/pcp/platform_defs.h src/libpcp3/src/include/pcp/platformsz.h"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -7595,8 +7729,12 @@ do
   case $ac_config_target in
     "src/include/pcp/config.h") CONFIG_HEADERS="$CONFIG_HEADERS src/include/pcp/config.h" ;;
     "src/include/pcp/configsz.h") CONFIG_HEADERS="$CONFIG_HEADERS src/include/pcp/configsz.h" ;;
+    "src/libpcp3/src/include/pcp/config.h") CONFIG_HEADERS="$CONFIG_HEADERS src/libpcp3/src/include/pcp/config.h" ;;
+    "src/libpcp3/src/include/pcp/configsz.h") CONFIG_HEADERS="$CONFIG_HEADERS src/libpcp3/src/include/pcp/configsz.h" ;;
     "src/include/pcp/platform_defs.h") CONFIG_FILES="$CONFIG_FILES src/include/pcp/platform_defs.h" ;;
     "src/include/pcp/platformsz.h") CONFIG_FILES="$CONFIG_FILES src/include/pcp/platformsz.h" ;;
+    "src/libpcp3/src/include/pcp/platform_defs.h") CONFIG_FILES="$CONFIG_FILES src/libpcp3/src/include/pcp/platform_defs.h" ;;
+    "src/libpcp3/src/include/pcp/platformsz.h") CONFIG_FILES="$CONFIG_FILES src/libpcp3/src/include/pcp/platformsz.h" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
   esac
@@ -8278,59 +8416,7 @@ test -n "$PYLINT" || PYLINT="/bin/true"
 
 
 
-for ac_prog in /usr/bin/python2 python2 python2.7 python
-do
-  # Extract the first word of "$ac_prog", so it can be a program name with args.
-set dummy $ac_prog; ac_word=$2
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-printf %s "checking for $ac_word... " >&6; }
-if test ${ac_cv_path_PYTHON+y}
-then :
-  printf %s "(cached) " >&6
-else $as_nop
-  case $PYTHON in
-  [\\/]* | ?:[\\/]*)
-  ac_cv_path_PYTHON="$PYTHON" # Let the user override the test with a path.
-  ;;
-  *)
-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  case $as_dir in #(((
-    '') as_dir=./ ;;
-    */) ;;
-    *) as_dir=$as_dir/ ;;
-  esac
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir$ac_word$ac_exec_ext"; then
-    ac_cv_path_PYTHON="$as_dir$ac_word$ac_exec_ext"
-    printf "%s\n" "$as_me:${as_lineno-$LINENO}: found $as_dir$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
-
-  ;;
-esac
-fi
-PYTHON=$ac_cv_path_PYTHON
-if test -n "$PYTHON"; then
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $PYTHON" >&5
-printf "%s\n" "$PYTHON" >&6; }
-else
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }
-fi
-
-
-  test -n "$PYTHON" && break
-done
-
-
-
-for ac_prog in /usr/bin/python3 python3 python3.9
+for ac_prog in python3
 do
   # Extract the first word of "$ac_prog", so it can be a program name with args.
 set dummy $ac_prog; ac_word=$2
@@ -8380,6 +8466,22 @@ fi
   test -n "$PYTHON3" && break
 done
 
+if test -z "$PYTHON3"
+then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for python3.N executable" >&5
+printf %s "checking for python3.N executable... " >&6; }
+    PYTHON3=`ls /usr/bin/python3.*[0-9] /usr/local/bin/python3.*[0-9] 2>/dev/null \
+	     | sort -nr -t. -k2 \
+	     | sed -e 1q`
+    if test -z "$PYTHON3"
+    then
+	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+    else
+	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $PYTHON3" >&5
+printf "%s\n" "$PYTHON3" >&6; }
+    fi
+fi
 
 
 
@@ -8399,18 +8501,18 @@ printf %s "checking Python3 version... " >&6; }
 	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $PY_MAJOR.$PY_MINOR.$PY_POINT" >&5
 printf "%s\n" "$PY_MAJOR.$PY_MINOR.$PY_POINT" >&6; }
 	if test "$PY_MAJOR" -lt 3; then
-	    echo WARNING: Python version 3.3 or later does not seem to be installed.
+	    echo WARNING: Python version 3.6 or later does not seem to be installed.
 	    enable_python3=false
 	else
-	    if test "$PY_MAJOR" -eq 3 -a "$PY_MINOR" -lt 3 ; then
+	    if test "$PY_MAJOR" -eq 3 -a "$PY_MINOR" -lt 6 ; then
 		echo WARNING: Python version 3.$PY_MINOR is too old.
-		echo Python version 3.3 or later is required for Python builds.
+		echo Python version 3.6 or later is required for Python builds.
 		enable_python3=false
 	    else
 		 PY_MAJOR="$PY_MAJOR"
     PY_MINOR="$PY_MINOR"
     PY_VERSION="python$PY_MAJOR.$PY_MINOR"
-    PY_INCLUDE_DIRS="-I/usr/include/${PY_VERSION}m -I/usr/include/${PY_VERSION}"
+    PY_INCLUDE_DIRS="-I/usr/include/${PY_VERSION}m -I/usr/include/${PY_VERSION} -I/usr/local/include/${PY_VERSION}"
     saved_CFLAGS="$CFLAGS"
     saved_CPPFLAGS="$CPPFLAGS"
     CFLAGS="$CFLAGS $PY_INCLUDE_DIRS"
@@ -8446,131 +8548,12 @@ done
 fi
 
 
-enable_python2=false
-if test "x$do_python" != "xno"
-then :
-
-    enable_python2=true
-
-    if test "$do_python" = "check" -a -f /etc/os-release
-    then
-    (
-
-	. /etc/os-release
-	case "$ID"
-	in
-	    debian)
-		if test -z "$VERSION_ID" -o "$VERSION_ID" -ge 11; then
-		    touch config.python2_eol
-		fi
-		;;
-	    ubuntu)
-		VERSION_NO=`echo "$VERSION_ID" | sed 's/[^0-9]//'`
-				if test "$VERSION_NO" -ge 2004; then
-		    touch config.python2_eol
-		fi
-		;;
-	    fedora)
-		if test -z "$VERSION_ID" -o "$VERSION_ID" -ge 35; then
-		    touch config.python2_eol
-		fi
-		;;
-	    rhel)
-		VERSION_NO=`echo "$VERSION_ID" | sed 's/[^0-9]//'`
-				if test "$VERSION_NO" -ge 90; then
-		    touch config.python2_eol
-		fi
-		;;
-	    opensuse-leap)
-				VERSION_NO=`echo "$VERSION_ID" | sed -e 's/\.\([0-9]\)$/\.0\1/' -e 's/\.//'`
-				if test "$VERSION_NO" -ge 1504; then
-		    touch config.python2_eol
-		fi
-		;;
-	    centos)
-		if test "$VERSION_ID" -ge 9; then
-		    touch config.python2_eol
-		fi
-		;;
-	esac
-    )
-    fi
-
-    if test -f config.python2_eol
-    then
-	rm config.python2_eol
-	if test $enable_python3 = false; then
-	    	    echo "WARNING: Python 2 is not supported anymore (EOL since 2020), please use Python 3 instead."
-	fi
-	enable_python2=false
-    fi
-
-    if test "$enable_python2" = "true" -a -z "$PYTHON"
-    then
-	enable_python2=false
-    fi
-
-    if $enable_python2
-    then
-	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking Python2 version" >&5
-printf %s "checking Python2 version... " >&6; }
-	eval `$PYTHON -V 2>&1 | awk '/^Python/ { ver=2; print $ver }' | awk -F. '{ major=1; minor=2; point=3; printf "export PY_MAJOR=%d PY_MINOR=%d PY_POINT=%d\n",$major,$minor,$point }'`
-	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $PY_MAJOR.$PY_MINOR.$PY_POINT" >&5
-printf "%s\n" "$PY_MAJOR.$PY_MINOR.$PY_POINT" >&6; }
-	if test "$PY_MAJOR" -lt 2; then
-	    echo WARNING: Python version 2.7 or later does not seem to be installed.
-	    enable_python2=false
-	else
-	    if test "$PY_MAJOR" -eq 2 -a "$PY_MINOR" -lt 7 ; then
-		echo WARNING: Python version 2.$PY_MINOR is too old.
-		echo Python version 2.7 or later is required for Python builds.
-		enable_python2=false
-	    else
-		 PY_MAJOR="$PY_MAJOR"
-    PY_MINOR="$PY_MINOR"
-    PY_VERSION="python$PY_MAJOR.$PY_MINOR"
-    PY_INCLUDE_DIRS="-I/usr/include/${PY_VERSION}m -I/usr/include/${PY_VERSION}"
-    saved_CFLAGS="$CFLAGS"
-    saved_CPPFLAGS="$CPPFLAGS"
-    CFLAGS="$CFLAGS $PY_INCLUDE_DIRS"
-    CPPFLAGS="$CPPFLAGS $PY_INCLUDE_DIRS"
-
-           for ac_header in Python.h
-do :
-  ac_fn_c_check_header_compile "$LINENO" "Python.h" "ac_cv_header_Python_h" "$ac_includes_default"
-if test "x$ac_cv_header_Python_h" = xyes
-then :
-  printf "%s\n" "#define HAVE_PYTHON_H 1" >>confdefs.h
-
-else $as_nop
-
-	echo WARNING: Python version $PY_MAJOR.$PY_MINOR header file may be missing.
-	echo Proceeding with the Python $PY_MAJOR installation found, regardless.
-fi
-
-done
-
-    CPPFLAGS="$saved_CPPFLAGS"
-    CFLAGS="$saved_CFLAGS"
-
-	    fi
-	fi
-    fi
-
-    if test "$do_python" != "check" -a "$enable_python2" != "true"
-    then
-	as_fn_error $? "cannot enable Python - no supported version found" "$LINENO" 5
-    fi
-
-fi
-
-
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for any python version" >&5
 printf %s "checking for any python version... " >&6; }
 if test "$cross_compiling" = "yes"; then
     ans=$have_python
     echo "cross-compile -> \"$ans\"" >&5
-elif test "$enable_python2" = "true" -o "$enable_python3" = "true"
+elif "$enable_python3" = "true"
 then
     have_python=true
 else
@@ -8584,9 +8567,6 @@ printf "%s\n" "no" >&6; }; fi
 if test "$enable_python3" = "true"
 then
     pcp_python_prog=$PYTHON3
-elif test "$enable_python2" = "true"
-then
-    pcp_python_prog=$PYTHON
 else
     pcp_python_prog=""
 fi
@@ -8873,8 +8853,7 @@ fi
 if test "x$do_pmdabcc" = "xcheck"
 then :
 
-        $enable_python3 && $have_python_BPF && \
-	$have_python_OrderedDict && pmda_bcc=true
+        $have_python_BPF && $have_python_OrderedDict && pmda_bcc=true
 
 fi
 PMDA_BCC=$pmda_bcc
@@ -8885,8 +8864,8 @@ printf "%s\n" "no" >&6; }; fi
 
 
 pkg_failed=no
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libbpf" >&5
-printf %s "checking for libbpf... " >&6; }
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libbpf >= 0.8.0" >&5
+printf %s "checking for libbpf >= 0.8.0... " >&6; }
 
 if test -n "$libbpf_CFLAGS"; then
     pkg_cv_libbpf_CFLAGS="$libbpf_CFLAGS"
@@ -8926,7 +8905,7 @@ fi
 
 
 if test $pkg_failed = yes; then
-   	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
 
 if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
@@ -8935,24 +8914,24 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        libbpf_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libbpf >= 0.8.0" 2>&1`
+                libbpf_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libbpf >= 0.8.0" 2>&1`
         else
-	        libbpf_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libbpf >= 0.8.0" 2>&1`
+                libbpf_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libbpf >= 0.8.0" 2>&1`
         fi
-	# Put the nasty error message in config.log where it belongs
-	echo "$libbpf_PKG_ERRORS" >&5
+        # Put the nasty error message in config.log where it belongs
+        echo "$libbpf_PKG_ERRORS" >&5
 
-	have_libbpf=false
+        have_libbpf=false
 elif test $pkg_failed = untried; then
-     	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
-	have_libbpf=false
+        have_libbpf=false
 else
-	libbpf_CFLAGS=$pkg_cv_libbpf_CFLAGS
-	libbpf_LIBS=$pkg_cv_libbpf_LIBS
+        libbpf_CFLAGS=$pkg_cv_libbpf_CFLAGS
+        libbpf_LIBS=$pkg_cv_libbpf_LIBS
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }
-	have_libbpf=true
+        have_libbpf=true
 fi
 HAVE_LIBBPF=$have_libbpf
 
@@ -9011,7 +8990,7 @@ fi
 
 
 if test $pkg_failed = yes; then
-   	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
 
 if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
@@ -9020,24 +8999,24 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        libelf_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libelf" 2>&1`
+                libelf_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libelf" 2>&1`
         else
-	        libelf_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libelf" 2>&1`
+                libelf_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libelf" 2>&1`
         fi
-	# Put the nasty error message in config.log where it belongs
-	echo "$libelf_PKG_ERRORS" >&5
+        # Put the nasty error message in config.log where it belongs
+        echo "$libelf_PKG_ERRORS" >&5
 
-	have_libelf=false
+        have_libelf=false
 elif test $pkg_failed = untried; then
-     	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
-	have_libelf=false
+        have_libelf=false
 else
-	libelf_CFLAGS=$pkg_cv_libelf_CFLAGS
-	libelf_LIBS=$pkg_cv_libelf_LIBS
+        libelf_CFLAGS=$pkg_cv_libelf_CFLAGS
+        libelf_LIBS=$pkg_cv_libelf_LIBS
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }
-	have_libelf=true
+        have_libelf=true
 fi
 HAVE_LIBELF=$have_libelf
 
@@ -9224,14 +9203,13 @@ fi
 if test "x$do_pmdabpftrace" = "xcheck"
 then :
 
-            have_bpftrace=false
+        have_bpftrace=false
     if which bpftrace >/dev/null 2>&1
     then
 	if bpftrace --help 2>&1 | grep '\-f.*json' > /dev/null; then
 	    have_bpftrace=true
 	fi
     fi
-    $enable_python3 && test "$PY_MAJOR" -eq 3 -a "$PY_MINOR" -ge 6 && \
     $have_bpftrace && pmda_bpftrace=true
 
 fi
@@ -9314,13 +9292,39 @@ printf "%s\n" "$pcp_perl_prog" >&6; }
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking if ExtUtils::MakeMaker is installed" >&5
 printf %s "checking if ExtUtils::MakeMaker is installed... " >&6; }
         $pcp_perl_prog -e "use ExtUtils::MakeMaker" 2>/dev/null
-        if test $? -eq 0
-        then
-	    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result:  yes" >&5
-printf "%s\n" " yes" >&6; }
+        if test $? -eq 0; then
+	    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+	    if $force_time_t; then
+								{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking if Perl is Y2038-safe" >&5
+printf %s "checking if Perl is Y2038-safe... " >&6; }
+		$pcp_perl_prog -MConfig -e 'print "$Config{sGMTIME_max}\n";' >conftest.out
+		case `cat conftest.out`
+		in
+		    2147483647)
+			    # definitely 32-bit time_t for Perl build, we
+			    # can't play in this sandpit
+			    #
+			    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+			    have_perl=false
+			    ;;
+		    67768036191676799)
+			    # all good
+			    #
+			    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+			    ;;
+		    *)
+			    echo >&2 "Warning: Perl config sGMTIME_max=`cat conftest.out` unexpected"
+			    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+			    ;;
+		esac
+	    fi
         else
-	    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result:  no" >&5
-printf "%s\n" " no" >&6; }
+	    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
 	    have_perl=false
         fi
     fi
@@ -9359,15 +9363,24 @@ printf "%s\n" "no" >&6; }; fi
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking if the mysql PMDA should be included" >&5
 printf %s "checking if the mysql PMDA should be included... " >&6; }
 pmda_mysql=false
-if test "$have_perl" = true
-then
-        if $pcp_perl_prog -e "use DBI" >/dev/null 2>&1
+if test "x$do_pmdamysql" = "xyes"
+then :
+  pmda_mysql=true
+fi
+if test "x$do_pmdamysql" = "xcheck"
+then :
+
+    if test "$have_perl" = true
     then
-	if $pcp_perl_prog -e "use DBD::mysql" >/dev/null 2>&1
-	then
-	    pmda_mysql=true
-	fi
+                if $pcp_perl_prog -e "use DBI" >/dev/null 2>&1
+        then
+	    if $pcp_perl_prog -e "use DBD::mysql" >/dev/null 2>&1
+	    then
+	        pmda_mysql=true
+	    fi
+        fi
     fi
+
 fi
 PMDA_MYSQL=$pmda_mysql
 
@@ -11795,8 +11808,8 @@ fi
 have_ssl_trace=false
 
 pkg_failed=no
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for openssl" >&5
-printf %s "checking for openssl... " >&6; }
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for openssl >= 1.1.1" >&5
+printf %s "checking for openssl >= 1.1.1... " >&6; }
 
 if test -n "$openssl_CFLAGS"; then
     pkg_cv_openssl_CFLAGS="$openssl_CFLAGS"
@@ -11836,7 +11849,7 @@ fi
 
 
 if test $pkg_failed = yes; then
-   	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
 
 if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
@@ -11845,24 +11858,24 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        openssl_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "openssl >= 1.1.1" 2>&1`
+                openssl_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "openssl >= 1.1.1" 2>&1`
         else
-	        openssl_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "openssl >= 1.1.1" 2>&1`
+                openssl_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "openssl >= 1.1.1" 2>&1`
         fi
-	# Put the nasty error message in config.log where it belongs
-	echo "$openssl_PKG_ERRORS" >&5
+        # Put the nasty error message in config.log where it belongs
+        echo "$openssl_PKG_ERRORS" >&5
 
-	have_openssl=false
+        have_openssl=false
 elif test $pkg_failed = untried; then
-     	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
-	have_openssl=false
+        have_openssl=false
 else
-	openssl_CFLAGS=$pkg_cv_openssl_CFLAGS
-	openssl_LIBS=$pkg_cv_openssl_LIBS
+        openssl_CFLAGS=$pkg_cv_openssl_CFLAGS
+        openssl_LIBS=$pkg_cv_openssl_LIBS
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }
-	have_openssl=true
+        have_openssl=true
 fi
 if test $have_openssl = true
 then
@@ -11963,8 +11976,8 @@ fi
 
 
 pkg_failed=no
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libsasl2" >&5
-printf %s "checking for libsasl2... " >&6; }
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libsasl2 >= 2" >&5
+printf %s "checking for libsasl2 >= 2... " >&6; }
 
 if test -n "$libsasl2_CFLAGS"; then
     pkg_cv_libsasl2_CFLAGS="$libsasl2_CFLAGS"
@@ -12004,7 +12017,7 @@ fi
 
 
 if test $pkg_failed = yes; then
-   	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
 
 if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
@@ -12013,24 +12026,24 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        libsasl2_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libsasl2 >= 2" 2>&1`
+                libsasl2_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libsasl2 >= 2" 2>&1`
         else
-	        libsasl2_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libsasl2 >= 2" 2>&1`
+                libsasl2_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libsasl2 >= 2" 2>&1`
         fi
-	# Put the nasty error message in config.log where it belongs
-	echo "$libsasl2_PKG_ERRORS" >&5
+        # Put the nasty error message in config.log where it belongs
+        echo "$libsasl2_PKG_ERRORS" >&5
 
-	have_sasl=false
+        have_sasl=false
 elif test $pkg_failed = untried; then
-     	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
-	have_sasl=false
+        have_sasl=false
 else
-	libsasl2_CFLAGS=$pkg_cv_libsasl2_CFLAGS
-	libsasl2_LIBS=$pkg_cv_libsasl2_LIBS
+        libsasl2_CFLAGS=$pkg_cv_libsasl2_CFLAGS
+        libsasl2_LIBS=$pkg_cv_libsasl2_LIBS
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }
-	have_sasl=true
+        have_sasl=true
 fi
 HAVE_SASL=$have_sasl
 
@@ -12059,8 +12072,158 @@ fi
 
 
 pkg_failed=no
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libuv" >&5
-printf %s "checking for libuv... " >&6; }
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libdrm >= 2.4.77" >&5
+printf %s "checking for libdrm >= 2.4.77... " >&6; }
+
+if test -n "$libdrm_CFLAGS"; then
+    pkg_cv_libdrm_CFLAGS="$libdrm_CFLAGS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libdrm >= 2.4.77\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libdrm >= 2.4.77") 2>&5
+  ac_status=$?
+  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_libdrm_CFLAGS=`$PKG_CONFIG --cflags "libdrm >= 2.4.77" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+if test -n "$libdrm_LIBS"; then
+    pkg_cv_libdrm_LIBS="$libdrm_LIBS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libdrm >= 2.4.77\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libdrm >= 2.4.77") 2>&5
+  ac_status=$?
+  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_libdrm_LIBS=`$PKG_CONFIG --libs "libdrm >= 2.4.77" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+
+
+
+if test $pkg_failed = yes; then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+                libdrm_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libdrm >= 2.4.77" 2>&1`
+        else
+                libdrm_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libdrm >= 2.4.77" 2>&1`
+        fi
+        # Put the nasty error message in config.log where it belongs
+        echo "$libdrm_PKG_ERRORS" >&5
+
+        have_drm=false
+elif test $pkg_failed = untried; then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+        have_drm=false
+else
+        libdrm_CFLAGS=$pkg_cv_libdrm_CFLAGS
+        libdrm_LIBS=$pkg_cv_libdrm_LIBS
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+        have_drm=true
+fi
+if $have_drm
+then
+
+pkg_failed=no
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libdrm_amdgpu >= 1" >&5
+printf %s "checking for libdrm_amdgpu >= 1... " >&6; }
+
+if test -n "$libdrm_amdgpu_CFLAGS"; then
+    pkg_cv_libdrm_amdgpu_CFLAGS="$libdrm_amdgpu_CFLAGS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libdrm_amdgpu >= 1\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libdrm_amdgpu >= 1") 2>&5
+  ac_status=$?
+  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_libdrm_amdgpu_CFLAGS=`$PKG_CONFIG --cflags "libdrm_amdgpu >= 1" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+if test -n "$libdrm_amdgpu_LIBS"; then
+    pkg_cv_libdrm_amdgpu_LIBS="$libdrm_amdgpu_LIBS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libdrm_amdgpu >= 1\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libdrm_amdgpu >= 1") 2>&5
+  ac_status=$?
+  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_libdrm_amdgpu_LIBS=`$PKG_CONFIG --libs "libdrm_amdgpu >= 1" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+
+
+
+if test $pkg_failed = yes; then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+                libdrm_amdgpu_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libdrm_amdgpu >= 1" 2>&1`
+        else
+                libdrm_amdgpu_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libdrm_amdgpu >= 1" 2>&1`
+        fi
+        # Put the nasty error message in config.log where it belongs
+        echo "$libdrm_amdgpu_PKG_ERRORS" >&5
+
+        have_amdgpu=false
+elif test $pkg_failed = untried; then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+        have_amdgpu=false
+else
+        libdrm_amdgpu_CFLAGS=$pkg_cv_libdrm_amdgpu_CFLAGS
+        libdrm_amdgpu_LIBS=$pkg_cv_libdrm_amdgpu_LIBS
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+        have_amdgpu=true
+fi
+else
+	have_amdgpu=false
+fi
+PMDA_AMDGPU=$have_amdgpu
+
+
+
+pkg_failed=no
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libuv >= 1.0" >&5
+printf %s "checking for libuv >= 1.0... " >&6; }
 
 if test -n "$libuv_CFLAGS"; then
     pkg_cv_libuv_CFLAGS="$libuv_CFLAGS"
@@ -12100,7 +12263,7 @@ fi
 
 
 if test $pkg_failed = yes; then
-   	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
 
 if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
@@ -12109,24 +12272,24 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        libuv_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libuv >= 1.0" 2>&1`
+                libuv_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libuv >= 1.0" 2>&1`
         else
-	        libuv_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libuv >= 1.0" 2>&1`
+                libuv_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libuv >= 1.0" 2>&1`
         fi
-	# Put the nasty error message in config.log where it belongs
-	echo "$libuv_PKG_ERRORS" >&5
+        # Put the nasty error message in config.log where it belongs
+        echo "$libuv_PKG_ERRORS" >&5
 
-	have_libuv=false
+        have_libuv=false
 elif test $pkg_failed = untried; then
-     	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
-	have_libuv=false
+        have_libuv=false
 else
-	libuv_CFLAGS=$pkg_cv_libuv_CFLAGS
-	libuv_LIBS=$pkg_cv_libuv_LIBS
+        libuv_CFLAGS=$pkg_cv_libuv_CFLAGS
+        libuv_LIBS=$pkg_cv_libuv_LIBS
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }
-	have_libuv=true
+        have_libuv=true
 fi
 HAVE_LIBUV=$have_libuv
 
@@ -12176,6 +12339,57 @@ else $as_nop
 fi
 
 
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for ini_parse in -linih" >&5
+printf %s "checking for ini_parse in -linih... " >&6; }
+if test ${ac_cv_lib_inih_ini_parse+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-linih  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+char ini_parse ();
+int
+main (void)
+{
+return ini_parse ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  ac_cv_lib_inih_ini_parse=yes
+else $as_nop
+  ac_cv_lib_inih_ini_parse=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_inih_ini_parse" >&5
+printf "%s\n" "$ac_cv_lib_inih_ini_parse" >&6; }
+if test "x$ac_cv_lib_inih_ini_parse" = xyes
+then :
+   have_libinih=true
+	 lib_for_inih="-linih"
+
+else $as_nop
+   have_libinih=false
+         lib_for_inih=""
+
+
+fi
+
+HAVE_LIBINIH=$have_libinih
+
+
+
 
 pkg_failed=no
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for ncurses" >&5
@@ -12219,7 +12433,7 @@ fi
 
 
 if test $pkg_failed = yes; then
-   	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
 
 if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
@@ -12228,24 +12442,24 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        ncurses_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "ncurses" 2>&1`
+                ncurses_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "ncurses" 2>&1`
         else
-	        ncurses_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "ncurses" 2>&1`
+                ncurses_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "ncurses" 2>&1`
         fi
-	# Put the nasty error message in config.log where it belongs
-	echo "$ncurses_PKG_ERRORS" >&5
+        # Put the nasty error message in config.log where it belongs
+        echo "$ncurses_PKG_ERRORS" >&5
 
-	have_ncurses=false
+        have_ncurses=false
 elif test $pkg_failed = untried; then
-     	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
-	have_ncurses=false
+        have_ncurses=false
 else
-	ncurses_CFLAGS=$pkg_cv_ncurses_CFLAGS
-	ncurses_LIBS=$pkg_cv_ncurses_LIBS
+        ncurses_CFLAGS=$pkg_cv_ncurses_CFLAGS
+        ncurses_LIBS=$pkg_cv_ncurses_LIBS
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }
-	have_ncurses=true
+        have_ncurses=true
 fi
 HAVE_NCURSES=$have_ncurses
 
@@ -12293,7 +12507,7 @@ fi
 
 
 if test $pkg_failed = yes; then
-   	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
 
 if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
@@ -12302,24 +12516,24 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        ncursesw_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "ncursesw" 2>&1`
+                ncursesw_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "ncursesw" 2>&1`
         else
-	        ncursesw_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "ncursesw" 2>&1`
+                ncursesw_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "ncursesw" 2>&1`
         fi
-	# Put the nasty error message in config.log where it belongs
-	echo "$ncursesw_PKG_ERRORS" >&5
+        # Put the nasty error message in config.log where it belongs
+        echo "$ncursesw_PKG_ERRORS" >&5
 
-	have_ncursesw=false
+        have_ncursesw=false
 elif test $pkg_failed = untried; then
-     	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
-	have_ncursesw=false
+        have_ncursesw=false
 else
-	ncursesw_CFLAGS=$pkg_cv_ncursesw_CFLAGS
-	ncursesw_LIBS=$pkg_cv_ncursesw_LIBS
+        ncursesw_CFLAGS=$pkg_cv_ncursesw_CFLAGS
+        ncursesw_LIBS=$pkg_cv_ncursesw_LIBS
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }
-	have_ncursesw=true
+        have_ncursesw=true
 fi
 HAVE_NCURSESW=$have_ncursesw
 
@@ -12339,8 +12553,8 @@ fi
 
 
 pkg_failed=no
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for DEVMAPPER" >&5
-printf %s "checking for DEVMAPPER... " >&6; }
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for devmapper" >&5
+printf %s "checking for devmapper... " >&6; }
 
 if test -n "$DEVMAPPER_CFLAGS"; then
     pkg_cv_DEVMAPPER_CFLAGS="$DEVMAPPER_CFLAGS"
@@ -12380,7 +12594,7 @@ fi
 
 
 if test $pkg_failed = yes; then
-   	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
 
 if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
@@ -12389,24 +12603,24 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        DEVMAPPER_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "devmapper" 2>&1`
+                DEVMAPPER_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "devmapper" 2>&1`
         else
-	        DEVMAPPER_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "devmapper" 2>&1`
+                DEVMAPPER_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "devmapper" 2>&1`
         fi
-	# Put the nasty error message in config.log where it belongs
-	echo "$DEVMAPPER_PKG_ERRORS" >&5
+        # Put the nasty error message in config.log where it belongs
+        echo "$DEVMAPPER_PKG_ERRORS" >&5
 
-	have_devmapper=false
+        have_devmapper=false
 elif test $pkg_failed = untried; then
-     	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
-	have_devmapper=false
+        have_devmapper=false
 else
-	DEVMAPPER_CFLAGS=$pkg_cv_DEVMAPPER_CFLAGS
-	DEVMAPPER_LIBS=$pkg_cv_DEVMAPPER_LIBS
+        DEVMAPPER_CFLAGS=$pkg_cv_DEVMAPPER_CFLAGS
+        DEVMAPPER_LIBS=$pkg_cv_DEVMAPPER_LIBS
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }
-	have_devmapper=true
+        have_devmapper=true
 fi
 if $have_devmapper
 then
@@ -12442,8 +12656,8 @@ HAVE_DEVMAPPER=$have_devmapper
 
 
 pkg_failed=no
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for SYSTEMD" >&5
-printf %s "checking for SYSTEMD... " >&6; }
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libsystemd" >&5
+printf %s "checking for libsystemd... " >&6; }
 
 if test -n "$SYSTEMD_CFLAGS"; then
     pkg_cv_SYSTEMD_CFLAGS="$SYSTEMD_CFLAGS"
@@ -12483,7 +12697,7 @@ fi
 
 
 if test $pkg_failed = yes; then
-   	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
 
 if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
@@ -12492,24 +12706,24 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        SYSTEMD_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libsystemd" 2>&1`
+                SYSTEMD_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libsystemd" 2>&1`
         else
-	        SYSTEMD_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libsystemd" 2>&1`
+                SYSTEMD_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libsystemd" 2>&1`
         fi
-	# Put the nasty error message in config.log where it belongs
-	echo "$SYSTEMD_PKG_ERRORS" >&5
+        # Put the nasty error message in config.log where it belongs
+        echo "$SYSTEMD_PKG_ERRORS" >&5
 
-	pmda_systemd=false
+        pmda_systemd=false
 elif test $pkg_failed = untried; then
-     	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
-	pmda_systemd=false
+        pmda_systemd=false
 else
-	SYSTEMD_CFLAGS=$pkg_cv_SYSTEMD_CFLAGS
-	SYSTEMD_LIBS=$pkg_cv_SYSTEMD_LIBS
+        SYSTEMD_CFLAGS=$pkg_cv_SYSTEMD_CFLAGS
+        SYSTEMD_LIBS=$pkg_cv_SYSTEMD_LIBS
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }
-	pmda_systemd=true
+        pmda_systemd=true
 fi
 if $pmda_systemd
 then
@@ -12517,8 +12731,8 @@ then
 else
 
 pkg_failed=no
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for SYSTEMD" >&5
-printf %s "checking for SYSTEMD... " >&6; }
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libsystemd-journal" >&5
+printf %s "checking for libsystemd-journal... " >&6; }
 
 if test -n "$SYSTEMD_CFLAGS"; then
     pkg_cv_SYSTEMD_CFLAGS="$SYSTEMD_CFLAGS"
@@ -12558,7 +12772,7 @@ fi
 
 
 if test $pkg_failed = yes; then
-   	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
 
 if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
@@ -12567,24 +12781,24 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        SYSTEMD_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libsystemd-journal" 2>&1`
+                SYSTEMD_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libsystemd-journal" 2>&1`
         else
-	        SYSTEMD_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libsystemd-journal" 2>&1`
+                SYSTEMD_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libsystemd-journal" 2>&1`
         fi
-	# Put the nasty error message in config.log where it belongs
-	echo "$SYSTEMD_PKG_ERRORS" >&5
+        # Put the nasty error message in config.log where it belongs
+        echo "$SYSTEMD_PKG_ERRORS" >&5
 
-	pmda_systemd=false
+        pmda_systemd=false
 elif test $pkg_failed = untried; then
-     	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
-	pmda_systemd=false
+        pmda_systemd=false
 else
-	SYSTEMD_CFLAGS=$pkg_cv_SYSTEMD_CFLAGS
-	SYSTEMD_LIBS=$pkg_cv_SYSTEMD_LIBS
+        SYSTEMD_CFLAGS=$pkg_cv_SYSTEMD_CFLAGS
+        SYSTEMD_LIBS=$pkg_cv_SYSTEMD_LIBS
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }
-	pmda_systemd=true
+        pmda_systemd=true
 fi
 fi
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking if the systemd PMDA should be included" >&5
@@ -12970,6 +13184,26 @@ fi
 
 
 
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking if the GFS2 PMDA should be included" >&5
+printf %s "checking if the GFS2 PMDA should be included... " >&6; }
+pmda_gfs2=false
+if test "x$do_pmdagfs2" = "xyes"
+then :
+  pmda_gfs2=true
+fi
+if test "x$do_pmdagfs2" = "xcheck"
+then :
+
+       if test $target_os = linux; then
+	pmda_gfs2=true
+       fi
+fi
+PMDA_GFS2=$pmda_gfs2
+
+if $pmda_gfs2; then { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }; else { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }; fi
+
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking if the statsd PMDA should be included" >&5
 printf %s "checking if the statsd PMDA should be included... " >&6; }
 pmda_statsd=false
@@ -13237,6 +13471,12 @@ ac_fn_c_check_func "$LINENO" "pipe2" "ac_cv_func_pipe2"
 if test "x$ac_cv_func_pipe2" = xyes
 then :
   printf "%s\n" "#define HAVE_PIPE2 1" >>confdefs.h
+
+fi
+ac_fn_c_check_func "$LINENO" "closefrom" "ac_cv_func_closefrom"
+if test "x$ac_cv_func_closefrom" = xyes
+then :
+  printf "%s\n" "#define HAVE_CLOSEFROM 1" >>confdefs.h
 
 fi
 ac_fn_c_check_func "$LINENO" "fcntl" "ac_cv_func_fcntl"
@@ -14197,6 +14437,8 @@ CFLAGS="$save_CFLAGS"
 
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether const arg for scandir() select method" >&5
 printf %s "checking whether const arg for scandir() select method... " >&6; }
+save_CFLAGS="$CFLAGS"
+CFLAGS="-Werror"
 cat <<End-of-File >conftest.c
 #include <stdlib.h>
 #include <unistd.h>
@@ -14206,8 +14448,9 @@ my_select(const struct dirent *foo) { return 0; }
 int main() { struct dirent **list; return scandir(".", &list, my_select, NULL); }
 End-of-File
 (eval $ac_compile) 2>conftest.out
+_ret=$?
 cat conftest.out >&5
-if test -s conftest.out
+if test $_ret != 0
 then
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
@@ -14218,6 +14461,7 @@ printf "%s\n" "#define HAVE_CONST_DIRENT 1" >>confdefs.h
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }
 fi
+CFLAGS="$save_CFLAGS"
 rm -f conftest.*
 
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether struct dirent has a d_off field" >&5
@@ -14229,8 +14473,9 @@ cat <<End-of-File >conftest.c
 int main() { struct dirent d; d.d_off = 0; }
 End-of-File
 (eval $ac_compile) 2>conftest.out
+_ret=$?
 cat conftest.out >&5
-if test -s conftest.out
+if test $_ret != 0
 then
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
@@ -14408,6 +14653,25 @@ End-of-File
 fi
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $fmt_pid" >&5
 printf "%s\n" "$fmt_pid" >&6; }
+
+rm -rf conftest.c conftest.debug
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking printf type for size_t" >&5
+printf %s "checking printf type for size_t... " >&6; }
+if test "$cross_compiling" = "yes"; then
+    ans=$printf_fmt_size
+    echo "cross-compile -> \"$ans\"" >&5
+    fmt_size=$ans
+else
+    cat <<End-of-File >conftest.c
+#include <sys/types.h>
+size_t bozo;
+End-of-File
+    _do_type
+    fmt_size=$_fmt
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $fmt_size" >&5
+printf "%s\n" "$fmt_size" >&6; }
 
 rm -rf conftest.c conftest.debug
 
@@ -14787,13 +15051,16 @@ else
     cat <<End-of-File >conftest.c
 #include <stdio.h>
 #include <sys/time.h>
-int main() { printf("%d", (int)sizeof(suseconds_t)); return 0; }
+int main() { struct timeval tv; printf("%d", (int)sizeof(tv.tv_usec)); return 0; }
 End-of-File
+    save_CFLAGS="$CFLAGS"
+    CFLAGS="$PCFLAGS"
     (eval $ac_compile) 2>&5
     (eval $ac_link) 2>&5
     ans=`./conftest`
     echo "./conftest -> \"$ans\"" >&5
     rm -rf conftest conftest.*
+    CFLAGS="$save_CFLAGS"
 fi
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ans" >&5
 printf "%s\n" "$ans" >&6; }
@@ -14814,11 +15081,14 @@ else
 #include <sys/time.h>
 int main() { printf("%d", (int)sizeof(time_t)); return 0; }
 End-of-File
+    save_CFLAGS="$CFLAGS"
+    CFLAGS="$PCFLAGS"
     (eval $ac_compile) 2>&5
     (eval $ac_link) 2>&5
     ans=`./conftest`
     echo "./conftest -> \"$ans\"" >&5
     rm -rf conftest conftest.*
+    CFLAGS="$save_CFLAGS"
 fi
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ans" >&5
 printf "%s\n" "$ans" >&6; }
@@ -16593,8 +16863,8 @@ pcp_x11_extra=$X_EXTRA_LIBS
 pcp_x11_pre=$X_PRE_LIBS
 
 
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking if man pages should packaged" >&5
-printf %s "checking if man pages should packaged... " >&6; }
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking if man pages should be packaged" >&5
+printf %s "checking if man pages should be packaged... " >&6; }
 have_manpages=false
 have_gzipped_manpages=false
 have_bzip2ed_manpages=false
@@ -16759,7 +17029,7 @@ inkscape=$INKSCAPE
 
 
 have_hicolor_icons=false
-if test -d /usr/share/icons/hicolor -a -n "$INKSCAPE"
+if test -d /usr/share/icons/hicolor
 then
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: adding hicolor desktop icons to the build" >&5
 printf "%s\n" "$as_me: adding hicolor desktop icons to the build" >&6;}
@@ -17148,8 +17418,8 @@ then :
     enable_lzma=true
 
 pkg_failed=no
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for lzma" >&5
-printf %s "checking for lzma... " >&6; }
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for liblzma" >&5
+printf %s "checking for liblzma... " >&6; }
 
 if test -n "$lzma_CFLAGS"; then
     pkg_cv_lzma_CFLAGS="$lzma_CFLAGS"
@@ -17189,7 +17459,7 @@ fi
 
 
 if test $pkg_failed = yes; then
-   	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
 
 if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
@@ -17198,24 +17468,24 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        lzma_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "liblzma" 2>&1`
+                lzma_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "liblzma" 2>&1`
         else
-	        lzma_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "liblzma" 2>&1`
+                lzma_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "liblzma" 2>&1`
         fi
-	# Put the nasty error message in config.log where it belongs
-	echo "$lzma_PKG_ERRORS" >&5
+        # Put the nasty error message in config.log where it belongs
+        echo "$lzma_PKG_ERRORS" >&5
 
-	enable_lzma=false
+        enable_lzma=false
 elif test $pkg_failed = untried; then
-     	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
-	enable_lzma=false
+        enable_lzma=false
 else
-	lzma_CFLAGS=$pkg_cv_lzma_CFLAGS
-	lzma_LIBS=$pkg_cv_lzma_LIBS
+        lzma_CFLAGS=$pkg_cv_lzma_CFLAGS
+        lzma_LIBS=$pkg_cv_lzma_LIBS
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }
-	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for lzma_index_stream_flags in -llzma" >&5
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for lzma_index_stream_flags in -llzma" >&5
 printf %s "checking for lzma_index_stream_flags in -llzma... " >&6; }
 if test ${ac_cv_lib_lzma_lzma_index_stream_flags+y}
 then :
@@ -17618,8 +17888,8 @@ LIBS=$savedLIBS
 
 
 pkg_failed=no
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for zlib" >&5
-printf %s "checking for zlib... " >&6; }
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for zlib >= 1.0.0" >&5
+printf %s "checking for zlib >= 1.0.0... " >&6; }
 
 if test -n "$zlib_CFLAGS"; then
     pkg_cv_zlib_CFLAGS="$zlib_CFLAGS"
@@ -17659,7 +17929,7 @@ fi
 
 
 if test $pkg_failed = yes; then
-   	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
 
 if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
@@ -17668,24 +17938,24 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        zlib_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "zlib >= 1.0.0" 2>&1`
+                zlib_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "zlib >= 1.0.0" 2>&1`
         else
-	        zlib_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "zlib >= 1.0.0" 2>&1`
+                zlib_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "zlib >= 1.0.0" 2>&1`
         fi
-	# Put the nasty error message in config.log where it belongs
-	echo "$zlib_PKG_ERRORS" >&5
+        # Put the nasty error message in config.log where it belongs
+        echo "$zlib_PKG_ERRORS" >&5
 
-	have_zlib=false
+        have_zlib=false
 elif test $pkg_failed = untried; then
-     	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
-	have_zlib=false
+        have_zlib=false
 else
-	zlib_CFLAGS=$pkg_cv_zlib_CFLAGS
-	zlib_LIBS=$pkg_cv_zlib_LIBS
+        zlib_CFLAGS=$pkg_cv_zlib_CFLAGS
+        zlib_LIBS=$pkg_cv_zlib_LIBS
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }
-	have_zlib=true
+        have_zlib=true
 fi
 HAVE_ZLIB=$have_zlib
 
@@ -17733,7 +18003,7 @@ fi
 
 
 if test $pkg_failed = yes; then
-   	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
 
 if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
@@ -17742,24 +18012,24 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        cmocka_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "cmocka" 2>&1`
+                cmocka_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "cmocka" 2>&1`
         else
-	        cmocka_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "cmocka" 2>&1`
+                cmocka_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "cmocka" 2>&1`
         fi
-	# Put the nasty error message in config.log where it belongs
-	echo "$cmocka_PKG_ERRORS" >&5
+        # Put the nasty error message in config.log where it belongs
+        echo "$cmocka_PKG_ERRORS" >&5
 
-	have_cmocka=false
+        have_cmocka=false
 elif test $pkg_failed = untried; then
-     	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
-	have_cmocka=false
+        have_cmocka=false
 else
-	cmocka_CFLAGS=$pkg_cv_cmocka_CFLAGS
-	cmocka_LIBS=$pkg_cv_cmocka_LIBS
+        cmocka_CFLAGS=$pkg_cv_cmocka_CFLAGS
+        cmocka_LIBS=$pkg_cv_cmocka_LIBS
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }
-	have_cmocka=true
+        have_cmocka=true
 fi
 HAVE_CMOCKA=$have_cmocka
 
@@ -17876,63 +18146,6 @@ printf "%s\n" "#define const /**/" >>confdefs.h
 
 fi
 
-ac_fn_c_check_type "$LINENO" "off_t" "ac_cv_type_off_t" "$ac_includes_default"
-if test "x$ac_cv_type_off_t" = xyes
-then :
-
-else $as_nop
-
-printf "%s\n" "#define off_t long int" >>confdefs.h
-
-fi
-
-
-  ac_fn_c_check_type "$LINENO" "pid_t" "ac_cv_type_pid_t" "$ac_includes_default
-"
-if test "x$ac_cv_type_pid_t" = xyes
-then :
-
-else $as_nop
-                                          cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-          #if defined _WIN64 && !defined __CYGWIN__
-          LLP64
-          #endif
-
-int
-main (void)
-{
-
-  ;
-  return 0;
-}
-
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"
-then :
-  ac_pid_type='int'
-else $as_nop
-  ac_pid_type='__int64'
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
-
-printf "%s\n" "#define pid_t $ac_pid_type" >>confdefs.h
-
-
-fi
-
-
-ac_fn_c_check_type "$LINENO" "size_t" "ac_cv_type_size_t" "$ac_includes_default"
-if test "x$ac_cv_type_size_t" = xyes
-then :
-
-else $as_nop
-
-printf "%s\n" "#define size_t unsigned int" >>confdefs.h
-
-fi
-
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether struct tm is in sys/time.h or time.h" >&5
 printf %s "checking whether struct tm is in sys/time.h or time.h... " >&6; }
 if test ${ac_cv_struct_tm+y}
@@ -18014,13 +18227,75 @@ _ACEOF
     ;;
 esac
 
+if test $target_os = linux
+then
+            :
+else
+    ac_fn_c_check_type "$LINENO" "off_t" "ac_cv_type_off_t" "$ac_includes_default"
+if test "x$ac_cv_type_off_t" = xyes
+then :
+
+else $as_nop
+
+printf "%s\n" "#define off_t long int" >>confdefs.h
+
+fi
+
+
+  ac_fn_c_check_type "$LINENO" "pid_t" "ac_cv_type_pid_t" "$ac_includes_default
+"
+if test "x$ac_cv_type_pid_t" = xyes
+then :
+
+else $as_nop
+                                          cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+          #if defined _WIN64 && !defined __CYGWIN__
+          LLP64
+          #endif
+
+int
+main (void)
+{
+
+  ;
+  return 0;
+}
+
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"
+then :
+  ac_pid_type='int'
+else $as_nop
+  ac_pid_type='__int64'
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
+
+printf "%s\n" "#define pid_t $ac_pid_type" >>confdefs.h
+
+
+fi
+
+
+    ac_fn_c_check_type "$LINENO" "size_t" "ac_cv_type_size_t" "$ac_includes_default"
+if test "x$ac_cv_type_size_t" = xyes
+then :
+
+else $as_nop
+
+printf "%s\n" "#define size_t unsigned int" >>confdefs.h
+
+fi
+
+fi
 
 pcp_prefix=`eval echo $prefix`
 
 
 
 
-ac_config_files="$ac_config_files src/include/builddefs src/include/pcp.conf pcp.lsm debian/pcp.preinst.head debian/pcp.postinst.head build/tar/preinstall.head build/tar/postinstall.head build/GNUlocaldefs build/mac/uninstall-pcp"
+ac_config_files="$ac_config_files src/include/builddefs src/include/pcp.conf src/libpcp3/src/include/pcp.conf pcp.lsm debian/pcp.preinst.head debian/pcp.postinst.head build/tar/preinstall.head build/tar/postinstall.head build/GNUlocaldefs build/mac/uninstall-pcp"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -18708,10 +18983,15 @@ do
   case $ac_config_target in
     "src/include/pcp/config.h") CONFIG_HEADERS="$CONFIG_HEADERS src/include/pcp/config.h" ;;
     "src/include/pcp/configsz.h") CONFIG_HEADERS="$CONFIG_HEADERS src/include/pcp/configsz.h" ;;
+    "src/libpcp3/src/include/pcp/config.h") CONFIG_HEADERS="$CONFIG_HEADERS src/libpcp3/src/include/pcp/config.h" ;;
+    "src/libpcp3/src/include/pcp/configsz.h") CONFIG_HEADERS="$CONFIG_HEADERS src/libpcp3/src/include/pcp/configsz.h" ;;
     "src/include/pcp/platform_defs.h") CONFIG_FILES="$CONFIG_FILES src/include/pcp/platform_defs.h" ;;
     "src/include/pcp/platformsz.h") CONFIG_FILES="$CONFIG_FILES src/include/pcp/platformsz.h" ;;
+    "src/libpcp3/src/include/pcp/platform_defs.h") CONFIG_FILES="$CONFIG_FILES src/libpcp3/src/include/pcp/platform_defs.h" ;;
+    "src/libpcp3/src/include/pcp/platformsz.h") CONFIG_FILES="$CONFIG_FILES src/libpcp3/src/include/pcp/platformsz.h" ;;
     "src/include/builddefs") CONFIG_FILES="$CONFIG_FILES src/include/builddefs" ;;
     "src/include/pcp.conf") CONFIG_FILES="$CONFIG_FILES src/include/pcp.conf" ;;
+    "src/libpcp3/src/include/pcp.conf") CONFIG_FILES="$CONFIG_FILES src/libpcp3/src/include/pcp.conf" ;;
     "pcp.lsm") CONFIG_FILES="$CONFIG_FILES pcp.lsm" ;;
     "debian/pcp.preinst.head") CONFIG_FILES="$CONFIG_FILES debian/pcp.preinst.head" ;;
     "debian/pcp.postinst.head") CONFIG_FILES="$CONFIG_FILES debian/pcp.postinst.head" ;;
@@ -19300,5 +19580,9 @@ if test -n "$ac_unrecognized_opts" && test "$enable_option_checking" != no; then
 printf "%s\n" "$as_me: WARNING: unrecognized options: $ac_unrecognized_opts" >&2;}
 fi
 
+
+echo "+++ start buildefs conditionals"
+grep -E '^(ENABLE_|HAVE_|PMDA_)' src/include/builddefs
+echo "+++ end buildefs conditionals"
 
 

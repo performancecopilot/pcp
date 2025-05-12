@@ -17,7 +17,7 @@ done_reset=false
 status=0
 LOCALHOST=`hostname`
 
-_reset()
+_cleanup()
 {
     if $done_reset
     then
@@ -43,10 +43,10 @@ _filter()
 	/0 or "primary"/ { print; next }
         /inst \[[0-9]* or "[0-9]*"\]/ { next }
 	{ print }'
-	
+
 }
 
-trap "_reset; exit \$status" 0 1 2 3 15
+trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _stop_auto_restart pmcd
 
@@ -55,13 +55,13 @@ _stop_auto_restart pmcd
 # Note, _disable_loggers() still leaves a primary logger active, but it
 # makes no requests to pmcd.
 #
-_disable_loggers
+_disable_loggers || _exit 1
 
-_service pcp restart 2>&1 \
+if ! _service pcp restart 2>&1; then _exit 1; fi \
 | _filter_pcp_start \
 | sed -e '/Waiting/s/\.\.\.*/[dots]/'
-_wait_for_pmcd
-_wait_for_pmlogger
+_wait_for_pmcd || _exit 1
+_wait_for_pmlogger || _exit 1
 pminfo -f pmcd.numclients pmcd.pmlogger.host \
 | _filter
 

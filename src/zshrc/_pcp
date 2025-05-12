@@ -99,6 +99,7 @@ _pcp () {
     _arguments -A "-*" -C -S -s \
       "$common_help[@]" \
       "$common_most[@]" \
+      "(-D --debug $exargs)"{-D,--debug}'[set debug options]:options:->debug_opts' \
       "(-g --guimode $exargs)"{-g,--guimode}'[GUI mode with new time control]' \
       "(-L --local-PMDA -a --archive -h --host -H --hostsfile $exargs)"{-L,--local-PMDA}'[use local DSO PMDAs as metrics source]' \
       "(-p --guiport $exargs)"{-p+,--guiport=}'[specify existing time control port]:port:' \
@@ -117,12 +118,15 @@ _pcp () {
       "$common_help[@]" \
       "$common_pmda[@]" \
       "$common_python[@]" \
+      "(-D --debug $exargs)"{-D,--debug}'[set debug options]:options:->debug_opts' \
       "(-j --live-filter $exargs)"{-j,--live-filter}'[perform instance live filtering]' \
       "(-J --rank $exargs)"{-J+,--rank=}'[set limit for results of valued instances]:limit:' \
       "(-8 --limit-filter -9 --limit-filter-force $exargs)"{-8+,--limit-filter=}'[set default limit filter]:limit:' \
       "(-9 --limit-filter-force -8 --limit-filter $exargs)"{-9+,--limit-filter-force=}'[set forced limit filter]:limit:' \
       "(-n --invert-filter $exargs)"{-n,--invert-filter}'[perform ranking before live filtering]' \
       "(-o --output-file $exargs)"{-o+,--output-file=}'[specify output file]:file:_files' \
+      "(-z --hostzone -Z --timezone $exargs)"{-z,--hostzone}'[use metrics source timezone]' \
+      "(-Z --timezone -z --hostzone $exargs)"{-Z+,--timezone=}'[set reporting timezone]:timezone:_time_zone' \
       '*:metric:->metrics' \
       && return 0
   ;;
@@ -131,6 +135,7 @@ _pcp () {
       "$common_help[@]" \
       "$common_pmda[@]" \
       "$common_python[@]" \
+      "(-D --debug $exargs)"{-D,--debug}'[set debug options]:options:->debug_opts' \
       "(-j --live-filter $exargs)"{-j,--live-filter}'[perform instance live filtering]' \
       "(-J --rank $exargs)"{-J+,--rank=}'[set limit for results of valued instances]:limit:' \
       "(-8 --limit-filter -9 --limit-filter-force $exargs)"{-8+,--limit-filter=}'[set default limit filter]:limit:' \
@@ -150,6 +155,7 @@ _pcp () {
       "$common_help[@]" \
       "$common_pmda[@]" \
       "$common_python[@]" \
+      "(-D --debug $exargs)"{-D,--debug}'[set debug options]:options:->debug_opts' \
       "(-j --live-filter $exargs)"{-j,--live-filter}'[perform instance live filtering]' \
       "(-J --rank $exargs)"{-J+,--rank=}'[set limit for results of valued instances]:limit:' \
       "(-8 --limit-filter -9 --limit-filter-force $exargs)"{-8+,--limit-filter=}'[set default limit filter]:limit:' \
@@ -169,6 +175,7 @@ _pcp () {
       "$common_help[@]" \
       "$common_pmda[@]" \
       "$common_python[@]" \
+      "(-D --debug $exargs)"{-D,--debug}'[set debug options]:options:->debug_opts' \
       "(-j --live-filter $exargs)"{-j,--live-filter}'[perform instance live filtering]' \
       "(-J --rank $exargs)"{-J+,--rank=}'[set limit for results of valued instances]:limit:' \
       "(-8 --limit-filter -9 --limit-filter-force $exargs)"{-8+,--limit-filter=}'[set default limit filter]:limit:' \
@@ -188,6 +195,7 @@ _pcp () {
       "$common_help[@]" \
       "$common_pmda[@]" \
       "$common_python[@]" \
+      "(-D --debug $exargs)"{-D,--debug}'[set debug options]:options:->debug_opts' \
       "(-f --timestamp-format $exargs)"{-f+,--timestamp-format=}'[set time format string]:format:' \
       "(-F --output-file $exargs)"{-F+,--output-file=}'[specify output file]:file:_files' \
       "(-j --live-filter $exargs)"{-j,--live-filter}'[perform instance live filtering]' \
@@ -214,6 +222,7 @@ _pcp () {
       "$common_help[@]" \
       "$common_pmda[@]" \
       "$common_python[@]" \
+      "(-D --debug $exargs)"{-D,--debug}'[set debug options]:options:->debug_opts' \
       "(-j --live-filter $exargs)"{-j,--live-filter}'[perform instance live filtering]' \
       "(-J --rank $exargs)"{-J+,--rank=}'[set limit for results of valued instances]:limit:' \
       "(-8 --limit-filter -9 --limit-filter-force $exargs)"{-8+,--limit-filter=}'[set default limit filter]:limit:' \
@@ -230,6 +239,7 @@ _pcp () {
       "$common_help[@]" \
       "$common_pmda[@]" \
       "$common_python[@]" \
+      "(-D --debug $exargs)"{-D,--debug}'[set debug options]:options:->debug_opts' \
       "(-f --timestamp-format $exargs)"{-f+,--timestamp-format=}'[set time format string]:format:' \
       "(-F --output-file $exargs)"{-F+,--output-file=}'[specify output file]:file:_files' \
       "(-m --include-labels -m --include-labels $exargs)"{-m,--include-labels}'[include labels]' \
@@ -243,6 +253,7 @@ _pcp () {
       "$common_help[@]" \
       "$common_pmda[@]" \
       "$common_python[@]" \
+      "(-D --debug $exargs)"{-D,--debug}'[set debug options]:options:->debug_opts' \
       "(-f --timestamp-format $exargs)"{-f+,--timestamp-format=}'[set time format string]:format:' \
       "(-F --output-file $exargs)"{-F+,--output-file=}'[specify output file]:file:_files' \
       "(-j --live-filter $exargs)"{-j,--live-filter}'[perform instance live filtering]' \
@@ -264,6 +275,7 @@ _pcp () {
       "$common_help[@]" \
       "$common_pmda[@]" \
       "$common_python[@]" \
+      "(-D --debug $exargs)"{-D,--debug}'[set debug options]:options:->debug_opts' \
       "(-j --live-filter $exargs)"{-j,--live-filter}'[perform instance live filtering]' \
       "(-J --rank $exargs)"{-J+,--rank=}'[set limit for results of valued instances]:limit:' \
       "(-8 --limit-filter -9 --limit-filter-force $exargs)"{-8+,--limit-filter=}'[set default limit filter]:limit:' \
@@ -305,6 +317,7 @@ _pcp () {
       "(-z --hostzone -Z --timezone $exargs)"{-z,--hostzone}'[use metrics source timezone]' \
       "(-c --view $exargs)"\*{-c+,--view=}'[specify chart views to load]:file:_files' \
       "(-C --check $exargs)"{-C,--check}'[check views only]' \
+      "(-D --debug $exargs)"{-D,--debug}'[set debug options]:options:->debug_opts' \
       "(-F --font-size $exargs)"{-F+,--font-size=}'[specify font size]:size:' \
       "(-f --font-family $exargs)"{-f+,--font-family=}'[specify font family]:family:_xft_fonts' \
       "(-g --geometry $exargs)"{-g+,--geometry=}'[specify image geometry (WxH)]:geometry:' \
@@ -319,6 +332,7 @@ _pcp () {
     _arguments -C -S -s \
       "$common_help[@]" \
       "$common_most[@]" \
+      "(-D --debug $exargs)"{-D,--debug}'[set debug options]:options:->debug_opts' \
       "(-n --namespace $exargs)"{-n+,--namespace=}'[specify alternative PMNS]:pmnsfile:_files' \
       "(-P --pause -h --host $exargs)"{-P,--pause}'[pause between updates in archive mode]' \
       && return 0
@@ -326,6 +340,7 @@ _pcp () {
   pmdbg)
     _arguments -A "-*" \
       '(- *)'{-\?,--help}'[display help message]' \
+      "(-D --debug $exargs)"{-D,--debug}'[set debug options]:options:->debug_opts' \
       '(- *)'{-g,--gdb}'[display expression for gdb]' \
       '(- *)'{-o,--old}'[old and deprecated (bit-field) encodings]' \
       '(- *)'{-l,--list}'[display values and text for all PCP debug options]' \
@@ -359,6 +374,7 @@ _pcp () {
       "$common_help[@]" \
       - set1 \
       "(-a --all $exargs)"{-a,--all}'[dump everything]' \
+      "(-D --debug $exargs)"{-D,--debug}'[set debug options]:options:->debug_opts' \
       "(-d --descs $exargs)"{-d,--descs}'[dump metric descriptions]' \
       "(-e --labelsets $exargs)"{-e,--labelsets}'[dump all metric label metadata]' \
       "(-h --helptext $exargs)"{-h,--helptext}'[dump all metric help text]' \
@@ -400,6 +416,7 @@ _pcp () {
       "(-c --config $exargs)"{-c+,--config=}'[specify metrics list file]:file:_files' \
       "(-C --check $exargs)"{-C,--check}'[check metrics only]' \
       "(-d --delimiter $exargs)"{-d+,--delimiter=}'[set column delimiter]:delimiter:' \
+      "(-D --debug $exargs)"{-D,--debug}'[set debug options]:options:->debug_opts' \
       "(-f --time-format $exargs)"{-f+,--time-format=}'[set time format string]:format:' \
       "(-F --fixed $exargs)"{-F,--fixed}'[use fixed width values]' \
       "(-G --scientific $exargs)"{-G,--scientific}'[use scientific format (if shorter)]' \
@@ -430,6 +447,7 @@ _pcp () {
   pmfind)
     _arguments -C -S -s \
       "$common_help[@]" \
+      "(-D --debug $exargs)"{-D,--debug}'[set debug options]:options:->debug_opts' \
       "(-m --mechanism $exargs)"{-m+,--mechanism=}'[specify service discovery mechanism]:mechanism:->pmfind_mechs' \
       "(-r --resolve $exargs)"{-r,--resolve}'[resolve addresses]' \
       "(-s --service $exargs)"{-s+,--service=}'[specify service to find]:service:(all pmcd pmproxy)' \
@@ -455,6 +473,7 @@ _pcp () {
       "(-z --hostzone -Z --timezone $exargs)"{-z,--hostzone}'[use metrics source timezone]' \
       "(-C --check $exargs)"{-C,--check}'[check config only]' \
       "(-c --config $exargs)"{-c+,--config=}'[specify config file]:file:_files' \
+      "(-D --debug $exargs)"{-D,--debug}'[set debug options]:options:->debug_opts' \
       "(-d --interact $exargs)"{-d,--interact}'[interactive debugging mode]' \
       "(-f --foreground $exargs)"{-f,--foreground}'[run in foreground]' \
       "(-F --systemd $exargs)"{-F,--systemd}'[notify service manager (if any) when started and ready]' \
@@ -499,6 +518,7 @@ _pcp () {
       "(-z --hostzone -Z --timezone $exargs)"{-z,--hostzone}'[use metrics source timezone]' \
       "(-b --batch $exargs)"{-b+,--batch=}'[set fetch batch size]:size:' \
       "(-d --desc $exargs)"{-d,--desc}'[print metric description]' \
+      "(-D --debug $exargs)"{-D,--debug}'[set debug options]:options:->debug_opts' \
       "(-f --fetch $exargs)"{-f,--fetch}'[fetch and print metric values]' \
       "(-F --fetchall $exargs)"{-F,--fetchall}'[fetch and print all metric values]' \
       "(-I --fullindom $exargs)"{-I,--fullindom}'[print InDom in verbose format]' \
@@ -508,7 +528,8 @@ _pcp () {
       "(-s --series $exargs)"{-s,--series}'[print source, metric and instance series identifiers]' \
       "(-t --oneline $exargs)"{-t,--oneline}'[print terse help text]' \
       "(-T --helptext $exargs)"{-T,--helptext}'[print verbose help text]' \
-      "(-c --derived $exargs)"{-c+,--derived=}'[specify derived metrics config]:file:_files' \
+      "(-c --derived $exargs)"{-c+,--derived=}'[specify global derived metrics config]:file:_files' \
+      "(-r --register $exargs)"{-r+,--register=}'[register a per-context derived metric]:name=expr' \
       "(-x --events $exargs)"{-x,--events}'[unpack and report events]' \
       "(-v --verify $exargs)"{-v,--verify}'[verify mode, report errors only]' \
       '*:metric:->metrics' \
@@ -519,6 +540,7 @@ _pcp () {
       "$common_help[@]" \
       "(-A --align $exargs)"{-A+,--align=}'[set initial sample time alignment]:timespec:' \
       "(-h --host $exargs)"\*{-a+,--archive=}'[specify metrics source archive]:archive:->archives' \
+      "(-D --debug $exargs)"{-D,--debug}'[set debug options]:options:->debug_opts' \
       "(-G --aggregate $exargs)"{-G+,--aggregate=}'[set method to aggregate device values]:method:(sum avg min max)' \
       "(-h --host -a --archive -u --no-interpolation $exargs)"{-h+,--host=}'[specify metrics source host]:host:_hosts' \
       "(-O --origin $exargs)"{-O+,--origin=}'[set initial sample time origin]:timespec:' \
@@ -537,6 +559,7 @@ _pcp () {
   pmjson)
     _arguments -S -s \
       "$common_help[@]" \
+      "(-D --debug $exargs)"{-D,--debug}'[set debug options]:options:->debug_opts' \
       "(-i --in $exargs)"{-i+,--in=}'[set input file]:file:_files' \
       "(-m --minimal $exargs)"{-m,--minimal}'[minimal output format]' \
       "(-o --out $exargs)"{-o+,--out=}'[set output file]:file:_files' \
@@ -549,6 +572,7 @@ _pcp () {
     exargs="-? --help"
     _arguments -A "-*" -S -s \
       '(- *)'{-\?,--help}'[display help message]' \
+      "(-D --debug $exargs)"{-D,--debug}'[set debug options]:options:->debug_opts' \
       "(-e --echo $exargs)"{-e,--echo}'[echo input]' \
       "(-h --host $exargs)"{-h+,--host=}'[specify host to connect]:host:_hosts' \
       "(-i --interactive $exargs)"{-i,--interactive}'[interactive mode]' \
@@ -564,6 +588,7 @@ _pcp () {
     exargs="-? --help"
     _arguments -C -S -s \
       '(- *)'{-\?,--help}'[display help message]' \
+      "(-D --debug $exargs)"{-D,--debug}'[set debug options]:options:->debug_opts' \
       "(-l --label $exargs)"{-l,--label}'[print archive label]' \
       "(-m,--metadataonly $exargs)"{-m,--metadataonly}'[skip checking log data volumes]' \
       "(-n --namespace $exargs)"{-n+,--namespace=}'[specify alternative PMNS]:pmnsfile:_files' \
@@ -597,6 +622,7 @@ _pcp () {
     _arguments -C -S -s \
       '(- *)'{-\?,--help}'[display help message]' \
       "(-c --config $exargs)"{-c+,--config=}'[specify config file]:file:_files' \
+      "(-D --debug $exargs)"{-D,--debug}'[set debug options]:options:->debug_opts' \
       "(-d --desperate $exargs)"{-d,--desperate}'[save output after fatal error]' \
       "(-f --first $exargs)"{-f,--first}'[use timezone from the first (not last) archive]' \
       "(-m --mark $exargs)"{-m,--mark}'[ignore prologue/epilogue and <mark> records between archives]' \
@@ -619,6 +645,7 @@ _pcp () {
       "(-c --config $exargs)"{-c+,--config=}'[specify config file]:file:_files' \
       "(-C --check $exargs)"{-C,--check}'[check config only]' \
       "(-d --directory $exargs)"{-d,--directory}'[specify directory template]' \
+      "(-D --debug $exargs)"{-D,--debug}'[set debug options]:options:->debug_opts' \
       "(-h --host -o --local-PMDA -K --spec-local $exargs)"{-h+,--host=}'[specify metrics source host]:host:_hosts' \
       "(-H --labelhost $exargs)"{-H+,--labelhost=}'[specify hostname label]:label:' \
       "(-I --pmlc-ipc-version)"{-I+,--pmlc-ipc-version=}'[specify IPC version]:version:' \
@@ -646,6 +673,7 @@ _pcp () {
     exargs="-? --help"
     _arguments -C -S -s \
       '(- *)'-\?'[display help message]' \
+      "(-D --debug $exargs)"{-D,--debug}'[set debug options]:options:->debug_opts' \
       "(-h --host $exargs)"{-h+,--host=}'[set hostname for all files in archive]:hostname:_hosts' \
       "(-l --label $exargs)"{-l,--label}'[print archive label]' \
       "(-L $exargs)"-L'[print archive label verbosely]' \
@@ -675,6 +703,7 @@ _pcp () {
     _arguments -C -S -s \
       '(- *)'{-\?,--help}'[display help message]' \
       "(-A --align $exargs)"{-A+,--align=}'[set initial sample time alignment]:timespec:' \
+      "(-D --debug $exargs)"{-D,--debug}'[set debug options]:options:->debug_opts' \
       "(-s --samples $exargs)"{-s+,--samples=}'[specify number of log records to write]:samples:' \
       "(-S --start $exargs)"{-S+,--start=}'[set start of time window]:timespec:' \
       "(-t --interval $exargs)"{-t+,--interval=}'[specify sampling interval]:interval:' \
@@ -690,6 +719,7 @@ _pcp () {
     exargs="-? --help"
     _arguments -C -S -s \
       '(- *)'{-\?,--help}'[display help message]' \
+      "(-D --debug $exargs)"{-D,--debug}'[set debug options]:options:->debug_opts' \
       "(-d --detail $exargs)"{-d,--detail}'[detailed reporting]' \
       "(-r --replication $exargs)"{-r,--replication}'[show replicated values]' \
       "(-v --verbose $exargs)"{-v,--verbose}'[verbose mode]' \
@@ -704,6 +734,7 @@ _pcp () {
       "(-a --all $exargs)"{-a,--all}'[print all information]' \
       "(-b -x $exargs)"-b'[print both type time averages]' \
       "(-B --bins $exargs)"{-B+,--bins=}'[set number of bins]:bins:' \
+      "(-D --debug $exargs)"{-D,--debug}'[set debug options]:options:->debug_opts' \
       "(-f -F $exargs)"-f'[spreadsheet format with tabs]' \
       "(-F -f $exargs)"-F'[spreadsheet format with commas]' \
       "(-H --header $exargs)"{-H,--header}'[print header]' \
@@ -739,6 +770,7 @@ _pcp () {
       "(-L --local-PMDA -a --archice -h --host $exargs)"{-L,--local-PMDA}'[use local DSO PMDAs as metrics source]' \
       "(-a --archive -h --host $exargs)"\*{-K+,--spec-local=}'[define PMDA spec for local DSO PMDAs]:spec:(add del clear)' \
       "(-b --batch $exargs)"{-b+,--batch=}'[set fetch batch size]:size:' \
+      "(-D --debug $exargs)"{-D,--debug}'[set debug options]:options:->debug_opts' \
       "(-n --namespace $exargs)"{-n+,--namespace=}'[specify alternative PMNS]:pmnsfile:_files' \
       "(-O --origin $exargs)"{-O+,--origin=}'[set initial sample time origin]:timespec:' \
       "(-f --force $exargs)"{-f,--force}'[report all instances]' \
@@ -764,6 +796,7 @@ _pcp () {
       "(-U --no-unit-info $exargs)"{-U,--no-unit-info}'[omit unit info]' \
       "(-p --timestamps $exargs)"{-p,--timestamps}'[print timestamps]' \
       "(-d --delay --container -h --host -L --local-PMDA -K --spec-local -u --no-interpol $exargs)"{-d,--delay}'[delay between updates in archive mode]' \
+      "(-D --debug $exargs)"{-D,--debug}'[set debug options]:options:->debug_opts' \
       "(--include-texts $exargs)"--include-texts'[include metric help texts in archive output]' \
       "(-X --colxrow $exargs)"{-X+,--colxrow=}'[swap stdout columns and rows using header label]:label:' \
       "(-w --width -W --width-force $exargs)"{-w+,--width=}'[set default column width]:width:' \
@@ -799,6 +832,7 @@ _pcp () {
       "(-L --load $exargs)"{-L,--load}'[load metadata and data into Redis]:path:_files' \
       "(-q --query $exargs)"{-q,--query}'[perform timeseries query]' \
       "(-a --all $exargs)"{-a,--all}'[report all metadata, same as -dilms]' \
+      "(-D --debug $exargs)"{-D,--debug}'[set debug options]:options:->debug_opts' \
       "(-d --desc $exargs)"{-d,--desc}'[report metric descriptions]' \
       "(-I --fullindom $exargs)"{-I,--fullindom}'[print verbose InDom]' \
       "(-i --instances $exargs)"{-i,--instances}'[report instance names]' \
@@ -833,6 +867,7 @@ _pcp () {
       "(-t --interval $exargs)"{-t+,--interval=}'[specify sampling interval]:interval:' \
       "(-Z --timezone -z --hostzone $exargs)"{-Z+,--timezone=}'[set reporting timezone]:timezone:_time_zone' \
       "(-z --hostzone -Z --timezone $exargs)"{-z,--hostzone}'[use metrics source timezone]' \
+      "(-D --debug $exargs)"{-D,--debug}'[set debug options]:options:->debug_opts' \
       "(-a --archive -L --local-PMDA $exargs)"\*{-H+,--hostsfile=}'[specify metrics source hosts file]:file:_files' \
       "(-L --local-PMDA -a --archive -h --host -H --hostsfile $exargs)"{-L,--local-PMDA}'[use local DSO PMDAs as metrics source]' \
       "(-l --suffix $exargs)"{-l,--suffix}'[print hostname suffix]' \
@@ -843,6 +878,7 @@ _pcp () {
   pmstore)
     _arguments -A "-*" -C -S -s \
       "$common_help[@]" \
+      "(-D --debug $exargs)"{-D,--debug}'[set debug options]:options:->debug_opts' \
       "(-h --host -L --local-PMDA -K --spec-local $exargs)"{-h+,--host=}'[specify metrics source host]:host:_hosts' \
       "(-F --fetch $exargs)"{-F,--fetch}'[perform pmFetch after pmStore to confirm value]' \
       "(-L --local-PMDA -h --host $exargs)"{-L,--local-PMDA}'[use local DSO PMDAs as metrics source]' \
@@ -859,6 +895,7 @@ _pcp () {
       "$common_help[@]" \
       "$common_most[@]" \
       "$common_pmda[@]" \
+      "(-D --debug $exargs)"{-D,--debug}'[set debug options]:options:->debug_opts' \
       "(-g --guimode $exargs)"{-g,--guimode}'[GUI mode with new time control]' \
       "(-p --guiport $exargs)"{-p+,--guiport=}'[specify existing time control port]:port:' \
       "(-n --namespace $exargs)"{-n+,--namespace=}'[specify alternative PMNS]:pmnsfile:_files' \
@@ -892,7 +929,7 @@ _pcp () {
       if [[ -z "$fpat" ]]; then
         zstyle ":completion:${curcontext}:" file-patterns '%p:globbed-files'
       fi
-      _wanted archives expl archive _files -g '*(-F)' && ret=0
+      _wanted archives expl 'archive' _files -g '*(-F)' && ret=0
     fi
   ;;
   containers)
@@ -911,7 +948,24 @@ _pcp () {
         fi
       done
     done
-    _wanted containers expl container compadd -a found && ret=0
+    _wanted containers expl 'container' compadd -a found && ret=0
+  ;;
+  debug_opts)
+    [[ $service == pmchart ]] && _values -s , 'option' appl2 appl3 && ret=0
+    [[ $service == pmdbg ]] && _values -s , 'option' $(pmdbg -l | awk '!/Option/ {print $1}') && ret=0
+    [[ $service == pmdumptext ]] && _values 'option' appl0 && ret=0
+    [[ $service == pmie ]] && _values -s , 'option' appl0 appl1 appl2 appl3 && ret=0
+    [[ $service == pminfo ]] && _values -s , 'option' appl4 appl5 && ret=0
+    [[ $service == pmlc ]] && _values -s , 'option' appl0 appl1 && ret=0
+    [[ $service == pmlogcheck ]] && _values -s , 'option' appl0 appl1 appl2 appl3 && ret=0
+    [[ $service == pmlogextract ]] && _values -s , 'option' appl0 appl1 appl2 appl3 appl4 appl5 && ret=0
+    [[ $service == pmlogger ]] && _values -s , 'option' appl0 appl1 appl2 appl3 appl4 appl5 appl6 appl7 && ret=0
+    [[ $service == pmlogreduce ]] && _values -s , 'option' appl0 appl1 appl2 && ret=0
+    [[ $service == pmlogsummary ]] && _values -s , 'option' appl0 appl1 appl2 && ret=0
+    [[ $service == pmprobe ]] && _values 'option' appl0 && ret=0
+    [[ $service == pmrep ]] && _values -s , 'option' appl1 derive && ret=0
+    [[ $service == pmval ]] && _values 'option' appl0 && ret=0
+    [[ $ret != 0 ]] && _values -s , 'option' $(pmdbg -l | awk '!/Option/ {print $1}') && ret=0
   ;;
   instances)
     local arch=${${~opt_args[-a]:-${~opt_args[--archive]}}/:/,}
@@ -943,7 +997,7 @@ _pcp () {
     insts=( ${(f)"$(pmprobe $a ${(e)arch} $c ${(e)cont} $h ${(e)host} -I $metrics 2>/dev/null | awk '!/1 PM_IN_NULL$/ && $1~"^[a-z]" && $2>0 {for(i=3;i<=NF;i++)print $i}')"} )
     insts=( ${(q-)${${(ps:" ":)insts}//\"}} )
     # TODO: don't duplicate " when doing pmval -i "<TAB>
-    _wanted instances expl instance compadd -Q -P '"' -S '"' -a insts && ret=0
+    _wanted instances expl 'instance' compadd -Q -P '"' -S '"' -a insts && ret=0
   ;;
   metrics)
     local arch=${${~opt_args[-a]:-${~opt_args[--archive]}}/:/,}
@@ -973,13 +1027,13 @@ _pcp () {
     fi
     if [[ $words[CURRENT] != :* ]]; then
       if zstyle -T ":completion:*:${curcontext}:pcp:metrics" full-names; then
-        _wanted metrics expl metric compadd -M 'r:|.=* r:|=*' $drvm \
+        _wanted metrics expl 'metric' compadd -M 'r:|.=* r:|=*' $drvm \
           $(pminfo -d $a ${(e)arch} $c ${(e)cont} $h ${(e)host} 2>/dev/null | grep -Ev '( |^$|^event)') && ret=0
       else
         local -a res
         res=( $(pminfo -d $a ${(e)arch} $c ${(e)cont} $h ${(e)host} 2>/dev/null | grep -Ev '( |^$|^event)') )
         res+=( $drvm )
-        _wanted metrics expl metric _multi_parts -i . res
+        _wanted metrics expl 'metric' _multi_parts -i . res
       fi
     else
       # pmrep(1) style metricset
@@ -1004,7 +1058,7 @@ _pcp () {
           [[ $s == \[*\] && $s != \[(global|options)\] ]] && sets+=:${${s/\[}/\]}
         done
       done
-      _wanted metricsets expl metricset compadd -a sets && ret=0
+      _wanted metricsets expl 'metricset' compadd -a sets && ret=0
     fi
   ;;
   ts_metrics)
@@ -1012,7 +1066,7 @@ _pcp () {
     local h=${host:+-h}
     local port=${~opt_args[-p]:-${~opt_args[--port]}}
     local p=${port:+-p}
-    _wanted ts_metrics expl metric compadd -M 'r:|.=* r:|=*' \
+    _wanted ts_metrics expl 'metric' compadd -M 'r:|.=* r:|=*' \
       $(pmseries $h ${(e)host} $p ${(e)port} -m 2>/dev/null) && ret=0
   ;;
   pcp_commands)
@@ -1028,43 +1082,43 @@ _pcp () {
     if [[ -z $_cache_pcp_cmdopts[$cmd] ]]; then
       _cache_pcp_cmdopts[$cmd]=${${${${(M)${=${(f)"$(pcp $cmd --help 2>&1)"}}:#-[-0-9A-Za-z?]*}/,}/=*}/-USR1}
     fi
-    [[ -n $_cache_pcp_cmdopts[$cmd] ]] && _values -w option ${(u)=_cache_pcp_cmdopts[$cmd]} && ret=0
+    [[ -n $_cache_pcp_cmdopts[$cmd] ]] && _values -w 'option' ${(u)=_cache_pcp_cmdopts[$cmd]} && ret=0
   ;;
   pmfind_mechs)
     if compset -P '*,'; then
       case "$IPREFIX" in
       *avahi,)
-        _wanted timeout expl timeout compadd -S = timeout && ret=0
+        _wanted timeout expl 'timeout' compadd -S = timeout && ret=0
       ;;
       *probe=*)
         local -a opts
         [[ $IPREFIX != *timeout* ]] && opts+=( timeout )
         [[ $IPREFIX != *maxThreads* ]] && opts+=( maxThreads )
         [[ $#opts -eq 0 ]] && ret=0
-        [[ $#opts -gt 0 ]] && _wanted options expl option compadd -S = -a opts && ret=0
+        [[ $#opts -gt 0 ]] && _wanted options expl 'option' compadd -S = -a opts && ret=0
       ;;
       esac
     else
-      _wanted mechanisms expl mechanism compadd -S '' avahi probe= && ret=0
+      _wanted mechanisms expl 'mechanism' compadd -S '' avahi probe= && ret=0
     fi
   ;;
   pmiostat_extopts)
-    _values -s , 'extended option' dm t h noidle && ret=0
+    _values -s , 'option' dm t h noidle && ret=0
   ;;
   scales_count)
-    _values count-scale \
+    _values 'count-scale' \
       "count x 10^-8" "count x 10^-7" "count x 10^-6" "count x 10^-5" \
       "count x 10^-4" "count x 10^-3" "count x 10^-2" "count x 10^-2" \
       "count x 10^-1" "count" "count x 10" "count x 10^2" "count x 10^3" \
       "count x 10^4" "count x 10^5" "count x 10^6" "count x 10^7" && ret=0
   ;;
   scales_space)
-    _wanted space-scales expl 'space scale' compadd \
+    _wanted space-scales expl 'space-scale' compadd \
       -M 'm:{[:lower:][:upper:]}={[:upper:][:lower:]}' \
       byte Kbyte KB Mbyte MB Gbyte GB Tbyte TB Pbyte PB Ebyte EB Zbyte ZB Ybyte YB && ret=0
   ;;
   scales_time)
-    _values time-scale \
+    _values 'time-scale' \
       nanosec ns microsec us millisec ms sec s minute min hour hr && ret=0
   ;;
   esac

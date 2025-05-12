@@ -15,24 +15,16 @@ CONFIG_DIR=$PCP_PMDAS_DIR/openmetrics/config.d
 _pmdaopenmetrics_check()
 {
     [ -f $PCP_PMDAS_DIR/openmetrics/pmdaopenmetrics.python ] || return 1
-    [ -f $here/openmetrics/openmetrics_endpoint.python ] || return 1
     return 0
-}
-
-_have_python266()
-{
-    __v=`python -V 2>&1 | awk '{print $NF}'`
-    [ "$__v" = "2.6.6" ] && return 0
-    return 1
 }
 
 _pmdaopenmetrics_remove()
 {
     echo
-    echo "=== remove openmetrics agent ===" | tee -a $here/$seq.full
+    echo "=== remove openmetrics agent ===" | tee -a $seq_full
     cd $PCP_PMDAS_DIR/openmetrics
     $sudo ./Remove >$tmp.out 2>&1
-    cat $tmp.out >>$here/$seq.full
+    cat $tmp.out >>$seq_full
     _filter_pmda_remove <$tmp.out \
     | $PCP_AWK_PROG '
 BEGIN		{ state = 0 }
@@ -54,7 +46,7 @@ _pmdaopenmetrics_install()
     echo
     echo "=== openmetrics agent installation ==="
     $sudo ./Install </dev/null >$tmp.out 2>&1
-    cat $tmp.out >>$here/$seq.full
+    cat $tmp.out >>$seq_full
 }
 
 _pmdaopenmetrics_save_config()
@@ -86,12 +78,12 @@ _pmdaopenmetrics_restore_config()
 
 _pmdaopenmetrics_cleanup()
 {
-    echo "=== openmetrics PMDA log ===" >>$here/$seq.full
+    echo "=== openmetrics PMDA log ===" >>$seq_full
     if [ -f $PCP_LOG_DIR/pmcd/openmetrics.log ]
     then
-	cat $PCP_LOG_DIR/pmcd/openmetrics.log >>$here/$seq.full
+	cat $PCP_LOG_DIR/pmcd/openmetrics.log >>$seq_full
     else
-	echo "Error: PMDA log file is missing" >>$here/$seq.full
+	echo "Error: PMDA log file is missing" >>$seq_full
     fi
 
     _pmdaopenmetrics_restore_config

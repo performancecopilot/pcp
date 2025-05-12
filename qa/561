@@ -10,11 +10,13 @@ echo "QA output created by $seq"
 
 . ./common.python
 
+$python -c 'from pcp import pmapi' 2>/dev/null
+test $? -eq 0 || _notrun 'Python pcp pmapi module is not installed'
+
 $python -c "import argparse" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python argparse module not installed"
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "cd $here; $sudo rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here

@@ -26,7 +26,8 @@ _filter()
 {
     sed \
 	-e "s@$tmp@TMP@g" \
-	-e "s/$PCP_VERSION/PCP_VERSION/" \
+	-e "s/version $PCP_VERSION/version PCP_VERSION/" \
+	-e '/^pmGetArchiveEnd/s/end=.*/end=TIMESTAMP/g' \
     # end
 }
 
@@ -38,7 +39,6 @@ $1 == "Usage:"		{ print "... usage stuff deleted"; exit }'
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here

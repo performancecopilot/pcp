@@ -9,32 +9,28 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
-# get standard environment, filters and checks
-. ./common.product
-. ./common.filter
-. ./common.check
-. ./common.config
+# get standard Qt environment, filters and checks
+. ./common.qt
 
-rm -f $seq.out
-which pmchart >/dev/null 2>&1
-if [ $? -eq 0 ]
-then
-    _check_display
-    ln $seq.out.pcpgui $seq.out
-else
-    # pcp-gui tools not installed
-    ln $seq.out.nongui $seq.out
-fi
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.*
-trap "rm -rf $tmp $tmp.*; _clean_display; exit \$status" 0 1 2 3 15
+trap "rm -rf $tmp $tmp.*; _cleanup_qt; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 if [ -z "$DISPLAY" ]
 then
     export DISPLAY=$PCPQA_CLOSE_X_SERVER
+    PCP_STDERR=$tmp.stderr QT_QPA_PLATFORM=offscreen pmchart --help >/dev/null 2>&1
+    if [ -s $tmp.stderr ]
+    then
+        if grep 'Usage: pmchart' $tmp.stderr >/dev/null
+	then
+            export QT_QPA_PLATFORM=offscreen
+	fi
+    fi
 fi
-src/grind-tools -v -a archives/fcsw_indom fcsw.port.bytes_out 2>&1 | _filter_views
+
+src/grind-tools -v -a archives/fcsw_indom fcsw.port.bytes_out 2>>$seq_full \
+| _filter_views
 status=$?
 exit

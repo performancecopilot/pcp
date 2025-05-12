@@ -29,17 +29,16 @@ else
 fi
 
 status=0	# success is the default!
-$sudo rm -rf $tmp.*
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 pmdbg -l -o \
-| tee $seq.full \
+| tee $seq_full \
 | sed -n -e '/^DBG_/s/[ 	].*//p' \
 | LC_COLLATE=POSIX sort >$tmp.dbg
 
-echo "------" >>$seq.full
-cat $PCP_INC_DIR/pmdbg.h >>$seq.full
+echo "------" >>$seq_full
+cat $PCP_INC_DIR/pmdbg.h >>$seq_full
 sed -n <$PCP_INC_DIR/pmdbg.h \
     -e '/^[ 	]*\/\*/d' \
     -e '/DBG_/{

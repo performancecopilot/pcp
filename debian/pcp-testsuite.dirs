@@ -1,1 +1,4 @@
+# needs to be here because none of the files below this directory
+# are mentioned in pcp-testsuite.install
+#
 var/lib/pcp/testsuite

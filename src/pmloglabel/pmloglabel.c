@@ -101,6 +101,7 @@ compare_golden(__pmFILE *f, const char *file, int sts, int warnings)
 
 static pmLongOptions longopts[] = {
     PMAPI_OPTIONS_HEADER("Options"),
+    PMOPT_DEBUG,
     { "host", 1, 'h', "HOSTNAME", "set the hostname for all files in archive" },
     { "label", 0, 'l', 0, "dump the archive label" },
     { "", 0, 'L', 0, "more verbose form of label dump" },
@@ -350,7 +351,7 @@ main(int argc, char *argv[])
     if (lflag || Lflag) {
 	char	       *ddmm;
 	char	       *yr;
-	struct timeval	tv;
+	struct timespec	ts;
 	time_t t = golden.start.sec;
 
 	printf("Log Label (Log Format Version %d)\n", golden.magic & 0xff);
@@ -360,22 +361,20 @@ main(int argc, char *argv[])
 	ddmm[10] = '\0';
 	yr = &ddmm[20];
 	printf("  commencing %s ", ddmm);
-	tv.tv_sec = golden.start.sec;
-	tv.tv_usec = golden.start.nsec / 1000;
-	pmPrintStamp(stdout, &tv);	/* TODO: v3 archives */
+	__pmPrintTimestamp(stdout, &golden.start);
 	printf(" %4.4s\n", yr);
 	if ((sts = pmNewContext(PM_CONTEXT_ARCHIVE, archive)) < 0)
 	    printf("  ending     UNKNOWN (pmNewContext: %s)\n", pmErrStr(sts));
-	else if ((sts = pmGetArchiveEnd(&tv)) < 0)	/* TODO: v3 archives */
+	else if ((sts = pmGetArchiveEnd(&ts)) < 0)
 	    printf("  ending     UNKNOWN (pmGetArchiveEnd: %s)\n", pmErrStr(sts));
 	else {
 	    time_t	time;
-	    time = tv.tv_sec;
+	    time = ts.tv_sec;
 	    ddmm = pmCtime(&time, buffer);
 	    ddmm[10] = '\0';
 	    yr = &ddmm[20];
 	    printf("  ending     %s ", ddmm);
-	    pmPrintStamp(stdout, &tv);	/* TODO: v3 archives */
+	    pmPrintHighResStamp(stdout, &ts);
 	    printf(" %4.4s\n", yr);
 	}
 	if (Lflag) {	/* TODO: v3 archives - zoneinfo */

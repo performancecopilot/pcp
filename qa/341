@@ -15,7 +15,6 @@ echo "QA output created by $seq"
 . ./common.check
 
 status=0	# success is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "$sudo rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # [Tue Jan 26 09:10:16] pmdacache(22270) Warning: pmdaCacheOp: /var/lib/pcp/config/pmda/0.123: loading instance 0 ("eek") ignored, already in cache as 0 ("urk")
@@ -36,24 +35,24 @@ $sudo rm -f $PCP_VAR_DIR/config/pmda/0.123
 
 # real QA test starts here
 
-echo "load without save, store a couple and save ..." | tee -a $seq.full
+echo "load without save, store a couple and save ..." | tee -a $seq_full
 $sudo src/pmdacache -D indom -L -s eek -s urk -S 2>&1 | _filter
-$sudo cat $PCP_VAR_DIR/config/pmda/0.123 >>$seq.full
+$sudo cat $PCP_VAR_DIR/config/pmda/0.123 >>$seq_full
 
 echo
-echo "store one, load, store another couple and save ..." | tee -a $seq.full
+echo "store one, load, store another couple and save ..." | tee -a $seq_full
 $sudo src/pmdacache -D indom -s eek -L -s urk -s foo -S -d 2>&1 | _filter
-$sudo cat $PCP_VAR_DIR/config/pmda/0.123 >>$seq.full
+$sudo cat $PCP_VAR_DIR/config/pmda/0.123 >>$seq_full
 
 echo
-echo "store some, hide some, load ..." | tee -a $seq.full
+echo "store some, hide some, load ..." | tee -a $seq_full
 $sudo src/pmdacache -D indom -s eek -s urk -s foo -s 'fumble mumble' -h eek -h foo -s bar -L -d 2>&1 | _filter
-$sudo cat $PCP_VAR_DIR/config/pmda/0.123 >>$seq.full
+$sudo cat $PCP_VAR_DIR/config/pmda/0.123 >>$seq_full
 
 echo
-echo "error case ..." | tee -a $seq.full
+echo "error case ..." | tee -a $seq_full
 $sudo src/pmdacache -D indom -s 'urk a bit tricky' -s foo -L -d 2>&1 | _filter
-$sudo cat $PCP_VAR_DIR/config/pmda/0.123 >>$seq.full
+$sudo cat $PCP_VAR_DIR/config/pmda/0.123 >>$seq_full
 
 # success, all done
 exit

@@ -37,7 +37,6 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _filter()
@@ -61,10 +60,10 @@ _doit()
     else
 	echo "Arrgh: pmlogger_daily_report exited badly"
     fi
-    $sudo cat $tmp/LOG >> $seq.full
+    $sudo cat $tmp/LOG >> $seq_full
     grep 'Uncompressing' $tmp/LOG | _filter
     grep 'ARCHIVEPATH=' $tmp/LOG | _filter
-    $sudo cat $tmp/OUT | tee -a $seq.full | _filter
+    $sudo cat $tmp/OUT | tee -a $seq_full | _filter
 }
 
 # IMPORTANT - pmrep needs the default set of derived metrics
@@ -73,7 +72,7 @@ unset PCP_DERIVED_CONFIG
 
 # real QA test starts here
 mkdir -p $tmp
-cp archives/daily_report.* $tmp
+pmlogcp archives/daily_report $tmp
 _doit
 
 echo

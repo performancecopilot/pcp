@@ -1,4 +1,4 @@
-'\"macro stdmacro
+'\" t
 .\"
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
 .\" Copyright (c) 2014-2020 Red Hat.
@@ -21,6 +21,7 @@
 \f3pmlogger\f1
 [\f3\-CLNoPruy?\f1]
 [\f3\-c\f1 \f2conffile\f1]
+[\f3\-D\f1 \f2debug\f1]
 [\f3\-d\f1 \f2directory\f1]
 [\f3\-h\f1 \f2host\f1]
 [\f3\-H\f1 \f2hostname\f1]
@@ -1095,6 +1096,36 @@ shortly thereafter, and this new
 .B pmlogger
 instance will be operating in the context of the new
 hostname for the host where PMCD is running.
+.SH DERIVED METRICS
+As described in
+.BR pmRegisterDerived (3),
+derived metrics provide a mechanism for extending the
+PMNS with new metrics defined at the PCP client-side using expressions
+over the existing performance metrics.
+Derived metrics may be included in a
+.B pmlogger
+configuration file, but they come with some special handling rules.
+.PP
+First, the values of a derived metric,
+.B not
+the operand metrics in the derived metric's expression, are
+stored in the archive.
+This is because the definition of a derived metric exists
+independent of
+.B pmlogger
+and
+.I archive
+and may be different, or not exist at all, when
+.I archive
+is replayed.
+.PP
+To avoid ambiguity during archive replay
+each derived metric's
+Performance Metric Identifier (PMID) is rewritten (or ``remapped'')
+to indicate that this was, but now is \fInot\fP, a derived metric;
+refer to
+.BR pmRegisterDerived (3)
+for a detailed description of the PMID remapping.
 .SH DIAGNOSTICS
 The archives are sufficiently precious that
 .B pmlogger
@@ -1256,24 +1287,103 @@ On each installation, the
 file \fI/etc/pcp.conf\fP contains the local values for these variables.
 The \fB$PCP_CONF\fP variable may be used to specify an alternative
 configuration file, as described in \fBpcp.conf\fP(5).
+.SH DEBUGGING OPTIONS
+The
+.B \-D
+or
+.B \-\-debug
+option enables the output of additional diagnostics on
+.I stderr
+to help triage problems, although the information is sometimes cryptic and
+primarily intended to provide guidance for developers rather end-users.
+.I debug
+is a comma separated list of debugging options; use
+.BR pmdbg (1)
+with the
+.B \-l
+option to obtain
+a list of the available debugging options and their meaning.
+.PP
+Debugging options specific to
+.B pmlogger
+are as follows:
+.TS
+box;
+lf(B) | lf(B)
+lf(B) | lxf(R) .
+Option	Description
+_
+appl0	T{
+.ad l
+control request PDUs to and from
+.BR pmlc (1)
+T}
+_
+appl1	T{
+.ad l
+credentials exchange
+T}
+_
+appl2	T{
+.ad l
+alarm (timing) loop diagnostics, callback work and record control
+mode messages
+T}
+_
+appl3	T{
+.ad l
+signal callbacks and exit logging
+T}
+_
+appl4	T{
+.ad l
+record timestamps in
+.I logfile
+as milestones are reached
+T}
+_
+appl5	T{
+.ad l
+PDU stats after
+.I conffile
+file processed
+T}
+_
+appl6	T{
+.ad l
+building the metadata cache from
+.I conffile
+to boost start-up performance,
+.IR pass0 ()
+work
+T}
+_
+appl7	T{
+.ad l
+suppress building of the metadata cache,
+.IR pass0 ()
+becomes a no-op
+T}
+.TE
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pmcd (1),
-.BR pmlogdump (1),
 .BR pmlc (1),
+.BR pmlogdump (1),
 .BR pmlogger_check (1),
 .BR pmlogger_daily (1),
 .BR systemctl (1),
 .BR systemd (1),
-.BR execvp (3),
 .BR PMAPI (3),
 .BR __pmServerNotifyServiceManagerReady (3),
+.BR execvp (3),
+.BR pmRegisterDerived (3),
 .BR pmSpecLocalPMDA (3),
 .BR strftime (3),
+.BR PMNS (5),
 .BR pcp.conf (5),
 .BR pcp.env (5),
-.BR pmlogger (5),
-.BR PMNS (5),
+.BR LOGARCHIVE (5),
 .BR chkconfig (8)
 and
 .BR cron (8).

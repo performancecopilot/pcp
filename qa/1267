@@ -20,7 +20,6 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _filter()
@@ -39,7 +38,7 @@ _filter()
 #
 _pick()
 {
-    tee -a $seq.full \
+    tee -a $seq_full \
     | $PCP_AWK_PROG '
 $1 == "PMID" && $3 == "labels" {
 		if ($2 == "60.0.20" || $2 == "200.0.20" ||
@@ -68,30 +67,30 @@ CONFIG=$tmp.config
 cat > $CONFIG << EOF
 METRIC 60.0.20 { PMID -> 200.0.20 }
 EOF
-echo contents of $CONFIG >> $seq.full
-echo ........................ >> $seq.full
-cat $CONFIG >> $seq.full
-echo ........................ >> $seq.full
+echo contents of $CONFIG >> $seq_full
+echo ........................ >> $seq_full
+cat $CONFIG >> $seq_full
+echo ........................ >> $seq_full
 IN=$DIR/20180127.08.40
 OUT=$tmp.pmlogrewrite
 rm -f $OUT.*
-echo "Running pmlogrewrite -c $CONFIG $IN $OUT" | _filter | tee -a $seq.full
-pmlogrewrite -c $CONFIG $IN $OUT 2>&1 >> $seq.full
+echo "Running pmlogrewrite -c $CONFIG $IN $OUT" | _filter | tee -a $seq_full
+pmlogrewrite -c $CONFIG $IN $OUT 2>&1 >> $seq_full
 [ $? -eq 0 ] || echo "Error running pmlogrewrite -c $CONFIG $IN $OUT -- see $seq.full"
 
 # Now run pmdumplog against the original and extracted archives.
 DUMP1=$tmp.original.txt
-echo "Running pmdumplog -zide $IN" | _filter | tee -a $seq.full
+echo "Running pmdumplog -zide $IN" | _filter | tee -a $seq_full
 pmdumplog -zide $IN 2>&1 > $DUMP1
 
 DUMP2=$tmp.extracted.txt
-echo "Running pmdumplog -zide $OUT" | _filter | tee -a $seq.full
+echo "Running pmdumplog -zide $OUT" | _filter | tee -a $seq_full
 pmdumplog -zide $OUT 2>&1 > $DUMP2
 
 # Make sure the PMID has been updated in the label records
-echo "Input archive:" | tee -a $seq.full
+echo "Input archive:" | tee -a $seq_full
 _pick <$DUMP1 2>&1
-echo "Output archive:" | tee -a $seq.full
+echo "Output archive:" | tee -a $seq_full
 _pick <$DUMP2 2>&1
 
 # Now, run pmlogrewrite against the archive, changing PMID 60.0.20 to 60.100.20.
@@ -101,30 +100,30 @@ CONFIG=$tmp.config
 cat > $CONFIG << EOF
 METRIC 60.0.20 { PMID -> 60.100.20 }
 EOF
-echo contents of $CONFIG >> $seq.full
-echo ........................ >> $seq.full
-cat $CONFIG >> $seq.full
-echo ........................ >> $seq.full
+echo contents of $CONFIG >> $seq_full
+echo ........................ >> $seq_full
+cat $CONFIG >> $seq_full
+echo ........................ >> $seq_full
 IN=$DIR/20180127.08.40
 OUT=$tmp.pmlogrewrite
 rm -f $OUT.*
-echo "Running pmlogrewrite -c $CONFIG $IN $OUT" | _filter | tee -a $seq.full
-pmlogrewrite -c $CONFIG $IN $OUT 2>&1 >> $seq.full
+echo "Running pmlogrewrite -c $CONFIG $IN $OUT" | _filter | tee -a $seq_full
+pmlogrewrite -c $CONFIG $IN $OUT 2>&1 >> $seq_full
 [ $? -eq 0 ] || echo "Error running pmlogrewrite -c $CONFIG $IN $OUT -- see $seq.full"
 pmlogextract $OUT $tmp.xxxx
 # Now run pmdumplog against the original and extracted archives.
 DUMP1=$tmp.original.txt
-echo "Running pmdumplog -zide $IN" | _filter | tee -a $seq.full
+echo "Running pmdumplog -zide $IN" | _filter | tee -a $seq_full
 pmdumplog -zide $IN 2>&1 > $DUMP1
 
 DUMP2=$tmp.extracted.txt
-echo "Running pmdumplog -zide $OUT" | _filter | tee -a $seq.full
+echo "Running pmdumplog -zide $OUT" | _filter | tee -a $seq_full
 pmdumplog -zide $OUT 2>&1 > $DUMP2
 
 # Make sure the PMID has been updated in the label records
-echo "Input archive:" | tee -a $seq.full
+echo "Input archive:" | tee -a $seq_full
 _pick <$DUMP1 2>&1
-echo "Output archive:" | tee -a $seq.full
+echo "Output archive:" | tee -a $seq_full
 _pick <$DUMP2 2>&1
 
 # Now, run pmlogrewrite against the archive, changing PMID 60.0.20 to 60.0.400.
@@ -134,30 +133,30 @@ CONFIG=$tmp.config
 cat > $CONFIG << EOF
 METRIC 60.0.20 { PMID -> 60.0.400 }
 EOF
-echo contents of $CONFIG >> $seq.full
-echo ........................ >> $seq.full
-cat $CONFIG >> $seq.full
-echo ........................ >> $seq.full
+echo contents of $CONFIG >> $seq_full
+echo ........................ >> $seq_full
+cat $CONFIG >> $seq_full
+echo ........................ >> $seq_full
 IN=$DIR/20180127.08.40
 OUT=$tmp.pmlogrewrite
 rm -f $OUT.*
-echo "Running pmlogrewrite -c $CONFIG $IN $OUT" | _filter | tee -a $seq.full
-pmlogrewrite -c $CONFIG $IN $OUT 2>&1 >> $seq.full
+echo "Running pmlogrewrite -c $CONFIG $IN $OUT" | _filter | tee -a $seq_full
+pmlogrewrite -c $CONFIG $IN $OUT 2>&1 >> $seq_full
 [ $? -eq 0 ] || echo "Error running pmlogrewrite -c $CONFIG $IN $OUT -- see $seq.full"
 
 # Now run pmdumplog against the original and extracted archives.
 DUMP1=$tmp.original.txt
-echo "Running pmdumplog -zide $IN" | _filter | tee -a $seq.full
+echo "Running pmdumplog -zide $IN" | _filter | tee -a $seq_full
 pmdumplog -zide $IN 2>&1 > $DUMP1
 
 DUMP2=$tmp.extracted.txt
-echo "Running pmdumplog -zide $OUT" | _filter | tee -a $seq.full
+echo "Running pmdumplog -zide $OUT" | _filter | tee -a $seq_full
 pmdumplog -zide $OUT 2>&1 > $DUMP2
 
 # Make sure the PMID has been updated in the label records
-echo "Input archive:" | tee -a $seq.full
+echo "Input archive:" | tee -a $seq_full
 _pick <$DUMP1 2>&1
-echo "Output archive:" | tee -a $seq.full
+echo "Output archive:" | tee -a $seq_full
 _pick <$DUMP2 2>&1
 
 # success, all done

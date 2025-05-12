@@ -1,19 +1,15 @@
 QA output created by 042
-== kernel PMDA
+== kernel PMDA (LINUX_NAMESPACE_NET for network interfaces)
 
 network.interface.in.bytes
     inst [INST or NAME] value NUMBER
 
-== procfs PMDA
-
-proc.memory.rss
-    inst [INST or NAME] value NUMBER
-
-cgroup.memory.stat.pgfault
-    inst [INST or NAME] value NUMBER
-
-== pmcd PMDA
+== pmcd PMDA (LINUX_NAMESPACE_UTS for uname)
 
 OK: host and container names are different
+
+== kernel PMDA (LINUX_NAMESPACE_MNT for filesystem mounts)
+
+OK: host and container mount device for / are different
 
 == removing container

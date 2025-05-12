@@ -37,7 +37,6 @@ _cleanup()
 }
 
 status=0	# success is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 local_pid=`pmprobe -v -h local: pmcd.pid | $PCP_AWK_PROG '$2 == 1 { print $3}'`
@@ -46,7 +45,7 @@ then
     echo "Arrgh, cannot get local pmcd's PID"
     exit
 fi
-echo "local: pid=$local_pid" >>$seq.full
+echo "local: pid=$local_pid" >>$seq_full
 
 remote=`./getpmcdhosts -v 'pcp>=4' -L -n 1 2>$tmp.err`
 if [ -z "$remote" ]
@@ -61,7 +60,7 @@ then
     echo "Arrgh, cannot get pmcd's PID from remote ($remote)"
     exit
 fi
-echo "remote: $remote pid=$remote_pid" >>$seq.full
+echo "remote: $remote pid=$remote_pid" >>$seq_full
 
 if [ "$local_pid" = "$remote_pid" ]
 then
@@ -77,7 +76,7 @@ then
     echo "Arrgh, cannot get pmcd's PID from archive $archive"
     exit
 fi
-echo "archive: $archive pid=$archive_pid" >>$seq.full
+echo "archive: $archive pid=$archive_pid" >>$seq_full
 
 if [ "$local_pid" = "$archive_pid" ]
 then

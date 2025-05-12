@@ -161,10 +161,10 @@ _filter_pmproxy_log()
 	-e 's/pmproxy([1-9][0-9]*) Error:/pmproxy(PID) Error:/' \
 	-e '/^pmproxy: Signalled (signal[=][1-9][0-9]*).*/d' \
 	-e '/^pmproxy: disabled time series,.*(missing)/d' \
-	-e '/Error: unsupported redis server (got v/d' \
+	-e '/Error: .*unsupported key server (got v/d' \
 	-e '/Info: TLS configured in pmproxy.conf/d' \
 	-e '/Failed to create avahi client:/d' \
-	-e '/Info: connected to .*redis.*/d' \
+	-e '/Info: connected to .*key server.*/d' \
 	-e '/Info: .* setup$/d' \
 	-e '/Info: OpenSSL /d' \
 	-e '/Using cipher /d' \
@@ -261,12 +261,11 @@ _filter_dbg()
 	-e '/^__pmLogRead:/s/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]\.[0-9][0-9]*[0-9]/TIMESTAMP/g'
 }
 
-# cull the optional PMDA
+# cull the optional PMDAs
 #
 _filter_optional_pmdas()
 {
     sed \
-	-e '/pmdaroot/d' \
 	-e '/pmdaapache/d' \
 	-e '/pmdaarray/d' \
 	-e '/pmdaash/d' \
@@ -284,8 +283,8 @@ _filter_optional_pmdas()
 	-e '/pmdadmf/d' \
 	-e '/pmdadocker/d' \
 	-e '/pmdads389/d' \
-	-e '/pmda_environ/d' \
 	-e '/pmdaelasticsearch/d' \
+	-e '/pmda_environ/d' \
 	-e '/pmdaespping/d' \
 	-e '/pmdagfs2/d' \
 	-e '/pmdagluster/d' \
@@ -303,16 +302,16 @@ _filter_optional_pmdas()
 	-e '/pmdalab/d' \
 	-e '/pmdalibvirt/d' \
 	-e '/pmdalinux/d' \
-	-e '/pmdalogger/d' \
 	-e '/pmdalmsensors/d' \
 	-e '/pmdalockstat/d' \
+	-e '/pmdalogger/d' \
 	-e '/pmdalsf/d' \
 	-e '/pmdamaillog/d' \
 	-e '/pmdamailq/d' \
 	-e '/pmdamemcache/d' \
 	-e '/pmdammv/d' \
-	-e '/pmdamounts/d' \
 	-e '/pmdamongodb/d' \
+	-e '/pmdamounts/d' \
 	-e '/pmdampi/d' \
 	-e '/pmdamssql/d' \
 	-e '/pmdamysql/d' \
@@ -326,39 +325,41 @@ _filter_optional_pmdas()
 	-e '/pmdanginx/d' \
 	-e '/pmdanutcracker/d' \
 	-e '/pmdanvidia/d' \
-	-e '/pmdaperfevent/d' \
-	-e '/pmdapipe/d' \
-	-e '/pmdapodman/d' \
 	-e '/pmdaopenmetrics/d' \
 	-e '/pmdaoracle/d' \
 	-e '/pmdaoraping/d' \
 	-e '/pmdaoverhead/d' \
 	-e '/pmdapdns/d' \
+	-e '/pmdaperfevent/d' \
+	-e '/pmdapipe/d' \
 	-e '/pmdapmcd/d' \
+	-e '/pmdapodman/d' \
 	-e '/pmdaproc/d' \
 	-e '/pmdaprocess/d' \
 	-e '/pmdarabbitmq/d' \
+	-e '/pmdarabbitmq/d' \
 	-e '/pmdaredis/d' \
+	-e '/pmdaroomtemp/d' \
+	-e '/pmdaroot/d' \
+	-e '/pmdarocestat/d' \
 	-e '/pmdarpm/d' \
 	-e '/pmdarsyslog/d' \
-	-e '/pmdarabbitmq/d' \
-	-e '/pmdaroomtemp/d' \
 	-e '/pmdasamba/d' \
 	-e '/pmdasendmail/d' \
 	-e '/pmdashping/d' \
 	-e '/pmda_simple/d' \
 	-e '/pmdasimple/d' \
 	-e '/pmdasmart/d' \
-	-e '/pmdasockets/d' \
+	-e '/pmdasmart/d' \
 	-e '/pmdasnia/d' \
 	-e '/pmdasnmp/d' \
-	-e '/pmdasmart/d' \
+	-e '/pmdasockets/d' \
 	-e '/pmdassping/d' \
 	-e '/pmdastatsd/d' \
 	-e '/pmdasummary/d' \
-	-e '/pmdasystemd/d' \
 	-e '/pmdasyb10/d' \
 	-e '/pmdasybping/d' \
+	-e '/pmdasystemd/d' \
 	-e '/pmdatrace/d' \
 	-e '/pmdatrivial/d' \
 	-e '/pmdatxmon/d' \
@@ -373,7 +374,7 @@ _filter_optional_pmdas()
 	-e '/pmdazimbra/d' \
 	-e '/pmdazswap/d' \
 	-e '/weblog/d' \
-    #end
+    # end
 }
 
 # cull lines for pmcd.pmda instances that are non-default.
@@ -389,6 +390,7 @@ _filter_optional_pmda_instances()
 	-e '/inst \[19 or "shping"]/d' \
         -e '/inst \[22 or "weblog"]/d' \
 	-e '/inst \[24 or "redis"]/d' \
+        -e '/inst \[25 or "bind2"]/d' \
 	-e '/inst \[28 or "news"]/d' \
 	-e '/inst \[33 or "podman"]/d' \
 	-e '/inst \[35 or "mongodb"]/d' \
@@ -426,8 +428,8 @@ _filter_optional_pmda_instances()
 	-e '/inst \[154 or "sockets"]/d' \
 	-e '/inst \[157 or "bpf"]/d' \
 	-e '/inst \[161 or "uwsgi"]/d' \
+        -e '/inst \[163 or "rocestat"]/d' \
 	-e '/inst \[250 or "trivial"]/d' \
-
     # end
 }
 
@@ -467,6 +469,7 @@ _filter_top_pmns()
 	-e '/^    gluster /d' \
 	-e '/^    hippi /d' \
 	-e '/^    hotproc /d' \
+	-e '/^    hyperv /d' \
 	-e '/^    hw /d' \
 	-e '/^    infmxping /d' \
 	-e '/^    informix /d' \
@@ -509,6 +512,7 @@ _filter_top_pmns()
 	-e '/^    proc /d' \
 	-e '/^    rabbitmq /d' \
 	-e '/^    redis /d' \
+	-e '/^    rocestat /d' \
 	-e '/^    rpm /d' \
 	-e '/^    rsyslog /d' \
 	-e '/^    samba /d' \
@@ -954,6 +958,8 @@ _filter_torture_api()
 	-e '/^    engr /d' \
 	-e '/^    fchost /d' \
 	-e '/^    feature /d' \
+	-e '/^    ha_cluster /d' \
+	-e '/^    haproxy /d' \
 	-e '/^    idiot /d' \
 	-e '/^    idl /d' \
 	-e '/^    infiniband /d' \
@@ -1134,8 +1140,8 @@ _filter_optional_labels()
 		echo "s@${label},*@@g" >>$tmp.filter.optional.labels
 	    done
 	done
-	echo "=== optional context label filter ===" >>$here/$seq.full
-	cat $tmp.filter.optional.labels >>$here/$seq.full
+	echo "=== optional context label filter ===" >>$seq_full
+	cat $tmp.filter.optional.labels >>$seq_full
     fi
 
     if [ -s $tmp.filter.optional.labels ]

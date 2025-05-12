@@ -129,7 +129,9 @@ QIcon QedFileIconProvider::icon(const QFileInfo &fi) const
 	    ext == "png" || ext == "xpm" || ext == "odg" /* ... */ )
 	    return my.fileImage;
 	if (ext == "tar" || ext == "tgz" || ext == "deb" || ext == "rpm" ||
-	    ext == "zip" || ext == "bz2" || ext == "gz" || ext == "xz")
+	    ext == "zip" || ext == "xz" || ext == "lzma" || ext == "bz2" ||
+	    ext == "bz" || ext == "gz" || ext == "Z" || ext == "z" ||
+	    ext == "zst")
 	    return my.filePackage;
 	if (ext == "ods" || ext == "xls")
 	    return my.fileSpreadSheet;

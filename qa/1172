@@ -16,7 +16,6 @@ which ausyscall >/dev/null 2>&1 || _notrun "No ausyscall binary found"
 
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
-$sudo rm -rf $tmp.* $seq.full
 
 cat <<EOF >$tmp.conf
 # Installed by PCP QA test $seq on `date`
@@ -43,7 +42,7 @@ echo "=== generate syscall activity ==="
 for i in `seq 1 10`; do pminfo -f bcc > /dev/null 2>&1 ; done
 
 echo "=== report metric values ==="
-pminfo -dfmtT bcc.proc.syscall.count 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bcc.proc.syscall.count 2>&1 | tee -a $seq_full \
 | _value_filter_nonzero
 
 _pmdabcc_remove

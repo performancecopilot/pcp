@@ -29,19 +29,19 @@ _cleanup()
 }
 
 status=1
-rm -f $seq.full
 trap "_cleanup" 0 1 2 3 15
 
 _stop_auto_restart pmcd
 
-_service pcp stop | _filter_pcp_stop
-_wait_pmcd_end
+if ! _service pcp stop; then _exit 1; fi \
+| _filter_pcp_stop
+_wait_pmcd_end || _exit 1
 _writable_primary_logger
 
-_service pmcd start 2>&1 | _filter_pcp_start
-_wait_for_pmcd
-_service pmlogger start 2>&1 | _filter_pcp_start
-_wait_for_pmlogger
+if ! _service pmcd start 2>&1; then _exit 1; fi | _filter_pcp_start
+_wait_for_pmcd || _exit 1
+if ! _service pmlogger start 2>&1; then _exit 1; fi | _filter_pcp_start
+_wait_for_pmlogger || _exit 1
 
 # real QA test starts here
 _echo "expect this to be off"

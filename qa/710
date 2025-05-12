@@ -11,7 +11,6 @@ echo "QA output created by $seq"
 . ./common.python
 
 status=1	# failure is the default!
-$sudo rm -f $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 $python -c 'from pcp import pmi' 2>/dev/null
@@ -35,9 +34,9 @@ then
     echo "=== dumplog ==="
     pmdumplog -dilmst $tmp.pcplog 2>&1 | filter_dump
 
-    cat $tmp.out >>$seq.full
-    echo "---" >>$seq.full
-    pmdumplog -Dlog -a $tmp.pcplog >>$seq.full 2>&1
+    cat $tmp.out >>$seq_full
+    echo "---" >>$seq_full
+    pmdumplog -Dlog -a $tmp.pcplog >>$seq_full 2>&1
 else
     cat $tmp.out
     echo "check_import python script gave non-zero result"
@@ -54,7 +53,7 @@ then
     echo
     echo "=== dumplog ==="
     pmdumplog -dilmst $tmp.pcplog3 2>&1 | filter_dump
-    pmdumplog -a $tmp.pcplog3 >>$seq.full
+    pmdumplog -a $tmp.pcplog3 >>$seq_full
 else
     cat $tmp.out
     echo "check_import python script gave non-zero result for v3"

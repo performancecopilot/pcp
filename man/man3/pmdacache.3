@@ -1,5 +1,4 @@
-'\"! tbl | mmdoc
-'\"macro stdmacro
+'\" t
 .\"
 .\" Copyright (c) 2013 Red Hat.
 .\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
@@ -725,8 +724,16 @@ _
 foodle	foo	no match (PM_ERR_INST)
 foo	foodle	no match (PM_ERR_INST)
 foo	foo	match
-foo bar	foo	match on short name (instance identifier)
-foo bar	foo bar	match on full name (instance identifier)
+foo bar	foo	T{
+.ad l
+.hy 0
+match on short name (instance identifier)
+T}
+foo bar	foo bar	T{
+.ad l
+.hy 0
+match on full name (instance identifier)
+T}
 foo	foo bar	bad match (\-EINVAL)
 foo bar	foo blah	bad match (\-EINVAL)
 .TE

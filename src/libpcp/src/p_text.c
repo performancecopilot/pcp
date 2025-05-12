@@ -55,13 +55,26 @@ int
 __pmDecodeTextReq(__pmPDU *pdubuf, int *ident, int *type)
 {
     text_req_t	*pp;
-    char	*pduend;
 
     pp = (text_req_t *)pdubuf;
-    pduend = (char *)pdubuf + pp->hdr.len;
 
-    if (pduend - (char*)pp < sizeof(text_req_t))
+    if (pp->hdr.len != sizeof(text_req_t)) {
+	if (pmDebugOptions.pdu) {
+	    char	*what;
+	    char	op;
+	    if (pp->hdr.len > sizeof(text_req_t)) {
+		what = "long";
+		op = '>';
+	    }
+	    else {
+		what = "short";
+		op = '<';
+	    }
+	    fprintf(stderr, "__pmDecodeTextReq: PM_ERR_IPC: PDU too %s %d %c required size %d\n",
+			    what, pp->hdr.len, op, (int)sizeof(text_req_t));
+	}
 	return PM_ERR_IPC;
+    }
 
     *type = ntohl(pp->type);
     if ((*type) & PM_TEXT_PMID)
@@ -125,14 +138,18 @@ int
 __pmDecodeText(__pmPDU *pdubuf, int *ident, char **buffer)
 {
     text_t	*pp;
-    char	*pduend, *bp;
+    char	*bp;
     int		buflen;
 
     pp = (text_t *)pdubuf;
-    pduend = (char *)pdubuf + pp->hdr.len;
 
-    if (pduend - (char*)pp < sizeof(text_t) - sizeof(int))
+    if (pp->hdr.len < sizeof(text_t) - sizeof(pp->buffer)) {
+	if (pmDebugOptions.pdu) {
+	    fprintf(stderr, "__pmDecodeText: PM_ERR_IPC: short PDU %d < min size %d\n",
+		pp->hdr.len, (int)(sizeof(text_t) - sizeof(pp->buffer)));
+	}
 	return PM_ERR_IPC;
+    }
 
     /*
      * Note: ident argument is returned in network byte order.
@@ -143,13 +160,25 @@ __pmDecodeText(__pmPDU *pdubuf, int *ident, char **buffer)
      */
     *ident = pp->ident;
     buflen = ntohl(pp->buflen);
-    if (buflen < 0 || buflen >= INT_MAX - 1 || buflen > pp->hdr.len)
+    if (buflen < 0 || buflen > pp->hdr.len) {
+	if (pmDebugOptions.pdu) {
+	    fprintf(stderr, "__pmDecodeText: PM_ERR_IPC: buflen %d < 0 or > hdr.len %d\n",
+		buflen, pp->hdr.len);
+	}
 	return PM_ERR_IPC;
-    if (pduend - (char *)pp < sizeof(text_t) - sizeof(pp->buffer) + buflen)
+    }
+    /* buffer[] is rounded to a PDU boundary */
+    if (pp->hdr.len < sizeof(text_t) - sizeof(pp->buffer) + PM_PDU_SIZE_BYTES(buflen)) {
+	if (pmDebugOptions.pdu) {
+	    fprintf(stderr, "__pmDecodeText: PM_ERR_IPC: PDU too short %d < required size %d\n",
+		pp->hdr.len, (int)(sizeof(text_t) - sizeof(pp->buffer) + PM_PDU_SIZE_BYTES(buflen)));
+	}
 	return PM_ERR_IPC;
+    }
     if ((bp = (char *)malloc(buflen+1)) == NULL)
 	return -oserror();
-    strncpy(bp, pp->buffer, buflen);
+    /* Note: src points into PDU and is not null-byte terminated */
+    memcpy(bp, pp->buffer, buflen);
     bp[buflen] = '\0';
     *buffer = bp;
     return 0;

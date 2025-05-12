@@ -28,8 +28,7 @@ typedef struct {
     pmDesc		desc;
     int			valfmt;
     double		scale;
-    instData		**instlist;
-    unsigned int	listsize;
+    __pmHashCtl		insthash;
 } checkData;
 
 static __pmHashCtl	hashlist;	/* hash statistics about each metric */
@@ -40,11 +39,11 @@ static char		*l_archname;
 
 /* time manipulation */
 static int
-tsub(struct timeval *a, struct timeval *b)
+tsub(struct timespec *a, struct timespec *b)
 {
     if ((a == NULL) || (b == NULL))
 	return -1;
-    pmtimevalDec(a, b);
+    pmtimespecDec(a, b);
     return 0;
 }
 
@@ -112,14 +111,13 @@ print_stamp(FILE *f, __pmTimestamp *stamp)
 }
 
 static double
-unwrap(double current, __pmTimestamp *curtime, checkData *checkdata, int index)
+unwrap(double current, __pmTimestamp *curtime, checkData *checkdata, instData *idp)
 {
     double	outval = current;
     int		wrapflag = 0;
     char	*str = NULL;
 
-    if ((current - checkdata->instlist[index]->lastval) < 0.0 &&
-        checkdata->instlist[index]->lasttime.sec > 0) {
+    if ((current - idp->lastval) < 0.0 && idp->lasttime.sec > 0) {
 	switch (checkdata->desc.type) {
 	    case PM_TYPE_32:
 	    case PM_TYPE_U32:
@@ -141,18 +139,18 @@ unwrap(double current, __pmTimestamp *curtime, checkData *checkdata, int index)
 	print_stamp(stderr, curtime);
 	fprintf(stderr, "]: ");
 	print_metric(stderr, checkdata->desc.pmid);
-	if (pmNameInDomArchive(checkdata->desc.indom, checkdata->instlist[index]->inst, &str) < 0)
+	if (pmNameInDomArchive(checkdata->desc.indom, idp->inst, &str) < 0)
 	    fprintf(stderr, ": %s wrap", typeStr(checkdata->desc.type));
 	else {
 	    fprintf(stderr, "[%s]: %s wrap", str, typeStr(checkdata->desc.type));
 	    free(str);
 	}
-	fprintf(stderr, "\n\tvalue %.0f at ", checkdata->instlist[index]->lastval);
-	print_stamp(stderr, &checkdata->instlist[index]->lasttime);
+	fprintf(stderr, "\n\tvalue %.0f at ", idp->lastval);
+	print_stamp(stderr, &idp->lasttime);
 	fprintf(stderr, "\n\tvalue %.0f at ", current);
 	print_stamp(stderr, curtime);
 	if (vflag)
-	    fprintf(stderr, "\n\tdifference %.0f", current - checkdata->instlist[index]->lastval);
+	    fprintf(stderr, "\n\tdifference %.0f", current - idp->lastval);
 	fputc('\n', stderr);
     }
 
@@ -163,12 +161,12 @@ static void
 newHashInst(pmValue *vp,
 	checkData *checkdata,		/* updated by this function */
 	int valfmt,
-	__pmTimestamp *timestamp,	/* timestamp for this sample */
-	int pos)			/* position of this inst in instlist */
+	__pmTimestamp *timestamp)	/* timestamp for this sample */
 {
     int		sts;
     size_t	size;
     pmAtomValue av;
+    instData	*idp;
 
     if ((sts = pmExtractValue(valfmt, vp, checkdata->desc.type, &av, PM_TYPE_DOUBLE)) < 0) {
 	fprintf(stderr, "%s.%d:[", l_archname, l_ctxp->c_archctl->ac_vol);
@@ -179,18 +177,18 @@ newHashInst(pmValue *vp,
 	fprintf(stderr, "%s: possibly corrupt archive?\n", pmGetProgname());
 	exit(EXIT_FAILURE);
     }
-    size = (pos+1)*sizeof(instData*);
-    checkdata->instlist = (instData**) realloc(checkdata->instlist, size);
-    if (!checkdata->instlist)
-	pmNoMem("newHashInst.instlist", size, PM_FATAL_ERR);
     size = sizeof(instData);
-    checkdata->instlist[pos] = (instData*) malloc(size);
-    if (!checkdata->instlist[pos])
-	pmNoMem("newHashInst.instlist[pos]", size, PM_FATAL_ERR);
-    checkdata->instlist[pos]->inst = vp->inst;
-    checkdata->instlist[pos]->lastval = av.d;
-    checkdata->instlist[pos]->lasttime = *timestamp;
-    checkdata->listsize++;
+    if ((idp = (instData *)malloc(size)) == NULL) {
+	pmNoMem("newHashInst: instData", size, PM_FATAL_ERR);
+    }
+    idp->inst = vp->inst;
+    idp->lastval = av.d;
+    idp->lasttime = *timestamp;
+    if ((sts = __pmHashAdd(vp->inst, (void *)idp, &checkdata->insthash)) < 0) {
+	fprintf(stderr, "newHashInst: __pmHashAdd(%d, ...) for pmID %s failed: %s\n",
+	    vp->inst, pmIDStr(checkdata->desc.pmid), pmErrStr(sts));
+	exit(EXIT_FAILURE);
+    }
     if (pmDebugOptions.appl1) {
 	char	*name;
 
@@ -220,6 +218,7 @@ newHashItem(pmValueSet *vsp,
 	__pmTimestamp *timestamp)	/* timestamp for this sample */
 {
     int j;
+    int	sts;
 
     checkdata->desc = *desc;
     checkdata->scale = 0.0;
@@ -238,10 +237,14 @@ newHashItem(pmValueSet *vsp,
 	checkdata->desc.units.dimTime--;
     }
 
-    checkdata->listsize = 0;
-    checkdata->instlist = NULL;
+    __pmHashInit(&checkdata->insthash);
+    if ((sts = __pmHashPreAlloc(vsp->numval, &checkdata->insthash)) < 0) {
+	fprintf(stderr, "newHashItem: __pmHashPreAlloc(%d, ...) for pmID %s failed: %s\n",
+	    vsp->numval, pmIDStr(checkdata->desc.pmid), pmErrStr(sts));
+	exit(EXIT_FAILURE);
+    }
     for (j = 0; j < vsp->numval; j++) {
-	newHashInst(&vsp->vlist[j], checkdata, vsp->valfmt, timestamp, j);
+	newHashInst(&vsp->vlist[j], checkdata, vsp->valfmt, timestamp);
     }
 }
 
@@ -254,7 +257,7 @@ timestampToReal(const __pmTimestamp *val)
 static void
 docheck(__pmResult *result)
 {
-    int			i, j, k;
+    int			i, j;
     int			sts;
     pmDesc		desc;
     pmAtomValue 	av;
@@ -331,13 +334,6 @@ docheck(__pmResult *result)
 		fprintf(stderr, "] ");
 		print_metric(stderr, vsp->pmid);
 		fprintf(stderr, ": __pmHashAdd good failed (internal pmlogcheck error)\n");
-		/* free memory allocated above on insert failure */
-		for (j = 0; j < vsp->numval; j++) {
-		    if (checkdata->instlist[j] != NULL)
-			free(checkdata->instlist[j]);
-		}
-		if (checkdata->instlist != NULL)
-		    free(checkdata->instlist);
 		continue;
 	    }
 	}
@@ -362,35 +358,20 @@ docheck(__pmResult *result)
 		}
 	    }
 	    for (j = 0; j < vsp->numval; j++) {	/* iterate thro result values */
+		__pmHashNode	*hnp;
+		instData	*idp = NULL;
+
 		vp = &vsp->vlist[j];
-		k = j;	/* index into stored inst list, result may differ */
-		if ((vsp->numval > 1) || (checkdata->desc.indom != PM_INDOM_NULL)) {
-		    /* must store values using correct inst - probably in correct order already */
-		    if ((k < checkdata->listsize) && (checkdata->instlist[k]->inst != vp->inst)) {
-			for (k = 0; k < checkdata->listsize; k++) {
-			    if (vp->inst == checkdata->instlist[k]->inst) {
-				break;	/* k now correct */
-			    }
-			}
-			if (k == checkdata->listsize) {	/* no matching inst was found */
-			    newHashInst(vp, checkdata, vsp->valfmt, &result->timestamp, k);
-			    continue;
-			}
-		    }
-		    else if (k >= checkdata->listsize) {
-			k = checkdata->listsize;
-			newHashInst(vp, checkdata, vsp->valfmt, &result->timestamp, k);
-			continue;
-		    }
-		}
-		if (k >= checkdata->listsize) {	/* only error values observed so far */
-		    k = checkdata->listsize;
-		    newHashInst(vp, checkdata, vsp->valfmt, &result->timestamp, k);
+		hnp = __pmHashSearch(vp->inst, &checkdata->insthash);
+		if (hnp == NULL) {
+		    /* first time for this inst and this metric */
+		    newHashInst(vp, checkdata, vsp->valfmt, &result->timestamp);
 		    continue;
 		}
+		idp = (instData *)hnp->data;
 
 		timediff = result->timestamp;
-		__pmTimestampDec(&timediff, &(checkdata->instlist[k]->lasttime));
+		__pmTimestampDec(&timediff, &idp->lasttime);
 		if (timediff.sec < 0 || timediff.nsec < 0) {
 		    /* clip negative values at zero */
 		    timediff.sec = 0;
@@ -416,10 +397,10 @@ docheck(__pmResult *result)
 			fprintf(stderr, ": current counter value is %.0f\n", av.d);
 		    }
 		    if (nowrap == 0)
-			unwrap(av.d, &result->timestamp, checkdata, k);
+			unwrap(av.d, &result->timestamp, checkdata, idp);
 		}
-		checkdata->instlist[k]->lastval = av.d;
-		checkdata->instlist[k]->lasttime = result->timestamp;
+		idp->lastval = av.d;
+		idp->lasttime = result->timestamp;
 	    }
 	}
     }
@@ -428,12 +409,13 @@ docheck(__pmResult *result)
 int
 pass3(__pmContext *ctxp, char *archname, pmOptions *opts)
 {
-    struct timeval	timespan;
+    struct timespec	timespan;
     int			sts;
     __pmResult		*result;
     __pmTimestamp	label_stamp;
     __pmTimestamp	last_stamp;
     __pmTimestamp	delta_stamp;
+    __pmHashNode	*hptr;
 
     l_ctxp = ctxp;
     l_archname = archname;
@@ -454,17 +436,17 @@ pass3(__pmContext *ctxp, char *archname, pmOptions *opts)
 	 * No -S or -O or -A ... start from the epoch in case there are
 	 * records with a timestamp _before_ the label timestamp.
 	 */
-	opts->start.tv_sec = opts->start.tv_usec = 0;
+	opts->start.tv_sec = opts->start.tv_nsec = 0;
     }
 
-    if ((sts = pmSetMode(PM_MODE_FORW, &opts->start, 0)) < 0) {
+    if ((sts = pmSetModeHighRes(PM_MODE_FORW, &opts->start, NULL)) < 0) {
 	fprintf(stderr, "%s: pmSetMode failed: %s\n", l_archname, pmErrStr(sts));
 	return STS_FATAL;
     }
 
     sts = 0;
     last_stamp.sec = opts->start.tv_sec;
-    last_stamp.nsec = opts->start.tv_usec * 1000;
+    last_stamp.nsec = opts->start.tv_nsec * 1000;
     for ( ; ; ) {
 	/*
 	 * we need the next record with no fancy checks or record
@@ -524,21 +506,23 @@ pass3(__pmContext *ctxp, char *archname, pmOptions *opts)
 	last_stamp = result->timestamp;
 	if ((opts->finish.tv_sec > result->timestamp.sec) ||
 	    ((opts->finish.tv_sec == result->timestamp.sec) &&
-	     (opts->finish.tv_usec >= result->timestamp.nsec / 1000))) {
+	     (opts->finish.tv_nsec >= result->timestamp.nsec))) {
 	    if (result->numpmid == 0) {
 		/*
 		 * MARK record ... make sure wrap check is not done
 		 * at next fetch (mimic interp.c from libpcp)
 		 */
-		__pmHashNode	*hptr;
-		checkData	*checkdata;
-		int		k;
+		/* walk hash list of metrics */
 		for (hptr = __pmHashWalk(&hashlist, PM_HASH_WALK_START);
 		     hptr != NULL;
 		     hptr = __pmHashWalk(&hashlist, PM_HASH_WALK_NEXT)) {
+		    checkData		*checkdata;
+		    __pmHashNode	*hnp;
 		    checkdata = (checkData *)hptr->data;
-		    for (k = 0; k < checkdata->listsize; k++) {
-			checkdata->instlist[k]->lasttime.sec = 0;
+		    for (hnp = __pmHashWalk(&checkdata->insthash, PM_HASH_WALK_START);
+			 hnp != NULL;
+			 hnp = __pmHashWalk(&checkdata->insthash, PM_HASH_WALK_NEXT)) {
+			((instData *)(hnp->data))->lasttime.sec = 0;
 		    }
 		}
 
@@ -560,6 +544,27 @@ pass3(__pmContext *ctxp, char *archname, pmOptions *opts)
 	fprintf(stderr, "]: pmFetch: error: %s\n", pmErrStr(sts));
 	return STS_FATAL;
     }
+
+    /*
+     * free all hash tables
+     */
+    for (hptr = __pmHashWalk(&hashlist, PM_HASH_WALK_START);
+	 hptr != NULL;
+	 hptr = __pmHashWalk(&hashlist, PM_HASH_WALK_NEXT)) {
+	if (hptr->data != NULL) {
+	    checkData		*checkdata;
+	    __pmHashNode	*hnp;
+	    checkdata = (checkData *)hptr->data;
+	    for (hnp = __pmHashWalk(&checkdata->insthash, PM_HASH_WALK_START);
+		 hnp != NULL;
+		 hnp = __pmHashWalk(&checkdata->insthash, PM_HASH_WALK_NEXT)) {
+		free(hnp->data);
+	    }
+	    __pmHashFree(&checkdata->insthash);
+	    free(hptr->data);
+	}
+    }
+    __pmHashFree(&hashlist);
 
     return STS_OK;
 }

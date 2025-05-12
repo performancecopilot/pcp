@@ -24,6 +24,9 @@
 # we're using python3
 ArchLinux    -        -       python2-{.*} {.*}-python2
 #-- Centos
+# all available but dnf cannot install 'em due to missing or down-rev
+# dependencies
+CentOS       Stream8  -       389-ds-base perl-Net-SNMP perl-Spreadsheet-WriteExcel perl-Spreadsheet-XLSX python3-pandas 
 # we're using python3
 # As of 8.2.2004 ...
 # mysql conflicst with mariadb
@@ -68,6 +71,10 @@ Debian       1.\..    -       libcoin80-dev libcoin-dev libqt4-dev libsoqt4-dev 
 # python3-bpfcc : Depends: libbpfcc (>= 0.8.0-4) but it is not installable
 Debian       10\.     -       python3-bpfcc
 #-- Fedora
+# Qt4
+Fedora       40       -       qt-devel SoQt-devel
+# redis stuff
+Fedora       .*       -       redis RediSearch
 # kubernetes-node pulls in moby-engine which is really bad for podman-docker
 # - expect Fedora to clean this up in at a later release when moby-engine is
 #   dropped
@@ -108,6 +115,9 @@ NetBSD       8\.0     -       py27-{.*} dtrace
 # we're using python3
 OpenBSD      6\.[3-7] -       qtbase qtsvg valgrind python-{.*} {.*}-python cpan(XML::TokeParser)
 #-- RedHat
+# available but dnf cannot install 'em due to missing or down-rev
+# dependencies
+RHEL         8\.      -       python3-pandas
 # we're using python2
 # As of 8.2 ...
 # mysql conflicst with mariadb
@@ -120,11 +130,14 @@ RHEL         8\.2     -       {.*}-python2 python2-{.*} python2[0-9]-{.*} python
 RHEL         8\.[0-1] -       cpan(Net::LDAP) cpan(Spreadsheet::XLSX) cpan(Text::CSV_XS) cpan(XML::LibXML) cpan(XML::TokeParser) perl-autodie perl-Date-Manip perl-DBD-MySQL perl-LDAP perl-Net-SNMP perl-Spreadsheet-WriteExcel perl-Spreadsheet-XLSX perl-Text-CSV_XS perl-XML-LibXML perl-XML-TokeParser {.*}-python2 python2-{.*} system-python-libs
 # broken dependencies - perl-Parse-RecDescent and/or perl-Crypt-DES
 RHEL         7\.9     -       perl-Spreadsheet-WriteExcel perl-Spreadsheet-XLSX perl-Net-SNMP
-RHEL         7\.[5-9] -       {.*}-python3 python3-{.*} python3{[0-9]-.*} 
-RHEL         6\.10    -       {.*}-python3 python3-{.*} python3{[0-9]-.*}
+# Python3 is incomplete
+RHEL         7\.[5-9] -       python3 {.*}-python3 python3-{.*} python36-{.*} 
+# Qt4
+RHEL         7\.      -       qt-devel SoQt-devel
 # for RHEL 7, no way to get infiniband/mad.h installed, so rdma-core-devel
 # is collateral damage, and libibumad-devel is obsoleted
 RHEL         7\.       -       infiniband-diags-devel libibmad-devel rdma-core-devel libibumad-devel
+RHEL         6\.10    -       {.*}-python3 python3-{.*} python3{[0-9]-.*}
 # need non-standard repo for msssql-* pkgs
 RHEL         -        -       mssql-server mssql-tools
 # these ones are SuSE packages, not in the RH ecosystem
@@ -143,6 +156,8 @@ openSUSE     -        -       mssql-server mssql-tools
 #-- Ubuntu
 # Python2 retired from PCP builds as of Ubunutu version 20.04
 Ubuntu       2.\.     -       python-{.*} python libpython-dev libpython2-dev libpython-stdlib libpython2-stdlib
+# bpfcc-tools won't install here
+Ubuntu       18\.04   -       bpfcc-tools
 Ubuntu       1[89]\.. -       python-{.*}
 Ubuntu       1[67]\.. -       python-{.*} python2-dev
 # we're using python3 from 14.04 on
@@ -151,14 +166,14 @@ Ubuntu       1[45]\.. -       python-{.*}
 # libsoqt-dev, libsoqt-dev-common and libcoin-dev are all for Qt4, but we're
 # using Qt5 for the other bits we need for pmview
 Ubuntu       18\.10   -       libcoin-dev libsoqt-dev libsoqt-dev-common libsoqt4-dev
-Ubuntu       18\.04   -       libcoin-dev libsoqt-dev libsoqt-dev-common libsoqt4-dev
+Ubuntu       18\.04   -       libcoin-dev libsoqt-dev libsoqt-dev-common libsoqt4-dev libqt4-dev
 # observed on vm01
 # python3-bpfcc : Depends: libbpfcc (>= 0.5.0-5ubuntu1) but it is not installable
 Ubuntu       18\.04   i.86    python3-bpfcc
 # observed on vm27
 # libsoqt-dev, libsoqt-dev-common and libcoin-dev are all for Qt4, but we're
 # using Qt5 for the other bits we need for pmview
-Ubuntu       16\.04   -       libcoin-dev libsoqt-dev libsoqt-dev-common libsoqt4-dev
+Ubuntu       16\.04   -       libcoin-dev libsoqt-dev libsoqt-dev-common libsoqt4-dev libqt4-dev
 # prefer mariadb over mysql for the more recent versions
 #
 Ubuntu       20\.04   -       mysql-client-core mysql-client-core-[0-9][0-9.]*
@@ -185,6 +200,9 @@ Fedora       -         -      ccache
 #
 OpenMandriva 4\.[0-2] -       cpan(Net::LDAP) cpan(Spreadsheet::XLSX) cpan(Text::CSV_XS) cpan(XML::LibXML) cpan(XML::TokeParser) perl(autodie) perl(Date::Manip) perl(DBD::mysql) perl(Net::LDAP) perl(Net::SNMP) perl-Net-SNMP perl(Spreadsheet::WriteExcel) perl-Spreadsheet-WriteExcel perl(Spreadsheet::XLSX) perl(Text::CSV_XS) perl(XML::LibXML) perl(XML::TokeParser) .*-python2 python2-.* system-python-libs
 #-- FreeBSD
+# mandoc breaks groff
+FreeBSD      14\.     -       mandoc
 # we need mariadb105-client, but this is incompatible with these Perl
-# packages
-FreeBSD      12\..*   -       p5-Class-DBI-mysql p5-DBD-mysql
+# and Python packages
+FreeBSD      14\.     -       p5-Class-DBI-mysql p5-DBD-mysql py3[0-9]*-psycopg2
+FreeBSD      12\.     -       p5-Class-DBI-mysql p5-DBD-mysql

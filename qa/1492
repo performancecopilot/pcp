@@ -31,7 +31,6 @@ else
     # NOTREACHED
 fi
 
-$sudo rm -rf $tmp $tmp.* $seq.full
 
 do_valgrind=false
 if [ "$1" = "--valgrind" ]
@@ -61,14 +60,26 @@ _filter()
 	-e "s@$tmp@TMP@g" \
 	-e "s@^\(  *\)20[0-9][0-9]/[0-9][0-9]/[0-9][0-9]@\1<date>@" \
 	-e '/Warning: invalid file descriptor -1 in syscall/d' \
+	-e '/Command: /s@/usr/sbin/@/bin/@' \
 	-e '/Command: /s@/usr/bin/@/bin/@' \
     # end
+}
+
+# atopsar seems to fork() and this generates a non-deterministic
+# number of LEAK SUMMARY blocks at the end of the output
+#
+_cull_valgrind_dups()
+{
+    $PCP_AWK_PROG '
+/^LEAK SUMMARY:/	{ watch = 1 }
+watch == 0		{ print; next }
+seen[$0] == ""		{ print; seen[$0] = 1 }'
 }
 
 mkdir $tmp || exit 1
 cd $tmp
 tar xJf $here/archives/atop-sar.tar.xz
-sum atop-sar/* >>$seq.full
+sum atop-sar/* >>$seq_full
 
 # real QA test starts here
 
@@ -95,8 +106,9 @@ then
    obj:/usr/bin/bash
 }
 End-of-File
-    __extra="--suppressions=$tmp.suppress"
-    _run_valgrind pcp -z atopsar -r atop-sar 180
+    grind_extra="--suppressions=$tmp.suppress"
+    _run_valgrind pcp -z atopsar -r atop-sar 180 2>&1 \
+    | _cull_valgrind_dups
 else
     pcp -z atopsar -r atop-sar 180 2>&1
 fi \

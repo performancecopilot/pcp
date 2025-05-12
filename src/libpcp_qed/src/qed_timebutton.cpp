@@ -13,6 +13,8 @@
  * License for more details.
  */
 
+#include <pcp/pmapi.h>
+
 #include "qed_timebutton.h"
 #include "qed_console.h"
 
@@ -37,6 +39,8 @@ QedTimeButton::QedTimeButton(QWidget *parent) : QToolButton(parent)
 
 void QedTimeButton::setButtonState(QedTimeButton::State state)
 {
+    if (pmDebugOptions.qed)
+	console->post("QedTimeButton::setButtonState: state=%d my.state=%d\n", state, my.state);
     if (my.state == state)
 	return;
     switch (state) {

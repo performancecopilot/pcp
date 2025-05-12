@@ -1,0 +1,90 @@
+QA output created by 1555
+QA output created by 1553 --valgrind
+
+===  -a archives/ok-mv-bigbin ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/newcontext -a archives/ok-mv-bigbin -D log
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+__pmFopen("archives/ok-mv-bigbin.0", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.index", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.meta", "r"): no decompress
+
+=== -f0 -a archives/ok-mv-bigbin ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/newcontext -f0 -a archives/ok-mv-bigbin -D log
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+__pmFopen("archives/ok-mv-bigbin.meta", "r"): no decompress
+
+=== -f1 -a archives/ok-mv-bigbin ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/newcontext -f1 -a archives/ok-mv-bigbin -D log
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+__pmFopen("archives/ok-mv-bigbin.9", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.index", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.meta", "r"): no decompress
+
+=== -f0 -f1 -a archives/ok-mv-bigbin ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/newcontext -f0 -f1 -a archives/ok-mv-bigbin -D log
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+__pmFopen("archives/ok-mv-bigbin.meta", "r"): no decompress
+
+===  -a TMP/20180416.10.00 ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/newcontext -a TMP/20180416.10.00 -D log
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+__pmFopen("TMP/20180416.10.00.0", "r"): decompress: xz
+__pmFopen("TMP/20180416.10.00.index", "r"): no decompress
+__pmFopen("TMP/20180416.10.00.meta.xz", "r"): decompress: xz
+
+=== -f0 -a TMP/20180416.10.00 ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/newcontext -f0 -a TMP/20180416.10.00 -D log
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+__pmFopen("TMP/20180416.10.00.meta.xz", "r"): decompress: xz
+
+=== -f1 -a TMP/20180416.10.00 ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/newcontext -f1 -a TMP/20180416.10.00 -D log
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+__pmFopen("TMP/20180416.10.00.3", "r"): no decompress
+__pmFopen("TMP/20180416.10.00.index", "r"): no decompress
+__pmFopen("TMP/20180416.10.00.meta.xz", "r"): decompress: xz
+
+=== -f0 -f1 -a TMP/20180416.10.00 ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/newcontext -f0 -f1 -a TMP/20180416.10.00 -D log
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+__pmFopen("TMP/20180416.10.00.meta.xz", "r"): decompress: xz

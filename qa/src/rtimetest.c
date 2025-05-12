@@ -239,7 +239,7 @@ main(int argc, char *argv[])
 
 	    printf("#1 ");
 	    dump_dt(buffer, &tmrslt);
-	    if (pmParseHighResTimeWindow(buffer, NULL, NULL, NULL, &tsstart, &tsend, &rsltStart, &rsltEnd, &rsltOffset, &errmsg) < 0) {
+	    if (pmParseTimeWindow(buffer, NULL, NULL, NULL, &tsstart, &tsend, &rsltStart, &rsltEnd, &rsltOffset, &errmsg) < 0) {
 		printf ("%s: %s\n", errmsg, tmtmp_str);
 	    }
 	    clock = rsltStart.tv_sec;

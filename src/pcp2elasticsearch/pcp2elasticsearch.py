@@ -1,7 +1,7 @@
 #!/usr/bin/env pmpython
 #
 # Copyright (C) 2015-2021 Marko Myllynen <myllynen@redhat.com>
-# Copyright (C) 2014-2018,2022 Red Hat.
+# Copyright (C) 2014-2018,2025 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -37,9 +37,6 @@ except Exception:
 from pcp import pmapi, pmconfig
 from cpmapi import PM_CONTEXT_ARCHIVE, PM_IN_NULL, PM_DEBUG_APPL1, PM_TIME_MSEC
 
-if sys.version_info[0] >= 3:
-    long = int # pylint: disable=redefined-builtin
-
 # Default config
 DEFAULT_CONFIG = ["./pcp2elasticsearch.conf", "$HOME/.pcp2elasticsearch.conf", "$HOME/.pcp/pcp2elasticsearch.conf", "$PCP_SYSCONF_DIR/pcp2elasticsearch.conf"]
 
@@ -47,7 +44,7 @@ DEFAULT_CONFIG = ["./pcp2elasticsearch.conf", "$HOME/.pcp2elasticsearch.conf", "
 CONFVER = 1
 ES_SERVER = "http://localhost:9200/"
 ES_INDEX = "pcp"
-ES_SEARCH_TYPE = "pcp-metric"
+ES_SEARCH_TYPE = "_doc"
 
 class pcp2elasticsearch(object):
     """ PCP to Elasticsearch """
@@ -429,29 +426,9 @@ class pcp2elasticsearch(object):
 
         ts = self.context.datetime_to_secs(self.pmfg_ts(), PM_TIME_MSEC)
 
-        try:
-            body = {'ignore': 400,
-                    'mappings': {'pcp-metric':
-                                {'properties':{'@timestamp':{'type':'epoch_milli'},
-                                               '@host-id':{'type':'string'}}}}}
-            data = json.dumps(body).encode('utf-8')
-            headers = {'content-type': 'application/json'}
-            url = self.es_server + '/' + self.es_index
-            req = httprequest.Request(url=url, data=data, headers=headers, method='PUT')
-            with httprequest.urlopen(req) as f:
-                f.close()
-            if self.es_failed:
-                sys.stderr.write("Reconnected to Elasticsearch server %s.\n" % (self.es_server))
-            self.es_failed = False
-        except Exception as put_failed:
-            if not self.es_failed:
-                sys.stderr.write("Cannot connect to Elasticsearch server %s: %s, continuing.\n" % (self.es_server, str(put_failed)))
-            self.es_failed = True
-            return
-
         # Assemble all metrics into a single document
         # Use @-prefixed keys for metadata not coming in from PCP metrics
-        es_doc = {'@host-id': self.es_hostid, '@timestamp': long(ts)}
+        es_doc = {'@host-id': self.es_hostid, '@timestamp': int(ts)}
 
         insts_key = "@instances"
         inst_key = "@id"
@@ -475,7 +452,7 @@ class pcp2elasticsearch(object):
                 labels = None
                 if self.include_labels:
                     labels = self.pmconfig.get_labels_str(metric, inst)
-                if isinstance(value, long):
+                if isinstance(value, int):
                     if value > (self.maxlong - 1) or value < (-self.maxlong):
                         value = round(float(value), self.metrics[metric][6])
                 if isinstance(value, float):
@@ -514,8 +491,9 @@ class pcp2elasticsearch(object):
                             insts.append({inst_key: name, last_part: value})
 
         try:
+            headers = {'content-type': 'application/json'}
             data = json.dumps(es_doc).encode('utf-8')
-            url = self.es_server + '/' + self.es_index + '/' + self.es_search_type
+            url = self.es_server + self.es_index + '/' + self.es_search_type
             req = httprequest.Request(url=url, data=data, headers=headers, method='POST')
             with httprequest.urlopen(req) as f:
                 f.close()

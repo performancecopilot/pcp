@@ -342,7 +342,7 @@ do_desc(__int32_t *buf)
 	    fprintf(stderr, "Arrgh: names[%d] malloc failed\n", i);
 	    exit(1);
 	}
-	strncpy(names[i], cp, len);
+	memcpy(names[i], cp, len);
 	names[i][len] = '\0';
 	cp += len;
     }

@@ -1,0 +1,49 @@
+QA output created by 1552
+[DATESTAMP] pminfo(PID) Debug: reloading
+[DATESTAMP] pminfo(PID) Debug: mmv: create_client_stat: ondisk, TMP/mmv/ondisk
+[DATESTAMP] pminfo(PID) Debug: mmv: ondisk: loading client cluster=1234 for PMIDs from TMP/mmv/ondisk
+[DATESTAMP] pminfo(PID) Debug: verify_metric_name: mmv.ondisk.counter
+[DATESTAMP] pminfo(PID) Debug: verify_metric_item2: item=1 name=mmv.ondisk.counter
+[DATESTAMP] pminfo(PID) Debug: create_metric: name=mmv.ondisk.counter PMID=70.1234.1
+[DATESTAMP] pminfo(PID) Debug: map_stats adding metric[4] name=mmv.ondisk.counter PMID=70.1234.1 from ondisk
+[DATESTAMP] pminfo(PID) Debug: verify_indom_serial: ondisk: serial=1
+[DATESTAMP] pminfo(PID) Debug: mmv: ondisk: create_indom: serial=1
+[DATESTAMP] pminfo(PID) Info: pminfo: 5 metrics and 1 indoms after reload
+
+mmv.ondisk.counter PMID: 70.1234.1 [A simple-minded counter]
+    Data Type: 32-bit unsigned int  InDom: 70.2527233 0x11a69001
+    Semantics: counter  Units: count
+Help:
+We have but one metric here, a simple minded
+counter
+    inst [88 or "golden dragon"] value 42
+MMV file   = TMP/mmv/ondisk
+Version    = 3
+Generated  = 1
+TOC count  = 5
+Cluster    = 1234
+Process    = 5678
+Flags      = 0x0 (none)
+
+TOC[0]: toc offset 40, metrics offset 120 (1 entries)
+  [1/120] counter
+       type=32-bit unsigned int (0x1), sem=counter (0x1), pad=0x0
+       units=count
+       indom=1
+       shorttext=A simple-minded counter
+       helptext=We have but one metric here, a simple minded
+counter
+
+TOC[1]: offset 56, values offset 168 (1 entries)
+  [1/168] counter[88 or "golden dragon"] = 42
+
+TOC[2]: offset 72, indoms offset 200 (1 entries)
+  [1/200] 1 instances, starting at offset 232
+       shorttext=lucky thirteen indom
+       helptext=foobar
+
+TOC[3]: offset 88, instances offset 232 (1 entries)
+  [1/232] instance = [88 or "golden dragon"]
+
+TOC[4]: offset 104, string offset 256 (1 entries)
+  [1/256] counter

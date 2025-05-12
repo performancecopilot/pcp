@@ -1,9 +1,4 @@
 
-if dpkg-maintscript-helper supports mv_conffile
-then
-    _version_configs "$@"
-fi
-
 # figure out what sort if init|systemctl|... we're using to
 # launch daemons and services
 do_systemctl=false
@@ -27,8 +22,10 @@ else
     which invoke-rc.d >/dev/null 2>&1 && do_invoke_rc=true
 fi
 # only need to check pmcd.service, if it is here they will all
-# be here
-if [ -f /lib/systemd/system/pmcd.service ]
+# be here ... the real service files may have already been removed
+# by now, so check the "dangling" symlinks
+#
+if [ -L /etc/systemd/system/multi-user.target.wants/pmcd.service ]
 then
     :
 else
@@ -44,14 +41,30 @@ else
     do_invoke_rc=false
 fi
 
+systemd_units='
+pcp-geolocate.service
+pcp-reboot-init.service
+pmproxy.service
+pmlogger_farm_check.timer pmlogger_farm_check.service
+pmlogger_farm.service
+pmlogger_daily.timer pmlogger_daily.service
+pmlogger_check.timer pmlogger_check.service
+pmlogger.service
+pmie_farm_check.timer pmie_farm_check.service
+pmie_daily.timer pmie_daily.service
+pmie_check.timer pmie_check.service
+pmie.service
+pmfind.timer pmfind.service
+pmcd.service'
+
 if [ "$1" = remove ]
 then
     if $do_systemd_helper
     then
-	deb-systemd-helper remove pmproxy.service >/dev/null
-	deb-systemd-helper remove pmie.service >/dev/null
-	deb-systemd-helper remove pmlogger.service >/dev/null
-	deb-systemd-helper remove pmcd.service >/dev/null
+	for unit in $systemd_units
+	do
+	    deb-systemd-helper remove $unit >/dev/null
+	done
     elif $do_update_rc
     then
 	update-rc.d pmproxy remove >/dev/null
@@ -65,9 +78,9 @@ if [ "$1" = purge ]
 then
     if $do_systemd_helper
     then
-	deb-systemd-helper purge pmproxy.service >/dev/null
-	deb-systemd-helper purge pmie.service >/dev/null
-	deb-systemd-helper purge pmlogger.service >/dev/null
-	deb-systemd-helper purge pmcd.service >/dev/null
+	for unit in $systemd_units
+	do
+	    deb-systemd-helper purge $unit >/dev/null
+	done
     fi
 fi

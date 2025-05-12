@@ -23,7 +23,6 @@ done
 
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
-$sudo rm -rf $tmp.* $seq.full
 
 write_size=`expr 20 \* 1024 \* 1024` # number of bytes to write into testfile
 out_file="$PCP_TMPFILE_DIR/pcp-qa-$seq" # block device required here (no tmpfs)
@@ -35,8 +34,8 @@ slop=20
 _value_filter_bytes()
 {
     cat > $tmp.value
-    echo === input to _value_filter >>$here/$seq.full
-    cat $tmp.value >> $here/$seq.full
+    echo === input to _value_filter >>$seq_full
+    cat $tmp.value >> $seq_full
 
     _found=false
     _values=`awk '/inst.*value/ {print $NF}' $tmp.value`
@@ -85,46 +84,46 @@ _pmdabcc_install <$tmp.conf
 _pmdabcc_wait_for_metric
 
 # Generate system activity for the BCC biotop module
-echo Started dd at $(date) >> $here/$seq.full
-dd if=/dev/zero of=${out_file} bs=${write_size} count=1 oflag=direct 2>>$here/$seq.full
+echo Started dd at $(date) >> $seq_full
+dd if=/dev/zero of=${out_file} bs=${write_size} count=1 oflag=direct 2>>$seq_full
 
 # wait until PMDA refreshes BPF table containing dd
 _pmdabcc_wait_for_value bcc.proc.io.perdev.comm '("dd"|"dmcrypt_write/\d+")'
 
 echo "=== report metric values for pid ==="
-pminfo -dfmtT bcc.proc.io.perdev.pid 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bcc.proc.io.perdev.pid 2>&1 | tee -a $seq_full \
 | _value_filter_nonzero
 
 echo "=== report metric values for comm ==="
-pminfo -dfmtT bcc.proc.io.perdev.comm 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bcc.proc.io.perdev.comm 2>&1 | tee -a $seq_full \
 | _value_filter_regex '("dd"|"dmcrypt_write/\d+")'
 
 echo "=== report metric values for direction ==="
-pminfo -dfmtT bcc.proc.io.perdev.direction 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bcc.proc.io.perdev.direction 2>&1 | tee -a $seq_full \
 | _value_filter_exact '"W"'
 
 echo "=== report metric values for major ==="
-pminfo -dfmtT bcc.proc.io.perdev.major 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bcc.proc.io.perdev.major 2>&1 | tee -a $seq_full \
 | _value_filter_nonzero
 
 echo "=== report metric values for minor ==="
-pminfo -dfmtT bcc.proc.io.perdev.minor 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bcc.proc.io.perdev.minor 2>&1 | tee -a $seq_full \
 | _value_filter_any
 
 echo "=== report metric values for disk ==="
-pminfo -dfmtT bcc.proc.io.perdev.disk 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bcc.proc.io.perdev.disk 2>&1 | tee -a $seq_full \
 | _value_filter_any
 
 echo "=== report metric values for io ==="
-pminfo -dfmtT bcc.proc.io.perdev.io 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bcc.proc.io.perdev.io 2>&1 | tee -a $seq_full \
 | _value_filter_nonzero
 
 echo "=== report metric values for bytes ==="
-pminfo -dfmtT bcc.proc.io.perdev.bytes 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bcc.proc.io.perdev.bytes 2>&1 | tee -a $seq_full \
 | _value_filter_bytes
 
 echo "=== report metric values for duration ==="
-pminfo -dfmtT bcc.proc.io.perdev.duration 2>&1 | tee -a $here/$seq.full \
+pminfo -dfmtT bcc.proc.io.perdev.duration 2>&1 | tee -a $seq_full \
 | _value_filter_nonzero
 
 _pmdabcc_remove

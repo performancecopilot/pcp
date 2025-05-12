@@ -79,5 +79,5 @@ pmie -T 20 $tmp.config >$tmp.out 2>$tmp.err
 
 $signal -s TERM $KILL_PID
 KILL_PID=''
-cat $tmp.out 
+cat $tmp.out
 cat $tmp.err | _show_pmie_exit

@@ -1,0 +1,52 @@
+#!/bin/sh
+#
+# Check build variables set by configure.
+#
+# Returns true if <variable> is set "true" in src/include/builddefs
+#
+# Note:
+#	this script is ONLY run from the debian/rules makefile, and
+#	then the current directory is not . but the base of the
+#	build tree, so builddefs is in src/include, not ../src/include
+#	as you might expect given the location of this script in the
+#	source tree
+#
+
+verbose=false
+if [ $# -gt 1 -a "X$1" = X-v ]
+then
+    verbose=true
+    shift
+fi
+
+if [ $# -ne 1 ]
+then
+    echo >&2 "Usage: checkconf [-v] <variable>"
+    exit 1
+fi
+
+if [ -f src/include/builddefs ]
+then
+    value=`sed -n -e "/^$1[ 	]*=[ 	]*/s///p" src/include/builddefs`
+    if [ -z "$value" ]
+    then
+	$verbose && echo >&2 "$1 not found in builddefs"
+	exit 1
+    fi
+    $verbose && echo >&2 "$1: value=\"$value\""
+    if [ "$value" = true ]
+    then
+	exit 0
+    else
+	exit 1
+    fi
+else
+    if $verbose
+    then
+	echo >&2 "src/include/builddefs: not found"
+	echo >&2 "pwd: `pwd`"
+	ls -l >&2 "src/include/builddefs*"
+    fi
+    exit 1
+fi
+

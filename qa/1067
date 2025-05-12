@@ -79,9 +79,8 @@ need_control=false
 need_derived=false
 control=$PCP_PMDAS_DIR/sample/dynamic.indom
 derived=/etc/zabbix/zbxpcp-derived-metrics.conf
-$sudo rm -rf $tmp $tmp.* $seq.full
 
-echo "zabbix_agentd version: $version" >>$here/$seq.full
+echo "zabbix_agentd version: $version" >>$seq_full
 
 _cleanup()
 {
@@ -135,8 +134,8 @@ LoadModule=$ZBXPCP
 Timeout=30
 EOF
 
-echo "zabbix_agentd config:" >>$seq.full
-cat $tmp.conf >>$seq.full
+echo "zabbix_agentd config:" >>$seq_full
+cat $tmp.conf >>$seq_full
 
 # need the sample.proc metricss to be deterministic
 pmstore sample.proc.reset 1
@@ -165,14 +164,14 @@ $zabbix_agentd -t pcp.sample.bad.nosupport
 $zabbix_agentd -t pcp.sample.bad.novalues
 
 # verify enumeration of all metrics
-echo "== enumerated names and filtered values" | tee -a $seq.full
-pmstore sample.ghosts.visible "-1" >>$seq.full 2>&1
+echo "== enumerated names and filtered values" | tee -a $seq_full
+pmstore sample.ghosts.visible "-1" >>$seq_full 2>&1
 $sudo rm -f $control	# control the dynamic indom
 echo '1 one' >$tmp.indom
 echo '2 two' >>$tmp.indom
 $sudo cp $tmp.indom $control
 $zabbix_agentd -p \
-| tee -a $seq.full \
+| tee -a $seq_full \
 | grep -F pcp.sample. \
 | _filter_values
 

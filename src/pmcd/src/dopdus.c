@@ -132,12 +132,17 @@ int
 DoProfile(ClientInfo *cp, __pmPDU *pb)
 {
     __pmHashCtl	*hcp;
-    pmProfile	*newProf;
+    pmProfile	*newProf = NULL;
     int		ctxnum, sts, i;
 
     sts = __pmDecodeProfile(pb, &ctxnum, &newProf);
     if (sts >= 0) {
 	__pmHashNode	*hp;
+	if (ctxnum > maxctx - 1) {
+	    if (newProf != NULL)
+		__pmFreeProfile(newProf);
+	    return -EAGAIN;
+	}
 	hcp = &cp->profile;
 	if ((hp = __pmHashSearch(ctxnum, hcp)) != NULL) {
 	    /* seen this context slot before for this client */
@@ -1371,8 +1376,19 @@ GetAttribute(ClientInfo *cp, int code)
 		sts = PM_ERR_IPC;
 	    } else if ((value = strndup(value, vlen)) == NULL) {
 		sts = -ENOMEM;
-	    } else {	/* stash the attribute for this client */
+	    } else if ((sts = __pmCheckAttribute(attr, value)) == 0) {
+		/* stash the attribute for this client once vetted */
 		sts = __pmHashAdd(attr, (void *)value, &cp->attrs);
+	    }
+	    else {
+		/*
+		 * we've done the strndup() but __pmCheckAttribute()
+		 * failed
+		 */
+		if (pmDebugOptions.attr)
+		    fprintf(stderr, "GetAttribute: client fd=%d __pmCheckAttribute(%d,\"%s\") failed: %s\n",
+			    cp->fd, attr, value, pmErrStr(sts));
+		free(value);
 	    }
 	}
     } else if (sts > 0) {	/* unexpected PDU type */
@@ -1511,7 +1527,8 @@ DoCreds(ClientInfo *cp, __pmPDU *pb)
      * account authentication successful (if needed) and/or other attributes
      * have been given - in these cases, we need to inform interested PMDAs.
      */
-    else if (sts > 0 || (flags & PDU_FLAG_CONTAINER)) {
+    else if (sts > 0 ||
+	    (sts == 0 && (flags & (PDU_FLAG_CONTAINER|PDU_FLAG_AUTH)))) {
 	sts = AgentsAttributes(cp - client);
 	if (sts < 0 && (pmDebugOptions.auth || pmDebugOptions.attr))
 	    fprintf(stderr, "DoCreds: AgentsAttributes returns %d: %s\n",

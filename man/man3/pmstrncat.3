@@ -29,22 +29,50 @@ cc ... \-lpcp
 is safe string concatenation routine with semantics similar to
 .BR strncat (3).
 .PP
-The main differences are that
+The main differences between
+.B pmstrncat
+and
+.BR strncat (3)
+are:
+.PD 0
+.IP \(bu 2n
 .I src
-must be null-byte terminated,
+must be null-byte terminated for
+.B pmstrncat
+.IP \(bu 2n
 .I destlen
 is the length of the destination buffer (\c
 .IR dest )
-not the length of the source string (\c
-.IR src ),
-and
+for
+.B pmstrncat,
+not the maximum number of non-null bytes to copy from
+.IR src
+as it is for
+.B strncat
+.IP \(bu 2n
+the length
+argument has the same semantics for
 .B pmstrncat
-ensures that
-.I dest
-is null-byte terminated, even when \fIstrlen\fP(\fIsrc\fP) is larger
-than the remaining space in
-.I dest
-(\fIdestlen\fP \- \fIstrlen\fP(\fIdest\fP) on entry).
+and
+.BR pmstrncpy (3),
+unlike
+.BR strncat (3)
+and
+.BR strncpy (3).
+.IP \(bu 2n
+the return value from
+.B pmstrncat
+is useful
+.IP \(bu 2n
+the order of the arguments for
+.B pmstrncat
+has been
+.I deliberatelly
+changed from the order of the arguments for
+.BR strncat (3)
+to avoid accidental misuse that a compiler can easily
+detect
+.PD
 .PP
 On success,
 .B pmstrncat
@@ -53,7 +81,23 @@ returns 0, else -1 indicates that
 is too big and the result been truncated to ensure
 .I dest
 has no been overrun.
+.SH HISTORY
+.BR strncat (3)
+first appeared in Edition 7 AT&T Unix around 1979.
+It was specifically crafted to construct file pathnames (which needed
+to be null-byte terminated) from component names from on-disk directory
+entries that were of a fixed maximum size and may have zero, one or more
+trailing null-bytes
+.PP
+The subsequent attempts to use
+.BR strncat (3)
+for more generally string concatenation operations has been
+fraught with abuse and security issues;
+.BR pmstrncat
+is an attempt to address these problems.
 .SH SEE ALSO
-.BR pmstrncpy (3)
+.BR PMAPI (3),
+.BR pmstrncpy (3),
+.BR strncat (3)
 and
-.BR strncat (3).
+.BR strncpy (3).

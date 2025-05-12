@@ -44,7 +44,6 @@ PCP_CALL extern void __pmEndOptions(pmOptions *);
 PCP_CALL extern void __pmServerStart(int, char **, int);
 PCP_CALL extern time_t __pmMktime(struct tm *);
 
-#if PY_MAJOR_VERSION >= 3
 #define MOD_ERROR_VAL NULL
 #define MOD_SUCCESS_VAL(val) val
 #define MOD_INIT(name) PyMODINIT_FUNC PyInit_##name(void)
@@ -52,15 +51,8 @@ PCP_CALL extern time_t __pmMktime(struct tm *);
         static struct PyModuleDef moduledef = { \
           PyModuleDef_HEAD_INIT, name, doc, -1, methods, }; \
         ob = PyModule_Create(&moduledef);
-#else
-#define MOD_ERROR_VAL
-#define MOD_SUCCESS_VAL(val)
-#define MOD_INIT(name) void init##name(void)
-#define MOD_DEF(ob, name, doc, methods) \
-        ob = Py_InitModule3(name, methods, doc);
-#endif
 
-static pmOptions options = { .version = PMAPI_VERSION_3 };
+static pmOptions options;
 static char **argVector;
 static int argCount;
 static int longOptionsCount;
@@ -71,6 +63,7 @@ static void
 dict_add_unsigned(PyObject *dict, char *symbol, unsigned long value)
 {
     PyObject *pyvalue = PyLong_FromUnsignedLong(value);
+
     PyDict_SetItemString(dict, symbol, pyvalue);
     Py_XDECREF(pyvalue);
 }
@@ -78,11 +71,8 @@ dict_add_unsigned(PyObject *dict, char *symbol, unsigned long value)
 static void
 dict_add(PyObject *dict, char *symbol, long value)
 {
-#if PY_MAJOR_VERSION >= 3
     PyObject *pyvalue = PyLong_FromLong(value);
-#else
-    PyObject *pyvalue = PyInt_FromLong(value);
-#endif
+
     PyDict_SetItemString(dict, symbol, pyvalue);
     Py_XDECREF(pyvalue);
 }
@@ -90,13 +80,8 @@ dict_add(PyObject *dict, char *symbol, long value)
 static void
 edict_add(PyObject *dict, PyObject *edict, char *symbol, long value)
 {
-#if PY_MAJOR_VERSION >= 3
     PyObject *pyvalue = PyLong_FromLong(value);
     PyObject *pysymbol = PyUnicode_FromString(symbol);
-#else
-    PyObject *pyvalue = PyInt_FromLong(value);
-    PyObject *pysymbol = PyString_FromString(symbol);
-#endif
 
     PyDict_SetItemString(dict, symbol, pyvalue);
     PyDict_SetItem(edict, pyvalue, pysymbol);
@@ -461,7 +446,6 @@ resetAllOptions(PyObject *self, PyObject *args)
 {
     pmFreeOptions(&options);
     memset(&options, 0, sizeof(options));
-    options.version = PMAPI_VERSION_3;
     longOptionsCount = 0;
     Py_INCREF(Py_None);
     return Py_None;
@@ -857,11 +841,7 @@ getOptionsFromList(PyObject *self, PyObject *args, PyObject *keywords)
 
     for (i = 0; i < argCount; i++) {
 	PyObject *pyarg = PyList_GET_ITEM(pyargv, i);
-#if PY_MAJOR_VERSION >= 3
 	char *string = (char *)PyUnicode_AsUTF8(pyarg);
-#else
-	char *string = (char *)PyString_AsString(pyarg);
-#endif
 
 	/* All parameters may be referred back to later, e.g. via
 	 * pmGetProgname() or getOperands (and others), so we must
@@ -1088,11 +1068,7 @@ getOptionHosts(PyObject *self, PyObject *args)
 	if ((result = PyList_New(options.nhosts)) == NULL)
 	    return PyErr_NoMemory();
 	for (i = 0; i < options.nhosts; i++) {
-#if PY_MAJOR_VERSION >= 3
 	    PyObject *pyent = PyUnicode_FromString(options.hosts[i]);
-#else
-	    PyObject *pyent = PyString_FromString(options.hosts[i]);
-#endif
 	    PyList_SET_ITEM(result, i, pyent);
 	}
 	Py_INCREF(result);
@@ -1117,11 +1093,7 @@ getOptionArchives(PyObject *self, PyObject *args)
 	if ((result = PyList_New(options.narchives)) == NULL)
 	    return PyErr_NoMemory();
 	for (i = 0; i < options.narchives; i++) {
-#if PY_MAJOR_VERSION >= 3
 	    PyObject *pyent = PyUnicode_FromString(options.archives[i]);
-#else
-	    PyObject *pyent = PyString_FromString(options.archives[i]);
-#endif
 	    PyList_SET_ITEM(result, i, pyent);
 	}
 	Py_INCREF(result);
@@ -1558,7 +1530,7 @@ MOD_INIT(cpmapi)
     PyModule_AddObject(module, "pmErrSymDict", edict);
 
     dict_add(dict, "PMAPI_VERSION_2", PMAPI_VERSION_2);
-    dict_add(dict, "PMAPI_VERSION_3", PMAPI_VERSION_3);
+    dict_add(dict, "PMAPI_VERSION_4", PMAPI_VERSION_4);
     dict_add(dict, "PMAPI_VERSION", PMAPI_VERSION);
 
     dict_add_unsigned(dict, "PM_ID_NULL", PM_ID_NULL);
@@ -1573,6 +1545,11 @@ MOD_INIT(cpmapi)
 #else
     dict_add(dict, "HAVE_BITFIELDS_LTOR", 0);
     dict_add(dict, "HAVE_BITFIELDS_RTOL", 1);
+#endif
+#ifndef PM_PAD_TIMESPEC
+    dict_add(dict, "PM_PAD_TIMESPEC", 0);
+#else
+    dict_add(dict, "PM_PAD_TIMESPEC", PM_PAD_TIMESPEC);
 #endif
 #ifdef PM_SIZEOF_SUSECONDS_T
     dict_add(dict, "PM_SIZEOF_SUSECONDS_T", PM_SIZEOF_SUSECONDS_T);

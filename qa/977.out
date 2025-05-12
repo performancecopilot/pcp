@@ -41,3 +41,26 @@ LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
+Container error cases
+=== std out ===
+Iteration 4
+=== std err ===
+pmNewContext(local): Invalid argument
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/grind_ctx -L
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+=== std out ===
+Iteration 4
+=== std err ===
+pmNewContext(local): Invalid argument
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/grind_ctx -L
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...

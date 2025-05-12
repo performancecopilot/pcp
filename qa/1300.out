@@ -1,9 +1,14 @@
 QA output created by 1300
+pmstrncpy(..., 1, "a") -> -1 dest=""
+pmstrncpy(..., 1, "a") -> -1 dest=""
+pmstrncat("", 1, "b") -> -1 dest=""
+
+pmstrncpy(..., 2, "abc") -> -1 dest="a"
 pmstrncpy(..., 2, "") -> 0 dest=""
 pmstrncat("", 2, "") -> 0 dest=""
-pmstrncat("", 2, "") -> 0 dest=""
-pmstrncat("", 2, "") -> 0 dest=""
-pmstrncat("", 2, "") -> 0 dest=""
+pmstrncat("", 2, "x") -> 0 dest="x"
+pmstrncat("x", 2, "y") -> -1 dest="x"
+pmstrncat("x", 2, "z") -> -1 dest="x"
 
 pmstrncpy(..., 1, "foobar") -> -1 dest=""
 pmstrncpy(..., 2, "foobar") -> -1 dest="f"
@@ -24,3 +29,14 @@ pmstrncat("llanfairpwllgwyngyllgogerych", 80, "wyrnd") -> 0 dest="llanfairpwllgw
 pmstrncat("llanfairpwllgwyngyllgogerychwyrnd", 80, "robwllll") -> 0 dest="llanfairpwllgwyngyllgogerychwyrndrobwllll"
 pmstrncat("llanfairpwllgwyngyllgogerychwyrndrobwllll", 80, "antysilio") -> 0 dest="llanfairpwllgwyngyllgogerychwyrndrobwllllantysilio"
 pmstrncat("llanfairpwllgwyngyllgogerychwyrndrobwllllantysilio", 80, "gogogoch") -> 0 dest="llanfairpwllgwyngyllgogerychwyrndrobwllllantysiliogogogoch"
+
+pmstrncpy(..., 100, "llan") -> 0 dest="llan"
+pmstrncat("llan", 100, "fair") -> 0 dest="llanfair"
+pmstrncat("llanfair", 100, "pwll") -> 0 dest="llanfairpwll"
+pmstrncat("llanfairpwll", 100, "gwyngyll") -> 0 dest="llanfairpwllgwyngyll"
+pmstrncat("llanfairpwllgwyngyll", 100, "gogerych") -> 0 dest="llanfairpwllgwyngyllgogerych"
+pmstrncat("llanfairpwllgwyngyllgogerych", 100, "wyrnd") -> 0 dest="llanfairpwllgwyngyllgogerychwyrnd"
+pmstrncat("llanfairpwllgwyngyllgogerychwyrnd", 100, "robwllll") -> 0 dest="llanfairpwllgwyngyllgogerychwyrndrobwllll"
+pmstrncat("llanfairpwllgwyngyllgogerychwyrndrobwllll", 100, "antysilio") -> 0 dest="llanfairpwllgwyngyllgogerychwyrndrobwllllantysilio"
+pmstrncat("llanfairpwllgwyngyllgogerychwyrndrobwllllantysilio", 100, "gogogoch") -> 0 dest="llanfairpwllgwyngyllgogerychwyrndrobwllllantysiliogogogoch"
+pmstrncat("llanfairpwllgwyngyllgogerychwyrndrobwllllantysiliogogogoch", 100, "foo bar mumble fumble too much text here but do we trash the end of the buffer?") -> -1 dest="llanfairpwllgwyngyllgogerychwyrndrobwllllantysiliogogogochfoo bar mumble fumble too much text here "

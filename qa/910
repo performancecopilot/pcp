@@ -24,7 +24,6 @@ esac
 echo "QA output created by $seq"
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "cd $here; $sudo rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 
 _filter()
@@ -48,14 +47,14 @@ echo "Running pmval in the background"
 pmda=$PCP_PMDAS_DIR/linux/pmda_linux.so
 pmval -f2 -w5 -t0.2sec -T5.5sec -L -Kclear -Kadd,60,$pmda,linux_init \
 	kernel.percpu.cpu.user > $tmp.out 2> $tmp.err &
-echo pmval started: `date` >> $seq.full
+echo pmval started: `date` >> $seq_full
 
 pmsleep 1.75
 
 echo "Mutating the CPU instance domain"
-echo Initial /proc/stat contents: `date` >> $seq.full
-ls -li $tmp.root/proc/stat >> $seq.full
-cat $tmp.root/proc/stat >> $seq.full
+echo Initial /proc/stat contents: `date` >> $seq_full
+ls -li $tmp.root/proc/stat >> $seq_full
+cat $tmp.root/proc/stat >> $seq_full
 
 # Take some processors offline
 cp $tmp.root/proc/stat $tmp.orig
@@ -65,24 +64,24 @@ mv -f $tmp.tmp $tmp.root/proc/stat
 
 pmsleep 1.75
 
-echo Changed /proc/stat contents: `date` >> $seq.full
-ls -li $tmp.root/proc/stat >> $seq.full
-cat $tmp.root/proc/stat >> $seq.full
+echo Changed /proc/stat contents: `date` >> $seq_full
+ls -li $tmp.root/proc/stat >> $seq_full
+cat $tmp.root/proc/stat >> $seq_full
 
 # re-enable all processors
 mv -f $tmp.orig $tmp.root/proc/stat
-echo Final /proc/stat contents: `date` >> $seq.full
-ls -li $tmp.root/proc/stat >> $seq.full
-cat $tmp.root/proc/stat >> $seq.full
+echo Final /proc/stat contents: `date` >> $seq_full
+ls -li $tmp.root/proc/stat >> $seq_full
+cat $tmp.root/proc/stat >> $seq_full
 
 echo .
 wait	# for reporting tool to complete (-T option)
-echo Finished wait for pmval: `date` >> $seq.full
+echo Finished wait for pmval: `date` >> $seq_full
 
 echo "Observed from running pmval:"
-cat $tmp.out | tee -a $seq.full | _filter | uniq
+cat $tmp.out | tee -a $seq_full | _filter | uniq
 
-cat $tmp.err >>$seq.full
+cat $tmp.err >>$seq_full
 
 # success, all done
 status=0

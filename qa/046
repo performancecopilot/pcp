@@ -47,7 +47,7 @@ wait
 _filter_pmlogger_log <$tmp.log
 pmdumplog -dilmst $tmp | _filter_pmdumplog --any-version | _filter
 
-rm $tmp.*
+rm $tmp.*		# refactor-ok
 cat > $tmp.config << EOF
 mandatory on 100 msec {
 	sampledso.needprofile [terry,cathy,emma]

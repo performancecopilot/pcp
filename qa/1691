@@ -11,22 +11,22 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 . ./common.check
+. ./common.keys
 
 _check_series
 
 _cleanup()
 {
-    [ -n "$options" ] && redis-cli $options shutdown
+    [ -n "$options" ] && $keys_cli $options shutdown
     cd $here
     $sudo rm -rf $tmp $tmp.*
 }
 
 status=1	# failure is the default!
 hostname=`pmhostname`
-redisport=`_find_free_port`
-options="-p $redisport"
+key_server_port=`_find_free_port`
+options="-p $key_server_port"
 
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _filter_source()
@@ -46,12 +46,12 @@ cat > $tmp.ignore.conf <<EOF
 exclude.metrics = kernel.all.cpu.i*, kernel.all.cpu.user
 EOF
 
-echo "Start test Redis server ..."
-redis-server --port $redisport --save "" > $tmp.redis 2>&1 &
-_check_redis_ping $redisport
-_check_redis_server $redisport
+echo "Start test key server ..."
+$key_server --port $key_server_port --save "" > $tmp.keys 2>&1 &
+_check_key_server_ping $key_server_port
+_check_key_server $key_server_port
 
-_check_redis_server_version $redisport
+_check_key_server_version $key_server_port
 
 echo && echo "Load archive using default config"
 pmseries $options -c $tmp.default.conf --load "{source.path: \"$here/archives/viewqa1\"}" | _filter_source
@@ -60,8 +60,8 @@ echo && echo "Query series kernel.*"
 pmseries $options -m `pmseries $options 'kernel.*'`
 
 
-echo && echo "Clear Redis DB"
-redis-cli $options flushall
+echo && echo "Clear key server DB"
+$keys_cli $options flushall
 
 echo && echo "Load archive using: exclude.metrics = kernel.all.cpu.i*, kernel.all.cpu.user"
 pmseries $options -c $tmp.ignore.conf --load "{source.path: \"$here/archives/viewqa1\"}" | _filter_source

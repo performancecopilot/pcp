@@ -31,9 +31,9 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 
-_service pcp restart 2>&1 | _filter_pcp_start
-_wait_for_pmcd
-_wait_for_pmlogger
+if ! _service pcp restart 2>&1; then _exit 1; fi | _filter_pcp_start
+_wait_for_pmcd || _exit 1
+_wait_for_pmlogger || _exit 1
 
 # prime the sample PMDA to refresh the dynamic indom
 #
@@ -169,11 +169,11 @@ skip == 0			{ print }'
 
 cat $tmp.tmp | _show_pmie_errors
 
-echo "== stdout ==" >$seq.full
-cat $tmp.out >>$seq.full
-echo >>$seq.full
-echo "== stderr ==" >>$seq.full
-cat $tmp.err >>$seq.full
+echo "== stdout ==" >$seq_full
+cat $tmp.out >>$seq_full
+echo >>$seq_full
+echo "== stderr ==" >>$seq_full
+cat $tmp.err >>$seq_full
 
 # success, all done
 status=0

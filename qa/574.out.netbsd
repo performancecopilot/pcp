@@ -12,6 +12,7 @@ children of "pmcd" ...
     cputime             <s = 1>
     datasize            <s = 0>
     labels              <s = 0>
+    limits              <s = 1>
     numagents           <s = 0>
     numclients          <s = 0>
     openfds             <s = 0>
@@ -38,6 +39,7 @@ pmid: 116.0.0 name: hinv.ncpu
 
 pmid: PM_ID_NULL name: pmcd.control
 children of "pmcd.control" ...
+    creds_timeout       <s = 0>
     debug               <s = 0>
     dumpconn            <s = 0>
     dumptrace           <s = 0>
@@ -78,31 +80,31 @@ children of "" ...
 
 Archive result ...
 Fetch of disk.all.total:
-pmHighResResult ... numpmid: 1
+pmResult ... numpmid: 1
   116.2.8 (disk.all.total): numval: 1 valfmt: 1 vlist[]:
    value NUMBER
 Fetch of kernel.all.pswitch:
-pmHighResResult ... numpmid: 1
+pmResult ... numpmid: 1
   116.5.1 (kernel.all.pswitch): numval: 1 valfmt: 0-or-1 vlist[]:
    value NUMBER
 Fetch of kernel.all.cpu.user:
-pmHighResResult ... numpmid: 1
+pmResult ... numpmid: 1
   116.0.3 (kernel.all.cpu.user): numval: 1 valfmt: 0-or-1 vlist[]:
    value NUMBER
 Fetch of hinv.ncpu:
-pmHighResResult ... numpmid: 1
+pmResult ... numpmid: 1
   116.0.0 (hinv.ncpu): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
 Fetch of sampledso.aggregate.hullo:
-pmHighResResult ... numpmid: 1
+pmResult ... numpmid: 1
   30.0.34 (sampledso.aggregate.hullo): numval: 1 valfmt: 1 vlist[]:
    value STRING AGGREGATE
 Fetch of sample.seconds:
-pmHighResResult ... numpmid: 1
+pmResult ... numpmid: 1
   29.0.2 (sample.dupnames.two.seconds, sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
 Fetch of sample.colour:
-pmHighResResult ... numpmid: 1
+pmResult ... numpmid: 1
   29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
     inst [0 or "red"] value NUMBER
     inst [1 or "green"] value NUMBER

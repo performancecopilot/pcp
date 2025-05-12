@@ -3,7 +3,7 @@ include $(TOPDIR)/src/include/builddefs
 
 TESTDIR = $(PCP_VAR_DIR)/testsuite/linux
 ROOTFILES = $(shell echo *-root-*.tgz *-root.tgz)
-SYSFSFILES = $(shell echo sysfs-*-*.tgz sysfs-*-???)
+SYSFSFILES = $(shell echo sysfs-*-*-*.tgz sysfs-*-*.tgz sysfs-*-???)
 ZFSFILES = $(shell echo zfs-stats.*.tgz)
 CPUINFOFILES = $(shell echo cpuinfo-*)
 PROCIRQFILES = $(shell echo interrupts-* softirqs-*)

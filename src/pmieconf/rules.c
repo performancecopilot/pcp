@@ -846,7 +846,7 @@ dollar_expand(rule_t *rule, char *string, int pp)
 		mark = sptr+1;
 	    else {		/* end of an expansion section */
 		/* look through atom list & if not there search globally */
-		strncpy(localbuf, mark, sptr - mark);
+		memcpy(localbuf, mark, sptr - mark);
 		localbuf[sptr - mark] = '\0';
 		mark = NULL;
 #ifdef PMIECONF_DEBUG

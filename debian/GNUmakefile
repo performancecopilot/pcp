@@ -7,7 +7,7 @@ LINTIAN = source.lintian-overrides
 LINTDIR = $(PCP_SHARE_DIR)/../lintian/overrides
 
 PCP_FILES = pcp.preinst pcp.prerm pcp.postinst pcp.postrm pcp.conffiles
-PCP_LINT = pcp.lintian 
+PCP_LINT = $(shell echo *.lintian)
 
 PCPDOC = pcp-doc
 PCPDOC_FILES = pcp-doc.dirs pcp-doc.install
@@ -57,11 +57,11 @@ PCPCFG = pcp-conf
 PCPCFG_FILES = pcp-conf.dirs pcp-conf.install
 PCPCFG_DOC_DIR = $(PCP_DOC_DIR)/../pcp-conf
 
-LIBPCPPCP = libpcp3
-LIBPCP_FILES = libpcp3.dirs libpcp3.install
-DEVPCP_FILES = libpcp3-dev.dirs libpcp3-dev.install
-LIBPCP_DOC_DIR = $(PCP_DOC_DIR)/../libpcp3
-DEVPCP_DOC_DIR = $(PCP_DOC_DIR)/../libpcp3-dev
+LIBPCPPCP = libpcp4
+LIBPCP_FILES = libpcp4.dirs libpcp4.install
+DEVPCP_FILES = libpcp4-dev.dirs libpcp4-dev.install
+LIBPCP_DOC_DIR = $(PCP_DOC_DIR)/../libpcp4
+DEVPCP_DOC_DIR = $(PCP_DOC_DIR)/../libpcp4-dev
 
 LIBGUIPCP = libpcp-gui2
 LIBGUI_FILES = libpcp-gui2.install
@@ -99,7 +99,7 @@ DEVWEB_FILES = libpcp-web1-dev.dirs libpcp-web1-dev.install
 LIBWEB_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-web1
 DEVWEB_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-web1-dev
 
-SUBDIRS = source
+SUBDIRS =
 LDIRT = *.debhelper *.substvars *.log pcp files pcp.postrm \
 	pcp.preinst pcp.preinst.head pcp.postinst pcp.postinst.head \
 	pcp-gui.install \
@@ -111,7 +111,7 @@ LDIRT = *.debhelper *.substvars *.log pcp files pcp.postrm \
 	$(PCPIMPORTSAR) $(PCPIMPORTMRTG) $(PCPIMPORTSHEET) $(PCPIMPORTIOSTAT) \
 	$(PCPIMPORTCOLLECTL) $(PCPIMPORTGANGLIA)
 
-default: pcp.preinst pcp.postinst pcp.postrm control pcp-gui.install
+default: pcp.preinst pcp.postinst pcp.postrm rules pcp-gui.install
 
 include $(BUILDRULES)
 
@@ -122,7 +122,7 @@ ifeq ($(ENABLE_SYSTEMD),true)
 endif
 ifeq ($(PACKAGE_DISTRIBUTION), debian)
 	$(INSTALL) -m 755 -d $(LINTDIR)
-	$(INSTALL) -m 644 $(PCP_LINT) $(LINTDIR)/pcp
+	for dst in $(PCP_LINT:.lintian=); do $(INSTALL) -m 644 $$dst.lintian $(LINTDIR)/$$dst; done
 endif
 
 default_pcp : default
@@ -309,30 +309,32 @@ ifeq ($(PACKAGE_DISTRIBUTION), debian)
 endif
 endif
 
-pcp.preinst:	pcp.preinst.head $(SCRIPTS)/cleanconfigs configversions pcp.preinst.tail cull_old_conffiles
+pcp.preinst:	pcp.preinst.head $(SCRIPTS)/cleanconfigs pcp.preinst.tail
 	rm -f $@
-	cat pcp.preinst.head $(SCRIPTS)/cleanconfigs configversions cull_old_conffiles pcp.preinst.tail > $@
+	cat pcp.preinst.head $(SCRIPTS)/cleanconfigs pcp.preinst.tail > $@
 
-pcp.postinst:	pcp.postinst.head configversions pcp.postinst.tail cull_old_conffiles
+pcp.postinst:	pcp.postinst.head pcp.postinst.tail
 	rm -f $@
-	cat pcp.postinst.head configversions cull_old_conffiles pcp.postinst.tail > $@
+	cat pcp.postinst.head pcp.postinst.tail > $@
 
-pcp.postrm:	pcp.postrm.head configversions pcp.postrm.tail cull_old_conffiles
+pcp.postrm:	pcp.postrm.head pcp.postrm.tail
 	rm -f $@
-	cat pcp.postrm.head configversions cull_old_conffiles pcp.postrm.tail > $@
+	cat pcp.postrm.head pcp.postrm.tail > $@
 
-pcp-gui.install:	pcp-gui.install.base pcp-gui.install.hicolor
+pcp-gui.install:	pcp-gui.install.base pcp-gui.install.hicolor pcp-gui.install.pmview
 	rm -f pcp-gui.install
 	cat pcp-gui.install.base >pcp-gui.install
 ifeq ($(HAVE_HICOLOR_ICONS), true)
 	cat pcp-gui.install.hicolor >>pcp-gui.install
 endif
-
-control:	control.pcp control.pcpgui fixcontrol
-	./fixcontrol >control
-ifeq ($(ENABLE_PYTHON2), true)
-	cat control.python2 >>control
+ifeq "$(ENABLE_QT3D)" "true"
+	cat pcp-gui.install.pmview >>pcp-gui.install
 endif
+
+# only make control from control.* pieces in Makepkgs build
+#
+control:
+	./fixcontrol >control
 ifeq ($(ENABLE_PYTHON3), true)
 	cat control.python3 >>control
 endif
@@ -347,4 +349,7 @@ ifeq ($(HAVE_PYTHON_PYARROW), true)
 endif
 ifeq ($(PMDA_INFINIBAND), true)
 	cat control.pmdaib >>control
+endif
+ifeq ($(HAVE_PERL), true)
+	cat control.perl >>control
 endif

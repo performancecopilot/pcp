@@ -52,7 +52,7 @@ and
 options the descriptive text is replaced with an
 expression that can be used to set or print the corresponding
 debug flag in
-.B gdb (1).
+.BR gdb (1).
 .PP
 With the
 .B \-l
@@ -109,7 +109,11 @@ to either a value
 .I N
 (old scheme) or a comma-separated list if option name(s) (new scheme)
 using the environment variable
-.BR $PCP_DEBUG .
+.BR $PCP_DEBUG ,
+provided the applications
+use
+.BR pmGetOptions (3)
+to process command line options and arguments.
 If both mechanisms are used the effect is additive, so the resultant flags are
 those set via
 .B $PCP_DEBUG
@@ -145,9 +149,11 @@ The \fB$PCP_CONF\fP variable may be used to specify an alternative
 configuration file, as described in \fBpcp.conf\fP(5).
 .SH SEE ALSO
 .BR PCPIntro (1),
-.BR pmSetDebug (3),
-.BR pmClearDebug (3),
+.BR PMAPI (3),
 .BR __pmParseDebug (3),
+.BR pmClearDebug (3),
+.BR pmGetOptions (3),
+.BR pmSetDebug (3),
 .BR pcp.conf (5)
 and
 .BR pcp.env (5).

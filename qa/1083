@@ -20,11 +20,11 @@ echo "QA output created by $seq"
 _cleanup()
 {
     cd $here
-    _service pmcd stop >>$here/$seq.full 2>&1
+    _service pmcd stop >>$seq_full 2>&1
     _restore_auto_restart pmcd
     _service pmcd restart 2>&1 | _filter_pcp_start
     _wait_for_pmcd
-    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[p]mcd|[P]ID' >>$here/$seq.full
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '/[p]mcd|[P]PID' >>$seq_full
     _restore_auto_restart pmlogger
     _service pmlogger restart 2>&1 | _filter_pcp_start
     _wait_for_pmlogger
@@ -34,7 +34,6 @@ _cleanup()
 restore_pcpqa_systemd=false
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _stop_auto_restart pmcd
@@ -42,24 +41,24 @@ _stop_auto_restart pmlogger
 
 # get to a known starting point as far as systemd is concerned
 #
-date >>$here/$seq.full 2>&1
-_service pmcd restart >>$here/$seq.full 2>&1
-date >>$here/$seq.full 2>&1
-_wait_for_pmcd
-date >>$here/$seq.full 2>&1
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[p]mcd|[P]ID' >>$here/$seq.full
+date >>$seq_full 2>&1
+if ! _service pmcd restart >>$seq_full 2>&1; then _exit 1; fi
+date >>$seq_full 2>&1
+_wait_for_pmcd || _exit 1
+date >>$seq_full 2>&1
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '/[p]mcd|[P]PID( |$)' >>$seq_full
 
 # real QA test starts here
-_service pmcd stop >>$here/$seq.full 2>&1
-_wait_for_pmcd_stop
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[p]mcd|[P]ID' >>$here/$seq.full
+if ! _service pmcd stop >>$seq_full 2>&1; then _exit 1; fi
+_wait_for_pmcd_stop || _exit 1
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '/[p]mcd|[P]PID( |$)' >>$seq_full
 
 echo "expect failure ..."
 pmprobe hinv.ncpu
 
-_service pmcd start >>$here/$seq.full 2>&1
-_wait_for_pmcd
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[p]mcd|[P]ID' >>$here/$seq.full
+if ! _service pmcd start >>$seq_full 2>&1; then _exit 1; fi
+_wait_for_pmcd || _exit 1
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '/[p]mcd|[P]PID( |$)' >>$seq_full
 
 echo "expect success ..."
 pmprobe hinv.ncpu

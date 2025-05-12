@@ -4,7 +4,7 @@
 389-ds-base
 Coin4-devel
 HdrHistogram_c-devel
-RediSearch
+#RediSearch - switch to ValkeySearch when available
 SoQt-devel
 Spreadsheet::Read cpan
 audit
@@ -40,6 +40,7 @@ gfs2-utils
 git
 git-core
 grep
+inih-devel
 iproute
 httpd
 initscripts
@@ -50,6 +51,7 @@ kubernetes-client
 libbpf
 libbpf-devel
 libcmocka-devel
+libdrm-devel
 libicu-devel
 libpfm-devel
 libselinux-devel
@@ -124,7 +126,6 @@ qtchooser
 ragel
 rdma-core-devel
 readline-devel
-redis
 rpm-build
 rrdtool
 rrdtool-perl
@@ -141,12 +142,17 @@ sqlite-libs
 sudo
 sysstat
 systemd-devel
+systemtap
+systemtap-runtime
 systemtap-devel
 systemtap-sdt-devel
+targetcli
 time
 valgrind
+valkey
 xfsprogs
 xkeyboard-config
 xz-devel
 zabbix-agent
 zfs-fuse
+zstd

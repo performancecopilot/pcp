@@ -1,0 +1,30 @@
+# PDU specifications, used by ../src/pdu-gadget to produce a
+# binary PDU stream for QA
+#
+# PDU_TEXT_REQ test cases
+# type is bit-wise or of these flags
+# PM_TEXT_ONELINE	1
+# PM_TEXT_HELP		2
+# and one of these flags
+# PM_TEXT_PMID		4
+# PM_TEXT_INDOM		8
+#
+
+# credentials: len type from ncred cred[0]
+? PDU_CREDS 42 1 0x01020000
+
+# text_req: len type from ident type
+# OK (pmid-oneline case)
+? PDU_TEXT_REQ 42 pmid(sampledso.longlong.million) 5
+
+# text_req: len type from ident type
+# OK (indom-help case)
+? PDU_TEXT_REQ 42 indom(30.2) 10
+
+# text_req: len type from ident type
+# BAD short PDU
+? PDU_TEXT_REQ 42 pmid(sampledso.longlong.million)
+
+# text_req: len type from ident type
+# BAD long PDU
+? PDU_TEXT_REQ 42 pmid(sampledso.longlong.million) 5 42

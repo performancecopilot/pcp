@@ -1,3 +1,4 @@
 usr/bin/pcp2zabbix
 usr/share/bash-completion/completions/pcp2zabbix
+usr/share/lintian/overrides/pcp-export-pcp2zabbix
 usr/share/man/man1/pcp2zabbix.1.gz

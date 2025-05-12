@@ -48,6 +48,8 @@ enum {
 	PACEMAKER_NODES_EXPECTED_UP,
 	PACEMAKER_NODES_DC,
 	PACEMAKER_NODES_TYPE,
+	PACEMAKER_NODES_HEALTH,
+	PACEMAKER_NODES_FEATURE_SET,
 	NUM_PACEMAKER_NODES_STATS
 };
 
@@ -67,6 +69,7 @@ enum {
 	PACEMAKER_RESOURCES_BLOCKED,
 	PACEMAKER_RESOURCES_FAILED,
 	PACEMAKER_RESOURCES_FAILURE_IGNORED,
+	PACEMAKER_RESOURCES_MAINTAINANCE,
 	NUM_PACEMAKER_RESOURCES_STATS
 };
 
@@ -83,7 +86,7 @@ struct fail_count {
 struct location_constraints {
 	char node[128];
 	char resource[128];
-	char role[10];
+	char role[18];
 	char score[10];
 };
 
@@ -98,6 +101,8 @@ struct nodes {
 	uint8_t expected_up;
 	uint8_t dc;
 	char type[7];
+	char health[64];
+	char feature_set[64];
 };
 
 struct attributes {
@@ -109,7 +114,7 @@ struct resources {
 	char clone[128];
 	char group[128];
 	uint8_t managed;
-	char role[10];
+	char role[18];
 	uint8_t active;
 	uint8_t orphaned;
 	uint8_t blocked;

@@ -1,0 +1,1220 @@
+QA output created by 1516
+QA output created by 1509 --valgrind
+
+=== disk.dev.* ===
+read (Wed May  1 11:55:28 2024): ?
+write (Wed May  1 11:55:28 2024): ?
+blkread (Wed May  1 11:55:28 2024): ?
+blkwrite (Wed May  1 11:55:28 2024): ?
+total (Wed May  1 11:55:28 2024): ?
+blktotal (Wed May  1 11:55:28 2024): ?
+read_bytes (Wed May  1 11:55:28 2024): ?
+write_bytes (Wed May  1 11:55:28 2024): ?
+total_bytes (Wed May  1 11:55:28 2024): ?
+avactive (Wed May  1 11:55:28 2024): ?
+aveq (Wed May  1 11:55:28 2024): ?
+read_merge (Wed May  1 11:55:28 2024): ?
+write_merge (Wed May  1 11:55:28 2024): ?
+scheduler (Wed May  1 11:55:28 2024): ?
+read_rawactive (Wed May  1 11:55:28 2024): ?
+write_rawactive (Wed May  1 11:55:28 2024): ?
+total_rawactive (Wed May  1 11:55:28 2024): ?
+capacity (Wed May  1 11:55:28 2024): ?
+discard (Wed May  1 11:55:28 2024): ?
+blkdiscard (Wed May  1 11:55:28 2024): ?
+discard_bytes (Wed May  1 11:55:28 2024): ?
+discard_merge (Wed May  1 11:55:28 2024): ?
+discard_rawactive (Wed May  1 11:55:28 2024): ?
+flush (Wed May  1 11:55:28 2024): ?
+flush_rawactive (Wed May  1 11:55:28 2024): ?
+inflight (Wed May  1 11:55:28 2024): ?
+await (Wed May  1 11:55:28 2024): ?
+r_await (Wed May  1 11:55:28 2024): ?
+w_await (Wed May  1 11:55:28 2024): ?
+d_await (Wed May  1 11:55:28 2024): ?
+f_await (Wed May  1 11:55:28 2024): ?
+avg_qlen (Wed May  1 11:55:28 2024): ?
+avg_rqsz (Wed May  1 11:55:28 2024): ?
+r_avg_rqsz (Wed May  1 11:55:28 2024): ?
+w_avg_rqsz (Wed May  1 11:55:28 2024): ?
+d_avg_rqsz (Wed May  1 11:55:28 2024): ?
+util (Wed May  1 11:55:28 2024): ?
+
+read (Wed May  1 11:55:31 2024): ? ? ?
+write (Wed May  1 11:55:31 2024): ? ? ?
+blkread (Wed May  1 11:55:31 2024): ? ? ?
+blkwrite (Wed May  1 11:55:31 2024): ? ? ?
+total (Wed May  1 11:55:31 2024): ? ? ?
+blktotal (Wed May  1 11:55:31 2024): ? ? ?
+read_bytes (Wed May  1 11:55:31 2024): ? ? ?
+write_bytes (Wed May  1 11:55:31 2024): ? ? ?
+total_bytes (Wed May  1 11:55:31 2024): ? ? ?
+avactive (Wed May  1 11:55:31 2024): ? ? ?
+aveq (Wed May  1 11:55:31 2024): ? ? ?
+read_merge (Wed May  1 11:55:31 2024): ? ? ?
+write_merge (Wed May  1 11:55:31 2024): ? ? ?
+scheduler (Wed May  1 11:55:31 2024): "mq-deadline" "bfq" "bfq"
+read_rawactive (Wed May  1 11:55:31 2024): ? ? ?
+write_rawactive (Wed May  1 11:55:31 2024): ? ? ?
+total_rawactive (Wed May  1 11:55:31 2024): ? ? ?
+capacity (Wed May  1 11:55:31 2024): 21474836480 104857600 104857600
+discard (Wed May  1 11:55:31 2024): ? ? ?
+blkdiscard (Wed May  1 11:55:31 2024): ? ? ?
+discard_bytes (Wed May  1 11:55:31 2024): ? ? ?
+discard_merge (Wed May  1 11:55:31 2024): ? ? ?
+discard_rawactive (Wed May  1 11:55:31 2024): ? ? ?
+flush (Wed May  1 11:55:31 2024): ? ? ?
+flush_rawactive (Wed May  1 11:55:31 2024): ? ? ?
+inflight (Wed May  1 11:55:31 2024): 0 0 0
+await (Wed May  1 11:55:31 2024): ?
+r_await (Wed May  1 11:55:31 2024): ?
+w_await (Wed May  1 11:55:31 2024): ?
+d_await (Wed May  1 11:55:31 2024): ?
+f_await (Wed May  1 11:55:31 2024): ?
+avg_qlen (Wed May  1 11:55:31 2024): ?
+avg_rqsz (Wed May  1 11:55:31 2024): ?
+r_avg_rqsz (Wed May  1 11:55:31 2024): ?
+w_avg_rqsz (Wed May  1 11:55:31 2024): ?
+d_avg_rqsz (Wed May  1 11:55:31 2024): ?
+util (Wed May  1 11:55:31 2024): ?
+
+read (Wed May  1 11:55:34 2024): 11.3 0 0
+write (Wed May  1 11:55:34 2024): 1.67 0 0
+blkread (Wed May  1 11:55:34 2024): 342 0 0
+blkwrite (Wed May  1 11:55:34 2024): 34 0 0
+total (Wed May  1 11:55:34 2024): 13 0 0
+blktotal (Wed May  1 11:55:34 2024): 376 0 0
+read_bytes (Wed May  1 11:55:34 2024): 175104 0 0
+write_bytes (Wed May  1 11:55:34 2024): 17408 0 0
+total_bytes (Wed May  1 11:55:34 2024): 192512 0 0
+avactive (Wed May  1 11:55:34 2024): 0.0556667 0 0
+aveq (Wed May  1 11:55:34 2024): 0.0506667 0 0
+read_merge (Wed May  1 11:55:34 2024): 0 0 0
+write_merge (Wed May  1 11:55:34 2024): 0 0 0
+scheduler (Wed May  1 11:55:34 2024): "mq-deadline" "bfq" "bfq"
+read_rawactive (Wed May  1 11:55:34 2024): 0.0496667 0 0
+write_rawactive (Wed May  1 11:55:34 2024): 0.001 0 0
+total_rawactive (Wed May  1 11:55:34 2024): 0.0506667 0 0
+capacity (Wed May  1 11:55:34 2024): 21474836480 104857600 104857600
+discard (Wed May  1 11:55:34 2024): 0 0 0
+blkdiscard (Wed May  1 11:55:34 2024): 0 0 0
+discard_bytes (Wed May  1 11:55:34 2024): 0 0 0
+discard_merge (Wed May  1 11:55:34 2024): 0 0 0
+discard_rawactive (Wed May  1 11:55:34 2024): 0 0 0
+flush (Wed May  1 11:55:34 2024): 0 0 0
+flush_rawactive (Wed May  1 11:55:34 2024): 0 0 0
+inflight (Wed May  1 11:55:34 2024): 0 0 0
+await (Wed May  1 11:55:34 2024): 0.00389744 0 0
+r_await (Wed May  1 11:55:34 2024): 0.00438235 0 0
+w_await (Wed May  1 11:55:34 2024): 0.0006 0 0
+d_await (Wed May  1 11:55:34 2024): 0 0 0
+f_await (Wed May  1 11:55:34 2024): 0 0 0
+avg_qlen (Wed May  1 11:55:34 2024): 0.0506667 0 0
+avg_rqsz (Wed May  1 11:55:34 2024): 14809 0 0
+r_avg_rqsz (Wed May  1 11:55:34 2024): 15450 0 0
+w_avg_rqsz (Wed May  1 11:55:34 2024): 10445 0 0
+d_avg_rqsz (Wed May  1 11:55:34 2024): 0 0 0
+util (Wed May  1 11:55:34 2024): 5.6 0 0
+
+
+--- cull disk.dev.total_rawactive from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+17d16
+< total_rawactive (Wed May  1 11:55:28 2024): ?
+55d53
+< total_rawactive (Wed May  1 11:55:31 2024): ? ? ?
+93d90
+< total_rawactive (Wed May  1 11:55:34 2024): 0.0506667 0 0
+103c100
+< await (Wed May  1 11:55:34 2024): 0.00389744 0 0
+---
+> await (Wed May  1 11:55:34 2024): ?
+
+--- cull disk.dev.read_rawactive from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+15d14
+< read_rawactive (Wed May  1 11:55:28 2024): ?
+53d51
+< read_rawactive (Wed May  1 11:55:31 2024): ? ? ?
+91d88
+< read_rawactive (Wed May  1 11:55:34 2024): 0.0496667 0 0
+104c101
+< r_await (Wed May  1 11:55:34 2024): 0.00438235 0 0
+---
+> r_await (Wed May  1 11:55:34 2024): ?
+108c105
+< avg_qlen (Wed May  1 11:55:34 2024): 0.0506667 0 0
+---
+> avg_qlen (Wed May  1 11:55:34 2024): ?
+
+--- cull disk.dev.write_rawactive from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+16d15
+< write_rawactive (Wed May  1 11:55:28 2024): ?
+54d52
+< write_rawactive (Wed May  1 11:55:31 2024): ? ? ?
+92d89
+< write_rawactive (Wed May  1 11:55:34 2024): 0.001 0 0
+105c102
+< w_await (Wed May  1 11:55:34 2024): 0.0006 0 0
+---
+> w_await (Wed May  1 11:55:34 2024): ?
+108c105
+< avg_qlen (Wed May  1 11:55:34 2024): 0.0506667 0 0
+---
+> avg_qlen (Wed May  1 11:55:34 2024): ?
+
+--- cull disk.dev.discard_rawactive from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+23d22
+< discard_rawactive (Wed May  1 11:55:28 2024): ?
+61d59
+< discard_rawactive (Wed May  1 11:55:31 2024): ? ? ?
+99d96
+< discard_rawactive (Wed May  1 11:55:34 2024): 0 0 0
+106c103
+< d_await (Wed May  1 11:55:34 2024): 0 0 0
+---
+> d_await (Wed May  1 11:55:34 2024): ?
+
+--- cull disk.dev.discard from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+19d18
+< discard (Wed May  1 11:55:28 2024): ?
+57d55
+< discard (Wed May  1 11:55:31 2024): ? ? ?
+95d92
+< discard (Wed May  1 11:55:34 2024): 0 0 0
+106c103
+< d_await (Wed May  1 11:55:34 2024): 0 0 0
+---
+> d_await (Wed May  1 11:55:34 2024): ?
+112c109
+< d_avg_rqsz (Wed May  1 11:55:34 2024): 0 0 0
+---
+> d_avg_rqsz (Wed May  1 11:55:34 2024): ?
+
+--- cull disk.dev.flush_rawactive from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+25d24
+< flush_rawactive (Wed May  1 11:55:28 2024): ?
+63d61
+< flush_rawactive (Wed May  1 11:55:31 2024): ? ? ?
+101d98
+< flush_rawactive (Wed May  1 11:55:34 2024): 0 0 0
+107c104
+< f_await (Wed May  1 11:55:34 2024): 0 0 0
+---
+> f_await (Wed May  1 11:55:34 2024): ?
+
+--- cull disk.dev.flush from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+24d23
+< flush (Wed May  1 11:55:28 2024): ?
+62d60
+< flush (Wed May  1 11:55:31 2024): ? ? ?
+100d97
+< flush (Wed May  1 11:55:34 2024): 0 0 0
+107c104
+< f_await (Wed May  1 11:55:34 2024): 0 0 0
+---
+> f_await (Wed May  1 11:55:34 2024): ?
+
+--- cull disk.dev.discard_bytes from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+21d20
+< discard_bytes (Wed May  1 11:55:28 2024): ?
+59d57
+< discard_bytes (Wed May  1 11:55:31 2024): ? ? ?
+97d94
+< discard_bytes (Wed May  1 11:55:34 2024): 0 0 0
+112c109
+< d_avg_rqsz (Wed May  1 11:55:34 2024): 0 0 0
+---
+> d_avg_rqsz (Wed May  1 11:55:34 2024): ?
+
+--- cull disk.dev.avactive from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+10d9
+< avactive (Wed May  1 11:55:28 2024): ?
+48d46
+< avactive (Wed May  1 11:55:31 2024): ? ? ?
+86d83
+< avactive (Wed May  1 11:55:34 2024): 0.0556667 0 0
+113c110
+< util (Wed May  1 11:55:34 2024): 5.6 0 0
+---
+> util (Wed May  1 11:55:34 2024): ?
+
+=== disk.dm.* ===
+read (Wed May  1 11:55:28 2024): ?
+write (Wed May  1 11:55:28 2024): ?
+total (Wed May  1 11:55:28 2024): ?
+blkread (Wed May  1 11:55:28 2024): ?
+blkwrite (Wed May  1 11:55:28 2024): ?
+blktotal (Wed May  1 11:55:28 2024): ?
+read_bytes (Wed May  1 11:55:28 2024): ?
+write_bytes (Wed May  1 11:55:28 2024): ?
+total_bytes (Wed May  1 11:55:28 2024): ?
+read_merge (Wed May  1 11:55:28 2024): ?
+write_merge (Wed May  1 11:55:28 2024): ?
+avactive (Wed May  1 11:55:28 2024): ?
+aveq (Wed May  1 11:55:28 2024): ?
+read_rawactive (Wed May  1 11:55:28 2024): ?
+write_rawactive (Wed May  1 11:55:28 2024): ?
+total_rawactive (Wed May  1 11:55:28 2024): ?
+capacity (Wed May  1 11:55:28 2024): ?
+discard (Wed May  1 11:55:28 2024): ?
+blkdiscard (Wed May  1 11:55:28 2024): ?
+discard_bytes (Wed May  1 11:55:28 2024): ?
+discard_merge (Wed May  1 11:55:28 2024): ?
+discard_rawactive (Wed May  1 11:55:28 2024): ?
+flush (Wed May  1 11:55:28 2024): ?
+flush_rawactive (Wed May  1 11:55:28 2024): ?
+inflight (Wed May  1 11:55:28 2024): ?
+await (Wed May  1 11:55:28 2024): ?
+r_await (Wed May  1 11:55:28 2024): ?
+w_await (Wed May  1 11:55:28 2024): ?
+d_await (Wed May  1 11:55:28 2024): ?
+f_await (Wed May  1 11:55:28 2024): ?
+avg_qlen (Wed May  1 11:55:28 2024): ?
+avg_rqsz (Wed May  1 11:55:28 2024): ?
+r_avg_rqsz (Wed May  1 11:55:28 2024): ?
+w_avg_rqsz (Wed May  1 11:55:28 2024): ?
+d_avg_rqsz (Wed May  1 11:55:28 2024): ?
+util (Wed May  1 11:55:28 2024): ?
+
+read (Wed May  1 11:55:31 2024): ?
+write (Wed May  1 11:55:31 2024): ?
+total (Wed May  1 11:55:31 2024): ?
+blkread (Wed May  1 11:55:31 2024): ?
+blkwrite (Wed May  1 11:55:31 2024): ?
+blktotal (Wed May  1 11:55:31 2024): ?
+read_bytes (Wed May  1 11:55:31 2024): ?
+write_bytes (Wed May  1 11:55:31 2024): ?
+total_bytes (Wed May  1 11:55:31 2024): ?
+read_merge (Wed May  1 11:55:31 2024): ?
+write_merge (Wed May  1 11:55:31 2024): ?
+avactive (Wed May  1 11:55:31 2024): ?
+aveq (Wed May  1 11:55:31 2024): ?
+read_rawactive (Wed May  1 11:55:31 2024): ?
+write_rawactive (Wed May  1 11:55:31 2024): ?
+total_rawactive (Wed May  1 11:55:31 2024): ?
+capacity (Wed May  1 11:55:31 2024): 16106127360
+discard (Wed May  1 11:55:31 2024): ?
+blkdiscard (Wed May  1 11:55:31 2024): ?
+discard_bytes (Wed May  1 11:55:31 2024): ?
+discard_merge (Wed May  1 11:55:31 2024): ?
+discard_rawactive (Wed May  1 11:55:31 2024): ?
+flush (Wed May  1 11:55:31 2024): ?
+flush_rawactive (Wed May  1 11:55:31 2024): ?
+inflight (Wed May  1 11:55:31 2024): 0
+await (Wed May  1 11:55:31 2024): ?
+r_await (Wed May  1 11:55:31 2024): ?
+w_await (Wed May  1 11:55:31 2024): ?
+d_await (Wed May  1 11:55:31 2024): ?
+f_await (Wed May  1 11:55:31 2024): ?
+avg_qlen (Wed May  1 11:55:31 2024): ?
+avg_rqsz (Wed May  1 11:55:31 2024): ?
+r_avg_rqsz (Wed May  1 11:55:31 2024): ?
+w_avg_rqsz (Wed May  1 11:55:31 2024): ?
+d_avg_rqsz (Wed May  1 11:55:31 2024): ?
+util (Wed May  1 11:55:31 2024): ?
+
+read (Wed May  1 11:55:34 2024): 11.3
+write (Wed May  1 11:55:34 2024): 1.67
+total (Wed May  1 11:55:34 2024): 13
+blkread (Wed May  1 11:55:34 2024): 342
+blkwrite (Wed May  1 11:55:34 2024): 34
+blktotal (Wed May  1 11:55:34 2024): 376
+read_bytes (Wed May  1 11:55:34 2024): 175104
+write_bytes (Wed May  1 11:55:34 2024): 17408
+total_bytes (Wed May  1 11:55:34 2024): 192512
+read_merge (Wed May  1 11:55:34 2024): 0
+write_merge (Wed May  1 11:55:34 2024): 0
+avactive (Wed May  1 11:55:34 2024): 0.0556667
+aveq (Wed May  1 11:55:34 2024): 0.0513333
+read_rawactive (Wed May  1 11:55:34 2024): 0.0496667
+write_rawactive (Wed May  1 11:55:34 2024): 0.00166667
+total_rawactive (Wed May  1 11:55:34 2024): 0.0513333
+capacity (Wed May  1 11:55:34 2024): 16106127360
+discard (Wed May  1 11:55:34 2024): 0
+blkdiscard (Wed May  1 11:55:34 2024): 0
+discard_bytes (Wed May  1 11:55:34 2024): 0
+discard_merge (Wed May  1 11:55:34 2024): 0
+discard_rawactive (Wed May  1 11:55:34 2024): 0
+flush (Wed May  1 11:55:34 2024): 0
+flush_rawactive (Wed May  1 11:55:34 2024): 0
+inflight (Wed May  1 11:55:34 2024): 0
+await (Wed May  1 11:55:34 2024): 0.00394872
+r_await (Wed May  1 11:55:34 2024): 0.00438235
+w_await (Wed May  1 11:55:34 2024): 0.001
+d_await (Wed May  1 11:55:34 2024): 0
+f_await (Wed May  1 11:55:34 2024): 0
+avg_qlen (Wed May  1 11:55:34 2024): 0.0513333
+avg_rqsz (Wed May  1 11:55:34 2024): 14809
+r_avg_rqsz (Wed May  1 11:55:34 2024): 15450
+w_avg_rqsz (Wed May  1 11:55:34 2024): 10445
+d_avg_rqsz (Wed May  1 11:55:34 2024): 0
+util (Wed May  1 11:55:34 2024): 5.6
+
+
+--- cull disk.dm.total_rawactive from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+16d15
+< total_rawactive (Wed May  1 11:55:28 2024): ?
+53d51
+< total_rawactive (Wed May  1 11:55:31 2024): ?
+90d87
+< total_rawactive (Wed May  1 11:55:34 2024): 0.0513333
+100c97
+< await (Wed May  1 11:55:34 2024): 0.00394872
+---
+> await (Wed May  1 11:55:34 2024): ?
+
+--- cull disk.dm.read_rawactive from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+14d13
+< read_rawactive (Wed May  1 11:55:28 2024): ?
+51d49
+< read_rawactive (Wed May  1 11:55:31 2024): ?
+88d85
+< read_rawactive (Wed May  1 11:55:34 2024): 0.0496667
+101c98
+< r_await (Wed May  1 11:55:34 2024): 0.00438235
+---
+> r_await (Wed May  1 11:55:34 2024): ?
+105c102
+< avg_qlen (Wed May  1 11:55:34 2024): 0.0513333
+---
+> avg_qlen (Wed May  1 11:55:34 2024): ?
+
+--- cull disk.dm.write_rawactive from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+15d14
+< write_rawactive (Wed May  1 11:55:28 2024): ?
+52d50
+< write_rawactive (Wed May  1 11:55:31 2024): ?
+89d86
+< write_rawactive (Wed May  1 11:55:34 2024): 0.00166667
+102c99
+< w_await (Wed May  1 11:55:34 2024): 0.001
+---
+> w_await (Wed May  1 11:55:34 2024): ?
+105c102
+< avg_qlen (Wed May  1 11:55:34 2024): 0.0513333
+---
+> avg_qlen (Wed May  1 11:55:34 2024): ?
+
+--- cull disk.dm.discard_rawactive from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+22d21
+< discard_rawactive (Wed May  1 11:55:28 2024): ?
+59d57
+< discard_rawactive (Wed May  1 11:55:31 2024): ?
+96d93
+< discard_rawactive (Wed May  1 11:55:34 2024): 0
+103c100
+< d_await (Wed May  1 11:55:34 2024): 0
+---
+> d_await (Wed May  1 11:55:34 2024): ?
+
+--- cull disk.dm.discard from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+18d17
+< discard (Wed May  1 11:55:28 2024): ?
+55d53
+< discard (Wed May  1 11:55:31 2024): ?
+92d89
+< discard (Wed May  1 11:55:34 2024): 0
+103c100
+< d_await (Wed May  1 11:55:34 2024): 0
+---
+> d_await (Wed May  1 11:55:34 2024): ?
+109c106
+< d_avg_rqsz (Wed May  1 11:55:34 2024): 0
+---
+> d_avg_rqsz (Wed May  1 11:55:34 2024): ?
+
+--- cull disk.dm.flush_rawactive from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+24d23
+< flush_rawactive (Wed May  1 11:55:28 2024): ?
+61d59
+< flush_rawactive (Wed May  1 11:55:31 2024): ?
+98d95
+< flush_rawactive (Wed May  1 11:55:34 2024): 0
+104c101
+< f_await (Wed May  1 11:55:34 2024): 0
+---
+> f_await (Wed May  1 11:55:34 2024): ?
+
+--- cull disk.dm.flush from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+23d22
+< flush (Wed May  1 11:55:28 2024): ?
+60d58
+< flush (Wed May  1 11:55:31 2024): ?
+97d94
+< flush (Wed May  1 11:55:34 2024): 0
+104c101
+< f_await (Wed May  1 11:55:34 2024): 0
+---
+> f_await (Wed May  1 11:55:34 2024): ?
+
+--- cull disk.dm.discard_bytes from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+20d19
+< discard_bytes (Wed May  1 11:55:28 2024): ?
+57d55
+< discard_bytes (Wed May  1 11:55:31 2024): ?
+94d91
+< discard_bytes (Wed May  1 11:55:34 2024): 0
+109c106
+< d_avg_rqsz (Wed May  1 11:55:34 2024): 0
+---
+> d_avg_rqsz (Wed May  1 11:55:34 2024): ?
+
+--- cull disk.dm.avactive from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+12d11
+< avactive (Wed May  1 11:55:28 2024): ?
+49d47
+< avactive (Wed May  1 11:55:31 2024): ?
+86d83
+< avactive (Wed May  1 11:55:34 2024): 0.0556667
+110c107
+< util (Wed May  1 11:55:34 2024): 5.6
+---
+> util (Wed May  1 11:55:34 2024): ?
+
+=== disk.md.* ===
+read (Wed May  1 11:55:28 2024): ?
+write (Wed May  1 11:55:28 2024): ?
+total (Wed May  1 11:55:28 2024): ?
+blkread (Wed May  1 11:55:28 2024): ?
+blkwrite (Wed May  1 11:55:28 2024): ?
+blktotal (Wed May  1 11:55:28 2024): ?
+read_bytes (Wed May  1 11:55:28 2024): ?
+write_bytes (Wed May  1 11:55:28 2024): ?
+total_bytes (Wed May  1 11:55:28 2024): ?
+read_merge (Wed May  1 11:55:28 2024): ?
+write_merge (Wed May  1 11:55:28 2024): ?
+avactive (Wed May  1 11:55:28 2024): ?
+aveq (Wed May  1 11:55:28 2024): ?
+read_rawactive (Wed May  1 11:55:28 2024): ?
+write_rawactive (Wed May  1 11:55:28 2024): ?
+total_rawactive (Wed May  1 11:55:28 2024): ?
+capacity (Wed May  1 11:55:28 2024): ?
+discard (Wed May  1 11:55:28 2024): ?
+blkdiscard (Wed May  1 11:55:28 2024): ?
+discard_bytes (Wed May  1 11:55:28 2024): ?
+discard_merge (Wed May  1 11:55:28 2024): ?
+discard_rawactive (Wed May  1 11:55:28 2024): ?
+flush (Wed May  1 11:55:28 2024): ?
+flush_rawactive (Wed May  1 11:55:28 2024): ?
+inflight (Wed May  1 11:55:28 2024): ?
+status (Wed May  1 11:55:28 2024): ?
+await (Wed May  1 11:55:28 2024): ?
+r_await (Wed May  1 11:55:28 2024): ?
+w_await (Wed May  1 11:55:28 2024): ?
+d_await (Wed May  1 11:55:28 2024): ?
+f_await (Wed May  1 11:55:28 2024): ?
+avg_qlen (Wed May  1 11:55:28 2024): ?
+avg_rqsz (Wed May  1 11:55:28 2024): ?
+r_avg_rqsz (Wed May  1 11:55:28 2024): ?
+w_avg_rqsz (Wed May  1 11:55:28 2024): ?
+d_avg_rqsz (Wed May  1 11:55:28 2024): ?
+util (Wed May  1 11:55:28 2024): ?
+
+read (Wed May  1 11:55:31 2024): ?
+write (Wed May  1 11:55:31 2024): ?
+total (Wed May  1 11:55:31 2024): ?
+blkread (Wed May  1 11:55:31 2024): ?
+blkwrite (Wed May  1 11:55:31 2024): ?
+blktotal (Wed May  1 11:55:31 2024): ?
+read_bytes (Wed May  1 11:55:31 2024): ?
+write_bytes (Wed May  1 11:55:31 2024): ?
+total_bytes (Wed May  1 11:55:31 2024): ?
+read_merge (Wed May  1 11:55:31 2024): ?
+write_merge (Wed May  1 11:55:31 2024): ?
+avactive (Wed May  1 11:55:31 2024): ?
+aveq (Wed May  1 11:55:31 2024): ?
+read_rawactive (Wed May  1 11:55:31 2024): ?
+write_rawactive (Wed May  1 11:55:31 2024): ?
+total_rawactive (Wed May  1 11:55:31 2024): ?
+capacity (Wed May  1 11:55:31 2024): 103743488
+discard (Wed May  1 11:55:31 2024): ?
+blkdiscard (Wed May  1 11:55:31 2024): ?
+discard_bytes (Wed May  1 11:55:31 2024): ?
+discard_merge (Wed May  1 11:55:31 2024): ?
+discard_rawactive (Wed May  1 11:55:31 2024): ?
+flush (Wed May  1 11:55:31 2024): ?
+flush_rawactive (Wed May  1 11:55:31 2024): ?
+inflight (Wed May  1 11:55:31 2024): 0
+status (Wed May  1 11:55:31 2024): 36096
+await (Wed May  1 11:55:31 2024): ?
+r_await (Wed May  1 11:55:31 2024): ?
+w_await (Wed May  1 11:55:31 2024): ?
+d_await (Wed May  1 11:55:31 2024): ?
+f_await (Wed May  1 11:55:31 2024): ?
+avg_qlen (Wed May  1 11:55:31 2024): ?
+avg_rqsz (Wed May  1 11:55:31 2024): ?
+r_avg_rqsz (Wed May  1 11:55:31 2024): ?
+w_avg_rqsz (Wed May  1 11:55:31 2024): ?
+d_avg_rqsz (Wed May  1 11:55:31 2024): ?
+util (Wed May  1 11:55:31 2024): ?
+
+read (Wed May  1 11:55:34 2024): 0
+write (Wed May  1 11:55:34 2024): 0
+total (Wed May  1 11:55:34 2024): 0
+blkread (Wed May  1 11:55:34 2024): 0
+blkwrite (Wed May  1 11:55:34 2024): 0
+blktotal (Wed May  1 11:55:34 2024): 0
+read_bytes (Wed May  1 11:55:34 2024): 0
+write_bytes (Wed May  1 11:55:34 2024): 0
+total_bytes (Wed May  1 11:55:34 2024): 0
+read_merge (Wed May  1 11:55:34 2024): 0
+write_merge (Wed May  1 11:55:34 2024): 0
+avactive (Wed May  1 11:55:34 2024): 0
+aveq (Wed May  1 11:55:34 2024): 0
+read_rawactive (Wed May  1 11:55:34 2024): 0
+write_rawactive (Wed May  1 11:55:34 2024): 0
+total_rawactive (Wed May  1 11:55:34 2024): 0
+capacity (Wed May  1 11:55:34 2024): 103743488
+discard (Wed May  1 11:55:34 2024): 0
+blkdiscard (Wed May  1 11:55:34 2024): 0
+discard_bytes (Wed May  1 11:55:34 2024): 0
+discard_merge (Wed May  1 11:55:34 2024): 0
+discard_rawactive (Wed May  1 11:55:34 2024): 0
+flush (Wed May  1 11:55:34 2024): 0
+flush_rawactive (Wed May  1 11:55:34 2024): 0
+inflight (Wed May  1 11:55:34 2024): 0
+status (Wed May  1 11:55:34 2024): 36096
+await (Wed May  1 11:55:34 2024): 0
+r_await (Wed May  1 11:55:34 2024): 0
+w_await (Wed May  1 11:55:34 2024): 0
+d_await (Wed May  1 11:55:34 2024): 0
+f_await (Wed May  1 11:55:34 2024): 0
+avg_qlen (Wed May  1 11:55:34 2024): 0
+avg_rqsz (Wed May  1 11:55:34 2024): 0
+r_avg_rqsz (Wed May  1 11:55:34 2024): 0
+w_avg_rqsz (Wed May  1 11:55:34 2024): 0
+d_avg_rqsz (Wed May  1 11:55:34 2024): 0
+util (Wed May  1 11:55:34 2024): 0
+
+
+--- cull disk.md.total_rawactive from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+16d15
+< total_rawactive (Wed May  1 11:55:28 2024): ?
+54d52
+< total_rawactive (Wed May  1 11:55:31 2024): ?
+92d89
+< total_rawactive (Wed May  1 11:55:34 2024): 0
+103c100
+< await (Wed May  1 11:55:34 2024): 0
+---
+> await (Wed May  1 11:55:34 2024): ?
+
+--- cull disk.md.read_rawactive from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+14d13
+< read_rawactive (Wed May  1 11:55:28 2024): ?
+32d30
+< avg_qlen (Wed May  1 11:55:28 2024): ?
+52d49
+< read_rawactive (Wed May  1 11:55:31 2024): ?
+70d66
+< avg_qlen (Wed May  1 11:55:31 2024): ?
+90d85
+< read_rawactive (Wed May  1 11:55:34 2024): 0
+104c99
+< r_await (Wed May  1 11:55:34 2024): 0
+---
+> r_await (Wed May  1 11:55:34 2024): ?
+108d102
+< avg_qlen (Wed May  1 11:55:34 2024): 0
+
+--- cull disk.md.write_rawactive from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+15d14
+< write_rawactive (Wed May  1 11:55:28 2024): ?
+32c31
+< avg_qlen (Wed May  1 11:55:28 2024): ?
+---
+> avg_qlen (Wed May  1 11:55:28 2024): 0
+53d51
+< write_rawactive (Wed May  1 11:55:31 2024): ?
+70c68
+< avg_qlen (Wed May  1 11:55:31 2024): ?
+---
+> avg_qlen (Wed May  1 11:55:31 2024): 0
+91d88
+< write_rawactive (Wed May  1 11:55:34 2024): 0
+105c102
+< w_await (Wed May  1 11:55:34 2024): 0
+---
+> w_await (Wed May  1 11:55:34 2024): ?
+
+--- cull disk.md.discard_rawactive from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+22d21
+< discard_rawactive (Wed May  1 11:55:28 2024): ?
+60d58
+< discard_rawactive (Wed May  1 11:55:31 2024): ?
+98d95
+< discard_rawactive (Wed May  1 11:55:34 2024): 0
+106c103
+< d_await (Wed May  1 11:55:34 2024): 0
+---
+> d_await (Wed May  1 11:55:34 2024): ?
+
+--- cull disk.md.discard from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+18d17
+< discard (Wed May  1 11:55:28 2024): ?
+56d54
+< discard (Wed May  1 11:55:31 2024): ?
+94d91
+< discard (Wed May  1 11:55:34 2024): 0
+106c103
+< d_await (Wed May  1 11:55:34 2024): 0
+---
+> d_await (Wed May  1 11:55:34 2024): ?
+112c109
+< d_avg_rqsz (Wed May  1 11:55:34 2024): 0
+---
+> d_avg_rqsz (Wed May  1 11:55:34 2024): ?
+
+--- cull disk.md.flush_rawactive from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+24d23
+< flush_rawactive (Wed May  1 11:55:28 2024): ?
+62d60
+< flush_rawactive (Wed May  1 11:55:31 2024): ?
+100d97
+< flush_rawactive (Wed May  1 11:55:34 2024): 0
+107c104
+< f_await (Wed May  1 11:55:34 2024): 0
+---
+> f_await (Wed May  1 11:55:34 2024): ?
+
+--- cull disk.md.flush from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+23d22
+< flush (Wed May  1 11:55:28 2024): ?
+61d59
+< flush (Wed May  1 11:55:31 2024): ?
+99d96
+< flush (Wed May  1 11:55:34 2024): 0
+107c104
+< f_await (Wed May  1 11:55:34 2024): 0
+---
+> f_await (Wed May  1 11:55:34 2024): ?
+
+--- cull disk.md.discard_bytes from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+20d19
+< discard_bytes (Wed May  1 11:55:28 2024): ?
+58d56
+< discard_bytes (Wed May  1 11:55:31 2024): ?
+96d93
+< discard_bytes (Wed May  1 11:55:34 2024): 0
+112c109
+< d_avg_rqsz (Wed May  1 11:55:34 2024): 0
+---
+> d_avg_rqsz (Wed May  1 11:55:34 2024): ?
+
+--- cull disk.md.avactive from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+12d11
+< avactive (Wed May  1 11:55:28 2024): ?
+50d48
+< avactive (Wed May  1 11:55:31 2024): ?
+88d85
+< avactive (Wed May  1 11:55:34 2024): 0
+113c110
+< util (Wed May  1 11:55:34 2024): 0
+---
+> util (Wed May  1 11:55:34 2024): ?
+
+=== disk.wwid.* ===
+scsi_paths (Wed May  1 11:13:01 2024): ?
+read (Wed May  1 11:13:01 2024): ?
+write (Wed May  1 11:13:01 2024): ?
+blkread (Wed May  1 11:13:01 2024): ?
+blkwrite (Wed May  1 11:13:01 2024): ?
+total (Wed May  1 11:13:01 2024): ?
+blktotal (Wed May  1 11:13:01 2024): ?
+read_bytes (Wed May  1 11:13:01 2024): ?
+write_bytes (Wed May  1 11:13:01 2024): ?
+total_bytes (Wed May  1 11:13:01 2024): ?
+avactive (Wed May  1 11:13:01 2024): ?
+aveq (Wed May  1 11:13:01 2024): ?
+read_merge (Wed May  1 11:13:01 2024): ?
+write_merge (Wed May  1 11:13:01 2024): ?
+scheduler (Wed May  1 11:13:01 2024): ?
+read_rawactive (Wed May  1 11:13:01 2024): ?
+write_rawactive (Wed May  1 11:13:01 2024): ?
+total_rawactive (Wed May  1 11:13:01 2024): ?
+capacity (Wed May  1 11:13:01 2024): ?
+discard (Wed May  1 11:13:01 2024): ?
+blkdiscard (Wed May  1 11:13:01 2024): ?
+discard_bytes (Wed May  1 11:13:01 2024): ?
+discard_merge (Wed May  1 11:13:01 2024): ?
+discard_rawactive (Wed May  1 11:13:01 2024): ?
+flush (Wed May  1 11:13:01 2024): ?
+flush_rawactive (Wed May  1 11:13:01 2024): ?
+inflight (Wed May  1 11:13:01 2024): ?
+await (Wed May  1 11:13:01 2024): ?
+r_await (Wed May  1 11:13:01 2024): ?
+w_await (Wed May  1 11:13:01 2024): ?
+d_await (Wed May  1 11:13:01 2024): ?
+f_await (Wed May  1 11:13:01 2024): ?
+avg_qlen (Wed May  1 11:13:01 2024): ?
+avg_rqsz (Wed May  1 11:13:01 2024): ?
+r_avg_rqsz (Wed May  1 11:13:01 2024): ?
+w_avg_rqsz (Wed May  1 11:13:01 2024): ?
+d_avg_rqsz (Wed May  1 11:13:01 2024): ?
+util (Wed May  1 11:13:01 2024): ?
+
+scsi_paths (Wed May  1 11:13:04 2024): "sda" "sdb" "sdd" "sde" "sdc"
+read (Wed May  1 11:13:04 2024): ? ? ? ? ?
+write (Wed May  1 11:13:04 2024): ? ? ? ? ?
+blkread (Wed May  1 11:13:04 2024): ? ? ? ? ?
+blkwrite (Wed May  1 11:13:04 2024): ? ? ? ? ?
+total (Wed May  1 11:13:04 2024): ? ? ? ? ?
+blktotal (Wed May  1 11:13:04 2024): ? ? ? ? ?
+read_bytes (Wed May  1 11:13:04 2024): ? ? ? ? ?
+write_bytes (Wed May  1 11:13:04 2024): ? ? ? ? ?
+total_bytes (Wed May  1 11:13:04 2024): ? ? ? ? ?
+avactive (Wed May  1 11:13:04 2024): ? ? ? ? ?
+aveq (Wed May  1 11:13:04 2024): ? ? ? ? ?
+read_merge (Wed May  1 11:13:04 2024): ? ? ? ? ?
+write_merge (Wed May  1 11:13:04 2024): ? ? ? ? ?
+scheduler (Wed May  1 11:13:04 2024): "mq-deadline" "mq-deadline" "mq-deadline" "mq-deadline" "mq-deadline"
+read_rawactive (Wed May  1 11:13:04 2024): ? ? ? ? ?
+write_rawactive (Wed May  1 11:13:04 2024): ? ? ? ? ?
+total_rawactive (Wed May  1 11:13:04 2024): ? ? ? ? ?
+capacity (Wed May  1 11:13:04 2024): ?
+discard (Wed May  1 11:13:04 2024): ? ? ? ? ?
+blkdiscard (Wed May  1 11:13:04 2024): ? ? ? ? ?
+discard_bytes (Wed May  1 11:13:04 2024): ? ? ? ? ?
+discard_merge (Wed May  1 11:13:04 2024): ? ? ? ? ?
+discard_rawactive (Wed May  1 11:13:04 2024): ? ? ? ? ?
+flush (Wed May  1 11:13:04 2024): ? ? ? ? ?
+flush_rawactive (Wed May  1 11:13:04 2024): ? ? ? ? ?
+inflight (Wed May  1 11:13:04 2024): 0 4 0 0 0
+await (Wed May  1 11:13:04 2024): ?
+r_await (Wed May  1 11:13:04 2024): ?
+w_await (Wed May  1 11:13:04 2024): ?
+d_await (Wed May  1 11:13:04 2024): ?
+f_await (Wed May  1 11:13:04 2024): ?
+avg_qlen (Wed May  1 11:13:04 2024): ?
+avg_rqsz (Wed May  1 11:13:04 2024): ?
+r_avg_rqsz (Wed May  1 11:13:04 2024): ?
+w_avg_rqsz (Wed May  1 11:13:04 2024): ?
+d_avg_rqsz (Wed May  1 11:13:04 2024): ?
+util (Wed May  1 11:13:04 2024): ?
+
+scsi_paths (Wed May  1 11:13:07 2024): "sda" "sdb" "sdd" "sde" "sdc"
+read (Wed May  1 11:13:07 2024): 0.333333 185 0 0 10.3
+write (Wed May  1 11:13:07 2024): 17.3 8 18.7 27.7 0
+blkread (Wed May  1 11:13:07 2024): 5.3 93935 0 0 187
+blkwrite (Wed May  1 11:13:07 2024): 2643 96 490 4848 0
+total (Wed May  1 11:13:07 2024): 17.7 193 18.7 27.7 10.3
+blktotal (Wed May  1 11:13:07 2024): 2649 94030 490 4848 187
+read_bytes (Wed May  1 11:13:07 2024): 2731 48094208 0 0 95915
+write_bytes (Wed May  1 11:13:07 2024): 1353045 49152 250880 2481835 0
+total_bytes (Wed May  1 11:13:07 2024): 1355776 48143360 250880 2481835 95915
+avactive (Wed May  1 11:13:07 2024): 0.018 1.00 0.0133333 0.012 0.012
+aveq (Wed May  1 11:13:07 2024): 0.0196667 3.91 0.047 0.0566667 0.00266667
+read_merge (Wed May  1 11:13:07 2024): 0.333333 12.3 0 0 0
+write_merge (Wed May  1 11:13:07 2024): 313 4 11.3 0 0
+scheduler (Wed May  1 11:13:07 2024): "mq-deadline" "mq-deadline" "mq-deadline" "mq-deadline" "mq-deadline"
+read_rawactive (Wed May  1 11:13:07 2024): 0.00133333 3.64 0 0 0.00233333
+write_rawactive (Wed May  1 11:13:07 2024): 0.019 0.175333 0.0396667 0.0566667 0
+total_rawactive (Wed May  1 11:13:07 2024): 0.0203333 3.82 0.0396667 0.0566667 0.00233333
+capacity (Wed May  1 11:13:07 2024): ?
+discard (Wed May  1 11:13:07 2024): 0 0 0 0 0
+blkdiscard (Wed May  1 11:13:07 2024): 0 0 0 0 0
+discard_bytes (Wed May  1 11:13:07 2024): 0 0 0 0 0
+discard_merge (Wed May  1 11:13:07 2024): 0 0 0 0 0
+discard_rawactive (Wed May  1 11:13:07 2024): 0 0 0 0 0
+flush (Wed May  1 11:13:07 2024): 0 1.67 0.67 0 0
+flush_rawactive (Wed May  1 11:13:07 2024): 0 0.0946667 0.00733333 0 0
+inflight (Wed May  1 11:13:07 2024): 0 4 0 0 0
+await (Wed May  1 11:13:07 2024): 0.00115094 0.0197789 0.002125 0.00204819 0.000225806
+r_await (Wed May  1 11:13:07 2024): 0.004 0.0196883 0 0 0.000225806
+w_await (Wed May  1 11:13:07 2024): 0.00109615 0.0219167 0.002125 0.00204819 0
+d_await (Wed May  1 11:13:07 2024): 0 0 0 0 0
+f_await (Wed May  1 11:13:07 2024): 0 0.0568 0.011 0 0
+avg_qlen (Wed May  1 11:13:07 2024): 0.0203333 3.82 0.0396667 0.0566667 0.00233333
+avg_rqsz (Wed May  1 11:13:07 2024): 76742 249447 13440 89705 9282
+r_avg_rqsz (Wed May  1 11:13:07 2024): 8192 259969 0 0 9282
+w_avg_rqsz (Wed May  1 11:13:07 2024): 78060 6144 13440 89705 0
+d_avg_rqsz (Wed May  1 11:13:07 2024): 0 0 0 0 0
+util (Wed May  1 11:13:07 2024): 1.80 100 1.33 1.20 1.20
+
+
+--- cull disk.wwid.total_rawactive from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+18d17
+< total_rawactive (Wed May  1 11:13:01 2024): ?
+57d55
+< total_rawactive (Wed May  1 11:13:04 2024): ? ? ? ? ?
+96d93
+< total_rawactive (Wed May  1 11:13:07 2024): 0.0203333 3.82 0.0396667 0.0566667 0.00233333
+106c103
+< await (Wed May  1 11:13:07 2024): 0.00115094 0.0197789 0.002125 0.00204819 0.000225806
+---
+> await (Wed May  1 11:13:07 2024): ?
+
+--- cull disk.wwid.read_rawactive from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+16d15
+< read_rawactive (Wed May  1 11:13:01 2024): ?
+33c32
+< avg_qlen (Wed May  1 11:13:01 2024): ?
+---
+> avg_qlen (Wed May  1 11:13:01 2024): 0 0 0 0 0
+55d53
+< read_rawactive (Wed May  1 11:13:04 2024): ? ? ? ? ?
+72c70
+< avg_qlen (Wed May  1 11:13:04 2024): ?
+---
+> avg_qlen (Wed May  1 11:13:04 2024): 0 0 0 0 0
+94d91
+< read_rawactive (Wed May  1 11:13:07 2024): 0.00133333 3.64 0 0 0.00233333
+107c104
+< r_await (Wed May  1 11:13:07 2024): 0.004 0.0196883 0 0 0.000225806
+---
+> r_await (Wed May  1 11:13:07 2024): ?
+111c108
+< avg_qlen (Wed May  1 11:13:07 2024): 0.0203333 3.82 0.0396667 0.0566667 0.00233333
+---
+> avg_qlen (Wed May  1 11:13:07 2024): 0 0 0 0 0
+
+--- cull disk.wwid.write_rawactive from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+17d16
+< write_rawactive (Wed May  1 11:13:01 2024): ?
+33c32
+< avg_qlen (Wed May  1 11:13:01 2024): ?
+---
+> avg_qlen (Wed May  1 11:13:01 2024): 0 0 0 0 0
+56d54
+< write_rawactive (Wed May  1 11:13:04 2024): ? ? ? ? ?
+72c70
+< avg_qlen (Wed May  1 11:13:04 2024): ?
+---
+> avg_qlen (Wed May  1 11:13:04 2024): 0 0 0 0 0
+95d92
+< write_rawactive (Wed May  1 11:13:07 2024): 0.019 0.175333 0.0396667 0.0566667 0
+108c105
+< w_await (Wed May  1 11:13:07 2024): 0.00109615 0.0219167 0.002125 0.00204819 0
+---
+> w_await (Wed May  1 11:13:07 2024): ?
+111c108
+< avg_qlen (Wed May  1 11:13:07 2024): 0.0203333 3.82 0.0396667 0.0566667 0.00233333
+---
+> avg_qlen (Wed May  1 11:13:07 2024): 0 0 0 0 0
+
+--- cull disk.wwid.discard_rawactive from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+24d23
+< discard_rawactive (Wed May  1 11:13:01 2024): ?
+63d61
+< discard_rawactive (Wed May  1 11:13:04 2024): ? ? ? ? ?
+102d99
+< discard_rawactive (Wed May  1 11:13:07 2024): 0 0 0 0 0
+109c106
+< d_await (Wed May  1 11:13:07 2024): 0 0 0 0 0
+---
+> d_await (Wed May  1 11:13:07 2024): ?
+
+--- cull disk.wwid.discard from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+20d19
+< discard (Wed May  1 11:13:01 2024): ?
+59d57
+< discard (Wed May  1 11:13:04 2024): ? ? ? ? ?
+98d95
+< discard (Wed May  1 11:13:07 2024): 0 0 0 0 0
+109c106
+< d_await (Wed May  1 11:13:07 2024): 0 0 0 0 0
+---
+> d_await (Wed May  1 11:13:07 2024): ?
+115c112
+< d_avg_rqsz (Wed May  1 11:13:07 2024): 0 0 0 0 0
+---
+> d_avg_rqsz (Wed May  1 11:13:07 2024): ?
+
+--- cull disk.wwid.flush_rawactive from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+26d25
+< flush_rawactive (Wed May  1 11:13:01 2024): ?
+65d63
+< flush_rawactive (Wed May  1 11:13:04 2024): ? ? ? ? ?
+104d101
+< flush_rawactive (Wed May  1 11:13:07 2024): 0 0.0946667 0.00733333 0 0
+110c107
+< f_await (Wed May  1 11:13:07 2024): 0 0.0568 0.011 0 0
+---
+> f_await (Wed May  1 11:13:07 2024): ?
+
+--- cull disk.wwid.flush from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+25d24
+< flush (Wed May  1 11:13:01 2024): ?
+64d62
+< flush (Wed May  1 11:13:04 2024): ? ? ? ? ?
+103d100
+< flush (Wed May  1 11:13:07 2024): 0 1.67 0.67 0 0
+110c107
+< f_await (Wed May  1 11:13:07 2024): 0 0.0568 0.011 0 0
+---
+> f_await (Wed May  1 11:13:07 2024): ?
+
+--- cull disk.wwid.discard_bytes from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+22d21
+< discard_bytes (Wed May  1 11:13:01 2024): ?
+61d59
+< discard_bytes (Wed May  1 11:13:04 2024): ? ? ? ? ?
+100d97
+< discard_bytes (Wed May  1 11:13:07 2024): 0 0 0 0 0
+115c112
+< d_avg_rqsz (Wed May  1 11:13:07 2024): 0 0 0 0 0
+---
+> d_avg_rqsz (Wed May  1 11:13:07 2024): ?
+
+--- cull disk.wwid.avactive from archive
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 3 -v -z -a TMP -c TMP.pmie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+11d10
+< avactive (Wed May  1 11:13:01 2024): ?
+50d48
+< avactive (Wed May  1 11:13:04 2024): ? ? ? ? ?
+89d86
+< avactive (Wed May  1 11:13:07 2024): 0.018 1.00 0.0133333 0.012 0.012
+116c113
+< util (Wed May  1 11:13:07 2024): 1.80 100 1.33 1.20 1.20
+---
+> util (Wed May  1 11:13:07 2024): ?

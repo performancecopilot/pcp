@@ -1,4 +1,4 @@
-'\"macro stdmacro
+'\" t
 .\"
 .\" Copyright (c) 2012-2013 Red Hat.
 .\" Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
@@ -19,6 +19,7 @@
 \f3ganglia2pcp\f1 \- import ganglia data and create a PCP archive
 .SH SYNOPSIS
 \&\fBganglia2pcp\fR
+[\f3\-D\f1 \f2debug\f1]
 [\fB\-d\fR \fIoutdir\fR]
 [\fB\-e\fR \fIend\fR]
 [\fB\-f\fR \fIoutfile\fR]
@@ -122,6 +123,36 @@ On each installation, the
 file \fI/etc/pcp.conf\fP contains the local values for these variables.
 The \fB$PCP_CONF\fP variable may be used to specify an alternative
 configuration file, as described in \fBpcp.conf\fP(5).
+.SH DEBUGGING OPTIONS
+The
+.B \-D
+or
+.B \-\-debug
+option enables the output of additional diagnostics on
+.I stderr
+to help triage problems, although the information is sometimes cryptic and
+primarily intended to provide guidance for developers rather end-users.
+.I debug
+is a comma separated list of debugging options; use
+.BR pmdbg (1)
+with the
+.B \-l
+option to obtain
+a list of the available debugging options and their meaning.
+.PP
+Debugging options specific to
+.B ganglia2pcp
+are as follows:
+.TS
+box;
+lf(B) | lf(B)
+lf(B) | lf(R) .
+Option	Description
+_
+appl0	setup and metrics discovery
+_
+appl1	metric-value generation
+.TE
 .SH SEE ALSO
 .BR pmie (1),
 .BR pmchart (1),

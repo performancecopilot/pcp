@@ -1,117 +1,494 @@
 QA output created by 1990
 
 pcp-buddyinfo output : Display default output
-Linux  5.4.17-2136.317.5.3.el8uek.x86_64  (localhost.localdomain)  08/02/23  x86_64    (4 CPU)
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
 TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
-15:53:21          DMA                node0          0         0         0         0         0         0         0         0         1         1         3          
-15:53:21          DMA32              node0          3         1         1         1         2         3         2         3         3         2         803        
-15:53:21          Normal             node0          1720      4118      1862      671       220       120       66        29        21        26        3040       
-Linux  5.4.17-2136.317.5.3.el8uek.x86_64  (localhost.localdomain)  08/02/23  x86_64    (4 CPU)
+09:54:15          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:54:15          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:54:15          Normal             node0          14865     8294      4341      2886      714       211       73        36        41        26        489        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
 TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
-15:53:24          DMA                node0          0         0         0         0         0         0         0         0         1         1         3          
-15:53:24          DMA32              node0          3         1         1         1         2         3         2         3         3         2         803        
-15:53:24          Normal             node0          1720      4118      1862      671       220       120       66        29        21        26        3040       
-Linux  5.4.17-2136.317.5.3.el8uek.x86_64  (localhost.localdomain)  08/02/23  x86_64    (4 CPU)
+09:54:17          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:54:17          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:54:17          Normal             node0          14865     8294      4341      2886      714       211       73        36        41        26        489        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
 TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
-15:53:27          DMA                node0          0         0         0         0         0         0         0         0         1         1         3          
-15:53:27          DMA32              node0          3         1         1         1         2         3         2         3         3         2         803        
-15:53:27          Normal             node0          1720      4118      1862      671       220       120       66        29        21        26        3040       
-Linux  5.4.17-2136.317.5.3.el8uek.x86_64  (localhost.localdomain)  08/02/23  x86_64    (4 CPU)
+09:54:19          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:54:19          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:54:19          Normal             node0          14865     8294      4341      2886      714       211       73        36        41        26        489        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
 TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
-15:53:30          DMA                node0          0         0         0         0         0         0         0         0         1         1         3          
-15:53:30          DMA32              node0          3         1         1         1         2         3         2         3         3         2         803        
-15:53:30          Normal             node0          1657      4118      1862      671       220       120       66        29        21        26        3040       
-Linux  5.4.17-2136.317.5.3.el8uek.x86_64  (localhost.localdomain)  08/02/23  x86_64    (4 CPU)
+09:54:21          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:54:21          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:54:21          Normal             node0          12632     8187      4310      2882      714       211       73        36        41        24        489        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
 TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
-15:53:33          DMA                node0          0         0         0         0         0         0         0         0         1         1         3          
-15:53:33          DMA32              node0          3         1         1         1         2         3         2         3         3         2         803        
-15:53:33          Normal             node0          1657      4118      1862      671       220       120       66        29        21        26        3040       
-Linux  5.4.17-2136.317.5.3.el8uek.x86_64  (localhost.localdomain)  08/02/23  x86_64    (4 CPU)
+09:54:23          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:54:23          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:54:23          Normal             node0          12632     8187      4310      2882      714       211       73        36        41        24        489        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
 TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
-15:53:36          DMA                node0          0         0         0         0         0         0         0         0         1         1         3          
-15:53:36          DMA32              node0          3         1         1         1         2         3         2         3         3         2         803        
-15:53:36          Normal             node0          1657      4118      1862      671       220       120       66        29        21        26        3040       
-Linux  5.4.17-2136.317.5.3.el8uek.x86_64  (localhost.localdomain)  08/02/23  x86_64    (4 CPU)
+09:54:25          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:54:25          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:54:25          Normal             node0          12632     8187      4310      2882      714       211       73        36        41        24        489        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
 TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
-15:53:39          DMA                node0          0         0         0         0         0         0         0         0         1         1         3          
-15:53:39          DMA32              node0          3         1         1         1         2         3         2         3         3         2         803        
-15:53:39          Normal             node0          1657      4118      1862      671       220       120       66        29        21        26        3040       
-Linux  5.4.17-2136.317.5.3.el8uek.x86_64  (localhost.localdomain)  08/02/23  x86_64    (4 CPU)
+09:54:27          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:54:27          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:54:27          Normal             node0          12632     8187      4310      2882      714       211       73        36        41        24        489        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
 TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
-15:53:42          DMA                node0          0         0         0         0         0         0         0         0         1         1         3          
-15:53:42          DMA32              node0          3         1         1         1         2         3         2         3         3         2         803        
-15:53:42          Normal             node0          1657      4118      1862      671       220       120       66        29        21        26        3040       
-Linux  5.4.17-2136.317.5.3.el8uek.x86_64  (localhost.localdomain)  08/02/23  x86_64    (4 CPU)
+09:54:29          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:54:29          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:54:29          Normal             node0          12632     8187      4310      2882      714       211       73        36        41        24        489        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
 TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
-15:53:45          DMA                node0          0         0         0         0         0         0         0         0         1         1         3          
-15:53:45          DMA32              node0          3         1         1         1         2         3         2         3         3         2         803        
-15:53:45          Normal             node0          1657      4118      1862      671       220       120       66        29        21        26        3040       
+09:54:31          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:54:31          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:54:31          Normal             node0          12136     8182      3997      2828      716       211       73        36        41        24        489        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:54:33          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:54:33          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:54:33          Normal             node0          12136     8182      3997      2828      716       211       73        36        41        24        489        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:54:35          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:54:35          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:54:35          Normal             node0          12136     8182      3997      2828      716       211       73        36        41        24        489        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:54:37          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:54:37          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:54:37          Normal             node0          12136     8182      3997      2828      716       211       73        36        41        24        489        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:54:39          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:54:39          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:54:39          Normal             node0          12136     8182      3997      2828      716       211       73        36        41        24        489        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:54:41          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:54:41          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:54:41          Normal             node0          1473      6154      4206      2568      682       210       74        36        41        3         488        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:54:43          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:54:43          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:54:43          Normal             node0          1473      6154      4206      2568      682       210       74        36        41        3         488        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:54:45          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:54:45          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:54:45          Normal             node0          1473      6154      4206      2568      682       210       74        36        41        3         488        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:54:47          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:54:47          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:54:47          Normal             node0          1473      6154      4206      2568      682       210       74        36        41        3         488        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:54:49          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:54:49          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:54:49          Normal             node0          1473      6154      4206      2568      682       210       74        36        41        3         488        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:54:51          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:54:51          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:54:51          Normal             node0          988       720       3863      2653      614       204       74        36        41        3         483        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:54:53          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:54:53          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:54:53          Normal             node0          988       720       3863      2653      614       204       74        36        41        3         483        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:54:55          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:54:55          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:54:55          Normal             node0          988       720       3863      2653      614       204       74        36        41        3         483        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:54:57          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:54:57          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:54:57          Normal             node0          988       720       3863      2653      614       204       74        36        41        3         483        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:54:59          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:54:59          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:54:59          Normal             node0          988       720       3863      2653      614       204       74        36        41        3         483        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:55:01          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:55:01          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:55:01          Normal             node0          11        185       3193      2671      617       204       74        36        41        5         481        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:55:03          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:55:03          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:55:03          Normal             node0          11        185       3193      2671      617       204       74        36        41        5         481        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:55:05          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:55:05          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:55:05          Normal             node0          11        185       3193      2671      617       204       74        36        41        5         481        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:55:07          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:55:07          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:55:07          Normal             node0          11        185       3193      2671      617       204       74        36        41        5         481        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:55:09          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:55:09          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:55:09          Normal             node0          11        185       3193      2671      617       204       74        36        41        5         481        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:55:11          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:55:11          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:55:11          Normal             node0          4128      2675      3060      2699      707       209       74        36        41        10        484        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:55:13          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:55:13          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:55:13          Normal             node0          4128      2675      3060      2699      707       209       74        36        41        10        484        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:55:15          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:55:15          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:55:15          Normal             node0          4128      2675      3060      2699      707       209       74        36        41        10        484        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:55:17          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:55:17          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:55:17          Normal             node0          4128      2675      3060      2699      707       209       74        36        41        10        484        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:55:19          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:55:19          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:55:19          Normal             node0          4128      2675      3060      2699      707       209       74        36        41        10        484        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:55:21          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:55:21          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:55:21          Normal             node0          12144     3394      3106      2820      719       212       74        36        41        11        484        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:55:23          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:55:23          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:55:23          Normal             node0          12144     3394      3106      2820      719       212       74        36        41        11        484        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:55:25          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:55:25          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:55:25          Normal             node0          12144     3394      3106      2820      719       212       74        36        41        11        484        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:55:27          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:55:27          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:55:27          Normal             node0          12144     3394      3106      2820      719       212       74        36        41        11        484        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:55:29          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:55:29          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:55:29          Normal             node0          12144     3394      3106      2820      719       212       74        36        41        11        484        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:55:31          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:55:31          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:55:31          Normal             node0          12654     3461      3115      2832      721       212       74        36        41        11        484        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:55:33          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:55:33          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:55:33          Normal             node0          12654     3461      3115      2832      721       212       74        36        41        11        484        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:55:35          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:55:35          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:55:35          Normal             node0          12654     3461      3115      2832      721       212       74        36        41        11        484        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:55:37          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:55:37          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:55:37          Normal             node0          12654     3461      3115      2832      721       212       74        36        41        11        484        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:55:39          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:55:39          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:55:39          Normal             node0          12654     3461      3115      2832      721       212       74        36        41        11        484        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:55:41          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:55:41          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:55:41          Normal             node0          13129     3492      3131      2837      721       213       74        36        41        9         484        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:55:43          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:55:43          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:55:43          Normal             node0          13129     3492      3131      2837      721       213       74        36        41        9         484        
 
 pcp-buddyinfo output : Display output
-Linux  5.4.17-2136.317.5.3.el8uek.x86_64  (localhost.localdomain)  08/02/23  x86_64    (4 CPU)
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
 TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
-15:53:19          DMA                node0          0         0         0         0         0         0         0         0         1         1         3          
-15:53:19          DMA32              node0          3         1         1         1         2         3         2         3         3         2         803        
-15:53:19          Normal             node0          1720      4118      1862      671       220       120       66        29        21        26        3040       
-Linux  5.4.17-2136.317.5.3.el8uek.x86_64  (localhost.localdomain)  08/02/23  x86_64    (4 CPU)
+09:54:16          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:54:16          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:54:16          Normal             node0          14865     8294      4341      2886      714       211       73        36        41        26        489        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
 TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
-15:53:22          DMA                node0          0         0         0         0         0         0         0         0         1         1         3          
-15:53:22          DMA32              node0          3         1         1         1         2         3         2         3         3         2         803        
-15:53:22          Normal             node0          1720      4118      1862      671       220       120       66        29        21        26        3040       
-Linux  5.4.17-2136.317.5.3.el8uek.x86_64  (localhost.localdomain)  08/02/23  x86_64    (4 CPU)
+09:54:18          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:54:18          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:54:18          Normal             node0          14865     8294      4341      2886      714       211       73        36        41        26        489        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
 TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
-15:53:25          DMA                node0          0         0         0         0         0         0         0         0         1         1         3          
-15:53:25          DMA32              node0          3         1         1         1         2         3         2         3         3         2         803        
-15:53:25          Normal             node0          1720      4118      1862      671       220       120       66        29        21        26        3040       
-Linux  5.4.17-2136.317.5.3.el8uek.x86_64  (localhost.localdomain)  08/02/23  x86_64    (4 CPU)
+09:54:20          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:54:20          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:54:20          Normal             node0          12632     8187      4310      2882      714       211       73        36        41        24        489        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
 TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
-15:53:28          DMA                node0          0         0         0         0         0         0         0         0         1         1         3          
-15:53:28          DMA32              node0          3         1         1         1         2         3         2         3         3         2         803        
-15:53:28          Normal             node0          1720      4118      1862      671       220       120       66        29        21        26        3040       
-Linux  5.4.17-2136.317.5.3.el8uek.x86_64  (localhost.localdomain)  08/02/23  x86_64    (4 CPU)
+09:54:22          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:54:22          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:54:22          Normal             node0          12632     8187      4310      2882      714       211       73        36        41        24        489        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
 TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
-15:53:31          DMA                node0          0         0         0         0         0         0         0         0         1         1         3          
-15:53:31          DMA32              node0          3         1         1         1         2         3         2         3         3         2         803        
-15:53:31          Normal             node0          1657      4118      1862      671       220       120       66        29        21        26        3040       
-Linux  5.4.17-2136.317.5.3.el8uek.x86_64  (localhost.localdomain)  08/02/23  x86_64    (4 CPU)
+09:54:24          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:54:24          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:54:24          Normal             node0          12632     8187      4310      2882      714       211       73        36        41        24        489        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
 TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
-15:53:34          DMA                node0          0         0         0         0         0         0         0         0         1         1         3          
-15:53:34          DMA32              node0          3         1         1         1         2         3         2         3         3         2         803        
-15:53:34          Normal             node0          1657      4118      1862      671       220       120       66        29        21        26        3040       
-Linux  5.4.17-2136.317.5.3.el8uek.x86_64  (localhost.localdomain)  08/02/23  x86_64    (4 CPU)
+09:54:26          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:54:26          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:54:26          Normal             node0          12632     8187      4310      2882      714       211       73        36        41        24        489        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
 TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
-15:53:37          DMA                node0          0         0         0         0         0         0         0         0         1         1         3          
-15:53:37          DMA32              node0          3         1         1         1         2         3         2         3         3         2         803        
-15:53:37          Normal             node0          1657      4118      1862      671       220       120       66        29        21        26        3040       
-Linux  5.4.17-2136.317.5.3.el8uek.x86_64  (localhost.localdomain)  08/02/23  x86_64    (4 CPU)
+09:54:28          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:54:28          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:54:28          Normal             node0          12632     8187      4310      2882      714       211       73        36        41        24        489        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
 TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
-15:53:40          DMA                node0          0         0         0         0         0         0         0         0         1         1         3          
-15:53:40          DMA32              node0          3         1         1         1         2         3         2         3         3         2         803        
-15:53:40          Normal             node0          1657      4118      1862      671       220       120       66        29        21        26        3040       
-Linux  5.4.17-2136.317.5.3.el8uek.x86_64  (localhost.localdomain)  08/02/23  x86_64    (4 CPU)
+09:54:30          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:54:30          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:54:30          Normal             node0          12136     8182      3997      2828      716       211       73        36        41        24        489        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
 TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
-15:53:43          DMA                node0          0         0         0         0         0         0         0         0         1         1         3          
-15:53:43          DMA32              node0          3         1         1         1         2         3         2         3         3         2         803        
-15:53:43          Normal             node0          1657      4118      1862      671       220       120       66        29        21        26        3040       
-Linux  5.4.17-2136.317.5.3.el8uek.x86_64  (localhost.localdomain)  08/02/23  x86_64    (4 CPU)
+09:54:32          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:54:32          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:54:32          Normal             node0          12136     8182      3997      2828      716       211       73        36        41        24        489        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
 TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
-15:53:46          DMA                node0          0         0         0         0         0         0         0         0         1         1         3          
-15:53:46          DMA32              node0          3         1         1         1         2         3         2         3         3         2         803        
-15:53:46          Normal             node0          1657      4118      1862      671       220       120       66        29        21        26        3040       
+09:54:34          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:54:34          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:54:34          Normal             node0          12136     8182      3997      2828      716       211       73        36        41        24        489        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:54:36          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:54:36          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:54:36          Normal             node0          12136     8182      3997      2828      716       211       73        36        41        24        489        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:54:38          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:54:38          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:54:38          Normal             node0          12136     8182      3997      2828      716       211       73        36        41        24        489        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:54:40          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:54:40          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:54:40          Normal             node0          1473      6154      4206      2568      682       210       74        36        41        3         488        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:54:42          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:54:42          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:54:42          Normal             node0          1473      6154      4206      2568      682       210       74        36        41        3         488        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:54:44          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:54:44          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:54:44          Normal             node0          1473      6154      4206      2568      682       210       74        36        41        3         488        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:54:46          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:54:46          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:54:46          Normal             node0          1473      6154      4206      2568      682       210       74        36        41        3         488        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:54:48          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:54:48          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:54:48          Normal             node0          1473      6154      4206      2568      682       210       74        36        41        3         488        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:54:50          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:54:50          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:54:50          Normal             node0          988       720       3863      2653      614       204       74        36        41        3         483        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:54:52          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:54:52          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:54:52          Normal             node0          988       720       3863      2653      614       204       74        36        41        3         483        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:54:54          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:54:54          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:54:54          Normal             node0          988       720       3863      2653      614       204       74        36        41        3         483        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:54:56          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:54:56          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:54:56          Normal             node0          988       720       3863      2653      614       204       74        36        41        3         483        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:54:58          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:54:58          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:54:58          Normal             node0          988       720       3863      2653      614       204       74        36        41        3         483        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:55:00          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:55:00          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:55:00          Normal             node0          11        185       3193      2671      617       204       74        36        41        5         481        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:55:02          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:55:02          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:55:02          Normal             node0          11        185       3193      2671      617       204       74        36        41        5         481        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:55:04          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:55:04          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:55:04          Normal             node0          11        185       3193      2671      617       204       74        36        41        5         481        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:55:06          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:55:06          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:55:06          Normal             node0          11        185       3193      2671      617       204       74        36        41        5         481        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:55:08          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:55:08          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:55:08          Normal             node0          11        185       3193      2671      617       204       74        36        41        5         481        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:55:10          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:55:10          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:55:10          Normal             node0          4128      2675      3060      2699      707       209       74        36        41        10        484        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:55:12          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:55:12          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:55:12          Normal             node0          4128      2675      3060      2699      707       209       74        36        41        10        484        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:55:14          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:55:14          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:55:14          Normal             node0          4128      2675      3060      2699      707       209       74        36        41        10        484        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:55:16          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:55:16          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:55:16          Normal             node0          4128      2675      3060      2699      707       209       74        36        41        10        484        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:55:18          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:55:18          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:55:18          Normal             node0          4128      2675      3060      2699      707       209       74        36        41        10        484        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:55:20          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:55:20          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:55:20          Normal             node0          12144     3394      3106      2820      719       212       74        36        41        11        484        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:55:22          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:55:22          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:55:22          Normal             node0          12144     3394      3106      2820      719       212       74        36        41        11        484        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:55:24          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:55:24          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:55:24          Normal             node0          12144     3394      3106      2820      719       212       74        36        41        11        484        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:55:26          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:55:26          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:55:26          Normal             node0          12144     3394      3106      2820      719       212       74        36        41        11        484        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:55:28          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:55:28          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:55:28          Normal             node0          12144     3394      3106      2820      719       212       74        36        41        11        484        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:55:30          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:55:30          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:55:30          Normal             node0          12654     3461      3115      2832      721       212       74        36        41        11        484        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:55:32          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:55:32          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:55:32          Normal             node0          12654     3461      3115      2832      721       212       74        36        41        11        484        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:55:34          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:55:34          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:55:34          Normal             node0          12654     3461      3115      2832      721       212       74        36        41        11        484        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:55:36          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:55:36          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:55:36          Normal             node0          12654     3461      3115      2832      721       212       74        36        41        11        484        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:55:38          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:55:38          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:55:38          Normal             node0          12654     3461      3115      2832      721       212       74        36        41        11        484        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:55:40          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:55:40          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:55:40          Normal             node0          13129     3492      3131      2837      721       213       74        36        41        9         484        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:55:42          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:55:42          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:55:42          Normal             node0          13129     3492      3131      2837      721       213       74        36        41        9         484        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:55:44          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:55:44          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:55:44          Normal             node0          13129     3492      3131      2837      721       213       74        36        41        9         484        
 
 pcp-buddyinfo output : Display output when given specified number of samples
-Linux  5.4.17-2136.317.5.3.el8uek.x86_64  (localhost.localdomain)  08/02/23  x86_64    (4 CPU)
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
 TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
-15:53:19          DMA                node0          0         0         0         0         0         0         0         0         1         1         3          
-15:53:19          DMA32              node0          3         1         1         1         2         3         2         3         3         2         803        
-15:53:19          Normal             node0          1720      4118      1862      671       220       120       66        29        21        26        3040       
-Linux  5.4.17-2136.317.5.3.el8uek.x86_64  (localhost.localdomain)  08/02/23  x86_64    (4 CPU)
+09:54:16          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:54:16          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:54:16          Normal             node0          14865     8294      4341      2886      714       211       73        36        41        26        489        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
 TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
-15:53:22          DMA                node0          0         0         0         0         0         0         0         0         1         1         3          
-15:53:22          DMA32              node0          3         1         1         1         2         3         2         3         3         2         803        
-15:53:22          Normal             node0          1720      4118      1862      671       220       120       66        29        21        26        3040       
-Linux  5.4.17-2136.317.5.3.el8uek.x86_64  (localhost.localdomain)  08/02/23  x86_64    (4 CPU)
+09:54:18          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:54:18          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:54:18          Normal             node0          14865     8294      4341      2886      714       211       73        36        41        26        489        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
 TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
-15:53:25          DMA                node0          0         0         0         0         0         0         0         0         1         1         3          
-15:53:25          DMA32              node0          3         1         1         1         2         3         2         3         3         2         803        
-15:53:25          Normal             node0          1720      4118      1862      671       220       120       66        29        21        26        3040       
+09:54:20          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:54:20          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:54:20          Normal             node0          12632     8187      4310      2882      714       211       73        36        41        24        489        
+
+pcp-buddyinfo output : Display output with interpolation disabled
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:54:34          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:54:34          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:54:34          Normal             node0          12136     8182      3997      2828      716       211       73        36        41        24        489        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:54:54          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:54:54          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:54:54          Normal             node0          988       720       3863      2653      614       204       74        36        41        3         483        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:55:14          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:55:14          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:55:14          Normal             node0          4128      2675      3060      2699      707       209       74        36        41        10        484        
+Linux  5.15.0-204.147.6.2.el8uek.x86_64  (sagsagar-pcp-build-setup)  09/23/24  x86_64    (4 CPU)
+TimeStamp         Normal             Nodes        Order0    Order1    Order2    Order3    Order4    Order5    Order6    Order7    Order8    Order9    Order10
+09:55:34          DMA                node0          0         1         1         1         0         0         0         0         2         3         1          
+09:55:34          DMA32              node0          16818     7727      3415      1484      639       307       140       59        29        31        481        
+09:55:34          Normal             node0          12654     3461      3115      2832      721       212       74        36        41        11        484        

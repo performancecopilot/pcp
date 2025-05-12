@@ -196,7 +196,7 @@ static void handle_event(void *ctx, int cpu, void *data, __u32 data_size)
     struct tailq_entry *elm = allocElm();
 
     elm->str_t.pid = str_t->pid;
-    strncpy(elm->str_t.str, str_t->str, sizeof(str_t->str));
+    pmstrncpy(elm->str_t.str, sizeof(elm->str_t.str), str_t->str);
 
     push(elm);
 }

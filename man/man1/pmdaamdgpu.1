@@ -1,0 +1,187 @@
+'\" t
+.\"
+.\" Copyright (c) 2024 Red Hat.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.TH PMDAAMDGPU 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmdaamdgpu\f1 \- AMD GPU metrics domain agent (PMDA)
+.SH SYNOPSIS
+\f3$PCP_PMDAS_DIR/amdgpu/pmdaamdgpu\f1
+[\f3\-D\f1 \f2debug\f1]
+[\f3\-d\f1 \f2domain\f1]
+[\f3\-l\f1 \f2logfile\f1]
+[\f3\-t\f1 \f2interval\f1]
+.SH DESCRIPTION
+.B pmdaamdgpu
+is a Performance Metrics Domain Agent (PMDA) which extracts
+performance metrics describing the metrics available on AMD
+GPU cards via the DRM library.
+.PP
+The
+.B amdgpu
+PMDA exports metrics that measure GPU activity, memory utilization,
+temperature, etc on GCN 1.2+ AMD GPUs.
+.PP
+A brief description of the
+.B pmdaamdgpu
+command line options follows:
+.TP 5
+.B \-d
+It is absolutely crucial that the performance metrics
+.I domain
+number specified here is unique and consistent.
+That is,
+.I domain
+should be different for every PMDA on the one host, and the same
+.I domain
+number should be used for the same PMDA on all hosts.
+.TP
+.B \-l
+Location of the log file.  By default, a log file named
+.I amdgpu.log
+is written in the current directory of
+.BR pmcd (1)
+when
+.B pmdaamdgpu
+is started, i.e.
+.BR $PCP_LOG_DIR/pmcd .
+If the log file cannot
+be created or is not writable, output is written to the standard error instead.
+.TP
+.B \-t
+Enables and sets a sampling
+.I interval
+for automatic refreshing of metric values.
+The functionality is disabled by default, however this option allows
+a time interval to be specified on which all values are sampled \- this
+has the effect of constantly updating the accumulating metrics, with the
+goal of assisting client tools such as
+.BR pcp-atop (1)
+and
+.BR pmlogger (1)
+to observe sub-sample time changes in GPU and process state.
+Typically these tools have longer sampling intervals, and can thus 'miss'
+activity happening during their sampling interval.
+.SH INSTALLATION
+The
+.B amdgpu
+PMDA is not installed and available by default.
+If you want to undo the installation, do the following as root:
+.PP
+.ft CR
+.nf
+.in +0.5i
+# cd $PCP_PMDAS_DIR/amdgpu
+# ./Remove
+.in
+.fi
+.ft 1
+.PP
+If you want to establish access to the names, help text and values for the AMD GPU
+performance metrics once more, after removal, do the following as root:
+.PP
+.ft CR
+.nf
+.in +0.5i
+# cd $PCP_PMDAS_DIR/amdgpu
+# ./Install
+.in
+.fi
+.ft 1
+.PP
+.B pmdaamdgpu
+is launched by
+.BR pmcd (1)
+and should never be executed directly.
+The Install and Remove scripts notify
+.BR pmcd (1)
+when the agent is installed or removed.
+.SH FILES
+.PD 0
+.TP 10
+.B $PCP_PMCDCONF_PATH
+command line options used to launch
+.B pmdaamdgpu
+.TP 10
+.B $PCP_PMDAS_DIR/amdgpu/help
+default help text file for the amdgpu metrics
+.TP 10
+.B $PCP_PMDAS_DIR/amdgpu/Install
+installation script for the
+.B pmdaamdgpu
+agent
+.TP 10
+.B $PCP_PMDAS_DIR/amdgpu/Remove
+undo installation script for the
+.B pmdaamdgpu
+agent
+.TP 10
+.B $PCP_LOG_DIR/pmcd/amdgpu.log
+default log file for error messages and other information from
+.B pmdaamdgpu
+.PD
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to configure the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH DEBUGGING OPTIONS
+The
+.B \-D
+or
+.B \-\-debug
+option enables the output of additional diagnostics on
+.I stderr
+to help triage problems, although the information is sometimes cryptic and
+primarily intended to provide guidance for developers rather end-users.
+.I debug
+is a comma separated list of debugging options; use
+.BR pmdbg (1)
+with the
+.B \-l
+option to obtain
+a list of the available debugging options and their meaning.
+.PP
+Debugging options specific to
+.B pmdaamdgpu
+are as follows:
+.TS
+box;
+lf(B) | lf(B)
+lf(B) | lf(R) .
+Option	Description
+_
+appl0	interaction with \fBpmcd\fP(1)
+_
+appl2	trace \fBselect\fP(2) calls
+.TE
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pcp-atop (1),
+.BR pmcd (1),
+.BR pmlogger (1),
+.BR pcp.conf (5)
+and
+.BR pcp.env (5).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ DRM GPU amdgpu GCN

@@ -66,9 +66,11 @@ pcp.spec: pcp.spec.in
 	    -e's|@package_release@|$(PACKAGE_BUILD)|g' \
 	    -e's|@package_configure@|$(PACKAGE_CONFIGURE)|g' \
 	    -e's|@package_distribution@|$(PACKAGE_DISTRIBUTION)|g' \
+	    -e's|@pmda_amdgpu@|$(PMDA_AMDGPU)|g' \
 	    -e's|@pmda_bcc@|$(PMDA_BCC)|g' \
 	    -e's|@pmda_bpf@|$(PMDA_BPF)|g' \
 	    -e's|@pmda_bpftrace@|$(PMDA_BPFTRACE)|g' \
+	    -e's|@pmda_gfs2@|$(PMDA_GFS2)|g' \
 	    -e's|@pmda_statsd@|$(PMDA_STATSD)|g' \
 	    -e's|@pmda_systemd@|$(PMDA_SYSTEMD)|g' \
 	    -e's|@pmda_infiniband@|$(PMDA_INFINIBAND)|g' \
@@ -100,8 +102,6 @@ pcp.spec: pcp.spec.in
 	    -e's|@enable_avahi@|$(ENABLE_AVAHI)|g' \
 	    -e's|@enable_dstat@|$(ENABLE_DSTAT)|g' \
 	    -e's|@enable_qt@|$(ENABLE_QT)|g' \
-	    -e's|@enable_python2@|$(ENABLE_PYTHON2)|g' \
-	    -e's|@enable_python3@|$(ENABLE_PYTHON3)|g' \
 	    -e's|@enable_selinux@|$(ENABLE_SELINUX)|g' \
 	    -e's|@enable_lzma@|$(ENABLE_LZMA)|g' \
 	    -e's|@have_python@|$(HAVE_PYTHON)|g' \

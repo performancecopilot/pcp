@@ -4,7 +4,7 @@
 389-ds-base
 Coin4-devel
 HdrHistogram_c-devel
-RediSearch
+#RediSearch - switch to ValkeySearch when available
 SoQt-devel
 Spreadsheet::Read cpan
 audit
@@ -40,15 +40,18 @@ gfs2-utils
 git
 git-core
 grep
+inih-devel
 iproute
 httpd
 initscripts
 java-latest-openjdk-headless
 jq
+kubernetes
 kubernetes-client
 libbpf
 libbpf-devel
 libcmocka-devel
+libdrm-devel
 libicu-devel
 libpfm-devel
 libselinux-devel
@@ -100,8 +103,7 @@ pylint
 python3
 python3-bcc
 python3-devel
-# broken dependencies, see https://bugzilla.redhat.com/show_bug.cgi?id=2066462
-# python3-elasticsearch
+python3-elasticsearch
 python3-jsonpointer
 python3-libs
 python3-libvirt
@@ -114,8 +116,7 @@ python3-psycopg2
 python3-pyarrow
 python3-pylint
 python3-pymongo
-# broken dependencies, see https://bugzilla.redhat.com/show_bug.cgi?id=2155256
-# python3-pyodbc
+python3-pyodbc
 python3-requests
 python3-rtslib
 python3-setuptools
@@ -126,7 +127,6 @@ qtchooser
 ragel
 rdma-core-devel
 readline-devel
-redis
 rpm-build
 rrdtool
 rrdtool-perl
@@ -139,13 +139,19 @@ smartmontools
 socat
 sqlite
 sqlite-libs
+sudo
 sysstat
 systemd-devel
+systemtap-devel
+systemtap-runtime
 systemtap-sdt-devel
+targetcli
 time
 valgrind
+valkey
 xfsprogs
 xkeyboard-config
 xz-devel
 zabbix-agent
 zfs-fuse
+zstd

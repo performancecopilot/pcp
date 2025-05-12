@@ -1,0 +1,39 @@
+#!/bin/sh
+#
+# Helper script for developer rebuild and install of PCP bits after
+# libpcp_qed (not a DSO) is changed.
+#
+# We assume you know what you're doing!
+#
+
+tmp=/var/tmp/install-dev-$$
+sts=1
+trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
+
+make
+
+# pmgadgets uses libpcp_qed.a also, but we're not building that
+# at the moment
+#
+for dir in pmchart pmview
+do
+    if cd ../$dir
+    then
+	if make
+	then
+	    if sudo make install
+	    then
+		echo "$dir: remade and installed"
+	    else
+		echo "$dir: make install failed!"
+		exit
+	    fi
+	else
+	    echo "$dir: make failed!"
+	    exit
+	fi
+    else
+	echo "$dir: cd ../$dir failed from `pwd`"
+	exit
+    fi
+done

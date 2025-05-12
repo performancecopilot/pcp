@@ -232,8 +232,7 @@ static int search_for_config(char *device_path, uint64_t config, char *event_fil
             break;
         }
         if (parsed_config == config) {
-            strncpy(event_file, entry->d_name, MAX_EVENT_NAME-1);
-            event_file[MAX_EVENT_NAME-1] = '\0';	/* buffer overrun guard */
+            pmstrncpy(event_file, MAX_EVENT_NAME, entry->d_name);
             ret = 0;
             break;
         }
@@ -420,7 +419,7 @@ static int perf_setup_derived_event(perfdata_t *inst, pmcderived_t *derived_pmc)
     pmcsetting_t *derived_setting;
     pmcSettingLists_t *setting_list;
     event_list_t *ptr, *tmp, *event_list;
-    int cpuconfig, clear_history = 0, ret;
+    int cpuconfig = 0, clear_history = 0, ret;
 
     tmp = NULL;
     event_list = NULL;

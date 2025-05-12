@@ -65,7 +65,7 @@ pmieconf -r ./pconf -f $tmp.pmie l cpu | _filter
 echo
 echo "=== lconf is in $seq.full ==="
 echo
-cp $tmp.pmie $seq.full
+cp $tmp.pmie $seq_full
 
 # debug check ... someone's clobbering pconf
 #

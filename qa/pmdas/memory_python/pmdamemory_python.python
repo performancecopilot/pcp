@@ -1,4 +1,3 @@
-#!/usr/bin/env pmpython
 '''
 Python PMDA that checks for memory corruption in the PMDA python support.
 '''
@@ -90,4 +89,4 @@ class MemoryPMDA(PMDA):
         self.set_fetch_callback(self.memory_fetch_callback)
 
 if __name__ == '__main__':
-    MemoryPMDA('memory_python', 255).run()
+    MemoryPMDA('memory_python', 254).run()

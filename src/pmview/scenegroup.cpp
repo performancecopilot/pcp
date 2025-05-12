@@ -93,6 +93,7 @@ void SceneGroup::setupWorldView()
 
 void SceneGroup::adjustLiveWorldViewForward(QmcTime::Packet *packet)
 {
+    struct timeval timeval;
     double position = timePosition();
 
     console->post("SceneGroup::adjustLiveWorldViewForward: Fetching data at %s", QedApp::timeString(position));
@@ -102,7 +103,9 @@ void SceneGroup::adjustLiveWorldViewForward(QmcTime::Packet *packet)
 			StandbyState : ForwardState);
 
     QedGroupControl::adjustLiveWorldViewForward(packet);
-    pmview->render(PmView::inventor, 0);
+    QedApp::timevalFromSeconds(timePosition(), &timeval);
+    pmview->render((PmView::RenderOptions)(PmView::metrics | PmView::inventor | PmView::timeLabel), timeval.tv_sec);
+    // pmview->render(PmView::all, timeval.tv_sec);
 }
 
 void SceneGroup::adjustArchiveWorldViewForward(QmcTime::Packet *packet, bool setup)
@@ -127,7 +130,8 @@ void SceneGroup::adjustArchiveWorldViewForward(QmcTime::Packet *packet, bool set
     fetch();
 
     QedGroupControl::adjustArchiveWorldViewForward(packet, setup);
-    pmview->render(PmView::inventor, 0);
+    pmview->render((PmView::RenderOptions)(PmView::metrics | PmView::inventor | PmView::timeLabel), timeval.tv_sec);
+    // pmview->render(PmView::all, 0);
 }
 
 void SceneGroup::adjustArchiveWorldViewBackward(QmcTime::Packet *packet, bool setup)
@@ -152,7 +156,8 @@ void SceneGroup::adjustArchiveWorldViewBackward(QmcTime::Packet *packet, bool se
     fetch();
 
     QedGroupControl::adjustArchiveWorldViewBackward(packet, setup);
-    pmview->render(PmView::inventor, 0);
+    pmview->render((PmView::RenderOptions)(PmView::metrics | PmView::inventor | PmView::timeLabel), timeval.tv_sec);
+    // pmview->render(PmView::all, 0);
 }
 
 //
@@ -165,9 +170,14 @@ void SceneGroup::adjustStep(QmcTime::Packet *packet)
 
 void SceneGroup::step(QmcTime::Packet *packet)
 {
+    struct timeval timeval;
+
     console->post("SceneGroup::step");
     QedGroupControl::step(packet);
-    pmview->render(PmView::inventor, 0);
+
+    QedApp::timevalFromSeconds(timePosition(), &timeval);
+    pmview->render((PmView::RenderOptions)(PmView::metrics | PmView::inventor | PmView::timeLabel), timeval.tv_sec);
+    // pmview->render(PmView::all, timeval.tv_sec);
 }
 
 void SceneGroup::setTimezone(QmcTime::Packet *packet, char *tz)

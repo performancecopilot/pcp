@@ -1,17 +1,19 @@
 QA output created by 738
 === Usage, no input files, incomplete input archive ===
-Usage: pmlogmv [options] oldname newname
+Usage: pmlogmv [options] srcname dstname
 
 Options:
+  -D DBG, --debug=DBG   set debug options, see pmdbg(1)
   -c, --checksum        checksum all source and destintion files when copying
   -f, --force           force changes, even if they look unsafe
   -N, --showme          perform a dry run, showing what would be done
   -V, --verbose         increase diagnostic verbosity
   -?, --help            show this usage message and exit
 exit status 1
-Usage: pmlogmv [options] oldname newname
+Usage: pmlogmv [options] srcname dstname
 
 Options:
+  -D DBG, --debug=DBG   set debug options, see pmdbg(1)
   -c, --checksum        checksum all source and destintion files when copying
   -f, --force           force changes, even if they look unsafe
   -N, --showme          perform a dry run, showing what would be done
@@ -65,9 +67,9 @@ foo.index
 foo.meta
 
 === simplest case ===
-+ ln ./foo.0 bar.0
-+ ln ./foo.index bar.index
-+ ln ./foo.meta bar.meta
++ ln-or-cp ./foo.0 bar.0
++ ln-or-cp ./foo.index bar.index
++ ln-or-cp ./foo.meta bar.meta
 + rm ./foo.0
 + rm ./foo.index
 + rm ./foo.meta

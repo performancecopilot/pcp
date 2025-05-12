@@ -222,6 +222,8 @@ pcp.sample.updown.control.repeat              VALUE
 pcp.sample.updown.control.min                 VALUE
 pcp.sample.updown.control.max                 VALUE
 pcp.sample.updown.control.step                VALUE
+pcp.sample.updown.control.mode                VALUE
+pcp.sample.updown.control.reset               VALUE
 == check derived metric configuration
 mem.util.allcache = mem.util.cached + mem.util.slab
 sample.derived.hundredten = sample.float.hundred + sample.double.ten

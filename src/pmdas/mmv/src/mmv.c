@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2021 Red Hat.
+ * Copyright (c) 2012-2021,2024 Red Hat.
  * Copyright (c) 2009-2010 Aconex. All Rights Reserved.
  * Copyright (c) 1995-2000,2009 Silicon Graphics, Inc. All Rights Reserved.
  *
@@ -33,6 +33,7 @@
 #include <sys/stat.h>
 #include <inttypes.h>
 #include <ctype.h>
+#include <math.h>
 
 static int isDSO = 1;
 static char *username;
@@ -41,8 +42,6 @@ static const char *pmproxy_prefix = "pmproxy";
 static void *privdata;
 
 static int setup;
-static float fNaN;
-static double dNaN;
 static pmAtomValue aNaN;
 
 /* command line option handling - both short and long options */
@@ -145,8 +144,8 @@ choose_cluster(agent_t *ap, int requested, const char *path)
 	if (ap->slist[i].cluster == requested) {
 	    if (pmDebugOptions.appl0)
 		pmNotifyErr(LOG_DEBUG,
-				"MMV: %s: duplicate cluster %d in use",
-				pmGetProgname(), requested);
+				"%s: duplicate cluster %d in use",
+				ap->prefix, requested);
 	    break;
 	}
     }
@@ -164,11 +163,15 @@ create_client_stat(agent_t *ap, const char *client, const char *path, size_t siz
     int			in, fd;
 
     if (pmDebugOptions.appl0)
-	pmNotifyErr(LOG_DEBUG, "MMV: create_client_stat: %s, %s", client, path);
+	pmNotifyErr(LOG_DEBUG, "%s: create_client_stat: %s, %s", ap->prefix, client, path);
 
     /* sanity check */
-    if (size < sizeof(mmv_disk_header_t))
+    if (size < sizeof(mmv_disk_header_t)) {
+	pmNotifyErr(LOG_ERR,
+	    "%s: %s: size %d too small, expecting at least %d",
+	    ap->prefix, client, (int)size, (int)sizeof(mmv_disk_header_t));
 	return -EINVAL;
+    }
 
     if ((fd = open(path, O_RDONLY)) >= 0) {
 	m = __pmMemoryMap(fd, size, 0);
@@ -178,16 +181,18 @@ create_client_stat(agent_t *ap, const char *client, const char *path, size_t siz
 	    header = *(mmv_disk_header_t *)m;
 	    if (strncmp(header.magic, "MMV", 4)) {
 		__pmMemoryUnmap(m, size);
+		pmNotifyErr(LOG_ERR,
+		    "%s: %s: magic \"%3.3s\" not \"MMV\" as expected",
+		    ap->prefix, client, header.magic);
 		return -EINVAL;
 	    }
 
 	    if (header.version != MMV_VERSION1 &&
 		header.version != MMV_VERSION2 &&
 		header.version != MMV_VERSION3) {
-		if (pmDebugOptions.appl0)
-		    pmNotifyErr(LOG_ERR,
-			"%s: %s client version %d unsupported (current is %d)",
-			pmGetProgname(), ap->prefix, header.version, MMV_VERSION);
+		pmNotifyErr(LOG_ERR,
+		    "%s: %s version %d unsupported (current is %d)",
+		    ap->prefix, client, header.version, MMV_VERSION);
 		__pmMemoryUnmap(m, size);
 		return -ENOSYS;
 	    }
@@ -195,17 +200,33 @@ create_client_stat(agent_t *ap, const char *client, const char *path, size_t siz
 	    if (header.g1 == 0 || header.g1 != header.g2) {
 		/* still in flux, wait until next refresh */
 		__pmMemoryUnmap(m, size);
+		if (header.g1 == 0) {
+		    if (pmDebugOptions.appl0)
+			pmNotifyErr(LOG_DEBUG,
+			    "%s: %s: generation 0, no data yet",
+			    ap->prefix, client);
+		}
+		else
+		    pmNotifyErr(LOG_INFO,
+			"%s: %s: generation in flux, g1=%" FMT_UINT64 " g2=%" FMT_UINT64,
+			ap->prefix, client, header.g1, header.g2);
 		return -EAGAIN;
 	    }
 
 	    /* must have entries for at least metric descs and values */
 	    if (header.tocs < 2) {
 		__pmMemoryUnmap(m, size);
+		pmNotifyErr(LOG_ERR,
+		    "%s: %s: bad header.doc %d, expecting at least 2",
+		    ap->prefix, client, header.tocs);
 		return -EINVAL;
 	    }
 	    offset = header.tocs * sizeof(mmv_disk_toc_t);
 	    if (size < sizeof(mmv_disk_header_t) + offset) {
 		__pmMemoryUnmap(m, size);
+		pmNotifyErr(LOG_ERR,
+		    "%s: %s: bad total size %d, expecting %d",
+		    ap->prefix, client, (int)size, (int)(sizeof(mmv_disk_header_t) + offset));
 		return -EINVAL;
 	    }
 
@@ -213,18 +234,24 @@ create_client_stat(agent_t *ap, const char *client, const char *path, size_t siz
 	    if (header.process && (header.flags & MMV_FLAG_PROCESS) &&
 		!__pmProcessExists((pid_t)header.process)) {
 		__pmMemoryUnmap(m, size);
+		pmNotifyErr(LOG_ERR,
+		    "%s: %s: owning process PID %" FMT_PID " vanished",
+		    ap->prefix, client, (pid_t)header.process);
 		return -ESRCH;
 	    }
 
 	    if ((cluster = choose_cluster(ap, header.cluster, path)) < 0) {
 		__pmMemoryUnmap(m, size);
+		pmNotifyErr(LOG_ERR,
+		    "%s: %s: choose_cluster failed",
+		    ap->prefix, client);
 		return cluster;
 	    }
 
 	    /* all checks out so far, we'll use this one */
 	    if (pmDebugOptions.appl0)
-		pmNotifyErr(LOG_DEBUG, "MMV: loading %s client: %d \"%s\"",
-				    ap->prefix, cluster, path);
+		pmNotifyErr(LOG_DEBUG, "%s: %s: loading client cluster=%d for PMIDs from %s",
+				    ap->prefix, client, cluster, path);
 
 	    in = ap->scnt;
 	    sp = realloc(ap->slist, sizeof(stats_t) * (in + 1));
@@ -241,20 +268,20 @@ create_client_stat(agent_t *ap, const char *client, const char *path, size_t siz
 		ap->slist = sp;
 		ap->scnt++;
 	    } else {
-		pmNotifyErr(LOG_ERR, "%s: client \"%s\" out of memory - %s",
-				pmGetProgname(), client, osstrerror());
+		pmNotifyErr(LOG_ERR, "%s: %s: realloc out of memory: %s",
+				ap->prefix, client, osstrerror());
 		__pmMemoryUnmap(m, size);
 		ap->scnt = 0;
 		free(ap->slist);
 		ap->slist = NULL;
 	    }
 	} else {
-	    pmNotifyErr(LOG_ERR, "%s: failed to memory map \"%s\" - %s",
-				pmGetProgname(), path, osstrerror());
+	    pmNotifyErr(LOG_ERR, "%s: %s: failed to memory map \"%s\": %s",
+				ap->prefix, client, path, osstrerror());
 	}
-    } else if (pmDebugOptions.appl0) {
-	pmNotifyErr(LOG_ERR, "%s: failed to open client file \"%s\" - %s",
-				pmGetProgname(), client, osstrerror());
+    } else {
+	pmNotifyErr(LOG_ERR, "%s: %s: failed to open: %s",
+				ap->prefix, client, osstrerror());
     }
     return 0;
 }
@@ -267,18 +294,18 @@ verify_metric_name(agent_t *ap, const char *name, int pos, stats_t *s)
     pmID		pmid;
 
     if (pmDebugOptions.appl0)
-	pmNotifyErr(LOG_DEBUG, "MMV: verify_metric_name: %s", name);
+	pmNotifyErr(LOG_DEBUG, "verify_metric_name: %s", name);
 
     if (p == NULL || *p == '\0' || !isalpha((int)*p)) {
-	pmNotifyErr(LOG_WARNING, "Invalid metric[%d] name start in %s, ignored",
-			pos, s->name);
+	pmNotifyErr(LOG_ERR, "%s: invalid metric[%d] name start in %s, ignored",
+			ap->prefix, pos, s->name);
 	return -EINVAL;
     }
     for (++p; (p != NULL && *p != '\0'); p++) {
 	if (isalnum((int)*p) || *p == '_' || *p == '.')
 	    continue;
-	pmNotifyErr(LOG_WARNING, "invalid metric[%d] name in %s (@%c), ignored",
-			    pos, s->name, *p);
+	pmNotifyErr(LOG_ERR, "%s: invalid metric[%d] name in %s (@%c), ignored",
+			    ap->prefix, pos, s->name, *p);
 	return -EINVAL;
     }
     if (pmdaTreePMID(ap->pmns, name, &pmid) == 0)
@@ -300,17 +327,17 @@ verify_metric_item(mmv_disk_metric_t *ml, int k, char *name, stats_t *s)
     int			j;
 
     if (pmDebugOptions.appl0)
-	pmNotifyErr(LOG_DEBUG, "MMV: verify_metric_item: %u - %s", item, name);
+	pmNotifyErr(LOG_DEBUG, "verify_metric_item: item=%u name=%s", item, name);
 
     if (pmID_item(item) != item) {
-	pmNotifyErr(LOG_WARNING, "MMV: verify_metric_item: invalid item %u (%s) in %s, ignored",
+	pmNotifyErr(LOG_ERR, "verify_metric_item: invalid item %u (%s) in %s, ignored",
 			item, name, s->name);
 	return -EINVAL;
     }
 
     for (j = 0; j < k; j++) {
 	if (ml[j].item == item) {
-	    pmNotifyErr(LOG_DEBUG, "MMV: verify_metric_item: duplicate item %u - [%d] and [%d] %s, second will be ignored", item, j, k, name);
+	    pmNotifyErr(LOG_ERR, "verify_metric_item: duplicate item %u - [%d] and [%d] %s, second will be ignored", item, j, k, name);
 	    return -EINVAL;
 	}
     }
@@ -326,17 +353,17 @@ verify_metric_item2(mmv_disk_metric2_t *ml, int k, char *name, stats_t *s)
     int			j;
 
     if (pmDebugOptions.appl0)
-	pmNotifyErr(LOG_DEBUG, "MMV: verify_metric_item2: %u - %s", item, name);
+	pmNotifyErr(LOG_DEBUG, "verify_metric_item2: item=%u name=%s", item, name);
 
     if (pmID_item(item) != item) {
-	pmNotifyErr(LOG_WARNING, "MMV: verify_metric_item2: invalid item %u (%s) in %s, ignored",
+	pmNotifyErr(LOG_ERR, "verify_metric_item2: invalid item %u (%s) in %s, ignored",
 			item, name, s->name);
 	return -EINVAL;
     }
 
     for (j = 0; j < k; j++) {
 	if (ml[j].item == item) {
-	    pmNotifyErr(LOG_DEBUG, "MMV: verify_metric_item2: duplicate item %u - [%d] and [%d] %s, second will be ignored", item, j, k, name);
+	    pmNotifyErr(LOG_ERR, "verify_metric_item2: duplicate item %u - [%d] and [%d] %s, second will be ignored", item, j, k, name);
 	    return -EINVAL;
 	}
     }
@@ -352,11 +379,11 @@ create_metric(pmdaExt *pmda, stats_t *s, char *name, pmID pmid, unsigned indom,
     agent_t		*ap = (agent_t *)pmdaExtGetData(pmda);
 
     if (pmDebugOptions.appl0)
-	pmNotifyErr(LOG_DEBUG, "MMV: create_metric: %s - %s", name, pmIDStr(pmid));
+	pmNotifyErr(LOG_DEBUG, "create_metric: name=%s PMID=%s", name, pmIDStr(pmid));
 
     mp = realloc(ap->metrics, sizeof(pmdaMetric) * (ap->mtot + 1));
     if (mp == NULL)  {
-	pmNotifyErr(LOG_ERR, "cannot grow MMV metric list: %s", s->name);
+	pmNotifyErr(LOG_ERR, "%s: cannot grow MMV metric list: %s", ap->prefix, s->name);
 	return -ENOMEM;
     }
     ap->metrics = mp;
@@ -384,7 +411,7 @@ create_metric(pmdaExt *pmda, stats_t *s, char *name, pmID pmid, unsigned indom,
 
     if (pmDebugOptions.appl0)
 	pmNotifyErr(LOG_DEBUG,
-			"MMV: map_stats adding metric[%d] %s %s from %s\n",
+			"map_stats adding metric[%d] name=%s PMID=%s from %s\n",
 			ap->mtot, name, pmIDStr(pmid), s->name);
 
     ap->mtot++;
@@ -401,11 +428,11 @@ verify_indom_serial(pmdaExt *pmda, int serial, stats_t *s, pmInDom *p, pmdaIndom
     int			index;
 
     if (pmDebugOptions.appl0)
-	pmNotifyErr(LOG_DEBUG, "MMV: verify_indom_serial: %u", serial);
+	pmNotifyErr(LOG_DEBUG, "verify_indom_serial: %s: serial=%u", s->name, serial);
 
     if (pmInDom_serial(serial) != serial) {
-	pmNotifyErr(LOG_WARNING, "invalid serial %u in %s, ignored",
-			serial, s->name);
+	pmNotifyErr(LOG_ERR, "%s: verify_indom_serial: %s: invalid serial %u, ignored",
+			ap->prefix, s->name, serial);
 	return -EINVAL;
     }
 
@@ -427,10 +454,11 @@ update_indom(pmdaExt *pmda, stats_t *s, __uint64_t offset, __uint32_t count,
     mmv_disk_instance2_t *in2 = NULL;
     mmv_disk_string_t	*string;
     pmdaInstid		*iip;
+    agent_t		*ap = (agent_t *)pmdaExtGetData(pmda);
     int			i, j, size, newinsts = 0;
 
     if (pmDebugOptions.appl0)
-	pmNotifyErr(LOG_DEBUG, "MMV: update_indom on %s: %u (%d insts, count %d)",
+	pmNotifyErr(LOG_DEBUG, "update_indom on %s: %u (%d insts, count %d)",
 			s->name, id->serial, ip->it_numinst, count);
 
     if (s->version == MMV_VERSION1) {
@@ -458,7 +486,7 @@ update_indom(pmdaExt *pmda, stats_t *s, __uint64_t offset, __uint32_t count,
 	return 0;
 
     if (pmDebugOptions.appl0)
-	pmNotifyErr(LOG_DEBUG, "MMV: update_indom on %s: %u (%d new insts)",
+	pmNotifyErr(LOG_DEBUG, "update_indom on %s: %u (%d new insts)",
 			s->name, id->serial, newinsts);
 
     /* allocate memory, then append new instances to the known set */
@@ -466,7 +494,7 @@ update_indom(pmdaExt *pmda, stats_t *s, __uint64_t offset, __uint32_t count,
     iip = (pmdaInstid *)realloc(ip->it_set, size);
     if (iip == NULL) {
 	pmNotifyErr(LOG_ERR, "%s: cannot get memory for instance list in %s",
-			pmGetProgname(), s->name);
+			ap->prefix, s->name);
 	ip->it_numinst = 0;
 	free(ip->it_set);
 	ip->it_set = NULL;
@@ -514,12 +542,12 @@ create_indom(pmdaExt *pmda, stats_t *s, __uint64_t offset, __uint32_t count,
     int			i;
 
     if (pmDebugOptions.appl0)
-	pmNotifyErr(LOG_DEBUG, "MMV: create_indom: %u", id->serial);
+	pmNotifyErr(LOG_DEBUG, "%s: %s: create_indom: serial=%u", ap->prefix, s->name, id->serial);
 
     ip = realloc(ap->indoms, sizeof(pmdaIndom) * (ap->intot + 1));
     if (ip == NULL) {
-	pmNotifyErr(LOG_ERR, "%s: cannot grow indom list in %s",
-			pmGetProgname(), s->name);
+	pmNotifyErr(LOG_ERR, "%s: %s: realloc indom list failed",
+			ap->prefix, s->name);
 	return -ENOMEM;
     }
     ap->indoms = ip;
@@ -527,10 +555,16 @@ create_indom(pmdaExt *pmda, stats_t *s, __uint64_t offset, __uint32_t count,
     ip->it_indom = indom;
     ip->it_set = (pmdaInstid *)calloc(count, sizeof(pmdaInstid));
     if (ip->it_set == NULL) {
-	pmNotifyErr(LOG_ERR, "%s: cannot get memory for instance list in %s",
-			pmGetProgname(), s->name);
+	pmNotifyErr(LOG_ERR, "%s: %s: indom serial=%u alloc inst list failed",
+			ap->prefix, s->name, id->serial);
 	ip->it_numinst = 0;
 	return -ENOMEM;
+    }
+
+    if (count == 0 && pmDebugOptions.appl0) {
+	pmNotifyErr(LOG_WARNING, "%s: %s:"
+		   " indom serial=%u has no instances",
+		   ap->prefix, s->name, id->serial);
     }
 
     if (s->version == MMV_VERSION1) {
@@ -570,19 +604,25 @@ map_stats(pmdaExt *pmda)
 
     if ((sts = pmdaTreeCreate(&ap->pmns)) < 0) {
 	pmNotifyErr(LOG_ERR, "%s: failed to create new pmns: %s\n",
-			pmGetProgname(), pmErrStr(sts));
+			ap->prefix, pmErrStr(sts));
 	ap->pmns = NULL;
 	return;
     }
 
     /* hard-coded metrics (not from mmap'd files) */
+    ap->mtot = 0;
     pmsprintf(name, sizeof(name), "%s.control.reload", ap->prefix);
     pmdaTreeInsert(ap->pmns, pmID_build(pmda->e_domain, 0, 0), name);
+    ap->mtot++;
     pmsprintf(name, sizeof(name), "%s.control.debug", ap->prefix);
     pmdaTreeInsert(ap->pmns, pmID_build(pmda->e_domain, 0, 1), name);
+    ap->mtot++;
     pmsprintf(name, sizeof(name), "%s.control.files", ap->prefix);
     pmdaTreeInsert(ap->pmns, pmID_build(pmda->e_domain, 0, 2), name);
-    ap->mtot = 3;
+    ap->mtot++;
+    pmsprintf(name, sizeof(name), "%s.control.metrics", ap->prefix);
+    pmdaTreeInsert(ap->pmns, pmID_build(pmda->e_domain, 0, 3), name);
+    ap->mtot++;
 
     if (ap->indoms != NULL) {
 	for (i = 0; i < ap->intot; i++)
@@ -635,12 +675,14 @@ map_stats(pmdaExt *pmda)
 	    switch (type) {
 	    case MMV_TOC_METRICS:
 		if (count > MAX_MMV_ITEMS) {
-		    if (pmDebugOptions.appl0) {
-			pmNotifyErr(LOG_ERR, "MMV: %s - "
-					"metrics count: %d > %d",
-					s->name, count, MAX_MMV_ITEMS);
-		    }
+		    pmNotifyErr(LOG_ERR, "%s: %s:"
+				    " metrics count: %u > %d",
+				    ap->prefix, s->name, count, MAX_MMV_ITEMS);
 		    continue;
+		}
+	        else if (count == 0 && pmDebugOptions.appl0) {
+		    pmNotifyErr(LOG_WARNING, "%s: %s:"
+			       " metrics count: 0", ap->prefix, s->name);
 		}
 		if (s->version == MMV_VERSION1) {
 		    mmv_disk_metric_t *ml = (mmv_disk_metric_t *)
@@ -649,9 +691,9 @@ map_stats(pmdaExt *pmda)
 		    offset += (count * sizeof(mmv_disk_metric_t));
 		    if (s->len < offset) {
 			if (pmDebugOptions.appl0) {
-			    pmNotifyErr(LOG_INFO, "MMV: %s - "
-					"metrics offset: %"PRIu64" < %"PRIu64,
-					s->name, s->len, (int64_t)offset);
+			    pmNotifyErr(LOG_INFO, "%s: %s:"
+					" metrics offset: %"PRIu64" < %"PRIu64,
+					ap->prefix, s->name, s->len, (int64_t)offset);
 			}
 			continue;
 		    }
@@ -686,9 +728,9 @@ map_stats(pmdaExt *pmda)
 		    offset += (count * sizeof(mmv_disk_metric2_t));
 		    if (s->len < offset) {
 			if (pmDebugOptions.appl0) {
-			    pmNotifyErr(LOG_INFO, "MMV: %s - "
-					"metrics offset: %"PRIu64" < %"PRIu64,
-					s->name, s->len, (int64_t)offset);
+			    pmNotifyErr(LOG_INFO, "%s: %s:"
+					" metrics offset: %"PRIu64" < %"PRIu64,
+					ap->prefix, s->name, s->len, (int64_t)offset);
 			}
 			continue;
 		    }
@@ -706,9 +748,9 @@ map_stats(pmdaExt *pmda)
 			mname = mp->name;
 			if (s->len < mname + sizeof(mmv_disk_string_t)) {
 			    if (pmDebugOptions.appl0) {
-				pmNotifyErr(LOG_INFO, "MMV: %s - "
-					"metrics2 name: %"PRIu64" < %"PRIu64,
-					s->name, s->len, mname);
+				pmNotifyErr(LOG_INFO, "%s: %s:"
+					" metrics2 name: %"PRIu64" < %"PRIu64,
+					ap->prefix, s->name, s->len, mname);
 			    }
 			    continue;
 			}
@@ -737,22 +779,22 @@ map_stats(pmdaExt *pmda)
 
 	    case MMV_TOC_INDOMS:
 		if (count > MAX_MMV_SERIAL) {
-		    if (pmDebugOptions.appl0) {
-			pmNotifyErr(LOG_ERR, "MMV: %s - "
-					"indoms count: %d > %d",
-					s->name, count, MAX_MMV_SERIAL);
-		    }
+		    pmNotifyErr(LOG_ERR, "%s: %s:"
+				    " indoms count: %u > %d",
+				    ap->prefix, s->name, count, MAX_MMV_SERIAL);
 		    continue;
+		}
+	        else if (count == 0 && pmDebugOptions.appl0) {
+		    pmNotifyErr(LOG_WARNING, "%s: %s:"
+			       " indoms count: 0", ap->prefix, s->name);
 		}
 		id = (mmv_disk_indom_t *)((char *)s->addr + offset);
 
 		offset += (count * sizeof(mmv_disk_indom_t));
 		if (s->len < offset) {
-		    if (pmDebugOptions.appl0) {
-			pmNotifyErr(LOG_ERR, "MMV: %s - "
-					"indoms offset: %"PRIu64" < %"PRIu64,
-					s->name, s->len, offset);
-		    }
+		    pmNotifyErr(LOG_ERR, "%s: %s:"
+				    " indoms offset: %"PRIu64" < %"PRIu64,
+				    ap->prefix, s->name, s->len, offset);
 		    continue;
 		}
 
@@ -766,21 +808,17 @@ map_stats(pmdaExt *pmda)
 		    if (s->version == MMV_VERSION1) {
 			ioffset += (icount * sizeof(mmv_disk_instance_t));
 			if (s->len < ioffset) {
-			    if (pmDebugOptions.appl0) {
-				pmNotifyErr(LOG_ERR, "MMV: %s - "
-					"indom[%d] offset: %"PRIu64" < %"PRIu64,
-					s->name, k, s->len, ioffset);
-			    }
+			    pmNotifyErr(LOG_ERR, "%s: %s:"
+				    " indom[%d] offset: %"PRIu64" < %"PRIu64,
+				    ap->prefix, s->name, k, s->len, ioffset);
 			    continue;
 			}
 		    } else {
 			ioffset += (icount * sizeof(mmv_disk_instance2_t));
 			if (s->len < ioffset) {
-			    if (pmDebugOptions.appl0) {
-				pmNotifyErr(LOG_ERR, "MMV: %s - "
-					"indom[%d] offset: %"PRIu64" < %"PRIu64,
-					s->name, k, s->len, ioffset);
-			    }
+			    pmNotifyErr(LOG_ERR, "%s: %s:"
+				    " indom[%d] offset: %"PRIu64" < %"PRIu64,
+				    ap->prefix, s->name, k, s->len, ioffset);
 			    continue;
 			}
 		    }
@@ -800,11 +838,9 @@ map_stats(pmdaExt *pmda)
 	    case MMV_TOC_VALUES:
 		offset += (count * sizeof(mmv_disk_value_t));
 		if (s->len < offset) {
-		    if (pmDebugOptions.appl0) {
-			pmNotifyErr(LOG_ERR, "MMV: %s - "
-					"values offset: %"PRIu64" < %"PRIu64,
-					s->name, s->len, offset);
-		    }
+		    pmNotifyErr(LOG_ERR, "%s: %s:"
+				    " values offset: %"PRIu64" < %"PRIu64,
+				    ap->prefix, s->name, s->len, offset);
 		    continue;
 		}
 		offset -= (count * sizeof(mmv_disk_value_t));
@@ -819,12 +855,14 @@ map_stats(pmdaExt *pmda)
 		
 	    case MMV_TOC_LABELS:
 	        if (count > MAX_MMV_LABELS) {
-		    if (pmDebugOptions.appl0) {
-		        pmNotifyErr(LOG_ERR, "MMV: %s - "
-		                   "labels count: %d > %d",
-				    s->name, count, MAX_MMV_LABELS);
-		    }
+		    pmNotifyErr(LOG_ERR, "%s: %s: "
+			       " labels count: %u > %d",
+				ap->prefix, s->name, count, MAX_MMV_LABELS);
 		    continue;
+		}
+	        else if (count == 0 && pmDebugOptions.appl0) {
+		    pmNotifyErr(LOG_WARNING, "%s: %s:"
+			       " labels count: 0", ap->prefix, s->name);
 		}
 		mmv_disk_label_t *lb = (mmv_disk_label_t *)
 					((char *)s->addr + offset);
@@ -832,9 +870,9 @@ map_stats(pmdaExt *pmda)
 		offset += (count * sizeof(mmv_disk_label_t));
 		if (s->len < offset) {
 		    if (pmDebugOptions.appl0) {
-		        pmNotifyErr(LOG_INFO, "MMV: %s - "
-				"labels offset: %"PRIu64" < %"PRIu64,
-				s->name, s->len, (int64_t)offset);
+		        pmNotifyErr(LOG_INFO, "%s: %s:"
+				" labels offset: %"PRIu64" < %"PRIu64,
+				ap->prefix, s->name, s->len, (int64_t)offset);
 		    }
 		    continue;
 		}
@@ -844,10 +882,8 @@ map_stats(pmdaExt *pmda)
 	    	break;
 
 	    default:
-		if (pmDebugOptions.appl0) {
-		    pmNotifyErr(LOG_DEBUG, "MMV: %s - bad TOC type (%x)",
-				    s->name, type);
-		}
+		pmNotifyErr(LOG_ERR, "%s: %s: bad TOC type (%x)",
+				    ap->prefix, s->name, type);
 		break;
 	    }
 	}
@@ -985,6 +1021,13 @@ mmv_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    case 2:
 		atom->l = ap->scnt;
 		return PMDA_FETCH_STATIC;
+	    case 3:
+		/*
+		 * control.metrics ... number of scanned metrics less
+		 * control ones
+		 */
+		atom->l = ap->mtot - 4;
+		return PMDA_FETCH_STATIC;
 	    default:
 		break;
 	}
@@ -1008,12 +1051,12 @@ mmv_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		break;
 	    case MMV_TYPE_FLOAT:
 		memcpy(atom, &v->value, sizeof(pmAtomValue));
-		if ((flags & MMV_FLAG_SENTINEL) && atom->f == fNaN)
+		if ((flags & MMV_FLAG_SENTINEL) && isnan(atom->f))
 		    return PMDA_FETCH_NOVALUES;
 		break;
 	    case MMV_TYPE_DOUBLE:
 		memcpy(atom, &v->value, sizeof(pmAtomValue));
-		if ((flags & MMV_FLAG_SENTINEL) && atom->d == dNaN)
+		if ((flags & MMV_FLAG_SENTINEL) && isnan(atom->d))
 		    return PMDA_FETCH_NOVALUES;
 		break;
 	    case MMV_TYPE_ELAPSED: {
@@ -1031,11 +1074,10 @@ mmv_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    case MMV_TYPE_STRING: {
 		offset = v->extra;
 		if (s->len < offset + sizeof(MMV_STRINGMAX)) {
-		    if (pmDebugOptions.appl0)
-			pmNotifyErr(LOG_ERR, "MMV: %s - "
-				"bad string value offset: %"PRIu64" < %"PRIu64,
-				s->name, s->len,
-				offset + sizeof(MMV_STRINGMAX));
+		    pmNotifyErr(LOG_ERR, "%s: %s:"
+			    " bad string value offset: %"PRIu64" < %"PRIu64,
+			    ap->prefix, s->name, s->len,
+			    offset + sizeof(MMV_STRINGMAX));
 		    return PM_ERR_GENERIC;
 		}
 		str = (mmv_disk_string_t *)((char *)s->addr + offset);
@@ -1105,7 +1147,7 @@ mmv_reload_maybe(pmdaExt *pmda)
 
     if (need_reload) {
 	if (pmDebugOptions.appl0)
-	    pmNotifyErr(LOG_DEBUG, "MMV: %s: reloading", pmGetProgname());
+	    pmNotifyErr(LOG_DEBUG, "reloading");
 	map_stats(pmda);
 
 	pmda->e_indoms = ap->indoms;
@@ -1113,8 +1155,8 @@ mmv_reload_maybe(pmdaExt *pmda)
 	pmdaRehash(pmda, ap->metrics, ap->mtot);
 
 	if (pmDebugOptions.appl0)
-	    pmNotifyErr(LOG_DEBUG, 
-		      "MMV: %s: %d metrics and %d indoms after reload", 
+	    pmNotifyErr(LOG_INFO, 
+		      "%s: %d metrics and %d indoms after reload", 
 		      pmGetProgname(), ap->mtot, ap->intot);
     }
 }
@@ -1142,10 +1184,9 @@ mmv_lookup_metric_helptext(agent_t *ap, pmID pmid, int type, char **text)
     if ((type & PM_TEXT_ONELINE) && st) {
 	offset = st + sizeof(mmv_disk_string_t);
 	if (s->len < offset) {
-	    if (pmDebugOptions.appl0)
-		pmNotifyErr(LOG_ERR, "MMV: %s - "
-				"bad shorttext offset: %"PRIu64" < %"PRIu64,
-				s->name, s->len, (uint64_t)offset);
+	    pmNotifyErr(LOG_ERR, "%s: %s:"
+			    " bad shorttext offset: %"PRIu64" < %"PRIu64,
+			    ap->prefix, s->name, s->len, (uint64_t)offset);
 	    return PM_ERR_GENERIC;
 	}
 	offset -= sizeof(mmv_disk_string_t);
@@ -1160,10 +1201,9 @@ mmv_lookup_metric_helptext(agent_t *ap, pmID pmid, int type, char **text)
     if ((type & PM_TEXT_HELP) && lt) {
 	offset = lt + sizeof(mmv_disk_string_t);
 	if (s->len < offset) {
-	    if (pmDebugOptions.appl0)
-		pmNotifyErr(LOG_ERR, "MMV: %s - "
-				"bad helptext offset: %"PRIu64" < %"PRIu64,
-				s->name, s->len, (uint64_t)offset);
+	    pmNotifyErr(LOG_ERR, "%s: %s:"
+			    " bad helptext offset: %"PRIu64" < %"PRIu64,
+			    ap->prefix, s->name, s->len, (uint64_t)offset);
 	    return PM_ERR_GENERIC;
 	}
 	offset -= sizeof(mmv_disk_string_t);
@@ -1212,6 +1252,15 @@ mmv_text(int ident, int type, char **buffer, pmdaExt *pmda)
 "Count of currently mapped and exported statistics files.\n";
 
 		*buffer = (type & PM_TEXT_ONELINE) ? filesoneline : filestext;
+		return 0;
+	    }
+	    case 3: {
+		static char metricsoneline[] = "Memory mapped metric count";
+		static char metricstext[] =
+"Count of currently mapped and exported metrics.\n\
+Excludes the mmv.control.* metrics.\n";
+
+		*buffer = (type & PM_TEXT_ONELINE) ? metricsoneline : metricstext;
 		return 0;
 	    }
 	}
@@ -1396,8 +1445,6 @@ init_pmda(pmdaInterface *dp, agent_t *ap)
 
     if (!setup) {
 	setup++;
-	fNaN = (float)0.0 / (float)0.0;
-	dNaN = (double)0.0 / (double)0.0;
 	memset(&aNaN, -1, sizeof(pmAtomValue));
     }
 
@@ -1420,7 +1467,7 @@ init_pmda(pmdaInterface *dp, agent_t *ap)
 	 * number of hard-coded metrics here has to match initializer
 	 * cases below, and pmns initialization in map_stats()
 	 */
-	ap->mtot = 3;
+	ap->mtot = 4;
 	if ((ap->metrics = malloc(ap->mtot * sizeof(pmdaMetric))) != NULL) {
 	    /*
 	     * all the hard-coded metrics have the same semantics

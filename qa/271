@@ -67,7 +67,7 @@ echo === no dir ===
 pmdumplog -Dlog -l $tmp >$tmp.out 2>&1
 echo "[filtered and sorted stderr]"
 _filter <$tmp.out
-cat $tmp.out >>$seq.full
+cat $tmp.out >>$seq_full
 
 echo
 echo === empty dir ===

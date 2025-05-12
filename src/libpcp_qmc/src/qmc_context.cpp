@@ -29,6 +29,8 @@ QmcContext::QmcContext(QmcSource* source)
     my.context = -1;
     my.source = source;
     my.needReconnect = false;
+    memset(&my.currentTime, 0, sizeof(my.currentTime));
+    memset(&my.previousTime, 0, sizeof(my.previousTime));
 
     if (my.source->status() >= 0)
 	my.context = my.source->dupContext();
@@ -274,11 +276,20 @@ QmcContext::fetch(bool update)
     int i, sts;
     pmResult *result;
 
+    if (pmDebugOptions.pmc) {
+	QTextStream cerr(stderr);
+	cerr << "QmcContext::fetch: update=" << update << Qt::endl;
+    }
+
     for (i = 0; i < my.metrics.size(); i++) {
 	QmcMetric *metric = my.metrics[i];
 	if (metric->status() < 0)
 	    continue;
 	metric->shiftValues();
+	if (pmDebugOptions.pmc && pmDebugOptions.desperate) {
+	    QTextStream cerr(stderr);
+	    cerr << "QmcContext::fetch: shiftValues " << &metric << " metric[" << i << "] status=" << metric->status() << Qt::endl;
+	}
     }
 
     // Inform each indom that we are about to do a new fetch so any
@@ -293,7 +304,7 @@ QmcContext::fetch(bool update)
 		sts = my.indoms[i]->genProfile();
 	}
     }
-    else if (pmDebugOptions.optfetch) {
+    else if (pmDebugOptions.pmc) {
 	QTextStream cerr(stderr);
 	cerr << "QmcContext::fetch: Unable to switch to this context: "
 	     << pmErrStr(sts) << Qt::endl;
@@ -317,7 +328,7 @@ QmcContext::fetch(bool update)
     }
 
     if (sts >= 0 && my.pmids.size()) {
-	if (pmDebugOptions.optfetch) {
+	if (pmDebugOptions.pmc) {
 	    QTextStream cerr(stderr);
 	    cerr << "QmcContext::fetch: fetching context " << *this << Qt::endl;
 	}
@@ -330,15 +341,29 @@ QmcContext::fetch(bool update)
 	    my.delta = pmtimevalSub(&my.currentTime, &my.previousTime);
 	    for (i = 0; i < my.metrics.size(); i++) {
 		QmcMetric *metric = my.metrics[i];
-		if (metric->status() < 0)
+		if (metric->status() < 0) {
+		    if (pmDebugOptions.pmc && pmDebugOptions.desperate) {
+			QTextStream cerr(stderr);
+			cerr << "QmcContext::fetch: " << metric << " metric[" << i << "] status=" << metric->status() << Qt::endl;
+		    }
 		    continue;
+		}
 		Q_ASSERT((int)metric->idIndex() < result->numpmid);
 		metric->extractValues(result->vset[metric->idIndex()]);
+		if (pmDebugOptions.pmc && pmDebugOptions.desperate) {
+		    int	j;
+		    QTextStream cerr(stderr);
+		    cerr << "QmcContext::fetch: " << metric << " metric[" << i << "]" << Qt::endl;
+		    for (j = 0; j < metric->numValues(); j++) {
+			cerr << "  ";
+			metric->dump(cerr, false, j);
+		    }
+		}
 	    }
 	    pmFreeResult(result);
 	}
 	else {
-	    if (pmDebugOptions.optfetch) {
+	    if (pmDebugOptions.pmc) {
 		QTextStream cerr(stderr);
 		cerr << "QmcContext::fetch: pmFetch: " << pmErrStr(sts) << Qt::endl;
 	    }
@@ -353,7 +378,7 @@ QmcContext::fetch(bool update)
 	}
 
 	if (update) {
-	    if (pmDebugOptions.optfetch) {
+	    if (pmDebugOptions.pmc && pmDebugOptions.desperate) {
 		QTextStream cerr(stderr);
 		cerr << "QmcContext::fetch: Updating metrics" << Qt::endl;
 	    }
@@ -365,7 +390,7 @@ QmcContext::fetch(bool update)
 	    }
 	}
     }
-    else if (pmDebugOptions.optfetch) {
+    else if (pmDebugOptions.pmc) {
 	QTextStream cerr(stderr);
 	cerr << "QmcContext::fetch: nothing to fetch" << Qt::endl;
     }

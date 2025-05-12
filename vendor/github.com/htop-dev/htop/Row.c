@@ -89,7 +89,7 @@ void Row_setPidColumnWidth(pid_t maxPid) {
       return;
    }
 
-   Row_pidDigits = (int)log10(maxPid) + 1;
+   Row_pidDigits = countDigits((size_t)maxPid, 10);
    assert(Row_pidDigits <= ROW_MAX_PID_DIGITS);
 }
 
@@ -99,7 +99,7 @@ void Row_setUidColumnWidth(uid_t maxUid) {
       return;
    }
 
-   Row_uidDigits = (int)log10(maxUid) + 1;
+   Row_uidDigits = countDigits((size_t)maxUid, 10);
    assert(Row_uidDigits <= ROW_MAX_UID_DIGITS);
 }
 
@@ -292,7 +292,6 @@ invalidNumber:
       color = CRT_colors[PROCESS_SHADOW];
 
    RichString_appendAscii(str, color, "  N/A ");
-   return;
 }
 
 void Row_printBytes(RichString* str, unsigned long long number, bool coloring) {
@@ -425,13 +424,14 @@ void Row_printNanoseconds(RichString* str, unsigned long long totalNanoseconds, 
    if (totalMicroseconds < 1000000) {
       len = xSnprintf(buffer, sizeof(buffer), ".%06lus ", (unsigned long)totalMicroseconds);
       RichString_appendnAscii(str, baseColor, buffer, len);
+      return;
    }
 
    unsigned long long totalSeconds = totalMicroseconds / 1000000;
    unsigned long microseconds = totalMicroseconds % 1000000;
    if (totalSeconds < 60) {
       int width = 5;
-      unsigned long fraction = microseconds;
+      unsigned long fraction = microseconds / 10;
       if (totalSeconds >= 10) {
          width--;
          fraction /= 10;

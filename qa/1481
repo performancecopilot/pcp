@@ -22,9 +22,8 @@ fi
 
 [ -d ../build/tar ] || _notrun "not in build dir, no ../build/tar"
 
-$sudo rm -rf $tmp $tmp.* $seq.full
 
-( cd ../build/tar; $MAKE ) >>$seq.full 2>&1
+( cd ../build/tar; $MAKE ) >>$seq_full 2>&1
 
 _cleanup()
 {
@@ -63,8 +62,8 @@ sed <src/permslist \
 | $PCP_AWK_PROG -F '|' '{ print $5,$2,$3,$4,$6 }' \
 | sort >$tmp.permslist
 
-echo "--- permslist ---" >>$seq.full
-cat $tmp.permslist >>$seq.full
+echo "--- permslist ---" >>$seq_full
+cat $tmp.permslist >>$seq_full
 
 # build similar last from shell commands in tarball postinstall
 # script, where output looks like:
@@ -98,8 +97,8 @@ END		{ for (path in ug) {
 | sed -e 's/:/ /' \
 | sort >$tmp.postinstall
 
-echo "--- postinstall ---" >>$seq.full
-cat $tmp.postinstall >>$seq.full
+echo "--- postinstall ---" >>$seq_full
+cat $tmp.postinstall >>$seq_full
 
 # join'd lines look like this
 # /var/lib/pcp/tmp/pmie 775 pcp pcp /var/lib/pcp/tmp/pmie 775 pcp pcp optional

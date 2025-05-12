@@ -15,7 +15,7 @@
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-CFILES	= pmlogextract.c error.c metriclist.c
+CFILES	= pmlogextract.c error.c metriclist.c parsesize.c
 HFILES	= logger.h
 LFILES  = lex.l
 YFILES	= gram.y
@@ -23,7 +23,7 @@ YFILES	= gram.y
 CMDTARGET = pmlogextract$(EXECSUFFIX)
 
 LLDLIBS	= $(PCP_ARCHIVELIB) $(PCPLIB) $(LIB_FOR_MATH) $(LIB_FOR_PTHREADS)
-LDIRT	= $(YFILES:%.y=%.tab.?)
+LDIRT	= $(YFILES:%.y=%.tab.?) parsesize.c
 
 default:	$(CMDTARGET)
 
@@ -50,3 +50,6 @@ metriclist.o:	logger.h
 pmlogextract.o:	logger.h
 
 $(OBJECTS):	$(TOPDIR)/src/include/pcp/libpcp.h
+
+parsesize.c:	../pmlogger/src/parsesize.c
+	$(LN_S) ../pmlogger/src/parsesize.c .

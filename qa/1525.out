@@ -1,0 +1,231 @@
+QA output created by 1525
+--- dkvis -a archives/babylon.pmview_v2 ... --
+pmview Version 2.1 "dkvis" "-a" "archives/babylon.pmview_v2" "-C" "-C" "-V"
+#
+# dkvis
+#
+# Disk Inventory:
+#    dks1d1 dks1d3 dks1d6 dks1d7 dks2d1 dks2d2 dks2d3 dks2d4 dks2d5 dks2d6
+#    dks2d7 dks2d8 dks3d1 dks3d2 dks3d3 dks3d4 dks3d5 dks3d6 dks3d7 dks3d8
+#    dks7d1 dks7d2 dks7d3 dks7d4 dks7d5 dks7d6 dks7d7 dks7d8 dks54d1 dks54d2
+#    dks54d3 dks54d4 dks55d1 dks55d2 dks55d3 dks55d4 dks56d1 dks56d2 dks56d3
+#    dks56d4 dks57d1 dks57d2 dks57d3 dks57d4 rad4d2
+
+_grid (
+
+  _bar 0 0 north _groupByInst (
+    _metrics (
+        disk.dev.total[dks1d1,dks1d3,dks1d6,dks1d7] 150 "dks1"
+        disk.dev.total[dks2d1,dks2d2,dks2d3,dks2d4,dks2d5,dks2d6,dks2d7,dks2d8] 150 "dks2"
+        disk.dev.total[dks3d1,dks3d2,dks3d3,dks3d4,dks3d5,dks3d6,dks3d7,dks3d8] 150 "dks3"
+        disk.dev.total[dks7d1,dks7d2,dks7d3,dks7d4,dks7d5,dks7d6,dks7d7,dks7d8] 150 "dks7"
+        disk.dev.total[dks54d1,dks54d2,dks54d3,dks54d4] 150 "dks54"
+        disk.dev.total[dks55d1,dks55d2,dks55d3,dks55d4] 150 "dks55"
+        disk.dev.total[dks56d1,dks56d2,dks56d3,dks56d4] 150 "dks56"
+        disk.dev.total[dks57d1,dks57d2,dks57d3,dks57d4] 150 "dks57"
+        disk.dev.total[rad4d2] 150 "rad4"
+    )
+    _baseLabel "Total Activity for Disks on Controllers dks1 to rad4\nNormalized to 150 IOPS"
+    _colorlist ( green blue red cyan violet yellow green blue red )
+  )
+)
+--- mpvis -a archives/babylon.pmview_v2 ... --
+pmview Version 2.1 "mpvis" "-a" "archives/babylon.pmview_v2" "-C" "-C" "-V"
+#
+# mpvis
+#
+# ncpus = 24
+# nrows = 2
+# ncols = 12
+#
+# List:
+# cpu0 cpu1 cpu2 cpu3 cpu4 cpu5 cpu6 cpu7 cpu8 cpu9 cpu10 cpu11
+# cpu12 cpu13 cpu14 cpu15 cpu16 cpu17 cpu18 cpu19 cpu20 cpu21 cpu22 cpu23
+_gridSpace 120
+
+_colorlist cpu ( "#16d816" "#00cdcd" "#cdcd00" "#e71717" "#2d2de2" )
+_grid 0 0 _hide ( # outer grid
+    _grid 0 2 show (
+	_baseLabel "PCP: CPU Utilization for Host babylon (Archive archives/babylon.pmview_v2)\ncpu0 to cpu11"
+	_bar _groupByMetric (
+	    _metrics (
+                kernel.percpu.cpu.idle[cpu0,cpu1,cpu2,cpu3,cpu4,cpu5,cpu6,cpu7,cpu8,cpu9,cpu10,cpu11]        1000 "idle"
+                kernel.percpu.cpu.wait.total[cpu0,cpu1,cpu2,cpu3,cpu4,cpu5,cpu6,cpu7,cpu8,cpu9,cpu10,cpu11]        1000 "wait"
+                kernel.percpu.cpu.intr[cpu0,cpu1,cpu2,cpu3,cpu4,cpu5,cpu6,cpu7,cpu8,cpu9,cpu10,cpu11]        1000 "intr"
+                kernel.percpu.cpu.sys[cpu0,cpu1,cpu2,cpu3,cpu4,cpu5,cpu6,cpu7,cpu8,cpu9,cpu10,cpu11]         1000 "sys"
+                kernel.percpu.cpu.user[cpu0,cpu1,cpu2,cpu3,cpu4,cpu5,cpu6,cpu7,cpu8,cpu9,cpu10,cpu11]        1000 "user"
+	    )
+	    _colorlist cpu
+	    _baseLabel "PCP: CPU Utilization for Host babylon (Archive archives/babylon.pmview_v2)\ncpu0 to cpu11"
+	)
+    )
+    _grid 0 0 show (
+	_baseLabel "PCP: CPU Utilization for Host babylon (Archive archives/babylon.pmview_v2)\ncpu12 to cpu23"
+	_bar _groupByMetric (
+	    _metrics (
+                kernel.percpu.cpu.idle[cpu12,cpu13,cpu14,cpu15,cpu16,cpu17,cpu18,cpu19,cpu20,cpu21,cpu22,cpu23]        1000 "idle"
+                kernel.percpu.cpu.wait.total[cpu12,cpu13,cpu14,cpu15,cpu16,cpu17,cpu18,cpu19,cpu20,cpu21,cpu22,cpu23]        1000 "wait"
+                kernel.percpu.cpu.intr[cpu12,cpu13,cpu14,cpu15,cpu16,cpu17,cpu18,cpu19,cpu20,cpu21,cpu22,cpu23]        1000 "intr"
+                kernel.percpu.cpu.sys[cpu12,cpu13,cpu14,cpu15,cpu16,cpu17,cpu18,cpu19,cpu20,cpu21,cpu22,cpu23]         1000 "sys"
+                kernel.percpu.cpu.user[cpu12,cpu13,cpu14,cpu15,cpu16,cpu17,cpu18,cpu19,cpu20,cpu21,cpu22,cpu23]        1000 "user"
+	    )
+	    _colorlist cpu
+	    _baseLabel "PCP: CPU Utilization for Host babylon (Archive archives/babylon.pmview_v2)\ncpu12 to cpu23"
+	)
+    )
+)
+--- nfsvis -a archives/babylon.pmview_v2 ... --
+pmview Version 2.1 "nfsvis" "-a" "archives/babylon.pmview_v2" "-C" "-C" "-V"
+#
+# nfsvis
+#
+_colorlist colors (red green blue)
+_grid hide (
+	_label 2 0 _down _large "Client"
+	_bar 0 0 _east _groupByMetric (
+		_metrics (
+			nfs.client.reqs[create,remove,rename,link,symlink,mkdir,rmdir] 120 "dir"
+			nfs.client.reqs[getattr,setattr,lookup,readdir,fsstat,root] 120 "attr"
+			nfs.client.reqs[readlink,read,write,wrcache] 120 "data"
+		)
+		_baseLabel "Requests by NFS2 Client\nNormalized to 120 requests / second"
+		_colorlist colors
+	)
+	_label 2 2 _down _large "Server"
+	_bar 0 2 _east (
+		_metrics (
+			nfs.server.reqs[create,remove,rename,link,symlink,mkdir,rmdir] 120 "dir"
+			nfs.server.reqs[getattr,setattr,lookup,readdir,fsstat,root] 120 "attr"
+			nfs.server.reqs[readlink,read,write,wrcache] 120 "data"
+		)
+		_baseLabel "Requests to NFS2 Server\nNormalized to 120 requests / second"
+		_colorlist colors
+	)
+)
+--- osvis -a archives/20180415.09.16 ... --
+/usr/bin/osvis: 1: cannot open TMP.ctrls: No such file
+pmview Version 2.1 "osvis" "-a" "archives/20180415.09.16" "-C" "-C" "-V"
+#
+# osvis
+#
+# 4 CPUs detected
+# Available Network Interfaces: wlp3s0 virbr0 virbr0-nic enp0s25
+# Network interfaces Matching "": enp0s25,virbr0,virbr0-nic,wlp3s0
+# 3 Disks detected
+# 0 Disk Controllers detected: 
+#
+# Linux memory utilization metrics supported
+#
+
+_colorlist cpu_colors ( "#0000ee" "#ee0000" "#99ffb2" )
+_colorlist disk_colors ( "#ee82ee" yellow )		# violet
+_colorlist ctrl_colors ( "#00ee00" )			# green2
+_colorlist network_colors ( "#00ee00" "#0000ee" "#ee0000" )	# green2 blue2 red2
+
+_colorlist memory_colors (
+    yellow
+    cyan
+    red
+    magenta
+    blue
+    green
+)
+
+_grid hide (
+
+#
+# System level stuff
+#
+
+    _label 0 1 _down _large "Disk"
+
+    _stack 1 1 _west _cylinder (
+	_metrics (
+	    disk.all.write		100
+	    disk.all.read		100
+	)
+	_colorlist disk_colors
+	_baseLabel "Disk Operations\nNormalized to 100 I/Os per second"
+    )
+
+    _label 0 3 _west _down _large "Load"
+
+    _bar 1 3 2 1 _west (
+	_metrics (
+	    kernel.all.load[15]	8
+	    kernel.all.load[5]	8
+	    kernel.all.load[1]	8
+	)
+	_metriclabels _away ( "15" "5" "1" )
+	_colorlist ( "#0000ee" "#0000ee" "#0000ee" )	# blue2 blue2 blue2
+	_baseLabel "Average System Load over the last 1, 5, and 15 minutes\nNormalized to 8"
+    )
+
+    _label 0 5 _west _down _large "Mem"
+
+    _stack 1 5 _west (
+	_metrics (
+	    mem.util.shared     7860816
+	    mem.util.cached     7860816
+	    mem.util.bufmem     7860816
+	    mem.util.other      7860816
+	    mem.util.free       7860816
+	)
+	_colorlist memory_colors
+	_baseLabel "Physical Memory Utilization\nNormalized to 7676 Kbytes"
+    )
+
+    _label 0 7 _west _down _large "CPU"
+
+    _stack 1 7 _west (
+	_metrics (
+	    kernel.all.cpu.user 	4000
+	    kernel.all.cpu.sys		4000
+	    kernel.all.cpu.nice		4000
+	)
+	_colorlist cpu_colors
+	_baseLabel "CPU Utilization\nSummed over 4 CPUs"
+    )
+
+#
+# Network Stuff and Alarms
+#
+
+    _marginWidth 1
+
+    _grid 4 2 1 7 _nw ( 
+
+	_marginWidth 8
+
+	_label 0 0 _sw "Network Input"
+
+	_bar 0 1 _nw _groupByMetric (
+	    _metrics (
+		network.interface.in.bytes[enp0s25,virbr0,virbr0-nic,wlp3s0]	65536
+		network.interface.in.packets[enp0s25,virbr0,virbr0-nic,wlp3s0]	750
+		network.interface.in.errors[enp0s25,virbr0,virbr0-nic,wlp3s0]	7
+	    )
+	    _colorlist network_colors
+	    _metricLabels _away ( "Bytes" "Packets" "Errors" )
+	    _baseLabel "Input on all Network Interfaces\nNormalized to 65536 bytes per second and 750 packets per second"
+	)
+
+	_label 0 2 _sw "Network Output"
+
+	_bar 0 3 _nw (
+	    _metrics (
+		network.interface.out.bytes[enp0s25,virbr0,virbr0-nic,wlp3s0]	65536
+		network.interface.out.packets[enp0s25,virbr0,virbr0-nic,wlp3s0] 750
+		network.interface.out.errors[enp0s25,virbr0,virbr0-nic,wlp3s0]  7
+	    )
+	    _instlabels _away ( 
+enp0s25
+virbr0
+virbr0-nic
+wlp3s0 )
+	    _metricLabels _away ( "Bytes" "Packets" "Errors" )
+	    _colorlist network_colors
+	    _baseLabel "Output on all Network Interfaces\nNormalized to 65536 bytes per second and 750 packets per second"
+	)
+    )
+)

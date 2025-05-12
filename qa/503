@@ -28,7 +28,6 @@ _cleanup()
 }
 
 status=0	# success is the default!
-$sudo rm -rf $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 [ -f $NEEDREWRITE ] && $sudo mv $NEEDREWRITE $NEEDREWRITE.$seq
@@ -37,7 +36,7 @@ hostname=`hostname | sed -e 's/\..*//'`
 
 _filter()
 {
-    tee -a $seq.full \
+    tee -a $seq_full \
     | sed \
 	-e "s/for host $hostname/for host HOSTNAME/g" \
 	-e "s/for host localhost/for host HOSTNAME/g" \
@@ -61,11 +60,8 @@ _filter()
 _setup()
 {
     $sudo rm -f $tmp.arch/*
-    for x in 0 meta index
-    do
-	$sudo cp archives/rewrite.$x $tmp.arch/20111001.21.10.$x
-	$sudo cp archives/rewrite.$x $tmp.arch/20111001.22.10.$x
-    done
+    sudo pmlogcp archives/rewrite $tmp.arch/20111001.21.10
+    sudo pmlogcp archives/rewrite $tmp.arch/20111001.22.10
     echo "global { time -> +1:00:00 }" >$tmp.conf.time
     $sudo $PMLOGREWRITE -c $tmp.conf.time -i $tmp.arch/20111001.22.10
 
@@ -95,11 +91,11 @@ _cmp()
     done
     $ok || return
     pmdumplog -z -dilmst $1 \
-    | tee -a $seq.full \
+    | tee -a $seq_full \
     | sed -e '/^\[[0-9][0-9]* bytes]/d' >$tmp.in
 
     pmdumplog -z -dilmst $2 \
-    | tee -a $seq.full \
+    | tee -a $seq_full \
     | sed -e '/^\[[0-9][0-9]* bytes]/d' >$tmp.out
     diff -u $tmp.in $tmp.out | _filter
 }
@@ -148,9 +144,13 @@ log mandatory on once { sample.bin }
 End-of-File
 
 # real QA test starts here
-echo "+++ should just work ... +++" | tee -a $seq.full
+echo "+++ should just work ... +++" | tee -a $seq_full
 _setup
+# need to be a place the user $PCP_USER can cd to from pmlogger_daily
+#
+cd /var/tmp
 $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -D -c $tmp.control -x never -V -l $tmp.log"
+cd $here
 $sudo cat $tmp.log | _filter
 mkdir $tmp.ok
 $sudo mv $tmp.arch/20111001.* $tmp.ok
@@ -161,65 +161,77 @@ metric sampledso.double.hundred { type -> float }
 End-of-File
 do
     echo "$conf" >$tmp.conf
-    echo | tee -a $seq.full
-    echo "!!! $conf !!!" | tee -a $seq.full
+    echo | tee -a $seq_full
+    echo "!!! $conf !!!" | tee -a $seq_full
 
-    echo | tee -a $seq.full
-    echo "+++ expect mismatch +++" | tee -a $seq.full
+    echo | tee -a $seq_full
+    echo "+++ expect mismatch +++" | tee -a $seq_full
     _setup
     $sudo $PMLOGREWRITE -c $tmp.conf -i $tmp.arch/20111001.22.10
+    cd /var/tmp
     $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -D -c $tmp.control -x never -V -l $tmp.log"
+    cd $here
     $sudo cat $tmp.log | _filter
 
-    echo | tee -a $seq.full
-    echo "+++ expect fix via local config file +++" | tee -a $seq.full
+    echo | tee -a $seq_full
+    echo "+++ expect fix via local config file +++" | tee -a $seq_full
     _setup
     $sudo $PMLOGREWRITE -c $tmp.conf -i $tmp.arch/20111001.22.10
     $sudo cp $tmp.conf $tmp.arch/pmlogrewrite
+    cd /var/tmp
     $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -D -c $tmp.control -x never -V -l $tmp.log"
+    cd $here
     $sudo cat $tmp.log | _filter
     _cmp $tmp.ok/20111001 $tmp.arch/20111001
 
-    echo | tee -a $seq.full
-    echo "+++ expect fix via local symlink config file +++" | tee -a $seq.full
+    echo | tee -a $seq_full
+    echo "+++ expect fix via local symlink config file +++" | tee -a $seq_full
     _setup
     $sudo $PMLOGREWRITE -c $tmp.conf -i $tmp.arch/20111001.22.10
     $sudo ln -s $tmp.conf $tmp.arch/pmlogrewrite
+    cd /var/tmp
     $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -D -c $tmp.control -x never -V -l $tmp.log"
+    cd $here
     $sudo cat $tmp.log | _filter
     _cmp $tmp.ok/20111001 $tmp.arch/20111001
 
-    echo | tee -a $seq.full
-    echo "+++ expect fix via global config dir +++" | tee -a $seq.full
+    echo | tee -a $seq_full
+    echo "+++ expect fix via global config dir +++" | tee -a $seq_full
     _setup
     $sudo $PMLOGREWRITE -c $tmp.conf -i $tmp.arch/20111001.22.10
     $sudo mkdir -p $PCP_VAR_DIR/config/pmlogrewrite
     $sudo cp $tmp.conf $PCP_VAR_DIR/config/pmlogrewrite/qa.$seq
+    cd /var/tmp
     $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -D -c $tmp.control -x never -V -l $tmp.log"
+    cd $here
     $sudo cat $tmp.log | _filter
     _cmp $tmp.ok/20111001 $tmp.arch/20111001
     $sudo rm -f $PCP_VAR_DIR/config/pmlogrewrite/qa.$seq
 
-    echo | tee -a $seq.full
-    echo "+++ expect fix via symlink to global config dir +++" | tee -a $seq.full
+    echo | tee -a $seq_full
+    echo "+++ expect fix via symlink to global config dir +++" | tee -a $seq_full
     _setup
     $sudo $PMLOGREWRITE -c $tmp.conf -i $tmp.arch/20111001.22.10
     $sudo mkdir -p $PCP_VAR_DIR/config/pmlogrewrite
     $sudo cp $tmp.conf $PCP_VAR_DIR/config/pmlogrewrite/qa.$seq
     $sudo ln -s $PCP_VAR_DIR/config/pmlogrewrite $tmp.arch/pmlogrewrite
+    cd /var/tmp
     $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -D -c $tmp.control -x never -V -l $tmp.log"
+    cd $here
     $sudo cat $tmp.log | _filter
     _cmp $tmp.ok/20111001 $tmp.arch/20111001
     $sudo rm -f $PCP_VAR_DIR/config/pmlogrewrite/qa.$seq
 
 done
 
-echo | tee -a $seq.full
-echo "+++ expect fail when -r used and local config file present +++" | tee -a $seq.full
+echo | tee -a $seq_full
+echo "+++ expect fail when -r used and local config file present +++" | tee -a $seq_full
 _setup
 $sudo $PMLOGREWRITE -c $tmp.conf -i $tmp.arch/20111001.22.10
 $sudo cp $tmp.conf $tmp.arch/pmlogrewrite
+cd /var/tmp
 $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -D -r -c $tmp.control -x never -V -l $tmp.log"
+cd $here
 $sudo cat $tmp.log | _filter
 
 # success, all done

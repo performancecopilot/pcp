@@ -28,7 +28,6 @@ else
 fi
 
 trap "cd $here; rm -rf $tmp $tmp.* /tmp/chk.fout; exit" 0 1 2 3 15
-$sudo rm -rf $tmp $tmp.*
 mkdir $tmp
 cd $tmp
 

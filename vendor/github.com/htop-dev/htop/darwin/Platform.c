@@ -148,15 +148,11 @@ const MeterClass* const Platform_meterTypes[] = {
    NULL
 };
 
-static double Platform_nanosecondsPerMachTick = 1.0;
-
 static double Platform_nanosecondsPerSchedulerTick = -1;
 
-static bool iokit_available = false;
 static mach_port_t iokit_port; // the mach port used to initiate communication with IOKit
 
 bool Platform_init(void) {
-   Platform_nanosecondsPerMachTick = Platform_calculateNanosecondsPerMachTick();
 
    // Determine the number of scheduler clock ticks per second
    errno = 0;
@@ -169,24 +165,7 @@ bool Platform_init(void) {
    const double nanos_per_sec = 1e9;
    Platform_nanosecondsPerSchedulerTick = nanos_per_sec / scheduler_ticks_per_sec;
 
-   // Since macOS 12.0, IOMasterPort is deprecated, and one should use IOMainPort instead
-   #if defined(HAVE_DECL_IOMAINPORT) && HAVE_DECL_IOMAINPORT
-   if (!IOMainPort(bootstrap_port, &iokit_port)) {
-      iokit_available = true;
-   }
-   #elif defined(HAVE_DECL_IOMASTERPORT) && HAVE_DECL_IOMASTERPORT
-   if (!IOMasterPort(bootstrap_port, &iokit_port)) {
-      iokit_available = true;
-   }
-   #endif
-
    return true;
-}
-
-// Converts ticks in the Mach "timebase" to nanoseconds.
-// See `mach_timebase_info`, as used to define the `Platform_nanosecondsPerMachTick` constant.
-uint64_t Platform_machTicksToNanoseconds(uint64_t mach_ticks) {
-   return (uint64_t) ((double) mach_ticks * Platform_nanosecondsPerMachTick);
 }
 
 // Converts "scheduler ticks" to nanoseconds.
@@ -272,12 +251,18 @@ double Platform_setCPUValues(Meter* mtr, unsigned int cpu) {
       total += (double)curr->cpu_ticks[i] - (double)prev->cpu_ticks[i];
    }
 
-   mtr->values[CPU_METER_NICE]
-      = ((double)curr->cpu_ticks[CPU_STATE_NICE] - (double)prev->cpu_ticks[CPU_STATE_NICE]) * 100.0 / total;
-   mtr->values[CPU_METER_NORMAL]
-      = ((double)curr->cpu_ticks[CPU_STATE_USER] - (double)prev->cpu_ticks[CPU_STATE_USER]) * 100.0 / total;
-   mtr->values[CPU_METER_KERNEL]
-      = ((double)curr->cpu_ticks[CPU_STATE_SYSTEM] - (double)prev->cpu_ticks[CPU_STATE_SYSTEM]) * 100.0 / total;
+   if (total > 1e-6) {
+      mtr->values[CPU_METER_NICE]
+         = ((double)curr->cpu_ticks[CPU_STATE_NICE] - (double)prev->cpu_ticks[CPU_STATE_NICE]) * 100.0 / total;
+      mtr->values[CPU_METER_NORMAL]
+         = ((double)curr->cpu_ticks[CPU_STATE_USER] - (double)prev->cpu_ticks[CPU_STATE_USER]) * 100.0 / total;
+      mtr->values[CPU_METER_KERNEL]
+         = ((double)curr->cpu_ticks[CPU_STATE_SYSTEM] - (double)prev->cpu_ticks[CPU_STATE_SYSTEM]) * 100.0 / total;
+   } else {
+      mtr->values[CPU_METER_NICE] = 0.0;
+      mtr->values[CPU_METER_NORMAL] = 0.0;
+      mtr->values[CPU_METER_KERNEL] = 0.0;
+   }
 
    mtr->curItems = 3;
 
@@ -292,13 +277,28 @@ double Platform_setCPUValues(Meter* mtr, unsigned int cpu) {
 
 void Platform_setMemoryValues(Meter* mtr) {
    const DarwinMachine* dhost = (const DarwinMachine*) mtr->host;
+#ifdef HAVE_STRUCT_VM_STATISTICS64
+   const struct vm_statistics64* vm = &dhost->vm_stats;
+#else
    const struct vm_statistics* vm = &dhost->vm_stats;
+#endif
    double page_K = (double)vm_page_size / (double)1024;
 
    mtr->total = dhost->host_info.max_mem / 1024;
+#ifdef HAVE_STRUCT_VM_STATISTICS64
+   natural_t used = vm->active_count + vm->inactive_count +
+              vm->speculative_count + vm->wire_count +
+              vm->compressor_page_count - vm->purgeable_count - vm->external_page_count;
+   mtr->values[MEMORY_METER_USED] = (double)(used - vm->compressor_page_count) * page_K;
+#else
    mtr->values[MEMORY_METER_USED] = (double)(vm->active_count + vm->wire_count) * page_K;
+#endif
    // mtr->values[MEMORY_METER_SHARED] = "shared memory, like tmpfs and shm"
+#ifdef HAVE_STRUCT_VM_STATISTICS64
+   mtr->values[MEMORY_METER_COMPRESSED] = (double)vm->compressor_page_count * page_K;
+#else
    // mtr->values[MEMORY_METER_COMPRESSED] = "compressed memory, like zswap on linux"
+#endif
    mtr->values[MEMORY_METER_BUFFERS] = (double)vm->purgeable_count * page_K;
    mtr->values[MEMORY_METER_CACHE] = (double)vm->inactive_count * page_K;
    // mtr->values[MEMORY_METER_AVAILABLE] = "available memory"
@@ -389,8 +389,6 @@ void Platform_getFileDescriptors(double* used, double* max) {
 }
 
 bool Platform_getDiskIO(DiskIOData* data) {
-   if (!iokit_available)
-      return false;
 
    io_iterator_t drive_list;
 
@@ -398,7 +396,8 @@ bool Platform_getDiskIO(DiskIOData* data) {
    if (IOServiceGetMatchingServices(iokit_port, IOServiceMatching("IOBlockStorageDriver"), &drive_list))
       return false;
 
-   unsigned long long int read_sum = 0, write_sum = 0, timeSpend_sum = 0;
+   uint64_t read_sum = 0, write_sum = 0, timeSpend_sum = 0;
+   uint64_t numDisks = 0;
 
    io_registry_entry_t drive;
    while ((drive = IOIteratorNext(drive_list)) != 0) {
@@ -427,8 +426,10 @@ bool Platform_getDiskIO(DiskIOData* data) {
          continue;
       }
 
+      numDisks++;
+
       CFNumberRef number;
-      unsigned long long int value;
+      uint64_t value;
 
       /* Get bytes read */
       number = (CFNumberRef) CFDictionaryGetValue(statistics, CFSTR(kIOBlockStorageDriverStatisticsBytesReadKey));
@@ -465,6 +466,7 @@ bool Platform_getDiskIO(DiskIOData* data) {
    data->totalBytesRead = read_sum;
    data->totalBytesWritten = write_sum;
    data->totalMsTimeSpend = timeSpend_sum / 1e6; /* Convert from ns to ms */
+   data->numDisks = numDisks;
 
    if (drive_list)
       IOObjectRelease(drive_list);

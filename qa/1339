@@ -52,7 +52,7 @@ _snag_logs()
     do
 	if [ -f "$PCP_LOG_DIR/pmcd/$x.log" ]
 	then
-	    cat "$PCP_LOG_DIR/pmcd/$x.log" >>$here/$seq.full
+	    cat "$PCP_LOG_DIR/pmcd/$x.log" >>$seq_full
 	else
 	    echo "$PCP_LOG_DIR/pmcd/$x.log: missing?"
 	fi
@@ -61,9 +61,8 @@ _snag_logs()
 
 status=1
 
-$sudo rm -f $seq.full
 
-echo "PCPQA_IN_CI=$PCPQA_IN_CI" >>$seq.full
+echo "PCPQA_IN_CI=$PCPQA_IN_CI" >>$seq_full
 if [ "$PCPQA_IN_CI" = yes ]
 then
     # in CI
@@ -72,10 +71,10 @@ then
     # persists
     #
     eval `src/sizeof ptr`
-    echo "ptr=$ptr" >>$seq.full
+    echo "ptr=$ptr" >>$seq_full
     if [ "$ptr" = 4 ]
     then
-	admin/whatami >>$seq.full
+	admin/whatami >>$seq_full
 	# 32-bit platform
 	case `admin/whatami`
 	in
@@ -119,10 +118,10 @@ then
     echo "Arrgh ... port1: no free TCP port in the range 5670 ... "
     exit
 fi
-echo "port1=$port1" >>$here/$seq.full
+echo "port1=$port1" >>$seq_full
 if which netstat >/dev/null 2>&1
 then
-    netstat -a | grep $port1 >>$here/$seq.full
+    netstat -a | grep $port1 >>$seq_full
 fi
 try=`expr $port1 + 1`
 port2=`_find_free_port $try`
@@ -131,10 +130,10 @@ then
     echo "Arrgh ... port2: no free TCP port in the range $try ... "
     exit
 fi
-echo "port2=$port2" >>$here/$seq.full
+echo "port2=$port2" >>$seq_full
 if which netstat >/dev/null 2>&1
 then
-    netstat -a | grep $port2 >>$here/$seq.full
+    netstat -a | grep $port2 >>$seq_full
 fi
 
 # real QA test starts here
@@ -145,8 +144,8 @@ $sudo ./Remove >$tmp.out 2>&1
 cat $tmp.out
 _check_pmda_gone $iam
 
-echo | tee -a $here/$seq.full
-echo "=== socket Internet agent ===" | tee -a $here/$seq.full
+echo | tee -a $seq_full
+echo "=== socket Internet agent ===" | tee -a $seq_full
 
 # Give the PMDA + internet socket a chance to be setup before pminfo check
 #
@@ -160,8 +159,8 @@ if pminfo -v sample
 then
     :
 else
-    echo "... failed!" | tee -a $here/$seq.full
-    pminfo -fd sample.long.ten >>$here/$seq.full
+    echo "... failed!" | tee -a $seq_full
+    pminfo -fd sample.long.ten >>$seq_full
 fi
 _snag_logs
 
@@ -173,8 +172,8 @@ if pminfo -v sample
 then
     :
 else
-    echo "... failed!" | tee -a $here/$seq.full
-    pminfo -fd sample.long.ten >>$here/$seq.full
+    echo "... failed!" | tee -a $seq_full
+    pminfo -fd sample.long.ten >>$seq_full
 fi
 _snag_logs
 

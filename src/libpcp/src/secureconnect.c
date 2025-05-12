@@ -769,11 +769,12 @@ __pmSecureClientIPCFlags(int fd, int flags, const char *host, __pmHashCtl *attrs
 	return -EOPNOTSUPP;
 
     if ((flags & (PDU_FLAG_SECURE|PDU_FLAG_AUTH)) != 0) {
-	if (!host || host[0] == '/' || strncmp(host, "local", 5) == 0)
+	if (!host || host[0] == '/' || strncmp(host, "local", 5) == 0) {
 	    gethostname(hostname, sizeof(hostname)-1);
+	    hostname[MAXHOSTNAMELEN-1] = '\0';
+	}
 	else
-	    strncpy(hostname, host, sizeof(hostname)-1);
-	hostname[MAXHOSTNAMELEN-1] = '\0';
+	    pmstrncpy(hostname, sizeof(hostname), host);
     }
 
     if ((flags & PDU_FLAG_SECURE) != 0) {
@@ -1032,7 +1033,8 @@ __pmAuthClientNegotiation(int fd, int ssf, const char *hostname, __pmHashCtl *at
     if (sts == PDU_AUTH) {
 	sts = __pmDecodeAuth(pb, &zero, &payload, &length);
 	if (sts >= 0) {
-	    strncpy(buffer, payload, length);
+	    /* Note: payload[] points into PDU and is not null-byte terminated */
+	    memcpy(buffer, payload, length);
 	    buffer[length] = '\0';
 
 	    if (pmDebugOptions.auth)
@@ -1043,8 +1045,7 @@ __pmAuthClientNegotiation(int fd, int ssf, const char *hostname, __pmHashCtl *at
 	     * override using users preference (if any) and proceed.
 	     */
 	    if (method) {
-		strncpy(buffer, method, sizeof(buffer));
-		buffer[sizeof(buffer) - 1] = '\0';
+		pmstrncpy(buffer, sizeof(buffer), method);
 		length = strlen(buffer);
 	    }
 
@@ -1062,8 +1063,19 @@ __pmAuthClientNegotiation(int fd, int ssf, const char *hostname, __pmHashCtl *at
     }
     else if (sts == PDU_ERROR)
 	__pmDecodeError(pb, &sts);
-    else if (sts != PM_ERR_TIMEOUT)
+    else if (sts != PM_ERR_TIMEOUT) {
+	if (pmDebugOptions.pdu) {
+	    char	strbuf[20];
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    if (sts < 0)
+		fprintf(stderr, "__pmAuthClientNegotiation: PM_ERR_IPC: expecting PDU_AUTH but__pmGetPDU returns %d (%s)\n",
+		    sts, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	    else
+		fprintf(stderr, "__pmAuthClientNegotiation: PM_ERR_IPC: expecting PDU_AUTH but__pmGetPDU returns %d (type=%s)\n",
+		    sts, __pmPDUTypeStr_r(sts, strbuf, sizeof(strbuf)));
+	}
 	sts = PM_ERR_IPC;
+    }
 
     if (pinned > 0)
 	__pmUnpinPDUBuf(pb);
@@ -1075,8 +1087,7 @@ __pmAuthClientNegotiation(int fd, int ssf, const char *hostname, __pmHashCtl *at
 		method, saslsts == SASL_CONTINUE ? "continue" : "ok");
 
     /* tell server we've made a decision and are ready to move on */
-    strncpy(buffer, method, sizeof(buffer));
-    buffer[sizeof(buffer) - 1] = '\0';
+    pmstrncpy(buffer, sizeof(buffer), method);
     method_length = strlen(buffer);
     if (payload) {
 	if (LIMIT_AUTH_PDU - method_length - 1 < length)
@@ -1122,8 +1133,19 @@ __pmAuthClientNegotiation(int fd, int ssf, const char *hostname, __pmHashCtl *at
 	}
 	else if (sts == PDU_ERROR)
 	    __pmDecodeError(pb, &sts);
-	else if (sts != PM_ERR_TIMEOUT)
+	else if (sts != PM_ERR_TIMEOUT) {
+	    if (pmDebugOptions.pdu) {
+		char	strbuf[20];
+		char	errmsg[PM_MAXERRMSGLEN];
+		if (sts < 0)
+		    fprintf(stderr, "__pmAuthClientNegotiation: PM_ERR_IPC: expecting PDU_AUTH but__pmGetPDU returns %d (%s)\n",
+			sts, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+		else
+		    fprintf(stderr, "__pmAuthClientNegotiation: PM_ERR_IPC: expecting PDU_AUTH but__pmGetPDU returns %d (type=%s)\n",
+			sts, __pmPDUTypeStr_r(sts, strbuf, sizeof(strbuf)));
+	    }
 	    sts = PM_ERR_IPC;
+	}
 
 	if (pinned > 0)
 	    __pmUnpinPDUBuf(pb);
@@ -1175,6 +1197,16 @@ __pmSecureClientHandshake(int fd, int flags, const char *hostname, __pmHashCtl *
 	if (sts != PDU_ERROR) {
 	    if (pinpdu > 0)
 		__pmUnpinPDUBuf(&rpdu);
+	    if (pmDebugOptions.pdu) {
+		char	strbuf[20];
+		char	errmsg[PM_MAXERRMSGLEN];
+		if (sts < 0)
+		    fprintf(stderr, "__pmSecureClientHandshake: PM_ERR_IPC: expecting PDU_ERROR but__pmGetPDU returns %d (%s)\n",
+			sts, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+		else
+		    fprintf(stderr, "__pmSecureClientHandshake: PM_ERR_IPC: expecting PDU_ERROR but__pmGetPDU returns %d (type=%s)\n",
+			sts, __pmPDUTypeStr_r(sts, strbuf, sizeof(strbuf)));
+	    }
 	    return PM_ERR_IPC;
 	}
 	sts = __pmDecodeError(rpdu, &serverSts);

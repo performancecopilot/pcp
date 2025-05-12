@@ -29,7 +29,6 @@ fi
 
 status=1
 done_clean=false
-rm -f $seq.full
 
 install_on_cleanup=false
 pminfo kvm >/dev/null 2>&1 && install_on_cleanup=true
@@ -159,8 +158,8 @@ echo
 echo "=== validate values ==="
 rm -f $tmp.stats $tmp.values $tmp.probe $tmp.diff
 pmprobe -v $iam | LC_COLLATE=POSIX sort > $tmp.probe
-echo "from pmprobe ..." >>$here/$seq.full
-cat $tmp.probe >>$here/$seq.full
+echo "from pmprobe ..." >>$seq_full
+cat $tmp.probe >>$seq_full
 for stat in `$sudo find $kvm_stats_path -mindepth 1`
 do
     case $stat
@@ -173,11 +172,11 @@ do
     echo $stat 1 $value | sed -e "s,$kvm_stats_path/,kvm.,g" >> $tmp.stats
 done
 LC_COLLATE=POSIX sort $tmp.stats > $tmp.values
-echo "from /sys/kernel/debug/kvm ..." >>$here/$seq.full
-cat $tmp.values >>$here/$seq.full
+echo "from /sys/kernel/debug/kvm ..." >>$seq_full
+cat $tmp.values >>$seq_full
 LC_COLLATE=POSIX join $tmp.probe $tmp.values >$tmp.all
-echo >>$here/$seq.full
-cat $tmp.all >>$here/$seq.full
+echo >>$seq_full
+cat $tmp.all >>$seq_full
 
 echo
 echo "=== check values ==="
@@ -225,7 +224,7 @@ do
 	    fi
 	    ;;
     esac
-done | tee -a $here/$seq.full
+done | tee -a $seq_full
 
 echo
 echo "=== remove $iam agent ==="

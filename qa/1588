@@ -14,7 +14,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-# requires python2 or python3 or both
 which "$PCP_PYTHON_PROG" >/dev/null 2>&1 || _notrun "No python binary named \"$PCP_PYTHON_PROG\" found"
 which pmiostat >/dev/null 2>&1 || _notrun "pmiostat not installed"
 
@@ -25,7 +24,6 @@ _cleanup()
 }
 
 status=0
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 archive=archives/pmiostat_mark

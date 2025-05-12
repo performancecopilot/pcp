@@ -16,7 +16,6 @@ which atomic >/dev/null 2>&1 || _notrun "no atomic command found"
 _check_docker_images pcp-collector pcp-pmlogger pcp-monitor pcp-pmie
 
 status=0
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 echo "testing pcp-monitor container basic functionality (using local pmcd)"

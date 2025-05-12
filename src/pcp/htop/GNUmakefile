@@ -15,16 +15,17 @@
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-COPYRIGHT = "(C) 2004-2019 Hisham Muhammad. (C) 2020-2023 htop dev team."
+COPYRIGHT = "(C) 2004-2019 Hisham Muhammad. (C) 2020-2024 htop dev team."
 
 CMDTARGET = pcp-htop
 DISTARGET = $(PCP_BINADM_DIR)/$(CMDTARGET)
 LLDLIBS = $(PCPLIB) $(LIB_FOR_NCURSESW) $(LIB_FOR_MATH) $(LIB_FOR_BACKTRACE)
 NCURSES_CFLAGS = -DHAVE_LIBNCURSESW=$(HAVE_NCURSESW)
 LCFLAGS = $(NCURSES_CFLAGS) $(C99_CFLAGS) -Ipcp -I.
-LCFLAGS += -DVERSION=\"$(PCP_VERSION)\" -DSYSCONFDIR=\"$(PCP_SYSCONF_DIR)\"
+LCFLAGS += -DNDEBUG -DVERSION=\"$(PCP_VERSION)\" -DHTOP_PCP=1
+LCFLAGS += -DSYSCONFDIR=\"$(PCP_SYSCONF_DIR)\" -DCONFIGDIR=\"/.pcp\"
 LCFLAGS += -DCOPYRIGHT=\"$(COPYRIGHT)\" -DPACKAGE=\"$(CMDTARGET)\"
-LCFLAGS += -D_XOPEN_SOURCE_EXTENDED -DMAJOR_IN_SYSMACROS=1 -DNDEBUG
+LCFLAGS += -D_XOPEN_SOURCE_EXTENDED -DMAJOR_IN_SYSMACROS=1
 
 TOPCFILES = \
 	pcp-htop.c \
@@ -147,6 +148,7 @@ TOPHFILES = \
 	MemoryMeter.h \
 	MemorySwapMeter.h \
 	Meter.h \
+	MeterMode.h \
 	MetersPanel.h \
 	NetworkIOMeter.h \
 	Object.h \
@@ -199,8 +201,8 @@ SUBHFILES = \
 	pcp/ProcessField.h \
 
 DOCFILES = AUTHORS pcp-htop.5.in
-COLUMNS = container delayacct fdcount guest memory sched swap tcp udp wchan
-METERS = entropy freespace ipc locks memcache mysql postfix redis tcp
+COLUMNS = container delayacct fdcount gpu_memory guest memory sched swap tcp udp wchan
+METERS = entropy freespace gpu ipc locks memcache mysql postfix redis tcp
 SCREENS = cgroups cgroupsio cgroupsmem devices filesystems \
 	  biosnoop execsnoop exitsnoop opensnoop
 CFGMETERS = $(patsubst %,pcp/meters/%,$(METERS))

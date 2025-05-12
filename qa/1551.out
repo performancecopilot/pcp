@@ -1,0 +1,92 @@
+QA output created by 1551
+
+=== len=4 src="foo" ===
+strncpy() ...
+src="foo" [4]
+dst: src match [0]...[2]: null [3]: unfill [4]...[49]
+pmstrncpy() ...
+src="foo" [4]
+dst: src match [0]...[2]: null [3]: unfill [4]...[49]
+strncat() ...
+src="foo" [4]
+dst: src match [34]...[36]: null [37]: unfill [38]...[49]
+pmstrncat() ...
+src="foo" [4]
+dst: src match [34]...[36]: null [37]: unfill [38]...[49]
+
+=== len=10 src="foobar" ===
+strncpy() ...
+src="foobar" [10]
+dst: src match [0]...[5]: null [6]...[9]: unfill [10]...[49]
+pmstrncpy() ...
+src="foobar" [10]
+dst: src match [0]...[5]: null [6]: unfill [7]...[49]
+strncat() ...
+src="foobar" [10]
+dst: src match [34]...[39]: null [40]: unfill [41]...[49]
+pmstrncat() ...
+src="foobar" [10]
+dst: src match [34]...[39]: null [40]: unfill [41]...[49]
+
+=== len=6 src="mumble" ===
+strncpy() ...
+src="mumble" [6]
+dst: src match [0]...[5]: no null: unfill [6]...[49]
+pmstrncpy() ...
+pmstrncpy() truncate
+src="mumble" [6]
+dst: src not found dst="mumbl": null [5]: unfill [6]...[49]
+strncat() ...
+src="mumble" [6]
+dst: src match [34]...[39]: null [40]: unfill [41]...[49]
+pmstrncat() ...
+src="mumble" [6]
+dst: src match [34]...[39]: null [40]: unfill [41]...[49]
+
+=== len=14 src="fox-in-socks-are-really-cool" ===
+strncpy() ...
+src="fox-in-socks-are-really-cool" [14]
+dst: src not found dst="fox-in-socks-a": no null: unfill [14]...[49]
+pmstrncpy() ...
+pmstrncpy() truncate
+src="fox-in-socks-are-really-cool" [14]
+dst: src not found dst="fox-in-socks-": null [13]: unfill [14]...[49]
+strncat() ...
+src="fox-in-socks-are-really-cool" [14]
+dst: src not found dst="mary had a little lamb, its fleecefox-in-socks-a": null [48]: unfill [49]
+pmstrncat() ...
+pmstrncat() truncate
+src="fox-in-socks-are-really-cool" [14]
+dst: src not found dst="mary had a little lamb, its fleecefox-in-socks-ar": null [49]: no unfill
+
+=== len=15 src="fox-in-socks-are-really-cool" ===
+strncpy() ...
+src="fox-in-socks-are-really-cool" [15]
+dst: src not found dst="fox-in-socks-ar": no null: unfill [15]...[49]
+pmstrncpy() ...
+pmstrncpy() truncate
+src="fox-in-socks-are-really-cool" [15]
+dst: src not found dst="fox-in-socks-a": null [14]: unfill [15]...[49]
+strncat() ...
+src="fox-in-socks-are-really-cool" [15]
+dst: src not found dst="mary had a little lamb, its fleecefox-in-socks-ar": null [49]: no unfill
+pmstrncat() ...
+pmstrncat() truncate
+src="fox-in-socks-are-really-cool" [15]
+dst: src not found dst="mary had a little lamb, its fleecefox-in-socks-ar": null [49]: no unfill
+
+=== len=16 src="fox-in-socks-are-really-cool" ===
+strncpy() ...
+src="fox-in-socks-are-really-cool" [16]
+dst: src not found dst="fox-in-socks-are": no null: unfill [16]...[49]
+pmstrncpy() ...
+pmstrncpy() truncate
+src="fox-in-socks-are-really-cool" [16]
+dst: src not found dst="fox-in-socks-ar": null [15]: unfill [16]...[49]
+strncat() ...
+src="fox-in-socks-are-really-cool" [16]
+dst: src not found dst="mary had a little lamb, its fleecefox-in-socks-are": no null: no unfill: overrun [50] "\000"
+pmstrncat() ...
+pmstrncat() truncate
+src="fox-in-socks-are-really-cool" [16]
+dst: src not found dst="mary had a little lamb, its fleecefox-in-socks-ar": null [49]: no unfill
