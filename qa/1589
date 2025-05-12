@@ -51,16 +51,8 @@ _filter_pcp2json_http()
 	-e "s/\(\"value\"\): \""$cpus"\"/\1:NCPU/g" \
 	-e 's/\(\"@timestamp\"\): \(.*\)/\1:DATE TIME/' \
 	-e '/HTTP/d' \
-        -e "s/^\(Host: localhost\):$port/\1:PORT/g" \
-        -e 's/^\(Content-Length:\) [1-9][0-9]*/\1 SIZE/g' \
-        -e 's/^\(User-Agent: python-requests\).*/\1 VERSION/g' \
-        -e 's/^\(Date:\).*/\1 DATE/g' \
-        -e 's/\(\"context\":\) [0-9][0-9]*/\1 CTXID/g' \
-        -e '/^Accept-Encoding: /d' \
-        -e '/^Connection: keep-alive/d' \
-        -e '/ using stream socket$/d' \
     | LC_COLLATE=POSIX sort
-}
+} >> $tmp.python2.out
 
 # real QA test starts here
 port=`_find_free_port`
@@ -73,6 +65,7 @@ pcp2json -s1 -ZUTC -u http://localhost:$port hinv.ncpu >$tmp.json.out 2>$tmp.jso
 
 echo "pcp2json HTTP POST (sorted):"
 _filter_pcp2json_http <$tmp.python.out
+_check_http_filter <$tmp.python2.out
 
 # terminate pythonserver.py now
 pmsignal $pid >/dev/null 2>&1
