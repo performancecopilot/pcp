@@ -255,19 +255,14 @@ void
 load_namespace(char *path)
 {
     struct timespec	now, then;
-    int sts;
-    struct timeval	temp_tv;
+    int			sts;
 
-    gettimeofday(&temp_tv, (struct timezone *)0);
-    then.tv_sec = temp_tv.tv_sec;
-    then.tv_nsec = temp_tv.tv_usec * 10000;
+    pmtimespecNow(&then);
     if ((sts = pmLoadASCIINameSpace(path, 1)) < 0) {
 	printf("%s: Cannot load namespace from \"%s\": %s\n", pmGetProgname(), path, pmErrStr(sts));
 	exit(1);
     }
-    gettimeofday(&temp_tv, (struct timezone *)0);
-    now.tv_sec = temp_tv.tv_sec;
-    now.tv_nsec = temp_tv.tv_usec * 10000;
+    pmtimespecNow(&now);
     printf("Name space load: %.2f msec\n", pmtimespecSub(&now, &then)*1000);
 }
 
