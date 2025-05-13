@@ -2,9 +2,6 @@
 
 pcp-pmda-hdb is a [Performance Co-Pilot (PCP)](https://pcp.io/) Performance Metric Domain Agent (PMDA) for [SAP HANA (hdb)](https://www.sap.com/products/hana.html).
 
-> **:warning: WARNING: Alpha Software**  
-> This project is in an early stage and should not be used in productive environments.
-
 * [Installation](#installation)
 * [Usage](#usage)
 * [Features](#features)
@@ -18,35 +15,17 @@ pcp-pmda-hdb is a [Performance Co-Pilot (PCP)](https://pcp.io/) Performance Metr
 pcp-pmda-hdb connects to HANA via the [hdbcli](https://pypi.org/project/hdbcli/) Python module.
 ```bash
 pip3 install hdbcli
-dnf install -y pcp python3-pcp pcp-zeroconf
 ```
 
 ### Install
 ```bash
-# get pcp-pmda-hdb
-git clone <REPO>
-cd pcp-pmda-hdb
-
-# copy files
-sudo mkdir -p /var/lib/pcp/pmdas/hdb
-sudo cp pmdahdb.py /var/lib/pcp/pmdas/hdb/pmdahdb.python
-sudo cp Install Remove pmdahdb.conf /var/lib/pcp/pmdas/hdb/
-sudo chown -R root /var/lib/pcp/pmdas/hdb/
-cd /var/lib/pcp/pmdas/hdb/
-
-# Set connection parameters in pmdahdb.conf, see Configuration section of this document
-sudo $EDITOR pmdahdb.conf
-sudo chmod 640 pmdahdb.conf
+# Set connection parameters in hdb.conf, see Configuration section of this document
+sudo $EDITOR /etc/pcp/hdb/hdb.conf
 
 # actual installation with pcp
-sudo ./Install 
-> Updating the Performance Metrics Name Space (PMNS) ...
-> Terminate PMDA if already installed ...
-> Updating the PMCD control file, and notifying PMCD ...
-> Check hdb metrics have appeared ... 188 metrics and 1522 values
 
-# check hdb-pmda is marked as installed
-pcp | grep hdb
+cd /var/lib/pcp/pmdas/hdb
+./Install
 ```
 
 ## Usage
@@ -81,7 +60,7 @@ Read a metric
 ```
 pminfo -dfmtT hdb.version
 
-hdb.version PMID: 158.0.2 [HANA Version (Revision)]
+hdb.version PMID: 88.0.2 [HANA Version (Revision)]
     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
 Help:
@@ -93,8 +72,8 @@ Read a metric with multiple instances
 ```
 pminfo -dfmtT hdb.services.memory.stack_size_bytes
 
-hdb.services.memory.stack_size_bytes PMID: 158.4.3 [Stack size in bytes]
-    Data Type: 64-bit unsigned int  InDom: 158.3 0x27800003
+hdb.services.memory.stack_size_bytes PMID: 88.4.3 [Stack size in bytes]
+    Data Type: 64-bit unsigned int  InDom: 88.3 0x27800003
     Semantics: instant  Units: byte
 Help:
 Stack size in bytes
@@ -110,8 +89,8 @@ RHEL specific information can be found in the [Red Hat Enterprise Linux PCP Docu
 If you want to visualise the metrics via Grafana, have a look at this blog post: [Visualizing Performance with Grafana](https://www.redhat.com/en/blog/visualizing-system-performance-rhel-8-using-performance-co-pilot-pcp-and-grafana-part-1).
 
 ### Configuration
-`pmdahdb.conf` contains the configuration of pcp-pmda-hdb.
-Curently there is only one `hdb` section that contains the SAP HANA connection parameters.
+`hdb.conf` contains the configuration of pcp-pmda-hdb.
+Currently there is only one `hdb` section that contains the SAP HANA connection parameters.
 [Quoted passwords](https://help.sap.com/viewer/102d9916bf77407ea3942fef93a47da8/1.0.11/en-US/61662e3032ad4f8dbdb5063a21a7d706.html#reference_ndt_cmm_ht) are supported.
 ```ini
 [hdb]
@@ -119,6 +98,9 @@ host=hana-host
 port=39015
 user=SYSTEM
 password="Secret"
+connect_timeout=60000
+node_connect_timeout=10000
+communication_timeout=2000
 ```
 
 ## Features
@@ -324,11 +306,10 @@ Host and Port are included in the instance names (`<host>.<port>.<instance>`).
 pcp-pmda-hdb currently does not support Multitenant Database Container (MDC) systems.
 The agent can only target a single database container at the moment (this container can be a tenant database).
 
-pcp-pmda-hdb is not tested with Python2.
-
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 Please make sure to update tests as appropriate.
+The test is currently qa/1781.
 
 ### Dev Setup
 ```
@@ -340,12 +321,11 @@ pip3 install flake8
 ```
 
 ### Running Tests
-Unit tests (`pmdahdb_test.py`) require a running HANA instance (HANA Express is sufficient). 
-Connection paramneters need to be set via the environment variables `HDB_HOST`, `HDB_PORT`, `HDB_USER`, and `HDB_PASSWORD`.
+Unit tests (`pmdahdb_test.python`) require a running HANA instance (HANA Express is sufficient). 
+Connection paramneters need to be set via the environment variables `HDB_HOST`, `HDB_PORT`, `HDB_USER`, `HDB_PASSWORD`, `HDB_CONNECT_TIMEOUT`, `HDB_NODE_TIMEOUT`, and `HDB_COMM_TIMEOUT`.
+The `make test` target can be used to run this test with super user permissions (`sudo`).
 
-Installation and Removal procedure can be tested with `hack/run-integration-tests.py`
-
-Integration with the PCP ecosystem can be interactively tested with `hack/debug-pmda.sh`.
+There is also a test for this pmda in the qa directory (`qa/1781`) and a helper script and README in `qa/hdb`.
 
 ## License
 [GNU General Public License v3.0](./LICENSE)
