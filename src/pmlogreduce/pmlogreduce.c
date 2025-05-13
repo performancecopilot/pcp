@@ -145,7 +145,7 @@ parseargs(int argc, char *argv[])
 	    break;
 
 	case 't':	/* output sample interval */
-	    if (pmParseHighResInterval(opts.optarg, &targ, &msg) < 0) {
+	    if (pmParseInterval(opts.optarg, &targ, &msg) < 0) {
 		pmprintf("%s", msg);
 		free(msg);
 		opts.errors++;

@@ -626,8 +626,8 @@ PCP_4.0 {
     pmNumberStr;
     pmNumberStr_r;
     pmOpenLog;
-    pmParseHighResInterval;
     pmParseInterval;
+    pmParseInterval_v2;
     pmParseMetricSpec;
     pmParseTimeWindow;
     pmParseTimeWindow_v2;

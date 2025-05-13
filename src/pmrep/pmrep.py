@@ -103,7 +103,7 @@ class PMReporter(object):
         self.globals = 1
         self.timestamp = 0
         self.samples = None # forever
-        self.interval = pmapi.timeval(1)       # 1 sec
+        self.interval = pmapi.timespec(1)       # 1 sec
         self.opts.pmSetOptionInterval(str(1))  # 1 sec
         self.delay = 0
         self.type = 0

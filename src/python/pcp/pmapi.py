@@ -228,9 +228,13 @@ class timeval(Structure):
         errmsg = c_char_p()
         if not isinstance(interval, bytes):
             interval = interval.encode('utf-8')
-        status = LIBPCP.pmParseInterval(interval, byref(tvp), byref(errmsg))
+        ts = timespec()
+        status = LIBPCP.pmParseInterval(interval, byref(ts), byref(errmsg))
+        print('status=' + status + ' sec=' + ts.ts_sec)
         if status < 0:
             raise pmErr(status, errmsg)
+        tvp.ts_sec = ts.ts_sec
+        tvp.ts_usec = ts.ts_nsec // 1000
         return tvp
 
     def __str__(self):
@@ -281,12 +285,12 @@ class timespec(Structure):
 
     @classmethod
     def fromInterval(cls, interval):
-        """ Construct timeval from a string using pmParseInterval """
+        """ Construct timespec from a string using pmParseInterval """
         tsp = cls()
         errmsg = c_char_p()
         if not isinstance(interval, bytes):
             interval = interval.encode('utf-8')
-        status = LIBPCP.pmParseHighResInterval(interval, byref(tsp), byref(errmsg))
+        status = LIBPCP.pmParseInterval(interval, byref(tsp), byref(errmsg))
         if status < 0:
             raise pmErr(status, errmsg)
         return tsp
@@ -984,13 +988,9 @@ LIBPCP.pmSemStr_r.argtypes = [c_int, c_char_p, c_int]
 LIBPCP.pmPrintValue.restype = None
 LIBPCP.pmPrintValue.argtypes = [c_void_p, c_int, c_int, POINTER(pmValue), c_int]
 
-LIBPCP.pmParseHighResInterval.restype = c_int
-LIBPCP.pmParseHighResInterval.argtypes = [c_char_p, POINTER(timespec),
-                                          POINTER(c_char_p)]
-
 LIBPCP.pmParseInterval.restype = c_int
-LIBPCP.pmParseInterval.argtypes = [c_char_p, POINTER(timeval),
-                                   POINTER(c_char_p)]
+LIBPCP.pmParseInterval.argtypes = [c_char_p, POINTER(timespec),
+                                          POINTER(c_char_p)]
 
 LIBPCP.pmParseMetricSpec.restype = c_int
 LIBPCP.pmParseMetricSpec.argtypes = [c_char_p, c_int, c_char_p,
@@ -1130,7 +1130,7 @@ class pmOptions(object):
         return c_api.pmSetOptionSamples(count)
 
     def pmSetOptionInterval(self, interval):
-        """ Set sampling interval (pmParseHighResInterval string) """
+        """ Set sampling interval (pmParseInterval string) """
         return c_api.pmSetOptionInterval(interval)
 
     def pmGetOperands(self):
@@ -1288,11 +1288,11 @@ class pmOptions(object):
     def pmGetOptionArchives(self):  # str list
         return c_api.pmGetOptionArchives()
 
-    def pmGetOptionAlignment(self): # timeval
+    def pmGetOptionAlignment(self): # timespec
         alignment = c_api.pmGetOptionAlign_optarg()
         if alignment is None:
             return None
-        return timeval.fromInterval(alignment)
+        return timespec.fromInterval(alignment)
 
     def pmGetOptionHighResAlignment(self): # timespec
         alignment = c_api.pmGetOptionAlign_optarg()
@@ -1300,11 +1300,11 @@ class pmOptions(object):
             return None
         return timespec.fromInterval(alignment)
 
-    def pmGetOptionStart(self):     # timeval
+    def pmGetOptionStart(self):     # timespec
         sec = c_api.pmGetOptionStart_sec()
         if sec is None:
             return None
-        return timeval(sec, c_api.pmGetOptionStart_usec())
+        return timespec(sec, c_api.pmGetOptionStart_nsec())
 
     def pmGetOptionHighResStart(self):  # timespec
         sec = c_api.pmGetOptionStart_sec()
@@ -1318,11 +1318,11 @@ class pmOptions(object):
     def pmGetOptionFinishOptarg(self):  # string
         return c_api.pmGetOptionFinish_optarg()
 
-    def pmGetOptionFinish(self):    # timeval
+    def pmGetOptionFinish(self):    # timespec
         sec = c_api.pmGetOptionFinish_sec()
         if sec is None:
             return None
-        return timeval(sec, c_api.pmGetOptionFinish_usec())
+        return timespec(sec, c_api.pmGetOptionFinish_nsec())
 
     def pmGetOptionHighResFinish(self): # timespec
         sec = c_api.pmGetOptionFinish_sec()
@@ -1330,11 +1330,11 @@ class pmOptions(object):
             return None
         return timespec(sec, c_api.pmGetOptionFinish_nsec())
 
-    def pmGetOptionOrigin(self):        # timeval
+    def pmGetOptionOrigin(self):        # timespec
         sec = c_api.pmGetOptionOrigin_sec()
         if sec is None:
             return None
-        return timeval(sec, c_api.pmGetOptionOrigin_usec())
+        return timespec(sec, c_api.pmGetOptionOrigin_nsec())
 
     def pmGetOptionHighResOrigin(self): # timespec
         sec = c_api.pmGetOptionOrigin_sec()
@@ -1342,11 +1342,11 @@ class pmOptions(object):
             return None
         return timespec(sec, c_api.pmGetOptionOrigin_nsec())
 
-    def pmGetOptionInterval(self):      # timeval
+    def pmGetOptionInterval(self):      # timespec
         sec = c_api.pmGetOptionInterval_sec()
         if sec is None:
             return None
-        return timeval(sec, c_api.pmGetOptionInterval_usec())
+        return timespec(sec, c_api.pmGetOptionInterval_nsec())
 
     def pmGetOptionHighResInterval(self): # timespec
         sec = c_api.pmGetOptionInterval_sec()
@@ -2750,18 +2750,11 @@ class pmContext(object):
         LIBPCP.pmSortInstances(result_p)
 
     @staticmethod
-    def pmParseHighResInterval(interval):
+    def pmParseInterval(interval):
         """PMAPI - parse a textual time interval into a timespec struct
-        (timespec_ctype, '') = pmParseHighResInterval("time string")
+        (timespec_ctype, '') = pmParseInterval("time string")
         """
         return (timespec.fromInterval(interval), '')
-
-    @staticmethod
-    def pmParseInterval(interval):
-        """PMAPI - parse a textual time interval into a timeval struct
-        (timeval_ctype, '') = pmParseInterval("time string")
-        """
-        return (timeval.fromInterval(interval), '')
 
     @staticmethod
     def pmParseMetricSpec(string, isarch=0, source=''):
@@ -2790,7 +2783,7 @@ class pmContext(object):
     def pmtimespecSleep(spec):
         """ Delay for a specified amount of time (timespec).
             Useful for implementing tools that do metric sampling.
-            Single arg is timespec in tuple returned from pmParseHighResInterval().
+            Single arg is timespec in tuple returned from pmParseInterval().
         """
         return spec.sleep()
 
@@ -2886,7 +2879,7 @@ class pmContext(object):
             step = None
         else:
             mode = c_api.PM_MODE_INTERP
-            step = timespec(interval.tv_sec, interval.tv_usec * 1000)
+            step = timespec(interval.tv_sec, interval.tv_nsec)
         return mode, step
 
     def prepare_execute(self, options, archive, interpol, interval):

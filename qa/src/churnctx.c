@@ -238,7 +238,7 @@ main(int argc, char **argv)
 	    break;
 
 	case 't':	/* change update interval */
-	    if (pmParseHighResInterval(optarg, &delta, &endnum) < 0) {
+	    if (pmParseInterval(optarg, &delta, &endnum) < 0) {
 		fprintf(stderr, "%s: illegal -t argument\n", pmGetProgname());
 		fputs(endnum, stderr);
 		free(endnum);

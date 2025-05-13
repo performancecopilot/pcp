@@ -30,7 +30,7 @@ Usage: pmevent [options] metricname
 pmevent: -s requires a positive numeric argument
 Usage: pmevent [options] metricname
 === -t 10foobars ===
-pmevent: -t argument not in pmParseHighResInterval(3) format:
+pmevent: -t argument not in pmParseInterval(3) format:
 10foobars
   ^ -- unexpected value
 

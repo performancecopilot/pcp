@@ -288,7 +288,7 @@ __pmParseInterval(
 }
 
 int		/* 0 -> ok, -1 -> error */
-pmParseInterval(
+pmParseInterval_v2(
     const char *spec,		/* interval to parse */
     struct timeval *rslt,	/* result stored here */
     char **errmsg)		/* error message */
@@ -304,7 +304,7 @@ pmParseInterval(
 }
 
 int		/* 0 -> ok, -1 -> error */
-pmParseHighResInterval(
+pmParseInterval(
     const char *spec,		/* interval to parse */
     struct timespec *rslt,	/* result stored here */
     char **errmsg)		/* error message */
@@ -654,7 +654,7 @@ __pmParseHighResTime(
 
     /* relative to end of archive */
     else if (end.tv_sec < PM_MAX_TIME_T && parseChar(&scan, '-')) {
-	if (pmParseHighResInterval(scan, &tspec, errMsg) >= 0) {
+	if (pmParseInterval(scan, &tspec, errMsg) >= 0) {
 	    tm.tm_wday = NEG_OFFSET;
 	    tm.tm_sec = tspec.tv_sec;
 	    tm.tm_yday = tspec.tv_nsec;
@@ -666,7 +666,7 @@ __pmParseHighResTime(
     /* relative to start of archive or current time */
     else {
 	parseChar(&scan, '+');
-	if (pmParseHighResInterval(scan, &tspec, errMsg) >= 0) {
+	if (pmParseInterval(scan, &tspec, errMsg) >= 0) {
 	    tm.tm_wday = PLUS_OFFSET;
 	    tm.tm_sec = tspec.tv_sec;
 	    tm.tm_yday = tspec.tv_nsec;
@@ -678,8 +678,7 @@ __pmParseHighResTime(
     /*
      * if we get here, *errMsg is not NULL, because one of
      * - __pmParseCtime(), or
-     * - pmParseHighResInterval(), or
-     * - the other pmParseHighResInterval()
+     * - pmParseInterval()
      * returned a value < 0 ... if glib_get_date() fails we're
      * going to return with the previously set *errMsg
      */
@@ -835,7 +834,7 @@ pmParseTimeWindow(
     /* parse -A argument and adjust start accordingly */
     if (swAlign) {
 	scan = swAlign;
-	if (pmParseHighResInterval(scan, &tspec, errMsg) < 0) {
+	if (pmParseInterval(scan, &tspec, errMsg) < 0) {
 	    if (pmDebugOptions.getopt) {
 		fprintf(stderr, "pmParseTimeWindow: -A %s => %s\n", swAlign, *errMsg);
 	    }

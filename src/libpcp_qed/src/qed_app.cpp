@@ -15,6 +15,7 @@
 
 #include <math.h>
 #include <pcp/pmapi.h>
+#include <pcp/libpcp.h>
 #include "qed_app.h"
 #include "qed_console.h"
 
@@ -64,6 +65,7 @@ int QedApp::getopts(const char *options)
     int			unknown = 0;
     int			c, errflg = 0;
     char		*endnum, *msg;
+    struct timespec	ts;
 
     /* TODO: this code should all be removed (convert tool to pmGetOptions) */
 
@@ -107,11 +109,13 @@ int QedApp::getopts(const char *options)
 	    break;
 
 	case 't':		/* sampling interval */
-	    if (pmParseInterval(optarg, &my.delta, &msg) < 0) {
+	    if (pmParseInterval(optarg, &ts, &msg) < 0) {
 		pmprintf("%s: cannot parse interval\n%s", pmGetProgname(), msg);
 		free(msg);
 		errflg++;
 	    }
+	    my.delta.tv_sec = ts.tv_sec;
+	    my.delta.tv_usec = ts.tv_nsec / 1000;
 	    continue;
 
 	case 'T':		/* run time */

@@ -38,6 +38,7 @@ state == 1 && NF == 0	{ state = 2
     -e 's/pmFreeOptions(/pmFreeOptions_v2(/' \
     -e 's/pmGetArchiveEnd(/pmGetArchiveEnd_v2(/' \
     -e 's/pmParseTimeWindow(/pmParseTimeWindow_v2(/' \
+    -e 's/pmParseInterval(/pmParseInterval_v2(/' \
     -e 's/\(struct[ 	][ 	]*\)pmLogLabel/\1pmLogLabel_v2/' \
     -e 's/pmGetArchiveLabel(/pmGetArchiveLabel_v2(/' \
     -e 's/__pmEndOptions(/__pmEndOptions_v2(/' \

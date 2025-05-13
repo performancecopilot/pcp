@@ -780,8 +780,7 @@ PCP_CALL extern const char *pmEventFlagsStr(int);		/* NOT thread-safe */
 PCP_CALL extern char *pmEventFlagsStr_r(int, char *, int);
 
 /* Parse -t, -S, -T, -A and -O options */
-PCP_CALL extern int pmParseInterval(const char *, struct timeval *, char **);
-PCP_CALL extern int pmParseHighResInterval(const char *, struct timespec *, char **);
+PCP_CALL extern int pmParseInterval(const char *, struct timespec *, char **);
 PCP_CALL extern int pmParseTimeWindow(
       const char *, const char *, const char *, const char *,
       const struct timespec *, const struct timespec *,
@@ -1449,6 +1448,7 @@ typedef struct pmLogLabel_v2 {
 } pmLogLabel_v2;
 
 PCP_CALL extern int pmGetArchiveLabel_v2(pmLogLabel_v2 *);
+PCP_CALL extern int pmParseInterval_v2(const char *, struct timeval *, char **);
 
 #if PMAPI_VERSION == PMAPI_VERSION_2
 /*
@@ -1465,6 +1465,7 @@ PCP_CALL extern int pmGetArchiveLabel_v2(pmLogLabel_v2 *);
 #define pmParseTimeWindow pmParseTimeWindow_v2
 #define pmLogLabel pmLogLabel_v2
 #define pmGetArchiveLabel pmGetArchiveLabel_v2
+#define pmParseInterval pmParseInterval_v2
 #endif
 
 #if PMAPI_VERSION >= PMAPI_VERSION_4
@@ -1474,11 +1475,8 @@ PCP_CALL extern int pmGetArchiveLabel_v2(pmLogLabel_v2 *);
 #define pmGetHighResArchiveEnd pmGetArchiveEnd
 #define pmParseHighResTimeWindow pmParseTimeWindow
 #define pmGetHighResArchiveLabel pmGetArchiveLabel
+#define pmParseHighResInterval pmParseInterval
 #endif
-
-/* transitional macros ... will go away when timeval -> timespec all done */
-#define TSfromTV(a,b) { a.tv_sec = b.tv_sec; a.tv_nsec = b.tv_usec * 1000; }
-#define TVfromTS(a,b) { a.tv_sec = b.tv_sec; a.tv_usec = b.tv_nsec / 1000; }
 
 #ifdef __cplusplus
 }

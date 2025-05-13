@@ -28,7 +28,8 @@
 int
 main(int argc, char **argv)
 {
-    struct timeval	tv = { 10, 0 };
+    struct timespec	ts = { 10, 0 };
+    struct timeval	tv;
     CLIENT		*clnt;
     enum clnt_stat	stat;
     int			c;
@@ -46,7 +47,7 @@ main(int argc, char **argv)
 	    break;
 
 	case 't':	/* change timeout interval */
-	    if (pmParseInterval(optarg, &tv, &p) < 0) {
+	    if (pmParseInterval(optarg, &ts, &p) < 0) {
 		fprintf(stderr, "%s: illegal -t argument\n", pmGetProgname());
 		fputs(p, stderr);
 		free(p);
@@ -64,6 +65,8 @@ main(int argc, char **argv)
 
     if (errflag)
 	exit(4);
+
+    __pmtvfromts(tv, ts);
 
     if ((clnt = clnt_create(host, AUTOFSD_PROGRAM, AUTOFSD_VERSION, "udp")) == NULL) {
 	clnt_pcreateerror("clnt_create");

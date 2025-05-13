@@ -6299,9 +6299,9 @@ parsedelta(seriesQueryBaton *baton, sds string, struct timespec *result, const c
     sds			msg;
     int			sts;
 
-    if ((sts = pmParseHighResInterval(string, result, &error)) < 0) {
+    if ((sts = pmParseInterval(string, result, &error)) < 0) {
 	infofmt(msg, "Cannot parse time %s with %s:\n%s",
-		source, "pmParseHighResInterval", error);
+		source, "pmParseInterval", error);
 	batoninfo(baton, PMLOG_ERROR, msg);
 	baton->error = sts;
 	free(error);

@@ -803,9 +803,9 @@ __pmSetSampleInterval(pmOptions *opts, char *arg)
     char *endnum;
     int sts;
 
-    if ((sts = pmParseHighResInterval(arg, &opts->interval, &endnum)) < 0) {
+    if ((sts = pmParseInterval(arg, &opts->interval, &endnum)) < 0) {
 	pmprintf("%s: -t argument not in %s(3) format:\n",
-		pmGetProgname(), "pmParseHighResInterval");
+		pmGetProgname(), "pmParseInterval");
 	pmprintf("%s\n", endnum);
 	opts->errors++;
 	free(endnum);

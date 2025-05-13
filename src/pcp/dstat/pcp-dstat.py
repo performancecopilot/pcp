@@ -463,7 +463,7 @@ class DstatTool(object):
         self.derived = None
         self.globals = 1
         self.samples = -1 # forever
-        self.interval = pmapi.timeval(1)      # 1 sec
+        self.interval = pmapi.timespec(1)      # 1 sec
         self.opts.pmSetOptionInterval(str(1)) # 1 sec
         self.delay = 1.0
         self.type = 0
@@ -723,7 +723,7 @@ class DstatTool(object):
             operands = []
         else:
             try:
-                self.interval = pmapi.timeval.fromInterval(operands[0])
+                self.interval = pmapi.timespec.fromInterval(operands[0])
                 self.delay = float(self.interval)
             except:
                 sys.stderr.write("Invalid sample delay '%s'\n" % operands[0])

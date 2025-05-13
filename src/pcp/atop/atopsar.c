@@ -248,7 +248,7 @@ atopsar(int argc, char *argv[])
 			char	*endnum, *arg;
 
 			arg = argv[opts.optind++];
-			if (pmParseHighResInterval(arg, &opts.interval, &endnum) < 0)
+			if (pmParseInterval(arg, &opts.interval, &endnum) < 0)
 			{
 				pmprintf(
 			"%s: %s option not in pmParseInterval(3) format:\n%s\n",

@@ -126,9 +126,9 @@
  * [ ] pmNumberStr
  * [ ] pmNumberStr_r
  * [ ] pmOpenLog
- * [ ] pmParseHighResInterval
+ * [x] pmParseHighResInterval
  * [ ] pmParseHighResTimeWindow
- * [ ] pmParseInterval
+ * [y] pmParseInterval
  * [ ] pmParseMetricSpec
  * [ ] pmParseTimeWindow
  * [ ] pmParseUnitsStr
@@ -391,12 +391,13 @@ main(int argc, char *argv[])
 	PMOPT_ARCHIVE_LIST,		/* --archive-list=ARCHIVE,ARCHIVE,... */
 	PMOPT_ARCHIVE_FOLIO,		/* --archive-folio=NAME */
 	PMOPT_DERIVED,			/* --derived=FILE */
+	{ "interval", 1, 'i', "DELTA", "a time interval" },
 	{ "metric", 1, 'm', "METRIC", "the metric [default: sample.colour]" },
 	PMAPI_OPTIONS_END
     };
     pmOptions opts = {
 	.flags = PM_OPTFLAG_BOUNDARIES | PM_OPTFLAG_STDOUT_TZ,
-	.short_options = PMAPI_OPTIONS "H:K:LN:" "m:" ,
+	.short_options = PMAPI_OPTIONS "H:K:LN:" "i:m:" ,
 	.long_options = longopts,
 	.short_usage = "[options] ...",
     };
@@ -407,15 +408,18 @@ main(int argc, char *argv[])
 #if PMAPI_VERSION < 4
     struct timeval	start;
     struct timeval	end;
+    struct timeval	delta;
 #else
     struct timespec	start;
     struct timespec	end;
+    struct timespec	delta;
 #endif
     char	*name = "sample.colour";
     pmID	pmid;
     pmDesc	desc;
     pmInDom	indom;
     pmLogLabel	label;
+    char	*errmsg;
 
     /*
      * options tests ...
@@ -426,8 +430,17 @@ main(int argc, char *argv[])
 	    case 'm':
 		name = opts.optarg;
 		break;
+
+	    case 'i':
+		if ((sts = pmParseInterval(opts.optarg, &delta, &errmsg)) < 0) {
+		    printf("pmParseInterval: Fail: %s (%s)\n", pmErrStr(sts), errmsg);
+		    free(errmsg);
+		}
+		else
+		    printf("-i interval: %s\n", interstr(&delta));
 	}
     }
+
     printf("End of option processing\n");
     if (opts.flags & PM_OPTFLAG_USAGE_ERR) {
 	pmUsageMessage(&opts);
@@ -437,6 +450,7 @@ main(int argc, char *argv[])
 	pmflush();
 	exit(1);
     }
+
     if (opts.timezone)	/* ensure we have deterministic output */
 	tz = opts.timezone;
     else

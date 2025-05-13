@@ -424,6 +424,7 @@ main(int argc, char **argv)
     pmdaInterface	desc;
     long		minmem;
     int			c, sep = pmPathSeparator();
+    struct timespec	ts;
 
     pmSetProgname(argv[0]);
 
@@ -447,12 +448,13 @@ main(int argc, char **argv)
 	    break;
 
 	case 's':
-	    if (pmParseInterval(opts.optarg, &bash_interval, &endnum) < 0) {
+	    if (pmParseInterval(opts.optarg, &ts, &endnum) < 0) {
 		pmprintf("%s: -s requires a time interval: %s\n",
 			 pmGetProgname(), endnum);
 		free(endnum);
 		opts.errors++;
 	    }
+	    __pmtvfromts(bash_interval, ts);
 	    break;
 	}
     }

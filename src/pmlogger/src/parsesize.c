@@ -120,7 +120,7 @@ ParseSize(char *size_arg, int *sample_counter, __int64_t *byte_size,
     }
 
     /* Doesn't fit pattern above, try a time interval */
-    if (pmParseHighResInterval(size_arg, time_delta, &interval_err) >= 0)
+    if (pmParseInterval(size_arg, time_delta, &interval_err) >= 0)
         return 1;
     /* error message not used here */
     free(interval_err);
