@@ -1,9 +1,32 @@
 #!/bin/sh
+#
+# Copyright (c) 2021 Red Hat.
+#
+# This program is free software: you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation, either version 3 of the License, or (at your option) any later
+# version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+#
+# See <http://www.gnu.org/licenses/> for copy of the GNU General Public License.
+#
+# Install the hdb PMDA
+#
+
+# Check the python hdbcli package is installed
+if $pcp_python_prog -c "import hdbcli" >/dev/null 2>&1; then
+    echo "Error: hdbcli is not installed. Please install it using 'pip3 install hdbcli' and try again."
+    exit 1
+fi
+
 . $PCP_DIR/etc/pcp.env
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=hdb
-domain=158
+domain=88
 python_opt=true
 daemon_opt=false
 

@@ -1,0 +1,89 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2021 Red Hat.
+.\"
+.\" This program is free software: you can redistribute it and/or modify it under
+.\" the terms of the GNU General Public License as published by the Free Software
+.\" Foundation, either version 3 of the License, or (at your option) any later
+.\" version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but WITHOUT
+.\" ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+.\" FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+.\"
+.\" See <http://www.gnu.org/licenses/> for copy of the GNU General Public License.
+.\"
+.\"
+.TH PMDAHDB 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmdahdb\f1 \- SAP HANA PMDA
+.SH DESCRIPTION
+\f3pmdahdb\f1 is a Performance Metrics Domain Agent (PMDA) which exports metric
+values about an SAP HANA (\fBH\fRigh-performance \fBAN\fRalytic \fBA\fRppliance) database,
+a multi-model database that stores data in its memory instead of keeping it on a disk.
+.PP
+This PMDA can be used in scale-out scenarios.
+All metrics are Host and Port aware.
+Host and Port are included in the instance names (<host>.<port>.<instance>).
+.PP
+\f3pmdahdb\f1 currently does not support Multitenant Database Container (MDC) systems.
+The agent can only target a single database container at the moment (this container can
+be a tenant database).
+.SH INSTALLATION
+The hdb configuration is maintained with
+.IR hdb.conf.
+Currently there is only one hdb section that contains the SAP HANA connection parameters.
+Quoted passwords are supported.
+For more information about quoted passwords, see:
+https://help.sap.com/docs/SAP_HANA_ONE/102d9916bf77407ea3942fef93a47da8/61662e3032ad4f8dbdb5063a21a7d706.html#password-layout
+.PP
+Install the hdb PMDA by using the Install script as root:
+.sp 1
+.RS +4
+.ft B
+.nf
+# cd $PCP_PMDAS_DIR/hdb
+# ./Install
+.fi
+.ft P
+.RE
+.sp 1
+.PP
+To uninstall, do the following as root:
+.sp 1
+.RS +4
+.ft B
+.nf
+# cd $PCP_PMDAS_DIR/hdb
+# ./Remove
+.fi
+.ft P
+.RE
+.sp 1
+\fBpmdahdb\fR is launched by \fIpmcd\fR(1) and should never be executed directly.
+The Install and Remove scripts notify \fIpmcd\fR(1) when the
+agent is installed or removed.
+.SH FILES
+.IP "\fB$PCP_SYSCONF_DIR/hdb/hdb.conf\fR" 4
+configuration file for the \fBpmdahdb\fR agent
+.IP "\fB$PCP_PMDAS_DIR/hdb/Install\fR" 4
+installation script for the \fBpmdahdb\fR agent
+.IP "\fB$PCP_PMDAS_DIR/hdb/Remove\fR" 4
+undo installation script for the \fBpmdahdb\fR agent
+.IP "\fB$PCP_LOG_DIR/pmcd/hdb.log\fR" 4
+default log file for error messages from \fBpmdahdb\fR
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fR are used to parameterize
+the file and directory names used by \fBPCP\fR.
+On each installation, the file \fB/etc/pcp.conf\fR contains the local values for these variables.
+The \fB$PCP_CONF\fR variable may be used to specify an alternative configuration file, as described in \fIpcp.conf\fR(5).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pmcd (1),
+.BR pminfo (1)
+and
+.BR pmpython (1).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ configfs {filsystem type}
+.\" +ok+ pmdahdb rtslib iSCSI FCoE IOPS FCP HDB LUN hdb
