@@ -1,0 +1,78 @@
+'\"! tbl | mmdoc
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2025 Oracle and/or its affiliates.
+.\" DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.TH PCP-ROCESTAT 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pcp-rocestat\f1 \- Reports statistics for nVidia RoCE devices.
+.SH SYNOPSIS
+\f3pcp\f1
+[\f2pcp\ options\f1]
+\f3rocestat\f1
+\f2[--hw_stats|--lane_stats]\f2
+[\f3\-s\f1 \f2samples\f1]
+[\f3\-a\f1 \f2archive\f1]
+[\f3\-S\f1 \f2start_time\f1]
+[\f3\-T\f1 \f2end_time\f1]
+
+.SH DESCRIPTION
+The
+.B pcp-rocestat
+tool for viewing nVidia RoCE device counters and monitoring real-time throughput on local interfaces.
+This tool utilizes ethtool counters for each device and reports throughput per priority queue.
+By default
+.B pcp-rocestat
+reports live data for the local host. It has the capabilities to analyze the data on the archives as well.
+.SH OPTIONS
+.TP
+\fB\-\-hw_stats\fP
+Display hardware counters
+.TP
+\fB\-\-lane_stats\fP
+Display lane stats
+.TP
+\fB\-a\fP, \fB\-\-archive\fP
+Specify the archive to examine
+.TP
+\fB\-s\fP, \fB\-\-samples\fP
+Specify number of samples
+.TP
+\fB\-S\fP, \fB\-\-START TIME\fP
+Filter the samples from the archive from the given time
+.TP
+\fB\-T\fP, \fB\-\-END TIME\fP
+Filter the samples from the archive till the given time
+.TP
+\fB\-V\fR, \fB\-\-version\fR
+Display version number and exit.
+.TP
+\fB\-?\fR, \fB\-\-help\fR
+Display usage message and exit.
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
+.PP
+For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pcp (1),
+.BR pmParseInterval (3)
+and
+.BR environ (7).
+
