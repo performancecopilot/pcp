@@ -1,0 +1,49 @@
+QA output created by 1726
+duplicate.url
+labels.url
+simplemetric.url
+
+=== opentelemetry agent installation ===
+
+opentelemetry.labels.labelMetric [I am a Counter Metric to test the labels]
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: none
+Help:
+I am a Counter Metric to test the labels
+    value 5
+
+opentelemetry.simplemetric.metric1 [I am a Counter]
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: none
+Help:
+I am a Counter
+    value 5
+
+opentelemetry.simplemetric.metric2 [I am a Gauge]
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Help:
+I am a Gauge
+    value 10
+
+opentelemetry.simplemetric.metric3 [I am a Histogram]
+    Data Type: 64-bit int  InDom: 88.7170 0x16001c02
+    Semantics: counter  Units: none
+Help:
+I am a Histogram
+    inst [0 or "le=1"] value 1
+    inst [1 or "le=inf"] value 1
+
+opentelemetry.simplemetric.metric3_count [I am a Histogram]
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: none
+Help:
+I am a Histogram
+    value 2
+
+opentelemetry.simplemetric.metric3_sum [I am a Histogram]
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: none
+Help:
+I am a Histogram
+    value 2
