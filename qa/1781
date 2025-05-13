@@ -1,0 +1,98 @@
+#!/bin/sh
+# PCP QA Test No. 1781
+# Testing pmdahdb
+#
+# Copyright (c) 2025 Sam Feifer.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.python
+
+do_valgrind=false
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+    do_valgrind=true
+fi
+
+# test for-some-thing || _notrun No support for some-thing
+
+pmda_path="$PCP_PMDAS_DIR/hdb"
+pmda_script="$pmda_path/pmdahdb.python"
+
+[ -d $pmda_path ] || _notrun "HDB PMDA is not installed"
+
+$python -c "from pcp import pmda" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python pcp pmda module not installed"
+
+#TODO: download/setup SAP HANA instance to use for testing
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+    # end
+}
+
+pmdahdb_remove()
+{
+    cd $pmda_path
+    echo
+    echo "=== remove HDB agent ==="
+    $sudo ./Remove >$tmp.out 2>&1
+}
+
+pmdahdb_install()
+{
+    cd $pmda_path
+    $sudo ./Remove >/dev/null 2>&1
+
+    echo
+    echo "=== HDB agent installation ==="
+    $sudo ./Install </dev/null >$tmp.out 2>&1
+    cd $here
+}
+
+# real QA test starts here
+
+if $do_valgrind
+then
+    _run_valgrind ...your test goes here...
+else
+    pmdahdb_install
+
+    # TODO: Run the pmdahdb_test.python script
+    
+    pmdalio_remove
+fi \
+| _filter
+
+# if really bad error
+status=1
+exit
+
+# optional stuff if your test has verbose output to help resolve problems
+#echo
+#echo "If failure, check $seq_full"
+
+# success, all done
+exit

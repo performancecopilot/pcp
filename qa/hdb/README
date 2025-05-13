@@ -1,0 +1,7 @@
+
+Unit tests (pmdahdb_test.py) require a running HANA instance (HANA Express is sufficient). 
+Connection paramneters need to be set via the environment variables HDB_HOST, HDB_PORT, HDB_USER, and HDB_PASSWORD.
+
+Installation and Removal procedure can be tested with hack/run-integration-tests.py
+
+Integration with the PCP ecosystem can be interactively tested with hack/debug-pmda.sh.
