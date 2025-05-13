@@ -556,7 +556,7 @@ typedef union {
  *
  * The value sets returned are in the same order as the metrics argument,
  * and the number of value sets returned is guaranteed to be the same as
- * the number of metrics in the agument.  
+ * the number of metrics in the argument.  
  */
 PCP_CALL extern int pmFetch(int, pmID *, pmResult **);
 PCP_CALL extern int pmFetchHighRes(int, pmID *, pmHighResResult **);
