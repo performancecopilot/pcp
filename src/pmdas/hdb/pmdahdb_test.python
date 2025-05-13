@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+
+import sys
 import os
 import tempfile
 import unittest
@@ -43,7 +46,25 @@ class HdbPMDATest(unittest.TestCase):
                 cls,
                 "hdb password for test not specified. Set environment variable 'HDB_PASSWORD'",
             )
-        hdb = HDBConnection(hdb_host, int(hdb_port), hdb_user, hdb_password)
+        connect_timeout = os.getenv("HDB_CONNECT_TIMEOUT")
+        if not hdb_password:
+            cls.skipTest(
+                cls,
+                "connect timoeut for test not specified. Set environment variable 'HDB_CONNECT_TIMEOUT'",
+            )
+        node_timeout = os.getenv("HDB_NODE_TIMEOUT")
+        if not hdb_password:
+            cls.skipTest(
+                cls,
+                "node timeout for test not specified. Set environment variable 'HDB_NODE_TIMEOUT'",
+            )
+        comm_timeout = os.getenv("HDB_COMM_TIMEOUT")
+        if not hdb_password:
+            cls.skipTest(
+                cls,
+                "communication timeout for test not specified. Set environment variable 'HDB_COMM_TIMEOUT'",
+            )
+        hdb = HDBConnection(hdb_host, int(hdb_port), hdb_user, hdb_password, connect_timeout, node_timeout, comm_timeout)
         cls.pmda = HdbPMDA(hdb)
 
     def test_fetch_callback_unknown_cluster_PM_ERR_PMID(self):
@@ -128,6 +149,9 @@ class ConfigTest(unittest.TestCase):
         port = 39015
         user = "user"
         password = "password"
+        connect_timeout = 60000
+        node_connect_timeout = 10000
+        communication_timeout = 2000
         with tempfile.NamedTemporaryFile() as f:
             f.write(
                 bytes(
@@ -137,6 +161,9 @@ class ConfigTest(unittest.TestCase):
                 port={port}
                 user={user}
                 password={password}
+                connect_timeout={connect_timeout}
+                node_connect_timeout={node_connect_timeout}
+                communication_timeout={communication_timeout}
                 """,
                     encoding="utf-8",
                 )
@@ -156,6 +183,9 @@ class ConfigTest(unittest.TestCase):
                 port=39015
                 user=user
                 password=password
+                connect_timeout=60000
+                node_connect_timeout=10000
+                communication_timeout=2000
                 """
             )
             f.seek(0)
@@ -170,6 +200,9 @@ class ConfigTest(unittest.TestCase):
                 port=39015
                 user=user
                 password=password
+                connect_timeout=60000
+                node_connect_timeout=10000
+                communication_timeout=2000
                 """
             )
             f.seek(0)
@@ -185,6 +218,9 @@ class ConfigTest(unittest.TestCase):
                 port=39015
                 user=user
                 password=password
+                connect_timeout=60000
+                node_connect_timeout=10000
+                communication_timeout=2000
                 """
             )
             f.seek(0)
@@ -199,6 +235,9 @@ class ConfigTest(unittest.TestCase):
                 host=localhost
                 user=user
                 password=password
+                connect_timeout=60000
+                node_connect_timeout=10000
+                communication_timeout=2000
                 """
             )
             f.seek(0)
@@ -214,6 +253,9 @@ class ConfigTest(unittest.TestCase):
                 port=0
                 user=user
                 password=password
+                connect_timeout=60000
+                node_connect_timeout=10000
+                communication_timeout=2000
                 """
             )
             f.seek(0)
@@ -228,6 +270,9 @@ class ConfigTest(unittest.TestCase):
                 host=localhost
                 port=39015
                 password=password
+                connect_timeout=60000
+                node_connect_timeout=10000
+                communication_timeout=2000
                 """
             )
             f.seek(0)
@@ -243,6 +288,9 @@ class ConfigTest(unittest.TestCase):
                 port=39015
                 user=
                 password=password
+                connect_timeout=60000
+                node_connect_timeout=10000
+                communication_timeout=2000
                 """
             )
             f.seek(0)
@@ -257,6 +305,9 @@ class ConfigTest(unittest.TestCase):
                 host=localhost
                 port=39015
                 user=user
+                connect_timeout=60000
+                node_connect_timeout=10000
+                communication_timeout=2000
                 """
             )
             f.seek(0)
@@ -272,6 +323,9 @@ class ConfigTest(unittest.TestCase):
                 port=39015
                 user=user
                 password=
+                connect_timeout=60000
+                node_connect_timeout=10000
+                communication_timeout=2000
                 """
             )
             f.seek(0)
@@ -289,6 +343,9 @@ class ConfigTest(unittest.TestCase):
                        port=39015
                        user=user
                        password={password}
+                       connect_timeout=60000
+                       node_connect_timeout=10000
+                       communication_timeout=2000
                        """,
                     encoding="utf-8",
                 )

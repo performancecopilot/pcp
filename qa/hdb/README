@@ -1,0 +1,2 @@
+The qa test for pmdahdb (1781) requires a running HANA instance (HANA Express is sufficient).
+For the qa test to work, the pmda must be configured correctly in hdb.conf and the corresponding fields in the qa test must match (i.e. host, port, user, password).
