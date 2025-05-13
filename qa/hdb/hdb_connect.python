@@ -1,0 +1,37 @@
+import sys
+import argparse
+from hdbcli import dbapi
+
+def query_hana(host, port, user, password, query):
+    """
+    Connects to a HANA database and executes a query.
+    """
+    conn = None
+    try:
+        conn = dbapi.connect(address=host, port=int(port), user=user, password=password)
+        cursor = conn.cursor()
+        cursor.execute(query)
+        rows = cursor.fetchall()
+
+        # Print rows
+        for row in rows:
+            print("\t".join(map(str, row)))
+
+    except dbapi.Error as e:
+        print(f"Error connecting to or querying HANA: {e}")
+        sys.exit(1)
+    finally:
+        if conn:
+            conn.close()
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Query a SAP HANA database.")
+    parser.add_argument("-H", "--host", required=True, help="HANA host address")
+    parser.add_argument("-P", "--port", type=int, default=30015, help="HANA port (default: 30015)")
+    parser.add_argument("-U", "--user", required=True, help="HANA username")
+    parser.add_argument("-W", "--password", required=True, help="HANA password")
+    parser.add_argument("-Q", "--query", required=True, help="SQL query to execute")
+
+    args = parser.parse_args()
+
+    query_hana(args.host, args.port, args.user, args.password, args.query)
