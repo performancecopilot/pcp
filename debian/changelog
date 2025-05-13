@@ -1,6 +1,7 @@
 pcp (7.0.0-1) unstable; urgency=low
 
   * New release (full details in CHANGELOG).
+  * build fixes for gmake --shuffle=reverse option (closes: #1105441)
   * build needs postfix for postfix PMDA (closes: #929368)
   * build needs libsystemd-dev for systemd PMDA (closes: #929372)
   * build needs libxml-libxml-perl and libfile-slurp-perl for bind2 PMDA (closes: #929376)
