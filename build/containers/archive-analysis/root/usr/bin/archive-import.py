@@ -55,7 +55,7 @@ def archive_unchanged(archive_path: str, archive_time: float, i: int, count: int
 def format_time(seconds: float):
     # From a floating point number of seconds since the epoch,
     # produce a time string in the format Grafana is expecting.
-    string = datetime.fromtimestamp(seconds, UTC).isoformat()
+    string = datetime.fromtimestamp(seconds, timezone.utc).isoformat()
     return string.replace('+00:00', 'Z')
 
 
@@ -145,7 +145,7 @@ def import_archive(path: Path, i: int, count: int, no_op: bool, import_timeout: 
                     stdout=subprocess.PIPE,
                     stderr=subprocess.STDOUT,
                     check=True,
-                    text=True,
+                    universal_newlines=True,
                     timeout=import_timeout,
                 )
     except subprocess.CalledProcessError as e:
