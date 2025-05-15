@@ -217,7 +217,7 @@ Options\n\
     }
 
     if (pmnsfile != PM_NS_DEFAULT && (sts = pmLoadNameSpace(pmnsfile)) < 0) {
-	printf("%s: Cannot load namespace from \"%s\": %s\n", pmGetProgname(), 
+	fprintf(stderr, "%s: Cannot load namespace from \"%s\": %s\n", pmGetProgname(), 
 	       pmnsfile, pmErrStr(sts));
 	exit(1);
     }

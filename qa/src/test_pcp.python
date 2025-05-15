@@ -316,13 +316,13 @@ def test_pcp(self):
         print("pmAddProfile: ", error)
         self.assertTrue(False)
 
-    # pmParseHighResInterval
+    # pmParseInterval
     try:
-        (delta, errmsg) = ctx.pmParseHighResInterval("3 seconds")
-        print("pmParseHighResInterval:", delta)
+        (delta, errmsg) = ctx.pmParseInterval("3 seconds")
+        print("pmParseInterval:", delta)
         self.assertTrue(True)
     except pmapi.pmErr as error:
-        print("pmParseHighResInterval: ", error)
+        print("pmParseInterval: ", error)
         self.assertTrue(False)
 
     # pmParseUnitsStr

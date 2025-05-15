@@ -131,7 +131,8 @@ QmcSource::retryConnect(int type, QString &source)
 	    }
 	    else {
 		my.host = lp.hostname;
-		TVfromTS(my.start, lp.start);
+		my.start.tv_sec = lp.start.tv_sec;
+		my.start.tv_usec = lp.start.tv_nsec / 1000;
 	    }
 	    sts = pmGetArchiveEnd(&tmp_ts);
 	    my.end.tv_sec = tmp_ts.tv_sec;

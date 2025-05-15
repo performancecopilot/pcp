@@ -26,7 +26,10 @@ export TZ
 
 # real QA test starts here
 
-src/mark-bug -z -a archives/mark-bug -s 60 -t 2
+# show stderr then stdout
+#
+src/mark-bug -z -a archives/mark-bug -s 60 -t 2 >$tmp.out
+cat $tmp.out
 
 # success, all done
 status=0

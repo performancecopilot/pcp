@@ -125,7 +125,7 @@ group_create_pmlogger(const char *state, unsigned int line)
     size_t		length;
     group_t		*group;
     const char		*begin, *end;
-    struct timeval	interval;
+    struct timespec	interval;
     enum { TAG, STATE, DELTA } parse;
 
     if ((group = calloc(1, sizeof(group_t))) == NULL) {
@@ -1356,7 +1356,7 @@ char *
 update_groups(FILE *tempfile, const char *pattern)
 {
     group_t		*group;
-    struct timeval	interval;
+    struct timespec	interval;
     static char		*answer;
     static char		buffer[128]; /* returned 'answer' points into this */
     char		*state = NULL, *errmsg, *p;

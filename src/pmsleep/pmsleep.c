@@ -95,15 +95,12 @@ static int
 pmsleep(const char *interval)
 {
     struct timespec rqt;
-    struct timeval delta;
     char *msg;
     
-    if (pmParseInterval(interval, &delta, &msg) < 0) {
+    if (pmParseInterval(interval, &rqt, &msg) < 0) {
 	fputs(msg, stderr);
 	free(msg);
     } else {
-	rqt.tv_sec  = delta.tv_sec;
-	rqt.tv_nsec = delta.tv_usec * 1000;
 	if (0 != nanosleep(&rqt, NULL))
 	    return oserror();
     }

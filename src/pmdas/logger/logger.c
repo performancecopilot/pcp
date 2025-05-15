@@ -543,6 +543,7 @@ main(int argc, char **argv)
     pmdaInterface	desc;
     long		minmem;
     int			c, err = 0, sep = pmPathSeparator();
+    struct timespec	ts;
 
     pmSetProgname(argv[0]);
     pmGetUsername(&username);
@@ -568,12 +569,13 @@ main(int argc, char **argv)
 		break;
 
 	    case 's':
-		if (pmParseInterval(optarg, &interval, &endnum) < 0) {
+		if (pmParseInterval(optarg, &ts, &endnum) < 0) {
 		    fprintf(stderr, "%s: -s requires a time interval: %s\n",
 			    pmGetProgname(), endnum);
 		    free(endnum);
 		    err++;
 		}
+		__pmtvfromts(interval, ts);
 		break;
 
 	    case 'U':

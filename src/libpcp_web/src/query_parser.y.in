@@ -1711,10 +1711,10 @@ newinterval(PARSER *lp, sds string)
     char	*error;
     int		sts;
 
-    if ((sts = pmParseHighResInterval(string, &tp->delta, &error)) < 0) {
+    if ((sts = pmParseInterval(string, &tp->delta, &error)) < 0) {
 	lp->yy_error = sts;
 	lp->yy_errstr = sdscatfmt(sdsempty(),
-		"Cannot parse time delta with %s:\n%s", "pmParseHighResInterval", error);
+		"Cannot parse time delta with %s:\n%s", "pmParseInterval", error);
 	sdsfree(string);
 	free(error);
 	return -1;
@@ -1807,10 +1807,10 @@ newrange(PARSER *lp, sds string)
     char	*error;
     int		sts;
 
-    if ((sts = pmParseHighResInterval(string, &tp->start, &error)) < 0) {
+    if ((sts = pmParseInterval(string, &tp->start, &error)) < 0) {
 	lp->yy_error = sts;
 	lp->yy_errstr = sdscatfmt(sdsempty(),
-		"Cannot parse range with %s:\n%s", "pmParseHighResInterval", error);
+		"Cannot parse range with %s:\n%s", "pmParseInterval", error);
 	lp->yy_error = sts;
 	sdsfree(string);
 	free(error);

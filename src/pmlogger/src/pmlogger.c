@@ -822,6 +822,7 @@ main(int argc, char **argv)
     pmHighResResult	*resp;
     pmValueSet		*vp;
     struct timespec	myepoch;
+    struct timespec	ts;
     struct timeval	nowait = {0, 0};
     FILE		*fp;		/* pipe from pmcpp */
 #ifdef HAVE___EXECUTABLE_START
@@ -1013,11 +1014,12 @@ main(int argc, char **argv)
             break;
 
 	case 't':		/* change default logging interval */
-	    if (pmParseInterval(opts.optarg, &delta, &p) < 0) {
+	    if (pmParseInterval(opts.optarg, &ts, &p) < 0) {
 		pmprintf("%s: illegal -t argument\n%s", pmGetProgname(), p);
 		free(p);
 		opts.errors++;
 	    }
+	    __pmtvfromts(delta, ts);
 	    break;
 
 	case 'U':		/* run as named user */
@@ -1548,13 +1550,13 @@ main(int argc, char **argv)
 
     if (vol_switch_time.tv_sec > 0) {
 	struct timeval temp;
-	TVfromTS(temp, vol_switch_time);
+	__pmtvfromts(temp, vol_switch_time);
 	vol_switch_afid = __pmAFregister(&temp, NULL, 
 					 vol_switch_callback);
     }
     if (exit_time.tv_sec > 0) {
 	struct timeval temp;
-	TVfromTS(temp, exit_time);
+	__pmtvfromts(temp, exit_time);
 	__pmAFregister(&temp, NULL, run_done_callback);
     }
 
@@ -1746,9 +1748,9 @@ newvolume(int vol_switch_type)
      */
     if (vol_switch_afid >= 0 && vol_switch_type != VOL_SW_TIME) {
 	struct timeval temp;
-	TVfromTS(temp, vol_switch_time);
-      __pmAFunregister(vol_switch_afid);
-      vol_switch_afid = __pmAFregister(&temp, NULL,
+	__pmtvfromts(temp, vol_switch_time);
+        __pmAFunregister(vol_switch_afid);
+        vol_switch_afid = __pmAFregister(&temp, NULL,
                                    vol_switch_callback);
     }
 

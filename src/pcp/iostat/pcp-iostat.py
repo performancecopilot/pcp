@@ -442,7 +442,7 @@ if __name__ == '__main__':
 
         if IostatOptions.uflag:
             # -u turns off interpolation
-            manager.pmSetMode(PM_MODE_FORW, manager._options.pmGetOptionOrigin(), 0)
+            manager.pmSetModeHighRes(PM_MODE_FORW, manager._options.pmGetOptionOrigin(), None)
 
         if "dm" in IostatOptions.xflag :
             namelist = IOSTAT_DM_METRICS

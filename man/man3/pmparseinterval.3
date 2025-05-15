@@ -16,8 +16,7 @@
 .\"
 .TH PMPARSEINTERVAL 3 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmParseInterval\f1,
-\f3pmParseHighResInterval\f1 \- convert interval string to binary time structure
+\f3pmParseInterval\f1 \- convert interval string to binary time structure
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
@@ -26,10 +25,7 @@
 .hy 0
 .in +8n
 .ti -8n
-int pmParseInterval(const char *\fIstring\fP, struct timeval *\fIurslt\fP, char\ **\fIerrmsg\fP);
-.br
-.ti -8n
-int pmParseHighResInterval(const char *\fIstring\fP, struct timespec *\fInrslt\fP, char\ **\fIerrmsg\fP);
+int pmParseInterval(const char *\fIstring\fP, struct timespec *\fIrslt\fP, char\ **\fIerrmsg\fP);
 .sp
 .in
 .hy
@@ -47,21 +43,9 @@ parses the argument
 specifying an interval of time and fills in the
 .B tv_sec
 and
-.B tv_usec
-components of the
-.I urslt
-structure to represent that interval (microsecond precision).
-.PP
-Similarly,
-.B pmParseHighResInterval
-parses the argument
-.I string
-and fills in the
-.B tv_sec
-and
 .B tv_nsec
 components of the
-.I nrslt
+.I rslt
 structure to represent that interval (nanosecond precision).
 .PP
 The input
@@ -101,6 +85,22 @@ In the case of an error, the caller is responsible for calling
 .BR free (3)
 to release the space allocated for
 .IR errmsg .
+.SH COMPATIBILITY
+Prior to PCP 7.0 the
+.I rslt
+argument was a \f(CRstruct timeval\f(CR.
+To support PMAPI transition, the old interface and semantics can be
+used if applications are recompiled with
+.BR \-DPMAPI_VERSION=2 .
+.PP
+For a time in PCP 6.x there was a
+routine with the same semantics as the current
+.B pmParseInterval
+called
+.B pmParseHighResInterval
+although this is now deprecated and compile-time support for
+.B pmParseHighResInterval
+will be removed in a future release.
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR free (3),

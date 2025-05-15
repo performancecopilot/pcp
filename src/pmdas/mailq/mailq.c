@@ -73,7 +73,7 @@ static pmdaMetric metrictab[] = {
 static int
 mailq_histogram(char *option)
 {
-    struct timeval	tv;
+    struct timespec	ts;
     char		*errmsg;
     char		*q;
     unsigned int	instid;
@@ -81,16 +81,16 @@ mailq_histogram(char *option)
 
     q = strtok(option, ",");
     while (q != NULL) {
-	if ((sts = pmParseInterval((const char *)q, &tv, &errmsg)) < 0) {
+	if ((sts = pmParseInterval((const char *)q, &ts, &errmsg)) < 0) {
 	    pmprintf("%s: bad histogram bins argument:\n%s\n", pmGetProgname(), errmsg);
 	    free(errmsg);
 	    return -EINVAL;
 	}
-	if (tv.tv_sec >= UINT_MAX) {
-	    pmprintf("%s: bin size is too large (%lld):\n", pmGetProgname(), (long long)tv.tv_sec);
+	if (ts.tv_sec >= UINT_MAX) {
+	    pmprintf("%s: bin size is too large (%lld):\n", pmGetProgname(), (long long)ts.tv_sec);
 	    return -EINVAL;
 	}
-	instid = (unsigned int)tv.tv_sec; /* Y2038-safe, size checked */
+	instid = (unsigned int)ts.tv_sec; /* Y2038-safe, size checked */
 	numhisto++;
 	histo = (histo_t *)realloc(histo, numhisto * sizeof(histo[0]));
 	if (histo == NULL)

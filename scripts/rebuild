@@ -112,6 +112,9 @@ do
 	in
 	    src/include|src/pmns)
 		    ;;
+	    src/libpcp3)
+		    KEEP_CONFIG_FILES=yes $PCP_MAKE_PROG clean
+		    ;;
 	    *)
 		    $PCP_MAKE_PROG clean
 		    ;;

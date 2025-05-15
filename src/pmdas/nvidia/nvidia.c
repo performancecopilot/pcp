@@ -1132,6 +1132,7 @@ main(int argc, char **argv)
     pmdaInterface	desc;
     char		*endnum;
     int			c;
+    struct timespec	ts;
 
     isDSO = 0;
     pmSetProgname(argv[0]);
@@ -1143,12 +1144,13 @@ main(int argc, char **argv)
     while ((c = pmdaGetOptions(argc, argv, &opts, &desc)) != EOF) {
 	switch (c) {
 	    case 't':
-		if (pmParseInterval(opts.optarg, &interval, &endnum) < 0) {
+		if (pmParseInterval(opts.optarg, &ts, &endnum) < 0) {
 		    fprintf(stderr, "%s: -s requires a time interval: %s\n",
 			    pmGetProgname(), endnum);
 		    free(endnum);
 		    opts.errors++;
 		}
+		__pmtvfromts(interval, ts);
 		autorefresh = 1;	/* enable timers, non-default */
 		break;
 	    default:

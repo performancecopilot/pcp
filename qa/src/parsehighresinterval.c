@@ -9,7 +9,7 @@ main(int argc, char *argv[])
 
     while (argc > 1) {
 	printf("\"%s\"", argv[1]);
-	sts = pmParseHighResInterval(argv[1], &time, &err);
+	sts = pmParseInterval(argv[1], &time, &err);
 	if (sts == -1) {
 	    printf(" Error:\n%s", err);
 	    free(err);

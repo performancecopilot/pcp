@@ -36,6 +36,9 @@ if [ ! -d /sys/class/infiniband ]; then
     _notrun "No RoCE devices detected"
 fi
 
+which ethtool >/dev/null 2>&1 || _notrun "ethtool executable not installed"
+which ibdev2netdev >/dev/null 2>&1 || _notrun "ibdev2netdev executable not installed"
+
 status=1	# failure is the default!
 trap "_cleanup_pmda rocestat; exit \$status" 0 1 2 3 15
 

@@ -1,9 +1,9 @@
 #!/bin/sh
-# PCP QA Test No. 1558
+# PCP QA Test No. 1581
 # compatibility testing for PMAPI_VERSION_2 and PMAPI_VERSION_4
 #
-# This variant tests for source API compatibility ... see qa/1581
-# for the ABI compatibility (libpcp.so.3) dual.
+# This variant tests ABI compatibility (libpcp.so.3) ... see qa/1558
+# for the source API compatibility dual.
 #
 # Copyright (c) 2025 Ken McDonell.  All Rights Reserved.
 #
@@ -22,6 +22,8 @@ fi
 . ./common.product
 . ./common.filter
 . ./common.check
+
+test -f src/api_abi_compat || _notrun "src/api_abi_compat is not present"
 
 do_valgrind=false
 if [ "$1" = "--valgrind" ]
@@ -95,18 +97,18 @@ _do_work()
     cat $tmp.out | tee -a $seq_full
     mv $tmp.out $tmp.out.base
 
-    echo "--- PMAPI_VERSION_4 ---"
+    echo "--- compat ---"
     if $do_valgrind
     then
-	_run_valgrind --save-output src/api_abi -Dpmapi "$@"
+	_run_valgrind --save-output src/api_abi_compat -Dpmapi "$@"
     else
-	src/api_abi -Dpmapi "$@" 2>$tmp.err >$tmp.out
+	src/api_abi_compat -Dpmapi "$@" 2>$tmp.err >$tmp.out
     fi
     _filter_err
-    cat $tmp.err >>$seq_full
+    cat $tmp.err >> $seq_full
     diff $tmp.err.base $tmp.err | _filter_diff
     _filter_out
-    cat $tmp.out >>$seq_full
+    cat $tmp.out >> $seq_full
     diff $tmp.out.base $tmp.out | _filter_diff
 }
 

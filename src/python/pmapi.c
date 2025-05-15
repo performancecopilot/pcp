@@ -676,9 +676,9 @@ setOptionInterval(PyObject *self, PyObject *args, PyObject *keywords)
 			"s:pmSetOptionInterval", keyword_list, &delta))
 	return NULL;
 
-    if (pmParseHighResInterval(delta, &options.interval, &errmsg) < 0) {
+    if (pmParseInterval(delta, &options.interval, &errmsg) < 0) {
 	pmprintf("%s: interval argument not in %s(3) format:\n%s\n",
-		pmGetProgname(), "pmParseHighResInterval", errmsg);
+		pmGetProgname(), "pmParseInterval", errmsg);
 	options.errors++;
 	free(errmsg);
     }

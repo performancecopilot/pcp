@@ -216,7 +216,7 @@ ParseOptions(int argc, char *argv[], int *nports, int *maxpending)
 	    break;
 
 	case 'T':	/* terminate after given time has elapsed */
-	    sts = pmParseHighResInterval(opts.optarg, &opts.finish, &endnum);
+	    sts = pmParseInterval(opts.optarg, &opts.finish, &endnum);
 	    if (sts < 0) {
 		pmprintf("%s: bad -T interval format:\n", pmGetProgname());
 		opts.errors++;

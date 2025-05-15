@@ -89,6 +89,7 @@ getconfig
 getcontexthost
 getdomainname
 getoptions
+getoptions_v2
 getversion
 github-50
 grind_conv

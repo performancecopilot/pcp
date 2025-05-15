@@ -408,7 +408,7 @@ if __name__ == '__main__':
 
         if TapestatOptions.uflag:
             # -u turns off interpolation
-            manager.pmSetMode(PM_MODE_FORW, manager._options.pmGetOptionOrigin(), 0)
+            manager.pmSetModeHighRes(PM_MODE_FORW, manager._options.pmGetOptionOrigin(), None)
         missing = manager.checkMissingMetrics(TAPESTAT_METRICS)
         if missing is not None:
             sys.stderr.write('Error: not all required metrics are available\nMissing: %s\n' % (missing))
