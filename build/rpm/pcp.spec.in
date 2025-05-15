@@ -1641,7 +1641,7 @@ Requires: python3-pcp python3-lxml
 %if "%{_vendor}" == "suse"
 Requires: python3-libvirt-python
 %else
-%if 0%{?centos_ver} == 7
+%if 0%{?rhel} == 7
 Requires: python36-libvirt
 %else
 Requires: libvirt-python3
