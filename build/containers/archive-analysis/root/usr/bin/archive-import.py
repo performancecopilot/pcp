@@ -22,7 +22,7 @@ import os
 import subprocess
 import json
 from pathlib import Path
-from datetime import datetime, UTC
+from datetime import datetime, timezone
 
 import cpmapi as api
 from pcp import pmapi
