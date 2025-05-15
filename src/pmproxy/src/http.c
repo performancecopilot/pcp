@@ -23,22 +23,21 @@
 #include "zlib.h"
 #endif
 
-static int chunked_transfer_size; /* pmproxy.chunksize, pagesize by default */
+static int chunked_transfer_size; /* http.chunksize, pagesize by default */
 static int smallest_buffer_size = 128;
+static int max_age_value = 86400; /* 24h */
+static sds allowed_headers;
 
 /* https://tools.ietf.org/html/rfc7230#section-3.1.1 */
 #define MAX_URL_SIZE	8192
 #define MAX_PARAMS_SIZE 8000
 #define MAX_HEADERS_SIZE 128
 
-#define HEADER_ACCESS_CONTROL_MAX_AGE_VALUE 86400 /* 24h */
-
 static sds HEADER_ACCESS_CONTROL_REQUEST_HEADERS,
 	   HEADER_ACCESS_CONTROL_REQUEST_METHOD,
 	   HEADER_ACCESS_CONTROL_ALLOW_METHODS,
 	   HEADER_ACCESS_CONTROL_ALLOW_HEADERS,
 	   HEADER_ACCESS_CONTROL_ALLOW_ORIGIN,
-	   HEADER_ACCESS_CONTROL_ALLOWED_HEADERS,
 	   HEADER_ACCESS_CONTROL_MAX_AGE,
 	   HEADER_CONNECTION, HEADER_CONTENT_LENGTH,
 	   HEADER_ORIGIN, HEADER_WWW_AUTHENTICATE;
@@ -308,9 +307,9 @@ http_response_header(struct client *client, unsigned int length, http_code_t sts
 		"%S: %u\r\n",
 		HEADER_ACCESS_CONTROL_ALLOW_ORIGIN,
 		HEADER_ACCESS_CONTROL_ALLOW_HEADERS,
-		HEADER_ACCESS_CONTROL_ALLOWED_HEADERS,
+		allowed_headers,
 		HEADER_ACCESS_CONTROL_MAX_AGE,
-		HEADER_ACCESS_CONTROL_MAX_AGE_VALUE);
+		max_age_value);
 
     if (sts == HTTP_STATUS_UNAUTHORIZED && client->u.http.realm)
 	header = sdscatfmt(header, "%S: Basic realm=\"%S\"\r\n",
@@ -351,7 +350,7 @@ static sds
 http_headers_allowed(sds headers)
 {
     (void)headers;
-    return sdsdup(HEADER_ACCESS_CONTROL_ALLOWED_HEADERS);
+    return sdsdup(allowed_headers);
 }
 
 /* check whether the (preflight) method being proposed is acceptable */
@@ -459,8 +458,7 @@ http_response_access(struct client *client, http_code_t sts, http_options_t opti
 			    "%S: %u\r\n",
 			    HEADER_ACCESS_CONTROL_ALLOW_METHODS,
 			    http_methods_string(buffer, sizeof(buffer), options),
-			    HEADER_ACCESS_CONTROL_MAX_AGE,
-			    HEADER_ACCESS_CONTROL_MAX_AGE_VALUE);
+			    HEADER_ACCESS_CONTROL_MAX_AGE, max_age_value);
 
 	value = http_header_value(client, HEADER_ACCESS_CONTROL_REQUEST_HEADERS);
 	if (value && (result = http_headers_allowed(value)) != NULL) {
@@ -1260,19 +1258,26 @@ setup_http_module(struct proxy *proxy)
     values[VALUE_HTTP_COMPRESSED_BYTES] = mmv_lookup_value_desc(map,"compressed.bytes", NULL);
     values[VALUE_HTTP_UNCOMPRESSED_BYTES] = mmv_lookup_value_desc(map,"uncompressed.bytes", NULL);
 
-    if ((option = pmIniFileLookup(config, "pmproxy", "chunksize")) != NULL)
+    if ((option = pmIniFileLookup(config, "http", "chunksize")) != NULL ||
+	(option = pmIniFileLookup(config, "pmproxy", "chunksize")) != NULL)
 	chunked_transfer_size = atoi(option);
     else
 	chunked_transfer_size = getpagesize();
     if (chunked_transfer_size < smallest_buffer_size)
 	chunked_transfer_size = smallest_buffer_size;
 
+    allowed_headers = sdsnew("Accept, Accept-Language, Content-Language, Content-Type");
+    if ((option = pmIniFileLookup(config, "http", "Access-Control-Allow-Headers")))
+	allowed_headers = sdscatfmt(allowed_headers, ", %S", option);
+
+    if ((option = pmIniFileLookup(config, "http", "Access-Control-Max-Age")))
+	max_age_value = atoi(option);
+
     HEADER_ACCESS_CONTROL_REQUEST_HEADERS = sdsnew("Access-Control-Request-Headers");
     HEADER_ACCESS_CONTROL_REQUEST_METHOD = sdsnew("Access-Control-Request-Method");
     HEADER_ACCESS_CONTROL_ALLOW_METHODS = sdsnew("Access-Control-Allow-Methods");
     HEADER_ACCESS_CONTROL_ALLOW_HEADERS = sdsnew("Access-Control-Allow-Headers");
     HEADER_ACCESS_CONTROL_ALLOW_ORIGIN = sdsnew("Access-Control-Allow-Origin");
-    HEADER_ACCESS_CONTROL_ALLOWED_HEADERS = sdsnew("Accept, Accept-Language, Content-Language, Content-Type");
     HEADER_ACCESS_CONTROL_MAX_AGE = sdsnew("Access-Control-Max-Age");
     HEADER_CONNECTION = sdsnew("Connection");
     HEADER_CONTENT_LENGTH = sdsnew("Content-Length");
@@ -1299,7 +1304,6 @@ close_http_module(struct proxy *proxy)
     sdsfree(HEADER_ACCESS_CONTROL_ALLOW_METHODS);
     sdsfree(HEADER_ACCESS_CONTROL_ALLOW_HEADERS);
     sdsfree(HEADER_ACCESS_CONTROL_ALLOW_ORIGIN);
-    sdsfree(HEADER_ACCESS_CONTROL_ALLOWED_HEADERS);
     sdsfree(HEADER_ACCESS_CONTROL_MAX_AGE);
     sdsfree(HEADER_CONNECTION);
     sdsfree(HEADER_CONTENT_LENGTH);
