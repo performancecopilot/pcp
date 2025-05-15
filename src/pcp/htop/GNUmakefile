@@ -258,9 +258,13 @@ install_pcp: install
 $(TOPXFILES):
 	$(LN_S) -f $(TOPDIR)/vendor/github.com/htop-dev/htop/$@ $@
 
+$(TOPCFILES): $(SUBHFILES) $(TOPHFILES)
+
 $(SUBXFILES):
 	mkdir -p linux pcp zfs
 	$(LN_S) -f $(TOPDIR)/../vendor/github.com/htop-dev/htop/$@ $@
+
+$(SUBCFILES): $(SUBHFILES) $(TOPHFILES)
 
 $(CFGXFILES):
 	mkdir -p pcp/columns pcp/meters pcp/screens

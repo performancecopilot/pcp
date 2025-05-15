@@ -18,15 +18,15 @@
 #include "pmda.h"
 
 typedef struct {
-    uint32_t		name;		/* string mapping for name */
-    uint32_t		command;	/* string mapping for running command */
-    uint32_t		status;		/* string mapping for status */
+    int32_t		name;		/* string mapping for name */
+    int32_t		command;	/* string mapping for running command */
+    int32_t		status;		/* string mapping for status */
     unsigned int	running;
-    uint32_t		labelmap;	/* string mapping for labels */
+    int32_t		labelmap;	/* string mapping for labels */
     unsigned int	nlabels;	/* number of labels in labelmap */
     const char		*labels;	/* pointer to start of all labels */
-    uint32_t		image;		/* string mapping for image name */
-    uint32_t		podid;		/* string mapping for pod name */
+    int32_t		image;		/* string mapping for image name */
+    int32_t		podid;		/* string mapping for pod name */
 } container_info_t;
 
 typedef struct {
@@ -57,13 +57,13 @@ typedef struct {
 } container_t;
 
 typedef struct {
-    uint32_t		name;		/* string mapping for pod name */
-    uint32_t		cgroup;		/* string mapping for cgroup name */
+    int32_t		name;		/* string mapping for pod name */
+    int32_t		cgroup;		/* string mapping for cgroup name */
     unsigned int	running;
-    uint32_t		labelmap;	/* string mapping for label names */
+    int32_t		labelmap;	/* string mapping for label names */
     unsigned int	nlabels;	/* number of labels in labelmap */
     const char		*labels;	/* pointer to start of all labels */
-    uint32_t		status;		/* string mapping for status info */
+    int32_t		status;		/* string mapping for status info */
     unsigned int	ncontainers;
 } pod_info_t;
 
