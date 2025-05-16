@@ -20,7 +20,7 @@
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=hdb
-domain=158
+domain=88
 python_opt=true
 daemon_opt=false
 

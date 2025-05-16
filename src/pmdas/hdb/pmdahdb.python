@@ -50,10 +50,13 @@ from cpmapi import (
     PM_TYPE_U32,
     PM_TYPE_U64,
 )
-from hdbcli import dbapi
 from pcp.pmapi import pmContext, pmUnits
 from pcp.pmda import PMDA, pmdaIndom, pmdaInstid, pmdaMetric
-from pyhdbcli import OperationalError, ResultRow
+try:
+    from hdbcli import dbapi
+    from pyhdbcli import OperationalError, ResultRow
+except:
+    raise ImportError("Failed to import hdbcli and pyhdbcli. Please make sure these modules are installed.")
 
 
 class HDBConnection:
@@ -61,7 +64,8 @@ class HDBConnection:
     Wrapper class for a connection to HANA.
     """
 
-    def __init__(self, address: str, port: int, user: str, password: str):
+    def __init__(self, address: str, port: int, user: str, password: str, connect_timeout: int, node_timeout: int,
+                 comm_timeout: int):
         # Connection parameters of the driver are documented here
         # https://help.sap.com/viewer/f1b440ded6144a54ada97ff95dac7adf/2.10/en-US/ee592e89dcce4480a99571a4ae7a702f.html
         self._conn = dbapi.connect(
@@ -75,12 +79,12 @@ class HDBConnection:
             reconnect=True,
             # limits the overall time for the entire connection to try all server addresses specified.
             # See nodeConnectTimeout for per-node timeout.
-            connectTimeout=60 * 1000,
+            connectTimeout=connect_timeout,
             # Aborts the connection attempt after the specified maximum timeout
-            nodeConnectTimeout=10 * 1000,
+            nodeConnectTimeout=node_timeout,
             # wait for a maximum of the specified number of milliseconds for any request to complete. If the time has
             # expired and a response has not been received, the driver returns an error.
-            communicationTimeout=2 * 1000,
+            communicationTimeout=comm_timeout,
         )
 
     def query(self, sql: str, parameters: Optional[Dict] = None) -> List[ResultRow]:
@@ -256,7 +260,8 @@ class HdbPMDA(PMDA):
         :param hdb: HDBConnection
             Connection to the HANA Database to monitor.
         """
-        super().__init__("hdb", 158, logfile=None, helpfile=None)
+        super().__init__("hdb", 88, logfile=None, helpfile=None)
+#        PMDA().__init__("hdb", 88)
         self._hdb = hdb
         hdb_revision = self._hdb.query_scalar("SELECT VERSION FROM SYS.M_DATABASE;")
         if hdb_revision is None:
@@ -3076,7 +3081,8 @@ class _Config:
 
         SECTION = "hdb"
 
-        def __init__(self, host: str, port: int, user: str, password: str):
+        def __init__(self, host: str, port: int, user: str, password: str, connect_timeout: int, node_timeout: int,
+                     comm_timeout: int):
             if len(host) == 0:
                 raise ValueError("host must not be empty")
             self.host = host
@@ -3092,6 +3098,11 @@ class _Config:
             if len(password) == 0:
                 raise ValueError("password must not be empty")
             self.password = password
+
+            #TODO some conditional checks on the timeout configs
+            self.connect_timeout = connect_timeout
+            self.node_timeout = node_timeout
+            self.comm_timeout = comm_timeout
 
     def __init__(
         self,
@@ -3127,6 +3138,9 @@ def _parse_config(filename: str) -> _Config:
             port=parser.getint(_Config.HDBConfig.SECTION, "port"),
             user=parser.get(_Config.HDBConfig.SECTION, "user"),
             password=parser.get(_Config.HDBConfig.SECTION, "password"),
+            connect_timeout=parser.get(_Config.HDBConfig.SECTION, "connect_timeout"),
+            node_timeout=parser.get(_Config.HDBConfig.SECTION, "node_connect_timeout"),
+            comm_timeout=parser.get(_Config.HDBConfig.SECTION, "communication_timeout"),
         )
     except configparser.Error as parse_err:
         raise RuntimeError(
@@ -3162,10 +3176,14 @@ def _main():
             conf.hdb_config.port,
             conf.hdb_config.user,
             conf.hdb_config.password,
+            conf.hdb_config.connect_timeout,
+            conf.hdb_config.node_timeout,
+            conf.hdb_config.comm_timeout,
         )
     except RuntimeError as ex:
         print(ex, file=sys.stderr)
         sys.exit(1)
+    # Default domain number is PMDA(88)
     HdbPMDA(hdb_conn).run()
 
 

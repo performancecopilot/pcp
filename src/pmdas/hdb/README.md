@@ -71,7 +71,7 @@ Read a metric
 ```
 pminfo -dfmtT hdb.version
 
-hdb.version PMID: 158.0.2 [HANA Version (Revision)]
+hdb.version PMID: 88.0.2 [HANA Version (Revision)]
     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
 Help:
@@ -83,8 +83,8 @@ Read a metric with multiple instances
 ```
 pminfo -dfmtT hdb.services.memory.stack_size_bytes
 
-hdb.services.memory.stack_size_bytes PMID: 158.4.3 [Stack size in bytes]
-    Data Type: 64-bit unsigned int  InDom: 158.3 0x27800003
+hdb.services.memory.stack_size_bytes PMID: 88.4.3 [Stack size in bytes]
+    Data Type: 64-bit unsigned int  InDom: 88.3 0x27800003
     Semantics: instant  Units: byte
 Help:
 Stack size in bytes
@@ -329,12 +329,8 @@ pip3 install flake8
 ```
 
 ### Running Tests
-Unit tests (`pmdahdb_test.py`) require a running HANA instance (HANA Express is sufficient). 
+Unit tests (`qa/hdb/pmdahdb_test.py`) require a running HANA instance (HANA Express is sufficient). 
 Connection paramneters need to be set via the environment variables `HDB_HOST`, `HDB_PORT`, `HDB_USER`, and `HDB_PASSWORD`.
-
-Installation and Removal procedure can be tested with `hack/run-integration-tests.py`
-
-Integration with the PCP ecosystem can be interactively tested with `hack/debug-pmda.sh`.
 
 ## License
 [GNU General Public License v3.0](./LICENSE)
