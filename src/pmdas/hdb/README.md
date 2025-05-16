@@ -2,9 +2,6 @@
 
 pcp-pmda-hdb is a [Performance Co-Pilot (PCP)](https://pcp.io/) Performance Metric Domain Agent (PMDA) for [SAP HANA (hdb)](https://www.sap.com/products/hana.html).
 
-> **:warning: WARNING: Alpha Software**  
-> This project is in an early stage and should not be used in productive environments.
-
 * [Installation](#installation)
 * [Usage](#usage)
 * [Features](#features)
@@ -18,21 +15,10 @@ pcp-pmda-hdb is a [Performance Co-Pilot (PCP)](https://pcp.io/) Performance Metr
 pcp-pmda-hdb connects to HANA via the [hdbcli](https://pypi.org/project/hdbcli/) Python module.
 ```bash
 pip3 install hdbcli
-dnf install -y pcp python3-pcp pcp-zeroconf
 ```
 
 ### Install
 ```bash
-# get pcp-pmda-hdb
-git clone <REPO>
-cd pcp-pmda-hdb
-
-# copy files
-sudo mkdir -p /var/lib/pcp/pmdas/hdb
-sudo cp pmdahdb.py /var/lib/pcp/pmdas/hdb/pmdahdb.python
-sudo cp Install Remove pmdahdb.conf /var/lib/pcp/pmdas/hdb/
-sudo chown -R root /var/lib/pcp/pmdas/hdb/
-cd /var/lib/pcp/pmdas/hdb/
 
 # Set connection parameters in pmdahdb.conf, see Configuration section of this document
 sudo $EDITOR pmdahdb.conf
@@ -44,9 +30,13 @@ sudo ./Install
 > Terminate PMDA if already installed ...
 > Updating the PMCD control file, and notifying PMCD ...
 > Check hdb metrics have appeared ... 188 metrics and 1522 values
+```
 
-# check hdb-pmda is marked as installed
-pcp | grep hdb
+## Install
+1. install the PMDA
+```
+cd /var/lib/pcp/pmdas/hdb
+./Install
 ```
 
 ## Usage
@@ -324,11 +314,10 @@ Host and Port are included in the instance names (`<host>.<port>.<instance>`).
 pcp-pmda-hdb currently does not support Multitenant Database Container (MDC) systems.
 The agent can only target a single database container at the moment (this container can be a tenant database).
 
-pcp-pmda-hdb is not tested with Python2.
-
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 Please make sure to update tests as appropriate.
+The test is currently qa/1781.
 
 ### Dev Setup
 ```

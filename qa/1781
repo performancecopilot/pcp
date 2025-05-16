@@ -18,13 +18,6 @@ fi
 # get standard environment, filters and checks
 . ./common.python
 
-do_valgrind=false
-if [ "$1" = "--valgrind" ]
-then
-    _check_valgrind
-    do_valgrind=true
-fi
-
 # test for-some-thing || _notrun No support for some-thing
 
 pmda_path="$PCP_PMDAS_DIR/hdb"
@@ -35,7 +28,7 @@ pmda_script="$pmda_path/pmdahdb.python"
 $python -c "from pcp import pmda" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python pcp pmda module not installed"
 
-#TODO: download/setup SAP HANA instance to use for testing
+#TODO: check if a SAP HANA instance is running and call _notrun if it cannot connect
 
 _cleanup()
 {
@@ -73,26 +66,15 @@ pmdahdb_install()
 }
 
 # real QA test starts here
+_prepare_pmda hdb
 
-if $do_valgrind
-then
-    _run_valgrind ...your test goes here...
-else
-    pmdahdb_install
+pmdahdb_install
 
-    # TODO: Run the pmdahdb_test.python script
-    
-    pmdalio_remove
-fi \
+# TODO: Run the pmdahdb_test.python script
+
+pmdahdb_remove
+
 | _filter
-
-# if really bad error
-status=1
-exit
-
-# optional stuff if your test has verbose output to help resolve problems
-#echo
-#echo "If failure, check $seq_full"
 
 # success, all done
 exit

@@ -828,7 +828,6 @@ PMDA_RESCTRL
 PMDA_LIBVIRT
 PMDA_MSSQL
 PMDA_OPENMETRICS
-PMDA_HDB
 PMDA_LIO
 PMDA_NUTCRACKER
 PMDA_BIND2
@@ -9713,19 +9712,6 @@ fi
 PMDA_LIO=$pmda_lio
 
 if $pmda_lio; then { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-printf "%s\n" "yes" >&6; }; else { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }; fi
-
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking if the HDB PMDA should be included" >&5
-printf %s "checking if the HDB PMDA should be included... " >&6; }
-pmda_hdb=false
-if test "$have_python" = true
-then
-	pmda_hdb=true
-fi
-PMDA_HDB=$pmda_hdb
-
-if $pmda_hdb; then { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }; else { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }; fi
 

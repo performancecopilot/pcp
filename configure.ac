@@ -1515,15 +1515,6 @@ fi
 AC_SUBST(PMDA_LIO, $pmda_lio)
 if $pmda_lio; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
-AC_MSG_CHECKING([if the HDB PMDA should be included])
-pmda_hdb=false
-if test "$have_python" = true
-then
-	pmda_hdb=true
-fi
-AC_SUBST(PMDA_HDB, $pmda_hdb)
-if $pmda_hdb; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
-
 AC_MSG_CHECKING([if the OpenMetrics PMDA should be included])
 pmda_openmetrics=false
 if test "$have_python" = true
