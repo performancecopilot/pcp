@@ -8,7 +8,7 @@ QA output created by 1608
 <html>
 <p><b>unknown servlet</b>: request URL too long</p><hr>
 <p><small><i>PMPROXY/VERSION</i></small></p>
-Access-Control-Allow-Headers: Accept, Accept-Language, Content-Language, Content-Type, x-grafana-device-id
+Access-Control-Allow-Headers: Accept, Accept-Language, Content-Language, Content-Type, X-Grafana-Device-ID
 Access-Control-Allow-Origin: *
 Access-Control-Max-Age: 86400
 Content-Length: SIZE
