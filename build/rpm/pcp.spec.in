@@ -2034,6 +2034,22 @@ extracting performance metrics from AMDGPU devices.
 # end pcp-pmda-amdgpu
 %endif
 
+%if "@pmda_hdb@" == "true"
+#
+# pcp-pmda-hdb
+#
+%package pmda-hdb
+License: GPL-3.0-or-later
+Summary: Performance Co-Pilot (PCP) metrics for SAP HANA databases
+URL: https://pcp.io
+Requires: pcp = @package_version@ pcp-libs = @package_version@
+Requires: python3-pcp
+%description pmda-hdb
+This package provides a PMDA to export metric values about a SAP HANA
+database (https://www.sap.com/products/data-cloud/hana.html).
+#end pcp-pmda-hdb
+%endif
+
 
 %package zeroconf
 License: GPL-2.0-or-later
@@ -2222,6 +2238,7 @@ basic_manifest | keep '(etc/pcp|pmdas)/gpfs(/|$)' >pcp-pmda-gpfs-files
 basic_manifest | keep '(etc/pcp|pmdas)/gpsd(/|$)' >pcp-pmda-gpsd-files
 basic_manifest | keep '(etc/pcp|pmdas)/hacluster(/|$)' >pcp-pmda-hacluster-files
 basic_manifest | keep '(etc/pcp|pmdas)/haproxy(/|$)' >pcp-pmda-haproxy-files
+basic_manifest | keep '(etc/pcp|pmdas)/hdb(/|$)' >pcp-pmda-hdb-files
 basic_manifest | keep '(etc/pcp|pmdas)/infiniband(/|$)' >pcp-pmda-infiniband-files
 basic_manifest | keep '(etc/pcp|pmdas)/json(/|$)' >pcp-pmda-json-files
 basic_manifest | keep '(etc/pcp|pmdas)/libvirt(/|$)' >pcp-pmda-libvirt-files
@@ -2285,7 +2302,7 @@ for pmda_package in \
     elasticsearch \
     farm \
     gfs2 gluster gpfs gpsd \
-    hacluster haproxy \
+    hacluster haproxy hdb \
     infiniband \
     json \
     libvirt lio lmsensors logger lustre lustrecomm \
@@ -2787,6 +2804,11 @@ done
 %preun pmda-denki
 %{pmda_remove "$1" "denki"}
 
+%if "@pmda_hdb@" == "true"
+%preun pmda-hdb
+%{pmda_remove "$1" "hdb"}
+%endif
+
 %preun
 if [ "$1" -eq 0 ]
 then
@@ -3141,6 +3163,10 @@ fi
 %files pmda-trace -f pcp-pmda-trace-files.rpm
 
 %files pmda-weblog -f pcp-pmda-weblog-files.rpm
+
+%if "@pmda_hdb@" == "true"
+%files pmda-hdb -f pcp-pmda-hdb-files.rpm
+%endif
 
 %if "@have_python@" == "true"
 %files import-pmseries -f pcp-import-pmseries-files.rpm
