@@ -3,6 +3,7 @@
 #
 
 [part]
+filtertype = part
 label = dsk/%I
 printtype = b
 precision = 0
@@ -13,6 +14,7 @@ writes = disk.partitions.write_bytes
 writes.label = writ
 
 [part-avgqu]
+filtertype = part
 label = %I
 width = 4
 grouptype = 1
@@ -21,6 +23,7 @@ colorstep = 10
 avgqu = disk.partitions.aveq
 
 [part-avgrq]
+filtertype = part
 label = %I
 width = 4
 grouptype = 1
@@ -29,6 +32,7 @@ colorstep = 10
 avgrq = (delta(disk.partitions.read_bytes) + delta(disk.partitions.write_bytes)) / (delta(disk.partitions.read) + delta(disk.partitions.write))
 
 [part-svctm]
+filtertype = part
 label = %I
 width = 4
 grouptype = 1
@@ -37,6 +41,7 @@ colorstep = 1
 svctm = (delta(disk.partitions.avactive) / 1000 / 2) / (delta(disk.partitions.read) + delta(disk.partitions.write))
 
 [part-tps]
+filtertype = part
 label = dsk/%I
 width = 5
 printtype = d
@@ -47,6 +52,7 @@ writes = disk.partitions.write
 writes.label = #writ
 
 [part-util]
+filtertype = part
 label = %I
 width = 4
 grouptype = 1
@@ -55,6 +61,7 @@ colorstep = 34
 util = 100 * rate(disk.partitions.avactive)
 
 [part-wait]
+filtertype = part
 label = %I
 width = 4
 grouptype = 1
