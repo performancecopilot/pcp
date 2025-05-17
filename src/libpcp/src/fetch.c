@@ -502,6 +502,7 @@ pmSetModeHighRes(int mode, const struct timespec *when, const struct timespec *d
 {
     __pmTimestamp	offset, interval;
     int			direction;
+    int			sts;
 
     /* set internal delta time */
     if (delta != NULL) {
@@ -521,9 +522,51 @@ pmSetModeHighRes(int mode, const struct timespec *when, const struct timespec *d
     else
 	direction = 0;
 
-    if (when == NULL)
-	return __pmSetMode(mode, NULL, &interval, direction);
+    if (pmDebugOptions.pmapi) {
+	fprintf(stderr, "pmSetMode(mode=");
+	switch (mode) {
+	    case PM_MODE_LIVE:
+		fprintf(stderr, "LIVE");
+		break;
+	    case PM_MODE_INTERP:
+		fprintf(stderr, "INTERP");
+		break;
+	    case PM_MODE_FORW:
+		fprintf(stderr, "FORW");
+		break;
+	    case PM_MODE_BACK:
+		fprintf(stderr, "BACK");
+		break;
+	    default:
+		fprintf(stderr, "%d?", mode);
+		break;
+	}
+	fprintf(stderr, ", when=");
+	pmPrintHighResStamp(stderr, when);
+	fprintf(stderr, ", delta=");
+	pmPrintInterval(stderr, delta);
+	fprintf(stderr, ") direction=%d <:", direction);
+    }
+
+    if (when == NULL) {
+	sts =  __pmSetMode(mode, NULL, &interval, direction);
+	goto pmapi_return;
+    }
     offset.sec = when->tv_sec;
     offset.nsec = when->tv_nsec;
-    return __pmSetMode(mode, &offset, &interval, direction);
+    sts = __pmSetMode(mode, &offset, &interval, direction);
+
+pmapi_return:
+
+    if (pmDebugOptions.pmapi) {
+	fprintf(stderr, ":> returns ");
+	if (sts >= 0)
+	    fprintf(stderr, "%d\n", sts);
+	else {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "%s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
+    }
+
+    return sts;
 }
