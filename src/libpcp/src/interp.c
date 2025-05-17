@@ -2223,6 +2223,11 @@ __pmLogResetInterp(__pmContext *ctxp)
 	    }
 	}
     }
+
+    /*
+     * force __pmLogFetch() to re-position in the correct place
+     */
+    ctxp->c_archctl->ac_serial = 0;
 }
 
 /*

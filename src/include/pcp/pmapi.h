@@ -1347,6 +1347,7 @@ PCP_CALL extern double pmtimespecSub(const struct timespec *, const struct times
 PCP_CALL extern double pmtimespecToReal(const struct timespec *);
 PCP_CALL extern void pmtimespecFromReal(double, struct timespec *);
 PCP_CALL extern void pmPrintHighResStamp(FILE *, const struct timespec *);
+PCP_CALL extern void pmPrintInterval(FILE *, const struct timespec *);
 
 /* filesystem path name separator */
 PCP_CALL extern int pmPathSeparator(void);
