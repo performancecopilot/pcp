@@ -311,7 +311,7 @@ _filter()
 
 if \$do_valgrind
 then
-    _run_valgrind ...your test goes here...
+    _run_valgrind [--save-output] ...your test goes here...
 else
     ...your test goes here... 2>&1
 fi \\
