@@ -2071,6 +2071,8 @@ pmcd.pdu
 1583 archive local valgrind
 1584 pmda.mongodb local
 1585 pcp2xml python pcp2xxx local
+1586 libpcp local
+1587 libpcp local valgrind
 1588 python iostat local
 1589 pcp2json pcp2xxx python local
 1591 archive archive_v3 local

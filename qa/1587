@@ -1,0 +1,37 @@
+#!/bin/sh
+# PCP QA Test No. 1587
+# pmSetMode exerciser ... from man page examples
+#
+# valgrind variant, see qa/1586 for the non-valgrind variant
+#
+# check-group-include: libpcp
+#
+# Copyright (c) 2025 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_check_valgrind
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+export seq
+./1586 --valgrind
+
+# success, all done
+exit

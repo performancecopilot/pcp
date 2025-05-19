@@ -210,6 +210,7 @@ pmnsinarchives
 pmnsunload
 pmpost-exploit
 pmprintf
+pmsetmode
 pmsocks_objstyle
 pmsprintf
 pmstrn
