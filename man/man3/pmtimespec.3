@@ -23,7 +23,8 @@
 \f3pmtimespecSub\f1,
 \f3pmtimespecToReal\f1,
 \f3pmtimespecFromReal\f1,
-\f3pmPrintHighResStamp\f1 \- helper routines for time stored as a struct timespec
+\f3pmPrintHighResStamp\f1,
+\f3pmPrinInterval\f1 \- helper routines for time stored as a struct timespec
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
@@ -43,6 +44,8 @@ double pmtimespecToReal(const struct timespec *\fItp\fP);
 void pmtimespecFromReal(double \fIsecs\fP, struct timespec *\fItp\fP);
 .br
 void pmPrintHighResStamp(FILE *\fIf\fP, const struct timespec *\fItp\fP);
+.br
+void pmPrintInterval(FILE *\fIf\fP, const struct timespec *\fItp\fP);
 .sp
 cc ... \-lpcp
 .ft 1
@@ -94,6 +97,19 @@ on the stream
 in the local time (as returned by
 .BR pmLocaltime (3))
 in the format HH:MM:SS.XXXXXXXXX.
+.PP
+.B pmPrintInterval
+prints the interval from
+.I tp
+on the stream
+.I f
+in a minimalst format [[HH\fBh\fP]MM\fBm\fP]SS[.XXXXXXXXX]\fBs\fP where
+the hours, minutes and nanoseconds are only reported if they are non-zero.
+For example
+if tp->tv_sec was 75 and tp->rv_nsec was 500000000 then the output would be
+.BR 1h15.5000000000s .
+.I
+
 .SH NOTES
 For variants of these interfaces using microsecond precision
 and the timeval structure, refer to

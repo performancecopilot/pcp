@@ -1445,6 +1445,41 @@ __pmPrintTimestamp(FILE *f, const __pmTimestamp *tsp)
 }
 
 /*
+ * print interval timespec in [[Nh]Nm]n[.N]s format
+ */
+void
+pmPrintInterval(FILE *f, const struct timespec *tsp)
+{
+    struct timespec	interval;
+
+    if (tsp == NULL) {
+	fprintf(stderr, "NULL");
+	return;
+    }
+    interval = *tsp;
+    if (interval.tv_sec < 0) {
+	fprintf(stderr, "-");
+	interval.tv_sec = -interval.tv_sec;
+    }
+    if (interval.tv_nsec < 0) {
+	fprintf(stderr, "-");
+	interval.tv_nsec = -interval.tv_nsec;
+    }
+    if (interval.tv_sec > 3600) {
+	fprintf(f, "%dh", (int)(interval.tv_sec / 3600));
+	interval.tv_sec = interval.tv_sec % 3600;
+    }
+    if (interval.tv_sec > 60) {
+	fprintf(f, "%dm", (int)(interval.tv_sec / 60));
+	interval.tv_sec = interval.tv_sec % 60;
+    }
+    fprintf(f, "%d", (int)interval.tv_sec);
+    if (interval.tv_nsec != 0)
+	fprintf(f, ".%09d", (int)interval.tv_nsec);
+    fprintf(f, "s");
+}
+
+/*
  * must be in agreement with ordinal values for PM_TYPE_* #defines
  */
 /* PM_TYPE_* -> string, max length is 20 bytes */
