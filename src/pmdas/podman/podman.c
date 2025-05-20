@@ -57,6 +57,17 @@ log_error(jsonsl_t json, jsonsl_error_t error,
  */
 
 static void
+container_info_reset(container_info_t *info)
+{
+    info->name = -1;
+    info->command = -1;
+    info->status = -1;
+    info->labelmap = -1;
+    info->image = -1;
+    info->podid = -1;
+}
+
+static void
 container_stats_update(container_stats_parser_t *parser, const char *position)
 {
     if (container_stats_json->level == 2) {	/* complete */
@@ -69,6 +80,7 @@ container_stats_update(container_stats_parser_t *parser, const char *position)
 		return;
 	    if (pmDebugOptions.attr)
 		fprintf(stderr, "adding container %s (%u)\n", name, parser->id);
+	    container_info_reset(&cp->info);
 	}
 	/* store the completed info values into the cached structure */
 	cp->flags |= STATE_STATS;
@@ -269,6 +281,7 @@ container_info_update(container_info_parser_t *ip, int level, const char *positi
 		return;
 	    if (pmDebugOptions.attr)
 		fprintf(stderr, "adding container %s (%u)\n", name, ip->id);
+	    container_info_reset(&cp->info);
 	}
 	cp->flags |= STATE_INFO;
 	/* store the completed values into the cached structure */
@@ -291,6 +304,8 @@ container_info_field(container_info_parser_t *ip, int level,
     ip->field = -1;
     if (len == 5 && strncmp("Names", key, len) == 0)
 	ip->field = INFO_NAME;
+    else if (len == 5 && strncmp("Image", key, len) == 0)
+	ip->field = INFO_IMAGE;
     else if (len == 6 && strncmp("Status", key, len) == 0)
 	ip->field = INFO_STATUS;
     else if (len == 7 && strncmp("Command", key, len) == 0)
@@ -308,17 +323,24 @@ container_info_value(container_info_parser_t *ip, int level,
 			const char *value, size_t len)
 {
     char	buffer[BUFSIZ];
+    char	*acc;	/* accumulated string */
+    size_t	off;	/* string byte offset */
 
-    if (level != 3)
+    if (level != 3 && level != 4)
 	return;
 
     switch (ip->field) {
     case INFO_NAME:
+	acc = podman_strings_lookup(ip->values.name);
+	off = strlen(acc) ? pmsprintf(buffer, sizeof(buffer), "%s ", acc) : 0;
+	pmsprintf(buffer + off, sizeof(buffer) - off, "%.*s", (int)len, value);
 	pmsprintf(buffer, sizeof(buffer), "%.*s", (int)len, value);
 	ip->values.name = podman_strings_insert(buffer);
 	break;
     case INFO_COMMAND:
-	pmsprintf(buffer, sizeof(buffer), "%.*s", (int)len, value);
+	acc = podman_strings_lookup(ip->values.command);
+	off = strlen(acc) ? pmsprintf(buffer, sizeof(buffer), "%s ", acc) : 0;
+	pmsprintf(buffer + off, sizeof(buffer) - off, "%.*s", (int)len, value);
 	ip->values.command = podman_strings_insert(buffer);
 	break;
     case INFO_STATUS:
@@ -358,6 +380,7 @@ container_info_create(jsonsl_t json, jsonsl_action_t action,
 	/* new container, any previous one is stashed in indom cache */
 	parser = (container_info_parser_t *)json->data;
 	memset(&parser->values, 0, sizeof(container_info_t));
+	container_info_reset(&parser->values);
 	parser->id = -1;
     }
 }
@@ -390,6 +413,15 @@ container_info_complete(jsonsl_t json, jsonsl_action_t action,
 /*
  * Parse and refresh metric values relating to pod info cluster
  */
+
+static void
+pod_info_reset(pod_info_t *info)
+{
+    info->name = -1;
+    info->cgroup = -1;
+    info->labelmap = -1;
+    info->status = -1;
+}
 
 static void
 pod_info_add_labels(pod_info_parser_t *pp, const char *value)
@@ -431,6 +463,7 @@ pod_info_update(pod_info_parser_t *ip, int level, const char *position)
 		return;
 	    if (pmDebugOptions.attr)
 		fprintf(stderr, "adding pod %s (%u)\n", name, ip->id);
+	    pod_info_reset(&pp->info);
 	}
 	pp->flags |= STATE_POD;
 	/* store the completed pod values into the cached structure */
@@ -519,6 +552,7 @@ pod_info_create(jsonsl_t json, jsonsl_action_t action,
 	/* new pod, any previous one is stashed in indom cache */
 	parser = (pod_info_parser_t *)json->data;
 	memset(&parser->values, 0, sizeof(pod_info_t));
+	pod_info_reset(&parser->values);
 	parser->id = -1;
     }
 }
