@@ -209,7 +209,7 @@ usr/share/man/man3/pmParseUnitsStr.3.gz
 usr/share/man/man3/pmPathSeparator.3.gz
 usr/share/man/man3/pmPrintDesc.3.gz
 usr/share/man/man3/pmPrintHighResStamp.3.gz
-usr/share/man/man3/pmPrinInterval.3.gz
+usr/share/man/man3/pmPrintInterval.3.gz
 usr/share/man/man3/pmPrintLabelSets.3.gz
 usr/share/man/man3/pmPrintStamp.3.gz
 usr/share/man/man3/pmPrintValue.3.gz
