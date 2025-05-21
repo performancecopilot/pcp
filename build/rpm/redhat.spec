@@ -544,6 +544,62 @@ Requires: pcp = %{version}-%{release}
 Requires: pcp-libs = %{version}-%{release}
 Requires: pcp-libs-devel = %{version}-%{release}
 Requires: pcp-devel = %{version}-%{release}
+Obsoletes: pcp-gui-testsuite < 3.9.5
+# The following are inherited from pcp-collector and pcp-monitor,
+# both of which are now obsoleted by the base pcp package
+Requires: pcp-pmda-activemq pcp-pmda-bonding pcp-pmda-dbping pcp-pmda-ds389 pcp-pmda-ds389log
+Requires: pcp-pmda-elasticsearch pcp-pmda-gpfs pcp-pmda-gpsd pcp-pmda-lustre
+Requires: pcp-pmda-memcache pcp-pmda-mysql pcp-pmda-named pcp-pmda-netfilter pcp-pmda-news
+Requires: pcp-pmda-nginx pcp-pmda-nfsclient pcp-pmda-pdns pcp-pmda-postfix pcp-pmda-postgresql pcp-pmda-oracle
+Requires: pcp-pmda-samba pcp-pmda-slurm pcp-pmda-zimbra
+Requires: pcp-pmda-dm pcp-pmda-apache
+Requires: pcp-pmda-bash pcp-pmda-cisco pcp-pmda-gfs2 pcp-pmda-mailq pcp-pmda-mounts
+Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping pcp-pmda-smart pcp-pmda-farm
+Requires: pcp-pmda-hacluster pcp-pmda-lustrecomm pcp-pmda-logger pcp-pmda-denki pcp-pmda-docker pcp-pmda-bind2
+Requires: pcp-pmda-sockets pcp-pmda-podman
+%if !%{disable_statsd}
+Requires: pcp-pmda-statsd
+%endif
+%if !%{disable_nutcracker}
+Requires: pcp-pmda-nutcracker
+%endif
+%if !%{disable_bcc}
+Requires: pcp-pmda-bcc
+%endif
+%if !%{disable_bpf}
+Requires: pcp-pmda-bpf
+%endif
+%if !%{disable_bpftrace}
+Requires: pcp-pmda-bpftrace
+%endif
+%if !%{disable_python2} || !%{disable_python3}
+Requires: pcp-geolocate pcp-export-pcp2openmetrics pcp-export-pcp2opentelemetry
+Requires: pcp-export-pcp2json pcp-export-pcp2spark pcp-export-pcp2xml pcp-export-pcp2zabbix
+Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-mic
+Requires: pcp-pmda-libvirt pcp-pmda-lio pcp-pmda-openmetrics pcp-pmda-haproxy
+Requires: pcp-pmda-lmsensors pcp-pmda-netcheck pcp-pmda-rabbitmq pcp-pmda-uwsgi
+Requires: pcp-pmda-openvswitch
+%endif
+%if !%{disable_mongodb}
+Requires: pcp-pmda-mongodb
+%endif
+%if !%{disable_mssql}
+Requires: pcp-pmda-mssql 
+%endif
+%if !%{disable_snmp}
+Requires: pcp-pmda-snmp
+%endif
+%if !%{disable_json}
+Requires: pcp-pmda-json
+%endif
+%if !%{disable_resctrl}
+Requires: pcp-pmda-resctrl
+%endif
+Requires: pcp-pmda-summary pcp-pmda-trace pcp-pmda-weblog
+Requires: pcp-system-tools
+%if !%{disable_qt}
+Requires: pcp-gui
+%endif
 Requires: bc gcc gzip bzip2
 Requires: redhat-rpm-config
 %if !%{disable_selinux}
@@ -809,6 +865,24 @@ Requires: python3-pcp = %{version}-%{release}
 %description export-pcp2openmetrics
 Performance Co-Pilot (PCP) front-end tools for exporting metric values
 in OpenMetrics (https://openmetrics.io/) format.
+
+#
+# pcp-export-pcp2opentelemetry
+#
+%package export-pcp2opentelemetry
+License: GPL-2.0-or-later
+Summary: Performance Co-Pilot tools for exporting PCP metrics in OpenTelemetry format
+URL: https://pcp.io
+Requires: pcp-libs >= %{version}-%{release}
+%if !%{disable_python3}
+Requires: python3-pcp = %{version}-%{release}
+%else
+Requires: %{__python2}-pcp = %{version}-%{release}
+%endif
+
+%description export-pcp2opentelemetry
+Performance Co-Pilot (PCP) front-end tools for exporting metric values
+in OpenTelemetry (https://opentelemetry.io/) format.
 
 #
 # pcp-export-pcp2spark
@@ -2400,6 +2474,7 @@ basic_manifest | keep 'pcp2xlsx' >pcp-export-pcp2xlsx-files
 basic_manifest | keep 'pcp2graphite' >pcp-export-pcp2graphite-files
 basic_manifest | keep 'pcp2json' >pcp-export-pcp2json-files
 basic_manifest | keep 'pcp2openmetrics' >pcp-export-pcp2openmetrics-files
+basic_manifest | keep 'pcp2opentelemetry' >pcp-export-pcp2opentelemetry-files
 basic_manifest | keep 'pcp2spark' >pcp-export-pcp2spark-files
 basic_manifest | keep 'pcp2xml' >pcp-export-pcp2xml-files
 basic_manifest | keep 'pcp2zabbix' >pcp-export-pcp2zabbix-files
@@ -2522,7 +2597,8 @@ done
 
 for export_package in \
     pcp2arrow pcp2elasticsearch pcp2graphite pcp2influxdb pcp2json \
-    pcp2openmetrics pcp2spark pcp2xlsx pcp2xml pcp2zabbix zabbix-agent ; \
+    pcp2openmetrics pcp2spark pcp2xlsx pcp2xml pcp2opentelemetry \
+    pcp2zabbix zabbix-agent ; \
 do \
     export_packages="$export_packages pcp-export-$export_package"; \
 done
@@ -3236,6 +3312,8 @@ fi
 %files export-pcp2json -f pcp-export-pcp2json-files.rpm
 
 %files export-pcp2openmetrics -f pcp-export-pcp2openmetrics-files.rpm
+
+%files export-pcp2opentelemetry -f pcp-export-pcp2opentelemetry-files.rpm
 
 %files export-pcp2spark -f pcp-export-pcp2spark-files.rpm
 
