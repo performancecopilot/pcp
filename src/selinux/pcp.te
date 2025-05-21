@@ -379,6 +379,7 @@ require {
 	type debugfs_t;
 	type default_t;
 	type device_t;
+	type dri_device_t;
 	type etc_t;
 	type fixed_disk_device_t;
 	type fs_t;
@@ -419,6 +420,7 @@ require {
 	type sysctl_fs_t; #RHBZ1505888
 	type sysctl_irq_t; #pmda.bcc
 	type sysctl_net_t;
+	type sysctl_vm_t;
 	type sysfs_t; #RHBZ1545245
 	type syslogd_t;
 	type syslogd_var_run_t;
@@ -430,6 +432,7 @@ require {
 	type var_run_t;
 	type virt_image_t;
 	type websm_port_t; # pmda.openmetrics
+	type xserver_misc_device_t;
 
 	class blk_file { ioctl open read };
 	class capability { net_raw }; # pmda.netcheck
@@ -1013,6 +1016,11 @@ allow pcp_pmcd_t device_t:chr_file { create open read setattr write };
 allow pcp_pmcd_t device_t:dir { add_name remove_name write };
 allow pcp_pmcd_t device_t:lnk_file { create unlink };
 allow pcp_pmcd_t self:capability mknod;
+allow pcp_pmcd_t dri_device_t:chr_file { ioctl open read write };
+allow pcp_pmcd_t device_t:dir write;
+allow pcp_pmcd_t device_t:dir { create setattr };
+allow pcp_pmcd_t sysctl_vm_t:file read;
+allow pcp_pmcd_t xserver_misc_device_t:chr_file { ioctl open read write };
 
 # type=AVC msg=audit(N): avc: denied { sys_rawio } for pid=PID comm="pmdaX" name="/" dev="tracefs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:pcp_pmcd_t:s0 tclass=capability permissive=0
 allow pcp_pmcd_t self:capability sys_rawio;
