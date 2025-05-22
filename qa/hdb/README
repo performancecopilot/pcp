@@ -1,0 +1,3 @@
+
+Unit tests (pmdahdb_test.py) require a running HANA instance (HANA Express is sufficient). 
+Connection parameters need to be set via the environment variables HDB_HOST, HDB_PORT, HDB_USER, and HDB_PASSWORD.
