@@ -42,11 +42,16 @@ _cleanup()
 status=0	# success is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
+# HH:MM because pmPrintStamp(3) uses pmLocaltime(3)
+#
 _filter()
 {
     sed \
 	-e "s@$tmp@TMP@g" \
-	-e 's/dump from 0x[0-9a-f]*/dump from ADDR/' \
+	-e '/dump from 0x[0-9a-f]*/{
+s//dump from ADDR/
+s/ [0-2][0-9]:[0-5][0-9]:/ HH:MM:/
+}' \
     # end
 }
 

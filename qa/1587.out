@@ -2,44 +2,44 @@ QA output created by 1587
 QA output created by 1586 --valgrind
 === std out ===
 Forwards ...
-pmResult dump from ADDR timestamp: 902428472.257504000 04:34:32.257504000 numpmid: 1
+pmResult dump from ADDR timestamp: 902428472.257504000 HH:MM:32.257504000 numpmid: 1
   29.0.2 (sample.seconds): No values returned!
-pmResult dump from ADDR timestamp: 902428474.257504000 04:34:34.257504000 numpmid: 1
+pmResult dump from ADDR timestamp: 902428474.257504000 HH:MM:34.257504000 numpmid: 1
   29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value 891
-pmResult dump from ADDR timestamp: 902428476.257504000 04:34:36.257504000 numpmid: 1
+pmResult dump from ADDR timestamp: 902428476.257504000 HH:MM:36.257504000 numpmid: 1
   29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value 893
-pmResult dump from ADDR timestamp: 902428478.257504000 04:34:38.257504000 numpmid: 1
+pmResult dump from ADDR timestamp: 902428478.257504000 HH:MM:38.257504000 numpmid: 1
   29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value 895
-pmResult dump from ADDR timestamp: 902428480.257504000 04:34:40.257504000 numpmid: 1
+pmResult dump from ADDR timestamp: 902428480.257504000 HH:MM:40.257504000 numpmid: 1
   29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value 897
 
 Backwards ...
-pmResult dump from ADDR timestamp: 902428480.258477000 04:34:40.258477000 numpmid: 1
+pmResult dump from ADDR timestamp: 902428480.258477000 HH:MM:40.258477000 numpmid: 1
   29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value 897
-pmResult dump from ADDR timestamp: 902428479.258408000 04:34:39.258408000 numpmid: 1
+pmResult dump from ADDR timestamp: 902428479.258408000 HH:MM:39.258408000 numpmid: 1
   29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value 896
-pmResult dump from ADDR timestamp: 902428478.258389000 04:34:38.258389000 numpmid: 1
+pmResult dump from ADDR timestamp: 902428478.258389000 HH:MM:38.258389000 numpmid: 1
   29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value 895
-pmResult dump from ADDR timestamp: 902428477.258585000 04:34:37.258585000 numpmid: 1
+pmResult dump from ADDR timestamp: 902428477.258585000 HH:MM:37.258585000 numpmid: 1
   29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value 894
-pmResult dump from ADDR timestamp: 902428476.258416000 04:34:36.258416000 numpmid: 1
+pmResult dump from ADDR timestamp: 902428476.258416000 HH:MM:36.258416000 numpmid: 1
   29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value 893
-pmResult dump from ADDR timestamp: 902428475.258377000 04:34:35.258377000 numpmid: 1
+pmResult dump from ADDR timestamp: 902428475.258377000 HH:MM:35.258377000 numpmid: 1
   29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value 892
-pmResult dump from ADDR timestamp: 902428474.248493000 04:34:34.248493000 numpmid: 1
+pmResult dump from ADDR timestamp: 902428474.248493000 HH:MM:34.248493000 numpmid: 1
   29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value 891
-pmResult dump from ADDR timestamp: 902428473.248687000 04:34:33.248687000 numpmid: 1
+pmResult dump from ADDR timestamp: 902428473.248687000 HH:MM:33.248687000 numpmid: 1
   29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value 890
 === std err ===
