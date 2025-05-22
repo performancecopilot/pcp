@@ -3,6 +3,7 @@
 #
 
 [net]
+filtertype = net
 label = net/%I
 width = 5
 printtype = b
@@ -13,6 +14,7 @@ bits_out.label = send
 bits_out = network.interface.out.bytes
 
 [net-packets]
+filtertype = net
 label = pkt/%I
 width = 5
 printtype = d
@@ -23,10 +25,12 @@ pkts_out.label = #send
 pkts_out = network.interface.out.packets
 
 [raw]
+filtertype = net
 width = 4
 raw = network.rawconn.count + network.rawconn6.count
 
 [udp]
+filtertype = net
 width = 4
 listen = network.udpconn.listen + network.udpconn6.listen
 listen.label = lis
@@ -34,6 +38,7 @@ active = network.udpconn.established + network.udpconn6.established
 active.label = act
 
 [unix]
+filtertype = net
 width = 4
 datagram.label = dgm
 datagram = network.unix.datagram.count

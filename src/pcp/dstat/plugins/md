@@ -3,6 +3,7 @@
 #
 
 [md]
+filtertype = md
 label = dsk/%I
 printtype = b
 precision = 0
@@ -13,6 +14,7 @@ writes = disk.md.write_bytes
 writes.label = writ
 
 [md-avgqu]
+filtertype = md
 label = %I
 width = 4
 grouptype = 1
@@ -21,6 +23,7 @@ colorstep = 10
 avgqu = disk.md.aveq
 
 [md-avgrq]
+filtertype = md
 label = %I
 width = 4
 grouptype = 1
@@ -29,6 +32,7 @@ colorstep = 10
 avgrq = (delta(disk.md.read_bytes) + delta(disk.md.write_bytes)) / (delta(disk.md.read) + delta(disk.md.write))
 
 [md-svctm]
+filtertype = md
 label = %I
 width = 4
 grouptype = 1
@@ -37,6 +41,7 @@ colorstep = 1
 svctm = (delta(disk.md.avactive) / 1000 / 2) / (delta(disk.md.read) + delta(disk.md.write))
 
 [md-tps]
+filtertype = md
 label = dsk/%I
 width = 5
 printtype = d
@@ -47,6 +52,7 @@ writes = disk.md.write
 writes.label = #writ
 
 [md-util]
+filtertype = md
 label = %I
 width = 4
 grouptype = 1
@@ -55,6 +61,7 @@ colorstep = 34
 util = 100 * rate(disk.md.avactive)
 
 [md-wait]
+filtertype = md
 label = %I
 width = 4
 grouptype = 1
