@@ -374,7 +374,7 @@ main(int argc, char **argv)
 	opts.interval.tv_sec = 5;
 
     if (opts.context == PM_CONTEXT_ARCHIVE) {
-	if ((sts = pmSetModeHighRes(PM_MODE_INTERP, &opts.start, &opts.interval)) < 0) {
+	if ((sts = pmSetMode(PM_MODE_INTERP, &opts.start, &opts.interval)) < 0) {
 	    fprintf(stderr, "%s: pmSetMode failed: %s\n",
 		    pmGetProgname(), pmErrStr(sts));
 	    exit(1);

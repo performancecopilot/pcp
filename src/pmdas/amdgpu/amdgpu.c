@@ -659,7 +659,7 @@ int main(int argc, char **argv) {
         free(endnum);
         opts.errors++;
       }
-      __pmtvfromts(interval, ts);
+      pmtimevalFromtimespec(&ts, &interval);
       autorefresh = 1; /* enable timers, non-default */
       break;
     default:

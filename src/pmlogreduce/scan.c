@@ -50,7 +50,7 @@ doscan(__pmTimestamp *end)
 	    exit(1);
 	}
 
-	if ((sts = pmSetMode(PM_MODE_FORW, NULL, 0)) < 0) {
+	if ((sts = pmSetMode(PM_MODE_FORW, NULL, NULL)) < 0) {
 	    fprintf(stderr,
 		"%s: Error: pmSetMode (ictx_b) failed: %s\n", pmGetProgname(), pmErrStr(sts));
 	    exit(1);
@@ -199,7 +199,7 @@ doscan(__pmTimestamp *end)
 
     last_ts.tv_sec = last_stamp.sec;
     last_ts.tv_nsec = last_stamp.nsec;
-    if ((sts = pmSetModeHighRes(PM_MODE_FORW, &last_ts, NULL)) < 0) {
+    if ((sts = pmSetMode(PM_MODE_FORW, &last_ts, NULL)) < 0) {
 	fprintf(stderr,
 	    "%s: doscan: Error: pmSetMode (ictx_b) time=", pmGetProgname());
 	__pmPrintTimestamp(stderr, &last_stamp);

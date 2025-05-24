@@ -874,6 +874,14 @@ do
 	    qa_user=pcpqa
 	    ;;
 
+	vm34)
+	    # Arch Linux
+	    # exclude -x valgrind ... infected by the same valgrind bug as F42
+	    # 20 May 2025
+	    #
+	    [ X"$what" = Xall ] && check_what='-x valgrind'
+	    ;;
+
 	vm35)
 	    # this is PCP 2.7.8, need to run as user pcpqa and just
 	    # the sanity group and no -p or -m or -i flags

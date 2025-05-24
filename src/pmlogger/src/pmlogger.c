@@ -1019,7 +1019,7 @@ main(int argc, char **argv)
 		free(p);
 		opts.errors++;
 	    }
-	    __pmtvfromts(delta, ts);
+	    pmtimevalFromtimespec(&ts, &delta);
 	    break;
 
 	case 'U':		/* run as named user */
@@ -1550,13 +1550,13 @@ main(int argc, char **argv)
 
     if (vol_switch_time.tv_sec > 0) {
 	struct timeval temp;
-	__pmtvfromts(temp, vol_switch_time);
+	pmtimevalFromtimespec(&vol_switch_time, &temp);
 	vol_switch_afid = __pmAFregister(&temp, NULL, 
 					 vol_switch_callback);
     }
     if (exit_time.tv_sec > 0) {
 	struct timeval temp;
-	__pmtvfromts(temp, exit_time);
+	pmtimevalFromtimespec(&exit_time, &temp);
 	__pmAFregister(&temp, NULL, run_done_callback);
     }
 
@@ -1748,7 +1748,7 @@ newvolume(int vol_switch_type)
      */
     if (vol_switch_afid >= 0 && vol_switch_type != VOL_SW_TIME) {
 	struct timeval temp;
-	__pmtvfromts(temp, vol_switch_time);
+	pmtimevalFromtimespec(&vol_switch_time, &temp);
         __pmAFunregister(vol_switch_afid);
         vol_switch_afid = __pmAFregister(&temp, NULL,
                                    vol_switch_callback);

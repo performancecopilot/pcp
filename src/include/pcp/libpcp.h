@@ -1575,12 +1575,6 @@ PCP_CALL extern int __pmCheckAttribute(__pmAttrKey, const char *);
 /* dump status change flags from pmcd */
 PCP_CALL extern void __pmDumpFetchFlags(FILE *, int);
 
-/*
- * macros to convert between struct timeval and struct timespec
- */
-#define __pmtsfromtv(a,b) { a.tv_sec = b.tv_sec; a.tv_nsec = b.tv_usec * 1000; }
-#define __pmtvfromts(a,b) { a.tv_sec = b.tv_sec; a.tv_usec = b.tv_nsec / 1000; }
-
 #ifdef __cplusplus
 }
 #endif

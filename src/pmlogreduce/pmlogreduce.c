@@ -304,8 +304,8 @@ main(int argc, char **argv)
     }
 
     start = winstart_ts;
-    if ((sts = pmSetModeHighRes(PM_MODE_INTERP, &start, &targ)) < 0) {
-	fprintf(stderr, "%s: pmSetModeHighRes(PM_MODE_INTERP ...) failed: %s\n",
+    if ((sts = pmSetMode(PM_MODE_INTERP, &start, &targ)) < 0) {
+	fprintf(stderr, "%s: pmSetMode(PM_MODE_INTERP ...) failed: %s\n",
 		pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }

@@ -97,8 +97,8 @@ main(int argc, char **argv)
 	exit(1);
     }
     mytime = label.start;
-    if ((pmSetModeHighRes(PM_MODE_INTERP, &mytime, &mydelta)) < 0) {
-	fprintf(stderr, "pmSetModeHighRes: start: %s\n", pmErrStr(sts));
+    if ((pmSetMode(PM_MODE_INTERP, &mytime, &mydelta)) < 0) {
+	fprintf(stderr, "pmSetMode: start: %s\n", pmErrStr(sts));
 	exit(1);
     }
     while ((sts = pmFetchHighRes(numpmid, pmidlist, &result)) >= 0) {
@@ -114,8 +114,8 @@ main(int argc, char **argv)
 	fprintf(stderr, "pmGetArchiveEnd: %s\n", pmErrStr(sts));
 	exit(1);
     }
-    if ((pmSetModeHighRes(PM_MODE_BACK, &mytime, NULL)) < 0) {
-	fprintf(stderr, "pmSetModeHighRes: end: %s\n", pmErrStr(sts));
+    if ((pmSetMode(PM_MODE_BACK, &mytime, NULL)) < 0) {
+	fprintf(stderr, "pmSetMode: end: %s\n", pmErrStr(sts));
 	exit(1);
     }
     while ((sts = pmFetchHighRes(numpmid, pmidlist, &result)) >= 0) {

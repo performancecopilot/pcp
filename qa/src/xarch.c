@@ -160,8 +160,8 @@ main(int argc, char **argv)
 
     when.tv_sec = 0;
     when.tv_nsec = 0;
-    if ((sts = pmSetModeHighRes(PM_MODE_FORW, &when, NULL)) < 0) {
-	printf("%s: pmSetModeHighRes: %s\n", pmGetProgname(), pmErrStr(sts));
+    if ((sts = pmSetMode(PM_MODE_FORW, &when, NULL)) < 0) {
+	printf("%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
 
@@ -169,8 +169,8 @@ main(int argc, char **argv)
         printf("%s: Cannot dup context to archive \"%s\": %s\n", pmGetProgname(), archive, pmErrStr(ctx[0]));
         exit(1);
     }
-    if ((sts = pmSetModeHighRes(PM_MODE_FORW, &when, NULL)) < 0) {
-        printf("%s: pmSetModeHighRes: %s\n", pmGetProgname(), pmErrStr(sts));
+    if ((sts = pmSetMode(PM_MODE_FORW, &when, NULL)) < 0) {
+        printf("%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
         exit(1);
     }
 
@@ -229,7 +229,7 @@ main(int argc, char **argv)
     printf("\nPass 2: backwards scan\n");
     when.tv_sec = PM_MAX_TIME_T;
     when.tv_nsec = 0;
-    if ((sts = pmSetModeHighRes(PM_MODE_BACK, &when, 0)) < 0) {
+    if ((sts = pmSetMode(PM_MODE_BACK, &when, 0)) < 0) {
 	printf("%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
@@ -257,15 +257,15 @@ main(int argc, char **argv)
     pmUseContext(ctx[0]);
     when.tv_sec = 0;
     when.tv_nsec = 0;
-    if ((sts = pmSetModeHighRes(PM_MODE_FORW, &when, NULL)) < 0) {
-	printf("%s: pmSetModeHighRes: %s\n", pmGetProgname(), pmErrStr(sts));
+    if ((sts = pmSetMode(PM_MODE_FORW, &when, NULL)) < 0) {
+	printf("%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
     pmUseContext(ctx[1]);
     when.tv_sec = PM_MAX_TIME_T;
     when.tv_nsec = 0;
-    if ((sts = pmSetModeHighRes(PM_MODE_BACK, &when, 0)) < 0) {
-	printf("%s: pmSetModeHighRes: %s\n", pmGetProgname(), pmErrStr(sts));
+    if ((sts = pmSetMode(PM_MODE_BACK, &when, 0)) < 0) {
+	printf("%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
 
@@ -318,8 +318,8 @@ main(int argc, char **argv)
 		when = resvec[resnum - 1]->timestamp;
 		pmtimespecInc(&when, &microsec);
 	    }
-	    if ((sts = pmSetModeHighRes(PM_MODE_FORW, &when, NULL)) < 0) {
-		printf("%s: pmSetModeHighRes: %s\n", pmGetProgname(), pmErrStr(sts));
+	    if ((sts = pmSetMode(PM_MODE_FORW, &when, NULL)) < 0) {
+		printf("%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 		exit(1);
 	    }
 
@@ -361,8 +361,8 @@ main(int argc, char **argv)
 		    when.tv_sec--;
 		}
 	    }
-	    if ((sts = pmSetModeHighRes(PM_MODE_BACK, &when, NULL)) < 0) {
-		printf("%s: pmSetModeHighRes: %s\n", pmGetProgname(), pmErrStr(sts));
+	    if ((sts = pmSetMode(PM_MODE_BACK, &when, NULL)) < 0) {
+		printf("%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 		exit(1);
 	    }
 
@@ -386,8 +386,8 @@ main(int argc, char **argv)
     printf("\nPass 6: EOL tests, forwards and backwards\n");
     when = loglabel.start;
     when.tv_sec--;
-    if ((sts = pmSetModeHighRes(PM_MODE_BACK, &when, NULL)) < 0) {
-	printf("%s: pmSetModeHighRes: %s\n", pmGetProgname(), pmErrStr(sts));
+    if ((sts = pmSetMode(PM_MODE_BACK, &when, NULL)) < 0) {
+	printf("%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
     if ((sts = pmFetchHighResArchive(&resp)) < 0) {
@@ -402,8 +402,8 @@ main(int argc, char **argv)
 
     when.tv_sec = PM_MAX_TIME_T;
     when.tv_nsec = 0;
-    if ((sts = pmSetModeHighRes(PM_MODE_FORW, &when, NULL)) < 0) {
-	printf("%s: pmSetModeHighRes: %s\n", pmGetProgname(), pmErrStr(sts));
+    if ((sts = pmSetMode(PM_MODE_FORW, &when, NULL)) < 0) {
+	printf("%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
     if ((sts = pmFetchHighResArchive(&resp)) < 0) {

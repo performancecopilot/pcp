@@ -680,9 +680,9 @@ main(int argc, char ** argv)
 	archiveGroup->updateBounds();
 	logStartTime = archiveGroup->logStart();
 	logEndTime = archiveGroup->logEnd();
-	__pmtsfromtv(logstart_ts, logStartTime);
-	__pmtsfromtv(logend_ts, logEndTime);
-	__pmtsfromtv(origin_ts, opts_origin);
+	pmtimespecFromtimeval(&logStartTime, &logstart_ts);
+	pmtimespecFromtimeval(&logEndTime, &logend_ts);
+	pmtimespecFromtimeval(&opts_origin, &origin_ts);
 	if ((sts = pmParseTimeWindow(opts.start_optarg, opts.finish_optarg,
 					opts.align_optarg, opts.origin_optarg,
 					&logstart_ts, &logend_ts, &start_ts,
@@ -692,11 +692,11 @@ main(int argc, char ** argv)
 	    free(endnum);
 	    exit(1);
 	}
-	__pmtvfromts(logStartTime, logstart_ts);
-	__pmtvfromts(logStartTime, logend_ts);
-	__pmtvfromts(opts_start, start_ts);
-	__pmtvfromts(opts_finish, finish_ts);
-	__pmtvfromts(opts_origin, origin_ts);
+	pmtimevalFromtimespec(&logstart_ts, &logStartTime);
+	pmtimevalFromtimespec(&logend_ts, &logStartTime);
+	pmtimevalFromtimespec(&start_ts, &opts_start);
+	pmtimevalFromtimespec(&finish_ts, &opts_finish);
+	pmtimevalFromtimespec(&origin_ts, &opts_origin);
 	// move position to account for initial visible points
 	if (tcmp(&opts_origin, &opts_start) <= 0)
 	    for (c = 0; c < globalSettings.visibleHistory - 2; c++)
@@ -709,9 +709,9 @@ main(int argc, char ** argv)
 	pmtimevalNow(&logStartTime);
 	logEndTime.tv_sec = PM_MAX_TIME_T;
 	logEndTime.tv_usec = 0;
-	__pmtsfromtv(logstart_ts, logStartTime);
-	__pmtsfromtv(logend_ts, logEndTime);
-	__pmtsfromtv(origin_ts, opts_origin);
+	pmtimespecFromtimeval(&logStartTime, &logstart_ts);
+	pmtimespecFromtimeval(&logEndTime, &logend_ts);
+	pmtimespecFromtimeval(&opts_origin, &origin_ts);
 	if ((sts = pmParseTimeWindow(opts.start_optarg, opts.finish_optarg,
 					opts.align_optarg, opts.origin_optarg,
 					&logstart_ts, &logend_ts, &start_ts,
@@ -721,11 +721,11 @@ main(int argc, char ** argv)
 	    free(endnum);
 	    exit(1);
 	}
-	__pmtvfromts(logStartTime, logstart_ts);
-	__pmtvfromts(logStartTime, logend_ts);
-	__pmtvfromts(opts_start, start_ts);
-	__pmtvfromts(opts_finish, finish_ts);
-	__pmtvfromts(opts_origin, origin_ts);
+	pmtimevalFromtimespec(&logstart_ts, &logStartTime);
+	pmtimevalFromtimespec(&logend_ts, &logStartTime);
+	pmtimevalFromtimespec(&start_ts, &opts_start);
+	pmtimevalFromtimespec(&finish_ts, &opts_finish);
+	pmtimevalFromtimespec(&origin_ts, &opts_origin);
     }
     console->post("Timezones and time window setup complete");
 

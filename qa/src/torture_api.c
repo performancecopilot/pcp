@@ -327,9 +327,9 @@ test_api(void)
 	}
 
 	_op++;
-	if ((n = pmSetModeHighRes(PM_MODE_BACK, &when, &delta)) < 0) {
+	if ((n = pmSetMode(PM_MODE_BACK, &when, &delta)) < 0) {
 	    _err++;
-	    printf("pmSetModeHighRes(PM_MODE_BACK): %s\n", pmErrStr(n));
+	    printf("pmSetMode(PM_MODE_BACK): %s\n", pmErrStr(n));
 	}
     }
 
@@ -447,9 +447,9 @@ test_api(void)
 	    if (midlist[i] == PM_ID_NULL)
 		continue; 
 	    _op++;
-	    if ((n = pmSetModeHighRes(PM_MODE_FORW, &when, NULL)) < 0) {
+	    if ((n = pmSetMode(PM_MODE_FORW, &when, NULL)) < 0) {
 		_err++;
-		printf("pmSetModeHighRes(PM_MODE_FORW): %s\n", pmErrStr(n));
+		printf("pmSetMode(PM_MODE_FORW): %s\n", pmErrStr(n));
 	    }
 	    else {
 		_op++;
@@ -471,9 +471,9 @@ test_api(void)
 
     else if (context_type == PM_CONTEXT_HOST) {
 	_op++;
-	if ((n = pmSetModeHighRes(PM_MODE_LIVE, NULL, NULL)) < 0) {
+	if ((n = pmSetMode(PM_MODE_LIVE, NULL, NULL)) < 0) {
 	    _err++;
-	    printf("pmSetModeHighRes(PM_MODE_LIVE): %s\n", pmErrStr(n));
+	    printf("pmSetMode(PM_MODE_LIVE): %s\n", pmErrStr(n));
 	}
 	else {
 	    _op++;

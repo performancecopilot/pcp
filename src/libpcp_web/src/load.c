@@ -518,8 +518,8 @@ server_cache_series(seriesLoadBaton *baton)
     if (baton->pmapi.context.type != PM_CONTEXT_ARCHIVE)
 	return -ENOTSUP;
 
-    if ((sts = pmSetModeHighRes(PM_MODE_FORW, &baton->timing.start, NULL)) < 0) {
-	infofmt(msg, "pmSetModeHighRes failed: %s",
+    if ((sts = pmSetMode(PM_MODE_FORW, &baton->timing.start, NULL)) < 0) {
+	infofmt(msg, "pmSetMode failed: %s",
 		pmErrStr_r(sts, pmmsg, sizeof(pmmsg)));
 	batoninfo(baton, PMLOG_ERROR, msg);
 	return sts;

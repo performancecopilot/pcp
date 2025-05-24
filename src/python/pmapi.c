@@ -905,8 +905,8 @@ setContextOptions(PyObject *self, PyObject *args, PyObject *keywords)
 
 	if (interval.tv_sec == 0 && interval.tv_nsec == 0)
 	    interval.tv_sec = delta;
-	if ((sts = pmSetModeHighRes(mode, &position, &interval)) < 0) {
-	    pmprintf("%s: %s: %s\n", "pmSetModeHighRes",
+	if ((sts = pmSetMode(mode, &position, &interval)) < 0) {
+	    pmprintf("%s: %s: %s\n", "pmSetMode",
 			    pmGetProgname(), pmErrStr(sts));
 	    options.flags |= PM_OPTFLAG_RUNTIME_ERR;
 	    options.errors++;

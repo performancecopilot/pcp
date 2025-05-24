@@ -303,7 +303,7 @@ Options\n\
 
     printf("Pass One: rewind and fetch metrics_a until end of log\n");
     pmtimespecFromReal(delta_f, &delta);
-    if ((sts = pmSetModeHighRes(PM_MODE_INTERP, &start, &delta)) < 0) {
+    if ((sts = pmSetMode(PM_MODE_INTERP, &start, &delta)) < 0) {
 	fprintf(stderr, "%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
@@ -344,7 +344,7 @@ Options\n\
     }
 
     printf("Pass Two: rewind and fetch metrics_b until end of log\n");
-    if ((sts = pmSetModeHighRes(PM_MODE_INTERP, &start, &delta)) < 0) {
+    if ((sts = pmSetMode(PM_MODE_INTERP, &start, &delta)) < 0) {
 	fprintf(stderr, "%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
@@ -386,7 +386,7 @@ Options\n\
     }
 
     printf("Pass Three: rewind and fetch metrics_c until end of log\n");
-    if ((sts = pmSetModeHighRes(PM_MODE_INTERP, &start, &delta)) < 0) {
+    if ((sts = pmSetMode(PM_MODE_INTERP, &start, &delta)) < 0) {
 	fprintf(stderr, "%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }

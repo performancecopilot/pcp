@@ -120,7 +120,7 @@ class Uptime(object):
         self.context = pmapi.pmContext.fromOptions(self.opts, sys.argv)
         if self.context.type == PM_CONTEXT_ARCHIVE:
             origin = self.opts.pmGetOptionOrigin()
-            self.context.pmSetModeHighRes(PM_MODE_FORW, origin, None)
+            self.context.pmSetMode(PM_MODE_FORW, origin, None)
 
 
 if __name__ == '__main__':

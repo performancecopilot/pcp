@@ -450,11 +450,11 @@ def test_pcp(self):
     if self.archive_type:
         # pmSetMode
         try:
-            ctx.pmSetModeHighRes(api.PM_MODE_INTERP, results.contents.timestamp, 0)
-            print("pmSetModeHighRes: ok")
+            ctx.pmSetMode(api.PM_MODE_INTERP, results.contents.timestamp, 0)
+            print("pmSetMode: ok")
             self.assertTrue(True)
         except pmapi.pmErr as error:
-            print("pmSetModeHighRes: ", error)
+            print("pmSetMode: ", error)
             self.assertTrue(False)
 
         # pmGetArchiveLabel

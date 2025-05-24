@@ -191,7 +191,7 @@ Options\n\
     printstamp(&start);
     printf("\n\n");
 
-    if ((sts = pmSetModeHighRes(PM_MODE_INTERP, &start, &delta)) < 0) {
+    if ((sts = pmSetMode(PM_MODE_INTERP, &start, &delta)) < 0) {
 	fprintf(stderr, "%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
@@ -219,7 +219,7 @@ Options\n\
 
     /* simulate pmchart's [Stop] */
 
-    if ((sts = pmSetModeHighRes(PM_MODE_FORW, &now, NULL)) < 0) {
+    if ((sts = pmSetMode(PM_MODE_FORW, &now, NULL)) < 0) {
 	fprintf(stderr, "%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }

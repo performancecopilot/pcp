@@ -173,7 +173,7 @@ Options\n\
 	forw = back = 0;
 	delta.tv_sec = msec / 1000;
 	delta.tv_nsec = (msec % 1000) * 1000000; 
-	sts = pmSetModeHighRes(PM_MODE_INTERP, &twant, &delta);
+	sts = pmSetMode(PM_MODE_INTERP, &twant, &delta);
 	if (sts < 0) {
 	    printf("pmSetMode: %s\n", pmErrStr(sts));
 	    exit(1);
@@ -187,7 +187,7 @@ Options\n\
 	    delta.tv_sec = -delta.tv_sec;
 	else
 	    delta.tv_nsec = -delta.tv_nsec;
-	sts = pmSetModeHighRes(PM_MODE_INTERP, &twant, &delta);
+	sts = pmSetMode(PM_MODE_INTERP, &twant, &delta);
 	if (sts < 0) {
 	    printf("pmSetMode: %s\n", pmErrStr(sts));
 	    exit(1);

@@ -491,7 +491,7 @@ Options:\n\
 
 	if (type == PM_CONTEXT_ARCHIVE) {
 	    if (mode == PM_MODE_INTERP) {
-		if ((sts = pmSetModeHighRes(mode, &appStart, &delta)) < 0) {
+		if ((sts = pmSetMode(mode, &appStart, &delta)) < 0) {
 		    fprintf(stderr, "%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 		    exit(1);
 		}

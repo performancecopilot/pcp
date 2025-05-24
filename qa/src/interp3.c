@@ -170,7 +170,7 @@ main(int argc, char **argv)
     }
 
     when = loglabel.start;
-    if ((sts = pmSetModeHighRes(PM_MODE_INTERP, &when, &delta)) < 0) {
+    if ((sts = pmSetMode(PM_MODE_INTERP, &when, &delta)) < 0) {
 	printf("%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
@@ -179,7 +179,7 @@ main(int argc, char **argv)
         printf("%s: Cannot dup context to archive \"%s\": %s\n", pmGetProgname(), archive, pmErrStr(ctx[0]));
         exit(1);
     }
-    if ((sts = pmSetModeHighRes(PM_MODE_INTERP, &when, &delta)) < 0) {
+    if ((sts = pmSetMode(PM_MODE_INTERP, &when, &delta)) < 0) {
         printf("%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
         exit(1);
     }
@@ -232,7 +232,7 @@ main(int argc, char **argv)
     printf("\nPass 2: backwards scan\n");
     __pmLogReads = 0;
     when = resvec[resnum - 1]->timestamp;
-    if ((sts = pmSetModeHighRes(PM_MODE_INTERP, &when, &minus_delta)) < 0) {
+    if ((sts = pmSetMode(PM_MODE_INTERP, &when, &minus_delta)) < 0) {
 	printf("%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
@@ -258,13 +258,13 @@ main(int argc, char **argv)
     __pmLogReads = 0;
     pmUseContext(ctx[0]);
     when = loglabel.start;
-    if ((sts = pmSetModeHighRes(PM_MODE_INTERP, &when, &delta)) < 0) {
+    if ((sts = pmSetMode(PM_MODE_INTERP, &when, &delta)) < 0) {
 	printf("%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
     pmUseContext(ctx[1]);
     when = resvec[resnum - 1]->timestamp;
-    if ((sts = pmSetModeHighRes(PM_MODE_INTERP, &when, &minus_delta)) < 0) {
+    if ((sts = pmSetMode(PM_MODE_INTERP, &when, &minus_delta)) < 0) {
 	printf("%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
@@ -312,7 +312,7 @@ main(int argc, char **argv)
 	    i = resnum - 1;
 	when = resvec[i]->timestamp;
 
-	if ((sts = pmSetModeHighRes(PM_MODE_INTERP, &when, &delta)) < 0) {	
+	if ((sts = pmSetMode(PM_MODE_INTERP, &when, &delta)) < 0) {	
 	    printf("%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 	    exit(1);
 	}
@@ -345,7 +345,7 @@ main(int argc, char **argv)
 	if (i < 0)
 	    i = 0;
 	when = resvec[i]->timestamp;
-	if ((sts = pmSetModeHighRes(PM_MODE_INTERP, &when, &minus_delta)) < 0) {
+	if ((sts = pmSetMode(PM_MODE_INTERP, &when, &minus_delta)) < 0) {
 	    printf("%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 	    exit(1);
 	}
@@ -378,7 +378,7 @@ main(int argc, char **argv)
 	    i = resnum - 1;
 
 	when = resvec[0]->timestamp;
-	if ((sts = pmSetModeHighRes(PM_MODE_INTERP, &when, &delta)) < 0) {	
+	if ((sts = pmSetMode(PM_MODE_INTERP, &when, &delta)) < 0) {	
 	    printf("%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 	    exit(1);
 	}
@@ -393,7 +393,7 @@ main(int argc, char **argv)
 	}
 
 	when = resvec[i]->timestamp;
-	if ((sts = pmSetModeHighRes(PM_MODE_INTERP, &when, &minus_delta)) < 0) {	
+	if ((sts = pmSetMode(PM_MODE_INTERP, &when, &minus_delta)) < 0) {	
 	    printf("%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 	    exit(1);
 	}

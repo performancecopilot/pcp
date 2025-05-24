@@ -18,18 +18,28 @@
 #include <sys/time.h>
 
 /*
+ * for struct timespec <-> double conversions we have a precision issue
+ * here ... only 15 guaranteed digits of precision in a 64-bit double,
+ * so if tv_sec is more than 6 digits (like any real time of day) then we
+ * can only guarantee precision to microsecond, not nanosecond, accuracy
+ */
+
+/*
  * real additive time, *ap plus *bp
  */
 double
 pmtimevalAdd(const struct timeval *ap, const struct timeval *bp)
 {
-     return (double)(ap->tv_sec + bp->tv_sec) + (long double)(ap->tv_usec + bp->tv_usec) / (long double)1000000;
+    return (double)(ap->tv_sec + bp->tv_sec) + (long double)(ap->tv_usec + bp->tv_usec) / (long double)1000000;
 }
 
 double
 pmtimespecAdd(const struct timespec *ap, const struct timespec *bp)
 {
-     return (double)(ap->tv_sec + bp->tv_sec) + (long double)(ap->tv_nsec + bp->tv_nsec) / (long double)1000000000;
+    if (ap->tv_sec + bp->tv_sec <= 999999)
+	return (double)(ap->tv_sec + bp->tv_sec) + (long double)(ap->tv_nsec + bp->tv_nsec) / (long double)1000000000;
+    else
+	return (double)(ap->tv_sec + bp->tv_sec) + ((long double)(ap->tv_nsec + bp->tv_nsec) / 1000) / (long double)1000000;
 }
 
 /*
@@ -38,9 +48,9 @@ pmtimespecAdd(const struct timespec *ap, const struct timespec *bp)
 void
 pmtimevalInc(struct timeval *ap, const struct timeval *bp)
 {
-     ap->tv_sec += bp->tv_sec;
-     ap->tv_usec += bp->tv_usec;
-     if (ap->tv_usec >= 1000000) {
+    ap->tv_sec += bp->tv_sec;
+    ap->tv_usec += bp->tv_usec;
+    if (ap->tv_usec >= 1000000) {
 	ap->tv_usec -= 1000000;
 	ap->tv_sec++;
     }
@@ -49,9 +59,9 @@ pmtimevalInc(struct timeval *ap, const struct timeval *bp)
 void
 pmtimespecInc(struct timespec *ap, const struct timespec *bp)
 {
-     ap->tv_sec += bp->tv_sec;
-     ap->tv_nsec += bp->tv_nsec;
-     if (ap->tv_nsec >= 1000000000) {
+    ap->tv_sec += bp->tv_sec;
+    ap->tv_nsec += bp->tv_nsec;
+    if (ap->tv_nsec >= 1000000000) {
 	ap->tv_nsec -= 1000000000;
 	ap->tv_sec++;
     }
@@ -63,13 +73,16 @@ pmtimespecInc(struct timespec *ap, const struct timespec *bp)
 double
 pmtimevalSub(const struct timeval *ap, const struct timeval *bp)
 {
-     return (double)(ap->tv_sec - bp->tv_sec) + (long double)(ap->tv_usec - bp->tv_usec) / (long double)1000000;
+    return (double)(ap->tv_sec - bp->tv_sec) + (long double)(ap->tv_usec - bp->tv_usec) / (long double)1000000;
 }
 
 double
 pmtimespecSub(const struct timespec *ap, const struct timespec *bp)
 {
-     return (double)(ap->tv_sec - bp->tv_sec) + (long double)(ap->tv_nsec - bp->tv_nsec) / (long double)1000000000;
+    if (ap->tv_sec - bp->tv_sec <= 999999)
+	return (double)(ap->tv_sec - bp->tv_sec) + (long double)(ap->tv_nsec - bp->tv_nsec) / (long double)1000000000;
+    else
+	return (double)(ap->tv_sec - bp->tv_sec) + ((long double)(ap->tv_nsec - bp->tv_nsec) / 1000) / (long double)1000000;
 }
 
 /*
@@ -78,9 +91,9 @@ pmtimespecSub(const struct timespec *ap, const struct timespec *bp)
 void
 pmtimevalDec(struct timeval *ap, const struct timeval *bp)
 {
-     ap->tv_sec -= bp->tv_sec;
-     ap->tv_usec -= bp->tv_usec;
-     if (ap->tv_usec < 0) {
+    ap->tv_sec -= bp->tv_sec;
+    ap->tv_usec -= bp->tv_usec;
+    if (ap->tv_usec < 0) {
 	ap->tv_usec += 1000000;
 	ap->tv_sec--;
     }
@@ -89,9 +102,9 @@ pmtimevalDec(struct timeval *ap, const struct timeval *bp)
 void
 pmtimespecDec(struct timespec *ap, const struct timespec *bp)
 {
-     ap->tv_sec -= bp->tv_sec;
-     ap->tv_nsec -= bp->tv_nsec;
-     if (ap->tv_nsec < 0) {
+    ap->tv_sec -= bp->tv_sec;
+    ap->tv_nsec -= bp->tv_nsec;
+    if (ap->tv_nsec < 0) {
 	ap->tv_nsec += 1000000000;
 	ap->tv_sec--;
     }
@@ -103,7 +116,10 @@ pmtimespecDec(struct timespec *ap, const struct timespec *bp)
 double
 pmtimespecToReal(const struct timespec *val)
 {
-    return val->tv_sec + ((long double)val->tv_nsec / (long double)1000000000);
+    if (val->tv_sec <= 999999)
+	return val->tv_sec + (long double)val->tv_nsec / (long double)1000000000;
+    else
+	return val->tv_sec + ((long double)val->tv_nsec / 1000) / (long double)1000000;
 }
 
 double
@@ -113,7 +129,7 @@ pmtimevalToReal(const struct timeval *val)
 }
 
 /*
- * convert double (units == seconds) to a timeval
+ * convert double (units == seconds) to a timeval or timespec
  */
 void
 pmtimevalFromReal(double secs, struct timeval *val)
@@ -126,7 +142,27 @@ void
 pmtimespecFromReal(double secs, struct timespec *val)
 {
     val->tv_sec = (time_t)secs;
-    val->tv_nsec = (long)((long double)(secs - val->tv_sec) * (long double)1000000000 + (long double)0.5);
+    if (val->tv_sec <= 999999)
+	val->tv_nsec = (long)((long double)(secs - val->tv_sec) * (long double)1000000000 + (long double)0.5);
+    else
+	val->tv_nsec = (long)((long double)(secs - val->tv_sec) * (long double)1000000 + (long double)0.5) * 1000;
+}
+
+/*
+ * conversions between timespec and timeval ... args are input, output
+ */
+void
+pmtimespecFromtimeval(struct timeval *tvp, struct timespec *tsp)
+{
+    tsp->tv_sec = tvp->tv_sec;
+    tsp->tv_nsec = tvp->tv_usec * 1000;
+}
+
+void
+pmtimevalFromtimespec(struct timespec *tsp, struct timeval *tvp)
+{
+    tvp->tv_sec = tsp->tv_sec;
+    tvp->tv_usec = tsp->tv_nsec / 1000;
 }
 
 /*

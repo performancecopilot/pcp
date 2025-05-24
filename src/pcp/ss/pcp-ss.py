@@ -140,12 +140,12 @@ class SS(object):
                     optargv.append("-O%s" % pcp_origin)
                     pmapi.pmContext.fromOptions(options, optargv)
                     origin = options.pmGetOptionOrigin()
-                    self.context.pmSetModeHighRes(PM_MODE_INTERP, origin, None)
+                    self.context.pmSetMode(PM_MODE_INTERP, origin, None)
                 elif pcp_start_time:
                     optargv.append("-S%s" % pcp_start_time)
                     pmapi.pmContext.fromOptions(options, optargv)
                     start = options.pmGetOptionStart()
-                    self.context.pmSetModeHighRes(PM_MODE_INTERP, start, None)
+                    self.context.pmSetMode(PM_MODE_INTERP, start, None)
 
         except pmapi.pmErr as pmerr:
             sys.stderr.write("%s: %s '%s'\n" % (pmerr.progname(), pmerr.message(), self.source))

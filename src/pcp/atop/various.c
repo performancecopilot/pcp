@@ -876,9 +876,14 @@ setup_origin(pmOptions *opts)
 	/* initial archive mode, position and delta */
 	if (opts->context == PM_CONTEXT_ARCHIVE)
 	{
+		struct timespec curtime_ts;
+		struct timespec fetchstep_ts;
+		pmtimespecFromtimeval(&curtime, &curtime_ts);
+		fetchstep_ts.tv_sec = fetchstep / 1000;
+		fetchstep_ts.tv_nsec = 1000 * (fetchstep % 1000);
 		curtime = start;
 		setup_step_mode(1);
-		if ((sts = pmSetMode(fetchmode, &curtime, fetchstep)) < 0)
+		if ((sts = pmSetMode(fetchmode, &curtime_ts, &fetchstep_ts)) < 0)
 		{
 			pmprintf(
 		"%s: pmSetMode failure: %s\n", pmGetProgname(), pmErrStr(sts));
@@ -1385,13 +1390,18 @@ fetch_metrics(const char *purpose, int nmetrics, pmID *pmids, pmResult **result)
 {
 	pmResult	*rp;
 	int		sts;
+	struct timespec curtime_ts;
+	struct timespec fetchstep_ts;
 
 	if (time_greater_than(&curtime, &finish)) {
 	    sampflags |= (RRLAST | RRMARK);
 	    return PM_ERR_EOL;
 	}
 
-	if ((sts = pmSetMode(fetchmode, &curtime, fetchstep)) < 0)
+	pmtimespecFromtimeval(&curtime, &curtime_ts);
+	fetchstep_ts.tv_sec = fetchstep / 1000;
+	fetchstep_ts.tv_nsec = 1000 * (fetchstep % 1000);
+	if ((sts = pmSetMode(fetchmode, &curtime_ts, &fetchstep_ts)) < 0)
 	{
 		fprintf(stderr, "%s: %s setmode: %s\n",
 			pmGetProgname(), purpose, pmErrStr(sts));

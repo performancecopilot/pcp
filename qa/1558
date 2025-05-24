@@ -43,6 +43,7 @@ _filter_err()
 {
     sed <$tmp.err >$tmp.tmp \
 	-e "s@$tmp@TMP@g" \
+	-e '/^pmSetMode(/s/when=.*, delta=/when=NOW, delta=/' \
     # end
     mv $tmp.tmp $tmp.err
 }

@@ -1617,12 +1617,12 @@ pmDiscoverInvokeCallBacks(pmDiscover *p)
 	     * Seek to end of archive for logvol data (see notes in
 	     * process_logvol routine also).
 	     */
-	    pmSetModeHighRes(PM_MODE_FORW, &tp, &after);
+	    pmSetMode(PM_MODE_FORW, &tp, &after);
 
 	    /*
 	     * For archive meta files, p->fd is the direct file descriptor
 	     * and we pre-scan all existing metadata. Note: we do NOT scan
-	     * pre-existing logvol data (see pmSetModeHighRes above)
+	     * pre-existing logvol data (see pmSetMode above)
 	     */
 	    metaname = sdsnew(p->context.name);
 	    metaname = sdscat(metaname, ".meta");

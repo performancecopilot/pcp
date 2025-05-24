@@ -1,0 +1,53 @@
+#!/bin/sh
+# PCP QA Test No. 1590
+# Test odds and sods using src/api_api
+#
+# Copyright (c) 2025 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+    | $PCP_AWK_PROG '
+/Options structure dump:/	{ print; print "..."; skip = 1; next }
+skip == 1 && /^[^ ]/		{ skip = 0 }
+skip == 1			{ next }
+				{ print }'
+}
+
+# real QA test starts here
+for args in \
+    '-i 42 --' '-i 42.1 --' '-i 42.123456789 --'
+do
+    echo
+    echo "=== $args ==="
+    src/api_abi $args 2>&1 | _filter
+done
+
+# success, all done
+exit

@@ -1134,7 +1134,7 @@ main(int argc, char *argv[])
 	exit(EXIT_FAILURE);
     }
     
-    if ((sts = pmSetModeHighRes(PM_MODE_FORW, &opts.start, NULL)) < 0) {
+    if ((sts = pmSetMode(PM_MODE_FORW, &opts.start, NULL)) < 0) {
 	fprintf(stderr, "%s: pmSetMode failed: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
@@ -1174,7 +1174,7 @@ main(int argc, char *argv[])
 	if (trip == 0 && nbins > 0) {	/* distribute values into bins */
 	    if (pmDebugOptions.appl0)
 		fprintf(stderr, "resetting for second iteration\n");
-	    if ((sts = pmSetModeHighRes(PM_MODE_FORW, &opts.start, NULL)) < 0) {
+	    if ((sts = pmSetMode(PM_MODE_FORW, &opts.start, NULL)) < 0) {
 		fprintf(stderr, "%s: pmSetMode reset failed: %s\n",
 		    pmGetProgname(), pmErrStr(sts));
 		exit(1);

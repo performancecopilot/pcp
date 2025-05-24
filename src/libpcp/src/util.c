@@ -1474,8 +1474,15 @@ pmPrintInterval(FILE *f, const struct timespec *tsp)
 	interval.tv_sec = interval.tv_sec % 60;
     }
     fprintf(f, "%d", (int)interval.tv_sec);
-    if (interval.tv_nsec != 0)
-	fprintf(f, ".%09d", (int)interval.tv_nsec);
+    if (interval.tv_nsec != 0) {
+	long	val = interval.tv_nsec;
+	int	prec = 9;
+	while (prec > 0 && (val % 10) == 0) {
+	    prec--;
+	    val /= 10;
+	}
+	fprintf(f, ".%0*ld", prec, val);
+    }
     fprintf(f, "s");
 }
 

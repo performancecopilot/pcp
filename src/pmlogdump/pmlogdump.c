@@ -1445,12 +1445,12 @@ main(int argc, char *argv[])
     }
 
     if (mode == PM_MODE_FORW)
-	sts = pmSetModeHighRes(mode, &opts.start, NULL);
+	sts = pmSetMode(mode, &opts.start, NULL);
     else {
-	sts = pmSetModeHighRes(mode, &opts.finish, NULL);
+	sts = pmSetMode(mode, &opts.finish, NULL);
     }
     if (sts < 0) {
-	fprintf(stderr, "%s: pmSetModeHighRes: %s\n", pmGetProgname(), pmErrStr(sts));
+	fprintf(stderr, "%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
 

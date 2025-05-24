@@ -836,10 +836,7 @@ LIBPCP.pmDelProfile.restype = c_int
 LIBPCP.pmDelProfile.argtypes = [c_uint, c_int, POINTER(c_int)]
 
 LIBPCP.pmSetMode.restype = c_int
-LIBPCP.pmSetMode.argtypes = [c_int, POINTER(timeval), c_int]
-
-LIBPCP.pmSetModeHighRes.restype = c_int
-LIBPCP.pmSetModeHighRes.argtypes = [c_int, POINTER(timespec), POINTER(timespec)]
+LIBPCP.pmSetMode.argtypes = [c_int, POINTER(timespec), POINTER(timespec)]
 
 LIBPCP.pmReconnectContext.restype = c_int
 LIBPCP.pmReconnectContext.argtypes = [c_int]
@@ -1294,19 +1291,7 @@ class pmOptions(object):
             return None
         return timespec.fromInterval(alignment)
 
-    def pmGetOptionHighResAlignment(self): # timespec
-        alignment = c_api.pmGetOptionAlign_optarg()
-        if alignment is None:
-            return None
-        return timespec.fromInterval(alignment)
-
     def pmGetOptionStart(self):     # timespec
-        sec = c_api.pmGetOptionStart_sec()
-        if sec is None:
-            return None
-        return timespec(sec, c_api.pmGetOptionStart_nsec())
-
-    def pmGetOptionHighResStart(self):  # timespec
         sec = c_api.pmGetOptionStart_sec()
         if sec is None:
             return None
@@ -1324,31 +1309,13 @@ class pmOptions(object):
             return None
         return timespec(sec, c_api.pmGetOptionFinish_nsec())
 
-    def pmGetOptionHighResFinish(self): # timespec
-        sec = c_api.pmGetOptionFinish_sec()
-        if sec is None:
-            return None
-        return timespec(sec, c_api.pmGetOptionFinish_nsec())
-
     def pmGetOptionOrigin(self):        # timespec
         sec = c_api.pmGetOptionOrigin_sec()
         if sec is None:
             return None
         return timespec(sec, c_api.pmGetOptionOrigin_nsec())
 
-    def pmGetOptionHighResOrigin(self): # timespec
-        sec = c_api.pmGetOptionOrigin_sec()
-        if sec is None:
-            return None
-        return timespec(sec, c_api.pmGetOptionOrigin_nsec())
-
     def pmGetOptionInterval(self):      # timespec
-        sec = c_api.pmGetOptionInterval_sec()
-        if sec is None:
-            return None
-        return timespec(sec, c_api.pmGetOptionInterval_nsec())
-
-    def pmGetOptionHighResInterval(self): # timespec
         sec = c_api.pmGetOptionInterval_sec()
         if sec is None:
             return None
@@ -2017,9 +1984,9 @@ class pmContext(object):
             raise pmErr(status)
         return status
 
-    def pmSetModeHighRes(self, mode, origin, interval):
+    def pmSetMode(self, mode, origin, interval):
         """PMAPI - set interpolation mode for reading archive files
-        code = pmSetModeHighRes(c_api.PM_MODE_INTERP, timespec, timespec)
+        code = pmSetMode(c_api.PM_MODE_INTERP, timespec, timespec)
         """
         status = LIBPCP.pmUseContext(self.ctx)
         if status < 0:
@@ -2030,21 +1997,6 @@ class pmContext(object):
         delta = None
         if interval is not None and interval != 0:
             delta = pointer(interval)
-        status = LIBPCP.pmSetModeHighRes(mode, when, delta)
-        if status < 0:
-            raise pmErr(status)
-        return status
-
-    def pmSetMode(self, mode, timeVal, delta):
-        """PMAPI - set interpolation mode for reading archive files
-        code = pmSetMode(c_api.PM_MODE_INTERP, timeval, 0)
-        """
-        status = LIBPCP.pmUseContext(self.ctx)
-        if status < 0:
-            raise pmErr(status)
-        when = None
-        if timeVal is not None:
-            when = pointer(timeVal)
         status = LIBPCP.pmSetMode(mode, when, delta)
         if status < 0:
             raise pmErr(status)
@@ -2892,7 +2844,7 @@ class pmContext(object):
 
         if self.type == c_api.PM_CONTEXT_ARCHIVE:
             mode, step = pmContext.get_mode_step(archive, interpol, interval)
-            self.pmSetModeHighRes(mode, options.pmGetOptionHighResOrigin(), step)
+            self.pmSetMode(mode, options.pmGetOptionOrigin(), step)
 
 # ----- fetchgroup API
 

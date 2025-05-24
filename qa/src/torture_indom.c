@@ -451,7 +451,7 @@ Options\n\
 		pmGetProgname(), pmErrStr(sts));
 	    exit(1);
 	}
-	if ((sts = pmSetMode(PM_MODE_FORW, NULL, 1)) < 0) {
+	if ((sts = pmSetMode(PM_MODE_FORW, NULL, NULL)) < 0) {
 	    fprintf(stderr, "%s: Cannot set archive mode: %s\n",
 		pmGetProgname(), pmErrStr(sts));
 	    exit(1);

@@ -328,7 +328,7 @@ test_api(void)
 	n = pmGetArchiveEnd(&when);
 	REPORT("pmGetArchiveEnd", n);
 
-	n = pmSetModeHighRes(PM_MODE_BACK, &when, &delta);
+	n = pmSetMode(PM_MODE_BACK, &when, &delta);
 	REPORT("pmSetMode", n);
     }
 
@@ -437,7 +437,7 @@ test_api(void)
         for (i = 0; i < numpmid; i++) {
 	    if (midlist[i] == PM_ID_NULL)
 		continue; 
-	    if ((n = pmSetModeHighRes(PM_MODE_FORW, &when, NULL)) < 0) {
+	    if ((n = pmSetMode(PM_MODE_FORW, &when, NULL)) < 0) {
 		printf("pmSetMode(PM_MODE_FORW): %s\n", pmErrStr(n));
 	    }
 	    else {
@@ -456,7 +456,7 @@ test_api(void)
     }
 
     else if (context_type == PM_CONTEXT_HOST) {
-	if ((n = pmSetModeHighRes(PM_MODE_LIVE, (struct timespec *)0, NULL)) < 0) {
+	if ((n = pmSetMode(PM_MODE_LIVE, (struct timespec *)0, NULL)) < 0) {
 	    printf("pmSetMode(PM_MODE_LIVE): %s\n", pmErrStr(n));
 	}
 	else {

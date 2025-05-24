@@ -1366,7 +1366,7 @@ pmExtendFetchGroup_item(pmFG pmfg,
 	    sts = pmGetArchiveEnd(&archive_end);
 	    if (sts < 0)
 		goto out;
-	    sts = pmSetModeHighRes(PM_MODE_BACK, &archive_end, NULL);
+	    sts = pmSetMode(PM_MODE_BACK, &archive_end, NULL);
 	    if (sts < 0)
 		goto out;
 	    /* try again */
@@ -1378,7 +1378,7 @@ pmExtendFetchGroup_item(pmFG pmfg,
 		else
 		    saved_delta.tv_nsec *= saved_direction;
 	    }
-	    rc = pmSetModeHighRes(saved_mode, &saved_origin, &saved_delta);
+	    rc = pmSetMode(saved_mode, &saved_origin, &saved_delta);
 	    if (sts < 0)
 		goto out;
 	    if (rc < 0) {
@@ -1586,7 +1586,7 @@ pmExtendFetchGroup_event(pmFG pmfg,
 	    sts = pmGetArchiveEnd(&archive_end);
 	    if (sts < 0)
 		goto out;
-	    sts = pmSetModeHighRes(PM_MODE_BACK, &archive_end, NULL);
+	    sts = pmSetMode(PM_MODE_BACK, &archive_end, NULL);
 	    if (sts < 0)
 		goto out;
 	    /* try again */
@@ -1598,7 +1598,7 @@ pmExtendFetchGroup_event(pmFG pmfg,
 		else
 		    saved_delta.tv_nsec *= saved_direction;
 	    }
-	    rc = pmSetModeHighRes(saved_mode, &saved_origin, &saved_delta);
+	    rc = pmSetMode(saved_mode, &saved_origin, &saved_delta);
 	    if (sts < 0)
 		goto out;
 	    if (rc < 0) {

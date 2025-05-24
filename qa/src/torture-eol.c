@@ -163,7 +163,7 @@ Options\n\
 	}
     }
 
-    sts = pmSetModeHighRes(PM_MODE_BACK, &end, NULL);
+    sts = pmSetMode(PM_MODE_BACK, &end, NULL);
     if (sts < 0) {
 	printf("pmSetMode PM_MODE_BACK: %s\n", pmErrStr(sts));
 	exit(1);
@@ -209,7 +209,7 @@ Options\n\
 	start.tv_sec = 0;
 	start.tv_nsec = 0;
     }
-    sts = pmSetModeHighRes(PM_MODE_FORW, &start, NULL);
+    sts = pmSetMode(PM_MODE_FORW, &start, NULL);
     if (sts < 0) {
 	printf("pmSetMode PM_MODE_FORW: %s\n", pmErrStr(sts));
 	exit(1);

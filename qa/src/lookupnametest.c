@@ -134,7 +134,7 @@ Options:\n\
 		exit(1);
 	    }
 	    if (mode != PM_MODE_INTERP) {
-		if ((sts = pmSetModeHighRes(mode, &label.start, NULL)) < 0) {
+		if ((sts = pmSetMode(mode, &label.start, NULL)) < 0) {
 		    fprintf(stderr, "%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 		    exit(1);
 		}

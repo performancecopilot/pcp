@@ -244,7 +244,7 @@ Options\n\
 	    exit(1);
 	}
 	if (mode != PM_MODE_INTERP) {
-	    if ((sts = pmSetModeHighRes(mode, &label.start, NULL)) < 0) {
+	    if ((sts = pmSetMode(mode, &label.start, NULL)) < 0) {
 		fprintf(stderr, "%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 		exit(1);
 	    }
@@ -316,7 +316,7 @@ Options\n\
 
     /* goto the start */
     pmtimespecFromReal(delta_f, &delta);
-    if ((sts = pmSetModeHighRes(PM_MODE_INTERP, &appStart, &delta)) < 0) {
+    if ((sts = pmSetMode(PM_MODE_INTERP, &appStart, &delta)) < 0) {
 	fprintf(stderr, "%s: pmSetMode failed: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
@@ -342,7 +342,7 @@ Options\n\
     }
 
     /* rewind back over the mark */
-    if ((sts = pmSetModeHighRes(PM_MODE_INTERP, &curpos, &delta)) < 0) {
+    if ((sts = pmSetMode(PM_MODE_INTERP, &curpos, &delta)) < 0) {
 	fprintf(stderr, "%s: pmSetMode failed: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }

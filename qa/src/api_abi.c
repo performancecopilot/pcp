@@ -146,8 +146,8 @@
  * [ ] pmSemStr_r
  * [y] pmSetDebug
  * [ ] pmSetDerivedControl
- * [ ] pmSetMode
- * [ ] pmSetModeHighRes
+ * [y] pmSetMode
+ * [x] pmSetModeHighRes
  * [ ] pmSetProcessIdentity
  * [ ] pmSetProgname
  * [ ] pmSortHighResInstances
@@ -408,11 +408,12 @@ main(int argc, char *argv[])
 #if PMAPI_VERSION < 4
     struct timeval	start;
     struct timeval	end;
-    struct timeval	delta;
+    struct timeval	delta = { 1, 0 };
+    int			msec;
 #else
     struct timespec	start;
     struct timespec	end;
-    struct timespec	delta;
+    struct timespec	delta = { 1, 0 };
 #endif
     char	*name = "sample.colour";
     pmID	pmid;
@@ -436,8 +437,15 @@ main(int argc, char *argv[])
 		    printf("pmParseInterval: Fail: %s (%s)\n", pmErrStr(sts), errmsg);
 		    free(errmsg);
 		}
-		else
-		    printf("-i interval: %s\n", interstr(&delta));
+		else {
+		    printf("-i interval: %s", interstr(&delta));
+#if PMAPI_VERSION >= 4
+		    printf(" (");
+		    pmPrintInterval(stdout, &delta);
+		    putchar(')');
+#endif
+		putchar('\n');
+		}
 	}
     }
 
@@ -481,6 +489,7 @@ main(int argc, char *argv[])
 	}
 	/* current context is valid */
 	if (opts.narchives > 0) {
+	    /* archive context */
 	    if ((sts = pmGetArchiveLabel(&label)) < 0) {
 		printf("pmGetArchiveLabel: Fail: %s\n", pmErrStr(sts));
 		exit(1);
@@ -508,22 +517,30 @@ main(int argc, char *argv[])
 	    }
 	    else
 		printf("pmGetArchiveEnd: OK: time: %s\n", timestr(&end));
+#if PMAPI_VERSION < 4
+	    msec = delta.tv_sec * 1000 + delta.tv_usec / 1000;
+	    sts = pmSetMode(PM_MODE_INTERP, &start, msec);
+#else
+	    sts = pmSetMode(PM_MODE_INTERP, &start, &delta);
+#endif
+	    if (sts < 0)
+		printf("pmSetMode: Fail: %s\n", pmErrStr(sts));
 	}
 	else {
-	    struct timeval	tmp_tv;
-	    gettimeofday(&tmp_tv, NULL);
-	    start.tv_sec = tmp_tv.tv_sec;
-#if PMAPI_VERSION < 4
-	    start.tv_usec = tmp_tv.tv_usec;
-#else
-	    start.tv_nsec = tmp_tv.tv_usec / 1000;
-#endif
+	    /* host context */
 	    end.tv_sec = PM_MAX_TIME_T;
 #if PMAPI_VERSION < 4
+	    pmtimevalNow(&start);
 	    end.tv_usec = 0;
+	    msec = delta.tv_sec * 1000 + delta.tv_usec / 1000;
+	    sts = pmSetMode(PM_MODE_LIVE, &start, msec);
 #else
+	    pmtimespecNow(&start);
 	    end.tv_nsec = 0;
+	    sts = pmSetMode(PM_MODE_LIVE, &start, &delta);
 #endif
+	    if (sts < 0)
+		printf("pmSetMode: Fail: %s\n", pmErrStr(sts));
 	}
 	if ((sts = pmParseTimeWindow(opts.start_optarg, opts.finish_optarg, opts.align_optarg, opts.origin_optarg, &start, &end, &opts.start, &opts.finish, &opts.origin, &err)) < 0)
 	printf("pmParseTimeWindow: Fail: %s: %s\n", err, pmErrStr(sts));
@@ -600,7 +617,7 @@ main(int argc, char *argv[])
 		free(namelist);
 	    }
 	}
-	else {
+	else if (opts.narchives > 0) {
 	    if ((sts = pmGetInDomArchive(indom, &instlist, &namelist)) < 0)
 		printf("pmGetInDomArchive: Fail: %s\n", pmErrStr(sts));
 	    else {

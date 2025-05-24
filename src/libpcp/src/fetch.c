@@ -448,7 +448,7 @@ __pmSetMode(int mode, const __pmTimestamp *when, const __pmTimestamp *delta, int
 }
 
 int
-pmSetMode(int mode, const struct timeval *when, int delta)
+pmSetMode_v2(int mode, const struct timeval *when, int delta)
 {
     __pmTimestamp	offset, interval;
     int			direction;
@@ -498,7 +498,7 @@ pmSetMode(int mode, const struct timeval *when, int delta)
 }
 
 int
-pmSetModeHighRes(int mode, const struct timespec *when, const struct timespec *delta)
+pmSetMode(int mode, const struct timespec *when, const struct timespec *delta)
 {
     __pmTimestamp	offset, interval;
     int			direction;

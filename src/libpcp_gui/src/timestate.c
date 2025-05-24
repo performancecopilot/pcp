@@ -94,18 +94,14 @@ static void timeControlNewZone(char *zone, char *label)
 void
 pmTimeStateMode(int mode, struct timeval delta, struct timeval *position)
 {
-    const int SECS_IN_24_DAYS = 2073600;
-    int step, sts;
+    struct timespec position_ts;
+    struct timespec delta_ts;
+    int sts;
 
-    if (delta.tv_sec > SECS_IN_24_DAYS) {
-	step = delta.tv_sec;
-	mode |= PM_XTB_SET(PM_TIME_SEC);
-    } else {
-	step = delta.tv_sec * 1e3 + delta.tv_usec / 1e3;
-	mode |= PM_XTB_SET(PM_TIME_MSEC);
-    }
+    pmtimespecFromtimeval(&delta, &delta_ts);
+    pmtimespecFromtimeval(position, &position_ts);
 
-    if ((sts = pmSetMode(mode, position, step)) < 0) {
+    if ((sts = pmSetMode(mode, &position_ts, &delta_ts)) < 0) {
 	fprintf(stderr, "%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(EXIT_FAILURE);
     }

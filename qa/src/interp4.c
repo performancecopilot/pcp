@@ -167,7 +167,7 @@ main(int argc, char **argv)
     }
 
     when = loglabel.start;
-    if ((sts = pmSetModeHighRes(PM_MODE_INTERP, &when, &delta)) < 0) {
+    if ((sts = pmSetMode(PM_MODE_INTERP, &when, &delta)) < 0) {
 	printf("%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
@@ -222,7 +222,7 @@ main(int argc, char **argv)
 
     printf("\nPass 1.2: backwards past EOL\n");
     fflush(stdout);
-    if ((sts = pmSetModeHighRes(PM_MODE_INTERP, &when, &minus_delta)) < 0) {
+    if ((sts = pmSetMode(PM_MODE_INTERP, &when, &minus_delta)) < 0) {
         printf("%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
         exit(1);
     }
@@ -266,7 +266,7 @@ main(int argc, char **argv)
 
     printf("\nPass 2.2: forwards prior to SOL\n");
     fflush(stdout);
-    if ((sts = pmSetModeHighRes(PM_MODE_INTERP, &when, &delta)) < 0) {
+    if ((sts = pmSetMode(PM_MODE_INTERP, &when, &delta)) < 0) {
         printf("%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
         exit(1);
     }

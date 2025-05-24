@@ -648,7 +648,7 @@ PCP_4.0 {
     pmSetDebug;
     pmSetDerivedControl;
     pmSetMode;
-    pmSetModeHighRes;
+    pmSetMode_v2;
     pmSetProcessIdentity;
     pmSetProgname;
     pmSortHighResInstances;
@@ -685,6 +685,7 @@ PCP_4.0 {
     pmtimespecAdd;
     pmtimespecDec;
     pmtimespecFromReal;
+    pmtimespecFromtimeval;
     pmtimespecInc;
     pmtimespecNow;
     pmtimespecSub;
@@ -692,6 +693,7 @@ PCP_4.0 {
     pmtimevalAdd;
     pmtimevalDec;
     pmtimevalFromReal;
+    pmtimevalFromtimespec;
     pmtimevalInc;
     pmtimevalNow;
     pmtimevalSub;

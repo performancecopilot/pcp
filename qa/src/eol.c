@@ -126,9 +126,9 @@ Options\n\
     __pmLogReads = 0;
 
     putchar('\n');
-    sts = pmSetModeHighRes(PM_MODE_BACK, &end, 0);
+    sts = pmSetMode(PM_MODE_BACK, &end, 0);
     if (sts < 0) {
-	printf("pmSetModeHighRes: %s\n", pmErrStr(sts));
+	printf("pmSetMode: %s\n", pmErrStr(sts));
 	exit(1);
     }
     sts = pmFetchHighResArchive(&result);
@@ -147,9 +147,9 @@ Options\n\
     putchar('\n');
     end.tv_sec = PM_MAX_TIME_T;
     end.tv_nsec = 0;
-    sts = pmSetModeHighRes(PM_MODE_BACK, &end, 0);
+    sts = pmSetMode(PM_MODE_BACK, &end, 0);
     if (sts < 0) {
-	printf("pmSetModeHighRes: %s\n", pmErrStr(sts));
+	printf("pmSetMode: %s\n", pmErrStr(sts));
 	exit(1);
     }
     sts = pmFetchHighResArchive(&result);
@@ -168,9 +168,9 @@ Options\n\
     putchar('\n');
     prev = (pmHighResResult *)0;
     end.tv_sec = 0;
-    sts = pmSetModeHighRes(PM_MODE_FORW, &end, 0);
+    sts = pmSetMode(PM_MODE_FORW, &end, 0);
     if (sts < 0) {
-	printf("pmSetModeHighRes: %s\n", pmErrStr(sts));
+	printf("pmSetMode: %s\n", pmErrStr(sts));
 	exit(1);
     }
     while ((sts = pmFetchHighResArchive(&result)) >= 0) {

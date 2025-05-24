@@ -251,7 +251,6 @@ usr/share/man/man3/pmSeriesWindow.3.gz
 usr/share/man/man3/pmSetDebug.3.gz
 usr/share/man/man3/pmSetDerivedControl.3.gz
 usr/share/man/man3/pmSetMode.3.gz
-usr/share/man/man3/pmSetModeHighRes.3.gz
 usr/share/man/man3/pmSetProcessIdentity.3.gz
 usr/share/man/man3/pmSetProgname.3.gz
 usr/share/man/man3/pmSortHighResInstances.3.gz

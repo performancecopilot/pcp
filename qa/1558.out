@@ -43,6 +43,7 @@ pmtimeval*: OK
 timespec functions ...
 pmtimespec*: OK
 --- PMAPI_VERSION_4 ---
+> pmSetMode(mode=LIVE, when=NOW, delta=1s) direction=1 <::> returns 0
 <     version: 2
 ---
 >     version: 4
@@ -90,6 +91,7 @@ pmID_*: OK 29.0.5
 pmInDom_*: OK 29.1
 pm*InDomArchive*: OK
 --- PMAPI_VERSION_4 ---
+> pmSetMode(mode=INTERP, when=NOW, delta=1s) direction=1 <::> returns 0
 <     version: 2
 ---
 >     version: 4

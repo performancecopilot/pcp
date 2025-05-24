@@ -726,8 +726,7 @@ PCP_CALL extern void pmSortInstances(pmResult *);
 PCP_CALL extern void pmSortHighResInstances(pmHighResResult *);
 
 /* Adjust collection time and/or mode for pmFetch */
-PCP_CALL extern int pmSetMode(int, const struct timeval *, int);
-PCP_CALL extern int pmSetModeHighRes(int, const struct timespec *, const struct timespec *);
+PCP_CALL extern int pmSetMode(int, const struct timespec *, const struct timespec *);
 #define PM_MODE_LIVE	0
 #define PM_MODE_INTERP	1
 #define PM_MODE_FORW	2
@@ -1349,6 +1348,10 @@ PCP_CALL extern void pmtimespecFromReal(double, struct timespec *);
 PCP_CALL extern void pmPrintHighResStamp(FILE *, const struct timespec *);
 PCP_CALL extern void pmPrintInterval(FILE *, const struct timespec *);
 
+/* timespec <-> timeval conversions */
+PCP_CALL extern void pmtimevalFromtimespec(struct timespec *, struct timeval *);
+PCP_CALL extern void pmtimespecFromtimeval(struct timeval *, struct timespec *);
+
 /* filesystem path name separator */
 PCP_CALL extern int pmPathSeparator(void);
 
@@ -1450,6 +1453,7 @@ typedef struct pmLogLabel_v2 {
 
 PCP_CALL extern int pmGetArchiveLabel_v2(pmLogLabel_v2 *);
 PCP_CALL extern int pmParseInterval_v2(const char *, struct timeval *, char **);
+PCP_CALL extern int pmSetMode_v2(int, const struct timeval *, int);
 
 #if PMAPI_VERSION == PMAPI_VERSION_2
 /*
@@ -1467,6 +1471,7 @@ PCP_CALL extern int pmParseInterval_v2(const char *, struct timeval *, char **);
 #define pmLogLabel pmLogLabel_v2
 #define pmGetArchiveLabel pmGetArchiveLabel_v2
 #define pmParseInterval pmParseInterval_v2
+#define pmSetMode pmSetMode_v2
 #endif
 
 #if PMAPI_VERSION >= PMAPI_VERSION_4
@@ -1477,6 +1482,7 @@ PCP_CALL extern int pmParseInterval_v2(const char *, struct timeval *, char **);
 #define pmParseHighResTimeWindow pmParseTimeWindow
 #define pmGetHighResArchiveLabel pmGetArchiveLabel
 #define pmParseHighResInterval pmParseInterval
+#define pmSetModeHighRes pmSetMode
 #endif
 
 #ifdef __cplusplus

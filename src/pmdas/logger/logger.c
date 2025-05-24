@@ -575,7 +575,7 @@ main(int argc, char **argv)
 		    free(endnum);
 		    err++;
 		}
-		__pmtvfromts(interval, ts);
+		pmtimevalFromtimespec(&ts, &interval);
 		break;
 
 	    case 'U':

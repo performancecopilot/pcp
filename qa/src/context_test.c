@@ -67,7 +67,7 @@ main(int argc, char **argv)
     pmInDom	indom_bin, indom_colour;
     pmID	metrics[2];
     pmDesc	descs[2];
-    pmResult	*resp;
+    pmHighResResult	*resp;
     __pmContext	*ctxp;
     int		handle[50];		/* need 3 x MAXC */
     static char	*usage = "[-a archive] [-D debugspec] [-h hostname] [-i iterations] [-n namespace]";
@@ -319,7 +319,7 @@ main(int argc, char **argv)
 		fprintf(stderr, "Just before pmFetch ...\n");
 		__pmDumpContext(stderr, handle[c], PM_INDOM_NULL);
 	    }
-	    sts = pmFetch(2, metrics, &resp);
+	    sts = pmFetchHighRes(2, metrics, &resp);
 	    if (sts < 0) {
 		fprintf(stderr, "botch @ iter=%d, context=%d: pmFetch: %s\n",
 			i, handle[c], pmErrStr(sts));
@@ -349,15 +349,15 @@ main(int argc, char **argv)
 	    if (errflag) {
 		__pmDumpContext(stderr, handle[c], PM_INDOM_NULL);
 		if (errflag != 2)
-		    __pmDumpResult(stderr, resp);
+		    __pmDumpHighResResult(stderr, resp);
 		fail++;
 	    }
 	    if (errflag != 2) {
 		if (type == PM_CONTEXT_ARCHIVE) {
-		    resp->timestamp.tv_usec--;
-		    pmSetMode(PM_MODE_FORW, &resp->timestamp, 0);
+		    resp->timestamp.tv_nsec--;
+		    pmSetMode(PM_MODE_FORW, &resp->timestamp, NULL);
 		}
-		pmFreeResult(resp);
+		pmFreeHighResResult(resp);
 	    }
 	}
 	if (fail)
