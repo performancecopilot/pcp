@@ -24,6 +24,8 @@
 \f3PM_FAULT_CLEAR\f1 \- Fault Injection Infrastructure for QA
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .br
 #include <pcp/fault.h>
@@ -41,6 +43,8 @@ PM_FAULT_CHECK;
 PM_FAULT_CLEAR;
 .sp
 cc \-DPM_FAULT_INJECTION=1 ... \-lpcp_fault
+.hy
+.ad
 .ft 1
 .SH DESCRIPTION
 As part of the coverage-driven changes to QA in PCP 3.6, it became

@@ -18,23 +18,27 @@
 \f3pmdaSetLabelCallBack\f1 \- fill pmLabelSet structures with metric labels
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .br
 #include <pcp/pmda.h>
 .sp
-.ad l
-.hy 0
-.in +8n
-.ti -8n
-int pmdaLabel(int \fIident\fP, int \fItype\fP, pmLabelSet **\fIsets\fP, pmdaExt *\fIpmda\fP);
-.br
-.ti -8n
-int pmdaSetLabelCallBack(pmdaInterface *\fIdispatch\fP, pmdaLabelCallBack\ \fIcallback\fP);
-.sp
+int pmdaLabel(int \fIident\fP,
+'in +\w'int pmdaLabel('u
+int\ \fItype\fP,
+pmLabelSet\ **\fIsets\fP,
+pmdaExt\ *\fIpmda\fP);
 .in
+.br
+int pmdaSetLabelCallBack(pmdaInterface *\fIdispatch\fP,
+'in +\w'int pmdaSetLabelCallBack('u
+pmdaLabelCallBack\ \fIcallback\fP);
+.in
+.sp
+cc ... \-lpcp_pmda \-lpcp
 .hy
 .ad
-cc ... \-lpcp_pmda \-lpcp
 .ft 1
 .SH DESCRIPTION
 As part of the Performance Metrics Domain Agent (PMDA) API (see

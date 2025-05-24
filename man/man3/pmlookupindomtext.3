@@ -18,13 +18,19 @@
 \f3pmLookupInDomText\f1 \- return text describing a performance metrics instance domain
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .sp
-.nf
-int pmLookupInDomText(pmInDom \fIindom\fP, int \fIlevel\fP, char **\fIbuffer\fP);
-.fi
+int pmLookupInDomText(pmInDom \fIindom\fP,
+'in +\w'int pmLookupInDomText('u
+int\ \fIlevel\fP,
+char\ **\fIbuffer\fP);
+.in
 .sp
 cc ... \-lpcp
+.hy
+.ad
 .ft 1
 .SH DESCRIPTION
 .de CR

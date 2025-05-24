@@ -18,13 +18,19 @@
 \f3pmGetInDom\f1 \- get instance identifiers for a performance metrics instance domain
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .sp
-.nf
-int pmGetInDom(pmInDom \fIindom\fP, int **\fIinstlist\fP, char ***\fInamelist\fP);
-.fi
+int pmGetInDom(pmInDom \fIindom\fP,
+'in +\w'int pmGetInDom('u
+int\ **\fIinstlist\fP,
+char\ ***\fInamelist\fP);
+.in
 .sp
 cc ... \-lpcp
+.hy
+.ad
 .ft 1
 .SH DESCRIPTION
 .de CR

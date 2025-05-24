@@ -20,17 +20,29 @@
 \f3mmv_set_atomvalue\f1 \- set a value in a Memory Mapped Value file
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .br
 #include <pcp/mmv_stats.h>
 .sp
 void mmv_set(void *\fIaddr\fP, pmAtomValue *\fIav\fP, void *\fIval\fP);
 .br
-void mmv_set_value(void *\fIaddr\fP, pmAtomValue *\fIav\fP, double \fIval\fP);
+void mmv_set_value(void *\fIaddr\fP,
+'in +\w'void mmv_set_value('u
+pmAtomValue\ *\fIav\fP,
+double\ \fIval\fP);
+.in
 .br
-void mmv_set_atomvalue(void *\fIaddr\fP, pmAtomValue *\fIav\fP, pmAtomValue *\fIval\fP);
+void mmv_set_atomvalue(void *\fIaddr\fP,
+'in +\w'void mmv_set_atomvalue('u
+pmAtomValue\ *\fIav\fP,
+pmAtomValue\ *\fIval\fP);
+.in
 .sp
 cc ... \-lpcp_mmv \-lpcp
+.hy
+.ad
 .ft 1
 .SH DESCRIPTION
 \f3mmv_set\f1,

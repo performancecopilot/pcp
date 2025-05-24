@@ -20,23 +20,31 @@
 \f3__pmParseHighResTime\f1 \- parse time point specification
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include "pmapi.h"
 .br
 #include "libpcp.h"
 .sp
-.ad l
-.hy 0
-.in +8n
-.ti -8n
-int __pmParseTime(const char *\fIstring\fP, struct timeval *\fIlogStart\fP, struct\ timeval\ *\fIlogEnd\fP, struct\ timeval\ *\fIrslt\fP, char\ **\fIerrMsg\fP);
-.br
-.ti -8n
-int __pmParseHighResTime(const char *\fIstring\fP, struct timespec *\fIlogStart\fP, struct\ timespec\ *\fIlogEnd\fP, struct\ timespec\ *\fIrslt\fP, char\ **\fIerrMsg\fP);
-.sp
+int __pmParseTime(const char *\fIstring\fP,
+'in +\w'int __pmParseTime('u
+struct\ timeval\ *\fIlogStart\fP,
+struct\ timeval\ *\fIlogEnd\fP,
+struct\ timeval\ *\fIrslt\fP,
+char\ **\fIerrMsg\fP);
 .in
+.br
+int __pmParseHighResTime(const char *\fIstring\fP,
+'in +\w'int __pmParseHighResTime('u
+struct\ timespec\ *\fIlogStart\fP,
+struct\ timespec\ *\fIlogEnd\fP,
+struct\ timespec\ *\fIrslt\fP,
+char\ **\fIerrMsg\fP);
+.in
+.sp
+cc ... \-lpcp
 .hy
 .ad
-cc ... \-lpcp
 .ft 1
 .SH CAVEAT
 This documentation is intended for internal Performance Co-Pilot

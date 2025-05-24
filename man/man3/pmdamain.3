@@ -24,34 +24,37 @@
 \f3pmdaSetEndContextCallBack\f1 \- generic PDU processing for a PMDA
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .br
 #include <pcp/pmda.h>
 .sp
-cc ... \-lpcp_pmda \-lpcp
-.sp
-.ad l
-.hy 0
-.in +8n
-.ti -8n
 void pmdaMain(pmdaInterface *\fIdispatch\fP);
 .br
-.ti -8n
-void pmdaSetCheckCallBack(pmdaInterface *\fIdispatch\fP, pmdaCheckCallBack\ \fIcallback\fP);
+void pmdaSetCheckCallBack(pmdaInterface *\fIdispatch\fP,
+'in +\w'void pmdaSetCheckCallBack('u
+pmdaCheckCallBack\ \fIcallback\fP);
+.in
 .br
-.ti -8n
-void pmdaSetDoneCallBack(pmdaInterface *\fIdispatch\fP, pmdaDoneCallBack\ \fIcallback\fP);
+void pmdaSetDoneCallBack(pmdaInterface *\fIdispatch\fP,
+'in +\w'void pmdaSetDoneCallBack('u
+pmdaDoneCallBack\ \fIcallback\fP);
+.in
 .br
-.ti -8n
-void pmdaSetResultCallBack(pmdaInterface *\fIdispatch\fP, pmdaResultCallBack\ \fIcallback\fP);
+void pmdaSetResultCallBack(pmdaInterface *\fIdispatch\fP,
+'in +\w'void pmdaSetResultCallBack('u
+pmdaResultCallBack\ \fIcallback\fP);
+.in
 .br
-.ti -8n
-void pmdaSetEndContextCallBack(pmdaInterface *\fIdispatch\fP, pmdaEndContextCallBack\ \fIcallback\fP);
+void pmdaSetEndContextCallBack(pmdaInterface *\fIdispatch\fP,
+'in +\w'void pmdaSetEndContextCallBack('u
+pmdaEndContextCallBack\ \fIcallback\fP);
+.in
 .br
-.ti -8n
 int pmdaGetContext(void);
 .sp
-.in
+cc ... \-lpcp_pmda \-lpcp
 .hy
 .ad
 .ft 1

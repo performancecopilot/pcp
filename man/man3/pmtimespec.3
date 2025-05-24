@@ -27,6 +27,8 @@
 \f3pmPrintInterval\f1 \- helper routines for time stored as a struct timespec
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .sp
 void pmtimespecNow(struct timespec *\fItp\fP);
@@ -35,9 +37,15 @@ void pmtimespecInc(struct timespec *\fIap\fP, const struct timespec *\fIbp\fP);
 .br
 void pmtimespecDec(struct timespec *\fIap\fP, const struct timespec *\fIbp\fP);
 .br
-double pmtimespecAdd(const struct timespec *\fIap\fP, const struct timespec *\fIbp\fP);
+double pmtimespecAdd(const struct timespec *\fIap\fP,
+'in +\w'double pmtimespecAdd('u
+const\ struct\ timespec\ *\fIbp\fP);
+.in
 .br
-double pmtimespecSub(const struct timespec *\fIap\fP, const struct timespec *\fIbp\fP);
+double pmtimespecSub(const struct timespec *\fIap\fP,
+'in +\w'double pmtimespecSub('u
+const\ struct\ timespec\ *\fIbp\fP);
+.in
 .br
 double pmtimespecToReal(const struct timespec *\fItp\fP);
 .br
@@ -48,6 +56,8 @@ void pmPrintHighResStamp(FILE *\fIf\fP, const struct timespec *\fItp\fP);
 void pmPrintInterval(FILE *\fIf\fP, const struct timespec *\fItp\fP);
 .sp
 cc ... \-lpcp
+.hy
+.ad
 .ft 1
 .SH DESCRIPTION
 .B pmtimespecNow
@@ -89,6 +99,21 @@ provides the reverse conversion, taking the time in
 and returning the equivalent time in
 .IR tp .
 .PP
+For
+.BR pmtimespecAdd ,
+.BR pmtimespecSub ,
+.BR pmtimespecToReal
+and
+.B pmtimespecFromReal
+there is an issue of numerical precision.
+If the
+.B double
+result or operand has more than 6 decimal digits of precision in the seconds
+part of the value, then the fractional value is converted to microseconds
+before arithmetic computations, so the nanoseconds field is only
+accurate to 6 decimal digits in this case.
+The
+.PP
 .B pmPrintHighResStamp
 prints the timestamp from
 .I tp
@@ -103,13 +128,12 @@ prints the interval from
 .I tp
 on the stream
 .I f
-in a minimalst format [[HH\fBh\fP]MM\fBm\fP]SS[.XXXXXXXXX]\fBs\fP where
-the hours, minutes and nanoseconds are only reported if they are non-zero.
+in a minimalist format [[HH\fBh\fP]MM\fBm\fP]SS[.XXXXXXXXX]\fBs\fP where
+the hours, minutes and nanoseconds are only reported if they are non-zero,
+and any trailing zeroes in the nanoseconds are omitted.
 For example
-if tp->tv_sec was 75 and tp->rv_nsec was 500000000 then the output would be
-.BR 1h15.5000000000s .
-.I
-
+if tp->tv_sec was 75 and tp->tv_nsec was 51000000 then the output would be
+.BR 1h15.51s .
 .SH NOTES
 For variants of these interfaces using microsecond precision
 and the timeval structure, refer to

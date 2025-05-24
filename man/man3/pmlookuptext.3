@@ -19,13 +19,15 @@
 \f3pmLookupText\f1 \- return text describing a performance metric
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .sp
-.nf
 int pmLookupText(pmID \fIpmid\fP, int \fIlevel\fP, char **\fIbuffer\fP);
-.fi
 .sp
 cc ... \-lpcp
+.hy
+.ad
 .ft 1
 .SH DESCRIPTION
 Retrieve descriptive text about the performance metric identified by

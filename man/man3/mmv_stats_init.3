@@ -21,23 +21,35 @@
 \f3mmv_stats2_init\f1 \- create and initialize Memory Mapped Value file
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .br
 #include <pcp/mmv_stats.h>
 .sp
-.ad l
-.hy 0
-.in +8n
-.ti -8n
-void *mmv_stats_init(const char *\fIname\fP, int \fIcluster\fP, mmv_stats_flags_t\ \fIflags\fP, const\ mmv_metric_t\ *\fIstats\fP, int\ \fInstats\fP, mmv_indom_t\ *\fIindoms\fP, int\ \fInindoms\fP);
-.br
-.ti -8n
-void *mmv_stats2_init(const char *\fIname\fP, int \fIcluster\fP, mmv_stats_flags_t\ \fIflags\fP, const\ mmv_metric2_t\ *\fIstats2\fP, int\ \fInstats2\fP, mmv_indom2_t\ *\fIindoms2\fP, int\ \fInindoms2\fP);
-.sp
+void *mmv_stats_init(const char *\fIname\fP,
+'in +\w'void *mmv_stats_init('u
+int\ \fIcluster\fP,
+mmv_stats_flags_t\ \fIflags\fP,
+const\ mmv_metric_t\ *\fIstats\fP,
+int\ \fInstats\fP,
+mmv_indom_t\ *\fIindoms\fP,
+int\ \fInindoms\fP);
 .in
+.br
+void *mmv_stats2_init(const char *\fIname\fP,
+'in +\w'void *mmv_stats2_init('u
+int\ \fIcluster\fP,
+mmv_stats_flags_t\ \fIflags\fP,
+const\ mmv_metric2_t\ *\fIstats2\fP,
+int\ \fInstats2\fP,
+mmv_indom2_t\ *\fIindoms2\fP,
+int\ \fInindoms2\fP);
+.in
+.sp
+cc ... \-lpcp_mmv \-lpcp
 .hy
 .ad
-cc ... \-lpcp_mmv \-lpcp
 .ft 1
 .SH DESCRIPTION
 .B Note: these functions are deprecated \- see mmv_stats_registry(3).

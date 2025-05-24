@@ -18,26 +18,27 @@
 \f3pmiPutMark\f1 \- write a \f2<mark>\f1 record to a PCP archive
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .br
 #include <pcp/import.h>
 .sp
-.ad l
-.hy 0
-.in +8n
-.ti -8n
 int pmiPutMark(void);
 .sp
-.in
+cc ... \-lpcp_import \-lpcp
 .hy
 .ad
-cc ... \-lpcp_import \-lpcp
 .ft 1
 .SH "Perl SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 use PCP::LogImport;
 .sp
 pmiPutMark();
+.hy
+.ad
 .ft 1
 .SH DESCRIPTION
 As part of the Performance Co-Pilot Log Import API (see

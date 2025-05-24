@@ -18,18 +18,20 @@
 \f3pmOpenLog\f1 \- create a log file for diagnostics and debug output
 .SH "C SYNOPSIS"
 .ft 3
-#include <pcp/pmapi.h>
-.sp
 .ad l
 .hy 0
-.in +8n
-.ti -8n
-FILE *pmOpenLog(const char *\fIprogname\fP, const char *\fIlogname\fP, FILE\ *\fIoldstream\fP, int\ *\fIstatus\fP);
+#include <pcp/pmapi.h>
 .sp
+FILE *pmOpenLog(const char *\fIprogname\fP,
+'in +\w'FILE *pmOpenLog('u
+const\ char\ *\fIlogname\fP,
+FILE\ *\fIoldstream\fP,
+int\ *\fIstatus\fP);
 .in
+.sp
+cc ... \-lpcp
 .hy
 .ad
-cc ... \-lpcp
 .ft 1
 .SH DESCRIPTION
 .B pmOpenLog

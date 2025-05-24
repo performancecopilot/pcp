@@ -22,15 +22,21 @@
 \f3pmHighResFetch\f1 \- get performance metric values
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .sp
-.nf
 int pmFetch(int \fInumpmid\fP, pmID *\fIpmidlist\fP, pmResult **\fIresult\fP);
 .br
-int pmFetchHighRes(int \fInumpmid\fP, pmID *\fIpmidlist\fP, pmHighResResult **\fIresult\fP);
-.fi
+int pmFetchHighRes(int \fInumpmid\fP,
+'in +\w'int pmFetchHighRes('u
+pmID\ *\fIpmidlist\fP,
+pmHighResResult\ **\fIresult\fP);
+.in
 .sp
 cc ... \-lpcp
+.hy
+.ad
 .ft 1
 .SH DESCRIPTION
 .de CR

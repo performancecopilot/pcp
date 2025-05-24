@@ -19,20 +19,21 @@
 \f3mmv_lookup_value_desc\f1 \- find a value in the Memory Mapped Value file
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .br
 #include <pcp/mmv_stats.h>
 .sp
-.ad l
-.hy 0
-.in +8n
-.ti -8n
-pmAtomValue *mmv_lookup_value_desc(void *\fIaddr\fP, const char *\fImetric\fP, const\ char\ *\fIinst\fP);
-.sp
+pmAtomValue *mmv_lookup_value_desc(void *\fIaddr\fP,
+'in +\w'pmAtomValue *mmv_lookup_value_desc('u
+const\ char\ *\fImetric\fP,
+const\ char\ *\fIinst\fP);
 .in
+.sp
+cc ... \-lpcp_mmv \-lpcp
 .hy
 .ad
-cc ... \-lpcp_mmv \-lpcp
 .ft 1
 .SH DESCRIPTION
 \f3mmv_lookup_value_desc\f1 searches for the value of the instance

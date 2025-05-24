@@ -18,18 +18,19 @@
 \f3pmGetChildrenStatus\f1 \- return the descendent nodes of a PMNS node and their respective status
 .SH "C SYNOPSIS"
 .ft 3
-#include <pcp/pmapi.h>
-.sp
 .ad l
 .hy 0
-.in +8n
-.ti -8n
-int pmGetChildrenStatus(const char *\fIname\fP, char ***\fIoffspring\fP, int\ **\fIstatus\fP);
+#include <pcp/pmapi.h>
 .sp
+int pmGetChildrenStatus(const char *\fIname\fP,
+'in +\w'int pmGetChildrenStatus('u
+char\ ***\fIoffspring\fP,
+int\ **\fIstatus\fP);
 .in
+.sp
+cc ... \-lpcp
 .hy
 .ad
-cc ... \-lpcp
 .ft 1
 .SH DESCRIPTION
 .de CR

@@ -18,13 +18,20 @@
 \f3__pmCheckAttribute\f1 \- check value for a client connection attribute
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include "pmapi.h"
 .br
 #include "libpcp.h"
 .sp
-int __pmCheckAttribute(__pmAttrKey \fIattr\fP, const char * \fIvalue\fP);
+int __pmCheckAttribute(__pmAttrKey \fIattr\fP,
+'in +\w'int __pmCheckAttribute('u
+const\ char\ *\fIvalue\fP);
+.in
 .sp
 cc ... \-lpcp
+.hy
+.ad
 .ft 1
 .SH CAVEAT
 This documentation is intended for internal Performance Co-Pilot

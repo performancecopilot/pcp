@@ -16,19 +16,22 @@
 .\"
 .TH PMSETMODE 3 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmSetMode\f1,
-\f3pmSetModeHighRes\f1 \- set collection time and mode parameters for the current PMAPI context
+\f3pmSetMode\f1 \- set collection time and mode parameters for the current PMAPI context
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .sp
-.nf
-int pmSetMode(int \fImode\fP, const struct timeval *\fIwhen\fP, int \fIdelta\fP);
-.br
-int pmSetModeHighRes(int \fImode\fP, const struct timespec *\fIwhen\fP, const struct timespec *\fIdelta\fP);
-.fi
+int pmSetMode(int \fImode\fP,
+'in +\w'int pmSetMode('u
+const\ struct\ timespec\ *\fIwhen\fP,
+const\ struct\ timespec\ *\fIdelta\fP);
+.in
 .sp
 cc ... \-lpcp
+.hy
+.ad
 .ft 1
 .SH DESCRIPTION
 .de CR
@@ -36,8 +39,6 @@ cc ... \-lpcp
 .el \fI\\$1\f1\\$2
 ..
 .B pmSetMode
-and
-.B pmSetModeHighRes
 are used to define the collection time and/or mode for accessing
 performance metrics and metadata in the current
 Performance Metrics Application Programming Interface (PMAPI)
@@ -54,7 +55,7 @@ PMAPI routines:
 and
 .BR pmNameInDom (3).
 .PP
-Intended mainly for retrospective analyis of performance metrics
+Intended mainly for retrospective analysis of performance metrics
 from a PCP archive, the
 options described below allow an application to implement seeking to an arbitrary
 time within the archive, playback, fast forward, reverse,
@@ -89,8 +90,6 @@ and this
 .I mode
 is rarely used in calls to
 .B pmSetMode
-or
-.BR pmSetModeHighRes .
 .PP
 The other values of
 .I mode
@@ -156,21 +155,6 @@ e.g. \c
 .B PM_ERR_EOL
 because the current time is outside the range defined by
 the records in the archive.
-.PP
-By default the
-.I delta
-parameter of
-.B pmSetMode
-is interpreted as milliseconds (but see the LARGE DELTA VALUES
-section below).
-.PP
-In the
-.B pmSetModeHighRes
-variant of this interface, the
-.I delta
-parameter is a
-.CR "struct timespec"
-so this can directly represent any interval.
 .PP
 When metric values are being requested via
 .BR pmFetch (3)
@@ -320,12 +304,12 @@ archive in reverse temporal sequence.
 .ft CR
 .nf
 .in +0.5i
-struct timeval mytime;
+struct timespec mytime;
 pmResult result;
 
 pmNewContext(PM_CONTEXT_ARCHIVE, "myarchive");
 pmGetArchiveEnd(&mytime);
-pmSetMode(PM_MODE_BACK, &mytime, 0);
+pmSetMode(PM_MODE_BACK, &mytime, NULL);
 
 while (pmFetch(npmid, pmidlist, &result) != PM_ERR_EOL) {
     /*
@@ -336,84 +320,25 @@ while (pmFetch(npmid, pmidlist, &result) != PM_ERR_EOL) {
 }
 .in
 .ft 1
-.SH "LARGE DELTA VALUES"
-The simplest mechanism to set large values for
+.SH COMPATIBILITY
+Prior to PCP 7.0 the
+.I when
+argument was a \f(CRstruct timeval\fP
+and the
 .I delta
-is to use the
+argument was an \f(CRint\fP (in units of milliseconds).
+To support PMAPI transition, the old interface and semantics can be
+used if applications are recompiled with
+.BR \-DPMAPI_VERSION=2 .
+.PP
+For a time in PCP 6.x there was a
+routine with the same semantics as the current
+.B pmSetMode
+called
 .B pmSetModeHighRes
-interface.
-However, the
-.B pmSetMode
-interface supports the XTB (eXtended Time Base) mechanism to allow
-for values in units other than milliseconds.
-.PP
-Because the
-.I delta
-parameter to
-.B pmSetMode
-is an
-.I int
-and treated as milliseconds by default there is a limit on the maximum
-absolute value of
-.I delta
-that can be specified with this default interpretation, namely about 24 days if a signed
-.I int
-has 31 bits of precision.
-To accommodate longer values of
-.I delta
-the high-order bits of the
-.I mode
-parameter is also used to optionally set the units of time for the
-.I delta
-parameter. To specify the units of time use the
-.B PM_XTB_SET
-macro with one of the values
-.BR PM_TIME_NSEC ,
-.BR PM_TIME_MSEC ,
-.BR PM_TIME_SEC ,
-etc.
-to set the
-.I mode
-as follows:
-.P
-.in +0.5i
-PM_MODE_INTERP | PM_XTB_SET(PM_TIME_XXXX)
-.PP
-The following code shows how this could be done if the desired
-.I delta
-is initially encoded in
-.I interval
-(a struct timeval).
-.PP
-.ft CR
-.nf
-.in +0.5i
-struct timeval interval;
-int mode;
-
-mode = ...
-
-if (abs(interval.tv_sec / (3600*24)) <= 24) {
-    /* default encoding of milliseconds is fine */
-    mode = PM_MODE_INTERP;
-    delta = interval.tv_sec * 1000 + (interval.tv_usec + 500)/ 1000;
-}
-else {
-    /* encode delta in units of seconds */
-    mode = PM_MODE_INTERP | PM_XTB_SET(PM_TIME_SEC);
-    delta = interval.tv_sec + (interval.tv_usec + 500000)/ 1000000;
-}
-.in
-.fi
-.ft
-.PP
-For millisecond encoding of
-.IR delta ,
-using
-.B PM_XTB_SET(PM_TIME_MSEC)
-is functionally equivalent to not using
-.B PM_XTB_SET
-at all.
+although this is now deprecated and compile-time support for
+.B pmSetModeHighRes
+will be removed in a future release.
 .SH DIAGNOSTICS
 .IP \f3PM_ERR_MODE\f1
 The
@@ -439,3 +364,4 @@ and
 .\" +ok+ PM_TIME_XXXX
 .\" +ok+ XTB eXtended {both from XTB (eXtended Time Base)}
 .\" +ok+ myarchive pmidlist mydelta mytime npmid mtime abs {from example C code}
+.\" +ok+ pdf {from URL}

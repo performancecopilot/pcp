@@ -20,6 +20,8 @@
 \f3pmInDom_serial\f1 \- helper methods for manipulating instance domain identifiers
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .sp
 pmInDom pmInDom_build(unsigned int \fIdomain\fP, unsigned int \fIserial\fP);
@@ -29,6 +31,8 @@ unsigned int pmInDom_domain(pmInDom \fIindom\fP);
 unsigned int pmInDom_serial(pmInDom \fIindom\fP);
 .sp
 cc ... \-lpcp
+.hy
+.ad
 .ft 1
 .SH DESCRIPTION
 Within the Performance Co-Pilot (PCP) each instance domain is assigned a

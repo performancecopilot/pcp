@@ -19,6 +19,8 @@
 \f3pmdaPMID\f1 \- translate a dynamic performance metric name into a PMID
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .br
 #include <pcp/pmda.h>
@@ -26,6 +28,8 @@
 int pmdaPMID(char *\fIname\fP, pmID *\fIpmid\fP, pmdaExt *\fIpmda\fP);
 .sp
 cc ... \-lpcp_pmda \-lpcp
+.hy
+.ad
 .ft 1
 .SH DESCRIPTION
 As part of the Performance Metrics Domain Agent (PMDA) API (see

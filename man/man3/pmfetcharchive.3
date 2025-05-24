@@ -20,6 +20,8 @@
 \f3pmFetchHighResArchive\f1 \- get performance metric values directly from archives
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .sp
 int pmFetchArchive(pmResult **\fIresult\fP);
@@ -27,6 +29,8 @@ int pmFetchArchive(pmResult **\fIresult\fP);
 int pmFetchHighResArchive(pmHighResResult **\fIresult\fP);
 .sp
 cc ... \-lpcp
+.hy
+.ad
 .ft 1
 .SH DESCRIPTION
 The
@@ -82,8 +86,6 @@ interfaces.
 .PP
 To skip records within the set of archives, use
 .BR pmSetMode (3)
-or
-.BR pmSetModeHighRes (3)
 to change the collection time within the current
 PMAPI context, then call either
 .B pmFetchArchive
@@ -122,7 +124,6 @@ the current PMAPI context is not associated with a set of archives
 .SH SEE ALSO
 .BR PMAPI (3),
 .BR pmFetchHighRes (3),
-.BR pmSetModeHighRes (3),
 .BR pmFreeHighResResult (3),
 .BR pmFetch (3),
 .BR pmFreeResult (3),

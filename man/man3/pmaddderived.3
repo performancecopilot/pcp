@@ -20,13 +20,21 @@
 \f3pmAddDerivedMetric\f1  \- register a per-context derived metric name and definition
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .sp
 char *pmAddDerived(char *\fIname\fP, char *\fIexpr\fP);
 .br
-int pmAddDerivedMetric(char *\fIname\fP, char *\fIexpr\fP, char **\fIerrmsg\fP);
+int pmAddDerivedMetric(char *\fIname\fP,
+'in +\w'int pmAddDerivedMetric('u
+char\ *\fIexpr\fP,
+char\ **\fIerrmsg\fP);
+.in
 .sp
 cc ... \-lpcp
+.hy
+.ad
 .ft 1
 .SH DESCRIPTION
 .de CR

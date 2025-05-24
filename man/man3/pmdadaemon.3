@@ -18,20 +18,24 @@
 \f3pmdaDaemon\f1 \- initialize the PMDA to run as a daemon
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .br
 #include <pcp/pmda.h>
 .sp
-.ad l
-.hy 0
-.in +8n
-.ti -8n
-void pmdaDaemon(pmdaInterface *\fIdispatch\fP, int \fIinterface\fP, const char\ *\fIname\fP, int\ \fIdomain\fP, const char\ *\fIlogfile\fP, const char\ *\fIhelptext\fP);
-.sp
+void pmdaDaemon(pmdaInterface *\fIdispatch\fP,
+'in +\w'void pmdaDaemon('u
+int\ \fIinterface\fP,
+const\ char\ *\fIname\fP,
+int\ \fIdomain\fP,
+const\ char\ *\fIlogfile\fP,
+const\ char\ *\fIhelptext\fP);
 .in
+.sp
+cc ... \-lpcp_pmda \-lpcp
 .hy
 .ad
-cc ... \-lpcp_pmda \-lpcp
 .ft 1
 .SH DESCRIPTION
 .B pmdaDaemon

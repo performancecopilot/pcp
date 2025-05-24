@@ -18,18 +18,21 @@
 \f3pmExtractValue\f1 \- extract a performance metric value from a pmResult structure
 .SH "C SYNOPSIS"
 .ft 3
-#include <pcp/pmapi.h>
-.sp
 .ad l
 .hy 0
-.in +8n
-.ti -8n
-int pmExtractValue(int \fIvalfmt\fP, const pmValue *\fIival\fP, int\ \fIitype\fP, pmAtomValue\ *\fIoval\fP, int\ \fIotype\fP);
+#include <pcp/pmapi.h>
 .sp
+int pmExtractValue(int \fIvalfmt\fP,
+'in +\w'int pmExtractValue('u
+const\ pmValue\ *\fIival\fP,
+int\ \fIitype\fP,
+pmAtomValue\ *\fIoval\fP,
+int\ \fIotype\fP);
 .in
+.sp
+cc ... \-lpcp
 .hy
 .ad
-cc ... \-lpcp
 .ft 1
 .SH DESCRIPTION
 .de CR

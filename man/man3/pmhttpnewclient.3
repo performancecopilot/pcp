@@ -19,26 +19,30 @@
 \f3pmhttpClientFetch\f1 \- simple HTTP client interfaces
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .br
 #include <pcp/pmhttp.h>
 .sp
 .ad l
 .hy 0
-.in +8n
-.ti -8n
 struct http_client *pmhttpNewClient(void);
 .br
-.ti -8n
 void pmhttpFreeClient(struct http_client *\fIclient\fP);
 .br
-.ti -8n
-int pmhttpClientFetch(struct http_client *\fIclient\fP, const char *\fIurl\fP, char *\fIbodybuf\fP, size_t \fIbodylen\fP, char *\fItypebuf\fP, size_t \fItypelen\fP);
-.sp
+int pmhttpClientFetch(struct http_client *\fIclient\fP,
+'in +\w'int pmhttpClientFetch('u
+const\ char\ *\fIurl\fP,
+char\ *\fIbodybuf\fP,
+size_t\ \fIbodylen\fP,
+char\ *\fItypebuf\fP,
+size_t\ \fItypelen\fP);
 .in
+.sp
+cc ... \-lpcp_web
 .hy
 .ad
-cc ... \-lpcp_web
 .ft 1
 .SH DESCRIPTION
 .B pmhttpNewClient

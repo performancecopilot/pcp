@@ -20,27 +20,42 @@
 \f3pmSeriesLoad\f1 \- fast, scalable time series querying
 .SH "C SYNOPSIS"
 .ft 3
-#include <pcp/pmwebapi.h>
-.sp
 .ad l
 .hy 0
-.in +8n
-.ti -8n
-int pmSeriesQuery(pmSeriesSettings *\fIsp\fP, sds *\fIquery\fP, pmSeriesFlags \fIflags\fP, void *\fIarg\fP);
-.br
-.ti -8n
-int pmSeriesWindow(pmSeriesSettings *\fIsp\fP, sds *\fIwindow\fP, pmSeriesTimeWindow *\fIwindow\fP, void *\fIarg\fP);
-.br
-.ti -8n
-int pmSeriesValues(pmSeriesSettings *\fIsp\fP, pmSeriesTimeWindow *\fIwindow\fP, int \fIcount\fP, sds *\fIseries\fP, void *\fIarg\fP);
+#include <pcp/pmwebapi.h>
 .sp
-.ti -8n
-int pmSeriesLoad(pmSeriesSettings *\fIsp\fP, sds *\fIquery\fP, pmSeriesFlags \fIflags\fP, void *\fIarg\fP);
-.sp
+int pmSeriesQuery(pmSeriesSettings *\fIsp\fP,
+'in +\w'int pmSeriesQuery('u
+sds\ *\fIquery\fP,
+pmSeriesFlags\ \fIflags\fP,
+void\ *\fIarg\fP);
 .in
+.br
+int pmSeriesWindow(pmSeriesSettings *\fIsp\fP,
+'in +\w'int pmSeriesWindow('u
+sds\ *\fIwindow\fP,
+pmSeriesTimeWindow\ *\fIwindow\fP,
+void\ *\fIarg\fP);
+.in
+.br
+int pmSeriesValues(pmSeriesSettings *\fIsp\fP,
+'in +\w'int pmSeriesValues('u
+pmSeriesTimeWindow\ *\fIwindow\fP,
+int\ \fIcount\fP,
+sds\ *\fIseries\fP,
+void\ *\fIarg\fP);
+.in
+.br
+int pmSeriesLoad(pmSeriesSettings *\fIsp\fP,
+'in +\w'int pmSeriesLoad('u
+sds\ *\fIquery\fP,
+pmSeriesFlags\ \fIflags\fP,
+void\ *\fIarg\fP);
+.in
+.sp
+cc ... \-lpcp_web
 .hy
 .ad
-cc ... \-lpcp_web
 .ft 1
 .SH DESCRIPTION
 Searching for time series identifiers and values using the Performance

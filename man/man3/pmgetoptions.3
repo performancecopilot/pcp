@@ -21,11 +21,17 @@
 \f3pmUsageMessage\f1 \- command line handling for PMAPI tools
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .sp
 int pmgetopt_r(int \fIargc\fP, char *const *\fIargv\fP, pmOptions *\fIopts\fP);
 .br
-int pmGetOptions(int \fIargc\fP, char *const *\fIargv\fP, pmOptions *\fIopts\fP);
+int pmGetOptions(int \fIargc\fP,
+'in +\w'int pmGetOptions('u
+char\ *const\ *\fIargv\fP,
+pmOptions\ *\fIopts\fP);
+.in
 .br
 int pmGetContextOptions(int \fIctx\fP, pmOptions *\fIopts\fP);
 .br
@@ -34,6 +40,8 @@ void pmUsageMessage(pmOptions *\fIopts\fP);
 void pmFreeOptions(pmOptions *\fIopts\fP);
 .sp
 cc ... \-lpcp
+.hy
+.ad
 .ft 1
 .SH DESCRIPTION
 The
@@ -586,8 +594,7 @@ and
 .I interval
 members of the
 .I pmOptions
-struct were 
-\f(CRstruct timeval\f(CRs.
+struct were \f(CRstruct timeval\fPs.
 To support PMAPI transition, the old interfaces and semantics can be
 used if applications are linked with
 .I libpcp.so.3

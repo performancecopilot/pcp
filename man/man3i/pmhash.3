@@ -27,33 +27,51 @@
 \f3__pmHashClear\f1 \- general purpose hashing routines
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .br
 #include <pcp/libpcp.h>
-.hy 0
-.ad l
 .sp
 void __pmHashInit(__pmHashCtl *\fIhcp\fP);
 .br
 int __pmHashPreAlloc(int \fIhsize\fP, __pmHashCtl *\fIhcp\fP);
 .br
-int __pmHashAdd(unsigned int \fIkey\fP, void *\fIdata\fP, __pmHashCtl *\fIhcp\fP);
+int __pmHashAdd(unsigned int \fIkey\fP,
+'in +\w'int __pmHashAdd('u
+void\ *\fIdata\fP,
+__pmHashCtl\ *\fIhcp\fP);
+.in
 .br
-int __pmHashDel(unsigned int \fIkey\fP, void *\fIdata\fP, __pmHashCtl *\fIhcp\fP);
+int __pmHashDel(unsigned int \fIkey\fP,
+'in +\w'int __pmHashDel('u
+void\ *\fIdata\fP,
+__pmHashCtl\ *\fIhcp\fP);
+.in
 .br
-__pmHashNode *__pmHashSearch(unsigned int \fIkey\fP, __pmHashCtl *\fIhcp\fP);
+__pmHashNode *__pmHashSearch(unsigned int \fIkey\fP,
+'in +\w'__pmHashNode *__pmHashSearch('u
+__pmHashCtl\ *\fIhcp\fP);
+.in
 .br
-__pmHashNode *__pmHashWalk(__pmHashCtl *\fIhcp\fP, __pmHashWalkState \fIstate\fP);
+__pmHashNode *__pmHashWalk(__pmHashCtl *\fIhcp\fP,
+'in +\w'__pmHashNode *__pmHashWalk('u
+__pmHashWalkState\ \fIstate\fP);
+.in
 .br
-void __pmHashWalkCB(__pmHashWalkCallback \fIcb\fP, void *\fIcdata\fP, const __pmHashCtl *\fIhcp\fP);
+void __pmHashWalkCB(__pmHashWalkCallback \fIcb\fP,
+'in +\w'void __pmHashWalkCB('u
+void\ *\fIcdata\fP,
+const\ __pmHashCtl\ *\fIhcp\fP);
+.in
 .br
 void __pmHashFree(__pmHashCtl *\fIhcp\fP);
 .br
 void __pmHashClear(__pmHashCtl *\fIhcp\fP);
-.hy
-.ad
 .sp
 cc ... \-lpcp
+.hy
+.ad
 .ft 1
 .SH CAVEAT
 This documentation is intended for internal Performance Co-Pilot

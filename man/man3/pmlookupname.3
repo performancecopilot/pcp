@@ -18,13 +18,19 @@
 \f3pmLookupName\f1 \- translate performance metric names into PMIDs
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .sp
-.nf
-int pmLookupName(int \fInumpmid\fP, const char **\fInamelist\fP, pmID *\fIpmidlist\fP);
-.fi
+int pmLookupName(int \fInumpmid\fP,
+'in +\w'int pmLookupName('u
+const\ char\ **\fInamelist\fP,
+pmID\ *\fIpmidlist\fP);
+.in
 .sp
 cc ... \-lpcp
+.hy
+.ad
 .ft 1
 .SH DESCRIPTION
 Given a list in

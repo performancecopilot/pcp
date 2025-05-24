@@ -20,25 +20,21 @@
 \f3pmWebTimerSetMetricRegistry\f1 \- thread-safe timer list management
 .SH "C SYNOPSIS"
 .ft 3
-#include <pcp/pmwebapi.h>
-.sp
 .ad l
 .hy 0
-.in +8n
-.ti -8n
+#include <pcp/pmwebapi.h>
+.sp
 typedef void (*pmWebTimerCallBack)(void *\fIdata\fP);
-.ti -8n
+.br
 int pmWebTimerRegister(pmWebTimerCallBack \fIcallback\fP, void *\fIdata\fP);
 .sp
-.ti -8n
 int pmWebTimerRelease(int \fIseq\fP);
 .br
-.ti -8n
 int pmWebTimerSetMetricRegistry(struct mmv_registry *\fIregistry\fP);
-.in
+.sp
+cc ... \-lpcp_web
 .hy
 .ad
-cc ... \-lpcp_web
 .ft 1
 .SH DESCRIPTION
 The

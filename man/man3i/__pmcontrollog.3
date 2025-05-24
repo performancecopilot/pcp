@@ -19,20 +19,24 @@
 metrics
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include "pmapi.h"
 .br
 #include "libpcp.h"
 .sp
-.ad l
-.hy 0
-.in +8n
-.ti -8n
-int __pmControlLog(int \fIfd\fP, const pmResult *\fIrequest\fP, int\ \fIcontrol\fP, int\ \fIstate\fP, int\ \fIdelta\fP, pmResult\ **\fIstatus\fP);
-.sp
+int __pmControlLog(int \fIfd\fP,
+'in +\w'int __pmControlLog('u
+const\ pmResult\ *\fIrequest\fP,
+int\ \fIcontrol\fP,
+int\ \fIstate\fP,
+int\ \fIdelta\fP,
+pmResult\ **\fIstatus\fP);
 .in
+.sp
+cc ... \-lpcp
 .hy
 .ad
-cc ... \-lpcp
 .ft 1
 .SH CAVEAT
 This documentation is intended for internal Performance Co-Pilot

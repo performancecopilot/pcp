@@ -21,6 +21,8 @@
 \f3pmGetContextHostName_r\f1 \- return the hostname associated with a Performance Co-Pilot context
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .sp
 int pmGetHostName(int \fIid\fP, char *\fIbuf\fP, int \fIbuflen\fP);
@@ -30,6 +32,8 @@ const char *pmGetContextHostName(int \fIid\fP);
 char *pmGetContextHostName_r(int \fIid\fP, char *\fIbuf\fP, int \fIbuflen\fP);
 .sp
 cc ... \-lpcp
+.hy
+.ad
 .ft 1
 .SH DESCRIPTION
 Given a valid PCP context identifier previously created with

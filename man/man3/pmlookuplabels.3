@@ -26,7 +26,6 @@
 .ft 3
 #include <pcp/pmapi.h>
 .sp
-.nf
 int pmLookupLabels(pmID \fIpmid\fP, pmLabelSet **\fIlabelsets\fP);
 .sp
 int pmGetInstancesLabels(pmInDom \fIindom\fP, pmLabelSet **\fIlabelsets\fP);
@@ -45,9 +44,10 @@ cc ... \-lpcp
 .ft 1
 .SH "PYTHON SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 from pcp import pmapi
 .sp
-.nf
 \fIlabelsets\fP = pmapi.pmContext().pmLookupLabels(\fIpmid\fP)
 .sp
 \fIlabelsets\fP = pmapi.pmContext().pmGetInstancesLabels(\fIindom\fP)
@@ -61,7 +61,8 @@ from pcp import pmapi
 \fIlabelsets\fP = pmapi.pmContext().pmGetDomainLabels(\fIdomain\fP)
 .br
 \fIlabelsets\fP = pmapi.pmContext().pmGetContextLabels()
-.sp
+.hy
+.ad
 .ft 1
 .SH DESCRIPTION
 .de CR

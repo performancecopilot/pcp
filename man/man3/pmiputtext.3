@@ -18,26 +18,32 @@
 \f3pmiPutText\f1 \- add help text for an metric or instance domain
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .br
 #include <pcp/import.h>
 .sp
-.ad l
-.hy 0
-.in +8n
-.ti -8n
-int pmiPutText(unsigned int \fItype\fP, unsigned int \fIclass\fP, unsigned int \fIid\fP, const char *\fIcontent\fP);
-.sp
+int pmiPutText(unsigned int \fItype\fP,
+'in +\w'int pmiPutText('u
+unsigned\ int\ \fIclass\fP,
+unsigned\ int\ \fIid\fP,
+const\ char\ *\fIcontent\fP);
 .in
+.sp
+cc ... \-lpcp_import \-lpcp
 .hy
 .ad
-cc ... \-lpcp_import \-lpcp
 .ft 1
 .SH "Perl SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 use PCP::LogImport;
 .sp
 pmiPutText($\fItype\fP, $\fIclass\fP, $\fIid\fP, $\fIcontent\fP);
+.hy
+.ad
 .ft 1
 .SH DESCRIPTION
 As part of the Performance Co-Pilot Log Import API (see

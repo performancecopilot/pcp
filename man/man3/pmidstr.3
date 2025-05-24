@@ -19,6 +19,8 @@
 \f3pmIDStr_r\f1 \- convert a performance metric identifier into a string
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .sp
 const char *pmIDStr(pmID \fIpmid\fP);
@@ -26,6 +28,8 @@ const char *pmIDStr(pmID \fIpmid\fP);
 char *pmIDStr_r(pmID \fIpmid\fP, char *\fIbuf\fP, int \fIbuflen\fP);
 .sp
 cc ... \-lpcp
+.hy
+.ad
 .ft 1
 .SH DESCRIPTION
 .de CR

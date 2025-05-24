@@ -20,15 +20,17 @@
 \f3pmStoreHighRes\f1 \- modify values of performance metrics
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .sp
-.nf
 int pmStore(const pmResult *\fIresult\fP);
 .br
 int pmStoreHighRes(const pmHighResResult *\fIresult\fP);
-.fi
 .sp
 cc ... \-lpcp
+.hy
+.ad
 .ft 1
 .SH DESCRIPTION
 .de CR
@@ -102,9 +104,7 @@ single call for situations in which the outcome is not critical.
 The current PMAPI context is an archive rather than a host, or it
 is a host that is not set to the current time, i.e. has been ``rewound''
 to the recent past using
-.BR pmSetMode (3)
-or
-.BR pmSetModeHighRes (3).
+.BR pmSetMode (3).
 .IP \f3PM_ERR_TOOSMALL\f1
 The number of metrics specified in
 .I result
@@ -120,7 +120,6 @@ field with a value less than one.
 .SH SEE ALSO
 .BR PMAPI (3),
 .BR pmFetch (3),
-.BR pmFetchHighRes (3),
-.BR pmSetModeHighRes (3)
+.BR pmFetchHighRes (3)
 and
 .BR pmSetMode (3).

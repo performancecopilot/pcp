@@ -18,26 +18,41 @@
 \f3pmiPutLabel\f1 \- add labels to the output archive
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .br
 #include <pcp/import.h>
 .sp
 .ad l
 .hy 0
-.in +8n
-.ti -8n
-int pmiPutLabel(unsigned int \fItype\fP, unsigned int \fIid\fP, unsigned int \fIinstance\fP, const char *\fIname\fP, const char *\fIvalue\fP);
-.sp
+int pmiPutLabel(unsigned int \fItype\fP,
+'in +\w'int pmiPutLabel('u
+unsigned\ int\ \fIid\fP,
+unsigned\ int\ \fIinstance\fP,
+const\ char\ *\fIname\fP,
+const\ char\ *\fIvalue\fP);
 .in
+.sp
+cc ... \-lpcp_import \-lpcp
 .hy
 .ad
-cc ... \-lpcp_import \-lpcp
 .ft 1
 .SH "Perl SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 use PCP::LogImport;
 .sp
-pmiPutLabel($\fItype\fP, $\fIid\fP, $\fIinstance\fP, $\fIname\fP, $\fIvalue\fP);
+pmiPutLabel($\fItype\fP,
+'in +\w'pmiPutLabel('u
+$\fIid\fP,
+$\fIinstance\fP,
+$\fIname\fP,
+$\fIvalue\fP);
+.in
+.hy
+.ad
 .ft 1
 .SH DESCRIPTION
 As part of the Performance Co-Pilot Log Import API (see

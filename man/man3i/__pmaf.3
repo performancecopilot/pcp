@@ -24,23 +24,25 @@
 \f3__pmAFisempty\f1 \- event queue services for periodic asynchronous callbacks
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include "pmapi.h"
 .br
 #include "libpcp.h"
 .sp
-.ad l
-.hy 0
-.in +8n
-.ti -8n
-int __pmAFsetup(const struct timeval *\fIstart\fP, const struct timeval *\fIdelta\fP, void *\fIdata\fP, void\ (*\fIfunc\fP)(int,\ void *));
+int __pmAFsetup(const struct timeval *\fIstart\fP,
+'in +\w'int __pmAFsetup('u
+const\ struct\ timeval\ *\fIdelta\fP,
+void\ *\fIdata\fP,
+void\ (*\fIfunc\fP)(int,\ void\ *));
 .in
-.in +8n
-.ti -8n
-int __pmAFregister(const struct timeval *\fIdelta\fP, void *\fIdata\fP, void\ (*\fIfunc\fP)(int,\ void *));
 .br
+int __pmAFregister(const struct timeval *\fIdelta\fP,
+'in +\w'int __pmAFregister('u
+void\ *\fIdata\fP,
+void\ (*\fIfunc\fP)(int,\ void\ *));
 .in
-.hy
-.ad
+.br
 int __pmAFunregister(int \fIafid\fP);
 .br
 void __pmAFblock(void);
@@ -50,6 +52,8 @@ void __pmAFunblock(void);
 int __pmAFisempty(void);
 .sp
 cc ... \-lpcp
+.hy
+.ad
 .ft 1
 .SH CAVEAT
 This documentation is intended for internal Performance Co-Pilot

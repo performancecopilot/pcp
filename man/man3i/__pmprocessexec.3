@@ -20,17 +20,28 @@
 \f3__pmProcessExec\f1 \- process execution support
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include "pmapi.h"
 .br
 #include "libpcp.h"
 .sp
 int __pmProcessAddArg(__pmExecCtl_t **\fIhandle\fP, const char *\fIarg\fP);
 .br
-int __pmProcessUnpickArgs(__pmExecCtl_t **\fIhandle\fP, const char *\fIcommand\fP);
+int __pmProcessUnpickArgs(__pmExecCtl_t **\fIhandle\fP,
+'in +\w'int __pmProcessUnpickArgs('u
+const\ char\ *\fIcommand\fP);
+.in
 .br
-int __pmProcessExec(__pmExecCtl_t **\fIhandle\fP, int \fItoss\fP, int \fIwait\fP);
+int __pmProcessExec(__pmExecCtl_t **\fIhandle\fP,
+'in +\w'int __pmProcessExec('u
+int\ \fItoss\fP,
+int\ \fIwait\fP);
+.in
 .sp
 cc ... \-lpcp
+.hy
+.ad
 .ft 1
 .SH CAVEAT
 This documentation is intended for internal Performance Co-Pilot

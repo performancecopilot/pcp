@@ -4,20 +4,22 @@
 \f3__pmLocalPMDA\f1 \- change the table of DSO PMDAs for PM_CONTEXT_LOCAL contexts
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include "pmapi.h"
 .br
 #include "libpcp.h"
 .sp
-.ad l
-.hy 0
-.in +8n
-.ti -8n
-int __pmLocalPMDA(int \fIop\fP, int \fIdomain\fP, const char *\fIname\fP, const\ char\ *\fIinit\fP);
-.sp
+int __pmLocalPMDA(int \fIop\fP,
+'in +\w'int __pmLocalPMDA('u
+int\ \fIdomain\fP,
+const\ char\ *\fIname\fP,
+const\ char\ *\fIinit\fP);
 .in
+.sp
+cc ... \-lpcp
 .hy
 .ad
-cc ... \-lpcp
 .ft 1
 .SH CAVEAT
 This documentation is intended for internal Performance Co-Pilot

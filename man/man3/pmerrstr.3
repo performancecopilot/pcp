@@ -19,6 +19,8 @@
 \f3pmErrStr_r\f1 \- convert a PMAPI error code into a string
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .sp
 const char *pmErrStr(int \fIcode\fP);
@@ -26,6 +28,8 @@ const char *pmErrStr(int \fIcode\fP);
 char *pmErrStr_r(int \fIcode\fP, char *\fIbuf\fP, int \fIbuflen\fP);
 .sp
 cc ... \-lpcp
+.hy
+.ad
 .ft 1
 .SH DESCRIPTION
 Translate an error code into a text string, suitable for generating a

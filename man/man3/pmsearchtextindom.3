@@ -18,11 +18,19 @@
 \f3pmSearchTextInDom\f1 \- search for all entities related to given instance domain
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmwebapi.h>
 .sp
-int pmSearchTextInDom(pmSearchSettings *\fIsettings\fP, pmSearchTextRequest *\fIrequest\fP, void *\fIarg\fP);
+int pmSearchTextInDom(pmSearchSettings *\fIsettings\fP,
+'in +\w'int pmSearchTextInDom('u
+pmSearchTextRequest\ *\fIrequest\fP,
+void\ *\fIarg\fP);
+.in
 .sp
 cc ... \-lpcp_web
+.hy
+.ad
 .ft 1
 .SH DESCRIPTION
 Executes search for all metrics, instances and instance domains, that are related to given instance domain as specified by

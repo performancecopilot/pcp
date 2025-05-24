@@ -19,6 +19,8 @@
 \f3pmflush\f1 \- print formatted output in a window or to standard error
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .sp
 int pmprintf(const char *\fIfmt\fP, ... /*\fIargs\fP*/);
@@ -26,6 +28,8 @@ int pmprintf(const char *\fIfmt\fP, ... /*\fIargs\fP*/);
 int pmflush(void);
 .sp
 cc ... \-lpcp
+.hy
+.ad
 .ft 1
 .SH DESCRIPTION
 The combination of

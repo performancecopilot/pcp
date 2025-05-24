@@ -22,27 +22,37 @@
 .sp
 .ad l
 .hy 0
-.in +8n
-.ti -8n
-int pmMergeLabels(char **\fIsets\fP, int \fInsets\fP, char *\fIbuffer\fP, int \fIlength\fP);
-.sp
-.ti -8n
-int pmMergeLabelSets(pmLabelSet **\fIsets\fP, int \fInsets\fP, char *\fIbuffer\fP, int \fIlength\fP, int (*\fIfilter\fP)(const pmLabel *, const char *, void *), void *\fIarg\fP);
-.sp
+int pmMergeLabels(char **\fIsets\fP,
+'in +\w'int pmMergeLabels('u
+int\ \fInsets\fP,
+char\ *\fIbuffer\fP,
+int\ \fIlength\fP);
 .in
+.sp
+int pmMergeLabelSets(pmLabelSet **\fIsets\fP,
+'in +\w'int pmMergeLabelSets('u
+int\ \fInsets\fP,
+char\ *\fIbuffer\fP,
+int\ \fIlength\fP,
+int\ (*\fIfilter\fP)(const\ pmLabel\ *,\ const\ char\ *,\ void\ *),
+void\ *\fIarg\fP);
+.in
+.sp
+cc ... \-lpcp
 .hy
 .ad
-cc ... \-lpcp
 .ft 1
 .SH "PYTHON SYNOPSIS"
 .ft 3
-.nf
+.ad l
+.hy 0
 from pcp import pmapi
 .sp
 \fIbuffer\fR = pmapi.pmContext().pmMergeLabels(\fIsets\fP)
 .br
 \fIbuffer\fR = pmapi.pmContext().pmMergeLabelSets(\fIsets\fP, \fIfilter\fP)
-.sp
+.hy
+.ad
 .ft 1
 .SH DESCRIPTION
 .B pmMergeLabels

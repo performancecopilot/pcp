@@ -18,11 +18,15 @@
 \f3pmstrncpy\f1 \- safe string copy
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .sp
 int pmstrncpy(char *\fIdest\fP, size_t \fIdestlen\fP, char *\fIsrc\fP);
 .sp
 cc ... \-lpcp
+.hy
+.ad
 .ft 1
 .SH DESCRIPTION
 .B pmstrncpy
@@ -79,7 +83,7 @@ is useful
 the order of the arguments for
 .B pmstrncpy
 has been
-.I deliberatelly
+.I deliberately
 changed from the order of the arguments for
 .BR strncpy (3)
 to avoid accidental misuse that a compiler can easily
@@ -102,7 +106,7 @@ entries that were of a fixed maximum size and may have zero, one or more
 trailing null-bytes
 .PP
 The subsequent attempts to use
-.BR strnpy (3)
+.BR strncpy (3)
 for more generally string copying operations has been
 fraught with abuse and security issues;
 .BR pmstrncpy

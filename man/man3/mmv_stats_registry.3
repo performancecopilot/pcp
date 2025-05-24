@@ -22,28 +22,28 @@
 \f3mmv_stats_stop\f1 \- Initialize the Memory Mapped Value file
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .br
 #include <pcp/mmv_stats.h>
 .sp
-.ad l
-.hy 0
-.in +8n
-.ti -8n
-mmv_registry_t *mmv_stats_registry(const\ char\ *\fIfile\fP, int \fIcluster\fP,
-                            mmv_stats_flags_t \fIflags\fP);
+mmv_registry_t *mmv_stats_registry(const\ char\ *\fIfile\fP,
+'in +\w'mmv_registry_t *mmv_stats_registry('u
+int\ \fIcluster\fP,
+mmv_stats_flags_t\ \fIflags\fP);
+.in
 .br
-.ti -8n
-.sp
 void *mmv_stats_start(mmv_registry_t *\fIregistry\fP);
 .br
-.ti -8n
-void  mmv_stats_stop(const\ char\ *\fIfname\fP, void *\fIaddr\fP);
-.sp
+void mmv_stats_stop(const\ char\ *\fIfname\fP,
+'in +\w'void mmv_stats_stop('u
+void\ *\fIaddr\fP);
 .in
+.sp
+cc ... \-lpcp_mmv \-lpcp
 .hy
 .ad
-cc ... \-lpcp_mmv \-lpcp
 .ft 1
 .SH DESCRIPTION
 \f3mmv_stats_registry\f1 initializes an opaque structure that defines
@@ -93,10 +93,22 @@ The next sections explain how to add metrics, indoms, instances
 and labels.
 .SH ADD METRICS
 .ft 3
-.br
-int mmv_stats_add_metric(mmv_registry_t *registry, const\ char\ *\fIname\fP, int \fIitem\fP,
-                        mmv_metric_type_t \fItype\fP, mmv_metric_sem_t \fIsem\fP, pmUnits \fIunits\fP,
-                        int \fIserial\fP, const\ char\ *\fIshorthelp\fP, const\ char\ *\fIlonghelp\fP);
+.ad l
+.hy 0
+int mmv_stats_add_metric(mmv_registry_t *registry,
+'in +\w'int mmv_stats_add_metric('u
+const\ char\ *\fIname\fP,
+int\ \fIitem\fP,
+mmv_metric_type_t\ \fItype\fP,
+mmv_metric_sem_t\ \fIsem\fP,
+pmUnits\ \fIunits\fP,
+int\ \fIserial\fP,
+const\ char\ *\fIshorthelp\fP,
+const\ char\ *\fIlonghelp\fP);
+.in
+.hy
+.ad
+.ft 1
 .P
 When adding a metric, internally it is being handled using the next struct.
 \f2sem\f1 match in the struct is semantics. \f2units\f1 match in the struct
@@ -116,10 +128,17 @@ is dimension. \f2serial\f1 match in the struct is indom.
 .fi
 .SH ADD INDOMS
 .ft 3
-.br
-int mmv_stats_add_indom(mmv_registry_t *\fIregistry\fP, int \fIserial\fP,
-                        const\ char\ *\fIshorthelp\fP, const\ char\ *\fIlonghelp\fP);
-
+.ad l
+.hy 0
+int mmv_stats_add_indom(mmv_registry_t *\fIregistry\fP,
+'in +\w'int mmv_stats_add_indom('u
+int\ \fIserial\fP,
+const\ char\ *\fIshorthelp\fP,
+const\ char\ *\fIlonghelp\fP);
+.in
+.hy
+.ad
+.ft 1
 .P
 When adding an indom, internally it is being handled using the next struct.
 .P
@@ -134,10 +153,18 @@ When adding an indom, internally it is being handled using the next struct.
 .fi
 
 .SH ADD INSTANCES
-.ft
-.br
-int mmv_stats_add_instance(mmv_registry_t *\fIregistry\fP, int \fIserial\fP,
-                           int \fIinstid\fP, const char *\fIinstname\fP);
+.ft 3
+.ad l
+.hy 0
+int mmv_stats_add_instance(mmv_registry_t *\fIregistry\fP,
+'in +\w'int mmv_stats_add_instance('u
+int\ \fIserial\fP,
+int\ \fIinstid\fP,
+const\ char\ *\fIinstname\fP);
+.in
+.hy
+.ad
+.ft 1
 .P
 When adding an instance, internally it is being handled using the next struct.
 \f2instid\f1 match in the struct is internal while \f2instname\f1 is external.
@@ -154,31 +181,47 @@ It is worth mentioning that if the indom of the instance is not found it
 returns an error.
 .SH ADD LABELS
 .ft 3
-.br
-int mmv_stats_add_registry_label(mmv_registry_t *\fIregistry\fP,
-                                 const char *\fIname\fP, const char *\fIvalue\fP,
-                                 mmv_value_type_t \fItype\fP, int \fIoptional\fP);
-.sp
 .ad l
 .hy 0
-.in +8n
-.ti -8n
-int mmv_stats_add_indom_label(mmv_registry_t *\fIregistry\fP, int \fIserial\fP,
-                      const char *\fIname\fP, const char *\fIvalue\fP,
-                      mmv_value_type_t \fItype\fP, int \fIoptional\fP);
+int mmv_stats_add_registry_label(mmv_registry_t *\fIregistry\fP,
+'in +\w'int mmv_stats_add_registry_label('u
+const\ char\ *\fIname\fP,
+const\ char\ *\fIvalue\fP,
+mmv_value_type_t\ \fItype\fP,
+int\ \fIoptional\fP);
+.in
 .sp
-.ti -8n
-int mmv_stats_add_metric_label(mmv_registry_t *\fIregistry\fP, int \fIitem\fP,
-                       const char *\fIname\fP, const char *\fIvalue\fP,
-                       mmv_value_type_t \fItype\fP, int \fIoptional\fP);
+int mmv_stats_add_indom_label(mmv_registry_t *\fIregistry\fP,
+'in +\w'int mmv_stats_add_indom_label('u
+int\ \fIserial\fP,
+const\ char\ *\fIname\fP,
+const\ char\ *\fIvalue\fP,
+mmv_value_type_t\ \fItype\fP,
+int\ \fIoptional\fP);
+.in
 .sp
-.ti -8n
-int mmv_stats_add_instance_label(mmv_registry_t *\fIregistry\fP, int \fIserial\fP,
-                         int \fIinstid\fP, const char *\fIname\fP, const char *\fIvalue\fP,
-                         mmv_value_type_t \fItype\fP, int \fIoptional\fP);
-
+int mmv_stats_add_metric_label(mmv_registry_t *\fIregistry\fP,
+'in +\w'int mmv_stats_add_metric_label('u
+int\ \fIitem\fP,
+const\ char\ *\fIname\fP,
+const\ char\ *\fIvalue\fP,
+mmv_value_type_t\ \fItype\fP,
+int\ \fIoptional\fP);
+.in
 .sp
-.ti -8n
+int mmv_stats_add_instance_label(mmv_registry_t *\fIregistry\fP,
+'in +\w'int mmv_stats_add_instance_label('u
+int\ \fIserial\fP,
+int\ \fIinstid\fP,
+const\ char\ *\fIname\fP,
+const\ char\ *\fIvalue\fP,
+mmv_value_type_t\ \fItype\fP,
+int\ \fIoptional\fP);
+.in
+.hy
+.ad
+.ft 1
+.PP
 \f2registry\f1 is the handle obtained from \f3mmv_stats_registry\f1. \f2name\f1
 and \f2value\f1 are the strings that will form the label.
 .P

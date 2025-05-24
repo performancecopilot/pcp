@@ -24,27 +24,21 @@
 .ad
 .SH "C SYNOPSIS"
 .ft 3
-.nf
-#include <pcp/pmapi.h>
-#include <pcp/pmda.h>
-.fi
-.sp
 .ad l
 .hy 0
-.in +8n
-.ti -8n
+#include <pcp/pmapi.h>
+.br
+#include <pcp/pmda.h>
+.sp
 int pmdaEventNewClient(int \fIcontext\fP);
 .br
-.ti -8n
 int pmdaEventEndClient(int \fIcontext\fP);
 .br
-.ti -8n
 int pmdaEventClients(pmAtomValue *\fIavp\fP);
 .sp
-.in
+cc ... \-lpcp_pmda \-lpcp
 .hy
 .ad
-cc ... \-lpcp_pmda \-lpcp
 .ft 1
 .SH DESCRIPTION
 .de CR

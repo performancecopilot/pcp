@@ -18,13 +18,21 @@
 \f3__pmParseCtime\f1 \- convert \fBctime\fR(3) string to \fBtm\fR structure
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include "pmapi.h"
 .br
 #include "libpcp.h"
 .sp
-int __pmParseCtime(const char *\fIstring\fP, struct tm *\fIrslt\fP, char **\fIerrmsg\fP);
+int __pmParseCtime(const char *\fIstring\fP,
+'in +\w'int __pmParseCtime('u
+struct\ tm\ *\fIrslt\fP,
+char\ **\fIerrmsg\fP);
+.in
 .sp
 cc ... \-lpcp
+.hy
+.ad
 .ft 1
 .SH CAVEAT
 This documentation is intended for internal Performance Co-Pilot

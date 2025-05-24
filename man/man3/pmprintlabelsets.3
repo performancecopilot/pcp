@@ -17,11 +17,21 @@
 \f3pmPrintLabelSets\f1 \- print an array of label sets
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .sp
-void pmPrintLabelSets(FILE *\fIf\fP, int \fIident\fP, int \fItype\fP, pmLabelSet *\fIsets\fP, int \fInsets\fP);
+void pmPrintLabelSets(FILE *\fIf\fP,
+'in +\w'void pmPrintLabelSets('u
+int\ \fIident\fP,
+int\ \fItype\fP,
+pmLabelSet\ *\fIsets\fP,
+int\ \fInsets\fP);
+.in
 .sp
 cc ... \-lpcp
+.hy
+.ad
 .ft 1
 .SH DESCRIPTION
 Display all elements of the Performance Metrics LabelSet

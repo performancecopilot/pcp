@@ -37,65 +37,69 @@
 .ad
 .SH "C SYNOPSIS"
 .ft 3
-.nf
-#include <pcp/pmapi.h>
-#include <pcp/pmda.h>
-.fi
-.sp
 .ad l
 .hy 0
-.in +8n
-.ti -8n
+#include <pcp/pmapi.h>
+.br
+#include <pcp/pmda.h>
+.sp
 int pmdaEventNewArray(void);
 .br
-.ti -8n
 int pmdaEventResetArray(int \fIidx\fP);
 .br
-.ti -8n
 int pmdaEventReleaseArray(int \fIidx\fP);
 .br
-.ti -8n
-int pmdaEventAddRecord(int \fIidx\fP, struct timeval *\fItp\fP, int\ \fIflags\fP);
+int pmdaEventAddRecord(int \fIidx\fP,
+'in +\w'int pmdaEventAddRecord('u
+struct\ timeval\ *\fItp\fP,
+int\ \fIflags\fP);
+.in
 .br
-.ti -8n
-int pmdaEventAddMissedRecord(int \fIidx\fP, struct timeval *\fItp\fP, int\ \fInmissed\fP);
+int pmdaEventAddMissedRecord(int \fIidx\fP,
+'in +\w'int pmdaEventAddMissedRecord('u
+struct\ timeval\ *\fItp\fP,
+int\ \fInmissed\fP);
+.in
 .br
-.ti -8n
-int pmdaEventAddParam(int \fIidx\fP, pmID \fIpmid\fP, int \fItype\fP, pmAtomValue\ *\fIavp\fP);
+int pmdaEventAddParam(int \fIidx\fP,
+'in +\w'int pmdaEventAddParam('u
+pmID\ \fIpmid\fP,
+int\ \fItype\fP,
+pmAtomValue\ *\fIavp\fP);
+.in
 .br
-.ti -8n
 pmEventArray *pmdaEventGetAddr(int \fIidx\fP);
 .sp
-.in
-.hy
-.ad l
-.hy 0
-.in +8n
-.ti -8n
 int pmdaEventNewHighResArray(void);
 .br
-.ti -8n
 int pmdaEventResetHighResArray(int \fIidx\fP);
 .br
-.ti -8n
 int pmdaEventReleaseHighResArray(int \fIidx\fP);
 .br
-.ti -8n
-int pmdaEventAddHighResRecord(int \fIidx\fP, struct timespec *\fIts\fP, int\ \fIflags\fP);
+int pmdaEventAddHighResRecord(int \fIidx\fP,
+'in +\w'int pmdaEventAddHighResRecord('u
+struct\ timespec\ *\fIts\fP,
+int\ \fIflags\fP);
+.in
 .br
-.ti -8n
-int pmdaEventAddHighResMissedRecord(int \fIidx\fP, struct timespec *\fIts\fP, int\ \fInmissed\fP);
+int pmdaEventAddHighResMissedRecord(int \fIidx\fP,
+'in +\w'int pmdaEventAddHighResMissedRecord('u
+struct\ timespec\ *\fIts\fP,
+int\ \fInmissed\fP);
+.in
 .br
-.ti -8n
-int pmdaEventAddHighResParam(int \fIidx\fP, pmID \fIpmid\fP, int \fItype\fP, pmAtomValue\ *\fIavp\fP);
+int pmdaEventAddHighResParam(int \fIidx\fP,
+'in +\w'int pmdaEventAddHighResParam('u
+pmID\ \fIpmid\fP,
+int\ \fItype\fP,
+pmAtomValue\ *\fIavp\fP);
+.in
 .br
-.ti -8n
 pmHighResEventArray *pmdaEventGetHighResAddr(int \fIidx\fP);
 .sp
-.in
+cc ... \-lpcp
 .hy
 .ad
-cc ... \-lpcp
 .ft 1
 .SH DESCRIPTION
 .de CR

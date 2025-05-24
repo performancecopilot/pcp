@@ -18,6 +18,8 @@
 \f3pmLocaltime\f1 \- convert the date and time for a reporting timezone
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <time.h>
 .br
 #include <pcp/pmapi.h>
@@ -25,6 +27,8 @@
 struct tm *pmLocaltime(const time_t *\fIclock\fP, struct tm *\fIresult\fP);
 .sp
 cc ... \-lpcp
+.hy
+.ad
 .ft 1
 .SH DESCRIPTION
 .B pmLocaltime

@@ -26,6 +26,8 @@
 \f3pmPrintStamp\f1 \- helper routines for time stored as a struct timeval
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .sp
 void pmtimevalNow(struct timeval *\fItv\fP);
@@ -34,9 +36,15 @@ void pmtimevalInc(struct timeval *\fIap\fP, const struct timeval *\fIbp\fP);
 .br
 void pmtimevalDec(struct timeval *\fIap\fP, const struct timeval *\fIbp\fP);
 .br
-double pmtimevalAdd(const struct timeval *\fIap\fP, const struct timeval *\fIbp\fP);
+double pmtimevalAdd(const struct timeval *\fIap\fP,
+'in +\w'double pmtimevalAdd('u
+const\ struct\ timeval\ *\fIbp\fP);
+.in
 .br
-double pmtimevalSub(const struct timeval *\fIap\fP, const struct timeval *\fIbp\fP);
+double pmtimevalSub(const struct timeval *\fIap\fP,
+'in +\w'double pmtimevalSub('u
+const\ struct\ timeval\ *\fIbp\fP);
+.in
 .br
 double pmtimevalToReal(const struct timeval *\fIval\fP);
 .br
@@ -45,6 +53,8 @@ void pmtimevalFromReal(double \fIsecs\fP, struct timeval *\fIval\fP);
 void pmPrintStamp(FILE *\fIf\fP, const struct timeval *\fItp\fP);
 .sp
 cc ... \-lpcp
+.hy
+.ad
 .ft 1
 .SH DESCRIPTION
 .B pmtimevalNow

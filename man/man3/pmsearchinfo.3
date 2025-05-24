@@ -18,11 +18,19 @@
 \f3pmSearchInfo\f1 \- diagnostic metrics of PCP search services
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmwebapi.h>
 .sp
-int pmSearchInfo(pmSearchSettings *\fIsettings\fP, sds \fIkey\fP, void *\fIarg\fP);
+int pmSearchInfo(pmSearchSettings *\fIsettings\fP,
+'in +\w'int pmSearchInfo('u
+sds\ \fIkey\fP,
+void\ *\fIarg\fP);
+.in
 .sp
 cc ... \-lpcp_web
+.hy
+.ad
 .ft 1
 .SH DESCRIPTION
 Diagnostic metrics related to the Performance Co-Pilot (PCP) fast, scalable and full-text capable search services.

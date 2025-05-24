@@ -18,20 +18,17 @@
 \f3pmdaInterfaceMoved\f1 \- reset internal state of a \f2pmdaInterface\f1 structure
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .br
 #include <pcp/pmda.h>
 .sp
-.ad l
-.hy 0
-.in +8n
-.ti -8n
 void pmdaInterfaceMoved(pmdaInterface *\fIdispatch\fP);
 .sp
-.in
+cc ... \-lpcp_pmda \-lpcp
 .hy
 .ad
-cc ... \-lpcp_pmda \-lpcp
 .ft 1
 .SH DESCRIPTION
 After a call to either

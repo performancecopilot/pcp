@@ -21,13 +21,25 @@
 \- unpack event records
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .sp
-int pmUnpackEventRecords(pmValueSet *\fIvsp\fP, int \fIidx\fP, pmResult ***\fIrap\fP);
-.sp
-int pmUnpackHighResEventRecords(pmValueSet *\fIvsp\fP, int \fIidx\fP, pmHighResResult ***\fIhrap\fP);
+int pmUnpackEventRecords(pmValueSet *\fIvsp\fP,
+'in +\w'int pmUnpackEventRecords('u
+int\ \fIidx\fP,
+pmResult\ ***\fIrap\fP);
+.in
+.br
+int pmUnpackHighResEventRecords(pmValueSet *\fIvsp\fP,
+'in +\w'int pmUnpackHighResEventRecords('u
+int\ \fIidx\fP,
+pmHighResResult\ ***\fIhrap\fP);
+.in
 .sp
 cc ... \-lpcp
+.hy
+.ad
 .ft 1
 .SH DESCRIPTION
 .de CR
