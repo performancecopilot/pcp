@@ -225,7 +225,7 @@ Options\n\
 			struct timeval tmp_tv;
 			struct timeval prev_tv;
 
-			pmtimevalFromtimespec(&prev->timestamp, &prev_tv);
+			pmtimespecTotimeval(&prev->timestamp, &prev_tv);
 
 			printf("%d event records found\n", result->vset[j]->numval);
 			sts = pmUnpackEventRecords(result->vset[j], 0, &records);

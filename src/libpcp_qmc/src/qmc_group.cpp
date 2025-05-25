@@ -502,11 +502,9 @@ QmcGroup::fetch(bool update)
 }
 
 int
-QmcGroup::setArchiveMode(int mode, const struct timeval *when, int interval)
+QmcGroup::setArchiveMode(int mode, const struct timespec *when, const struct timespec *delta)
 {
     int sts, result = 0;
-    struct timespec	when_ts;
-    struct timespec	delta_ts;
 
     for (unsigned int i = 0; i < numContexts(); i++) {
 	if (my.contexts[i]->source().type() != PM_CONTEXT_ARCHIVE)
@@ -520,10 +518,7 @@ QmcGroup::setArchiveMode(int mode, const struct timeval *when, int interval)
 	    result = sts;
 	    continue;
 	}
-	when_ts.tv_sec = when->tv_sec;
-	when_ts.tv_nsec = when->tv_usec * 1000;
-	pmtimespecFromReal((double)interval / 1000, &delta_ts);
-	sts = pmSetMode(mode, &when_ts, &delta_ts);
+	sts = pmSetMode(mode, when, delta);
 	if (sts < 0) {
 	    pmprintf("%s: Error: Unable to set context mode for %s: %s\n",
 		     pmGetProgname(), my.contexts[i]->source().sourceAscii(),

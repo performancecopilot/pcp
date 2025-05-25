@@ -454,7 +454,7 @@ main(int argc, char **argv)
 		free(endnum);
 		opts.errors++;
 	    }
-	    pmtimevalFromtimespec(&ts, &bash_interval);
+	    pmtimespecTotimeval(&ts, &bash_interval);
 	    break;
 	}
     }

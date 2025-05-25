@@ -23,6 +23,7 @@
 \f3pmtimespecSub\f1,
 \f3pmtimespecToReal\f1,
 \f3pmtimespecFromReal\f1,
+\f3pmtimespecTotimeval\f1,
 \f3pmPrintHighResStamp\f1,
 \f3pmPrintInterval\f1 \- helper routines for time stored as a struct timespec
 .SH "C SYNOPSIS"
@@ -50,6 +51,8 @@ const\ struct\ timespec\ *\fIbp\fP);
 double pmtimespecToReal(const struct timespec *\fItp\fP);
 .br
 void pmtimespecFromReal(double \fIsecs\fP, struct timespec *\fItp\fP);
+.br
+void pmtimespecTotimeval(struct timespec *\fItsp, \fPstruct timeval *\fItvp\fP);
 .br
 void pmPrintHighResStamp(FILE *\fIf\fP, const struct timespec *\fItp\fP);
 .br
@@ -99,6 +102,13 @@ provides the reverse conversion, taking the time in
 and returning the equivalent time in
 .IR tp .
 .PP
+.B pmtimespecTotimeval
+converts the struct timespec
+.I tsp
+into an equivalent struct timeval
+.I tvp
+(modulo nanosecond to microsecond truncation).
+.PP
 For
 .BR pmtimespecAdd ,
 .BR pmtimespecSub ,
@@ -112,7 +122,6 @@ result or operand has more than 6 decimal digits of precision in the seconds
 part of the value, then the fractional value is converted to microseconds
 before arithmetic computations, so the nanoseconds field is only
 accurate to 6 decimal digits in this case.
-The
 .PP
 .B pmPrintHighResStamp
 prints the timestamp from

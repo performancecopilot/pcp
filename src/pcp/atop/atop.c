@@ -179,7 +179,6 @@ int		supportflags;	/* supported features             	*/
 char		**argvp;
 
 int		fetchmode;
-int		fetchstep;
 
 struct visualize vis = {generic_samp, generic_error,
 			generic_end,  generic_usage,

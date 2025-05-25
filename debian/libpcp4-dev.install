@@ -325,6 +325,7 @@ usr/share/man/man3/pmtimespecInc.3.gz
 usr/share/man/man3/pmtimespecNow.3.gz
 usr/share/man/man3/pmtimespecSub.3.gz
 usr/share/man/man3/pmtimespecToReal.3.gz
+usr/share/man/man3/pmtimespecTotimeval.3.gz
 usr/share/man/man3/pmtimevalAdd.3.gz
 usr/share/man/man3/pmtimevalDec.3.gz
 usr/share/man/man3/pmtimevalFromReal.3.gz
@@ -332,4 +333,5 @@ usr/share/man/man3/pmtimevalInc.3.gz
 usr/share/man/man3/pmtimevalNow.3.gz
 usr/share/man/man3/pmtimevalSub.3.gz
 usr/share/man/man3/pmtimevalToReal.3.gz
+usr/share/man/man3/pmtimevalTotimespec.3.gz
 usr/share/man/man3/pmtrace.3.gz

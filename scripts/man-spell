@@ -2136,6 +2136,7 @@ pmtimespecInc
 pmtimespecNow
 pmtimespecSub
 pmtimespecToReal
+pmtimespecTotimeval
 pmtimevalAdd
 pmtimevalDec
 pmtimevalFromReal
@@ -2143,6 +2144,7 @@ pmtimevalInc
 pmtimevalNow
 pmtimevalSub
 pmtimevalToReal
+pmtimevalTotimespec
 pmtraceabort
 pmtracebegin
 pmtracecounter

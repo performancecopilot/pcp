@@ -685,19 +685,19 @@ PCP_4.0 {
     pmtimespecAdd;
     pmtimespecDec;
     pmtimespecFromReal;
-    pmtimespecFromtimeval;
     pmtimespecInc;
     pmtimespecNow;
     pmtimespecSub;
     pmtimespecToReal;
+    pmtimespecTotimeval;
     pmtimevalAdd;
     pmtimevalDec;
     pmtimevalFromReal;
-    pmtimevalFromtimespec;
     pmtimevalInc;
     pmtimevalNow;
     pmtimevalSub;
     pmtimevalToReal;
+    pmtimevalTotimespec;
 
 #if mingw
     fsync;

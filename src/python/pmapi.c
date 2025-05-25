@@ -90,30 +90,6 @@ edict_add(PyObject *dict, PyObject *edict, char *symbol, long value)
 }
 
 static PyObject *
-setExtendedTimeBase(PyObject *self, PyObject *args, PyObject *keywords)
-{
-    int type;
-    char *keyword_list[] = {"type", NULL};
-
-    if (!PyArg_ParseTupleAndKeywords(args, keywords,
-                        "i:PM_XTB_SET", keyword_list, &type))
-        return NULL;
-    return Py_BuildValue("i", PM_XTB_SET(type));
-}
-
-static PyObject *
-getExtendedTimeBase(PyObject *self, PyObject *args, PyObject *keywords)
-{
-    int mode;
-    char *keyword_list[] = {"mode", NULL};
-
-    if (!PyArg_ParseTupleAndKeywords(args, keywords,
-                        "i:PM_XTB_GET", keyword_list, &mode))
-        return NULL;
-    return Py_BuildValue("i", PM_XTB_GET(mode));
-}
-
-static PyObject *
 timespecToReal(PyObject *self, PyObject *args, PyObject *keywords)
 {
     struct timespec ts;
@@ -1272,12 +1248,6 @@ getOptionLocalPMDA(PyObject *self, PyObject *args)
 }
 
 static PyMethodDef methods[] = {
-    { .ml_name = "PM_XTB_SET",
-	.ml_meth = (PyCFunction) setExtendedTimeBase,
-        .ml_flags = METH_VARARGS | METH_KEYWORDS },
-    { .ml_name = "PM_XTB_GET",
-	.ml_meth = (PyCFunction) getExtendedTimeBase,
-        .ml_flags = METH_VARARGS | METH_KEYWORDS },
     { .ml_name = "pmtimespecToReal",
 	.ml_meth = (PyCFunction) timespecToReal,
         .ml_flags = METH_VARARGS | METH_KEYWORDS },
@@ -1664,8 +1634,6 @@ MOD_INIT(cpmapi)
     dict_add(dict, "PM_TEXT_DIRECT",  PM_TEXT_DIRECT);
     dict_add(dict, "PM_TEXT_ONELINE", PM_TEXT_ONELINE);
     dict_add(dict, "PM_TEXT_HELP",    PM_TEXT_HELP);
-
-    dict_add(dict, "PM_XTB_FLAG", PM_XTB_FLAG);
 
     dict_add(dict, "PM_OPTFLAG_INIT", PM_OPTFLAG_INIT);
     dict_add(dict, "PM_OPTFLAG_DONE", PM_OPTFLAG_DONE);

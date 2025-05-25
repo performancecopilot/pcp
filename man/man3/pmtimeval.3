@@ -23,6 +23,7 @@
 \f3pmtimevalSub\f1,
 \f3pmtimevalToReal\f1,
 \f3pmtimevalFromReal\f1,
+\f3pmtimevalTotimespec\f1,
 \f3pmPrintStamp\f1 \- helper routines for time stored as a struct timeval
 .SH "C SYNOPSIS"
 .ft 3
@@ -49,6 +50,8 @@ const\ struct\ timeval\ *\fIbp\fP);
 double pmtimevalToReal(const struct timeval *\fIval\fP);
 .br
 void pmtimevalFromReal(double \fIsecs\fP, struct timeval *\fIval\fP);
+.br
+void pmtimevalTotimespec(struct timeval *\fItvp\fP, struct timespec *\fItsp\fP);
 .br
 void pmPrintStamp(FILE *\fIf\fP, const struct timeval *\fItp\fP);
 .sp
@@ -95,6 +98,13 @@ provides the reverse conversion, taking the time in
 .I secs
 and returning the equivalent time in
 .IR val .
+.PP
+.B pmtimevalTotimespec
+converts the struct timeval
+.I tvp
+into an equivalent struct timespec
+.I tsp
+(modulo rounding microseconds up to nanoseconds).
 .PP
 .B pmPrintStamp
 prints the timestamp from

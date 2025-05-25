@@ -1,0 +1,72 @@
+#!/bin/sh
+# PCP QA Test No. 1593
+# check -t > 1day after XTB has gone away
+#
+# Copyright (c) 2025 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e '/^ *$/d' \
+	-e '/^Note: timezone/d' \
+	-e '/^start:/d' \
+	-e '/^end:/d' \
+	-e '/^archive:/d' \
+	-e '/^host:/d' \
+	-e '/^metric:/d' \
+	-e '/^semantics:/d' \
+	-e '/^units:/d' \
+	-e 's/[A-Z][a-z][a-z] Apr /Apr /' \
+    # end
+}
+
+export LC_COLLATE=POSIX
+
+# real QA test starts here
+
+echo "pmval ... (expect 4 matching results)"
+for delta in 1h 25h
+do
+    pmval -zX -a archives/gfs -t $delta -f 1 gfs.fmb 2>&1 \
+    | _filter \
+    | sort >$tmp.$delta
+done
+comm -12 $tmp.1h $tmp.25h
+
+echo
+echo "pmdumptext ... (expect 4 matching results)"
+for delta in 1h 25h
+do
+    pmdumptext -z -a archives/gfs -t $delta gfs.fmb 2>&1 \
+    | _filter \
+    | sort >$tmp.$delta
+done
+comm -12 $tmp.1h $tmp.25h
+
+# success, all done
+exit

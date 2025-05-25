@@ -128,7 +128,6 @@ extern unsigned int	hinv_nrnuma;
 extern int		supportflags;
 
 extern int		fetchmode;
-extern int		fetchstep;
 
 extern int		cpubadness;
 extern int		membadness;

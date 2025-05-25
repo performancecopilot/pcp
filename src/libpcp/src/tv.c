@@ -152,14 +152,14 @@ pmtimespecFromReal(double secs, struct timespec *val)
  * conversions between timespec and timeval ... args are input, output
  */
 void
-pmtimespecFromtimeval(struct timeval *tvp, struct timespec *tsp)
+pmtimevalTotimespec(struct timeval *tvp, struct timespec *tsp)
 {
     tsp->tv_sec = tvp->tv_sec;
     tsp->tv_nsec = tvp->tv_usec * 1000;
 }
 
 void
-pmtimevalFromtimespec(struct timespec *tsp, struct timeval *tvp)
+pmtimespecTotimeval(struct timespec *tsp, struct timeval *tvp)
 {
     tvp->tv_sec = tsp->tv_sec;
     tvp->tv_usec = tsp->tv_nsec / 1000;

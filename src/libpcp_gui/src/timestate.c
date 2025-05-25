@@ -98,8 +98,8 @@ pmTimeStateMode(int mode, struct timeval delta, struct timeval *position)
     struct timespec delta_ts;
     int sts;
 
-    pmtimespecFromtimeval(&delta, &delta_ts);
-    pmtimespecFromtimeval(position, &position_ts);
+    pmtimevalTotimespec(&delta, &delta_ts);
+    pmtimevalTotimespec(position, &position_ts);
 
     if ((sts = pmSetMode(mode, &position_ts, &delta_ts)) < 0) {
 	fprintf(stderr, "%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));

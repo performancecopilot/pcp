@@ -926,9 +926,6 @@ typedef struct {
 
 #define PM_CONTEXT_INIT	-2		/* special type: being initialized, do not use */
 
-/* mask for (archive) directional parts of c_mode */
-#define __PM_MODE_MASK	0xffff
-
 /* internal archive routines */
 PCP_CALL extern int __pmLogVersion(const __pmLogCtl *);
 PCP_CALL extern size_t __pmLogLabelSize(const __pmLogCtl *);

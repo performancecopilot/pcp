@@ -208,7 +208,7 @@ main(int argc, char **argv)
 		free(endnum);
 		err++;
 	    }
-	    pmtimevalFromtimespec(&ts, &timespan);
+	    pmtimespecTotimeval(&ts, &timespan);
 	    break;
 	case 'U':
 	    if (updateObserveValue(optarg) < 0)

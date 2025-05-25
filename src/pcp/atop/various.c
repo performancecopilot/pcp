@@ -39,6 +39,8 @@ extern const char *ifpropmetrics[];
 extern const char *systmetrics[];
 extern const char *procmetrics[];
 
+static struct timespec fetchstep;
+
 /*
 ** Add the PCP long option and environment variable handling into
 ** the mix, along with regular atop short option handling, ready
@@ -831,8 +833,6 @@ setalarm2(int sec, int usec)
 void
 setup_step_mode(int forward)
 {
-	const int SECONDS_IN_24_DAYS = 2073600;
-
 	if (!rawreadflag)
 		fetchmode = PM_MODE_LIVE;
 	else if (forward)
@@ -840,16 +840,7 @@ setup_step_mode(int forward)
 	else
 		fetchmode = PM_MODE_INTERP;
 
-	if (interval.tv_sec > SECONDS_IN_24_DAYS)
-	{
-		fetchstep = interval.tv_sec;
-		fetchmode |= PM_XTB_SET(PM_TIME_SEC);
-	}
-	else
-	{
-		fetchstep = interval.tv_sec * 1e3 + interval.tv_usec / 1e3;
-		fetchmode |= PM_XTB_SET(PM_TIME_MSEC);
-	}
+	pmtimevalTotimespec(&interval, &fetchstep);
 }
 
 /*
@@ -877,13 +868,10 @@ setup_origin(pmOptions *opts)
 	if (opts->context == PM_CONTEXT_ARCHIVE)
 	{
 		struct timespec curtime_ts;
-		struct timespec fetchstep_ts;
-		pmtimespecFromtimeval(&curtime, &curtime_ts);
-		fetchstep_ts.tv_sec = fetchstep / 1000;
-		fetchstep_ts.tv_nsec = 1000 * (fetchstep % 1000);
+		pmtimevalTotimespec(&curtime, &curtime_ts);
 		curtime = start;
 		setup_step_mode(1);
-		if ((sts = pmSetMode(fetchmode, &curtime_ts, &fetchstep_ts)) < 0)
+		if ((sts = pmSetMode(fetchmode, &curtime_ts, &fetchstep)) < 0)
 		{
 			pmprintf(
 		"%s: pmSetMode failure: %s\n", pmGetProgname(), pmErrStr(sts));
@@ -1391,17 +1379,14 @@ fetch_metrics(const char *purpose, int nmetrics, pmID *pmids, pmResult **result)
 	pmResult	*rp;
 	int		sts;
 	struct timespec curtime_ts;
-	struct timespec fetchstep_ts;
 
 	if (time_greater_than(&curtime, &finish)) {
 	    sampflags |= (RRLAST | RRMARK);
 	    return PM_ERR_EOL;
 	}
 
-	pmtimespecFromtimeval(&curtime, &curtime_ts);
-	fetchstep_ts.tv_sec = fetchstep / 1000;
-	fetchstep_ts.tv_nsec = 1000 * (fetchstep % 1000);
-	if ((sts = pmSetMode(fetchmode, &curtime_ts, &fetchstep_ts)) < 0)
+	pmtimevalTotimespec(&curtime, &curtime_ts);
+	if ((sts = pmSetMode(fetchmode, &curtime_ts, &fetchstep)) < 0)
 	{
 		fprintf(stderr, "%s: %s setmode: %s\n",
 			pmGetProgname(), purpose, pmErrStr(sts));

@@ -42,7 +42,7 @@ skip == 1			{ next }
 
 # real QA test starts here
 for args in \
-    '-i 42 --' '-i 42.1 --' '-i 42.123456789 --'
+    '-i 42' '-i 42.1' '-i 42.123456789'
 do
     echo
     echo "=== $args ==="

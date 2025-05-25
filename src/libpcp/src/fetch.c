@@ -232,7 +232,7 @@ __pmFetch(__pmContext *ctxp, int numpmid, pmID *pmidlist, __pmResult **result)
 	else {
 	    /* assume PM_CONTEXT_ARCHIVE */
 	    sts = __pmLogFetch(ctxp, numpmid, pmidlist, result);
-	    if (sts >= 0 && (ctxp->c_mode & __PM_MODE_MASK) != PM_MODE_INTERP)
+	    if (sts >= 0 && ctxp->c_mode != PM_MODE_INTERP)
 		ctxp->c_origin = (*result)->timestamp;
 	}
 
@@ -329,10 +329,9 @@ __pmFetchArchive(__pmContext *ctxp, __pmResult **result)
 	if (ctxp == NULL)
 	    sts = PM_ERR_NOCONTEXT;
 	else {
-	    int	ctxp_mode = (ctxp->c_mode & __PM_MODE_MASK);
 	    if (ctxp->c_type != PM_CONTEXT_ARCHIVE)
 		sts = PM_ERR_NOTARCHIVE;
-	    else if (ctxp_mode == PM_MODE_INTERP)
+	    else if (ctxp->c_mode == PM_MODE_INTERP)
 		/* makes no sense! */
 		sts = PM_ERR_MODE;
 	    else {
@@ -387,14 +386,13 @@ __pmSetMode(int mode, const __pmTimestamp *when, const __pmTimestamp *delta, int
 {
     int		sts;
     __pmContext	*ctxp;
-    int		l_mode = (mode & __PM_MODE_MASK);
 
     if ((sts = pmWhichContext()) >= 0) {
 	ctxp = __pmHandleToPtr(sts);
 	if (ctxp == NULL)
 	    return PM_ERR_NOCONTEXT;
 	if (ctxp->c_type == PM_CONTEXT_HOST) {
-	    if (l_mode != PM_MODE_LIVE)
+	    if (mode != PM_MODE_LIVE)
 		sts = PM_ERR_MODE;
 	    else {
 		ctxp->c_origin.sec = ctxp->c_origin.nsec = 0;
@@ -409,8 +407,8 @@ __pmSetMode(int mode, const __pmTimestamp *when, const __pmTimestamp *delta, int
 	}
 	else {
 	    /* assume PM_CONTEXT_ARCHIVE */
-	    if (l_mode == PM_MODE_INTERP ||
-		l_mode == PM_MODE_FORW || l_mode == PM_MODE_BACK) {
+	    if (mode == PM_MODE_INTERP ||
+		mode == PM_MODE_FORW || mode == PM_MODE_BACK) {
 		int	lsts;
 		if (when != NULL) {
 		    /*
@@ -446,6 +444,17 @@ __pmSetMode(int mode, const __pmTimestamp *when, const __pmTimestamp *delta, int
 
     return sts;
 }
+
+#ifndef PM_XTB_FLAG
+/*
+ * Extended time base definitions and macros ...
+ * were in pmapi.h, but deprecated there so need 'em here for
+ * backwards API compatibility
+ */
+#define PM_XTB_FLAG	0x1000000
+#define PM_XTB_SET(m)	(PM_XTB_FLAG | ((m) << 16))
+#define PM_XTB_GET(m)	(((m) & PM_XTB_FLAG) ? (((m) & 0xff0000) >> 16) : -1)
+#endif
 
 int
 pmSetMode_v2(int mode, const struct timeval *when, int delta)

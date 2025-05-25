@@ -57,8 +57,8 @@ public:
     // Represents a list of specs
     int list(QStringList const& list);
 
-    // Represents a jump to a time and interval for archives
-    int jump(int interval, int startSec, int startMSec);
+    // Represents a jump to a time and interval (both in seconds) for archives
+    int jump(int interval, int start);
 
     // Represents a fetch
     int fetch();
@@ -287,15 +287,13 @@ Client::list(QStringList const& list)
 }
 
 int
-Client::jump(int interval, int startSec, int startMSec)
+Client::jump(int interval, int start)
 {
     int sts;
-    struct timeval start;
+    struct timespec when = { start, 0 };
+    struct timespec delta = { interval, 0 };
 
-    start.tv_sec = startSec;
-    start.tv_usec = startMSec;
-
-    sts = _group->setArchiveMode(PM_MODE_INTERP, &start, interval);
+    sts = _group->setArchiveMode(PM_MODE_INTERP, &when, &delta);
 
     if (sts < 0)
 	cout << keywords[keyError] << sts << Qt::endl << terminator;
@@ -678,8 +676,8 @@ main(int argc, char* argv[])
 
     checksts();
 
-    mesg("Client3: JUMP 5000 869629200 0");
-    sts = client3->jump(5000, 869629200, 0);
+    mesg("Client3: JUMP 5000 869629200");
+    sts = client3->jump(5000, 869629200);
 
     checksts();
 
@@ -719,8 +717,8 @@ main(int argc, char* argv[])
     // Client 3 jumps into the next archive
     //
 
-    mesg("Client3: JUMP 2000 1117075022 0 ");
-    sts = client3->jump(2000, 1117075022, 0);
+    mesg("Client3: JUMP 2000 1117075022");
+    sts = client3->jump(2000, 1117075022);
 
     checksts();
 
@@ -803,8 +801,8 @@ main(int argc, char* argv[])
 
     checksts();
 
-    mesg("Client1: JUMP 5000 885849650 0");
-    sts = client1->jump(5000, 885849650, 0);
+    mesg("Client1: JUMP 5000 885849650");
+    sts = client1->jump(5000, 885849650);
 
     checksts();
 

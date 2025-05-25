@@ -67,7 +67,7 @@ main(int argc, char **argv)
     if (errflag)
 	exit(4);
 
-    pmtimevalFromtimespec(&ts, &tv);
+    pmtimespecTotimeval(&ts, &tv);
 
     if ((clnt = clnt_create(host, AUTOFSD_PROGRAM, AUTOFSD_VERSION, "udp")) == NULL) {
 	clnt_pcreateerror("clnt_create");

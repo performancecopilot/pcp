@@ -2078,6 +2078,7 @@ pmcd.pdu
 1590 libpcp local
 1591 archive archive_v3 local
 1592 archive archive_v3 local valgrind
+1593 pmval pmdumptext archive local
 1595 pmda.linux local valgrind
 1598 pmda.statsd local
 1599 pmda.statsd local

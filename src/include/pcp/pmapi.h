@@ -731,10 +731,6 @@ PCP_CALL extern int pmSetMode(int, const struct timespec *, const struct timespe
 #define PM_MODE_INTERP	1
 #define PM_MODE_FORW	2
 #define PM_MODE_BACK	3
-/* Extended time base definitions and macros - for pmSetMode(3) only */
-#define PM_XTB_FLAG	0x1000000
-#define PM_XTB_SET(m)	(PM_XTB_FLAG | ((m) << 16))
-#define PM_XTB_GET(m)	(((m) & PM_XTB_FLAG) ? (((m) & 0xff0000) >> 16) : -1)
 
 /* Modify the value of one or more metrics */
 PCP_CALL extern int pmStore(const pmResult *);
@@ -1349,8 +1345,8 @@ PCP_CALL extern void pmPrintHighResStamp(FILE *, const struct timespec *);
 PCP_CALL extern void pmPrintInterval(FILE *, const struct timespec *);
 
 /* timespec <-> timeval conversions */
-PCP_CALL extern void pmtimevalFromtimespec(struct timespec *, struct timeval *);
-PCP_CALL extern void pmtimespecFromtimeval(struct timeval *, struct timespec *);
+PCP_CALL extern void pmtimevalTotimespec(struct timeval *, struct timespec *);
+PCP_CALL extern void pmtimespecTotimeval(struct timespec *, struct timeval *);
 
 /* filesystem path name separator */
 PCP_CALL extern int pmPathSeparator(void);
@@ -1472,6 +1468,14 @@ PCP_CALL extern int pmSetMode_v2(int, const struct timeval *, int);
 #define pmGetArchiveLabel pmGetArchiveLabel_v2
 #define pmParseInterval pmParseInterval_v2
 #define pmSetMode pmSetMode_v2
+
+/*
+ * Extended time base definitions and macros
+ * - only for deprecated pmSetMode_v2()
+ */
+#define PM_XTB_FLAG	0x1000000
+#define PM_XTB_SET(m)	(PM_XTB_FLAG | ((m) << 16))
+#define PM_XTB_GET(m)	(((m) & PM_XTB_FLAG) ? (((m) & 0xff0000) >> 16) : -1)
 #endif
 
 #if PMAPI_VERSION >= PMAPI_VERSION_4
