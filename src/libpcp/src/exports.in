@@ -588,7 +588,6 @@ PCP_4.0 {
     pmGetProgname;
     pmGetUsername;
     pmGetVersion;
-    pmHighResFetch;
     pmIDStr;
     pmIDStr_r;
     pmID_build;

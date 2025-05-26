@@ -1478,6 +1478,9 @@ PCP_CALL extern int pmSetMode_v2(int, const struct timeval *, int);
 #define PM_XTB_GET(m)	(((m) & PM_XTB_FLAG) ? (((m) & 0xff0000) >> 16) : -1)
 #endif
 
+/* bad name, preserved for Version 2 */
+#define pmHighResFetch pmFetchHighRes
+
 #if PMAPI_VERSION >= PMAPI_VERSION_4
 /*
  * retire HighRes interfaces

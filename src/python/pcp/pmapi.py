@@ -875,9 +875,6 @@ LIBPCP.pmFetch.argtypes = [c_int, POINTER(c_uint), POINTER(POINTER(pmResult))]
 
 LIBPCP.pmFetchHighRes.restype = c_int
 LIBPCP.pmFetchHighRes.argtypes = [c_int, POINTER(c_uint), POINTER(POINTER(pmHighResResult))]
-# old name preserved for backwards compatibility
-LIBPCP.pmHighResFetch.restype = c_int
-LIBPCP.pmHighResFetch.argtypes = [c_int, POINTER(c_uint), POINTER(POINTER(pmHighResResult))]
 
 LIBPCP.pmFreeResult.restype = None
 LIBPCP.pmFreeResult.argtypes = [POINTER(pmResult)]
@@ -2109,20 +2106,6 @@ class pmContext(object):
         """PMAPI - Fetch pmHighResResult from the target source
 
         pmHighResResult* pmresult = pmFetchHighRes(c_uint pmid[])
-        """
-        result_p = POINTER(pmHighResResult)()
-        status = LIBPCP.pmUseContext(self.ctx)
-        if status < 0:
-            raise pmErr(status)
-        status = LIBPCP.pmFetchHighRes(len(pmidA), pmidA, byref(result_p))
-        if status < 0:
-            raise pmErr(status)
-        return result_p
-
-    def pmHighResFetch(self, pmidA):
-        """PMAPI - Fetch pmHighResResult from the target source (deprecated)
-
-        pmHighResResult* pmresult = pmHighResFetch(c_uint pmid[])
         """
         result_p = POINTER(pmHighResResult)()
         status = LIBPCP.pmUseContext(self.ctx)

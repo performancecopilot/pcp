@@ -45,7 +45,7 @@
  * [ ] pmExtendFetchGroup_item
  * [ ] pmExtendFetchGroup_timestamp
  * [ ] pmExtractValue
- * [ ] pmFetch
+ * [y] pmFetch
  * [ ] pmFetchArchive
  * [ ] pmFetchGroup
  * [ ] pmFetchHighRes
@@ -57,7 +57,7 @@
  * [ ] pmFreeLabelSets
  * [ ] pmFreeMetricSpec
  * [y] pmFreeOptions
- * [ ] pmFreeResult
+ * [y] pmFreeResult
  * [ ] pmfstring
  * [ ] pmGetAPIConfig
  * [y] pmGetArchiveEnd
@@ -88,7 +88,7 @@
  * [ ] pmGetProgname
  * [ ] pmGetUsername
  * [ ] pmGetVersion
- * [ ] pmHighResFetch
+ * [x] pmHighResFetch
  * [y] pmID_build
  * [y] pmID_cluster
  * [y] pmID_domain
@@ -193,6 +193,7 @@
 
 
 #include "pcp/pmapi.h"
+#include "pcp/libpcp.h"
 
 static int
 getflags(void)
@@ -592,6 +593,30 @@ main(int argc, char *argv[])
 		printf("pmInDom_*: Fail: %s != %s\n", pmInDomStr_r(temp, buf1, sizeof(buf1)), pmInDomStr_r(desc.indom, buf2, sizeof(buf2)));
 	}
     }
+
+    /*
+     * pmFetch tests ...
+     */
+    if (pmid != PM_ID_NULL) {
+	pmResult	*rp;
+	if ((sts = pmFetch(1, &pmid, &rp)) < 0)
+	    printf("pmFetch: Fail: %s\n", pmErrStr(sts));
+	else {
+	    __pmDumpResult(stdout, rp);
+	    pmFreeResult(rp);
+	}
+    }
+#if PMAPI_VERSION < 4
+    if (pmid != PM_ID_NULL) {
+	pmHighResResult	*rp;
+	if ((sts = pmHighResFetch(1, &pmid, &rp)) < 0)
+	    printf("pmHighResFetch: Fail: %s\n", pmErrStr(sts));
+	else {
+	    __pmDumpHighResResult(stdout, rp);
+	    pmFreeHighResResult(rp);
+	}
+    }
+#endif
 
     /*
      * pmInDom tests ...

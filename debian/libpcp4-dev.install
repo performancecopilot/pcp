@@ -163,7 +163,6 @@ usr/share/man/man3/pmGetPMNSLocation.3.gz
 usr/share/man/man3/pmGetProgname.3.gz
 usr/share/man/man3/pmGetUsername.3.gz
 usr/share/man/man3/pmGetVersion.3.gz
-usr/share/man/man3/pmHighResFetch.3.gz
 usr/share/man/man3/pmIDStr.3.gz
 usr/share/man/man3/pmIDStr_r.3.gz
 usr/share/man/man3/pmID_build.3.gz

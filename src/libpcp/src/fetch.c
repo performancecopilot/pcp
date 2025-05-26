@@ -310,15 +310,6 @@ pmFetchHighRes(int numpmid, pmID *pmidlist, pmHighResResult **result)
     return sts;
 }
 
-/*
- * older name, maintained for backwards compatibility
- */
-int 
-pmHighResFetch(int numpmid, pmID *pmidlist, pmHighResResult **result)
-{
-    return pmFetchHighRes(numpmid, pmidlist, result);
-}
-
 int
 __pmFetchArchive(__pmContext *ctxp, __pmResult **result)
 {

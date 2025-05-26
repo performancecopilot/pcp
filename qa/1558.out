@@ -7,6 +7,8 @@ pmUseContext(0) <::> returns 0
 pmLookupName(1, name[0] sample.colour, ...) <::> returns 1 (pmid[0] 29.0.5)
 pmLookupDescs(1, desc[0] 29.0.5, ...) <::> returns 1
 pmLookupDesc(29.0.5, ...) <::> returns 0
+pmFetch(1, pmid[0] 29.0.5, ...) <::> returns 0
+pmFetch(1, pmid[0] 29.0.5, ...) <::> returns 0
 pmGetInDom(29.1, ...) <::> returns 3
 pmLookupInDom(29.1, blue) <::> returns 2
 pmNameInDom(29.1, 2, ...) <::> returns 0 (name blue)
@@ -37,6 +39,16 @@ origin: NOW
 pmLookupName: OK: sample.colour -> 29.0.5
 pmID_*: OK 29.0.5
 pmInDom_*: OK 29.1
+pmResult ... numpmid: 1
+  29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value NUMBER
+    inst [1 or "green"] value NUMBER
+    inst [2 or "blue"] value NUMBER
+pmResult ... numpmid: 1
+  29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value NUMBER
+    inst [1 or "green"] value NUMBER
+    inst [2 or "blue"] value NUMBER
 pm*InDom*: OK
 timeval functions ...
 pmtimeval*: OK
@@ -44,9 +56,17 @@ timespec functions ...
 pmtimespec*: OK
 --- PMAPI_VERSION_4 ---
 > pmSetMode(mode=LIVE, when=NOW, delta=1s) direction=1 <::> returns 0
+6d6
+< pmFetch(1, pmid[0] 29.0.5, ...) <::> returns 0
 <     version: 2
 ---
 >     version: 4
+28,32d27
+< pmResult ... numpmid: 1
+<   29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
+<     inst [0 or "red"] value NUMBER
+<     inst [1 or "green"] value NUMBER
+<     inst [2 or "blue"] value NUMBER
 
 === -a archives/omnibus_v3 -z -S +2msec -O +3msec -t 0.1 -T 5sec ===
 --- PMAPI_VERSION_2 ---
@@ -57,6 +77,9 @@ pmGetArchiveEnd() <::> returns 0 end=16:51:04.732225623
 pmLookupName(1, name[0] sample.colour, ...) <::> returns 1 (pmid[0] 29.0.5)
 pmLookupDescs(1, desc[0] 29.0.5, ...) <::> returns 1
 pmLookupDesc(29.0.5, ...) <::> returns 0
+pmFetch(1, pmid[0] 29.0.5, ...) <::> returns 0
+pmFetch(1, pmid[0] 29.0.5, ...) <:pmGetArchiveEnd() <::> returns 0 end=16:51:04.732225623
+:> returns 0
 pmGetInDomArchive(29.1,...) <::> returns 3
 pmLookupInDomArchive(29.1, blue) <::> returns 2
 pmNameInDomArchive(29.1, 2, ...) <::> returns 0 (name blue)
@@ -89,9 +112,25 @@ Options structure dump:
 pmLookupName: OK: sample.colour -> 29.0.5
 pmID_*: OK 29.0.5
 pmInDom_*: OK 29.1
+pmResult ... numpmid: 1
+  29.0.5 (sample.dupnames.four.colour, sample.colour): No values returned!
+pmResult ... numpmid: 1
+  29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value NUMBER
+    inst [1 or "green"] value NUMBER
+    inst [2 or "blue"] value NUMBER
 pm*InDomArchive*: OK
 --- PMAPI_VERSION_4 ---
 > pmSetMode(mode=INTERP, when=NOW, delta=1s) direction=1 <::> returns 0
+9,10d9
+< pmFetch(1, pmid[0] 29.0.5, ...) <:pmGetArchiveEnd() <::> returns 0 end=16:51:04.732225623
+< :> returns 0
 <     version: 2
 ---
 >     version: 4
+32,36d31
+< pmResult ... numpmid: 1
+<   29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
+<     inst [0 or "red"] value NUMBER
+<     inst [1 or "green"] value NUMBER
+<     inst [2 or "blue"] value NUMBER

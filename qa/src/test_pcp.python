@@ -111,15 +111,6 @@ def test_pcp(self):
         print("pmFetchHighRes: ", error)
         self.assertTrue(False)
 
-    # pmHighResFetch (deprecated, but still supported)
-    try:
-        results = ctx.pmHighResFetch(self.ncpu_id)
-        print("pmHighResFetch:", results)
-        self.assertTrue(True)
-    except pmapi.pmErr as error:
-        print("pmHighResFetch: ", error)
-        self.assertTrue(False)
-
     # pmExtractValue
     print("tv_sec", results.contents.get_sec())
     print("tv_nsec", results.contents.get_nsec())
