@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2017 Red Hat.
+ * Copyright (c) 2014-2017,2025 Red Hat.
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -25,5 +25,11 @@
 
 /* pointer size */
 #undef HAVE_64BIT_PTR
+
+/* __pmResult padding */
+#undef PM_PAD_RESULT
+
+/* timespec padding */
+#undef PM_PAD_TIMESPEC
 
 #endif /* PCP_CONFIGSZ_H */
