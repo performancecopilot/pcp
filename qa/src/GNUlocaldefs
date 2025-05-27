@@ -308,7 +308,7 @@ diowr:	diowr.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ diowr.c
 
-endian:	endian.c
+endian:	endian.c localconfig.h
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ endian.c
 
@@ -340,15 +340,15 @@ exercise:	exercise.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ exercise.c $(LDLIBS)
 
-chkacc1:	chkacc1.c
+chkacc1:	chkacc1.c localconfig.h
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ chkacc1.c $(LDLIBS)
 
-chkacc2:	chkacc2.c
+chkacc2:	chkacc2.c localconfig.h
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ chkacc2.c $(LDLIBS)
 
-chkacc3:	chkacc3.c
+chkacc3:	chkacc3.c localconfig.h
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ chkacc3.c $(LDLIBS)
 
@@ -522,7 +522,7 @@ pmdashutdown:	pmdashutdown.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS) -lpcp_pmda
 
-dumb_pmda: dumb_pmda.c
+dumb_pmda: dumb_pmda.c localconfig.h
 	$(CCF) $(LCDEFS) $(LCOPTS) -o $@ $@.c $(LDLIBS) -lpcp_pmda
 
 pmdacache: pmdacache.c
@@ -666,7 +666,7 @@ else
 	$(CCF) $(CDEFS) -o $@ $@.c $(LIB_FOR_PTHREADS) $(LDLIBS)
 endif
 
-multithread2:	multithread2.c
+multithread2:	multithread2.c localconfig.h
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $@.c $(LIB_FOR_PTHREADS) $(LDLIBS)
 
@@ -819,7 +819,6 @@ $(NVIDIAQALIB):	nvidia-ml.o
 endif
 
 arch_maxfd.o:	localconfig.h
-scale.o:	localconfig.h
 
 779246.o:	libpcp.h
 aggrstore.o:	libpcp.h
@@ -880,14 +879,14 @@ multithread14.o:	libpcp.h
 nameall.o:	libpcp.h
 parsehostattrs.o:	libpcp.h
 parsehostspec.o:	libpcp.h
-pdubufbounds.o:	libpcp.h
-pducheck.o:	libpcp.h
+pdubufbounds.o:	libpcp.h localconfig.h
+pducheck.o:	libpcp.h localconfig.h
 pducrash.o:	libpcp.h
-pdu-server.o:	libpcp.h
+pdu-server.o:	libpcp.h localconfig.h
 pmcdgone.o:	libpcp.h
 pmlcmacro.o:	libpcp.h
 pmnsinarchives.o:	libpcp.h
-pmnsunload.o:	libpcp.h
+pmnsunload.o:	libpcp.h localconfig.h
 proc_test.o:	libpcp.h
 qa_libpcp_compat.o:	libpcp.h
 qa_timezone.o:	libpcp.h
@@ -907,6 +906,7 @@ torture_pmns.o:	libpcp.h
 tztest.o:	libpcp.h
 unpack.o:	libpcp.h
 unpickargs.o:	libpcp.h
+username.o:	localconfig.h
 xarch.o:	libpcp.h
 xlog.o:	libpcp.h
 xmktime.o:	libpcp.h
