@@ -467,10 +467,11 @@ pass0(FILE *fpipe)
 #else
     if ((tmpfname = tmpnam(NULL)) != NULL)
 	fd = open(tmpfname, O_RDWR|O_CREAT|O_EXCL, 0600);
+    else
+	fd = -1;
 #endif
-    if (fd >= 0)
-	fp = fdopen(fd, "w+");
-    if (fd < 0 || fp == NULL) {
+    fp = (fd >= 0) ? fdopen(fd, "w+") : NULL;
+    if (fp == NULL) {
 	fprintf(stderr, "\nError: failed create temporary config file (%s)\n", tmpfname);
 	fprintf(stderr, "Reason? %s\n", osstrerror());
 	(void)unlink(tmpfname);
