@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014,2016 Red Hat.
+ * Copyright (c) 2014,2016,2025 Red Hat.
  * Headers for "multilib" support (32-bit and 64-bit packages co-existing)
  *
  * This library is free software; you can redistribute it and/or modify it
@@ -19,5 +19,7 @@
 #define HAVE_32BIT_LONG 1
 #define HAVE_32BIT_PTR 1
 /* #undef HAVE_64BIT_PTR */
+#define PM_PAD_RESULT 4
+#define PM_PAD_TIMESPEC 4
 
 #endif /* PCP_CONFIG32_H */
