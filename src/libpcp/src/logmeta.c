@@ -1073,18 +1073,15 @@ __pmLogLookupDesc(__pmArchCtl *acp, pmID pmid, pmDesc *dp)
 int
 __pmLogPutDesc(__pmArchCtl *acp, const pmDesc *dp, int numnames, char **names)
 {
-    __pmLogCtl		*lcp = acp->ac_log;
-    __pmFILE		*f = lcp->mdfp;
     pmDesc		*tdp;
     int			olen;		/* length to write out */
     int			i, sts, len;
-    typedef struct {			/* skeletal external record */
+    struct external {			/* skeletal external record */
 	__pmLogHdr	hdr;
 	pmDesc		desc;
 	int		numnames;	/* not present if numnames == 0 */
 	char		data[0];	/* will be expanded */
-    } ext_t;
-    ext_t	*out;
+    } *out;
 
     len = sizeof(__pmLogHdr) + sizeof(pmDesc) + LENSIZE;
     if (numnames > 0) {
@@ -1093,7 +1090,7 @@ __pmLogPutDesc(__pmArchCtl *acp, const pmDesc *dp, int numnames, char **names)
             len += LENSIZE + (int)strlen(names[i]);
     }
 PM_FAULT_POINT("libpcp/" __FILE__ ":10", PM_FAULT_ALLOC);
-    if ((out = (ext_t *)calloc(1, len)) == NULL)
+    if ((out = (struct external *)calloc(1, len)) == NULL)
 	return -oserror();
 
     out->hdr.len = htonl(len);
@@ -1122,23 +1119,14 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":10", PM_FAULT_ALLOC);
 	memmove((void *)op, &out->hdr.len, sizeof(out->hdr.len));
     }
     else {
-	/* no names, trailer length lands on numnames in ext_t */
+	/* no names, trailer length lands on numnames in external struct */
 	out->numnames = out->hdr.len;
     }
 
-    if ((sts = __pmFwrite(out, 1, len, f)) != len) {
-	char	strbuf[20];
-	char	errmsg[PM_MAXERRMSGLEN];
-	pmprintf("__pmLogPutDesc(...,pmid=%s,name=%s): write failed: returned %d expecting %d: %s\n",
-	    pmIDStr_r(dp->pmid, strbuf, sizeof(strbuf)),
-	    numnames > 0 ? names[0] : "<none>", len, sts,
-	    osstrerror_r(errmsg, sizeof(errmsg)));
-	pmflush();
-	free(out);
-	return -oserror();
-    }
-
+    sts = acp->ac_write_cb(acp, PM_LOG_VOL_META, out, len, __FUNCTION__);
     free(out);
+    if (sts < 0)
+	return sts;
 
     /*
      * need to make a copy of the pmDesc, and add this, since caller
@@ -1148,7 +1136,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":5", PM_FAULT_ALLOC);
     if ((tdp = (pmDesc *)malloc(sizeof(pmDesc))) == NULL)
 	return -oserror();
     *tdp = *dp;		/* struct assignment */
-    return __pmHashAdd((int)dp->pmid, (void *)tdp, &lcp->hashpmid);
+    return __pmHashAdd((int)dp->pmid, (void *)tdp, &acp->ac_log->hashpmid);
 }
 
 void
@@ -1471,25 +1459,23 @@ int
 __pmLogPutText(__pmArchCtl *acp, unsigned int ident, unsigned int type,
 		char *buffer, int cached)
 {
-    __pmLogCtl		*lcp = acp->ac_log;
     char		*ptr;
     int			sts, len, textlen;
-    typedef struct {
+    struct external {
 	__pmLogHdr	hdr;
 	int		type;
 	int		ident;
 	char		data[0];
-    } ext_t;
-    ext_t		*out;
+    } *out;
 
     assert(type & (PM_TEXT_HELP|PM_TEXT_ONELINE));
     assert(type & (PM_TEXT_PMID|PM_TEXT_INDOM));
 
     textlen = strlen(buffer) + 1;
-    len = (int)sizeof(ext_t) + textlen + LENSIZE;
+    len = (int)sizeof(struct external) + textlen + LENSIZE;
 
 PM_FAULT_POINT("libpcp/" __FILE__ ":14", PM_FAULT_ALLOC);
-    if ((out = (ext_t *)malloc(len)) == NULL)
+    if ((out = (struct external *)malloc(len)) == NULL)
 	return -oserror();
 
     /* swab all output fields */
@@ -1506,16 +1492,10 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":14", PM_FAULT_ALLOC);
     ptr += textlen;
     memmove((void *)ptr, &out->hdr.len, sizeof(out->hdr.len));
 
-    if ((sts = __pmFwrite(out, 1, len, lcp->mdfp)) != len) {
-	char	errmsg[PM_MAXERRMSGLEN];
-
-	pmprintf("__pmLogPutText(...ident,=%d,type=%d): write failed: returned %d expecting %d: %s\n",
-		ident, type, sts, len, osstrerror_r(errmsg, sizeof(errmsg)));
-	pmflush();
-	free(out);
-	return -oserror();
-    }
+    sts = acp->ac_write_cb(acp, PM_LOG_VOL_META, out, len, __FUNCTION__);
     free(out);
+    if (sts < 0)
+	return sts;
 
     if (!cached)
 	return 0;
