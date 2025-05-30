@@ -33,7 +33,7 @@ extern void __pmPrintHighResStamp(FILE *, const struct timespec *);
 extern int __pmPathSeparator(void);
 extern int __pmGetUsername(char **);
 extern int __pmSetProcessIdentity(const char *);
-extern void pmFreeHighResResult(pmHighResResult *);
+extern void pmFreeResult(pmResult *);
 extern char __pmSpecLocalPMDA(const char *);
 
 #else
@@ -81,7 +81,7 @@ main(int argc, char **argv)
     struct timeval	b;
     struct timespec	x;
     double		t;
-    pmHighResResult	*rp;
+    pmResult	*rp;
     char		buf[1024];
     char		*pcp_pmdas_dir;
     char		*dso_suffix;
@@ -188,15 +188,15 @@ main(int argc, char **argv)
     if (u != NULL) printf("OK\n");
     else printf("FAIL sts=%d u==NULL\n", sts);
 
-    printf("pmFreeHighResResult test:\n");
+    printf("pmFreeResult test:\n");
     fflush(stdout);
-    rp = (pmHighResResult *)malloc(sizeof(*rp));
+    rp = (pmResult *)malloc(sizeof(*rp));
     rp->timestamp.tv_sec = 1;
     rp->timestamp.tv_nsec = 123456789;
     rp->numpmid = 0;
     /* nothing to test here, just diags */
     pmSetDebug("pdubuf,alloc");
-    pmFreeHighResResult(rp);
+    pmFreeResult(rp);
 
     printf("pmSpecLocalPMDA test:\n");
     fflush(stdout);

@@ -1179,7 +1179,7 @@ class DstatTool(object):
         elif plugin.name in ['time', 'time-adv']:    # formatted time
             value = stamp().strftime(TIMEFMT)
         if plugin.name in ['epoch-adv', 'time-adv']: # with milliseconds
-            value = value + '.' + str(stamp.value.tv_usec * 1000)[:3]
+            value = value + '.' + str(stamp.value.tv_nsec * 1000000)[:3]
         return value
 
     @staticmethod

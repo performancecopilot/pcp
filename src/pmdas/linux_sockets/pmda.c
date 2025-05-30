@@ -76,7 +76,7 @@ sockets_fetch_refresh(pmdaExt *pmda, int *need_refresh)
 }
 
 static int
-sockets_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
+sockets_fetch(int numpmid, pmID pmidlist[], pmdaResult **resp, pmdaExt *pmda)
 {
     int i, sts, need_refresh[NUM_CLUSTERS] = { 0 };
 
@@ -174,7 +174,7 @@ sockets_check_filter(const char *string)
 }
 
 static int
-sockets_store(pmResult *result, pmdaExt *pmda)
+sockets_store(pmdaResult *result, pmdaExt *pmda)
 {
     int i;
     int sts = 0;

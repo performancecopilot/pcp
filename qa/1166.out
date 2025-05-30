@@ -22,9 +22,9 @@ Stamp: (expect 01:02:03.456) 01:02:03.456
 HighResStamp: (expect 02:01:00.123456789) 02:01:00.123456789
 __pmPathSeparator test: OK
 __pmGetUsername test: OK
-pmFreeHighResResult test:
-pmFreeHighResResult(ADDR) (0 in pool)
-__pmFreeHighResResultValues(ADDR) numpmid=0
+pmFreeResult test:
+pmFreeResult(ADDR) (0 in pool)
+__pmFreeResultValues(ADDR) numpmid=0
 pmSpecLocalPMDA test:
 Expected error: pmSpecLocal(foo): bad op in spec
 pmSpecLocal(clear): OK
@@ -55,9 +55,9 @@ Stamp: (expect 01:02:03.456) 01:02:03.456
 HighResStamp: (expect 02:01:00.123456789) 02:01:00.123456789
 __pmPathSeparator test: OK
 __pmGetUsername test: OK
-pmFreeHighResResult test:
-pmFreeHighResResult(ADDR) (0 in pool)
-__pmFreeHighResResultValues(ADDR) numpmid=0
+pmFreeResult test:
+pmFreeResult(ADDR) (0 in pool)
+__pmFreeResultValues(ADDR) numpmid=0
 pmSpecLocalPMDA test:
 Expected error: pmSpecLocal(foo): bad op in spec
 pmSpecLocal(clear): OK

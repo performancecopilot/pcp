@@ -118,7 +118,7 @@ print_events(FILE *f, pmValueSet *vsp, int inst, int highres)
     setup_event_derived_metrics();
 
     if (highres) {
-	pmHighResResult	**hr;
+	pmResult	**hr;
 
 	if ((nrecords = pmUnpackHighResEventRecords(vsp, inst, &hr)) < 0) {
 	    fprintf(stderr, "%s: pmUnpackHighResEventRecords: %s\n",
@@ -137,7 +137,7 @@ print_events(FILE *f, pmValueSet *vsp, int inst, int highres)
 	pmFreeHighResEventResult(hr);
     }
     else {
-	pmResult	**res;
+	pmResult_v2	**res;
 
 	if ((nrecords = pmUnpackEventRecords(vsp, inst, &res)) < 0) {
 	    fprintf(stderr, "%s: pmUnpackEventRecords: %s\n",

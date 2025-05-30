@@ -262,7 +262,7 @@ test_api(void)
     int			n;
     int			numpmid = MAXNAMES;
     char		**names;
-    pmHighResResult	*resp;
+    pmResult		*resp;
     pmDesc		desc;
 
     _op++;
@@ -455,15 +455,15 @@ test_api(void)
 		_op++;
                 if (vflag)
                     printf("Fetch of %s:\n", namelist[i]);
-		if ((n = pmFetchHighRes(1, &midlist[i], &resp)) < 0) {
+		if ((n = pmFetch(1, &midlist[i], &resp)) < 0) {
 		    _err++;
-		    printf("Archive pmFetchHighRes: %s\n", pmErrStr(n));
+		    printf("Archive pmFetch: %s\n", pmErrStr(n));
 		}
 		else {
 		    if (vflag)
-			__pmDumpHighResResult(stdout, resp);
+			__pmDumpResult(stdout, resp);
 		    _op++;
-		    pmFreeHighResResult(resp);
+		    pmFreeResult(resp);
 		}
 	    }
   	}/*for*/
@@ -477,17 +477,17 @@ test_api(void)
 	}
 	else {
 	    _op++;
-	    if ((n = pmFetchHighRes(numpmid, midlist, &resp)) < 0) {
+	    if ((n = pmFetch(numpmid, midlist, &resp)) < 0) {
 		_err++;
-		printf("real-time pmFetchHighRes: %s\n", pmErrStr(n));
+		printf("real-time pmFetch: %s\n", pmErrStr(n));
 	    }
 	    else {
 		if (vflag) {
 		    printf("\nReal-time result ...\n");
-		    __pmDumpHighResResult(stdout, resp);
+		    __pmDumpResult(stdout, resp);
 		}
 		_op++;
-		pmFreeHighResResult(resp);
+		pmFreeResult(resp);
 	    }
 	}
     }

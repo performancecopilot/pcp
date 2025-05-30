@@ -42,8 +42,8 @@ main(int argc, char **argv)
     int		verbose = 0;
     int		quick = 0;
     char	*host = NULL;			/* pander to gcc */
-    pmHighResResult	*result;
-    pmHighResResult	*prev = NULL;
+    pmResult	*result;
+    pmResult	*prev = NULL;
     struct timespec	start = { 0,0 };
     struct timespec	end;
     int		tzh;
@@ -190,7 +190,7 @@ Options\n\
 	}
 	start.tv_sec = result->timestamp.tv_sec;
 	start.tv_nsec = result->timestamp.tv_nsec;
-	pmFreeHighResResult(result);
+	pmFreeResult(result);
     }
 
     if (quick && e_sts == 0) {
@@ -200,7 +200,7 @@ Options\n\
 	    if (sts >= 0) {
 		start.tv_sec = result->timestamp.tv_sec;
 		start.tv_nsec = result->timestamp.tv_nsec;
-		pmFreeHighResResult(result);
+		pmFreeResult(result);
 	    }
 	}
     }
@@ -216,7 +216,7 @@ Options\n\
     }
     while ((sts = pmFetchHighResArchive(&result)) >= 0) {
 	if (prev != NULL)
-	    pmFreeHighResResult(prev);
+	    pmFreeResult(prev);
 	prev = result;
     }
     if (verbose) printf("pmFetchArchive: %s\n", pmErrStr(sts));
@@ -238,7 +238,7 @@ Options\n\
 	    printf("\n");
 	    e_sts = 1;
 	}
-	pmFreeHighResResult(prev);
+	pmFreeResult(prev);
     }
 
     exit(e_sts);

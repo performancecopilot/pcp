@@ -192,7 +192,7 @@ root_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt 
 }
 
 static int
-root_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
+root_fetch(int numpmid, pmID pmidlist[], pmdaResult **resp, pmdaExt *pmda)
 {
     root_refresh_container_indom();
     return pmdaFetch(numpmid, pmidlist, resp, pmda);

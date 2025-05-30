@@ -327,7 +327,7 @@ dump_event(int numnames, char **names, pmValueSet *vsp, int _index, int indom, i
     printf(": ");
 
     if (highres) {
-	pmHighResResult	**hr;
+	pmResult	**hr;
 
 	if ((nrecords = pmUnpackHighResEventRecords(vsp, _index, &hr)) < 0)
 	    return;
@@ -359,7 +359,7 @@ dump_event(int numnames, char **names, pmValueSet *vsp, int _index, int indom, i
 	pmFreeHighResEventResult(hr);
     }
     else {
-	pmResult	**res;
+	pmResult_v2	**res;
 
 	if ((nrecords = pmUnpackEventRecords(vsp, _index, &res)) < 0)
 	    return;

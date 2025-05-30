@@ -340,7 +340,6 @@ extern int pmStore_ctx(__pmContext *, const __pmResult *) _PCP_HIDDEN;
 extern int __pmSendResult_ctx(__pmContext *, int, int, const __pmResult *) _PCP_HIDDEN;
 extern int __pmSendHighResResult_ctx(__pmContext *, int, int, const __pmResult *) _PCP_HIDDEN;
 extern void __pmDumpResult_ctx(__pmContext *, FILE *, const pmResult *) _PCP_HIDDEN;
-extern void __pmDumpHighResResult_ctx(__pmContext *, FILE *, const pmHighResResult *) _PCP_HIDDEN;
 extern void __pmPrintResult_ctx(__pmContext *, FILE *, const __pmResult *) _PCP_HIDDEN;
 extern int pmGetArchiveEnd_ctx(__pmContext *, __pmTimestamp *) _PCP_HIDDEN;
 extern int __pmGetArchiveEnd_ctx(__pmContext *, __pmTimestamp *) _PCP_HIDDEN;
@@ -454,5 +453,17 @@ extern void __pmParseTimeWindow3(pmOptions *,
 			struct timespec *, struct timespec *) _PCP_HIDDEN;
 extern void __pmSetSampleInterval2(pmOptions *, char *) _PCP_HIDDEN;
 extern void __pmSetSampleInterval3(pmOptions *, char *) _PCP_HIDDEN;
+
+/*
+ * PMAPI_VERSION_2 interfaces
+ */
+extern void __pmDumpResult_ctx_v2(__pmContext *, FILE *, const pmResult_v2 *) _PCP_HIDDEN;
+
+#if PMAPI_VERSION >= PMAPI_VERSION_4
+/*
+ * retire HighRes interfaces
+ */
+#define __pmDumpHighResResult_ctx __pmDumpResult_ctx
+#endif
 
 #endif /* _LIBPCP_INTERNAL_H */

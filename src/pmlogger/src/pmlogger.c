@@ -819,7 +819,7 @@ main(int argc, char **argv)
     char		*exit_msg;
     const char		*names[2] = { "pmcd.timezone", "pmcd.zoneinfo" };;
     pmID		pmids[2];
-    pmHighResResult	*resp;
+    pmResult		*resp;
     pmValueSet		*vp;
     struct timespec	myepoch;
     struct timespec	ts;
@@ -1439,7 +1439,7 @@ main(int argc, char **argv)
     if (sts >= 0)
 	sts = pmLookupName(2, names, pmids);
     if (sts >= 0)
-	sts = pmFetchHighRes(2, pmids, &resp);
+	sts = pmFetch(2, pmids, &resp);
     if (sts >= 0) {
 	vp = resp->vset[0];
 	if (vp->numval > 1) { /* pmcd.zoneinfo present */
@@ -1462,7 +1462,7 @@ main(int argc, char **argv)
 		    "main: Could not get timezone from host %s\n",
 		    pmcd_host);
 	}
-	pmFreeHighResResult(resp);
+	pmFreeResult(resp);
     }
 
     /* do ParseTimeWindow stuff for -T */

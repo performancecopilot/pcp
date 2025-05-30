@@ -29,8 +29,8 @@ main(int argc, char **argv)
     char	*host = NULL;			/* pander to gcc */
     pmLogLabel	label;			/* get hostname for archives */
     char	*namespace = PM_NS_DEFAULT;
-    pmHighResResult	*result;
-    pmHighResResult	*prev;
+    pmResult	*result;
+    pmResult	*prev;
     struct timespec	end;
     int		numpmid = 3;
     char	*name[] = { "sample.seconds", "sample.drift", "sample.milliseconds" };
@@ -139,7 +139,7 @@ Options\n\
 	printf("last result time (direct): ");
 	printstamp(&result->timestamp);
 	printf("\n");
-	pmFreeHighResResult(result);
+	pmFreeResult(result);
     }
     printf("required %d log reads\n", __pmLogReads);
     __pmLogReads = 0;
@@ -160,13 +160,13 @@ Options\n\
 	printf("last result time (indirect): ");
 	printstamp(&result->timestamp);
 	printf("\n");
-	pmFreeHighResResult(result);
+	pmFreeResult(result);
     }
     printf("required %d log reads\n", __pmLogReads);
     __pmLogReads = 0;
 
     putchar('\n');
-    prev = (pmHighResResult *)0;
+    prev = (pmResult *)0;
     end.tv_sec = 0;
     sts = pmSetMode(PM_MODE_FORW, &end, 0);
     if (sts < 0) {
@@ -174,19 +174,19 @@ Options\n\
 	exit(1);
     }
     while ((sts = pmFetchHighResArchive(&result)) >= 0) {
-	if (prev != (pmHighResResult *)0)
-	    pmFreeHighResResult(prev);
+	if (prev != (pmResult *)0)
+	    pmFreeResult(prev);
 	prev = result;
     }
     printf("pmFetchHighResArchive: %s\n", pmErrStr(sts));
-    if (prev == (pmHighResResult *)0) {
+    if (prev == (pmResult *)0) {
 	printf("no results!\n");
     }
     else {
 	printf("last result time (serial): ");
 	printstamp(&prev->timestamp);
 	printf("\n");
-	pmFreeHighResResult(prev);
+	pmFreeResult(prev);
     }
     printf("required %d log reads\n", __pmLogReads);
     __pmLogReads = 0;

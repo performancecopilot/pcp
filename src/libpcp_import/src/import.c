@@ -1141,7 +1141,7 @@ pmiHighResWrite(int64_t sec, int nsec)
 }
 
 int
-pmiPutResult(const pmResult *result)
+pmiPutResult(const pmResult_v2 *result)
 {
     __pmResult	*rp;
     int		sts, i;
@@ -1173,7 +1173,7 @@ pmiPutResult(const pmResult *result)
 }
 
 int
-pmiPutHighResResult(const pmHighResResult *result)
+pmiPutHighResResult(const pmResult *result)
 {
     __pmResult	*rp;
     int		sts, i;

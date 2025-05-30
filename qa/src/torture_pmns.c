@@ -276,7 +276,7 @@ test_api(void)
     char		**allnames;
     int			n;
     char		*back;
-    pmHighResResult		*resp;
+    pmResult		*resp;
     pmDesc		desc;
     struct timespec	delta = { 1, 0 };
     
@@ -443,13 +443,13 @@ test_api(void)
 	    else {
                 if (vflag)
                     printf("Fetch of %s:\n", namelist[i]);
-		if ((n = pmFetchHighRes(1, &midlist[i], &resp)) < 0) {
+		if ((n = pmFetch(1, &midlist[i], &resp)) < 0) {
 		    printf("Archive pmFetch: %s\n", pmErrStr(n));
 		}
 		else {
 		    if (vflag)
-			__pmDumpHighResResult(stdout, resp);
-		    pmFreeHighResResult(resp);
+			__pmDumpResult(stdout, resp);
+		    pmFreeResult(resp);
 		}
 	    }
   	}/*for*/
@@ -460,15 +460,15 @@ test_api(void)
 	    printf("pmSetMode(PM_MODE_LIVE): %s\n", pmErrStr(n));
 	}
 	else {
-	    if ((n = pmFetchHighRes(numpmid, midlist, &resp)) < 0) {
+	    if ((n = pmFetch(numpmid, midlist, &resp)) < 0) {
 		printf("real-time pmFetch: %s\n", pmErrStr(n));
 	    }
 	    else {
 		if (vflag) {
 		    printf("\nReal-time result ...\n");
-		    __pmDumpHighResResult(stdout, resp);
+		    __pmDumpResult(stdout, resp);
 		}
-		pmFreeHighResResult(resp);
+		pmFreeResult(resp);
 	    }
 	}
     }

@@ -105,8 +105,8 @@ main(int argc, char *argv[])
 
     /* Now store the new value then fetch it back to check */
     vsp->vlist[0].value.lval = timeout;
-    if ((sts = pmStore(result)) < 0) {
-	fprintf(stderr, "pmStore(pmcd.control.timeout): %s\n", pmErrStr(sts));
+    if ((sts = pmStoreHighRes(result)) < 0) {
+	fprintf(stderr, "pmStoreHighRes(pmcd.control.timeout): %s\n", pmErrStr(sts));
 	exit(1);
     }
     if ((sts = pmFetch(1, &timeoutPmid, &result)) < 0) {

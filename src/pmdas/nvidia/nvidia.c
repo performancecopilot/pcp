@@ -662,10 +662,10 @@ nvidia_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaEx
 /*
  * Wrapper for pmdaFetch which refresh the set of values once per fetch
  * PDU.  The fetchCallback is then called once per-metric/instance pair
- * to perform the actual filling of the pmResult (via each pmAtomValue).
+ * to perform the actual filling of the pmdaResult (via each pmAtomValue).
  */
 static int
-nvidia_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
+nvidia_fetch(int numpmid, pmID pmidlist[], pmdaResult **resp, pmdaExt *pmda)
 {
     int		i, item, cluster, need_processes = 0;
 

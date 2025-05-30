@@ -39,9 +39,7 @@ and
 .B pmFetchHighResArchive
 APIs are variants of the
 .BR pmFetch (3)
-and
-.BR pmFetchHighRes (3)
-interfaces that may only be used when the current
+interface that may only be used when the current
 Performance Metrics Application Programming Interface (PMAPI)
 context is associated with a set of archives.
 .PP
@@ -80,9 +78,7 @@ and
 will be used to create utilities that scan sets of archives,
 while the more common access to the archives would be via the
 .B pmFetch
-and
-.B pmFetchHighRes
-interfaces.
+interface.
 .PP
 To skip records within the set of archives, use
 .BR pmSetMode (3)
@@ -99,18 +95,14 @@ returned by both
 and
 .B pmFetchHighResArchive
 is dynamically allocated, and
-must be released using either
-.BR pmFreeResult (3)
-or
-.BR pmFreeHighResResult (3),
+must be released using
+.BR pmFreeResult (3),
 but not
 .BR free (3).
 See
 .BR pmFetch (3),
-.BR pmFetchHighRes (3),
-.BR pmFreeResult (3)
 and
-.BR pmFreeHighResResult (3)
+.BR pmFreeResult (3)
 for further details.
 .PP
 Both
@@ -123,8 +115,6 @@ returns zero on success.
 the current PMAPI context is not associated with a set of archives
 .SH SEE ALSO
 .BR PMAPI (3),
-.BR pmFetchHighRes (3),
-.BR pmFreeHighResResult (3),
 .BR pmFetch (3),
 .BR pmFreeResult (3),
 .BR pmNewContext (3),

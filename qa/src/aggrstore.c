@@ -105,7 +105,7 @@ main(int argc, char **argv)
     res->vset[0]->vlist[0].value.pval->vlen = len + PM_VAL_HDR_SIZE;
     memcpy(res->vset[0]->vlist[0].value.pval->vbuf, argv[optind+1], len);
 
-    if ((n = pmStore(res)) < 0) {
+    if ((n = pmStoreHighRes(res)) < 0) {
 	printf("pmStore: %s\n", pmErrStr(n));
 	exit(1);
     }

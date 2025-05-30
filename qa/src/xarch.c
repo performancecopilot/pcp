@@ -17,7 +17,7 @@ static const char *namelist[20];
 static const struct timespec microsec = { 0, 1000 };
 
 static void
-cmpres(int n, pmHighResResult *e, pmHighResResult *g)
+cmpres(int n, pmResult *e, pmResult *g)
 {
     int		i;
     int		j;
@@ -25,32 +25,32 @@ cmpres(int n, pmHighResResult *e, pmHighResResult *g)
 
     if (e->timestamp.tv_sec != g->timestamp.tv_sec ||
 	e->timestamp.tv_nsec != g->timestamp.tv_nsec) {
-	printf("[sample %d] pmHighResResult.timestamp: expected %lld.%09ld, got %lld.%09ld\n",
+	printf("[sample %d] pmResult.timestamp: expected %lld.%09ld, got %lld.%09ld\n",
 	    n, (long long)e->timestamp.tv_sec, (long)e->timestamp.tv_nsec,
 	    (long long)g->timestamp.tv_sec, (long)g->timestamp.tv_nsec);
 	goto FAILED;
     }
     if (e->numpmid != g->numpmid) {
-	printf("[sample %d] pmHighResResult.numpmid: expected %d, got %d\n",
+	printf("[sample %d] pmResult.numpmid: expected %d, got %d\n",
 	    n, e->numpmid, g->numpmid);
 	goto FAILED;
     }
 
     for (i = 0; i < e->numpmid; i++) {
 	if (e->vset[i]->pmid != g->vset[i]->pmid) {
-	    printf("[sample %d] pmHighResResult.vset[%d].pmid: expected %s",
+	    printf("[sample %d] pmResult.vset[%d].pmid: expected %s",
 			n, i, pmIDStr(e->vset[i]->pmid));
 	    printf(" got %s\n", pmIDStr(g->vset[i]->pmid));
 	    err++;
 	}
 	if (e->vset[i]->numval != g->vset[i]->numval) {
-	    printf("[sample %d] pmHighResResult.vset[%d].numval: expected %d, got %d\n",
+	    printf("[sample %d] pmResult.vset[%d].numval: expected %d, got %d\n",
 		n, i, e->vset[i]->numval, g->vset[i]->numval);
 	    err++;
 	    continue;
 	}
 	if (e->vset[i]->valfmt != g->vset[i]->valfmt) {
-	    printf("[sample %d] pmHighResResult.vset[%d].valfmt: expected %d, got %d\n",
+	    printf("[sample %d] pmResult.vset[%d].valfmt: expected %d, got %d\n",
 		n, i, e->vset[i]->valfmt, g->vset[i]->valfmt);
 	    err++;
 	    continue;
@@ -59,12 +59,12 @@ cmpres(int n, pmHighResResult *e, pmHighResResult *g)
 	    continue;
 	for (j = 0; j < e->vset[i]->numval; j++) {
 	    if (e->vset[i]->vlist[j].inst != g->vset[i]->vlist[j].inst) {
-		printf("[sample %d] pmHighResResult.vset[%d].vlist[%d].inst: expected %d, got %d\n",
+		printf("[sample %d] pmResult.vset[%d].vlist[%d].inst: expected %d, got %d\n",
 		n, i, j, e->vset[i]->vlist[j].inst, g->vset[i]->vlist[j].inst);
 		err++;
 	    }
 	    if (e->vset[i]->vlist[j].value.lval != g->vset[i]->vlist[j].value.lval) {
-		printf("[sample %d] pmHighResResult.vset[%d].vlist[%d].lval: expected %d, got %d\n",
+		printf("[sample %d] pmResult.vset[%d].vlist[%d].lval: expected %d, got %d\n",
 		n, i, j, e->vset[i]->vlist[j].value.lval, g->vset[i]->vlist[j].value.lval);
 		err++;
 	    }
@@ -76,9 +76,9 @@ cmpres(int n, pmHighResResult *e, pmHighResResult *g)
 
 FAILED:
     printf("Expected ...\n");
-    __pmDumpHighResResult(stdout, e);
+    __pmDumpResult(stdout, e);
     printf("Got ...\n");
-    __pmDumpHighResResult(stdout, g);
+    __pmDumpResult(stdout, g);
 }
 
 int
@@ -98,8 +98,8 @@ main(int argc, char **argv)
     int		done;
     int		resnum = 0;
     pmLogLabel	loglabel;
-    pmHighResResult	*resp;
-    pmHighResResult	**resvec = NULL;
+    pmResult	*resp;
+    pmResult	**resvec = NULL;
     struct timespec	when;
 
     pmSetProgname(argv[0]);
@@ -211,16 +211,16 @@ main(int argc, char **argv)
 
     printf("\nPass 1: forward scan\n");
     for (;;) {
-	if ((sts = pmFetchHighRes(numpmid, pmidlist, &resp)) < 0) {
+	if ((sts = pmFetch(numpmid, pmidlist, &resp)) < 0) {
 	    if (sts != PM_ERR_EOL)
-		printf("%s: pmFetchHighRes: %s\n", pmGetProgname(), pmErrStr(sts));
+		printf("%s: pmFetch: %s\n", pmGetProgname(), pmErrStr(sts));
 	    break;
 	}
 	resnum++;
-	resvec = (pmHighResResult **)realloc(resvec, resnum * sizeof(resvec[0]));
+	resvec = (pmResult **)realloc(resvec, resnum * sizeof(resvec[0]));
 	resvec[resnum - 1] = resp;
 	if (vflag)
-	    __pmDumpHighResResult(stdout, resp);
+	    __pmDumpResult(stdout, resp);
     }
     fflush(stderr);
     printf("Found %d samples\n", resnum);
@@ -236,9 +236,9 @@ main(int argc, char **argv)
 
     n = 0;
     for (;;) {
-	if ((sts = pmFetchHighRes(numpmid, pmidlist, &resp)) < 0) {
+	if ((sts = pmFetch(numpmid, pmidlist, &resp)) < 0) {
 	    if (sts != PM_ERR_EOL)
-		printf("%s: pmFetchHighRes: %s\n", pmGetProgname(), pmErrStr(sts));
+		printf("%s: pmFetch: %s\n", pmGetProgname(), pmErrStr(sts));
 	    break;
 	}
 	n++;
@@ -247,7 +247,7 @@ main(int argc, char **argv)
 	    exit(1);
 	}
 	cmpres(n, resvec[resnum - n], resp);
-	pmFreeHighResResult(resp);
+	pmFreeResult(resp);
     }
     fflush(stderr);
     printf("Found %d samples\n", n);
@@ -273,27 +273,27 @@ main(int argc, char **argv)
     n = 0;
     while (!done) {
 	pmUseContext(ctx[0]);
-	if ((sts = pmFetchHighRes(numpmid, pmidlist, &resp)) < 0) {
+	if ((sts = pmFetch(numpmid, pmidlist, &resp)) < 0) {
 	    if (sts != PM_ERR_EOL)
-		printf("%s: pmFetchHighRes: %s\n", pmGetProgname(), pmErrStr(sts));
+		printf("%s: pmFetch: %s\n", pmGetProgname(), pmErrStr(sts));
 	    done = 1;
 	}
 	else {
 	    n++;
 	    cmpres(n, resvec[n/2], resp);
-	    pmFreeHighResResult(resp);
+	    pmFreeResult(resp);
 	}
 
 	pmUseContext(ctx[1]);
-	if ((sts = pmFetchHighRes(numpmid, pmidlist, &resp)) < 0) {
+	if ((sts = pmFetch(numpmid, pmidlist, &resp)) < 0) {
 	    if (sts != PM_ERR_EOL)
-		printf("%s: pmFetchHighRes: %s\n", pmGetProgname(), pmErrStr(sts));
+		printf("%s: pmFetch: %s\n", pmGetProgname(), pmErrStr(sts));
 	    done = 1;
 	}
 	else {
 	    n++;
 	    cmpres(n, resvec[resnum - n/2], resp);
-	    pmFreeHighResResult(resp);
+	    pmFreeResult(resp);
 	}
     }
     fflush(stderr);
@@ -325,15 +325,15 @@ main(int argc, char **argv)
 
 	    n = i;
 	    for (;;) {
-		if ((sts = pmFetchHighRes(numpmid, pmidlist, &resp)) < 0) {
+		if ((sts = pmFetch(numpmid, pmidlist, &resp)) < 0) {
 		    if (sts != PM_ERR_EOL)
-			printf("%s: pmFetchHighRes: %s\n", pmGetProgname(), pmErrStr(sts));
+			printf("%s: pmFetch: %s\n", pmGetProgname(), pmErrStr(sts));
 		    break;
 		}
 		j++;
 		n++;
 		cmpres(j, resvec[n - 1], resp);
-		pmFreeHighResResult(resp);
+		pmFreeResult(resp);
 	    }
 	    fflush(stderr);
 	}
@@ -367,13 +367,13 @@ main(int argc, char **argv)
 	    }
 
 	    for (;;) {
-		if ((sts = pmFetchHighRes(numpmid, pmidlist, &resp)) < 0) {
+		if ((sts = pmFetch(numpmid, pmidlist, &resp)) < 0) {
 		    if (sts != PM_ERR_EOL)
-			printf("%s: pmFetchHighRes: %s\n", pmGetProgname(), pmErrStr(sts));
+			printf("%s: pmFetch: %s\n", pmGetProgname(), pmErrStr(sts));
 		    break;
 		}
 		cmpres(i, resvec[i], resp);
-		pmFreeHighResResult(resp);
+		pmFreeResult(resp);
 		i--;
 		j++;
 	    }
@@ -396,8 +396,8 @@ main(int argc, char **argv)
     }
     else {
 	printf("%s: pmFetchHighResArchive: unexpected success before start of log\n", pmGetProgname());
-	__pmDumpHighResResult(stdout, resp);
-	pmFreeHighResResult(resp);
+	__pmDumpResult(stdout, resp);
+	pmFreeResult(resp);
     }
 
     when.tv_sec = PM_MAX_TIME_T;
@@ -412,8 +412,8 @@ main(int argc, char **argv)
     }
     else {
 	printf("%s: pmFetchHighResArchive: unexpected success after end of log\n", pmGetProgname());
-	__pmDumpHighResResult(stdout, resp);
-	pmFreeHighResResult(resp);
+	__pmDumpResult(stdout, resp);
+	pmFreeResult(resp);
     }
 
     exit(0);

@@ -15,8 +15,7 @@
 .\"
 .TH PMFREERESULT 3 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmFreeResult\f1,
-\f3pmFreeHighResResult\f1, \- release storage allocated for performance metrics values
+\f3pmFreeResult\f1 \- release storage allocated for performance metrics values
 .SH "C SYNOPSIS"
 .ft 3
 .ad l
@@ -24,8 +23,6 @@
 #include <pcp/pmapi.h>
 .sp
 void pmFreeResult(pmResult *\fIresult\fP);
-.br
-void pmFreeHighResResult(pmHighResResult *\fIresult\fP);
 .sp
 cc ... \-lpcp
 .hy
@@ -38,8 +35,6 @@ cc ... \-lpcp
 ..
 The variable sized results returned by
 .BR pmFetch (3)
-and
-.BR pmFetchHighRes (3)
 are allocated below the
 Performance Metrics Application Programming Interface (PMAPI)
 using a combination of dynamic (i.e. \c
@@ -64,16 +59,25 @@ to release storage previously allocated for a
 .CR pmResult
 by
 .BR pmFetch (3).
+.SH COMPATIBILITY
+Prior to PCP 7.0 the
+.I timestamp
+field in the \f(CRpmResult\fP struct was a \f(CRstruct timeval\fP.
+To support PMAPI transition, the old interface and semantics can be
+used if applications are recompiled with
+.BR \-DPMAPI_VERSION=2 .
 .PP
-Similarly, memory allocated for the high resolution timestamped
-.I result
-structure returned from
-.BR pmFetchHighRes (3)
-should be released by a call to
-.BR pmFreeHighResResult .
+For a time in PCP 6.x there was a
+routine with the same semantics as the current
+.B pmFreeResult
+called
+.B pmFreeHighResResult
+although this is now deprecated and compile-time support for
+.B pmFreeHighResResult
+will be removed in a future release.
+
 .SH SEE ALSO
-.BR malloc (3),
 .BR PMAPI (3),
-.BR pmFetch (3)
+.BR malloc (3)
 and
-.BR pmFetchHighRes (3).
+.BR pmFetch (3).

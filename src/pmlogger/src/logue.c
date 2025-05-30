@@ -99,7 +99,7 @@ do_logue(int type)
     __pmPDU	*pb;
     pmAtomValue	atom;
     char	path[MAXPATHLEN];
-    pmHighResResult	*res_pmcd = NULL; /* values from pmcd */
+    pmResult	*res_pmcd = NULL; /* values from pmcd */
     __pmLogInDom	lid;
 
     /* start to build the internal __pmResult */
@@ -170,7 +170,7 @@ do_logue(int type)
 	    pmid[0] = PMID(2,0,23);	/* pmcd.pid */
 	    pmid[1] = PMID(2,0,24);	/* pmcd.seqnum */
 
-	    sts = pmFetchHighRes(2, pmid, &res_pmcd);
+	    sts = pmFetch(2, pmid, &res_pmcd);
 	    if (sts >= 0 && type == EPILOGUE) {
 		last_stamp.sec = res_pmcd->timestamp.tv_sec;
 		last_stamp.nsec = res_pmcd->timestamp.tv_nsec;
@@ -292,7 +292,7 @@ done:
     res->numpmid = 0;		/* don't free vset's */
     __pmFreeResult(res);
     if (res_pmcd != NULL)
-	pmFreeHighResResult(res_pmcd);
+	pmFreeResult(res_pmcd);
 
     return sts;
 }

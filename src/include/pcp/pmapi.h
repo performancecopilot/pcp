@@ -519,23 +519,26 @@ typedef struct pmValueSet {
 #define PM_VAL_DPTR	1	/* value.pval->vbuf is it, and dynamic alloc */
 #define PM_VAL_SPTR	2	/* value.pval->vbuf is it, and static alloc */
 
-
-/* Result returned by pmFetch() */
+/*
+ * Result returned by pmFetch() and high resolution event time
+ * result from pmUnpackEventRecords()
+ */
 typedef struct pmResult {
-    struct timeval	timestamp;	/* time stamped by collector */
+    struct timespec	timestamp;	/* time stamped by collector */
     int			numpmid;	/* number of PMIDs */
     pmValueSet		*vset[1];	/* set of value sets, one per PMID */
 } pmResult;
 
 /*
- * Result returned by pmFetchHighRes() and high resolution event timer
- * result from pmUnpackHighResEventRecords()
+ * old (prior to PCP 7.0) pmResult with timeval, not timespec
+ * ... still needed as alias for pmdaResult and qmcResult and
+ * old low resolution event time result for packing/unpacking routines
  */
-typedef struct pmHighResResult {
-    struct timespec	timestamp;	/* time stamped by collector */
+typedef struct pmResult_v2 {
+    struct timeval	timestamp;	/* time stamped by collector */
     int			numpmid;	/* number of PMIDs */
     pmValueSet		*vset[1];	/* set of value sets, one per PMID */
-} pmHighResResult;
+} pmResult_v2;
 
 /* Generic Union for Value-Type conversions */
 typedef union {
@@ -559,9 +562,6 @@ typedef union {
  * the number of metrics in the argument.  
  */
 PCP_CALL extern int pmFetch(int, pmID *, pmResult **);
-PCP_CALL extern int pmFetchHighRes(int, pmID *, pmHighResResult **);
-/* older name maintained for backwards compatibility */
-PCP_CALL extern int pmHighResFetch(int, pmID *, pmHighResResult **);
 
 /*
  * PMCD state changes returned as fetch function results for PM_CONTEXT_HOST
@@ -581,8 +581,8 @@ PCP_CALL extern int pmHighResFetch(int, pmID *, pmHighResResult **);
 /*
  * Variant that is used to return a result from an archive.
  */
-PCP_CALL extern int pmFetchArchive(pmResult **);
-PCP_CALL extern int pmFetchHighResArchive(pmHighResResult **);
+PCP_CALL extern int pmFetchArchive(pmResult_v2 **);
+PCP_CALL extern int pmFetchHighResArchive(pmResult **);
 
 /*
  * Support for metric values annotated with name:value pairs (labels).
@@ -708,7 +708,6 @@ PCP_CALL extern int pmGetArchiveLabel(pmLogLabel *);
 PCP_CALL extern int pmGetArchiveEnd(struct timespec *);
 
 /* Free result buffer */
-PCP_CALL extern void pmFreeHighResResult(pmHighResResult *);
 PCP_CALL extern void pmFreeResult(pmResult *);
 
 /* Value extract from pmValue and type conversion */
@@ -722,8 +721,8 @@ PCP_CALL extern int pmConvScale(int, const pmAtomValue *, const pmUnits *, pmAto
 		       const pmUnits *);
 
 /* Sort instances for each metric within a pmResult */
-PCP_CALL extern void pmSortInstances(pmResult *);
-PCP_CALL extern void pmSortHighResInstances(pmHighResResult *);
+PCP_CALL extern void pmSortInstances(pmResult_v2 *);
+PCP_CALL extern void pmSortHighResInstances(pmResult *);
 
 /* Adjust collection time and/or mode for pmFetch */
 PCP_CALL extern int pmSetMode(int, const struct timespec *, const struct timespec *);
@@ -733,8 +732,8 @@ PCP_CALL extern int pmSetMode(int, const struct timespec *, const struct timespe
 #define PM_MODE_BACK	3
 
 /* Modify the value of one or more metrics */
-PCP_CALL extern int pmStore(const pmResult *);
-PCP_CALL extern int pmStoreHighRes(const pmHighResResult *);
+PCP_CALL extern int pmStore(const pmResult_v2 *);
+PCP_CALL extern int pmStoreHighRes(const pmResult *);
 
 /* Get help and descriptive text */
 PCP_CALL extern int pmLookupText(pmID, int, char **);
@@ -1155,16 +1154,16 @@ typedef struct pmHighResEventArray {
 } pmHighResEventArray;
 
 /* Unpack a PM_TYPE_EVENT value into a set on pmResults */
-PCP_CALL extern int pmUnpackEventRecords(pmValueSet *, int, pmResult ***);
+PCP_CALL extern int pmUnpackEventRecords(pmValueSet *, int, pmResult_v2 ***);
 
 /* Free set of pmResults from pmUnpackEventRecords */
-PCP_CALL extern void pmFreeEventResult(pmResult **);
+PCP_CALL extern void pmFreeEventResult(pmResult_v2 **);
 
-/* Unpack a PM_TYPE_HIGHRES_EVENT value into a set on pmHighResResults */
-PCP_CALL extern int pmUnpackHighResEventRecords(pmValueSet *, int, pmHighResResult ***);
+/* Unpack a PM_TYPE_HIGHRES_EVENT value into a set on pmResults */
+PCP_CALL extern int pmUnpackHighResEventRecords(pmValueSet *, int, pmResult ***);
 
-/* Free set of pmHighResResults from pmUnpackEventRecords */
-PCP_CALL extern void pmFreeHighResEventResult(pmHighResResult **);
+/* Free set of pmResults from pmUnpackEventRecords */
+PCP_CALL extern void pmFreeHighResEventResult(pmResult **);
 
 /* Service discovery, for clients. */
 #define PM_SERVER_SERVICE_SPEC	"pmcd"
@@ -1451,6 +1450,9 @@ PCP_CALL extern int pmGetArchiveLabel_v2(pmLogLabel_v2 *);
 PCP_CALL extern int pmParseInterval_v2(const char *, struct timeval *, char **);
 PCP_CALL extern int pmSetMode_v2(int, const struct timeval *, int);
 
+PCP_CALL extern int pmFetch_v2(int, pmID *, pmResult_v2 **);
+PCP_CALL extern void pmFreeResult_v2(pmResult_v2 *);
+
 #if PMAPI_VERSION == PMAPI_VERSION_2
 /*
  * old names with API changes mapped to _v2 variants
@@ -1468,6 +1470,12 @@ PCP_CALL extern int pmSetMode_v2(int, const struct timeval *, int);
 #define pmGetArchiveLabel pmGetArchiveLabel_v2
 #define pmParseInterval pmParseInterval_v2
 #define pmSetMode pmSetMode_v2
+#define pmResult pmResult_v2
+#define pmHighResResult pmResult
+#define pmFetch pmFetch_v2
+#define pmFetchHighRes pmFetch
+#define pmFreeResult pmFreeResult_v2
+#define pmFreeHighResResult pmFreeResult
 
 /*
  * Extended time base definitions and macros
@@ -1479,7 +1487,7 @@ PCP_CALL extern int pmSetMode_v2(int, const struct timeval *, int);
 #endif
 
 /* bad name, preserved for Version 2 */
-#define pmHighResFetch pmFetchHighRes
+#define pmHighResFetch pmFetch
 
 #if PMAPI_VERSION >= PMAPI_VERSION_4
 /*
@@ -1490,6 +1498,8 @@ PCP_CALL extern int pmSetMode_v2(int, const struct timeval *, int);
 #define pmGetHighResArchiveLabel pmGetArchiveLabel
 #define pmParseHighResInterval pmParseInterval
 #define pmSetModeHighRes pmSetMode
+#define pmHighResResult pmResult
+#define pmFetchHighRes pmFetch
 #endif
 
 #ifdef __cplusplus

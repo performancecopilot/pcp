@@ -102,13 +102,13 @@ def test_pcp(self):
     except pmapi.pmErr as error:
         self.assertTrue(False)
 
-    # pmFetchHighRes
+    # pmFetch
     try:
-        results = ctx.pmFetchHighRes(self.ncpu_id)
-        print("pmFetchHighRes:", results)
+        results = ctx.pmFetch(self.ncpu_id)
+        print("pmFetch:", results)
         self.assertTrue(True)
     except pmapi.pmErr as error:
-        print("pmFetchHighRes: ", error)
+        print("pmFetch: ", error)
         self.assertTrue(False)
 
     # pmExtractValue
@@ -349,13 +349,13 @@ def test_pcp(self):
         print("pmParseUnitsStr: ", error)
         self.assertTrue(True)
 
-    # pmFetchHighRes
+    # second pmFetch for 4 metrics
     try:
-        results = ctx.pmFetchHighRes(self.metric_ids)
-        print("pmFetchHighRes:", results)
+        results = ctx.pmFetch(self.metric_ids)
+        print("pmFetch:", results)
         self.assertTrue(True)
     except pmapi.pmErr as error:
-        print("pmFetchHighRes: ", error)
+        print("pmFetch: ", error)
         self.assertTrue(False)
 
     # pmSortHighResInstances
@@ -490,9 +490,9 @@ def test_pcp(self):
                 "sample.double.bin * delta(sample.double.bin_ctr)")
         average = ctx.pmLookupName("pcpqa.derivation")
         descs = ctx.pmLookupDescs(average)
-        results = ctx.pmFetchHighRes(average)
+        results = ctx.pmFetch(average)
         ctx.pmtimespecSleep(delta)
-        results = ctx.pmFetchHighRes(average)
+        results = ctx.pmFetch(average)
         atom = ctx.pmExtractValue(results.contents.get_valfmt(0),
                                       results.contents.get_vlist(0, 0),
                                       descs[0].contents.type,
@@ -508,8 +508,8 @@ def test_pcp(self):
         self.assertTrue(True)
 
     # pmFreeResult
-    ctx.pmFreeHighResResult(results)
-    print("pmFreeHighResResult")
+    ctx.pmFreeResult(results)
+    print("pmFreeResult")
 
     del ctx
 

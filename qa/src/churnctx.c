@@ -105,7 +105,7 @@ main(int argc, char **argv)
     int		samples = 1;
     int		fetch_samples = 1;
     char	*endnum;
-    pmHighResResult	*rp;
+    pmResult	*rp;
     unsigned long	highwater = 0;
     char	*q;
     struct timespec delta = { 15, 0 };
@@ -505,7 +505,7 @@ Options:\n\
 		    fprintf(stderr, "Warning: pmAddProfile(...,%d) failed: %s\n", (iter % ninst)+1, pmErrStr(sts));
 		}
 	    }
-	    if ((sts = pmFetchHighRes(nmetric, pmid, &rp)) < 0) {
+	    if ((sts = pmFetch(nmetric, pmid, &rp)) < 0) {
 		fprintf(stderr, "%s: pmFetch failed: %s\n", pmGetProgname(), pmErrStr(sts));
 		exit(1);
 	    }
@@ -536,7 +536,7 @@ Options:\n\
 		    }
 		    putchar('\n');
 		}
-		pmFreeHighResResult(rp);
+		pmFreeResult(rp);
 	    }
 
 	    if (type != PM_CONTEXT_ARCHIVE) {

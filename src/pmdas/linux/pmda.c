@@ -10278,7 +10278,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
 
 static int
-linux_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
+linux_fetch(int numpmid, pmID pmidlist[], pmdaResult **resp, pmdaExt *pmda)
 {
     int		i, sts, need_refresh[NUM_REFRESHES] = {0};
 

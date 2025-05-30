@@ -155,7 +155,7 @@ logger_profile(pmProfile *prof, pmdaExt *pmda)
 }
 
 static int
-logger_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
+logger_fetch(int numpmid, pmID pmidlist[], pmdaResult **resp, pmdaExt *pmda)
 {
     pmdaEventNewClient(pmda->e_context);
     return pmdaFetch(numpmid, pmidlist, resp, pmda);
@@ -242,7 +242,7 @@ logger_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 }
 
 static int
-logger_store(pmResult *result, pmdaExt *pmda)
+logger_store(pmdaResult *result, pmdaExt *pmda)
 {
     int		i, j, sts;
 

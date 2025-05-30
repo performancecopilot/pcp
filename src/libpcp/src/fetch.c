@@ -275,14 +275,14 @@ pmFetch_ctx(__pmContext *ctxp, int numpmid, pmID *pmidlist, __pmResult **result)
 }
 
 int
-pmFetch(int numpmid, pmID *pmidlist, pmResult **result)
+pmFetch_v2(int numpmid, pmID *pmidlist, pmResult_v2 **result)
 {
     __pmResult	*rp;
     int		sts;
 
     sts = pmFetch_ctx(NULL, numpmid, pmidlist, &rp);
     if (sts >= 0) {
-	pmResult	*ans = __pmOffsetResult(rp);
+	pmResult_v2	*ans = __pmOffsetResult_v2(rp);
 	__pmTimestamp	tmp = rp->timestamp;	/* struct copy */
 
 	ans->timestamp.tv_sec = tmp.sec;
@@ -293,14 +293,14 @@ pmFetch(int numpmid, pmID *pmidlist, pmResult **result)
 }
 
 int
-pmFetchHighRes(int numpmid, pmID *pmidlist, pmHighResResult **result)
+pmFetch(int numpmid, pmID *pmidlist, pmResult **result)
 {
     __pmResult	*rp;
     int		sts;
 
     sts = pmFetch_ctx(NULL, numpmid, pmidlist, &rp);
     if (sts >= 0) {
-	pmHighResResult	*ans = __pmOffsetHighResResult(rp);
+	pmResult	*ans = __pmOffsetResult(rp);
 	__pmTimestamp	tmp = rp->timestamp;	/* struct copy */
 
 	ans->timestamp.tv_sec = tmp.sec;
@@ -339,13 +339,13 @@ __pmFetchArchive(__pmContext *ctxp, __pmResult **result)
 }
 
 int
-pmFetchArchive(pmResult **result)
+pmFetchArchive(pmResult_v2 **result)
 {
     __pmResult	*rp;
     int		sts;
 
     if ((sts = __pmFetchArchive(NULL, &rp)) >= 0) {
-	pmResult	*ans = __pmOffsetResult(rp);
+	pmResult_v2	*ans = __pmOffsetResult_v2(rp);
 	__pmTimestamp	tmp = rp->timestamp;	/* struct copy */
 
 	ans->timestamp.tv_sec = tmp.sec;
@@ -356,13 +356,13 @@ pmFetchArchive(pmResult **result)
 }
 
 int
-pmFetchHighResArchive(pmHighResResult **result)
+pmFetchHighResArchive(pmResult **result)
 {
     __pmResult	*rp;
     int		sts;
 
     if ((sts = __pmFetchArchive(NULL, &rp)) >= 0) {
-	pmHighResResult	*ans = __pmOffsetHighResResult(rp);
+	pmResult	*ans = __pmOffsetResult(rp);
 	__pmTimestamp	tmp = rp->timestamp;	/* struct copy */
 
 	ans->timestamp.tv_sec = tmp.sec;

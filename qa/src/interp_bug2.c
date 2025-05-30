@@ -55,7 +55,7 @@ main(int argc, char **argv)
     struct timespec delta;
     double	delta_f = 1.0;
     char	*endnum;
-    pmHighResResult	*result;
+    pmResult	*result;
     int		i;
     int		status = 0;
     int		done;
@@ -310,7 +310,7 @@ Options\n\
 
     done = 0;
     for (sample=0; !done; sample++) {
-	if ((sts = pmFetchHighRes(N_PMID_A, pmid_a, &result)) < 0) {
+	if ((sts = pmFetch(N_PMID_A, pmid_a, &result)) < 0) {
 	    if (sts != PM_ERR_EOL) {
 		fprintf(stderr, "%s: pmFetch: %s\n", pmGetProgname(), pmErrStr(sts));
 		status = 1;
@@ -329,7 +329,7 @@ Options\n\
 	else {
 	    if (result->vset[0]->numval != 1) {
 		printf("Error: incorrect number of values\n");
-		__pmDumpHighResResult(stdout, result);
+		__pmDumpResult(stdout, result);
 		status = 1;
 	    }
 	    else
@@ -340,7 +340,7 @@ Options\n\
 	    result->timestamp.tv_nsec > eol.tv_nsec)
 		done = 1;
 
-	pmFreeHighResResult(result);
+	pmFreeResult(result);
     }
 
     printf("Pass Two: rewind and fetch metrics_b until end of log\n");
@@ -351,7 +351,7 @@ Options\n\
 
     done = 0;
     for (sample=0; !done; sample++) {
-	if ((sts = pmFetchHighRes(N_PMID_B, pmid_b, &result)) < 0) {
+	if ((sts = pmFetch(N_PMID_B, pmid_b, &result)) < 0) {
 	    if (sts != PM_ERR_EOL) {
 		fprintf(stderr, "%s: pmFetch: %s\n", pmGetProgname(), pmErrStr(sts));
 		status = 1;
@@ -372,7 +372,7 @@ Options\n\
 		result->vset[1]->numval != 1) {
 		printf("Error: incorrect number of values\n");
 		status = 1;
-		__pmDumpHighResResult(stdout, result);
+		__pmDumpResult(stdout, result);
 	    }
 	    else
 		printf("correct result\n");
@@ -382,7 +382,7 @@ Options\n\
 	    result->timestamp.tv_nsec > eol.tv_nsec)
 		done = 1;
 
-	pmFreeHighResResult(result);
+	pmFreeResult(result);
     }
 
     printf("Pass Three: rewind and fetch metrics_c until end of log\n");
@@ -393,7 +393,7 @@ Options\n\
 
     done = 0;
     for (sample=0; !done; sample++) {
-	if ((sts = pmFetchHighRes(N_PMID_C, pmid_c, &result)) < 0) {
+	if ((sts = pmFetch(N_PMID_C, pmid_c, &result)) < 0) {
 	    if (sts != PM_ERR_EOL) {
 		fprintf(stderr, "%s: pmFetch: %s\n", pmGetProgname(), pmErrStr(sts));
 		status = 1;
@@ -414,7 +414,7 @@ Options\n\
 		result->vset[1]->numval != 1) {
 		printf("Error: incorrect number of values\n");
 		status = 1;
-		__pmDumpHighResResult(stdout, result);
+		__pmDumpResult(stdout, result);
 	    }
 	    else
 		printf("correct result\n");
@@ -424,7 +424,7 @@ Options\n\
 	    result->timestamp.tv_nsec > eol.tv_nsec)
 		done = 1;
 
-	pmFreeHighResResult(result);
+	pmFreeResult(result);
     }
 
     exit(status);

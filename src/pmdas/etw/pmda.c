@@ -406,7 +406,7 @@ etw_profile(pmProfile *prof, pmdaExt *pmda)
 }
 
 static int
-etw_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
+etw_fetch(int numpmid, pmID pmidlist[], pmdaResult **resp, pmdaExt *pmda)
 {
     pmNotifyErr(LOG_WARNING, "called %s", __FUNCTION__);
     pmdaEventNewClient(pmda->e_context);
@@ -414,7 +414,7 @@ etw_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 }
 
 static int
-etw_store(pmResult *result, pmdaExt *pmda)
+etw_store(pmdaResult *result, pmdaExt *pmda)
 {
     pmdaEventNewClient(pmda->e_context);
     return PM_ERR_PERMISSION;

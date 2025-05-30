@@ -1279,7 +1279,7 @@ mmv_instance(pmInDom indom, int inst, char *name,
 }
 
 static int
-mmv_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
+mmv_fetch(int numpmid, pmID pmidlist[], pmdaResult **resp, pmdaExt *pmda)
 {
     agent_t		*ap = (agent_t *)pmdaExtGetData(pmda);
 
@@ -1292,7 +1292,7 @@ mmv_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 }
 
 static int
-mmv_store(pmResult *result, pmdaExt *pmda)
+mmv_store(pmdaResult *result, pmdaExt *pmda)
 {
     agent_t		*ap = (agent_t *)pmdaExtGetData(pmda);
     int			i, m;

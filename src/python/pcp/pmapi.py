@@ -509,7 +509,7 @@ pmValueSetPtr.valfmt = property(lambda x: x.contents.valfmt, None, None, None)
 pmValueSetPtr.vlist = property(lambda x: x.contents.vlist, None, None, None)
 
 
-class pmResult(Structure):
+class pmResult_v2(Structure):
     """Structure returned by pmFetch, with a value set for each metric queried
 
     The vset is defined with a "fake" array bounds of 1, which can give runtime
@@ -526,7 +526,7 @@ class pmResult(Structure):
     def __str__(self):
         vals = range(self.numpmid)
         vstr = str([" %s" % str(self.vset[i].contents) for i in vals])
-        return "pmResult@%#lx id#=%d " % (addressof(self), self.numpmid) + vstr
+        return "pmResult_v2@%#lx id#=%d " % (addressof(self), self.numpmid) + vstr
 
     def get_pmid(self, vset_idx):
         """ Return the pmid of vset[vset_idx] """
@@ -557,8 +557,8 @@ class pmResult(Structure):
         """ Return the inst for vlist[vlist_idx] of vset[vset_idx] """
         return self.get_vlist(vset_idx, vlist_idx).inst
 
-class pmHighResResult(Structure):
-    """Structure returned by pmFetchHighRes, uses struct timespec for time
+class pmResult(Structure):
+    """Structure returned by pmFetch, uses struct timespec for time
     """
     _fields_ = [("timestamp", timespec),
                 ("numpmid", c_int),
@@ -571,7 +571,7 @@ class pmHighResResult(Structure):
     def __str__(self):
         vals = range(self.numpmid)
         vstr = str([" %s" % str(self.vset[i].contents) for i in vals])
-        return "pmHighResResult@%#lx id#=%d " % (addressof(self), self.numpmid) + vstr
+        return "pmResult@%#lx id#=%d " % (addressof(self), self.numpmid) + vstr
 
     def get_sec(self):
         """ Return the sec part of the timestamp """
@@ -873,20 +873,14 @@ LIBPCP.pmCtime.argtypes = [POINTER(c_long), c_char_p]
 LIBPCP.pmFetch.restype = c_int
 LIBPCP.pmFetch.argtypes = [c_int, POINTER(c_uint), POINTER(POINTER(pmResult))]
 
-LIBPCP.pmFetchHighRes.restype = c_int
-LIBPCP.pmFetchHighRes.argtypes = [c_int, POINTER(c_uint), POINTER(POINTER(pmHighResResult))]
-
 LIBPCP.pmFreeResult.restype = None
 LIBPCP.pmFreeResult.argtypes = [POINTER(pmResult)]
 
-LIBPCP.pmFreeHighResResult.restype = None
-LIBPCP.pmFreeHighResResult.argtypes = [POINTER(pmHighResResult)]
-
 LIBPCP.pmStore.restype = c_int
-LIBPCP.pmStore.argtypes = [POINTER(pmResult)]
+LIBPCP.pmStore.argtypes = [POINTER(pmResult_v2)]
 
 LIBPCP.pmStoreHighRes.restype = c_int
-LIBPCP.pmStoreHighRes.argtypes = [POINTER(pmHighResResult)]
+LIBPCP.pmStoreHighRes.argtypes = [POINTER(pmResult)]
 
 
 ##
@@ -913,10 +907,10 @@ LIBPCP.pmNameInDomArchive.restype = c_int
 LIBPCP.pmNameInDomArchive.argtypes = [pmInDom, c_int]
 
 LIBPCP.pmFetchArchive.restype = c_int
-LIBPCP.pmFetchArchive.argtypes = [POINTER(POINTER(pmResult))]
+LIBPCP.pmFetchArchive.argtypes = [POINTER(POINTER(pmResult_v2))]
 
 LIBPCP.pmFetchHighResArchive.restype = c_int
-LIBPCP.pmFetchHighResArchive.argtypes = [POINTER(POINTER(pmHighResResult))]
+LIBPCP.pmFetchHighResArchive.argtypes = [POINTER(POINTER(pmResult))]
 
 
 ##
@@ -998,10 +992,10 @@ LIBPCP.pmprintf.restype = c_int
 LIBPCP.pmprintf.argtypes = [c_char_p]
 
 LIBPCP.pmSortHighResInstances.restype = None
-LIBPCP.pmSortHighResInstances.argtypes = [POINTER(pmHighResResult)]
+LIBPCP.pmSortHighResInstances.argtypes = [POINTER(pmResult)]
 
 LIBPCP.pmSortInstances.restype = None
-LIBPCP.pmSortInstances.argtypes = [POINTER(pmResult)]
+LIBPCP.pmSortInstances.argtypes = [POINTER(pmResult_v2)]
 
 LIBPCP.pmLookupLabels.restype = c_int
 LIBPCP.pmLookupLabels.argtypes = [c_int, POINTER(POINTER(pmLabelSet))]
@@ -2102,20 +2096,6 @@ class pmContext(object):
             raise pmErr(status)
         return result_p
 
-    def pmFetchHighRes(self, pmidA):
-        """PMAPI - Fetch pmHighResResult from the target source
-
-        pmHighResResult* pmresult = pmFetchHighRes(c_uint pmid[])
-        """
-        result_p = POINTER(pmHighResResult)()
-        status = LIBPCP.pmUseContext(self.ctx)
-        if status < 0:
-            raise pmErr(status)
-        status = LIBPCP.pmFetchHighRes(len(pmidA), pmidA, byref(result_p))
-        if status < 0:
-            raise pmErr(status)
-        return result_p
-
     @staticmethod
     def pmFreeResult(result_p):
         """PMAPI - Free a result previously allocated by pmFetch
@@ -2123,16 +2103,9 @@ class pmContext(object):
         """
         LIBPCP.pmFreeResult(result_p)
 
-    @staticmethod
-    def pmFreeHighResResult(result_p):
-        """PMAPI - Free a result previously allocated by pmFetch
-        pmFreeHighResResult(pmHighResResult* pmresult)
-        """
-        LIBPCP.pmFreeHighResResult(result_p)
-
     def pmStore(self, result):
         """PMAPI - Set values on target source, inverse of pmFetch
-        pmresult = pmStore(pmResult* pmresult)
+        pmresult = pmStore(pmResult_v2* pmresult)
         """
         LIBPCP.pmStore.argtypes = [(type(result))]
         status = LIBPCP.pmUseContext(self.ctx)
@@ -2144,8 +2117,8 @@ class pmContext(object):
         return result
 
     def pmStoreHighRes(self, result):
-        """PMAPI - Set values on target source, inverse of pmFetchHighRes
-        pmresult = pmStoreHighRes(pmHighResResult* pmresult)
+        """PMAPI - Set values on target source, inverse of pmFetch
+        pmresult = pmStoreHighRes(pmResult* pmresult)
         """
         LIBPCP.pmStoreHighRes.argtypes = [(type(result))]
         status = LIBPCP.pmUseContext(self.ctx)
@@ -2244,9 +2217,9 @@ class pmContext(object):
     def pmFetchArchive(self):
         """PMAPI - Fetch raw measurements from the target source
 
-        pmResult* pmresult = pmFetchArchive()
+        pmResult_v2* pmresult = pmFetchArchive()
         """
-        result_p = POINTER(pmResult)()
+        result_p = POINTER(pmResult_v2)()
         status = LIBPCP.pmUseContext(self.ctx)
         if status < 0:
             raise pmErr(status)
@@ -2258,9 +2231,9 @@ class pmContext(object):
     def pmFetchHighResArchive(self):
         """PMAPI - Fetch raw measurements from the target source
 
-        pmHighResResult* pmresult = pmFetchHighResArchive()
+        pmResult* pmresult = pmFetchHighResArchive()
         """
-        result_p = POINTER(pmHighResResult)()
+        result_p = POINTER(pmResult)()
         status = LIBPCP.pmUseContext(self.ctx)
         if status < 0:
             raise pmErr(status)
@@ -2676,7 +2649,7 @@ class pmContext(object):
 
     @staticmethod
     def pmSortHighResInstances(result_p):
-        """PMAPI - sort all metric instances in result returned by pmFetchHighRes """
+        """PMAPI - sort all metric instances in result returned by pmFetch """
         LIBPCP.pmSortHighResInstances(result_p)
 
     @staticmethod

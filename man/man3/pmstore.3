@@ -47,17 +47,12 @@ The routines
 and
 .B pmStoreHighRes
 are lightweight inverses of
-.BR pmFetch (3)
-and
-.BR pmFetchHighRes (3)
-respectively.
+.BR pmFetch (3).
 .PP
 The caller must build the
 .I result
 data structure (of course, this could have been returned from an earlier
 .BR pmFetch (3)
-or
-.BR pmFetchHighRes (3)
 call).
 .PP
 It is an error to pass a
@@ -120,6 +115,5 @@ field with a value less than one.
 .SH SEE ALSO
 .BR PMAPI (3),
 .BR pmFetch (3),
-.BR pmFetchHighRes (3)
 and
 .BR pmSetMode (3).

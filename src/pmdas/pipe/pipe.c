@@ -98,7 +98,7 @@ pipe_profile(pmProfile *prof, pmdaExt *pmda)
 }
 
 static int
-pipe_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
+pipe_fetch(int numpmid, pmID pmidlist[], pmdaResult **resp, pmdaExt *pmda)
 {
     event_client_access(pmda->e_context);
     return pmdaFetch(numpmid, pmidlist, resp, pmda);
@@ -170,7 +170,7 @@ pipe_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 }
 
 static int
-pipe_store(pmResult *result, pmdaExt *pmda)
+pipe_store(pmdaResult *result, pmdaExt *pmda)
 {
     int		i, j, sts;
 

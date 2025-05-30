@@ -1653,7 +1653,7 @@ pmFG
 pmFetch
 pmFetchArchive
 pmFetchGroup
-pmFetchHighRes
+! pmFetchHighRes
 pmFetchHighResArchive
 pmFreeEventResult
 pmFreeHighResEventResult

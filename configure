@@ -4994,22 +4994,22 @@ typedef struct {
 typedef struct {
     struct timeval stamp;
     int numpmid;
-} pmResult;
+} pmResult_v2;
 typedef struct {
     struct timespec stamp;
     int numpmid;
-} pmHighResResult;
+} pmResult;
 void
 main(void)
 {
     __pmResult __rp;
-    pmResult rp;
-    pmHighResResult hrp;
+    pmResult_v2 rp;
+    pmResult hrp;
     int nb;
 
-    nb = (int)offsetof(pmResult,numpmid);
-    if (nb < (int)offsetof(pmHighResResult,numpmid))
-	nb = (int)offsetof(pmHighResResult,numpmid);
+    nb = (int)offsetof(pmResult_v2,numpmid);
+    if (nb < (int)offsetof(pmResult,numpmid))
+	nb = (int)offsetof(pmResult,numpmid);
     if (nb > (int)offsetof(__pmResult,numpmid))
 	printf("__pmResult pad %d\n", nb - (int)offsetof(__pmResult,numpmid));
 

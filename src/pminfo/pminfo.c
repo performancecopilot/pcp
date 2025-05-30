@@ -359,7 +359,7 @@ setup_event_derived_metrics(void)
     if (pmid_flags == 0) {
 	/*
 	 * get PMID for event.flags and event.missed
-	 * note that pmUnpackEventRecords() will have called
+	 * note that pmUnpackHighResEventRecords() will have called
 	 * __pmRegisterAnon(), so the anonymous metrics
 	 * should now be in the PMNS
 	 */
@@ -451,7 +451,7 @@ myeventdump(pmValueSet *vsp, int inst, int highres)
     int		flags;
 
     if (highres) {
-	pmHighResResult	**hr;
+	pmResult	**hr;
 
 	if ((nrecords = pmUnpackHighResEventRecords(vsp, inst, &hr)) < 0) {
 	    fprintf(stderr, "%s: pmUnpackHighResEventRecords: %s\n",
@@ -471,7 +471,7 @@ myeventdump(pmValueSet *vsp, int inst, int highres)
 	pmFreeHighResEventResult(hr);
     }
     else {
-	pmResult	**res;
+	pmResult_v2	**res;
 
 	if ((nrecords = pmUnpackEventRecords(vsp, inst, &res)) < 0) {
 	    fprintf(stderr, "%s: pmUnpackEventRecords: %s\n",

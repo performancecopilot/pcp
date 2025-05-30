@@ -100,7 +100,7 @@ bash_instance(pmInDom indom, int inst, char *name,
 }
 
 static int
-bash_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
+bash_fetch(int numpmid, pmID pmidlist[], pmdaResult **resp, pmdaExt *pmda)
 {
     check_processes(pmda->e_context);
     return pmdaFetch(numpmid, pmidlist, resp, pmda);
@@ -288,7 +288,7 @@ bash_store_metric(pmValueSet *vsp, int context)
 }
 
 static int
-bash_store(pmResult *result, pmdaExt *pmda)
+bash_store(pmdaResult *result, pmdaExt *pmda)
 {
     int		i, sts;
     int		context = pmda->e_context;

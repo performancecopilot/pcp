@@ -264,15 +264,15 @@ mytimestamp(struct timespec *stamp)
 /* Fetch metric values. */
 static int
 getvals(Context *x,		/* in - full pm description */
-        pmHighResResult **vs)		/* alloc - pm values */
+        pmResult **vs)		/* alloc - pm values */
 {
-    pmHighResResult	*r;
-    int			e;
-    int			i;
+    pmResult	*r;
+    int		e;
+    int		i;
 
     if (rawArchive) {
 	/*
-	 * for -U mode, read until we find either a pmHighResResult with the
+	 * for -U mode, read until we find either a pmResult with the
 	 * pmid we are after, or a mark record
 	 */
 	for ( ; ; ) {
@@ -285,7 +285,7 @@ getvals(Context *x,		/* in - full pm description */
 		    mytimestamp(&r->timestamp);
 		printf("  Archive logging suspended\n");
 		reporting = 0;
-		pmFreeHighResResult(r);
+		pmFreeResult(r);
 		return -1;
 	    }
 
@@ -295,11 +295,11 @@ getvals(Context *x,		/* in - full pm description */
 	    }
 	    if (i != r->numpmid)
 		break;
-	    pmFreeHighResResult(r);
+	    pmFreeResult(r);
 	}
     }
     else {
-	e = pmFetchHighRes(1, &(x->pmid), &r);
+	e = pmFetch(1, &(x->pmid), &r);
 	i = 0;
     }
 
@@ -322,7 +322,7 @@ getvals(Context *x,		/* in - full pm description */
 	pmTimeStateAck(&controls, pmtime);
 
     if (pmtimespecToReal(&r->timestamp) > pmtimespecToReal(&opts.finish)) {
-	pmFreeHighResResult(r);
+	pmFreeResult(r);
 	return -2;
     }
 
@@ -336,12 +336,12 @@ getvals(Context *x,		/* in - full pm description */
 	    printf("No values available\n");
 	else if (rawEvents && verbose)
 	    printf("%s: No values available\n", x->metric);
-	pmFreeHighResResult(r);
+	pmFreeResult(r);
 	return -1;
     }
     else if (e < 0) {
 	if (rawEvents && e == PM_ERR_NOTCONN) {
-	    pmFreeHighResResult(r);
+	    pmFreeResult(r);
 	    exit(EXIT_SUCCESS);
 	}
 	else if (rawArchive) {
@@ -351,7 +351,7 @@ getvals(Context *x,		/* in - full pm description */
 	    fprintf(stderr, "\n%s: pmFetch: %s\n",
 			pmGetProgname(), pmErrStr(r->vset[i]->numval));
 	}
-	pmFreeHighResResult(r);
+	pmFreeResult(r);
 	return -1;
     }
 
@@ -933,7 +933,7 @@ initfilters(Context *x, int conntype)
 	vset->valfmt = sts;
     }
 
-    if ((sts = pmStore(result)) < 0) {
+    if ((sts = pmStoreHighRes(result)) < 0) {
 	fprintf(stderr, "%s: store value \"%s\" failed: %s\n",
 			pmGetProgname(), x->filter, pmErrStr(sts));
 	exit(EXIT_FAILURE);
@@ -963,8 +963,8 @@ main(int argc, char *argv[])
     char        *endnum;
     char        *errmsg;
     pmMetricSpec *msp = NULL;
-    pmHighResResult *rslt1;		/* current values */
-    pmHighResResult *rslt2 = NULL;	/* previous values */
+    pmResult 	*rslt1;		/* current values */
+    pmResult 	*rslt2 = NULL;	/* previous values */
 
     setlinebuf(stdout);
     context.iall = 1;
@@ -1361,14 +1361,14 @@ main(int argc, char *argv[])
 	 * discard previous and save current result, so this value
 	 * becomes the previous value at the next iteration
 	 */
-	pmFreeHighResResult(rslt2);
+	pmFreeResult(rslt2);
 	rslt2 = rslt1;
 	idx2 = idx1;
     }
 
     /* make valgrind happy */
     if (rslt2 != NULL)
-	pmFreeHighResResult(rslt2);
+	pmFreeResult(rslt2);
     if (msp != NULL)
 	pmFreeMetricSpec(msp);
 

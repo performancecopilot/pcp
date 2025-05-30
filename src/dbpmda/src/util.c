@@ -676,7 +676,7 @@ _dbPrintValueset(FILE *f, int npmid, pmValueSet **vset, pmDesc *desc_list)
 }
 
 void
-_dbDumpResult(FILE *f, pmResult *resp, pmDesc *desc_list)
+_dbDumpResult(FILE *f, pmResult_v2 *resp, pmDesc *desc_list)
 {
     fprintf(f, "pmResult dump from " PRINTF_P_PFX "%p timestamp: %lld.%06d ",
         resp, (long long)resp->timestamp.tv_sec, (int)resp->timestamp.tv_usec);

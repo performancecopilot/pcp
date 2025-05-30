@@ -58,7 +58,6 @@ _filter_out()
     sed <$tmp.out \
 	-e "s@$tmp@TMP@g" \
 	-e '/pmResult/s/ .* numpmid/ ... numpmid/' \
-	-e '/pmHighResResult/s/ .* numpmid/ ... numpmid/' \
 	-e '/value /s/\(value.*\) -*[0-9][0-9]*/\1 NUMBER/' \
     | $PCP_AWK_PROG >$tmp.tmp '
 /nhosts: 1/	{ filter = 1 }

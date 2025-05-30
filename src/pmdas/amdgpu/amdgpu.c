@@ -348,7 +348,7 @@ static int amdgpu_instance(pmInDom indom, int inst, char *name,
  * PDU.  The fetchCallback is then called once per-metric/instance pair
  * to perform the actual filling of the pmResult (via each pmAtomValue).
  */
-static int amdgpu_fetch(int numpmid, pmID pmidlist[], pmResult **resp,
+static int amdgpu_fetch(int numpmid, pmID pmidlist[], pmdaResult **resp,
                         pmdaExt *pmda)
 {
   uint32_t i = 0;

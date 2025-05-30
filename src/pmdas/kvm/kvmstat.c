@@ -552,7 +552,7 @@ kvm_label(int ident, int type, pmLabelSet **lpp, pmdaExt *pmda)
  * return  : always return pmdaFetch(*).
  */
 static int
-kvm_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
+kvm_fetch(int numpmid, pmID pmidlist[], pmdaResult **resp, pmdaExt *pmda)
 {
     int		need_refresh[NUM_CLUSTERS], i;
 

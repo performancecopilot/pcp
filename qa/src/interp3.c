@@ -18,7 +18,7 @@ static struct timespec	delta = { 0, 500000 };
 static struct timespec	minus_delta = { 0, -500000 };
 
 static void
-cmpres(int n, pmHighResResult *e, pmHighResResult *g)
+cmpres(int n, pmResult *e, pmResult *g)
 {
     int		i;
     int		j;
@@ -77,9 +77,9 @@ cmpres(int n, pmHighResResult *e, pmHighResResult *g)
 
 FAILED:
     printf("Expected ...\n");
-    __pmDumpHighResResult(stdout, e);
+    __pmDumpResult(stdout, e);
     printf("Got ...\n");
-    __pmDumpHighResResult(stdout, g);
+    __pmDumpResult(stdout, g);
 }
 
 int
@@ -97,8 +97,8 @@ main(int argc, char **argv)
     int		k;
     int		n;
     pmLogLabel	loglabel;
-    pmHighResResult	*resp;
-    pmHighResResult	**resvec = (pmHighResResult **)0;
+    pmResult	*resp;
+    pmResult	**resvec = (pmResult **)0;
     int		resnum = 0;
     struct timespec	when;
     int		done;
@@ -212,16 +212,16 @@ main(int argc, char **argv)
     printf("\nPass 1: forward scan\n");
     __pmLogReads = 0;
     for (;;) {
-	if ((sts = pmFetchHighRes(numpmid, pmidlist, &resp)) < 0) {
+	if ((sts = pmFetch(numpmid, pmidlist, &resp)) < 0) {
 	    if (sts != PM_ERR_EOL)
 		printf("%s: pmFetch: %s\n", pmGetProgname(), pmErrStr(sts));
 	    break;
 	}
 	resnum++;
-	resvec = (pmHighResResult **)realloc(resvec, resnum * sizeof(resvec[0]));
+	resvec = (pmResult **)realloc(resvec, resnum * sizeof(resvec[0]));
 	resvec[resnum - 1] = resp;
 	if (vflag)
-	    __pmDumpHighResResult(stdout, resp);
+	    __pmDumpResult(stdout, resp);
     }
     if (pmDebugOptions.appl0)
 	fprintf(stderr, "%d pmLogReads\n", __pmLogReads);
@@ -239,14 +239,14 @@ main(int argc, char **argv)
 
     n = 0;
     for (;;) {
-	if ((sts = pmFetchHighRes(numpmid, pmidlist, &resp)) < 0) {
+	if ((sts = pmFetch(numpmid, pmidlist, &resp)) < 0) {
 	    if (sts != PM_ERR_EOL)
 		printf("%s: pmFetch: %s\n", pmGetProgname(), pmErrStr(sts));
 	    break;
 	}
 	n++;
 	cmpres(n, resvec[resnum - n], resp);
-	pmFreeHighResResult(resp);
+	pmFreeResult(resp);
     }
     if (pmDebugOptions.appl0)
 	fprintf(stderr, "%d pmLogReads\n", __pmLogReads);
@@ -273,7 +273,7 @@ main(int argc, char **argv)
     n = 0;
     while (!done) {
 	pmUseContext(ctx[0]);
-	if ((sts = pmFetchHighRes(numpmid, pmidlist, &resp)) < 0) {
+	if ((sts = pmFetch(numpmid, pmidlist, &resp)) < 0) {
 	    if (sts != PM_ERR_EOL)
 		printf("%s: pmFetch: %s\n", pmGetProgname(), pmErrStr(sts));
 	    done = 1;
@@ -281,11 +281,11 @@ main(int argc, char **argv)
 	else {
 	    n++;
 	    cmpres(n, resvec[n/2], resp);
-	    pmFreeHighResResult(resp);
+	    pmFreeResult(resp);
 	}
 
 	pmUseContext(ctx[1]);
-	if ((sts = pmFetchHighRes(numpmid, pmidlist, &resp)) < 0) {
+	if ((sts = pmFetch(numpmid, pmidlist, &resp)) < 0) {
 	    if (sts != PM_ERR_EOL)
 		printf("%s: pmFetch: %s\n", pmGetProgname(), pmErrStr(sts));
 	    done = 1;
@@ -293,7 +293,7 @@ main(int argc, char **argv)
 	else {
 	    n++;
 	    cmpres(n, resvec[resnum - n/2], resp);
-	    pmFreeHighResResult(resp);
+	    pmFreeResult(resp);
 	}
     }
     if (pmDebugOptions.appl0)
@@ -319,7 +319,7 @@ main(int argc, char **argv)
 
 	n = i;
 	for (;;) {
-	    if ((sts = pmFetchHighRes(numpmid, pmidlist, &resp)) < 0) {
+	    if ((sts = pmFetch(numpmid, pmidlist, &resp)) < 0) {
 		if (sts != PM_ERR_EOL)
 		    printf("%s: pmFetch: %s\n", pmGetProgname(), pmErrStr(sts));
 		break;
@@ -327,7 +327,7 @@ main(int argc, char **argv)
 	    j++;
 	    n++;
 	    cmpres(j, resvec[n - 1], resp);
-	    pmFreeHighResResult(resp);
+	    pmFreeResult(resp);
 	}
 	if (pmDebugOptions.appl0)
 	    fprintf(stderr, "%d pmLogReads\n", __pmLogReads);
@@ -351,13 +351,13 @@ main(int argc, char **argv)
 	}
 
 	for (;;) {
-	    if ((sts = pmFetchHighRes(numpmid, pmidlist, &resp)) < 0) {
+	    if ((sts = pmFetch(numpmid, pmidlist, &resp)) < 0) {
 		if (sts != PM_ERR_EOL)
 		    printf("%s: pmFetch: %s\n", pmGetProgname(), pmErrStr(sts));
 		break;
 	    }
 	    cmpres(i, resvec[i], resp);
-	    pmFreeHighResResult(resp);
+	    pmFreeResult(resp);
 	    i--;
 	    j++;
 	}
@@ -384,12 +384,12 @@ main(int argc, char **argv)
 	}
 
 	for (j = 0; j <= i; j++) {
-	    if ((sts = pmFetchHighRes(numpmid, pmidlist, &resp)) < 0) {
+	    if ((sts = pmFetch(numpmid, pmidlist, &resp)) < 0) {
 		printf("%s: pmFetch: %s\n", pmGetProgname(), pmErrStr(sts));
 		exit(1);
 	    }
 	    cmpres(j+1, resvec[j], resp);
-	    pmFreeHighResResult(resp);
+	    pmFreeResult(resp);
 	}
 
 	when = resvec[i]->timestamp;
@@ -399,12 +399,12 @@ main(int argc, char **argv)
 	}
 
 	for (j = i; j >= 0; j--) {
-	    if ((sts = pmFetchHighRes(numpmid, pmidlist, &resp)) < 0) {
+	    if ((sts = pmFetch(numpmid, pmidlist, &resp)) < 0) {
 		printf("%s: pmFetch: %s\n", pmGetProgname(), pmErrStr(sts));
 		exit(1);
 	    }
 	    cmpres(j+1, resvec[j], resp);
-	    pmFreeHighResResult(resp);
+	    pmFreeResult(resp);
 	}
 	if (pmDebugOptions.appl0)
 	    fprintf(stderr, "%d pmLogReads\n", __pmLogReads);
@@ -416,7 +416,7 @@ main(int argc, char **argv)
 
     if (resvec != NULL) {
 	for (i = 0; i < resnum; i++)
-	    pmFreeHighResResult(resvec[i]);
+	    pmFreeResult(resvec[i]);
 	free(resvec);
     }
 

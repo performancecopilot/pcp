@@ -46,7 +46,6 @@ context.
 This mode affects the semantics of subsequent calls to the following
 PMAPI routines:
 .BR pmFetch (3),
-.BR pmFetchHighRes (3),
 .BR pmFetchArchive (3),
 .BR pmLookupDesc (3),
 .BR pmGetInDom (3),
@@ -63,9 +62,7 @@ etc. by alternating calls
 to
 .B pmSetMode
 and
-.BR pmFetch (3)
-or
-.BR pmFetchHighRes (3).
+.BR pmFetch (3).
 .PP
 If
 .I mode
@@ -137,8 +134,6 @@ is
 .B PM_MODE_INTERP
 then as metric values are retrieved from the archive with
 .BR pmFetch (3)
-or
-.BR pmFetchHighRes (3)
 the current time is returned as the timestamp in the
 .CR pmResult
 structure and
@@ -148,8 +143,6 @@ is positive, the current time moves forwards, else the current
 time moves backwards.
 The adjustment to the current time is applied even if the
 .BR pmFetch (3)
-or
-.BR pmFetchHighRes (3)
 fails to return values for any metrics or returns an error,
 e.g. \c
 .B PM_ERR_EOL
@@ -158,8 +151,6 @@ the records in the archive.
 .PP
 When metric values are being requested via
 .BR pmFetch (3)
-or
-.BR pmFetchHighRes (3)
 the current time may
 not exactly match the times at which values have been recorded in the
 archive, so the returned metric values
@@ -194,8 +185,6 @@ or
 .B PM_MODE_BACK
 then when metric values are being requested via
 .BR pmFetch (3)
-or
-.BR pmFetchHighRes (3)
 the archive will be scanned in a forwards (\c
 .BR PM_MODE_FORW )
 or backwards (\c
@@ -211,8 +200,6 @@ new current time.
 .PP
 Note that any metrics requested via
 .BR pmFetch (3)
-or
-.BR pmFetchHighRes (3)
 that do
 .B not
 have a value in the archive record at the
@@ -221,8 +208,6 @@ archives where all of the metrics of interest have been logged regularly
 at the same time in the archive.
 Otherwise, each
 .BR pmFetch (3)
-or
-.BR pmFetchHighRes (3)
 will contain only the subset of the requested metrics and any associated
 instances found in the
 qualifying archive record.
@@ -240,8 +225,6 @@ but this is serendipitous.
 If no qualifying metrics can be found in the requested direction of searching
 before the end or start of the archive is encountered, then
 .BR pmFetch (3)
-or
-.BR pmFetchHighRes (3)
 returns the special error indicator,
 .BR PM_ERR_EOL .
 .SH RECOMMENDATIONS
@@ -252,8 +235,6 @@ is preferred because:
 This maximizes the information that will be returned
 in each
 .BR pmFetch (3)
-or
-.BR pmFetchHighRes (3).
 .IP \(bu 2n
 This returns values at regular intervals of the current time, independent
 of the logging frequency for requested metrics in the archive.
@@ -349,7 +330,6 @@ parameter is invalid
 .BR PMAPI (3),
 .BR pmFetch (3),
 .BR pmFetchArchive (3),
-.BR pmFetchHighRes (3),
 .BR pmGetArchiveEnd (3),
 .BR pmGetArchiveLabel (3),
 .BR pmGetInDom (3),

@@ -85,7 +85,7 @@ main(int argc, char **argv)
     }
 
     rslt->vset[0]->pmid = midlist[1];
-    if ((n = pmStore(rslt)) < 0) {
+    if ((n = pmStoreHighRes(rslt)) < 0) {
 	printf("pmStore: %s\n", pmErrStr(n));
 	exit(1);
     }

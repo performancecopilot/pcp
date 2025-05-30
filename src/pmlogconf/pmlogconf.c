@@ -194,7 +194,7 @@ group_create_pmlogger(const char *state, unsigned int line)
 	    if (strcmp(group->saved_delta, "once") == 0 ||
 		strcmp(group->saved_delta, "default") == 0)
 		break;
-	    if (pmParseInterval(group->saved_delta, &interval, &errmsg) < 0) {
+	    if (pmParseHighResInterval(group->saved_delta, &interval, &errmsg) < 0) {
 		fprintf(stderr, "%s: ignoring %s logging interval \"%s\" "
 				"on line %u of %s: %s\n", pmGetProgname(),
 			group->tag, group->saved_delta, line, config, errmsg);
@@ -1465,7 +1465,7 @@ y         log this group\n\
 			update_delta(group, answer);
 			break;
 		    }
-		    if (pmParseInterval(answer, &interval, &errmsg) >= 0) {
+		    if (pmParseHighResInterval(answer, &interval, &errmsg) >= 0) {
 			update_delta(group, answer);
 			break;
 		    }

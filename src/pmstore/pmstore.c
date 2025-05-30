@@ -249,7 +249,7 @@ main(int argc, char **argv)
 	store_vsp->valfmt = __pmStuffValue(&nav, &store_vsp->vlist[i], desc.type);
     }
 
-    if ((n = pmStore(store)) < 0) {
+    if ((n = pmStoreHighRes(store)) < 0) {
 	printf("%s: new value=\"%s\" pmStore: %s\n", namelist[0], argv[opts.optind], pmErrStr(n));
 	exit(1);
     }

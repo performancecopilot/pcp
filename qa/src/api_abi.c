@@ -48,7 +48,7 @@
  * [y] pmFetch
  * [ ] pmFetchArchive
  * [ ] pmFetchGroup
- * [ ] pmFetchHighRes
+ * [y] pmFetchHighRes
  * [ ] pmFetchHighResArchive
  * [y] pmflush
  * [ ] pmFreeEventResult

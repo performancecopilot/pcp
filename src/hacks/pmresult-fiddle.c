@@ -91,37 +91,37 @@ int
 main(void)
 {
     __pmResult		*in;
-    pmResult		*out;
-    pmHighResResult	*hr_out;
+    pmResult_v2		*out;
+    pmResult		*hr_out;
     __pmTimestamp	stamp;
 
     pmSetDebug("pdubuf");
 
     in = setup();
     __pmPrintResult(stdout, in);
-    out = __pmOffsetResult(in);
+    out = __pmOffsetResult_v2(in);
     assert(&in->numpmid == &out->numpmid);
     stamp.sec = in->timestamp.sec;
     stamp.nsec = in->timestamp.nsec;
     out->timestamp.tv_sec = stamp.sec;
     out->timestamp.tv_usec = stamp.nsec / 1000;
     printf("out: stamp=%ld.%06ld numpmid=%d\n", (long)out->timestamp.tv_sec, (long)out->timestamp.tv_usec, out->numpmid);
-    __pmDumpResult(stdout, out);
-    pmFreeResult(out);
+    __pmDumpResult_v2(stdout, out);
+    pmFreeResult_v2(out);
 
     printf("\n");
 
     in = setup();
     __pmPrintResult(stdout, in);
-    hr_out = __pmOffsetHighResResult(in);
+    hr_out = __pmOffsetResult(in);
     assert(&in->numpmid == &hr_out->numpmid);
     stamp.sec = in->timestamp.sec;
     stamp.nsec = in->timestamp.nsec;
     hr_out->timestamp.tv_sec = stamp.sec;
     hr_out->timestamp.tv_nsec = stamp.nsec;
     printf("hr_out: stamp=%ld.%09ld numpmid=%d\n", (long)hr_out->timestamp.tv_sec, (long)hr_out->timestamp.tv_nsec, hr_out->numpmid);
-    __pmDumpHighResResult(stdout, hr_out);
-    __pmFreeHighResResult(hr_out);
+    __pmDumpResult(stdout, hr_out);
+    pmFreeResult(hr_out);
 
     return(0);
 

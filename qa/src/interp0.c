@@ -26,8 +26,8 @@ main(int argc, char **argv)
     int		samples = 10;
     struct timespec	delta = { 1, 0 };
     char	*endnum;
-    pmHighResResult	*result;
-    pmHighResResult	*prev = NULL;
+    pmResult	*result;
+    pmResult	*prev = NULL;
     int		i;
     int		numpmid = 3;
     pmID	pmid[3];
@@ -139,7 +139,7 @@ Options\n\
 	printf("pmFetchArchive: %s\n", pmErrStr(sts));
 	exit(1);
     }
-    pmFreeHighResResult(result);
+    pmFreeResult(result);
 
     sts = pmFetchHighResArchive(&result);
     if (sts < 0) {
@@ -153,7 +153,7 @@ Options\n\
 	printf("pmSetMode: %s\n", pmErrStr(sts));
 	exit(1);
     }
-    pmFreeHighResResult(result);
+    pmFreeResult(result);
 
     sts = pmLookupName(numpmid, name, pmid);
     if (sts < 0) {
@@ -174,7 +174,7 @@ Options\n\
     for (i = 0; i < samples; i++) {
 	struct timespec tmp;
 
-	sts = pmFetchHighRes(numpmid, pmid, &result);
+	sts = pmFetch(numpmid, pmid, &result);
 	if (sts < 0) {
 	    printf("sample[%d] pmFetch: %s\n", i, pmErrStr(sts));
 	    if (sts == PM_ERR_EOL)
@@ -220,7 +220,7 @@ Options\n\
 			    cv - pv);
 		    }
 		    else if (type[j] == PM_TYPE_EVENT) {
-			pmResult **records;
+			pmResult_v2 **records;
 			int r, param;
 			struct timeval tmp_tv;
 			struct timeval prev_tv;
@@ -245,7 +245,7 @@ Options\n\
 			}
 		    }
 		    else if (type[j] == PM_TYPE_HIGHRES_EVENT) {
-			pmHighResResult **hrecords;
+			pmResult **hrecords;
 			int r, param;
 
 			printf("%d highres event records found\n", result->vset[j]->numval);
@@ -270,7 +270,7 @@ Options\n\
 			    type[j], pmIDStr(pmid[j]));
 		}
 	    }
-	    pmFreeHighResResult(prev);
+	    pmFreeResult(prev);
 	}
 	prev = result;
     }
@@ -278,10 +278,10 @@ Options\n\
     printf("\n%d samples required %d log reads\n", i, __pmLogReads);
 
     if (prev != NULL)
-	pmFreeHighResResult(prev);
+	pmFreeResult(prev);
 
     /* dump __pmResult pool if -Dalloc */
-    pmFreeHighResResult(NULL);
+    pmFreeResult(NULL);
 
     exit(0);
 }

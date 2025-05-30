@@ -43,7 +43,7 @@ private:
 	int inst;		// Instance internal id
 	QString name;		// Instance external id
 	int refCount;
-	int index;		// Index into pmResult of last fetch
+	int index;		// Index into qmcResult of last fetch
 				// May also be used to index the next NULL inst
 	bool active;		// Instance was listed in last indom lookup
     } my;
@@ -108,7 +108,7 @@ public:
 
     int genProfile();	// Generate profile for current context
 
-    // Likely index into pmResult for instance <inst>
+    // Likely index into qmcResult for instance <inst>
     int index(uint inst) const { return my.instances[inst].index(); }
     void setIndex(uint inst, int index) { my.instances[inst].setIndex(index); }
     

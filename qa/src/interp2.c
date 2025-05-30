@@ -48,7 +48,7 @@ main(int argc, char **argv)
     char	*host = NULL;		/* pander to gcc */
     pmLogLabel	label;			/* get hostname for archives */
     char	*namespace = PM_NS_DEFAULT;
-    pmHighResResult	*result;
+    pmResult	*result;
     struct timespec tend;
     struct timespec twant;
     struct timespec delta;
@@ -178,9 +178,9 @@ Options\n\
 	    printf("pmSetMode: %s\n", pmErrStr(sts));
 	    exit(1);
 	}
-	while (pmFetchHighRes(numpmid, pmid, &result) >= 0) {
+	while (pmFetch(numpmid, pmid, &result) >= 0) {
 	    forw++;
-	    pmFreeHighResResult(result);
+	    pmFreeResult(result);
 	}
 	printf("%4d forw + ", forw);
 	if (delta.tv_sec > 0)
@@ -192,9 +192,9 @@ Options\n\
 	    printf("pmSetMode: %s\n", pmErrStr(sts));
 	    exit(1);
 	}
-	while (pmFetchHighRes(numpmid, pmid, &result) >= 0) {
+	while (pmFetch(numpmid, pmid, &result) >= 0) {
 	    back++;
-	    pmFreeHighResResult(result);
+	    pmFreeResult(result);
 	}
 	printf("%4d back = %d, %d log reads\n",
 	    back, forw + back, __pmLogReads);

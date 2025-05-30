@@ -816,7 +816,7 @@ QmcMetric::extractNumericMetric(pmValueSet const *set, pmValue const *value, Qmc
 }
 
 void
-QmcMetricValue::extractEventRecords(QmcContext *context, int recordCount, pmResult **result)
+QmcMetricValue::extractEventRecords(QmcContext *context, int recordCount, qmcResult **result)
 {
     pmID parameterID;
     pmID missedID = QmcEventRecord::eventMissed();
@@ -866,7 +866,7 @@ void
 QmcMetric::extractEventMetric(pmValueSet const *valueSet, int index, QmcMetricValue &valueRef)
 {
     pmValueSet *values = (pmValueSet *)valueSet;
-    pmResult **result;
+    qmcResult **result;
     int sts;
 
     if ((sts = pmUnpackEventRecords(values, index, &result)) >= 0) {

@@ -446,7 +446,7 @@ Options\n\
     }
 
     if (type == PM_CONTEXT_ARCHIVE) {
-	if ((sts = pmGetArchiveLabel(&label)) < 0) {
+	if ((sts = pmGetHighResArchiveLabel(&label)) < 0) {
 	    fprintf(stderr, "%s: Cannot get archive label record: %s\n",
 		pmGetProgname(), pmErrStr(sts));
 	    exit(1);

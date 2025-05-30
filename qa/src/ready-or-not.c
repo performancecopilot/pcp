@@ -10,15 +10,15 @@
  *   [y] __pmSendDescReq - pmLookupDesc()
  *   [n] __pmSendError - N/A
  *   [y] __pmSendFetch - pmFetch()
- *   [y] __pmSendHighResResult - pmFetchHighRes()
+ *   [y] __pmSendHighResResult - pmFetch()
  *   [y] __pmSendIDList - pmNameID() or pmNameAll()
  *   [y]                - pmLookupDescs()
  *   [y] __pmSendInstanceReq - pmGetInDom(), pmNameInDom(), pmLookupInDom()
  *   [y] __pmSendLabelReq - pmLookupLabels() (calls all the other
  *	                    pmGet<foo>Labels() routines)
  *   [y] __pmSendNameList - pmLookupName()
- *   [y] __pmSendProfile - pmFetch(), pmFetchHighRes()
- *   [y] __pmSendResult - pmStore()
+ *   [y] __pmSendProfile - pmFetch(), pmFetch()
+ *   [y] __pmSendResult - pmStoreHighRes()
  *   [y] __pmSendTextReq - pmLookupText()
  *   [y] __pmSendTraversePMNSReq - pmTraversePMNS(), pmTraversePMNS_r()
  *
@@ -100,8 +100,8 @@ smack(void)
 	smack_rp->vset[0]->vlist[0].value.lval = 20;
     }
 
-    if ((sts = pmStore(smack_rp)) < 0 && sts != PM_ERR_AGAIN) {
-	fprintf(stderr, "pmStore(%s): %s\n", pmIDStr(smack_rp->vset[0]->pmid), pmErrStr(sts));
+    if ((sts = pmStoreHighRes(smack_rp)) < 0 && sts != PM_ERR_AGAIN) {
+	fprintf(stderr, "pmStoreHighRes(%s): %s\n", pmIDStr(smack_rp->vset[0]->pmid), pmErrStr(sts));
 	exit(1);
     }
 }
@@ -136,8 +136,8 @@ main(int argc, char **argv)
     pmDesc	desc;
     pmResult	*rp;
     pmResult	*store_rp = NULL;
-    pmHighResResult	*hrp;
-    struct timeval	delay = { 0, 20000 };	/* 20msec pause */
+    pmResult	*hrp;
+    struct timespec	delay = { 0, 20000000 };	/* 20msec pause */
     int		colour_numinst = 0;
     int		*colour_instlist = NULL;
 
@@ -261,7 +261,7 @@ main(int argc, char **argv)
 
 	    /*
 	     * fetch/store ops:
-	     *   pmDelProfile, pmAddProfile pmFetch, pmFetchHighRes, pmStore
+	     *   pmDelProfile, pmAddProfile pmFetch, pmFetch, pmStore
 	     */
 	    for (i = 0; i < sizeof(ctl) / sizeof(ctl[0]); i++) {
 		if (ctl[i].desc.pmid != PM_ID_NULL) {
@@ -290,12 +290,12 @@ main(int argc, char **argv)
 		    }
 		    if (store_rp != NULL && store_rp->vset[0]->pmid == ctl[i].desc.pmid) {
 			printf("ctl[%d][%s] name %s pmStore ...\n", i, (limbo && j == 0) ? "notready" : "ok", ctl[i].name);
-			if ((sts = pmStore(store_rp)) < 0)
+			if ((sts = pmStoreHighRes(store_rp)) < 0)
 			    printf("Error: %s\n", pmErrStr(sts));
 			else
 			    printf("OK\n");
 		    }
-		    /* pmFetchHighRes */
+		    /* pmFetch */
 		    if (ctl[i].desc.indom == pmInDom_build(29,1)) {
 			/* change instance profile, so highres fetch sample.colour needs to send profile */
 			printf("ctl[%d][%s] name %s pm*Profile ...\n", i, (limbo && j == 0) ? "notready" : "ok", ctl[i].name);
@@ -306,12 +306,12 @@ main(int argc, char **argv)
 			if ((sts = pmDelProfile(ctl[i].desc.indom, 1, &del_inst)) < 0)
 			    printf("pmDelProfile Error: %s\n", pmErrStr(sts));
 		    }
-		    printf("ctl[%d][%s] name %s pmFetchHighRes ...\n", i, (limbo && j == 0) ? "notready" : "ok", ctl[i].name);
-		    if ((sts = pmFetchHighRes(1, &ctl[i].desc.pmid, &hrp)) < 0)
+		    printf("ctl[%d][%s] name %s pmFetch ...\n", i, (limbo && j == 0) ? "notready" : "ok", ctl[i].name);
+		    if ((sts = pmFetch(1, &ctl[i].desc.pmid, &hrp)) < 0)
 			printf("Error: %s\n", pmErrStr(sts));
 		    else {
-			__pmDumpHighResResult(stdout, hrp);
-			pmFreeHighResResult(hrp);
+			__pmDumpResult(stdout, hrp);
+			pmFreeResult(hrp);
 		    }
 		}
 	    }
@@ -502,7 +502,7 @@ main(int argc, char **argv)
 	    }
 
 	    if (limbo && j == 0)
-		__pmtimevalSleep(delay);
+		__pmtimespecSleep(delay);
 	}
 
 	/*

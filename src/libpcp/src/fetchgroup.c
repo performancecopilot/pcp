@@ -43,7 +43,7 @@ struct __pmFetchGroup {
     int	ctx;			/* the PMAPI context */
     unsigned int wrap : 1;	/* counter wrap handling */
     unsigned int preserve : 1;	/* discrete value preserving */
-    pmHighResResult *prevResult;
+    pmResult *prevResult;
     struct __pmFetchGroupItem *items;
     struct __pmInDomCache *unique_indoms;
     pmID *unique_pmids;
@@ -104,8 +104,8 @@ struct __pmFetchGroupItem {
 	    struct __pmFetchGroupConversionSpec conv;
 	    struct timespec *output_times; /* NB: may be NULL */
 	    pmAtomValue *output_values;	/* NB: may be NULL */
-	    pmResult **unpacked_usec_events; /* NB: may be NULL */
-	    pmHighResResult **unpacked_nsec_events; /* NB: may be NULL */
+	    pmResult_v2 **unpacked_usec_events; /* NB: may be NULL */
+	    pmResult **unpacked_nsec_events; /* NB: may be NULL */
 	    int output_type;
 	    int *output_stss;	/* NB: may be NULL */
 	    int *output_sts;	/* NB: may be NULL */
@@ -751,7 +751,7 @@ pmfg_extract_convert_item(pmFG pmfg, pmID metric_pmid, int metric_inst,
 
     if (conv->rate_convert) {
 	if (pmfg->prevResult) {
-	    pmHighResResult *prev_r;
+	    pmResult *prev_r;
 	    pmAtomValue prev_v;
 	    double deltaT, delta;
 	    const double epsilon = 0.000000001;	/* 1 nanosecond */
@@ -808,7 +808,7 @@ pmfg_extract_convert_item(pmFG pmfg, pmID metric_pmid, int metric_inst,
 }
 
 static void
-pmfg_fetch_item(pmFG pmfg, pmFGI item, pmHighResResult *newResult)
+pmfg_fetch_item(pmFG pmfg, pmFGI item, pmResult *newResult)
 {
     int sts;
     pmAtomValue v;
@@ -864,7 +864,7 @@ out:
 }
 
 static void
-pmfg_fetch_timespec(pmFG pmfg, pmFGI item, pmHighResResult *newResult)
+pmfg_fetch_timespec(pmFG pmfg, pmFGI item, pmResult *newResult)
 {
     assert(item->type == pmfg_timespec);
     assert(newResult != NULL);
@@ -875,7 +875,7 @@ pmfg_fetch_timespec(pmFG pmfg, pmFGI item, pmHighResResult *newResult)
 }
 
 static void
-pmfg_fetch_timeval(pmFG pmfg, pmFGI item, pmHighResResult *newResult)
+pmfg_fetch_timeval(pmFG pmfg, pmFGI item, pmResult *newResult)
 {
     assert(item->type == pmfg_timeval);
     assert(newResult != NULL);
@@ -889,7 +889,7 @@ pmfg_fetch_timeval(pmFG pmfg, pmFGI item, pmHighResResult *newResult)
 }
 
 static void
-pmfg_fetch_indom(pmFG pmfg, pmFGI item, pmHighResResult *newResult)
+pmfg_fetch_indom(pmFG pmfg, pmFGI item, pmResult *newResult)
 {
     int i, sts = 0;
     unsigned int j, k;
@@ -1141,7 +1141,7 @@ pmfg_fetch_event_field(pmFG pmfg, pmFGI item, unsigned int *output_num,
 }
 
 static void
-pmfg_fetch_event(pmFG pmfg, pmFGI item, pmHighResResult *newResult)
+pmfg_fetch_event(pmFG pmfg, pmFGI item, pmResult *newResult)
 {
     int sts = 0;
     int i;
@@ -1206,7 +1206,7 @@ pmfg_fetch_event(pmFG pmfg, pmFGI item, pmHighResResult *newResult)
     sts = 0;
 
     if (item->u.event.metric_desc.type == PM_TYPE_HIGHRES_EVENT) {
-	pmHighResResult **nresp, *event;
+	pmResult **nresp, *event;
 
 	for (nresp = item->u.event.unpacked_nsec_events; *nresp; nresp++) {
 	    event = *nresp;
@@ -1219,7 +1219,7 @@ pmfg_fetch_event(pmFG pmfg, pmFGI item, pmHighResResult *newResult)
     else {
 	assert(item->u.event.metric_desc.type == PM_TYPE_EVENT);
 	struct timespec timestamp;
-	pmResult **uresp, *event;
+	pmResult_v2 **uresp, *event;
 
 	for (uresp = item->u.event.unpacked_usec_events; *uresp; uresp++) {
 	    event = *uresp;
@@ -1670,8 +1670,8 @@ pmFetchGroup(pmFG pmfg)
 {
     int sts;
     pmFGI item;
-    pmHighResResult *newResult;
-    pmHighResResult dummyResult;
+    pmResult *newResult;
+    pmResult dummyResult;
 
     if (pmfg == NULL)
 	return -EINVAL;
@@ -1708,7 +1708,7 @@ pmFetchGroup(pmFG pmfg)
     if (sts != 0)
 	return sts;
 
-    sts = pmFetchHighRes(pmfg->num_unique_pmids, pmfg->unique_pmids, &newResult);
+    sts = pmFetch(pmfg->num_unique_pmids, pmfg->unique_pmids, &newResult);
     if (sts < 0 || newResult == NULL) {
 	/*
 	 * Populate an empty fetch result, which will send out the
@@ -1754,11 +1754,11 @@ pmFetchGroup(pmFG pmfg)
      */
     if (newResult != &dummyResult) {
 	if (pmfg->prevResult)
-	    pmFreeHighResResult(pmfg->prevResult);
+	    pmFreeResult(pmfg->prevResult);
 	pmfg->prevResult = newResult;
     }
 
-    /* NB: we pass through the pmFetchHighRes() sts. */
+    /* NB: we pass through the pmFetch() sts. */
     return sts;
 }
 
@@ -1801,7 +1801,7 @@ pmClearFetchGroup(pmFG pmfg)
     pmfg->items = NULL;
 
     if (pmfg->prevResult)
-	pmFreeHighResResult(pmfg->prevResult);
+	pmFreeResult(pmfg->prevResult);
     pmfg->prevResult = NULL;
 
     if (pmfg->unique_pmids)

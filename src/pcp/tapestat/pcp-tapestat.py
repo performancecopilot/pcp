@@ -68,9 +68,9 @@ class TapestatReport(pmcc.MetricGroupPrinter):
     Hcount = 0
     def timeStampDelta(self, group):
         s = group.timestamp.tv_sec - group.prevTimestamp.tv_sec
-        u = group.timestamp.tv_usec - group.prevTimestamp.tv_usec
-        # u may be negative here, calculation is still correct.
-        return s + u / 1000000.0
+        n = group.timestamp.tv_nsec - group.prevTimestamp.tv_nsec
+        # n may be negative here, calculation is still correct.
+        return s + n / 1000000000.0
     def instlist(self, group, name):
         return dict(map(lambda x: (x[1], x[2]), group[name].netValues)).keys()
 

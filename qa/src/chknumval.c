@@ -171,7 +171,7 @@ Options\n\
     __pmPrintResult(stdout, req);
 
     printf("\nbase store test (failures not unexpected) ...\n");
-    if ((sts = pmStore(__pmOffsetResult(req))) < 0)
+    if ((sts = pmStoreHighRes(__pmOffsetResult(req))) < 0)
 	printf("pmStore: %s\n", pmErrStr(sts));
     else
 	printf("pmStore: OK\n");
@@ -180,7 +180,7 @@ Options\n\
     req->numpmid = 0;
     __pmPrintResult(stdout, req);
 
-    if ((sts = pmStore(__pmOffsetResult(req))) < 0)
+    if ((sts = pmStoreHighRes(__pmOffsetResult(req))) < 0)
 	printf("pmStore: %s\n", pmErrStr(sts));
     else
 	printf("pmStore: botch, PM_ERR_TOOSMALL expected\n");
@@ -197,7 +197,7 @@ Options\n\
     req->vset[1]->numval = 0;
     __pmPrintResult(stdout, req);
 
-    if ((sts = pmStore(__pmOffsetResult(req))) < 0)
+    if ((sts = pmStoreHighRes(__pmOffsetResult(req))) < 0)
 	printf("pmStore: %s\n", pmErrStr(sts));
     else
 	printf("pmStore: botch, PM_ERR_VALUE expected\n");
@@ -214,7 +214,7 @@ Options\n\
     req->vset[2]->numval = PM_ERR_NOAGENT;
     __pmPrintResult(stdout, req);
 
-    if ((sts = pmStore(__pmOffsetResult(req))) < 0)
+    if ((sts = pmStoreHighRes(__pmOffsetResult(req))) < 0)
 	printf("pmStore: %s\n", pmErrStr(sts));
     else
 	printf("pmStore: botch, PM_ERR_VALUE expected\n");

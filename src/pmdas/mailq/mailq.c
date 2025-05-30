@@ -148,7 +148,7 @@ mailq_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
  * wrapper for pmdaFetch which refreshes the metrics
  */
 static int
-mailq_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
+mailq_fetch(int numpmid, pmID pmidlist[], pmdaResult **resp, pmdaExt *pmda)
 {
     static int		warn = 0;
     int			num;

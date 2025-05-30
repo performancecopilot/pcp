@@ -114,7 +114,7 @@ jbd2_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt 
 }
 
 static int
-jbd2_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
+jbd2_fetch(int numpmid, pmID pmidlist[], pmdaResult **resp, pmdaExt *pmda)
 {
     refresh_jbd2(prefix, INDOM(JBD2_INDOM));
     return pmdaFetch(numpmid, pmidlist, resp, pmda);

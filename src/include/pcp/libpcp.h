@@ -313,7 +313,7 @@ typedef struct __pmResult {
 #ifdef PM_PAD_RESULT
     __int32_t		pad;		/* move numpmid down a bit so numpmid */
     					/* offset is >= offset for pmResult */
-					/* and pmHighResResult */
+					/* and pmResult_v2 */
 #endif
     int                 numpmid;	/* number of PMIDs */
     pmValueSet		*vset[1];	/* set of value sets, one per PMID */
@@ -993,7 +993,7 @@ PCP_CALL extern int __pmFetchLocal(__pmContext *, int, pmID *, __pmResult **);
 PCP_CALL extern int __pmFetchArchive(__pmContext *, __pmResult **);
 PCP_CALL extern int __pmPrepareFetch(__pmContext *, int, const pmID *, pmID **);
 PCP_CALL extern int __pmFinishResult(__pmContext *, int, __pmResult **);
-PCP_CALL extern int __pmFinishHighResResult(__pmContext *, int, pmHighResResult **);
+PCP_CALL extern int __pmFinishHighResResult(__pmContext *, int, pmResult **);
 PCP_CALL extern int __pmFetchLocal(__pmContext *, int, pmID *, __pmResult **);
 PCP_CALL extern int __pmFetchHighResLocal(__pmContext *, int, pmID *, __pmResult **);
 PCP_CALL extern int __pmDecodeResult_ctx(__pmContext *, __pmPDU *, __pmResult **);
@@ -1450,13 +1450,6 @@ __pmOffsetResult(const __pmResult *rp)
    return (pmResult *)(&((char *)rp)[offsetof(__pmResult,numpmid) - offsetof(pmResult,numpmid)]);
 }
 
-/* same for pmHighResResult ... */
-static inline pmHighResResult *
-__pmOffsetHighResResult(const __pmResult *rp)
-{
-   return (pmHighResResult *)(&((char *)rp)[offsetof(__pmResult,numpmid) - offsetof(pmHighResResult,numpmid)]);
-}
-
 /* free malloc'd data structures */
 PCP_CALL extern void __pmFreeAttrsSpec(__pmHashCtl *);
 PCP_CALL extern void __pmFreeHostAttrsSpec(__pmHostSpec *, int, __pmHashCtl *);
@@ -1465,7 +1458,6 @@ PCP_CALL extern void __pmFreeInResult(pmInResult *);
 PCP_CALL extern void __pmFreePMNS(__pmnsTree *);
 PCP_CALL extern void __pmFreeProfile(pmProfile *);
 PCP_CALL extern void __pmFreeResultValues(pmResult *);
-PCP_CALL extern void __pmFreeHighResResultValues(pmHighResResult *);
 PCP_CALL extern void __pmFreeDerived(__pmContext *);
 PCP_CALL extern void __pmFreeResult(__pmResult *);
 
@@ -1478,14 +1470,13 @@ PCP_CALL extern void __pmCtlDebug(int);
 PCP_CALL extern void __pmDumpErrTab(FILE *);
 PCP_CALL extern void __pmDumpEventRecords(FILE *, pmValueSet *, int);
 PCP_CALL extern void __pmDumpHighResEventRecords(FILE *, pmValueSet *, int);
-PCP_CALL extern void __pmDumpHighResResult(FILE *, const pmHighResResult *);
+PCP_CALL extern void __pmDumpResult(FILE *, const pmResult *);
 PCP_CALL extern void __pmDumpIDList(FILE *, int, const pmID *);
 PCP_CALL extern void __pmDumpInResult(FILE *, const pmInResult *);
 PCP_CALL extern void __pmDumpLabelSets(FILE *, const pmLabelSet *, int);
 PCP_CALL extern void __pmDumpNameList(FILE *, int, const char **);
 PCP_CALL extern void __pmDumpNameNode(FILE *, const __pmnsNode *, int);
 PCP_CALL extern void __pmDumpNameSpace(FILE *, int);
-PCP_CALL extern void __pmDumpResult(FILE *, const pmResult *);
 PCP_CALL extern void __pmPrintResult(FILE *, const __pmResult *);
 PCP_CALL extern void __pmDumpStack(void);
 PCP_CALL extern void __pmDumpStackInit(void *);
@@ -1533,9 +1524,6 @@ PCP_CALL extern int __pmShutdown(void);
 
 PCP_CALL extern void __pmIgnoreSignalPIPE(void);
 
-/* free high resolution timestamp variant of pmResult */
-PCP_CALL extern void __pmFreeHighResResult(pmHighResResult *);
-
 /*
  * Loading archive records from disk ...
  */
@@ -1571,6 +1559,38 @@ PCP_CALL extern int __pmCheckAttribute(__pmAttrKey, const char *);
 
 /* dump status change flags from pmcd */
 PCP_CALL extern void __pmDumpFetchFlags(FILE *, int);
+
+/*
+ * PMAPI_VERSION_2 interfaces
+ */
+static inline pmResult_v2 *
+__pmOffsetResult_v2(const __pmResult *rp)
+{
+   return (pmResult_v2 *)(&((char *)rp)[offsetof(__pmResult,numpmid) - offsetof(pmResult_v2,numpmid)]);
+}
+
+PCP_CALL extern void __pmFreeResultValues_v2(pmResult_v2 *);
+PCP_CALL extern void __pmDumpResult_v2(FILE *, const pmResult_v2 *);
+
+#if PMAPI_VERSION == PMAPI_VERSION_2
+/*
+ * old names with API changes mapped to _v2 variants
+ */
+#define __pmOffsetResult __pmOffsetResult_v2
+#define __pmFreeResultValues __pmFreeResultValues_v2
+#define __pmDumpResult __pmDumpResult_v2
+#define __pmDumpHighResResult __pmDumpResult
+#endif
+
+#if PMAPI_VERSION >= PMAPI_VERSION_4
+/*
+ * retire HighRes interfaces
+ */
+#define __pmOffsetHighResResult __pmOffsetResult
+#define __pmFreeHighResResultValues __pmFreeResultValues
+#define __pmDumpHighResResult __pmDumpResult
+#define __pmFreeHighResResult __pmFreeResult
+#endif
 
 #ifdef __cplusplus
 }

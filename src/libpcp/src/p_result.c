@@ -38,7 +38,7 @@
 #include "internal.h"
 
 /*
- * PDUs for pmResult (PDU_RESULT) and pmHighResResult (PDU_HIGHRES_RESULT)
+ * PDUs for pmResult_v2 (PDU_RESULT) and pmResult (PDU_HIGHRES_RESULT)
  */
 
 typedef struct {
@@ -939,7 +939,7 @@ __pmDecodeResult_ctx(__pmContext *ctxp, __pmPDU *pdubuf, __pmResult **result)
 		numpmid, len);
 	return PM_ERR_IPC;
     }
-    maxnumpmid = (INT_MAX - sizeof(pmResult)) / sizeof(pmValueSet *);
+    maxnumpmid = (INT_MAX - sizeof(pmResult_v2)) / sizeof(pmValueSet *);
     if (numpmid >= maxnumpmid) {
 	if (pmDebugOptions.pdu)
 	    fprintf(stderr, "__pmDecodeResult: PM_ERR_IPC: numpmid=%d larger than max %ld\n",
@@ -1013,7 +1013,7 @@ __pmDecodeHighResResult_ctx(__pmContext *ctxp, __pmPDU *pdubuf, __pmResult **res
 		numpmid, pp->hdr.len);
 	return PM_ERR_IPC;
     }
-    bytes = (INT_MAX - sizeof(pmHighResResult)) / sizeof(pmValueSet *);
+    bytes = (INT_MAX - sizeof(pmResult)) / sizeof(pmValueSet *);
     if (numpmid >= bytes) {
 	if (pmDebugOptions.pdu)
 	    fprintf(stderr, "__pmDecodeHighResResult: PM_ERR_IPC: numpmid=%d larger than max %ld\n",

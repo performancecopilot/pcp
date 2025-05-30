@@ -228,7 +228,7 @@ prefetch(void)
 }
 
 int
-fetch_wrapper(int numpmid, pmID *pmidlist, pmResult **rp, pmdaExt *pmda)
+fetch_wrapper(int numpmid, pmID *pmidlist, pmdaResult **rp, pmdaExt *pmda)
 {
     if (need_refresh)
 	pmns_refresh();
@@ -412,7 +412,7 @@ store_end:
 }
 
 int
-store(pmResult *result, pmdaExt *pmda)
+store(pmdaResult *result, pmdaExt *pmda)
 {
     int		i, j;
     int		type;

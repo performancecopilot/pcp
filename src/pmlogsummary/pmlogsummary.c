@@ -579,7 +579,7 @@ findbin(pmID pmid, double val, double min, double max)
  * record has been seen between now & the last fetch for that instance
  */
 static void
-markrecord(pmHighResResult *result)
+markrecord(pmResult *result)
 {
     int			i, j;
     __pmHashNode	*hptr;
@@ -615,7 +615,7 @@ markrecord(pmHighResResult *result)
 }
 
 static void
-calcbinning(pmHighResResult *result)
+calcbinning(pmResult *result)
 {
     unsigned int	bin;
     int			i, j, k;
@@ -739,7 +739,7 @@ calcbinning(pmHighResResult *result)
 }
 
 static void
-calcaverage(pmHighResResult *result)
+calcaverage(pmResult *result)
 {
     int			i, j, k;
     int			sts;
@@ -1007,7 +1007,7 @@ main(int argc, char *argv[])
     int			c, i, sts, trip, exitstatus = 0;
     int			lflag = 0;		/* no label by default */
     int			Hflag = 0;		/* no header by default */
-    pmHighResResult		*result;
+    pmResult		*result;
     struct timespec 	timespan = {0, 0};
     char		*endnum;
     char		*archive;
@@ -1162,10 +1162,10 @@ main(int argc, char *argv[])
 		    calcaverage(result);
 		else
 		    calcbinning(result);
-		pmFreeHighResResult(result);
+		pmFreeResult(result);
 	    }
 	    else {
-		pmFreeHighResResult(result);
+		pmFreeResult(result);
 		sts = PM_ERR_EOL;
 		break;
 	    }

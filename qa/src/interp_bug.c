@@ -57,7 +57,7 @@ main(int argc, char **argv)
     struct timespec start;
     struct timespec delta = { 1, 0 };
     char	*endnum;
-    pmHighResResult	*result;
+    pmResult	*result;
     int		i;
     int		status = 0;
 
@@ -285,7 +285,7 @@ Options\n\
     }
 
     for (sample=0; ; sample++) {
-	if ((sts = pmFetchHighRes(N_PMID_A, pmid_a, &result)) < 0) {
+	if ((sts = pmFetch(N_PMID_A, pmid_a, &result)) < 0) {
 	    if (sts != PM_ERR_EOL) {
 		fprintf(stderr, "%s: pmFetch: %s\n", pmGetProgname(), pmErrStr(sts));
 		status = 1;
@@ -304,13 +304,13 @@ Options\n\
 	else {
 	    if (result->vset[0]->vlist[0].value.lval != 1) {
 		printf("expected value=1, got value=%d\n", result->vset[0]->vlist[0].value.lval);
-		__pmDumpHighResResult(stdout, result);
+		__pmDumpResult(stdout, result);
 		status = 1;
 	    }
 	    else
 		printf("correct result\n");
 	}
-	pmFreeHighResResult(result);
+	pmFreeResult(result);
     }
 
     printf("Pass Two: rewind and fetch metrics_b until end of log\n");
@@ -320,7 +320,7 @@ Options\n\
     }
 
     for (sample=0; ; sample++) {
-	if ((sts = pmFetchHighRes(N_PMID_B, pmid_b, &result)) < 0) {
+	if ((sts = pmFetch(N_PMID_B, pmid_b, &result)) < 0) {
 	    if (sts != PM_ERR_EOL) {
 		fprintf(stderr, "%s: pmFetch: %s\n", pmGetProgname(), pmErrStr(sts));
 		status = 1;
@@ -340,12 +340,12 @@ Options\n\
 	    if (result->vset[0]->vlist[0].value.lval != 1) {
 		printf("expected value=1, got value=%d\n", result->vset[0]->vlist[0].value.lval);
 		status = 1;
-		__pmDumpHighResResult(stdout, result);
+		__pmDumpResult(stdout, result);
 	    }
 	    else
 		printf("correct result\n");
 	}
-	pmFreeHighResResult(result);
+	pmFreeResult(result);
     }
 
     exit(status);

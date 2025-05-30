@@ -44,7 +44,7 @@ main(int argc, char **argv)
     struct timespec now;
     struct timespec	delta = { 1, 0 };
     char	*endnum;
-    pmHighResResult	**result;
+    pmResult	**result;
     int		i;
     int		status = 0;
 
@@ -196,14 +196,14 @@ Options\n\
 	exit(1);
     }
 
-    result = (pmHighResResult **)malloc(2*samples*sizeof(result[0]));
+    result = (pmResult **)malloc(2*samples*sizeof(result[0]));
     if (result == NULL) {
 	fprintf(stderr, "%s: arrgh, malloc failed for %d bytes\n", pmGetProgname(), (int)(2*samples*sizeof(result[0])));
 	exit(1);
     }
 
     for (sample=0; sample < samples; sample++) {
-	if ((sts = pmFetchHighRes(N_PMID, pmid, &result[sample])) < 0) {
+	if ((sts = pmFetch(N_PMID, pmid, &result[sample])) < 0) {
 	    if (sts != PM_ERR_EOL) {
 		fprintf(stderr, "%s: pmFetch: %s\n", pmGetProgname(), pmErrStr(sts));
 		status = 1;
@@ -225,7 +225,7 @@ Options\n\
     }
 
     for ( ; sample < 2*samples; sample++) {
-	if ((sts = pmFetchHighRes(N_PMID, pmid, &result[sample])) < 0) {
+	if ((sts = pmFetch(N_PMID, pmid, &result[sample])) < 0) {
 	    if (sts != PM_ERR_EOL) {
 		fprintf(stderr, "%s: pmFetch: %s\n", pmGetProgname(), pmErrStr(sts));
 		status = 1;
@@ -239,7 +239,7 @@ Options\n\
     }
 
     for (i = 0; i < sample; i++) {
-	pmFreeHighResResult(result[i]);
+	pmFreeResult(result[i]);
     }
 
     exit(status);

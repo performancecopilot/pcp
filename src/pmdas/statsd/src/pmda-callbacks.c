@@ -681,7 +681,7 @@ statsd_instance(pmInDom in_dom, int inst, char* name, pmInResult** result, pmdaE
  * @arg pmda - PMDA extension structure (contains agent-specific private data)
  */
 int
-statsd_fetch(int num_pm_id, pmID pm_id_list[], pmResult** resp, pmdaExt* pmda) {
+statsd_fetch(int num_pm_id, pmID pm_id_list[], pmdaResult** resp, pmdaExt* pmda) {
     struct pmda_data_extension* data = (struct pmda_data_extension*) pmdaExtGetData(pmda);
     statsd_possible_reload(pmda);
     if (data->notify) {

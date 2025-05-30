@@ -26,8 +26,8 @@ main(int argc, char **argv)
     int		samples = 10;
     struct timespec	delta = { 1, 0 };
     char	*endnum;
-    pmHighResResult	*result;
-    pmHighResResult	*prev = NULL;
+    pmResult	*result;
+    pmResult	*prev = NULL;
     int		i;
     int		numpmid = 3;
     pmID	pmid[3];
@@ -161,7 +161,7 @@ Options\n\
 	}
 	if (j == result->numpmid) {
 	    /* suck back one record earlier in the archive */
-	    pmFreeHighResResult(result);
+	    pmFreeResult(result);
 	    sts = pmFetchHighResArchive(&result);
 	    if (sts < 0) {
 		printf("pmFetchArchive skip epilogue: %s\n", pmErrStr(sts));
@@ -179,7 +179,7 @@ Options\n\
 	printf("pmSetMode: %s\n", pmErrStr(sts));
 	exit(1);
     }
-    pmFreeHighResResult(result);
+    pmFreeResult(result);
 
     sts = pmLookupName(numpmid, name, pmid);
     if (sts < 0) {
@@ -196,7 +196,7 @@ Options\n\
     }
 
     for (i = 0; i < samples; i++) {
-	sts = pmFetchHighRes(numpmid, pmid, &result);
+	sts = pmFetch(numpmid, pmid, &result);
 	if (sts < 0) {
 	    printf("sample[%d] pmFetch: %s\n", i, pmErrStr(sts));
 	    break;
@@ -258,7 +258,7 @@ Options\n\
 		    }
 		}
 	    }
-	    pmFreeHighResResult(prev);
+	    pmFreeResult(prev);
 	}
 	prev = result;
     }

@@ -48,7 +48,7 @@
  * __pmSetProcessIdentity()	pmSetProcessIdentity()
  * __pmTimeval			pmTimeval
  * __pmTimespec			pmTimespec
- * pmFreeHighResResult()	__pmFreeHighResResult()
+ * pmHighResFreeResult()	pmFreeResult()
  * __pmSpecLocalPMDA()		pmSpecLocalPMDA()
  * __pmLocalPMDA()		pmLocalPMDA()
  */
@@ -125,7 +125,7 @@ PCP_CALL struct __pmContext *__pmCurrentContext(void);
 #define __pmSetProcessIdentity pmSetProcessIdentity
 #define __pmTimeval pmTimeval
 #define __pmTimespec pmTimespec
-#define pmFreeHighResResult __pmFreeHighResResult
+#define pmFreeHighResResult pmFreeResult
 #define __pmSpecLocalPMDA pmSpecLocalPMDA
 #define __pmLocalPMDA pmLocalPMDA
 

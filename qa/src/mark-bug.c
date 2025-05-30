@@ -10,7 +10,7 @@
 
 const char *namelist[2] = {"hinv.ncpu", "irix.kernel.all.cpu.idle"};
 pmID pmidlist[2];
-pmHighResResult *result;
+pmResult *result;
 struct timespec curpos;
 static void check_result(char *);
 
@@ -332,13 +332,13 @@ Options\n\
 
     /* play forwards over the mark */
     for (i=0; i < samples; i++) {
-	if ((sts = pmFetchHighRes(2, pmidlist, &result)) < 0) {
+	if ((sts = pmFetch(2, pmidlist, &result)) < 0) {
 	    fprintf(stderr, "%s: pmFetch failed: %s\n", pmGetProgname(), pmErrStr(sts));
 	    exit(1);
 	}
 	check_result("forwards ");
 	curpos = result->timestamp; /* struct cpy */
-	pmFreeHighResResult(result);
+	pmFreeResult(result);
     }
 
     /* rewind back over the mark */
@@ -348,13 +348,13 @@ Options\n\
     }
 
     for (i=0; i < samples; i++) {
-	if ((sts = pmFetchHighRes(2, pmidlist, &result)) < 0) {
+	if ((sts = pmFetch(2, pmidlist, &result)) < 0) {
 	    fprintf(stderr, "%s: pmFetch failed: %s\n", pmGetProgname(), pmErrStr(sts));
 	    exit(1);
 	}
 
 	check_result("rewinding");
-	pmFreeHighResResult(result);
+	pmFreeResult(result);
     }
 
 

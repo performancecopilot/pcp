@@ -177,8 +177,8 @@ myeventdump(pmValueSet *vsp, int idx, int highres)
     int		flags;
     int		numpmid;
     int		nrecords;
-    pmResult	**res = NULL;
-    pmHighResResult **hres = NULL;
+    pmResult_v2	**res = NULL;
+    pmResult 	**hres = NULL;
 
     if (highres) {
 	if ((nrecords = pmUnpackHighResEventRecords(vsp, idx, &hres)) < 0) {

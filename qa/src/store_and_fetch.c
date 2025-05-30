@@ -51,7 +51,7 @@ int main(int argc, char **argv) {
 
     result->vset[0]->vlist[0] = newValue;
 
-    if ((ret = pmStore(result)) != 0 && ret != PM_ERR_BADSTORE) {
+    if ((ret = pmStoreHighRes(result)) != 0 && ret != PM_ERR_BADSTORE) {
         printf("pmStore: %s\n", pmErrStr(ret));
         return 1;
     }

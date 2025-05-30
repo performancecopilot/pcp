@@ -411,7 +411,7 @@ void enlarge_ctxtab(int context)
 
 
 static int
-systemd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
+systemd_fetch(int numpmid, pmID pmidlist[], pmdaResult **resp, pmdaExt *pmda)
 {
     int sts;
     (void) pmdaEventNewClient(pmda->e_context);

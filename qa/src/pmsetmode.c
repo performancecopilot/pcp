@@ -38,7 +38,7 @@ main(int argc, char **argv)
     struct timespec	mytime;
     struct timespec	mydelta = { 10, 0 };
     pmLogLabel		label;
-    pmHighResResult	*result;
+    pmResult	*result;
 
     pmSetProgname(argv[0]);
 
@@ -101,9 +101,9 @@ main(int argc, char **argv)
 	fprintf(stderr, "pmSetMode: start: %s\n", pmErrStr(sts));
 	exit(1);
     }
-    while ((sts = pmFetchHighRes(numpmid, pmidlist, &result)) >= 0) {
-	__pmDumpHighResResult(stdout, result);
-	pmFreeHighResResult(result);
+    while ((sts = pmFetch(numpmid, pmidlist, &result)) >= 0) {
+	__pmDumpResult(stdout, result);
+	pmFreeResult(result);
     }
     if (sts != PM_ERR_EOL)
 	fprintf(stderr, "pmFetch: forward: %s\n", pmErrStr(sts));
@@ -118,9 +118,9 @@ main(int argc, char **argv)
 	fprintf(stderr, "pmSetMode: end: %s\n", pmErrStr(sts));
 	exit(1);
     }
-    while ((sts = pmFetchHighRes(numpmid, pmidlist, &result)) >= 0) {
-	__pmDumpHighResResult(stdout, result);
-	pmFreeHighResResult(result);
+    while ((sts = pmFetch(numpmid, pmidlist, &result)) >= 0) {
+	__pmDumpResult(stdout, result);
+	pmFreeResult(result);
     }
     if (sts != PM_ERR_EOL)
 	fprintf(stderr, "pmFetch: backward: %s\n", pmErrStr(sts));

@@ -3542,7 +3542,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 }
 
 static int
-proc_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
+proc_fetch(int numpmid, pmID pmidlist[], pmdaResult **resp, pmdaExt *pmda)
 {
     int			i, sts, need_refresh[MAX_CLUSTER] = { 0 };
 
@@ -3572,7 +3572,7 @@ proc_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 }
 
 static int
-proc_store(pmResult *result, pmdaExt *pmda)
+proc_store(pmdaResult *result, pmdaExt *pmda)
 {
     int			i, sts = 0, isroot;
 

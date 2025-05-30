@@ -18,10 +18,10 @@
 #include "pmda.h"
 #include "summary.h"
 
-static void (*freeResultCallback)(pmResult *) = __pmFreeResultValues;
+static void (*freeResultCallback)(pmdaResult *) = pmdaFreeResultValues;
 
 void
-mainLoopFreeResultCallback(void (*callback)(pmResult *res))
+mainLoopFreeResultCallback(void (*callback)(pmdaResult *res))
 {
     freeResultCallback = callback;
 }
@@ -36,7 +36,7 @@ summaryMainLoop(char *pmdaname, int clientfd, pmdaInterface *dtp)
     pmDesc		desc;
     int			npmids;
     pmID		*pmidlist;
-    pmResult		*result;
+    pmdaResult		*result;
     __pmResult		*rp;
     int			ctxnum;
     pmTimeval		unused;
@@ -214,7 +214,7 @@ summaryMainLoop(char *pmdaname, int clientfd, pmdaInterface *dtp)
 
 		case PDU_RESULT:
 		    if ((sts = __pmDecodeResult(pb_pmcd, &rp)) >= 0)
-			sts = dtp->version.two.store(__pmOffsetResult(rp),
+			sts = dtp->version.two.store(pmdaOffsetResult(rp),
 						     dtp->version.two.ext);
 		    __pmSendError(outfd, FROM_ANON, sts);
 		    __pmFreeResult(rp);

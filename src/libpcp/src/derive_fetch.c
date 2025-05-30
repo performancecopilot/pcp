@@ -1974,7 +1974,7 @@ eval_expr(__pmContext *ctxp, node_t *np, struct timespec *stamp, int numpmid,
 
 /*
  * Algorithm here is complicated by trying to re-write the pmValueSets
- * in a result structure (either pmResult or pmHighResResult).
+ * in a pmResult structure.
  *
  * On entry the result is likely to be built over a pinned PDU buffer,
  * which means individual pmValueSets cannot be selectively replaced

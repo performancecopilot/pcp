@@ -307,7 +307,7 @@ foreach_inst(pmInDom indom, void (*cb)(void *state))
 }
 
 int
-ib_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
+ib_fetch(int numpmid, pmID pmidlist[], pmdaResult **resp, pmdaExt *pmda)
 {
     int rv;
 

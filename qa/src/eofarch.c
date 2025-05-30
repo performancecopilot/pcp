@@ -22,7 +22,7 @@ main(int argc, char **argv)
     char	*archive = "foo";
     char	*namespace = PM_NS_DEFAULT;
     static char	*usage = "[-a archive] [-n namespace] [-v]";
-    pmHighResResult	*resp;
+    pmResult	*resp;
     int			resnum = 0;
     pmID		pmid = 0;
     struct timespec	when;
@@ -99,8 +99,8 @@ main(int argc, char **argv)
 	    last = resp->timestamp;
 	resnum++;
 	if (vflag)
-	    __pmDumpHighResResult(stdout, resp);
-	pmFreeHighResResult(resp);
+	    __pmDumpResult(stdout, resp);
+	pmFreeResult(resp);
     }
     printf("Found %d samples, with %d log reads\n", resnum, __pmLogReads);
     if (resnum == 0) {
@@ -121,9 +121,9 @@ main(int argc, char **argv)
     }
     else {
 	if (vflag)
-	    __pmDumpHighResResult(stdout, resp);
+	    __pmDumpResult(stdout, resp);
 	printf("    found 1 with %d log reads\n", __pmLogReads);
-	pmFreeHighResResult(resp);
+	pmFreeResult(resp);
     }
     printf("  2.2: BACKWARD, expect EOL\n");
     __pmLogReads = 0;
@@ -136,9 +136,9 @@ main(int argc, char **argv)
     }
     else {
 	if (vflag)
-	    __pmDumpHighResResult(stdout, resp);
+	    __pmDumpResult(stdout, resp);
 	printf("    found 1 with %d log reads\n", __pmLogReads);
-	pmFreeHighResResult(resp);
+	pmFreeResult(resp);
     }
     printf("  2.3: INTERP, expect EOL\n");
     __pmLogReads = 0;
@@ -146,14 +146,14 @@ main(int argc, char **argv)
 	printf("pmSetMode: %s\n", pmErrStr(sts));
 	exit(1);
     }
-    if ((sts = pmFetchHighRes(1, &pmid, &resp)) < 0) {
+    if ((sts = pmFetch(1, &pmid, &resp)) < 0) {
 	printf("    %s with %d log_reads\n", pmErrStr(sts), __pmLogReads);
     }
     else {
 	if (vflag)
-	    __pmDumpHighResResult(stdout, resp);
+	    __pmDumpResult(stdout, resp);
 	printf("    found 1 with %d log reads\n", __pmLogReads);
-	pmFreeHighResResult(resp);
+	pmFreeResult(resp);
     }
 
     printf("\nPass 3: after end of log scan\n");
@@ -169,9 +169,9 @@ main(int argc, char **argv)
     }
     else {
 	if (vflag)
-	    __pmDumpHighResResult(stdout, resp);
+	    __pmDumpResult(stdout, resp);
 	printf("    found 1 with %d log reads\n", __pmLogReads);
-	pmFreeHighResResult(resp);
+	pmFreeResult(resp);
     }
     printf("  3.2: BACKWARD, expect success\n");
     __pmLogReads = 0;
@@ -184,9 +184,9 @@ main(int argc, char **argv)
     }
     else {
 	if (vflag)
-	    __pmDumpHighResResult(stdout, resp);
+	    __pmDumpResult(stdout, resp);
 	printf("    found 1 with %d log reads\n", __pmLogReads);
-	pmFreeHighResResult(resp);
+	pmFreeResult(resp);
     }
     printf("  3.3: INTERP, expect EOL\n");
     __pmLogReads = 0;
@@ -194,14 +194,14 @@ main(int argc, char **argv)
 	printf("pmSetMode: %s\n", pmErrStr(sts));
 	exit(1);
     }
-    if ((sts = pmFetchHighRes(1, &pmid, &resp)) < 0) {
+    if ((sts = pmFetch(1, &pmid, &resp)) < 0) {
 	printf("    %s with %d log_reads\n", pmErrStr(sts), __pmLogReads);
     }
     else {
 	if (vflag)
-	    __pmDumpHighResResult(stdout, resp);
+	    __pmDumpResult(stdout, resp);
 	printf("    found 1 with %d log reads\n", __pmLogReads);
-	pmFreeHighResResult(resp);
+	pmFreeResult(resp);
     }
 
     exit(0);

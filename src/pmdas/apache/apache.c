@@ -338,7 +338,7 @@ static int refreshData(void)
 }
 
 static int
-apache_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
+apache_fetch(int numpmid, pmID pmidlist[], pmdaResult **resp, pmdaExt *pmda)
 {
     if (!refreshData())
 	return PM_ERR_AGAIN;

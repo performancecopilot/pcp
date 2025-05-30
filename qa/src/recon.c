@@ -18,8 +18,8 @@
 int
 main(int argc, char **argv)
 {
-    struct timeval	now;
-    struct timeval	then;
+    struct timespec	now;
+    struct timespec	then;
     pmResult	*rp;
     int		i;
     const char	*namelist[4];
@@ -31,7 +31,7 @@ main(int argc, char **argv)
     int		errflag = 0;
     int		loop;
 
-    static const struct timeval delay = { 0, 10000 };
+    static const struct timespec delay = { 0, 10000000 };
     /*
      * was sginap(10) ... I think this dated from the sgi days when this
      * was, 10 * 1/100 (1/HZ) seconds, so 100,000 usec or 100 msec ...
@@ -100,11 +100,11 @@ Options:\n\
 		fprintf(stderr, "Bogus error?\n");
 		exit(1);
 	    }
-	    gettimeofday(&then, (struct timezone *)0);
+	    pmtimespecNow(&then);
 	    break;
 	}
 	pmFreeResult(rp);
-	__pmtimevalSleep(delay);
+	__pmtimespecSleep(delay);
     }
     if (loop == MAX_LOOP) {
 	fprintf(stderr, "Arrgh: pmFetch() failed %d times ... giving up!\n", loop);
@@ -114,12 +114,12 @@ Options:\n\
     for (loop = 0; loop < MAX_LOOP; loop++) {
 	if ((sts = pmReconnectContext(ctx)) >= 0) {
 	    fprintf(stderr, "pmReconnectContext: success\n");
-	    gettimeofday(&now, (struct timezone *)0);
+	    pmtimespecNow(&now);
 	    /* roundup to the nearest second, now that pmcd stop is much quicker */
-	    fprintf(stderr, "delay: %.0f secs\n", pmtimevalSub(&now, &then) + 0.5);
+	    fprintf(stderr, "delay: %.0f secs\n", pmtimespecSub(&now, &then) + 0.5);
 	    break;
 	}
-	__pmtimevalSleep(delay);
+	__pmtimespecSleep(delay);
     }
     if (loop == MAX_LOOP) {
 	fprintf(stderr, "Arrgh: pmReconnectContext() failed %d times ... giving up!\n", loop);

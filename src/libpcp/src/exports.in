@@ -121,7 +121,6 @@ PCP_4.0 {
     __pmDumpEventRecords;
     __pmDumpFetchFlags;
     __pmDumpHighResEventRecords;
-    __pmDumpHighResResult;
     __pmDumpIDList;
     __pmDumpInResult;
     __pmDumpLabelSet;
@@ -134,6 +133,7 @@ PCP_4.0 {
     __pmDumpPDUTrace;
     __pmDumpProfile;
     __pmDumpResult;
+    __pmDumpResult_v2;
     __pmDumpStack;
     __pmDumpStackInit;
     __pmDumpStatusList;
@@ -174,8 +174,6 @@ PCP_4.0 {
     __pmFread;
     __pmFreeAttrsSpec;
     __pmFreeDerived;
-    __pmFreeHighResResult;
-    __pmFreeHighResResultValues;
     __pmFreeHostAttrsSpec;
     __pmFreeHostSpec;
     __pmFreeInResult;
@@ -186,6 +184,7 @@ PCP_4.0 {
     __pmFreeProfile;
     __pmFreeResult;
     __pmFreeResultValues;
+    __pmFreeResultValues_v2;
     __pmFreeSecureConfig;
     __pmFseek;
     __pmFstat;
@@ -545,18 +544,18 @@ PCP_4.0 {
     pmExtendFetchGroup_timeval;
     pmExtractValue;
     pmFetch;
+    pmFetch_v2;
     pmFetchArchive;
     pmFetchGroup;
-    pmFetchHighRes;
     pmFetchHighResArchive;
     pmFreeEventResult;
     pmFreeHighResEventResult;
-    pmFreeHighResResult;
     pmFreeLabelSets;
     pmFreeMetricSpec;
     pmFreeOptions;
     pmFreeOptions_v2;
     pmFreeResult;
+    pmFreeResult_v2;
     pmGetAPIConfig;
     pmGetArchiveEnd;
     pmGetArchiveEnd_v2;

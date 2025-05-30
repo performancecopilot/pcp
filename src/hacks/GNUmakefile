@@ -6,6 +6,7 @@ include $(TOPDIR)/src/include/builddefs
 LLDLIBS = $(PCPLIB)
 EXEC = delta-indom-stats pmresult-fiddle
 LDIRT = $(EXEC)
+LCFLAGS = -I../libpcp/src
 
 default: $(EXEC)
 

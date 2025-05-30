@@ -814,10 +814,10 @@ getIndomSize(pmID pmid)
 
 
 static int
-traceFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
+traceFetch(int numpmid, pmID pmidlist[], pmdaResult **resp, pmdaExt *pmda)
 {
     static int		maxnpmids = 0;
-    static pmResult	*res = NULL;
+    static pmdaResult	*res = NULL;
     pmValueSet		*vset;
     pmDesc		*dp;
     pmdaMetric		*metap;
@@ -833,9 +833,9 @@ traceFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
     if (numpmid > maxnpmids) {
 	if (res != NULL)
 	    free(res);
-	/* (numpmid - 1) because there's room for one valueSet in a pmResult */
-	need = (int)sizeof(pmResult) + (numpmid-1)*(int)sizeof(pmValueSet *);
-	if ((res = (pmResult *) malloc(need)) == NULL) {
+	/* (numpmid - 1) because there's room for one valueSet in a pmdaResult */
+	need = (int)sizeof(pmdaResult) + (numpmid-1)*(int)sizeof(pmValueSet *);
+	if ((res = (pmdaResult *) malloc(need)) == NULL) {
 	    return -oserror();
 	}
 	maxnpmids = numpmid;
@@ -893,7 +893,7 @@ traceFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 					sizeof(pmValue));
 	if (vset == NULL) {
 	    if ((res->numpmid = i) > 0)
-		__pmFreeResultValues(res);
+		pmdaFreeResultValues(res);
 	    return -oserror();
 	}
 
@@ -915,7 +915,7 @@ traceFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 		pmNotifyErr(LOG_ERR, "bogus instance ignored (pmid=%s)",
 					pmIDStr(dp->pmid));
 		if ((res->numpmid = i) > 0)
-		    __pmFreeResultValues(res);
+		    pmdaFreeResultValues(res);
 		return PM_ERR_INST;
 	    }
 	    if (j == numval) {
@@ -924,7 +924,7 @@ traceFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 			sizeof(pmValueSet) + (numval - 1)*sizeof(pmValue));
 		if (vset == NULL) {
 		    if ((res->numpmid = i) > 0)
-			__pmFreeResultValues(res);
+			pmdaFreeResultValues(res);
 		    return -oserror();
 		}
 	    }
@@ -969,7 +969,7 @@ traceFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 
 
 static int
-traceStore(pmResult *result, pmdaExt *pmda)
+traceStore(pmdaResult *result, pmdaExt *pmda)
 {
     int		i, j;
     int         sts = 0;

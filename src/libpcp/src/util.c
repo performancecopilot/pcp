@@ -813,9 +813,9 @@ dump_valueset(__pmContext *ctxp, FILE *f, pmValueSet *vsp)
     }
 }
 
-/* Internal variant of __pmDumpResult() with current context. */
+/* Internal variant of __pmDumpResult_v2() with current context. */
 void
-__pmDumpResult_ctx(__pmContext *ctxp, FILE *f, const pmResult *resp)
+__pmDumpResult_ctx_v2(__pmContext *ctxp, FILE *f, const pmResult_v2 *resp)
 {
     int		i;
 
@@ -832,9 +832,9 @@ __pmDumpResult_ctx(__pmContext *ctxp, FILE *f, const pmResult *resp)
 }
 
 void
-__pmDumpResult(FILE *f, const pmResult *resp)
+__pmDumpResult_v2(FILE *f, const pmResult_v2 *resp)
 {
-    __pmDumpResult_ctx(NULL, f, resp);
+    __pmDumpResult_ctx_v2(NULL, f, resp);
 }
 
 /* Internal variant of __pmPrintResult() with current context. */
@@ -862,9 +862,9 @@ __pmPrintResult(FILE *f, const __pmResult *resp)
     __pmPrintResult_ctx(NULL, f, resp);
 }
 
-/* Internal variant of __pmDumpHighResResult() with current context. */
+/* Internal variant of __pmDumpResult() with current context. */
 void
-__pmDumpHighResResult_ctx(__pmContext *ctxp, FILE *f, const pmHighResResult *hresp)
+__pmDumpResult_ctx(__pmContext *ctxp, FILE *f, const pmResult *hresp)
 {
     int		i;
 
@@ -884,9 +884,9 @@ __pmDumpHighResResult_ctx(__pmContext *ctxp, FILE *f, const pmHighResResult *hre
 }
 
 void
-__pmDumpHighResResult(FILE *f, const pmHighResResult *hresp)
+__pmDumpResult(FILE *f, const pmResult *hresp)
 {
-    __pmDumpHighResResult_ctx(NULL, f, hresp);
+    __pmDumpResult_ctx(NULL, f, hresp);
 }
 
 static void

@@ -466,7 +466,7 @@ class MetricGroup(dict):
             sys.stderr.write(fail)
             raise SystemExit(1)
 
-        return result.timestamp # timeval
+        return result.timestamp # timespec
 
     def mgDelta(self):
         """
@@ -577,12 +577,6 @@ class MetricGroupManager(dict, MetricCache):
             return 0.0
         return float(ts.tv_sec) + float(ts.tv_nsec) / 1e9
 
-    def _tv2float(self, tv):
-        """ convert timeval to epoch seconds as a float """
-        if tv is None:
-            return 0.0
-        return float(tv.tv_sec) + float(tv.tv_usec) / 1e6
-
     def _computeSamples(self):
         """ Return the number of samples we are to take and the
             finish time, or 0,0 if --finish is not specified.
@@ -667,9 +661,9 @@ class MetricGroupManager(dict, MetricCache):
         rmax = 0.0
         for group in self.keys():
             stamp = self[group].mgFetch()
-            if fetchtime is None or self._tv2float(stamp) > rmax:
+            if fetchtime is None or self._ts2float(stamp) > rmax:
                 fetchtime = stamp
-                rmax = self._tv2float(stamp)
+                rmax = self._ts2float(stamp)
         return fetchtime
 
     def run(self):
@@ -688,7 +682,7 @@ class MetricGroupManager(dict, MetricCache):
             while True:
                 if self._counter >= samples > 0:
                     break
-                if finish is not None and self._tv2float(curtime) >= self._ts2float(finish):
+                if finish is not None and self._ts2float(curtime) >= self._ts2float(finish):
                     break
                 self._printer.report(self)
                 timer.sleep()

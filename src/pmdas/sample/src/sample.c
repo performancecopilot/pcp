@@ -1779,7 +1779,7 @@ _pmHPCincr(pmHPC_t *ctr, __uint32_t val)
 static pmHPC_t	rapid_ctr;
 
 static int
-sample_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ep)
+sample_fetch(int numpmid, pmID pmidlist[], pmdaResult **resp, pmdaExt *ep)
 {
     int		i;		/* over pmidlist[] */
     int		j;		/* over vset->vlist[] */
@@ -1789,7 +1789,7 @@ sample_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ep)
     int		numval;
     int		need_dynamic = 1;
     int		need_ghost = 1;
-    static pmResult	*res;
+    static pmdaResult	*res;
     static int		maxnpmids;
     static int		nbyte;
     __uint32_t		*ulp;
@@ -1815,9 +1815,9 @@ sample_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ep)
     if (numpmid > maxnpmids) {
 	if (res != NULL)
 	    free(res);
-	/* (numpmid - 1) because there's room for one valueSet in a pmResult */
-	need = (int)sizeof(pmResult) + (numpmid - 1) * (int)sizeof(pmValueSet *);
-	if ((res = (pmResult *)malloc(need)) == NULL)
+	/* (numpmid - 1) because there's room for one valueSet in a pmdaResult */
+	need = (int)sizeof(pmdaResult) + (numpmid - 1) * (int)sizeof(pmValueSet *);
+	if ((res = (pmdaResult *)malloc(need)) == NULL)
 	    return -oserror();
 	maxnpmids = numpmid;
     }
@@ -1962,7 +1962,7 @@ doit:
 	if (vset == NULL) {
 	    if (i) {
 		res->numpmid = i;
-		__pmFreeResultValues(res);
+		pmdaFreeResultValues(res);
 	    }
 	    return -oserror();
 	}
@@ -1993,7 +1993,7 @@ doit:
 		if (vset == NULL) {
 		    if (i) {
 			res->numpmid = i;
-			__pmFreeResultValues(res);
+			pmdaFreeResultValues(res);
 		    }
 		    return -oserror();
 		}
@@ -2829,7 +2829,7 @@ doit:
 		}
 	    }
 	    if ((sts = __pmStuffValue(&atom, &vset->vlist[j], type)) < 0) {
-		__pmFreeResultValues(res);
+		pmdaFreeResultValues(res);
 		return sts;
 	    }
 	    vset->valfmt = sts;
@@ -2924,7 +2924,7 @@ doit:
 }
 
 static int
-sample_store(pmResult *result, pmdaExt *ep)
+sample_store(pmdaResult *result, pmdaExt *ep)
 {
     int		i;
     int		k;

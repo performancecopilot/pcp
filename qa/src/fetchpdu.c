@@ -23,8 +23,8 @@ main(int argc, char **argv)
     const char	*namelist[20];
     pmID	midlist[20];
     int		numpmid;
-    pmResult	*rslt;
-    pmHighResResult *hrslt;
+    pmResult_v2	*rslt;
+    pmResult	*hrslt;
     pmValueSet	**vset;
 
     pmSetProgname(argv[0]);
@@ -98,16 +98,16 @@ main(int argc, char **argv)
     }
 
     if (highres) {
-	if ((n = pmFetchHighRes(numpmid, midlist, &hrslt)) < 0) {
-	    fprintf(stderr, "pmFetchHighRes: %s\n", pmErrStr(n));
+	if ((n = pmFetch(numpmid, midlist, &hrslt)) < 0) {
+	    fprintf(stderr, "pmFetch: %s\n", pmErrStr(n));
 	    exit(1);
 	}
 	if (timestamp)
 	    pmPrintHighResStamp(stdout, &hrslt->timestamp);
 	vset = hrslt->vset;
     } else {
-	if ((n = pmFetch(numpmid, midlist, &rslt)) < 0) {
-	    fprintf(stderr, "pmFetch: %s\n", pmErrStr(n));
+	if ((n = pmFetch_v2(numpmid, midlist, &rslt)) < 0) {
+	    fprintf(stderr, "pmFetch_v2: %s\n", pmErrStr(n));
 	    exit(1);
 	}
 	if (timestamp)
@@ -128,9 +128,9 @@ main(int argc, char **argv)
 
     if (pmDebugOptions.appl0) {
 	if (highres)
-	    __pmDumpHighResResult(stdout, hrslt);
+	    __pmDumpResult(stdout, hrslt);
 	else
-	    __pmDumpResult(stdout, rslt);
+	    __pmDumpResult_v2(stdout, rslt);
     }
 
     exit(0);

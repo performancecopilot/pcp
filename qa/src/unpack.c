@@ -127,7 +127,7 @@ add_record(struct timeval *tp, int flags)
 static void
 dump(char *xpect)
 {
-    pmResult	**res;
+    pmResult_v2	**res;
     int		nmissed;
     int		nrecords;
     int		r;
@@ -189,7 +189,7 @@ dump(char *xpect)
 
 	for (r = 0; r < nrecords; r++) {
 	    fprintf(stderr, "pmResult[%d]\n", r);
-	    __pmDumpResult(stderr, res[r]);
+	    __pmDumpResult_v2(stderr, res[r]);
 	}
 	pmFreeEventResult(res);
     }

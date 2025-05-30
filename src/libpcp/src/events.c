@@ -491,21 +491,21 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_ALLOC);
 
 /*
  * Process the idx'th instance of an event record metric value
- * and unpack the array of event records into a pmResult.
+ * and unpack the array of event records into a pmResult_v2.
  *
  * Internal variant of pmUnpackEventRecords() with current context ptr.
  */
 static int
-UnpackEventRecords(__pmContext *ctxp, pmValueSet *vsp, int idx, pmResult ***rap)
+UnpackEventRecords(__pmContext *ctxp, pmValueSet *vsp, int idx, pmResult_v2 ***rap)
 {
     pmEventArray	*eap;
-    pmResult		**rpp;
+    pmResult_v2		**rpp;
     const char		caller[] = "pmUnpackEventRecords";
     char		*base;
     size_t		need;
     int			r;		/* records */
     int			p;		/* parameters in a record ... */
-    int			numpmid;	/* metrics in a pmResult */
+    int			numpmid;	/* metrics in a pmResult_v2 */
     int			sts;
 
     if ((sts = __pmCheckEventRecords(vsp, idx)) < 0) {
@@ -524,8 +524,8 @@ UnpackEventRecords(__pmContext *ctxp, pmValueSet *vsp, int idx, pmResult ***rap)
      * in pmFreeEventResult
      */
 PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
-    need = (eap->ea_nrecords + 1) * sizeof(pmResult *);
-    if ((rpp = (pmResult **)malloc(need)) == NULL) {
+    need = (eap->ea_nrecords + 1) * sizeof(pmResult_v2 *);
+    if ((rpp = (pmResult_v2 **)malloc(need)) == NULL) {
 	*rap = NULL;
 	return -oserror();
     }
@@ -535,7 +535,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
     /* walk packed event record array */
     for (r = 0; r < eap->ea_nrecords; r++) {
 	pmEventRecord	*erp = (pmEventRecord *)base;
-	pmResult	*rp;
+	pmResult_v2	*rp;
 	__pmResult	*__rp;
 
 	numpmid = count_event_parameters(erp->er_flags, erp->er_nparams);
@@ -545,7 +545,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_CALL);
 	    r--;
 	    goto bail;
 	}
-	rp = __pmOffsetResult(__rp);
+	rp = __pmOffsetResult_v2(__rp);
 	(*rap)[r] = rp;
 	rp->timestamp.tv_sec = erp->er_timestamp.tv_sec;
 	rp->timestamp.tv_usec = erp->er_timestamp.tv_usec;
@@ -569,8 +569,8 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_CALL);
     if (pmDebugOptions.fetch) {
 	fprintf(stderr, "pmUnpackEventRecords returns ...\n");
 	for (r = 0; r < eap->ea_nrecords; r++) {
-	    fprintf(stderr, "pmResult[%d]\n", r);
-	    __pmDumpResult_ctx(ctxp, stderr, (*rap)[r]);
+	    fprintf(stderr, "pmResult_v2[%d]\n", r);
+	    __pmDumpResult_ctx_v2(ctxp, stderr, (*rap)[r]);
 	}
     }
 
@@ -579,7 +579,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_CALL);
 bail:
     while (r >= 0) {
 	if ((*rap)[r] != NULL)
-	    pmFreeResult((*rap)[r]);
+	    pmFreeResult_v2((*rap)[r]);
 	r--;
     }
     free(*rap);
@@ -588,7 +588,7 @@ bail:
 }
 
 int
-pmUnpackEventRecords(pmValueSet *vsp, int idx, pmResult ***rap)
+pmUnpackEventRecords(pmValueSet *vsp, int idx, pmResult_v2 ***rap)
 {
     int	sts;
     sts = UnpackEventRecords(NULL, vsp, idx, rap);
@@ -597,13 +597,13 @@ pmUnpackEventRecords(pmValueSet *vsp, int idx, pmResult ***rap)
 
 /*
  * Process the idx'th instance of a highres event record metric value
- * and unpack the array of event records into a pmHighResResult.
+ * and unpack the array of event records into a pmResult.
  */
 int
-pmUnpackHighResEventRecords(pmValueSet *vsp, int idx, pmHighResResult ***rap)
+pmUnpackHighResEventRecords(pmValueSet *vsp, int idx, pmResult ***rap)
 {
     pmHighResEventArray	*hreap;
-    pmHighResResult	**rpp;
+    pmResult	**rpp;
     const char		caller[] = "pmUnpackHighResEventRecords";
     char		*base;
     size_t		need;
@@ -628,8 +628,8 @@ pmUnpackHighResEventRecords(pmValueSet *vsp, int idx, pmHighResResult ***rap)
      * in pmFreeHighResEventResult
      */
 PM_FAULT_POINT("libpcp/" __FILE__ ":7", PM_FAULT_ALLOC);
-    need = (hreap->ea_nrecords + 1) * sizeof(pmHighResResult *);
-    if ((rpp = (pmHighResResult **)malloc(need)) == NULL) {
+    need = (hreap->ea_nrecords + 1) * sizeof(pmResult *);
+    if ((rpp = (pmResult **)malloc(need)) == NULL) {
 	*rap = NULL;
 	return -oserror();
     }
@@ -639,7 +639,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":7", PM_FAULT_ALLOC);
     /* walk packed event record array */
     for (r = 0; r < hreap->ea_nrecords; r++) {
 	pmHighResEventRecord *erp = (pmHighResEventRecord *)base;
-	pmHighResResult *rp;
+	pmResult *rp;
 	__pmResult *__rp;
 
 	numpmid = count_event_parameters(erp->er_flags, erp->er_nparams);
@@ -649,7 +649,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":8", PM_FAULT_ALLOC);
 	    r--;
 	    goto bail;
 	}
-	rp = __pmOffsetHighResResult(__rp);
+	rp = __pmOffsetResult(__rp);
 	(*rap)[r] = rp;
 	rp->timestamp.tv_sec = erp->er_timestamp.tv_sec;
 	rp->timestamp.tv_nsec = erp->er_timestamp.tv_nsec;
@@ -673,8 +673,8 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":8", PM_FAULT_ALLOC);
     if (pmDebugOptions.fetch) {
 	fprintf(stderr, "%s returns ...\n", caller);
 	for (r = 0; r < hreap->ea_nrecords; r++) {
-	    fprintf(stderr, "pmHighResResult[%d]\n", r);
-	    __pmDumpHighResResult(stderr, (*rap)[r]);
+	    fprintf(stderr, "pmResult[%d]\n", r);
+	    __pmDumpResult(stderr, (*rap)[r]);
 	}
     }
 
@@ -683,7 +683,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":8", PM_FAULT_ALLOC);
 bail:
     while (r >= 0) {
 	if ((*rap)[r] != NULL)
-	    __pmFreeHighResResult((*rap)[r]);
+	    pmFreeResult((*rap)[r]);
 	r--;
     }
     free(*rap);
@@ -692,7 +692,19 @@ bail:
 }
 
 void
-pmFreeEventResult(pmResult **rset)
+pmFreeEventResult(pmResult_v2 **rset)
+{
+    int		r;
+
+    if (rset == NULL)
+	return;
+    for (r = 0; rset[r] != NULL; r++)
+	pmFreeResult_v2(rset[r]);
+    free(rset);
+}
+
+void
+pmFreeHighResEventResult(pmResult **rset)
 {
     int		r;
 
@@ -700,17 +712,5 @@ pmFreeEventResult(pmResult **rset)
 	return;
     for (r = 0; rset[r] != NULL; r++)
 	pmFreeResult(rset[r]);
-    free(rset);
-}
-
-void
-pmFreeHighResEventResult(pmHighResResult **rset)
-{
-    int		r;
-
-    if (rset == NULL)
-	return;
-    for (r = 0; rset[r] != NULL; r++)
-	__pmFreeHighResResult(rset[r]);
     free(rset);
 }

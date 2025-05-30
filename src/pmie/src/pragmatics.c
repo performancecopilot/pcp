@@ -520,7 +520,7 @@ initArchive(Archive *a)
 	pmNoMem("host name copy", strlen(tmp)+1, PM_FATAL_ERR);
 
     /* get the goodies from archive label */
-    if ((sts = pmGetArchiveLabel(&label)) < 0) {
+    if ((sts = pmGetHighResArchiveLabel(&label)) < 0) {
 	fprintf(stderr, "%s: cannot read label from archive %s\n"
 			"pmGetArchiveLabel failed: %s\n", 
 			pmGetProgname(), a->fname, pmErrStr(sts));
@@ -1100,7 +1100,7 @@ taskFetch(Task *t)
 			    if (m->desc.pmid == r->vset[i]->pmid) {
 				if (r->vset[i]->numval > 0) {
 				    m->vset = r->vset[i];
-				    m->stamp = pmtimevalToReal(&r->timestamp);
+				    m->stamp = pmtimespecToReal(&r->timestamp);
 				}
 				break;
 			    }

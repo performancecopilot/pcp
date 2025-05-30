@@ -549,7 +549,6 @@ _filter_dumpresult()
 {
     sed \
 	-e '/pmResult/s/ .* numpmid/ ... numpmid/' \
-	-e '/pmHighResResult/s/ .* numpmid/ ... numpmid/' \
 	-e '/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/s/[^ ]*/TIMESTAMP/' \
 	-e '/value /{
 s/\(value.*\) 0x[0-9a-f][0-9a-f]*/\1 HEXNUMBER/

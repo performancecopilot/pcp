@@ -159,7 +159,7 @@ Options:\n\
 	if (sts >= 0) {
 	    clock = rp->timestamp.tv_sec;
 	    pmCtime(&clock, timebuf);
-	    printf("numpmid=%2d %.19s.%08d\n", rp->numpmid, timebuf, (int)rp->timestamp.tv_usec);
+	    printf("numpmid=%2d %.19s.%09d\n", rp->numpmid, timebuf, (int)rp->timestamp.tv_nsec);
 	    pmFreeResult(rp);
 	}
 	else {
@@ -176,11 +176,11 @@ Options:\n\
     printf("\npmFetchArchive ...\n");
     samples = save_samples;
     while (samples == -1 || samples-- > 0) {
-	sts = pmFetchArchive(&rp);
+	sts = pmFetchHighResArchive(&rp);
 	if (sts >= 0) {
 	    clock = rp->timestamp.tv_sec;
 	    pmCtime(&clock, timebuf);
-	    printf("numpmid=%2d %.19s.%08d", rp->numpmid, timebuf, (int)rp->timestamp.tv_usec);
+	    printf("numpmid=%2d %.19s.%09d", rp->numpmid, timebuf, (int)rp->timestamp.tv_nsec);
 	    if (rp->numpmid == 0)
 		printf(" <mark>");
 	    putchar('\n');

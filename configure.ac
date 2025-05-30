@@ -506,13 +506,12 @@ AC_SUBST(PCFLAGS)
 AC_SUBST(PLDFLAGS)
 
 dnl we have some constraints around the packing of pmResults of various
-dnl flavours and Python modules handling of pmHighResResult
+dnl flavours and Python modules handling of pmResult
 dnl 1) we need the offset of the numpmid field in __pmResult to be at least as
-dnl    big as the offset of the numpmid field in pmResult _and_ pmHighResResult
+dnl    big as the offset of the numpmid field in pmResult_v2 _and_ pmResult
 dnl    (for the tricky games in libpcp to minimize copying)
 dnl 2) we need to know if the compiler is adding padding between the timestamp
-dnl    and the numpmid fields of pmHighResResult (for Python packing and
-dnl    unpacking)
+dnl    and the numpmid fields of pmResult (for Python packing and unpacking)
 cat <<End-of-File >conftest.c
 #include <stdint.h>
 #include <stddef.h>
@@ -529,22 +528,22 @@ typedef struct {
 typedef struct {
     struct timeval stamp;
     int numpmid;
-} pmResult;
+} pmResult_v2;
 typedef struct {
     struct timespec stamp;
     int numpmid;
-} pmHighResResult;
+} pmResult;
 void
 main(void)
 {
     __pmResult __rp;
-    pmResult rp;
-    pmHighResResult hrp;
+    pmResult_v2 rp;
+    pmResult hrp;
     int nb;
 
-    nb = (int)offsetof(pmResult,numpmid);
-    if (nb < (int)offsetof(pmHighResResult,numpmid))
-	nb = (int)offsetof(pmHighResResult,numpmid);
+    nb = (int)offsetof(pmResult_v2,numpmid);
+    if (nb < (int)offsetof(pmResult,numpmid))
+	nb = (int)offsetof(pmResult,numpmid);
     if (nb > (int)offsetof(__pmResult,numpmid))
 	printf("__pmResult pad %d\n", nb - (int)offsetof(__pmResult,numpmid));
 

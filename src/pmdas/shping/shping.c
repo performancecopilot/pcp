@@ -365,7 +365,7 @@ refresh(void *dummy)
 }
 
 static int
-shping_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ext)
+shping_fetch(int numpmid, pmID pmidlist[], pmdaResult **resp, pmdaExt *ext)
 {
     int			i;		/* over pmidlist[] */
     int			j;		/* over vset->vlist[] */
@@ -373,7 +373,7 @@ shping_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ext)
     int			need;
     int			inst;
     int			numval;
-    static pmResult	*res = NULL;
+    static pmdaResult	*res = NULL;
     static int		maxnpmids = 0;
     pmValueSet		*vset;
     pmAtomValue		atom;
@@ -399,10 +399,10 @@ shping_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ext)
 	if (res != NULL)
 	    free(res);
 
-/* (numpmid - 1) because there's room for one valueSet in a pmResult */
+/* (numpmid - 1) because there's room for one valueSet in a pmdaResult */
 
-	need = sizeof(pmResult) + (numpmid - 1) * sizeof(pmValueSet *);
-	if ((res = (pmResult *) malloc(need)) == NULL)
+	need = sizeof(pmdaResult) + (numpmid - 1) * sizeof(pmValueSet *);
+	if ((res = (pmdaResult *) malloc(need)) == NULL)
 	    return -oserror();
 	maxnpmids = numpmid;
     }
@@ -455,7 +455,7 @@ shping_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ext)
 	if (vset == NULL) {
 	    if (i) {
 		res->numpmid = i;
-		__pmFreeResultValues(res);
+		pmdaFreeResultValues(res);
 	    }
 	    return -oserror();
 	}
@@ -484,7 +484,7 @@ shping_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ext)
 		if (vset == NULL) {
 		    if (i) {
 			res->numpmid = i;
-			__pmFreeResultValues(res);
+			pmdaFreeResultValues(res);
 		    }
 		    return -oserror();
 		}
@@ -548,7 +548,7 @@ shping_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ext)
 
 	    sts = __pmStuffValue(&atom, &vset->vlist[j], type);
 	    if (sts < 0) {
-		__pmFreeResultValues(res);
+		pmdaFreeResultValues(res);
 		return sts;
 	    }
 
@@ -563,7 +563,7 @@ shping_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ext)
 }
 
 static int
-shping_store(pmResult *result, pmdaExt *ext)
+shping_store(pmdaResult *result, pmdaExt *ext)
 {
     int		i;
     pmValueSet	*vsp;
