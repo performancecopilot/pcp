@@ -445,7 +445,7 @@ __pmAccess(const char *path, int amode)
 }
 
 /*
- * Open a PCP file with given mode and return a __pmFILE. An i/o
+ * Open a PCP file with given mode and return a __pmFILE. An I/O
  * handler is automatically chosen based on filename suffix, e.g. .xz, .gz,
  * etc. The stdio pass-thru handler will be chosen for other files.
  * The stdio handler is the only handler currently supporting write operations.

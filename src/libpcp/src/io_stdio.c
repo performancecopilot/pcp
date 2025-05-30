@@ -25,13 +25,9 @@ static void *
 stdio_open(__pmFILE *f, const char *path, const char *mode)
 {
     FILE *fp;
-
     if ((fp = fopen(path, mode)) == NULL)
 	return NULL;
-
     f->priv = (void *)fp;
-    f->position = 0;
-
     return f;
 }
 
@@ -39,13 +35,9 @@ static void *
 stdio_fdopen(__pmFILE *f, int fd, const char *mode)
 {
     FILE *fp;
-
     if ((fp = fdopen(fd, mode)) == NULL)
 	return NULL;
-
     f->priv = (void *)fp;
-    f->position = 0;
-
     return f;
 }
 
@@ -81,18 +73,14 @@ static size_t
 stdio_read(void *ptr, size_t size, size_t nmemb, __pmFILE *f)
 {
     FILE *fp = (FILE *)f->priv;
-    size_t n = fread(ptr, size, nmemb, fp);
-    f->position = ftell(fp);
-    return n;
+    return fread(ptr, size, nmemb, fp);
 }
 
 static size_t
 stdio_write(void *ptr, size_t size, size_t nmemb, __pmFILE *f)
 {
     FILE *fp = (FILE *)f->priv;
-    size_t n = fwrite(ptr, size, nmemb, fp);
-    f->position = ftell(fp);
-    return n;
+    return fwrite(ptr, size, nmemb, fp);
 }
 
 static int

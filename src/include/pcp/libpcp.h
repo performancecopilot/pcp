@@ -564,12 +564,11 @@ typedef __uint32_t	__pmoff32_t;
 typedef __uint64_t	__pmoff64_t;
 
 /*
- * PCP file. This abstracts i/o, allowing different handlers, e.g.
+ * PCP file. This abstracts I/O, allowing different handlers, e.g.
  * for stdio pass-thru and transparent decompression (xz, gz, etc).
  */
 typedef struct {
-    struct __pm_fops *fops;	/* i/o handler, assigned based on file type */
-    off_t	position;	/* current uncompressed file position */
+    struct __pm_fops *fops;	/* I/O handler, assigned based on file type */
     void	*priv;		/* private data, e.g. for fd, blk cache, etc */
 } __pmFILE;
 typedef struct __pm_fops {

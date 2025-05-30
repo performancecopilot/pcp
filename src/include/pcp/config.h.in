@@ -801,9 +801,3 @@
 #ifndef PM_SIZEOF_TIME_T
 #error Unknown time_t size
 #endif
-
-/* __pmResult padding */
-#undef PM_PAD_RESULT
-
-/* timespec padding */
-#undef PM_PAD_TIMESPEC
