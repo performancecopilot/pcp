@@ -85,12 +85,12 @@ struct sysname {
 extern struct sysname	sysname;
 extern int		localhost;
 extern int              nodenamelen;
-extern struct timeval	start;
-extern struct timeval	finish;
-extern struct timeval	origin;
-extern struct timeval   pretime;
-extern struct timeval   curtime;
-extern struct timeval   interval;
+extern struct timespec	start;
+extern struct timespec	finish;
+extern struct timespec	origin;
+extern struct timespec   pretime;
+extern struct timespec   curtime;
+extern struct timespec   interval;
 extern unsigned long	sampcnt;
 extern unsigned long	sampflags;
 extern char      	screen;
@@ -169,10 +169,10 @@ int     	generic_next (void);
 int		atopsar(int, char *[]);
 char   		*convtime(double, char *, size_t);
 char   		*convdate(double, char *, size_t);
-int   		getbranchtime(char *, struct timeval *);
+int   		getbranchtime(char *, struct timespec *);
 time_t		normalize_epoch(time_t, long);
-int		time_less_than(struct timeval *, struct timeval *);
-int		time_greater_than(struct timeval *, struct timeval *);
+int		time_less_than(struct timespec *, struct timespec *);
+int		time_greater_than(struct timespec *, struct timespec *);
 
 
 char   		*val2valstr(count_t, char *, size_t, int, int, int);
@@ -206,7 +206,7 @@ void		close_options(struct pmOptions *);
 void		rawfolio(struct pmOptions *);
 void		rawarchive(struct pmOptions *, const char *);
 void		rawarchive_from_midnight(struct pmOptions *);
-void		rawwrite(struct pmOptions *, const char *, struct timeval *,
+void		rawwrite(struct pmOptions *, const char *, struct timespec *,
 			unsigned int, char);
 
 int 		numeric(char *);
@@ -277,7 +277,7 @@ void		netbpfproc_update_tasks(struct tstat **, unsigned long);
 #define MAXACCTPROCS	(50*1024*1024/sizeof(struct tstat))
 int 		acctswon(void);
 void		acctswoff(void);
-int		acctphotoproc(struct tstat **, unsigned int *, struct timeval *, struct timeval *);
+int		acctphotoproc(struct tstat **, unsigned int *, struct timespec *, struct timespec *);
 void		do_pacctdir(char *, char *);
 
 void		getusr1(int), getusr2(int);
