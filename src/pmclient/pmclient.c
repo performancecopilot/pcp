@@ -65,7 +65,7 @@ get_ncpu(void)
     /* there is only one metric in the pmclient_init group */
     pmID	pmidlist[1];
     pmDesc	desclist[1];
-    pmHighResResult	*rp;
+    pmResult	*rp;
     pmAtomValue	atom;
     int		sts;
 
@@ -80,7 +80,7 @@ get_ncpu(void)
 		pmGetProgname(), pmclient_init[0], pmIDStr(pmidlist[0]), pmErrStr(sts));
 	exit(1);
     }
-    if ((sts = pmFetchHighRes(1, pmidlist, &rp)) < 0) {
+    if ((sts = pmFetch(1, pmidlist, &rp)) < 0) {
 	fprintf(stderr, "%s: pmFetch: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
@@ -88,7 +88,7 @@ get_ncpu(void)
     /* the thing we want is known to be the first value */
     pmExtractValue(rp->vset[0]->valfmt, rp->vset[0]->vlist, desclist[0].type,
 		   &atom, PM_TYPE_U32);
-    pmFreeHighResResult(rp);
+    pmFreeResult(rp);
 
     return atom.ul ? atom.ul : 1;
 }
@@ -96,8 +96,8 @@ get_ncpu(void)
 static void
 get_sample(info_t *ip)
 {
-    static pmHighResResult	*crp = NULL;	/* current */
-    static pmHighResResult	*prp = NULL;	/* prior */
+    static pmResult	*crp = NULL;	/* current */
+    static pmResult	*prp = NULL;	/* prior */
     static int		first = 1;
     static int		numpmid;
     static pmID		*pmidlist;
@@ -145,7 +145,7 @@ get_sample(info_t *ip)
     }
 
     /* fetch the current metrics */
-    if ((sts = pmFetchHighRes(numpmid, pmidlist, &crp)) < 0) {
+    if ((sts = pmFetch(numpmid, pmidlist, &crp)) < 0) {
 	fprintf(stderr, "%s: pmFetch: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
@@ -280,7 +280,7 @@ get_sample(info_t *ip)
 	}
 
 	/* free very old result */
-	pmFreeHighResResult(prp);
+	pmFreeResult(prp);
     }
     ip->timestamp = crp->timestamp;
 
