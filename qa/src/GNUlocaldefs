@@ -468,9 +468,14 @@ api_abi_v2:	api_abi.c
 	rm -f $@
 	$(CCF) $(CDEFS) -DPMAPI_VERSION=2 -o $@ $< $(LDLIBS)
 
+# have to play games with libpcp.h so we include the one from
+# ../../src/libpcp3/src/include/pcp, not ./libpcp.h
+#
 api_abi_compat:	api_abi.c
-	rm -f $@
-	$(CC) -I../../src/libpcp3/src/include -I../../src/libpcp3/src/include/pcp $(CFLAGS) $(CDEFS) -o $@ $< ../../src/libpcp3/src/libpcp.so.3
+	rm -f $@ 
+	mv libpcp.h libpcp.h.save
+	$(CC) -I../../src/libpcp3/src/include/pcp $(CFLAGS) $(CDEFS) -o $@ $< ../../src/libpcp3/src/libpcp.so.3
+	mv libpcp.h.save libpcp.h
 
 # --- need libpcp but also PM_CONTEXT_LOCAL
 #

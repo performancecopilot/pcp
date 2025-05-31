@@ -192,8 +192,8 @@
  */
 
 
-#include "pcp/pmapi.h"
-#include "pcp/libpcp.h"
+#include "pmapi.h"
+#include "libpcp.h"
 
 static int
 getflags(void)
