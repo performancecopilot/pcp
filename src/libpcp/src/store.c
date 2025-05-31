@@ -153,7 +153,7 @@ pmapi_return:
 }
 
 int
-pmStore(const pmResult_v2 *rp)
+pmStore_v2(const pmResult_v2 *rp)
 {
     __pmResult	*newrp;
     int		i, sts;
@@ -186,7 +186,7 @@ pmStore(const pmResult_v2 *rp)
 }
 
 int
-pmStoreHighRes(const pmResult *rp)
+pmStore(const pmResult *rp)
 {
     __pmResult	*newrp;
     int		i, sts;
@@ -198,7 +198,7 @@ pmStoreHighRes(const pmResult *rp)
      * but provides correct format and alignment.
      */
     if ((newrp = __pmAllocResult(rp->numpmid)) == NULL) {
-	pmNoMem("pmStoreHighRes: newrp", sizeof(__pmResult) + (rp->numpmid - 1) * sizeof(pmValueSet *), PM_RECOV_ERR);
+	pmNoMem("pmStore: newrp", sizeof(__pmResult) + (rp->numpmid - 1) * sizeof(pmValueSet *), PM_RECOV_ERR);
 	return -ENOMEM;
     }
 

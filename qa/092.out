@@ -9,7 +9,7 @@ required 2 log reads
 last result time (indirect): MY-EOL-TIMESTAMP
 required 2 log reads
 
-pmFetchHighResArchive: End of PCP archive
+pmFetchArchive: End of PCP archive
 last result time (serial): MY-EOL-TIMESTAMP
 required 10 log reads
 
@@ -23,7 +23,7 @@ required 2 log reads
 last result time (indirect): MY-EOL-TIMESTAMP
 required 2 log reads
 
-pmFetchHighResArchive: End of PCP archive
+pmFetchArchive: End of PCP archive
 last result time (serial): MY-EOL-TIMESTAMP
 required 1002 log reads
 
@@ -37,7 +37,7 @@ required >=8 and <=13 log reads
 last result time (indirect): MY-EOL-TIMESTAMP
 required >=8 and <=13 log reads
 
-pmFetchHighResArchive: Corrupted record in a PCP archive
+pmFetchArchive: Corrupted record in a PCP archive
 last result time (serial): MY-EOL-TIMESTAMP
 required 416 log reads
 
@@ -55,7 +55,7 @@ required 2 log reads
 last result time (indirect): MY-EOL-TIMESTAMP
 required 2 log reads
 
-pmFetchHighResArchive: End of PCP archive
+pmFetchArchive: End of PCP archive
 last result time (serial): MY-EOL-TIMESTAMP
 required 10 log reads
 
@@ -69,7 +69,7 @@ required 2 log reads
 last result time (indirect): MY-EOL-TIMESTAMP
 required 2 log reads
 
-pmFetchHighResArchive: End of PCP archive
+pmFetchArchive: End of PCP archive
 last result time (serial): MY-EOL-TIMESTAMP
 required 1002 log reads
 
@@ -83,6 +83,6 @@ required 1 log reads
 last result time (indirect): MY-EOL-TIMESTAMP
 required 1 log reads
 
-pmFetchHighResArchive: End of PCP archive
+pmFetchArchive: End of PCP archive
 last result time (serial): MY-EOL-TIMESTAMP
 required 1002 log reads

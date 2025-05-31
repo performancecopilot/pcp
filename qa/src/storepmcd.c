@@ -108,7 +108,7 @@ store_container(pmID pmid, char *name)
     memset(&store, 0, sizeof(store));
     store.numpmid = 1;
     store.vset[0] = &pmvs;
-    if ((sts = pmStoreHighRes(&store)) < 0) {
+    if ((sts = pmStore(&store)) < 0) {
 	fprintf(stderr, "pmStore: %s\n", pmErrStr(sts));
 	exit(1);
     }

@@ -44,13 +44,13 @@ __pmSortInstances(__pmResult *rp)
 }
 
 void
-pmSortInstances(pmResult_v2 *rp)
+pmSortInstances_v2(pmResult_v2 *rp)
 {
     sortinsts(rp->numpmid, &rp->vset[0]);
 }
 
 void
-pmSortHighResInstances(pmResult *rp)
+pmSortInstances(pmResult *rp)
 {
     sortinsts(rp->numpmid, &rp->vset[0]);
 }

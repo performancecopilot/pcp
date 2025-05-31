@@ -1723,7 +1723,7 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmdaResult **resp, pmdaExt *pmda)
 		    pmdaResult	sortme;
 		    sortme.numpmid = 1;
 		    sortme.vset[0] = vset;
-		    pmSortInstances(&sortme);
+		    pmdaSortInstances(&sortme);
 		}
 		break;
 
@@ -1792,7 +1792,7 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmdaResult **resp, pmdaExt *pmda)
 		    pmdaResult	sortme;
 		    sortme.numpmid = 1;
 		    sortme.vset[0] = vset;
-		    pmSortInstances(&sortme);
+		    pmdaSortInstances(&sortme);
 		}
 		break;
 
@@ -1849,7 +1849,7 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmdaResult **resp, pmdaExt *pmda)
 		    pmdaResult	sortme;
 		    sortme.numpmid = 1;
 		    sortme.vset[0] = vset;
-		    pmSortInstances(&sortme);
+		    pmdaSortInstances(&sortme);
 		}
 		break;
 

@@ -1470,7 +1470,7 @@ process_logvol(pmDiscover *p)
 	PM_UNLOCK(ctxp->c_lock);
 
 	r = NULL; /* so we know if pmFetchArchive() assigned it */
-	if ((sts = pmFetchHighResArchive(&r)) < 0) {
+	if ((sts = pmFetchArchive(&r)) < 0) {
 	    /* err handling to skip to the next vol */
 	    ctxp = __pmHandleToPtr(p->ctx);
 	    acp = ctxp->c_archctl;

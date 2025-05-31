@@ -424,9 +424,9 @@ thread_E(void *arg)
 	count_E[0] = count_E[1] = count_E[2] = 0;
 
 	for (k = 0; k < 5; k++) {
-	    sts = pmFetchHighResArchive(&rp);
+	    sts = pmFetchArchive(&rp);
 	    if (sts < 0) {
-		fprintf(f, "Error: thread_E: iter %d: pmFetchHighResArchive(%s) -> %s\n", i, archive_E, pmErrStr_r(sts, strbuf, sizeof(strbuf)));
+		fprintf(f, "Error: thread_E: iter %d: pmFetchArchive(%s) -> %s\n", i, archive_E, pmErrStr_r(sts, strbuf, sizeof(strbuf)));
 		pthread_exit("botch E.4");
 	    }
 	    for (m = 0; m < rp->numpmid; m++) {

@@ -160,7 +160,7 @@ main(int argc, char **argv)
     old->numpmid--;
     guard = 0;
 again1:
-    if ((n = pmStoreHighRes(old)) < 0) {
+    if ((n = pmStore(old)) < 0) {
 	printf("pmStore no change: %s\n", pmErrStr(n));
 	if (guard == 0 && n == PM_ERR_TIMEOUT) {
 	    /* for qa/866 */
@@ -181,7 +181,7 @@ again1:
     old->vset[0]->vlist[0].value.lval++;
     guard = 0;
 again2:
-    if ((n = pmStoreHighRes(old)) < 0) {
+    if ((n = pmStore(old)) < 0) {
 	printf("pmStore change: %s\n", pmErrStr(n));
 	if (guard == 0 && n == PM_ERR_TIMEOUT) {
 	    /* for qa/866 */
@@ -202,7 +202,7 @@ again2:
     old->vset[0]->vlist[0].value.lval--;
     guard = 0;
 again3:
-    if ((n = pmStoreHighRes(old)) < 0) {
+    if ((n = pmStore(old)) < 0) {
 	printf("pmStore restore: %s\n", pmErrStr(n));
 	if (guard == 0 && n == PM_ERR_TIMEOUT) {
 	    /* for qa/866 */
@@ -220,7 +220,7 @@ again3:
     }
 
     old->numpmid++;	/* cannot change sampledso.long.one */
-    n = pmStoreHighRes(old);
+    n = pmStore(old);
     guard = 0;
 again4:
     if (n != -EACCES && n != PM_ERR_PERMISSION) {
@@ -248,7 +248,7 @@ again4:
     pr.vset[0]->vlist[0].value.lval = 123456;
     guard = 0;
 again5:
-    n = pmStoreHighRes(&pr);
+    n = pmStore(&pr);
     if (n != PM_ERR_NOAGENT) {
 	printf("ERROR: expected PM_ERR_NOAGENT error\n");
 	printf("pmStore bad agent domain: %s\n", pmErrStr(n));

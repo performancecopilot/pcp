@@ -546,8 +546,8 @@ PCP_4.0 {
     pmFetch;
     pmFetch_v2;
     pmFetchArchive;
+    pmFetchArchive_v2;
     pmFetchGroup;
-    pmFetchHighResArchive;
     pmFreeEventResult;
     pmFreeHighResEventResult;
     pmFreeLabelSets;
@@ -649,11 +649,11 @@ PCP_4.0 {
     pmSetMode_v2;
     pmSetProcessIdentity;
     pmSetProgname;
-    pmSortHighResInstances;
     pmSortInstances;
+    pmSortInstances_v2;
     pmSpecLocalPMDA;
     pmStore;
-    pmStoreHighRes;
+    pmStore_v2;
     pmSyslog;
     pmTraversePMNS;
     pmTraversePMNS_r;

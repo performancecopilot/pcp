@@ -149,7 +149,7 @@ Options\n\
      * if at least 5 pmids and all are from the pmcd PMDA, then
      * there's a good chance this is an epilogue record.
      */
-    sts = pmFetchHighResArchive(&result);
+    sts = pmFetchArchive(&result);
     if (sts < 0) {
 	printf("pmFetchArchive end: %s\n", pmErrStr(sts));
 	exit(1);
@@ -162,7 +162,7 @@ Options\n\
 	if (j == result->numpmid) {
 	    /* suck back one record earlier in the archive */
 	    pmFreeResult(result);
-	    sts = pmFetchHighResArchive(&result);
+	    sts = pmFetchArchive(&result);
 	    if (sts < 0) {
 		printf("pmFetchArchive skip epilogue: %s\n", pmErrStr(sts));
 		exit(1);

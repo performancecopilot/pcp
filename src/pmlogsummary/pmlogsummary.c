@@ -1152,7 +1152,7 @@ main(int argc, char *argv[])
 
     for (trip = 0; trip < 2; trip++) {	/* two passes if binning */
 	for ( ; ; ) {
-	    if ((sts = pmFetchHighResArchive(&result)) < 0)
+	    if ((sts = pmFetchArchive(&result)) < 0)
 		break;
 
 	    if (opts.finish.tv_sec > result->timestamp.tv_sec ||

@@ -339,7 +339,7 @@ __pmFetchArchive(__pmContext *ctxp, __pmResult **result)
 }
 
 int
-pmFetchArchive(pmResult_v2 **result)
+pmFetchArchive_v2(pmResult_v2 **result)
 {
     __pmResult	*rp;
     int		sts;
@@ -356,7 +356,7 @@ pmFetchArchive(pmResult_v2 **result)
 }
 
 int
-pmFetchHighResArchive(pmResult **result)
+pmFetchArchive(pmResult **result)
 {
     __pmResult	*rp;
     int		sts;

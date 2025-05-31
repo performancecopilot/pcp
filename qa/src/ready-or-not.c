@@ -18,7 +18,7 @@
  *	                    pmGet<foo>Labels() routines)
  *   [y] __pmSendNameList - pmLookupName()
  *   [y] __pmSendProfile - pmFetch(), pmFetch()
- *   [y] __pmSendResult - pmStoreHighRes()
+ *   [y] __pmSendResult - pmStore()
  *   [y] __pmSendTextReq - pmLookupText()
  *   [y] __pmSendTraversePMNSReq - pmTraversePMNS(), pmTraversePMNS_r()
  *
@@ -100,8 +100,8 @@ smack(void)
 	smack_rp->vset[0]->vlist[0].value.lval = 20;
     }
 
-    if ((sts = pmStoreHighRes(smack_rp)) < 0 && sts != PM_ERR_AGAIN) {
-	fprintf(stderr, "pmStoreHighRes(%s): %s\n", pmIDStr(smack_rp->vset[0]->pmid), pmErrStr(sts));
+    if ((sts = pmStore(smack_rp)) < 0 && sts != PM_ERR_AGAIN) {
+	fprintf(stderr, "pmStore(%s): %s\n", pmIDStr(smack_rp->vset[0]->pmid), pmErrStr(sts));
 	exit(1);
     }
 }
@@ -290,7 +290,7 @@ main(int argc, char **argv)
 		    }
 		    if (store_rp != NULL && store_rp->vset[0]->pmid == ctl[i].desc.pmid) {
 			printf("ctl[%d][%s] name %s pmStore ...\n", i, (limbo && j == 0) ? "notready" : "ok", ctl[i].name);
-			if ((sts = pmStoreHighRes(store_rp)) < 0)
+			if ((sts = pmStore(store_rp)) < 0)
 			    printf("Error: %s\n", pmErrStr(sts));
 			else
 			    printf("OK\n");

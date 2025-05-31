@@ -390,12 +390,12 @@ main(int argc, char **argv)
 	printf("%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
-    if ((sts = pmFetchHighResArchive(&resp)) < 0) {
+    if ((sts = pmFetchArchive(&resp)) < 0) {
 	if (sts != PM_ERR_EOL)
-	    printf("%s: pmFetchHighResArchive: %s\n", pmGetProgname(), pmErrStr(sts));
+	    printf("%s: pmFetchArchive: %s\n", pmGetProgname(), pmErrStr(sts));
     }
     else {
-	printf("%s: pmFetchHighResArchive: unexpected success before start of log\n", pmGetProgname());
+	printf("%s: pmFetchArchive: unexpected success before start of log\n", pmGetProgname());
 	__pmDumpResult(stdout, resp);
 	pmFreeResult(resp);
     }
@@ -406,12 +406,12 @@ main(int argc, char **argv)
 	printf("%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
-    if ((sts = pmFetchHighResArchive(&resp)) < 0) {
+    if ((sts = pmFetchArchive(&resp)) < 0) {
 	if (sts != PM_ERR_EOL)
-	    printf("%s: pmFetchHighResArchive: %s\n", pmGetProgname(), pmErrStr(sts));
+	    printf("%s: pmFetchArchive: %s\n", pmGetProgname(), pmErrStr(sts));
     }
     else {
-	printf("%s: pmFetchHighResArchive: unexpected success after end of log\n", pmGetProgname());
+	printf("%s: pmFetchArchive: unexpected success after end of log\n", pmGetProgname());
 	__pmDumpResult(stdout, resp);
 	pmFreeResult(resp);
     }

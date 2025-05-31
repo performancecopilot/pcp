@@ -276,7 +276,7 @@ getvals(Context *x,		/* in - full pm description */
 	 * pmid we are after, or a mark record
 	 */
 	for ( ; ; ) {
-	    e = pmFetchHighResArchive(&r);
+	    e = pmFetchArchive(&r);
 	    if (e < 0)
 		break;
 
@@ -933,7 +933,7 @@ initfilters(Context *x, int conntype)
 	vset->valfmt = sts;
     }
 
-    if ((sts = pmStoreHighRes(result)) < 0) {
+    if ((sts = pmStore(result)) < 0) {
 	fprintf(stderr, "%s: store value \"%s\" failed: %s\n",
 			pmGetProgname(), x->filter, pmErrStr(sts));
 	exit(EXIT_FAILURE);

@@ -358,20 +358,20 @@ def test_pcp(self):
         print("pmFetch: ", error)
         self.assertTrue(False)
 
-    # pmSortHighResInstances
+    # pmSortInstances
     try:
-        ctx.pmSortHighResInstances(results)
-        print("pmSortHighResInstances: ok")
+        ctx.pmSortInstances(results)
+        print("pmSortInstances: ok")
     except pmapi.pmErr as error:
-        print("pmSortHighResInstances: ", error)
+        print("pmSortInstances: ", error)
         self.assertTrue(False)
 
-    # pmStoreHighRes
+    # pmStore
     try:
-        ctx.pmStoreHighRes(results)
+        ctx.pmStore(results)
         self.assertTrue(False)
     except pmapi.pmErr as error:
-        print("pmStoreHighRes: ", error)
+        xrint("pmStore: ", error)
         self.assertTrue(True)
 
     for i in range(results.contents.numpmid):

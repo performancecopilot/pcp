@@ -547,7 +547,7 @@ test_store(void)
 	printf("%s: fetch failed : %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
-    if ((sts = pmStoreHighRes(result)) != -EACCES && sts != PM_ERR_PERMISSION) {
+    if ((sts = pmStore(result)) != -EACCES && sts != PM_ERR_PERMISSION) {
 	printf("%s: Error: pmStore did not fail correctly\n", pmGetProgname());
 	printf("Expected: %s\n", pmErrStr(-EACCES));
 	printf("or: %s\n", pmErrStr(PM_ERR_PERMISSION));

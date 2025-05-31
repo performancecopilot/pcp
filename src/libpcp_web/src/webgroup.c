@@ -2228,7 +2228,7 @@ webgroup_store(struct context *context, struct metric *metric,
 	valueset->valfmt = sts;
 	valueset->numval = count;
 	valueset->pmid = metric->desc.pmid;
-	sts = pmStoreHighRes(result);
+	sts = pmStore(result);
     }
     pmFreeResult(result);
     return sts;

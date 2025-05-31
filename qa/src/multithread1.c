@@ -121,7 +121,7 @@ func(void)
     if (rp == NULL)
 	pthread_exit("Loser failed to get pmResult!");
 
-    if ((sts = pmStoreHighRes(rp)) < 0)
+    if ((sts = pmStore(rp)) < 0)
 	printf("pmStore: %s\n", pmErrStr(sts));
     else
 	printf("pmStore: -> OK\n");

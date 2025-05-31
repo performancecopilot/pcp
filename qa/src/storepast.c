@@ -121,7 +121,7 @@ Options:\n\
     req.vset[0]->vlist[0].inst = PM_IN_NULL;
     req.vset[0]->vlist[0].value.lval = 1;
 
-    sts = pmStoreHighRes(&req);
+    sts = pmStore(&req);
 
     printf("pmStore, should produce PM_ERR_NOHOST, ...\n%s\n", pmErrStr(sts));
 

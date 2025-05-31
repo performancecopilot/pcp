@@ -16,8 +16,7 @@
 .\"
 .TH PMSTORE 3 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmStore\f1,
-\f3pmStoreHighRes\f1 \- modify values of performance metrics
+\f3pmStore\f1 \- modify values of performance metrics
 .SH "C SYNOPSIS"
 .ft 3
 .ad l
@@ -25,8 +24,6 @@
 #include <pcp/pmapi.h>
 .sp
 int pmStore(const pmResult *\fIresult\fP);
-.br
-int pmStoreHighRes(const pmHighResResult *\fIresult\fP);
 .sp
 cc ... \-lpcp
 .hy
@@ -42,11 +39,8 @@ performance metrics,
 e.g. to reset a counter to zero, or to modify a ``metric'' which is a control
 variable for some agent collecting performance metrics.
 .PP
-The routines
 .B pmStore
-and
-.B pmStoreHighRes
-are lightweight inverses of
+is a lightweight inverses of
 .BR pmFetch (3).
 .PP
 The caller must build the
@@ -59,8 +53,6 @@ It is an error to pass a
 .I result
 to
 .B pmStore
-or
-.B pmStoreHighRes
 in which the
 .CR numval
 field within any of the
@@ -72,15 +64,11 @@ Performance Metrics Application Programming Interface (PMAPI)
 context must be one with a host as the source of metrics, and the
 current value of the nominated metrics will be changed, i.e.
 .B pmStore
-and
-.B pmStoreHighRes
 cannot be used to make retrospective changes to information in either
 the archives, or in the recent past for real-time sources of metrics.
 .PP
 The return code from
 .B pmStore
-and
-.B pmStoreHighRes
 is zero for success.
 .SH DIAGNOSTICS
 .IP \f3PM_ERR_GENERIC\f1
@@ -90,8 +78,6 @@ lightweight part of the functionality!).
 In cases where the outcome of storing into individual metrics is
 important, the caller should make one call to either
 .B pmStore
-or
-.B pmStoreHighRes
 for each metric.
 On the other hand, a bulk modification can be performed in a
 single call for situations in which the outcome is not critical.
@@ -112,6 +98,27 @@ in
 has a
 .CR numval
 field with a value less than one.
+.SH COMPATIBILITY
+Prior to PCP 7.0 the
+.I timestamp
+field in the \f(CRpmResult\fP struct was a \f(CRstruct timeval\fP.
+To support PMAPI transition, the old interface and semantics can be
+used if applications are recompiled with
+.BR \-DPMAPI_VERSION=2 .
+.PP
+For a time in PCP 6.x there was a
+routine with the same semantics as the current
+.B pmStore
+called
+.BR pmStoreHighRes ,
+and a struct with the same definition as the current
+\f(CRpmResult\fP struct called
+\f(CRpmResultHighRes\fP,
+although both are now deprecated and compile-time support for
+.B pmStoreHighRes
+and
+\f(CRpmResultHighRes\fP
+will be removed in a future release.
 .SH SEE ALSO
 .BR PMAPI (3),
 .BR pmFetch (3),

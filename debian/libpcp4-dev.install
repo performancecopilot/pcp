@@ -128,7 +128,6 @@ usr/share/man/man3/pmExtractValue.3.gz
 usr/share/man/man3/pmFetch.3.gz
 usr/share/man/man3/pmFetchArchive.3.gz
 usr/share/man/man3/pmFetchGroup.3.gz
-usr/share/man/man3/pmFetchHighResArchive.3.gz
 usr/share/man/man3/pmFreeEventResult.3.gz
 usr/share/man/man3/pmFreeHighResEventResult.3.gz
 usr/share/man/man3/pmFreeLabelSets.3.gz
@@ -250,11 +249,9 @@ usr/share/man/man3/pmSetDerivedControl.3.gz
 usr/share/man/man3/pmSetMode.3.gz
 usr/share/man/man3/pmSetProcessIdentity.3.gz
 usr/share/man/man3/pmSetProgname.3.gz
-usr/share/man/man3/pmSortHighResInstances.3.gz
 usr/share/man/man3/pmSortInstances.3.gz
 usr/share/man/man3/pmSpecLocalPMDA.3.gz
 usr/share/man/man3/pmStore.3.gz
-usr/share/man/man3/pmStoreHighRes.3.gz
 usr/share/man/man3/pmSyslog.3.gz
 usr/share/man/man3/pmTimeConnect.3.gz
 usr/share/man/man3/pmTimeDisconnect.3.gz

@@ -216,7 +216,7 @@ exer(int numpmid, pmID *pmidlist, int xpecterr)
 	    pmFreeResult(resp);
 	}
 
-	if ((n = pmStoreHighRes(__pmOffsetResult(_store))) < 0) {
+	if ((n = pmStore(__pmOffsetResult(_store))) < 0) {
 	    fprintf(stderr, "pmStore: %s", pmErrStr(n));
 	    if (xpecterr)
 		fprintf(stderr, " -- error expected\n");

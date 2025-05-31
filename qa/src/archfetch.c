@@ -176,7 +176,7 @@ Options:\n\
     printf("\npmFetchArchive ...\n");
     samples = save_samples;
     while (samples == -1 || samples-- > 0) {
-	sts = pmFetchHighResArchive(&rp);
+	sts = pmFetchArchive(&rp);
 	if (sts >= 0) {
 	    clock = rp->timestamp.tv_sec;
 	    pmCtime(&clock, timebuf);

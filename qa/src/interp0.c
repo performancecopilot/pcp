@@ -134,14 +134,14 @@ Options\n\
     }
 
     /* skip preamble */
-    sts = pmFetchHighResArchive(&result);
+    sts = pmFetchArchive(&result);
     if (sts < 0) {
 	printf("pmFetchArchive: %s\n", pmErrStr(sts));
 	exit(1);
     }
     pmFreeResult(result);
 
-    sts = pmFetchHighResArchive(&result);
+    sts = pmFetchArchive(&result);
     if (sts < 0) {
 	printf("pmFetchArchive: %s\n", pmErrStr(sts));
 	exit(1);

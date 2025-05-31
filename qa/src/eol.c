@@ -131,9 +131,9 @@ Options\n\
 	printf("pmSetMode: %s\n", pmErrStr(sts));
 	exit(1);
     }
-    sts = pmFetchHighResArchive(&result);
+    sts = pmFetchArchive(&result);
     if (sts < 0) {
-	printf("pmFetchHighResArchive: %s\n", pmErrStr(sts));
+	printf("pmFetchArchive: %s\n", pmErrStr(sts));
     }
     else {
 	printf("last result time (direct): ");
@@ -152,9 +152,9 @@ Options\n\
 	printf("pmSetMode: %s\n", pmErrStr(sts));
 	exit(1);
     }
-    sts = pmFetchHighResArchive(&result);
+    sts = pmFetchArchive(&result);
     if (sts < 0) {
-	printf("pmFetchHighResArchive: %s\n", pmErrStr(sts));
+	printf("pmFetchArchive: %s\n", pmErrStr(sts));
     }
     else {
 	printf("last result time (indirect): ");
@@ -173,12 +173,12 @@ Options\n\
 	printf("pmSetMode: %s\n", pmErrStr(sts));
 	exit(1);
     }
-    while ((sts = pmFetchHighResArchive(&result)) >= 0) {
+    while ((sts = pmFetchArchive(&result)) >= 0) {
 	if (prev != (pmResult *)0)
 	    pmFreeResult(prev);
 	prev = result;
     }
-    printf("pmFetchHighResArchive: %s\n", pmErrStr(sts));
+    printf("pmFetchArchive: %s\n", pmErrStr(sts));
     if (prev == (pmResult *)0) {
 	printf("no results!\n");
     }

@@ -456,7 +456,7 @@ series_cache_update(seriesLoadBaton *baton, struct dict *exclude)
 	goto out;
     }
 
-    pmSortHighResInstances(result);
+    pmSortInstances(result);
 
     for (i = 0; i < result->numpmid; i++) {
 	vsp = result->vset[i];
@@ -571,7 +571,7 @@ fetch_archive(uv_work_t *req)
 
     assert(context->result == NULL);
     if ((context->error = sts = pmUseContext(cp->context)) >= 0)
-	if ((context->error = sts = pmFetchHighResArchive(&result)) >= 0)
+	if ((context->error = sts = pmFetchArchive(&result)) >= 0)
 	    context->result = result;
 }
 

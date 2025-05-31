@@ -31,6 +31,7 @@ extern "C" {
 #define pmdaFreeResult pmFreeResult_v2
 #define pmdaFreeResultValues __pmFreeResultValues_v2
 #define pmdaOffsetResult __pmOffsetResult_v2
+#define pmdaSortInstances pmSortInstances_v2
 
 /*
  * libpcp_pmda interface versions

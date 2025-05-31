@@ -581,8 +581,7 @@ PCP_CALL extern int pmFetch(int, pmID *, pmResult **);
 /*
  * Variant that is used to return a result from an archive.
  */
-PCP_CALL extern int pmFetchArchive(pmResult_v2 **);
-PCP_CALL extern int pmFetchHighResArchive(pmResult **);
+PCP_CALL extern int pmFetchArchive(pmResult **);
 
 /*
  * Support for metric values annotated with name:value pairs (labels).
@@ -721,8 +720,7 @@ PCP_CALL extern int pmConvScale(int, const pmAtomValue *, const pmUnits *, pmAto
 		       const pmUnits *);
 
 /* Sort instances for each metric within a pmResult */
-PCP_CALL extern void pmSortInstances(pmResult_v2 *);
-PCP_CALL extern void pmSortHighResInstances(pmResult *);
+PCP_CALL extern void pmSortInstances(pmResult *);
 
 /* Adjust collection time and/or mode for pmFetch */
 PCP_CALL extern int pmSetMode(int, const struct timespec *, const struct timespec *);
@@ -732,8 +730,7 @@ PCP_CALL extern int pmSetMode(int, const struct timespec *, const struct timespe
 #define PM_MODE_BACK	3
 
 /* Modify the value of one or more metrics */
-PCP_CALL extern int pmStore(const pmResult_v2 *);
-PCP_CALL extern int pmStoreHighRes(const pmResult *);
+PCP_CALL extern int pmStore(const pmResult *);
 
 /* Get help and descriptive text */
 PCP_CALL extern int pmLookupText(pmID, int, char **);
@@ -1452,6 +1449,9 @@ PCP_CALL extern int pmSetMode_v2(int, const struct timeval *, int);
 
 PCP_CALL extern int pmFetch_v2(int, pmID *, pmResult_v2 **);
 PCP_CALL extern void pmFreeResult_v2(pmResult_v2 *);
+PCP_CALL extern int pmFetchArchive_v2(pmResult_v2 **);
+PCP_CALL extern int pmStore_v2(const pmResult_v2 *);
+PCP_CALL extern void pmSortInstances_v2(pmResult_v2 *);
 
 #if PMAPI_VERSION == PMAPI_VERSION_2
 /*
@@ -1476,6 +1476,9 @@ PCP_CALL extern void pmFreeResult_v2(pmResult_v2 *);
 #define pmFetchHighRes pmFetch
 #define pmFreeResult pmFreeResult_v2
 #define pmFreeHighResResult pmFreeResult
+#define pmFetchArchive pmFetchArchive_v2
+#define pmStore pmStore_v2
+#define pmSortInstances pmSortInstances_v2
 
 /*
  * Extended time base definitions and macros
@@ -1500,6 +1503,9 @@ PCP_CALL extern void pmFreeResult_v2(pmResult_v2 *);
 #define pmSetModeHighRes pmSetMode
 #define pmHighResResult pmResult
 #define pmFetchHighRes pmFetch
+#define pmFetchHighResArchive pmFetchArchive
+#define pmStoreHighRes pmStore
+#define pmSortHighResInstances pmSortInstances
 #endif
 
 #ifdef __cplusplus

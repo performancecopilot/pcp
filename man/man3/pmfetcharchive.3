@@ -16,8 +16,7 @@
 .\"
 .TH PMFETCHARCHIVE 3 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmFetchArchive\f1,
-\f3pmFetchHighResArchive\f1 \- get performance metric values directly from archives
+\f3pmFetchArchive\f1, \- get performance metric values directly from archives
 .SH "C SYNOPSIS"
 .ft 3
 .ad l
@@ -25,8 +24,6 @@
 #include <pcp/pmapi.h>
 .sp
 int pmFetchArchive(pmResult **\fIresult\fP);
-.br
-int pmFetchHighResArchive(pmHighResResult **\fIresult\fP);
 .sp
 cc ... \-lpcp
 .hy
@@ -35,9 +32,7 @@ cc ... \-lpcp
 .SH DESCRIPTION
 The
 .B pmFetchArchive
-and
-.B pmFetchHighResArchive
-APIs are variants of the
+API is a variant of the
 .BR pmFetch (3)
 interface that may only be used when the current
 Performance Metrics Application Programming Interface (PMAPI)
@@ -51,8 +46,6 @@ consequently there is no notion of a list of desired metrics,
 and the instance profile of the PMAPI context is ignored.
 .PP
 .B pmFetchArchive
-and
-.B pmFetchHighResArchive
 may return a
 .I result
 in which
@@ -73,8 +66,6 @@ the start of the next input archive.
 .PP
 It is expected that
 .B pmFetchArchive
-and
-.B pmFetchHighResArchive
 will be used to create utilities that scan sets of archives,
 while the more common access to the archives would be via the
 .B pmFetch
@@ -85,15 +76,11 @@ To skip records within the set of archives, use
 to change the collection time within the current
 PMAPI context, then call either
 .B pmFetchArchive
-or
-.BR pmFetchHighResArchive .
 .PP
 Note that the
 .I result
-returned by both
+returned by
 .B pmFetchArchive
-and
-.B pmFetchHighResArchive
 is dynamically allocated, and
 must be released using
 .BR pmFreeResult (3),
@@ -105,14 +92,30 @@ and
 .BR pmFreeResult (3)
 for further details.
 .PP
-Both
 .B pmFetchArchive
-and
-.B pmFetchHighResArchive
 returns zero on success.
 .SH DIAGNOSTICS
 .IP \f3PM_ERR_NOTARCHIVE\f1
 the current PMAPI context is not associated with a set of archives
+.SH COMPATIBILITY
+Prior to PCP 7.0 the
+.I timestamp
+field in the \f(CRpmResult\fP struct was a \f(CRstruct timeval\fP.
+To support PMAPI transition, the old interface and semantics can be
+used if applications are recompiled with
+.BR \-DPMAPI_VERSION=2 .
+.PP
+For a time in PCP 6.x there was a
+routine with the same semantics as the current
+.B pmFetchArchive
+called
+.BR pmFetchHighResArchive ,
+and a struct with the same definition as the current
+\f(CRpmResult\fP struct called
+\f(CRpmResultHighRes\fP,
+although both are now deprecated and compile-time support for
+.B pmFetchHighResArchive
+and \f(CRpmResultHighRes\fP will be removed in a future release.
 .SH SEE ALSO
 .BR PMAPI (3),
 .BR pmFetch (3),

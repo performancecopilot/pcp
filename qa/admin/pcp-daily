@@ -874,6 +874,14 @@ do
 	    qa_user=pcpqa
 	    ;;
 
+	vm26)
+	    # CentOS Stream9
+	    # exclude -x valgrind ... infected by the same valgrind bug as F42
+	    # 01 Jun 2025
+	    #
+	    [ X"$what" = Xall ] && check_what='-x valgrind'
+	    ;;
+
 	vm34)
 	    # Arch Linux
 	    # exclude -x valgrind ... infected by the same valgrind bug as F42

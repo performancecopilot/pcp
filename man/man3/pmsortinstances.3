@@ -16,8 +16,7 @@
 .\"
 .TH PMSORTINSTANCES 3 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmSortInstances\f1,
-\f3pmSortHighResInstances\f1 \- sort performance metric values on instance identifier
+\f3pmSortInstances\f1 \- sort performance metric values on instance identifier
 .SH "C SYNOPSIS"
 .ft 3
 .ad l
@@ -25,8 +24,6 @@
 #include <pcp/pmapi.h>
 .sp
 void pmSortInstances(pmResult *\fIresult\fP);
-.br
-int pmSortHighResInstances(pmHighResResult *\fIresult\fP);
 .sp
 cc ... \-lpcp
 .hy
@@ -46,6 +43,25 @@ from
 the instances are in ascending instance identifier sequence.
 .PP
 This is useful when computing rates from two consecutive samples.
+.SH COMPATIBILITY
+Prior to PCP 7.0 the
+.I timestamp
+field in the \f(CRpmResult\fP struct was a \f(CRstruct timeval\fP.
+To support PMAPI transition, the old interface and semantics can be
+used if applications are recompiled with
+.BR \-DPMAPI_VERSION=2 .
+.PP
+For a time in PCP 6.x there was a
+routine with the same semantics as the current
+.B pmSortInstances
+called
+.BR pmSortHighResInstances ,
+and a struct with the same definition as the current
+\f(CRpmResult\fP struct called
+\f(CRpmResultHighRes\fP,
+although both are now deprecated and compile-time support for
+.BR pmSortHighResInstances
+and \f(CRpmResultHighRes\fP will be removed in a future release.
 .SH SEE ALSO
 .BR PMAPI (3)
 and

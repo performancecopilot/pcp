@@ -893,7 +893,7 @@ setup_origin(pmOptions *opts)
 		result->vset[0] = vset;
 		result->numpmid = 1;
 
-		sts = pmStoreHighRes(result);
+		sts = pmStore(result);
 		if (sts < 0 && pmDebugOptions.appl0)
 			fprintf(stderr, "%s: pmStore failed: %s\n",
 					pmGetProgname(), pmErrStr(sts));

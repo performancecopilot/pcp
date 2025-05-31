@@ -86,7 +86,7 @@ main(int argc, char **argv)
 
     printf("\nPass 1: forward scan\n");
     for (;;) {
-	if ((sts = pmFetchHighResArchive(&resp)) < 0) {
+	if ((sts = pmFetchArchive(&resp)) < 0) {
 	    if (sts != PM_ERR_EOL)
 		printf("pmFetchArchive: %s\n", pmErrStr(sts));
 	    break;
@@ -116,7 +116,7 @@ main(int argc, char **argv)
 	printf("pmSetMode: %s\n", pmErrStr(sts));
 	exit(1);
     }
-    if ((sts = pmFetchHighResArchive(&resp)) < 0) {
+    if ((sts = pmFetchArchive(&resp)) < 0) {
 	printf("    %s with %d log_reads\n", pmErrStr(sts), __pmLogReads);
     }
     else {
@@ -131,7 +131,7 @@ main(int argc, char **argv)
 	printf("pmSetMode: %s\n", pmErrStr(sts));
 	exit(1);
     }
-    if ((sts = pmFetchHighResArchive(&resp)) < 0) {
+    if ((sts = pmFetchArchive(&resp)) < 0) {
 	printf("    %s with %d log_reads\n", pmErrStr(sts), __pmLogReads);
     }
     else {
@@ -164,7 +164,7 @@ main(int argc, char **argv)
 	printf("pmSetMode: %s\n", pmErrStr(sts));
 	exit(1);
     }
-    if ((sts = pmFetchHighResArchive(&resp)) < 0) {
+    if ((sts = pmFetchArchive(&resp)) < 0) {
 	printf("    %s with %d log_reads\n", pmErrStr(sts), __pmLogReads);
     }
     else {
@@ -179,7 +179,7 @@ main(int argc, char **argv)
 	printf("pmSetMode: %s\n", pmErrStr(sts));
 	exit(1);
     }
-    if ((sts = pmFetchHighResArchive(&resp)) < 0) {
+    if ((sts = pmFetchArchive(&resp)) < 0) {
 	printf("    %s with %d log_reads\n", pmErrStr(sts), __pmLogReads);
     }
     else {

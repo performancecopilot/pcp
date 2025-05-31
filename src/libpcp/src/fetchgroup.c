@@ -1721,7 +1721,7 @@ pmFetchGroup(pmFG pmfg)
     }
 
     /* Sort instances so that the indom fetchgroups come out conveniently */
-    pmSortHighResInstances(newResult);
+    pmSortInstances(newResult);
 
     /* Walk the fetchgroup. */
     for (item = pmfg->items; item; item = item->next) {
