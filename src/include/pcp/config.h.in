@@ -792,6 +792,9 @@
 #undef HAVE__ETEXT
 #undef HAVE_ETEXT
 
+/* multilib headers */
+#undef HAVE_MULTILIB
+
 /* sizeof suseconds_t ... only ever going to exist on linux-like systems */
 #undef PM_SIZEOF_SUSECONDS_T
 

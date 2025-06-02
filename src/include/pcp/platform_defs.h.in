@@ -37,7 +37,7 @@ extern "C" {
 #define FMT_SIZE "@fmt_size@"
 #define FMT_PTHREAD "@fmt_pthread@"
 
-#ifdef HAVE_BITS_WORDSIZE_H
+#if defined(HAVE_MULTILIB) && defined(HAVE_BITS_WORDSIZE_H)
 #include <bits/wordsize.h>
 #if __WORDSIZE == 32
 #include "config32.h"
