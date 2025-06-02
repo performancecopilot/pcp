@@ -649,10 +649,19 @@ AC_LANG_POP([C++])
 
 dnl Prevent shared libraries from being built for libpcp and other core libraries
 AC_ARG_ENABLE([shared],
-  [AS_HELP_STRING([--disable-shared], [disable core shared libary generation])],
+  [AS_HELP_STRING([--disable-shared], [disable core shared library generation])],
   [PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --disable-shared=$withval"],
   [enable_shared=false])
 AC_SUBST(enable_shared)
+
+dnl Support installing both devel package variants on either 32/64 bit platform
+AC_ARG_ENABLE([multilib],
+  [AS_HELP_STRING([--enable-multilib], [enable multilib installations])],
+  [PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --enable-multilib=$withval"
+   AC_DEFINE(HAVE_MULTILIB, [1], [multilib defined])
+   enable_multilib=true],
+  [enable_multilib=false])
+AC_SUBST(enable_multilib)
 
 dnl check if user wants to use any of their own commands;
 dnl ordering is important: some tests use earlier results

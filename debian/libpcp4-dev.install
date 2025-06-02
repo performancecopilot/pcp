@@ -1,13 +1,9 @@
 usr/include/pcp/config.h
-usr/include/pcp/config32.h
-usr/include/pcp/config64.h
 usr/include/pcp/configsz.h
 usr/include/pcp/deprecated.h
 usr/include/pcp/dict.h
 usr/include/pcp/impl.h
 usr/include/pcp/ini.h
-usr/include/pcp/platform32.h
-usr/include/pcp/platform64.h
 usr/include/pcp/platform_defs.h
 usr/include/pcp/platformsz.h
 usr/include/pcp/pmapi.h

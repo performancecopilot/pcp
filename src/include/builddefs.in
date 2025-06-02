@@ -258,6 +258,7 @@ QT_VERSION = @qt_version@
 CLANG_MAJOR_VERSION = @CLANG_MAJOR_VERSION@
 
 # configuration state affecting the entire build
+ENABLE_MULTILIB = @enable_multilib@
 ENABLE_SHARED = @enable_shared@
 ENABLE_SECURE = @enable_secure@
 ENABLE_PROBES = @enable_probes@
