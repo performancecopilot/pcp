@@ -19,7 +19,7 @@
 #define HAVE_32BIT_LONG 1
 #define HAVE_32BIT_PTR 1
 /* #undef HAVE_64BIT_PTR */
-#define PM_PAD_RESULT 4
-#define PM_PAD_TIMESPEC 4
+/* #undef PM_PAD_RESULT */
+/* #undef PM_PAD_TIMESPEC */
 
 #endif /* PCP_CONFIG32_H */
