@@ -912,8 +912,8 @@ pmDiscoverInvokeInDomCallBacks(pmDiscover *p, int type, __pmTimestamp *tsp, pmIn
 		     * if this one is a delta indom
 		     */
 		    ldp = idp->next;
-		    dupnamelist = (char **)malloc(in->numinst*sizeof(char *));
-		    dupinstlist = (int *)malloc(in->numinst*sizeof(int));
+		    dupnamelist = (char **)calloc(in->numinst, sizeof(char *));
+		    dupinstlist = (int *)calloc(in->numinst, sizeof(int));
 		    for (j = 0; j < ldp->numinst; j++) {
 			fprintf(stderr, "%d ", ldp->instlist[j]);
 		    }
@@ -1336,7 +1336,7 @@ process_metadata(pmDiscover *p)
 	    }
 	    pmDiscoverInvokeInDomCallBacks(p, hdr.type, &stamp, &inresult);
 	    /* Note:
-	     *   inresult.namelist is always malloc'd in
+	     *   inresult.namelist is always dynamically allocated in
 	     *   pmDiscoverDecodeMetaInDom(), either indirectly via
 	     *   __pmLogLoadInDom() (for non-32-bit pointer systems) or
 	     *   directly (for 32-bit-pointer systems).
@@ -1898,12 +1898,9 @@ pmDiscoverDecodeMetaDesc(uint32_t *buf, int buflen, pmDesc *p_desc, int *p_numna
     if (pmDebugOptions.discovery)
 	fprintf(stderr, "DECODE DESC metric %s (", pmIDStr(dp->pmid));
     numnames = ntohl(buf[sizeof(pmDesc)/sizeof(int)]);
-    names = (char **)malloc(numnames * sizeof(char *));
+    names = (char **)calloc(numnames, sizeof(char *));
     if (names == NULL)
 	return -ENOMEM;
-    for (i = 0; i < numnames; i++) {
-	names[i] = NULL;
-    }
     cp = (char *)&buf[sizeof(pmDesc)/sizeof(int) + 1];
     for (i = 0; i < numnames; i++) {
 	memmove(&len, cp, sizeof(len));
@@ -1954,10 +1951,11 @@ pmDiscoverDecodeMetaInDom(__int32_t *buf, int len, int type, __pmTimestamp *tsp,
 	     */
 	    char	**namelist;
 	    int		i;
-	    namelist = (char **)malloc(lid.numinst * sizeof(char *));
+	    namelist = (char **)calloc(lid.numinst, sizeof(char *));
 	    if (namelist == NULL) {
-		pmNoMem("pmDiscoverDecodeMetaInDom", lid.numinst * sizeof(char *), PM_FATAL_ERR);
-		/* NOTREACHED */
+		pmNoMem("pmDiscoverDecodeMetaInDom", lid.numinst * sizeof(char *), PM_RECOV_ERR);
+		__pmFreeLogInDom(&lid);
+		return -ENOMEM;
 	    }
 	    for (i = 0; i < lid.numinst; i++) {
 		namelist[i] = lid.namelist[i];
