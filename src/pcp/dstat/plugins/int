@@ -3,6 +3,7 @@
 #
 
 [int]
+filtertype = int
 label = interrupts
 width = 4
 printtype = d
