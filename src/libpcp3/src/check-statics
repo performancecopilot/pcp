@@ -239,7 +239,7 @@ connect.o
     proxy			# guarded by connect_lock mutex
 context.o
     contexts_lock		# local mutex
-    _mode			# const
+    ?_mode			# const
     being_initialized           # const
     def_backoff			# guarded by contexts_lock mutex
     backoff			# guarded by contexts_lock mutex
