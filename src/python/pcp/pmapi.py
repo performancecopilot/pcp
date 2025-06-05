@@ -630,9 +630,10 @@ class pmDesc(Structure):
         return "pmDesc@%#lx id=%#lx type=%d" % fields
 
 pmDescPtr = POINTER(pmDesc)
-pmDescPtr.sem = property(lambda x: x.contents.sem, None, None, None)
+pmDescPtr.pmid = property(lambda x: x.contents.pmid, None, None, None)
 pmDescPtr.type = property(lambda x: x.contents.type, None, None, None)
 pmDescPtr.indom = property(lambda x: x.contents.indom, None, None, None)
+pmDescPtr.sem = property(lambda x: x.contents.sem, None, None, None)
 pmDescPtr.units = property(lambda x: x.contents.units, None, None, None)
 
 
