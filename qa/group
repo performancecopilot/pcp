@@ -249,6 +249,7 @@ pmda.nutcracker
 pmda.nvidia
 pmda.ohead
 pmda.openmetrics
+pmda.opentelemetry
 pmda.oracle
 pmda.perfevent
 pmda.pipe
@@ -2099,6 +2100,7 @@ pmcd.pdu
 1627 libpcp_import local
 1628 libpcp_import valgrind local
 1630 pmlogrewrite local pmlogdump
+1632 pmda.opentelemetry local python
 1633 python pmda.sockets local
 1634 pmda.sockets local valgrind
 1639 pmda.bpf local
@@ -2111,6 +2113,7 @@ pmcd.pdu
 1671 multi-archive archive libpcp pmrep local python
 1672 secure pmcd local
 1673 pmda.bpf local
+1678 pmda.opentelemetry local python
 1680 openvswitch local
 1681 pmrep pcp2xxx pmlogconf local
 1682 pmrep pcp2xxx pmlogconf valgrind local
@@ -2150,6 +2153,7 @@ pmcd.pdu
 1723 pmda.bpftrace local python
 1724 pmda.bpftrace local python
 1725 pmda.bpftrace local python
+1726 pmda.opentelemetry local python
 1727 pmproxy libpcp_web pmda.openmetrics local
 1740 pmda.proc local
 1745 pmlogger libpcp pmval local pmda.sample pmda.simple pmlogdump
@@ -2165,6 +2169,7 @@ pmcd.pdu
 1774 pmlogctl pmlogger logutil
 1775 pmdumptext archive local
 1784 pmlogconf local
+1787 pmda.opentelemetry local python
 1788 pmda.linux local
 1793 pmrep pcp2xxx python local pmlogdump pmjson
 1794 pcp2arrow local
@@ -2204,7 +2209,9 @@ pmcd.pdu
 1877 pmproxy libpcp_web local
 1878 other local
 1886 pmseries libpcp_web local
+1888 pmda.opentelemetry local python
 1889 pmlogger local
+1890 pmda.opentelemetry local python
 1893 pmda.proc local
 1895 pmda.bpf local
 1896 pmlogger logutil pmlc local
@@ -2224,6 +2231,8 @@ pmcd.pdu
 1936 other local pmclient
 1937 pmlogrewrite pmda.xfs local pmlogdump
 1940 pmlogconf valgrind local
+1942 pmda.opentelemetry local python
+1948 pmda.opentelemetry local python
 1955 libpcp pmda pmda.pmcd local
 1956 pmda.linux pmcd local
 1957 libpcp local valgrind
@@ -2242,4 +2251,5 @@ pmcd.pdu
 1991 pcp netstat python local
 1992 pmda.uwsgi local
 1993 pmda.rocestat local python
+1994 pmda.opentelemetry local python
 4751 libpcp threads valgrind local pcp helgrind
