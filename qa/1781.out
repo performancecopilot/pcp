@@ -1,0 +1,99 @@
+QA output created by 1781
+
+=== HDB agent installation ===
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check hdb metrics have appeared ... X metrics and Y values
+Check across all metrics for warnings on fetch
+hdb.mvcc.read_write_lag: No value(s) available
+hdb.mvcc.snapshot_lag: No value(s) available
+hdb.mvcc.acquired_lock_count: No value(s) available
+hdb.mvcc.metadata_versions_count: No value(s) available
+hdb.mvcc.data_versions_count: No value(s) available
+hdb.mvcc.versions_count: No value(s) available
+hdb.column_unloads.merge_count: No value(s) available
+hdb.column_unloads.explicit_count: No value(s) available
+hdb.column_unloads.shrink_count: No value(s) available
+hdb.column_unloads.low_memory_count: No value(s) available
+hdb.plan_cache.cached_plans.total_execution_time_microseconds: No value(s) available
+hdb.plan_cache.cached_plans.total_cursor_duration_microseconds: No value(s) available
+hdb.plan_cache.cached_plans.total_preparation_time_microseconds: No value(s) available
+hdb.plan_cache.cached_plans.execution_count: No value(s) available
+hdb.plan_cache.cached_plans.preparation_count: No value(s) available
+hdb.plan_cache.cached_plans.count: No value(s) available
+hdb.plan_cache.evicted_plans.size_bytes: No value(s) available
+hdb.plan_cache.evicted_plans.total_execution_time_microseconds: No value(s) available
+hdb.plan_cache.evicted_plans.total_cursor_duration_microseconds: No value(s) available
+hdb.plan_cache.evicted_plans.total_preparation_time_microseconds: No value(s) available
+hdb.plan_cache.evicted_plans.execution_count: No value(s) available
+hdb.plan_cache.evicted_plans.preparation_count: No value(s) available
+hdb.plan_cache.evicted_plans.count: No value(s) available
+hdb.plan_cache.evicted_plans.avg_cache_time_microseconds: No value(s) available
+hdb.plan_cache.hits_count: No value(s) available
+hdb.plan_cache.lookups_count: No value(s) available
+hdb.plan_cache.hit_ratio: No value(s) available
+hdb.plan_cache.fill_ratio_percent: No value(s) available
+hdb.plan_cache.size_bytes: No value(s) available
+hdb.plan_cache.capacity_bytes: No value(s) available
+hdb.statements.peak_compilation_rate: No value(s) available
+hdb.statements.compilation_rate: No value(s) available
+hdb.statements.peak_execution_rate: No value(s) available
+hdb.statements.execution_rate: No value(s) available
+hdb.statements.execution_count: No value(s) available
+hdb.transactions.blocked_metadata_count: No value(s) available
+hdb.transactions.blocked_table_count: No value(s) available
+hdb.transactions.blocked_record_count: No value(s) available
+hdb.transactions.blocked_count: No value(s) available
+hdb.transactions.peak_rollback_rate: No value(s) available
+hdb.transactions.peak_rollbacks_rate: No value(s) available
+hdb.transactions.peak_commit_rate: No value(s) available
+hdb.transactions.commit_rate: No value(s) available
+hdb.transactions.peak_transaction_rate: No value(s) available
+hdb.transactions.transaction_rate: No value(s) available
+hdb.transactions.peak_update_rate: No value(s) available
+hdb.transactions.update_rate: No value(s) available
+hdb.transactions.rollback_count: No value(s) available
+hdb.transactions.commit_count: No value(s) available
+hdb.transactions.update_count: No value(s) available
+hdb.transactions.active_prepare_count: No value(s) available
+hdb.transactions.partial_aborting_count: No value(s) available
+hdb.transactions.aborting_count: No value(s) available
+hdb.transactions.precomitted_count: No value(s) available
+hdb.transactions.inactive_count: No value(s) available
+hdb.transactions.active_count: No value(s) available
+hdb.table_locks.total_wait_time_microseconds: No value(s) available
+hdb.table_locks.total_waits_count: No value(s) available
+hdb.metadata_locks.total_wait_time_microseconds: No value(s) available
+hdb.metadata_locks.total_waits_count: No value(s) available
+hdb.record_locks.total_wait_time_microseconds: No value(s) available
+hdb.record_locks.total_waits_count: No value(s) available
+hdb.admission_control.measurement.timestamp: No value(s) available
+hdb.admission_control.measurement.memory_allocation_percent: No value(s) available
+hdb.admission_control.measurement.memory_size_gigabytes: No value(s) available
+hdb.admission_control.wait_time.sum_microseconds: No value(s) available
+hdb.admission_control.wait_time.min_microseconds: No value(s) available
+hdb.admission_control.wait_time.max_microseconds: No value(s) available
+hdb.admission_control.wait_time.avg_microseconds: No value(s) available
+hdb.admission_control.wait_time.last_microseconds: No value(s) available
+hdb.admission_control.queue_size: No value(s) available
+hdb.admission_control.total_timeout_count: No value(s) available
+hdb.admission_control.total_dequeue_count: No value(s) available
+hdb.admission_control.total_enqueue_count: No value(s) available
+hdb.admission_control.total_reject_count: No value(s) available
+hdb.admission_control.total_admit_count: No value(s) available
+hdb.services.sql_executor_threads_inactive_count: No value(s) available
+hdb.services.sql_executor_threads_active_count: No value(s) available
+hdb.connections.queuing_count: No value(s) available
+hdb.connections.idle_count: No value(s) available
+hdb.connections.running_count: No value(s) available
+Check hdb.version value matches hdb shell
+Success - matching version numbers
+
+=== remove HDB agent ===
+Culling the Performance Metrics Name Space ...
+hdb ... done
+Updating the PMCD control file, and notifying PMCD ...
+[...removing files...]
+Check hdb metrics have gone away ... OK
