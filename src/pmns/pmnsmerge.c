@@ -182,17 +182,23 @@ static void
 merge(__pmnsNode *p, int depth, char *path)
 {
     char	*name;
+    size_t	newlen = strlen(path)+strlen(p->name)+2;
 
     if (depth < 1 || p->pmid == PM_ID_NULL || p->first != NULL)
 	return;
-    name = (char *)malloc(strlen(path)+strlen(p->name)+2);
-    if (*path == '\0')
-	strcpy(name, p->name);
-    else {
-	strcpy(name, path);
-	strcat(name, ".");
-	strcat(name, p->name);
+    if ((name = (char *)malloc(newlen)) == NULL) {
+	pmNoMem("merge", newlen, PM_FATAL_ERR);
+	/* NOTREACHED */
     }
+
+    if (*path == '\0')
+	pmstrncpy(name, newlen, p->name);
+    else {
+	pmstrncpy(name, newlen, path);
+	pmstrncat(name, newlen, ".");
+	pmstrncat(name, newlen, p->name);
+    }
+
     fullname = name;
     addpmns(root, name, p);
     free(name);

@@ -40,15 +40,19 @@ pmns_traverse(__pmnsNode *p, int depth, char *path, void(*func)(__pmnsNode *, in
 	/* descend */
 	for (q = p; q != NULL; q = q->next) {
 	    if (q->first != NULL) {
-		newpath = (char *)malloc(strlen(path)+strlen(q->name)+2);
+		size_t	newlen = strlen(path)+strlen(q->name)+2;
+		if ((newpath = (char *)malloc(newlen)) == NULL) {
+		    pmNoMem("pmns_traverse", newlen, PM_FATAL_ERR);
+		    /* NOTREACHED */
+		}
 		if (depth == 0)
 		    *newpath = '\0';
 		else if (depth == 1)
-		    strcpy(newpath, q->name);
+		    pmstrncpy(newpath, newlen, q->name);
 		else {
-		    strcpy(newpath, path);
-		    strcat(newpath, ".");
-		    strcat(newpath, q->name);
+		    pmstrncpy(newpath, newlen, path);
+		    pmstrncat(newpath, newlen, ".");
+		    pmstrncat(newpath, newlen, q->name);
 		}
 		pmns_traverse(q->first, depth+1, newpath, func);
 		free(newpath);
