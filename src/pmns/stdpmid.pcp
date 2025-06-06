@@ -67,7 +67,10 @@ CPUSET		84
 FREEBSD		85
 RPCBIND		86
 ETW		87
+<<<<<<< HEAD
 HDB		88
+=======
+>>>>>>> 29951d497 (pmdaopentelemetry: new pmda for otel metrics)
 MEMCACHE	89
 VMWARE		90
 IB		91
@@ -143,7 +146,8 @@ FARM		160 	/* Seagate vendor specific Field Accessible Reliability Metrics log *
 UWSGI		161
 AMDGPU		162
 ROCESTAT	163
-### FREE SLOTS 164..230 ###
+OPENTELEMETRY	164
+### FREE SLOTS 165..230 ###
 # start QA section
 ### FREE SLOTS 231..240 ###
 SCHIZO		241
