@@ -2181,8 +2181,8 @@ pmRegisterDerivedMetric(const char *name, const char *expr, char **errmsg)
     else
 	pmsprintf(error, length, fmt, name, expr, (int)(expr - offset), " ");
     if (dmsg) {
-	strcat(error, dmsg);
-	strcat(error, "\n");
+	pmstrncat(error, length, dmsg);
+	pmstrncat(error, length, "\n");
     }
     error[length-1] = '\0';
 
@@ -2862,8 +2862,8 @@ pmAddDerivedMetric(const char *name, const char *expr, char **errmsg)
 	sts = PM_ERR_BADDERIVE;
     }
     if (dmsg != NULL) {
-	strcat(error, dmsg);
-	strcat(error, "\n");
+	pmstrncat(error, length, dmsg);
+	pmstrncat(error, length, "\n");
     }
 
     *errmsg = error;
