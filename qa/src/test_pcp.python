@@ -29,21 +29,24 @@ def dump_seq(name_p, seq_p):
             print(text)
     print('')
 
-def dump_array_ptrs(name_p, arr_p):
-    print(name_p)
-    for i in range(len(arr_p)):
-        if (i > 0):
-            print(" ", arr_p[i].contents)
-        else:
-            print(arr_p[i].contents)
+def dump_desc(ctx, name, desc):
+    print(name, end='')
+    print(' pmid=' + ctx.pmIDStr(desc.contents.pmid), end='')
+    print(' type=', end='')
+    print(ctx.pmTypeStr(desc.contents.type), end='')
+    print(' indom=', end='')
+    print(ctx.pmInDomStr(desc), end='')
+    print(' sem=', end='')
+    print(ctx.pmSemStr(desc.contents.sem), end='')
+    print(' units=', end='')
+    print(ctx.pmUnitsStr(desc.contents.units))
 
-def dump_array(name_p, arr_p):
-    print(name_p)
-    for i in range(len(arr_p)):
-        if (i > 0):
-            print(" ", hex(arr_p[i]))
-        else:
-            print(hex(arr_p[i]))
+def dump_pmids(ctx, tag, name_p, pmid_p):
+    print(tag)
+    for i in range(len(name_p)):
+        print(' [' + str(i) + ']', end='')
+        print(' name=' + name_p[i], end='')
+        print(' pmid=' + ctx.pmIDStr(pmid_p[i]))
 
 ARCHIVE = ""                    # For testing either localhost or archive
 
@@ -86,7 +89,10 @@ def test_pcp(self):
     # pmLookupName
     try:
         self.ncpu_id = ctx.pmLookupName(("hinv.ncpu", "kernel.all.load", "hinv.machine"))
-        print("pmLookupName:", self.ncpu_id)
+        print("pmLookupName:", end='')
+        for i in range(len(self.ncpu_id)):
+            print(" [" + str(i) + "]", ctx.pmIDStr(self.ncpu_id[i]), end="")
+        print("")
         self.assertTrue(True)
     except pmapi.pmErr as error:
         self.assertTrue(False)
@@ -95,7 +101,7 @@ def test_pcp(self):
     print("pmIDStr:", ctx.pmIDStr(self.ncpu_id[0]))
     self.assertTrue(ctx.pmIDStr(self.ncpu_id[0]).count(".") > 1)
 
-    # pmLookupDesc
+    # pmLookupDescs
     try:
         descs = ctx.pmLookupDescs(self.ncpu_id)
         self.assertTrue(True)
@@ -115,6 +121,7 @@ def test_pcp(self):
     print("tv_sec", results.contents.get_sec())
     print("tv_nsec", results.contents.get_nsec())
     print("numpmid", results.contents.get_numpmid())
+    print("pmid", ctx.pmIDStr(results.contents.get_pmid(0)))
     atom = ctx.pmExtractValue(results.contents.get_valfmt(0),
                               results.contents.get_vlist(0, 0),
                               descs[0].contents.type,
@@ -184,7 +191,7 @@ def test_pcp(self):
     except pmapi.pmErr as error:
         print("pmLookupName:", error)
         self.assertTrue(False)
-    dump_array("pmLookupName", self.metric_ids)
+    dump_pmids(ctx, "pmLookupName", metrics, self.metric_ids)
     self.assertTrue(len(self.metric_ids) == 4)
 
     for i in range(len(metrics)):
@@ -210,10 +217,11 @@ def test_pcp(self):
         self.assertTrue(match)
 
         # pmLookupDesc
-        descs = ctx.pmLookupDescs(self.metric_ids[i])
-        dump_array_ptrs("pmLookupDesc", descs)
-        self.assertTrue(len(descs) == 1)
+        desc = ctx.pmLookupDesc(self.metric_ids[i])
+        self.assertTrue(desc != None)
+        dump_desc(ctx, name, descs[0])
 
+    # pmLookupDescs
     descs = ctx.pmLookupDescs(self.metric_ids)
     if self.local_type:
         # pmGetInDom - sample.bin
