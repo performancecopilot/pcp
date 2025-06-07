@@ -824,7 +824,7 @@ __pmDumpResult_ctx_v2(__pmContext *ctxp, FILE *f, const pmResult_v2 *resp)
     __pmCtlDebug(PM_CTL_DEBUG_SAVE);
     fprintf(f, "pmResult dump from " PRINTF_P_PFX "%p timestamp: %d.%06d ",
 	resp, (int)resp->timestamp.tv_sec, (int)resp->timestamp.tv_usec);
-    pmPrintStamp(f, &resp->timestamp);
+    pmtimevalPrint(f, &resp->timestamp);
     fprintf(f, " numpmid: %d\n", resp->numpmid);
     for (i = 0; i < resp->numpmid; i++)
 	dump_valueset(ctxp, f, resp->vset[i]);
@@ -876,7 +876,7 @@ __pmDumpResult_ctx(__pmContext *ctxp, FILE *f, const pmResult *hresp)
 	    hresp,
 	    (long long)hresp->timestamp.tv_sec,
 	    (long long)hresp->timestamp.tv_nsec);
-    pmPrintHighResStamp(f, &hresp->timestamp);
+    pmtimespecPrint(f, &hresp->timestamp);
     fprintf(f, " numpmid: %d\n", hresp->numpmid);
     for (i = 0; i < hresp->numpmid; i++)
 	dump_valueset(ctxp, f, hresp->vset[i]);
@@ -962,9 +962,9 @@ print_event_summary(FILE *f, const pmValue *val, int highres)
 	fputc(' ', f);
 
 	if (highres)
-	    pmPrintHighResStamp(f, &tsstamp);
+	    pmtimespecPrint(f, &tsstamp);
 	else
-	    pmPrintStamp(f, &tvstamp);
+	    pmtimevalPrint(f, &tvstamp);
 
 	if (nrecords > 1) {
 	    fprintf(f, "...");
@@ -972,13 +972,13 @@ print_event_summary(FILE *f, const pmValue *val, int highres)
 		tsp = (pmTimespec *)base;
 		tsstamp.tv_sec = tsp->tv_sec;
 		tsstamp.tv_nsec = tsp->tv_nsec;
-		pmPrintHighResStamp(f, &tsstamp);
+		pmtimespecPrint(f, &tsstamp);
 	    }
 	    else {
 		tvp = (pmTimeval *)base;
 		tvstamp.tv_sec = tvp->tv_sec;
 		tvstamp.tv_usec = tvp->tv_usec;
-		pmPrintStamp(f, &tvstamp);
+		pmtimevalPrint(f, &tvstamp);
 	    }
 	}
     }
@@ -1376,7 +1376,7 @@ __pmTimestampDec(__pmTimestamp *ap, const __pmTimestamp *bp)
  *       to usec precision.
  */
 void
-pmPrintStamp(FILE *f, const struct timeval *tp)
+pmtimevalPrint(FILE *f, const struct timeval *tp)
 {
     struct tm	tmp;
     time_t	now;
@@ -1390,7 +1390,7 @@ pmPrintStamp(FILE *f, const struct timeval *tp)
  * print high resolution timestamp in HH:MM:SS.XXXXXXXXX format
  */
 void
-pmPrintHighResStamp(FILE *f, const struct timespec *tp)
+pmtimespecPrint(FILE *f, const struct timespec *tp)
 {
     struct tm	tmp;
     time_t	now;
@@ -1448,7 +1448,7 @@ __pmPrintTimestamp(FILE *f, const __pmTimestamp *tsp)
  * print interval timespec in [[Nh]Nm]n[.N]s format
  */
 void
-pmPrintInterval(FILE *f, const struct timespec *tsp)
+pmtimespecPrintInterval(FILE *f, const struct timespec *tsp)
 {
     struct timespec	interval;
 

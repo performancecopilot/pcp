@@ -42,7 +42,7 @@ _cleanup()
 status=0	# success is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
-# HH:MM because pmPrintStamp(3) uses pmLocaltime(3)
+# HH:MM because pmtimevalPrint(3) uses pmLocaltime(3)
 #
 _filter()
 {

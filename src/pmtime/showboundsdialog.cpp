@@ -161,7 +161,7 @@ void ShowBounds::accept()
 	}
 	if (input[0] != '@')
 	    input.prepend("@");
-	if (__pmParseTime(input.toLatin1(), &start, &end, &current, &msg) < 0) {
+	if (__pmtimevalParse(input.toLatin1(), &start, &end, &current, &msg) < 0) {
 	    error = QString("Invalid start date/time:\n\n%1\n").arg(msg);
 	    QMessageBox warn(QMessageBox::Warning,
 			QApplication::tr("Warning"), error,
@@ -196,7 +196,7 @@ void ShowBounds::accept()
 	}
 	if (input[0] != '@')
 	    input.prepend("@");
-	if (__pmParseTime(input.toLatin1(), &start, &end, &current, &msg) < 0) {
+	if (__pmtimevalParse(input.toLatin1(), &start, &end, &current, &msg) < 0) {
 	    error = QString("Invalid end date/time:\n%1\n\n").arg(msg);
 	    QMessageBox warn(QMessageBox::Warning,
 			QApplication::tr("Warning"), error,

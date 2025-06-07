@@ -542,9 +542,9 @@ pmSetMode(int mode, const struct timespec *when, const struct timespec *delta)
 		break;
 	}
 	fprintf(stderr, ", when=");
-	pmPrintHighResStamp(stderr, when);
+	pmtimespecPrint(stderr, when);
 	fprintf(stderr, ", delta=");
-	pmPrintInterval(stderr, delta);
+	pmtimespecPrintInterval(stderr, delta);
 	fprintf(stderr, ") direction=%d <:", direction);
     }
 

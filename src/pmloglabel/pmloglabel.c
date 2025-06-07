@@ -374,7 +374,7 @@ main(int argc, char *argv[])
 	    ddmm[10] = '\0';
 	    yr = &ddmm[20];
 	    printf("  ending     %s ", ddmm);
-	    pmPrintHighResStamp(stdout, &ts);
+	    pmtimespecPrint(stdout, &ts);
 	    printf(" %4.4s\n", yr);
 	}
 	if (Lflag) {	/* TODO: v3 archives - zoneinfo */

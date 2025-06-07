@@ -41,8 +41,8 @@
  * __pmtimevalDec()		pmtimevalDec()
  * __pmtimevalToReal()		pmtimevalToReal()
  * __pmtimevalFromReal()	pmtimevalFromReal()
- * __pmPrintStamp()		pmPrintStamp()
- * __pmPrintHighResStamp()	pmPrintHighResStamp()
+ * __pmPrintStamp()		pmtimevalPrint()
+ * __pmPrintHighResStamp()	pmtimespecPrint()
  * __pmPathSeparator()		pmPathSeparator()
  * __pmGetUsername()		pmGetUsername()
  * __pmSetProcessIdentity()	pmSetProcessIdentity()
@@ -118,8 +118,8 @@ PCP_CALL struct __pmContext *__pmCurrentContext(void);
 #define __pmtimevalDec pmtimevalDec
 #define __pmtimevalToReal pmtimevalToReal
 #define __pmtimevalFromReal pmtimevalFromReal
-#define __pmPrintStamp pmPrintStamp
-#define __pmPrintHighResStamp pmPrintHighResStamp
+#define __pmPrintStamp pmtimevalPrint
+#define __pmPrintHighResStamp pmtimespecPrint
 #define __pmPathSeparator pmPathSeparator
 #define __pmGetUsername pmGetUsername
 #define __pmSetProcessIdentity pmSetProcessIdentity

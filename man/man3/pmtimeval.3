@@ -24,7 +24,7 @@
 \f3pmtimevalToReal\f1,
 \f3pmtimevalFromReal\f1,
 \f3pmtimevalTotimespec\f1,
-\f3pmPrintStamp\f1 \- helper routines for time stored as a struct timeval
+\f3pmtimevalPrint\f1 \- helper routines for time stored as a struct timeval
 .SH "C SYNOPSIS"
 .ft 3
 .ad l
@@ -53,7 +53,7 @@ void pmtimevalFromReal(double \fIsecs\fP, struct timeval *\fIval\fP);
 .br
 void pmtimevalTotimespec(struct timeval *\fItvp\fP, struct timespec *\fItsp\fP);
 .br
-void pmPrintStamp(FILE *\fIf\fP, const struct timeval *\fItp\fP);
+void pmtimevalPrint(FILE *\fIf\fP, const struct timeval *\fItp\fP);
 .sp
 cc ... \-lpcp
 .hy
@@ -106,7 +106,7 @@ into an equivalent struct timespec
 .I tsp
 (modulo rounding microseconds up to nanoseconds).
 .PP
-.B pmPrintStamp
+.B pmtimevalPrint
 prints the timestamp from
 .I tp
 on the stream
@@ -118,6 +118,18 @@ in the format HH:MM:SS.XXX.
 For variants of these interfaces using nanosecond precision
 and the timespec structure, refer to
 .BR pmtimespecNow (3).
+.SH COMPATIBILITY
+Prior to PCP 7.0 the routine
+.B pmtimevalPrint
+was called
+.BR pmPrintStamp .
+To support PMAPI transition, the old routine can still be used
+if applications are recompiled with
+.BR \-DPMAPI_VERSION=2 .
+.PP
+.B pmPrintStamp
+is now deprecated and compile-time support for
+this routine name will be removed in a future release.
 .SH SEE ALSO
 .BR gettimeofday (2),
 .BR time (2),

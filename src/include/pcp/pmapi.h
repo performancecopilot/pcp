@@ -1327,7 +1327,7 @@ PCP_CALL extern double pmtimevalAdd(const struct timeval *, const struct timeval
 PCP_CALL extern double pmtimevalSub(const struct timeval *, const struct timeval *);
 PCP_CALL extern double pmtimevalToReal(const struct timeval *);
 PCP_CALL extern void pmtimevalFromReal(double, struct timeval *);
-PCP_CALL extern void pmPrintStamp(FILE *, const struct timeval *);
+PCP_CALL extern void pmtimevalPrint(FILE *, const struct timeval *);
 
 /* struct timespec manipulations */
 PCP_CALL extern int pmtimespecNow(struct timespec *);
@@ -1337,8 +1337,8 @@ PCP_CALL extern double pmtimespecAdd(const struct timespec *, const struct times
 PCP_CALL extern double pmtimespecSub(const struct timespec *, const struct timespec *);
 PCP_CALL extern double pmtimespecToReal(const struct timespec *);
 PCP_CALL extern void pmtimespecFromReal(double, struct timespec *);
-PCP_CALL extern void pmPrintHighResStamp(FILE *, const struct timespec *);
-PCP_CALL extern void pmPrintInterval(FILE *, const struct timespec *);
+PCP_CALL extern void pmtimespecPrint(FILE *, const struct timespec *);
+PCP_CALL extern void pmtimespecPrintInterval(FILE *, const struct timespec *);
 
 /* timespec <-> timeval conversions */
 PCP_CALL extern void pmtimevalTotimespec(struct timeval *, struct timespec *);
@@ -1479,6 +1479,8 @@ PCP_CALL extern void pmSortInstances_v2(pmResult_v2 *);
 #define pmFetchArchive pmFetchArchive_v2
 #define pmStore pmStore_v2
 #define pmSortInstances pmSortInstances_v2
+#define pmPrintStamp pmtimevalPrint
+#define pmPrintHighResStamp pmtimespecPrint
 
 /*
  * Extended time base definitions and macros
@@ -1494,7 +1496,7 @@ PCP_CALL extern void pmSortInstances_v2(pmResult_v2 *);
 
 #if PMAPI_VERSION >= PMAPI_VERSION_4
 /*
- * retire HighRes interfaces
+ * alias mappings for HighRes and renamed interfaces
  */
 #define pmGetHighResArchiveEnd pmGetArchiveEnd
 #define pmParseHighResTimeWindow pmParseTimeWindow
@@ -1506,6 +1508,8 @@ PCP_CALL extern void pmSortInstances_v2(pmResult_v2 *);
 #define pmFetchHighResArchive pmFetchArchive
 #define pmStoreHighRes pmStore
 #define pmSortHighResInstances pmSortInstances
+#define pmPrintStamp pmtimevalPrint
+#define pmPrintHighResStamp pmtimespecPrint
 #endif
 
 #ifdef __cplusplus

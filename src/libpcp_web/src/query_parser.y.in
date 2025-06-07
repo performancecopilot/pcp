@@ -1741,11 +1741,11 @@ parsetime(PARSER *lp, struct timespec *result, sds string)
     char	*error;
     int		sts;
 
-    if ((sts = __pmParseHighResTime(string, &start, &end, result, &error)) < 0) {
+    if ((sts = __pmtimespecParse(string, &start, &end, result, &error)) < 0) {
 	lp->yy_error = sts;
 	lp->yy_errstr = sdscatfmt(sdsempty(),
 		"Cannot parse time with %s:\n%s",
-		"__pmParseHighResTime", error);
+		"__pmtimespecParse", error);
 	sdsfree(string);
 	free(error);
 	return -1;

@@ -135,9 +135,9 @@
  * [ ] pmPathSeparator
  * [ ] pmPrintDesc
  * [ ] pmprintf
- * [ ] pmPrintHighResStamp
+ * [i] pmPrintHighResStamp
  * [ ] pmPrintLabelSets
- * [ ] pmPrintStamp
+ * [i] pmPrintStamp
  * [ ] pmPrintValue
  * [ ] pmReconnectContext
  * [ ] pmRegisterDerived
@@ -442,7 +442,7 @@ main(int argc, char *argv[])
 		    printf("-i interval: %s", interstr(&delta));
 #if PMAPI_VERSION >= 4
 		    printf(" (");
-		    pmPrintInterval(stdout, &delta);
+		    pmtimespecPrintInterval(stdout, &delta);
 		    putchar(')');
 #endif
 		putchar('\n');

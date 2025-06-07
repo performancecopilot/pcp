@@ -6317,9 +6317,9 @@ parsetime(seriesQueryBaton *baton, sds string, struct timespec *result, const ch
     sds			msg;
     int			sts;
 
-    if ((sts = __pmParseHighResTime(string, &start, &end, result, &error)) < 0) {
+    if ((sts = __pmtimespecParse(string, &start, &end, result, &error)) < 0) {
 	infofmt(msg, "Cannot parse time %s with %s:\n%s",
-		source, "__pmParseHighResTime", error);
+		source, "__pmtimespecParse", error);
 	batoninfo(baton, PMLOG_ERROR, msg);
 	baton->error = sts;
 	free(error);

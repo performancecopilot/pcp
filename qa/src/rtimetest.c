@@ -109,13 +109,13 @@ main(int argc, char *argv[])
     }
 
     printf("These time terms are relative to the start/end time.\n"
-	   "#1 __pmParseTime #2 pmParseTimeWindow/Start #3 pmParseTimeWindow/End.\n");
+	   "#1 __pmtimevalParse #2 pmParseTimeWindow/Start #3 pmParseTimeWindow/End.\n");
     set_tm(NULL, &tmtmp, &tmstart, 0, 19, 11, 45);
     tmtmp_str = asctime(&tmtmp);
     char *tmtmp_c = strchr(tmtmp_str, '\n');
     if (tmtmp_c)
 	*tmtmp_c = ' ';
-    if (__pmParseHighResTime(tmtmp_str, &tsstart, &tsend, &tsrslt, &errmsg) != 0) {
+    if (__pmtimespecParse(tmtmp_str, &tsstart, &tsend, &tsrslt, &errmsg) != 0) {
 	printf ("%s: %s\n", errmsg, tmtmp_str);
     }
     
@@ -225,7 +225,7 @@ main(int argc, char *argv[])
 	    if (strcmp(fmt, "now") == 0)
 		printf
 		    ("These time terms for a specific day are relative to the current time.\n");
-	    if (__pmParseHighResTime(buffer, &tsstart, &tsend, &tsrslt, &errmsg) != 0) {
+	    if (__pmtimespecParse(buffer, &tsstart, &tsend, &tsrslt, &errmsg) != 0) {
 		printf ("%s: %s\n", errmsg, tmtmp_str);
 	    }
 	    clock = tsrslt.tv_sec;

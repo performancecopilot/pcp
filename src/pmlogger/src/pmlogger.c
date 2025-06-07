@@ -1482,7 +1482,7 @@ main(int argc, char **argv)
         start = now_tv;
         end.tv_sec = PM_MAX_TIME_T;
         end.tv_usec = 0;
-        sts = __pmParseTime(runtime, &start, &end, &res_end, &err_msg);
+        sts = __pmtimevalParse(runtime, &start, &end, &res_end, &err_msg);
         if (sts < 0) {
 	    fprintf(stderr, "%s: illegal -T argument\n%s", pmGetProgname(), err_msg);
             exit(1);

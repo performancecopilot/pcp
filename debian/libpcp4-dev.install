@@ -68,10 +68,8 @@ usr/share/man/man3/__pmNotifyThrottle.3.gz
 usr/share/man/man3/__pmOverrideLastFd.3.gz
 usr/share/man/man3/__pmParseCtime.3.gz
 usr/share/man/man3/__pmParseDebug.3.gz
-usr/share/man/man3/__pmParseHighResTime.3.gz
 usr/share/man/man3/__pmParseHostAttrsSpec.3.gz
 usr/share/man/man3/__pmParseHostSpec.3.gz
-usr/share/man/man3/__pmParseTime.3.gz
 usr/share/man/man3/__pmPrintIPC.3.gz
 usr/share/man/man3/__pmProcessAddArg.3.gz
 usr/share/man/man3/__pmProcessExec.3.gz
@@ -85,6 +83,8 @@ usr/share/man/man3/__pmServerNotifyServiceManagerStopping.3.gz
 usr/share/man/man3/__pmSetDebugBits.3.gz
 usr/share/man/man3/__pmUnparseHostAttrsSpec.3.gz
 usr/share/man/man3/__pmUnparseHostSpec.3.gz
+usr/share/man/man3/__pmtimespecParse.3.gz
+usr/share/man/man3/__pmtimevalParse.3.gz
 usr/share/man/man3/pmAF.3.gz
 usr/share/man/man3/pmAddDerived.3.gz
 usr/share/man/man3/pmAddDerivedMetric.3.gz
@@ -200,10 +200,7 @@ usr/share/man/man3/pmParseTimeWindow.3.gz
 usr/share/man/man3/pmParseUnitsStr.3.gz
 usr/share/man/man3/pmPathSeparator.3.gz
 usr/share/man/man3/pmPrintDesc.3.gz
-usr/share/man/man3/pmPrintHighResStamp.3.gz
-usr/share/man/man3/pmPrintInterval.3.gz
 usr/share/man/man3/pmPrintLabelSets.3.gz
-usr/share/man/man3/pmPrintStamp.3.gz
 usr/share/man/man3/pmPrintValue.3.gz
 usr/share/man/man3/pmReconnectContext.3.gz
 usr/share/man/man3/pmRecord.3.gz
@@ -313,6 +310,8 @@ usr/share/man/man3/pmtimespecDec.3.gz
 usr/share/man/man3/pmtimespecFromReal.3.gz
 usr/share/man/man3/pmtimespecInc.3.gz
 usr/share/man/man3/pmtimespecNow.3.gz
+usr/share/man/man3/pmtimespecPrint.3.gz
+usr/share/man/man3/pmtimespecPrintInterval.3.gz
 usr/share/man/man3/pmtimespecSub.3.gz
 usr/share/man/man3/pmtimespecToReal.3.gz
 usr/share/man/man3/pmtimespecTotimeval.3.gz
@@ -321,6 +320,7 @@ usr/share/man/man3/pmtimevalDec.3.gz
 usr/share/man/man3/pmtimevalFromReal.3.gz
 usr/share/man/man3/pmtimevalInc.3.gz
 usr/share/man/man3/pmtimevalNow.3.gz
+usr/share/man/man3/pmtimevalPrint.3.gz
 usr/share/man/man3/pmtimevalSub.3.gz
 usr/share/man/man3/pmtimevalToReal.3.gz
 usr/share/man/man3/pmtimevalTotimespec.3.gz

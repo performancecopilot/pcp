@@ -780,7 +780,7 @@ do_result(void)
 	    fprintf(stderr, "Log: write ");
 	    stamp.tv_sec = inarch.rp->timestamp.sec;
 	    stamp.tv_usec = inarch.rp->timestamp.nsec / 1000;
-	    pmPrintStamp(stderr, &stamp);
+	    pmtimevalPrint(stderr, &stamp);
 	    fprintf(stderr, " numpmid=%d @ offset=%ld\n", inarch.rp->numpmid, out_offset);
 	}
     }

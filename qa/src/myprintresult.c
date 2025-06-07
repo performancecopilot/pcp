@@ -127,7 +127,7 @@ print_events(FILE *f, pmValueSet *vsp, int inst, int highres)
 	}
 	for (r = 0; r < nrecords; r++) {
 	    fprintf(f, "    --- highres event record [%d] timestamp ", r);
-	    pmPrintHighResStamp(f, &hr[r]->timestamp);
+	    pmtimespecPrint(f, &hr[r]->timestamp);
 	    if (print_nparams(f, hr[r]->numpmid) < 0)
 		continue;
 	    flags = 0;
@@ -146,7 +146,7 @@ print_events(FILE *f, pmValueSet *vsp, int inst, int highres)
 	}
 	for (r = 0; r < nrecords; r++) {
 	    fprintf(f, "    --- event record [%d] timestamp ", r);
-	    pmPrintStamp(f, &res[r]->timestamp);
+	    pmtimevalPrint(f, &res[r]->timestamp);
 	    if (print_nparams(f, res[r]->numpmid) < 0)
 		continue;
 	    flags = 0;

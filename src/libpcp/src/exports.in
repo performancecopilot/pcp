@@ -334,11 +334,9 @@ PCP_4.0 {
     __pmPDUTypeStr_r;
     __pmParseCtime;
     __pmParseDebug;
-    __pmParseHighResTime;
     __pmParseHostAttrsSpec;
     __pmParseHostSpec;
     __pmParseLabelSet;
-    __pmParseTime;
     __pmPathSeparator;
     __pmPinPDUBuf;
     __pmPrepareFetch;
@@ -500,6 +498,7 @@ PCP_4.0 {
     __pmWrite;
     __pmXmitPDU;
     __pmZoneinfo;
+    __pmtimespecParse;
     __pmtimespecPause;
     __pmtimespecSleep;
     __pmtimevalAdd;
@@ -507,6 +506,7 @@ PCP_4.0 {
     __pmtimevalFromReal;
     __pmtimevalInc;
     __pmtimevalNow;
+    __pmtimevalParse;
     __pmtimevalPause;
     __pmtimevalSleep;
     __pmtimevalSub;
@@ -632,10 +632,7 @@ PCP_4.0 {
     pmParseUnitsStr;
     pmPathSeparator;
     pmPrintDesc;
-    pmPrintInterval;
-    pmPrintHighResStamp;
     pmPrintLabelSets;
-    pmPrintStamp;
     pmPrintValue;
     pmProgname;
     pmReconnectContext;
@@ -685,6 +682,8 @@ PCP_4.0 {
     pmtimespecFromReal;
     pmtimespecInc;
     pmtimespecNow;
+    pmtimespecPrint;
+    pmtimespecPrintInterval;
     pmtimespecSub;
     pmtimespecToReal;
     pmtimespecTotimeval;
@@ -693,6 +692,7 @@ PCP_4.0 {
     pmtimevalFromReal;
     pmtimevalInc;
     pmtimevalNow;
+    pmtimevalPrint;
     pmtimevalSub;
     pmtimevalToReal;
     pmtimevalTotimespec;

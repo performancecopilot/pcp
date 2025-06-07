@@ -103,7 +103,7 @@ main(int argc, char **argv)
 	    exit(1);
 	}
 	if (timestamp)
-	    pmPrintHighResStamp(stdout, &hrslt->timestamp);
+	    pmtimespecPrint(stdout, &hrslt->timestamp);
 	vset = hrslt->vset;
     } else {
 	if ((n = pmFetch_v2(numpmid, midlist, &rslt)) < 0) {
@@ -111,7 +111,7 @@ main(int argc, char **argv)
 	    exit(1);
 	}
 	if (timestamp)
-	    pmPrintStamp(stdout, &rslt->timestamp);
+	    pmtimevalPrint(stdout, &rslt->timestamp);
 	vset = rslt->vset;
     }
 
