@@ -24,8 +24,8 @@
 \f3pmtimespecToReal\f1,
 \f3pmtimespecFromReal\f1,
 \f3pmtimespecTotimeval\f1,
-\f3pmPrintHighResStamp\f1,
-\f3pmPrintInterval\f1 \- helper routines for time stored as a struct timespec
+\f3pmtimespecPrint\f1,
+\f3pmtimespecPrintInterval\f1 \- helper routines for time stored as a struct timespec
 .SH "C SYNOPSIS"
 .ft 3
 .ad l
@@ -54,9 +54,9 @@ void pmtimespecFromReal(double \fIsecs\fP, struct timespec *\fItp\fP);
 .br
 void pmtimespecTotimeval(struct timespec *\fItsp, \fPstruct timeval *\fItvp\fP);
 .br
-void pmPrintHighResStamp(FILE *\fIf\fP, const struct timespec *\fItp\fP);
+void pmtimespecPrint(FILE *\fIf\fP, const struct timespec *\fItp\fP);
 .br
-void pmPrintInterval(FILE *\fIf\fP, const struct timespec *\fItp\fP);
+void pmtimespecPrintInterval(FILE *\fIf\fP, const struct timespec *\fItp\fP);
 .sp
 cc ... \-lpcp
 .hy
@@ -123,7 +123,7 @@ part of the value, then the fractional value is converted to microseconds
 before arithmetic computations, so the nanoseconds field is only
 accurate to 6 decimal digits in this case.
 .PP
-.B pmPrintHighResStamp
+.B pmtimespecPrint
 prints the timestamp from
 .I tp
 on the stream
@@ -132,7 +132,7 @@ in the local time (as returned by
 .BR pmLocaltime (3))
 in the format HH:MM:SS.XXXXXXXXX.
 .PP
-.B pmPrintInterval
+.B pmtimespecPrintInterval
 prints the interval from
 .I tp
 on the stream
@@ -147,6 +147,18 @@ if tp->tv_sec was 75 and tp->tv_nsec was 51000000 then the output would be
 For variants of these interfaces using microsecond precision
 and the timeval structure, refer to
 .BR pmtimevalNow (3).
+.SH COMPATIBILITY
+Prior to PCP 7.0 the routine
+.B pmtimespecPrint
+was called
+.BR pmPrintHighResStamp .
+To support PMAPI transition, the old routine can still be used
+if applications are recompiled with
+.BR \-DPMAPI_VERSION=2 .
+.PP
+.B pmPrintHighResStamp
+is now deprecated and compile-time support for
+this routine name will be removed in a future release.
 .SH SEE ALSO
 .BR PMAPI (3),
 .BR pmLocaltime (3)

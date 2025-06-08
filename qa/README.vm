@@ -296,6 +296,8 @@ FreeBSD
     $ sudo pkg delete <package> or <glob pattern>
     # update all packages recipe
     $ sudo pkg update; sudo pkg upgrade -y
+    # clean pkg cache
+    $ sudo pkg clean -ay
     # release upgrade recipe
     $ sudo freebsd-update fetch; sudo freebsd-update install
     # has to be a N.M-RELEASE version for -r

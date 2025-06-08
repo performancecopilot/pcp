@@ -298,7 +298,7 @@ Options\n\
     start.tv_sec += 2;
 
     printf("Start at: ");
-    pmPrintHighResStamp(stdout, &start);
+    pmtimespecPrint(stdout, &start);
     printf("\n\n");
 
     printf("Pass One: rewind and fetch metrics_a until end of log\n");
@@ -319,7 +319,7 @@ Options\n\
 	}
 
 	printf("sample %3d time=", sample);
-	pmPrintHighResStamp(stdout, &result->timestamp);
+	pmtimespecPrint(stdout, &result->timestamp);
 	putchar(' ');
 	if (result->numpmid != N_PMID_A) {
 	    printf("Error: expected %d (got %d) value sets\n",
@@ -360,7 +360,7 @@ Options\n\
 	}
 
 	printf("sample %3d time=", sample);
-	pmPrintHighResStamp(stdout, &result->timestamp);
+	pmtimespecPrint(stdout, &result->timestamp);
 	putchar(' ');
 	if (result->numpmid != N_PMID_B) {
 	    printf("Error: expected %d (got %d) value sets\n",
@@ -402,7 +402,7 @@ Options\n\
 	}
 
 	printf("sample %3d time=", sample);
-	pmPrintHighResStamp(stdout, &result->timestamp);
+	pmtimespecPrint(stdout, &result->timestamp);
 	putchar(' ');
 	if (result->numpmid != N_PMID_C) {
 	    printf("Error: expected %d (got %d) value sets\n",

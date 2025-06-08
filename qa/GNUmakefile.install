@@ -6,7 +6,7 @@
 # NB: this file is renamed GNUmakefile upon installation into $PCP_VAR_DIR/testsuite.
 # It is only for executing the testsuite.
 
-ifdef PCP_CONF
+ifneq "$(PCP_CONF)" ""
 include $(PCP_CONF)
 else
 include $(PCP_DIR)/etc/pcp.conf

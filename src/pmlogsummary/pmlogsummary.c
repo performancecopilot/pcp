@@ -172,12 +172,12 @@ printstamp(struct timespec *stamp, int delim)
 	ddmm[11] = '\0';
 	yr = &ddmm[20];
 	printf("%c'%s", delim, ddmm);
-	pmPrintHighResStamp(stdout, stamp);
+	pmtimespecPrint(stdout, stamp);
 	printf(" %4.4s\'", yr);
     }
     else {
 	printf("%c", delim);
-	pmPrintHighResStamp(stdout, stamp);
+	pmtimespecPrint(stdout, stamp);
     }
 }
 
@@ -197,12 +197,12 @@ printmsecstamp(struct timespec *stamp, int delim)
 	ddmm[11] = '\0';
 	yr = &ddmm[20];
 	printf("%c'%s", delim, ddmm);
-	pmPrintStamp(stdout, &stamp_tv);
+	pmtimevalPrint(stdout, &stamp_tv);
 	printf(" %4.4s\'", yr);
     }
     else {
 	printf("%c", delim);
-	pmPrintStamp(stdout, &stamp_tv);
+	pmtimevalPrint(stdout, &stamp_tv);
     }
 }
 
@@ -229,7 +229,7 @@ printlabel(void)
     ddmm[10] = '\0';
     yr = &ddmm[20];
     printf("  commencing %s ", ddmm);
-    pmPrintHighResStamp(stdout, &opts.start);
+    pmtimespecPrint(stdout, &opts.start);
     printf(" %4.4s\n", yr);
 
     if (opts.finish.tv_sec == PM_MAX_TIME_T) {
@@ -242,7 +242,7 @@ printlabel(void)
 	ddmm[10] = '\0';
 	yr = &ddmm[20];
 	printf("  ending     %s ", ddmm);
-	pmPrintHighResStamp(stdout, &opts.finish);
+	pmtimespecPrint(stdout, &opts.finish);
 	printf(" %4.4s\n", yr);
     }
 }
@@ -900,7 +900,7 @@ calcaverage(pmResult *result)
 				    __pmPrintMetricNames(stderr, numnames, names, " or ");
 				    fprintf(stderr, " (inst[%s]: %f) at ",
 					(istr == NULL ? "":istr), rate);
-				    pmPrintHighResStamp(stderr, &result->timestamp);
+				    pmtimespecPrint(stderr, &result->timestamp);
 				    fprintf(stderr, "\n");
 				}
 				if (rate > instdata->max) {
@@ -908,7 +908,7 @@ calcaverage(pmResult *result)
 				    __pmPrintMetricNames(stderr, numnames, names, " or ");
 				    fprintf(stderr, " (inst[%s]: %f) at ",
 					(istr == NULL ? "":istr), rate);
-				    pmPrintHighResStamp(stderr, &result->timestamp);
+				    pmtimespecPrint(stderr, &result->timestamp);
 				    fprintf(stderr, "\n");
 				}
 				if (numnames > 0) free(names);

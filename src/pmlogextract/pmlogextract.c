@@ -3082,13 +3082,13 @@ main(int argc, char **argv)
     }
     if (pmDebugOptions.appl2) {
 	fprintf(stderr, "pmParseTimeWindow -> %d win*_ts ", sts);
-	pmPrintHighResStamp(stderr, &winstart_ts);
+	pmtimespecPrint(stderr, &winstart_ts);
 	fprintf(stderr, " ... ");
-	pmPrintHighResStamp(stderr, &winend_ts);
+	pmtimespecPrint(stderr, &winend_ts);
 	fprintf(stderr, " log*_ts ");
-	pmPrintHighResStamp(stderr, &logstart_ts);
+	pmtimespecPrint(stderr, &logstart_ts);
 	fprintf(stderr, " ... ");
-	pmPrintHighResStamp(stderr, &logend_ts);
+	pmtimespecPrint(stderr, &logend_ts);
 	fputc('\n', stderr);
     }
     if (Sarg != NULL || Aarg != NULL || Oarg != NULL) {

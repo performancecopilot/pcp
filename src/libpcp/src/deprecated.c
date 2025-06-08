@@ -126,14 +126,14 @@ __pmtimevalFromReal(double secs, struct timeval *val)
 void
 __pmPrintStamp(FILE *f, const struct timeval *tp)
 {
-    pmPrintStamp(f, tp);
+    pmtimevalPrint(f, tp);
 }
 
 #undef __pmPrintHighResStamp
 void
 __pmPrintHighResStamp(FILE *f, const struct timespec *tp)
 {
-    pmPrintHighResStamp(f, tp);
+    pmtimespecPrint(f, tp);
 }
 
 #undef __pmPathSeparator

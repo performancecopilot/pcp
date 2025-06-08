@@ -949,7 +949,7 @@ interact(void)
 		    ts2.tv_sec = PM_MAX_TIME_T;
 		    ts2.tv_nsec = 0;
 		}
-		if (__pmParseHighResTime(token, &ts1, &ts2, &ts1, &msg) < 0) {
+		if (__pmtimespecParse(token, &ts1, &ts2, &ts1, &msg) < 0) {
 		    fputs(msg, stderr);
 		    free(msg);
 		    break;

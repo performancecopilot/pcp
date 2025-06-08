@@ -16,8 +16,24 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 $python -c 'from pcp import pmapi' 2>/dev/null
 test $? -eq 0 || _notrun 'Python pcp pmapi module is not installed'
 
+_filter()
+{
+    tee -a $seq_full \
+    | sed \
+	-e 's/0x[0-9a-f][0-9a-f]*/ADDR/g' \
+	-e "/^pmGetContextHostName:/s/`hostname`/HOSTNAME/" \
+	-e '/^tv_/s/[0-9][0-9]*/NUMBER/' \
+	-e '/^pmExtractValue:/s/[0-9][0-9]*/NUMBER/' \
+	-e '/^pmTraversePMNS:/s/[0-9][0-9]*/NUMBER/' \
+	-e '/^Ran 1 test/s/[0-9][0-9]*\.[0-9][0-9]*/SS.MMM/' \
+	-e '/pmConvScale,/s/[0-9][0-9]*\.[0-9][0-9]*/N.M/g' \
+	-e '/pmAtomStr /s/[0-9][0-9]*\.[0-9][0-9]*e.*/I.Je+K/g' \
+    # end
+}
+
 # real QA test starts here
-$python $here/src/test_pcp.py >$seq_full 2>&1
+$python $here/src/test_pcp.py 2>&1 \
+| _filter 
 _check_unittest live $seq_full
 status=$?
 exit

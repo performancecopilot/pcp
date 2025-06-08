@@ -298,7 +298,7 @@ files_manage_generic_tmp_files(pcp_pmie_t)
 #
 
 allow pcp_pmlogger_t self:capability { dac_read_search dac_override chown fowner sys_admin sys_ptrace };
-allow pcp_pmlogger_t self:process { getattr setpgid };
+allow pcp_pmlogger_t self:process { getattr setpgid setrlimit};
 allow pcp_pmlogger_t self:netlink_route_socket {create_socket_perms nlmsg_read };
 
 allow pcp_pmlogger_t pcp_pmcd_t:unix_stream_socket connectto;
@@ -479,6 +479,14 @@ optional_policy(`
     }
     # pmda-bcc needs the ability to read addresses in /proc/kallsyms
     allow pcp_pmcd_t self:capability2 syslog;
+')
+
+optional_policy(`
+    require {
+	type rpm_t;
+    }
+    # for pmda-bcc and bioperpid module [qa/920, CentOS Stream8]
+    allow pcp_pmcd_t rpm_t:process signull;
 ')
 
 optional_policy(`

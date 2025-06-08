@@ -267,18 +267,7 @@ QString
 QmcMetric::spec(bool srcFlag, bool instFlag, uint instance) const
 {
     QString str;
-    int i, len = 4;
-
-    if (srcFlag)
-	len += context()->source().source().size();
-    len += name().size();
-    if (hasInstances() && instFlag) {
-	if (instance != UINT_MAX)
-	    len += instName(instance).size() + 2;
-	else
-	    for (i = 0; i < numInst(); i++)
-		len += instName(i).size() + 4;
-    }
+    int i;
 
     if (srcFlag) {
 	str.append(context()->source().source());
