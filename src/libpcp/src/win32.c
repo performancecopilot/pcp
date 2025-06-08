@@ -151,20 +151,21 @@ pmSetProcessIdentity(const char *username)
 void
 pmSetProgname(const char *program)
 {
-    char	*p, *suffix = NULL;
     static int	setup;
     WORD	wVersionRequested = MAKEWORD(2, 2);
     WSADATA	wsaData;
 
     if (program == NULL) {
 	/* Restore the default application name */
-	pmProgname = "pcp";
+	__pmSetProgname(NULL);
     } else {
 	/* Trim command name of leading directory components */
-	pmProgname = (char *)program;
-	for (p = pmProgname; *p; p++) {
+	char	*p, *start, *suffix = NULL;
+	char	*dup;
+	dup = strdup(program);
+	for (p = start = dup; *p; p++) {
 	    if (*p == '\\' || *p == '/') {
-		pmProgname = p + 1;
+		start = p + 1;
 		suffix = NULL;
 	    }
 	    else if (*p == '.')
@@ -173,6 +174,8 @@ pmSetProgname(const char *program)
 	/* Drop the .exe suffix from the name if we found it */
 	if (suffix && strcmp(suffix, ".exe") == 0)
 	    *suffix = '\0';
+	__pmSetProgname(start);
+	free(dup);
     }
 
     if (setup)

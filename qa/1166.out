@@ -1,18 +1,18 @@
 QA output created by 1166
 === binary compatibility checks ===
-__pmGetAPIConfig test: OK
-__pmOpenLog test: expect to see standard log format
+pmGetAPIConfig test: OK
+pmOpenLog test: expect to see standard log format
 Log for 1166 on HOST started DATE
 
 G'day cobber
-__pmNoMem test: expect to see a message
+pmNoMem test: expect to see a message
 [DATE] qa_libpcp_compat(PID) Warning: 1166: malloc(123456) failed: Cannot allocate memory
-__pmNotifyErr test: expect to see standard message format
+pmNotifyErr test: expect to see standard message format
 [DATE] qa_libpcp_compat(PID) Notice: Hullo world! The answer is 42
-__pmPrintDesc test:
+pmPrintDesc test:
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: Mbyte / sec
-__pmtimeval* tests:
+pmtimeval* tests:
 Add (expect 1234.567000): 1234.567000
 Inc (expect 1234.567000): 1234.567000
 Sub (expect 1234.567000): 1234.567000
@@ -20,8 +20,8 @@ Dec (expect 1234.567000): 1234.567000
 Now: OK
 Stamp: (expect 01:02:03.456) 01:02:03.456
 HighResStamp: (expect 02:01:00.123456789) 02:01:00.123456789
-__pmPathSeparator test: OK
-__pmGetUsername test: OK
+pmPathSeparator test: OK
+pmGetUsername test: OK
 pmFreeResult test:
 pmFreeResult(ADDR) (0 in pool)
 __pmFreeResultValues(ADDR) numpmid=0
@@ -29,23 +29,23 @@ pmSpecLocalPMDA test:
 Expected error: pmSpecLocal(foo): bad op in spec
 pmSpecLocal(clear): OK
 pmSpecLocal(add,...): OK
-__pmSetProcessIdentity test: (expect failure)
+pmSetProcessIdentity test: (expect failure)
 [DATE] qa_libpcp_compat(PID) Critical: cannot find the no-such-user user to switch to
 
 === source code compatibility checks ===
-__pmGetAPIConfig test: OK
-__pmOpenLog test: expect to see standard log format
+pmGetAPIConfig test: OK
+pmOpenLog test: expect to see standard log format
 Log for 1166 on HOST started DATE
 
 G'day cobber
-__pmNoMem test: expect to see a message
+pmNoMem test: expect to see a message
 [DATE] qa_libpcp_compat(PID) Warning: 1166: malloc(123456) failed: Cannot allocate memory
-__pmNotifyErr test: expect to see standard message format
+pmNotifyErr test: expect to see standard message format
 [DATE] qa_libpcp_compat(PID) Notice: Hullo world! The answer is 42
-__pmPrintDesc test:
+pmPrintDesc test:
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: Mbyte / sec
-__pmtimeval* tests:
+pmtimeval* tests:
 Add (expect 1234.567000): 1234.567000
 Inc (expect 1234.567000): 1234.567000
 Sub (expect 1234.567000): 1234.567000
@@ -53,8 +53,8 @@ Dec (expect 1234.567000): 1234.567000
 Now: OK
 Stamp: (expect 01:02:03.456) 01:02:03.456
 HighResStamp: (expect 02:01:00.123456789) 02:01:00.123456789
-__pmPathSeparator test: OK
-__pmGetUsername test: OK
+pmPathSeparator test: OK
+pmGetUsername test: OK
 pmFreeResult test:
 pmFreeResult(ADDR) (0 in pool)
 __pmFreeResultValues(ADDR) numpmid=0
@@ -62,5 +62,5 @@ pmSpecLocalPMDA test:
 Expected error: pmSpecLocal(foo): bad op in spec
 pmSpecLocal(clear): OK
 pmSpecLocal(add,...): OK
-__pmSetProcessIdentity test: (expect failure)
+pmSetProcessIdentity test: (expect failure)
 [DATE] qa_libpcp_compat(PID) Critical: cannot find the no-such-user user to switch to

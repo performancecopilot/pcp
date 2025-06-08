@@ -79,7 +79,6 @@ PCP_4.0 {
     __pmCreateSocket;
     __pmCreateUnixSocket;
     __pmCtlDebug;
-    __pmCurrentContext;
     __pmDataIPC;
     __pmDataIPCSize;
     __pmDecodeAttr;
@@ -191,7 +190,6 @@ PCP_4.0 {
     __pmFsync;
     __pmFtell;
     __pmFwrite;
-    __pmGetAPIConfig;
     __pmGetAddrInfo;
     __pmGetArchiveEnd;
     __pmGetClientId;
@@ -212,7 +210,6 @@ PCP_4.0 {
     __pmGetSockOpt;
     __pmGetTimespec;
     __pmGetTimestamp;
-    __pmGetUsername;
     __pmHandleToPtr;
     __pmHasPMNSFileChanged;
     __pmHashAdd;
@@ -317,10 +314,7 @@ PCP_4.0 {
     __pmNativeConfig;
     __pmNativePath;
     __pmNewPMNS;
-    __pmNoMem;
-    __pmNotifyErr;
     __pmNotifyThrottle;
-    __pmOpenLog;
     __pmOptFetchAdd;
     __pmOptFetchDel;
     __pmOptFetchDump;
@@ -337,15 +331,11 @@ PCP_4.0 {
     __pmParseHostAttrsSpec;
     __pmParseHostSpec;
     __pmParseLabelSet;
-    __pmPathSeparator;
     __pmPinPDUBuf;
     __pmPrepareFetch;
-    __pmPrintDesc;
-    __pmPrintHighResStamp;
     __pmPrintIPC;
     __pmPrintMetricNames;
     __pmPrintResult;
-    __pmPrintStamp;
     __pmPrintTimespec;
     __pmPrintTimestamp;
     __pmPrintTimeval;
@@ -442,7 +432,6 @@ PCP_4.0 {
     __pmSetLocalContextTable;
     __pmSetPDUCeiling;
     __pmSetPDUCntBuf;
-    __pmSetProcessIdentity;
     __pmSetProgname;
     __pmSetRequestTimeout;
     __pmSetSignalHandler;
@@ -472,13 +461,11 @@ PCP_4.0 {
     __pmSocketClosed;
     __pmSocketIPC;
     __pmSortInstances;
-    __pmSpecLocalPMDA;
     __pmStartOptions;
     __pmStat;
     __pmStringToSockAddr;
     __pmStringValue;
     __pmStuffValue;
-    __pmSyslog;
     __pmTimespecSub;
     __pmTimestampCmp;
     __pmTimestampDec;
@@ -501,16 +488,9 @@ PCP_4.0 {
     __pmtimespecParse;
     __pmtimespecPause;
     __pmtimespecSleep;
-    __pmtimevalAdd;
-    __pmtimevalDec;
-    __pmtimevalFromReal;
-    __pmtimevalInc;
-    __pmtimevalNow;
     __pmtimevalParse;
     __pmtimevalPause;
     __pmtimevalSleep;
-    __pmtimevalSub;
-    __pmtimevalToReal;
     getdomainname;
     getmachineid;
     pmAddDerived;
@@ -634,7 +614,6 @@ PCP_4.0 {
     pmPrintDesc;
     pmPrintLabelSets;
     pmPrintValue;
-    pmProgname;
     pmReconnectContext;
     pmRegisterDerived;
     pmRegisterDerivedMetric;

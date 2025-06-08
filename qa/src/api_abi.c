@@ -53,7 +53,7 @@
  * [y] pmflush
  * [ ] pmFreeEventResult
  * [ ] pmFreeHighResEventResult
- * [ ] pmFreeHighResResult
+ * [y] pmFreeHighResResult
  * [ ] pmFreeLabelSets
  * [ ] pmFreeMetricSpec
  * [y] pmFreeOptions

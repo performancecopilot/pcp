@@ -48,7 +48,7 @@ util.dot:	../src/config.c
 
 access_part.png:	access_part.dot
 access_part.dot:	../src/access.c
-	mk.cgraph -w -s __pmNotifyErr -f ../src/access.c >access_part.dot
+	mk.cgraph -w -s pmNotifyErr -f ../src/access.c >access_part.dot
 
 access_prune.png:	access_part.dot
 access_prune.dot:	access.dot
@@ -57,11 +57,11 @@ access_prune.dot:	access.dot
 
 derive_parser_part.png:	derive_parser_part.dot
 derive_parser_part.dot:	../src/derive_parser.y
-	mk.cgraph -w -s __pmNotifyErr -f ../src/derive_parser.y >derive_parser_part.dot
+	mk.cgraph -w -s pmNotifyErr -f ../src/derive_parser.y >derive_parser_part.dot
 
 probe_part.png:	probe_part.dot
 probe_part.dot:	../src/probe.c
-	mk.cgraph -w -s __pmNotifyErr -f ../src/probe.c >probe_part.dot
+	mk.cgraph -w -s pmNotifyErr -f ../src/probe.c >probe_part.dot
 
 probe_prune.png:	probe_part.dot
 probe_prune.dot:	probe.dot
@@ -70,9 +70,9 @@ probe_prune.dot:	probe.dot
 
 tz_part.png:	tz_part.dot
 tz_part.dot:	../src/tz.c
-	mk.cgraph -w -s pmLookupName,pmFetch,pmFreeResult,__pmNoMem -f ../src/tz.c >tz_part.dot
+	mk.cgraph -w -s pmLookupName,pmFetch,pmFreeResult,pmNoMem -f ../src/tz.c >tz_part.dot
 
 logutil_part.png:	logutil_part.dot
 logutil_part.dot:	../src/logutil.c
-	mk.cgraph -w -s __pmNotifyErr -f ../src/logutil.c >logutil_part.dot
+	mk.cgraph -w -s pmNotifyErr -f ../src/logutil.c >logutil_part.dot
 

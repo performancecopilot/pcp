@@ -154,7 +154,7 @@ class pmErr(Exception):
         return result
 
     def progname(self):
-        return str(c_char_p.in_dll(LIBPCP, "pmProgname").value.decode())
+        return c_api.pmGetProgname()
 
     def errno(self):
         return self.code
@@ -2662,10 +2662,6 @@ class pmContext(object):
             Single arg is timeval in tuple returned from pmParseInterval().
         """
         return tvp.sleep()
-
-    @staticmethod
-    def pmProgname():
-        return str(c_char_p.in_dll(LIBPCP, "pmProgname").value.decode())
 
     @staticmethod
     def pmDebug(flags):

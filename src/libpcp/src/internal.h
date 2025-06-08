@@ -454,6 +454,9 @@ extern void __pmParseTimeWindow3(pmOptions *,
 extern void __pmSetSampleInterval2(pmOptions *, char *) _PCP_HIDDEN;
 extern void __pmSetSampleInterval3(pmOptions *, char *) _PCP_HIDDEN;
 
+/* hook for win32.c initialization */
+extern void __pmSetProgname(const char *) _PCP_HIDDEN;
+
 /*
  * PMAPI_VERSION_2 interfaces
  */
