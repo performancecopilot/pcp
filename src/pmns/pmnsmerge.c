@@ -182,10 +182,11 @@ static void
 merge(__pmnsNode *p, int depth, char *path)
 {
     char	*name;
-    size_t	newlen = strlen(path)+strlen(p->name)+2;
+    size_t	newlen;
 
     if (depth < 1 || p->pmid == PM_ID_NULL || p->first != NULL)
 	return;
+    newlen = strlen(path)+strlen(p->name)+2;
     if ((name = (char *)malloc(newlen)) == NULL) {
 	pmNoMem("merge", newlen, PM_FATAL_ERR);
 	/* NOTREACHED */
