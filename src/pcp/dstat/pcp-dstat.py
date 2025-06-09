@@ -184,7 +184,7 @@ class DstatTerminal:
         user = getpass.getuser()
         host = context.pmGetContextHostName()
         host = host.split('.')[0]
-        path = context.pmProgname()
+        path = context.pmGetProgname()
         args = path + ' ' + ' '.join(arguments)
         sys.stdout.write('\033]0;(%s@%s) %s\007' % (user, host, args))
 
@@ -1681,7 +1681,7 @@ class DstatTool(object):
             line += '"Author:","PCP team <pcp@groups.io> and Dag Wieers <dag@wieers.com>",,,,"URL:","https://pcp.io/ and http://dag.wieers.com/home-made/dstat/"\n'
         import getpass # pylint: disable=import-outside-toplevel
         line += '"Host:","' + self.context.pmGetContextHostName() + '",,,,"User:","' + getpass.getuser() + '"\n'
-        line += '"Cmdline:","' + self.context.pmProgname() + ' ' + ' '.join(self.arguments) + '",,,,"Date:","' + time.strftime('%d %b %Y %H:%M:%S %Z') + '"\n'
+        line += '"Cmdline:","' + self.context.pmGetProgname() + ' ' + ' '.join(self.arguments) + '",,,,"Date:","' + time.strftime('%d %b %Y %H:%M:%S %Z') + '"\n'
         ### Process title
         for o in visible:
             line += o.csvtitle()

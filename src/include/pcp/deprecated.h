@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
+ * Copyright (c) 2017,2025 Ken McDonell.  All Rights Reserved.
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -10,6 +10,9 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
+ *
+ * For PCP 7.0 we cleaned out many of the routines that were here, and we'll
+ * start again.
  */
 #ifndef PCP_DEPRECATED_H
 #define PCP_DEPRECATED_H
@@ -20,41 +23,9 @@
  *
  * Deprecated Symbol		Replacement
  * ----------------------	----------------------	
- * __pmSetProgname()		pmSetProgname()
- * pmProgname			pmGetProgname()
- * __pmParseDebug()		pmSetDebug()
- * __pmSetDebugBits()		pmSetDebug()/pmClearDebug()
- * __pmOptions			pmOptions
- * __pmInDomProfile		pmInDomProfile
- * __pmProfile			pmProfile
- * __pmInResult			pmInResult
- * __pmOpenLog()		pmOpenLog()
- * __pmGetAPIConfig()		pmGetAPIConfig()
- * __pmNoMem()			pmNoMem()
- * __pmNotifyErr()		pmNotifyErr()
- * __pmSyslog()			pmSyslog()
- * __pmPrintDesc()		pmPrintDesc()
- * __pmtimevalNow()		pmtimevalNow()
- * __pmtimevalAdd()		pmtimevalAdd()
- * __pmtimevalSub()		pmtimevalSub()
- * __pmtimevalInc()		pmtimevalInc()
- * __pmtimevalDec()		pmtimevalDec()
- * __pmtimevalToReal()		pmtimevalToReal()
- * __pmtimevalFromReal()	pmtimevalFromReal()
- * __pmPrintStamp()		pmtimevalPrint()
- * __pmPrintHighResStamp()	pmtimespecPrint()
- * __pmPathSeparator()		pmPathSeparator()
- * __pmGetUsername()		pmGetUsername()
- * __pmSetProcessIdentity()	pmSetProcessIdentity()
- * __pmTimeval			pmTimeval
- * __pmTimespec			pmTimespec
- * pmHighResFreeResult()	pmFreeResult()
- * __pmSpecLocalPMDA()		pmSpecLocalPMDA()
- * __pmLocalPMDA()		pmLocalPMDA()
+ * foo()			bar()
  */
 
-PCP_CALL extern int __pmSetProgname(const char *);
-PCP_DATA extern char *pmProgname;
 PCP_CALL extern int __pmParseDebug(const char *);
 PCP_CALL extern void __pmSetDebugBits(int);
 
@@ -95,38 +66,8 @@ PCP_DATA extern int pmDebug;
 #define DBG_TRACE_DESPERATE	(1<<30) /* see desperate option below */
 
 /*
- * DO NOT USE
- * Like __pmHandleToPtr(pmWhichContext()), but with no locking
+ * backwards-compatibility support for renamed symbols and types
+ * #define oldsymbol new symbol
  */
-PCP_CALL struct __pmContext *__pmCurrentContext(void);
-
-/* backwards-compatibility support for renamed symbols and types */
-#define __pmOptions pmOptions
-#define __pmProfile pmProfile
-#define __pmInDomProfile pmInDomProfile
-#define __pmInResult pmInResult
-#define __pmOpenLog pmOpenLog
-#define __pmGetAPIConfig pmGetAPIConfig
-#define __pmNoMem pmNoMem
-#define __pmNotifyErr pmNotifyErr
-#define __pmSyslog pmSyslog
-#define __pmPrintDesc pmPrintDesc
-#define __pmtimevalNow pmtimevalNow
-#define __pmtimevalAdd pmtimevalAdd
-#define __pmtimevalSub pmtimevalSub
-#define __pmtimevalInc pmtimevalInc
-#define __pmtimevalDec pmtimevalDec
-#define __pmtimevalToReal pmtimevalToReal
-#define __pmtimevalFromReal pmtimevalFromReal
-#define __pmPrintStamp pmtimevalPrint
-#define __pmPrintHighResStamp pmtimespecPrint
-#define __pmPathSeparator pmPathSeparator
-#define __pmGetUsername pmGetUsername
-#define __pmSetProcessIdentity pmSetProcessIdentity
-#define __pmTimeval pmTimeval
-#define __pmTimespec pmTimespec
-#define pmFreeHighResResult pmFreeResult
-#define __pmSpecLocalPMDA pmSpecLocalPMDA
-#define __pmLocalPMDA pmLocalPMDA
 
 #endif /* PCP_DEPRECATED_H */

@@ -23,7 +23,7 @@
  *	attempts to set/clear the state in pmSyslog() which locking will
  *	not avoid
  *
- * pmProgname - most likely set in main(), not worth protecting here
+ * myprogname - most likely set in main(), not worth protecting here
  *
  * base (in __pmProcessDataSize) - no real side-effects, don't bother
  *	locking
@@ -60,7 +60,6 @@
 #include "deprecated.h"
 #include "pmdbg.h"
 #include "internal.h"
-#include "deprecated.h"
 
 #if defined(HAVE_SYS_TIMES_H)
 #include <sys/times.h>
@@ -90,8 +89,7 @@ static int	pmState = PM_STATE_APPL;
 static int	done_exit;
 static int	xconfirm_init;
 static char 	*xconfirm;
-
-PCP_DATA char	*pmProgname = "pcp";		/* the real McCoy */
+static char	*myprogname = "pcp";		/* the real McCoy */
 
 PCP_DATA int	pmDebug;			/* the real McCoy ... old style */
 PCP_DATA pmdebugoptions_t	pmDebugOptions;	/* the real McCoy ... new style */
@@ -118,7 +116,7 @@ __pmIsUtilLock(void *lock)
 char *
 pmGetProgname(void)
 {
-    return pmProgname;
+    return myprogname;
 }
 
 /*
@@ -2918,8 +2916,18 @@ __pmSetSignalHandler(int sig, __pmSignalHandler func)
     return 0;
 }
 
+/*
+ * need wrapper so real routine can be called from win32.c
+ */
 void
 pmSetProgname(const char *program)
+{
+    __pmSetProgname(program);
+}
+
+/* real pmSetName */
+void
+__pmSetProgname(const char *program)
 {
     char	*p;
 
@@ -2927,13 +2935,13 @@ pmSetProgname(const char *program)
 
     if (program == NULL) {
 	/* Restore the default application name */
-	pmProgname = "pcp";
+	myprogname = "pcp";
     } else {
 	/* Trim command name of leading directory components */
-	pmProgname = (char *)program;
-	for (p = pmProgname; *p; p++)
+	myprogname = (char *)program;
+	for (p = myprogname; *p; p++)
 	    if (*p == '/')
-		pmProgname = p+1;
+		myprogname = p+1;
     }
 }
 
