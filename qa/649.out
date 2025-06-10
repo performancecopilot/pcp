@@ -15,7 +15,7 @@ mmv.test.discrete 1 42
 mmv.test.counter 1 41
 mmv.control.metrics 1 6
 mmv.control.files 1 1
-mmv.control.debug 1 0
+mmv.control.debug 1 ""
 mmv.control.reload 1 0
 === Listing with a valid process and without prefix ===
 mmv.strings 2 "00oo00" ""
@@ -25,7 +25,7 @@ mmv.discrete 1 42
 mmv.counter 1 41
 mmv.control.metrics 1 6
 mmv.control.files 1 1
-mmv.control.debug 1 0
+mmv.control.debug 1 ""
 mmv.control.reload 1 0
 === Listing with a valid process and sentinel flag set ===
 mmv.strings 1 "00oo00"
@@ -35,12 +35,12 @@ mmv.discrete 1 42
 mmv.counter 1 41
 mmv.control.metrics 1 6
 mmv.control.files 1 1
-mmv.control.debug 1 0
+mmv.control.debug 1 ""
 mmv.control.reload 1 0
 === Listing without a valid process ===
 mmv.control.metrics 1 0
 mmv.control.files 1 0
-mmv.control.debug 1 0
+mmv.control.debug 1 ""
 mmv.control.reload 1 0
 
 === remove mmv agent ===

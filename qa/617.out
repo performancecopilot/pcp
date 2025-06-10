@@ -109,8 +109,12 @@ dbpmda> debug blah
 Error: Bad debug flag (blah)
 Type 'help' for a list of commands.
 dbpmda> debug none
-dbpmda> debug 1 blah
-                   ^ at or near here
+dbpmda> debug 1
+              ^ at or near here
+Error: Bad debug flag (1)
+Type 'help' for a list of commands.
+dbpmda> debug pdu blah
+                     ^ at or near here
 Error: Bad debug flag (blah)
 Type 'help' for a list of commands.
 dbpmda> debug none

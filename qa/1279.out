@@ -109,8 +109,10 @@ Dump Instance Profile state=INCLUDE, 0 profiles
 dbpmda> debug blah
                  ^ at or near here
 dbpmda> debug none
-dbpmda> debug 1 blah
-                   ^ at or near here
+dbpmda> debug 1
+              ^ at or near here
+dbpmda> debug pdu blah
+                     ^ at or near here
 dbpmda> debug none
 dbpmda> debug blah fetch
                   ^ at or near here
@@ -574,6 +576,8 @@ dbpmda> blah
 dbpmda> quit
 === std err ===
 Error: Bad debug flag (blah)
+Type 'help' for a list of commands.
+Error: Bad debug flag (1)
 Type 'help' for a list of commands.
 Error: Bad debug flag (blah)
 Type 'help' for a list of commands.

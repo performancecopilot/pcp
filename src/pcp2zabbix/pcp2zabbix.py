@@ -61,7 +61,7 @@ import struct
 
 # PCP Python PMAPI
 from pcp import pmapi, pmconfig
-from cpmapi import PM_CONTEXT_ARCHIVE, PM_DEBUG_APPL0, PM_DEBUG_APPL1
+from cpmapi import PM_CONTEXT_ARCHIVE
 from cpmapi import PM_TIME_SEC
 
 # Default config
@@ -375,7 +375,7 @@ class PCP2Zabbix(object):
     def execute(self):
         """ Fetch and report """
         # Debug
-        if self.context.pmDebug(PM_DEBUG_APPL1):
+        if self.context.pmDebug("appl1"):
             sys.stdout.write("Known config file keywords: " + str(self.keys) + "\n")
             sys.stdout.write("Known metric spec keywords: " + str(self.pmconfig.metricspec) + "\n")
 
@@ -495,14 +495,14 @@ class PCP2Zabbix(object):
             # get response header from zabbix
             resp_hdr = self.recv_from_zabbix(zabbix, 13)
             if not bytes.decode(resp_hdr).startswith('ZBXD\1') or len(resp_hdr) != 13:
-                if self.context.pmDebug(PM_DEBUG_APPL0):
+                if self.context.pmDebug("appl0"):
                     print("Invalid Zabbix response len=%d" % len(resp_hdr))
                 return False
             resp_body_len = struct.unpack('<Q', resp_hdr[5:])[0]
             # get response body from zabbix
             resp_body = zabbix.recv(resp_body_len)
             resp = json.loads(bytes.decode(resp_body))
-            if self.context.pmDebug(PM_DEBUG_APPL0):
+            if self.context.pmDebug("appl0"):
                 print("Got response from Zabbix: %s" % resp)
             if resp.get('response') != 'success':
                 sys.stderr.write("Error response from Zabbix: %s\n" % str(resp))

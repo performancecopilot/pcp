@@ -39,7 +39,7 @@ import os
 # PCP Python PMAPI
 from pcp import pmapi, pmi, pmconfig
 from cpmapi import PM_CONTEXT_ARCHIVE, PM_CONTEXT_LOCAL
-from cpmapi import PM_INDOM_NULL, PM_IN_NULL, PM_DEBUG_APPL1, PM_TIME_SEC
+from cpmapi import PM_INDOM_NULL, PM_IN_NULL, PM_TIME_SEC
 from cpmapi import PM_SEM_DISCRETE, PM_TYPE_STRING
 from cpmapi import PM_TEXT_PMID, PM_TEXT_INDOM, PM_TEXT_ONELINE, PM_TEXT_HELP
 from cpmapi import PM_LABEL_INDOM, PM_LABEL_INSTANCES
@@ -483,7 +483,7 @@ class PMReporter(object):
     def execute(self):
         """ Fetch and report """
         # Debug
-        if self.context.pmDebug(PM_DEBUG_APPL1):
+        if self.context.pmSetDebug("appl1"):
             sys.stderr.write("Known config file keywords: " + str(self.keys) + "\n")
             sys.stderr.write("Known metric spec keywords: " + str(self.pmconfig.metricspec) + "\n")
 

@@ -37,7 +37,7 @@ configDir=$PCP_VAR_DIR/config/web
 # PMDA variables
 #
 
-debugFlag=0
+debugFlag=""
 do_debug=false
 
 configFile=""
@@ -63,7 +63,7 @@ _parseDefaults()
 			echo "         Remove line for pmdaweblog in $PCP_PMCDCONF_PATH and re-run ./Install"
 			status=2
 			exit;;
-	    D)		debugFlag=$OPTARG;;
+	    D)		debugFlag="-D $OPTARG";;
 	    n)		chkDelay=$OPTARG;;
 	    t)		delay=$OPTARG;;
 	    S)		maxserv=$OPTARG;;
@@ -170,7 +170,7 @@ _default_config ()
 	    fi
 	    rm -f $configFile
 	    cp $__tmp.conf $configFile
-	    args="$args -D $debugFlag -t $delay -n $chkDelay -S $maxserv $configFile"
+	    args="$args $debugFlag -t $delay -n $chkDelay -S $maxserv $configFile"
 	    socket_opt=false
 	fi
     fi
@@ -639,15 +639,15 @@ else
     if [ "$do_debug" = true ]
     then
 	echo
-	$PCP_ECHO_PROG $PCP_ECHO_N "the Debugging Flag (see pmdbg(1)) [$debugFlag] ""$PCP_ECHO_C"
+	$PCP_ECHO_PROG $PCP_ECHO_N "the debugging options (see pmdbg(1)) [$debugFlag] ""$PCP_ECHO_C"
 	read ans
 	if [ "X$ans" != X ]
 	then
-		debugFlag=$ans
+		debugFlag="-D $ans"
 	fi
     fi
 
-    args="$args -D $debugFlag -t $delay -n $chkDelay -S $maxserv $configFile"
+    args="$args $debugFlag -t $delay -n $chkDelay -S $maxserv $configFile"
 
     echo
     echo "------------------------------------------------------------------------------"

@@ -194,7 +194,7 @@ _wait_for_pmlogger || _exit 1
 #DEBUG# pmstore pmcd.control.traceconn 1
 #DEBUG# pmstore pmcd.control.tracepdu 1
 #DEBUG# pmstore pmcd.control.tracenobuf 1
-#DEBUG# pmstore pmcd.control.debug 1
+#DEBUG# pmstore pmcd.control.debug "pdu"
 
 echo "    checking default access for this host ..."
 pminfo -f sample.long.million
@@ -286,7 +286,7 @@ cat $config >>$seq_full
 if ! _service pcp restart 2>&1; then _exit 1; fi | _filter_pcp_start
 _wait_for_pmcd_from_remote $other1
 _wait_for_pmlogger || _exit 1
-ssh -q $other1 -n -l pcpqa "sh -c 'PMCD_PORT=$port pmstore -h $me pmcd.control.debug 4096'"
+ssh -q $other1 -n -l pcpqa "sh -c 'PMCD_PORT=$port pmstore -h $me pmcd.control.debug \"appl1\"'"
 
 echo "    checking default access for this host (store should fail) ..."
 

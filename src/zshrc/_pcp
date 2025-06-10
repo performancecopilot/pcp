@@ -340,12 +340,8 @@ _pcp () {
   pmdbg)
     _arguments -A "-*" \
       '(- *)'{-\?,--help}'[display help message]' \
-      "(-D --debug $exargs)"{-D,--debug}'[set debug options]:options:->debug_opts' \
-      '(- *)'{-g,--gdb}'[display expression for gdb]' \
-      '(- *)'{-o,--old}'[old and deprecated (bit-field) encodings]' \
       '(- *)'{-l,--list}'[display values and text for all PCP debug options]' \
-      '(- *)'-D'[parse name]:name:( $(pmdbg -l -o | awk "/^DBG_/ {print \$1}" | sed -e "s,DBG_TRACE_,,g") )' \
-      '*:code:( $(pmdbg -l -o | awk "/^DBG_/ {print \$2}") )' \
+      '(- *)'-D'[parse name]:name:' \
       && return 0
   ;;
   pmdiff)

@@ -29,7 +29,7 @@ import cpmapi
 
 # PCP Python PMAPI
 from pcp import pmapi, pmconfig
-from cpmapi import PM_CONTEXT_ARCHIVE, PM_INDOM_NULL, PM_DEBUG_APPL1, PM_TIME_SEC
+from cpmapi import PM_CONTEXT_ARCHIVE, PM_INDOM_NULL, PM_TIME_SEC
 
 # Default config
 DEFAULT_CONFIG = ["./pcp2openmetrics.conf", "$HOME/.pcp2openmetrics.conf", "$HOME/.pcp/pcp2openmetrics.conf", "$PCP_SYSCONF_DIR/pcp2openmetrics.conf"]
@@ -329,7 +329,7 @@ class PCP2OPENMETRICS(object):
     def execute(self):
         """ Fetch and report """
         # Debug
-        if self.context.pmDebug(PM_DEBUG_APPL1):
+        if self.context.pmDebug("appl1"):
             sys.stdout.write("Known config file keywords: " + str(self.keys) + "\n")
             sys.stdout.write("Known metric spec keywords: " + str(self.pmconfig.metricspec) + "\n")
 

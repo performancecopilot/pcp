@@ -1028,6 +1028,12 @@ LIBPCP.pmFreeLabelSets.argtypes = [POINTER(pmLabelSet), c_int]
 LIBPCP.pmGetProgname.restype = c_char_p
 LIBPCP.pmGetProgname.argtypes = []
 
+LIBPCP.pmSetDebug.restype = c_int
+LIBPCP.pmSetDebug.argtypes = [c_char_p]
+
+LIBPCP.pmDebug.restype = c_int
+LIBPCP.pmDebug.argtypes = [c_char_p]
+
 ##############################################################################
 #
 # class pmOptions
@@ -2677,10 +2683,22 @@ class pmContext(object):
         return None
 
     @staticmethod
-    def pmDebug(flags):
-        if c_int.in_dll(LIBPCP, "pmDebug").value & flags:
-            return True
-        return False
+    def pmSetDebug(options):
+        if not isinstance(options, bytes):
+            options = options.encode('utf-8')
+        status = LIBPCP.pmSetDebug(options)
+        if status < 0:
+            raise pmErr(status)
+        return status
+
+    @staticmethod
+    def pmDebug(options):
+        if not isinstance(options, bytes):
+            options = options.encode('utf-8')
+        status = LIBPCP.pmDebug(options)
+        if status < 0:
+            raise pmErr(status)
+        return status
 
     ##
     # PMAPI Python Utility Support Services

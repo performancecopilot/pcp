@@ -34,7 +34,7 @@ Deleting, adding and keeping agents test
 Getting a desriptor from domain 30 (fake_sampledso agent had this domain)
 
 sampledso.control PMID: 30.0.0
-    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 Log for pmcd on HOST started DATE
 

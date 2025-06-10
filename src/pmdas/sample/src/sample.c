@@ -61,7 +61,7 @@ extern int	limbo(void);
 
 static pmDesc	desctab[] = {
 /* control */
-    { PMDA_PMID(0,0), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+    { PMDA_PMID(0,0), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* daemon_pid or dupnames.daemon_pid or dupnames.pid_daemon */
     { PMDA_PMID(0,1), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* seconds */
@@ -636,7 +636,7 @@ static double		_neg_double = -10000.0;	/* negative.*.m_double */
 static pmdaIndom	*_idp;
 static int		_singular = -1;	/* =0 for singular values */
 static int		_ordinal = -1;	/* >=0 for non-singular values */
-static int		_control;	/* the control variable */
+static char		*_control = NULL; /* the control (debug) variable */
 static int		_mypid;
 static int		_drift = 200;	/* starting value for drift */
 static int		_sign = -1;	/* up/down for drift */
@@ -2006,7 +2006,10 @@ doit:
 	    if (cluster == 0) {
 		switch (item) {
 		    case 0:		/* control */
-			atom.l = _control;
+			if (_control == NULL)
+			    atom.cp = "";
+			else
+			    atom.cp = _control;
 			break;
 		    case 1:		/* daemon_pid or dupnames.daemon_pid or dupnames.pid_daemon */
 			if (_mypid == 0) _mypid = (int)getpid();
@@ -2970,7 +2973,6 @@ sample_store(pmdaResult *result, pmdaExt *ep)
 	 */
 	switch (pmID_item(vsp->pmid)) {
 
-	    case 0:	/* control */
 	    case 7:	/* drift */
 	    case 8:	/* step */
 	    case 14:	/* long.write_me */
@@ -3008,6 +3010,7 @@ sample_store(pmdaResult *result, pmdaExt *ep)
 		    sts = PM_ERR_BADSTORE;
 		break;
 
+	    case 0:	/* control */
 	    case 24:	/* longlong.write_me */
 	    case 29:	/* double.write_me */
 	    case 32:	/* string.write_me */
@@ -3079,21 +3082,32 @@ sample_store(pmdaResult *result, pmdaExt *ep)
 	 */
 	switch (pmID_item(vsp->pmid)) {
 	    case 0:	/* control */
-		_control = av.l;
-		switch (_control) {
-		    case -1:
-			/* terminate, if we are not a DSO implementation */
-			sample_done = 1;
-			break;
-		    default:
-			/*
-			 * can only support the old debug bit-fields in a long,
-			 * but there is no API to set these and we need to set
-			 * the corresponding new option as well ...
-			 */
-			pmClearDebug("all");
-			__pmSetDebugBits(_control);
-			break;
+		if (strcmp(av.cp, "-1") == 0) {
+		    /* "-1" => terminate, if we are not a DSO implementation */
+		    sample_done = 1;
+		}
+		else {
+		    /*
+		     * set debug option(s)
+		     */
+		    pmClearDebug("all");
+		    if (strcmp(av.cp, "") == 0) {
+			/* "" => clear everything */
+			if (_control != NULL)
+			    free(_control);
+			_control = NULL;
+		    }
+		    else {
+			if ((sts = pmSetDebug(av.cp)) < 0) {
+			    fprintf(stderr, "sample_store: bad debug string (%s): %s\n", av.cp, pmErrStr(sts));
+			}
+			else {
+			    if (_control != NULL)
+				free(_control);
+			    _control = pmGetDebug();
+			}
+		    }
+		    break;
 		}
 		break;
 	    /*

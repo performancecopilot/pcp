@@ -30,6 +30,7 @@ _filter()
 	-e '/pmConvScale,/s/[0-9][0-9]*\.[0-9][0-9]*/N.M/g' \
 	-e '/pmConvScale,/s/[0-9][0-9]*\.[0-9][0-9]*/N.M/g' \
 	-e '/pmAtomStr /s/[0-9][0-9]*\.[0-9][0-9]*e.*/I.Je+K/g' \
+	-e '/<pcp\.pmapi\.c/s/c_.*_Array/c_INTEGER_Array/' \
     # end
 }
 

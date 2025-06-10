@@ -572,10 +572,9 @@ util.o
     ?num_debug			# const
     pmState			# no unsafe side-effects, see notes in util.c
     myprogname			# no unsafe side-effects, see notes in util.c
-    pmDebug			# set-once from main(), read-only elsewhere
+    pmDebugOptions		# set-once from main(), read-only elsewhere
     				# also guarded by __pmLock_extcall when set
 				# from __pmInitLocks()
-    pmDebugOptions		# same story as pmDebug
     filelog			# guarded by util_lock mutex
     nfilelog			# guarded by util_lock mutex
     dosyslog			# no unsafe side-effects, see notes in util.c

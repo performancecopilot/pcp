@@ -327,7 +327,6 @@ PCP_4.0 {
     __pmPDUTypeStr;
     __pmPDUTypeStr_r;
     __pmParseCtime;
-    __pmParseDebug;
     __pmParseHostAttrsSpec;
     __pmParseHostSpec;
     __pmParseLabelSet;
@@ -423,7 +422,6 @@ PCP_4.0 {
     __pmSetClientIdArgv;
     __pmSetConnectTimeout;
     __pmSetDataIPC;
-    __pmSetDebugBits;
     __pmSetFeaturesIPC;
     __pmSetFileDescriptorFlags;
     __pmSetFileStatusFlags;
@@ -550,6 +548,7 @@ PCP_4.0 {
     pmGetContextLabels;
     pmGetContextOptions;
     pmGetContextOptions_v2;
+    pmGetDebug;
     pmGetDerivedControl;
     pmGetDomainLabels;
     pmGetFetchGroupContext;

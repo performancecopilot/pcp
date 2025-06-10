@@ -217,13 +217,15 @@ sampledso.updown.control.reset [reset all controls for sample.updown.obs]
 
 sampledso.control
 Help:
-This control variable may be modified using pmStore().
-The allowed values are
-    0	disable debugging output in the PMDA
-    >0	value is interpreted as a vector of bit-fields to set
-        old-style debugging options, see pmdbg -o -l for mapping
-	from values to debugging options
-    -1	force the PMDA to terminate
+When fetched, the value is the currently active set of debugging
+options for the PMDA.
+This control variable may be modified using pmStore() and then
+the allowed values are
+    ""	 disable debugging output in the PMDA
+    "-1" force the PMDA to terminate
+    "option1[,option2...]"
+         comma separated list of options to set, see pmdbg -l for
+         the available debugging options
 
 sampledso.daemon_pid
 Help:
@@ -2400,6 +2402,7 @@ Dump Instance Profile state=INCLUDE, 0 profiles
 __pmDecodeError: got error PDU (code=N, fromversion=N)
 __pmSetVersionIPC: fd=N version=N
 __pmSendCreds: ...
+Warning: no pmDesc for metric[2] sample.colour
 __pmResult ... numpmid: 3
   2.0.0 (pmcd.control.debug): No PMCD agent for domain of request
   30.0.14 (sampledso.long.write_me): numval: 1 valfmt: 0 vlist[]:
@@ -2450,6 +2453,7 @@ __pmResult ... numpmid: 3
     inst [2 or ???] value NUMBER
 Quitting need at least 4 metrics for profile tests
 --- store.c case 3 ---
+Warning: no pmDesc for metric[2] sample.colour
 __pmResult ... numpmid: 3
   2.0.0 (pmcd.control.debug): No PMCD agent for domain of request
   30.0.14 (sampledso.long.write_me): numval: 1 valfmt: 0 vlist[]:

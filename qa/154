@@ -86,8 +86,8 @@ chkhelp -ip $PCP_PMDAS_DIR/cisco/help cisco.rate_in 2>&1 \
 
 echo
 echo "debug trace ..."
-echo 'chkhelp -D 2048 $PCP_PMDAS_DIR/cisco/help'
-chkhelp -D 2048 $PCP_PMDAS_DIR/cisco/help 2>&1 \
+echo 'chkhelp -D appl0 $PCP_PMDAS_DIR/cisco/help'
+chkhelp -D appl0 $PCP_PMDAS_DIR/cisco/help 2>&1 \
 | _filter_chk
 
 echo
