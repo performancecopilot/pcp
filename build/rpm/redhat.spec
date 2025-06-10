@@ -3011,7 +3011,11 @@ for PMDA in dm nfsclient openmetrics ; do
     fi
 done
 # managed via /usr/lib/systemd/system-preset/90-default.preset nowadays:
-%if 0%{?rhel} > 0 && 0%{?rhel} < 10
+%if 0%{?fedora} > 40 || 0%{?rhel} > 9
+    for s in pmcd pmlogger pmie; do
+        systemctl --quiet is-enabled $s && systemctl restart $s >/dev/null 2>&1
+    done
+%else  # old-school methods follow
 %if !%{disable_systemd}
     systemctl restart pmcd pmlogger pmie >/dev/null 2>&1
     systemctl enable pmcd pmlogger pmie >/dev/null 2>&1
