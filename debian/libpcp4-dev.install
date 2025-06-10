@@ -67,7 +67,6 @@ usr/share/man/man3/__pmMktime.3.gz
 usr/share/man/man3/__pmNotifyThrottle.3.gz
 usr/share/man/man3/__pmOverrideLastFd.3.gz
 usr/share/man/man3/__pmParseCtime.3.gz
-usr/share/man/man3/__pmParseDebug.3.gz
 usr/share/man/man3/__pmParseHostAttrsSpec.3.gz
 usr/share/man/man3/__pmParseHostSpec.3.gz
 usr/share/man/man3/__pmPrintIPC.3.gz
@@ -80,7 +79,6 @@ usr/share/man/man3/__pmResetIPC.3.gz
 usr/share/man/man3/__pmResetNotifyThrottle.3.gz
 usr/share/man/man3/__pmServerNotifyServiceManagerReady.3.gz
 usr/share/man/man3/__pmServerNotifyServiceManagerStopping.3.gz
-usr/share/man/man3/__pmSetDebugBits.3.gz
 usr/share/man/man3/__pmUnparseHostAttrsSpec.3.gz
 usr/share/man/man3/__pmUnparseHostSpec.3.gz
 usr/share/man/man3/__pmtimespecParse.3.gz
@@ -97,6 +95,7 @@ usr/share/man/man3/pmClearFetchGroup.3.gz
 usr/share/man/man3/pmConvScale.3.gz
 usr/share/man/man3/pmCreateFetchGroup.3.gz
 usr/share/man/man3/pmCtime.3.gz
+usr/share/man/man3/pmDebug.3.gz
 usr/share/man/man3/pmDelProfile.3.gz
 usr/share/man/man3/pmDerivedControl.3.gz
 usr/share/man/man3/pmDerivedErrStr.3.gz
@@ -141,6 +140,7 @@ usr/share/man/man3/pmGetContextHostName.3.gz
 usr/share/man/man3/pmGetContextHostName_r.3.gz
 usr/share/man/man3/pmGetContextLabels.3.gz
 usr/share/man/man3/pmGetContextOptions.3.gz
+usr/share/man/man3/pmGetDebug.3.gz
 usr/share/man/man3/pmGetDerivedControl.3.gz
 usr/share/man/man3/pmGetDomainLabels.3.gz
 usr/share/man/man3/pmGetFetchGroupContext.3.gz
@@ -193,7 +193,6 @@ usr/share/man/man3/pmNotifyErr.3.gz
 usr/share/man/man3/pmNumberStr.3.gz
 usr/share/man/man3/pmNumberStr_r.3.gz
 usr/share/man/man3/pmOpenLog.3.gz
-usr/share/man/man3/pmParseDebug.3.gz
 usr/share/man/man3/pmParseInterval.3.gz
 usr/share/man/man3/pmParseMetricSpec.3.gz
 usr/share/man/man3/pmParseTimeWindow.3.gz

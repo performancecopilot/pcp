@@ -91,8 +91,7 @@ static int	xconfirm_init;
 static char 	*xconfirm;
 static char	*myprogname = "pcp";		/* the real McCoy */
 
-PCP_DATA int	pmDebug;			/* the real McCoy ... old style */
-PCP_DATA pmdebugoptions_t	pmDebugOptions;	/* the real McCoy ... new style */
+PCP_DATA pmdebugoptions_t	pmDebugOptions;	/* the real McCoy */
 
 static int vpmprintf(const char *, va_list);
 
@@ -720,10 +719,7 @@ __pmCtlDebug(int op)
 	for (i = 0; i < num_debug; i++) {
 	    debug_map[i].state = *(debug_map[i].options);
 	    *(debug_map[i].options) = 0;
-	    if (debug_map[i].bit != 0)
-		pmDebug &= ~debug_map[i].bit;
 	}
-	pmDebug = 0;
     }
     else if (op == PM_CTL_DEBUG_RESTORE) {
 	/*
@@ -731,8 +727,6 @@ __pmCtlDebug(int op)
 	 */
 	for (i = 0; i < num_debug; i++) {
 	    *(debug_map[i].options) = debug_map[i].state;
-	    if (debug_map[i].state && debug_map[i].bit != 0)
-		pmDebug |= debug_map[i].bit;
 	}
     }
 }
@@ -1618,71 +1612,47 @@ pmPrintDesc(FILE *f, const pmDesc *desc)
 
 #define DEBUG_CLEAR 0
 #define DEBUG_SET 1
-#define DEBUG_OLD 0
-#define DEBUG_NEW 1
+#define DEBUG_TEST 2
 
 static int
-debug(const char *spec, int action, int style)
+debug(const char *spec, int action)
 {
-    int		val = 0;
-    int		tmp;
     const char	*p;
     char	*pend;
     int		i;
-    int		sts = 0;	/* for DEBUG_NEW interface */
+    int		sts = 0;
 
     /* save old state, so calls are additive */
     for (i = 0; i < num_debug; i++)
 	debug_map[i].state = *(debug_map[i].options);
 
     for (p = spec; *p; ) {
-	/*
-	 * backwards compatibility, "string" may be a number for setting
-	 * bit fields directly
-	 */
-	tmp = (int)strtol(p, &pend, 10);
-	if (pend > p) {
-	    /* found a number */
-	    if (tmp == -1)
-		/* special case ... -1 really means set all the bits! */
-		val = INT_MAX;
-	    else
-		val |= tmp;
-	    /* for all matching bits, set/clear the corresponding new field */
-	    for (i = 0; i < num_debug; i++) {
-		if (val & debug_map[i].bit)
-		    debug_map[i].state = (action == DEBUG_SET ? 1 : 0);
-	    }
-	    if (*pend == ',') {
-		p = pend + 1;
-		continue;
-	    }
-	    else if (*pend == '\0')
-		break;
-	    /* something bogus after a number ... */
-	    sts = PM_ERR_CONV;
-	    break;
-	}
-
 	pend = strchr(p, ',');
 	if (pend == NULL)
 	    pend = (char *)&p[strlen(p)];
 
 	if (pend-p == 3 && strncasecmp(p, "all", pend-p) == 0) {
-	    val |= INT_MAX;
-	    for (i = 0; i < num_debug; i++) {
-		debug_map[i].state = (action == DEBUG_SET ? 1 : 0);
+	    if (action == DEBUG_TEST) {
+		for (i = 0; i < num_debug; i++) {
+		    if (*(debug_map[i].options) == 0)
+			return 0;
+		}
+		return 1;
+	    }
+	    else {
+		for (i = 0; i < num_debug; i++) {
+		    debug_map[i].state = (action == DEBUG_SET ? 1 : 0);
+		}
 	    }
 	}
 	else {
 	    for (i = 0; i < num_debug; i++) {
 		if (pend-p == strlen(debug_map[i].name) &&
 		    strncasecmp(p, debug_map[i].name, pend-p) == 0) {
-		    if (debug_map[i].bit != 0)
-			/* has corresponding old-stype bit field */
-			val |= debug_map[i].bit;
-		    debug_map[i].state = (action == DEBUG_SET ? 1 : 0);
-		    break;
+			if (action == DEBUG_TEST && (*(debug_map[i].options) == 1))
+			    return 1;
+			debug_map[i].state = (action == DEBUG_SET ? 1 : 0);
+			break;
 		}
 	    }
 	    if (i == num_debug) {
@@ -1697,18 +1667,13 @@ debug(const char *spec, int action, int style)
     }
 
     if (sts == 0) {
-	/* all's well, now set the options and bits */
+	if (action == DEBUG_TEST)
+	    /* none of the given debug options is enabled */
+	    return 0;
+	/* all's well, now set the options */
 	for (i = 0; i < num_debug; i++)
 	    *(debug_map[i].options) = debug_map[i].state;
-	/* set/clear old-style bit mask */
-	if (action == DEBUG_SET)
-	    pmDebug |= val;
-	else
-	    pmDebug &= ~val;
     }
-
-    if (style == DEBUG_OLD && sts == 0)
-	return val;
 
     return sts;
 }
@@ -1718,23 +1683,6 @@ __pmDumpDebug(FILE *f)
 {
     int		i;
     int		nset;
-
-    nset = 0;
-    fprintf(f, "pmDebug:\t");
-    if (pmDebug == 0)
-	fprintf(f, "Nothing set\n");
-    else {
-	for (i = 0; i < num_debug; i++) {
-	    if (debug_map[i].bit != 0 &&
-	        (pmDebug & debug_map[i].bit) != 0) {
-		nset++;
-		if (nset > 1)
-		    fputc(',', f);
-		fprintf(f, "%s", debug_map[i].name);
-	    }
-	}
-	fputc('\n', f);
-    }
 
     nset = 0;
     fprintf(f, "pmDebugOptions:\t");
@@ -1752,55 +1700,74 @@ __pmDumpDebug(FILE *f)
 	fputc('\n', f);
 }
 
-/*
- * old routine for backwards compatibility ...
- *	return 32-bit bit debug flags
- */
-int
-__pmParseDebug(const char *spec)
-{
-    if (pmDebugOptions.deprecated)
-	fprintf(stderr, "Warning: deprecated __pmParseDebug() called\n");
-    return debug(spec, DEBUG_SET, DEBUG_OLD);
-}
-
 /* new routine to set debug options */
 int
 pmSetDebug(const char *spec)
 {
-    return debug(spec, DEBUG_SET, DEBUG_NEW);
+    return debug(spec, DEBUG_SET);
 }
 
 /* new routine to clear debug options */
 int
 pmClearDebug(const char *spec)
 {
-    return debug(spec, DEBUG_CLEAR, DEBUG_NEW);
+    return debug(spec, DEBUG_CLEAR);
+}
+
+/* new routine to test if one or more debug options is set */
+int
+pmDebug(const char *spec)
+{
+    return debug(spec, DEBUG_TEST);
 }
 
 /*
- * Interface for setting debugging options by bit-field (deprecated) rather
- * than by name (new scheme).
- * This routine is used by PMDAs that have a control metric that maps onto
- * pmDebug, e.g. sample.control or trace.control
- * For symmetry with pmSetDebug() the effects are additive, so a PMDA
- * that used to pmDebug = value now needs to pmClearDebug("all") and then
- * __pmSetDebugBits(value).
+ * return debug options that are currently set as a comma-separated
+ * list
  */
-void
-__pmSetDebugBits(int value)
+
+char *
+pmGetDebug(void)
 {
     int		i;
+    int		first = 1;
+    size_t	retlen;
+    char	*ans;
+    int		all = 1;
 
-    if (pmDebugOptions.deprecated)
-	fprintf(stderr, "Warning: deprecated __pmSetDebugBits() called\n");
-
+    retlen = 1;
     for (i = 0; i < num_debug; i++) {
-	if (value & debug_map[i].bit) {
-	    /* this option has a bit-field equivalent that is set in value */
-	    pmSetDebug(debug_map[i].name);
+	if (*(debug_map[i].options)) {
+	    retlen += strlen(debug_map[i].name) + 1;
+	}
+	else
+	    all = 0;
+    }
+    if (all)
+	retlen = 4;	/* enough for "all" */
+    if ((ans = (char *)malloc(retlen)) == NULL) {
+	pmNoMem("pmGetDebug", retlen, PM_RECOV_ERR);
+	return NULL;
+    }
+    if (all) {
+	pmstrncpy(ans, retlen, "all");
+	return ans;
+    }
+    ans[0] = '\0';
+    if (retlen == 1) {
+	/* nothing set */
+	return ans;
+    }
+    for (i = 0; i < num_debug; i++) {
+	if (*(debug_map[i].options)) {
+	    if (!first)
+		pmstrncat(ans, retlen, ",");
+	    pmstrncat(ans, retlen, debug_map[i].name);
+	    if (first)
+		first = 0;
 	}
     }
+    return ans;
 }
 
 int

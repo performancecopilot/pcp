@@ -31,12 +31,15 @@ Help:
 Tags associated with each animal we have found
 mmv.animals2.tag PMID: 70.421.33 [Animal tag identifiers]
 
-    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-    value 0
+    value ""
 Help:
-See pmdbg(1).  pmstore into this metric to change the debug value.
-mmv.control.debug PMID: 70.0.1 [Debug flag]
+Note that if this PMDA is installed as a DSO agent, the debug options
+See pmdbg(1).  pmstore into this metric to change the debug option(s)
+are shared with pmcd(1)
+mmv.control.debug PMID: 70.0.1 [Debug options]
 
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none

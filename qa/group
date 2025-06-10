@@ -704,7 +704,7 @@ pmcd.pdu
 216 pmda.linux local
 217 folio local
 218 archive local pmlogextract pmlogdump
-219 pmdbg local
+219:retired pmdbg local
 220 pmlogger local folio
 221 pmlogger local
 222 other local

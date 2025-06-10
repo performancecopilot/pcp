@@ -519,6 +519,27 @@ def test_pcp(self):
     ctx.pmFreeResult(results)
     print("pmFreeResult")
 
+    # pmSetDebug & pmDebug
+    ctx.pmSetDebug("appl0,appl9")
+    sts = ctx.pmDebug("appl0")
+    if (sts == 1):
+        print("debug appl0 set")
+    else:
+        print("debug appl0 botch", sts, "(not 1)")
+        self.assertTrue(False)
+    sts = ctx.pmDebug("appl9")
+    if (sts == 1):
+        print("debug appl9 set")
+    else:
+        print("debug appl9 botch", sts, "(not 1)")
+        self.assertTrue(False)
+    sts = ctx.pmDebug("qa")
+    if (sts == 0):
+        print("debug qa not set")
+    else:
+        print("debug qa botch", sts, "(not 0)")
+        self.assertTrue(False)
+
     del ctx
 
 class TestSequenceFunctions(unittest.TestCase):

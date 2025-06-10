@@ -34,7 +34,7 @@ import requests
 
 # PCP Python PMAPI
 from pcp import pmapi, pmconfig
-from cpmapi import PM_CONTEXT_ARCHIVE, PM_DEBUG_APPL1, PM_TIME_NSEC
+from cpmapi import PM_CONTEXT_ARCHIVE, PM_TIME_NSEC
 
 # Default config
 DEFAULT_CONFIG = ["./pcp2influxdb.conf", "$HOME/.pcp2influxdb.conf", "$HOME/.pcp/pcp2influxdb.conf", "$PCP_SYSCONF_DIR/pcp2influxdb.conf"]
@@ -417,7 +417,7 @@ class PCP2InfluxDB(object):
     def execute(self):
         """ Fetch and report """
         # Debug
-        if self.context.pmDebug(PM_DEBUG_APPL1):
+        if self.context.pmDebug("appl1"):
             sys.stdout.write("Known config file keywords: " + str(self.keys) + "\n")
             sys.stdout.write("Known metric spec keywords: " + str(self.pmconfig.metricspec) + "\n")
 

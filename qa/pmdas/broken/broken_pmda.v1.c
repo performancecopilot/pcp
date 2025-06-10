@@ -328,15 +328,15 @@ usage(void)
 {
     fprintf(stderr, "Usage: %s [options]\n\n", pmGetProgname());
     fputs("Options:\n"
-	  "  -d N       set pmDebug debugging flag to N\n"
-	  "  -D domain  use domain (numeric) for metrics domain of PMDA\n"
+	  "  -d debug     set debugging options\n"
+	  "  -D domain    use domain (numeric) for metrics domain of PMDA\n"
 	  "  -h helpfile  get help text from helpfile rather then default path\n"
-	  "  -l logfile write log into logfile rather than using default log name\n"
+	  "  -l logfile   write log into logfile rather than using default log name\n"
 	  "\nExactly one of the following options may appear:\n"
-	  "  -i port    expect PMCD to connect on given inet port (number or name)\n"
-	  "  -p         expect PMCD to supply stdin/stdout (pipe)\n"
-	  "  -u socket  expect PMCD to connect on given unix domain socket\n"
-	  "  -6 port    expect PMCD to connect on given ipv6 port (number or name)\n",
+	  "  -i port      expect PMCD to connect on given inet port (number or name)\n"
+	  "  -p           expect PMCD to supply stdin/stdout (pipe)\n"
+	  "  -u socket    expect PMCD to connect on given unix domain socket\n"
+	  "  -6 port      expect PMCD to connect on given ipv6 port (number or name)\n",
 	  stderr);		
     exit(1);
 }

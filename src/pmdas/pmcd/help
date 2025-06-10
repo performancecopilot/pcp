@@ -128,19 +128,24 @@ this metric.
 See also pmcd.control.timeout for the timeout used in other PMDA-pmcd
 communication.
 
-@ pmcd.control.debug Current value of PMCD debug flags
-The current value of the PMCD debug flags.  This is a bit-wise OR of the
-flags described in the output of pmdbg -l.  The PMCD-specific flags are:
+@ pmcd.control.debug Current value of PMCD debug options
+The current value of the PMCD debug options, as described in the
+output of pmdbg -l.  The PMCD-specific flags are:
 
-    DBG_TRACE_APPL0       2048  Trace agent & client I/O and termination
-    DBG_TRACE_APPL1       4096  Trace host access control
-    DBG_TRACE_APPL2       8192  Trace config file scanner and parser
+    "appl0"       2048  Trace agent & client I/O and termination
+    "appl1"       4096  Trace host access control
+    "appl2"       8192  Trace config file scanner and parser
 
-It is possible to store values into this metric, see the -ol options for
-pmdbg(1) to help determine appropriate values for the debug flags.
+It is possible to store values into this metric, see pmdbg(1) to help
+determine appropriate values for the debug options.
 
-Diagnostic output is written to the PMCD log file (usually
+Debug output is written to the PMCD log file (usually
 $PCP_LOG_DIR/pmcd/pmcd.log).
+
+Note: the debug flags are SHARED between pmcd(1) and every PMDA that is
+      configured as a DSO agent, so setting the debug options via
+      either pmcd.control.debug or the equivalent metrics for any of
+      the DSO agents will change the debug options for them all.
 
 @ pmcd.pdu_in.total Total PDUs received by PMCD
 Running total of all BINARY mode PDUs received by the PMCD from clients

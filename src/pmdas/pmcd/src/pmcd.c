@@ -36,7 +36,7 @@
  */
 static pmDesc	desctab[] = {
 /* control.debug */
-    { PMDA_PMID(0,0), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
+    { PMDA_PMID(0,0), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* datasize */
     { PMDA_PMID(0,1), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) },
 /* numagents */
@@ -1356,6 +1356,7 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmdaResult **resp, pmdaExt *pmda)
     pmDesc		*dp = NULL;	/* initialize to pander to gcc */
     pmAtomValue		atom;
     __pmLogPort		*lpp;
+    static char		*last_debug = NULL;
 
     if (numpmid > maxnpmids) {
 	if (res != NULL)
@@ -1411,7 +1412,10 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmdaResult **resp, pmdaExt *pmda)
 	    case 0:	/* global metrics */
 		    switch (item) {
 			case 0:		/* control.debug */
-				atom.l = pmDebug;
+				if (last_debug != NULL)
+				    free(last_debug);
+				last_debug = pmGetDebug();
+				atom.cp = last_debug;
 				break;
 			case 1:		/* datasize */
 				__pmProcessDataSize(&datasize);
@@ -1913,7 +1917,7 @@ pmcd_store(pmdaResult *result, pmdaExt *pmda)
 	if (cluster == 0) {
 	    if (item == 0) {	/* pmcd.control.debug */
 		pmClearDebug("all");
-		__pmSetDebugBits(vsp->vlist[0].value.lval);
+		sts = pmSetDebug(vsp->vlist[0].value.pval->vbuf);
 	    }
 	    else if (item == 4) { /* pmcd.control.timeout */
 		val = vsp->vlist[0].value.lval;

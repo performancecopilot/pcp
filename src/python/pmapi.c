@@ -1658,14 +1658,6 @@ MOD_INIT(cpmapi)
     dict_add(dict, "PM_EVENT_FLAG_MISSED", PM_EVENT_FLAG_MISSED);
 
     /*
-     * subset of the debug flags - all of 'em seems like overkill
-     * order here the same as the output from pmdbg -l
-     */
-    dict_add(dict, "PM_DEBUG_APPL0", (1<<11) /*DBG_TRACE_APPL0*/);
-    dict_add(dict, "PM_DEBUG_APPL1", (1<<12) /*DBG_TRACE_APPL1*/);
-    dict_add(dict, "PM_DEBUG_APPL2", (1<<13) /*DBG_TRACE_APPL2*/);
-
-    /*
      * for ease of maintenance make the order of the error codes
      * here the same as the output from pmerr -l
      */

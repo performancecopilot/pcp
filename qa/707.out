@@ -17,7 +17,7 @@ pmid 60.0.32
 pmExtractValue: NUMBER
 pmGetPMNSLocation: 3
 pmTraversePMNS: NUMBER
-pmLookupName: PM_ERR_NAME Unknown metric name <pcp.pmapi.c_uint_Array_1 object at ADDR>
+pmLookupName: PM_ERR_NAME Unknown metric name <pcp.pmapi.c_INTEGER_Array_1 object at ADDR>
 pmLookupName relaxed mode ('no.such.metric.name', 'sample.bin')
 pmLookupName
  [0] name=kernel.all.load pmid=60.2.0
@@ -80,4 +80,7 @@ a $ bad @ expression
 Illegal character
 
 pmFreeResult
+debug appl0 set
+debug appl9 set
+debug qa not set
 archive - OK

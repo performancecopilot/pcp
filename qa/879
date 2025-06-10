@@ -36,7 +36,7 @@ _filter()
 
 _check_config()
 {
-    debug="APPL0,APPL1,APPL2"
+    debug="appl0,appl1,appl2"
     $PCP_PMDAS_DIR/pipe/pmdapipe -C -c $tmp.config -D $debug >$tmp.log 2>&1
     sts=$?
     cat $tmp.log | tee -a $seq_full | _filter

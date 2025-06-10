@@ -98,7 +98,7 @@ static pmdaMetric	metrics[] =
 	    PMDA_PMUNITS(0,0,0,0,0,0), }, },
 /* control.debug */
     { NULL,
-	{ PMDA_PMID(0,8),PM_TYPE_32,PM_INDOM_NULL,PM_SEM_DISCRETE,
+	{ PMDA_PMID(0,8),PM_TYPE_STRING,PM_INDOM_NULL,PM_SEM_DISCRETE,
 	    PMDA_PMUNITS(0,0,0,0,0,0), }, },
 /* control.cycles */
     { NULL,
@@ -379,6 +379,7 @@ shping_fetch(int numpmid, pmID pmidlist[], pmdaResult **resp, pmdaExt *ext)
     pmAtomValue		atom;
     pmDesc		*dp = NULL;
     int			type;
+    static char		*last_debug = NULL;
 
 #ifndef HAVE_SPROC
     /* In the pthread world we don't have asyncronous notification that
@@ -527,7 +528,10 @@ shping_fetch(int numpmid, pmID pmidlist[], pmdaResult **resp, pmdaExt *ext)
 			break;
 
 		    case 8:	/* shping.control.debug PMID: ...0.8 */
-			atom.l = pmDebug;
+			if (last_debug != NULL)
+			    free(last_debug);
+			last_debug = pmGetDebug();
+			atom.cp = last_debug;
 			break;
 
 		    case 9:	/* shping.control.cycles PMID: ...0.9 */
@@ -593,13 +597,12 @@ shping_store(pmdaResult *result, pmdaExt *ext)
 		    break;
 
 		case 8:	/* shping.control.debug PMID: ...0.8 */
-		    ival = vsp->vlist[0].value.lval;
-		    if (ival < 0) {
-			sts = PM_ERR_SIGN;
-			break;
+		    if (vsp->numval != 1 || vsp->valfmt == PM_VAL_INSITU)
+			sts = PM_ERR_BADSTORE;
+		    else {
+			pmClearDebug("all");
+			sts = pmSetDebug(vsp->vlist[0].value.pval->vbuf);
 		    }
-		    pmClearDebug("all");
-		    __pmSetDebugBits(ival);
 		    break;
 
 		default:

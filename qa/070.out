@@ -660,7 +660,7 @@ template options:
   -l LOGFILE, --log=LOGFILE
                         log file
 
-Trying ... -a -h REMOTEHOST -D 1
+Trying ... -a -h REMOTEHOST -D pdu
 template: Cannot open archive "-h": No such file or directory
 
 Trying ... -h REMOTEHOST -n davenamespace

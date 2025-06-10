@@ -1191,9 +1191,11 @@ PCP_CALL extern int pmDestroyFetchGroup(pmFG);
 /* libpcp debug/tracing */
 PCP_CALL extern int pmSetDebug(const char *);
 PCP_CALL extern int pmClearDebug(const char *);
+PCP_CALL extern int pmDebug(const char *);
+PCP_CALL extern char *pmGetDebug(void);
 
 /*
- * New style ...
+ * Debug options.
  * Note that comments are important ... these are extracted and
  * built into pmdbg.h.
  * For the "add a new debug flag" recipe, see ../../libpcp/src/mk.pmdbg
@@ -1228,7 +1230,6 @@ typedef struct {
     int	attr;		/* Connection attribute handling */
     int	http;		/* Trace HTTP operations in libpcp_web */
     int	desperate;	/* Verbose/Desperate level (developers only) */
-/* new ones start here, no DBG_TRACE_xxx macro and no backwards compatibility */
     int	deprecated;	/* Report use of deprecated services */
     int	exec;	 	/* __pmProcessExec and related calls */
     int labels;		/* Metric label metadata operations */

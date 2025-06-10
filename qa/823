@@ -78,10 +78,8 @@ _wait_for_pmcd || _exit 1
 _wait_for_pmlogger || _exit 1
 
 echo "Enabling sample PMDA tracing" | tee -a $seq_full
-authdbg=`pmdbg -l -o | grep DBG_TRACE_AUTH | awk '{ print $2 }'`
-echo "authdbg=$authdbg" >>$seq_full
 echo "username=$username" >>$seq_full
-pmstore sample.control "$authdbg"
+pmstore sample.control "auth"
 
 echo "Verifying SASL authentication for new client (FAIL)" | tee -a $seq_full
 pmprobe -v -h "pcp://localhost?username=${username}&password=n" sample.control 2>&1\

@@ -672,7 +672,7 @@ sample.updown.control.mode 1 PM_IN_NULL
 sample.updown.control.reset 1 PM_IN_NULL
 
 === -v ===
-sample.control 1 0
+sample.control 1 ""
 sample.daemon_pid 1 NUMBER
 sample.seconds 1 NUMBER
 sample.milliseconds 1 NUMBER

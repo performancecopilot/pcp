@@ -147,8 +147,8 @@ rm -f $tmp.socat.out $tmp.socat.err
 socat -u tcp-listen:$port_text,reuseaddr,fork - >>$tmp.socat.out 2>>$tmp.socat.err &
 scpid=$!
 sleep 2
-# TZ=UTC here to constrain pcp2graphite's -DAPPL0 stdout logging of time.ctime()
-TZ=UTC $pcp2graphite -DAPPL0 -r -t 1 -s 30 -E $port_text -a archives/chartqa1.meta sample.byte_rate >$tmp.p2g.out 2>$tmp.p2g.err
+# TZ=UTC here to constrain pcp2graphite's -Dappl0 stdout logging of time.ctime()
+TZ=UTC $pcp2graphite -Dappl0 -r -t 1 -s 30 -E $port_text -a archives/chartqa1.meta sample.byte_rate >$tmp.p2g.out 2>$tmp.p2g.err
 $signal $scpid >/dev/null 2>&1
 wait
 cat $tmp.socat.out
@@ -161,7 +161,7 @@ rm -f $tmp.socat.out $tmp.socat.err
 socat -u tcp-listen:$port_pickled,reuseaddr,fork - >>$tmp.socat.out 2>>$tmp.socat.err &
 scpid=$!
 sleep 2
-TZ=UTC $pcp2graphite -DAPPL0 -r -t 1 -O '2007-10-10 22:31:30 GMT' -T '2007-10-10 22:31:40 GMT' -p $port_pickled -a archives/chartqa1.meta sample.byte_rate >$tmp.p2g.out 2>$tmp.p2g.err
+TZ=UTC $pcp2graphite -Dappl0 -r -t 1 -O '2007-10-10 22:31:30 GMT' -T '2007-10-10 22:31:40 GMT' -p $port_pickled -a archives/chartqa1.meta sample.byte_rate >$tmp.p2g.out 2>$tmp.p2g.err
 $signal $scpid >/dev/null 2>&1
 wait
 # while pickle format 0 is ascii, it's wrapped in a struct.pack that

@@ -18,85 +18,20 @@
 \f3pmdbg\f1 \- report Performance Co-Pilot debug options
 .SH SYNOPSIS
 \f3pmdbg\f1
-\f2code\f1 ...
-.br
-\f3pmdbg\f1
-\f3\-l\f1 [\f3\-o\f1] [\f3\-g\f1]
-.br
-\f3pmdbg\f1
-\f3\-D\f1 \f2name\f1[,\f2name\f1 ...]
+[\f3\-l\f1]
 .SH DESCRIPTION
 The components of the Performance Co-Pilot (PCP) use
 a global mechanism to control diagnostic and debug output.
-Historically this was a vector of bit-fields but this was later
-replaced by an array of debug options.
-All of the bit-field debug controls have an equivalent in the new
-scheme, but some new debug options cannot be represented in the
-old bit-field scheme.
 .PP
 .B pmdbg
-with a
+prints out all the available debug options with
+the name of the option and some descriptive text.
+.PP
+The
 .B \-l
-option prints out all the debug options.
-If there is no
-.B \-g
-and no
-.B \-o
-option then the output lists the name of each option and some
-descriptive text.
-.PP
-With the
-.B \-l
-and
-.B \-g
-options the descriptive text is replaced with an
-expression that can be used to set or print the corresponding
-debug flag in
-.BR gdb (1).
-.PP
-With the
-.B \-l
-and
-.B \-o
-options the output is for only the old bit-fields
-with the mnemonic and decimal values of each
-the bit-field along with some descriptive text.
-.PP
-Obviously the
-.B \-o
-and
-.B \-g
-options are mutually exclusive.
-.PP
-.B pmdbg
-with a
-.B \-D
-option parses the list of
-\fInames\fP(s) using
-.BR __pmParseDebug (3)
-and reports the corresponding decimal value.
-This use is not required in the new scheme, but for the old
-bit-fields scheme it was
-useful
-when debugging and wanting to set the internal value of the
-control vector (\c
-.BR pmDebug )
-via a debugger, e.g.
-.BR gdb (1).
-For the new scheme, the same effect can be achieved using
-the name of the option(s) and calling
-.BR pmSetDebug (3)
-from within the debugger.
-.PP
-The alternative usage also relates to the old bit-field scheme and the
-.I code
-arguments are values for the debug vector, and the bit-fields that
-are enabled by each of these values is listed.
-.PP
-Each
-.I code
-may be an integer, a hexadecimal value or a hexadecimal value prefixed
-by either ``0x'' or ``0X''.
+option does nothing, but is included for backwards compatibility with older
+versions of
+.BR pmdbg .
 .PP
 Most applications using the facilities of the PCP support
 a
@@ -105,9 +40,7 @@ command-line syntax to enable debug control using the name(s) of
 the desired debug options.
 .PP
 Alternatively the initial value of the debug control flags may be set
-to either a value
-.I N
-(old scheme) or a comma-separated list if option name(s) (new scheme)
+to a comma-separated list if option name(s) 
 using the environment variable
 .BR $PCP_DEBUG ,
 provided the applications
@@ -120,26 +53,6 @@ those set via
 combined with those set via any
 .B \-D
 command line options.
-.SH OPTIONS
-The available command line options are:
-.TP 5
-\fB\-D\fR \fIname\fR, \fB\-\-debug\fR=\fIname\fR
-Parse a comma-separated list of \fIname\fP(s) and report the corresponding
-decimal value(s).
-.TP
-\fB\-l\fR, \fB\-\-list\fR
-List all the debug options.
-.TP
-\fB\-g\fR, \fB\-\-gdb\fR
-Output
-.BR gdb (1)
-expressions with \fB\-l\fP.
-.TP
-\fB\-o\fR, \fB\-\-old\fR
-Use old-style output format with \fB\-l\fP.
-.TP
-\fB\-?\fR, \fB\-\-help\fR
-Display usage message and exit.
 .SH PCP ENVIRONMENT
 Environment variables with the prefix \fBPCP_\fP are used to parameterize
 the file and directory names used by PCP.
@@ -150,8 +63,8 @@ configuration file, as described in \fBpcp.conf\fP(5).
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR PMAPI (3),
-.BR __pmParseDebug (3),
 .BR pmClearDebug (3),
+.BR pmGetDebug (3),
 .BR pmGetOptions (3),
 .BR pmSetDebug (3),
 .BR pcp.conf (5)
