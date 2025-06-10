@@ -154,7 +154,10 @@ class pmErr(Exception):
         return result
 
     def progname(self):
-        return c_api.pmGetProgname()
+        result = LIBPCP.pmGetProgname()
+        if result is not None:
+            return str(result.decode())
+        return None
 
     def errno(self):
         return self.code
@@ -1021,6 +1024,9 @@ LIBPCP.pmMergeLabelSets.argtypes = [POINTER(POINTER(pmLabelSet)), c_int,
 
 LIBPCP.pmFreeLabelSets.restype = None
 LIBPCP.pmFreeLabelSets.argtypes = [POINTER(pmLabelSet), c_int]
+
+LIBPCP.pmGetProgname.restype = c_char_p
+LIBPCP.pmGetProgname.argtypes = []
 
 ##############################################################################
 #
@@ -2662,6 +2668,13 @@ class pmContext(object):
             Single arg is timeval in tuple returned from pmParseInterval().
         """
         return tvp.sleep()
+
+    @staticmethod
+    def pmGetProgname():
+        result = LIBPCP.pmGetProgname()
+        if result is not None:
+            return str(result.decode())
+        return None
 
     @staticmethod
     def pmDebug(flags):
