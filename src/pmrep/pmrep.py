@@ -483,7 +483,7 @@ class PMReporter(object):
     def execute(self):
         """ Fetch and report """
         # Debug
-        if self.context.pmSetDebug("appl1"):
+        if self.context.pmDebug("appl1"):
             sys.stderr.write("Known config file keywords: " + str(self.keys) + "\n")
             sys.stderr.write("Known metric spec keywords: " + str(self.pmconfig.metricspec) + "\n")
 

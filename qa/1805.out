@@ -686,3 +686,6 @@ network.tcp.tcpaodroppedicmps
 
 network.tcp.pawsoldack
     value 142
+
+network.tcp.tsecrrejected
+    value 143

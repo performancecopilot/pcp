@@ -92,6 +92,7 @@ _filter_text()
 	-e "s/machineid=\"$machineid\"/machineid=\"MACHINEID\"/g" \
 	-e "s/domainname=\"$domainname\"/domainname=\"DOMAINNAME\"/g" \
 	-e "s/\"context\":[0-9][0-9]*/\"context\":CONTEXT/g" \
+	-e '/^sample_dupnames_pid_daemon/s/ [0-9][0-9]*/ PID/' \
 	-e "s/$CR//g" \
     #end
 }

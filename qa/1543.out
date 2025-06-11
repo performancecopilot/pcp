@@ -1023,7 +1023,7 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
 # PCP5 sample.dupnames.pid_daemon 29.0.1 u32 PM_INDOM_NULL instant none
 # HELP sample_dupnames_pid_daemon Process id of PMDA daemon
 # TYPE sample_dupnames_pid_daemon gauge
-sample_dupnames_pid_daemon{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAINNAME",machineid="MACHINEID"} 2060846
+sample_dupnames_pid_daemon{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAINNAME",machineid="MACHINEID"} PID
 # PCP5 sample.dupnames.daemon_pid 29.0.1 u32 PM_INDOM_NULL instant none
 # HELP sample_dupnames_daemon_pid Process id of PMDA daemon
 # TYPE sample_dupnames_daemon_pid gauge
