@@ -1288,6 +1288,7 @@ network.tcp {
     tcpaogood		60:53:215
     tcpaodroppedicmps		60:53:216
     pawsoldack		60:53:230
+    tsecrrejected		60:53:231
 }
 
 network.mptcp {
