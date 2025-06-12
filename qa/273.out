@@ -2402,6 +2402,7 @@ Dump Instance Profile state=INCLUDE, 0 profiles
 __pmDecodeError: got error PDU (code=N, fromversion=N)
 __pmSetVersionIPC: fd=N version=N
 __pmSendCreds: ...
+Warning: no pmDesc for metric[0] pmcd.control.debug
 Warning: no pmDesc for metric[2] sample.colour
 __pmResult ... numpmid: 3
   2.0.0 (pmcd.control.debug): No PMCD agent for domain of request
@@ -2453,6 +2454,7 @@ __pmResult ... numpmid: 3
     inst [2 or ???] value NUMBER
 Quitting need at least 4 metrics for profile tests
 --- store.c case 3 ---
+Warning: no pmDesc for metric[0] pmcd.control.debug
 Warning: no pmDesc for metric[2] sample.colour
 __pmResult ... numpmid: 3
   2.0.0 (pmcd.control.debug): No PMCD agent for domain of request

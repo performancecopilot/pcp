@@ -33,6 +33,7 @@ main(int argc, char **argv)
     char	**inamelist;
     int		numpmid = 0;
     int		default_metrics = 0;
+    int		first = -1;
     __pmResult	*req;
     __pmResult	*status;
     pmResult	*result;
@@ -167,9 +168,13 @@ Options\n\
     /*
      * need all metrics to have the same sort of type for the pmStore tests to work
      */
-    for (i = 1; i < numpmid; i++) {
+    for (i = 0; i < numpmid; i++) {
 	if (desclist[i].pmid == PM_ID_NULL) {
 	    printf("Warning: no pmDesc for metric[%d] %s\n", i, namelist[i]);
+	    continue;
+	}
+	if (first == -1) {
+	    first = i;
 	    continue;
 	}
 	if (desclist[i].type != desclist[0].type) {
