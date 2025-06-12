@@ -1,0 +1,98 @@
+#!/bin/sh
+# PCP QA Test No. 1632
+# pmdaopentelemetry scalability testing
+# specifically scaling number of metrics per nodes
+#
+# Copyright (c) 2025 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.opentelemetry
+
+_pmdaopentelemetry_check || _notrun "opentelemetry pmda and/or load generator not installed"
+_have_python266 && _notrun "python load generator does not currently work with python 2.6.6"
+
+status=1        # failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+totalendpoints=5 #total queue to work through
+endpoints=5 #opentelemetry endpoints
+iterations=5
+metrics=400
+instances=10
+
+_cleanup()
+{
+    # load generator exits itself for this test
+
+    echo "=== endpoint log ===" >>$here/$seq.full
+    if [ -f $tmp.endpoint ]
+    then
+        cat $tmp.endpoint >>$here/$seq.full
+    else
+        echo "Error: endpoint log file is missing" >>$here/$seq.full
+    fi
+
+    cd $here
+    _pmdaopentelemetry_cleanup
+    $sudo rm -rf $tmp $tmp.*
+}
+
+_prepare_pmda opentelemetry
+trap "_cleanup; exit \$status" 0 1 2 3 15
+_stop_auto_restart pmcd
+
+_pmdaopentelemetry_save_config
+_pmdaopentelemetry_install
+
+port=`_find_free_port 10000`
+echo "port=$port" >>$here/$seq.full
+
+$python $here/opentelemetry/opentelemetry_endpoint.python \
+        --port=$port \
+        --output=$PCP_PMDAS_DIR/opentelemetry/config.d/ \
+        --total $totalendpoints \
+        --endpoints $endpoints \
+        --metrics $metrics \
+        --instances $instances \
+        --limit $iterations >$tmp.endpoint 2>&1 &
+pid=$!
+if ! _pmdaopentelemetry_wait_for_metric opentelemetry.source4
+then
+    status=1
+    exit
+fi
+if pminfo -b 1000000 -v `pminfo opentelemetry.source0 | LC_COLLATE=POSIX sort` > $tmp.info 2> $tmp.err
+then
+    :
+else
+    echo "... failed! ... here is the Install log ..."
+    cat $tmp.out
+fi
+cat $tmp.info $tmp.err
+
+if pminfo -b 1000000 -ftd `pminfo opentelemetry.source1 | LC_COLLATE=POSIX sort` > $tmp.info 2>$tmp.err
+   then
+    echo "Fetch and desc opentelemetry metrics: success"
+    cat $tmp.info
+else
+    echo "Fetch and desc opentelemetry metrics: failed"
+    cat $tmp.err
+fi
+
+for i in `seq 0 1 4`
+do
+    pminfo -b 10000000 -tf `pminfo opentelemetry.source$i | LC_COLLATE=POSIX sort`
+    pminfo -b 10000000 -tf `pminfo opentelemetry.source$i | LC_COLLATE=POSIX sort`
+    pminfo -b 10000000 -tf `pminfo opentelemetry.source$i | LC_COLLATE=POSIX sort`
+    pminfo -b 10000000 -tf `pminfo opentelemetry.source$i | LC_COLLATE=POSIX sort`
+    sleep 0.5
+done
+
+_pmdaopentelemetry_remove
+
+# success, all done
+status=0
+exit

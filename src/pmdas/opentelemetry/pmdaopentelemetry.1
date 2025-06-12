@@ -1,0 +1,647 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2025 Red Hat.
+.\" Copyright (c) 2025 Lauren Chilton.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.ds ia opentelemetry
+.ds Ia OpenTelemetry
+.TH PMDAOPENTELEMETRY 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmdaopentelemetry\f1 \- OpenTelemetry PMDA
+.SH SYNOPSIS
+\f3$PCP_PMDAS_DIR/opentelemetry/pmdaopentelemetry\f1
+[\f3\-D\f1]
+[\f3\-n\f1]
+[\f3\-c\f1 \f2config\f1]
+[\f3\-d\f1 \f2domain\f1]
+[\f3\-l\f1 \f2logfile\f1]
+[\f3\-r\f1 \f2root\f1]
+[\f3\-t\f1 \f2timeout\f1]
+[\f3\-u\f1 \f2user\f1]
+.SH DESCRIPTION
+\fBpmdaopentelemetry\fR is a Performance Metrics Domain Agent (PMDA) which
+dynamically creates PCP metrics from configured OpenTelemetry endpoints,
+which provide HTTP based access to application metrics.
+.P
+The default \f2config\fP directory is
+.BR $PCP_PMDAS_DIR/opentelemetry/config.d/ ,
+see ``CONFIGURATION SOURCES'' below.
+The default URL fetch \f2timeout\fP is \fB2\fP seconds.
+The default \f2user\fP, if not specified with the \f3\-u\fP option,
+is the "pcp" user.
+If the
+.B \-n
+option is given, the list of configuration files will not be sorted prior to processing.
+This list is sorted by default but that can be expensive if there are a large number of
+configuration files (URLs and/or scripts).
+.PP
+If the
+.B \-D
+option is given, additional diagnostic messages will be written to the PMDA log file,
+which is
+.B $PCP_LOG_DIR/pmcd/opentelemetry.log
+by default (see also
+.BR \-l below).
+In addition, the metric
+.B opentelemetry.control.debug
+controls the same debug flag and can be set with the following command:
+.br
+.in +0.5i
+.BI "pmstore opentelemetry.control.debug" " value"
+.in
+.br
+where
+.I value
+is either
+.B 1
+(to enable verbose log messages)
+or
+.BR 0
+(to disable verbose log messages).
+This is particularly useful for examining the http headers passed to each fetch request,
+filter settings and other processing details that are logged when the debugging flag is enabled.
+.PP
+The
+.B \-d
+option may be used to override the default performance metrics
+.I domain
+number, which defaults to
+.BR 164.
+It is strongly recommended not to change this.
+The
+.I domain
+number should be different for every PMDA on the one host, and the same
+.I domain
+number should be used for
+.B pmdaopentelemetry
+PMDA on all hosts.
+See also the
+.B \-r
+option, which allows the root of the dynamic namespace
+to be changed from the default
+.BR opentelemetry .
+.PP
+The
+.B \-l
+option may be used to specify
+.I logfile
+as the destination for PMDA messages
+instead of the default,
+.BR $PCP_LOG_DIR/pmcd/opentelemetry.log .
+As a special case,
+.I logfile
+may be \fB"\-"\fP
+to send messages to the
+.B stderr
+stream instead, e.g.
+.BR \-l- .
+This would normally be the
+.B stderr
+stream for the parent process,
+.BR pmcd (1),
+which may itself have redirected
+.BR stderr .
+This redirection is normally most useful in a containerized environment, or when using
+.BR dbpmda (1).
+.PP
+The
+.B \-r
+option allows the root of the dynamic namespace to be changed to
+.I root
+from the default,
+.BR opentelemetry .
+In conjunction with other command line options,
+this allows
+.B pmdaopentelemetry
+to be deployed as a different PMDA with distinct metrics namespace
+and metrics domain on the same host system.
+Note that all PMDAs require a unique domain number so the
+.B \-d
+option must also be specified.
+Use of the
+.B \-r
+option may also change the defaults for some other command line options,
+e.g. the default log file name and the default configuration directory.
+.SH "CONFIGURATION SOURCES"
+As it runs,
+.B pmdaopentelemetry
+periodically recursively scans the
+.B $PCP_PMDAS_DIR/opentelemetry/config.d
+directory (or the directory specified with the
+.B \-c
+option), looking for source URL files (\c
+.IR *.url )
+and executable scripts or binaries.
+Any files that do not have the
+.B .url
+suffix or are not executable, are ignored \- this allows documentation files
+such as "README" and non-executable "common" script function definitions to
+be present without being considered as config files.
+.PP
+A remote server does not have to be up or stay running \- the PMDA tolerates
+remote URLs that may come and go over time.
+The PMDA will relay data and metadata when/if they are available,
+and will return errors when/if they are down.
+PCP metric IDs, internal and external instance domain identifiers are
+persisted and will be restored when individual metric sources become
+available and/or when the PMDA is restarted.
+In addition, the PMDA checks directory modification times and will rescan
+for new or changed configuration files dynamically.
+It is
+.I not
+necessary to restart the PMDA when adding, removing or changing configuration files.
+.SH "URL SOURCES"
+Each file with the
+.I .url
+suffix found in the config directory or sub-directory contains
+one complete HTTP or HTTPS URL at which
+.B pmdaopentelemetry
+can reach a OpenTelemetry endpoint.
+Local file access is also supported with a conventional
+.I file:///somepath/somefile
+URL, in which case
+.I somepath/somefile
+should contain opentelemetry formatted metric data.
+.PP
+The first line of a
+.I .url
+config file should be the URL, as described above.
+Subsequent lines, if any, are prefixed with a keyword that can be
+used to alter the http GET request.
+A keyword must end with
+.B ':'
+(colon) and the text extends to the end of the line.
+Comment lines that start with
+.B #
+and blank lines are ignored.
+The only currently supported keywords are
+.B HEADER:
+and
+.BR FILTER: .
+.PP
+.B HEADER:
+.I "headername\fB:\fP value ... to end of line"
+.br
+Adds
+.I headername
+and its value
+to the headers passed in the http GET request for the configured URL.
+An example configuration file that provides 3 commonly used headers
+and an authentication token might be :
+.PP
+.in 1i
+.ft CR
+.nf
+http://somehost/path/endpoint.html
+# this is a comment
+HEADER: Accept: text/html
+HEADER: Keep-Alive: 300
+HEADER: Connection: keep-alive
+HEADER: Authorization: token ABCDEF1234567890
+.in
+.fi
+.ft 1
+.PP
+As mentioned above, header values extend to the end of the line.
+They may contain any valid characters, including colons.
+Multiple spaces will be collapsed to a single space, and leading
+and trailing spaces are trimmed.
+A common use for headers is to configure a proxy agent
+and the assorted parameters it may require.
+.SH "METRIC FILTERING"
+Metric filtering is a configuration file feature that allows
+ingested metrics to be included or excluded, i.e. filtered.
+This is useful because most end-points return multiple metrics,
+and usually only some are interesting for monitoring purposes.
+The syntax is:
+.br
+.BI "FILTER: INCLUDE METRIC" " regex"
+.br
+or
+.br
+.BI "FILTER: EXCLUDE METRIC" " regex"
+.br
+Dynamically created metric names that match
+.I regex
+will be either included or excluded in the name space, as specified.
+Note that only the PMNS leaf component of the metric name (as ingested from the URL source)
+is compared with the
+.I regex
+pattern.
+The simple rule is that the \fIfirst matching\fP filter regex
+for a particular metric leaf name is the rule that prevails.
+If no filter regex matches (or there are no filters), then the metric
+is included by default, i.e. the default filter if none are specified is
+.BR "FILTER: INCLUDE METRIC .*"
+This is backward compatible with older versions of the configuration
+file that did not support filters.
+Multiple
+.B FILTER:
+lines would normally be used, e.g. to include some metrics but exclude all others, use
+.B "FILTER: EXCLUDE METRIC .*"
+as the last of several filters that include the desired metrics.
+Conversely, to exclude some metrics but include all others, use
+.B "FILTER: EXCLUDE METRIC"
+.IR regex .
+In this case it's not necessary (though doesn't hurt) to specify the final
+.B "FILTER: INCLUDE METRIC .*"
+because, as stated above, any metric that does not match
+any filter regex will be included by default.
+.SH "LABEL FILTERING"
+Label filtering uses similar
+.B FILTER:
+syntax and semantics as metric filtering.
+.BI "FILTER: EXCLUDE LABEL" " regex"
+will delete all labels with label name matching
+.I regex
+from all metrics defined by the configuration file.
+The same rules as for metric filters apply for label filters too - an implicit rule:
+.BI "FILTER: INCLUDE LABEL .*"
+applies to all labels that do not match any earlier label filter rule.
+.BI "FILTER: OPTIONAL LABEL" " regex"
+specifies that matching label names are to be included in the
+returned metric labelsets (i.e. included), but are
+.B not
+to be used as part of the the external instance names.
+All included labels that are not optional (i.e. the
+.I intrinsic
+labels) will be concatenated together
+and used for external instance naming.
+In addition, non-intrinsic labels (i.e. labels tagged as
+.BR OPTIONAL )
+will have the
+.B PM_LABEL_OPTIONAL
+flag set in the labelsets returned by
+.B notes
+callbacks.
+This flag affects how the labels are used in certain clients.
+For further details, see
+.BR pmLookupLabels (3)
+and related man pages for further details.
+Note that external instance names begin with the unique numeric
+internal instance identifier followed by a space, so external instance
+names are always unique.
+.P
+Caution is needed with label filtering because by default, all
+labels are used to construct the PCP instance name.
+By excluding some labels (or changing them to optional),
+the instance names will change.
+By excluding some labels, different instances returned by the URL
+or scripted configuration entry for the same metric may become duplicates.
+When such duplicates occur, the last duplicate instance returned by the end-point
+URL or script prevails over any earlier instances.
+For these reasons, it is recommended that label filtering rules be configured when the configuration file
+is first defined, and not changed thereafter.
+If a label filtering change is required, the configuration file should be renamed, which effectively
+defines a new metric (or set of peer metrics as returned by the URL or script), with the new (or changed) instance naming.
+.P
+Unrecognized keywords in configuration files are reported in the PMDA log file but otherwise ignored.
+.SH "SCRIPTED SOURCES"
+Executable scripts present in the
+.I $PCP_PMDAS_DIR/opentelemetry/config.d
+directory or sub-directories will be executed and the
+.B stdout
+stream containing opentelemetry formatted metric data will be parsed as though it had come from a URL or file.
+The
+.B stderr
+stream from a script will be sent to the PMDA log file, which by default can be found in
+.BR $(PCP_LOG_DIR)/pmcd/opentelemetry.log .
+.PP
+Note that scripted sources do not support label or metric filtering (as described above for URL sources) - they can
+simply do their own filtering in the script itself with
+.BR sed (1),
+.BR awk (1),
+or whatever tool is desired.
+.PP
+For full details of the opentelemetry sexposition formats, see
+.IR https://github.com/open-telemetry/opentelemetry-proto/blob/v1.5.0/opentelemetry/proto/metrics/v1/metrics.proto .
+.SH "SELinux CONSIDERATIONS"
+Scripted config files are executed by the
+.B pmdaopentelemetry
+PMDA with the same SELinux context and policy as the local
+.BR pmcd (1).
+For simple scripts, this is normally fine.
+However AVC errors may result for scripts that make library or system
+calls that are restricted by the prevailing SELinux context and policies.
+In these cases it is not feasible to unilaterally grant
+.B pmcd
+or it's PMDAs an unconfined execution policy.
+In these site specific cases it will be necessary to create a local
+SELinux policy module.
+This can be done by capturing the AVC record(s) from the local audit log,
+generate a local policy module using
+.BR audit2allow ,
+and then load the new module using
+.BR semodule ,
+e.g. as follows :
+.in 1i
+.ft CR
+.nf
+
+    $ sudo grep '^type=AVC.*pcp' /var/log/audit/audit.log \\
+    | audit2allow -M mypolicy
+    $ sudo semodule -i mypolicy.pp
+
+.in
+.fi
+.ft 1
+If these local policies need to be persistent across reboots,
+then a scriptlet similar to the above example may be added to
+the local pmcd RC file (typically
+.BR /etc/pcp/pmcd/rc.local ).
+For further details, see
+.BR audit2allow (1)
+and
+.BR semodule (1).
+.SH "METRIC NAMING"
+All metrics from a file named
+.IR JOB .*
+will be exported as PCP metrics with the
+.I opentelemetry.JOB
+metric name prefix.
+Therefore, the JOB name must be a valid non-leaf name for PCP PMNS
+metric names.
+If the
+.I JOB
+name has multiple dot-separated components, the resulting
+PMNS names will include those components and care is needed to ensure
+there are no overlapping definitions, e.g. metrics returned by
+.B JOB.response
+may overlap or conflict with metrics returned by
+.BR JOB.response.time .
+.PP
+Config file entries (URLs or scripts) found in subdirectories of the
+config directory will also result in hierarchical metric names.
+For example, a config file named
+.B $PCP_PMDAS_DIR/opentelemetry/config.d/mysource/latency/get.url
+will result in metrics being created (by fetching that source URL) below
+.BR opentelemetry.mysource.latency.get
+in the PCP namespace.
+Scripts found in subdirectories of the config directory similarly result
+in hierarchical PCP metric names.
+.SH "DYNAMIC METRIC NAMES"
+As described above, changes and new additions can be made to files in
+the configuration directory without having to restart the PMDA.
+These changes are detected automatically and the PCP metric names below
+.B opentelemetry
+in the PMNS will be updated accordingly, i.e. new metrics will be
+dynamically added and/or existing metrics removed.
+In addition,
+.B pmdaopentelemetry
+honors the PMCD_NAMES_CHANGE
+.BR pmFetch (3)
+protocol that was introduced in PCP version 4.0.
+In particular, if
+.B opentelemetry
+metrics are being logged by a PCP version 4.0 or later
+.BR pmlogger (1),
+new metrics that appear as a result of changes in the PMDA configuration
+directory will automatically start to be logged, provided the root of the
+.B opentelemetry
+PMDA namespace is configured for logging in the
+.B pmlogger
+configuration file.
+See
+.BR pmlogger (1)
+for details.
+An example of such a
+.B pmlogger
+configuration file is :
+.in 1i
+.ft CR
+.nf
+
+log mandatory on 2 second {
+	# log all metrics below the root of the opentelemetry namespace
+	opentelemetry
+}
+.in
+.fi
+.ft 1
+.SH "METADATA"
+Metric data returned by URL or scripted configuration files may contain
+metadata that can be used by the
+.B opentelemetry
+PMDA to specify the semantics, data type, scaling and units of dynamically created metrics.
+This metadata is prefixed with
+.B "# PCP5"
+or
+.B "# PCP"
+in the ingested metric data.
+For additional information about PCP metadata, see
+.BR pmLookupDesc (3)
+and
+.BR pmParseUnitsStr (3)
+and examples in shipped configuration files.
+.PP
+In-line "PCP5" metadata must be supplied by the metrics source end-point (URL or script).
+An alternative is to specify this in the URL configuration file directly, which has the advantage
+of not having to modify the source/end-point if the metadata is incorrect or missing.
+Metadata specified in the URL configuration file over-rides any in-line metadata.
+.PP
+The configuration file syntax for specifying metadata is:
+.br
+\f3METADATA:\fP \f2regex\fP \f2type\fP \f2indom\fP \f2semantics\fP \f2units\fP ... to EOL
+.br
+Where:
+.br
+\f3METADATA:\fP is literal
+.br
+\f2regex\fP is an extended regular expression to match one or more metric names returned by the URL,
+.br
+\f2type\fP is one of the PCP numeric types (\f332\fP, \f3u32\fP, \f364\fP, \f3u64\fP, \f3float\fP or \f3double\fP),
+.br
+\f2indom\fP is an arbitrary instance domain name, or \f3PM_INDOM_NULL\fP,
+.br
+\f2semantics\fP is either \f3counter\fP, \f3instant\fP or \f3discrete\fP and
+.br
+\f2units\fP is either \f3none\fP or a string extending to end of line that is parsable by
+.BR pmParseUnitsStr(3),
+i.e. the units, dimensions and scaling to be used for matching metrics.
+.PP
+An example configuration file that ingests metrics from the Grafana /metrics end-point on localhost,
+filters out all metrics returned by that URL
+.I except
+for
+.B grafana_api_response_status_total
+and then specifies the metric
+.I type
+is an unsigned 32 bit integer with a non-singular instance domain named
+.B response
+and
+.B counter
+semantics with
+.I units
+of
+.BR count .
+.sp
+\f3http://localhost:3000/metrics\fP
+.br
+\f3FILTER: INCLUDE METRIC grafana_api_response_status_total\fP
+.br
+\f3FILTER: EXCLUDE METRIC .*\fP
+.br
+\f3METADATA: grafana_api_response_status_total u32 response counter count\fP
+.PP
+Note that the name in the
+.I indom
+field is presently ignored unless it is
+.BR PM_INDOM_NULL ,
+in which case the metric has no instance domain (i.e. singular),
+even if it has labels which would otherwise be used for instance naming.
+.SH "CONTROL METRICS"
+The PMDA maintains special control metrics, as described below.
+Apart from
+.BR opentelemetry.control.debug ,
+each of these metrics has one instance for each configured metric source.
+All of these metrics have integer values with counter semantics, except
+.BR opentelemetry.control.status ,
+which has a string value.
+It is important to note that fetching any of the
+.B opentelemetry.control
+metrics will only update the counters and status values if the corresponding URL is actually fetched.
+If the source URL is not fetched, the control metric values do not trigger a refresh and the control
+values reported represent the most recent fetch of each corresponding source.
+.PP
+The instance domain for the
+.B opentelemetry.control
+metrics is adjusted dynamically as new sources are discovered.
+If there are no sources configured, the metric names are still defined
+but the instance domain will be empty and a fetch will return no values.
+.IP \fBopentelemetry.control.status\fP
+A string representing the status of the last fetch of the corresponding source.
+This will generally be
+.B success
+for an http response code of 200.
+This metric can be used for service availability monitoring - provided, as stated above,
+the corresponding source URL is fetched too.
+.IP \fBopentelemetry.control.status_code\fP
+This metric is similar to
+.B opentelemetry.control.status
+except that it is the integer response code of the last fetch.
+A value of
+.B 200
+usually signifies success and any other value failure.
+This metric can also be used for service availability monitoring, with the same caveats as
+.BR opentelemetry.control.status .
+.IP \fBopentelemetry.control.calls\fP
+total number of times each configured metric source has been fetched (if it's a URL)
+or executed (if it's a script), since the PMDA started.
+This metric has counter semantics and would normally be converted to a rate/second by client tools.
+.IP \fBopentelemetry.control.fetch_time\fP
+Total time in milliseconds that each configured metric source has taken to return a document,
+excluding the time to parse the document.
+This metric has counter semantics and would normally be rate converted by client tools
+but is also useful in raw form as the accumulated parse time since the PMDA was started.
+.IP \fBopentelemetry.control.parse_time\fP
+Total time in milliseconds that each configured metric source has taken to parse each document,
+excluding the time to fetch the document.
+This metric has counter semantics and would normally be rate converted by client tools but
+is also useful in raw form as the accumulated parse time since the PMDA was started.
+.PP
+When converted to a rate, the \fBcalls\fP metric represents the average fetch rate of each source
+over the sampling interval (time delta between samples).
+The \fBfetch_time\fP and \fBparse_time\fP counters, when converted to a rate, represent the
+average fetch and parsing latency (respectfully), during the sampling interval.
+.PP
+The
+.BR opentelemetry.control.debug
+metric has a singular value, defaulting to
+.BR 0 .
+If a non-zero value is stored into this metric using
+.BR pmstore (1),
+additional debug messages will be written to the PMDA log file.
+.SH LIMITATIONS
+.B pmdaopentelemetry
+and
+.B libpcp
+internals impose some numerical constraints about the number of sources (4095),
+metrics (1024) within each source, and instances for each metric (4194304).
+.SH INSTALLATION
+Install the OpenTelemetry PMDA by using the Install script as root:
+.sp 1
+.RS +4
+.ft B
+.nf
+# cd $PCP_PMDAS_DIR/opentelemetry
+# ./Install
+.fi
+.ft P
+.RE
+.sp 1
+To uninstall, the following must be done as root:
+.sp 1
+.RS +4
+.ft B
+.nf
+# cd $PCP_PMDAS_DIR/opentelemetry
+# ./Remove
+.fi
+.ft P
+.RE
+.sp 1
+.B pmdaopentelemetry
+is launched by
+.BR pmcd (1)
+and should never be executed directly.
+The Install and Remove scripts notify
+.B pmcd
+when the agent is installed or removed.
+.PP
+When scripts and
+.I .url
+files are added, removed or changed in the configuration directory,
+it is usually not necessary to restart the PMDA \- the changes will
+be detected and managed on subsequent requests to the PMDA.
+.SH FILES
+.IP "\fB$PCP_PMDAS_DIR/opentelemetry/Install\fR" 4
+installation script for the \fBpmdaopentelemetry\fR agent
+.IP "\fB$PCP_PMDAS_DIR/opentelemetry/Remove\fR" 4
+undo installation script for the \fBpmdaopentelemetry\fR agent
+.IP "\fB$PCP_PMDAS_DIR/opentelemetry/config.d/\fR" 4
+contains URLs and scripts used by the \fBpmdaopentelemetry\fR agent as sources of opentelemetry metric data.
+.IP "\fB$PCP_LOG_DIR/pmcd/opentelemetry.log\fR" 4
+default log file for error messages from \fBpmdaopentelemetry\fR
+.IP "\fB$PCP_VAR_DIR/config/164.*\fR" 4
+files containing internal tables for metric and instance ID number persistence (domain 164).
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fR are used to
+parameterize the file and directory names used by \fBPCP\fR.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The \fB$PCP_CONF\fR variable may be used to specify an alternative
+configuration file, as described in
+.IR pcp.conf (5).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR audit2allow (1),
+.BR pmcd (1),
+.BR pminfo (1),
+.BR pmlogger (1),
+.BR pmdaopenmetrics (1),
+.BR pmstore (1),
+.BR PMWEBAPI (3),
+.BR pmFetch (3),
+.BR pmLookupLabels (3),
+.BR semodule (1)
+
+.\" control lines for scripts/man-spell
+.\" +ok+ grafana_api_response_status_total exposition_formats
+.\" +ok+ OpenObservability
+.\" +ok+ OpenMetrics status_code parse_time headername fetch_time prometheus
+.\" +ok+ labelsets scriptlet semodule somefile somehost somepath
+.\" +ok+ mypolicy mysource SELinux loadavg Grafana ABCDEF github Config
+.\" +ok+ stat IDs EOL AVC url RC rc {from /etc/pcp/pmcd/rc.local}
+.\" +ok+ md {from https://github.com/OpenObservability/OpenMetrics/blob/master/specification/OpenMetrics.md}
+.\" +ok+ pp {from mypolicy.pp}
