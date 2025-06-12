@@ -2164,6 +2164,7 @@ pmcd.pdu
 1773 pmseries pmproxy libpcp_web local pmjson
 1774 pmlogctl pmlogger logutil
 1775 pmdumptext archive local
+1781 pmda.hdb local python
 1784 pmlogconf local
 1788 pmda.linux local
 1793 pmrep pcp2xxx python local pmlogdump pmjson
