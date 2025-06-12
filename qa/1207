@@ -26,5 +26,7 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 pcp --archive archives/dstat-disks dstat --disk --nocolor
+echo " - - - - - - - - - "
+pcp --archive archives/dstat-disks dstat --disk-util --nocolor
 status=$?
 exit
