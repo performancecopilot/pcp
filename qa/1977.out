@@ -1,0 +1,137 @@
+QA output created by 1977
+pcp2opentelemetry invocation
+pcp2opentelemetry HTTP POST (sorted):
+INFO:root:Starting httpd...
+
+INFO:root:POST request,
+Path: /receive
+Headers:
+Host: localhost:PORT
+User-Agent: python-requests VERSION
+Accept: */*
+Content-Type: application/json
+Content-Length: SIZE
+
+
+
+Body:
+{
+  "resourceMetrics": [
+    {
+      "resource": {
+	"attributes": [
+	  {
+	    "key": "os.type",
+	    "value": {
+	      "stringValue": "linux"
+	    }
+	  },
+	  {
+	    "key": "telemetry.sdk.language",
+	    "value": {
+	      "stringValue": "python"
+	    }
+	  },
+	  {
+	    "key": "telemetry.sdk.name",
+	    "value": {
+	      "stringValue": "opentelemetry"
+	    }
+	  },
+	  {
+	    "key": "telemetry.sdk.version",
+	    "value": {
+	      "stringValue": "1.24.0"
+	    }
+	  },
+	  {
+	    "key": "service.name",
+	    "value": {
+	      "stringValue": "pcp"
+	    }
+	  },
+	  {
+	    "key": "server.address",
+	    "value": {
+	      "stringValue": "http://localhost:54322/receive"
+	    }
+	  }
+	]
+      },
+      "scopeMetrics": [
+	{
+	  "metrics": [
+	    {
+	      "description": "number of CPUs in the system",
+	      "gauge": {
+		"dataPoints": [
+		  {
+		    "asInt": 16,
+		    "attributes": [
+		      {
+			"key": "semantics",
+			"value": {
+			  "stringValue": "discrete"
+			}
+		      },
+		      {
+			"key": "type",
+			"value": {
+			  "stringValue": "u32"
+			}
+		      },
+		      {
+			"key": "domainname",
+			"value": {
+			  "stringValue": DOMAINID
+			}
+		      },
+		      {
+			"key": "groupid",
+			"value": {
+			  "stringValue": 4209557
+			}
+		      },
+		      {
+			"key": "hostname",
+			"value": {
+			  "stringValue": HOSTNAME
+			}
+		      },
+		      {
+			"key": "machineid",
+			"value": {
+			  "stringValue": MACHINEID
+			}
+		      },
+		      {
+			"key": "userid",
+			"value": {
+			  "stringValue": 4209557
+			}
+		      },
+		      {
+			"key": "agent",
+			"value": {
+			  "stringValue": "linux"
+			}
+		      }
+		    ],
+		    "startTimeUnixNano": TIME
+		  }
+		]
+	      },
+	      "name": "hinv.ncpu",
+	      "unit": "none"
+	    }
+	  ],
+	  "scope": {
+	    "name": "pcp.hinv",
+	    "version": 1
+	  }
+	}
+      ]
+    }
+  ]
+}
+
