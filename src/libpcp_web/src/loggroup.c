@@ -20,6 +20,7 @@
 #define PCP_INTERNAL	/* for log label structure and helper interfaces */
 #include "libpcp.h"
 #include "util.h"
+#include "discover.h"
 
 #define DEFAULT_WORK_TIMER 5000
 static unsigned int default_worker;	/* BG work delta, milliseconds */
@@ -60,6 +61,7 @@ typedef struct archive {
     int			datafd;
     unsigned int	datavol;
     __pmLogLabel	loglabel;	/* log label (common header) */
+    pmDiscover		*discover;
     void		*privdata;
 } archive_t;
 
@@ -209,6 +211,12 @@ loggroup_new_archive(pmLogGroupSettings *sp, __pmLogLabel *label,
     }
     uv_mutex_unlock(&groups->mutex);
     if ((ap->fullpath = sdsnew(fullpath)) == NULL) {
+	loggroup_free_archive(ap);
+	return -ENOMEM;
+    }
+    if (sp->module.discover &&
+	(ap->discover = pmDiscoverLookupAdd(fullpath,
+					    sp->module.discover, ap)) == NULL) {
 	loggroup_free_archive(ap);
 	return -ENOMEM;
     }
@@ -545,6 +553,10 @@ pmLogGroupMeta(pmLogGroupSettings *settings, int id,
     if ((sts = loggroup_lookup_archive(settings, id, &ap, arg)) < 0)
 	goto done;
 
+    if ((ap->discover != NULL) &&
+	(sts = pmDiscoverStreamMeta(ap->discover, content, length)) < 0)
+	goto done;
+
     pmsprintf(path, sizeof(path), "%s.meta", ap->fullpath);
     if ((fd = open(path, O_APPEND|O_NOFOLLOW|O_WRONLY, 0644)) < 0) {
 	sts = -oserror();
@@ -642,6 +654,10 @@ pmLogGroupVolume(pmLogGroupSettings *settings, int id, unsigned int volume,
 	    goto done;
 	}
     }
+
+    if ((ap->discover != NULL) &&
+	(sts = pmDiscoverStreamData(ap->discover, content, length)) < 0)
+	goto done;
 
     if ((bytes = logger_write_buffer(ap->datafd, content, length)) < 0) {
 	sts = -oserror();

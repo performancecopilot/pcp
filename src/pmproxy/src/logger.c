@@ -132,7 +132,7 @@ on_pmlogger_done(int status, void *arg)
 static void
 on_pmlogger_info(pmLogLevel level, sds message, void *arg)
 {
-    pmLoggerBaton	*baton = (pmLoggerBaton *)arg;
+    pmLoggerBaton      *baton = (pmLoggerBaton *)arg;
 
     proxylog(level, message, baton->client->proxy);
 }
@@ -370,6 +370,8 @@ pmlogger_servlet_setup(struct proxy *proxy)
     mmv_registry_t	*registry = proxymetrics(proxy, METRICS_LOGGROUP);
 
     PARAM_CLIENT = sdsnew("client");
+
+    pmlogger_settings.module.discover = get_keys_module(proxy);
 
     pmLogGroupSetup(&pmlogger_settings.module);
     pmLogGroupSetEventLoop(&pmlogger_settings.module, proxy->events);
