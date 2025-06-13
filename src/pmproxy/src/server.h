@@ -239,6 +239,7 @@ extern void setup_http_module(struct proxy *);
 extern void close_http_module(struct proxy *);
 
 extern void setup_keys_module(struct proxy *);
+extern void * get_keys_module(struct proxy *);
 extern void close_keys_module(struct proxy *);
 
 extern void setup_pcp_module(struct proxy *);

@@ -480,17 +480,19 @@ __pmLogChkLabel(__pmArchCtl *acp, __pmFILE *f, __pmLogLabel *lp, int vol)
     }
 
     /*
-     * If we have the label record, and nothing else this is really
-     * an empty archive (probably pmlogger was killed off before any
-     * data records were written) ... better to return PM_ERR_NODATA
-     * here, rather than to stumble into PM_ERR_LOGREC at the first
-     * call to __pmLogRead*()
+     * If we have the label record and nothing else this is really
+     * an empty archive; either pmlogger was killed off before any
+     * data records were written or we are streaming this archive.
+     * In the former case it's better to return PM_ERR_NODATA here
+     * rather than to stumble into PM_ERR_LOGREC at the first call
+     * to __pmLogRead*().  In the latter case all is well.
      */
-    if ((sts = __pmFstat(f, &sbuf)) >= 0) {
-	if (sbuf.st_size == __pmLogLabelSize(lcp)) {
-	    if (pmDebugOptions.log)
-		fprintf(stderr, " file is empty");
-	    version = PM_ERR_NODATA;
+    if (!(acp->ac_flags & PM_CTXFLAG_LAST_VOLUME)) {
+	if ((sts = __pmFstat(f, &sbuf)) >= 0 &&
+	    (sbuf.st_size == __pmLogLabelSize(lcp))) {
+		if (pmDebugOptions.log)
+		    fprintf(stderr, " file is empty");
+		version = PM_ERR_NODATA;
 	}
     }
 
