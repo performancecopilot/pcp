@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019,2021-2024 Red Hat.
+ * Copyright (c) 2018-2019,2021-2025 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -239,6 +239,7 @@ extern void setup_http_module(struct proxy *);
 extern void close_http_module(struct proxy *);
 
 extern void setup_keys_module(struct proxy *);
+extern void * get_keys_module(struct proxy *);
 extern void close_keys_module(struct proxy *);
 
 extern void setup_pcp_module(struct proxy *);

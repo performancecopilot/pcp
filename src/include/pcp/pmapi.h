@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2022 Red Hat.
+ * Copyright (c) 2012-2022,2025 Red Hat.
  * Copyright (c) 1997,2004 Silicon Graphics, Inc.  All Rights Reserved.
  *
  * This library is free software; you can redistribute it and/or modify it
@@ -386,6 +386,7 @@ PCP_CALL extern int pmNewContext(int, const char *);
 #define PM_CTXFLAG_NO_FEATURE_CHECK	(1U<<15) /* don't check features in label record */
 #define PM_CTXFLAG_METADATA_ONLY	(1U<<16) /* only open .meta file of archive */
 #define PM_CTXFLAG_LAST_VOLUME	(1U<<17) /* open archive at start of last volume */
+#define PM_CTXFLAG_STREAMING_WRITER	(1U<<18) /* streaming log over a network */
 
 /*
  * Duplicate current context -- returns handle to new one for pmUseContext()

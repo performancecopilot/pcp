@@ -399,6 +399,7 @@ typedef struct pmLogGroupCallBacks {
 
 typedef struct pmLogGroupModule {
     pmLogInfoCallBack		on_info;	/* general diagnostics call */
+    pmDiscoverModule		*discover;
     void			*privdata;	/* private internal lib data */
 } pmLogGroupModule;
 

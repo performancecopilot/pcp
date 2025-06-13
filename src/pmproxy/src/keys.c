@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2021,2024 Red Hat.
+ * Copyright (c) 2018-2021,2024-2025 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -40,8 +40,6 @@ static pmDiscoverCallBacks key_server_search = {
 static pmDiscoverSettings key_server_discover = {
     .module.on_info	= proxylog,
 };
-
-static void key_server_reconnect_worker(void *);
 
 static sds
 replyfmt(respReply *reply)
@@ -193,6 +191,33 @@ get_key_slots_flags()
     return flags;
 }
 
+static void
+key_server_reconnect_worker(void *arg)
+{
+    struct proxy	*proxy = (struct proxy *)arg;
+    static unsigned int	wait_sec = KEY_SERVER_RECONNECT_INTERVAL;
+
+    /* wait X seconds, because this timer callback is called every second */
+    if (wait_sec > 1) {
+	wait_sec--;
+	return;
+    }
+    wait_sec = KEY_SERVER_RECONNECT_INTERVAL;
+
+    /*
+     * skip if server is disabled or state is not SLOTS_DISCONNECTED
+     */
+    if (!proxy->slots || proxy->slots->state != SLOTS_DISCONNECTED)
+	return;
+
+    if (pmDebugOptions.desperate)
+	proxylog(PMLOG_INFO, "Trying to connect to key server ...", arg);
+
+    keySlotsFlags	flags = get_key_slots_flags();
+    keySlotsReconnect(proxy->slots, flags, proxylog, on_key_server_connected,
+			proxy, proxy->events, proxy);
+}
+
 /*
  * Attempt to establish a server connection straight away
  * which is achieved via a timer that expires immediately
@@ -235,31 +260,12 @@ setup_keys_module(struct proxy *proxy)
     }
 }
 
-static void
-key_server_reconnect_worker(void *arg)
+void *
+get_keys_module(struct proxy *proxy)
 {
-    struct proxy	*proxy = (struct proxy *)arg;
-    static unsigned int	wait_sec = KEY_SERVER_RECONNECT_INTERVAL;
-
-    /* wait X seconds, because this timer callback is called every second */
-    if (wait_sec > 1) {
-	wait_sec--;
-	return;
-    }
-    wait_sec = KEY_SERVER_RECONNECT_INTERVAL;
-
-    /*
-     * skip if server is disabled or state is not SLOTS_DISCONNECTED
-     */
-    if (!proxy->slots || proxy->slots->state != SLOTS_DISCONNECTED)
-	return;
-
-    if (pmDebugOptions.desperate)
-	proxylog(PMLOG_INFO, "Trying to connect to key server ...", arg);
-
-    keySlotsFlags	flags = get_key_slots_flags();
-    keySlotsReconnect(proxy->slots, flags, proxylog, on_key_server_connected,
-			proxy, proxy->events, proxy);
+    if (proxy->slots == NULL)
+	setup_keys_module(proxy);
+    return &key_server_discover.module;
 }
 
 void

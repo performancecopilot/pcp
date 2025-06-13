@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2018,2020-2022 Red Hat.
+ * Copyright (c) 2012-2018,2020-2022,2025 Red Hat.
  * Copyright (c) 2007-2008 Aconex.  All Rights Reserved.
  * Copyright (c) 1995-2002,2004,2006,2008 Silicon Graphics, Inc.  All Rights Reserved.
  *
@@ -843,6 +843,29 @@ expandArchiveList(const char *names)
     return newlist;
 }
 
+static int
+initstreaming(__pmArchCtl *acp)
+{
+    int			sts;
+
+    acp->ac_vol = acp->ac_curvol;
+    acp->ac_meta_loaded = 1;
+
+    if ((acp->ac_log = (__pmLogCtl *)calloc(1, sizeof(__pmLogCtl))) == NULL) {
+	pmNoMem(__FUNCTION__, sizeof(__pmLogCtl), PM_RECOV_ERR);
+	return -ENOMEM;
+    }
+#ifdef PM_MULTI_THREAD
+    __pmInitMutex(&acp->ac_log->lc_lock);
+#endif
+    acp->ac_log->refcnt = 1;
+
+    if ((sts = __pmNewPMNS(&acp->ac_log->pmns)) < 0)
+	return sts;
+    __pmFixPMNSHashTab(acp->ac_log->pmns, acp->ac_log->numpmid, 1);
+    return sts;
+}
+
 /*
  * Initialize the given archive(s) for this context.
  *
@@ -878,15 +901,18 @@ initarchive(__pmContext	*ctxp, const char *name)
     if (name == NULL || *name == '\0')
 	return PM_ERR_LOGFILE;
 
-    /* Allocate the structure for overal control of the archive(s). */
+    /* Allocate the structure for overall control of the archive(s). */
     if ((acp = (__pmArchCtl *)calloc(1, sizeof(__pmArchCtl))) == NULL) {
 	pmNoMem("initarchive", sizeof(__pmArchCtl), PM_FATAL_ERR);
 	/* NOTREACHED */
     }
-    __pmLogWriterInit(acp, NULL);
     ctxp->c_archctl = acp;
     acp->ac_curvol = -1;
     acp->ac_flags = ctxp->c_flags;
+
+    if ((acp->ac_flags & PM_CTXFLAG_STREAMING_WRITER))
+	return initstreaming(acp);
+    __pmLogWriterInit(acp, NULL); /* prepare callbacks for file-based I/O */
 
     /*
      * The list of names may contain one or more directories. Examine the
@@ -944,7 +970,7 @@ initarchive(__pmContext	*ctxp, const char *name)
 		break;
 	    if (tdiff == 0.0) {
 		/* Is it a duplicate? */
-		if (strcmp (current, acp->ac_log_list[i]->name) == 0) {
+		if (strcmp(current, acp->ac_log_list[i]->name) == 0) {
 		    ignore = 1;
 		    break;
 		}
@@ -1004,7 +1030,7 @@ initarchive(__pmContext	*ctxp, const char *name)
 	     * which is the correct slot.
 	     */
 	    if (i < acp->ac_num_logs) {
-		memmove (&acp->ac_log_list[i + 1], &acp->ac_log_list[i],
+		memmove(&acp->ac_log_list[i + 1], &acp->ac_log_list[i],
 			 (acp->ac_num_logs - i) * sizeof(*acp->ac_log_list));
 	    }
 	    acp->ac_log_list[i] = mlcp;

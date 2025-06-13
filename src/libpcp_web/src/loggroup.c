@@ -20,6 +20,7 @@
 #define PCP_INTERNAL	/* for log label structure and helper interfaces */
 #include "libpcp.h"
 #include "util.h"
+#include "discover.h"
 
 #define DEFAULT_WORK_TIMER 5000
 static unsigned int default_worker;	/* BG work delta, milliseconds */
@@ -60,6 +61,7 @@ typedef struct archive {
     int			datafd;
     unsigned int	datavol;
     __pmLogLabel	loglabel;	/* log label (common header) */
+    pmDiscover		*discover;
     void		*privdata;
 } archive_t;
 
@@ -107,6 +109,8 @@ loggroup_free_archive(struct archive *ap)
     __pmLogFreeLabel(&ap->loglabel);
     if (ap->datafd > 0)
 	close(ap->datafd);
+    if (ap->discover)
+	pmDiscoverStreamEnd(ap->discover->context.name);
     sdsfree(ap->fullpath);
     memset(ap, 0, sizeof(*ap));
     free(ap);
@@ -209,6 +213,12 @@ loggroup_new_archive(pmLogGroupSettings *sp, __pmLogLabel *label,
     }
     uv_mutex_unlock(&groups->mutex);
     if ((ap->fullpath = sdsnew(fullpath)) == NULL) {
+	loggroup_free_archive(ap);
+	return -ENOMEM;
+    }
+    if (sp->module.discover &&
+	(ap->discover = pmDiscoverStreamLabel(fullpath, label,
+					sp->module.discover, ap)) == NULL) {
 	loggroup_free_archive(ap);
 	return -ENOMEM;
     }
@@ -388,7 +398,7 @@ logger_write_buffer(int fd, const char *content, size_t length)
 
     for (written = 0; written < length; written += bytes)
 	if ((bytes = write(fd, content + written, length - written)) < 0)
-	    return -1;
+	    return -oserror();
     return written;
 }
 
@@ -418,7 +428,7 @@ logger_volume_label(archive_t *ap)
 	sts = __pmLogEncodeLabel(&ap->loglabel, &buffer, &length);
 	if (sts == 0) {
 	    if ((bytes = logger_write_buffer(fd, buffer, length)) < 0)
-		sts = -errno;
+		sts = bytes;
 	    else
 	        sts = fd;
 	    free(buffer);
@@ -428,8 +438,13 @@ logger_volume_label(archive_t *ap)
     return sts;
 }
 
+/*
+ * First pass for this archive, create .meta and .index files.
+ * Defer creating any data volume until this streams in and we
+ * find out what the volume number will be (typically 0).
+ */
 static int
-logger_label_write(const char *fullpath, __pmLogLabel *loglabel)
+logger_write_labels(const char *fullpath, __pmLogLabel *loglabel)
 {
     char	*dir, path[MAXPATHLEN];
     void	*buffer;
@@ -448,10 +463,15 @@ logger_label_write(const char *fullpath, __pmLogLabel *loglabel)
 	return sts;
     pmsprintf(path, sizeof(path), "%s.meta", fullpath);
     fd = open(path, O_CREAT|O_EXCL|O_APPEND|O_NOFOLLOW|O_WRONLY, 0644);
-    if (fd < 0 || logger_write_buffer(fd, buffer, length) < 0)
-	return -errno;
+    if (fd < 0) {
+	free(buffer);
+	return -oserror();
+    }
+    sts = logger_write_buffer(fd, buffer, length);
     free(buffer);
     close(fd);
+    if (sts < 0)
+	return sts;
 
     /* create the temporal index file with its initial log label */
     loglabel->vol = PM_LOG_VOL_TI;
@@ -459,12 +479,15 @@ logger_label_write(const char *fullpath, __pmLogLabel *loglabel)
 	return sts;
     pmsprintf(path, sizeof(path), "%s.index", fullpath);
     fd = open(path, O_CREAT|O_EXCL|O_APPEND|O_NOFOLLOW|O_WRONLY, 0644);
-    if (fd < 0 || logger_write_buffer(fd, buffer, length) < 0)
-	return -errno;
+    if (fd < 0) {
+	free(buffer);
+	return -oserror();
+    }
+    sts = logger_write_buffer(fd, buffer, length);
     free(buffer);
     close(fd);
 
-    return 0;
+    return sts;
 }
 
 int
@@ -499,7 +522,7 @@ pmLogGroupLabel(pmLogGroupSettings *sp, const char *content, size_t length,
     if (pmDebugOptions.log)
 	fprintf(stderr, "Writing archive %s.{meta,index} labels\n", pathbuf);
 
-    if ((sts = logger_label_write(pathbuf, &loglabel)) < 0)
+    if ((sts = logger_write_labels(pathbuf, &loglabel)) < 0)
 	goto fail;
 
     /* wrote two label headers and created one archive - update stats */
@@ -543,6 +566,10 @@ pmLogGroupMeta(pmLogGroupSettings *settings, int id,
     }
 
     if ((sts = loggroup_lookup_archive(settings, id, &ap, arg)) < 0)
+	goto done;
+
+    if ((ap->discover != NULL) &&
+	(sts = pmDiscoverStreamMeta(ap->discover, content, length)) < 0)
 	goto done;
 
     pmsprintf(path, sizeof(path), "%s.meta", ap->fullpath);
@@ -642,6 +669,10 @@ pmLogGroupVolume(pmLogGroupSettings *settings, int id, unsigned int volume,
 	    goto done;
 	}
     }
+
+    if ((ap->discover != NULL) &&
+	(sts = pmDiscoverStreamData(ap->discover, content, length)) < 0)
+	goto done;
 
     if ((bytes = logger_write_buffer(ap->datafd, content, length)) < 0) {
 	sts = -oserror();

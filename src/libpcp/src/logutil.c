@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2017,2020-2022 Red Hat.
+ * Copyright (c) 2012-2017,2020-2022,2025 Red Hat.
  * Copyright (c) 1995-2002,2004 Silicon Graphics, Inc.  All Rights Reserved.
  *
  * This library is free software; you can redistribute it and/or modify it
@@ -808,6 +808,8 @@ __pmLogOpen(const char *name, __pmContext *ctxp)
     int		version;
     int		sts;
 
+    assert(! (acp->ac_flags & PM_CTXFLAG_STREAMING_WRITER));
+
     if ((sts = __pmLogFindOpen(ctxp->c_archctl, name)) < 0) {
 	if (pmDebugOptions.log) {
 	    char	errmsg[PM_MAXERRMSGLEN];
@@ -921,7 +923,6 @@ __pmLogOpen(const char *name, __pmContext *ctxp)
 	}
 	goto cleanup;
     }
-
 
     if (! (acp->ac_flags & PM_CTXFLAG_METADATA_ONLY)) {
 	if ((sts = __pmLogLoadIndex(lcp)) < 0) {
