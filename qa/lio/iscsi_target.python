@@ -43,7 +43,7 @@ class ISCSITarget(object):
         self.portal = rtslib_fb.target.NetworkPortal(self.tpg, '0.0.0.0')
         self.tpg.enable = True
 
-    def _add_lun(self, name='ramdisk', disk_type='ramdisk', size=104857600):
+    def _add_lun(self, name='ramdisk', disk_type='ramdisk', size=10485760):
 
         if disk_type == 'ramdisk':
 
