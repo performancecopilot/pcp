@@ -1814,7 +1814,7 @@ main(int argc, char **argv)
      * ... and start at the same initial volume (volume 0, 1, ...
      * may be missing)
      */
-    outarch.archctl.ac_log = &outarch.logctl;
+    __pmLogWriterInit(&outarch.archctl, &outarch.logctl);
     if ((sts = __pmLogCreate("", outarch.name, outarch.version, &outarch.archctl, inarch.ctxp->c_archctl->ac_curvol)) < 0) {
 	fprintf(stderr, "%s: Error: __pmLogCreate(%s,v%d): %s\n",
 		pmGetProgname(), outarch.name, outarch.version, pmErrStr(sts));

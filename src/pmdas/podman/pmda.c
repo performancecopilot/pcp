@@ -141,6 +141,9 @@ podman_stats_fetchCallBack(unsigned int item, unsigned int inst, pmAtomValue *at
     container_t		*cp;
     int			sts;
 
+    if (pmDebugOptions.attr || pmDebugOptions.http)
+	fprintf(stderr, "%s: enter\n", __FUNCTION__);
+
     sts = pmdaCacheLookup(INDOM(CONTAINER_INDOM), inst, NULL, (void **)&cp);
     if (sts < 0)
 	return sts;
@@ -195,6 +198,9 @@ podman_info_fetchCallBack(unsigned int item, unsigned int inst, pmAtomValue *ato
     container_t		*cp;
     int			sts;
 
+    if (pmDebugOptions.attr || pmDebugOptions.http)
+	fprintf(stderr, "%s: enter\n", __FUNCTION__);
+
     sts = pmdaCacheLookup(INDOM(CONTAINER_INDOM), inst, NULL, (void **)&cp);
     if (sts < 0)
 	return sts;
@@ -234,6 +240,9 @@ podman_pod_fetchCallBack(unsigned int item, unsigned int inst, pmAtomValue *atom
     pod_t		*pp;
     int			sts;
 
+    if (pmDebugOptions.attr || pmDebugOptions.http)
+	fprintf(stderr, "%s: enter\n", __FUNCTION__);
+
     sts = pmdaCacheLookup(INDOM(POD_INDOM), inst, NULL, (void **)&pp);
     if (sts < 0)
 	return sts;
@@ -267,6 +276,9 @@ podman_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     unsigned int	cluster = pmID_cluster(mdesc->m_desc.pmid);
     unsigned int	item = pmID_item(mdesc->m_desc.pmid);
 
+    if (pmDebugOptions.attr || pmDebugOptions.http)
+	fprintf(stderr, "%s: enter\n", __FUNCTION__);
+
     switch (cluster) {
     case CLUSTER_STATS:
 	return podman_stats_fetchCallBack(item, inst, atom);
@@ -285,6 +297,9 @@ podman_fetch(int numpmid, pmID pmidlist[], pmdaResult **resp, pmdaExt *pmda)
 {
     unsigned int	cluster, need_refresh[NUM_CLUSTERS] = { 0 };
     int			i;
+
+    if (pmDebugOptions.attr || pmDebugOptions.http)
+	fprintf(stderr, "%s: enter\n", __FUNCTION__);
 
     for (i = 0; i < numpmid; i++) {
 	cluster = pmID_cluster(pmidlist[i]);
@@ -387,6 +402,9 @@ podman_init(pmdaInterface *dp)
     /* container and pod metrics use the pmdaCache API for indom indexing */
     pmdaCacheOp(INDOM(CONTAINER_INDOM), PMDA_CACHE_CULL);
     pmdaCacheOp(INDOM(POD_INDOM), PMDA_CACHE_CULL);
+
+    if (pmDebugOptions.attr || pmDebugOptions.http)
+	fprintf(stderr, "%s: done\n", __FUNCTION__);
 }
 
 int

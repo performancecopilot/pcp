@@ -311,7 +311,7 @@ main(int argc, char **argv)
     }
 
     /* create output log - must be done before writing label */
-    archctl.ac_log = &logctl;
+    __pmLogWriterInit(&archctl, &logctl);
     vers = ilabel.magic & 0xff;
     if ((sts = __pmLogCreate("", oname, vers, &archctl, 0)) < 0) {
 	fprintf(stderr, "%s: Error: __pmLogCreate: %s\n",
