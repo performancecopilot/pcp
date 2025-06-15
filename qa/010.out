@@ -47,7 +47,7 @@ Value: 123 0x7b
 (float) 1.230000e+02 => (ulonglong) 123
 (float) 1.230000e+02 => (float) 1.230000e+02
 (float) 1.230000e+02 => (double) 1.230000e+02
-(float) 1.230000e+02 => (char *) : Impossible value or scale conversion
+(float) 1.230000e+02 => (char *) "123"
 (float) 1.230000e+02 => (pmValueBlock *) : Impossible value or scale conversion
 (float) 1.230000e+02 => (pmEventArray) : Impossible value or scale conversion
 (float) 1.230000e+02 => (pmHighResEventArray) : Impossible value or scale conversion
