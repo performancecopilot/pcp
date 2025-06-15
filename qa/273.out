@@ -2146,7 +2146,7 @@ pmExtractValue:  1073741823 [32] -> 1073741823 [64]
 pmExtractValue:  1073741823 [32] -> 1073741823 [U64]
 pmExtractValue:  1073741823 [32] -> 1.073742e+09 [FLOAT]
 pmExtractValue:  1073741823 [32] -> 1.073742e+09 [DOUBLE]
-pmExtractValue:  1073741823 [32] -> Error: Impossible value or scale conversion [STRING]
+pmExtractValue:  1073741823 [32] -> "1073741823" [STRING]
 pmExtractValue:  1073741823 [32] -> Error: Impossible value or scale conversion [AGGREGATE]
 pmExtractValue:  1073741823 [32] -> Error: Impossible value or scale conversion [EVENT]
 pmExtractValue:  1073741823 [32] -> Error: Impossible value or scale conversion [HIGHRES_EVENT]
@@ -2156,7 +2156,7 @@ pmExtractValue:  1073741823 [U32] -> 1073741823 [64]
 pmExtractValue:  1073741823 [U32] -> 1073741823 [U64]
 pmExtractValue:  1073741823 [U32] -> 1.073742e+09 [FLOAT]
 pmExtractValue:  1073741823 [U32] -> 1.073742e+09 [DOUBLE]
-pmExtractValue:  1073741823 [U32] -> Error: Impossible value or scale conversion [STRING]
+pmExtractValue:  1073741823 [U32] -> "1073741823" [STRING]
 pmExtractValue:  1073741823 [U32] -> Error: Impossible value or scale conversion [AGGREGATE]
 pmExtractValue:  1073741823 [U32] -> Error: Impossible value or scale conversion [EVENT]
 pmExtractValue:  1073741823 [U32] -> Error: Impossible value or scale conversion [HIGHRES_EVENT]
@@ -2166,7 +2166,7 @@ pmExtractValue:  1073741823 [64] -> 1073741823 [64]
 pmExtractValue:  1073741823 [64] -> 1073741823 [U64]
 pmExtractValue:  1073741823 [64] -> 1.073742e+09 [FLOAT]
 pmExtractValue:  1073741823 [64] -> 1.073742e+09 [DOUBLE]
-pmExtractValue:  1073741823 [64] -> Error: Impossible value or scale conversion [STRING]
+pmExtractValue:  1073741823 [64] -> "1073741823" [STRING]
 pmExtractValue:  1073741823 [64] -> Error: Impossible value or scale conversion [AGGREGATE]
 pmExtractValue:  1073741823 [64] -> Error: Impossible value or scale conversion [EVENT]
 pmExtractValue:  1073741823 [64] -> Error: Impossible value or scale conversion [HIGHRES_EVENT]
@@ -2176,7 +2176,7 @@ pmExtractValue:  1073741823 [U64] -> 1073741823 [64]
 pmExtractValue:  1073741823 [U64] -> 1073741823 [U64]
 pmExtractValue:  1073741823 [U64] -> 1.073742e+09 [FLOAT]
 pmExtractValue:  1073741823 [U64] -> 1.073742e+09 [DOUBLE]
-pmExtractValue:  1073741823 [U64] -> Error: Impossible value or scale conversion [STRING]
+pmExtractValue:  1073741823 [U64] -> "1073741823" [STRING]
 pmExtractValue:  1073741823 [U64] -> Error: Impossible value or scale conversion [AGGREGATE]
 pmExtractValue:  1073741823 [U64] -> Error: Impossible value or scale conversion [EVENT]
 pmExtractValue:  1073741823 [U64] -> Error: Impossible value or scale conversion [HIGHRES_EVENT]
@@ -2186,7 +2186,7 @@ pmExtractValue:  1.073742e+09 [FLOAT] -> 1073741824 [64]
 pmExtractValue:  1.073742e+09 [FLOAT] -> 1073741824 [U64]
 pmExtractValue:  1.073742e+09 [FLOAT] -> 1.073742e+09 [FLOAT]
 pmExtractValue:  1.073742e+09 [FLOAT] -> 1.073742e+09 [DOUBLE]
-pmExtractValue:  1.073742e+09 [FLOAT] -> Error: Impossible value or scale conversion [STRING]
+pmExtractValue:  1.073742e+09 [FLOAT] -> "1073741824" [STRING]
 pmExtractValue:  1.073742e+09 [FLOAT] -> Error: Impossible value or scale conversion [AGGREGATE]
 pmExtractValue:  1.073742e+09 [FLOAT] -> Error: Impossible value or scale conversion [EVENT]
 pmExtractValue:  1.073742e+09 [FLOAT] -> Error: Impossible value or scale conversion [HIGHRES_EVENT]
@@ -2196,7 +2196,7 @@ pmExtractValue:  1.073742e+09 [DOUBLE] -> 1073741823 [64]
 pmExtractValue:  1.073742e+09 [DOUBLE] -> 1073741823 [U64]
 pmExtractValue:  1.073742e+09 [DOUBLE] -> 1.073742e+09 [FLOAT]
 pmExtractValue:  1.073742e+09 [DOUBLE] -> 1.073742e+09 [DOUBLE]
-pmExtractValue:  1.073742e+09 [DOUBLE] -> Error: Impossible value or scale conversion [STRING]
+pmExtractValue:  1.073742e+09 [DOUBLE] -> "1073741823" [STRING]
 pmExtractValue:  1.073742e+09 [DOUBLE] -> Error: Impossible value or scale conversion [AGGREGATE]
 pmExtractValue:  1.073742e+09 [DOUBLE] -> Error: Impossible value or scale conversion [EVENT]
 pmExtractValue:  1.073742e+09 [DOUBLE] -> Error: Impossible value or scale conversion [HIGHRES_EVENT]
@@ -2323,6 +2323,7 @@ Value: 18446744073709551615 0xffffffffffffffff
 (double) 1.844674e+19 => (ulong) : Truncation in value conversion
 (double) 1.844674e+19 => (longlong) : Truncation in value conversion
 (double) 1.844674e+19 => (ulonglong) : Truncation in value conversion
+(double) 1.844674e+19 => (char *) "1.844674407370955e+19" : value mismatch
 --- units.c case 39 ---
 old FLOAT:         123.456 -> 32: 123
 old FLOAT:  4151801600.000 -> 32: Truncation in value conversion
@@ -2335,7 +2336,7 @@ old FLOAT:         123.456 -> U64: 123
 old FLOAT: 18446744073709551616.0 -> U64: Truncation in value conversion
 old FLOAT:        -123.456 -> U64: Negative value in conversion to unsigned
 old FLOAT:       123.45678 -> DOUBLE:       123.45678
-old FLOAT:       123.45678 -> STRING: Impossible value or scale conversion
+old FLOAT:       123.45678 -> STRING: 123.4567794799805
 bad 64: 12345 -> 64: Impossible value or scale conversion
 bad U64: 12345 -> U64: Impossible value or scale conversion
 bad FLOAT:         123.456 -> FLOAT: Impossible value or scale conversion

@@ -1,0 +1,135 @@
+#!/bin/sh
+# PCP QA Test No. 1596
+# Problems encountered when changing "debug" metrics from
+# PM_TYPE_32 to PM_TYPE_STRING
+#
+# non-valgrind variant, see qa/1597 for the valgrind variant
+#
+# Copyright (c) 2025 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+do_valgrind=false
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+    do_valgrind=true
+elif which valgrind >/dev/null 2>&1
+then
+    [ "$PCPQA_VALGRIND" = both ] || \
+        _notrun "valgrind variant qa/1597 will be run"
+fi
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+    # end
+}
+
+# real QA test starts here
+
+# this one is expected to fail ...
+# archives/mmv-20250612 has PM_TYPE_32, archives/mmv-20250614.0 has
+# PM_TYPE_STRING
+#
+echo "Merge, xpect error ..."
+pmlogextract archives/mmv-20250612 archives/mmv-20250614.0 $tmp-out 2>&1 | _filter
+rm -f $tmp-out.index $tmp-out.meta $tmp-out.0
+
+echo
+echo "rewrite ..."
+cat <<'End-of-File' >$tmp.rewrite
+metric mmv.control.debug {
+    type -> string
+}
+End-of-File
+
+if $do_valgrind
+then
+    _run_valgrind pmlogrewrite -v -c $tmp.rewrite archives/mmv-20250612 $tmp-in
+else
+    pmlogrewrite -v -c $tmp.rewrite archives/mmv-20250612 $tmp-in 2>&1
+fi \
+| _filter
+
+echo
+echo "dump after rewrite ..."
+pminfo -d -a $tmp-in mmv.control.debug
+pmlogdump -z $tmp-in mmv.control.debug
+
+echo
+echo "Try merge again ..."
+if $do_valgrind
+then
+    _run_valgrind pmlogextract $tmp-in archives/mmv-20250614.0 $tmp-out
+else
+    pmlogextract $tmp-in archives/mmv-20250614.0 $tmp-out 2>&1
+fi \
+| _filter
+rm -f $tmp-in.index $tmp-in.meta $tmp-in.0
+rm -f $tmp-out.index $tmp-out.meta $tmp-out.0
+
+echo
+echo "conditional rewrite ..."
+cat <<'End-of-File' >$tmp.rewrite
+metric mmv.control.debug {
+    type if 32 -> string
+}
+End-of-File
+
+if $do_valgrind
+then
+    _run_valgrind pmlogrewrite -v -c $tmp.rewrite archives/mmv-20250612 $tmp-in
+else
+    pmlogrewrite -v -c $tmp.rewrite archives/mmv-20250612 $tmp-in 2>&1
+fi \
+| _filter
+
+echo
+echo "dump after rewrite ..."
+pminfo -d -a $tmp-in mmv.control.debug
+pmlogdump -z $tmp-in mmv.control.debug
+rm -f $tmp-in.index $tmp-in.meta $tmp-in.0
+
+echo
+echo "This is a bad rewrite ..."
+cat <<'End-of-File' >$tmp.rewrite
+metric mmv.control.debug {
+    type -> 32
+}
+End-of-File
+
+if $do_valgrind
+then
+    _run_valgrind pmlogrewrite -v -c $tmp.rewrite archives/mmv-20250614 $tmp-in
+else
+    pmlogrewrite -v -c $tmp.rewrite archives/mmv-20250614 $tmp-in 2>&1
+fi \
+| _filter
+
+# success, all done
+exit

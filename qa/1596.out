@@ -1,0 +1,60 @@
+QA output created by 1596
+Merge, xpect error ...
+pmlogextract: Error: metric mmv.control.debug: type changed from 32 to STRING!
+Archive "TMP-out" not created.
+
+rewrite ...
+PCP Archive Rewrite Specifications Summary
+
+Metric: mmv.control.debug (70.0.1)
+Type:		32 -> STRING
+
+dump after rewrite ...
+
+mmv.control.debug
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Note: timezone set to local timezone of host "vm34.localdomain" from archive
+
+
+05:07:19.786002223 1 metric
+    70.0.1 (mmv.control.debug): value "0"
+
+05:07:29.573892758 1 metric
+    70.0.1 (mmv.control.debug): value "0"
+
+05:07:39.571482417 1 metric
+    70.0.1 (mmv.control.debug): value "0"
+
+Try merge again ...
+pmlogextract: Warning: metric PMID 70.0.1 one line text changed from
+  "Debug flag" to
+  "Debug options"!
+pmlogextract: Warning: metric PMID 70.0.1 help text changed!
+
+conditional rewrite ...
+PCP Archive Rewrite Specifications Summary
+
+Metric: mmv.control.debug (70.0.1)
+Type:		32 -> STRING
+
+dump after rewrite ...
+
+mmv.control.debug
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Note: timezone set to local timezone of host "vm34.localdomain" from archive
+
+
+05:07:19.786002223 1 metric
+    70.0.1 (mmv.control.debug): value "0"
+
+05:07:29.573892758 1 metric
+    70.0.1 (mmv.control.debug): value "0"
+
+05:07:39.571482417 1 metric
+    70.0.1 (mmv.control.debug): value "0"
+
+This is a bad rewrite ...
+Specification error in configuration file (TMP.rewrite)
+[line 2] Old type (PM_TYPE_STRING) must be numeric

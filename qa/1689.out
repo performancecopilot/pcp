@@ -1,10 +1,13 @@
 QA output created by 1689
 
-pmproxy.control.debug PMID: 4.0.1 [Debug flag]
-    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+pmproxy.control.debug PMID: 4.0.1 [Debug options]
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 Help:
-See pmdbg(1).  pmstore into this metric to change the debug value.
+See pmdbg(1).  pmstore into this metric to change the debug option(s)
+
+Note that if this PMDA is installed as a DSO agent, the debug options
+are shared with pmcd(1)
 
 pmproxy.control.files PMID: 4.0.2 [Memory mapped file count]
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff

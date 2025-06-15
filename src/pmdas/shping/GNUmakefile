@@ -38,6 +38,7 @@ PMIECONFDIR	= $(PCP_SYSCONF_DIR)/pmieconf/$(IAM)
 PMIECONFVARDIR	= $(PCP_VAR_DIR)/config/pmieconf/$(IAM)
 PMLOGCONFDIR	= $(PCP_SYSCONF_DIR)/pmlogconf/$(IAM)
 PMLOGCONFVARDIR	= $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)
+REWRITEVARDIR = $(PCP_VAR_DIR)/config/pmlogrewrite
 
 default:	build-me
 
@@ -54,6 +55,7 @@ install: build-me configs
 	$(INSTALL) -m 644 -t $(PMDATMPDIR) $(OTHERS) domain.h $(PMDAADMDIR)
 	$(INSTALL) -m 755 -d $(PMDACONFIG)
 	$(INSTALL) -m 644 -t $(PMDATMPDIR)/$(CONFIG) $(CONFIG) $(PMDACONFIG)/$(CONFIG)
+	$(INSTALL) -m 644 -t $(REWRITEVARDIR)/shping_migrate.conf migrate.conf $(REWRITEDIR)/shping_migrate.conf
 else
 build-me:
 install: configs

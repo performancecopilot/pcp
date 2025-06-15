@@ -610,6 +610,9 @@ pmExtractValue(int valfmt, const pmValue * ival, int itype, pmAtomValue * oval, 
     const char *vp;
     char buf[80];
     char strbuf[80];
+    /* for <number> -> string conversions */
+    char	nbuf[22];	/* max when %.16g -> 1.234567890098765e+18 */
+    size_t	nlen;		/* length of string in nbuf[] after sprintf() */
 
     if (pmDebugOptions.value) {
 	fprintf(stderr, "pmExtractValue: ");
@@ -650,6 +653,14 @@ pmExtractValue(int valfmt, const pmValue * ival, int itype, pmAtomValue * oval, 
 		    case PM_TYPE_DOUBLE:
 			oval->d = (double) av.l;
 			break;
+		    case PM_TYPE_STRING:
+			pmsprintf(nbuf, sizeof(nbuf), "%d", av.l);
+			nlen = strlen(nbuf)+1;
+			if ((oval->cp = (char *) malloc(nlen)) == NULL) {
+			    pmNoMem("pmExtractValue.32->string", nlen, PM_FATAL_ERR);
+			}
+			memcpy(oval->cp, nbuf, nlen);
+			break;
 		    default:
 			sts = PM_ERR_CONV;
 		}
@@ -677,6 +688,14 @@ pmExtractValue(int valfmt, const pmValue * ival, int itype, pmAtomValue * oval, 
 			break;
 		    case PM_TYPE_DOUBLE:
 			oval->d = (double) av.ul;
+			break;
+		    case PM_TYPE_STRING:
+			pmsprintf(nbuf, sizeof(nbuf), "%u", av.ul);
+			nlen = strlen(nbuf)+1;
+			if ((oval->cp = (char *) malloc(nlen)) == NULL) {
+			    pmNoMem("pmExtractValue.u32->string", nlen, PM_FATAL_ERR);
+			}
+			memcpy(oval->cp, nbuf, nlen);
 			break;
 		    default:
 			sts = PM_ERR_CONV;
@@ -734,6 +753,14 @@ pmExtractValue(int valfmt, const pmValue * ival, int itype, pmAtomValue * oval, 
 			break;
 		    case PM_TYPE_DOUBLE:
 			oval->d = (double) av.f;
+			break;
+		    case PM_TYPE_STRING:
+			pmsprintf(nbuf, sizeof(nbuf), "%.16g", (double)av.f);
+			nlen = strlen(nbuf)+1;
+			if ((oval->cp = (char *) malloc(nlen)) == NULL) {
+			    pmNoMem("pmExtractValue.float(insitu)->string", nlen, PM_FATAL_ERR);
+			}
+			memcpy(oval->cp, nbuf, nlen);
 			break;
 		    default:
 			sts = PM_ERR_CONV;
@@ -799,6 +826,14 @@ pmExtractValue(int valfmt, const pmValue * ival, int itype, pmAtomValue * oval, 
 		    case PM_TYPE_DOUBLE:
 			oval->d = (double) src;
 			break;
+		    case PM_TYPE_STRING:
+			pmsprintf(nbuf, sizeof(nbuf), "%" FMT_INT64, src);
+			nlen = strlen(nbuf)+1;
+			if ((oval->cp = (char *) malloc(nlen)) == NULL) {
+			    pmNoMem("pmExtractValue.64->string", nlen, PM_FATAL_ERR);
+			}
+			memcpy(oval->cp, nbuf, nlen);
+			break;
 		    default:
 			sts = PM_ERR_CONV;
 		}
@@ -862,6 +897,14 @@ pmExtractValue(int valfmt, const pmValue * ival, int itype, pmAtomValue * oval, 
 			oval->d = (double) usrc;
 #endif
 			break;
+		    case PM_TYPE_STRING:
+			pmsprintf(nbuf, sizeof(nbuf), "%" FMT_UINT64, usrc);
+			nlen = strlen(nbuf)+1;
+			if ((oval->cp = (char *) malloc(nlen)) == NULL) {
+			    pmNoMem("pmExtractValue.u64->string", nlen, PM_FATAL_ERR);
+			}
+			memcpy(oval->cp, nbuf, nlen);
+			break;
 		    default:
 			sts = PM_ERR_CONV;
 		}
@@ -923,6 +966,14 @@ pmExtractValue(int valfmt, const pmValue * ival, int itype, pmAtomValue * oval, 
 		    case PM_TYPE_DOUBLE:
 			oval->d = dsrc;
 			break;
+		    case PM_TYPE_STRING:
+			pmsprintf(nbuf, sizeof(nbuf), "%.16g", dsrc);
+			nlen = strlen(nbuf)+1;
+			if ((oval->cp = (char *) malloc(nlen)) == NULL) {
+			    pmNoMem("pmExtractValue.double->string", nlen, PM_FATAL_ERR);
+			}
+			memcpy(oval->cp, nbuf, nlen);
+			break;
 		    default:
 			sts = PM_ERR_CONV;
 		}
@@ -983,6 +1034,14 @@ pmExtractValue(int valfmt, const pmValue * ival, int itype, pmAtomValue * oval, 
 			break;
 		    case PM_TYPE_DOUBLE:
 			oval->d = (float) fsrc;
+			break;
+		    case PM_TYPE_STRING:
+			pmsprintf(nbuf, sizeof(nbuf), "%.16g", (double)fsrc);
+			nlen = strlen(nbuf)+1;
+			if ((oval->cp = (char *) malloc(nlen)) == NULL) {
+			    pmNoMem("pmExtractValue.float->string", nlen, PM_FATAL_ERR);
+			}
+			memcpy(oval->cp, nbuf, nlen);
 			break;
 		    default:
 			sts = PM_ERR_CONV;
