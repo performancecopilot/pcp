@@ -1027,18 +1027,21 @@ e.g.
 for
 .BR PM_TYPE_FLOAT .
 .PP
-Type conversion is only supported for cases where the old and new
+Type conversion is only supported for cases where the old
 metric type is numeric, so
 .BR PM_TYPE_STRING ,
-.B PM_TYPE_AGGREGATE
-and
+.BR PM_TYPE_AGGREGATE ,
 .B PM_TYPE_EVENT
+and
+.B PM_TYPE_HIGHRES_EVENT
 are not allowed.
+Similarly, the new metric type must be numeric or
+.BR PM_TYPE_STRING .
 Even for the numeric cases, some conversions may produce run-time errors,
 e.g. integer overflow, or attempting to rewrite a negative value into
-an unsigned type.
+an unsigned type, or imprecision, e.g. when converting a float
+or a double to a string.
 .RE
-
 .PP
 .KW TYPE
 .KW IF
