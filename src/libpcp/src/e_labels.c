@@ -181,25 +181,20 @@ __pmLogPutLabels(__pmArchCtl *acp, unsigned int type, unsigned int ident,
 		int nsets, pmLabelSet *labelsets, const __pmTimestamp * const tsp)
 {
     __pmLogCtl		*lcp = acp->ac_log;
-    int			sts;
     __int32_t		*buf;
     size_t		len;
+    int			sts;
 
     sts = __pmLogEncodeLabels(lcp, type, ident, nsets, labelsets, tsp, &buf);
     if (sts < 0)
 	return sts;
 
     len = ntohl(buf[0]);
-    if ((sts = __pmFwrite(buf, 1, len, lcp->mdfp)) != len) {
-	char	errmsg[PM_MAXERRMSGLEN];
 
-	pmprintf("__pmLogPutLabels(...,type=%d,ident=%d): write failed: returned %d expecting %zd: %s\n",
-		type, ident, sts, len, osstrerror_r(errmsg, sizeof(errmsg)));
-	pmflush();
-	free(buf);
-	return -oserror();
-    }
+    sts = acp->ac_write_cb(acp, PM_LOG_VOL_META, buf, len, __FUNCTION__);
     free(buf);
+    if (sts < 0)
+	return sts;
 
     return addlabel(acp, type, ident, nsets, labelsets, tsp);
 }

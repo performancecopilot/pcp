@@ -79,7 +79,6 @@ OTHER_SUBDIRS += \
 	pmdas \
 	pmdate \
 	pmdbg \
-	pmlogdump \
 	pmdumptext \
 	pmerr \
 	pmgenmap \
@@ -91,14 +90,16 @@ OTHER_SUBDIRS += \
 	pmlc \
 	pmlock \
 	pmlogcheck \
+	pmlogconf \
 	pmlogctl \
+	pmlogdump \
 	pmlogextract \
 	pmlogger \
 	pmlogreduce \
-	pmlogconf \
 	pmloglabel \
 	pmlogmv \
 	pmlogpaste \
+	pmlogpush \
 	pmlogrewrite \
 	pmlogredact \
 	pmlogsize \

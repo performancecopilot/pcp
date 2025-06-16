@@ -30,6 +30,7 @@ static struct {
 	{ .group = "series" },		/* METRICS_SERIES */
 	{ .group = "webgroup" },	/* METRICS_WEBGROUP */
 	{ .group = "search" },          /* METRICS_SEARCH */
+	{ .group = "loggroup" },	/* METRICS_LOGGROUP */
 };
 
 void

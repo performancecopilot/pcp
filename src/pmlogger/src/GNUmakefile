@@ -19,7 +19,7 @@ include $(TOPDIR)/src/include/builddefs
 CMDTARGET = pmlogger$(EXECSUFFIX)
 
 CFILES	= pmlogger.c fetch.c util.c error.c callback.c ports.c \
-	  dopdu.c checks.c logue.c events.c pass0.c parsesize.c
+	  dopdu.c checks.c logue.c events.c pass0.c parsesize.c remote.c
 HFILES	= logger.h
 LFILES  = lex.l
 YFILES	= gram.y
@@ -37,7 +37,7 @@ LCFLAGS += -DBACKTRACE_SYMBOLS=1
 LLDFLAGS += $(LIB_FOR_BACKTRACE)
 endif
 
-LLDLIBS	= $(PCP_ARCHIVELIB) $(PCPLIB) $(LIB_FOR_PTHREADS)
+LLDLIBS	= $(PCP_ARCHIVELIB) $(PCP_WEBLIB) $(LIB_FOR_PTHREADS)
 LDIRT	= *.log foo.* gram.h lex.c y.tab.? $(YFILES:%.y=%.tab.?) $(CMDTARGET)
 
 default:	$(CMDTARGET)
@@ -59,7 +59,7 @@ default_pcp:	default
 
 install_pcp:	install
 
-$(OBJECTS):	$(TOPDIR)/src/include/pcp/libpcp.h
+$(OBJECTS):	$(TOPDIR)/src/include/pcp/libpcp.h $(HFILES)
 
 foo:
 	@echo $(BACKTRACE_SYMBOLS)
