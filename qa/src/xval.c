@@ -354,9 +354,13 @@ main(int argc, char *argv[])
 			    if (types[i] == PM_TYPE_STRING)
 				match = (strcmp(bv.cp, av.cp) == 0);
 			    else {
-				if (types[i] == PM_TYPE_32 || types[i] == PM_TYPE_U32)
-				    match = atoi(av.cp) == iv.l;
-				else if (types[i] == PM_TYPE_64 || types[i] == PM_TYPE_U64)
+				if (types[i] == PM_TYPE_32)
+				    match = strtol(av.cp, NULL, 10) == iv.l;
+				else if (types[i] == PM_TYPE_U32)
+				    match = strtoul(av.cp, NULL, 10) == iv.ul;
+				else if (types[i] == PM_TYPE_64)
+				    match = strtoll(av.cp, NULL, 10) == iv.ll;
+				else if (types[i] == PM_TYPE_U64)
 				    match = strtoull(av.cp, NULL, 10) == iv.ull;
 				else if (types[i] == PM_TYPE_FLOAT)
 				    match = (float)atof(av.cp) == iv.f;
