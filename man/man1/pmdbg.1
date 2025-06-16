@@ -1,3 +1,4 @@
+'\" t
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
@@ -60,6 +61,53 @@ On each installation, the
 file \fI/etc/pcp.conf\fP contains the local values for these variables.
 The \fB$PCP_CONF\fP variable may be used to specify an alternative
 configuration file, as described in \fBpcp.conf\fP(5).
+.SH COMPATIBILITY
+Prior to PCP 7.0 debug options were maintained in a dual state with
+an old-style binary encoded integer (plus macro name for programmers), and a new-style
+character string name for each debug option.
+.PP
+In PCP 7.0 support for the the old-style was dropped.
+.PP
+The table below documents the equivalence for those debugging
+options that appeared in both the the old and the new styles.
+.TS
+box center;
+c   s   s | c
+l | r | r | l.
+Old Style	New Style
+_
+Symbolic Name	Mask	Value	Name
+_
+DBG_TRACE_PDU	0x00000001	1	pdu
+DBG_TRACE_FETCH	0x00000002	2	fetch
+DBG_TRACE_PROFILE	0x00000004	4	profile
+DBG_TRACE_VALUE	0x00000008	8	value
+DBG_TRACE_CONTEXT	0x00000010	16	context
+DBG_TRACE_INDOM	0x00000020	32	indom
+DBG_TRACE_PDUBUF	0x00000040	64	pdubuf
+DBG_TRACE_LOG	0x00000080	128	log
+DBG_TRACE_LOGMETA	0x00000100	256	logmeta
+DBG_TRACE_OPTFETCH	0x00000200	512	optfetch
+DBG_TRACE_AF	0x00000400	1024	af
+DBG_TRACE_APPL0	0x00000800	2048	appl0
+DBG_TRACE_APPL1	0x00001000	4096	appl1
+DBG_TRACE_APPL2	0x00002000	8192	appl2
+DBG_TRACE_PMNS	0x00004000	16384	pmns
+DBG_TRACE_LIBPMDA	0x00008000	32768	libpmda
+DBG_TRACE_TIMECONTROL	0x00001000	65536	timecontrol
+DBG_TRACE_PMC	0x00002000	131072	pmc
+DBG_TRACE_DERIVE	0x00004000	262144	derive
+DBG_TRACE_LOCK	0x00008000	524288	lock
+DBG_TRACE_INTERP	0x00010000	1048576	interp
+DBG_TRACE_CONFIG	0x00020000	2097152	config
+DBG_TRACE_PMAPI	0x00040000	4194304	pmapi
+DBG_TRACE_FAULT	0x00080000	8388608	fault
+DBG_TRACE_AUTH	0x00100000	16777216	auth
+DBG_TRACE_DISCOVERY	0x00200000	33554432	discovery
+DBG_TRACE_ATTR	0x00400000	67108864	attr
+DBG_TRACE_HTTP	0x00800000	134217728	http
+DBG_TRACE_DESPERATE	0x04000000	1073741824	desperate
+.TE
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR PMAPI (3),
