@@ -89,7 +89,7 @@ fi
 
 # valgrind takes awhile to shutdown too
 pmsignal $pid
-pmsleep 3.5
+_wait_process_end $pid
 echo "=== valgrind stdout ===" | tee -a $seq_full
 cat $tmp.valout | _filter_valgrind
 
