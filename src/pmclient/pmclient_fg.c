@@ -127,7 +127,7 @@ get_sample(void)
 		    pmGetProgname(), pmErrStr(sts));
 	    exit(1);
 	}
-	if ((sts = pmExtendFetchGroup_timestamp(pmfg, &info.timestamp)) < 0) {
+	if ((sts = pmExtendFetchGroup_timeval(pmfg, &info.timestamp)) < 0) {
 	    fprintf(stderr, "%s: Failed ExtendFetchGroup: %s\n",
 		    pmGetProgname(), pmErrStr(sts));
 	    exit(1);

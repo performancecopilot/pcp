@@ -1808,10 +1808,10 @@ Registering interest in the future fetch-operation timestamp is also possible. I
 
 .. sourcecode:: none
 
- struct timeval tv;
- sts = pmExtendFetchGroup_timestamp(fg, & tv);
+ struct timespec ts;
+ sts = pmExtendFetchGroup_timespec(fg, & ts);
  Python
- tv = fg.extend_timestamp()
+ ts = fg.extend_timespec()
  
 Fetchgroup operation
 ---------------------------

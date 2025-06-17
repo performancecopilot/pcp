@@ -19,7 +19,6 @@
 \f3pmExtendFetchGroup_item\f1,
 \f3pmExtendFetchGroup_indom\f1,
 \f3pmExtendFetchGroup_event\f1,
-\f3pmExtendFetchGroup_timestamp\f1,
 \f3pmExtendFetchGroup_timespec\f1,
 \f3pmExtendFetchGroup_timeval\f1,
 \f3pmFetchGroup\f1,
@@ -75,11 +74,6 @@ int\ \fIout_stss\fP[],
 unsigned\ int\ \fIout_maxnum\fP,
 unsigned\ int\ *\fIout_num\fP,
 int\ *\fIout_sts\fP);
-.in
-.br
-int pmExtendFetchGroup_timestamp(pmFG \fIpmfg\fP,
-'in +\w'int pmExtendFetchGroup_timestamp('u
-struct\ timeval\ *\fIout_value\fP);
 .in
 .br
 int pmExtendFetchGroup_timespec(pmFG \fIpmfg\fP,
@@ -483,11 +477,6 @@ Those are indicated with a negative return code.
 \&
 .sp
 .ft 3
-int pmExtendFetchGroup_timestamp(pmFG \fIpmfg\fP,
-'in +\w'int pmExtendFetchGroup_timestamp('u
-struct\ timeval\ *\fIout_value\fP);
-.in
-.br
 int pmExtendFetchGroup_timespec(pmFG \fIpmfg\fP,
 'in +\w'int pmExtendFetchGroup_timespec('u
 struct\ timespec\ *\fIout_value\fP);
@@ -621,7 +610,7 @@ int main()
                                    v3_values, PM_TYPE_STRING,
                                    v3_stss, v3_maxnum, &v3_num, NULL);
     pcpassert(sts);
-    sts = pmExtendFetchGroup_timestamp(fg, &t);
+    sts = pmExtendFetchGroup_timeval(fg, &t);
     pcpassert(sts);
 
     for (i=0; i < 10; i++) {
@@ -706,6 +695,18 @@ pmAtomValue is registered (during a successful
 \fBpmExtendFetchGroup_*\fP call), it will be cleared to the sentinel
 value or to a valid converted metric value, from the time of
 registration until the \fBpmDestroyFetchGroup\fP call.
+.SH COMPATIBILITY
+Prior to PCP 7.0 the
+.B pmExtendFetchGroup_timestamp
+was an alias for
+.BR pmExtendFetchGroup_timeval .
+To support PMAPI transition, the old interface and semantics can be
+used if applications are recompiled with
+.BR \-DPMAPI_VERSION=2 .
+.PP
+.B pmExtendFetchGroup_timestamp
+although this is now deprecated and compile-time support
+will be removed in a future release.
 .SH "SEE ALSO"
 .BR PMAPI (3),
 .BR pmLookupName (3),

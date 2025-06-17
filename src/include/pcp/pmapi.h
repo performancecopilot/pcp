@@ -1183,7 +1183,6 @@ PCP_CALL extern int pmExtendFetchGroup_event(pmFG, const char *, const char *,
 			const char *, const char *,
 			struct timespec[], pmAtomValue[], int, int[],
 			unsigned int, unsigned int *, int *);
-PCP_CALL extern int pmExtendFetchGroup_timestamp(pmFG, struct timeval *);
 PCP_CALL extern int pmExtendFetchGroup_timespec(pmFG, struct timespec *);
 PCP_CALL extern int pmFetchGroup(pmFG);
 PCP_CALL extern int pmDestroyFetchGroup(pmFG);
@@ -1482,6 +1481,7 @@ PCP_CALL extern void pmSortInstances_v2(pmResult_v2 *);
 #define pmSortInstances pmSortInstances_v2
 #define pmPrintStamp pmtimevalPrint
 #define pmPrintHighResStamp pmtimespecPrint
+#define pmExtendFetchGroup_timestamp pmExtendFetchGroup_timeval
 
 /*
  * Extended time base definitions and macros
