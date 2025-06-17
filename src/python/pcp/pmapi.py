@@ -77,7 +77,7 @@
     v = pmfg.extend_item("hinv.ncpu")
     vv = pmfg.extend_indom("kernel.all.load", c_api.PM_TYPE_FLOAT)
     vvv = pmfg.extend_event("systemd.journal.records", field="systemd.journal.field.string")
-    t = pmfg.extend_timespec()
+    t = pmfg.extend_timeval()
 
     pmfg.fetch()
     print("time: %s" % t())
@@ -3122,6 +3122,9 @@ class fetchgroup(object):
             raise pmErr(sts)
         self.items.append(v) # keep registered timeval alive
         return v
+
+    # backward compatibility alias
+    extend_timestamp = extend_timeval
 
     def extend_event(self, metric=None, field=None, ftype=None, scale=None, instance=None, maxnum=100):
         # pylint: disable=C0330

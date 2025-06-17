@@ -32,7 +32,7 @@ class sampler(object):
         self.cpu_sys = fg.extend_indom('kernel.percpu.cpu.sys', scale='second/second')
         self.freemem = fg.extend_item('mem.freemem', scale='Mbyte', mtype=c_api.PM_TYPE_DOUBLE)
         self.dkiops = fg.extend_item('disk.all.total', scale='count/second')
-        self.timestamp = fg.extend_timestamp()
+        self.timestamp = fg.extend_timeval()
         self.ncpu = fg.extend_item('hinv.ncpu')
 
     def get_sample(self):

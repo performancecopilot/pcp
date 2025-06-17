@@ -213,7 +213,7 @@ class PCP2ARROW(object):
 
         ctx_type, self.source = pmapi.pmContext.set_connect_options(self.opts, self.source, self.speclocal)
         self.pmfg = pmapi.fetchgroup(ctx_type, self.source)
-        self.pmfg_ts = self.pmfg.extend_timestamp()
+        self.pmfg_ts = self.pmfg.extend_timeval()
         self.context = self.pmfg.get_context()
         ctx = self.context.ctx
         if pmSetContextOptions(ctx, self.opts.mode, self.opts.delta):
