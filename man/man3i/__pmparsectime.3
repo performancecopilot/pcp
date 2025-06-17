@@ -81,17 +81,20 @@ The
 .B tm
 structure returned in
 .B rslt
-should only be used as an argument to the
-.B __pmConvertTime
+should only be used as an argument to either the
+.B __pmtimevalConvert
+function or the
+.B __pmtimespecConvert
 function, as it contains encoded information that will only be
-correctly interpreted by
-.BR __pmConvertTime .
+correctly interpreted by these routines.
 .SH SEE ALSO
 .BR PMAPI (3),
-.BR pmParseInterval (3),
-.BR __pmConvertTime (3)
+.BR __pmtimespecConvert (3),
+.BR __pmtimevalConvert (3),
+.BR __pmtimespecParse (3)
+.BR __pmtimevalParse (3)
 and
-.BR __pmtimevalParse (3).
+.BR pmParseInterval (3).
 
 .\" control lines for scripts/man-spell
 .\" +ok+ asctime YYYY MMM DD HH SS
