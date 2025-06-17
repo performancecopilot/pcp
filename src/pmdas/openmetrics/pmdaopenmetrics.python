@@ -32,7 +32,7 @@ import subprocess
 import sys
 from ctypes import c_int
 from socket import gethostname
-from stat import ST_MODE, S_IXUSR, ST_CTIME
+from stat import ST_MODE, S_IXUSR
 import requests
 
 from pcp.pmapi import pmUnits, pmContext
@@ -922,12 +922,12 @@ class Source(object):
                 if not s[ST_MODE] & S_IXUSR:
                     self.pmda.err("cannot execute script '%s'" % self.path)
                     return
-            elif self.parse_url_time < s[ST_CTIME]:
+            elif self.parse_url_time < s.st_mtime_ns:
                 # (re)parse the URL from given file
                 self.parse_url_config(self.path)
-                self.parse_url_time = s[ST_CTIME]
+                self.parse_url_time = s.st_mtime_ns
         except Exception as e:
-            self.pmda.err("cannot read %s: %s" % (self.path, e))
+            self.pmda.err("cannot stat %s: %s" % (self.path, e))
             return
 
         # fetch the document
