@@ -67,9 +67,6 @@ ifneq "$(findstring $(TARGET_OS),darwin mingw)" ""
 	$(INSTALL) -m 755 -d $(PCP_RC_DIR)
 	$(INSTALL) -m 755 -d $(PCP_SASLCONF_DIR)
 	$(INSTALL) -m 755 -d $(PCP_BIN_DIR)
-	$(INSTALL) -m 755 -d $(PCP_BINADM_DIR)
-	$(INSTALL) -m 755 -d $(PCP_LIBADM_DIR)
-	$(INSTALL) -m 755 -d $(PCP_PMDASADM_DIR)
 	$(INSTALL) -m 755 -d $(PCP_LIB_DIR)
 	$(INSTALL) -m 755 -d $(PCP_LIB_DIR)/pkgconfig
 	$(INSTALL) -m 755 -d $(PCP_MAN_DIR)
@@ -77,6 +74,11 @@ ifneq "$(findstring $(TARGET_OS),darwin mingw)" ""
 	$(INSTALL) -m 755 -d $(PCP_MAN_DIR)/man3
 	$(INSTALL) -m 755 -d $(PCP_MAN_DIR)/man5
 endif
+	$(INSTALL) -m 755 -d `dirname $(PCP_BINADM_DIR)`
+	$(INSTALL) -m 755 -d $(PCP_BINADM_DIR)
+	$(INSTALL) -m 755 -d $(PCP_LIBADM_DIR)
+	$(INSTALL) -m 755 -d $(PCP_PMNSADM_DIR)
+	$(INSTALL) -m 755 -d $(PCP_PMDASADM_DIR)
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_TMP_DIR)
 ifeq "$(ENABLE_SYSTEMD)" "true"
 	# this works if PCP_RUN_DIR (and friends) are within a tmpfs that
