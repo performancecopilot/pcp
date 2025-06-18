@@ -1326,9 +1326,9 @@ PCP_CALL extern int __pmtimevalParse(const char *, struct timeval *,
 				struct timeval *, struct timeval *, char **);
 PCP_CALL extern int __pmtimespecParse(const char *, struct timespec *,
 				struct timespec *, struct timespec *, char **);
-PCP_CALL extern int __pmConvertTime(struct tm *, struct timeval *,
+PCP_CALL extern int __pmtimevalConvert(struct tm *, struct timeval *,
 				struct timeval *);
-PCP_CALL extern int __pmConvertHighResTime(struct tm *, struct timespec *,
+PCP_CALL extern int __pmtimespecConvert(struct tm *, struct timespec *,
 				struct timespec *);
 PCP_CALL extern time_t __pmMktime(struct tm *);
 

@@ -429,7 +429,7 @@ __pmParseCtime(
 
 
 int	/* 0 ok, -1 error */
-__pmConvertTime(
+__pmtimevalConvert(
     struct tm *tmin,		/* absolute or +ve or -ve offset time */
     struct timeval *orig,	/* defaults and origin for offset */
     struct timeval *rslt)	/* result stored here */
@@ -443,7 +443,7 @@ __pmConvertTime(
     else
 	origin.tv_nsec = orig->tv_usec * 1000;
 
-    if ((sts = __pmConvertHighResTime(tmin, &origin, &result)) < 0)
+    if ((sts = __pmtimespecConvert(tmin, &origin, &result)) < 0)
 	return sts;
 
     rslt->tv_sec = result.tv_sec;
@@ -453,7 +453,7 @@ __pmConvertTime(
 
 
 int	/* 0 ok, -1 error */
-__pmConvertHighResTime(
+__pmtimespecConvert(
     struct tm *tmin,		/* absolute or +ve or -ve offset time */
     struct timespec *origin,	/* defaults and origin for offset */
     struct timespec *result)	/* result stored here */
@@ -647,7 +647,7 @@ __pmtimespecParse(
     if (parseChar(&scan, '@')) {
 	if (__pmParseCtime(scan, &tm, errMsg) >= 0) {
 	    tm.tm_wday = NO_OFFSET;
-	    __pmConvertHighResTime(&tm, &start, rslt);
+	    __pmtimespecConvert(&tm, &start, rslt);
 	    return 0;
 	}
     }
@@ -658,7 +658,7 @@ __pmtimespecParse(
 	    tm.tm_wday = NEG_OFFSET;
 	    tm.tm_sec = tspec.tv_sec;
 	    tm.tm_yday = tspec.tv_nsec;
-	    __pmConvertHighResTime(&tm, &end, rslt);
+	    __pmtimespecConvert(&tm, &end, rslt);
 	    return 0;
 	}
     }
@@ -670,7 +670,7 @@ __pmtimespecParse(
 	    tm.tm_wday = PLUS_OFFSET;
 	    tm.tm_sec = tspec.tv_sec;
 	    tm.tm_yday = tspec.tv_nsec;
-	    __pmConvertHighResTime(&tm, &start, rslt);
+	    __pmtimespecConvert(&tm, &start, rslt);
 	    return 0;
 	}
     }

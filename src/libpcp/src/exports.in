@@ -72,8 +72,6 @@ PCP_4.0 {
     __pmConnectTimeout;
     __pmConnectTo;
     __pmControlLog;
-    __pmConvertHighResTime;
-    __pmConvertTime;
     __pmCountPDUBuf;
     __pmCreateIPv6Socket;
     __pmCreateSocket;
@@ -483,9 +481,11 @@ PCP_4.0 {
     __pmWrite;
     __pmXmitPDU;
     __pmZoneinfo;
+    __pmtimespecConvert;
     __pmtimespecParse;
     __pmtimespecPause;
     __pmtimespecSleep;
+    __pmtimevalConvert;
     __pmtimevalParse;
     __pmtimevalPause;
     __pmtimevalSleep;
