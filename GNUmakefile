@@ -137,6 +137,8 @@ pcp.lsm src/include/builddefs src/include/pcp/platform_defs.h: configure pcp.lsm
 
 tmpfiles.init.setup:	tmpfiles.init.setup.in
 	sed < $< > $@ \
+	    -e "s@PCP_VAR_DIR@$(PCP_VAR_DIR)@" \
+	    -e "s@PCP_TMP_DIR@$(PCP_TMP_DIR)@" \
 	    -e "s@PCP_RUN_DIR@$(PCP_RUN_DIR)@" \
 	    -e "s@PCP_LOG_DIR@$(PCP_LOG_DIR)@" \
 	    -e "s/PCP_GROUP/$(PCP_GROUP)/" \
