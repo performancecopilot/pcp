@@ -480,6 +480,13 @@ retype(int i, metricspec_t *mp)
 	    abandon();
 	    /*NOTREACHED*/
 	}
+	if (mp->new_desc.type == PM_TYPE_STRING) {
+	    /*
+	     * this is the only output type that is valid for pmlogrewrite
+	     * and has space allocated in pmExtractValue()
+	     */
+	    free(val.cp);
+	}
     }
     inarch.rp->vset[i]->valfmt = sts;
 }

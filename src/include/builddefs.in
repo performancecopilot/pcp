@@ -184,7 +184,7 @@ GREP    = @grep@
 GIT	= @GIT@
 # man-lint should not break the build (-f)
 MANLINT	= $(TOPDIR)/scripts/man-lint -f
-PYLINT	= @PYLINT@ --rcfile=$(TOPDIR)/.pylintrc --output-format=colorized
+PYLINT	= PYTHONPATH=$(PYTHONPATH):$(TOPDIR)/src/python @PYLINT@ --rcfile=$(TOPDIR)/.pylintrc --output-format=colorized
 PYTHON3	= @PYTHON3@
 DTRACE  = @DTRACE@
 ifeq "$(TARGET_OS)" "freebsd"

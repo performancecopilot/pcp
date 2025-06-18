@@ -7,43 +7,43 @@ OK
 Running as local:
 pmGetContextHostName: HOSTNAME
 pmParseMetricSpec: <pcp.pmapi.LP_pmMetricSpec object at ADDR>
-pmLookupName: [0] 60.0.32 [1] 60.2.0 [2] 60.18.7
-pmIDStr: 60.0.32
+pmLookupName: [0] PMID [1] PMID [2] PMID
+pmIDStr: PMID
 pmFetch: <pcp.pmapi.LP_pmResult object at ADDR>
 tv_sec NUMBER
 tv_nsec NUMBER
 numpmid 3
-pmid 60.0.32
+pmid PMID
 pmExtractValue: NUMBER
-pmGetChildren: ['all', 'percpu', 'pernode', 'uname']
-pmGetChildrenStatus: (['all', 'percpu', 'pernode', 'uname'], [1, 1, 1, 1])
+pmGetChildren: ['all', 'percpu', 'uname']
+pmGetChildrenStatus: (['all', 'percpu', 'uname'], [1, 1, 1])
 pmGetPMNSLocation: 2
 pmTraversePMNS: NUMBER
 pmLookupName: PM_ERR_NAME Unknown metric name <pcp.pmapi.c_INTEGER_Array_1 object at ADDR>
 pmLookupName relaxed mode ('no.such.metric.name', 'sample.bin')
 pmLookupName
- [0] name=kernel.all.load pmid=60.2.0
- [1] name=sample.bin pmid=29.0.6
- [2] name=kernel.percpu.cpu.sys pmid=60.0.2
- [3] name=mem.util.free pmid=60.1.2
+ [0] name=kernel.all.load pmid=PMID
+ [1] name=sample.bin pmid=PMID
+ [2] name=kernel.percpu.cpu.sys pmid=PMID
+ [3] name=mem.util.free pmid=PMID
 pmNameAll: kernel.all.load
 pmNameID: kernel.all.load
-kernel.all.load pmid=60.0.32 type=U32 indom=PM_INDOM_NULL sem=discrete units=
+kernel.all.load pmid=PMID type=U32 indom=PM_INDOM_NULL sem=discrete units=
 pmNameAll: sample.dupnames.five.bin
 pmNameAll: sample.dupnames.four.bin
 pmNameAll: sample.dupnames.three.bin
 pmNameAll: sample.dupnames.two.bin
 pmNameAll: sample.bin
 pmNameID: sample.dupnames.five.bin
-sample.dupnames.five.bin pmid=60.0.32 type=U32 indom=PM_INDOM_NULL sem=discrete units=
+sample.dupnames.five.bin pmid=PMID type=U32 indom=PM_INDOM_NULL sem=discrete units=
 pmNameAll: kernel.percpu.cpu.sys
 pmNameID: kernel.percpu.cpu.sys
-kernel.percpu.cpu.sys pmid=60.0.32 type=U32 indom=PM_INDOM_NULL sem=discrete units=
+kernel.percpu.cpu.sys pmid=PMID type=U32 indom=PM_INDOM_NULL sem=discrete units=
 pmNameAll: mem.util.free
 pmNameID: mem.util.free
-mem.util.free pmid=60.0.32 type=U32 indom=PM_INDOM_NULL sem=discrete units=
+mem.util.free pmid=PMID type=U32 indom=PM_INDOM_NULL sem=discrete units=
 pmGetInDom: ['bin-100', 'bin-200', 'bin-300', 'bin-400', 'bin-500', 'bin-600', 'bin-700', 'bin-800', 'bin-900']
-pmInDomStr: 60.2
+pmInDomStr: INDOM
 pmDelProfile: ok
 pmLookupInDom: 1
 pmNameInDom: 1 minute

@@ -213,8 +213,10 @@ Metric: hinv.ncpu (1.18.2)
 Type:		U32 -> DOUBLE
 
 === metric hinv.ncpu { type -> STRING } ===
-Specification error in configuration file (TMP.conf)
-[line 1] Expecting XXX (from PM_TYPE_XXX) in type clause
+PCP Archive Rewrite Specifications Summary
+
+Metric: hinv.ncpu (1.18.2)
+Type:		U32 -> STRING
 
 === metric hinv.ncpu { type -> 123 } ===
 Specification error in configuration file (TMP.conf)
