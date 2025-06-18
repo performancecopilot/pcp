@@ -1183,6 +1183,7 @@ PCP_CALL extern int pmExtendFetchGroup_event(pmFG, const char *, const char *,
 			const char *, const char *,
 			struct timespec[], pmAtomValue[], int, int[],
 			unsigned int, unsigned int *, int *);
+PCP_CALL extern int pmExtendFetchGroup_timeval(pmFG, struct timeval *);
 PCP_CALL extern int pmExtendFetchGroup_timespec(pmFG, struct timespec *);
 PCP_CALL extern int pmFetchGroup(pmFG);
 PCP_CALL extern int pmDestroyFetchGroup(pmFG);
