@@ -32,7 +32,7 @@ import subprocess
 import sys
 from ctypes import c_int
 from socket import gethostname
-from stat import ST_MODE, S_IXUSR, ST_CTIME
+from stat import ST_MODE, S_IXUSR
 import requests
 
 from pcp.pmapi import pmUnits, pmContext
@@ -922,12 +922,12 @@ class Source(object):
                 if not s[ST_MODE] & S_IXUSR:
                     self.pmda.err("cannot execute script '%s'" % self.path)
                     return
-            elif self.parse_url_time < s[ST_CTIME]:
+            elif self.parse_url_time < s.st_mtime_ns:
                 # (re)parse the URL from given file
                 self.parse_url_config(self.path)
-                self.parse_url_time = s[ST_CTIME]
+                self.parse_url_time = s.st_mtime_ns
         except Exception as e:
-            self.pmda.err("cannot read %s: %s" % (self.path, e))
+            self.pmda.err("cannot stat %s: %s" % (self.path, e))
             return
 
         # fetch the document
@@ -1023,7 +1023,7 @@ class OpenMetricsPMDA(PMDA):
         # now everything else may take time
         self.pmda_name = pmda_name
         self.config_dir = os.path.normpath(config)
-        self.config_dir_ctime = None
+        self.config_dir_mtime = 0.0
         self.timeout = timeout
 
         # a single central Session that all our sources can concurrently reuse
@@ -1132,26 +1132,26 @@ class OpenMetricsPMDA(PMDA):
             assert s == self.source_by_name[s.name]
 
 
-    def traverse(self, directory, ctime):
+    def traverse(self, directory, mtime):
         ''' Return list of files below dir, recursively '''
         ret = []
-        m = os.path.getctime(directory)
-        if ctime is None or m > ctime:
-            ctime = m
+        m = os.path.getmtime(directory)
+        if mtime is None or m > mtime:
+            mtime = m
 
         for path, subdirs, files in os.walk(directory):
             for f in files:
                 if not f.startswith("."):
                     fname = os.path.join(path, f)
-                    m = os.path.getctime(fname)
-                    if ctime is None or m > ctime:
-                        ctime = m
+                    m = os.path.getmtime(fname)
+                    if mtime is None or m > mtime:
+                        mtime = m
                     ret.append(fname)
             for d in subdirs:
-                m, _ = self.traverse(os.path.join(path, d), ctime)
-                if ctime is None or m > ctime:
-                    ctime = m
-        return ctime, ret
+                m, _ = self.traverse(os.path.join(path, d), mtime)
+                if mtime is None or m > mtime:
+                    mtime = m
+        return mtime, ret
 
     def rescan_confdir(self):
         '''Scan the configuration directories for any new .url files
@@ -1164,11 +1164,11 @@ class OpenMetricsPMDA(PMDA):
         '''
 
         traverse_time = time.time()
-        dir_ctime, conf_filelist = self.traverse(self.config_dir, self.config_dir_ctime)
+        dir_mtime, conf_filelist = self.traverse(self.config_dir, self.config_dir_mtime)
         traverse_time = time.time() - traverse_time
 
-        if self.config_dir_ctime is None or self.config_dir_ctime < dir_ctime:
-            self.config_dir_ctime = dir_ctime
+        if self.config_dir_mtime < dir_mtime:
+            self.config_dir_mtime = dir_mtime
         else: # no new or changed conf files, don't rescan directory
             return
 
